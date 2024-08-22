@@ -94,6 +94,7 @@ opaque
   ⇒ₙ-det d prodrecₕ = ⇒ₙ-inv-prodrec d
   ⇒ₙ-det d natrecₕ = ⇒ₙ-inv-natrec d
   ⇒ₙ-det d (unitrecₕ x) = ⇒ₙ-inv-unitrec d
+  ⇒ₙ-det d emptyrecₕ = ⇒ₙ-inv-emptyrec d
   ⇒ₙ-det d Jₕ = ⇒ₙ-inv-J d
   ⇒ₙ-det d Kₕ = ⇒ₙ-inv-K d
   ⇒ₙ-det d []-congₕ = ⇒ₙ-inv-[]-cong d
@@ -215,6 +216,7 @@ opaque
   ⇒ₙ-⦅⦆-≡ prodrecₕ = refl
   ⇒ₙ-⦅⦆-≡ natrecₕ = refl
   ⇒ₙ-⦅⦆-≡ (unitrecₕ _) = refl
+  ⇒ₙ-⦅⦆-≡ emptyrecₕ = refl
   ⇒ₙ-⦅⦆-≡ Jₕ = refl
   ⇒ₙ-⦅⦆-≡ Kₕ = refl
   ⇒ₙ-⦅⦆-≡ []-congₕ = refl
@@ -251,6 +253,7 @@ opaque
   wk1-⇒ₙ prodrecₕ = prodrecₕ
   wk1-⇒ₙ natrecₕ = natrecₕ
   wk1-⇒ₙ (unitrecₕ no-η) = unitrecₕ no-η
+  wk1-⇒ₙ emptyrecₕ = emptyrecₕ
   wk1-⇒ₙ Jₕ = Jₕ
   wk1-⇒ₙ Kₕ = Kₕ
   wk1-⇒ₙ []-congₕ = []-congₕ
@@ -278,6 +281,7 @@ opaque
   wk1●-⇒ₙ prodrecₕ = prodrecₕ
   wk1●-⇒ₙ natrecₕ = natrecₕ
   wk1●-⇒ₙ (unitrecₕ no-η) = unitrecₕ no-η
+  wk1●-⇒ₙ emptyrecₕ = emptyrecₕ
   wk1●-⇒ₙ Jₕ = Jₕ
   wk1●-⇒ₙ Kₕ = Kₕ
   wk1●-⇒ₙ []-congₕ = []-congₕ
@@ -331,6 +335,7 @@ opaque
   ++-⇒ₙ S₀ prodrecₕ = prodrecₕ
   ++-⇒ₙ S₀ natrecₕ = natrecₕ
   ++-⇒ₙ S₀ (unitrecₕ no-η) = unitrecₕ no-η
+  ++-⇒ₙ S₀ emptyrecₕ = emptyrecₕ
   ++-⇒ₙ S₀ Jₕ = Jₕ
   ++-⇒ₙ S₀ Kₕ = Kₕ
   ++-⇒ₙ S₀ []-congₕ = []-congₕ
@@ -360,6 +365,7 @@ opaque
   ++sucₛ-⇒ₙ prodrecₕ = prodrecₕ
   ++sucₛ-⇒ₙ natrecₕ = natrecₕ
   ++sucₛ-⇒ₙ (unitrecₕ no-η) = unitrecₕ no-η
+  ++sucₛ-⇒ₙ emptyrecₕ = emptyrecₕ
   ++sucₛ-⇒ₙ Jₕ = Jₕ
   ++sucₛ-⇒ₙ Kₕ = Kₕ
   ++sucₛ-⇒ₙ []-congₕ = []-congₕ
@@ -439,6 +445,7 @@ opaque
   ⇒ₙ-Heap≡ prodrecₕ = refl
   ⇒ₙ-Heap≡ natrecₕ = refl
   ⇒ₙ-Heap≡ (unitrecₕ x) = refl
+  ⇒ₙ-Heap≡ emptyrecₕ = refl
   ⇒ₙ-Heap≡ Jₕ = refl
   ⇒ₙ-Heap≡ Kₕ = refl
   ⇒ₙ-Heap≡ []-congₕ = refl
@@ -478,6 +485,7 @@ opaque
   ~ʰ-⇒ₙ prodrecₕ H~H″              = prodrecₕ
   ~ʰ-⇒ₙ natrecₕ H~H″               = natrecₕ
   ~ʰ-⇒ₙ (unitrecₕ no-η) H~H″       = unitrecₕ no-η
+  ~ʰ-⇒ₙ emptyrecₕ H~H″                    = emptyrecₕ
   ~ʰ-⇒ₙ Jₕ H~H″                    = Jₕ
   ~ʰ-⇒ₙ Kₕ H~H″                    = Kₕ
   ~ʰ-⇒ₙ []-congₕ H~H″              = []-congₕ

@@ -120,6 +120,13 @@ opaque
     subst₂ (λ x y → _ ⨾ H ⊢ᵉ _ ⟨ _ ⟩∷ _ ↝ (x [ y ]₀))
       (PE.sym A≡A′) (PE.sym (wk-[]ₕ [ρ] t))
       (unitrecₑ ⊢u′ ⊢A′ no-η)
+  wk-⊢ᵉ {ρ} {H} {H′} {t} [ρ] (emptyrecₑ {A} ⊢A) =
+    case wk-liftₕ 0 [ρ] A of λ
+      A≡A′ →
+    case subst (λ x → _ ⊢ x) A≡A′ ⊢A of λ
+      ⊢A′ →
+    subst (_ ⨾ H ⊢ᵉ _ ⟨ _ ⟩∷ _ ↝_)
+      (PE.sym A≡A′) (emptyrecₑ ⊢A′)
   wk-⊢ᵉ {ρ} {H} {Δ} {t = w} [ρ] (Jₑ {E} {A} {B} {t} {u} {v} {p} {q} ⊢u ⊢B) =
     case wk-liftₕ 0 [ρ] u of λ
       u≡u′ →

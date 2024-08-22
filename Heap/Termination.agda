@@ -100,16 +100,21 @@ opaque
           refl →
         _ , _ , _ , t″ , E′ , d₁ RPₜ.⇨* dₜ
           , PE.sym (PE.trans t′≡t″ (cong (wk E′ t″ [_]) (~ʰ-subst H~H′))) , v}
-      (var ¬d) →
+      (var d) →
+        case ~ʰ-lookup● H~H′ d of λ
+          d′ →
         case ▸-⇒* ▸s′ dₜ of λ
-          (_ , _ , _ , _ , ▸s″) →
-        case ▸s→y↦ subtraction-ok erased-assumption ▸s″ of λ
-          (_ , _ , _ , d) →
-        ⊥-elim (¬d (~ʰ-lookup (~ʰ-sym H~H′) (↦[]→↦ d)))
-      emptyrecₙ →
-        case inversion-emptyrec ⊢t″ of λ
-          (_ , ⊢∷Empty , _) →
-        ⊥-elim (consistent _ ⊢∷Empty)
+              (_ , _ , _ , _ , ▸s″@(▸H , _ , ▸S , _)) →
+        case erased-assumption of λ where
+          (inj₁ ¬eh) → ⊥-elim (¬erased-heap→¬↦● ⦃ neh = ¬eh ⦄ ▸H d′)
+          (inj₂ nem) →
+            case ▸s● subtraction-ok d′ ▸s″ of λ
+              (∣S∣≡𝟘 , _) →
+            case ▸∣S∣≢𝟘 nem ▸S of λ where
+              (inj₁ ∣S∣≢𝟘) →
+                ⊥-elim (∣S∣≢𝟘 ∣S∣≡𝟘)
+              (inj₂ (er∈S , _)) →
+                ⊥-elim (⊢emptyrec₀∉S {E = E′} consistent ⊢s″ er∈S)
       (unitrec-ηₙ {u = u} η) →
         case inversion-unitrec ⊢t″ of λ
           (⊢A , ⊢t , ⊢u , B≡) →

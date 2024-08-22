@@ -89,6 +89,7 @@ data _▸ᵉ[_]_ {n : Nat} : (γ : Conₘ n) (m : Mode) (e : Elim n) → Set a w
           → θ ∙ (⌜ 𝟘ᵐ? ⌝ · q′) ▸[ 𝟘ᵐ? ] A
           → wkᶜ E (nrᶜ p r γ δ 𝟘ᶜ) ▸ᵉ[ m ] natrecₑ p q′ r A z s E
   unitrecₑ : γ ▸[ m ] u → Unitrec-allowed m p q → ¬ Unitʷ-η → wkᶜ E γ ▸ᵉ[ m ] unitrecₑ p q A u E
+  emptyrecₑ : Emptyrec-allowed m p → 𝟘ᶜ ▸ᵉ[ m ] emptyrecₑ p A E
   Jₑ : γ ▸[ m ] u → wkᶜ E γ ▸ᵉ[ m ] Jₑ p q A t B u v E
   Kₑ : γ ▸[ m ] u → wkᶜ E γ ▸ᵉ[ m ] Kₑ p A t B u E
   []-congₑ : []-cong-allowed-mode s′ m → 𝟘ᶜ ▸ᵉ[ m ] []-congₑ s′ A t u E

@@ -68,7 +68,7 @@ opaque mutual
 
 
   normalize-var (H ∙●) y0 =
-    _ , var x0 , id  , ε , var (λ ()) , id
+    _ , var x0 , id  , ε , var here , id
 
   normalize-var (H ∙●) (y +1) =
     case normalize-var H y of λ
@@ -82,8 +82,8 @@ opaque mutual
         case State-injectivity s≡s′ of λ {
           (_ , refl , refl , _) →
         case n′ of λ {
-          (var ¬d) →
-        _ , var (y +1) , id , ε , var ¬d , id }}
+          (var d) →
+        _ , var (y +1) , id , ε , var d , id }}
 
 
   normalize : (H : Heap k m) (t : Term n) (E : Env m n) (S : Stack m)
@@ -141,7 +141,9 @@ opaque mutual
       (_ , _ , _ , _ , n , d) →
     _ , _ , _ , _ , n , (natrecₕ ⇨ d)
   normalize H (emptyrec p A t) E S =
-    _ , _ , _ , _ , emptyrecₙ , id
+    case normalize H t E (emptyrecₑ p A E ∙ S) of λ
+      (_ , _ , _ , _ , n , d) →
+    _ , _ , _ , _ , n , emptyrecₕ ⇨ d
   normalize H rfl E S =
     _ , rfl , E , S , val rflᵥ , id
   normalize H (J p q A t B u v w) E S =

@@ -107,6 +107,7 @@ module _ (ℕ-fullred : Bool) where
       bisim₁ₙ Rₜ.prodrecₕ        = _ , Rₙₜ.prodrecₕ , ~ʰ-refl
       bisim₁ₙ Rₜ.natrecₕ         = _ , Rₙₜ.natrecₕ , ~ʰ-refl
       bisim₁ₙ (Rₜ.unitrecₕ no-η) = _ , Rₙₜ.unitrecₕ no-η , ~ʰ-refl
+      bisim₁ₙ Rₜ.emptyrecₕ       = _ , Rₙₜ.emptyrecₕ , ~ʰ-refl
       bisim₁ₙ Rₜ.Jₕ              = _ , Rₙₜ.Jₕ , ~ʰ-refl
       bisim₁ₙ Rₜ.Kₕ              = _ , Rₙₜ.Kₕ , ~ʰ-refl
       bisim₁ₙ Rₜ.[]-congₕ        = _ , Rₙₜ.[]-congₕ , ~ʰ-refl
@@ -200,18 +201,19 @@ module _ (ℕ-fullred : Bool) where
               → γ ⨾ δ ⨾ η ▸[ m ] ⟨ H″ , t , E , S ⟩
               → ∃ λ H‴ → ⟨ H″ , t , E , S ⟩ Rₜ.⇒ₙ ⟨ H‴ , t′ , E′ , S′ ⟩ × H′ ~ʰ H‴
       bisim₂ₙ (Rₙₜ.varₕ′ d) H~H′ ▸s =
-        case ▸↦→↦[] subtraction-ok erased-assumption (~ʰ-lookup H~H′ d) ▸s of λ
-          (_ , d′) →
+        case ▸↦→↦[] subtraction-ok (~ʰ-lookup H~H′ d) ▸s .proj₂ of λ
+          d′ →
         _ , Rₜ.varₕ d′ , ~ʰ-trans H~H′ (update-~ʰ d′)
-      bisim₂ₙ Rₙₜ.appₕ H~H′ ▸s            = _ , Rₜ.appₕ , H~H′
-      bisim₂ₙ Rₙₜ.fstₕ H~H′ ▸s            = _ , Rₜ.fstₕ , H~H′
-      bisim₂ₙ Rₙₜ.sndₕ H~H′ ▸s            = _ , Rₜ.sndₕ , H~H′
-      bisim₂ₙ Rₙₜ.prodrecₕ H~H′ ▸s        = _ , Rₜ.prodrecₕ , H~H′
-      bisim₂ₙ Rₙₜ.natrecₕ H~H′ ▸s         = _ , Rₜ.natrecₕ , H~H′
-      bisim₂ₙ (Rₙₜ.unitrecₕ no-η) H~H′ ▸s = _ , Rₜ.unitrecₕ no-η , H~H′
-      bisim₂ₙ Rₙₜ.Jₕ H~H′ ▸s              = _ , Rₜ.Jₕ , H~H′
-      bisim₂ₙ Rₙₜ.Kₕ H~H′ ▸s              = _ , Rₜ.Kₕ , H~H′
-      bisim₂ₙ Rₙₜ.[]-congₕ H~H′ ▸s        = _ , Rₜ.[]-congₕ , H~H′
+      bisim₂ₙ Rₙₜ.appₕ H~H′ _            = _ , Rₜ.appₕ , H~H′
+      bisim₂ₙ Rₙₜ.fstₕ H~H′ _            = _ , Rₜ.fstₕ , H~H′
+      bisim₂ₙ Rₙₜ.sndₕ H~H′ _            = _ , Rₜ.sndₕ , H~H′
+      bisim₂ₙ Rₙₜ.prodrecₕ H~H′ _        = _ , Rₜ.prodrecₕ , H~H′
+      bisim₂ₙ Rₙₜ.natrecₕ H~H′ _         = _ , Rₜ.natrecₕ , H~H′
+      bisim₂ₙ (Rₙₜ.unitrecₕ no-η) H~H′ _ = _ , Rₜ.unitrecₕ no-η , H~H′
+      bisim₂ₙ Rₙₜ.emptyrecₕ H~H′ _       = _ , Rₜ.emptyrecₕ , H~H′
+      bisim₂ₙ Rₙₜ.Jₕ H~H′ _              = _ , Rₜ.Jₕ , H~H′
+      bisim₂ₙ Rₙₜ.Kₕ H~H′ _              = _ , Rₜ.Kₕ , H~H′
+      bisim₂ₙ Rₙₜ.[]-congₕ H~H′ _        = _ , Rₜ.[]-congₕ , H~H′
 
     opaque
 
@@ -303,16 +305,12 @@ module _ where
               → ∃₃ λ m n (s′ : State _ m n) → s Rₙₜ.⇒ᵥ s′ × u PE.≡ ⦅ s′ ⦆
       bisim₄ᵥ {s = ⟨ H , _ , E , ε ⟩} _ d (val v) ⊢s =
         ⊥-elim (whnfRedTerm d (Value→Whnf (substValue (toSubstₕ H) (wkValue E v)) .proj₁))
-      bisim₄ᵥ {s = ⟨ _ , _ , _ , e ∙ S ⟩} _ d (val v) ⊢s =
-        case ⊢Value-⇒ᵥ ⊢s v of λ
+      bisim₄ᵥ {s = ⟨ _ , _ , _ , e ∙ S ⟩} consistent d (val v) ⊢s =
+        case ⊢Value-⇒ᵥ consistent ⊢s v of λ
           (_ , _ , _ , d′) →
         _ , _ , _ , d′ , whrDetTerm d (⇒ᵥ→⇒ ⊢s d′)
-      bisim₄ᵥ _ d (var ¬d) (_ , _ , _ , ⊢S) =
-        ⊥-elim (neRedTerm d (NeutralAt→Neutral (toSubstₕ-NeutralAt ¬d (⊢⦅⦆ˢ-NeutralAt ⊢S var))))
-      bisim₄ᵥ consistent d emptyrecₙ (_ , _ , ⊢t , _) =
-        case inversion-emptyrec ⊢t of λ
-          (_ , ⊢t , _) →
-        ⊥-elim (consistent _ ⊢t)
+      bisim₄ᵥ _ d (var d′) (_ , _ , _ , ⊢S) =
+        ⊥-elim (neRedTerm d (NeutralAt→Neutral (toSubstₕ-NeutralAt d′ (⊢⦅⦆ˢ-NeutralAt ⊢S var))))
       bisim₄ᵥ _ d (unitrec-ηₙ η) ⊢s =
         case Rₙₜ.unitrec-ηₕ η of λ
           d′ →
@@ -408,6 +406,7 @@ module _ ⦃ _ : Has-nr M semiring-with-meet ⦄
     bisim₇ₙ Rₙₛ.prodrecₕ = Rₛ.prodrecₕ
     bisim₇ₙ Rₙₛ.natrecₕ = Rₛ.natrecₕ
     bisim₇ₙ (Rₙₛ.unitrecₕ no-η) = Rₛ.unitrecₕ no-η
+    bisim₇ₙ Rₙₛ.emptyrecₕ = Rₛ.emptyrecₕ
     bisim₇ₙ Rₙₛ.Jₕ = Rₛ.Jₕ
     bisim₇ₙ Rₙₛ.Kₕ = Rₛ.Kₕ
     bisim₇ₙ Rₙₛ.[]-congₕ = Rₛ.[]-congₕ

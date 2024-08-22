@@ -147,20 +147,20 @@ opaque
       (⊢u , ⊢A , no-η , B≡ , C≡) →
     ⊢u , ⊢A , no-η , B≡ , λ ⊢t → trans (sym ≡C) (C≡ ⊢t)
 
--- opaque
+opaque
 
---   -- Inversion of emptyrec
+  -- Inversion of emptyrec
 
---   inversion-emptyrecₑ : Δ ⨾ H ⊢ᵉ emptyrecₑ p A E ⟨ t ⟩∷ B ↝ C
---                       → Δ ⊢ wk E A [ H ]ₕ
---                       × B PE.≡ Empty
---                       × (Δ ⊢ C ≡ wk E A [ H ]ₕ)
---   inversion-emptyrecₑ (emptyrecₑ ⊢A) =
---     ⊢A , PE.refl , refl ⊢A
---   inversion-emptyrecₑ (conv ⊢e ≡C) =
---     case inversion-emptyrecₑ ⊢e of λ
---       (⊢A , B≡ , C≡) →
---     ⊢A , B≡ , trans (sym ≡C) C≡
+  inversion-emptyrecₑ : Δ ⨾ H ⊢ᵉ emptyrecₑ p A E ⟨ t ⟩∷ B ↝ C
+                      → Δ ⊢ wk E A [ H ]ₕ
+                      × B PE.≡ Empty
+                      × (Δ ⊢ C ≡ wk E A [ H ]ₕ)
+  inversion-emptyrecₑ (emptyrecₑ ⊢A) =
+    ⊢A , PE.refl , refl ⊢A
+  inversion-emptyrecₑ (conv ⊢e ≡C) =
+    case inversion-emptyrecₑ ⊢e of λ
+      (⊢A , B≡ , C≡) →
+    ⊢A , B≡ , trans (sym ≡C) C≡
 
 opaque
 

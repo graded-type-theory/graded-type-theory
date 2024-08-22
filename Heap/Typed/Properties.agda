@@ -27,6 +27,7 @@ open import Definition.Typed.Consequences.Substitution TR
 open import Definition.Typed.Consequences.Syntactic TR
 
 open import Heap.Typed UR TR ℕ-fullred
+open import Heap.Typed.Inversion UR TR ℕ-fullred
 open import Heap.Untyped type-variant UR
 open import Heap.Untyped.Properties type-variant UR
 
@@ -46,6 +47,7 @@ private variable
   S : Stack _
   s : State _ _ _
   x : Fin _
+  E : Env _ _
 
 opaque
 
@@ -91,6 +93,8 @@ opaque
     natrecⱼ ⊢A ⊢z ⊢s ⊢t
   ⊢⦅⦆ᵉ (unitrecₑ ⊢u ⊢A no-η) ⊢t =
     unitrecⱼ′ ⊢A ⊢t ⊢u
+  ⊢⦅⦆ᵉ (emptyrecₑ ⊢A) ⊢t =
+    emptyrecⱼ ⊢A ⊢t
   ⊢⦅⦆ᵉ (Jₑ ⊢u ⊢B) ⊢t =
     Jⱼ′ ⊢B ⊢u ⊢t
   ⊢⦅⦆ᵉ (Kₑ ⊢u ⊢B ok) ⊢t =
@@ -200,6 +204,8 @@ opaque
     natrec-cong′ (refl ⊢A) (refl ⊢z) (refl ⊢s) t≡u
   ⊢⦅⦆ᵉ-cong (unitrecₑ ⊢v ⊢A no-η) t≡u =
     unitrec-cong′ (refl ⊢A) t≡u (refl ⊢v)
+  ⊢⦅⦆ᵉ-cong (emptyrecₑ ⊢A) t≡u =
+    emptyrec-cong (refl ⊢A) t≡u
   ⊢⦅⦆ᵉ-cong (Jₑ ⊢u ⊢B) t≡u =
     case inversion-Id (syntacticEqTerm t≡u .proj₁) of λ
       (⊢A , ⊢t , ⊢v) →
@@ -249,6 +255,8 @@ opaque
     natrec-subst ⊢A ⊢z ⊢s d
   ⊢⦅⦆ᵉ-subst (unitrecₑ ⊢u ⊢A no-η) d =
     unitrec-subst′ ⊢A ⊢u d no-η
+  ⊢⦅⦆ᵉ-subst (emptyrecₑ ⊢A) d =
+    emptyrec-subst ⊢A d
   ⊢⦅⦆ᵉ-subst (Jₑ ⊢u ⊢B) d =
     J-subst′ ⊢B ⊢u d
   ⊢⦅⦆ᵉ-subst (Kₑ ⊢u ⊢B ok) d =
@@ -295,6 +303,8 @@ opaque
   ⊢ᵉ-convₜ (unitrecₑ ⊢v ⊢A no-η) t≡u =
     conv (unitrecₑ ⊢v ⊢A no-η)
       (substTypeEq (refl ⊢A) (sym t≡u))
+  ⊢ᵉ-convₜ (emptyrecₑ ⊢A) t≡u =
+    emptyrecₑ ⊢A
   ⊢ᵉ-convₜ {Δ} {H} {t} {u} (Jₑ ⊢u ⊢B) t≡u =
     case inversion-Id (syntacticEqTerm t≡u .proj₁) of λ
       (⊢A , ⊢t , ⊢v) →
@@ -339,6 +349,7 @@ opaque
   ⊢whnf⦅⦆ᵉ (prodrecₑ _ _) ¬n (ne (prodrecₙ n)) = ¬n n
   ⊢whnf⦅⦆ᵉ (natrecₑ _ _ _) ¬n (ne (natrecₙ n)) = ¬n n
   ⊢whnf⦅⦆ᵉ (unitrecₑ _ _ _) ¬n (ne (unitrecₙ _ n)) = ¬n n
+  ⊢whnf⦅⦆ᵉ (emptyrecₑ _) ¬n (ne (emptyrecₙ n)) = ¬n n
   ⊢whnf⦅⦆ᵉ (Jₑ _ _) ¬n (ne (Jₙ n)) = ¬n n
   ⊢whnf⦅⦆ᵉ (Kₑ _ _ _) ¬n (ne (Kₙ n)) = ¬n n
   ⊢whnf⦅⦆ᵉ ([]-congₑ _) ¬n (ne ([]-congₙ n)) = ¬n n
@@ -367,6 +378,7 @@ opaque
   ⊢⦅⦆ᵉ-NeutralAt (prodrecₑ _ _) n = prodrecₙ n
   ⊢⦅⦆ᵉ-NeutralAt (natrecₑ _ _ _) n = natrecₙ n
   ⊢⦅⦆ᵉ-NeutralAt (unitrecₑ _ _ x) n = unitrecₙ x n
+  ⊢⦅⦆ᵉ-NeutralAt (emptyrecₑ _) n = emptyrecₙ n
   ⊢⦅⦆ᵉ-NeutralAt (Jₑ _ _) n = Jₙ n
   ⊢⦅⦆ᵉ-NeutralAt (Kₑ _ _ _) n = Kₙ n
   ⊢⦅⦆ᵉ-NeutralAt ([]-congₑ _) n = []-congₙ n
@@ -381,3 +393,23 @@ opaque
                 → NeutralAt x (⦅ S ⦆ˢ t)
   ⊢⦅⦆ˢ-NeutralAt ε n = n
   ⊢⦅⦆ˢ-NeutralAt (⊢e ∙ ⊢S) n = ⊢⦅⦆ˢ-NeutralAt ⊢S (⊢⦅⦆ᵉ-NeutralAt ⊢e n)
+
+opaque
+
+  -- In a constistent context, there is no well-typed stack and head of
+  -- matching type containing emptyrec 𝟘
+
+  ⊢ˢemptyrec₀∉S : Consistent Δ → Δ ⨾ H ⊢ S ⟨ t ⟩∷ A ↝ B → Δ ⊢ t [ H ]ₕ ∷ A → emptyrec₀∈ S → ⊥
+  ⊢ˢemptyrec₀∉S consistent (⊢e ∙ _) ⊢t here =
+    case inversion-emptyrecₑ ⊢e of λ {
+      (_ , PE.refl , _) →
+    consistent _ ⊢t}
+  ⊢ˢemptyrec₀∉S consistent (⊢e ∙ ⊢S) ⊢t (there d) =
+    ⊢ˢemptyrec₀∉S consistent ⊢S (⊢⦅⦆ᵉ ⊢e ⊢t) d
+
+opaque
+
+  -- A version of the property above for well-typed states
+
+  ⊢emptyrec₀∉S : Consistent Δ → Δ ⨾ Γ ⊢ ⟨ H , t , E , S ⟩ ∷ A → emptyrec₀∈ S → ⊥
+  ⊢emptyrec₀∉S consistent (_ , _ , ⊢t , ⊢S) x = ⊢ˢemptyrec₀∉S consistent ⊢S ⊢t x

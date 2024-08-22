@@ -127,6 +127,15 @@ opaque
 
 opaque
 
+  -- Inversion of emptyrec
+
+  ⇒ₙ-inv-emptyrec : {t : Term n} {s : State _ _ m}
+                 → ⟨ H , emptyrec p A t , E , S ⟩ ⇒ₙ s
+                 → Σ (m ≡ n) λ m≡n → subst (State _ _) m≡n s ≡ ⟨ H , t , E , emptyrecₑ p A E ∙ S ⟩
+  ⇒ₙ-inv-emptyrec emptyrecₕ = refl , refl
+
+opaque
+
   -- Inversion of J
 
   ⇒ₙ-inv-J : {t : Term n} {s : State _ _ m}

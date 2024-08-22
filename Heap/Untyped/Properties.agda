@@ -268,6 +268,9 @@ opaque
     cong₂ (λ u A → unitrec p q A _ u)
       (sym (step-sgSubst _ _))
       (lifts-step-sgSubst 1 A)
+  ⦅⦆ᵉ-sgSubst (emptyrecₑ p A E) =
+    cong (λ A → emptyrec p A _)
+      (lifts-step-sgSubst 0 A)
   ⦅⦆ᵉ-sgSubst (Jₑ p q A t B u v E) =
     sym (cong₅ (λ A t B u v → J p q A t B u v _)
       (step-sgSubst A _) (step-sgSubst t _)
@@ -318,6 +321,8 @@ opaque
   ⦅⦆ᵉ-[,] (unitrecₑ p q A u E) =
     cong₂ (λ x y → unitrec p q x _ y)
       (lifts-step-[,] 1 A) (lifts-step-[,] 0 u)
+  ⦅⦆ᵉ-[,] (emptyrecₑ p A E) =
+    cong (λ A → emptyrec p A _) (lifts-step-[,] 0 A)
   ⦅⦆ᵉ-[,] (Jₑ p q A t B u v E) =
     cong₅ (λ A t B u v → J p q A t B u v _)
       (lifts-step-[,] 0 A) (lifts-step-[,] 0 t)
@@ -368,6 +373,8 @@ opaque
     cong₂ (λ A u → unitrec p q A _ u)
       (wk-comp (lift ρ) (lift E) A)
       (wk-comp ρ E u)
+  wk-⦅⦆ᵉ {ρ} (emptyrecₑ p A E) =
+    cong (λ A → emptyrec p A _) (wk-comp ρ E A)
   wk-⦅⦆ᵉ {ρ} (Jₑ p q A t B u v E) =
     cong₅ (λ A t B u v → J p q A t B u v _)
       (wk-comp ρ E A) (wk-comp ρ E t)
@@ -401,6 +408,8 @@ opaque
     cong (λ t → natrec _ _ _ _ _ _ t) t≡u
   ⦅⦆ᵉ-cong (unitrecₑ p q A u E) t≡u =
     cong (λ t → unitrec _ _ _ t _) t≡u
+  ⦅⦆ᵉ-cong (emptyrecₑ p A E) t≡u =
+    cong (emptyrec _ _) t≡u
   ⦅⦆ᵉ-cong (Jₑ p q A t B u v E) t≡u =
     cong (J _ _ _ _ _ _ _) t≡u
   ⦅⦆ᵉ-cong (Kₑ p A t B u E) t≡u =
@@ -441,6 +450,7 @@ opaque
   wk-∣e∣ ρ (prodrecₑ r p q A u E) = refl
   wk-∣e∣ ρ (natrecₑ p q r A z s E) = refl
   wk-∣e∣ ρ (unitrecₑ p q A u E) = refl
+  wk-∣e∣ ρ (emptyrecₑ p A E) = refl
   wk-∣e∣ ρ (Jₑ p q A t B u v E) = refl
   wk-∣e∣ ρ (Kₑ p A t B u E) = refl
   wk-∣e∣ ρ ([]-congₑ s A t u E) = refl
@@ -568,6 +578,7 @@ opaque
   ¬⦅⦆ᵉ-neutral (prodrecₑ r p q A u E) ¬n (prodrecₙ n) = ¬n n
   ¬⦅⦆ᵉ-neutral (natrecₑ p q r A z s E) ¬n (natrecₙ n) = ¬n n
   ¬⦅⦆ᵉ-neutral (unitrecₑ p q A u E) ¬n (unitrecₙ _ n) = ¬n n
+  ¬⦅⦆ᵉ-neutral (emptyrecₑ p A E) ¬n (emptyrecₙ n) = ¬n n
   ¬⦅⦆ᵉ-neutral (Jₑ p q A t B u v E) ¬n (Jₙ n) = ¬n n
   ¬⦅⦆ᵉ-neutral (Kₑ p A t B u E) ¬n (Kₙ n) = ¬n n
   ¬⦅⦆ᵉ-neutral ([]-congₑ s A t u E) ¬n ([]-congₙ n) = ¬n n
@@ -627,6 +638,15 @@ opaque
   ~ʰ-lookup (H~H′ ∙ _) here = here
   ~ʰ-lookup (H~H′ ∙ _) (there d) = there (~ʰ-lookup H~H′ d)
   ~ʰ-lookup (H~H′ ∙●) (there● d) = there● (~ʰ-lookup H~H′ d)
+
+opaque
+
+  -- Heap lookup to ● behaves the same on equal heaps
+
+  ~ʰ-lookup● : H ~ʰ H′ → H ⊢ y ↦● → H′ ⊢ y ↦●
+  ~ʰ-lookup● (H~H′ ∙●) here = here
+  ~ʰ-lookup● (H~H′ ∙ _) (there d) = there (~ʰ-lookup● H~H′ d)
+  ~ʰ-lookup● (H~H′ ∙●) (there● d) = there● (~ʰ-lookup● H~H′ d)
 
 opaque
 
@@ -719,16 +739,14 @@ opaque
 
   wk1-Normal : Normal ⟨ H , t , E , S ⟩ → Normal ⟨ H ∙ (p , c) , t , step E , wk1ˢ S ⟩
   wk1-Normal (val x) = val x
-  wk1-Normal (var ¬d) = var (λ { (there d) → ¬d d })
-  wk1-Normal emptyrecₙ = emptyrecₙ
+  wk1-Normal (var d) = var (there d)
   wk1-Normal (unitrec-ηₙ x) = unitrec-ηₙ x
 
 opaque
 
   wk1●-Normal : Normal ⟨ H , t , E , S ⟩ → Normal ⟨ H ∙● , t , step E , wk1ˢ S ⟩
   wk1●-Normal (val x) = val x
-  wk1●-Normal (var ¬d) = var (λ { (there● d) → ¬d d })
-  wk1●-Normal emptyrecₙ = emptyrecₙ
+  wk1●-Normal (var d) = var (there● d)
   wk1●-Normal (unitrec-ηₙ x) = unitrec-ηₙ x
 
 opaque
@@ -738,7 +756,6 @@ opaque
   Normal-stack : Normal ⟨ H , t , E , S ⟩ → Normal ⟨ H , t , E , S′ ⟩
   Normal-stack (val x) = val x
   Normal-stack (var x) = var x
-  Normal-stack emptyrecₙ = emptyrecₙ
   Normal-stack (unitrec-ηₙ x) = unitrec-ηₙ x
 
 opaque
@@ -750,42 +767,41 @@ opaque
 opaque
 
   toSubstₕ-erased : (H : Heap k m) (y : Fin m)
-                  → (∀ {n} {c : Closure _ n} → H ⊢ y ↦ c → ⊥)
-                  → ∃ λ y′ → toSubstₕ H y ≡ var y′
+                  → H ⊢ y ↦● → ∃ λ y′ → toSubstₕ H y ≡ var y′
   toSubstₕ-erased ε () _
-  toSubstₕ-erased (H ∙ c) y0 ¬d = ⊥-elim (¬d here)
-  toSubstₕ-erased (H ∙ c) (y +1) ¬d = toSubstₕ-erased H y (λ d → ¬d (there d))
-  toSubstₕ-erased (H ∙●) y0 ¬d = y0 , refl
-  toSubstₕ-erased (H ∙●) (y +1) ¬d =
-    case toSubstₕ-erased H y (λ d → ¬d (there● d)) of λ
+  toSubstₕ-erased (H ∙ c) y0 ()
+  toSubstₕ-erased (H ∙ c) (y +1) (there d) = toSubstₕ-erased H y d
+  toSubstₕ-erased (H ∙●) y0 d = y0 , refl
+  toSubstₕ-erased (H ∙●) (y +1) (there● d) =
+    case toSubstₕ-erased H y d of λ
       (y′ , ≡y′) →
     y′ +1 , cong wk1 ≡y′
 
 opaque
 
-  toSubstₕ-NeutralAt : (¬d : ∀ {n} {c : Closure _ n} → H ⊢ y ↦ c → ⊥)
+  toSubstₕ-NeutralAt : (d : H ⊢ y ↦●)
                      → NeutralAt y t
-                     → NeutralAt (toSubstₕ-erased H y ¬d .proj₁) (t [ H ]ₕ)
-  toSubstₕ-NeutralAt ¬d var with toSubstₕ-erased _ _ ¬d
+                     → NeutralAt (toSubstₕ-erased H y d .proj₁) (t [ H ]ₕ)
+  toSubstₕ-NeutralAt d var with toSubstₕ-erased _ _ d
   … | (x′ , ≡x′) =
     subst (NeutralAt _) (sym ≡x′) var
-  toSubstₕ-NeutralAt ¬d (∘ₙ n) =
-    ∘ₙ (toSubstₕ-NeutralAt ¬d n)
-  toSubstₕ-NeutralAt ¬d (fstₙ n) =
-    fstₙ (toSubstₕ-NeutralAt ¬d n)
-  toSubstₕ-NeutralAt ¬d (sndₙ n) =
-    sndₙ (toSubstₕ-NeutralAt ¬d n)
-  toSubstₕ-NeutralAt ¬d (natrecₙ n) =
-    natrecₙ (toSubstₕ-NeutralAt ¬d n)
-  toSubstₕ-NeutralAt ¬d (prodrecₙ n) =
-    prodrecₙ (toSubstₕ-NeutralAt ¬d n)
-  toSubstₕ-NeutralAt ¬d (emptyrecₙ n) =
-    emptyrecₙ (toSubstₕ-NeutralAt ¬d n)
-  toSubstₕ-NeutralAt ¬d (unitrecₙ x n) =
-    unitrecₙ x (toSubstₕ-NeutralAt ¬d n)
-  toSubstₕ-NeutralAt ¬d (Jₙ n) =
-    Jₙ (toSubstₕ-NeutralAt ¬d n)
-  toSubstₕ-NeutralAt ¬d (Kₙ n) =
-    Kₙ (toSubstₕ-NeutralAt ¬d n)
-  toSubstₕ-NeutralAt ¬d ([]-congₙ n) =
-    []-congₙ (toSubstₕ-NeutralAt ¬d n)
+  toSubstₕ-NeutralAt d (∘ₙ n) =
+    ∘ₙ (toSubstₕ-NeutralAt d n)
+  toSubstₕ-NeutralAt d (fstₙ n) =
+    fstₙ (toSubstₕ-NeutralAt d n)
+  toSubstₕ-NeutralAt d (sndₙ n) =
+    sndₙ (toSubstₕ-NeutralAt d n)
+  toSubstₕ-NeutralAt d (natrecₙ n) =
+    natrecₙ (toSubstₕ-NeutralAt d n)
+  toSubstₕ-NeutralAt d (prodrecₙ n) =
+    prodrecₙ (toSubstₕ-NeutralAt d n)
+  toSubstₕ-NeutralAt d (emptyrecₙ n) =
+    emptyrecₙ (toSubstₕ-NeutralAt d n)
+  toSubstₕ-NeutralAt d (unitrecₙ x n) =
+    unitrecₙ x (toSubstₕ-NeutralAt d n)
+  toSubstₕ-NeutralAt d (Jₙ n) =
+    Jₙ (toSubstₕ-NeutralAt d n)
+  toSubstₕ-NeutralAt d (Kₙ n) =
+    Kₙ (toSubstₕ-NeutralAt d n)
+  toSubstₕ-NeutralAt d ([]-congₙ n) =
+    []-congₙ (toSubstₕ-NeutralAt d n)

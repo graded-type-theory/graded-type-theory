@@ -65,6 +65,8 @@ data _⇒ₙ_ {k m n} : State k m n → State k m n′ → Set a where
   unitrecₕ : ¬ Unitʷ-η
            → ⟨ H , unitrec p q A t u , E , S                      ⟩
            ⇒ₙ ⟨ H , t                 , E , unitrecₑ p q A u E ∙ S ⟩
+  emptyrecₕ : ⟨ H , emptyrec p A t , E , S ⟩
+            ⇒ₙ ⟨ H , t , E , emptyrecₑ p A E ∙ S ⟩
   Jₕ : ⟨ H , J p q A t B u v w , E , S ⟩
      ⇒ₙ ⟨ H , w , E , Jₑ p q A t B u v E ∙ S ⟩
   Kₕ : ⟨ H , K p A t B u v , E , S ⟩

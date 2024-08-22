@@ -70,6 +70,8 @@ opaque
     subst (_▸ᵉ[ _ ] _) (wk-•ᶜ ρ E) (natrecₑ ▸z ▸s ▸A)
   wk-▸ᵉ ρ (unitrecₑ {E} ▸u ok no-η) =
     subst (_▸ᵉ[ _ ] _) (wk-•ᶜ ρ E) (unitrecₑ ▸u ok no-η)
+  wk-▸ᵉ ρ (emptyrecₑ ok) =
+    subst (_▸ᵉ[ _ ] _) (sym (wk-𝟘ᶜ ρ)) (emptyrecₑ ok)
   wk-▸ᵉ ρ (Jₑ {E} ▸u) =
     subst (_▸ᵉ[ _ ] _) (wk-•ᶜ ρ E) (Jₑ ▸u)
   wk-▸ᵉ ρ (Kₑ {E} ▸u) =

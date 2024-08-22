@@ -71,6 +71,8 @@ data _⨾_⊢ᵉ_⟨_⟩∷_↝_ (Δ : Con Term k) (H : Heap k m) :
            → Δ ∙ Unitʷ ⊢ wk (lift E) A [ H ]⇑ₕ
            → ¬ Unitʷ-η
            → Δ ⨾ H ⊢ᵉ unitrecₑ p q A u E ⟨ t ⟩∷ Unitʷ ↝ (wk (lift E) A [ H ]⇑ₕ [ t [ H ]ₕ ]₀)
+  emptyrecₑ : Δ ⊢ wk E A [ H ]ₕ
+            → Δ ⨾ H ⊢ᵉ emptyrecₑ p A E ⟨ t ⟩∷ Empty ↝ wk E A [ H ]ₕ
   Jₑ : let A′ = wk E A [ H ]ₕ
            B′ = wk (liftn E 2) B [ H ]⇑²ₕ
            t′ = wk E t [ H ]ₕ

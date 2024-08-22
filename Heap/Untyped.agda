@@ -94,6 +94,7 @@ data Elim (m : Nat) : Set a where
   natrecₑ   : (p q r : M) (A : Term (1+ n)) (z : Term n)
               (s : Term (2+ n)) (E : Env m n) → Elim m
   unitrecₑ  : (p q : M) (A : Term (1+ n)) (u : Term n) (E : Env m n) → Elim m
+  emptyrecₑ : (p : M) (A : Term n) (E : Env m n) → Elim m
   Jₑ        : (p q : M) (A t : Term n) (B : Term (2+ n))
               (u v : Term n) (E : Env m n) → Elim m
   Kₑ        : (p : M) (A t : Term n) (B : Term (1+ n))
@@ -110,6 +111,7 @@ wkᵉ ρ (sndₑ p) = sndₑ p
 wkᵉ ρ (natrecₑ p q r A z s E) = natrecₑ p q r A z s (ρ • E)
 wkᵉ ρ (prodrecₑ r p q A u E) = prodrecₑ r p q A u (ρ • E)
 wkᵉ ρ (unitrecₑ p q A u E) = unitrecₑ p q A u (ρ • E)
+wkᵉ ρ (emptyrecₑ p A E) = emptyrecₑ p A (ρ • E)
 wkᵉ ρ (Jₑ p q A t B u v E) = Jₑ p q A t B u v (ρ • E)
 wkᵉ ρ (Kₑ p A t B u E) = Kₑ p A t B u (ρ • E)
 wkᵉ ρ ([]-congₑ s A t u E) = []-congₑ s A t u (ρ • E)
@@ -154,6 +156,7 @@ wk2ᵉ = wkᵉ (step (step id))
 ∣ prodrecₑ r _ _ _ _ _ ∣ᵉ = r
 ∣ natrecₑ p _ r _ _ _ _ ∣ᵉ = nr₂ p r
 ∣ unitrecₑ p _ _ _ _ ∣ᵉ = p
+∣ emptyrecₑ p _ _ ∣ᵉ = p
 ∣ Jₑ p q _ _ _ _ _ _ ∣ᵉ = ∣∣ᵉ-J (erased-matches-for-J 𝟙ᵐ) p q
 ∣ Kₑ p _ _ _ _ _ ∣ᵉ = ∣∣ᵉ-K (erased-matches-for-K 𝟙ᵐ) p
 ∣ []-congₑ _ _ _ _ _ ∣ᵉ = 𝟘
@@ -195,6 +198,17 @@ sucₛ : Nat → Stack m
 sucₛ 0 = ε
 sucₛ (1+ n) = sucₑ ∙ sucₛ n
 
+private variable
+  E E′ : Env _ _
+  e : Elim _
+  S : Stack _
+
+-- A utility predicate: stacks containing erased emptyrec
+
+data emptyrec₀∈_ : (S : Stack m) → Set a where
+  here : emptyrec₀∈ (emptyrecₑ 𝟘 A E ∙ S)
+  there : emptyrec₀∈ S → emptyrec₀∈ (e ∙ S)
+
 ------------------------------------------------------------------------
 -- Heaps
 
@@ -218,8 +232,6 @@ private variable
   H H′ : Heap _ _
   c : Closure _ _
   c′ : Closureₘ _ _
-  E E′ : Env _ _
-  S : Stack _
   y : Ptr _
 
 -- Heap lookup (with grade update)
@@ -243,6 +255,11 @@ data _⊢_↦_ : (H : Heap k m) (y : Ptr m) (c : Closure m n) → Set a where
         → H ∙ c′ ⊢ y +1 ↦ wk1ᶜ c
   there● : H ⊢ y ↦ c
          → H ∙● ⊢ y +1 ↦ wk1ᶜ c
+
+data _⊢_↦● : (H : Heap k m) (y : Ptr m) → Set a where
+  here : H ∙● ⊢ y0 ↦●
+  there : H ⊢ y ↦● → H ∙ c′ ⊢ y +1 ↦●
+  there● : H ⊢ y ↦● → H ∙● ⊢ y +1 ↦●
 
 
 -- Equality of heaps up to grades
@@ -317,6 +334,8 @@ record State (k m n : Nat) : Set a where
   natrec p q r (wk (lift E) A) (wk E z) (wk (liftn E 2) s) t
 ⦅ unitrecₑ p q A u E ⦆ᵉ t =
   unitrec p q (wk (lift E) A) t (wk E u)
+⦅ emptyrecₑ p A E ⦆ᵉ t =
+  emptyrec p (wk E A) t
 ⦅ Jₑ p q A t B u v E ⦆ᵉ w =
   J p q (wk E A) (wk E t) (wk (liftn E 2) B) (wk E u) (wk E v) w
 ⦅ Kₑ p A t B u E ⦆ᵉ v =
@@ -356,10 +375,11 @@ data Value {n : Nat} : (t : Term n) → Set a where
   Emptyᵥ : Value Empty
   Idᵥ : Value (Id A t u)
 
--- States in normal form
+-- States in normal form are either values, variables without entries in
+-- the heap or unitrec when the weak unit type has η-equality.
+-- I.e. states which do not reduce with _⇒ₙ_
 
 data Normal : (State k m n) → Set a where
   val : Value t → Normal ⟨ H , t , E , S ⟩
-  var : (∀ {n} {c : Closure _ n} → H ⊢ wkVar E x ↦ c → ⊥) → Normal ⟨ H , var x , E , S ⟩
-  emptyrecₙ : Normal ⟨ H , emptyrec p A t , E , S ⟩
+  var : H ⊢ wkVar E x ↦● → Normal ⟨ H , var x , E , S ⟩
   unitrec-ηₙ : Unitʷ-η → Normal ⟨ H , unitrec p q A t u , E , S ⟩

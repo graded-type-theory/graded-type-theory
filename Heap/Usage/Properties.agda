@@ -17,6 +17,8 @@ module Heap.Usage.Properties
   ⦃ _ : Has-factoring-nr M semiring-with-meet ⦄
   where
 
+open Usage-restrictions UR
+
 open import Definition.Untyped M
 open import Graded.Context 𝕄
 open import Graded.Context.Properties 𝕄
@@ -81,6 +83,15 @@ opaque
       lemma : n ≡ 0 ⊎ T erased-heap → 𝟘ᶜ ▸ʰ erasedHeap n
       lemma (inj₁ refl) = ε
       lemma (inj₂ x) = ▸erasedHeap ⦃ x ⦄
+
+opaque
+
+  -- If heaps are not allowed to be erased then lookup to ● will always fail
+
+  ¬erased-heap→¬↦● : ⦃ neh : T (not erased-heap) ⦄ → γ ▸ʰ H → H ⊢ y ↦● → ⊥
+  ¬erased-heap→¬↦● (▸H ∙●) here = not-T-and-¬T′ erased-heap
+  ¬erased-heap→¬↦● (▸H ∙ _) (there d) = ¬erased-heap→¬↦● ▸H d
+  ¬erased-heap→¬↦● (▸H ∙●) (there● d) = ¬erased-heap→¬↦● ▸H d
 
 opaque
 
@@ -249,6 +260,38 @@ opaque
 
 opaque
 
+  -- An inversion lemma for usage of states with variables in head position
+
+  ▸var : γ ⨾ δ ⨾ η ▸[ m ] ⟨ H , var x , E , S ⟩
+       → γ ≤ᶜ (𝟘ᶜ , wkVar E x ≔ ∣ S ∣) +ᶜ η
+  ▸var {γ} {δ} {η} {m} {x} {E} {S} (▸H , ▸x , ▸S , m≤ , γ≤) = begin
+    γ                                             ≤⟨ γ≤ ⟩
+    ∣ S ∣ ·ᶜ wkᶜ E δ +ᶜ η                          ≤⟨ +ᶜ-monotoneˡ (·ᶜ-monotoneʳ (wk-≤ᶜ E (inv-usage-var ▸x))) ⟩
+    ∣ S ∣ ·ᶜ wkᶜ E (𝟘ᶜ , x ≔ ⌜ m ⌝) +ᶜ η           ≡⟨ cong (λ y → ∣ S ∣ ·ᶜ y +ᶜ η) (wk-,≔ E) ⟩
+    ∣ S ∣ ·ᶜ (wkᶜ E 𝟘ᶜ , wkVar E x ≔ ⌜ m ⌝) +ᶜ η   ≡⟨ cong (λ y → ∣ S ∣ ·ᶜ (y , wkVar E x ≔ ⌜ m ⌝) +ᶜ η) (wk-𝟘ᶜ E) ⟩
+    ∣ S ∣ ·ᶜ (𝟘ᶜ , wkVar E x ≔ ⌜ m ⌝) +ᶜ η         ≡˘⟨ cong (_+ᶜ η) (update-distrib-·ᶜ _ _ _ _) ⟩
+    (∣ S ∣ ·ᶜ 𝟘ᶜ , wkVar E x ≔ ∣ S ∣ · ⌜ m ⌝) +ᶜ η ≈⟨ +ᶜ-congʳ (update-congˡ (·ᶜ-zeroʳ _)) ⟩
+    (𝟘ᶜ , wkVar E x ≔ ∣ S ∣ · ⌜ m ⌝) +ᶜ η          ≡⟨ cong (λ y → (𝟘ᶜ , wkVar E x ≔ y) +ᶜ η) (≤ᵐ-·⌜⌝ m≤) ⟩
+    (𝟘ᶜ , wkVar E x ≔ ∣ S ∣) +ᶜ η                  ∎
+    where
+    open RPo ≤ᶜ-poset
+
+opaque
+
+  -- A consequence of the above lemma
+
+  ▸var′ : γ ⨾ δ ⨾ η ▸[ m ] ⟨ H , var x , E , S ⟩
+        → γ ⟨ wkVar E x ⟩ ≤ ∣ S ∣ + η ⟨ wkVar E x ⟩
+  ▸var′ {γ} {δ} {η} {x} {E} {S} ▸s = begin
+    γ ⟨ wkVar E x ⟩                                         ≤⟨ lookup-monotone (wkVar E x) (▸var ▸s) ⟩
+    ((𝟘ᶜ , wkVar E x ≔ ∣ S ∣) +ᶜ η) ⟨ wkVar E x ⟩           ≡⟨ lookup-distrib-+ᶜ (𝟘ᶜ , wkVar E x ≔ ∣ S ∣) η (wkVar E x) ⟩
+    (𝟘ᶜ , wkVar E x ≔ ∣ S ∣) ⟨ wkVar E x ⟩ + η ⟨ wkVar E x ⟩ ≡⟨ +-congʳ (update-lookup 𝟘ᶜ (wkVar E x)) ⟩
+    ∣ S ∣ + η ⟨ wkVar E x ⟩                                 ∎
+    where
+    open RPo ≤-poset
+
+opaque
+
   -- In a well-resorced heap, a pointer lookup yields a well-resourced
   -- term and a well-resourced heap.
 
@@ -355,32 +398,44 @@ module _ (nem : No-erased-matches′ type-variant UR) where
     -- The multiplicity of a well-resourced eliminator is not zero
 
     ▸∣e∣≢𝟘 : ⦃ Has-well-behaved-zero M semiring-with-meet ⦄
-           → γ ▸ᵉ[ 𝟙ᵐ ] e → ∣ e ∣ᵉ ≢ 𝟘
-    ▸∣e∣≢𝟘 (∘ₑ x) = non-trivial
-    ▸∣e∣≢𝟘 (fstₑ x) = non-trivial
-    ▸∣e∣≢𝟘 sndₑ = non-trivial
-    ▸∣e∣≢𝟘 (prodrecₑ x ok) = nem non-trivial .proj₁ ok
-    ▸∣e∣≢𝟘 (natrecₑ x x₁ x₂) = nr₂≢𝟘
-    ▸∣e∣≢𝟘 (unitrecₑ x ok no-η) = no-η ∘→ nem non-trivial .proj₂ .proj₁ ok
-    ▸∣e∣≢𝟘 (Jₑ x) rewrite nem non-trivial .proj₂ .proj₂ .proj₂ .proj₁ = ω≢𝟘
-    ▸∣e∣≢𝟘 (Kₑ x) rewrite nem non-trivial .proj₂ .proj₂ .proj₂ .proj₂ = ω≢𝟘
-    ▸∣e∣≢𝟘 ([]-congₑ ok) = λ _ → nem non-trivial .proj₂ .proj₂ .proj₁ ok
-    ▸∣e∣≢𝟘 sucₑ = non-trivial
+           → γ ▸ᵉ[ 𝟙ᵐ ] e → ∣ e ∣ᵉ ≢ 𝟘 ⊎ ∃₃ λ n (A : Term n) E → e ≡ emptyrecₑ 𝟘 A E × Emptyrec-allowed 𝟙ᵐ 𝟘
+    ▸∣e∣≢𝟘 (∘ₑ x) = inj₁ non-trivial
+    ▸∣e∣≢𝟘 (fstₑ x) = inj₁ non-trivial
+    ▸∣e∣≢𝟘 sndₑ = inj₁ non-trivial
+    ▸∣e∣≢𝟘 (prodrecₑ x ok) = inj₁ (nem non-trivial .proj₁ ok)
+    ▸∣e∣≢𝟘 (natrecₑ x x₁ x₂) = inj₁ nr₂≢𝟘
+    ▸∣e∣≢𝟘 (unitrecₑ x ok no-η) = inj₁ (no-η ∘→ nem non-trivial .proj₂ .proj₁ ok)
+    ▸∣e∣≢𝟘 (emptyrecₑ {p} ok) =
+      case is-𝟘? p of λ where
+        (yes refl) → inj₂ (_ , _ , _ , refl , ok)
+        (no p≢𝟘) → inj₁ p≢𝟘
+    ▸∣e∣≢𝟘 (Jₑ x) rewrite nem non-trivial .proj₂ .proj₂ .proj₂ .proj₁ = inj₁ ω≢𝟘
+    ▸∣e∣≢𝟘 (Kₑ x) rewrite nem non-trivial .proj₂ .proj₂ .proj₂ .proj₂ = inj₁ ω≢𝟘
+    ▸∣e∣≢𝟘 ([]-congₑ ok) = inj₁ λ _ → nem non-trivial .proj₂ .proj₂ .proj₁ ok
+    ▸∣e∣≢𝟘 sucₑ = inj₁ non-trivial
 
   opaque
 
-    -- The multiplicity of a well-resourced stack is not zero
+    -- The multiplicity of a well-resourced stack is either not zero
+    -- or contains a non-erased application of emptyrec
 
     ▸∣S∣≢𝟘 : ⦃ Has-well-behaved-zero M semiring-with-meet ⦄
-           → γ ▸ˢ S → ∣ S ∣ ≢ 𝟘
-    ▸∣S∣≢𝟘 ε = non-trivial
-    ▸∣S∣≢𝟘 (_∙_ {m} (▸e , m≤) ▸S) ∣eS∣≡𝟘 =
-      case zero-product ∣eS∣≡𝟘 of λ where
-        (inj₁ ∣S∣≡𝟘) → ▸∣S∣≢𝟘 ▸S ∣S∣≡𝟘
-        (inj₂ ∣e∣≡𝟘) →
+           → γ ▸ˢ S → ∣ S ∣ ≢ 𝟘 ⊎ (emptyrec₀∈ S × Emptyrec-allowed 𝟙ᵐ 𝟘)
+    ▸∣S∣≢𝟘 ε = inj₁ non-trivial
+    ▸∣S∣≢𝟘 (_∙_ {m} (▸e , m≤) ▸S) =
+      case ▸∣S∣≢𝟘 ▸S of λ where
+        (inj₂ (x , ok)) → inj₂ (there x , ok)
+        (inj₁ ∣S∣≢𝟘) →
           case singleton m of λ where
-            (𝟘ᵐ , refl) → ▸∣S∣≢𝟘 ▸S (𝟘ᵐ≤ᵐp→p≡𝟘 m≤)
-            (𝟙ᵐ , refl) → ▸∣e∣≢𝟘 ▸e ∣e∣≡𝟘
+            (𝟘ᵐ , refl) → ⊥-elim (∣S∣≢𝟘 (𝟘ᵐ≤ᵐp→p≡𝟘 m≤))
+            (𝟙ᵐ , refl) →
+              case ▸∣e∣≢𝟘 ▸e of λ where
+                (inj₂ (_ , _ , _ , refl , ok)) → inj₂ (here , ok)
+                (inj₁ ∣e∣≢𝟘) → inj₁ (λ ∣eS∣≡𝟘 →
+                  case zero-product ∣eS∣≡𝟘 of λ where
+                    (inj₁ ∣S∣≡𝟘) → ∣S∣≢𝟘 ∣S∣≡𝟘
+                    (inj₂ ∣e∣≡𝟘) → ∣e∣≢𝟘 ∣e∣≡𝟘)
+
 
 -- Some properties proven under the assumption that the modality
 -- supports subtraction.
@@ -390,21 +445,15 @@ module _ ⦃ _ : Has-well-behaved-zero M semiring-with-meet ⦄
 
   opaque
 
-    -- In a well-resorced heap, lookup of q copies succeeds for pointers whose
-    -- associated grade is at most p + q for some p.
-
-    ▸H→y↦ : {H : Heap k _}
-          → γ ▸ʰ H → γ ⟨ y ⟩ ≤ p + q → q ≢ 𝟘 ⊎ k ≡ 0
-          → ∃₃ λ n (c : Closure _ n) H′ → H ⊢ y ↦[ q ] c ⨾ H′
-    ▸H→y↦ {y = y0} {p} {q} (_∙_ {p = p′} ▸H (▸ᶜ {q = q′} _ mq′≤p′)) p′≤p+q _ =
-      _ , _ , _
-        , here (subtraction-ok (≤-trans mq′≤p′ p′≤p+q) .proj₂)
-    ▸H→y↦ {y = y0} {(p)} {(q)} (▸H ∙●) 𝟘≤p+q (inj₁ q≢𝟘) =
-      ⊥-elim (q≢𝟘 (+-positiveʳ (𝟘≮ 𝟘≤p+q)))
-    ▸H→y↦ {γ = γ ∙ r} {y = y +1} {p} {q} (_∙_ {E} {δ} ▸H _) γ⟨y⟩≤p+q q≢𝟘 =
-      case ▸H→y↦ {y = y} ▸H lemma q≢𝟘 of λ
-        (_ , _ , _ , d) →
-      _ , _ , _ , there d
+    ↦→↦[] : {H : Heap k _}
+        → H ⊢ y ↦ c′ → γ ▸ʰ H → γ ⟨ y ⟩ ≤ p + q
+        → ∃ λ H′ → H ⊢ y ↦[ q ] c′ ⨾ H′
+    ↦→↦[] here (_∙_ ▸H (▸ᶜ _ mq≤p′)) p′≤p+q′ =
+      _ , here (subtraction-ok (≤-trans mq≤p′ p′≤p+q′) .proj₂)
+    ↦→↦[] {y = y +1} {γ = γ ∙ r} {p} {q} (there d) (_∙_ {E} {δ} ▸H _) γ⟨y⟩≤p+q =
+      case ↦→↦[] d ▸H lemma of λ
+        (_ , d′) →
+      _ , there d′
       where
       open RPo ≤-poset
       lemma : (γ +ᶜ r ·ᶜ wkᶜ E δ) ⟨ y ⟩ ≤ (p + (r ·ᶜ wkᶜ E δ) ⟨ y ⟩) + q
@@ -415,53 +464,121 @@ module _ ⦃ _ : Has-well-behaved-zero M semiring-with-meet ⦄
         p + q + (r ·ᶜ wkᶜ E δ) ⟨ y ⟩   ≈⟨ +-congˡ (+-comm q _) ⟩
         p + (r ·ᶜ wkᶜ E δ) ⟨ y ⟩ + q   ≈˘⟨ +-assoc p _ q ⟩
         (p + (r ·ᶜ wkᶜ E δ) ⟨ y ⟩) + q ∎
-    ▸H→y↦ {γ = γ ∙ r} {y = y +1} {p} {q} (▸H ∙●) γ⟨y⟩≤p+q (inj₁ q≢𝟘) =
-      case ▸H→y↦ {y = y} ▸H γ⟨y⟩≤p+q (inj₁ q≢𝟘) of λ
-        (_ , _ , _ , d) →
-      _ , _ , _ , there● d
+    ↦→↦[] (there● d) (▸H ∙●) γ⟨y⟩≤p+q =
+      case ↦→↦[] d ▸H γ⟨y⟩≤p+q of λ
+        (_ , d′) →
+      _ , there● d′
 
   opaque
 
     -- A variant of the above property with usage of states
 
-    ▸s→y↦ : {H : Heap k _}
-          → T (not erased-heap) ⊎ No-erased-matches′ type-variant UR
+    ▸↦→↦[] : {H : Heap k _}
+          → H ⊢ wkVar E x ↦ c′
           → γ ⨾ δ ⨾ η ▸[ m ] ⟨ H , var x , E , S ⟩
-          → ∃₃ λ n (c : Closure _ n) H′ → H ⊢ wkVar E x ↦[ ∣ S ∣ ] c ⨾ H′
-    ▸s→y↦ {γ} {δ} {η} {m} {x} {E} {S} prop (▸H , ▸t , ▸S , m≤ , γ≤) =
-      case prop of λ where
-        (inj₁ ¬eh) → ▸H→y↦ ▸H lemma (inj₂ (no-erased-heap ¬eh ▸H))
-        (inj₂ nem) → ▸H→y↦ ▸H lemma (inj₁ (▸∣S∣≢𝟘 nem ▸S))
+          → ∃ λ H′ → H ⊢ wkVar E x ↦[ ∣ S ∣ ] c′ ⨾ H′
+    ▸↦→↦[] {E} {x} {γ} {η} {S} d ▸s@(▸H , _) =
+      ↦→↦[] d ▸H (begin
+      -- (begin
+        γ ⟨ wkVar E x ⟩         ≤⟨ ▸var′ ▸s ⟩
+        ∣ S ∣ + η ⟨ wkVar E x ⟩ ≡⟨ +-comm _ _ ⟩
+        η ⟨ wkVar E x ⟩ + ∣ S ∣ ∎)
       where
       open RPo ≤-poset
-      lemma′ : (∣ S ∣ ·ᶜ wkᶜ E δ) ⟨ wkVar E x ⟩ ≤ ∣ S ∣
-      lemma′ = begin
-        (∣ S ∣ ·ᶜ wkᶜ E δ) ⟨ wkVar E x ⟩ ≈⟨ lookup-distrib-·ᶜ (wkᶜ E δ) ∣ S ∣ (wkVar E x) ⟩
-        ∣ S ∣ · wkᶜ E δ ⟨ wkVar E x ⟩    ≡⟨ cong (∣ S ∣ ·_) (wk-⟨⟩ E) ⟩
-        ∣ S ∣ · δ ⟨ x ⟩                  ≤⟨ ·-monotoneʳ (lookup-monotone x (inv-usage-var ▸t)) ⟩
-        ∣ S ∣ · (𝟘ᶜ , x ≔ ⌜ m ⌝) ⟨ x ⟩   ≡⟨ cong (∣ S ∣ ·_) (update-lookup 𝟘ᶜ x) ⟩
-        ∣ S ∣ · ⌜ m ⌝                   ≈⟨ ≤ᵐ-·⌜⌝ m≤ ⟩
-        ∣ S ∣                           ∎
-      lemma : γ ⟨ wkVar E x ⟩ ≤ η ⟨ wkVar E x ⟩ + ∣ S ∣
-      lemma = begin
-        γ ⟨ wkVar E x ⟩                                   ≤⟨ lookup-monotone (wkVar E x) γ≤ ⟩
-        (∣ S ∣ ·ᶜ wkᶜ E δ +ᶜ η) ⟨ wkVar E x ⟩             ≡⟨ lookup-distrib-+ᶜ (∣ S ∣ ·ᶜ wkᶜ E δ) η (wkVar E x) ⟩
-        (∣ S ∣ ·ᶜ wkᶜ E δ) ⟨ wkVar E x ⟩ + η ⟨ wkVar E x ⟩ ≤⟨ +-monotoneˡ lemma′ ⟩
-        ∣ S ∣ + η ⟨ wkVar E x ⟩                           ≈⟨ +-comm _ _ ⟩
-        η ⟨ wkVar E x ⟩ + ∣ S ∣                           ∎
 
   opaque
 
-    -- In a well-resourced state, lookup with update succeeds and has the same
-    -- result as lookup without update
+    ▸H● : H ⊢ y ↦● → γ ▸ʰ H → γ ⟨ y ⟩ ≡ 𝟘
+    ▸H● here (▸H ∙●) = refl
+    ▸H● {γ = γ ∙ p} (there d) (▸H ∙ x) =
+      +ᶜ-positive-⟨⟩ γ (▸H● d ▸H) .proj₁
+    ▸H● (there● d) (▸H ∙●) = ▸H● d ▸H
 
-    ▸↦→↦[] : {H : Heap k _}
-           → T (not erased-heap) ⊎ No-erased-matches′ type-variant UR
-           → H ⊢ wkVar E x ↦ c′ → γ ⨾ δ ⨾ η ▸[ m ] ⟨ H , var x , E , S ⟩
-           → ∃ λ H′ → H ⊢ wkVar E x ↦[ ∣ S ∣ ] c′ ⨾ H′
-    ▸↦→↦[] prop d ▸s =
-      case ▸s→y↦ prop ▸s of λ
-        (_ , _ , _ , d′) →
-      case lookup-det′ d (↦[]→↦ d′) of λ {
-        (refl , refl , refl) →
-      _ , d′ }
+  opaque
+
+    ▸s● : H ⊢ wkVar E x ↦● → γ ⨾ δ ⨾ η ▸[ m ] ⟨ H , var x , E , S ⟩
+        → ∣ S ∣ ≡ 𝟘 × η ⟨ wkVar E x ⟩ ≡ 𝟘
+    ▸s● d ▸s@(▸H , ▸t , ▸S , m≤ , γ≤) =
+      +-positive (𝟘≮ (≤-trans (≤-reflexive (sym (▸H● d ▸H))) (▸var′ ▸s)))
+
+
+  -- opaque
+
+    -- In a well-resorced heap, lookup of q copies succeeds for pointers whose
+    -- associated grade is at most p + q for some p.
+
+  --   ▸H→y↦ : {H : Heap k _}
+  --         → γ ▸ʰ H → γ ⟨ y ⟩ ≤ p + q → q ≢ 𝟘 ⊎ k ≡ 0
+  --         → ∃₃ λ n (c : Closure _ n) H′ → H ⊢ y ↦[ q ] c ⨾ H′
+  --   ▸H→y↦ {y = y0} {p} {q} (_∙_ {p = p′} ▸H (▸ᶜ {q = q′} _ mq′≤p′)) p′≤p+q _ =
+  --     _ , _ , _
+  --       , here (subtraction-ok (≤-trans mq′≤p′ p′≤p+q) .proj₂)
+  --   ▸H→y↦ {y = y0} {(p)} {(q)} (▸H ∙●) 𝟘≤p+q (inj₁ q≢𝟘) =
+  --     ⊥-elim (q≢𝟘 (+-positiveʳ (𝟘≮ 𝟘≤p+q)))
+  --   ▸H→y↦ {γ = γ ∙ r} {y = y +1} {p} {q} (_∙_ {E} {δ} ▸H _) γ⟨y⟩≤p+q q≢𝟘 =
+  --     case ▸H→y↦ {y = y} ▸H lemma q≢𝟘 of λ
+  --       (_ , _ , _ , d) →
+  --     _ , _ , _ , there d
+  --     where
+  --     open RPo ≤-poset
+  --     lemma : (γ +ᶜ r ·ᶜ wkᶜ E δ) ⟨ y ⟩ ≤ (p + (r ·ᶜ wkᶜ E δ) ⟨ y ⟩) + q
+  --     lemma = begin
+  --       (γ +ᶜ r ·ᶜ wkᶜ E δ) ⟨ y ⟩      ≡⟨ lookup-distrib-+ᶜ γ _ y ⟩
+  --       γ ⟨ y ⟩ + (r ·ᶜ wkᶜ E δ) ⟨ y ⟩  ≤⟨ +-monotoneˡ γ⟨y⟩≤p+q ⟩
+  --       (p + q) + (r ·ᶜ wkᶜ E δ) ⟨ y ⟩ ≈⟨ +-assoc p q _ ⟩
+  --       p + q + (r ·ᶜ wkᶜ E δ) ⟨ y ⟩   ≈⟨ +-congˡ (+-comm q _) ⟩
+  --       p + (r ·ᶜ wkᶜ E δ) ⟨ y ⟩ + q   ≈˘⟨ +-assoc p _ q ⟩
+  --       (p + (r ·ᶜ wkᶜ E δ) ⟨ y ⟩) + q ∎
+  --   ▸H→y↦ {γ = γ ∙ r} {y = y +1} {p} {q} (▸H ∙●) γ⟨y⟩≤p+q (inj₁ q≢𝟘) =
+  --     case ▸H→y↦ {y = y} ▸H γ⟨y⟩≤p+q (inj₁ q≢𝟘) of λ
+  --       (_ , _ , _ , d) →
+  --     _ , _ , _ , there● d
+
+  -- opaque
+
+  --   -- A variant of the above property with usage of states
+
+  --   ▸s→y↦ : {H : Heap k _}
+  --         → T (not erased-heap) ⊎ (No-erased-matches′ type-variant UR × (emptyrec₀∈ S → ⊥))
+  --         → γ ⨾ δ ⨾ η ▸[ m ] ⟨ H , var x , E , S ⟩
+  --         → ∃₃ λ n (c : Closure _ n) H′ → H ⊢ wkVar E x ↦[ ∣ S ∣ ] c ⨾ H′
+  --   ▸s→y↦ {S} {γ} {δ} {η} {m} {x} {E} prop (▸H , ▸t , ▸S , m≤ , γ≤) =
+  --     case prop of λ where
+  --       (inj₁ ¬eh) → ▸H→y↦ ▸H lemma (inj₂ (no-erased-heap ¬eh ▸H))
+  --       (inj₂ (nem , er₀∉S)) →
+  --         case ▸∣S∣≢𝟘 nem ▸S of λ where
+  --           (inj₁ ∣S∣≢𝟘) → ▸H→y↦ ▸H lemma (inj₁ ∣S∣≢𝟘)
+  --           (inj₂ er₀∈S) → ⊥-elim (er₀∉S er₀∈S)
+  --     where
+  --     open RPo ≤-poset
+  --     lemma′ : (∣ S ∣ ·ᶜ wkᶜ E δ) ⟨ wkVar E x ⟩ ≤ ∣ S ∣
+  --     lemma′ = begin
+  --       (∣ S ∣ ·ᶜ wkᶜ E δ) ⟨ wkVar E x ⟩ ≈⟨ lookup-distrib-·ᶜ (wkᶜ E δ) ∣ S ∣ (wkVar E x) ⟩
+  --       ∣ S ∣ · wkᶜ E δ ⟨ wkVar E x ⟩    ≡⟨ cong (∣ S ∣ ·_) (wk-⟨⟩ E) ⟩
+  --       ∣ S ∣ · δ ⟨ x ⟩                  ≤⟨ ·-monotoneʳ (lookup-monotone x (inv-usage-var ▸t)) ⟩
+  --       ∣ S ∣ · (𝟘ᶜ , x ≔ ⌜ m ⌝) ⟨ x ⟩   ≡⟨ cong (∣ S ∣ ·_) (update-lookup 𝟘ᶜ x) ⟩
+  --       ∣ S ∣ · ⌜ m ⌝                   ≈⟨ ≤ᵐ-·⌜⌝ m≤ ⟩
+  --       ∣ S ∣                           ∎
+  --     lemma : γ ⟨ wkVar E x ⟩ ≤ η ⟨ wkVar E x ⟩ + ∣ S ∣
+  --     lemma = begin
+  --       γ ⟨ wkVar E x ⟩                                   ≤⟨ lookup-monotone (wkVar E x) γ≤ ⟩
+  --       (∣ S ∣ ·ᶜ wkᶜ E δ +ᶜ η) ⟨ wkVar E x ⟩             ≡⟨ lookup-distrib-+ᶜ (∣ S ∣ ·ᶜ wkᶜ E δ) η (wkVar E x) ⟩
+  --       (∣ S ∣ ·ᶜ wkᶜ E δ) ⟨ wkVar E x ⟩ + η ⟨ wkVar E x ⟩ ≤⟨ +-monotoneˡ lemma′ ⟩
+  --       ∣ S ∣ + η ⟨ wkVar E x ⟩                           ≈⟨ +-comm _ _ ⟩
+  --       η ⟨ wkVar E x ⟩ + ∣ S ∣                           ∎
+
+  -- opaque
+
+  --   -- In a well-resourced state, lookup with update succeeds and has the same
+  --   -- result as lookup without update
+
+  --   ▸↦→↦[] : {H : Heap k _}
+  --          → T (not erased-heap) ⊎ (No-erased-matches′ type-variant UR × (emptyrec₀∈ S → ⊥))
+  --          → H ⊢ wkVar E x ↦ c′ → γ ⨾ δ ⨾ η ▸[ m ] ⟨ H , var x , E , S ⟩
+  --          → ∃ λ H′ → H ⊢ wkVar E x ↦[ ∣ S ∣ ] c′ ⨾ H′
+  --   ▸↦→↦[] prop d ▸s =
+  --     case ▸s→y↦ prop ▸s of λ
+  --       (_ , _ , _ , d′) →
+  --     case lookup-det′ d (↦[]→↦ d′) of λ {
+  --       (refl , refl , refl) →
+  --     _ , d′ }
