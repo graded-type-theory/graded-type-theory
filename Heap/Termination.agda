@@ -16,7 +16,9 @@ module Heap.Termination
   where
 
 open Type-restrictions TR
+open Usage-restrictions UR
 open Assumptions As
+open Modality 𝕄
 
 open import Tools.Empty
 open import Tools.Function
@@ -73,14 +75,14 @@ opaque
   -- Well-typed and well-resourced terms evaluate to values with empty stacks
   -- corresponding to terms in Whnf.
 
-  whBisim : Consistent Δ
+  whBisim : (Emptyrec-allowed 𝟙ᵐ 𝟘 → Consistent Δ)
           → Δ ⊢ ⦅ s ⦆ ↘ u ∷ A
           → Δ ⨾ Γ ⊢ s ∷ B
           → γ ⨾ δ ⨾ η ▸[ m ] s
           → ∃₂ λ m n → ∃₃ λ H t (E : Env m n)
           → s ⇒* ⟨ H , t , E , ε ⟩ × wk E t [ H ]ₕ ≡ u × Value t
   whBisim {s = ⟨ H , t , E , S ⟩} consistent (d , w) ⊢s ▸s =
-    case bisim₆* As consistent d ⊢s ▸s of λ {
+    case bisim₆* As d ⊢s ▸s of λ {
       (_ , _ , ⟨ H , t′ , E , S ⟩ , d₁ , refl) →
     case normalize H t′ E S of λ
       (_ , t″ , E′ , S′ , n , dₙ) →
@@ -113,8 +115,8 @@ opaque
             case ▸∣S∣≢𝟘 nem ▸S of λ where
               (inj₁ ∣S∣≢𝟘) →
                 ⊥-elim (∣S∣≢𝟘 ∣S∣≡𝟘)
-              (inj₂ (er∈S , _)) →
-                ⊥-elim (⊢emptyrec₀∉S {E = E′} consistent ⊢s″ er∈S)
+              (inj₂ (er∈S , ok)) →
+                ⊥-elim (⊢emptyrec₀∉S {E = E′} (consistent ok) ⊢s″ er∈S)
       (unitrec-ηₙ {u = u} η) →
         case inversion-unitrec ⊢t″ of λ
           (⊢A , ⊢t , ⊢u , B≡) →
@@ -139,7 +141,7 @@ opaque
   -- A variant of the above, starting with the initial state
 
   whBisim-initial : {Δ : Con Term k}
-                  → k ≡ 0 ⊎ (Consistent Δ × T erased-heap)
+                  → k ≡ 0 ⊎ ((Emptyrec-allowed 𝟙ᵐ 𝟘 → Consistent Δ) × T erased-heap)
                   → Δ ⊢ t ↘ u ∷ A → 𝟘ᶜ ▸ t
                   → ∃₂ λ m n → ∃₃ λ H u′ (E : Env m n)
                   → initial t ⇒* ⟨ H , u′ , E , ε ⟩ × wk E u′ [ H ]ₕ ≡ u × Value u′
@@ -150,10 +152,10 @@ opaque
       (⊢initial (redFirst*Term (proj₁ d)))
       (▸initial k≡0⊎erased-heap ▸t)
     where
-    consistent : Consistent Δ
-    consistent =
+    consistent : Emptyrec-allowed 𝟙ᵐ 𝟘 → Consistent Δ
+    consistent ok =
       case as of λ where
-        (inj₂ (c , _)) → c
+        (inj₂ (c , _)) → c ok
         (inj₁ refl) →
           case singleton Δ of λ where
             (ε , refl) → λ _ → ¬Empty
@@ -169,7 +171,7 @@ opaque
   -- corresponding to terms in Whnf.
 
   whRed : {Δ : Con Term k}
-        → (k ≡ 0 ⊎ Consistent Δ × T erased-heap)
+        → (k ≡ 0 ⊎ (Emptyrec-allowed 𝟙ᵐ 𝟘 → Consistent Δ) × T erased-heap)
         → Δ ⊢ t ∷ A → 𝟘ᶜ ▸ t
         → ∃₂ λ m n → ∃₃ λ H u′ (E : Env m n)
           → initial t ⇒* ⟨ H , u′ , E , ε ⟩ × Value u′ × Whnf ⦅ ⟨ H , u′ , E , ε ⟩ ⦆

@@ -715,10 +715,9 @@ opaque
   -- Values in non-empty stacks always reduce
 
   ⊢Value-⇒ᵥ : ⦃ ¬fr : ¬ℕ-Fullred ⦄
-            → Consistent Δ
             → Δ ⨾ Γ ⊢ ⟨ H , t , E , e ∙ S ⟩ ∷ A → Value t
-            → ∃₃ λ m n (s : State _ m n) → ⟨ H , t , E , e ∙ S ⟩ ⇒ᵥ s
-  ⊢Value-⇒ᵥ {e = ∘ₑ p u E} _ (_ , ⊢H , ⊢t , ⊢e ∙ ⊢S) v =
+            → (∃₃ λ m n (s : State _ m n) → ⟨ H , t , E , e ∙ S ⟩ ⇒ᵥ s)
+  ⊢Value-⇒ᵥ {e = ∘ₑ p u E} (_ , ⊢H , ⊢t , ⊢e ∙ ⊢S) v =
     case inversion-∘ₑ ⊢e of λ {
       (_ , _ , _ , _ , PE.refl , _) →
     case v of λ where
@@ -749,7 +748,7 @@ opaque
         case inversion-Id-U ⊢t of λ
           (_ , _ , _ , Π≡U) →
         ⊥-elim (U≢Π (sym Π≡U))}
-  ⊢Value-⇒ᵥ {e = fstₑ x} _ (_ , ⊢H , ⊢t , ⊢e ∙ ⊢S) v =
+  ⊢Value-⇒ᵥ {e = fstₑ x} (_ , ⊢H , ⊢t , ⊢e ∙ ⊢S) v =
     case inversion-fstₑ ⊢e of λ {
       (_ , _ , _ , _ , _ , PE.refl , _) →
     case v of λ where
@@ -780,7 +779,7 @@ opaque
         case inversion-Id-U ⊢t of λ
           (_ , _ , _ , Σ≡U) →
         ⊥-elim (U≢Σ (sym Σ≡U))}
-  ⊢Value-⇒ᵥ {e = sndₑ x} _ (_ , ⊢H , ⊢t , ⊢e ∙ ⊢S) v =
+  ⊢Value-⇒ᵥ {e = sndₑ x} (_ , ⊢H , ⊢t , ⊢e ∙ ⊢S) v =
     case inversion-sndₑ ⊢e of λ {
       (_ , _ , _ , _ , _ , PE.refl , _) →
     case v of λ where
@@ -811,7 +810,7 @@ opaque
         case inversion-Id-U ⊢t of λ
           (_ , _ , _ , Σ≡U) →
         ⊥-elim (U≢Σ (sym Σ≡U))}
-  ⊢Value-⇒ᵥ {e = prodrecₑ r p q A u E} _ (_ , ⊢H , ⊢t , ⊢e ∙ ⊢S) v =
+  ⊢Value-⇒ᵥ {e = prodrecₑ r p q A u E} (_ , ⊢H , ⊢t , ⊢e ∙ ⊢S) v =
     case inversion-prodrecₑ ⊢e of λ {
       (_ , _ , _ , _ , _ , PE.refl , _) →
     case v of λ where
@@ -842,7 +841,7 @@ opaque
         case inversion-Id-U ⊢t of λ
           (_ , _ , _ , Σ≡U) →
         ⊥-elim (U≢Σ (sym Σ≡U))}
-  ⊢Value-⇒ᵥ {e = natrecₑ p q r A z s E} _ (_ , ⊢H , ⊢t , ⊢e ∙ ⊢S) v =
+  ⊢Value-⇒ᵥ {e = natrecₑ p q r A z s E} (_ , ⊢H , ⊢t , ⊢e ∙ ⊢S) v =
     case inversion-natrecₑ ⊢e of λ {
       (_ , _ , _ , PE.refl , _) →
     case v of λ where
@@ -873,7 +872,7 @@ opaque
         case inversion-Id-U ⊢t of λ
           (_ , _ , _ , ℕ≡U) →
         ⊥-elim (U≢ℕ (sym ℕ≡U))}
-  ⊢Value-⇒ᵥ {e = unitrecₑ p q A u E} _ (_ , ⊢H , ⊢t , ⊢e ∙ ⊢S) v =
+  ⊢Value-⇒ᵥ {e = unitrecₑ p q A u E} (_ , ⊢H , ⊢t , ⊢e ∙ ⊢S) v =
     case inversion-unitrecₑ ⊢e of λ {
       (_ , _ , _ , PE.refl , _) →
     case v of λ where
@@ -907,11 +906,38 @@ opaque
         case inversion-Id-U ⊢t of λ
           (_ , _ , _ , Unit≡U) →
         ⊥-elim (U≢Unitⱼ (sym Unit≡U))}
-  ⊢Value-⇒ᵥ {e = emptyrecₑ p A E} consistent (_ , ⊢H , ⊢t , ⊢e ∙ ⊢S) v =
+  ⊢Value-⇒ᵥ {e = emptyrecₑ p A E} (_ , ⊢H , ⊢t , ⊢e ∙ ⊢S) v =
     case inversion-emptyrecₑ ⊢e of λ {
       (_ , PE.refl , _) →
-    ⊥-elim (consistent _ ⊢t)}
-  ⊢Value-⇒ᵥ {e = Jₑ p q A t B u w E} _ (_ , ⊢H , ⊢t , ⊢e ∙ ⊢S) v =
+    case v of λ where
+      lamᵥ   →
+        case inversion-lam ⊢t of λ
+          (_ , _ , _ , _ , _ , Empty≡Π , _) →
+        ⊥-elim (Empty≢Πⱼ Empty≡Π)
+      zeroᵥ  → ⊥-elim (ℕ≢Emptyⱼ (sym (inversion-zero ⊢t)))
+      sucᵥ   → ⊥-elim (ℕ≢Emptyⱼ (sym (inversion-suc ⊢t .proj₂)))
+      starᵥ  → ⊥-elim (Empty≢Unitⱼ (inversion-star ⊢t .proj₁))
+      prodᵥ  →
+        case inversion-prod ⊢t of λ
+          (_ , _ , _ , _ , _ , _ , _ , Empty≡Σ , _) →
+        ⊥-elim (Empty≢Σⱼ Empty≡Σ)
+      rflᵥ   →
+        case inversion-rfl ⊢t of λ
+          (_ , _ , _ , _ , Empty≡Id) →
+        ⊥-elim (Id≢Empty (sym Empty≡Id))
+      Uᵥ     → ⊥-elim (inversion-U ⊢t)
+      ΠΣᵥ    →
+        case inversion-ΠΣ-U ⊢t of λ
+          (_ , _ , Empty≡U , _) →
+        ⊥-elim (U≢Emptyⱼ (sym Empty≡U))
+      ℕᵥ     → ⊥-elim (U≢Emptyⱼ (sym (inversion-ℕ ⊢t)))
+      Unitᵥ  → ⊥-elim (U≢Emptyⱼ (sym (inversion-Unit-U ⊢t .proj₁)))
+      Emptyᵥ → ⊥-elim (U≢Emptyⱼ (sym (inversion-Empty ⊢t)))
+      Idᵥ    →
+        case inversion-Id-U ⊢t of λ
+          (_ , _ , _ , Empty≡U) →
+        ⊥-elim (U≢Emptyⱼ (sym Empty≡U))}
+  ⊢Value-⇒ᵥ {e = Jₑ p q A t B u w E} (_ , ⊢H , ⊢t , ⊢e ∙ ⊢S) v =
     case inversion-Jₑ ⊢e of λ {
       (_ , _ , PE.refl , _) →
     case v of λ where
@@ -939,7 +965,7 @@ opaque
         case inversion-Id-U ⊢t of λ
           (_ , _ , _ , Id≡U) →
         ⊥-elim (Id≢U Id≡U)}
-  ⊢Value-⇒ᵥ {e = Kₑ p A t B u E} _ (_ , ⊢H , ⊢t , ⊢e ∙ ⊢S) v =
+  ⊢Value-⇒ᵥ {e = Kₑ p A t B u E} (_ , ⊢H , ⊢t , ⊢e ∙ ⊢S) v =
     case inversion-Kₑ ⊢e of λ {
       (_ , _ , _ , PE.refl , _) →
     case v of λ where
@@ -967,7 +993,7 @@ opaque
         case inversion-Id-U ⊢t of λ
           (_ , _ , _ , Id≡U) →
         ⊥-elim (Id≢U Id≡U)}
-  ⊢Value-⇒ᵥ {e = []-congₑ s A t u E} _ (_ , ⊢H , ⊢t , ⊢e ∙ ⊢S) v =
+  ⊢Value-⇒ᵥ {e = []-congₑ s A t u E} (_ , ⊢H , ⊢t , ⊢e ∙ ⊢S) v =
     case inversion-[]-congₑ ⊢e of λ {
       (_ , PE.refl , _) →
     case v of λ where
@@ -995,7 +1021,7 @@ opaque
         case inversion-Id-U ⊢t of λ
           (_ , _ , _ , Id≡U) →
         ⊥-elim (Id≢U Id≡U)}
-  ⊢Value-⇒ᵥ {e = sucₑ} _ (_ , ⊢H , ⊢t , ⊢e ∙ ⊢S) v =
+  ⊢Value-⇒ᵥ {e = sucₑ} (_ , ⊢H , ⊢t , ⊢e ∙ ⊢S) v =
     case inversion-sucₑ ⊢e of λ
       (fr , _ , _) →
     ⊥-elim (not-ℕ-Fullred-and-¬ℕ-Fullred ⦃ fr ⦄)

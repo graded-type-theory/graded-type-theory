@@ -298,53 +298,50 @@ module _ where
 
     opaque
 
-      bisim₄ᵥ : Consistent Δ
-              → Δ ⊢ ⦅ s ⦆ ⇒ u ∷ A
+      bisim₄ᵥ : Δ ⊢ ⦅ s ⦆ ⇒ u ∷ A
               → Normal s
               → Δ ⨾ Γ ⊢ s ∷ B
               → ∃₃ λ m n (s′ : State _ m n) → s Rₙₜ.⇒ᵥ s′ × u PE.≡ ⦅ s′ ⦆
-      bisim₄ᵥ {s = ⟨ H , _ , E , ε ⟩} _ d (val v) ⊢s =
+      bisim₄ᵥ {s = ⟨ H , _ , E , ε ⟩} d (val v) ⊢s =
         ⊥-elim (whnfRedTerm d (Value→Whnf (substValue (toSubstₕ H) (wkValue E v)) .proj₁))
-      bisim₄ᵥ {s = ⟨ _ , _ , _ , e ∙ S ⟩} consistent d (val v) ⊢s =
-        case ⊢Value-⇒ᵥ consistent ⊢s v of λ
+      bisim₄ᵥ {s = ⟨ _ , _ , _ , e ∙ S ⟩} d (val v) ⊢s =
+        case ⊢Value-⇒ᵥ ⊢s v of λ
           (_ , _ , _ , d′) →
         _ , _ , _ , d′ , whrDetTerm d (⇒ᵥ→⇒ ⊢s d′)
-      bisim₄ᵥ _ d (var d′) (_ , _ , _ , ⊢S) =
+      bisim₄ᵥ d (var d′) (_ , _ , _ , ⊢S) =
         ⊥-elim (neRedTerm d (NeutralAt→Neutral (toSubstₕ-NeutralAt d′ (⊢⦅⦆ˢ-NeutralAt ⊢S var))))
-      bisim₄ᵥ _ d (unitrec-ηₙ η) ⊢s =
+      bisim₄ᵥ d (unitrec-ηₙ η) ⊢s =
         case Rₙₜ.unitrec-ηₕ η of λ
           d′ →
         _ , _ , _ , d′ , whrDetTerm d (⇒ᵥ→⇒ ⊢s d′)
 
     opaque
 
-      bisim₄ : Consistent Δ
-             → Δ ⊢ ⦅ s ⦆ ⇒ u ∷ A
+      bisim₄ : Δ ⊢ ⦅ s ⦆ ⇒ u ∷ A
              → Δ ⨾ Γ ⊢ s ∷ B
              → ∃₃ λ m n (s′ : State _ m n) → s Rₙₜ.⇒* s′ × u PE.≡ ⦅ s′ ⦆
-      bisim₄ {s} consistent d ⊢s =
+      bisim₄ {s} d ⊢s =
         case normalizeₛ s of λ
           (_ , _ , n , d′) →
         case ⊢ₛ-⇒ₙ* ⊢s d′ of λ
           ⊢s′ →
-        case bisim₄ᵥ consistent (PE.subst (λ x → _ ⊢ x ⇒ _ ∷ _) (⇒ₙ*-⦅⦆-≡ d′) d) n ⊢s′ of λ
+        case bisim₄ᵥ (PE.subst (λ x → _ ⊢ x ⇒ _ ∷ _) (⇒ₙ*-⦅⦆-≡ d′) d) n ⊢s′ of λ
           (_ , _ , s′ , d″ , u≡) →
         _ , _ , s′ , (⇒ₙ* d′ ⇨* (Rₙₜ.⇒ᵥ d″) Rₙₜ.⇨ Rₙₜ.id) , u≡
 
     opaque
 
-      bisim₄* : Consistent Δ
-              → Δ ⊢ ⦅ s ⦆ ⇒* u ∷ A
+      bisim₄* : Δ ⊢ ⦅ s ⦆ ⇒* u ∷ A
               → Δ ⨾ Γ ⊢ s ∷ B
               → ∃₃ λ m n (s′ : State _ m n) → s Rₙₜ.⇒* s′ × u PE.≡ ⦅ s′ ⦆
-      bisim₄* _ (id x) ⊢s =
+      bisim₄* (id x) ⊢s =
         _ , _ , _ , Rₙₜ.id , PE.refl
-      bisim₄* consistent (x ⇨ d) ⊢s =
-        case bisim₄ consistent x ⊢s of λ {
+      bisim₄* (x ⇨ d) ⊢s =
+        case bisim₄ x ⊢s of λ {
           (_ , _ , _ , x′ , PE.refl) →
         case ⊢ₛ-⇒* ⊢s x′ of λ
           (_ , _ , _ , ⊢s′) →
-        case bisim₄* consistent d ⊢s′ of λ
+        case bisim₄* d ⊢s′ of λ
           (_ , _ , _ , d′ , u≡) →
         _ , _ , _ , x′ ⇨* d′ , u≡ }
 
@@ -368,13 +365,12 @@ module _ where
 
     opaque
 
-      bisim₆* : Consistent Δ
-              → Δ ⊢ ⦅ s ⦆ ⇒* u ∷ A
+      bisim₆* : Δ ⊢ ⦅ s ⦆ ⇒* u ∷ A
               → Δ ⨾ Γ ⊢ s ∷ B
               → γ ⨾ δ ⨾ η ▸[ m ] s
               → ∃₃ λ m n (s′ : State _ m n) → s Rₜ.⇒* s′ × u PE.≡ ⦅ s′ ⦆
-      bisim₆* consistent d ⊢s ▸s =
-        case bisim₄* consistent d ⊢s of λ
+      bisim₆* d ⊢s ▸s =
+        case bisim₄* d ⊢s of λ
           (_ , _ , ⟨ H , t , E , S ⟩ , d′ , u≡) →
         case bisim₂* false As d′ ~ʰ-refl ▸s of λ
           (_ , d″ , H~H′) →

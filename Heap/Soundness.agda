@@ -19,6 +19,7 @@ module Heap.Soundness
   where
 
 open Type-restrictions TR
+open Usage-restrictions UR
 open Modality 𝕄
 open Assumptions As
 
@@ -87,7 +88,8 @@ opaque
 
   -- All well-typed and well-resourced states of type ℕ reduce to numerals
 
-  redNumeral : Consistent Δ → Δ ⊩ℕ n ∷ℕ → n PE.≡ ⦅ s ⦆ → Δ ⨾ Γ ⊢ s ∷ ℕ → γ ⨾ δ ⨾ η ▸[ m ] s
+  redNumeral : (Emptyrec-allowed 𝟙ᵐ 𝟘 → Consistent Δ)
+             → Δ ⊩ℕ n ∷ℕ → n PE.≡ ⦅ s ⦆ → Δ ⨾ Γ ⊢ s ∷ ℕ → γ ⨾ δ ⨾ η ▸[ m ] s
              → ∃₄ λ m n H (E : Env m n) → ∃ λ t → s ⇒* ⟨ H , t , E , ε ⟩ × Numeral t
   redNumeral consistent (ℕₜ _ d n≡n (sucᵣ x)) PE.refl ⊢s ▸s =
     case whBisim consistent (redₜ d , sucₙ) ⊢s ▸s of λ
@@ -150,7 +152,7 @@ opaque
   -- Note that some assumptions to this theorem are given as a module parameter.
 
   soundness : {Δ : Con Term k}
-            → (k PE.≡ 0 ⊎ Consistent Δ × T erased-heap)
+            → (k PE.≡ 0 ⊎ (Emptyrec-allowed 𝟙ᵐ 𝟘 → Consistent Δ) × T erased-heap)
             → Δ ⊢ t ∷ ℕ → 𝟘ᶜ ▸ t
             → ∃₂ λ m n → ∃₃ λ H k (E : Env m n) →
               initial t ⇒* ⟨ H , sucᵏ k , E , ε ⟩ ×
@@ -185,10 +187,10 @@ opaque
           wkᶜ E 𝟘ᶜ           ≡⟨ wk-𝟘ᶜ E ⟩
           𝟘ᶜ                 ∎ ))}
     where
-    consistent : Consistent Δ
-    consistent =
+    consistent : Emptyrec-allowed 𝟙ᵐ 𝟘 → Consistent Δ
+    consistent ok =
       case as of λ where
-        (inj₂ (c , _)) → c
+        (inj₂ (c , _)) → c ok
         (inj₁ PE.refl) →
           case PE.singleton Δ of λ where
             (ε , PE.refl) → λ _ → ¬Empty
