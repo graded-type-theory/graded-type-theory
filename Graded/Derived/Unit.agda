@@ -47,16 +47,16 @@ opaque
 
   ▸unitrec⟨⟩ :
     (s ≡ 𝕨 → Unitrec-allowed m p q) →
-    (s ≡ 𝕨 → γ ∙ ⌜ 𝟘ᵐ? ⌝ · q ▸[ 𝟘ᵐ? ] A) →
-    (s ≡ 𝕨 → δ ▸[ m ᵐ· p ] t) →
-    η ▸[ m ] u →
-    (s ≡ 𝕨 → θ ≤ᶜ p ·ᶜ δ +ᶜ η) →
+    (s ≡ 𝕨 → ∃ λ γ → γ ∙ ⌜ 𝟘ᵐ? ⌝ · q ▸[ 𝟘ᵐ? ] A) →
+    (s ≡ 𝕨 → ∃ λ δ → δ ▸[ m ᵐ· p ] t × θ ≤ᶜ p ·ᶜ δ +ᶜ η) →
     (s ≡ 𝕤 → θ ≤ᶜ η) →
+    η ▸[ m ] u →
     θ ▸[ m ] unitrec⟨ s ⟩ l p q A t u
-  ▸unitrec⟨⟩ {s = 𝕨} ok ▸A ▸t ▸u hyp₁ _ =
-    sub (unitrecₘ (▸t refl) ▸u (▸A refl) (ok refl)) (hyp₁ refl)
-  ▸unitrec⟨⟩ {s = 𝕤} _ _ _ ▸u _ hyp₂ =
-    sub ▸u (hyp₂ refl)
+  ▸unitrec⟨⟩ {s = 𝕨} ok ▸A ▸t _ ▸u =
+    let _ , ▸t , θ≤pδ+η = ▸t refl in
+    sub (unitrecₘ ▸t ▸u (▸A refl .proj₂) (ok refl)) θ≤pδ+η
+  ▸unitrec⟨⟩ {s = 𝕤} _ _ _ θ≤η ▸u =
+    sub ▸u (θ≤η refl)
 
 opaque
 
@@ -78,12 +78,15 @@ opaque
     (s ≡ 𝕤 → γ ≤ᶜ 𝟘ᶜ) →
     γ ▸[ m ] Unit-η s l Unit-η-grade t
   ▸Unit-η {γ} {l} ok ▸t ≤𝟘ᶜ =
-    ▸unitrec⟨⟩ ok lemma (▸-cong (sym ᵐ·-identityʳ) ∘→ ▸t) rflₘ
-      (λ _ → begin
-         γ             ≈˘⟨ ≈ᶜ-trans (+ᶜ-identityʳ _) $
-                           ·ᶜ-identityˡ _ ⟩
-         𝟙 ·ᶜ γ +ᶜ 𝟘ᶜ  ∎)
-      ≤𝟘ᶜ
+    ▸unitrec⟨⟩ ok ((_ ,_) ∘→ lemma)
+      (λ s≡𝕨 →
+           γ
+         , ▸-cong (sym ᵐ·-identityʳ) (▸t s≡𝕨)
+         , (begin
+              γ             ≈˘⟨ ≈ᶜ-trans (+ᶜ-identityʳ _) $
+                                ·ᶜ-identityˡ _ ⟩
+              𝟙 ·ᶜ γ +ᶜ 𝟘ᶜ  ∎))
+      ≤𝟘ᶜ rflₘ
     where
     open ≤ᶜ-reasoning
 

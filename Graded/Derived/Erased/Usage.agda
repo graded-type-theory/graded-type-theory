@@ -42,7 +42,7 @@ open import Tools.Bool using (T)
 open import Tools.Empty
 open import Tools.Fin
 open import Tools.Function
-open import Tools.Product
+open import Tools.Product as Σ
 open import Tools.PropositionalEquality as PE using (_≡_)
 import Tools.Reasoning.PartialOrder
 import Tools.Reasoning.PropositionalEquality
@@ -106,13 +106,14 @@ opaque
     (s ≡ 𝕨 → ¬ T 𝟘ᵐ-allowed → Trivial) →
     (s ≡ 𝕤 → ¬ T 𝟘ᵐ-allowed → 𝟘 ≤ 𝟙) →
     γ ▸[ 𝟘ᵐ? ] t →
-    (s ≡ 𝕨 → δ ▸[ 𝟘ᵐ? ] A) →
+    (s ≡ 𝕨 → ∃ λ δ → δ ▸[ 𝟘ᵐ? ] A) →
     (s ≡ 𝕨 → Prodrec-allowed 𝟘ᵐ? (𝟘 ∧ 𝟙) 𝟘 𝟘) →
     𝟘ᶜ ▸[ 𝟘ᵐ? ] erased A t
   ▸erased′ {γ} trivial 𝟘≤𝟙 ▸t ▸A ok =
     case PE.singleton s of λ where
       (𝕨 , PE.refl) →
-        NoEta.▸erased′ (trivial PE.refl) ▸t (▸A PE.refl) (ok PE.refl)
+        NoEta.▸erased′ (trivial PE.refl) ▸t (▸A PE.refl .proj₂)
+          (ok PE.refl)
       (𝕤 , PE.refl) →
         let open Tools.Reasoning.PartialOrder ≤ᶜ-poset in
         sub (Eta.▸erased′ (𝟘≤𝟙 PE.refl) ▸t) $
@@ -133,12 +134,12 @@ opaque
 
   ▸erased :
     γ ▸[ 𝟘ᵐ[ ok ] ] t →
-    (s ≡ 𝕨 → δ ▸[ 𝟘ᵐ[ ok ] ] A) →
+    (s ≡ 𝕨 → ∃ λ δ → δ ▸[ 𝟘ᵐ[ ok ] ] A) →
     (s ≡ 𝕨 → Prodrec-allowed 𝟘ᵐ[ ok ] (𝟘 ∧ 𝟙) 𝟘 𝟘) →
     𝟘ᶜ ▸[ 𝟘ᵐ[ ok ] ] erased A t
   ▸erased ▸t ▸A ok = case PE.singleton s of λ where
     (𝕤 , PE.refl) → Eta.▸erased ▸t
-    (𝕨 , PE.refl) → NoEta.▸erased ▸t (▸A PE.refl) (ok PE.refl)
+    (𝕨 , PE.refl) → NoEta.▸erased ▸t (▸A PE.refl .proj₂) (ok PE.refl)
 
 opaque
   unfolding erasedrec is-𝕨
@@ -149,11 +150,11 @@ opaque
     (s ≡ 𝕤 → ¬ T 𝟘ᵐ-allowed → Trivial) →
     (s ≡ 𝕨 → Prodrec-allowed m 𝟙 𝟘 p) →
     (s ≡ 𝕨 → Unitrec-allowed m 𝟙 p) →
-    (s ≡ 𝕨 → γ ∙ ⌜ 𝟘ᵐ? ⌝ · p ▸[ 𝟘ᵐ? ] B) →
+    (s ≡ 𝕨 → ∃ λ γ → γ ∙ ⌜ 𝟘ᵐ? ⌝ · p ▸[ 𝟘ᵐ? ] B) →
     δ ∙ 𝟘 ▸[ m ] t →
     η ▸[ m ᵐ· is-𝕨 ] u →
     δ +ᶜ η ▸[ m ] erasedrec p B t u
-  ▸erasedrec {m} {p} {γ} {δ} {η} hyp₁ P-ok U-ok ▸B ▸t ▸u = sub
+  ▸erasedrec {m} {p} {δ} {η} hyp₁ P-ok U-ok ▸B ▸t ▸u = sub
     (▸prodrec⟨⟩
        (λ where
           PE.refl →
@@ -166,57 +167,63 @@ opaque
        (λ { PE.refl → P-ok PE.refl })
        ▸B ▸u
        (▸unitrec⟨⟩ U-ok
-          (λ s≡𝕨 → sub
-             (substₘ-lemma _
-                (▶-cong _
-                   (λ where
-                      x0     → PE.refl
-                      (_ +1) → PE.refl) $
-                 wf-consSubstₘ
-                   (wf-wk1Substₘ _ _ $ wf-wk1Substₘ _ _ $
-                    wf-wk1Substₘ _ _ wf-idSubstₘ) $
-                 prodₘ var var
-                   (λ _ → begin
-                      ⌜ ⌞ ⌜ 𝟘ᵐ? ⌝ · p ⌟ ⌝ ·ᶜ (𝟘ᶜ ∙ ⌜ 𝟘ᵐ? ⌝)         ≈⟨ ·ᶜ-congʳ lemma₂ ⟩
+          (λ s≡𝕨 →
+             let γ , ▸B = ▸B s≡𝕨 in
+               γ ∙ 𝟘 ∙ 𝟘
+             , sub
+                 (substₘ-lemma _
+                    (▶-cong _
+                       (λ where
+                          x0     → PE.refl
+                          (_ +1) → PE.refl) $
+                     wf-consSubstₘ
+                       (wf-wk1Substₘ _ _ $ wf-wk1Substₘ _ _ $
+                        wf-wk1Substₘ _ _ wf-idSubstₘ) $
+                     prodₘ var var
+                       (λ _ → begin
+                          ⌜ ⌞ ⌜ 𝟘ᵐ? ⌝ · p ⌟ ⌝ ·ᶜ (𝟘ᶜ ∙ ⌜ 𝟘ᵐ? ⌝)         ≈⟨ ·ᶜ-congʳ lemma₂ ⟩
 
-                      ⌜ 𝟘ᵐ? ⌝ ·ᶜ (𝟘ᶜ ∙ ⌜ 𝟘ᵐ? ⌝)                     ≈⟨ ·ᶜ-zeroʳ _ ∙ ·-idem-⌜⌝ 𝟘ᵐ? ⟩
+                          ⌜ 𝟘ᵐ? ⌝ ·ᶜ (𝟘ᶜ ∙ ⌜ 𝟘ᵐ? ⌝)                     ≈⟨ ·ᶜ-zeroʳ _ ∙ ·-idem-⌜⌝ 𝟘ᵐ? ⟩
 
-                      𝟘ᶜ ∙ ⌜ 𝟘ᵐ? ⌝                                  ≈˘⟨ ≈ᶜ-refl ∙ lemma₂ ⟩
+                          𝟘ᶜ ∙ ⌜ 𝟘ᵐ? ⌝                                  ≈˘⟨ ≈ᶜ-refl ∙ lemma₂ ⟩
 
-                      𝟘ᶜ ∙ ⌜ ⌞ ⌜ 𝟘ᵐ? ⌝ · p ⌟ ⌝                      ≈˘⟨ ≈ᶜ-trans (+ᶜ-congʳ $ ·ᶜ-zeroˡ _) $
-                                                                        +ᶜ-identityˡ _ ⟩
-                      𝟘 ·ᶜ (𝟘ᶜ , x2 ≔ ⌜ ⌞ ⌜ 𝟘ᵐ? ⌝ · p ⌟ ᵐ· 𝟘 ⌝) +ᶜ
-                      (𝟘ᶜ , x0 ≔ ⌜ ⌞ ⌜ 𝟘ᵐ? ⌝ · p ⌟ ⌝)               ∎)
-                   (λ s≡𝕤 → case PE.trans (PE.sym s≡𝕤) s≡𝕨 of λ ()))
-                (▸B s≡𝕨))
-             (begin
-                γ ∙ 𝟘 ∙ 𝟘 ∙ ⌜ 𝟘ᵐ? ⌝ · p                          ≈˘⟨ +ᶜ-identityˡ _ ∙ +-identityʳ _ ⟩
+                          𝟘ᶜ ∙ ⌜ ⌞ ⌜ 𝟘ᵐ? ⌝ · p ⌟ ⌝                      ≈˘⟨ ≈ᶜ-trans (+ᶜ-congʳ $ ·ᶜ-zeroˡ _) $
+                                                                            +ᶜ-identityˡ _ ⟩
+                          𝟘 ·ᶜ (𝟘ᶜ , x2 ≔ ⌜ ⌞ ⌜ 𝟘ᵐ? ⌝ · p ⌟ ᵐ· 𝟘 ⌝) +ᶜ
+                          (𝟘ᶜ , x0 ≔ ⌜ ⌞ ⌜ 𝟘ᵐ? ⌝ · p ⌟ ⌝)               ∎)
+                       (λ s≡𝕤 → case PE.trans (PE.sym s≡𝕤) s≡𝕨 of λ ()))
+                    ▸B)
+                 (begin
+                    γ ∙ 𝟘 ∙ 𝟘 ∙ ⌜ 𝟘ᵐ? ⌝ · p                          ≈˘⟨ +ᶜ-identityˡ _ ∙ +-identityʳ _ ⟩
 
-                (𝟘ᶜ ∙ ⌜ 𝟘ᵐ? ⌝ · p) +ᶜ (γ ∙ 𝟘 ∙ 𝟘 ∙ 𝟘)            ≈˘⟨ +ᶜ-cong
-                                                                       (·ᶜ-zeroʳ _ ∙ lemma₃)
-                                                                       (≈ᶜ-trans (wk1Substₘ-app _ γ)
-                                                                          (≈ᶜ-trans (wk1Substₘ-app _ γ)
-                                                                             (≈ᶜ-trans (wk1Substₘ-app _ γ)
-                                                                                (<*-identityˡ _ ∙
-                                                                                 PE.refl) ∙
-                                                                              PE.refl) ∙
-                                                                          PE.refl)) ⟩
-                (⌜ 𝟘ᵐ? ⌝ · p) ·ᶜ (𝟘ᶜ ∙ ⌜ 𝟘ᵐ? ⌝) +ᶜ
-                γ <* wk1Substₘ (wk1Substₘ (wk1Substₘ idSubstₘ))  ∎))
-          (λ _ → var) (wkUsage _ ▸t)
+                    (𝟘ᶜ ∙ ⌜ 𝟘ᵐ? ⌝ · p) +ᶜ (γ ∙ 𝟘 ∙ 𝟘 ∙ 𝟘)            ≈˘⟨ +ᶜ-cong
+                                                                           (·ᶜ-zeroʳ _ ∙ lemma₃)
+                                                                           (≈ᶜ-trans (wk1Substₘ-app _ γ)
+                                                                              (≈ᶜ-trans (wk1Substₘ-app _ γ)
+                                                                                 (≈ᶜ-trans (wk1Substₘ-app _ γ)
+                                                                                    (<*-identityˡ _ ∙
+                                                                                     PE.refl) ∙
+                                                                                  PE.refl) ∙
+                                                                              PE.refl)) ⟩
+                    (⌜ 𝟘ᵐ? ⌝ · p) ·ᶜ (𝟘ᶜ ∙ ⌜ 𝟘ᵐ? ⌝) +ᶜ
+                    γ <* wk1Substₘ (wk1Substₘ (wk1Substₘ idSubstₘ))  ∎))
           (λ where
-             PE.refl → begin
-               δ ∙ ⌜ m ⌝ · 𝟙 · 𝟘 ∙ ⌜ m ⌝ · 𝟙          ≈⟨ ≈ᶜ-refl ∙ PE.trans (·-congˡ $ ·-zeroʳ _) (·-zeroʳ _) ∙
-                                                         ·-identityʳ _ ⟩
-               δ ∙ 𝟘 ∙ ⌜ m ⌝                          ≈˘⟨ +ᶜ-identityˡ _ ∙ +-identityʳ _ ⟩
-               (𝟘ᶜ ∙ ⌜ m ⌝) +ᶜ (δ ∙ 𝟘 ∙ 𝟘)            ≈˘⟨ +ᶜ-congʳ $
-                                                          ≈ᶜ-trans (·ᶜ-identityˡ _) $
-                                                          ≈ᶜ-refl ∙ PE.cong ⌜_⌝ (ᵐ·-identityʳ {m = m}) ⟩
-               𝟙 ·ᶜ (𝟘ᶜ ∙ ⌜ m ᵐ· 𝟙 ⌝) +ᶜ (δ ∙ 𝟘 ∙ 𝟘)  ∎)
+             PE.refl →
+                 𝟘ᶜ ∙ ⌜ m ᵐ· 𝟙 ⌝
+               , var
+               , (begin
+                    δ ∙ ⌜ m ⌝ · 𝟙 · 𝟘 ∙ ⌜ m ⌝ · 𝟙          ≈⟨ ≈ᶜ-refl ∙ PE.trans (·-congˡ $ ·-zeroʳ _) (·-zeroʳ _) ∙
+                                                              ·-identityʳ _ ⟩
+                    δ ∙ 𝟘 ∙ ⌜ m ⌝                          ≈˘⟨ +ᶜ-identityˡ _ ∙ +-identityʳ _ ⟩
+                    (𝟘ᶜ ∙ ⌜ m ⌝) +ᶜ (δ ∙ 𝟘 ∙ 𝟘)            ≈˘⟨ +ᶜ-congʳ $
+                                                               ≈ᶜ-trans (·ᶜ-identityˡ _) $
+                                                               ≈ᶜ-refl ∙ PE.cong ⌜_⌝ (ᵐ·-identityʳ {m = m}) ⟩
+                    𝟙 ·ᶜ (𝟘ᶜ ∙ ⌜ m ᵐ· 𝟙 ⌝) +ᶜ (δ ∙ 𝟘 ∙ 𝟘)  ∎))
           (λ where
              PE.refl → begin
                δ ∙ ⌜ m ⌝ · 𝟘 · 𝟘 ∙ ⌜ m ⌝ · 𝟘  ≈⟨ ≈ᶜ-refl ∙ PE.trans (·-congˡ $ ·-zeroʳ _) (·-zeroʳ _) ∙ ·-zeroʳ _ ⟩
-               δ ∙ 𝟘 ∙ 𝟘                      ∎)))
+               δ ∙ 𝟘 ∙ 𝟘                      ∎)
+          (wkUsage _ ▸t)))
     lemma₄
     where
     lemma₁ : 𝟘 ≤ ⌜ m ⌝ · 𝟘 · (𝟙 + 𝟘)
@@ -280,28 +287,29 @@ opaque
     (s ≡ 𝕨 → Prodrec-allowed m 𝟙 𝟘 𝟙) →
     (s ≡ 𝕨 → Prodrec-allowed 𝟘ᵐ? (𝟘 ∧ 𝟙) 𝟘 𝟘) →
     (s ≡ 𝕨 → Unitrec-allowed m 𝟙 𝟙) →
-    (s ≡ 𝕨 → γ ▸[ 𝟘ᵐ? ] A) →
+    (s ≡ 𝕨 → ∃ λ γ → γ ▸[ 𝟘ᵐ? ] A) →
     δ ▸[ m ᵐ· is-𝕨 ] t →
     δ ▸[ m ] Erased-η A t
   ▸Erased-η {δ} trivial P-ok₁ P-ok₂ U-ok ▸A ▸t = sub
     (▸erasedrec (λ _ → trivial) P-ok₁ U-ok
        (λ s≡𝕨 →
-          Idₘ-generalised (▸Erased (wkUsage _ (▸A s≡𝕨)))
-            (▸[] $
-             ▸erased′ (λ _ → trivial)
-               (λ s≡𝕤 → case PE.trans (PE.sym s≡𝕤) s≡𝕨 of λ ()) var
-               (wkUsage _ ∘→ ▸A) P-ok₂)
-            var
-            (λ _ → 𝟘ᵐ?-elim
-               (λ m → 𝟘ᶜ ∙ ⌜ m ⌝ · 𝟙 ≤ᶜ 𝟘ᶜ)
-               (begin
-                  𝟘ᶜ ∙ 𝟘 · 𝟙  ≈⟨ ≈ᶜ-refl ∙ ·-identityʳ _ ⟩
-                  𝟘ᶜ          ∎)
-               (≈ᶜ-trivial ∘→ trivial))
-            (λ _ → begin
-               𝟘ᶜ ∙ ⌜ 𝟘ᵐ? ⌝ · 𝟙           ≈⟨ ≈ᶜ-refl ∙ ·-identityʳ _ ⟩
-               𝟘ᶜ ∙ ⌜ 𝟘ᵐ? ⌝               ≈˘⟨ +ᶜ-identityˡ _ ⟩
-               𝟘ᶜ +ᶜ (𝟘ᶜ , x0 ≔ ⌜ 𝟘ᵐ? ⌝)  ∎))
+            𝟘ᶜ
+          , Idₘ-generalised (▸Erased (wkUsage _ (▸A s≡𝕨 .proj₂)))
+              (▸[] $
+               ▸erased′ (λ _ → trivial)
+                 (λ s≡𝕤 → case PE.trans (PE.sym s≡𝕤) s≡𝕨 of λ ()) var
+                 (Σ.map _ (wkUsage _) ∘→ ▸A) P-ok₂)
+              var
+              (λ _ → 𝟘ᵐ?-elim
+                 (λ m → 𝟘ᶜ ∙ ⌜ m ⌝ · 𝟙 ≤ᶜ 𝟘ᶜ)
+                 (begin
+                    𝟘ᶜ ∙ 𝟘 · 𝟙  ≈⟨ ≈ᶜ-refl ∙ ·-identityʳ _ ⟩
+                    𝟘ᶜ          ∎)
+                 (≈ᶜ-trivial ∘→ trivial))
+              (λ _ → begin
+                 𝟘ᶜ ∙ ⌜ 𝟘ᵐ? ⌝ · 𝟙           ≈⟨ ≈ᶜ-refl ∙ ·-identityʳ _ ⟩
+                 𝟘ᶜ ∙ ⌜ 𝟘ᵐ? ⌝               ≈˘⟨ +ᶜ-identityˡ _ ⟩
+                 𝟘ᶜ +ᶜ (𝟘ᶜ , x0 ≔ ⌜ 𝟘ᵐ? ⌝)  ∎))
        rflₘ
        ▸t)
     (begin
@@ -319,7 +327,7 @@ opaque
     (s ≡ 𝕨 → ¬ T 𝟘ᵐ-allowed → Trivial) →
     (s ≡ 𝕤 → ¬ T 𝟘ᵐ-allowed → 𝟘 ≤ 𝟙) →
     (s ≡ 𝕨 → Prodrec-allowed 𝟘ᵐ? (𝟘 ∧ 𝟙) 𝟘 𝟘) →
-    (s ≡ 𝕨 → γ₁ ▸[ 𝟘ᵐ? ] A) →
+    (s ≡ 𝕨 → ∃ λ γ₁ → γ₁ ▸[ 𝟘ᵐ? ] A) →
     γ₂ ∙ ⌜ 𝟘ᵐ? ⌝ · p ▸[ 𝟘ᵐ? ] t →
     γ₃ ▸[ 𝟘ᵐ? ] u →
     𝟘ᶜ ▸[ m ] mapᴱ A t u
@@ -334,13 +342,13 @@ opaque
 
   ▸mapᴱ :
     (s ≡ 𝕨 → Prodrec-allowed 𝟘ᵐ? (𝟘 ∧ 𝟙) 𝟘 𝟘) →
-    (s ≡ 𝕨 → γ₁ ▸[ 𝟘ᵐ[ ok ] ] A) →
+    (s ≡ 𝕨 → ∃ λ γ₁ → γ₁ ▸[ 𝟘ᵐ[ ok ] ] A) →
     γ₂ ∙ 𝟘 ▸[ 𝟘ᵐ[ ok ] ] t →
     γ₃ ▸[ 𝟘ᵐ[ ok ] ] u →
     𝟘ᶜ ▸[ m ] mapᴱ A t u
   ▸mapᴱ {ok} {γ₂} prodrec-ok ▸A ▸t ▸u =
     ▸mapᴱ′ (λ _ → ⊥-elim ∘→ (_$ ok)) (λ _ → ⊥-elim ∘→ (_$ ok))
-      prodrec-ok (▸-cong (PE.sym 𝟘ᵐ?≡𝟘ᵐ) ∘→ ▸A)
+      prodrec-ok (Σ.map _ (▸-cong (PE.sym 𝟘ᵐ?≡𝟘ᵐ)) ∘→ ▸A)
       (▸-cong (PE.sym 𝟘ᵐ?≡𝟘ᵐ) $ sub ▸t $ begin
          γ₂ ∙ ⌜ 𝟘ᵐ? ⌝ · 𝟘  ≈⟨ ≈ᶜ-refl ∙ ·-zeroʳ _ ⟩
          γ₂ ∙ 𝟘            ∎)
@@ -377,7 +385,7 @@ opaque
               sub
                 (▸-cong (PE.sym ⌞𝟘⌟≡𝟘ᵐ?) $
                  ▸erased′ trivial 𝟘≤𝟙
-                   var (λ _ → wkUsage (step id) ▸A) ok)
+                   var (λ _ → _ , wkUsage (step id) ▸A) ok)
                 (let open Tools.Reasoning.PartialOrder ≤ᶜ-poset in begin
                    ⌜ ⌞ 𝟘 ⌟ ⌝ ·ᶜ 𝟘ᶜ  ≈⟨ ·ᶜ-zeroʳ _ ⟩
                    𝟘ᶜ               ∎))

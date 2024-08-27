@@ -388,12 +388,12 @@ opaque
     (s PE.≡ 𝕤 → r′ ≤ ⌜ m ⌝ · r · (𝟙 + p)) →
     (s PE.≡ 𝕨 → r′ ≤ r) →
     (s PE.≡ 𝕨 → Prodrec-allowed m r p q) →
-    (s PE.≡ 𝕨 → η ∙ ⌜ 𝟘ᵐ? ⌝ · q ▸[ 𝟘ᵐ? ] A) →
+    (s PE.≡ 𝕨 → ∃ λ η → η ∙ ⌜ 𝟘ᵐ? ⌝ · q ▸[ 𝟘ᵐ? ] A) →
     γ ▸[ m ᵐ· r ] t →
     δ ∙ ⌜ m ⌝ · r · p ∙ ⌜ m ⌝ · r ▸[ m ] u →
     r′ ·ᶜ γ +ᶜ δ ▸[ m ] prodrec⟨ s ⟩ r p q A t u
   ▸prodrec⟨⟩ {s = 𝕨} {r} {r′} {γ} {δ} _ _ hyp₃ ok ▸A ▸t ▸u =
-    sub (prodrecₘ ▸t ▸u (▸A PE.refl) (ok PE.refl)) $ begin
+    sub (prodrecₘ ▸t ▸u (▸A PE.refl .proj₂) (ok PE.refl)) $ begin
       r′ ·ᶜ γ +ᶜ δ  ≤⟨ +ᶜ-monotoneˡ $ ·ᶜ-monotoneˡ $ hyp₃ PE.refl ⟩
       r ·ᶜ γ +ᶜ δ   ∎
     where

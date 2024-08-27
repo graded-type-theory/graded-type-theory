@@ -865,10 +865,10 @@ opaque
              (▸[] (▸[] var)) (▸Erased var)
              (sub
                 (▸mapᴱ′ (λ _ → trivial) (λ _ → trivial′) prodrec-ok
-                   (λ _ → ▸Erased var)
+                   (λ _ → _ , ▸Erased var)
                    (sub
                       (▸erased′ (λ _ → trivial) (λ _ → trivial′) var
-                         (λ _ → var) prodrec-ok)
+                         (λ _ → _ , var) prodrec-ok)
                       (begin
                          𝟘ᶜ ∙ ⌜ 𝟘ᵐ? ⌝ · 𝟘  ≈⟨ ≈ᶜ-refl ∙ ·-zeroʳ _ ⟩
                          𝟘ᶜ                ∎))
