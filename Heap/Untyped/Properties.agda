@@ -38,17 +38,16 @@ private variable
   k n n′ n″ m m′ m″ : Nat
   t t′ t″ u v A z : Term _
   H H′ H″ : Heap _ _
-  E E′ E″ : Env _ _
+  ρ ρ′ ρ″ : Wk _ _
   S S′ S″ : Stack _
   p p′ q r r′ : M
   y y′ : Ptr _
   x : Fin _
-  c c′ : Closure _ _
+  c c′ : Entry _ _
   Γ : Con Term _
   e e′ : Elim _
   s : State _ _ _
   σ : Subst _ _
-  ρ : Wk _ _
 
 ------------------------------------------------------------------------
 -- Properties of values
@@ -173,10 +172,10 @@ opaque
   -- Variable lookup with heap update is deterministic.
 
   lookup-det : {H : Heap k m} {t : Term n} {u : Term n′}
-             → H ⊢ y ↦[ r ] t , E ⨾ H′
-             → H ⊢ y ↦[ r ] u , E′ ⨾ H″
+             → H ⊢ y ↦[ r ] t , ρ ⨾ H′
+             → H ⊢ y ↦[ r ] u , ρ′ ⨾ H″
              → Σ (n ≡ n′) λ p → subst Term p t ≡ u
-               × subst (Env m) p E ≡ E′ × H′ ≡ H″
+               × subst (Wk m) p ρ ≡ ρ′ × H′ ≡ H″
   lookup-det (here p-𝟙≡q) (here p-𝟙≡q′) =
     case -≡-functional p-𝟙≡q p-𝟙≡q′ of λ {
       refl →
@@ -195,9 +194,9 @@ opaque
   -- Variable lookup without heap update is deterministic.
 
   lookup-det′ : {H : Heap k m} {t : Term n} {u : Term n′}
-             → H ⊢ y ↦ (t , E)
-             → H ⊢ y ↦ (u , E′)
-             → Σ (n ≡ n′) λ p → subst Term p t ≡ u × subst (Env m) p E ≡ E′
+             → H ⊢ y ↦ (t , ρ)
+             → H ⊢ y ↦ (u , ρ′)
+             → Σ (n ≡ n′) λ p → subst Term p t ≡ u × subst (Wk m) p ρ ≡ ρ′
   lookup-det′ here here = refl , refl , refl
   lookup-det′ (there d) (there d′) =
     case lookup-det′ d d′ of λ {
@@ -222,29 +221,29 @@ opaque
 
   -- Heap lookups match the corresponding substitution.
 
-  heapSubstVar : H ⊢ y ↦[ q ] t , E ⨾ H′ → toSubstₕ H y ≡ wk E t [ H ]ₕ
+  heapSubstVar : H ⊢ y ↦[ q ] t , ρ ⨾ H′ → toSubstₕ H y ≡ wk ρ t [ H ]ₕ
   heapSubstVar {t} (here _) =
     sym (step-consSubst t)
   heapSubstVar {t} (there d) =
     trans (heapSubstVar d) (sym (step-consSubst t))
-  heapSubstVar {H = H ∙●} {t} {E = step E} (there● d) =
+  heapSubstVar {H = H ∙●} {t} {ρ = step ρ} (there● d) =
     trans (cong wk1 (heapSubstVar d))
-      (trans (sym (wk1-liftSubst (wk E t)))
-        (cong (_[ H ]⇑ₕ) (wk1-wk E t)))
+      (trans (sym (wk1-liftSubst (wk ρ t)))
+        (cong (_[ H ]⇑ₕ) (wk1-wk ρ t)))
 
 opaque
 
   -- Heap lookups match the corresponding substitution.
 
-  heapSubstVar′ : H ⊢ y ↦ (t , E) → toSubstₕ H y ≡ wk E t [ H ]ₕ
+  heapSubstVar′ : H ⊢ y ↦ (t , ρ) → toSubstₕ H y ≡ wk ρ t [ H ]ₕ
   heapSubstVar′ {t} here =
     sym (step-consSubst t)
   heapSubstVar′ {t} (there d) =
     trans (heapSubstVar′ d) (sym (step-consSubst t))
-  heapSubstVar′ {H = H ∙●} {t} {E = step E} (there● d) =
+  heapSubstVar′ {H = H ∙●} {t} {ρ = step ρ} (there● d) =
     trans (cong wk1 (heapSubstVar′ d))
-      (trans (sym (wk1-liftSubst (wk E t)))
-        (cong (_[ H ]⇑ₕ) (wk1-wk E t)))
+      (trans (sym (wk1-liftSubst (wk ρ t)))
+        (cong (_[ H ]⇑ₕ) (wk1-wk ρ t)))
 
 ------------------------------------------------------------------------
 -- Properties of stacks and eliminators
@@ -254,37 +253,37 @@ opaque
   -- Applying a single substitution to a term and then to an eliminator
 
   ⦅⦆ᵉ-sgSubst : ∀ e → ⦅ e ⦆ᵉ (t [ u ]₀) ≡ ⦅ wk1ᵉ e ⦆ᵉ t [ u ]₀
-  ⦅⦆ᵉ-sgSubst (∘ₑ p u E) =
+  ⦅⦆ᵉ-sgSubst (∘ₑ p u ρ) =
     cong (_ ∘_) (sym (step-sgSubst _ _))
   ⦅⦆ᵉ-sgSubst (fstₑ p) = refl
   ⦅⦆ᵉ-sgSubst (sndₑ p) = refl
-  ⦅⦆ᵉ-sgSubst {u = v} (prodrecₑ r p q A u E) =
+  ⦅⦆ᵉ-sgSubst {u = v} (prodrecₑ r p q A u ρ) =
     cong₂ (λ u A → prodrec r p q A _ u)
       (lifts-step-sgSubst 2 u)
       (lifts-step-sgSubst 1 A)
-  ⦅⦆ᵉ-sgSubst {u} (natrecₑ p q r A z s E) =
+  ⦅⦆ᵉ-sgSubst {u} (natrecₑ p q r A z s ρ) =
     cong₃ (λ A z s → natrec p q r A z s _)
       (lifts-step-sgSubst 1 A)
       (lifts-step-sgSubst 0 z)
       (lifts-step-sgSubst 2 s)
-  ⦅⦆ᵉ-sgSubst {u = v} (unitrecₑ p q A u E) =
+  ⦅⦆ᵉ-sgSubst {u = v} (unitrecₑ p q A u ρ) =
     cong₂ (λ u A → unitrec p q A _ u)
       (sym (step-sgSubst _ _))
       (lifts-step-sgSubst 1 A)
-  ⦅⦆ᵉ-sgSubst (emptyrecₑ p A E) =
+  ⦅⦆ᵉ-sgSubst (emptyrecₑ p A ρ) =
     cong (λ A → emptyrec p A _)
       (lifts-step-sgSubst 0 A)
-  ⦅⦆ᵉ-sgSubst (Jₑ p q A t B u v E) =
+  ⦅⦆ᵉ-sgSubst (Jₑ p q A t B u v ρ) =
     sym (cong₅ (λ A t B u v → J p q A t B u v _)
       (step-sgSubst A _) (step-sgSubst t _)
       (sym (lifts-step-sgSubst 2 B))
       (step-sgSubst u _) (step-sgSubst v _))
-  ⦅⦆ᵉ-sgSubst (Kₑ p A t B u E) =
+  ⦅⦆ᵉ-sgSubst (Kₑ p A t B u ρ) =
     sym (cong₄ (λ A t B u → K p A t B u _)
       (step-sgSubst A _) (step-sgSubst t _)
       (sym (lifts-step-sgSubst 1 B))
       (step-sgSubst u _))
-  ⦅⦆ᵉ-sgSubst ([]-congₑ s A t u E) =
+  ⦅⦆ᵉ-sgSubst ([]-congₑ s A t u ρ) =
     sym (cong₃ (λ A t u → []-cong s A t u _)
       (step-sgSubst A _) (step-sgSubst t _)
       (step-sgSubst u _))
@@ -308,34 +307,34 @@ opaque
   -- Applying a double substitution to a term and then to an eliminator
 
   ⦅⦆ᵉ-[,] : ∀ e → ⦅ e ⦆ᵉ (t [ u , v ]₁₀) ≡ ⦅ wk2ᵉ e ⦆ᵉ t [ u , v ]₁₀
-  ⦅⦆ᵉ-[,] (∘ₑ p u E) =
+  ⦅⦆ᵉ-[,] (∘ₑ p u ρ) =
     cong (_ ∘_) (lifts-step-[,] 0 u)
   ⦅⦆ᵉ-[,] (fstₑ x) = refl
   ⦅⦆ᵉ-[,] (sndₑ x) = refl
-  ⦅⦆ᵉ-[,] (prodrecₑ r p q A u E) =
+  ⦅⦆ᵉ-[,] (prodrecₑ r p q A u ρ) =
     cong₂ (λ x y → prodrec r p q x _ y)
       (lifts-step-[,] 1 A)
       (lifts-step-[,] 2 u)
-  ⦅⦆ᵉ-[,] (natrecₑ p q r A z s E) =
+  ⦅⦆ᵉ-[,] (natrecₑ p q r A z s ρ) =
     cong₃ (λ A z s → natrec p q r A z s _)
       (lifts-step-[,] 1 A)
       (lifts-step-[,] 0 z)
       (lifts-step-[,] 2 s)
-  ⦅⦆ᵉ-[,] (unitrecₑ p q A u E) =
+  ⦅⦆ᵉ-[,] (unitrecₑ p q A u ρ) =
     cong₂ (λ x y → unitrec p q x _ y)
       (lifts-step-[,] 1 A) (lifts-step-[,] 0 u)
-  ⦅⦆ᵉ-[,] (emptyrecₑ p A E) =
+  ⦅⦆ᵉ-[,] (emptyrecₑ p A ρ) =
     cong (λ A → emptyrec p A _) (lifts-step-[,] 0 A)
-  ⦅⦆ᵉ-[,] (Jₑ p q A t B u v E) =
+  ⦅⦆ᵉ-[,] (Jₑ p q A t B u v ρ) =
     cong₅ (λ A t B u v → J p q A t B u v _)
       (lifts-step-[,] 0 A) (lifts-step-[,] 0 t)
       (lifts-step-[,] 2 B) (lifts-step-[,] 0 u)
       (lifts-step-[,] 0 v)
-  ⦅⦆ᵉ-[,] (Kₑ p A t B u E) =
+  ⦅⦆ᵉ-[,] (Kₑ p A t B u ρ) =
     cong₄ (λ A t B u → K p A t B u _)
       (lifts-step-[,] 0 A) (lifts-step-[,] 0 t)
       (lifts-step-[,] 1 B) (lifts-step-[,] 0 u)
-  ⦅⦆ᵉ-[,] ([]-congₑ s A t u E) =
+  ⦅⦆ᵉ-[,] ([]-congₑ s A t u ρ) =
     cong₃ (λ A t u → []-cong s A t u _)
       (lifts-step-[,] 0 A) (lifts-step-[,] 0 t)
       (lifts-step-[,] 0 u)
@@ -359,38 +358,38 @@ opaque
   -- Weakening of an eliminator applied to a Term
 
   wk-⦅⦆ᵉ : ∀ {ρ : Wk m n} e → wk ρ (⦅ e ⦆ᵉ t) ≡ ⦅ wkᵉ ρ e ⦆ᵉ (wk ρ t)
-  wk-⦅⦆ᵉ {ρ} (∘ₑ p u E) =
-    cong (_ ∘_) (wk-comp ρ E u)
+  wk-⦅⦆ᵉ {ρ} (∘ₑ p u ρ′) =
+    cong (_ ∘_) (wk-comp ρ ρ′ u)
   wk-⦅⦆ᵉ (fstₑ p) = refl
   wk-⦅⦆ᵉ (sndₑ p) = refl
-  wk-⦅⦆ᵉ {ρ} (prodrecₑ r p q A u E) =
+  wk-⦅⦆ᵉ {ρ} (prodrecₑ r p q A u ρ′) =
     cong₂ (λ A u → prodrec r p q A _ u)
-      (wk-comp (lift ρ) (lift E) A)
-      (wk-comp (liftn ρ 2) (liftn E 2) u)
-  wk-⦅⦆ᵉ {ρ} (natrecₑ p q r A z s E) =
+      (wk-comp (lift ρ) (lift ρ′) A)
+      (wk-comp (liftn ρ 2) (liftn ρ′ 2) u)
+  wk-⦅⦆ᵉ {ρ} (natrecₑ p q r A z s ρ′) =
     cong₃ (λ A z s → natrec p q r A z s _)
-      (wk-comp (lift ρ) (lift E) A)
-      (wk-comp ρ E z)
-      (wk-comp (liftn ρ 2) (liftn E 2) s)
-  wk-⦅⦆ᵉ {ρ} (unitrecₑ p q A u E) =
+      (wk-comp (lift ρ) (lift ρ′) A)
+      (wk-comp ρ ρ′ z)
+      (wk-comp (liftn ρ 2) (liftn ρ′ 2) s)
+  wk-⦅⦆ᵉ {ρ} (unitrecₑ p q A u ρ′) =
     cong₂ (λ A u → unitrec p q A _ u)
-      (wk-comp (lift ρ) (lift E) A)
-      (wk-comp ρ E u)
-  wk-⦅⦆ᵉ {ρ} (emptyrecₑ p A E) =
-    cong (λ A → emptyrec p A _) (wk-comp ρ E A)
-  wk-⦅⦆ᵉ {ρ} (Jₑ p q A t B u v E) =
+      (wk-comp (lift ρ) (lift ρ′) A)
+      (wk-comp ρ ρ′ u)
+  wk-⦅⦆ᵉ {ρ} (emptyrecₑ p A ρ′) =
+    cong (λ A → emptyrec p A _) (wk-comp ρ ρ′ A)
+  wk-⦅⦆ᵉ {ρ} (Jₑ p q A t B u v ρ′) =
     cong₅ (λ A t B u v → J p q A t B u v _)
-      (wk-comp ρ E A) (wk-comp ρ E t)
-      (wk-comp (liftn ρ 2) (liftn E 2) B)
-      (wk-comp ρ E u) (wk-comp ρ E v)
-  wk-⦅⦆ᵉ {ρ} (Kₑ p A t B u E) =
+      (wk-comp ρ ρ′ A) (wk-comp ρ ρ′ t)
+      (wk-comp (liftn ρ 2) (liftn ρ′ 2) B)
+      (wk-comp ρ ρ′ u) (wk-comp ρ ρ′ v)
+  wk-⦅⦆ᵉ {ρ} (Kₑ p A t B u ρ′) =
     cong₄ (λ A t B u → K p A t B u _)
-      (wk-comp ρ E A) (wk-comp ρ E t)
-      (wk-comp (lift ρ) (lift E) B) (wk-comp ρ E u)
-  wk-⦅⦆ᵉ {ρ} ([]-congₑ s A t u E) =
+      (wk-comp ρ ρ′ A) (wk-comp ρ ρ′ t)
+      (wk-comp (lift ρ) (lift ρ′) B) (wk-comp ρ ρ′ u)
+  wk-⦅⦆ᵉ {ρ} ([]-congₑ s A t u ρ′) =
     cong₃ (λ A t u → []-cong s A t u _)
-      (wk-comp ρ E A) (wk-comp ρ E t)
-      (wk-comp ρ E u)
+      (wk-comp ρ ρ′ A) (wk-comp ρ ρ′ t)
+      (wk-comp ρ ρ′ u)
   wk-⦅⦆ᵉ {ρ} sucₑ = refl
 
 opaque
@@ -399,25 +398,25 @@ opaque
 
   ⦅⦆ᵉ-cong : ∀ e → t [ σ ] ≡ u [ σ ]
          → ⦅ e ⦆ᵉ t [ σ ] ≡ ⦅ e ⦆ᵉ u [ σ ]
-  ⦅⦆ᵉ-cong (∘ₑ p u E) t≡u =
+  ⦅⦆ᵉ-cong (∘ₑ p u ρ) t≡u =
     cong (_∘ _) t≡u
   ⦅⦆ᵉ-cong (fstₑ x) t≡u =
     cong (fst _) t≡u
   ⦅⦆ᵉ-cong (sndₑ x) t≡u =
     cong (snd _) t≡u
-  ⦅⦆ᵉ-cong (prodrecₑ r p q A u E) t≡u =
+  ⦅⦆ᵉ-cong (prodrecₑ r p q A u ρ) t≡u =
     cong (λ t → prodrec _ _ _ _ t _) t≡u
-  ⦅⦆ᵉ-cong (natrecₑ p q r A z s E) t≡u =
+  ⦅⦆ᵉ-cong (natrecₑ p q r A z s ρ) t≡u =
     cong (λ t → natrec _ _ _ _ _ _ t) t≡u
-  ⦅⦆ᵉ-cong (unitrecₑ p q A u E) t≡u =
+  ⦅⦆ᵉ-cong (unitrecₑ p q A u ρ) t≡u =
     cong (λ t → unitrec _ _ _ t _) t≡u
-  ⦅⦆ᵉ-cong (emptyrecₑ p A E) t≡u =
+  ⦅⦆ᵉ-cong (emptyrecₑ p A ρ) t≡u =
     cong (emptyrec _ _) t≡u
-  ⦅⦆ᵉ-cong (Jₑ p q A t B u v E) t≡u =
+  ⦅⦆ᵉ-cong (Jₑ p q A t B u v ρ) t≡u =
     cong (J _ _ _ _ _ _ _) t≡u
-  ⦅⦆ᵉ-cong (Kₑ p A t B u E) t≡u =
+  ⦅⦆ᵉ-cong (Kₑ p A t B u ρ) t≡u =
     cong (K _ _ _ _ _) t≡u
-  ⦅⦆ᵉ-cong ([]-congₑ s A t u E) t≡u =
+  ⦅⦆ᵉ-cong ([]-congₑ s A t u ρ) t≡u =
     cong ([]-cong _ _ _ _) t≡u
   ⦅⦆ᵉ-cong sucₑ t≡u =
     cong suc t≡u
@@ -447,16 +446,16 @@ opaque
   wk-∣e∣ : ⦃ _ : Has-nr M semiring-with-meet ⦄
          → ⦃ _ : Has-factoring-nr M semiring-with-meet ⦄
          → (ρ : Wk k n) (e : Elim n) → ∣ e ∣ᵉ ≡ ∣ wkᵉ ρ e ∣ᵉ
-  wk-∣e∣ ρ (∘ₑ p u E) = refl
+  wk-∣e∣ ρ (∘ₑ p u ρ′) = refl
   wk-∣e∣ ρ (fstₑ x) = refl
   wk-∣e∣ ρ (sndₑ x) = refl
-  wk-∣e∣ ρ (prodrecₑ r p q A u E) = refl
-  wk-∣e∣ ρ (natrecₑ p q r A z s E) = refl
-  wk-∣e∣ ρ (unitrecₑ p q A u E) = refl
-  wk-∣e∣ ρ (emptyrecₑ p A E) = refl
-  wk-∣e∣ ρ (Jₑ p q A t B u v E) = refl
-  wk-∣e∣ ρ (Kₑ p A t B u E) = refl
-  wk-∣e∣ ρ ([]-congₑ s A t u E) = refl
+  wk-∣e∣ ρ (prodrecₑ r p q A u ρ′) = refl
+  wk-∣e∣ ρ (natrecₑ p q r A z s ρ′) = refl
+  wk-∣e∣ ρ (unitrecₑ p q A u ρ′) = refl
+  wk-∣e∣ ρ (emptyrecₑ p A ρ′) = refl
+  wk-∣e∣ ρ (Jₑ p q A t B u v ρ′) = refl
+  wk-∣e∣ ρ (Kₑ p A t B u ρ′) = refl
+  wk-∣e∣ ρ ([]-congₑ s A t u ρ′) = refl
   wk-∣e∣ ρ sucₑ = refl
 
 opaque
@@ -575,16 +574,16 @@ opaque
 opaque
 
   ¬⦅⦆ᵉ-neutral : ∀ e → ¬ Neutral t → ¬ Neutral (⦅ e ⦆ᵉ t)
-  ¬⦅⦆ᵉ-neutral (∘ₑ p u E) ¬n (∘ₙ n) = ¬n n
+  ¬⦅⦆ᵉ-neutral (∘ₑ p u ρ) ¬n (∘ₙ n) = ¬n n
   ¬⦅⦆ᵉ-neutral (fstₑ x) ¬n (fstₙ n) = ¬n n
   ¬⦅⦆ᵉ-neutral (sndₑ x) ¬n (sndₙ n) = ¬n n
-  ¬⦅⦆ᵉ-neutral (prodrecₑ r p q A u E) ¬n (prodrecₙ n) = ¬n n
-  ¬⦅⦆ᵉ-neutral (natrecₑ p q r A z s E) ¬n (natrecₙ n) = ¬n n
-  ¬⦅⦆ᵉ-neutral (unitrecₑ p q A u E) ¬n (unitrecₙ _ n) = ¬n n
-  ¬⦅⦆ᵉ-neutral (emptyrecₑ p A E) ¬n (emptyrecₙ n) = ¬n n
-  ¬⦅⦆ᵉ-neutral (Jₑ p q A t B u v E) ¬n (Jₙ n) = ¬n n
-  ¬⦅⦆ᵉ-neutral (Kₑ p A t B u E) ¬n (Kₙ n) = ¬n n
-  ¬⦅⦆ᵉ-neutral ([]-congₑ s A t u E) ¬n ([]-congₙ n) = ¬n n
+  ¬⦅⦆ᵉ-neutral (prodrecₑ r p q A u ρ) ¬n (prodrecₙ n) = ¬n n
+  ¬⦅⦆ᵉ-neutral (natrecₑ p q r A z s ρ) ¬n (natrecₙ n) = ¬n n
+  ¬⦅⦆ᵉ-neutral (unitrecₑ p q A u ρ) ¬n (unitrecₙ _ n) = ¬n n
+  ¬⦅⦆ᵉ-neutral (emptyrecₑ p A ρ) ¬n (emptyrecₙ n) = ¬n n
+  ¬⦅⦆ᵉ-neutral (Jₑ p q A t B u v ρ) ¬n (Jₙ n) = ¬n n
+  ¬⦅⦆ᵉ-neutral (Kₑ p A t B u ρ) ¬n (Kₙ n) = ¬n n
+  ¬⦅⦆ᵉ-neutral ([]-congₑ s A t u ρ) ¬n ([]-congₙ n) = ¬n n
 
 opaque
 
@@ -657,10 +656,10 @@ opaque
 
   ~ʰ-subst : H ~ʰ H′ → toSubstₕ H ≡ toSubstₕ H′
   ~ʰ-subst ε = refl
-  ~ʰ-subst (H~H′ ∙ (t , E)) =
+  ~ʰ-subst (H~H′ ∙ (t , ρ)) =
     case ~ʰ-subst H~H′ of λ
       H≡H′ →
-    cong₂ consSubst H≡H′ (cong (wk E t [_]) H≡H′)
+    cong₂ consSubst H≡H′ (cong (wk ρ t [_]) H≡H′)
   ~ʰ-subst (H~H′ ∙●) =
     cong liftSubst (~ʰ-subst H~H′)
 
@@ -684,11 +683,11 @@ opaque
   wk-[]ₕ {H} id t = cong (_[ H ]ₕ) (sym (wk-id t))
   wk-[]ₕ (step ρ) t = trans (wk-[]ₕ ρ t) (sym (step-consSubst t))
   -- wk-[]ₕ (lift {ρ} {H} {H′} {c = u , E} [ρ]) t = begin
-  --   t [ consSubst (toSubstₕ H′) (wk E u [ H′ ]ₕ) ]                     ≡˘⟨ singleSubstComp (wk E u [ H′ ]ₕ) (toSubstₕ H′) t ⟩
-  --   t [ liftSubst (toSubstₕ H′) ] [ wk E u [ H′ ]ₕ ]₀                  ≡˘⟨ singleSubstLift t (wk E u) ⟩
-  --   t [ wk E u ]₀ [ H′ ]ₕ                                              ≡⟨ wk-[]ₕ [ρ] (t [ wk E u ]₀) ⟩
-  --   wk ρ (t [ wk E u ]₀) [ H ]ₕ                                        ≡⟨ cong (_[ H ]ₕ) (wk-β t) ⟩
-  --   wk (lift ρ) t [ wk ρ (wk E u) ]₀ [ H ]ₕ                            ≡⟨ cong (λ x → wk (lift ρ) t [ x ]₀ [ H ]ₕ) (wk-comp ρ E u) ⟩
+  --   t [ consSubst (toSubstₕ H′) (wk ρ u [ H′ ]ₕ) ]                     ≡˘⟨ singleSubstComp (wk ρ u [ H′ ]ₕ) (toSubstₕ H′) t ⟩
+  --   t [ liftSubst (toSubstₕ H′) ] [ wk ρ u [ H′ ]ₕ ]₀                  ≡˘⟨ singleSubstLift t (wk ρ u) ⟩
+  --   t [ wk ρ u ]₀ [ H′ ]ₕ                                              ≡⟨ wk-[]ₕ [ρ] (t [ wk ρ u ]₀) ⟩
+  --   wk ρ (t [ wk ρ u ]₀) [ H ]ₕ                                        ≡⟨ cong (_[ H ]ₕ) (wk-β t) ⟩
+  --   wk (lift ρ) t [ wk ρ (wk ρ u) ]₀ [ H ]ₕ                            ≡⟨ cong (λ x → wk (lift ρ) t [ x ]₀ [ H ]ₕ) (wk-comp ρ ρ u) ⟩
   --   wk (lift ρ) t [ wk (ρ • E) u ]₀ [ H ]ₕ                             ≡⟨ singleSubstLift (wk (lift ρ) t) (wk (ρ • E) u) ⟩
   --   wk (lift ρ) t [ liftSubst (toSubstₕ H) ] [ wk (ρ • E) u [ H ]ₕ ]₀  ≡⟨ singleSubstComp (wk (ρ • E) u [ H ]ₕ) (toSubstₕ H) (wk (lift ρ) t) ⟩
   --   wk (lift ρ) t [ consSubst (toSubstₕ H) (wk (ρ • E) u [ H ]ₕ) ] ∎
@@ -740,13 +739,13 @@ opaque
 
 opaque
 
-  wk1-Normal : Normal ⟨ H , t , E , S ⟩ → Normal ⟨ H ∙ (p , c) , t , step E , wk1ˢ S ⟩
+  wk1-Normal : Normal ⟨ H , t , ρ , S ⟩ → Normal ⟨ H ∙ (p , c) , t , step ρ , wk1ˢ S ⟩
   wk1-Normal (val x) = val x
   wk1-Normal (var d) = var (there d)
 
 opaque
 
-  wk1●-Normal : Normal ⟨ H , t , E , S ⟩ → Normal ⟨ H ∙● , t , step E , wk1ˢ S ⟩
+  wk1●-Normal : Normal ⟨ H , t , ρ , S ⟩ → Normal ⟨ H ∙● , t , step ρ , wk1ˢ S ⟩
   wk1●-Normal (val x) = val x
   wk1●-Normal (var d) = var (there● d)
 
@@ -754,14 +753,14 @@ opaque
 
   -- The stack of a normal state can be replaced to give a normal state
 
-  Normal-stack : Normal ⟨ H , t , E , S ⟩ → Normal ⟨ H , t , E , S′ ⟩
+  Normal-stack : Normal ⟨ H , t , ρ , S ⟩ → Normal ⟨ H , t , ρ , S′ ⟩
   Normal-stack (val x) = val x
   Normal-stack (var x) = var x
 
 opaque
 
-  State-injectivity : ⟨ H , t , E , S ⟩ ≡ ⟨ H′ , t′ , E′ , S′ ⟩
-                    → H ≡ H′ × t ≡ t′ × E ≡ E′ × S ≡ S′
+  State-injectivity : ⟨ H , t , ρ , S ⟩ ≡ ⟨ H′ , t′ , ρ′ , S′ ⟩
+                    → H ≡ H′ × t ≡ t′ × ρ ≡ ρ′ × S ≡ S′
   State-injectivity refl = refl , refl , refl , refl
 
 opaque

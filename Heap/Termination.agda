@@ -62,7 +62,7 @@ private variable
   t u A B : Term _
   γ δ η : Conₘ _
   H : Heap _ _
-  E : Env _ _
+  ρ : Wk _ _
   S : Stack _
   e : Elim _
   Γ Δ : Con Term _
@@ -79,13 +79,13 @@ opaque
           → Δ ⊢ ⦅ s ⦆ ↘ u ∷ A
           → Δ ⨾ Γ ⊢ s ∷ B
           → γ ⨾ δ ⨾ η ▸[ m ] s
-          → ∃₂ λ m n → ∃₃ λ H t (E : Env m n)
-          → s ⇒* ⟨ H , t , E , ε ⟩ × wk E t [ H ]ₕ ≡ u × Value t
-  whBisim {s = ⟨ H , t , E , S ⟩} consistent (d , w) ⊢s ▸s =
+          → ∃₂ λ m n → ∃₃ λ H t (ρ : Wk m n)
+          → s ⇒* ⟨ H , t , ρ , ε ⟩ × wk ρ t [ H ]ₕ ≡ u × Value t
+  whBisim {s = ⟨ H , t , ρ , S ⟩} consistent (d , w) ⊢s ▸s =
     case bisim₆* As d ⊢s ▸s of λ {
-      (_ , _ , ⟨ H , t′ , E , S ⟩ , d₁ , refl) →
-    case normalize H t′ E S of λ
-      (_ , t″ , E′ , S′ , n , dₙ) →
+      (_ , _ , ⟨ H , t′ , ρ , S ⟩ , d₁ , refl) →
+    case normalize H t′ ρ S of λ
+      (_ , t″ , ρ′ , S′ , n , dₙ) →
     case RPₙₜ.⇒ₙ*-⦅⦆-≡ dₙ of λ {
       t′≡t″ →
     case ▸-⇒* ▸s d₁ of λ
@@ -100,8 +100,8 @@ opaque
       (val v) →
         case lemma {H = H} {S = S′} w v ⊢s″ (RPₙₜ.⇒ₙ*-⦅⦆-≡ dₙ) of λ {
           refl →
-        _ , _ , _ , t″ , E′ , d₁ RPₜ.⇨* dₜ
-          , PE.sym (PE.trans t′≡t″ (cong (wk E′ t″ [_]) (~ʰ-subst H~H′))) , v}
+        _ , _ , _ , t″ , ρ′ , d₁ RPₜ.⇨* dₜ
+          , PE.sym (PE.trans t′≡t″ (cong (wk ρ′ t″ [_]) (~ʰ-subst H~H′))) , v}
       (var d) →
         case ~ʰ-lookup● H~H′ d of λ
           d′ →
@@ -116,18 +116,18 @@ opaque
               (inj₁ ∣S∣≢𝟘) →
                 ⊥-elim (∣S∣≢𝟘 ∣S∣≡𝟘)
               (inj₂ (er∈S , ok)) →
-                ⊥-elim (⊢emptyrec₀∉S {E = E′} (consistent ok) ⊢s″ er∈S) }}
+                ⊥-elim (⊢emptyrec₀∉S {ρ = ρ′} (consistent ok) ⊢s″ er∈S) }}
     where
-    lemma : ∀ {n} {t : Term n} {H E S}
-          → Whnf u → Value t → Δ ⨾ Γ ⊢ ⟨ H , t , E , S ⟩ ∷ A
-          → u PE.≡ ⦅ ⟨ H , t , E , S ⟩ ⦆ → S PE.≡ ε
+    lemma : ∀ {n} {t : Term n} {H ρ S}
+          → Whnf u → Value t → Δ ⨾ Γ ⊢ ⟨ H , t , ρ , S ⟩ ∷ A
+          → u PE.≡ ⦅ ⟨ H , t , ρ , S ⟩ ⦆ → S PE.≡ ε
     lemma {S = ε} w n _ u≡ = refl
-    lemma {t} {H} {E} {S = e ∙ S} w v (_ , _ , _ , ⊢S) u≡ =
+    lemma {t} {H} {ρ} {S = e ∙ S} w v (_ , _ , _ , ⊢S) u≡ =
       case Value→¬Neutral v of λ
         ¬n →
       ⊥-elim (¬whnf-subst {σ = toSubstₕ H}
-        (⊢whnf⦅⦆ˢ {t = wk E t} ⊢S
-          λ n → ¬n (neutral-subst (subst Neutral (wk≡subst E t) n)))
+        (⊢whnf⦅⦆ˢ {t = wk ρ t} ⊢S
+          λ n → ¬n (neutral-subst (subst Neutral (wk≡subst ρ t) n)))
         (subst Whnf u≡ w))
 
 opaque
@@ -137,8 +137,8 @@ opaque
   whBisim-initial : {Δ : Con Term k}
                   → k ≡ 0 ⊎ ((Emptyrec-allowed 𝟙ᵐ 𝟘 → Consistent Δ) × T erased-heap)
                   → Δ ⊢ t ↘ u ∷ A → 𝟘ᶜ ▸ t
-                  → ∃₂ λ m n → ∃₃ λ H u′ (E : Env m n)
-                  → initial t ⇒* ⟨ H , u′ , E , ε ⟩ × wk E u′ [ H ]ₕ ≡ u × Value u′
+                  → ∃₂ λ m n → ∃₃ λ H u′ (ρ : Wk m n)
+                  → initial t ⇒* ⟨ H , u′ , ρ , ε ⟩ × wk ρ u′ [ H ]ₕ ≡ u × Value u′
   whBisim-initial {k} {Δ} as d ▸t =
     whBisim consistent
       (subst (_ ⊢_↘ _ ∷ _)
@@ -167,8 +167,8 @@ opaque
   whRed : {Δ : Con Term k}
         → (k ≡ 0 ⊎ (Emptyrec-allowed 𝟙ᵐ 𝟘 → Consistent Δ) × T erased-heap)
         → Δ ⊢ t ∷ A → 𝟘ᶜ ▸ t
-        → ∃₂ λ m n → ∃₃ λ H u′ (E : Env m n)
-          → initial t ⇒* ⟨ H , u′ , E , ε ⟩ × Value u′ × Whnf ⦅ ⟨ H , u′ , E , ε ⟩ ⦆
+        → ∃₂ λ m n → ∃₃ λ H u (ρ : Wk m n)
+          → initial t ⇒* ⟨ H , u , ρ , ε ⟩ × Value u × Whnf ⦅ ⟨ H , u , ρ , ε ⟩ ⦆
   whRed as ⊢t ▸t =
     case whNormTerm ⊢t of λ
       (u , w , d) →

@@ -56,11 +56,11 @@ private variable
   x : Fin _
   y : Ptr _
   t : Term _
-  E E′ : Env _ _
+  ρ ρ′ : Wk _ _
   S : Stack _
   e : Elim _
-  c : Closureₘ _ _
-  c′ : Closure _ _
+  c : Entryₘ _ _
+  c′ : Entry _ _
 
 opaque
 
@@ -99,10 +99,10 @@ opaque
 
   ▸ᶜ¹ : γ ▸ t
       → q ≤ p
-      → γ ⨾ p ▸ᶜ (q , t , E)
-  ▸ᶜ¹ {γ = γ} {t} {q} {p} {E = E} ▸t q≤p =
+      → γ ⨾ p ▸ᶜ (q , t , ρ)
+  ▸ᶜ¹ {γ} {t} {q} {p} {ρ} ▸t q≤p =
     let 𝟙q≡q = ·-identityˡ q
-    in  subst (λ x → γ ⨾ p ▸ᶜ (x , t , E)) 𝟙q≡q
+    in  subst (λ x → γ ⨾ p ▸ᶜ (x , t , ρ)) 𝟙q≡q
          (▸ᶜ ▸t (≤-trans (≤-reflexive 𝟙q≡q) q≤p))
 
 opaque
@@ -111,9 +111,9 @@ opaque
 
   ▸ᶜ⁰ : ∀ {ok}
       → γ ▸[ 𝟘ᵐ[ ok ] ] t
-      → γ ⨾ 𝟘 ▸ᶜ (𝟘 , t , E)
-  ▸ᶜ⁰ {γ} {t} {E} ▸t =
-    subst (λ x → γ ⨾ 𝟘 ▸ᶜ (x , t , E))
+      → γ ⨾ 𝟘 ▸ᶜ (𝟘 , t , ρ)
+  ▸ᶜ⁰ {γ} {t} {ρ} ▸t =
+    subst (λ x → γ ⨾ 𝟘 ▸ᶜ (x , t , ρ))
       (·-zeroˡ 𝟘)
       (▸ᶜ ▸t (≤-reflexive (·-zeroˡ _)))
 
@@ -122,9 +122,9 @@ opaque
   -- Usage of closures where the mode is 𝟘ᵐ?
 
   ▸ᶜ⁰? : γ ▸[ 𝟘ᵐ? ] t
-       → γ ⨾ 𝟘 ▸ᶜ (𝟘 , t , E)
-  ▸ᶜ⁰? {γ} {t} {E} =
-    𝟘ᵐ?-elim (λ m → γ ▸[ m ] t → γ ⨾ 𝟘 ▸ᶜ (𝟘 , t , E))
+       → γ ⨾ 𝟘 ▸ᶜ (𝟘 , t , ρ)
+  ▸ᶜ⁰? {γ} {t} {ρ} =
+    𝟘ᵐ?-elim (λ m → γ ▸[ m ] t → γ ⨾ 𝟘 ▸ᶜ (𝟘 , t , ρ))
       ▸ᶜ⁰ (λ _ ▸t → ▸ᶜ¹ ▸t ≤-refl)
 
 opaque
@@ -138,7 +138,7 @@ opaque
 
   -- A lemma for well-resourced closures
 
-  ▸ᶜᵐ : γ ▸[ m ] t → m ≤ᵐ p → γ ⨾ p ▸ᶜ (p , t , E)
+  ▸ᶜᵐ : γ ▸[ m ] t → m ≤ᵐ p → γ ⨾ p ▸ᶜ (p , t , ρ)
   ▸ᶜᵐ ▸t 𝟘ᵐ≤ᵐ𝟘 = ▸ᶜ⁰ ▸t
   ▸ᶜᵐ ▸t 𝟙ᵐ≤ᵐ = ▸ᶜ¹ ▸t ≤-refl
 
@@ -146,7 +146,7 @@ opaque
 
   -- A lemma for well-resourced closures
 
-  ▸ᶜᵐᵖ : γ ▸[ m ᵐ· p ] t → m ≤ᵐ q → γ ⨾ (q · p) ▸ᶜ (q · p , t , E)
+  ▸ᶜᵐᵖ : γ ▸[ m ᵐ· p ] t → m ≤ᵐ q → γ ⨾ (q · p) ▸ᶜ (q · p , t , ρ)
   ▸ᶜᵐᵖ {p} ▸t 𝟘ᵐ≤ᵐ𝟘 rewrite ·-zeroˡ p = ▸ᶜ⁰ ▸t
   ▸ᶜᵐᵖ {p} ▸t 𝟙ᵐ≤ᵐ =
     case is-𝟘? p of λ where
@@ -247,14 +247,14 @@ opaque
 
   𝟘▸H→H≤𝟘 : 𝟘ᶜ ▸ʰ H → H ≤ʰ 𝟘
   𝟘▸H→H≤𝟘 {H = ε} ε = ε
-  𝟘▸H→H≤𝟘 {H = H ∙ c} (_∙_ {E = E} {δ} ▸H (▸ᶜ _ p≤𝟘)) =
+  𝟘▸H→H≤𝟘 {H = H ∙ c} (_∙_ {ρ} {δ} ▸H (▸ᶜ _ p≤𝟘)) =
     𝟘▸H→H≤𝟘 (subst (_▸ʰ _) (≈ᶜ→≡ lemma) ▸H) ∙ p≤𝟘
     where
     open import Tools.Reasoning.Equivalence Conₘ-setoid
-    lemma : 𝟘ᶜ +ᶜ 𝟘 ·ᶜ wkᶜ E δ ≈ᶜ 𝟘ᶜ
+    lemma : 𝟘ᶜ +ᶜ 𝟘 ·ᶜ wkᶜ ρ δ ≈ᶜ 𝟘ᶜ
     lemma = begin
-      𝟘ᶜ +ᶜ 𝟘 ·ᶜ wkᶜ E δ  ≈⟨ +ᶜ-identityˡ _ ⟩
-      𝟘 ·ᶜ wkᶜ E δ        ≈⟨ ·ᶜ-zeroˡ _ ⟩
+      𝟘ᶜ +ᶜ 𝟘 ·ᶜ wkᶜ ρ δ  ≈⟨ +ᶜ-identityˡ _ ⟩
+      𝟘 ·ᶜ wkᶜ ρ δ        ≈⟨ ·ᶜ-zeroˡ _ ⟩
       𝟘ᶜ                  ∎
   𝟘▸H→H≤𝟘 {H = H ∙●} ▸H = 𝟘▸H→H≤𝟘 (inv-▸ʰ● ▸H .proj₂) ∙●
 
@@ -262,17 +262,17 @@ opaque
 
   -- An inversion lemma for usage of states with variables in head position
 
-  ▸var : γ ⨾ δ ⨾ η ▸[ m ] ⟨ H , var x , E , S ⟩
-       → γ ≤ᶜ (𝟘ᶜ , wkVar E x ≔ ∣ S ∣) +ᶜ η
-  ▸var {γ} {δ} {η} {m} {x} {E} {S} (▸H , ▸x , ▸S , m≤ , γ≤) = begin
+  ▸var : γ ⨾ δ ⨾ η ▸[ m ] ⟨ H , var x , ρ , S ⟩
+       → γ ≤ᶜ (𝟘ᶜ , wkVar ρ x ≔ ∣ S ∣) +ᶜ η
+  ▸var {γ} {δ} {η} {m} {x} {ρ} {S} (▸H , ▸x , ▸S , m≤ , γ≤) = begin
     γ                                             ≤⟨ γ≤ ⟩
-    ∣ S ∣ ·ᶜ wkᶜ E δ +ᶜ η                          ≤⟨ +ᶜ-monotoneˡ (·ᶜ-monotoneʳ (wk-≤ᶜ E (inv-usage-var ▸x))) ⟩
-    ∣ S ∣ ·ᶜ wkᶜ E (𝟘ᶜ , x ≔ ⌜ m ⌝) +ᶜ η           ≡⟨ cong (λ y → ∣ S ∣ ·ᶜ y +ᶜ η) (wk-,≔ E) ⟩
-    ∣ S ∣ ·ᶜ (wkᶜ E 𝟘ᶜ , wkVar E x ≔ ⌜ m ⌝) +ᶜ η   ≡⟨ cong (λ y → ∣ S ∣ ·ᶜ (y , wkVar E x ≔ ⌜ m ⌝) +ᶜ η) (wk-𝟘ᶜ E) ⟩
-    ∣ S ∣ ·ᶜ (𝟘ᶜ , wkVar E x ≔ ⌜ m ⌝) +ᶜ η         ≡˘⟨ cong (_+ᶜ η) (update-distrib-·ᶜ _ _ _ _) ⟩
-    (∣ S ∣ ·ᶜ 𝟘ᶜ , wkVar E x ≔ ∣ S ∣ · ⌜ m ⌝) +ᶜ η ≈⟨ +ᶜ-congʳ (update-congˡ (·ᶜ-zeroʳ _)) ⟩
-    (𝟘ᶜ , wkVar E x ≔ ∣ S ∣ · ⌜ m ⌝) +ᶜ η          ≡⟨ cong (λ y → (𝟘ᶜ , wkVar E x ≔ y) +ᶜ η) (≤ᵐ-·⌜⌝ m≤) ⟩
-    (𝟘ᶜ , wkVar E x ≔ ∣ S ∣) +ᶜ η                  ∎
+    ∣ S ∣ ·ᶜ wkᶜ ρ δ +ᶜ η                          ≤⟨ +ᶜ-monotoneˡ (·ᶜ-monotoneʳ (wk-≤ᶜ ρ (inv-usage-var ▸x))) ⟩
+    ∣ S ∣ ·ᶜ wkᶜ ρ (𝟘ᶜ , x ≔ ⌜ m ⌝) +ᶜ η           ≡⟨ cong (λ y → ∣ S ∣ ·ᶜ y +ᶜ η) (wk-,≔ ρ) ⟩
+    ∣ S ∣ ·ᶜ (wkᶜ ρ 𝟘ᶜ , wkVar ρ x ≔ ⌜ m ⌝) +ᶜ η   ≡⟨ cong (λ y → ∣ S ∣ ·ᶜ (y , wkVar ρ x ≔ ⌜ m ⌝) +ᶜ η) (wk-𝟘ᶜ ρ) ⟩
+    ∣ S ∣ ·ᶜ (𝟘ᶜ , wkVar ρ x ≔ ⌜ m ⌝) +ᶜ η         ≡˘⟨ cong (_+ᶜ η) (update-distrib-·ᶜ _ _ _ _) ⟩
+    (∣ S ∣ ·ᶜ 𝟘ᶜ , wkVar ρ x ≔ ∣ S ∣ · ⌜ m ⌝) +ᶜ η ≈⟨ +ᶜ-congʳ (update-congˡ (·ᶜ-zeroʳ _)) ⟩
+    (𝟘ᶜ , wkVar ρ x ≔ ∣ S ∣ · ⌜ m ⌝) +ᶜ η          ≡⟨ cong (λ y → (𝟘ᶜ , wkVar ρ x ≔ y) +ᶜ η) (≤ᵐ-·⌜⌝ m≤) ⟩
+    (𝟘ᶜ , wkVar ρ x ≔ ∣ S ∣) +ᶜ η                  ∎
     where
     open RPo ≤ᶜ-poset
 
@@ -280,13 +280,13 @@ opaque
 
   -- A consequence of the above lemma
 
-  ▸var′ : γ ⨾ δ ⨾ η ▸[ m ] ⟨ H , var x , E , S ⟩
-        → γ ⟨ wkVar E x ⟩ ≤ ∣ S ∣ + η ⟨ wkVar E x ⟩
-  ▸var′ {γ} {δ} {η} {x} {E} {S} ▸s = begin
-    γ ⟨ wkVar E x ⟩                                         ≤⟨ lookup-monotone (wkVar E x) (▸var ▸s) ⟩
-    ((𝟘ᶜ , wkVar E x ≔ ∣ S ∣) +ᶜ η) ⟨ wkVar E x ⟩           ≡⟨ lookup-distrib-+ᶜ (𝟘ᶜ , wkVar E x ≔ ∣ S ∣) η (wkVar E x) ⟩
-    (𝟘ᶜ , wkVar E x ≔ ∣ S ∣) ⟨ wkVar E x ⟩ + η ⟨ wkVar E x ⟩ ≡⟨ +-congʳ (update-lookup 𝟘ᶜ (wkVar E x)) ⟩
-    ∣ S ∣ + η ⟨ wkVar E x ⟩                                 ∎
+  ▸var′ : γ ⨾ δ ⨾ η ▸[ m ] ⟨ H , var x , ρ , S ⟩
+        → γ ⟨ wkVar ρ x ⟩ ≤ ∣ S ∣ + η ⟨ wkVar ρ x ⟩
+  ▸var′ {γ} {δ} {η} {x} {ρ} {S} ▸s = begin
+    γ ⟨ wkVar ρ x ⟩                                         ≤⟨ lookup-monotone (wkVar ρ x) (▸var ▸s) ⟩
+    ((𝟘ᶜ , wkVar ρ x ≔ ∣ S ∣) +ᶜ η) ⟨ wkVar ρ x ⟩           ≡⟨ lookup-distrib-+ᶜ (𝟘ᶜ , wkVar ρ x ≔ ∣ S ∣) η (wkVar ρ x) ⟩
+    (𝟘ᶜ , wkVar ρ x ≔ ∣ S ∣) ⟨ wkVar ρ x ⟩ + η ⟨ wkVar ρ x ⟩ ≡⟨ +-congʳ (update-lookup 𝟘ᶜ (wkVar ρ x)) ⟩
+    ∣ S ∣ + η ⟨ wkVar ρ x ⟩                                 ∎
     where
     open RPo ≤-poset
 
@@ -296,10 +296,10 @@ opaque
   -- term and a well-resourced heap.
 
   ▸-heapLookup : ⦃ Has-well-behaved-zero M semiring-with-meet ⦄
-               → H ⊢ y ↦[ q ] t , E ⨾ H′
+               → H ⊢ y ↦[ q ] t , ρ ⨾ H′
                → γ ▸ʰ H
                → γ ⟨ y ⟩ - q ≤ r
-               → ∃₂ λ m δ → δ ▸[ m ] t × (γ , y ≔ r) +ᶜ q ·ᶜ wkᶜ E δ ▸ʰ H′ × m ≤ᵐ q
+               → ∃₂ λ m δ → δ ▸[ m ] t × (γ , y ≔ r) +ᶜ q ·ᶜ wkᶜ ρ δ ▸ʰ H′ × m ≤ᵐ q
   ▸-heapLookup {q} {r} (here {r = r′} mp′-q≡r′)
       (_∙_ {p} ▸H (▸ᶜ {m} {q = p′} ▸t mp′≤p)) p-q≤r =
         case singleton m of λ where
@@ -335,12 +335,12 @@ opaque
       r + q · 𝟘 ∎
       where
       open RPo ≤-poset
-  ▸-heapLookup {H = H ∙ (p′ , u , E)} {y +1} {q} {γ = γ ∙ p} {r}
-      (there {c = _ , E′} d) (_∙_ {δ} ▸H (▸ᶜ ▸u p′≤p)) γ⟨y⟩-q≤r  =
-    case p+q-r≤p-r+q γ⟨y⟩-q≤r ((p ·ᶜ wkᶜ E δ) ⟨ y ⟩) of λ
+  ▸-heapLookup {H = H ∙ (p′ , u , ρ)} {y +1} {q} {γ = γ ∙ p} {r}
+      (there {c = _ , ρ′} d) (_∙_ {δ} ▸H (▸ᶜ ▸u p′≤p)) γ⟨y⟩-q≤r  =
+    case p+q-r≤p-r+q γ⟨y⟩-q≤r ((p ·ᶜ wkᶜ ρ δ) ⟨ y ⟩) of λ
       γ⟨y⟩+pδ⟨y⟩-q≤pδ⟨y⟩+r →
-    case subst (_- q ≤ ((p ·ᶜ wkᶜ E δ) ⟨ y ⟩ + r))
-           (sym (lookup-distrib-+ᶜ γ (p ·ᶜ wkᶜ E δ) y))
+    case subst (_- q ≤ ((p ·ᶜ wkᶜ ρ δ) ⟨ y ⟩ + r))
+           (sym (lookup-distrib-+ᶜ γ (p ·ᶜ wkᶜ ρ δ) y))
            γ⟨y⟩+pδ⟨y⟩-q≤pδ⟨y⟩+r of λ
       γ+pδ⟨y⟩-q≤pδ⟨y⟩+r →
     case ▸-heapLookup d ▸H γ+pδ⟨y⟩-q≤pδ⟨y⟩+r of λ
@@ -381,11 +381,11 @@ opaque
       where
       open RPo ≤-poset
   ▸-heapLookup {H = H ∙●} {y +1} {q} {H′} {γ = γ ∙ p} {r}
-      (there● {c = _ , E′} d) (▸H ∙●) γ⟨y⟩-q≤r =
+      (there● {c = _ , ρ′} d) (▸H ∙●) γ⟨y⟩-q≤r =
     case ▸-heapLookup d ▸H γ⟨y⟩-q≤r of λ
       (_ , δ , ▸t , ▸H′ , m≤ᵐS) →
     _ , δ , ▸t
-      , subst (_▸ʰ H′) ((cong ((γ , y ≔ r) +ᶜ q ·ᶜ wkᶜ E′ δ ∙_)
+      , subst (_▸ʰ H′) ((cong ((γ , y ≔ r) +ᶜ q ·ᶜ wkᶜ ρ′ δ ∙_)
           (sym (trans (+-identityˡ _) (·-zeroʳ _))))) (▸H′ ∙●)
       , m≤ᵐS
 
@@ -398,7 +398,7 @@ module _ (nem : No-erased-matches′ type-variant UR) where
     -- The multiplicity of a well-resourced eliminator is not zero
 
     ▸∣e∣≢𝟘 : ⦃ Has-well-behaved-zero M semiring-with-meet ⦄
-           → γ ▸ᵉ[ 𝟙ᵐ ] e → ∣ e ∣ᵉ ≢ 𝟘 ⊎ ∃₃ λ n (A : Term n) E → e ≡ emptyrecₑ 𝟘 A E × Emptyrec-allowed 𝟙ᵐ 𝟘
+           → γ ▸ᵉ[ 𝟙ᵐ ] e → ∣ e ∣ᵉ ≢ 𝟘 ⊎ ∃₃ λ n (A : Term n) ρ → e ≡ emptyrecₑ 𝟘 A ρ × Emptyrec-allowed 𝟙ᵐ 𝟘
     ▸∣e∣≢𝟘 (∘ₑ x) = inj₁ non-trivial
     ▸∣e∣≢𝟘 (fstₑ x) = inj₁ non-trivial
     ▸∣e∣≢𝟘 sndₑ = inj₁ non-trivial
@@ -450,20 +450,20 @@ module _ ⦃ _ : Has-well-behaved-zero M semiring-with-meet ⦄
         → ∃ λ H′ → H ⊢ y ↦[ q ] c′ ⨾ H′
     ↦→↦[] here (_∙_ ▸H (▸ᶜ _ mq≤p′)) p′≤p+q′ =
       _ , here (subtraction-ok (≤-trans mq≤p′ p′≤p+q′) .proj₂)
-    ↦→↦[] {y = y +1} {γ = γ ∙ r} {p} {q} (there d) (_∙_ {E} {δ} ▸H _) γ⟨y⟩≤p+q =
+    ↦→↦[] {y = y +1} {γ = γ ∙ r} {p} {q} (there d) (_∙_ {ρ} {δ} ▸H _) γ⟨y⟩≤p+q =
       case ↦→↦[] d ▸H lemma of λ
         (_ , d′) →
       _ , there d′
       where
       open RPo ≤-poset
-      lemma : (γ +ᶜ r ·ᶜ wkᶜ E δ) ⟨ y ⟩ ≤ (p + (r ·ᶜ wkᶜ E δ) ⟨ y ⟩) + q
+      lemma : (γ +ᶜ r ·ᶜ wkᶜ ρ δ) ⟨ y ⟩ ≤ (p + (r ·ᶜ wkᶜ ρ δ) ⟨ y ⟩) + q
       lemma = begin
-        (γ +ᶜ r ·ᶜ wkᶜ E δ) ⟨ y ⟩      ≡⟨ lookup-distrib-+ᶜ γ _ y ⟩
-        γ ⟨ y ⟩ + (r ·ᶜ wkᶜ E δ) ⟨ y ⟩  ≤⟨ +-monotoneˡ γ⟨y⟩≤p+q ⟩
-        (p + q) + (r ·ᶜ wkᶜ E δ) ⟨ y ⟩ ≈⟨ +-assoc p q _ ⟩
-        p + q + (r ·ᶜ wkᶜ E δ) ⟨ y ⟩   ≈⟨ +-congˡ (+-comm q _) ⟩
-        p + (r ·ᶜ wkᶜ E δ) ⟨ y ⟩ + q   ≈˘⟨ +-assoc p _ q ⟩
-        (p + (r ·ᶜ wkᶜ E δ) ⟨ y ⟩) + q ∎
+        (γ +ᶜ r ·ᶜ wkᶜ ρ δ) ⟨ y ⟩      ≡⟨ lookup-distrib-+ᶜ γ _ y ⟩
+        γ ⟨ y ⟩ + (r ·ᶜ wkᶜ ρ δ) ⟨ y ⟩  ≤⟨ +-monotoneˡ γ⟨y⟩≤p+q ⟩
+        (p + q) + (r ·ᶜ wkᶜ ρ δ) ⟨ y ⟩ ≈⟨ +-assoc p q _ ⟩
+        p + q + (r ·ᶜ wkᶜ ρ δ) ⟨ y ⟩   ≈⟨ +-congˡ (+-comm q _) ⟩
+        p + (r ·ᶜ wkᶜ ρ δ) ⟨ y ⟩ + q   ≈˘⟨ +-assoc p _ q ⟩
+        (p + (r ·ᶜ wkᶜ ρ δ) ⟨ y ⟩) + q ∎
     ↦→↦[] (there● d) (▸H ∙●) γ⟨y⟩≤p+q =
       case ↦→↦[] d ▸H γ⟨y⟩≤p+q of λ
         (_ , d′) →
@@ -474,15 +474,15 @@ module _ ⦃ _ : Has-well-behaved-zero M semiring-with-meet ⦄
     -- A variant of the above property with usage of states
 
     ▸↦→↦[] : {H : Heap k _}
-          → H ⊢ wkVar E x ↦ c′
-          → γ ⨾ δ ⨾ η ▸[ m ] ⟨ H , var x , E , S ⟩
-          → ∃ λ H′ → H ⊢ wkVar E x ↦[ ∣ S ∣ ] c′ ⨾ H′
-    ▸↦→↦[] {E} {x} {γ} {η} {S} d ▸s@(▸H , _) =
+          → H ⊢ wkVar ρ x ↦ c′
+          → γ ⨾ δ ⨾ η ▸[ m ] ⟨ H , var x , ρ , S ⟩
+          → ∃ λ H′ → H ⊢ wkVar ρ x ↦[ ∣ S ∣ ] c′ ⨾ H′
+    ▸↦→↦[] {ρ} {x} {γ} {η} {S} d ▸s@(▸H , _) =
       ↦→↦[] d ▸H (begin
       -- (begin
-        γ ⟨ wkVar E x ⟩         ≤⟨ ▸var′ ▸s ⟩
-        ∣ S ∣ + η ⟨ wkVar E x ⟩ ≡⟨ +-comm _ _ ⟩
-        η ⟨ wkVar E x ⟩ + ∣ S ∣ ∎)
+        γ ⟨ wkVar ρ x ⟩         ≤⟨ ▸var′ ▸s ⟩
+        ∣ S ∣ + η ⟨ wkVar ρ x ⟩ ≡⟨ +-comm _ _ ⟩
+        η ⟨ wkVar ρ x ⟩ + ∣ S ∣ ∎)
       where
       open RPo ≤-poset
 
@@ -496,8 +496,8 @@ module _ ⦃ _ : Has-well-behaved-zero M semiring-with-meet ⦄
 
   opaque
 
-    ▸s● : H ⊢ wkVar E x ↦● → γ ⨾ δ ⨾ η ▸[ m ] ⟨ H , var x , E , S ⟩
-        → ∣ S ∣ ≡ 𝟘 × η ⟨ wkVar E x ⟩ ≡ 𝟘
+    ▸s● : H ⊢ wkVar ρ x ↦● → γ ⨾ δ ⨾ η ▸[ m ] ⟨ H , var x , ρ , S ⟩
+        → ∣ S ∣ ≡ 𝟘 × η ⟨ wkVar ρ x ⟩ ≡ 𝟘
     ▸s● d ▸s@(▸H , ▸t , ▸S , m≤ , γ≤) =
       +-positive (𝟘≮ (≤-trans (≤-reflexive (sym (▸H● d ▸H))) (▸var′ ▸s)))
 

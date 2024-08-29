@@ -37,14 +37,14 @@ open import Graded.Usage 𝕄 UR
 private variable
   n k ℓ : Nat
   H H′ : Heap _ _
-  E E′ : Env _ _
+  ρ ρ′ : Wk _ _
   γ δ η θ : Conₘ _
   p q q′ r : M
   A B t t′ u u′ v z s : Term _
   S S′ : Stack _
   e : Elim _
   m : Mode
-  c : Closure _ _
+  c : Entry _ _
   s′ : Strength
 
 -- A comparison relation for the grades in the heap.
@@ -52,25 +52,25 @@ private variable
 
 data _≤ʰ_ : (H : Heap k n) (p : M) → Set a where
   ε : ε ≤ʰ p
-  _∙_ : H ≤ʰ p → q ≤ p → H ∙ (q , t , E) ≤ʰ p
+  _∙_ : H ≤ʰ p → q ≤ p → H ∙ (q , t , ρ) ≤ʰ p
   _∙● : H ≤ʰ p → H ∙● ≤ʰ p
 
 ------------------------------------------------------------------------
 -- Usage of closures
 
-data _⨾_▸ᶜ_ (γ : Conₘ n) (p : M) : (c : Closureₘ k n) → Set a where
+data _⨾_▸ᶜ_ (γ : Conₘ n) (p : M) : (c : Entryₘ k n) → Set a where
   ▸ᶜ : γ ▸[ m ] t
      → ⌜ m ⌝ · q ≤ p
-     → γ ⨾ p ▸ᶜ (⌜ m ⌝ · q , t , E)
+     → γ ⨾ p ▸ᶜ (⌜ m ⌝ · q , t , ρ)
 
 ------------------------------------------------------------------------
 -- Usage of heaps.
 
 data _▸ʰ_ : (γ : Conₘ n) (H : Heap k n) → Set a where
   ε : ε ▸ʰ ε
-  _∙_ : (γ +ᶜ p ·ᶜ wkᶜ E δ) ▸ʰ H
-      → δ ⨾ p ▸ᶜ (q , t , E)
-      → γ ∙ p ▸ʰ H ∙ (q , t , E)
+  _∙_ : (γ +ᶜ p ·ᶜ wkᶜ ρ δ) ▸ʰ H
+      → δ ⨾ p ▸ᶜ (q , t , ρ)
+      → γ ∙ p ▸ʰ H ∙ (q , t , ρ)
   _∙● : ⦃ T erased-heap ⦄
       → γ ▸ʰ H → γ ∙ 𝟘 ▸ʰ H ∙●
 
@@ -80,19 +80,19 @@ data _▸ʰ_ : (γ : Conₘ n) (H : Heap k n) → Set a where
 -- Usage of eliminators
 
 data _▸ᵉ[_]_ {n : Nat} : (γ : Conₘ n) (m : Mode) (e : Elim n) → Set a where
-  ∘ₑ : γ ▸[ m ᵐ· p ] u → p ·ᶜ wkᶜ E γ ▸ᵉ[ m ] ∘ₑ p u E
+  ∘ₑ : γ ▸[ m ᵐ· p ] u → p ·ᶜ wkᶜ ρ γ ▸ᵉ[ m ] ∘ₑ p u ρ
   fstₑ : (m ≡ 𝟙ᵐ → p ≤ 𝟙) → 𝟘ᶜ ▸ᵉ[ m ] fstₑ p
   sndₑ : 𝟘ᶜ ▸ᵉ[ m ] sndₑ p
   prodrecₑ : γ ∙ ⌜ m ⌝ · r · p ∙ ⌜ m ⌝ · r ▸[ m ] u → Prodrec-allowed m r p q
-           → wkᶜ E γ ▸ᵉ[ m ] prodrecₑ r p q A u E
+           → wkᶜ ρ γ ▸ᵉ[ m ] prodrecₑ r p q A u ρ
   natrecₑ : γ ▸[ m ] z → δ ∙ ⌜ m ⌝ · p ∙ ⌜ m ⌝ · r ▸[ m ] s
           → θ ∙ (⌜ 𝟘ᵐ? ⌝ · q′) ▸[ 𝟘ᵐ? ] A
-          → wkᶜ E (nrᶜ p r γ δ 𝟘ᶜ) ▸ᵉ[ m ] natrecₑ p q′ r A z s E
-  unitrecₑ : γ ▸[ m ] u → Unitrec-allowed m p q → ¬ Unitʷ-η → wkᶜ E γ ▸ᵉ[ m ] unitrecₑ p q A u E
-  emptyrecₑ : Emptyrec-allowed m p → 𝟘ᶜ ▸ᵉ[ m ] emptyrecₑ p A E
-  Jₑ : γ ▸[ m ] u → wkᶜ E γ ▸ᵉ[ m ] Jₑ p q A t B u v E
-  Kₑ : γ ▸[ m ] u → wkᶜ E γ ▸ᵉ[ m ] Kₑ p A t B u E
-  []-congₑ : []-cong-allowed-mode s′ m → 𝟘ᶜ ▸ᵉ[ m ] []-congₑ s′ A t u E
+          → wkᶜ ρ (nrᶜ p r γ δ 𝟘ᶜ) ▸ᵉ[ m ] natrecₑ p q′ r A z s ρ
+  unitrecₑ : γ ▸[ m ] u → Unitrec-allowed m p q → ¬ Unitʷ-η → wkᶜ ρ γ ▸ᵉ[ m ] unitrecₑ p q A u ρ
+  emptyrecₑ : Emptyrec-allowed m p → 𝟘ᶜ ▸ᵉ[ m ] emptyrecₑ p A ρ
+  Jₑ : γ ▸[ m ] u → wkᶜ ρ γ ▸ᵉ[ m ] Jₑ p q A t B u v ρ
+  Kₑ : γ ▸[ m ] u → wkᶜ ρ γ ▸ᵉ[ m ] Kₑ p A t B u ρ
+  []-congₑ : []-cong-allowed-mode s′ m → 𝟘ᶜ ▸ᵉ[ m ] []-congₑ s′ A t u ρ
   sucₑ : 𝟘ᶜ ▸ᵉ[ m ] sucₑ
 
 data _≤ᵐ_ : (m : Mode) (p : M) → Set a where
@@ -110,5 +110,5 @@ data _▸ˢ_ {n : Nat} : (γ : Conₘ n) (S : Stack n) → Set a where
 -- Usage of evaluation states.
 
 _⨾_⨾_▸[_]_ : (γ : Conₘ n) (δ : Conₘ ℓ) (η : Conₘ n) (m : Mode) (s : State k n ℓ) → Set a
-γ ⨾ δ ⨾ η ▸[ m ] ⟨ H , t , E , S ⟩ =
-  γ ▸ʰ H × δ ▸[ m ] t × η ▸ˢ S × (m ≤ᵐ ∣ S ∣) × γ ≤ᶜ ∣ S ∣ ·ᶜ wkᶜ E δ +ᶜ η
+γ ⨾ δ ⨾ η ▸[ m ] ⟨ H , t , ρ , S ⟩ =
+  γ ▸ʰ H × δ ▸[ m ] t × η ▸ˢ S × (m ≤ᵐ ∣ S ∣) × γ ≤ᶜ ∣ S ∣ ·ᶜ wkᶜ ρ δ +ᶜ η

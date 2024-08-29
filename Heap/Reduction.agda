@@ -34,7 +34,7 @@ open Type-variant type-variant
 private variable
   m m′ n n′ k : Nat
   H H′ : Heap _ _
-  E E′ : Env _ _
+  ρ ρ′ : Wk _ _
   t t′ u v w z s A B t₁ t₂ : Term _
   x : Fin _
   S S′ : Stack _
@@ -45,34 +45,34 @@ infix 28 _⇒ₙ_
 
 data _⇒ₙ_ {k m n} : State k m n → State k m n′ → Set a where
   varₕ : ⦃ tr : Track-resources ⦄
-       → H ⊢ wkVar E x ↦[ ∣ S ∣ ] (t , E′) ⨾ H′ →
-          ⟨ H  , var x , E  , S ⟩
-       ⇒ₙ ⟨ H′ , t     , E′ , S ⟩
+       → H ⊢ wkVar ρ x ↦[ ∣ S ∣ ] (t , ρ′) ⨾ H′ →
+          ⟨ H  , var x , ρ  , S ⟩
+       ⇒ₙ ⟨ H′ , t     , ρ′ , S ⟩
   varₕ′ : ⦃ tr : ¬Track-resources ⦄
-        → H ⊢ wkVar E x ↦ (t , E′) →
-          ⟨ H  , var x , E  , S ⟩
-        ⇒ₙ ⟨ H , t     , E′ , S  ⟩
-  appₕ : ⟨ H , t ∘⟨ p ⟩ u , E , S            ⟩
-       ⇒ₙ ⟨ H , t         , E , ∘ₑ p u E ∙ S ⟩
-  fstₕ : ⟨ H , fst p t , E , S          ⟩
-       ⇒ₙ ⟨ H , t       , E , fstₑ p ∙ S ⟩
-  sndₕ : ⟨ H , snd p t , E , S          ⟩
-       ⇒ₙ ⟨ H , t       , E , sndₑ p ∙ S ⟩
-  prodrecₕ : ⟨ H , prodrec r p q A t u , E , S ⟩
-           ⇒ₙ ⟨ H , t                   , E , prodrecₑ r p q A u E ∙ S ⟩
-  natrecₕ : ⟨ H , natrec p q r A z s t , E , S                         ⟩
-          ⇒ₙ ⟨ H , t                    , E , natrecₑ p q r A z s E ∙ S ⟩
+        → H ⊢ wkVar ρ x ↦ (t , ρ′) →
+          ⟨ H  , var x , ρ  , S ⟩
+        ⇒ₙ ⟨ H , t     , ρ′ , S  ⟩
+  appₕ : ⟨ H , t ∘⟨ p ⟩ u , ρ , S            ⟩
+       ⇒ₙ ⟨ H , t         , ρ , ∘ₑ p u ρ ∙ S ⟩
+  fstₕ : ⟨ H , fst p t , ρ , S          ⟩
+       ⇒ₙ ⟨ H , t       , ρ , fstₑ p ∙ S ⟩
+  sndₕ : ⟨ H , snd p t , ρ , S          ⟩
+       ⇒ₙ ⟨ H , t       , ρ , sndₑ p ∙ S ⟩
+  prodrecₕ : ⟨ H , prodrec r p q A t u , ρ , S ⟩
+           ⇒ₙ ⟨ H , t                   , ρ , prodrecₑ r p q A u ρ ∙ S ⟩
+  natrecₕ : ⟨ H , natrec p q r A z s t , ρ , S                         ⟩
+          ⇒ₙ ⟨ H , t                    , ρ , natrecₑ p q r A z s ρ ∙ S ⟩
   unitrecₕ : ¬ Unitʷ-η
-           → ⟨ H , unitrec p q A t u , E , S                      ⟩
-           ⇒ₙ ⟨ H , t                 , E , unitrecₑ p q A u E ∙ S ⟩
-  emptyrecₕ : ⟨ H , emptyrec p A t , E , S ⟩
-            ⇒ₙ ⟨ H , t , E , emptyrecₑ p A E ∙ S ⟩
-  Jₕ : ⟨ H , J p q A t B u v w , E , S ⟩
-     ⇒ₙ ⟨ H , w , E , Jₑ p q A t B u v E ∙ S ⟩
-  Kₕ : ⟨ H , K p A t B u v , E , S ⟩
-     ⇒ₙ ⟨ H , v , E , Kₑ p A t B u E ∙ S ⟩
-  []-congₕ : ⟨ H , []-cong s′ A t u v , E , S ⟩
-           ⇒ₙ ⟨ H , v , E , []-congₑ s′ A t u E ∙ S ⟩
+           → ⟨ H , unitrec p q A t u , ρ , S                      ⟩
+           ⇒ₙ ⟨ H , t                 , ρ , unitrecₑ p q A u ρ ∙ S ⟩
+  emptyrecₕ : ⟨ H , emptyrec p A t , ρ , S ⟩
+            ⇒ₙ ⟨ H , t , ρ , emptyrecₑ p A ρ ∙ S ⟩
+  Jₕ : ⟨ H , J p q A t B u v w , ρ , S ⟩
+     ⇒ₙ ⟨ H , w , ρ , Jₑ p q A t B u v ρ ∙ S ⟩
+  Kₕ : ⟨ H , K p A t B u v , ρ , S ⟩
+     ⇒ₙ ⟨ H , v , ρ , Kₑ p A t B u ρ ∙ S ⟩
+  []-congₕ : ⟨ H , []-cong s′ A t u v , ρ , S ⟩
+           ⇒ₙ ⟨ H , v , ρ , []-congₑ s′ A t u ρ ∙ S ⟩
 
 -- Reflexive, transistive closure of the reduction relation
 
@@ -86,38 +86,38 @@ data _⇒ₙ*_ (s : State k m n) : (s′ : State k m n′) → Set a where
 infix 28 _⇒ᵥ_
 
 data _⇒ᵥ_ {k m n} : State k m n → State k m′ n′ → Set a where
-  lamₕ : ⟨ H                        , lam p t , E           , ∘ₑ p u E′ ∙ S ⟩
-       ⇒ᵥ ⟨ H ∙ (∣ S ∣ · p , u , E′) , t       , lift E      , wk1ˢ S        ⟩
-  prodˢₕ₁ : ⟨ H , prodˢ p t₁ t₂ , E , fstₑ p ∙ S ⟩
-          ⇒ᵥ ⟨ H , t₁           , E , S          ⟩
-  prodˢₕ₂ : ⟨ H , prodˢ p t₁ t₂ , E , sndₑ p ∙ S ⟩
-          ⇒ᵥ ⟨ H , t₂           , E , S          ⟩
-  prodʷₕ : ⟨ H                                                        , prodʷ p t₁ t₂ , E          , prodrecₑ r p q A u E′ ∙ S ⟩
-         ⇒ᵥ ⟨ H ∙ (∣ S ∣ · r · p , t₁ , E) ∙ (∣ S ∣ · r , t₂ , step E) , u             , liftn E′ 2 , wk2ˢ S                    ⟩
-  zeroₕ   : ⟨ H , zero , E  , natrecₑ p q r A z s E′ ∙ S ⟩
-          ⇒ᵥ ⟨ H , z    , E′ , S                          ⟩
-  sucₕ    : ⟨ H , suc t , E , natrecₑ p q r A z s E′ ∙ S ⟩
-          ⇒ᵥ ⟨ H ∙ (∣ S ∣ · nr₂ p r , t , E) ∙ (∣ S ∣ · r , natrec p q r (wk (lift (step id)) A) (wk1 z) (wk (liftn (step id) 2) s) (var x0) , lift E′)
-                , s , liftn E′ 2 , wk2ˢ S ⟩
-  starʷₕ : ⟨ H , starʷ , E  , unitrecₑ p q A u E′ ∙ S ⟩
-         ⇒ᵥ ⟨ H , u     , E′ , S                       ⟩
+  lamₕ : ⟨ H                        , lam p t , ρ           , ∘ₑ p u ρ′ ∙ S ⟩
+       ⇒ᵥ ⟨ H ∙ (∣ S ∣ · p , u , ρ′) , t       , lift ρ      , wk1ˢ S        ⟩
+  prodˢₕ₁ : ⟨ H , prodˢ p t₁ t₂ , ρ , fstₑ p ∙ S ⟩
+          ⇒ᵥ ⟨ H , t₁           , ρ , S          ⟩
+  prodˢₕ₂ : ⟨ H , prodˢ p t₁ t₂ , ρ , sndₑ p ∙ S ⟩
+          ⇒ᵥ ⟨ H , t₂           , ρ , S          ⟩
+  prodʷₕ : ⟨ H                                                        , prodʷ p t₁ t₂ , ρ          , prodrecₑ r p q A u ρ′ ∙ S ⟩
+         ⇒ᵥ ⟨ H ∙ (∣ S ∣ · r · p , t₁ , ρ) ∙ (∣ S ∣ · r , t₂ , step ρ) , u             , liftn ρ′ 2 , wk2ˢ S                    ⟩
+  zeroₕ   : ⟨ H , zero , ρ  , natrecₑ p q r A z s ρ′ ∙ S ⟩
+          ⇒ᵥ ⟨ H , z    , ρ′ , S                          ⟩
+  sucₕ    : ⟨ H , suc t , ρ , natrecₑ p q r A z s ρ′ ∙ S ⟩
+          ⇒ᵥ ⟨ H ∙ (∣ S ∣ · nr₂ p r , t , ρ) ∙ (∣ S ∣ · r , natrec p q r (wk (lift (step id)) A) (wk1 z) (wk (liftn (step id) 2) s) (var x0) , lift ρ′)
+                , s , liftn ρ′ 2 , wk2ˢ S ⟩
+  starʷₕ : ⟨ H , starʷ , ρ  , unitrecₑ p q A u ρ′ ∙ S ⟩
+         ⇒ᵥ ⟨ H , u     , ρ′ , S                       ⟩
   unitrec-ηₕ : Unitʷ-η
-             → ⟨ H , unitrec p q A t u , E , S ⟩
-             ⇒ᵥ ⟨ H , u , E , S ⟩
-  rflₕⱼ : ⟨ H , rfl , E , Jₑ p q A t B u v E′ ∙ S ⟩
-        ⇒ᵥ ⟨ H , u , E′ , S ⟩
-  rflₕₖ : ⟨ H , rfl , E ,  Kₑ p A t B u E′ ∙ S ⟩
-        ⇒ᵥ ⟨ H , u , E′ , S ⟩
-  rflₕₑ : ⟨ H , rfl , E , []-congₑ s′ A t u E′ ∙ S ⟩
-        ⇒ᵥ ⟨ H , rfl , E′ , S ⟩
+             → ⟨ H , unitrec p q A t u , ρ , S ⟩
+             ⇒ᵥ ⟨ H , u , ρ , S ⟩
+  rflₕⱼ : ⟨ H , rfl , ρ , Jₑ p q A t B u v ρ′ ∙ S ⟩
+        ⇒ᵥ ⟨ H , u , ρ′ , S ⟩
+  rflₕₖ : ⟨ H , rfl , ρ ,  Kₑ p A t B u ρ′ ∙ S ⟩
+        ⇒ᵥ ⟨ H , u , ρ′ , S ⟩
+  rflₕₑ : ⟨ H , rfl , ρ , []-congₑ s′ A t u ρ′ ∙ S ⟩
+        ⇒ᵥ ⟨ H , rfl , ρ′ , S ⟩
 
 infix 28 _⇒ₛ_
 
 data _⇒ₛ_ {m′ m n} : State m′ m n → State m′ m n → Set a where
   sucₕ : ¬ Numeral t
-       → ⟨ H , suc t , E , sucₛ k ⟩ ⇒ₛ ⟨ H , t , E , sucₑ ∙ sucₛ k ⟩
+       → ⟨ H , suc t , ρ , sucₛ k ⟩ ⇒ₛ ⟨ H , t , ρ , sucₑ ∙ sucₛ k ⟩
   numₕ : Numeral t
-       → ⟨ H , t , E , sucₑ ∙ S ⟩ ⇒ₛ ⟨ H , suc t , E , S ⟩
+       → ⟨ H , t , ρ , sucₑ ∙ S ⟩ ⇒ₛ ⟨ H , suc t , ρ , S ⟩
 
 
 -- The heap semantics using single step reductions of heap states.

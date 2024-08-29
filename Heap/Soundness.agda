@@ -80,7 +80,7 @@ private variable
   γ δ η : Conₘ _
   Γ Δ : Con Term _
   H : Heap _ _
-  E : Env _ _
+  ρ : Wk _ _
   S : Stack _
   m : Mode
 
@@ -90,11 +90,11 @@ opaque
 
   redNumeral : (Emptyrec-allowed 𝟙ᵐ 𝟘 → Consistent Δ)
              → Δ ⊩ℕ n ∷ℕ → n PE.≡ ⦅ s ⦆ → Δ ⨾ Γ ⊢ s ∷ ℕ → γ ⨾ δ ⨾ η ▸[ m ] s
-             → ∃₄ λ m n H (E : Env m n) → ∃ λ t → s ⇒* ⟨ H , t , E , ε ⟩ × Numeral t
+             → ∃₄ λ m n H (ρ : Wk m n) → ∃ λ t → s ⇒* ⟨ H , t , ρ , ε ⟩ × Numeral t
   redNumeral consistent (ℕₜ _ d n≡n (sucᵣ x)) PE.refl ⊢s ▸s =
     case whBisim consistent (redₜ d , sucₙ) ⊢s ▸s of λ
-      (_ , _ , H , t , E , d′ , ≡u , v) →
-    case subst-suc {t = wk E t} ≡u of λ {
+      (_ , _ , H , t , ρ , d′ , ≡u , v) →
+    case subst-suc {t = wk ρ t} ≡u of λ {
       (inj₁ (x , ≡x)) →
     case wk-var ≡x of λ {
       (_ , PE.refl , _) →
@@ -114,11 +114,11 @@ opaque
       (_ , _ , _ , _ , ▸H , ▸t , ▸ε , m≤ , γ≤) →
     case inv-usage-suc ▸t of λ
       (invUsageSuc ▸n″ δ≤)  →
-    case redNumeral {s = ⟨ H , n″ , E , ε ⟩} consistent x
+    case redNumeral {s = ⟨ H , n″ , ρ , ε ⟩} consistent x
           (PE.sym (PE.trans (PE.cong (_[ H ]ₕ) ≡n′) ≡n))
           (_ , ⊢H , ⊢n″ , ε)
-          (▸H , ▸n″ , ▸ε , m≤ , ≤ᶜ-trans γ≤ (+ᶜ-monotoneˡ (·ᶜ-monotoneʳ (wk-≤ᶜ E δ≤)))) of λ
-      (_ , _ , H′ , E′ , t′ , d₀ , n) →
+          (▸H , ▸n″ , ▸ε , m≤ , ≤ᶜ-trans γ≤ (+ᶜ-monotoneˡ (·ᶜ-monotoneʳ (wk-≤ᶜ ρ δ≤)))) of λ
+      (_ , _ , H′ , ρ′ , t′ , d₀ , n) →
     _ , _ , _ , _ , _
       , (bisim₇* true d′ ⇨* ((⇒ₛ (sucₕ ¬num)) ⇨
           (++sucₛ-⇒* {k = 1} d₀ ⇨* ((⇒ₛ (numₕ n)) ⇨ id))))
@@ -126,8 +126,8 @@ opaque
 
   redNumeral consistent (ℕₜ _ d n≡n zeroᵣ) PE.refl ⊢s ▸s =
     case whBisim consistent (redₜ d , zeroₙ) ⊢s ▸s of λ
-      (_ , _ , H , t , E , d′ , ≡u , v) →
-    case subst-zero {t = wk E t} ≡u of λ {
+      (_ , _ , H , t , ρ , d′ , ≡u , v) →
+    case subst-zero {t = wk ρ t} ≡u of λ {
       (inj₁ (x , ≡x)) →
     case wk-var ≡x of λ {
       (_ , PE.refl , w) →
@@ -139,8 +139,8 @@ opaque
 
   redNumeral consistent (ℕₜ _ d n≡n (ne (neNfₜ neK ⊢k k≡k))) PE.refl ⊢s ▸s =
     case whBisim consistent (redₜ d , ne neK) ⊢s ▸s of λ {
-      (_ , _ , H , t , E , d′ , PE.refl , v) →
-    ⊥-elim (Value→¬Neutral (substValue (toSubstₕ H) (wkValue E v)) neK) }
+      (_ , _ , H , t , ρ , d′ , PE.refl , v) →
+    ⊥-elim (Value→¬Neutral (substValue (toSubstₕ H) (wkValue ρ v)) neK) }
 
 opaque
 
@@ -152,8 +152,8 @@ opaque
   soundness : {Δ : Con Term k}
             → (k PE.≡ 0 ⊎ (Emptyrec-allowed 𝟙ᵐ 𝟘 → Consistent Δ) × T erased-heap)
             → Δ ⊢ t ∷ ℕ → 𝟘ᶜ ▸ t
-            → ∃₂ λ m n → ∃₃ λ H k (E : Env m n) →
-              initial t ⇒* ⟨ H , sucᵏ k , E , ε ⟩ ×
+            → ∃₂ λ m n → ∃₃ λ H k (ρ : Wk m n) →
+              initial t ⇒* ⟨ H , sucᵏ k , ρ , ε ⟩ ×
               (Δ ⊢ t ≡ sucᵏ k ∷ ℕ) ×
               H ≤ʰ 𝟘
   soundness {k} {t} {Δ} as ⊢t ▸t =
@@ -163,7 +163,7 @@ opaque
       [t] →
     case redNumeral consistent [t] (PE.sym (PE.trans (erasedHeap-subst (wk id t)) (wk-id t)))
            (⊢initial false ⊢t) ▸s of λ
-      (_ , _ , H , E , t , d , num) →
+      (_ , _ , H , ρ , t , d , num) →
     case URᵗ.▸-⇒* ▸s d of λ {
       (γ , δ , _ , _ , ▸H , ▸n , ε , _ , γ≤) →
     case Numeral→sucᵏ num of λ
@@ -179,10 +179,10 @@ opaque
           (⇒*→≡ (⊢initial true ⊢t) d′)
       , 𝟘▸H→H≤𝟘 (subₕ ▸H (begin
           γ                  ≤⟨ γ≤ ⟩
-          𝟙 ·ᶜ wkᶜ E δ +ᶜ 𝟘ᶜ ≈⟨ +ᶜ-identityʳ _ ⟩
-          𝟙 ·ᶜ wkᶜ E δ       ≈⟨ ·ᶜ-identityˡ _ ⟩
-          wkᶜ E δ            ≤⟨ wk-≤ᶜ E (inv-usage-numeral ▸n num) ⟩
-          wkᶜ E 𝟘ᶜ           ≡⟨ wk-𝟘ᶜ E ⟩
+          𝟙 ·ᶜ wkᶜ ρ δ +ᶜ 𝟘ᶜ ≈⟨ +ᶜ-identityʳ _ ⟩
+          𝟙 ·ᶜ wkᶜ ρ δ       ≈⟨ ·ᶜ-identityˡ _ ⟩
+          wkᶜ ρ δ            ≤⟨ wk-≤ᶜ ρ (inv-usage-numeral ▸n num) ⟩
+          wkᶜ ρ 𝟘ᶜ           ≡⟨ wk-𝟘ᶜ ρ ⟩
           𝟘ᶜ                 ∎ ))}
     where
     consistent : Emptyrec-allowed 𝟙ᵐ 𝟘 → Consistent Δ

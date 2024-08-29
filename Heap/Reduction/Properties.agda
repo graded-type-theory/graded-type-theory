@@ -41,11 +41,11 @@ private variable
   m n m′ n′ m″ n″ k : Nat
   t t′ u A : Term _
   H H′ H″ H‴ : Heap _ _
-  E E′ E″ : Env _ _
+  ρ ρ′ ρ″ : Wk _ _
   S S′ : Stack _
   p p′ q r r′ : M
   s s′ s″ : State _ _ _
-  c : Closureₘ _ _
+  c : Entryₘ _ _
   x x′ : Fin _
 
 opaque
@@ -241,8 +241,8 @@ opaque
 
   -- Lifting a normalising reduction to a larger heap
 
-  wk1-⇒ₙ : ⟨ H , t , E , S ⟩ ⇒ₙ ⟨ H′ , t′ , E′ , S′ ⟩
-        → ⟨ H ∙ c , t , step E , wk1ˢ S ⟩ ⇒ₙ ⟨ H′ ∙ c , t′ , step E′ , wk1ˢ S′ ⟩
+  wk1-⇒ₙ : ⟨ H , t , ρ , S ⟩ ⇒ₙ ⟨ H′ , t′ , ρ′ , S′ ⟩
+        → ⟨ H ∙ c , t , step ρ , wk1ˢ S ⟩ ⇒ₙ ⟨ H′ ∙ c , t′ , step ρ′ , wk1ˢ S′ ⟩
   wk1-⇒ₙ (varₕ {S} d) =
     varₕ (subst (_ ⊢ _ ↦[_] _ ⨾ _) (wk-∣S∣ (step id) S) (there d))
   wk1-⇒ₙ (varₕ′ d) =
@@ -262,8 +262,8 @@ opaque
 
   -- Lifting a normalising reduction to a larger heap
 
-  wk1-⇒ₙ* : (d : ⟨ H , t , E , S ⟩ ⇒ₙ* ⟨ H′ , t′ , E′ , S′ ⟩)
-          → ⟨ H ∙ c , t , step E , wk1ˢ S ⟩ ⇒ₙ* ⟨ H′ ∙ c , t′ , step E′ , wk1ˢ S′ ⟩
+  wk1-⇒ₙ* : (d : ⟨ H , t , ρ , S ⟩ ⇒ₙ* ⟨ H′ , t′ , ρ′ , S′ ⟩)
+          → ⟨ H ∙ c , t , step ρ , wk1ˢ S ⟩ ⇒ₙ* ⟨ H′ ∙ c , t′ , step ρ′ , wk1ˢ S′ ⟩
   wk1-⇒ₙ* id = id
   wk1-⇒ₙ* (x ⇨ d) = wk1-⇒ₙ x ⇨ wk1-⇒ₙ* d
 
@@ -271,8 +271,8 @@ opaque
 
   -- Lifting a normalising reduction to a larger heap
 
-  wk1●-⇒ₙ : ⟨ H , t , E , S ⟩ ⇒ₙ ⟨ H′ , t′ , E′ , S′ ⟩
-          → ⟨ H ∙● , t , step E , wk1ˢ S ⟩ ⇒ₙ ⟨ H′ ∙● , t′ , step E′ , wk1ˢ S′ ⟩
+  wk1●-⇒ₙ : ⟨ H , t , ρ , S ⟩ ⇒ₙ ⟨ H′ , t′ , ρ′ , S′ ⟩
+          → ⟨ H ∙● , t , step ρ , wk1ˢ S ⟩ ⇒ₙ ⟨ H′ ∙● , t′ , step ρ′ , wk1ˢ S′ ⟩
   wk1●-⇒ₙ (varₕ {S} d) = varₕ (subst (_ ⊢ _ ↦[_] _ ⨾ _) (wk-∣S∣ (step id) S) (there● d))
   wk1●-⇒ₙ (varₕ′ d) = varₕ′ (there● d)
   wk1●-⇒ₙ appₕ = appₕ
@@ -290,8 +290,8 @@ opaque
 
   -- Lifting a normalising reduction to a larger heap
 
-  wk1●-⇒ₙ* : (d : ⟨ H , t , E , S ⟩ ⇒ₙ* ⟨ H′ , t′ , E′ , S′ ⟩)
-          → ⟨ H ∙● , t , step E , wk1ˢ S ⟩ ⇒ₙ* ⟨ H′ ∙● , t′ , step E′ , wk1ˢ S′ ⟩
+  wk1●-⇒ₙ* : (d : ⟨ H , t , ρ , S ⟩ ⇒ₙ* ⟨ H′ , t′ , ρ′ , S′ ⟩)
+          → ⟨ H ∙● , t , step ρ , wk1ˢ S ⟩ ⇒ₙ* ⟨ H′ ∙● , t′ , step ρ′ , wk1ˢ S′ ⟩
   wk1●-⇒ₙ* id = id
   wk1●-⇒ₙ* (x ⇨ d) = wk1●-⇒ₙ x ⇨ wk1●-⇒ₙ* d
 
@@ -299,9 +299,9 @@ opaque
 
   -- Replacing a variable and environment in a state
 
-  var-env-⇒ₙ : ⟨ H , var x , E , S ⟩ ⇒ₙ s
-            → wkVar E x ≡ wkVar E′ x′
-            → ⟨ H , var x′ , E′ , S ⟩ ⇒ₙ s
+  var-env-⇒ₙ : ⟨ H , var x , ρ , S ⟩ ⇒ₙ s
+            → wkVar ρ x ≡ wkVar ρ′ x′
+            → ⟨ H , var x′ , ρ′ , S ⟩ ⇒ₙ s
   var-env-⇒ₙ (varₕ d) eq =
     varₕ (subst (_ ⊢_↦[ _ ] _ ⨾ _) eq d)
   var-env-⇒ₙ (varₕ′ d) eq =
@@ -311,12 +311,12 @@ opaque
 
   -- Replacing a variable and environment in a state
 
-  var-env-⇒ₙ* : {E : Env m n} {E″ : Env m n′}
-              → ⟨ H , var x , E , S ⟩ ⇒ₙ* ⟨ H′ , t , E″ , S′ ⟩
-             → wkVar E x ≡ wkVar E′ x′
-             → Normal ⟨ H′ , t , E″ , S′ ⟩
-             → ⟨ H , var x′ , E′ , S ⟩ ⇒ₙ* ⟨ H′ , t , E″ , S′ ⟩
-             ⊎ Σ (n′ ≡ n) λ n′≡n → ⟨ H , var x , E , S ⟩ ≡ subst (State _ _) n′≡n ⟨ H′ , t , E″ , S′ ⟩
+  var-env-⇒ₙ* : {ρ : Wk m n} {ρ″ : Wk m n′}
+              → ⟨ H , var x , ρ , S ⟩ ⇒ₙ* ⟨ H′ , t , ρ″ , S′ ⟩
+             → wkVar ρ x ≡ wkVar ρ′ x′
+             → Normal ⟨ H′ , t , ρ″ , S′ ⟩
+             → ⟨ H , var x′ , ρ′ , S ⟩ ⇒ₙ* ⟨ H′ , t , ρ″ , S′ ⟩
+             ⊎ Σ (n′ ≡ n) λ n′≡n → ⟨ H , var x , ρ , S ⟩ ≡ subst (State _ _) n′≡n ⟨ H′ , t , ρ″ , S′ ⟩
   var-env-⇒ₙ* id eq (var x) = inj₂ (refl , refl)
   var-env-⇒ₙ* (x ⇨ d) eq n = inj₁ (var-env-⇒ₙ x eq ⇨ d)
 
@@ -325,8 +325,8 @@ opaque
   -- Extending the stack of a reduction
 
   ++-⇒ₙ : ⦃ ¬Track-resources ⦄
-        → ∀ S₀ → ⟨ H , t , E , S ⟩ ⇒ₙ ⟨ H′ , t′ , E′ , S′ ⟩
-        → ⟨ H , t , E , S ++ S₀ ⟩ ⇒ₙ ⟨ H′ , t′ , E′ , S′ ++ S₀ ⟩
+        → ∀ S₀ → ⟨ H , t , ρ , S ⟩ ⇒ₙ ⟨ H′ , t′ , ρ′ , S′ ⟩
+        → ⟨ H , t , ρ , S ++ S₀ ⟩ ⇒ₙ ⟨ H′ , t′ , ρ′ , S′ ++ S₀ ⟩
   ++-⇒ₙ S₀ (varₕ x) = ⊥-elim not-tracking-and-no-tracking
   ++-⇒ₙ S₀ (varₕ′ ⦃ (nt) ⦄ x) = varₕ′ ⦃ tr = nt ⦄ x
   ++-⇒ₙ S₀ appₕ = appₕ
@@ -345,8 +345,8 @@ opaque
   -- Extending the stack of a reduction
 
   ++-⇒ₙ* : ⦃ ¬Track-resources ⦄
-         → ∀ S₀ → (d : ⟨ H , t , E , S ⟩ ⇒ₙ* ⟨ H′ , t′ , E′ , S′ ⟩)
-         → ⟨ H , t , E , S ++ S₀ ⟩ ⇒ₙ* ⟨ H′ , t′ , E′ , S′ ++ S₀ ⟩
+         → ∀ S₀ → (d : ⟨ H , t , ρ , S ⟩ ⇒ₙ* ⟨ H′ , t′ , ρ′ , S′ ⟩)
+         → ⟨ H , t , ρ , S ++ S₀ ⟩ ⇒ₙ* ⟨ H′ , t′ , ρ′ , S′ ++ S₀ ⟩
   ++-⇒ₙ* S₀ id = id
   ++-⇒ₙ* S₀ (x ⇨ d) = ++-⇒ₙ S₀ x ⇨ ++-⇒ₙ* S₀ d
 
@@ -354,8 +354,8 @@ opaque
 
   -- Extending the stack of a reduction with sucₛ
 
-  ++sucₛ-⇒ₙ : (d : ⟨ H , t , E , S ⟩ ⇒ₙ ⟨ H′ , t′ , E′ , S′ ⟩)
-            → ⟨ H , t , E , S ++ sucₛ k ⟩ ⇒ₙ ⟨ H′ , t′ , E′ , S′ ++ sucₛ k ⟩
+  ++sucₛ-⇒ₙ : (d : ⟨ H , t , ρ , S ⟩ ⇒ₙ ⟨ H′ , t′ , ρ′ , S′ ⟩)
+            → ⟨ H , t , ρ , S ++ sucₛ k ⟩ ⇒ₙ ⟨ H′ , t′ , ρ′ , S′ ++ sucₛ k ⟩
   ++sucₛ-⇒ₙ {S} (varₕ x) =
     varₕ (subst (_ ⊢ _ ↦[_] _ ⨾ _) (sym (∣S++sucₛ∣≡∣S∣ S)) x)
   ++sucₛ-⇒ₙ (varₕ′ x) = varₕ′ x
@@ -374,28 +374,28 @@ opaque
 
   -- Extending the stack of a reduction with sucₛ
 
-  ++sucₛ-⇒ᵥ : (d : ⟨ H , t , E , S ⟩ ⇒ᵥ ⟨ H′ , t′ , E′ , S′ ⟩)
-            → ⟨ H , t , E , S ++ sucₛ k ⟩ ⇒ᵥ ⟨ H′ , t′ , E′ , S′ ++ sucₛ k ⟩
-  ++sucₛ-⇒ᵥ {k} (lamₕ {H} {p} {t} {E} {u} {E′} {S}) =
+  ++sucₛ-⇒ᵥ : (d : ⟨ H , t , ρ , S ⟩ ⇒ᵥ ⟨ H′ , t′ , ρ′ , S′ ⟩)
+            → ⟨ H , t , ρ , S ++ sucₛ k ⟩ ⇒ᵥ ⟨ H′ , t′ , ρ′ , S′ ++ sucₛ k ⟩
+  ++sucₛ-⇒ᵥ {k} (lamₕ {H} {p} {t} {ρ} {u} {ρ′} {S}) =
     subst₂
       (λ x y →
-         ⟨ H , lam p t , E , (∘ₑ p u E′ ∙ S) ++ sucₛ k ⟩ ⇒ᵥ
-         ⟨ H ∙ (x · p , u , E′) , t , lift E , y ⟩)
+         ⟨ H , lam p t , ρ , (∘ₑ p u ρ′ ∙ S) ++ sucₛ k ⟩ ⇒ᵥ
+         ⟨ H ∙ (x · p , u , ρ′) , t , lift ρ , y ⟩)
       (∣S++sucₛ∣≡∣S∣ S) (wk-++sucₛ (step id) S) lamₕ
   ++sucₛ-⇒ᵥ prodˢₕ₁ = prodˢₕ₁
   ++sucₛ-⇒ᵥ prodˢₕ₂ = prodˢₕ₂
-  ++sucₛ-⇒ᵥ {k} (prodʷₕ {H} {p} {t₁} {t₂} {E} {r} {q} {A} {u} {E′} {S}) =
+  ++sucₛ-⇒ᵥ {k} (prodʷₕ {H} {p} {t₁} {t₂} {ρ} {r} {q} {A} {u} {ρ′} {S}) =
     subst₂
       (λ x y →
-         ⟨ H , prodʷ p t₁ t₂ , E , (prodrecₑ r p q A u E′ ∙ S) ++ sucₛ k ⟩ ⇒ᵥ
-         ⟨ H ∙ (x · r · p , t₁ , E) ∙ (x · r , t₂ , step E) , u , liftn E′ 2 , y ⟩)
+         ⟨ H , prodʷ p t₁ t₂ , ρ , (prodrecₑ r p q A u ρ′ ∙ S) ++ sucₛ k ⟩ ⇒ᵥ
+         ⟨ H ∙ (x · r · p , t₁ , ρ) ∙ (x · r , t₂ , step ρ) , u , liftn ρ′ 2 , y ⟩)
       (∣S++sucₛ∣≡∣S∣ S) (wk-++sucₛ (step (step id)) S) prodʷₕ
   ++sucₛ-⇒ᵥ zeroₕ = zeroₕ
-  ++sucₛ-⇒ᵥ {k} (sucₕ {H} {t} {E} {p} {q} {r} {A} {z} {s} {E′} {S}) =
+  ++sucₛ-⇒ᵥ {k} (sucₕ {H} {t} {ρ} {p} {q} {r} {A} {z} {s} {ρ′} {S}) =
     subst₂
       (λ x y →
-        ⟨ H , suc t , E , natrecₑ p q r A z s E′ ∙ S ++ sucₛ k ⟩ ⇒ᵥ
-        ⟨ H ∙ (x · nr₂ p r , t , E) ∙ (x · r , _ , lift E′) , s , liftn E′ 2 , y ⟩)
+        ⟨ H , suc t , ρ , natrecₑ p q r A z s ρ′ ∙ S ++ sucₛ k ⟩ ⇒ᵥ
+        ⟨ H ∙ (x · nr₂ p r , t , ρ) ∙ (x · r , _ , lift ρ′) , s , liftn ρ′ 2 , y ⟩)
       (∣S++sucₛ∣≡∣S∣ S) (wk-++sucₛ (step (step id)) S) sucₕ
   ++sucₛ-⇒ᵥ starʷₕ = starʷₕ
   ++sucₛ-⇒ᵥ (unitrec-ηₕ η) = unitrec-ηₕ η
@@ -407,10 +407,10 @@ opaque
 
   -- Extending the stack of a reduction with sucₛ
 
-  ++sucₛ-⇒ₛ : (d : ⟨ H , t , E , S ⟩ ⇒ₛ ⟨ H′ , t′ , E′ , S′ ⟩)
-            → ⟨ H , t , E , S ++ sucₛ k ⟩ ⇒ₛ ⟨ H′ , t′ , E′ , S′ ++ sucₛ k ⟩
-  ++sucₛ-⇒ₛ {k = k′} (sucₕ {t} {H} {E} {k} x) =
-    subst (λ x → ⟨ H , suc t , E , x ⟩ ⇒ₛ ⟨ H , t , E , sucₑ ∙ x ⟩)
+  ++sucₛ-⇒ₛ : (d : ⟨ H , t , ρ , S ⟩ ⇒ₛ ⟨ H′ , t′ , ρ′ , S′ ⟩)
+            → ⟨ H , t , ρ , S ++ sucₛ k ⟩ ⇒ₛ ⟨ H′ , t′ , ρ′ , S′ ++ sucₛ k ⟩
+  ++sucₛ-⇒ₛ {k = k′} (sucₕ {t} {H} {ρ} {k} x) =
+    subst (λ x → ⟨ H , suc t , ρ , x ⟩ ⇒ₛ ⟨ H , t , ρ , sucₑ ∙ x ⟩)
       (sym (sucₛ++sucₛ k k′)) (sucₕ x)
   ++sucₛ-⇒ₛ (numₕ x) = numₕ x
 
@@ -418,8 +418,8 @@ opaque
 
   -- Extending the stack of a reduction with sucₛ
 
-  ++sucₛ-⇒ : (d : ⟨ H , t , E , S ⟩ ⇒ ⟨ H′ , t′ , E′ , S′ ⟩)
-           → ⟨ H , t , E , S ++ sucₛ k ⟩ ⇒ ⟨ H′ , t′ , E′ , S′ ++ sucₛ k ⟩
+  ++sucₛ-⇒ : (d : ⟨ H , t , ρ , S ⟩ ⇒ ⟨ H′ , t′ , ρ′ , S′ ⟩)
+           → ⟨ H , t , ρ , S ++ sucₛ k ⟩ ⇒ ⟨ H′ , t′ , ρ′ , S′ ++ sucₛ k ⟩
   ++sucₛ-⇒ (⇒ₙ d) = ⇒ₙ (++sucₛ-⇒ₙ d)
   ++sucₛ-⇒ (⇒ᵥ d) = ⇒ᵥ (++sucₛ-⇒ᵥ d)
   ++sucₛ-⇒ (⇒ₛ d) = ⇒ₛ (++sucₛ-⇒ₛ d)
@@ -428,15 +428,15 @@ opaque
 
   -- Extending the stack of a reduction with sucₛ
 
-  ++sucₛ-⇒* : (d : ⟨ H , t , E , S ⟩ ⇒* ⟨ H′ , t′ , E′ , S′ ⟩)
-            → ⟨ H , t , E , S ++ sucₛ k ⟩ ⇒* ⟨ H′ , t′ , E′ , S′ ++ sucₛ k ⟩
+  ++sucₛ-⇒* : (d : ⟨ H , t , ρ , S ⟩ ⇒* ⟨ H′ , t′ , ρ′ , S′ ⟩)
+            → ⟨ H , t , ρ , S ++ sucₛ k ⟩ ⇒* ⟨ H′ , t′ , ρ′ , S′ ++ sucₛ k ⟩
   ++sucₛ-⇒* id = id
   ++sucₛ-⇒* (x ⇨ d) = ++sucₛ-⇒ x ⇨ ++sucₛ-⇒* d
 
 opaque
 
   ⇒ₙ-Heap≡ : ⦃ ¬Track-resources ⦄
-           → ⟨ H , t , E , S ⟩ ⇒ₙ ⟨ H′ , t′ , E′ , S′ ⟩ → H ≡ H′
+           → ⟨ H , t , ρ , S ⟩ ⇒ₙ ⟨ H′ , t′ , ρ′ , S′ ⟩ → H ≡ H′
   ⇒ₙ-Heap≡ (varₕ x) = ⊥-elim not-tracking-and-no-tracking
   ⇒ₙ-Heap≡ (varₕ′ x) = refl
   ⇒ₙ-Heap≡ appₕ = refl
@@ -452,14 +452,14 @@ opaque
 
 opaque
 
-  ⇒ₛ-Heap≡ : ⟨ H , t , E , S ⟩ ⇒ₛ ⟨ H′ , t′ , E′ , S′ ⟩ → H ≡ H′
+  ⇒ₛ-Heap≡ : ⟨ H , t , ρ , S ⟩ ⇒ₛ ⟨ H′ , t′ , ρ′ , S′ ⟩ → H ≡ H′
   ⇒ₛ-Heap≡ (sucₕ x) = refl
   ⇒ₛ-Heap≡ (numₕ x) = refl
 
 opaque
 
-  ~ʰ-⇒ᵥ : ⟨ H , t , E , S ⟩ ⇒ᵥ ⟨ H′ , t′ , E′ , S′ ⟩ → H ~ʰ H″
-        → ∃ λ H‴ → ⟨ H″ , t , E , S ⟩ ⇒ᵥ ⟨ H‴ , t′ , E′ , S′ ⟩ × H′ ~ʰ H‴
+  ~ʰ-⇒ᵥ : ⟨ H , t , ρ , S ⟩ ⇒ᵥ ⟨ H′ , t′ , ρ′ , S′ ⟩ → H ~ʰ H″
+        → ∃ λ H‴ → ⟨ H″ , t , ρ , S ⟩ ⇒ᵥ ⟨ H‴ , t′ , ρ′ , S′ ⟩ × H′ ~ʰ H‴
   ~ʰ-⇒ᵥ lamₕ H~H″           = _ , lamₕ , H~H″ ∙ _
   ~ʰ-⇒ᵥ prodˢₕ₁ H~H″         = _ , prodˢₕ₁ , H~H″
   ~ʰ-⇒ᵥ prodˢₕ₂ H~H″         = _ , prodˢₕ₂ , H~H″
@@ -475,8 +475,8 @@ opaque
 opaque
 
   ~ʰ-⇒ₙ : ⦃ ¬Track-resources ⦄
-        → ⟨ H , t , E , S ⟩ ⇒ₙ ⟨ H′ , t′ , E′ , S′ ⟩ → H ~ʰ H″
-        → ⟨ H″ , t , E , S ⟩ ⇒ₙ ⟨ H″ , t′ , E′ , S′ ⟩
+        → ⟨ H , t , ρ , S ⟩ ⇒ₙ ⟨ H′ , t′ , ρ′ , S′ ⟩ → H ~ʰ H″
+        → ⟨ H″ , t , ρ , S ⟩ ⇒ₙ ⟨ H″ , t′ , ρ′ , S′ ⟩
   ~ʰ-⇒ₙ (varₕ d) H~H″              = ⊥-elim not-tracking-and-no-tracking
   ~ʰ-⇒ₙ (varₕ′ ⦃ tr = tr ⦄ d) H~H″ = varₕ′ ⦃ tr = tr ⦄ (~ʰ-lookup H~H″ d)
   ~ʰ-⇒ₙ appₕ H~H″                  = appₕ
@@ -492,8 +492,8 @@ opaque
 
 opaque
 
-  ~ʰ-⇒ₛ : ⟨ H , t , E , S ⟩ ⇒ₛ ⟨ H′ , t′ , E′ , S′ ⟩ → H ~ʰ H″
-        → ⟨ H″ , t , E , S ⟩ ⇒ₛ ⟨ H″ , t′ , E′ , S′ ⟩
+  ~ʰ-⇒ₛ : ⟨ H , t , ρ , S ⟩ ⇒ₛ ⟨ H′ , t′ , ρ′ , S′ ⟩ → H ~ʰ H″
+        → ⟨ H″ , t , ρ , S ⟩ ⇒ₛ ⟨ H″ , t′ , ρ′ , S′ ⟩
   ~ʰ-⇒ₛ (sucₕ x) H~H″ = sucₕ x
   ~ʰ-⇒ₛ (numₕ x) H~H″ = numₕ x
 
@@ -502,8 +502,8 @@ opaque
   -- The non resource tracking reduction behaves the same on equal heaps
 
   ~ʰ-⇒ : ⦃ ¬Track-resources ⦄
-       → ⟨ H , t , E , S ⟩ ⇒ ⟨ H′ , t′ , E′ , S′ ⟩ → H ~ʰ H″
-       → ∃ λ H‴ → ⟨ H″ , t , E , S ⟩ ⇒ ⟨ H‴ , t′ , E′ , S′ ⟩ × H′ ~ʰ H‴
+       → ⟨ H , t , ρ , S ⟩ ⇒ ⟨ H′ , t′ , ρ′ , S′ ⟩ → H ~ʰ H″
+       → ∃ λ H‴ → ⟨ H″ , t , ρ , S ⟩ ⇒ ⟨ H‴ , t′ , ρ′ , S′ ⟩ × H′ ~ʰ H‴
   ~ʰ-⇒ (⇒ₙ d) H~H″ =
     _ , ⇒ₙ (~ʰ-⇒ₙ d H~H″) , subst (_~ʰ _) (⇒ₙ-Heap≡ d) H~H″
   ~ʰ-⇒ (⇒ᵥ d) H~H″ =
@@ -518,8 +518,8 @@ opaque
   -- The non resource tracking reduction behaves the same on equal heaps
 
   ~ʰ-⇒* :  ⦃ ¬tr : ¬Track-resources ⦄
-        → ⟨ H , t , E , S ⟩ ⇒* ⟨ H′ , t′ , E′ , S′ ⟩ → H ~ʰ H″
-        → ∃ λ H‴ → ⟨ H″ , t , E , S ⟩ ⇒* ⟨ H‴ , t′ , E′ , S′ ⟩ × H′ ~ʰ H‴
+        → ⟨ H , t , ρ , S ⟩ ⇒* ⟨ H′ , t′ , ρ′ , S′ ⟩ → H ~ʰ H″
+        → ∃ λ H‴ → ⟨ H″ , t , ρ , S ⟩ ⇒* ⟨ H‴ , t′ , ρ′ , S′ ⟩ × H′ ~ʰ H‴
   ~ʰ-⇒* id H~H′ =
     _ , id , H~H′
   ~ʰ-⇒* (x ⇨ d) H~H′ =

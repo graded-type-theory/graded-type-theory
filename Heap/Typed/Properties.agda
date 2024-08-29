@@ -47,7 +47,7 @@ private variable
   S : Stack _
   s : State _ _ _
   x : Fin _
-  E : Env _ _
+  ρ : Wk _ _
 
 opaque
 
@@ -411,5 +411,5 @@ opaque
 
   -- A version of the property above for well-typed states
 
-  ⊢emptyrec₀∉S : Consistent Δ → Δ ⨾ Γ ⊢ ⟨ H , t , E , S ⟩ ∷ A → emptyrec₀∈ S → ⊥
+  ⊢emptyrec₀∉S : Consistent Δ → Δ ⨾ Γ ⊢ ⟨ H , t , ρ , S ⟩ ∷ A → emptyrec₀∈ S → ⊥
   ⊢emptyrec₀∉S consistent (_ , _ , ⊢t , ⊢S) x = ⊢ˢemptyrec₀∉S consistent ⊢S ⊢t x

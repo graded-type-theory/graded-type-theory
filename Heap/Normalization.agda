@@ -43,22 +43,22 @@ private variable
 opaque mutual
 
   normalize-var : (H : Heap k m) (x : Fin m)
-                → ∃₄ λ n t (E′ : Env m n) S → Normal ⟨ H , t , E′ , S ⟩
-                  × ⟨ H , var x , id , ε ⟩ ⇒ₙ* ⟨ H , t , E′ , S ⟩
-  normalize-var (H ∙ (p , t , E)) y0 =
-    case normalize H t E ε of λ
-      (_ , t′ , E′ , S , n , d) →
-    _ , t′ , step E′ , wk1ˢ S , wk1-Normal n
+                → ∃₄ λ n t (ρ′ : Wk m n) S → Normal ⟨ H , t , ρ′ , S ⟩
+                  × ⟨ H , var x , id , ε ⟩ ⇒ₙ* ⟨ H , t , ρ′ , S ⟩
+  normalize-var (H ∙ (p , t , ρ)) y0 =
+    case normalize H t ρ ε of λ
+      (_ , t′ , ρ′ , S , n , d) →
+    _ , t′ , step ρ′ , wk1ˢ S , wk1-Normal n
       , varₕ′ here ⇨ wk1-⇒ₙ* d
 
   normalize-var (H ∙ c) (y +1) =
     case normalize-var H y of λ
-      (_ , t , E , S , n , d) →
+      (_ , t , ρ , S , n , d) →
     case wk1-Normal n of λ
       n′ →
     case var-env-⇒ₙ* (wk1-⇒ₙ* d) refl n′ of λ where
       (inj₁ d′) →
-        _ , t , step E , wk1ˢ S , n′ , d′
+        _ , t , step ρ , wk1ˢ S , n′ , d′
       (inj₂ (refl , s≡s′)) →
         case State-injectivity s≡s′ of λ {
           (_ , refl , refl , _) →
@@ -72,12 +72,12 @@ opaque mutual
 
   normalize-var (H ∙●) (y +1) =
     case normalize-var H y of λ
-      (_ , t , E , S , n , d) →
+      (_ , t , ρ , S , n , d) →
     case wk1●-Normal n of λ
       n′ →
     case var-env-⇒ₙ* (wk1●-⇒ₙ* d) refl n′ of λ where
       (inj₁ d′) →
-        _ , t , step E , wk1ˢ S , n′ , d′
+        _ , t , step ρ , wk1ˢ S , n′ , d′
       (inj₂ (refl , s≡s′)) →
         case State-injectivity s≡s′ of λ {
           (_ , refl , refl , _) →
@@ -86,90 +86,90 @@ opaque mutual
         _ , var (y +1) , id , ε , var d , id }}
 
 
-  normalize : (H : Heap k m) (t : Term n) (E : Env m n) (S : Stack m)
-            → ∃₄ λ n′ t′ (E′ : Env m n′) (S′ : Stack m) → Normal ⟨ H , t′ , E′ , S′ ⟩ ×
-              ⟨ H , t , E , S ⟩ ⇒ₙ* ⟨ H , t′ , E′ , S′ ⟩
-  normalize H (var x) E S =
-    case normalize-var H (wkVar E x) of λ
-      (_ , t , E′ , S′ , n , d) →
+  normalize : (H : Heap k m) (t : Term n) (ρ : Wk m n) (S : Stack m)
+            → ∃₄ λ n′ t′ (ρ′ : Wk m n′) (S′ : Stack m) → Normal ⟨ H , t′ , ρ′ , S′ ⟩ ×
+              ⟨ H , t , ρ , S ⟩ ⇒ₙ* ⟨ H , t′ , ρ′ , S′ ⟩
+  normalize H (var x) ρ S =
+    case normalize-var H (wkVar ρ x) of λ
+      (_ , t , ρ′ , S′ , n , d) →
     case var-env-⇒ₙ* d refl n of λ where
       (inj₁ d′) →
-        _ , t , E′ , S′ ++ S , Normal-stack n
+        _ , t , ρ′ , S′ ++ S , Normal-stack n
           , ++-⇒ₙ* S d′
       (inj₂ (refl , s≡s′)) →
         case State-injectivity s≡s′ of λ {
           (_ , refl , refl , refl) →
         case n of λ {
           (var ¬d) →
-        _ , var x , E , S , var ¬d , id }}
-  normalize H (lam p t) E S =
-    _ , lam p t , E , S , val lamᵥ , id
-  normalize H (t ∘⟨ p ⟩ u) E S =
-    case normalize H t E (∘ₑ p u E ∙ S) of λ
+        _ , var x , ρ , S , var ¬d , id }}
+  normalize H (lam p t) ρ S =
+    _ , lam p t , ρ , S , val lamᵥ , id
+  normalize H (t ∘⟨ p ⟩ u) ρ S =
+    case normalize H t ρ (∘ₑ p u ρ ∙ S) of λ
       (_ , _ , _ , _ , n , d) →
     _ , _ , _ , _ , n , appₕ ⇨ d
-  normalize H (prod s p t u) E S =
-    _ , prod s p t u , E , S , val prodᵥ , id
-  normalize H (fst p t) E S =
-    case normalize H t E (fstₑ p ∙ S) of λ
+  normalize H (prod s p t u) ρ S =
+    _ , prod s p t u , ρ , S , val prodᵥ , id
+  normalize H (fst p t) ρ S =
+    case normalize H t ρ (fstₑ p ∙ S) of λ
       (_ , _ , _ , _ , n , d) →
     _ , _ , _ , _ , n , fstₕ ⇨ d
-  normalize H (snd p t) E S =
-    case normalize H t E (sndₑ p ∙ S) of λ
+  normalize H (snd p t) ρ S =
+    case normalize H t ρ (sndₑ p ∙ S) of λ
       (_ , _ , _ , _ , n , d) →
     _ , _ , _ , _ , n , sndₕ ⇨ d
-  normalize H (prodrec r p q A t u) E S =
-    case normalize H t E (prodrecₑ r p q A u E ∙ S) of λ
+  normalize H (prodrec r p q A t u) ρ S =
+    case normalize H t ρ (prodrecₑ r p q A u ρ ∙ S) of λ
       (_ , _ , _ , _ , n , d) →
     _ , _ , _ , _ , n , prodrecₕ ⇨ d
-  normalize H (star s) E S =
-    _ , star s , E , S , val starᵥ , id
-  normalize H (unitrec p q A t u) E S =
+  normalize H (star s) ρ S =
+    _ , star s , ρ , S , val starᵥ , id
+  normalize H (unitrec p q A t u) ρ S =
     case Unitʷ-η? of λ where
       (yes η) →
-        _ , unitrec p q A t u , E , S , val (unitrec-ηᵥ η) , id
+        _ , unitrec p q A t u , ρ , S , val (unitrec-ηᵥ η) , id
       (no no-η) →
-        case normalize H t E (unitrecₑ p q A u E ∙ S) of λ
+        case normalize H t ρ (unitrecₑ p q A u ρ ∙ S) of λ
           (_ , _ , _ , _ , n , d) →
         _ , _ , _ , _ , n , unitrecₕ no-η ⇨ d
-  normalize H zero E S =
-    _ , zero , E , S , val zeroᵥ , id
-  normalize H (suc t) E S =
-    _ , suc t , E , S , val sucᵥ , id
-  normalize H (natrec p q r A z s n) E S =
-    case normalize H n E (natrecₑ p q r A z s E ∙ S) of λ
+  normalize H zero ρ S =
+    _ , zero , ρ , S , val zeroᵥ , id
+  normalize H (suc t) ρ S =
+    _ , suc t , ρ , S , val sucᵥ , id
+  normalize H (natrec p q r A z s n) ρ S =
+    case normalize H n ρ (natrecₑ p q r A z s ρ ∙ S) of λ
       (_ , _ , _ , _ , n , d) →
     _ , _ , _ , _ , n , (natrecₕ ⇨ d)
-  normalize H (emptyrec p A t) E S =
-    case normalize H t E (emptyrecₑ p A E ∙ S) of λ
+  normalize H (emptyrec p A t) ρ S =
+    case normalize H t ρ (emptyrecₑ p A ρ ∙ S) of λ
       (_ , _ , _ , _ , n , d) →
     _ , _ , _ , _ , n , emptyrecₕ ⇨ d
-  normalize H rfl E S =
-    _ , rfl , E , S , val rflᵥ , id
-  normalize H (J p q A t B u v w) E S =
-    case normalize H w E (Jₑ p q A t B u v E ∙ S) of λ
+  normalize H rfl ρ S =
+    _ , rfl , ρ , S , val rflᵥ , id
+  normalize H (J p q A t B u v w) ρ S =
+    case normalize H w ρ (Jₑ p q A t B u v ρ ∙ S) of λ
       (_ , _ , _ , _ , n , d) →
     _ , _ , _ , _ , n , Jₕ ⇨ d
-  normalize H (K p A t B u v) E S =
-    case normalize H v E (Kₑ p A t B u E ∙ S) of λ
+  normalize H (K p A t B u v) ρ S =
+    case normalize H v ρ (Kₑ p A t B u ρ ∙ S) of λ
       (_ , _ , _ , _ , n , d) →
     _ , _ , _ , _ , n , Kₕ ⇨ d
-  normalize H ([]-cong s A t u v) E S =
-    case normalize H v E ([]-congₑ s A t u E ∙ S) of λ
+  normalize H ([]-cong s A t u v) ρ S =
+    case normalize H v ρ ([]-congₑ s A t u ρ ∙ S) of λ
       (_ , _ , _ , _ , n , d) →
     _ , _ , _ , _ , n , []-congₕ ⇨ d
-  normalize H U E S =
-    _ , U , E , S , val Uᵥ , id
-  normalize H ℕ E S =
-    _ , ℕ , E , S , val ℕᵥ , id
-  normalize H Empty E S =
-    _ , Empty , E , S , val Emptyᵥ , id
-  normalize H (Unit s) E S =
-    _ , Unit s , E , S , val Unitᵥ , id
-  normalize H (ΠΣ⟨ b ⟩ p , q ▷ A ▹ B) E S =
-    _ , ΠΣ⟨ b ⟩ p , q ▷ A ▹ B , E , S , val ΠΣᵥ , id
-  normalize H (Id A t u) E S =
-    _ , Id A t u , E , S , val Idᵥ , id
+  normalize H U ρ S =
+    _ , U , ρ , S , val Uᵥ , id
+  normalize H ℕ ρ S =
+    _ , ℕ , ρ , S , val ℕᵥ , id
+  normalize H Empty ρ S =
+    _ , Empty , ρ , S , val Emptyᵥ , id
+  normalize H (Unit s) ρ S =
+    _ , Unit s , ρ , S , val Unitᵥ , id
+  normalize H (ΠΣ⟨ b ⟩ p , q ▷ A ▹ B) ρ S =
+    _ , ΠΣ⟨ b ⟩ p , q ▷ A ▹ B , ρ , S , val ΠΣᵥ , id
+  normalize H (Id A t u) ρ S =
+    _ , Id A t u , ρ , S , val Idᵥ , id
 
 opaque
 
@@ -177,7 +177,7 @@ opaque
 
   normalizeₛ : (s : State k m n)
              → ∃₂ λ n′ (s′ : State k m n′) → Normal s′ × s ⇒ₙ* s′
-  normalizeₛ ⟨ H , t , E , S ⟩ =
-    case normalize H t E S of λ
-      (_ , t′ , E′ , S′ , n , d) →
+  normalizeₛ ⟨ H , t , ρ , S ⟩ =
+    case normalize H t ρ S of λ
+      (_ , t′ , ρ′ , S′ , n , d) →
     _ , _ , n , d

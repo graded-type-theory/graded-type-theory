@@ -40,7 +40,7 @@ private variable
   p q r : M
   s : Strength
   b : BinderMode
-  ρ : Wk _ _
+  ρ ρ′ : Wk _ _
 
 infixl 20 _⊢_↦[_]_⨾_
 infix   2 ⟨_,_,_,_⟩
@@ -55,31 +55,26 @@ Ptr = Fin
 
 pattern y0 = x0
 
--- An enivronment is a weakening,
--- mapping variables (de Bruijn indices) to pointers (de Bruijn indices).
+-- Heap entries, containing a term and a weakening, translating variable
+-- indices to pointer indices.
+-- Indexed by the size of the heap and the number of free variables of
+-- the term
 
-Env : (m n : Nat) → Set
-Env = Wk
+Entry : (m n : Nat) → Set a
+Entry m n = Term n × Wk m n
 
--- Closures, indexed by the size of the heap and the number of
--- free variables of the term
+-- Entires with a grade
 
-Closure : (m n : Nat) → Set a
-Closure m n = Term n × Env m n
+Entryₘ : (m n : Nat) → Set a
+Entryₘ m n = M × Entry m n
 
--- Closures with a grade
+-- Weakening of entries
 
-Closureₘ : (m n : Nat) → Set a
-Closureₘ m n = M × Closure m n
+wkᵉⁿ : Wk m′ m → Entry m n → Entry m′ n
+wkᵉⁿ ρ (t , E) = t , ρ • E
 
-private
-  -- Weakening of closures
-
-  wkᶜ : Wk m′ m → Closure m n → Closure m′ n
-  wkᶜ ρ (t , E) = t , ρ • E
-
-wk1ᶜ : Closure m n → Closure (1+ m) n
-wk1ᶜ = wkᶜ (step id)
+wk1ᵉⁿ : Entry m n → Entry (1+ m) n
+wk1ᵉⁿ = wkᵉⁿ (step id)
 
 ------------------------------------------------------------------------
 -- Eliminators and Evaluation stacks
@@ -87,34 +82,34 @@ wk1ᶜ = wkᶜ (step id)
 -- Eliminators, indexed by the size of the heap
 
 data Elim (m : Nat) : Set a where
-  ∘ₑ        : (p : M) (u : Term n) (E : Env m n) → Elim m
+  ∘ₑ        : (p : M) (u : Term n) (ρ : Wk m n) → Elim m
   fstₑ      : M → Elim m
   sndₑ      : M → Elim m
-  prodrecₑ  : (r p q : M) (A : Term (1+ n)) (u : Term (2+ n)) (E : Env m n) → Elim m
+  prodrecₑ  : (r p q : M) (A : Term (1+ n)) (u : Term (2+ n)) (ρ : Wk m n) → Elim m
   natrecₑ   : (p q r : M) (A : Term (1+ n)) (z : Term n)
-              (s : Term (2+ n)) (E : Env m n) → Elim m
-  unitrecₑ  : (p q : M) (A : Term (1+ n)) (u : Term n) (E : Env m n) → Elim m
-  emptyrecₑ : (p : M) (A : Term n) (E : Env m n) → Elim m
+              (s : Term (2+ n)) (ρ : Wk m n) → Elim m
+  unitrecₑ  : (p q : M) (A : Term (1+ n)) (u : Term n) (ρ : Wk m n) → Elim m
+  emptyrecₑ : (p : M) (A : Term n) (ρ : Wk m n) → Elim m
   Jₑ        : (p q : M) (A t : Term n) (B : Term (2+ n))
-              (u v : Term n) (E : Env m n) → Elim m
+              (u v : Term n) (ρ : Wk m n) → Elim m
   Kₑ        : (p : M) (A t : Term n) (B : Term (1+ n))
-              (u : Term n) (E : Env m n) → Elim m
-  []-congₑ  : (s : Strength) (A t u : Term n) (E : Env m n) → Elim m
+              (u : Term n) (ρ : Wk m n) → Elim m
+  []-congₑ  : (s : Strength) (A t u : Term n) (ρ : Wk m n) → Elim m
   sucₑ      : Elim m
 
 -- Weakening of eliminators
 
 wkᵉ : Wk m′ m → Elim m → Elim m′
-wkᵉ ρ (∘ₑ p u E) = ∘ₑ p u (ρ • E)
+wkᵉ ρ (∘ₑ p u ρ′) = ∘ₑ p u (ρ • ρ′)
 wkᵉ ρ (fstₑ p) = fstₑ p
 wkᵉ ρ (sndₑ p) = sndₑ p
-wkᵉ ρ (natrecₑ p q r A z s E) = natrecₑ p q r A z s (ρ • E)
-wkᵉ ρ (prodrecₑ r p q A u E) = prodrecₑ r p q A u (ρ • E)
-wkᵉ ρ (unitrecₑ p q A u E) = unitrecₑ p q A u (ρ • E)
-wkᵉ ρ (emptyrecₑ p A E) = emptyrecₑ p A (ρ • E)
-wkᵉ ρ (Jₑ p q A t B u v E) = Jₑ p q A t B u v (ρ • E)
-wkᵉ ρ (Kₑ p A t B u E) = Kₑ p A t B u (ρ • E)
-wkᵉ ρ ([]-congₑ s A t u E) = []-congₑ s A t u (ρ • E)
+wkᵉ ρ (natrecₑ p q r A z s ρ′) = natrecₑ p q r A z s (ρ • ρ′)
+wkᵉ ρ (prodrecₑ r p q A u ρ′) = prodrecₑ r p q A u (ρ • ρ′)
+wkᵉ ρ (unitrecₑ p q A u ρ′) = unitrecₑ p q A u (ρ • ρ′)
+wkᵉ ρ (emptyrecₑ p A ρ′) = emptyrecₑ p A (ρ • ρ′)
+wkᵉ ρ (Jₑ p q A t B u v ρ′) = Jₑ p q A t B u v (ρ • ρ′)
+wkᵉ ρ (Kₑ p A t B u ρ′) = Kₑ p A t B u (ρ • ρ′)
+wkᵉ ρ ([]-congₑ s A t u ρ′) = []-congₑ s A t u (ρ • ρ′)
 wkᵉ ρ sucₑ = sucₑ
 
 wk1ᵉ : Elim m → Elim (1+ m)
@@ -199,14 +194,13 @@ sucₛ 0 = ε
 sucₛ (1+ n) = sucₑ ∙ sucₛ n
 
 private variable
-  E E′ : Env _ _
   e : Elim _
   S : Stack _
 
 -- A utility predicate: stacks containing erased emptyrec
 
 data emptyrec₀∈_ : (S : Stack m) → Set a where
-  here : emptyrec₀∈ (emptyrecₑ 𝟘 A E ∙ S)
+  here : emptyrec₀∈ (emptyrecₑ 𝟘 A ρ ∙ S)
   there : emptyrec₀∈ S → emptyrec₀∈ (e ∙ S)
 
 ------------------------------------------------------------------------
@@ -219,7 +213,7 @@ infixl 24 _∙●
 
 data Heap : (k m : Nat) → Set a where
   ε   : Heap 0 0
-  _∙_ : (H : Heap k m) → (c : Closureₘ m n) → Heap k (1+ m)
+  _∙_ : (H : Heap k m) → (c : Entryₘ m n) → Heap k (1+ m)
   _∙● : (H : Heap k m) → Heap (1+ k) (1+ m)
 
 -- A heap where all entries are erased
@@ -230,31 +224,31 @@ erasedHeap (1+ k) = erasedHeap k ∙●
 
 private variable
   H H′ : Heap _ _
-  c : Closure _ _
-  c′ : Closureₘ _ _
+  c : Entry _ _
+  c′ : Entryₘ _ _
   y : Ptr _
 
 -- Heap lookup (with grade update)
 -- Note that lookup fails e.g. when the grade is 𝟘.
 
 data _⊢_↦[_]_⨾_ : (H : Heap k m) (y : Ptr m) (q : M)
-                  (c : Closure m n) (H′ : Heap k m) → Set a where
+                  (c : Entry m n) (H′ : Heap k m) → Set a where
   here : p - q ≡ r
-       → H ∙ (p , c) ⊢ y0 ↦[ q ] wk1ᶜ c ⨾ H ∙ (r , c)
+       → H ∙ (p , c) ⊢ y0 ↦[ q ] wk1ᵉⁿ c ⨾ H ∙ (r , c)
   there : H ⊢ y ↦[ q ] c ⨾ H′
-        → H ∙ c′ ⊢ y +1 ↦[ q ] wk1ᶜ c ⨾ H′ ∙ c′
+        → H ∙ c′ ⊢ y +1 ↦[ q ] wk1ᵉⁿ c ⨾ H′ ∙ c′
   there● : H ⊢ y ↦[ q ] c ⨾ H′
-         → H ∙● ⊢ y +1 ↦[ q ] wk1ᶜ c ⨾ H′ ∙●
+         → H ∙● ⊢ y +1 ↦[ q ] wk1ᵉⁿ c ⨾ H′ ∙●
 
 
 -- Heap lookup (without grade update)
 
-data _⊢_↦_ : (H : Heap k m) (y : Ptr m) (c : Closure m n) → Set a where
-  here : H ∙ (p , c) ⊢ y0 ↦ wk1ᶜ c
+data _⊢_↦_ : (H : Heap k m) (y : Ptr m) (c : Entry m n) → Set a where
+  here : H ∙ (p , c) ⊢ y0 ↦ wk1ᵉⁿ c
   there : H ⊢ y ↦ c
-        → H ∙ c′ ⊢ y +1 ↦ wk1ᶜ c
+        → H ∙ c′ ⊢ y +1 ↦ wk1ᵉⁿ c
   there● : H ⊢ y ↦ c
-         → H ∙● ⊢ y +1 ↦ wk1ᶜ c
+         → H ∙● ⊢ y +1 ↦ wk1ᵉⁿ c
 
 data _⊢_↦● : (H : Heap k m) (y : Ptr m) → Set a where
   here : H ∙● ⊢ y0 ↦●
@@ -268,7 +262,7 @@ infix 5 _~ʰ_
 
 data _~ʰ_ : (H H′ : Heap k m) → Set a where
   ε : ε ~ʰ ε
-  _∙_ : H ~ʰ H′ → (c : Closure m n) → H ∙ (p , c) ~ʰ H′ ∙ (q , c)
+  _∙_ : H ~ʰ H′ → (c : Entry m n) → H ∙ (p , c) ~ʰ H′ ∙ (q , c)
   _∙● : H ~ʰ H′ → H ∙● ~ʰ H′ ∙●
 
 -- Weakening of heaps
@@ -282,9 +276,9 @@ data _∷_⊇ʰ_ : (ρ : Wk m n) (H : Heap k m) (H′ : Heap k n) → Set a wher
 
 toSubstₕ : Heap k m → Subst k m
 toSubstₕ ε = idSubst
-toSubstₕ (H ∙ (_ , t , E)) =
+toSubstₕ (H ∙ (_ , t , ρ)) =
   let σ = toSubstₕ H
-  in  consSubst σ (wk E t [ σ ])
+  in  consSubst σ (wk ρ t [ σ ])
 toSubstₕ (H ∙●) = liftSubst (toSubstₕ H)
 
 infix 25 _[_]ₕ
@@ -319,29 +313,29 @@ record State (k m n : Nat) : Set a where
   field
     heap : Heap k m
     head : Term n
-    env : Env m n
+    env : Wk m n
     stack : Stack m
 
 -- Converting states back to terms
 
 ⦅_⦆ᵉ : Elim m → (Term m → Term m)
-⦅ ∘ₑ p u E ⦆ᵉ = _∘⟨ p ⟩ wk E u
+⦅ ∘ₑ p u ρ ⦆ᵉ = _∘⟨ p ⟩ wk ρ u
 ⦅ fstₑ p ⦆ᵉ = fst p
 ⦅ sndₑ p ⦆ᵉ = snd p
-⦅ prodrecₑ r p q A u E ⦆ᵉ t =
-  prodrec r p q (wk (lift E) A) t (wk (liftn E 2) u)
-⦅ natrecₑ p q r A z s E ⦆ᵉ t =
-  natrec p q r (wk (lift E) A) (wk E z) (wk (liftn E 2) s) t
-⦅ unitrecₑ p q A u E ⦆ᵉ t =
-  unitrec p q (wk (lift E) A) t (wk E u)
-⦅ emptyrecₑ p A E ⦆ᵉ t =
-  emptyrec p (wk E A) t
-⦅ Jₑ p q A t B u v E ⦆ᵉ w =
-  J p q (wk E A) (wk E t) (wk (liftn E 2) B) (wk E u) (wk E v) w
-⦅ Kₑ p A t B u E ⦆ᵉ v =
-  K p (wk E A) (wk E t) (wk (lift E) B) (wk E u) v
-⦅ []-congₑ s A t u E ⦆ᵉ v =
-  []-cong s (wk E A ) (wk E t) (wk E u) v
+⦅ prodrecₑ r p q A u ρ ⦆ᵉ t =
+  prodrec r p q (wk (lift ρ) A) t (wk (liftn ρ 2) u)
+⦅ natrecₑ p q r A z s ρ ⦆ᵉ t =
+  natrec p q r (wk (lift ρ) A) (wk ρ z) (wk (liftn ρ 2) s) t
+⦅ unitrecₑ p q A u ρ ⦆ᵉ t =
+  unitrec p q (wk (lift ρ) A) t (wk ρ u)
+⦅ emptyrecₑ p A ρ ⦆ᵉ t =
+  emptyrec p (wk ρ A) t
+⦅ Jₑ p q A t B u v ρ ⦆ᵉ w =
+  J p q (wk ρ A) (wk ρ t) (wk (liftn ρ 2) B) (wk ρ u) (wk ρ v) w
+⦅ Kₑ p A t B u ρ ⦆ᵉ v =
+  K p (wk ρ A) (wk ρ t) (wk (lift ρ) B) (wk ρ u) v
+⦅ []-congₑ s A t u ρ ⦆ᵉ v =
+  []-cong s (wk ρ A ) (wk ρ t) (wk ρ u) v
 ⦅ sucₑ ⦆ᵉ = suc
 
 ⦅_⦆ˢ : Stack m → (Term m → Term m)
@@ -349,7 +343,7 @@ record State (k m n : Nat) : Set a where
 ⦅ e ∙ S ⦆ˢ = ⦅ S ⦆ˢ ∘ᶠ ⦅ e ⦆ᵉ
 
 ⦅_⦆ : (s : State k m n) → Term k
-⦅ ⟨ H , t , E , S ⟩ ⦆ = ⦅ S ⦆ˢ (wk E t) [ H ]ₕ
+⦅ ⟨ H , t , ρ , S ⟩ ⦆ = ⦅ S ⦆ˢ (wk ρ t) [ H ]ₕ
 
 -- The initial state
 
@@ -381,5 +375,5 @@ data Value {n : Nat} : (t : Term n) → Set a where
 -- I.e. states which do not reduce with _⇒ₙ_
 
 data Normal : (State k m n) → Set a where
-  val : Value t → Normal ⟨ H , t , E , S ⟩
-  var : H ⊢ wkVar E x ↦● → Normal ⟨ H , var x , E , S ⟩
+  val : Value t → Normal ⟨ H , t , ρ , S ⟩
+  var : H ⊢ wkVar ρ x ↦● → Normal ⟨ H , var x , ρ , S ⟩

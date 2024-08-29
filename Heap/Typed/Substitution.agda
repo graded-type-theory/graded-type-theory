@@ -35,10 +35,10 @@ import Tools.PropositionalEquality as PE
 private variable
   Γ Δ : Con Term _
   H H′ : Heap _ _
-  E : Env _ _
+  ρ : Wk _ _
   t u A B : Term _
   y : Ptr _
-  c : Closure _ _
+  c : Entry _ _
   p : M
   e : Elim _
   S : Stack _

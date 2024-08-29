@@ -50,7 +50,7 @@ private variable
   s s′ : State _ _ _
   H H′ H″ : Heap _ _
   t t′ u u′ A B : Term _
-  E E′ : Env _ _
+  ρ ρ′ : Wk _ _
   S S′ : Stack _
   γ δ η : Conₘ _
   Γ Δ : Con Term _
@@ -98,8 +98,8 @@ module _ (ℕ-fullred : Bool) where
 
     opaque
 
-      bisim₁ₙ : s Rₜ.⇒ₙ ⟨ H , t , E , S ⟩
-              → ∃ λ H′ → s Rₙₜ.⇒ₙ ⟨ H′ , t , E , S ⟩ × H ~ʰ H′
+      bisim₁ₙ : s Rₜ.⇒ₙ ⟨ H , t , ρ , S ⟩
+              → ∃ λ H′ → s Rₙₜ.⇒ₙ ⟨ H′ , t , ρ , S ⟩ × H ~ʰ H′
       bisim₁ₙ (Rₜ.varₕ d)        = _ , Rₙₜ.varₕ′ (↦[]→↦ d) , ~ʰ-sym (update-~ʰ d)
       bisim₁ₙ Rₜ.appₕ            = _ , Rₙₜ.appₕ , ~ʰ-refl
       bisim₁ₙ Rₜ.fstₕ            = _ , Rₙₜ.fstₕ , ~ʰ-refl
@@ -114,8 +114,8 @@ module _ (ℕ-fullred : Bool) where
 
     opaque
 
-      bisim₁ᵥ : s Rₜ.⇒ᵥ ⟨ H , t , E , S ⟩
-              → s Rₙₜ.⇒ᵥ ⟨ H , t , E , S ⟩
+      bisim₁ᵥ : s Rₜ.⇒ᵥ ⟨ H , t , ρ , S ⟩
+              → s Rₙₜ.⇒ᵥ ⟨ H , t , ρ , S ⟩
       bisim₁ᵥ Rₜ.lamₕ           = Rₙₜ.lamₕ
       bisim₁ᵥ Rₜ.prodˢₕ₁        = Rₙₜ.prodˢₕ₁
       bisim₁ᵥ Rₜ.prodˢₕ₂        = Rₙₜ.prodˢₕ₂
@@ -130,15 +130,15 @@ module _ (ℕ-fullred : Bool) where
 
     opaque
 
-      bisim₁ₛ : s Rₜ.⇒ₛ ⟨ H , t , E , S ⟩
-              → s Rₙₜ.⇒ₛ ⟨ H , t , E , S ⟩
+      bisim₁ₛ : s Rₜ.⇒ₛ ⟨ H , t , ρ , S ⟩
+              → s Rₙₜ.⇒ₛ ⟨ H , t , ρ , S ⟩
       bisim₁ₛ (Rₜ.sucₕ x) = Rₙₜ.sucₕ x
       bisim₁ₛ (Rₜ.numₕ x) = Rₙₜ.numₕ x
 
     opaque
 
-      bisim₁ : s Rₜ.⇒ ⟨ H , t , E , S ⟩
-             → ∃ λ H′ → s Rₙₜ.⇒ ⟨ H′ , t , E , S ⟩ × H ~ʰ H′
+      bisim₁ : s Rₜ.⇒ ⟨ H , t , ρ , S ⟩
+             → ∃ λ H′ → s Rₙₜ.⇒ ⟨ H′ , t , ρ , S ⟩ × H ~ʰ H′
       bisim₁ (Rₜ.⇒ₙ d) =
         case bisim₁ₙ d of λ
           (_ , d′ , H~H′) →
@@ -150,8 +150,8 @@ module _ (ℕ-fullred : Bool) where
 
     opaque
 
-      bisim₁* : s Rₜ.⇒* ⟨ H , t , E , S ⟩
-              → ∃ λ H′ → s Rₙₜ.⇒* ⟨ H′ , t , E , S ⟩ × H ~ʰ H′
+      bisim₁* : s Rₜ.⇒* ⟨ H , t , ρ , S ⟩
+              → ∃ λ H′ → s Rₙₜ.⇒* ⟨ H′ , t , ρ , S ⟩ × H ~ʰ H′
       bisim₁* Rₜ.id =
         _ , Rₙₜ.id , ~ʰ-refl
       bisim₁* (x Rₜ.⇨ d) =
@@ -165,8 +165,8 @@ module _ (ℕ-fullred : Bool) where
 
     opaque
 
-      bisim₂ᵥ : ⟨ H , t , E , S ⟩ Rₙₜ.⇒ᵥ ⟨ H′ , t′ , E′ , S′ ⟩
-              → ⟨ H , t , E , S ⟩ Rₜ.⇒ᵥ ⟨ H′ , t′ , E′ , S′ ⟩
+      bisim₂ᵥ : ⟨ H , t , ρ , S ⟩ Rₙₜ.⇒ᵥ ⟨ H′ , t′ , ρ′ , S′ ⟩
+              → ⟨ H , t , ρ , S ⟩ Rₜ.⇒ᵥ ⟨ H′ , t′ , ρ′ , S′ ⟩
       bisim₂ᵥ Rₙₜ.lamₕ            = Rₜ.lamₕ
       bisim₂ᵥ Rₙₜ.prodˢₕ₁         = Rₜ.prodˢₕ₁
       bisim₂ᵥ Rₙₜ.prodˢₕ₂         = Rₜ.prodˢₕ₂
@@ -181,8 +181,8 @@ module _ (ℕ-fullred : Bool) where
 
     opaque
 
-      bisim₂ₛ : ⟨ H , t , E , S ⟩ Rₙₜ.⇒ₛ ⟨ H′ , t′ , E′ , S′ ⟩
-              → ⟨ H , t , E , S ⟩ Rₜ.⇒ₛ ⟨ H′ , t′ , E′ , S′ ⟩
+      bisim₂ₛ : ⟨ H , t , ρ , S ⟩ Rₙₜ.⇒ₛ ⟨ H′ , t′ , ρ′ , S′ ⟩
+              → ⟨ H , t , ρ , S ⟩ Rₜ.⇒ₛ ⟨ H′ , t′ , ρ′ , S′ ⟩
       bisim₂ₛ (Rₙₜ.sucₕ x) = Rₜ.sucₕ x
       bisim₂ₛ (Rₙₜ.numₕ x) = Rₜ.numₕ x
 
@@ -196,10 +196,10 @@ module _ (ℕ-fullred : Bool) where
 
     opaque
 
-      bisim₂ₙ : ⟨ H , t , E , S ⟩ Rₙₜ.⇒ₙ ⟨ H′ , t′ , E′ , S′ ⟩
+      bisim₂ₙ : ⟨ H , t , ρ , S ⟩ Rₙₜ.⇒ₙ ⟨ H′ , t′ , ρ′ , S′ ⟩
               → H ~ʰ H″
-              → γ ⨾ δ ⨾ η ▸[ m ] ⟨ H″ , t , E , S ⟩
-              → ∃ λ H‴ → ⟨ H″ , t , E , S ⟩ Rₜ.⇒ₙ ⟨ H‴ , t′ , E′ , S′ ⟩ × H′ ~ʰ H‴
+              → γ ⨾ δ ⨾ η ▸[ m ] ⟨ H″ , t , ρ , S ⟩
+              → ∃ λ H‴ → ⟨ H″ , t , ρ , S ⟩ Rₜ.⇒ₙ ⟨ H‴ , t′ , ρ′ , S′ ⟩ × H′ ~ʰ H‴
       bisim₂ₙ (Rₙₜ.varₕ′ d) H~H′ ▸s =
         case ▸↦→↦[] subtraction-ok (~ʰ-lookup H~H′ d) ▸s .proj₂ of λ
           d′ →
@@ -217,10 +217,10 @@ module _ (ℕ-fullred : Bool) where
 
     opaque
 
-      bisim₂ : ⟨ H , t , E , S ⟩ Rₙₜ.⇒ ⟨ H′ , t′ , E′ , S′ ⟩
+      bisim₂ : ⟨ H , t , ρ , S ⟩ Rₙₜ.⇒ ⟨ H′ , t′ , ρ′ , S′ ⟩
              → H ~ʰ H″
-             → γ ⨾ δ ⨾ η ▸[ m ] ⟨ H″ , t , E , S ⟩
-             → ∃ λ H‴ → ⟨ H″ , t , E , S ⟩ Rₜ.⇒ ⟨ H‴ , t′ , E′ , S′ ⟩ × H′ ~ʰ H‴
+             → γ ⨾ δ ⨾ η ▸[ m ] ⟨ H″ , t , ρ , S ⟩
+             → ∃ λ H‴ → ⟨ H″ , t , ρ , S ⟩ Rₜ.⇒ ⟨ H‴ , t′ , ρ′ , S′ ⟩ × H′ ~ʰ H‴
       bisim₂ (Rₙₜ.⇒ₙ d) H~H′ ▸s =
         case bisim₂ₙ d H~H′ ▸s of λ
           (_ , d′ , H′~H″) →
@@ -238,10 +238,10 @@ module _ (ℕ-fullred : Bool) where
 
     opaque
 
-      bisim₂* : ⟨ H , t , E , S ⟩ Rₙₜ.⇒* ⟨ H′ , t′ , E′ , S′ ⟩
+      bisim₂* : ⟨ H , t , ρ , S ⟩ Rₙₜ.⇒* ⟨ H′ , t′ , ρ′ , S′ ⟩
               → H ~ʰ H″
-              → γ ⨾ δ ⨾ η ▸[ m ] ⟨ H″ , t , E , S ⟩
-              → ∃ λ H‴ → ⟨ H″ , t , E , S ⟩ Rₜ.⇒* ⟨ H‴ , t′ , E′ , S′ ⟩ × H′ ~ʰ H‴
+              → γ ⨾ δ ⨾ η ▸[ m ] ⟨ H″ , t , ρ , S ⟩
+              → ∃ λ H‴ → ⟨ H″ , t , ρ , S ⟩ Rₜ.⇒* ⟨ H‴ , t′ , ρ′ , S′ ⟩ × H′ ~ʰ H‴
       bisim₂* Rₙₜ.id H~H′ ▸s =
         _ , Rₜ.id , H~H′
       bisim₂* (x Rₙₜ.⇨ d) H~H′ ▸s =
@@ -302,12 +302,12 @@ module _ where
               → Normal s
               → Δ ⨾ Γ ⊢ s ∷ B
               → ∃₃ λ m n (s′ : State _ m n) → s Rₙₜ.⇒ᵥ s′ × u PE.≡ ⦅ s′ ⦆
-      bisim₄ᵥ {s = ⟨ H , t , E , ε ⟩} d (val v) ⊢s =
-        lemma refl d (substValue (toSubstₕ H) (wkValue E v)) v
+      bisim₄ᵥ {s = ⟨ H , t , ρ , ε ⟩} d (val v) ⊢s =
+        lemma refl d (substValue (toSubstₕ H) (wkValue ρ v)) v
         where
         -- TODO: This is slow
-        lemma : t′ PE.≡ wk E t [ H ]ₕ → Δ ⊢ t′ ⇒ u ∷ A → Value t′ → Value t
-              → ∃₃ λ m n (s′ : State _ m n) → ⟨ H , t , E , ε ⟩ Rₙₜ.⇒ᵥ s′ × u PE.≡ ⦅ s′ ⦆
+        lemma : t′ PE.≡ wk ρ t [ H ]ₕ → Δ ⊢ t′ ⇒ u ∷ A → Value t′ → Value t
+              → ∃₃ λ m n (s′ : State _ m n) → ⟨ H , t , ρ , ε ⟩ Rₙₜ.⇒ᵥ s′ × u PE.≡ ⦅ s′ ⦆
         lemma t′≡ (conv d x) v v′ = lemma t′≡ d v v′
         lemma t′≡ (unitrec-subst _ _ _ _ no-η) (unitrec-ηᵥ η) _ = ⊥-elim (no-η η)
         lemma t′≡ (unitrec-β _ _ _ no-η) (unitrec-ηᵥ η) _ = ⊥-elim (no-η η)
@@ -354,10 +354,10 @@ module _ where
 
       bisim₅* : Δ ⨾ Γ ⊢ s ∷ A → s Rₜ.⇒* s′
               → Δ ⊢ ⦅ s ⦆ ⇒* ⦅ s′ ⦆ ∷ A
-      bisim₅* {s′ = ⟨ _ , t , E , S ⟩} ⊢s d =
+      bisim₅* {s′ = ⟨ _ , t , ρ , S ⟩} ⊢s d =
         case bisim₁* false d of λ
           (_ , d′ , H~H′) →
-        PE.subst (λ x → _ ⊢ _ ⇒* ⦅ S ⦆ˢ (wk E t) [ x ] ∷ _)
+        PE.subst (λ x → _ ⊢ _ ⇒* ⦅ S ⦆ˢ (wk ρ t) [ x ] ∷ _)
           (PE.sym (~ʰ-subst H~H′)) (bisim₃* ⊢s d′)
 
   -- The proof that the closure of the call-by-name reduction
@@ -376,11 +376,11 @@ module _ where
               → ∃₃ λ m n (s′ : State _ m n) → s Rₜ.⇒* s′ × u PE.≡ ⦅ s′ ⦆
       bisim₆* d ⊢s ▸s =
         case bisim₄* d ⊢s of λ
-          (_ , _ , ⟨ H , t , E , S ⟩ , d′ , u≡) →
+          (_ , _ , ⟨ H , t , ρ , S ⟩ , d′ , u≡) →
         case bisim₂* false As d′ ~ʰ-refl ▸s of λ
           (_ , d″ , H~H′) →
         _ , _ , _ , d″
-          , PE.trans u≡ (cong (λ x → ⦅ S ⦆ˢ (wk E t) [ x ]) (~ʰ-subst H~H′))
+          , PE.trans u≡ (cong (λ x → ⦅ S ⦆ˢ (wk ρ t) [ x ]) (~ʰ-subst H~H′))
 
 -- Bisimilarity between redutions with and without reuction to numerals
 -- (with or without resource tracking).
