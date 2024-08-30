@@ -47,7 +47,7 @@ open Definition.Typed.Properties.Admissible.Identity.Primitive R public
 private variable
   n                                               : Nat
   Γ Γ₁ Γ₂                                         : Con Term _
-  A A₁ A₂ B B₁ B₂
+  A A₁ A₂ B B₁ B₂ C
     eq eq₁ eq₂ t t₁ t₂ t′ u u₁ u₂ v v₁ v₂ w w₁ w₂ : Term _
   σ                                               : Subst _ _
   p q                                             : M
@@ -523,6 +523,28 @@ opaque
     (id ⊢v)          ⊢w → id (⊢subst ⊢B ⊢v ⊢w)
     (v₁⇒v₃ ⇨ v₃⇒*v₂) ⊢w →
       subst-subst ⊢B v₁⇒v₃ ⊢w ⇨ subst-subst* ⊢B v₃⇒*v₂ ⊢w
+
+opaque
+  unfolding subst
+
+  -- An inversion lemma for subst.
+  --
+  -- If a suitable form of strengthening is proved, then it should be
+  -- easy to add Γ ∙ A ⊢ B to the result.
+
+  inversion-subst :
+    Γ ⊢ subst p A B t u v w ∷ C →
+    (Γ ⊢ A) ×
+    Γ ⊢ t ∷ A ×
+    Γ ⊢ u ∷ A ×
+    Γ ⊢ v ∷ Id A t u ×
+    Γ ⊢ w ∷ B [ t ]₀ ×
+    Γ ⊢ C ≡ B [ u ]₀
+  inversion-subst {B} ⊢subst =
+    case inversion-J ⊢subst of λ
+      (⊢A , ⊢t , ⊢Id , ⊢w , ⊢u , ⊢v , C≡) →
+    ⊢A , ⊢t , ⊢u , ⊢v , PE.subst (_⊢_∷_ _ _) (subst-wk B) ⊢w ,
+    PE.subst (_⊢_≡_ _ _) (subst-wk B) C≡
 
 ------------------------------------------------------------------------
 -- Lemmas related to symmetry
