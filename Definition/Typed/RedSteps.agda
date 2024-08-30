@@ -96,6 +96,20 @@ opaque
   univ:*: : Γ ⊢ A :⇒*: B ∷ U l → Γ ⊢ A :⇒*: B
   univ:*: [ ⊢A , ⊢B , A⇒*B ] = [ univ ⊢A , univ ⊢B , univ* A⇒*B ]
 
+opaque
+
+  -- If A reduces to B, then A reduces to B at type U l for some l.
+
+  inverseUnivRed : Γ ⊢ A ⇒ B → ∃ λ l → Γ ⊢ A ⇒ B ∷ U l
+  inverseUnivRed (univ A⇒B) = _ , A⇒B
+
+opaque
+
+  -- Γ ⊢ A ⇒ B is logically equivalent to ∃ λ l → Γ ⊢ A ⇒ B ∷ U l.
+
+  ⊢⇒⇔⊢⇒∷U : Γ ⊢ A ⇒ B ⇔ ∃ λ l → Γ ⊢ A ⇒ B ∷ U l
+  ⊢⇒⇔⊢⇒∷U = inverseUnivRed , univ ∘→ proj₂
+
 -- Application substitution of reduction closures
 app-subst* : Γ ⊢ t ⇒* t′ ∷ Π p , q ▷ A ▹ B → Γ ⊢ a ∷ A
            → Γ ⊢ t ∘⟨ p ⟩ a ⇒* t′ ∘⟨ p ⟩ a ∷ B [ a ]₀

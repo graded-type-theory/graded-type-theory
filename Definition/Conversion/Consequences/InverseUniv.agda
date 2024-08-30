@@ -17,9 +17,11 @@ open import Definition.Untyped M
 open import Definition.Typed R
 open import Definition.Typed.Consequences.InverseUniv R
 open import Definition.Typed.Consequences.Inversion R
+open import Definition.Typed.Consequences.Reduction R
 open import Definition.Typed.Consequences.Stability R
 open import Definition.Typed.Consequences.Syntactic R
 open import Definition.Typed.Properties R
+open import Definition.Typed.RedSteps R
 
 open import Tools.Function
 open import Tools.Sum using (_⊎_; inj₁; inj₂)
@@ -126,3 +128,30 @@ opaque
              l , ⊢A = inverseUniv ⊢A
          in l , inverseUnivEq ⊢A A≡B)
     , univ ∘→ proj₂
+
+opaque
+
+  -- If A has type U l and reduces to B, then A reduces to B at type
+  -- U l.
+
+  inverseUnivRed* : Γ ⊢ A ∷ U l → Γ ⊢ A ⇒* B → Γ ⊢ A ⇒* B ∷ U l
+  inverseUnivRed* ⊢A (id _)            = id ⊢A
+  inverseUnivRed* ⊢A (univ A⇒C ⇨ C⇒*B) =
+    case universe-level-unique ⊢A (redFirstTerm A⇒C) of λ {
+      PE.refl →
+    A⇒C
+      ⇨
+    inverseUnivRed*
+      (syntacticRedTerm (redMany A⇒C) .proj₂ .proj₂) C⇒*B }
+
+opaque
+
+  -- Γ ⊢ A ⇒* B is logically equivalent to ∃ λ l → Γ ⊢ A ⇒* B ∷ U l.
+
+  ⊢⇒*⇔⊢⇒*∷U : Γ ⊢ A ⇒* B ⇔ ∃ λ l → Γ ⊢ A ⇒* B ∷ U l
+  ⊢⇒*⇔⊢⇒*∷U =
+      (λ A⇒*B →
+         let ⊢A , _ = syntacticRed A⇒*B
+             l , ⊢A = inverseUniv ⊢A
+         in l , inverseUnivRed* ⊢A A⇒*B)
+    , univ* ∘→ proj₂
