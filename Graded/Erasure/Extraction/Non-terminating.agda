@@ -43,9 +43,9 @@ open Type-restrictions TR
 open Usage-restrictions UR
 
 open import Definition.Typed TR
-open import Definition.Typed.Properties TR
+open import Definition.Typed.Properties TR hiding (⊢cast)
 open import Definition.Untyped M
-open import Definition.Untyped.Identity 𝕄
+open import Definition.Untyped.Identity 𝕄 hiding (cast)
 
 open import Graded.Context 𝕄
 open import Graded.Context.Properties 𝕄

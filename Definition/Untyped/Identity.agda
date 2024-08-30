@@ -27,6 +27,7 @@ private variable
   n                      : Nat
   A B eq eq₁ eq₂ t u v w : Term _
   σ                      : Subst _ _
+  l                      : Universe-level
   p q                    : M
 
 opaque
@@ -50,6 +51,26 @@ opaque
       (w [ σ ])
   subst-[] {B} =
     cong₄ (J _ _ _ _) (wk1-liftSubst B) refl refl refl
+
+opaque
+
+  -- A cast lemma.
+
+  cast : Universe-level → Term n → Term n → Term n → Term n → Term n
+  cast l A B t u =
+    subst 𝟙 (U l) (var x0) A B t u
+
+opaque
+  unfolding cast
+
+  -- A substitution lemma for cast.
+
+  cast-[] :
+    cast l A B t u [ σ ] ≡
+    cast l (A [ σ ]) (B [ σ ]) (t [ σ ]) (u [ σ ])
+  cast-[] {l} {A} {B} {t} {u} {σ} =
+    subst 𝟙 (U l) (var x0) A B t u [ σ ]                            ≡⟨ subst-[] ⟩
+    subst 𝟙 (U l) (var x0) (A [ σ ]) (B [ σ ]) (t [ σ ]) (u [ σ ])  ∎
 
 opaque
 

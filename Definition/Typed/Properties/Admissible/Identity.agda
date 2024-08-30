@@ -47,11 +47,12 @@ open Definition.Typed.Properties.Admissible.Identity.Primitive R public
 private variable
   n                                               : Nat
   Γ Γ₁ Γ₂                                         : Con Term _
-  A A₁ A₂ B B₁ B₂ C
+  A A₁ A₂ A′ B B₁ B₂ C
     eq eq₁ eq₂ t t₁ t₂ t′ u u₁ u₂ v v₁ v₂ w w₁ w₂ : Term _
   σ                                               : Subst _ _
   p q                                             : M
   s                                               : Strength
+  l                                               : Universe-level
 
 ------------------------------------------------------------------------
 -- Lemmas related to rfl
@@ -545,6 +546,113 @@ opaque
       (⊢A , ⊢t , ⊢Id , ⊢w , ⊢u , ⊢v , C≡) →
     ⊢A , ⊢t , ⊢u , ⊢v , PE.subst (_⊢_∷_ _ _) (subst-wk B) ⊢w ,
     PE.subst (_⊢_≡_ _ _) (subst-wk B) C≡
+
+------------------------------------------------------------------------
+-- Lemmas related to cast
+
+opaque
+  unfolding cast
+
+  -- A typing rule for cast.
+
+  ⊢cast :
+    Γ ⊢ t ∷ Id (U l) A B →
+    Γ ⊢ u ∷ A →
+    Γ ⊢ cast l A B t u ∷ B
+  ⊢cast ⊢t ⊢u =
+    ⊢subst (univ (var₀ (Uⱼ (wfTerm ⊢t)))) ⊢t ⊢u
+
+opaque
+  unfolding cast
+
+  -- A reduction rule for cast.
+
+  cast-⇒′ :
+    Γ ⊢ A ≡ A′ ∷ U l →
+    Γ ⊢ t ∷ A →
+    Γ ⊢ cast l A A′ rfl t ⇒ t ∷ A
+  cast-⇒′ A≡A′ ⊢t =
+    subst-⇒′ (univ (var₀ (Uⱼ (wfTerm ⊢t)))) A≡A′ ⊢t
+
+opaque
+
+  -- Another reduction rule for cast.
+
+  cast-⇒ :
+    Γ ⊢ A ∷ U l →
+    Γ ⊢ t ∷ A →
+    Γ ⊢ cast l A A rfl t ⇒ t ∷ A
+  cast-⇒ ⊢A ⊢t =
+    cast-⇒′ (refl ⊢A) ⊢t
+
+opaque
+
+  -- An equality rule for cast.
+
+  cast-≡ :
+    Γ ⊢ A ∷ U l →
+    Γ ⊢ t ∷ A →
+    Γ ⊢ cast l A A rfl t ≡ t ∷ A
+  cast-≡ ⊢A ⊢t =
+    subsetTerm (cast-⇒ ⊢A ⊢t)
+
+opaque
+  unfolding cast
+
+  -- An equality rule for cast.
+
+  cast-cong :
+    Γ ⊢ A₁ ≡ A₂ ∷ U l →
+    Γ ⊢ B₁ ≡ B₂ ∷ U l →
+    Γ ⊢ t₁ ≡ t₂ ∷ Id (U l) A₁ B₁ →
+    Γ ⊢ u₁ ≡ u₂ ∷ A₁ →
+    Γ ⊢ cast l A₁ B₁ t₁ u₁ ≡ cast l A₂ B₂ t₂ u₂ ∷ B₁
+  cast-cong A₁≡A₂ B₁≡B₂ t₁≡t₂ u₁≡u₂ =
+    case inversion-Id (syntacticEqTerm t₁≡t₂ .proj₁) of λ
+      (⊢U , ⊢A₁ , ⊢B₁) →
+    subst-cong (refl ⊢U) (refl (univ (var₀ ⊢U))) A₁≡A₂ B₁≡B₂ t₁≡t₂ u₁≡u₂
+
+opaque
+  unfolding cast
+
+  -- A reduction rule for cast.
+
+  cast-subst :
+    Γ ⊢ t₁ ⇒ t₂ ∷ Id (U l) A B →
+    Γ ⊢ u ∷ A →
+    Γ ⊢ cast l A B t₁ u ⇒ cast l A B t₂ u ∷ B
+  cast-subst t₁⇒t₂ ⊢u =
+    subst-subst (univ (var₀ (Uⱼ (wfTerm ⊢u)))) t₁⇒t₂ ⊢u
+
+opaque
+
+  -- A reduction rule for cast.
+
+  cast-subst* :
+    Γ ⊢ t₁ ⇒* t₂ ∷ Id (U l) A B →
+    Γ ⊢ u ∷ A →
+    Γ ⊢ cast l A B t₁ u ⇒* cast l A B t₂ u ∷ B
+  cast-subst* = λ where
+    (id ⊢t)          ⊢u → id (⊢cast ⊢t ⊢u)
+    (t₁⇒t₃ ⇨ t₃⇒*t₂) ⊢u →
+      cast-subst t₁⇒t₃ ⊢u ⇨ cast-subst* t₃⇒*t₂ ⊢u
+
+opaque
+  unfolding cast
+
+  -- An inversion lemma for cast.
+
+  inversion-cast :
+    Γ ⊢ cast l A B t u ∷ C →
+    Γ ⊢ A ∷ U l ×
+    Γ ⊢ B ∷ U l ×
+    Γ ⊢ t ∷ Id (U l) A B ×
+    Γ ⊢ u ∷ A ×
+    Γ ⊢ C ≡ B
+  inversion-cast ⊢cast =
+    case inversion-subst ⊢cast of λ
+      (_ , ⊢A , ⊢B , ⊢t , ⊢u , C≡) →
+    ⊢A , ⊢B , ⊢t , ⊢u , C≡
 
 ------------------------------------------------------------------------
 -- Lemmas related to symmetry
