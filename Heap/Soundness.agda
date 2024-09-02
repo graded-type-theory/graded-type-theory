@@ -1,6 +1,5 @@
 ------------------------------------------------------------------------
--- Bisimilarity properties between the heap semantics with different
--- options and the call by name weak-head reduction.
+-- Resource-correctness of the heap semantics.
 ------------------------------------------------------------------------
 
 open import Graded.Modality
@@ -144,7 +143,7 @@ opaque
 
 opaque
 
-  -- All well-typed and erased terms of type ℕ reduce to some
+  -- Given some assumptions, all well-typed and erased terms of type ℕ reduce to some
   -- numeral and the resulting heap has all grades less than or equal to 𝟘.
 
   -- Note that some assumptions to this theorem are given as a module parameter.
@@ -197,3 +196,35 @@ opaque
       case as of λ where
         (inj₁ x) → inj₁ x
         (inj₂ (_ , x)) → inj₂ x
+
+opaque
+
+  -- The soundness property above specialized to closed terms
+  -- All closed, well-typed and well-resourced terms of type ℕ reduce to some
+  -- numeral and the resulting heap has all grades less than or equal to 𝟘.
+
+  -- Note that some assumptions to this theorem are given as a module parameter.
+
+  soundness-closed : ε ⊢ t ∷ ℕ → ε ▸ t
+                   → ∃₂ λ m n → ∃₃ λ H k (ρ : Wk m n) →
+                   initial t ⇒* ⟨ H , sucᵏ k , ρ , ε ⟩ ×
+                   (ε ⊢ t ≡ sucᵏ k ∷ ℕ) ×
+                   H ≤ʰ 𝟘
+  soundness-closed = soundness (inj₁ PE.refl)
+
+opaque
+
+  -- The soundness property above specialized to open terms
+  -- Given some assumptions, all well-typed and erased types of type ℕ reduce to some
+  -- numeral and the resulting heap has all grades less than or equal to 𝟘
+
+  -- Note that some assumptions to this theorem are given as a module parameter.
+
+  soundness-open : (Emptyrec-allowed 𝟙ᵐ 𝟘 → Consistent Δ)
+                   → T erased-heap
+                   → Δ ⊢ t ∷ ℕ → 𝟘ᶜ ▸ t
+                   → ∃₂ λ m n → ∃₃ λ H k (ρ : Wk m n) →
+                   initial t ⇒* ⟨ H , sucᵏ k , ρ , ε ⟩ ×
+                   (Δ ⊢ t ≡ sucᵏ k ∷ ℕ) ×
+                   H ≤ʰ 𝟘
+  soundness-open consistent erased = soundness (inj₂ (consistent , erased))
