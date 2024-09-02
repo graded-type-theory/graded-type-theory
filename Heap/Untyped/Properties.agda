@@ -682,15 +682,15 @@ opaque
   wk-[]ₕ : ρ ∷ H ⊇ʰ H′ → (t : Term n) → t [ H′ ]ₕ ≡ wk ρ t [ H ]ₕ
   wk-[]ₕ {H} id t = cong (_[ H ]ₕ) (sym (wk-id t))
   wk-[]ₕ (step ρ) t = trans (wk-[]ₕ ρ t) (sym (step-consSubst t))
-  -- wk-[]ₕ (lift {ρ} {H} {H′} {c = u , E} [ρ]) t = begin
-  --   t [ consSubst (toSubstₕ H′) (wk ρ u [ H′ ]ₕ) ]                     ≡˘⟨ singleSubstComp (wk ρ u [ H′ ]ₕ) (toSubstₕ H′) t ⟩
-  --   t [ liftSubst (toSubstₕ H′) ] [ wk ρ u [ H′ ]ₕ ]₀                  ≡˘⟨ singleSubstLift t (wk ρ u) ⟩
-  --   t [ wk ρ u ]₀ [ H′ ]ₕ                                              ≡⟨ wk-[]ₕ [ρ] (t [ wk ρ u ]₀) ⟩
-  --   wk ρ (t [ wk ρ u ]₀) [ H ]ₕ                                        ≡⟨ cong (_[ H ]ₕ) (wk-β t) ⟩
-  --   wk (lift ρ) t [ wk ρ (wk ρ u) ]₀ [ H ]ₕ                            ≡⟨ cong (λ x → wk (lift ρ) t [ x ]₀ [ H ]ₕ) (wk-comp ρ ρ u) ⟩
-  --   wk (lift ρ) t [ wk (ρ • E) u ]₀ [ H ]ₕ                             ≡⟨ singleSubstLift (wk (lift ρ) t) (wk (ρ • E) u) ⟩
-  --   wk (lift ρ) t [ liftSubst (toSubstₕ H) ] [ wk (ρ • E) u [ H ]ₕ ]₀  ≡⟨ singleSubstComp (wk (ρ • E) u [ H ]ₕ) (toSubstₕ H) (wk (lift ρ) t) ⟩
-  --   wk (lift ρ) t [ consSubst (toSubstₕ H) (wk (ρ • E) u [ H ]ₕ) ] ∎
+  wk-[]ₕ (lift {ρ} {H} {H′} {c = u , ρ′} [ρ]) t = begin
+    t [ consSubst (toSubstₕ H′) (wk ρ′ u [ H′ ]ₕ) ]                     ≡˘⟨ singleSubstComp (wk ρ′ u [ H′ ]ₕ) (toSubstₕ H′) t ⟩
+    t [ liftSubst (toSubstₕ H′) ] [ wk ρ′ u [ H′ ]ₕ ]₀                  ≡˘⟨ singleSubstLift t (wk ρ′ u) ⟩
+    t [ wk ρ′ u ]₀ [ H′ ]ₕ                                              ≡⟨ wk-[]ₕ [ρ] (t [ wk ρ′ u ]₀) ⟩
+    wk ρ (t [ wk ρ′ u ]₀) [ H ]ₕ                                        ≡⟨ cong (_[ H ]ₕ) (wk-β t) ⟩
+    wk (lift ρ) t [ wk ρ (wk ρ′ u) ]₀ [ H ]ₕ                            ≡⟨ cong (λ x → wk (lift ρ) t [ x ]₀ [ H ]ₕ) (wk-comp ρ ρ′ u) ⟩
+    wk (lift ρ) t [ wk (ρ • ρ′) u ]₀ [ H ]ₕ                             ≡⟨ singleSubstLift (wk (lift ρ) t) (wk (ρ • ρ′) u) ⟩
+    wk (lift ρ) t [ liftSubst (toSubstₕ H) ] [ wk (ρ • ρ′) u [ H ]ₕ ]₀  ≡⟨ singleSubstComp (wk (ρ • ρ′) u [ H ]ₕ) (toSubstₕ H) (wk (lift ρ) t) ⟩
+    wk (lift ρ) t [ consSubst (toSubstₕ H) (wk (ρ • ρ′) u [ H ]ₕ) ]     ∎
 
 opaque
 

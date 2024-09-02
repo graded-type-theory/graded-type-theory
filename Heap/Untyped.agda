@@ -270,7 +270,7 @@ data _~ʰ_ : (H H′ : Heap k m) → Set a where
 data _∷_⊇ʰ_ : (ρ : Wk m n) (H : Heap k m) (H′ : Heap k n) → Set a where
   id : id ∷ H ⊇ʰ H
   step : ρ ∷ H ⊇ʰ H′ → step ρ ∷ H ∙ c′ ⊇ʰ H′
-  -- lift : ρ ∷ H ⊇ʰ H′ → lift ρ ∷ H ∙ (p , wkᶜ ρ c) ⊇ʰ H′ ∙ (p , c)
+  lift : ρ ∷ H ⊇ʰ H′ → lift ρ ∷ H ∙ (p , wkᵉⁿ ρ c) ⊇ʰ H′ ∙ (p , c)
 
 -- Heaps as substitutions
 
