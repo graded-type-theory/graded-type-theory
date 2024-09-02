@@ -14,6 +14,7 @@ module Heap.Untyped.Properties
   where
 
 open Modality 𝕄
+open Type-variant type-variant
 
 open import Tools.Empty
 open import Tools.Fin
@@ -108,6 +109,26 @@ opaque
   Value→¬Neutral Emptyᵥ ()
   Value→¬Neutral Idᵥ ()
   Value→¬Neutral (unitrec-ηᵥ η) (unitrecₙ no-η _) = no-η η
+
+opaque
+
+  -- Values are either terms in whnf or unitrec with η equality for the
+  -- weak unit type.
+
+  Value→Whnf : Value t → Whnf t ⊎ ∃₂ λ p q → ∃₃ λ A u v → t ≡ unitrec p q A u v × Unitʷ-η
+  Value→Whnf lamᵥ = inj₁ lamₙ
+  Value→Whnf zeroᵥ = inj₁ zeroₙ
+  Value→Whnf sucᵥ = inj₁ sucₙ
+  Value→Whnf starᵥ = inj₁ starₙ
+  Value→Whnf prodᵥ = inj₁ prodₙ
+  Value→Whnf rflᵥ = inj₁ rflₙ
+  Value→Whnf Uᵥ = inj₁ Uₙ
+  Value→Whnf ΠΣᵥ = inj₁ ΠΣₙ
+  Value→Whnf ℕᵥ = inj₁ ℕₙ
+  Value→Whnf Unitᵥ = inj₁ Unitₙ
+  Value→Whnf Emptyᵥ = inj₁ Emptyₙ
+  Value→Whnf Idᵥ = inj₁ Idₙ
+  Value→Whnf (unitrec-ηᵥ x) = inj₂ (_ , _ , _ , _ , _ , refl , x)
 
 -- opaque
 

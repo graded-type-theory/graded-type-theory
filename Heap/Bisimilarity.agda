@@ -31,6 +31,7 @@ import Heap.Reduction type-variant UR as R
 import Heap.Reduction.Properties type-variant UR as RP
 
 open import Definition.Untyped M
+open import Definition.Untyped.Inversion M
 open import Definition.Untyped.Neutral M type-variant
 open import Definition.Untyped.Properties.Neutral M type-variant
 
@@ -49,12 +50,13 @@ open import Graded.Restrictions 𝕄
 private variable
   s s′ : State _ _ _
   H H′ H″ : Heap _ _
-  t t′ u u′ A B : Term _
+  t t′ u u′ v w A B : Term _
   ρ ρ′ : Wk _ _
   S S′ : Stack _
   γ δ η : Conₘ _
   Γ Δ : Con Term _
   m : Mode
+  p q : M
 
 -- Assumptions that are used to prove some bisimilarity properties
 -- as well as some properties elsewhere that follow from them
@@ -302,17 +304,23 @@ module _ where
               → Normal s
               → Δ ⨾ Γ ⊢ s ∷ B
               → ∃₃ λ m n (s′ : State _ m n) → s Rₙₜ.⇒ᵥ s′ × u PE.≡ ⦅ s′ ⦆
-      bisim₄ᵥ {s = ⟨ H , t , ρ , ε ⟩} d (val v) ⊢s =
-        lemma refl d (substValue (toSubstₕ H) (wkValue ρ v)) v
+      bisim₄ᵥ {Δ} {s = ⟨ H , t , ρ , ε ⟩} d (val x) ⊢s =
+        case Value→Whnf (substValue (toSubstₕ H) (wkValue ρ x)) of λ where
+          (inj₁ w) → ⊥-elim (whnfRedTerm d w)
+          (inj₂ (_ , _ , _ , _ , _ , ≡ur , η)) →
+            case subst-unitrec {t = wk ρ t} ≡ur of λ where
+              (inj₁ (_ , ≡x)) → case subst Value ≡x (wkValue ρ x) of λ ()
+              (inj₂ (_ , _ , _ , ≡ur′ , refl , refl , refl)) →
+                case wk-unitrec ≡ur′ of λ {
+                  (_ , _ , _ , refl , refl , refl , refl) →
+                _ , _ , _ , Rₙₜ.unitrec-ηₕ η , lemma η d}
         where
-        -- TODO: This is slow
-        lemma : t′ PE.≡ wk ρ t [ H ]ₕ → Δ ⊢ t′ ⇒ u ∷ A → Value t′ → Value t
-              → ∃₃ λ m n (s′ : State _ m n) → ⟨ H , t , ρ , ε ⟩ Rₙₜ.⇒ᵥ s′ × u PE.≡ ⦅ s′ ⦆
-        lemma t′≡ (conv d x) v v′ = lemma t′≡ d v v′
-        lemma t′≡ (unitrec-subst _ _ _ _ no-η) (unitrec-ηᵥ η) _ = ⊥-elim (no-η η)
-        lemma t′≡ (unitrec-β _ _ _ no-η) (unitrec-ηᵥ η) _ = ⊥-elim (no-η η)
-        lemma refl (unitrec-β-η x x₁ x₂ x₃ x₄) (unitrec-ηᵥ η) (unitrec-ηᵥ x₅) =
-          _ , _ , _ , Rₙₜ.unitrec-ηₕ η , refl
+        lemma : Unitʷ-η → Δ ⊢ unitrec p q A u v ⇒ w ∷ B → w PE.≡ v
+        lemma η (conv d x) = lemma η d
+        lemma η (unitrec-subst _ _ _ _ no-η) = ⊥-elim (no-η η)
+        lemma η (unitrec-β _ _ _ no-η) = ⊥-elim (no-η η)
+        lemma η (unitrec-β-η _ _ _ _ _) = refl
+
       bisim₄ᵥ {s = ⟨ _ , _ , _ , e ∙ S ⟩} d (val v) ⊢s =
         case ⊢Value-⇒ᵥ ⊢s v of λ
           (_ , _ , _ , d′) →
