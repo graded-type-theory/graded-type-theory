@@ -106,6 +106,17 @@ opaque
 
 opaque
 
+  -- Another variant of the equality rule β-red.
+
+  β-red-≡₁ :
+    Γ ⊢ lam p t ∷ Π p′ , q ▷ A ▹ B →
+    Γ ⊢ u ∷ A →
+    Γ ⊢ lam p t ∘⟨ p′ ⟩ u ≡ t [ u ]₀ ∷ B [ u ]₀
+  β-red-≡₁ ⊢lam ⊢u =
+    subsetTerm (β-red-⇒₁ ⊢lam ⊢u)
+
+opaque
+
   -- A variant of β-red-⇒₁ for functions of two arguments.
 
   β-red-⇒₂ :

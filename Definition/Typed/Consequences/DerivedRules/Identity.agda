@@ -30,6 +30,7 @@ open import Definition.Untyped.Identity 𝕄
 open import Definition.Untyped.Properties M
 
 import Graded.Derived.Erased.Untyped 𝕄 as Erased
+import Graded.Derived.Erased.Typed.Primitive R as ET
 
 open import Tools.Fin
 open import Tools.Function
@@ -437,6 +438,28 @@ opaque
     case syntacticEqTerm t≡t′ of λ {
       (⊢A , ⊢t , ⊢t′) →
     []-cong-β ⊢A ⊢t ⊢t′ t≡t′ }
+
+opaque
+
+  -- A variant of the equality rule []-cong-β.
+
+  []-cong-β-≡ :
+    Γ ⊢ t ≡ t′ ∷ A →
+    []-cong-allowed s →
+    let open Erased s in
+      Γ ⊢ []-cong s A t t′ rfl ≡ rfl ∷
+        Id (Erased A) ([ t ]) ([ t′ ])
+  []-cong-β-≡ t≡t′ ok =
+    case syntacticEqTerm t≡t′ of λ {
+      (⊢A , ⊢t , ⊢t′) →
+    case []-cong-cong (refl ⊢A) (refl ⊢t) (sym t≡t′) (refl (rflⱼ′ t≡t′)) ok of λ
+      []-cong-t≡[]-cong-t′ →
+    case ([]-cong-β ⊢t PE.refl ok) of λ
+      []-cong-⇒ →
+    trans []-cong-t≡[]-cong-t′ (conv []-cong-⇒
+      (Id-cong (refl (Erasedⱼ ⊢A)) (refl ([]ⱼ ⊢A ⊢t)) ([]-cong′ ⊢A t≡t′))) }
+    where
+    open ET ([]-cong→Erased ok)
 
 ------------------------------------------------------------------------
 -- Lemmas related to subst
