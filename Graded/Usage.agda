@@ -435,6 +435,7 @@ data _▸[_]_ {n : Nat} : (γ : Conₘ n) → Mode → Term n → Set a where
             → γ₂ ▸[ 𝟘ᵐ? ] t
             → γ₃ ▸[ 𝟘ᵐ? ] u
             → γ₄ ▸[ 𝟘ᵐ? ] v
+            → []-cong-allowed-mode s m
             → 𝟘ᶜ ▸[ m ] []-cong s A t u v
 
   sub       : γ ▸[ m ] t

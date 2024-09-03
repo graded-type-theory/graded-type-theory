@@ -752,15 +752,15 @@ module hasX (R : Usage-restrictions) where
   erased-hasX erased (sub δ▸t γ≤δ) hasX =
     erased-hasX (x◂𝟘∈γ≤δ erased γ≤δ) δ▸t hasX
 
-  erased-hasX {s} _ Uₘ                 = loop?-closed s
-  erased-hasX {s} _ ℕₘ                 = loop?-closed s
-  erased-hasX {s} _ Emptyₘ             = loop?-closed s
-  erased-hasX {s} _ Unitₘ              = loop?-closed s
-  erased-hasX {s} _ (ΠΣₘ _ _)          = loop?-closed s
-  erased-hasX {s} _ (Idₘ _ _ _ _)      = loop?-closed s
-  erased-hasX {s} _ (Id₀ₘ _ _ _ _)     = loop?-closed s
-  erased-hasX {s} _ rflₘ               = loop?-closed s
-  erased-hasX {s} _ ([]-congₘ _ _ _ _) = loop?-closed s
+  erased-hasX {s} _ Uₘ                   = loop?-closed s
+  erased-hasX {s} _ ℕₘ                   = loop?-closed s
+  erased-hasX {s} _ Emptyₘ               = loop?-closed s
+  erased-hasX {s} _ Unitₘ                = loop?-closed s
+  erased-hasX {s} _ (ΠΣₘ _ _)            = loop?-closed s
+  erased-hasX {s} _ (Idₘ _ _ _ _)        = loop?-closed s
+  erased-hasX {s} _ (Id₀ₘ _ _ _ _)       = loop?-closed s
+  erased-hasX {s} _ rflₘ                 = loop?-closed s
+  erased-hasX {s} _ ([]-congₘ _ _ _ _ _) = loop?-closed s
 
   erased-hasX _ starʷₘ     ()
   erased-hasX _ (starˢₘ _) ()

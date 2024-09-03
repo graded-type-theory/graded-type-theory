@@ -214,13 +214,14 @@ opaque
 
   neutral-well-resourced₂ :
     []-cong-allowed s →
+    []-cong-allowed-mode s 𝟙ᵐ →
     ∃₄ λ n (Γ : Con Term n) (t A : Term n) →
     Consistent Γ ×
     Neutral t ×
     Γ ⊢ t ∷ A ×
     𝟘ᶜ ▸[ 𝟙ᵐ ] t
-  neutral-well-resourced₂ ok =
-    case soundness-ℕ-only-source-counterexample₂ ok of λ {
+  neutral-well-resourced₂ ok ok′ =
+    case soundness-ℕ-only-source-counterexample₂ ok ok′ of λ {
       (consistent , ⊢t , ▸t , _) →
     _ , _ , _ , _ , consistent , Jₙ ([]-congₙ (var _)) , ⊢t , ▸t }
 

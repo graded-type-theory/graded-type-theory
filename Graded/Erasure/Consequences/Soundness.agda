@@ -298,14 +298,15 @@ soundness-ℕ-only-source-counterexample₁ {p = p} P-ok Σʷ-ok =
 
 opaque
 
-  -- If []-cong-allowed holds, then there is a counterexample to
-  -- soundness-ℕ-only-source without the assumption "erased matches
-  -- are not allowed unless the context is empty" (and without the
-  -- strictness argument as well as the assumption that the modality's
-  -- zero is well-behaved).
+  -- If []-cong-allowed and []-cong-allowed-mode 𝟙ᵐ hold, then there is
+  -- a counterexample to soundness-ℕ-only-source without the assumption
+  -- "erased matches are not allowed unless the context is empty" (and
+  -- without the strictness argument as well as the assumption that the
+  -- modality's zero is well-behaved).
 
   soundness-ℕ-only-source-counterexample₂ :
     []-cong-allowed s →
+    []-cong-allowed-mode s 𝟙ᵐ →
     let Δ = ε ∙ Id ℕ zero zero
         open Erased s
         t = J 𝟘 𝟘 (Erased ℕ) ([ zero ]) ℕ zero ([ zero ])
@@ -315,7 +316,7 @@ opaque
     Δ ⊢ t ∷ ℕ ×
     𝟘ᶜ ▸[ 𝟙ᵐ ] t ×
     ¬ ∃ λ n → Δ ⊢ t ⇒ˢ* sucᵏ n ∷ℕ
-  soundness-ℕ-only-source-counterexample₂ {s = s} ok =
+  soundness-ℕ-only-source-counterexample₂ {s = s} ok ok′ =
     case ε ∙ Idⱼ (zeroⱼ ε) (zeroⱼ ε) of λ {
       ⊢Id →
       inhabited-consistent (singleSubst (rflⱼ (zeroⱼ ε)))
@@ -327,7 +328,7 @@ opaque
             sub ℕₘ $ begin
               𝟘ᶜ ∙ 𝟙 · 𝟘 ∙ 𝟙 · 𝟘  ≈⟨ ≈ᶜ-refl ∙ ·-zeroʳ _ ∙ ·-zeroʳ _ ⟩
               𝟘ᶜ                  ∎)
-           zeroₘ (▸[] s zeroₘ) ([]-congₘ ℕₘ zeroₘ zeroₘ var))
+           zeroₘ (▸[] s zeroₘ) ([]-congₘ ℕₘ zeroₘ zeroₘ var ok′))
         (≤ᶜ-reflexive (≈ᶜ-sym ω·ᶜ+ᶜ⁵𝟘ᶜ))
     , (λ where
          (0 , whred J⇒ ⇨ˢ _) →

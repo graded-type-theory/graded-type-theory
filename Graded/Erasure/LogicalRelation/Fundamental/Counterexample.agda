@@ -128,18 +128,19 @@ negation-of-fundamental-lemma-with-erased-matches₁
 
 opaque
 
-  -- If []-cong-allowed holds, then one can prove a negation of a
-  -- variant of the statement of the fundamental lemma.
+  -- If []-cong-allowed and []-cong-allowed-mode hold, then one can prove
+  -- a negation of a variant of the statement of the fundamental lemma.
 
   negation-of-fundamental-lemma-with-erased-matches₂ :
     []-cong-allowed s →
+    []-cong-allowed-mode s 𝟙ᵐ →
     ¬ (∀ {k} {Δ : Con Term k} (⊢Δ : ⊢ Δ) →
        let open LR ⊢Δ str in
        Consistent Δ →
        ∀ {n} {Γ : Con Term n} {t A : Term n} {γ : Conₘ n} {m} →
        Γ ⊢ t ∷ A → γ ▸[ m ] t →
        γ ▸ Γ ⊩ʳ⟨ ¹ ⟩ t ∷[ m ] A)
-  negation-of-fundamental-lemma-with-erased-matches₂ {s} {str} ok hyp =
+  negation-of-fundamental-lemma-with-erased-matches₂ {s} {str} ok ok′ hyp =
     ¬t®t $ ▸⊩ʳ∷[𝟙ᵐ]→®∷ $ hyp ⊢Δ consistent ⊢t ▸t
     where
     open Erased s
@@ -162,7 +163,7 @@ opaque
     ⊢t = []-congⱼ′ ok (var ⊢Δ here)
 
     ▸t : 𝟘ᶜ ▸[ 𝟙ᵐ ] t
-    ▸t = []-congₘ ℕₘ zeroₘ zeroₘ var
+    ▸t = []-congₘ ℕₘ zeroₘ zeroₘ var ok′
 
     open LR ⊢Δ str
 

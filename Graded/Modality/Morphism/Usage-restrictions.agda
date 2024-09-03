@@ -19,6 +19,8 @@ open import Graded.Mode
 open import Graded.Usage.Erased-matches
 open import Graded.Usage.Restrictions
 
+open import Definition.Untyped.NotParametrised
+
 private variable
   a₁ a₂ p₁ p₂ p₃           : Level
   M M₁ M₂                  : Set _
@@ -28,6 +30,7 @@ private variable
   𝕄 𝕄₁ 𝕄₂ 𝕄₃               : Modality _
   R R₁ R₂ R₃               : Usage-restrictions _
   m₁ m₂ m₃                 : Mode _
+  s                        : Strength
   ⦃ ok₁ ok₂ ⦄              : T _
 
 ------------------------------------------------------------------------
@@ -302,6 +305,12 @@ record Are-preserving-usage-restrictions
       R₁.Emptyrec-allowed m₁ p →
       R₂.Emptyrec-allowed m₂ (tr p)
 
+    -- The []-cong-allowed-mode property respects equivalent modes
+    []-cong-preserved :
+      m₁ ≈ᵐ m₂ →
+      R₁.[]-cong-allowed-mode s m₁ →
+      R₂.[]-cong-allowed-mode s m₂
+
   open Common-properties common-properties public
 
 opaque
@@ -316,6 +325,7 @@ opaque
       .Prodrec-preserved  → ≈ᵐ→→₁
       .Unitrec-preserved  → ≈ᵐ→→₁
       .Emptyrec-preserved → ≈ᵐ→→₁
+      .[]-cong-preserved  → ≈ᵐ→→₁
     where
     open Are-preserving-usage-restrictions
 
@@ -340,6 +350,9 @@ opaque
       .Emptyrec-preserved →
         ≈ᵐ→→₂ P₂.𝟘ᵐ-preserved P₂.Emptyrec-preserved
           P₁.Emptyrec-preserved
+      .[]-cong-preserved →
+        ≈ᵐ→→₂ P₂.𝟘ᵐ-preserved P₂.[]-cong-preserved
+          P₁.[]-cong-preserved
     where
     open Are-preserving-usage-restrictions
     module P₁ = Are-preserving-usage-restrictions m₁
@@ -391,6 +404,13 @@ record Are-reflecting-usage-restrictions
       R₂.Emptyrec-allowed m₂ (tr p) →
       R₁.Emptyrec-allowed m₁ p
 
+    -- The []-cong-allowed-mode property is reflected in a certain way.
+    []-cong-reflected :
+      m₁ ≳ᵐ m₂ →
+      R₂.[]-cong-allowed-mode s m₂ →
+      R₁.[]-cong-allowed-mode s m₁
+
+
     -- If m₁ ≈ᵐ m₂ holds, then R₂.Erased-matches-for-J m₂ is bounded
     -- by R₁.erased-matches-for-J m₁.
     erased-matches-for-J-reflected :
@@ -418,6 +438,7 @@ opaque
       .Prodrec-reflected              → ≳ᵐ→←₁
       .Unitrec-reflected              → ≳ᵐ→←₁
       .Emptyrec-reflected             → ≳ᵐ→←₁
+      .[]-cong-reflected              → ≳ᵐ→←₁
       .erased-matches-for-J-reflected → ≈ᵐ→≤ᵉᵐ₁ ∘→ ≈ᵐ-symmetric
       .erased-matches-for-K-reflected → ≈ᵐ→≤ᵉᵐ₁ ∘→ ≈ᵐ-symmetric
     where
@@ -448,6 +469,9 @@ opaque
       .Emptyrec-reflected →
         ≳ᵐ→←₂ R₂.𝟘ᵐ-preserved R₁.𝟘ᵐ-reflected R₁.Emptyrec-reflected
           R₂.Emptyrec-reflected
+      .[]-cong-reflected →
+        ≳ᵐ→←₂ R₂.𝟘ᵐ-preserved R₁.𝟘ᵐ-reflected R₁.[]-cong-reflected
+          R₂.[]-cong-reflected
       .erased-matches-for-J-reflected →
         ≈ᵐ→≥ᵉᵐ₂ R₂.𝟘ᵐ-preserved R₁.erased-matches-for-J-reflected
           R₂.erased-matches-for-J-reflected

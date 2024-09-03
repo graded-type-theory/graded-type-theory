@@ -408,7 +408,7 @@ opaque
   --   * the modality is trivial.
 
   []-cong⊎J⊎𝟘ᵐ⊎Trivial→[]-cong :
-    []-cong-allowed s ⊎
+    ([]-cong-allowed s × []-cong-allowed-mode s m) ⊎
     Erased-allowed s ×
     (erased-matches-for-J m ≢ none ⊎
      (∃ λ ok → m PE.≡ 𝟘ᵐ[ ok ]) ⊎
@@ -445,12 +445,12 @@ opaque
 
     Erased-ok : Erased-allowed s
     Erased-ok = case ok of λ where
-      (inj₁ ok)       → []-cong→Erased ok
+      (inj₁ (ok , _)) → []-cong→Erased ok
       (inj₂ (ok , _)) → ok
 
     OK : Set a
     OK =
-      []-cong-allowed s ⊎
+      ([]-cong-allowed s × []-cong-allowed-mode s m) ⊎
       (∃ λ sem → erased-matches-for-J m PE.≡ not-none sem) ⊎
       (∃ λ ok → m PE.≡ 𝟘ᵐ[ ok ]) ⊎
       Trivial
@@ -477,8 +477,9 @@ opaque
       γ₃ ▸[ 𝟘ᵐ? ] u →
       γ₄ ▸[ 𝟘ᵐ? ] v →
       𝟘ᶜ ▸[ m ] []-cong″ ok A t u v
-    ▸[]-cong″ (inj₁ _)                           = []-congₘ
-    ▸[]-cong″ (inj₂ (inj₁ (_ , ≡not-none)))      = ▸[]-cong-J ≡not-none
+    ▸[]-cong″ (inj₁ (_ , ok))               = λ ▸A ▸t ▸u ▸v →
+      []-congₘ ▸A ▸t ▸u ▸v ok
+    ▸[]-cong″ (inj₂ (inj₁ (_ , ≡not-none))) = ▸[]-cong-J ≡not-none
     ▸[]-cong″ (inj₂ (inj₂ (inj₁ (_ , PE.refl)))) = λ ▸A ▸t ▸u ▸v →
       ▸[]-cong-J-𝟘ᵐ (▸-cong 𝟘ᵐ?≡𝟘ᵐ ▸A) (▸-cong 𝟘ᵐ?≡𝟘ᵐ ▸t)
         (▸-cong 𝟘ᵐ?≡𝟘ᵐ ▸u) (▸-cong 𝟘ᵐ?≡𝟘ᵐ ▸v)
@@ -489,7 +490,7 @@ opaque
       ∀ ok →
       Γ ⊢ v ∷ Id A t u →
       Γ ⊢ []-cong″ ok A t u v ∷ Id (Erased A) [ t ] ([ u ])
-    ⊢[]-cong″ (inj₁ ok) = []-congⱼ′ ok
+    ⊢[]-cong″ (inj₁ (ok , _)) = []-congⱼ′ ok
     ⊢[]-cong″ (inj₂ _)  = []-cong-Jⱼ Erased-ok
 
     []-cong″-[] :
@@ -504,7 +505,7 @@ opaque
       ∀ ok →
       Γ ⊢ t ∷ A →
       Γ ⊢ []-cong″ ok A t t rfl ⇒ rfl ∷ Id (Erased A) [ t ] ([ t ])
-    []-cong″-β-⇒ (inj₁ ok) ⊢t = []-cong-β-⇒ (refl ⊢t) ok
+    []-cong″-β-⇒ (inj₁ (ok , _)) ⊢t = []-cong-β-⇒ (refl ⊢t) ok
     []-cong″-β-⇒ (inj₂ _)  ⊢t = []-cong-J-β-⇒ Erased-ok ⊢t
 
     []-cong′ : Term 0

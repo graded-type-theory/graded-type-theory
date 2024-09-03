@@ -534,7 +534,8 @@ inv-usage-K (sub γ′▸ γ≤γ′) with inv-usage-K γ′▸
 -- A type used to state inv-usage-[]-cong.
 
 record InvUsage-[]-cong
-         {n} (γ : Conₘ n) (A t u v : Term n) : Set a where
+         {n} (γ : Conₘ n) (m : Mode) (s : Strength)
+         (A t u v : Term n) : Set a where
   constructor invUsage-[]-cong
   field
     {γ₁ γ₂ γ₃ γ₄} : Conₘ n
@@ -542,14 +543,15 @@ record InvUsage-[]-cong
     ▸t            : γ₂ ▸[ 𝟘ᵐ? ] t
     ▸u            : γ₃ ▸[ 𝟘ᵐ? ] u
     ▸v            : γ₄ ▸[ 𝟘ᵐ? ] v
+    P             : []-cong-allowed-mode s m
     ≤𝟘            : γ ≤ᶜ 𝟘ᶜ
 
 -- A usage inversion lemma for []-cong.
 
 inv-usage-[]-cong :
-  γ ▸[ m ] []-cong s A t u v → InvUsage-[]-cong γ A t u v
-inv-usage-[]-cong ([]-congₘ ▸A ▸t ▸u ▸v) =
-  invUsage-[]-cong ▸A ▸t ▸u ▸v ≤ᶜ-refl
+  γ ▸[ m ] []-cong s A t u v → InvUsage-[]-cong γ m s A t u v
+inv-usage-[]-cong ([]-congₘ ▸A ▸t ▸u ▸v ok) =
+  invUsage-[]-cong ▸A ▸t ▸u ▸v ok ≤ᶜ-refl
 inv-usage-[]-cong (sub γ′▸ γ≤γ′) with inv-usage-[]-cong γ′▸
-... | invUsage-[]-cong ▸A ▸t ▸u ▸v γ′≤ =
-  invUsage-[]-cong ▸A ▸t ▸u ▸v (≤ᶜ-trans γ≤γ′ γ′≤)
+... | invUsage-[]-cong ▸A ▸t ▸u ▸v ok γ′≤ =
+  invUsage-[]-cong ▸A ▸t ▸u ▸v ok (≤ᶜ-trans γ≤γ′ γ′≤)

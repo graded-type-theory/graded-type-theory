@@ -12,6 +12,7 @@ module Graded.Usage.Restrictions
 
 open import Graded.Mode 𝕄
 open import Graded.Usage.Erased-matches
+open import Definition.Untyped.NotParametrised
 
 open import Tools.Bool
 open import Tools.Function
@@ -24,6 +25,7 @@ open import Tools.Empty
 private variable
   p q r  : M
   m m′   : Mode
+  s : Strength
   ⦃ ok ⦄ : T _
 
 -- Restrictions on/choices for usage derivations.
@@ -58,6 +60,14 @@ record Usage-restrictions : Set (lsuc a) where
     Emptyrec-allowed-downwards-closed :
       Emptyrec-allowed 𝟙ᵐ p → Emptyrec-allowed 𝟘ᵐ[ ok ] p
 
+    -- Should []-cong be allowed for the current mode?
+    []-cong-allowed-mode : Strength → Mode → Set
+
+    -- []-cong-allowed is downwards closed in the mode (if 𝟙ᵐ is seen
+    -- as a largest element).
+    []-cong-allowed-mode-downwards-closed :
+      []-cong-allowed-mode s 𝟙ᵐ → []-cong-allowed-mode s 𝟘ᵐ[ ok ]
+
     -- Should the strong unit type act as a "sink"?
     starˢ-sink : Bool
 
@@ -91,8 +101,8 @@ record Usage-restrictions : Set (lsuc a) where
 
     -- Some lemmas used below.
 
-    ·ᵐ-lemma₁ :
-      (P : Mode → Set a) →
+    ·ᵐ-lemma₁ : ∀ {ℓ} →
+      (P : Mode → Set ℓ) →
       (∀ ⦃ ok ⦄ → P 𝟙ᵐ → P 𝟘ᵐ[ ok ]) →
       P m → P (m′ ·ᵐ m)
     ·ᵐ-lemma₁ {m′ = 𝟙ᵐ} _ _ =
@@ -143,6 +153,17 @@ record Usage-restrictions : Set (lsuc a) where
     Emptyrec-allowed-·ᵐ =
       ·ᵐ-lemma₁ (λ m → Emptyrec-allowed m _)
         Emptyrec-allowed-downwards-closed
+
+  opaque
+
+    -- []-cong-allowed is closed under application of m′ ·ᵐ_ to the
+    -- mode.
+
+    []-cong-allowed-·ᵐ :
+      []-cong-allowed-mode s m → []-cong-allowed-mode s (m′ ·ᵐ m)
+    []-cong-allowed-·ᵐ =
+      ·ᵐ-lemma₁ (λ m → []-cong-allowed-mode _ m)
+        []-cong-allowed-mode-downwards-closed
 
   -- Does the strong unit type act as a "sink"?
 

@@ -989,11 +989,12 @@ substₘ-lemma₀ ⦃ ok ⦄ Ψ Ψ▶σ (K₀ₘ₂ {p} ≡all ▸A ▸t ▸B �
   where
   open Tools.Reasoning.PartialOrder ≤ᶜ-poset
 
-substₘ-lemma₀ Ψ Ψ▶σ ([]-congₘ ▸A ▸t ▸u ▸v) = []-congₘ
+substₘ-lemma₀ Ψ Ψ▶σ ([]-congₘ ▸A ▸t ▸u ▸v ok) = []-congₘ
   (substₘ-lemma₀-𝟘ᵐ? Ψ Ψ▶σ ▸A)
   (substₘ-lemma₀-𝟘ᵐ? Ψ Ψ▶σ ▸t)
   (substₘ-lemma₀-𝟘ᵐ? Ψ Ψ▶σ ▸u)
   (substₘ-lemma₀-𝟘ᵐ? Ψ Ψ▶σ ▸v)
+  ([]-cong-allowed-·ᵐ ok)
 
 substₘ-lemma₀ Ψ Ψ▶σ (sub γ▸t _) =
   substₘ-lemma₀ Ψ Ψ▶σ γ▸t
@@ -1354,12 +1355,13 @@ substₘ-lemma₁ not-ok Ψ Ψ▶σ (K₀ₘ₂ {γ₃} ok ▸A ▸t ▸B ▸u �
   (substₘ-lemma₁ not-ok Ψ Ψ▶σ ▸u)
   (substₘ-lemma₁′ not-ok Ψ Ψ▶σ ▸v)
 
-substₘ-lemma₁ not-ok Ψ Ψ▶σ ([]-congₘ ▸A ▸t ▸u ▸v) = sub
+substₘ-lemma₁ {mo = 𝟙ᵐ} not-ok Ψ Ψ▶σ ([]-congₘ ▸A ▸t ▸u ▸v ok) = sub
   ([]-congₘ
      (substₘ-lemma₁′ not-ok Ψ Ψ▶σ ▸A)
      (substₘ-lemma₁′ not-ok Ψ Ψ▶σ ▸t)
      (substₘ-lemma₁′ not-ok Ψ Ψ▶σ ▸u)
-     (substₘ-lemma₁′ not-ok Ψ Ψ▶σ ▸v))
+     (substₘ-lemma₁′ not-ok Ψ Ψ▶σ ▸v)
+     ok)
   (≤ᶜ-reflexive (<*-zeroˡ Ψ))
 
 substₘ-lemma₁ not-ok Ψ Ψ▶σ (sub γ▸t γ≤δ) = sub
@@ -1862,12 +1864,13 @@ substₘ-lemma Ψ Ψ▶σ (K₀ₘ₂ ok ▸A ▸t ▸B ▸u ▸v) = K₀ₘ₂ 
   (substₘ-lemma Ψ Ψ▶σ ▸u)
   (substₘ-lemma-𝟘ᵐ? Ψ Ψ▶σ ▸v .proj₂)
 
-substₘ-lemma Ψ Ψ▶σ ([]-congₘ ▸A ▸t ▸u ▸v) = sub
+substₘ-lemma Ψ Ψ▶σ ([]-congₘ ▸A ▸t ▸u ▸v ok) = sub
   ([]-congₘ
      (substₘ-lemma-𝟘ᵐ? Ψ Ψ▶σ ▸A .proj₂)
      (substₘ-lemma-𝟘ᵐ? Ψ Ψ▶σ ▸t .proj₂)
      (substₘ-lemma-𝟘ᵐ? Ψ Ψ▶σ ▸u .proj₂)
-     (substₘ-lemma-𝟘ᵐ? Ψ Ψ▶σ ▸v .proj₂))
+     (substₘ-lemma-𝟘ᵐ? Ψ Ψ▶σ ▸v .proj₂)
+     ok)
   (≤ᶜ-reflexive (<*-zeroˡ Ψ))
 
 substₘ-lemma Ψ Ψ▶σ (sub γ▸t γ≤δ) = sub

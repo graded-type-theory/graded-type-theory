@@ -444,9 +444,10 @@ module Is-morphism
       (≤ᵉᵐ→≡all→≡all (erased-matches-for-K-preserved ≈ᵐ-tr-Mode) ≡none)
       (tr-▸[𝟘ᵐ?] ▸A) (tr-▸[𝟘ᵐ?] ▸t) (tr-∙▸[𝟘ᵐ?] ▸B) (tr-▸ ▸u)
       (tr-▸[𝟘ᵐ?] ▸v)
-    tr-▸ ([]-congₘ ▸A ▸t ▸u ▸v) = sub
+    tr-▸ ([]-congₘ ▸A ▸t ▸u ▸v ok) = sub
       ([]-congₘ (tr-▸[𝟘ᵐ?] ▸A) (tr-▸[𝟘ᵐ?] ▸t)
-         (tr-▸[𝟘ᵐ?] ▸u) (tr-▸[𝟘ᵐ?] ▸v))
+         (tr-▸[𝟘ᵐ?] ▸u) (tr-▸[𝟘ᵐ?] ▸v)
+         ([]-cong-preserved ≈ᵐ-tr-Mode ok))
       tr-Conₘ-𝟘ᶜ-≤ᶜ
     tr-▸ (sub ▸t γ≤δ) =
       sub (tr-▸ ▸t) (tr-Conₘ-monotone γ≤δ)
@@ -846,8 +847,9 @@ module Is-order-embedding
               RS₁.Kᵤ-generalised (lemma-𝟘ᵐ?-𝟘ᵐ? A) (lemma-𝟘ᵐ? m₁≳m₂ t)
                 (lemma-𝟘ᵐ? m₁≳m₂ B) (lemma m₁≳m₂ _ u)
                 (lemma-𝟘ᵐ? m₁≳m₂ v)
-        ([]-cong _ _ _ _ _) ([]-congᵤ A t u v) →
-          RS₁.[]-congᵤ (lemma-𝟘ᵐ?-𝟘ᵐ? A) (lemma-𝟘ᵐ?-𝟘ᵐ? t)
+        ([]-cong _ _ _ _ _) ([]-congᵤ ok A t u v) →
+          RS₁.[]-congᵤ ([]-cong-reflected m₁≳m₂ ok)
+            (lemma-𝟘ᵐ?-𝟘ᵐ? A) (lemma-𝟘ᵐ?-𝟘ᵐ? t)
             (lemma-𝟘ᵐ?-𝟘ᵐ? u) (lemma-𝟘ᵐ?-𝟘ᵐ? v)
 
   -- Preservation of _▸[_]_ for trivial source modalities.
@@ -1257,9 +1259,10 @@ module Is-order-embedding
       (tr-∙▸[𝟘ᵐ?]⁻¹ ▸B .proj₂) (tr-▸⁻¹′ _ ▸u refl ≤γ′)
       (tr-▸[𝟘ᵐ?]⁻¹ ▸v .proj₂)
 
-    tr-▸⁻¹′ ([]-cong _ _ _ _ _) ([]-congₘ ▸A ▸t ▸u ▸v) refl ≤𝟘 = sub
+    tr-▸⁻¹′ ([]-cong _ _ _ _ _) ([]-congₘ ▸A ▸t ▸u ▸v ok) refl ≤𝟘 = sub
       ([]-congₘ (tr-▸[𝟘ᵐ?]⁻¹ ▸A .proj₂) (tr-▸[𝟘ᵐ?]⁻¹ ▸t .proj₂)
-         (tr-▸[𝟘ᵐ?]⁻¹ ▸u .proj₂) (tr-▸[𝟘ᵐ?]⁻¹ ▸v .proj₂))
+         (tr-▸[𝟘ᵐ?]⁻¹ ▸u .proj₂) (tr-▸[𝟘ᵐ?]⁻¹ ▸v .proj₂)
+         ([]-cong-reflected [ ≈ᵐ-tr-Mode ] ok))
       (tr-Conₘ-≤ᶜ-𝟘ᶜ-→-≤ᶜ-𝟘ᶜ ≤𝟘)
 
     tr-▸⁻¹′ {γ′ = γ′} {γ = γ} t (sub {γ = δ} ▸t γ′≤δ) refl γ≤γ′ =
