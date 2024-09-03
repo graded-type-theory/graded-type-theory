@@ -316,7 +316,7 @@ inv-usage-natrec (sub γ▸natrec γ≤γ′) with inv-usage-natrec γ▸natrec
 ... | invUsageNatrec δ▸z η▸s θ▸n φ▸A γ′≤γ″ extra =
   invUsageNatrec δ▸z η▸s θ▸n φ▸A (≤ᶜ-trans γ≤γ′ γ′≤γ″) extra
 
-record InvUsageemptyrec
+record InvUsageEmptyrec
          {n} (γ : Conₘ n) (m : Mode) (p : M) (A t : Term n) :
          Set a where
   constructor invUsageEmptyrec
@@ -330,12 +330,10 @@ record InvUsageemptyrec
 -- A usage inversion lemma for emptyrec.
 
 inv-usage-emptyrec :
-  γ ▸[ m ] emptyrec p A t → InvUsageemptyrec γ m p A t
-inv-usage-emptyrec (emptyrecₘ δ▸t η▸A ok) =
-  invUsageEmptyrec δ▸t η▸A ok ≤ᶜ-refl
+  γ ▸[ m ] emptyrec p A t → InvUsageEmptyrec γ m p A t
+inv-usage-emptyrec (emptyrecₘ δ▸t η▸A ok) = invUsageEmptyrec δ▸t η▸A ok ≤ᶜ-refl
 inv-usage-emptyrec (sub γ▸et γ≤γ′) with inv-usage-emptyrec γ▸et
-... | invUsageEmptyrec δ▸t η▸A ok γ′≤δ =
-  invUsageEmptyrec δ▸t η▸A ok (≤ᶜ-trans γ≤γ′ γ′≤δ)
+... | invUsageEmptyrec δ▸t η▸A ok γ′≤δ = invUsageEmptyrec δ▸t η▸A ok (≤ᶜ-trans γ≤γ′ γ′≤δ)
 
 -- If γ ▸[ m ] starʷ then γ ≤ᶜ 𝟘ᶜ.
 
