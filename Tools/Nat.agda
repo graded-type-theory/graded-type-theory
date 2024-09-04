@@ -18,8 +18,9 @@ open Data.Nat.DivMod using (_/_; m/n*n≤m) public
 open import Data.Nat.Properties
 open Data.Nat.Properties
   using (_≟_; _<?_; ≤-total;
-         +-identityʳ; +-assoc; +-comm; +-0-isCommutativeMonoid;
-         *-identityˡ; *-identityʳ; *-assoc; *-comm; *-zeroʳ;
+         +-identityʳ; +-assoc; +-comm; +-0-isCommutativeMonoid; +-suc;
+         +-cancelˡ-≡;
+         *-identityˡ; *-identityʳ; *-assoc; *-comm; *-zeroʳ; *-cancelˡ-≡;
          *-1-isCommutativeMonoid;
          m*n≡0⇒m≡0∨n≡0;
          ⊔-identityʳ; ⊔-assoc; ⊔-comm; ⊔-idem; m≥n⇒m⊔n≡m; m⊔n≡m⇒n≤m;
@@ -33,7 +34,8 @@ open Data.Nat.Properties
          *-mono-≤; m≤m*n; m≤n*m;
          m≤m⊔n; m≤n⊔m;
          m<n⊓o⇒m<n; m<n⊓o⇒m<o; ⊓-pres-m<;
-         m⊓n≤m⊔n)
+         m⊓n≤m⊔n; m+n∸n≡m; m∸n+n≡m)
+  renaming (suc-injective to +1-injective)
   public
 open import Data.Nat.Show using (show) public
 open import Relation.Binary using (Tri)

@@ -64,6 +64,14 @@ T-∨ =
 ¬-T {b = false} = (λ _ → refl) , (λ _ ())
 ¬-T {b = true}  = ⊥-elim ∘→ (_$ _) , (λ ())
 
+opaque
+
+  -- The statement T b is logically equivalent to b ≡ true.
+
+  T-true : T b ⇔ b ≡ true
+  T-true {b = false} = ⊥-elim , λ ()
+  T-true {b = true}  = (λ _ → refl) , λ _ → _
+
 -- If x ∨ y is false, then x is false.
 
 ∨-positiveˡ : x ∨ y ≡ false → x ≡ false

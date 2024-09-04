@@ -7,7 +7,9 @@ module
   Graded.Modality.Instances.Bounded-distributive-lattice.Nat-plus-infinity
   where
 
-open import Graded.Modality.Instances.Nat-plus-infinity as ℕ⊎∞
+open import Tools.Bool
+
+open import Graded.Modality.Instances.Nat-plus-infinity true as ℕ⊎∞
   using (ℕ⊎∞; ∞; ⌞_⌟; _≤_)
 
 open import Tools.Algebra ℕ⊎∞
@@ -172,7 +174,7 @@ bounded-distributive-lattice = record
   ; ⊥                       = ℕ
   ; ⊤                       = ∅
   ; ⊥≤                      = ℕ⊎∞.∞≤
-  ; ≤⊤                      = λ _ → ℕ⊎∞.≤0
+  ; ≤⊤                      = λ _ → ℕ⊎∞.≤0 _
   ; is-distributive-lattice = record
       { isLattice    = record
         { isEquivalence = PE.isEquivalence
