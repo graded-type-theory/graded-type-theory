@@ -63,6 +63,7 @@ import Graded.Context.Properties.Lookup
 import Graded.Context.Properties.Update
 import Graded.Context.Properties.Has-well-behaved-zero
 import Graded.Context.Properties
+import Graded.Context.Weakening
 
 ------------------------------------------------------------------------
 -- Usage modes

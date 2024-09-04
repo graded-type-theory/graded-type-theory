@@ -441,6 +441,11 @@ data _▸[_]_ {n : Nat} : (γ : Conₘ n) → Mode → Term n → Set a where
             → δ ≤ᶜ γ
             → δ ▸[ m ] t
 
+-- Usage with implicit mode 𝟙ᵐ
+
+_▸_ : (γ : Conₘ n) (t : Term n) → Set a
+γ ▸ t = γ ▸[ 𝟙ᵐ ] t
+
 starₘ : 𝟘ᶜ {n} ▸[ m ] star s
 starₘ {s = 𝕤} =
   sub (starˢₘ λ _ → ≈ᶜ-refl)
