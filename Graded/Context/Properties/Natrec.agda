@@ -14,6 +14,8 @@ module Graded.Context.Properties.Natrec
 
 open import Graded.Context 𝕄
 open import Graded.Context.Properties.Equivalence 𝕄
+open import Graded.Context.Properties.Addition 𝕄
+open import Graded.Context.Properties.Multiplication 𝕄
 open import Graded.Modality.Nr-instances
 
 open import Tools.Fin
@@ -21,7 +23,8 @@ open import Tools.Function
 open import Tools.Nat using (Nat; 1+)
 open import Tools.Product
 open import Tools.PropositionalEquality
-open import Tools.Reasoning.PropositionalEquality
+import Tools.Reasoning.PropositionalEquality as RP
+import Tools.Reasoning.Equivalence as RE
 
 private variable
   m                       : Nat
@@ -45,6 +48,8 @@ nrᶜ-cong
   (nr p r z₁ s₁ n₁  ≡⟨ cong₂ (nr _ _ _) q₂ r₂ ⟩
    nr p r z₁ s₂ n₂  ≡⟨ cong (λ z → nr _ _ z _ _) p₂ ⟩
    nr p r z₂ s₂ n₂  ∎)
+  where
+  open RP
 
 -- The function nrᶜ p r is monotone.
 
@@ -127,3 +132,13 @@ nrᶜ-⟨⟩ :
   nrᶜ p r γ δ η ⟨ x ⟩ ≡ nr p r (γ ⟨ x ⟩) (δ ⟨ x ⟩) (η ⟨ x ⟩)
 nrᶜ-⟨⟩ {δ = _ ∙ _} {η = _ ∙ _} {x = x0}   (_ ∙ _) = refl
 nrᶜ-⟨⟩ {δ = _ ∙ _} {η = _ ∙ _} {x = _ +1} (γ ∙ _) = nrᶜ-⟨⟩ γ
+
+
+-- If the nr function is "factoring" then nrᶜ also factors in a
+-- certain way
+
+nrᶜ-factoring : ⦃ _ : Has-factoring-nr semiring-with-meet ⦄
+              → nrᶜ p r γ δ η ≈ᶜ nr₂ p r ·ᶜ η +ᶜ nrᶜ p r γ δ 𝟘ᶜ
+nrᶜ-factoring {γ = ε} {(ε)} {(ε)} = ε
+nrᶜ-factoring {γ = _ ∙ _} {_ ∙ _} {_ ∙ _} =
+  nrᶜ-factoring ∙ nr-factoring
