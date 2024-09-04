@@ -31,6 +31,7 @@ open import Graded.Modality.Nr-instances
 open import Heap.Untyped 𝕄 type-variant
 open import Heap.Untyped.Properties 𝕄 type-variant
 open import Heap.Reduction 𝕄 type-variant opts
+open import Heap.Reduction.Inversion 𝕄 type-variant opts
 
 open Options opts
 
@@ -73,25 +74,27 @@ opaque
          → (d : s ⇒ₙ s′) (d′ : s ⇒ₙ s″)
          → Σ (n ≡ n′) λ n≡n′ →
             subst (State k m) n≡n′ s′ ≡ s″
-  ⇒ₙ-det (varₕ d) (varₕ d′) =
-    case lookup-det d d′ of λ {
+  ⇒ₙ-det d (varₕ x′) =
+    case ⇒ₙ-inv-var d of λ {
+      (refl , x) →
+    case lookup-det x x′ of λ {
       (refl , refl , refl , refl) →
-    refl , refl }
-  ⇒ₙ-det (varₕ′ d) (varₕ′ d′) =
-    case lookup-det′ d d′ of λ {
+    refl , refl }}
+  ⇒ₙ-det d (varₕ′ x′) =
+    case ⇒ₙ-inv-var′ d of λ {
+      (refl , refl , x) →
+    case lookup-det′ x x′ of λ {
       (refl , refl , refl) →
-    refl , refl }
-  ⇒ₙ-det (varₕ d) (varₕ′ d′) = ⊥-elim not-tracking-and-no-tracking
-  ⇒ₙ-det (varₕ′ d) (varₕ d′) = ⊥-elim not-tracking-and-no-tracking
-  ⇒ₙ-det appₕ appₕ = refl , refl
-  ⇒ₙ-det fstₕ fstₕ = refl , refl
-  ⇒ₙ-det sndₕ sndₕ = refl , refl
-  ⇒ₙ-det prodrecₕ prodrecₕ = refl , refl
-  ⇒ₙ-det natrecₕ natrecₕ = refl , refl
-  ⇒ₙ-det (unitrecₕ _) (unitrecₕ _) = refl , refl
-  ⇒ₙ-det Jₕ Jₕ = refl , refl
-  ⇒ₙ-det Kₕ Kₕ = refl , refl
-  ⇒ₙ-det []-congₕ []-congₕ = refl , refl
+    refl , refl }}
+  ⇒ₙ-det d appₕ = ⇒ₙ-inv-∘ d
+  ⇒ₙ-det d fstₕ = ⇒ₙ-inv-fst d
+  ⇒ₙ-det d sndₕ = ⇒ₙ-inv-snd d
+  ⇒ₙ-det d prodrecₕ = ⇒ₙ-inv-prodrec d
+  ⇒ₙ-det d natrecₕ = ⇒ₙ-inv-natrec d
+  ⇒ₙ-det d (unitrecₕ x) = ⇒ₙ-inv-unitrec d
+  ⇒ₙ-det d Jₕ = ⇒ₙ-inv-J d
+  ⇒ₙ-det d Kₕ = ⇒ₙ-inv-K d
+  ⇒ₙ-det d []-congₕ = ⇒ₙ-inv-[]-cong d
 
 opaque
 
@@ -101,43 +104,17 @@ opaque
          → (d : s ⇒ᵥ s′) (d′ : s ⇒ᵥ s″)
          → Σ (m ≡ m′) λ m≡m′ → Σ (n ≡ n′) λ n≡n′ →
             subst₂ (State k) m≡m′ n≡n′ s′ ≡ s″
-  ⇒ᵥ-det lamₕ d′ = lemma d′
-    where
-    lemma : {H : Heap _ m} {t : Term (1+ n)} {s : State k m′ n′}
-          → ⟨ H , lam p t , E , ∘ₑ p′ u E′ ∙ S ⟩ ⇒ᵥ s
-          → Σ (1+ m ≡ m′) λ m≡m′ → Σ (1+ n ≡ n′) λ n≡n′ →
-            subst₂ (State k) m≡m′ n≡n′ ⟨ H ∙ (∣ S ∣ · p , u , E′) , t , lift E , wk1ˢ S ⟩ ≡ s
-    lemma lamₕ = refl , refl , refl
-  ⇒ᵥ-det prodˢₕ₁ d′ = lemma d′
-    where
-    lemma : {H : Heap _ m} {t : Term n} {s : State k m′ n′}
-          → ⟨ H , prodˢ p t u , E , fstₑ p′ ∙ S ⟩ ⇒ᵥ s
-          → Σ (m ≡ m′) λ m≡m′ → Σ (n ≡ n′) λ n≡n′ →
-            subst₂ (State k) m≡m′ n≡n′ ⟨ H , t , E , S ⟩ ≡ s
-    lemma prodˢₕ₁ = refl , refl , refl
-  ⇒ᵥ-det prodˢₕ₂ d′ = lemma d′
-    where
-    lemma : {H : Heap _ m} {t : Term n} {s : State k m′ n′}
-          → ⟨ H , prodˢ p t u , E , sndₑ p′ ∙ S ⟩ ⇒ᵥ s
-          → Σ (m ≡ m′) λ m≡m′ → Σ (n ≡ n′) λ n≡n′ →
-            subst₂ (State k) m≡m′ n≡n′ ⟨ H , u , E , S ⟩ ≡ s
-    lemma prodˢₕ₂ = refl , refl , refl
-  ⇒ᵥ-det prodʷₕ d′ = lemma d′
-    where
-    lemma : {H : Heap _ m} {t₁ t₂ : Term n″} {u : Term (2+ n)} {s : State k m′ n′}
-          → ⟨ H , prodʷ p′ t₁ t₂ , E , prodrecₑ r p q A u E′ ∙ S ⟩ ⇒ᵥ s
-          → Σ (2+ m ≡ m′) λ m≡m′ → Σ (2+ n ≡ n′) λ n≡n′
-            → subst₂ (State k) m≡m′ n≡n′
-                ⟨ H ∙ (∣ S ∣ · r · p , t₁ , E) ∙ (∣ S ∣ · r , t₂ , step E)
-                   , u , liftn E′ 2 , wk2ˢ S ⟩ ≡ s
-    lemma prodʷₕ = refl , refl , refl
-  ⇒ᵥ-det zeroₕ zeroₕ = refl , refl , refl
-  ⇒ᵥ-det sucₕ sucₕ = refl , refl , refl
-  ⇒ᵥ-det starʷₕ starʷₕ = refl , refl , refl
-  ⇒ᵥ-det (unitrec-ηₕ _) (unitrec-ηₕ _) = refl , refl , refl
-  ⇒ᵥ-det rflₕⱼ rflₕⱼ = refl , refl , refl
-  ⇒ᵥ-det rflₕₖ rflₕₖ = refl , refl , refl
-  ⇒ᵥ-det rflₕₑ rflₕₑ = refl , refl , refl
+  ⇒ᵥ-det d lamₕ = ⇒ᵥ-inv-lam-∘ₑ d
+  ⇒ᵥ-det d prodˢₕ₁ = ⇒ᵥ-inv-prodˢ-fstₑ d
+  ⇒ᵥ-det d prodˢₕ₂ = ⇒ᵥ-inv-prodˢ-sndₑ d
+  ⇒ᵥ-det d prodʷₕ = ⇒ᵥ-inv-prodʷ-prodrecₑ d
+  ⇒ᵥ-det d zeroₕ = ⇒ᵥ-inv-zero-natrecₑ d
+  ⇒ᵥ-det d sucₕ = ⇒ᵥ-inv-suc-natrecₑ d
+  ⇒ᵥ-det d starʷₕ = ⇒ᵥ-inv-starʷ-unitrecₑ d
+  ⇒ᵥ-det d (unitrec-ηₕ x) = ⇒ᵥ-inv-unitrec-η d .proj₂
+  ⇒ᵥ-det d rflₕⱼ = ⇒ᵥ-inv-rfl-Jₑ d
+  ⇒ᵥ-det d rflₕₖ = ⇒ᵥ-inv-rfl-Kₑ d
+  ⇒ᵥ-det d rflₕₑ = ⇒ᵥ-inv-rfl-[]-congₑ d
 
 opaque
 
@@ -146,60 +123,54 @@ opaque
   ⇒ₛ-det : {s′ : State k m n} {s″ : State k m n}
          → (d : s ⇒ₛ s′) (d′ : s ⇒ₛ s″)
          → s′ ≡ s″
-  ⇒ₛ-det (sucₕ x) d′ = lemma d′ refl x
-    where
-    lemma : {H : Heap _ m} {t : Term n} {s : State m′ m n}
-          → ⟨ H , suc t , E , S ⟩ ⇒ₛ s
-          → S ≡ sucₛ k
-          → ¬ Numeral t
-          → ⟨ H , t , E , sucₑ ∙ sucₛ k ⟩ ≡ s
-    lemma (sucₕ x) S≡ ¬n rewrite sucₛ-injective S≡ = refl
-    lemma (numₕ (sucₙ n)) S≡ ¬n = ⊥-elim (¬n n)
-  ⇒ₛ-det (numₕ x) d′ = lemma d′ refl x
-    where
-    lemma : {H : Heap _ m} {t : Term n} {s : State k m n}
-          → ⟨ H , t , E , S ⟩ ⇒ₛ s
-          → S ≡ sucₑ ∙ S′
-          → Numeral t
-          → ⟨ H , suc t , E , S′ ⟩ ≡ s
-    lemma (sucₕ ¬n) S≡ (sucₙ n) = ⊥-elim (¬n n)
-    lemma (numₕ x) S≡ n rewrite stack-injective S≡ .proj₂ = refl
-
+  ⇒ₛ-det d (sucₕ x) = ⇒ₛ-inv-suc x d .proj₂ .proj₂
+  ⇒ₛ-det d (numₕ x) =
+    case ⇒ₛ-inv-num x d of λ {
+      (S , refl , refl) → refl }
 
 opaque
 
   -- A state cannot reduce in both ⇒ᵥ and ⇒ₙ
 
   not-⇒ᵥ-and-⇒ₙ : s ⇒ᵥ s′ → s ⇒ₙ s″ → ⊥
-  not-⇒ᵥ-and-⇒ₙ lamₕ ()
-  not-⇒ᵥ-and-⇒ₙ prodˢₕ₁ ()
-  not-⇒ᵥ-and-⇒ₙ prodˢₕ₂ ()
-  not-⇒ᵥ-and-⇒ₙ prodʷₕ ()
-  not-⇒ᵥ-and-⇒ₙ zeroₕ ()
-  not-⇒ᵥ-and-⇒ₙ sucₕ ()
-  not-⇒ᵥ-and-⇒ₙ starʷₕ ()
-  not-⇒ᵥ-and-⇒ₙ (unitrec-ηₕ η) (unitrecₕ no-η) = no-η η
-  not-⇒ᵥ-and-⇒ₙ rflₕⱼ ()
-  not-⇒ᵥ-and-⇒ₙ rflₕₖ ()
-  not-⇒ᵥ-and-⇒ₙ rflₕₑ ()
+  not-⇒ᵥ-and-⇒ₙ lamₕ d = ⇒ₙ-inv-lam d
+  not-⇒ᵥ-and-⇒ₙ prodˢₕ₁ d = ⇒ₙ-inv-prod d
+  not-⇒ᵥ-and-⇒ₙ prodˢₕ₂ d = ⇒ₙ-inv-prod d
+  not-⇒ᵥ-and-⇒ₙ prodʷₕ d = ⇒ₙ-inv-prod d
+  not-⇒ᵥ-and-⇒ₙ zeroₕ d = ⇒ₙ-inv-zero d
+  not-⇒ᵥ-and-⇒ₙ sucₕ d = ⇒ₙ-inv-suc d
+  not-⇒ᵥ-and-⇒ₙ starʷₕ d = ⇒ₙ-inv-star d
+  not-⇒ᵥ-and-⇒ₙ (unitrec-ηₕ η) d = ⇒ₙ-inv-unitrec-η η d
+  not-⇒ᵥ-and-⇒ₙ rflₕⱼ d = ⇒ₙ-inv-rfl d
+  not-⇒ᵥ-and-⇒ₙ rflₕₖ d = ⇒ₙ-inv-rfl d
+  not-⇒ᵥ-and-⇒ₙ rflₕₑ d = ⇒ₙ-inv-rfl d
 
 opaque
 
   -- A state cannot reduce in both ⇒ₛ and ⇒ᵥ
 
   not-⇒ₛ-and-⇒ᵥ : s ⇒ₛ s′ → s ⇒ᵥ s″ → ⊥
-  not-⇒ₛ-and-⇒ᵥ (sucₕ {k = 0} x) ()
-  not-⇒ₛ-and-⇒ᵥ (sucₕ {k = 1+ k} x) ()
-  not-⇒ₛ-and-⇒ᵥ (numₕ ()) (unitrec-ηₕ _)
+  not-⇒ₛ-and-⇒ᵥ (sucₕ {k = 0} x) d =
+    case ⇒ᵥ-inv-suc d of λ {
+      (_ , _ , _ , _ , _ , _ , _ , _ , _ , () , _)}
+  not-⇒ₛ-and-⇒ᵥ (sucₕ {k = 1+ k} x) d =
+    case ⇒ᵥ-inv-suc d of λ {
+      (_ , _ , _ , _ , _ , _ , _ , _ , _ , () , _)}
+  not-⇒ₛ-and-⇒ᵥ (numₕ zeroₙ) d =
+    case ⇒ᵥ-inv-zero d of λ {
+      (_ , _ , _ , _ , _ , _ , _ , _ , _ , () , _)}
+  not-⇒ₛ-and-⇒ᵥ (numₕ (sucₙ x)) d =
+    case ⇒ᵥ-inv-suc d of λ {
+      (_ , _ , _ , _ , _ , _ , _ , _ , _ , () , _)}
 
 opaque
 
   -- A state cannot reduce in both ⇒ₛ and ⇒ₙ
 
   not-⇒ₛ-and-⇒ₙ : s ⇒ₛ s′ → s ⇒ₙ s″ → ⊥
-  not-⇒ₛ-and-⇒ₙ (sucₕ x) ()
-  not-⇒ₛ-and-⇒ₙ (numₕ zeroₙ) ()
-  not-⇒ₛ-and-⇒ₙ (numₕ (sucₙ x)) ()
+  not-⇒ₛ-and-⇒ₙ (sucₕ x) d = ⇒ₙ-inv-suc d
+  not-⇒ₛ-and-⇒ₙ (numₕ zeroₙ) d = ⇒ₙ-inv-zero d
+  not-⇒ₛ-and-⇒ₙ (numₕ (sucₙ x)) d = ⇒ₙ-inv-suc d
 
 opaque
 

@@ -412,6 +412,7 @@ import Heap.Untyped
 import Heap.Untyped.Properties
 import Heap.Options
 import Heap.Reduction
+import Heap.Reduction.Inversion
 import Heap.Reduction.Properties
 
 -- Typing for the abstract machine
