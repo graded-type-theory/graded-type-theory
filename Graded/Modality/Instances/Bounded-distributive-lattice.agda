@@ -10,6 +10,7 @@ module Graded.Modality.Instances.Bounded-distributive-lattice
 open import Graded.Modality M
 import Graded.Modality.Instances.LowerBounded as L
 open import Graded.Modality.Variant a
+open import Graded.Modality.Properties.Subtraction
 
 open import Tools.Algebra M
 open import Tools.Bool using (T; false)
@@ -171,3 +172,16 @@ modality variant 𝕃 = L.isModality
   variant
   where
   open Bounded-distributive-lattice 𝕃
+
+opaque
+
+  -- Bounded, distributive lattices support Subtraction
+
+  supports-subtraction :
+    (bl : Bounded-distributive-lattice) →
+    let open Bounded-distributive-lattice bl in
+    (_≟⊤ : (p : M) → Dec (p ≡ ⊤)) →
+    Supports-subtraction (semiring-with-meet bl _≟⊤)
+  supports-subtraction bl _≟⊤ =
+    Addition≡Meet.supports-subtraction (semiring-with-meet bl _≟⊤)
+      λ _ _ → refl

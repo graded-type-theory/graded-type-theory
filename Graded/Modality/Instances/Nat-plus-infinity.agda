@@ -31,6 +31,7 @@ import Graded.Modality.Properties.Has-well-behaved-zero
 import Graded.Modality.Properties.Meet
 import Graded.Modality.Properties.Multiplication
 import Graded.Modality.Properties.PartialOrder
+import Graded.Modality.Properties.Subtraction
 open import Graded.Modality.Variant lzero
 
 open import Definition.Typed.Restrictions
@@ -194,6 +195,13 @@ opaque
 
 ------------------------------------------------------------------------
 -- Some properties
+
+opaque
+
+  -- The grade ∞ is not equal to ⌞ m ⌟
+
+  ∞≢⌞m⌟ : ∀ {m} → ∞ ≢ ⌞ m ⌟
+  ∞≢⌞m⌟ ()
 
 -- The grade ∞ is the least one.
 
@@ -1224,3 +1232,123 @@ full-reduction-assumptions-suitable :
   Suitable-for-full-reduction variant TRs URs
 full-reduction-assumptions-suitable =
   full-reduction-assumptions-suitable′ affine refl
+
+
+------------------------------------------------------------------------
+-- Subtraction
+
+open Graded.Modality.Properties.Subtraction ℕ⊎∞-semiring-with-meet
+
+opaque
+
+  -- Subtraction of ⌞ m ⌟ by ∞ is not possible
+
+  ⌞m⌟-∞≰ : ∀ {m p} → ⌞ m ⌟ - ∞ ≤ p → ⊥
+  ⌞m⌟-∞≰ {p = ⌞ m ⌟} x = ≰∞ x
+  ⌞m⌟-∞≰ {p = ∞} x = ≰∞ x
+
+opaque
+
+  -- Subtraction of ⌞ m ⌟ by ⌞ n ⌟ is only possible if n ≤ m
+
+  ⌞m⌟-⌞n⌟≤ : ∀ {m n} → ⌞ m ⌟ - ⌞ n ⌟ ≤ o → n N.≤ m
+  ⌞m⌟-⌞n⌟≤ {⌞ o ⌟} {m} {n} m≤o+n = lemma affine refl
+    where
+    lemma : ∀ b → b ≡ affine → n N.≤ m
+    lemma false refl with m N.≟ o N.+ n
+    … | yes refl = N.m≤n+m n o
+    … | no _ = ⊥-elim (∞≢⌞m⌟ (sym m≤o+n))
+    lemma true refl =
+      N.m+n≤o⇒n≤o _ (N.m⊔n≡m⇒n≤m (sym (⌞⌟-injective m≤o+n)))
+  ⌞m⌟-⌞n⌟≤ {(∞)} x = ⊥-elim (≰∞ x)
+
+opaque
+
+  -- An inversion lemma for subtraction
+
+  ⌞m⌟-q≤r-inv : ∀ {m q r} → ⌞ m ⌟ - q ≤ r →
+                ∃ λ n → q ≡ ⌞ n ⌟ × n N.≤ m
+  ⌞m⌟-q≤r-inv {q = ⌞ n ⌟} m-q≤r = n , refl , ⌞m⌟-⌞n⌟≤ m-q≤r
+  ⌞m⌟-q≤r-inv {q = ∞} m-q≤r = ⊥-elim (⌞m⌟-∞≰ m-q≤r)
+
+opaque
+
+  -- Subtraction for natural numbers is supported if the first argument
+  -- is greater than the second (in the natural number order)
+
+  m-n≡ : ∀ m n → (n≤m : n N.≤ m) → ⌞ m ⌟ - ⌞ n ⌟ ≡ ⌞ m N.∸ n ⌟
+  m-n≡ m n n≤m = lemma affine refl
+    where
+    lemma₁ : ∀ m n → n N.≤ m → m ≡ m N.⊔ (m N.∸ n N.+ n)
+    lemma₁ m 0 n≤m
+      rewrite N.+-identityʳ m = sym (N.⊔-idem m)
+    lemma₁ 0 (1+ n) ()
+    lemma₁ (1+ m) (1+ n) (N.s≤s n≤m)
+      rewrite N.+-suc (m N.∸ n) n = cong 1+ (lemma₁ m n n≤m)
+
+    lemma₂ : ∀ m n k → m ≡ m N.⊔ (k N.+ n) → m N.∸ n ≡ m N.∸ n N.⊔ k
+    lemma₂ m 0 k x rewrite N.+-comm k 0 = x
+    lemma₂ 0 (1+ n) 0 x = refl
+    lemma₂ 0 (1+ n) (1+ k) ()
+    lemma₂ (1+ m) (1+ n) k x rewrite N.+-suc k n =
+      lemma₂ m n k (N.+1-injective x)
+
+    lemma₃ : ∀ k → ⌞ m ⌟ ≤ₑ ⌞ k N.+ n ⌟ → ⌞ m N.∸ n ⌟ ≤ₑ ⌞ k ⌟
+    lemma₃ k m≤ with m N.∸ n N.≟ k
+    … | yes _ = refl
+    … | no m-n≢k with m N.≟ k N.+ n
+    … | yes refl = ⊥-elim (m-n≢k (N.m+n∸n≡m k n))
+    lemma₃ k () | no _ | no _
+
+    lemma : ∀ b → b ≡ affine → ⌞ m ⌟ - ⌞ n ⌟ ≡ ⌞ m N.∸ n ⌟
+    lemma false refl with m N.≟ m N.∸ n N.+ n
+    … | yes _ = refl , λ { ⌞ k ⌟ x → lemma₃ k x}
+    … | no m≢m-n+n = ⊥-elim (m≢m-n+n (sym (N.m∸n+n≡m n≤m)))
+    lemma true refl =
+      cong ⌞_⌟ (lemma₁ m n n≤m) , λ { ⌞ k ⌟ x → cong ⌞_⌟ (lemma₂ m n k (⌞⌟-injective x))}
+
+opaque
+
+  -- The semiring supports subtraction with
+  --   ∞ - p ≡ ∞ for any p
+  --   ⌞ m ⌟ - ⌞ n ⌟ ≡ ⌞ m - n ⌟ whenever n ≤ m
+  -- and not defined otherwise
+
+  supports-subtraction : Supports-subtraction
+  supports-subtraction {⌞ m ⌟} {⌞ n ⌟} {⌞ k ⌟} m≤k+n =
+    ⌞ m N.∸ n ⌟ , m-n≡ m n (N.m+n≤o⇒n≤o k (⌞⌟-antitone⁻¹ m≤k+n))
+  supports-subtraction {(∞)}     {(n)}           m≤k+n = ∞ , ∞-p≡∞ (λ {q} → ∞≤ q) n
+  supports-subtraction {(⌞ _ ⌟)} {(⌞ _ ⌟)} {(∞)} m≤k+n = ⊥-elim (≰∞ m≤k+n)
+  supports-subtraction {(⌞ _ ⌟)} {(∞)} {(⌞ _ ⌟)} m≤k+n = ⊥-elim (≰∞ m≤k+n)
+  supports-subtraction {(⌞ _ ⌟)} {(∞)} {(∞)}     m≤k+n = ⊥-elim (≰∞ m≤k+n)
+
+-- An alternative definition of the subtraction relation with
+--   ∞ - p ≡ ∞ for any p
+--   ⌞ m ⌟ - ⌞ n ⌟ ≡ ⌞ m - n ⌟ whenever n ≤ m
+-- and not defined otherwise
+
+data _-_≡′_ : (p q r : ℕ⊎∞) → Set where
+  ∞-p≡′∞ : ∀ {p} → ∞ - p ≡′ ∞
+  m-n≡′m∸n : ∀ {m n} → n N.≤ m → ⌞ m ⌟ - ⌞ n ⌟ ≡′ ⌞ m N.∸ n ⌟
+
+opaque
+
+  -- The two subtraction relations are equivalent.
+
+  -≡↔-≡′ : ∀ p q r → (p - q ≡ r) ⇔ (p - q ≡′ r)
+  -≡↔-≡′ p q r = left p q r , right
+    where
+    left : ∀ p q r → p - q ≡ r → p - q ≡′ r
+    left ∞ q r p-q≡r =
+      case -≡-functional {q = q} p-q≡r (∞-p≡∞ (λ {q} → ∞≤ q) q) of λ {
+        refl →
+      ∞-p≡′∞ }
+    left ⌞ m ⌟ q r p-q≡r =
+      case ⌞m⌟-q≤r-inv (p-q≡r .proj₁) of λ {
+        (n , refl , n≤m) →
+      case -≡-functional {q = q} p-q≡r (m-n≡ m n n≤m) of λ {
+        refl →
+      m-n≡′m∸n n≤m }}
+    right : p - q ≡′ r → p - q ≡ r
+    right ∞-p≡′∞ = ∞-p≡∞ (λ {q} → ∞≤ q) q
+    right (m-n≡′m∸n n≤m) = m-n≡ _ _ n≤m

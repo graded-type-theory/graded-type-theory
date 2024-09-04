@@ -805,3 +805,61 @@ full-reduction-assumptions-suitable as =
       (inj₂ (_ , 𝟘ᵐ-ok , _)) → 𝟘ᵐ-ok
   where
   open Full-reduction-assumptions as
+
+open import Graded.Modality.Properties.Subtraction L≤M≤H-semiring-with-meet
+
+opaque
+
+  -- The semiring supports subtraction with
+  --  L - p ≡ L
+  --  M - M ≡ M
+  --  M - H ≡ M
+  --  H - H ≡ H
+  -- and not defined otherwise
+
+  supports-subtraction : Supports-subtraction
+  supports-subtraction = Addition≡Meet.supports-subtraction (λ _ _ → refl)
+
+-- An alternative definition of the subtraction relation with
+--  L - p ≡ L
+--  M - M ≡ M
+--  M - H ≡ M
+--  H - H ≡ H
+-- and not defined otherwise
+
+data _-_≡′_ : (p q r : Level) → Set where
+  L-p≡′L : L - p ≡′ L
+  M-M≡′M : M - M ≡′ M
+  M-H≡′M : M - H ≡′ M
+  H-H≡′H : H - H ≡′ H
+
+opaque
+
+  -- The two subtraction relations are equivalent.
+
+  -≡↔-≡′ : ∀ p q r → (p - q ≡ r) ⇔ (p - q ≡′ r)
+  -≡↔-≡′ p q r = left p q r , right
+    where
+    left′ : ∀ p q → p ≤ q → p - q ≡′ p
+    left′ L q refl = L-p≡′L
+    left′ M L ()
+    left′ M M refl = M-M≡′M
+    left′ M H refl = M-H≡′M
+    left′ H L ()
+    left′ H M ()
+    left′ H H refl = H-H≡′H
+    left : ∀ p q r → p - q ≡ r → p - q ≡′ r
+    left p q r p-q≡r =
+      case Addition≡Meet.p-q≡r→p≤q∧r≡p (λ _ _ → refl) p-q≡r of λ {
+        (p≤q , refl) →
+      left′ _ _ p≤q}
+    right′ : p - q ≡′ r → p ≤ q × r ≡ p
+    right′ L-p≡′L = refl , refl
+    right′ M-M≡′M = refl , refl
+    right′ M-H≡′M = refl , refl
+    right′ H-H≡′H = refl , refl
+    right : p - q ≡′ r → p - q ≡ r
+    right x =
+      case right′ x of λ {
+        (p≤q , refl) →
+      Addition≡Meet.p-q≡p (λ _ _ → refl) p≤q}

@@ -11,7 +11,7 @@ open import Agda.Builtin.Nat using (zero; suc)
 import Data.Fin as F
 import Data.Fin.Properties as FP
 open import Data.Nat.Base
-open Data.Nat.Base using (_≤_; _<_; _⊔_; _⊓_; >-nonZero; nonZero) public
+open Data.Nat.Base using (_≤_; _<_; _⊔_; _⊓_; >-nonZero; nonZero; _∸_) public
 open _≤_ public
 open import Data.Nat.DivMod
 open Data.Nat.DivMod using (_/_; m/n*n≤m) public
@@ -30,7 +30,7 @@ open Data.Nat.Properties
          ⊔-absorbs-⊓; ⊓-absorbs-⊔;
          ≤-refl; ≤-reflexive; ≤-trans; ≤-antisym; module ≤-Reasoning;
          n≮n;
-         +-mono-≤; m≤m+n; m≤n+m; 0<1+n; n≤1+n;
+         +-mono-≤; m≤m+n; m≤n+m; m+n≤o⇒n≤o; 0<1+n; n≤1+n;
          *-mono-≤; m≤m*n; m≤n*m;
          m≤m⊔n; m≤n⊔m;
          m<n⊓o⇒m<n; m<n⊓o⇒m<o; ⊓-pres-m<;

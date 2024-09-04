@@ -31,6 +31,7 @@ import Graded.Modality.Properties.Meet as Meet
 import Graded.Modality.Properties.Multiplication as Multiplication
 import Graded.Modality.Properties.PartialOrder as PartialOrder
 import Graded.Modality.Properties.Star as Star
+import Graded.Modality.Properties.Subtraction as Subtraction
 open import Graded.Modality.Variant lzero
 
 ------------------------------------------------------------------------
@@ -1740,3 +1741,108 @@ zero-one-many-modality variant = record
   ; 𝟘-well-behaved     = λ _ → zero-one-many-has-well-behaved-zero
   ; has-nr             = λ _ → zero-one-many-has-nr
   }
+
+------------------------------------------------------------------------
+-- Subtraction
+
+open Subtraction zero-one-many-semiring-with-meet
+
+opaque
+
+  -- Subtraction of ω by anything is ω
+
+  ω-p≡ω : ∀ p → ω - p ≡ ω
+  ω-p≡ω p = ∞-p≡∞ PE.refl p
+
+opaque
+
+  -- Subtraction of 𝟙 by 𝟙 is 𝟘
+
+  𝟙-𝟙≡𝟘 : 𝟙 - 𝟙 ≡ 𝟘
+  𝟙-𝟙≡𝟘 = p-p≤𝟘 , λ { 𝟘 _ → refl}
+
+opaque
+
+  -- Subtraction of p by ω is not possible unless p ≡ ω
+
+  p-ω≰ : p - ω ≤ q → p ≡ ω
+  p-ω≰ {(𝟘)} {(𝟘)} ()
+  p-ω≰ {(𝟘)} {(𝟙)} ()
+  p-ω≰ {(𝟘)} {(ω)} ()
+  p-ω≰ {(𝟙)} {(𝟘)} ()
+  p-ω≰ {(𝟙)} {(𝟙)} ()
+  p-ω≰ {(𝟙)} {(ω)} ()
+  p-ω≰ {(ω)} _ = refl
+
+opaque
+
+  -- Subtraction of p by ω is not possible unless p ≡ ω
+
+  p-ω≢ : p - ω ≡ q → p ≡ ω
+  p-ω≢ {q} = p-ω≰ {q = q} ∘→ proj₁
+
+opaque
+
+  -- The semiring supports subtraction with
+  --   ω - p ≡ ω for all p
+  --   p - 𝟘 ≡ p for all p
+  --   𝟙 - 𝟙 ≡ 𝟘
+  -- and not defined otherwise
+
+  supports-subtraction : Supports-subtraction
+  supports-subtraction {p} {(ω)} {r} x =
+    case p-ω≰ {q = r} x of λ {
+      refl →
+    ω , ω-p≡ω ω }
+  supports-subtraction {p} {(𝟘)} _ =
+    p , p-𝟘≡p
+  supports-subtraction {(ω)} {q} _ =
+    ω , ω-p≡ω q
+  supports-subtraction {(𝟘)} {r} x =
+    case 𝟘-p≤q {q = r} x of λ {
+      (refl , refl) →
+    𝟘 , p-𝟘≡p }
+  supports-subtraction {(𝟙)} {(𝟙)} {(r)} x =
+    𝟘 , 𝟙-𝟙≡𝟘
+
+-- An alternative definition of the subtraction relation with
+--   ω - p ≡ ω for all p
+--   p - 𝟘 ≡ p for all p
+--   𝟙 - 𝟙 ≡ 𝟘
+-- and not defined otherwise
+
+data _-_≡′_ : (p q r : Zero-one-many) → Set where
+  ω-p≡′ω : ω - p ≡′ ω
+  p-𝟘≡′p : p - 𝟘 ≡′ p
+  𝟙-𝟙≡′𝟘 : 𝟙 - 𝟙 ≡′ 𝟘
+
+opaque
+
+  -- The two subtraction relations are equivalent.
+
+  -≡↔-≡′ : ∀ p q r → (p - q ≡ r) ⇔ (p - q ≡′ r)
+  -≡↔-≡′ p q r = left p q r , right
+    where
+    left : ∀ p q r → p - q ≡ r → p - q ≡′ r
+    left ω q r p-q≡r =
+      case -≡-functional {q = q} p-q≡r (ω-p≡ω q) of λ {
+        refl →
+      ω-p≡′ω }
+    left p 𝟘 r p-q≡r =
+      case -≡-functional p-q≡r p-𝟘≡p of λ {
+        refl →
+      p-𝟘≡′p }
+    left 𝟘 q r p-q≡r =
+      case 𝟘-p≡q p-q≡r of λ {
+        (refl , refl) →
+      p-𝟘≡′p}
+    left 𝟙 𝟙 r p-q≡r =
+      case -≡-functional p-q≡r 𝟙-𝟙≡𝟘 of λ {
+        refl →
+      𝟙-𝟙≡′𝟘 }
+    left 𝟙 ω r p-q≡r =
+      case p-ω≢ p-q≡r of λ ()
+    right : p - q ≡′ r → p - q ≡ r
+    right ω-p≡′ω = ω-p≡ω q
+    right p-𝟘≡′p = p-𝟘≡p
+    right 𝟙-𝟙≡′𝟘 = 𝟙-𝟙≡𝟘

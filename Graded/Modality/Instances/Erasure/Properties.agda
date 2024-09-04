@@ -357,3 +357,53 @@ full-reduction-assumptions-suitable as =
          𝟘 ⊛ 𝟘 ▷ r        ∎)
   where
   open Tools.Reasoning.PartialOrder ≤-poset
+
+opaque
+
+  -- Subtraction of ω by anything is ω
+
+  ω-p≡ω : ∀ p → ω - p ≡ ω
+  ω-p≡ω p = ∞-p≡∞ PE.refl p
+
+opaque
+
+  -- Subtraction is supported with
+  --  ω - p ≡ ω for any p
+  --  p - 𝟘 ≡ p for any p
+
+  supports-subtraction : Supports-subtraction
+  supports-subtraction =
+    Addition≡Meet.supports-subtraction (λ _ _ → PE.refl)
+
+-- An alternative definition of the subtraction relation with
+--   ω - p ≡ ω for all p
+--   p - 𝟘 ≡ p for all p
+-- and not defined otherwise
+
+data _-_≡′_ : (p q r : Erasure) → Set where
+  ω-p≡′ω : ω - p ≡′ ω
+  p-𝟘≡′p : p - 𝟘 ≡′ p
+
+opaque
+
+  -- The two subtraction relations are equivalent.
+
+  -≡↔-≡′ : ∀ p q r → (p - q ≡ r) ⇔ (p - q ≡′ r)
+  -≡↔-≡′ p q r = left p q r , right
+    where
+    left : ∀ p q r → p - q ≡ r → p - q ≡′ r
+    left ω q r p-q≡r =
+      case -≡-functional {q = q} p-q≡r (ω-p≡ω q) of λ {
+        PE.refl →
+      ω-p≡′ω }
+    left p 𝟘 r p-q≡r =
+      case -≡-functional p-q≡r p-𝟘≡p of λ {
+        PE.refl →
+      p-𝟘≡′p }
+    left 𝟘 q r p-q≡r =
+      case 𝟘-p≡q p-q≡r of λ {
+        (PE.refl , PE.refl) →
+      p-𝟘≡′p}
+    right : p - q ≡′ r → p - q ≡ r
+    right ω-p≡′ω = ω-p≡ω q
+    right p-𝟘≡′p = p-𝟘≡p
