@@ -405,6 +405,39 @@ import Graded.Neutral
 import Graded.Box-cong
 
 ------------------------------------------------------------------------
+-- A resource aware abstract machine
+
+-- The abstract machine
+import Heap.Untyped
+import Heap.Untyped.Properties
+import Heap.Options
+import Heap.Reduction
+import Heap.Reduction.Properties
+
+-- Typing for the abstract machine
+import Heap.Typed
+import Heap.Typed.Substitution
+import Heap.Typed.Weakening
+import Heap.Typed.Inversion
+import Heap.Typed.Properties
+import Heap.Typed.Reduction
+
+-- Usage for the abstract machine
+import Heap.Usage.Assumptions
+import Heap.Usage
+import Heap.Usage.Weakening
+import Heap.Usage.Properties
+import Heap.Usage.Reduction
+
+-- Other properties of the abstract machine
+import Heap.Normalization
+import Heap.Bisimilarity
+import Heap.Termination
+
+-- Resource correctness of the abstract machine
+import Heap.Soundness
+
+------------------------------------------------------------------------
 -- Some applications
 
 -- An application: consistent negative axioms preserve canonicity.

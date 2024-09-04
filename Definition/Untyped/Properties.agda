@@ -6,6 +6,7 @@
 module Definition.Untyped.Properties {a} (M : Set a) where
 
 open import Definition.Untyped M
+open import Definition.Untyped.Inversion M
 open import Definition.Untyped.Properties.NotParametrised public
 
 open import Tools.Empty
@@ -13,8 +14,9 @@ open import Tools.Fin
 open import Tools.Function
 open import Tools.Nat
 open import Tools.Relation
-open import Tools.PropositionalEquality hiding (subst)
+open import Tools.PropositionalEquality as PE hiding (subst)
 open import Tools.Reasoning.PropositionalEquality
+open import Tools.Sum hiding (id; sym)
 
 private
   variable
@@ -75,6 +77,15 @@ mutual
       (trans (wk-comp (liftn ρ b) (liftn ρ′ b) t)
          (wkVar-to-wk (wkVar-comps b ρ ρ′) t))
       (wkGen-comp ρ ρ′ ts)
+
+opaque
+
+  -- id is the right identity of weakening composition
+
+  •-idʳ : (ρ : Wk m n) → ρ • id ≡ ρ
+  •-idʳ id = refl
+  •-idʳ (step ρ) = cong step (•-idʳ ρ)
+  •-idʳ (lift ρ) = refl
 
 
 -- The following lemmata are variations on the equality
@@ -341,6 +352,12 @@ wk-subst-lift G = trans (wk-subst G) (subst-lift-•ₛ G)
 
 wk≡subst : (ρ : Wk m n) (t : Term n) → wk ρ t ≡ t [ toSubst ρ ]
 wk≡subst ρ t = trans (cong (wk ρ) (sym (subst-id t))) (wk-subst t)
+
+liftWk≡liftSubst : (ρ : Wk m n) (t : Term (1+ n))
+                 → wk (lift ρ) t ≡ t [ liftSubst (toSubst ρ) ]
+liftWk≡liftSubst ρ t =
+  trans (wk≡subst (lift ρ) t)
+    (substVar-to-subst (λ { x0 → refl ; (x +1) → refl}) t)
 
 -- Composition of substitutions.
 
@@ -652,6 +669,14 @@ substConcatSingleton′ : ∀ {a} t
                       ≡ t [ consSubst σ (a [ σ ]) ]
 substConcatSingleton′ t = substVar-to-subst (λ { x0 → refl ; (x +1) → refl}) t
 
+step-consSubst : ∀ t → wk (step ρ) t [ consSubst σ u ] ≡ wk ρ t [ σ ]
+step-consSubst {ρ} {σ} {u} t = begin
+  wk (step ρ) t [ consSubst σ u ] ≡⟨ subst-wk t ⟩
+  t [ consSubst σ u ₛ• step ρ ]   ≡⟨ substVar-to-subst (λ _ → refl) t ⟩
+  t [ σ ₛ• ρ ]                    ≡˘⟨ subst-wk t ⟩
+  wk ρ t [ σ ]                    ∎
+
+
 wk1-tail : (t : Term n) → wk1 t [ σ ] ≡ t [ tail σ ]
 wk1-tail {σ = σ} t = begin
   wk1 t [ σ ]          ≡⟨⟩
@@ -695,14 +720,11 @@ wk2-B : ∀ (W : BindingType) (F : Term n) (G : Term (1+ n))
 wk2-B (BΠ p q) F G = cong (Π p , q ▷ _ ▹_) (sym (wk-comp _ _ G))
 wk2-B (BΣ s p q) F G = cong (Σ⟨ s ⟩ p , q ▷ _ ▹_) (sym (wk-comp _ _ G))
 
+step-sgSubst : ∀ (t : Term n) t′ → wk (step ρ) t [ t′ ]₀ ≡ wk ρ t
+step-sgSubst t t′ = trans (step-consSubst t) (subst-id _)
+
 wk1-sgSubst : ∀ (t : Term n) t' → (wk1 t) [ t' ]₀ ≡ t
-wk1-sgSubst t t' rewrite wk1-tailId t =
-  let substVar-sgSubst-tail : ∀ a n → (sgSubst a ₛ•ₛ tail idSubst) n ≡ idSubst n
-      substVar-sgSubst-tail a n = refl
-  in  trans (trans
-        (substCompEq t)
-        (substVar-to-subst (substVar-sgSubst-tail t') t))
-      (subst-id t)
+wk1-sgSubst t t' = trans (step-sgSubst t t') (wk-id t)
 
 opaque
 
@@ -905,10 +927,90 @@ doubleSubstComp {n} A t u σ =
   A [ consSubst (consSubst (idSubst ₛ•ₛ σ) t) u ]  ≡⟨ flip substVar-to-subst A $ consSubst-cong $ consSubst-cong $ idSubst-ₛ•ₛˡ ⟩
   A [ consSubst (consSubst σ t) u ]                ∎
 
+head-tail-subst : ∀ t → t [ σ ] ≡ t [ consSubst (tail σ) (head σ) ]
+head-tail-subst t =
+  substVar-to-subst (λ { x0 → refl ; (x +1) → refl}) t
+
 opaque
 
-  -- One can fuse an application of _[_,_]₁₀ and an application of
-  -- _[_] into an application of _[_].
+  -- Applying a weakening followed by a closing substitution to a closed term
+  -- is the same as doing nothing.
+
+  wk-subst-closed : {ρ : Wk n 0} {σ : Subst 0 n}
+                  → (t : Term 0)
+                  → wk ρ t [ σ ] ≡ t
+  wk-subst-closed {0} {ρ = id} {σ} t = begin
+    wk id t [ σ ] ≡⟨ cong (_[ σ ]) (wk-id t) ⟩
+    t [ σ ]       ≡⟨ substVar-to-subst (λ ()) t ⟩
+    t [ idSubst ] ≡⟨ subst-id t ⟩
+    t             ∎
+  wk-subst-closed {1+ n} {ρ = step ρ} {σ} t = begin
+    wk (step ρ) t [ σ ]                           ≡⟨ head-tail-subst (wk (step ρ) t) ⟩
+    wk (step ρ) t [ consSubst (tail σ) (head σ) ] ≡⟨ step-consSubst t ⟩
+    wk ρ t [ tail σ ]                             ≡⟨ wk-subst-closed t ⟩
+    t                                             ∎
+
+opaque
+
+  -- A special case of the property above
+
+  wk₀-subst : ∀ t → wk wk₀ t [ σ ] ≡ t
+  wk₀-subst t = wk-subst-closed t
+
+opaque
+
+  -- A version of the above property involving lifted weakenings and
+  -- substitutions
+
+  wk-subst-lift-closed : {ρ : Wk n 0} {σ : Subst 0 n}
+                       → (t : Term 1)
+                       → wk (lift ρ) t [ liftSubst σ ] ≡ t
+  wk-subst-lift-closed {ρ} {σ} t = begin
+    wk (lift ρ) t [ liftSubst σ ]  ≡⟨ subst-wk t ⟩
+    t [ liftSubst σ ₛ• lift ρ ]    ≡⟨ subst-lift-ₛ• t ⟩
+    t [ liftSubst (σ ₛ• ρ) ]       ≡⟨ substVar-to-subst (substVar-lift (λ ())) t ⟩
+    t [ liftSubst idSubst ]        ≡⟨ substVar-to-subst subst-lift-id t ⟩
+    t [ idSubst ]                  ≡⟨ subst-id t ⟩
+    t                              ∎
+
+opaque
+
+  lifts-step-sgSubst : {ρ : Wk m n} (k : Nat) (t : Term (k + n))
+                     → wk (liftn ρ k) t ≡ wk (liftn (step ρ) k) t [ liftSubstn (sgSubst u) k ]
+  lifts-step-sgSubst {u} {ρ} k t = begin
+    wk (liftn ρ k) t                                     ≡⟨ wk≡subst (liftn ρ k) t ⟩
+    t [ toSubst (liftn ρ k) ]                            ≡⟨ substVar-to-subst (lemma k) t ⟩
+    t [ liftSubstn (sgSubst u ₛ• step ρ) k ]             ≡˘⟨ subst-lifts-ₛ• k t ⟩
+    t [ liftSubstn (sgSubst u) k ₛ• liftn (step ρ) k ]   ≡˘⟨ subst-wk t ⟩
+    wk (liftn (step ρ) k) t [ liftSubstn (sgSubst u) k ] ∎
+    where
+    lemma : ∀ (k : Nat) x
+          → toSubst (liftn ρ k) x ≡ liftSubstn (sgSubst u ₛ• step ρ) k x
+    lemma 0 x = refl
+    lemma (1+ k) x0 = refl
+    lemma (1+ k) (_+1 x) = cong wk1 (lemma k x)
+
+opaque
+
+  lifts-step-[,] : {ρ : Wk m n} (k : Nat) (t : Term (k + n))
+                 → wk (liftn ρ k) t ≡ wk (liftn (step (step ρ)) k) t [ liftSubstn (consSubst (sgSubst u) v) k ]
+  lifts-step-[,] {u} {v} {ρ} k t = begin
+    wk (liftn ρ k) t                                                          ≡⟨ wk≡subst (liftn ρ k) t ⟩
+    t [ toSubst (liftn ρ k) ]                                                 ≡⟨ substVar-to-subst (lemma k) t ⟩
+    t [ liftSubstn (consSubst (sgSubst u) v) k ₛ• liftn (step (step ρ)) k ]   ≡˘⟨ subst-wk t ⟩
+    wk (liftn (step (step ρ)) k) t [ liftSubstn (consSubst (sgSubst u) v) k ] ∎
+    where
+    lemma : ∀ (k : Nat) x
+          → toSubst (liftn ρ k) x ≡ (liftSubstn (consSubst (sgSubst u) v) k ₛ• liftn (step (step ρ)) k) x
+    lemma 0 x = refl
+    lemma (1+ k) x0 = refl
+    lemma (1+ k) (x +1) = cong wk1 (lemma k x)
+
+
+opaque
+
+  -- One can fuse an application of _[_,_] and an application of _[_]
+  -- into an application of _[_].
 
   [,]-[]-fusion :
     ∀ t →
@@ -985,3 +1087,137 @@ opaque
     lemma : ∀ x → (sgSubst t ₛ•ₛ consSubst (wk1Subst idSubst) u) x ≡ sgSubst (u [ t ]₀) x
     lemma x0 = refl
     lemma (_+1 x) = refl
+
+opaque
+
+  -- A lemma related to natrec
+
+  lift-step-natrec : ∀ A z s n
+                   → natrec p q r
+                            (wk (lift ρ) A [ liftSubst σ ])
+                            (wk ρ z [ σ ])
+                            (wk (liftn ρ 2) s [ liftSubstn σ 2 ])
+                            n
+                   ≡ natrec p q r
+                            (wk (liftn ρ 2) (wk (lift (step id)) A) [ liftSubst (consSubst σ u) ])
+                            (wk (lift ρ) (wk1 z) [ consSubst σ u ])
+                            (wk (liftn ρ 3) (wk (liftn (step id) 2) s) [ liftSubstn (consSubst σ u) 2 ])
+                            n
+  lift-step-natrec {ρ} {σ} {u} A z s n =
+    case begin
+           wk (lift ρ) A [ liftSubst σ ]
+             ≡⟨ subst-wk A ⟩
+           A [ liftSubst σ ₛ• lift ρ ]
+             ≡⟨ substVar-to-subst (λ { x0 → refl ; (_+1 x) → refl}) A ⟩
+           A [ liftSubst (consSubst σ u) ₛ• lift (step ρ) ]
+             ≡˘⟨ cong (λ x → A [ liftSubst (consSubst σ u) ₛ• lift (step x) ]) (•-idʳ ρ) ⟩
+           A [ liftSubst (consSubst σ u) ₛ• lift (step (ρ • id)) ]
+             ≡˘⟨ subst-wk A ⟩
+           wk (lift (step (ρ • id))) A [ liftSubst (consSubst σ u) ]
+             ≡˘⟨ cong (_[ liftSubst (consSubst σ u) ]) (wk-comp (liftn ρ 2) (lift (step id)) A) ⟩
+           wk (liftn ρ 2) (wk (lift (step id)) A) [ liftSubst (consSubst σ u) ] ∎ of λ
+      A≡A′ →
+    case begin
+           wk ρ z [ σ ]                          ≡˘⟨ step-consSubst z ⟩
+           wk (step ρ) z [ consSubst σ u ]       ≡˘⟨ cong (_[ consSubst σ u ]) (lift-wk1 ρ z) ⟩
+           wk (lift ρ) (wk1 z) [ consSubst σ u ] ∎ of λ
+      z≡z′ →
+    case begin
+           wk (liftn ρ 2) s [ liftSubstn σ 2 ]
+             ≡⟨ subst-wk s ⟩
+           s [ liftSubstn σ 2 ₛ• liftn ρ 2 ]
+             ≡⟨ substVar-to-subst (λ { x0 → refl ; (x0 +1) → refl ; (x +2) → refl}) s ⟩
+           s [ liftSubstn (consSubst σ u) 2 ₛ• liftn (step ρ) 2 ]
+             ≡˘⟨ subst-wk s ⟩
+           wk (liftn (step ρ) 2) s [ liftSubstn (consSubst σ u) 2 ]
+             ≡˘⟨ cong (λ x → wk (liftn (step x) 2) s [ liftSubstn (consSubst σ u) 2 ]) (•-idʳ ρ) ⟩
+           wk (liftn (step (ρ • id)) 2) s [ liftSubstn (consSubst σ u) 2 ]
+             ≡˘⟨ cong (_[ liftSubstn (consSubst σ u) 2 ]) (wk-comp (liftn ρ 3) (liftn (step id) 2) s) ⟩
+           wk (liftn ρ 3) (wk (liftn (step id) 2) s) [ liftSubstn (consSubst σ u) 2 ] ∎ of λ
+      s≡s′ →
+    cong₃ (λ A z s → natrec _ _ _ A z s n)
+      A≡A′ z≡z′ s≡s′
+
+opaque
+
+  -- A lemma related to natrec, similar to the one above
+
+  lift-step-natrec′ : ∀ A z s t
+                    → let σ′ = consSubst (consSubst σ u) v in
+                      natrec p q r
+                             (wk (lift ρ) A [ liftSubst σ ])
+                             (wk ρ z [ σ ])
+                             (wk (liftn ρ 2) s [ liftSubstn σ 2 ])
+                             (t [ σ ])
+                    ≡ natrec p q r
+                             (wk (lift (step (step id))) (wk (lift ρ) A) [ liftSubst σ′ ])
+                             (wk (step (step id)) (wk ρ z) [ σ′ ])
+                             (wk (liftn (step (step id)) 2) (wk (liftn ρ 2) s) [ liftSubstn σ′ 2 ])
+                             (wk (step (step id)) t [ σ′ ] )
+  lift-step-natrec′ {(m)} {(n)} {σ} {u} {v} {ρ} A z s t =
+    case begin
+           wk (lift ρ) A [ liftSubst σ ]                               ≡⟨ subst-wk A ⟩
+           A [ liftSubst σ ₛ• lift ρ ]                                 ≡⟨ substVar-to-subst (λ { x0 → refl ; (x +1) → refl}) A ⟩
+           A [ liftSubst σ₊ ₛ• lift (step (step ρ)) ]                  ≡˘⟨ subst-wk A ⟩
+           wk (lift (step (step ρ))) A [ liftSubst σ₊ ]                ≡˘⟨ cong (_[ liftSubst σ₊ ]) (wk-comp _ _ A) ⟩
+           wk (lift (step (step id))) (wk (lift ρ) A) [ liftSubst σ₊ ] ∎ of λ
+      A≡A′ →
+    case begin
+           wk ρ z [ σ ]                        ≡⟨ subst-wk z ⟩
+           z [ σ ₛ• ρ ]                        ≡⟨ substVar-to-subst (λ _ → refl) z ⟩
+           z [ σ₊ ₛ• step (step ρ) ]           ≡˘⟨ subst-wk z ⟩
+           wk (step (step ρ)) z [ σ₊ ]         ≡˘⟨ cong (_[ σ₊ ]) (wk-comp _ _ z) ⟩
+           wk (step (step id)) (wk ρ z) [ σ₊ ] ∎ of λ
+      z≡z′ →
+    case begin
+           wk (liftn ρ 2) s [ liftSubstn σ 2 ]                                  ≡⟨ subst-wk s ⟩
+           s [ liftSubstn σ 2 ₛ• liftn ρ 2 ]                                    ≡⟨ substVar-to-subst (λ { x0 → refl ; (x0 +1) → refl ; (x +2) → refl }) s ⟩
+           s [ liftSubstn σ₊ 2 ₛ• liftn (step (step ρ)) 2 ]                     ≡˘⟨ subst-wk s ⟩
+           wk (liftn (step (step ρ)) 2) s [ liftSubstn σ₊ 2 ]                   ≡˘⟨ cong (_[ liftSubstn σ₊ 2 ]) (wk-comp _ _ s) ⟩
+           wk (liftn (step (step id)) 2) (wk (liftn ρ 2) s) [ liftSubstn σ₊ 2 ] ∎ of λ
+      s≡s′ →
+    cong₄ (natrec _ _ _) A≡A′ z≡z′ s≡s′
+      (sym (trans (step-consSubst t) (wk1-tail t)))
+    where
+    σ₊ : Subst m (2+ n)
+    σ₊ = consSubst (consSubst σ u) v
+
+-- The predicate Numeral is decidable
+
+opaque
+
+  isNumeral? : (t : Term n) → Dec (Numeral t)
+  isNumeral? zero = yes zeroₙ
+  isNumeral? (suc t) =
+    case isNumeral? t of λ where
+      (yes n) → yes (sucₙ n)
+      (no ¬n) → no (λ { (sucₙ n) → ¬n n})
+  isNumeral? (var x) = no (λ ())
+  isNumeral? U = no (λ ())
+  isNumeral? ℕ = no λ ()
+  isNumeral? Empty = no λ ()
+  isNumeral? Unit! = no λ ()
+  isNumeral? (ΠΣ⟨ _ ⟩ _ , _ ▷ _ ▹ _) = no λ ()
+  isNumeral? (Id _ _ _) = no λ ()
+  isNumeral? (lam _ _) = no λ ()
+  isNumeral? (_ ∘ _) = no λ ()
+  isNumeral? (prod! _ _) = no λ ()
+  isNumeral? (fst _ _) = no λ ()
+  isNumeral? (snd _ _) = no λ ()
+  isNumeral? (prodrec _ _ _ _ _ _) = no λ ()
+  isNumeral? (natrec _ _ _ _ _ _ _) = no λ ()
+  isNumeral? star! = no λ ()
+  isNumeral? (unitrec _ _ _ _ _) = no λ ()
+  isNumeral? (emptyrec _ _ _) = no λ ()
+  isNumeral? rfl = no λ ()
+  isNumeral? (J _ _ _ _ _ _ _ _) = no λ ()
+  isNumeral? (K _ _ _ _ _ _) = no λ ()
+  isNumeral? ([]-cong! _ _ _ _) = no λ ()
+
+opaque
+
+  -- Applying substitutions to numerals has no effect
+
+  subst-numeral : Numeral t → t [ σ ] ≡ t
+  subst-numeral zeroₙ = refl
+  subst-numeral (sucₙ n) = cong suc (subst-numeral n)

@@ -761,6 +761,22 @@ opaque
     𝟘      ≡˘⟨ ⌞⌟≡𝟘ᵐ→≡𝟘 ⌞p⌟≡𝟘ᵐ ⟩
     p      ∎
 
+-- The value ⌜ ⌞ p ⌟ ⌝ · p is equal to p.
+
+⌜⌞⌟⌝· : ⌜ ⌞ p ⌟ ⌝ · p ≡ p
+⌜⌞⌟⌝· {p = p} = lemma _ refl
+  where
+  open Tools.Reasoning.PropositionalEquality
+
+  lemma : ∀ m → ⌞ p ⌟ ≡ m → ⌜ m ⌝ · p ≡ p
+  lemma 𝟙ᵐ _ = begin
+    𝟙 · p  ≡⟨ ·-identityˡ _ ⟩
+    p      ∎
+  lemma 𝟘ᵐ ⌞p⌟≡𝟘ᵐ = begin
+    𝟘 · p  ≡⟨ ·-zeroˡ _ ⟩
+    𝟘      ≡˘⟨ ⌞⌟≡𝟘ᵐ→≡𝟘 ⌞p⌟≡𝟘ᵐ ⟩
+    p      ∎
+
 -- The function ⌞_⌟ is a left inverse of ⌜_⌝.
 
 ⌞⌜⌝⌟ : ∀ m → ⌞ ⌜ m ⌝ ⌟ ≡ m

@@ -274,6 +274,16 @@ inv-usage-suc (sucₘ γ▸t) = invUsageSuc γ▸t ≤ᶜ-refl
 inv-usage-suc (sub γ▸st γ≤γ′) with inv-usage-suc γ▸st
 ... | invUsageSuc δ▸t γ′≤δ = invUsageSuc δ▸t (≤ᶜ-trans γ≤γ′ γ′≤δ)
 
+opaque
+
+  -- Inversion of usage for numerals
+
+  inv-usage-numeral : γ ▸[ m ] t → Numeral t → γ ≤ᶜ 𝟘ᶜ
+  inv-usage-numeral ▸t zeroₙ = inv-usage-zero ▸t
+  inv-usage-numeral ▸t (sucₙ n) =
+    case inv-usage-suc ▸t of λ
+      (invUsageSuc ▸t′ γ≤) →
+    ≤ᶜ-trans γ≤ (inv-usage-numeral ▸t′ n)
 
 data InvUsageNatrec′ (p r : M) (γ δ η : Conₘ n) : Conₘ n → Set a where
   invUsageNatrecNr :

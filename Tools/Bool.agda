@@ -82,3 +82,12 @@ opaque
 ∧-zero-product : x ∧ y ≡ false → x ≡ false ⊎ y ≡ false
 ∧-zero-product {x = false} _ = inj₁ refl
 ∧-zero-product {y = false} _ = inj₂ refl
+
+-- One cannot have T b and T (not b)
+
+not-T-and-¬T : (b : Bool) → T b → T (not b) → ⊥
+not-T-and-¬T false t ¬t = t
+not-T-and-¬T true t ¬t = ¬t
+
+not-T-and-¬T′ : (b : Bool) → ⦃ T b ⦄ → ⦃ T (not b) ⦄ → ⊥
+not-T-and-¬T′ b ⦃ (x) ⦄ ⦃ (y) ⦄ = not-T-and-¬T b x y
