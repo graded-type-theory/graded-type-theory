@@ -3,16 +3,20 @@
 ------------------------------------------------------------------------
 
 open import Graded.Modality
+open import Graded.Usage.Restrictions
 open import Tools.Bool
 open import Definition.Typed.Variant
 
 module Heap.Untyped
   {a} {M : Set a}
-  (𝕄 : Modality M)
+  {𝕄 : Modality M}
   (type-variant : Type-variant)
+  (UR : Usage-restrictions 𝕄)
   where
+
 open Modality 𝕄 hiding (_+_)
 open Type-variant type-variant
+open Usage-restrictions UR
 
 open import Tools.Empty
 open import Tools.Fin
@@ -23,8 +27,10 @@ open import Tools.Product
 open import Tools.Relation
 
 open import Definition.Untyped M hiding (head)
+open import Graded.Mode
 open import Graded.Modality.Properties.Subtraction semiring-with-meet
 open import Graded.Modality.Nr-instances
+open import Graded.Usage.Erased-matches
 
 private variable
   n n′ m m′ m″ n″ k : Nat
@@ -115,6 +121,28 @@ wk1ᵉ = wkᵉ (step id)
 wk2ᵉ : Elim m → Elim (2+ m)
 wk2ᵉ = wkᵉ (step (step id))
 
+-- The multiplicity of the Jₑ eliminator
+
+∣∣ᵉ-J : Erased-matches → (p q : M) → M
+∣∣ᵉ-J none _ _ = ω
+∣∣ᵉ-J all  _ _ = 𝟘
+∣∣ᵉ-J some p q =
+  case is-𝟘? p of λ where
+    (no _) → ω
+    (yes _) → case is-𝟘? q of λ where
+      (no _) → ω
+      (yes _) → 𝟘
+
+-- The multiplicity of the Kₑ eliminator
+
+∣∣ᵉ-K : Erased-matches → (p : M) → M
+∣∣ᵉ-K none _ = ω
+∣∣ᵉ-K all  _ = 𝟘
+∣∣ᵉ-K some p =
+  case is-𝟘? p of λ where
+    (no _) → ω
+    (yes _) → 𝟘
+
 -- Multiplicity of an eliminator, representing how many copies need to be evaluated
 
 ∣_∣ᵉ : ⦃ _ : Has-nr M semiring-with-meet ⦄
@@ -126,9 +154,9 @@ wk2ᵉ = wkᵉ (step (step id))
 ∣ prodrecₑ r _ _ _ _ _ ∣ᵉ = r
 ∣ natrecₑ p _ r _ _ _ _ ∣ᵉ = nr₂ p r
 ∣ unitrecₑ p _ _ _ _ ∣ᵉ = p
-∣ Jₑ _ _ _ _ _ _ _ _ ∣ᵉ = ω
-∣ Kₑ _ _ _ _ _ _ ∣ᵉ = ω
-∣ []-congₑ _ _ _ _ _ ∣ᵉ = 𝟙
+∣ Jₑ p q _ _ _ _ _ _ ∣ᵉ = ∣∣ᵉ-J (erased-matches-for-J 𝟙ᵐ) p q
+∣ Kₑ p _ _ _ _ _ ∣ᵉ = ∣∣ᵉ-K (erased-matches-for-K 𝟙ᵐ) p
+∣ []-congₑ _ _ _ _ _ ∣ᵉ = 𝟘
 ∣ sucₑ ∣ᵉ = 𝟙
 
 -- Evaluation stacks, indexed by the size of the heap

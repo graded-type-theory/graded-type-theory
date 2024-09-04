@@ -3,11 +3,13 @@
 ------------------------------------------------------------------------
 
 open import Graded.Modality
+open import Graded.Usage.Restrictions
 open import Definition.Typed.Restrictions
 open import Tools.Bool
 
 module Heap.Typed.Inversion
   {a} {M : Set a} {𝕄 : Modality M}
+  (UR : Usage-restrictions 𝕄)
   (TR : Type-restrictions 𝕄)
   (ℕ-fullred : Bool)
   where
@@ -25,8 +27,8 @@ open import Definition.Typed.Consequences.Syntactic TR
 import Graded.Derived.Erased.Untyped 𝕄 as E
 open import Graded.Derived.Erased.Typed TR
 
-open import Heap.Typed TR ℕ-fullred
-open import Heap.Untyped 𝕄 type-variant
+open import Heap.Typed UR TR ℕ-fullred
+open import Heap.Untyped type-variant UR
 
 open import Tools.Fin
 open import Tools.Function

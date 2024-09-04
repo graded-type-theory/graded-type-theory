@@ -11,6 +11,7 @@ module Heap.Usage.Properties
   {a} {M : Set a} {𝕄 : Modality M}
   (type-variant : Type-variant)
   (UR : Usage-restrictions 𝕄)
+  (erased-heap : Bool)
   (open Modality 𝕄)
   ⦃ _ : Has-nr M semiring-with-meet ⦄
   ⦃ _ : Has-factoring-nr M semiring-with-meet ⦄
@@ -23,14 +24,15 @@ open import Graded.Context.Weakening 𝕄
 open import Graded.Modality.Nr-instances
 open import Graded.Modality.Properties 𝕄
 open import Graded.Mode 𝕄
+open import Graded.Restrictions 𝕄
 open import Graded.Usage 𝕄 UR
 open import Graded.Usage.Inversion 𝕄 UR
 open import Graded.Usage.Properties 𝕄 UR
 open import Graded.Usage.Weakening 𝕄 UR
 
-open import Heap.Untyped 𝕄 type-variant
-open import Heap.Untyped.Properties 𝕄 type-variant
-open import Heap.Usage 𝕄 type-variant UR
+open import Heap.Untyped type-variant UR
+open import Heap.Untyped.Properties type-variant UR
+open import Heap.Usage type-variant UR erased-heap
 
 open import Tools.Empty
 open import Tools.Fin
@@ -62,7 +64,8 @@ opaque
 
   -- Usage for erased heaps
 
-  ▸erasedHeap : ∀ {n} → 𝟘ᶜ ▸ʰ erasedHeap n
+  ▸erasedHeap : ⦃ T erased-heap ⦄ →
+              ∀ {n} → 𝟘ᶜ ▸ʰ erasedHeap n
   ▸erasedHeap {(0)} = ε
   ▸erasedHeap {(1+ n)} = ▸erasedHeap ∙●
 
@@ -70,10 +73,14 @@ opaque
 
   -- Well-usage for the initial state
 
-  ▸initial : 𝟘ᶜ ▸ t → 𝟘ᶜ ⨾ 𝟘ᶜ ⨾ 𝟘ᶜ ▸[ 𝟙ᵐ ] initial t
-  ▸initial ▸t =
-      ▸erasedHeap , ▸t , ε , 𝟙ᵐ≤ᵐ
-    , ≤ᶜ-reflexive (≈ᶜ-sym (≈ᶜ-trans (+ᶜ-identityʳ _) (·ᶜ-zeroʳ _)))
+  ▸initial : n ≡ 0 ⊎ T erased-heap → 𝟘ᶜ {n} ▸ t → 𝟘ᶜ ⨾ 𝟘ᶜ ⨾ 𝟘ᶜ ▸[ 𝟙ᵐ ] initial t
+  ▸initial P ▸t =
+    lemma P , ▸t , ε , 𝟙ᵐ≤ᵐ
+            , ≤ᶜ-reflexive (≈ᶜ-sym (≈ᶜ-trans (+ᶜ-identityʳ _) (·ᶜ-zeroʳ _)))
+      where
+      lemma : n ≡ 0 ⊎ T erased-heap → 𝟘ᶜ ▸ʰ erasedHeap n
+      lemma (inj₁ refl) = ε
+      lemma (inj₂ x) = ▸erasedHeap ⦃ x ⦄
 
 opaque
 
@@ -108,14 +115,6 @@ opaque
   ▸ᶜ⁰? {γ} {t} {E} =
     𝟘ᵐ?-elim (λ m → γ ▸[ m ] t → γ ⨾ 𝟘 ▸ᶜ (𝟘 , t , E))
       ▸ᶜ⁰ (λ _ ▸t → ▸ᶜ¹ ▸t ≤-refl)
-
-  -- -- Usage of closures where the mode is the same as the grade
-
-  -- ▸ᶜᵖ : γ ▸[ ⌞ p ⌟ ] t
-  --     → γ ⨾ p ▸ᶜ (p , t , E)
-  -- ▸ᶜᵖ {γ = γ} {p} {t} {E = E} ▸t =
-  --   subst (λ x → γ ⨾ x ▸ᶜ (x , t , E))
-  --     ⌜⌞⌟⌝· (▸ᶜ ▸t ≤-refl)
 
 opaque
 
@@ -200,15 +199,15 @@ opaque
   subₕ {δ = δ ∙ p} (▸H ∙●) (γ≤δ ∙ 𝟘≤p) =
     subst (λ p → (δ ∙ p) ▸ʰ _) (sym (𝟘≮ 𝟘≤p)) (subₕ ▸H γ≤δ ∙●)
 
--- opaque
+opaque
 
---   -- If erased matches are turned on then a well-resourced heap does
---   -- not contain any erased entries.
+  -- If erased matches are turned on then a well-resourced heap does
+  -- not contain any erased entries.
 
---   no-erased-heap : ⦃ T erased-matches ⦄ → {H : Heap k n} → γ ▸ʰ H → k ≡ 0
---   no-erased-heap ε = refl
---   no-erased-heap (▸H ∙ x) = no-erased-heap ▸H
---   no-erased-heap (▸H ∙●) = ⊥-elim (not-T-and-¬T′ erased-matches)
+  no-erased-heap : {H : Heap k n} → T (not erased-heap) → γ ▸ʰ H → k ≡ 0
+  no-erased-heap _ ε = refl
+  no-erased-heap ¬eh (▸H ∙ x) = no-erased-heap ¬eh ▸H
+  no-erased-heap ¬eh (_∙● ⦃ (eh) ⦄ _) = ⊥-elim (not-T-and-¬T erased-heap eh ¬eh)
 
 -- opaque
 
@@ -247,36 +246,6 @@ opaque
       𝟘 ·ᶜ wkᶜ E δ        ≈⟨ ·ᶜ-zeroˡ _ ⟩
       𝟘ᶜ                  ∎
   𝟘▸H→H≤𝟘 {H = H ∙●} ▸H = 𝟘▸H→H≤𝟘 (inv-▸ʰ● ▸H .proj₂) ∙●
-
-opaque
-
-  -- The multiplicity of a well-resourced eliminator is not zero
-
-  ▸∣e∣≢𝟘 : ⦃ Has-well-behaved-zero M semiring-with-meet ⦄
-         -- → ⦃ T (not erased-matches) ⦄
-         → γ ▸ᵉ[ m ] e → ∣ e ∣ᵉ ≢ 𝟘
-  ▸∣e∣≢𝟘 (∘ₑ x) = non-trivial
-  ▸∣e∣≢𝟘 (fstₑ x) = non-trivial
-  ▸∣e∣≢𝟘 sndₑ = non-trivial
-  ▸∣e∣≢𝟘 (prodrecₑ x r≢𝟘) = r≢𝟘
-  ▸∣e∣≢𝟘 (natrecₑ x x₁ x₂) = nr₂≢𝟘
-  ▸∣e∣≢𝟘 (unitrecₑ x p≢𝟘) = p≢𝟘
-  ▸∣e∣≢𝟘 (Jₑ x) = ω≢𝟘
-  ▸∣e∣≢𝟘 (Kₑ x) = ω≢𝟘
-  ▸∣e∣≢𝟘 sucₑ = non-trivial
-
-opaque
-
-  -- The multiplicity of a well-resourced stack is not zero
-
-  ▸∣S∣≢𝟘 : ⦃ Has-well-behaved-zero M semiring-with-meet ⦄
-         -- → ⦃ nem : T (not erased-matches) ⦄
-         → γ ▸ˢ S → ∣ S ∣ ≢ 𝟘
-  ▸∣S∣≢𝟘 ε = non-trivial
-  ▸∣S∣≢𝟘 ((▸e , _) ∙ ▸S) ∣eS∣≡𝟘 =
-    case zero-product ∣eS∣≡𝟘 of λ where
-      (inj₁ ∣S∣≡𝟘) → ▸∣S∣≢𝟘 ▸S ∣S∣≡𝟘
-      (inj₂ ∣e∣≡𝟘) → ▸∣e∣≢𝟘 ▸e ∣e∣≡𝟘
 
 opaque
 
@@ -377,6 +346,42 @@ opaque
           (sym (trans (+-identityˡ _) (·-zeroʳ _))))) (▸H′ ∙●)
       , m≤ᵐS
 
+-- Some properties proven under some assumptions about erased matches
+
+module _ (nem : No-erased-matches′ type-variant UR) where
+
+  opaque
+
+    -- The multiplicity of a well-resourced eliminator is not zero
+
+    ▸∣e∣≢𝟘 : ⦃ Has-well-behaved-zero M semiring-with-meet ⦄
+           → γ ▸ᵉ[ 𝟙ᵐ ] e → ∣ e ∣ᵉ ≢ 𝟘
+    ▸∣e∣≢𝟘 (∘ₑ x) = non-trivial
+    ▸∣e∣≢𝟘 (fstₑ x) = non-trivial
+    ▸∣e∣≢𝟘 sndₑ = non-trivial
+    ▸∣e∣≢𝟘 (prodrecₑ x ok) = nem non-trivial .proj₁ ok
+    ▸∣e∣≢𝟘 (natrecₑ x x₁ x₂) = nr₂≢𝟘
+    ▸∣e∣≢𝟘 (unitrecₑ x ok no-η) = no-η ∘→ nem non-trivial .proj₂ .proj₁ ok
+    ▸∣e∣≢𝟘 (Jₑ x) rewrite nem non-trivial .proj₂ .proj₂ .proj₂ .proj₁ = ω≢𝟘
+    ▸∣e∣≢𝟘 (Kₑ x) rewrite nem non-trivial .proj₂ .proj₂ .proj₂ .proj₂ = ω≢𝟘
+    ▸∣e∣≢𝟘 ([]-congₑ ok) = λ _ → nem non-trivial .proj₂ .proj₂ .proj₁ ok
+    ▸∣e∣≢𝟘 sucₑ = non-trivial
+
+  opaque
+
+    -- The multiplicity of a well-resourced stack is not zero
+
+    ▸∣S∣≢𝟘 : ⦃ Has-well-behaved-zero M semiring-with-meet ⦄
+           → γ ▸ˢ S → ∣ S ∣ ≢ 𝟘
+    ▸∣S∣≢𝟘 ε = non-trivial
+    ▸∣S∣≢𝟘 (_∙_ {m} (▸e , m≤) ▸S) ∣eS∣≡𝟘 =
+      case zero-product ∣eS∣≡𝟘 of λ where
+        (inj₁ ∣S∣≡𝟘) → ▸∣S∣≢𝟘 ▸S ∣S∣≡𝟘
+        (inj₂ ∣e∣≡𝟘) →
+          case singleton m of λ where
+            (𝟘ᵐ , refl) → ▸∣S∣≢𝟘 ▸S (𝟘ᵐ≤ᵐp→p≡𝟘 m≤)
+            (𝟙ᵐ , refl) → ▸∣e∣≢𝟘 ▸e ∣e∣≡𝟘
+
 -- Some properties proven under the assumption that the modality
 -- supports subtraction.
 
@@ -415,19 +420,18 @@ module _ ⦃ _ : Has-well-behaved-zero M semiring-with-meet ⦄
         (_ , _ , _ , d) →
       _ , _ , _ , there● d
 
-
   opaque
 
     -- A variant of the above property with usage of states
 
     ▸s→y↦ : {H : Heap k _}
+          → T (not erased-heap) ⊎ No-erased-matches′ type-variant UR
           → γ ⨾ δ ⨾ η ▸[ m ] ⟨ H , var x , E , S ⟩
           → ∃₃ λ n (c : Closure _ n) H′ → H ⊢ wkVar E x ↦[ ∣ S ∣ ] c ⨾ H′
-    ▸s→y↦ {γ} {δ} {η} {m} {x} {E} {S} (▸H , ▸t , ▸S , m≤ , γ≤) =
-      ▸H→y↦ ▸H lemma (inj₁ (▸∣S∣≢𝟘 ▸S))
-      -- case no-erased-heap⊎no-erased-matches ▸H of λ where
-      --   (inj₁ k≡0) → ▸H→y↦ ▸H lemma (inj₂ k≡0)
-      --   (inj₂ nem) → ▸H→y↦ ▸H lemma (inj₁ (▸∣S∣≢𝟘 {-⦃ nem = nem ⦄-} ▸S))
+    ▸s→y↦ {γ} {δ} {η} {m} {x} {E} {S} prop (▸H , ▸t , ▸S , m≤ , γ≤) =
+      case prop of λ where
+        (inj₁ ¬eh) → ▸H→y↦ ▸H lemma (inj₂ (no-erased-heap ¬eh ▸H))
+        (inj₂ nem) → ▸H→y↦ ▸H lemma (inj₁ (▸∣S∣≢𝟘 nem ▸S))
       where
       open RPo ≤-poset
       lemma′ : (∣ S ∣ ·ᶜ wkᶜ E δ) ⟨ wkVar E x ⟩ ≤ ∣ S ∣
@@ -452,10 +456,11 @@ module _ ⦃ _ : Has-well-behaved-zero M semiring-with-meet ⦄
     -- result as lookup without update
 
     ▸↦→↦[] : {H : Heap k _}
+           → T (not erased-heap) ⊎ No-erased-matches′ type-variant UR
            → H ⊢ wkVar E x ↦ c′ → γ ⨾ δ ⨾ η ▸[ m ] ⟨ H , var x , E , S ⟩
            → ∃ λ H′ → H ⊢ wkVar E x ↦[ ∣ S ∣ ] c′ ⨾ H′
-    ▸↦→↦[] d ▸s =
-      case ▸s→y↦ ▸s of λ
+    ▸↦→↦[] prop d ▸s =
+      case ▸s→y↦ prop ▸s of λ
         (_ , _ , _ , d′) →
       case lookup-det′ d (↦[]→↦ d′) of λ {
         (refl , refl , refl) →

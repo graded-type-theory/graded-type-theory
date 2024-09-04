@@ -424,7 +424,6 @@ import Heap.Typed.Properties
 import Heap.Typed.Reduction
 
 -- Usage for the abstract machine
-import Heap.Usage.Assumptions
 import Heap.Usage
 import Heap.Usage.Weakening
 import Heap.Usage.Properties

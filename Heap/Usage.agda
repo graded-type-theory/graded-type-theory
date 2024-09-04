@@ -8,23 +8,25 @@ open import Definition.Typed.Variant
 open import Tools.Bool
 
 module Heap.Usage
-  {a} {M : Set a}
-  (𝕄 : Modality M)
+  {a} {M : Set a} {𝕄 : Modality M}
   (type-variant : Type-variant)
   (UR : Usage-restrictions 𝕄)
-  -- (erased-matches : Bool)
+  (erased-heap : Bool)
   (open Modality 𝕄)
   ⦃ _ : Has-nr M semiring-with-meet ⦄
   ⦃ _ : Has-factoring-nr M semiring-with-meet ⦄
   where
 
+open Type-variant type-variant
+open Usage-restrictions UR
 
 open import Tools.Nat using (Nat)
 open import Tools.Product
 open import Tools.PropositionalEquality
+open import Tools.Relation
 
 open import Definition.Untyped M
-open import Heap.Untyped 𝕄 type-variant
+open import Heap.Untyped type-variant UR
 
 open import Graded.Context 𝕄
 open import Graded.Context.Weakening 𝕄
@@ -43,6 +45,7 @@ private variable
   e : Elim _
   m : Mode
   c : Closure _ _
+  s′ : Strength
 
 -- A comparison relation for the grades in the heap.
 -- H ≤ʰ p iff all grades in the heap are bounded by p.
@@ -68,8 +71,8 @@ data _▸ʰ_ : (γ : Conₘ n) (H : Heap k n) → Set a where
   _∙_ : (γ +ᶜ p ·ᶜ wkᶜ E δ) ▸ʰ H
       → δ ⨾ p ▸ᶜ (q , t , E)
       → γ ∙ p ▸ʰ H ∙ (q , t , E)
-  _∙● : -- ⦃ T (not erased-matches) ⦄
-        γ ▸ʰ H → γ ∙ 𝟘 ▸ʰ H ∙●
+  _∙● : ⦃ T erased-heap ⦄
+      → γ ▸ʰ H → γ ∙ 𝟘 ▸ʰ H ∙●
 
 ------------------------------------------------------------------------
 -- Usage of eliminators and stacks
@@ -80,14 +83,15 @@ data _▸ᵉ[_]_ {n : Nat} : (γ : Conₘ n) (m : Mode) (e : Elim n) → Set a w
   ∘ₑ : γ ▸[ m ᵐ· p ] u → p ·ᶜ wkᶜ E γ ▸ᵉ[ m ] ∘ₑ p u E
   fstₑ : (m ≡ 𝟙ᵐ → p ≤ 𝟙) → 𝟘ᶜ ▸ᵉ[ m ] fstₑ p
   sndₑ : 𝟘ᶜ ▸ᵉ[ m ] sndₑ p
-  prodrecₑ : γ ∙ ⌜ m ⌝ · r · p ∙ ⌜ m ⌝ · r ▸[ m ] u → r ≢ 𝟘
+  prodrecₑ : γ ∙ ⌜ m ⌝ · r · p ∙ ⌜ m ⌝ · r ▸[ m ] u → Prodrec-allowed m r p q
            → wkᶜ E γ ▸ᵉ[ m ] prodrecₑ r p q A u E
   natrecₑ : γ ▸[ m ] z → δ ∙ ⌜ m ⌝ · p ∙ ⌜ m ⌝ · r ▸[ m ] s
           → θ ∙ (⌜ 𝟘ᵐ? ⌝ · q′) ▸[ 𝟘ᵐ? ] A
           → wkᶜ E (nrᶜ p r γ δ 𝟘ᶜ) ▸ᵉ[ m ] natrecₑ p q′ r A z s E
-  unitrecₑ : γ ▸[ m ] u → p ≢ 𝟘 → wkᶜ E γ ▸ᵉ[ m ] unitrecₑ p q A u E
+  unitrecₑ : γ ▸[ m ] u → Unitrec-allowed m p q → ¬ Unitʷ-η → wkᶜ E γ ▸ᵉ[ m ] unitrecₑ p q A u E
   Jₑ : γ ▸[ m ] u → wkᶜ E γ ▸ᵉ[ m ] Jₑ p q A t B u v E
   Kₑ : γ ▸[ m ] u → wkᶜ E γ ▸ᵉ[ m ] Kₑ p A t B u E
+  []-congₑ : []-cong-allowed-mode s′ m → 𝟘ᶜ ▸ᵉ[ m ] []-congₑ s′ A t u E
   sucₑ : 𝟘ᶜ ▸ᵉ[ m ] sucₑ
 
 data _≤ᵐ_ : (m : Mode) (p : M) → Set a where

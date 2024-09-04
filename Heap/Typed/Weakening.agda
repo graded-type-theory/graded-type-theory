@@ -3,11 +3,13 @@
 ------------------------------------------------------------------------
 
 open import Graded.Modality
+open import Graded.Usage.Restrictions
 open import Definition.Typed.Restrictions
 open import Tools.Bool
 
 module Heap.Typed.Weakening
   {a} {M : Set a} {𝕄 : Modality M}
+  (UR : Usage-restrictions 𝕄)
   (TR : Type-restrictions 𝕄)
   (ℕ-fullred : Bool)
   where
@@ -20,9 +22,9 @@ open import Definition.Typed TR
 open import Definition.Typed.Weakening TR hiding (wk)
 import Graded.Derived.Erased.Untyped 𝕄 as Erased
 
-open import Heap.Untyped 𝕄 type-variant
-open import Heap.Untyped.Properties 𝕄 type-variant
-open import Heap.Typed TR ℕ-fullred
+open import Heap.Untyped type-variant UR
+open import Heap.Untyped.Properties type-variant UR
+open import Heap.Typed UR TR ℕ-fullred
 
 open import Tools.Fin
 open import Tools.Function

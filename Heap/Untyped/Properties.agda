@@ -3,12 +3,14 @@
 ------------------------------------------------------------------------
 
 open import Graded.Modality
+open import Graded.Usage.Restrictions
 open import Tools.Bool
 open import Definition.Typed.Variant
 
 module Heap.Untyped.Properties
-  {a} {M : Set a} (𝕄 : Modality M)
+  {a} {M : Set a} {𝕄 : Modality M}
   (type-variant : Type-variant)
+  (UR : Usage-restrictions 𝕄)
   where
 
 open Modality 𝕄
@@ -24,12 +26,13 @@ open import Tools.Reasoning.PropositionalEquality
 open import Tools.Sum hiding (id; sym)
 
 open import Graded.Modality.Properties.Subtraction semiring-with-meet
+open import Graded.Usage.Erased-matches
 
 open import Definition.Untyped M
 open import Definition.Untyped.Neutral M type-variant
 open import Definition.Untyped.Properties M
 
-open import Heap.Untyped 𝕄 type-variant
+open import Heap.Untyped type-variant UR
 
 private variable
   k n n′ n″ m m′ m″ : Nat
@@ -455,6 +458,58 @@ opaque
 
 opaque
 
+  ∣∣ᵉ-J-ω : ∀ {e}
+          → e ≤ᵉᵐ some
+          → (e ≡ some → ¬ (p ≡ 𝟘 × q ≡ 𝟘))
+          → ∣∣ᵉ-J e p q ≡ ω
+  ∣∣ᵉ-J-ω {e = none} _ _ = refl
+  ∣∣ᵉ-J-ω {p} {q} {e = some} _ P
+    with is-𝟘? p
+  … | no _ = refl
+  … | yes p≡𝟘 with is-𝟘? q
+  … | no _ = refl
+  … | yes q≡𝟘 = ⊥-elim (P refl (p≡𝟘 , q≡𝟘))
+
+opaque
+
+  ∣∣ᵉ-J-some₀₀ : ∀ {e} → e ≡ some → ∣∣ᵉ-J e 𝟘 𝟘 ≡ 𝟘
+  ∣∣ᵉ-J-some₀₀ refl with is-𝟘? 𝟘
+  … | no 𝟘≢𝟘 = ⊥-elim (𝟘≢𝟘 refl)
+  … | yes _ with is-𝟘? 𝟘
+  … | no 𝟘≢𝟘 = ⊥-elim (𝟘≢𝟘 refl)
+  … | yes _ = refl
+
+opaque
+
+  ∣∣ᵉ-J-all : ∀ {e} → e ≡ all → ∣∣ᵉ-J e p q ≡ 𝟘
+  ∣∣ᵉ-J-all refl = refl
+
+opaque
+
+  ∣∣ᵉ-K-ω : ∀ {e}
+          → e ≤ᵉᵐ some
+          → (e ≡ some → p ≢ 𝟘)
+          → ∣∣ᵉ-K e p ≡ ω
+  ∣∣ᵉ-K-ω {e = none} _ _ = refl
+  ∣∣ᵉ-K-ω {p} {e = some} _ p≢𝟘
+    with is-𝟘? p
+  … | no _ = refl
+  … | yes p≡𝟘 = ⊥-elim (p≢𝟘 refl p≡𝟘)
+
+opaque
+
+  ∣∣ᵉ-K-some₀ : ∀ {e} → e ≡ some → ∣∣ᵉ-K e 𝟘 ≡ 𝟘
+  ∣∣ᵉ-K-some₀ refl with is-𝟘? 𝟘
+  … | no 𝟘≢𝟘 = ⊥-elim (𝟘≢𝟘 refl)
+  … | yes _ = refl
+
+opaque
+
+  ∣∣ᵉ-K-all : ∀ {e} → e ≡ all → ∣∣ᵉ-K e p ≡ 𝟘
+  ∣∣ᵉ-K-all refl = refl
+
+opaque
+
   -- Multiplicity of sucₛ k
 
   ∣sucₛ∣≡𝟙 : ⦃ _ : Has-nr M semiring-with-meet ⦄
@@ -467,7 +522,7 @@ opaque
 
   -- Multiplicity of the stack S ++ sucₛ k
 
-  ∣S++sucₛ∣≡∣S∣ :  ⦃ _ : Has-nr M semiring-with-meet ⦄
+  ∣S++sucₛ∣≡∣S∣ : ⦃ _ : Has-nr M semiring-with-meet ⦄
                 → ⦃ _ : Has-factoring-nr M semiring-with-meet ⦄
                 → (S : Stack m) → ∣ S ++ sucₛ k ∣ ≡ ∣ S ∣
   ∣S++sucₛ∣≡∣S∣ {k} ε = ∣sucₛ∣≡𝟙 k

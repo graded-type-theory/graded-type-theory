@@ -1,18 +1,19 @@
 open import Graded.Modality
 open import Graded.Usage.Restrictions
-
+open import Tools.Bool
 open import Definition.Typed.Restrictions
 
 module Heap.Bisimilarity
   {a} {M : Set a} {𝕄 : Modality M}
   (UR : Usage-restrictions 𝕄)
   (TR : Type-restrictions 𝕄)
+  (erased-heap : Bool)
   where
 
-open Modality 𝕄
+open Modality 𝕄 hiding (has-nr)
 open Type-restrictions TR
+open Usage-restrictions UR
 
-open import Tools.Bool
 open import Tools.Empty
 open import Tools.Function
 open import Tools.Product
@@ -21,14 +22,13 @@ open import Tools.Relation
 open import Tools.Sum hiding (id)
 
 open import Heap.Options
-open import Heap.Untyped 𝕄 type-variant
-open import Heap.Untyped.Properties 𝕄 type-variant
-open import Heap.Usage 𝕄 type-variant UR
-open import Heap.Usage.Assumptions
-open import Heap.Usage.Properties type-variant UR
-open import Heap.Normalization 𝕄 type-variant
-import Heap.Reduction 𝕄 type-variant as R
-import Heap.Reduction.Properties 𝕄 type-variant as RP
+open import Heap.Untyped type-variant UR
+open import Heap.Untyped.Properties type-variant UR
+open import Heap.Usage type-variant UR erased-heap
+open import Heap.Usage.Properties type-variant UR erased-heap
+open import Heap.Normalization type-variant UR
+import Heap.Reduction type-variant UR as R
+import Heap.Reduction.Properties type-variant UR as RP
 
 open import Definition.Untyped M
 open import Definition.Untyped.Neutral M type-variant
@@ -44,6 +44,7 @@ open import Definition.Typed.Consequences.Reduction TR
 open import Graded.Context 𝕄 hiding (_⟨_⟩)
 open import Graded.Mode 𝕄
 open import Graded.Modality.Properties.Subtraction semiring-with-meet
+open import Graded.Restrictions 𝕄
 
 private variable
   s s′ : State _ _ _
@@ -54,6 +55,25 @@ private variable
   γ δ η : Conₘ _
   Γ Δ : Con Term _
   m : Mode
+
+-- Assumptions that are used to prove some bisimilarity properties
+-- as well as some properties elsewhere that follow from them
+
+record Assumptions : Set a where
+  field
+    subtraction-ok : Supports-subtraction
+    erased-assumption : T (not erased-heap) ⊎ No-erased-matches′ type-variant UR
+    Unitʷ-η→ : ∀ {p q} → Unitʷ-η → Unitrec-allowed 𝟙ᵐ p q → p ≤ 𝟘
+    instance
+      has-well-behaved-zero : Has-well-behaved-zero M semiring-with-meet
+      nr-avail : Nr-available
+
+  instance
+    has-nr : Has-nr M semiring-with-meet
+    has-nr = Modality.has-nr 𝕄 nr-avail
+
+  field instance
+    has-factoring-nr : Has-factoring-nr M semiring-with-meet
 
 -- Bisimilarity between the tracking and non-tracking redutions
 -- (with or without reduction to numerals).
@@ -144,28 +164,6 @@ module _ (ℕ-fullred : Bool) where
 
     opaque
 
-      bisim₂ₙ : ⦃ Has-well-behaved-zero _ semiring-with-meet ⦄
-              → Supports-subtraction
-              → ⟨ H , t , E , S ⟩ Rₙₜ.⇒ₙ ⟨ H′ , t′ , E′ , S′ ⟩
-              → H ~ʰ H″
-              → γ ⨾ δ ⨾ η ▸[ m ] ⟨ H″ , t , E , S ⟩
-              → ∃ λ H‴ → ⟨ H″ , t , E , S ⟩ Rₜ.⇒ₙ ⟨ H‴ , t′ , E′ , S′ ⟩ × H′ ~ʰ H‴
-      bisim₂ₙ ok (Rₙₜ.varₕ′ d) H~H′ ▸s =
-        case ▸↦→↦[] ok (~ʰ-lookup H~H′ d) ▸s of λ
-          (_ , d′) →
-        _ , Rₜ.varₕ d′ , ~ʰ-trans H~H′ (update-~ʰ d′)
-      bisim₂ₙ ok Rₙₜ.appₕ H~H′ ▸s            = _ , Rₜ.appₕ , H~H′
-      bisim₂ₙ ok Rₙₜ.fstₕ H~H′ ▸s            = _ , Rₜ.fstₕ , H~H′
-      bisim₂ₙ ok Rₙₜ.sndₕ H~H′ ▸s            = _ , Rₜ.sndₕ , H~H′
-      bisim₂ₙ ok Rₙₜ.prodrecₕ H~H′ ▸s        = _ , Rₜ.prodrecₕ , H~H′
-      bisim₂ₙ ok Rₙₜ.natrecₕ H~H′ ▸s         = _ , Rₜ.natrecₕ , H~H′
-      bisim₂ₙ ok (Rₙₜ.unitrecₕ no-η) H~H′ ▸s = _ , Rₜ.unitrecₕ no-η , H~H′
-      bisim₂ₙ ok Rₙₜ.Jₕ H~H′ ▸s              = _ , Rₜ.Jₕ , H~H′
-      bisim₂ₙ ok Rₙₜ.Kₕ H~H′ ▸s              = _ , Rₜ.Kₕ , H~H′
-      bisim₂ₙ ok Rₙₜ.[]-congₕ H~H′ ▸s        = _ , Rₜ.[]-congₕ , H~H′
-
-    opaque
-
       bisim₂ᵥ : ⟨ H , t , E , S ⟩ Rₙₜ.⇒ᵥ ⟨ H′ , t′ , E′ , S′ ⟩
               → ⟨ H , t , E , S ⟩ Rₜ.⇒ᵥ ⟨ H′ , t′ , E′ , S′ ⟩
       bisim₂ᵥ Rₙₜ.lamₕ            = Rₜ.lamₕ
@@ -187,52 +185,71 @@ module _ (ℕ-fullred : Bool) where
       bisim₂ₛ (Rₙₜ.sucₕ x) = Rₜ.sucₕ x
       bisim₂ₛ (Rₙₜ.numₕ x) = Rₜ.numₕ x
 
+  -- The proof of the other direction uses some additional assumptions
+
+  module _ (As : Assumptions) where
+
+    open Assumptions As
+
+    open import Heap.Usage.Reduction type-variant UR erased-heap optsₜ Unitʷ-η→
 
     opaque
 
-      bisim₂ : ⦃ Has-well-behaved-zero _ semiring-with-meet ⦄
-             → Supports-subtraction
-             → ⟨ H , t , E , S ⟩ Rₙₜ.⇒ ⟨ H′ , t′ , E′ , S′ ⟩
+      bisim₂ₙ : ⟨ H , t , E , S ⟩ Rₙₜ.⇒ₙ ⟨ H′ , t′ , E′ , S′ ⟩
+              → H ~ʰ H″
+              → γ ⨾ δ ⨾ η ▸[ m ] ⟨ H″ , t , E , S ⟩
+              → ∃ λ H‴ → ⟨ H″ , t , E , S ⟩ Rₜ.⇒ₙ ⟨ H‴ , t′ , E′ , S′ ⟩ × H′ ~ʰ H‴
+      bisim₂ₙ (Rₙₜ.varₕ′ d) H~H′ ▸s =
+        case ▸↦→↦[] subtraction-ok erased-assumption (~ʰ-lookup H~H′ d) ▸s of λ
+          (_ , d′) →
+        _ , Rₜ.varₕ d′ , ~ʰ-trans H~H′ (update-~ʰ d′)
+      bisim₂ₙ Rₙₜ.appₕ H~H′ ▸s            = _ , Rₜ.appₕ , H~H′
+      bisim₂ₙ Rₙₜ.fstₕ H~H′ ▸s            = _ , Rₜ.fstₕ , H~H′
+      bisim₂ₙ Rₙₜ.sndₕ H~H′ ▸s            = _ , Rₜ.sndₕ , H~H′
+      bisim₂ₙ Rₙₜ.prodrecₕ H~H′ ▸s        = _ , Rₜ.prodrecₕ , H~H′
+      bisim₂ₙ Rₙₜ.natrecₕ H~H′ ▸s         = _ , Rₜ.natrecₕ , H~H′
+      bisim₂ₙ (Rₙₜ.unitrecₕ no-η) H~H′ ▸s = _ , Rₜ.unitrecₕ no-η , H~H′
+      bisim₂ₙ Rₙₜ.Jₕ H~H′ ▸s              = _ , Rₜ.Jₕ , H~H′
+      bisim₂ₙ Rₙₜ.Kₕ H~H′ ▸s              = _ , Rₜ.Kₕ , H~H′
+      bisim₂ₙ Rₙₜ.[]-congₕ H~H′ ▸s        = _ , Rₜ.[]-congₕ , H~H′
+
+    opaque
+
+      bisim₂ : ⟨ H , t , E , S ⟩ Rₙₜ.⇒ ⟨ H′ , t′ , E′ , S′ ⟩
              → H ~ʰ H″
              → γ ⨾ δ ⨾ η ▸[ m ] ⟨ H″ , t , E , S ⟩
              → ∃ λ H‴ → ⟨ H″ , t , E , S ⟩ Rₜ.⇒ ⟨ H‴ , t′ , E′ , S′ ⟩ × H′ ~ʰ H‴
-      bisim₂ ok (Rₙₜ.⇒ₙ d) H~H′ ▸s =
-        case bisim₂ₙ ok d H~H′ ▸s of λ
+      bisim₂ (Rₙₜ.⇒ₙ d) H~H′ ▸s =
+        case bisim₂ₙ d H~H′ ▸s of λ
           (_ , d′ , H′~H″) →
         _ , Rₜ.⇒ₙ d′ , H′~H″
-      bisim₂ ok (Rₙₜ.⇒ᵥ d) H~H′ ▸s =
+      bisim₂ (Rₙₜ.⇒ᵥ d) H~H′ ▸s =
         case ~ʰ-⇒ᵥ d H~H′ of λ
           (_ , d′ , H′~H″) →
         _ , Rₜ.⇒ᵥ bisim₂ᵥ d′ , H′~H″
-      bisim₂ ok (Rₙₜ.⇒ₛ d) H~H′ ▸s =
+      bisim₂ (Rₙₜ.⇒ₛ d) H~H′ ▸s =
         case ~ʰ-⇒ₛ d H~H′ of λ
           d′ →
         case ⇒ₛ-Heap≡ d of λ {
           PE.refl →
         _ , Rₜ.⇒ₛ bisim₂ₛ d′ , H~H′}
 
-  -- The proof that the closure of the non-tracking reduction implies
-  -- the closure of the tracking reduction has some extra assumptions
+    opaque
 
-  module _ (UA : UsageAssumptions type-variant UR) where
-
-    open UsageAssumptions UA
-    open import Heap.Usage.Reduction UA optsₜ
-
-    bisim₂* : ⟨ H , t , E , S ⟩ Rₙₜ.⇒* ⟨ H′ , t′ , E′ , S′ ⟩
-            → H ~ʰ H″
-            → γ ⨾ δ ⨾ η ▸[ m ] ⟨ H″ , t , E , S ⟩
-            → ∃ λ H‴ → ⟨ H″ , t , E , S ⟩ Rₜ.⇒* ⟨ H‴ , t′ , E′ , S′ ⟩ × H′ ~ʰ H‴
-    bisim₂* Rₙₜ.id H~H′ ▸s =
-      _ , Rₜ.id , H~H′
-    bisim₂* (x Rₙₜ.⇨ d) H~H′ ▸s =
-      case bisim₂ subtraction-ok x H~H′ ▸s of λ
-        (_ , x′ , H~H″) →
-      case ▸-⇒ ▸s x′ of λ
-        (_ , _ , _ , _ , ▸s′) →
-      case bisim₂* d H~H″ ▸s′ of λ
-        (_ , d′ , H~H‴) →
-      _ , (x′ Rₜ.⇨ d′) , H~H‴
+      bisim₂* : ⟨ H , t , E , S ⟩ Rₙₜ.⇒* ⟨ H′ , t′ , E′ , S′ ⟩
+              → H ~ʰ H″
+              → γ ⨾ δ ⨾ η ▸[ m ] ⟨ H″ , t , E , S ⟩
+              → ∃ λ H‴ → ⟨ H″ , t , E , S ⟩ Rₜ.⇒* ⟨ H‴ , t′ , E′ , S′ ⟩ × H′ ~ʰ H‴
+      bisim₂* Rₙₜ.id H~H′ ▸s =
+        _ , Rₜ.id , H~H′
+      bisim₂* (x Rₙₜ.⇨ d) H~H′ ▸s =
+        case bisim₂ x H~H′ ▸s of λ
+          (_ , x′ , H~H″) →
+        case ▸-⇒ ▸s x′ of λ
+          (_ , _ , _ , _ , ▸s′) →
+        case bisim₂* d H~H″ ▸s′ of λ
+          (_ , d′ , H~H‴) →
+        _ , (x′ Rₜ.⇨ d′) , H~H‴
 
 -- Bisimilarity between the call-by-name reduction and the
 -- heap reduction without evaluation to numerals.
@@ -247,9 +264,9 @@ module _ where
     module Rₙₜ = R optsₙₜ
 
   open RP optsₙₜ
-  open import Heap.Typed TR false
-  open import Heap.Typed.Properties TR false
-  open import Heap.Typed.Reduction TR optsₙₜ
+  open import Heap.Typed UR TR false
+  open import Heap.Typed.Properties UR TR false
+  open import Heap.Typed.Reduction UR TR optsₙₜ
 
   -- Most of the bisimilarity properties are proven under
   -- the assumption that the nr function is factoring.
@@ -347,9 +364,9 @@ module _ where
   -- corresponds to the closure of the tracking reduction has
   -- some extra assumptions.
 
-  module _ (UA : UsageAssumptions type-variant UR) where
+  module _ (As : Assumptions) where
 
-    open UsageAssumptions UA
+    open Assumptions As
 
     opaque
 
@@ -361,7 +378,7 @@ module _ where
       bisim₆* consistent d ⊢s ▸s =
         case bisim₄* consistent d ⊢s of λ
           (_ , _ , ⟨ H , t , E , S ⟩ , d′ , u≡) →
-        case bisim₂* false UA d′ ~ʰ-refl ▸s of λ
+        case bisim₂* false As d′ ~ʰ-refl ▸s of λ
           (_ , d″ , H~H′) →
         _ , _ , _ , d″
           , PE.trans u≡ (cong (λ x → ⦅ S ⦆ (wk E t) [ x ]) (~ʰ-subst H~H′))

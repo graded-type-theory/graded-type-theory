@@ -1,25 +1,29 @@
 
 open import Graded.Modality
 open import Graded.Usage.Restrictions
-open import Heap.Usage.Assumptions
 open import Definition.Typed.Restrictions
 open import Tools.Relation
+open import Tools.Bool
+import Heap.Bisimilarity
 
 module Heap.Termination
   {a} {M : Set a} {𝕄 : Modality M}
+  (UR : Usage-restrictions 𝕄)
   (TR : Type-restrictions 𝕄)
-  (open Type-restrictions TR)
-  {UR : Usage-restrictions 𝕄}
-  (UA : UsageAssumptions type-variant UR)
+  (erased-heap : Bool)
+  (open Heap.Bisimilarity UR TR erased-heap)
+  (As : Assumptions)
   where
 
-open UsageAssumptions UA
+open Type-restrictions TR
+open Assumptions As
 
-open import Tools.Bool
 open import Tools.Empty
 open import Tools.Function
+open import Tools.Nat
 open import Tools.Product
 open import Tools.PropositionalEquality as PE hiding (sym)
+open import Tools.Sum hiding (sym; id)
 
 open import Definition.Untyped M
 open import Definition.Untyped.Neutral M type-variant
@@ -37,21 +41,20 @@ open import Graded.Context 𝕄 hiding (_⟨_⟩)
 open import Graded.Usage 𝕄 UR
 open import Graded.Mode 𝕄
 
-open import Heap.Bisimilarity UR TR
-open import Heap.Normalization 𝕄 type-variant
+open import Heap.Normalization type-variant UR
 open import Heap.Options
-open import Heap.Untyped 𝕄 type-variant
-open import Heap.Untyped.Properties 𝕄 type-variant
-open import Heap.Typed TR false
-open import Heap.Typed.Properties TR false
-import Heap.Typed.Reduction TR (tracking-and-ℕ-fullred-if false) as RTₜ
-import Heap.Typed.Reduction TR (not-tracking-and-ℕ-fullred-if false) as RTₙₜ
-open import Heap.Usage 𝕄 type-variant UR
-open import Heap.Usage.Properties type-variant UR
-open import Heap.Usage.Reduction UA (tracking-and-ℕ-fullred-if false)
-open import Heap.Reduction 𝕄 type-variant (tracking-and-ℕ-fullred-if false)
-import Heap.Reduction.Properties 𝕄 type-variant (tracking-and-ℕ-fullred-if false) as RPₜ
-import Heap.Reduction.Properties 𝕄 type-variant (not-tracking-and-ℕ-fullred-if false) as RPₙₜ
+open import Heap.Untyped type-variant UR
+open import Heap.Untyped.Properties type-variant UR
+open import Heap.Typed UR TR false
+open import Heap.Typed.Properties UR TR false
+import Heap.Typed.Reduction UR TR (tracking-and-ℕ-fullred-if false) as RTₜ
+import Heap.Typed.Reduction UR TR (not-tracking-and-ℕ-fullred-if false) as RTₙₜ
+open import Heap.Usage type-variant UR erased-heap
+open import Heap.Usage.Properties type-variant UR erased-heap
+open import Heap.Usage.Reduction type-variant UR erased-heap (tracking-and-ℕ-fullred-if false) Unitʷ-η→
+open import Heap.Reduction type-variant UR (tracking-and-ℕ-fullred-if false)
+import Heap.Reduction.Properties type-variant UR (tracking-and-ℕ-fullred-if false) as RPₜ
+import Heap.Reduction.Properties type-variant UR (not-tracking-and-ℕ-fullred-if false) as RPₙₜ
 
 private variable
   t u A B : Term _
@@ -63,6 +66,7 @@ private variable
   Γ Δ : Con Term _
   s : State _ _ _
   m : Mode
+  k : Nat
 
 opaque
 
@@ -76,7 +80,7 @@ opaque
           → ∃₂ λ m n → ∃₃ λ H t (E : Env m n)
           → s ⇒* ⟨ H , t , E , ε ⟩ × wk E t [ H ]ₕ ≡ u × Value t
   whBisim {s = ⟨ H , t , E , S ⟩} consistent (d , w) ⊢s ▸s =
-    case bisim₆* UA {S = S} {E = E} {t} consistent d ⊢s ▸s of λ {
+    case bisim₆* As {S = S} {E = E} {t} consistent d ⊢s ▸s of λ {
       (_ , _ , ⟨ H , t′ , E , S ⟩ , d₁ , refl) →
     case normalize H t′ E S of λ
       (_ , t″ , E′ , S′ , n , dₙ) →
@@ -86,7 +90,7 @@ opaque
       (_ , _ , _ , _ , ▸s′) →
     case RTₜ.⊢ₛ-⇒* ⊢s d₁ of λ
       (_ , _ , _ , ⊢s′) →
-    case bisim₂* false UA (RPₙₜ.⇒ₙ* dₙ) ~ʰ-refl ▸s′ of λ
+    case bisim₂* false As (RPₙₜ.⇒ₙ* dₙ) ~ʰ-refl ▸s′ of λ
       (H′ , dₜ , H~H′) →
     case RTₙₜ.⊢ₛ-⇒* ⊢s′ (RPₙₜ.⇒ₙ* dₙ) of λ
       (_ , _ , _ , ⊢s″@(B , _ , ⊢t″ , ⊢S′)) →
@@ -99,7 +103,7 @@ opaque
       (var ¬d) →
         case ▸-⇒* ▸s′ dₜ of λ
           (_ , _ , _ , _ , ▸s″) →
-        case ▸s→y↦ subtraction-ok ▸s″ of λ
+        case ▸s→y↦ subtraction-ok erased-assumption ▸s″ of λ
           (_ , _ , _ , d) →
         ⊥-elim (¬d (~ʰ-lookup (~ʰ-sym H~H′) (↦[]→↦ d)))
       emptyrecₙ →
@@ -129,28 +133,44 @@ opaque
 
   -- A variant of the above, starting with the initial state
 
-  whBisim-initial : Consistent Δ
+  whBisim-initial : {Δ : Con Term k}
+                  → k ≡ 0 ⊎ (Consistent Δ × T erased-heap)
                   → Δ ⊢ t ↘ u ∷ A → 𝟘ᶜ ▸ t
                   → ∃₂ λ m n → ∃₃ λ H u′ (E : Env m n)
                   → initial t ⇒* ⟨ H , u′ , E , ε ⟩ × wk E u′ [ H ]ₕ ≡ u × Value u′
-  whBisim-initial consistent d ▸t =
+  whBisim-initial {k} {Δ} as d ▸t =
     whBisim consistent
       (subst (_ ⊢_↘ _ ∷ _)
         (PE.sym (PE.trans (erasedHeap-subst (wk id _)) (wk-id _))) d)
       (⊢initial (redFirst*Term (proj₁ d)))
-      (▸initial ▸t)
+      (▸initial k≡0⊎erased-heap ▸t)
+    where
+    consistent : Consistent Δ
+    consistent =
+      case as of λ where
+        (inj₂ (c , _)) → c
+        (inj₁ refl) →
+          case singleton Δ of λ where
+            (ε , refl) → λ _ → ¬Empty
+    k≡0⊎erased-heap : k ≡ 0 ⊎ T erased-heap
+    k≡0⊎erased-heap =
+      case as of λ where
+        (inj₁ x) → inj₁ x
+        (inj₂ (_ , x)) → inj₂ x
 
 opaque
 
   -- Well-typed and well-resourced terms evaluate to values with empty stacks
   -- corresponding to terms in Whnf.
 
-  whRed : Consistent Δ → Δ ⊢ t ∷ A → 𝟘ᶜ ▸ t
+  whRed : {Δ : Con Term k}
+        → (k ≡ 0 ⊎ Consistent Δ × T erased-heap)
+        → Δ ⊢ t ∷ A → 𝟘ᶜ ▸ t
         → ∃₂ λ m n → ∃₃ λ H u′ (E : Env m n)
           → initial t ⇒* ⟨ H , u′ , E , ε ⟩ × Value u′ × Whnf (norm ⟨ H , u′ , E , ε ⟩)
-  whRed consistent ⊢t ▸t =
+  whRed as ⊢t ▸t =
     case whNormTerm ⊢t of λ
       (u , w , d) →
-    case whBisim-initial consistent (redₜ d , w) ▸t of λ {
+    case whBisim-initial as (redₜ d , w) ▸t of λ {
       (_ , _ , _ , _ , _ , d′ , refl , v) →
     _ , _ , _ , _ , _ , d′ , v , w }

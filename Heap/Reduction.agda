@@ -3,13 +3,15 @@
 ------------------------------------------------------------------------
 
 open import Graded.Modality
+open import Graded.Usage.Restrictions
 open import Heap.Options
 open import Definition.Typed.Variant
 
 module Heap.Reduction
   {a} {M : Set a}
-  (𝕄 : Modality M)
+  {𝕄 : Modality M}
   (type-variant : Type-variant)
+  (UR : Usage-restrictions 𝕄)
   (opts : Options)
   (open Modality 𝕄)
   ⦃ _ : Has-nr M semiring-with-meet ⦄
@@ -24,7 +26,7 @@ open import Tools.Relation
 
 open import Definition.Untyped M
 open import Graded.Modality.Nr-instances
-open import Heap.Untyped 𝕄 type-variant
+open import Heap.Untyped type-variant UR
 
 open Options opts
 open Type-variant type-variant

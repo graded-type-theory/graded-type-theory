@@ -380,6 +380,21 @@ opaque
   Only-some-erased-matches→No-erased-matches _ _ η =
     Σ.map idᶠ ((λ {_ _} _ _ → η) ,_) ∘→_
 
+-- An alternative to No-erased-matches that refers to
+-- Type-variant instead of Type-restrictions
+
+No-erased-matches′ : Type-variant → Usage-restrictions → Set a
+No-erased-matches′ TV UR =
+  ¬ Trivial →
+  (∀ {r p q} → Prodrec-allowed 𝟙ᵐ r p q → r ≢ 𝟘) ×
+  (∀ {p q}   → Unitrec-allowed 𝟙ᵐ p q   → p ≡ 𝟘 → Unitʷ-η) ×
+  (∀ {s} → ¬ ([]-cong-allowed-mode s 𝟙ᵐ)) ×
+  erased-matches-for-J 𝟙ᵐ ≡ none ×
+  erased-matches-for-K 𝟙ᵐ ≡ none
+  where
+  open Type-variant TV
+  open Usage-restrictions UR
+
 ------------------------------------------------------------------------
 -- Some lemmas related to TD.Assumptions
 

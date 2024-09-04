@@ -5,21 +5,22 @@
 
 open import Graded.Modality
 open import Graded.Usage.Restrictions
-open import Heap.Usage.Assumptions
 open import Definition.Typed.Restrictions
-open import Tools.Relation
-open import Tools.Sum hiding (id)
+open import Tools.Bool
+import Heap.Bisimilarity
 
 module Heap.Soundness
   {a} {M : Set a} {𝕄 : Modality M}
   {UR : Usage-restrictions 𝕄}
   (TR : Type-restrictions 𝕄)
-  (open Type-restrictions TR)
-  (UA : UsageAssumptions type-variant UR)
+  (erased-heap : Bool)
+  (open Heap.Bisimilarity UR TR erased-heap)
+  (As : Assumptions)
   where
 
-open UsageAssumptions UA
+open Type-restrictions TR
 open Modality 𝕄
+open Assumptions As
 
 open import Tools.Bool
 open import Tools.Empty
@@ -29,6 +30,7 @@ open import Tools.Product
 import Tools.PropositionalEquality as PE
 open import Tools.Relation
 import Tools.Reasoning.PartialOrder as RPo
+open import Tools.Sum hiding (id; sym)
 
 open import Definition.Untyped M
 open import Definition.Untyped.Neutral M type-variant
@@ -36,6 +38,7 @@ open import Definition.Untyped.Inversion M
 open import Definition.Untyped.Properties M
 open import Definition.Typed TR
 open import Definition.Typed.Properties TR
+open import Definition.Typed.Consequences.Canonicity TR
 open import Definition.Typed.Consequences.Inversion TR
 open import Definition.Typed.EqRelInstance TR
 open import Definition.LogicalRelation TR
@@ -50,29 +53,28 @@ open import Graded.Usage 𝕄 UR
 open import Graded.Usage.Inversion 𝕄 UR
 
 open import Heap.Options
-open import Heap.Untyped 𝕄 type-variant
-open import Heap.Untyped.Properties 𝕄 type-variant
-open import Heap.Usage 𝕄 type-variant UR
-open import Heap.Usage.Properties type-variant UR
-import Heap.Usage.Reduction UA (tracking-and-ℕ-fullred-if false) as URᶠ
-import Heap.Usage.Reduction UA (tracking-and-ℕ-fullred-if true) as URᵗ
-open import Heap.Termination TR UA
-open import Heap.Typed TR false
-import Heap.Typed TR true as HTₜ
-open import Heap.Typed.Reduction TR (tracking-and-ℕ-fullred-if false) hiding (⇒*→≡)
-open import Heap.Typed.Reduction TR (tracking-and-ℕ-fullred-if true) using (⇒*→≡)
-open import Heap.Typed.Properties TR
-open import Heap.Bisimilarity UR TR
-open import Heap.Normalization 𝕄
-open import Heap.Reduction 𝕄 type-variant (tracking-and-ℕ-fullred-if true)
-open import Heap.Reduction.Properties 𝕄 type-variant (tracking-and-ℕ-fullred-if true)
+open import Heap.Untyped type-variant UR
+open import Heap.Untyped.Properties type-variant UR
+open import Heap.Usage type-variant UR erased-heap
+open import Heap.Usage.Properties type-variant UR erased-heap
+import Heap.Usage.Reduction type-variant UR erased-heap (tracking-and-ℕ-fullred-if false) Unitʷ-η→ as URᶠ
+import Heap.Usage.Reduction type-variant UR erased-heap (tracking-and-ℕ-fullred-if true) Unitʷ-η→ as URᵗ
+open import Heap.Termination UR TR erased-heap As
+open import Heap.Typed UR TR false
+import Heap.Typed UR TR true as HTₜ
+open import Heap.Typed.Reduction UR TR (tracking-and-ℕ-fullred-if false) hiding (⇒*→≡)
+open import Heap.Typed.Reduction UR TR (tracking-and-ℕ-fullred-if true) using (⇒*→≡)
+open import Heap.Typed.Properties UR TR
+open import Heap.Normalization type-variant UR
+open import Heap.Reduction type-variant UR (tracking-and-ℕ-fullred-if true)
+open import Heap.Reduction.Properties type-variant UR (tracking-and-ℕ-fullred-if true)
   using (_⇨*_; ++sucₛ-⇒*)
-open import Heap.Reduction.Properties 𝕄 type-variant (not-tracking-and-ℕ-fullred-if false)
+open import Heap.Reduction.Properties type-variant UR (not-tracking-and-ℕ-fullred-if false)
   using (⇒ₙ*-norm-≡; ⇒ₙ*_)
 
 
-
 private variable
+  k : Nat
   n t A : Term _
   s : State _ _ _
   γ δ η : Conₘ _
@@ -146,13 +148,17 @@ opaque
   -- All well-typed and erased terms of type ℕ reduce to some
   -- numeral and the resulting heap has all grades less than or equal to 𝟘.
 
-  soundness : Consistent Δ → Δ ⊢ t ∷ ℕ → 𝟘ᶜ ▸ t
+  -- Note that some assumptions to this theorem are given as a module parameter.
+
+  soundness : {Δ : Con Term k}
+            → (k PE.≡ 0 ⊎ Consistent Δ × T erased-heap)
+            → Δ ⊢ t ∷ ℕ → 𝟘ᶜ ▸ t
             → ∃₂ λ m n → ∃₃ λ H k (E : Env m n) →
               initial t ⇒* ⟨ H , sucᵏ k , E , ε ⟩ ×
               (Δ ⊢ t ≡ sucᵏ k ∷ ℕ) ×
               H ≤ʰ 𝟘
-  soundness {t} consistent ⊢t ▸t =
-    case ▸initial ▸t of λ
+  soundness {k} {t} {Δ} as ⊢t ▸t =
+    case ▸initial k≡0⊎erased-heap ▸t of λ
       ▸s →
     case ⊩∷ℕ⇔ .proj₁ (reducible-⊩∷ ⊢t) of λ
       [t] →
@@ -179,3 +185,16 @@ opaque
           wkᶜ E δ            ≤⟨ wk-≤ᶜ E (inv-usage-numeral ▸n num) ⟩
           wkᶜ E 𝟘ᶜ           ≡⟨ wk-𝟘ᶜ E ⟩
           𝟘ᶜ                 ∎ ))}
+    where
+    consistent : Consistent Δ
+    consistent =
+      case as of λ where
+        (inj₂ (c , _)) → c
+        (inj₁ PE.refl) →
+          case PE.singleton Δ of λ where
+            (ε , PE.refl) → λ _ → ¬Empty
+    k≡0⊎erased-heap : k PE.≡ 0 ⊎ T erased-heap
+    k≡0⊎erased-heap =
+      case as of λ where
+        (inj₁ x) → inj₁ x
+        (inj₂ (_ , x)) → inj₂ x

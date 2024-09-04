@@ -11,6 +11,7 @@ module Heap.Usage.Weakening
   {a} {M : Set a} {𝕄 : Modality M}
   (type-variant : Type-variant)
   (UR : Usage-restrictions 𝕄)
+  (erased-heap : Bool)
   (open Modality 𝕄)
   ⦃ _ : Has-nr M semiring-with-meet ⦄
   ⦃ _ : Has-factoring-nr M semiring-with-meet ⦄
@@ -27,9 +28,9 @@ open import Graded.Context.Properties 𝕄
 open import Graded.Context.Weakening 𝕄
 open import Graded.Mode 𝕄
 
-open import Heap.Untyped 𝕄 type-variant
-open import Heap.Untyped.Properties 𝕄 type-variant
-open import Heap.Usage 𝕄 type-variant UR
+open import Heap.Untyped type-variant UR
+open import Heap.Untyped.Properties type-variant UR
+open import Heap.Usage type-variant UR erased-heap
 
 
 private variable
@@ -63,16 +64,18 @@ opaque
     subst (_▸ᵉ[ _ ] _) (sym (wk-𝟘ᶜ ρ)) (fstₑ p≤𝟙)
   wk-▸ᵉ ρ sndₑ =
     subst (_▸ᵉ[ _ ] _) (sym (wk-𝟘ᶜ ρ)) sndₑ
-  wk-▸ᵉ ρ (prodrecₑ {E} ▸u r≢𝟘) =
-    subst (_▸ᵉ[ _ ] _) (wk-•ᶜ ρ E) (prodrecₑ ▸u r≢𝟘)
+  wk-▸ᵉ ρ (prodrecₑ {E} ▸u ok) =
+    subst (_▸ᵉ[ _ ] _) (wk-•ᶜ ρ E) (prodrecₑ ▸u ok)
   wk-▸ᵉ ρ (natrecₑ {E} ▸z ▸s ▸A) =
     subst (_▸ᵉ[ _ ] _) (wk-•ᶜ ρ E) (natrecₑ ▸z ▸s ▸A)
-  wk-▸ᵉ ρ (unitrecₑ {E} ▸u p≢𝟘) =
-    subst (_▸ᵉ[ _ ] _) (wk-•ᶜ ρ E) (unitrecₑ ▸u p≢𝟘)
+  wk-▸ᵉ ρ (unitrecₑ {E} ▸u ok no-η) =
+    subst (_▸ᵉ[ _ ] _) (wk-•ᶜ ρ E) (unitrecₑ ▸u ok no-η)
   wk-▸ᵉ ρ (Jₑ {E} ▸u) =
     subst (_▸ᵉ[ _ ] _) (wk-•ᶜ ρ E) (Jₑ ▸u)
   wk-▸ᵉ ρ (Kₑ {E} ▸u) =
     subst (_▸ᵉ[ _ ] _) (wk-•ᶜ ρ E) (Kₑ ▸u)
+  wk-▸ᵉ ρ ([]-congₑ ok) =
+    subst (_▸ᵉ[ _ ] _) (sym (wk-𝟘ᶜ ρ)) ([]-congₑ ok)
   wk-▸ᵉ ρ sucₑ =
     subst (_▸ᵉ[ _ ] _) (sym (wk-𝟘ᶜ ρ)) sucₑ
 

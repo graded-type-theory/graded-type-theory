@@ -3,11 +3,13 @@
 ------------------------------------------------------------------------
 
 open import Graded.Modality
+open import Graded.Usage.Restrictions
 open import Definition.Typed.Restrictions
 open import Tools.Bool
 
 module Heap.Typed.Substitution
   {a} {M : Set a} {𝕄 : Modality M}
+  (UR : Usage-restrictions 𝕄)
   (TR : Type-restrictions 𝕄)
   (ℕ-fullred : Bool)
   where
@@ -21,9 +23,9 @@ open import Definition.Typed.Properties TR
 open import Definition.Typed.Consequences.Substitution TR
 open import Definition.Typed.Consequences.Syntactic TR
 
-open import Heap.Typed TR ℕ-fullred
-open import Heap.Untyped 𝕄 type-variant
-open import Heap.Untyped.Properties 𝕄 type-variant
+open import Heap.Typed UR TR ℕ-fullred
+open import Heap.Untyped type-variant UR
+open import Heap.Untyped.Properties type-variant UR
 
 open import Tools.Function
 open import Tools.Product

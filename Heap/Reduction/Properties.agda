@@ -3,13 +3,15 @@
 ------------------------------------------------------------------------
 
 open import Graded.Modality
+open import Graded.Usage.Restrictions
 open import Tools.Bool
 open import Heap.Options
 open import Definition.Typed.Variant
 
 module Heap.Reduction.Properties
-  {a} {M : Set a} (𝕄 : Modality M)
+  {a} {M : Set a} {𝕄 : Modality M}
   (type-variant : Type-variant)
+  (UR : Usage-restrictions 𝕄)
   (opts : Options)
   (open Modality 𝕄)
   ⦃ _ : Has-nr M semiring-with-meet ⦄
@@ -28,10 +30,10 @@ open import Tools.Sum hiding (id; sym)
 open import Definition.Untyped M
 open import Graded.Modality.Nr-instances
 
-open import Heap.Untyped 𝕄 type-variant
-open import Heap.Untyped.Properties 𝕄 type-variant
-open import Heap.Reduction 𝕄 type-variant opts
-open import Heap.Reduction.Inversion 𝕄 type-variant opts
+open import Heap.Untyped type-variant UR
+open import Heap.Untyped.Properties type-variant UR
+open import Heap.Reduction type-variant UR opts
+open import Heap.Reduction.Inversion type-variant UR opts
 
 open Options opts
 
