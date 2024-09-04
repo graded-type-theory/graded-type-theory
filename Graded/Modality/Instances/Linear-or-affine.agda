@@ -173,6 +173,16 @@ p ≤ q = p ≡ p ∧ q
 ≢𝟘+≢𝟘 {p = ≤ω} {q = ≤𝟙} _   _   = refl
 ≢𝟘+≢𝟘 {p = ≤ω} {q = ≤ω} _   _   = refl
 
+opaque
+
+  -- The sum of ≤ω and p is ≤ω
+
+  ≤ω+ : ∀ p → ≤ω + p ≡ ≤ω
+  ≤ω+ 𝟘 = refl
+  ≤ω+ 𝟙 = refl
+  ≤ω+ ≤𝟙 = refl
+  ≤ω+ ≤ω = refl
+
 -- If p + q is 𝟙, then either p is 𝟙 and q is 𝟘, or q is 𝟙 and p is 𝟘.
 
 +≡𝟙 : p + q ≡ 𝟙 → p ≡ 𝟙 × q ≡ 𝟘 ⊎ p ≡ 𝟘 × q ≡ 𝟙
@@ -188,6 +198,16 @@ p ≤ q = p ≡ p ∧ q
 ∧≡𝟙 {p = 𝟘} {q = 𝟘}  ()
 ∧≡𝟙 {p = 𝟘} {q = ≤𝟙} ()
 ∧≡𝟙 {p = 𝟘} {q = ≤ω} ()
+
+opaque
+
+  -- 𝟙 ∧ p is not 𝟘
+
+  𝟙∧p≢𝟘 : ∀ p → 𝟙 ∧ p ≢ 𝟘
+  𝟙∧p≢𝟘 𝟘 ()
+  𝟙∧p≢𝟘 𝟙 ()
+  𝟙∧p≢𝟘 ≤𝟙 ()
+  𝟙∧p≢𝟘 ≤ω ()
 
 -- Multiplication is idempotent.
 
@@ -3984,6 +4004,72 @@ linear-or-affine-has-nr = record
     ≤ω _  ≤ω ≤ω 𝟙  → refl
     ≤ω _  ≤ω ≤ω ≤𝟙 → refl
     ≤ω _  ≤ω ≤ω ≤ω → refl
+
+opaque
+
+  -- The nr-function defined above is factoring
+
+  linear-or-affine-has-factoring-nr :
+    Has-factoring-nr linear-or-affine-semiring-with-meet ⦃ linear-or-affine-has-nr ⦄
+  linear-or-affine-has-factoring-nr = record
+    { nr₂ = nr₂
+    ; nr₂≢𝟘 = λ {p} {r} → 𝟙∧p≢𝟘 (r + p)
+    ; nr-factoring = λ {p} {r} {z} {s} {n} → nr-factoring p r z s n
+    }
+    where
+    open Semiring-with-meet linear-or-affine-semiring-with-meet
+      hiding (𝟘; 𝟙; _+_; _·_; _∧_; _≤_)
+
+    nr₂ : Op₂ Linear-or-affine
+    nr₂ p r = 𝟙 ∧ (r + p)
+
+    𝟙∧≤𝟙+p≡≤1+p : ∀ p → 𝟙 ∧ ≤𝟙 + p ≡ ≤𝟙 + p
+    𝟙∧≤𝟙+p≡≤1+p 𝟘 = refl
+    𝟙∧≤𝟙+p≡≤1+p 𝟙 = refl
+    𝟙∧≤𝟙+p≡≤1+p ≤𝟙 = refl
+    𝟙∧≤𝟙+p≡≤1+p ≤ω = refl
+
+    𝟙∧𝟙+p≡1+p : ∀ p → 𝟙 ∧ 𝟙 + p ≡ 𝟙 + p
+    𝟙∧𝟙+p≡1+p 𝟘 = refl
+    𝟙∧𝟙+p≡1+p 𝟙 = refl
+    𝟙∧𝟙+p≡1+p ≤𝟙 = refl
+    𝟙∧𝟙+p≡1+p ≤ω = refl
+
+    lemma : ∀ p z s n → p ≢ 𝟘
+          → (p · n + s) ∧ n + z ≡ p · n + s ∧ z
+    lemma 𝟘 z s n p≢𝟘 = ⊥-elim (p≢𝟘 refl)
+    lemma 𝟙 z s n p≢𝟘 rewrite ·-identityˡ n =
+      sym (+-distribˡ-∧ n s z)
+    lemma ≤𝟙 z s 𝟘 p≢𝟘 = refl
+    lemma ≤𝟙 𝟘 𝟘 𝟙 p≢𝟘 = refl
+    lemma ≤𝟙 𝟙 𝟘 𝟙 p≢𝟘 = refl
+    lemma ≤𝟙 ≤𝟙 𝟘 𝟙 p≢𝟘 = refl
+    lemma ≤𝟙 ≤ω 𝟘 𝟙 p≢𝟘 = refl
+    lemma ≤𝟙 𝟘 𝟙 𝟙 p≢𝟘 = refl
+    lemma ≤𝟙 𝟙 𝟙 𝟙 p≢𝟘 = refl
+    lemma ≤𝟙 ≤𝟙 𝟙 𝟙 p≢𝟘 = refl
+    lemma ≤𝟙 ≤ω 𝟙 𝟙 p≢𝟘 = refl
+    lemma ≤𝟙 𝟘 ≤𝟙 𝟙 p≢𝟘 = refl
+    lemma ≤𝟙 𝟙 ≤𝟙 𝟙 p≢𝟘 = refl
+    lemma ≤𝟙 ≤𝟙 ≤𝟙 𝟙 p≢𝟘 = refl
+    lemma ≤𝟙 ≤ω ≤𝟙 𝟙 p≢𝟘 = refl
+    lemma ≤𝟙 z ≤ω 𝟙 p≢𝟘 = refl
+    lemma ≤𝟙 z s ≤𝟙 p≢𝟘 = sym (+-distribˡ-∧ ≤𝟙 s z)
+    lemma ≤𝟙 z s ≤ω p≢𝟘 = sym (+-distribˡ-∧ ≤ω s z)
+    lemma ≤ω z s 𝟘 p≢𝟘 = refl
+    lemma ≤ω z s 𝟙 p≢𝟘 rewrite ≤ω+ s rewrite ≤ω+ (s ∧ z) = refl
+    lemma ≤ω z s ≤𝟙 p≢𝟘 rewrite ≤ω+ s rewrite ≤ω+ (s ∧ z) = refl
+    lemma ≤ω z s ≤ω p≢𝟘 = sym (+-distribˡ-∧ ≤ω s z)
+
+    nr-factoring : (p r z s n : Linear-or-affine)
+                 → nr p r z s n ≡ nr₂ p r · n + nr p r z s 𝟘
+    nr-factoring p 𝟘 z s n rewrite ·-zeroʳ (𝟙 ∧ p) =
+      lemma (𝟙 ∧ p) z s n (𝟙∧p≢𝟘 p)
+    nr-factoring p 𝟙 z s n rewrite ·-zeroʳ (𝟙 + p) =
+      +-congʳ (·-congʳ (sym (𝟙∧𝟙+p≡1+p p)))
+    nr-factoring p ≤𝟙 z s n rewrite ·-zeroʳ (≤𝟙 + p) =
+      +-congʳ (·-congʳ (sym (𝟙∧≤𝟙+p≡≤1+p p)))
+    nr-factoring p ≤ω z s n rewrite ≤ω+ p = ·-distribˡ-+ ω n (s + z)
 
 -- A modality defined using linear-or-affine-has-nr.
 

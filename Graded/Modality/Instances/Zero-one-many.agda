@@ -235,6 +235,15 @@ _ ∧ _ = ω
 ∧≡𝟙 {p = 𝟙} {q = 𝟘} eq = inj₂ (inj₁ (refl , refl , 𝟘∧𝟙≡𝟙→𝟙≤𝟘 eq))
 ∧≡𝟙 {p = 𝟙} {q = 𝟙} _  = inj₂ (inj₂ (refl , refl))
 
+opaque
+
+  -- 𝟙 ∧ p is not equal to 𝟘
+
+  𝟙∧p≢𝟘 : ∀ p → 𝟙 ∧ p ≢ 𝟘
+  𝟙∧p≢𝟘 𝟘 = 𝟘∧𝟙≢𝟘
+  𝟙∧p≢𝟘 𝟙 = λ ()
+  𝟙∧p≢𝟘 ω = λ ()
+
 ------------------------------------------------------------------------
 -- Ordering
 
@@ -1731,6 +1740,42 @@ zero-one-many-has-nr = record
         s + p · n + r · nr p r z s n  ∎
     where
     open Tools.Reasoning.PartialOrder ≤-poset
+
+opaque
+
+  -- The nr function defined above is factoring.
+
+  zero-one-many-has-factoring-nr :
+    Has-factoring-nr zero-one-many-semiring-with-meet ⦃ zero-one-many-has-nr ⦄
+  zero-one-many-has-factoring-nr = record
+    { nr₂ = nr₂
+    ; nr₂≢𝟘 = λ {p} {r} → 𝟙∧p≢𝟘 (r + p)
+    ; nr-factoring = λ {p} {r} {z} {s} {n} → nr-factoring p r z s n
+    }
+    where
+    open Tools.Reasoning.PropositionalEquality
+    open Semiring-with-meet zero-one-many-semiring-with-meet
+           hiding (𝟘; 𝟙; ω; _+_; _·_; _∧_)
+    nr₂ : Op₂ Zero-one-many
+    nr₂ p r = 𝟙 ∧ (r + p)
+    𝟙+p≡𝟙∧𝟙+p : ∀ p → 𝟙 + p ≡ 𝟙 ∧ 𝟙 + p
+    𝟙+p≡𝟙∧𝟙+p 𝟘 = refl
+    𝟙+p≡𝟙∧𝟙+p 𝟙 = refl
+    𝟙+p≡𝟙∧𝟙+p ω = refl
+    lemma : ∀ p q r → p ≢ 𝟘 → (p + q) ∧ 𝟙 + r ≡ p + q ∧ r
+    lemma 𝟘 q r p≢𝟘 = ⊥-elim (p≢𝟘 refl)
+    lemma 𝟙 q r p≢𝟘 = sym (+-distribˡ-∧ 𝟙 q r)
+    lemma ω q r p≢𝟘 = refl
+    nr-factoring : (p r z s n : Zero-one-many) → nr p r z s n ≡ nr₂ p r · n + nr p r z s 𝟘
+    nr-factoring p 𝟘 z s 𝟘
+      rewrite ·-zeroʳ (𝟙 ∧ p) = refl
+    nr-factoring p 𝟘 z s 𝟙
+      rewrite ·-zeroʳ (𝟙 ∧ p) rewrite ·-identityʳ (𝟙 ∧ p) = lemma (𝟙 ∧ p) s z (𝟙∧p≢𝟘 p)
+    nr-factoring p 𝟘 z s ω
+      rewrite ·-distribʳ-∧ ω 𝟙 p = refl
+    nr-factoring p 𝟙 z s n rewrite ·-zeroʳ (𝟙 + p) =
+      +-congʳ (·-congʳ (𝟙+p≡𝟙∧𝟙+p p))
+    nr-factoring p ω z s n = ·-distribˡ-+ ω n (s + z)
 
 -- A modality defined using zero-one-many-has-nr.
 

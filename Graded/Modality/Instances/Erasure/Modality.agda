@@ -80,6 +80,25 @@ instance
 nr : Erasure → Erasure → Erasure → Erasure → Erasure → Erasure
 nr = Has-nr.nr erasure-has-nr
 
+instance
+
+  -- The nr function factors
+
+  erasure-has-factoring-nr : Has-factoring-nr erasure-semiring-with-meet
+  erasure-has-factoring-nr = record
+    { nr₂ = λ p r → ω
+    ; nr₂≢𝟘 = λ ()
+    ; nr-factoring = λ {
+        {p} {r} {z} {s} {(𝟘)} → refl ;
+        {p} {r} {(𝟘)} {s} {(ω)} → refl ;
+        {p} {r} {(ω)} {s} {(ω)} → refl }
+    }
+    where
+    nr-factoring : {p r z s n : Erasure} → nr p r z s n ≡ ω · n + nr p r z s n
+    nr-factoring {n = 𝟘} = refl
+    nr-factoring {z = 𝟘} {n = ω} = refl
+    nr-factoring {z = ω} {n = ω} = refl
+
 -- Erasure modality instances (for different modality variants).
 
 ErasureModality : Modality-variant → Modality
