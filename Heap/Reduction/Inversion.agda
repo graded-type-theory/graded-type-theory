@@ -4,7 +4,6 @@
 
 open import Graded.Modality
 open import Graded.Usage.Restrictions
-open import Tools.Bool
 open import Heap.Options
 open import Definition.Typed.Variant
 
@@ -24,7 +23,6 @@ open Type-variant type-variant
 open import Definition.Untyped M
 
 open import Heap.Untyped type-variant UR
-open import Heap.Untyped.Properties type-variant UR
 open import Heap.Reduction type-variant UR opts
 
 open import Graded.Modality.Nr-instances

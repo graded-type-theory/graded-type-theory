@@ -2,7 +2,6 @@ module Heap.Options where
 
 open import Tools.Bool
 open import Tools.Empty
-open import Tools.Unit
 
 record Options : Set where
   field

@@ -40,7 +40,6 @@ open import Heap.Reduction.Properties type-variant UR opts
 open import Heap.Typed UR TR ℕ-fullred
 open import Heap.Typed.Inversion UR TR ℕ-fullred
 open import Heap.Typed.Properties UR TR ℕ-fullred
-open import Heap.Typed.Substitution UR TR ℕ-fullred
 open import Heap.Typed.Weakening UR TR ℕ-fullred
 open import Heap.Untyped type-variant UR
 open import Heap.Untyped.Properties type-variant UR
@@ -53,7 +52,6 @@ open import Tools.Nat renaming (_+_ to _+ⁿ_)
 open import Tools.Product
 import Tools.PropositionalEquality as PE
 open import Tools.Reasoning.PropositionalEquality
-open import Tools.Relation
 open import Tools.Sum hiding (id; sym)
 
 private variable

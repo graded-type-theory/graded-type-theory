@@ -19,7 +19,6 @@ open Type-restrictions TR
 open import Definition.Untyped M
 open import Definition.Untyped.Properties M
 open import Definition.Typed TR
-open import Definition.Typed.Weakening TR hiding (wk)
 import Graded.Derived.Erased.Untyped 𝕄 as Erased
 
 open import Heap.Untyped type-variant UR
@@ -29,7 +28,6 @@ open import Heap.Typed UR TR ℕ-fullred
 open import Tools.Fin
 open import Tools.Function
 open import Tools.Nat
-open import Tools.Product
 open import Tools.PropositionalEquality as PE
 open import Tools.Reasoning.PropositionalEquality
 

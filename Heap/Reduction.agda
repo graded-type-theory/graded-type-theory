@@ -18,7 +18,6 @@ module Heap.Reduction
   ⦃ _ : Has-factoring-nr M semiring-with-meet ⦄
   where
 
-open import Tools.Empty
 open import Tools.Fin
 open import Tools.Nat hiding (_+_)
 open import Tools.Product

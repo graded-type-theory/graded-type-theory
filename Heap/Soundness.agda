@@ -22,7 +22,6 @@ open Usage-restrictions UR
 open Modality 𝕄
 open Assumptions As
 
-open import Tools.Bool
 open import Tools.Empty
 open import Tools.Function
 open import Tools.Nat
@@ -37,7 +36,6 @@ open import Definition.Untyped.Neutral M type-variant
 open import Definition.Untyped.Inversion M
 open import Definition.Untyped.Properties M
 open import Definition.Typed TR
-open import Definition.Typed.Properties TR
 open import Definition.Typed.Consequences.Canonicity TR
 open import Definition.Typed.Consequences.Inversion TR
 open import Definition.Typed.EqRelInstance TR
@@ -65,7 +63,6 @@ import Heap.Typed UR TR true as HTₜ
 open import Heap.Typed.Reduction UR TR (tracking-and-ℕ-fullred-if false) hiding (⇒*→≡)
 open import Heap.Typed.Reduction UR TR (tracking-and-ℕ-fullred-if true) using (⇒*→≡)
 open import Heap.Typed.Properties UR TR
-open import Heap.Normalization type-variant UR
 open import Heap.Reduction type-variant UR (tracking-and-ℕ-fullred-if true)
 open import Heap.Reduction.Properties type-variant UR (tracking-and-ℕ-fullred-if true)
   using (_⇨*_; ++sucₛ-⇒*)

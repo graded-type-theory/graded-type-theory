@@ -2,7 +2,6 @@
 open import Graded.Modality
 open import Graded.Usage.Restrictions
 open import Definition.Typed.Restrictions
-open import Tools.Relation
 open import Tools.Bool
 import Heap.Bisimilarity
 
@@ -33,9 +32,6 @@ open import Definition.Untyped.Properties M
 open import Definition.Untyped.Properties.Neutral M type-variant
 open import Definition.Typed TR
 open import Definition.Typed.Consequences.Canonicity TR
-open import Definition.Typed.Consequences.DerivedRules TR
-open import Definition.Typed.Consequences.Inversion TR
-open import Definition.Typed.Consequences.Syntactic TR
 open import Definition.Typed.Consequences.Reduction TR
 open import Definition.Typed.Properties TR
 

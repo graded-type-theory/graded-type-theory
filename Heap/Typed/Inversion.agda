@@ -17,13 +17,9 @@ module Heap.Typed.Inversion
 open Type-restrictions TR
 
 open import Definition.Untyped M
-open import Definition.Untyped.Properties M
 open import Definition.Typed TR
 open import Definition.Typed.Consequences.DerivedRules TR
-open import Definition.Typed.Consequences.Injectivity TR
-open import Definition.Typed.Consequences.Inversion TR
 open import Definition.Typed.Consequences.Substitution TR
-open import Definition.Typed.Consequences.Syntactic TR
 import Graded.Derived.Erased.Untyped 𝕄 as E
 open import Graded.Derived.Erased.Typed TR
 

@@ -4,7 +4,6 @@
 
 open import Graded.Modality
 open import Graded.Usage.Restrictions
-open import Tools.Bool
 open import Definition.Typed.Variant
 
 module Heap.Untyped
@@ -18,11 +17,9 @@ open Modality 𝕄 hiding (_+_)
 open Type-variant type-variant
 open Usage-restrictions UR
 
-open import Tools.Empty
 open import Tools.Fin
 open import Tools.Function
 open import Tools.Nat hiding (_≤_)
-open import Tools.PropositionalEquality
 open import Tools.Product
 open import Tools.Relation
 

@@ -21,15 +21,10 @@ open import Definition.Untyped.Properties M
 open import Definition.Typed TR
 open import Definition.Typed.Properties TR
 open import Definition.Typed.Consequences.Substitution TR
-open import Definition.Typed.Consequences.Syntactic TR
 
 open import Heap.Typed UR TR ℕ-fullred
 open import Heap.Untyped type-variant UR
-open import Heap.Untyped.Properties type-variant UR
 
-open import Tools.Function
-open import Tools.Product
-open import Tools.Reasoning.PropositionalEquality
 import Tools.PropositionalEquality as PE
 
 private variable

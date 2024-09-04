@@ -4,7 +4,6 @@
 
 open import Graded.Modality
 open import Graded.Usage.Restrictions
-open import Tools.Bool
 open import Definition.Typed.Variant
 
 module Heap.Untyped.Properties

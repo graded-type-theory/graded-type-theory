@@ -30,10 +30,8 @@ open import Graded.Restrictions 𝕄
 open import Graded.Usage 𝕄 UR
 open import Graded.Usage.Inversion 𝕄 UR
 open import Graded.Usage.Properties 𝕄 UR
-open import Graded.Usage.Weakening 𝕄 UR
 
 open import Heap.Untyped type-variant UR
-open import Heap.Untyped.Properties type-variant UR
 open import Heap.Usage type-variant UR erased-heap
 
 open import Tools.Empty

@@ -106,56 +106,6 @@ opaque
   ⊢⦅⦆ᵉ (conv ⊢e B≡B′) ⊢t =
     conv (⊢⦅⦆ᵉ ⊢e ⊢t) B≡B′
 
--- opaque
-
---   -- An inverse of the above property
-
---   ⊢⦅⦆ᵉ⁻¹ : ⦃ T ℕ-fullred ⦄
---          → Δ ⊢ ⦅ e ⦆ᵉ t [ H ]ₕ ∷ B
---          → ∃ λ A → Δ ⨾ H ⊢ᵉ e ⟨ t ⟩∷ A ↝ B × Δ ⊢ t [ H ]ₕ ∷ A
---   ⊢⦅⦆ᵉ⁻¹ {e = ∘ₑ p u E} ⊢et =
---     case inversion-app ⊢et of λ
---       (F , G , q , ⊢t , ⊢u , B≡Gu) →
---     case syntacticΠ (syntacticTerm ⊢t) of λ
---       (⊢F , ⊢G) →
---     _ , conv (∘ₑ ⊢u ⊢G) (sym B≡Gu) , ⊢t
---   ⊢⦅⦆ᵉ⁻¹ {e = fstₑ p} ⊢et =
---     case inversion-fst ⊢et of λ
---       (F , G , q , ⊢F , ⊢G , ⊢t , B≡F) →
---     _ , conv (fstₑ ⊢F ⊢G) (sym B≡F) , ⊢t
---   ⊢⦅⦆ᵉ⁻¹ {e = sndₑ p} ⊢et =
---     case inversion-snd ⊢et of λ
---       (F , G , q , ⊢F , ⊢G , ⊢t , B≡Gt) →
---     _ , conv (sndₑ ⊢F ⊢G) (sym B≡Gt) , ⊢t
---   ⊢⦅⦆ᵉ⁻¹ {e = prodrecₑ r p q A u E} ⊢et =
---     case inversion-prodrec ⊢et of λ
---       (F , G , q , ⊢F , ⊢G , ⊢A , ⊢t , ⊢u , B≡At) →
---     _ , conv (prodrecₑ ⊢u ⊢A) (sym B≡At) , ⊢t
---   ⊢⦅⦆ᵉ⁻¹ {e = natrecₑ p q r A z s E} ⊢et =
---     case inversion-natrec ⊢et of λ
---       (⊢A , ⊢z , ⊢s , ⊢t , B≡) →
---     _ , conv (natrecₑ ⊢z ⊢s ⊢A) (sym B≡) , ⊢t
---   ⊢⦅⦆ᵉ⁻¹ {e = unitrecₑ p q A u E} ⊢et =
---     case inversion-unitrec ⊢et of λ
---       (⊢A , ⊢t , ⊢u , B≡At) →
---     _ , conv (unitrecₑ ⊢u ⊢A {!!}) (sym B≡At) , ⊢t
---   ⊢⦅⦆ᵉ⁻¹ {e = Jₑ p q A t B u v E} ⊢et =
---     case inversion-J ⊢et of λ
---       (_ , _ , ⊢B , ⊢u , _ , ⊢w , C≡B₊) →
---     _ , conv (Jₑ ⊢u ⊢B) (sym C≡B₊) , ⊢w
---   ⊢⦅⦆ᵉ⁻¹ {e = Kₑ p A t B u E} ⊢et =
---     case inversion-K ⊢et of λ
---       (_ , _ , ⊢B , ⊢u , ⊢v , ok , C≡B₊) →
---     _ , conv (Kₑ ⊢u ⊢B ok) (sym C≡B₊) , ⊢v
---   ⊢⦅⦆ᵉ⁻¹ {e = []-congₑ s A t u E} ⊢et =
---     case inversion-[]-cong ⊢et of λ
---       (_ , _ , _ , ⊢v , ok , B≡Id) →
---     _ , conv ([]-congₑ ok) (sym B≡Id) , ⊢v
---   ⊢⦅⦆ᵉ⁻¹ {e = sucₑ} ⊢et =
---     case inversion-suc ⊢et of λ
---       (⊢t , B≡ℕ) →
---     _ , conv sucₑ (sym B≡ℕ) , ⊢t
-
 opaque
 
   -- Well-typed terms applied to well-typed stacks are
@@ -167,22 +117,6 @@ opaque
   ⊢⦅⦆ˢ ε ⊢t = ⊢t
   ⊢⦅⦆ˢ {H} {S = e ∙ S} {t} (⊢e ∙ ⊢S) ⊢t =
     ⊢⦅⦆ˢ ⊢S (⊢⦅⦆ᵉ ⊢e ⊢t)
-
--- opaque
-
---   -- An inverse of the above property
-
---   ⊢⦅⦆⁻¹ : ⦃ T ℕ-fullred ⦄
---        → ε ⊢ ⦅ S ⦆ t [ H ]ₕ ∷ B
---        → ∃ λ A → H ⊢ S ⟨ t ⟩∷ A ↝ B × ε ⊢ t [ H ]ₕ ∷ A
---   ⊢⦅⦆⁻¹ {S = ε} ⊢St =
---     _ , ε , ⊢St
---   ⊢⦅⦆⁻¹ {S = e ∙ S} ⊢St =
---     case ⊢⦅⦆⁻¹ {S = S} ⊢St of λ
---       (_ , ⊢S , ⊢et) →
---     case ⊢⦅⦆ᵉ⁻¹ ⊢et of λ
---       (_ , ⊢e , ⊢t) →
---     _ , ⊢e ∙ ⊢S , ⊢t
 
 opaque
 

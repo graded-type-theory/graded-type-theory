@@ -17,7 +17,6 @@ module Heap.Typed
 open Type-restrictions TR
 
 open import Definition.Untyped M
-open import Definition.Untyped.Properties M
 open import Definition.Typed TR
 import Graded.Derived.Erased.Untyped 𝕄 as Erased
 

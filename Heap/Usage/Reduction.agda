@@ -42,7 +42,6 @@ open import Tools.Fin
 open import Tools.Function
 open import Tools.Product
 open import Tools.PropositionalEquality
-open import Tools.Unit
 import Tools.Reasoning.PartialOrder as RPo
 
 open import Definition.Untyped M

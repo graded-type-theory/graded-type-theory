@@ -19,7 +19,6 @@ open import Tools.Function
 open import Tools.Nat
 open import Tools.Product
 open import Tools.PropositionalEquality as PE
-open import Tools.Reasoning.PropositionalEquality
 open import Tools.Relation
 open import Tools.Sum hiding (id)
 
@@ -35,7 +34,6 @@ open import Heap.Untyped type-variant UR
 open import Heap.Untyped.Properties type-variant UR
 
 open import Definition.Untyped M hiding (head)
-open import Definition.Untyped.Properties M
 
 private variable
   k m n n′ : Nat

@@ -18,7 +18,6 @@ open import Tools.Empty
 open import Tools.Function
 open import Tools.Product
 open import Tools.PropositionalEquality as PE
-open import Tools.Relation
 open import Tools.Sum hiding (id)
 
 open import Heap.Options
@@ -38,8 +37,6 @@ open import Definition.Untyped.Properties.Neutral M type-variant
 open import Definition.Typed TR
 open import Definition.Typed.Properties TR
 open import Definition.Typed.RedSteps TR hiding (_⇨*_)
-open import Definition.Typed.Consequences.Canonicity TR
-open import Definition.Typed.Consequences.Inversion TR
 open import Definition.Typed.Consequences.Reduction TR
 
 open import Graded.Context 𝕄 hiding (_⟨_⟩)

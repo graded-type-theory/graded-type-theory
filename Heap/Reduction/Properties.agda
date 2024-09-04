@@ -4,7 +4,6 @@
 
 open import Graded.Modality
 open import Graded.Usage.Restrictions
-open import Tools.Bool
 open import Heap.Options
 open import Definition.Typed.Variant
 
@@ -24,7 +23,6 @@ open import Tools.Function
 open import Tools.Nat using (Nat; 1+; 2+; Nat-set)
 open import Tools.PropositionalEquality
 open import Tools.Product
-open import Tools.Relation
 open import Tools.Sum hiding (id; sym)
 
 open import Definition.Untyped M

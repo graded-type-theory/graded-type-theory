@@ -30,7 +30,6 @@ open import Heap.Untyped type-variant UR
 
 open import Graded.Context 𝕄
 open import Graded.Context.Weakening 𝕄
-open import Graded.Modality.Properties 𝕄
 open import Graded.Mode 𝕄
 open import Graded.Usage 𝕄 UR
 
