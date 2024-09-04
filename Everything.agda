@@ -79,6 +79,7 @@ import Definition.Untyped
 import Definition.Untyped.Inversion
 import Definition.Untyped.Properties.NotParametrised
 import Definition.Untyped.Properties
+import Definition.Untyped.Properties.Neutral
 import Definition.Untyped.Identity
 import Definition.Untyped.Sigma
 import Definition.Untyped.Unit
