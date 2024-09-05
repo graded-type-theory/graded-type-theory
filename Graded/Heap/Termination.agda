@@ -1,3 +1,6 @@
+------------------------------------------------------------------------
+-- Termination properties of the reduction relation
+------------------------------------------------------------------------
 
 open import Graded.Modality
 open import Graded.Usage.Restrictions

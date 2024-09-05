@@ -273,6 +273,9 @@ opaque
 
 opaque
 
+  -- Applying a non-neutral element to an eliminator does not
+  -- give a term in Whnf.
+
   ⊢whnf⦅⦆ᵉ : ⦃ T (not ℕ-fullred) ⦄
           → Δ ⨾ H ⊢ᵉ e ⟨ u ⟩∷ A ↝ B
           → ¬ Neutral t
@@ -292,6 +295,9 @@ opaque
 
 opaque
 
+  -- Applying a non-neutral element to a non-empty stack does not
+  -- give a term in Whnf.
+
   ⊢whnf⦅⦆ˢ : ⦃ T (not ℕ-fullred) ⦄
           → Δ ⨾ H ⊢ e ∙ S ⟨ u ⟩∷ A ↝ B
           → ¬ Neutral t
@@ -301,6 +307,9 @@ opaque
     ⊢whnf⦅⦆ˢ (⊢e′ ∙ ⊢S) (¬⦅⦆ᵉ-neutral e n) w
 
 opaque
+
+  -- Applying a term that is neutral at a variable to an eliminator gives
+  -- a term that is neutral at the same variable.
 
   ⊢⦅⦆ᵉ-NeutralAt : ⦃ T (not ℕ-fullred) ⦄
                 → Δ ⨾ H ⊢ᵉ e ⟨ t ⟩∷ A ↝ B
@@ -320,6 +329,9 @@ opaque
   ⊢⦅⦆ᵉ-NeutralAt (conv ⊢e x) n = ⊢⦅⦆ᵉ-NeutralAt ⊢e n
 
 opaque
+
+  -- Applying a term that is neutral at a variable to a non-empty stack
+  -- gives a term that is neutral at the same variable.
 
   ⊢⦅⦆ˢ-NeutralAt : ⦃ T (not ℕ-fullred) ⦄
                 → Δ ⨾ H ⊢ S ⟨ t ⟩∷ A ↝ B

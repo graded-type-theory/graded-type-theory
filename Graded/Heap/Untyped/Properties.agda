@@ -1,5 +1,5 @@
 ------------------------------------------------------------------------
--- Properties of the heap semantics.
+-- Properties of heap states .
 ------------------------------------------------------------------------
 
 open import Graded.Modality
@@ -48,6 +48,17 @@ private variable
   e e′ : Elim _
   s : State _ _ _
   σ : Subst _ _
+
+------------------------------------------------------------------------
+-- Properties of states
+
+opaque
+
+  -- Injectivity of states
+
+  State-injectivity : ⟨ H , t , ρ , S ⟩ ≡ ⟨ H′ , t′ , ρ′ , S′ ⟩
+                    → H ≡ H′ × t ≡ t′ × ρ ≡ ρ′ × S ≡ S′
+  State-injectivity refl = refl , refl , refl , refl
 
 ------------------------------------------------------------------------
 -- Properties of values
@@ -129,60 +140,28 @@ opaque
   Value→Whnf Idᵥ = inj₁ Idₙ
   Value→Whnf (unitrec-ηᵥ x) = inj₂ (_ , _ , _ , _ , _ , refl , x)
 
--- opaque
+------------------------------------------------------------------------
+-- Properties of states in normal form
 
---   -- Non-neutrals in whnf are values
+opaque
 
---   Whnf→Value : ⦃ ¬ℕ-Fullred ⦄ → Whnf t → ¬ Neutral t → Value t
---   Whnf→Value Uₙ ¬ne = Uᵥ
---   Whnf→Value ΠΣₙ ¬ne = ΠΣᵥ
---   Whnf→Value ℕₙ ¬ne = ℕᵥ
---   Whnf→Value Unitₙ ¬ne = Unitᵥ
---   Whnf→Value Emptyₙ ¬ne = Emptyᵥ
---   Whnf→Value Idₙ ¬ne = Idᵥ
---   Whnf→Value lamₙ ¬ne = lamᵥ
---   Whnf→Value zeroₙ ¬ne = zeroᵥ
---   Whnf→Value sucₙ ¬ne = sucᵥ
---   Whnf→Value starₙ ¬ne = starᵥ
---   Whnf→Value prodₙ ¬ne = prodᵥ
---   Whnf→Value rflₙ ¬ne = rflᵥ
---   Whnf→Value (ne x) ¬ne = ⊥-elim (¬ne x)
+  wk1-Normal : Normal ⟨ H , t , ρ , S ⟩ → Normal ⟨ H ∙ (p , c) , t , step ρ , wk1ˢ S ⟩
+  wk1-Normal (val x) = val x
+  wk1-Normal (var d) = var (there d)
 
--- opaque
+opaque
 
---   -- Value t is decidable
+  wk1●-Normal : Normal ⟨ H , t , ρ , S ⟩ → Normal ⟨ H ∙● , t , step ρ , wk1ˢ S ⟩
+  wk1●-Normal (val x) = val x
+  wk1●-Normal (var d) = var (there● d)
 
---   dec-Value : (t : Term n) → Dec (Value t)
---   dec-Value (lam p t) = yes lamᵥ
---   dec-Value (prod s p t u) = yes prodᵥ
---   dec-Value zero = yes zeroᵥ
---   dec-Value (suc t) = yes {!!}
---   dec-Value (star s) = yes starᵥ
---   dec-Value rfl = yes rflᵥ
---   dec-Value U = yes Uᵥ
---   dec-Value (ΠΣ⟨ b ⟩ p , q ▷ A ▹ B) = yes ΠΣᵥ
---   dec-Value ℕ = yes ℕᵥ
---   dec-Value (Unit s) = yes Unitᵥ
---   dec-Value Empty = yes Emptyᵥ
---   dec-Value (Id A t u) = yes Idᵥ
---   dec-Value (var x) = no (λ ())
---   dec-Value (t ∘ u) = no (λ ())
---   dec-Value (unitrec p q A t u) = no (λ ())
---   dec-Value (emptyrec p A t) = no (λ ())
---   dec-Value (prodrec r p q A t u) = no (λ ())
---   dec-Value (natrec p q r A z s n) = no (λ ())
---   dec-Value (fst p t) = no (λ ())
---   dec-Value (snd p t) = no (λ ())
---   dec-Value (J p q A t B u v w) = no (λ ())
---   dec-Value (K p A t B u v) = no (λ ())
---   dec-Value ([]-cong s A t u v) = no (λ ())
+opaque
 
--- opaque
+  -- The stack of a normal state can be replaced to give a normal state
 
---   -- Values are not equal to non-values
-
---   Value≢¬Value : Value t → ¬ Value u → t ≢ u
---   Value≢¬Value v ¬v refl = ¬v v
+  Normal-stack : Normal ⟨ H , t , ρ , S ⟩ → Normal ⟨ H , t , ρ , S′ ⟩
+  Normal-stack (val x) = val x
+  Normal-stack (var x) = var x
 
 ------------------------------------------------------------------------
 -- Properties of the lookup relations
@@ -441,7 +420,6 @@ opaque
   ⦅⦆ᵉ-cong sucₑ t≡u =
     cong suc t≡u
 
-
 opaque
 
   -- A congruence property for stacks
@@ -490,6 +468,9 @@ opaque
 
 opaque
 
+  -- A lemma about the multiplicity of the J-eliminator for
+  -- some erased matches
+
   ∣∣ᵉ-J-ω : ∀ {e}
           → e ≤ᵉᵐ some
           → (e ≡ some → ¬ (p ≡ 𝟘 × q ≡ 𝟘))
@@ -504,6 +485,9 @@ opaque
 
 opaque
 
+  -- A lemma about the multiplicity of the J-eliminator for
+  -- some erased matches
+
   ∣∣ᵉ-J-some₀₀ : ∀ {e} → e ≡ some → ∣∣ᵉ-J e 𝟘 𝟘 ≡ 𝟘
   ∣∣ᵉ-J-some₀₀ refl with is-𝟘? 𝟘
   … | no 𝟘≢𝟘 = ⊥-elim (𝟘≢𝟘 refl)
@@ -513,10 +497,16 @@ opaque
 
 opaque
 
+  -- A lemma about the multiplicity of the J-eliminator for
+  -- some erased matches
+
   ∣∣ᵉ-J-all : ∀ {e} → e ≡ all → ∣∣ᵉ-J e p q ≡ 𝟘
   ∣∣ᵉ-J-all refl = refl
 
 opaque
+
+  -- A lemma about the multiplicity of the K-eliminator for
+  -- some erased matches
 
   ∣∣ᵉ-K-ω : ∀ {e}
           → e ≤ᵉᵐ some
@@ -530,6 +520,9 @@ opaque
 
 opaque
 
+  -- A lemma about the multiplicity of the K-eliminator for
+  -- some erased matches
+
   ∣∣ᵉ-K-some₀ : ∀ {e} → e ≡ some → ∣∣ᵉ-K e 𝟘 ≡ 𝟘
   ∣∣ᵉ-K-some₀ refl with is-𝟘? 𝟘
   … | no 𝟘≢𝟘 = ⊥-elim (𝟘≢𝟘 refl)
@@ -537,12 +530,15 @@ opaque
 
 opaque
 
+  -- A lemma about the multiplicity of the K-eliminator for
+  -- some erased matches
+
   ∣∣ᵉ-K-all : ∀ {e} → e ≡ all → ∣∣ᵉ-K e p ≡ 𝟘
   ∣∣ᵉ-K-all refl = refl
 
 opaque
 
-  -- Multiplicity of sucₛ k
+  -- Multiplicity of the stack sucₛ k
 
   ∣sucₛ∣≡𝟙 : ⦃ _ : Has-nr M semiring-with-meet ⦄
            → ⦃ _ : Has-factoring-nr M semiring-with-meet ⦄
@@ -593,6 +589,8 @@ opaque
 
 opaque
 
+  -- Non-neutral terms are non-neutral when applied to an eliminator
+
   ¬⦅⦆ᵉ-neutral : ∀ e → ¬ Neutral t → ¬ Neutral (⦅ e ⦆ᵉ t)
   ¬⦅⦆ᵉ-neutral (∘ₑ p u ρ) ¬n (∘ₙ n) = ¬n n
   ¬⦅⦆ᵉ-neutral (fstₑ x) ¬n (fstₙ n) = ¬n n
@@ -615,7 +613,7 @@ opaque
 
 opaque
 
-  -- Injectivity of sucₛ
+  -- Injectivity ofthe stack sucₛ k
 
   sucₛ-injective : sucₛ {m} n ≡ sucₛ n′ → n ≡ n′
   sucₛ-injective {n = 0} {(0)} _ = refl
@@ -693,7 +691,7 @@ opaque
   update-~ʰ (there● d) = update-~ʰ d ∙●
 
 ------------------------------------------------------------------------
--- Properties of substitutions
+-- Properties of heaps as substitutions
 
 opaque
 
@@ -759,31 +757,7 @@ opaque
 
 opaque
 
-  wk1-Normal : Normal ⟨ H , t , ρ , S ⟩ → Normal ⟨ H ∙ (p , c) , t , step ρ , wk1ˢ S ⟩
-  wk1-Normal (val x) = val x
-  wk1-Normal (var d) = var (there d)
-
-opaque
-
-  wk1●-Normal : Normal ⟨ H , t , ρ , S ⟩ → Normal ⟨ H ∙● , t , step ρ , wk1ˢ S ⟩
-  wk1●-Normal (val x) = val x
-  wk1●-Normal (var d) = var (there● d)
-
-opaque
-
-  -- The stack of a normal state can be replaced to give a normal state
-
-  Normal-stack : Normal ⟨ H , t , ρ , S ⟩ → Normal ⟨ H , t , ρ , S′ ⟩
-  Normal-stack (val x) = val x
-  Normal-stack (var x) = var x
-
-opaque
-
-  State-injectivity : ⟨ H , t , ρ , S ⟩ ≡ ⟨ H′ , t′ , ρ′ , S′ ⟩
-                    → H ≡ H′ × t ≡ t′ × ρ ≡ ρ′ × S ≡ S′
-  State-injectivity refl = refl , refl , refl , refl
-
-opaque
+  -- Substituting a variable corresponding to a dummy entry
 
   toSubstₕ-erased : (H : Heap k m) (y : Fin m)
                   → H ⊢ y ↦● → ∃ λ y′ → toSubstₕ H y ≡ var y′
@@ -797,6 +771,10 @@ opaque
     y′ +1 , cong wk1 ≡y′
 
 opaque
+
+  -- A term that is neutral at a variable with a dummy entry in the heap
+  -- will still be neutral at the same variable after applying the heap
+  -- substitution.
 
   toSubstₕ-NeutralAt : (d : H ⊢ y ↦●)
                      → NeutralAt y t

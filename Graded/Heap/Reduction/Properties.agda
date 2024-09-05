@@ -433,6 +433,9 @@ opaque
 
 opaque
 
+  -- The relation _⇒ₙ_ preserves the heap when resource tracking is
+  -- turned off.
+
   ⇒ₙ-Heap≡ : ⦃ ¬Track-resources ⦄
            → ⟨ H , t , ρ , S ⟩ ⇒ₙ ⟨ H′ , t′ , ρ′ , S′ ⟩ → H ≡ H′
   ⇒ₙ-Heap≡ (varₕ x) = ⊥-elim not-tracking-and-no-tracking
@@ -450,11 +453,15 @@ opaque
 
 opaque
 
+  -- The relation _⇒ₛ_ preserves the heap
+
   ⇒ₛ-Heap≡ : ⟨ H , t , ρ , S ⟩ ⇒ₛ ⟨ H′ , t′ , ρ′ , S′ ⟩ → H ≡ H′
   ⇒ₛ-Heap≡ (sucₕ x) = refl
   ⇒ₛ-Heap≡ (numₕ x) = refl
 
 opaque
+
+  -- Evaluation in _⇒ᵥ_ behaves the same under equal heaps
 
   ~ʰ-⇒ᵥ : ⟨ H , t , ρ , S ⟩ ⇒ᵥ ⟨ H′ , t′ , ρ′ , S′ ⟩ → H ~ʰ H″
         → ∃ λ H‴ → ⟨ H″ , t , ρ , S ⟩ ⇒ᵥ ⟨ H‴ , t′ , ρ′ , S′ ⟩ × H′ ~ʰ H‴
@@ -471,6 +478,9 @@ opaque
   ~ʰ-⇒ᵥ rflₕₑ H~H″          = _ , rflₕₑ , H~H″
 
 opaque
+
+  -- Evaluation in _⇒ₙ_ behaves the same under equal heaps when
+  -- resource tracking is turned off.
 
   ~ʰ-⇒ₙ : ⦃ ¬Track-resources ⦄
         → ⟨ H , t , ρ , S ⟩ ⇒ₙ ⟨ H′ , t′ , ρ′ , S′ ⟩ → H ~ʰ H″
@@ -489,6 +499,8 @@ opaque
   ~ʰ-⇒ₙ []-congₕ H~H″              = []-congₕ
 
 opaque
+
+  -- Evaluation in _⇒ᵥ_ behaves the same under equal heaps
 
   ~ʰ-⇒ₛ : ⟨ H , t , ρ , S ⟩ ⇒ₛ ⟨ H′ , t′ , ρ′ , S′ ⟩ → H ~ʰ H″
         → ⟨ H″ , t , ρ , S ⟩ ⇒ₛ ⟨ H″ , t′ , ρ′ , S′ ⟩

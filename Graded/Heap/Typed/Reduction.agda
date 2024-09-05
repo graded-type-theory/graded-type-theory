@@ -1,5 +1,6 @@
 ------------------------------------------------------------------------
--- Type preservation/subject reduction for the heap semantics
+-- Properties of heap typing related to the reduction relation.
+-- In particular type preservation/subject reduction.
 ------------------------------------------------------------------------
 
 open import Graded.Modality
@@ -205,6 +206,8 @@ opaque
 
 opaque
 
+  -- Type preservation for _⇒ᵥ_
+
   ⊢ₛ-⇒ᵥ : Δ ⨾ Γ ⊢ s ∷ A → s ⇒ᵥ s′
         → ∃₂ λ ρ Γ′ → (ρ ∷ Γ′ ⊇ Γ) × Δ ⨾ Γ′ ⊢ s′ ∷ A
   ⊢ₛ-⇒ᵥ (A , ⊢H , ⊢λt , ⊢e ∙ ⊢S) (lamₕ {H} {p} {t} {ρ} {u} {ρ′}) =
@@ -389,6 +392,8 @@ opaque
 
 opaque
 
+  -- Type preservation for _⇒ₙ_
+
   ⊢ₛ-⇒ₙ : Δ ⨾ Γ ⊢ s ∷ A → s ⇒ₙ s′
         → Δ ⨾ Γ ⊢ s′ ∷ A
   ⊢ₛ-⇒ₙ (A , ⊢H , ⊢t , ⊢S) (varₕ {t} d) =
@@ -460,12 +465,16 @@ opaque
 
 opaque
 
+  -- Type preservation for _⇒ₙ*_
+
   ⊢ₛ-⇒ₙ* : Δ ⨾ Γ ⊢ s ∷ A → s ⇒ₙ* s′
          → Δ ⨾ Γ ⊢ s′ ∷ A
   ⊢ₛ-⇒ₙ* ⊢s id = ⊢s
   ⊢ₛ-⇒ₙ* ⊢s (d ⇨ d′) = ⊢ₛ-⇒ₙ* (⊢ₛ-⇒ₙ ⊢s d) d′
 
 opaque
+
+  -- Type preservation for _⇒ₛ_
 
   ⊢ₛ-⇒ₛ : ⦃ ℕ-Fullred ⦄
         → Δ ⨾ Γ ⊢ s ∷ A → s ⇒ₛ s′
@@ -481,6 +490,8 @@ opaque
 
 opaque
 
+  -- Type preservation for _⇒_
+
   ⊢ₛ-⇒ : Δ ⨾ Γ ⊢ s ∷ A → s ⇒ s′
        → ∃₂ λ ρ Γ′ → (ρ ∷ Γ′ ⊇ Γ) × Δ ⨾ Γ′ ⊢ s′ ∷ A
   ⊢ₛ-⇒ ⊢s (⇒ₙ d) = _ , _ , id , ⊢ₛ-⇒ₙ ⊢s d
@@ -489,6 +500,8 @@ opaque
 
 
 opaque
+
+  -- Type preservation for _⇒*_
 
   ⊢ₛ-⇒* : Δ ⨾ Γ ⊢ s ∷ A → s ⇒* s′
         → ∃₂ λ ρ Γ′ → (ρ ∷ Γ′ ⊇ Γ) × Δ ⨾ Γ′ ⊢ s′ ∷ A
@@ -515,6 +528,8 @@ private
   opaque
     unfolding _⊢⟨_⟩_⇒/≡_∷_
 
+    -- The relation respects reduction
+
     ⊢⦅⦆ˢ-subst/cong : (b : Bool) → (T b → ¬ℕ-Fullred)
                    → Δ ⨾ H ⊢ S ⟨ t ⟩∷ A ↝ B
                    → Δ ⊢ t [ H ]ₕ ⇒ u [ H ]ₕ ∷ A
@@ -523,6 +538,8 @@ private
     ⊢⦅⦆ˢ-subst/cong false _ ⊢S t≡u = ⊢⦅⦆ˢ-cong ⊢S (subsetTerm t≡u)
 
   opaque
+
+    -- The relation respects _⇒ᵥ_
 
     ⇒ᵥ→⇒/≡ : (b : Bool) → (T b → ¬ℕ-Fullred)
            → Δ ⨾ Γ ⊢ s ∷ A → s ⇒ᵥ s′

@@ -94,6 +94,9 @@ data _▸ᵉ[_]_ {n : Nat} : (γ : Conₘ n) (m : Mode) (e : Elim n) → Set a w
   []-congₑ : []-cong-allowed-mode s′ m → 𝟘ᶜ ▸ᵉ[ m ] []-congₑ s′ A t u ρ
   sucₑ : 𝟘ᶜ ▸ᵉ[ m ] sucₑ
 
+-- A relation between modes and grades used to ensure that the stack
+-- multiplicity is only allowed to be 𝟘 when the mode is 𝟘ᵐ.
+
 data _≤ᵐ_ : (m : Mode) (p : M) → Set a where
   𝟘ᵐ≤ᵐ𝟘 : ∀ {ok} → 𝟘ᵐ[ ok ] ≤ᵐ 𝟘
   𝟙ᵐ≤ᵐ : 𝟙ᵐ ≤ᵐ p

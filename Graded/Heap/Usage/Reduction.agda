@@ -77,6 +77,8 @@ private variable
 
 opaque
 
+  -- Usage preservation under _⇒ᵥ_
+
   ▸-⇒ᵥ : (▸s : γ ⨾ δ ⨾ η ▸[ m ] s) (d : s ⇒ᵥ s′) → ∃₄ (_⨾_⨾_▸[_] s′)
   ▸-⇒ᵥ {δ} {m} (▸H , ▸t , ▸S , m≤ , γ≤) (lamₕ {p} {ρ} {S}) =
     case ▸S of λ {
@@ -384,6 +386,8 @@ opaque
     open RPo ≤ᶜ-poset
 
 opaque
+
+  -- Usage preservation under _⇒ₙ_
 
   ▸-⇒ₙ : (▸s : γ ⨾ δ ⨾ η ▸[ m ] s) (d : s ⇒ₙ s′) → ∃₄ (_⨾_⨾_▸[_] s′)
   ▸-⇒ₙ ▸s (varₕ′ d) = ⊥-elim not-tracking-and-no-tracking
@@ -734,6 +738,8 @@ opaque
 
 opaque
 
+  -- Usage preservation under _⇒ₛ_
+
   ▸-⇒ₛ : (▸s : γ ⨾ δ ⨾ η ▸[ m ] s) (d : s ⇒ₛ s′) → ∃₃ (_⨾_⨾_▸[ m ] s′)
   ▸-⇒ₛ {γ} {δ} {η} (▸H , ▸t , ▸S , m≤ , γ≤) (sucₕ {ρ} {k} x) =
     case inv-usage-suc ▸t of λ
@@ -773,6 +779,8 @@ opaque
     γ , δ , η , _ , ▸s
 
 opaque
+
+  -- Well-resourced states evaluate to well-resourced states
 
   ▸-⇒* : (▸s : γ ⨾ δ ⨾ η ▸[ m ] s) (d : s ⇒* s′) → ∃₄ (_⨾_⨾_▸[_] s′)
   ▸-⇒* ▸s id =

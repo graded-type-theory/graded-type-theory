@@ -39,9 +39,6 @@ private variable
   b : BinderMode
   ρ ρ′ : Wk _ _
 
-infixl 20 _⊢_↦[_]_⨾_
-infix   2 ⟨_,_,_,_⟩
-
 ------------------------------------------------------------------------
 -- Pointers, closures and environments
 
@@ -76,7 +73,9 @@ wk1ᵉⁿ = wkᵉⁿ (step id)
 ------------------------------------------------------------------------
 -- Eliminators and Evaluation stacks
 
--- Eliminators, indexed by the size of the heap
+-- Eliminators, indexed by the size of the heap.
+-- The successor contructor is also treated as en eliminator when
+-- evaluating under it.
 
 data Elim (m : Nat) : Set a where
   ∘ₑ        : (p : M) (u : Term n) (ρ : Wk m n) → Elim m
@@ -115,7 +114,8 @@ wk1ᵉ = wkᵉ (step id)
 wk2ᵉ : Elim m → Elim (2+ m)
 wk2ᵉ = wkᵉ (step (step id))
 
--- The multiplicity of the Jₑ eliminator
+-- The multiplicity of the Jₑ eliminator, depending on which
+-- erased matches are used.
 
 ∣∣ᵉ-J : Erased-matches → (p q : M) → M
 ∣∣ᵉ-J none _ _ = ω
@@ -127,7 +127,8 @@ wk2ᵉ = wkᵉ (step (step id))
       (no _) → ω
       (yes _) → 𝟘
 
--- The multiplicity of the Kₑ eliminator
+-- The multiplicity of the Kₑ eliminator, depending on which
+-- erased matches are used.
 
 ∣∣ᵉ-K : Erased-matches → (p : M) → M
 ∣∣ᵉ-K none _ = ω
@@ -186,6 +187,8 @@ _++_ : (S S′ : Stack m) → Stack m
 ε ++ S′ = S′
 (e ∙ S) ++ S′ = e ∙ (S ++ S′)
 
+-- A stack consisting only of successor eliminators
+
 sucₛ : Nat → Stack m
 sucₛ 0 = ε
 sucₛ (1+ n) = sucₑ ∙ sucₛ n
@@ -203,10 +206,12 @@ data emptyrec₀∈_ : (S : Stack m) → Set a where
 ------------------------------------------------------------------------
 -- Heaps
 
--- Heaps are collections of bindings.
-
 infixl 24 _∙_
 infixl 24 _∙●
+
+-- Heaps are lists of entries or "dummy" entries, representing something
+-- erased.
+-- Indexed by the number of dummy entries and total entries.
 
 data Heap : (k m : Nat) → Set a where
   ε   : Heap 0 0
@@ -225,8 +230,12 @@ private variable
   c′ : Entryₘ _ _
   y : Ptr _
 
+infix 20 _⊢_↦[_]_⨾_
+
 -- Heap lookup (with grade update)
--- Note that lookup fails e.g. when the grade is 𝟘.
+-- Note that lookup fails when trying to look up more copies than are
+-- available. For instance, looking up any non-zero number when there
+-- are zero copies available.
 
 data _⊢_↦[_]_⨾_ : (H : Heap k m) (y : Ptr m) (q : M)
                   (c : Entry m n) (H′ : Heap k m) → Set a where
@@ -237,6 +246,7 @@ data _⊢_↦[_]_⨾_ : (H : Heap k m) (y : Ptr m) (q : M)
   there● : H ⊢ y ↦[ q ] c ⨾ H′
          → H ∙● ⊢ y +1 ↦[ q ] wk1ᵉⁿ c ⨾ H′ ∙●
 
+infix 20 _⊢_↦_
 
 -- Heap lookup (without grade update)
 
@@ -247,15 +257,18 @@ data _⊢_↦_ : (H : Heap k m) (y : Ptr m) (c : Entry m n) → Set a where
   there● : H ⊢ y ↦ c
          → H ∙● ⊢ y +1 ↦ wk1ᵉⁿ c
 
+infix 20 _⊢_↦●
+
+-- Heap lookup to a dummy entry
+
 data _⊢_↦● : (H : Heap k m) (y : Ptr m) → Set a where
   here : H ∙● ⊢ y0 ↦●
   there : H ⊢ y ↦● → H ∙ c′ ⊢ y +1 ↦●
   there● : H ⊢ y ↦● → H ∙● ⊢ y +1 ↦●
 
+infix 5 _~ʰ_
 
 -- Equality of heaps up to grades
-
-infix 5 _~ʰ_
 
 data _~ʰ_ : (H H′ : Heap k m) → Set a where
   ε : ε ~ʰ ε
@@ -302,8 +315,12 @@ toWkₕ (H ∙●) = lift (toWkₕ H)
 ------------------------------------------------------------------------
 -- Evaluation states
 
--- States, indexed by the size of the heap and the number of free
--- variables in the head.
+-- States consist of a heap, a head term, an environment/weakening
+-- mapping variable indices to pointer indices and a stack.
+-- Indexed by the number of dummy entries in the heap, the size
+-- of the heap and the number of free variables in the head term.
+
+infix 2 ⟨_,_,_,_⟩
 
 record State (k m n : Nat) : Set a where
   constructor ⟨_,_,_,_⟩
@@ -313,7 +330,7 @@ record State (k m n : Nat) : Set a where
     env : Wk m n
     stack : Stack m
 
--- Converting states back to terms
+-- Converting eliminators back to terms
 
 ⦅_⦆ᵉ : Elim m → (Term m → Term m)
 ⦅ ∘ₑ p u ρ ⦆ᵉ = _∘⟨ p ⟩ wk ρ u
@@ -335,14 +352,19 @@ record State (k m n : Nat) : Set a where
   []-cong s (wk ρ A ) (wk ρ t) (wk ρ u) v
 ⦅ sucₑ ⦆ᵉ = suc
 
+-- Converting stacks back to terms
+
 ⦅_⦆ˢ : Stack m → (Term m → Term m)
 ⦅ ε ⦆ˢ = idᶠ
 ⦅ e ∙ S ⦆ˢ = ⦅ S ⦆ˢ ∘ᶠ ⦅ e ⦆ᵉ
 
+-- Converting states back to terms
+
 ⦅_⦆ : (s : State k m n) → Term k
 ⦅ ⟨ H , t , ρ , S ⟩ ⦆ = ⦅ S ⦆ˢ (wk ρ t) [ H ]ₕ
 
--- The initial state
+-- The initial state consisting of a heap with only dummy bindings and
+-- an empty stack.
 
 initial : Term k → State k k k
 initial {k} t = ⟨ erasedHeap k , t , id , ε ⟩
@@ -367,8 +389,8 @@ data Value {n : Nat} : (t : Term n) → Set a where
   Idᵥ : Value (Id A t u)
   unitrec-ηᵥ : Unitʷ-η → Value (unitrec p q A t u)
 
--- States in normal form are either values, variables without entries in
--- the heap or unitrec when the weak unit type has η-equality.
+-- States in normal form are either values, or variables without
+-- entries in the heap.
 -- I.e. states which do not reduce with _⇒ₙ_
 
 data Normal : (State k m n) → Set a where

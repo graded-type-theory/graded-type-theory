@@ -40,6 +40,18 @@ private variable
   p q r : M
   s′ : Strength
 
+-- The reduction relation is divided into three different relations:
+-- _⇒ₙ_, _⇒ᵥ_ and _⇒ₛ_
+-- They describe different parts of the evaluation and therefore have
+-- slightly different properties.
+
+-- The relation _⇒ₙ_ evaluates terms to normal form by variable lookups
+-- and putting eliminators on the stack.
+-- See Graded.Heap.Normalization
+
+-- There are two mutually exclusive variable rules depending on if resource
+-- tracking should be used or not (specified by Options).
+
 infix 28 _⇒ₙ_
 
 data _⇒ₙ_ {k m n} : State k m n → State k m n′ → Set a where
@@ -82,6 +94,9 @@ data _⇒ₙ*_ (s : State k m n) : (s′ : State k m n′) → Set a where
   _⇨_ : ∀ {n″} {s′ : State k m n′} {s″ : State k m n″}
       → s ⇒ₙ s′ → s′ ⇒ₙ* s″ → s ⇒ₙ* s″
 
+-- The relation _⇒ᵥ_ evaluates states with values in head position and a
+-- matching eliminator on the top of the stack.
+
 infix 28 _⇒ᵥ_
 
 data _⇒ᵥ_ {k m n} : State k m n → State k m′ n′ → Set a where
@@ -110,6 +125,9 @@ data _⇒ᵥ_ {k m n} : State k m n → State k m′ n′ → Set a where
   rflₕₑ : ⟨ H , rfl , ρ , []-congₑ s′ A t u ρ′ ∙ S ⟩
         ⇒ᵥ ⟨ H , rfl , ρ′ , S ⟩
 
+-- The relation _⇒ₛ_ allows evaluation under the successor constructor in order
+-- to fully evaluate terms to numerals.
+
 infix 28 _⇒ₛ_
 
 data _⇒ₛ_ {m′ m n} : State m′ m n → State m′ m n → Set a where
@@ -119,9 +137,10 @@ data _⇒ₛ_ {m′ m n} : State m′ m n → State m′ m n → Set a where
        → ⟨ H , t , ρ , sucₑ ∙ S ⟩ ⇒ₛ ⟨ H , suc t , ρ , S ⟩
 
 
--- The heap semantics using single step reductions of heap states.
--- The number of free variables and the size of the heap
--- may change in an evaluation step.
+-- The main reductio relation is the conjunction of the three relations
+-- described above.
+-- The reduction _⇒ₛ_ is included only if evaluation under suc is allowed
+-- as specified by the Options
 
 infix 30 ⇒ₙ_
 infix 30 ⇒ᵥ_

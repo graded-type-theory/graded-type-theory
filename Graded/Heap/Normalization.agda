@@ -1,3 +1,7 @@
+------------------------------------------------------------------------
+-- A normalization procedure for evaluating states to normal form.
+------------------------------------------------------------------------
+
 open import Graded.Modality
 open import Graded.Usage.Restrictions
 open import Definition.Typed.Variant
@@ -39,6 +43,8 @@ private variable
   k m n n′ : Nat
 
 opaque mutual
+
+  -- Normalization of states with variables in head position
 
   normalize-var : (H : Heap k m) (x : Fin m)
                 → ∃₄ λ n t (ρ′ : Wk m n) S → Normal ⟨ H , t , ρ′ , S ⟩
@@ -83,6 +89,7 @@ opaque mutual
           (var d) →
         _ , var (y +1) , id , ε , var d , id }}
 
+  -- Normalization of states
 
   normalize : (H : Heap k m) (t : Term n) (ρ : Wk m n) (S : Stack m)
             → ∃₄ λ n′ t′ (ρ′ : Wk m n′) (S′ : Stack m) → Normal ⟨ H , t′ , ρ′ , S′ ⟩ ×
