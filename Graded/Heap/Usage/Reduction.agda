@@ -5,12 +5,12 @@
 
 open import Graded.Modality
 open import Graded.Usage.Restrictions
-open import Heap.Options
+open import Graded.Heap.Options
 open import Definition.Typed.Variant
 open import Tools.Bool
 import Graded.Mode
 
-module Heap.Usage.Reduction
+module Graded.Heap.Usage.Reduction
   {a} {M : Set a} {𝕄 : Modality M}
   (type-variant : Type-variant)
   (UR : Usage-restrictions 𝕄)
@@ -46,12 +46,12 @@ import Tools.Reasoning.PartialOrder as RPo
 
 open import Definition.Untyped M
 
-open import Heap.Untyped type-variant UR
-open import Heap.Untyped.Properties type-variant UR
-open import Heap.Reduction type-variant UR opts
-open import Heap.Usage type-variant UR erased-heap
-open import Heap.Usage.Properties type-variant UR erased-heap
-open import Heap.Usage.Weakening type-variant UR erased-heap
+open import Graded.Heap.Untyped type-variant UR
+open import Graded.Heap.Untyped.Properties type-variant UR
+open import Graded.Heap.Reduction type-variant UR opts
+open import Graded.Heap.Usage type-variant UR erased-heap
+open import Graded.Heap.Usage.Properties type-variant UR erased-heap
+open import Graded.Heap.Usage.Weakening type-variant UR erased-heap
 
 open import Graded.Context 𝕄
 open import Graded.Context.Properties 𝕄

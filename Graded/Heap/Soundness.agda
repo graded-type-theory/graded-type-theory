@@ -6,14 +6,14 @@ open import Graded.Modality
 open import Graded.Usage.Restrictions
 open import Definition.Typed.Restrictions
 open import Tools.Bool
-import Heap.Bisimilarity
+import Graded.Heap.Bisimilarity
 
-module Heap.Soundness
+module Graded.Heap.Soundness
   {a} {M : Set a} {𝕄 : Modality M}
   {UR : Usage-restrictions 𝕄}
   (TR : Type-restrictions 𝕄)
   (erased-heap : Bool)
-  (open Heap.Bisimilarity UR TR erased-heap)
+  (open Graded.Heap.Bisimilarity UR TR erased-heap)
   (As : Assumptions)
   where
 
@@ -50,23 +50,23 @@ open import Graded.Mode 𝕄
 open import Graded.Usage 𝕄 UR
 open import Graded.Usage.Inversion 𝕄 UR
 
-open import Heap.Options
-open import Heap.Untyped type-variant UR
-open import Heap.Untyped.Properties type-variant UR
-open import Heap.Usage type-variant UR erased-heap
-open import Heap.Usage.Properties type-variant UR erased-heap
-import Heap.Usage.Reduction type-variant UR erased-heap (tracking-and-ℕ-fullred-if false) Unitʷ-η→ as URᶠ
-import Heap.Usage.Reduction type-variant UR erased-heap (tracking-and-ℕ-fullred-if true) Unitʷ-η→ as URᵗ
-open import Heap.Termination UR TR erased-heap As
-open import Heap.Typed UR TR false
-import Heap.Typed UR TR true as HTₜ
-open import Heap.Typed.Reduction UR TR (tracking-and-ℕ-fullred-if false) hiding (⇒*→≡)
-open import Heap.Typed.Reduction UR TR (tracking-and-ℕ-fullred-if true) using (⇒*→≡)
-open import Heap.Typed.Properties UR TR
-open import Heap.Reduction type-variant UR (tracking-and-ℕ-fullred-if true)
-open import Heap.Reduction.Properties type-variant UR (tracking-and-ℕ-fullred-if true)
+open import Graded.Heap.Options
+open import Graded.Heap.Untyped type-variant UR
+open import Graded.Heap.Untyped.Properties type-variant UR
+open import Graded.Heap.Usage type-variant UR erased-heap
+open import Graded.Heap.Usage.Properties type-variant UR erased-heap
+import Graded.Heap.Usage.Reduction type-variant UR erased-heap (tracking-and-ℕ-fullred-if false) Unitʷ-η→ as URᶠ
+import Graded.Heap.Usage.Reduction type-variant UR erased-heap (tracking-and-ℕ-fullred-if true) Unitʷ-η→ as URᵗ
+open import Graded.Heap.Termination UR TR erased-heap As
+open import Graded.Heap.Typed UR TR false
+import Graded.Heap.Typed UR TR true as HTₜ
+open import Graded.Heap.Typed.Reduction UR TR (tracking-and-ℕ-fullred-if false) hiding (⇒*→≡)
+open import Graded.Heap.Typed.Reduction UR TR (tracking-and-ℕ-fullred-if true) using (⇒*→≡)
+open import Graded.Heap.Typed.Properties UR TR
+open import Graded.Heap.Reduction type-variant UR (tracking-and-ℕ-fullred-if true)
+open import Graded.Heap.Reduction.Properties type-variant UR (tracking-and-ℕ-fullred-if true)
   using (_⇨*_; ++sucₛ-⇒*)
-open import Heap.Reduction.Properties type-variant UR (not-tracking-and-ℕ-fullred-if false)
+open import Graded.Heap.Reduction.Properties type-variant UR (not-tracking-and-ℕ-fullred-if false)
   using (⇒ₙ*_)
 
 private variable

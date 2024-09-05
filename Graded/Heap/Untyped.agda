@@ -6,7 +6,7 @@ open import Graded.Modality
 open import Graded.Usage.Restrictions
 open import Definition.Typed.Variant
 
-module Heap.Untyped
+module Graded.Heap.Untyped
   {a} {M : Set a}
   {𝕄 : Modality M}
   (type-variant : Type-variant)
@@ -292,7 +292,7 @@ _[_]⇑²ₕ : Term (2+ m) → Heap k m → Term (2+ k)
 t [ H ]⇑²ₕ = t [ liftSubstn (toSubstₕ H) 2 ]
 
 -- A weakening that acts as an "inverse" to a heap substitution
--- See Heap.Untyped.Properties.toWkₕ-toSubstₕ
+-- See Graded.Heap.Untyped.Properties.toWkₕ-toSubstₕ
 
 toWkₕ : Heap k m → Wk m k
 toWkₕ ε = id

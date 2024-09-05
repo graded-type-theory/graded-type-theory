@@ -1,4 +1,4 @@
-module Heap.Options where
+module Graded.Heap.Options where
 
 open import Tools.Bool
 open import Tools.Empty

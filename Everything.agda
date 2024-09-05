@@ -408,34 +408,34 @@ import Graded.Box-cong
 -- A resource aware abstract machine
 
 -- The abstract machine
-import Heap.Untyped
-import Heap.Untyped.Properties
-import Heap.Options
-import Heap.Reduction
-import Heap.Reduction.Inversion
-import Heap.Reduction.Properties
+import Graded.Heap.Untyped
+import Graded.Heap.Untyped.Properties
+import Graded.Heap.Options
+import Graded.Heap.Reduction
+import Graded.Heap.Reduction.Inversion
+import Graded.Heap.Reduction.Properties
 
 -- Typing for the abstract machine
-import Heap.Typed
-import Heap.Typed.Substitution
-import Heap.Typed.Weakening
-import Heap.Typed.Inversion
-import Heap.Typed.Properties
-import Heap.Typed.Reduction
+import Graded.Heap.Typed
+import Graded.Heap.Typed.Substitution
+import Graded.Heap.Typed.Weakening
+import Graded.Heap.Typed.Inversion
+import Graded.Heap.Typed.Properties
+import Graded.Heap.Typed.Reduction
 
 -- Usage for the abstract machine
-import Heap.Usage
-import Heap.Usage.Weakening
-import Heap.Usage.Properties
-import Heap.Usage.Reduction
+import Graded.Heap.Usage
+import Graded.Heap.Usage.Weakening
+import Graded.Heap.Usage.Properties
+import Graded.Heap.Usage.Reduction
 
 -- Other properties of the abstract machine
-import Heap.Normalization
-import Heap.Bisimilarity
-import Heap.Termination
+import Graded.Heap.Normalization
+import Graded.Heap.Bisimilarity
+import Graded.Heap.Termination
 
 -- Resource correctness of the abstract machine
-import Heap.Soundness
+import Graded.Heap.Soundness
 
 ------------------------------------------------------------------------
 -- Some applications

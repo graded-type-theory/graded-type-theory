@@ -7,7 +7,7 @@ open import Graded.Usage.Restrictions
 open import Definition.Typed.Restrictions
 open import Tools.Bool
 
-module Heap.Typed.Properties
+module Graded.Heap.Typed.Properties
   {a} {M : Set a} {𝕄 : Modality M}
   (UR : Usage-restrictions 𝕄)
   (TR : Type-restrictions 𝕄)
@@ -26,10 +26,10 @@ open import Definition.Typed.Consequences.Inversion TR
 open import Definition.Typed.Consequences.Substitution TR
 open import Definition.Typed.Consequences.Syntactic TR
 
-open import Heap.Typed UR TR ℕ-fullred
-open import Heap.Typed.Inversion UR TR ℕ-fullred
-open import Heap.Untyped type-variant UR
-open import Heap.Untyped.Properties type-variant UR
+open import Graded.Heap.Typed UR TR ℕ-fullred
+open import Graded.Heap.Typed.Inversion UR TR ℕ-fullred
+open import Graded.Heap.Untyped type-variant UR
+open import Graded.Heap.Untyped.Properties type-variant UR
 
 open import Tools.Empty
 open import Tools.Fin

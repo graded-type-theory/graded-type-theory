@@ -7,7 +7,7 @@ open import Graded.Usage.Restrictions
 open import Definition.Typed.Variant
 open import Tools.Bool
 
-module Heap.Usage.Weakening
+module Graded.Heap.Usage.Weakening
   {a} {M : Set a} {𝕄 : Modality M}
   (type-variant : Type-variant)
   (UR : Usage-restrictions 𝕄)
@@ -28,9 +28,9 @@ open import Graded.Context.Properties 𝕄
 open import Graded.Context.Weakening 𝕄
 open import Graded.Mode 𝕄
 
-open import Heap.Untyped type-variant UR
-open import Heap.Untyped.Properties type-variant UR
-open import Heap.Usage type-variant UR erased-heap
+open import Graded.Heap.Untyped type-variant UR
+open import Graded.Heap.Untyped.Properties type-variant UR
+open import Graded.Heap.Usage type-variant UR erased-heap
 
 
 private variable

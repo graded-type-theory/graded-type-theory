@@ -4,10 +4,10 @@
 
 open import Graded.Modality
 open import Graded.Usage.Restrictions
-open import Heap.Options
+open import Graded.Heap.Options
 open import Definition.Typed.Variant
 
-module Heap.Reduction.Properties
+module Graded.Heap.Reduction.Properties
   {a} {M : Set a} {𝕄 : Modality M}
   (type-variant : Type-variant)
   (UR : Usage-restrictions 𝕄)
@@ -28,10 +28,10 @@ open import Tools.Sum hiding (id; sym)
 open import Definition.Untyped M
 open import Graded.Modality.Nr-instances
 
-open import Heap.Untyped type-variant UR
-open import Heap.Untyped.Properties type-variant UR
-open import Heap.Reduction type-variant UR opts
-open import Heap.Reduction.Inversion type-variant UR opts
+open import Graded.Heap.Untyped type-variant UR
+open import Graded.Heap.Untyped.Properties type-variant UR
+open import Graded.Heap.Reduction type-variant UR opts
+open import Graded.Heap.Reduction.Inversion type-variant UR opts
 
 open Options opts
 

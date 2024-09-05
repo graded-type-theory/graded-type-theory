@@ -3,7 +3,7 @@ open import Graded.Usage.Restrictions
 open import Tools.Bool
 open import Definition.Typed.Restrictions
 
-module Heap.Bisimilarity
+module Graded.Heap.Bisimilarity
   {a} {M : Set a} {𝕄 : Modality M}
   (UR : Usage-restrictions 𝕄)
   (TR : Type-restrictions 𝕄)
@@ -20,14 +20,14 @@ open import Tools.Product
 open import Tools.PropositionalEquality as PE
 open import Tools.Sum hiding (id)
 
-open import Heap.Options
-open import Heap.Untyped type-variant UR
-open import Heap.Untyped.Properties type-variant UR
-open import Heap.Usage type-variant UR erased-heap
-open import Heap.Usage.Properties type-variant UR erased-heap
-open import Heap.Normalization type-variant UR
-import Heap.Reduction type-variant UR as R
-import Heap.Reduction.Properties type-variant UR as RP
+open import Graded.Heap.Options
+open import Graded.Heap.Untyped type-variant UR
+open import Graded.Heap.Untyped.Properties type-variant UR
+open import Graded.Heap.Usage type-variant UR erased-heap
+open import Graded.Heap.Usage.Properties type-variant UR erased-heap
+open import Graded.Heap.Normalization type-variant UR
+import Graded.Heap.Reduction type-variant UR as R
+import Graded.Heap.Reduction.Properties type-variant UR as RP
 
 open import Definition.Untyped M
 open import Definition.Untyped.Inversion M
@@ -191,7 +191,7 @@ module _ (ℕ-fullred : Bool) where
 
     open Assumptions As
 
-    open import Heap.Usage.Reduction type-variant UR erased-heap optsₜ Unitʷ-η→
+    open import Graded.Heap.Usage.Reduction type-variant UR erased-heap optsₜ Unitʷ-η→
 
     opaque
 
@@ -265,9 +265,9 @@ module _ where
     module Rₙₜ = R optsₙₜ
 
   open RP optsₙₜ
-  open import Heap.Typed UR TR false
-  open import Heap.Typed.Properties UR TR false
-  open import Heap.Typed.Reduction UR TR optsₙₜ
+  open import Graded.Heap.Typed UR TR false
+  open import Graded.Heap.Typed.Properties UR TR false
+  open import Graded.Heap.Typed.Reduction UR TR optsₙₜ
 
   -- Most of the bisimilarity properties are proven under
   -- the assumption that the nr function is factoring.

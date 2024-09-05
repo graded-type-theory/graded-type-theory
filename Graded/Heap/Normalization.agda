@@ -2,7 +2,7 @@ open import Graded.Modality
 open import Graded.Usage.Restrictions
 open import Definition.Typed.Variant
 
-module Heap.Normalization
+module Graded.Heap.Normalization
   {a} {M : Set a} {𝕄 : Modality M}
   (type-variant : Type-variant)
   (UR : Usage-restrictions 𝕄)
@@ -22,16 +22,16 @@ open import Tools.PropositionalEquality as PE
 open import Tools.Relation
 open import Tools.Sum hiding (id)
 
-open import Heap.Options
+open import Graded.Heap.Options
 
 private
   opts : Options
   opts = not-tracking-and-ℕ-fullred-if false
 
-open import Heap.Reduction type-variant UR opts
-open import Heap.Reduction.Properties type-variant UR opts
-open import Heap.Untyped type-variant UR
-open import Heap.Untyped.Properties type-variant UR
+open import Graded.Heap.Reduction type-variant UR opts
+open import Graded.Heap.Reduction.Properties type-variant UR opts
+open import Graded.Heap.Untyped type-variant UR
+open import Graded.Heap.Untyped.Properties type-variant UR
 
 open import Definition.Untyped M hiding (head)
 

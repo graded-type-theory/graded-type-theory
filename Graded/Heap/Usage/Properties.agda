@@ -7,7 +7,7 @@ open import Graded.Usage.Restrictions
 open import Definition.Typed.Variant
 open import Tools.Bool
 
-module Heap.Usage.Properties
+module Graded.Heap.Usage.Properties
   {a} {M : Set a} {𝕄 : Modality M}
   (type-variant : Type-variant)
   (UR : Usage-restrictions 𝕄)
@@ -31,8 +31,8 @@ open import Graded.Usage 𝕄 UR
 open import Graded.Usage.Inversion 𝕄 UR
 open import Graded.Usage.Properties 𝕄 UR
 
-open import Heap.Untyped type-variant UR
-open import Heap.Usage type-variant UR erased-heap
+open import Graded.Heap.Untyped type-variant UR
+open import Graded.Heap.Usage type-variant UR erased-heap
 
 open import Tools.Empty
 open import Tools.Fin

@@ -3,14 +3,14 @@ open import Graded.Modality
 open import Graded.Usage.Restrictions
 open import Definition.Typed.Restrictions
 open import Tools.Bool
-import Heap.Bisimilarity
+import Graded.Heap.Bisimilarity
 
-module Heap.Termination
+module Graded.Heap.Termination
   {a} {M : Set a} {𝕄 : Modality M}
   (UR : Usage-restrictions 𝕄)
   (TR : Type-restrictions 𝕄)
   (erased-heap : Bool)
-  (open Heap.Bisimilarity UR TR erased-heap)
+  (open Graded.Heap.Bisimilarity UR TR erased-heap)
   (As : Assumptions)
   where
 
@@ -39,20 +39,20 @@ open import Graded.Context 𝕄 hiding (_⟨_⟩)
 open import Graded.Usage 𝕄 UR
 open import Graded.Mode 𝕄
 
-open import Heap.Normalization type-variant UR
-open import Heap.Options
-open import Heap.Untyped type-variant UR
-open import Heap.Untyped.Properties type-variant UR
-open import Heap.Typed UR TR false
-open import Heap.Typed.Properties UR TR false
-import Heap.Typed.Reduction UR TR (tracking-and-ℕ-fullred-if false) as RTₜ
-import Heap.Typed.Reduction UR TR (not-tracking-and-ℕ-fullred-if false) as RTₙₜ
-open import Heap.Usage type-variant UR erased-heap
-open import Heap.Usage.Properties type-variant UR erased-heap
-open import Heap.Usage.Reduction type-variant UR erased-heap (tracking-and-ℕ-fullred-if false) Unitʷ-η→
-open import Heap.Reduction type-variant UR (tracking-and-ℕ-fullred-if false)
-import Heap.Reduction.Properties type-variant UR (tracking-and-ℕ-fullred-if false) as RPₜ
-import Heap.Reduction.Properties type-variant UR (not-tracking-and-ℕ-fullred-if false) as RPₙₜ
+open import Graded.Heap.Normalization type-variant UR
+open import Graded.Heap.Options
+open import Graded.Heap.Untyped type-variant UR
+open import Graded.Heap.Untyped.Properties type-variant UR
+open import Graded.Heap.Typed UR TR false
+open import Graded.Heap.Typed.Properties UR TR false
+import Graded.Heap.Typed.Reduction UR TR (tracking-and-ℕ-fullred-if false) as RTₜ
+import Graded.Heap.Typed.Reduction UR TR (not-tracking-and-ℕ-fullred-if false) as RTₙₜ
+open import Graded.Heap.Usage type-variant UR erased-heap
+open import Graded.Heap.Usage.Properties type-variant UR erased-heap
+open import Graded.Heap.Usage.Reduction type-variant UR erased-heap (tracking-and-ℕ-fullred-if false) Unitʷ-η→
+open import Graded.Heap.Reduction type-variant UR (tracking-and-ℕ-fullred-if false)
+import Graded.Heap.Reduction.Properties type-variant UR (tracking-and-ℕ-fullred-if false) as RPₜ
+import Graded.Heap.Reduction.Properties type-variant UR (not-tracking-and-ℕ-fullred-if false) as RPₙₜ
 
 private variable
   t u A B : Term _

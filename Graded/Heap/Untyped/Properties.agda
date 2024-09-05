@@ -6,7 +6,7 @@ open import Graded.Modality
 open import Graded.Usage.Restrictions
 open import Definition.Typed.Variant
 
-module Heap.Untyped.Properties
+module Graded.Heap.Untyped.Properties
   {a} {M : Set a} {𝕄 : Modality M}
   (type-variant : Type-variant)
   (UR : Usage-restrictions 𝕄)
@@ -32,7 +32,7 @@ open import Definition.Untyped M
 open import Definition.Untyped.Neutral M type-variant
 open import Definition.Untyped.Properties M
 
-open import Heap.Untyped type-variant UR
+open import Graded.Heap.Untyped type-variant UR
 
 private variable
   k n n′ n″ m m′ m″ : Nat

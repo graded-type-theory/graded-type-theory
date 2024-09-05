@@ -7,7 +7,7 @@ open import Graded.Usage.Restrictions
 open import Definition.Typed.Variant
 open import Tools.Bool
 
-module Heap.Usage
+module Graded.Heap.Usage
   {a} {M : Set a} {𝕄 : Modality M}
   (type-variant : Type-variant)
   (UR : Usage-restrictions 𝕄)
@@ -26,7 +26,7 @@ open import Tools.PropositionalEquality
 open import Tools.Relation
 
 open import Definition.Untyped M
-open import Heap.Untyped type-variant UR
+open import Graded.Heap.Untyped type-variant UR
 
 open import Graded.Context 𝕄
 open import Graded.Context.Weakening 𝕄

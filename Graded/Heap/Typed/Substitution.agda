@@ -7,7 +7,7 @@ open import Graded.Usage.Restrictions
 open import Definition.Typed.Restrictions
 open import Tools.Bool
 
-module Heap.Typed.Substitution
+module Graded.Heap.Typed.Substitution
   {a} {M : Set a} {𝕄 : Modality M}
   (UR : Usage-restrictions 𝕄)
   (TR : Type-restrictions 𝕄)
@@ -22,8 +22,8 @@ open import Definition.Typed TR
 open import Definition.Typed.Properties TR
 open import Definition.Typed.Consequences.Substitution TR
 
-open import Heap.Typed UR TR ℕ-fullred
-open import Heap.Untyped type-variant UR
+open import Graded.Heap.Typed UR TR ℕ-fullred
+open import Graded.Heap.Untyped type-variant UR
 
 import Tools.PropositionalEquality as PE
 

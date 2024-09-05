@@ -5,9 +5,9 @@
 open import Graded.Modality
 open import Graded.Usage.Restrictions
 open import Definition.Typed.Restrictions
-open import Heap.Options
+open import Graded.Heap.Options
 
-module Heap.Typed.Reduction
+module Graded.Heap.Typed.Reduction
   {a} {M : Set a} {𝕄 : Modality M}
   (UR : Usage-restrictions 𝕄)
   (TR : Type-restrictions 𝕄)
@@ -35,14 +35,14 @@ open import Definition.Typed.Consequences.Substitution TR
 open import Definition.Typed.Consequences.Syntactic TR
 import Graded.Derived.Erased.Typed TR as ET
 
-open import Heap.Reduction type-variant UR opts
-open import Heap.Reduction.Properties type-variant UR opts
-open import Heap.Typed UR TR ℕ-fullred
-open import Heap.Typed.Inversion UR TR ℕ-fullred
-open import Heap.Typed.Properties UR TR ℕ-fullred
-open import Heap.Typed.Weakening UR TR ℕ-fullred
-open import Heap.Untyped type-variant UR
-open import Heap.Untyped.Properties type-variant UR
+open import Graded.Heap.Reduction type-variant UR opts
+open import Graded.Heap.Reduction.Properties type-variant UR opts
+open import Graded.Heap.Typed UR TR ℕ-fullred
+open import Graded.Heap.Typed.Inversion UR TR ℕ-fullred
+open import Graded.Heap.Typed.Properties UR TR ℕ-fullred
+open import Graded.Heap.Typed.Weakening UR TR ℕ-fullred
+open import Graded.Heap.Untyped type-variant UR
+open import Graded.Heap.Untyped.Properties type-variant UR
 
 open import Tools.Bool
 open import Tools.Empty
