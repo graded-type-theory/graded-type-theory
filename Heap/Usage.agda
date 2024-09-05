@@ -32,8 +32,8 @@ open import Graded.Mode 𝕄
 open import Graded.Usage 𝕄 UR
 
 private variable
-  n k : Nat
-  H H′ : Heap _
+  n k ℓ : Nat
+  H H′ : Heap _ _
   E E′ : Env _ _
   γ δ η θ : Conₘ _
   p q q′ r : M
@@ -46,9 +46,10 @@ private variable
 -- A comparison relation for the grades in the heap.
 -- H ≤ʰ p iff all grades in the heap are bounded by p.
 
-data _≤ʰ_ : (H : Heap n) (p : M) → Set a where
+data _≤ʰ_ : (H : Heap k n) (p : M) → Set a where
   ε : ε ≤ʰ p
   _∙_ : H ≤ʰ p → q ≤ p → H ∙ (q , t , E) ≤ʰ p
+  _∙● : H ≤ʰ p → H ∙● ≤ʰ p
 
 ------------------------------------------------------------------------
 -- Usage of closures
@@ -80,11 +81,12 @@ data _⨾_▸ᶜ[_]_ (γ : Conₘ n) (p : M) (m : Mode) :
 ------------------------------------------------------------------------
 -- Usage of heaps.
 
-data _▸ʰ_ : (γ : Conₘ n) (H : Heap n) → Set a where
+data _▸ʰ_ : (γ : Conₘ n) (H : Heap k n) → Set a where
   ε : ε ▸ʰ ε
   _∙_ : (γ +ᶜ p ·ᶜ wkᶜ E δ) ▸ʰ H
       → δ ⨾ p ▸ᶜ[ m ] (q , t , E)
       → γ ∙ p ▸ʰ H ∙ (q , t , E)
+  _∙● : γ ▸ʰ H → γ ∙ 𝟘 ▸ʰ H ∙●
 
 ------------------------------------------------------------------------
 -- Usage of eliminators and stacks
@@ -114,6 +116,6 @@ data _▸ˢ_ {n : Nat} : (γ : Conₘ n) (S : Stack n) → Set a where
 ------------------------------------------------------------------------
 -- Usage of evaluation states.
 
-_⨾_⨾_▸_ : (γ : Conₘ n) (δ : Conₘ k) (η : Conₘ n) (s : State n k) → Set a
+_⨾_⨾_▸_ : (γ : Conₘ n) (δ : Conₘ ℓ) (η : Conₘ n) (s : State k n ℓ) → Set a
 γ ⨾ δ ⨾ η ▸ ⟨ H , t , E , S ⟩ =
   γ ▸ʰ H × δ ▸ t × η ▸ˢ S × γ ≤ᶜ ∣ S ∣ ·ᶜ wkᶜ E δ +ᶜ η

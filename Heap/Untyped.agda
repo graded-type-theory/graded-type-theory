@@ -11,7 +11,7 @@ module Heap.Untyped
   (𝕄 : Modality M)
   (type-variant : Type-variant)
   where
-open Modality 𝕄
+open Modality 𝕄 hiding (_+_)
 open Type-variant type-variant
 
 open import Tools.Empty
@@ -27,7 +27,7 @@ open import Graded.Modality.Properties.Subtraction semiring-with-meet
 open import Graded.Modality.Nr-instances
 
 private variable
-  n n′ m m′ m″ n″ : Nat
+  n n′ m m′ m″ n″ k : Nat
   Γ : Con Term _
   t t₁ t₂ u v A B : Term _
   x : Fin _
@@ -37,7 +37,6 @@ private variable
   ρ : Wk _ _
 
 infixl 20 _⊢_↦[_]_⨾_
-infixl 24 _∙_
 infix   2 ⟨_,_,_,_⟩
 
 ------------------------------------------------------------------------
@@ -173,69 +172,96 @@ sucₛ (1+ n) = sucₑ ∙ sucₛ n
 
 -- Heaps are collections of bindings.
 
-data Heap : (m : Nat) → Set a where
-  ε   : Heap 0
-  _∙_ : (H : Heap m) → (c : Closureₘ m n) → Heap (1+ m)
+infixl 24 _∙_
+infixl 24 _∙●
+
+data Heap : (k m : Nat) → Set a where
+  ε   : Heap 0 0
+  _∙_ : (H : Heap k m) → (c : Closureₘ m n) → Heap k (1+ m)
+  _∙● : (H : Heap k m) → Heap (1+ k) (1+ m)
+
+-- A heap where all entries are erased
+
+erasedHeap : (k : Nat) → Heap k k
+erasedHeap 0 = ε
+erasedHeap (1+ k) = erasedHeap k ∙●
 
 private variable
-  H H′ : Heap _
+  H H′ : Heap _ _
   c : Closure _ _
   c′ : Closureₘ _ _
   E E′ : Env _ _
   S : Stack _
+  y : Ptr _
 
 -- Heap lookup (with grade update)
 -- Note that lookup fails e.g. when the grade is 𝟘.
 
-data _⊢_↦[_]_⨾_ : (H : Heap m) (y : Ptr m) (q : M)
-                  (c : Closure m n) (H′ : Heap m) → Set a where
+data _⊢_↦[_]_⨾_ : (H : Heap k m) (y : Ptr m) (q : M)
+                  (c : Closure m n) (H′ : Heap k m) → Set a where
   here : p - q ≡ r
        → H ∙ (p , c) ⊢ y0 ↦[ q ] wk1ᶜ c ⨾ H ∙ (r , c)
-  there : {y : Ptr m} {H : Heap m}
-        → H ⊢ y ↦[ q ] c ⨾ H′
+  there : H ⊢ y ↦[ q ] c ⨾ H′
         → H ∙ c′ ⊢ y +1 ↦[ q ] wk1ᶜ c ⨾ H′ ∙ c′
+  there● : H ⊢ y ↦[ q ] c ⨾ H′
+         → H ∙● ⊢ y +1 ↦[ q ] wk1ᶜ c ⨾ H′ ∙●
+
 
 -- Heap lookup (without grade update)
 
-data _⊢_↦_ : (H : Heap m) (y : Ptr m) (c : Closure m n) → Set a where
+data _⊢_↦_ : (H : Heap k m) (y : Ptr m) (c : Closure m n) → Set a where
   here : H ∙ (p , c) ⊢ y0 ↦ wk1ᶜ c
-  there : {y : Ptr m} {H : Heap m}
-        → H ⊢ y ↦ c
+  there : H ⊢ y ↦ c
         → H ∙ c′ ⊢ y +1 ↦ wk1ᶜ c
+  there● : H ⊢ y ↦ c
+         → H ∙● ⊢ y +1 ↦ wk1ᶜ c
+
 
 -- Equality of heaps up to grades
 
-data _~ʰ_ : (H H′ : Heap m) → Set a where
+infix 5 _~ʰ_
+
+data _~ʰ_ : (H H′ : Heap k m) → Set a where
   ε : ε ~ʰ ε
   _∙_ : H ~ʰ H′ → (c : Closure m n) → H ∙ (p , c) ~ʰ H′ ∙ (q , c)
+  _∙● : H ~ʰ H′ → H ∙● ~ʰ H′ ∙●
 
 -- Weakening of heaps
 
-data _∷_⊇ʰ_ : (ρ : Wk m n) (H : Heap m) (H′ : Heap n) → Set a where
+data _∷_⊇ʰ_ : (ρ : Wk m n) (H : Heap k m) (H′ : Heap k n) → Set a where
   id : id ∷ H ⊇ʰ H
   step : ρ ∷ H ⊇ʰ H′ → step ρ ∷ H ∙ c′ ⊇ʰ H′
   -- lift : ρ ∷ H ⊇ʰ H′ → lift ρ ∷ H ∙ (p , wkᶜ ρ c) ⊇ʰ H′ ∙ (p , c)
 
 -- Heaps as substitutions
 
-toSubstₕ : Heap m → Subst 0 m
+toSubstₕ : Heap k m → Subst k m
 toSubstₕ ε = idSubst
 toSubstₕ (H ∙ (_ , t , E)) =
   let σ = toSubstₕ H
   in  consSubst σ (wk E t [ σ ])
+toSubstₕ (H ∙●) = liftSubst (toSubstₕ H)
 
 infix 25 _[_]ₕ
 infix 25 _[_]⇑ₕ
 infix 25 _[_]⇑²ₕ
 
-_[_]ₕ : Term m → Heap m → Term 0
+_[_]ₕ : Term m → Heap k m → Term k
 t [ H ]ₕ = t [ toSubstₕ H ]
 
-_[_]⇑ₕ : Term (1+ m) → Heap m → Term 1
+_[_]⇑ₕ : Term (1+ m) → Heap k m → Term (1+ k)
 t [ H ]⇑ₕ = t [ liftSubst (toSubstₕ H) ]
 
-_[_]⇑²ₕ : Term (2+ m) → Heap m → Term 2
+_[_]⇑²ₕ : Term (2+ m) → Heap k m → Term (2+ k)
 t [ H ]⇑²ₕ = t [ liftSubstn (toSubstₕ H) 2 ]
+
+-- A weakening that acts as an "inverse" to a heap substitution
+-- See HeapUntyped.Properties.toWkₕ-toSubstₕ
+
+toWkₕ : Heap k m → Wk m k
+toWkₕ ε = id
+toWkₕ (H ∙ c) = step (toWkₕ H)
+toWkₕ (H ∙●) = lift (toWkₕ H)
 
 ------------------------------------------------------------------------
 -- Evaluation states
@@ -243,10 +269,10 @@ t [ H ]⇑²ₕ = t [ liftSubstn (toSubstₕ H) 2 ]
 -- States, indexed by the size of the heap and the number of free
 -- variables in the head.
 
-record State (m n : Nat) : Set a where
+record State (k m n : Nat) : Set a where
   constructor ⟨_,_,_,_⟩
   field
-    heap : Heap m
+    heap : Heap k m
     head : Term n
     env : Env m n
     stack : Stack m
@@ -275,34 +301,35 @@ record State (m n : Nat) : Set a where
 ⦅ ε ⦆ = idᶠ
 ⦅ e ∙ S ⦆ = ⦅ S ⦆ ∘ᶠ ⦅ e ⦆ᵉ
 
-norm : State m n → Term 0
+norm : (s : State k m n) → Term k
 norm ⟨ H , t , E , S ⟩ = ⦅ S ⦆ (wk E t) [ H ]ₕ
 
-initial : Term 0 → State 0 0
-initial t = ⟨ ε , t , id , ε ⟩
+initial : Term k → State k k k
+initial {k} t = ⟨ erasedHeap k , t , id , ε ⟩
 
 ------------------------------------------------------------------------
 -- Values and normal form head terms
 
 -- Values are those terms that do not evaluate further
 
-data Val {n : Nat} : (t : Term n) → Set a where
-  lamᵥ : Val (lam p t)
-  zeroᵥ : Val zero
-  sucᵥ : Val (suc t)
-  starᵥ : Val (star s)
-  prodᵥ : Val (prod s p u t)
-  rflᵥ : Val rfl
-  Uᵥ : Val U
-  ΠΣᵥ : Val (ΠΣ⟨ b ⟩ p , q ▷ A ▹ B)
-  ℕᵥ : Val ℕ
-  Unitᵥ : Val (Unit s)
-  Emptyᵥ : Val Empty
-  Idᵥ : Val (Id A t u)
+data Value {n : Nat} : (t : Term n) → Set a where
+  lamᵥ : Value (lam p t)
+  zeroᵥ : Value zero
+  sucᵥ : Value (suc t)
+  starᵥ : Value (star s)
+  prodᵥ : Value (prod s p u t)
+  rflᵥ : Value rfl
+  Uᵥ : Value U
+  ΠΣᵥ : Value (ΠΣ⟨ b ⟩ p , q ▷ A ▹ B)
+  ℕᵥ : Value ℕ
+  Unitᵥ : Value (Unit s)
+  Emptyᵥ : Value Empty
+  Idᵥ : Value (Id A t u)
 
--- Terms which represent normal form states when in head position
+-- States in normal form
 
-data Normal {n : Nat} : (t : Term n) → Set a where
-  val : Val t → Normal t
-  emptyrecₙ : Normal (emptyrec p A t)
-  unitrec-ηₙ : Unitʷ-η → Normal (unitrec p q A t u)
+data Normal : (State k m n) → Set a where
+  val : Value t → Normal ⟨ H , t , E , S ⟩
+  var : (∀ {n} {c : Closure _ n} → H ⊢ wkVar E x ↦ c → ⊥) → Normal ⟨ H , var x , E , S ⟩
+  emptyrecₙ : Normal ⟨ H , emptyrec p A t , E , S ⟩
+  unitrec-ηₙ : Unitʷ-η → Normal ⟨ H , unitrec p q A t u , E , S ⟩

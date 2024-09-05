@@ -23,7 +23,6 @@ open import Definition.Typed TR
 open import Definition.Typed.Properties TR
 open import Definition.Typed.Consequences.DerivedRules TR
 open import Definition.Typed.Consequences.Inversion TR
-open import Definition.Typed.Consequences.Stability TR
 open import Definition.Typed.Consequences.Substitution TR
 open import Definition.Typed.Consequences.Syntactic TR
 
@@ -32,36 +31,54 @@ open import Heap.Untyped 𝕄 type-variant
 open import Heap.Untyped.Properties 𝕄 type-variant
 
 open import Tools.Empty
+open import Tools.Fin
 open import Tools.Function
+open import Tools.Nat using (1+)
 open import Tools.Product
 open import Tools.Relation
 import Tools.PropositionalEquality as PE
 
 private variable
-  H : Heap _
-  Γ : Con Term _
+  H : Heap _ _
+  Γ Δ : Con Term _
   t u A B : Term _
   e : Elim _
   S : Stack _
-  s : State _ _
+  s : State _ _ _
+  x : Fin _
 
 opaque
 
-  -- Typing of the initial state
+  -- Typing of erased heaps
 
-  ⊢initial : ε ⊢ t ∷ A → ε ⊢ₛ initial t ∷ A
-  ⊢initial {t} ⊢t =
-    _ , ε , PE.subst (ε ⊢_∷ _)
-      (PE.sym (PE.trans (subst-id (wk id t)) (wk-id t))) ⊢t , ε
+  ⊢erasedHeap : ∀ {n} {Δ : Con Term n} → ⊢ Δ → Δ ⊢ʰ erasedHeap n ∷ Δ
+  ⊢erasedHeap {0} {(ε)} ⊢Δ = ε ⊢Δ
+  ⊢erasedHeap {1+ n} {(Δ ∙ A)} (⊢Δ ∙ ⊢A) =
+    PE.subst (λ x → Δ ∙ x ⊢ʰ _ ∷ Δ ∙ A)
+      (erasedHeap-subst A)
+      (⊢erasedHeap ⊢Δ ∙● ⊢A)
+
+opaque
+
+ -- Typing of the initial state
+
+  ⊢initial : Δ ⊢ t ∷ A → Δ ⨾ Δ ⊢ initial t ∷ A
+  ⊢initial {Δ} {t} {A} ⊢t =
+    A , ⊢erasedHeap (wfTerm ⊢t)
+      , PE.subst (Δ ⊢_∷ _) (lemma t) ⊢t
+      , ε
+    where
+    lemma : ∀ {n} (t : Term n) → t PE.≡ wk id t [ erasedHeap _ ]ₕ
+    lemma t = PE.sym (PE.trans (erasedHeap-subst (wk id t)) (wk-id t))
 
 opaque
 
   -- Well-typed terms applied to well-typed eliminators are
   -- well-typed under a heap substitution.
 
-  ⊢⦅⦆ᵉ : H ⊢ᵉ e ∷ t ∷ A ↝ B
-      → ε ⊢ t [ H ]ₕ ∷ A
-      → ε ⊢ ⦅ e ⦆ᵉ t [ H ]ₕ ∷ B
+  ⊢⦅⦆ᵉ : Δ ⨾ H ⊢ᵉ e ⟨ t ⟩∷ A ↝ B
+      → Δ ⊢ t [ H ]ₕ ∷ A
+      → Δ ⊢ ⦅ e ⦆ᵉ t [ H ]ₕ ∷ B
   ⊢⦅⦆ᵉ (∘ₑ ⊢u _) ⊢t =
     ⊢t ∘ⱼ ⊢u
   ⊢⦅⦆ᵉ (fstₑ _ _) ⊢t =
@@ -90,8 +107,8 @@ opaque
 --   -- An inverse of the above property
 
 --   ⊢⦅⦆ᵉ⁻¹ : ⦃ T ℕ-fullred ⦄
---          → ε ⊢ ⦅ e ⦆ᵉ t [ H ]ₕ ∷ B
---          → ∃ λ A → H ⊢ᵉ e ∷ t ∷ A ↝ B × ε ⊢ t [ H ]ₕ ∷ A
+--          → Δ ⊢ ⦅ e ⦆ᵉ t [ H ]ₕ ∷ B
+--          → ∃ λ A → Δ ⨾ H ⊢ᵉ e ⟨ t ⟩∷ A ↝ B × Δ ⊢ t [ H ]ₕ ∷ A
 --   ⊢⦅⦆ᵉ⁻¹ {e = ∘ₑ p u E} ⊢et =
 --     case inversion-app ⊢et of λ
 --       (F , G , q , ⊢t , ⊢u , B≡Gu) →
@@ -101,12 +118,7 @@ opaque
 --   ⊢⦅⦆ᵉ⁻¹ {e = fstₑ p} ⊢et =
 --     case inversion-fst ⊢et of λ
 --       (F , G , q , ⊢F , ⊢G , ⊢t , B≡F) →
---     case ⊢∷ΠΣ→ΠΣ-allowed ⊢t of λ
---       ok →
---     case syntacticEq B≡F of λ
---       (⊢B , _) →
---     _ , fstₑ ⊢B (stability (ε ∙ sym B≡F) ⊢G)
---       , conv ⊢t (ΠΣ-cong′ (sym B≡F) (refl ⊢G) ok)
+--     _ , conv (fstₑ ⊢F ⊢G) (sym B≡F) , ⊢t
 --   ⊢⦅⦆ᵉ⁻¹ {e = sndₑ p} ⊢et =
 --     case inversion-snd ⊢et of λ
 --       (F , G , q , ⊢F , ⊢G , ⊢t , B≡Gt) →
@@ -145,9 +157,9 @@ opaque
   -- Well-typed terms applied to well-typed stacks are
   -- well-typed under a heap substitution.
 
-  ⊢⦅⦆ : H ⊢ S ∷ t ∷ A ↝ B
-     → ε ⊢ t [ H ]ₕ ∷ A
-     → ε ⊢ ⦅ S ⦆ t [ H ]ₕ ∷ B
+  ⊢⦅⦆ : Δ ⨾ H ⊢ S ⟨ t ⟩∷ A ↝ B
+     → Δ ⊢ t [ H ]ₕ ∷ A
+     → Δ ⊢ ⦅ S ⦆ t [ H ]ₕ ∷ B
   ⊢⦅⦆ ε ⊢t = ⊢t
   ⊢⦅⦆ {H} {S = e ∙ S} {t} (⊢e ∙ ⊢S) ⊢t =
     ⊢⦅⦆ ⊢S (⊢⦅⦆ᵉ ⊢e ⊢t)
@@ -158,7 +170,7 @@ opaque
 
 --   ⊢⦅⦆⁻¹ : ⦃ T ℕ-fullred ⦄
 --        → ε ⊢ ⦅ S ⦆ t [ H ]ₕ ∷ B
---        → ∃ λ A → H ⊢ S ∷ t ∷ A ↝ B × ε ⊢ t [ H ]ₕ ∷ A
+--        → ∃ λ A → H ⊢ S ⟨ t ⟩∷ A ↝ B × ε ⊢ t [ H ]ₕ ∷ A
 --   ⊢⦅⦆⁻¹ {S = ε} ⊢St =
 --     _ , ε , ⊢St
 --   ⊢⦅⦆⁻¹ {S = e ∙ S} ⊢St =
@@ -173,9 +185,9 @@ opaque
   -- Equal terms are equal when applied to eliminators under
   -- heap substitutions.
 
-  ⊢⦅⦆ᵉ-cong : H ⊢ᵉ e ∷ t ∷ A ↝ B
-           → ε ⊢ t [ H ]ₕ ≡ u [ H ]ₕ ∷ A
-           → ε ⊢ ⦅ e ⦆ᵉ t [ H ]ₕ ≡ ⦅ e ⦆ᵉ u [ H ]ₕ ∷ B
+  ⊢⦅⦆ᵉ-cong : Δ ⨾ H ⊢ᵉ e ⟨ t ⟩∷ A ↝ B
+           → Δ ⊢ t [ H ]ₕ ≡ u [ H ]ₕ ∷ A
+           → Δ ⊢ ⦅ e ⦆ᵉ t [ H ]ₕ ≡ ⦅ e ⦆ᵉ u [ H ]ₕ ∷ B
   ⊢⦅⦆ᵉ-cong (∘ₑ ⊢u _) t≡u =
     app-cong t≡u (refl ⊢u)
   ⊢⦅⦆ᵉ-cong (fstₑ _ _) t≡u =
@@ -210,9 +222,9 @@ opaque
   -- Equal terms are equal when applied to stacks under
   -- heap substitutions.
 
-  ⊢⦅⦆-cong : H ⊢ S ∷ t ∷ A ↝ B
-          → ε ⊢ t [ H ]ₕ ≡ u [ H ]ₕ ∷ A
-          → ε ⊢ ⦅ S ⦆ t [ H ]ₕ ≡ ⦅ S ⦆ u [ H ]ₕ ∷ B
+  ⊢⦅⦆-cong : Δ ⨾ H ⊢ S ⟨ t ⟩∷ A ↝ B
+          → Δ ⊢ t [ H ]ₕ ≡ u [ H ]ₕ ∷ A
+          → Δ ⊢ ⦅ S ⦆ t [ H ]ₕ ≡ ⦅ S ⦆ u [ H ]ₕ ∷ B
   ⊢⦅⦆-cong ε t≡u = t≡u
   ⊢⦅⦆-cong {H} {S = e ∙ S} (⊢e ∙ ⊢S) t≡u =
     ⊢⦅⦆-cong ⊢S (⊢⦅⦆ᵉ-cong ⊢e t≡u)
@@ -222,9 +234,9 @@ opaque
   -- Applying terms to eliminators respects reduction
 
   ⊢⦅⦆ᵉ-subst : ⦃ T (not ℕ-fullred) ⦄
-            → H ⊢ᵉ e ∷ t ∷ A ↝ B
-            → ε ⊢ t [ H ]ₕ ⇒ u [ H ]ₕ ∷ A
-            → ε ⊢ ⦅ e ⦆ᵉ t [ H ]ₕ ⇒ ⦅ e ⦆ᵉ u [ H ]ₕ ∷ B
+            → Δ ⨾ H ⊢ᵉ e ⟨ t ⟩∷ A ↝ B
+            → Δ ⊢ t [ H ]ₕ ⇒ u [ H ]ₕ ∷ A
+            → Δ ⊢ ⦅ e ⦆ᵉ t [ H ]ₕ ⇒ ⦅ e ⦆ᵉ u [ H ]ₕ ∷ B
   ⊢⦅⦆ᵉ-subst (∘ₑ ⊢u _) d =
     app-subst d ⊢u
   ⊢⦅⦆ᵉ-subst (fstₑ _ _) d =
@@ -253,9 +265,9 @@ opaque
   -- Applying terms to stacks respects reduction
 
   ⊢⦅⦆-subst : ⦃ T (not ℕ-fullred) ⦄
-           → H ⊢ S ∷ t ∷ A ↝ B
-           → ε ⊢ (t [ H ]ₕ) ⇒ (u [ H ]ₕ) ∷ A
-           → ε ⊢ ⦅ S ⦆ t [ H ]ₕ ⇒ ⦅ S ⦆ u [ H ]ₕ ∷ B
+           → Δ ⨾ H ⊢ S ⟨ t ⟩∷ A ↝ B
+           → Δ ⊢ (t [ H ]ₕ) ⇒ (u [ H ]ₕ) ∷ A
+           → Δ ⊢ ⦅ S ⦆ t [ H ]ₕ ⇒ ⦅ S ⦆ u [ H ]ₕ ∷ B
   ⊢⦅⦆-subst ε d = d
   ⊢⦅⦆-subst (⊢e ∙ ⊢S) d =
     ⊢⦅⦆-subst ⊢S (⊢⦅⦆ᵉ-subst ⊢e d)
@@ -264,18 +276,18 @@ opaque
 
   -- Conversion of the head term in eliminator typing
 
-  ⊢ᵉ-convₜ : H ⊢ᵉ e ∷ t ∷ A ↝ B
-           → ε ⊢ t [ H ]ₕ ≡ u [ H ]ₕ ∷ A
-           → H ⊢ᵉ e ∷ u ∷ A ↝ B
-  ⊢ᵉ-convₜ (∘ₑ ⊢v ⊢B) t≡u =
-    ∘ₑ ⊢v ⊢B
+  ⊢ᵉ-convₜ : Δ ⨾ H ⊢ᵉ e ⟨ t ⟩∷ A ↝ B
+           → Δ ⊢ t [ H ]ₕ ≡ u [ H ]ₕ ∷ A
+           → Δ ⨾ H ⊢ᵉ e ⟨ u ⟩∷ A ↝ B
+  ⊢ᵉ-convₜ (∘ₑ {A} {B} ⊢v ⊢B) t≡u =
+    ∘ₑ {A = A} {B} ⊢v ⊢B
   ⊢ᵉ-convₜ (fstₑ ⊢A ⊢B) t≡u =
     fstₑ ⊢A ⊢B
   ⊢ᵉ-convₜ (sndₑ ⊢A ⊢B) t≡u =
     conv (sndₑ ⊢A ⊢B)
       (substTypeEq (refl ⊢B) (fst-cong′ (sym t≡u)))
-  ⊢ᵉ-convₜ (prodrecₑ ⊢v ⊢A) t≡u =
-    conv (prodrecₑ ⊢v ⊢A)
+  ⊢ᵉ-convₜ (prodrecₑ {B} {C} ⊢v ⊢A) t≡u =
+    conv (prodrecₑ {B = B} {C} ⊢v ⊢A)
       (substTypeEq (refl ⊢A) (sym t≡u))
   ⊢ᵉ-convₜ (natrecₑ ⊢z ⊢s ⊢A) t≡u =
     conv (natrecₑ ⊢z ⊢s ⊢A)
@@ -283,12 +295,12 @@ opaque
   ⊢ᵉ-convₜ (unitrecₑ ⊢v ⊢A no-η) t≡u =
     conv (unitrecₑ ⊢v ⊢A no-η)
       (substTypeEq (refl ⊢A) (sym t≡u))
-  ⊢ᵉ-convₜ {H} {t} {u} (Jₑ ⊢u ⊢B) t≡u =
+  ⊢ᵉ-convₜ {Δ} {H} {t} {u} (Jₑ ⊢u ⊢B) t≡u =
     case inversion-Id (syntacticEqTerm t≡u .proj₁) of λ
       (⊢A , ⊢t , ⊢v) →
-    case PE.subst (ε ⊢ _ ∷_) (PE.sym (subst-id _)) ⊢v of λ
+    case PE.subst (_ ⊢ _ ∷_) (PE.sym (subst-id _)) ⊢v of λ
       ⊢v′ →
-    case PE.subst (ε ⊢ t [ H ]ₕ ≡ u [ H ]ₕ ∷_)
+    case PE.subst (Δ ⊢ t [ H ]ₕ ≡ u [ H ]ₕ ∷_)
            (PE.sym (PE.cong₂ (λ A t → Id A t _)
              (wk1-sgSubst _ _) (wk1-sgSubst _ _))) t≡u of λ
       t≡u′ →
@@ -308,9 +320,9 @@ opaque
 
   -- Conversion of the head term in stack typing
 
-  ⊢ˢ-convₜ : H ⊢ S ∷ t ∷ A ↝ B
-          → ε ⊢ t [ H ]ₕ ≡ u [ H ]ₕ ∷ A
-          → H ⊢ S ∷ u ∷ A ↝ B
+  ⊢ˢ-convₜ : Δ ⨾ H ⊢ S ⟨ t ⟩∷ A ↝ B
+          → Δ ⊢ t [ H ]ₕ ≡ u [ H ]ₕ ∷ A
+          → Δ ⨾ H ⊢ S ⟨ u ⟩∷ A ↝ B
   ⊢ˢ-convₜ ε t≡u = ε
   ⊢ˢ-convₜ (⊢e ∙ ⊢S) t≡u =
     ⊢ᵉ-convₜ ⊢e t≡u ∙ ⊢ˢ-convₜ ⊢S (⊢⦅⦆ᵉ-cong ⊢e t≡u)
@@ -318,7 +330,7 @@ opaque
 opaque
 
   ⊢whnf⦅⦆ᵉ : ⦃ T (not ℕ-fullred) ⦄
-          → H ⊢ᵉ e ∷ u ∷ A ↝ B
+          → Δ ⨾ H ⊢ᵉ e ⟨ u ⟩∷ A ↝ B
           → ¬ Neutral t
           → ¬ Whnf (⦅ e ⦆ᵉ t)
   ⊢whnf⦅⦆ᵉ (∘ₑ _ _) ¬n (ne (∘ₙ n)) = ¬n n
@@ -336,9 +348,36 @@ opaque
 opaque
 
   ⊢whnf⦅⦆ : ⦃ T (not ℕ-fullred) ⦄
-         → H ⊢ e ∙ S ∷ u ∷ A ↝ B
+         → Δ ⨾ H ⊢ e ∙ S ⟨ u ⟩∷ A ↝ B
          → ¬ Neutral t
          → ¬ Whnf (⦅ e ∙ S ⦆ t)
   ⊢whnf⦅⦆ (⊢e ∙ ε) n w = ⊢whnf⦅⦆ᵉ ⊢e n w
   ⊢whnf⦅⦆ {e} (⊢e ∙ (⊢e′ ∙ ⊢S)) n w =
     ⊢whnf⦅⦆ (⊢e′ ∙ ⊢S) (¬⦅⦆ᵉ-neutral e n) w
+
+opaque
+
+  ⊢⦅⦆ᵉ-NeutralAt : ⦃ T (not ℕ-fullred) ⦄
+                → Δ ⨾ H ⊢ᵉ e ⟨ t ⟩∷ A ↝ B
+                → NeutralAt x t
+                → NeutralAt x (⦅ e ⦆ᵉ t)
+  ⊢⦅⦆ᵉ-NeutralAt (∘ₑ _ _) n = ∘ₙ n
+  ⊢⦅⦆ᵉ-NeutralAt (fstₑ _ _) n = fstₙ n
+  ⊢⦅⦆ᵉ-NeutralAt (sndₑ _ _) n = sndₙ n
+  ⊢⦅⦆ᵉ-NeutralAt (prodrecₑ _ _) n = prodrecₙ n
+  ⊢⦅⦆ᵉ-NeutralAt (natrecₑ _ _ _) n = natrecₙ n
+  ⊢⦅⦆ᵉ-NeutralAt (unitrecₑ _ _ x) n = unitrecₙ x n
+  ⊢⦅⦆ᵉ-NeutralAt (Jₑ _ _) n = Jₙ n
+  ⊢⦅⦆ᵉ-NeutralAt (Kₑ _ _ _) n = Kₙ n
+  ⊢⦅⦆ᵉ-NeutralAt ([]-congₑ _) n = []-congₙ n
+  ⊢⦅⦆ᵉ-NeutralAt sucₑ n = ⊥-elim (not-T-and-¬T′ ℕ-fullred)
+  ⊢⦅⦆ᵉ-NeutralAt (conv ⊢e x) n = ⊢⦅⦆ᵉ-NeutralAt ⊢e n
+
+opaque
+
+  ⊢⦅⦆-NeutralAt : ⦃ T (not ℕ-fullred) ⦄
+               → Δ ⨾ H ⊢ S ⟨ t ⟩∷ A ↝ B
+               → NeutralAt x t
+               → NeutralAt x (⦅ S ⦆ t)
+  ⊢⦅⦆-NeutralAt ε n = n
+  ⊢⦅⦆-NeutralAt (⊢e ∙ ⊢S) n = ⊢⦅⦆-NeutralAt ⊢S (⊢⦅⦆ᵉ-NeutralAt ⊢e n)

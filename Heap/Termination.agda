@@ -55,25 +55,26 @@ import Heap.Reduction.Properties 𝕄 type-variant (not-tracking-and-ℕ-fullred
 private variable
   t u A B : Term _
   γ δ η : Conₘ _
-  H : Heap _
+  H : Heap _ _
   E : Env _ _
   S : Stack _
   e : Elim _
-  Γ : Con Term _
-  s : State _ _
+  Γ Δ : Con Term _
+  s : State _ _ _
 
 opaque
 
   -- Well-typed and well-resourced terms evaluate to values with empty stacks
   -- corresponding to terms in Whnf.
 
-  whBisim : ε ⊢ norm s ↘ u ∷ A
-          → Γ ⊢ₛ s ∷ B
+  whBisim : Consistent Δ
+          → Δ ⊢ norm s ↘ u ∷ A
+          → Δ ⨾ Γ ⊢ s ∷ B
           → γ ⨾ δ ⨾ η ▸ s
           → ∃₂ λ m n → ∃₃ λ H t (E : Env m n)
-          → s ⇒* ⟨ H , t , E , ε ⟩ × wk E t [ H ]ₕ ≡ u × Val t
-  whBisim {s = ⟨ H , t , E , S ⟩} (d , w) ⊢s ▸s =
-    case bisim₆* UA {S = S} {E = E} {t} d ⊢s ▸s of λ {
+          → s ⇒* ⟨ H , t , E , ε ⟩ × wk E t [ H ]ₕ ≡ u × Value t
+  whBisim {s = ⟨ H , t , E , S ⟩} consistent (d , w) ⊢s ▸s =
+    case bisim₆* UA {S = S} {E = E} {t} consistent d ⊢s ▸s of λ {
       (_ , _ , ⟨ H , t′ , E , S ⟩ , d₁ , refl) →
     case normalize H t′ E S of λ
       (_ , t″ , E′ , S′ , n , dₙ) →
@@ -93,10 +94,16 @@ opaque
           refl →
         _ , _ , _ , t″ , E′ , d₁ RPₜ.⇨* dₜ
           , PE.sym (PE.trans t′≡t″ (cong (wk E′ t″ [_]) (~ʰ-subst H~H′))) , v}
+      (var ¬d) →
+        case ▸-⇒* ▸s′ dₜ of λ
+          (_ , _ , _ , ▸s″) →
+        case ▸s→y↦ subtraction-ok ▸s″ of λ
+          (_ , _ , _ , d) →
+        ⊥-elim (¬d (~ʰ-lookup (~ʰ-sym H~H′) (↦[]→↦ d)))
       emptyrecₙ →
         case inversion-emptyrec ⊢t″ of λ
           (_ , ⊢∷Empty , _) →
-        ⊥-elim (¬Empty ⊢∷Empty)
+        ⊥-elim (consistent _ ⊢∷Empty)
       (unitrec-ηₙ {u = u} η) →
         case inversion-unitrec ⊢t″ of λ
           (⊢A , ⊢t , ⊢u , B≡) →
@@ -105,11 +112,11 @@ opaque
         ⊥-elim (whnfRedTerm d′ (subst Whnf t′≡t″ w)) }}
     where
     lemma : ∀ {n} {t : Term n} {H E S}
-          → Whnf u → Val t → Γ ⊢ₛ ⟨ H , t , E , S ⟩ ∷ A
+          → Whnf u → Value t → Δ ⨾ Γ ⊢ ⟨ H , t , E , S ⟩ ∷ A
           → u PE.≡ norm ⟨ H , t , E , S ⟩ → S PE.≡ ε
     lemma {S = ε} w n _ u≡ = refl
     lemma {t} {H} {E} {S = e ∙ S} w v (_ , _ , _ , ⊢S) u≡ =
-      case Val→Whnf v of λ
+      case Value→Whnf v of λ
         (_ , ¬n) →
       ⊥-elim (¬whnf-subst {σ = toSubstₕ H}
         (⊢whnf⦅⦆ {t = wk E t} ⊢S
@@ -120,13 +127,14 @@ opaque
 
   -- A variant of the above, starting with the initial state
 
-  whBisim-initial : ε ⊢ t ↘ u ∷ A → ε ▸ t
+  whBisim-initial : Consistent Δ
+                  → Δ ⊢ t ↘ u ∷ A → 𝟘ᶜ ▸ t
                   → ∃₂ λ m n → ∃₃ λ H u′ (E : Env m n)
-                  → initial t ⇒* ⟨ H , u′ , E , ε ⟩ × wk E u′ [ H ]ₕ ≡ u × Val u′
-  whBisim-initial d ▸t =
-    whBisim
-      (subst (ε ⊢_↘ _ ∷ _)
-        (PE.sym (PE.trans (subst-id (wk id _)) (wk-id _))) d)
+                  → initial t ⇒* ⟨ H , u′ , E , ε ⟩ × wk E u′ [ H ]ₕ ≡ u × Value u′
+  whBisim-initial consistent d ▸t =
+    whBisim consistent
+      (subst (_ ⊢_↘ _ ∷ _)
+        (PE.sym (PE.trans (erasedHeap-subst (wk id _)) (wk-id _))) d)
       (⊢initial (redFirst*Term (proj₁ d)))
       (▸initial ▸t)
 
@@ -135,12 +143,12 @@ opaque
   -- Well-typed and well-resourced terms evaluate to values with empty stacks
   -- corresponding to terms in Whnf.
 
-  whRed : ε ⊢ t ∷ A → ε ▸ t
+  whRed : Consistent Δ → Δ ⊢ t ∷ A → 𝟘ᶜ ▸ t
         → ∃₂ λ m n → ∃₃ λ H u′ (E : Env m n)
-          → initial t ⇒* ⟨ H , u′ , E , ε ⟩ × Val u′ × Whnf (norm ⟨ H , u′ , E , ε ⟩)
-  whRed ⊢t ▸t =
+          → initial t ⇒* ⟨ H , u′ , E , ε ⟩ × Value u′ × Whnf (norm ⟨ H , u′ , E , ε ⟩)
+  whRed consistent ⊢t ▸t =
     case whNormTerm ⊢t of λ
       (u , w , d) →
-    case whBisim-initial (redₜ d , w) ▸t of λ {
+    case whBisim-initial consistent (redₜ d , w) ▸t of λ {
       (_ , _ , _ , _ , _ , d′ , refl , v) →
     _ , _ , _ , _ , _ , d′ , v , w }

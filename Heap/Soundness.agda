@@ -50,7 +50,7 @@ open import Graded.Usage.Inversion 𝕄 UR
 
 open import Heap.Options
 open import Heap.Untyped 𝕄 type-variant
-open import Heap.Untyped.Properties 𝕄
+open import Heap.Untyped.Properties 𝕄 type-variant
 open import Heap.Usage 𝕄 type-variant UR
 open import Heap.Usage.Properties type-variant UR
 import Heap.Usage.Reduction UA (tracking-and-ℕ-fullred-if false) as URᶠ
@@ -74,10 +74,10 @@ open import Heap.Reduction.Properties 𝕄 type-variant (not-tracking-and-ℕ-fu
 private variable
   m : Nat
   n t A : Term _
-  s : State _ _
+  s : State _ _ _
   γ δ η : Conₘ _
-  Γ : Con Term _
-  H : Heap _
+  Γ Δ : Con Term _
+  H : Heap _ _
   E : Env _ _
   S : Stack _
 
@@ -85,10 +85,10 @@ opaque
 
   -- All well-typed and well-resourced states of type ℕ reduce to numerals
 
-  redNumeral : ε ⊩ℕ n ∷ℕ → n PE.≡ norm s → Γ ⊢ₛ s ∷ ℕ → γ ⨾ δ ⨾ η ▸ s
+  redNumeral : Consistent Δ → Δ ⊩ℕ n ∷ℕ → n PE.≡ norm s → Δ ⨾ Γ ⊢ s ∷ ℕ → γ ⨾ δ ⨾ η ▸ s
       → ∃₄ λ m n H (E : Env m n) → ∃ λ t → s ⇒* ⟨ H , t , E , ε ⟩ × Numeral t
-  redNumeral (ℕₜ _ d n≡n (sucᵣ x)) PE.refl ⊢s ▸s =
-    case whBisim (redₜ d , sucₙ) ⊢s ▸s of λ
+  redNumeral consistent (ℕₜ _ d n≡n (sucᵣ x)) PE.refl ⊢s ▸s =
+    case whBisim consistent (redₜ d , sucₙ) ⊢s ▸s of λ
       (_ , _ , H , t , E , d′ , ≡u , v) →
     case subst-suc {t = wk E t} ≡u of λ {
       (inj₁ (x , ≡x)) →
@@ -110,7 +110,7 @@ opaque
       (_ , _ , _ , ▸H , ▸t , ▸ε , γ≤) →
     case inv-usage-suc ▸t of λ
       (invUsageSuc ▸n″ δ≤)  →
-    case redNumeral {s = ⟨ H , n″ , E , ε ⟩} x
+    case redNumeral {s = ⟨ H , n″ , E , ε ⟩} consistent x
           (PE.sym (PE.trans (PE.cong (_[ H ]ₕ) ≡n′) ≡n))
           (_ , ⊢H , ⊢n″ , ε)
           (▸H , ▸n″ , ▸ε , ≤ᶜ-trans γ≤ (+ᶜ-monotoneˡ (·ᶜ-monotoneʳ (wk-≤ᶜ E δ≤)))) of λ
@@ -120,8 +120,8 @@ opaque
           (++sucₛ-⇒* {k = 1} d₀ ⇨* ((⇒ₛ (numₕ n)) ⇨ id))))
       , sucₙ n }}}
 
-  redNumeral (ℕₜ _ d n≡n zeroᵣ) PE.refl ⊢s ▸s =
-    case whBisim (redₜ d , zeroₙ) ⊢s ▸s of λ
+  redNumeral consistent (ℕₜ _ d n≡n zeroᵣ) PE.refl ⊢s ▸s =
+    case whBisim consistent (redₜ d , zeroₙ) ⊢s ▸s of λ
       (_ , _ , H , t , E , d′ , ≡u , v) →
     case subst-zero {t = wk E t} ≡u of λ {
       (inj₁ (x , ≡x)) →
@@ -133,25 +133,29 @@ opaque
       PE.refl →
     _ , _ , _ , _ , _ , bisim₇* true d′ , zeroₙ }}
 
-  redNumeral (ℕₜ _ d n≡n (ne (neNfₜ neK ⊢k k≡k))) n≡ ⊢s ▸s =
-    ⊥-elim (noClosedNe neK)
+  redNumeral consistent (ℕₜ _ d n≡n (ne (neNfₜ neK ⊢k k≡k))) PE.refl ⊢s ▸s =
+    case whBisim consistent (redₜ d , ne neK) ⊢s ▸s of λ {
+      (_ , _ , H , t , E , d′ , PE.refl , v) →
+    case Value→Whnf (substValue (toSubstₕ H) (wkValue E v)) of λ
+      (_ , ¬neK) →
+    ⊥-elim (¬neK neK) }
 
 opaque
 
-  -- All well-typed and well-resourced terms of type ℕ reduce to some
+  -- All well-typed and erased terms of type ℕ reduce to some
   -- numeral and the resulting heap has all grades less than or equal to 𝟘.
 
-  soundness : ε ⊢ t ∷ ℕ → ε ▸ t
+  soundness : Consistent Δ → Δ ⊢ t ∷ ℕ → 𝟘ᶜ ▸ t
             → ∃₂ λ m n → ∃₃ λ H k (E : Env m n) →
               initial t ⇒* ⟨ H , sucᵏ k , E , ε ⟩ ×
-              (ε ⊢ t ≡ sucᵏ k ∷ ℕ) ×
+              (Δ ⊢ t ≡ sucᵏ k ∷ ℕ) ×
               H ≤ʰ 𝟘
-  soundness {t} ⊢t ▸t =
+  soundness {t} consistent ⊢t ▸t =
     case ▸initial ▸t of λ
       ▸s →
     case ⊩∷ℕ⇔ .proj₁ (reducible-⊩∷ ⊢t) of λ
       [t] →
-    case redNumeral [t] (PE.sym (PE.trans (subst-id (wk id t)) (wk-id t)))
+    case redNumeral consistent [t] (PE.sym (PE.trans (erasedHeap-subst (wk id t)) (wk-id t)))
            (⊢initial false ⊢t) ▸s of λ
       (_ , _ , H , E , t , d , num) →
     case URᵗ.▸-⇒* ▸s d of λ {
@@ -163,8 +167,8 @@ opaque
     let open RPo ≤ᶜ-poset in
     _ , _ , _ , _ , _
       , d′
-      , PE.subst₂ (ε ⊢_≡_∷ ℕ)
-          (PE.trans (subst-id (wk id _)) (wk-id _))
+      , PE.subst₂ (_ ⊢_≡_∷ ℕ)
+          (PE.trans (erasedHeap-subst (wk id _)) (wk-id _))
           (PE.trans (PE.cong (_[ H ]ₕ) (wk-sucᵏ k)) (subst-sucᵏ k))
           (⇒*→≡ (⊢initial true ⊢t) d′)
       , 𝟘▸H→H≤𝟘 (subₕ ▸H (begin

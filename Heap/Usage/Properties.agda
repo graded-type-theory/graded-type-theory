@@ -32,6 +32,7 @@ open import Heap.Usage 𝕄 type-variant UR
 open import Tools.Empty
 open import Tools.Fin
 open import Tools.Function
+open import Tools.Nat using (1+)
 open import Tools.Product
 open import Tools.PropositionalEquality
 open import Tools.Sum hiding (sym)
@@ -42,7 +43,7 @@ private variable
   γ δ η : Conₘ _
   p q r : M
   m : Mode
-  H H′ : Heap _
+  H H′ : Heap _ _
   x : Fin _
   y : Ptr _
   t : Term _
@@ -54,10 +55,20 @@ private variable
 
 opaque
 
+  -- Usage for erased heaps
+
+  ▸erasedHeap : ∀ {n} → 𝟘ᶜ ▸ʰ erasedHeap n
+  ▸erasedHeap {(0)} = ε
+  ▸erasedHeap {(1+ n)} = ▸erasedHeap ∙●
+
+opaque
+
   -- Well-usage for the initial state
 
-  ▸initial : γ ▸ t → 𝟘ᶜ ⨾ γ ⨾ 𝟘ᶜ ▸ initial t
-  ▸initial {γ = ε} ▸t = ε , ▸t , ε , ε
+  ▸initial : 𝟘ᶜ ▸ t → 𝟘ᶜ ⨾ 𝟘ᶜ ⨾ 𝟘ᶜ ▸ initial t
+  ▸initial ▸t =
+      ▸erasedHeap , ▸t , ε
+    , ≤ᶜ-reflexive (≈ᶜ-sym (≈ᶜ-trans (+ᶜ-identityʳ _) (·ᶜ-zeroʳ _)))
 
 opaque
 
@@ -70,18 +81,28 @@ opaque
 
   -- Subsumption for heaps
 
-  subₕ : γ ▸ʰ H → γ ≤ᶜ δ → δ ▸ʰ H
+  subₕ : ⦃ Has-well-behaved-zero M semiring-with-meet ⦄
+       → γ ▸ʰ H → γ ≤ᶜ δ → δ ▸ʰ H
   subₕ {δ = ε} ε ε = ε
   subₕ {δ = δ ∙ p} (▸H ∙ ▸c) (γ≤δ ∙ p″≤p) =
     subₕ ▸H (+ᶜ-monotone γ≤δ (·ᶜ-monotoneˡ p″≤p)) ∙ subᶜ ▸c p″≤p
+  subₕ {δ = δ ∙ p} (▸H ∙●) (γ≤δ ∙ 𝟘≤p) =
+    subst (λ p → (δ ∙ p) ▸ʰ _) (sym (𝟘≮ 𝟘≤p)) (subₕ ▸H γ≤δ ∙●)
+
+opaque
+
+  -- An inversion lemma for ▸ʰ
+
+  inv-▸ʰ● : γ ∙ p ▸ʰ H ∙● → p ≡ 𝟘 × γ ▸ʰ H
+  inv-▸ʰ● (▸H ∙●) = refl , ▸H
 
 opaque
 
   -- A well-resourced heap under the zero-context has all grades bounded by 𝟘.
 
   𝟘▸H→H≤𝟘 : 𝟘ᶜ ▸ʰ H → H ≤ʰ 𝟘
-  𝟘▸H→H≤𝟘 ε = ε
-  𝟘▸H→H≤𝟘 (_∙_ {E = E} {δ} ▸H (▸ᶜ _ p≤𝟘)) =
+  𝟘▸H→H≤𝟘 {H = ε} ε = ε
+  𝟘▸H→H≤𝟘 {H = H ∙ c} (_∙_ {E = E} {δ} ▸H (▸ᶜ _ p≤𝟘)) =
     𝟘▸H→H≤𝟘 (subst (_▸ʰ _) (≈ᶜ→≡ lemma) ▸H) ∙ p≤𝟘
     where
     open import Tools.Reasoning.Equivalence Conₘ-setoid
@@ -89,7 +110,8 @@ opaque
     lemma = begin
       𝟘ᶜ +ᶜ 𝟘 ·ᶜ wkᶜ E δ  ≈⟨ +ᶜ-identityˡ _ ⟩
       𝟘 ·ᶜ wkᶜ E δ        ≈⟨ ·ᶜ-zeroˡ _ ⟩
-      𝟘ᶜ                     ∎
+      𝟘ᶜ                  ∎
+  𝟘▸H→H≤𝟘 {H = H ∙●} ▸H = 𝟘▸H→H≤𝟘 (inv-▸ʰ● ▸H .proj₂) ∙●
 
 opaque
 
@@ -205,24 +227,35 @@ opaque
       p + q · 𝟘  ∎
       where
       open RPo ≤-poset
+  ▸-heapLookup {H = H ∙●} {y +1} {q} {H′} {γ = γ ∙ p} {r}
+      (there● {c = _ , E′} d) (▸H ∙●) γ⟨y⟩-q≤r q≢𝟘 =
+    case ▸-heapLookup d ▸H γ⟨y⟩-q≤r q≢𝟘 of λ
+      (δ , ▸t , ▸H′) →
+    δ , ▸t
+      , subst (_▸ʰ H′) ((cong ((γ , y ≔ r) +ᶜ q ·ᶜ wkᶜ E′ δ ∙_)
+          (sym (trans (+-identityˡ _) (·-zeroʳ _))))) (▸H′ ∙●)
+
 
 -- Some properties proven under the assumption that the modality
 -- supports subtraction.
 
-module _ (subtraction-ok : Supports-subtraction) where
+module _ ⦃ _ : Has-well-behaved-zero M semiring-with-meet ⦄
+         (subtraction-ok : Supports-subtraction) where
 
   opaque
 
     -- In a well-resorced heap, lookup of q copies succeeds for pointers whose
     -- associated grade is at most p + q for some p.
 
-    ▸H→y↦ : γ ▸ʰ H → γ ⟨ y ⟩ ≤ p + q
+    ▸H→y↦ : γ ▸ʰ H → γ ⟨ y ⟩ ≤ p + q → q ≢ 𝟘
           → ∃₃ λ n (c : Closure _ n) H′ → H ⊢ y ↦[ q ] c ⨾ H′
-    ▸H→y↦ {y = y0} {p} {q} (_∙_ {p = p′} ▸H (▸ᶜ {q = q′} _ mq′≤p′)) p′≤p+q =
+    ▸H→y↦ {y = y0} {p} {q} (_∙_ {p = p′} ▸H (▸ᶜ {q = q′} _ mq′≤p′)) p′≤p+q _ =
       _ , _ , _
         , here (subtraction-ok (≤-trans mq′≤p′ p′≤p+q) .proj₂)
-    ▸H→y↦ {γ = γ ∙ r} {y = _+1 y} {p} {q} (_∙_ {E} {δ} ▸H _) γ⟨y⟩≤p+q =
-      case ▸H→y↦ {y = y} ▸H lemma of λ
+    ▸H→y↦ {y = y0} {(p)} {(q)} (▸H ∙●) 𝟘≤p+q q≢𝟘 =
+      ⊥-elim (q≢𝟘 (+-positiveʳ (𝟘≮ 𝟘≤p+q)))
+    ▸H→y↦ {γ = γ ∙ r} {y = y +1} {p} {q} (_∙_ {E} {δ} ▸H _) γ⟨y⟩≤p+q q≢𝟘 =
+      case ▸H→y↦ {y = y} ▸H lemma q≢𝟘 of λ
         (_ , _ , _ , d) →
       _ , _ , _ , there d
       where
@@ -235,6 +268,11 @@ module _ (subtraction-ok : Supports-subtraction) where
         p + q + (r ·ᶜ wkᶜ E δ) ⟨ y ⟩   ≈⟨ +-congˡ (+-comm q _) ⟩
         p + (r ·ᶜ wkᶜ E δ) ⟨ y ⟩ + q   ≈˘⟨ +-assoc p _ q ⟩
         (p + (r ·ᶜ wkᶜ E δ) ⟨ y ⟩) + q ∎
+    ▸H→y↦ {γ = γ ∙ r} {y = y +1} {p} {q} (▸H ∙●) γ⟨y⟩≤p+q q≢𝟘 =
+      case ▸H→y↦ {y = y} ▸H γ⟨y⟩≤p+q q≢𝟘 of λ
+        (_ , _ , _ , d) →
+      _ , _ , _ , there● d
+
 
   opaque
 
@@ -243,7 +281,7 @@ module _ (subtraction-ok : Supports-subtraction) where
     ▸s→y↦ : γ ⨾ δ ⨾ η ▸ ⟨ H , var x , E , S ⟩
           → ∃₃ λ n (c : Closure _ n) H′ → H ⊢ wkVar E x ↦[ ∣ S ∣ ] c ⨾ H′
     ▸s→y↦ {γ} {δ} {η} {x} {E} {S} (▸H , ▸t , ▸S , γ≤) =
-      ▸H→y↦ ▸H lemma
+      ▸H→y↦ ▸H lemma (▸∣S∣≢𝟘 ▸S)
       where
       open RPo ≤-poset
       lemma′ : (∣ S ∣ ·ᶜ wkᶜ E δ) ⟨ wkVar E x ⟩ ≤ ∣ S ∣

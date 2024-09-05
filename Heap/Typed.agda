@@ -28,9 +28,9 @@ open import Tools.Relation
 import Tools.PropositionalEquality as PE
 
 private variable
-  m n : Nat
-  Γ : Con Term _
-  H : Heap _
+  m n k : Nat
+  Γ Δ : Con Term _
+  H : Heap _ _
   E : Env _ _
   e : Elim _
   S : Stack _
@@ -38,68 +38,68 @@ private variable
   p q q′ r : M
   s′ : Strength
 
--- Well-formed heap
+-- Well-formed heaps
 
-data _⊢ʰ_ : (Γ : Con Term m) (H : Heap m) → Set a where
-  ε : ε ⊢ʰ ε
-  _∙_ : Γ ⊢ʰ H
-      → ε ⊢ wk E t [ H ]ₕ ∷ A [ H ]ₕ
-      → Γ ∙ A ⊢ʰ H ∙ (p , t , E)
+data _⊢ʰ_∷_ : (Δ : Con Term k) (H : Heap k m) (Γ : Con Term m) → Set a where
+  ε : ⊢ Δ → Δ ⊢ʰ ε ∷ ε
+  _∙_ : Δ ⊢ʰ H ∷ Γ → Δ ⊢ wk E t [ H ]ₕ ∷ A [ H ]ₕ → Δ ⊢ʰ H ∙ (p , t , E) ∷ Γ ∙ A
+  _∙●_ : Δ ⊢ʰ H ∷ Γ → Γ ⊢ A → Δ ∙ A [ H ]ₕ ⊢ʰ H ∙● ∷ Γ ∙ A
 
--- Well-formed eliminator
+-- Well-formed eliminators
 
-data _⊢ᵉ_∷_∷_↝_ (H : Heap m) : (e : Elim m) (t : Term m) (A B : Term 0) → Set a where
-  ∘ₑ : ε ⊢ wk E u [ H ]ₕ ∷ A
-     → ε ∙ A ⊢ B
-     → H ⊢ᵉ ∘ₑ p u E ∷ t ∷ (Π p , q ▷ A ▹ B) ↝ B [ wk E u [ H ]ₕ ]₀
-  fstₑ : ε ⊢ A
-       → ε ∙ A ⊢ B
-       → H ⊢ᵉ fstₑ p ∷ t ∷ Σˢ p , q ▷ A ▹ B ↝ A
-  sndₑ : ε ⊢ A
-       → ε ∙ A ⊢ B
-       → H ⊢ᵉ sndₑ p ∷ t ∷ Σˢ p , q ▷ A ▹ B ↝ B [ fst p t [ H ]ₕ ]₀
-  prodrecₑ : ε ∙ B ∙ C ⊢ wk (liftn E 2) u [ H ]⇑²ₕ ∷ (wk (lift E) A [ H ]⇑ₕ [ prodʷ p (var x1) (var x0) ]↑²)
-           → ε ∙ Σʷ p , q′ ▷ B ▹ C ⊢ wk (lift E) A [ H ]⇑ₕ
-           → H ⊢ᵉ prodrecₑ r p q A u E ∷ t ∷ Σʷ p , q′ ▷ B ▹ C ↝ (wk (lift E) A [ H ]⇑ₕ [ t [ H ]ₕ ]₀)
-  natrecₑ : ε ⊢ wk E z [ H ]ₕ ∷ wk (lift E) A [ H ]⇑ₕ [ zero ]₀
-          → ε ∙ ℕ ∙ wk (lift E) A [ H ]⇑ₕ ⊢ wk (liftn E 2) s [ H ]⇑²ₕ ∷ wk (lift E) A [ H ]⇑ₕ [ suc (var x1) ]↑²
-          → ε ∙ ℕ ⊢ wk (lift E) A [ H ]⇑ₕ
-          → H ⊢ᵉ natrecₑ p q r A z s E ∷ t ∷ ℕ ↝ wk (lift E) A [ H ]⇑ₕ [ t [ H ]ₕ ]₀
-  unitrecₑ : ε ⊢ wk E u [ H ]ₕ ∷ wk (lift E) A [ H ]⇑ₕ [ starʷ ]₀
-           → ε ∙ Unitʷ ⊢ wk (lift E) A [ H ]⇑ₕ
+data _⨾_⊢ᵉ_⟨_⟩∷_↝_ (Δ : Con Term k) (H : Heap k m) :
+                  (e : Elim m) (t : Term m) (A B : Term k) → Set a where
+  ∘ₑ : Δ ⊢ wk E u [ H ]ₕ ∷ A
+     → Δ ∙ A ⊢ B
+     → Δ ⨾ H ⊢ᵉ ∘ₑ p u E ⟨ t ⟩∷ Π p , q ▷ A ▹ B ↝ B [ wk E u [ H ]ₕ ]₀
+  fstₑ : Δ ⊢ A
+       → Δ ∙ A ⊢ B
+       → Δ ⨾ H ⊢ᵉ fstₑ p ⟨ t ⟩∷ Σˢ p , q ▷ A ▹ B ↝ A
+  sndₑ : Δ ⊢ A
+       → Δ ∙ A ⊢ B
+       → Δ ⨾ H ⊢ᵉ sndₑ p ⟨ t ⟩∷ Σˢ p , q ▷ A ▹ B ↝ B [ fst p t [ H ]ₕ ]₀
+  prodrecₑ : Δ ∙ B ∙ C ⊢ wk (liftn E 2) u [ H ]⇑²ₕ ∷ (wk (lift E) A [ H ]⇑ₕ [ prodʷ p (var x1) (var x0) ]↑²)
+           → Δ ∙ Σʷ p , q′ ▷ B ▹ C ⊢ wk (lift E) A [ H ]⇑ₕ
+           → Δ ⨾ H ⊢ᵉ prodrecₑ r p q A u E ⟨ t ⟩∷ Σʷ p , q′ ▷ B ▹ C ↝ (wk (lift E) A [ H ]⇑ₕ [ t [ H ]ₕ ]₀)
+  natrecₑ : Δ ⊢ wk E z [ H ]ₕ ∷ wk (lift E) A [ H ]⇑ₕ [ zero ]₀
+          → Δ ∙ ℕ ∙ wk (lift E) A [ H ]⇑ₕ ⊢ wk (liftn E 2) s [ H ]⇑²ₕ ∷ wk (lift E) A [ H ]⇑ₕ [ suc (var x1) ]↑²
+          → Δ ∙ ℕ ⊢ wk (lift E) A [ H ]⇑ₕ
+          → Δ ⨾ H ⊢ᵉ natrecₑ p q r A z s E ⟨ t ⟩∷ ℕ ↝ wk (lift E) A [ H ]⇑ₕ [ t [ H ]ₕ ]₀
+  unitrecₑ : Δ ⊢ wk E u [ H ]ₕ ∷ wk (lift E) A [ H ]⇑ₕ [ starʷ ]₀
+           → Δ ∙ Unitʷ ⊢ wk (lift E) A [ H ]⇑ₕ
            → ¬ Unitʷ-η
-           → H ⊢ᵉ unitrecₑ p q A u E ∷ t ∷ Unitʷ ↝ (wk (lift E) A [ H ]⇑ₕ [ t [ H ]ₕ ]₀)
+           → Δ ⨾ H ⊢ᵉ unitrecₑ p q A u E ⟨ t ⟩∷ Unitʷ ↝ (wk (lift E) A [ H ]⇑ₕ [ t [ H ]ₕ ]₀)
   Jₑ : let A′ = wk E A [ H ]ₕ
            B′ = wk (liftn E 2) B [ H ]⇑²ₕ
            t′ = wk E t [ H ]ₕ
            u′ = wk E u [ H ]ₕ
            v′ = wk E v [ H ]ₕ
-       in  ε ⊢ u′ ∷ B′ [ t′ , rfl ]₁₀ →
-           ε ∙ A′ ∙ Id (wk1 A′) (wk1 t′) (var x0) ⊢ B′ →
-           H ⊢ᵉ Jₑ p q A t B u v E ∷ w ∷ wk E (Id A t v) [ H ]ₕ
+       in  Δ ⊢ u′ ∷ B′ [ t′ , rfl ]₁₀ →
+           Δ ∙ A′ ∙ Id (wk1 A′) (wk1 t′) (var x0) ⊢ B′ →
+           Δ ⨾ H ⊢ᵉ Jₑ p q A t B u v E ⟨ w ⟩∷ wk E (Id A t v) [ H ]ₕ
              ↝ B′ [ v′ , w [ H ]ₕ ]₁₀
-  Kₑ : ε ⊢ wk E u [ H ]ₕ ∷ wk (lift E) B [ H ]⇑ₕ [ rfl ]₀
-     → ε ∙ wk E (Id A t t) [ H ]ₕ ⊢ wk (lift E) B [ H ]⇑ₕ
+  Kₑ : Δ ⊢ wk E u [ H ]ₕ ∷ wk (lift E) B [ H ]⇑ₕ [ rfl ]₀
+     → Δ ∙ wk E (Id A t t) [ H ]ₕ ⊢ wk (lift E) B [ H ]⇑ₕ
      → K-allowed
-     → H ⊢ᵉ Kₑ p A t B u E ∷ v ∷ wk E (Id A t t) [ H ]ₕ ↝ wk (lift E) B [ H ]⇑ₕ [ v [ H ]ₕ ]₀
+     → Δ ⨾ H ⊢ᵉ Kₑ p A t B u E ⟨ v ⟩∷ wk E (Id A t t) [ H ]ₕ ↝ wk (lift E) B [ H ]⇑ₕ [ v [ H ]ₕ ]₀
   []-congₑ : []-cong-allowed s′
            → let open Erased s′
-             in  H ⊢ᵉ []-congₑ s′ A t u E ∷ v ∷ wk E (Id A t u) [ H ]ₕ ↝ (wk E (Id (Erased A) ([ t ]) ([ u ])) [ H ]ₕ)
-  sucₑ : ⦃ T ℕ-fullred ⦄ → H ⊢ᵉ sucₑ ∷ t ∷ ℕ ↝ ℕ
-  conv : H ⊢ᵉ e ∷ t ∷ A ↝ B
-       → ε ⊢ B ≡ B′
-       → H ⊢ᵉ e ∷ t ∷ A ↝ B′
+             in  Δ ⨾ H ⊢ᵉ []-congₑ s′ A t u E ⟨ v ⟩∷ wk E (Id A t u) [ H ]ₕ ↝ (wk E (Id (Erased A) ([ t ]) ([ u ])) [ H ]ₕ)
+  sucₑ : ⦃ T ℕ-fullred ⦄ → Δ ⨾ H ⊢ᵉ sucₑ ⟨ t ⟩∷ ℕ ↝ ℕ
+  conv : Δ ⨾ H ⊢ᵉ e ⟨ t ⟩∷ A ↝ B
+       → Δ ⊢ B ≡ B′
+       → Δ ⨾ H ⊢ᵉ e ⟨ t ⟩∷ A ↝ B′
 
--- Well-formed stack
+-- Well-formed stacks
 
-data _⊢_∷_∷_↝_ (H : Heap m) : (S : Stack m) (t : Term m) (A B : Term 0) → Set a where
-  ε : H ⊢ ε ∷ t ∷ A ↝ A
-  _∙_ : (⊢e : H ⊢ᵉ e ∷ t ∷ A ↝ B)
-      → (⊢S : H ⊢ S ∷ ⦅ e ⦆ᵉ t ∷ B ↝ C)
-      → H ⊢ e ∙ S ∷ t ∷ A ↝ C
+data _⨾_⊢_⟨_⟩∷_↝_ (Δ : Con Term k) (H : Heap k m) : (S : Stack m) (t : Term m) (A B : Term k) → Set a where
+  ε : Δ ⨾ H ⊢ ε ⟨ t ⟩∷ A ↝ A
+  _∙_ : (⊢e : Δ ⨾ H ⊢ᵉ e ⟨ t ⟩∷ A ↝ B)
+      → (⊢S : Δ ⨾ H ⊢ S ⟨ ⦅ e ⦆ᵉ t ⟩∷ B ↝ C)
+      → Δ ⨾ H ⊢ e ∙ S ⟨ t ⟩∷ A ↝ C
 
--- Well-formed evaluation state
+-- Well-formed evaluation states
 
-_⊢ₛ_∷_ : (Γ : Con Term m) (s : State m n) (A : Term 0) → Set a
-Γ ⊢ₛ ⟨ H , t , E , S ⟩ ∷ A =
-  ∃ λ B → (Γ ⊢ʰ H) × (ε ⊢ wk E t [ H ]ₕ ∷ B) × (H ⊢ S ∷ wk E t ∷ B ↝ A)
+_⨾_⊢_∷_ : (Δ : Con Term k) (Γ : Con Term m) (s : State k m n) (A : Term k) → Set a
+Δ ⨾ Γ ⊢ ⟨ H , t , E , S ⟩ ∷ A =
+  ∃ λ B → (Δ ⊢ʰ H ∷ Γ) × (Δ ⊢ wk E t [ H ]ₕ ∷ B) × Δ ⨾ H ⊢ S ⟨ wk E t ⟩∷ B ↝ A

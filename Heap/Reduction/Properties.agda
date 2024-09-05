@@ -2,8 +2,6 @@
 -- Properties of the heap reduction relation.
 ------------------------------------------------------------------------
 
-{-# OPTIONS --hidden-argument-puns #-}
-
 open import Graded.Modality
 open import Tools.Bool
 open import Heap.Options
@@ -25,6 +23,7 @@ open import Tools.Nat using (Nat; 1+; 2+; Nat-set)
 open import Tools.PropositionalEquality
 open import Tools.Product
 open import Tools.Relation
+open import Tools.Sum hiding (id; sym)
 
 open import Definition.Untyped M
 open import Graded.Modality.Nr-instances
@@ -38,11 +37,11 @@ open Options opts
 private variable
   m n m′ n′ m″ n″ k : Nat
   t t′ u A : Term _
-  H H′ H″ H‴ : Heap _
+  H H′ H″ H‴ : Heap _ _
   E E′ E″ : Env _ _
   S S′ : Stack _
   p p′ q r r′ : M
-  s s′ s″ : State _ _
+  s s′ s″ : State _ _ _
   c : Closureₘ _ _
   x x′ : Fin _
 
@@ -70,10 +69,10 @@ opaque
 
   -- The normalising reduction relation is deterministic
 
-  ⇒ₙ-det : {s′ : State m n} {s″ : State m n′}
+  ⇒ₙ-det : {s′ : State k m n} {s″ : State k m n′}
          → (d : s ⇒ₙ s′) (d′ : s ⇒ₙ s″)
          → Σ (n ≡ n′) λ n≡n′ →
-            subst (State m) n≡n′ s′ ≡ s″
+            subst (State k m) n≡n′ s′ ≡ s″
   ⇒ₙ-det (varₕ d) (varₕ d′) =
     case lookup-det d d′ of λ {
       (refl , refl , refl , refl) →
@@ -98,37 +97,37 @@ opaque
 
   -- The reduction relation for values is deterministic
 
-  ⇒ᵥ-det : {s′ : State m n} {s″ : State m′ n′}
+  ⇒ᵥ-det : {s′ : State k m n} {s″ : State k m′ n′}
          → (d : s ⇒ᵥ s′) (d′ : s ⇒ᵥ s″)
          → Σ (m ≡ m′) λ m≡m′ → Σ (n ≡ n′) λ n≡n′ →
-            subst₂ State m≡m′ n≡n′ s′ ≡ s″
+            subst₂ (State k) m≡m′ n≡n′ s′ ≡ s″
   ⇒ᵥ-det lamₕ d′ = lemma d′
     where
-    lemma : {H : Heap m} {t : Term (1+ n)} {s : State m′ n′}
+    lemma : {H : Heap _ m} {t : Term (1+ n)} {s : State k m′ n′}
           → ⟨ H , lam p t , E , ∘ₑ p′ u E′ ∙ S ⟩ ⇒ᵥ s
           → Σ (1+ m ≡ m′) λ m≡m′ → Σ (1+ n ≡ n′) λ n≡n′ →
-            subst₂ State m≡m′ n≡n′ ⟨ H ∙ (∣ S ∣ · p , u , E′) , t , lift E , wk1ˢ S ⟩ ≡ s
+            subst₂ (State k) m≡m′ n≡n′ ⟨ H ∙ (∣ S ∣ · p , u , E′) , t , lift E , wk1ˢ S ⟩ ≡ s
     lemma lamₕ = refl , refl , refl
   ⇒ᵥ-det prodˢₕ₁ d′ = lemma d′
     where
-    lemma : {H : Heap m} {t : Term n} {s : State m′ n′}
+    lemma : {H : Heap _ m} {t : Term n} {s : State k m′ n′}
           → ⟨ H , prodˢ p t u , E , fstₑ p′ ∙ S ⟩ ⇒ᵥ s
           → Σ (m ≡ m′) λ m≡m′ → Σ (n ≡ n′) λ n≡n′ →
-            subst₂ State m≡m′ n≡n′ ⟨ H , t , E , S ⟩ ≡ s
+            subst₂ (State k) m≡m′ n≡n′ ⟨ H , t , E , S ⟩ ≡ s
     lemma prodˢₕ₁ = refl , refl , refl
   ⇒ᵥ-det prodˢₕ₂ d′ = lemma d′
     where
-    lemma : {H : Heap m} {t : Term n} {s : State m′ n′}
+    lemma : {H : Heap _ m} {t : Term n} {s : State k m′ n′}
           → ⟨ H , prodˢ p t u , E , sndₑ p′ ∙ S ⟩ ⇒ᵥ s
           → Σ (m ≡ m′) λ m≡m′ → Σ (n ≡ n′) λ n≡n′ →
-            subst₂ State m≡m′ n≡n′ ⟨ H , u , E , S ⟩ ≡ s
+            subst₂ (State k) m≡m′ n≡n′ ⟨ H , u , E , S ⟩ ≡ s
     lemma prodˢₕ₂ = refl , refl , refl
   ⇒ᵥ-det prodʷₕ d′ = lemma d′
     where
-    lemma : {H : Heap m} {t₁ t₂ : Term n″} {u : Term (2+ n)} {s : State m′ n′}
+    lemma : {H : Heap _ m} {t₁ t₂ : Term n″} {u : Term (2+ n)} {s : State k m′ n′}
           → ⟨ H , prodʷ p′ t₁ t₂ , E , prodrecₑ r p q A u E′ ∙ S ⟩ ⇒ᵥ s
           → Σ (2+ m ≡ m′) λ m≡m′ → Σ (2+ n ≡ n′) λ n≡n′
-            → subst₂ State m≡m′ n≡n′
+            → subst₂ (State k) m≡m′ n≡n′
                 ⟨ H ∙ (∣ S ∣ · r · p , t₁ , E) ∙ (∣ S ∣ · r , t₂ , step E)
                    , u , liftn E′ 2 , wk2ˢ S ⟩ ≡ s
     lemma prodʷₕ = refl , refl , refl
@@ -144,12 +143,12 @@ opaque
 
   -- The reduction relation for reducing to numerals is deterministic
 
-  ⇒ₛ-det : {s′ : State m n} {s″ : State m n}
+  ⇒ₛ-det : {s′ : State k m n} {s″ : State k m n}
          → (d : s ⇒ₛ s′) (d′ : s ⇒ₛ s″)
          → s′ ≡ s″
   ⇒ₛ-det (sucₕ x) d′ = lemma d′ refl x
     where
-    lemma : {H : Heap m} {t : Term n} {s : State m n}
+    lemma : {H : Heap _ m} {t : Term n} {s : State m′ m n}
           → ⟨ H , suc t , E , S ⟩ ⇒ₛ s
           → S ≡ sucₛ k
           → ¬ Numeral t
@@ -158,7 +157,7 @@ opaque
     lemma (numₕ (sucₙ n)) S≡ ¬n = ⊥-elim (¬n n)
   ⇒ₛ-det (numₕ x) d′ = lemma d′ refl x
     where
-    lemma : {H : Heap m} {t : Term n} {s : State m n}
+    lemma : {H : Heap _ m} {t : Term n} {s : State k m n}
           → ⟨ H , t , E , S ⟩ ⇒ₛ s
           → S ≡ sucₑ ∙ S′
           → Numeral t
@@ -206,11 +205,11 @@ opaque
 
   -- The small-step heap semantics is deterministic.
 
-  ⇒-det : {s′ : State m n} {s″ : State m′ n′}
+  ⇒-det : {s′ : State k m n} {s″ : State k m′ n′}
         → (d : s ⇒ s′) (d′ : s ⇒ s″)
         → Σ (m ≡ m′) λ m≡m′ →
           Σ (n ≡ n′) λ n≡n′ →
-            subst₂ State m≡m′ n≡n′ s′ ≡ s″
+            subst₂ (State k) m≡m′ n≡n′ s′ ≡ s″
   ⇒-det (⇒ᵥ d) (⇒ᵥ d′) =
     ⇒ᵥ-det d d′
   ⇒-det (⇒ₙ d) (⇒ₙ d′) =
@@ -294,6 +293,33 @@ opaque
 
 opaque
 
+  -- Lifting a normalising reduction to a larger heap
+
+  wk1●-⇒ₙ : ⟨ H , t , E , S ⟩ ⇒ₙ ⟨ H′ , t′ , E′ , S′ ⟩
+          → ⟨ H ∙● , t , step E , wk1ˢ S ⟩ ⇒ₙ ⟨ H′ ∙● , t′ , step E′ , wk1ˢ S′ ⟩
+  wk1●-⇒ₙ (varₕ {S} d) = varₕ (subst (_ ⊢ _ ↦[_] _ ⨾ _) (wk-∣S∣ (step id) S) (there● d))
+  wk1●-⇒ₙ (varₕ′ d) = varₕ′ (there● d)
+  wk1●-⇒ₙ appₕ = appₕ
+  wk1●-⇒ₙ fstₕ = fstₕ
+  wk1●-⇒ₙ sndₕ = sndₕ
+  wk1●-⇒ₙ prodrecₕ = prodrecₕ
+  wk1●-⇒ₙ natrecₕ = natrecₕ
+  wk1●-⇒ₙ (unitrecₕ no-η) = unitrecₕ no-η
+  wk1●-⇒ₙ Jₕ = Jₕ
+  wk1●-⇒ₙ Kₕ = Kₕ
+  wk1●-⇒ₙ []-congₕ = []-congₕ
+
+opaque
+
+  -- Lifting a normalising reduction to a larger heap
+
+  wk1●-⇒ₙ* : (d : ⟨ H , t , E , S ⟩ ⇒ₙ* ⟨ H′ , t′ , E′ , S′ ⟩)
+          → ⟨ H ∙● , t , step E , wk1ˢ S ⟩ ⇒ₙ* ⟨ H′ ∙● , t′ , step E′ , wk1ˢ S′ ⟩
+  wk1●-⇒ₙ* id = id
+  wk1●-⇒ₙ* (x ⇨ d) = wk1●-⇒ₙ x ⇨ wk1●-⇒ₙ* d
+
+opaque
+
   -- Replacing a variable and environment in a state
 
   var-env-⇒ₙ : ⟨ H , var x , E , S ⟩ ⇒ₙ s
@@ -308,11 +334,14 @@ opaque
 
   -- Replacing a variable and environment in a state
 
-  var-env-⇒ₙ* : ⟨ H , var x , E , S ⟩ ⇒ₙ* ⟨ H′ , t , E″ , S′ ⟩
-             → wkVar E x ≡ wkVar E′ x′ → Normal t
+  var-env-⇒ₙ* : {E : Env m n} {E″ : Env m n′}
+              → ⟨ H , var x , E , S ⟩ ⇒ₙ* ⟨ H′ , t , E″ , S′ ⟩
+             → wkVar E x ≡ wkVar E′ x′
+             → Normal ⟨ H′ , t , E″ , S′ ⟩
              → ⟨ H , var x′ , E′ , S ⟩ ⇒ₙ* ⟨ H′ , t , E″ , S′ ⟩
-  var-env-⇒ₙ* id eq (val ())
-  var-env-⇒ₙ* (x ⇨ d) eq _ = var-env-⇒ₙ x eq ⇨ d
+             ⊎ Σ (n′ ≡ n) λ n′≡n → ⟨ H , var x , E , S ⟩ ≡ subst (State _ _) n′≡n ⟨ H′ , t , E″ , S′ ⟩
+  var-env-⇒ₙ* id eq (var x) = inj₂ (refl , refl)
+  var-env-⇒ₙ* (x ⇨ d) eq n = inj₁ (var-env-⇒ₙ x eq ⇨ d)
 
 opaque
 
@@ -427,6 +456,28 @@ opaque
 
 opaque
 
+  ⇒ₙ-Heap≡ : ⦃ ¬Track-resources ⦄
+           → ⟨ H , t , E , S ⟩ ⇒ₙ ⟨ H′ , t′ , E′ , S′ ⟩ → H ≡ H′
+  ⇒ₙ-Heap≡ (varₕ x) = ⊥-elim not-tracking-and-no-tracking
+  ⇒ₙ-Heap≡ (varₕ′ x) = refl
+  ⇒ₙ-Heap≡ appₕ = refl
+  ⇒ₙ-Heap≡ fstₕ = refl
+  ⇒ₙ-Heap≡ sndₕ = refl
+  ⇒ₙ-Heap≡ prodrecₕ = refl
+  ⇒ₙ-Heap≡ natrecₕ = refl
+  ⇒ₙ-Heap≡ (unitrecₕ x) = refl
+  ⇒ₙ-Heap≡ Jₕ = refl
+  ⇒ₙ-Heap≡ Kₕ = refl
+  ⇒ₙ-Heap≡ []-congₕ = refl
+
+opaque
+
+  ⇒ₛ-Heap≡ : ⟨ H , t , E , S ⟩ ⇒ₛ ⟨ H′ , t′ , E′ , S′ ⟩ → H ≡ H′
+  ⇒ₛ-Heap≡ (sucₕ x) = refl
+  ⇒ₛ-Heap≡ (numₕ x) = refl
+
+opaque
+
   ~ʰ-⇒ᵥ : ⟨ H , t , E , S ⟩ ⇒ᵥ ⟨ H′ , t′ , E′ , S′ ⟩ → H ~ʰ H″
         → ∃ λ H‴ → ⟨ H″ , t , E , S ⟩ ⇒ᵥ ⟨ H‴ , t′ , E′ , S′ ⟩ × H′ ~ʰ H‴
   ~ʰ-⇒ᵥ lamₕ H~H″           = _ , lamₕ , H~H″ ∙ _
@@ -445,25 +496,25 @@ opaque
 
   ~ʰ-⇒ₙ : ⦃ ¬Track-resources ⦄
         → ⟨ H , t , E , S ⟩ ⇒ₙ ⟨ H′ , t′ , E′ , S′ ⟩ → H ~ʰ H″
-        → ∃ λ H‴ → ⟨ H″ , t , E , S ⟩ ⇒ₙ ⟨ H‴ , t′ , E′ , S′ ⟩ × H′ ~ʰ H‴
+        → ⟨ H″ , t , E , S ⟩ ⇒ₙ ⟨ H″ , t′ , E′ , S′ ⟩
   ~ʰ-⇒ₙ (varₕ d) H~H″              = ⊥-elim not-tracking-and-no-tracking
-  ~ʰ-⇒ₙ (varₕ′ ⦃ tr = tr ⦄ d) H~H″ = _ , varₕ′ ⦃ tr = tr ⦄ (~ʰ-lookup H~H″ d) , H~H″
-  ~ʰ-⇒ₙ appₕ H~H″                  = _ , appₕ , H~H″
-  ~ʰ-⇒ₙ fstₕ H~H″                  = _ , fstₕ , H~H″
-  ~ʰ-⇒ₙ sndₕ H~H″                  = _ , sndₕ , H~H″
-  ~ʰ-⇒ₙ prodrecₕ H~H″              = _ , prodrecₕ , H~H″
-  ~ʰ-⇒ₙ natrecₕ H~H″               = _ , natrecₕ , H~H″
-  ~ʰ-⇒ₙ (unitrecₕ no-η) H~H″       = _ , unitrecₕ no-η , H~H″
-  ~ʰ-⇒ₙ Jₕ H~H″                    = _ , Jₕ , H~H″
-  ~ʰ-⇒ₙ Kₕ H~H″                    = _ , Kₕ , H~H″
-  ~ʰ-⇒ₙ []-congₕ H~H″              = _ , []-congₕ , H~H″
+  ~ʰ-⇒ₙ (varₕ′ ⦃ tr = tr ⦄ d) H~H″ = varₕ′ ⦃ tr = tr ⦄ (~ʰ-lookup H~H″ d)
+  ~ʰ-⇒ₙ appₕ H~H″                  = appₕ
+  ~ʰ-⇒ₙ fstₕ H~H″                  = fstₕ
+  ~ʰ-⇒ₙ sndₕ H~H″                  = sndₕ
+  ~ʰ-⇒ₙ prodrecₕ H~H″              = prodrecₕ
+  ~ʰ-⇒ₙ natrecₕ H~H″               = natrecₕ
+  ~ʰ-⇒ₙ (unitrecₕ no-η) H~H″       = unitrecₕ no-η
+  ~ʰ-⇒ₙ Jₕ H~H″                    = Jₕ
+  ~ʰ-⇒ₙ Kₕ H~H″                    = Kₕ
+  ~ʰ-⇒ₙ []-congₕ H~H″              = []-congₕ
 
 opaque
 
   ~ʰ-⇒ₛ : ⟨ H , t , E , S ⟩ ⇒ₛ ⟨ H′ , t′ , E′ , S′ ⟩ → H ~ʰ H″
-        → ∃ λ H‴ → ⟨ H″ , t , E , S ⟩ ⇒ₛ ⟨ H‴ , t′ , E′ , S′ ⟩ × H′ ~ʰ H‴
-  ~ʰ-⇒ₛ (sucₕ x) H~H″ = _ , sucₕ x , H~H″
-  ~ʰ-⇒ₛ (numₕ x) H~H″ = _ , numₕ x , H~H″
+        → ⟨ H″ , t , E , S ⟩ ⇒ₛ ⟨ H″ , t′ , E′ , S′ ⟩
+  ~ʰ-⇒ₛ (sucₕ x) H~H″ = sucₕ x
+  ~ʰ-⇒ₛ (numₕ x) H~H″ = numₕ x
 
 opaque
 
@@ -473,17 +524,13 @@ opaque
        → ⟨ H , t , E , S ⟩ ⇒ ⟨ H′ , t′ , E′ , S′ ⟩ → H ~ʰ H″
        → ∃ λ H‴ → ⟨ H″ , t , E , S ⟩ ⇒ ⟨ H‴ , t′ , E′ , S′ ⟩ × H′ ~ʰ H‴
   ~ʰ-⇒ (⇒ₙ d) H~H″ =
-    case ~ʰ-⇒ₙ d H~H″ of λ
-      (_ , d′ , H′~H‴) →
-    _ , ⇒ₙ d′ , H′~H‴
+    _ , ⇒ₙ (~ʰ-⇒ₙ d H~H″) , subst (_~ʰ _) (⇒ₙ-Heap≡ d) H~H″
   ~ʰ-⇒ (⇒ᵥ d) H~H″ =
     case ~ʰ-⇒ᵥ d H~H″ of λ
       (_ , d′ , H′~H‴) →
     _ , ⇒ᵥ d′ , H′~H‴
   ~ʰ-⇒ (⇒ₛ d) H~H″ =
-    case ~ʰ-⇒ₛ d H~H″ of λ
-      (_ , d′ , H′~H‴) →
-    _ , ⇒ₛ d′ , H′~H‴
+    _ , ⇒ₛ ~ʰ-⇒ₛ d H~H″ , subst (_~ʰ _) (⇒ₛ-Heap≡ d) H~H″
 
 opaque
 

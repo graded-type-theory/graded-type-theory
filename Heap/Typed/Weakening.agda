@@ -34,7 +34,8 @@ open import Tools.Reasoning.PropositionalEquality
 private variable
   m n : Nat
   ρ : Wk _ _
-  H H′ : Heap _
+  Δ : Con Term _
+  H H′ : Heap _ _
   c : Closureₘ _ _
   c′ : Closure _ _
   t A B : Term _
@@ -66,34 +67,31 @@ opaque
 
   -- Weakening of eliminators
 
-  wk-⊢ᵉ : ρ ∷ H ⊇ʰ H′ → H′ ⊢ᵉ e ∷ t ∷ A ↝ B → H ⊢ᵉ wkᵉ ρ e ∷ wk ρ t ∷ A ↝ B
-  wk-⊢ᵉ {H} ρ (∘ₑ {E} {u} {B} ⊢u ⊢B) =
-    case PE.trans (wk-[]ₕ ρ (wk E u))
-           (cong (_[ H ]ₕ) (wk-comp _ E u)) of λ
+  wk-⊢ᵉ : ρ ∷ H ⊇ʰ H′ → Δ ⨾ H′ ⊢ᵉ e ⟨ t ⟩∷ A ↝ B → Δ ⨾ H ⊢ᵉ wkᵉ ρ e ⟨ wk ρ t ⟩∷ A ↝ B
+  wk-⊢ᵉ {ρ} {H} {Δ} {t} [ρ] (∘ₑ {E} {u} {A} {B} {p} ⊢u ⊢B) =
+    case wk-liftₕ 0 [ρ] u of λ
       u≡u′ →
-    case PE.subst (ε ⊢_∷ _) u≡u′ ⊢u of λ
+    case PE.subst (Δ ⊢_∷ _) u≡u′ ⊢u of λ
       ⊢u′ →
-    subst (H ⊢ᵉ _ ∷ _ ∷ _ ↝_)
-      (cong (B [_]₀) (PE.sym u≡u′))
-      (∘ₑ ⊢u′ ⊢B)
+    subst (Δ ⨾ H ⊢ᵉ ∘ₑ p u (ρ • E) ⟨ wk ρ t ⟩∷ _ ↝_)
+      (cong (B [_]₀) (PE.sym u≡u′)) (∘ₑ ⊢u′ ⊢B)
   wk-⊢ᵉ ρ (fstₑ ⊢A ⊢B) =
     fstₑ ⊢A ⊢B
-  wk-⊢ᵉ {ρ} {H} {t} [ρ] (sndₑ {A} {B} {p} {q} ⊢A ⊢B) =
-    subst (λ x → H ⊢ᵉ wkᵉ ρ (sndₑ p) ∷ wk ρ t ∷ Σˢ p , q ▷ A ▹ B ↝ B [ x ]₀)
+  wk-⊢ᵉ {ρ} {H} {Δ} {t} [ρ] (sndₑ {A} {B} {p} {q} ⊢A ⊢B) =
+    subst (λ x → Δ ⨾ H ⊢ᵉ wkᵉ ρ (sndₑ p) ⟨ wk ρ t ⟩∷ Σˢ p , q ▷ A ▹ B ↝ B [ x ]₀)
       (PE.sym (wk-[]ₕ [ρ] (fst p t)))
       (sndₑ ⊢A ⊢B)
-  wk-⊢ᵉ {ρ} {H} {H′} {t} [ρ] (prodrecₑ {E} {u} {A} ⊢u ⊢A) =
+  wk-⊢ᵉ {ρ} {H} {H′} {Δ} {t} [ρ] (prodrecₑ {E} {u} {A} {p} {r} {q} ⊢u ⊢A) =
     case wk-liftₕ 1 [ρ] A of λ
       A≡A′ →
     case wk-liftₕ 2 [ρ] u of λ
       u≡u′ →
-    case PE.subst₂ (_ ⊢_∷_) u≡u′ (cong (_[ _ ]↑²) A≡A′) ⊢u of λ
+    case PE.subst₂ (Δ ∙ _ ∙ _ ⊢_∷_) u≡u′ (cong (_[ _ ]↑²) A≡A′) ⊢u of λ
       ⊢u′ →
-    case PE.subst (λ x → _ ⊢ x) A≡A′ ⊢A of λ
+    case PE.subst (λ x → Δ ∙ _ ⊢ x) A≡A′ ⊢A of λ
       ⊢A′ →
-    subst₂ (λ x y → H ⊢ᵉ _ ∷ _ ∷ _ ↝ (x [ y ]₀))
-      (PE.sym A≡A′) (PE.sym (wk-[]ₕ [ρ] t))
-      (prodrecₑ ⊢u′ ⊢A′)
+    subst (Δ ⨾ H ⊢ᵉ prodrecₑ r p q A u (ρ • E) ⟨ wk ρ t ⟩∷ _ ↝_)
+      (PE.sym (cong₂ _[_]₀ A≡A′ (wk-[]ₕ [ρ] t))) (prodrecₑ ⊢u′ ⊢A′)
   wk-⊢ᵉ {ρ} {H} {H′} {t} [ρ] (natrecₑ {E} {z} {A} {s} {p} {q} {r} ⊢z ⊢s ⊢A) =
     case wk-liftₕ 0 [ρ] z of λ
       z≡z′ →
@@ -101,26 +99,26 @@ opaque
       s≡s′ →
     case wk-liftₕ 1 [ρ] A of λ
       A≡A′ →
-    case subst₂ (λ x y → ε ⊢ x ∷ y [ zero ]₀) z≡z′ A≡A′ ⊢z of λ
+    case subst₂ (λ x y → _ ⊢ x ∷ y [ zero ]₀) z≡z′ A≡A′ ⊢z of λ
       ⊢z′ →
-    case subst₂ (λ x y → ε ∙ ℕ ∙ x ⊢ y ∷ x [ suc (var x1) ]↑²) A≡A′ s≡s′ ⊢s of λ
+    case subst₂ (λ x y → _ ∙ ℕ ∙ x ⊢ y ∷ x [ suc (var x1) ]↑²) A≡A′ s≡s′ ⊢s of λ
       ⊢s′ →
-    case subst (λ x → ε ∙ ℕ ⊢ x) A≡A′ ⊢A of λ
+    case subst (λ x → _ ∙ ℕ ⊢ x) A≡A′ ⊢A of λ
       ⊢A′ →
-    subst₂ (λ x y → H ⊢ᵉ _ ∷ _ ∷ ℕ ↝ x [ y ]₀)
+    subst₂ (λ x y → _ ⨾ H ⊢ᵉ _ ⟨ _ ⟩∷ ℕ ↝ x [ y ]₀)
       (PE.sym A≡A′) (PE.sym (wk-[]ₕ [ρ] t))
       (natrecₑ ⊢z′ ⊢s′ ⊢A′)
   wk-⊢ᵉ {ρ} {H} {H′} {t} [ρ] (unitrecₑ {E} {u} {A} ⊢u ⊢A no-η) =
     case wk-liftₕ 1 [ρ] A of λ
       A≡A′ →
-    case subst₂ (ε ⊢_∷_) (wk-liftₕ 0 [ρ] u) (cong _[ starʷ ]₀ A≡A′) ⊢u of λ
+    case subst₂ (_ ⊢_∷_) (wk-liftₕ 0 [ρ] u) (cong _[ starʷ ]₀ A≡A′) ⊢u of λ
       ⊢u′ →
-    case subst (λ x → (ε ∙ Unitʷ) ⊢ x) A≡A′ ⊢A of λ
+    case subst (λ x → (_ ∙ Unitʷ) ⊢ x) A≡A′ ⊢A of λ
       ⊢A′ →
-    subst₂ (λ x y → H ⊢ᵉ _ ∷ _ ∷ _ ↝ (x [ y ]₀))
+    subst₂ (λ x y → _ ⨾ H ⊢ᵉ _ ⟨ _ ⟩∷ _ ↝ (x [ y ]₀))
       (PE.sym A≡A′) (PE.sym (wk-[]ₕ [ρ] t))
       (unitrecₑ ⊢u′ ⊢A′ no-η)
-  wk-⊢ᵉ {ρ} {H} {t = w} [ρ] (Jₑ {E} {A} {B} {t} {u} {v} {p} {q} ⊢u ⊢B) =
+  wk-⊢ᵉ {ρ} {H} {Δ} {t = w} [ρ] (Jₑ {E} {A} {B} {t} {u} {v} {p} {q} ⊢u ⊢B) =
     case wk-liftₕ 0 [ρ] u of λ
       u≡u′ →
     case wk-liftₕ 2 [ρ] B of λ
@@ -133,31 +131,31 @@ opaque
       v≡v′ →
     case cong₂ (λ x y → x [ y , rfl ]₁₀) B≡B′ t≡t′ of λ
       B₊≡B′₊ →
-    case subst₂ (ε ⊢_∷_) u≡u′ B₊≡B′₊ ⊢u of λ
+    case subst₂ (_ ⊢_∷_) u≡u′ B₊≡B′₊ ⊢u of λ
       ⊢u′ →
-    case subst₃ (λ x y z → (ε ∙ x ∙ Id (wk1 x) (wk1 y) (var y0)) ⊢ z)
+    case subst₃ (λ x y z → (_ ∙ x ∙ Id (wk1 x) (wk1 y) (var y0)) ⊢ z)
            A≡A′ t≡t′ B≡B′ ⊢B of λ
       ⊢B′ →
-    PE.subst₂ (H ⊢ᵉ Jₑ p q A t B u v (ρ • E) ∷ wk ρ w ∷_↝_)
+    PE.subst₂ (Δ ⨾ H ⊢ᵉ Jₑ p q A t B u v (ρ • E) ⟨ wk ρ w ⟩∷_↝_)
       (PE.sym (cong₃ Id A≡A′ t≡t′ v≡v′))
       (PE.sym (PE.cong₃ _[_,_]₁₀ B≡B′ v≡v′ (wk-[]ₕ [ρ] w)))
       (Jₑ ⊢u′ ⊢B′)
-  wk-⊢ᵉ {ρ} {H} {t = v} [ρ] (Kₑ {E} {u} {B} {A} {t} {p} ⊢u ⊢B ok) =
+  wk-⊢ᵉ {ρ} {H} {Δ} {t = v} [ρ] (Kₑ {E} {u} {B} {A} {t} {p} ⊢u ⊢B ok) =
     case wk-liftₕ 0 [ρ] u of λ
       u≡u′ →
     case wk-liftₕ 1 [ρ] B of λ
       B≡B′ →
     case wk-liftₕ 0 [ρ] (Id A t t) of λ
       Id≡Id′ →
-    case subst₂ (ε ⊢_∷_) u≡u′ (cong (_[ rfl ]₀) B≡B′) ⊢u of λ
+    case subst₂ (_ ⊢_∷_) u≡u′ (cong (_[ rfl ]₀) B≡B′) ⊢u of λ
       ⊢u′ →
-    case subst₂ (λ x y → ε ∙ x ⊢ y) Id≡Id′ B≡B′ ⊢B of λ
+    case subst₂ (λ x y → Δ ∙ x ⊢ y) Id≡Id′ B≡B′ ⊢B of λ
       ⊢B′ →
-    subst₂ (H ⊢ᵉ Kₑ p A t B u (ρ • E) ∷ wk ρ v ∷_↝_)
+    subst₂ (Δ ⨾ H ⊢ᵉ Kₑ p A t B u (ρ • E) ⟨ wk ρ v ⟩∷_↝_)
       (PE.sym Id≡Id′) (PE.sym (cong₂ _[_]₀ B≡B′ (wk-[]ₕ [ρ] v)))
       (Kₑ ⊢u′ ⊢B′ ok)
-  wk-⊢ᵉ {ρ} {H} {t = v} [ρ] ([]-congₑ {s′ = s} {A} {t} {u} {E} ok) =
-    PE.subst₂ (H ⊢ᵉ []-congₑ s A t u (ρ • E) ∷ wk ρ v ∷_↝_)
+  wk-⊢ᵉ {ρ} {H} {Δ} {t = v} [ρ] ([]-congₑ {s′ = s} {A} {t} {u} {E} ok) =
+    PE.subst₂ (Δ ⨾ H ⊢ᵉ []-congₑ s A t u (ρ • E) ⟨ wk ρ v ⟩∷_↝_)
       (PE.sym (wk-liftₕ 0 [ρ] (Id A t u)))
       (PE.sym (wk-liftₕ 0 [ρ] (Id (Erased A) ([ t ]) ([ u ])))) ([]-congₑ ok)
     where
@@ -170,8 +168,8 @@ opaque
 
   -- Weakening of stacks
 
-  wk-⊢ˢ : ρ ∷ H ⊇ʰ H′ → H′ ⊢ S ∷ t ∷ A ↝ B → H ⊢ wkˢ ρ S ∷ wk ρ t ∷ A ↝ B
+  wk-⊢ˢ : ρ ∷ H ⊇ʰ H′ → Δ ⨾ H′ ⊢ S ⟨ t ⟩∷ A ↝ B → Δ ⨾ H ⊢ wkˢ ρ S ⟨ wk ρ t ⟩∷ A ↝ B
   wk-⊢ˢ ρ ε = ε
   wk-⊢ˢ {ρ} {H} {H′} {S = e ∙ S} {t} [ρ] (⊢e ∙ ⊢S) =
       wk-⊢ᵉ [ρ] ⊢e
-    ∙ PE.subst (H ⊢ wkˢ ρ S ∷_∷ _ ↝ _) (wk-⦅⦆ᵉ e) (wk-⊢ˢ [ρ] ⊢S)
+    ∙ PE.subst (_ ⨾ H ⊢ wkˢ ρ S ⟨_⟩∷ _ ↝ _) (wk-⦅⦆ᵉ e) (wk-⊢ˢ [ρ] ⊢S)

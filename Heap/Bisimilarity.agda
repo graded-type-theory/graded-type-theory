@@ -31,6 +31,9 @@ import Heap.Reduction 𝕄 type-variant as R
 import Heap.Reduction.Properties 𝕄 type-variant as RP
 
 open import Definition.Untyped M
+open import Definition.Untyped.Neutral M type-variant
+open import Definition.Untyped.Properties.Neutral M type-variant
+
 open import Definition.Typed TR
 open import Definition.Typed.Properties TR
 open import Definition.Typed.RedSteps TR hiding (_⇨*_)
@@ -38,17 +41,17 @@ open import Definition.Typed.Consequences.Canonicity TR
 open import Definition.Typed.Consequences.Inversion TR
 open import Definition.Typed.Consequences.Reduction TR
 
-open import Graded.Context 𝕄
+open import Graded.Context 𝕄 hiding (_⟨_⟩)
 open import Graded.Modality.Properties.Subtraction semiring-with-meet
 
 private variable
-  s s′ : State _ _
-  H H′ H″ : Heap _
+  s s′ : State _ _ _
+  H H′ H″ : Heap _ _
   t t′ u u′ A B : Term _
   E E′ : Env _ _
   S S′ : Stack _
   γ δ η : Conₘ _
-  Γ : Con Term _
+  Γ Δ : Con Term _
 
 -- Bisimilarity between the tracking and non-tracking redutions
 -- (with or without reduction to numerals).
@@ -139,7 +142,8 @@ module _ (ℕ-fullred : Bool) where
 
     opaque
 
-      bisim₂ₙ : Supports-subtraction
+      bisim₂ₙ : ⦃ Has-well-behaved-zero _ semiring-with-meet ⦄
+              → Supports-subtraction
               → ⟨ H , t , E , S ⟩ Rₙₜ.⇒ₙ ⟨ H′ , t′ , E′ , S′ ⟩
               → H ~ʰ H″
               → γ ⨾ δ ⨾ η ▸ ⟨ H″ , t , E , S ⟩
@@ -184,7 +188,8 @@ module _ (ℕ-fullred : Bool) where
 
     opaque
 
-      bisim₂ : Supports-subtraction
+      bisim₂ : ⦃ Has-well-behaved-zero _ semiring-with-meet ⦄
+             → Supports-subtraction
              → ⟨ H , t , E , S ⟩ Rₙₜ.⇒ ⟨ H′ , t′ , E′ , S′ ⟩
              → H ~ʰ H″
              → γ ⨾ δ ⨾ η ▸ ⟨ H″ , t , E , S ⟩
@@ -199,8 +204,10 @@ module _ (ℕ-fullred : Bool) where
         _ , Rₜ.⇒ᵥ bisim₂ᵥ d′ , H′~H″
       bisim₂ ok (Rₙₜ.⇒ₛ d) H~H′ ▸s =
         case ~ʰ-⇒ₛ d H~H′ of λ
-          (_ , d′ , H′~H″) →
-        _ , Rₜ.⇒ₛ bisim₂ₛ d′ , H′~H″
+          d′ →
+        case ⇒ₛ-Heap≡ d of λ {
+          PE.refl →
+        _ , Rₜ.⇒ₛ bisim₂ₛ d′ , H~H′}
 
   -- The proof that the closure of the non-tracking reduction implies
   -- the closure of the tracking reduction has some extra assumptions
@@ -251,17 +258,17 @@ module _ where
 
     opaque
 
-      bisim₃ : Γ ⊢ₛ s ∷ A → s Rₙₜ.⇒ s′
-             → ε ⊢ norm s ⇒* norm s′ ∷ A
+      bisim₃ : Δ ⨾ Γ ⊢ s ∷ A → s Rₙₜ.⇒ s′
+             → Δ ⊢ norm s ⇒* norm s′ ∷ A
       bisim₃ (_ , _ , ⊢t , ⊢S) (Rₙₜ.⇒ₙ d) =
-        subst (ε ⊢ _ ⇒*_∷ _) (⇒ₙ-norm-≡ d) (id (⊢⦅⦆ ⊢S ⊢t))
+        subst (_ ⊢ _ ⇒*_∷ _) (⇒ₙ-norm-≡ d) (id (⊢⦅⦆ ⊢S ⊢t))
       bisim₃ ⊢s (Rₙₜ.⇒ᵥ d) =
         redMany (⇒ᵥ→⇒ ⊢s d)
 
     opaque
 
-      bisim₃* : Γ ⊢ₛ s ∷ A → s Rₙₜ.⇒* s′
-              → ε ⊢ norm s ⇒* norm s′ ∷ A
+      bisim₃* : Δ ⨾ Γ ⊢ s ∷ A → s Rₙₜ.⇒* s′
+              → Δ ⊢ norm s ⇒* norm s′ ∷ A
       bisim₃* (_ , ⊢H , ⊢t , ⊢S) Rₙₜ.id = id (⊢⦅⦆ ⊢S ⊢t)
       bisim₃* ⊢s (x Rₙₜ.⇨ d) =
         case ⊢ₛ-⇒ ⊢s x of λ
@@ -270,63 +277,68 @@ module _ where
 
     opaque
 
-      bisim₄ᵥ : ε ⊢ ⦅ S ⦆ (wk E t) [ H ]ₕ ⇒ u ∷ A
-              → Normal t
-              → Γ ⊢ₛ ⟨ H , t , E , S ⟩ ∷ B
-              → ∃₃ λ m n (s : State m n) → ⟨ H , t , E , S ⟩ Rₙₜ.⇒ᵥ s × u PE.≡ norm s
-      bisim₄ᵥ {S = ε} {E} {H} d (val v) ⊢s =
-        ⊥-elim (whnfRedTerm d (Val→Whnf (substVal (toSubstₕ H) (wkVal E v)) .proj₁))
-      bisim₄ᵥ {S = e ∙ S} d (val v) ⊢s =
-        case ⊢Val-⇒ᵥ ⊢s v of λ
+      bisim₄ᵥ : Consistent Δ
+              → Δ ⊢ ⦅ S ⦆ (wk E t) [ H ]ₕ ⇒ u ∷ A
+              → Normal ⟨ H , t , E , S ⟩
+              → Δ ⨾ Γ ⊢ ⟨ H , t , E , S ⟩ ∷ B
+              → ∃₃ λ m n (s : State _ m n) → ⟨ H , t , E , S ⟩ Rₙₜ.⇒ᵥ s × u PE.≡ norm s
+      bisim₄ᵥ {S = ε} {E} {H} _ d (val v) ⊢s =
+        ⊥-elim (whnfRedTerm d (Value→Whnf (substValue (toSubstₕ H) (wkValue E v)) .proj₁))
+      bisim₄ᵥ {S = e ∙ S} _ d (val v) ⊢s =
+        case ⊢Value-⇒ᵥ ⊢s v of λ
           (_ , _ , _ , d′) →
         _ , _ , _ , d′ , whrDetTerm d (⇒ᵥ→⇒ ⊢s d′)
-      bisim₄ᵥ d emptyrecₙ (_ , _ , ⊢t , _) =
+      bisim₄ᵥ _ d (var ¬d) (_ , _ , _ , ⊢S) =
+        ⊥-elim (neRedTerm d (NeutralAt→Neutral (toSubstₕ-NeutralAt ¬d (⊢⦅⦆-NeutralAt ⊢S var))))
+      bisim₄ᵥ consistent d emptyrecₙ (_ , _ , ⊢t , _) =
         case inversion-emptyrec ⊢t of λ
           (_ , ⊢t , _) →
-        ⊥-elim (¬Empty ⊢t)
-      bisim₄ᵥ d (unitrec-ηₙ η) ⊢s =
+        ⊥-elim (consistent _ ⊢t)
+      bisim₄ᵥ _ d (unitrec-ηₙ η) ⊢s =
         case Rₙₜ.unitrec-ηₕ η of λ
           d′ →
         _ , _ , _ , d′ , whrDetTerm d (⇒ᵥ→⇒ ⊢s d′)
 
     opaque
 
-      bisim₄ : ε ⊢ ⦅ S ⦆ (wk E t) [ H ]ₕ ⇒ u ∷ A
-             → Γ ⊢ₛ ⟨ H , t , E , S ⟩ ∷ B
-             → ∃₃ λ m n (s : State m n) → ⟨ H , t , E , S ⟩ Rₙₜ.⇒* s × u PE.≡ norm s
-      bisim₄ {S} {E} {t} {H} d ⊢s =
+      bisim₄ : Consistent Δ
+             → Δ ⊢ ⦅ S ⦆ (wk E t) [ H ]ₕ ⇒ u ∷ A
+             → Δ ⨾ Γ ⊢ ⟨ H , t , E , S ⟩ ∷ B
+             → ∃₃ λ m n (s : State _ m n) → ⟨ H , t , E , S ⟩ Rₙₜ.⇒* s × u PE.≡ norm s
+      bisim₄ {S} {E} {t} {H} consistent d ⊢s =
         case normalize H t E S of λ
           (_ , _ , _ , _ , n , d′) →
         case ⊢ₛ-⇒ₙ* ⊢s d′ of λ
-          (_ , _ , _ , ⊢s′) →
-        case bisim₄ᵥ (PE.subst (λ x → ε ⊢ x ⇒ _ ∷ _) (⇒ₙ*-norm-≡ d′) d) n ⊢s′ of λ
+          ⊢s′ →
+        case bisim₄ᵥ consistent (PE.subst (λ x → _ ⊢ x ⇒ _ ∷ _) (⇒ₙ*-norm-≡ d′) d) n ⊢s′ of λ
           (_ , _ , s′ , d″ , u≡) →
         _ , _ , s′ , (⇒ₙ* d′ ⇨* (Rₙₜ.⇒ᵥ d″) Rₙₜ.⇨ Rₙₜ.id) , u≡
 
     opaque
 
-      bisim₄* : ε ⊢ ⦅ S ⦆ (wk E t) [ H ]ₕ ⇒* u ∷ A
-             → Γ ⊢ₛ ⟨ H , t , E , S ⟩ ∷ B
-             → ∃₃ λ m n (s : State m n) → ⟨ H , t , E , S ⟩ Rₙₜ.⇒* s × u PE.≡ norm s
-      bisim₄* (id x) ⊢s =
+      bisim₄* : Consistent Δ
+              → Δ ⊢ ⦅ S ⦆ (wk E t) [ H ]ₕ ⇒* u ∷ A
+             → Δ ⨾ Γ ⊢ ⟨ H , t , E , S ⟩ ∷ B
+             → ∃₃ λ m n (s : State _ m n) → ⟨ H , t , E , S ⟩ Rₙₜ.⇒* s × u PE.≡ norm s
+      bisim₄* _ (id x) ⊢s =
         _ , _ , _ , Rₙₜ.id , PE.refl
-      bisim₄* (x ⇨ d) ⊢s =
-        case bisim₄ x ⊢s of λ {
+      bisim₄* consistent (x ⇨ d) ⊢s =
+        case bisim₄ consistent x ⊢s of λ {
           (_ , _ , _ , x′ , PE.refl) →
         case ⊢ₛ-⇒* ⊢s x′ of λ
           (_ , _ , _ , ⊢s′) →
-        case bisim₄* d ⊢s′ of λ
+        case bisim₄* consistent d ⊢s′ of λ
           (_ , _ , _ , d′ , u≡) →
         _ , _ , _ , x′ ⇨* d′ , u≡ }
 
     opaque
 
-      bisim₅* : Γ ⊢ₛ s ∷ A → s Rₜ.⇒* s′
-              → ε ⊢ norm s ⇒* norm s′ ∷ A
+      bisim₅* : Δ ⨾ Γ ⊢ s ∷ A → s Rₜ.⇒* s′
+              → Δ ⊢ norm s ⇒* norm s′ ∷ A
       bisim₅* {s′ = ⟨ _ , t , E , S ⟩} ⊢s d =
         case bisim₁* false d of λ
           (_ , d′ , H~H′) →
-        PE.subst (λ x → ε ⊢ _ ⇒* ⦅ S ⦆ (wk E t) [ x ] ∷ _)
+        PE.subst (λ x → _ ⊢ _ ⇒* ⦅ S ⦆ (wk E t) [ x ] ∷ _)
           (PE.sym (~ʰ-subst H~H′)) (bisim₃* ⊢s d′)
 
   -- The proof that the closure of the call-by-name reduction
@@ -339,12 +351,13 @@ module _ where
 
     opaque
 
-      bisim₆* : ε ⊢ ⦅ S ⦆ (wk E t) [ H ]ₕ ⇒* u ∷ A
-              → Γ ⊢ₛ ⟨ H , t , E , S ⟩ ∷ B
+      bisim₆* : Consistent Δ
+              → Δ ⊢ ⦅ S ⦆ (wk E t) [ H ]ₕ ⇒* u ∷ A
+              → Δ ⨾ Γ ⊢ ⟨ H , t , E , S ⟩ ∷ B
               → γ ⨾ δ ⨾ η ▸ ⟨ H , t , E , S ⟩
-              → ∃₃ λ m n (s : State m n) → ⟨ H , t , E , S ⟩ Rₜ.⇒* s × u PE.≡ norm s
-      bisim₆* d ⊢s ▸s =
-        case bisim₄* d ⊢s of λ
+              → ∃₃ λ m n (s : State _ m n) → ⟨ H , t , E , S ⟩ Rₜ.⇒* s × u PE.≡ norm s
+      bisim₆* consistent d ⊢s ▸s =
+        case bisim₄* consistent d ⊢s of λ
           (_ , _ , ⟨ H , t , E , S ⟩ , d′ , u≡) →
         case bisim₂* false UA d′ ~ʰ-refl ▸s of λ
           (_ , d″ , H~H′) →
@@ -365,36 +378,44 @@ module _ ⦃ _ : Has-nr M semiring-with-meet ⦄
     module Rₛ = R optsₛ
     module Rₙₛ = R optsₙₛ
 
-  bisim₇ₙ : s Rₙₛ.⇒ₙ s′ → s Rₛ.⇒ₙ s′
-  bisim₇ₙ (Rₙₛ.varₕ d) = Rₛ.varₕ d
-  bisim₇ₙ (Rₙₛ.varₕ′ d) = Rₛ.varₕ′ d
-  bisim₇ₙ Rₙₛ.appₕ = Rₛ.appₕ
-  bisim₇ₙ Rₙₛ.fstₕ = Rₛ.fstₕ
-  bisim₇ₙ Rₙₛ.sndₕ = Rₛ.sndₕ
-  bisim₇ₙ Rₙₛ.prodrecₕ = Rₛ.prodrecₕ
-  bisim₇ₙ Rₙₛ.natrecₕ = Rₛ.natrecₕ
-  bisim₇ₙ (Rₙₛ.unitrecₕ no-η) = Rₛ.unitrecₕ no-η
-  bisim₇ₙ Rₙₛ.Jₕ = Rₛ.Jₕ
-  bisim₇ₙ Rₙₛ.Kₕ = Rₛ.Kₕ
-  bisim₇ₙ Rₙₛ.[]-congₕ = Rₛ.[]-congₕ
+  opaque
 
-  bisim₇ᵥ : s Rₙₛ.⇒ᵥ s′ → s Rₛ.⇒ᵥ s′
-  bisim₇ᵥ Rₙₛ.lamₕ = Rₛ.lamₕ
-  bisim₇ᵥ Rₙₛ.prodˢₕ₁ = Rₛ.prodˢₕ₁
-  bisim₇ᵥ Rₙₛ.prodˢₕ₂ = Rₛ.prodˢₕ₂
-  bisim₇ᵥ Rₙₛ.prodʷₕ = Rₛ.prodʷₕ
-  bisim₇ᵥ Rₙₛ.zeroₕ = Rₛ.zeroₕ
-  bisim₇ᵥ Rₙₛ.sucₕ = Rₛ.sucₕ
-  bisim₇ᵥ Rₙₛ.starʷₕ = Rₛ.starʷₕ
-  bisim₇ᵥ (Rₙₛ.unitrec-ηₕ η) = Rₛ.unitrec-ηₕ η
-  bisim₇ᵥ Rₙₛ.rflₕⱼ = Rₛ.rflₕⱼ
-  bisim₇ᵥ Rₙₛ.rflₕₖ = Rₛ.rflₕₖ
-  bisim₇ᵥ Rₙₛ.rflₕₑ = Rₛ.rflₕₑ
+    bisim₇ₙ : s Rₙₛ.⇒ₙ s′ → s Rₛ.⇒ₙ s′
+    bisim₇ₙ (Rₙₛ.varₕ d) = Rₛ.varₕ d
+    bisim₇ₙ (Rₙₛ.varₕ′ d) = Rₛ.varₕ′ d
+    bisim₇ₙ Rₙₛ.appₕ = Rₛ.appₕ
+    bisim₇ₙ Rₙₛ.fstₕ = Rₛ.fstₕ
+    bisim₇ₙ Rₙₛ.sndₕ = Rₛ.sndₕ
+    bisim₇ₙ Rₙₛ.prodrecₕ = Rₛ.prodrecₕ
+    bisim₇ₙ Rₙₛ.natrecₕ = Rₛ.natrecₕ
+    bisim₇ₙ (Rₙₛ.unitrecₕ no-η) = Rₛ.unitrecₕ no-η
+    bisim₇ₙ Rₙₛ.Jₕ = Rₛ.Jₕ
+    bisim₇ₙ Rₙₛ.Kₕ = Rₛ.Kₕ
+    bisim₇ₙ Rₙₛ.[]-congₕ = Rₛ.[]-congₕ
 
-  bisim₇ : s Rₙₛ.⇒ s′ → s Rₛ.⇒ s′
-  bisim₇ (Rₙₛ.⇒ₙ d) = Rₛ.⇒ₙ (bisim₇ₙ d)
-  bisim₇ (Rₙₛ.⇒ᵥ d) = Rₛ.⇒ᵥ (bisim₇ᵥ d)
+  opaque
 
-  bisim₇* : s Rₙₛ.⇒* s′ → s Rₛ.⇒* s′
-  bisim₇* Rₙₛ.id = Rₛ.id
-  bisim₇* (x Rₙₛ.⇨ d) = (bisim₇ x) Rₛ.⇨ (bisim₇* d)
+    bisim₇ᵥ : s Rₙₛ.⇒ᵥ s′ → s Rₛ.⇒ᵥ s′
+    bisim₇ᵥ Rₙₛ.lamₕ = Rₛ.lamₕ
+    bisim₇ᵥ Rₙₛ.prodˢₕ₁ = Rₛ.prodˢₕ₁
+    bisim₇ᵥ Rₙₛ.prodˢₕ₂ = Rₛ.prodˢₕ₂
+    bisim₇ᵥ Rₙₛ.prodʷₕ = Rₛ.prodʷₕ
+    bisim₇ᵥ Rₙₛ.zeroₕ = Rₛ.zeroₕ
+    bisim₇ᵥ Rₙₛ.sucₕ = Rₛ.sucₕ
+    bisim₇ᵥ Rₙₛ.starʷₕ = Rₛ.starʷₕ
+    bisim₇ᵥ (Rₙₛ.unitrec-ηₕ η) = Rₛ.unitrec-ηₕ η
+    bisim₇ᵥ Rₙₛ.rflₕⱼ = Rₛ.rflₕⱼ
+    bisim₇ᵥ Rₙₛ.rflₕₖ = Rₛ.rflₕₖ
+    bisim₇ᵥ Rₙₛ.rflₕₑ = Rₛ.rflₕₑ
+
+  opaque
+
+    bisim₇ : s Rₙₛ.⇒ s′ → s Rₛ.⇒ s′
+    bisim₇ (Rₙₛ.⇒ₙ d) = Rₛ.⇒ₙ (bisim₇ₙ d)
+    bisim₇ (Rₙₛ.⇒ᵥ d) = Rₛ.⇒ᵥ (bisim₇ᵥ d)
+
+  opaque
+
+    bisim₇* : s Rₙₛ.⇒* s′ → s Rₛ.⇒* s′
+    bisim₇* Rₙₛ.id = Rₛ.id
+    bisim₇* (x Rₙₛ.⇨ d) = (bisim₇ x) Rₛ.⇨ (bisim₇* d)

@@ -35,8 +35,8 @@ import Tools.PropositionalEquality as PE
 open import Tools.Relation
 
 private variable
-  H : Heap _
-  Γ : Con Term _
+  H : Heap _ _
+  Δ : Con Term _
   t u v w z s A B C D F G : Term _
   p q r : M
   E : Env _ _
@@ -48,25 +48,25 @@ opaque
 
   -- Inversion of application
 
-  inversion-∘ₑ : H ⊢ᵉ ∘ₑ p u E ∷ t ∷ A ↝ B
-               → ∃₃ λ F G q → ε ⊢ wk E u [ H ]ₕ ∷ F
-                 × A PE.≡ Π p , q ▷ F ▹ G × ε ⊢ B ≡ G [ wk E u [ H ]ₕ ]₀
-  inversion-∘ₑ (∘ₑ ⊢u ⊢B) =
-      _ , _ , _ , ⊢u
-    , PE.refl
-    , refl (substType ⊢B ⊢u)
+  inversion-∘ₑ : Δ ⨾ H ⊢ᵉ ∘ₑ p u E ⟨ t ⟩∷ A ↝ B
+               → ∃₃ λ F G q → Δ ⊢ wk E u [ H ]ₕ ∷ F
+                 × A PE.≡ Π p , q ▷ F ▹ G
+                 × Δ ⊢ B ≡ G [ wk E u [ H ]ₕ ]₀
+  inversion-∘ₑ {H} (∘ₑ {E} {u} {A} {B} ⊢u ⊢B) =
+    A , B , _ , ⊢u , PE.refl
+      , refl (substType ⊢B ⊢u)
   inversion-∘ₑ (conv ⊢e B≡B′) =
     case inversion-∘ₑ ⊢e of λ
       (F , G , q , ⊢u , A≡Π , B≡) →
-    _ , _ , _ , ⊢u , A≡Π , trans (sym B≡B′) B≡
+    F , G , _ , ⊢u , A≡Π , trans (sym B≡B′) B≡
 
 opaque
 
   -- Inversion of fst
 
-  inversion-fstₑ : H ⊢ᵉ fstₑ p ∷ t ∷ A ↝ B
-                 → ∃₃ λ F G q → (ε ⊢ F) × (ε ∙ F ⊢ G)
-                   × A PE.≡ Σˢ p , q ▷ F ▹ G × ε ⊢ B ≡ F
+  inversion-fstₑ : Δ ⨾ H ⊢ᵉ fstₑ p ⟨ t ⟩∷ A ↝ B
+                 → ∃₃ λ F G q → (Δ ⊢ F) × (Δ ∙ F ⊢ G)
+                   × A PE.≡ Σˢ p , q ▷ F ▹ G × Δ ⊢ B ≡ F
   inversion-fstₑ (fstₑ ⊢A ⊢B) =
     _ , _ , _ , ⊢A , ⊢B , PE.refl , refl ⊢A
   inversion-fstₑ (conv ⊢e B≡B′) =
@@ -78,10 +78,10 @@ opaque
 
   -- Inversion of snd
 
-  inversion-sndₑ : H ⊢ᵉ sndₑ p ∷ t ∷ A ↝ B
-                 → ∃₃ λ F G q → (ε ⊢ F) × (ε ∙ F ⊢ G)
+  inversion-sndₑ : Δ ⨾ H ⊢ᵉ sndₑ p ⟨ t ⟩∷ A ↝ B
+                 → ∃₃ λ F G q → (Δ ⊢ F) × (Δ ∙ F ⊢ G)
                    × A PE.≡ Σˢ p , q ▷ F ▹ G
-                   × (ε ⊢ t [ H ]ₕ ∷ A → ε ⊢ B ≡ G [ fst p t [ H ]ₕ ]₀)
+                   × (Δ ⊢ t [ H ]ₕ ∷ A → Δ ⊢ B ≡ G [ fst p t [ H ]ₕ ]₀)
   inversion-sndₑ (sndₑ ⊢A ⊢B) =
     _ , _ , _ , ⊢A , ⊢B , PE.refl
       , λ ⊢t → refl (substType ⊢B (fstⱼ′ ⊢t))
@@ -95,12 +95,14 @@ opaque
 
   -- Inversion or prodrec
 
-  inversion-prodrecₑ : H ⊢ᵉ prodrecₑ r p q A u E ∷ t ∷ B ↝ C
+  inversion-prodrecₑ : Δ ⨾ H ⊢ᵉ prodrecₑ r p q A u E ⟨ t ⟩∷ B ↝ C
                      → ∃₃ λ F G q′
-                       → ε ∙ F ∙ G ⊢ wk (liftn E 2) u [ liftSubstn (toSubstₕ H) 2 ] ∷ (wk (lift E) A [ H ]⇑ₕ [ prodʷ p (var x1) (var x0) ]↑²)
-                       × ε ∙ Σʷ p , q′ ▷ F ▹ G ⊢ wk (lift E) A [ H ]⇑ₕ
+                       → Δ ∙ F ∙ G ⊢
+                           wk (liftn E 2) u [ liftSubstn (toSubstₕ H) 2 ] ∷
+                           (wk (lift E) A [ H ]⇑ₕ [ prodʷ p (var x1) (var x0) ]↑²)
+                       × Δ ∙ Σʷ p , q′ ▷ F ▹ G ⊢ wk (lift E) A [ H ]⇑ₕ
                        × B PE.≡ Σʷ p , q′ ▷ F ▹ G
-                       × (ε ⊢ t [ H ]ₕ ∷ Σʷ p , q′ ▷ F ▹ G → ε ⊢ C ≡ wk (lift E) A [ H ]⇑ₕ [ t [ H ]ₕ ]₀)
+                       × (Δ ⊢ t [ H ]ₕ ∷ Σʷ p , q′ ▷ F ▹ G → Δ ⊢ C ≡ wk (lift E) A [ H ]⇑ₕ [ t [ H ]ₕ ]₀)
   inversion-prodrecₑ (prodrecₑ ⊢u ⊢A) =
     _ , _ , _ , ⊢u , ⊢A , PE.refl , λ ⊢t → refl (substType ⊢A ⊢t)
   inversion-prodrecₑ (conv ⊢e ≡C) =
@@ -112,12 +114,12 @@ opaque
 
   -- Inversion of natrec
 
-  inversion-natrecₑ : H ⊢ᵉ natrecₑ p q r A z s E ∷ t ∷ B ↝ C
-                    → ε ⊢ wk E z [ H ]ₕ ∷ wk (lift E) A [ H ]⇑ₕ [ zero ]₀
-                    × ε ∙ ℕ ∙ wk (lift E) A [ H ]⇑ₕ ⊢ wk (liftn E 2) s [ H ]⇑²ₕ ∷ wk (lift E) A [ H ]⇑ₕ [ suc (var x1) ]↑²
-                    × ε ∙ ℕ ⊢ wk (lift E) A [ H ]⇑ₕ
+  inversion-natrecₑ : Δ ⨾ H ⊢ᵉ natrecₑ p q r A z s E ⟨ t ⟩∷ B ↝ C
+                    → Δ ⊢ wk E z [ H ]ₕ ∷ wk (lift E) A [ H ]⇑ₕ [ zero ]₀
+                    × Δ ∙ ℕ ∙ wk (lift E) A [ H ]⇑ₕ ⊢ wk (liftn E 2) s [ H ]⇑²ₕ ∷ wk (lift E) A [ H ]⇑ₕ [ suc (var x1) ]↑²
+                    × Δ ∙ ℕ ⊢ wk (lift E) A [ H ]⇑ₕ
                     × B PE.≡ ℕ
-                    × (ε ⊢ t [ H ]ₕ ∷ ℕ → ε ⊢ C ≡ wk (lift E) A [ H ]⇑ₕ [ t [ H ]ₕ ]₀)
+                    × (Δ ⊢ t [ H ]ₕ ∷ ℕ → Δ ⊢ C ≡ wk (lift E) A [ H ]⇑ₕ [ t [ H ]ₕ ]₀)
   inversion-natrecₑ (natrecₑ ⊢z ⊢s ⊢A) =
     ⊢z , ⊢s , ⊢A , PE.refl , λ ⊢t → refl (substType ⊢A ⊢t)
   inversion-natrecₑ (conv ⊢e ≡C) =
@@ -129,12 +131,12 @@ opaque
 
   -- Inversion of unitrec
 
-  inversion-unitrecₑ : H ⊢ᵉ unitrecₑ p q A u E ∷ t ∷ B ↝ C
-                     → ε ⊢ wk E u [ H ]ₕ ∷ wk (lift E) A [ H ]⇑ₕ [ starʷ ]₀
-                     × (ε ∙ Unitʷ ⊢ wk (lift E) A [ H ]⇑ₕ)
+  inversion-unitrecₑ : Δ ⨾ H ⊢ᵉ unitrecₑ p q A u E ⟨ t ⟩∷ B ↝ C
+                     → Δ ⊢ wk E u [ H ]ₕ ∷ wk (lift E) A [ H ]⇑ₕ [ starʷ ]₀
+                     × (Δ ∙ Unitʷ ⊢ wk (lift E) A [ H ]⇑ₕ)
                      × ¬ Unitʷ-η
                      × B PE.≡ Unitʷ
-                     × (ε ⊢ t [ H ]ₕ ∷ B → ε ⊢ C ≡ (wk (lift E) A [ H ]⇑ₕ [ t [ H ]ₕ ]₀))
+                     × (Δ ⊢ t [ H ]ₕ ∷ B → Δ ⊢ C ≡ (wk (lift E) A [ H ]⇑ₕ [ t [ H ]ₕ ]₀))
   inversion-unitrecₑ {A} (unitrecₑ ⊢u ⊢A no-η) =
     ⊢u , ⊢A , no-η , PE.refl
        , λ ⊢t → refl (substType ⊢A ⊢t)
@@ -147,10 +149,10 @@ opaque
 
 --   -- Inversion of emptyrec
 
---   inversion-emptyrecₑ : H ⊢ᵉ emptyrecₑ p A E ∷ t ∷ B ↝ C
---                       → ε ⊢ wk E A [ H ]ₕ
+--   inversion-emptyrecₑ : Δ ⨾ H ⊢ᵉ emptyrecₑ p A E ⟨ t ⟩∷ B ↝ C
+--                       → Δ ⊢ wk E A [ H ]ₕ
 --                       × B PE.≡ Empty
---                       × (ε ⊢ C ≡ wk E A [ H ]ₕ)
+--                       × (Δ ⊢ C ≡ wk E A [ H ]ₕ)
 --   inversion-emptyrecₑ (emptyrecₑ ⊢A) =
 --     ⊢A , PE.refl , refl ⊢A
 --   inversion-emptyrecₑ (conv ⊢e ≡C) =
@@ -162,12 +164,12 @@ opaque
 
   -- Inversion of J
 
-  inversion-Jₑ : H ⊢ᵉ Jₑ p q A t B u v E ∷ w ∷ C ↝ D
-               → ε ⊢ wk E u [ H ]ₕ ∷ wk (liftn E 2) B [ liftSubstn (toSubstₕ H) 2 ] [ wk E t [ H ]ₕ , rfl ]₁₀
-               × ε ∙ wk E A [ H ]ₕ ∙ Id (wk1 (wk E A [ H ]ₕ)) (wk1 (wk E t [ H ]ₕ)) (var x0) ⊢ wk (liftn E 2) B [ liftSubstn (toSubstₕ H) 2 ]
+  inversion-Jₑ : Δ ⨾ H ⊢ᵉ Jₑ p q A t B u v E ⟨ w ⟩∷ C ↝ D
+               → Δ ⊢ wk E u [ H ]ₕ ∷ wk (liftn E 2) B [ liftSubstn (toSubstₕ H) 2 ] [ wk E t [ H ]ₕ , rfl ]₁₀
+               × Δ ∙ wk E A [ H ]ₕ ∙ Id (wk1 (wk E A [ H ]ₕ)) (wk1 (wk E t [ H ]ₕ)) (var x0) ⊢ wk (liftn E 2) B [ liftSubstn (toSubstₕ H) 2 ]
                × C PE.≡ wk E (Id A t v) [ H ]ₕ
-               × (ε ⊢ w [ H ]ₕ ∷ wk E (Id A t v) [ H ]ₕ →
-                  ε ⊢ D ≡ wk (liftn E 2) B [ liftSubstn (toSubstₕ H) 2 ] [ wk E v [ H ]ₕ , w [ H ]ₕ ]₁₀)
+               × (Δ ⊢ w [ H ]ₕ ∷ wk E (Id A t v) [ H ]ₕ →
+                  Δ ⊢ D ≡ wk (liftn E 2) B [ liftSubstn (toSubstₕ H) 2 ] [ wk E v [ H ]ₕ , w [ H ]ₕ ]₁₀)
   inversion-Jₑ (Jₑ ⊢u ⊢B) =
     ⊢u , ⊢B , PE.refl , λ ⊢w → refl (J-result ⊢B ⊢w)
   inversion-Jₑ (conv ⊢e ≡D) =
@@ -179,12 +181,12 @@ opaque
 
   -- Inversion of K
 
-  inversion-Kₑ : H ⊢ᵉ Kₑ p A t B u E ∷ v ∷ C ↝ D
-               → ε ⊢ wk E u [ H ]ₕ ∷ wk (lift E) B [ H ]⇑ₕ [ rfl ]₀
-               × ε ∙ wk E (Id A t t) [ H ]ₕ ⊢ wk (lift E) B [ H ]⇑ₕ
+  inversion-Kₑ : Δ ⨾ H ⊢ᵉ Kₑ p A t B u E ⟨ v ⟩∷ C ↝ D
+               → Δ ⊢ wk E u [ H ]ₕ ∷ wk (lift E) B [ H ]⇑ₕ [ rfl ]₀
+               × Δ ∙ wk E (Id A t t) [ H ]ₕ ⊢ wk (lift E) B [ H ]⇑ₕ
                × K-allowed
                × C PE.≡ wk E (Id A t t) [ H ]ₕ
-               × (ε ⊢ v [ H ]ₕ ∷ wk E (Id A t t) [ H ]ₕ → ε ⊢ D ≡ wk (lift E) B [ H ]⇑ₕ [ v [ H ]ₕ ]₀)
+               × (Δ ⊢ v [ H ]ₕ ∷ wk E (Id A t t) [ H ]ₕ → Δ ⊢ D ≡ wk (lift E) B [ H ]⇑ₕ [ v [ H ]ₕ ]₀)
   inversion-Kₑ (Kₑ ⊢u ⊢B ok) =
     ⊢u , ⊢B , ok , PE.refl , λ ⊢v → refl (substType ⊢B ⊢v)
   inversion-Kₑ (conv ⊢e ≡D) =
@@ -196,13 +198,13 @@ opaque
 
   -- Inversion of []-cong
 
-  inversion-[]-congₑ : H ⊢ᵉ []-congₑ s′ A t u E ∷ v ∷ B ↝ C
+  inversion-[]-congₑ : Δ ⨾ H ⊢ᵉ []-congₑ s′ A t u E ⟨ v ⟩∷ B ↝ C
                      → let open E s′ in
                      []-cong-allowed s′
                      × B PE.≡ wk E (Id A t u) [ H ]ₕ
-                     × (ε ⊢ wk E t [ H ]ₕ ∷ wk E A [ H ]ₕ →
-                        ε ⊢ wk E u [ H ]ₕ ∷ wk E A [ H ]ₕ →
-                        ε ⊢ C ≡ (wk E (Id (Erased A) ([ t ]) ([ u ])) [ H ]ₕ))
+                     × (Δ ⊢ wk E t [ H ]ₕ ∷ wk E A [ H ]ₕ →
+                        Δ ⊢ wk E u [ H ]ₕ ∷ wk E A [ H ]ₕ →
+                        Δ ⊢ C ≡ (wk E (Id (Erased A) ([ t ]) ([ u ])) [ H ]ₕ))
   inversion-[]-congₑ ([]-congₑ ok) =
     ok , PE.refl
        , λ ⊢t ⊢u → refl (Idⱼ ([]ⱼ ([]-cong→Erased ok) ⊢t)
@@ -216,11 +218,11 @@ opaque
 
   -- Inversion of suc
 
-  inversion-sucₑ : H ⊢ᵉ sucₑ ∷ t ∷ A ↝ B
-                 → T ℕ-fullred × A PE.≡ ℕ × ε ⊢ B ≡ ℕ
+  inversion-sucₑ : Δ ⨾ H ⊢ᵉ sucₑ ⟨ t ⟩∷ A ↝ B
+                 → T ℕ-fullred × A PE.≡ ℕ × (⊢ Δ → Δ ⊢ B ≡ ℕ)
   inversion-sucₑ (sucₑ ⦃ (x) ⦄) =
-    x , PE.refl , refl (ℕⱼ ε)
+    x , PE.refl , λ ⊢Δ → refl (ℕⱼ ⊢Δ)
   inversion-sucₑ (conv ⊢e ≡B) =
     case inversion-sucₑ ⊢e of λ
       (x , A≡ , B′≡) →
-    x , A≡ , trans (sym ≡B) B′≡
+    x , A≡ , λ ⊢Δ → trans (sym ≡B) (B′≡ ⊢Δ)

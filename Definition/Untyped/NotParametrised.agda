@@ -85,6 +85,10 @@ liftn : {k m : Nat} → Wk k m → (n : Nat) → Wk (n + k) (n + m)
 liftn ρ 0 = ρ
 liftn ρ (1+ n) = lift (liftn ρ n)
 
+stepn : {k m : Nat} (ρ : Wk k m) → (n : Nat) → Wk (n + k) m
+stepn ρ 0 = ρ
+stepn ρ (1+ n) = step (stepn ρ n)
+
 -- Weakening of variables.
 -- If η : Γ ≤ Δ and x ∈ dom(Δ) then wkVar η x ∈ dom(Γ).
 

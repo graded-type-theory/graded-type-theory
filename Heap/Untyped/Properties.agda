@@ -16,7 +16,7 @@ open Modality 𝕄
 open import Tools.Empty
 open import Tools.Fin
 open import Tools.Function
-open import Tools.Nat using (Nat; 1+; 2+) renaming (_+_ to _+ⁿ_)
+open import Tools.Nat using (Nat; 1+; 2+; +-suc) renaming (_+_ to _+ⁿ_)
 open import Tools.PropositionalEquality
 open import Tools.Product
 open import Tools.Relation
@@ -34,7 +34,7 @@ open import Heap.Untyped 𝕄 type-variant
 private variable
   k n n′ n″ m m′ m″ : Nat
   t t′ t″ u v A z : Term _
-  H H′ H″ : Heap _
+  H H′ H″ : Heap _ _
   E E′ E″ : Env _ _
   S S′ S″ : Stack _
   p p′ q r r′ : M
@@ -43,7 +43,7 @@ private variable
   c c′ : Closure _ _
   Γ : Con Term _
   e e′ : Elim _
-  s : State _ _
+  s : State _ _ _
   σ : Subst _ _
   ρ : Wk _ _
 
@@ -54,110 +54,110 @@ opaque
 
   -- Values applied to weakenings are values
 
-  wkVal : (ρ : Wk m n) → Val t → Val (wk ρ t)
-  wkVal ρ lamᵥ = lamᵥ
-  wkVal ρ zeroᵥ = zeroᵥ
-  wkVal ρ sucᵥ = sucᵥ
-  wkVal ρ starᵥ = starᵥ
-  wkVal ρ prodᵥ = prodᵥ
-  wkVal ρ rflᵥ = rflᵥ
-  wkVal ρ Uᵥ = Uᵥ
-  wkVal ρ ΠΣᵥ = ΠΣᵥ
-  wkVal ρ ℕᵥ = ℕᵥ
-  wkVal ρ Unitᵥ = Unitᵥ
-  wkVal ρ Emptyᵥ = Emptyᵥ
-  wkVal ρ Idᵥ = Idᵥ
+  wkValue : (ρ : Wk m n) → Value t → Value (wk ρ t)
+  wkValue ρ lamᵥ = lamᵥ
+  wkValue ρ zeroᵥ = zeroᵥ
+  wkValue ρ sucᵥ = sucᵥ
+  wkValue ρ starᵥ = starᵥ
+  wkValue ρ prodᵥ = prodᵥ
+  wkValue ρ rflᵥ = rflᵥ
+  wkValue ρ Uᵥ = Uᵥ
+  wkValue ρ ΠΣᵥ = ΠΣᵥ
+  wkValue ρ ℕᵥ = ℕᵥ
+  wkValue ρ Unitᵥ = Unitᵥ
+  wkValue ρ Emptyᵥ = Emptyᵥ
+  wkValue ρ Idᵥ = Idᵥ
 
 opaque
 
   -- Values applied to substitutions are values
 
-  substVal : (σ : Subst m n) → Val t → Val (t [ σ ])
-  substVal σ lamᵥ = lamᵥ
-  substVal σ zeroᵥ = zeroᵥ
-  substVal σ sucᵥ = sucᵥ
-  substVal σ starᵥ = starᵥ
-  substVal σ prodᵥ = prodᵥ
-  substVal σ rflᵥ = rflᵥ
-  substVal σ Uᵥ = Uᵥ
-  substVal σ ΠΣᵥ = ΠΣᵥ
-  substVal σ ℕᵥ = ℕᵥ
-  substVal σ Unitᵥ = Unitᵥ
-  substVal σ Emptyᵥ = Emptyᵥ
-  substVal σ Idᵥ = Idᵥ
+  substValue : (σ : Subst m n) → Value t → Value (t [ σ ])
+  substValue σ lamᵥ = lamᵥ
+  substValue σ zeroᵥ = zeroᵥ
+  substValue σ sucᵥ = sucᵥ
+  substValue σ starᵥ = starᵥ
+  substValue σ prodᵥ = prodᵥ
+  substValue σ rflᵥ = rflᵥ
+  substValue σ Uᵥ = Uᵥ
+  substValue σ ΠΣᵥ = ΠΣᵥ
+  substValue σ ℕᵥ = ℕᵥ
+  substValue σ Unitᵥ = Unitᵥ
+  substValue σ Emptyᵥ = Emptyᵥ
+  substValue σ Idᵥ = Idᵥ
 
 opaque
 
   -- Values are non-neutrals in whnf
 
-  Val→Whnf : Val t → Whnf t × ¬ Neutral t
-  Val→Whnf lamᵥ = lamₙ , (λ ())
-  Val→Whnf zeroᵥ = zeroₙ , λ ()
-  Val→Whnf sucᵥ = sucₙ , λ ()
-  Val→Whnf starᵥ = starₙ , λ ()
-  Val→Whnf prodᵥ = prodₙ , λ ()
-  Val→Whnf rflᵥ = rflₙ , λ ()
-  Val→Whnf Uᵥ = Uₙ , λ ()
-  Val→Whnf ΠΣᵥ = ΠΣₙ , λ ()
-  Val→Whnf ℕᵥ = ℕₙ , λ ()
-  Val→Whnf Unitᵥ = Unitₙ , λ ()
-  Val→Whnf Emptyᵥ = Emptyₙ , λ ()
-  Val→Whnf Idᵥ = Idₙ , λ ()
+  Value→Whnf : Value t → Whnf t × ¬ Neutral t
+  Value→Whnf lamᵥ = lamₙ , (λ ())
+  Value→Whnf zeroᵥ = zeroₙ , λ ()
+  Value→Whnf sucᵥ = sucₙ , λ ()
+  Value→Whnf starᵥ = starₙ , λ ()
+  Value→Whnf prodᵥ = prodₙ , λ ()
+  Value→Whnf rflᵥ = rflₙ , λ ()
+  Value→Whnf Uᵥ = Uₙ , λ ()
+  Value→Whnf ΠΣᵥ = ΠΣₙ , λ ()
+  Value→Whnf ℕᵥ = ℕₙ , λ ()
+  Value→Whnf Unitᵥ = Unitₙ , λ ()
+  Value→Whnf Emptyᵥ = Emptyₙ , λ ()
+  Value→Whnf Idᵥ = Idₙ , λ ()
 
 -- opaque
 
 --   -- Non-neutrals in whnf are values
 
---   Whnf→Val : ⦃ ¬ℕ-Fullred ⦄ → Whnf t → ¬ Neutral t → Val t
---   Whnf→Val Uₙ ¬ne = Uᵥ
---   Whnf→Val ΠΣₙ ¬ne = ΠΣᵥ
---   Whnf→Val ℕₙ ¬ne = ℕᵥ
---   Whnf→Val Unitₙ ¬ne = Unitᵥ
---   Whnf→Val Emptyₙ ¬ne = Emptyᵥ
---   Whnf→Val Idₙ ¬ne = Idᵥ
---   Whnf→Val lamₙ ¬ne = lamᵥ
---   Whnf→Val zeroₙ ¬ne = zeroᵥ
---   Whnf→Val sucₙ ¬ne = sucᵥ
---   Whnf→Val starₙ ¬ne = starᵥ
---   Whnf→Val prodₙ ¬ne = prodᵥ
---   Whnf→Val rflₙ ¬ne = rflᵥ
---   Whnf→Val (ne x) ¬ne = ⊥-elim (¬ne x)
+--   Whnf→Value : ⦃ ¬ℕ-Fullred ⦄ → Whnf t → ¬ Neutral t → Value t
+--   Whnf→Value Uₙ ¬ne = Uᵥ
+--   Whnf→Value ΠΣₙ ¬ne = ΠΣᵥ
+--   Whnf→Value ℕₙ ¬ne = ℕᵥ
+--   Whnf→Value Unitₙ ¬ne = Unitᵥ
+--   Whnf→Value Emptyₙ ¬ne = Emptyᵥ
+--   Whnf→Value Idₙ ¬ne = Idᵥ
+--   Whnf→Value lamₙ ¬ne = lamᵥ
+--   Whnf→Value zeroₙ ¬ne = zeroᵥ
+--   Whnf→Value sucₙ ¬ne = sucᵥ
+--   Whnf→Value starₙ ¬ne = starᵥ
+--   Whnf→Value prodₙ ¬ne = prodᵥ
+--   Whnf→Value rflₙ ¬ne = rflᵥ
+--   Whnf→Value (ne x) ¬ne = ⊥-elim (¬ne x)
 
 -- opaque
 
---   -- Val t is decidable
+--   -- Value t is decidable
 
---   dec-Val : (t : Term n) → Dec (Val t)
---   dec-Val (lam p t) = yes lamᵥ
---   dec-Val (prod s p t u) = yes prodᵥ
---   dec-Val zero = yes zeroᵥ
---   dec-Val (suc t) = yes {!!}
---   dec-Val (star s) = yes starᵥ
---   dec-Val rfl = yes rflᵥ
---   dec-Val U = yes Uᵥ
---   dec-Val (ΠΣ⟨ b ⟩ p , q ▷ A ▹ B) = yes ΠΣᵥ
---   dec-Val ℕ = yes ℕᵥ
---   dec-Val (Unit s) = yes Unitᵥ
---   dec-Val Empty = yes Emptyᵥ
---   dec-Val (Id A t u) = yes Idᵥ
---   dec-Val (var x) = no (λ ())
---   dec-Val (t ∘ u) = no (λ ())
---   dec-Val (unitrec p q A t u) = no (λ ())
---   dec-Val (emptyrec p A t) = no (λ ())
---   dec-Val (prodrec r p q A t u) = no (λ ())
---   dec-Val (natrec p q r A z s n) = no (λ ())
---   dec-Val (fst p t) = no (λ ())
---   dec-Val (snd p t) = no (λ ())
---   dec-Val (J p q A t B u v w) = no (λ ())
---   dec-Val (K p A t B u v) = no (λ ())
---   dec-Val ([]-cong s A t u v) = no (λ ())
+--   dec-Value : (t : Term n) → Dec (Value t)
+--   dec-Value (lam p t) = yes lamᵥ
+--   dec-Value (prod s p t u) = yes prodᵥ
+--   dec-Value zero = yes zeroᵥ
+--   dec-Value (suc t) = yes {!!}
+--   dec-Value (star s) = yes starᵥ
+--   dec-Value rfl = yes rflᵥ
+--   dec-Value U = yes Uᵥ
+--   dec-Value (ΠΣ⟨ b ⟩ p , q ▷ A ▹ B) = yes ΠΣᵥ
+--   dec-Value ℕ = yes ℕᵥ
+--   dec-Value (Unit s) = yes Unitᵥ
+--   dec-Value Empty = yes Emptyᵥ
+--   dec-Value (Id A t u) = yes Idᵥ
+--   dec-Value (var x) = no (λ ())
+--   dec-Value (t ∘ u) = no (λ ())
+--   dec-Value (unitrec p q A t u) = no (λ ())
+--   dec-Value (emptyrec p A t) = no (λ ())
+--   dec-Value (prodrec r p q A t u) = no (λ ())
+--   dec-Value (natrec p q r A z s n) = no (λ ())
+--   dec-Value (fst p t) = no (λ ())
+--   dec-Value (snd p t) = no (λ ())
+--   dec-Value (J p q A t B u v w) = no (λ ())
+--   dec-Value (K p A t B u v) = no (λ ())
+--   dec-Value ([]-cong s A t u v) = no (λ ())
 
-opaque
+-- opaque
 
-  -- Values are not equal to non-values
+--   -- Values are not equal to non-values
 
-  Val≢¬Val : Val t → ¬ Val u → t ≢ u
-  Val≢¬Val v ¬v refl = ¬v v
+--   Value≢¬Value : Value t → ¬ Value u → t ≢ u
+--   Value≢¬Value v ¬v refl = ¬v v
 
 ------------------------------------------------------------------------
 -- Properties of the lookup relations
@@ -166,7 +166,7 @@ opaque
 
   -- Variable lookup with heap update is deterministic.
 
-  lookup-det : {H : Heap m} {t : Term n} {u : Term n′}
+  lookup-det : {H : Heap k m} {t : Term n} {u : Term n′}
              → H ⊢ y ↦[ r ] t , E ⨾ H′
              → H ⊢ y ↦[ r ] u , E′ ⨾ H″
              → Σ (n ≡ n′) λ p → subst Term p t ≡ u
@@ -179,17 +179,25 @@ opaque
     case lookup-det x y of λ {
       (refl , refl , refl , refl) →
     refl , refl , refl , refl }
+  lookup-det (there● x) (there● y) =
+    case lookup-det x y of λ {
+      (refl , refl , refl , refl) →
+    refl , refl , refl , refl}
 
 opaque
 
   -- Variable lookup without heap update is deterministic.
 
-  lookup-det′ : {H : Heap m} {t : Term n} {u : Term n′}
+  lookup-det′ : {H : Heap k m} {t : Term n} {u : Term n′}
              → H ⊢ y ↦ (t , E)
              → H ⊢ y ↦ (u , E′)
              → Σ (n ≡ n′) λ p → subst Term p t ≡ u × subst (Env m) p E ≡ E′
   lookup-det′ here here = refl , refl , refl
   lookup-det′ (there d) (there d′) =
+    case lookup-det′ d d′ of λ {
+      (refl , refl , refl) →
+    refl , refl , refl }
+  lookup-det′ (there● d) (there● d′) =
     case lookup-det′ d d′ of λ {
       (refl , refl , refl) →
     refl , refl , refl }
@@ -202,6 +210,7 @@ opaque
   ↦[]→↦ : H ⊢ y ↦[ q ] c ⨾ H′ → H ⊢ y ↦ c
   ↦[]→↦ (here x) = here
   ↦[]→↦ (there d) = there (↦[]→↦ d)
+  ↦[]→↦ (there● d) = there● (↦[]→↦ d)
 
 opaque
 
@@ -212,6 +221,10 @@ opaque
     sym (step-consSubst t)
   heapSubstVar {t} (there d) =
     trans (heapSubstVar d) (sym (step-consSubst t))
+  heapSubstVar {H = H ∙●} {t} {E = step E} (there● d) =
+    trans (cong wk1 (heapSubstVar d))
+      (trans (sym (wk1-liftSubst (wk E t)))
+        (cong (_[ H ]⇑ₕ) (wk1-wk E t)))
 
 opaque
 
@@ -222,6 +235,10 @@ opaque
     sym (step-consSubst t)
   heapSubstVar′ {t} (there d) =
     trans (heapSubstVar′ d) (sym (step-consSubst t))
+  heapSubstVar′ {H = H ∙●} {t} {E = step E} (there● d) =
+    trans (cong wk1 (heapSubstVar′ d))
+      (trans (sym (wk1-liftSubst (wk E t)))
+        (cong (_[ H ]⇑ₕ) (wk1-wk E t)))
 
 ------------------------------------------------------------------------
 -- Properties of stacks and eliminators
@@ -527,6 +544,7 @@ opaque
   ~ʰ-refl : H ~ʰ H
   ~ʰ-refl {H = ε} = ε
   ~ʰ-refl {H = H ∙ c} = ~ʰ-refl ∙ _
+  ~ʰ-refl {H = H ∙●} = ~ʰ-refl ∙●
 
 opaque
 
@@ -535,6 +553,7 @@ opaque
   ~ʰ-sym : H ~ʰ H′ → H′ ~ʰ H
   ~ʰ-sym ε = ε
   ~ʰ-sym (H~H′ ∙ c) = ~ʰ-sym H~H′ ∙ c
+  ~ʰ-sym (H~H′ ∙●) = ~ʰ-sym H~H′ ∙●
 
 opaque
 
@@ -543,6 +562,7 @@ opaque
   ~ʰ-trans : H ~ʰ H′ → H′ ~ʰ H″ → H ~ʰ H″
   ~ʰ-trans ε ε = ε
   ~ʰ-trans (H~H′ ∙ c) (H′~H″ ∙ .c) = ~ʰ-trans H~H′ H′~H″ ∙ c
+  ~ʰ-trans (H~H′ ∙●) (H′~H″ ∙●) = ~ʰ-trans H~H′ H′~H″ ∙●
 
 opaque
 
@@ -551,6 +571,7 @@ opaque
   ~ʰ-lookup : H ~ʰ H′ → H ⊢ y ↦ c → H′ ⊢ y ↦ c
   ~ʰ-lookup (H~H′ ∙ _) here = here
   ~ʰ-lookup (H~H′ ∙ _) (there d) = there (~ʰ-lookup H~H′ d)
+  ~ʰ-lookup (H~H′ ∙●) (there● d) = there● (~ʰ-lookup H~H′ d)
 
 opaque
 
@@ -562,6 +583,8 @@ opaque
     case ~ʰ-subst H~H′ of λ
       H≡H′ →
     cong₂ consSubst H≡H′ (cong (wk E t [_]) H≡H′)
+  ~ʰ-subst (H~H′ ∙●) =
+    cong liftSubst (~ʰ-subst H~H′)
 
 opaque
 
@@ -570,6 +593,7 @@ opaque
   update-~ʰ : H ⊢ y ↦[ q ] c ⨾ H′ → H ~ʰ H′
   update-~ʰ (here _) = ~ʰ-refl ∙ _
   update-~ʰ (there d) = update-~ʰ d ∙ _
+  update-~ʰ (there● d) = update-~ʰ d ∙●
 
 ------------------------------------------------------------------------
 -- Properties of substitutions
@@ -598,3 +622,115 @@ opaque
 
   heapUpdateSubst : H ⊢ y ↦[ q ] c ⨾ H′ → toSubstₕ H ≡ toSubstₕ H′
   heapUpdateSubst d = ~ʰ-subst (update-~ʰ d)
+
+opaque
+
+  -- Erased heaps are identity substitutions
+
+  erasedHeap≡idsubst : ∀ x → toSubstₕ (erasedHeap n) x ≡ idSubst x
+  erasedHeap≡idsubst x0 = refl
+  erasedHeap≡idsubst (x +1) = cong wk1 (erasedHeap≡idsubst x)
+
+opaque
+
+  -- A collorary to the above property
+
+  erasedHeap-subst : ∀ t → t [ erasedHeap n ]ₕ ≡ t
+  erasedHeap-subst t = trans (substVar-to-subst erasedHeap≡idsubst t) (subst-id t)
+
+opaque
+
+  -- The weakening toWkₕ H acts as an "inverse" to toSubstₕ H
+
+  toWkₕ-toSubstₕ-var : (H : Heap k m) (x : Fin k)
+        → toSubstₕ H (wkVar (toWkₕ H) x) ≡ idSubst x
+  toWkₕ-toSubstₕ-var (H ∙ c) x = toWkₕ-toSubstₕ-var H x
+  toWkₕ-toSubstₕ-var (H ∙●) x0 = refl
+  toWkₕ-toSubstₕ-var (H ∙●) (x +1) = cong wk1 (toWkₕ-toSubstₕ-var H x)
+
+opaque
+
+  -- The weakening toWkₕ H acts as an "inverse" to toSubstₕ H
+
+  toWkₕ-toSubstₕ : (H : Heap k m) (t : Term k)
+                 → wk (toWkₕ H) t [ H ]ₕ ≡ t
+  toWkₕ-toSubstₕ H t = begin
+    wk (toWkₕ H) t [ H ]ₕ       ≡⟨ subst-wk t ⟩
+    t [ toSubstₕ H ₛ• toWkₕ H ] ≡⟨ substVar-to-subst (toWkₕ-toSubstₕ-var H) t ⟩
+    t [ idSubst ]               ≡⟨ subst-id t ⟩
+    t                           ∎
+
+opaque
+
+  wk1-Normal : Normal ⟨ H , t , E , S ⟩ → Normal ⟨ H ∙ (p , c) , t , step E , wk1ˢ S ⟩
+  wk1-Normal (val x) = val x
+  wk1-Normal (var ¬d) = var (λ { (there d) → ¬d d })
+  wk1-Normal emptyrecₙ = emptyrecₙ
+  wk1-Normal (unitrec-ηₙ x) = unitrec-ηₙ x
+
+opaque
+
+  wk1●-Normal : Normal ⟨ H , t , E , S ⟩ → Normal ⟨ H ∙● , t , step E , wk1ˢ S ⟩
+  wk1●-Normal (val x) = val x
+  wk1●-Normal (var ¬d) = var (λ { (there● d) → ¬d d })
+  wk1●-Normal emptyrecₙ = emptyrecₙ
+  wk1●-Normal (unitrec-ηₙ x) = unitrec-ηₙ x
+
+opaque
+
+  -- The stack of a normal state can be replaced to give a normal state
+
+  Normal-stack : Normal ⟨ H , t , E , S ⟩ → Normal ⟨ H , t , E , S′ ⟩
+  Normal-stack (val x) = val x
+  Normal-stack (var x) = var x
+  Normal-stack emptyrecₙ = emptyrecₙ
+  Normal-stack (unitrec-ηₙ x) = unitrec-ηₙ x
+
+opaque
+
+  State-injectivity : ⟨ H , t , E , S ⟩ ≡ ⟨ H′ , t′ , E′ , S′ ⟩
+                    → H ≡ H′ × t ≡ t′ × E ≡ E′ × S ≡ S′
+  State-injectivity refl = refl , refl , refl , refl
+
+opaque
+
+  toSubstₕ-erased : (H : Heap k m) (y : Fin m)
+                  → (∀ {n} {c : Closure _ n} → H ⊢ y ↦ c → ⊥)
+                  → ∃ λ y′ → toSubstₕ H y ≡ var y′
+  toSubstₕ-erased ε () _
+  toSubstₕ-erased (H ∙ c) y0 ¬d = ⊥-elim (¬d here)
+  toSubstₕ-erased (H ∙ c) (y +1) ¬d = toSubstₕ-erased H y (λ d → ¬d (there d))
+  toSubstₕ-erased (H ∙●) y0 ¬d = y0 , refl
+  toSubstₕ-erased (H ∙●) (y +1) ¬d =
+    case toSubstₕ-erased H y (λ d → ¬d (there● d)) of λ
+      (y′ , ≡y′) →
+    y′ +1 , cong wk1 ≡y′
+
+opaque
+
+  toSubstₕ-NeutralAt : (¬d : ∀ {n} {c : Closure _ n} → H ⊢ y ↦ c → ⊥)
+                     → NeutralAt y t
+                     → NeutralAt (toSubstₕ-erased H y ¬d .proj₁) (t [ H ]ₕ)
+  toSubstₕ-NeutralAt ¬d var with toSubstₕ-erased _ _ ¬d
+  … | (x′ , ≡x′) =
+    subst (NeutralAt _) (sym ≡x′) var
+  toSubstₕ-NeutralAt ¬d (∘ₙ n) =
+    ∘ₙ (toSubstₕ-NeutralAt ¬d n)
+  toSubstₕ-NeutralAt ¬d (fstₙ n) =
+    fstₙ (toSubstₕ-NeutralAt ¬d n)
+  toSubstₕ-NeutralAt ¬d (sndₙ n) =
+    sndₙ (toSubstₕ-NeutralAt ¬d n)
+  toSubstₕ-NeutralAt ¬d (natrecₙ n) =
+    natrecₙ (toSubstₕ-NeutralAt ¬d n)
+  toSubstₕ-NeutralAt ¬d (prodrecₙ n) =
+    prodrecₙ (toSubstₕ-NeutralAt ¬d n)
+  toSubstₕ-NeutralAt ¬d (emptyrecₙ n) =
+    emptyrecₙ (toSubstₕ-NeutralAt ¬d n)
+  toSubstₕ-NeutralAt ¬d (unitrecₙ x n) =
+    unitrecₙ x (toSubstₕ-NeutralAt ¬d n)
+  toSubstₕ-NeutralAt ¬d (Jₙ n) =
+    Jₙ (toSubstₕ-NeutralAt ¬d n)
+  toSubstₕ-NeutralAt ¬d (Kₙ n) =
+    Kₙ (toSubstₕ-NeutralAt ¬d n)
+  toSubstₕ-NeutralAt ¬d ([]-congₙ n) =
+    []-congₙ (toSubstₕ-NeutralAt ¬d n)

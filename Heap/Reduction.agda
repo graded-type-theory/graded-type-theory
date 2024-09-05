@@ -31,7 +31,7 @@ open Type-variant type-variant
 
 private variable
   m m′ n n′ k : Nat
-  H H′ : Heap _
+  H H′ : Heap _ _
   E E′ : Env _ _
   t t′ u v w z s A B t₁ t₂ : Term _
   x : Fin _
@@ -41,7 +41,7 @@ private variable
 
 infix 28 _⇒ₙ_
 
-data _⇒ₙ_ {m n} : State m n → State m n′ → Set a where
+data _⇒ₙ_ {k m n} : State k m n → State k m n′ → Set a where
   varₕ : ⦃ tr : Track-resources ⦄
        → H ⊢ wkVar E x ↦[ ∣ S ∣ ] (t , E′) ⨾ H′ →
           ⟨ H  , var x , E  , S ⟩
@@ -74,14 +74,14 @@ data _⇒ₙ_ {m n} : State m n → State m n′ → Set a where
 
 infix 28 _⇒ₙ*_
 
-data _⇒ₙ*_ (s : State m n) : (s′ : State m n′) → Set a where
+data _⇒ₙ*_ (s : State k m n) : (s′ : State k m n′) → Set a where
   id : s ⇒ₙ* s
-  _⇨_ : ∀ {n″} {s′ : State m n′} {s″ : State m n″}
+  _⇨_ : ∀ {n″} {s′ : State k m n′} {s″ : State k m n″}
       → s ⇒ₙ s′ → s′ ⇒ₙ* s″ → s ⇒ₙ* s″
 
 infix 28 _⇒ᵥ_
 
-data _⇒ᵥ_ {m n} : State m n → State m′ n′ → Set a where
+data _⇒ᵥ_ {k m n} : State k m n → State k m′ n′ → Set a where
   lamₕ : ⟨ H                        , lam p t , E           , ∘ₑ p u E′ ∙ S ⟩
        ⇒ᵥ ⟨ H ∙ (∣ S ∣ · p , u , E′) , t       , lift E      , wk1ˢ S        ⟩
   prodˢₕ₁ : ⟨ H , prodˢ p t₁ t₂ , E , fstₑ p ∙ S ⟩
@@ -109,7 +109,7 @@ data _⇒ᵥ_ {m n} : State m n → State m′ n′ → Set a where
 
 infix 28 _⇒ₛ_
 
-data _⇒ₛ_ {m n} : State m n → State m n → Set a where
+data _⇒ₛ_ {m′ m n} : State m′ m n → State m′ m n → Set a where
   sucₕ : ¬ Numeral t
        → ⟨ H , suc t , E , sucₛ k ⟩ ⇒ₛ ⟨ H , t , E , sucₑ ∙ sucₛ k ⟩
   numₕ : Numeral t
@@ -125,17 +125,17 @@ infix 30 ⇒ᵥ_
 infix 30 ⇒ₛ_
 infix 28 _⇒_
 
-data _⇒_ : State m n → State m′ n′ → Set a where
-  ⇒ₙ_ : {s : State m n} {s′ : State m n′} → s ⇒ₙ s′ → s ⇒ s′
-  ⇒ᵥ_ : {s : State m n} {s′ : State m′ n′} → s ⇒ᵥ s′ → s ⇒ s′
-  ⇒ₛ_ : {s s′ : State m n} → ⦃ ℕ-Fullred ⦄ → s ⇒ₛ s′ → s ⇒ s′
+data _⇒_ (s : State k m n) : State k m′ n′ → Set a where
+  ⇒ₙ_ : {s′ : State k m n′} → s ⇒ₙ s′ → s ⇒ s′
+  ⇒ᵥ_ : {s′ : State k m′ n′} → s ⇒ᵥ s′ → s ⇒ s′
+  ⇒ₛ_ : {s′ : State k m n} → ⦃ ℕ-Fullred ⦄ → s ⇒ₛ s′ → s ⇒ s′
 
 -- Reflexive, transistive closure of the reduction relation
 
 infixr 30 _⇨_
 infix 28 _⇒*_
 
-data _⇒*_ : (s : State m n) (s′ : State m′ n′) → Set a where
-  id : {s : State m n} → s ⇒* s
-  _⇨_ : ∀ {m″ n″} {s : State m n} {s′ : State m′ n′} {s″ : State m″ n″}
+data _⇒*_ (s : State k m n) : (s′ : State k m′ n′) → Set a where
+  id : s ⇒* s
+  _⇨_ : ∀ {m″ n″} {s′ : State k m′ n′} {s″ : State k m″ n″}
       → s ⇒ s′ → s′ ⇒* s″ → s ⇒* s″

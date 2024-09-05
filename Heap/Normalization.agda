@@ -36,33 +36,70 @@ open import Definition.Untyped M hiding (head)
 open import Definition.Untyped.Properties M
 
 private variable
-  m n n′ : Nat
+  k m n n′ : Nat
 
 opaque mutual
 
-  normalize-var : (H : Heap m) (x : Fin m)
-                → ∃₄ λ n t (E′ : Env m n) S → Normal t
+  normalize-var : (H : Heap k m) (x : Fin m)
+                → ∃₄ λ n t (E′ : Env m n) S → Normal ⟨ H , t , E′ , S ⟩
                   × ⟨ H , var x , id , ε ⟩ ⇒ₙ* ⟨ H , t , E′ , S ⟩
   normalize-var (H ∙ (p , t , E)) y0 =
     case normalize H t E ε of λ
       (_ , t′ , E′ , S , n , d) →
-    _ , t′ , step E′ , wk1ˢ S , n
+    _ , t′ , step E′ , wk1ˢ S , wk1-Normal n
       , varₕ′ here ⇨ wk1-⇒ₙ* d
 
   normalize-var (H ∙ c) (y +1) =
     case normalize-var H y of λ
       (_ , t , E , S , n , d) →
-    _ , t , step E , wk1ˢ S , n
-      , var-env-⇒ₙ* (wk1-⇒ₙ* d) refl n
+    case wk1-Normal n of λ
+      n′ →
+    case var-env-⇒ₙ* (wk1-⇒ₙ* d) refl n′ of λ where
+      (inj₁ d′) →
+        _ , t , step E , wk1ˢ S , n′ , d′
+      (inj₂ (refl , s≡s′)) →
+        case State-injectivity s≡s′ of λ {
+          (_ , refl , refl , _) →
+        case n′ of λ {
+          (var ¬d) →
+        _ , var (y +1) , id , ε , var ¬d , id }}
 
-  normalize : (H : Heap m) (t : Term n) (E : Env m n) (S : Stack m)
-            → ∃₄ λ n′ t′ (E′ : Env m n′) (S′ : Stack m) → Normal t′ ×
+
+  normalize-var (H ∙●) y0 =
+    _ , var x0 , id  , ε , var (λ ()) , id
+
+  normalize-var (H ∙●) (y +1) =
+    case normalize-var H y of λ
+      (_ , t , E , S , n , d) →
+    case wk1●-Normal n of λ
+      n′ →
+    case var-env-⇒ₙ* (wk1●-⇒ₙ* d) refl n′ of λ where
+      (inj₁ d′) →
+        _ , t , step E , wk1ˢ S , n′ , d′
+      (inj₂ (refl , s≡s′)) →
+        case State-injectivity s≡s′ of λ {
+          (_ , refl , refl , _) →
+        case n′ of λ {
+          (var ¬d) →
+        _ , var (y +1) , id , ε , var ¬d , id }}
+
+
+  normalize : (H : Heap k m) (t : Term n) (E : Env m n) (S : Stack m)
+            → ∃₄ λ n′ t′ (E′ : Env m n′) (S′ : Stack m) → Normal ⟨ H , t′ , E′ , S′ ⟩ ×
               ⟨ H , t , E , S ⟩ ⇒ₙ* ⟨ H , t′ , E′ , S′ ⟩
   normalize H (var x) E S =
     case normalize-var H (wkVar E x) of λ
       (_ , t , E′ , S′ , n , d) →
-    _ , t , E′ , S′ ++ S , n
-      , ++-⇒ₙ* S (var-env-⇒ₙ* d refl n)
+    case var-env-⇒ₙ* d refl n of λ where
+      (inj₁ d′) →
+        _ , t , E′ , S′ ++ S , Normal-stack n
+          , ++-⇒ₙ* S d′
+      (inj₂ (refl , s≡s′)) →
+        case State-injectivity s≡s′ of λ {
+          (_ , refl , refl , refl) →
+        case n of λ {
+          (var ¬d) →
+        _ , var x , E , S , var ¬d , id }}
   normalize H (lam p t) E S =
     _ , lam p t , E , S , val lamᵥ , id
   normalize H (t ∘⟨ p ⟩ u) E S =

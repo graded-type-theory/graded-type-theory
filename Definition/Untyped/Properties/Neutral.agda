@@ -10,7 +10,9 @@ module Definition.Untyped.Properties.Neutral
   (type-variant : Type-variant)
   where
 
+open import Tools.Fin
 open import Tools.Function
+open import Tools.Product
 open import Tools.PropositionalEquality
 open import Tools.Relation
 open import Tools.Sum hiding (sym)
@@ -23,6 +25,7 @@ private variable
   t u : Term _
   ρ : Wk _ _
   σ : Subst _ _
+  x : Fin _
 
 opaque
 
@@ -154,3 +157,38 @@ opaque
         (inj₂ refl) → ¬w rflₙ}
     lemma ¬w ≡u (ne n) =
       ¬w (ne (neutral-subst (subst Neutral (sym ≡u) n)))
+
+opaque
+
+  -- Terms that are "NeutralAt x" are neutral
+
+  NeutralAt→Neutral : NeutralAt x t → Neutral t
+  NeutralAt→Neutral var = var _
+  NeutralAt→Neutral (∘ₙ n) = ∘ₙ (NeutralAt→Neutral n)
+  NeutralAt→Neutral (fstₙ n) = fstₙ (NeutralAt→Neutral n)
+  NeutralAt→Neutral (sndₙ n) = sndₙ (NeutralAt→Neutral n)
+  NeutralAt→Neutral (natrecₙ n) = natrecₙ (NeutralAt→Neutral n)
+  NeutralAt→Neutral (prodrecₙ n) = prodrecₙ (NeutralAt→Neutral n)
+  NeutralAt→Neutral (emptyrecₙ n) = emptyrecₙ (NeutralAt→Neutral n)
+  NeutralAt→Neutral (unitrecₙ x n) = unitrecₙ x (NeutralAt→Neutral n)
+  NeutralAt→Neutral (Jₙ n) = Jₙ (NeutralAt→Neutral n)
+  NeutralAt→Neutral (Kₙ n) = Kₙ (NeutralAt→Neutral n)
+  NeutralAt→Neutral ([]-congₙ n) = []-congₙ (NeutralAt→Neutral n)
+
+
+opaque
+
+  -- Neutral terms are "NeutralAt x" for some x
+
+  Neutral→NeutralAt : Neutral t → ∃ λ x → NeutralAt x t
+  Neutral→NeutralAt (var x) = x , var
+  Neutral→NeutralAt (∘ₙ n) = _ , ∘ₙ (Neutral→NeutralAt n .proj₂)
+  Neutral→NeutralAt (fstₙ n) = _ , fstₙ (Neutral→NeutralAt n .proj₂)
+  Neutral→NeutralAt (sndₙ n) = _ , sndₙ (Neutral→NeutralAt n .proj₂)
+  Neutral→NeutralAt (natrecₙ n) = _ , natrecₙ (Neutral→NeutralAt n .proj₂)
+  Neutral→NeutralAt (prodrecₙ n) = _ , prodrecₙ (Neutral→NeutralAt n .proj₂)
+  Neutral→NeutralAt (emptyrecₙ n) = _ , emptyrecₙ (Neutral→NeutralAt n .proj₂)
+  Neutral→NeutralAt (unitrecₙ x n) = _ , unitrecₙ x (Neutral→NeutralAt n .proj₂)
+  Neutral→NeutralAt (Jₙ n) = _ , Jₙ (Neutral→NeutralAt n .proj₂)
+  Neutral→NeutralAt (Kₙ n) = _ , Kₙ (Neutral→NeutralAt n .proj₂)
+  Neutral→NeutralAt ([]-congₙ n) = _ , []-congₙ (Neutral→NeutralAt n .proj₂)

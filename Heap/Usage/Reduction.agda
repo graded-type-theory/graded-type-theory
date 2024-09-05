@@ -53,7 +53,7 @@ open import Graded.Usage.Weakening 𝕄 UR
 
 private variable
   γ δ η : Conₘ _
-  s s′ : State _ _
+  s s′ : State _ _ _
 
 opaque
 
