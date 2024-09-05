@@ -23,7 +23,7 @@ open import Tools.Empty
 open import Tools.Function
 open import Tools.Nat
 open import Tools.Product
-open import Tools.PropositionalEquality as PE
+import Tools.PropositionalEquality as PE
 open import Tools.Relation
 import Tools.Reasoning.PartialOrder as RPo
 
@@ -54,7 +54,9 @@ import Heap.Usage.Reduction UA type-variant (tracking-and-ℕ-fullred-if false) 
 import Heap.Usage.Reduction UA type-variant (tracking-and-ℕ-fullred-if true) as URᵗ
 open import Heap.Termination UA TR no-Unitʷ⊎no-η
 open import Heap.Typed TR false
-open import Heap.Typed.Reduction TR (tracking-and-ℕ-fullred-if false)
+import Heap.Typed TR true as HTₜ
+open import Heap.Typed.Reduction TR (tracking-and-ℕ-fullred-if false) hiding (⇒*→≡)
+open import Heap.Typed.Reduction TR (tracking-and-ℕ-fullred-if true) using (⇒*→≡)
 open import Heap.Bisimilarity UR TR
 open import Heap.Normalization 𝕄
 open import Heap.Reduction 𝕄 (tracking-and-ℕ-fullred-if true)
@@ -79,19 +81,19 @@ opaque
 
   -- All well-typed and well-resourced states of type ℕ reduce to numerals
 
-  redNumeral : ε ⊩ℕ n ∷ℕ → n ≡ norm s → Γ ⊢ₛ s ∷ ℕ → γ ⨾ δ ⨾ η ▸ s
+  redNumeral : ε ⊩ℕ n ∷ℕ → n PE.≡ norm s → Γ ⊢ₛ s ∷ ℕ → γ ⨾ δ ⨾ η ▸ s
       → ∃₄ λ m n H (E : Env m n) → ∃ λ t → s ⇒* ⟨ H , t , E , ε ⟩ × Numeral t
-  redNumeral (ℕₜ _ d n≡n (sucᵣ x)) refl ⊢s ▸s =
+  redNumeral (ℕₜ _ d n≡n (sucᵣ x)) PE.refl ⊢s ▸s =
     case whBisim (redₜ d , sucₙ) ⊢s ▸s of λ
       (_ , _ , H , t , E , d′ , ≡u , v) →
     case subst-suc {t = wk E t} ≡u of λ {
       (inj₁ (x , ≡x)) →
     case wk-var ≡x of λ {
-      (_ , refl , _) →
+      (_ , PE.refl , _) →
     case v of λ ()};
       (inj₂ (n′ , ≡suc , ≡n)) →
     case wk-suc ≡suc of λ {
-      (n″ , refl , ≡n′) →
+      (n″ , PE.refl , ≡n′) →
     case isNumeral? n″ of λ {
       (yes num) →
     _ , _ , _ , _ , _ , bisim₇* true d′ , sucₙ num ;
@@ -105,7 +107,7 @@ opaque
     case inv-usage-suc ▸t of λ
       (invUsageSuc ▸n″ δ≤)  →
     case redNumeral {s = ⟨ H , n″ , E , ε ⟩} x
-          (PE.sym (PE.trans (cong (_[ H ]ₕ) ≡n′) ≡n))
+          (PE.sym (PE.trans (PE.cong (_[ H ]ₕ) ≡n′) ≡n))
           (_ , ⊢H , ⊢n″ , ε)
           (▸H , ▸n″ , ▸ε , ≤ᶜ-trans γ≤ (+ᶜ-monotoneˡ (·ᶜ-monotoneʳ (wk-≤ᶜ E δ≤)))) of λ
       (_ , _ , H′ , E′ , t′ , d₀ , n) →
@@ -114,17 +116,17 @@ opaque
           (++sucₛ-⇒* {k = 1} d₀ ⇨* ((⇒ₛ (numₕ n)) ⇨ id))))
       , sucₙ n }}}
 
-  redNumeral (ℕₜ _ d n≡n zeroᵣ) refl ⊢s ▸s =
+  redNumeral (ℕₜ _ d n≡n zeroᵣ) PE.refl ⊢s ▸s =
     case whBisim (redₜ d , zeroₙ) ⊢s ▸s of λ
       (_ , _ , H , t , E , d′ , ≡u , v) →
     case subst-zero {t = wk E t} ≡u of λ {
       (inj₁ (x , ≡x)) →
     case wk-var ≡x of λ {
-      (_ , refl , w) →
+      (_ , PE.refl , w) →
     case v of λ ()} ;
       (inj₂ ≡zero) →
     case wk-zero ≡zero of λ {
-      refl →
+      PE.refl →
     _ , _ , _ , _ , _ , bisim₇* true d′ , zeroₙ }}
 
   redNumeral (ℕₜ _ d n≡n (ne (neNfₜ neK ⊢k k≡k))) n≡ ⊢s ▸s =
@@ -136,8 +138,10 @@ opaque
   -- numeral and the resulting heap has all grades less than or equal to 𝟘.
 
   soundness : ε ⊢ t ∷ ℕ → ε ▸ t
-            → ∃₂ λ m n → ∃₃ λ H t′ (E : Env m n) →
-              initial t ⇒* ⟨ H , t′ , E , ε ⟩ × Numeral t′ × H ≤ʰ 𝟘
+            → ∃₂ λ m n → ∃₃ λ H k (E : Env m n) →
+              initial t ⇒* ⟨ H , sucᵏ k , E , ε ⟩ ×
+              (ε ⊢ t ≡ sucᵏ k ∷ ℕ) ×
+              H ≤ʰ 𝟘
   soundness {t} ⊢t ▸t =
     case ▸initial ▸t of λ
       ▸s →
@@ -148,8 +152,17 @@ opaque
       (_ , _ , H , E , t , d , num) →
     case URᵗ.▸-⇒* ▸s d of λ {
       (γ , δ , _ , ▸H , ▸n , ε , γ≤) →
+    case Numeral→sucᵏ num of λ
+      (k , ≡sucᵏ) →
+    case PE.subst (λ x → _ ⇒* ⟨ _ , x , _ , _ ⟩) ≡sucᵏ d of λ
+      d′ →
     let open RPo ≤ᶜ-poset in
-    _ , _ , _ , _ , _ , d , num
+    _ , _ , _ , _ , _
+      , d′
+      , PE.subst₂ (ε ⊢_≡_∷ ℕ)
+          (PE.trans (subst-id (wk id _)) (wk-id _))
+          (PE.trans (PE.cong (_[ H ]ₕ) (wk-sucᵏ k)) (subst-sucᵏ k))
+          (⇒*→≡ (HTₜ.⊢initial ⊢t) d′)
       , 𝟘▸H→H≤𝟘 (subₕ ▸H (begin
           γ                  ≤⟨ γ≤ ⟩
           𝟙 ·ᶜ wkᶜ E δ +ᶜ 𝟘ᶜ ≈⟨ +ᶜ-identityʳ _ ⟩

@@ -14,6 +14,7 @@ open import Tools.Fin
 open import Tools.Function
 open import Tools.Nat
 open import Tools.Relation
+open import Tools.Product
 open import Tools.PropositionalEquality as PE hiding (subst)
 open import Tools.Reasoning.PropositionalEquality
 open import Tools.Sum hiding (id; sym)
@@ -1221,3 +1222,38 @@ opaque
   subst-numeral : Numeral t → t [ σ ] ≡ t
   subst-numeral zeroₙ = refl
   subst-numeral (sucₙ n) = cong suc (subst-numeral n)
+
+opaque
+
+  -- The term sucᵏ k is a Numeral
+
+  sucᵏ-Numeral : ∀ k → Numeral (sucᵏ {n} k)
+  sucᵏ-Numeral 0 = zeroₙ
+  sucᵏ-Numeral (1+ k) = sucₙ (sucᵏ-Numeral k)
+
+opaque
+
+  -- If a term is a Numeral it is equal to sucᵏ k for some k.
+
+  Numeral→sucᵏ : Numeral t → ∃ λ k → t ≡ sucᵏ k
+  Numeral→sucᵏ zeroₙ = 0 , refl
+  Numeral→sucᵏ (sucₙ n) =
+    case (Numeral→sucᵏ n) of
+      λ (k , t≡) →
+    1+ k , cong suc t≡
+
+opaque
+
+  -- Applying a substitution to sucᵏ k has no effect
+
+  subst-sucᵏ : ∀ k → sucᵏ k [ σ ] ≡ sucᵏ k
+  subst-sucᵏ 0 = refl
+  subst-sucᵏ (1+ k) = cong suc (subst-sucᵏ k)
+
+opaque
+
+  -- Applying a weakening to sucᵏ k has no effect
+
+  wk-sucᵏ : ∀ k → wk ρ (sucᵏ k) ≡ sucᵏ k
+  wk-sucᵏ 0 = refl
+  wk-sucᵏ (1+ k) = cong suc (wk-sucᵏ k)

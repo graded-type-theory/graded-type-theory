@@ -21,6 +21,7 @@ open Options opts
 open import Definition.Untyped M
 open import Definition.Untyped.Properties M
 open import Definition.Typed TR as T
+open import Definition.Typed.Properties TR
 open import Definition.Typed.Reasoning.Term TR
 open import Definition.Typed.Weakening TR using (id; step; _∷_⊇_)
 import Definition.Typed.Weakening TR as W
@@ -34,6 +35,7 @@ open import Definition.Typed.Consequences.Syntactic TR
 import Graded.Derived.Erased.Typed TR as ET
 
 open import Heap.Reduction 𝕄 opts
+open import Heap.Reduction.Properties 𝕄 type-variant opts
 open import Heap.Typed TR ℕ-fullred
 open import Heap.Typed.Inversion TR ℕ-fullred
 open import Heap.Typed.Properties TR ℕ-fullred
@@ -42,6 +44,7 @@ open import Heap.Typed.Weakening TR ℕ-fullred
 open import Heap.Untyped 𝕄
 open import Heap.Untyped.Properties 𝕄 type-variant
 
+open import Tools.Bool
 open import Tools.Empty
 open import Tools.Fin
 open import Tools.Function
@@ -53,16 +56,17 @@ open import Tools.Relation
 open import Tools.Sum hiding (id; sym)
 
 private variable
+  n : Nat
   Γ : Con Term _
   H H′ : Heap _
   e : Elim _
-  t t′ u A B : Term _
+  t t′ u A B C : Term _
   y : Ptr _
   c : Closure _ _
   S S′ : Stack _
   s s′ : State _ _
   E E′ : Env _ _
-  q q′ : M
+  p q q′ r : M
 
 ------------------------------------------------------------------------
 -- Typing is preserved by heap lookups
@@ -506,154 +510,212 @@ opaque
       (_ , _ , ρ′ , ⊢s″) →
     _ , _ , (ρ′ W.•ₜ ρ) , ⊢s″
 
+private
+
+  opaque
+
+    -- A relation which is either definitional equality or reduction
+    -- depending on a boolean.
+    -- Used to reduce code duplication between ⇒ᵥ→⇒ and ⇒ᵥ→≡ below.
+
+    _⊢⟨_⟩_⇒/≡_∷_ : (Γ : Con Term n) (b : Bool) (t u A : Term n) → Set a
+    Γ ⊢⟨ true ⟩ t ⇒/≡ u ∷ A = _⊢_⇒_∷_ Γ t u A
+    Γ ⊢⟨ false ⟩ t ⇒/≡ u ∷ A = Γ ⊢ t ≡ u ∷ A
+
+  opaque
+    unfolding _⊢⟨_⟩_⇒/≡_∷_
+
+    ⊢⦅⦆-subst/cong : (b : Bool) → (T b → ¬ℕ-Fullred × (¬ Unitʷ-allowed ⊎ ¬ Unitʷ-η))
+                  → H ⊢ S ∷ t ∷ A ↝ B
+                  → _⊢_⇒_∷_ ε (t [ H ]ₕ) (u [ H ]ₕ) A
+                  → ε ⊢⟨ b ⟩ ⦅ S ⦆ t [ H ]ₕ ⇒/≡ ⦅ S ⦆ u [ H ]ₕ ∷ B
+    ⊢⦅⦆-subst/cong true prop ⊢S t⇒u = ⊢⦅⦆-subst ⦃ prop _ .proj₁ ⦄ (prop _ .proj₂) ⊢S t⇒u
+    ⊢⦅⦆-subst/cong false _ ⊢S t≡u = ⊢⦅⦆-cong ⊢S (subsetTerm t≡u)
+
+  opaque
+
+    ⇒ᵥ→⇒/≡ : (b : Bool) → (T b → ¬ℕ-Fullred × (¬ Unitʷ-allowed ⊎ ¬ Unitʷ-η))
+           → Γ ⊢ₛ s ∷ A → s ⇒ᵥ s′
+           → ε ⊢⟨ b ⟩ norm s ⇒/≡ norm s′ ∷ A
+    ⇒ᵥ→⇒/≡ {A} b prop (B , ⊢H , ⊢t , (⊢e ∙ ⊢S))
+           (lamₕ {H} {p} {t} {E} {u} {E′} {S}) =
+      case inversion-∘ₑ ⊢e of λ {
+        (F , G , q , ⊢u , PE.refl , C≡Gu) →
+      case PE.subst (ε ⊢ (wk E (lam p t) ∘⟨ p ⟩ wk E′ u) [ H ]ₕ ⇒_∷ _)
+             (PE.trans (singleSubstComp (wk E′ u [ H ]ₕ) (toSubstₕ H) (wk (lift E) t))
+               (substConsId {t = wk E′ u} (wk (lift E) t)))
+             (β-red-⇒₁ ⊢t ⊢u) of λ
+        β-⇒ →
+      PE.subst (ε ⊢⟨ b ⟩ ⦅ S ⦆ (wk E (lam p t) ∘ wk E′ u) [ H ]ₕ ⇒/≡_∷ A) lemma
+        (⊢⦅⦆-subst/cong {u = wk (lift E) t [ wk E′ u ]₀} b prop ⊢S (conv β-⇒ (sym C≡Gu)))}
+      where
+      lemma : ⦅ S ⦆ (wk (lift E) t [ wk E′ u ]₀) [ H ]ₕ
+            PE.≡ ⦅ wk1ˢ S ⦆ (wk (lift E) t) [ H ∙ (p , u , E′) ]ₕ
+      lemma = begin
+        ⦅ S ⦆ (wk (lift E) t [ wk E′ u ]₀) [ H ]ₕ
+          ≡⟨ PE.cong (_[ H ]ₕ) (⦅⦆-sgSubst S) ⟩
+        ⦅ wk1ˢ S ⦆ (wk (lift E) t) [ wk E′ u ]₀ [ H ]ₕ
+          ≡⟨ singleSubstLift (⦅ wk1ˢ S ⦆ (wk (lift E) t)) (wk E′ u) ⟩
+        ⦅ wk1ˢ S ⦆ (wk (lift E) t) [ liftSubst (toSubstₕ H) ] [ wk E′ u [ H ]ₕ ]₀
+          ≡⟨ singleSubstComp _ (toSubstₕ H) (⦅ wk1ˢ S ⦆ (wk (lift E) t)) ⟩
+        ⦅ wk1ˢ S ⦆ (wk (lift E) t) [ H ∙ (p , u , E′) ]ₕ ∎
+
+    ⇒ᵥ→⇒/≡ b prop (B , ⊢H , ⊢t , (⊢e ∙ ⊢S)) prodˢₕ₁ =
+      case inversion-fstₑ ⊢e of λ {
+      (F′ , G′ , q′ , ⊢F′ , ⊢G′ , PE.refl , C≡F′) →
+      case inversion-prod ⊢t of λ
+        (F , G , q , ⊢F , ⊢G , ⊢t₁ , ⊢t₂ , B≡Σ , ok) →
+      case Σ-injectivity (sym B≡Σ) of λ
+        (F≡F′ , _) →
+      ⊢⦅⦆-subst/cong b prop ⊢S (conv (Σ-β₁-⇒ ⊢G ⊢t₁ ⊢t₂ ok)
+        (trans F≡F′ (sym C≡F′))) }
+
+    ⇒ᵥ→⇒/≡ b prop (B , ⊢H , ⊢t , (⊢e ∙ ⊢S)) prodˢₕ₂ =
+      case inversion-sndₑ ⊢e of λ {
+        (F′ , G′ , q′ , ⊢F′ , ⊢G′ , PE.refl , C≡G′₊) →
+      case inversion-prod ⊢t of λ
+        (F , G , q , ⊢F , ⊢G , ⊢t₁ , ⊢t₂ , B≡Σ , ok) →
+      case Σ-injectivity (sym B≡Σ) of λ
+        (F≡F′ , G≡G′ , _) →
+      case substTypeEq G≡G′ (refl (conv (fstⱼ′ ⊢t) (sym F≡F′))) of λ
+        G₊≡G′₊ →
+      ⊢⦅⦆-subst/cong b prop ⊢S (conv (Σ-β₂-⇒ ⊢G ⊢t₁ ⊢t₂ ok)
+        (trans G₊≡G′₊ (sym (C≡G′₊ ⊢t)))) }
+
+    ⇒ᵥ→⇒/≡ {(m)} b prop (B , ⊢H , ⊢t , (⊢e ∙ ⊢S))
+           (prodʷₕ {H} {p} {t₁} {t₂} {E} {r} {q} {A} {u} {E′} {S}) =
+      case inversion-prodrecₑ ⊢e of λ {
+        (F , G , q′ , ⊢u , ⊢A , PE.refl , C≡) →
+      case PE.subst (ε ⊢ prodrec r p q (wk (lift E′) A) (wk E (prodʷ p t₁ t₂)) (wk (liftn E′ 2) u) [ H ]ₕ ⇒_∷ _)
+             (PE.sym ([,]-[]-commute {u = wk E t₁} {v = wk E t₂} (wk (liftn E′ 2) u)))
+             (prodrec-β-⇒₁ ⊢A ⊢t ⊢u) of λ
+        β-⇒ →
+      PE.subst (ε ⊢⟨ b ⟩ ⦅ S ⦆ (prodrec r p q _ _ _) [ H ]ₕ ⇒/≡_∷ _) lemma
+        (⊢⦅⦆-subst/cong {u = wk (liftn E′ 2) u [ wk E t₁ , wk E t₂ ]₁₀}
+                       b prop ⊢S (conv β-⇒ (sym (C≡ ⊢t))))}
+      where
+      H₂ : Heap (2+ m)
+      H₂ = H ∙ (∣ S ∣ · r · p , t₁ , E) ∙ (∣ S ∣ · r , t₂ , step E)
+      lemma : ⦅ S ⦆ ((wk (liftn E′ 2) u) [ wk E t₁ , wk E t₂ ]₁₀) [ H ]ₕ
+            PE.≡ ⦅ wk2ˢ S ⦆ (wk (liftn E′ 2) u) [ H₂ ]ₕ
+      lemma = begin
+        ⦅ S ⦆ ((wk (liftn E′ 2) u) [ wk E t₁ , wk E t₂ ]₁₀) [ H ]ₕ
+          ≡⟨ PE.cong (_[ H ]ₕ) (⦅⦆-[,] S) ⟩
+        ⦅ wk2ˢ S ⦆ (wk (liftn E′ 2) u) [ wk E t₁ , wk E t₂ ]₁₀ [ H ]ₕ
+          ≡⟨ [,]-[]-fusion (⦅ wk2ˢ S ⦆ (wk (liftn E′ 2) u)) ⟩
+        ⦅ wk2ˢ S ⦆ (wk (liftn E′ 2) u) [ consSubst (consSubst (toSubstₕ H) (wk E t₁ [ H ]ₕ)) (wk E t₂ [ H ]ₕ) ]
+          ≡⟨ PE.cong (λ x → ⦅ wk2ˢ S ⦆ (wk (liftn E′ 2) u) [ consSubst _ x ]) (PE.sym (step-consSubst t₂)) ⟩
+        ⦅ wk2ˢ S ⦆ (wk (liftn E′ 2) u) [ H₂ ]ₕ ∎
+
+
+    ⇒ᵥ→⇒/≡ b prop (B , ⊢H , ⊢t , (⊢e ∙ ⊢S)) zeroₕ =
+      case inversion-natrecₑ ⊢e of λ {
+        (⊢z , ⊢s , ⊢A , PE.refl , B≡) →
+      ⊢⦅⦆-subst/cong b prop ⊢S (conv (natrec-zero ⊢A ⊢z ⊢s)
+        (sym (B≡ ⊢t))) }
+
+    ⇒ᵥ→⇒/≡ {(m)} b prop (B , ⊢H , ⊢t , (⊢e ∙ ⊢S))
+      (sucₕ {H} {t} {E} {p} {q} {r} {(n)} {A} {z} {s} {E′} {S}) =
+      case inversion-natrecₑ ⊢e of λ {
+        (⊢z , ⊢s , ⊢A , PE.refl , B≡) →
+      case PE.subst (ε ⊢ nr (wk E (suc t)) [ H ]ₕ ⇒_∷ _)
+             (PE.sym ([,]-[]-commute (wk (liftn E′ 2) s)))
+             (natrec-suc ⊢A ⊢z ⊢s (inversion-suc ⊢t .proj₁)) of λ
+        β-⇒ →
+      case ⊢⦅⦆-subst/cong {u = wk (liftn E′ 2) s [ wk E t , nr (wk E t) ]₁₀}
+             b prop ⊢S (conv β-⇒ (sym (B≡ ⊢t))) of λ
+        d →
+      PE.subst (ε ⊢⟨ b ⟩ ⦅ S ⦆ (nr (wk E (suc t))) [ H ]ₕ ⇒/≡_∷ _)
+        lemma d }
+      where
+      nr : Term m → Term m
+      nr = natrec p q r (wk (lift E′) A) (wk E′ z) (wk (liftn E′ 2) s)
+      nr′ : Term (1+ n)
+      nr′ = natrec p q r (wk (lift (step id)) A) (wk1 z) (wk (liftn (step id) 2) s) (var x0)
+      H₂ : Heap (2+ m)
+      H₂ = H ∙ (p + r , t , E) ∙ (r , nr′ , lift E′)
+      lemma′ : nr (wk E t) [ H ]ₕ PE.≡ wk (lift E′) nr′ [ H ∙ (p + r , t , E) ]ₕ
+      lemma′ = begin
+        nr (wk E t) [ H ]ₕ ≡⟨ lift-step-natrec A z s _ ⟩
+        wk (lift E′) nr′ [ H ∙ (p + r , t , E) ]ₕ ∎
+      lemma : ⦅ S ⦆ ((wk (liftn E′ 2) s) [ wk E t , nr (wk E t) ]₁₀) [ H ]ₕ
+            PE.≡ ⦅ wk2ˢ S ⦆ (wk (liftn E′ 2) s) [ H₂ ]ₕ
+      lemma = begin
+        ⦅ S ⦆ ((wk (liftn E′ 2) s) [ wk E t , nr (wk E t) ]₁₀) [ H ]ₕ
+          ≡⟨ PE.cong (_[ H ]ₕ) (⦅⦆-[,] S) ⟩
+        ⦅ wk2ˢ S ⦆ (wk (liftn E′ 2) s) [ wk E t , nr (wk E t) ]₁₀ [ H ]ₕ
+              ≡⟨ [,]-[]-fusion (⦅ wk2ˢ S ⦆ (wk (liftn E′ 2) s)) ⟩
+        ⦅ wk2ˢ S ⦆ (wk (liftn E′ 2) s) [ consSubst (consSubst (toSubstₕ H) (wk E t [ H ]ₕ)) (nr (wk E t) [ H ]ₕ) ]
+          ≡⟨ PE.cong (λ x → ⦅ wk2ˢ S ⦆ (wk (liftn E′ 2) s) [ consSubst (consSubst (toSubstₕ H) (wk E t [ H ]ₕ)) x ]) lemma′ ⟩
+        ⦅ wk2ˢ S ⦆ (wk (liftn E′ 2) s) [ H₂ ]ₕ ∎
+
+    ⇒ᵥ→⇒/≡ b prop (B , ⊢H , ⊢t , (⊢e ∙ ⊢S)) starʷₕ =
+      case inversion-unitrecₑ ⊢e of λ {
+        (⊢u , ⊢A , PE.refl , C≡A₊) →
+      case ⊢∷Unit→Unit-allowed ⊢t of λ
+        ok →
+      ⊢⦅⦆-subst/cong b prop ⊢S (conv (unitrec-β-⇒ ⊢A ⊢u) (sym (C≡A₊ ⊢t)))}
+
+    ⇒ᵥ→⇒/≡ b prop (B , ⊢H , ⊢rfl , (⊢e ∙ ⊢S)) rflₕⱼ =
+      case inversion-Jₑ ⊢e of λ {
+        (⊢w , ⊢B , PE.refl , ≡B) →
+      case inversion-rfl-Id ⊢rfl of λ
+        t≡v →
+      case trans (J-motive-rfl-cong (refl ⊢B) t≡v) (sym (≡B ⊢rfl)) of λ
+        ≡B′ →
+      ⊢⦅⦆-subst/cong b prop ⊢S (conv (J-β-⇒ t≡v ⊢B ⊢w) ≡B′)}
+    ⇒ᵥ→⇒/≡ b prop (B , ⊢H , ⊢rfl , ⊢e ∙ ⊢S) rflₕₖ =
+      case inversion-Kₑ ⊢e of λ {
+        (⊢v , ⊢B , ok , PE.refl , B′≡)  →
+      ⊢⦅⦆-subst/cong b prop ⊢S (conv (K-β-⇒ ⊢B ⊢v ok) (sym (B′≡ ⊢rfl)))}
+    ⇒ᵥ→⇒/≡ b prop (B , ⊢H , ⊢rfl , ⊢e ∙ ⊢S) rflₕₑ =
+      case inversion-[]-congₑ ⊢e of λ {
+        (ok , PE.refl , B′≡) →
+      case inversion-rfl-Id ⊢rfl of λ
+        t≡u →
+      case syntacticEqTerm t≡u of λ
+        (_ , ⊢t , ⊢u) →
+      ⊢⦅⦆-subst/cong b prop ⊢S (conv ([]-cong-β-⇒ t≡u ok) (sym (B′≡ ⊢t ⊢u))) }
+
 
 opaque
+  unfolding _⊢⟨_⟩_⇒/≡_∷_
 
   -- Reduction of values correspond to one step in the wh cbn reduction
 
   ⇒ᵥ→⇒ : ⦃ ¬fr : ¬ℕ-Fullred ⦄
        → ¬ Unitʷ-allowed ⊎ ¬ Unitʷ-η
        → Γ ⊢ₛ s ∷ A → s ⇒ᵥ s′ → _⊢_⇒_∷_ ε (norm s) (norm s′) A
-  ⇒ᵥ→⇒ {A} no-Unitʷ⊎no-η (B , ⊢H , ⊢t , ⊢e ∙ ⊢S) (lamₕ {H} {p} {t} {E} {u} {E′} {S}) =
-    case inversion-∘ₑ ⊢e of λ {
-      (F , G , q , ⊢u , PE.refl , C≡Gu) →
-    case PE.subst (ε ⊢ (wk E (lam p t) ∘⟨ p ⟩ wk E′ u) [ H ]ₕ ⇒_∷ _)
-           (PE.trans (singleSubstComp (wk E′ u [ H ]ₕ) (toSubstₕ H) (wk (lift E) t))
-             (substConsId {t = wk E′ u} (wk (lift E) t)))
-           (β-red-⇒₁ ⊢t ⊢u) of λ
-      β-⇒ →
-    PE.subst (ε ⊢ ⦅ S ⦆ (wk E (lam p t) ∘ wk E′ u) [ H ]ₕ ⇒_∷ A) lemma
-      (⊢⦅⦆-subst {u = wk (lift E) t [ wk E′ u ]₀} no-Unitʷ⊎no-η ⊢S (conv β-⇒ (sym C≡Gu)))}
-    where
-    lemma : ⦅ S ⦆ (wk (lift E) t [ wk E′ u ]₀) [ H ]ₕ
-          PE.≡ ⦅ wk1ˢ S ⦆ (wk (lift E) t) [ H ∙ (p , u , E′) ]ₕ
-    lemma = begin
-      ⦅ S ⦆ (wk (lift E) t [ wk E′ u ]₀) [ H ]ₕ
-        ≡⟨ PE.cong (_[ H ]ₕ) (⦅⦆-sgSubst S) ⟩
-      ⦅ wk1ˢ S ⦆ (wk (lift E) t) [ wk E′ u ]₀ [ H ]ₕ
-        ≡⟨ singleSubstLift (⦅ wk1ˢ S ⦆ (wk (lift E) t)) (wk E′ u) ⟩
-      ⦅ wk1ˢ S ⦆ (wk (lift E) t) [ liftSubst (toSubstₕ H) ] [ wk E′ u [ H ]ₕ ]₀
-        ≡⟨ singleSubstComp _ (toSubstₕ H) (⦅ wk1ˢ S ⦆ (wk (lift E) t)) ⟩
-      ⦅ wk1ˢ S ⦆ (wk (lift E) t) [ H ∙ (p , u , E′) ]ₕ ∎
+  ⇒ᵥ→⇒ ⦃ ¬fr ⦄ no-Unitʷ⊎no-η = ⇒ᵥ→⇒/≡ true (λ _ → ¬fr , no-Unitʷ⊎no-η)
 
-  ⇒ᵥ→⇒ no-Unitʷ⊎no-η (B , ⊢H , ⊢t , ⊢e ∙ ⊢S) prodˢₕ₁ =
-    case inversion-fstₑ ⊢e of λ {
-      (F′ , G′ , q′ , ⊢F′ , ⊢G′ , PE.refl , C≡F′) →
-    case inversion-prod ⊢t of λ
-      (F , G , q , ⊢F , ⊢G , ⊢t₁ , ⊢t₂ , B≡Σ , ok) →
-    case Σ-injectivity (sym B≡Σ) of λ
-      (F≡F′ , _) →
-    ⊢⦅⦆-subst no-Unitʷ⊎no-η ⊢S (conv (Σ-β₁-⇒ ⊢G ⊢t₁ ⊢t₂ ok)
-      (trans F≡F′ (sym C≡F′))) }
-  ⇒ᵥ→⇒ no-Unitʷ⊎no-η (B , ⊢H , ⊢t , ⊢e ∙ ⊢S) prodˢₕ₂ =
-    case inversion-sndₑ ⊢e of λ {
-      (F′ , G′ , q′ , ⊢F′ , ⊢G′ , PE.refl , C≡G′₊) →
-    case inversion-prod ⊢t of λ
-      (F , G , q , ⊢F , ⊢G , ⊢t₁ , ⊢t₂ , B≡Σ , ok) →
-    case Σ-injectivity (sym B≡Σ) of λ
-      (F≡F′ , G≡G′ , _) →
-    case substTypeEq G≡G′ (refl (conv (fstⱼ′ ⊢t) (sym F≡F′))) of λ
-      G₊≡G′₊ →
-    ⊢⦅⦆-subst no-Unitʷ⊎no-η ⊢S (conv (Σ-β₂-⇒ ⊢G ⊢t₁ ⊢t₂ ok)
-      (trans G₊≡G′₊ (sym (C≡G′₊ ⊢t)))) }
+opaque
+  unfolding _⊢⟨_⟩_⇒/≡_∷_
 
-  ⇒ᵥ→⇒ {(m)} no-Unitʷ⊎no-η (B , ⊢H , ⊢t , ⊢e ∙ ⊢S)
-       (prodʷₕ {H} {p} {t₁} {t₂} {E} {r} {q} {A} {u} {E′} {S}) =
-    case inversion-prodrecₑ ⊢e of λ {
-      (F , G , q′ , ⊢u , ⊢A , PE.refl , C≡) →
-    case PE.subst (ε ⊢ prodrec r p q (wk (lift E′) A) (wk E (prodʷ p t₁ t₂)) (wk (liftn E′ 2) u) [ H ]ₕ ⇒_∷ _)
-           (PE.sym ([,]-[]-commute {u = wk E t₁} {v = wk E t₂} (wk (liftn E′ 2) u)))
-           (prodrec-β-⇒₁ ⊢A ⊢t ⊢u) of λ
-      β-⇒ →
-    PE.subst (ε ⊢ ⦅ S ⦆ (prodrec r p q _ _ _) [ H ]ₕ ⇒_∷ _) lemma
-      (⊢⦅⦆-subst {u = wk (liftn E′ 2) u [ wk E t₁ , wk E t₂ ]₁₀} no-Unitʷ⊎no-η ⊢S (conv β-⇒ (sym (C≡ ⊢t))))}
-    where
-    H₂ : Heap (2+ m)
-    H₂ = H ∙ (∣ S ∣ · r · p , t₁ , E) ∙ (∣ S ∣ · r , t₂ , step E)
-    lemma : ⦅ S ⦆ ((wk (liftn E′ 2) u) [ wk E t₁ , wk E t₂ ]₁₀) [ H ]ₕ
-          PE.≡ ⦅ wk2ˢ S ⦆ (wk (liftn E′ 2) u) [ H₂ ]ₕ
-    lemma = begin
-      ⦅ S ⦆ ((wk (liftn E′ 2) u) [ wk E t₁ , wk E t₂ ]₁₀) [ H ]ₕ
-        ≡⟨ PE.cong (_[ H ]ₕ) (⦅⦆-[,] S) ⟩
-      ⦅ wk2ˢ S ⦆ (wk (liftn E′ 2) u) [ wk E t₁ , wk E t₂ ]₁₀ [ H ]ₕ
-        ≡⟨ [,]-[]-fusion (⦅ wk2ˢ S ⦆ (wk (liftn E′ 2) u)) ⟩
-      ⦅ wk2ˢ S ⦆ (wk (liftn E′ 2) u) [ consSubst (consSubst (toSubstₕ H) (wk E t₁ [ H ]ₕ)) (wk E t₂ [ H ]ₕ) ]
-        ≡⟨ PE.cong (λ x → ⦅ wk2ˢ S ⦆ (wk (liftn E′ 2) u) [ consSubst _ x ]) (PE.sym (step-consSubst t₂)) ⟩
-      ⦅ wk2ˢ S ⦆ (wk (liftn E′ 2) u) [ H₂ ]ₕ ∎
+  -- Reduction of values preserves definitional equality
 
-  ⇒ᵥ→⇒ no-Unitʷ⊎no-η (B , ⊢H , ⊢t , ⊢e ∙ ⊢S) zeroₕ =
-    case inversion-natrecₑ ⊢e of λ {
-      (⊢z , ⊢s , ⊢A , PE.refl , B≡) →
-    ⊢⦅⦆-subst no-Unitʷ⊎no-η ⊢S (conv (natrec-zero ⊢A ⊢z ⊢s)
-      (sym (B≡ ⊢t))) }
-  ⇒ᵥ→⇒ {(m)} no-Unitʷ⊎no-η (B , ⊢H , ⊢t , ⊢e ∙ ⊢S)
-       (sucₕ {H} {t} {E} {p} {q} {r} {(n)} {A} {z} {s} {E′} {S}) =
-    case inversion-natrecₑ ⊢e of λ {
-      (⊢z , ⊢s , ⊢A , PE.refl , B≡) →
-    case PE.subst (ε ⊢ nr (wk E (suc t)) [ H ]ₕ ⇒_∷ _)
-           (PE.sym ([,]-[]-commute (wk (liftn E′ 2) s)))
-           (natrec-suc ⊢A ⊢z ⊢s (inversion-suc ⊢t .proj₁)) of λ
-      β-⇒ →
-    case ⊢⦅⦆-subst {u = wk (liftn E′ 2) s [ wk E t , nr (wk E t) ]₁₀}
-           no-Unitʷ⊎no-η ⊢S (conv β-⇒ (sym (B≡ ⊢t))) of λ
-      d →
-    PE.subst (ε ⊢ ⦅ S ⦆ (nr (wk E (suc t))) [ H ]ₕ ⇒_∷ _)
-      lemma d }
-    where
-    nr : Term m → Term m
-    nr = natrec p q r (wk (lift E′) A) (wk E′ z) (wk (liftn E′ 2) s)
-    nr′ : Term (1+ n)
-    nr′ = natrec p q r (wk (lift (step id)) A) (wk1 z) (wk (liftn (step id) 2) s) (var x0)
-    H₂ : Heap (2+ m)
-    H₂ = H ∙ (p + r , t , E) ∙ (r , nr′ , lift E′)
-    lemma′ : nr (wk E t) [ H ]ₕ PE.≡ wk (lift E′) nr′ [ H ∙ (p + r , t , E) ]ₕ
-    lemma′ = begin
-      nr (wk E t) [ H ]ₕ ≡⟨ lift-step-natrec A z s _ ⟩
-      wk (lift E′) nr′ [ H ∙ (p + r , t , E) ]ₕ ∎
-    lemma : ⦅ S ⦆ ((wk (liftn E′ 2) s) [ wk E t , nr (wk E t) ]₁₀) [ H ]ₕ
-          PE.≡ ⦅ wk2ˢ S ⦆ (wk (liftn E′ 2) s) [ H₂ ]ₕ
-    lemma = begin
-      ⦅ S ⦆ ((wk (liftn E′ 2) s) [ wk E t , nr (wk E t) ]₁₀) [ H ]ₕ
-        ≡⟨ PE.cong (_[ H ]ₕ) (⦅⦆-[,] S) ⟩
-      ⦅ wk2ˢ S ⦆ (wk (liftn E′ 2) s) [ wk E t , nr (wk E t) ]₁₀ [ H ]ₕ
-            ≡⟨ [,]-[]-fusion (⦅ wk2ˢ S ⦆ (wk (liftn E′ 2) s)) ⟩
-      ⦅ wk2ˢ S ⦆ (wk (liftn E′ 2) s) [ consSubst (consSubst (toSubstₕ H) (wk E t [ H ]ₕ)) (nr (wk E t) [ H ]ₕ) ]
-        ≡⟨ PE.cong (λ x → ⦅ wk2ˢ S ⦆ (wk (liftn E′ 2) s) [ consSubst (consSubst (toSubstₕ H) (wk E t [ H ]ₕ)) x ]) lemma′ ⟩
-      ⦅ wk2ˢ S ⦆ (wk (liftn E′ 2) s) [ H₂ ]ₕ ∎
+  ⇒ᵥ→≡ : Γ ⊢ₛ s ∷ A → s ⇒ᵥ s′ → _⊢_≡_∷_ ε (norm s) (norm s′) A
+  ⇒ᵥ→≡ = ⇒ᵥ→⇒/≡ false (λ ())
 
-  ⇒ᵥ→⇒ no-Unitʷ⊎no-η (B , ⊢H , ⊢t , ⊢e ∙ ⊢S) starʷₕ =
-    case inversion-unitrecₑ ⊢e of λ {
-      (⊢u , ⊢A , PE.refl , C≡A₊) →
-    case ⊢∷Unit→Unit-allowed ⊢t of λ
-      ok →
-    case no-Unitʷ⊎no-η of λ where
-      (inj₁ no-Unitʷ) →
-        ⊥-elim (no-Unitʷ ok)
-      (inj₂ no-η) →
-        ⊢⦅⦆-subst no-Unitʷ⊎no-η ⊢S (conv (unitrec-β ⊢A ⊢u ok no-η)
-          (sym (C≡A₊ ⊢t))) }
+opaque
 
-  ⇒ᵥ→⇒ no-Unitʷ⊎no-η (B , ⊢H , ⊢rfl , ⊢e ∙ ⊢S) rflₕⱼ =
-    case inversion-Jₑ ⊢e of λ {
-      (⊢w , ⊢B , PE.refl , ≡B) →
-    case inversion-rfl-Id ⊢rfl of λ
-      t≡v →
-    case trans (J-motive-rfl-cong (refl ⊢B) t≡v) (sym (≡B ⊢rfl)) of λ
-      ≡B′ →
-    ⊢⦅⦆-subst no-Unitʷ⊎no-η ⊢S (conv (J-β-⇒ t≡v ⊢B ⊢w) ≡B′)}
-  ⇒ᵥ→⇒ no-Unitʷ⊎no-η (B , ⊢H , ⊢rfl , ⊢e ∙ ⊢S) rflₕₖ =
-    case inversion-Kₑ ⊢e of λ {
-      (⊢v , ⊢B , ok , PE.refl , B′≡)  →
-    ⊢⦅⦆-subst no-Unitʷ⊎no-η ⊢S (conv (K-β-⇒ ⊢B ⊢v ok) (sym (B′≡ ⊢rfl)))}
-  ⇒ᵥ→⇒ no-Unitʷ⊎no-η (B , ⊢H , ⊢rfl , ⊢e ∙ ⊢S) rflₕₑ =
-    case inversion-[]-congₑ ⊢e of λ {
-      (ok , PE.refl , B′≡) →
-    case inversion-rfl-Id ⊢rfl of λ
-      t≡u →
-    case syntacticEqTerm t≡u of λ
-      (_ , ⊢t , ⊢u) →
-    ⊢⦅⦆-subst no-Unitʷ⊎no-η ⊢S (conv ([]-cong-β-⇒ t≡u ok) (sym (B′≡ ⊢t ⊢u))) }
+  -- Reduction preserves definitional equality
 
+  ⇒→≡ : Γ ⊢ₛ s ∷ A → s ⇒ s′ → _⊢_≡_∷_ ε (norm s) (norm s′) A
+  ⇒→≡ (_ , _ , ⊢t , ⊢S) (⇒ₙ d) =
+    PE.subst (ε ⊢ _ ≡_∷ _) (⇒ₙ-norm-≡ d) (refl (⊢⦅⦆ ⊢S ⊢t))
+  ⇒→≡ ⊢s (⇒ᵥ d) =
+    ⇒ᵥ→≡ ⊢s d
+  ⇒→≡ (_ , _ , ⊢t , ⊢S) (⇒ₛ d) =
+    PE.subst (ε ⊢ _ ≡_∷ _) (⇒ₛ-norm-≡ d) (refl (⊢⦅⦆ ⊢S ⊢t))
+
+opaque
+
+  -- Reduction preserves definitional equality
+
+  ⇒*→≡ : Γ ⊢ₛ s ∷ A → s ⇒* s′ → _⊢_≡_∷_ ε (norm s) (norm s′) A
+  ⇒*→≡ (_ , _ , ⊢t , ⊢S) id = refl (⊢⦅⦆ ⊢S ⊢t)
+  ⇒*→≡ ⊢s (x ⇨ d) =
+    trans (⇒→≡ ⊢s x) (⇒*→≡ (⊢ₛ-⇒ ⊢s x .proj₂ .proj₂ .proj₂) d)
 
 opaque
 
