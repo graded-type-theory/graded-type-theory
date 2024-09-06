@@ -46,6 +46,7 @@ import Graded.Modality.Properties.Addition
 import Graded.Modality.Properties.Division
 import Graded.Modality.Properties.Has-well-behaved-zero
 import Graded.Modality.Properties.Star
+import Graded.Modality.Properties.Subtraction
 import Graded.Modality.Properties
 
 ------------------------------------------------------------------------
@@ -63,6 +64,7 @@ import Graded.Context.Properties.Lookup
 import Graded.Context.Properties.Update
 import Graded.Context.Properties.Has-well-behaved-zero
 import Graded.Context.Properties
+import Graded.Context.Weakening
 
 ------------------------------------------------------------------------
 -- Usage modes
@@ -77,6 +79,7 @@ import Definition.Untyped
 import Definition.Untyped.Inversion
 import Definition.Untyped.Properties.NotParametrised
 import Definition.Untyped.Properties
+import Definition.Untyped.Properties.Neutral
 import Definition.Untyped.Identity
 import Definition.Untyped.Sigma
 import Definition.Untyped.Unit
@@ -400,6 +403,39 @@ import Graded.Neutral
 -- can be defined
 
 import Graded.Box-cong
+
+------------------------------------------------------------------------
+-- A resource aware abstract machine
+
+-- The abstract machine
+import Graded.Heap.Untyped
+import Graded.Heap.Untyped.Properties
+import Graded.Heap.Options
+import Graded.Heap.Reduction
+import Graded.Heap.Reduction.Inversion
+import Graded.Heap.Reduction.Properties
+
+-- Typing for the abstract machine
+import Graded.Heap.Typed
+import Graded.Heap.Typed.Substitution
+import Graded.Heap.Typed.Weakening
+import Graded.Heap.Typed.Inversion
+import Graded.Heap.Typed.Properties
+import Graded.Heap.Typed.Reduction
+
+-- Usage for the abstract machine
+import Graded.Heap.Usage
+import Graded.Heap.Usage.Weakening
+import Graded.Heap.Usage.Properties
+import Graded.Heap.Usage.Reduction
+
+-- Other properties of the abstract machine
+import Graded.Heap.Normalization
+import Graded.Heap.Bisimilarity
+import Graded.Heap.Termination
+
+-- Resource correctness of the abstract machine
+import Graded.Heap.Soundness
 
 ------------------------------------------------------------------------
 -- Some applications

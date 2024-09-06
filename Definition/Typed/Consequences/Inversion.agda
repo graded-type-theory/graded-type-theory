@@ -260,6 +260,18 @@ inversion-star (conv ⊢star A≡B) =
     (A≡Unit , ok) →
   trans (sym A≡B) A≡Unit , ok }
 
+opaque
+
+  -- A variant of the previous lemma.
+
+  inversion-star-Unit : Γ ⊢ star s ∷ Unit s′ →
+                        s PE.≡ s′ × Unit-allowed s
+  inversion-star-Unit ⊢star =
+    case inversion-star ⊢star of λ
+      (Unit≡Unit , ok) →
+    Unit-injectivity (sym Unit≡Unit) , ok
+
+
 -- Inversion of unitrec
 inversion-unitrec : Γ ⊢ unitrec p q A t u ∷ C
                   → (Γ ∙ Unitʷ ⊢ A)

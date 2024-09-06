@@ -93,6 +93,7 @@ opaque
       .Prodrec-preserved  → _
       .Unitrec-preserved  → _
       .Emptyrec-preserved → _
+      .[]-cong-preserved  → _
     where
     open Are-preserving-usage-restrictions
 
@@ -120,6 +121,7 @@ opaque
       .Prodrec-reflected              → _
       .Unitrec-reflected              → _
       .Emptyrec-reflected             → _
+      .[]-cong-reflected              → _
       .erased-matches-for-J-reflected → _
       .erased-matches-for-K-reflected → _
     where
@@ -187,6 +189,8 @@ opaque
         Unitrec-preserved
     ; Emptyrec-preserved =
         Emptyrec-preserved
+    ; []-cong-preserved =
+        []-cong-preserved
     }
     where
     module M₁ = Modality 𝕄₁
@@ -229,6 +233,8 @@ opaque
         Unitrec-reflected
     ; Emptyrec-reflected =
         Emptyrec-reflected
+    ; []-cong-reflected =
+        []-cong-reflected
     ; erased-matches-for-J-reflected = λ where
         𝟙ᵐ → _
         𝟘ᵐ → erased-matches-for-J-reflected 𝟘ᵐ
@@ -299,6 +305,8 @@ Are-preserving-usage-restrictions-no-erased-matches-UR
              TR₂.Unitʷ-η  □)
   ; Emptyrec-preserved =
       UP.Emptyrec-preserved
+  ; []-cong-preserved =
+      UP.[]-cong-preserved
   }
   where
   module UP  = Are-preserving-usage-restrictions up
@@ -348,6 +356,8 @@ Are-reflecting-usage-restrictions-no-erased-matches-UR
       UR.erased-matches-for-J-reflected
   ; erased-matches-for-K-reflected =
       UR.erased-matches-for-K-reflected
+  ; []-cong-reflected =
+      UR.[]-cong-reflected
   }
   where
   module UR =
@@ -434,6 +444,8 @@ opaque
         Unitrec-preserved
     ; Emptyrec-preserved =
         Emptyrec-preserved
+    ; []-cong-preserved =
+        []-cong-preserved
     }
     where
     open Are-preserving-usage-restrictions r
@@ -462,6 +474,8 @@ opaque
         Unitrec-reflected
     ; Emptyrec-reflected =
         Emptyrec-reflected
+    ; []-cong-reflected =
+        []-cong-reflected
     ; erased-matches-for-J-reflected = λ where
         𝟘ᵐ → erased-matches-for-J-reflected 𝟘ᵐ
         𝟙ᵐ →

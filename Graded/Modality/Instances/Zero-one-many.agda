@@ -31,6 +31,7 @@ import Graded.Modality.Properties.Meet as Meet
 import Graded.Modality.Properties.Multiplication as Multiplication
 import Graded.Modality.Properties.PartialOrder as PartialOrder
 import Graded.Modality.Properties.Star as Star
+import Graded.Modality.Properties.Subtraction as Subtraction
 open import Graded.Modality.Variant lzero
 
 ------------------------------------------------------------------------
@@ -233,6 +234,15 @@ _ ∧ _ = ω
 ∧≡𝟙 {p = 𝟘} {q = 𝟙} eq = inj₁ (refl , refl , 𝟘∧𝟙≡𝟙→𝟙≤𝟘 eq)
 ∧≡𝟙 {p = 𝟙} {q = 𝟘} eq = inj₂ (inj₁ (refl , refl , 𝟘∧𝟙≡𝟙→𝟙≤𝟘 eq))
 ∧≡𝟙 {p = 𝟙} {q = 𝟙} _  = inj₂ (inj₂ (refl , refl))
+
+opaque
+
+  -- 𝟙 ∧ p is not equal to 𝟘
+
+  𝟙∧p≢𝟘 : ∀ p → 𝟙 ∧ p ≢ 𝟘
+  𝟙∧p≢𝟘 𝟘 = 𝟘∧𝟙≢𝟘
+  𝟙∧p≢𝟘 𝟙 = λ ()
+  𝟙∧p≢𝟘 ω = λ ()
 
 ------------------------------------------------------------------------
 -- Ordering
@@ -1731,6 +1741,42 @@ zero-one-many-has-nr = record
     where
     open Tools.Reasoning.PartialOrder ≤-poset
 
+opaque
+
+  -- The nr function defined above is factoring.
+
+  zero-one-many-has-factoring-nr :
+    Has-factoring-nr zero-one-many-semiring-with-meet ⦃ zero-one-many-has-nr ⦄
+  zero-one-many-has-factoring-nr = record
+    { nr₂ = nr₂
+    ; nr₂≢𝟘 = λ {p} {r} → 𝟙∧p≢𝟘 (r + p)
+    ; nr-factoring = λ {p} {r} {z} {s} {n} → nr-factoring p r z s n
+    }
+    where
+    open Tools.Reasoning.PropositionalEquality
+    open Semiring-with-meet zero-one-many-semiring-with-meet
+           hiding (𝟘; 𝟙; ω; _+_; _·_; _∧_)
+    nr₂ : Op₂ Zero-one-many
+    nr₂ p r = 𝟙 ∧ (r + p)
+    𝟙+p≡𝟙∧𝟙+p : ∀ p → 𝟙 + p ≡ 𝟙 ∧ 𝟙 + p
+    𝟙+p≡𝟙∧𝟙+p 𝟘 = refl
+    𝟙+p≡𝟙∧𝟙+p 𝟙 = refl
+    𝟙+p≡𝟙∧𝟙+p ω = refl
+    lemma : ∀ p q r → p ≢ 𝟘 → (p + q) ∧ 𝟙 + r ≡ p + q ∧ r
+    lemma 𝟘 q r p≢𝟘 = ⊥-elim (p≢𝟘 refl)
+    lemma 𝟙 q r p≢𝟘 = sym (+-distribˡ-∧ 𝟙 q r)
+    lemma ω q r p≢𝟘 = refl
+    nr-factoring : (p r z s n : Zero-one-many) → nr p r z s n ≡ nr₂ p r · n + nr p r z s 𝟘
+    nr-factoring p 𝟘 z s 𝟘
+      rewrite ·-zeroʳ (𝟙 ∧ p) = refl
+    nr-factoring p 𝟘 z s 𝟙
+      rewrite ·-zeroʳ (𝟙 ∧ p) rewrite ·-identityʳ (𝟙 ∧ p) = lemma (𝟙 ∧ p) s z (𝟙∧p≢𝟘 p)
+    nr-factoring p 𝟘 z s ω
+      rewrite ·-distribʳ-∧ ω 𝟙 p = refl
+    nr-factoring p 𝟙 z s n rewrite ·-zeroʳ (𝟙 + p) =
+      +-congʳ (·-congʳ (𝟙+p≡𝟙∧𝟙+p p))
+    nr-factoring p ω z s n = ·-distribˡ-+ ω n (s + z)
+
 -- A modality defined using zero-one-many-has-nr.
 
 zero-one-many-modality : Modality-variant → Modality
@@ -1740,3 +1786,108 @@ zero-one-many-modality variant = record
   ; 𝟘-well-behaved     = λ _ → zero-one-many-has-well-behaved-zero
   ; has-nr             = λ _ → zero-one-many-has-nr
   }
+
+------------------------------------------------------------------------
+-- Subtraction
+
+open Subtraction zero-one-many-semiring-with-meet
+
+opaque
+
+  -- Subtraction of ω by anything is ω
+
+  ω-p≡ω : ∀ p → ω - p ≡ ω
+  ω-p≡ω p = ∞-p≡∞ PE.refl p
+
+opaque
+
+  -- Subtraction of 𝟙 by 𝟙 is 𝟘
+
+  𝟙-𝟙≡𝟘 : 𝟙 - 𝟙 ≡ 𝟘
+  𝟙-𝟙≡𝟘 = p-p≤𝟘 , λ { 𝟘 _ → refl}
+
+opaque
+
+  -- Subtraction of p by ω is not possible unless p ≡ ω
+
+  p-ω≰ : p - ω ≤ q → p ≡ ω
+  p-ω≰ {(𝟘)} {(𝟘)} ()
+  p-ω≰ {(𝟘)} {(𝟙)} ()
+  p-ω≰ {(𝟘)} {(ω)} ()
+  p-ω≰ {(𝟙)} {(𝟘)} ()
+  p-ω≰ {(𝟙)} {(𝟙)} ()
+  p-ω≰ {(𝟙)} {(ω)} ()
+  p-ω≰ {(ω)} _ = refl
+
+opaque
+
+  -- Subtraction of p by ω is not possible unless p ≡ ω
+
+  p-ω≢ : p - ω ≡ q → p ≡ ω
+  p-ω≢ {q} = p-ω≰ {q = q} ∘→ proj₁
+
+opaque
+
+  -- The semiring supports subtraction with
+  --   ω - p ≡ ω for all p
+  --   p - 𝟘 ≡ p for all p
+  --   𝟙 - 𝟙 ≡ 𝟘
+  -- and not defined otherwise
+
+  supports-subtraction : Supports-subtraction
+  supports-subtraction {p} {(ω)} {r} x =
+    case p-ω≰ {q = r} x of λ {
+      refl →
+    ω , ω-p≡ω ω }
+  supports-subtraction {p} {(𝟘)} _ =
+    p , p-𝟘≡p
+  supports-subtraction {(ω)} {q} _ =
+    ω , ω-p≡ω q
+  supports-subtraction {(𝟘)} {r} x =
+    case 𝟘-p≤q {q = r} x of λ {
+      (refl , refl) →
+    𝟘 , p-𝟘≡p }
+  supports-subtraction {(𝟙)} {(𝟙)} {(r)} x =
+    𝟘 , 𝟙-𝟙≡𝟘
+
+-- An alternative definition of the subtraction relation with
+--   ω - p ≡ ω for all p
+--   p - 𝟘 ≡ p for all p
+--   𝟙 - 𝟙 ≡ 𝟘
+-- and not defined otherwise
+
+data _-_≡′_ : (p q r : Zero-one-many) → Set where
+  ω-p≡′ω : ω - p ≡′ ω
+  p-𝟘≡′p : p - 𝟘 ≡′ p
+  𝟙-𝟙≡′𝟘 : 𝟙 - 𝟙 ≡′ 𝟘
+
+opaque
+
+  -- The two subtraction relations are equivalent.
+
+  -≡↔-≡′ : ∀ p q r → (p - q ≡ r) ⇔ (p - q ≡′ r)
+  -≡↔-≡′ p q r = left p q r , right
+    where
+    left : ∀ p q r → p - q ≡ r → p - q ≡′ r
+    left ω q r p-q≡r =
+      case -≡-functional {q = q} p-q≡r (ω-p≡ω q) of λ {
+        refl →
+      ω-p≡′ω }
+    left p 𝟘 r p-q≡r =
+      case -≡-functional p-q≡r p-𝟘≡p of λ {
+        refl →
+      p-𝟘≡′p }
+    left 𝟘 q r p-q≡r =
+      case 𝟘-p≡q p-q≡r of λ {
+        (refl , refl) →
+      p-𝟘≡′p}
+    left 𝟙 𝟙 r p-q≡r =
+      case -≡-functional p-q≡r 𝟙-𝟙≡𝟘 of λ {
+        refl →
+      𝟙-𝟙≡′𝟘 }
+    left 𝟙 ω r p-q≡r =
+      case p-ω≢ p-q≡r of λ ()
+    right : p - q ≡′ r → p - q ≡ r
+    right ω-p≡′ω = ω-p≡ω q
+    right p-𝟘≡′p = p-𝟘≡p
+    right 𝟙-𝟙≡′𝟘 = 𝟙-𝟙≡𝟘

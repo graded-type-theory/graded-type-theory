@@ -188,6 +188,7 @@ data Usage-restrictions-satisfied {n} (m : Mode) : Term n → Set a where
     Usage-restrictions-satisfied 𝟘ᵐ? v →
     Usage-restrictions-satisfied m (K p A t B u v)
   []-congᵤ :
+    []-cong-allowed-mode s m →
     Usage-restrictions-satisfied 𝟘ᵐ? A →
     Usage-restrictions-satisfied 𝟘ᵐ? t →
     Usage-restrictions-satisfied 𝟘ᵐ? u →
@@ -419,8 +420,8 @@ opaque
     (K₀ᵤ₂ ≡all A t B u v) →
       K₀ᵤ₂ (≤ᵉᵐ→≡all→≡all erased-matches-for-K-≤ᵉᵐ ≡all) A t B
         (Usage-restrictions-satisfied-𝟙ᵐ→ u) v
-    ([]-congᵤ A t u v) →
-      []-congᵤ A t u v
+    ([]-congᵤ ok A t u v) →
+      []-congᵤ ([]-cong-allowed-mode-downwards-closed ok) A t u v
 
 opaque
 
@@ -551,8 +552,8 @@ opaque
         (▸→Usage-restrictions-satisfied ▸B)
         (▸→Usage-restrictions-satisfied ▸u)
         (▸→Usage-restrictions-satisfied ▸v)
-    ([]-congₘ ▸A ▸t ▸u ▸v) →
-      []-congᵤ (▸→Usage-restrictions-satisfied ▸A)
+    ([]-congₘ ▸A ▸t ▸u ▸v ok) →
+      []-congᵤ ok (▸→Usage-restrictions-satisfied ▸A)
         (▸→Usage-restrictions-satisfied ▸t)
         (▸→Usage-restrictions-satisfied ▸u)
         (▸→Usage-restrictions-satisfied ▸v)
@@ -739,12 +740,13 @@ opaque
              𝟘ᶜ                ∎)
           (lemma u-ok)
           (lemma-𝟘ᵐ? v-ok)
-      ([]-congᵤ A-ok t-ok u-ok v-ok) →
+      ([]-congᵤ ok A-ok t-ok u-ok v-ok) →
         []-congₘ
           (lemma-𝟘ᵐ? A-ok)
           (lemma-𝟘ᵐ? t-ok)
           (lemma-𝟘ᵐ? u-ok)
           (lemma-𝟘ᵐ? v-ok)
+          ok
       (varᵤ {x}) →
         sub var $ begin
           𝟘ᶜ          ≡˘⟨ 𝟘ᶜ,≔𝟘 ⟩
@@ -882,10 +884,10 @@ opaque
           (K₀ₘ₂ {γ₃ = 𝟘ᶜ} ok (lemma₀ A-ok) (lemma₀ t-ok) (lemma B-ok)
              (lemma₀ u-ok) (lemma₀ v-ok))
           (≈ᶜ-trivial 𝟙≡𝟘)
-      ([]-congᵤ A-ok t-ok u-ok v-ok) →
+      ([]-congᵤ ok A-ok t-ok u-ok v-ok) →
         sub
           ([]-congₘ (lemma₀ A-ok) (lemma₀ t-ok) (lemma₀ u-ok)
-             (lemma₀ v-ok))
+             (lemma₀ v-ok) ok)
           (≈ᶜ-trivial 𝟙≡𝟘)
       varᵤ →
         sub var (≈ᶜ-trivial 𝟙≡𝟘)

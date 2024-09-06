@@ -27,6 +27,7 @@ import Graded.Modality.Properties.Meet as Meet
 import Graded.Modality.Properties.Multiplication as Multiplication
 import Graded.Modality.Properties.PartialOrder as PartialOrder
 import Graded.Modality.Properties.Star as Star
+import Graded.Modality.Properties.Subtraction as Subtraction
 open import Graded.Modality.Variant lzero
 open import Definition.Typed.Restrictions
 open import Graded.Usage.Restrictions
@@ -172,6 +173,16 @@ p ≤ q = p ≡ p ∧ q
 ≢𝟘+≢𝟘 {p = ≤ω} {q = ≤𝟙} _   _   = refl
 ≢𝟘+≢𝟘 {p = ≤ω} {q = ≤ω} _   _   = refl
 
+opaque
+
+  -- The sum of ≤ω and p is ≤ω
+
+  ≤ω+ : ∀ p → ≤ω + p ≡ ≤ω
+  ≤ω+ 𝟘 = refl
+  ≤ω+ 𝟙 = refl
+  ≤ω+ ≤𝟙 = refl
+  ≤ω+ ≤ω = refl
+
 -- If p + q is 𝟙, then either p is 𝟙 and q is 𝟘, or q is 𝟙 and p is 𝟘.
 
 +≡𝟙 : p + q ≡ 𝟙 → p ≡ 𝟙 × q ≡ 𝟘 ⊎ p ≡ 𝟘 × q ≡ 𝟙
@@ -187,6 +198,16 @@ p ≤ q = p ≡ p ∧ q
 ∧≡𝟙 {p = 𝟘} {q = 𝟘}  ()
 ∧≡𝟙 {p = 𝟘} {q = ≤𝟙} ()
 ∧≡𝟙 {p = 𝟘} {q = ≤ω} ()
+
+opaque
+
+  -- 𝟙 ∧ p is not 𝟘
+
+  𝟙∧p≢𝟘 : ∀ p → 𝟙 ∧ p ≢ 𝟘
+  𝟙∧p≢𝟘 𝟘 ()
+  𝟙∧p≢𝟘 𝟙 ()
+  𝟙∧p≢𝟘 ≤𝟙 ()
+  𝟙∧p≢𝟘 ≤ω ()
 
 -- Multiplication is idempotent.
 
@@ -3984,6 +4005,72 @@ linear-or-affine-has-nr = record
     ≤ω _  ≤ω ≤ω ≤𝟙 → refl
     ≤ω _  ≤ω ≤ω ≤ω → refl
 
+opaque
+
+  -- The nr-function defined above is factoring
+
+  linear-or-affine-has-factoring-nr :
+    Has-factoring-nr linear-or-affine-semiring-with-meet ⦃ linear-or-affine-has-nr ⦄
+  linear-or-affine-has-factoring-nr = record
+    { nr₂ = nr₂
+    ; nr₂≢𝟘 = λ {p} {r} → 𝟙∧p≢𝟘 (r + p)
+    ; nr-factoring = λ {p} {r} {z} {s} {n} → nr-factoring p r z s n
+    }
+    where
+    open Semiring-with-meet linear-or-affine-semiring-with-meet
+      hiding (𝟘; 𝟙; _+_; _·_; _∧_; _≤_)
+
+    nr₂ : Op₂ Linear-or-affine
+    nr₂ p r = 𝟙 ∧ (r + p)
+
+    𝟙∧≤𝟙+p≡≤1+p : ∀ p → 𝟙 ∧ ≤𝟙 + p ≡ ≤𝟙 + p
+    𝟙∧≤𝟙+p≡≤1+p 𝟘 = refl
+    𝟙∧≤𝟙+p≡≤1+p 𝟙 = refl
+    𝟙∧≤𝟙+p≡≤1+p ≤𝟙 = refl
+    𝟙∧≤𝟙+p≡≤1+p ≤ω = refl
+
+    𝟙∧𝟙+p≡1+p : ∀ p → 𝟙 ∧ 𝟙 + p ≡ 𝟙 + p
+    𝟙∧𝟙+p≡1+p 𝟘 = refl
+    𝟙∧𝟙+p≡1+p 𝟙 = refl
+    𝟙∧𝟙+p≡1+p ≤𝟙 = refl
+    𝟙∧𝟙+p≡1+p ≤ω = refl
+
+    lemma : ∀ p z s n → p ≢ 𝟘
+          → (p · n + s) ∧ n + z ≡ p · n + s ∧ z
+    lemma 𝟘 z s n p≢𝟘 = ⊥-elim (p≢𝟘 refl)
+    lemma 𝟙 z s n p≢𝟘 rewrite ·-identityˡ n =
+      sym (+-distribˡ-∧ n s z)
+    lemma ≤𝟙 z s 𝟘 p≢𝟘 = refl
+    lemma ≤𝟙 𝟘 𝟘 𝟙 p≢𝟘 = refl
+    lemma ≤𝟙 𝟙 𝟘 𝟙 p≢𝟘 = refl
+    lemma ≤𝟙 ≤𝟙 𝟘 𝟙 p≢𝟘 = refl
+    lemma ≤𝟙 ≤ω 𝟘 𝟙 p≢𝟘 = refl
+    lemma ≤𝟙 𝟘 𝟙 𝟙 p≢𝟘 = refl
+    lemma ≤𝟙 𝟙 𝟙 𝟙 p≢𝟘 = refl
+    lemma ≤𝟙 ≤𝟙 𝟙 𝟙 p≢𝟘 = refl
+    lemma ≤𝟙 ≤ω 𝟙 𝟙 p≢𝟘 = refl
+    lemma ≤𝟙 𝟘 ≤𝟙 𝟙 p≢𝟘 = refl
+    lemma ≤𝟙 𝟙 ≤𝟙 𝟙 p≢𝟘 = refl
+    lemma ≤𝟙 ≤𝟙 ≤𝟙 𝟙 p≢𝟘 = refl
+    lemma ≤𝟙 ≤ω ≤𝟙 𝟙 p≢𝟘 = refl
+    lemma ≤𝟙 z ≤ω 𝟙 p≢𝟘 = refl
+    lemma ≤𝟙 z s ≤𝟙 p≢𝟘 = sym (+-distribˡ-∧ ≤𝟙 s z)
+    lemma ≤𝟙 z s ≤ω p≢𝟘 = sym (+-distribˡ-∧ ≤ω s z)
+    lemma ≤ω z s 𝟘 p≢𝟘 = refl
+    lemma ≤ω z s 𝟙 p≢𝟘 rewrite ≤ω+ s rewrite ≤ω+ (s ∧ z) = refl
+    lemma ≤ω z s ≤𝟙 p≢𝟘 rewrite ≤ω+ s rewrite ≤ω+ (s ∧ z) = refl
+    lemma ≤ω z s ≤ω p≢𝟘 = sym (+-distribˡ-∧ ≤ω s z)
+
+    nr-factoring : (p r z s n : Linear-or-affine)
+                 → nr p r z s n ≡ nr₂ p r · n + nr p r z s 𝟘
+    nr-factoring p 𝟘 z s n rewrite ·-zeroʳ (𝟙 ∧ p) =
+      lemma (𝟙 ∧ p) z s n (𝟙∧p≢𝟘 p)
+    nr-factoring p 𝟙 z s n rewrite ·-zeroʳ (𝟙 + p) =
+      +-congʳ (·-congʳ (sym (𝟙∧𝟙+p≡1+p p)))
+    nr-factoring p ≤𝟙 z s n rewrite ·-zeroʳ (≤𝟙 + p) =
+      +-congʳ (·-congʳ (sym (𝟙∧≤𝟙+p≡≤1+p p)))
+    nr-factoring p ≤ω z s n rewrite ≤ω+ p = ·-distribˡ-+ ω n (s + z)
+
 -- A modality defined using linear-or-affine-has-nr.
 
 linear-or-affine : Modality-variant → Modality
@@ -4097,3 +4184,171 @@ full-reduction-assumptions-suitable {urs = urs} as =
   where
   open Full-reduction-assumptions as
   open Usage-restrictions urs
+
+------------------------------------------------------------------------
+-- Subtraction
+
+open Subtraction linear-or-affine-semiring-with-meet
+
+opaque
+
+  -- Subtraction of ω by anything is ω
+
+  ω-p≡ω : ∀ p → ≤ω - p ≡ ≤ω
+  ω-p≡ω p = ∞-p≡∞ PE.refl p
+
+opaque
+
+  -- Subtraction of 𝟙 by 𝟙 is 𝟘
+
+  𝟙-𝟙≡𝟘 : 𝟙 - 𝟙 ≡ 𝟘
+  𝟙-𝟙≡𝟘 = refl , λ { 𝟘 _ → refl}
+
+opaque
+
+  -- Subtraction of ≤𝟙 by ≤𝟙 is 𝟘
+
+  ≤𝟙-≤𝟙≡𝟘 : ≤𝟙 - ≤𝟙 ≡ 𝟘
+  ≤𝟙-≤𝟙≡𝟘 = refl , λ { 𝟘 _ → refl}
+
+opaque
+
+  -- Subtraction of ≤𝟙 by 𝟙 is 𝟘
+
+  ≤𝟙-𝟙≡𝟘 : ≤𝟙 - 𝟙 ≡ 𝟘
+  ≤𝟙-𝟙≡𝟘 = PE.refl , λ { 𝟘 _ → PE.refl}
+
+opaque
+
+  -- Subtraction of p by ≤ω is not possible unless p ≡ ≤ω
+
+  p-ω≰ : p - ≤ω ≤ q → p ≡ ≤ω
+  p-ω≰ {(𝟘)} {(𝟘)} ()
+  p-ω≰ {(𝟘)} {(𝟙)} ()
+  p-ω≰ {(𝟘)} {(≤𝟙)} ()
+  p-ω≰ {(𝟘)} {(≤ω)} ()
+  p-ω≰ {(𝟙)} {(𝟘)} ()
+  p-ω≰ {(𝟙)} {(𝟙)} ()
+  p-ω≰ {(𝟙)} {(≤𝟙)} ()
+  p-ω≰ {(𝟙)} {(≤ω)} ()
+  p-ω≰ {(≤𝟙)} {(𝟘)} ()
+  p-ω≰ {(≤𝟙)} {(𝟙)} ()
+  p-ω≰ {(≤𝟙)} {(≤𝟙)} ()
+  p-ω≰ {(≤𝟙)} {(≤ω)} ()
+  p-ω≰ {(≤ω)} _ = refl
+
+opaque
+
+  -- Subtraction of p by ≤ω is not possible unless p ≡ ≤ω
+
+  p-ω≢ : p - ≤ω ≡ q → p ≡ ≤ω
+  p-ω≢ {q} = p-ω≰ {q = q} ∘→ proj₁
+
+opaque
+
+  -- Subtraction of 𝟙 by ≤𝟙 is not possible
+
+  𝟙-≤𝟙≰ : 𝟙 - ≤𝟙 ≤ p → ⊥
+  𝟙-≤𝟙≰ {(𝟘)} ()
+  𝟙-≤𝟙≰ {(𝟙)} ()
+  𝟙-≤𝟙≰ {(≤𝟙)} ()
+  𝟙-≤𝟙≰ {(≤ω)} ()
+
+opaque
+
+  -- Subtraction of 𝟙 by ≤𝟙 is not possible
+
+  𝟙-≤𝟙≢ : 𝟙 - ≤𝟙 ≡ p → ⊥
+  𝟙-≤𝟙≢ {p} = 𝟙-≤𝟙≰ {p} ∘→ proj₁
+
+opaque
+
+  -- The semiring supports subtraction with
+  --   ≤ω - p ≡ ≤ω for all p
+  --   p - 𝟘 ≡ p for all p
+  --   𝟙 - 𝟙 ≡ 𝟘
+  --   ≤𝟙 - ≤𝟙 ≡ 𝟘
+  --   ≤𝟙 - 𝟙 ≡ 𝟘
+  -- and not defined otherwise
+
+  supports-subtraction : Supports-subtraction
+  supports-subtraction {p} {(≤ω)} {r} x =
+    case p-ω≰ {q = r} x of λ {
+      refl →
+    ≤ω , ω-p≡ω ≤ω }
+  supports-subtraction {p} {(𝟘)} {r} x =
+    p , p-𝟘≡p
+  supports-subtraction {(≤ω)} {q} _ =
+    ≤ω , ω-p≡ω q
+  supports-subtraction {(𝟘)} {r} x =
+    case 𝟘-p≤q {q = r} x of λ {
+      (refl , refl) →
+    𝟘 , p-𝟘≡p }
+  supports-subtraction {(𝟙)} {(𝟙)} _ =
+    𝟘 , p-p≤𝟘 , λ { 𝟘 _ → refl }
+  supports-subtraction {(≤𝟙)} {(𝟙)} x =
+    𝟘 , ≤𝟙-𝟙≡𝟘
+  supports-subtraction {(≤𝟙)} {(≤𝟙)} x =
+    𝟘 , p-p≤𝟘 , λ { 𝟘 _ → refl }
+  supports-subtraction {(𝟙)} {(≤𝟙)} {r} x =
+    ⊥-elim (𝟙-≤𝟙≰ {p = r} x)
+
+-- An alternative definition of the subtraction relation with
+--   ≤ω - p ≡ ≤ω for all p
+--   p - 𝟘 ≡ p for all p
+--   𝟙 - 𝟙 ≡ 𝟘
+--   ≤𝟙 - ≤𝟙 ≡ 𝟘
+--   ≤𝟙 - 𝟙 ≡ 𝟘
+-- and not defined otherwise
+
+data _-_≡′_ : (p q r : Linear-or-affine) → Set where
+  ω-p≡′ω : ≤ω - p ≡′ ≤ω
+  p-𝟘≡′p : p - 𝟘 ≡′ p
+  𝟙-𝟙≡′𝟘 : 𝟙 - 𝟙 ≡′ 𝟘
+  ≤𝟙-≤𝟙≡′𝟘 : ≤𝟙 - ≤𝟙 ≡′ 𝟘
+  ≤𝟙-𝟙≡′𝟘 : ≤𝟙 - 𝟙 ≡′ 𝟘
+
+opaque
+
+  -- The two subtraction relations are equivalent.
+
+  -≡↔-≡′ : ∀ p q r → (p - q ≡ r) ⇔ (p - q ≡′ r)
+  -≡↔-≡′ p q r = left p q r , right
+    where
+    left : ∀ p q r → p - q ≡ r → p - q ≡′ r
+    left ≤ω q r p-q≡r =
+      case -≡-functional {q = q} p-q≡r (ω-p≡ω q) of λ {
+        refl →
+      ω-p≡′ω }
+    left p 𝟘 r p-q≡r =
+      case -≡-functional p-q≡r p-𝟘≡p of λ {
+        refl →
+      p-𝟘≡′p }
+    left 𝟘 q r p-q≡r =
+      case 𝟘-p≡q p-q≡r of λ {
+        (refl , refl) →
+      p-𝟘≡′p}
+    left 𝟙 𝟙 r p-q≡r =
+      case -≡-functional p-q≡r 𝟙-𝟙≡𝟘 of λ {
+        refl →
+      𝟙-𝟙≡′𝟘 }
+    left ≤𝟙 ≤𝟙 r p-q≡r =
+      case -≡-functional p-q≡r ≤𝟙-≤𝟙≡𝟘 of λ {
+        refl →
+      ≤𝟙-≤𝟙≡′𝟘 }
+    left ≤𝟙 𝟙 r p-q≡r =
+      case -≡-functional p-q≡r ≤𝟙-𝟙≡𝟘 of λ {
+        refl →
+      ≤𝟙-𝟙≡′𝟘 }
+    left 𝟙 ≤𝟙 r p-q≡r =
+      ⊥-elim (𝟙-≤𝟙≢ {r} p-q≡r)
+    left 𝟙 ≤ω r p-q≡r =
+      case p-ω≢ p-q≡r of λ ()
+    left ≤𝟙 ≤ω r p-q≡r =
+      case p-ω≢ p-q≡r of λ ()
+    right : p - q ≡′ r → p - q ≡ r
+    right ω-p≡′ω = ω-p≡ω p
+    right p-𝟘≡′p = p-𝟘≡p
+    right 𝟙-𝟙≡′𝟘 = 𝟙-𝟙≡𝟘
+    right ≤𝟙-≤𝟙≡′𝟘 = ≤𝟙-≤𝟙≡𝟘
+    right ≤𝟙-𝟙≡′𝟘 = ≤𝟙-𝟙≡𝟘

@@ -822,24 +822,28 @@ infix 10 ⌈⌉▸[_]?_
   where
   open Tools.Reasoning.PartialOrder ≤ᶜ-poset
 
-⌈⌉▸[ m ]? []-cong _ A t u v = case ⌈⌉▸[ 𝟘ᵐ? ]? A of λ where
+⌈⌉▸[ m ]? []-cong s A t u v = case ⌈⌉▸[ 𝟘ᵐ? ]? A of λ where
   (inj₂ ¬▸A) → inj₂ λ _ ▸bc →
-    case inv-usage-[]-cong ▸bc of λ (invUsage-[]-cong ▸A _ _ _ _) →
+    case inv-usage-[]-cong ▸bc of λ (invUsage-[]-cong ▸A _ _ _ _ _) →
     ¬▸A _ ▸A
   (inj₁ ▸A) → case ⌈⌉▸[ 𝟘ᵐ? ]? t of λ where
     (inj₂ ¬▸t) → inj₂ λ _ ▸bc →
-      case inv-usage-[]-cong ▸bc of λ (invUsage-[]-cong _ ▸t _ _ _) →
+      case inv-usage-[]-cong ▸bc of λ (invUsage-[]-cong _ ▸t _ _ _ _) →
       ¬▸t _ ▸t
     (inj₁ ▸t) → case ⌈⌉▸[ 𝟘ᵐ? ]? u of λ where
       (inj₂ ¬▸u) → inj₂ λ _ ▸bc →
-        case inv-usage-[]-cong ▸bc of λ (invUsage-[]-cong _ _ ▸u _ _) →
+        case inv-usage-[]-cong ▸bc of λ (invUsage-[]-cong _ _ ▸u _ _ _) →
         ¬▸u _ ▸u
       (inj₁ ▸u) → case ⌈⌉▸[ 𝟘ᵐ? ]? v of λ where
         (inj₂ ¬▸v) → inj₂ λ _ ▸bc →
           case inv-usage-[]-cong ▸bc of
-            λ (invUsage-[]-cong _ _ _ ▸v _) →
+            λ (invUsage-[]-cong _ _ _ ▸v _ _) →
           ¬▸v _ ▸v
-        (inj₁ ▸v) → inj₁ ([]-congₘ ▸A ▸t ▸u ▸v)
+        (inj₁ ▸v) → case []-cong-allowed-mode? s m of λ where
+          (no ¬ok) → inj₂ λ _ ▸bc →
+            case inv-usage-[]-cong ▸bc of λ (invUsage-[]-cong _ _ _ _ ok _) →
+            ¬ok ok
+          (yes ok) → inj₁ ([]-congₘ ▸A ▸t ▸u ▸v ok)
 
 infix 10 ⌈⌉▸[_]?′_
 

@@ -323,8 +323,7 @@ mutual
   tr-⊢≡∷ (unitrec-cong {A = A} A≡A′ t≡t′ u≡u′ ok _) =
     PE.subst (_ T₂.⊢ unitrec _ _ _ _ _ ≡ _ ∷_) (tr-Term-[] A)
       (unitrec-cong′ (tr-⊢≡ A≡A′) (tr-⊢≡∷ t≡t′)
-         (PE.subst (_ T₂.⊢ _ ≡ _ ∷_) (PE.sym (tr-Term-[] A)) (tr-⊢≡∷ u≡u′))
-         (Unit-preserved ok))
+         (PE.subst (_ T₂.⊢ _ ≡ _ ∷_) (PE.sym (tr-Term-[] A)) (tr-⊢≡∷ u≡u′)))
   tr-⊢≡∷ (unitrec-β {A} ⊢A u _ _) =
     PE.subst (_ T₂.⊢ unitrec _ _ (tr-Term A) _ _ ≡ _ ∷_) (tr-Term-[] A)
       (unitrec-β-≡ (tr-⊢′ ⊢A)

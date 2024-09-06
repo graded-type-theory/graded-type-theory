@@ -41,6 +41,9 @@ record Assumptions : Set a where
     -- The Emptyrec-allowed relation is assumed to be decidable.
     Emptyrec-allowed? : ∀ m p → Dec (Emptyrec-allowed m p)
 
+    -- The []-cong-allowed-mode relation is assumed to be decidable.
+    []-cong-allowed-mode? : ∀ s m → Dec ([]-cong-allowed-mode s m)
+
     -- A dedicated nr function is assumed to exist.
     ⦃ has-nr ⦄ : Dedicated-nr
 

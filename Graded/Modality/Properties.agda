@@ -24,6 +24,7 @@ open import Graded.Modality.Properties.Meet semiring-with-meet public
 open import Graded.Modality.Properties.Multiplication semiring-with-meet public
 open import Graded.Modality.Properties.PartialOrder semiring-with-meet public
 open import Graded.Modality.Properties.Star semiring-with-meet public
+open import Graded.Modality.Properties.Subtraction semiring-with-meet public
 
 open import Tools.Bool
 

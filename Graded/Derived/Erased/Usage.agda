@@ -357,6 +357,7 @@ opaque
     (s ≡ 𝕨 → Prodrec-allowed 𝟘ᵐ? (𝟘 ∧ 𝟙) 𝟘 𝟘) →
     (s ≡ 𝕨 → ¬ T 𝟘ᵐ-allowed → Trivial) →
     (s ≡ 𝕤 → ¬ T 𝟘ᵐ-allowed → 𝟘 ≤ 𝟙) →
+    []-cong-allowed-mode s m →
     γ₁ ▸[ 𝟘ᵐ? ] A →
     γ₂ ∙ 𝟘 ▸[ m ] B →
     γ₃ ▸[ 𝟘ᵐ? ] t →
@@ -364,7 +365,7 @@ opaque
     γ₅ ▸[ 𝟘ᵐ? ] v →
     γ₆ ▸[ m ] w →
     ω ·ᶜ (γ₂ +ᶜ γ₆) ▸[ m ] substᵉ A B t u v w
-  ▸substᵉ {γ₂} {m} {γ₆} ok trivial 𝟘≤𝟙 ▸A ▸B ▸t ▸u ▸v ▸w = sub
+  ▸substᵉ {m} {γ₂} {γ₆} ok trivial 𝟘≤𝟙 ok′ ▸A ▸B ▸t ▸u ▸v ▸w = sub
     (▸subst (▸Erased ▸A)
        (sub
           (substₘ-lemma _
@@ -388,7 +389,7 @@ opaque
              γ₂ <* wk1Substₘ idSubstₘ             ≈˘⟨ ≈ᶜ-trans (+ᶜ-congʳ $ ·ᶜ-zeroˡ _) $
                                                       +ᶜ-identityˡ _ ⟩
              𝟘 ·ᶜ 𝟘ᶜ +ᶜ γ₂ <* wk1Substₘ idSubstₘ  ∎))
-       (▸[] ▸t) (▸[] ▸u) ([]-congₘ ▸A ▸t ▸u ▸v) ▸w)
+       (▸[] ▸t) (▸[] ▸u) ([]-congₘ ▸A ▸t ▸u ▸v ok′) ▸w)
     (let open Tools.Reasoning.PartialOrder ≤ᶜ-poset in begin
        ω ·ᶜ (γ₂ +ᶜ γ₆)                    ≈˘⟨ ·ᶜ-congˡ $ +ᶜ-congˡ $
                                               ≈ᶜ-trans (+ᶜ-identityˡ _) $
@@ -405,6 +406,7 @@ opaque
     (s ≡ 𝕨 → Prodrec-allowed 𝟘ᵐ? (𝟘 ∧ 𝟙) 𝟘 𝟘) →
     (s ≡ 𝕨 → ¬ T 𝟘ᵐ-allowed → Trivial) →
     (s ≡ 𝕤 → ¬ T 𝟘ᵐ-allowed → 𝟘 ≤ 𝟙) →
+    []-cong-allowed-mode s m →
     γ₁ ▸[ 𝟘ᵐ? ] A →
     γ₂ ▸[ 𝟘ᵐ? ] t →
     γ₃ ∙ 𝟘 ∙ 𝟘 ▸[ m ] B →
@@ -412,7 +414,7 @@ opaque
     γ₅ ▸[ 𝟘ᵐ? ] v →
     γ₆ ▸[ 𝟘ᵐ? ] w →
     ω ·ᶜ (γ₃ +ᶜ γ₄) ▸[ m ] Jᵉ A t B u v w
-  ▸Jᵉ {γ₂} {γ₃} {γ₅} {γ₆} ok trivial 𝟘≤𝟙 ▸A ▸t ▸B ▸u ▸v ▸w =
+  ▸Jᵉ {γ₂} {γ₃} {γ₅} {γ₆} ok trivial 𝟘≤𝟙 ok′ ▸A ▸t ▸B ▸u ▸v ▸w =
     case
       𝟘ᵐ?-elim (λ m → 𝟘 ≤ ⌜ m ⌝) ≤-refl
         (λ not-ok →
@@ -447,14 +449,14 @@ opaque
       (λ s≡𝕨 →
          𝟘ᵐ-allowed-elim (inj₁ ∘→ 𝟘ᵐ.𝟘≰𝟙)
            (inj₂ ∘→ inj₁ ∘→ trivial s≡𝕨)) of λ
-      ok′ →
+      ok″ →
     case
       (case PE.singleton s of λ where
          (𝕤 , s≡𝕤) → 𝟘≤𝟙 s≡𝕤
          (𝕨 , s≡𝕨) → ≡-trivial ∘→ trivial s≡𝕨) ∘→
       𝟘ᵐ?≡𝟙ᵐ⇔ .proj₁ of λ
       𝟘≤𝟙′ →
-    ▸substᵉ ok trivial 𝟘≤𝟙 ▸Singleton
+    ▸substᵉ ok trivial 𝟘≤𝟙 ok′ ▸Singleton
       (sub
          (flip (substₘ-lemma _) ▸B $
           ▶-cong _
@@ -464,20 +466,20 @@ opaque
                (_ +1 +1) → PE.refl) $
           wf-consSubstₘ
             (wf-consSubstₘ (wf-wk1Substₘ _ _ wf-idSubstₘ) $
-             sub (▸fst⟨⟩ ok′ ok 𝟘≤𝟙′ var (λ _ → wkUsage _ ▸A))
+             sub (▸fst⟨⟩ ok″ ok 𝟘≤𝟙′ var (λ _ → wkUsage _ ▸A))
                (begin
                   ⌜ 𝟘ᵐ? ⌝ ·ᶜ (𝟘ᶜ ∙ 𝟘 ∧ 𝟙)  ≈⟨ ·ᶜ-zeroʳ _ ∙ ·[𝟘∧𝟙]≡𝟘∧ ⟩
                   𝟘ᶜ ∙ 𝟘 ∧ ⌜ 𝟘ᵐ? ⌝         ≈˘⟨ ∧ᶜ-idem _ ∙ PE.refl ⟩
                   𝟘ᶜ ∧ᶜ (𝟘ᶜ ∙ ⌜ 𝟘ᵐ? ⌝)     ∎)) $
           sub
-            (▸snd⟨⟩ ok′ ok var
+            (▸snd⟨⟩ ok″ ok var
                (λ _ →
                   Idₘ-generalised
                     (PE.subst (_▸[_]_ _ _) (PE.sym wk₂-[]↑) $
                      wkUsage _ ▸A)
                     (PE.subst (_▸[_]_ _ _) (PE.sym wk₂-[]↑) $
                      wkUsage _ ▸t)
-                    (▸fst⟨⟩ ok′ ok 𝟘≤𝟙′ var
+                    (▸fst⟨⟩ ok″ ok 𝟘≤𝟙′ var
                        (λ _ → wkUsage _ $ wkUsage _ ▸A))
                     (λ _ → begin
                        ((γ₂ ∙ 𝟘) ∧ᶜ 𝟘ᶜ) ∙ ⌜ 𝟘ᵐ? ⌝ · 𝟘  ≈⟨ ≈ᶜ-refl ∙ ·-zeroʳ _ ⟩

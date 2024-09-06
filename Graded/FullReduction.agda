@@ -275,9 +275,9 @@ module _ (as : Full-reduction-assumptions) where
               γ≤
       ([]-cong-cong A↑ t↑ u↑ v~ _ _) ▸[]-cong →
         case inv-usage-[]-cong ▸[]-cong of λ {
-          (invUsage-[]-cong ▸A ▸t ▸u ▸v γ≤) →
+          (invUsage-[]-cong ▸A ▸t ▸u ▸v ok γ≤) →
         sub ([]-congₘ (fullRedConv↑ A↑ ▸A) (fullRedTermConv↑ t↑ ▸t)
-               (fullRedTermConv↑ u↑ ▸u) (fullRedNe~↓ v~ ▸v))
+               (fullRedTermConv↑ u↑ ▸u) (fullRedNe~↓ v~ ▸v) ok)
           γ≤ }
 
     fullRedNe~↓ :

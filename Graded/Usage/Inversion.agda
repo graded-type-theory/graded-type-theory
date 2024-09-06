@@ -274,6 +274,16 @@ inv-usage-suc (sucₘ γ▸t) = invUsageSuc γ▸t ≤ᶜ-refl
 inv-usage-suc (sub γ▸st γ≤γ′) with inv-usage-suc γ▸st
 ... | invUsageSuc δ▸t γ′≤δ = invUsageSuc δ▸t (≤ᶜ-trans γ≤γ′ γ′≤δ)
 
+opaque
+
+  -- Inversion of usage for numerals
+
+  inv-usage-numeral : γ ▸[ m ] t → Numeral t → γ ≤ᶜ 𝟘ᶜ
+  inv-usage-numeral ▸t zeroₙ = inv-usage-zero ▸t
+  inv-usage-numeral ▸t (sucₙ n) =
+    case inv-usage-suc ▸t of λ
+      (invUsageSuc ▸t′ γ≤) →
+    ≤ᶜ-trans γ≤ (inv-usage-numeral ▸t′ n)
 
 data InvUsageNatrec′ (p r : M) (γ δ η : Conₘ n) : Conₘ n → Set a where
   invUsageNatrecNr :
@@ -316,7 +326,7 @@ inv-usage-natrec (sub γ▸natrec γ≤γ′) with inv-usage-natrec γ▸natrec
 ... | invUsageNatrec δ▸z η▸s θ▸n φ▸A γ′≤γ″ extra =
   invUsageNatrec δ▸z η▸s θ▸n φ▸A (≤ᶜ-trans γ≤γ′ γ′≤γ″) extra
 
-record InvUsageemptyrec
+record InvUsageEmptyrec
          {n} (γ : Conₘ n) (m : Mode) (p : M) (A t : Term n) :
          Set a where
   constructor invUsageEmptyrec
@@ -330,12 +340,10 @@ record InvUsageemptyrec
 -- A usage inversion lemma for emptyrec.
 
 inv-usage-emptyrec :
-  γ ▸[ m ] emptyrec p A t → InvUsageemptyrec γ m p A t
-inv-usage-emptyrec (emptyrecₘ δ▸t η▸A ok) =
-  invUsageEmptyrec δ▸t η▸A ok ≤ᶜ-refl
+  γ ▸[ m ] emptyrec p A t → InvUsageEmptyrec γ m p A t
+inv-usage-emptyrec (emptyrecₘ δ▸t η▸A ok) = invUsageEmptyrec δ▸t η▸A ok ≤ᶜ-refl
 inv-usage-emptyrec (sub γ▸et γ≤γ′) with inv-usage-emptyrec γ▸et
-... | invUsageEmptyrec δ▸t η▸A ok γ′≤δ =
-  invUsageEmptyrec δ▸t η▸A ok (≤ᶜ-trans γ≤γ′ γ′≤δ)
+... | invUsageEmptyrec δ▸t η▸A ok γ′≤δ = invUsageEmptyrec δ▸t η▸A ok (≤ᶜ-trans γ≤γ′ γ′≤δ)
 
 -- If γ ▸[ m ] starʷ then γ ≤ᶜ 𝟘ᶜ.
 
@@ -536,7 +544,8 @@ inv-usage-K (sub γ′▸ γ≤γ′) with inv-usage-K γ′▸
 -- A type used to state inv-usage-[]-cong.
 
 record InvUsage-[]-cong
-         {n} (γ : Conₘ n) (A t u v : Term n) : Set a where
+         {n} (γ : Conₘ n) (m : Mode) (s : Strength)
+         (A t u v : Term n) : Set a where
   constructor invUsage-[]-cong
   field
     {γ₁ γ₂ γ₃ γ₄} : Conₘ n
@@ -544,14 +553,15 @@ record InvUsage-[]-cong
     ▸t            : γ₂ ▸[ 𝟘ᵐ? ] t
     ▸u            : γ₃ ▸[ 𝟘ᵐ? ] u
     ▸v            : γ₄ ▸[ 𝟘ᵐ? ] v
+    P             : []-cong-allowed-mode s m
     ≤𝟘            : γ ≤ᶜ 𝟘ᶜ
 
 -- A usage inversion lemma for []-cong.
 
 inv-usage-[]-cong :
-  γ ▸[ m ] []-cong s A t u v → InvUsage-[]-cong γ A t u v
-inv-usage-[]-cong ([]-congₘ ▸A ▸t ▸u ▸v) =
-  invUsage-[]-cong ▸A ▸t ▸u ▸v ≤ᶜ-refl
+  γ ▸[ m ] []-cong s A t u v → InvUsage-[]-cong γ m s A t u v
+inv-usage-[]-cong ([]-congₘ ▸A ▸t ▸u ▸v ok) =
+  invUsage-[]-cong ▸A ▸t ▸u ▸v ok ≤ᶜ-refl
 inv-usage-[]-cong (sub γ′▸ γ≤γ′) with inv-usage-[]-cong γ′▸
-... | invUsage-[]-cong ▸A ▸t ▸u ▸v γ′≤ =
-  invUsage-[]-cong ▸A ▸t ▸u ▸v (≤ᶜ-trans γ≤γ′ γ′≤)
+... | invUsage-[]-cong ▸A ▸t ▸u ▸v ok γ′≤ =
+  invUsage-[]-cong ▸A ▸t ▸u ▸v ok (≤ᶜ-trans γ≤γ′ γ′≤)

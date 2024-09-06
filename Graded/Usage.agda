@@ -435,11 +435,17 @@ data _▸[_]_ {n : Nat} : (γ : Conₘ n) → Mode → Term n → Set a where
             → γ₂ ▸[ 𝟘ᵐ? ] t
             → γ₃ ▸[ 𝟘ᵐ? ] u
             → γ₄ ▸[ 𝟘ᵐ? ] v
+            → []-cong-allowed-mode s m
             → 𝟘ᶜ ▸[ m ] []-cong s A t u v
 
   sub       : γ ▸[ m ] t
             → δ ≤ᶜ γ
             → δ ▸[ m ] t
+
+-- Usage with implicit mode 𝟙ᵐ
+
+_▸_ : (γ : Conₘ n) (t : Term n) → Set a
+γ ▸ t = γ ▸[ 𝟙ᵐ ] t
 
 starₘ : 𝟘ᶜ {n} ▸[ m ] star s
 starₘ {s = 𝕤} =

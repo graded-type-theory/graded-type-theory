@@ -190,20 +190,22 @@ TR with-η-for-Unitʷ = record TR
 
 no-usage-restrictions : Bool → Bool → Usage-restrictions
 no-usage-restrictions erased sink = λ where
-    .Prodrec-allowed                   → λ _ _ _ _ → Lift _ ⊤
-    .Prodrec-allowed-downwards-closed  → _
-    .Unitrec-allowed                   → λ _ _ _ → Lift _ ⊤
-    .Unitrec-allowed-downwards-closed  → _
-    .Emptyrec-allowed                  → λ _ _ → Lift _ ⊤
-    .Emptyrec-allowed-downwards-closed → _
-    .starˢ-sink                        → sink
-    .Id-erased                         → Lift _ (T erased)
-    .Id-erased?                        → Dec.map lift Lift.lower $
-                                         T? erased
-    .erased-matches-for-J              → λ _ → all
-    .erased-matches-for-J-≤ᵉᵐ          → _
-    .erased-matches-for-K              → λ _ → all
-    .erased-matches-for-K-≤ᵉᵐ          → _
+    .Prodrec-allowed                        → λ _ _ _ _ → Lift _ ⊤
+    .Prodrec-allowed-downwards-closed       → _
+    .Unitrec-allowed                        → λ _ _ _ → Lift _ ⊤
+    .Unitrec-allowed-downwards-closed       → _
+    .Emptyrec-allowed                       → λ _ _ → Lift _ ⊤
+    .Emptyrec-allowed-downwards-closed      → _
+    .[]-cong-allowed-mode                   → λ _ _ → ⊤
+    .[]-cong-allowed-mode-downwards-closed  → _
+    .starˢ-sink                              → sink
+    .Id-erased                              → Lift _ (T erased)
+    .Id-erased?                             → Dec.map lift Lift.lower $
+                                              T? erased
+    .erased-matches-for-J                   → λ _ → all
+    .erased-matches-for-J-≤ᵉᵐ               → _
+    .erased-matches-for-K                   → λ _ → all
+    .erased-matches-for-K-≤ᵉᵐ               → _
   where
   open Usage-restrictions
 
@@ -378,6 +380,21 @@ opaque
   Only-some-erased-matches→No-erased-matches _ _ η =
     Σ.map idᶠ ((λ {_ _} _ _ → η) ,_) ∘→_
 
+-- An alternative to No-erased-matches that refers to
+-- Type-variant instead of Type-restrictions
+
+No-erased-matches′ : Type-variant → Usage-restrictions → Set a
+No-erased-matches′ TV UR =
+  ¬ Trivial →
+  (∀ {r p q} → Prodrec-allowed 𝟙ᵐ r p q → r ≢ 𝟘) ×
+  (∀ {p q}   → Unitrec-allowed 𝟙ᵐ p q   → p ≡ 𝟘 → Unitʷ-η) ×
+  (∀ {s} → ¬ ([]-cong-allowed-mode s 𝟙ᵐ)) ×
+  erased-matches-for-J 𝟙ᵐ ≡ none ×
+  erased-matches-for-K 𝟙ᵐ ≡ none
+  where
+  open Type-variant TV
+  open Usage-restrictions UR
+
 ------------------------------------------------------------------------
 -- Some lemmas related to TD.Assumptions
 
@@ -537,10 +554,11 @@ opaque
     Decidable (_≡_ {A = M}) →
     UD.Assumptions (no-usage-restrictions b false)
   Assumptions-no-usage-restrictions dec = λ where
-      ._≟_                      → dec
-      .Prodrec-allowed? _ _ _ _ → yes _
-      .Unitrec-allowed?  _ _ _  → yes _
-      .Emptyrec-allowed? _ _    → yes _
+      ._≟_                       → dec
+      .Prodrec-allowed? _ _ _ _  → yes _
+      .Unitrec-allowed?  _ _ _   → yes _
+      .Emptyrec-allowed? _ _     → yes _
+      .[]-cong-allowed-mode? _ _ → yes _
     where
     open UD.Assumptions
 
@@ -551,10 +569,11 @@ opaque
   Assumptions-not-all-erased-matches-JK :
     UD.Assumptions UR → UD.Assumptions (not-all-erased-matches-JK UR)
   Assumptions-not-all-erased-matches-JK as = λ where
-      ._≟_               → A._≟_
-      .Prodrec-allowed?  → A.Prodrec-allowed?
-      .Unitrec-allowed?  → A.Unitrec-allowed?
-      .Emptyrec-allowed? → A.Emptyrec-allowed?
+      ._≟_                   → A._≟_
+      .Prodrec-allowed?      → A.Prodrec-allowed?
+      .Unitrec-allowed?      → A.Unitrec-allowed?
+      .Emptyrec-allowed?     → A.Emptyrec-allowed?
+      .[]-cong-allowed-mode? → A.[]-cong-allowed-mode?
     where
     module A = UD.Assumptions as
     open UD.Assumptions
@@ -576,6 +595,7 @@ opaque
                                    ¬? (r A.≟ 𝟘))
       .Unitrec-allowed?         → A.Unitrec-allowed?
       .Emptyrec-allowed?        → A.Emptyrec-allowed?
+      .[]-cong-allowed-mode?    → A.[]-cong-allowed-mode?
     where
     module A = UD.Assumptions as
     open UD.Assumptions
@@ -600,6 +620,7 @@ opaque
                                    →-dec
                                  Unitʷ-η?)
       .Emptyrec-allowed?      → A.Emptyrec-allowed?
+      .[]-cong-allowed-mode?  → A.[]-cong-allowed-mode?
     where
     module A = UD.Assumptions (Assumptions-only-some-erased-matches as)
     open UD.Assumptions

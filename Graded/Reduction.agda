@@ -295,6 +295,7 @@ module _
         δ▸t′ = usagePresTerm δ▸t t⇒t′
     in  sub (unitrecₘ δ▸t′ η▸u θ▸A ok) γ≤γ′
 
+
   usagePresTerm {γ = γ} γ▸ur (unitrec-β {p = p} x x₁ _ _) =
     let invUsageUnitrec {δ = δ} {η = η} δ▸t η▸u θ▸A ok γ≤γ′ =
           inv-usage-unitrec γ▸ur
@@ -353,8 +354,8 @@ module _
 
   usagePresTerm γ▸ ([]-cong-subst _ _ _ v⇒v′ _) =
     case inv-usage-[]-cong γ▸ of
-      λ (invUsage-[]-cong ▸A ▸t ▸u ▸v γ≤) →
-    sub ([]-congₘ ▸A ▸t ▸u (usagePresTerm ▸v v⇒v′)) γ≤
+      λ (invUsage-[]-cong ▸A ▸t ▸u ▸v ok γ≤) →
+    sub ([]-congₘ ▸A ▸t ▸u (usagePresTerm ▸v v⇒v′) ok) γ≤
 
   usagePresTerm {γ = γ} γ▸ (J-β _ _ _ _ _ _ _) =
     case inv-usage-J γ▸ of λ where
@@ -406,7 +407,7 @@ module _
 
   usagePresTerm γ▸ ([]-cong-β _ _ _ _ _) =
     case inv-usage-[]-cong γ▸ of
-      λ (invUsage-[]-cong _ _ _ _ γ≤) →
+      λ (invUsage-[]-cong _ _ _ _ _ γ≤) →
     sub rflₘ γ≤
 
   -- Type reduction preserves usage.

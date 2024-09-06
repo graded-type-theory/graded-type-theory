@@ -17,8 +17,8 @@ open Modality 𝕄
 open import Definition.Untyped M
   using (Subst ; tail ; head ; Wk ; id ; step ; lift)
 open import Graded.Context 𝕄
+open import Graded.Context.Weakening 𝕄
 open import Graded.Usage 𝕄 R
-open import Graded.Usage.Weakening 𝕄 R
 open import Graded.Mode 𝕄
 
 open import Tools.Fin

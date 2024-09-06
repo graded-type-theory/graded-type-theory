@@ -31,12 +31,6 @@ private variable
 ------------------------------------------------------------------------
 -- The relation _/_≡_
 
--- Least-such-that P p means that p is the least value which
--- satisfies P.
-
-Least-such-that : (M → Set a) → M → Set a
-Least-such-that P p = P p × (∀ q → P q → p ≤ q)
-
 -- The relation p / q ≤ r is inhabited if "p divided by q" is bounded
 -- by r.
 

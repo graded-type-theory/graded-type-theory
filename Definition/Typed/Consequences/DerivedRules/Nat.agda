@@ -23,20 +23,39 @@ open import Tools.Product
 
 private
   variable
-    n : Nat
-    Γ : Con Term n
+    Γ : Con Term _
+    A A′ z z′ s s′ n n′ : Term _
+    p q r : M
 
--- Congruence of the type of the successor case in natrec.
-sucCong : ∀ {F G} → Γ ∙ ℕ ⊢ F ≡ G
-        → Γ ∙ ℕ ∙ F ⊢ F [ suc (var x1) ]↑² ≡ G [ suc (var x1) ]↑²
-sucCong F≡G with wfEq F≡G
-sucCong F≡G | ⊢Γ ∙ ⊢ℕ =
-  let ⊢F , ⊢G = syntacticEq F≡G
-  in subst↑²TypeEq ⊢ℕ ⊢F F≡G (refl (sucⱼ (var₁ ⊢F)))
+opaque
 
-sucCong′ : ∀ {F G} → Γ ∙ ℕ ⊢ F ≡ G
-        → Γ ∙ ℕ ∙ G ⊢ F [ suc (var x1) ]↑² ≡ G [ suc (var x1) ]↑²
-sucCong′ F≡G with wfEq F≡G
-sucCong′ F≡G | ⊢Γ ∙ ⊢ℕ =
-  let ⊢F , ⊢G = syntacticEq F≡G
-  in subst↑²TypeEq ⊢ℕ ⊢G F≡G (refl (sucⱼ (var₁ ⊢G)))
+  -- Congruence of the type of the successor case in natrec.
+  sucCong : ∀ {F G} → Γ ∙ ℕ ⊢ F ≡ G
+          → Γ ∙ ℕ ∙ F ⊢ F [ suc (var x1) ]↑² ≡ G [ suc (var x1) ]↑²
+  sucCong F≡G with wfEq F≡G
+  sucCong F≡G | ⊢Γ ∙ ⊢ℕ =
+    let ⊢F , ⊢G = syntacticEq F≡G
+    in subst↑²TypeEq ⊢ℕ ⊢F F≡G (refl (sucⱼ (var (⊢Γ ∙ ⊢ℕ ∙ ⊢F) (there here))))
+
+opaque
+
+  sucCong′ : ∀ {F G} → Γ ∙ ℕ ⊢ F ≡ G
+          → Γ ∙ ℕ ∙ G ⊢ F [ suc (var x1) ]↑² ≡ G [ suc (var x1) ]↑²
+  sucCong′ F≡G with wfEq F≡G
+  sucCong′ F≡G | ⊢Γ ∙ ⊢ℕ =
+    let ⊢F , ⊢G = syntacticEq F≡G
+    in subst↑²TypeEq ⊢ℕ ⊢G F≡G (refl (sucⱼ (var (⊢Γ ∙ ⊢ℕ ∙ ⊢G) (there here))))
+
+opaque
+
+  -- A variant of natrec-cong.
+
+  natrec-cong′ : Γ ∙ ℕ     ⊢ A ≡ A′
+               → Γ         ⊢ z ≡ z′ ∷ A [ zero ]₀
+               → Γ ∙ ℕ ∙ A ⊢ s ≡ s′ ∷ A [ suc (var x1) ]↑²
+               → Γ         ⊢ n ≡ n′ ∷ ℕ
+               → Γ         ⊢ natrec p q r A z s n ≡
+                             natrec p q r A′ z′ s′ n′ ∷
+                             A [ n ]₀
+  natrec-cong′ A≡A′ z≡z′ s≡s′ n≡n′ =
+    natrec-cong (syntacticEq A≡A′ .proj₁) A≡A′ z≡z′ s≡s′ n≡n′

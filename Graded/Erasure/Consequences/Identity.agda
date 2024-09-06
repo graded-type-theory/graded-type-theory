@@ -103,6 +103,7 @@ opaque
   Id→≡′ :
     ⦃ 𝟘-well-behaved : Has-well-behaved-zero semiring-with-meet ⦄ →
     []-cong-allowed s →
+    []-cong-allowed-mode s 𝟙ᵐ →
     Fundamental-assumptions⁻ Γ →
     γ₁ ▸[ 𝟘ᵐ? ] A →
     γ₂ ▸[ 𝟘ᵐ? ] t →
@@ -110,9 +111,9 @@ opaque
     γ₄ ▸[ 𝟘ᵐ? ] v →
     Γ ⊢ v ∷ Id A t u →
     Γ ⊢ t ≡ u ∷ A
-  Id→≡′ {s} {Γ} {A} {t} {u} {v} []-cong-ok ok ▸A ▸t ▸u ▸v =
+  Id→≡′ {s} {Γ} {A} {t} {u} {v} []-cong-ok []-cong-ok′ ok ▸A ▸t ▸u ▸v =
     Γ ⊢ v ∷ Id A t u                                       →⟨ []-congⱼ′ []-cong-ok ⟩
-    Γ ⊢ []-cong _ A t u v ∷ Id (Erased A) ([ t ]) ([ u ])  →⟨ flip (Id→≡ ok) ([]-congₘ ▸A ▸t ▸u ▸v) ⟩
+    Γ ⊢ []-cong _ A t u v ∷ Id (Erased A) ([ t ]) ([ u ])  →⟨ flip (Id→≡ ok) ([]-congₘ ▸A ▸t ▸u ▸v []-cong-ok′) ⟩
     Γ ⊢ ([ t ]) ≡ ([ u ]) ∷ Erased A                       →⟨ proj₁ ∘→ proj₂ ∘→ prod-cong⁻¹ ⟩
     Γ ⊢ t ≡ u ∷ A                                          □
     where
@@ -128,6 +129,7 @@ opaque
   Id→≡″ :
     ⦃ ok : T 𝟘ᵐ-allowed ⦄ →
     []-cong-allowed s₁ →
+    []-cong-allowed-mode s₁ 𝟙ᵐ →
     (s₂ PE.≡ 𝕨 → Prodrec-allowed 𝟘ᵐ (𝟘 ∧ 𝟙) 𝟘 𝟘) →
     Fundamental-assumptions⁻ Γ →
     γ₁ ▸[ 𝟘ᵐ ] A →
@@ -138,9 +140,9 @@ opaque
     Γ ⊢ t ≡ u ∷ A
   Id→≡″
     {s₂} {Γ} {A} {γ₂} {t} {γ₃} {u} {v} ⦃ ok ⦄
-    []-cong-ok P-ok as ▸A ▸t ▸u ▸v =
+    []-cong-ok []-cong-ok′ P-ok as ▸A ▸t ▸u ▸v =
     Γ ⊢ v ∷ Erased (Id A t u)           →⟨ erasedⱼ ⟩
-    Γ ⊢ erased (Id A t u) v ∷ Id A t u  →⟨ Id→≡′ ⦃ 𝟘-well-behaved = 𝟘-well-behaved ok ⦄ []-cong-ok as
+    Γ ⊢ erased (Id A t u) v ∷ Id A t u  →⟨ Id→≡′ ⦃ 𝟘-well-behaved = 𝟘-well-behaved ok ⦄ []-cong-ok []-cong-ok′ as
                                              (▸-cong (PE.sym 𝟘ᵐ?≡𝟘ᵐ) ▸A) (▸-cong (PE.sym 𝟘ᵐ?≡𝟘ᵐ) ▸t)
                                              (▸-cong (PE.sym 𝟘ᵐ?≡𝟘ᵐ) ▸u)
                                              (▸-cong (PE.sym 𝟘ᵐ?≡𝟘ᵐ) $

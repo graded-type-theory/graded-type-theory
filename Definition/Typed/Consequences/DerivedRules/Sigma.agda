@@ -288,6 +288,41 @@ opaque
 
 opaque
 
+  -- Another variant of the reduction rule prodrec-β.
+
+  prodrec-β-⇒₁ :
+    Γ ∙ (Σʷ p , q′ ▷ A ▹ B) ⊢ C →
+    Γ ⊢ prodʷ p t u ∷ Σʷ p , q′ ▷ A ▹ B →
+    Γ ∙ A ∙ B ⊢ v ∷ C [ prodʷ p (var x1) (var x0) ]↑² →
+    Γ ⊢ prodrec r p q C (prodʷ p t u) v ⇒ v [ t , u ]₁₀ ∷
+      C [ prodʷ p t u ]₀
+  prodrec-β-⇒₁ ⊢C ⊢p ⊢v =
+    case inversion-prod ⊢p of λ
+      (F , G , q , _ , _ , ⊢t , ⊢u , Σ≡Σ′ , _) →
+    case Σ-injectivity Σ≡Σ′ of λ
+      (A≡F , B≡G , _) →
+    case conv ⊢t (sym A≡F) of λ
+      ⊢t′ →
+    case ⊢∷ΠΣ→ΠΣ-allowed ⊢p of λ
+      ok →
+    prodrec-β-⇒ ⊢C ⊢t′
+      (conv ⊢u (substTypeEq (sym B≡G) (refl ⊢t′))) ⊢v ok
+
+opaque
+
+  -- Another variant of the equality rule prodrec-β.
+
+  prodrec-β-≡₁ :
+    Γ ∙ (Σʷ p , q′ ▷ A ▹ B) ⊢ C →
+    Γ ⊢ prodʷ p t u ∷ Σʷ p , q′ ▷ A ▹ B →
+    Γ ∙ A ∙ B ⊢ v ∷ C [ prodʷ p (var x1) (var x0) ]↑² →
+    Γ ⊢ prodrec r p q C (prodʷ p t u) v ≡ v [ t , u ]₁₀ ∷
+      C [ prodʷ p t u ]₀
+  prodrec-β-≡₁ ⊢C ⊢p ⊢v =
+    subsetTerm (prodrec-β-⇒₁ ⊢C ⊢p ⊢v)
+
+opaque
+
   -- A variant of Σ-η.
 
   Σ-η′ :

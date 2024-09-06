@@ -11,15 +11,16 @@ open import Agda.Builtin.Nat using (zero; suc)
 import Data.Fin as F
 import Data.Fin.Properties as FP
 open import Data.Nat.Base
-open Data.Nat.Base using (_≤_; _<_; _⊔_; _⊓_; >-nonZero; nonZero) public
+open Data.Nat.Base using (_≤_; _<_; _⊔_; _⊓_; >-nonZero; nonZero; _∸_) public
 open _≤_ public
 open import Data.Nat.DivMod
 open Data.Nat.DivMod using (_/_; m/n*n≤m) public
 open import Data.Nat.Properties
 open Data.Nat.Properties
   using (_≟_; _<?_; ≤-total;
-         +-identityʳ; +-assoc; +-comm; +-0-isCommutativeMonoid;
-         *-identityˡ; *-identityʳ; *-assoc; *-comm; *-zeroʳ;
+         +-identityʳ; +-assoc; +-comm; +-0-isCommutativeMonoid; +-suc;
+         +-cancelˡ-≡;
+         *-identityˡ; *-identityʳ; *-assoc; *-comm; *-zeroʳ; *-cancelˡ-≡;
          *-1-isCommutativeMonoid;
          m*n≡0⇒m≡0∨n≡0;
          ⊔-identityʳ; ⊔-assoc; ⊔-comm; ⊔-idem; m≥n⇒m⊔n≡m; m⊔n≡m⇒n≤m;
@@ -29,11 +30,12 @@ open Data.Nat.Properties
          ⊔-absorbs-⊓; ⊓-absorbs-⊔;
          ≤-refl; ≤-reflexive; ≤-trans; ≤-antisym; module ≤-Reasoning;
          n≮n;
-         +-mono-≤; m≤m+n; m≤n+m; 0<1+n; n≤1+n;
+         +-mono-≤; m≤m+n; m≤n+m; m+n≤o⇒n≤o; 0<1+n; n≤1+n;
          *-mono-≤; m≤m*n; m≤n*m;
          m≤m⊔n; m≤n⊔m;
          m<n⊓o⇒m<n; m<n⊓o⇒m<o; ⊓-pres-m<;
-         m⊓n≤m⊔n)
+         m⊓n≤m⊔n; m+n∸n≡m; m∸n+n≡m)
+  renaming (suc-injective to +1-injective)
   public
 open import Data.Nat.Show using (show) public
 open import Relation.Binary using (Tri)

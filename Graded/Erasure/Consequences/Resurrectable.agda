@@ -302,10 +302,11 @@ opaque
      p ≤ 𝟘) →
     (s PE.≡ 𝕨 → Prodrec-allowed 𝟘ᵐ (𝟘 ∧ 𝟙) 𝟘 𝟘) →
     []-cong-allowed s →
+    []-cong-allowed-mode s 𝟙ᵐ →
     Fundamental-assumptions⁻ Γ →
     ¬ Resurrectable s q₁ q₂ Γ ℕ
   ¬-ℕ-resurrectable
-    {Γ} ⦃ ok ⦄ Unitʷ-η→ P-ok []-cong-ok as (_ , ▸t , ⊢t) =
+    {Γ} ⦃ ok ⦄ Unitʷ-η→ P-ok []-cong-ok []-cong-ok′ as (_ , ▸t , ⊢t) =
     -- By the fundamental theorem t is related to erase t.
     case Fundamental.fundamentalErased-𝟙ᵐ
            (record
@@ -325,7 +326,7 @@ opaque
     case inv-usage-prod
            (usagePres*Term Unitʷ-η→ (▸t ∘ₘ zeroₘ) t∘0⇒t₁,t₂) of λ {
       (invUsageProd ▸t₁ ▸t₂ _ _) →
-    case Id→≡″ []-cong-ok P-ok as ℕₘ (▸-𝟘 ▸t₁) zeroₘ (▸-𝟘 ▸t₂) $
+    case Id→≡″ []-cong-ok []-cong-ok′ P-ok as ℕₘ (▸-𝟘 ▸t₁) zeroₘ (▸-𝟘 ▸t₂) $
          inversion-prod-Σ
            (syntacticEqTerm (subset*Term t∘0⇒t₁,t₂) .proj₂ .proj₂)
            .proj₂ .proj₁ of λ
@@ -355,7 +356,7 @@ opaque
                (usagePres*Term Unitʷ-η→ (▸t ∘ₘ sucₘ zeroₘ)
                   t∘1⇒t₁′,t₂′) of λ {
           (invUsageProd ▸t₁′ ▸t₂′ _ _) →
-        case Id→≡″ []-cong-ok P-ok as ℕₘ (▸-𝟘 ▸t₁′) (sucₘ zeroₘ)
+        case Id→≡″ []-cong-ok []-cong-ok′ P-ok as ℕₘ (▸-𝟘 ▸t₁′) (sucₘ zeroₘ)
                (▸-𝟘 ▸t₂′) $
              inversion-prod-Σ
                (syntacticEqTerm (subset*Term t∘1⇒t₁′,t₂′)

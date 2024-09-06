@@ -55,15 +55,28 @@ opaque
 
 opaque
 
+  -- A variant of unitrecⱼ.
+
+  unitrecⱼ′ :
+    Γ ∙ Unitʷ ⊢ A →
+    Γ ⊢ t ∷ Unitʷ →
+    Γ ⊢ u ∷ A [ starʷ ]₀ →
+    Γ ⊢ unitrec p q A t u ∷ A [ t ]₀
+  unitrecⱼ′ ⊢A ⊢t ⊢u =
+    unitrecⱼ ⊢A ⊢t ⊢u (⊢∷Unit→Unit-allowed ⊢t)
+
+opaque
+
   -- A generalisation of unitrec-cong.
 
   unitrec-cong′ :
     Γ ∙ Unitʷ ⊢ A₁ ≡ A₂ →
     Γ ⊢ t₁ ≡ t₂ ∷ Unitʷ →
     Γ ⊢ u₁ ≡ u₂ ∷ A₁ [ starʷ ]₀ →
-    Unitʷ-allowed →
     Γ ⊢ unitrec p q A₁ t₁ u₁ ≡ unitrec p q A₂ t₂ u₂ ∷ A₁ [ t₁ ]₀
-  unitrec-cong′ {A₁} {A₂} {t₁} {t₂} {u₁} {u₂} {p} {q} A₁≡A₂ t₁≡t₂ u₁≡u₂ ok =
+  unitrec-cong′ {A₁} {A₂} {t₁} {t₂} {u₁} {u₂} {p} {q} A₁≡A₂ t₁≡t₂ u₁≡u₂ =
+    case inversion-Unit $ syntacticEqTerm t₁≡t₂ .proj₁ of λ
+      ok →
     case Unitʷ-η? of λ where
       (no no-η) →
         unitrec-cong A₁≡A₂ t₁≡t₂ u₁≡u₂ ok no-η
@@ -119,6 +132,46 @@ opaque
       (no not-ok) →
         unitrec-β ⊢A ⊢t Unit-ok not-ok }
 
+
+opaque
+
+  -- A variant of _⊢_≡_∷_.unitrec-β-η.
+
+  unitrec-β-η-≡ :
+    Γ ∙ Unitʷ ⊢ A →
+    Γ ⊢ t ∷ Unitʷ →
+    Γ ⊢ u ∷ A [ starʷ ]₀ →
+    Unitʷ-η →
+    Γ ⊢ unitrec p q A t u ≡ u ∷ A [ t ]₀
+  unitrec-β-η-≡ ⊢A ⊢t ⊢u η =
+    unitrec-β-η ⊢A ⊢t ⊢u (⊢∷Unit→Unit-allowed ⊢t) η
+
+opaque
+
+  -- A variant of _⊢_⇒_∷_.unitrec-β-η.
+
+  unitrec-β-η-⇒ :
+    Γ ∙ Unitʷ ⊢ A →
+    Γ ⊢ t ∷ Unitʷ →
+    Γ ⊢ u ∷ A [ starʷ ]₀ →
+    Unitʷ-η →
+    Γ ⊢ unitrec p q A t u ⇒ u ∷ A [ t ]₀
+  unitrec-β-η-⇒ ⊢A ⊢t ⊢u η =
+    unitrec-β-η ⊢A ⊢t ⊢u (⊢∷Unit→Unit-allowed ⊢t) η
+
+opaque
+
+  -- A variant of unitrec-subst
+
+  unitrec-subst′ : Γ ∙ Unitʷ ⊢ A
+                 → Γ ⊢ u ∷ A [ starʷ ]₀
+                 → Γ ⊢ t₁ ⇒ t₂ ∷ Unitʷ
+                 → ¬ Unitʷ-η
+                 → Γ ⊢ unitrec p q A t₁ u ⇒ unitrec p q A t₂ u ∷ A [ t₁ ]₀
+  unitrec-subst′ ⊢A ⊢u t₁⇒t₂ =
+    unitrec-subst ⊢A ⊢u t₁⇒t₂ $
+    inversion-Unit $ syntacticEqTerm (subsetTerm t₁⇒t₂) .proj₁
+
 ------------------------------------------------------------------------
 -- Lemmas related to unitrec⟨_⟩
 
@@ -133,7 +186,7 @@ opaque
     Γ ⊢ u ∷ A [ star s ]₀ →
     Γ ⊢ unitrec⟨ s ⟩ p q A t u ∷ A [ t ]₀
   ⊢unitrec⟨⟩ {s = 𝕨} ⊢A ⊢t ⊢u =
-    unitrecⱼ ⊢A ⊢t ⊢u (⊢∷Unit→Unit-allowed ⊢t)
+    unitrecⱼ′ ⊢A ⊢t ⊢u
   ⊢unitrec⟨⟩ {s = 𝕤} ⊢A ⊢t ⊢u =
     conv ⊢u (substTypeEq (refl ⊢A) (Unit-η-≡ (inj₁ PE.refl) ⊢t))
 
@@ -195,8 +248,7 @@ opaque
     Γ ⊢ unitrec⟨ s ⟩ p q A₁ t₁ u₁ ≡ unitrec⟨ s ⟩ p q A₂ t₂ u₂ ∷
       A₁ [ t₁ ]₀
   unitrec⟨⟩-cong {s = 𝕨} A₁≡A₂ t₁≡t₂ u₁≡u₂ =
-    unitrec-cong′ A₁≡A₂ t₁≡t₂ u₁≡u₂ $
-    inversion-Unit $ syntacticEqTerm t₁≡t₂ .proj₁
+    unitrec-cong′ A₁≡A₂ t₁≡t₂ u₁≡u₂
   unitrec⟨⟩-cong {s = 𝕤} A₁≡A₂ t₁≡t₂ u₁≡u₂ =
     conv u₁≡u₂ $
     substTypeEq (refl (syntacticEq A₁≡A₂ .proj₁))

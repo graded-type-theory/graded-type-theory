@@ -11,6 +11,7 @@ open import Tools.Algebra M
 open import Tools.Bool using (Bool; T)
 open import Tools.Product
 open import Tools.PropositionalEquality
+open import Tools.Reasoning.PropositionalEquality
 open import Tools.Sum
 
 open import Graded.Modality.Variant a
@@ -69,6 +70,12 @@ record Semiring-with-meet : Set a where
 
   Trivial : Set a
   Trivial = 𝟙 ≡ 𝟘
+
+  -- Least-such-that P p means that p is the least value which
+  -- satisfies P.
+
+  Least-such-that : (M → Set a) → M → Set a
+  Least-such-that P p = P p × (∀ q → P q → p ≤ q)
 
   ·-distribˡ-∧ : _·_ DistributesOverˡ _∧_
   ·-distribˡ-∧ = proj₁ ·-distrib-∧
@@ -196,6 +203,20 @@ record Has-nr (𝕄 : Semiring-with-meet) : Set a where
     -- s + p · n + r · nr p r z s n. This property is used to prove
     -- that the reduction rule natrec-suc preserves usage.
     nr-suc : nr p r z s n ≤ s + p · n + r · nr p r z s n
+
+-- The property of having an nr function that factors in a certain way
+
+record Has-factoring-nr (𝕄 : Semiring-with-meet) ⦃ has-nr : Has-nr 𝕄 ⦄ : Set a where
+  open Semiring-with-meet 𝕄
+
+  open Has-nr has-nr
+
+  field
+    nr₂ : (p r : M) → M
+
+    nr₂≢𝟘 : {p r : M} → nr₂ p r ≢ 𝟘
+    nr-factoring : {p r z s n : M} → nr p r z s n ≡ nr₂ p r · n + nr p r z s 𝟘
+
 
 -- The property of having a natrec-star operator.
 record Has-star (r : Semiring-with-meet) : Set a where

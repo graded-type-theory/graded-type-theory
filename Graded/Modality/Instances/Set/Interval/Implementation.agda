@@ -5,6 +5,7 @@
 
 module Graded.Modality.Instances.Set.Interval.Implementation where
 
+open import Tools.Bool
 open import Tools.Empty
 open import Tools.Function
 open import Tools.Level
@@ -20,7 +21,7 @@ import Graded.Modality.Properties.Addition
 import Graded.Modality.Properties.Meet
 import Graded.Modality.Properties.Multiplication
 import Graded.Modality.Properties.PartialOrder
-open import Graded.Modality.Instances.Nat-plus-infinity as ℕ⊎∞
+open import Graded.Modality.Instances.Nat-plus-infinity true as ℕ⊎∞
   using (ℕ⊎∞; ⌞_⌟; ∞)
 open import Graded.Modality.Instances.Set.Non-empty
   using (Is-non-empty-set-[])
@@ -83,10 +84,10 @@ interval {n = n}
   (l , m , _) (l′ , m′ , l′≤n , n≤m′ , (_ , l′≤m) , (l≤m′ , _)) =
     (begin
        l       ≤⟨ l≤m′ ⟩
-       ⌞ m′ ⌟  ≤⟨ ℕ⊎∞.⌞⌟-antitone n≤m′ ⟩
+       ⌞ m′ ⌟  ≤⟨ ℕ⊎∞.⌞⌟-antitone _ n≤m′ ⟩
        ⌞ n ⌟   ∎)
   , (begin
-       ⌞ n ⌟   ≤⟨ ℕ⊎∞.⌞⌟-antitone l′≤n ⟩
+       ⌞ n ⌟   ≤⟨ ℕ⊎∞.⌞⌟-antitone _ l′≤n ⟩
        ⌞ l′ ⌟  ≤⟨ l′≤m ⟩
        ⌞ m ⌟   ∎)
   where
@@ -111,7 +112,7 @@ interval {n = n}
     λ _ → refl
   lemma₁ xs@(∞ , n₁ , _) ys@(⌞ m₂ ⌟ , n₂ , m₂≤n₂) =
     (∀ n → n ∈ xs ⇔ n ∈ ys)                      →⟨ proj₁ ∘→ (_$ _) ⟩
-    ((1+ m₂ N.⊔ n₁) ∈ xs → (1+ m₂ N.⊔ n₁) ∈ ys)  →⟨ _$ (ℕ⊎∞.∞≤ ⌞ 1+ m₂ ⌟ , ℕ⊎∞.⌞⌟-antitone (N.m≤n⊔m _ n₁)) ⟩
+    ((1+ m₂ N.⊔ n₁) ∈ xs → (1+ m₂ N.⊔ n₁) ∈ ys)  →⟨ _$ (ℕ⊎∞.∞≤ ⌞ 1+ m₂ ⌟ , ℕ⊎∞.⌞⌟-antitone _ (N.m≤n⊔m _ n₁)) ⟩
     (1+ m₂ N.⊔ n₁) ∈ ys                          →⟨ ℕ⊎∞.⌞⌟-antitone⁻¹ ∘→ proj₁ ⟩
     1+ m₂ N.⊔ n₁ N.≤ m₂                          →⟨ N.≤-trans (N.m≤m⊔n _ n₁) ⟩
     m₂ N.< m₂                                    →⟨ N.n≮n _ ⟩
@@ -119,7 +120,7 @@ interval {n = n}
     ∞ ≡ ⌞ m₂ ⌟                                   □
   lemma₁ xs@(⌞ m₁ ⌟ , n₁ , _) ys@(∞ , n₂ , m₂≤n₂) =
     (∀ n → n ∈ xs ⇔ n ∈ ys)                      →⟨ proj₂ ∘→ (_$ _) ⟩
-    ((1+ m₁ N.⊔ n₂) ∈ ys → (1+ m₁ N.⊔ n₂) ∈ xs)  →⟨ _$ (ℕ⊎∞.∞≤ ⌞ 1+ m₁ ⌟ , ℕ⊎∞.⌞⌟-antitone (N.m≤n⊔m _ n₂)) ⟩
+    ((1+ m₁ N.⊔ n₂) ∈ ys → (1+ m₁ N.⊔ n₂) ∈ xs)  →⟨ _$ (ℕ⊎∞.∞≤ ⌞ 1+ m₁ ⌟ , ℕ⊎∞.⌞⌟-antitone _ (N.m≤n⊔m _ n₂)) ⟩
     (1+ m₁ N.⊔ n₂) ∈ xs                          →⟨ ℕ⊎∞.⌞⌟-antitone⁻¹ ∘→ proj₁ ⟩
     1+ m₁ N.⊔ n₂ N.≤ m₁                          →⟨ N.≤-trans (N.m≤m⊔n _ n₂) ⟩
     m₁ N.< m₁                                    →⟨ N.n≮n _ ⟩
@@ -188,7 +189,7 @@ non-empty (_ , n , m≤n) = n , m≤n , NP.≤-refl
 -- ℕ is correctly defined.
 
 ∈ℕ : n ∈ ℕ
-∈ℕ {n = n} = ℕ⊎∞.∞≤ ⌞ n ⌟ , ℕ⊎∞.≤0
+∈ℕ {n = n} = ℕ⊎∞.∞≤ ⌞ n ⌟ , ℕ⊎∞.≤0 _
 
 ------------------------------------------------------------------------
 -- Union
@@ -204,7 +205,7 @@ _∪_ : Interval → Interval → Interval
   , (begin
        m₁ ℕ⊎∞.∧ m₂          ≤⟨ NM.∧-monotone m₁≤n₁ m₂≤n₂ ⟩
        ⌞ n₁ ⌟ ℕ⊎∞.∧ ⌞ n₂ ⌟  ≡⟨⟩
-       ⌞ n₁ N.⊔ n₂ ⌟        ≤⟨ ℕ⊎∞.⌞⌟-antitone (N.m⊓n≤m⊔n n₁ _) ⟩
+       ⌞ n₁ N.⊔ n₂ ⌟        ≤⟨ ℕ⊎∞.⌞⌟-antitone _ (N.m⊓n≤m⊔n n₁ _) ⟩
        ⌞ n₁ N.⊓ n₂ ⌟        ∎)
   where
   open Tools.Reasoning.PartialOrder NP.≤-poset
@@ -215,18 +216,18 @@ _∪_ : Interval → Interval → Interval
 ∈∪⇔ {n = n} xs@(m₁ , n₁ , m₁≤n₁) ys@(m₂ , n₂ , m₂≤n₂) =
   n ∈ xs ∪ ys                                                ⇔⟨ id⇔ ⟩
 
-  m₁ ℕ⊎∞.∧ m₂ ℕ⊎∞.≤ ⌞ n ⌟ × ⌞ n ⌟ ℕ⊎∞.≤ ⌞ n₁ N.⊓ n₂ ⌟        ⇔⟨ (Σ-cong-⇔ λ _ → ℕ⊎∞.⌞⌟-antitone⁻¹ , ℕ⊎∞.⌞⌟-antitone) ⟩
+  m₁ ℕ⊎∞.∧ m₂ ℕ⊎∞.≤ ⌞ n ⌟ × ⌞ n ⌟ ℕ⊎∞.≤ ⌞ n₁ N.⊓ n₂ ⌟        ⇔⟨ (Σ-cong-⇔ λ _ → ℕ⊎∞.⌞⌟-antitone⁻¹ , ℕ⊎∞.⌞⌟-antitone _) ⟩
 
-  m₁ ℕ⊎∞.∧ m₂ ℕ⊎∞.≤ ⌞ n ⌟ × n₁ N.⊓ n₂ N.≤ n                  ⇔⟨ NM.∧≤⇔ ℕ⊎∞.≤-total ×-cong-⇔ N.⊓≤⇔≤⊎≤ ⟩
+  m₁ ℕ⊎∞.∧ m₂ ℕ⊎∞.≤ ⌞ n ⌟ × n₁ N.⊓ n₂ N.≤ n                  ⇔⟨ NM.∧≤⇔ (ℕ⊎∞.≤-total _) ×-cong-⇔ N.⊓≤⇔≤⊎≤ ⟩
 
   (m₁ ℕ⊎∞.≤ ⌞ n ⌟ ⊎ m₂ ℕ⊎∞.≤ ⌞ n ⌟) × (n₁ N.≤ n ⊎ n₂ N.≤ n)  ⇔⟨ (let case₁ = λ m₁≤n n₁≤n →
                                                                          n₁ , n , n₁≤n , N.≤-refl
-                                                                       , inj₁ (NP.≤-trans m₁≤n (ℕ⊎∞.⌞⌟-antitone n₁≤n) , NP.≤-refl)
-                                                                       , inj₁ (m₁≤n , ℕ⊎∞.⌞⌟-antitone n₁≤n)
+                                                                       , inj₁ (NP.≤-trans m₁≤n (ℕ⊎∞.⌞⌟-antitone _ n₁≤n) , NP.≤-refl)
+                                                                       , inj₁ (m₁≤n , ℕ⊎∞.⌞⌟-antitone _ n₁≤n)
                                                                      case₂ = λ m₂≤n n₂≤n →
                                                                          n₂ , n , n₂≤n , N.≤-refl
-                                                                       , inj₂ (NP.≤-trans m₂≤n (ℕ⊎∞.⌞⌟-antitone n₂≤n) , NP.≤-refl)
-                                                                       , inj₂ (m₂≤n , ℕ⊎∞.⌞⌟-antitone n₂≤n)
+                                                                       , inj₂ (NP.≤-trans m₂≤n (ℕ⊎∞.⌞⌟-antitone _ n₂≤n) , NP.≤-refl)
+                                                                       , inj₂ (m₂≤n , ℕ⊎∞.⌞⌟-antitone _ n₂≤n)
                                                                  in λ where
                                                                    (inj₁ m₁≤n , inj₁ n₁≤n) → case₁ m₁≤n n₁≤n
                                                                    (inj₁ m₁≤n , inj₂ n₂≤n) →
@@ -247,9 +248,9 @@ _∪_ : Interval → Interval → Interval
                                                               , (λ (_ , _ , l≤n , n≤m , p , q) →
                                                                      (case q of λ where
                                                                         (inj₁ (m₁≤m , _)) →
-                                                                          inj₁ (NP.≤-trans m₁≤m (ℕ⊎∞.⌞⌟-antitone n≤m))
+                                                                          inj₁ (NP.≤-trans m₁≤m (ℕ⊎∞.⌞⌟-antitone _ n≤m))
                                                                         (inj₂ (m₂≤m , _)) →
-                                                                          inj₂ (NP.≤-trans m₂≤m (ℕ⊎∞.⌞⌟-antitone n≤m)))
+                                                                          inj₂ (NP.≤-trans m₂≤m (ℕ⊎∞.⌞⌟-antitone _ n≤m)))
                                                                    , (case p of λ where
                                                                         (inj₁ (_ , l≤n₁)) →
                                                                           inj₁ (N.≤-trans (ℕ⊎∞.⌞⌟-antitone⁻¹ l≤n₁) l≤n)
@@ -284,7 +285,7 @@ private
   ≤⌞if-∞⌟ {m = ⌞ _ ⌟} = NP.≤-refl
 
   ⌞if-∞⌟≤ : l ℕ⊎∞.≤ ⌞ m ⌟ → m N.≤ n → ⌞ if-∞ l n ⌟ ℕ⊎∞.≤ ⌞ m ⌟
-  ⌞if-∞⌟≤ {l = ∞}     _   m≤n = ℕ⊎∞.⌞⌟-antitone m≤n
+  ⌞if-∞⌟≤ {l = ∞}     _   m≤n = ℕ⊎∞.⌞⌟-antitone _ m≤n
   ⌞if-∞⌟≤ {l = ⌞ l ⌟} l≤m _   = l≤m
 
   ≤if-∞+if-∞ : l ℕ⊎∞.+ m ℕ⊎∞.≤ ⌞ n ⌟ → n N.≤ if-∞ l n N.+ if-∞ m n
@@ -375,7 +376,7 @@ _+_ : Interval → Interval → Interval
 ∈+⇔ {n = n} xs@(m₁ , n₁ , m₁≤n₁) ys@(m₂ , n₂ , m₂≤n₂) =
   n ∈ xs + ys                                                       ⇔⟨ id⇔ ⟩
 
-  m₁ ℕ⊎∞.+ m₂ ℕ⊎∞.≤ ⌞ n ⌟ × ⌞ n ⌟ ℕ⊎∞.≤ ⌞ n₁ N.+ n₂ ⌟               ⇔⟨ (Σ-cong-⇔ λ _ → ℕ⊎∞.⌞⌟-antitone⁻¹ , ℕ⊎∞.⌞⌟-antitone) ⟩
+  m₁ ℕ⊎∞.+ m₂ ℕ⊎∞.≤ ⌞ n ⌟ × ⌞ n ⌟ ℕ⊎∞.≤ ⌞ n₁ N.+ n₂ ⌟               ⇔⟨ (Σ-cong-⇔ λ _ → ℕ⊎∞.⌞⌟-antitone⁻¹ , ℕ⊎∞.⌞⌟-antitone _) ⟩
 
   m₁ ℕ⊎∞.+ m₂ ℕ⊎∞.≤ ⌞ n ⌟ × n₁ N.+ n₂ N.≤ n                         ⇔⟨ (λ (m₁+m₂≤n , n₁+n₂≤n) →
                                                                             n₁ , n₂ , if-∞ m₁ n , if-∞ m₂ n
@@ -404,7 +405,7 @@ _+_ : Interval → Interval → Interval
                                                                             (let open Tools.Reasoning.PartialOrder NP.≤-poset in begin
                                                                                m₁ ℕ⊎∞.+ m₂          ≤⟨ NA.+-monotone m₁≤k₃ m₂≤k₄ ⟩
                                                                                ⌞ k₃ ⌟ ℕ⊎∞.+ ⌞ k₄ ⌟  ≡⟨⟩
-                                                                               ⌞ k₃ N.+ k₄ ⌟        ≤⟨ ℕ⊎∞.⌞⌟-antitone n≤k₃+k₄ ⟩
+                                                                               ⌞ k₃ N.+ k₄ ⌟        ≤⟨ ℕ⊎∞.⌞⌟-antitone _ n≤k₃+k₄ ⟩
                                                                                ⌞ n ⌟                ∎)
                                                                           , (let open N.≤-Reasoning in begin
                                                                                n₁ N.+ n₂  ≤⟨ N.+-mono-≤
@@ -470,7 +471,7 @@ _·_ : Interval → Interval → Interval
 ∈·⇔ {n = n} xs@(m₁ , n₁ , m₁≤n₁) ys@(m₂ , n₂ , m₂≤n₂) =
   n ∈ xs · ys                                                       ⇔⟨ id⇔ ⟩
 
-  m₁ ℕ⊎∞.· m₂ ℕ⊎∞.≤ ⌞ n ⌟ × ⌞ n ⌟ ℕ⊎∞.≤ ⌞ n₁ N.* n₂ ⌟               ⇔⟨ (Σ-cong-⇔ λ _ → ℕ⊎∞.⌞⌟-antitone⁻¹ , ℕ⊎∞.⌞⌟-antitone) ⟩
+  m₁ ℕ⊎∞.· m₂ ℕ⊎∞.≤ ⌞ n ⌟ × ⌞ n ⌟ ℕ⊎∞.≤ ⌞ n₁ N.* n₂ ⌟               ⇔⟨ (Σ-cong-⇔ λ _ → ℕ⊎∞.⌞⌟-antitone⁻¹ , ℕ⊎∞.⌞⌟-antitone _) ⟩
 
   m₁ ℕ⊎∞.· m₂ ℕ⊎∞.≤ ⌞ n ⌟ × n₁ N.* n₂ N.≤ n                         ⇔⟨ (λ (m₁m₂≤n , n₁n₂≤n) →
                                                                             n₁ , n₂ , if-∞ m₁ (n N.⊔ n₁) , if-∞ m₂ (n N.⊔ n₂)
@@ -497,7 +498,7 @@ _·_ : Interval → Interval → Interval
                                                                             (let open Tools.Reasoning.PartialOrder NP.≤-poset in begin
                                                                                m₁ ℕ⊎∞.· m₂          ≤⟨ NMu.·-monotone m₁≤k₃ m₂≤k₄ ⟩
                                                                                ⌞ k₃ ⌟ ℕ⊎∞.· ⌞ k₄ ⌟  ≡⟨ ℕ⊎∞.⌞⌟·⌞⌟≡⌞*⌟ ⟩
-                                                                               ⌞ k₃ N.* k₄ ⌟        ≤⟨ ℕ⊎∞.⌞⌟-antitone n≤k₃k₄ ⟩
+                                                                               ⌞ k₃ N.* k₄ ⌟        ≤⟨ ℕ⊎∞.⌞⌟-antitone _ n≤k₃k₄ ⟩
                                                                                ⌞ n ⌟                ∎)
                                                                           , (let open N.≤-Reasoning in begin
                                                                                n₁ N.* n₂  ≤⟨ N.*-mono-≤
