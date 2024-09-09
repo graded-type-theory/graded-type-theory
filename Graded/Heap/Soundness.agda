@@ -66,8 +66,7 @@ open import Graded.Heap.Typed.Properties UR TR
 open import Graded.Heap.Reduction type-variant UR (tracking-and-ℕ-fullred-if true)
 open import Graded.Heap.Reduction.Properties type-variant UR (tracking-and-ℕ-fullred-if true)
   using (_⇨*_; ++sucₛ-⇒*)
-open import Graded.Heap.Reduction.Properties type-variant UR (not-tracking-and-ℕ-fullred-if false)
-  using (⇒ₙ*_)
+
 
 private variable
   k : Nat
