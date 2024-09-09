@@ -122,12 +122,11 @@ opaque
           → u PE.≡ ⦅ ⟨ H , t , ρ , S ⟩ ⦆ → S PE.≡ ε
     lemma {S = ε} w n _ u≡ = refl
     lemma {t} {H} {ρ} {S = e ∙ S} w v (_ , _ , _ , ⊢S) u≡ =
-      case Value→¬Neutral v of λ
-        ¬n →
-      ⊥-elim (¬whnf-subst {σ = toSubstₕ H}
-        (⊢whnf⦅⦆ˢ {t = wk ρ t} ⊢S
-          λ n → ¬n (neutral-subst (subst Neutral (wk≡subst ρ t) n)))
-        (subst Whnf u≡ w))
+      case whnf-subst {t = ⦅ e ∙ S ⦆ˢ (wk ρ t)} (subst Whnf u≡ w) of λ
+        w′ →
+      case subst Neutral (wk≡subst ρ t) (⊢whnf⦅⦆ˢ′ ⊢S w′) of λ
+        n′ →
+      ⊥-elim (Value→¬Neutral v (neutral-subst n′))
 
 opaque
 

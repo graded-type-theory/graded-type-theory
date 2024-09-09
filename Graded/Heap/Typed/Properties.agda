@@ -275,43 +275,53 @@ opaque
 
 opaque
 
-  -- Applying a non-neutral element to an eliminator does not
-  -- give a term in Whnf.
+  -- If a term applied to an eliminator is in whnf then the term was
+  -- neutral and the applied eliminator is also neutral.
 
   ⊢whnf⦅⦆ᵉ : ⦃ T (not ℕ-fullred) ⦄
           → Δ ⨾ H ⊢ᵉ e ⟨ u ⟩∷ A ↝ B
-          → ¬ Neutral t
-          → ¬ Whnf (⦅ e ⦆ᵉ t)
-  ⊢whnf⦅⦆ᵉ (∘ₑ _ _) ¬n (ne (∘ₙ n)) = ¬n n
-  ⊢whnf⦅⦆ᵉ (fstₑ _ _) ¬n (ne (fstₙ n)) = ¬n n
-  ⊢whnf⦅⦆ᵉ (sndₑ _ _) ¬n (ne (sndₙ n)) = ¬n n
-  ⊢whnf⦅⦆ᵉ (prodrecₑ _ _) ¬n (ne (prodrecₙ n)) = ¬n n
-  ⊢whnf⦅⦆ᵉ (natrecₑ _ _ _) ¬n (ne (natrecₙ n)) = ¬n n
-  ⊢whnf⦅⦆ᵉ (unitrecₑ _ _ _) ¬n (ne (unitrecₙ _ n)) = ¬n n
-  ⊢whnf⦅⦆ᵉ (emptyrecₑ _) ¬n (ne (emptyrecₙ n)) = ¬n n
-  ⊢whnf⦅⦆ᵉ (Jₑ _ _) ¬n (ne (Jₙ n)) = ¬n n
-  ⊢whnf⦅⦆ᵉ (Kₑ _ _ _) ¬n (ne (Kₙ n)) = ¬n n
-  ⊢whnf⦅⦆ᵉ ([]-congₑ _) ¬n (ne ([]-congₙ n)) = ¬n n
-  ⊢whnf⦅⦆ᵉ sucₑ ¬n w = not-T-and-¬T′ ℕ-fullred
-  ⊢whnf⦅⦆ᵉ (conv ⊢e x) ¬n w = ⊢whnf⦅⦆ᵉ ⊢e ¬n w
+          → Whnf (⦅ e ⦆ᵉ t)
+          → Neutral t × Neutral (⦅ e ⦆ᵉ t)
+  ⊢whnf⦅⦆ᵉ (∘ₑ x x₁) (ne (∘ₙ n)) = n , ∘ₙ n
+  ⊢whnf⦅⦆ᵉ (fstₑ x x₁) (ne (fstₙ n)) = n , fstₙ n
+  ⊢whnf⦅⦆ᵉ (sndₑ x x₁) (ne (sndₙ n)) = n , sndₙ n
+  ⊢whnf⦅⦆ᵉ (prodrecₑ x x₁) (ne (prodrecₙ n)) = n , prodrecₙ n
+  ⊢whnf⦅⦆ᵉ (natrecₑ x x₁ x₂) (ne (natrecₙ n)) = n , natrecₙ n
+  ⊢whnf⦅⦆ᵉ (unitrecₑ x x₁ x₂) (ne (unitrecₙ no-η n)) = n , unitrecₙ no-η n
+  ⊢whnf⦅⦆ᵉ (emptyrecₑ x) (ne (emptyrecₙ n)) = n , emptyrecₙ n
+  ⊢whnf⦅⦆ᵉ (Jₑ x x₁) (ne (Jₙ n)) = n , Jₙ n
+  ⊢whnf⦅⦆ᵉ (Kₑ x x₁ x₂) (ne (Kₙ n)) = n , Kₙ n
+  ⊢whnf⦅⦆ᵉ ([]-congₑ x) (ne ([]-congₙ n)) = n , []-congₙ n
+  ⊢whnf⦅⦆ᵉ sucₑ w = ⊥-elim (not-T-and-¬T′ ℕ-fullred)
+  ⊢whnf⦅⦆ᵉ (conv ⊢e x) w = ⊢whnf⦅⦆ᵉ ⊢e w
 
 opaque
 
-  -- Applying a non-neutral element to a non-empty stack does not
-  -- give a term in Whnf.
+  -- If a term applied to a stack is in whnf then the term was in whnf.
 
   ⊢whnf⦅⦆ˢ : ⦃ T (not ℕ-fullred) ⦄
-          → Δ ⨾ H ⊢ e ∙ S ⟨ u ⟩∷ A ↝ B
-          → ¬ Neutral t
-          → ¬ Whnf (⦅ e ∙ S ⦆ˢ t)
-  ⊢whnf⦅⦆ˢ (⊢e ∙ ε) n w = ⊢whnf⦅⦆ᵉ ⊢e n w
-  ⊢whnf⦅⦆ˢ {e} (⊢e ∙ (⊢e′ ∙ ⊢S)) n w =
-    ⊢whnf⦅⦆ˢ (⊢e′ ∙ ⊢S) (¬⦅⦆ᵉ-neutral e n) w
+          → Δ ⨾ H ⊢ S ⟨ u ⟩∷ A ↝ B
+          → Whnf (⦅ S ⦆ˢ t)
+          → Whnf t
+  ⊢whnf⦅⦆ˢ ε w = w
+  ⊢whnf⦅⦆ˢ (⊢e ∙ ⊢S) w =
+    ne (⊢whnf⦅⦆ᵉ ⊢e (⊢whnf⦅⦆ˢ ⊢S w) .proj₁)
 
 opaque
 
-  -- Applying a term that is neutral at a variable to an eliminator gives
-  -- a term that is neutral at the same variable.
+  -- If a term applied to a non-empty stack is in whnf then the term
+  -- was neutral and the applied stack is also neutral.
+
+  ⊢whnf⦅⦆ˢ′ : ⦃ T (not ℕ-fullred) ⦄
+           → Δ ⨾ H ⊢ e ∙ S ⟨ u ⟩∷ A ↝ B
+           → Whnf (⦅ e ∙ S ⦆ˢ t)
+           → Neutral t
+  ⊢whnf⦅⦆ˢ′ (⊢e ∙ ⊢S) w = ⊢whnf⦅⦆ᵉ ⊢e (⊢whnf⦅⦆ˢ ⊢S w) .proj₁
+
+opaque
+
+  -- Applying a term that is neutral at a variable to an eliminator
+  -- gives a term that is neutral at the same variable.
 
   ⊢⦅⦆ᵉ-NeutralAt : ⦃ T (not ℕ-fullred) ⦄
                 → Δ ⨾ H ⊢ᵉ e ⟨ t ⟩∷ A ↝ B

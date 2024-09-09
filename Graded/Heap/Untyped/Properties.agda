@@ -591,19 +591,21 @@ opaque
 
 opaque
 
-  -- Non-neutral terms are non-neutral when applied to an eliminator
+  -- Applying a term to an eliminator becomes neutral only if the
+  -- term is neutral.
 
-  ¬⦅⦆ᵉ-neutral : ∀ e → ¬ Neutral t → ¬ Neutral (⦅ e ⦆ᵉ t)
-  ¬⦅⦆ᵉ-neutral (∘ₑ p u ρ) ¬n (∘ₙ n) = ¬n n
-  ¬⦅⦆ᵉ-neutral (fstₑ x) ¬n (fstₙ n) = ¬n n
-  ¬⦅⦆ᵉ-neutral (sndₑ x) ¬n (sndₙ n) = ¬n n
-  ¬⦅⦆ᵉ-neutral (prodrecₑ r p q A u ρ) ¬n (prodrecₙ n) = ¬n n
-  ¬⦅⦆ᵉ-neutral (natrecₑ p q r A z s ρ) ¬n (natrecₙ n) = ¬n n
-  ¬⦅⦆ᵉ-neutral (unitrecₑ _ p q A u ρ) ¬n (unitrecₙ _ n) = ¬n n
-  ¬⦅⦆ᵉ-neutral (emptyrecₑ p A ρ) ¬n (emptyrecₙ n) = ¬n n
-  ¬⦅⦆ᵉ-neutral (Jₑ p q A t B u v ρ) ¬n (Jₙ n) = ¬n n
-  ¬⦅⦆ᵉ-neutral (Kₑ p A t B u ρ) ¬n (Kₙ n) = ¬n n
-  ¬⦅⦆ᵉ-neutral ([]-congₑ s A t u ρ) ¬n ([]-congₙ n) = ¬n n
+  ⦅⦆ᵉ-neutral : ∀ e → Neutral (⦅ e ⦆ᵉ t) → Neutral t
+  ⦅⦆ᵉ-neutral (∘ₑ p u ρ) (∘ₙ n) = n
+  ⦅⦆ᵉ-neutral (fstₑ x) (fstₙ n) = n
+  ⦅⦆ᵉ-neutral (sndₑ x) (sndₙ n) = n
+  ⦅⦆ᵉ-neutral (prodrecₑ r p q A u ρ) (prodrecₙ n) = n
+  ⦅⦆ᵉ-neutral (natrecₑ p q r A z s ρ) (natrecₙ n) = n
+  ⦅⦆ᵉ-neutral (unitrecₑ l p q A u ρ) (unitrecₙ x n) = n
+  ⦅⦆ᵉ-neutral (emptyrecₑ p A ρ) (emptyrecₙ n) = n
+  ⦅⦆ᵉ-neutral (Jₑ p q A t B u v ρ) (Jₙ n) = n
+  ⦅⦆ᵉ-neutral (Kₑ p A t B u ρ) (Kₙ n) = n
+  ⦅⦆ᵉ-neutral ([]-congₑ s A t u ρ) ([]-congₙ n) = n
+  ⦅⦆ᵉ-neutral sucₑ ()
 
 opaque
 
@@ -615,7 +617,7 @@ opaque
 
 opaque
 
-  -- Injectivity ofthe stack sucₛ k
+  -- Injectivity of the stack sucₛ k
 
   sucₛ-injective : sucₛ {m} n ≡ sucₛ n′ → n ≡ n′
   sucₛ-injective {n = 0} {(0)} _ = refl
