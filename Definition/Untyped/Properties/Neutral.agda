@@ -28,8 +28,9 @@ private variable
   σ : Subst _ _
   b : BinderMode
   s : Strength
+  l : Universe-level
   p q : M
-  n l : Nat
+  n : Nat
   x : Fin _
 
 opaque

@@ -202,7 +202,7 @@ opaque
     -- By the fundamental theorem t is related to erase t.
     case Fundamental.fundamentalErased-𝟙ᵐ
            fundamental-assumptions₀ ⊢t ▸t of λ {
-      t®erase-t →
+      (_ , t®erase-t) →
 
     -- Let us first apply t to zero.
     case ®∷Σω⇔ non-trivial .proj₁ $
@@ -314,7 +314,7 @@ opaque
               ; other-assumptions = as
               })
            ⊢t ▸t of λ {
-      t®erase-t →
+      (_ , t®erase-t) →
 
     -- Let us first apply t to zero.
     case ®∷Σω⇔ non-trivial .proj₁ $

@@ -40,6 +40,7 @@ open import Tools.Sum
 private variable
   Γ       : Con Term _
   A B t u : Term _
+  l       : Universe-level
 
 ------------------------------------------------------------------------
 -- Typing rules
@@ -61,7 +62,7 @@ Unrestricted-cong A≡B =
 
 -- An introduction rule for U.
 
-Unrestrictedⱼ-U : Γ ⊢ A ∷ U → Γ ⊢ Unrestricted A ∷ U
+Unrestrictedⱼ-U : Γ ⊢ A ∷ U l → Γ ⊢ Unrestricted A ∷ U l
 Unrestrictedⱼ-U ⊢A∷U = ΠΣⱼ ⊢A∷U (Unitⱼ (wf ⊢A ∙ ⊢A) Unit-ok) Σˢ-ok
   where
   ⊢A = univ ⊢A∷U
@@ -69,8 +70,8 @@ Unrestrictedⱼ-U ⊢A∷U = ΠΣⱼ ⊢A∷U (Unitⱼ (wf ⊢A ∙ ⊢A) Unit-o
 -- A corresponding congruence rule.
 
 Unrestricted-cong-U :
-  Γ ⊢ A ≡ B ∷ U →
-  Γ ⊢ Unrestricted A ≡ Unrestricted B ∷ U
+  Γ ⊢ A ≡ B ∷ U l →
+  Γ ⊢ Unrestricted A ≡ Unrestricted B ∷ U l
 Unrestricted-cong-U A≡B =
   ΠΣ-cong ⊢A A≡B (refl (Unitⱼ (wf ⊢A ∙ ⊢A) Unit-ok)) Σˢ-ok
   where
@@ -151,17 +152,20 @@ Unrestricted-η ⊢t ⊢u t≡u =
 
 inversion-Unrestricted-∷ :
   Γ ⊢ Unrestricted A ∷ B →
-  Γ ⊢ A ∷ U × Γ ⊢ B ≡ U
+  ∃ λ l → Γ ⊢ A ∷ U l × Γ ⊢ B ≡ U l
 inversion-Unrestricted-∷ ⊢Unrestricted =
-  case inversion-ΠΣ-U ⊢Unrestricted of λ (⊢A , _ , B≡ , _) →
-  ⊢A , B≡
+  case inversion-ΠΣ-U ⊢Unrestricted of λ
+    (_ , _ , ⊢A , ⊢Unit , B≡ , _) →
+  case U-injectivity (inversion-Unit-U ⊢Unit .proj₁) of λ {
+    PE.refl →
+  _ , ⊢A , B≡ }
 
 -- Another inversion lemma for Unrestricted.
 
 inversion-Unrestricted : Γ ⊢ Unrestricted A → Γ ⊢ A
 inversion-Unrestricted (ΠΣⱼ ⊢A _ _)         = ⊢A
 inversion-Unrestricted (univ ⊢Unrestricted) =
-  univ (inversion-Unrestricted-∷ ⊢Unrestricted .proj₁)
+  univ (inversion-Unrestricted-∷ ⊢Unrestricted .proj₂ .proj₁)
 
 -- An inversion lemma for [_].
 --
@@ -201,7 +205,7 @@ inversion-[]′ ⊢[] =
   where
   Γ′ = ε
   t′ = zero
-  A′ = Σˢ ω , ω ▷ ℕ ▹ natrec 𝟙 𝟙 𝟙 U Unitˢ ℕ (var x0)
+  A′ = Σˢ ω , ω ▷ ℕ ▹ natrec 𝟙 𝟙 𝟙 (U 0) Unitˢ ℕ (var x0)
 
   ⊢Γ′∙ℕ : ⊢ Γ′ ∙ ℕ
   ⊢Γ′∙ℕ = ε ∙ ℕⱼ ε
@@ -209,7 +213,7 @@ inversion-[]′ ⊢[] =
   ⊢Γ′∙ℕ∙ℕ : ⊢ Γ′ ∙ ℕ ∙ ℕ
   ⊢Γ′∙ℕ∙ℕ = ⊢Γ′∙ℕ ∙ ℕⱼ ⊢Γ′∙ℕ
 
-  ⊢Γ′∙ℕ∙U : ⊢ Γ′ ∙ ℕ ∙ U
+  ⊢Γ′∙ℕ∙U : ⊢ Γ′ ∙ ℕ ∙ U 0
   ⊢Γ′∙ℕ∙U = ⊢Γ′∙ℕ ∙ Uⱼ ⊢Γ′∙ℕ
 
   ⊢[t′] : Γ′ ⊢ [ t′ ] ∷ A′

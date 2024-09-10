@@ -18,6 +18,7 @@ open import Definition.Untyped M
 open import Definition.Untyped.Properties M
 
 open import Tools.Fin
+open import Tools.Function
 open import Tools.Nat
 open import Tools.Product
 import Tools.PropositionalEquality as PE
@@ -37,7 +38,17 @@ deterministic⇉-var {x = x +1} (there y) (there z) rewrite deterministic⇉-var
 -- If Γ ⊢ t ⇉ A and Γ ⊢ t ⇉ B then A ≡ B
 
 deterministic⇉ : Γ ⊢ t ⇉ A → Γ ⊢ t ⇉ B → A PE.≡ B
-deterministic⇉ (ΠΣᵢ _ _ _) (ΠΣᵢ _ _ _) = PE.refl
+deterministic⇉ Uᵢ Uᵢ = PE.refl
+deterministic⇉ (ΠΣᵢ A₁ C₁ B₁ D₁ _) (ΠΣᵢ A₂ C₂ B₂ D₂ _) =
+  case deterministic⇉ A₁ A₂ of λ {
+    PE.refl →
+  case deterministic⇉ B₁ B₂ of λ {
+    PE.refl →
+  case whrDet* C₁ C₂ of λ {
+    PE.refl →
+  case whrDet* D₁ D₂ of λ {
+    PE.refl →
+  PE.refl }}}}
 deterministic⇉ (varᵢ x) (varᵢ x₁) = deterministic⇉-var x x₁
 deterministic⇉ (appᵢ x x₁ x₂) (appᵢ y x₃ x₄)
   rewrite deterministic⇉ x y
@@ -61,7 +72,12 @@ deterministic⇉ (starᵢ _) (starᵢ _) = PE.refl
 deterministic⇉ (unitrecᵢ _ _ _) (unitrecᵢ _ _ _) = PE.refl
 deterministic⇉ Emptyᵢ Emptyᵢ = PE.refl
 deterministic⇉ (emptyrecᵢ x x₁) (emptyrecᵢ x₂ x₃) = PE.refl
-deterministic⇉ (Idᵢ _ _ _) (Idᵢ _ _ _) = PE.refl
+deterministic⇉ (Idᵢ A₁ B₁ _ _) (Idᵢ A₂ B₂ _ _) =
+  case deterministic⇉ A₁ A₂ of λ {
+    PE.refl →
+  case whrDet* B₁ B₂ of λ {
+    PE.refl →
+  PE.refl }}
 deterministic⇉ (Jᵢ _ _ _ _ _ _) (Jᵢ _ _ _ _ _ _) = PE.refl
 deterministic⇉ (Kᵢ _ _ _ _ _ _) (Kᵢ _ _ _ _ _ _) = PE.refl
 deterministic⇉ ([]-congᵢ _ _ _ _ _) ([]-congᵢ _ _ _ _ _) = PE.refl

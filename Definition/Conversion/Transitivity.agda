@@ -215,14 +215,14 @@ mutual
             → Γ ⊢ A [conv↓] C
   transConv↓ (ne A~B) B≡C =
     case inv-[conv↓]-ne′ B≡C of λ where
-      (inj₁ B~C)          → ne (trans~↓ A~B B~C .proj₁)
+      (inj₁ (_ , B~C))    → ne (trans~↓ A~B B~C .proj₁)
       (inj₂ (¬-B-ne , _)) →
         let _ , _ , B-ne = ne~↓ A~B in
         ⊥-elim (¬-B-ne B-ne)
   transConv↓ U≡U@(U-refl _) U≡C =
     case inv-[conv↓]-U′ U≡C of λ where
-      (inj₁ (PE.refl , PE.refl)) → U≡U
-      (inj₂ (U≢U , _))           → ⊥-elim (U≢U PE.refl)
+      (inj₁ (_ , PE.refl , PE.refl)) → U≡U
+      (inj₂ (U≢U , _))               → ⊥-elim (U≢U (_ , PE.refl))
   transConv↓ (ΠΣ-cong A₁≡B₁ A₂≡B₂ ok) ΠΣ≡C =
     case inv-[conv↓]-ΠΣ′ ΠΣ≡C of λ where
       (inj₁

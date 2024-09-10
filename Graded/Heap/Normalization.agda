@@ -163,8 +163,8 @@ opaque mutual
     case normalize H v ρ ([]-congₑ s A t u ρ ∙ S) of λ
       (_ , _ , _ , _ , n , d) →
     _ , _ , _ , _ , n , []-congₕ ⇨ d
-  normalize H U ρ S =
-    _ , U , ρ , S , val Uᵥ , id
+  normalize H (U l) ρ S =
+    _ , U l , ρ , S , val Uᵥ , id
   normalize H ℕ ρ S =
     _ , ℕ , ρ , S , val ℕᵥ , id
   normalize H Empty ρ S =

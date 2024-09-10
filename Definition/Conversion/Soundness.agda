@@ -11,14 +11,22 @@ module Definition.Conversion.Soundness
   (R : Type-restrictions 𝕄)
   where
 
+open Type-restrictions R
+
 open import Definition.Untyped M
+open import Definition.Untyped.Neutral M type-variant
 open import Definition.Typed R
 open import Definition.Typed.Properties R
+open import Definition.Typed.RedSteps R
+import Definition.Typed.Reasoning.Term R as TmR
+import Definition.Typed.Reasoning.Type R as TyR
 open import Definition.Conversion R
 open import Definition.Conversion.Whnf R
 open import Definition.Typed.Consequences.DerivedRules R
-open import Definition.Typed.Consequences.InverseUniv R
+open import Definition.Typed.Consequences.Injectivity R
 open import Definition.Typed.Consequences.Inversion R
+open import Definition.Typed.Consequences.Reduction R
+open import Definition.Typed.Consequences.Stability R
 open import Definition.Typed.Consequences.Syntactic R
 open import Definition.Typed.Consequences.NeTypeEq R
 
@@ -29,8 +37,10 @@ import Tools.PropositionalEquality as PE
 
 private
   variable
-    n : Nat
-    Γ : Con Term n
+    n     : Nat
+    Γ     : Con Term n
+    A B   : Term _
+    l₁ l₂ : Universe-level
 
 mutual
   -- Algorithmic equality of neutrals is well-formed.
@@ -132,7 +142,8 @@ mutual
         _ , t∷M , _ = syntacticEqTerm (soundness~↓ x₁)
         M≡A = neTypeEq neA t∷M t
     in  conv (soundness~↓ x₁) M≡A
-  soundnessConv↓Term (univ x x₁ x₂) = inverseUnivEq x (soundnessConv↓ x₂)
+  soundnessConv↓Term (univ ⊢A ⊢B A≡B) =
+    soundnessConv↓-U ⊢A ⊢B A≡B .proj₁
   soundnessConv↓Term (zero-refl ⊢Γ) = refl (zeroⱼ ⊢Γ)
   soundnessConv↓Term (starʷ-refl ⊢Γ ok _) = refl (starⱼ ⊢Γ ok)
   soundnessConv↓Term (suc-cong c) = suc-cong (soundnessConv↑Term c)
@@ -161,3 +172,117 @@ mutual
        Γ ⊢ Id A′ t′ u′ ≡ Id A t u                □) }
   soundnessConv↓Term (rfl-refl t≡u) =
     refl (rflⱼ′ t≡u)
+
+  -- A variant of soundnessConv↓.
+
+  soundnessConv↓-U :
+    Γ ⊢ A ∷ U l₁ →
+    Γ ⊢ B ∷ U l₂ →
+    Γ ⊢ A [conv↓] B →
+    Γ ⊢ A ≡ B ∷ U l₁ × l₁ PE.≡ l₂
+  soundnessConv↓-U {l₁} {l₂} ⊢A ⊢B (ne {l} A~B) =
+    let A≡B             = soundness~↓ A~B
+        _ , A-ne , B-ne = ne~↓ A~B
+        _ , ⊢A′ , ⊢B′   = syntacticEqTerm A≡B
+        U≡U₁            = neTypeEq A-ne ⊢A′ ⊢A
+        U≡U₂            = neTypeEq B-ne ⊢B′ ⊢B
+    in
+      conv A≡B U≡U₁
+    , U-injectivity
+        (U l₁  ≡˘⟨ U≡U₁ ⟩⊢
+         U l   ≡⟨ U≡U₂ ⟩⊢∎
+         U l₂  ∎)
+    where
+    open TyR
+  soundnessConv↓-U {l₁} {l₂} ⊢U₁ ⊢U₂ (U-refl {l} _) =
+      refl ⊢U₁
+    , U-injectivity
+        (U l₁      ≡⟨ inversion-U ⊢U₁ ⟩⊢
+         U (1+ l)  ≡˘⟨ inversion-U ⊢U₂ ⟩⊢∎
+         U l₂      ∎)
+    where
+    open TyR
+  soundnessConv↓-U {l₁} {l₂} ⊢ΠΣA₁A₂ ⊢ΠΣB₁B₂ (ΠΣ-cong A₁≡B₁ A₂≡B₂ ok) =
+    let l₃ , l₄ , ⊢A₁ , ⊢A₂ , U≡U₁ , _ = inversion-ΠΣ-U ⊢ΠΣA₁A₂
+        l₅ , l₆ , ⊢B₁ , ⊢B₂ , U≡U₂ , _ = inversion-ΠΣ-U ⊢ΠΣB₁B₂
+        A₁≡B₁ , l₃≡l₅                  = soundnessConv↑-U ⊢A₁ ⊢B₁ A₁≡B₁
+        A₂≡B₂ , l₄≡l₆                  =
+          soundnessConv↑-U ⊢A₂
+            (stabilityTerm (reflConEq (wfTerm ⊢A₁) ∙ sym (univ A₁≡B₁))
+               ⊢B₂)
+            A₂≡B₂
+    in
+      conv (ΠΣ-cong (univ ⊢A₁) A₁≡B₁ A₂≡B₂ ok) (sym U≡U₁)
+    , U-injectivity
+        (U l₁          ≡⟨ U≡U₁ ⟩⊢
+         U (l₃ ⊔ᵘ l₄)  ≡⟨ PE.cong U $ PE.cong₂ _⊔ᵘ_ l₃≡l₅ l₄≡l₆ ⟩⊢≡
+         U (l₅ ⊔ᵘ l₆)  ≡˘⟨ U≡U₂ ⟩⊢∎
+         U l₂          ∎)
+    where
+    open TyR
+  soundnessConv↓-U {l₁} {l₂} ⊢Empty₁ ⊢Empty₂ (Empty-refl _) =
+      refl ⊢Empty₁
+    , U-injectivity
+        (U l₁  ≡⟨ inversion-Empty ⊢Empty₁ ⟩⊢
+         U 0   ≡˘⟨ inversion-Empty ⊢Empty₂ ⟩⊢∎
+         U l₂  ∎)
+    where
+    open TyR
+  soundnessConv↓-U {l₁} {l₂} ⊢Unit₁ ⊢Unit₂ (Unit-refl _ _) =
+      refl ⊢Unit₁
+    , U-injectivity
+        (U l₁  ≡⟨ inversion-Unit-U ⊢Unit₁ .proj₁ ⟩⊢
+         U 0   ≡˘⟨ inversion-Unit-U ⊢Unit₂ .proj₁ ⟩⊢∎
+         U l₂  ∎)
+    where
+    open TyR
+  soundnessConv↓-U {l₁} {l₂} ⊢ℕ₁ ⊢ℕ₂ (ℕ-refl _) =
+      refl ⊢ℕ₁
+    , U-injectivity
+        (U l₁  ≡⟨ inversion-ℕ ⊢ℕ₁ ⟩⊢
+         U 0   ≡˘⟨ inversion-ℕ ⊢ℕ₂ ⟩⊢∎
+         U l₂  ∎)
+    where
+    open TyR
+  soundnessConv↓-U
+    {l₁} {l₂} ⊢IdAt₁t₂ ⊢IdBu₁u₂ (Id-cong A≡B t₁≡u₁ t₂≡u₂) =
+    let l₃ , ⊢A , ⊢t₁ , ⊢t₂ , U≡U₁ = inversion-Id-U ⊢IdAt₁t₂
+        l₄ , ⊢B , ⊢u₁ , ⊢u₂ , U≡U₂ = inversion-Id-U ⊢IdBu₁u₂
+        A≡B , l₃≡l₄                = soundnessConv↑-U ⊢A ⊢B A≡B
+    in
+      conv
+        (Id-cong A≡B (soundnessConv↑Term t₁≡u₁)
+           (soundnessConv↑Term t₂≡u₂))
+        (sym U≡U₁)
+    , U-injectivity
+        (U l₁  ≡⟨ U≡U₁ ⟩⊢
+         U l₃  ≡⟨ PE.cong U l₃≡l₄ ⟩⊢≡
+         U l₄  ≡˘⟨ U≡U₂ ⟩⊢∎
+         U l₂  ∎)
+    where
+    open TyR
+
+  -- A variant of soundnessConv↑.
+
+  soundnessConv↑-U :
+    Γ ⊢ A ∷ U l₁ → Γ ⊢ B ∷ U l₂ → Γ ⊢ A [conv↑] B →
+    Γ ⊢ A ≡ B ∷ U l₁ × l₁ PE.≡ l₂
+  soundnessConv↑-U {A} {l₁} {B} {l₂} ⊢A ⊢B ([↑] A′ B′ A↘A′ B↘B′ A′≡B′) =
+    let A″ , A″-type , [ _ , ⊢A″ , A⇒*A″ ] = red-U ⊢A
+        B″ , B″-type , [ _ , ⊢B″ , B⇒*B″ ] = red-U ⊢B
+        A′≡A″ = whrDet* A↘A′ (univ* A⇒*A″ , typeWhnf A″-type)
+        B′≡B″ = whrDet* B↘B′ (univ* B⇒*B″ , typeWhnf B″-type)
+        A′≡B′ , l₁≡l₂ =
+          soundnessConv↓-U (PE.subst (_ ⊢_∷ _) (PE.sym A′≡A″) ⊢A″)
+            (PE.subst (_ ⊢_∷ _) (PE.sym B′≡B″) ⊢B″) A′≡B′
+    in
+      (A          ⇒*⟨ A⇒*A″ ⟩⊢
+       A″         ≡˘⟨ A′≡A″ ⟩⊢≡
+       A′ ∷ U l₁  ≡⟨ A′≡B′ ⟩⊢∷
+                   ⟨ PE.cong U l₁≡l₂ ⟩≡≡
+       B′ ∷ U l₂  ≡⟨ B′≡B″ ⟩⊢∷≡
+       B″         ⇐*⟨ B⇒*B″ ⟩⊢∎
+       B          ∎)
+    , l₁≡l₂
+    where
+    open TmR

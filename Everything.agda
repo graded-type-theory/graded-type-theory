@@ -204,15 +204,14 @@ import Graded.Modality.Instances.Linearity.Good
 
 -- The logical relation for reducibility.
 import Definition.LogicalRelation
-import Definition.LogicalRelation.Kit
+import Definition.LogicalRelation.Properties.Kit
 import Definition.LogicalRelation.Properties.Whnf
 import Definition.LogicalRelation.Properties.Reflexivity
 import Definition.LogicalRelation.Properties.Escape
 import Definition.LogicalRelation.ShapeView
 import Definition.LogicalRelation.Irrelevance
 import Definition.LogicalRelation.Properties.Conversion
-import Definition.LogicalRelation.Properties.Cumulativity
-import Definition.LogicalRelation.Properties.MaybeEmb
+import Definition.LogicalRelation.Properties.Embedding
 import Definition.LogicalRelation.Properties.Symmetry
 import Definition.LogicalRelation.Properties.Neutral
 import Definition.LogicalRelation.Properties.Universe
@@ -291,6 +290,7 @@ import Definition.Conversion.Universe
 import Definition.Conversion.Decidable
 import Definition.Conversion.EqRelInstance
 import Definition.Conversion.Consequences.Completeness
+import Definition.Conversion.Consequences.InverseUniv
 import Definition.Conversion.Consequences.Var
 import Definition.Untyped.Normal-form
 import Definition.Typed.Eta-long-normal-form
@@ -379,6 +379,7 @@ import Graded.Erasure.LogicalRelation.Fundamental.Nat
 import Graded.Erasure.LogicalRelation.Fundamental.Pi-Sigma
 import Graded.Erasure.LogicalRelation.Fundamental.Unit
 import Graded.Erasure.LogicalRelation.Fundamental.Identity
+import Graded.Erasure.LogicalRelation.Fundamental.Universe
 import Graded.Erasure.LogicalRelation.Fundamental.Assumptions
 import Graded.Erasure.LogicalRelation.Fundamental
 

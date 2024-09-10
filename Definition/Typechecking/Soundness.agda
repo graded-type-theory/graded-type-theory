@@ -57,13 +57,18 @@ mutual
     in  ΠΣⱼ ⊢F (soundness⇇Type (⊢Γ ∙ ⊢F) ⊢B) ok
   soundness⇇Type _ (Idᶜ _ ⊢t ⊢u) =
     Idⱼ (soundness⇇ ⊢t) (soundness⇇ ⊢u)
-  soundness⇇Type _ (univᶜ x) = univ (soundness⇇ x)
+  soundness⇇Type ⊢Γ (univᶜ ⊢A (A⇒*U , _)) =
+    univ (conv (soundness⇉ ⊢Γ ⊢A .proj₂) (subset* A⇒*U))
 
   soundness⇉ : ⊢ Γ → Γ ⊢ t ⇉ A → (Γ ⊢ A) × (Γ ⊢ t ∷ A)
-  soundness⇉ ⊢Γ (ΠΣᵢ F⇇U G⇇U ok) =
-    let ⊢F = soundness⇇ F⇇U
-        ⊢G = soundness⇇ G⇇U
-    in  Uⱼ ⊢Γ , ΠΣⱼ ⊢F ⊢G ok
+  soundness⇉ ⊢Γ Uᵢ = Uⱼ ⊢Γ , Uⱼ ⊢Γ
+  soundness⇉ ⊢Γ (ΠΣᵢ ⊢A (⇒*U₁ , _) ⊢B (⇒*U₂ , _) ok) =
+    let _ , ⊢A = soundness⇉ ⊢Γ ⊢A
+        ⊢A     = conv ⊢A (subset* ⇒*U₁)
+        _ , ⊢B = soundness⇉ (⊢Γ ∙ univ ⊢A) ⊢B
+        ⊢B     = conv ⊢B (subset* ⇒*U₂)
+    in
+    Uⱼ ⊢Γ , ΠΣⱼ ⊢A ⊢B ok
   soundness⇉ ⊢Γ (varᵢ x∷A∈Γ) = soundness⇉-var ⊢Γ x∷A∈Γ
   soundness⇉ ⊢Γ (appᵢ t⇉A (A⇒ΠFG , _) u⇇F) =
     let ⊢A , ⊢t = soundness⇉ ⊢Γ t⇉A
@@ -117,8 +122,11 @@ mutual
   soundness⇉ ⊢Γ (emptyrecᵢ A⇇Type t⇇Empty) =
     let ⊢A = soundness⇇Type ⊢Γ A⇇Type
     in  ⊢A , (emptyrecⱼ ⊢A (soundness⇇ t⇇Empty))
-  soundness⇉ ⊢Γ (Idᵢ ⊢A ⊢t ⊢u) =
-    Uⱼ ⊢Γ , Idⱼ (soundness⇇ ⊢A) (soundness⇇ ⊢t) (soundness⇇ ⊢u)
+  soundness⇉ ⊢Γ (Idᵢ ⊢A (⇒*U , _) ⊢t ⊢u) =
+    let _ , ⊢A = soundness⇉ ⊢Γ ⊢A
+        ⊢A     = conv ⊢A (subset* ⇒*U)
+    in
+    Uⱼ ⊢Γ , Idⱼ ⊢A (soundness⇇ ⊢t) (soundness⇇ ⊢u)
   soundness⇉ ⊢Γ (Jᵢ ⊢A ⊢t ⊢B ⊢u ⊢v ⊢w) =
     case soundness⇇Type ⊢Γ ⊢A of λ {
       ⊢A →

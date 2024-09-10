@@ -54,7 +54,7 @@ open import Graded.Erasure.LogicalRelation.Fundamental TR UR
 open Fundamental FA
 
 open import Tools.Function
-open import Tools.Product
+open import Tools.Product as Σ
 
 private variable
   Γ : Con Term _
@@ -72,15 +72,16 @@ non-interference :
   σ ® σ′ ∷[ 𝟙ᵐ ] Γ ◂ γ →
   t [ σ ] ® erase str t T.[ σ′ ] ∷ℕ
 non-interference {Γ} {t} {γ} ⊢t ▸t {σ} {σ′} ⊢σ σ®σ′ =
-                                                   $⟨ fundamental ⊢t ▸t ⟩
+                                                         $⟨ fundamental ⊢t ▸t ⟩
 
-  γ ▸ Γ ⊩ʳ⟨ ¹ ⟩ t ∷[ 𝟙ᵐ ] ℕ                        ⇔⟨ ▸⊩ʳ∷⇔ ⟩→
+  (∃ λ l → γ ▸ Γ ⊩ʳ⟨ l ⟩ t ∷[ 𝟙ᵐ ] ℕ)                    ⇔⟨ (Σ-cong-⇔ λ _ → ▸⊩ʳ∷⇔) ⟩→
 
-  (∀ {σ σ′} → Δ ⊩ˢ σ ∷ Γ → σ ® σ′ ∷[ 𝟙ᵐ ] Γ ◂ γ →
-   t [ σ ] ®⟨ ¹ ⟩ erase str t T.[ σ′ ] ∷ ℕ ◂ 𝟙)    →⟨ (λ hyp → hyp (F.fundamental-⊩ˢ∷ well-formed (wfTerm ⊢t) ⊢σ) σ®σ′) ⟩
+  (∃ λ l →
+   ∀ {σ σ′} → Δ ⊩ˢ σ ∷ Γ → σ ® σ′ ∷[ 𝟙ᵐ ] Γ ◂ γ →
+   t [ σ ] ®⟨ l ⟩ erase str t T.[ σ′ ] ∷ ℕ ◂ 𝟙)          →⟨ Σ.map idᶠ (λ hyp → hyp (F.fundamental-⊩ˢ∷ well-formed (wfTerm ⊢t) ⊢σ) σ®σ′) ⟩
 
-  t [ σ ] ®⟨ ¹ ⟩ erase str t T.[ σ′ ] ∷ ℕ ◂ 𝟙      →⟨ ®∷→®∷◂ω non-trivial ⟩
+  (∃ λ l → t [ σ ] ®⟨ l ⟩ erase str t T.[ σ′ ] ∷ ℕ ◂ 𝟙)  →⟨ Σ.map idᶠ (®∷→®∷◂ω non-trivial) ⟩
 
-  t [ σ ] ®⟨ ¹ ⟩ erase str t T.[ σ′ ] ∷ ℕ          ⇔⟨ ®∷ℕ⇔ ⟩→
+  (∃ λ l → t [ σ ] ®⟨ l ⟩ erase str t T.[ σ′ ] ∷ ℕ)      →⟨ ®∷ℕ⇔ .proj₁ ∘→ proj₂ ⟩
 
-  t [ σ ] ® erase str t T.[ σ′ ] ∷ℕ                □
+  t [ σ ] ® erase str t T.[ σ′ ] ∷ℕ                      □

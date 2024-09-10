@@ -30,7 +30,7 @@ open import Tools.PropositionalEquality
 private variable
   A t : Term _
   u   : T.Term _
-  l   : TypeLevel
+  l   : Universe-level
 
 opaque
   unfolding _®⟨_⟩_∷_
@@ -49,16 +49,15 @@ opaque
       t ®⟨ l ⟩ u ∷ A / ⊩A →
       ∃ λ v → T.Value v × u T.⇒* v
     helper = λ where
-      (Uᵣ _)            (Uᵣ v⇒*↯)           → _ , T.↯    , v⇒*↯ refl
-      (ℕᵣ _)            (zeroᵣ _ v⇒*zero)   → _ , T.zero , v⇒*zero
-      (ℕᵣ _)            (sucᵣ _ v⇒*suc _ _) → _ , T.suc  , v⇒*suc
-      (Emptyᵣ _)        ()
-      (Unitᵣ _)         (starᵣ _ v⇒*star)   → _ , T.star , v⇒*star
-      (ne _)            ()
-      (Idᵣ _)           (rflᵣ _ v⇒*↯)       → _ , T.↯    , v⇒*↯ refl
-      (Bᵣ (BΠ _ _) _)   (u⇒*lam , _)        → _ , T.lam  , u⇒*lam refl
-                                                             .proj₂
-      (emb 0<1 ⊩A)      t®u                 → helper ⊩A t®u
+      (Uᵣ _)          (Uᵣ v⇒*↯)           → _ , T.↯    , v⇒*↯ refl
+      (ℕᵣ _)          (zeroᵣ _ v⇒*zero)   → _ , T.zero , v⇒*zero
+      (ℕᵣ _)          (sucᵣ _ v⇒*suc _ _) → _ , T.suc  , v⇒*suc
+      (Emptyᵣ _)      ()
+      (Unitᵣ _)       (starᵣ _ v⇒*star)   → _ , T.star , v⇒*star
+      (ne _)          ()
+      (Idᵣ _)         (rflᵣ _ v⇒*↯)       → _ , T.↯    , v⇒*↯ refl
+      (Bᵣ (BΠ _ _) _) (u⇒*lam , _)        → _ , T.lam  , u⇒*lam refl
+                                                           .proj₂
       (Bᵣ′ (BΣ _ _ _) _ _ _ _ _ _ _ ⊩B _ _)
         (_ , _ , _ , _ , _ , t₂®v₂ , more) →
         Σ-®-elim _ more
@@ -66,6 +65,8 @@ opaque
              Σ.map idᶠ (Σ.map idᶠ (red*concat u⇒*v₂)) $
              helper (⊩B _ _ _) t₂®v₂)
           (λ _ u⇒*prod _ _ → _ , T.prod , u⇒*prod)
+      (emb ≤ᵘ-refl     ⊩A) → helper ⊩A
+      (emb (≤ᵘ-step p) ⊩A) → helper (emb p ⊩A)
 
 opaque
 

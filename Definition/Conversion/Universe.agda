@@ -29,17 +29,20 @@ private
   variable
     n : Nat
     Γ : Con Term n
+    l : Universe-level
 
--- Algorithmic equality of terms in WHNF of type U are equal as types.
+-- The relation _⊢_[conv↓]_∷ U l is contained in _⊢_[conv↓]_.
+
 univConv↓ : ∀ {A B}
-          → Γ ⊢ A [conv↓] B ∷ U
+          → Γ ⊢ A [conv↓] B ∷ U l
           → Γ ⊢ A [conv↓] B
 univConv↓ (ne-ins t u () x)
 univConv↓ (univ x x₁ x₂) = x₂
 
--- Algorithmic equality of terms of type U are equal as types.
+-- The relation _⊢_[conv↑]_∷ U l is contained in _⊢_[conv↑]_.
+
 univConv↑ : ∀ {A B}
-      → Γ ⊢ A [conv↑] B ∷ U
+      → Γ ⊢ A [conv↑] B ∷ U l
       → Γ ⊢ A [conv↑] B
 univConv↑ ([↑]ₜ _ _ _ (D , _) (d , _) (d′ , _) t<>u)
       rewrite PE.sym (whnfRed* D Uₙ) =

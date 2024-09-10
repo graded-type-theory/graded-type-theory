@@ -15,9 +15,10 @@ open import Tools.Relation
 open import Tools.PropositionalEquality
 
 private variable
-  ℓ m n : Nat
-  ρ ρ′  : Wk _ _
-  x y   : Fin _
+  ℓ m n              : Nat
+  ρ ρ′               : Wk _ _
+  x y                : Fin _
+  l l₁ l₁′ l₂ l₂′ l₃ : Universe-level
 
 ------------------------------------------------------------------------
 -- Properties of weakening
@@ -137,6 +138,94 @@ opaque
     lemma id       (_ +1) x0     ()
     lemma (lift _) x0     (_ +1) ()
     lemma (lift _) (_ +1) x0     ()
+
+------------------------------------------------------------------------
+-- A property related to Universe-level
+
+opaque
+
+  -- Equality of universe levels is decidable.
+
+  infix 4 _≟ᵘ_
+
+  _≟ᵘ_ : Decidable (_≡_ {A = Universe-level})
+  _≟ᵘ_ = _≟_
+
+------------------------------------------------------------------------
+-- Properties related to _≤ᵘ_ and _<ᵘ_
+
+opaque
+
+  -- The level 0 is the lowest level.
+
+  0≤ᵘ : 0 ≤ᵘ l
+  0≤ᵘ = 0≤′
+
+opaque
+
+  -- The successor function is monotone for _≤ᵘ_.
+
+  1+≤ᵘ1+ : l₁ ≤ᵘ l₂ → 1+ l₁ ≤ᵘ 1+ l₂
+  1+≤ᵘ1+ = 1+≤′1+
+
+opaque
+
+  -- A level is bounded by its successor.
+
+  ≤ᵘ1+ : l ≤ᵘ 1+ l
+  ≤ᵘ1+ = ≤ᵘ-step ≤ᵘ-refl
+
+opaque
+
+  -- The relation _≤ᵘ_ is transitive.
+
+  ≤ᵘ-trans : l₁ ≤ᵘ l₂ → l₂ ≤ᵘ l₃ → l₁ ≤ᵘ l₃
+  ≤ᵘ-trans = ≤′-trans
+
+opaque
+
+  -- The relation _<ᵘ_ is transitive.
+
+  <ᵘ-trans : l₁ <ᵘ l₂ → l₂ <ᵘ l₃ → l₁ <ᵘ l₃
+  <ᵘ-trans = <′-trans
+
+opaque
+
+  -- The relation _<ᵘ_ is contained in _≤ᵘ_.
+
+  <ᵘ→≤ᵘ : l₁ <ᵘ l₂ → l₁ ≤ᵘ l₂
+  <ᵘ→≤ᵘ = <′→≤′
+
+------------------------------------------------------------------------
+-- Properties related to _⊔ᵘ_
+
+opaque
+
+  -- The level l₁ is bounded by the maximum of l₁ and l₂.
+
+  ≤ᵘ⊔ᵘʳ : l₁ ≤ᵘ l₁ ⊔ᵘ l₂
+  ≤ᵘ⊔ᵘʳ = ≤′⊔ˡ
+
+opaque
+
+  -- The level l₂ is bounded by the maximum of l₁ and l₂.
+
+  ≤ᵘ⊔ᵘˡ : l₂ ≤ᵘ l₁ ⊔ᵘ l₂
+  ≤ᵘ⊔ᵘˡ = ≤′⊔ʳ
+
+opaque
+
+  -- The function _⊔ᵘ_ is monotone.
+
+  ⊔ᵘ-mono : l₁ ≤ᵘ l₁′ → l₂ ≤ᵘ l₂′ → l₁ ⊔ᵘ l₂ ≤ᵘ l₁′ ⊔ᵘ l₂′
+  ⊔ᵘ-mono = flip ⊔-mono
+
+opaque
+
+  -- The function _⊔ᵘ_ is idempotent.
+
+  ⊔ᵘ-idem : l ⊔ᵘ l ≡ l
+  ⊔ᵘ-idem = ⊔-idem _
 
 ------------------------------------------------------------------------
 -- Other properties

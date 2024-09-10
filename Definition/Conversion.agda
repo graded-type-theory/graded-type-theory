@@ -37,10 +37,10 @@ infix 10 _⊢_[conv↓]_∷_
 
 private
   variable
-    n l₁ : Nat
+    n l : Nat
     Γ : Con Term n
-    A₁ A₂ B₁ B₂ C F H G E : Term n
-    a₀ b₀ g h k l t t₁ t₂ u u₁ u₂ v v₁ v₂ w₁ w₂ : Term n
+    A₁ A₂ B₁ B₂ C F G E : Term n
+    g h t t₁ t₂ t₃ u u₁ u₂ u₃ v v₁ v₂ w₁ w₂ : Term n
     x y : Fin n
     p p′ p″ p₁ p₂ q q′ q″ q₁ q₂ r r′ : M
     b : BinderMode
@@ -54,36 +54,41 @@ mutual
                   → x PE.≡ y
                   → Γ ⊢ var x ~ var y ↑ C
 
-    app-cong      : Γ ⊢ k ~ l ↓ Π p , q ▷ F ▹ G
-                  → Γ ⊢ t [conv↑] v ∷ F
-                  → Γ ⊢ k ∘⟨ p ⟩ t ~ l ∘⟨ p ⟩ v ↑ G [ t ]₀
+    app-cong      : ∀ {A B}
+                  → Γ ⊢ t₁ ~ t₂ ↓ Π p , q ▷ A ▹ B
+                  → Γ ⊢ u₁ [conv↑] u₂ ∷ A
+                  → Γ ⊢ t₁ ∘⟨ p ⟩ u₁ ~ t₂ ∘⟨ p ⟩ u₂ ↑ B [ u₁ ]₀
 
-    fst-cong      : Γ ⊢ k ~ l ↓ Σˢ p , q ▷ F ▹ G
-                  → Γ ⊢ fst p k ~ fst p l ↑ F
+    fst-cong      : ∀ {A B}
+                  → Γ ⊢ t₁ ~ t₂ ↓ Σˢ p , q ▷ A ▹ B
+                  → Γ ⊢ fst p t₁ ~ fst p t₂ ↑ A
 
-    snd-cong      : Γ ⊢ k ~ l ↓ Σˢ p , q ▷ F ▹ G
-                  → Γ ⊢ snd p k ~ snd p l ↑ G [ fst p k ]₀
+    snd-cong      : ∀ {A B}
+                  → Γ ⊢ t₁ ~ t₂ ↓ Σˢ p , q ▷ A ▹ B
+                  → Γ ⊢ snd p t₁ ~ snd p t₂ ↑ B [ fst p t₁ ]₀
 
-    natrec-cong   : Γ ∙ ℕ ⊢ F [conv↑] G
-                  → Γ ⊢ a₀ [conv↑] b₀ ∷ F [ zero ]₀
-                  → Γ ∙ ℕ ∙ F ⊢ h [conv↑] g ∷ F [ suc (var x1) ]↑²
-                  → Γ ⊢ k ~ l ↓ ℕ
-                  → Γ ⊢ natrec p q r F a₀ h k ~ natrec p q r G b₀ g l ↑ F [ k ]₀
+    natrec-cong   : Γ ∙ ℕ ⊢ A₁ [conv↑] A₂
+                  → Γ ⊢ t₁ [conv↑] t₂ ∷ A₁ [ zero ]₀
+                  → Γ ∙ ℕ ∙ A₁ ⊢ u₁ [conv↑] u₂ ∷ A₁ [ suc (var x1) ]↑²
+                  → Γ ⊢ v₁ ~ v₂ ↓ ℕ
+                  → Γ ⊢ natrec p q r A₁ t₁ u₁ v₁ ~
+                      natrec p q r A₂ t₂ u₂ v₂ ↑ A₁ [ v₁ ]₀
 
     prodrec-cong  : Γ ∙ (Σʷ p , q ▷ F ▹ G) ⊢ C [conv↑] E
                   → Γ ⊢ g ~ h ↓ Σʷ p , q ▷ F ▹ G
                   → Γ ∙ F ∙ G ⊢ u [conv↑] v ∷ C [ prodʷ p (var x1) (var x0) ]↑²
                   → Γ ⊢ prodrec r p q′ C g u ~ prodrec r p q′ E h v ↑ C [ g ]₀
 
-    emptyrec-cong : Γ ⊢ F [conv↑] H
-                  → Γ ⊢ k ~ l ↓ Empty
-                  → Γ ⊢ emptyrec p F k ~ emptyrec p H l ↑ F
+    emptyrec-cong : Γ ⊢ A₁ [conv↑] A₂
+                  → Γ ⊢ t₁ ~ t₂ ↓ Empty
+                  → Γ ⊢ emptyrec p A₁ t₁ ~ emptyrec p A₂ t₂ ↑ A₁
 
-    unitrec-cong : Γ ∙ Unitʷ ⊢ F [conv↑] H
-                 → Γ ⊢ k ~ l ↓ Unitʷ
-                 → Γ ⊢ u [conv↑] v ∷ F [ starʷ ]₀
+    unitrec-cong : Γ ∙ Unitʷ ⊢ A₁ [conv↑] A₂
+                 → Γ ⊢ t₁ ~ t₂ ↓ Unitʷ
+                 → Γ ⊢ u₁ [conv↑] u₂ ∷ A₁ [ starʷ ]₀
                  → ¬ Unitʷ-η
-                 → Γ ⊢ unitrec p q F k u ~ unitrec p q H l v ↑ F [ k ]₀
+                 → Γ ⊢ unitrec p q A₁ t₁ u₁ ~ unitrec p q A₂ t₂ u₂ ↑
+                     A₁ [ t₁ ]₀
 
     J-cong        : Γ ⊢ A₁ [conv↑] A₂
                   → Γ ⊢ t₁ [conv↑] t₂ ∷ A₁
@@ -138,7 +143,7 @@ mutual
   -- Type equality with types in WHNF.
   data _⊢_[conv↓]_ (Γ : Con Term n) : (A B : Term n) → Set a where
 
-    U-refl     : ⊢ Γ → Γ ⊢ U l₁ [conv↓] U l₁
+    U-refl     : ⊢ Γ → Γ ⊢ U l [conv↓] U l
 
     ℕ-refl     : ⊢ Γ → Γ ⊢ ℕ [conv↓] ℕ
 
@@ -146,9 +151,8 @@ mutual
 
     Unit-refl  : ⊢ Γ → Unit-allowed s → Γ ⊢ Unit s [conv↓] Unit s
 
-    ne         : ∀ {K L}
-               → Γ ⊢ K ~ L ↓ U l₁
-               → Γ ⊢ K [conv↓] L
+    ne         : Γ ⊢ A₁ ~ A₂ ↓ U l
+               → Γ ⊢ A₁ [conv↓] A₂
 
     ΠΣ-cong    : ∀ {F G H E}
                → Γ ⊢ F [conv↑] H
@@ -175,33 +179,34 @@ mutual
   -- Term equality with types and terms in WHNF.
   data _⊢_[conv↓]_∷_ (Γ : Con Term n) : (t u A : Term n) → Set a where
 
-    ℕ-ins     : Γ ⊢ k ~ l ↓ ℕ
-              → Γ ⊢ k [conv↓] l ∷ ℕ
+    ℕ-ins     : Γ ⊢ t₁ ~ t₂ ↓ ℕ
+              → Γ ⊢ t₁ [conv↓] t₂ ∷ ℕ
 
-    Empty-ins : Γ ⊢ k ~ l ↓ Empty
-              → Γ ⊢ k [conv↓] l ∷ Empty
+    Empty-ins : Γ ⊢ t₁ ~ t₂ ↓ Empty
+              → Γ ⊢ t₁ [conv↓] t₂ ∷ Empty
 
     Unitʷ-ins : ¬ Unitʷ-η
-              → Γ ⊢ k ~ l ↓ Unitʷ
-              → Γ ⊢ k [conv↓] l ∷ Unitʷ
+              → Γ ⊢ t₁ ~ t₂ ↓ Unitʷ
+              → Γ ⊢ t₁ [conv↓] t₂ ∷ Unitʷ
 
-    Σʷ-ins    : Γ ⊢ k ∷ Σʷ p , q ▷ F ▹ G
-              → Γ ⊢ l ∷ Σʷ p , q ▷ F ▹ G
-              → Γ ⊢ k ~ l ↓ Σʷ p′ , q′ ▷ H ▹ E
-              → Γ ⊢ k [conv↓] l ∷ Σʷ p , q ▷ F ▹ G
+    Σʷ-ins    : ∀ {A A′ B B′}
+              → Γ ⊢ t₁ ∷ Σʷ p , q ▷ A ▹ B
+              → Γ ⊢ t₂ ∷ Σʷ p , q ▷ A ▹ B
+              → Γ ⊢ t₁ ~ t₂ ↓ Σʷ p′ , q′ ▷ A′ ▹ B′
+              → Γ ⊢ t₁ [conv↓] t₂ ∷ Σʷ p , q ▷ A ▹ B
 
-    ne-ins    : ∀ {k l M N}
-              → Γ ⊢ k ∷ N
-              → Γ ⊢ l ∷ N
-              → Neutral N
-              → Γ ⊢ k ~ l ↓ M
-              → Γ ⊢ k [conv↓] l ∷ N
+    ne-ins    : ∀ {A A′}
+              → Γ ⊢ t₁ ∷ A
+              → Γ ⊢ t₂ ∷ A
+              → Neutral A
+              → Γ ⊢ t₁ ~ t₂ ↓ A′
+              → Γ ⊢ t₁ [conv↓] t₂ ∷ A
 
     univ      : ∀ {A B}
-              → Γ ⊢ A ∷ U l₁
-              → Γ ⊢ B ∷ U l₁
+              → Γ ⊢ A ∷ U l
+              → Γ ⊢ B ∷ U l
               → Γ ⊢ A [conv↓] B
-              → Γ ⊢ A [conv↓] B ∷ U l₁
+              → Γ ⊢ A [conv↓] B ∷ U l
 
     zero-refl : ⊢ Γ → Γ ⊢ zero [conv↓] zero ∷ ℕ
 
@@ -229,21 +234,21 @@ mutual
               → Γ ∙ F ⊢ wk1 f ∘⟨ p ⟩ var x0 [conv↑] wk1 g ∘⟨ p ⟩ var x0 ∷ G
               → Γ ⊢ f [conv↓] g ∷ Π p , q ▷ F ▹ G
 
-    Σ-η       : Γ ⊢ k ∷ Σˢ p , q ▷ F ▹ G
-              → Γ ⊢ l ∷ Σˢ p , q ▷ F ▹ G
-              → Product k
-              → Product l
-              → Γ ⊢ fst p k [conv↑] fst p l ∷ F
-              → Γ ⊢ snd p k [conv↑] snd p l ∷ G [ fst p k ]₀
-              → Γ ⊢ k [conv↓] l ∷ Σˢ p , q ▷ F ▹ G
+    Σ-η       : ∀ {A B}
+              → Γ ⊢ t₁ ∷ Σˢ p , q ▷ A ▹ B
+              → Γ ⊢ t₂ ∷ Σˢ p , q ▷ A ▹ B
+              → Product t₁
+              → Product t₂
+              → Γ ⊢ fst p t₁ [conv↑] fst p t₂ ∷ A
+              → Γ ⊢ snd p t₁ [conv↑] snd p t₂ ∷ B [ fst p t₁ ]₀
+              → Γ ⊢ t₁ [conv↓] t₂ ∷ Σˢ p , q ▷ A ▹ B
 
-    η-unit    : ∀ {k l}
-              → Γ ⊢ k ∷ Unit s
-              → Γ ⊢ l ∷ Unit s
-              → Whnf k
-              → Whnf l
+    η-unit    : Γ ⊢ t₁ ∷ Unit s
+              → Γ ⊢ t₂ ∷ Unit s
+              → Whnf t₁
+              → Whnf t₂
               → Unit-with-η s
-              → Γ ⊢ k [conv↓] l ∷ Unit s
+              → Γ ⊢ t₁ [conv↓] t₂ ∷ Unit s
 
     Id-ins    : ∀ {A A′ t′ u′}
               → Γ ⊢ v₁ ∷ Id A t u

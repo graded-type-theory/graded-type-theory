@@ -15,11 +15,11 @@ open Type-restrictions R
 
 open import Definition.Conversion R
 open import Definition.Conversion.Consequences.Completeness R
+open import Definition.Conversion.Consequences.InverseUniv R
 open import Definition.Conversion.Soundness R
 open import Definition.Conversion.Whnf R
 open import Definition.Typed R
 open import Definition.Typed.Consequences.DerivedRules R
-open import Definition.Typed.Consequences.InverseUniv R
 open import Definition.Typed.Consequences.Inversion R
 open import Definition.Typed.Consequences.NeTypeEq R
 open import Definition.Typed.Consequences.Stability R
@@ -59,7 +59,7 @@ mutual
         var x
       , convₙ (varₙ (wfEq A≡B) x∈) (sym A≡B)
       , refl ⊢x }
-    (app-cong {G = B} {t = u} t~ u↑) →
+    (app-cong {u₁ = u} {B} t~ u↑) →
       case fullRedNe~↓ t~ of λ {
         (t′ , t′-ne , t≡t′) →
       case fullRedTermConv↑ u↑ of λ {
@@ -80,7 +80,7 @@ mutual
         fst p t′
       , fstₙ ⊢A ⊢B t′-ne
       , fst-cong ⊢A ⊢B t≡t′ }}
-    (snd-cong {k = t} {p = p} {G = B} t~) →
+    (snd-cong {t₁ = t} {p} {B} t~) →
       case fullRedNe~↓ t~ of λ {
         (t′ , t′-ne , t≡t′) →
       case inversion-ΠΣ (syntacticEqTerm t≡t′ .proj₁) of λ {
@@ -91,7 +91,7 @@ mutual
                                              substTypeEq (refl ⊢B) (fst-cong ⊢A ⊢B (sym t≡t′)) ⟩
          Γ ⊢ne snd p t′ ∷ B [ fst p t ]₀   □)
       , snd-cong ⊢A ⊢B t≡t′ }}
-    (natrec-cong {F = A} {k = v} {p = p} {q = q} {r = r} A↑ t↑ u↑ v~) →
+    (natrec-cong {A₁ = A} {v₁ = v} {p} {q} {r} A↑ t↑ u↑ v~) →
       case fullRedConv↑ A↑ of λ {
         (A′ , A′-nf , A≡A′) →
       case fullRedTermConv↑ t↑ of λ {
@@ -138,7 +138,7 @@ mutual
                                                                    substTypeEq C≡C′ u≡u′ ⟩
          Γ ⊢ne prodrec r p q C′ u′ v′ ∷ C [ u ]₀                □)
       , prodrec-cong ⊢A ⊢B C≡C′ u≡u′ v≡v′ ok }}}}
-    (emptyrec-cong {F = A} {p = p} A↑ t~) →
+    (emptyrec-cong {A₁ = A} {p} A↑ t~) →
       case fullRedConv↑ A↑ of λ {
         (A′ , A′-nf , A≡A′) →
       case fullRedNe~↓ t~ of λ {
@@ -148,7 +148,7 @@ mutual
          Γ ⊢ne emptyrec p A′ t′ ∷ A′  →⟨ flip _⊢ne_∷_.convₙ (sym A≡A′) ⟩
          Γ ⊢ne emptyrec p A′ t′ ∷ A   □)
       , emptyrec-cong A≡A′ t≡t′ }}
-    (unitrec-cong {F = A} {k = t} A↑ t~ u↑ no-η) →
+    (unitrec-cong {A₁ = A} {t₁ = t} A↑ t~ u↑ no-η) →
       case fullRedConv↑ A↑ of λ {
         (A′ , A′-nf , A≡A′) →
       case fullRedNe~↓ t~ of λ {
@@ -257,7 +257,7 @@ mutual
     Γ ⊢ A [conv↓] A′ →
     ∃ λ B → Γ ⊢nf B × Γ ⊢ A ≡ B
   fullRedConv↓ = λ where
-    (U-refl     ⊢Γ)    → U     , Uₙ     ⊢Γ , refl (Uⱼ     ⊢Γ)
+    (U-refl {l} ⊢Γ)    → U l   , Uₙ     ⊢Γ , refl (Uⱼ     ⊢Γ)
     (ℕ-refl     ⊢Γ)    → ℕ     , ℕₙ     ⊢Γ , refl (ℕⱼ     ⊢Γ)
     (Empty-refl ⊢Γ)    → Empty , Emptyₙ ⊢Γ , refl (Emptyⱼ ⊢Γ)
     (Unit-refl  ⊢Γ ok) →
@@ -339,15 +339,15 @@ mutual
         u
       , neₙ (neₙ A-ne) (convₙ u-ne B≡A)
       , conv t≡u∷B B≡A }}}}
-    (univ {A = A} ⊢A _ A↓) →
+    (univ {l} {A} ⊢A _ A↓) →
       case fullRedConv↓ A↓ of λ {
         (B , B-nf , A≡B) →
         B
-      , (               $⟨ A≡B ⟩
-         (Γ ⊢ A ≡ B)    →⟨ inverseUnivEq ⊢A ⟩
-         Γ ⊢ A ≡ B ∷ U  →⟨ (λ hyp → syntacticEqTerm hyp .proj₂ .proj₂) ⟩
-         Γ ⊢ B ∷ U      →⟨ ⊢nf∷U→⊢nf∷U B-nf ⟩
-         Γ ⊢nf B ∷ U    □)
+      , (                 $⟨ A≡B ⟩
+         (Γ ⊢ A ≡ B)      →⟨ inverseUnivEq ⊢A ⟩
+         Γ ⊢ A ≡ B ∷ U l  →⟨ (λ hyp → syntacticEqTerm hyp .proj₂ .proj₂) ⟩
+         Γ ⊢ B ∷ U l      →⟨ ⊢nf∷U→⊢nf∷U B-nf ⟩
+         Γ ⊢nf B ∷ U l    □)
       , inverseUnivEq ⊢A A≡B }
     (zero-refl ⊢Γ) →
       zero , zeroₙ ⊢Γ , refl (zeroⱼ ⊢Γ)
@@ -381,7 +381,7 @@ mutual
       , (                                                       $⟨ sym (Π-η ⊢t) ⟩
          Γ ⊢ t ≡ lam p (wk1 t ∘⟨ p ⟩ var x0) ∷ Π p , q ▷ A ▹ B  →⟨ flip _⊢_≡_∷_.trans (lam-cong t0≡u ok) ⟩
          Γ ⊢ t ≡ lam p u ∷ Π p , q ▷ A ▹ B                      □) }}
-    (Σ-η {p = p} {q = q} {F = A} {G = B} ⊢t _ _ _ fst-t↑ snd-t↑) →
+    (Σ-η {p} {q} {A} {B} ⊢t _ _ _ fst-t↑ snd-t↑) →
       case inversion-ΠΣ (syntacticTerm ⊢t) of λ {
         (⊢A , ⊢B , ok) →
       case fullRedTermConv↑ fst-t↑ of λ {

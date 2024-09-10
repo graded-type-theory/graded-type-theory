@@ -38,7 +38,7 @@ opaque
   -- The function tr-Kind is pointwise equal to an identity function.
 
   tr-Kind-id : tr-Kind k ≡ k
-  tr-Kind-id {k = Ukind}             = refl
+  tr-Kind-id {k = Ukind _}           = refl
   tr-Kind-id {k = Binderkind b _ _}  = cong (flip (Binderkind _) _) $
                                        tr-BinderMode-id b
   tr-Kind-id {k = Lamkind _}         = refl

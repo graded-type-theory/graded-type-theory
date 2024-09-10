@@ -37,6 +37,7 @@ private variable
   p q r : M
   s : Strength
   b : BinderMode
+  l : Universe-level
   ρ ρ′ : Wk _ _
 
 ------------------------------------------------------------------------
@@ -381,7 +382,7 @@ data Value {n : Nat} : (t : Term n) → Set a where
   starᵥ : Value (star s)
   prodᵥ : Value (prod s p u t)
   rflᵥ : Value rfl
-  Uᵥ : Value U
+  Uᵥ : Value (U l)
   ΠΣᵥ : Value (ΠΣ⟨ b ⟩ p , q ▷ A ▹ B)
   ℕᵥ : Value ℕ
   Unitᵥ : Value (Unit s)

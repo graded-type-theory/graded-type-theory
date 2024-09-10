@@ -50,7 +50,7 @@ private variable
 infix 10 ⌈⌉▸[_]?_
 
 ⌈⌉▸[_]?_ : ∀ m (t : Term n) → (⌈ t ⌉ m ▸[ m ] t) ⊎ (∀ γ → ¬ γ ▸[ m ] t)
-⌈⌉▸[ m ]? U       = inj₁ Uₘ
+⌈⌉▸[ m ]? U _     = inj₁ Uₘ
 
 ⌈⌉▸[ m ]? ℕ       = inj₁ ℕₘ
 

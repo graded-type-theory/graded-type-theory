@@ -43,7 +43,7 @@ private variable
   A A₁ A₂ B B₁ B₂ C C₁ C₂ D E t t₁ t₂ u u₁ u₂ v v₁ v₂ w : Term _
   σ σ₁ σ₂ σ₃                                            : Subst _ _
   ρ                                                     : Wk _ _
-  l l′ l″ l‴                                            : TypeLevel
+  l l′ l″ l‴                                            : Universe-level
 
 ------------------------------------------------------------------------
 -- The type formers
@@ -62,14 +62,14 @@ opaque mutual
 
   infix 4 _⊩ᵛ⟨_⟩_
 
-  _⊩ᵛ⟨_⟩_ : Con Term n → TypeLevel → Term n → Set a
+  _⊩ᵛ⟨_⟩_ : Con Term n → Universe-level → Term n → Set a
   Γ ⊩ᵛ⟨ l ⟩ A = Γ ⊩ᵛ⟨ l ⟩ A ≡ A
 
   -- Valid type equality.
 
   infix 4 _⊩ᵛ⟨_⟩_≡_
 
-  _⊩ᵛ⟨_⟩_≡_ : Con Term n → TypeLevel → Term n → Term n → Set a
+  _⊩ᵛ⟨_⟩_≡_ : Con Term n → Universe-level → Term n → Term n → Set a
   _⊩ᵛ⟨_⟩_≡_ {n} Γ l A B =
     ⊩ᵛ Γ ×
     (∀ {m Δ} {σ₁ σ₂ : Subst m n} →
@@ -104,7 +104,7 @@ opaque
   infix 4 _⊩ᵛ⟨_⟩_≡_∷_
 
   _⊩ᵛ⟨_⟩_≡_∷_ :
-    Con Term n → TypeLevel → Term n → Term n → Term n → Set a
+    Con Term n → Universe-level → Term n → Term n → Term n → Set a
   _⊩ᵛ⟨_⟩_≡_∷_ {n} Γ l t u A =
     Γ ⊩ᵛ⟨ l ⟩ A ×
     (∀ {m Δ} {σ₁ σ₂ : Subst m n} →
@@ -116,7 +116,7 @@ opaque
 
   infix 4 _⊩ᵛ⟨_⟩_∷_
 
-  _⊩ᵛ⟨_⟩_∷_ : Con Term n → TypeLevel → Term n → Term n → Set a
+  _⊩ᵛ⟨_⟩_∷_ : Con Term n → Universe-level → Term n → Term n → Set a
   Γ ⊩ᵛ⟨ l ⟩ t ∷ A = Γ ⊩ᵛ⟨ l ⟩ t ≡ t ∷ A
 
 ------------------------------------------------------------------------
@@ -1247,7 +1247,7 @@ opaque
   -- Embedding for _⊩ᵛ⟨_⟩_.
 
   emb-⊩ᵛ :
-    l ≤ l′ →
+    l ≤ᵘ l′ →
     Γ ⊩ᵛ⟨ l ⟩ A →
     Γ ⊩ᵛ⟨ l′ ⟩ A
   emb-⊩ᵛ l≤l′ ⊩A =
@@ -1260,7 +1260,7 @@ opaque
   -- Embedding for _⊩ᵛ⟨_⟩_≡_.
 
   emb-⊩ᵛ≡ :
-    l ≤ l′ →
+    l ≤ᵘ l′ →
     Γ ⊩ᵛ⟨ l ⟩ t ≡ u →
     Γ ⊩ᵛ⟨ l′ ⟩ t ≡ u
   emb-⊩ᵛ≡ l≤l′ t≡u =
@@ -1273,7 +1273,7 @@ opaque
   -- Embedding for _⊩ᵛ⟨_⟩_∷_.
 
   emb-⊩ᵛ∷ :
-    l ≤ l′ →
+    l ≤ᵘ l′ →
     Γ ⊩ᵛ⟨ l ⟩ t ∷ A →
     Γ ⊩ᵛ⟨ l′ ⟩ t ∷ A
   emb-⊩ᵛ∷ l≤l′ ⊩t =
@@ -1284,7 +1284,7 @@ opaque
   -- Embedding for _⊩ᵛ⟨_⟩_≡_∷_.
 
   emb-⊩ᵛ≡∷ :
-    l ≤ l′ →
+    l ≤ᵘ l′ →
     Γ ⊩ᵛ⟨ l ⟩ t ≡ u ∷ A →
     Γ ⊩ᵛ⟨ l′ ⟩ t ≡ u ∷ A
   emb-⊩ᵛ≡∷ l≤l′ t≡u∷A =

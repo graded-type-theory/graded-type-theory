@@ -86,7 +86,7 @@ mutual
     ⦃ has-nr : Has-nr semiring-with-meet ⦄ →
     Term n → Mode → Conₘ n
   ⌈ var x ⌉ m = 𝟘ᶜ , x ≔ ⌜ m ⌝
-  ⌈ U l ⌉ _ = 𝟘ᶜ
+  ⌈ U _ ⌉ _ = 𝟘ᶜ
   ⌈ ΠΣ⟨ _ ⟩ p , q ▷ F ▹ G ⌉ m = ⌈ F ⌉ (m ᵐ· p) +ᶜ tailₘ (⌈ G ⌉ m)
   ⌈ lam p t ⌉ m = tailₘ (⌈ t ⌉ m)
   ⌈ t ∘⟨ p ⟩ u ⌉ m = ⌈ t ⌉ m +ᶜ p ·ᶜ ⌈ u ⌉ (m ᵐ· p)

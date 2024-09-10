@@ -155,7 +155,7 @@ opaque
   soundness {k} {t} {Δ} as ⊢t ▸t =
     case ▸initial k≡0⊎erased-heap ▸t of λ
       ▸s →
-    case ⊩∷ℕ⇔ .proj₁ (reducible-⊩∷ ⊢t) of λ
+    case ⊩∷ℕ⇔ .proj₁ (reducible-⊩∷ ⊢t .proj₂) of λ
       [t] →
     case redNumeral consistent [t] (PE.sym (PE.trans (erasedHeap-subst (wk id t)) (wk-id t)))
            (⊢initial false ⊢t) ▸s of λ

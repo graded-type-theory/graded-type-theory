@@ -32,7 +32,7 @@ import Definition.Typed.Consequences.Canonicity TR as TC
 open import Definition.Typed.EqualityRelation
 open import Definition.Typed.Properties TR
 open import Definition.Typed.Reasoning.Term TR
-open import Definition.LogicalRelation TR hiding (_≤_; _<_)
+open import Definition.LogicalRelation TR
 
 open import Graded.Context 𝕄
 open import Graded.Derived.Erased.Typed TR
@@ -116,13 +116,13 @@ module _
 
     soundness-zero :
       Δ ⊢ t ⇒* zero ∷ ℕ → 𝟘ᶜ ▸[ 𝟙ᵐ ] t → erase str t T.⇒* T.zero
-    soundness-zero {t} t⇒*zero ▸t = $⟨ fundamentalErased-𝟙ᵐ (redFirst*Term t⇒*zero) ▸t ⟩
-      t ®⟨ ¹ ⟩ erase str t ∷ ℕ  ⇔⟨ ®∷ℕ⇔ ⟩→
-      t ® erase str t ∷ℕ        →⟨ (λ { (zeroᵣ _ ⇒*zero)    → ⇒*zero
-                                      ; (sucᵣ t⇒*suc _ _ _) →
-                                          case whrDet*Term (t⇒*zero , zeroₙ) (t⇒*suc , sucₙ) of λ ()
-                                      }) ⟩
-      erase str t T.⇒* T.zero   □
+    soundness-zero {t} t⇒*zero ▸t =       $⟨ fundamentalErased-𝟙ᵐ (redFirst*Term t⇒*zero) ▸t ⟩
+      (∃ λ l → t ®⟨ l ⟩ erase str t ∷ ℕ)  →⟨ ®∷ℕ⇔ .proj₁ ∘→ proj₂ ⟩
+      t ® erase str t ∷ℕ                  →⟨ (λ { (zeroᵣ _ ⇒*zero)    → ⇒*zero
+                                                ; (sucᵣ t⇒*suc _ _ _) →
+                                                    case whrDet*Term (t⇒*zero , zeroₙ) (t⇒*suc , sucₙ) of λ ()
+                                                }) ⟩
+      erase str t T.⇒* T.zero             □
 
     -- WH reduction soundness of suc
     -- If t ⇒* suc t′ and 𝟘ᶜ ▸ t then erase t ⇒* suc v′ and t′ ® v′ ∷ℕ
@@ -131,7 +131,7 @@ module _
     soundness-suc : Δ ⊢ t ⇒* suc t′ ∷ ℕ → 𝟘ᶜ ▸[ 𝟙ᵐ ] t
                   → ∃ λ v′ → erase str t T.⇒* T.suc v′ × t′ ® v′ ∷ℕ
     soundness-suc {t} {t′} t⇒*suc ▸t =                   $⟨ fundamentalErased-𝟙ᵐ (redFirst*Term t⇒*suc) ▸t ⟩
-      t ®⟨ ¹ ⟩ erase str t ∷ ℕ                           ⇔⟨ ®∷ℕ⇔ ⟩→
+      (∃ λ l → t ®⟨ l ⟩ erase str t ∷ ℕ)                 →⟨ ®∷ℕ⇔ .proj₁ ∘→ proj₂ ⟩
       t ® erase str t ∷ℕ                                 →⟨ (λ { (zeroᵣ t⇒*zero _) →
                                                                    case whrDet*Term (t⇒*zero , zeroₙ) (t⇒*suc , sucₙ) of λ ()
                                                                ; (sucᵣ t⇒*suc′ ⇒*suc _ t′®v′) →
@@ -197,7 +197,7 @@ module _
       Δ ⊢ t ∷ ℕ → 𝟘ᶜ ▸[ 𝟙ᵐ ] t →
       ∃ λ n → Δ ⊢ t ⇒ˢ* sucᵏ n ∷ℕ × erase str t ⇒ˢ⟨ str ⟩* T.sucᵏ n
     soundness-ℕ {t} ⊢t ▸t =                                            $⟨ fundamentalErased-𝟙ᵐ ⊢t ▸t ⟩
-      t ®⟨ ¹ ⟩ erase str t ∷ ℕ                                         ⇔⟨ ®∷ℕ⇔ ⟩→
+      (∃ λ l → t ®⟨ l ⟩ erase str t ∷ ℕ)                               →⟨ ®∷ℕ⇔ .proj₁ ∘→ proj₂ ⟩
       t ® erase str t ∷ℕ                                               →⟨ soundness-ℕ′ ⟩
       (∃ λ n → Δ ⊢ t ⇒ˢ* sucᵏ n ∷ℕ × erase str t ⇒ˢ⟨ str ⟩* T.sucᵏ n)  □
       where
@@ -226,7 +226,8 @@ module _
         Δ ⊢ t ∷ Unit s → 𝟘ᶜ ▸[ 𝟙ᵐ ] t →
         Δ ⊢ t ⇒* star s ∷ Unit s × erase str t T.⇒* T.star
       soundness-Unit ⊢t ▸t =
-        case ®∷Unit⇔ .proj₁ $ fundamentalErased-𝟙ᵐ ⊢t ▸t of λ where
+        case ®∷Unit⇔ .proj₁ $
+             fundamentalErased-𝟙ᵐ ⊢t ▸t .proj₂ of λ where
           (starᵣ t⇒*star erase-t⇒*star) →
             t⇒*star , erase-t⇒*star
         where

@@ -37,7 +37,6 @@ open import Definition.Untyped.Properties M
 
 open import Tools.Function
 open import Tools.Product
-open import Tools.Nat using (≤′-refl ; ≤′-step)
 import Tools.PropositionalEquality as PE
 
 private variable
@@ -45,7 +44,7 @@ private variable
   A B t t₁ t₂ u u₁ u₂ : Term _
   σ₁ σ₂               : Subst _ _
   p q                 : M
-  l l′ l″ l‴          : TypeLevel
+  l l′ l″ l‴          : Universe-level
 
 ------------------------------------------------------------------------
 -- Some characterisation lemmas
@@ -83,18 +82,18 @@ opaque
       Γ ⊢ u ≅ u ∷ Σˢ p , q ▷ A ▹ B ×
       Γ ⊩⟨ l ⟩ fst p u ∷ A ×
       Γ ⊩⟨ l ⟩ snd p u ∷ B [ fst p u ]₀
-    lemma₁ (emb ≤′-refl ⊩Σ) ⊩t =
+    lemma₁ (emb ≤ᵘ-refl ⊩Σ) ⊩t =
       case lemma₁ ⊩Σ ⊩t of λ
         (u , t⇒*u , u-prod , u≅u , ⊩fst-u , ⊩snd-u) →
         u , t⇒*u , u-prod , u≅u
-      , emb-⊩∷ (≤′-step ≤′-refl) ⊩fst-u
-      , emb-⊩∷ (≤′-step ≤′-refl) ⊩snd-u
-    lemma₁ (emb (≤′-step l<) ⊩Σ) ⊩t =
+      , emb-⊩∷ (≤ᵘ-step ≤ᵘ-refl) ⊩fst-u
+      , emb-⊩∷ (≤ᵘ-step ≤ᵘ-refl) ⊩snd-u
+    lemma₁ (emb (≤ᵘ-step l<) ⊩Σ) ⊩t =
       case lemma₁ (emb l< ⊩Σ) ⊩t of λ
         (u , t⇒*u , u-prod , u≅u , ⊩fst-u , ⊩snd-u) →
         u , t⇒*u , u-prod , u≅u
-      , emb-⊩∷ (≤′-step ≤′-refl) ⊩fst-u
-      , emb-⊩∷ (≤′-step ≤′-refl) ⊩snd-u
+      , emb-⊩∷ (≤ᵘ-step ≤ᵘ-refl) ⊩fst-u
+      , emb-⊩∷ (≤ᵘ-step ≤ᵘ-refl) ⊩snd-u
     lemma₁
       {l} ⊩Σ@(noemb (Bᵣ _ _ Σ⇒*Σ _ _ _ ⊩wk-A ⊩wk-B _ _))
       (u , t⇒*u , u≅u , u-prod , ⊩fst-u , ⊩snd-u) =
@@ -174,20 +173,20 @@ opaque
       Γ ⊢ u₁ ≅ u₂ ∷ Σˢ p , q ▷ A ▹ B ×
       Γ ⊩⟨ l ⟩ fst p u₁ ≡ fst p u₂ ∷ A ×
       Γ ⊩⟨ l ⟩ snd p u₁ ≡ snd p u₂ ∷ B [ fst p u₁ ]₀
-    lemma₁ (emb ≤′-refl ⊩Σ) t₁≡t₂ =
+    lemma₁ (emb ≤ᵘ-refl ⊩Σ) t₁≡t₂ =
       case lemma₁ ⊩Σ t₁≡t₂ of λ
         (u₁ , u₂ , t₁⇒*u₁ , t₂⇒*u₂ , u₁-prod , u₂-prod , u₁≅u₂ ,
          fst≡fst , snd≡snd) →
         u₁ , u₂ , t₁⇒*u₁ , t₂⇒*u₂ , u₁-prod , u₂-prod , u₁≅u₂
-      , emb-⊩≡∷ (≤′-step ≤′-refl) fst≡fst
-      , emb-⊩≡∷ (≤′-step ≤′-refl) snd≡snd
-    lemma₁ (emb (≤′-step l<) ⊩Σ) t₁≡t₂ =
+      , emb-⊩≡∷ (≤ᵘ-step ≤ᵘ-refl) fst≡fst
+      , emb-⊩≡∷ (≤ᵘ-step ≤ᵘ-refl) snd≡snd
+    lemma₁ (emb (≤ᵘ-step l<) ⊩Σ) t₁≡t₂ =
       case lemma₁ (emb l< ⊩Σ) t₁≡t₂ of λ
         (u₁ , u₂ , t₁⇒*u₁ , t₂⇒*u₂ , u₁-prod , u₂-prod , u₁≅u₂ ,
          fst≡fst , snd≡snd) →
         u₁ , u₂ , t₁⇒*u₁ , t₂⇒*u₂ , u₁-prod , u₂-prod , u₁≅u₂
-      , emb-⊩≡∷ (≤′-step ≤′-refl) fst≡fst
-      , emb-⊩≡∷ (≤′-step ≤′-refl) snd≡snd
+      , emb-⊩≡∷ (≤ᵘ-step ≤ᵘ-refl) fst≡fst
+      , emb-⊩≡∷ (≤ᵘ-step ≤ᵘ-refl) snd≡snd
     lemma₁
       {l} ⊩Σ@(noemb (Bᵣ _ _ Σ⇒*Σ ⊢A _ _ ⊩wk-A ⊩wk-B wk-B≡wk-B _))
       (u₁ , u₂ , t₁⇒*u₁ , t₂⇒*u₂ , u₁≅u₂ , ⊩t₁ , ⊩t₂ ,

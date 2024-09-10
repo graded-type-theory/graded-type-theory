@@ -35,34 +35,35 @@ open import Tools.Empty using (⊥; ⊥-elim)
 
 private
   variable
-    n : Nat
+    l n : Nat
     Γ : Con Term n
     p p′ q q′ r : M
     b : BinderMode
     s s′ : Strength
     A B C t u v w : Term _
 
--- Inversion of U (it has no type).
-inversion-U : ∀ {C} → Γ ⊢ U ∷ C → ⊥
-inversion-U (conv x x₁) = inversion-U x
+-- Inversion for U.
+inversion-U : Γ ⊢ U l ∷ A → Γ ⊢ A ≡ U (1+ l)
+inversion-U (Uⱼ ⊢Γ)       = refl (Uⱼ ⊢Γ)
+inversion-U (conv ⊢U B≡A) = trans (sym B≡A) (inversion-U ⊢U)
 
 -- Inversion of natural number type.
-inversion-ℕ : ∀ {C} → Γ ⊢ ℕ ∷ C → Γ ⊢ C ≡ U
+inversion-ℕ : Γ ⊢ ℕ ∷ A → Γ ⊢ A ≡ U 0
 inversion-ℕ (ℕⱼ x) = refl (Uⱼ x)
 inversion-ℕ (conv x x₁) = trans (sym x₁) (inversion-ℕ x)
 
 -- Inversion of Empty.
-inversion-Empty : ∀ {C} → Γ ⊢ Empty ∷ C → Γ ⊢ C ≡ U
+inversion-Empty : Γ ⊢ Empty ∷ A → Γ ⊢ A ≡ U 0
 inversion-Empty (Emptyⱼ x) = refl (Uⱼ x)
 inversion-Empty (conv x x₁) = trans (sym x₁) (inversion-Empty x)
 
 -- Inversion for the term Unit.
-inversion-Unit-U : Γ ⊢ Unit s ∷ C → Γ ⊢ C ≡ U × Unit-allowed s
+inversion-Unit-U : Γ ⊢ Unit s ∷ A → Γ ⊢ A ≡ U 0 × Unit-allowed s
 inversion-Unit-U (Unitⱼ ⊢Γ ok) = refl (Uⱼ ⊢Γ) , ok
-inversion-Unit-U (conv ⊢Unit A≡B) =
+inversion-Unit-U (conv ⊢Unit B≡A) =
   case inversion-Unit-U ⊢Unit of λ {
-    (A≡U , ok) →
-  trans (sym A≡B) A≡U , ok }
+    (B≡U , ok) →
+  trans (sym B≡A) B≡U , ok }
 
 -- Inversion for the Unit type.
 inversion-Unit : Γ ⊢ Unit s → Unit-allowed s
@@ -80,13 +81,15 @@ inversion-Unit = λ where
 
 -- Inversion for terms that are Π- or Σ-types.
 inversion-ΠΣ-U :
-  ∀ {F G C} →
-  Γ ⊢ ΠΣ⟨ b ⟩ p , q ▷ F ▹ G ∷ C →
-  Γ ⊢ F ∷ U × Γ ∙ F ⊢ G ∷ U × Γ ⊢ C ≡ U × ΠΣ-allowed b p q
-inversion-ΠΣ-U (ΠΣⱼ x x₁ ok) = x , x₁ , refl (Uⱼ (wfTerm x)) , ok
-inversion-ΠΣ-U (conv x x₁)  =
-  let a , b , c , ok = inversion-ΠΣ-U x
-  in  a , b , trans (sym x₁) c , ok
+  Γ ⊢ ΠΣ⟨ b ⟩ p , q ▷ A ▹ B ∷ C →
+  ∃₂ λ l₁ l₂ →
+  Γ ⊢ A ∷ U l₁ × Γ ∙ A ⊢ B ∷ U l₂ × Γ ⊢ C ≡ U (l₁ ⊔ᵘ l₂) ×
+  ΠΣ-allowed b p q
+inversion-ΠΣ-U (ΠΣⱼ ⊢A ⊢B ok) =
+  _ , _ , ⊢A , ⊢B , refl (Uⱼ (wfTerm ⊢A)) , ok
+inversion-ΠΣ-U (conv ⊢ΠΣ D≡C)  =
+  let _ , _ , ⊢A , ⊢B , D≡U , ok = inversion-ΠΣ-U ⊢ΠΣ in
+  _ , _ , ⊢A , ⊢B , trans (sym D≡C) D≡U , ok
 
 -- Inversion for Π- and Σ-types.
 inversion-ΠΣ :
@@ -95,7 +98,7 @@ inversion-ΠΣ :
 inversion-ΠΣ = λ where
   (ΠΣⱼ ⊢A ⊢B ok) → ⊢A , ⊢B , ok
   (univ ⊢ΠΣAB)  → case inversion-ΠΣ-U ⊢ΠΣAB of λ where
-    (⊢A , ⊢B , _ , ok) → univ ⊢A , univ ⊢B , ok
+    (_ , _ , ⊢A , ⊢B , _ , ok) → univ ⊢A , univ ⊢B , ok
 
 -- If a term has type ΠΣ⟨ b ⟩ p , q ▷ A ▹ B, then ΠΣ-allowed b p q
 -- holds.
@@ -298,13 +301,13 @@ opaque
 
   inversion-Id-U :
     Γ ⊢ Id A t u ∷ B →
-    Γ ⊢ A ∷ U × Γ ⊢ t ∷ A × Γ ⊢ u ∷ A × Γ ⊢ B ≡ U
+    ∃ λ l → Γ ⊢ A ∷ U l × Γ ⊢ t ∷ A × Γ ⊢ u ∷ A × Γ ⊢ B ≡ U l
   inversion-Id-U = λ where
-    (Idⱼ ⊢A ⊢t ⊢u) → ⊢A , ⊢t , ⊢u , refl (Uⱼ (wfTerm ⊢A))
+    (Idⱼ ⊢A ⊢t ⊢u) → _ , ⊢A , ⊢t , ⊢u , refl (Uⱼ (wfTerm ⊢A))
     (conv ⊢Id C≡B) →
       case inversion-Id-U ⊢Id of λ {
-        (⊢A , ⊢t , ⊢u , C≡U) →
-      ⊢A , ⊢t , ⊢u , trans (sym C≡B) C≡U }
+        (_ , ⊢A , ⊢t , ⊢u , C≡U) →
+      _ , ⊢A , ⊢t , ⊢u , trans (sym C≡B) C≡U }
 
 opaque
 
@@ -317,7 +320,7 @@ opaque
     (Idⱼ ⊢t ⊢u) → syntacticTerm ⊢t , ⊢t , ⊢u
     (univ ⊢Id)  →
       case inversion-Id-U ⊢Id of λ {
-        (⊢A , ⊢t , ⊢u , _) →
+        (_ , ⊢A , ⊢t , ⊢u , _) →
       univ ⊢A , ⊢t , ⊢u }
 
 opaque
@@ -418,10 +421,9 @@ whnfProduct :
   Γ ⊢ p ∷ Σ⟨ m ⟩ p′ , q ▷ F ▹ G → Whnf p → Product p
 whnfProduct x prodₙ = prodₙ
 whnfProduct x (ne pNe) = ne pNe
-
-whnfProduct x Uₙ = ⊥-elim (inversion-U x)
+whnfProduct ⊢∷Σ Uₙ = ⊥-elim (U≢ΠΣⱼ (sym (inversion-U ⊢∷Σ)))
 whnfProduct x ΠΣₙ =
-  let _ , _ , Σ≡U , _ = inversion-ΠΣ-U x
+  let _ , _ , _ , _ , Σ≡U , _ = inversion-ΠΣ-U x
   in  ⊥-elim (U≢Σ (sym Σ≡U))
 whnfProduct x ℕₙ = ⊥-elim (U≢Σ (sym (inversion-ℕ x)))
 whnfProduct x Unitₙ = ⊥-elim (U≢Σ (sym (inversion-Unit-U x .proj₁)))
@@ -435,6 +437,6 @@ whnfProduct x sucₙ =
   in  ⊥-elim (ℕ≢Σ (sym A≡ℕ))
 whnfProduct x starₙ = ⊥-elim (Unit≢Σⱼ (sym (inversion-star x .proj₁)))
 whnfProduct ⊢∷Σ Idₙ =
-  ⊥-elim (U≢Σ (sym (inversion-Id-U ⊢∷Σ .proj₂ .proj₂ .proj₂)))
+  ⊥-elim (U≢Σ (sym (inversion-Id-U ⊢∷Σ .proj₂ .proj₂ .proj₂ .proj₂)))
 whnfProduct ⊢∷Σ rflₙ =
   ⊥-elim (Id≢Σ (sym (inversion-rfl ⊢∷Σ .proj₂ .proj₂ .proj₂ .proj₂)))

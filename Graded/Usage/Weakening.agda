@@ -53,7 +53,7 @@ wkUsageVar (lift ρ) (x +1) = cong (λ γ → γ ∙ 𝟘) (wkUsageVar ρ x)
 
 wkUsage :
   {γ : Conₘ n} → (ρ : Wk m n) → γ ▸[ m′ ] t → wkConₘ ρ γ ▸[ m′ ] wk ρ t
-wkUsage ρ Uₘ = PE.subst (λ γ → γ ▸[ _ ] U) (PE.sym (wk-𝟘ᶜ ρ)) Uₘ
+wkUsage ρ Uₘ = PE.subst (λ γ → γ ▸[ _ ] _) (PE.sym (wk-𝟘ᶜ ρ)) Uₘ
 wkUsage ρ ℕₘ = PE.subst (λ γ → γ ▸[ _ ] ℕ) (PE.sym (wk-𝟘ᶜ ρ)) ℕₘ
 wkUsage ρ Emptyₘ =
   PE.subst (λ γ → γ ▸[ _ ] Empty) (PE.sym (wk-𝟘ᶜ ρ)) Emptyₘ

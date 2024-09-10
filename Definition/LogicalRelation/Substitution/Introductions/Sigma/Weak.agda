@@ -41,7 +41,7 @@ open import Tools.Empty
 open import Tools.Fin
 open import Tools.Function
 open import Tools.Level
-open import Tools.Nat using (Nat; 1+; ≤′-refl; ≤′-step)
+open import Tools.Nat using (Nat; 1+)
 open import Tools.Product
 import Tools.PropositionalEquality as PE
 open import Tools.Reasoning.PropositionalEquality
@@ -52,7 +52,7 @@ private variable
   A B C C₁ C₂ t t₁ t₁₁ t₁₂ t₂ t₂₁ t₂₂ u u₁ u₂ v : Term _
   σ σ₁ σ₂                                       : Subst _ _
   p q q′ r                                      : M
-  l l′ l″ l‴                                    : TypeLevel
+  l l′ l″ l‴                                    : Universe-level
 
 ------------------------------------------------------------------------
 -- Some characterisation lemmas
@@ -62,7 +62,7 @@ private variable
 infix 4 _⊩⟨_⟩_∷Σʷ_,_▷_▹_
 
 data _⊩⟨_⟩_∷Σʷ_,_▷_▹_
-       (Γ : Con Term n) (l : TypeLevel) :
+       (Γ : Con Term n) (l : Universe-level) :
        Term n → M → M → Term n → Term (1+ n) → Set a where
   prodₙ :
     Γ ⊩⟨ l ⟩ t₁ ∷ A →
@@ -111,22 +111,24 @@ opaque
       Γ ⊢ t :⇒*: u ∷ Σʷ p , q ▷ A ▹ B ×
       Γ ⊢ u ≅ u ∷ Σʷ p , q ▷ A ▹ B ×
       Γ ⊩⟨ l ⟩ u ∷Σʷ p , q ▷ A ▹ B
-    lemma₁ (emb ≤′-refl ⊩Σ) ⊩t =
+    lemma₁ (emb ≤ᵘ-refl ⊩Σ) ⊩t =
       case lemma₁ ⊩Σ ⊩t of λ
         (u , t⇒*u , u≅u , u-val) →
         u , t⇒*u , u≅u
       , (case u-val of λ where
            (prodₙ ⊩u₁ ⊩u₂) →
-             prodₙ (emb-⊩∷ (≤′-step ≤′-refl) ⊩u₁) (emb-⊩∷ (≤′-step ≤′-refl) ⊩u₂)
+             prodₙ (emb-⊩∷ (≤ᵘ-step ≤ᵘ-refl) ⊩u₁)
+               (emb-⊩∷ (≤ᵘ-step ≤ᵘ-refl) ⊩u₂)
            (ne u-ne u~u) →
              ne u-ne u~u)
-    lemma₁ (emb (≤′-step l<) ⊩Σ) ⊩t =
+    lemma₁ (emb (≤ᵘ-step l<) ⊩Σ) ⊩t =
       case lemma₁ (emb l< ⊩Σ) ⊩t of λ
         (u , t⇒*u , u≅u , u-val) →
         u , t⇒*u , u≅u
       , (case u-val of λ where
            (prodₙ ⊩u₁ ⊩u₂) →
-             prodₙ (emb-⊩∷ (≤′-step ≤′-refl) ⊩u₁) (emb-⊩∷ (≤′-step ≤′-refl) ⊩u₂)
+             prodₙ (emb-⊩∷ (≤ᵘ-step ≤ᵘ-refl) ⊩u₁)
+               (emb-⊩∷ (≤ᵘ-step ≤ᵘ-refl) ⊩u₂)
            (ne u-ne u~u) →
              ne u-ne u~u)
     lemma₁
@@ -187,7 +189,7 @@ opaque
 infix 4 _⊩⟨_⟩_≡_∷Σʷ_,_▷_▹_
 
 data _⊩⟨_⟩_≡_∷Σʷ_,_▷_▹_
-       (Γ : Con Term n) (l : TypeLevel) :
+       (Γ : Con Term n) (l : Universe-level) :
        Term n → Term n → M → M → Term n → Term (1+ n) → Set a where
   prodₙ :
     Γ ⊩⟨ l ⟩ t₁₁ ≡ t₂₁ ∷ A →
@@ -230,24 +232,24 @@ opaque
       Γ ⊢ t₂ :⇒*: u₂ ∷ Σʷ p , q ▷ A ▹ B ×
       Γ ⊢ u₁ ≅ u₂ ∷ Σʷ p , q ▷ A ▹ B ×
       Γ ⊩⟨ l ⟩ u₁ ≡ u₂ ∷Σʷ p , q ▷ A ▹ B
-    lemma₁ (emb ≤′-refl ⊩Σ) t₁≡t₂ =
+    lemma₁ (emb ≤ᵘ-refl ⊩Σ) t₁≡t₂ =
       case lemma₁ ⊩Σ t₁≡t₂ of λ
         (u₁ , u₂ , t₁⇒*u₁ , t₂⇒*u₂ , u₁≅u₂ , u₁≡u₂) →
         u₁ , u₂ , t₁⇒*u₁ , t₂⇒*u₂ , u₁≅u₂
       , (case u₁≡u₂ of λ where
            (prodₙ u₁₁≡u₂₁ u₁₂≡u₂₂) →
-             prodₙ (emb-⊩≡∷ (≤′-step ≤′-refl) u₁₁≡u₂₁)
-               (emb-⊩≡∷ (≤′-step ≤′-refl) u₁₂≡u₂₂)
+             prodₙ (emb-⊩≡∷ (≤ᵘ-step ≤ᵘ-refl) u₁₁≡u₂₁)
+               (emb-⊩≡∷ (≤ᵘ-step ≤ᵘ-refl) u₁₂≡u₂₂)
            (ne u₁-ne u₂-ne u₁~u₂) →
              ne u₁-ne u₂-ne u₁~u₂)
-    lemma₁ (emb (≤′-step l<) ⊩Σ) t₁≡t₂ =
+    lemma₁ (emb (≤ᵘ-step l<) ⊩Σ) t₁≡t₂ =
       case lemma₁ (emb l< ⊩Σ) t₁≡t₂ of λ
         (u₁ , u₂ , t₁⇒*u₁ , t₂⇒*u₂ , u₁≅u₂ , u₁≡u₂) →
         u₁ , u₂ , t₁⇒*u₁ , t₂⇒*u₂ , u₁≅u₂
       , (case u₁≡u₂ of λ where
            (prodₙ u₁₁≡u₂₁ u₁₂≡u₂₂) →
-             prodₙ (emb-⊩≡∷ (≤′-step ≤′-refl) u₁₁≡u₂₁)
-               (emb-⊩≡∷ (≤′-step ≤′-refl) u₁₂≡u₂₂)
+             prodₙ (emb-⊩≡∷ (≤ᵘ-step ≤ᵘ-refl) u₁₁≡u₂₁)
+               (emb-⊩≡∷ (≤ᵘ-step ≤ᵘ-refl) u₁₂≡u₂₂)
            (ne u₁-ne u₂-ne u₁~u₂) →
              ne u₁-ne u₂-ne u₁~u₂)
     lemma₁

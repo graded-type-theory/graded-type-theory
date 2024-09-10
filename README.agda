@@ -113,6 +113,9 @@ import Graded.Usage.Restrictions.Satisfied
 --
 -- * Identity types have been added.
 --
+-- * Universe levels have been added. Instead of a single universe
+--   there is now a countably infinite universe hierarchy.
+--
 -- * A weak unit type has been added. A variant of Theorem 6.13
 --   (soundness of extraction) now holds in the presence of erased
 --   matches for weak unit types: the statement of this theorem makes

@@ -252,7 +252,7 @@ opaque
 wk-erase-comm : (ρ : U.Wk m n) (t : U.Term n)
               → wk ρ (erase′ b s t) ≡ erase′ b s (U.wk ρ t)
 wk-erase-comm _ (var _) = refl
-wk-erase-comm {s} _ U = wk-loop? s
+wk-erase-comm {s} _ (U _) = wk-loop? s
 wk-erase-comm {s} _ (ΠΣ⟨ _ ⟩ _ , _ ▷ _ ▹ _) = wk-loop? s
 wk-erase-comm {b = true} {s} ρ (U.lam p t) with is-𝟘? p
 ... | no _  = cong T.lam $ wk-erase-comm _ t
@@ -383,7 +383,7 @@ subst-erase-comm :
   (σ : U.Subst m n) (t : U.Term n) →
   erase′ b s t T.[ eraseSubst′ b s σ ] ≡ erase′ b s (t U.[ σ ])
 subst-erase-comm σ (var x) = refl
-subst-erase-comm {s} _ U = loop?-[] s
+subst-erase-comm {s} _ (U _) = loop?-[] s
 subst-erase-comm {s} _ (ΠΣ⟨ _ ⟩ _ , _ ▷ _ ▹ _) = loop?-[] s
 subst-erase-comm {b = true} {s} σ (U.lam p t) with is-𝟘? p
 ... | no _ =

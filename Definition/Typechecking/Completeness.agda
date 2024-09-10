@@ -18,6 +18,8 @@ open import Definition.Typechecking.Soundness R
 open import Definition.Typed R
 open import Definition.Typed.Properties R
 import Definition.Typed.Weakening R as W
+open import Definition.Typed.Consequences.Inequality R
+open import Definition.Typed.Consequences.InverseUniv R
 open import Definition.Typed.Consequences.Inversion R
 open import Definition.Typed.Consequences.Reduction R
 open import Definition.Typed.Consequences.Substitution R
@@ -42,31 +44,50 @@ private
 
 mutual
 
-  -- Completeness of checking for types
+  -- If A is a checkable type that is well-formed with respect to Γ,
+  -- then Γ ⊢ A ⇇Type holds.
 
-  completeness⇇Type : Checkable A → Γ ⊢ A → Γ ⊢ A ⇇Type
-  completeness⇇Type A (Uⱼ x) = Uᶜ
-  completeness⇇Type A (ℕⱼ x) = ℕᶜ
-  completeness⇇Type A (Emptyⱼ x) = Emptyᶜ
-  completeness⇇Type A (Unitⱼ x ok) = Unitᶜ ok
-  completeness⇇Type (infᶜ (ΠΣᵢ F G)) (ΠΣⱼ ⊢F ⊢G ok) =
-    ΠΣᶜ (completeness⇇Type F ⊢F) (completeness⇇Type G ⊢G) ok
-  completeness⇇Type (infᶜ (Idᵢ A t u)) ⊢Id =
-    case inversion-Id ⊢Id of λ {
-      (⊢A , ⊢t , ⊢u) →
-    Idᶜ (completeness⇇Type A ⊢A) (completeness⇇ t ⊢t)
-      (completeness⇇ u ⊢u) }
-  completeness⇇Type A (univ x) = univᶜ (completeness⇇ A x)
+  completeness⇇Type : Checkable-type A → Γ ⊢ A → Γ ⊢ A ⇇Type
+  completeness⇇Type (ΠΣᶜ B C) ⊢A =
+    let ⊢B , ⊢C , ok = inversion-ΠΣ ⊢A in
+    ΠΣᶜ (completeness⇇Type B ⊢B) (completeness⇇Type C ⊢C) ok
+  completeness⇇Type (Idᶜ B t u) ⊢A =
+    let ⊢B , ⊢t , ⊢u = inversion-Id ⊢A in
+    Idᶜ (completeness⇇Type B ⊢B) (completeness⇇ t ⊢t)
+      (completeness⇇ u ⊢u)
+  completeness⇇Type (checkᶜ A) ⊢A =
+    completeness⇇Type′ A ⊢A
+
+  -- If A is a checkable term for which Γ ⊢ A holds, then Γ ⊢ A ⇇Type
+  -- holds.
+
+  completeness⇇Type′ : Checkable A → Γ ⊢ A → Γ ⊢ A ⇇Type
+  completeness⇇Type′ (lamᶜ _) (univ ⊢A) =
+    let _ , _ , _ , _ , _ , U≡Π , _ = inversion-lam ⊢A in
+    ⊥-elim (U≢ΠΣⱼ U≡Π)
+  completeness⇇Type′ (prodᶜ _ _) (univ ⊢A) =
+    let _ , _ , _ , _ , _ , _ , _ , U≡Σ , _ = inversion-prod ⊢A in
+    ⊥-elim (U≢ΠΣⱼ U≡Σ)
+  completeness⇇Type′ rflᶜ (univ ⊢A) =
+    let _ , _ , _ , _ , U≡Id = inversion-rfl ⊢A in
+    ⊥-elim (Id≢U (sym U≡Id))
+  completeness⇇Type′ (infᶜ A) ⊢A =
+    let _ , A , U≡ = completeness⇉ A (inverseUniv ⊢A .proj₂) in
+    univᶜ A (U-norm (sym U≡) , Uₙ)
 
   -- Completeness of type inference
 
   completeness⇉ : Inferable t → Γ ⊢ t ∷ A → ∃ λ B → Γ ⊢ t ⇉ B × Γ ⊢ A ≡ B
-  completeness⇉ Uᵢ ⊢t = ⊥-elim (inversion-U ⊢t)
-  completeness⇉ (ΠΣᵢ F G) ⊢t =
-    let ⊢F , ⊢G , A≡U , ok = inversion-ΠΣ-U ⊢t
-        F⇇U = completeness⇇ F ⊢F
-        G⇇U = completeness⇇ G ⊢G
-    in  _ , ΠΣᵢ F⇇U G⇇U ok , A≡U
+  completeness⇉ Uᵢ ⊢t =
+    _ , Uᵢ , inversion-U ⊢t
+  completeness⇉ (ΠΣᵢ B C) ⊢ΠΣ =
+    let _ , _ , ⊢B , ⊢C , A≡U , ok = inversion-ΠΣ-U ⊢ΠΣ
+        _ , B⇉D , U≡D              = completeness⇉ B ⊢B
+        _ , C⇉E , U≡E              = completeness⇉ C ⊢C
+    in
+      _
+    , ΠΣᵢ B⇉D (U-norm (sym U≡D) , Uₙ) C⇉E (U-norm (sym U≡E) , Uₙ) ok
+    , A≡U
   completeness⇉ varᵢ ⊢t =
     let B , x∷B∈Γ , A≡B = inversion-var ⊢t
     in  _ , varᵢ x∷B∈Γ , A≡B
@@ -134,13 +155,14 @@ mutual
         t⇇Empty = completeness⇇ t ⊢t
         C⇇Type = completeness⇇Type C ⊢C
     in  _ , emptyrecᵢ C⇇Type t⇇Empty , A≡C
-  completeness⇉ (Idᵢ A t u) ⊢Id =
-    case inversion-Id-U ⊢Id of λ {
-      (⊢A , ⊢t , ⊢u , ≡U) →
+  completeness⇉ (Idᵢ B t u) ⊢Id =
+    let _ , ⊢B , ⊢t , ⊢u , A≡U = inversion-Id-U ⊢Id
+        _ , B⇉C , U≡C          = completeness⇉ B ⊢B
+    in
       _
-    , Idᵢ (completeness⇇ A ⊢A) (completeness⇇ t ⊢t)
+    , Idᵢ B⇉C (U-norm (sym U≡C) , Uₙ) (completeness⇇ t ⊢t)
         (completeness⇇ u ⊢u)
-    , ≡U }
+    , A≡U
   completeness⇉ (Jᵢ A t B u v w) ⊢J =
     case inversion-J ⊢J of λ {
       (⊢A , ⊢t , ⊢B , ⊢u , ⊢v , ⊢w , ≡B) →

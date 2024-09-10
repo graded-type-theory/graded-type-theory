@@ -327,7 +327,7 @@ eqRelInstance = record {
   ≅-red = λ (A⇒* , _) (B⇒* , _) → reductionConv↑ A⇒* B⇒*;
   ≅ₜ-red = λ (A⇒* , _) (t⇒* , _) (u⇒* , _) →
              reductionConv↑Term A⇒* t⇒* u⇒*;
-  ≅-Urefl = liftConv ∘ᶠ U-refl;
+  ≅-Urefl = λ ⊢Γ → liftConvTerm (univ (Uⱼ ⊢Γ) (Uⱼ ⊢Γ) (U-refl ⊢Γ));
   ≅ₜ-ℕrefl = λ x → liftConvTerm (univ (ℕⱼ x) (ℕⱼ x) (ℕ-refl x));
   ≅ₜ-Emptyrefl = λ x → liftConvTerm (univ (Emptyⱼ x) (Emptyⱼ x) (Empty-refl x));
   ≅ₜ-Unitrefl = λ ⊢Γ ok →

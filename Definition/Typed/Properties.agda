@@ -560,6 +560,9 @@ idRed:*: A = [ A , A , id A ]
 idRedTerm:*: : Γ ⊢ t ∷ A → Γ ⊢ t :⇒*: t ∷ A
 idRedTerm:*: t = [ t , t , id t ]
 
+------------------------------------------------------------------------
+-- A lemma related to _∷_∈_
+
 det∈ : ∀ {x} → x ∷ A ∈ Γ → x ∷ B ∈ Γ → A PE.≡ B
 det∈ here here = PE.refl
 det∈ (there x) (there y) = PE.cong wk1 (det∈ x y)

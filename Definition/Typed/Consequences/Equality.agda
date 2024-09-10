@@ -39,14 +39,19 @@ private
     b         : BinderMode
     p q       : M
     s         : Strength
+    l         : Universe-level
 
 opaque
 
-  -- If A is judgmentally equal to U, then A is propositionally equal
-  -- to U.
+  -- If the WHNF A is judgmentally equal to U l, then A is
+  -- propositionally equal to U l.
 
-  U≡A : Γ ⊢ U ≡ A → A PE.≡ U
-  U≡A = proj₂ ∘→ proj₂ ∘→ ⊩U≡⇔ .proj₁ ∘→ reducible-⊩≡
+  U≡A : Γ ⊢ U l ≡ A → Whnf A → A PE.≡ U l
+  U≡A {Γ} {l} {A} U≡A A-whnf =    $⟨ U≡A ⟩
+    Γ ⊢ U l ≡ A                   →⟨ reducible-⊩≡ ⟩
+    (∃ λ l′ → Γ ⊩⟨ l′ ⟩ U l ≡ A)  →⟨ red ∘→ proj₁ ∘→ proj₂ ∘→ ⊩U≡⇔ .proj₁ ∘→ proj₂ ⟩
+    Γ ⊢ A ⇒* U l                  →⟨ flip whnfRed* A-whnf ⟩
+    A PE.≡ U l                    □
 
 opaque
 
@@ -56,7 +61,7 @@ opaque
   ℕ≡A : Γ ⊢ ℕ ≡ A → Whnf A → A PE.≡ ℕ
   ℕ≡A {Γ} {A} ℕ≡A A-whnf =
                 $⟨ ℕ≡A ⟩
-    Γ ⊢ ℕ ≡ A   →⟨ ⊩ℕ≡⇔ .proj₁ ∘→ reducible-⊩≡ ⟩
+    Γ ⊢ ℕ ≡ A   →⟨ ⊩ℕ≡⇔ .proj₁ ∘→ proj₂ ∘→ reducible-⊩≡ ⟩
     Γ ⊩ℕ ℕ ≡ A  ≡⟨ PE.refl ⟩→
     Γ ⊢ A ⇒* ℕ  →⟨ flip whnfRed* A-whnf ⟩
     A PE.≡ ℕ    □
@@ -69,7 +74,7 @@ opaque
   Empty≡A : Γ ⊢ Empty ≡ A → Whnf A → A PE.≡ Empty
   Empty≡A {Γ} {A} Empty≡A A-whnf =
                         $⟨ Empty≡A ⟩
-    Γ ⊢ Empty ≡ A       →⟨ ⊩Empty≡⇔ .proj₁ ∘→ reducible-⊩≡ ⟩
+    Γ ⊢ Empty ≡ A       →⟨ ⊩Empty≡⇔ .proj₁ ∘→ proj₂ ∘→ reducible-⊩≡ ⟩
     Γ ⊩Empty Empty ≡ A  ≡⟨ PE.refl ⟩→
     Γ ⊢ A ⇒* Empty      →⟨ flip whnfRed* A-whnf ⟩
     A PE.≡ Empty        □
@@ -81,11 +86,11 @@ opaque
 
   Unit≡A : Γ ⊢ Unit s ≡ A → Whnf A → A PE.≡ Unit s
   Unit≡A {Γ} {s} {A} Unit≡A A-whnf =
-                         $⟨ Unit≡A ⟩
-    Γ ⊢ Unit s ≡ A       →⟨ reducible-⊩≡ ⟩
-    Γ ⊩⟨ ¹ ⟩ Unit s ≡ A  →⟨ proj₂ ∘→ proj₂ ∘→ ⊩Unit≡⇔ .proj₁ ⟩
-    Γ ⊢ A ⇒* Unit s      →⟨ flip whnfRed* A-whnf ⟩
-    A PE.≡ Unit s        □
+                                   $⟨ Unit≡A ⟩
+    Γ ⊢ Unit s ≡ A                 →⟨ reducible-⊩≡ ⟩
+    (∃ λ l → Γ ⊩⟨ l ⟩ Unit s ≡ A)  →⟨ proj₂ ∘→ proj₂ ∘→ ⊩Unit≡⇔ .proj₁ ∘→ proj₂ ⟩
+    Γ ⊢ A ⇒* Unit s                →⟨ flip whnfRed* A-whnf ⟩
+    A PE.≡ Unit s                  □
 
 opaque
 
@@ -95,7 +100,7 @@ opaque
   ne≡A : Neutral B → Γ ⊢ B ≡ A → Whnf A → Neutral A
   ne≡A {B} {Γ} {A} B-ne B≡A A-whnf =  $⟨ B≡A ⟩
     Γ ⊢ B ≡ A                         →⟨ reducible-⊩≡ ⟩
-    Γ ⊩⟨ ¹ ⟩ B ≡ A                    →⟨ Σ.map idᶠ (Σ.map idᶠ (proj₁ ∘→ proj₂)) ∘→ proj₂ ∘→ ⊩ne≡⇔ B-ne .proj₁ ⟩
+    (∃ λ l → Γ ⊩⟨ l ⟩ B ≡ A)          →⟨ Σ.map idᶠ (Σ.map idᶠ (proj₁ ∘→ proj₂)) ∘→ proj₂ ∘→ ⊩ne≡⇔ B-ne .proj₁ ∘→ proj₂ ⟩
     (∃ λ C → Neutral C × Γ ⊢ A ⇒* C)  →⟨ (λ (_ , C-ne , A⇒*C) →
                                             PE.subst Neutral (PE.sym $ whnfRed* A⇒*C A-whnf) C-ne) ⟩
     Neutral A                         □
@@ -110,7 +115,7 @@ opaque
     ∃₂ λ A′ B′ → C PE.≡ ΠΣ⟨ b ⟩ p , q ▷ A′ ▹ B′
   ΠΣ≡Whnf {Γ} {b} {p} {q} {A} {B} {C} ΠΣ≡C C-whnf =    $⟨ ΠΣ≡C ⟩
     Γ ⊢ ΠΣ⟨ b ⟩ p , q ▷ A ▹ B ≡ C                      →⟨ reducible-⊩≡ ⟩
-    Γ ⊩⟨ ¹ ⟩ ΠΣ⟨ b ⟩ p , q ▷ A ▹ B ≡ C                 →⟨ Σ.map idᶠ (Σ.map idᶠ proj₁) ∘→ proj₂ ∘→ proj₂ ∘→ ⊩ΠΣ≡⇔ .proj₁ ⟩
+    (∃ λ l → Γ ⊩⟨ l ⟩ ΠΣ⟨ b ⟩ p , q ▷ A ▹ B ≡ C)       →⟨ Σ.map idᶠ (Σ.map idᶠ proj₁) ∘→ proj₂ ∘→ proj₂ ∘→ ⊩ΠΣ≡⇔ .proj₁ ∘→ proj₂ ⟩
     (∃₂ λ A′ B′ → Γ ⊢ C :⇒*: ΠΣ⟨ b ⟩ p , q ▷ A′ ▹ B′)  →⟨ Σ.map idᶠ $ Σ.map idᶠ (flip whnfRed* C-whnf ∘→ red) ⟩
     (∃₂ λ A′ B′ → C PE.≡ ΠΣ⟨ b ⟩ p , q ▷ A′ ▹ B′)      □
 
@@ -145,7 +150,7 @@ opaque
     ∃₃ λ A′ t′ u′ → B PE.≡ Id A′ t′ u′
   Id≡Whnf {Γ} {A} {t} {u} {B} Id≡B B-whnf =   $⟨ Id≡B ⟩
     Γ ⊢ Id A t u ≡ B                          →⟨ reducible-⊩≡ ⟩
-    Γ ⊩⟨ ¹ ⟩ Id A t u ≡ B                     →⟨ Σ.map idᶠ (Σ.map idᶠ (Σ.map idᶠ proj₁)) ∘→ proj₂ ∘→ ⊩Id≡⇔ .proj₁ ⟩
+    (∃ λ l → Γ ⊩⟨ l ⟩ Id A t u ≡ B)           →⟨ Σ.map idᶠ (Σ.map idᶠ (Σ.map idᶠ proj₁)) ∘→ proj₂ ∘→ ⊩Id≡⇔ .proj₁ ∘→ proj₂ ⟩
     (∃₃ λ A′ t′ u′ → Γ ⊢ B :⇒*: Id A′ t′ u′)  →⟨ Σ.map idᶠ $ Σ.map idᶠ $ Σ.map idᶠ (flip whnfRed* B-whnf ∘→ red) ⟩
     (∃₃ λ A′ t′ u′ → B PE.≡ Id A′ t′ u′)      □
 
@@ -157,7 +162,7 @@ opaque
   rfl-norm t≡rfl =
     case inversion-rfl (syntacticEqTerm t≡rfl .proj₂ .proj₂) of λ
       (_ , _ , _ , _ , A≡Id) →
-    case ⊩≡∷Id⇔ .proj₁ $ reducible-⊩≡∷ $ conv t≡rfl A≡Id of λ
+    case ⊩≡∷Id⇔ .proj₁ $ proj₂ $ reducible-⊩≡∷ $ conv t≡rfl A≡Id of λ
       (t′ , _ , t⇒*u , rfl⇒*v , _ , _ , u∼v) →
     case whnfRed*Term (redₜ rfl⇒*v) rflₙ of λ {
       PE.refl →

@@ -56,7 +56,7 @@ open import Tools.Bool using (T)
 open import Tools.Empty
 open import Tools.Fin
 open import Tools.Function
-open import Tools.Nat using (Nat)
+open import Tools.Nat using (Nat; 1+; 2+)
 open import Tools.Product
 open import Tools.PropositionalEquality as PE using (_≢_)
 import Tools.Reasoning.PartialOrder
@@ -73,6 +73,7 @@ private variable
   γ₁ γ₂ γ₃ γ₄                            : Conₘ _
   m                                      : Mode
   s                                      : Strength
+  l                                      : Universe-level
   sem                                    : Some-erased-matches
   ok                                     : T _
 
@@ -83,19 +84,19 @@ private opaque
 
   -- Some lemmas used below.
 
-  ⊢Id-2-1-0 : ε ∙ U ∙ var x0 ∙ var x1 ⊢ Id (var x2) (var x1) (var x0)
+  ⊢Id-2-1-0 : ε ∙ U l ∙ var x0 ∙ var x1 ⊢ Id (var x2) (var x1) (var x0)
   ⊢Id-2-1-0 = Idⱼ (var₁ ⊢1) (var₀ ⊢1)
     where
-    ⊢1 : ε ∙ U ∙ var x0 ⊢ var x1
+    ⊢1 : ε ∙ U l ∙ var x0 ⊢ var x1
     ⊢1 = univ (var₁ (univ (var₀ (Uⱼ ε))))
 
   ⊢Id-4-3-0 :
-    ε ∙ U ∙ var x0 ∙ var x1 ∙ Id (var x2) (var x1) (var x0) ∙ var x3 ⊢
+    ε ∙ U l ∙ var x0 ∙ var x1 ∙ Id (var x2) (var x1) (var x0) ∙ var x3 ⊢
     Id (var x4) (var x3) (var x0)
   ⊢Id-4-3-0 = Idⱼ (var₃ ⊢3) (var₀ ⊢3)
     where
     ⊢3 :
-      ε ∙ U ∙ var x0 ∙ var x1 ∙ Id (var x2) (var x1) (var x0) ⊢ var x3
+      ε ∙ U l ∙ var x0 ∙ var x1 ∙ Id (var x2) (var x1) (var x0) ⊢ var x3
     ⊢3 = univ (var₃ ⊢Id-2-1-0)
 
   Id-[]₀≡ :
@@ -366,18 +367,18 @@ opaque
 -- Has-[]-cong
 
 -- The property of supporting a []-cong combinator (with certain
--- grades) for a certain mode.
+-- grades) for a certain mode and universe level.
 --
 -- Note that, unlike the []-cong primitive, the first argument must be
--- a type in U.
+-- a type in U l for some l.
 
-Has-[]-cong : Strength → Mode → M → M → M → M → Set a
-Has-[]-cong s m q₁ q₂ q₃ q₄ =
+Has-[]-cong : Strength → Mode → Universe-level → M → M → M → M → Set a
+Has-[]-cong s m l q₁ q₂ q₃ q₄ =
   let open Erased s in
   ∃ λ ([]-cong : Term 0) →
   ε ▸[ m ] []-cong ×
   ε ⊢ []-cong ∷
-    Π 𝟘 , q₁ ▷ U ▹
+    Π 𝟘 , q₁ ▷ U l ▹
     Π 𝟘 , q₂ ▷ var x0 ▹
     Π 𝟘 , q₃ ▷ var x1 ▹
     Π 𝟘 , q₄ ▷ Id (var x2) (var x1) (var x0) ▹
@@ -386,20 +387,21 @@ Has-[]-cong s m q₁ q₂ q₃ q₄ =
 -- The property of supporting a []-cong combinator that "computes"
 -- correctly (stated in terms of definitional equality).
 
-Has-computing-[]-cong : Strength → Mode → M → M → M → M → Set a
-Has-computing-[]-cong s m q₁ q₂ q₃ q₄ =
+Has-computing-[]-cong :
+  Strength → Mode → Universe-level → M → M → M → M → Set a
+Has-computing-[]-cong s m l q₁ q₂ q₃ q₄ =
   let open Erased s in
-  ∃ λ (([]-cong′ , _) : Has-[]-cong s m q₁ q₂ q₃ q₄) →
+  ∃ λ (([]-cong′ , _) : Has-[]-cong s m l q₁ q₂ q₃ q₄) →
   ∀ n (Γ : Con Term n) (A t : Term n) →
-  Γ ⊢ A ∷ U →
+  Γ ⊢ A ∷ U l →
   Γ ⊢ t ∷ A →
   Γ ⊢ wk wk₀ []-cong′ ∘⟨ 𝟘 ⟩ A ∘⟨ 𝟘 ⟩ t ∘⟨ 𝟘 ⟩ t ∘⟨ 𝟘 ⟩ rfl ≡ rfl ∷
     Id (Erased A) ([ t ]) ([ t ])
 
 opaque
 
-  -- []-cong is supported for the strength s and the mode m, for
-  -- grades for which "Π 𝟘" are allowed, if
+  -- []-cong is supported for the strength s, the mode m, and the
+  -- universe level l, for grades for which "Π 𝟘" are allowed, if
   --
   -- * []-cong is allowed for s, or
   -- * Erased is allowed for s and
@@ -417,7 +419,7 @@ opaque
     Π-allowed 𝟘 q₂ →
     Π-allowed 𝟘 q₃ →
     Π-allowed 𝟘 q₄ →
-    Has-computing-[]-cong s m q₁ q₂ q₃ q₄
+    Has-computing-[]-cong s m l q₁ q₂ q₃ q₄
   []-cong⊎J⊎𝟘ᵐ⊎Trivial→[]-cong {s} {m} ok ok₁ ok₂ ok₃ ok₄ =
     case lamⱼ′ ok₁ $ lamⱼ′ ok₂ $ lamⱼ′ ok₃ $ lamⱼ′ ok₄ $
          ⊢[]-cong″ ok′ (var₀ ⊢Id-2-1-0) of λ {
@@ -518,8 +520,7 @@ opaque
   -- If the modality's zero is well-behaved, erased matches (including
   -- the []-cong primitive) are not allowed, and η-equality is not
   -- allowed for the weak unit type unless a certain condition is
-  -- satisfied, then []-cong is not supported (with any grades) for
-  -- the mode 𝟙ᵐ.
+  -- satisfied, then []-cong is not supported for the mode 𝟙ᵐ.
 
   ¬-[]-cong :
     ⦃ 𝟘-well-behaved : Has-well-behaved-zero semiring-with-meet ⦄ →
@@ -527,15 +528,15 @@ opaque
     (∀ {p q} →
      Unitʷ-η → Unitʷ-allowed → Unitrec-allowed 𝟙ᵐ p q →
      p ≤ 𝟘) →
-    ¬ Has-[]-cong s 𝟙ᵐ q₁ q₂ q₃ q₄
+    ¬ Has-[]-cong s 𝟙ᵐ l q₁ q₂ q₃ q₄
   ¬-[]-cong nem Unitʷ-η→ (_ , ▸[]-cong , ⊢[]-cong) =
     case lemma
            (lemma
               (lemma
-                 (lemma (idSubst , id , _ , ▸[]-cong , ⊢[]-cong) (ℕⱼ ε))
-                 (zeroⱼ ε))
-              (zeroⱼ ε))
-           (rflⱼ (zeroⱼ ε)) of λ {
+                 (lemma (idSubst , id , _ , ▸[]-cong , ⊢[]-cong) ⊢A)
+                 ⊢t)
+              ⊢t)
+           (rflⱼ ⊢t) of λ {
       (_ , ⊢σ , _ , ▸t , ⊢t) →
     case red-Id ⊢t of λ where
       (_ , rflₙ , ⇒*rfl) →
@@ -547,6 +548,24 @@ opaque
           u-ne (⊢u-redₜ t⇒*u)
           (usagePres*Term Unitʷ-η→ ▸t (redₜ t⇒*u)) }
     where
+    A′ : Universe-level → Term 0
+    A′ 0      = ℕ
+    A′ (1+ l) = U l
+
+    t″ : Universe-level → Term 0
+    t″ 0      = zero
+    t″ 1      = ℕ
+    t″ (2+ l) = U l
+
+    ⊢A : ε ⊢ A′ l ∷ U l
+    ⊢A {l = 0}    = ℕⱼ ε
+    ⊢A {l = 1+ _} = Uⱼ ε
+
+    ⊢t : ε ⊢ t″ l ∷ A′ l
+    ⊢t {l = 0}    = zeroⱼ ε
+    ⊢t {l = 1}    = ℕⱼ ε
+    ⊢t {l = 2+ _} = Uⱼ ε
+
     lemma :
       ((σ , _) :
        ∃ λ σ → ε ⊢ˢ σ ∷ Γ ×
@@ -578,13 +597,14 @@ opaque
 
 -- A "weaker" variant of Has-[]-cong.
 
-Has-weaker-[]-cong : Strength → Mode → M → M → M → M → Set a
-Has-weaker-[]-cong s m q₁ q₂ q₃ q₄ =
+Has-weaker-[]-cong :
+  Strength → Mode → Universe-level → M → M → M → M → Set a
+Has-weaker-[]-cong s m l q₁ q₂ q₃ q₄ =
   let open Erased s in
   ∃ λ ([]-cong : Term 0) →
   ε ▸[ m ] []-cong ×
   ε ⊢ []-cong ∷
-    Π ω , q₁ ▷ U ▹
+    Π ω , q₁ ▷ U l ▹
     Π ω , q₂ ▷ var x0 ▹
     Π ω , q₃ ▷ var x1 ▹
     Π 𝟘 , q₄ ▷ Id (var x2) (var x1) (var x0) ▹
@@ -592,12 +612,13 @@ Has-weaker-[]-cong s m q₁ q₂ q₃ q₄ =
 
 -- A "weaker" variant of Has-computing-[]-cong.
 
-Has-weaker-computing-[]-cong : Strength → Mode → M → M → M → M → Set a
-Has-weaker-computing-[]-cong s m q₁ q₂ q₃ q₄ =
+Has-weaker-computing-[]-cong :
+  Strength → Mode → Universe-level → M → M → M → M → Set a
+Has-weaker-computing-[]-cong s m l q₁ q₂ q₃ q₄ =
   let open Erased s in
-  ∃ λ (([]-cong′ , _) : Has-weaker-[]-cong s m q₁ q₂ q₃ q₄) →
+  ∃ λ (([]-cong′ , _) : Has-weaker-[]-cong s m l q₁ q₂ q₃ q₄) →
   ∀ n (Γ : Con Term n) (A t : Term n) →
-  Γ ⊢ A ∷ U →
+  Γ ⊢ A ∷ U l →
   Γ ⊢ t ∷ A →
   Γ ⊢ wk wk₀ []-cong′ ∘⟨ ω ⟩ A ∘⟨ ω ⟩ t ∘⟨ ω ⟩ t ∘⟨ 𝟘 ⟩ rfl ≡ rfl ∷
     Id (Erased A) [ t ] ([ t ])
@@ -611,10 +632,10 @@ opaque
     (Π-allowed 𝟘 q₁ → Π-allowed ω q₁) →
     (Π-allowed 𝟘 q₂ → Π-allowed ω q₂) →
     (Π-allowed 𝟘 q₃ → Π-allowed ω q₃) →
-    Has-[]-cong s m q₁ q₂ q₃ q₄ →
-    Has-weaker-[]-cong s m q₁ q₂ q₃ q₄
+    Has-[]-cong s m l q₁ q₂ q₃ q₄ →
+    Has-weaker-[]-cong s m l q₁ q₂ q₃ q₄
   Has-[]-cong→Has-weaker-[]-cong
-    {q₁} {q₂} {q₃} {s} {m} {q₄}
+    {q₁} {q₂} {q₃} {s} {m} {l} {q₄}
     hyp₁ hyp₂ hyp₃ ([]-cong′ , ▸[]-cong′ , ⊢[]-cong′) =
     []-cong″ , ▸[]-cong″ , ⊢[]-cong″
     where
@@ -659,7 +680,7 @@ opaque
 
     ⊢[]-cong″ :
       ε ⊢ []-cong″ ∷
-        Π ω , q₁ ▷ U ▹
+        Π ω , q₁ ▷ U l ▹
         Π ω , q₂ ▷ var x0 ▹
         Π ω , q₃ ▷ var x1 ▹
         Π 𝟘 , q₄ ▷ Id (var x2) (var x1) (var x0) ▹
@@ -683,10 +704,10 @@ opaque
       flip _∘ⱼ_ (var₃ ⊢Id) $
       W.wkTerm W.wk₀∷⊇ (⊢→⊢∙ ⊢Id) ⊢[]-cong′
       where
-      ⊢1 : ε ∙ U ∙ var x0 ⊢ var x1
+      ⊢1 : ε ∙ U l ∙ var x0 ⊢ var x1
       ⊢1 = univ (var₁ (univ (var₀ (Uⱼ ε))))
 
-      ⊢Id : ε ∙ U ∙ var x0 ∙ var x1 ⊢ Id (var x2) (var x1) (var x0)
+      ⊢Id : ε ∙ U l ∙ var x0 ∙ var x1 ⊢ Id (var x2) (var x1) (var x0)
       ⊢Id = Idⱼ (var₁ ⊢1) (var₀ ⊢1)
 
 opaque
@@ -699,8 +720,8 @@ opaque
     (Π-allowed 𝟘 q₁ → Π-allowed ω q₁) →
     (Π-allowed 𝟘 q₂ → Π-allowed ω q₂) →
     (Π-allowed 𝟘 q₃ → Π-allowed ω q₃) →
-    Has-computing-[]-cong s m q₁ q₂ q₃ q₄ →
-    Has-weaker-computing-[]-cong s m q₁ q₂ q₃ q₄
+    Has-computing-[]-cong s m l q₁ q₂ q₃ q₄ →
+    Has-weaker-computing-[]-cong s m l q₁ q₂ q₃ q₄
   Has-computing-[]-cong→Has-weaker-computing-[]-cong
     hyp₁ hyp₂ hyp₃ (has-[]-cong@([]-cong′ , _ , _) , []-cong′≡) =
     let has-[]-cong′@(_ , _ , ⊢[]-cong″) =
@@ -740,10 +761,10 @@ opaque
     (Π-allowed ω q₁ → Π-allowed 𝟘 q₁) →
     (Π-allowed ω q₂ → Π-allowed 𝟘 q₂) →
     (Π-allowed ω q₃ → Π-allowed 𝟘 q₃) →
-    Has-weaker-[]-cong s m q₁ q₂ q₃ q₄ →
-    Has-[]-cong s m q₁ q₂ q₃ q₄
+    Has-weaker-[]-cong s m l q₁ q₂ q₃ q₄ →
+    Has-[]-cong s m l q₁ q₂ q₃ q₄
   Has-weaker-[]-cong→Has-[]-cong
-    {s} {q₁} {q₂} {q₃} {m} {q₄}
+    {s} {q₁} {q₂} {q₃} {m} {l} {q₄}
     trivial prodrec-ok hyp₁ hyp₂ hyp₃
     ([]-cong′ , ▸[]-cong′ , ⊢[]-cong′) =
     []-cong″ , ▸[]-cong″ , ⊢[]-cong″
@@ -766,7 +787,7 @@ opaque
 
       ⊢[]-cong″ :
         ε ⊢ []-cong″ ∷
-        Π 𝟘 , q₁ ▷ U ▹
+        Π 𝟘 , q₁ ▷ U l ▹
         Π 𝟘 , q₂ ▷ var x0 ▹
         Π 𝟘 , q₃ ▷ var x1 ▹
         Π 𝟘 , q₄ ▷ Id (var x2) (var x1) (var x0) ▹
@@ -794,9 +815,9 @@ opaque
           ⊢Erased-Erased-3 →
         case
           (∀ t →
-           ε ∙ U ∙ var x0 ∙ var x1 ∙ Id (var x2) (var x1) (var x0) ⊢ t ∷
-             var x3 →
-           ε ∙ U ∙ var x0 ∙ var x1 ∙ Id (var x2) (var x1) (var x0) ⊢
+           ε ∙ U l ∙ var x0 ∙ var x1 ∙ Id (var x2) (var x1) (var x0) ⊢
+             t ∷ var x3 →
+           ε ∙ U l ∙ var x0 ∙ var x1 ∙ Id (var x2) (var x1) (var x0) ⊢
              mapᴱ (Erased (var x4)) (erased (var x5) (var x0)) (var x0)
                [ [ [ t ] ] ]₀ ≡
              [ t ] ∷
@@ -972,17 +993,17 @@ opaque
     (Π-allowed ω q₁ → Π-allowed 𝟘 q₁) →
     (Π-allowed ω q₂ → Π-allowed 𝟘 q₂) →
     (Π-allowed ω q₃ → Π-allowed 𝟘 q₃) →
-    Has-weaker-computing-[]-cong s m q₁ q₂ q₃ q₄ →
-    Has-computing-[]-cong s m q₁ q₂ q₃ q₄
+    Has-weaker-computing-[]-cong s m l q₁ q₂ q₃ q₄ →
+    Has-computing-[]-cong s m l q₁ q₂ q₃ q₄
   Has-weaker-computing-[]-cong→Has-computing-[]-cong
-    {s} {q₁} {q₂} {q₃} {m} {q₄}
+    {s} {q₁} {q₂} {q₃} {m} {l} {q₄}
     trivial prodrec-ok hyp₁ hyp₂ hyp₃
     (has-[]-cong@([]-cong′ , _ , ⊢[]-cong′) , []-cong′≡) =
     has-[]-cong′ , []-cong″-computes
     where
     open Erased s
 
-    has-[]-cong′ : Has-[]-cong s m q₁ q₂ q₃ q₄
+    has-[]-cong′ : Has-[]-cong s m l q₁ q₂ q₃ q₄
     has-[]-cong′ =
       Has-weaker-[]-cong→Has-[]-cong
         trivial prodrec-ok hyp₁ hyp₂ hyp₃ has-[]-cong
@@ -1013,7 +1034,7 @@ opaque
 
     []-cong″-computes :
       ∀ n (Γ : Con Term n) (A t : Term n) →
-      Γ ⊢ A ∷ U →
+      Γ ⊢ A ∷ U l →
       Γ ⊢ t ∷ A →
       Γ ⊢ wk wk₀ []-cong″ ∘⟨ 𝟘 ⟩ A ∘⟨ 𝟘 ⟩ t ∘⟨ 𝟘 ⟩ t ∘⟨ 𝟘 ⟩ rfl ≡ rfl ∷
         Id (Erased A) [ t ] ([ t ])
@@ -1112,7 +1133,7 @@ opaque
       ⊢Erased-Erased-A : Γ ⊢ Erased (Erased A)
       ⊢Erased-Erased-A = syntacticTerm ⊢[[t]]
 
-      ⊢Erased-A∷U : Γ ⊢ Erased A ∷ U
+      ⊢Erased-A∷U : Γ ⊢ Erased A ∷ U l
       ⊢Erased-A∷U = Erasedⱼ-U Erased-ok ⊢A
 
       ⊢mapᴱ-0 :
@@ -1161,12 +1182,12 @@ opaque
     (∀ {p q} →
      Unitʷ-η → Unitʷ-allowed → Unitrec-allowed 𝟙ᵐ p q →
      p ≤ 𝟘) →
-    ¬ Has-weaker-[]-cong s 𝟙ᵐ q₁ q₂ q₃ q₄
+    ¬ Has-weaker-[]-cong s 𝟙ᵐ l q₁ q₂ q₃ q₄
   ¬-Has-weaker-[]-cong
-    {s} {ok} {q₁} {q₂} {q₃} {q₄}
+    {s} {ok} {q₁} {q₂} {q₃} {l} {q₄}
     prodrec-ok hyp₁ hyp₂ hyp₃ nem Unitʷ-η→ =
-    Has-weaker-[]-cong s 𝟙ᵐ q₁ q₂ q₃ q₄  →⟨ Has-weaker-[]-cong→Has-[]-cong (⊥-elim ∘→ (_$ ok))
-                                              (PE.subst (λ m → Prodrec-allowed m _ _ _) (PE.sym 𝟘ᵐ?≡𝟘ᵐ) ∘→ prodrec-ok)
-                                              hyp₁ hyp₂ hyp₃ ⟩
-    Has-[]-cong s 𝟙ᵐ q₁ q₂ q₃ q₄         →⟨ ¬-[]-cong ⦃ 𝟘-well-behaved = 𝟘-well-behaved ok ⦄ nem Unitʷ-η→ ⟩
-    ⊥                                    □
+    Has-weaker-[]-cong s 𝟙ᵐ l q₁ q₂ q₃ q₄  →⟨ Has-weaker-[]-cong→Has-[]-cong (⊥-elim ∘→ (_$ ok))
+                                                (PE.subst (λ m → Prodrec-allowed m _ _ _) (PE.sym 𝟘ᵐ?≡𝟘ᵐ) ∘→ prodrec-ok)
+                                                hyp₁ hyp₂ hyp₃ ⟩
+    Has-[]-cong s 𝟙ᵐ l q₁ q₂ q₃ q₄         →⟨ ¬-[]-cong ⦃ 𝟘-well-behaved = 𝟘-well-behaved ok ⦄ nem Unitʷ-η→ ⟩
+    ⊥                                      □

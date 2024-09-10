@@ -86,16 +86,16 @@ private variable
 
 private module Lemmas (⊢Γ : ⊢ Γ) where opaque
 
-  Empty⊢ℕ∷U : Γ ∙ Empty ⊢ ℕ ∷ U
+  Empty⊢ℕ∷U : Γ ∙ Empty ⊢ ℕ ∷ U 0
   Empty⊢ℕ∷U = ℕⱼ (⊢Γ ∙[ Emptyⱼ ])
 
   Empty⊢ℕ : Γ ∙ Empty ⊢ ℕ
   Empty⊢ℕ = univ Empty⊢ℕ∷U
 
-  Empty∙ℕ⊢ℕ∷U : Γ ∙ Empty ∙ ℕ ⊢ ℕ ∷ U
+  Empty∙ℕ⊢ℕ∷U : Γ ∙ Empty ∙ ℕ ⊢ ℕ ∷ U 0
   Empty∙ℕ⊢ℕ∷U = ℕⱼ (⊢Γ ∙[ Emptyⱼ ] ∙[ ℕⱼ ])
 
-  Empty∙ℕ∙ℕ⊢ℕ∷U : Γ ∙ Empty ∙ ℕ ∙ ℕ ⊢ ℕ ∷ U
+  Empty∙ℕ∙ℕ⊢ℕ∷U : Γ ∙ Empty ∙ ℕ ∙ ℕ ⊢ ℕ ∷ U 0
   Empty∙ℕ∙ℕ⊢ℕ∷U = ℕⱼ (⊢Γ ∙[ Emptyⱼ ] ∙[ ℕⱼ ] ∙[ ℕⱼ ])
 
 opaque
@@ -123,7 +123,7 @@ opaque
 
   cast : Term n → Term n → Term n → Term n → Term n
   cast t A B u =
-    subst 𝟙 U (var x0) A B (emptyrec 𝟘 (Id U A B) t) u
+    subst 𝟙 (U 0) (var x0) A B (emptyrec 𝟘 (Id (U 0) A B) t) u
 
 opaque
   unfolding cast subst
@@ -140,12 +140,12 @@ opaque
 
   ⊢cast :
     Γ ⊢ t ∷ Empty →
-    Γ ⊢ A ∷ U →
-    Γ ⊢ B ∷ U →
+    Γ ⊢ A ∷ U 0 →
+    Γ ⊢ B ∷ U 0 →
     Γ ⊢ u ∷ A →
     Γ ⊢ cast t A B u ∷ B
   ⊢cast ⊢t ⊢A ⊢B =
-    ⊢subst (univ $ var₀ $ Uⱼ $ wfTerm ⊢t) (emptyrecⱼ (Idⱼ ⊢A ⊢B) ⊢t)
+    ⊢subst (univ $ var₀ $ Uⱼ (wfTerm ⊢t)) (emptyrecⱼ (Idⱼ ⊢A ⊢B) ⊢t)
 
 opaque
   unfolding cast

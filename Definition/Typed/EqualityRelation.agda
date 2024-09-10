@@ -30,13 +30,13 @@ open import Tools.Relation
 private
   variable
     p q q′ r : M
-    n n′ l₁ l₂ : Nat
+    n n′ l l₁ l₂ : Nat
     Γ : Con Term n
     Δ : Con Term n′
     ρ : Wk n′ n
     A A₁ A₂ A′ B B₁ B₂ B′ C : Term n
     a a′ b b′ e e′ : Term n
-    k l m t t₁ t₂ u u₁ u₂ v v₁ v₂ w₁ w₂ : Term n
+    m t t₁ t₂ u u₁ u₂ v v₁ v₂ w₁ w₂ : Term n
     s : Strength
     bm : BinderMode
 
@@ -63,8 +63,8 @@ record EqRelSet : Set (lsuc ℓ) where
     ----------------
 
     -- Generic equality compatibility
-    ~-to-≅ₜ : Γ ⊢ k ~ l ∷ A
-            → Γ ⊢ k ≅ l ∷ A
+    ~-to-≅ₜ : Γ ⊢ t ~ u ∷ A
+            → Γ ⊢ t ≅ u ∷ A
 
     -- Judgmental conversion compatibility
     ≅-eq  : Γ ⊢ A ≅ B
@@ -73,22 +73,22 @@ record EqRelSet : Set (lsuc ℓ) where
           → Γ ⊢ t ≡ u ∷ A
 
     -- Universe
-    ≅-univ : Γ ⊢ A ≅ B ∷ U l₁
+    ≅-univ : Γ ⊢ A ≅ B ∷ U l
            → Γ ⊢ A ≅ B
 
     -- Symmetry
     ≅-sym  : Γ ⊢ A ≅ B     → Γ ⊢ B ≅ A
     ≅ₜ-sym : Γ ⊢ t ≅ u ∷ A → Γ ⊢ u ≅ t ∷ A
-    ~-sym  : Γ ⊢ k ~ l ∷ A → Γ ⊢ l ~ k ∷ A
+    ~-sym  : Γ ⊢ t ~ u ∷ A → Γ ⊢ u ~ t ∷ A
 
     -- Transitivity
     ≅-trans  : Γ ⊢ A ≅ B     → Γ ⊢ B ≅ C     → Γ ⊢ A ≅ C
     ≅ₜ-trans : Γ ⊢ t ≅ u ∷ A → Γ ⊢ u ≅ v ∷ A → Γ ⊢ t ≅ v ∷ A
-    ~-trans  : Γ ⊢ k ~ l ∷ A → Γ ⊢ l ~ m ∷ A → Γ ⊢ k ~ m ∷ A
+    ~-trans  : Γ ⊢ t ~ u ∷ A → Γ ⊢ u ~ v ∷ A → Γ ⊢ t ~ v ∷ A
 
     -- Conversion
     ≅-conv : Γ ⊢ t ≅ u ∷ A → Γ ⊢ A ≡ B → Γ ⊢ t ≅ u ∷ B
-    ~-conv : Γ ⊢ k ~ l ∷ A → Γ ⊢ A ≡ B → Γ ⊢ k ~ l ∷ B
+    ~-conv : Γ ⊢ t ~ u ∷ A → Γ ⊢ A ≡ B → Γ ⊢ t ~ u ∷ B
 
     -- Weakening
     ≅-wk  : ρ ∷ Δ ⊇ Γ
@@ -101,8 +101,8 @@ record EqRelSet : Set (lsuc ℓ) where
           → Δ ⊢ wk ρ t ≅ wk ρ u ∷ wk ρ A
     ~-wk  : ρ ∷ Δ ⊇ Γ
           → ⊢ Δ
-          → Γ ⊢ k ~ l ∷ A
-          → Δ ⊢ wk ρ k ~ wk ρ l ∷ wk ρ A
+          → Γ ⊢ t ~ u ∷ A
+          → Δ ⊢ wk ρ t ~ wk ρ u ∷ wk ρ A
 
     -- Weak head expansion
     ≅-red : Γ ⊢ A ↘ A′
@@ -117,7 +117,7 @@ record EqRelSet : Set (lsuc ℓ) where
            → Γ ⊢ a  ≅ b  ∷ A
 
     -- Universe type reflexivity
-    ≅-Urefl   : ⊢ Γ → Γ ⊢ U l₁ ≅ U l₁ ∷ U (1+ l₁)
+    ≅-Urefl   : ⊢ Γ → Γ ⊢ U l ≅ U l ∷ U (1+ l)
 
     -- Natural number type reflexivity
     ≅ₜ-ℕrefl : ⊢ Γ → Γ ⊢ ℕ ≅ ℕ ∷ U 0
@@ -149,7 +149,8 @@ record EqRelSet : Set (lsuc ℓ) where
               → Γ ⊢ F ≅ H ∷ U l₁
               → Γ ∙ F ⊢ G ≅ E ∷ U l₂
               → ΠΣ-allowed bm p q
-              → Γ ⊢ ΠΣ⟨ bm ⟩ p , q ▷ F ▹ G ≅ ΠΣ⟨ bm ⟩ p , q ▷ H ▹ E ∷ U (l₁ ⊔ l₂)
+              → Γ ⊢ ΠΣ⟨ bm ⟩ p , q ▷ F ▹ G ≅ ΠΣ⟨ bm ⟩ p , q ▷ H ▹ E ∷
+                  U (l₁ ⊔ᵘ l₂)
 
     -- Zero reflexivity
     ≅ₜ-zerorefl : ⊢ Γ → Γ ⊢ zero ≅ zero ∷ ℕ
@@ -254,10 +255,10 @@ record EqRelSet : Set (lsuc ℓ) where
       → Γ ⊢ u₁ ≅ u₂ ∷ A₁
       → Γ ⊢ Id A₁ t₁ u₁ ≅ Id A₂ t₂ u₂
     ≅ₜ-Id-cong
-      : Γ ⊢ A₁ ≅ A₂ ∷ U l₁
+      : Γ ⊢ A₁ ≅ A₂ ∷ U l
       → Γ ⊢ t₁ ≅ t₂ ∷ A₁
       → Γ ⊢ u₁ ≅ u₂ ∷ A₁
-      → Γ ⊢ Id A₁ t₁ u₁ ≅ Id A₂ t₂ u₂ ∷ U l₁
+      → Γ ⊢ Id A₁ t₁ u₁ ≅ Id A₂ t₂ u₂ ∷ U l
 
     -- Reflexivity for rfl.
     ≅ₜ-rflrefl : Γ ⊢ t ∷ A → Γ ⊢ rfl ≅ rfl ∷ Id A t t

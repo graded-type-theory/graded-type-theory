@@ -106,6 +106,7 @@ module Main {Γ : Con Term m} (nΓ : NegativeContext Γ)
   -- Impossible cases: type is not ℕ.
 
   -- * Canonical types
+  nfN (Uⱼ _)      Uₙ          c = ⊥-elim (U≢ℕ c)
   nfN (ΠΣⱼ _ _ _) (ΠΣₙ _ _)   c = ⊥-elim (U≢ℕ c)
   nfN (ℕⱼ _)      ℕₙ          c = ⊥-elim (U≢ℕ c)
   nfN (Emptyⱼ _)  Emptyₙ      c = ⊥-elim (U≢ℕ c)
@@ -144,7 +145,7 @@ module Main {Γ : Con Term m} (nΓ : NegativeContext Γ)
         PE.subst Neutral (whrDet*Term (redₜ d , ne neK) d′) neK
 
   canonicityRed : Γ ⊢ t ∷ ℕ → ∃ λ u → Numeral u × Γ ⊢ t ⇒ˢ* u ∷ℕ
-  canonicityRed = canonicityRed′ ∘→ ⊩∷ℕ⇔ .proj₁ ∘→ reducible-⊩∷
+  canonicityRed = canonicityRed′ ∘→ ⊩∷ℕ⇔ .proj₁ ∘→ proj₂ ∘→ reducible-⊩∷
 
   -- Canonicity theorem: Any well-typed term Γ ⊢ t : ℕ is convertible to a numeral.
 

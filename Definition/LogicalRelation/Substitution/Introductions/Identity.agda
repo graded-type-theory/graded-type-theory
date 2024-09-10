@@ -40,8 +40,7 @@ import Graded.Derived.Erased.Untyped
 
 open import Tools.Fin using (x0)
 open import Tools.Function
-open import Tools.Nat using (Nat; 1+; ≤′-refl;
-  ≤′-step; ≤⇒≤′; ≤′⇒≤; s≤s; ≤⇒pred≤; ≤pred≤)
+open import Tools.Nat using (Nat)
 open import Tools.Product as Σ
 import Tools.PropositionalEquality as PE
 import Tools.Reasoning.PropositionalEquality
@@ -50,7 +49,7 @@ private variable
   Γ Δ                                             : Con Term _
   A A₁ A₂ B B₁ B₂ t t₁ t₂ u u₁ u₂ v v₁ v₂ w w₁ w₂ : Term _
   σ σ₁ σ₂                                         : Subst _ _
-  l l′ l′₁ l′₂ l′₃ l′₄ l′₅ l″ l‴ l⁗               : TypeLevel
+  l l′ l′₁ l′₂ l′₃ l′₄ l′₅ l″ l‴ l⁗               : Universe-level
   n                                               : Nat
   p q                                             : M
   s                                               : Strength
@@ -91,7 +90,7 @@ opaque
     lemma (emb 0<1 ⊩Id) =
       case lemma ⊩Id of λ
         (⊩t , ⊩u) →
-      emb-⊩∷ (≤pred≤ 0<1) ⊩t , emb-⊩∷ (≤pred≤ 0<1) ⊩u
+      emb-⊩∷ (<ᵘ→≤ᵘ 0<1) ⊩t , emb-⊩∷ (<ᵘ→≤ᵘ 0<1) ⊩u
     lemma (noemb ⊩Id) =
       case whnfRed* (red ⇒*Id) Idₙ of λ {
         PE.refl →
@@ -120,11 +119,11 @@ opaque
                                                                     , ≅ₜ-Id-cong (escape-⊩≡∷ (refl-⊩≡∷ ⊩A∷U))
                                                                         (escape-⊩≡∷ (refl-⊩≡∷ ⊩t)) (escape-⊩≡∷ (refl-⊩≡∷ ⊩u)) ))
                                                                ⟩
-    (l < l′ × (Γ ⊩⟨ l ⟩ t ∷ A × Γ ⊩⟨ l ⟩ u ∷ A) ×
+    (l <ᵘ l′ × (Γ ⊩⟨ l ⟩ t ∷ A × Γ ⊩⟨ l ⟩ u ∷ A) ×
      Γ ⊢ Id A t u ∷ U l ×
      Γ ⊢ Id A t u ≅ Id A t u ∷ U l)                             ⇔˘⟨ id⇔ ×-cong-⇔ ⊩Id⇔ ×-cong-⇔ id⇔ ⟩→
 
-    (l < l′ × (Γ ⊩⟨ l ⟩ Id A t u) ×
+    (l <ᵘ l′ × (Γ ⊩⟨ l ⟩ Id A t u) ×
      Γ ⊢ Id A t u ∷ U l ×
      Γ ⊢ Id A t u ≅ Id A t u ∷ U l)                             ⇔˘⟨ Type→⊩∷U⇔ Idₙ ⟩→
 
@@ -133,7 +132,7 @@ opaque
 -- A variant of ⊩Id∷-view.
 
 data ⊩Id∷-view′
-       (Γ : Con Term n) (l : TypeLevel) (A t u : Term n) :
+       (Γ : Con Term n) (l : Universe-level) (A t u : Term n) :
        Term n → Set a where
   rflᵣ : Γ ⊩⟨ l ⟩ t ≡ u ∷ A →
          ⊩Id∷-view′ Γ l A t u rfl
@@ -176,19 +175,21 @@ opaque
       Γ ⊩⟨ l ⟩ t ∷ A ×
       Γ ⊩⟨ l ⟩ u ∷ A ×
       ⊩Id∷-view′ Γ l A t u w
-    lemma (emb ≤′-refl ⊩Id) ⊩v =
+    lemma (emb ≤ᵘ-refl ⊩Id) ⊩v =
       case lemma ⊩Id ⊩v of λ
         (w , v⇒*w , ⊩t , ⊩u , rest) →
-        w , v⇒*w , emb-⊩∷ (≤′-step ≤′-refl) ⊩t , emb-⊩∷ (≤′-step ≤′-refl) ⊩u
+        w , v⇒*w , emb-⊩∷ (≤ᵘ-step ≤ᵘ-refl) ⊩t
+      , emb-⊩∷ (≤ᵘ-step ≤ᵘ-refl) ⊩u
       , (case rest of λ where
-           (rflᵣ t≡u)    → rflᵣ (emb-⊩≡∷ (≤′-step ≤′-refl) t≡u)
+           (rflᵣ t≡u)    → rflᵣ (emb-⊩≡∷ (≤ᵘ-step ≤ᵘ-refl) t≡u)
            (ne v-ne v~v) → ne v-ne v~v)
-    lemma (emb (≤′-step s) ⊩Id) ⊩v =
+    lemma (emb (≤ᵘ-step s) ⊩Id) ⊩v =
       case lemma (emb s ⊩Id) ⊩v of λ
         (w , v⇒*w , ⊩t , ⊩u , rest) →
-        w , v⇒*w , emb-⊩∷ (≤′-step ≤′-refl) ⊩t , emb-⊩∷ (≤′-step ≤′-refl) ⊩u
+        w , v⇒*w , emb-⊩∷ (≤ᵘ-step ≤ᵘ-refl) ⊩t
+      , emb-⊩∷ (≤ᵘ-step ≤ᵘ-refl) ⊩u
       , (case rest of λ where
-           (rflᵣ t≡u)    → rflᵣ (emb-⊩≡∷ (≤′-step ≤′-refl) t≡u)
+           (rflᵣ t≡u)    → rflᵣ (emb-⊩≡∷ (≤ᵘ-step ≤ᵘ-refl) t≡u)
            (ne v-ne v~v) → ne v-ne v~v)
     lemma (noemb ⊩Id) ⊩v@(w , v⇒*w , _) =
       case whnfRed* (red ⇒*Id) Idₙ of λ {
@@ -248,13 +249,13 @@ opaque
   ⊩Id≡⇔ =
       (λ (⊩Id , ⊩B , Id≡B) →
            ⊩Id
-         , lemma₁ ≤′-refl (Id-elim ⊩Id) ⊩B
+         , lemma₁ ≤ᵘ-refl (Id-elim ⊩Id) ⊩B
              (irrelevanceEq ⊩Id (Id-intr (Id-elim ⊩Id)) Id≡B))
     , (λ (⊩Id , rest) →
          Id-intr (Id-elim ⊩Id) , lemma₂ (Id-elim ⊩Id) rest)
     where
     lemma₁ :
-      l′ ≤ l →
+      l′ ≤ᵘ l →
       (⊩Id : Γ ⊩⟨ l′ ⟩Id Id A t u) →
       Γ ⊩⟨ l ⟩ B →
       Γ ⊩⟨ l′ ⟩ Id A t u ≡ B / Id-intr ⊩Id →
@@ -263,10 +264,10 @@ opaque
       (Γ ⊩⟨ l ⟩ A ≡ A′) ×
       Γ ⊩⟨ l ⟩ t ≡ t′ ∷ A ×
       Γ ⊩⟨ l ⟩ u ≡ u′ ∷ A
-    lemma₁ 1≤l (emb ≤′-refl ⊩Id) ⊩B Id≡A =
-      lemma₁ (≤-trans (≤′-step ≤′-refl) 1≤l) ⊩Id ⊩B Id≡A
-    lemma₁ 1≤l (emb (≤′-step s) ⊩Id) ⊩B Id≡A =
-      lemma₁ (≤-trans (≤′-step ≤′-refl) 1≤l) (emb s ⊩Id) ⊩B Id≡A
+    lemma₁ l′<l (emb ≤ᵘ-refl ⊩Id) ⊩B Id≡A =
+      lemma₁ (<ᵘ→≤ᵘ l′<l) ⊩Id ⊩B Id≡A
+    lemma₁ l′<l (emb (≤ᵘ-step l″<l′) ⊩Id) ⊩B Id≡A =
+      lemma₁ (<ᵘ→≤ᵘ l′<l) (emb l″<l′ ⊩Id) ⊩B Id≡A
     lemma₁ l′≤l (noemb ⊩Id) ⊩B (Id₌ A′ t′ u′ ⇒*Id′ A≡A′ t≡t′ u≡u′ _ _) =
       case whnfRed* (red ⇒*Id) Idₙ of λ {
         PE.refl →
@@ -274,20 +275,20 @@ opaque
         (_ , l″≤l , Idᵣ _ _ _ ⇒*Id″ ⊩Ty″ ⊩lhs″ ⊩rhs″) →
       case whnfRed* (red ⇒*Id″) Idₙ of λ {
         PE.refl →
-      case emb-≤-≡ A≡A′ of λ
+      case emb-≤-⊩≡ A≡A′ of λ
         A≡A′ →
       let ⊩Ty′ = emb-≤-⊩ l′≤l ⊩Ty in
         A′ , t′ , u′ , ⇒*Id′
       , (⊩Ty′ , emb-≤-⊩ l″≤l ⊩Ty″ , A≡A′)
       , ( ⊩Ty′
-        , emb-≤-∷ ⊩lhs
+        , emb-≤-⊩∷ ⊩lhs
         , convTerm₂ ⊩Ty′ ⊩Ty″ A≡A′ ⊩lhs″
-        , emb-≤-≡∷ t≡t′
+        , emb-≤-⊩≡∷ t≡t′
         )
       , ( ⊩Ty′
-        , emb-≤-∷ ⊩rhs
+        , emb-≤-⊩∷ ⊩rhs
         , convTerm₂ ⊩Ty′ ⊩Ty″ A≡A′ ⊩rhs″
-        , emb-≤-≡∷ u≡u′
+        , emb-≤-⊩≡∷ u≡u′
         ) }}
       where
       open _⊩ₗId_ ⊩Id
@@ -300,9 +301,9 @@ opaque
        Γ ⊩⟨ l ⟩ t ≡ t′ ∷ A ×
        Γ ⊩⟨ l ⟩ u ≡ u′ ∷ A) →
       (Γ ⊩⟨ l ⟩ B) × Γ ⊩⟨ l′ ⟩ Id A t u ≡ B / Id-intr ⊩Id
-    lemma₂ (emb ≤′-refl ⊩Id) rest =
+    lemma₂ (emb ≤ᵘ-refl ⊩Id) rest =
       lemma₂ ⊩Id rest
-    lemma₂ (emb (≤′-step s) ⊩Id) rest =
+    lemma₂ (emb (≤ᵘ-step s) ⊩Id) rest =
       lemma₂ (emb s ⊩Id) rest
     lemma₂
       (noemb ⊩Id)
@@ -375,7 +376,7 @@ opaque
                                                                      $⟨ A₁≡A₂∷U , t₁≡t₂ , u₁≡u₂ ⟩
     Γ ⊩⟨ l′ ⟩ A₁ ≡ A₂ ∷ U l ×
     Γ ⊩⟨ l″ ⟩ t₁ ≡ t₂ ∷ A₁ ×
-    Γ ⊩⟨ l‴ ⟩ u₁ ≡ u₂ ∷ A₁                                                  →⟨ (λ (A₁≡A₂∷U , t₁≡t₂ , u₁≡u₂) →
+    Γ ⊩⟨ l‴ ⟩ u₁ ≡ u₂ ∷ A₁                                           →⟨ (λ (A₁≡A₂∷U , t₁≡t₂ , u₁≡u₂) →
                                                                            case ⊩≡∷U⇔ .proj₁ A₁≡A₂∷U of λ
                                                                              (l′<l , A₁≡A₂ , _) →
                                                                            case escape-⊩≡∷ A₁≡A₂∷U of λ
@@ -394,32 +395,32 @@ opaque
                                                                              ⊢A₁≡A₂ →
                                                                            case wf-⊩≡ A₁≡A₂ .proj₁ of λ
                                                                              ⊩A₁ →
-                                                                           l′<l
+                                                                             l′<l
                                                                            , (A₁≡A₂ , level-⊩≡∷ ⊩A₁ t₁≡t₂ , level-⊩≡∷ ⊩A₁ u₁≡u₂)
                                                                            , Idⱼ ⊢A₁∷U ⊢t₁ ⊢u₁
                                                                            , Idⱼ ⊢A₂∷U (conv ⊢t₂ ⊢A₁≡A₂) (conv ⊢u₂ ⊢A₁≡A₂)
                                                                            , ≅ₜ-Id-cong A₁≅A₂∷U t₁≅t₂ u₁≅u₂) ⟩
-    (∃ λ (l′<l : l < l′) →
-     ((Γ ⊩⟨ l ⟩ A₁ ≡ A₂) ×
+    l <ᵘ l′ ×
+    ((Γ ⊩⟨ l ⟩ A₁ ≡ A₂) ×
      Γ ⊩⟨ l ⟩ t₁ ≡ t₂ ∷ A₁ ×
      Γ ⊩⟨ l ⟩ u₁ ≡ u₂ ∷ A₁) ×
     Γ ⊢ Id A₁ t₁ u₁ ∷ U l ×
     Γ ⊢ Id A₂ t₂ u₂ ∷ U l ×
-    Γ ⊢ Id A₁ t₁ u₁ ≅ Id A₂ t₂ u₂ ∷ U l)                                  ⇔˘⟨ (Σ-cong-⇔ λ _ →
-                                                                           ⊩Id≡Id⇔  ×-cong-⇔ id⇔ )  ⟩→
-    (∃ λ (l′<l : l < l′) →
+    Γ ⊢ Id A₁ t₁ u₁ ≅ Id A₂ t₂ u₂ ∷ U l                              ⇔˘⟨ (Σ-cong-⇔ λ _ →
+                                                                          ⊩Id≡Id⇔ ×-cong-⇔ id⇔) ⟩→
+    l <ᵘ l′ ×
     (Γ ⊩⟨ l ⟩ Id A₁ t₁ u₁ ≡ Id A₂ t₂ u₂) ×
     Γ ⊢ Id A₁ t₁ u₁ ∷ U l ×
     Γ ⊢ Id A₂ t₂ u₂ ∷ U l ×
-    Γ ⊢ Id A₁ t₁ u₁ ≅ Id A₂ t₂ u₂ ∷ U l)                                  ⇔˘⟨  Type→⊩≡∷U⇔ Idₙ Idₙ   ⟩→
+    Γ ⊢ Id A₁ t₁ u₁ ≅ Id A₂ t₂ u₂ ∷ U l                              ⇔˘⟨ Type→⊩≡∷U⇔ Idₙ Idₙ ⟩→
 
 
-    Γ ⊩⟨ l′ ⟩ Id A₁ t₁ u₁ ≡ Id A₂ t₂ u₂ ∷ U l                           □
+    Γ ⊩⟨ l′ ⟩ Id A₁ t₁ u₁ ≡ Id A₂ t₂ u₂ ∷ U l                        □
 
 -- A variant of ⊩Id≡∷-view.
 
 data ⊩Id≡∷-view′
-       (Γ : Con Term n) (l : TypeLevel) (A t u : Term n) :
+       (Γ : Con Term n) (l : Universe-level) (A t u : Term n) :
        Term n → Term n → Set a where
   rfl₌ : Γ ⊩⟨ l ⟩ t ≡ u ∷ A →
          ⊩Id≡∷-view′ Γ l A t u rfl rfl
@@ -471,21 +472,21 @@ opaque
       Γ ⊩⟨ l ⟩ t ∷ A ×
       Γ ⊩⟨ l ⟩ u ∷ A ×
       ⊩Id≡∷-view′ Γ l A t u v′ w′
-    lemma (emb ≤′-refl ⊩Id) v≡w =
+    lemma (emb ≤ᵘ-refl ⊩Id) v≡w =
       case lemma ⊩Id v≡w of λ
         (v′ , w′ , v⇒*v′ , w⇒*w′ , ⊩t , ⊩u , rest) →
         v′ , w′ , v⇒*v′ , w⇒*w′
-      , emb-⊩∷ (≤′-step ≤′-refl) ⊩t , emb-⊩∷ (≤′-step ≤′-refl) ⊩u
+      , emb-⊩∷ (≤ᵘ-step ≤ᵘ-refl) ⊩t , emb-⊩∷ (≤ᵘ-step ≤ᵘ-refl) ⊩u
       , (case rest of λ where
-           (rfl₌ t≡u)             → rfl₌ (emb-⊩≡∷ (≤′-step ≤′-refl) t≡u)
+           (rfl₌ t≡u)             → rfl₌ (emb-⊩≡∷ (≤ᵘ-step ≤ᵘ-refl) t≡u)
            (ne v′-ne w′-ne v′~w′) → ne v′-ne w′-ne v′~w′)
-    lemma (emb (≤′-step s) ⊩Id) v≡w =
+    lemma (emb (≤ᵘ-step s) ⊩Id) v≡w =
       case lemma (emb s ⊩Id) v≡w of λ
         (v′ , w′ , v⇒*v′ , w⇒*w′ , ⊩t , ⊩u , rest) →
         v′ , w′ , v⇒*v′ , w⇒*w′
-      , emb-⊩∷ (≤′-step ≤′-refl) ⊩t , emb-⊩∷ (≤′-step ≤′-refl) ⊩u
+      , emb-⊩∷ (≤ᵘ-step ≤ᵘ-refl) ⊩t , emb-⊩∷ (≤ᵘ-step ≤ᵘ-refl) ⊩u
       , (case rest of λ where
-           (rfl₌ t≡u)             → rfl₌ (emb-⊩≡∷ (≤′-step ≤′-refl) t≡u)
+           (rfl₌ t≡u)             → rfl₌ (emb-⊩≡∷ (≤ᵘ-step ≤ᵘ-refl) t≡u)
            (ne v′-ne w′-ne v′~w′) → ne v′-ne w′-ne v′~w′)
     lemma (noemb ⊩Id) v≡w@(v′ , w′ , v⇒*v′ , w⇒*w′ , _) =
       case whnfRed* (red ⇒*Id) Idₙ of λ {

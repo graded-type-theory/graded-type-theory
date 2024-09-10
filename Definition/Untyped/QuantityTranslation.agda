@@ -42,10 +42,11 @@ private variable
   s             : Strength
   b             : BinderMode
   ts us         : GenTs _ _ _
-  k l           : Kind _ _
+  k₁ k₂         : Kind _ _
   A B j t u v w : Term _ _
   ρ             : Wk _ _
   σ             : Subst _ _ _
+  l             : Universe-level
   tv₁ tv₂       : Type-variant
 
 ------------------------------------------------------------------------
@@ -345,8 +346,8 @@ tr-Term-var {t = var _} refl = refl
 
 -- Inversion for U.
 
-tr-Term-U : tr-Term t ≡ (U n) → t ≡ (U n)
-tr-Term-U {t = U n} refl = refl
+tr-Term-U : tr-Term t ≡ U l → t ≡ U l
+tr-Term-U {t = U _} refl = refl
 
 -- Inversion for ΠΣ⟨_⟩_,_▷_▹_.
 
@@ -567,67 +568,67 @@ module Injective
 
   -- The function tr-Kind is injective.
 
-  tr-Kind-injective : tr-Kind k ≡ tr-Kind l → k ≡ l
-  tr-Kind-injective {k = Ukind _}       {l = Ukind _}       refl = refl
-  tr-Kind-injective {k = Natkind}       {l = Natkind}       refl = refl
-  tr-Kind-injective {k = Zerokind}      {l = Zerokind}      refl = refl
-  tr-Kind-injective {k = Suckind}       {l = Suckind}       refl = refl
-  tr-Kind-injective {k = Unitkind _}    {l = Unitkind _}    refl = refl
-  tr-Kind-injective {k = Starkind _}    {l = Starkind _}    refl = refl
-  tr-Kind-injective {k = Emptykind}     {l = Emptykind}     refl = refl
-  tr-Kind-injective {k = Idkind}        {l = Idkind}        refl = refl
-  tr-Kind-injective {k = Reflkind}      {l = Reflkind}      refl = refl
-  tr-Kind-injective {k = Boxcongkind _} {l = Boxcongkind _} refl =
+  tr-Kind-injective : tr-Kind k₁ ≡ tr-Kind k₂ → k₁ ≡ k₂
+  tr-Kind-injective {k₁ = Ukind _}       {k₂ = Ukind _}       refl = refl
+  tr-Kind-injective {k₁ = Natkind}       {k₂ = Natkind}       refl = refl
+  tr-Kind-injective {k₁ = Zerokind}      {k₂ = Zerokind}      refl = refl
+  tr-Kind-injective {k₁ = Suckind}       {k₂ = Suckind}       refl = refl
+  tr-Kind-injective {k₁ = Unitkind _}    {k₂ = Unitkind _}    refl = refl
+  tr-Kind-injective {k₁ = Starkind _}    {k₂ = Starkind _}    refl = refl
+  tr-Kind-injective {k₁ = Emptykind}     {k₂ = Emptykind}     refl = refl
+  tr-Kind-injective {k₁ = Idkind}        {k₂ = Idkind}        refl = refl
+  tr-Kind-injective {k₁ = Reflkind}      {k₂ = Reflkind}      refl = refl
+  tr-Kind-injective {k₁ = Boxcongkind _} {k₂ = Boxcongkind _} refl =
     refl
-  tr-Kind-injective {k = Binderkind b p q} {l = Binderkind _ _ _} eq
+  tr-Kind-injective {k₁ = Binderkind b p q} {k₂ = Binderkind _ _ _} eq
     with tr-BinderMode b p in tr-p≡ | tr q in tr-q≡
-  tr-Kind-injective {k = Binderkind b _ _} refl | _ | _ =
+  tr-Kind-injective {k₁ = Binderkind b _ _} refl | _ | _ =
     cong₂ (Binderkind _)
       (tr-BinderMode-injective b tr-p≡)
       (tr-injective tr-q≡)
-  tr-Kind-injective {k = Lamkind p} {l = Lamkind _} eq
+  tr-Kind-injective {k₁ = Lamkind p} {k₂ = Lamkind _} eq
     with tr p in tr-p≡
   tr-Kind-injective refl | _ =
     cong Lamkind (tr-injective tr-p≡)
-  tr-Kind-injective {k = Appkind p} {l = Appkind _} eq
+  tr-Kind-injective {k₁ = Appkind p} {k₂ = Appkind _} eq
     with tr p in tr-p≡
   tr-Kind-injective refl | _ =
     cong Appkind (tr-injective tr-p≡)
-  tr-Kind-injective {k = Prodkind s p} {l = Prodkind _ _} eq
+  tr-Kind-injective {k₁ = Prodkind s p} {k₂ = Prodkind _ _} eq
     with tr-Σ p in tr-p≡
   tr-Kind-injective refl | _ =
     cong (Prodkind _) (tr-Σ-injective tr-p≡)
-  tr-Kind-injective {k = Fstkind p} {l = Fstkind _} eq
+  tr-Kind-injective {k₁ = Fstkind p} {k₂ = Fstkind _} eq
     with tr-Σ p in tr-p≡
   tr-Kind-injective refl | _ =
     cong Fstkind (tr-Σ-injective tr-p≡)
-  tr-Kind-injective {k = Sndkind p} {l = Sndkind _} eq
+  tr-Kind-injective {k₁ = Sndkind p} {k₂ = Sndkind _} eq
     with tr-Σ p in tr-p≡
   tr-Kind-injective refl | _ =
     cong Sndkind (tr-Σ-injective tr-p≡)
-  tr-Kind-injective {k = Prodreckind r p q} {l = Prodreckind _ _ _} eq
+  tr-Kind-injective {k₁ = Prodreckind r p q} {k₂ = Prodreckind _ _ _} eq
     with tr r in tr-r≡ | tr-Σ p in tr-p≡ | tr q in tr-q≡
   tr-Kind-injective refl | _ | _ | _ =
     cong₃ Prodreckind (tr-injective tr-r≡) (tr-Σ-injective tr-p≡)
       (tr-injective tr-q≡)
-  tr-Kind-injective {k = Natreckind p q r} {l = Natreckind _ _ _} eq
+  tr-Kind-injective {k₁ = Natreckind p q r} {k₂ = Natreckind _ _ _} eq
     with tr p in tr-p≡ | tr q in tr-q≡ | tr r in tr-r≡
   tr-Kind-injective refl | _ | _ | _ =
     cong₃ Natreckind (tr-injective tr-p≡) (tr-injective tr-q≡)
       (tr-injective tr-r≡)
-  tr-Kind-injective {k = Emptyreckind p} {l = Emptyreckind _} eq
+  tr-Kind-injective {k₁ = Emptyreckind p} {k₂ = Emptyreckind _} eq
     with tr p in tr-p≡
   tr-Kind-injective refl | _ =
     cong Emptyreckind (tr-injective tr-p≡)
-  tr-Kind-injective {k = Unitreckind p q} {l = Unitreckind _ _} eq
+  tr-Kind-injective {k₁ = Unitreckind p q} {k₂ = Unitreckind _ _} eq
     with tr p in tr-p≡ | tr q in tr-q≡
   tr-Kind-injective refl | _ | _ =
     cong₂ Unitreckind (tr-injective tr-p≡) (tr-injective tr-q≡)
-  tr-Kind-injective {k = Jkind p q} {l = Jkind _ _} eq
+  tr-Kind-injective {k₁ = Jkind p q} {k₂ = Jkind _ _} eq
     with tr p in tr-p≡ | tr q in tr-q≡
   tr-Kind-injective refl | _ | _ =
     cong₂ Jkind (tr-injective tr-p≡) (tr-injective tr-q≡)
-  tr-Kind-injective {k = Kkind p}     {l = Kkind _} eq
+  tr-Kind-injective {k₁ = Kkind p}     {k₂ = Kkind _} eq
     with tr p in tr-p≡
   tr-Kind-injective refl | _ =
     cong Kkind (tr-injective tr-p≡)

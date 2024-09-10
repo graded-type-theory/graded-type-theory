@@ -53,6 +53,7 @@ open import Graded.Mode 𝕄
 
 open import Tools.Fin
 open import Tools.Function
+open import Tools.Nat
 open import Tools.Product
 open import Tools.PropositionalEquality as PE using (_≡_)
 open import Tools.Sum using (_⊎_; inj₁; inj₂)
@@ -64,16 +65,16 @@ private variable
   m           : Mode
   p q         : M
   s           : Strength
-  l l′        : TypeLevel
+  l l′        : Universe-level
 
 opaque
 
   -- Validity of Id.
 
-  Idʳ : γ ▸ Γ ⊩ʳ⟨ ¹ ⟩ Id A t u ∷[ m ] U
+  Idʳ : γ ▸ Γ ⊩ʳ⟨ 1+ l ⟩ Id A t u ∷[ m ] U l
   Idʳ =
     ▸⊩ʳ∷⇔ .proj₂ λ _ _ →
-    ®∷→®∷◂ (®∷U⇔ .proj₂ ((_ , 0<1) , Uᵣ (λ { PE.refl → T.refl })))
+    ®∷→®∷◂ (®∷U⇔ .proj₂ (≤ᵘ-refl , Uᵣ (λ { PE.refl → T.refl })))
 
 opaque
 
@@ -81,18 +82,19 @@ opaque
 
   rflʳ :
     Γ ⊢ t ∷ A →
-    γ ▸ Γ ⊩ʳ⟨ ¹ ⟩ rfl ∷[ m ] Id A t t
+    ∃ λ l → γ ▸ Γ ⊩ʳ⟨ l ⟩ rfl ∷[ m ] Id A t t
   rflʳ ⊢t =
-    ▸⊩ʳ∷⇔ .proj₂ λ ⊩σ _ →
     case fundamental-⊩ᵛ∷ ⊢t of λ
-      ⊩t →
-    ®∷→®∷◂ $
-    ®∷Id⇔ .proj₂
-      ( ⊩ᵛ→⊩ˢ∷→⊩[] (wf-⊩ᵛ∷ ⊩t) ⊩σ
-      , rflᵣ
-          (rfl  ∎⟨ rflⱼ (escape-⊩∷ (⊩ᵛ∷→⊩ˢ∷→⊩[]∷ ⊩t ⊩σ)) ⟩⇒)
-          (λ { PE.refl → T.refl })
-      )
+      (_ , ⊩t) →
+      _
+    , ▸⊩ʳ∷⇔ .proj₂ λ ⊩σ _ →
+      ®∷→®∷◂ $
+      ®∷Id⇔ .proj₂
+        ( ⊩ᵛ→⊩ˢ∷→⊩[] (wf-⊩ᵛ∷ ⊩t) ⊩σ
+        , rflᵣ
+            (rfl  ∎⟨ rflⱼ (escape-⊩∷ (⊩ᵛ∷→⊩ˢ∷→⊩[]∷ ⊩t ⊩σ)) ⟩⇒)
+            (λ { PE.refl → T.refl })
+        )
 
 private opaque
 
@@ -113,24 +115,26 @@ opaque
     Γ ⊢ v ∷ Id A t u →
     []-cong-allowed s →
     let open Erased s in
-    γ ▸ Γ ⊩ʳ⟨ ¹ ⟩ []-cong s A t u v ∷[ m ] Id (Erased A) [ t ] ([ u ])
+    ∃ λ l →
+      γ ▸ Γ ⊩ʳ⟨ l ⟩ []-cong s A t u v ∷[ m ] Id (Erased A) [ t ] ([ u ])
   []-congʳ {v} {A} {t} {u} PE.refl ⊢v ok =
-    ▸⊩ʳ∷⇔ .proj₂ λ {σ = σ} ⊩σ _ →
     case ≡0→≡ε PE.refl Δ of λ {
       PE.refl →
     case fundamental-⊩ᵛ∷ ⊢v of λ
-      ⊩v →
+      (_ , ⊩v) →
     case ⊩ᵛId⇔ .proj₁ (wf-⊩ᵛ∷ ⊩v) of λ
       (⊩t , _) →
-    ®∷→®∷◂ $
-    ®∷Id⇔ .proj₂
-      ( ⊩ᵛ→⊩ˢ∷→⊩[] (Erasedᵛ (wf-⊩ᵛ∷ ⊩t)) ⊩σ
-      , rflᵣ
-          (([]-cong _ A t u v) [ σ ]  ⇒*⟨ ε⊢⇒*rfl∷Id $ []-congⱼ′ ok $ escape-⊩∷ $
-                                          ⊩ᵛ∷→⊩ˢ∷→⊩[]∷ ⊩v ⊩σ ⟩∎
-           rfl                        ∎)
-          (λ { PE.refl → T.refl })
-      ) }
+      _
+    , ▸⊩ʳ∷⇔ .proj₂ λ {σ = σ} ⊩σ _ →
+      ®∷→®∷◂ $
+      ®∷Id⇔ .proj₂
+        ( ⊩ᵛ→⊩ˢ∷→⊩[] (Erasedᵛ (wf-⊩ᵛ∷ ⊩t)) ⊩σ
+        , rflᵣ
+            (([]-cong _ A t u v) [ σ ]  ⇒*⟨ ε⊢⇒*rfl∷Id $ []-congⱼ′ ok $ escape-⊩∷ $
+                                            ⊩ᵛ∷→⊩ˢ∷→⊩[]∷ ⊩v ⊩σ ⟩∎
+             rfl                        ∎)
+            (λ { PE.refl → T.refl })
+        ) }
     where
     open IE ([]-cong→Erased ok)
 
@@ -159,7 +163,7 @@ opaque
     case PE.subst (_⊢_∷_ _ _) (singleSubstLift B _) $
          substitutionTerm ⊢u (escape-⊩ˢ∷ ⊩σ .proj₂) ⊢Δ of λ
       ⊢u[σ] →
-    case ⊩ᵛ∷→⊩ˢ∷→⊩[]∷ (fundamental-⊩ᵛ∷ ⊢v) ⊩σ of λ
+    case ⊩ᵛ∷→⊩ˢ∷→⊩[]∷ (fundamental-⊩ᵛ∷ ⊢v .proj₂) ⊩σ of λ
       ⊩v[σ] →
     case
       (case k≡0⊎⊩ʳv of λ where
@@ -226,7 +230,7 @@ opaque
     case PE.subst (_⊢_∷_ _ _) ([,]-[]-commute B) $
          substitutionTerm ⊢u (escape-⊩ˢ∷ ⊩σ .proj₂) ⊢Δ of λ
       ⊢u[σ] →
-    case ⊩ᵛ∷→⊩ˢ∷→⊩[]∷ (fundamental-⊩ᵛ∷ ⊢w) ⊩σ of λ
+    case ⊩ᵛ∷→⊩ˢ∷→⊩[]∷ (fundamental-⊩ᵛ∷ ⊢w .proj₂) ⊩σ of λ
       ⊩w[σ] →
     case
       (case k≡0⊎⊩ʳw of λ where
@@ -271,7 +275,7 @@ opaque
     u [ σ ] ®⟨ l′ ⟩ erase str u T.[ σ′ ] ∷ B [ t , rfl ]₁₀ [ σ ] ◂ 𝟙  →⟨ conv-®∷◂ $
                                                                          sym-⊩≡ $
                                                                          ⊩ᵛ≡→⊩≡∷→⊩≡∷→⊩ˢ≡∷→⊩[]₁₀[]≡[]₁₀[] (refl-⊩ᵛ≡ ⊩B)
-                                                                           (sym-⊩≡∷ $ reducible-⊩≡∷ t[σ]≡v[σ])
+                                                                           (sym-⊩≡∷ $ reducible-⊩≡∷ t[σ]≡v[σ] .proj₂)
                                                                            (PE.subst (_⊩⟨_⟩_≡_∷_ _ _ _ _)
                                                                               (PE.cong₂ _[_] (≡Id-wk1-wk1-0[]₀ {A = A} {t = t}) PE.refl) $
                                                                             ⊩∷-⇒* (⇒*∷→:⇒*:∷ w[σ]⇒rfl) ⊩w[σ])

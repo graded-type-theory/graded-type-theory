@@ -57,8 +57,8 @@ neuEq′ : ∀ {l A B} ([A] : Γ ⊩⟨ l ⟩ne A)
 neuEq′ (noemb (ne K [ ⊢A , ⊢B , D ] neK K≡K)) neA neB A B A~B =
   let A≡K = whnfRed* D (ne neA)
   in  ne₌ _ (idRed:*: B) neB (PE.subst (λ x → _ ⊢ x ≅ _) A≡K A~B)
-neuEq′ (emb ≤′-refl x) neB A:≡:B = neuEq′ x neB A:≡:B
-neuEq′ (emb (≤′-step p) x) neB A:≡:B = neuEq′ (emb p x) neB A:≡:B
+neuEq′ (emb ≤ᵘ-refl x) neB A:≡:B = neuEq′ x neB A:≡:B
+neuEq′ (emb (≤ᵘ-step p) x) neB A:≡:B = neuEq′ (emb p x) neB A:≡:B
 
 -- Neutrally equal types are of reducible equality.
 neuEq : ∀ {l A B} ([A] : Γ ⊩⟨ l ⟩ A)
@@ -79,16 +79,14 @@ mutual
           → Γ ⊢ n ∷ A
           → Γ ⊢ n ~ n ∷ A
           → Γ ⊩⟨ l ⟩ n ∷ A / [A]
-  neuTerm (Uᵣ′ l ≤′-refl [ ⊢A , ⊢B , D ]) neN n n~n = 
+  neuTerm (Uᵣ′ l ≤ᵘ-refl [ ⊢A , ⊢B , D ]) neN n n~n =
     let A≡U  = subset* D
         n≡n  = ~-to-≅ₜ (~-conv n~n A≡U)
     in Uₜ _ (idRedTerm:*: (conv n A≡U)) (ne neN) n≡n
       (neu neN (univ (conv n A≡U)) (~-to-≅ (~-conv n~n A≡U)))
-  neuTerm (Uᵣ′ l (≤′-step l<) D) neN n n~n = lemma D (neuTerm (Uᵣ′ l l< D) neN n n~n)
-    where
-    lemma : {t A : Term _} {l′ n : TypeLevel} (D : Γ ⊢ A :⇒*: U l′) {s : l′ < n} →
-      Γ ⊩⟨ n ⟩ t ∷ A / Uᵣ′ l′ s D → Γ ⊩⟨ Nat.suc n ⟩ t ∷ A / Uᵣ′ l′ (≤′-step s) D
-    lemma _ (Uₜ A d typeA A≡A [t]) = Uₜ A d typeA A≡A [t]
+  neuTerm (Uᵣ′ _ (≤ᵘ-step p) A⇒*U) n-ne ⊢n n~n =
+    irrelevanceTerm (Uᵣ′ _ p A⇒*U) (Uᵣ′ _ (≤ᵘ-step p) A⇒*U)
+      (neuTerm (Uᵣ′ _ p A⇒*U) n-ne ⊢n n~n)
   neuTerm (ℕᵣ [ ⊢A , ⊢B , D ]) neN n n~n =
     let A≡ℕ  = subset* D
         n~n′ = ~-conv n~n A≡ℕ
@@ -195,9 +193,8 @@ mutual
     , ~-conv n~n A≡Id }
     where
     open _⊩ₗId_ ⊩A
-  neuTerm (emb ≤′-refl x) neN n = neuTerm x neN n
-  neuTerm (emb (≤′-step l<) x) neN n = neuTerm (emb l< x) neN n
-    -- neuTerm x neN n
+  neuTerm (emb ≤ᵘ-refl x) neN n = neuTerm x neN n
+  neuTerm (emb (≤ᵘ-step l<) x) neN n = neuTerm (emb l< x) neN n
 
   -- Neutrally equal terms are of reducible equality.
   neuEqTerm : ∀ {l A n n′} ([A] : Γ ⊩⟨ l ⟩ A)
@@ -206,7 +203,7 @@ mutual
             → Γ ⊢ n′ ∷ A
             → Γ ⊢ n ~ n′ ∷ A
             → Γ ⊩⟨ l ⟩ n ≡ n′ ∷ A / [A]
-  neuEqTerm (Uᵣ′ l ≤′-refl [ ⊢A , ⊢B , D ]) neN neN′ n n′ n~n′ =
+  neuEqTerm (Uᵣ′ l ≤ᵘ-refl [ ⊢A , ⊢B , D ]) neN neN′ n n′ n~n′ =
     let A≡U = subset* D
         n~n′₁ = ~-conv n~n′ A≡U
         n≡n′ = ~-to-≅ₜ n~n′₁
@@ -216,12 +213,9 @@ mutual
     in Uₜ₌ _ _ (idRedTerm:*: (conv n A≡U)) (idRedTerm:*: (conv n′ A≡U)) (ne neN) (ne neN′) n≡n′
       wfn (neu neN′ nU′ (~-to-≅ (~-trans (~-sym n~n′₁) n~n′₁)))
       (neuEq wfn neN neN′ nU nU′ (≅-univ n≡n′))
-  neuEqTerm (Uᵣ′ l (≤′-step l<) D) neN neN′ n n′ n~n′ =
-    lemma D (neuEqTerm (Uᵣ′ l l< D) neN neN′ n n′ n~n′)
-    where
-    lemma : {t v A : Term _} {l′ n : TypeLevel} (D : Γ ⊢ A :⇒*: U l′) {s : l′ < n} →
-      Γ ⊩⟨ n ⟩ t ≡ v ∷ A / Uᵣ′ l′ s D → Γ ⊩⟨ Nat.suc n ⟩ t ≡ v ∷ A / Uᵣ′ l′ (≤′-step s) D
-    lemma _ (Uₜ₌ A B d d′ typeA typeB A≡B [t] [u] [t≡u]) = Uₜ₌ A B d d′ typeA typeB A≡B [t] [u] [t≡u]
+  neuEqTerm (Uᵣ′ _ (≤ᵘ-step p) A⇒*U) n-ne n′-ne ⊢n ⊢n′ n~n′ =
+    irrelevanceEqTerm (Uᵣ′ _ p A⇒*U) (Uᵣ′ _ (≤ᵘ-step p) A⇒*U)
+      (neuEqTerm (Uᵣ′ _ p A⇒*U) n-ne n′-ne ⊢n ⊢n′ n~n′)
   neuEqTerm (ℕᵣ [ ⊢A , ⊢B , D ]) neN neN′ n n′ n~n′ =
     let A≡ℕ = subset* D
         n~n′₁ = ~-conv n~n′ A≡ℕ
@@ -378,5 +372,5 @@ mutual
       (~-conv n~n′ A≡Id) }}}
     where
     open _⊩ₗId_ ⊩A
-  neuEqTerm (emb ≤′-refl x) neN neN′ n:≡:n′ = neuEqTerm x neN neN′ n:≡:n′
-  neuEqTerm (emb (≤′-step l<) x) neN neN′ n:≡:n′ = neuEqTerm (emb l< x) neN neN′ n:≡:n′
+  neuEqTerm (emb ≤ᵘ-refl     ⊩A) = neuEqTerm ⊩A
+  neuEqTerm (emb (≤ᵘ-step p) ⊩A) = neuEqTerm (emb p ⊩A)

@@ -18,8 +18,7 @@ open import Definition.Untyped.NotParametrised public
 
 private
   variable
-    p p′ : M
-    n m ℓ l : Nat
+    n m l : Nat
     bs bs′ : List _
     ts ts′ : GenTs _ _ _
 
@@ -45,7 +44,7 @@ infix 25 _[_]↑²
 -- in the list).
 
 data Kind : (ns : List Nat) → Set a where
-  Ukind : Nat → Kind []
+  Ukind : Universe-level → Kind []
 
   Binderkind : (b : BinderMode) (p q : M) → Kind (0 ∷ 1 ∷ [])
 

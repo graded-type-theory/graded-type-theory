@@ -44,7 +44,7 @@ opaque
 
   canonicity : ε ⊢ t ∷ ℕ → ∃ λ n → ε ⊢ t ≡ sucᵏ n ∷ ℕ
   canonicity {t} =
-    ε ⊢ t ∷ ℕ                     →⟨ ⊩∷ℕ⇔ .proj₁ ∘→ reducible-⊩∷ ⟩
+    ε ⊢ t ∷ ℕ                     →⟨ ⊩∷ℕ⇔ .proj₁ ∘→ proj₂ ∘→ reducible-⊩∷ ⟩
     ε ⊩ℕ t ∷ℕ                     →⟨ lemma ⟩
     (∃ λ n → ε ⊢ t ≡ sucᵏ n ∷ ℕ)  □
     where
@@ -62,7 +62,7 @@ opaque
 
   ¬Empty : ¬ ε ⊢ t ∷ Empty
   ¬Empty {t} =
-    ε ⊢ t ∷ Empty      →⟨ ⊩∷Empty⇔ .proj₁ ∘→ reducible-⊩∷ ⟩
+    ε ⊢ t ∷ Empty      →⟨ ⊩∷Empty⇔ .proj₁ ∘→ proj₂ ∘→ reducible-⊩∷ ⟩
     ε ⊩Empty t ∷Empty  →⟨ (λ { (Emptyₜ _ _ _ (ne (neNfₜ u-ne _ _))) →
                                noClosedNe u-ne }) ⟩
     ⊥                  □
@@ -73,7 +73,7 @@ opaque
 
   ε⊢⇒*rfl∷Id : ε ⊢ v ∷ Id A t u → ε ⊢ v ⇒* rfl ∷ Id A t u
   ε⊢⇒*rfl∷Id ⊢v =
-    case ⊩∷Id⇔ .proj₁ $ reducible-⊩∷ ⊢v of λ
+    case ⊩∷Id⇔ .proj₁ $ reducible-⊩∷ ⊢v .proj₂ of λ
       (_ , v⇒*w , _ , _ , rest) →
     case rest of λ where
       (rflᵣ _)    → redₜ v⇒*w

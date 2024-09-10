@@ -65,7 +65,7 @@ open import Graded.Usage.Inversion 𝕄 UR
 open import Tools.Empty
 open import Tools.Fin
 open import Tools.Function
-open import Tools.Nat using (Nat)
+open import Tools.Nat
 open import Tools.Product as Σ
 import Tools.PropositionalEquality as PE
 import Tools.Reasoning.PartialOrder
@@ -84,7 +84,7 @@ private variable
   m         : Mode
   b         : BinderMode
   s         : Strength
-  l l′ l″   : TypeLevel
+  l l′ l″   : Universe-level
 
 ------------------------------------------------------------------------
 -- A lemma related to Π and Σ
@@ -93,10 +93,10 @@ opaque
 
   -- Validity of Π and Σ.
 
-  ΠΣʳ : γ ▸ Γ ⊩ʳ⟨ ¹ ⟩ ΠΣ⟨ b ⟩ p , q ▷ A ▹ B ∷[ m ] U
+  ΠΣʳ : γ ▸ Γ ⊩ʳ⟨ 1+ l ⟩ ΠΣ⟨ b ⟩ p , q ▷ A ▹ B ∷[ m ] U l
   ΠΣʳ =
     ▸⊩ʳ∷⇔ .proj₂ λ _ _ →
-    ®∷→®∷◂ (®∷U⇔ .proj₂ ((_ , 0<1) , Uᵣ (λ { PE.refl → T.refl })))
+    ®∷→®∷◂ (®∷U⇔ .proj₂ (≤ᵘ-refl , Uᵣ (λ { PE.refl → T.refl })))
 
 ------------------------------------------------------------------------
 -- Lemmas related to Π
@@ -124,7 +124,7 @@ opaque
       , (λ { PE.refl → _ , T.refl })
       , λ t′ ⊢t′ →
           case reducible-⊩∷ ⊢t′ of λ
-            ⊩t′ →
+            (_ , ⊩t′) →
           case ⊩ᵛ→⊩ˢ∷→⊩∷→⊩[,] ⊩B ⊩σ ⊩t′ of λ
             ⊩B[σ,t′] →
           case ⊩ˢ∷∙⇔′ .proj₂ ((_ , ⊩A) , (_ , ⊩t′) , ⊩σ) of λ
@@ -305,7 +305,8 @@ opaque
     σ ® σ′ ∷[ 𝟙ᵐ ] Γ ◂ γ                                              →⟨ ®∷→®∷◂ω non-trivial ∘→
                                                                          ▸⊩ʳ∷⇔ .proj₁ ⊩ʳt ⊩σ ⟩
 
-    (t [ σ ] ®⟨ l′ ⟩ erase str t T.[ σ′ ] ∷ (Π p , q ▷ A ▹ B) [ σ ])  →⟨ (λ hyp → hyp _ $ escape-⊩∷ $ ⊩ᵛ∷→⊩ˢ∷→⊩[]∷ (fundamental-⊩ᵛ∷ ⊢u) ⊩σ) ∘→
+    (t [ σ ] ®⟨ l′ ⟩ erase str t T.[ σ′ ] ∷ (Π p , q ▷ A ▹ B) [ σ ])  →⟨ (λ hyp →
+                                                                            hyp _ $ escape-⊩∷ $ ⊩ᵛ∷→⊩ˢ∷→⊩[]∷ (fundamental-⊩ᵛ∷ ⊢u .proj₂) ⊩σ) ∘→
                                                                          proj₂ ∘→ proj₂ ∘→ ®∷Π⇔ .proj₁ ∘→
                                                                          level-®∷ (⊩ᵛ→⊩ˢ∷→⊩[] ⊩ΠAB ⊩σ) ⟩
     (p PE.≡ 𝟘 →
@@ -583,7 +584,7 @@ opaque
       snd p (t [ σ ])       ∷ B [ σ ⇑ ] [ fst p (t [ σ ]) ]₀                   ⇒*⟨ snd-subst* t[σ]⇒*t₁,t₂ ⟩∷
                                                                                  ⟨ ≅-eq $ escape-⊩≡ $
                                                                                    ⊩ᵛ≡→⊩ˢ≡∷→⊩≡∷→⊩[⇑][]₀≡[⇑][]₀ (refl-⊩ᵛ≡ ⊩B) (refl-⊩ˢ≡∷ ⊩σ) $
-                                                                                   reducible-⊩≡∷ $ subset*Term $ fst-subst*′ t[σ]⇒*t₁,t₂ ⟩⇒
+                                                                                   reducible-⊩≡∷ (subset*Term $ fst-subst*′ t[σ]⇒*t₁,t₂) .proj₂ ⟩⇒
       snd p (prodˢ p t₁ t₂) ∷ B [ σ ⇑ ] [ fst p (prodˢ p t₁ t₂) ]₀             ⇒⟨ Σ-β₂-⇒ ⊢B[σ⇑] ⊢t₁ ⊢t₂ ok ⟩∎∷
       t₂                                                                       ∎)
                                                                             (let open Graded.Erasure.Target.Reasoning in
@@ -603,7 +604,7 @@ opaque
                                                                           conv-®∷
                                                                             (let open RR in
                                                                              ⊩ᵛ≡→⊩ˢ≡∷→⊩≡∷→⊩[⇑][]₀≡[⇑][]₀ (refl-⊩ᵛ≡ ⊩B) (refl-⊩ˢ≡∷ ⊩σ) $
-                                                                             sym-⊩≡∷ $ reducible-⊩≡∷ $ subset*Term (
+                                                                             sym-⊩≡∷ $ proj₂ $ reducible-⊩≡∷ $ subset*Term (
       fst p (t [ σ ])                                                          ⇒*⟨ fst-subst*′ t[σ]⇒*t₁,t₂ ⟩
       fst p (prodˢ p t₁ t₂)                                                    ⇒⟨ Σ-β₁-⇒ ⊢B[σ⇑] ⊢t₁ ⊢t₂ ok ⟩∎
       t₁                                                                       ∎))
@@ -651,10 +652,10 @@ opaque
                                                                     (⊩ˢ∷∙⇔′ .proj₂
                                                                        ( ⊩B
                                                                        , ( _
-                                                                         , (reducible-⊩∷ $
+                                                                         , (proj₂ $ reducible-⊩∷ $
                                                                             PE.subst (_⊢_∷_ _ _) (singleSubstComp _ _ B) ⊢t₂)
                                                                          )
-                                                                       , ⊩ˢ∷∙⇔′ .proj₂ (⊩A , (_ , reducible-⊩∷ ⊢t₁) , ⊩σ)
+                                                                       , ⊩ˢ∷∙⇔′ .proj₂ (⊩A , (_ , reducible-⊩∷ ⊢t₁ .proj₂) , ⊩σ)
                                                                        )) ⟩
     (u [ consSubst (consSubst σ t₁) t₂ ] ®⟨ l″ ⟩
        erase str u T.[ T.consSubst (T.consSubst σ′ v₁) v₂ ] ∷
@@ -679,17 +680,18 @@ opaque
 
       ⊢A,⊢B,ok : Γ ⊢ A × Γ ∙ A ⊢ B × Σʷ-allowed p q
       ⊢A,⊢B,ok =
-        inversion-ΠΣ $ syntacticTerm $ escape-⊩ᵛ∷ $ fundamental-⊩ᵛ∷ ⊢t
+        inversion-ΠΣ $ syntacticTerm $ escape-⊩ᵛ∷ $
+        fundamental-⊩ᵛ∷ ⊢t .proj₂
 
     opaque
 
       ⊩A : ∃ λ l → Γ ⊩ᵛ⟨ l ⟩ A
-      ⊩A = _ , fundamental-⊩ᵛ (⊢A,⊢B,ok .proj₁)
+      ⊩A = fundamental-⊩ᵛ (⊢A,⊢B,ok .proj₁)
 
     opaque
 
       ⊩B : ∃ λ l → Γ ∙ A ⊩ᵛ⟨ l ⟩ B
-      ⊩B = _ , fundamental-⊩ᵛ (⊢A,⊢B,ok .proj₂ .proj₁)
+      ⊩B = fundamental-⊩ᵛ (⊢A,⊢B,ok .proj₂ .proj₁)
 
     -- Some assumptions that are used in the proof.
 
@@ -697,7 +699,7 @@ opaque
              (σ : Subst k n) (σ′ : T.Subst k n) : Set a where
       no-eta-equality
       field
-        {l₁ l₂}       : TypeLevel
+        {l₁ l₂}       : Universe-level
         t₁ t₂         : Term k
         v₁ v₂         : T.Term k
         t₁®v₁         : t₁ ®⟨ l₁ ⟩ v₁ ∷ A [ σ ] ◂ r · p
@@ -1012,7 +1014,7 @@ opaque
             C [ σ ⇑ ] [ prodʷ p (var x1) (var x0) ]↑²
         ⊢u[σ⇑⇑] =
           PE.subst (_⊢_∷_ _ _) (subst-β-prodrec C _) $
-          escape-⊩∷ $ ⊩ᵛ∷→⊩ˢ∷→⊩[⇑⇑]∷ (fundamental-⊩ᵛ∷ ⊢u) ⊩σ
+          escape-⊩∷ $ ⊩ᵛ∷→⊩ˢ∷→⊩[⇑⇑]∷ (fundamental-⊩ᵛ∷ ⊢u .proj₂) ⊩σ
 
       private opaque
 
@@ -1022,7 +1024,7 @@ opaque
         C[σ⇑][t[σ]]≡C[σ⇑][t₁,t₂] =
           ⊩ᵛ≡→⊩ˢ≡∷→⊩≡∷→⊩[⇑][]₀≡[⇑][]₀ (refl-⊩ᵛ≡ ⊩C)
             (refl-⊩ˢ≡∷ ⊩σ)
-            (reducible-⊩≡∷ (subset*Term t[σ]⇒*t₁,t₂))
+            (reducible-⊩≡∷ (subset*Term t[σ]⇒*t₁,t₂) .proj₂)
 
       opaque
 

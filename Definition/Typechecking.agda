@@ -25,7 +25,7 @@ private
   variable
     n l l₁ l₂ : Nat
     Γ : Con Term n
-    t u v w A B F G : Term n
+    t u v w A B C₁ C₂ F G : Term n
     p q r p′ q′ : M
     b : BinderMode
     s : Strength
@@ -48,14 +48,18 @@ mutual
         → Γ ⊢ t ⇇ A
         → Γ ⊢ u ⇇ A
         → Γ ⊢ Id A t u ⇇Type
-    univᶜ : Γ ⊢ A ⇇ U l
+    univᶜ : Γ ⊢ A ⇉ B
+          → Γ ⊢ B ↘ U l
           → Γ ⊢ A ⇇Type
 
   data _⊢_⇉_ (Γ : Con Term n) : (t A : Term n) → Set a where
-    ΠΣᵢ : Γ ⊢ F ⇇ U l₁
-       → Γ ∙ F ⊢ G ⇇ U l₂
-       → ΠΣ-allowed b p q
-       → Γ ⊢ ΠΣ⟨ b ⟩ p , q ▷ F ▹ G ⇉ U (l₁ ⊔ l₂)
+    Uᵢ : Γ ⊢ U l ⇉ U (1+ l)
+    ΠΣᵢ : Γ ⊢ A ⇉ C₁
+        → Γ ⊢ C₁ ↘ U l₁
+        → Γ ∙ A ⊢ B ⇉ C₂
+        → Γ ∙ A ⊢ C₂ ↘ U l₂
+        → ΠΣ-allowed b p q
+        → Γ ⊢ ΠΣ⟨ b ⟩ p , q ▷ A ▹ B ⇉ U (l₁ ⊔ᵘ l₂)
     varᵢ : ∀ {x}
          → x ∷ A ∈ Γ
          → Γ ⊢ var x ⇉ A
@@ -96,7 +100,8 @@ mutual
     emptyrecᵢ : Γ ⊢ A ⇇Type
               → Γ ⊢ t ⇇ Empty
               → Γ ⊢ emptyrec p A t ⇉ A
-    Idᵢ : Γ ⊢ A ⇇ U l
+    Idᵢ : Γ ⊢ A ⇉ B
+        → Γ ⊢ B ↘ U l
         → Γ ⊢ t ⇇ A
         → Γ ⊢ u ⇇ A
         → Γ ⊢ Id A t u ⇉ U l
@@ -139,35 +144,50 @@ mutual
          → Γ ⊢ A ≡ B
          → Γ ⊢ t ⇇ B
 
--- Inferable and checkable terms
--- Checkable terms are essentially normal form terms
-
 mutual
+
+  -- Checkable types.
+
+  data Checkable-type {n : Nat} : Term n → Set a where
+    ΠΣᶜ    : Checkable-type A → Checkable-type B →
+             Checkable-type (ΠΣ⟨ b ⟩ p , q ▷ A ▹ B)
+    Idᶜ    : Checkable-type A → Checkable t → Checkable u →
+             Checkable-type (Id A t u)
+    checkᶜ : Checkable A → Checkable-type A
+
+  -- Inferable terms.
 
   data Inferable {n : Nat} : (Term n) → Set a where
     Uᵢ : Inferable (U l)
-    ΠΣᵢ : Checkable F → Checkable G → Inferable (ΠΣ⟨ b ⟩ p , q ▷ F ▹ G)
+    ΠΣᵢ : Inferable A → Inferable B → Inferable (ΠΣ⟨ b ⟩ p , q ▷ A ▹ B)
     varᵢ : ∀ {x} → Inferable (var x)
     ∘ᵢ : Inferable t → Checkable u → Inferable (t ∘⟨ p ⟩ u)
     fstᵢ : Inferable t → Inferable (fst p t)
     sndᵢ : Inferable t → Inferable (snd p t)
-    prodrecᵢ : Checkable A → Inferable t → Checkable u → Inferable (prodrec p q r A t u)
+    prodrecᵢ : Checkable-type A → Inferable t → Checkable u →
+               Inferable (prodrec p q r A t u)
     ℕᵢ : Inferable ℕ
     zeroᵢ : Inferable zero
     sucᵢ : Checkable t → Inferable (suc t)
-    natrecᵢ : ∀ {z s n} → Checkable A → Checkable z → Checkable s → Checkable n → Inferable (natrec p q r A z s n)
+    natrecᵢ : Checkable-type A → Checkable t → Checkable u → Checkable v →
+              Inferable (natrec p q r A t u v)
     Unitᵢ : Inferable (Unit s)
     starᵢ : Inferable (star s)
-    unitrecᵢ : Checkable A → Checkable t → Checkable u → Inferable (unitrec p q A t u)
+    unitrecᵢ : Checkable-type A → Checkable t → Checkable u →
+               Inferable (unitrec p q A t u)
     Emptyᵢ : Inferable Empty
-    emptyrecᵢ : Checkable A → Checkable t → Inferable (emptyrec p A t)
-    Idᵢ : Checkable A → Checkable t → Checkable u → Inferable (Id A t u)
-    Jᵢ : Checkable A → Checkable t → Checkable B → Checkable u →
-         Checkable v → Checkable w → Inferable (J p q A t B u v w)
-    Kᵢ : Checkable A → Checkable t → Checkable B → Checkable u →
-         Checkable v → Inferable (K p A t B u v)
-    []-congᵢ : Checkable A → Checkable t → Checkable u → Checkable v →
-               Inferable ([]-cong s A t u v)
+    emptyrecᵢ : Checkable-type A → Checkable t →
+                Inferable (emptyrec p A t)
+    Idᵢ : Inferable A → Checkable t → Checkable u → Inferable (Id A t u)
+    Jᵢ : Checkable-type A → Checkable t → Checkable-type B →
+         Checkable u → Checkable v → Checkable w →
+         Inferable (J p q A t B u v w)
+    Kᵢ : Checkable-type A → Checkable t → Checkable-type B →
+         Checkable u → Checkable v → Inferable (K p A t B u v)
+    []-congᵢ : Checkable-type A → Checkable t → Checkable u →
+               Checkable v → Inferable ([]-cong s A t u v)
+
+  -- Checkable terms.
 
   data Checkable : (Term n) → Set a where
     lamᶜ : Checkable t → Checkable (lam p t)
@@ -179,22 +199,23 @@ mutual
 
 data CheckableCon : (Γ : Con Term n) → Set a where
   ε   : CheckableCon ε
-  _∙_ : CheckableCon Γ → Checkable A → CheckableCon (Γ ∙ A)
-
--- The bi-directional type checking relations imply the syntactic notion of Inferable and Checkable
+  _∙_ : CheckableCon Γ → Checkable-type A → CheckableCon (Γ ∙ A)
 
 mutual
 
-  Checkable⇇Type : Γ ⊢ A ⇇Type → Checkable A
-  Checkable⇇Type Uᶜ = infᶜ Uᵢ
-  Checkable⇇Type ℕᶜ = infᶜ ℕᵢ
-  Checkable⇇Type (Unitᶜ _) = infᶜ Unitᵢ
-  Checkable⇇Type Emptyᶜ = infᶜ Emptyᵢ
-  Checkable⇇Type (ΠΣᶜ F⇇Type G⇇Type _) =
-    infᶜ (ΠΣᵢ (Checkable⇇Type F⇇Type) (Checkable⇇Type G⇇Type))
-  Checkable⇇Type (Idᶜ A t u) =
-    infᶜ (Idᵢ (Checkable⇇Type A) (Checkable⇇ t) (Checkable⇇ u))
-  Checkable⇇Type (univᶜ x) = Checkable⇇ x
+  -- Γ ⊢ A ⇇Type implies that A is a checkable type.
+
+  Checkable⇇Type : Γ ⊢ A ⇇Type → Checkable-type A
+  Checkable⇇Type Uᶜ          = checkᶜ (infᶜ Uᵢ)
+  Checkable⇇Type ℕᶜ          = checkᶜ (infᶜ ℕᵢ)
+  Checkable⇇Type (Unitᶜ _)   = checkᶜ (infᶜ Unitᵢ)
+  Checkable⇇Type Emptyᶜ      = checkᶜ (infᶜ Emptyᵢ)
+  Checkable⇇Type (ΠΣᶜ A B _) = ΠΣᶜ (Checkable⇇Type A) (Checkable⇇Type B)
+  Checkable⇇Type (Idᶜ A t u) = Idᶜ (Checkable⇇Type A) (Checkable⇇ t)
+                                 (Checkable⇇ u)
+  Checkable⇇Type (univᶜ A _) = checkᶜ (infᶜ (Inferable⇉ A))
+
+  -- Γ ⊢ t ⇇ A implies that t is a checkable term.
 
   Checkable⇇ : Γ ⊢ t ⇇ A → Checkable t
   Checkable⇇ (lamᶜ x t⇇A) = lamᶜ (Checkable⇇ t⇇A)
@@ -202,8 +223,11 @@ mutual
   Checkable⇇ (rflᶜ _ _) = rflᶜ
   Checkable⇇ (infᶜ x x₁) = infᶜ (Inferable⇉ x)
 
+  -- Γ ⊢ t ⇉ A implies that t is an inferable term.
+
   Inferable⇉ : Γ ⊢ t ⇉ A → Inferable t
-  Inferable⇉ (ΠΣᵢ x x₁ _) = ΠΣᵢ (Checkable⇇ x) (Checkable⇇ x₁)
+  Inferable⇉ Uᵢ = Uᵢ
+  Inferable⇉ (ΠΣᵢ A _ B _ _) = ΠΣᵢ (Inferable⇉ A) (Inferable⇉ B)
   Inferable⇉ (varᵢ x) = varᵢ
   Inferable⇉ (appᵢ t⇉A x x₁) = ∘ᵢ (Inferable⇉ t⇉A) (Checkable⇇ x₁)
   Inferable⇉ (fstᵢ t⇉A x) = fstᵢ (Inferable⇉ t⇉A)
@@ -219,8 +243,8 @@ mutual
   Inferable⇉ (unitrecᵢ x x₁ x₂) = unitrecᵢ (Checkable⇇Type x) (Checkable⇇ x₁) (Checkable⇇ x₂)
   Inferable⇉ Emptyᵢ = Emptyᵢ
   Inferable⇉ (emptyrecᵢ x x₁) = emptyrecᵢ (Checkable⇇Type x) (Checkable⇇ x₁)
-  Inferable⇉ (Idᵢ A t u) =
-    Idᵢ (Checkable⇇ A) (Checkable⇇ t) (Checkable⇇ u)
+  Inferable⇉ (Idᵢ A _ t u) =
+    Idᵢ (Inferable⇉ A) (Checkable⇇ t) (Checkable⇇ u)
   Inferable⇉ (Jᵢ A t B u v w) =
     Jᵢ (Checkable⇇Type A) (Checkable⇇ t) (Checkable⇇Type B)
       (Checkable⇇ u) (Checkable⇇ v) (Checkable⇇ w)

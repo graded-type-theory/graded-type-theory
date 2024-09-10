@@ -47,7 +47,8 @@ opaque
   substitution : Γ ⊢ A → Δ ⊢ˢ σ ∷ Γ → ⊢ Δ → Δ ⊢ A [ σ ]
   substitution ⊢A ⊢σ ⊢Δ =
     escape-⊩ $
-    ⊩ᵛ→⊩ˢ∷→⊩[] (fundamental-⊩ᵛ ⊢A) (fundamental-⊩ˢ∷ ⊢Δ (wf ⊢A) ⊢σ)
+    ⊩ᵛ→⊩ˢ∷→⊩[] (fundamental-⊩ᵛ ⊢A .proj₂)
+      (fundamental-⊩ˢ∷ ⊢Δ (wf ⊢A) ⊢σ)
 
 opaque
 
@@ -57,7 +58,7 @@ opaque
     Γ ⊢ A ≡ B → Δ ⊢ˢ σ ≡ σ′ ∷ Γ → ⊢ Δ → Δ ⊢ A [ σ ] ≡ B [ σ′ ]
   substitutionEq A≡B σ≡σ′ ⊢Δ =
     escape-⊩≡ $
-    ⊩ᵛ≡⇔ .proj₁ (fundamental-⊩ᵛ≡ A≡B) .proj₂ $
+    ⊩ᵛ≡⇔ .proj₁ (fundamental-⊩ᵛ≡ A≡B .proj₂) .proj₂ $
     fundamental-⊩ˢ≡∷ ⊢Δ (wfEq A≡B) σ≡σ′
 
 opaque
@@ -68,7 +69,7 @@ opaque
     Γ ⊢ t ∷ A → Δ ⊢ˢ σ ∷ Γ → ⊢ Δ → Δ ⊢ t [ σ ] ∷ A [ σ ]
   substitutionTerm ⊢t ⊢σ ⊢Δ =
     escape-⊩∷ $
-    ⊩ᵛ∷→⊩ˢ∷→⊩[]∷ (fundamental-⊩ᵛ∷ ⊢t)
+    ⊩ᵛ∷→⊩ˢ∷→⊩[]∷ (fundamental-⊩ᵛ∷ ⊢t .proj₂)
       (fundamental-⊩ˢ∷ ⊢Δ (wfTerm ⊢t) ⊢σ)
 
 opaque
@@ -80,7 +81,7 @@ opaque
     Δ ⊢ t [ σ ] ≡ u [ σ′ ] ∷ A [ σ ]
   substitutionEqTerm t≡u σ≡σ′ ⊢Δ =
     escape-⊩≡∷ $
-    ⊩ᵛ≡∷⇔ .proj₁ (fundamental-⊩ᵛ≡∷ t≡u) .proj₂ $
+    ⊩ᵛ≡∷⇔ .proj₁ (fundamental-⊩ᵛ≡∷ t≡u .proj₂) .proj₂ $
     fundamental-⊩ˢ≡∷ ⊢Δ (wfEqTerm t≡u) σ≡σ′
 
 -- Reflexivity of well-formed substitution.

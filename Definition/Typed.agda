@@ -72,11 +72,11 @@ mutual
 
   -- Well-formed term of a type
   data _⊢_∷_ (Γ : Con Term n) : Term n → Term n → Set ℓ where
+    Uⱼ        : ⊢ Γ → Γ ⊢ U l ∷ U (1+ l)
     ΠΣⱼ       : Γ     ⊢ F ∷ U l₁
               → Γ ∙ F ⊢ G ∷ U l₂
               → ΠΣ-allowed b p q
-              → Γ     ⊢ ΠΣ⟨ b ⟩ p , q ▷ F ▹ G ∷ U (l₁ ⊔ l₂)
-    Uⱼ        : ⊢ Γ → Γ ⊢ U l ∷ U (1+ l)
+              → Γ     ⊢ ΠΣ⟨ b ⟩ p , q ▷ F ▹ G ∷ U (l₁ ⊔ᵘ l₂)
     ℕⱼ        : ⊢ Γ → Γ ⊢ ℕ ∷ U 0
     Emptyⱼ    : ⊢ Γ → Γ ⊢ Empty ∷ U 0
     Unitⱼ     : ⊢ Γ → Unit-allowed k → Γ ⊢ Unit k ∷ U 0
@@ -206,7 +206,7 @@ mutual
                   → Γ ∙ F ⊢ G ≡ E ∷ U l₂
                   → ΠΣ-allowed b p q
                   → Γ     ⊢ ΠΣ⟨ b ⟩ p , q ▷ F ▹ G ≡
-                            ΠΣ⟨ b ⟩ p , q ▷ H ▹ E ∷ U (l₁ ⊔ l₂)
+                            ΠΣ⟨ b ⟩ p , q ▷ H ▹ E ∷ U (l₁ ⊔ᵘ l₂)
     app-cong      : ∀ {b}
                   → Γ ⊢ f ≡ g ∷ Π p , q ▷ F ▹ G
                   → Γ ⊢ a ≡ b ∷ F
@@ -607,7 +607,7 @@ data _⊢ˢ_≡_∷_ {k} (Δ : Con Term k) :
      → Γ     ⊢ F ∷ U l₁
      → Γ ∙ F ⊢ G ∷ U l₂
      → BindingType-allowed W
-     → Γ     ⊢ ⟦ W ⟧ F ▹ G ∷ U (l₁ ⊔ l₂)
+     → Γ     ⊢ ⟦ W ⟧ F ▹ G ∷ U (l₁ ⊔ᵘ l₂)
 ⟦ BΠ _ _   ⟧ⱼᵤ = ΠΣⱼ
 ⟦ BΣ _ _ _ ⟧ⱼᵤ = ΠΣⱼ
 

@@ -40,7 +40,7 @@ private
   variable
     Γ Δ : Con Term _
     A A₁ A₂ t t₁ t₂ : Term _
-    l l′ : TypeLevel
+    l l′ : Universe-level
     σ σ₁ σ₂ : Subst _ _
     p : M
 

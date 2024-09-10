@@ -35,7 +35,7 @@ private
     x : Fin _
     Γ : Con Term _
     A : Term _
-    l : TypeLevel
+    l : Universe-level
 
 opaque
 

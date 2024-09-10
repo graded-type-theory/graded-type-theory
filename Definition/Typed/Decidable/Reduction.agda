@@ -14,11 +14,15 @@ module Definition.Typed.Decidable.Reduction
   (_≟_ : Decidable (PE._≡_ {A = M}))
   where
 
+open Type-restrictions R
+
 open import Definition.Untyped M
+open import Definition.Untyped.Neutral M type-variant as N
 open import Definition.Typed R
 open import Definition.Typed.Properties R
 open import Definition.Typed.EqRelInstance R
-open import Definition.Typed.Consequences.Inequality R
+open import Definition.Typed.Consequences.Inequality R as I
+open import Definition.Typed.Consequences.Reduction R
 open import Definition.LogicalRelation R
 open import Definition.LogicalRelation.Fundamental.Reducibility R
 open import Definition.LogicalRelation.Properties R
@@ -30,21 +34,52 @@ import Tools.Relation as Dec
 
 private
   variable
-    n : Nat
-    Γ : Con Term n
-    A : Term n
-    l : TypeLevel
+    n   : Nat
+    Γ   : Con Term n
+    A B : Term n
+    l   : Universe-level
+
+opaque
+
+  -- It is decidable whether a well-formed type reduces to an
+  -- application of U.
+
+  ⇒*U? : Γ ⊢ A → Dec (∃ λ l → Γ ⊢ A ⇒* U l)
+  ⇒*U? ⊢A =
+    case whNorm ⊢A of λ
+      (B , B-whnf , A⇒*B) →
+    case is-U B-whnf of λ where
+      (yes (l , PE.refl)) → yes (l , red A⇒*B)
+      (no not) →
+        no λ (l , A⇒*U) →
+        not (_ , whrDet* (A⇒*U , Uₙ) (red A⇒*B , B-whnf))
+    where
+    is-U : Whnf B → Dec (∃ λ l → U l PE.≡ B)
+    is-U Uₙ        = yes (_ , PE.refl)
+    is-U ΠΣₙ       = no λ ()
+    is-U ℕₙ        = no λ ()
+    is-U Unitₙ     = no λ ()
+    is-U Emptyₙ    = no λ ()
+    is-U Idₙ       = no λ ()
+    is-U lamₙ      = no λ ()
+    is-U zeroₙ     = no λ ()
+    is-U sucₙ      = no λ ()
+    is-U starₙ     = no λ ()
+    is-U prodₙ     = no λ ()
+    is-U rflₙ      = no λ ()
+    is-U (ne B-ne) = no (N.U≢ne B-ne ∘→ proj₂)
 
 private opaque
 
   -- A lemma used below.
 
   isB′ : ∀ {l} → Γ ⊩⟨ l ⟩ A → Dec (∃₃ λ W B C → Γ ⊢ A ⇒* ⟦ W ⟧ B ▹ C)
-  isB′ (Uᵣ′ _ _ _) =
-    no λ (_ , _ , _ , U⇒W) → U≢B _ (subset* U⇒W)
+  isB′ (Uᵣ′ _ _ A⇒*U) =
+    no λ (_ , _ , _ , A⇒*) →
+    I.U≢B _ (trans (sym (subset* (red A⇒*U))) (subset* A⇒*))
   isB′ (ℕᵣ A⇒*ℕ) =
     no λ (_ , _ , _ , A⇒*W) →
-    ℕ≢B _ (trans (sym (subset* (red A⇒*ℕ))) (subset* A⇒*W))
+    I.ℕ≢B _ (trans (sym (subset* (red A⇒*ℕ))) (subset* A⇒*W))
   isB′ (Emptyᵣ A⇒*Empty) =
     no λ (_ , _ , _ , A⇒*W) →
     Empty≢Bⱼ _ (trans (sym (subset* (red A⇒*Empty))) (subset* A⇒*W))
@@ -53,14 +88,15 @@ private opaque
     Unit≢Bⱼ _ (trans (sym (subset* (red A⇒*Unit))) (subset* A⇒*W))
   isB′ (ne′ _ A⇒*B B-ne _) =
     no λ (_ , _ , _ , A⇒*W) →
-    B≢ne _ B-ne (trans (sym (subset* A⇒*W)) (subset* (red A⇒*B)))
+    I.B≢ne _ B-ne (trans (sym (subset* A⇒*W)) (subset* (red A⇒*B)))
   isB′ (Bᵣ′ _ _ _ A⇒*ΠΣ _ _ _ _ _ _ _) =
     yes (_ , _ , _ , red A⇒*ΠΣ)
   isB′ (Idᵣ ⊩A) =
     no λ (_ , _ , _ , A⇒*Id) →
-    Id≢⟦⟧▷ $
+    I.Id≢⟦⟧▷ $
     trans (sym (subset* (red (_⊩ₗId_.⇒*Id ⊩A)))) (subset* A⇒*Id)
-  isB′ (emb 0<1 ⊩A) = isB′ ⊩A
+  isB′ (emb ≤ᵘ-refl     ⊩A) = isB′ ⊩A
+  isB′ (emb (≤ᵘ-step p) ⊩A) = isB′ (emb p ⊩A)
 
 opaque
 
@@ -68,7 +104,7 @@ opaque
   -- not reduce to) either a Π-type or a Σ-type.
 
   isB : Γ ⊢ A → Dec (∃₃ λ W B C → Γ ⊢ A ⇒* ⟦ W ⟧ B ▹ C)
-  isB ⊢A = isB′ (reducible-⊩ ⊢A)
+  isB ⊢A = isB′ (reducible-⊩ ⊢A .proj₂)
 
 opaque
 
@@ -138,12 +174,13 @@ opaque
   -- type.
 
   is-Id : Γ ⊢ A → Dec (∃₃ λ B t u → Γ ⊢ A ⇒* Id B t u)
-  is-Id = helper ∘→ reducible-⊩
+  is-Id = helper ∘→ proj₂ ∘→ reducible-⊩
     where
     helper : Γ ⊩⟨ l ⟩ A → Dec (∃₃ λ B t u → Γ ⊢ A ⇒* Id B t u)
-    helper (Uᵣ _) =
-      no λ (_ , _ , _ , U⇒*Id) →
-        Id≢U (sym (subset* U⇒*Id))
+    helper (Uᵣ ⊩U) =
+      no λ (_ , _ , _ , A⇒*Id) →
+        Id≢U $
+        trans (sym (subset* A⇒*Id)) (subset* (red (_⊩₁U_.⇒*U ⊩U)))
     helper (ℕᵣ A⇒*ℕ) =
       no λ (_ , _ , _ , A⇒*Id) →
         Id≢ℕ (trans (sym (subset* A⇒*Id)) (subset* (red A⇒*ℕ)))
@@ -157,15 +194,15 @@ opaque
           (subset* (red (_⊩Unit⟨_⟩_.⇒*-Unit ⊩Unit)))
     helper (ne ⊩A) =
       no λ (_ , _ , _ , A⇒*Id) →
-        Id≢ne neK $ trans (sym (subset* A⇒*Id)) (subset* (red D))
+        I.Id≢ne neK $ trans (sym (subset* A⇒*Id)) (subset* (red D))
       where
       open _⊩ne_ ⊩A
     helper (Bᵣ _ ⊩A) =
       no λ (_ , _ , _ , A⇒*Id) →
-        Id≢⟦⟧▷ $
+        I.Id≢⟦⟧▷ $
         trans (sym (subset* A⇒*Id)) (subset* (red (_⊩ₗB⟨_⟩_.D ⊩A)))
     helper (Idᵣ ⊩A) = yes (_ , _ , _ , red ⇒*Id)
       where
       open _⊩ₗId_ ⊩A
-    helper (emb 0<1 ⊩A) =
-      helper ⊩A
+    helper (emb ≤ᵘ-refl     ⊩A) = helper ⊩A
+    helper (emb (≤ᵘ-step p) ⊩A) = helper (emb p ⊩A)

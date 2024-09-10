@@ -17,6 +17,7 @@ open EqRelSet {{...}}
 open Type-restrictions R
 
 open import Definition.Untyped M
+open import Definition.Untyped.Properties M
 
 open import Definition.Typed R
 open import Definition.LogicalRelation R
@@ -28,11 +29,11 @@ import Definition.LogicalRelation.Substitution.Introductions.Erased R
 
 import Graded.Derived.Erased.Untyped 𝕄 as E
 
+open import Tools.Function
 open import Tools.Product
 open import Tools.Unit
 open import Tools.Sum
-open import Tools.Nat using (Nat; 1+; ≤′-refl;
-  ≤′-step; ≤⇒≤′; ≤′⇒≤; m≤n⇒m≤n⊔o′; m≤n⇒m≤o⊔n′)
+open import Tools.Nat using (Nat)
 import Tools.PropositionalEquality as PE
 
 private
@@ -53,22 +54,23 @@ opaque mutual
 
 
   -- Fundamental theorem for types.
-  fundamental-⊩ᵛ : ∀ {A} (⊢A : Γ ⊢ A) →
-    ∃ λ l → Γ ⊩ᵛ⟨ l ⟩ A
+  fundamental-⊩ᵛ : Γ ⊢ A → ∃ λ l → Γ ⊩ᵛ⟨ l ⟩ A
   fundamental-⊩ᵛ (ℕⱼ ⊢Γ) =
     0 , ℕᵛ (valid ⊢Γ)
-  fundamental-⊩ᵛ (Emptyⱼ x) = 0 , Emptyᵛ (valid x)
+  fundamental-⊩ᵛ (Emptyⱼ x) =
+    0 , Emptyᵛ (valid x)
   fundamental-⊩ᵛ (Unitⱼ ⊢Γ ok) =
     0 , Unitᵛ (valid ⊢Γ) ok
-  fundamental-⊩ᵛ (Uⱼ {l} ⊢Γ) = _ , ⊩ᵛU (valid ⊢Γ)
-  fundamental-⊩ᵛ (ΠΣⱼ ⊢F ⊢G ok)
-    with fundamental-⊩ᵛ ⊢F | fundamental-⊩ᵛ ⊢G
-  … | l₁ , [F] | l₂ , [G] =
-    l₁ ⊔T l₂ , ΠΣᵛ ok (emb-⊩ᵛ (m≤n⇒m≤n⊔o′ l₂ ≤′-refl) [F])
-      (emb-⊩ᵛ (m≤n⇒m≤o⊔n′ l₁ ≤′-refl) [G])
+  fundamental-⊩ᵛ (Uⱼ ⊢Γ) =
+    _ , ⊩ᵛU (valid ⊢Γ)
+  fundamental-⊩ᵛ (ΠΣⱼ ⊢A ⊢B ok)
+    with fundamental-⊩ᵛ ⊢A | fundamental-⊩ᵛ ⊢B
+  … | l₁ , ⊩A | l₂ , ⊩B =
+    l₁ ⊔ᵘ l₂ , ΠΣᵛ ok (emb-⊩ᵛ ≤ᵘ⊔ᵘʳ ⊩A) (emb-⊩ᵛ ≤ᵘ⊔ᵘˡ ⊩B)
   fundamental-⊩ᵛ (Idⱼ ⊢t ⊢u) =
     _ , Idᵛ (fundamental-⊩ᵛ∷ ⊢t .proj₂) (fundamental-⊩ᵛ∷ ⊢u .proj₂)
-  fundamental-⊩ᵛ (univ ⊢A) = _ , ⊩ᵛ∷U→⊩ᵛ (fundamental-⊩ᵛ∷ ⊢A .proj₂)
+  fundamental-⊩ᵛ (univ ⊢A) =
+    _ , ⊩ᵛ∷U→⊩ᵛ (fundamental-⊩ᵛ∷ ⊢A .proj₂)
 
   -- Fundamental theorem for type equality.
   fundamental-⊩ᵛ≡ : Γ ⊢ A ≡ B → ∃ λ l → Γ ⊩ᵛ⟨ l ⟩ A ≡ B
@@ -81,18 +83,16 @@ opaque mutual
   fundamental-⊩ᵛ≡ (sym A≡B) =
     let [sym] = sym-⊩ᵛ≡ (proj₂ (fundamental-⊩ᵛ≡ A≡B))
     in _ , [sym]
-  fundamental-⊩ᵛ≡ (trans {B} {C} A≡B B≡C) =
-    let l₁ , [A≡B] = fundamental-⊩ᵛ≡ A≡B
-        l₂ , [B≡C] = fundamental-⊩ᵛ≡ B≡C
-    in (l₁ ⊔T l₂) , trans-⊩ᵛ≡
-      (emb-⊩ᵛ≡ (m≤n⇒m≤n⊔o′ l₂ ≤′-refl) [A≡B])
-      (emb-⊩ᵛ≡ (m≤n⇒m≤o⊔n′ l₁ ≤′-refl) [B≡C])
-  fundamental-⊩ᵛ≡ (ΠΣ-cong {H = A₂} {E = B₂} _ A₁≡A₂ B₁≡B₂ ok) =
-    let l₁ , [A₁≡A₂] = fundamental-⊩ᵛ≡ A₁≡A₂
-        l₂ , [B₁≡B₂] = fundamental-⊩ᵛ≡ B₁≡B₂
-    in (l₁ ⊔T l₂) , ΠΣ-congᵛ ok
-      (emb-⊩ᵛ≡ (m≤n⇒m≤n⊔o′ l₂ ≤′-refl) [A₁≡A₂])
-      (emb-⊩ᵛ≡ (m≤n⇒m≤o⊔n′ l₁ ≤′-refl) [B₁≡B₂])
+  fundamental-⊩ᵛ≡ (trans A≡B B≡C) =
+    let l₁ , A≡B = fundamental-⊩ᵛ≡ A≡B
+        l₂ , B≡C = fundamental-⊩ᵛ≡ B≡C
+    in
+    l₁ ⊔ᵘ l₂ , trans-⊩ᵛ≡ (emb-⊩ᵛ≡ ≤ᵘ⊔ᵘʳ A≡B) (emb-⊩ᵛ≡ ≤ᵘ⊔ᵘˡ B≡C)
+  fundamental-⊩ᵛ≡ (ΠΣ-cong _ A₁≡A₂ B₁≡B₂ ok) =
+    let l₁ , A₁≡A₂ = fundamental-⊩ᵛ≡ A₁≡A₂
+        l₂ , B₁≡B₂ = fundamental-⊩ᵛ≡ B₁≡B₂
+    in
+    l₁ ⊔ᵘ l₂ , ΠΣ-congᵛ ok (emb-⊩ᵛ≡ ≤ᵘ⊔ᵘʳ A₁≡A₂) (emb-⊩ᵛ≡ ≤ᵘ⊔ᵘˡ B₁≡B₂)
   fundamental-⊩ᵛ≡ (Id-cong A₁≡A₂ t₁≡t₂ u₁≡u₂) =
      _ , (Id-congᵛ (fundamental-⊩ᵛ≡ A₁≡A₂ .proj₂)
                    (proj₂ (fundamental-⊩ᵛ≡∷ t₁≡t₂))
@@ -106,73 +106,75 @@ opaque mutual
     1 , Emptyᵗᵛ (valid x)
   fundamental-⊩ᵛ∷ (Unitⱼ ⊢Γ ok) =
     1 , Unitᵗᵛ (valid ⊢Γ) ok
-  fundamental-⊩ᵛ∷ (ΠΣⱼ {G = B} ⊢A ⊢B ok) =
-    _ , ΠΣᵗᵛ {B = B} ok (fundamental-⊩ᵛ∷ ⊢A .proj₂) (fundamental-⊩ᵛ∷ ⊢B .proj₂)
+  fundamental-⊩ᵛ∷ (ΠΣⱼ ⊢A ⊢B ok) =
+      _
+    , ΠΣᵗᵛ ok (emb-⊩ᵛ∷ ≤ᵘ⊔ᵘʳ $ fundamental-⊩ᵛ∷ ⊢A .proj₂)
+        (emb-⊩ᵛ∷ ≤ᵘ⊔ᵘˡ $ fundamental-⊩ᵛ∷ ⊢B .proj₂)
   fundamental-⊩ᵛ∷ (var ⊢Γ x∈Γ) =
     _ , varᵛ x∈Γ (valid ⊢Γ) .proj₂
-  fundamental-⊩ᵛ∷ (lamⱼ {t} ⊢A ⊢t ok) =
-    let l₁ , [t] = fundamental-⊩ᵛ∷ ⊢t
-        l₂ , [A] = fundamental-⊩ᵛ ⊢A
-    in l₁ ⊔T l₂ , lamᵛ {t = t} ok
-      (emb-⊩ᵛ (m≤n⇒m≤o⊔n′ l₁ ≤′-refl) [A])
-      (emb-⊩ᵛ∷ {t = t} (m≤n⇒m≤n⊔o′ l₂ ≤′-refl) [t])
-  fundamental-⊩ᵛ∷ (_∘ⱼ_ {t = t} {u = u} ⊢t ⊢u) =
-    let l₁ , [t] = fundamental-⊩ᵛ∷ ⊢t
-        l₂ , [u] = fundamental-⊩ᵛ∷ ⊢u
-    in l₁ ⊔T l₂ , ∘ᵛ {t = t}
-      (emb-⊩ᵛ∷ {t = t} (m≤n⇒m≤n⊔o′ l₂ ≤′-refl) [t])
-      (emb-⊩ᵛ∷ {t = u} (m≤n⇒m≤o⊔n′ l₁ ≤′-refl) [u])
-  fundamental-⊩ᵛ∷ (prodⱼ {t} {u} _ ⊢B ⊢t ⊢u ok) =
-    let l₁ , [t] = fundamental-⊩ᵛ∷ ⊢t
-        l₂ , [B] = fundamental-⊩ᵛ ⊢B
-    in l₁ ⊔T l₂ , prodᵛ {u = u} ok
-      (emb-⊩ᵛ (m≤n⇒m≤o⊔n′ l₁ ≤′-refl) [B])
-      (emb-⊩ᵛ∷ {t = t} (m≤n⇒m≤n⊔o′ l₂ ≤′-refl) [t])
-      (fundamental-⊩ᵛ∷ ⊢u .proj₂)
-  fundamental-⊩ᵛ∷ (fstⱼ {t} _ _ ⊢t) =
-    _ , fstᵛ {t = t} (fundamental-⊩ᵛ∷ ⊢t .proj₂)
+  fundamental-⊩ᵛ∷ (lamⱼ ⊢A ⊢t ok) =
+    let l₁ , ⊩t = fundamental-⊩ᵛ∷ ⊢t
+        l₂ , ⊩A = fundamental-⊩ᵛ ⊢A
+    in
+    l₁ ⊔ᵘ l₂ , lamᵛ ok (emb-⊩ᵛ ≤ᵘ⊔ᵘˡ ⊩A) (emb-⊩ᵛ∷ ≤ᵘ⊔ᵘʳ ⊩t)
+  fundamental-⊩ᵛ∷ (⊢t ∘ⱼ ⊢u) =
+    let l₁ , ⊩t = fundamental-⊩ᵛ∷ ⊢t
+        l₂ , ⊩u = fundamental-⊩ᵛ∷ ⊢u
+    in
+    l₁ ⊔ᵘ l₂ , ∘ᵛ (emb-⊩ᵛ∷ ≤ᵘ⊔ᵘʳ ⊩t) ⊩u
+  fundamental-⊩ᵛ∷ (prodⱼ _ ⊢B ⊢t ⊢u ok) =
+    let l₁ , ⊩t = fundamental-⊩ᵛ∷ ⊢t
+        l₂ , ⊩B = fundamental-⊩ᵛ ⊢B
+    in
+      l₁ ⊔ᵘ l₂
+    , prodᵛ ok (emb-⊩ᵛ ≤ᵘ⊔ᵘˡ ⊩B) (emb-⊩ᵛ∷ ≤ᵘ⊔ᵘʳ ⊩t)
+        (fundamental-⊩ᵛ∷ ⊢u .proj₂)
+  fundamental-⊩ᵛ∷ (fstⱼ _ _ ⊢t) =
+    _ , fstᵛ (fundamental-⊩ᵛ∷ ⊢t .proj₂)
   fundamental-⊩ᵛ∷ (sndⱼ _ _ ⊢t) =
     _ , sndᵛ (fundamental-⊩ᵛ∷ ⊢t .proj₂)
   fundamental-⊩ᵛ∷ (zeroⱼ ⊢Γ) =
     0 , zeroᵛ (valid ⊢Γ)
-  fundamental-⊩ᵛ∷ (sucⱼ {n = t} ⊢t) =
-    proj₁ (fundamental-⊩ᵛ∷ ⊢t) , sucᵛ {t = t} (proj₂ (fundamental-⊩ᵛ∷ ⊢t))
-  fundamental-⊩ᵛ∷ (natrecⱼ {z = t} {s = u} ⊢A ⊢t ⊢u ⊢v) =
-    _ , natrecᵛ {t = t} {u = u} (proj₂ (fundamental-⊩ᵛ ⊢A))
-      (proj₂ (fundamental-⊩ᵛ∷ ⊢t)) (proj₂ (fundamental-⊩ᵛ∷ ⊢u))
-      (proj₂ (fundamental-⊩ᵛ∷ ⊢v))
-  fundamental-⊩ᵛ∷ (emptyrecⱼ {t = t} ⊢A ⊢t) =
-    let l₁ , [A] = fundamental-⊩ᵛ ⊢A
-        _ , [t] = fundamental-⊩ᵛ∷ ⊢t
-    in l₁ , emptyrecᵛ {t = t} [A] [t]
+  fundamental-⊩ᵛ∷ (sucⱼ ⊢t) =
+    _ , sucᵛ (fundamental-⊩ᵛ∷ ⊢t .proj₂)
+  fundamental-⊩ᵛ∷ (natrecⱼ ⊢A ⊢t ⊢u ⊢v) =
+      _
+    , natrecᵛ (fundamental-⊩ᵛ ⊢A .proj₂) (fundamental-⊩ᵛ∷ ⊢t .proj₂)
+        (fundamental-⊩ᵛ∷ ⊢u .proj₂) (fundamental-⊩ᵛ∷ ⊢v .proj₂)
+  fundamental-⊩ᵛ∷ (emptyrecⱼ ⊢A ⊢t) =
+    let l , ⊩A = fundamental-⊩ᵛ ⊢A
+        _ , ⊩t = fundamental-⊩ᵛ∷ ⊢t
+    in
+    l , emptyrecᵛ ⊩A ⊩t
   fundamental-⊩ᵛ∷ (starⱼ ⊢Γ ok) =
     0 , starᵛ (valid ⊢Γ) ok
-  fundamental-⊩ᵛ∷ (conv {t} ⊢t A≡B) =
-    let l , [A≡B] = fundamental-⊩ᵛ≡ A≡B
-    in l , conv-⊩ᵛ∷ {t = t} [A≡B] (proj₂ (fundamental-⊩ᵛ∷ ⊢t))
-  fundamental-⊩ᵛ∷ (prodrecⱼ {u} _ _ ⊢C ⊢t ⊢u _) =
-    _ , prodrecᵛ {u = u} (fundamental-⊩ᵛ ⊢C .proj₂) (fundamental-⊩ᵛ∷ ⊢t .proj₂)
+  fundamental-⊩ᵛ∷ (conv ⊢t A≡B) =
+    let l , A≡B = fundamental-⊩ᵛ≡ A≡B in
+    l , conv-⊩ᵛ∷ A≡B (fundamental-⊩ᵛ∷ ⊢t .proj₂)
+  fundamental-⊩ᵛ∷ (prodrecⱼ _ _ ⊢C ⊢t ⊢u _) =
+    _ , prodrecᵛ (fundamental-⊩ᵛ ⊢C .proj₂) (fundamental-⊩ᵛ∷ ⊢t .proj₂)
       (fundamental-⊩ᵛ∷ ⊢u .proj₂)
-  fundamental-⊩ᵛ∷ (unitrecⱼ {u} ⊢A ⊢t ⊢u _) =
-    _ , unitrecᵛ {u = u} (proj₂ (fundamental-⊩ᵛ ⊢A)) (proj₂ (fundamental-⊩ᵛ∷ ⊢t))
+  fundamental-⊩ᵛ∷ (unitrecⱼ ⊢A ⊢t ⊢u _) =
+    _ , unitrecᵛ (fundamental-⊩ᵛ ⊢A .proj₂) (fundamental-⊩ᵛ∷ ⊢t .proj₂)
       (proj₂ (fundamental-⊩ᵛ∷ ⊢u))
-  fundamental-⊩ᵛ∷ (Idⱼ {t} {u} ⊢A ⊢t ⊢u) with
-    fundamental-⊩ᵛ∷ ⊢A | fundamental-⊩ᵛ∷ ⊢t | fundamental-⊩ᵛ∷ ⊢u
-  ... | l₁ , [A] | l₂ , [t] | l₃ , [U] =
-    _ , Idᵗᵛ {t = t} {u = u} (proj₂ (fundamental-⊩ᵛ∷ ⊢A))
-      (proj₂ (fundamental-⊩ᵛ∷ ⊢t)) (proj₂ (fundamental-⊩ᵛ∷ ⊢u))
+  fundamental-⊩ᵛ∷ (Idⱼ ⊢A ⊢t ⊢u) =
+    _
+    , Idᵗᵛ (fundamental-⊩ᵛ∷ ⊢A .proj₂) (fundamental-⊩ᵛ∷ ⊢t .proj₂)
+        (fundamental-⊩ᵛ∷ ⊢u .proj₂)
   fundamental-⊩ᵛ∷ (rflⱼ ⊢t) =
-    _ , rflᵛ (proj₂ (fundamental-⊩ᵛ∷ ⊢t))
-  fundamental-⊩ᵛ∷ (Jⱼ {u} _ _ ⊢B ⊢u _ ⊢w) =
-    _ , Jᵛ {u = u} (proj₂ (fundamental-⊩ᵛ ⊢B)) (proj₂ (fundamental-⊩ᵛ∷ ⊢u))
-      (proj₂ (fundamental-⊩ᵛ∷ ⊢w))
-  fundamental-⊩ᵛ∷ (Kⱼ {u} _ ⊢B ⊢u ⊢v ok) =
-    _ , Kᵛ {u = u} ok (proj₂ (fundamental-⊩ᵛ ⊢B)) (proj₂ (fundamental-⊩ᵛ∷ ⊢u))
-      (proj₂ (fundamental-⊩ᵛ∷ ⊢v))
-  fundamental-⊩ᵛ∷ ([]-congⱼ {v} ⊢t ⊢u ⊢v ok) =
-    _ , []-congᵛ {v = v} ok (proj₂ (fundamental-⊩ᵛ∷ ⊢v))
+    _ , rflᵛ (fundamental-⊩ᵛ∷ ⊢t .proj₂)
+  fundamental-⊩ᵛ∷ (Jⱼ _ _ ⊢B ⊢u _ ⊢w) =
+      _
+    , Jᵛ (fundamental-⊩ᵛ ⊢B .proj₂) (fundamental-⊩ᵛ∷ ⊢u .proj₂)
+        (fundamental-⊩ᵛ∷ ⊢w .proj₂)
+  fundamental-⊩ᵛ∷ (Kⱼ _ ⊢B ⊢u ⊢v ok) =
+      _
+    , Kᵛ ok (fundamental-⊩ᵛ ⊢B .proj₂) (fundamental-⊩ᵛ∷ ⊢u .proj₂)
+        (fundamental-⊩ᵛ∷ ⊢v .proj₂)
+  fundamental-⊩ᵛ∷ ([]-congⱼ ⊢t ⊢u ⊢v ok) =
+    _ , []-congᵛ ok (fundamental-⊩ᵛ∷ ⊢v .proj₂)
   fundamental-⊩ᵛ∷ (Uⱼ ⊢Γ) =
-    _ , univInUniv ≤′-refl (⊩ᵛU (valid ⊢Γ))
+    _ , ⊩ᵛU∷U (valid ⊢Γ)
 
   -- Fundamental theorem for term equality.
   fundamental-⊩ᵛ≡∷ : Γ ⊢ t ≡ u ∷ A → ∃ λ l → Γ ⊩ᵛ⟨ l ⟩ t ≡ u ∷ A
@@ -186,7 +188,9 @@ opaque mutual
   fundamental-⊩ᵛ≡∷ (conv t≡u A≡B) =
     _ , conv-⊩ᵛ≡∷ (proj₂ (fundamental-⊩ᵛ≡ A≡B)) (proj₂ (fundamental-⊩ᵛ≡∷ t≡u))
   fundamental-⊩ᵛ≡∷ (ΠΣ-cong _ A₁≡A₂ B₁≡B₂ ok) =
-    _ , ΠΣ-congᵗᵛ ok (fundamental-⊩ᵛ≡∷ A₁≡A₂ .proj₂) (fundamental-⊩ᵛ≡∷ B₁≡B₂ .proj₂)
+      _
+    , ΠΣ-congᵗᵛ ok (emb-⊩ᵛ≡∷ ≤ᵘ⊔ᵘʳ $ fundamental-⊩ᵛ≡∷ A₁≡A₂ .proj₂)
+        (emb-⊩ᵛ≡∷ ≤ᵘ⊔ᵘˡ $ fundamental-⊩ᵛ≡∷ B₁≡B₂ .proj₂)
   fundamental-⊩ᵛ≡∷ (app-cong t₁≡t₂ u₁≡u₂) =
     _ , ∘-congᵛ (fundamental-⊩ᵛ≡∷ t₁≡t₂ .proj₂) (fundamental-⊩ᵛ≡∷ u₁≡u₂ .proj₂)
   fundamental-⊩ᵛ≡∷ (β-red _ _ ⊢t ⊢u PE.refl ok) =
@@ -213,13 +217,13 @@ opaque mutual
     _ , fst-congᵛ (fundamental-⊩ᵛ≡∷ t₁≡t₂ .proj₂)
   fundamental-⊩ᵛ≡∷ (snd-cong _ _ t₁≡t₂) =
     _ , snd-congᵛ (fundamental-⊩ᵛ≡∷ t₁≡t₂ .proj₂)
-  fundamental-⊩ᵛ≡∷ (prod-cong {t = t₁} {t′ = t₂} _ ⊢B t₁≡t₂ u₁≡u₂ ok) =
-        let l₁ , [t₁≡t₂] = fundamental-⊩ᵛ≡∷ t₁≡t₂
-            l₂ , [B] = fundamental-⊩ᵛ ⊢B
-        in l₁ ⊔T l₂ , prod-congᵛ ok
-            (emb-⊩ᵛ (m≤n⇒m≤o⊔n′ l₁ ≤′-refl) [B])
-            (emb-⊩ᵛ≡∷ (m≤n⇒m≤n⊔o′ l₂ ≤′-refl) [t₁≡t₂])
-            (fundamental-⊩ᵛ≡∷ u₁≡u₂ .proj₂)
+  fundamental-⊩ᵛ≡∷ (prod-cong _ ⊢B t₁≡t₂ u₁≡u₂ ok) =
+    let l₁ , t₁≡t₂ = fundamental-⊩ᵛ≡∷ t₁≡t₂
+        l₂ , ⊩B    = fundamental-⊩ᵛ ⊢B
+    in
+      l₁ ⊔ᵘ l₂
+    , prod-congᵛ ok (emb-⊩ᵛ ≤ᵘ⊔ᵘˡ ⊩B) (emb-⊩ᵛ≡∷ ≤ᵘ⊔ᵘʳ t₁≡t₂)
+        (fundamental-⊩ᵛ≡∷ u₁≡u₂ .proj₂)
   fundamental-⊩ᵛ≡∷ (Σ-β₁ _ ⊢B ⊢t ⊢u PE.refl ok) =
     _ , Σ-β₁ᵛ ok (fundamental-⊩ᵛ ⊢B .proj₂)
       (fundamental-⊩ᵛ∷ ⊢t .proj₂) (fundamental-⊩ᵛ∷ ⊢u .proj₂)

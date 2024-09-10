@@ -38,7 +38,7 @@ import Tools.PropositionalEquality as PE
 private variable
   Γ           : Con Term _
   A A₁ A₂ t u : Term _
-  l           : TypeLevel
+  l           : Universe-level
 
 opaque
 

@@ -68,10 +68,12 @@ mutual
                 → Γ ⊢ A′ ⇒* A
                 → Γ ⊢ t ~ u ↓ A
                 → Γ ⊢ t [conv↓] u ∷ A
-  lift~toConv↓′ (Uᵣ′ .⁰ 0<1 ⊢Γ) D ([~] A (D₁ , _) k~l)
-                rewrite PE.sym (whnfRed* D Uₙ) =
-    let _ , ⊢t , ⊢u = syntacticEqTerm (conv (soundness~↑ k~l) (subset* D₁))
-    in  univ ⊢t ⊢u (ne ([~] A (D₁ , Uₙ) k~l))
+  lift~toConv↓′ (Uᵣ′ _ _ A′⇒*U) A′⇒*A ([~] _ (B⇒*A , A-whnf) t~u)
+    rewrite PE.sym (whrDet* (red A′⇒*U , Uₙ) (A′⇒*A , A-whnf)) =
+    let _ , ⊢t , ⊢u =
+          syntacticEqTerm (conv (soundness~↑ t~u) (subset* B⇒*A))
+    in
+    univ ⊢t ⊢u (ne ([~] _ (B⇒*A , Uₙ) t~u))
   lift~toConv↓′ (ℕᵣ D) D₁ ([~] A (D₂ , whnfB) k~l)
                 rewrite PE.sym (whrDet* (red D , ℕₙ) (D₁ , whnfB)) =
     ℕ-ins ([~] A (D₂ , ℕₙ) k~l)
@@ -158,7 +160,8 @@ mutual
     case syntacticEqTerm (soundness~↓ t~u) .proj₂ .proj₁ of λ {
       ⊢t →
     Id-ins ⊢t t~u }}
-  lift~toConv↓′ (emb 0<1 [A]) D t~u = lift~toConv↓′ [A] D t~u
+  lift~toConv↓′ (emb ≤ᵘ-refl     ⊩A) = lift~toConv↓′ ⊩A
+  lift~toConv↓′ (emb (≤ᵘ-step p) ⊩A) = lift~toConv↓′ (emb p ⊩A)
 
   -- Helper function for lifting from neutrals to generic terms.
   lift~toConv↑′ : ∀ {t u A l}
@@ -178,7 +181,7 @@ lift~toConv↓ : ∀ {t u A}
              → Γ ⊢ t ~ u ↓ A
              → Γ ⊢ t [conv↓] u ∷ A
 lift~toConv↓ ([~] A₁ D@(D′ , _) k~l) =
-  lift~toConv↓′ (reducible-⊩ (proj₁ (syntacticRed D′))) D′
+  lift~toConv↓′ (reducible-⊩ (proj₁ (syntacticRed D′)) .proj₂) D′
     ([~] A₁ D k~l)
 
 -- Lifting of algorithmic equality of terms from neutrals to generic terms.
@@ -187,4 +190,4 @@ lift~toConv↑ : ∀ {t u A}
              → Γ ⊢ t [conv↑] u ∷ A
 lift~toConv↑ t~u =
   lift~toConv↑′
-    (reducible-⊩ (proj₁ (syntacticEqTerm (soundness~↑ t~u)))) t~u
+    (reducible-⊩ (proj₁ (syntacticEqTerm (soundness~↑ t~u))) .proj₂) t~u

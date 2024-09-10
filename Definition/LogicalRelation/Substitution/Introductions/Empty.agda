@@ -29,13 +29,13 @@ open import Definition.LogicalRelation.Substitution R
 open import Definition.LogicalRelation.Substitution.Introductions.Universe R
 
 open import Tools.Function
-open import Tools.Nat using (Nat; 1+; ≤′-refl; ≤′-step)
+open import Tools.Nat using (Nat; 1+)
 open import Tools.Product
 
 private variable
   Γ Δ : Con Term _
   A B t u : Term _
-  l : TypeLevel
+  l : Universe-level
 
 ------------------------------------------------------------------------
 -- Characterisation lemmas
@@ -72,8 +72,8 @@ opaque
       (⊩Empty : Γ ⊩⟨ l ⟩Empty Empty) →
       Γ ⊩⟨ l ⟩ t ∷ Empty / Empty-intr ⊩Empty →
       Γ ⊩Empty t ∷Empty
-    lemma (emb ≤′-refl ⊩Empty′) ⊩t = lemma ⊩Empty′ ⊩t
-    lemma (emb (≤′-step s) ⊩Empty′) ⊩t = lemma (emb s ⊩Empty′) ⊩t
+    lemma (emb ≤ᵘ-refl ⊩Empty′) ⊩t = lemma ⊩Empty′ ⊩t
+    lemma (emb (≤ᵘ-step s) ⊩Empty′) ⊩t = lemma (emb s ⊩Empty′) ⊩t
     lemma (noemb _) ⊩t = ⊩t
 
 opaque
@@ -101,8 +101,8 @@ opaque
       Γ ⊩⟨ l ⟩ A ≡ B / Empty-intr ⊩A →
       Γ ⊩Empty A ≡ B
     lemma (noemb _)    A≡B = A≡B
-    lemma (emb ≤′-refl ⊩A) A≡B = lemma ⊩A A≡B
-    lemma (emb (≤′-step l<) ⊩A) A≡B = lemma (emb l< ⊩A) A≡B
+    lemma (emb ≤ᵘ-refl ⊩A) A≡B = lemma ⊩A A≡B
+    lemma (emb (≤ᵘ-step l<) ⊩A) A≡B = lemma (emb l< ⊩A) A≡B
 
 opaque
   unfolding _⊩⟨_⟩_≡_∷_ ⊩Empty⇔
@@ -130,9 +130,9 @@ opaque
       Γ ⊩Empty t ∷Empty ×
       Γ ⊩Empty u ∷Empty ×
       Γ ⊩Empty t ≡ u ∷Empty
-    lemma (emb ≤′-refl ⊩Empty′) ⊩t ⊩u t≡u = lemma ⊩Empty′  ⊩t   ⊩u   t≡u 
-    lemma (emb (≤′-step s) ⊩Empty′) ⊩t ⊩u t≡u = lemma (emb s ⊩Empty′)  ⊩t   ⊩u   t≡u 
-    lemma (noemb _) ⊩t ⊩u t≡u = ⊩t , ⊩u , t≡u
+    lemma (emb ≤ᵘ-refl     ⊩Empty′) = lemma ⊩Empty′
+    lemma (emb (≤ᵘ-step s) ⊩Empty′) = lemma (emb s ⊩Empty′)
+    lemma (noemb _) ⊩t ⊩u t≡u       = ⊩t , ⊩u , t≡u
 
 ------------------------------------------------------------------------
 -- Empty
@@ -173,6 +173,6 @@ opaque
           case Emptyⱼ ⊢Δ  of λ
             ⊢Empty →
           Type→⊩≡∷U⇔ Emptyₙ Emptyₙ .proj₂
-            (≤′-refl , refl-⊩≡ (⊩Empty ⊢Δ) ,
+            (≤ᵘ-refl , refl-⊩≡ (⊩Empty ⊢Δ) ,
             ⊢Empty , ⊢Empty , ≅ₜ-Emptyrefl ⊢Δ)
       )

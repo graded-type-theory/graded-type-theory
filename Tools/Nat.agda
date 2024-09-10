@@ -25,20 +25,21 @@ open Data.Nat.Properties
          *-1-isCommutativeMonoid;
          m*n≡0⇒m≡0∨n≡0;
          ⊔-identityʳ; ⊔-assoc; ⊔-comm; ⊔-idem; m≥n⇒m⊔n≡m; m⊔n≡m⇒n≤m;
-         <⇒<′; <′⇒<;  ≤⇒≤′; ≤′⇒≤;
-         ≤′-trans;
          ⊓-assoc; ⊓-comm;
          +-distribˡ-⊔; *-distribˡ-+; *-distribˡ-⊔;
-         ⊓-distribʳ-⊔; ⊔-distribʳ-⊓; ≤⇒pred≤;
+         ⊓-distribʳ-⊔; ⊔-distribʳ-⊓;
          ⊔-absorbs-⊓; ⊓-absorbs-⊔;
          ≤-refl; ≤-reflexive; ≤-trans; ≤-antisym; module ≤-Reasoning;
          n≮n;
+         ≤⇒pred≤;
          +-mono-≤; m≤m+n; m≤n+m; m+n≤o⇒n≤o; 0<1+n; n≤1+n;
          *-mono-≤; m≤m*n; m≤n*m;
-         m≤m⊔n; m≤n⊔m; s≤′s;
+         m≤m⊔n; m≤n⊔m;
          m<n⊓o⇒m<n; m<n⊓o⇒m<o; ⊓-pres-m<;
-         m⊓n≤m⊔n; m+n∸n≡m; m∸n+n≡m; n<1+n; ⊔-mono-<)
-  renaming (suc-injective to +1-injective)
+         m⊓n≤m⊔n; m+n∸n≡m; m∸n+n≡m; ⊔-mono-<;
+         <⇒<′; <′⇒<; ≤′⇒≤; ≤′-trans)
+  renaming (suc-injective to +1-injective;
+            s≤′s to 1+≤′1+)
   public
 open import Data.Nat.Show using (show) public
 open import Relation.Binary using (Tri)
@@ -58,9 +59,9 @@ pattern 2+ n = 1+ (1+ n)
 pattern 3+ n = 1+ (1+ (1+ n))
 
 private variable
-  a       : Level
-  k m n o : Nat
-  p       : Nat → Bool
+  a             : Level
+  k m m′ n n′ o : Nat
+  p             : Nat → Bool
 
 -- Nat is a set.
 
@@ -293,22 +294,43 @@ T-== = ≡ᵇ⇒≡ _ _ , ≡⇒≡ᵇ _ _
     (tri> _     _     n₁>n₂) → ⊥-elim (least₁ _ n₁>n₂ p₂)
 
 opaque
-  ≤→<s : {a b : Nat} → a ≤′ b → a <′ 1+ b
-  ≤→<s ≤′-refl = ≤′-refl
-  ≤→<s (≤′-step l<) = ≤′-step (≤→<s l<)
+
+  -- The relation _<′_ is transitive.
+
+  <′-trans : m <′ n → n <′ o → m <′ o
+  <′-trans p q = ≤⇒≤′ (<-trans (<′⇒< p) (<′⇒< q))
 
 opaque
-  <→≤ : {a b : Nat} → a <′ b → a ≤′ b
-  <→≤ ≤′-refl = ≤′-step ≤′-refl
-  <→≤ (≤′-step l<) = ≤′-step (<→≤ l<)
+
+  -- The relation _<′_ is contained in _≤′_.
+
+  <′→≤′ : m <′ n → m ≤′ n
+  <′→≤′ = ≤⇒≤′ ∘→ <⇒≤ ∘→ <′⇒<
 
 opaque
-  ≤pred≤ : {a b : Nat} → 1+ a ≤′ b → a ≤′ b
-  ≤pred≤ l< = (≤⇒≤′ (≤⇒pred≤ (≤′⇒≤ l<)))
+
+  -- Zero is the least natural number.
+
+  0≤′ : 0 ≤′ n
+  0≤′ = ≤⇒≤′ z≤n
 
 opaque
-  m≤n⇒m≤n⊔o′ : {l l′ : Nat} → (l″ : Nat) → l ≤′ l′ → l ≤′ (l′ ⊔ l″)
-  m≤n⇒m≤n⊔o′ l l< = ≤⇒≤′ (m≤n⇒m≤n⊔o l (≤′⇒≤ l<))
 
-  m≤n⇒m≤o⊔n′ : {l l′ : Nat} → (l″ : Nat) → l ≤′ l′ → l ≤′ (l″ ⊔ l′)
-  m≤n⇒m≤o⊔n′ l l< = ≤⇒≤′ (m≤n⇒m≤o⊔n l (≤′⇒≤ l<))
+  -- The number m is bounded by the maximum of m and n.
+
+  ≤′⊔ʳ : m ≤′ m ⊔ n
+  ≤′⊔ʳ = ≤⇒≤′ (m≤m⊔n _ _)
+
+opaque
+
+  -- The number n is bounded by the maximum of m and n.
+
+  ≤′⊔ˡ : n ≤′ m ⊔ n
+  ≤′⊔ˡ = ≤⇒≤′ (m≤n⊔m _ _)
+
+opaque
+
+  -- The function _⊔_ is monotone.
+
+  ⊔-mono : m ≤′ m′ → n ≤′ n′ → m ⊔ n ≤′ m′ ⊔ n′
+  ⊔-mono p q = ≤⇒≤′ (⊔-mono-≤ (≤′⇒≤ p) (≤′⇒≤ q))

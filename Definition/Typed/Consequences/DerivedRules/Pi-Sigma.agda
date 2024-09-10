@@ -27,6 +27,7 @@ private variable
   A A₁ A₂ B B₁ B₂ : Term _
   p q             : M
   b               : BinderMode
+  l₁ l₂           : Universe-level
 
 opaque
 
@@ -58,9 +59,9 @@ opaque
   -- A variant of the term equality rule ΠΣ-cong.
 
   ΠΣ-cong-U :
-    Γ ⊢ A₁ ≡ A₂ ∷ U →
-    Γ ∙ A₁ ⊢ B₁ ≡ B₂ ∷ U →
+    Γ ⊢ A₁ ≡ A₂ ∷ U l₁ →
+    Γ ∙ A₁ ⊢ B₁ ≡ B₂ ∷ U l₂ →
     ΠΣ-allowed b p q →
-    Γ ⊢ ΠΣ⟨ b ⟩ p , q ▷ A₁ ▹ B₁ ≡ ΠΣ⟨ b ⟩ p , q ▷ A₂ ▹ B₂ ∷ U
+    Γ ⊢ ΠΣ⟨ b ⟩ p , q ▷ A₁ ▹ B₁ ≡ ΠΣ⟨ b ⟩ p , q ▷ A₂ ▹ B₂ ∷ U (l₁ ⊔ᵘ l₂)
   ΠΣ-cong-U A₁≡A₂ =
     ΠΣ-cong (univ (syntacticEqTerm A₁≡A₂ .proj₂ .proj₁)) A₁≡A₂

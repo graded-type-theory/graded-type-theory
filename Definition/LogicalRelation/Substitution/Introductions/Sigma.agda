@@ -30,7 +30,7 @@ private variable
   Γ                   : Con Term _
   A B t t₁ t₂ u u₁ u₂ : Term _
   p q                 : M
-  l l′ l″             : TypeLevel
+  l l′ l″             : Universe-level
   s                   : Strength
 
 opaque

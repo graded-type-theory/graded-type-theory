@@ -52,8 +52,8 @@ Erased-cong ⊢A A≡B =
 
 Erasedⱼ-U :
  Γ ⊢ A → Γ ⊢ A ∷ U l → Γ ⊢ Erased A ∷ U l
-Erasedⱼ-U ⊢A ⊢A∷U = PE.subst (λ l → _ ⊢ Erased _ ∷ U l)
-          ( ⊔-identityʳ _) (ΠΣⱼ ⊢A∷U (Unitⱼ (wf ⊢A ∙ ⊢A) Unit-ok) Σ-ok)
+Erasedⱼ-U ⊢A ⊢A∷U =
+  ΠΣⱼ ⊢A∷U (Unitⱼ (wf ⊢A ∙ ⊢A) Unit-ok) Σ-ok
 
 -- A corresponding congruence rule.
 
@@ -61,8 +61,8 @@ Erased-cong-U :
   Γ ⊢ A →
   Γ ⊢ A ≡ B ∷ U l →
   Γ ⊢ Erased A ≡ Erased B ∷ U l
-Erased-cong-U ⊢A A≡B = PE.subst (λ l → _ ⊢ Erased _ ≡ Erased _ ∷ U l)
-          ( ⊔-identityʳ _) (ΠΣ-cong ⊢A A≡B (refl (Unitⱼ (wf ⊢A ∙ ⊢A) Unit-ok)) Σ-ok)
+Erased-cong-U ⊢A A≡B =
+  ΠΣ-cong ⊢A A≡B (refl (Unitⱼ (wf ⊢A ∙ ⊢A) Unit-ok)) Σ-ok
 
 -- An introduction rule for Erased.
 

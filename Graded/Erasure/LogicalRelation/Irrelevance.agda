@@ -99,10 +99,14 @@ irrelevanceTermSV _ _ t®v (Idᵥ ⊩A ⊩B) =
          (red (_⊩ₗId_.⇒*Id ⊩B) , Idₙ) of λ {
     PE.refl →
   t®v }
-irrelevanceTermSV (emb 0<1 [A]) [A]′ t®v (emb⁰¹ SV) =
-  irrelevanceTermSV [A] [A]′ t®v SV
-irrelevanceTermSV [A] (emb 0<1 [A]′) t®v (emb¹⁰ SV) =
-  irrelevanceTermSV [A] [A]′ t®v SV
+irrelevanceTermSV _ _ t®v (embᵥ₁ ≤ᵘ-refl A≡B) =
+  irrelevanceTermSV _ _ t®v A≡B
+irrelevanceTermSV _ _ t®v (embᵥ₁ (≤ᵘ-step p) A≡B) =
+  irrelevanceTermSV _ _ t®v (embᵥ₁ p A≡B)
+irrelevanceTermSV _ _ t®v (embᵥ₂ ≤ᵘ-refl A≡B) =
+  irrelevanceTermSV _ _ t®v A≡B
+irrelevanceTermSV _ _ t®v (embᵥ₂ (≤ᵘ-step p) A≡B) =
+  irrelevanceTermSV _ _ t®v (embᵥ₂ p A≡B)
 -- Impossible cases
 irrelevanceTermSV _ _ () (Emptyᵥ _ _)
 irrelevanceTermSV _ _ () (ne _ _)

@@ -42,7 +42,7 @@ private
     n ℓ               : Nat
     Γ                 : Con Term n
     A B Ty′ lhs′ rhs′ : Term _
-    l                 : TypeLevel
+    l                 : Universe-level
 
 transEqTermNe : ∀ {n n′ n″ A}
               → Γ ⊩neNf n  ≡ n′  ∷ A
@@ -257,24 +257,19 @@ transEqT (Idᵥ ⊩A ⊩B ⊩C) A≡B B≡C =
        (_⊩ₗId_.⊩Ty ⊩B)
        (_⊩ₗId_≡_/_.Ty≡Ty′ A≡B)
        (_⊩ₗId_≡_/_.rhs≡rhs′ B≡C)) }}
-transEqT (embl-- ≤′-refl (refl-emb _) AB) A≡B B≡C = transEqT AB A≡B B≡C
-transEqT (embl-- (≤′-step l<) (step-emb _ _ embV) AB) A≡B B≡C = transEqT (embl-- l< embV AB) A≡B B≡C
-transEqT (emb-l- ≤′-refl (refl-emb _) AB) A≡B B≡C = transEqT AB A≡B B≡C
-transEqT (emb-l- (≤′-step l<) (step-emb _ _ embV) AB) A≡B B≡C = transEqT (emb-l- l< embV AB) A≡B B≡C
-transEqT (emb--l ≤′-refl (refl-emb _) AB) A≡B B≡C = transEqT AB A≡B B≡C
-transEqT (emb--l (≤′-step l<) (step-emb _ _ embV) AB) A≡B B≡C = transEqT (emb--l l< embV AB) A≡B B≡C
+transEqT (embᵥ₁ ≤ᵘ-refl     A≡B≡C) = transEqT          A≡B≡C
+transEqT (embᵥ₁ (≤ᵘ-step p) A≡B≡C) = transEqT (embᵥ₁ p A≡B≡C)
+transEqT (embᵥ₂ ≤ᵘ-refl     A≡B≡C) = transEqT          A≡B≡C
+transEqT (embᵥ₂ (≤ᵘ-step p) A≡B≡C) = transEqT (embᵥ₂ p A≡B≡C)
+transEqT (embᵥ₃ ≤ᵘ-refl     A≡B≡C) = transEqT          A≡B≡C
+transEqT (embᵥ₃ (≤ᵘ-step p) A≡B≡C) = transEqT (embᵥ₃ p A≡B≡C)
 
-transEqTerm  {l = 1+ l} (Uᵣ′ l′ (≤′-step s) D)
-            (Uₜ₌ A B d d′ typeA typeB t≡u [t] [u] [t≡u])
-            (Uₜ₌ A₁ B₁ d₁ d₁′ typeA₁ typeB₁ t≡u₁ [t]₁ [u]₁ [t≡u]₁) =
-            lemma {D = D} (
-                transEqTerm (Uᵣ′ l′ s D) (Uₜ₌ A B d d′ typeA typeB t≡u [t] [u] [t≡u])
-                (Uₜ₌ A₁ B₁ d₁ d₁′ typeA₁ typeB₁ t≡u₁ [t]₁ [u]₁ [t≡u]₁))
-            where
-              lemma : {n' : Nat} {Γ : Con Term n'}{t v A : Term n'} {l′ n : TypeLevel} {D : Γ ⊢ A :⇒*: U l′} {s : l′ < n} →
-                Γ ⊩⟨ n ⟩ t ≡ v ∷ A / Uᵣ′ l′ s D → Γ ⊩⟨ Nat.suc n ⟩ t ≡ v ∷ A / Uᵣ′ l′ (≤′-step s) D
-              lemma (Uₜ₌ A B d d′ typeA typeB A≡B [t] [u] [t≡u]) = Uₜ₌ A B d d′ typeA typeB A≡B [t] [u] [t≡u]
-transEqTerm (Uᵣ′ l′ ≤′-refl D)
+transEqTerm (Uᵣ′ _ (≤ᵘ-step p) A⇒*U) B≡C C≡D =
+  irrelevanceEqTerm (Uᵣ′ _ p A⇒*U) (Uᵣ′ _ (≤ᵘ-step p) A⇒*U)
+    (transEqTerm (Uᵣ′ _ p A⇒*U)
+       (irrelevanceEqTerm (Uᵣ′ _ (≤ᵘ-step p) A⇒*U) (Uᵣ′ _ p A⇒*U) B≡C)
+       (irrelevanceEqTerm (Uᵣ′ _ (≤ᵘ-step p) A⇒*U) (Uᵣ′ _ p A⇒*U) C≡D))
+transEqTerm (Uᵣ′ l′ ≤ᵘ-refl D)
             (Uₜ₌ A B d d′ typeA typeB t≡u [t] [u] [t≡u])
             (Uₜ₌ A₁ B₁ d₁ d₁′ typeA₁ typeB₁ t≡u₁ [t]₁ [u]₁ [t≡u]₁) =
                 case whrDet*Term (redₜ d₁ , typeWhnf typeA₁) (redₜ d′ , typeWhnf typeB) of λ where
@@ -416,5 +411,5 @@ transEqTerm
          (ne u″-n _ _) →
            ⊥-elim $ rfl≢ne u″-n $
            whrDet*Term (redₜ u⇒*u′ , rflₙ) (redₜ u⇒*u″ , ne u″-n)) }
-transEqTerm (emb ≤′-refl x) t≡u u≡v = transEqTerm x t≡u u≡v
-transEqTerm (emb (≤′-step l<) x) t≡u u≡v = transEqTerm (emb l< x) t≡u u≡v
+transEqTerm (emb ≤ᵘ-refl     ⊩A) = transEqTerm ⊩A
+transEqTerm (emb (≤ᵘ-step p) ⊩A) = transEqTerm (emb p ⊩A)

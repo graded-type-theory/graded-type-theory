@@ -22,6 +22,7 @@ open import Definition.LogicalRelation.Fundamental.Reducibility R
 
 open import Tools.Function
 open import Tools.Nat
+open import Tools.Product
 
 private
   variable
@@ -36,9 +37,9 @@ opaque
 
   completeEq : Γ ⊢ A ≡ B → Γ ⊢ A [conv↑] B
   completeEq {Γ} {A} {B} =
-    Γ ⊢ A ≡ B        →⟨ reducible-⊩≡ ⟩
-    Γ ⊩⟨ ¹ ⟩ A ≡ B   →⟨ escape-⊩≡ ⟩
-    Γ ⊢ A [conv↑] B  □
+    Γ ⊢ A ≡ B                 →⟨ reducible-⊩≡ ⟩
+    (∃ λ l → Γ ⊩⟨ l ⟩ A ≡ B)  →⟨ escape-⊩≡ ∘→ proj₂ ⟩
+    Γ ⊢ A [conv↑] B           □
 
 opaque
 
@@ -47,6 +48,6 @@ opaque
 
   completeEqTerm : Γ ⊢ t ≡ u ∷ A → Γ ⊢ t [conv↑] u ∷ A
   completeEqTerm {Γ} {t} {u} {A} =
-    Γ ⊢ t ≡ u ∷ A        →⟨ reducible-⊩≡∷ ⟩
-    Γ ⊩⟨ ¹ ⟩ t ≡ u ∷ A   →⟨ escape-⊩≡∷ ⟩
-    Γ ⊢ t [conv↑] u ∷ A  □
+    Γ ⊢ t ≡ u ∷ A                 →⟨ reducible-⊩≡∷ ⟩
+    (∃ λ l → Γ ⊩⟨ l ⟩ t ≡ u ∷ A)  →⟨ escape-⊩≡∷ ∘→ proj₂ ⟩
+    Γ ⊢ t [conv↑] u ∷ A           □

@@ -79,11 +79,11 @@ convTermʳ′
       [F₁≡F] = ⊩≡→⊩≡/ ([F]₁ _ _) $
                PE.subst₂ (_⊩⟨_⟩_≡_ _ _) (PE.sym $ wk-id _)
                  (PE.sym $ wk-id _) $
-               reducible-⊩≡ (sym F≡F₁)
+               reducible-⊩≡ (sym F≡F₁) .proj₂
       [a] = convTerm₁ ([F]₁ id ⊢Δ) ([F] id ⊢Δ) [F₁≡F] [a]′
       G≡G₁′ = wkEq (lift id) (⊢Δ ∙ escape ([F] id ⊢Δ)) G≡G₁
       G[a]≡G₁[a] = substTypeEq G≡G₁′ (refl (escapeTerm ([F] id ⊢Δ) [a]))
-      [Ga≡G₁a] = ⊩≡→⊩≡/ ([G] _ _ _) (reducible-⊩≡ G[a]≡G₁[a])
+      [Ga≡G₁a] = ⊩≡→⊩≡/ ([G] _ _ _) (reducible-⊩≡ G[a]≡G₁[a] .proj₂)
       t®v′ = t®v .proj₂ [a]
       SV = goodCases ([G] id ⊢Δ [a]) ([G]₁ id ⊢Δ [a]′) [Ga≡G₁a]
   in  convTermʳ′ ([G] id ⊢Δ [a]) ([G]₁ id ⊢Δ [a]′) G[a]≡G₁[a] SV t®v′
@@ -93,11 +93,11 @@ convTermʳ′
       [F₁≡F] = ⊩≡→⊩≡/ ([F]₁ _ _) $
                PE.subst₂ (_⊩⟨_⟩_≡_ _ _) (PE.sym $ wk-id _)
                  (PE.sym $ wk-id _) $
-               reducible-⊩≡ (sym F≡F₁)
+               reducible-⊩≡ (sym F≡F₁) .proj₂
       [a] = convTerm₁ ([F]₁ id ⊢Δ) ([F] id ⊢Δ) [F₁≡F] [a]′
       G≡G₁′ = wkEq (lift id) (⊢Δ ∙ escape ([F] id ⊢Δ)) G≡G₁
       G[a]≡G₁[a] = substTypeEq G≡G₁′ (refl (escapeTerm ([F] id ⊢Δ) [a]))
-      [Ga≡G₁a] = ⊩≡→⊩≡/ ([G] _ _ _) (reducible-⊩≡ G[a]≡G₁[a])
+      [Ga≡G₁a] = ⊩≡→⊩≡/ ([G] _ _ _) (reducible-⊩≡ G[a]≡G₁[a] .proj₂)
       SV = goodCases ([F]₁ id ⊢Δ) ([F] id ⊢Δ) [F₁≡F]
       F₁≡F = PE.subst₂ (Δ ⊢_≡_) (PE.sym (wk-id F₁)) (PE.sym (wk-id F)) (sym F≡F₁)
       a®w = convTermʳ′ ([F]₁ id ⊢Δ) ([F] id ⊢Δ) F₁≡F SV a®w′
@@ -116,14 +116,14 @@ convTermʳ′ {v = v}
       [F≡F₁] = ⊩≡→⊩≡/ [F]′ $
                PE.subst₂ (_⊩⟨_⟩_≡_ _ _) (PE.sym $ wk-id _)
                  (PE.sym $ wk-id _) $
-               reducible-⊩≡ F≡F₁
+               reducible-⊩≡ F≡F₁ .proj₂
       F≡F₁′ = PE.subst₂ (Δ ⊢_≡_) (PE.sym (wk-id F)) (PE.sym (wk-id F₁)) F≡F₁
       [t₁]′ = convTerm₁ [F]′ [F]₁′ [F≡F₁] [t₁]
       G≡G₁′ = wkEq (lift id) (⊢Δ ∙ escape [F]′) G≡G₁
       G[t₁]≡G₁[t₁] = substTypeEq G≡G₁′ (refl (escapeTerm [F]′ [t₁]))
       [Gt₁] = [G] id ⊢Δ [t₁]
       [Gt₁]₁ = [G]₁ id ⊢Δ [t₁]′
-      [Gt₁≡G₁t₁] = ⊩≡→⊩≡/ [Gt₁] (reducible-⊩≡ G[t₁]≡G₁[t₁])
+      [Gt₁≡G₁t₁] = ⊩≡→⊩≡/ [Gt₁] (reducible-⊩≡ G[t₁]≡G₁[t₁] .proj₂)
       t⇒t″ = conv* t⇒t′ Σ≡Σ₁
       SV₂ = goodCases [Gt₁] [Gt₁]₁ [Gt₁≡G₁t₁]
       t₂®v₂′ = convTermʳ′ [Gt₁] [Gt₁]₁ G[t₁]≡G₁[t₁] SV₂ t₂®v₂
@@ -143,10 +143,14 @@ convTermʳ′ {A} {B} _ _ A≡B (Idᵥ ⊩A ⊩B) (rflᵣ t⇒*rfl ⇒*↯) =
         B                                                  ≡⟨ subset* (red (_⊩ₗId_.⇒*Id ⊩B)) ⟩⊢∎
         Id (_⊩ₗId_.Ty ⊩B) (_⊩ₗId_.lhs ⊩B) (_⊩ₗId_.rhs ⊩B)  ∎))
     ⇒*↯
-convTermʳ′ (emb 0<1 [A]) [B] A≡B (emb⁰¹ SV) t®v =
-  convTermʳ′ [A] [B] A≡B SV t®v
-convTermʳ′ [A] (emb 0<1 [B]) A≡B (emb¹⁰ SV) t®v =
-  convTermʳ′ [A] [B] A≡B SV t®v
+convTermʳ′ _ _ A≡B (embᵥ₁ ≤ᵘ-refl A≡B′) =
+  convTermʳ′ _ _ A≡B A≡B′
+convTermʳ′ _ _ A≡B (embᵥ₁ (≤ᵘ-step p) A≡B′) =
+  convTermʳ′ _ _ A≡B (embᵥ₁ p A≡B′)
+convTermʳ′ _ _ A≡B (embᵥ₂ ≤ᵘ-refl A≡B′) =
+  convTermʳ′ _ _ A≡B A≡B′
+convTermʳ′ _ _ A≡B (embᵥ₂ (≤ᵘ-step p) A≡B′) =
+  convTermʳ′ _ _ A≡B (embᵥ₂ p A≡B′)
 -- Impossible cases
 convTermʳ′ _ _ _ (Emptyᵥ _ _) ()
 convTermʳ′ _ _ _ (ne _ _) ()
@@ -161,5 +165,5 @@ convTermʳ : ∀ {l l′ A B t v}
           → t ®⟨ l ⟩ v ∷ A / [A]
           → t ®⟨ l′ ⟩ v ∷ B / [B]
 convTermʳ [A] [B] A≡B t®v =
-  let [A≡B] = ⊩≡→⊩≡/ [A] (reducible-⊩≡ A≡B)
+  let [A≡B] = ⊩≡→⊩≡/ [A] (reducible-⊩≡ A≡B .proj₂)
   in convTermʳ′ [A] [B] A≡B (goodCases [A] [B] [A≡B]) t®v

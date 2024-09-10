@@ -87,7 +87,7 @@ mutual
     where
     erase″ : U.Term n → T.Term n
     erase″ (var x)                 = T.var x
-    erase″ U                       = loop? s
+    erase″ (U _)                   = loop? s
     erase″ (ΠΣ⟨ _ ⟩ _ , _ ▷ _ ▹ _) = loop? s
     erase″ (U.lam p t)             = case remove of λ where
       false → T.lam (erase″ t)

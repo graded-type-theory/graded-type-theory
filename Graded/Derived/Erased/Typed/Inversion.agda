@@ -24,6 +24,7 @@ open import Definition.Typed.Consequences.Inversion R
 open import Definition.Typed.Consequences.Substitution R
 
 open import Definition.Untyped M as U
+open import Definition.Untyped.Properties M
 
 open import Graded.Derived.Erased.Untyped 𝕄 s
 
@@ -44,11 +45,12 @@ opaque
 
   inversion-Erased-∷ :
     Γ ⊢ Erased A ∷ B →
-    Γ ⊢ A ∷ U × Erased-allowed s × Γ ⊢ B ≡ U
+    ∃₂ λ l₁ l₂ → l₁ ≤ᵘ l₂ ×
+      Γ ⊢ A ∷ U l₁ × Erased-allowed s × Γ ⊢ B ≡ U l₂
   inversion-Erased-∷ ⊢Erased =
     case inversion-ΠΣ-U ⊢Erased of λ {
-      (⊢A , ⊢Unit , B≡ , Σˢ-ok) →
-    ⊢A , (inversion-Unit (univ ⊢Unit) , Σˢ-ok) , B≡ }
+      (_ , _ , ⊢A , ⊢Unit , B≡ , Σˢ-ok) →
+    _ , _ , ≤ᵘ⊔ᵘʳ , ⊢A , (inversion-Unit (univ ⊢Unit) , Σˢ-ok) , B≡ }
 
 opaque
 
@@ -115,7 +117,7 @@ opaque
     t′ = zero
 
     A′ : Term 0
-    A′ = Σ 𝟘 , 𝟘 ▷ ℕ ▹ natrec 𝟙 𝟙 𝟙 U Unit! ℕ (var x0)
+    A′ = Σ 𝟘 , 𝟘 ▷ ℕ ▹ natrec 𝟙 𝟙 𝟙 (U 0) Unit! ℕ (var x0)
 
     ⊢Γ′∙ℕ : ⊢ Γ′ ∙ ℕ
     ⊢Γ′∙ℕ = ε ∙ ℕⱼ ε
@@ -123,7 +125,7 @@ opaque
     ⊢Γ′∙ℕ∙ℕ : ⊢ Γ′ ∙ ℕ ∙ ℕ
     ⊢Γ′∙ℕ∙ℕ = ⊢Γ′∙ℕ ∙ ℕⱼ ⊢Γ′∙ℕ
 
-    ⊢Γ′∙ℕ∙U : ⊢ Γ′ ∙ ℕ ∙ U
+    ⊢Γ′∙ℕ∙U : ⊢ Γ′ ∙ ℕ ∙ U 0
     ⊢Γ′∙ℕ∙U = ⊢Γ′∙ℕ ∙ Uⱼ ⊢Γ′∙ℕ
 
     ⊢[t′] : Γ′ ⊢ [ t′ ] ∷ A′

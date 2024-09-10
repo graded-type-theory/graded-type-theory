@@ -21,9 +21,10 @@ open import Definition.Typed R
 open import Definition.Typed.Weakening R
 open import Definition.Typed.Properties R
 open import Definition.LogicalRelation R
+open import Definition.LogicalRelation.Properties.Kit R
 
 open import Tools.Function
-open import Tools.Nat using (Nat; ≤′-refl; ≤′-step)
+open import Tools.Nat using (Nat)
 open import Tools.Product
 import Tools.PropositionalEquality as PE
 open import Tools.Sum using (inj₁; inj₂)
@@ -31,8 +32,8 @@ open import Tools.Sum using (inj₁; inj₂)
 private
   variable
     n : Nat
-    l′ l : TypeLevel
-    A B : Term _
+    l′ l : Universe-level
+    A B t : Term _
     Γ : Con Term n
 
 reflNatural-prop : ∀ {n}
@@ -63,9 +64,15 @@ reflEq : ∀ {l A} ([A] : Γ ⊩⟨ l ⟩ A) → Γ ⊩⟨ l ⟩ A ≡ A / [A]
 reflEqTerm : ∀ {l A t} ([A] : Γ ⊩⟨ l ⟩ A)
            → Γ ⊩⟨ l ⟩ t ∷ A / [A]
            → Γ ⊩⟨ l ⟩ t ≡ t ∷ A / [A]
-refl-helper : ∀(p : l′ < l) → ([A] : LogRelKit._⊩_ (kit′ p) Γ A) → Γ ⊩⟨ l ⟩ A ≡ A / emb p [A]
-refl-helper ≤′-refl [A] = reflEq [A]
-refl-helper (≤′-step p) [A] = refl-helper p [A]
+
+private
+
+  -- A lemma used below.
+
+  reflEq-⊩< :
+    (p : l′ <ᵘ l) (⊩A : Γ ⊩<⟨ p ⟩ A) → Γ ⊩⟨ l ⟩ A ≡ A / emb p ⊩A
+  reflEq-⊩< ≤ᵘ-refl     = reflEq
+  reflEq-⊩< (≤ᵘ-step p) = reflEq-⊩< p
 
 reflEq (Uᵣ′ l′ l< ⊢Γ) = ⊢Γ
 reflEq (ℕᵣ D) = red D
@@ -87,9 +94,10 @@ reflEq (Idᵣ ⊩A) = record
   }
   where
   open _⊩ₗId_ ⊩A
-reflEq (emb p [A]) =  refl-helper p [A] 
+reflEq (emb p [A]) = reflEq-⊩< p [A]
 
-reflEqTerm (Uᵣ′ k p ⊢Γ) (Uₜ A d typeA A≡A [A]) =  Uₜ₌ A A d d typeA typeA A≡A [A] [A] (refl-helper p [A])
+reflEqTerm (Uᵣ′ _ p _) (Uₜ A d A-type A≅A ⊩A) =
+  Uₜ₌ A A d d A-type A-type A≅A ⊩A ⊩A (reflEq-⊩< p ⊩A)
 reflEqTerm (ℕᵣ D) (ℕₜ n [ ⊢t , ⊢u , d ] t≡t prop) =
   ℕₜ₌ n n [ ⊢t , ⊢u , d ] [ ⊢t , ⊢u , d ] t≡t
       (reflNatural-prop prop)
@@ -127,9 +135,10 @@ reflEqTerm (Idᵣ _) ⊩t =
     (case ⊩Id∷-view-inhabited ⊩t of λ where
        (rflᵣ _)     → _
        (ne _ t′~t′) → t′~t′)
-reflEqTerm (emb p [A]) t = refl-helper-Term p [A] t
+reflEqTerm (emb p ⊩A) ⊩t = reflEqTerm-⊩< p ⊩A ⊩t
   where
-    refl-helper-Term : ∀(p : l′ < l) → ([A] : LogRelKit._⊩_ (kit′ p) Γ B) →
-      Γ ⊩⟨ l ⟩ A ∷ B / emb p [A] → Γ ⊩⟨ l ⟩ A ≡ A ∷ B / emb p [A]
-    refl-helper-Term ≤′-refl [A] t =  reflEqTerm [A] t
-    refl-helper-Term (≤′-step p) [A] t = refl-helper-Term p [A] t
+  reflEqTerm-⊩< :
+    (p : l′ <ᵘ l) (⊩A : Γ ⊩<⟨ p ⟩ A) →
+    Γ ⊩⟨ l ⟩ t ∷ A / emb p ⊩A → Γ ⊩⟨ l ⟩ t ≡ t ∷ A / emb p ⊩A
+  reflEqTerm-⊩< ≤ᵘ-refl     ⊩A = reflEqTerm ⊩A
+  reflEqTerm-⊩< (≤ᵘ-step p) ⊩A = reflEqTerm-⊩< p ⊩A

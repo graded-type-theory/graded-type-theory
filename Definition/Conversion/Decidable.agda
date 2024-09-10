@@ -843,20 +843,26 @@ mutual
   decConv↓ (ne A~) B≡ =
     let _ , A-ne , _ = ne~↓ A~ in
     case inv-[conv↓]-ne′ B≡ of λ where
-      (inj₁ B~) →
+      (inj₁ (_ , B~)) →
         case dec~↓ A~ B~ of λ where
           (yes (_ , A~B)) →
             yes $ ne $
-            let U≡A′ = neTypeEq A-ne (~↓→∷ A~) (~↓→∷ A~B) in
-            PE.subst (_⊢_~_↓_ _ _ _) (U≡A U≡A′) A~B
-          (no ¬A~B) → no (¬A~B ∘→ (_ ,_) ∘→ inv-[conv↓]-ne A-ne)
+            let C-whnf , _ = ne~↓ A~B
+                U≡A′       = neTypeEq A-ne (~↓→∷ A~) (~↓→∷ A~B)
+            in
+            PE.subst (_⊢_~_↓_ _ _ _) (U≡A U≡A′ C-whnf) A~B
+          (no ¬A~B) →
+            no (¬A~B ∘→ (_ ,_) ∘→ proj₂ ∘→ inv-[conv↓]-ne A-ne)
       (inj₂ (¬-B-ne , _)) →
         no λ A≡B →
-        ¬-B-ne (ne~↓ (inv-[conv↓]-ne A-ne A≡B) .proj₂ .proj₂)
-  decConv↓ U≡U@(U-refl _) B≡ =
+        ¬-B-ne (ne~↓ (inv-[conv↓]-ne A-ne A≡B .proj₂) .proj₂ .proj₂)
+  decConv↓ U≡U@(U-refl {l = l₁} _) B≡ =
     case inv-[conv↓]-U′ B≡ of λ where
-      (inj₁ (PE.refl , _)) → yes U≡U
-      (inj₂ (B≢U , _))     → no (B≢U ∘→ inv-[conv↓]-U)
+      (inj₁ (l₂ , PE.refl , _)) →
+        case l₁ ≟ᵘ l₂ of λ where
+          (yes PE.refl) → yes U≡U
+          (no l₁≢l₂)    → no (l₁≢l₂ ∘→ U-injectivity ∘→ soundnessConv↓)
+      (inj₂ (B≢U , _)) → no (B≢U ∘→ (_ ,_) ∘→ inv-[conv↓]-U)
   decConv↓ (ΠΣ-cong A₁≡ A₂≡ ok) B≡ =
     case inv-[conv↓]-ΠΣ′ B≡ of λ where
       (inj₁

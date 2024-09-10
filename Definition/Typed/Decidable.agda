@@ -40,7 +40,7 @@ open import Definition.Typed.Decidable.Equality R _≟_ public
 
 -- If Γ is well-formed and A is checkable, then Γ ⊢ A is decidable.
 
-dec : ⊢ Γ → Checkable A → Dec (Γ ⊢ A)
+dec : ⊢ Γ → Checkable-type A → Dec (Γ ⊢ A)
 dec ⊢Γ A =
   Dec.map (soundness⇇Type ⊢Γ) (completeness⇇Type A) (dec⇇Type ⊢Γ A)
 
@@ -53,7 +53,7 @@ decTermᶜ ⊢A t = Dec.map soundness⇇ (completeness⇇ t) (dec⇇ t ⊢A)
 -- Type-checking for arbitrary checkable types: if Γ is well-formed
 -- and A and t are checkable, then Γ ⊢ t ∷ A is decidable.
 
-decTermTypeᶜ : ⊢ Γ → Checkable A → Checkable t → Dec (Γ ⊢ t ∷ A)
+decTermTypeᶜ : ⊢ Γ → Checkable-type A → Checkable t → Dec (Γ ⊢ t ∷ A)
 decTermTypeᶜ ⊢Γ A t =
   case dec ⊢Γ A of λ where
     (yes ⊢A) → decTermᶜ ⊢A t
@@ -82,7 +82,7 @@ decWfCon (Γ ∙ A) = case decWfCon Γ of λ where
 
 -- If Γ and A are checkable, then Γ ⊢ A is decidable.
 
-decConTypeᶜ : CheckableCon Γ → Checkable A → Dec (Γ ⊢ A)
+decConTypeᶜ : CheckableCon Γ → Checkable-type A → Dec (Γ ⊢ A)
 decConTypeᶜ Γ A =
   case decWfCon Γ of λ where
     (yes ⊢Γ) → dec ⊢Γ A
@@ -92,7 +92,7 @@ decConTypeᶜ Γ A =
 -- and t are checkable, then Γ ⊢ t ∷ A is decidable.
 
 decConTermTypeᶜ :
-  CheckableCon Γ → Checkable A → Checkable t → Dec (Γ ⊢ t ∷ A)
+  CheckableCon Γ → Checkable-type A → Checkable t → Dec (Γ ⊢ t ∷ A)
 decConTermTypeᶜ Γ A t =
   case decWfCon Γ of λ where
     (yes ⊢Γ) → decTermTypeᶜ ⊢Γ A t

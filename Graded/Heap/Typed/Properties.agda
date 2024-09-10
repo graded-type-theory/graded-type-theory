@@ -22,6 +22,7 @@ open import Definition.Untyped.Properties M
 open import Definition.Typed TR
 open import Definition.Typed.Properties TR
 open import Definition.Typed.Consequences.DerivedRules TR
+open import Definition.Typed.Consequences.Inequality TR
 open import Definition.Typed.Consequences.Inversion TR
 open import Definition.Typed.Consequences.Substitution TR
 open import Definition.Typed.Consequences.Syntactic TR
@@ -43,6 +44,7 @@ private variable
   H : Heap _ _
   Γ Δ : Con Term _
   t u A B : Term _
+  l : Universe-level
   e : Elim _
   S : Stack _
   s : State _ _ _
@@ -359,3 +361,21 @@ opaque
 
   ⊢emptyrec₀∉S : Consistent Δ → Δ ⨾ Γ ⊢ ⟨ H , t , ρ , S ⟩ ∷ A → emptyrec₀∈ S → ⊥
   ⊢emptyrec₀∉S consistent (_ , _ , ⊢t , ⊢S) x = ⊢ˢemptyrec₀∉S consistent ⊢S ⊢t x
+
+opaque
+
+  -- An eliminator's "hole type" is not definitionally equal to U l.
+
+  hole-type-not-U : Δ ⨾ H ⊢ᵉ e ⟨ t ⟩∷ A ↝ B → ¬ Γ ⊢ A ≡ U l
+  hole-type-not-U (∘ₑ _ _)         = U≢ΠΣⱼ ∘→ sym
+  hole-type-not-U (fstₑ _ _)       = U≢ΠΣⱼ ∘→ sym
+  hole-type-not-U (sndₑ _ _)       = U≢ΠΣⱼ ∘→ sym
+  hole-type-not-U (prodrecₑ _ _)   = U≢ΠΣⱼ ∘→ sym
+  hole-type-not-U (natrecₑ _ _ _)  = U≢ℕ ∘→ sym
+  hole-type-not-U (unitrecₑ _ _ _) = U≢Unitⱼ ∘→ sym
+  hole-type-not-U (emptyrecₑ _)    = U≢Emptyⱼ ∘→ sym
+  hole-type-not-U (Jₑ _ _)         = Id≢U
+  hole-type-not-U (Kₑ _ _ _)       = Id≢U
+  hole-type-not-U ([]-congₑ _)     = Id≢U
+  hole-type-not-U sucₑ             = U≢ℕ ∘→ sym
+  hole-type-not-U (conv ⊢e _)      = hole-type-not-U ⊢e

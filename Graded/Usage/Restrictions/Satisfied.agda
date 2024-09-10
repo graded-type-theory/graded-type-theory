@@ -29,6 +29,7 @@ open import Definition.Untyped M
 open import Tools.Bool using (T)
 open import Tools.Fin
 open import Tools.Function
+open import Tools.Nat
 open import Tools.Product
 open import Tools.PropositionalEquality
 import Tools.Reasoning.PartialOrder
@@ -38,6 +39,7 @@ private
   module CR {n} = Tools.Reasoning.PartialOrder (≤ᶜ-poset {n = n})
 
 private variable
+  l           : Nat
   x           : Fin _
   A B t u v w : Term _
   p q r       : M
@@ -116,7 +118,7 @@ data Usage-restrictions-satisfied {n} (m : Mode) : Term n → Set a where
     Usage-restrictions-satisfied m v →
     Usage-restrictions-satisfied m (natrec p q r A t u v)
   Uᵤ :
-    Usage-restrictions-satisfied m U
+    Usage-restrictions-satisfied m (U l)
   Idᵤ :
     ¬ Id-erased →
     Usage-restrictions-satisfied 𝟘ᵐ? A →

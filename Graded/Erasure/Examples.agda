@@ -87,6 +87,7 @@ private variable
   Γ       : Con Term _
   A t u v : Term _
   γ       : Conₘ _
+  l       : Universe-level
   str     : Strictness
 
 private
@@ -96,53 +97,53 @@ private
   ⊢ℕ : ⊢ ε ∙ ℕ
   ⊢ℕ = ε ∙ ℕⱼ ε
 
-  ⊢U : ⊢ ε ∙ U
+  ⊢U : ⊢ ε ∙ U l
   ⊢U = ε ∙ Uⱼ ε
 
-  U⊢0 : ε ∙ U ⊢ var x0
+  U⊢0 : ε ∙ U l ⊢ var x0
   U⊢0 = univ (var ⊢U here)
 
-  ⊢U0 : ⊢ ε ∙ U ∙ var x0
+  ⊢U0 : ⊢ ε ∙ U l ∙ var x0
   ⊢U0 = ⊢U ∙ U⊢0
 
-  U⊢id : ε ∙ U ⊢ lam ω (var x0) ∷ Π ω , q ▷ var x0 ▹ var x1
+  U⊢id : ε ∙ U l ⊢ lam ω (var x0) ∷ Π ω , q ▷ var x0 ▹ var x1
   U⊢id = lamⱼ U⊢0 (var ⊢U0 here) Π-ω-ok
 
-  ΓU⊢id : ⊢ Γ → Γ ∙ U ⊢ lam ω (var x0) ∷ Π ω , q ▷ var x0 ▹ var x1
+  ΓU⊢id : ⊢ Γ → Γ ∙ U l ⊢ lam ω (var x0) ∷ Π ω , q ▷ var x0 ▹ var x1
   ΓU⊢id ε = U⊢id
   ΓU⊢id (⊢Γ ∙ ⊢A) =
     W.wkTerm (W.lift (W.step W.id))
              (⊢Γ ∙ ⊢A ∙ Uⱼ (⊢Γ ∙ ⊢A))
              (ΓU⊢id ⊢Γ)
 
-  U⊢ℕ : ε ∙ U ⊢ ℕ
+  U⊢ℕ : ε ∙ U l ⊢ ℕ
   U⊢ℕ = ℕⱼ ⊢U
 
-  ⊢Uℕ : ⊢ ε ∙ U ∙ ℕ
+  ⊢Uℕ : ⊢ ε ∙ U l ∙ ℕ
   ⊢Uℕ = ⊢U ∙ U⊢ℕ
 
-  ⊢Uℕℕ : ⊢ ε ∙ U ∙ ℕ ∙ ℕ
+  ⊢Uℕℕ : ⊢ ε ∙ U l ∙ ℕ ∙ ℕ
   ⊢Uℕℕ = ⊢Uℕ ∙ ℕⱼ ⊢Uℕ
 
-  Uℕℕ⊢U : ε ∙ U ∙ ℕ ∙ ℕ ⊢ U
+  Uℕℕ⊢U : ε ∙ U l ∙ ℕ ∙ ℕ ⊢ U l
   Uℕℕ⊢U = Uⱼ ⊢Uℕℕ
 
-  ⊢UℕℕU : ⊢ ε ∙ U ∙ ℕ ∙ ℕ ∙ U
+  ⊢UℕℕU : ⊢ ε ∙ U l ∙ ℕ ∙ ℕ ∙ U l
   ⊢UℕℕU = ⊢Uℕℕ ∙ Uℕℕ⊢U
 
-  UℕℕU⊢3 : ε ∙ U ∙ ℕ ∙ ℕ ∙ U ⊢ var x3 ∷ U
+  UℕℕU⊢3 : ε ∙ U l ∙ ℕ ∙ ℕ ∙ U l ⊢ var x3 ∷ U l
   UℕℕU⊢3 = var₃ Uℕℕ⊢U
 
-  ⊢UℕℕU3 : ⊢ ε ∙ U ∙ ℕ ∙ ℕ ∙ U ∙ var x3
+  ⊢UℕℕU3 : ⊢ ε ∙ U l ∙ ℕ ∙ ℕ ∙ U l ∙ var x3
   ⊢UℕℕU3 = ⊢UℕℕU ∙ univ UℕℕU⊢3
 
   ⊢ℕℕ : ⊢ ε ∙ ℕ ∙ ℕ
   ⊢ℕℕ = ⊢ℕ ∙ ℕⱼ ⊢ℕ
 
-  ℕℕ⊢U : ε ∙ ℕ ∙ ℕ ⊢ U
+  ℕℕ⊢U : ε ∙ ℕ ∙ ℕ ⊢ U l
   ℕℕ⊢U = Uⱼ ⊢ℕℕ
 
-  ⊢ℕℕU : ⊢ ε ∙ ℕ ∙ ℕ ∙ U
+  ⊢ℕℕU : ⊢ ε ∙ ℕ ∙ ℕ ∙ U l
   ⊢ℕℕU = ⊢ℕℕ ∙ ℕℕ⊢U
 
 ------------------------------------------------------------------------
@@ -156,7 +157,7 @@ id = lam 𝟘 (lam ω (var x0))
 -- The polymorphic identity function is well-typed (in a well-formed
 -- context).
 
-⊢id : ⊢ Γ → Γ ⊢ id ∷ Π 𝟘 , p ▷ U ▹ Π ω , q ▷ var x0 ▹ var x1
+⊢id : ⊢ Γ → Γ ⊢ id ∷ Π 𝟘 , p ▷ U l ▹ Π ω , q ▷ var x0 ▹ var x1
 ⊢id ⊢Γ = lamⱼ (Uⱼ ⊢Γ) (ΓU⊢id ⊢Γ) Π-𝟘-ok
 
 -- The polymorphic identity function is well-resourced (with respect
@@ -172,7 +173,7 @@ id-x1-x0 = id ∘⟨ 𝟘 ⟩ var x1 ∘⟨ ω ⟩ var x0
 
 -- The term id-x0-x1 is well-typed (in a certain context)
 
-⊢id-x1-x0 : ε ∙ U ∙ var x0 ⊢ id-x1-x0 ∷ var x1
+⊢id-x1-x0 : ε ∙ U l ∙ var x0 ⊢ id-x1-x0 ∷ var x1
 ⊢id-x1-x0 = (⊢id ⊢Γ ∘ⱼ var ⊢Γ (there here)) ∘ⱼ var ⊢Γ here
   where
   ⊢Γ = ε ∙ Uⱼ ε ∙ univ (var₀ (Uⱼ ε))
@@ -333,11 +334,16 @@ opaque
 private
 
   -- Parts of the implementation of Vec.
+  --
+  -- The implementation uses U 0 because Unit targets U 0. If lifting
+  -- were to be implemented (in terms of existing constructs), or
+  -- added (as a primitive), then one could presumably support
+  -- arbitrary levels.
 
   Vec-body₂ : Term (2+ n)
   Vec-body₂ =
     natrec 𝟘 𝟘 ω
-      U
+      (U 0)
       (Unit s)
       (Σˢ ω , r ▷ var x3 ▹ var x1)
       (var x0)
@@ -381,7 +387,7 @@ private
 
   -- A typing rule for Vec-body₂.
 
-  ⊢Vec-body₂ : ε ∙ U ∙ ℕ ⊢ Vec-body₂ ∷ U
+  ⊢Vec-body₂ : ε ∙ U 0 ∙ ℕ ⊢ Vec-body₂ ∷ U 0
   ⊢Vec-body₂ =
     natrecⱼ Uℕℕ⊢U (Unitⱼ ⊢Uℕ Unit-ok)
       (ΠΣⱼ UℕℕU⊢3 (var ⊢UℕℕU3 (there here)) Σˢ-ω-ok)
@@ -389,17 +395,17 @@ private
 
   -- A typing rule for Vec-body₁.
 
-  ⊢Vec-body₁ : ε ∙ U ⊢ Vec-body₁ ∷ Π ω , q ▷ ℕ ▹ U
+  ⊢Vec-body₁ : ε ∙ U 0 ⊢ Vec-body₁ ∷ Π ω , q ▷ ℕ ▹ U 0
   ⊢Vec-body₁ = lamⱼ U⊢ℕ ⊢Vec-body₂ Π-ω-ok
 
 -- A typing rule for Vec.
 
-⊢Vec : ε ⊢ Vec ∷ Π ω , q ▷ U ▹ Π ω , q ▷ ℕ ▹ U
+⊢Vec : ε ⊢ Vec ∷ Π ω , q ▷ U 0 ▹ Π ω , q ▷ ℕ ▹ U 0
 ⊢Vec = lamⱼ (Uⱼ ε) ⊢Vec-body₁ Π-ω-ok
 
 -- Some lemmas used below.
 
-private module Vec-lemmas (⊢A : Γ ⊢ A ∷ U) where
+private module Vec-lemmas (⊢A : Γ ⊢ A ∷ U 0) where
 
   open Tools.Reasoning.PropositionalEquality
 
@@ -415,10 +421,10 @@ private module Vec-lemmas (⊢A : Γ ⊢ A ∷ U) where
   ⊢Γℕ : ⊢ Γ ∙ ℕ
   ⊢Γℕ = ⊢Γ ∙ ℕⱼ ⊢Γ
 
-  Γℕ⊢U : Γ ∙ ℕ ⊢ U
+  Γℕ⊢U : Γ ∙ ℕ ⊢ U 0
   Γℕ⊢U = Uⱼ ⊢Γℕ
 
-  ⊢ΓℕU : ⊢ Γ ∙ ℕ ∙ U
+  ⊢ΓℕU : ⊢ Γ ∙ ℕ ∙ U 0
   ⊢ΓℕU = ⊢Γℕ ∙ Γℕ⊢U
 
   wk2≡ :
@@ -464,26 +470,26 @@ private module Vec-lemmas (⊢A : Γ ⊢ A ∷ U) where
       (wk1 (wk1 (wk1 A)) [ liftSubst (liftSubst (sgSubst u)) ])    ∎
 
   ΓℕU⊢A :
-    Γ ∙ ℕ ∙ U ⊢
-    wk1 (wk1 (wk1 A)) [ liftSubst (liftSubst (sgSubst t)) ] ∷ U
+    Γ ∙ ℕ ∙ U 0 ⊢
+    wk1 (wk1 (wk1 A)) [ liftSubst (liftSubst (sgSubst t)) ] ∷ U 0
   ΓℕU⊢A =
     PE.subst (_ ⊢_∷ _) (wk2≡ _) $
     W.wkTerm (W.step (W.step W.id)) ⊢ΓℕU ⊢A
 
-  ⊢Vec-body₁′ : Γ ∙ U ⊢ Vec-body₁ ∷ Π ω , q ▷ ℕ ▹ U
+  ⊢Vec-body₁′ : Γ ∙ U 0 ⊢ Vec-body₁ ∷ Π ω , q ▷ ℕ ▹ U 0
   ⊢Vec-body₁′ = W.wkTerm
     (W.lift W.wk₀∷⊇)
     (⊢Γ ∙ Uⱼ ⊢Γ)
     ⊢Vec-body₁
 
-  ⊢Vec-body₁″ : Γ ∙ A ∙ U ⊢ Vec-body₁ ∷ Π ω , q ▷ ℕ ▹ U
+  ⊢Vec-body₁″ : Γ ∙ A ∙ U 0 ⊢ Vec-body₁ ∷ Π ω , q ▷ ℕ ▹ U 0
   ⊢Vec-body₁″ = W.wkTerm
     (W.lift (W.step W.wk₀∷⊇))
     (⊢ΓA ∙ Uⱼ ⊢ΓA)
     ⊢Vec-body₁
 
   ⊢Vec-body₂′ :
-    Γ ∙ ℕ ⊢ Vec-body₂ [ liftSubst (consSubst (toSubst wk₀) A) ] ∷ U
+    Γ ∙ ℕ ⊢ Vec-body₂ [ liftSubst (consSubst (toSubst wk₀) A) ] ∷ U 0
   ⊢Vec-body₂′ = substitutionTerm
     {σ = liftSubst (consSubst (toSubst wk₀) A)}
     ⊢Vec-body₂
@@ -492,7 +498,7 @@ private module Vec-lemmas (⊢A : Γ ⊢ A ∷ U) where
 
   ⊢Vec-body₂″ :
     Γ ∙ A ∙ ℕ ⊢
-    Vec-body₂ [ liftSubst (consSubst (toSubst wk₀) (wk1 A)) ] ∷ U
+    Vec-body₂ [ liftSubst (consSubst (toSubst wk₀) (wk1 A)) ] ∷ U 0
   ⊢Vec-body₂″ = substitutionTerm
     {σ = liftSubst (consSubst (toSubst wk₀) (wk1 A))}
     ⊢Vec-body₂
@@ -502,8 +508,8 @@ private module Vec-lemmas (⊢A : Γ ⊢ A ∷ U) where
 -- A computation rule for Vec.
 
 Vec∘zero⇒* :
-  Γ ⊢ A ∷ U →
-  Γ ⊢ wk wk₀ Vec ∘⟨ ω ⟩ A ∘⟨ ω ⟩ zero ⇒* Unit s ∷ U
+  Γ ⊢ A ∷ U 0 →
+  Γ ⊢ wk wk₀ Vec ∘⟨ ω ⟩ A ∘⟨ ω ⟩ zero ⇒* Unit s ∷ U 0
 Vec∘zero⇒* {A = A} ⊢A =
   app-subst
     (β-red (Uⱼ ⊢Γ) (syntacticTerm ⊢Vec-body₁′)
@@ -519,11 +525,11 @@ Vec∘zero⇒* {A = A} ⊢A =
 -- An equality rule for Vec.
 
 Vec∘suc≡ :
-  Γ ⊢ A ∷ U →
+  Γ ⊢ A ∷ U 0 →
   Γ ⊢ t ∷ ℕ →
   Γ ⊢
     wk wk₀ Vec ∘⟨ ω ⟩ A ∘⟨ ω ⟩ suc t ≡
-    Σˢ ω , r ▷ A ▹ (wk wk₀ Vec ∘⟨ ω ⟩ wk1 A ∘⟨ ω ⟩ wk1 t) ∷ U
+    Σˢ ω , r ▷ A ▹ (wk wk₀ Vec ∘⟨ ω ⟩ wk1 A ∘⟨ ω ⟩ wk1 t) ∷ U 0
 Vec∘suc≡ {Γ = Γ} {A = A} {t = t} ⊢A ⊢t =
   _⊢_≡_∷_.trans
     (app-cong
@@ -539,8 +545,8 @@ Vec∘suc≡ {Γ = Γ} {A = A} {t = t} ⊢A ⊢t =
     (_⊢_≡_∷_.sym $
      ΠΣ-cong (univ ⊢A)
        (PE.subst (_ ⊢ _ ≡_∷ _) (≡wk3[][] A) (refl ⊢A))
-       (PE.subst (Γ ∙ A ⊢ (Vec-body₁ [ wk1 A ]₀) ∘⟨ ω ⟩ wk1 t ≡_∷ U)
-          (PE.cong (flip (natrec 𝟘 𝟘 ω U (Unit s)) _) $
+       (PE.subst (Γ ∙ A ⊢ (Vec-body₁ [ wk1 A ]₀) ∘⟨ ω ⟩ wk1 t ≡_∷ U 0)
+          (PE.cong (flip (natrec 𝟘 𝟘 ω (U 0) (Unit s)) _) $
            PE.cong (Σˢ _ , _ ▷_▹ _) $
            wk3[]≡ A) $
         β-red (ℕⱼ ⊢ΓA) (Uⱼ ⊢ΓAℕ) ⊢Vec-body₂″
@@ -563,7 +569,7 @@ private
   Non-zero-body : Term (1+ n)
   Non-zero-body =
     natrec 𝟘 𝟘 𝟘
-      U
+      (U 0)
       Empty
       (Unit s)
       (var x0)
@@ -596,21 +602,21 @@ private
 
   -- A typing rule for Non-zero-body.
 
-  ⊢Non-zero-body : ε ∙ ℕ ⊢ Non-zero-body ∷ U
+  ⊢Non-zero-body : ε ∙ ℕ ⊢ Non-zero-body ∷ U 0
   ⊢Non-zero-body =
     natrecⱼ ℕℕ⊢U (Emptyⱼ ⊢ℕ) (Unitⱼ ⊢ℕℕU Unit-ok)
       (var ⊢ℕ here)
 
 -- A typing rule for Non-zero.
 
-⊢Non-zero : ε ⊢ Non-zero ∷ Π ω , q ▷ ℕ ▹ U
+⊢Non-zero : ε ⊢ Non-zero ∷ Π ω , q ▷ ℕ ▹ U 0
 ⊢Non-zero = lamⱼ (ℕⱼ ε) ⊢Non-zero-body Π-ω-ok
 
 -- A computation rule for Non-zero.
 
 Non-zero∘zero⇒* :
   ⊢ Γ →
-  Γ ⊢ wk wk₀ Non-zero ∘⟨ ω ⟩ zero ⇒* Empty ∷ U
+  Γ ⊢ wk wk₀ Non-zero ∘⟨ ω ⟩ zero ⇒* Empty ∷ U 0
 Non-zero∘zero⇒* ⊢Γ =
   β-red (ℕⱼ ⊢Γ) (Uⱼ ⊢Γℕ)
     (W.wkTerm (W.lift W.wk₀∷⊇) ⊢Γℕ ⊢Non-zero-body)
@@ -625,7 +631,7 @@ Non-zero∘zero⇒* ⊢Γ =
 
 Non-zero∘suc⇒* :
   Γ ⊢ t ∷ ℕ →
-  Γ ⊢ wk wk₀ Non-zero ∘⟨ ω ⟩ suc t ⇒* Unit s ∷ U
+  Γ ⊢ wk wk₀ Non-zero ∘⟨ ω ⟩ suc t ⇒* Unit s ∷ U 0
 Non-zero∘suc⇒* ⊢t =
   β-red (ℕⱼ ⊢Γ) (Uⱼ ⊢Γℕ)
     (W.wkTerm (W.lift W.wk₀∷⊇) ⊢Γℕ ⊢Non-zero-body)
@@ -747,7 +753,7 @@ opaque
 ⊢head :
   ε ⊢
   head ∷
-  Π 𝟘 , p ▷ U ▹
+  Π 𝟘 , p ▷ U 0 ▹
   Π ω , q ▷ ℕ ▹
   Π ω , q ▷ wk wk₀ Vec ∘⟨ ω ⟩ var x1 ∘⟨ ω ⟩ var x0 ▹
   Π 𝟘 , p ▷ wk wk₀ Non-zero ∘⟨ ω ⟩ var x1 ▹
@@ -773,18 +779,18 @@ opaque
     (var ⊢Uℕ here)
   where
   ⊢Vec-2-0 :
-    ε ∙ U ∙ ℕ ∙ ℕ ⊢ wk wk₀ Vec ∘⟨ ω ⟩ var x2 ∘⟨ ω ⟩ var x0 ∷ U
+    ε ∙ U 0 ∙ ℕ ∙ ℕ ⊢ wk wk₀ Vec ∘⟨ ω ⟩ var x2 ∘⟨ ω ⟩ var x0 ∷ U 0
   ⊢Vec-2-0 =
     (W.wkTerm (W.step (W.step (W.step W.id))) ⊢Uℕℕ ⊢Vec ∘ⱼ
      var ⊢Uℕℕ (there (there here))) ∘ⱼ
     var ⊢Uℕℕ here
 
   ⊢Vec-1-0 :
-    ε ∙ U ∙ ℕ ⊢ wk wk₀ Vec ∘⟨ ω ⟩ var x1 ∘⟨ ω ⟩ zero ∷ U
+    ε ∙ U 0 ∙ ℕ ⊢ wk wk₀ Vec ∘⟨ ω ⟩ var x1 ∘⟨ ω ⟩ zero ∷ U 0
   ⊢Vec-1-0 = substTerm ⊢Vec-2-0 (zeroⱼ ⊢Uℕ)
 
   ⊢Non-zero-0 :
-    ε ∙ U ∙ ℕ ∙ ℕ ⊢ wk wk₀ Non-zero ∘⟨ ω ⟩ var x0 ∷ U
+    ε ∙ U 0 ∙ ℕ ∙ ℕ ⊢ wk wk₀ Non-zero ∘⟨ ω ⟩ var x0 ∷ U 0
   ⊢Non-zero-0 =
     W.wkTerm (W.step (W.step (W.step W.id))) ⊢Uℕℕ ⊢Non-zero ∘ⱼ
     var ⊢Uℕℕ here
@@ -792,15 +798,15 @@ opaque
   ⊢Uℕℕ∙Vec = ⊢Uℕℕ ∙ univ ⊢Vec-2-0
 
   ⊢Non-zero-1 :
-    ε ∙ U ∙ ℕ ∙ ℕ ∙ wk wk₀ Vec ∘⟨ ω ⟩ var x2 ∘⟨ ω ⟩ var x0 ⊢
-    wk wk₀ Non-zero ∘⟨ ω ⟩ var x1 ∷ U
+    ε ∙ U 0 ∙ ℕ ∙ ℕ ∙ wk wk₀ Vec ∘⟨ ω ⟩ var x2 ∘⟨ ω ⟩ var x0 ⊢
+    wk wk₀ Non-zero ∘⟨ ω ⟩ var x1 ∷ U 0
   ⊢Non-zero-1 = W.wkTerm₁ (univ ⊢Vec-2-0) ⊢Non-zero-0
 
   ⊢Uℕ∙Vec = ⊢Uℕ ∙ univ ⊢Vec-1-0
 
   ⊢Non-zero-zero :
-    ε ∙ U ∙ ℕ ∙ wk wk₀ Vec ∘⟨ ω ⟩ var x1 ∘⟨ ω ⟩ zero ⊢
-    wk wk₀ Non-zero ∘⟨ ω ⟩ zero ∷ U
+    ε ∙ U 0 ∙ ℕ ∙ wk wk₀ Vec ∘⟨ ω ⟩ var x1 ∘⟨ ω ⟩ zero ⊢
+    wk wk₀ Non-zero ∘⟨ ω ⟩ zero ∷ U 0
   ⊢Non-zero-zero = substitutionTerm
     ⊢Non-zero-1
     (liftSubst′ ⊢Uℕℕ ⊢Uℕ (univ ⊢Vec-2-0) (singleSubst (zeroⱼ ⊢Uℕ)))
@@ -810,10 +816,10 @@ opaque
   ⊢Uℕℕ∙Vec∙Non-zero = ⊢Uℕℕ∙Vec ∙ univ ⊢Non-zero-1
 
   Uℕℕ⊢ΠΠ∷U :
-    ε ∙ U ∙ ℕ ∙ ℕ ⊢
+    ε ∙ U 0 ∙ ℕ ∙ ℕ ⊢
     Π ω , q ▷ wk wk₀ Vec ∘⟨ ω ⟩ var x2 ∘⟨ ω ⟩ var x0 ▹
       Π 𝟘 , p ▷ wk wk₀ Non-zero ∘⟨ ω ⟩ var x1 ▹ var x4 ∷
-    U
+    U 0
   Uℕℕ⊢ΠΠ∷U =
     ΠΣⱼ ⊢Vec-2-0
       (ΠΣⱼ ⊢Non-zero-1
@@ -823,13 +829,13 @@ opaque
       Π-ω-ok
 
   Uℕℕ∙ΠΠ =
-    ε ∙ U ∙ ℕ ∙ ℕ ∙
+    ε ∙ U 0 ∙ ℕ ∙ ℕ ∙
     Π ω , q ▷ wk wk₀ Vec ∘⟨ ω ⟩ var x2 ∘⟨ ω ⟩ var x0 ▹
       Π 𝟘 , p ▷ wk wk₀ Non-zero ∘⟨ ω ⟩ var x1 ▹ var x4
   ⊢Uℕℕ∙ΠΠ = ⊢Uℕℕ ∙ univ Uℕℕ⊢ΠΠ∷U
 
   ⊢Vec-3-1+1 :
-    Uℕℕ∙ΠΠ ⊢ wk wk₀ Vec ∘⟨ ω ⟩ var x3 ∘⟨ ω ⟩ suc (var x1) ∷ U
+    Uℕℕ∙ΠΠ ⊢ wk wk₀ Vec ∘⟨ ω ⟩ var x3 ∘⟨ ω ⟩ suc (var x1) ∷ U 0
   ⊢Vec-3-1+1 = substitutionTerm
     ⊢Vec-2-0
     (wk1Subst′ ⊢Uℕℕ (univ Uℕℕ⊢ΠΠ∷U)
@@ -840,7 +846,7 @@ opaque
   ⊢Uℕℕ∙ΠΠ∙Vec = ⊢Uℕℕ∙ΠΠ ∙ univ ⊢Vec-3-1+1
 
   ⊢Non-zero-1+2 :
-    Uℕℕ∙ΠΠ∙Vec ⊢ wk wk₀ Non-zero ∘⟨ ω ⟩ suc (var x2) ∷ U
+    Uℕℕ∙ΠΠ∙Vec ⊢ wk wk₀ Non-zero ∘⟨ ω ⟩ suc (var x2) ∷ U 0
   ⊢Non-zero-1+2 = substitutionTerm
     ⊢Non-zero-0
     (wk1Subst′ ⊢Uℕℕ (univ ⊢Vec-3-1+1)
@@ -852,7 +858,7 @@ opaque
     Uℕℕ∙ΠΠ∙Vec ∙ wk wk₀ Non-zero ∘⟨ ω ⟩ suc (var x2)
   ⊢Uℕℕ∙ΠΠ∙Vec∙Non-zero = ⊢Uℕℕ∙ΠΠ∙Vec ∙ univ ⊢Non-zero-1+2
 
-  ⊢5 : Uℕℕ∙ΠΠ∙Vec∙Non-zero ⊢ var x5 ∷ U
+  ⊢5 : Uℕℕ∙ΠΠ∙Vec∙Non-zero ⊢ var x5 ∷ U 0
   ⊢5 = var₅ (univ ⊢Non-zero-1+2)
 
   Uℕℕ∙ΠΠ∙Vec∙Non-zero∙5  = Uℕℕ∙ΠΠ∙Vec∙Non-zero ∙ var x5
@@ -860,7 +866,7 @@ opaque
 
   ⊢Vec-6-4 :
     Uℕℕ∙ΠΠ∙Vec∙Non-zero∙5 ⊢
-    wk wk₀ Vec ∘⟨ ω ⟩ var x6 ∘⟨ ω ⟩ var x4 ∷ U
+    wk wk₀ Vec ∘⟨ ω ⟩ var x6 ∘⟨ ω ⟩ var x4 ∷ U 0
   ⊢Vec-6-4 = W.wkTerm
     (W.step (W.step (W.step (W.step W.id))))
     ⊢Uℕℕ∙ΠΠ∙Vec∙Non-zero∙5

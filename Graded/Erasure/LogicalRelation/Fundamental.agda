@@ -26,7 +26,7 @@ open Definition.Untyped M
 open Definition.Typed TR
 open EqRelSet {{...}}
 
-open import Definition.LogicalRelation TR hiding (_≤_)
+open import Definition.LogicalRelation TR
 open import Definition.LogicalRelation.Hidden TR
 import Definition.LogicalRelation.Properties TR as LP
 open import Definition.LogicalRelation.Substitution TR
@@ -57,6 +57,7 @@ import Graded.Erasure.LogicalRelation.Fundamental.Identity
 import Graded.Erasure.LogicalRelation.Fundamental.Nat
 import Graded.Erasure.LogicalRelation.Fundamental.Pi-Sigma
 import Graded.Erasure.LogicalRelation.Fundamental.Unit
+import Graded.Erasure.LogicalRelation.Fundamental.Universe
 import Graded.Erasure.LogicalRelation.Conversion
 import Graded.Erasure.LogicalRelation.Hidden
 
@@ -95,17 +96,21 @@ module _ (⊢Δ : ⊢ Δ) {s : Strictness} where
     -- A fundamental lemma for variables.
 
     fundamentalVar :
+      Γ ⊢ A →
       x ∷ A ∈ Γ →
       γ ▸[ m ] var x →
-      γ ▸ Γ ⊩ʳ⟨ ¹ ⟩ var x ∷[ m ] A
-    fundamentalVar {x} {A} {γ} {m} x∈Γ ▸x =
-      ▸⊩ʳ∷⇔ .proj₂ λ {σ = σ} {σ′ = σ′} _ σ®σ′ →
-      case ®∷[]◂⇔ .proj₁ σ®σ′ x∈Γ of λ
-        (l , σx®σ′x) →
-                                                   $⟨ σx®σ′x ⟩
-      σ x ®⟨ l ⟩ σ′ x ∷ A [ σ ] ◂ ⌜ m ⌝ · γ ⟨ x ⟩  →⟨ subsumption-®∷◂ (lemma m (inv-usage-var ▸x)) ⟩
-      σ x ®⟨ l ⟩ σ′ x ∷ A [ σ ] ◂ ⌜ m ⌝            →⟨ emb-®∷◂ LP.≤¹ ⟩
-      σ x ®⟨ ¹ ⟩ σ′ x ∷ A [ σ ] ◂ ⌜ m ⌝            □
+      ∃ λ l → γ ▸ Γ ⊩ʳ⟨ l ⟩ var x ∷[ m ] A
+    fundamentalVar {A} {x} {γ} {m} ⊢A x∈Γ ▸x =
+      case F.fundamental-⊩ᵛ ⊢A of λ
+        (l , ⊩A) →
+        l
+      , (▸⊩ʳ∷⇔ .proj₂ λ {σ = σ} {σ′ = σ′} ⊩σ σ®σ′ →
+         case ®∷[]◂⇔ .proj₁ σ®σ′ x∈Γ of λ
+           (l′ , σx®σ′x) →
+                                                       $⟨ σx®σ′x ⟩
+         σ x ®⟨ l′ ⟩ σ′ x ∷ A [ σ ] ◂ ⌜ m ⌝ · γ ⟨ x ⟩  →⟨ subsumption-®∷◂ (lemma m (inv-usage-var ▸x)) ⟩
+         σ x ®⟨ l′ ⟩ σ′ x ∷ A [ σ ] ◂ ⌜ m ⌝            →⟨ level-®∷◂ (⊩ᵛ→⊩ˢ∷→⊩[] ⊩A ⊩σ) ⟩
+         σ x ®⟨ l ⟩ σ′ x ∷ A [ σ ] ◂ ⌜ m ⌝             □)
       where
       lemma :
         ∀ m →
@@ -141,6 +146,7 @@ module Fundamental
   open Graded.Erasure.LogicalRelation.Fundamental.Nat as
   open Graded.Erasure.LogicalRelation.Fundamental.Pi-Sigma UR as
   open Graded.Erasure.LogicalRelation.Fundamental.Unit as
+  open Graded.Erasure.LogicalRelation.Fundamental.Universe as
   open Graded.Erasure.LogicalRelation.Hidden as
 
   -- The fundamental lemma for the erasure relation.
@@ -157,196 +163,223 @@ module Fundamental
 
     fundamental :
       Γ ⊢ t ∷ A → γ ▸[ m ] t →
-      γ ▸ Γ ⊩ʳ⟨ ¹ ⟩ t ∷[ m ] A
+      ∃ λ l → γ ▸ Γ ⊩ʳ⟨ l ⟩ t ∷[ m ] A
     fundamental {m = 𝟘ᵐ} ⊢t _ =
-      ▸⊩ʳ∷[𝟘ᵐ]
+      0 , ▸⊩ʳ∷[𝟘ᵐ]
+    fundamental (Uⱼ _) _ =
+      _ , Uʳ
     fundamental (ΠΣⱼ _ _ _) _ =
-      ΠΣʳ
+      _ , ΠΣʳ
     fundamental (ℕⱼ _) _ =
-      ℕʳ
+      _ , ℕʳ
     fundamental (Emptyⱼ _) _ =
-      Emptyʳ
+      _ , Emptyʳ
     fundamental (Unitⱼ _ _) _ =
-      Unitʳ
-    fundamental (var _ x∈Γ) ▸x =
-      fundamentalVar well-formed x∈Γ ▸x
+      _ , Unitʳ
+    fundamental ⊢x@(var _ x∈Γ) ▸x =
+      fundamentalVar well-formed (syntacticTerm ⊢x) x∈Γ ▸x
     fundamental (lamⱼ ⊢A ⊢t ok) ▸lam =
       case inv-usage-lam ▸lam of λ
         (invUsageLam ▸t γ≤δ) →
-      subsumption-▸⊩ʳ∷[]-≤ γ≤δ $
-      lamʳ ok (F.fundamental-⊩ᵛ ⊢A) (F.fundamental-⊩ᵛ∷ ⊢t)
-        (fundamental ⊢t ▸t)
+        _
+      , (subsumption-▸⊩ʳ∷[]-≤ γ≤δ $
+         lamʳ ok (emb-⊩ᵛ ≤ᵘ⊔ᵘˡ $ F.fundamental-⊩ᵛ ⊢A .proj₂)
+           (emb-⊩ᵛ∷ ≤ᵘ⊔ᵘʳ $ F.fundamental-⊩ᵛ∷ ⊢t .proj₂)
+           (fundamental ⊢t ▸t .proj₂))
     fundamental (⊢t ∘ⱼ ⊢u) ▸∘ =
       case inv-usage-app ▸∘ of λ
         (invUsageApp ▸t ▸u γ≤δ+pη) →
-      subsumption-▸⊩ʳ∷[]-≤ γ≤δ+pη $
-      ∘ʳ (F.fundamental-⊩ᵛ (syntacticTerm ⊢t)) ⊢u (fundamental ⊢t ▸t)
-        (fundamental ⊢u ▸u)
+        _
+      , (subsumption-▸⊩ʳ∷[]-≤ γ≤δ+pη $
+         ∘ʳ (F.fundamental-⊩ᵛ (syntacticTerm ⊢t) .proj₂) ⊢u
+           (fundamental ⊢t ▸t .proj₂) (fundamental ⊢u ▸u .proj₂))
     fundamental (prodⱼ {k = 𝕤} _ ⊢B ⊢t ⊢u ok) ▸prod =
       case inv-usage-prodˢ ▸prod of λ
         (invUsageProdˢ ▸t ▸u γ≤pδ∧η) →
-      subsumption-▸⊩ʳ∷[]-≤ γ≤pδ∧η $
-      prodˢʳ ok (F.fundamental-⊩ᵛ ⊢B) (F.fundamental-⊩ᵛ∷ ⊢t) ⊢u
-        (fundamental ⊢t ▸t) (fundamental ⊢u ▸u)
+        _
+      , (subsumption-▸⊩ʳ∷[]-≤ γ≤pδ∧η $
+         prodˢʳ ok (emb-⊩ᵛ ≤ᵘ⊔ᵘˡ $ F.fundamental-⊩ᵛ ⊢B .proj₂)
+           (emb-⊩ᵛ∷ ≤ᵘ⊔ᵘʳ $ F.fundamental-⊩ᵛ∷ ⊢t .proj₂) ⊢u
+           (fundamental ⊢t ▸t .proj₂) (fundamental ⊢u ▸u .proj₂))
     fundamental (prodⱼ {k = 𝕨} _ ⊢B ⊢t ⊢u ok) ▸prod =
       case inv-usage-prodʷ ▸prod of λ
         (invUsageProdʷ ▸t ▸u γ≤pδ+η) →
-      subsumption-▸⊩ʳ∷[]-≤ γ≤pδ+η $
-      prodʷʳ ok (F.fundamental-⊩ᵛ ⊢B) (F.fundamental-⊩ᵛ∷ ⊢t) ⊢u
-        (fundamental ⊢t ▸t) (fundamental ⊢u ▸u)
+        _
+      , (subsumption-▸⊩ʳ∷[]-≤ γ≤pδ+η $
+         prodʷʳ ok (emb-⊩ᵛ ≤ᵘ⊔ᵘˡ $ F.fundamental-⊩ᵛ ⊢B .proj₂)
+           (emb-⊩ᵛ∷ ≤ᵘ⊔ᵘʳ $ F.fundamental-⊩ᵛ∷ ⊢t .proj₂) ⊢u
+           (fundamental ⊢t ▸t .proj₂) (fundamental ⊢u ▸u .proj₂))
     fundamental (fstⱼ _ _ ⊢t) ▸fst =
       case inv-usage-fst ▸fst of λ
         (invUsageFst _ _ ▸t γ≤δ _) →
-      fstʳ (F.fundamental-⊩ᵛ (syntacticTerm ⊢t))
-        (fundamental ⊢t (sub ▸t γ≤δ)) ▸fst
+        _
+      , fstʳ (F.fundamental-⊩ᵛ (syntacticTerm ⊢t) .proj₂)
+          (fundamental ⊢t (sub ▸t γ≤δ) .proj₂) ▸fst
     fundamental (sndⱼ _ _ ⊢t) ▸snd =
       case inv-usage-snd ▸snd of λ
         (invUsageSnd ▸t γ≤δ) →
-      sndʳ (F.fundamental-⊩ᵛ∷ ⊢t) (fundamental ⊢t (sub ▸t γ≤δ))
+        _
+      , sndʳ (F.fundamental-⊩ᵛ∷ ⊢t .proj₂)
+          (fundamental ⊢t (sub ▸t γ≤δ) .proj₂)
     fundamental {m = 𝟙ᵐ} (prodrecⱼ ⊢A ⊢B ⊢C ⊢t ⊢u _) ▸prodrec =
       case inv-usage-prodrec ▸prodrec of λ
         (invUsageProdrec ▸t ▸u _ ok γ≤rδ+η) →
-      subsumption-▸⊩ʳ∷[]-≤ γ≤rδ+η $
-      prodrecʳ (F.fundamental-⊩ᵛ ⊢C) ⊢t ⊢u (fundamental ⊢t ▸t)
-        (fundamental ⊢u ▸u)
-        (case closed-or-no-erased-matches of λ where
-           (inj₁ nem) r≡𝟘 → ⊥-elim (nem non-trivial .proj₁ ok r≡𝟘)
-           (inj₂ k≡0) _   → k≡0)
+        _
+      , (subsumption-▸⊩ʳ∷[]-≤ γ≤rδ+η $
+         prodrecʳ (F.fundamental-⊩ᵛ ⊢C .proj₂) ⊢t ⊢u
+           (fundamental ⊢t ▸t .proj₂) (fundamental ⊢u ▸u .proj₂)
+           (case closed-or-no-erased-matches of λ where
+              (inj₁ nem) r≡𝟘 → ⊥-elim (nem non-trivial .proj₁ ok r≡𝟘)
+              (inj₂ k≡0) _   → k≡0))
     fundamental (zeroⱼ _) _ =
-      zeroʳ
+      0 , zeroʳ
     fundamental (sucⱼ ⊢t) γ▸suc =
       case inv-usage-suc γ▸suc of λ
         (invUsageSuc δ▸t γ≤δ) →
-      subsumption-▸⊩ʳ∷[]-≤ γ≤δ $
-      sucʳ ⊢t (fundamental ⊢t δ▸t)
+        _
+      , (subsumption-▸⊩ʳ∷[]-≤ γ≤δ $
+         sucʳ ⊢t (fundamental ⊢t δ▸t .proj₂))
     fundamental (natrecⱼ {p} {r} ⊢A ⊢t ⊢u ⊢v) γ▸nr =
       case inv-usage-natrec γ▸nr of λ {
         (invUsageNatrec {δ} {η} {θ} δ▸t η▸u θ▸v _ γ≤χ extra) →
-      subsumption-▸⊩ʳ∷[]-≤ γ≤χ $
-      natrecʳ (F.fundamental-⊩ᵛ ⊢A) ⊢t ⊢u ⊢v (fundamental ⊢t δ▸t)
-        (fundamental ⊢u η▸u) (fundamental ⊢v θ▸v)
-        (λ x → case extra of λ where
-           invUsageNatrecNr →
-             nrᶜ p r δ η θ ⟨ x ⟩ PE.≡ 𝟘                        →⟨ PE.trans (PE.sym (nrᶜ-⟨⟩ δ)) ⟩
-             nr p r (δ ⟨ x ⟩) (η ⟨ x ⟩) (θ ⟨ x ⟩) PE.≡ 𝟘       →⟨ (λ hyp →
-                                                                     case nr-positive hyp of λ {
-                                                                       (p , q , r) → p , r , q }) ⟩
-             δ ⟨ x ⟩ PE.≡ 𝟘 × θ ⟨ x ⟩ PE.≡ 𝟘 × η ⟨ x ⟩ PE.≡ 𝟘  □
-           (invUsageNatrecNoNr {χ = χ} χ≤δ _ χ≤θ fix) →
-             χ ⟨ x ⟩ PE.≡ 𝟘                                    →⟨ (λ hyp →
-                                                                       ≤ᶜ→⟨⟩≡𝟘→⟨⟩≡𝟘 χ≤δ hyp
-                                                                     , ≤ᶜ→⟨⟩≡𝟘→⟨⟩≡𝟘 χ≤θ hyp
-                                                                     , ⟨⟩≡𝟘→⟨⟩≡𝟘-fixpoint fix hyp) ⟩
-             δ ⟨ x ⟩ PE.≡ 𝟘 × θ ⟨ x ⟩ PE.≡ 𝟘 × η ⟨ x ⟩ PE.≡ 𝟘  □) }
+        _
+      , (subsumption-▸⊩ʳ∷[]-≤ γ≤χ $
+         natrecʳ (F.fundamental-⊩ᵛ ⊢A .proj₂) ⊢t ⊢u ⊢v
+           (fundamental ⊢t δ▸t .proj₂) (fundamental ⊢u η▸u .proj₂)
+           (fundamental ⊢v θ▸v .proj₂)
+           (λ x → case extra of λ where
+              invUsageNatrecNr →
+                nrᶜ p r δ η θ ⟨ x ⟩ PE.≡ 𝟘                        →⟨ PE.trans (PE.sym (nrᶜ-⟨⟩ δ)) ⟩
+                nr p r (δ ⟨ x ⟩) (η ⟨ x ⟩) (θ ⟨ x ⟩) PE.≡ 𝟘       →⟨ (λ hyp →
+                                                                        case nr-positive hyp of λ {
+                                                                          (p , q , r) → p , r , q }) ⟩
+                δ ⟨ x ⟩ PE.≡ 𝟘 × θ ⟨ x ⟩ PE.≡ 𝟘 × η ⟨ x ⟩ PE.≡ 𝟘  □
+              (invUsageNatrecNoNr {χ = χ} χ≤δ _ χ≤θ fix) →
+                χ ⟨ x ⟩ PE.≡ 𝟘                                    →⟨ (λ hyp →
+                                                                          ≤ᶜ→⟨⟩≡𝟘→⟨⟩≡𝟘 χ≤δ hyp
+                                                                        , ≤ᶜ→⟨⟩≡𝟘→⟨⟩≡𝟘 χ≤θ hyp
+                                                                        , ⟨⟩≡𝟘→⟨⟩≡𝟘-fixpoint fix hyp) ⟩
+                δ ⟨ x ⟩ PE.≡ 𝟘 × θ ⟨ x ⟩ PE.≡ 𝟘 × η ⟨ x ⟩ PE.≡ 𝟘  □)) }
     fundamental (emptyrecⱼ _ ⊢t) ▸t =
       case inv-usage-emptyrec ▸t of λ
         (invUsageEmptyrec ▸t _ ok γ≤pδ) →
-      subsumption-▸⊩ʳ∷[]-≤ γ≤pδ $
-      emptyrecʳ ok (F.fundamental-⊩ᵛ∷ ⊢t) (fundamental ⊢t ▸t)
+        0
+      , (subsumption-▸⊩ʳ∷[]-≤ γ≤pδ $
+         emptyrecʳ ok (F.fundamental-⊩ᵛ∷ ⊢t .proj₂)
+           (fundamental ⊢t ▸t .proj₂))
     fundamental (starⱼ _ ok) _ =
-      starʳ ok
+      0 , starʳ ok
     fundamental {m = 𝟙ᵐ} (unitrecⱼ ⊢A ⊢t ⊢u ok) γ▸ur =
       case inv-usage-unitrec γ▸ur of λ
         (invUsageUnitrec δ▸t η▸u _ ok′ γ≤pδ+η) →
-      subsumption-▸⊩ʳ∷[]-≤ γ≤pδ+η $
-      unitrecʳ (F.fundamental-⊩ᵛ ⊢A) (F.fundamental-⊩ᵛ∷ ⊢t)
-        (F.fundamental-⊩ᵛ∷ ⊢u) (fundamental ⊢t δ▸t) (fundamental ⊢u η▸u)
-        (λ p≡𝟘 → case closed-or-no-erased-matches of λ where
-           (inj₁ nem) → inj₂ (nem non-trivial .proj₂ .proj₁ ok′ p≡𝟘)
-           (inj₂ k≡0) → inj₁ k≡0)
+        _
+      , (subsumption-▸⊩ʳ∷[]-≤ γ≤pδ+η $
+         unitrecʳ (emb-⊩ᵛ ≤ᵘ⊔ᵘˡ $ F.fundamental-⊩ᵛ ⊢A .proj₂)
+           (F.fundamental-⊩ᵛ∷ ⊢t .proj₂) (F.fundamental-⊩ᵛ∷ ⊢u .proj₂)
+           (fundamental ⊢t δ▸t .proj₂)
+           (emb-⊩ʳ∷ ≤ᵘ⊔ᵘʳ $ fundamental ⊢u η▸u .proj₂)
+           (λ p≡𝟘 → case closed-or-no-erased-matches of λ where
+              (inj₁ nem) → inj₂ (nem non-trivial .proj₂ .proj₁ ok′ p≡𝟘)
+              (inj₂ k≡0) → inj₁ k≡0))
     fundamental (Idⱼ _ _ _) _ =
-      Idʳ
+      _ , Idʳ
     fundamental (rflⱼ ⊢t) _ =
       rflʳ ⊢t
     fundamental {γ} {m = 𝟙ᵐ} (Jⱼ _ _ ⊢B ⊢u _ ⊢w) ▸J =
       case F.fundamental-⊩ᵛ ⊢B of λ
-        ⊩B →
-      case inv-usage-J ▸J of λ where
-        (invUsageJ₀₂ em _ _ _ ▸u _ _ γ≤) →
-          Jʳ ⊩B ⊢u ⊢w γ≤ (fundamental ⊢u ▸u)
-            (inj₁ $ case closed-or-no-erased-matches of λ where
-               (inj₂ k≡0) → k≡0
-               (inj₁ nem) →
-                 case
-                   PE.trans (PE.sym em)
-                     (nem non-trivial .proj₂ .proj₂ .proj₂ .proj₁)
-                 of λ ())
-        (invUsageJ₀₁ {γ₃} {γ₄} em _ _ _ _ _ ▸u _ _ γ≤) →
-          subsumption-▸⊩ʳ∷[]
-            (λ x →
-               γ ⟨ x ⟩ PE.≡ 𝟘                      →⟨ ≤ᶜ→⟨⟩≡𝟘→⟨⟩≡𝟘 γ≤ ⟩
-               (ω ·ᶜ (γ₃ +ᶜ γ₄)) ⟨ x ⟩ PE.≡ 𝟘      →⟨ ·ᶜ-zero-product-⟨⟩ (γ₃ +ᶜ _) ⟩
-               ω PE.≡ 𝟘 ⊎ (γ₃ +ᶜ γ₄) ⟨ x ⟩ PE.≡ 𝟘  →⟨ (λ { (inj₁ ω≡𝟘) → ⊥-elim (ω≢𝟘 ω≡𝟘); (inj₂ hyp) → hyp }) ⟩
-               (γ₃ +ᶜ γ₄) ⟨ x ⟩ PE.≡ 𝟘             →⟨ +ᶜ-⟨⟩-≡-𝟘-→-∧ᶜ-⟨⟩-≡-𝟘 γ₃ ⟩
-               (γ₃ ∧ᶜ γ₄) ⟨ x ⟩ PE.≡ 𝟘             □) $
-          Jʳ ⊩B ⊢u ⊢w (∧ᶜ-decreasingʳ γ₃ _) (fundamental ⊢u ▸u)
-            (inj₁ $ case closed-or-no-erased-matches of λ where
-               (inj₂ k≡0) → k≡0
-               (inj₁ nem) →
-                 case
-                   PE.trans (PE.sym em)
-                     (nem non-trivial .proj₂ .proj₂ .proj₂ .proj₁)
-                 of λ ())
-        (invUsageJ {γ₂} {γ₃} {γ₄} {γ₅} {γ₆} _ _ _ _ _ ▸u _ ▸w γ≤) →
-          subsumption-▸⊩ʳ∷[]
-            (λ x →
-               γ ⟨ x ⟩ PE.≡ 𝟘                                        →⟨ ≤ᶜ→⟨⟩≡𝟘→⟨⟩≡𝟘 γ≤ ⟩
-               (ω ·ᶜ (γ₂ +ᶜ γ₃ +ᶜ γ₄ +ᶜ γ₅ +ᶜ γ₆)) ⟨ x ⟩ PE.≡ 𝟘      →⟨ ·ᶜ-zero-product-⟨⟩ (γ₂ +ᶜ _) ⟩
-               ω PE.≡ 𝟘 ⊎ (γ₂ +ᶜ γ₃ +ᶜ γ₄ +ᶜ γ₅ +ᶜ γ₆) ⟨ x ⟩ PE.≡ 𝟘  →⟨ (λ { (inj₁ ω≡𝟘) → ⊥-elim (ω≢𝟘 ω≡𝟘); (inj₂ hyp) → hyp }) ⟩
-               (γ₂ +ᶜ γ₃ +ᶜ γ₄ +ᶜ γ₅ +ᶜ γ₆) ⟨ x ⟩ PE.≡ 𝟘             →⟨ proj₂ ∘→ +ᶜ-positive-⟨⟩ γ₅ ∘→
-                                                                        ≤ᶜ→⟨⟩≡𝟘→⟨⟩≡𝟘 {γ = γ₄ +ᶜ _}
-                                                                          (≤ᶜ-reflexive $
-                                                                           ≈ᶜ-trans
-                                                                             (≈ᶜ-trans (≈ᶜ-sym (+ᶜ-assoc _ _ _)) $
-                                                                              +ᶜ-congʳ (+ᶜ-comm _ _)) $
-                                                                           +ᶜ-assoc _ _ _) ∘→
-                                                                        proj₂ ∘→ +ᶜ-positive-⟨⟩ γ₃ ∘→
-                                                                        proj₂ ∘→ +ᶜ-positive-⟨⟩ γ₂ ⟩
-               (γ₄ +ᶜ γ₆) ⟨ x ⟩ PE.≡ 𝟘                               →⟨ +ᶜ-⟨⟩-≡-𝟘-→-∧ᶜ-⟨⟩-≡-𝟘 γ₄ ⟩
-               (γ₄ ∧ᶜ γ₆) ⟨ x ⟩ PE.≡ 𝟘                               □)
-            (Jʳ ⊩B ⊢u ⊢w (∧ᶜ-decreasingˡ γ₄ _) (fundamental ⊢u ▸u)
-               (inj₂ (_ , ∧ᶜ-decreasingʳ γ₄ _ , _ , fundamental ⊢w ▸w)))
+        (_ , ⊩B) →
+        _
+      , (case inv-usage-J ▸J of λ where
+           (invUsageJ₀₂ em _ _ _ ▸u _ _ γ≤) →
+             Jʳ ⊩B ⊢u ⊢w γ≤ (fundamental ⊢u ▸u .proj₂)
+               (inj₁ $ case closed-or-no-erased-matches of λ where
+                  (inj₂ k≡0) → k≡0
+                  (inj₁ nem) →
+                    case
+                      PE.trans (PE.sym em)
+                        (nem non-trivial .proj₂ .proj₂ .proj₂ .proj₁)
+                    of λ ())
+           (invUsageJ₀₁ {γ₃} {γ₄} em _ _ _ _ _ ▸u _ _ γ≤) →
+             subsumption-▸⊩ʳ∷[]
+               (λ x →
+                  γ ⟨ x ⟩ PE.≡ 𝟘                      →⟨ ≤ᶜ→⟨⟩≡𝟘→⟨⟩≡𝟘 γ≤ ⟩
+                  (ω ·ᶜ (γ₃ +ᶜ γ₄)) ⟨ x ⟩ PE.≡ 𝟘      →⟨ ·ᶜ-zero-product-⟨⟩ (γ₃ +ᶜ _) ⟩
+                  ω PE.≡ 𝟘 ⊎ (γ₃ +ᶜ γ₄) ⟨ x ⟩ PE.≡ 𝟘  →⟨ (λ { (inj₁ ω≡𝟘) → ⊥-elim (ω≢𝟘 ω≡𝟘); (inj₂ hyp) → hyp }) ⟩
+                  (γ₃ +ᶜ γ₄) ⟨ x ⟩ PE.≡ 𝟘             →⟨ +ᶜ-⟨⟩-≡-𝟘-→-∧ᶜ-⟨⟩-≡-𝟘 γ₃ ⟩
+                  (γ₃ ∧ᶜ γ₄) ⟨ x ⟩ PE.≡ 𝟘             □) $
+             Jʳ ⊩B ⊢u ⊢w (∧ᶜ-decreasingʳ γ₃ _)
+               (fundamental ⊢u ▸u .proj₂)
+               (inj₁ $ case closed-or-no-erased-matches of λ where
+                  (inj₂ k≡0) → k≡0
+                  (inj₁ nem) →
+                    case
+                      PE.trans (PE.sym em)
+                        (nem non-trivial .proj₂ .proj₂ .proj₂ .proj₁)
+                    of λ ())
+           (invUsageJ {γ₂} {γ₃} {γ₄} {γ₅} {γ₆} _ _ _ _ _ ▸u _ ▸w γ≤) →
+             subsumption-▸⊩ʳ∷[]
+               (λ x →
+                  γ ⟨ x ⟩ PE.≡ 𝟘                                        →⟨ ≤ᶜ→⟨⟩≡𝟘→⟨⟩≡𝟘 γ≤ ⟩
+                  (ω ·ᶜ (γ₂ +ᶜ γ₃ +ᶜ γ₄ +ᶜ γ₅ +ᶜ γ₆)) ⟨ x ⟩ PE.≡ 𝟘      →⟨ ·ᶜ-zero-product-⟨⟩ (γ₂ +ᶜ _) ⟩
+                  ω PE.≡ 𝟘 ⊎ (γ₂ +ᶜ γ₃ +ᶜ γ₄ +ᶜ γ₅ +ᶜ γ₆) ⟨ x ⟩ PE.≡ 𝟘  →⟨ (λ { (inj₁ ω≡𝟘) → ⊥-elim (ω≢𝟘 ω≡𝟘); (inj₂ hyp) → hyp }) ⟩
+                  (γ₂ +ᶜ γ₃ +ᶜ γ₄ +ᶜ γ₅ +ᶜ γ₆) ⟨ x ⟩ PE.≡ 𝟘             →⟨ proj₂ ∘→ +ᶜ-positive-⟨⟩ γ₅ ∘→
+                                                                           ≤ᶜ→⟨⟩≡𝟘→⟨⟩≡𝟘 {γ = γ₄ +ᶜ _}
+                                                                             (≤ᶜ-reflexive $
+                                                                              ≈ᶜ-trans
+                                                                                (≈ᶜ-trans (≈ᶜ-sym (+ᶜ-assoc _ _ _)) $
+                                                                                 +ᶜ-congʳ (+ᶜ-comm _ _)) $
+                                                                              +ᶜ-assoc _ _ _) ∘→
+                                                                           proj₂ ∘→ +ᶜ-positive-⟨⟩ γ₃ ∘→
+                                                                           proj₂ ∘→ +ᶜ-positive-⟨⟩ γ₂ ⟩
+                  (γ₄ +ᶜ γ₆) ⟨ x ⟩ PE.≡ 𝟘                               →⟨ +ᶜ-⟨⟩-≡-𝟘-→-∧ᶜ-⟨⟩-≡-𝟘 γ₄ ⟩
+                  (γ₄ ∧ᶜ γ₆) ⟨ x ⟩ PE.≡ 𝟘                               □)
+               (Jʳ ⊩B ⊢u ⊢w (∧ᶜ-decreasingˡ γ₄ _)
+                  (fundamental ⊢u ▸u .proj₂)
+                  (inj₂ (_ , ∧ᶜ-decreasingʳ γ₄ _ , fundamental ⊢w ▸w))))
     fundamental {γ} {m = 𝟙ᵐ} (Kⱼ _ ⊢B ⊢u ⊢v ok) ▸K =
       case F.fundamental-⊩ᵛ ⊢B of λ
-        ⊩B →
-      case inv-usage-K ▸K of λ where
-        (invUsageK₀₂ em _ _ _ ▸u _ γ≤) →
-          Kʳ ⊩B ⊢u ⊢v ok γ≤ (fundamental ⊢u ▸u)
-            (inj₁ $ case closed-or-no-erased-matches of λ where
-               (inj₂ k≡0) → k≡0
-               (inj₁ nem) →
-                 case
-                   PE.trans (PE.sym em)
-                     (nem non-trivial .proj₂ .proj₂ .proj₂ .proj₂)
-                 of λ ())
-        (invUsageK₀₁ {γ₃} {γ₄} em _ _ _ _ ▸u _ γ≤) →
-          subsumption-▸⊩ʳ∷[]
-            (λ x →
-               γ ⟨ x ⟩ PE.≡ 𝟘                      →⟨ ≤ᶜ→⟨⟩≡𝟘→⟨⟩≡𝟘 γ≤ ⟩
-               (ω ·ᶜ (γ₃ +ᶜ γ₄)) ⟨ x ⟩ PE.≡ 𝟘      →⟨ ·ᶜ-zero-product-⟨⟩ (γ₃ +ᶜ _) ⟩
-               ω PE.≡ 𝟘 ⊎ (γ₃ +ᶜ γ₄) ⟨ x ⟩ PE.≡ 𝟘  →⟨ (λ { (inj₁ ω≡𝟘) → ⊥-elim (ω≢𝟘 ω≡𝟘); (inj₂ hyp) → hyp }) ⟩
-               (γ₃ +ᶜ γ₄) ⟨ x ⟩ PE.≡ 𝟘             →⟨ +ᶜ-⟨⟩-≡-𝟘-→-∧ᶜ-⟨⟩-≡-𝟘 γ₃ ⟩
-               (γ₃ ∧ᶜ γ₄) ⟨ x ⟩ PE.≡ 𝟘             □) $
-          Kʳ ⊩B ⊢u ⊢v ok (∧ᶜ-decreasingʳ γ₃ _) (fundamental ⊢u ▸u)
-            (inj₁ $ case closed-or-no-erased-matches of λ where
-               (inj₂ k≡0) → k≡0
-               (inj₁ nem) →
-                 case
-                   PE.trans (PE.sym em)
-                     (nem non-trivial .proj₂ .proj₂ .proj₂ .proj₂)
-                 of λ ())
-        (invUsageK {γ₂} {γ₃} {γ₄} {γ₅} _ _ _ _ _ ▸u ▸v γ≤) →
-          subsumption-▸⊩ʳ∷[]
-            (λ x →
-               γ ⟨ x ⟩ PE.≡ 𝟘                                  →⟨ ≤ᶜ→⟨⟩≡𝟘→⟨⟩≡𝟘 γ≤ ⟩
-               (ω ·ᶜ (γ₂ +ᶜ γ₃ +ᶜ γ₄ +ᶜ γ₅)) ⟨ x ⟩ PE.≡ 𝟘      →⟨ ·ᶜ-zero-product-⟨⟩ (γ₂ +ᶜ _) ⟩
-               ω PE.≡ 𝟘 ⊎ (γ₂ +ᶜ γ₃ +ᶜ γ₄ +ᶜ γ₅) ⟨ x ⟩ PE.≡ 𝟘  →⟨ (λ { (inj₁ ω≡𝟘) → ⊥-elim (ω≢𝟘 ω≡𝟘); (inj₂ hyp) → hyp }) ⟩
-               (γ₂ +ᶜ γ₃ +ᶜ γ₄ +ᶜ γ₅) ⟨ x ⟩ PE.≡ 𝟘             →⟨ proj₂ ∘→ +ᶜ-positive-⟨⟩ γ₃ ∘→
-                                                                  proj₂ ∘→ +ᶜ-positive-⟨⟩ γ₂ ⟩
-               (γ₄ +ᶜ γ₅) ⟨ x ⟩ PE.≡ 𝟘                         →⟨ +ᶜ-⟨⟩-≡-𝟘-→-∧ᶜ-⟨⟩-≡-𝟘 γ₄ ⟩
-               (γ₄ ∧ᶜ γ₅) ⟨ x ⟩ PE.≡ 𝟘                         □) $
-          Kʳ ⊩B ⊢u ⊢v ok (∧ᶜ-decreasingˡ γ₄ _) (fundamental ⊢u ▸u)
-            (inj₂ (_ , ∧ᶜ-decreasingʳ γ₄ _ , _ , fundamental ⊢v ▸v))
+        (_ , ⊩B) →
+        _
+      , (case inv-usage-K ▸K of λ where
+           (invUsageK₀₂ em _ _ _ ▸u _ γ≤) →
+             Kʳ ⊩B ⊢u ⊢v ok γ≤ (fundamental ⊢u ▸u .proj₂)
+               (inj₁ $ case closed-or-no-erased-matches of λ where
+                  (inj₂ k≡0) → k≡0
+                  (inj₁ nem) →
+                    case
+                      PE.trans (PE.sym em)
+                        (nem non-trivial .proj₂ .proj₂ .proj₂ .proj₂)
+                    of λ ())
+           (invUsageK₀₁ {γ₃} {γ₄} em _ _ _ _ ▸u _ γ≤) →
+             subsumption-▸⊩ʳ∷[]
+               (λ x →
+                  γ ⟨ x ⟩ PE.≡ 𝟘                      →⟨ ≤ᶜ→⟨⟩≡𝟘→⟨⟩≡𝟘 γ≤ ⟩
+                  (ω ·ᶜ (γ₃ +ᶜ γ₄)) ⟨ x ⟩ PE.≡ 𝟘      →⟨ ·ᶜ-zero-product-⟨⟩ (γ₃ +ᶜ _) ⟩
+                  ω PE.≡ 𝟘 ⊎ (γ₃ +ᶜ γ₄) ⟨ x ⟩ PE.≡ 𝟘  →⟨ (λ { (inj₁ ω≡𝟘) → ⊥-elim (ω≢𝟘 ω≡𝟘); (inj₂ hyp) → hyp }) ⟩
+                  (γ₃ +ᶜ γ₄) ⟨ x ⟩ PE.≡ 𝟘             →⟨ +ᶜ-⟨⟩-≡-𝟘-→-∧ᶜ-⟨⟩-≡-𝟘 γ₃ ⟩
+                  (γ₃ ∧ᶜ γ₄) ⟨ x ⟩ PE.≡ 𝟘             □) $
+             Kʳ ⊩B ⊢u ⊢v ok (∧ᶜ-decreasingʳ γ₃ _)
+               (fundamental ⊢u ▸u .proj₂)
+               (inj₁ $ case closed-or-no-erased-matches of λ where
+                  (inj₂ k≡0) → k≡0
+                  (inj₁ nem) →
+                    case
+                      PE.trans (PE.sym em)
+                        (nem non-trivial .proj₂ .proj₂ .proj₂ .proj₂)
+                    of λ ())
+           (invUsageK {γ₂} {γ₃} {γ₄} {γ₅} _ _ _ _ _ ▸u ▸v γ≤) →
+             subsumption-▸⊩ʳ∷[]
+               (λ x →
+                  γ ⟨ x ⟩ PE.≡ 𝟘                                  →⟨ ≤ᶜ→⟨⟩≡𝟘→⟨⟩≡𝟘 γ≤ ⟩
+                  (ω ·ᶜ (γ₂ +ᶜ γ₃ +ᶜ γ₄ +ᶜ γ₅)) ⟨ x ⟩ PE.≡ 𝟘      →⟨ ·ᶜ-zero-product-⟨⟩ (γ₂ +ᶜ _) ⟩
+                  ω PE.≡ 𝟘 ⊎ (γ₂ +ᶜ γ₃ +ᶜ γ₄ +ᶜ γ₅) ⟨ x ⟩ PE.≡ 𝟘  →⟨ (λ { (inj₁ ω≡𝟘) → ⊥-elim (ω≢𝟘 ω≡𝟘); (inj₂ hyp) → hyp }) ⟩
+                  (γ₂ +ᶜ γ₃ +ᶜ γ₄ +ᶜ γ₅) ⟨ x ⟩ PE.≡ 𝟘             →⟨ proj₂ ∘→ +ᶜ-positive-⟨⟩ γ₃ ∘→
+                                                                     proj₂ ∘→ +ᶜ-positive-⟨⟩ γ₂ ⟩
+                  (γ₄ +ᶜ γ₅) ⟨ x ⟩ PE.≡ 𝟘                         →⟨ +ᶜ-⟨⟩-≡-𝟘-→-∧ᶜ-⟨⟩-≡-𝟘 γ₄ ⟩
+                  (γ₄ ∧ᶜ γ₅) ⟨ x ⟩ PE.≡ 𝟘                         □) $
+             Kʳ ⊩B ⊢u ⊢v ok (∧ᶜ-decreasingˡ γ₄ _)
+               (fundamental ⊢u ▸u .proj₂)
+               (inj₂ (_ , ∧ᶜ-decreasingʳ γ₄ _ , fundamental ⊢v ▸v)))
     fundamental ([]-congⱼ _ _ ⊢v ok) _ =
       []-congʳ
         (case closed-or-no-erased-matches of λ where
@@ -354,7 +387,9 @@ module Fundamental
            (inj₂ k≡0) → k≡0)
         ⊢v ok
     fundamental (conv ⊢t A≡B) γ▸t =
-      conv-▸⊩ʳ∷ (F.fundamental-⊩ᵛ≡ A≡B) (fundamental ⊢t γ▸t)
+        _
+      , conv-▸⊩ʳ∷ (F.fundamental-⊩ᵛ≡ A≡B .proj₂)
+          (fundamental ⊢t γ▸t .proj₂)
 
   opaque
 
@@ -364,11 +399,11 @@ module Fundamental
 
     fundamentalErased :
       Δ ⊢ t ∷ A → 𝟘ᶜ ▸[ m ] t →
-      t ®⟨ ¹ ⟩ erase s t ∷ A ◂ ⌜ m ⌝
+      ∃ λ l → t ®⟨ l ⟩ erase s t ∷ A ◂ ⌜ m ⌝
     fundamentalErased {t} {A} {m} ⊢t ▸t =
-                                      $⟨ fundamental ⊢t ▸t ⟩
-      𝟘ᶜ ▸ Δ ⊩ʳ⟨ ¹ ⟩ t ∷[ m ] A       →⟨ ▸⊩ʳ∷[]→®∷◂ ⟩
-      t ®⟨ ¹ ⟩ erase s t ∷ A ◂ ⌜ m ⌝  □
+                                                $⟨ fundamental ⊢t ▸t ⟩
+      (∃ λ l → 𝟘ᶜ ▸ Δ ⊩ʳ⟨ l ⟩ t ∷[ m ] A)       →⟨ Σ.map idᶠ ▸⊩ʳ∷[]→®∷◂ ⟩
+      (∃ λ l → t ®⟨ l ⟩ erase s t ∷ A ◂ ⌜ m ⌝)  □
 
   opaque
 
@@ -376,7 +411,7 @@ module Fundamental
 
     fundamentalErased-𝟙ᵐ :
       Δ ⊢ t ∷ A → 𝟘ᶜ ▸[ 𝟙ᵐ ] t →
-      t ®⟨ ¹ ⟩ erase s t ∷ A
+      ∃ λ l → t ®⟨ l ⟩ erase s t ∷ A
     fundamentalErased-𝟙ᵐ ⊢t ▸t =
-      ®∷→®∷◂ω non-trivial $
+      Σ.map idᶠ (®∷→®∷◂ω non-trivial) $
       fundamentalErased ⊢t ▸t

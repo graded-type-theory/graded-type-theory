@@ -77,7 +77,7 @@ mutual
   convConv↓Term′ Γ≡Δ A≡B whnfB (ne-ins t u x x₁) =
     ne-ins (stabilityTerm Γ≡Δ (conv t A≡B)) (stabilityTerm Γ≡Δ (conv u A≡B))
            (ne≡A x A≡B whnfB) (stability~↓ Γ≡Δ x₁)
-  convConv↓Term′ Γ≡Δ A≡B whnfB (univ x x₁ x₂) rewrite U≡A A≡B =
+  convConv↓Term′ Γ≡Δ A≡B whnfB (univ x x₁ x₂) rewrite U≡A A≡B whnfB =
     univ (stabilityTerm Γ≡Δ x) (stabilityTerm Γ≡Δ x₁) (stabilityConv↓ Γ≡Δ x₂)
   convConv↓Term′ Γ≡Δ A≡B whnfB (zero-refl x) rewrite ℕ≡A A≡B whnfB =
     let _ , ⊢Δ , _ = contextConvSubst Γ≡Δ

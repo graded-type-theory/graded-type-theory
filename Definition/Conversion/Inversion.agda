@@ -38,12 +38,14 @@ open import Tools.Relation
 open import Tools.Sum
 
 private variable
-  x y                                                     : Fin _
-  Γ                                                       : Con Term _
-  A A₁ A₂ B B₁ B₂ C C₁ C₂ t t₁ t₂ t₃ t₄ u u₁ u₂ u₃ u₄ v w : Term _
-  b                                                       : BinderMode
-  s                                                       : Strength
-  p q r                                                   : M
+  x y                                                   : Fin _
+  Γ                                                     : Con Term _
+  A A₁ A₂ B B₁ B₂ C C₁ C₂ t t₁ t₂ t₃ t₄ u u₁ u₂ u₃ u₄ v
+    w                                                   : Term _
+  b                                                     : BinderMode
+  s                                                     : Strength
+  l                                                     : Universe-level
+  p q r                                                 : M
 
 ------------------------------------------------------------------------
 -- Inversion and similar lemmas for _⊢_~_↑_
@@ -91,14 +93,14 @@ opaque
 
   -- Inversion for U.
 
-  inv-U~ : ¬ Γ ⊢ U ~ u ↑ A
+  inv-U~ : ¬ Γ ⊢ U l ~ u ↑ A
   inv-U~ ()
 
 opaque
 
   -- Inversion for U.
 
-  inv-~U : ¬ Γ ⊢ t ~ U ↑ A
+  inv-~U : ¬ Γ ⊢ t ~ U l ↑ A
   inv-~U ()
 
 opaque
@@ -884,9 +886,9 @@ opaque
 
   inv-[conv↓]-ne′ :
     Γ ⊢ A [conv↓] B →
-    Γ ⊢ A ~ B ↓ U ⊎ ¬ Neutral A × ¬ Neutral B
+    (∃ λ l → Γ ⊢ A ~ B ↓ U l) ⊎ ¬ Neutral A × ¬ Neutral B
   inv-[conv↓]-ne′ = λ where
-    (ne A~B)        → inj₁ A~B
+    (ne A~B)        → inj₁ (_ , A~B)
     (U-refl _)      → inj₂ (¬-Neutral-U     , ¬-Neutral-U)
     (ΠΣ-cong _ _ _) → inj₂ (¬-Neutral-ΠΣ    , ¬-Neutral-ΠΣ)
     (Empty-refl _)  → inj₂ (¬-Neutral-Empty , ¬-Neutral-Empty)
@@ -901,7 +903,7 @@ opaque
   inv-[conv↓]-ne :
     Neutral A →
     Γ ⊢ A [conv↓] B →
-    Γ ⊢ A ~ B ↓ U
+    ∃ λ l → Γ ⊢ A ~ B ↓ U l
   inv-[conv↓]-ne A-ne A≡B = case inv-[conv↓]-ne′ A≡B of λ where
     (inj₁ A~B)         → A~B
     (inj₂ (¬A-ne , _)) → ⊥-elim (¬A-ne A-ne)
@@ -912,15 +914,16 @@ opaque
 
   inv-[conv↓]-U′ :
     Γ ⊢ A [conv↓] B →
-    A PE.≡ U × B PE.≡ U ⊎ A PE.≢ U × B PE.≢ U
+    (∃ λ l → A PE.≡ U l × B PE.≡ U l) ⊎
+    ¬ (∃ λ l → A PE.≡ U l) × ¬ (∃ λ l → B PE.≡ U l)
   inv-[conv↓]-U′ = λ where
-    (U-refl _) → inj₁ (PE.refl , PE.refl)
+    (U-refl _) → inj₁ (_ , PE.refl , PE.refl)
     (ne A~B) →
       inj₂ $
       case ne~↓ A~B of λ
         (_ , A-ne , B-ne) →
-        (λ { PE.refl → ¬-Neutral-U A-ne })
-      , (λ { PE.refl → ¬-Neutral-U B-ne })
+        (λ { (_ , PE.refl) → ¬-Neutral-U A-ne })
+      , (λ { (_ , PE.refl) → ¬-Neutral-U B-ne })
     (ΠΣ-cong _ _ _) → inj₂ ((λ ()) , (λ ()))
     (Empty-refl _)  → inj₂ ((λ ()) , (λ ()))
     (Unit-refl _ _) → inj₂ ((λ ()) , (λ ()))
@@ -932,11 +935,11 @@ opaque
   -- Inversion for U.
 
   inv-[conv↓]-U :
-    Γ ⊢ U [conv↓] A →
-    A PE.≡ U
+    Γ ⊢ U l [conv↓] A →
+    A PE.≡ U l
   inv-[conv↓]-U U≡A = case inv-[conv↓]-U′ U≡A of λ where
-    (inj₁ (_ , A≡U)) → A≡U
-    (inj₂ (U≢U , _)) → ⊥-elim (U≢U PE.refl)
+    (inj₁ (_ , PE.refl , A≡U)) → A≡U
+    (inj₂ (U≢U , _))           → ⊥-elim (U≢U (_ , PE.refl))
 
 opaque
 
@@ -1158,7 +1161,7 @@ opaque
   -- Inversion for U.
 
   inv-[conv↓]∷-U :
-    Γ ⊢ A [conv↓] B ∷ U →
+    Γ ⊢ A [conv↓] B ∷ U l →
     Γ ⊢ A [conv↓] B
   inv-[conv↓]∷-U (univ _ _ A≡B)    = A≡B
   inv-[conv↓]∷-U (ne-ins _ _ () _)

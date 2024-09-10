@@ -15,6 +15,7 @@ open Type-restrictions R
 
 open import Definition.Conversion R
 open import Definition.Conversion.Consequences.Completeness R
+open import Definition.Conversion.Consequences.InverseUniv R
 open import Definition.Conversion.Soundness R
 
 open import Definition.Typed R
@@ -38,7 +39,7 @@ import Graded.Derived.Erased.Untyped 𝕄 as Erased
 open import Tools.Empty
 open import Tools.Fin
 open import Tools.Function
-open import Tools.Nat using (Nat)
+open import Tools.Nat using (Nat; 1+)
 open import Tools.Product
 import Tools.PropositionalEquality as PE
 open import Tools.Relation
@@ -51,6 +52,7 @@ private variable
   A B C t u v w : Term _
   b             : BinderMode
   s             : Strength
+  l l₁ l₂       : Universe-level
   p q q′ r      : M
 
 ------------------------------------------------------------------------
@@ -66,8 +68,8 @@ mutual
 
   data _⊢nf_ (Γ : Con Term n) : Term n → Set a where
     Uₙ     : ⊢ Γ →
-             Γ ⊢nf U
-    univₙ  : Γ ⊢nf A ∷ U →
+             Γ ⊢nf U l
+    univₙ  : Γ ⊢nf A ∷ U l →
              Γ ⊢nf A
     ΠΣₙ    : Γ ⊢nf A →
              Γ ∙ A ⊢nf B →
@@ -94,10 +96,12 @@ mutual
     convₙ  : Γ ⊢nf t ∷ A →
              Γ ⊢ A ≡ B →
              Γ ⊢nf t ∷ B
-    ΠΣₙ    : Γ ⊢nf A ∷ U →
-             Γ ∙ A ⊢nf B ∷ U →
+    Uₙ     : ⊢ Γ →
+             Γ ⊢nf U l ∷ U (1+ l)
+    ΠΣₙ    : Γ ⊢nf A ∷ U l₁ →
+             Γ ∙ A ⊢nf B ∷ U l₂ →
              ΠΣ-allowed b p q →
-             Γ ⊢nf ΠΣ⟨ b ⟩ p , q ▷ A ▹ B ∷ U
+             Γ ⊢nf ΠΣ⟨ b ⟩ p , q ▷ A ▹ B ∷ U (l₁ ⊔ᵘ l₂)
     lamₙ   : Γ ⊢ A →
              Γ ∙ A ⊢nf t ∷ B →
              Π-allowed p q →
@@ -109,23 +113,23 @@ mutual
              Σ-allowed s p q →
              Γ ⊢nf prod s p t u ∷ Σ⟨ s ⟩ p , q ▷ A ▹ B
     Emptyₙ : ⊢ Γ →
-             Γ ⊢nf Empty ∷ U
+             Γ ⊢nf Empty ∷ U 0
     Unitₙ  : ⊢ Γ →
              Unit-allowed s →
-             Γ ⊢nf Unit s ∷ U
+             Γ ⊢nf Unit s ∷ U 0
     starₙ  : ⊢ Γ →
              Unit-allowed s →
              Γ ⊢nf star s ∷ Unit s
     ℕₙ     : ⊢ Γ →
-             Γ ⊢nf ℕ ∷ U
+             Γ ⊢nf ℕ ∷ U 0
     zeroₙ  : ⊢ Γ →
              Γ ⊢nf zero ∷ ℕ
     sucₙ   : Γ ⊢nf t ∷ ℕ →
              Γ ⊢nf suc t ∷ ℕ
-    Idₙ    : Γ ⊢nf A ∷ U →
+    Idₙ    : Γ ⊢nf A ∷ U l →
              Γ ⊢nf t ∷ A →
              Γ ⊢nf u ∷ A →
-             Γ ⊢nf Id A t u ∷ U
+             Γ ⊢nf Id A t u ∷ U l
     rflₙ   : Γ ⊢ t ∷ A →
              Γ ⊢nf rfl ∷ Id A t t
     neₙ    : No-η-equality A →
@@ -201,25 +205,6 @@ mutual
                   Id (Erased A) ([ t ]) ([ u ])
 
 ------------------------------------------------------------------------
--- A lemma
-
--- If A is a normal type of type U, then A is a normal term of type U.
-
-⊢nf∷U→⊢nf∷U : Γ ⊢nf A → Γ ⊢ A ∷ U → Γ ⊢nf A ∷ U
-⊢nf∷U→⊢nf∷U = λ where
-  (Uₙ _)         ⊢U∷U    → ⊥-elim (inversion-U ⊢U∷U)
-  (univₙ ⊢A)     _       → ⊢A
-  (ΠΣₙ ⊢A ⊢B ok) ⊢ΠΣAB∷U →
-    case inversion-ΠΣ-U ⊢ΠΣAB∷U of λ {
-      (⊢A∷U , ⊢B∷U , _) →
-    ΠΣₙ (⊢nf∷U→⊢nf∷U ⊢A ⊢A∷U) (⊢nf∷U→⊢nf∷U ⊢B ⊢B∷U) ok }
-  (Emptyₙ ⊢Γ)    _     → Emptyₙ ⊢Γ
-  (Unitₙ ⊢Γ ok)  _     → Unitₙ ⊢Γ ok
-  (ℕₙ ⊢Γ)        _     → ℕₙ ⊢Γ
-  (Idₙ ⊢A ⊢t ⊢u) ⊢Id∷U →
-    Idₙ (⊢nf∷U→⊢nf∷U ⊢A (inversion-Id-U ⊢Id∷U .proj₁)) ⊢t ⊢u
-
-------------------------------------------------------------------------
 -- Some conversion functions
 
 mutual
@@ -241,6 +226,7 @@ mutual
   ⊢nf∷→⊢∷ : Γ ⊢nf t ∷ A → Γ ⊢ t ∷ A
   ⊢nf∷→⊢∷ = λ where
     (convₙ ⊢t A≡B)         → conv (⊢nf∷→⊢∷ ⊢t) A≡B
+    (Uₙ ⊢Γ)                → Uⱼ ⊢Γ
     (ΠΣₙ ⊢A ⊢B ok)         → ΠΣⱼ (⊢nf∷→⊢∷ ⊢A) (⊢nf∷→⊢∷ ⊢B) ok
     (lamₙ ⊢A ⊢t ok)        → lamⱼ ⊢A (⊢nf∷→⊢∷ ⊢t) ok
     (prodₙ ⊢A ⊢B ⊢t ⊢u ok) → prodⱼ ⊢A ⊢B (⊢nf∷→⊢∷ ⊢t) (⊢nf∷→⊢∷ ⊢u) ok
@@ -297,6 +283,7 @@ mutual
   ⊢nf∷→Nf : Γ ⊢nf t ∷ A → Nf t
   ⊢nf∷→Nf = λ where
     (convₙ ⊢t _)        → ⊢nf∷→Nf ⊢t
+    (Uₙ _)              → Uₙ
     (ΠΣₙ ⊢A ⊢B _)       → ΠΣₙ (⊢nf∷→Nf ⊢A) (⊢nf∷→Nf ⊢B)
     (lamₙ _ ⊢t _)       → lamₙ (⊢nf∷→Nf ⊢t)
     (prodₙ _ _ ⊢t ⊢u _) → prodₙ (⊢nf∷→Nf ⊢t) (⊢nf∷→Nf ⊢u)
@@ -337,6 +324,35 @@ mutual
                                      (⊢nf∷→Nf ⊢u) (⊢ne∷→NfNeutral ⊢v)
 
 ------------------------------------------------------------------------
+-- A lemma
+
+opaque
+
+  -- If A is a normal type of type U l, then A is a normal term of
+  -- type U l.
+
+  ⊢nf∷U→⊢nf∷U : Γ ⊢nf A → Γ ⊢ A ∷ U l → Γ ⊢nf A ∷ U l
+  ⊢nf∷U→⊢nf∷U = λ where
+    (Uₙ ⊢Γ) ⊢U →
+      convₙ (Uₙ ⊢Γ) (sym $ inversion-U ⊢U)
+    (univₙ ⊢A) ⊢A∷U →
+      PE.subst (_⊢nf_∷_ _ _)
+        (PE.cong U $ universe-level-unique (⊢nf∷→⊢∷ ⊢A) ⊢A∷U) ⊢A
+    (ΠΣₙ ⊢A ⊢B ok) ⊢ΠΣ →
+      let _ , _ , ⊢A∷U , ⊢B∷U , U≡U , _ = inversion-ΠΣ-U ⊢ΠΣ in
+      convₙ (ΠΣₙ (⊢nf∷U→⊢nf∷U ⊢A ⊢A∷U) (⊢nf∷U→⊢nf∷U ⊢B ⊢B∷U) ok)
+        (sym U≡U)
+    (Emptyₙ ⊢Γ) ⊢Empty →
+      convₙ (Emptyₙ ⊢Γ) (sym $ inversion-Empty ⊢Empty)
+    (Unitₙ ⊢Γ ok) ⊢Unit →
+      convₙ (Unitₙ ⊢Γ ok) (sym $ inversion-Unit-U ⊢Unit .proj₁)
+    (ℕₙ ⊢Γ) ⊢ℕ →
+      convₙ (ℕₙ ⊢Γ) (sym $ inversion-ℕ ⊢ℕ)
+    (Idₙ ⊢A ⊢t ⊢u) ⊢Id →
+      let _ , ⊢A∷U , _ , _ , U≡U = inversion-Id-U ⊢Id in
+      convₙ (Idₙ (⊢nf∷U→⊢nf∷U ⊢A ⊢A∷U) ⊢t ⊢u) (sym U≡U)
+
+------------------------------------------------------------------------
 -- Stability
 
 mutual
@@ -368,6 +384,7 @@ mutual
       (convₙ ⊢t B≡A) → convₙ
         (⊢nf∷-stable Γ≡Δ ⊢t)
         (stabilityEq Γ≡Δ B≡A)
+      (Uₙ _)         → Uₙ ⊢Δ
       (ΠΣₙ ⊢A ⊢B ok) → ΠΣₙ
         (⊢nf∷-stable Γ≡Δ ⊢A)
         (⊢nf∷-stable (Γ≡Δ ∙ refl (⊢nf→⊢ (univₙ ⊢A))) ⊢B)
@@ -481,13 +498,15 @@ mutual
 
 inversion-nf-ΠΣ-U :
   Γ ⊢nf ΠΣ⟨ b ⟩ p , q ▷ A ▹ B ∷ C →
-  Γ ⊢nf A ∷ U × Γ ∙ A ⊢nf B ∷ U × Γ ⊢ C ≡ U × ΠΣ-allowed b p q
+  ∃₂ λ l₁ l₂ →
+  Γ ⊢nf A ∷ U l₁ × Γ ∙ A ⊢nf B ∷ U l₂ × Γ ⊢ C ≡ U (l₁ ⊔ᵘ l₂) ×
+  ΠΣ-allowed b p q
 inversion-nf-ΠΣ-U (ΠΣₙ ⊢A ⊢B ok) =
-  ⊢A , ⊢B , refl (Uⱼ (wfTerm (⊢nf∷→⊢∷ ⊢A))) , ok
+  _ , _ , ⊢A , ⊢B , refl (Uⱼ (wfTerm (⊢nf∷→⊢∷ ⊢A))) , ok
 inversion-nf-ΠΣ-U (convₙ ⊢ΠΣ D≡C) =
   case inversion-nf-ΠΣ-U ⊢ΠΣ of λ {
-    (⊢A , ⊢B , D≡U , ok) →
-  ⊢A , ⊢B , trans (sym D≡C) D≡U , ok }
+    (_ , _ , ⊢A , ⊢B , D≡U , ok) →
+  _ , _ , ⊢A , ⊢B , trans (sym D≡C) D≡U , ok }
 inversion-nf-ΠΣ-U (neₙ _ ⊢ΠΣ) =
   case ⊢ne∷→NfNeutral ⊢ΠΣ of λ ()
 
@@ -499,7 +518,7 @@ inversion-nf-ΠΣ :
 inversion-nf-ΠΣ = λ where
   (ΠΣₙ ⊢A ⊢B ok) → ⊢A , ⊢B , ok
   (univₙ ⊢ΠΣAB)  → case inversion-nf-ΠΣ-U ⊢ΠΣAB of λ where
-    (⊢A , ⊢B , _ , ok) → univₙ ⊢A , univₙ ⊢B , ok
+    (_ , _ , ⊢A , ⊢B , _ , ok) → univₙ ⊢A , univₙ ⊢B , ok
 
 -- Inversion for lam.
 
@@ -775,14 +794,14 @@ opaque
 
   inversion-nf-Id-U :
     Γ ⊢nf Id A t u ∷ B →
-    Γ ⊢nf A ∷ U × Γ ⊢nf t ∷ A × Γ ⊢nf u ∷ A × Γ ⊢ B ≡ U
+    ∃ λ l → Γ ⊢nf A ∷ U l × Γ ⊢nf t ∷ A × Γ ⊢nf u ∷ A × Γ ⊢ B ≡ U l
   inversion-nf-Id-U = λ where
     (Idₙ ⊢A ⊢t ⊢u) →
-      ⊢A , ⊢t , ⊢u , refl (Uⱼ (wfTerm (⊢nf∷→⊢∷ ⊢A)))
+      _ , ⊢A , ⊢t , ⊢u , refl (Uⱼ (wfTerm (⊢nf∷→⊢∷ ⊢A)))
     (convₙ ⊢Id C≡B) →
       case inversion-nf-Id-U ⊢Id of λ {
-        (⊢A , ⊢t , ⊢u , C≡U) →
-      ⊢A , ⊢t , ⊢u , trans (sym C≡B) C≡U }
+        (_ , ⊢A , ⊢t , ⊢u , C≡U) →
+      _ , ⊢A , ⊢t , ⊢u , trans (sym C≡B) C≡U }
     (neₙ _ ⊢Id) →
       case ⊢ne∷→NfNeutral ⊢Id of λ ()
 
@@ -796,7 +815,7 @@ opaque
   inversion-nf-Id = λ where
     (Idₙ ⊢A ⊢t ⊢u) → ⊢A , ⊢t , ⊢u
     (univₙ ⊢Id)    → case inversion-nf-Id-U ⊢Id of λ where
-      (⊢A , ⊢t , ⊢u , _) → univₙ ⊢A , ⊢t , ⊢u
+      (_ , ⊢A , ⊢t , ⊢u , _) → univₙ ⊢A , ⊢t , ⊢u
 
 -- Inversion for J.
 
@@ -1076,6 +1095,7 @@ opaque
     (starₙ _ _)       → PE.cong star (Unit-injectivity A≡Unit)
     (convₙ ⊢t ≡A)     → ⊢nf∷Unitˢ→≡starˢ′ (trans ≡A A≡Unit) ⊢t
     (neₙ A-no-η _)    → ⊥-elim (No-η-equality→≢Unit A-no-η A≡Unit ok)
+    (Uₙ _)            → ⊥-elim (U≢Unitⱼ A≡Unit)
     (ΠΣₙ _ _ _)       → ⊥-elim (U≢Unitⱼ A≡Unit)
     (lamₙ _ _ _)      → ⊥-elim (Unit≢ΠΣⱼ (sym A≡Unit))
     (prodₙ _ _ _ _ _) → ⊥-elim (Unit≢ΠΣⱼ (sym A≡Unit))

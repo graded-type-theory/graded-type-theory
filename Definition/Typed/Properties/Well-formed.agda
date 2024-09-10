@@ -138,5 +138,5 @@ opaque
 
 -- An example of how _∙[_] can be used.
 
-_ : ⊢ ε ∙ ℕ ∙ (U l) ∙ Empty
+_ : ⊢ ε ∙ ℕ ∙ U l ∙ Empty
 _ = ε ∙[ ℕⱼ ] ∙[ Uⱼ ] ∙[ Emptyⱼ ]

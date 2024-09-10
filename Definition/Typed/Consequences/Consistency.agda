@@ -24,6 +24,7 @@ open import Definition.LogicalRelation.Fundamental.Reducibility R
 open import Tools.Empty
 open import Tools.Function
 open import Tools.Nat
+open import Tools.Product
 open import Tools.Relation
 
 private
@@ -47,9 +48,9 @@ opaque
 
   zero≢suc : ¬ Γ ⊢ zero ≡ suc t ∷ ℕ
   zero≢suc {Γ} {t} =
-    Γ ⊢ zero ≡ suc t ∷ ℕ       →⟨ reducible-⊩≡∷ ⟩
-    Γ ⊩⟨ ¹ ⟩ zero ≡ suc t ∷ ℕ  ⇔⟨ ⊩zero≡suc∷ℕ⇔ ⟩→
-    ⊥                          □
+    Γ ⊢ zero ≡ suc t ∷ ℕ                 →⟨ reducible-⊩≡∷ ⟩
+    (∃ λ l → Γ ⊩⟨ l ⟩ zero ≡ suc t ∷ ℕ)  →⟨ ⊩zero≡suc∷ℕ⇔ .proj₁ ∘→ proj₂ ⟩
+    ⊥                                    □
 
 zero≢one : Γ ⊢ zero ≡ suc zero ∷ ℕ → ⊥
 zero≢one = zero≢suc

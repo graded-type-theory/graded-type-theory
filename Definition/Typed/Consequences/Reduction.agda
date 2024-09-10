@@ -23,6 +23,7 @@ open import Definition.Typed.Consequences.Inequality R
 open import Definition.Typed.Consequences.Injectivity R
 open import Definition.Typed.Consequences.Inversion R
 open import Definition.Typed.Consequences.Syntactic R
+open import Definition.Typed.Reasoning.Type R
 open import Definition.Typed.RedSteps R
 open import Definition.LogicalRelation R
 open import Definition.LogicalRelation.Hidden R
@@ -43,16 +44,17 @@ private
     A B t u v : Term _
     p q : M
     m : Strength
+    l : Universe-level
 
 opaque
 
-  -- If the type of t is U, then t reduces to an application of a type
-  -- constructor or a neutral term.
+  -- If the type of t is U l, then t reduces to an application of a
+  -- type constructor or a neutral term.
 
-  red-U : Γ ⊢ t ∷ U → ∃ λ u → Type u × Γ ⊢ t :⇒*: u ∷ U
+  red-U : Γ ⊢ t ∷ U l → ∃ λ u → Type u × Γ ⊢ t :⇒*: u ∷ U l
   red-U ⊢t =
-    case ⊩∷U⇔ .proj₁ $ reducible-⊩∷ ⊢t of λ
-      (_ , u , t⇒*u , u-type , _) →
+    case ⊩∷U⇔ .proj₁ $ proj₂ $ reducible-⊩∷ ⊢t of λ
+      (_ , _ , u , t⇒*u , u-type , _) →
     u , u-type , t⇒*u
 
 opaque
@@ -61,7 +63,7 @@ opaque
 
   red-Empty : Γ ⊢ t ∷ Empty → ∃ λ u → Neutral u × Γ ⊢ t :⇒*: u ∷ Empty
   red-Empty ⊢t =
-    case ⊩∷Empty⇔ .proj₁ $ reducible-⊩∷ ⊢t of λ {
+    case ⊩∷Empty⇔ .proj₁ $ proj₂ $ reducible-⊩∷ ⊢t of λ {
       (Emptyₜ u t⇒*u _ (ne (neNfₜ u-ne _ _))) →
     u , u-ne , t⇒*u }
 
@@ -72,7 +74,7 @@ opaque
 
   red-Unit : Γ ⊢ t ∷ Unit m → ∃ λ u → Star u × Γ ⊢ t :⇒*: u ∷ Unit m
   red-Unit ⊢t =
-    case ⊩∷Unit⇔ .proj₁ $ reducible-⊩∷ ⊢t of λ
+    case ⊩∷Unit⇔ .proj₁ $ proj₂ $ reducible-⊩∷ ⊢t of λ
       (_ , Unitₜ u t⇒*u _ rest) →
       u
     , (case rest of λ where
@@ -87,7 +89,7 @@ opaque
 
   red-ℕ : Γ ⊢ t ∷ ℕ → ∃ λ u → Natural u × Γ ⊢ t :⇒*: u ∷ ℕ
   red-ℕ ⊢t =
-    case ⊩∷ℕ⇔ .proj₁ $ reducible-⊩∷ ⊢t of λ
+    case ⊩∷ℕ⇔ .proj₁ $ proj₂ $ reducible-⊩∷ ⊢t of λ
       (ℕₜ u t⇒*u _ rest) →
       u
     , (case rest of λ where
@@ -104,7 +106,7 @@ opaque
     Γ ⊢ t ∷ Π p , q ▷ A ▹ B →
     ∃ λ u → Function u × Γ ⊢ t :⇒*: u ∷ Π p , q ▷ A ▹ B
   red-Π ⊢t =
-    case ⊩∷Π⇔ .proj₁ $ reducible-⊩∷ ⊢t of λ
+    case ⊩∷Π⇔ .proj₁ $ proj₂ $ reducible-⊩∷ ⊢t of λ
       (_ , u , t⇒*u , u-fun , _) →
     u , u-fun , t⇒*u
 
@@ -116,11 +118,11 @@ opaque
     Γ ⊢ t ∷ Σ⟨ m ⟩ p , q ▷ A ▹ B →
     ∃ λ u → Product u × Γ ⊢ t :⇒*: u ∷ Σ⟨ m ⟩ p , q ▷ A ▹ B
   red-Σ {m = 𝕤} ⊢t =
-    case ⊩∷Σˢ⇔ .proj₁ $ reducible-⊩∷ ⊢t of λ
+    case ⊩∷Σˢ⇔ .proj₁ $ proj₂ $ reducible-⊩∷ ⊢t of λ
       (_ , u , t⇒*u , u-prod , _) →
     u , u-prod , t⇒*u
   red-Σ {m = 𝕨} ⊢t =
-    case ⊩∷Σʷ⇔ .proj₁ $ reducible-⊩∷ ⊢t of λ
+    case ⊩∷Σʷ⇔ .proj₁ $ proj₂ $ reducible-⊩∷ ⊢t of λ
       (_ , u , t⇒*u , _ , rest) →
     u , ⊩∷Σʷ→Product rest , t⇒*u
 
@@ -133,7 +135,7 @@ opaque
     Γ ⊢ t ∷ Id A u v →
     ∃ λ w → Identity w × Γ ⊢ t :⇒*: w ∷ Id A u v
   red-Id ⊢t =
-    case ⊩∷Id⇔ .proj₁ $ reducible-⊩∷ ⊢t of λ
+    case ⊩∷Id⇔ .proj₁ $ proj₂ $ reducible-⊩∷ ⊢t of λ
       (w , t⇒*w , _ , _ , rest) →
       w
     , (case rest of λ where
@@ -144,7 +146,7 @@ opaque
 -- Helper function where all reducible types can be reduced to WHNF.
 whNorm′ : ∀ {A l} ([A] : Γ ⊩⟨ l ⟩ A)
                 → ∃ λ B → Whnf B × Γ ⊢ A :⇒*: B
-whNorm′ (Uᵣ′ .⁰ 0<1 ⊢Γ) = U , Uₙ , idRed:*: (Uⱼ ⊢Γ)
+whNorm′ (Uᵣ′ l _ ⇒*U) = U l , Uₙ , ⇒*U
 whNorm′ (ℕᵣ D) = ℕ , ℕₙ , D
 whNorm′ (Emptyᵣ D) = Empty , Emptyₙ , D
 whNorm′ (Unitᵣ (Unitₜ D _)) = Unit! , Unitₙ , D
@@ -152,11 +154,26 @@ whNorm′ (ne′ H D neH H≡H) = H , ne neH , D
 whNorm′ (Πᵣ′ F G D _ _ _ _ _ _ _) = Π _ , _ ▷ F ▹ G , ΠΣₙ , D
 whNorm′ (𝕨′ F G D _ _ _ _ _ _ _) = Σ _ , _ ▷ F ▹ G , ΠΣₙ , D
 whNorm′ (Idᵣ ⊩Id) = _ , Idₙ , _⊩ₗId_.⇒*Id ⊩Id
-whNorm′ (emb 0<1 [A]) = whNorm′ [A]
+whNorm′ (emb ≤ᵘ-refl     ⊩A) = whNorm′ ⊩A
+whNorm′ (emb (≤ᵘ-step p) ⊩A) = whNorm′ (emb p ⊩A)
 
 -- Well-formed types can all be reduced to WHNF.
 whNorm : ∀ {A} → Γ ⊢ A → ∃ λ B → Whnf B × Γ ⊢ A :⇒*: B
-whNorm A = whNorm′ (reducible-⊩ A)
+whNorm A = whNorm′ (reducible-⊩ A .proj₂)
+
+opaque
+
+  -- If A is definitionally equal to U l, then A reduces to U l.
+
+  U-norm : Γ ⊢ A ≡ U l → Γ ⊢ A ⇒* U l
+  U-norm {A} {l} A≡U =
+    let B , B-whnf , [ _ , _ , A⇒*B ] = whNorm (syntacticEq A≡U .proj₁)
+        U≡B                           =
+          U l  ≡˘⟨ A≡U ⟩⊢
+          A    ≡⟨ subset* A⇒*B ⟩⊢∎
+          B    ∎
+    in
+    PE.subst (_⊢_⇒*_ _ _) (U≡A U≡B B-whnf) A⇒*B
 
 ΠNorm : ∀ {A F G} → Γ ⊢ A → Γ ⊢ A ≡ Π p , q ▷ F ▹ G
       → ∃₂ λ F′ G′ → Γ ⊢ A ⇒* Π p , q ▷ F′ ▹ G′ × Γ ⊢ F ≡ F′
@@ -241,7 +258,8 @@ opaque
 -- Helper function where reducible all terms can be reduced to WHNF.
 whNormTerm′ : ∀ {a A l} ([A] : Γ ⊩⟨ l ⟩ A) → Γ ⊩⟨ l ⟩ a ∷ A / [A]
                 → ∃ λ b → Whnf b × Γ ⊢ a :⇒*: b ∷ A
-whNormTerm′ (Uᵣ x) (Uₜ A d typeA A≡A [t]) = A , typeWhnf typeA , d
+whNormTerm′ (Uᵣ′ _ _ A⇒*U) (Uₜ C B⇒*C C-type C≅C ⊩B) =
+    C , typeWhnf C-type , convRed:*: B⇒*C (sym (subset* (red A⇒*U)))
 whNormTerm′ (ℕᵣ x) (ℕₜ n d n≡n prop) =
   let natN = natural prop
   in  n , naturalWhnf natN , convRed:*: d (sym (subset* (red x)))
@@ -259,7 +277,8 @@ whNormTerm′ (𝕨′ _ _ D _ _ _ _ _ _ _) (Σₜ p d _ pProd _) =
 whNormTerm′ (Idᵣ ⊩Id) (a′ , a⇒*a′ , a′-id , _) =
     a′ , identityWhnf a′-id
   , convRed:*: a⇒*a′ (sym (subset* (red (_⊩ₗId_.⇒*Id ⊩Id))))
-whNormTerm′ (emb 0<1 [A]) [a] = whNormTerm′ [A] [a]
+whNormTerm′ (emb ≤ᵘ-refl     ⊩A) ⊩a = whNormTerm′ ⊩A ⊩a
+whNormTerm′ (emb (≤ᵘ-step p) ⊩A) ⊩a = whNormTerm′ (emb p ⊩A) ⊩a
 
 opaque
 
@@ -268,7 +287,7 @@ opaque
   whNormTerm : Γ ⊢ t ∷ A → ∃ λ u → Whnf u × Γ ⊢ t :⇒*: u ∷ A
   whNormTerm ⊢t =
     case reducible-⊩∷ ⊢t of λ
-      ⊩t →
+      (_ , ⊩t) →
     case wf-⊩∷ ⊩t of λ
       ⊩A →
     whNormTerm′ ⊩A (⊩∷→⊩∷/ ⊩A ⊩t)

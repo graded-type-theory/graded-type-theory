@@ -124,8 +124,8 @@ opaque
     Γ ⊢ v₁ ⇒* v₂ ∷ ℕ →
     Γ ⊢ natrec p q r A t u v₁ ⇒* natrec p q r A t u v₂ ∷ A [ v₁ ]₀
   natrec-subst* ⊢A ⊢t ⊢u v₁⇒*v₂ =
-    I.natrec-subst* (fundamental-⊩ᵛ ⊢A) ⊢t ⊢u v₁⇒*v₂
-      (reducible-⊩∷ (syntacticRedTerm v₁⇒*v₂ .proj₂ .proj₂))
+    I.natrec-subst* (fundamental-⊩ᵛ ⊢A .proj₂) ⊢t ⊢u v₁⇒*v₂
+      (reducible-⊩∷ (syntacticRedTerm v₁⇒*v₂ .proj₂ .proj₂) .proj₂)
 
 opaque
 
@@ -172,8 +172,8 @@ opaque
     K-allowed →
     Γ ⊢ K p A t B u v₁ ⇒* K p A t B u v₂ ∷ B [ v₁ ]₀
   K-subst* ⊢B ⊢u v₁⇒*v₂ ok =
-    I.K-subst* (fundamental-⊩ᵛ ⊢B) ⊢u v₁⇒*v₂
-      (reducible-⊩∷ (syntacticRedTerm v₁⇒*v₂ .proj₂ .proj₂)) ok
+    I.K-subst* (fundamental-⊩ᵛ ⊢B .proj₂) ⊢u v₁⇒*v₂
+      (reducible-⊩∷ (syntacticRedTerm v₁⇒*v₂ .proj₂ .proj₂) .proj₂) ok
 
 opaque
 
@@ -187,6 +187,6 @@ opaque
   J-subst* ⊢B ⊢u w₁⇒*w₂ =
     case syntacticRedTerm w₁⇒*w₂ of λ
       (⊢Id , _ , ⊢w₂) →
-    I.J-subst* (fundamental-⊩ᵛ ⊢B) ⊢u
-      (reducible-⊩∷ (inversion-Id ⊢Id .proj₂ .proj₂)) w₁⇒*w₂
-      (reducible-⊩∷ ⊢w₂)
+    I.J-subst* (fundamental-⊩ᵛ ⊢B .proj₂) ⊢u
+      (reducible-⊩∷ (inversion-Id ⊢Id .proj₂ .proj₂) .proj₂) w₁⇒*w₂
+      (reducible-⊩∷ ⊢w₂ .proj₂)

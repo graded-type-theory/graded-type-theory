@@ -12,14 +12,14 @@ module Definition.LogicalRelation.Properties
   (R : Type-restrictions 𝕄)
   where
 
+open import Definition.LogicalRelation.Properties.Kit R public
 open import Definition.LogicalRelation.Properties.Whnf R public
 open import Definition.LogicalRelation.Properties.Reflexivity R public
 open import Definition.LogicalRelation.Properties.Symmetry R public
 open import Definition.LogicalRelation.Properties.Transitivity R public
 open import Definition.LogicalRelation.Properties.Conversion R public
-open import Definition.LogicalRelation.Properties.Cumulativity R public
 open import Definition.LogicalRelation.Properties.Escape R public
 open import Definition.LogicalRelation.Properties.Universe R public
 open import Definition.LogicalRelation.Properties.Neutral R public
 open import Definition.LogicalRelation.Properties.Reduction R public
-open import Definition.LogicalRelation.Properties.MaybeEmb R public
+open import Definition.LogicalRelation.Properties.Embedding R public

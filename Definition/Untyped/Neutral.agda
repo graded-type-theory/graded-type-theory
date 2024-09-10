@@ -192,8 +192,8 @@ data Natural {n : Nat} : Term n → Set a where
   ne    : Neutral t → Natural t
 
 
--- A (small) type in WHNF is either a Π-type, a Σ-type, ℕ, Empty,
--- Unit, an identity type, or neutral. Large types could also be U.
+-- A type in WHNF is either a universe, a Π-type, a Σ-type, ℕ, Empty,
+-- a unit type, an identity type, or neutral.
 
 data Type {n : Nat} : Term n → Set a where
   Uₙ     :             Type (U l)

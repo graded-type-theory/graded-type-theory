@@ -129,6 +129,8 @@ mutual
   -- Preservation of _⊢_∷_.
 
   tr-⊢∷ : Γ T₁.⊢ t ∷ A → tr-Con Γ T₂.⊢ tr-Term t ∷ tr-Term A
+  tr-⊢∷ (Uⱼ Γ) =
+    Uⱼ (tr-⊢ Γ)
   tr-⊢∷ (ΠΣⱼ {b = b} A P ok) =
     ΠΣⱼ (tr-⊢∷ A) (tr-⊢∷ P) (ΠΣ-preserved ok)
   tr-⊢∷ (ℕⱼ Γ) =

@@ -39,10 +39,10 @@ opaque
 
   syntacticEq : Γ ⊢ A ≡ B → Γ ⊢ A × Γ ⊢ B
   syntacticEq {Γ} {A} {B} =
-    Γ ⊢ A ≡ B                →⟨ reducible-⊩≡ ⟩
-    Γ ⊩⟨ ¹ ⟩ A ≡ B           →⟨ wf-⊩≡ ⟩
-    Γ ⊩⟨ ¹ ⟩ A × Γ ⊩⟨ ¹ ⟩ B  →⟨ Σ.map escape-⊩ escape-⊩ ⟩
-    Γ ⊢ A × Γ ⊢ B            □
+    Γ ⊢ A ≡ B                          →⟨ reducible-⊩≡ ⟩
+    (∃ λ l → Γ ⊩⟨ l ⟩ A ≡ B)           →⟨ Σ.map idᶠ wf-⊩≡ ⟩
+    (∃ λ l → Γ ⊩⟨ l ⟩ A × Γ ⊩⟨ l ⟩ B)  →⟨ Σ.map escape-⊩ escape-⊩ ∘→ proj₂ ⟩
+    Γ ⊢ A × Γ ⊢ B                      □
 
 opaque
 
@@ -50,10 +50,10 @@ opaque
 
   syntacticTerm : Γ ⊢ t ∷ A → Γ ⊢ A
   syntacticTerm {Γ} {t} {A} =
-    Γ ⊢ t ∷ A       →⟨ reducible-⊩∷ ⟩
-    Γ ⊩⟨ ¹ ⟩ t ∷ A  →⟨ wf-⊩∷ ⟩
-    Γ ⊩⟨ ¹ ⟩ A      →⟨ escape-⊩ ⟩
-    Γ ⊢ A           □
+    Γ ⊢ t ∷ A                 →⟨ reducible-⊩∷ ⟩
+    (∃ λ l → Γ ⊩⟨ l ⟩ t ∷ A)  →⟨ Σ.map idᶠ wf-⊩∷ ⟩
+    (∃ λ l → Γ ⊩⟨ l ⟩ A)      →⟨ escape-⊩ ∘→ proj₂ ⟩
+    Γ ⊢ A                     □
 
 opaque
 
@@ -62,10 +62,10 @@ opaque
 
   syntacticEqTerm : Γ ⊢ t ≡ u ∷ A → (Γ ⊢ A) × Γ ⊢ t ∷ A × Γ ⊢ u ∷ A
   syntacticEqTerm {Γ} {t} {u} {A} =
-    Γ ⊢ t ≡ u ∷ A                    →⟨ reducible-⊩≡∷ ⟩
-    Γ ⊩⟨ ¹ ⟩ t ≡ u ∷ A               →⟨ wf-⊩≡∷ ⟩
-    Γ ⊩⟨ ¹ ⟩ t ∷ A × Γ ⊩⟨ ¹ ⟩ u ∷ A  →⟨ (λ (⊩t , ⊩u) → escape-⊩ (wf-⊩∷ ⊩t) , escape-⊩∷ ⊩t , escape-⊩∷ ⊩u) ⟩
-    (Γ ⊢ A) × Γ ⊢ t ∷ A × Γ ⊢ u ∷ A  □
+    Γ ⊢ t ≡ u ∷ A                              →⟨ reducible-⊩≡∷ ⟩
+    (∃ λ l → Γ ⊩⟨ l ⟩ t ≡ u ∷ A)               →⟨ Σ.map idᶠ wf-⊩≡∷ ⟩
+    (∃ λ l → Γ ⊩⟨ l ⟩ t ∷ A × Γ ⊩⟨ l ⟩ u ∷ A)  →⟨ (λ (_ , ⊩t , ⊩u) → escape-⊩ (wf-⊩∷ ⊩t) , escape-⊩∷ ⊩t , escape-⊩∷ ⊩u) ⟩
+    (Γ ⊢ A) × Γ ⊢ t ∷ A × Γ ⊢ u ∷ A            □
 
 -- Syntactic validity of type reductions.
 syntacticRed : ∀ {A B} → Γ ⊢ A ⇒* B → Γ ⊢ A × Γ ⊢ B

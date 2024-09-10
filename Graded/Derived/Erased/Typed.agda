@@ -55,6 +55,7 @@ private variable
   A A₁ A₂ B B₁ B₂ C t t′ t₁ t₂ u u₁ u₂ v v₁ v₂ w w₁ w₂ : Term _
   σ                                                    : Subst _ _
   s                                                    : Strength
+  l                                                    : Universe-level
   p                                                    : M
 
 ------------------------------------------------------------------------
@@ -85,7 +86,7 @@ module _ (Erased-ok : Erased-allowed s) where
 
   -- An introduction rule for U.
 
-  Erasedⱼ-U : Γ ⊢ A ∷ U → Γ ⊢ Erased A ∷ U
+  Erasedⱼ-U : Γ ⊢ A ∷ U l → Γ ⊢ Erased A ∷ U l
   Erasedⱼ-U ⊢A∷U = P′.Erasedⱼ-U ⊢A ⊢A∷U
     where
     ⊢A = univ ⊢A∷U
@@ -93,8 +94,8 @@ module _ (Erased-ok : Erased-allowed s) where
   -- A corresponding congruence rule.
 
   Erased-cong-U :
-    Γ ⊢ A ≡ B ∷ U →
-    Γ ⊢ Erased A ≡ Erased B ∷ U
+    Γ ⊢ A ≡ B ∷ U l →
+    Γ ⊢ Erased A ≡ Erased B ∷ U l
   Erased-cong-U A≡B = P′.Erased-cong-U ⊢A A≡B
     where
     ⊢A = univ (syntacticEqTerm A≡B .proj₂ .proj₁)

@@ -32,7 +32,7 @@ private
     n : Nat
     Γ : Con Term n
     A B t u : Term _
-    l : TypeLevel
+    l : Universe-level
 
 opaque
 
@@ -43,7 +43,8 @@ opaque
 
 opaque
 
-  -- The relation _⊢_≡_ is contained in _⊩⟨ ⟩_≡_.
+  -- If A and B are definitionally equal (with respect to Γ), then
+  -- Γ ⊩⟨ l ⟩ A ≡ B holds for some type level l.
 
   reducible-⊩≡ : Γ ⊢ A ≡ B → ∃ λ l → Γ ⊩⟨ l ⟩ A ≡ B
   reducible-⊩≡ ⊢A≡B = _ , ⊩ᵛ≡→⊩≡ (fundamental-⊩ᵛ≡ ⊢A≡B .proj₂)
@@ -57,7 +58,8 @@ opaque
 
 opaque
 
-  -- The relation _⊢_≡_∷_ is contained in _⊩⟨ ⟩_≡_∷_.
+  -- If t and u are definitionally equal (with respect to Γ and A),
+  -- then Γ ⊩⟨ l ⟩ t ≡ u ∷ A holds for some type level l.
 
   reducible-⊩≡∷ : Γ ⊢ t ≡ u ∷ A → ∃ λ l → Γ ⊩⟨ l ⟩ t ≡ u ∷ A
   reducible-⊩≡∷ ⊢t≡u∷A = _ , ⊩ᵛ≡∷→⊩≡∷ (fundamental-⊩ᵛ≡∷ ⊢t≡u∷A .proj₂)

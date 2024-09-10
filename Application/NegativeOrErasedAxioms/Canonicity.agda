@@ -56,7 +56,7 @@ open import Definition.Typed.Consequences.Inversion TR
 open import Definition.Typed.Consequences.Reduction TR
 open import Definition.Typed.Consequences.Syntactic TR
 
-open import Definition.LogicalRelation TR hiding (_≤_)
+open import Definition.LogicalRelation TR
 open import Definition.LogicalRelation.Fundamental.Reducibility TR
 open import Definition.LogicalRelation.Substitution.Introductions TR
 
@@ -79,7 +79,7 @@ private
     A B C : Term m
     t u   : Term m
     γ     : Conₘ m
-    l     : TypeLevel
+    l     : Universe-level
 
 -- Main results
 ---------------------------------------------------------------------------
@@ -267,6 +267,7 @@ nfN (conv d c) γ▸u nΓγ n c' =
 -- Impossible cases: type is not ℕ.
 
 -- * Canonical types
+nfN (Uⱼ _)      _ _ Uₙ          c = ⊥-elim (U≢ℕ c)
 nfN (ΠΣⱼ _ _ _) _ _ (ΠΣₙ _ _)   c = ⊥-elim (U≢ℕ c)
 nfN (ℕⱼ _)      _ _ ℕₙ          c = ⊥-elim (U≢ℕ c)
 nfN (Emptyⱼ _)  _ _ Emptyₙ      c = ⊥-elim (U≢ℕ c)
@@ -327,7 +328,7 @@ module _
     Γ ⊢ t ∷ ℕ → γ ▸[ 𝟙ᵐ ] t → NegativeErasedContext Γ γ →
     ∃ λ u → Numeral u × Γ ⊢ t ⇒ˢ* u ∷ℕ
   canonicityRed ⊢t γ▸t nΓγ =
-    canonicityRed′ γ▸t nΓγ $ ⊩∷ℕ⇔ .proj₁ $ reducible-⊩∷ ⊢t
+    canonicityRed′ γ▸t nΓγ $ ⊩∷ℕ⇔ .proj₁ $ proj₂ $ reducible-⊩∷ ⊢t
 
   -- A variant of the previous result for terms that are
   -- well-resourced with respect to 𝟘ᶜ.

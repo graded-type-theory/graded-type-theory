@@ -755,7 +755,7 @@ module Is-order-embedding
         (natrec _ _ _ _ _ _ _) (natrecᵤ A t u v) →
           RS₁.natrecᵤ (lemma-𝟘ᵐ?-𝟘ᵐ? A) (lemma m₁≳m₂ _ t)
             (lemma m₁≳m₂ _ u) (lemma m₁≳m₂ _ v)
-        U Uᵤ →
+        (U _) Uᵤ →
           RS₁.Uᵤ
         (Id _ _ _) (Idᵤ not-erased A t u) →
           RS₁.Idᵤ (not-erased ∘→ Id-erased-preserved .proj₁)
@@ -874,7 +874,7 @@ module Is-order-embedding
     tr-▸⁻¹′ :
       ∀ t → γ′ U₂.▸[ m′ ] tr-Term t →
       m′ ≡ tr-Mode m → tr-Conₘ γ C₂.≤ᶜ γ′ → γ U₁.▸[ m ] t
-    tr-▸⁻¹′ {γ = γ} U Uₘ refl ≤𝟘 = sub
+    tr-▸⁻¹′ {γ = γ} (U _) Uₘ refl ≤𝟘 = sub
       Uₘ
       (begin
          γ      ≤⟨ tr-Conₘ-≤ᶜ-𝟘ᶜ-→-≤ᶜ-𝟘ᶜ ≤𝟘 ⟩

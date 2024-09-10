@@ -151,11 +151,11 @@ symEqT (Idᵥ ⊩A ⊩B) A≡B =
     } }
   where
   open _⊩ₗId_≡_/_ A≡B
+symEqT (embᵥ₁ ≤ᵘ-refl     A≡B) = symEqT          A≡B
+symEqT (embᵥ₁ (≤ᵘ-step p) A≡B) = symEqT (embᵥ₁ p A≡B)
+symEqT (embᵥ₂ ≤ᵘ-refl     A≡B) = symEqT          A≡B
+symEqT (embᵥ₂ (≤ᵘ-step p) A≡B) = symEqT (embᵥ₂ p A≡B)
 
-symEqT (embl- ≤′-refl (refl-emb _) x) A≡B = symEqT x A≡B
-symEqT (embl- (≤′-step l<) (step-emb _ _ e) x) A≡B = symEqT (embl- l< e x) A≡B
-symEqT (emb-l ≤′-refl (refl-emb _) x) A≡B = symEqT x A≡B
-symEqT (emb-l (≤′-step l<) (step-emb _ _ e) x) A≡B = symEqT (emb-l l< e x) A≡B
 symEqTerm (ℕᵣ D) (ℕₜ₌ k k′ d d′ t≡u prop) =
   ℕₜ₌ k′ k d′ d (≅ₜ-sym t≡u) (symNatural-prop prop)
 symEqTerm (Emptyᵣ D) (Emptyₜ₌ k k′ d d′ t≡u prop) =
@@ -207,20 +207,15 @@ symEqTerm (Idᵣ ⊩A) t≡u =
     (case ⊩Id≡∷-view-inhabited ⊩A t≡u of λ where
        (ne _ _ t′~u′) → ~-sym t′~u′
        (rfl₌ _)       → _)
-symEqTerm (emb ≤′-refl x) t≡u = symEqTerm x t≡u
-symEqTerm (emb (≤′-step p) x) t≡u = symEqTerm (emb p x) t≡u
-
-symEqTerm (Uᵣ′ l′ ≤′-refl ⇒*U) (Uₜ₌ A B d d′ typeA typeB A≡B [t] [u] [t≡u]) =
-               Uₜ₌ B A d′ d typeB typeA (≅ₜ-sym A≡B) [u] [t] (symEq [t] [u] [t≡u])
-symEqTerm (Uᵣ′ l′ (≤′-step l<) ⇒*U) (Uₜ₌ A B d d′ typeA typeB A≡B [t] [u] [t≡u]) =
-               helper₁ {⇒*U = ⇒*U} l< (symEqTerm ( Uᵣ′ l′ l<  ⇒*U )
-               (helper₂ {⇒*U = ⇒*U} l< (Uₜ₌ A B d d′ typeA typeB A≡B [t] [u] [t≡u])))
-  where
-  helper₁ : {u t A : Term n} {l′ l : TypeLevel} {Γ : Con Term n} {⇒*U : Γ ⊢ A :⇒*: U l′} → (l< : l′ < l)
-    → Γ ⊩⟨ l ⟩ u ≡ t ∷ A / Uᵣ′ l′ l< ⇒*U → Γ ⊩⟨ Nat.suc l ⟩ u ≡ t ∷ A / Uᵣ′ l′ (≤′-step l<) ⇒*U
-  helper₁ p (Uₜ₌ A B d d′ typeA typeB A≡B [t] [u] [t≡u]) = Uₜ₌ A B d d′ typeA typeB A≡B [t] [u] [t≡u]
-  helper₂ : {u t A : Term n} {l′ l : TypeLevel} {Γ : Con Term n} {⇒*U : Γ ⊢ A :⇒*: U l′} → (l< : l′ < l)
-    → Γ ⊩⟨ Nat.suc l ⟩ u ≡ t ∷ A / Uᵣ′ l′ (≤′-step l<) ⇒*U  → Γ ⊩⟨ l ⟩ u ≡ t ∷ A / Uᵣ′ l′ l< ⇒*U
-  helper₂ ≤′-refl (Uₜ₌ A B d d′ typeA typeB A≡B [t] [u] [t≡u]) =  Uₜ₌ A B d d′ typeA typeB A≡B [t] [u] [t≡u]
-  helper₂ {⇒*U = ⇒*U} (≤′-step l<) (Uₜ₌ A B d d′ typeA typeB A≡B [t] [u] [t≡u]) =
-    Uₜ₌ A B d d′ typeA typeB A≡B [t] [u] [t≡u]
+symEqTerm (emb ≤ᵘ-refl ⊩A)     = symEqTerm ⊩A
+symEqTerm (emb (≤ᵘ-step p) ⊩A) = symEqTerm (emb p ⊩A)
+symEqTerm
+  (Uᵣ′ _ ≤ᵘ-refl _) (Uₜ₌ A B d d′ typeA typeB A≡B [t] [u] [t≡u]) =
+    Uₜ₌ B A d′ d typeB typeA (≅ₜ-sym A≡B) [u] [t] (symEq [t] [u] [t≡u])
+symEqTerm
+  {Γ} {A} {t = B} {u = C} (Uᵣ′ l′ (≤ᵘ-step {n = l} p) A⇒*U) B≡C =
+                                                   $⟨ B≡C ⟩
+  Γ ⊩⟨ 1+ l ⟩ B ≡ C ∷ A / Uᵣ′ l′ (≤ᵘ-step p) A⇒*U  →⟨ irrelevanceEqTerm (Uᵣ′ l′ (≤ᵘ-step p) A⇒*U) (Uᵣ′ l′ p A⇒*U) ⟩
+  Γ ⊩⟨    l ⟩ B ≡ C ∷ A / Uᵣ′ l′ p A⇒*U            →⟨ symEqTerm (Uᵣ′ _ p A⇒*U) ⟩
+  Γ ⊩⟨    l ⟩ C ≡ B ∷ A / Uᵣ′ l′ p A⇒*U            →⟨ irrelevanceEqTerm (Uᵣ′ l′ p A⇒*U) (Uᵣ′ l′ (≤ᵘ-step p) A⇒*U) ⟩
+  Γ ⊩⟨ 1+ l ⟩ C ≡ B ∷ A / Uᵣ′ l′ (≤ᵘ-step p) A⇒*U  □

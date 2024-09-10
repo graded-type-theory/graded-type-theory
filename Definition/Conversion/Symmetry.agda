@@ -73,14 +73,14 @@ mutual
         case Σ-injectivity A≡B of λ where
           (F≡ , G≡ , _ , _) →
             F′ , F≡ , fst-cong r~p
-  sym~↑ Γ≡Δ (snd-cong {l = r} p~r) =
+  sym~↑ Γ≡Δ (snd-cong p~r) =
     case sym~↓ Γ≡Δ p~r of λ (B , whnfB , A≡B , r~p) →
     case Σ≡A A≡B whnfB of λ where
       (F′ , G′ , PE.refl) →
         case Σ-injectivity A≡B of λ where
           (F≡ , G≡ , _ , _) →
             let fst≡ = soundness~↑ (fst-cong p~r) in
-            G′ [ fst _ r ]₀ , substTypeEq G≡ fst≡ , snd-cong r~p
+            _ , substTypeEq G≡ fst≡ , snd-cong r~p
   sym~↑ Γ≡Δ (natrec-cong x x₁ x₂ t~u) =
     let ⊢Γ , ⊢Δ , _ = contextConvSubst Γ≡Δ
         B , whnfB , A≡B , u~t = sym~↓ Γ≡Δ t~u
@@ -249,7 +249,7 @@ mutual
     in  Unit-refl ⊢Δ ok
   symConv↓ Γ≡Δ (ne A~B) =
     let B , whnfB , U≡B , B~A = sym~↓ Γ≡Δ A~B
-        B≡U = U≡A U≡B
+        B≡U = U≡A U≡B whnfB
     in  ne (PE.subst (λ x → _ ⊢ _ ~ _ ↓ x) B≡U B~A)
   symConv↓ Γ≡Δ (ΠΣ-cong A<>B A<>B₁ ok) =
     let F≡H = soundnessConv↑ A<>B

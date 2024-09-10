@@ -18,16 +18,17 @@ open Type-restrictions R
 
 open import Definition.Untyped M hiding (K)
 open import Definition.Untyped.Neutral M type-variant
+open import Definition.Untyped.Properties M
 open import Definition.Typed R
 open import Definition.Typed.Properties R
 open import Definition.LogicalRelation R
-open import Definition.LogicalRelation.Kit R
 open import Definition.LogicalRelation.Properties.Escape R
+open import Definition.LogicalRelation.Properties.Kit R
 open import Definition.LogicalRelation.Properties.Reflexivity R
 
 open import Tools.Function
 open import Tools.Level
-open import Tools.Nat using (Nat; 1+; s≤s; n<1+n; ≤′-refl; ≤′-step)
+open import Tools.Nat using (Nat; 1+)
 open import Tools.Product
 open import Tools.Empty using (⊥; ⊥-elim)
 import Tools.PropositionalEquality as PE
@@ -39,87 +40,96 @@ private
     Γ : Con Term n
     A B C t u : Term n
     p q : M
-    l l′ l″ : TypeLevel
+    l l′ l″ l₁ l₁′ l₂ l₂′ l₃ l₃′ : Universe-level
 
 -- Type for maybe embeddings of reducible types
-data MaybeEmb {ℓ′} (l : TypeLevel) (⊩⟨_⟩ : TypeLevel → Set ℓ′) : Set ℓ′ where
+data MaybeEmb
+       {ℓ′} (l : Universe-level) (⊩⟨_⟩ : Universe-level → Set ℓ′) :
+       Set ℓ′ where
   noemb : ⊩⟨ l ⟩ → MaybeEmb l ⊩⟨_⟩
-  emb   : ∀ {l′} → l′ < l → MaybeEmb l′ ⊩⟨_⟩ → MaybeEmb l ⊩⟨_⟩
+  emb   : l′ <ᵘ l → MaybeEmb l′ ⊩⟨_⟩ → MaybeEmb l ⊩⟨_⟩
 
 -- Specific reducible types with possible embedding
 
-_⊩⟨_⟩U_ : (Γ : Con Term n) (l : TypeLevel) (A : Term n) → Set a
+_⊩⟨_⟩U_ : (Γ : Con Term n) (l : Universe-level) (A : Term n) → Set a
 Γ ⊩⟨ l ⟩U A = MaybeEmb l (λ l′ → Γ ⊩′⟨ l′ ⟩U A)
 
-_⊩⟨_⟩ℕ_ : (Γ : Con Term n) (l : TypeLevel) (A : Term n) → Set a
+_⊩⟨_⟩ℕ_ : (Γ : Con Term n) (l : Universe-level) (A : Term n) → Set a
 Γ ⊩⟨ l ⟩ℕ A = MaybeEmb l (λ l′ → Γ ⊩ℕ A)
 
-_⊩⟨_⟩Empty_ : (Γ : Con Term n) (l : TypeLevel) (A : Term n) → Set a
+_⊩⟨_⟩Empty_ : (Γ : Con Term n) (l : Universe-level) (A : Term n) → Set a
 Γ ⊩⟨ l ⟩Empty A = MaybeEmb l (λ l′ → Γ ⊩Empty A)
 
-_⊩⟨_⟩Unit⟨_⟩_ : (Γ : Con Term n) (l : TypeLevel) (s : Strength) (A : Term n) → Set a
+_⊩⟨_⟩Unit⟨_⟩_ :
+  (Γ : Con Term n) (l : Universe-level) (s : Strength) (A : Term n) →
+  Set a
 Γ ⊩⟨ l ⟩Unit⟨ s ⟩ A = MaybeEmb l (λ l′ → Γ ⊩Unit⟨ s ⟩ A)
 
-_⊩⟨_⟩ne_ : (Γ : Con Term n) (l : TypeLevel) (A : Term n) → Set a
-Γ ⊩⟨ l ⟩ne A = MaybeEmb l (λ l′ → Γ ⊩ne⟨ l′ ⟩ A)
+_⊩⟨_⟩ne_ : (Γ : Con Term n) (l : Universe-level) (A : Term n) → Set a
+Γ ⊩⟨ l ⟩ne A = MaybeEmb l (λ _ → Γ ⊩ne A)
 
-_⊩⟨_⟩B⟨_⟩_ : (Γ : Con Term n) (l : TypeLevel) (W : BindingType) (A : Term n) → Set a
+_⊩⟨_⟩B⟨_⟩_ :
+  (Γ : Con Term n) (l : Universe-level) (W : BindingType) (A : Term n) →
+  Set a
 Γ ⊩⟨ l ⟩B⟨ W ⟩ A = MaybeEmb l (λ l′ → Γ ⊩′⟨ l′ ⟩B⟨ W ⟩ A)
 
-_⊩⟨_⟩Id_ : Con Term n → TypeLevel → Term n → Set a
+_⊩⟨_⟩Id_ : Con Term n → Universe-level → Term n → Set a
 Γ ⊩⟨ l ⟩Id A = MaybeEmb l (λ l′ → Γ ⊩′⟨ l′ ⟩Id A)
 
 -- Construct a general reducible type from a specific
 
 U-intr : ∀ {A l} → Γ ⊩⟨ l ⟩U A → Γ ⊩⟨ l ⟩ A
 U-intr (noemb x) = Uᵣ x
-U-intr (emb p x) = emb-⊩ p (U-intr x)
+U-intr (emb p x) = emb-<-⊩ p (U-intr x)
 
 ℕ-intr : ∀ {A l} → Γ ⊩⟨ l ⟩ℕ A → Γ ⊩⟨ l ⟩ A
 ℕ-intr (noemb x) = ℕᵣ x
-ℕ-intr (emb p x) = emb-⊩ p (ℕ-intr x)
+ℕ-intr (emb p x) = emb-<-⊩ p (ℕ-intr x)
 
 
 Empty-intr : ∀ {A l} → Γ ⊩⟨ l ⟩Empty A → Γ ⊩⟨ l ⟩ A
 Empty-intr (noemb x) = Emptyᵣ x
-Empty-intr (emb p x) = emb-⊩ p (Empty-intr x)
+Empty-intr (emb p x) = emb-<-⊩ p (Empty-intr x)
 
 Unit-intr : ∀ {A l s} → Γ ⊩⟨ l ⟩Unit⟨ s ⟩ A → Γ ⊩⟨ l ⟩ A
 Unit-intr (noemb x) = Unitᵣ x
-Unit-intr (emb p x) = emb-⊩ p (Unit-intr x)
+Unit-intr (emb p x) = emb-<-⊩ p (Unit-intr x)
 
 ne-intr : ∀ {A l} → Γ ⊩⟨ l ⟩ne A → Γ ⊩⟨ l ⟩ A
 ne-intr (noemb x) = ne x
-ne-intr (emb p x) = emb-⊩ p (ne-intr x)
+ne-intr (emb p x) = emb-<-⊩ p (ne-intr x)
 
 B-intr : ∀ {A l} W → Γ ⊩⟨ l ⟩B⟨ W ⟩ A → Γ ⊩⟨ l ⟩ A
 B-intr W (noemb x) = Bᵣ W x
-B-intr W (emb p x) = emb-⊩ p (B-intr W x)
+B-intr W (emb p x) = emb-<-⊩ p (B-intr W x)
 
 Id-intr : Γ ⊩⟨ l ⟩Id A → Γ ⊩⟨ l ⟩ A
 Id-intr (noemb ⊩A)   = Idᵣ ⊩A
-Id-intr (emb p ⊩A) = emb-⊩ p (Id-intr ⊩A)
+Id-intr (emb p ⊩A) = emb-<-⊩ p (Id-intr ⊩A)
 
 -- Construct a specific reducible type from a general with some criterion
 
-U-elim : ∀ {l} → Γ ⊢ A ⇒* U l′ →  Γ ⊩⟨ l ⟩ A → Γ ⊩⟨ l ⟩U A
-U-elim _ (Uᵣ ⊩U) = noemb ⊩U
-U-elim A⇒U (ℕᵣ D) with whrDet* (A⇒U , Uₙ) (red D , ℕₙ)
+U-elim′ : Γ ⊢ A ⇒* U l′ → Γ ⊩⟨ l ⟩ A → Γ ⊩⟨ l ⟩U A
+U-elim′ _ (Uᵣ ⊩U) = noemb ⊩U
+U-elim′ A⇒U (ℕᵣ D) with whrDet* (A⇒U , Uₙ) (red D , ℕₙ)
 ... | ()
-U-elim A⇒U (Emptyᵣ D) with whrDet* (A⇒U , Uₙ) (red D , Emptyₙ)
+U-elim′ A⇒U (Emptyᵣ D) with whrDet* (A⇒U , Uₙ) (red D , Emptyₙ)
 ... | ()
-U-elim A⇒U (Unitᵣ (Unitₜ D _)) with whrDet* (A⇒U , Uₙ) (red D , Unitₙ)
+U-elim′ A⇒U (Unitᵣ (Unitₜ D _)) with whrDet* (A⇒U , Uₙ) (red D , Unitₙ)
 ... | ()
-U-elim A⇒U (ne′ K D neK K≡K) =
+U-elim′ A⇒U (ne′ K D neK K≡K) =
   ⊥-elim (U≢ne neK (whrDet* (A⇒U , Uₙ) (red D , ne neK)))
-U-elim A⇒U (Bᵣ′ W _ _ D _ _ _ _ _ _ _) =
+U-elim′ A⇒U (Bᵣ′ W _ _ D _ _ _ _ _ _ _) =
   ⊥-elim (U≢B W (whrDet* (A⇒U , Uₙ) (red D , ⟦ W ⟧ₙ)))
-U-elim A⇒U (Idᵣ ⊩A) =
+U-elim′ A⇒U (Idᵣ ⊩A) =
   case whrDet* (A⇒U , Uₙ) (red (_⊩ₗId_.⇒*Id ⊩A) , Idₙ) of λ ()
-U-elim A⇒U (emb ≤′-refl x) with U-elim  A⇒U x
-U-elim A⇒U (emb ≤′-refl x) | noemb x₁ =  emb ≤′-refl (noemb x₁)
-U-elim A⇒U (emb ≤′-refl x) | emb x1 k = emb ≤′-refl (emb x1 k)
-U-elim A⇒U (emb (≤′-step p) x) = emb ≤′-refl (U-elim A⇒U (emb p x))
+U-elim′ A⇒U (emb ≤ᵘ-refl x) with U-elim′  A⇒U x
+U-elim′ A⇒U (emb ≤ᵘ-refl x) | noemb x₁ =  emb ≤ᵘ-refl (noemb x₁)
+U-elim′ A⇒U (emb ≤ᵘ-refl x) | emb x1 k = emb ≤ᵘ-refl (emb x1 k)
+U-elim′ A⇒U (emb (≤ᵘ-step p) x) = emb ≤ᵘ-refl (U-elim′ A⇒U (emb p x))
+
+U-elim : Γ ⊩⟨ l ⟩ U l′ → Γ ⊩⟨ l ⟩U U l′
+U-elim ⊩U = U-elim′ (id (escape ⊩U)) ⊩U
 
 ℕ-elim′ : ∀ {A l} → Γ ⊢ A ⇒* ℕ → Γ ⊩⟨ l ⟩ A → Γ ⊩⟨ l ⟩ℕ A
 ℕ-elim′ D (Uᵣ′ l′ l< D') with whrDet* (D , ℕₙ) (red  D' , Uₙ)
@@ -135,10 +145,10 @@ U-elim A⇒U (emb (≤′-step p) x) = emb ≤′-refl (U-elim A⇒U (emb p x))
 ... | ()
 ℕ-elim′ A⇒*Nat (Idᵣ ⊩A) =
   case whrDet* (A⇒*Nat , ℕₙ) (red (_⊩ₗId_.⇒*Id ⊩A) , Idₙ) of λ ()
-ℕ-elim′ A⇒ℕ (emb ≤′-refl x) with ℕ-elim′  A⇒ℕ x
-ℕ-elim′ A⇒ℕ (emb ≤′-refl x) | noemb x₁ =  emb ≤′-refl (noemb x₁)
-ℕ-elim′ A⇒ℕ (emb ≤′-refl x) | emb x1 k = emb ≤′-refl (emb x1 k)
-ℕ-elim′ A⇒ℕ (emb (≤′-step p) x) = emb ≤′-refl (ℕ-elim′ A⇒ℕ (emb p x))
+ℕ-elim′ A⇒ℕ (emb ≤ᵘ-refl x) with ℕ-elim′  A⇒ℕ x
+ℕ-elim′ A⇒ℕ (emb ≤ᵘ-refl x) | noemb x₁ =  emb ≤ᵘ-refl (noemb x₁)
+ℕ-elim′ A⇒ℕ (emb ≤ᵘ-refl x) | emb x1 k = emb ≤ᵘ-refl (emb x1 k)
+ℕ-elim′ A⇒ℕ (emb (≤ᵘ-step p) x) = emb ≤ᵘ-refl (ℕ-elim′ A⇒ℕ (emb p x))
 
 ℕ-elim : ∀ {l} → Γ ⊩⟨ l ⟩ ℕ → Γ ⊩⟨ l ⟩ℕ ℕ
 ℕ-elim [ℕ] = ℕ-elim′ (id (escape [ℕ])) [ℕ]
@@ -158,10 +168,10 @@ Empty-elim′ D (ℕᵣ D′) with whrDet* (D , Emptyₙ) (red D′ , ℕₙ)
 ... | ()
 Empty-elim′ A⇒*Empty (Idᵣ ⊩A) =
   case whrDet* (A⇒*Empty , Emptyₙ) (red (_⊩ₗId_.⇒*Id ⊩A) , Idₙ) of λ ()
-Empty-elim′ A⇒E (emb ≤′-refl x) with Empty-elim′  A⇒E x
-Empty-elim′ A⇒E (emb ≤′-refl x) | noemb x₁ =  emb ≤′-refl (noemb x₁)
-Empty-elim′ A⇒E (emb ≤′-refl x) | emb x1 k = emb ≤′-refl (emb x1 k)
-Empty-elim′ A⇒E (emb (≤′-step p) x) = emb ≤′-refl (Empty-elim′ A⇒E (emb p x))
+Empty-elim′ A⇒E (emb ≤ᵘ-refl x) with Empty-elim′  A⇒E x
+Empty-elim′ A⇒E (emb ≤ᵘ-refl x) | noemb x₁ =  emb ≤ᵘ-refl (noemb x₁)
+Empty-elim′ A⇒E (emb ≤ᵘ-refl x) | emb x1 k = emb ≤ᵘ-refl (emb x1 k)
+Empty-elim′ A⇒E (emb (≤ᵘ-step p) x) = emb ≤ᵘ-refl (Empty-elim′ A⇒E (emb p x))
 
 Empty-elim : ∀ {l} → Γ ⊩⟨ l ⟩ Empty → Γ ⊩⟨ l ⟩Empty Empty
 Empty-elim [Empty] = Empty-elim′ (id (escape [Empty])) [Empty]
@@ -182,10 +192,10 @@ Unit-elim′ D (ℕᵣ D′) with whrDet* (D , Unitₙ) (red D′ , ℕₙ)
 ... | ()
 Unit-elim′ A⇒*Unit (Idᵣ ⊩A) =
   case whrDet* (A⇒*Unit , Unitₙ) (red (_⊩ₗId_.⇒*Id ⊩A) , Idₙ) of λ ()
-Unit-elim′ A⇒U (emb ≤′-refl x) with Unit-elim′  A⇒U x
-Unit-elim′ A⇒U (emb ≤′-refl x) | noemb x₁ =  emb ≤′-refl (noemb x₁)
-Unit-elim′ A⇒U (emb ≤′-refl x) | emb x1 k = emb ≤′-refl (emb x1 k)
-Unit-elim′ A⇒U (emb (≤′-step p) x) = emb ≤′-refl (Unit-elim′ A⇒U (emb p x))
+Unit-elim′ A⇒U (emb ≤ᵘ-refl x) with Unit-elim′  A⇒U x
+Unit-elim′ A⇒U (emb ≤ᵘ-refl x) | noemb x₁ =  emb ≤ᵘ-refl (noemb x₁)
+Unit-elim′ A⇒U (emb ≤ᵘ-refl x) | emb x1 k = emb ≤ᵘ-refl (emb x1 k)
+Unit-elim′ A⇒U (emb (≤ᵘ-step p) x) = emb ≤ᵘ-refl (Unit-elim′ A⇒U (emb p x))
 
 Unit-elim : ∀ {l s} → Γ ⊩⟨ l ⟩ Unit s → Γ ⊩⟨ l ⟩Unit⟨ s ⟩ Unit s
 Unit-elim [Unit] = Unit-elim′ (id (escape [Unit])) [Unit]
@@ -202,10 +212,10 @@ ne-elim′ D neK (Bᵣ′ W _ _ D′ _ _ _ _ _ _ _) =
   ⊥-elim (B≢ne W neK (whrDet* (red D′ , ⟦ W ⟧ₙ) (D , ne neK)))
 ne-elim′ A⇒*ne n (Idᵣ ⊩A) =
   ⊥-elim (Id≢ne n (whrDet* (red (_⊩ₗId_.⇒*Id ⊩A) , Idₙ) (A⇒*ne , ne n)))
-ne-elim′ A⇒n neK (emb ≤′-refl x) with ne-elim′ A⇒n neK x
-ne-elim′ A⇒n neK (emb ≤′-refl x) | noemb x₁ =  emb ≤′-refl (noemb x₁)
-ne-elim′ A⇒n neK (emb ≤′-refl x) | emb x1 k = emb ≤′-refl (emb x1 k)
-ne-elim′ A⇒n neK (emb (≤′-step p) x) = emb ≤′-refl (ne-elim′ A⇒n neK (emb p x))
+ne-elim′ A⇒n neK (emb ≤ᵘ-refl x) with ne-elim′ A⇒n neK x
+ne-elim′ A⇒n neK (emb ≤ᵘ-refl x) | noemb x₁ =  emb ≤ᵘ-refl (noemb x₁)
+ne-elim′ A⇒n neK (emb ≤ᵘ-refl x) | emb x1 k = emb ≤ᵘ-refl (emb x1 k)
+ne-elim′ A⇒n neK (emb (≤ᵘ-step p) x) = emb ≤ᵘ-refl (ne-elim′ A⇒n neK (emb p x))
 
 ne-elim : ∀ {l K} → Neutral K  → Γ ⊩⟨ l ⟩ K → Γ ⊩⟨ l ⟩ne K
 ne-elim neK [K] = ne-elim′ (id (escape [K])) neK [K]
@@ -235,10 +245,10 @@ B-elim′ BΣ! D (Bᵣ′ BΣ! F G D′ ⊢F ⊢G A≡A [F] [G] G-ext ok)
 B-elim′ _ A⇒*B (Idᵣ ⊩A) =
   ⊥-elim $ Id≢⟦⟧▷ _ $
   whrDet* (red (_⊩ₗId_.⇒*Id ⊩A) , Idₙ) (A⇒*B , ⟦ _ ⟧ₙ)
-B-elim′ W A⇒B (emb ≤′-refl x) with B-elim′ W A⇒B x
-B-elim′ W A⇒B (emb ≤′-refl x) | noemb x₁ =  emb ≤′-refl (noemb x₁)
-B-elim′ W A⇒B (emb ≤′-refl x) | emb x1 k = emb ≤′-refl (emb x1 k)
-B-elim′ W A⇒B (emb (≤′-step p) x) = emb ≤′-refl (B-elim′ W A⇒B (emb p x))
+B-elim′ W A⇒B (emb ≤ᵘ-refl x) with B-elim′ W A⇒B x
+B-elim′ W A⇒B (emb ≤ᵘ-refl x) | noemb x₁ =  emb ≤ᵘ-refl (noemb x₁)
+B-elim′ W A⇒B (emb ≤ᵘ-refl x) | emb x1 k = emb ≤ᵘ-refl (emb x1 k)
+B-elim′ W A⇒B (emb (≤ᵘ-step p) x) = emb ≤ᵘ-refl (B-elim′ W A⇒B (emb p x))
 
 B-elim : ∀ {F G l} W → Γ ⊩⟨ l ⟩ ⟦ W ⟧ F ▹ G → Γ ⊩⟨ l ⟩B⟨ W ⟩ ⟦ W ⟧ F ▹ G
 B-elim W [Π] = B-elim′ W (id (escape [Π])) [Π]
@@ -267,10 +277,10 @@ Id-elim′ ⇒*Id (Bᵣ′ _ _ _ ⇒*B _ _ _ _ _ _ _) =
   ⊥-elim (Id≢⟦⟧▷ _ (whrDet* (⇒*Id , Idₙ) (red ⇒*B , ⟦ _ ⟧ₙ)))
 Id-elim′ _ (Idᵣ ⊩A) =
   noemb ⊩A
-Id-elim′ ⇒*Id (emb ≤′-refl x) with Id-elim′ ⇒*Id x
-Id-elim′ ⇒*Id (emb ≤′-refl x) | noemb x₁ =  emb ≤′-refl (noemb x₁)
-Id-elim′ ⇒*Id (emb ≤′-refl x) | emb x1 k = emb ≤′-refl (emb x1 k)
-Id-elim′ ⇒*Id (emb (≤′-step p) x) = emb ≤′-refl (Id-elim′ ⇒*Id (emb p x))
+Id-elim′ ⇒*Id (emb ≤ᵘ-refl x) with Id-elim′ ⇒*Id x
+Id-elim′ ⇒*Id (emb ≤ᵘ-refl x) | noemb x₁ =  emb ≤ᵘ-refl (noemb x₁)
+Id-elim′ ⇒*Id (emb ≤ᵘ-refl x) | emb x1 k = emb ≤ᵘ-refl (emb x1 k)
+Id-elim′ ⇒*Id (emb (≤ᵘ-step p) x) = emb ≤ᵘ-refl (Id-elim′ ⇒*Id (emb p x))
 
 opaque
 
@@ -282,40 +292,25 @@ extractMaybeEmb : ∀ {l ⊩⟨_⟩} → MaybeEmb {ℓ′ = a} l ⊩⟨_⟩ → 
 extractMaybeEmb (noemb x) = _ , x
 extractMaybeEmb (emb _ x) = extractMaybeEmb x
 
-
-data ShapeEmb (Γ : Con Term n) : ∀ l′ l A (p : l′ < l) → Γ ⊩⟨ l′ ⟩ A
-                            → LogRelKit._⊩_ (kit′ p) Γ A → Set a where
-  refl-emb : ∀ {A l′} PA → ShapeEmb Γ l′ (1+ l′) A ≤′-refl PA PA
-  step-emb : ∀ {A l′ l l<} PA PB → ShapeEmb Γ l′ l A l< PA PB
-                            → ShapeEmb Γ l′ (1+ l) A (≤′-step l<) PA PB
-
-helperToShapeEmb : {l′ l : TypeLevel} → (p : l′ < l )
-  → (x : LogRelKit._⊩_ (kit′ p) Γ A) → (ShapeEmb Γ l′ l A p (kitToLogRel p x) x)
-helperToShapeEmb ≤′-refl x = refl-emb x
-helperToShapeEmb (≤′-step p) x =
-                step-emb (kitToLogRel (≤′-step p) x) x (helperToShapeEmb p x)
-
-
 opaque
 
-  -- If MaybeEmb l P holds, then P l′ holds for some l′ ≤ l.
+  -- If MaybeEmb l P holds, then P l′ holds for some l′ ≤ᵘ l.
 
   extractMaybeEmb′ :
-    {P : TypeLevel → Set ℓ} →
-    MaybeEmb l P → ∃ λ l′ → l′ ≤ l × P l′
-  extractMaybeEmb′ (noemb p)   = _ , ≤′-refl , p
-  extractMaybeEmb′ (emb ≤′-refl p) =
+    {P : Universe-level → Set ℓ} →
+    MaybeEmb l P → ∃ λ l′ → l′ ≤ᵘ l × P l′
+  extractMaybeEmb′ (noemb p)   = _ , ≤ᵘ-refl , p
+  extractMaybeEmb′ (emb ≤ᵘ-refl p) =
     case extractMaybeEmb′ p of λ where
-      (l , ≤′-refl , p) →
-        l , ≤′-step ≤′-refl , p
-      (l , ≤′-step l< , p) → l , (≤′-step (≤′-step l<) , p)
-  extractMaybeEmb′ (emb (≤′-step s) p) =
+      (l , ≤ᵘ-refl , p) →
+        l , ≤ᵘ-step ≤ᵘ-refl , p
+      (l , ≤ᵘ-step l< , p) → l , (≤ᵘ-step (≤ᵘ-step l<) , p)
+  extractMaybeEmb′ (emb (≤ᵘ-step s) p) =
     let (l , a , p) = extractMaybeEmb′ (emb s p)
     in l , (lemma a , p)
     where
-      lemma : l ≤ n → l ≤ Nat.suc n
-      lemma ≤′-refl = ≤′-step ≤′-refl
-      lemma (≤′-step x) = ≤′-step (≤′-step x)
+    lemma : l ≤ᵘ l′ → l ≤ᵘ 1+ l′
+    lemma = flip ≤ᵘ-trans ≤ᵘ1+
 
 -- A view for constructor equality of types where embeddings are ignored
 data ShapeView (Γ : Con Term n) : ∀ l l′ A B (p : Γ ⊩⟨ l ⟩ A) (q : Γ ⊩⟨ l′ ⟩ B) → Set a where
@@ -328,14 +323,12 @@ data ShapeView (Γ : Con Term n) : ∀ l l′ A B (p : Γ ⊩⟨ l ⟩ A) (q : �
   Bᵥ : ∀ {A B l l′} W BA BB
     → ShapeView Γ l l′ A B (Bᵣ W BA) (Bᵣ W BB)
   Idᵥ : ∀ ⊩A ⊩B → ShapeView Γ l l′ A B (Idᵣ ⊩A) (Idᵣ ⊩B)
-  embl- : ∀ {A B l l′′ l′ p q} (l< : l′′ < l) {p′}
-        → ShapeEmb Γ l′′ l A l< p p′
-        → ShapeView Γ l′′ l′ A B p q
-        → ShapeView Γ l l′ A B (emb l< p′) q
-  emb-l : ∀ {A B l l′′ l′ p q} (l< : l′′ < l′) {q′}
-        → ShapeEmb Γ l′′ l′ B l< q q′
-        → ShapeView Γ l l′′ A B p q
-        → ShapeView Γ l l′ A B p (emb l< q′)
+  embᵥ₁ : ∀ p {⊩A ⊩B} →
+          ShapeView Γ l₁′ l₂ A B (⊩<⇔⊩ p .proj₁ ⊩A) ⊩B →
+          ShapeView Γ l₁ l₂ A B (emb p ⊩A) ⊩B
+  embᵥ₂ : ∀ p {⊩A ⊩B} →
+          ShapeView Γ l₁ l₂′ A B ⊩A (⊩<⇔⊩ p .proj₁ ⊩B) →
+          ShapeView Γ l₁ l₂ A B ⊩A (emb p ⊩B)
 
 -- Construct an shape view from an equality (aptly named)
 goodCases : ∀ {l l′} ([A] : Γ ⊩⟨ l ⟩ A) ([B] : Γ ⊩⟨ l′ ⟩ B)
@@ -357,19 +350,21 @@ goodCases (Bᵣ BΣ! ΣA) (Bᵣ′ BΣ! F G D ⊢F ⊢G A≡A [F] [G] G-ext ok)
   with whrDet* (red D , ΠΣₙ) (red D′ , ΠΣₙ)
 ... | PE.refl = Bᵥ BΣ! ΣA (Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext ok)
 goodCases (Idᵣ ⊩A) (Idᵣ ⊩B) _ = Idᵥ ⊩A ⊩B
-
-goodCases [A] (emb {l′ = l′₁} p x) A≡B = emb-l p (helperToShapeEmb p x) (v p x)
+goodCases {Γ} {B} ⊩A (emb p _) A≡B = embᵥ₂ p (lemma p)
   where
-    v : {l l′ : TypeLevel} (p : l < l′) → (x : LogRelKit._⊩_ (kit′ p) _ _ )
-                                  → ShapeView _ _ _ _ _ [A] (kitToLogRel p x)
-    v ≤′-refl x = goodCases [A] x A≡B
-    v (≤′-step p) x = v p x
-goodCases (emb {l′ = l′₁} p x) [B] A≡B = embl- p (helperToShapeEmb p x) (v p x A≡B )
+  lemma :
+    (p : l <ᵘ l′) {⊩<B : Γ ⊩<⟨ p ⟩ B} →
+    ShapeView _ _ _ _ _ ⊩A (⊩<⇔⊩ p .proj₁ ⊩<B)
+  lemma ≤ᵘ-refl     = goodCases _ _ A≡B
+  lemma (≤ᵘ-step p) = lemma p
+goodCases {Γ} {A} {B} (emb p _) ⊩B A≡B = embᵥ₁ p (lemma p A≡B)
   where
-    v : {l l′ : TypeLevel} (p : l < l′) → (x : LogRelKit._⊩_ (kit′ p) _ _ )
-        →  _ ⊩⟨ l′ ⟩ _ ≡ _ / emb p x → ShapeView _ _ _ _ _ (kitToLogRel p x) [B]
-    v ≤′-refl x A≡B = goodCases x [B] A≡B
-    v (≤′-step p) x A≡B = v p x A≡B
+  lemma :
+    (p : l <ᵘ l′) {⊩<A : Γ ⊩<⟨ p ⟩ A} →
+    Γ ⊩⟨ l′ ⟩ A ≡ B / emb p ⊩<A →
+    ShapeView _ _ _ _ _ (⊩<⇔⊩ p .proj₁ ⊩<A) ⊩B
+  lemma ≤ᵘ-refl     = goodCases _ _
+  lemma (≤ᵘ-step p) = lemma p
 
 -- Refutable cases
 -- U ≡ _
@@ -445,7 +440,7 @@ goodCases (ne _) (Idᵣ ⊩B) A≡B =
   ⊥-elim $ Id≢ne N.neM $
   whrDet* (red (_⊩ₗId_.⇒*Id ⊩B) , Idₙ) (red N.D′ , ne N.neM)
   where
-  module N = _⊩ne⟨_⟩_≡_/_ A≡B
+  module N = _⊩ne_≡_/_ A≡B
 
 -- B ≡ _
 goodCases (Bᵣ W x) (Uᵣ (Uᵣ _ _ D')) (B₌ F′ G′ D′ A≡B [F≡F′] [G≡G′]) =
@@ -493,7 +488,7 @@ goodCases (Idᵣ _) (ne ⊩B) A≡B =
   ⊥-elim $ Id≢ne N.neK $
   whrDet* (red (_⊩ₗId_≡_/_.⇒*Id′ A≡B) , Idₙ) (red N.D , ne N.neK)
   where
-  module N = _⊩ne⟨_⟩_ ⊩B
+  module N = _⊩ne_ ⊩B
 goodCases (Idᵣ _) (Bᵣ _ ⊩B) A≡B =
   ⊥-elim $ Id≢⟦⟧▷ _ $
   whrDet*
@@ -524,18 +519,15 @@ data ShapeView₃ (Γ : Con Term n) : ∀ l l′ l″ A B C
     → ShapeView₃ Γ l l′ l″ A B C (Bᵣ W BA) (Bᵣ W′ BB) (Bᵣ W″ BC)
   Idᵥ :
     ∀ ⊩A ⊩B ⊩C → ShapeView₃ Γ l l′ l″ A B C (Idᵣ ⊩A) (Idᵣ ⊩B) (Idᵣ ⊩C)
-  embl-- : ∀ {A B C l l′ l' l'' p q r} (l< : l' < l'' ) {p′}
-         → ShapeEmb Γ l' l'' A l< p p′
-         → ShapeView₃ Γ l' l l′ A B C p q r
-         → ShapeView₃ Γ l'' l l′ A B C (emb l< p′) q r
-  emb-l- : ∀ {A B C l l′ l' l'' p q r} (l< : l' < l'' ) {q′}
-         → ShapeEmb Γ l' l'' B l< q q′
-         → ShapeView₃ Γ l l' l′ A B C p q r
-         → ShapeView₃ Γ l l'' l′ A B C p (emb l< q′) r
-  emb--l : ∀ {A B C l l′ l' l'' p q r} (l< : l' < l'' ) {r′}
-         → ShapeEmb Γ l' l'' C l< r r′
-         → ShapeView₃ Γ l l′ l' A B C p q r
-         → ShapeView₃ Γ l l′ l'' A B C p q (emb l< r′)
+  embᵥ₁ : ∀ p {⊩A ⊩B ⊩C} →
+          ShapeView₃ Γ l₁′ l₂ l₃ A B C (⊩<⇔⊩ p .proj₁ ⊩A) ⊩B ⊩C →
+          ShapeView₃ Γ l₁ l₂ l₃ A B C (emb p ⊩A) ⊩B ⊩C
+  embᵥ₂ : ∀ p {⊩A ⊩B ⊩C} →
+          ShapeView₃ Γ l₁ l₂′ l₃ A B C ⊩A (⊩<⇔⊩ p .proj₁ ⊩B) ⊩C →
+          ShapeView₃ Γ l₁ l₂ l₃ A B C ⊩A (emb p ⊩B) ⊩C
+  embᵥ₃ : ∀ p {⊩A ⊩B ⊩C} →
+          ShapeView₃ Γ l₁ l₂ l₃′ A B C ⊩A ⊩B (⊩<⇔⊩ p .proj₁ ⊩C) →
+          ShapeView₃ Γ l₁ l₂ l₃ A B C ⊩A ⊩B (emb p ⊩C)
 
 -- Combines two two-way views into a three-way view
 combine : ∀ {l l′ l″ l‴ A B C [A] [B] [B]′ [C]}
@@ -562,10 +554,10 @@ combine (Bᵥ BΣ! ΣA₁ (Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext ok))
   Bᵥ BΣ! BΣ! BΣ! ΣA₁ (Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext ok) ΣB
 combine (Idᵥ ⊩A ⊩B) (Idᵥ _ ⊩C) =
   Idᵥ ⊩A ⊩B ⊩C
-combine (embl- l< se [AB]) [BC] = embl-- l< se (combine [AB] [BC])
-combine (emb-l l< se [AB]) [BC] = emb-l- l< se (combine [AB] [BC])
-combine [AB] (embl- l< se [BC]) = combine [AB] [BC]
-combine [AB] (emb-l l< se [BC]) = emb--l l< se (combine [AB] [BC])
+combine (embᵥ₁ p A≡B)          B≡C  = embᵥ₁ p (combine A≡B B≡C)
+combine (embᵥ₂ p A≡B)          B≡C  = embᵥ₂ p (combine A≡B B≡C)
+combine          A≡B  (embᵥ₁ p B≡C) =          combine A≡B B≡C
+combine          A≡B  (embᵥ₂ p B≡C) = embᵥ₃ p (combine A≡B B≡C)
 
 -- Refutable cases
 -- U ≡ _
@@ -648,7 +640,7 @@ combine (ne _ ⊩B) (Idᵥ ⊩B′ _) =
   ⊥-elim $ Id≢ne N.neK $
   whrDet* (red (_⊩ₗId_.⇒*Id ⊩B′) , Idₙ) (red N.D , ne N.neK)
   where
-  module N = _⊩ne⟨_⟩_ ⊩B
+  module N = _⊩ne_ ⊩B
 
 -- Π/Σ ≡ _
 combine (Bᵥ W _ (Bᵣ _ _ D _ _ _ _ _ _ _)) (Uᵥ (Uᵣ _ _ ⇒*U) UB) =
@@ -692,7 +684,7 @@ combine (Idᵥ _ ⊩B) (ne ⊩B′ _) =
   ⊥-elim $ Id≢ne N.neK $
   whrDet* (red (_⊩ₗId_.⇒*Id ⊩B) , Idₙ) (red N.D , ne N.neK)
   where
-  module N = _⊩ne⟨_⟩_ ⊩B′
+  module N = _⊩ne_ ⊩B′
 combine (Idᵥ _ ⊩B) (Bᵥ _ ⊩B′ _) =
   ⊥-elim $ Id≢⟦⟧▷ _ $
   whrDet* (red (_⊩ₗId_.⇒*Id ⊩B) , Idₙ) (red (_⊩ₗB⟨_⟩_.D ⊩B′) , ⟦ _ ⟧ₙ)

@@ -36,7 +36,6 @@ open import Definition.Untyped.Properties M
 
 open import Tools.Empty
 open import Tools.Fin
-open import Tools.Nat using (≤′-refl; ≤′-step)
 open import Tools.Function
 open import Tools.Product as Σ
 import Tools.PropositionalEquality as PE
@@ -46,7 +45,7 @@ private variable
   Γ Δ                               : Con Term _
   A A₁ A₂ B t t₁ t₂ u u₁ u₂ v v₁ v₂ : Term _
   σ₁ σ₂                             : Subst _ _
-  l l′ l″ l‴                        : TypeLevel
+  l l′ l″ l‴                        : Universe-level
   p q r                             : M
 
 ------------------------------------------------------------------------
@@ -77,7 +76,7 @@ opaque
          wfTerm (⊢t-redₜ ℕ⇒*))
     , (λ ⊢Γ →
          ⊩∷U⇔ .proj₂
-           ( ≤′-refl , ⊩ℕ⇔ .proj₂ ⊢Γ
+           ( ≤ᵘ-refl , ⊩ℕ⇔ .proj₂ ⊢Γ
            , (_ , idRedTerm:*: (ℕⱼ ⊢Γ) , ℕₙ , ≅ₜ-ℕrefl ⊢Γ)
            ))
 
@@ -99,8 +98,8 @@ opaque
       Γ ⊩⟨ l ⟩ t ∷ A / ℕ-intr ⊩A →
       Γ ⊩ℕ t ∷ℕ
     lemma (noemb _)    ⊩t = ⊩t
-    lemma (emb ≤′-refl ⊩A) ⊩t = lemma ⊩A ⊩t
-    lemma (emb (≤′-step s) ⊩A) ⊩t = lemma (emb s ⊩A) ⊩t
+    lemma (emb ≤ᵘ-refl ⊩A) ⊩t = lemma ⊩A ⊩t
+    lemma (emb (≤ᵘ-step s) ⊩A) ⊩t = lemma (emb s ⊩A) ⊩t
 
 opaque
 
@@ -162,8 +161,8 @@ opaque
       Γ ⊩⟨ l ⟩ A ≡ B / ℕ-intr ⊩A →
       Γ ⊩ℕ A ≡ B
     lemma (noemb _)    A≡B = A≡B
-    lemma (emb ≤′-refl ⊩A) A≡B = lemma ⊩A A≡B
-    lemma (emb (≤′-step s) ⊩A) A≡B = lemma (emb s ⊩A) A≡B
+    lemma (emb ≤ᵘ-refl ⊩A) A≡B = lemma ⊩A A≡B
+    lemma (emb (≤ᵘ-step s) ⊩A) A≡B = lemma (emb s ⊩A) A≡B
 
 opaque
 
@@ -179,7 +178,7 @@ opaque
          case idRedTerm:*: (ℕⱼ ⊢Γ) of λ
            ℕ⇒*ℕ →
          ⊩≡∷U⇔ .proj₂
-           ( ≤′-refl , ⊩ℕ≡⇔ .proj₂ (id (ℕⱼ ⊢Γ))
+           ( ≤ᵘ-refl , ⊩ℕ≡⇔ .proj₂ (id (ℕⱼ ⊢Γ))
            , (_ , _ , ℕ⇒*ℕ , ℕ⇒*ℕ , ℕₙ , ℕₙ , ≅ₜ-ℕrefl ⊢Γ)
            ))
 
@@ -208,8 +207,8 @@ opaque
       Γ ⊩⟨ l ⟩ t ≡ u ∷ A / ℕ-intr ⊩A →
       Γ ⊩ℕ t ∷ℕ × Γ ⊩ℕ u ∷ℕ × Γ ⊩ℕ t ≡ u ∷ℕ
     lemma (noemb _)    ⊩t ⊩u t≡u = ⊩t , ⊩u , t≡u
-    lemma (emb ≤′-refl ⊩A) ⊩t ⊩u t≡u = lemma ⊩A ⊩t ⊩u t≡u
-    lemma (emb (≤′-step s) ⊩A) ⊩t ⊩u t≡u = lemma (emb s ⊩A) ⊩t ⊩u t≡u
+    lemma (emb ≤ᵘ-refl ⊩A) ⊩t ⊩u t≡u = lemma ⊩A ⊩t ⊩u t≡u
+    lemma (emb (≤ᵘ-step s) ⊩A) ⊩t ⊩u t≡u = lemma (emb s ⊩A) ⊩t ⊩u t≡u
 
 opaque
 

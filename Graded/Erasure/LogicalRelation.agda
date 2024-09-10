@@ -44,7 +44,7 @@ private
     A B t t₁ t′ u : U.Term n
     v v₂ v′ w : T.Term n
     p : M
-    l : TypeLevel
+    l : Universe-level
     s : Strength
 
 ------------------------------------------------------------------------
@@ -93,7 +93,7 @@ mutual
   -- Logical relation for erasure
   infix 19 _®⟨_⟩_∷_/_
 
-  _®⟨_⟩_∷_/_ : (t : U.Term k) (l : TypeLevel) (v : T.Term k)
+  _®⟨_⟩_∷_/_ : (t : U.Term k) (l : Universe-level) (v : T.Term k)
                (A : U.Term k) ([A] : Δ ⊩⟨ l ⟩ A) → Set a
   t ®⟨ l ⟩ v ∷ A / Uᵣ x     = t ® v ∷U
   t ®⟨ l ⟩ v ∷ A / ℕᵣ x     = t ® v ∷ℕ
@@ -127,13 +127,14 @@ mutual
     open _⊩ₗId_ ⊩A
 
   -- Subsumption:
-  t ®⟨ ¹ ⟩ v ∷ A / emb 0<1 [A] = t ®⟨ ⁰ ⟩ v ∷ A / [A]
+  t ®⟨ _ ⟩ v ∷ A / emb ≤ᵘ-refl     ⊩A = t ®⟨ _ ⟩ v ∷ A / ⊩A
+  t ®⟨ _ ⟩ v ∷ A / emb (≤ᵘ-step p) ⊩A = t ®⟨ _ ⟩ v ∷ A / emb p ⊩A
 
 
   -- Extra data for Π-types, depending on whether the function argument
   -- is erased or not.
 
-  Π-® : (l : TypeLevel) (F : U.Term k) (G : U.Term (1+ k))
+  Π-® : (l : Universe-level) (F : U.Term k) (G : U.Term (1+ k))
         (t b : U.Term k) (v : T.Term k)
         ([F] : Δ ⊩⟨ l ⟩ U.wk id F)
         ([G] : Δ ⊩⟨ l ⟩ U.wk (lift id) G U.[ b ]₀)
@@ -156,7 +157,7 @@ mutual
   -- is erased or not.
 
   Σ-® :
-    (l : TypeLevel) (F : U.Term k) →
+    (l : Universe-level) (F : U.Term k) →
     Δ ⊩⟨ l ⟩ U.wk id F →
     U.Term k → T.Term k → T.Term k → (p : M) → Set a
   Σ-® l F [F] t₁ v v₂ p = case is-𝟘? p of λ where

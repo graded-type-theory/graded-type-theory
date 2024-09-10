@@ -917,46 +917,46 @@ opaque
       (_ , _ , _ , _ , Empty≡Id) →
     ⊥-elim (Id≢Empty (sym Empty≡Id))
   ⊢ˢValue-⇒ᵥ ⊢e ⊢t Uᵥ =
-    ⊥-elim (inversion-U ⊢t)
+    ⊥-elim (hole-type-not-U ⊢e (inversion-U ⊢t))
   ⊢ˢValue-⇒ᵥ (∘ₑ x x₁) ⊢t ΠΣᵥ =
     case inversion-ΠΣ-U ⊢t of λ
-      (_ , _ , Π≡U , _) →
+      (_ , _ , _ , _ , Π≡U , _) →
     ⊥-elim (U≢Π (sym Π≡U))
   ⊢ˢValue-⇒ᵥ (fstₑ x x₁) ⊢t ΠΣᵥ =
     case inversion-ΠΣ-U ⊢t of λ
-      (_ , _ , Σ≡U , _) →
+      (_ , _ , _ , _ , Σ≡U , _) →
     ⊥-elim (U≢Σ (sym Σ≡U))
   ⊢ˢValue-⇒ᵥ (sndₑ x x₁) ⊢t ΠΣᵥ =
     case inversion-ΠΣ-U ⊢t of λ
-      (_ , _ , Σ≡U , _) →
+      (_ , _ , _ , _ , Σ≡U , _) →
     ⊥-elim (U≢Σ (sym Σ≡U))
   ⊢ˢValue-⇒ᵥ (prodrecₑ x x₁) ⊢t ΠΣᵥ =
     case inversion-ΠΣ-U ⊢t of λ
-      (_ , _ , Σ≡U , _) →
+      (_ , _ , _ , _ , Σ≡U , _) →
     ⊥-elim (U≢Σ (sym Σ≡U))
   ⊢ˢValue-⇒ᵥ (natrecₑ x x₁ x₂) ⊢t ΠΣᵥ =
     case inversion-ΠΣ-U ⊢t of λ
-      (_ , _ , ℕ≡U , _) →
+      (_ , _ , _ , _ , ℕ≡U , _) →
     ⊥-elim (U≢ℕ (sym ℕ≡U))
   ⊢ˢValue-⇒ᵥ (unitrecₑ x x₁ x₂) ⊢t ΠΣᵥ =
     case inversion-ΠΣ-U ⊢t of λ
-      (_ , _ , Unit≡U , _) →
+      (_ , _ , _ , _ , Unit≡U , _) →
     ⊥-elim (U≢Unitⱼ (sym Unit≡U))
   ⊢ˢValue-⇒ᵥ (emptyrecₑ x) ⊢t ΠΣᵥ =
     case inversion-ΠΣ-U ⊢t of λ
-      (_ , _ , Empty≡U , _) →
+      (_ , _ , _ , _ , Empty≡U , _) →
     ⊥-elim (U≢Emptyⱼ (sym Empty≡U))
   ⊢ˢValue-⇒ᵥ (Jₑ x x₁) ⊢t ΠΣᵥ =
     case inversion-ΠΣ-U ⊢t of λ
-      (_ , _ , Id≡U , _) →
+      (_ , _ , _ , _ , Id≡U , _) →
     ⊥-elim (Id≢U Id≡U)
   ⊢ˢValue-⇒ᵥ (Kₑ x x₁ x₂) ⊢t ΠΣᵥ =
     case inversion-ΠΣ-U ⊢t of λ
-      (_ , _ , Id≡U , _) →
+      (_ , _ , _ , _ , Id≡U , _) →
     ⊥-elim (Id≢U Id≡U)
   ⊢ˢValue-⇒ᵥ ([]-congₑ x) ⊢t ΠΣᵥ =
     case inversion-ΠΣ-U ⊢t of λ
-      (_ , _ , Id≡U , _) →
+      (_ , _ , _ , _ , Id≡U , _) →
     ⊥-elim (Id≢U Id≡U)
   ⊢ˢValue-⇒ᵥ (∘ₑ x x₁) ⊢t ℕᵥ =
     ⊥-elim (U≢Π (sym (inversion-ℕ ⊢t)))
@@ -1020,43 +1020,43 @@ opaque
     ⊥-elim (Id≢U (inversion-Empty ⊢t))
   ⊢ˢValue-⇒ᵥ (∘ₑ x x₁) ⊢t Idᵥ =
     case inversion-Id-U ⊢t of λ
-      (_ , _ , _ , Π≡U) →
+      (_ , _ , _ , _ , Π≡U) →
     ⊥-elim (U≢Π (sym Π≡U))
   ⊢ˢValue-⇒ᵥ (fstₑ x x₁) ⊢t Idᵥ =
     case inversion-Id-U ⊢t of λ
-      (_ , _ , _ , Σ≡U) →
+      (_ , _ , _ , _ , Σ≡U) →
     ⊥-elim (U≢Σ (sym Σ≡U))
   ⊢ˢValue-⇒ᵥ (sndₑ x x₁) ⊢t Idᵥ =
     case inversion-Id-U ⊢t of λ
-      (_ , _ , _ , Σ≡U) →
+      (_ , _ , _ , _ , Σ≡U) →
     ⊥-elim (U≢Σ (sym Σ≡U))
   ⊢ˢValue-⇒ᵥ (prodrecₑ x x₁) ⊢t Idᵥ =
     case inversion-Id-U ⊢t of λ
-      (_ , _ , _ , Σ≡U) →
+      (_ , _ , _ , _ , Σ≡U) →
     ⊥-elim (U≢Σ (sym Σ≡U))
   ⊢ˢValue-⇒ᵥ (natrecₑ x x₁ x₂) ⊢t Idᵥ =
     case inversion-Id-U ⊢t of λ
-      (_ , _ , _ , ℕ≡U) →
+      (_ , _ , _ , _ , ℕ≡U) →
     ⊥-elim (U≢ℕ (sym ℕ≡U))
   ⊢ˢValue-⇒ᵥ (unitrecₑ x x₁ x₂) ⊢t Idᵥ =
     case inversion-Id-U ⊢t of λ
-      (_ , _ , _ , Unit≡U) →
+      (_ , _ , _ , _ , Unit≡U) →
     ⊥-elim (U≢Unitⱼ (sym Unit≡U))
   ⊢ˢValue-⇒ᵥ (emptyrecₑ x) ⊢t Idᵥ =
     case inversion-Id-U ⊢t of λ
-      (_ , _ , _ , Empty≡U) →
+      (_ , _ , _ , _ , Empty≡U) →
     ⊥-elim (U≢Emptyⱼ (sym Empty≡U))
   ⊢ˢValue-⇒ᵥ (Jₑ x x₁) ⊢t Idᵥ =
     case inversion-Id-U ⊢t of λ
-      (_ , _ , _ , Id≡U) →
+      (_ , _ , _ , _ , Id≡U) →
     ⊥-elim (Id≢U Id≡U)
   ⊢ˢValue-⇒ᵥ (Kₑ x x₁ x₂) ⊢t Idᵥ =
     case inversion-Id-U ⊢t of λ
-      (_ , _ , _ , Id≡U) →
+      (_ , _ , _ , _ , Id≡U) →
     ⊥-elim (Id≢U Id≡U)
   ⊢ˢValue-⇒ᵥ ([]-congₑ x) ⊢t Idᵥ =
     case inversion-Id-U ⊢t of λ
-      (_ , _ , _ , Id≡U) →
+      (_ , _ , _ , _ , Id≡U) →
     ⊥-elim (Id≢U Id≡U)
 
 opaque

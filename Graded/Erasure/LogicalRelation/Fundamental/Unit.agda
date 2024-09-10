@@ -55,7 +55,7 @@ open import Graded.Mode 𝕄
 
 open import Tools.Empty
 open import Tools.Function
-open import Tools.Nat using (Nat)
+open import Tools.Nat
 open import Tools.Product
 open import Tools.Sum hiding (id; sym)
 import Tools.PropositionalEquality as PE
@@ -69,17 +69,17 @@ private
     A t u : Term n
     m : Mode
     s : Strength
-    l l′ l″ l‴ : TypeLevel
+    l l′ l″ l‴ : Universe-level
     p q : M
 
 opaque
 
   -- Validity of Unit.
 
-  Unitʳ : γ ▸ Γ ⊩ʳ⟨ ¹ ⟩ Unit s ∷[ m ] U
+  Unitʳ : γ ▸ Γ ⊩ʳ⟨ 1 ⟩ Unit s ∷[ m ] U 0
   Unitʳ =
     ▸⊩ʳ∷⇔ .proj₂ λ _ _ →
-    ®∷→®∷◂ (®∷U⇔ .proj₂ ((_ , 0<1) , Uᵣ (λ { PE.refl → T.refl })))
+    ®∷→®∷◂ (®∷U⇔ .proj₂ (≤ᵘ-refl , Uᵣ (λ { PE.refl → T.refl })))
 
 opaque
 
@@ -200,7 +200,7 @@ opaque
 
       (inj₂ (_ , no-η)) → case rest of λ where
         starᵣ →
-          unitrec® _ (⊩∷-⇐* t[σ]⇒t′ (reducible-⊩∷ ⊢t′))
+          unitrec® _ (⊩∷-⇐* t[σ]⇒t′ (reducible-⊩∷ ⊢t′ .proj₂))
             (                            ∷ A [ t ]₀ [ σ ]            ⟨ singleSubstLift A _ ⟩⇒≡
              unitrec p q A t     u [ σ ] ∷ A [ σ ⇑ ] [ t [ σ ] ]₀  ⇒*⟨ unitrec-subst* t[σ]⇒t′ ⊢A[σ⇑] ⊢u[σ] no-η ⟩∷
                                                                      ⟨ substTypeEq (refl ⊢A[σ⇑]) (subset*Term t[σ]⇒t′) ⟩⇒

@@ -49,7 +49,7 @@ open import Tools.Sum
 private
   variable
     n : Nat
-    l l′ l″ : TypeLevel
+    l l′ l″ : Universe-level
     γ : Conₘ n
     p : M
     Γ : Con Term n
@@ -61,10 +61,10 @@ opaque
 
   -- Validity of Empty.
 
-  Emptyʳ : γ ▸ Γ ⊩ʳ⟨ ¹ ⟩ Empty ∷[ m ] U
+  Emptyʳ : γ ▸ Γ ⊩ʳ⟨ 1 ⟩ Empty ∷[ m ] U 0
   Emptyʳ =
     ▸⊩ʳ∷⇔ .proj₂ λ _ _ →
-    ®∷→®∷◂ (®∷U⇔ .proj₂ ((_ , 0<1) , Uᵣ (λ { refl → T.refl })))
+    ®∷→®∷◂ (®∷U⇔ .proj₂ (≤ᵘ-refl , Uᵣ (λ { refl → T.refl })))
 
 opaque
 

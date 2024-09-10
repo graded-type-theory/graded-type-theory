@@ -18,7 +18,6 @@ open EqRelSet eqrel
 open Type-restrictions R
 
 open import Definition.LogicalRelation R
-open import Definition.LogicalRelation.Kit R hiding (emb-⊩)
 open import Definition.LogicalRelation.Irrelevance R
 open import Definition.LogicalRelation.Properties R
 open import Definition.LogicalRelation.ShapeView R
@@ -30,9 +29,10 @@ open import Definition.Typed.Weakening R using (_∷_⊇_)
 
 open import Definition.Untyped M
 open import Definition.Untyped.Neutral M type-variant
+open import Definition.Untyped.Properties M
 
 open import Tools.Function
-open import Tools.Nat using (Nat; 1+; ≤′-refl; ≤′-step; ≤→<s)
+open import Tools.Nat using (Nat)
 open import Tools.Product
 import Tools.PropositionalEquality as PE
 
@@ -41,7 +41,7 @@ private variable
   Γ Δ               : Con Term _
   A B C t t₁ t₂ u v : Term _
   ρ                 : Wk _ _
-  l l′              : TypeLevel
+  l l′              : Universe-level
   k                 : LogRelKit
 
 ------------------------------------------------------------------------
@@ -53,7 +53,7 @@ opaque
 
   infix 4 _⊩⟨_⟩_∷_
 
-  _⊩⟨_⟩_∷_ : Con Term n → TypeLevel → Term n → Term n → Set a
+  _⊩⟨_⟩_∷_ : Con Term n → Universe-level → Term n → Term n → Set a
   Γ ⊩⟨ l ⟩ t ∷ A =
     ∃ λ (⊩A : Γ ⊩⟨ l ⟩ A) → Γ ⊩⟨ l ⟩ t ∷ A / ⊩A
 
@@ -63,7 +63,7 @@ opaque
 
   infix 4 _⊩⟨_⟩_≡_
 
-  _⊩⟨_⟩_≡_ : Con Term n → TypeLevel → Term n → Term n → Set a
+  _⊩⟨_⟩_≡_ : Con Term n → Universe-level → Term n → Term n → Set a
   Γ ⊩⟨ l ⟩ A ≡ B =
     ∃ λ (⊩A : Γ ⊩⟨ l ⟩ A) → (Γ ⊩⟨ l ⟩ B) × Γ ⊩⟨ l ⟩ A ≡ B / ⊩A
 
@@ -73,7 +73,8 @@ opaque
 
   infix 4 _⊩⟨_⟩_≡_∷_
 
-  _⊩⟨_⟩_≡_∷_ : Con Term n → TypeLevel → Term n → Term n → Term n → Set a
+  _⊩⟨_⟩_≡_∷_ :
+    Con Term n → Universe-level → Term n → Term n → Term n → Set a
   Γ ⊩⟨ l ⟩ t ≡ u ∷ A =
     ∃ λ (⊩A : Γ ⊩⟨ l ⟩ A) →
     Γ ⊩⟨ l ⟩ t ∷ A / ⊩A ×
@@ -799,7 +800,7 @@ opaque
   -- Embedding for _⊩⟨_⟩_.
 
   emb-⊩ :
-    l ≤ l′ →
+    l ≤ᵘ l′ →
     Γ ⊩⟨ l ⟩ A →
     Γ ⊩⟨ l′ ⟩ A
   emb-⊩ = emb-≤-⊩
@@ -810,22 +811,15 @@ opaque
   -- Embedding for _⊩⟨_⟩_≡_.
 
   emb-⊩≡ :
-    l ≤ l′ →
+    l ≤ᵘ l′ →
     Γ ⊩⟨ l ⟩ A ≡ B →
     Γ ⊩⟨ l′ ⟩ A ≡ B
-  emb-⊩≡     ≤′-refl    A≡B             = A≡B
-  emb-⊩≡ {Γ} (≤′-step l<l′) (⊩A , ⊩B , A≡B) =
-      emb (≤→<s l<l′) (PE.subst (λ k → LogRelKit._⊩_ k _ _) (kit≡kit′ (≤→<s l<l′)) ⊩A)
-    , emb (≤→<s l<l′) (PE.subst (λ k → LogRelKit._⊩_ k _ _) (kit≡kit′ (≤→<s l<l′)) ⊩B)
-    , lemma (kit≡kit′ (≤→<s l<l′)) A≡B
-    where
-    lemma :
-      {⊩A : LogRelKit._⊩_ k Γ A}
-      (eq : k PE.≡ kit′ (≤→<s l<l′)) →
-      LogRelKit._⊩_≡_/_ k Γ A B ⊩A →
-      LogRelKit._⊩_≡_/_ (kit′ (≤→<s l<l′)) Γ A B
-        (PE.subst (λ k → LogRelKit._⊩_ k _ _) eq ⊩A)
-    lemma PE.refl A≡B = A≡B
+  emb-⊩≡ ≤ᵘ-refl        A≡B             = A≡B
+  emb-⊩≡ (≤ᵘ-step l<l′) (⊩A , ⊩B , A≡B) =
+    let p = 1+≤ᵘ1+ l<l′ in
+      emb p (⊩<⇔⊩ p .proj₂ ⊩A)
+    , emb p (⊩<⇔⊩ p .proj₂ ⊩B)
+    , ⊩<≡⇔⊩≡′ p .proj₂ A≡B
 
 opaque
   unfolding _⊩⟨_⟩_≡_∷_
@@ -833,40 +827,25 @@ opaque
   -- Embedding for _⊩⟨_⟩_≡_∷_.
 
   emb-⊩≡∷ :
-    l ≤ l′ →
+    l ≤ᵘ l′ →
     Γ ⊩⟨ l ⟩ t ≡ u ∷ A →
     Γ ⊩⟨ l′ ⟩ t ≡ u ∷ A
-
-  emb-⊩≡∷     ≤′-refl       t≡u                  = t≡u
-  emb-⊩≡∷ {Γ} (≤′-step l<l′) (⊩A , ⊩t , ⊩u , t≡u) =
-      emb (≤→<s l<l′) (PE.subst (λ k → LogRelKit._⊩_ k _ _) (kit≡kit′ (≤→<s l<l′)) ⊩A)
-    , lemma₁ {l<l′ = ≤→<s l<l′} (kit≡kit′ (≤→<s l<l′)) ⊩t
-    , lemma₁ {l<l′ = ≤→<s l<l′} (kit≡kit′ (≤→<s l<l′)) ⊩u
-    , lemma₂ (kit≡kit′ (≤→<s l<l′)) t≡u
-    where
-    lemma₁ :
-      {l<l′ : l < l′} {⊩A : LogRelKit._⊩_ k Γ A}
-      (eq : k PE.≡ kit′ l<l′) →
-      LogRelKit._⊩_∷_/_ k Γ t A ⊩A →
-      LogRelKit._⊩_∷_/_ (kit′ l<l′) Γ t A
-        (PE.subst (λ k → LogRelKit._⊩_ k _ _) eq ⊩A)
-    lemma₁ PE.refl ⊩t = ⊩t
-
-    lemma₂ :
-      {⊩A : LogRelKit._⊩_ k Γ A}
-      (eq : k PE.≡ kit′ (≤→<s l<l′)) →
-      LogRelKit._⊩_≡_∷_/_ k Γ t u A ⊩A →
-      LogRelKit._⊩_≡_∷_/_ (kit′ (≤→<s l<l′)) Γ t u A
-        (PE.subst (λ k → LogRelKit._⊩_ k _ _) eq ⊩A)
-    lemma₂ PE.refl t≡u = t≡u
-
+  emb-⊩≡∷ ≤ᵘ-refl        t≡u                  = t≡u
+  emb-⊩≡∷ (≤ᵘ-step l<l′) (⊩A , ⊩t , ⊩u , t≡u) =
+    let p   = 1+≤ᵘ1+ l<l′
+        ⊩A′ = emb p (⊩<⇔⊩ p .proj₂ ⊩A)
+    in
+      ⊩A′
+    , irrelevanceTerm ⊩A ⊩A′ ⊩t
+    , irrelevanceTerm ⊩A ⊩A′ ⊩u
+    , irrelevanceEqTerm ⊩A ⊩A′ t≡u
 
 opaque
 
   -- Embedding for _⊩⟨_⟩_∷_.
 
   emb-⊩∷ :
-    l ≤ l′ →
+    l ≤ᵘ l′ →
     Γ ⊩⟨ l ⟩ t ∷ A →
     Γ ⊩⟨ l′ ⟩ t ∷ A
   emb-⊩∷ l≤l′ =
@@ -1014,9 +993,9 @@ opaque
       (⊩A : Γ ⊩⟨ l ⟩ne A) →
       Γ ⊩⟨ l ⟩ t ∷ A / ne-intr ⊩A →
       ∃ λ u → Γ ⊢ t :⇒*: u ∷ A × Neutral u × Γ ⊢ u ~ u ∷ A
-    lemma (emb ≤′-refl ⊩A) ⊩t =
+    lemma (emb ≤ᵘ-refl ⊩A) ⊩t =
       lemma ⊩A ⊩t
-    lemma (emb (≤′-step l<) ⊩A) ⊩t =
+    lemma (emb (≤ᵘ-step l<) ⊩A) ⊩t =
       lemma (emb l< ⊩A) ⊩t
     lemma (noemb (ne _ A⇒*A′ _ _)) (neₜ u t⇒*u (neNfₜ u-ne _ u~u)) =
       case whnfRed* (red A⇒*A′) (ne A-ne) of λ {
@@ -1051,9 +1030,9 @@ opaque
       (⊩A : Γ ⊩⟨ l ⟩ne A) →
       Γ ⊩⟨ l ⟩ A ≡ B / ne-intr ⊩A →
       ∃ λ C → Neutral C × (Γ ⊢ C) × Γ ⊢ B ⇒* C × Γ ⊢ A ≅ C
-    lemma (emb ≤′-refl ⊩A) A≡B =
+    lemma (emb ≤ᵘ-refl ⊩A) A≡B =
       lemma ⊩A A≡B
-    lemma (emb (≤′-step l<) ⊩A) A≡B =
+    lemma (emb (≤ᵘ-step l<) ⊩A) A≡B =
       lemma (emb l< ⊩A) A≡B
     lemma (noemb (ne _ A⇒*A′ _ _)) (ne₌ C [ _ , ⊢C , B⇒*C ] C-ne A′≅C) =
       case whnfRed* (red A⇒*A′) (ne A-ne) of λ {
@@ -1118,9 +1097,9 @@ opaque
       ∃₂ λ u₁ u₂ →
       Γ ⊢ t₁ :⇒*: u₁ ∷ A × Γ ⊢ t₂ :⇒*: u₂ ∷ A ×
       Γ ⊩neNf u₁ ≡ u₂ ∷ A
-    lemma (emb ≤′-refl ⊩A) t₁≡t₂ =
+    lemma (emb ≤ᵘ-refl ⊩A) t₁≡t₂ =
       lemma ⊩A t₁≡t₂
-    lemma (emb (≤′-step l<) ⊩A) t₁≡t₂ =
+    lemma (emb (≤ᵘ-step l<) ⊩A) t₁≡t₂ =
       lemma (emb l< ⊩A) t₁≡t₂
     lemma (noemb (ne _ A⇒*A′ _ _)) (neₜ₌ u₁ u₂ t₁⇒*u₁ t₂⇒*u₂ u₁≡u₂) =
       case whnfRed* (red A⇒*A′) (ne A-ne) of λ {

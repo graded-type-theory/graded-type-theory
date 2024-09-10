@@ -6,13 +6,15 @@
 module Definition.Untyped.NotParametrised where
 
 open import Tools.Fin
+open import Tools.Function
 open import Tools.Level
 open import Tools.List
 open import Tools.Nat
+open import Tools.PropositionalEquality
 
 private variable
-  a : Level
-  n : Nat
+  a   : Level
+  l n : Nat
 
 ------------------------------------------------------------------------
 -- Definitions related to terms
@@ -103,3 +105,43 @@ wkVar (lift ρ) (x +1) = (wkVar ρ x) +1
 wk₀ : Wk n 0
 wk₀ {n = 0}    = id
 wk₀ {n = 1+ n} = step wk₀
+
+------------------------------------------------------------------------
+-- Universe levels
+
+-- Universe levels.
+
+Universe-level : Set
+Universe-level = Nat
+
+-- The maximum of two universe levels.
+
+infixl 6 _⊔ᵘ_
+
+_⊔ᵘ_ : (_ _ : Universe-level) → Universe-level
+_⊔ᵘ_ = flip Tools.Nat._⊔_
+
+-- The definition above is set up so that l ⊔ᵘ 0 is definitionally
+-- equal to l, with the intention to make it a little easier to work
+-- with Erased.
+
+_ : l ⊔ᵘ 0 ≡ l
+_ = refl
+
+-- Ordering of universe levels.
+
+infix 4 _≤ᵘ_
+
+_≤ᵘ_ : (_ _ : Universe-level) → Set
+i ≤ᵘ j = i ≤′ j
+
+open Tools.Nat public
+  using ()
+  renaming (≤′-refl to ≤ᵘ-refl; ≤′-step to ≤ᵘ-step)
+
+-- Strict ordering of universe levels.
+
+infix 4 _<ᵘ_
+
+_<ᵘ_ : (_ _ : Universe-level) → Set
+i <ᵘ j = i <′ j
