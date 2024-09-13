@@ -45,11 +45,11 @@ private variable
 private opaque
 
   ·ᶜ-• : ∀ γ (ρ : Wk ℓ n) (ρ′ : Wk n k)
-       → p ·ᶜ wkᶜ (ρ • ρ′) γ ≈ᶜ wkᶜ ρ (p ·ᶜ wkᶜ ρ′ γ)
+       → p ·ᶜ wkConₘ (ρ • ρ′) γ ≈ᶜ wkConₘ ρ (p ·ᶜ wkConₘ ρ′ γ)
   ·ᶜ-• {p = p} γ ρ ρ′ = begin
-    p ·ᶜ wkᶜ (ρ • ρ′) γ       ≡⟨ cong (p ·ᶜ_) (wk-•ᶜ ρ ρ′) ⟩
-    p ·ᶜ wkᶜ ρ (wkᶜ ρ′ γ)  ≈˘⟨ wk-·ᶜ ρ ⟩
-    wkᶜ ρ (p ·ᶜ wkᶜ ρ′ γ)  ∎
+    p ·ᶜ wkConₘ (ρ • ρ′) γ       ≡⟨ cong (p ·ᶜ_) (wk-•ᶜ ρ ρ′) ⟩
+    p ·ᶜ wkConₘ ρ (wkConₘ ρ′ γ)  ≈˘⟨ wk-·ᶜ ρ ⟩
+    wkConₘ ρ (p ·ᶜ wkConₘ ρ′ γ)  ∎
     where
     open Tools.Reasoning.Equivalence Conₘ-setoid
 
@@ -57,7 +57,7 @@ opaque
 
   -- Usage of weakened eliminators.
 
-  wk-▸ᵉ : (ρ : Wk k n) → γ ▸ᵉ[ m ] e → wkᶜ ρ γ ▸ᵉ[ m ] wkᵉ ρ e
+  wk-▸ᵉ : (ρ : Wk k n) → γ ▸ᵉ[ m ] e → wkConₘ ρ γ ▸ᵉ[ m ] wkᵉ ρ e
   wk-▸ᵉ ρ (∘ₑ {γ} {m} {ρ = ρ′} ▸u) =
     subst (_▸ᵉ[ _ ] _) (≈ᶜ→≡ (·ᶜ-• γ ρ ρ′)) (∘ₑ {m = m} ▸u)
   wk-▸ᵉ ρ (fstₑ p≤𝟙) =
@@ -85,16 +85,16 @@ opaque
 
   -- Usage of weakened stacks.
 
-  wk-▸ˢ : (ρ : Wk k n) → γ ▸ˢ S → wkᶜ ρ γ ▸ˢ wkˢ ρ S
+  wk-▸ˢ : (ρ : Wk k n) → γ ▸ˢ S → wkConₘ ρ γ ▸ˢ wkˢ ρ S
   wk-▸ˢ ρ ε = subst (_▸ˢ ε) (sym (wk-𝟘ᶜ ρ)) ε
   wk-▸ˢ {S = e ∙ S} ρ (▸e ∙ ▸S) =
     subst (_▸ˢ _) (≈ᶜ→≡ lemma)
       (subst (_ ▸ᵉ[_] _) (⌞⌟-cong (wk-∣S∣ ρ S)) (wk-▸ᵉ ρ ▸e) ∙ wk-▸ˢ ρ ▸S)
     where
     open Tools.Reasoning.Equivalence Conₘ-setoid
-    lemma : wkᶜ ρ γ +ᶜ ∣ wkˢ ρ S ∣ ·ᶜ wkᶜ ρ δ ≈ᶜ wkᶜ ρ (γ +ᶜ ∣ S ∣ ·ᶜ δ)
+    lemma : wkConₘ ρ γ +ᶜ ∣ wkˢ ρ S ∣ ·ᶜ wkConₘ ρ δ ≈ᶜ wkConₘ ρ (γ +ᶜ ∣ S ∣ ·ᶜ δ)
     lemma {γ} {δ} = begin
-      wkᶜ ρ γ +ᶜ ∣ wkˢ ρ S ∣ ·ᶜ wkᶜ ρ δ ≡˘⟨ cong (λ x → _ +ᶜ x ·ᶜ _) (wk-∣S∣ ρ S) ⟩
-      wkᶜ ρ γ +ᶜ ∣ S ∣ ·ᶜ wkᶜ ρ δ      ≈˘⟨ +ᶜ-congˡ (wk-·ᶜ ρ) ⟩
-      wkᶜ ρ γ +ᶜ wkᶜ ρ (∣ S ∣ ·ᶜ δ)    ≈˘⟨ wk-+ᶜ ρ ⟩
-      wkᶜ ρ (γ +ᶜ ∣ S ∣ ·ᶜ δ)          ∎
+      wkConₘ ρ γ +ᶜ ∣ wkˢ ρ S ∣ ·ᶜ wkConₘ ρ δ ≡˘⟨ cong (λ x → _ +ᶜ x ·ᶜ _) (wk-∣S∣ ρ S) ⟩
+      wkConₘ ρ γ +ᶜ ∣ S ∣ ·ᶜ wkConₘ ρ δ      ≈˘⟨ +ᶜ-congˡ (wk-·ᶜ ρ) ⟩
+      wkConₘ ρ γ +ᶜ wkConₘ ρ (∣ S ∣ ·ᶜ δ)    ≈˘⟨ wk-+ᶜ ρ ⟩
+      wkConₘ ρ (γ +ᶜ ∣ S ∣ ·ᶜ δ)             ∎

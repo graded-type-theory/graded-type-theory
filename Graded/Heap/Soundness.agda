@@ -173,12 +173,12 @@ opaque
           (PE.trans (PE.cong (_[ H ]ₕ) (wk-sucᵏ k)) (subst-sucᵏ k))
           (⇒*→≡ (⊢initial true ⊢t) d′)
       , 𝟘▸H→H≤𝟘 (subₕ ▸H (begin
-          γ                  ≤⟨ γ≤ ⟩
-          𝟙 ·ᶜ wkᶜ ρ δ +ᶜ 𝟘ᶜ ≈⟨ +ᶜ-identityʳ _ ⟩
-          𝟙 ·ᶜ wkᶜ ρ δ       ≈⟨ ·ᶜ-identityˡ _ ⟩
-          wkᶜ ρ δ            ≤⟨ wk-≤ᶜ ρ (inv-usage-numeral ▸n num) ⟩
-          wkᶜ ρ 𝟘ᶜ           ≡⟨ wk-𝟘ᶜ ρ ⟩
-          𝟘ᶜ                 ∎ ))}
+          γ                     ≤⟨ γ≤ ⟩
+          𝟙 ·ᶜ wkConₘ ρ δ +ᶜ 𝟘ᶜ ≈⟨ +ᶜ-identityʳ _ ⟩
+          𝟙 ·ᶜ wkConₘ ρ δ       ≈⟨ ·ᶜ-identityˡ _ ⟩
+          wkConₘ ρ δ            ≤⟨ wk-≤ᶜ ρ (inv-usage-numeral ▸n num) ⟩
+          wkConₘ ρ 𝟘ᶜ           ≡⟨ wk-𝟘ᶜ ρ ⟩
+          𝟘ᶜ                    ∎ ))}
     where
     consistent : Emptyrec-allowed 𝟙ᵐ 𝟘 → Consistent Δ
     consistent ok =

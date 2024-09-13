@@ -68,7 +68,7 @@ data _⨾_▸ᶜ_ (γ : Conₘ n) (p : M) : (c : Entryₘ k n) → Set a where
 
 data _▸ʰ_ : (γ : Conₘ n) (H : Heap k n) → Set a where
   ε : ε ▸ʰ ε
-  _∙_ : (γ +ᶜ p ·ᶜ wkᶜ ρ δ) ▸ʰ H
+  _∙_ : (γ +ᶜ p ·ᶜ wkConₘ ρ δ) ▸ʰ H
       → δ ⨾ p ▸ᶜ (q , t , ρ)
       → γ ∙ p ▸ʰ H ∙ (q , t , ρ)
   _∙● : ⦃ T erased-heap ⦄
@@ -80,19 +80,19 @@ data _▸ʰ_ : (γ : Conₘ n) (H : Heap k n) → Set a where
 -- Usage of eliminators
 
 data _▸ᵉ[_]_ {n : Nat} : (γ : Conₘ n) (m : Mode) (e : Elim n) → Set a where
-  ∘ₑ : γ ▸[ m ᵐ· p ] u → p ·ᶜ wkᶜ ρ γ ▸ᵉ[ m ] ∘ₑ p u ρ
+  ∘ₑ : γ ▸[ m ᵐ· p ] u → p ·ᶜ wkConₘ ρ γ ▸ᵉ[ m ] ∘ₑ p u ρ
   fstₑ : (m ≡ 𝟙ᵐ → p ≤ 𝟙) → 𝟘ᶜ ▸ᵉ[ m ] fstₑ p
   sndₑ : 𝟘ᶜ ▸ᵉ[ m ] sndₑ p
   prodrecₑ : γ ∙ ⌜ m ⌝ · r · p ∙ ⌜ m ⌝ · r ▸[ m ] u → Prodrec-allowed m r p q
-           → wkᶜ ρ γ ▸ᵉ[ m ] prodrecₑ r p q A u ρ
+           → wkConₘ ρ γ ▸ᵉ[ m ] prodrecₑ r p q A u ρ
   natrecₑ : γ ▸[ m ] z → δ ∙ ⌜ m ⌝ · p ∙ ⌜ m ⌝ · r ▸[ m ] s
           → θ ∙ (⌜ 𝟘ᵐ? ⌝ · q′) ▸[ 𝟘ᵐ? ] A
-          → wkᶜ ρ (nrᶜ p r γ δ 𝟘ᶜ) ▸ᵉ[ m ] natrecₑ p q′ r A z s ρ
-  unitrecₑ : γ ▸[ m ] u → Unitrec-allowed m p q → ¬ Unitʷ-η →
-             wkᶜ ρ γ ▸ᵉ[ m ] unitrecₑ l p q A u ρ
+          → wkConₘ ρ (nrᶜ p r γ δ 𝟘ᶜ) ▸ᵉ[ m ] natrecₑ p q′ r A z s ρ
+  unitrecₑ : γ ▸[ m ] u → Unitrec-allowed m p q → ¬ Unitʷ-η
+           → wkConₘ ρ γ ▸ᵉ[ m ] unitrecₑ l p q A u ρ
   emptyrecₑ : Emptyrec-allowed m p → 𝟘ᶜ ▸ᵉ[ m ] emptyrecₑ p A ρ
-  Jₑ : γ ▸[ m ] u → wkᶜ ρ γ ▸ᵉ[ m ] Jₑ p q A t B u v ρ
-  Kₑ : γ ▸[ m ] u → wkᶜ ρ γ ▸ᵉ[ m ] Kₑ p A t B u ρ
+  Jₑ : γ ▸[ m ] u → wkConₘ ρ γ ▸ᵉ[ m ] Jₑ p q A t B u v ρ
+  Kₑ : γ ▸[ m ] u → wkConₘ ρ γ ▸ᵉ[ m ] Kₑ p A t B u ρ
   []-congₑ : []-cong-allowed-mode s′ m → 𝟘ᶜ ▸ᵉ[ m ] []-congₑ s′ A t u ρ
   sucₑ : 𝟘ᶜ ▸ᵉ[ m ] sucₑ
 
@@ -107,4 +107,4 @@ data _▸ˢ_ {n : Nat} : (γ : Conₘ n) (S : Stack n) → Set a where
 
 _⨾_⨾_▸_ : (γ : Conₘ n) (δ : Conₘ ℓ) (η : Conₘ n) (s : State k n ℓ) → Set a
 γ ⨾ δ ⨾ η ▸ ⟨ H , t , ρ , S ⟩ =
-  γ ▸ʰ H × δ ▸[ ⌞ ∣ S ∣ ⌟ ] t × η ▸ˢ S × γ ≤ᶜ ∣ S ∣ ·ᶜ wkᶜ ρ δ +ᶜ η
+  γ ▸ʰ H × δ ▸[ ⌞ ∣ S ∣ ⌟ ] t × η ▸ˢ S × γ ≤ᶜ ∣ S ∣ ·ᶜ wkConₘ ρ δ +ᶜ η

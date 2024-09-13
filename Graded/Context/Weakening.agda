@@ -45,8 +45,6 @@ wkConₘ id γ = γ
 wkConₘ (step ρ) γ = (wkConₘ ρ γ) ∙ 𝟘
 wkConₘ (lift ρ) (γ ∙ p) = wkConₘ ρ γ ∙ p
 
-wkᶜ = wkConₘ
-
 -- Weakening the zero context is the zero context
 -- wkConₘ ρ 𝟘ᶜ ≡ 𝟘ᶜ
 
