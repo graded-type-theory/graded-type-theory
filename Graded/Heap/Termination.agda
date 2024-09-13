@@ -77,7 +77,7 @@ opaque
   whBisim : (Emptyrec-allowed 𝟙ᵐ 𝟘 → Consistent Δ)
           → Δ ⊢ ⦅ s ⦆ ↘ u ∷ A
           → Δ ⨾ Γ ⊢ s ∷ B
-          → γ ⨾ δ ⨾ η ▸[ m ] s
+          → γ ⨾ δ ⨾ η ▸ s
           → ∃₂ λ m n → ∃₃ λ H t (ρ : Wk m n)
           → s ⇒* ⟨ H , t , ρ , ε ⟩ × wk ρ t [ H ]ₕ ≡ u × Value t
   whBisim {s = ⟨ H , t , ρ , S ⟩} consistent (d , w) ⊢s ▸s =
@@ -88,7 +88,7 @@ opaque
     case RPₙₜ.⇒ₙ*-⦅⦆-≡ dₙ of λ {
       t′≡t″ →
     case ▸-⇒* ▸s d₁ of λ
-      (_ , _ , _ , _ , ▸s′) →
+      (_ , _ , _ , ▸s′) →
     case RTₜ.⊢ₛ-⇒* ⊢s d₁ of λ
       (_ , _ , _ , ⊢s′) →
     case bisim₂* false As (RPₙₜ.⇒ₙ* dₙ) ~ʰ-refl ▸s′ of λ
@@ -105,7 +105,7 @@ opaque
         case ~ʰ-lookup● H~H′ d of λ
           d′ →
         case ▸-⇒* ▸s′ dₜ of λ
-              (_ , _ , _ , _ , ▸s″@(▸H , _ , ▸S , _)) →
+              (_ , _ , _ , ▸s″@(▸H , _ , ▸S , _)) →
         case erased-assumption of λ where
           (inj₁ ¬eh) → ⊥-elim (¬erased-heap→¬↦● ⦃ neh = ¬eh ⦄ ▸H d′)
           (inj₂ nem) →

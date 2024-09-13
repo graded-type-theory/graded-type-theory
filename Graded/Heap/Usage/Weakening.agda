@@ -87,8 +87,9 @@ opaque
 
   wk-▸ˢ : (ρ : Wk k n) → γ ▸ˢ S → wkᶜ ρ γ ▸ˢ wkˢ ρ S
   wk-▸ˢ ρ ε = subst (_▸ˢ ε) (sym (wk-𝟘ᶜ ρ)) ε
-  wk-▸ˢ {S = e ∙ S} ρ ((▸e , m≤) ∙ ▸S) =
-    subst (_▸ˢ _) (≈ᶜ→≡ lemma) ((wk-▸ᵉ ρ ▸e , subst (_ ≤ᵐ_) (wk-∣S∣ ρ S) m≤) ∙ wk-▸ˢ ρ ▸S)
+  wk-▸ˢ {S = e ∙ S} ρ (▸e ∙ ▸S) =
+    subst (_▸ˢ _) (≈ᶜ→≡ lemma)
+      (subst (_ ▸ᵉ[_] _) (⌞⌟-cong (wk-∣S∣ ρ S)) (wk-▸ᵉ ρ ▸e) ∙ wk-▸ˢ ρ ▸S)
     where
     open Tools.Reasoning.Equivalence Conₘ-setoid
     lemma : wkᶜ ρ γ +ᶜ ∣ wkˢ ρ S ∣ ·ᶜ wkᶜ ρ δ ≈ᶜ wkᶜ ρ (γ +ᶜ ∣ S ∣ ·ᶜ δ)

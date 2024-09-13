@@ -84,7 +84,7 @@ opaque
   -- All well-typed and well-resourced states of type ℕ reduce to numerals
 
   redNumeral : (Emptyrec-allowed 𝟙ᵐ 𝟘 → Consistent Δ)
-             → Δ ⊩ℕ n ∷ℕ → n PE.≡ ⦅ s ⦆ → Δ ⨾ Γ ⊢ s ∷ ℕ → γ ⨾ δ ⨾ η ▸[ m ] s
+             → Δ ⊩ℕ n ∷ℕ → n PE.≡ ⦅ s ⦆ → Δ ⨾ Γ ⊢ s ∷ ℕ → γ ⨾ δ ⨾ η ▸ s
              → ∃₄ λ m n H (ρ : Wk m n) → ∃ λ t → s ⇒* ⟨ H , t , ρ , ε ⟩ × Numeral t
   redNumeral consistent (ℕₜ _ d n≡n (sucᵣ x)) PE.refl ⊢s ▸s =
     case whBisim consistent (redₜ d , sucₙ) ⊢s ▸s of λ
@@ -106,13 +106,13 @@ opaque
     case inversion-suc ⊢t of λ
       (⊢n″ , ≡ℕ) →
     case URᶠ.▸-⇒* ▸s d′ of λ
-      (_ , _ , _ , _ , ▸H , ▸t , ▸ε , m≤ , γ≤) →
+      (_ , _ , _ , ▸H , ▸t , ▸ε , γ≤) →
     case inv-usage-suc ▸t of λ
       (invUsageSuc ▸n″ δ≤)  →
     case redNumeral {s = ⟨ H , n″ , ρ , ε ⟩} consistent x
           (PE.sym (PE.trans (PE.cong (_[ H ]ₕ) ≡n′) ≡n))
           (_ , ⊢H , ⊢n″ , ε)
-          (▸H , ▸n″ , ▸ε , m≤ , ≤ᶜ-trans γ≤ (+ᶜ-monotoneˡ (·ᶜ-monotoneʳ (wk-≤ᶜ ρ δ≤)))) of λ
+          (▸H , ▸n″ , ▸ε , ≤ᶜ-trans γ≤ (+ᶜ-monotoneˡ (·ᶜ-monotoneʳ (wk-≤ᶜ ρ δ≤)))) of λ
       (_ , _ , H′ , ρ′ , t′ , d₀ , n) →
     _ , _ , _ , _ , _
       , (bisim₇* true d′ ⇨* ((⇒ₛ (sucₕ ¬num)) ⇨
@@ -160,7 +160,7 @@ opaque
            (⊢initial false ⊢t) ▸s of λ
       (_ , _ , H , ρ , t , d , num) →
     case URᵗ.▸-⇒* ▸s d of λ {
-      (γ , δ , _ , _ , ▸H , ▸n , ε , _ , γ≤) →
+      (γ , δ , _ , ▸H , ▸n , ε , γ≤) →
     case Numeral→sucᵏ num of λ
       (k , ≡sucᵏ) →
     case PE.subst (λ x → _ ⇒* ⟨ _ , x , _ , _ ⟩) ≡sucᵏ d of λ
