@@ -36,6 +36,7 @@ open import Tools.Function
 open import Tools.Nat
 open import Tools.Product
 import Tools.PropositionalEquality as PE
+open import Tools.Sum using (inj₁; inj₂)
 
 private
   variable
@@ -77,9 +78,21 @@ mutual
   lift~toConv↓′ (Emptyᵣ D) D₁ ([~] A (D₂ , whnfB) k~l)
                 rewrite PE.sym (whrDet* (red D , Emptyₙ) (D₁ , whnfB)) =
     Empty-ins ([~] A (D₂ , Emptyₙ) k~l)
-  lift~toConv↓′ (Unitᵣ (Unitₜ D _)) D₁ ([~] A (D₂ , whnfB) k~l)
-                rewrite PE.sym (whrDet* (red D , Unitₙ) (D₁ , whnfB)) =
-    Unit-ins ([~] A (D₂ , Unitₙ) k~l)
+  lift~toConv↓′
+    (Unitᵣ {s} (Unitₜ A′⇒*Unit _)) A′⇒*A
+    t~u↓@([~] _ (B⇒*A , A-whnf) t~u↑) =
+    case whrDet* (red A′⇒*Unit , Unitₙ) (A′⇒*A , A-whnf) of λ {
+      PE.refl →
+    case Unit-with-η? s of λ where
+      (inj₂ (PE.refl , no-η)) → Unitʷ-ins no-η t~u↓
+      (inj₁ η)                →
+        case ne~↑ t~u↑ of λ
+          (t-ne , u-ne) →
+        case syntacticEqTerm (soundness~↑ t~u↑) of λ
+          (_ , ⊢t , ⊢u) →
+        case subset* B⇒*A of λ
+          B≡Unit →
+        η-unit (conv ⊢t B≡Unit) (conv ⊢u B≡Unit) (ne t-ne) (ne u-ne) η }
   lift~toConv↓′ (ne′ H D neH H≡H) D₁ ([~] A (D₂ , whnfB) k~l)
                 rewrite PE.sym (whrDet* (red D , ne neH) (D₁ , whnfB)) =
     let _ , ⊢t , ⊢u = syntacticEqTerm (soundness~↑ k~l)

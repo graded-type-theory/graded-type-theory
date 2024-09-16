@@ -187,8 +187,8 @@ mutual
     ℕ-ins (wk~↓ ρ ⊢Δ x)
   wkConv↓Term ρ ⊢Δ (Empty-ins x) =
     Empty-ins (wk~↓ ρ ⊢Δ x)
-  wkConv↓Term ρ ⊢Δ (Unit-ins x) =
-    Unit-ins (wk~↓ ρ ⊢Δ x)
+  wkConv↓Term ρ ⊢Δ (Unitʷ-ins ok t~u) =
+    Unitʷ-ins ok (wk~↓ ρ ⊢Δ t~u)
   wkConv↓Term ρ ⊢Δ (Σʷ-ins t u x) =
     Σʷ-ins (wkTerm ρ ⊢Δ t) (wkTerm ρ ⊢Δ u) (wk~↓ ρ ⊢Δ x)
   wkConv↓Term {ρ = ρ} [ρ] ⊢Δ (ne-ins t u x x₁) =

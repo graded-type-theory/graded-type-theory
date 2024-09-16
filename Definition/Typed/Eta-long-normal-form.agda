@@ -1338,7 +1338,7 @@ mutual
       normal-terms-unique-~↓ ⊢u ⊢v u≡v
     (Empty-ins u≡v) →
       normal-terms-unique-~↓ ⊢u ⊢v u≡v
-    (Unit-ins u≡v) →
+    (Unitʷ-ins _ u≡v) →
       normal-terms-unique-~↓ ⊢u ⊢v u≡v
     (Σʷ-ins _ _ u≡v) →
       normal-terms-unique-~↓ ⊢u ⊢v u≡v

@@ -279,10 +279,10 @@ mutual
     let B , whnfB , A≡B , u~t = sym~↓ Γ≡Δ t~u
         B≡Empty = Empty≡A A≡B whnfB
     in  Empty-ins (PE.subst (λ x → _ ⊢ _ ~ _ ↓ x) B≡Empty u~t)
-  symConv↓Term Γ≡Δ (Unit-ins t~u) =
+  symConv↓Term Γ≡Δ (Unitʷ-ins ok t~u) =
     let B , whnfB , A≡B , u~t = sym~↓ Γ≡Δ t~u
         B≡Unit = Unit≡A A≡B whnfB
-    in  Unit-ins (PE.subst (λ x → _ ⊢ _ ~ _ ↓ x) B≡Unit u~t)
+    in  Unitʷ-ins ok (PE.subst (_⊢_~_↓_ _ _ _) B≡Unit u~t)
   symConv↓Term Γ≡Δ (Σʷ-ins t u t~u) =
     case sym~↓ Γ≡Δ t~u of λ (B , whnfB , A≡B , u~t) →
     case Σ≡A A≡B whnfB of λ where

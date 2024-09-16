@@ -84,8 +84,9 @@ whnfConv↓Term (ℕ-ins x) = let _ , neT , neU = ne~↓ x
                            in ℕₙ , ne neT , ne neU
 whnfConv↓Term (Empty-ins x) = let _ , neT , neU = ne~↓ x
                               in Emptyₙ , ne neT , ne neU
-whnfConv↓Term (Unit-ins x) = let _ , neT , neU = ne~↓ x
-                             in Unitₙ , ne neT , ne neU
+whnfConv↓Term (Unitʷ-ins _ t~u) =
+  let _ , t-ne , u-ne = ne~↓ t~u in
+  Unitₙ , ne t-ne , ne u-ne
 whnfConv↓Term (Σʷ-ins x x₁ x₂) =
   let _ , neT , neU = ne~↓ x₂
   in  ΠΣₙ , ne neT , ne neU

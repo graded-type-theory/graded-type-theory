@@ -309,8 +309,10 @@ mutual
       case fullRedNe~↓ t~ of λ {
         (u , u-nf , t≡u) →
       u , neₙ Emptyₙ u-nf , t≡u }
-    (Unit-ins {s} t~) →
-      fullRedTermConv↓-Unit-ins t~ (Unit-with-η? s)
+    (Unitʷ-ins no-η t~) →
+      case fullRedNe~↓ t~ of λ
+        (u , u-nf , t≡u) →
+      u , neₙ (Unitʷₙ no-η) u-nf , t≡u
     (Σʷ-ins ⊢t∷ΣAB _ t~) →
       case fullRedNe~↓ t~ of λ {
         (v , v-ne , t≡v) →
@@ -417,26 +419,6 @@ mutual
         rfl
       , convₙ (rflₙ ⊢t) (Id-cong (refl ⊢A) (refl ⊢t) t≡u)
       , refl (rflⱼ′ t≡u) }
-
-  fullRedTermConv↓-Unit-ins :
-    Γ ⊢ t ~ t′ ↓ Unit s →
-    Unit-with-η s ⊎ s PE.≡ 𝕨 × ¬ Unitʷ-η →
-    ∃ λ u → Γ ⊢nf u ∷ Unit s × Γ ⊢ t ≡ u ∷ Unit s
-  fullRedTermConv↓-Unit-ins {s} t~ = λ where
-    (inj₁ η) →
-      case syntacticEqTerm (soundness~↓ t~) of λ
-        (_ , ⊢t , _) →
-      case wfTerm ⊢t of λ
-        ⊢Γ →
-      case ⊢∷Unit→Unit-allowed ⊢t of λ
-        Unit-ok →
-        star s
-      , starₙ ⊢Γ Unit-ok
-      , η-unit ⊢t (starⱼ ⊢Γ Unit-ok) η
-    (inj₂ (PE.refl , no-η)) →
-      case fullRedNe~↓ t~ of λ
-        (u , u-nf , t≡u) →
-      u , neₙ (Unitʷₙ no-η) u-nf , t≡u
 
 -- If A is a well-formed type, then A is definitionally equal to a
 -- type in η-long normal form.

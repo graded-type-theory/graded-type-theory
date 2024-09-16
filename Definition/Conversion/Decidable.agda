@@ -125,7 +125,7 @@ decConv↓Term-ne-ins () (univ x x₁ x₂)
 decConv↓Term-ne-ins () (zero-refl x)
 decConv↓Term-ne-ins () (suc-cong x)
 decConv↓Term-ne-ins () (η-eq x₁ x₂ x₃ x₄ x₅)
-decConv↓Term-ne-ins () (Unit-ins x)
+decConv↓Term-ne-ins () (Unitʷ-ins _ _)
 decConv↓Term-ne-ins () (Σʷ-ins x x₁ x₂)
 decConv↓Term-ne-ins () (prod-cong _ _ _ _ _)
 decConv↓Term-ne-ins () (Σ-η x x₁ x₂ x₃ x₄ x₅)
@@ -160,7 +160,7 @@ decConv↓Term-Unit : ∀ {t t′}
               → Γ ⊢ t [conv↓] starʷ ∷ Unitʷ
               → Γ ⊢ t ~ t′ ↓ Unitʷ
               → Unitʷ-η
-decConv↓Term-Unit (Unit-ins ()) ([~] _ _ k~l)
+decConv↓Term-Unit (Unitʷ-ins _ ()) ([~] _ _ _)
 decConv↓Term-Unit (η-unit _ _ _ _ (inj₁ ())) ([~] _ _ _)
 decConv↓Term-Unit (η-unit _ _ _ _ (inj₂ η)) ([~] _ _ _) = η
 decConv↓Term-Unit (ne-ins x x₁ () x₃) ([~] _ _ k~l)
@@ -895,14 +895,6 @@ mutual
   decConv↓Term (starʷ-refl _ _ _) (η-unit _ _ _ _ (inj₁ ()))
   decConv↓Term (starʷ-refl _ _ no-η) (η-unit _ _ _ _ (inj₂ η)) =
     ⊥-elim (no-η η)
-  decConv↓Term (Unit-ins t~t′) (η-unit ⊢u _ uUnit _ ok) =
-    let _ , neT , _ = ne~↓ t~t′
-        _ , ⊢t , _ = syntacticEqTerm (soundness~↓ t~t′)
-    in  yes (η-unit ⊢t ⊢u (ne neT) uUnit ok)
-  decConv↓Term (η-unit ⊢t _ tUnit _ ok) (Unit-ins u~u′) =
-    let _ , neU , _ = ne~↓ u~u′
-        _ , ⊢u , _ = syntacticEqTerm (soundness~↓ u~u′)
-    in  yes (η-unit ⊢t ⊢u tUnit (ne neU) ok)
   decConv↓Term (η-unit ⊢t _ tUnit _ ok) (η-unit ⊢u _ uUnit _ _) =
     yes (η-unit ⊢t ⊢u tUnit uUnit ok)
   decConv↓Term (η-unit _ _ _ _ (inj₁ ())) (starʷ-refl _ _ _)
@@ -933,34 +925,33 @@ mutual
     in  yes (Empty-ins k~l′)
   decConv↓Term (Empty-ins x) (Empty-ins x₁) | no ¬p =
     no (λ x₂ → ¬p (Empty , decConv↓Term-Empty-ins x₂ x))
-  decConv↓Term (Unit-ins {s = 𝕨} x) (Unit-ins x₁) with dec~↓ x x₁
-  ... | yes (A , k~l) =
-    let whA , neT , neU = ne~↓ k~l
-        _ , ⊢t , _ = syntacticEqTerm (soundness~↓ k~l)
-        _ , ⊢t′ , _ = syntacticEqTerm (soundness~↓ x)
-        A≡Unit = neTypeEq neT ⊢t′ ⊢t
-        k~l′ = PE.subst (λ x → _ ⊢ _ ~ _ ↓ x)
-                        (Unit≡A A≡Unit whA) k~l
-    in yes (Unit-ins k~l′)
-  ... | no ¬p =
+  decConv↓Term (Unitʷ-ins no-η t~t′) (Unitʷ-ins _ u~u′)
+    with dec~↓ t~t′ u~u′
+  ... | yes (A , t~u) =
+    case ne~↓ t~u of λ
+      (A-whnf , t-ne , _) →
+    yes $
+    Unitʷ-ins no-η $
+    PE.subst (_⊢_~_↓_ _ _ _)
+      (Unit≡A
+         (neTypeEq t-ne
+            (syntacticEqTerm (soundness~↓ t~t′) .proj₂ .proj₁)
+            (syntacticEqTerm (soundness~↓ t~u) .proj₂ .proj₁))
+         A-whnf)
+      t~u
+  ... | no ¬t~u =
     case Unitʷ-η? of λ where
       (no no-η) → no λ where
-        (Unit-ins x) → ¬p (_ , x)
+        (Unitʷ-ins _ t~u)          → ¬t~u (_ , t~u)
         (η-unit _ _ _ _ (inj₁ ()))
-        (η-unit _ _ _ _ (inj₂ η)) → no-η η
+        (η-unit _ _ _ _ (inj₂ η))  → no-η η
       (yes η) → yes $
         η-unit
-          (syntacticEqTerm (soundness~↓ x) .proj₂ .proj₁)
-          (syntacticEqTerm (soundness~↓ x₁) .proj₂ .proj₁)
-          (ne (ne~↓ x .proj₂ .proj₁))
-          (ne (ne~↓ x₁ .proj₂ .proj₁))
+          (syntacticEqTerm (soundness~↓ t~t′) .proj₂ .proj₁)
+          (syntacticEqTerm (soundness~↓ u~u′) .proj₂ .proj₁)
+          (ne (ne~↓ t~t′ .proj₂ .proj₁))
+          (ne (ne~↓ u~u′ .proj₂ .proj₁))
           (inj₂ η)
-  decConv↓Term (Unit-ins {s = 𝕤} t~t′) (Unit-ins u~u′) =
-    let _ , neT , _ = ne~↓ t~t′
-        _ , ⊢t , _ = syntacticEqTerm (soundness~↓ t~t′)
-        _ , neU , _ = ne~↓ u~u′
-        _ , ⊢u , _ = syntacticEqTerm (soundness~↓ u~u′)
-    in  yes (η-unit ⊢t ⊢u (ne neT) (ne neU) (inj₁ PE.refl))
   decConv↓Term (Σʷ-ins x x₁ x₂) (Σʷ-ins x₃ x₄ x₅) with dec~↓ x₂ x₅
   ... | yes (B , t~u) =
     let ⊢B , ⊢t , ⊢u = syntacticEqTerm (soundness~↓ t~u)
@@ -1051,14 +1042,18 @@ mutual
     no (λ x₂ → decConv↓Term-ℕ (symConv↓Term′ x₂) x₁ (λ { ([~] _ _ ()) }))
   decConv↓Term  (suc-cong x) (zero-refl x₁) =
     no (λ { (ℕ-ins ([~] _ _ ())) ; (ne-ins x₂ x₃ () x₅) })
+  decConv↓Term (Unitʷ-ins no-η _) (η-unit _ _ _ _ (inj₂ η)) =
+    ⊥-elim (no-η η)
+  decConv↓Term (η-unit _ _ _ _ (inj₂ η)) (Unitʷ-ins no-η _) =
+    ⊥-elim (no-η η)
   decConv↓Term (Σʷ-ins x x₁ x₂) (prod-cong x₃ x₄ x₅ x₆ _) =
     no λ x₇ → decConv↓Term-Σʷ x₇ x₂ (λ{ ()})
   decConv↓Term (prod-cong x x₁ x₂ x₃ _) (Σʷ-ins x₄ x₅ x₆) =
     no (λ x₇ → decConv↓Term-Σʷ (symConv↓Term′ x₇) x₆ (λ{ ()}))
-  decConv↓Term (starʷ-refl _ _ no-η) (Unit-ins x₂) =
-    no λ y → no-η (decConv↓Term-Unit (symConv↓Term′ y) x₂)
-  decConv↓Term (Unit-ins x) (starʷ-refl _ _ no-η) =
-    no λ y → no-η (decConv↓Term-Unit y x)
+  decConv↓Term (starʷ-refl _ _ no-η) (Unitʷ-ins _ u~) =
+    no λ ≡u → no-η (decConv↓Term-Unit (symConv↓Term′ ≡u) u~)
+  decConv↓Term (Unitʷ-ins _ t~) (starʷ-refl _ _ no-η) =
+    no λ t≡ → no-η (decConv↓Term-Unit t≡ t~)
   decConv↓Term (Id-ins _ v₁~v₃) (rfl-refl _) =
     no λ where
       (Id-ins _ ~rfl)   → case ne~↓ ~rfl  .proj₂ .proj₂ of λ ()
@@ -1076,7 +1071,7 @@ mutual
   decConv↓Term (Σʷ-ins x x₁ x₂) (ne-ins x₃ x₄ () x₆)
   decConv↓Term (ne-ins x x₁ () x₃) (ℕ-ins x₄)
   decConv↓Term (ne-ins x x₁ () x₃) (Empty-ins x₄)
-  decConv↓Term (ne-ins x x₁ () x₃) (Unit-ins x₄)
+  decConv↓Term (ne-ins _ _ () _) (Unitʷ-ins _ _)
   decConv↓Term (ne-ins x x₁ () x₃) (Σʷ-ins x₄ x₅ x₆)
   decConv↓Term (ne-ins x x₁ () x₃) (univ x₄ x₅ x₆)
   decConv↓Term (ne-ins x x₁ () x₃) (zero-refl x₄)
@@ -1095,9 +1090,11 @@ mutual
   decConv↓Term (η-eq x x₁ x₂ x₃ x₄) (ne-ins x₅ x₆ () x₈)
   decConv↓Term (Σ-η x x₁ x₂ x₃ x₄ x₅) (ne-ins x₆ x₇ () x₉)
   decConv↓Term (Id-ins _ _) (ne-ins _ _ () _)
-  decConv↓Term (Unit-ins x) (ne-ins x₁ x₂ () x₄)
+  decConv↓Term (Unitʷ-ins _ _) (η-unit _ _ _ _ (inj₁ ()))
+  decConv↓Term (Unitʷ-ins _ _) (ne-ins _ _ () _)
   decConv↓Term (ne-ins x x₁ () x₃) (starʷ-refl _ _ _)
   decConv↓Term (starʷ-refl _ _ _) (ne-ins x₂ x₃ () x₅)
+  decConv↓Term (η-unit _ _ _ _ (inj₁ ())) (Unitʷ-ins _ _)
   decConv↓Term (η-unit _ _ _ _ _) (ne-ins x₄ x₅ () x₇)
 
   -- Decidability of algorithmic equality of terms of equal types.

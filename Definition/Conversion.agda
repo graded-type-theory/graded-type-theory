@@ -182,8 +182,9 @@ mutual
     Empty-ins : Γ ⊢ k ~ l ↓ Empty
               → Γ ⊢ k [conv↓] l ∷ Empty
 
-    Unit-ins  : Γ ⊢ k ~ l ↓ Unit s
-              → Γ ⊢ k [conv↓] l ∷ Unit s
+    Unitʷ-ins : ¬ Unitʷ-η
+              → Γ ⊢ k ~ l ↓ Unitʷ
+              → Γ ⊢ k [conv↓] l ∷ Unitʷ
 
     Σʷ-ins    : Γ ⊢ k ∷ Σʷ p , q ▷ F ▹ G
               → Γ ⊢ l ∷ Σʷ p , q ▷ F ▹ G

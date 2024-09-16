@@ -120,7 +120,7 @@ mutual
   soundnessConv↓Term : ∀ {a b A} → Γ ⊢ a [conv↓] b ∷ A → Γ ⊢ a ≡ b ∷ A
   soundnessConv↓Term (ℕ-ins x) = soundness~↓ x
   soundnessConv↓Term (Empty-ins x) = soundness~↓ x
-  soundnessConv↓Term (Unit-ins x) = soundness~↓ x
+  soundnessConv↓Term (Unitʷ-ins _ t~u) = soundness~↓ t~u
   soundnessConv↓Term (Σʷ-ins x x₁ x₂) =
     let a≡b = soundness~↓ x₂
         _ , neA , _ = ne~↓ x₂

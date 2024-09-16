@@ -99,8 +99,7 @@ module _ (as : Full-reduction-assumptions) where
         (inj₁ (() , _))
         (inj₂ 𝟙≤𝟘)      → ≤𝟘⇔𝟙≤𝟘 .proj₂ 𝟙≤𝟘
 
-    -- A lemma used in the Unit-ins and η-unit cases of
-    -- fullRedTermConv↓.
+    -- A lemma used in the η-unit case of fullRedTermConv↓.
     --
     -- Note that the Unit-allowed and Unit-with-η assumptions are only
     -- used when the mode is 𝟙ᵐ. Currently the typing relation does
@@ -326,10 +325,9 @@ module _ (as : Full-reduction-assumptions) where
       (⊢t : Γ ⊢ t [conv↓] t′ ∷ A) → γ ▸[ m ] t →
       γ ▸[ m ] FR.fullRedTermConv↓ ⊢t .proj₁
     fullRedTermConv↓ {Γ = Γ} {t = t} {γ = γ} {m = m} = λ where
-      (ℕ-ins t~)     ▸t → fullRedNe~↓ t~ ▸t
-      (Empty-ins t~) ▸t → fullRedNe~↓ t~ ▸t
-      (Unit-ins t~)  ▸t →
-        fullRedTermConv↓-Unit-ins t~ ▸t (Unit-with-η? _)
+      (ℕ-ins t~)          ▸t     → fullRedNe~↓ t~ ▸t
+      (Empty-ins t~)      ▸t     → fullRedNe~↓ t~ ▸t
+      (Unitʷ-ins _ t~)    ▸t     → fullRedNe~↓ t~ ▸t
       (Σʷ-ins _ _ t~)     ▸t     → fullRedNe~↓ t~ ▸t
       (ne-ins _ _ _ t~↓B) ▸t     → fullRedNe~↓ t~↓B ▸t
       (univ _ _ A↓)       ▸A     → fullRedConv↓ A↓ ▸A
@@ -368,19 +366,6 @@ module _ (as : Full-reduction-assumptions) where
         Unit-lemma (⊢∷Unit→Unit-allowed ⊢t) η ▸t
       (Id-ins _ v~) ▸v   → fullRedNe~↓ v~ ▸v
       (rfl-refl _)  ▸rfl → sub rflₘ (inv-usage-rfl ▸rfl)
-
-    private
-
-      fullRedTermConv↓-Unit-ins :
-        (⊢t : Γ ⊢ t ~ t′ ↓ Unit s) → γ ▸[ m ] t →
-        (Unit-with-η? : Unit-with-η s ⊎ s PE.≡ 𝕨 × ¬ Unitʷ-η) →
-        γ ▸[ m ] FR.fullRedTermConv↓-Unit-ins ⊢t Unit-with-η? .proj₁
-      fullRedTermConv↓-Unit-ins t~ ▸t = λ where
-        (inj₂ (PE.refl , _)) → fullRedNe~↓ t~ ▸t
-        (inj₁ η)             →
-          case syntacticEqTerm (soundness~↓ t~) of λ
-            (⊢Unit , _ , _) →
-          Unit-lemma (inversion-Unit ⊢Unit) η ▸t
 
 ------------------------------------------------------------------------
 -- The main theorems

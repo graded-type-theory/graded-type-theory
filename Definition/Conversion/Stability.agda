@@ -149,8 +149,8 @@ mutual
     ℕ-ins (stability~↓ Γ≡Δ x)
   stabilityConv↓Term Γ≡Δ (Empty-ins x) =
     Empty-ins (stability~↓ Γ≡Δ x)
-  stabilityConv↓Term Γ≡Δ (Unit-ins x) =
-    Unit-ins (stability~↓ Γ≡Δ x)
+  stabilityConv↓Term Γ≡Δ (Unitʷ-ins ok t~u) =
+    Unitʷ-ins ok (stability~↓ Γ≡Δ t~u)
   stabilityConv↓Term Γ≡Δ (Σʷ-ins x x₁ x₂) =
     Σʷ-ins (stabilityTerm Γ≡Δ x) (stabilityTerm Γ≡Δ x₁) (stability~↓ Γ≡Δ x₂)
   stabilityConv↓Term Γ≡Δ (ne-ins t u neN x) =
