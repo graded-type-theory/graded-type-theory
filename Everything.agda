@@ -278,6 +278,7 @@ import Definition.Conversion
 import Definition.Conversion.Whnf
 import Definition.Conversion.Reduction
 import Definition.Conversion.Soundness
+import Definition.Conversion.Inversion
 import Definition.Conversion.Stability
 import Definition.Conversion.Conversion
 import Definition.Conversion.Symmetry

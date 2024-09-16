@@ -22,6 +22,7 @@ open import Definition.Untyped.Properties M
 open import Definition.Typed R
 open import Definition.Typed.Properties R
 open import Definition.Conversion R
+open import Definition.Conversion.Inversion R
 open import Definition.Conversion.Whnf R
 open import Definition.Conversion.Soundness R
 open import Definition.Conversion.Symmetry R
@@ -112,27 +113,6 @@ decConv↓Term-Σʷ-ins : ∀ {t t′ u F G H E}
 decConv↓Term-Σʷ-ins (Σʷ-ins x x₁ x₂) t~t = _ , x₂
 decConv↓Term-Σʷ-ins (prod-cong _ _ _ _ _) ()
 decConv↓Term-Σʷ-ins (ne-ins x x₁ () x₃) t~t
-
--- Helper function for decidability for neutrals of a neutral type.
-decConv↓Term-ne-ins : ∀ {t u A}
-                    → Neutral A
-                    → Γ ⊢ t [conv↓] u ∷ A
-                    → ∃ λ B → Γ ⊢ t ~ u ↓ B
-decConv↓Term-ne-ins () (ℕ-ins x)
-decConv↓Term-ne-ins () (Empty-ins x)
-decConv↓Term-ne-ins neA (ne-ins x x₁ x₂ x₃) = _ , x₃
-decConv↓Term-ne-ins () (univ x x₁ x₂)
-decConv↓Term-ne-ins () (zero-refl x)
-decConv↓Term-ne-ins () (suc-cong x)
-decConv↓Term-ne-ins () (η-eq x₁ x₂ x₃ x₄ x₅)
-decConv↓Term-ne-ins () (Unitʷ-ins _ _)
-decConv↓Term-ne-ins () (Σʷ-ins x x₁ x₂)
-decConv↓Term-ne-ins () (prod-cong _ _ _ _ _)
-decConv↓Term-ne-ins () (Σ-η x x₁ x₂ x₃ x₄ x₅)
-decConv↓Term-ne-ins () (η-unit _ _ _ _ _)
-decConv↓Term-ne-ins () (starʷ-refl _ _ _)
-decConv↓Term-ne-ins () (Id-ins _ _)
-decConv↓Term-ne-ins () (rfl-refl _)
 
 -- Helper function for decidability for impossibility of terms not being equal
 -- as neutrals when they are equal as terms and the first is a neutral.
@@ -965,7 +945,7 @@ mutual
   decConv↓Term (ne-ins x x₁ x₂ x₃) (ne-ins x₄ x₅ x₆ x₇) | yes (A , k~l) =
     yes (ne-ins x x₄ x₆ k~l)
   decConv↓Term (ne-ins x x₁ x₂ x₃) (ne-ins x₄ x₅ x₆ x₇) | no ¬p =
-    no (λ x₈ → ¬p (decConv↓Term-ne-ins x₆ x₈))
+    no (λ x₈ → ¬p (inv-[conv↓]∷-ne x₆ x₈))
   decConv↓Term (univ x x₁ x₂) (univ x₃ x₄ x₅)
                with decConv↓  x₂ x₅
   decConv↓Term (univ x x₁ x₂) (univ x₃ x₄ x₅) | yes p =
