@@ -85,7 +85,7 @@ opaque
       (_ , _ , ⟨ H , t′ , ρ , S ⟩ , d₁ , refl) →
     case normalize H t′ ρ S of λ
       (_ , t″ , ρ′ , S′ , n , dₙ) →
-    case RPₙₜ.⇒ₙ*-⦅⦆-≡ dₙ of λ {
+    case RPₙₜ.⇒ₙ*-⦅⦆-≡ dₙ of λ
       t′≡t″ →
     case ▸-⇒* ▸s d₁ of λ
       (_ , _ , _ , ▸s′) →
@@ -115,7 +115,7 @@ opaque
               (inj₁ ∣S∣≢𝟘) →
                 ⊥-elim (∣S∣≢𝟘 ∣S∣≡𝟘)
               (inj₂ (er∈S , ok)) →
-                ⊥-elim (⊢emptyrec₀∉S {ρ = ρ′} (consistent ok) ⊢s″ er∈S) }}
+                ⊥-elim (⊢emptyrec₀∉S {ρ = ρ′} (consistent ok) ⊢s″ er∈S) }
     where
     lemma : ∀ {n} {t : Term n} {H ρ S}
           → Whnf u → Value t → Δ ⨾ Γ ⊢ ⟨ H , t , ρ , S ⟩ ∷ A

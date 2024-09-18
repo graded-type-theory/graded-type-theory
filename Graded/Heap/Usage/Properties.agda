@@ -428,7 +428,7 @@ module _ (nem : No-erased-matches′ type-variant UR) where
 module _ ⦃ _ : Has-well-behaved-zero M semiring-with-meet ⦄
          (subtraction-ok : Supports-subtraction) where
 
-  -- Under some assumptions, lookup always succeeds for welll-resourced heaps
+  -- Under some assumptions, lookup always succeeds for well-resourced heaps
 
   opaque
 

@@ -693,14 +693,14 @@ opaque
 
   -- Reduction of values preserves definitional equality
 
-  ⇒ᵥ→≡ : Δ ⨾ Γ ⊢ s ∷ A → s ⇒ᵥ s′ → _⊢_≡_∷_ Δ ⦅ s ⦆ ⦅ s′ ⦆ A
+  ⇒ᵥ→≡ : Δ ⨾ Γ ⊢ s ∷ A → s ⇒ᵥ s′ → Δ ⊢ ⦅ s ⦆ ≡ ⦅ s′ ⦆ ∷ A
   ⇒ᵥ→≡ = ⇒ᵥ→⇒/≡ false (λ ())
 
 opaque
 
   -- Reduction preserves definitional equality
 
-  ⇒→≡ : Δ ⨾ Γ ⊢ s ∷ A → s ⇒ s′ → _⊢_≡_∷_ Δ ⦅ s ⦆ ⦅ s′ ⦆ A
+  ⇒→≡ : Δ ⨾ Γ ⊢ s ∷ A → s ⇒ s′ → Δ ⊢ ⦅ s ⦆ ≡ ⦅ s′ ⦆ ∷ A
   ⇒→≡ (_ , _ , ⊢t , ⊢S) (⇒ₙ d) =
     PE.subst (_ ⊢ _ ≡_∷ _) (⇒ₙ-⦅⦆-≡ d) (refl (⊢⦅⦆ˢ ⊢S ⊢t))
   ⇒→≡ ⊢s (⇒ᵥ d) =
@@ -712,7 +712,7 @@ opaque
 
   -- Reduction preserves definitional equality
 
-  ⇒*→≡ : Δ ⨾ Γ ⊢ s ∷ A → s ⇒* s′ → _⊢_≡_∷_ Δ ⦅ s ⦆ ⦅ s′ ⦆ A
+  ⇒*→≡ : Δ ⨾ Γ ⊢ s ∷ A → s ⇒* s′ → Δ ⊢ ⦅ s ⦆ ≡ ⦅ s′ ⦆ ∷ A
   ⇒*→≡ (_ , _ , ⊢t , ⊢S) id = refl (⊢⦅⦆ˢ ⊢S ⊢t)
   ⇒*→≡ ⊢s (x ⇨ d) =
     trans (⇒→≡ ⊢s x) (⇒*→≡ (⊢ₛ-⇒ ⊢s x .proj₂ .proj₂ .proj₂) d)
