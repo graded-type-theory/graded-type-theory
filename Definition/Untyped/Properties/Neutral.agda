@@ -12,6 +12,7 @@ module Definition.Untyped.Properties.Neutral
 
 open import Tools.Fin
 open import Tools.Function
+open import Tools.Nat
 open import Tools.Product
 open import Tools.PropositionalEquality
 open import Tools.Relation
@@ -22,10 +23,54 @@ open import Definition.Untyped.Inversion M
 open import Definition.Untyped.Neutral M type-variant
 
 private variable
-  t u : Term _
+  A B t u : Term _
   ρ : Wk _ _
   σ : Subst _ _
+  b : BinderMode
+  s : Strength
+  p q : M
+  n : Nat
   x : Fin _
+
+opaque
+
+  -- Constructor applications are not neutral.
+
+  ¬-Neutral-U : ¬ Neutral {n = n} U
+  ¬-Neutral-U ()
+
+  ¬-Neutral-ΠΣ : ¬ Neutral (ΠΣ⟨ b ⟩ p , q ▷ A ▹ B)
+  ¬-Neutral-ΠΣ ()
+
+  ¬-Neutral-lam : ¬ Neutral (lam p t)
+  ¬-Neutral-lam ()
+
+  ¬-Neutral-prod : ¬ Neutral (prod s p t u)
+  ¬-Neutral-prod ()
+
+  ¬-Neutral-Empty : ¬ Neutral {n = n} Empty
+  ¬-Neutral-Empty ()
+
+  ¬-Neutral-Unit : ¬ Neutral {n = n} (Unit s)
+  ¬-Neutral-Unit ()
+
+  ¬-Neutral-star : ¬ Neutral {n = n} (star s)
+  ¬-Neutral-star ()
+
+  ¬-Neutral-ℕ : ¬ Neutral {n = n} ℕ
+  ¬-Neutral-ℕ ()
+
+  ¬-Neutral-zero : ¬ Neutral {n = n} zero
+  ¬-Neutral-zero ()
+
+  ¬-Neutral-suc : ¬ Neutral (suc t)
+  ¬-Neutral-suc ()
+
+  ¬-Neutral-Id : ¬ Neutral (Id A t u)
+  ¬-Neutral-Id ()
+
+  ¬-Neutral-rfl : ¬ Neutral {n = n} rfl
+  ¬-Neutral-rfl ()
 
 opaque
 
