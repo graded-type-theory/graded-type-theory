@@ -33,7 +33,7 @@ open Data.Nat.Properties
          n≮n;
          ≤⇒pred≤;
          +-mono-≤; m≤m+n; m≤n+m; m+n≤o⇒n≤o; 0<1+n; n≤1+n;
-         *-mono-≤; m≤m*n; m≤n*m;
+         *-mono-≤; m≤m*n; m≤n*m; m+1+n≰m;
          m≤m⊔n; m≤n⊔m;
          m<n⊓o⇒m<n; m<n⊓o⇒m<o; ⊓-pres-m<;
          m⊓n≤m⊔n; m+n∸n≡m; m∸n+n≡m; ⊔-mono-<;

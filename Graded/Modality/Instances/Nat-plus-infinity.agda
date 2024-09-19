@@ -84,7 +84,6 @@ _∧ₑ_ : ℕ⊎∞ → ℕ⊎∞ → ℕ⊎∞
   case m N.≟ n of λ where
     (yes _) → ⌞ m ⌟
     (no _) → ∞
-  -- if m N.== n then ⌞ m ⌟ else ∞
 
 -- The meet operation is defined in such a way that
 -- ∞ ≤ … ≤ ⌞ 1 ⌟ ≤ ⌞ 0 ⌟ if "affine" is true
@@ -231,6 +230,15 @@ opaque
     n        ≡˘⟨ N.⊔-identityʳ _ ⟩
     n N.⊔ 0  ∎)
 
+opaque
+
+  -- A non-zero grade is at most ⌞ 1 ⌟ in the affine order
+
+  ≢𝟘→≤ₐ𝟙 : m ≢ ⌞ 0 ⌟ → m ≤ₐ ⌞ 1 ⌟
+  ≢𝟘→≤ₐ𝟙 {⌞ 0 ⌟} m≢𝟘 = ⊥-elim (m≢𝟘 refl)
+  ≢𝟘→≤ₐ𝟙 {⌞ 1+ m ⌟} m≢𝟘 rewrite N.⊔-identityʳ m = refl
+  ≢𝟘→≤ₐ𝟙 {(∞)} m≢𝟘 = refl
+
 -- Multiplication is commutative.
 
 ·-comm : Commutative _·_
@@ -302,7 +310,6 @@ opaque
 
   +-decreasingˡ : T affine → m + n ≤ m
   +-decreasingˡ x = ≤ₐ-intro x +-decreasingˡₐ
-
 
 -- One of the two characteristic properties of the star operator of a
 -- star semiring.
@@ -399,6 +406,37 @@ opaque
   m≢n→m∧ₑn≡∞ {m} {n} m≢n with m N.≟ n
   … | yes m≡n = ⊥-elim (m≢n m≡n)
   … | no _ = refl
+
+opaque
+
+  -- The grade ∞ is a right zero for _+_
+
+  +-zeroʳ : RightZero ∞ _+_
+  +-zeroʳ ⌞ x ⌟ = refl
+  +-zeroʳ ∞ = refl
+
+opaque
+
+  -- The grade ∞ is a zero for _+_.
+
+  +-zero : Zero ∞ _+_
+  +-zero = (λ _ → refl) , +-zeroʳ
+
+opaque
+
+  -- If m is not ⌞ 0 ⌟, then m · ∞ is equal to ∞.
+
+  ≢𝟘·∞ : m ≢ ⌞ 0 ⌟ → m · ∞ ≡ ∞
+  ≢𝟘·∞ {⌞ 0 ⌟} m≢𝟘 = ⊥-elim (m≢𝟘 refl)
+  ≢𝟘·∞ {⌞ 1+ x ⌟} m≢𝟘 = refl
+  ≢𝟘·∞ {(∞)} _ = refl
+
+opaque
+
+  -- If m is not ⌞ 0 ⌟, then ∞ · m is equal to ∞.
+
+  ∞·≢𝟘 : m ≢ ⌞ 0 ⌟ → ∞ · m ≡ ∞
+  ∞·≢𝟘 m≢𝟘 = trans (·-comm ∞ _) (≢𝟘·∞ m≢𝟘)
 
 ------------------------------------------------------------------------
 -- The modality
@@ -867,13 +905,82 @@ nr₃ ⌞ 1 ⌟ z s = z + ∞ · s
 nr₃ ⌞ 2+ _ ⌟ z s = ∞ · (z + s)
 nr₃ ∞        z s = ∞ · (z + s)
 
-nr : (p r z s n : ℕ⊎∞) → ℕ⊎∞
-nr p r z s n = nr₃ r ⌞ 1 ⌟ p · n + nr₃ r z s
+opaque
 
-instance
+  -- nr₃ is zero only if the two latter arguments are zero
 
-  ℕ⊎∞-has-nr : Has-nr ℕ⊎∞-semiring-with-meet
-  ℕ⊎∞-has-nr = record
+  nr₃-positive : ∀ {z s} r → nr₃ r z s ≡ ⌞ 0 ⌟ → z ≡ ⌞ 0 ⌟ × s ≡ ⌞ 0 ⌟
+  nr₃-positive = λ where
+    ⌞ 0 ⌟ → ∧-positive
+    ⌞ 1 ⌟ nr₃≡𝟘 →
+      case +-positive nr₃≡𝟘 of λ
+        (z≡𝟘 , ∞s≡𝟘) →
+      case zero-product ∞s≡𝟘 of λ where
+        (inj₁ ())
+        (inj₂ s≡𝟘) → z≡𝟘 , s≡𝟘
+    ⌞ 2+ _ ⌟ nr₃≡𝟘 →
+      case zero-product nr₃≡𝟘 of λ where
+        (inj₁ ())
+        (inj₂ z+s≡𝟘) → +-positive z+s≡𝟘
+    ∞ nr₃≡𝟘 →
+        case zero-product nr₃≡𝟘 of λ where
+          (inj₁ ())
+          (inj₂ z+s≡𝟘) → +-positive z+s≡𝟘
+      where
+      open Graded.Modality.Properties.Has-well-behaved-zero ℕ⊎∞-semiring-with-meet
+
+opaque
+
+  -- nr₃ r z s ≤ s + r · nr₃ r z s
+
+  nr₃-suc : ∀ {z s} r → nr₃ r z s ≤ s + r · nr₃ r z s
+  nr₃-suc {z} {s} = λ where
+    ⌞ 0 ⌟ → begin
+      z ∧ s     ≤⟨ ∧-decreasingʳ z s ⟩
+      s         ≡˘⟨ +-identityʳ s ⟩
+      s + ⌞ 0 ⌟ ∎
+    ⌞ 1 ⌟ → begin
+      z + ∞ · s               ≡⟨⟩
+      z + (∞ + ⌞ 1 ⌟) · s     ≡⟨ +-congˡ (·-distribʳ-+ _ _ _) ⟩
+      z + ∞ · s + ⌞ 1 ⌟ · s   ≡⟨ +-congˡ (+-congˡ (·-identityˡ _)) ⟩
+      z + ∞ · s + s           ≡˘⟨ +-assoc _ _ _ ⟩
+      (z + ∞ · s) + s         ≡⟨ +-comm _ _ ⟩
+      s + (z + ∞ · s)         ≡˘⟨ +-congˡ (·-identityˡ _) ⟩
+      s + ⌞ 1 ⌟ · (z + ∞ · s) ∎
+    ⌞ 2+ r ⌟ → begin
+      ∞ · (z + s)                  ≡⟨ lemma z s ⟩
+      s + ∞ · (z + s)              ≡⟨⟩
+      s + (∞ · ⌞ 2+ r ⌟) · (z + s) ≡⟨ +-congˡ (·-congʳ (·-comm ∞ ⌞ 2+ r ⌟)) ⟩
+      s + (⌞ 2+ r ⌟ · ∞) · (z + s) ≡⟨ +-congˡ (·-assoc _ _ _) ⟩
+      s + ⌞ 2+ r ⌟ · ∞ · (z + s)   ∎
+    ∞ → begin
+      ∞ · (z + s)           ≡⟨ lemma z s ⟩
+      s + ∞ · (z + s)       ≡⟨⟩
+      s + (∞ · ∞) · (z + s) ≡⟨ +-congˡ (·-assoc _ _ _) ⟩
+      s + ∞ · ∞ · (z + s)   ∎
+      where
+      open Semiring-with-meet ℕ⊎∞-semiring-with-meet
+        using (+-congˡ; +-identityʳ; +-identityˡ; +-assoc; +-comm;
+               ·-congʳ; ·-identityˡ; ·-assoc; ·-distribʳ-+)
+      open Graded.Modality.Properties.Meet ℕ⊎∞-semiring-with-meet
+      open Graded.Modality.Properties.PartialOrder ℕ⊎∞-semiring-with-meet
+      open Tools.Reasoning.PartialOrder ≤-poset
+      lemma : ∀ z s → ∞ · (z + s) ≡ s + ∞ · (z + s)
+      lemma z ⌞ 0 ⌟ = sym (+-identityˡ _)
+      lemma ⌞ 0 ⌟ ⌞ 1+ s ⌟ = refl
+      lemma ⌞ 1+ z ⌟ ⌞ 1+ s ⌟ = refl
+      lemma ∞ ⌞ 1+ s ⌟ = refl
+      lemma z ∞ rewrite +-comm z ∞ = refl
+
+opaque
+
+  -- Given a function nr₂, satisfying some properties, one can construct
+  -- an nr function from nr₃.
+
+  nr₂→has-nr : (nr₂ : Op₂ ℕ⊎∞) → (∀ {p r} → nr₂ p r ≢ ⌞ 0 ⌟)
+             → (∀ {p r} → nr₂ p r ≤ p + r · nr₂ p r)
+             → Has-nr ℕ⊎∞-semiring-with-meet
+  nr₂→has-nr nr₂ nr₂≢𝟘 nr₂≤ = record
     { nr = nr
     ; nr-monotone = λ {p = p} {r} → nr-monotone p r
     ; nr-· = λ {p} {r} {z} {s} {n} {q} → ≤-reflexive (nr-· p r z s n q)
@@ -892,6 +999,9 @@ instance
     open Graded.Modality.Properties.Multiplication ℕ⊎∞-semiring-with-meet
     open Graded.Modality.Properties.PartialOrder ℕ⊎∞-semiring-with-meet
 
+    nr : (p r z s n : ℕ⊎∞) → ℕ⊎∞
+    nr p r z s n = nr₂ p r · n + nr₃ r z s
+
     nr-monotone :
       ∀ p r →
       z₁ ≤ z₂ → s₁ ≤ s₂ → n₁ ≤ n₂ →
@@ -907,11 +1017,11 @@ instance
 
     nr-· : ∀ p r z s n q → nr p r z s n · q ≡ nr p r (z · q) (s · q) (n · q)
     nr-· p r z s n q = begin
-      nr p r z s n · q ≡⟨⟩
-      (nr₃ r 𝟙 p · n + nr₃ r z s) · q ≡⟨ ·-distribʳ-+ _ _ _ ⟩
-      (nr₃ r 𝟙 p · n) · q + nr₃ r z s · q ≡⟨ +-cong (·-assoc _ _ _) (lemma r) ⟩
-      nr₃ r 𝟙 p · (n · q) + nr₃ r (z · q) (s · q) ≡⟨⟩
-      nr p r (z · q) (s · q) (n · q) ∎
+      nr p r z s n · q                          ≡⟨⟩
+      (nr₂ p r · n + nr₃ r z s) · q             ≡⟨ ·-distribʳ-+ _ _ _ ⟩
+      (nr₂ p r · n) · q + nr₃ r z s · q         ≡⟨ +-cong (·-assoc _ _ _) (lemma r) ⟩
+      nr₂ p r · (n · q) + nr₃ r (z · q) (s · q) ≡⟨⟩
+      nr p r (z · q) (s · q) (n · q)            ∎
       where
       open Tools.Reasoning.PropositionalEquality
       lemma : ∀ r → nr₃ r z s · q ≡ nr₃ r (z · q) (s · q)
@@ -922,16 +1032,16 @@ instance
 
     nr-+ : ∀ p r z₁ s₁ n₁ z₂ s₂ n₂ → nr p r z₁ s₁ n₁ + nr p r z₂ s₂ n₂ ≤ nr p r (z₁ + z₂) (s₁ + s₂) (n₁ + n₂)
     nr-+ p r z₁ s₁ n₁ z₂ s₂ n₂ = begin
-      nr p r z₁ s₁ n₁ + nr p r z₂ s₂ n₂                               ≡⟨⟩
-      (nr₃ r 𝟙 p · n₁ + nr₃ r z₁ s₁) + (nr₃ r 𝟙 p · n₂ + nr₃ r z₂ s₂) ≡⟨ +-assoc _ _ _ ⟩
-      nr₃ r 𝟙 p · n₁ + nr₃ r z₁ s₁ + nr₃ r 𝟙 p · n₂ + nr₃ r z₂ s₂     ≡˘⟨ +-congˡ (+-assoc _ _ _) ⟩
-      nr₃ r 𝟙 p · n₁ + (nr₃ r z₁ s₁ + nr₃ r 𝟙 p · n₂) + nr₃ r z₂ s₂   ≡⟨ +-congˡ (+-congʳ (+-comm _ _)) ⟩
-      nr₃ r 𝟙 p · n₁ + (nr₃ r 𝟙 p · n₂ + nr₃ r z₁ s₁) + nr₃ r z₂ s₂   ≡⟨ +-congˡ (+-assoc _ _ _) ⟩
-      nr₃ r 𝟙 p · n₁ + nr₃ r 𝟙 p · n₂ + nr₃ r z₁ s₁ + nr₃ r z₂ s₂     ≡˘⟨ +-assoc _ _ _ ⟩
-      (nr₃ r 𝟙 p · n₁ + nr₃ r 𝟙 p · n₂) + nr₃ r z₁ s₁ + nr₃ r z₂ s₂   ≡˘⟨ +-congʳ (·-distribˡ-+ _ _ _) ⟩
-      nr₃ r 𝟙 p · (n₁ + n₂) + nr₃ r z₁ s₁ + nr₃ r z₂ s₂               ≤⟨ +-monotoneʳ (lemma r) ⟩
-      nr₃ r 𝟙 p · (n₁ + n₂) + nr₃ r (z₁ + z₂) (s₁ + s₂)               ≡⟨⟩
-      nr p r (z₁ + z₂) (s₁ + s₂) (n₁ + n₂)                            ∎
+      nr p r z₁ s₁ n₁ + nr p r z₂ s₂ n₂                           ≡⟨⟩
+      (nr₂ p r · n₁ + nr₃ r z₁ s₁) + (nr₂ p r · n₂ + nr₃ r z₂ s₂) ≡⟨ +-assoc _ _ _ ⟩
+      nr₂ p r · n₁ + nr₃ r z₁ s₁ + nr₂ p r · n₂ + nr₃ r z₂ s₂     ≡˘⟨ +-congˡ (+-assoc _ _ _) ⟩
+      nr₂ p r · n₁ + (nr₃ r z₁ s₁ + nr₂ p r · n₂) + nr₃ r z₂ s₂   ≡⟨ +-congˡ (+-congʳ (+-comm _ _)) ⟩
+      nr₂ p r · n₁ + (nr₂ p r · n₂ + nr₃ r z₁ s₁) + nr₃ r z₂ s₂   ≡⟨ +-congˡ (+-assoc _ _ _) ⟩
+      nr₂ p r · n₁ + nr₂ p r · n₂ + nr₃ r z₁ s₁ + nr₃ r z₂ s₂     ≡˘⟨ +-assoc _ _ _ ⟩
+      (nr₂ p r · n₁ + nr₂ p r · n₂) + nr₃ r z₁ s₁ + nr₃ r z₂ s₂   ≡˘⟨ +-congʳ (·-distribˡ-+ _ _ _) ⟩
+      nr₂ p r · (n₁ + n₂) + nr₃ r z₁ s₁ + nr₃ r z₂ s₂             ≤⟨ +-monotoneʳ (lemma r) ⟩
+      nr₂ p r · (n₁ + n₂) + nr₃ r (z₁ + z₂) (s₁ + s₂)             ≡⟨⟩
+      nr p r (z₁ + z₂) (s₁ + s₂) (n₁ + n₂)                        ∎
       where
       open Tools.Reasoning.PartialOrder ≤-poset
       lemma′ : ∞ · (z₁ + s₁) + ∞ · (z₂ + s₂) ≤ ∞ · ((z₁ + z₂) + (s₁ + s₂))
@@ -958,11 +1068,11 @@ instance
 
     nr-𝟘 : ∀ p r → nr p r 𝟘 𝟘 𝟘 ≡ 𝟘
     nr-𝟘 p r = begin
-      nr p r 𝟘 𝟘 𝟘 ≡⟨⟩
-      nr₃ r 𝟙 p · 𝟘 + nr₃ r 𝟘 𝟘 ≡⟨ +-congʳ (·-zeroʳ _) ⟩
-      𝟘 + nr₃ r 𝟘 𝟘 ≡⟨ +-identityˡ _ ⟩
-      nr₃ r 𝟘 𝟘 ≡⟨ lemma r ⟩
-      𝟘 ∎
+      nr p r 𝟘 𝟘 𝟘            ≡⟨⟩
+      nr₂ p r · 𝟘 + nr₃ r 𝟘 𝟘 ≡⟨ +-congʳ (·-zeroʳ _) ⟩
+      𝟘 + nr₃ r 𝟘 𝟘           ≡⟨ +-identityˡ _ ⟩
+      nr₃ r 𝟘 𝟘               ≡⟨ lemma r ⟩
+      𝟘                       ∎
       where
       open Tools.Reasoning.PropositionalEquality
       lemma : ∀ r → nr₃ r 𝟘 𝟘 ≡ 𝟘
@@ -975,36 +1085,19 @@ instance
     nr-positive {r = r} nr≡𝟘 =
       case +-positive nr≡𝟘 of λ
         (x , y) →
-      case lemma r y of λ
+      case nr₃-positive r y of λ
         (z≡𝟘 , s≡𝟘) →
       case zero-product x of λ where
         (inj₁ nr₂≡𝟘) →
-          case lemma r nr₂≡𝟘 .proj₁ of λ ()
+          ⊥-elim (nr₂≢𝟘 nr₂≡𝟘)
         (inj₂ n≡𝟘) →
           z≡𝟘 , s≡𝟘 , n≡𝟘
-      where
-      lemma : ∀ {z s} r → nr₃ r z s ≡ 𝟘 → z ≡ 𝟘 × s ≡ 𝟘
-      lemma ⌞ 0 ⌟ = ∧-positive
-      lemma ⌞ 1 ⌟ nr≡𝟘 =
-        case +-positive nr≡𝟘 of λ
-          (z≡𝟘 , ∞s≡𝟘) →
-        case zero-product ∞s≡𝟘 of λ where
-          (inj₁ ())
-          (inj₂ s≡𝟘) → z≡𝟘 , s≡𝟘
-      lemma ∞ nr≡𝟘 =
-        case zero-product nr≡𝟘 of λ where
-          (inj₁ ())
-          (inj₂ z+s≡𝟘) → +-positive z+s≡𝟘
-      lemma ⌞ 2+ _ ⌟ nr≡𝟘 =
-        case zero-product nr≡𝟘 of λ where
-          (inj₁ ())
-          (inj₂ z+s≡𝟘) → +-positive z+s≡𝟘
 
     nr-zero : ∀ p r z s n → n ≤ 𝟘 → nr p r z s n ≤ z
     nr-zero p r z s n n≤𝟘 = begin
       nr p r z s n              ≡⟨⟩
-      nr₃ r 𝟙 p · n + nr₃ r z s ≤⟨ +-monotoneˡ (·-monotoneʳ n≤𝟘) ⟩
-      nr₃ r 𝟙 p · 𝟘 + nr₃ r z s ≡⟨ +-congʳ (·-zeroʳ _) ⟩
+      nr₂ p r · n + nr₃ r z s ≤⟨ +-monotoneˡ (·-monotoneʳ n≤𝟘) ⟩
+      nr₂ p r · 𝟘 + nr₃ r z s ≡⟨ +-congʳ (·-zeroʳ _) ⟩
       𝟘 + nr₃ r z s             ≡⟨ +-identityˡ _ ⟩
       nr₃ r z s                 ≤⟨ lemma r ⟩
       z                         ∎
@@ -1028,42 +1121,286 @@ instance
 
     nr-suc : ∀ p r z s n → nr p r z s n ≤ s + p · n + r · nr p r z s n
     nr-suc p r z s n = begin
-      nr p r z s n                                      ≡⟨⟩
-      nr₃ r 𝟙 p · n + nr₃ r z s                         ≤⟨ +-monotone (·-monotoneˡ (lemma r 𝟙 p)) (lemma r z s) ⟩
-      (p + r · nr₃ r 𝟙 p) · n + s + r · nr₃ r z s       ≡⟨ +-congʳ (·-distribʳ-+ _ _ _) ⟩
-      (p · n + (r · nr₃ r 𝟙 p) · n) + s + r · nr₃ r z s ≡⟨ +-congʳ (+-congˡ (·-assoc _ _ _)) ⟩
-      (p · n + r · nr₃ r 𝟙 p · n) + s + r · nr₃ r z s   ≡⟨ +-assoc _ _ _ ⟩
-      p · n + r · nr₃ r 𝟙 p · n + s + r · nr₃ r z s     ≡˘⟨ +-congˡ (+-assoc _ _ _) ⟩
-      p · n + (r · nr₃ r 𝟙 p · n + s) + r · nr₃ r z s   ≡⟨ +-congˡ (+-congʳ (+-comm _ _)) ⟩
-      p · n + (s + r · nr₃ r 𝟙 p · n) + r · nr₃ r z s   ≡⟨ +-congˡ (+-assoc _ _ _) ⟩
-      p · n + s + r · nr₃ r 𝟙 p · n + r · nr₃ r z s     ≡˘⟨ +-assoc _ _ _ ⟩
-      (p · n + s) + r · nr₃ r 𝟙 p · n + r · nr₃ r z s   ≡˘⟨ +-cong (+-comm _ _) (·-distribˡ-+ _ _ _) ⟩
-      (s + p · n) + r · (nr₃ r 𝟙 p · n + nr₃ r z s)     ≡⟨ +-assoc _ _ _ ⟩
-      s + p · n + r · (nr₃ r 𝟙 p · n + nr₃ r z s)       ≡⟨⟩
+      nr p r z s n                                    ≡⟨⟩
+      nr₂ p r · n + nr₃ r z s                         ≤⟨ +-monotone (·-monotoneˡ nr₂≤) (nr₃-suc r) ⟩
+      (p + r · nr₂ p r) · n + s + r · nr₃ r z s       ≡⟨ +-congʳ (·-distribʳ-+ _ _ _) ⟩
+      (p · n + (r · nr₂ p r) · n) + s + r · nr₃ r z s ≡⟨ +-congʳ (+-congˡ (·-assoc _ _ _)) ⟩
+      (p · n + r · nr₂ p r · n) + s + r · nr₃ r z s   ≡⟨ +-assoc _ _ _ ⟩
+      p · n + r · nr₂ p r · n + s + r · nr₃ r z s     ≡˘⟨ +-congˡ (+-assoc _ _ _) ⟩
+      p · n + (r · nr₂ p r · n + s) + r · nr₃ r z s   ≡⟨ +-congˡ (+-congʳ (+-comm _ _)) ⟩
+      p · n + (s + r · nr₂ p r · n) + r · nr₃ r z s   ≡⟨ +-congˡ (+-assoc _ _ _) ⟩
+      p · n + s + r · nr₂ p r · n + r · nr₃ r z s     ≡˘⟨ +-assoc _ _ _ ⟩
+      (p · n + s) + r · nr₂ p r · n + r · nr₃ r z s   ≡˘⟨ +-cong (+-comm _ _) (·-distribˡ-+ _ _ _) ⟩
+      (s + p · n) + r · (nr₂ p r · n + nr₃ r z s)     ≡⟨ +-assoc _ _ _ ⟩
+      s + p · n + r · (nr₂ p r · n + nr₃ r z s)       ≡⟨⟩
       s + p · n + r · nr p r z s n ∎
       where
       open Tools.Reasoning.PartialOrder ≤-poset
-      lemma′ : ∀ p q → ∞ · (p + q) ≤ q + ∞ · (p + q)
-      lemma′ p ⌞ Nat.zero ⌟ = ≤-reflexive (sym (+-identityˡ _))
-      lemma′ ⌞ Nat.zero ⌟ ⌞ 1+ x ⌟ = ≤-refl
-      lemma′ ⌞ 1+ x₁ ⌟ ⌞ 1+ x ⌟ = ≤-refl
-      lemma′ ∞ ⌞ 1+ x ⌟ = ≤-refl
-      lemma′ p ∞ rewrite +-comm p ∞ = ≤-refl
-      lemma : ∀ r p q → nr₃ r p q ≤ q + r · nr₃ r p q
-      lemma ⌞ 0 ⌟ p q rewrite +-identityʳ q = ∧-decreasingʳ _ _
-      lemma ⌞ 1 ⌟ p ⌞ 0 ⌟ = ≤-reflexive (sym (trans (+-identityˡ _) (·-identityˡ _)))
-      lemma ⌞ 1 ⌟ p ⌞ 1+ x ⌟ rewrite +-comm p ∞ = ≤-refl
-      lemma ⌞ 1 ⌟ p ∞ rewrite +-comm p ∞ = ≤-refl
-      lemma ⌞ 2+ n ⌟ p q = begin
-        ∞ · (p + q) ≤⟨ lemma′ p q ⟩
-        q + ∞ · (p + q) ≡⟨ +-congˡ (·-congʳ (·-comm ∞ ⌞ 2+ n ⌟)) ⟩
-        q + (⌞ 2+ n ⌟ · ∞) · (p + q) ≡⟨ +-congˡ (·-assoc _ _ _) ⟩
-        q + ⌞ 2+ n ⌟ · ∞ · (p + q) ∎
-      lemma ∞ p q = begin
-        ∞ · (p + q) ≤⟨ lemma′ p q ⟩
-        q + ∞ · (p + q) ≡⟨⟩
-        q + (∞ · ∞) · (p + q) ≡⟨ +-congˡ (·-assoc _ _ _) ⟩
-        q + ∞ · ∞ · (p + q) ∎
+
+opaque
+
+  unfolding nr₂→has-nr
+
+  -- Given a function nr₂, satisfying some properties, the nr function given by
+  -- nr₂→has-nr is factoring.
+
+  nr₂→has-factoring-nr : (nr₂ : Op₂ ℕ⊎∞) → (nr₂≢𝟘 : ∀ {p r} → nr₂ p r ≢ ⌞ 0 ⌟)
+                       → (nr₂≤ : ∀ {p r} → nr₂ p r ≤ p + r · nr₂ p r)
+                       → Has-factoring-nr ℕ⊎∞-semiring-with-meet ⦃ nr₂→has-nr nr₂ nr₂≢𝟘 nr₂≤ ⦄
+  nr₂→has-factoring-nr nr₂ nr₂≢𝟘 nr₂≤ = record
+    { nr₂ = nr₂
+    ; nr₂≢𝟘 = nr₂≢𝟘
+    ; nr-factoring = λ {p} {r} {z} {s} {n} → begin
+        nr p r z s n                              ≡⟨⟩
+        nr₂ p r · n + nr₃ r z s                   ≡˘⟨ +-congˡ (+-identityˡ _) ⟩
+        nr₂ p r · n + ⌞ 0 ⌟ + nr₃ r z s           ≡˘⟨ +-congˡ (+-congʳ (·-zeroʳ _)) ⟩
+        nr₂ p r · n + nr₂ p r · ⌞ 0 ⌟ + nr₃ r z s ≡⟨⟩
+        nr₂ p r · n + nr p r z s ⌞ 0 ⌟            ∎
+    }
+    where
+    open Tools.Reasoning.PropositionalEquality
+    open Semiring-with-meet ℕ⊎∞-semiring-with-meet
+      using (+-congʳ; +-congˡ; +-identityˡ; ·-zeroʳ)
+    open Has-nr (nr₂→has-nr nr₂ nr₂≢𝟘 nr₂≤)
+
+instance
+
+  -- An instance of Has-nr using nr₂ to define nr₃.
+
+  ℕ⊎∞-has-nr : Has-nr ℕ⊎∞-semiring-with-meet
+  ℕ⊎∞-has-nr =
+   nr₂→has-nr (λ p r → nr₃ r ⌞ 1 ⌟ p)
+     (λ {_} {r} nr₃≡𝟘 → case nr₃-positive r nr₃≡𝟘 of λ ())
+     (nr₃-suc _)
+
+instance
+
+  -- The Has-nr instance above has a factoring nr function
+
+  ℕ⊎∞-has-factoring-nr : Has-factoring-nr ℕ⊎∞-semiring-with-meet
+  ℕ⊎∞-has-factoring-nr =
+    nr₂→has-factoring-nr (λ p r → nr₃ r ⌞ 1 ⌟ p)
+     (λ {_} {r} nr₃≡𝟘 → case nr₃-positive r nr₃≡𝟘 of λ ())
+     (nr₃-suc _)
+
+
+-- The nr function of the instance above
+
+nr : (p r z s n : ℕ⊎∞) → ℕ⊎∞
+nr = Has-nr.nr ℕ⊎∞-has-nr
+
+-- A type used to express that there isn't a greatest factoring nr function.
+
+record No-greatest-nr : Set where
+  field
+    -- There are two nr functions
+    has-nr₁ : Has-nr ℕ⊎∞-semiring-with-meet
+    has-nr₂ : Has-nr ℕ⊎∞-semiring-with-meet
+    -- Both nr functions are factoring
+    factoring₁ : Has-factoring-nr ℕ⊎∞-semiring-with-meet ⦃ has-nr₁ ⦄
+    factoring₂ : Has-factoring-nr ℕ⊎∞-semiring-with-meet ⦃ has-nr₂ ⦄
+
+  open Has-nr has-nr₁ renaming (nr to nr₁)
+  open Has-nr has-nr₂ renaming (nr to nr₂)
+
+  field
+    -- There is some input to the nr functions...
+    p₀ r₀ z₀ s₀ n₀ : ℕ⊎∞
+
+    -- ...such that their outputs are not equal...
+    nr₁≢nr₂ : nr₁ p₀ r₀ z₀ s₀ n₀ ≢ nr₂ p₀ r₀ z₀ s₀ n₀
+
+    -- ...and there is no other possible output that is greater than both
+    -- i.e. no other nr function could be greater than both of them.
+    nr≰ : ∀ q → nr₁ p₀ r₀ z₀ s₀ n₀ ≤ q → nr₂ p₀ r₀ z₀ s₀ n₀ ≤ q → ⊥
+
+opaque
+  unfolding nr₂→has-nr
+
+  -- For the "exact" usage counting, there is not greatest factoring nr function.
+
+  no-greatest-nrₑ : T (not affine) → No-greatest-nr
+  no-greatest-nrₑ not-affine = lemma _ refl not-affine
+    where
+    nr₂ : (p r : ℕ⊎∞) → ℕ⊎∞
+    nr₂ p r = nr₃ r ⌞ 2 ⌟ p
+    nr₂≢𝟘 : ∀ {p r} → nr₂ p r ≢ ⌞ 0 ⌟
+    nr₂≢𝟘 {r} nr₂≡𝟘 = case nr₃-positive r nr₂≡𝟘 of λ ()
+    lemma : ∀ b → affine ≡ b → T (not b) → No-greatest-nr
+    lemma true _ ()
+    lemma false refl _ = record
+      { has-nr₁ = ℕ⊎∞-has-nr
+      ; has-nr₂ = nr₂→has-nr nr₂ (λ {p} {r} → nr₂≢𝟘 {p} {r}) (λ {p} {r} → nr₃-suc r)
+      ; factoring₁ = ℕ⊎∞-has-factoring-nr
+      ; factoring₂ = nr₂→has-factoring-nr nr₂ (λ {p} {r} → nr₂≢𝟘 {p} {r}) (λ {p} {r} → nr₃-suc r)
+      ; p₀ = ⌞ 0 ⌟
+      ; r₀ = ⌞ 1 ⌟
+      ; z₀ = ⌞ 0 ⌟
+      ; s₀ = ⌞ 0 ⌟
+      ; n₀ = ⌞ 1 ⌟
+      ; nr₁≢nr₂ = λ ()
+      ; nr≰ = λ { ⌞ 0 ⌟ () _ ; ⌞ 1 ⌟ _ () ; ⌞ 2+ _ ⌟ () _ ; ∞ () _}
+      }
+
+opaque
+  unfolding nr₂→has-nr
+
+  -- The nr function returns results that are at least as large as those
+  -- of any other factoring nr function with nr₂ p r ≤ ⌞ 1 ⌟ for
+  -- zero-one-many-semiring-with-meet.
+
+  nr-greatest-factoring :
+    (has-nr : Has-nr ℕ⊎∞-semiring-with-meet)
+    (has-factoring-nr : Has-factoring-nr ℕ⊎∞-semiring-with-meet ⦃ has-nr ⦄) →
+    (nr₂≤𝟙 : ∀ {p r : ℕ⊎∞} → Has-factoring-nr.nr₂ ⦃ has-nr ⦄ has-factoring-nr p r ≤ ⌞ 1 ⌟) →
+    ∀ p r z s n → Has-nr.nr has-nr p r z s n ≤ nr p r z s n
+  nr-greatest-factoring has-nr has-factoring-nr nr₂≤𝟙 = λ where
+      p r ∞ s n → lemma $ begin
+        nr′ p r ∞ s n                ≡⟨ nr-factoring ⟩
+        nr₂′ p r · n + nr′ p r ∞ s 𝟘 ≤⟨ +-monotoneʳ (nr-zero ≤-refl) ⟩
+        nr₂′ p r · n + ∞             ≡⟨ +-zeroʳ (nr₂′ p r · n) ⟩
+        ∞                            ∎
+      p r z ∞ n → lemma nr-suc
+      p r z s ∞ → lemma $ begin
+        nr′ p r z s ∞                ≡⟨ nr-factoring ⟩
+        nr₂′ p r · ∞ + nr′ p r z s 𝟘 ≡⟨ +-congʳ (≢𝟘·∞ nr₂≢𝟘) ⟩
+        ∞ + nr′ p r z s 𝟘            ≡⟨⟩
+        ∞                            ∎
+      p r ⌞ 0 ⌟ ⌞ 0 ⌟ ⌞ 0 ⌟ → begin
+        nr′ p r 𝟘 𝟘 𝟘 ≡⟨ nr′-𝟘 ⟩
+        𝟘             ≡˘⟨ Has-nr.nr-𝟘 ℕ⊎∞-has-nr {p} {r} ⟩
+        nr p r 𝟘 𝟘 𝟘  ∎
+      ∞ r z s ⌞ 1+ n ⌟ → lemma $ begin
+        nr′ ∞ r z s ⌞ 1+ n ⌟             ≤⟨ nr-suc ⟩
+        s + ∞ + r · nr′ ∞ r z s ⌞ 1+ n ⌟ ≡⟨⟩
+        s + ∞                            ≡⟨ +-zeroʳ s ⟩
+        ∞                                ∎
+      p ∞ ⌞ 0 ⌟ ⌞ 0 ⌟ ⌞ 1+ n ⌟ → nr′p∞≤ λ ()
+      p ∞ ⌞ 0 ⌟ ⌞ 1+ s ⌟ n → nr′p∞≤ λ ()
+      p ∞ ⌞ 1+ x ⌟ s n → nr′p∞≤ λ ()
+      p ⌞ 0 ⌟ z s n → begin
+        nr′ p 𝟘 z s n ≡⟨ nr-factoring ⟩
+        nr₂′ p 𝟘 · n + nr′ p 𝟘 z s 𝟘 ≤⟨ +-monotoneʳ (∧-greatest-lower-bound (nr-zero ≤-refl)
+                                          (≤-trans nr-suc′ (≤-reflexive (+-identityʳ s)))) ⟩
+        nr₂′ p 𝟘 · n + (z ∧ s)        ≤⟨ +-monotoneˡ (·-monotoneˡ (∧-greatest-lower-bound nr₂≤𝟙 nr₂p𝟘≤p)) ⟩
+        (𝟙 ∧ p) · n + (z ∧ s)         ≡⟨⟩
+        nr p 𝟘 z s n                  ∎
+      p ⌞ 1 ⌟ z ⌞ 1+ s ⌟ n → lemma ∘→ ≤-reflexive ∘→ x≤y+x→x≡∞ (≢𝟘+ (λ ())) $ begin
+        nr′ p 𝟙 z ⌞ 1+ s ⌟ n                          ≤⟨ nr-suc ⟩
+        ⌞ 1+ s ⌟ + p · n + 𝟙 · nr′ p 𝟙 z ⌞ 1+ s ⌟ n   ≡˘⟨ +-assoc ⌞ 1+ s ⌟ (p · n) _ ⟩
+        (⌞ 1+ s ⌟ + p · n) + 𝟙 · nr′ p 𝟙 z ⌞ 1+ s ⌟ n ≡⟨ +-congˡ (·-identityˡ _) ⟩
+        (⌞ 1+ s ⌟ + p · n) + nr′ p 𝟙 z ⌞ 1+ s ⌟ n     ∎
+      ⌞ 1+ p ⌟ ⌞ 1 ⌟ z s ⌞ 1+ n ⌟ → lemma ∘→ ≤-reflexive ∘→ x≤y+x→x≡∞ (+≢𝟘 (λ ())) $ begin
+        nr′ ⌞ 1+ p ⌟ 𝟙 z s ⌞ 1+ n ⌟                               ≤⟨ nr-suc ⟩
+        s + ⌞ 1+ p N.* 1+ n ⌟ + 𝟙 · nr′ ⌞ 1+ p ⌟ 𝟙 z s ⌞ 1+ n ⌟   ≡˘⟨ +-assoc s _ _ ⟩
+        (s + ⌞ 1+ p N.* 1+ n ⌟) + 𝟙 · nr′ ⌞ 1+ p ⌟ 𝟙 z s ⌞ 1+ n ⌟ ≡⟨ +-congˡ (·-identityˡ _) ⟩
+        (s + ⌞ 1+ p N.* 1+ n ⌟) + nr′ ⌞ 1+ p ⌟ 𝟙 z s ⌞ 1+ n ⌟     ∎
+      p ⌞ 1 ⌟ z ⌞ 0 ⌟ ⌞ 0 ⌟ → begin
+        nr′ p 𝟙 z 𝟘 𝟘           ≤⟨ nr-zero ≤-refl ⟩
+        z                       ≡˘⟨ +-identityʳ z ⟩
+        z + 𝟘                   ≡˘⟨ +-identityˡ (z + 𝟘) ⟩
+        𝟘 + z + 𝟘               ≡˘⟨ +-congʳ (·-zeroʳ _) ⟩
+        (𝟙 + ∞ · p) · 𝟘 + z + 𝟘 ≡⟨⟩
+        nr p 𝟙 z 𝟘 𝟘            ∎
+      ⌞ 0 ⌟ ⌞ 1 ⌟ z ⌞ 0 ⌟ n → begin
+        nr′ 𝟘 𝟙 z 𝟘 n                 ≡⟨ nr-factoring ⟩
+        nr₂′ 𝟘 𝟙 · n + nr′ 𝟘 𝟙 z 𝟘 𝟘 ≤⟨ +-monotone (·-monotoneˡ nr₂≤𝟙) (nr-zero ≤-refl) ⟩
+        𝟙 · n + z                     ≡˘⟨ +-congˡ (+-identityʳ z) ⟩
+        𝟙 · n + z + 𝟘                 ≡⟨⟩
+        nr 𝟘 𝟙 z 𝟘 n                  ∎
+      p ⌞ 2+ r ⌟ ⌞ 0 ⌟ ⌞ 0 ⌟ ⌞ 1+ n ⌟ → (lemma ∘→ ≤-reflexive ∘→ nr′p2+r≡∞) λ ()
+      p ⌞ 2+ r ⌟ ⌞ 0 ⌟ ⌞ 1+ s ⌟ n → (lemma ∘→ ≤-reflexive ∘→ nr′p2+r≡∞) λ ()
+      p ⌞ 2+ r ⌟ ⌞ 1+ z ⌟ s n → (lemma ∘→ ≤-reflexive ∘→ nr′p2+r≡∞) λ ()
+    where
+    𝟘 𝟙 : ℕ⊎∞
+    𝟘 = ⌞ 0 ⌟
+    𝟙 = ⌞ 1 ⌟
+    open Has-nr has-nr
+      renaming (nr to nr′; nr-𝟘 to nr′-𝟘; nr-positive to nr′-positive)
+    open Has-factoring-nr ⦃ has-nr ⦄ has-factoring-nr
+      renaming (nr₂ to nr₂′)
+    open Graded.Modality.Properties.Addition ℕ⊎∞-semiring-with-meet
+    open Graded.Modality.Properties.Meet ℕ⊎∞-semiring-with-meet
+    open Graded.Modality.Properties.Multiplication ℕ⊎∞-semiring-with-meet
+    open Graded.Modality.Properties.PartialOrder ℕ⊎∞-semiring-with-meet
+    open Semiring-with-meet ℕ⊎∞-semiring-with-meet
+      hiding (𝟘; 𝟙; _+_; _·_; _∧_; _≤_)
+    open Tools.Reasoning.PartialOrder ≤-poset
+    lemma : ∀ {p r z s n} → nr′ p r z s n ≤ ∞ → nr′ p r z s n ≤ nr p r z s n
+    lemma {p} {r} {z} {s} {n} nr′≤∞ =
+      ≤-trans nr′≤∞ (∞≤ (nr p r z s n))
+    nr-suc′ : ∀ {p r z s} → nr′ p r z s 𝟘 ≤ s + r · nr′ p r z s 𝟘
+    nr-suc′ {p} {r} {z} {s} = begin
+      nr′ p r z s 𝟘                 ≤⟨ nr-suc ⟩
+      s + p · 𝟘 + r · nr′ p r z s 𝟘 ≡⟨ +-congˡ (+-congʳ (·-zeroʳ p)) ⟩
+      s + 𝟘 + r · nr′ p r z s 𝟘     ≡⟨ +-congˡ (+-identityˡ _) ⟩
+      s + r · nr′ p r z s 𝟘         ∎
+    nr′p∞≤ : ∀ {z s n p} → ¬ (z ≡ 𝟘 × s ≡ 𝟘 × n ≡ 𝟘) → nr′ p ∞ z s n ≤ nr p ω z s n
+    nr′p∞≤ {z} {s} {n} {p} ≢𝟘 = lemma $ begin
+      nr′ p ∞ z s n                 ≤⟨ nr-suc ⟩
+      s + p · n + ∞ · nr′ p ∞ z s n ≡⟨ +-congˡ {s} (+-congˡ (∞·≢𝟘 (≢𝟘 ∘→ nr′-positive))) ⟩
+      s + p · n + ∞                 ≡⟨ +-congˡ (+-zeroʳ _) ⟩
+      s + ∞                         ≡⟨ +-zeroʳ _ ⟩
+      ∞                             ∎
+    x≤y+x→x≡∞ : ∀ {x y} → y ≢ 𝟘 → x ≤ y + x → x ≡ ∞
+    x≤y+x→x≡∞ {x} {⌞ 0 ⌟} y≢𝟘 x≤y+x = ⊥-elim (y≢𝟘 refl)
+    x≤y+x→x≡∞ {(∞)} {y} y≢𝟘 x≤y+x = refl
+    x≤y+x→x≡∞ {⌞ 1+ x ⌟} {⌞ 1+ y ⌟} y≢𝟘 x≤y+x =
+      case ⌞⌟-antitone⁻¹ {m = 1+ (y N.+ 1+ x)} x≤y+x of λ where
+        (N.s≤s ≤x) → ⊥-elim (N.m+1+n≰m x
+          (N.≤-trans (N.≤-reflexive (trans (N.+-comm x (1+ y)) (sym (N.+-suc y x)))) ≤x))
+    x≤y+x→x≡∞ {⌞ x ⌟} {⌞ 1+ y ⌟} _ x≤y+x =
+      ⊥-elim (N.m+1+n≰m x (N.≤-trans (N.≤-reflexive (N.+-comm x (1+ y))) (⌞⌟-antitone⁻¹ x≤y+x)))
+    x≤y+x→x≡∞ {⌞ x ⌟} {(∞)} _ x≤∞ = ⊥-elim (≰∞ x≤∞)
+    ≢𝟘+ : ∀ {x y} → x ≢ 𝟘 → x + y ≢ 𝟘
+    ≢𝟘+ {⌞ 0 ⌟} {(y)} x≢𝟘 x+y≡𝟘 = x≢𝟘 refl
+    ≢𝟘+ {⌞ 1+ x ⌟} {⌞ x₁ ⌟} x≢𝟘 ()
+    ≢𝟘+ {⌞ 1+ x ⌟} {(∞)} x≢𝟘 ()
+    +≢𝟘 : ∀ {x y} → y ≢ 𝟘 → x + y ≢ 𝟘
+    +≢𝟘 y≢𝟘 x+y≡𝟘 = ≢𝟘+ y≢𝟘 (trans (+-comm _ _) x+y≡𝟘)
+    nr₂p𝟘≤p : ∀ {p} → nr₂′ p 𝟘 ≤ p
+    nr₂p𝟘≤p {p} = begin
+      nr₂′ p 𝟘                       ≡˘⟨ ·-identityʳ _ ⟩
+      nr₂′ p 𝟘 · 𝟙                   ≡˘⟨ +-identityʳ _ ⟩
+      nr₂′ p 𝟘 · 𝟙 + 𝟘               ≡˘⟨ +-congˡ nr′-𝟘 ⟩
+      nr₂′ p 𝟘 · 𝟙 + nr′ p 𝟘 𝟘 𝟘 𝟘  ≡˘⟨ nr-factoring ⟩
+      nr′ p 𝟘 𝟘 𝟘 𝟙                 ≤⟨ nr-suc ⟩
+      𝟘 + p · 𝟙 + 𝟘                 ≡⟨ +-identityˡ _ ⟩
+      p · 𝟙 + 𝟘                     ≡⟨ +-identityʳ _ ⟩
+      p · 𝟙                         ≡⟨ ·-identityʳ _ ⟩
+      p                             ∎
+    q≤p+rq→q≡∞ : ∀ {q p r} → q ≢ 𝟘 → q ≤ p + ⌞ 2+ r ⌟ · q → q ≡ ∞
+    q≤p+rq→q≡∞ {⌞ Nat.zero ⌟} q≢𝟘 _ = ⊥-elim (q≢𝟘 refl)
+    q≤p+rq→q≡∞ {⌞ 1+ q ⌟} {⌞ p ⌟} {(r)} q≢𝟘 q≤ =
+      case N.≤-trans (N.≤-reflexive (N.+-comm _ p)) (⌞⌟-antitone⁻¹ q≤) of λ {
+        (N.s≤s q+x≤q) →
+      ⊥-elim (N.m+1+n≰m q (N.≤-trans (N.≤-reflexive (sym (N.+-assoc q _ p))) q+x≤q)) }
+    q≤p+rq→q≡∞ {⌞ 1+ x ⌟} {(∞)} {(r)} q≢𝟘 q≤ = ⊥-elim (≰∞ q≤)
+    q≤p+rq→q≡∞ {(∞)} _ _ = refl
+    nr′p2+r≡∞ : ∀ {z s n p r} → ¬ (z ≡ 𝟘 × s ≡ 𝟘 × n ≡ 𝟘) → nr′ p ⌞ 2+ r ⌟ z s n ≡ ∞
+    nr′p2+r≡∞ {z} {s} {n} {p} {r} ≢𝟘 = q≤p+rq→q≡∞ (≢𝟘 ∘→ nr′-positive) $ begin
+      nr′ p ⌞ 2+ r ⌟ z s n                          ≤⟨ nr-suc ⟩
+      s + p · n + ⌞ 2+ r ⌟ · nr′ p ⌞ 2+ r ⌟ z s n   ≡˘⟨ +-assoc _ _ _ ⟩
+      (s + p · n) + ⌞ 2+ r ⌟ · nr′ p ⌞ 2+ r ⌟ z s n ∎
+
+opaque
+
+  -- The nr function returns results that are at least as large as those
+  -- of any other factoring nr function for zero-one-many-semiring-with-meet
+  -- when the affine order is used.
+
+  nr-greatest-factoringₐ :
+    T affine →
+    (has-nr : Has-nr ℕ⊎∞-semiring-with-meet)
+    (has-factoring-nr : Has-factoring-nr ℕ⊎∞-semiring-with-meet ⦃ has-nr ⦄) →
+    ∀ p r z s n → Has-nr.nr has-nr p r z s n ≤ nr p r z s n
+  nr-greatest-factoringₐ x has-nr has-factoring-nr = lemma _ refl x
+    where
+    open Has-factoring-nr ⦃ has-nr ⦄ has-factoring-nr
+    lemma : ∀ b → b ≡ affine → T b →
+            ∀ p r z s n → Has-nr.nr has-nr p r z s n ≤ nr p r z s n
+    lemma true refl _ =
+      nr-greatest-factoring has-nr has-factoring-nr (≢𝟘→≤ₐ𝟙 nr₂≢𝟘)
 
 -- A modality (of any kind) for ℕ⊎∞ defined using the nr function
 
