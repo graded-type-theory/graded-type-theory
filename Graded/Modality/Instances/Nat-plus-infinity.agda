@@ -1185,9 +1185,28 @@ instance
 
 
 -- The nr function of the instance above
+-- nr p r z s n = nr₃ r ⌞ 1 ⌟ p · n + nr₃ r z s
 
 nr : (p r z s n : ℕ⊎∞) → ℕ⊎∞
 nr = Has-nr.nr ℕ⊎∞-has-nr
+
+opaque
+
+  -- An inequality for the nr₂ function used to define nr.
+
+  nr₂p𝟘≤𝟙 : ∀ {p} → nr₃ ⌞ 0 ⌟ ⌞ 1 ⌟ p ≤ ⌞ 1 ⌟
+  nr₂p𝟘≤𝟙 = ∧-decreasingˡ _ _
+    where
+    open Graded.Modality.Properties.Meet ℕ⊎∞-semiring-with-meet
+
+opaque
+
+  -- An inequality for the nr₂ function used to define nr.
+
+  nr₂𝟘𝟙≤𝟙 : nr₃ ⌞ 1 ⌟ ⌞ 1 ⌟ ⌞ 0 ⌟ ≤ ⌞ 1 ⌟
+  nr₂𝟘𝟙≤𝟙 = ≤-refl
+    where
+    open Graded.Modality.Properties.PartialOrder ℕ⊎∞-semiring-with-meet
 
 -- A type used to express that there isn't a greatest factoring nr function.
 
@@ -1246,15 +1265,18 @@ opaque
   unfolding nr₂→has-nr
 
   -- The nr function returns results that are at least as large as those
-  -- of any other factoring nr function with nr₂ p r ≤ ⌞ 1 ⌟ for
-  -- zero-one-many-semiring-with-meet.
+  -- of any other factoring nr function with nr₂ p ⌞ 0 ⌟ ≤ ⌞ 1 ⌟ and
+  -- nr₂ ⌞ 0 ⌟ ⌞ 1 ⌟ ≤ ⌞ 1 ⌟ for zero-one-many-semiring-with-meet.
+  -- (Note that the nr₂ function used by nr has these properties,
+  -- see nr₂p𝟘≤𝟙 and nr₂𝟘𝟙≤𝟙 above)
 
   nr-greatest-factoring :
     (has-nr : Has-nr ℕ⊎∞-semiring-with-meet)
-    (has-factoring-nr : Has-factoring-nr ℕ⊎∞-semiring-with-meet ⦃ has-nr ⦄) →
-    (nr₂≤𝟙 : ∀ {p r : ℕ⊎∞} → Has-factoring-nr.nr₂ ⦃ has-nr ⦄ has-factoring-nr p r ≤ ⌞ 1 ⌟) →
+    (has-factoring-nr : Has-factoring-nr ℕ⊎∞-semiring-with-meet ⦃ has-nr ⦄)
+    (nr₂p𝟘≤𝟙 : ∀ {p} → Has-factoring-nr.nr₂ ⦃ has-nr ⦄ has-factoring-nr p ⌞ 0 ⌟ ≤ ⌞ 1 ⌟)
+    (nr₂𝟘𝟙≤𝟙 : Has-factoring-nr.nr₂ ⦃ has-nr ⦄ has-factoring-nr ⌞ 0 ⌟ ⌞ 1 ⌟ ≤ ⌞ 1 ⌟) →
     ∀ p r z s n → Has-nr.nr has-nr p r z s n ≤ nr p r z s n
-  nr-greatest-factoring has-nr has-factoring-nr nr₂≤𝟙 = λ where
+  nr-greatest-factoring has-nr has-factoring-nr nr₂p𝟘≤𝟙 nr₂𝟘𝟙≤𝟙 = λ where
       p r ∞ s n → lemma $ begin
         nr′ p r ∞ s n                ≡⟨ nr-factoring ⟩
         nr₂′ p r · n + nr′ p r ∞ s 𝟘 ≤⟨ +-monotoneʳ (nr-zero ≤-refl) ⟩
@@ -1282,7 +1304,7 @@ opaque
         nr′ p 𝟘 z s n ≡⟨ nr-factoring ⟩
         nr₂′ p 𝟘 · n + nr′ p 𝟘 z s 𝟘 ≤⟨ +-monotoneʳ (∧-greatest-lower-bound (nr-zero ≤-refl)
                                           (≤-trans nr-suc′ (≤-reflexive (+-identityʳ s)))) ⟩
-        nr₂′ p 𝟘 · n + (z ∧ s)        ≤⟨ +-monotoneˡ (·-monotoneˡ (∧-greatest-lower-bound nr₂≤𝟙 nr₂p𝟘≤p)) ⟩
+        nr₂′ p 𝟘 · n + (z ∧ s)        ≤⟨ +-monotoneˡ (·-monotoneˡ (∧-greatest-lower-bound nr₂p𝟘≤𝟙 nr₂p𝟘≤p)) ⟩
         (𝟙 ∧ p) · n + (z ∧ s)         ≡⟨⟩
         nr p 𝟘 z s n                  ∎
       p ⌞ 1 ⌟ z ⌞ 1+ s ⌟ n → lemma ∘→ ≤-reflexive ∘→ x≤y+x→x≡∞ (≢𝟘+ (λ ())) $ begin
@@ -1304,7 +1326,7 @@ opaque
         nr p 𝟙 z 𝟘 𝟘            ∎
       ⌞ 0 ⌟ ⌞ 1 ⌟ z ⌞ 0 ⌟ n → begin
         nr′ 𝟘 𝟙 z 𝟘 n                 ≡⟨ nr-factoring ⟩
-        nr₂′ 𝟘 𝟙 · n + nr′ 𝟘 𝟙 z 𝟘 𝟘 ≤⟨ +-monotone (·-monotoneˡ nr₂≤𝟙) (nr-zero ≤-refl) ⟩
+        nr₂′ 𝟘 𝟙 · n + nr′ 𝟘 𝟙 z 𝟘 𝟘 ≤⟨ +-monotone (·-monotoneˡ nr₂𝟘𝟙≤𝟙) (nr-zero ≤-refl) ⟩
         𝟙 · n + z                     ≡˘⟨ +-congˡ (+-identityʳ z) ⟩
         𝟙 · n + z + 𝟘                 ≡⟨⟩
         nr 𝟘 𝟙 z 𝟘 n                  ∎
@@ -1400,7 +1422,8 @@ opaque
     lemma : ∀ b → b ≡ affine → T b →
             ∀ p r z s n → Has-nr.nr has-nr p r z s n ≤ nr p r z s n
     lemma true refl _ =
-      nr-greatest-factoring has-nr has-factoring-nr (≢𝟘→≤ₐ𝟙 nr₂≢𝟘)
+      nr-greatest-factoring has-nr has-factoring-nr
+        (≢𝟘→≤ₐ𝟙 nr₂≢𝟘) (≢𝟘→≤ₐ𝟙 nr₂≢𝟘)
 
 -- A modality (of any kind) for ℕ⊎∞ defined using the nr function
 
