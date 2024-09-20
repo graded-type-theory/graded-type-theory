@@ -78,7 +78,7 @@ opaque
           → Δ ⊢ ⦅ s ⦆ ↘ u ∷ A
           → Δ ⨾ Γ ⊢ s ∷ B
           → γ ⨾ δ ⨾ η ▸ s
-          → ∃₂ λ m n → ∃₃ λ H t (ρ : Wk m n)
+          → ∃₅ λ m n H t (ρ : Wk m n)
           → s ⇒* ⟨ H , t , ρ , ε ⟩ × wk ρ t [ H ]ₕ ≡ u × Value t
   whBisim {s = ⟨ H , t , ρ , S ⟩} consistent (d , w) ⊢s ▸s =
     case bisim₆* As d ⊢s ▸s of λ {
@@ -135,7 +135,7 @@ opaque
   whBisim-initial : {Δ : Con Term k}
                   → k ≡ 0 ⊎ ((Emptyrec-allowed 𝟙ᵐ 𝟘 → Consistent Δ) × T erased-heap)
                   → Δ ⊢ t ↘ u ∷ A → 𝟘ᶜ ▸ t
-                  → ∃₂ λ m n → ∃₃ λ H u′ (ρ : Wk m n)
+                  → ∃₅ λ m n H u′ (ρ : Wk m n)
                   → initial t ⇒* ⟨ H , u′ , ρ , ε ⟩ × wk ρ u′ [ H ]ₕ ≡ u × Value u′
   whBisim-initial {k} {Δ} as d ▸t =
     whBisim consistent
@@ -165,7 +165,7 @@ opaque
   whRed : {Δ : Con Term k}
         → (k ≡ 0 ⊎ (Emptyrec-allowed 𝟙ᵐ 𝟘 → Consistent Δ) × T erased-heap)
         → Δ ⊢ t ∷ A → 𝟘ᶜ ▸ t
-        → ∃₂ λ m n → ∃₃ λ H u (ρ : Wk m n)
+        → ∃₅ λ m n H u (ρ : Wk m n)
           → initial t ⇒* ⟨ H , u , ρ , ε ⟩ × Value u × Whnf ⦅ ⟨ H , u , ρ , ε ⟩ ⦆
   whRed as ⊢t ▸t =
     case whNormTerm ⊢t of λ

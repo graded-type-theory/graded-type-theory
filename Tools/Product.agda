@@ -15,9 +15,9 @@ open import Relation.Nullary.Decidable public
 open import Tools.Relation
 
 private variable
-  a b c d e f g h i : Level
-  A B               : Set _
-  P                 : A → Set _
+  a b c d e f g h i j : Level
+  A B                 : Set _
+  P                   : A → Set _
 
 -- 4-tuples.
 
@@ -102,6 +102,28 @@ private variable
    (f : F a b c d e) (g : G a b c d e f) → H a b c d e f g → Set i) →
   Set (a ⊔ b ⊔ c ⊔ d ⊔ e ⊔ f ⊔ g ⊔ h ⊔ i)
 ∃₈ I = ∃ λ a → ∃₇ (I a)
+
+-- 10-tuples.
+
+∃₉ :
+  {A : Set a}
+  {B : A → Set b}
+  {C : (a : A) → B a → Set c}
+  {D : (a : A) (b : B a) → C a b → Set d}
+  {E : (a : A) (b : B a) (c : C a b) → D a b c → Set e}
+  {F : (a : A) (b : B a) (c : C a b) (d : D a b c) → E a b c d →
+       Set f}
+  {G : (a : A) (b : B a) (c : C a b) (d : D a b c) (e : E a b c d) →
+       F a b c d e → Set g}
+  {H : (a : A) (b : B a) (c : C a b) (d : D a b c) (e : E a b c d)
+       (f : F a b c d e) → G a b c d e f → Set h}
+  {I : (a : A) (b : B a) (c : C a b) (d : D a b c) (e : E a b c d)
+   (f : F a b c d e) (g : G a b c d e f) → H a b c d e f g → Set i} →
+  ((a : A) (b : B a) (c : C a b) (d : D a b c) (e : E a b c d)
+   (f : F a b c d e) (g : G a b c d e f) (h : H a b c d e f g) →
+   I a b c d e f g h → Set j) →
+  Set (a ⊔ b ⊔ c ⊔ d ⊔ e ⊔ f ⊔ g ⊔ h ⊔ i ⊔ j)
+∃₉ J = ∃ λ a → ∃₈ (J a)
 
 -- A generalisation of _×-dec_.
 

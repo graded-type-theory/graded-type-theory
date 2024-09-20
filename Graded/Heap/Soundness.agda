@@ -85,7 +85,7 @@ opaque
 
   redNumeral : (Emptyrec-allowed 𝟙ᵐ 𝟘 → Consistent Δ)
              → Δ ⊩ℕ n ∷ℕ → n PE.≡ ⦅ s ⦆ → Δ ⨾ Γ ⊢ s ∷ ℕ → γ ⨾ δ ⨾ η ▸ s
-             → ∃₄ λ m n H (ρ : Wk m n) → ∃ λ t → s ⇒* ⟨ H , t , ρ , ε ⟩ × Numeral t
+             → ∃₅ λ m n H (ρ : Wk m n) t → s ⇒* ⟨ H , t , ρ , ε ⟩ × Numeral t
   redNumeral consistent (ℕₜ _ d n≡n (sucᵣ x)) PE.refl ⊢s ▸s =
     case whBisim consistent (redₜ d , sucₙ) ⊢s ▸s of λ
       (_ , _ , H , t , ρ , d′ , ≡u , v) →
@@ -147,7 +147,7 @@ opaque
   soundness : {Δ : Con Term k}
             → (k PE.≡ 0 ⊎ (Emptyrec-allowed 𝟙ᵐ 𝟘 → Consistent Δ) × T erased-heap)
             → Δ ⊢ t ∷ ℕ → 𝟘ᶜ ▸ t
-            → ∃₂ λ m n → ∃₃ λ H k (ρ : Wk m n) →
+            → ∃₅ λ m n H k (ρ : Wk m n) →
               initial t ⇒* ⟨ H , sucᵏ k , ρ , ε ⟩ ×
               (Δ ⊢ t ≡ sucᵏ k ∷ ℕ) ×
               H ≤ʰ 𝟘
@@ -202,7 +202,7 @@ opaque
   -- Note that some assumptions to this theorem are given as a module parameter.
 
   soundness-closed : ε ⊢ t ∷ ℕ → ε ▸ t
-                   → ∃₂ λ m n → ∃₃ λ H k (ρ : Wk m n) →
+                   → ∃₅ λ m n H k (ρ : Wk m n) →
                    initial t ⇒* ⟨ H , sucᵏ k , ρ , ε ⟩ ×
                    (ε ⊢ t ≡ sucᵏ k ∷ ℕ) ×
                    H ≤ʰ 𝟘
@@ -219,7 +219,7 @@ opaque
   soundness-open : (Emptyrec-allowed 𝟙ᵐ 𝟘 → Consistent Δ)
                    → T erased-heap
                    → Δ ⊢ t ∷ ℕ → 𝟘ᶜ ▸ t
-                   → ∃₂ λ m n → ∃₃ λ H k (ρ : Wk m n) →
+                   → ∃₅ λ m n H k (ρ : Wk m n) →
                    initial t ⇒* ⟨ H , sucᵏ k , ρ , ε ⟩ ×
                    (Δ ⊢ t ≡ sucᵏ k ∷ ℕ) ×
                    H ≤ʰ 𝟘
