@@ -298,7 +298,7 @@ opaque
   ⦅⦆ˢ-sgSubst ε = refl
   ⦅⦆ˢ-sgSubst {t} {u} (e ∙ S) = begin
    ⦅ e ∙ S ⦆ˢ (t [ u ]₀)              ≡⟨⟩
-   ⦅ S ⦆ˢ (⦅ e ⦆ᵉ (t [ u ]₀))          ≡⟨ cong ⦅ S ⦆ˢ (⦅⦆ᵉ-sgSubst e) ⟩
+   ⦅ S ⦆ˢ (⦅ e ⦆ᵉ (t [ u ]₀))          ≡⟨ cong ⦅ S ⦆ˢ_ (⦅⦆ᵉ-sgSubst e) ⟩
    ⦅ S ⦆ˢ (⦅ wk1ᵉ e ⦆ᵉ t [ u ]₀)       ≡⟨ ⦅⦆ˢ-sgSubst S ⟩
    ⦅ wk1ˢ S ⦆ˢ (⦅ wk1ᵉ e ⦆ᵉ t) [ u ]₀  ≡⟨⟩
    ⦅ wk1ˢ (e ∙ S) ⦆ˢ t [ u ]₀         ∎
@@ -349,7 +349,7 @@ opaque
   ⦅⦆ˢ-[,] ε = refl
   ⦅⦆ˢ-[,] {t} {u} {v} (e ∙ S) = begin
     ⦅ e ∙ S ⦆ˢ (t [ u , v ]₁₀)             ≡⟨⟩
-    ⦅ S ⦆ˢ (⦅ e ⦆ᵉ (t [ u , v ]₁₀))         ≡⟨ cong ⦅ S ⦆ˢ (⦅⦆ᵉ-[,] e) ⟩
+    ⦅ S ⦆ˢ (⦅ e ⦆ᵉ (t [ u , v ]₁₀))         ≡⟨ cong ⦅ S ⦆ˢ_ (⦅⦆ᵉ-[,] e) ⟩
     ⦅ S ⦆ˢ (⦅ wk2ᵉ e ⦆ᵉ t [ u , v ]₁₀)      ≡⟨ ⦅⦆ˢ-[,] S ⟩
     ⦅ wk2ˢ S ⦆ˢ (⦅ wk2ᵉ e ⦆ᵉ t) [ u , v ]₁₀ ≡⟨⟩
     ⦅ wk2ˢ (e ∙ S) ⦆ˢ t [ u , v ]₁₀        ∎
