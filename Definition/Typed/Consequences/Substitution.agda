@@ -29,12 +29,13 @@ open import Tools.Function
 open import Tools.Nat
 open import Tools.Product
 import Tools.PropositionalEquality as PE
+open import Tools.Reasoning.PropositionalEquality
 
 private
   variable
     ℓ m n : Nat
     Γ Δ : Con Term n
-    A B C C₁ C₂ t t₁ t₂ u u₁ u₂ v : Term _
+    A B C C₁ C₂ D E t t₁ t₂ u u₁ u₂ v : Term _
     σ σ′ : Subst m n
     ρ : Wk ℓ m
     p q : M
@@ -214,19 +215,26 @@ subst↑TypeEq : ∀ {t u F G E}
              → Γ ∙ F ⊢ G [ t ]↑ ≡ E [ u ]↑
 subst↑TypeEq ⊢G ⊢t = substitutionEq ⊢G (singleSubst↑Eq ⊢t) (wfEqTerm ⊢t)
 
-subst↑²Type : ∀ {t F G A B}
-            → Γ ⊢ F
-            → Γ ∙ F ⊢ G
-            → Γ ∙ A ⊢ B
-            → Γ ∙ F ∙ G ⊢ t ∷ wk1 (wk1 A)
-            → Γ ∙ F ∙ G ⊢ B [ t ]↑²
-subst↑²Type ⊢F ⊢G ⊢B ⊢t =
-  let ⊢Γ = wf ⊢F
-      ⊢t′ = PE.subst (_⊢_∷_ _ _)
-              (PE.trans (wk-comp (step id) (step id) _) (wk≡subst _ _))
-              ⊢t
-      ⊢σ = wk1Subst′ ⊢Γ ⊢G (wk1Subst′ ⊢Γ ⊢F (idSubst′ ⊢Γ)) , ⊢t′
-  in  substitution ⊢B ⊢σ (⊢Γ ∙ ⊢F ∙ ⊢G)
+opaque
+
+  -- A substitution lemma related to _[_]↑².
+
+  subst↑²Type :
+    Γ ∙ A ⊢ B →
+    Γ ∙ C ∙ D ⊢ t ∷ wk2 A →
+    Γ ∙ C ∙ D ⊢ B [ t ]↑²
+  subst↑²Type {A} ⊢B ⊢t =
+    case wfTerm ⊢t of λ {
+      ⊢ΓCD@(⊢Γ ∙ ⊢C ∙ ⊢D) →
+    substitution ⊢B
+      ( wk1Subst′ ⊢Γ ⊢D (wk1Subst′ ⊢Γ ⊢C (idSubst′ ⊢Γ))
+      , PE.subst (_⊢_∷_ _ _)
+          (wk2 A                           ≡⟨ wk2≡wk₂ ⟩
+           wk₂ A                           ≡⟨ wk≡subst _ _ ⟩
+           A [ toSubst (step (step id)) ]  ∎)
+          ⊢t
+      )
+      ⊢ΓCD }
 
 subst↑²Type-prod : ∀ {m F G A}
                  → Γ ∙ (Σ⟨ m ⟩ p , q ▷ F ▹ G) ⊢ A
@@ -264,21 +272,26 @@ subst↑²Type-prod {Γ = Γ} {F = F} {G} {A} ⊢A ok =
   splitCon : ∀ {Γ : Con Term n} {F} → ⊢ (Γ ∙ F) → ⊢ Γ × Γ ⊢ F
   splitCon (x ∙ x₁) = x , x₁
 
-subst↑²TypeEq : ∀ {t u F G A B C}
-              → Γ ⊢ F
-              → Γ ∙ F ⊢ G
-              → Γ ∙ A ⊢ B ≡ C
-              → Γ ∙ F ∙ G ⊢ t ≡ u ∷ wk1 (wk1 A)
-              → Γ ∙ F ∙ G ⊢ B [ t ]↑² ≡ C [ u ]↑²
-subst↑²TypeEq ⊢F ⊢G B≡C t≡u =
-  let ⊢Γ = wf ⊢F
-      t≡u′ = PE.subst (_⊢_≡_∷_ _ _ _)
-               (PE.trans (wk-comp (step id) (step id) _) (wk≡subst _ _))
-               t≡u
-      σ≡σ′ = substRefl (wk1Subst′ ⊢Γ ⊢G (wk1Subst′ ⊢Γ ⊢F (idSubst′ ⊢Γ)))
-           , t≡u′
-  in  substitutionEq B≡C σ≡σ′ (⊢Γ ∙ ⊢F ∙ ⊢G)
+opaque
 
+  -- A substitution lemma related to _[_]↑².
+
+  subst↑²TypeEq :
+    Γ ∙ A ⊢ B ≡ C →
+    Γ ∙ D ∙ E ⊢ t ≡ u ∷ wk2 A →
+    Γ ∙ D ∙ E ⊢ B [ t ]↑² ≡ C [ u ]↑²
+  subst↑²TypeEq {A} B≡C t≡u =
+    case wfEqTerm t≡u of λ {
+      ⊢ΓDE@(⊢Γ ∙ ⊢D ∙ ⊢E) →
+    substitutionEq B≡C
+      ( substRefl (wk1Subst′ ⊢Γ ⊢E (wk1Subst′ ⊢Γ ⊢D (idSubst′ ⊢Γ)))
+      , PE.subst (_⊢_≡_∷_ _ _ _)
+          (wk2 A                           ≡⟨ wk2≡wk₂ ⟩
+           wk₂ A                           ≡⟨ wk≡subst _ _ ⟩
+           A [ toSubst (step (step id)) ]  ∎)
+          t≡u
+      )
+      ⊢ΓDE }
 
 subst↑²TypeEq-prod : ∀ {m F G A B}
               → Γ ∙ (Σ⟨ m ⟩ p , q ▷ F ▹ G) ⊢ A ≡ B

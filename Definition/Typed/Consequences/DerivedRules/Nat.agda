@@ -35,7 +35,7 @@ opaque
   sucCong F≡G with wfEq F≡G
   sucCong F≡G | ⊢Γ ∙ ⊢ℕ =
     let ⊢F , ⊢G = syntacticEq F≡G
-    in subst↑²TypeEq ⊢ℕ ⊢F F≡G (refl (sucⱼ (var (⊢Γ ∙ ⊢ℕ ∙ ⊢F) (there here))))
+    in subst↑²TypeEq F≡G (refl (sucⱼ (var (⊢Γ ∙ ⊢ℕ ∙ ⊢F) (there here))))
 
 opaque
 
@@ -44,7 +44,7 @@ opaque
   sucCong′ F≡G with wfEq F≡G
   sucCong′ F≡G | ⊢Γ ∙ ⊢ℕ =
     let ⊢F , ⊢G = syntacticEq F≡G
-    in subst↑²TypeEq ⊢ℕ ⊢G F≡G (refl (sucⱼ (var (⊢Γ ∙ ⊢ℕ ∙ ⊢G) (there here))))
+    in subst↑²TypeEq F≡G (refl (sucⱼ (var (⊢Γ ∙ ⊢ℕ ∙ ⊢G) (there here))))
 
 opaque
 

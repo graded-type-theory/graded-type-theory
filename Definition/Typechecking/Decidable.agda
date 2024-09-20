@@ -341,7 +341,7 @@ mutual
         in  case dec⇇ ⊢Γ z ⊢A₀ of λ where
           (yes z⇇A₀) →
             let ⊢Γ₊ = ⊢Γ ∙ ℕⱼ ⊢Γ ∙ ⊢A
-                ⊢A₊ =  subst↑²Type (ℕⱼ ⊢Γ) ⊢A ⊢A (sucⱼ (var₁ ⊢A))
+                ⊢A₊ = subst↑²Type ⊢A (sucⱼ (var₁ ⊢A))
             in  case dec⇇ ⊢Γ₊ s ⊢A₊ of λ where
               (yes s⇇A₊) → yes (_ , natrecᵢ A⇇Type z⇇A₀ s⇇A₊ n⇇ℕ)
               (no ¬s⇇A₊) → no λ where
