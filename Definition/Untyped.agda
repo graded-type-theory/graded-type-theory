@@ -18,7 +18,6 @@ open import Definition.Untyped.NotParametrised public
 
 private
   variable
-    p p′ : M
     n m ℓ : Nat
     bs bs′ : List _
     ts ts′ : GenTs _ _ _
@@ -87,9 +86,8 @@ data Term (n : Nat) : Set a where
   gen : {bs : List Nat} (k : Kind bs) (ts : GenTs Term n bs) → Term n
 
 private variable
-  F H t u t′ u′ : Term n
-  E G           : Term (1+ n)
-  k k′          : Kind _
+  t    : Term n
+  k k′ : Kind _
 
 -- The Grammar of our language.
 
@@ -162,37 +160,6 @@ pattern BΣˢ = BΣ 𝕤 _ _
 
 ⟦_⟧_▹_ : BindingType → Term n → Term (1+ n) → Term n
 ⟦ BM b p q ⟧ A ▹ B = ΠΣ⟨ b ⟩ p , q ▷ A ▹ B
-
--- Injectivity of term constructors w.r.t. propositional equality.
-
--- If  W F G = W' H E  then  F = H,  G = E and W = W'.
-
-B-PE-injectivity : ∀ W W' → ⟦ W ⟧ F ▹ G PE.≡ ⟦ W' ⟧ H ▹ E
-                 → F PE.≡ H × G PE.≡ E × W PE.≡ W'
-B-PE-injectivity (BΠ p q) (BΠ .p .q) PE.refl =
-  PE.refl , PE.refl , PE.refl
-B-PE-injectivity (BΣ p q m) (BΣ .p .q .m) PE.refl =
-  PE.refl , PE.refl , PE.refl
-
-BΠ-PE-injectivity : ∀ {p p′ q q′} → BΠ p q PE.≡ BΠ p′ q′ → p PE.≡ p′ × q PE.≡ q′
-BΠ-PE-injectivity PE.refl = PE.refl , PE.refl
-
-BΣ-PE-injectivity :
-  ∀ {p p′ q q′ m m′} →
-  BΣ m p q PE.≡ BΣ m′ p′ q′ → p PE.≡ p′ × q PE.≡ q′ × m PE.≡ m′
-BΣ-PE-injectivity PE.refl = PE.refl , PE.refl , PE.refl
-
--- If  suc n = suc m  then  n = m.
-
-suc-PE-injectivity : suc t PE.≡ suc u → t PE.≡ u
-suc-PE-injectivity PE.refl = PE.refl
-
--- If prod t u = prod t′ u′ then t = t′ and u = u′
-
-prod-PE-injectivity : ∀ {m m′} → prod m p t u PE.≡ prod m′ p′ t′ u′
-                    → m PE.≡ m′ × p PE.≡ p′ × t PE.≡ t′ × u PE.≡ u′
-prod-PE-injectivity PE.refl = PE.refl , PE.refl , PE.refl , PE.refl
-
 
 -- Fully normalized natural numbers
 

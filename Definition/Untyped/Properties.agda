@@ -22,12 +22,14 @@ open import Tools.Sum hiding (id; sym)
 private
   variable
     ℓ m n : Nat
-    A t u v : Term _
+    x₁ x₂ : Fin _
+    A A₁ A₂ B₁ B₂ t t₁ t₂ u u₁ u₂ v v₁ v₂ w₁ w₂ : Term _
     ρ ρ′ : Wk m n
     η : Wk n ℓ
     σ σ₁ σ₂ σ′ : Subst m n
-    p q r : M
-    s : Strength
+    p p₁ p₂ q q₁ q₂ r r₁ r₂ : M
+    s s₁ s₂ : Strength
+    b₁ b₂ : BinderMode
 
 -- Extensionally equal weakenings, if applied to a term,
 -- yield the same weakened term.  Or:
@@ -821,20 +823,20 @@ subst-β-prodrec :
   A [ prod s p (var x1) (var x0) ]↑² [ liftSubstn σ 2 ] ≡
   A [ liftSubst σ ] [ prod s p (var x1) (var x0) ]↑²
 subst-β-prodrec {n = n} A σ = begin
-   A [ t₁ ]↑² [ liftSubstn σ 2 ]
+   A [ t₁′ ]↑² [ liftSubstn σ 2 ]
      ≡⟨ substCompEq A ⟩
-   A [ liftSubstn σ 2 ₛ•ₛ consSubst (wkSubst 2 idSubst) t₁ ]
+   A [ liftSubstn σ 2 ₛ•ₛ consSubst (wkSubst 2 idSubst) t₁′ ]
      ≡⟨ substVar-to-subst varEq A ⟩
-   A [ consSubst (wkSubst 2 idSubst) t₂ ₛ•ₛ liftSubst σ ]
+   A [ consSubst (wkSubst 2 idSubst) t₂′ ₛ•ₛ liftSubst σ ]
      ≡˘⟨ substCompEq A ⟩
-   A [ liftSubst σ ] [ t₂ ]↑² ∎
+   A [ liftSubst σ ] [ t₂′ ]↑² ∎
    where
-   t₁ = prod! (var (x0 +1)) (var x0)
-   t₂ = prod! (var (x0 +1)) (var x0)
+   t₁′ = prod! (var (x0 +1)) (var x0)
+   t₂′ = prod! (var (x0 +1)) (var x0)
    varEq :
      (x : Fin (1+ n)) →
-     (liftSubstn σ 2 ₛ•ₛ consSubst (wkSubst 2 idSubst) t₁) x ≡
-     (consSubst (wkSubst 2 idSubst) t₂ ₛ•ₛ liftSubst σ) x
+     (liftSubstn σ 2 ₛ•ₛ consSubst (wkSubst 2 idSubst) t₁′) x ≡
+     (consSubst (wkSubst 2 idSubst) t₂′ ₛ•ₛ liftSubst σ) x
    varEq x0 = refl
    varEq (x +1) = begin
      wk1 (wk1 (σ x))
@@ -845,7 +847,7 @@ subst-β-prodrec {n = n} A σ = begin
        ≡⟨ substVar-to-subst (λ x₁ → refl) (σ x) ⟩
      σ x [ (λ y → var (y +2)) ]
        ≡˘⟨ wk1-tail (σ x) ⟩
-     wk1 (σ x) [ consSubst (λ y → var (y +2)) t₂ ] ∎
+     wk1 (σ x) [ consSubst (λ y → var (y +2)) t₂′ ] ∎
 
 substComp↑² :
   (A : Term (1+ n)) (t : Term (2 + n)) →
@@ -1257,3 +1259,126 @@ opaque
   wk-sucᵏ : ∀ k → wk ρ (sucᵏ k) ≡ sucᵏ k
   wk-sucᵏ 0 = refl
   wk-sucᵏ (1+ k) = cong suc (wk-sucᵏ k)
+
+------------------------------------------------------------------------
+-- Injectivity of constructors with respect to propositional equality
+
+-- BΠ is injective.
+
+BΠ-PE-injectivity : BΠ p₁ q₁ PE.≡ BΠ p₂ q₂ → p₁ PE.≡ p₂ × q₁ PE.≡ q₂
+BΠ-PE-injectivity PE.refl = PE.refl , PE.refl
+
+-- BΣ is injective.
+
+BΣ-PE-injectivity :
+  BΣ s₁ p₁ q₁ PE.≡ BΣ s₂ p₂ q₂ → p₁ PE.≡ p₂ × q₁ PE.≡ q₂ × s₁ PE.≡ s₂
+BΣ-PE-injectivity PE.refl = PE.refl , PE.refl , PE.refl
+
+-- The constructor var is injective.
+
+var-PE-injectivity : Term.var {n = n} x₁ PE.≡ var x₂ → x₁ PE.≡ x₂
+var-PE-injectivity PE.refl = PE.refl
+
+-- ΠΣ⟨_⟩_,_▷_▹_ is injective.
+
+ΠΣ-PE-injectivity :
+  ΠΣ⟨ b₁ ⟩ p₁ , q₁ ▷ A₁ ▹ B₁ PE.≡ ΠΣ⟨ b₂ ⟩ p₂ , q₂ ▷ A₂ ▹ B₂ →
+  b₁ PE.≡ b₂ × p₁ PE.≡ p₂ × q₁ PE.≡ q₂ × A₁ PE.≡ A₂ × B₁ PE.≡ B₂
+ΠΣ-PE-injectivity PE.refl =
+  PE.refl , PE.refl , PE.refl , PE.refl , PE.refl
+
+-- ⟦_⟧_▷_▹_ is injective.
+
+B-PE-injectivity :
+  ∀ W₁ W₂ → ⟦ W₁ ⟧ A₁ ▹ B₁ PE.≡ ⟦ W₂ ⟧ A₂ ▹ B₂ →
+  A₁ PE.≡ A₂ × B₁ PE.≡ B₂ × W₁ PE.≡ W₂
+B-PE-injectivity (BΠ p q) (BΠ .p .q) PE.refl =
+  PE.refl , PE.refl , PE.refl
+B-PE-injectivity (BΣ p q s) (BΣ .p .q .s) PE.refl =
+  PE.refl , PE.refl , PE.refl
+
+-- The constructor _∘⟨_⟩_ is injective.
+
+∘-PE-injectivity :
+  t₁ ∘⟨ p₁ ⟩ u₁ PE.≡ t₂ ∘⟨ p₂ ⟩ u₂ →
+  p₁ PE.≡ p₂ × t₁ PE.≡ t₂ × u₁ PE.≡ u₂
+∘-PE-injectivity PE.refl = PE.refl , PE.refl , PE.refl
+
+-- The constructor prod is injective.
+
+prod-PE-injectivity :
+  prod s₁ p₁ t₁ u₁ PE.≡ prod s₂ p₂ t₂ u₂ →
+  s₁ PE.≡ s₂ × p₁ PE.≡ p₂ × t₁ PE.≡ t₂ × u₁ PE.≡ u₂
+prod-PE-injectivity PE.refl = PE.refl , PE.refl , PE.refl , PE.refl
+
+-- The constructor prodrec is injective.
+
+prodrec-PE-injectivity :
+  prodrec r₁ p₁ q₁ A₁ t₁ u₁ PE.≡ prodrec r₂ p₂ q₂ A₂ t₂ u₂ →
+  r₁ PE.≡ r₂ × p₁ PE.≡ p₂ × q₁ PE.≡ q₂ × A₁ PE.≡ A₂ × t₁ PE.≡ t₂ ×
+  u₁ PE.≡ u₂
+prodrec-PE-injectivity PE.refl =
+  PE.refl , PE.refl , PE.refl , PE.refl , PE.refl , PE.refl
+
+-- The constructor emptyrec is injective.
+
+emptyrec-PE-injectivity :
+  emptyrec p₁ A₁ t₁ PE.≡ emptyrec p₂ A₂ t₂ →
+  p₁ PE.≡ p₂ × A₁ PE.≡ A₂ × t₁ PE.≡ t₂
+emptyrec-PE-injectivity PE.refl = PE.refl , PE.refl , PE.refl
+
+-- The constructor unitrec is injective.
+
+unitrec-PE-injectivity :
+  unitrec p₁ q₁ A₁ t₁ u₁ PE.≡ unitrec p₂ q₂ A₂ t₂ u₂ →
+  p₁ PE.≡ p₂ × q₁ PE.≡ q₂ × A₁ PE.≡ A₂ × t₁ PE.≡ t₂ × u₁ PE.≡ u₂
+unitrec-PE-injectivity PE.refl =
+  PE.refl , PE.refl , PE.refl , PE.refl , PE.refl
+
+-- The constructor suc is injective.
+
+suc-PE-injectivity : suc t₁ PE.≡ suc t₂ → t₁ PE.≡ t₂
+suc-PE-injectivity PE.refl = PE.refl
+
+-- The constructor natrec is injective.
+
+natrec-PE-injectivity :
+  natrec p₁ q₁ r₁ A₁ t₁ u₁ v₁ PE.≡ natrec p₂ q₂ r₂ A₂ t₂ u₂ v₂ →
+  p₁ PE.≡ p₂ × q₁ PE.≡ q₂ × r₁ PE.≡ r₂ × A₁ PE.≡ A₂ × t₁ PE.≡ t₂ ×
+  u₁ PE.≡ u₂ × v₁ PE.≡ v₂
+natrec-PE-injectivity PE.refl =
+  PE.refl , PE.refl , PE.refl , PE.refl , PE.refl , PE.refl , PE.refl
+
+-- Id is injective.
+
+Id-PE-injectivity :
+  Id A₁ t₁ u₁ PE.≡ Id A₂ t₂ u₂ →
+  A₁ PE.≡ A₂ × t₁ PE.≡ t₂ × u₁ PE.≡ u₂
+Id-PE-injectivity PE.refl = PE.refl , PE.refl , PE.refl
+
+-- J is injective.
+
+J-PE-injectivity :
+  J p₁ q₁ A₁ t₁ B₁ u₁ v₁ w₁ PE.≡ J p₂ q₂ A₂ t₂ B₂ u₂ v₂ w₂ →
+  p₁ PE.≡ p₂ × q₁ PE.≡ q₂ × A₁ PE.≡ A₂ × t₁ PE.≡ t₂ × B₁ PE.≡ B₂ ×
+  u₁ PE.≡ u₂ × v₁ PE.≡ v₂ × w₁ PE.≡ w₂
+J-PE-injectivity PE.refl =
+  PE.refl , PE.refl , PE.refl , PE.refl , PE.refl , PE.refl ,
+  PE.refl , PE.refl
+
+-- K is injective.
+
+K-PE-injectivity :
+  K p₁ A₁ t₁ B₁ u₁ v₁ PE.≡ K p₂ A₂ t₂ B₂ u₂ v₂ →
+  p₁ PE.≡ p₂ × A₁ PE.≡ A₂ × t₁ PE.≡ t₂ × B₁ PE.≡ B₂ × u₁ PE.≡ u₂ ×
+  v₁ PE.≡ v₂
+K-PE-injectivity PE.refl =
+  PE.refl , PE.refl , PE.refl , PE.refl , PE.refl , PE.refl
+
+-- []-cong is injective.
+
+[]-cong-PE-injectivity :
+  []-cong s₁ A₁ t₁ u₁ v₁ PE.≡ []-cong s₂ A₂ t₂ u₂ v₂ →
+  s₁ PE.≡ s₂ × A₁ PE.≡ A₂ × t₁ PE.≡ t₂ × u₁ PE.≡ u₂ × v₁ PE.≡ v₂
+[]-cong-PE-injectivity PE.refl =
+  PE.refl , PE.refl , PE.refl , PE.refl , PE.refl

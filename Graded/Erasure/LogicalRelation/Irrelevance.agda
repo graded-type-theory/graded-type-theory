@@ -29,6 +29,7 @@ open import Definition.Typed.Properties R
 
 open import Definition.Untyped M
 open import Definition.Untyped.Neutral M type-variant
+open import Definition.Untyped.Properties M
 
 open import Tools.Function
 open import Tools.Nat
