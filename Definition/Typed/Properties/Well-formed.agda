@@ -119,6 +119,13 @@ opaque
 
 opaque
 
+  -- If ⊢ Γ ∙ A holds, then Γ ⊢ A also holds.
+
+  ⊢∙→⊢ : ⊢ Γ ∙ A → Γ ⊢ A
+  ⊢∙→⊢ (_ ∙ ⊢A) = ⊢A
+
+opaque
+
   -- A lemma which could perhaps be used to make certain proofs more
   -- readable.
 
