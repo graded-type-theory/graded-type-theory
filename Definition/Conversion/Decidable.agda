@@ -2,6 +2,8 @@
 -- The algorithmic equality is decidable.
 ------------------------------------------------------------------------
 
+{-# OPTIONS --no-infer-absurd-clauses #-}
+
 open import Definition.Typed.Restrictions
 open import Graded.Modality
 import Tools.PropositionalEquality as PE
@@ -19,14 +21,15 @@ open Type-restrictions R
 open import Definition.Untyped M
 open import Definition.Untyped.Neutral M type-variant
 open import Definition.Untyped.Properties M
+open import Definition.Untyped.Properties.Neutral M type-variant
 open import Definition.Typed R
 open import Definition.Typed.Properties R
+open import Definition.Typed.Reasoning.Type R
 open import Definition.Conversion R
 open import Definition.Conversion.Inversion R
 open import Definition.Conversion.Whnf R
 open import Definition.Conversion.Soundness R
 open import Definition.Conversion.Symmetry R
-open import Definition.Conversion.Transitivity R
 open import Definition.Conversion.Stability R
 open import Definition.Conversion.Conversion R
 open import Definition.Typed.Consequences.DerivedRules.Identity R
@@ -37,9 +40,10 @@ open import Definition.Typed.Consequences.Injectivity R
 open import Definition.Typed.Consequences.Inversion R
 open import Definition.Typed.Consequences.Reduction R
 open import Definition.Typed.Consequences.Equality R
-open import Definition.Typed.Consequences.Inequality R as IE
 open import Definition.Typed.Consequences.NeTypeEq R
 open import Definition.Typed.Consequences.DerivedRules.Nat R
+
+import Graded.Derived.Erased.Untyped 𝕄 as Erased
 
 open import Tools.Fin
 open import Tools.Function
@@ -52,602 +56,742 @@ private
   variable
     ℓ : Nat
     Γ Δ : Con Term ℓ
-    B F G k k′ l l′ : Term ℓ
-    p p′ p₁ p₂ q q′ r r′ : M
+    A A₁ A₂ A′ B B₁ B₂ B′ C₁ C₂ t t₁ t₂ t′ u u₁ u₂ v₁ v₂ w₁ w₂ : Term _
+    b₁ b₂ : BinderMode
+    s₁ s₂ : Strength
+    p p₁ p₂ p′ q q₁ q₂ q′ q′₁ q′₂ r₁ r₂ : M
 
+------------------------------------------------------------------------
+-- Private definitions
 
--- Algorithmic equality of variables infers propositional equality.
-strongVarEq : ∀ {m n A} → Γ ⊢ var n ~ var m ↑ A → n PE.≡ m
-strongVarEq (var-refl x x≡y) = x≡y
+private opaque
 
--- Helper function for decidability of applications.
-dec~↑-app : ∀ {k k₁ l l₁ F F₁ G G₁ B}
-          → Γ ⊢ k ∷ Π p , q ▷ F ▹ G
-          → Γ ⊢ k₁ ∷ Π p , q ▷ F₁ ▹ G₁
-          → Γ ⊢ k ~ k₁ ↓ B
-          → p PE.≡ p′
-          → Dec (Γ ⊢ l [conv↑] l₁ ∷ F)
-          → Dec (∃ λ A → Γ ⊢ k ∘⟨ p ⟩ l ~ k₁ ∘⟨ p′ ⟩ l₁ ↑ A)
-dec~↑-app k k₁ k~k₁ PE.refl (yes p) =
-  let whnfA , neK , neL = ne~↓ k~k₁
-      ⊢A , ⊢k , ⊢l = syntacticEqTerm (soundness~↓ k~k₁)
-      ΠFG₁≡A = neTypeEq neK k ⊢k
-  in
-  case Π≡A ΠFG₁≡A whnfA of λ {
-    (H , E , A≡ΠHE) →
-  case injectivity (PE.subst (λ x → _ ⊢ _ ≡ x) A≡ΠHE ΠFG₁≡A) of λ {
-    (F≡H , G₁≡E , _ , _) →
-  yes (E [ _ ] , app-cong (PE.subst (λ x → _ ⊢ _ ~ _ ↓ x) A≡ΠHE k~k₁)
-                   (convConvTerm p F≡H)) }}
-dec~↑-app k₂ k₃ k~k₁ _ (no ¬p) =
-  no (λ { (_ , app-cong x x₁) →
-      let whnfA , neK , neL = ne~↓ x
-          ⊢A , ⊢k , ⊢l = syntacticEqTerm (soundness~↓ x)
-          ΠFG≡ΠF₂G₂ = neTypeEq neK k₂ ⊢k
-          F≡F₂ , G≡G₂ , _ = injectivity ΠFG≡ΠF₂G₂
-      in  ¬p (convConvTerm x₁ (sym F≡F₂)) })
+  -- Some lemmas used below.
 
--- Helper function for decidability for neutrals of natural number type.
-decConv↓Term-ℕ-ins : ∀ {t u t′}
-                    → Γ ⊢ t [conv↓] u ∷ ℕ
-                    → Γ ⊢ t ~ t′ ↓ ℕ
-                    → Γ ⊢ t ~ u ↓ ℕ
-decConv↓Term-ℕ-ins (ℕ-ins x) t~t = x
-decConv↓Term-ℕ-ins (ne-ins x x₁ () x₃) t~t
-decConv↓Term-ℕ-ins (zero-refl x) ([~] _ _ ())
-decConv↓Term-ℕ-ins (suc-cong x) ([~] _ _ ())
+  ~↓→∷ : Γ ⊢ t ~ u ↓ A → Γ ⊢ t ∷ A
+  ~↓→∷ = proj₁ ∘→ proj₂ ∘→ syntacticEqTerm ∘→ soundness~↓
 
--- Helper function for decidability for neutrals of empty type.
-decConv↓Term-Empty-ins : ∀ {t u t′}
-                    → Γ ⊢ t [conv↓] u ∷ Empty
-                    → Γ ⊢ t ~ t′ ↓ Empty
-                    → Γ ⊢ t ~ u ↓ Empty
-decConv↓Term-Empty-ins (Empty-ins x) t~t = x
-decConv↓Term-Empty-ins (ne-ins x x₁ () x₃) t~t
+  [conv↓]∷→∷ : Γ ⊢ t [conv↓] u ∷ A → Γ ⊢ t ∷ A
+  [conv↓]∷→∷ = proj₁ ∘→ proj₂ ∘→ syntacticEqTerm ∘→ soundnessConv↓Term
 
--- Helper function for decidability for neutrals of Sigm type.
-decConv↓Term-Σʷ-ins : ∀ {t t′ u F G H E}
-                    → Γ ⊢ t [conv↓] u ∷ Σʷ p , q ▷ F ▹ G
-                    → Γ ⊢ t ~ t′ ↓ Σʷ p′ , q′ ▷ H ▹ E
-                    → ∃ λ B → Γ ⊢ t ~ u ↓ B
-decConv↓Term-Σʷ-ins (Σʷ-ins x x₁ x₂) t~t = _ , x₂
-decConv↓Term-Σʷ-ins (prod-cong _ _ _ _ _) ()
-decConv↓Term-Σʷ-ins (ne-ins x x₁ () x₃) t~t
+  ~↓→∷→Whnf×≡ : Γ ⊢ t ~ u ↓ A → Γ ⊢ t ∷ B → Γ ⊢ B ≡ A × Whnf A
+  ~↓→∷→Whnf×≡ t~u ⊢t =
+    let A-whnf , t-ne , _ = ne~↓ t~u in
+    neTypeEq t-ne ⊢t (~↓→∷ t~u) , A-whnf
 
--- Helper function for decidability for impossibility of terms not being equal
--- as neutrals when they are equal as terms and the first is a neutral.
-decConv↓Term-ℕ : ∀ {t u t′}
-                → Γ ⊢ t [conv↓] u ∷ ℕ
-                → Γ ⊢ t ~ t′ ↓ ℕ
-                → ¬ (Γ ⊢ t ~ u ↓ ℕ)
-                → ⊥
-decConv↓Term-ℕ (ℕ-ins x) t~t ¬u~u = ¬u~u x
-decConv↓Term-ℕ (ne-ins x x₁ () x₃) t~t ¬u~u
-decConv↓Term-ℕ (zero-refl x) ([~] _ _ ()) ¬u~u
-decConv↓Term-ℕ (suc-cong x) ([~] _ _ ()) ¬u~u
+private opaque
 
-decConv↓Term-Σʷ : ∀ {t u t′ F G F′ G′}
-                → Γ ⊢ t [conv↓] u ∷ Σʷ p , q ▷ F ▹ G
-                → Γ ⊢ t ~ t′ ↓ Σʷ p′ , q′ ▷ F′ ▹ G′
-                → (∀ {B} → ¬ (Γ ⊢ t ~ u ↓ B))
-                → ⊥
-decConv↓Term-Σʷ (Σʷ-ins x x₁ x₂) t~t ¬u~u = ¬u~u x₂
-decConv↓Term-Σʷ (prod-cong _ _ _ _ _) ()
-decConv↓Term-Σʷ (ne-ins x x₁ () x₃) t~t ¬u~u
+  -- A lemma used below.
 
--- Helper function for extensional equality of Unit.
-decConv↓Term-Unit : ∀ {t t′}
-              → Γ ⊢ t [conv↓] starʷ ∷ Unitʷ
-              → Γ ⊢ t ~ t′ ↓ Unitʷ
-              → Unitʷ-η
-decConv↓Term-Unit (Unitʷ-ins _ ()) ([~] _ _ _)
-decConv↓Term-Unit (η-unit _ _ _ _ (inj₁ ())) ([~] _ _ _)
-decConv↓Term-Unit (η-unit _ _ _ _ (inj₂ η)) ([~] _ _ _) = η
-decConv↓Term-Unit (ne-ins x x₁ () x₃) ([~] _ _ k~l)
-decConv↓Term-Unit (starʷ-refl _ _ _) ()
+  [conv↓]∷ℕ→~↓ℕ :
+    Γ ⊢ t ~ t′ ↓ ℕ →
+    Γ ⊢ t [conv↓] u ∷ ℕ →
+    Γ ⊢ t ~ u ↓ ℕ
+  [conv↓]∷ℕ→~↓ℕ ([~] _ _ t~t′) t≡u =
+    case inv-[conv↓]∷-ℕ t≡u of λ where
+      (inj₁ t~u)                          → t~u
+      (inj₂ (inj₁ (PE.refl , _)))         → ⊥-elim (inv-zero~ t~t′)
+      (inj₂ (inj₂ (_ , _ , PE.refl , _))) → ⊥-elim (inv-suc~ t~t′)
 
--- Helper function for Σ-η.
-decConv↓Term-Σ-η : ∀ {t u F G}
-                  → Γ ⊢ t ∷ Σ p , q ▷ F ▹ G
-                  → Γ ⊢ u ∷ Σ p , q ▷ F ▹ G
-                  → Product t
-                  → Product u
-                  → Γ ⊢ fst p t [conv↑] fst p u ∷ F
-                  → Dec (Γ ⊢ snd p t [conv↑] snd p u ∷ G [ fst p t ]₀)
-                  → Dec (Γ ⊢ t [conv↓] u ∷ Σ p , q ▷ F ▹ G)
-decConv↓Term-Σ-η ⊢t ⊢u tProd uProd fstConv (yes Q) =
-  yes (Σ-η ⊢t ⊢u tProd uProd fstConv Q)
-decConv↓Term-Σ-η ⊢t ⊢u tProd uProd fstConv (no ¬Q) =
-  no (λ {(Σ-η _ _ _ _ _ Q) → ¬Q Q})
+private opaque
 
--- Helper function for prodrec
-dec~↑-prodrec :
-  ∀ {F G C E t t′ u v F′ G′ q″} →
-  Dec (Γ ∙ (Σʷ p , q ▷ F ▹ G) ⊢ C [conv↑] E) →
-  (Γ ∙ (Σʷ p , q ▷ F ▹ G) ⊢ C ≡ E →
-    Dec (Γ ∙ F ∙ G ⊢ u [conv↑] v ∷
-      C [ prodʷ p (var x1) (var x0) ]↑²)) →
-  Γ ⊢ t ~ t′ ↓ Σʷ p , q ▷ F′ ▹ G′ →
-  Γ ⊢ Σʷ p , q ▷ F ▹ G ≡ Σʷ p , q ▷ F′ ▹ G′ →
-  p PE.≡ p′ →
-  q′ PE.≡ q″ →
-  r PE.≡ r′ →
-  Dec (∃ λ B → Γ ⊢ prodrec r p q′ C t u ~ prodrec r′ p′ q″ E t′ v ↑ B)
-dec~↑-prodrec (yes C<>E) u<?>v t~t′ ⊢Σ≡Σ′ p≡p′ q≡q′ r≡r′ =
-  case u<?>v (soundnessConv↑ C<>E) of λ where
-    (yes u<>v) → case p≡p′ of λ where
-      PE.refl → case q≡q′ of λ where
-        PE.refl → case r≡r′ of λ where
-          PE.refl → case reflConEq (wfEq ⊢Σ≡Σ′) of λ ⊢Γ≡Γ →
-                    case stabilityConv↑ (⊢Γ≡Γ ∙ ⊢Σ≡Σ′) C<>E of λ C<>E′ →
-                    case Σ-injectivity ⊢Σ≡Σ′ of λ (⊢F≡F′ , ⊢G≡G′ , _) →
-                    case stabilityConv↑Term (⊢Γ≡Γ ∙ ⊢F≡F′ ∙ ⊢G≡G′) u<>v of λ u<>v′ →
-                      yes (_ , prodrec-cong C<>E′ t~t′ u<>v′)
-    (no ¬u<>v) → no λ where
-      (_ , prodrec-cong x x₁ x₂) →
-        case syntacticEqTerm (soundness~↓ t~t′) of λ (_ , ⊢t , _) →
-        case syntacticEqTerm (soundness~↓ x₁)   of λ (_ , ⊢t₁ , _) →
-        case ne~↓ t~t′ of λ (_ , neT , _) →
-        case neTypeEq neT ⊢t₁ ⊢t of λ ⊢Σ″≡Σ′ →
-        case reflConEq (wfEq ⊢Σ″≡Σ′) of λ ⊢Γ≡Γ →
-        case Σ-injectivity (trans ⊢Σ″≡Σ′ (sym ⊢Σ≡Σ′)) of λ (⊢F″≡F , ⊢G″≡G , _) →
-          ¬u<>v (stabilityConv↑Term (⊢Γ≡Γ ∙ ⊢F″≡F ∙ ⊢G″≡G) x₂)
-dec~↑-prodrec (no ¬C<>E) u<?>v t~t′ ⊢Σ≡Σ′ _ _ _ =  no λ where
-      (_ , prodrec-cong x x₁ x₂) →
-        case syntacticEqTerm (soundness~↓ t~t′) of λ (_ , ⊢t , _) →
-        case syntacticEqTerm (soundness~↓ x₁)   of λ (_ , ⊢t₁ , _) →
-        case ne~↓ t~t′ of λ (_ , neT , _) →
-        case neTypeEq neT ⊢t₁ ⊢t of λ ⊢Σ″≡Σ′ →
-        case reflConEq (wfEq ⊢Σ″≡Σ′) of λ ⊢Γ≡Γ →
-          ¬C<>E (stabilityConv↑ (⊢Γ≡Γ ∙ trans ⊢Σ″≡Σ′ (sym ⊢Σ≡Σ′)) x)
+  -- A lemma used below.
 
-dec~↑-var : ∀ {k k′ A}
-          → (x : Fin _)
-          → Γ ⊢ k ~ k′ ↑ A
-          → Dec (∃ λ B → Γ ⊢ var x ~ k ↑ B)
-dec~↑-var x (var-refl {x = y} x₁ x₂) with x ≟ⱽ y
-... | yes PE.refl = yes (_ , var-refl x₁ PE.refl)
-... | no ¬p = no λ { (_ , var-refl x x₁) → ¬p x₁}
-dec~↑-var x (app-cong _ _) = no λ { (_ , ())}
-dec~↑-var x (fst-cong _) = no λ { (_ , ())}
-dec~↑-var x (snd-cong _) = no λ { (_ , ())}
-dec~↑-var x (natrec-cong _ _ _ _) = no λ { (_ , ())}
-dec~↑-var x (prodrec-cong _ _ _) = no λ { (_ , ())}
-dec~↑-var x (emptyrec-cong _ _) = no λ { (_ , ())}
-dec~↑-var x (unitrec-cong _ _ _ _) = no λ { (_ , ())}
-dec~↑-var _ (J-cong _ _ _ _ _ _ _) = no λ { (_ , ()) }
-dec~↑-var _ (K-cong _ _ _ _ _ _ _) = no λ { (_ , ()) }
-dec~↑-var _ ([]-cong-cong _ _ _ _ _ _) = no λ { (_ , ()) }
+  [conv↓]∷Σʷ→~↓ :
+    Γ ⊢ t ~ t′ ↓ Σʷ p′ , q′ ▷ A′ ▹ B′ →
+    Γ ⊢ t [conv↓] u ∷ Σʷ p , q ▷ A ▹ B →
+    ∃ λ C → Γ ⊢ t ~ u ↓ C
+  [conv↓]∷Σʷ→~↓ ([~] _ _ t~t′) t≡u =
+    case inv-[conv↓]∷-Σʷ t≡u of λ where
+      (inj₁ (_ , _ , _ , _ , t~u))         → _ , t~u
+      (inj₂ (_ , _ , _ , _ , PE.refl , _)) → ⊥-elim (inv-prod~ t~t′)
 
-dec~↑-app′ : ∀ {k l l′ a A F G}
-          → Γ ⊢ l ~ l′ ↑ A
-          → (∀ {l l′ B} → Γ ⊢ l ~ l′ ↓ B → Dec (∃ λ C → Γ ⊢ k ~ l ↓ C))
-          → (∀ {F′ u u′} → Γ ⊢ F ≡ F′ → Γ ⊢ u [conv↑] u′ ∷ F′
-                           → Dec (Γ ⊢ a [conv↑] u ∷ F))
-          → Γ ⊢ k ∷ Π p , q ▷ F ▹ G
-          → p PE.≡ p₁
-          → Dec (∃ λ C → Γ ⊢ k ∘⟨ p₁ ⟩ a ~ l ↑ C)
-dec~↑-app′ (app-cong x x₁) dec dec′ ⊢l₁ p≡p₁ with dec x
-... | no ¬p = no λ{ (_ , app-cong x x₁) → ¬p (_ , x)}
-dec~↑-app′ (app-cong x x₁) _ dec′ ⊢l₁ PE.refl | yes (C , k~l) =
-  let whnfA , neK , neL = ne~↓ k~l
-      ⊢A , ⊢k , ⊢l = syntacticEqTerm (soundness~↓ k~l)
-      _ , ⊢l₂ , _ = syntacticEqTerm (soundness~↓ x)
-      ΠFG≡A = neTypeEq neK ⊢l₁ ⊢k
-      ΠF′G′≡A = neTypeEq neL ⊢l₂ ⊢l
-  in
-  case injectivity (trans ΠFG≡A (sym ΠF′G′≡A)) of λ {
-    (F≡F′ , G≡G′ , PE.refl , _) →
-  case conv ⊢l₂ (trans ΠF′G′≡A (sym ΠFG≡A)) of λ {
-    ⊢l₂′ →
-  dec~↑-app ⊢l₁ ⊢l₂′ k~l PE.refl (dec′ F≡F′ x₁) }}
-dec~↑-app′ (var-refl x x₁) _ _ _ _ = no λ { (_ , ())}
-dec~↑-app′ (fst-cong x) _ _ _ _ = no λ { (_ , ())}
-dec~↑-app′ (snd-cong x) _ _ _ _ = no λ { (_ , ())}
-dec~↑-app′ (natrec-cong x x₁ x₂ x₃) _ _ _ _ = no λ { (_ , ())}
-dec~↑-app′ (prodrec-cong x x₁ x₂) _ _ _ _ = no λ { (_ , ())}
-dec~↑-app′ (emptyrec-cong x x₁) _ _ _ _ = no λ { (_ , ())}
-dec~↑-app′ (unitrec-cong _ _ _ _) _ _ _ _ = no λ { (_ , ())}
-dec~↑-app′ (J-cong _ _ _ _ _ _ _) _ _ _ _ = no λ { (_ , ()) }
-dec~↑-app′ (K-cong _ _ _ _ _ _ _) _ _ _ _ = no λ { (_ , ()) }
-dec~↑-app′ ([]-cong-cong _ _ _ _ _ _) _ _ _ _ = no λ { (_ , ()) }
+private opaque
 
-dec~↑-fst :
-  Γ ⊢ k ~ k′ ↓ Σˢ p , q ▷ F ▹ G →
-  (∀ {l l′ B} → Γ ⊢ l ~ l′ ↓ B → Dec (∃ λ A → Γ ⊢ k ~ l ↓ A)) →
-  Γ ⊢ l ~ l′ ↑ B →
-  Dec (∃ λ A → Γ ⊢ fst p k ~ l ↑ A)
-dec~↑-fst k~k dec (fst-cong l~l) with dec l~l
-... | yes (A , k~l) =
-  case ne~↓ k~l of λ (whnfA , neK , neL) →
-  case syntacticEqTerm (soundness~↓ k~l) of λ (⊢A , ⊢k , ⊢l) →
-  case syntacticEqTerm (soundness~↓ k~k) of λ (_ , ⊢k₁ , _) →
-  case syntacticEqTerm (soundness~↓ l~l) of λ (_ , ⊢l₁ , _) →
-  case neTypeEq neK ⊢k₁ ⊢k of λ ΣFG≡A →
-  case neTypeEq neL ⊢l₁ ⊢l of λ ΣF′G′≡A →
-  case Σ≡A ΣFG≡A whnfA of λ where
-    (F , _ , PE.refl) →
-      case Σ-injectivity ΣF′G′≡A of λ where
-        (_ , _ , PE.refl , _ , _) →
-          yes (F , fst-cong k~l)
-... | no ¬p = no (λ { (_ , fst-cong x) → ¬p (_ , x) })
-dec~↑-fst _ _ (var-refl _ _)             = no λ { (_ , ()) }
-dec~↑-fst _ _ (app-cong _ _)             = no λ { (_ , ()) }
-dec~↑-fst _ _ (snd-cong _)               = no λ { (_ , ()) }
-dec~↑-fst _ _ (natrec-cong _ _ _ _)      = no λ { (_ , ()) }
-dec~↑-fst _ _ (prodrec-cong _ _ _)       = no λ { (_ , ()) }
-dec~↑-fst _ _ (emptyrec-cong _ _)        = no λ { (_ , ()) }
-dec~↑-fst _ _ (unitrec-cong _ _ _ _)     = no λ { (_ , ()) }
-dec~↑-fst _ _ (J-cong _ _ _ _ _ _ _)     = no λ { (_ , ()) }
-dec~↑-fst _ _ (K-cong _ _ _ _ _ _ _)     = no λ { (_ , ()) }
-dec~↑-fst _ _ ([]-cong-cong _ _ _ _ _ _) = no λ { (_ , ()) }
+  -- A lemma used below.
 
-dec~↑-snd :
-  Γ ⊢ k ~ k′ ↓ Σˢ p , q ▷ F ▹ G →
-  (∀ {l l′ B} → Γ ⊢ l ~ l′ ↓ B → Dec (∃ λ A → Γ ⊢ k ~ l ↓ A)) →
-  Γ ⊢ l ~ l′ ↑ B →
-  Dec (∃ λ A → Γ ⊢ snd p k ~ l ↑ A)
-dec~↑-snd {k = k} k~k dec (snd-cong l~l) with dec l~l
-... | yes (A , k~l) =
-  case ne~↓ k~l of λ (whnfA , neK , neL) →
-  case syntacticEqTerm (soundness~↓ k~l) of λ (⊢A , ⊢k , ⊢l) →
-  case syntacticEqTerm (soundness~↓ k~k) of λ (_ , ⊢k₁ , _) →
-  case syntacticEqTerm (soundness~↓ l~l) of λ (_ , ⊢l₁ , _) →
-  case neTypeEq neK ⊢k₁ ⊢k of λ ΣFG≡A →
-  case neTypeEq neL ⊢l₁ ⊢l of λ ΣF′G′≡A →
-  case Σ≡A ΣFG≡A whnfA of λ where
-    (_ , G , PE.refl) →
-      case Σ-injectivity ΣF′G′≡A of λ where
-        (_ , _ , PE.refl , _ , _) →
-          yes (G [ fst _ k ]₀ , snd-cong k~l)
-... | no ¬p = no (λ { (_ , snd-cong x₂) → ¬p (_ , x₂) })
-dec~↑-snd _ _ (var-refl _ _)             = no λ { (_ , ()) }
-dec~↑-snd _ _ (app-cong _ _)             = no λ { (_ , ()) }
-dec~↑-snd _ _ (fst-cong _)               = no λ { (_ , ()) }
-dec~↑-snd _ _ (natrec-cong _ _ _ _)      = no λ { (_ , ()) }
-dec~↑-snd _ _ (prodrec-cong _ _ _)       = no λ { (_ , ()) }
-dec~↑-snd _ _ (emptyrec-cong _ _)        = no λ { (_ , ()) }
-dec~↑-snd _ _ (unitrec-cong _ _ _ _)     = no λ { (_ , ()) }
-dec~↑-snd _ _ (J-cong _ _ _ _ _ _ _)     = no λ { (_ , ()) }
-dec~↑-snd _ _ (K-cong _ _ _ _ _ _ _)     = no λ { (_ , ()) }
-dec~↑-snd _ _ ([]-cong-cong _ _ _ _ _ _) = no λ { (_ , ()) }
+  ≡starʷ→~↓Unitʷ→Unitʷ-η :
+    Γ ⊢ t ~ u ↓ Unitʷ →
+    Γ ⊢ t [conv↓] starʷ ∷ Unitʷ →
+    Unitʷ-η
+  ≡starʷ→~↓Unitʷ→Unitʷ-η ([~] _ _ t~u) t≡star =
+    case inv-[conv↓]∷-Unitʷ t≡star of λ where
+      (inj₂ (η , _))                       → η
+      (inj₁ (no-η , inj₁ ([~] _ _ ~star))) → ⊥-elim (inv-~star ~star)
+      (inj₁ (no-η , inj₂ (PE.refl , _)))   → ⊥-elim (inv-star~ t~u)
 
-dec~↑-natrec : ∀ {l l′ A C z s n}
-             → Γ ⊢ l ~ l′ ↑ A
-             → ⊢ Γ
-             → (∀ {C′ C″} → Γ ∙ ℕ ⊢ C′ [conv↑] C″ → Dec (Γ ∙ ℕ ⊢ C [conv↑] C′))
-             → (∀ {t t′ C′} → Γ ⊢ C [ zero ]₀ ≡ C′ → Γ ⊢ t [conv↑] t′ ∷ C′ → Dec (Γ ⊢ z [conv↑] t ∷ C [ zero ]₀))
-             → (∀ {t t′ C′} → Γ ∙ ℕ ∙ C ⊢ C [ suc (var x1) ]↑² ≡ C′ → Γ ∙ ℕ ∙ C ⊢ t [conv↑] t′ ∷ C′
-                            → Dec (Γ ∙ ℕ ∙ C ⊢ s [conv↑] t ∷ C [ suc (var x1) ]↑²))
-             → (∀ {t t′ C′} → Γ ⊢ t ~ t′ ↓ C′ → Dec (∃ λ B → Γ ⊢ n ~ t ↓ B))
-             → Dec (∃ λ B → Γ ⊢ natrec p q r C z s n ~ l ↑ B)
-dec~↑-natrec {p = p} {q = q} {r = r}
-  (natrec-cong {p = p′} {q = q′} {r = r′} x x₁ x₂ x₃)
-  ⊢Γ decC decZ decS decN
-  with decC x | decN x₃ | p ≟ p′ | q ≟ q′ | r ≟ r′
-... | _ | _ | _ | _ | no r≢r′ = no λ {(_ , natrec-cong _ _ _ _) → r≢r′ PE.refl}
-... | _ | _ | _ | no q≢q′ | _ = no λ {(_ , natrec-cong _ _ _ _) → q≢q′ PE.refl}
-... | _ | _ | no p≢p′ | _ | _ = no λ {(_ , natrec-cong _ _ _ _) → p≢p′ PE.refl}
-... | _ | no ¬P | _ | _ | _ = no λ {(_ , natrec-cong _ _ _ x) → ¬P (_ , x)}
-... | no ¬P | _ | _ | _ | _ = no λ {(_ , natrec-cong x _ _ _) → ¬P x}
-... | yes C<>C′ | yes (B , n~n′) | yes _ | yes _ | yes _
-  with decZ (substTypeEq (soundnessConv↑ C<>C′) (refl (zeroⱼ ⊢Γ))) x₁
-     | decS (sucCong (soundnessConv↑ C<>C′))
-            (stabilityConv↑Term ((reflConEq (⊢Γ ∙ ℕⱼ ⊢Γ)) ∙ (sym (soundnessConv↑ C<>C′))) x₂)
-... | _ | no ¬P = no λ {(_ , natrec-cong _ _ x _) → ¬P x}
-... | no ¬P | _ = no λ {(_ , natrec-cong _ x _ _) → ¬P x}
-dec~↑-natrec (natrec-cong _ _ _ x₃) _ _ _ _ _
-  | yes C<>C′ | yes (B , n~n′) | yes PE.refl | yes PE.refl | yes PE.refl
-  | yes z<>z′ | yes s<>s′ =
-  let whnfA , neN , neN′ = ne~↓ n~n′
-      ⊢A , ⊢n , ⊢n′ = syntacticEqTerm (soundness~↓ n~n′)
-      _ , ⊢n′∷ℕ , _ = syntacticEqTerm (soundness~↓ x₃)
-      ⊢ℕ≡A = neTypeEq neN′ ⊢n′∷ℕ ⊢n′
-      A≡ℕ = ℕ≡A ⊢ℕ≡A whnfA
-      n~n″ = PE.subst (λ x → _ ⊢ _ ~ _ ↓ x) A≡ℕ n~n′
-  in  yes (_ , natrec-cong C<>C′ z<>z′ s<>s′ n~n″)
-dec~↑-natrec (var-refl _ _) _ _ _ _ _             = no λ {(_ , ())}
-dec~↑-natrec (app-cong _ _) _ _ _ _ _             = no λ {(_ , ())}
-dec~↑-natrec (fst-cong _) _ _ _ _ _               = no λ {(_ , ())}
-dec~↑-natrec (snd-cong _) _ _ _ _ _               = no λ {(_ , ())}
-dec~↑-natrec (prodrec-cong _ _ _) _ _ _ _ _       = no λ {(_ , ())}
-dec~↑-natrec (emptyrec-cong _ _) _ _ _ _ _        = no λ {(_ , ())}
-dec~↑-natrec (unitrec-cong _ _ _ _) _ _ _ _ _     = no λ {(_ , ())}
-dec~↑-natrec (J-cong _ _ _ _ _ _ _) _ _ _ _ _     = no λ {(_ , ())}
-dec~↑-natrec (K-cong _ _ _ _ _ _ _) _ _ _ _ _     = no λ {(_ , ())}
-dec~↑-natrec ([]-cong-cong _ _ _ _ _ _) _ _ _ _ _ = no λ {(_ , ())}
+private opaque
+
+  -- A lemma used below.
+
+  dec~↑-app-cong :
+    Γ ⊢ t₁ ∷ Π p₁ , q₁ ▷ A₁ ▹ B₁ →
+    Γ ⊢ u₁ ∷ Π p₂ , q₂ ▷ A₂ ▹ B₂ →
+    Dec (∃ λ C → Γ ⊢ t₁ ~ u₁ ↓ C) →
+    (Γ ⊢ A₁ ≡ A₂ → Dec (Γ ⊢ t₂ [conv↑] u₂ ∷ A₁)) →
+    Dec (∃ λ C → Γ ⊢ t₁ ∘⟨ p₁ ⟩ t₂ ~ u₁ ∘⟨ p₂ ⟩ u₂ ↑ C)
+  dec~↑-app-cong
+    {p₁} {q₁} {A₁} {B₁} {p₂} {q₂} {A₂} {B₂}
+    ⊢t₁ ⊢u₁ (yes (C , t₁~u₁)) dec₂ =
+    let C-whnf , t₁-ne , u₁-ne = ne~↓ t₁~u₁
+        _ , ⊢t₁′ , ⊢u₁′        = syntacticEqTerm (soundness~↓ t₁~u₁)
+        Π≡C                    = neTypeEq t₁-ne ⊢t₁ ⊢t₁′
+        A₁≡A₂ , _ , p₁≡p₂ , _  =
+          ΠΣ-injectivity
+            (Π p₁ , q₁ ▷ A₁ ▹ B₁  ≡⟨ Π≡C ⟩⊢
+             C                    ≡˘⟨ neTypeEq u₁-ne ⊢u₁ ⊢u₁′ ⟩⊢∎
+             Π p₂ , q₂ ▷ A₂ ▹ B₂  ∎)
+    in
+    case dec₂ A₁≡A₂ of λ where
+      (yes t₂≡u₂) →
+        yes $
+        let _ , _ , C≡Π = ΠΣ≡Whnf Π≡C C-whnf in
+          _
+        , PE.subst (flip (_⊢_~_↑_ _ _) _)
+            (PE.cong (_ ∘⟨_⟩ _) p₁≡p₂)
+            (app-cong (PE.subst (_⊢_~_↓_ _ _ _) C≡Π t₁~u₁)
+               (convConvTerm t₂≡u₂ $
+                ΠΣ-injectivity (PE.subst (_⊢_≡_ _ _) C≡Π Π≡C)
+                  .proj₁))
+      (no t₂≢u₂) →
+        no λ (_ , t~u) →
+        let _ , _ , _ , _ , _ , _ , u≡∘ , t₁~ , t₂≡ = inv-∘~ t~u
+            _ , _ , ≡u₂                             =
+              ∘-PE-injectivity (PE.sym u≡∘)
+            Π≡Π = neTypeEq t₁-ne ⊢t₁ (~↓→∷ t₁~)
+        in
+        t₂≢u₂ $
+        convConvTerm (PE.subst (flip (_⊢_[conv↑]_∷_ _ _) _) ≡u₂ t₂≡)
+          (sym (ΠΣ-injectivity Π≡Π .proj₁))
+  dec~↑-app-cong _ _ (no ¬t₁~u₁) _ =
+    no λ (_ , t~u) →
+    let _ , _ , _ , _ , _ , _ , u≡∘ , t₁~ , _ = inv-∘~ t~u
+        _ , ≡u₁ , _                           =
+          ∘-PE-injectivity (PE.sym u≡∘)
+    in
+    ¬t₁~u₁ (_ , PE.subst (flip (_⊢_~_↓_ _ _) _) ≡u₁ t₁~)
+
+private opaque
+
+  -- A lemma used below.
+
+  dec~↑-fst-cong :
+    Γ ⊢ t ∷ Σˢ p , q ▷ A ▹ B →
+    Dec (p PE.≡ p′ × ∃ λ C → Γ ⊢ t ~ u ↓ C) →
+    Dec (∃ λ C → Γ ⊢ fst p t ~ fst p′ u ↑ C)
+  dec~↑-fst-cong ⊢t (yes (PE.refl , _ , t~u)) =
+    yes $
+    let _ , _ , C≡Σ = uncurry ΠΣ≡Whnf (~↓→∷→Whnf×≡ t~u ⊢t) in
+    _ , fst-cong (PE.subst (_⊢_~_↓_ _ _ _) C≡Σ t~u)
+  dec~↑-fst-cong _ (no not-both-equal) =
+    no λ (_ , fst-t~fst-u) →
+    case inv-fst~ fst-t~fst-u of λ {
+      (_ , _ , _ , PE.refl , t~) →
+    not-both-equal (PE.refl , _ , t~) }
+
+private opaque
+
+  -- A lemma used below.
+
+  dec~↑-snd-cong :
+    Γ ⊢ t ∷ Σˢ p , q ▷ A ▹ B →
+    Dec (p PE.≡ p′ × ∃ λ C → Γ ⊢ t ~ u ↓ C) →
+    Dec (∃ λ C → Γ ⊢ snd p t ~ snd p′ u ↑ C)
+  dec~↑-snd-cong ⊢t (yes (PE.refl , _ , t~u)) =
+    yes $
+    let _ , _ , C≡Σ = uncurry ΠΣ≡Whnf (~↓→∷→Whnf×≡ t~u ⊢t) in
+    _ , snd-cong (PE.subst (_⊢_~_↓_ _ _ _) C≡Σ t~u)
+  dec~↑-snd-cong _ (no not-both-equal) =
+    no λ (_ , snd-t~snd-u) →
+    case inv-snd~ snd-t~snd-u of λ {
+      (_ , _ , _ , _ , _ , PE.refl , t~) →
+    not-both-equal (PE.refl , _ , t~) }
+
+private opaque
+
+  -- A lemma used below.
+
+  dec~↑-prodrec-cong :
+    Γ ⊢ t₁ ∷ Σʷ p₁ , q₁ ▷ A₁ ▹ B₁ →
+    Γ ⊢ t₂ ∷ Σʷ p₂ , q₂ ▷ A₂ ▹ B₂ →
+    Dec
+      (r₁ PE.≡ r₂ × q′₁ PE.≡ q′₂ ×
+       ∃ λ D → Γ ⊢ t₁ ~ t₂ ↓ D) →
+    (⊢ Γ ∙ Σʷ p₁ , q₁ ▷ A₁ ▹ B₁ ≡ Γ ∙ Σʷ p₂ , q₂ ▷ A₂ ▹ B₂ →
+     Dec (Γ ∙ Σʷ p₁ , q₁ ▷ A₁ ▹ B₁ ⊢ C₁ [conv↑] C₂)) →
+    (⊢ Γ ∙ A₂ ∙ B₂ ≡ Γ ∙ A₁ ∙ B₁ →
+     Γ ∙ A₂ ∙ B₂ ⊢ C₂ [ prodʷ p₂ (var x1) (var x0) ]↑² ≡
+       C₁ [ prodʷ p₁ (var x1) (var x0) ]↑² →
+     Dec
+       (Γ ∙ A₁ ∙ B₁ ⊢ u₁ [conv↑] u₂ ∷
+          C₁ [ prodʷ p₁ (var x1) (var x0) ]↑²)) →
+    Dec
+      (∃ λ D →
+       Γ ⊢ prodrec r₁ p₁ q′₁ C₁ t₁ u₁ ~ prodrec r₂ p₂ q′₂ C₂ t₂ u₂ ↑ D)
+  dec~↑-prodrec-cong
+    {p₁} {q₁} {A₁} {B₁} {p₂} {q₂} {A₂} {B₂}
+    ⊢t₁ ⊢t₂ (yes (PE.refl , PE.refl , D , t₁~t₂)) dec₁ dec₃ =
+    let _ , _ , ok             = inversion-ΠΣ (syntacticTerm ⊢t₁)
+        D-whnf , t₁-ne , t₂-ne = ne~↓ t₁~t₂
+        _ , ⊢t₁′ , ⊢t₂′        = syntacticEqTerm (soundness~↓ t₁~t₂)
+        Σ₁≡D                   = neTypeEq t₁-ne ⊢t₁ ⊢t₁′
+        Σ₁≡Σ₂                  =
+          Σʷ p₁ , q₁ ▷ A₁ ▹ B₁  ≡⟨ Σ₁≡D ⟩⊢
+          D                     ≡⟨ neTypeEq t₂-ne ⊢t₂′ ⊢t₂ ⟩⊢∎
+          Σʷ p₂ , q₂ ▷ A₂ ▹ B₂  ∎
+        A₁≡A₂ , B₁≡B₂ , p₁≡p₂ , _ = ΠΣ-injectivity Σ₁≡Σ₂
+        Γ≡Γ                       = reflConEq (wfTerm ⊢t₁)
+        ΓA₁B₁≡ΓA₂B₂               = Γ≡Γ ∙ A₁≡A₂ ⊢_≡_.∙ B₁≡B₂
+    in
+    case p₁≡p₂ of λ {
+      PE.refl →
+    case (dec₁ (Γ≡Γ ∙ Σ₁≡Σ₂)
+            ×-dec′ λ C₁≡C₂ →
+          dec₃
+            (symConEq ΓA₁B₁≡ΓA₂B₂)
+             (_⊢_≡_.sym $
+              stabilityEq ΓA₁B₁≡ΓA₂B₂ $
+              subst↑²TypeEq-prod (soundnessConv↑ C₁≡C₂) ok)) of λ where
+      (yes (C₁≡C₂ , u₁≡u₂)) →
+        yes $
+        case ΠΣ≡Whnf Σ₁≡D D-whnf of λ {
+          (_ , _ , PE.refl) →
+        let A₁≡ , B₁≡ , _ = ΠΣ-injectivity Σ₁≡D in
+          _
+        , prodrec-cong (stabilityConv↑ (Γ≡Γ ∙ Σ₁≡D) C₁≡C₂) t₁~t₂
+            (stabilityConv↑Term (Γ≡Γ ∙ A₁≡ ∙ B₁≡) u₁≡u₂) }
+      (no not-both-equal) →
+        no λ (_ , pr~pr) →
+        let _ , _ , _ , _ , _ , _ , _ , pr≡pr , C₁≡ , t₁~ , u₁≡ =
+              inv-prodrec~ pr~pr
+            ≡A₁ , ≡B₁ , _ =
+              ΠΣ-injectivity (neTypeEq t₁-ne (~↓→∷ t₁~) ⊢t₁)
+            _ , _ , _ , ≡C₂ , _ , ≡u₂ =
+              prodrec-PE-injectivity (PE.sym pr≡pr)
+        in
+        not-both-equal
+          ( stabilityConv↑ (Γ≡Γ ∙ neTypeEq t₁-ne (~↓→∷ t₁~) ⊢t₁)
+              (PE.subst (_⊢_[conv↑]_ _ _) ≡C₂ C₁≡)
+          , stabilityConv↑Term (Γ≡Γ ∙ ≡A₁ ∙ ≡B₁)
+              (PE.subst (flip (_⊢_[conv↑]_∷_ _ _) _) ≡u₂ u₁≡)
+          ) }
+  dec~↑-prodrec-cong _ _ (no not-all-equal) _ _ =
+    no λ (_ , pr~pr) →
+    let _ , _ , _ , _ , _ , _ , _ , pr≡pr , _ , t₁~ , _ =
+          inv-prodrec~ pr~pr
+        r₁≡r₂ , _ , q′₁≡q′₂ , _ , ≡t₂ , _ =
+          prodrec-PE-injectivity (PE.sym pr≡pr)
+    in
+    not-all-equal
+      ( r₁≡r₂
+      , q′₁≡q′₂
+      , _ , PE.subst (flip (_⊢_~_↓_ _ _) _) ≡t₂ t₁~
+      )
+
+private opaque
+
+  -- A lemma used below.
+
+  dec~↑-emptyrec-cong :
+    Γ ⊢ t₁ ∷ Empty →
+    Dec
+      (p₁ PE.≡ p₂ ×
+       Γ ⊢ A₁ [conv↑] A₂ ×
+       ∃ λ B → Γ ⊢ t₁ ~ t₂ ↓ B) →
+    Dec (∃ λ B → Γ ⊢ emptyrec p₁ A₁ t₁ ~ emptyrec p₂ A₂ t₂ ↑ B)
+  dec~↑-emptyrec-cong ⊢t₁ (yes (PE.refl , A₁≡A₂ , _ , t₁~t₂)) =
+    yes $
+    case uncurry Empty≡A (~↓→∷→Whnf×≡ t₁~t₂ ⊢t₁) of λ {
+      PE.refl →
+    _ , emptyrec-cong A₁≡A₂ t₁~t₂ }
+  dec~↑-emptyrec-cong _ (no not-all-equal) =
+    no λ (_ , er~er) →
+    let _ , _ , _ , er≡er , A₁≡ , t₁~ = inv-emptyrec~ er~er
+        p₁≡p₂ , ≡A₂ , ≡t₂             =
+          emptyrec-PE-injectivity (PE.sym er≡er)
+    in
+    not-all-equal
+      ( p₁≡p₂
+      , PE.subst (_⊢_[conv↑]_ _ _) ≡A₂ A₁≡
+      , _ , PE.subst (flip (_⊢_~_↓_ _ _) _) ≡t₂ t₁~
+      )
+
+private opaque
+
+  -- A lemma used below.
+
+  dec~↑-unitrec-cong :
+    ¬ Unitʷ-η →
+    Γ ⊢ t₁ ∷ Unitʷ →
+    Dec
+      (p₁ PE.≡ p₂ × q₁ PE.≡ q₂ ×
+       (Γ ∙ Unitʷ ⊢ A₁ [conv↑] A₂) ×
+       ∃ λ B → Γ ⊢ t₁ ~ t₂ ↓ B) →
+    (Γ ⊢ A₁ [ starʷ ]₀ ≡ A₂ [ starʷ ]₀ →
+     Dec (Γ ⊢ u₁ [conv↑] u₂ ∷ A₁ [ starʷ ]₀)) →
+    Dec
+      (∃ λ B → Γ ⊢ unitrec p₁ q₁ A₁ t₁ u₁ ~ unitrec p₂ q₂ A₂ t₂ u₂ ↑ B)
+  dec~↑-unitrec-cong
+    no-η ⊢t₁ (yes (PE.refl , PE.refl , A₁≡A₂ , _ , t₁~t₂)) dec =
+    case dec $
+         substTypeEq (soundnessConv↑ A₁≡A₂) $
+         _⊢_≡_∷_.refl $
+         starⱼ (wfTerm ⊢t₁) (⊢∷Unit→Unit-allowed ⊢t₁) of λ where
+      (yes u₁≡u₂) →
+        yes $
+        let B≡Unit = uncurry Unit≡A (~↓→∷→Whnf×≡ t₁~t₂ ⊢t₁) in
+          _
+        , unitrec-cong A₁≡A₂ (PE.subst (_⊢_~_↓_ _ _ _) B≡Unit t₁~t₂)
+            u₁≡u₂ no-η
+      (no u₁≢u₂) →
+        no λ (_ , ur~ur) →
+        let _ , _ , _ , _ , ur≡ur , _ , _ , u₁≡ , _ = inv-unitrec~ ur~ur
+            _ , _ , _ , _ , ≡u₂                     =
+              unitrec-PE-injectivity (PE.sym ur≡ur)
+        in
+        u₁≢u₂ (PE.subst (flip (_⊢_[conv↑]_∷_ _ _) _) ≡u₂ u₁≡)
+  dec~↑-unitrec-cong _ _ (no not-all-equal) _ =
+    no λ (_ , ur~ur) →
+    let _ , _ , _ , _ , ur≡ur , A₁≡ , t₁~ , _ = inv-unitrec~ ur~ur
+        p₁≡p₂ , q₁≡q₂ , ≡A₂ , ≡t₂ , _         =
+          unitrec-PE-injectivity (PE.sym ur≡ur)
+    in
+    not-all-equal
+      ( p₁≡p₂
+      , q₁≡q₂
+      , PE.subst (_⊢_[conv↑]_ _ _) ≡A₂ A₁≡
+      , _ , PE.subst (flip (_⊢_~_↓_ _ _) _) ≡t₂ t₁~
+      )
+
+private opaque
+
+  -- A lemma used below.
+
+  dec~↑-natrec-cong :
+    Γ ⊢ v₁ ∷ ℕ →
+    Dec
+      (p₁ PE.≡ p₂ × q₁ PE.≡ q₂ × r₁ PE.≡ r₂ ×
+       Γ ∙ ℕ ⊢ A₁ [conv↑] A₂ ×
+       ∃ λ B → Γ ⊢ v₁ ~ v₂ ↓ B) →
+    (Γ ⊢ A₁ [ zero ]₀ ≡ A₂ [ zero ]₀ →
+     Dec (Γ ⊢ t₁ [conv↑] t₂ ∷ A₁ [ zero ]₀)) →
+    (⊢ Γ ∙ ℕ ∙ A₂ ≡ Γ ∙ ℕ ∙ A₁ →
+     Γ ∙ ℕ ∙ A₂ ⊢ A₂ [ suc (var x1) ]↑² ≡ A₁ [ suc (var x1) ]↑² →
+     Dec (Γ ∙ ℕ ∙ A₁ ⊢ u₁ [conv↑] u₂ ∷ A₁ [ suc (var x1) ]↑²)) →
+    Dec
+      (∃ λ B →
+       Γ ⊢ natrec p₁ q₁ r₁ A₁ t₁ u₁ v₁ ~
+         natrec p₂ q₂ r₂ A₂ t₂ u₂ v₂ ↑ B)
+  dec~↑-natrec-cong
+    ⊢v₁ (yes (PE.refl , PE.refl , PE.refl , A₁≡A₂ , _ , v₁~v₂)) dec₁
+    dec₂ =
+    case
+      (let A₁≡A₂     = soundnessConv↑ A₁≡A₂
+           ⊢Γ        = wfTerm ⊢v₁
+           ΓℕA₁≡ΓℕA₂ = reflConEq (⊢Γ ∙[ ℕⱼ ]) ∙ sym A₁≡A₂
+       in
+       dec₁ (substTypeEq A₁≡A₂ (refl (zeroⱼ ⊢Γ)))
+         ×-dec
+       dec₂ ΓℕA₁≡ΓℕA₂
+         (stabilityEq (symConEq ΓℕA₁≡ΓℕA₂) $ sym $ sucCong A₁≡A₂))
+      of λ where
+      (yes (t₁≡t₂ , u₁≡u₂)) →
+        yes $
+        let B≡ℕ = uncurry ℕ≡A (~↓→∷→Whnf×≡ v₁~v₂ ⊢v₁) in
+          _
+        , natrec-cong A₁≡A₂ t₁≡t₂ u₁≡u₂
+            (PE.subst (_⊢_~_↓_ _ _ _) B≡ℕ v₁~v₂)
+      (no not-both-equal) →
+        no λ (_ , nr~nr) →
+        let _ , _ , _ , _ , _ , nr≡nr , _ , t₁≡ , u₁≡ , _ =
+              inv-natrec~ nr~nr
+            _ , _ , _ , _ , ≡t₂ , ≡u₂ , _ =
+              natrec-PE-injectivity (PE.sym nr≡nr)
+        in
+        not-both-equal
+          ( PE.subst (flip (_⊢_[conv↑]_∷_ _ _) _) ≡t₂ t₁≡
+          , PE.subst (flip (_⊢_[conv↑]_∷_ _ _) _) ≡u₂ u₁≡
+          )
+  dec~↑-natrec-cong _ (no not-all-equal) _ _ =
+    no λ (_ , nr~nr) →
+    let _ , _ , _ , _ , _ , nr≡nr , A₁≡ , _ , _ , v₁~ =
+          inv-natrec~ nr~nr
+        p₁≡p₂ , q₁≡q₂ , r₁≡r₂ , ≡A₂ , _ , _ , ≡v₂ =
+          natrec-PE-injectivity (PE.sym nr≡nr)
+    in
+    not-all-equal
+      ( p₁≡p₂
+      , q₁≡q₂
+      , r₁≡r₂
+      , PE.subst (_⊢_[conv↑]_ _ _) ≡A₂ A₁≡
+      , _ , PE.subst (flip (_⊢_~_↓_ _ _) _) ≡v₂ v₁~
+      )
+
+private opaque
+
+  -- A lemma used below.
+
+  dec~↑-J-cong :
+    Γ ⊢ w₁ ∷ Id A₁ t₁ v₁ →
+    Dec
+      (p₁ PE.≡ p₂ × q₁ PE.≡ q₂ ×
+       Γ ⊢ A₁ [conv↑] A₂ ×
+       ∃ λ C → Γ ⊢ w₁ ~ w₂ ↓ C) →
+    (Γ ⊢ A₁ ≡ A₂ → Dec (Γ ⊢ t₁ [conv↑] t₂ ∷ A₁)) →
+    (⊢ Γ ∙ A₁ ∙ Id (wk1 A₁) (wk1 t₁) (var x0) ≡
+       Γ ∙ A₂ ∙ Id (wk1 A₂) (wk1 t₂) (var x0) →
+     Dec (Γ ∙ A₁ ∙ Id (wk1 A₁) (wk1 t₁) (var x0) ⊢ B₁ [conv↑] B₂)) →
+    (Γ ⊢ B₁ [ t₁ , rfl ]₁₀ ≡ B₂ [ t₂ , rfl ]₁₀ →
+     Dec (Γ ⊢ u₁ [conv↑] u₂ ∷ B₁ [ t₁ , rfl ]₁₀)) →
+    (Γ ⊢ A₁ ≡ A₂ → Dec (Γ ⊢ v₁ [conv↑] v₂ ∷ A₁)) →
+    Dec
+      (∃ λ C →
+       Γ ⊢ J p₁ q₁ A₁ t₁ B₁ u₁ v₁ w₁ ~ J p₂ q₂ A₂ t₂ B₂ u₂ v₂ w₂ ↑ C)
+  dec~↑-J-cong _ (no not-all-equal) _ _ _ _ =
+    no λ (_ , J~J) →
+    let _ , _ , _ , _ , _ , _ , _ , _ , J≡J , A₁≡ , _ , _ , _ , _ ,
+          w₁~ , _ = inv-J~ J~J
+        p₁≡p₂ , q₁≡q₂ , ≡A₂ , _ , _ , _ , _ , ≡w₂ =
+          J-PE-injectivity (PE.sym J≡J)
+    in
+    not-all-equal
+      ( p₁≡p₂
+      , q₁≡q₂
+      , PE.subst (_⊢_[conv↑]_ _ _) ≡A₂ A₁≡
+      , _ , PE.subst (flip (_⊢_~_↓_ _ _) _) ≡w₂ w₁~
+      )
+  dec~↑-J-cong
+    ⊢w₁ (yes (PE.refl , PE.refl , A₁≡A₂ , _ , w₁~w₂))
+    dec₁ dec₂ dec₃ dec₄ =
+    case
+      (let A₁≡A₂ = soundnessConv↑ A₁≡A₂ in
+       dec₁ A₁≡A₂
+         ×-dec′ λ t₁≡t₂ →
+       let t₁≡t₂ = soundnessConv↑Term t₁≡t₂ in
+       dec₂ (J-motive-context-cong′ A₁≡A₂ t₁≡t₂)
+         ×-dec′ λ B₁≡B₂ →
+       dec₃ (J-motive-rfl-cong (soundnessConv↑ B₁≡B₂) t₁≡t₂)
+         ×-dec
+       dec₄ A₁≡A₂)
+      of λ where
+      (yes (t₁≡t₂ , B₁≡B₂ , u₁≡u₂ , v₁≡v₂)) →
+        yes $
+          _
+        , J-cong A₁≡A₂ t₁≡t₂ B₁≡B₂ u₁≡u₂ v₁≡v₂ w₁~w₂
+            (neTypeEq (ne~↓ w₁~w₂ .proj₂ .proj₁) (~↓→∷ w₁~w₂) ⊢w₁)
+      (no not-all-equal) →
+        no λ (_ , J~J) →
+        let _ , _ , _ , _ , _ , _ , _ , _ , J≡J , _ , t₁≡ , B₁≡ , u₁≡ ,
+              v₁≡ , _ = inv-J~ J~J
+            _ , _ , _ , ≡t₂ , ≡B₂ , ≡u₂ , ≡v₂ , _ =
+              J-PE-injectivity (PE.sym J≡J)
+        in
+        not-all-equal
+          ( PE.subst (flip (_⊢_[conv↑]_∷_ _ _) _) ≡t₂ t₁≡
+          , PE.subst (_⊢_[conv↑]_ _ _) ≡B₂ B₁≡
+          , PE.subst (flip (_⊢_[conv↑]_∷_ _ _) _) ≡u₂ u₁≡
+          , PE.subst (flip (_⊢_[conv↑]_∷_ _ _) _) ≡v₂ v₁≡
+          )
+
+private opaque
+
+  -- A lemma used below.
+
+  dec~↑-K-cong :
+    K-allowed →
+    Γ ⊢ v₁ ∷ Id A₁ t₁ t₁ →
+    Dec
+      (p₁ PE.≡ p₂ ×
+       Γ ⊢ A₁ [conv↑] A₂ ×
+       ∃ λ C → Γ ⊢ v₁ ~ v₂ ↓ C) →
+    (Γ ⊢ A₁ ≡ A₂ → Dec (Γ ⊢ t₁ [conv↑] t₂ ∷ A₁)) →
+    (⊢ Γ ∙ Id A₁ t₁ t₁ ≡ Γ ∙ Id A₂ t₂ t₂ →
+     Dec (Γ ∙ Id A₁ t₁ t₁ ⊢ B₁ [conv↑] B₂)) →
+    (Γ ⊢ B₁ [ rfl ]₀ ≡ B₂ [ rfl ]₀ →
+     Dec (Γ ⊢ u₁ [conv↑] u₂ ∷ B₁ [ rfl ]₀)) →
+    Dec (∃ λ C → Γ ⊢ K p₁ A₁ t₁ B₁ u₁ v₁ ~ K p₂ A₂ t₂ B₂ u₂ v₂ ↑ C)
+  dec~↑-K-cong _ _ (no not-all-equal) _ _ _ =
+    no λ (_ , K~K) →
+    let _ , _ , _ , _ , _ , _ , _ , K≡K , A₁≡ , _ , _ , _ , v₁~ , _ =
+          inv-K~ K~K
+        p₁≡p₂ , ≡A₂ , _ , _ , _ , ≡v₂ = K-PE-injectivity (PE.sym K≡K)
+    in
+    not-all-equal
+      ( p₁≡p₂
+      , PE.subst (_⊢_[conv↑]_ _ _) ≡A₂ A₁≡
+      , _ , PE.subst (flip (_⊢_~_↓_ _ _) _) ≡v₂ v₁~
+      )
+  dec~↑-K-cong
+    ok ⊢v₁ (yes (PE.refl , A₁≡A₂ , _ , v₁~v₂)) dec₁ dec₂ dec₃ =
+    case
+      (let A₁≡A₂ = soundnessConv↑ A₁≡A₂ in
+       dec₁ A₁≡A₂
+         ×-dec′ λ t₁≡t₂ →
+       let t₁≡t₂ = soundnessConv↑Term t₁≡t₂ in
+       dec₂ (K-motive-context-cong′ A₁≡A₂ t₁≡t₂)
+         ×-dec′ λ B₁≡B₂ →
+       dec₃ (K-motive-rfl-cong (soundnessConv↑ B₁≡B₂)))
+      of λ where
+      (yes (t₁≡t₂ , B₁≡B₂ , u₁≡u₂)) →
+        yes $
+          _
+        , K-cong A₁≡A₂ t₁≡t₂ B₁≡B₂ u₁≡u₂ v₁~v₂
+            (neTypeEq (ne~↓ v₁~v₂ .proj₂ .proj₁) (~↓→∷ v₁~v₂) ⊢v₁) ok
+      (no not-all-equal) →
+        no λ (_ , K~K) →
+        let _ , _ , _ , _ , _ , _ , _ , K≡K , _ , t₁≡ , B₁≡ , u₁≡ , _ =
+              inv-K~ K~K
+            _ , _ , ≡t₂ , ≡B₂ , ≡u₂ , _ = K-PE-injectivity (PE.sym K≡K)
+        in
+        not-all-equal
+          ( PE.subst (flip (_⊢_[conv↑]_∷_ _ _) _) ≡t₂ t₁≡
+          , PE.subst (_⊢_[conv↑]_ _ _) ≡B₂ B₁≡
+          , PE.subst (flip (_⊢_[conv↑]_∷_ _ _) _) ≡u₂ u₁≡
+          )
+
+private opaque
+
+  -- A lemma used below.
+
+  dec~↑-[]-cong-cong :
+    let open Erased s₁ in
+    []-cong-allowed s₁ →
+    Γ ⊢ v₁ ∷ Id A₁ t₁ u₁ →
+    Dec
+      (s₁ PE.≡ s₂ ×
+       Γ ⊢ A₁ [conv↑] A₂ ×
+       ∃ λ B → Γ ⊢ v₁ ~ v₂ ↓ B) →
+    (Γ ⊢ A₁ ≡ A₂ → Dec (Γ ⊢ t₁ [conv↑] t₂ ∷ A₁)) →
+    (Γ ⊢ A₁ ≡ A₂ → Dec (Γ ⊢ u₁ [conv↑] u₂ ∷ A₁)) →
+    Dec
+      (∃ λ B → Γ ⊢ []-cong s₁ A₁ t₁ u₁ v₁ ~ []-cong s₂ A₂ t₂ u₂ v₂ ↑ B)
+  dec~↑-[]-cong-cong
+    ok ⊢v₁ (yes (PE.refl , A₁≡A₂ , _ , v₁~v₂)) dec₁ dec₂ =
+    case
+       (let A₁≡A₂ = soundnessConv↑ A₁≡A₂ in
+        dec₁ A₁≡A₂ ×-dec dec₂ A₁≡A₂)
+      of λ where
+      (yes (t₁≡t₂ , u₁≡u₂)) →
+        yes $
+          _
+        , []-cong-cong A₁≡A₂ t₁≡t₂ u₁≡u₂ v₁~v₂
+            (neTypeEq (ne~↓ v₁~v₂ .proj₂ .proj₁) (~↓→∷ v₁~v₂) ⊢v₁) ok
+      (no not-both-equal) →
+        no λ (_ , bc~bc) →
+        let _ , _ , _ , _ , _ , _ , bc≡bc , _ , t₁≡ , u₁≡ , _ =
+              inv-[]-cong~ bc~bc
+            _ , _ , ≡t₂ , ≡u₂ , _ =
+              []-cong-PE-injectivity (PE.sym bc≡bc)
+        in
+        not-both-equal
+          ( PE.subst (flip (_⊢_[conv↑]_∷_ _ _) _) ≡t₂ t₁≡
+          , PE.subst (flip (_⊢_[conv↑]_∷_ _ _) _) ≡u₂ u₁≡
+          )
+  dec~↑-[]-cong-cong _ _ (no not-all-equal) _ _ =
+    no λ (_ , bc~bc) →
+    let _ , _ , _ , _ , _ , _ , bc≡bc , A₁≡ , _ , _ , v₁~ , _ =
+          inv-[]-cong~ bc~bc
+        s₁≡s₂ , ≡A₂ , _ , _ , ≡v₂ =
+          []-cong-PE-injectivity (PE.sym bc≡bc)
+    in
+    not-all-equal
+      ( s₁≡s₂
+      , PE.subst (_⊢_[conv↑]_ _ _) ≡A₂ A₁≡
+      , _ , PE.subst (flip (_⊢_~_↓_ _ _) _) ≡v₂ v₁~
+      )
+
+private opaque
+
+  -- A lemma used below.
+
+  decConv↓-ΠΣ :
+    Γ ⊢ A₁ →
+    ΠΣ-allowed b₁ p₁ q₁ →
+    Dec
+      (b₁ PE.≡ b₂ × p₁ PE.≡ p₂ × q₁ PE.≡ q₂ ×
+       Γ ⊢ A₁ [conv↑] A₂) →
+    (⊢ Γ ∙ A₁ ≡ Γ ∙ A₂ → Dec (Γ ∙ A₁ ⊢ B₁ [conv↑] B₂)) →
+    Dec
+      (Γ ⊢ ΠΣ⟨ b₁ ⟩ p₁ , q₁ ▷ A₁ ▹ B₁ [conv↓]
+         ΠΣ⟨ b₂ ⟩ p₂ , q₂ ▷ A₂ ▹ B₂)
+  decConv↓-ΠΣ ⊢A₁ ok (yes (PE.refl , PE.refl , PE.refl , A₁≡A₂)) dec =
+    case dec (reflConEq (wf ⊢A₁) ∙ soundnessConv↑ A₁≡A₂) of λ where
+      (yes B₁≡B₂) → yes (ΠΣ-cong ⊢A₁ A₁≡A₂ B₁≡B₂ ok)
+      (no B₁≢B₂)  →
+        no λ ΠΣ≡ΠΣ →
+        let _ , _ , ΠΣ≡ΠΣ , _ , B₁≡ = inv-[conv↓]-ΠΣ ΠΣ≡ΠΣ
+            _ , _ , _ , _ , ≡B₂     = ΠΣ-PE-injectivity (PE.sym ΠΣ≡ΠΣ)
+        in
+        B₁≢B₂ (PE.subst (_⊢_[conv↑]_ _ _) ≡B₂ B₁≡)
+  decConv↓-ΠΣ _ _ (no not-all-equal) _ =
+    no λ ΠΣ≡ΠΣ →
+    let _ , _ , ΠΣ≡ΠΣ , A₁≡ , _         = inv-[conv↓]-ΠΣ ΠΣ≡ΠΣ
+        b₁≡b₂ , p₁≡p₂ , q₁≡q₂ , ≡A₂ , _ =
+          ΠΣ-PE-injectivity (PE.sym ΠΣ≡ΠΣ)
+    in
+    not-all-equal
+      ( b₁≡b₂
+      , p₁≡p₂
+      , q₁≡q₂
+      , PE.subst (_⊢_[conv↑]_ _ _) ≡A₂ A₁≡
+      )
+
+private opaque
+
+  -- A lemma used below.
+
+  decConv↓-Id :
+    Dec (Γ ⊢ A₁ [conv↑] A₂) →
+    (Γ ⊢ A₂ ≡ A₁ → Dec (Γ ⊢ t₁ [conv↑] t₂ ∷ A₁)) →
+    (Γ ⊢ A₂ ≡ A₁ → Dec (Γ ⊢ u₁ [conv↑] u₂ ∷ A₁)) →
+    Dec (Γ ⊢ Id A₁ t₁ u₁ [conv↓] Id A₂ t₂ u₂)
+  decConv↓-Id (yes A₁≡A₂) dec₁ dec₂ =
+    let A₂≡A₁ = _⊢_≡_.sym (soundnessConv↑ A₁≡A₂) in
+    case dec₁ A₂≡A₁ ×-dec dec₂ A₂≡A₁ of λ where
+      (yes (t₁≡t₂ , u₁≡u₂)) → yes (Id-cong A₁≡A₂ t₁≡t₂ u₁≡u₂)
+      (no not-both-equal)   →
+        no λ Id≡Id →
+        let _ , _ , _ , Id≡Id , _ , t₁≡ , u₁≡ = inv-[conv↓]-Id Id≡Id
+            _ , ≡t₂ , ≡u₂                     =
+              Id-PE-injectivity (PE.sym Id≡Id)
+        in
+        not-both-equal
+          ( PE.subst (flip (_⊢_[conv↑]_∷_ _ _) _) ≡t₂ t₁≡
+          , PE.subst (flip (_⊢_[conv↑]_∷_ _ _) _) ≡u₂ u₁≡
+          )
+  decConv↓-Id (no A₁≢A₂) _ _ =
+    no λ Id≡Id →
+    let _ , _ , _ , Id≡Id , A₁≡ , _ = inv-[conv↓]-Id Id≡Id
+        ≡A₂ , _                     = Id-PE-injectivity (PE.sym Id≡Id)
+    in
+    A₁≢A₂ (PE.subst (_⊢_[conv↑]_ _ _) ≡A₂ A₁≡)
+
+------------------------------------------------------------------------
+-- Public definitions
 
 mutual
   -- Decidability of algorithmic equality of neutrals.
   dec~↑ : ∀ {k l R T k′ l′}
         → Γ ⊢ k ~ k′ ↑ R → Γ ⊢ l ~ l′ ↑ T
         → Dec (∃ λ A → Γ ⊢ k ~ l ↑ A)
-  dec~↑ (var-refl x x₁) y = dec~↑-var _ y
-  dec~↑ (app-cong x x₁) y =
-    dec~↑-app′ y (dec~↓ x) (λ F≡F′ → decConv↑TermConv F≡F′ x₁)
-      (proj₁ (proj₂ (syntacticEqTerm (soundness~↓ x)))) PE.refl
-  dec~↑ (fst-cong k~k) l~l =
-    dec~↑-fst k~k (dec~↓ k~k) l~l
-  dec~↑ (snd-cong k~k) l~l =
-    dec~↑-snd k~k (dec~↓ k~k) l~l
-  dec~↑ (natrec-cong x x₁ x₂ x₃) y =
-    dec~↑-natrec y (wfEqTerm (soundness~↑ y)) (decConv↑ x)
-                 (λ z → decConv↑TermConv z x₁)
-                 (λ z → decConv↑TermConv z x₂) (dec~↓ x₃)
-
-  dec~↑ (unitrec-cong {p = p} {q = q} x x₁ x₂ no-η)
-        (unitrec-cong {p = p′} {q = q′} x₃ x₄ x₅ _) =
-    case dec~↓ x₁ x₄ of λ where
-      (no ¬p) → no λ{ (_ , unitrec-cong x x₁ x₂ _) → ¬p (_ , x₁)}
-      (yes (A , k~k′)) → case (decConv↑ x x₃) of λ where
-        (no ¬p) → no λ{ (_ , unitrec-cong x x₁ x₂ _) → ¬p x}
-        (yes F<>F′) →
-          let F≡F′ = soundnessConv↑ F<>F′
-              k≡l = soundness~↓ x₁
-              ⊢Unit , ⊢k , _ = syntacticEqTerm k≡l
-              ok = inversion-Unit ⊢Unit
-              ⊢Γ = wf ⊢Unit
-              F₊≡F′₊ = substTypeEq F≡F′ (refl (starⱼ ⊢Γ ok))
-              _ , ⊢k′ , _ = syntacticEqTerm (soundness~↓ k~k′)
-              whA , neK , _ = ne~↓ k~k′
-              A≡Unit = neTypeEq neK ⊢k ⊢k′
-              k~k″ = PE.subst (λ x → _ ⊢ _ ~ _ ↓ x)
-                              (Unit≡A A≡Unit whA)
-                              k~k′
-          in  case (decConv↑Term x₂ (convConv↑Term (reflConEq ⊢Γ) (sym F₊≡F′₊) x₅)) of λ where
-            (no ¬p) → no λ{ (_ , unitrec-cong x x₁ x₂ _) → ¬p x₂}
-            (yes u<>u′) → case p ≟ p′ of λ where
-              (no p≉p′) →
-                no λ { (_ , unitrec-cong x x₁ x₂ _) → p≉p′ PE.refl }
-              (yes p≈p′) → case q ≟ q′ of λ where
-                (no q≉q′) →
-                  no λ { (_ , unitrec-cong x x₁ x₂ _) → q≉q′ PE.refl }
-                (yes PE.refl) → case p≈p′ of λ where
-                  PE.refl → yes (_ , unitrec-cong F<>F′ k~k″ u<>u′ no-η)
-
-  dec~↑
-    (prodrec-cong {p = p}  {r = r}  {q′ = q}  x  x₁ x₂)
-    (prodrec-cong {p = p′} {r = r′} {q′ = q′} x₃ x₄ x₅)
-    with dec~↓ x₁ x₄ | r ≟ r′ | p ≟ p′ | q ≟ q′
-  ... | yes (B , t~t′) | yes PE.refl | yes PE.refl | yes PE.refl =
-    case ne~↓ t~t′ of λ (whnfB , neT , neT′) →
-    case syntacticEqTerm (soundness~↓ t~t′) of λ (⊢B , ⊢t , ⊢t′) →
-    case syntacticEqTerm (soundness~↓ x₁) of λ (⊢Σ , ⊢t₁ , ⊢w) →
-    case syntacticEqTerm (soundness~↓ x₄) of λ (⊢Σ′ , ⊢t′₁ , ⊢w′) →
-    case neTypeEq neT ⊢t ⊢t₁ of λ ⊢B≡Σ →
-    case neTypeEq neT′ ⊢t′ ⊢t′₁ of λ ⊢B≡Σ′ →
-    case Σ≡A (sym ⊢B≡Σ) whnfB of λ where
-      (_ , _ , PE.refl) →
-        case trans (sym ⊢B≡Σ′) ⊢B≡Σ of λ ⊢Σ′≡Σ →
-        case Σ-injectivity ⊢Σ′≡Σ of λ where
-          (⊢F′≡F , ⊢G′≡G , _ , PE.refl , _) → case Σ-injectivity ⊢B≡Σ′ of  λ where
-            (⊢F′≡F″ , _ , _ , _ , _) →
-              case reflConEq (wf ⊢B) of λ ⊢Γ≡Γ →
-                dec~↑-prodrec
-                  (decConv↑ x (stabilityConv↑ (⊢Γ≡Γ ∙ ⊢Σ′≡Σ) x₃))
-                  (λ C≡C′ → decConv↑TermConv
-                     (subst↑²TypeEq-prod C≡C′ (⊢∷ΠΣ→ΠΣ-allowed ⊢t₁))
-                     x₂
-                     (stabilityConv↑Term (⊢Γ≡Γ ∙ ⊢F′≡F ∙ ⊢G′≡G) x₅))
-                  t~t′ (sym ⊢B≡Σ) PE.refl PE.refl PE.refl
-  ... | no ¬P | _ | _ | _ =
-    no (λ { (_ , prodrec-cong _ x _) → ¬P (_ , x) })
-  ... | _ | no ¬r≡r′ | _ | _ =
-    no (λ { (_ , prodrec-cong _ _ _) → ¬r≡r′ PE.refl })
-  ... | _ | _ | no ¬p≡p′ | _ =
-    no (λ { (_ , prodrec-cong _ _ _) → ¬p≡p′ PE.refl })
-  ... | _ | _ | _ | no ¬q≡q′ =
-    no (λ { (_ , prodrec-cong _ _ _) → ¬q≡q′ PE.refl })
-  dec~↑ (prodrec-cong _ _ _) (var-refl _ _) = no λ { (_ , ()) }
-  dec~↑ (prodrec-cong _ _ _) (app-cong _ _) = no λ { (_ , ()) }
-  dec~↑ (prodrec-cong _ _ _) (fst-cong _) = no λ { (_ , ()) }
-  dec~↑ (prodrec-cong _ _ _) (snd-cong _) = no λ { (_ , ()) }
-  dec~↑ (prodrec-cong _ _ _) (natrec-cong _ _ _ _) = no λ { (_ , ()) }
-  dec~↑ (prodrec-cong _ _ _) (emptyrec-cong _ _) = no λ { (_ , ()) }
-  dec~↑ (prodrec-cong _ _ _) (unitrec-cong _ _ _ _) = no λ{(_ , ())}
-  dec~↑ (prodrec-cong _ _ _) (J-cong _ _ _ _ _ _ _) = no λ { (_ , ()) }
-  dec~↑ (prodrec-cong _ _ _) (K-cong _ _ _ _ _ _ _) = no λ { (_ , ()) }
-  dec~↑ (prodrec-cong _ _ _) ([]-cong-cong _ _ _ _ _ _) =
-    no λ { (_ , ()) }
-
-  dec~↑ (emptyrec-cong {p = p′} x x₁) (emptyrec-cong {p = p″} x₄ x₅)
-        with decConv↑ x x₄ | dec~↓ x₁ x₅ | p′ ≟ p″
-  ... | yes p | yes (A , k~l) | yes PE.refl =
-    let whnfA , neK , neL = ne~↓ k~l
-        ⊢A , ⊢k , ⊢l = syntacticEqTerm (soundness~↓ k~l)
-        _ , ⊢l∷Empty , _ = syntacticEqTerm (soundness~↓ x₁)
-        ⊢Empty≡A = neTypeEq neK ⊢l∷Empty ⊢k
-        A≡Empty = Empty≡A ⊢Empty≡A whnfA
-        k~l′ = PE.subst (λ x → _ ⊢ _ ~ _ ↓ x) A≡Empty k~l
-    in  yes (_ , emptyrec-cong p k~l′)
-  ... | yes p | yes (A , k~l) | no ¬p′≡p″ =
-    no (λ { (_ , emptyrec-cong _ _) → ¬p′≡p″ PE.refl })
-  ... | yes p | no ¬p | _ =
-    no (λ { (_ , emptyrec-cong _ b) → ¬p (_ , b) })
-  ... | no ¬p | r | _ = no (λ { (_ , emptyrec-cong a _) → ¬p a })
-  dec~↑ (emptyrec-cong _ _) (var-refl _ _) = no (λ { (_ , ()) })
-  dec~↑ (emptyrec-cong _ _) (fst-cong _) = no (λ { (_ , ()) })
-  dec~↑ (emptyrec-cong _ _) (snd-cong _) = no (λ { (_ , ()) })
-  dec~↑ (emptyrec-cong _ _) (app-cong _ _) = no (λ { (_ , ()) })
-  dec~↑ (emptyrec-cong _ _) (natrec-cong _ _ _ _) = no (λ { (_ , ()) })
-  dec~↑ (emptyrec-cong _ _) (prodrec-cong _ _ _) = no λ{(_ , ())}
-  dec~↑ (emptyrec-cong _ _) (unitrec-cong _ _ _ _) = no λ{(_ , ())}
-  dec~↑ (emptyrec-cong _ _) (J-cong _ _ _ _ _ _ _) = no λ { (_ , ()) }
-  dec~↑ (emptyrec-cong _ _) (K-cong _ _ _ _ _ _ _) = no λ { (_ , ()) }
-  dec~↑ (emptyrec-cong _ _) ([]-cong-cong _ _ _ _ _ _) =
-    no λ { (_ , ()) }
-  dec~↑ (unitrec-cong _ _ _ _) (var-refl _ _) = no λ{(_ , ())}
-  dec~↑ (unitrec-cong _ _ _ _) (app-cong _ _) = no λ{(_ , ())}
-  dec~↑ (unitrec-cong _ _ _ _) (fst-cong _) = no λ{(_ , ())}
-  dec~↑ (unitrec-cong _ _ _ _) (snd-cong _) = no λ{(_ , ())}
-  dec~↑ (unitrec-cong _ _ _ _) (natrec-cong _ _ _ _) = no λ{(_ , ())}
-  dec~↑ (unitrec-cong _ _ _ _) (prodrec-cong _ _ _) = no λ{(_ , ())}
-  dec~↑ (unitrec-cong _ _ _ _) (emptyrec-cong _ _) = no λ{(_ , ())}
-  dec~↑ (unitrec-cong _ _ _ _) (J-cong _ _ _ _ _ _ _) = no λ { (_ , ()) }
-  dec~↑ (unitrec-cong _ _ _ _) (K-cong _ _ _ _ _ _ _) = no λ { (_ , ()) }
-  dec~↑ (unitrec-cong _ _ _ _) ([]-cong-cong _ _ _ _ _ _) =
-    no λ { (_ , ()) }
-  dec~↑
-    (J-cong {p = p₁} {q = q₁} A₁≡A₃ t₁≡t₃ B₁≡B₃ u₁≡u₃ v₁≡v₃ w₁~w₃
-       C₁≡Id-t₁-v₁)
-    (J-cong {p = p₂} {q = q₂} A₂≡A₄ t₂≡t₄ B₂≡B₄ u₂≡u₄ v₂≡v₄ w₂~w₄ _) =
-    case p₁ ≟ p₂ of λ {
-      (no p₁≢p₂) → no $
-        p₁≢p₂ ∘→ proj₁ ∘→ proj₂ ∘→ J-cong⁻¹ ∘→ proj₂
-    ; (yes PE.refl) →
-    case q₁ ≟ q₂ of λ {
-      (no q₁≢q₂) → no $
-        q₁≢q₂ ∘→ proj₁ ∘→ proj₂ ∘→ proj₂ ∘→ J-cong⁻¹ ∘→ proj₂
-    ; (yes PE.refl) →
-    case decConv↑ A₁≡A₃ A₂≡A₄ of λ {
-      (no A₁≢A₂) → no $
-        A₁≢A₂ ∘→ proj₁ ∘→ proj₂ ∘→ proj₂ ∘→ proj₂ ∘→ J-cong⁻¹ ∘→ proj₂
-    ; (yes A₁≡A₂) →
-    case soundnessConv↑ A₁≡A₂ of λ {
-      ⊢A₁≡A₂ →
-    case decConv↑TermConv ⊢A₁≡A₂ t₁≡t₃ t₂≡t₄ of λ {
-      (no t₁≢t₂) → no $
-        t₁≢t₂ ∘→ proj₁ ∘→ proj₂ ∘→ proj₂ ∘→ proj₂ ∘→ proj₂ ∘→
-        J-cong⁻¹ ∘→ proj₂
-    ; (yes t₁≡t₂) →
-    case soundnessConv↑Term t₁≡t₂ of λ {
-      ⊢t₁≡t₂ →
-    case decConv↑′ (J-motive-context-cong′ ⊢A₁≡A₂ ⊢t₁≡t₂)
-           B₁≡B₃ B₂≡B₄ of λ {
-      (no B₁≢B₂) → no $
-        B₁≢B₂ ∘→ proj₁ ∘→ proj₂ ∘→ proj₂ ∘→ proj₂ ∘→ proj₂ ∘→ proj₂ ∘→
-        J-cong⁻¹ ∘→ proj₂
-    ; (yes B₁≡B₂) →
-    case decConv↑TermConv
-           (J-motive-rfl-cong (soundnessConv↑ B₁≡B₂) ⊢t₁≡t₂)
-           u₁≡u₃ u₂≡u₄ of λ {
-      (no u₁≢u₂) → no $
-        u₁≢u₂ ∘→ proj₁ ∘→ proj₂ ∘→ proj₂ ∘→ proj₂ ∘→ proj₂ ∘→ proj₂ ∘→
-        proj₂ ∘→ J-cong⁻¹ ∘→ proj₂
-    ; (yes u₁≡u₂) →
-    case decConv↑TermConv ⊢A₁≡A₂ v₁≡v₃ v₂≡v₄ of λ {
-      (no v₁≢v₂) → no $
-        v₁≢v₂ ∘→ proj₁ ∘→ proj₂ ∘→ proj₂ ∘→ proj₂ ∘→ proj₂ ∘→ proj₂ ∘→
-        proj₂ ∘→ proj₂ ∘→ J-cong⁻¹ ∘→ proj₂
-    ; (yes v₁≡v₂) →
-    case dec~↓ w₁~w₃ w₂~w₄ of λ {
-      (no ¬w₁~w₂) → no $
-        ¬w₁~w₂ ∘→ (_ ,_) ∘→ proj₁ ∘→ proj₂ ∘→ proj₂ ∘→ proj₂ ∘→ proj₂ ∘→
-        proj₂ ∘→ proj₂ ∘→ proj₂ ∘→ proj₂ ∘→ J-cong⁻¹ ∘→ proj₂
-    ; (yes (_ , w₁~w₂)) →
-    case neTypeEq (ne~↓ w₁~w₂ .proj₂ .proj₁)
-           (syntacticEqTerm (soundness~↓ w₁~w₃) .proj₂ .proj₁)
-           (syntacticEqTerm (soundness~↓ w₁~w₂) .proj₂ .proj₁) of λ {
-      C₁≡D →
-    yes
-      ( _
-      , J-cong A₁≡A₂ t₁≡t₂ B₁≡B₂ u₁≡u₂ v₁≡v₂ w₁~w₂
-          (trans (sym C₁≡D) C₁≡Id-t₁-v₁)
-      ) }}}}}}}}}}}
-  dec~↑ (J-cong _ _ _ _ _ _ _) (var-refl _ _) = no (λ { (_ , ()) })
-  dec~↑ (J-cong _ _ _ _ _ _ _) (fst-cong _) = no (λ { (_ , ()) })
-  dec~↑ (J-cong _ _ _ _ _ _ _) (snd-cong _) = no (λ { (_ , ()) })
-  dec~↑ (J-cong _ _ _ _ _ _ _) (app-cong _ _) = no (λ { (_ , ()) })
-  dec~↑ (J-cong _ _ _ _ _ _ _) (natrec-cong _ _ _ _) = no (λ { (_ , ()) })
-  dec~↑ (J-cong _ _ _ _ _ _ _) (prodrec-cong _ _ _) = no λ{(_ , ())}
-  dec~↑ (J-cong _ _ _ _ _ _ _) (emptyrec-cong _ _) = no λ { (_ , ()) }
-  dec~↑ (J-cong _ _ _ _ _ _ _) (unitrec-cong _ _ _ _) = no λ { (_ , ()) }
-  dec~↑ (J-cong _ _ _ _ _ _ _) (K-cong _ _ _ _ _ _ _) = no λ { (_ , ()) }
-  dec~↑ (J-cong _ _ _ _ _ _ _) ([]-cong-cong _ _ _ _ _ _) = no λ { (_ , ()) }
-
-  dec~↑ (K-cong {p = p₁} A₁≡A₃ t₁≡t₃ B₁≡B₃ u₁≡u₃ v₁~v₃ C₁≡Id-t₁-t₁ ok)
-     (K-cong {p = p₂} A₂≡A₄ t₂≡t₄ B₂≡B₄ u₂≡u₄ v₂~v₄ _ _) =
-    case p₁ ≟ p₂ of λ {
-      (no p₁≢p₂) → no $
-        p₁≢p₂ ∘→ proj₁ ∘→ proj₂ ∘→ K-cong⁻¹ ∘→ proj₂
-    ; (yes PE.refl) →
-    case decConv↑ A₁≡A₃ A₂≡A₄ of λ {
-      (no A₁≢A₂) → no $
-        A₁≢A₂ ∘→ proj₁ ∘→ proj₂ ∘→ proj₂ ∘→ K-cong⁻¹ ∘→ proj₂
-    ; (yes A₁≡A₂) →
-    case soundnessConv↑ A₁≡A₂ of λ {
-      ⊢A₁≡A₂ →
-    case decConv↑TermConv ⊢A₁≡A₂ t₁≡t₃ t₂≡t₄ of λ {
-      (no t₁≢t₂) → no $
-        t₁≢t₂ ∘→ proj₁ ∘→ proj₂ ∘→ proj₂ ∘→ proj₂ ∘→ K-cong⁻¹ ∘→ proj₂
-    ; (yes t₁≡t₂) →
-    case decConv↑′
-           (K-motive-context-cong′ ⊢A₁≡A₂ (soundnessConv↑Term t₁≡t₂))
-           B₁≡B₃ B₂≡B₄ of λ {
-      (no B₁≢B₂) → no $
-        B₁≢B₂ ∘→ proj₁ ∘→ proj₂ ∘→ proj₂ ∘→ proj₂ ∘→ proj₂ ∘→
-        K-cong⁻¹ ∘→ proj₂
-    ; (yes B₁≡B₂) →
-    case decConv↑TermConv (K-motive-rfl-cong (soundnessConv↑ B₁≡B₂))
-           u₁≡u₃ u₂≡u₄ of λ {
-      (no u₁≢u₂) → no $
-        u₁≢u₂ ∘→ proj₁ ∘→ proj₂ ∘→ proj₂ ∘→ proj₂ ∘→ proj₂ ∘→ proj₂ ∘→
-        K-cong⁻¹ ∘→ proj₂
-    ; (yes u₁≡u₂) →
-    case dec~↓ v₁~v₃ v₂~v₄ of λ {
-      (no ¬v₁~v₂) → no $
-        ¬v₁~v₂ ∘→ (_ ,_) ∘→ proj₁ ∘→ proj₂ ∘→ proj₂ ∘→ proj₂ ∘→ proj₂ ∘→
-        proj₂ ∘→ proj₂ ∘→ K-cong⁻¹ ∘→ proj₂
-    ; (yes (_ , v₁~v₂)) →
-    case neTypeEq (ne~↓ v₁~v₂ .proj₂ .proj₁)
-           (syntacticEqTerm (soundness~↓ v₁~v₃) .proj₂ .proj₁)
-           (syntacticEqTerm (soundness~↓ v₁~v₂) .proj₂ .proj₁) of λ {
-      C₁≡D →
-    yes
-      ( _
-      , K-cong A₁≡A₂ t₁≡t₂ B₁≡B₂ u₁≡u₂ v₁~v₂
-          (trans (sym C₁≡D) C₁≡Id-t₁-t₁) ok
-      ) }}}}}}}}
-  dec~↑ (K-cong _ _ _ _ _ _ _) (var-refl _ _) = no (λ { (_ , ()) })
-  dec~↑ (K-cong _ _ _ _ _ _ _) (fst-cong _) = no (λ { (_ , ()) })
-  dec~↑ (K-cong _ _ _ _ _ _ _) (snd-cong _) = no (λ { (_ , ()) })
-  dec~↑ (K-cong _ _ _ _ _ _ _) (app-cong _ _) = no (λ { (_ , ()) })
-  dec~↑ (K-cong _ _ _ _ _ _ _) (natrec-cong _ _ _ _) = no (λ { (_ , ()) })
-  dec~↑ (K-cong _ _ _ _ _ _ _) (prodrec-cong _ _ _) = no λ{(_ , ())}
-  dec~↑ (K-cong _ _ _ _ _ _ _) (emptyrec-cong _ _) = no λ { (_ , ()) }
-  dec~↑ (K-cong _ _ _ _ _ _ _) (unitrec-cong _ _ _ _) = no λ { (_ , ()) }
-  dec~↑ (K-cong _ _ _ _ _ _ _) (J-cong _ _ _ _ _ _ _) = no λ { (_ , ()) }
-  dec~↑ (K-cong _ _ _ _ _ _ _) ([]-cong-cong _ _ _ _ _ _) = no λ { (_ , ()) }
-
-  dec~↑ ([]-cong-cong {s = s} A₁≡A₃ t₁≡t₃ u₁≡u₃ v₁~v₃ B₁≡Id-t₁-u₁ ok)
-     ([]-cong-cong {s = s′} A₂≡A₄ t₂≡t₄ u₂≡u₄ v₂~v₄ _ _) =
-    case decConv↑ A₁≡A₃ A₂≡A₄ of λ where
-      (no A₁≢A₂) → no λ where
-        (_ , []-cong-cong A₁≡A₂ _ _ _ _ _) → A₁≢A₂ A₁≡A₂
-      (yes A₁≡A₂) → case decConv↑TermConv (soundnessConv↑ A₁≡A₂)
-                           t₁≡t₃ t₂≡t₄ of λ where
-        (no t₁≢t₂) → no λ where
-          (_ , []-cong-cong _ t₁≡t₂ _ _ _ _) → t₁≢t₂ t₁≡t₂
-        (yes t₁≡t₂) → case decConv↑TermConv (soundnessConv↑ A₁≡A₂)
-                             u₁≡u₃ u₂≡u₄ of λ where
-          (no u₁≢u₂) → no λ where
-            (_ , []-cong-cong _ _ u₁≡u₂ _ _ _) → u₁≢u₂ u₁≡u₂
-          (yes u₁≡u₂) → case dec~↓ v₁~v₃ v₂~v₄ of λ where
-            (no ¬v₁~v₂) → no λ where
-              (_ , []-cong-cong _ _ _ v₁~v₂ _ _) → ¬v₁~v₂ (_ , v₁~v₂)
-            (yes (_ , v₁~v₂)) →
-              case neTypeEq (ne~↓ v₁~v₂ .proj₂ .proj₁)
-                     (syntacticEqTerm (soundness~↓ v₁~v₃) .proj₂ .proj₁)
-                     (syntacticEqTerm (soundness~↓ v₁~v₂)
-                        .proj₂ .proj₁) of λ {
-                B₁≡C → case decStrength s s′ of λ where
-                  (yes PE.refl) → yes
-                    ( _
-                    , []-cong-cong A₁≡A₂ t₁≡t₂ u₁≡u₂ v₁~v₂
-                        (trans (sym B₁≡C) B₁≡Id-t₁-u₁) ok
-                    )
-                  (no s≢s) → no λ where
-                    (_ , []-cong-cong _ _ _ _ _ _) → s≢s PE.refl }
-  dec~↑ ([]-cong-cong _ _ _ _ _ _) (var-refl _ _) = no (λ { (_ , ()) })
-  dec~↑ ([]-cong-cong _ _ _ _ _ _) (fst-cong _) = no (λ { (_ , ()) })
-  dec~↑ ([]-cong-cong _ _ _ _ _ _) (snd-cong _) = no (λ { (_ , ()) })
-  dec~↑ ([]-cong-cong _ _ _ _ _ _) (app-cong _ _) = no (λ { (_ , ()) })
-  dec~↑ ([]-cong-cong _ _ _ _ _ _) (natrec-cong _ _ _ _) = no (λ { (_ , ()) })
-  dec~↑ ([]-cong-cong _ _ _ _ _ _) (prodrec-cong _ _ _) = no λ{(_ , ())}
-  dec~↑ ([]-cong-cong _ _ _ _ _ _) (emptyrec-cong _ _) = no λ { (_ , ()) }
-  dec~↑ ([]-cong-cong _ _ _ _ _ _) (unitrec-cong _ _ _ _) = no λ { (_ , ()) }
-  dec~↑ ([]-cong-cong _ _ _ _ _ _) (J-cong _ _ _ _ _ _ _) = no λ { (_ , ()) }
-  dec~↑ ([]-cong-cong _ _ _ _ _ _) (K-cong _ _ _ _ _ _ _) = no λ { (_ , ()) }
+  dec~↑ (var-refl {x} ⊢x _) u~ = case inv-~-var u~ of λ where
+    (inj₁ (y , PE.refl , _)) → case x ≟ⱽ y of λ where
+      (yes x≡y) → yes (_ , var-refl ⊢x x≡y)
+      (no x≢y)  → no (x≢y ∘→ var-PE-injectivity ∘→ inv-~var ∘→ proj₂)
+    (inj₂ (u≢var , _)) → no (u≢var ∘→ (_ ,_) ∘→ inv-var~ ∘→ proj₂)
+  dec~↑ (app-cong t₁~ t₂≡) u~ = case inv-~-∘ u~ of λ where
+    (inj₁
+       (_ , _ , _ , _ , _ , _ , _ , _ , _ ,
+        PE.refl , _ , u₁~ , u₂≡)) →
+      dec~↑-app-cong (~↓→∷ t₁~) (~↓→∷ u₁~) (dec~↓ t₁~ u₁~)
+        (λ B₁≡C₁ → decConv↑TermConv B₁≡C₁ t₂≡ u₂≡)
+    (inj₂ (u≢∘ , _)) →
+      no λ (_ , t~u) →
+      let _ , _ , _ , _ , _ , _ , u≡∘ , _ = inv-∘~ t~u in
+      u≢∘ (_ , _ , _ , u≡∘)
+  dec~↑ (fst-cong t′~) u~ = case inv-~-fst u~ of λ where
+    (inj₁ (_ , _ , _ , _ , _ , PE.refl , _ , u′~)) →
+      dec~↑-fst-cong (~↓→∷ t′~) (_ ≟ _ ×-dec dec~↓ t′~ u′~)
+    (inj₂ (u≢fst , _)) →
+      no λ (_ , t~u) →
+      let _ , _ , _ , u≡fst , _ = inv-fst~ t~u in
+      u≢fst (_ , _ , u≡fst)
+  dec~↑ (snd-cong t′~) u~ = case inv-~-snd u~ of λ where
+    (inj₁ (_ , _ , _ , _ , _ , _ , _ , PE.refl , _ , u′~)) →
+      dec~↑-snd-cong (~↓→∷ t′~) (_ ≟ _ ×-dec dec~↓ t′~ u′~)
+    (inj₂ (u≢snd , _)) →
+      no λ (_ , t~u) →
+      let _ , _ , _ , _ , _ , u≡snd , _ = inv-snd~ t~u in
+      u≢snd (_ , _ , u≡snd)
+  dec~↑ (prodrec-cong B≡ t₁~ t₂≡) u~ = case inv-~-prodrec u~ of λ where
+    (inj₁
+       (_ , _ , _ , _ , _ , _ , _ , _ , _ , _ , _ , _ , _ ,
+        PE.refl , _ , C≡ , u₁~ , u₂≡)) →
+      dec~↑-prodrec-cong (~↓→∷ t₁~) (~↓→∷ u₁~)
+        (_ ≟ _ ×-dec _ ≟ _ ×-dec dec~↓ t₁~ u₁~)
+        (λ eq → decConv↑′ eq B≡ C≡)
+        (λ eq₁ eq₂ → decConv↑Term t₂≡ (convConv↑Term eq₁ eq₂ u₂≡))
+    (inj₂ (u≢pr , _)) →
+      no λ (_ , t~u) →
+      let _ , _ , _ , _ , _ , _ , _ , u≡pr , _ = inv-prodrec~ t~u in
+      u≢pr (_ , _ , _ , _ , _ , _ , u≡pr)
+  dec~↑ (emptyrec-cong B≡ t′~) u~ = case inv-~-emptyrec u~ of λ where
+    (inj₁ (_ , _ , _ , _ , PE.refl , _ , C≡ , u′~)) →
+      dec~↑-emptyrec-cong (~↓→∷ t′~)
+        (_ ≟ _ ×-dec decConv↑ B≡ C≡ ×-dec dec~↓ t′~ u′~)
+    (inj₂ (u≢er , _)) →
+      no λ (_ , t~u) →
+      let _ , _ , _ , u≡er , _ = inv-emptyrec~ t~u in
+      u≢er (_ , _ , _ , u≡er)
+  dec~↑ (unitrec-cong B≡ t₁~ t₂≡ no-η) u~ =
+    case inv-~-unitrec u~ of λ where
+      (inj₁
+         (_ , _ , _ , _ , _ , _ , _ , _ , _ ,
+          PE.refl , _ , C≡ , u₁~ , u₂≡ , _)) →
+        dec~↑-unitrec-cong no-η (~↓→∷ t₁~)
+          (_ ≟ _ ×-dec _ ≟ _ ×-dec decConv↑ B≡ C≡ ×-dec dec~↓ t₁~ u₁~)
+          (λ eq → decConv↑TermConv eq t₂≡ u₂≡)
+      (inj₂ (u≢ur , _)) →
+        no λ (_ , t~u) →
+        let _ , _ , _ , _ , u≡ur , _ = inv-unitrec~ t~u in
+        u≢ur (_ , _ , _ , _ , _ , u≡ur)
+  dec~↑ (natrec-cong B≡ t₁≡ t₂≡ t₃~) u~ =
+    case inv-~-natrec u~ of λ where
+      (inj₁
+         (_ , _ , _ , _ , _ , _ , _ , _ , _ , _ , _ , _ ,
+          PE.refl , _ , C≡ , u₁≡ , u₂≡ , u₃~)) →
+        dec~↑-natrec-cong (~↓→∷ t₃~)
+          (_ ≟ _ ×-dec _ ≟ _ ×-dec _ ≟ _ ×-dec decConv↑ B≡ C≡ ×-dec
+           dec~↓ t₃~ u₃~)
+          (λ eq → decConv↑TermConv eq t₁≡ u₁≡)
+          (λ eq₁ eq₂ → decConv↑Term t₂≡ (convConv↑Term eq₁ eq₂ u₂≡))
+      (inj₂ (u≢nr , _)) →
+        no λ (_ , t~u) →
+        let _ , _ , _ , _ , _ , u≡nr , _ = inv-natrec~ t~u in
+        u≢nr (_ , _ , _ , _ , _ , _ , _ , u≡nr)
+  dec~↑ (J-cong B₁≡ t₁≡ B₂≡ t₂≡ t₃≡ t₄~ B₃≡Id) u~ =
+    case inv-~-J u~ of λ where
+      (inj₁
+         (_ , _ , _ , _ , _ , _ , _ , _ , _ , _ , _ , _ , _ , _ , _ ,
+          _ , PE.refl , _ ,
+          C₁≡ , u₁≡ , C₂≡ , u₂≡ , u₃≡ , u₄~ , _)) →
+        dec~↑-J-cong (conv (~↓→∷ t₄~) B₃≡Id)
+          (_ ≟ _ ×-dec _ ≟ _ ×-dec decConv↑ B₁≡ C₁≡ ×-dec dec~↓ t₄~ u₄~)
+          (λ eq → decConv↑TermConv eq t₁≡ u₁≡)
+          (λ eq → decConv↑′ eq B₂≡ C₂≡)
+          (λ eq → decConv↑TermConv eq t₂≡ u₂≡)
+          (λ eq → decConv↑TermConv eq t₃≡ u₃≡)
+      (inj₂ (u≢J , _)) →
+        no λ (_ , t~u) →
+        let _ , _ , _ , _ , _ , _ , _ , _ , u≡J , _ = inv-J~ t~u in
+        u≢J (_ , _ , _ , _ , _ , _ , _ , _ , u≡J)
+  dec~↑ (K-cong B₁≡ t₁≡ B₂≡ t₂≡ t₃~ B₃≡Id ok) u~ =
+    case inv-~-K u~ of λ where
+      (inj₁
+         (_ , _ , _ , _ , _ , _ , _ , _ , _ , _ , _ , _ , _ ,
+          PE.refl , _ , C₁≡ , u₁≡ , C₂≡ , u₂≡ , u₃~ , _)) →
+        dec~↑-K-cong ok (conv (~↓→∷ t₃~) B₃≡Id)
+          (_ ≟ _ ×-dec decConv↑ B₁≡ C₁≡ ×-dec dec~↓ t₃~ u₃~)
+          (λ eq → decConv↑TermConv eq t₁≡ u₁≡)
+          (λ eq → decConv↑′ eq B₂≡ C₂≡)
+          (λ eq → decConv↑TermConv eq t₂≡ u₂≡)
+      (inj₂ (u≢K , _)) →
+        no λ (_ , t~u) →
+        let _ , _ , _ , _ , _ , _ , _ , u≡K , _ = inv-K~ t~u in
+        u≢K (_ , _ , _ , _ , _ , _ , u≡K)
+  dec~↑ ([]-cong-cong B₁≡ t₁≡ t₂≡ t₃~ B₂≡Id ok) u~ =
+    case inv-~-[]-cong u~ of λ where
+      (inj₁
+         (_ , _ , _ , _ , _ , _ , _ , _ , _ , _ , _ ,
+          PE.refl , _ , C₁≡ , u₁≡ , u₂≡ , u₃~ , _)) →
+        dec~↑-[]-cong-cong ok (conv (~↓→∷ t₃~) B₂≡Id)
+          (decStrength _ _ ×-dec decConv↑ B₁≡ C₁≡ ×-dec dec~↓ t₃~ u₃~)
+          (λ eq → decConv↑TermConv eq t₁≡ u₁≡)
+          (λ eq → decConv↑TermConv eq t₂≡ u₂≡)
+      (inj₂ (u≢bc , _)) →
+        no λ (_ , t~u) →
+        let _ , _ , _ , _ , _ , _ , u≡bc , _ = inv-[]-cong~ t~u in
+        u≢bc (_ , _ , _ , _ , _ , u≡bc)
 
   dec~↑′ : ∀ {k l R T}
         → ⊢ Γ ≡ Δ
@@ -694,146 +838,66 @@ mutual
   decConv↓ : ∀ {A B A′ B′}
            → Γ ⊢ A [conv↓] A′ → Γ ⊢ B [conv↓] B′
            → Dec (Γ ⊢ A [conv↓] B)
-  -- True cases
-  decConv↓ (U-refl x) (U-refl x₁) = yes (U-refl x)
-  decConv↓ (ℕ-refl x) (ℕ-refl x₁) = yes (ℕ-refl x)
-  decConv↓ (Empty-refl x) (Empty-refl x₁) = yes (Empty-refl x)
-
-  -- Inspective cases
-  decConv↓ (Unit-refl {s = s} x ok) (Unit-refl {s = s′} _ _) =
-    case decStrength s s′ of λ where
-    (yes PE.refl) → yes (Unit-refl x ok)
-    (no s≢s′) → no (λ { (Unit-refl x x₁) → s≢s′ PE.refl})
-  decConv↓ (ne x) (ne x₁) with dec~↓ x x₁
-  decConv↓ (ne x) (ne x₁) | yes (A , k~l) =
-    let whnfA , neK , neL = ne~↓ k~l
-        ⊢A , ⊢k , _ = syntacticEqTerm (soundness~↓ k~l)
-        _ , ⊢k∷U , _ = syntacticEqTerm (soundness~↓ x)
-        ⊢U≡A = neTypeEq neK ⊢k∷U ⊢k
-        A≡U = U≡A ⊢U≡A
-        k~l′ = PE.subst (λ x → _ ⊢ _ ~ _ ↓ x) A≡U k~l
-    in  yes (ne k~l′)
-  decConv↓ (ne x) (ne x₁) | no ¬p = no (λ x₂ → ¬p (U , (decConv↓-ne x₂ x)))
-
-  decConv↓
-    (ΠΣ-cong {b = b₁} {p = p′} {q = q′} x x₁ x₂ ok)
-    (ΠΣ-cong {b = b₂} {p = p″} {q = q″} x₃ x₄ x₅ _)
-           with decConv↑ x₁ x₄
-  ... | yes p
-    with decConv↑′ (reflConEq (wf x) ∙ soundnessConv↑ p) x₂ x₅
-       | p′ ≟ p″ | q′ ≟ q″ | decBinderMode b₁ b₂
-  ... | yes p₁ | yes PE.refl | yes PE.refl | yes PE.refl =
-    yes (ΠΣ-cong x p p₁ ok)
-  ... | no ¬p | _ | _ | _ =
-    no (λ { (ne ([~] _ _ ())); (ΠΣ-cong _ _ p _) → ¬p p })
-  ... | _ | no ¬p′≡p″ | _ | _ =
-    no (λ { (ne ([~] _ _ ())); (ΠΣ-cong _ _ _ _) → ¬p′≡p″ PE.refl })
-  ... | _ | _ | no ¬q′≡q″ | _ =
-    no (λ { (ne ([~] _ _ ())); (ΠΣ-cong _ _ _ _) → ¬q′≡q″ PE.refl })
-  ... | _ | _ | _ | no b₁≢b₂ =
-    no λ { (ne ([~] _ _ ())); (ΠΣ-cong _ _ _ _) → b₁≢b₂ PE.refl }
-  decConv↓ (ΠΣ-cong _ _ _ _) (ΠΣ-cong _ _ _ _) | no ¬p =
-    no (λ { (ne ([~] _ _ ())) ; (ΠΣ-cong _ p _ _) → ¬p p })
-
-  decConv↓ (Id-cong A₁≡A₃ t₁≡t₃ u₁≡u₃) (Id-cong A₂≡A₄ t₂≡t₄ u₂≡u₄) =
-    case decConv↑ A₁≡A₃ A₂≡A₄ of λ where
-      (no A₁≢A₂) → no λ where
-        (ne ([~] _ _ ()))
-        (Id-cong A₁≡A₂ _ _) → A₁≢A₂ A₁≡A₂
-      (yes A₁≡A₂) → case decConv↑TermConv (soundnessConv↑ A₁≡A₂)
-                           t₁≡t₃ t₂≡t₄ of λ where
-        (no t₁≢t₂) → no λ where
-          (ne ([~] _ _ ()))
-          (Id-cong _ t₁≡t₂ _) → t₁≢t₂ t₁≡t₂
-        (yes t₁≡t₂) → case decConv↑TermConv (soundnessConv↑ A₁≡A₂)
-                             u₁≡u₃ u₂≡u₄ of λ where
-          (no u₁≢u₂) → no λ where
-            (ne ([~] _ _ ()))
-            (Id-cong _ _ u₁≡u₂) → u₁≢u₂ u₁≡u₂
-          (yes u₁≡u₂) → yes (Id-cong A₁≡A₂ t₁≡t₂ u₁≡u₂)
-
-  -- False cases
-  decConv↓ (U-refl x) (ℕ-refl x₁) = no (λ { (ne ([~] _ _ ())) })
-  decConv↓ (U-refl x) (Empty-refl x₁) = no (λ { (ne ([~] _ _ ())) })
-  decConv↓ (U-refl _) (Unit-refl _ _) = no (λ { (ne ([~] _ _ ())) })
-  decConv↓ (U-refl x) (ne x₁) =
-    no (λ x₂ → let whnfA , neK , neL = ne~↓ x₁
-               in  ⊥-elim (IE.U≢ne neK (soundnessConv↓ x₂)))
-  decConv↓ (U-refl _) (ΠΣ-cong _ _ _ _) = no (λ { (ne ([~] _ _ ())) })
-  decConv↓ (U-refl _) (Id-cong _ _ _) = no (λ { (ne ([~] _ _ ())) })
-  decConv↓ (ℕ-refl x) (U-refl x₁) = no (λ { (ne ([~] _ _ ())) })
-  decConv↓ (ℕ-refl x) (Empty-refl x₁) = no (λ { (ne ([~] _ _ ())) })
-  decConv↓ (ℕ-refl _) (Unit-refl _ _) = no (λ { (ne ([~] _ _ ())) })
-  decConv↓ (ℕ-refl x) (ne x₁) =
-    no (λ x₂ → let whnfA , neK , neL = ne~↓ x₁
-               in  ⊥-elim (IE.ℕ≢ne neK (soundnessConv↓ x₂)))
-  decConv↓ (ℕ-refl _) (ΠΣ-cong _ _ _ _) = no (λ { (ne ([~] _ _ ())) })
-  decConv↓ (ℕ-refl _) (Id-cong _ _ _) = no (λ { (ne ([~] _ _ ())) })
-  decConv↓ (Empty-refl x) (U-refl x₁) = no (λ { (ne ([~] _ _ ())) })
-  decConv↓ (Empty-refl x) (ℕ-refl x₁) = no (λ { (ne ([~] _ _ ())) })
-  decConv↓ (Empty-refl _) (Unit-refl _ _) = no (λ { (ne ([~] _ _ ())) })
-  decConv↓ (Empty-refl x) (ne x₁) =
-    no (λ x₂ → let whnfA , neK , neL = ne~↓ x₁
-               in  ⊥-elim (IE.Empty≢neⱼ neK (soundnessConv↓ x₂)))
-  decConv↓ (Empty-refl _) (ΠΣ-cong _ _ _ _) = no (λ { (ne ([~] _ _ ())) })
-  decConv↓ (Empty-refl _) (Id-cong _ _ _) = no (λ { (ne ([~] _ _ ())) })
-  decConv↓ (Unit-refl _ _) (U-refl _) = no (λ { (ne ([~] _ _ ())) })
-  decConv↓ (Unit-refl _ _) (ℕ-refl _) = no (λ { (ne ([~] _ _ ())) })
-  decConv↓ (Unit-refl _ _) (Empty-refl _) = no (λ { (ne ([~] _ _ ())) })
-  decConv↓ (Unit-refl _ _) (ne x) =
-    no (λ y → let _ , neK , _ = ne~↓ x
-              in  ⊥-elim (IE.Unit≢neⱼ neK (soundnessConv↓ y)))
-  decConv↓ (Unit-refl _ _) (ΠΣ-cong _ _ _ _) = no (λ { (ne ([~] _ _ ())) })
-  decConv↓ (Unit-refl _ _) (Id-cong _ _ _) = no (λ { (ne ([~] _ _ ())) })
-  decConv↓ (ne x) (U-refl x₁) =
-    no (λ x₂ → let whnfA , neK , neL = ne~↓ x
-               in  ⊥-elim (IE.U≢ne neK (sym (soundnessConv↓ x₂))))
-  decConv↓ (ne x) (ℕ-refl x₁) =
-    no (λ x₂ → let whnfA , neK , neL = ne~↓ x
-               in  ⊥-elim (IE.ℕ≢ne neK (sym (soundnessConv↓ x₂))))
-  decConv↓ (ne x) (Empty-refl x₁) =
-    no (λ x₂ → let whnfA , neK , neL = ne~↓ x
-               in  ⊥-elim (IE.Empty≢neⱼ neK (sym (soundnessConv↓ x₂))))
-  decConv↓ (ne x) (Unit-refl _ _) =
-    no (λ y → let whnfA , neK , neL = ne~↓ x
-              in  ⊥-elim (IE.Unit≢neⱼ neK (sym (soundnessConv↓ y))))
-  decConv↓ (ne x) (ΠΣ-cong _ _ _ _) =
-    no (λ y → let whnfA , neK , neL = ne~↓ x
-              in  ⊥-elim (IE.ΠΣ≢ne neK (sym (soundnessConv↓ y))))
-  decConv↓ (ne A~A′) (Id-cong _ _ _) =
-    no λ A≡B →
-    ⊥-elim $
-    IE.Id≢ne (ne~↓ A~A′ .proj₂ .proj₁) (sym (soundnessConv↓ A≡B))
-  decConv↓ (ΠΣ-cong _ _ _ _) (U-refl _) = no (λ { (ne ([~] _ _ ())) })
-  decConv↓ (ΠΣ-cong _ _ _ _) (ℕ-refl _) = no (λ { (ne ([~] _ _ ())) })
-  decConv↓ (ΠΣ-cong _ _ _ _) (Empty-refl _) = no (λ { (ne ([~] _ _ ())) })
-  decConv↓ (ΠΣ-cong _ _ _ _) (Unit-refl _ _) = no (λ { (ne ([~] _ _ ())) })
-  decConv↓ (ΠΣ-cong _ _ _ _) (ne x) =
-    no (λ y → let whnfA , neK , neL = ne~↓ x
-              in  ⊥-elim (IE.ΠΣ≢ne neK (soundnessConv↓ y)))
-  decConv↓ (ΠΣ-cong _ _ _ _) (Id-cong _ _ _) = no (λ { (ne ([~] _ _ ())) })
-  decConv↓ (Id-cong _ _ _) (U-refl _) = no (λ { (ne ([~] _ _ ())) })
-  decConv↓ (Id-cong _ _ _) (ℕ-refl _) = no (λ { (ne ([~] _ _ ())) })
-  decConv↓ (Id-cong _ _ _) (Empty-refl _) = no (λ { (ne ([~] _ _ ())) })
-  decConv↓ (Id-cong _ _ _) (Unit-refl _ _) = no (λ { (ne ([~] _ _ ())) })
-  decConv↓ (Id-cong _ _ _) (ne B~B′) =
-    no λ A≡B →
-    ⊥-elim $
-    IE.Id≢ne (ne~↓ B~B′ .proj₂ .proj₁) (soundnessConv↓ A≡B)
-  decConv↓ (Id-cong _ _ _) (ΠΣ-cong _ _ _ _) = no (λ { (ne ([~] _ _ ())) })
-
-  -- Helper function for decidability of neutral types.
-  decConv↓-ne : ∀ {A B A′}
-              → Γ ⊢ A [conv↓] B
-              → Γ ⊢ A ~ A′ ↓ U
-              → Γ ⊢ A ~ B ↓ U
-  decConv↓-ne (U-refl x) ()
-  decConv↓-ne (ℕ-refl x) ()
-  decConv↓-ne (Empty-refl x) ()
-  decConv↓-ne (ne x) A~A = x
-  decConv↓-ne (ΠΣ-cong _ _ _ _) ([~] _ _ ())
-  decConv↓-ne (Unit-refl _ _) ()
-  decConv↓-ne (Id-cong _ _ _) ([~] _ _ ())
+  decConv↓ (ne A~) B≡ =
+    let _ , A-ne , _ = ne~↓ A~ in
+    case inv-[conv↓]-ne′ B≡ of λ where
+      (inj₁ B~) →
+        case dec~↓ A~ B~ of λ where
+          (yes (_ , A~B)) →
+            yes $ ne $
+            let U≡A′ = neTypeEq A-ne (~↓→∷ A~) (~↓→∷ A~B) in
+            PE.subst (_⊢_~_↓_ _ _ _) (U≡A U≡A′) A~B
+          (no ¬A~B) → no (¬A~B ∘→ (_ ,_) ∘→ inv-[conv↓]-ne A-ne)
+      (inj₂ (¬-B-ne , _)) →
+        no λ A≡B →
+        ¬-B-ne (ne~↓ (inv-[conv↓]-ne A-ne A≡B) .proj₂ .proj₂)
+  decConv↓ U≡U@(U-refl _) B≡ =
+    case inv-[conv↓]-U′ B≡ of λ where
+      (inj₁ (PE.refl , _)) → yes U≡U
+      (inj₂ (B≢U , _))     → no (B≢U ∘→ inv-[conv↓]-U)
+  decConv↓ (ΠΣ-cong ⊢A₁ A₁≡ A₂≡ ok) B≡ =
+    case inv-[conv↓]-ΠΣ′ B≡ of λ where
+      (inj₁
+         (_ , _ , _ , _ , _ , _ , _ , PE.refl , PE.refl , B₁≡ , B₂≡)) →
+        decConv↓-ΠΣ ⊢A₁ ok
+          (decBinderMode _ _ ×-dec _ ≟ _ ×-dec _ ≟ _ ×-dec
+           decConv↑ A₁≡ B₁≡)
+          (λ eq → decConv↑′ eq A₂≡ B₂≡)
+      (inj₂ (B≢ΠΣ , _)) →
+        no λ ΠΣ≡B →
+        let _ , _ , B≡ΠΣ , _ = inv-[conv↓]-ΠΣ ΠΣ≡B in
+        B≢ΠΣ (_ , _ , _ , _ , _ , B≡ΠΣ)
+  decConv↓ Empty≡Empty@(Empty-refl _) B≡ =
+    case inv-[conv↓]-Empty′ B≡ of λ where
+      (inj₁ (PE.refl , _)) → yes Empty≡Empty
+      (inj₂ (B≢Empty , _)) → no (B≢Empty ∘→ inv-[conv↓]-Empty)
+  decConv↓ Unit≡Unit@(Unit-refl {s = s} _ _) B≡ =
+    case inv-[conv↓]-Unit′ B≡ of λ where
+      (inj₁ (s′ , PE.refl , _)) →
+        case decStrength s s′ of λ where
+          (yes PE.refl) → yes Unit≡Unit
+          (no s≢s′)     →
+            no λ Unit≡Unit →
+            case inv-[conv↓]-Unit Unit≡Unit of λ {
+              PE.refl →
+            s≢s′ PE.refl }
+      (inj₂ (B≢Unit , _)) → no (B≢Unit ∘→ (_ ,_) ∘→ inv-[conv↓]-Unit)
+  decConv↓ ℕ≡ℕ@(ℕ-refl _) B≡ =
+    case inv-[conv↓]-ℕ′ B≡ of λ where
+      (inj₁ (PE.refl , _)) → yes ℕ≡ℕ
+      (inj₂ (B≢ℕ , _))     → no (B≢ℕ ∘→ inv-[conv↓]-ℕ)
+  decConv↓ (Id-cong A′≡ t₁≡ t₂≡) B≡ =
+    case inv-[conv↓]-Id′ B≡ of λ where
+      (inj₁
+         (_ , _ , _ , _ , _ , _ ,
+          PE.refl , PE.refl , B′≡ , u₁≡ , u₂≡)) →
+        decConv↓-Id (decConv↑ A′≡ B′≡)
+          (λ A′≡B′ → decConv↑Term t₁≡ (convConvTerm u₁≡ A′≡B′))
+          (λ A′≡B′ → decConv↑Term t₂≡ (convConvTerm u₂≡ A′≡B′))
+      (inj₂ (B≢Id , _)) →
+        no λ Id≡B →
+        let _ , _ , _ , B≡Id , _ = inv-[conv↓]-Id Id≡B in
+        B≢Id (_ , _ , _ , B≡Id)
 
   -- Decidability of algorithmic equality of terms.
   decConv↑Term : ∀ {t u A t′ u′}
@@ -868,214 +932,193 @@ mutual
   decConv↓Term : ∀ {t u A t′ u′}
                → Γ ⊢ t [conv↓] t′ ∷ A → Γ ⊢ u [conv↓] u′ ∷ A
                → Dec (Γ ⊢ t [conv↓] u ∷ A)
-  -- True cases
-  decConv↓Term (zero-refl x) (zero-refl x₁) = yes (zero-refl x)
-  decConv↓Term (starʷ-refl x x₁ no-η) (starʷ-refl _ _ _) =
-    yes (starʷ-refl x x₁ no-η)
-  decConv↓Term (starʷ-refl _ _ _) (η-unit _ _ _ _ (inj₁ ()))
-  decConv↓Term (starʷ-refl _ _ no-η) (η-unit _ _ _ _ (inj₂ η)) =
-    ⊥-elim (no-η η)
-  decConv↓Term (η-unit ⊢t _ tUnit _ ok) (η-unit ⊢u _ uUnit _ _) =
-    yes (η-unit ⊢t ⊢u tUnit uUnit ok)
-  decConv↓Term (η-unit _ _ _ _ (inj₁ ())) (starʷ-refl _ _ _)
-  decConv↓Term (η-unit _ _ _ _ (inj₂ η)) (starʷ-refl _ _ no-η) =
-    ⊥-elim (no-η η)
-  decConv↓Term ⊢rfl≡rfl@(rfl-refl _) (rfl-refl _) = yes ⊢rfl≡rfl
-
-  -- Inspective cases
-  decConv↓Term (ℕ-ins x) (ℕ-ins x₁) with dec~↓ x x₁
-  decConv↓Term (ℕ-ins x) (ℕ-ins x₁) | yes (A , k~l) =
-    let whnfA , neK , neL = ne~↓ k~l
-        ⊢A , ⊢k , ⊢l = syntacticEqTerm (soundness~↓ k~l)
-        _ , ⊢l∷ℕ , _ = syntacticEqTerm (soundness~↓ x)
-        ⊢ℕ≡A = neTypeEq neK ⊢l∷ℕ ⊢k
-        A≡ℕ = ℕ≡A ⊢ℕ≡A whnfA
-        k~l′ = PE.subst (λ x → _ ⊢ _ ~ _ ↓ x) A≡ℕ k~l
-    in  yes (ℕ-ins k~l′)
-  decConv↓Term (ℕ-ins x) (ℕ-ins x₁) | no ¬p =
-    no (λ x₂ → ¬p (ℕ , decConv↓Term-ℕ-ins x₂ x))
-  decConv↓Term (Empty-ins x) (Empty-ins x₁) with dec~↓ x x₁
-  decConv↓Term (Empty-ins x) (Empty-ins x₁) | yes (A , k~l) =
-    let whnfA , neK , neL = ne~↓ k~l
-        ⊢A , ⊢k , ⊢l = syntacticEqTerm (soundness~↓ k~l)
-        _ , ⊢l∷Empty , _ = syntacticEqTerm (soundness~↓ x)
-        ⊢Empty≡A = neTypeEq neK ⊢l∷Empty ⊢k
-        A≡Empty = Empty≡A ⊢Empty≡A whnfA
-        k~l′ = PE.subst (λ x → _ ⊢ _ ~ _ ↓ x) A≡Empty k~l
-    in  yes (Empty-ins k~l′)
-  decConv↓Term (Empty-ins x) (Empty-ins x₁) | no ¬p =
-    no (λ x₂ → ¬p (Empty , decConv↓Term-Empty-ins x₂ x))
-  decConv↓Term (Unitʷ-ins no-η t~t′) (Unitʷ-ins _ u~u′)
-    with dec~↓ t~t′ u~u′
-  ... | yes (A , t~u) =
-    case ne~↓ t~u of λ
-      (A-whnf , t-ne , _) →
-    yes $
-    Unitʷ-ins no-η $
-    PE.subst (_⊢_~_↓_ _ _ _)
-      (Unit≡A
-         (neTypeEq t-ne
-            (syntacticEqTerm (soundness~↓ t~t′) .proj₂ .proj₁)
-            (syntacticEqTerm (soundness~↓ t~u) .proj₂ .proj₁))
-         A-whnf)
-      t~u
-  ... | no ¬t~u =
-    case Unitʷ-η? of λ where
-      (no no-η) → no λ where
-        (Unitʷ-ins _ t~u)          → ¬t~u (_ , t~u)
-        (η-unit _ _ _ _ (inj₁ ()))
-        (η-unit _ _ _ _ (inj₂ η))  → no-η η
-      (yes η) → yes $
-        η-unit
-          (syntacticEqTerm (soundness~↓ t~t′) .proj₂ .proj₁)
-          (syntacticEqTerm (soundness~↓ u~u′) .proj₂ .proj₁)
-          (ne (ne~↓ t~t′ .proj₂ .proj₁))
-          (ne (ne~↓ u~u′ .proj₂ .proj₁))
-          (inj₂ η)
-  decConv↓Term (Σʷ-ins x x₁ x₂) (Σʷ-ins x₃ x₄ x₅) with dec~↓ x₂ x₅
-  ... | yes (B , t~u) =
-    let ⊢B , ⊢t , ⊢u = syntacticEqTerm (soundness~↓ t~u)
-        whnfB , neT , _ = ne~↓ t~u
-        Σ≡B = neTypeEq neT x ⊢t
-        _ , _ , B≡Σ′ = Σ≡A Σ≡B whnfB
-    in  yes (Σʷ-ins x x₃ (PE.subst (λ x →  _ ⊢ _ ~ _ ↓ x) B≡Σ′ t~u))
-  ... | no ¬p = no (λ x₆ → ¬p (decConv↓Term-Σʷ-ins x₆ x₂))
-  decConv↓Term (ne-ins x x₁ x₂ x₃) (ne-ins x₄ x₅ x₆ x₇)
-               with dec~↓ x₃ x₇
-  decConv↓Term (ne-ins x x₁ x₂ x₃) (ne-ins x₄ x₅ x₆ x₇) | yes (A , k~l) =
-    yes (ne-ins x x₄ x₆ k~l)
-  decConv↓Term (ne-ins x x₁ x₂ x₃) (ne-ins x₄ x₅ x₆ x₇) | no ¬p =
-    no (λ x₈ → ¬p (inv-[conv↓]∷-ne x₆ x₈))
-  decConv↓Term (univ x x₁ x₂) (univ x₃ x₄ x₅)
-               with decConv↓  x₂ x₅
-  decConv↓Term (univ x x₁ x₂) (univ x₃ x₄ x₅) | yes p =
-    yes (univ x x₃ p)
-  decConv↓Term (univ x x₁ x₂) (univ x₃ x₄ x₅) | no ¬p =
-    no (λ { (ne-ins x₆ x₇ () x₉)
-          ; (univ x₆ x₇ x₈) → ¬p x₈ })
-  decConv↓Term (suc-cong x) (suc-cong x₁) with decConv↑Term  x x₁
-  decConv↓Term (suc-cong x) (suc-cong x₁) | yes p =
-    yes (suc-cong p)
-  decConv↓Term (suc-cong x) (suc-cong x₁) | no ¬p =
-    no (λ { (ℕ-ins ([~] _ _ ()))
-          ; (ne-ins x₂ x₃ () x₅)
-          ; (suc-cong x₂) → ¬p x₂ })
-  decConv↓Term (Σ-η ⊢t _ tProd _ fstConvT sndConvT)
-               (Σ-η ⊢u _ uProd _ fstConvU sndConvU)
-               with decConv↑Term fstConvT fstConvU
-  ... | yes P = let ⊢F , ⊢G = syntacticΣ (syntacticTerm ⊢t)
-                    fstt≡fstu = soundnessConv↑Term P
-                    Gfstt≡Gfstu = substTypeEq (refl ⊢G) fstt≡fstu
-                    sndConv = decConv↑TermConv Gfstt≡Gfstu sndConvT sndConvU
-                in  decConv↓Term-Σ-η ⊢t ⊢u tProd uProd P sndConv
-  ... | no ¬P = no (λ { (Σ-η _ _ _ _ P _) → ¬P P } )
-  decConv↓Term (prod-cong x x₁ x₂ x₃ ok) (prod-cong x₄ x₅ x₆ x₇ _)
-    with decConv↑Term x₂ x₆
-  ... | no ¬P = no λ eq → case prod-cong⁻¹ eq of λ
-    (_ , _ , _ , _ , t , _) → ¬P t
-  ... | yes P with decConv↑TermConv (substTypeEq (refl x₁) (soundnessConv↑Term P)) x₃ x₇
-  ... | yes Q = yes (prod-cong x x₁ P Q ok)
-  ... | no ¬Q = no λ eq → case prod-cong⁻¹ eq of λ
-    (_ , _ , _ , _ , _ , u , _) → ¬Q u
-  decConv↓Term (η-eq {p = p} {f = t} x₁ x₂ x₃ x₄ x₅) (η-eq {f = u} x₇ x₈ x₉ x₁₀ x₁₁)
-    with decConv↑Term x₅ x₁₁
-  ... | yes P =
-    let ⊢F , ⊢G = syntacticΠ (syntacticTerm x₁)
-        G≡G = refl ⊢G
-    in
-    yes (η-eq x₁ x₇ x₃ x₉ $
-         transConv↑Term G≡G x₅
-           (transConv↑Term G≡G (symConvTerm x₅)
-           (transConv↑Term G≡G P
-           (transConv↑Term G≡G x₁₁
-           (symConvTerm x₁₁)))))
-  ... | no ¬P = no (λ { (ne-ins x₁₂ x₁₃ () x₁₅)
-                      ; (η-eq x₁₃ x₁₄ x₁₅ x₁₆ x₁₇) → ¬P x₁₇ })
-  decConv↓Term (Id-ins ⊢v₁ v₁~v₃) (Id-ins ⊢v₂ v₂~v₄) =
-    case dec~↓ v₁~v₃ v₂~v₄ of λ where
-      (no ¬v₁~v₂) → no λ where
-        (Id-ins _ v₁~v₂)  → ¬v₁~v₂ (_ , v₁~v₂)
-        (rfl-refl _)      → case v₂~v₄ of λ { ([~] _ _ ()) }
-        (ne-ins _ _ () _)
-      (yes (_ , v₁~v₂)) →
-        case ne~↓ v₁~v₂ of λ {
-          (B-whnf , v₁-ne , _) →
-        case neTypeEq v₁-ne
-               (syntacticEqTerm (soundness~↓ v₁~v₃) .proj₂ .proj₁)
-               (syntacticEqTerm (soundness~↓ v₁~v₂)
-                  .proj₂ .proj₁) of λ {
-          Id≡B →
-        case Id≡Whnf Id≡B B-whnf of λ {
-          (_ , _ , _ , PE.refl) →
-        yes (Id-ins ⊢v₁ v₁~v₂) }}}
-
-  -- False cases
-  decConv↓Term  (ℕ-ins x) (zero-refl x₁) =
-    no (λ x₂ → decConv↓Term-ℕ x₂ x λ { ([~] _ _ ()) })
-  decConv↓Term  (ℕ-ins x) (suc-cong x₁) =
-    no (λ x₂ → decConv↓Term-ℕ x₂ x (λ { ([~] _ _ ()) }))
-  decConv↓Term  (zero-refl x) (ℕ-ins x₁) =
-    no (λ x₂ → decConv↓Term-ℕ (symConv↓Term′ x₂) x₁ (λ { ([~] _ _ ()) }))
-  decConv↓Term  (zero-refl x) (suc-cong x₁) =
-    no (λ { (ℕ-ins ([~] _ _ ())) ; (ne-ins x₂ x₃ () x₅) })
-  decConv↓Term  (suc-cong x) (ℕ-ins x₁) =
-    no (λ x₂ → decConv↓Term-ℕ (symConv↓Term′ x₂) x₁ (λ { ([~] _ _ ()) }))
-  decConv↓Term  (suc-cong x) (zero-refl x₁) =
-    no (λ { (ℕ-ins ([~] _ _ ())) ; (ne-ins x₂ x₃ () x₅) })
-  decConv↓Term (Unitʷ-ins no-η _) (η-unit _ _ _ _ (inj₂ η)) =
-    ⊥-elim (no-η η)
-  decConv↓Term (η-unit _ _ _ _ (inj₂ η)) (Unitʷ-ins no-η _) =
-    ⊥-elim (no-η η)
-  decConv↓Term (Σʷ-ins x x₁ x₂) (prod-cong x₃ x₄ x₅ x₆ _) =
-    no λ x₇ → decConv↓Term-Σʷ x₇ x₂ (λ{ ()})
-  decConv↓Term (prod-cong x x₁ x₂ x₃ _) (Σʷ-ins x₄ x₅ x₆) =
-    no (λ x₇ → decConv↓Term-Σʷ (symConv↓Term′ x₇) x₆ (λ{ ()}))
-  decConv↓Term (starʷ-refl _ _ no-η) (Unitʷ-ins _ u~) =
-    no λ ≡u → no-η (decConv↓Term-Unit (symConv↓Term′ ≡u) u~)
-  decConv↓Term (Unitʷ-ins _ t~) (starʷ-refl _ _ no-η) =
-    no λ t≡ → no-η (decConv↓Term-Unit t≡ t~)
-  decConv↓Term (Id-ins _ v₁~v₃) (rfl-refl _) =
-    no λ where
-      (Id-ins _ ~rfl)   → case ne~↓ ~rfl  .proj₂ .proj₂ of λ ()
-      (rfl-refl _)      → case ne~↓ v₁~v₃ .proj₂ .proj₁ of λ ()
-      (ne-ins _ _ () _)
-  decConv↓Term (rfl-refl _) (Id-ins _ v₂~v₄) =
-    no λ where
-      (Id-ins _ rfl~)   → case ne~↓ rfl~  .proj₂ .proj₁ of λ ()
-      (rfl-refl _)      → case ne~↓ v₂~v₄ .proj₂ .proj₁ of λ ()
-      (ne-ins _ _ () _)
-
-  -- Impossible cases
-  decConv↓Term (ℕ-ins x) (ne-ins x₁ x₂ () x₄)
-  decConv↓Term (Empty-ins x) (ne-ins x₁ x₂ () x₄)
-  decConv↓Term (Σʷ-ins x x₁ x₂) (ne-ins x₃ x₄ () x₆)
-  decConv↓Term (ne-ins x x₁ () x₃) (ℕ-ins x₄)
-  decConv↓Term (ne-ins x x₁ () x₃) (Empty-ins x₄)
-  decConv↓Term (ne-ins _ _ () _) (Unitʷ-ins _ _)
-  decConv↓Term (ne-ins x x₁ () x₃) (Σʷ-ins x₄ x₅ x₆)
-  decConv↓Term (ne-ins x x₁ () x₃) (univ x₄ x₅ x₆)
-  decConv↓Term (ne-ins x x₁ () x₃) (zero-refl x₄)
-  decConv↓Term (ne-ins x x₁ () x₃) (suc-cong x₄)
-  decConv↓Term (ne-ins x x₁ () x₃) (prod-cong x₄ x₅ x₆ x₇ _)
-  decConv↓Term (ne-ins x x₁ () x₃) (η-eq x₄ x₅ x₆ x₇ x₈)
-  decConv↓Term (ne-ins x x₁ () x₃) (Σ-η x₄ x₅ x₆ x₇ x₈ x₉)
-  decConv↓Term (ne-ins x x₁ () x₃) (η-unit _ _ _ _ _)
-  decConv↓Term (ne-ins _ _ () _) (Id-ins _ _)
-  decConv↓Term (ne-ins _ _ () _) (rfl-refl _)
-  decConv↓Term (univ x x₁ x₂) (ne-ins x₃ x₄ () x₆)
-  decConv↓Term (zero-refl x) (ne-ins x₁ x₂ () x₄)
-  decConv↓Term (rfl-refl _) (ne-ins _ _ () _)
-  decConv↓Term (suc-cong x) (ne-ins x₁ x₂ () x₄)
-  decConv↓Term (prod-cong x x₁ x₂ x₃ _) (ne-ins x₄ x₅ () x₇)
-  decConv↓Term (η-eq x x₁ x₂ x₃ x₄) (ne-ins x₅ x₆ () x₈)
-  decConv↓Term (Σ-η x x₁ x₂ x₃ x₄ x₅) (ne-ins x₆ x₇ () x₉)
-  decConv↓Term (Id-ins _ _) (ne-ins _ _ () _)
-  decConv↓Term (Unitʷ-ins _ _) (η-unit _ _ _ _ (inj₁ ()))
-  decConv↓Term (Unitʷ-ins _ _) (ne-ins _ _ () _)
-  decConv↓Term (ne-ins x x₁ () x₃) (starʷ-refl _ _ _)
-  decConv↓Term (starʷ-refl _ _ _) (ne-ins x₂ x₃ () x₅)
-  decConv↓Term (η-unit _ _ _ _ (inj₁ ())) (Unitʷ-ins _ _)
-  decConv↓Term (η-unit _ _ _ _ _) (ne-ins x₄ x₅ () x₇)
+  decConv↓Term (ne-ins ⊢t _ A-ne t~) u≡ =
+    let _ , u~ = inv-[conv↓]∷-ne A-ne u≡ in
+    case dec~↓ t~ u~ of λ where
+      (yes (_ , t~u)) → yes (ne-ins ⊢t ([conv↓]∷→∷ u≡) A-ne t~u)
+      (no ¬t~u)       → no (¬t~u ∘→ inv-[conv↓]∷-ne A-ne)
+  decConv↓Term (univ ⊢A _ A≡) B≡ =
+    case decConv↓ A≡ (inv-[conv↓]∷-U B≡) of λ where
+      (yes A≡B) → yes (univ ⊢A ([conv↓]∷→∷ B≡) A≡B)
+      (no A≢B)  → no (A≢B ∘→ inv-[conv↓]∷-U)
+  decConv↓Term (η-eq ⊢t _ t-fun _ t0≡) u≡ =
+    let u-fun , _ , u0≡ = inv-[conv↓]∷-Π u≡ in
+    case decConv↑Term t0≡ u0≡ of λ where
+      (yes t0≡u0) → yes (η-eq ⊢t ([conv↓]∷→∷ u≡) t-fun u-fun t0≡u0)
+      (no t0≢u0)  →
+        no λ t≡u →
+        let _ , _ , t0≡u0 = inv-[conv↓]∷-Π t≡u in
+        t0≢u0 t0≡u0
+  decConv↓Term (Σ-η ⊢t _ t-prod _ fst-t≡ snd-t≡) u≡ =
+    let u-prod , _ , fst-u≡ , snd-u≡ = inv-[conv↓]∷-Σˢ u≡ in
+    case
+      (decConv↑Term fst-t≡ fst-u≡
+         ×-dec′ λ fst-t≡fst-u →
+       decConv↑TermConv
+         (substTypeEq
+            (refl (inversion-ΠΣ (syntacticTerm ⊢t) .proj₂ .proj₁))
+            (soundnessConv↑Term fst-t≡fst-u))
+         snd-t≡ snd-u≡)
+      of λ where
+      (yes (fst-t≡fst-u , snd-t≡snd-u)) →
+        yes $
+        Σ-η ⊢t ([conv↓]∷→∷ u≡) t-prod u-prod fst-t≡fst-u snd-t≡snd-u
+      (no not-both-equal) →
+        no λ t≡u →
+        let _ , _ , fst-t≡fst-u , snd-t≡snd-u = inv-[conv↓]∷-Σˢ t≡u in
+        not-both-equal (fst-t≡fst-u , snd-t≡snd-u)
+  decConv↓Term (Σʷ-ins ⊢t _ t~) u≡ = case inv-[conv↓]∷-Σʷ u≡ of λ where
+    (inj₁ (_ , _ , _ , _ , u~)) →
+      case dec~↓ t~ u~ of λ where
+        (yes (_ , t~u)) →
+          yes $
+          Σʷ-ins ⊢t ([conv↓]∷→∷ u≡) $
+          PE.subst (_⊢_~_↓_ _ _ _)
+            (uncurry Σ≡A (~↓→∷→Whnf×≡ t~u ⊢t) .proj₂ .proj₂) t~u
+        (no ¬t~u) → no (¬t~u ∘→ [conv↓]∷Σʷ→~↓ t~)
+    (inj₂ (_ , _ , _ , _ , PE.refl , _)) →
+      no λ t≡prod →
+      let _ , [~] _ _ ~prod = [conv↓]∷Σʷ→~↓ t~ t≡prod in
+      inv-~prod ~prod
+  decConv↓Term (prod-cong ⊢A ⊢B t₁≡ t₂≡ ok) u≡ =
+    case inv-[conv↓]∷-Σʷ u≡ of λ where
+      (inj₁ (_ , _ , _ , _ , u~)) →
+        no λ prod≡u →
+        let _ , [~] _ _ ~prod =
+              [conv↓]∷Σʷ→~↓ u~ (symConv↓Term′ prod≡u)
+        in
+        inv-~prod ~prod
+      (inj₂ (_ , _ , _ , _ , PE.refl , _ , u₁≡ , u₂≡)) →
+        case
+          (decConv↑Term t₁≡ u₁≡
+             ×-dec′ λ t₁≡u₁ →
+           decConv↑TermConv
+             (substTypeEq (refl ⊢B) (soundnessConv↑Term t₁≡u₁))
+             t₂≡ u₂≡)
+          of λ where
+          (yes (t₁≡u₁ , t₂≡u₂)) → yes (prod-cong ⊢A ⊢B t₁≡u₁ t₂≡u₂ ok)
+          (no not-both-equal)   →
+            no λ t≡u →
+            let _ , _ , _ , _ , t₁≡u₁ , t₂≡u₂ , _ = prod-cong⁻¹ t≡u in
+            not-both-equal (t₁≡u₁ , t₂≡u₂)
+  decConv↓Term (Empty-ins t~) u≡ =
+    case dec~↓ t~ (inv-[conv↓]∷-Empty u≡) of λ where
+      (yes (_ , t~u)) →
+        yes $ Empty-ins $
+        PE.subst (_⊢_~_↓_ _ _ _)
+          (uncurry Empty≡A (~↓→∷→Whnf×≡ t~u (~↓→∷ t~))) t~u
+      (no ¬t~u) → no (¬t~u ∘→ (_ ,_) ∘→ inv-[conv↓]∷-Empty)
+  decConv↓Term (Unitʷ-ins no-η t~) u≡ =
+    case inv-[conv↓]∷-Unitʷ u≡ of λ where
+      (inj₁ (_ , inj₁ u~)) → case dec~↓ t~ u~ of λ where
+        (yes (_ , t~u)) →
+          yes $ Unitʷ-ins no-η $
+          PE.subst (_⊢_~_↓_ _ _ _)
+            (uncurry Unit≡A (~↓→∷→Whnf×≡ t~u (~↓→∷ t~))) t~u
+        (no ¬t~u) →
+          no λ t≡u →
+          case inv-[conv↓]∷-Unitʷ t≡u of λ where
+            (inj₁ (_ , inj₁ t~u))           → ¬t~u (_ , t~u)
+            (inj₁ (_ , inj₂ (PE.refl , _))) →
+              let [~] _ _ t~ = t~ in
+              inv-star~ t~
+            (inj₂ (η , _)) → no-η η
+      (inj₁ (_ , inj₂ (PE.refl , _))) →
+        no (no-η ∘→ ≡starʷ→~↓Unitʷ→Unitʷ-η t~)
+      (inj₂ (η , _)) → ⊥-elim (no-η η)
+  decConv↓Term (η-unit ⊢t _ t-whnf _ η) u≡ =
+    case inv-[conv↓]∷-Unit u≡ of λ where
+      (inj₁ (η , u-whnf , _)) →
+        yes (η-unit ⊢t ([conv↓]∷→∷ u≡) t-whnf u-whnf η)
+      (inj₂ (no-η , _)) → ⊥-elim (no-η η)
+  decConv↓Term star≡star@(starʷ-refl _ _ no-η) u≡ =
+    case inv-[conv↓]∷-Unitʷ u≡ of λ where
+      (inj₁ (_ , inj₂ (PE.refl , _))) → yes star≡star
+      (inj₁ (_ , inj₁ u~))            →
+        no (no-η ∘→ ≡starʷ→~↓Unitʷ→Unitʷ-η u~ ∘→ symConv↓Term′)
+      (inj₂ (η , _)) → ⊥-elim (no-η η)
+  decConv↓Term (ℕ-ins t~) u≡ = case inv-[conv↓]∷-ℕ u≡ of λ where
+    (inj₁ u~) → case dec~↓ t~ u~ of λ where
+      (yes (A , t~u)) →
+        yes $ ℕ-ins $
+        PE.subst (_⊢_~_↓_ _ _ _)
+          (uncurry ℕ≡A (~↓→∷→Whnf×≡ t~u (~↓→∷ t~))) t~u
+      (no ¬t~u) → no (¬t~u ∘→ (_ ,_) ∘→ [conv↓]∷ℕ→~↓ℕ t~)
+    (inj₂ (inj₁ (PE.refl , _))) →
+      no λ t≡zero →
+      let [~] _ _ ~zero = [conv↓]∷ℕ→~↓ℕ t~ t≡zero in
+      inv-~zero ~zero
+    (inj₂ (inj₂ (_ , _ , PE.refl , _))) →
+      no λ t≡suc →
+      let [~] _ _ ~suc = [conv↓]∷ℕ→~↓ℕ t~ t≡suc in
+      inv-~suc ~suc
+  decConv↓Term zero≡zero@(zero-refl _) u≡ =
+    case inv-[conv↓]∷-ℕ u≡ of λ where
+      (inj₁ u~) →
+        no λ zero≡t →
+        let [~] _ _ ~zero = [conv↓]∷ℕ→~↓ℕ u~ (symConv↓Term′ zero≡t) in
+        inv-~zero ~zero
+      (inj₂ (inj₁ (PE.refl , _)))         → yes zero≡zero
+      (inj₂ (inj₂ (_ , _ , PE.refl , _))) →
+        no λ zero≡suc →
+        case inv-[conv↓]∷-ℕ zero≡suc of λ where
+          (inj₁ ([~] _ _ zero~suc))      → inv-zero~ zero~suc
+          (inj₂ (inj₁ (_ , ())))
+          (inj₂ (inj₂ (_ , _ , () , _)))
+  decConv↓Term (suc-cong t≡) u≡ = case inv-[conv↓]∷-ℕ u≡ of λ where
+    (inj₁ u~) →
+      no λ suc≡t →
+      let [~] _ _ ~suc = [conv↓]∷ℕ→~↓ℕ u~ (symConv↓Term′ suc≡t) in
+      inv-~suc ~suc
+    (inj₂ (inj₁ (PE.refl , _))) →
+      no λ suc≡zero →
+      case inv-[conv↓]∷-ℕ suc≡zero of λ where
+        (inj₁ ([~] _ _ suc~zero))          → inv-~zero suc~zero
+        (inj₂ (inj₁ (() , _)))
+        (inj₂ (inj₂ (_ , _ , _ , () , _)))
+    (inj₂ (inj₂ (_ , _ , PE.refl , _ , u≡))) →
+      case decConv↑Term t≡ u≡ of λ where
+        (yes t≡u) → yes (suc-cong t≡u)
+        (no t≢u)  →
+          no λ suc-t≡suc-u →
+          case inv-[conv↓]∷-ℕ suc-t≡suc-u of λ where
+            (inj₁ ([~] _ _ suc~suc)) →
+              inv-suc~ suc~suc
+            (inj₂ (inj₁ (() , _)))
+            (inj₂ (inj₂ (_ , _ , PE.refl , PE.refl , t≡u))) →
+              t≢u t≡u
+  decConv↓Term (Id-ins ⊢t t~) u≡ = case inv-[conv↓]∷-Id u≡ of λ where
+    (inj₁ (_ , _ , _ , u~)) →
+      case dec~↓ t~ u~ of λ where
+        (yes (_ , t~u)) →
+          yes $
+          Id-ins ⊢t $
+          PE.subst (_⊢_~_↓_ _ _ _)
+            (uncurry Id≡Whnf (~↓→∷→Whnf×≡ t~u (~↓→∷ t~))
+               .proj₂ .proj₂ .proj₂)
+            t~u
+        (no ¬t~u) →
+          no λ t≡u →
+          case inv-[conv↓]∷-Id t≡u of λ where
+            (inj₁ (_ , _ , _ , t~u)) → ¬t~u (_ , t~u)
+            (inj₂ (_ , PE.refl , _)) →
+              let [~] _ _ rfl~ = u~ in
+              inv-rfl~ rfl~
+    (inj₂ (PE.refl , _)) →
+      no λ rfl≡u →
+      ¬-Neutral-rfl $
+      case inv-[conv↓]∷-Id rfl≡u of λ where
+        (inj₁ (_ , _ , _ , t~rfl)) → ne~↓ t~rfl .proj₂ .proj₂
+        (inj₂ (PE.refl , _))       → ne~↓ t~ .proj₂ .proj₁
+  decConv↓Term rfl≡rfl@(rfl-refl _) u≡ =
+    case inv-[conv↓]∷-Id u≡ of λ where
+      (inj₁ (_ , _ , _ , u~)) →
+        no λ rfl≡u →
+        ¬-Neutral-rfl $
+        case inv-[conv↓]∷-Id rfl≡u of λ where
+          (inj₁ (_ , _ , _ , rfl~u)) → ne~↓ rfl~u .proj₂ .proj₁
+          (inj₂ (_ , PE.refl , _))   → ne~↓ u~ .proj₂ .proj₁
+      (inj₂ (PE.refl , _)) → yes rfl≡rfl
 
   -- Decidability of algorithmic equality of terms of equal types.
   decConv↑TermConv : ∀ {t u A B t′ u′}

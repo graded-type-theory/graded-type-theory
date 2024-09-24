@@ -12,8 +12,11 @@ open import Data.Product public
 open import Relation.Nullary.Decidable public
   using (_×-dec_)
 
+open import Tools.Relation
+
 private variable
   a b c d e f g h i : Level
+  A B               : Set _
 
 -- 4-tuples.
 
@@ -98,3 +101,13 @@ private variable
    (f : F a b c d e) (g : G a b c d e f) → H a b c d e f g → Set i) →
   Set (a ⊔ b ⊔ c ⊔ d ⊔ e ⊔ f ⊔ g ⊔ h ⊔ i)
 ∃₈ I = ∃ λ a → ∃₇ (I a)
+
+-- A generalisation of _×-dec_.
+
+infixr 2 _×-dec′_
+
+_×-dec′_ : Dec A → (A → Dec B) → Dec (A × B)
+no ¬A ×-dec′ _ = no (λ (a , _) → ¬A a)
+yes a ×-dec′ d with d a
+… | yes b = yes (a , b)
+… | no ¬B = no (λ (_ , b) → ¬B b)
