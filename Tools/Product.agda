@@ -17,6 +17,7 @@ open import Tools.Relation
 private variable
   a b c d e f g h i : Level
   A B               : Set _
+  P                 : A → Set _
 
 -- 4-tuples.
 
@@ -111,3 +112,12 @@ no ¬A ×-dec′ _ = no (λ (a , _) → ¬A a)
 yes a ×-dec′ d with d a
 … | yes b = yes (a , b)
 … | no ¬B = no (λ (_ , b) → ¬B b)
+
+-- A variant of _×-dec_ for Σ-types.
+
+Σ-dec :
+  Dec A → (∀ x y → P x → P y) → ((x : A) → Dec (P x)) → Dec (Σ A P)
+Σ-dec (no ¬A) _   _ = no (λ (a , _) → ¬A a)
+Σ-dec (yes a) irr d with d a
+… | yes b = yes (a , b)
+… | no ¬B = no (λ (_ , b) → ¬B (irr _ _ b))
