@@ -26,6 +26,7 @@ open import Definition.LogicalRelation.Properties R
 open import Tools.Function
 open import Tools.Nat
 open import Tools.Product
+import Tools.Relation as Dec
 
 private
   variable
@@ -71,27 +72,39 @@ opaque
 
 opaque
 
+  -- It is decidable whether a well-formed type reduces to (or does
+  -- not reduce to) either a Π-type or a Σ-type.
+
+  isΠΣ : Γ ⊢ A → Dec (∃₅ λ b p q B C → Γ ⊢ A ⇒* ΠΣ⟨ b ⟩ p , q ▷ B ▹ C)
+  isΠΣ ⊢A =
+    Dec.map
+      (λ { (BM _ _ _ , _ , _ , A⇒*) → _ , _ , _ , _ , _ , A⇒* })
+      (λ (_ , _ , _ , _ , _ , A⇒*) → _ , _ , _ , A⇒*)
+      (isB ⊢A)
+
+opaque
+
   -- It is decidable whether a well-formed type reduces to a Π-type.
 
   isΠ : Γ ⊢ A → Dec (∃₄ λ p q B C → Γ ⊢ A ⇒* Π p , q ▷ B ▹ C)
-  isΠ ⊢A with isB ⊢A
-  … | yes (BΠ _ _ , _ , _ , A⇒*Π)   = yes (_ , _ , _ , _ , A⇒*Π)
-  … | yes (BΣ _ _ _ , _ , _ , A⇒*Σ) =
+  isΠ ⊢A with isΠΣ ⊢A
+  … | yes (BMΠ , rest)                   = yes rest
+  … | yes (BMΣ _ , _ , _ , _ , _ , A⇒*Σ) =
     no λ (_ , _ , _ , _ , A⇒*Π) →
     Π≢Σⱼ (trans (sym (subset* A⇒*Π)) (subset* A⇒*Σ))
-  … | no not = no λ (_ , _ , _ , _ , A⇒*Π) → not (_ , _ , _ , A⇒*Π)
+  … | no not = no (not ∘→ (_ ,_))
 
 opaque
 
   -- It is decidable whether a well-formed type reduces to a Σ-type.
 
   isΣ : Γ ⊢ A → Dec (∃₅ λ s p q B C → Γ ⊢ A ⇒* Σ⟨ s ⟩ p , q ▷ B ▹ C)
-  isΣ ⊢A with isB ⊢A
-  … | yes (BΣ _ _ _ , _ , _ , A⇒*Σ) = yes (_ , _ , _ , _ , _ , A⇒*Σ)
-  … | yes (BΠ _ _ , _ , _ , A⇒*Π)   =
+  isΣ ⊢A with isΠΣ ⊢A
+  … | yes (BMΣ _ , rest)               = yes (_ , rest)
+  … | yes (BMΠ , _ , _ , _ , _ , A⇒*Π) =
     no λ (_ , _ , _ , _ , _ , A⇒*Σ) →
     Π≢Σⱼ (trans (sym (subset* A⇒*Π)) (subset* A⇒*Σ))
-  … | no not = no λ (_ , _ , _ , _ , _ , A⇒*Σ) → not (_ , _ , _ , A⇒*Σ)
+  … | no not = no (not ∘→ (_ ,_) ∘→ proj₂)
 
 opaque
 
