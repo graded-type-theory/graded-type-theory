@@ -34,98 +34,124 @@ private
     A : Term n
     l : TypeLevel
 
--- Decidability of being (reducing to) a binding type
+private opaque
 
-isB′ : ∀ {l} → Γ ⊩⟨ l ⟩ A → Dec (∃₃ λ F G W → (Γ ⊢ F) × (Γ ∙ F ⊢ G) × Γ ⊢ A ⇒* (⟦ W ⟧ F ▹ G))
-isB′ (Uᵣ′ l′ l< ⊢Γ) = no (λ {(F , G , W , ⊢F , ⊢G , U⇒W) → U≢B W (subset* U⇒W)})
-isB′ (ℕᵣ x) = no (λ {(F , G , W , ⊢F , ⊢G , A⇒W) → ℕ≢B W (trans (sym (subset* (red x))) (subset* A⇒W))})
-isB′ (Emptyᵣ x) = no (λ {(F , G , W , ⊢F , ⊢G , A⇒W) → Empty≢Bⱼ W (trans (sym (subset* (red x))) (subset* A⇒W))})
-isB′ (Unitᵣ (Unitₜ x _)) =
-  no (λ { (_ , _ , W , _ , _ , A⇒W) →
-          Unit≢Bⱼ W (trans (sym (subset* (red x))) (subset* A⇒W)) })
-isB′ (ne′ H D neH H≡H) = no (λ {(F , G , W , ⊢F , ⊢G , A⇒W) → B≢ne W neH (trans (sym (subset* A⇒W)) (subset* (red D)))})
-isB′ (Bᵣ′ W F G D ⊢F ⊢G A≡A [F] [G] G-ext _) =
-  yes (F , G , W , ⊢F , ⊢G , red D)
-isB′ (Idᵣ ⊩A) =
-  no λ (_ , _ , _ , _ , _ , A⇒*Id) →
-    Id≢⟦⟧▷
-      (trans (sym (subset* (red (_⊩ₗId_.⇒*Id ⊩A)))) (subset* A⇒*Id ))
-isB′ (emb 0<1 [A]) = isB′ [A]
+  -- A lemma used below.
 
-isB : Γ ⊢ A → Dec (∃₃ λ F G W → (Γ ⊢ F) × (Γ ∙ F ⊢ G) × Γ ⊢ A ⇒* (⟦ W ⟧ F ▹ G))
-isB ⊢A = isB′ (reducible-⊩ ⊢A)
+  isB′ : ∀ {l} → Γ ⊩⟨ l ⟩ A → Dec (∃₃ λ W B C → Γ ⊢ A ⇒* ⟦ W ⟧ B ▹ C)
+  isB′ (Uᵣ′ _ _ _) =
+    no λ (_ , _ , _ , U⇒W) → U≢B _ (subset* U⇒W)
+  isB′ (ℕᵣ A⇒*ℕ) =
+    no λ (_ , _ , _ , A⇒*W) →
+    ℕ≢B _ (trans (sym (subset* (red A⇒*ℕ))) (subset* A⇒*W))
+  isB′ (Emptyᵣ A⇒*Empty) =
+    no λ (_ , _ , _ , A⇒*W) →
+    Empty≢Bⱼ _ (trans (sym (subset* (red A⇒*Empty))) (subset* A⇒*W))
+  isB′ (Unitᵣ (Unitₜ A⇒*Unit _)) =
+    no λ (_ , _ , _ , A⇒*W) →
+    Unit≢Bⱼ _ (trans (sym (subset* (red A⇒*Unit))) (subset* A⇒*W))
+  isB′ (ne′ _ A⇒*B B-ne _) =
+    no λ (_ , _ , _ , A⇒*W) →
+    B≢ne _ B-ne (trans (sym (subset* A⇒*W)) (subset* (red A⇒*B)))
+  isB′ (Bᵣ′ _ _ _ A⇒*ΠΣ _ _ _ _ _ _ _) =
+    yes (_ , _ , _ , red A⇒*ΠΣ)
+  isB′ (Idᵣ ⊩A) =
+    no λ (_ , _ , _ , A⇒*Id) →
+    Id≢⟦⟧▷ $
+    trans (sym (subset* (red (_⊩ₗId_.⇒*Id ⊩A)))) (subset* A⇒*Id)
+  isB′ (emb 0<1 ⊩A) = isB′ ⊩A
 
--- Decidability of being (reducing to) a Π-type
+opaque
 
-isΠ : Γ ⊢ A → Dec (∃₄ λ F G p q → (Γ ⊢ F) × (Γ ∙ F ⊢ G) × Γ ⊢ A ⇒* (Π p , q ▷ F ▹ G))
-isΠ ⊢A with isB ⊢A
-... | yes (F , G , BΠ p q , ⊢F , ⊢G , A⇒Π) = yes (F , G , p , q , ⊢F , ⊢G , A⇒Π)
-... | yes (F , G , BΣ p q x , ⊢F , ⊢G , A⇒Σ) = no (λ {(F′ , G′ , p′ , q′ , ⊢F , ⊢G , A⇒Π) → Π≢Σⱼ (trans (sym (subset* A⇒Π)) (subset* A⇒Σ))})
-... | no ¬isB = no (λ {(F′ , G′ , p′ , q′ , ⊢F , ⊢G , A⇒Π) → ¬isB (F′ , G′ , BΠ p′ q′ , ⊢F , ⊢G , A⇒Π)})
+  -- It is decidable whether a well-formed type reduces to (or does
+  -- not reduce to) either a Π-type or a Σ-type.
 
--- Decidability of being (reducing to) a Σ-type
+  isB : Γ ⊢ A → Dec (∃₃ λ W B C → Γ ⊢ A ⇒* ⟦ W ⟧ B ▹ C)
+  isB ⊢A = isB′ (reducible-⊩ ⊢A)
 
-isΣ : Γ ⊢ A → Dec (∃₄ λ F G m p → ∃ λ q → (Γ ⊢ F) × (Γ ∙ F ⊢ G) × Γ ⊢ A ⇒* (Σ⟨ m ⟩ p , q ▷ F ▹ G))
-isΣ ⊢A with isB ⊢A
-... | yes (F , G , BΣ m p q , ⊢F , ⊢G , A⇒Σ) = yes (F , G , m , p , q , ⊢F , ⊢G , A⇒Σ)
-... | yes (F , G , BΠ p q , ⊢F , ⊢G , A⇒Π) = no (λ {(F′ , G′ , m′ , p′ , q′ , ⊢F , ⊢G , A⇒Σ) → Π≢Σⱼ (trans (sym (subset* A⇒Π)) (subset* A⇒Σ))})
-... | no ¬isB = no (λ {(F′ , G′ , m , p′ , q′ , ⊢F , ⊢G , A⇒Π) → ¬isB (F′ , G′ , BΣ m p′ q′ , ⊢F , ⊢G , A⇒Π)})
+opaque
 
-isΣˢ : Γ ⊢ A → Dec (∃₄ λ F G p q → (Γ ⊢ F) × (Γ ∙ F ⊢ G) × Γ ⊢ A ⇒* (Σˢ p , q ▷ F ▹ G))
-isΣˢ ⊢A with isΣ ⊢A
-... | yes (F , G , 𝕤 , p , q , ⊢F , ⊢G , A⇒Σ) = yes (F , G , p , q , ⊢F , ⊢G , A⇒Σ)
-... | yes (F , G , 𝕨 , p , q , ⊢F , ⊢G , A⇒Σ) = no (λ {(F′ , G′ , p′ , q′ , ⊢F′ , ⊢G′ , A⇒Σ′) → Σˢ≢Σʷⱼ (trans (sym (subset* A⇒Σ′)) (subset* A⇒Σ))})
-... | no ¬isΣ = no (λ {(F′ , G′ , p′ , q′ , ⊢F′ , ⊢G′ , A⇒Σ′) → ¬isΣ (F′ , G′ , 𝕤 , p′ , q′ , ⊢F′ , ⊢G′ , A⇒Σ′)})
+  -- It is decidable whether a well-formed type reduces to a Π-type.
 
-isΣʷ : Γ ⊢ A → Dec (∃₄ λ F G p q → (Γ ⊢ F) × (Γ ∙ F ⊢ G) × Γ ⊢ A ⇒* (Σʷ p , q ▷ F ▹ G))
-isΣʷ ⊢A with isΣ ⊢A
-... | yes (F , G , 𝕤 , p , q , ⊢F , ⊢G , A⇒Σ) = no (λ {(F′ , G′ , p′ , q′ , ⊢F′ , ⊢G′ , A⇒Σ′) → Σˢ≢Σʷⱼ (trans (sym (subset* A⇒Σ)) (subset* A⇒Σ′))})
-... | yes (F , G , 𝕨 , p , q , ⊢F , ⊢G , A⇒Σ) = yes (F , G , p , q , ⊢F , ⊢G , A⇒Σ)
-... | no ¬isΣ = no (λ {(F′ , G′ , p′ , q′ , ⊢F′ , ⊢G′ , A⇒Σ′) → ¬isΣ (F′ , G′ , 𝕨 , p′ , q′ , ⊢F′ , ⊢G′ , A⇒Σ′)})
+  isΠ : Γ ⊢ A → Dec (∃₄ λ p q B C → Γ ⊢ A ⇒* Π p , q ▷ B ▹ C)
+  isΠ ⊢A with isB ⊢A
+  … | yes (BΠ _ _ , _ , _ , A⇒*Π)   = yes (_ , _ , _ , _ , A⇒*Π)
+  … | yes (BΣ _ _ _ , _ , _ , A⇒*Σ) =
+    no λ (_ , _ , _ , _ , A⇒*Π) →
+    Π≢Σⱼ (trans (sym (subset* A⇒*Π)) (subset* A⇒*Σ))
+  … | no not = no λ (_ , _ , _ , _ , A⇒*Π) → not (_ , _ , _ , A⇒*Π)
+
+opaque
+
+  -- It is decidable whether a well-formed type reduces to a Σ-type.
+
+  isΣ : Γ ⊢ A → Dec (∃₅ λ s p q B C → Γ ⊢ A ⇒* Σ⟨ s ⟩ p , q ▷ B ▹ C)
+  isΣ ⊢A with isB ⊢A
+  … | yes (BΣ _ _ _ , _ , _ , A⇒*Σ) = yes (_ , _ , _ , _ , _ , A⇒*Σ)
+  … | yes (BΠ _ _ , _ , _ , A⇒*Π)   =
+    no λ (_ , _ , _ , _ , _ , A⇒*Σ) →
+    Π≢Σⱼ (trans (sym (subset* A⇒*Π)) (subset* A⇒*Σ))
+  … | no not = no λ (_ , _ , _ , _ , _ , A⇒*Σ) → not (_ , _ , _ , A⇒*Σ)
+
+opaque
+
+  -- It is decidable whether a well-formed type reduces to a strong
+  -- Σ-type.
+
+  isΣˢ : Γ ⊢ A → Dec (∃₄ λ p q B C → Γ ⊢ A ⇒* Σˢ p , q ▷ B ▹ C)
+  isΣˢ ⊢A with isΣ ⊢A
+  … | yes (𝕤 , rest)                  = yes rest
+  … | yes (𝕨 , _ , _ , _ , _ , A⇒*Σʷ) =
+    no λ (_ , _ , _ , _ , A⇒*Σˢ) →
+    Σˢ≢Σʷⱼ (trans (sym (subset* A⇒*Σˢ)) (subset* A⇒*Σʷ))
+  … | no not = no (not ∘→ (_ ,_))
+
+opaque
+
+  -- It is decidable whether a well-formed type reduces to a weak
+  -- Σ-type.
+
+  isΣʷ : Γ ⊢ A → Dec (∃₄ λ p q B C → Γ ⊢ A ⇒* Σʷ p , q ▷ B ▹ C)
+  isΣʷ ⊢A with isΣ ⊢A
+  … | yes (𝕨 , rest)                  = yes rest
+  … | yes (𝕤 , _ , _ , _ , _ , A⇒*Σˢ) =
+    no λ (_ , _ , _ , _ , A⇒*Σʷ) →
+    Σˢ≢Σʷⱼ (trans (sym (subset* A⇒*Σˢ)) (subset* A⇒*Σʷ))
+  … | no not = no (not ∘→ (_ ,_))
 
 opaque
 
   -- It is decidable whether a well-formed type reduces to an identity
   -- type.
 
-  is-Id :
-    Γ ⊢ A →
-    Dec (∃₃ λ B t u →
-         (Γ ⊢ B) × Γ ⊢ t ∷ B × Γ ⊢ u ∷ B × Γ ⊢ A ⇒* Id B t u)
+  is-Id : Γ ⊢ A → Dec (∃₃ λ B t u → Γ ⊢ A ⇒* Id B t u)
   is-Id = helper ∘→ reducible-⊩
     where
-    helper :
-      Γ ⊩⟨ l ⟩ A →
-      Dec (∃₃ λ B t u →
-           (Γ ⊢ B) × Γ ⊢ t ∷ B × Γ ⊢ u ∷ B × Γ ⊢ A ⇒* Id B t u)
+    helper : Γ ⊩⟨ l ⟩ A → Dec (∃₃ λ B t u → Γ ⊢ A ⇒* Id B t u)
     helper (Uᵣ _) =
-      no λ (_ , _ , _ , _ , _ , _ , U⇒*Id) →
+      no λ (_ , _ , _ , U⇒*Id) →
         Id≢U (sym (subset* U⇒*Id))
     helper (ℕᵣ A⇒*ℕ) =
-      no λ (_ , _ , _ , _ , _ , _ , A⇒*Id) →
+      no λ (_ , _ , _ , A⇒*Id) →
         Id≢ℕ (trans (sym (subset* A⇒*Id)) (subset* (red A⇒*ℕ)))
     helper (Emptyᵣ A⇒*Empty) =
-      no λ (_ , _ , _ , _ , _ , _ , A⇒*Id) →
+      no λ (_ , _ , _ , A⇒*Id) →
         Id≢Empty (trans (sym (subset* A⇒*Id)) (subset* (red A⇒*Empty)))
     helper (Unitᵣ ⊩Unit) =
-      no λ (_ , _ , _ , _ , _ , _ , A⇒*Id) →
+      no λ (_ , _ , _ , A⇒*Id) →
         Id≢Unit $
         trans (sym (subset* A⇒*Id))
           (subset* (red (_⊩Unit⟨_⟩_.⇒*-Unit ⊩Unit)))
     helper (ne ⊩A) =
-      no λ (_ , _ , _ , _ , _ , _ , A⇒*Id) →
+      no λ (_ , _ , _ , A⇒*Id) →
         Id≢ne neK $ trans (sym (subset* A⇒*Id)) (subset* (red D))
       where
       open _⊩ne_ ⊩A
     helper (Bᵣ _ ⊩A) =
-      no λ (_ , _ , _ , _ , _ , _ , A⇒*Id) →
+      no λ (_ , _ , _ , A⇒*Id) →
         Id≢⟦⟧▷ $
         trans (sym (subset* A⇒*Id)) (subset* (red (_⊩ₗB⟨_⟩_.D ⊩A)))
-    helper (Idᵣ ⊩A) = yes
-        ( _ , _ , _
-        , escape ⊩Ty , escapeTerm ⊩Ty ⊩lhs , escapeTerm ⊩Ty ⊩rhs
-        , red ⇒*Id
-        )
+    helper (Idᵣ ⊩A) = yes (_ , _ , _ , red ⇒*Id)
       where
       open _⊩ₗId_ ⊩A
     helper (emb 0<1 ⊩A) =

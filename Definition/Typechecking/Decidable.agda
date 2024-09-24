@@ -275,30 +275,29 @@ mutual
   dec⇉-app : ⊢ Γ → Inferable t → Checkable u → Dec (∃ λ A → Γ ⊢ t ∘⟨ p ⟩ u ⇉ A)
   dec⇉-app {p = p′} ⊢Γ t u = case dec⇉ ⊢Γ t of λ where
     (yes (A , t⇉A)) → case isΠ (proj₁ (soundness⇉ ⊢Γ t⇉A)) of λ where
-      (yes (F , G , p , q , ⊢F , ⊢G , A⇒Π)) → case dec⇇ ⊢Γ u ⊢F of λ where
-        (yes u⇇F) → case p ≟ p′ of λ where
-          (yes PE.refl) → yes (_ , appᵢ t⇉A (A⇒Π , ΠΣₙ) u⇇F)
-          (no p≢p′) → no λ where
+      (yes (p , _ , _ , _ , A⇒Π)) →
+        let ⊢F , _ = inversion-ΠΣ (syntacticRed A⇒Π .proj₂) in
+        case dec⇇ ⊢Γ u ⊢F of λ where
+          (yes u⇇F) → case p ≟ p′ of λ where
+            (yes PE.refl) → yes (_ , appᵢ t⇉A (A⇒Π , ΠΣₙ) u⇇F)
+            (no p≢p′) → no λ where
+              (_ , appᵢ x x₁ x₂) → case deterministic⇉ x t⇉A of λ where
+                PE.refl → case whrDet* (A⇒Π , ΠΣₙ) x₁ of λ where
+                  PE.refl → p≢p′ PE.refl
+          (no ¬u⇇F) → no λ where
             (_ , appᵢ x x₁ x₂) → case deterministic⇉ x t⇉A of λ where
-              PE.refl → case whrDet* (A⇒Π , ΠΣₙ) x₁ of λ where
-                PE.refl → p≢p′ PE.refl
-        (no ¬u⇇F) → no λ where
-          (_ , appᵢ x x₁ x₂) → case deterministic⇉ x t⇉A of λ where
-             PE.refl → case whrDet* (A⇒Π , ΠΣₙ) x₁ of λ where
-               PE.refl → ¬u⇇F x₂
+               PE.refl → case whrDet* (A⇒Π , ΠΣₙ) x₁ of λ where
+                 PE.refl → ¬u⇇F x₂
       (no ¬isΠ) → no λ where
         (_ , appᵢ x x₁ x₂) → case deterministic⇉ x t⇉A of λ where
-             PE.refl →
-               let _ , ⊢Π = syntacticRed (proj₁ x₁)
-                   ⊢F , ⊢G = syntacticΠ ⊢Π
-               in  ¬isΠ (_ , _ , _ , _ , ⊢F , ⊢G , proj₁ x₁)
+          PE.refl → ¬isΠ (_ , _ , _ , _ , proj₁ x₁)
     (no ¬t⇉A) → no λ where
       (_ , appᵢ x x₁ x₂) → ¬t⇉A (_ , x)
 
   dec⇉-fst : ⊢ Γ → Inferable t → Dec (∃ λ A → Γ ⊢ fst p t ⇉ A)
   dec⇉-fst {p = p′} ⊢Γ t = case dec⇉ ⊢Γ t of λ where
     (yes (A , t⇉A)) → case isΣˢ (proj₁ (soundness⇉ ⊢Γ t⇉A)) of λ where
-      (yes (F , G , p , q , ⊢F , ⊢G , A⇒Σ)) → case p ≟ p′ of λ where
+      (yes (p , _ , _ , _ , A⇒Σ)) → case p ≟ p′ of λ where
         (yes PE.refl) → yes (_ , fstᵢ t⇉A (A⇒Σ , U.ΠΣₙ))
         (no p≢p′) → no λ where
           (_ , fstᵢ x x₁) → case deterministic⇉ x t⇉A of λ where
@@ -306,17 +305,14 @@ mutual
                PE.refl → p≢p′ PE.refl
       (no ¬isΣ) → no λ where
         (_ , fstᵢ x x₁) → case deterministic⇉ x t⇉A of λ where
-          PE.refl →
-            let _ , ⊢Σ = syntacticRed (proj₁ x₁)
-                ⊢F , ⊢G = syntacticΣ ⊢Σ
-            in  ¬isΣ (_ , _ , _ , _ , ⊢F , ⊢G , proj₁ x₁)
+          PE.refl → ¬isΣ (_ , _ , _ , _ , proj₁ x₁)
     (no ¬t⇉A) → no λ where
       (_ , fstᵢ x x₁) → ¬t⇉A (_ , x)
 
   dec⇉-snd : ⊢ Γ → Inferable t → Dec (∃ λ A → Γ ⊢ snd p t ⇉ A)
   dec⇉-snd {p = p′} ⊢Γ t = case dec⇉ ⊢Γ t of λ where
     (yes (A , t⇉A)) → case isΣˢ (proj₁ (soundness⇉ ⊢Γ t⇉A)) of λ where
-      (yes (F , G , p , q , ⊢F , ⊢G , A⇒Σ)) → case p ≟ p′ of λ where
+      (yes (p , _ , _ , _ , A⇒Σ)) → case p ≟ p′ of λ where
         (yes PE.refl) → yes (_ , sndᵢ t⇉A (A⇒Σ , U.ΠΣₙ))
         (no p≢p′) → no λ where
           (_ , sndᵢ x x₁) → case deterministic⇉ x t⇉A of λ where
@@ -324,10 +320,7 @@ mutual
                PE.refl → p≢p′ PE.refl
       (no ¬isΣ) → no λ where
         (_ , sndᵢ x x₁) → case deterministic⇉ x t⇉A of λ where
-          PE.refl →
-            let _ , ⊢Σ = syntacticRed (proj₁ x₁)
-                ⊢F , ⊢G = syntacticΣ ⊢Σ
-            in  ¬isΣ (_ , _ , _ , _ , ⊢F , ⊢G , proj₁ x₁)
+          PE.refl → ¬isΣ (_ , _ , _ , _ , proj₁ x₁)
     (no ¬t⇉A) → no λ where
       (_ , sndᵢ x x₁) → ¬t⇉A (_ , x)
 
@@ -358,9 +351,9 @@ mutual
   dec⇉-prodrec {r = r} {p = p′} {q = q} ⊢Γ A t u =
     case dec⇉ ⊢Γ t of λ where
       (yes (B , t⇉B)) → case isΣʷ (proj₁ (soundness⇉ ⊢Γ t⇉B)) of λ where
-        (yes (F , G , p , _ , ⊢F , ⊢G , B⇒Σ)) →
+        (yes (p , _ , _ , _ , B⇒Σ)) →
           case inversion-ΠΣ (syntacticRed B⇒Σ .proj₂) of λ {
-            (_ , _ , ok) →
+            (⊢F , ⊢G , ok) →
           case dec⇇Type (⊢Γ ∙ ΠΣⱼ ⊢F ⊢G ok) A of λ where
             (yes A⇇Type) →
               let ⊢ΓΣ = ⊢Γ ∙ ΠΣⱼ {p = p} ⊢F ⊢G ok
@@ -388,10 +381,7 @@ mutual
         (no ¬isΣ) → no λ where
           (_ , prodrecᵢ _ x₁ x₂ _) →
             case deterministic⇉ t⇉B x₁ of λ where
-              PE.refl →
-                let _ , ⊢Σ = syntacticRed (proj₁ x₂)
-                    ⊢F , ⊢G = syntacticΣ ⊢Σ
-                in  ¬isΣ (_ , _ , _ , _ , ⊢F , ⊢G , proj₁ x₂)
+              PE.refl → ¬isΣ (_ , _ , _ , _ , proj₁ x₂)
       (no ¬t⇉B) → no λ where
         (_ , prodrecᵢ x x₁ x₂ x₃) → ¬t⇉B (_ , x₁)
 
@@ -716,55 +706,53 @@ mutual
 
   dec⇇ : ⊢ Γ → Checkable t → Γ ⊢ A → Dec (Γ ⊢ t ⇇ A)
   dec⇇ ⊢Γ (lamᶜ {p = p′} t) ⊢A = case isΠ ⊢A of λ where
-    (yes (F , G , p , q , ⊢F , ⊢G , A⇒Π)) → case dec⇇ (⊢Γ ∙ ⊢F) t ⊢G of λ where
-      (yes t⇇G) → case p ≟ p′ of λ where
-        (yes PE.refl) → yes (lamᶜ (A⇒Π , ΠΣₙ) t⇇G)
-        (no p≢p′) → no λ where
-          (lamᶜ x x₁) → case whrDet* (A⇒Π , ΠΣₙ) x of λ where
-            PE.refl → p≢p′ PE.refl
-      (no ¬t⇇G) → no λ where
-        (lamᶜ x x₁) → case whrDet* (A⇒Π , ΠΣₙ) x of λ where
-          PE.refl → ¬t⇇G x₁
-    (no ¬isΠ) → no λ where
-      (lamᶜ x x₁) →
-        let _ , ⊢Π = syntacticRed (proj₁ x)
-            ⊢F , ⊢G = syntacticΠ ⊢Π
-        in  ¬isΠ (_ , _ , _ , _ , ⊢F , ⊢G , proj₁ x)
-  dec⇇ ⊢Γ (prodᶜ {p = p′} {m = m′} t u) ⊢A = case isΣ ⊢A of λ where
-    (yes (F , G , m , p , q , ⊢F , ⊢G , A⇒Σ)) → case dec⇇ ⊢Γ t ⊢F of λ where
-      (yes t⇇F) → case dec⇇ ⊢Γ u (substType ⊢G (soundness⇇ ⊢Γ t⇇F)) of λ where
-        (yes u⇇Gₜ) → case p ≟ p′ of λ where
-          (yes PE.refl) → case decStrength m m′ of λ where
-            (yes PE.refl) → yes (prodᶜ (A⇒Σ , ΠΣₙ) t⇇F u⇇Gₜ)
-            (no m≢m′) → no λ where
-              (prodᶜ x x₁ x₂) →
-                let Σ≡Σ′ = whrDet* (A⇒Σ , ΠΣₙ) x
-                    _ , _ , W≡W′ = B-PE-injectivity BΣ! BΣ! Σ≡Σ′
-                    _ , _ , m≡m′ = BΣ-PE-injectivity W≡W′
-                in  m≢m′ m≡m′
+    (yes (p , _ , _ , _ , A⇒Π)) →
+      let ⊢F , ⊢G , _ = inversion-ΠΣ (syntacticRed A⇒Π .proj₂) in
+      case dec⇇ (⊢Γ ∙ ⊢F) t ⊢G of λ where
+        (yes t⇇G) → case p ≟ p′ of λ where
+          (yes PE.refl) → yes (lamᶜ (A⇒Π , ΠΣₙ) t⇇G)
           (no p≢p′) → no λ where
-            (prodᶜ x x₁ x₂) → case whrDet* (A⇒Σ , ΠΣₙ) x of λ where
+            (lamᶜ x x₁) → case whrDet* (A⇒Π , ΠΣₙ) x of λ where
               PE.refl → p≢p′ PE.refl
-        (no ¬u⇇Gₜ) → no λ where
+        (no ¬t⇇G) → no λ where
+          (lamᶜ x x₁) → case whrDet* (A⇒Π , ΠΣₙ) x of λ where
+            PE.refl → ¬t⇇G x₁
+    (no ¬isΠ) → no λ where
+      (lamᶜ x _) → ¬isΠ (_ , _ , _ , _ , proj₁ x)
+  dec⇇ ⊢Γ (prodᶜ {p = p′} {m = m′} t u) ⊢A = case isΣ ⊢A of λ where
+    (yes (m , p , _ , _ , _ , A⇒Σ)) →
+      let ⊢F , ⊢G , _ = inversion-ΠΣ (syntacticRed A⇒Σ .proj₂) in
+      case dec⇇ ⊢Γ t ⊢F of λ where
+        (yes t⇇F) → case dec⇇ ⊢Γ u
+                           (substType ⊢G (soundness⇇ ⊢Γ t⇇F)) of λ where
+          (yes u⇇Gₜ) → case p ≟ p′ of λ where
+            (yes PE.refl) → case decStrength m m′ of λ where
+              (yes PE.refl) → yes (prodᶜ (A⇒Σ , ΠΣₙ) t⇇F u⇇Gₜ)
+              (no m≢m′) → no λ where
+                (prodᶜ x x₁ x₂) →
+                  let Σ≡Σ′ = whrDet* (A⇒Σ , ΠΣₙ) x
+                      _ , _ , W≡W′ = B-PE-injectivity BΣ! BΣ! Σ≡Σ′
+                      _ , _ , m≡m′ = BΣ-PE-injectivity W≡W′
+                  in  m≢m′ m≡m′
+            (no p≢p′) → no λ where
+              (prodᶜ x x₁ x₂) → case whrDet* (A⇒Σ , ΠΣₙ) x of λ where
+                PE.refl → p≢p′ PE.refl
+          (no ¬u⇇Gₜ) → no λ where
+            (prodᶜ x x₁ x₂) → case whrDet* (A⇒Σ , ΠΣₙ) x of λ where
+              PE.refl → ¬u⇇Gₜ x₂
+        (no ¬t⇇F) → no λ where
           (prodᶜ x x₁ x₂) → case whrDet* (A⇒Σ , ΠΣₙ) x of λ where
-            PE.refl → ¬u⇇Gₜ x₂
-      (no ¬t⇇F) → no λ where
-        (prodᶜ x x₁ x₂) → case whrDet* (A⇒Σ , ΠΣₙ) x of λ where
-          PE.refl → ¬t⇇F x₁
-    (no ¬isΣ) → no λ where
-      (prodᶜ x x₁ x₂) →
-        let _ , ⊢Σ = syntacticRed (proj₁ x)
-            ⊢F , ⊢G = syntacticΣ ⊢Σ
-        in  ¬isΣ (_ , _ , _ , _ , _ , ⊢F , ⊢G , proj₁ x)
+            PE.refl → ¬t⇇F x₁
+    (no ¬isΣ) →
+      no λ { (prodᶜ x _ _) → ¬isΣ (_ , _ , _ , _ , _ , proj₁ x) }
   dec⇇ ⊢Γ rflᶜ ⊢A =
     case is-Id ⊢A of λ where
       (no is-not-Id) → no λ where
-        (rflᶜ (A⇒*Id-t-u , _) t≡u) →
-          case syntacticEqTerm t≡u of λ {
-            (⊢B , ⊢t , ⊢u) →
-          is-not-Id (_ , _ , _ , ⊢B , ⊢t , ⊢u , A⇒*Id-t-u) }
+        (rflᶜ (A⇒*Id-t-u , _) t≡u) → is-not-Id (_ , _ , _ , A⇒*Id-t-u)
         (infᶜ () _)
-      (yes (_ , _ , _ , ⊢B , ⊢t , ⊢u , A⇒*Id-t-u)) →
+      (yes (_ , _ , _ , A⇒*Id-t-u)) →
+        let ⊢B , ⊢t , ⊢u = inversion-Id (syntacticRed A⇒*Id-t-u .proj₂)
+        in
         case decEqTerm ⊢t ⊢u of λ where
           (no t≢u) → no λ where
             (rflᶜ A↘Id-t′-u′ t′≡u′) →
