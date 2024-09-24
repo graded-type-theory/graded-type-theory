@@ -266,14 +266,14 @@ mutual
       case fullRedNe~↓ A~ of λ {
         (B , B-ne , A≡B) →
       B , univₙ (neₙ Uₙ B-ne) , univ A≡B }
-    (ΠΣ-cong ⊢A A↑ B↑ ok) →
+    (ΠΣ-cong A↑ B↑ ok) →
       case fullRedConv↑ A↑ of λ {
         (A′ , A′-nf , A≡A′) →
       case fullRedConv↑ B↑ of λ {
         (B′ , B′-nf , B≡B′) →
       ΠΣ⟨ _ ⟩ _ , _ ▷ A′ ▹ B′ ,
       ΠΣₙ A′-nf (⊢nf-stable (reflConEq (wfEq A≡A′) ∙ A≡A′) B′-nf) ok ,
-      ΠΣ-cong ⊢A A≡A′ B≡B′ ok }}
+      ΠΣ-cong′ A≡A′ B≡B′ ok }}
     (Id-cong A₁≡A₂ t₁≡t₂ u₁≡u₂) →
       case fullRedConv↑ A₁≡A₂ of λ {
         (A₁′ , ⊢A₁′ , A₁≡A₁′) →
@@ -357,11 +357,13 @@ mutual
       case fullRedTermConv↑ t↑ of λ {
         (u , u-nf , t≡u) →
       suc u , sucₙ u-nf , suc-cong t≡u }
-    (prod-cong {p = p} {q = q} {F = A} {G = B} {t = t} ⊢A ⊢B t↑ u↑ ok) →
+    (prod-cong {p} {q} {F = A} {G = B} {t} ⊢B t↑ u↑ ok) →
       case fullRedTermConv↑ t↑ of λ {
         (t′ , t′-nf , t≡t′) →
       case fullRedTermConv↑ u↑ of λ {
         (u′ , u′-nf , u≡u′) →
+      case syntacticEqTerm t≡t′ of λ
+        (⊢A , _) →
         prod! t′ u′
       , (                                      $⟨ u′-nf ⟩
          Γ ⊢nf u′ ∷ B [ t ]₀                   →⟨ flip _⊢nf_∷_.convₙ $

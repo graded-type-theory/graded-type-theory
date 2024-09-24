@@ -343,8 +343,8 @@ eqRelInstance = record {
           (redₜ uRed , uWhnf)
           (redₜ u'Red , u'Whnf)
           (η-unit [u] [u'] uWhnf u'Whnf ok);
-  ≅-ΠΣ-cong = λ x x₁ x₂ ok → liftConv (ΠΣ-cong x x₁ x₂ ok);
-  ≅ₜ-ΠΣ-cong = λ x x₁ x₂ ok →
+  ≅-ΠΣ-cong = λ _ x₁ x₂ ok → liftConv (ΠΣ-cong x₁ x₂ ok);
+  ≅ₜ-ΠΣ-cong = λ _ x₁ x₂ ok →
     let _ , F∷U , H∷U = syntacticEqTerm (soundnessConv↑Term x₁)
         _ , G∷U , E∷U = syntacticEqTerm (soundnessConv↑Term x₂)
         ⊢Γ = wfTerm F∷U
@@ -354,12 +354,12 @@ eqRelInstance = record {
         E∷U′ = stabilityTerm (reflConEq ⊢Γ ∙ F≡H) E∷U
     in
     liftConvTerm $
-    univ (ΠΣⱼ F∷U G∷U ok) (ΠΣⱼ H∷U E∷U′ ok) (ΠΣ-cong x F<>H G<>E ok);
+    univ (ΠΣⱼ F∷U G∷U ok) (ΠΣⱼ H∷U E∷U′ ok) (ΠΣ-cong F<>H G<>E ok);
   ≅ₜ-zerorefl = liftConvTerm ∘ᶠ zero-refl;
   ≅ₜ-starrefl = λ x x₁ → liftConvTerm (star-refl x x₁);
   ≅-suc-cong = liftConvTerm ∘ᶠ suc-cong;
-  ≅-prod-cong = λ x x₁ x₂ x₃ x₄ →
-                  liftConvTerm (prod-cong x x₁ x₂ x₃ x₄);
+  ≅-prod-cong = λ _ x₁ x₂ x₃ x₄ →
+                  liftConvTerm (prod-cong x₁ x₂ x₃ x₄);
   ≅-η-eq = λ x x₁ x₂ x₃ x₄ x₅ → liftConvTerm (η-eq x₁ x₂ x₃ x₄ x₅);
   ≅-Σ-η = λ x x₁ x₂ x₃ x₄ x₅ x₆ x₇ → (liftConvTerm (Σ-η x₂ x₃ x₄ x₅ x₆ x₇));
   ~-var = ~-var;

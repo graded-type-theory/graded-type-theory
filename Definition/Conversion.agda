@@ -151,7 +151,6 @@ mutual
                → Γ ⊢ K [conv↓] L
 
     ΠΣ-cong    : ∀ {F G H E}
-               → Γ ⊢ F
                → Γ ⊢ F [conv↑] H
                → Γ ∙ F ⊢ G [conv↑] E
                → ΠΣ-allowed b p q
@@ -216,7 +215,6 @@ mutual
               → Γ ⊢ suc m [conv↓] suc n ∷ ℕ
 
     prod-cong : ∀ {F G t t′ u u′}
-              → Γ ⊢ F
               → Γ ∙ F ⊢ G
               → Γ ⊢ t [conv↑] t′ ∷ F
               → Γ ⊢ u [conv↑] u′ ∷ G [ t ]₀
@@ -272,13 +270,12 @@ prod-cong⁻¹ :
   Γ ⊢ prodʷ p t u [conv↓] prodʷ p′ t′ u′ ∷ Σʷ p″ , q ▷ F ▹ G →
   p PE.≡ p′ ×
   p PE.≡ p″ ×
-  Γ ⊢ F ×
   Γ ∙ F ⊢ G ×
   (Γ ⊢ t [conv↑] t′ ∷ F) ×
   (Γ ⊢ u [conv↑] u′ ∷ G [ t ]₀) ×
   Σʷ-allowed p q
-prod-cong⁻¹ (prod-cong F G t u ok) =
-  PE.refl , PE.refl , F , G , t , u , ok
+prod-cong⁻¹ (prod-cong G t u ok) =
+  PE.refl , PE.refl , G , t , u , ok
 
 -- An inversion lemma for J-cong.
 

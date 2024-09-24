@@ -249,10 +249,9 @@ mutual
     let B , whnfB , U≡B , B~A = sym~↓ Γ≡Δ A~B
         B≡U = U≡A U≡B
     in  ne (PE.subst (λ x → _ ⊢ _ ~ _ ↓ x) B≡U B~A)
-  symConv↓ Γ≡Δ (ΠΣ-cong x A<>B A<>B₁ ok) =
+  symConv↓ Γ≡Δ (ΠΣ-cong A<>B A<>B₁ ok) =
     let F≡H = soundnessConv↑ A<>B
-        _ , ⊢H = syntacticEq (stabilityEq Γ≡Δ F≡H)
-    in  ΠΣ-cong ⊢H (symConv↑ Γ≡Δ A<>B)
+    in  ΠΣ-cong (symConv↑ Γ≡Δ A<>B)
           (symConv↑ (Γ≡Δ ∙ F≡H) A<>B₁) ok
   symConv↓ Γ≡Δ (Id-cong A₁≡A₂ t₁≡t₂ u₁≡u₂) =
     case soundnessConv↑ A₁≡A₂ of λ {
@@ -300,14 +299,13 @@ mutual
     let _ , ⊢Δ , _ = contextConvSubst Γ≡Δ
     in  starʷ-refl ⊢Δ ok no-η
   symConv↓Term Γ≡Δ (suc-cong t<>u) = suc-cong (symConv↑Term Γ≡Δ t<>u)
-  symConv↓Term Γ≡Δ (prod-cong x x₁ x₂ x₃ ok) =
-    let Δ⊢F = stability Γ≡Δ x
-        Δ⊢G = stability (Γ≡Δ ∙ refl x) x₁
+  symConv↓Term Γ≡Δ (prod-cong x₁ x₂ x₃ ok) =
+    let Δ⊢G = stability (Γ≡Δ ∙ refl (⊢∙→⊢ (wf x₁))) x₁
         Δ⊢t′↑t = symConv↑Term Γ≡Δ x₂
         _ , ⊢Δ , _ = contextConvSubst Γ≡Δ
         Δ⊢u′↑u = symConv↑Term Γ≡Δ x₃
         Gt≡Gt′ = substTypeEq (refl Δ⊢G) (sym (soundnessConv↑Term Δ⊢t′↑t))
-    in  prod-cong Δ⊢F Δ⊢G Δ⊢t′↑t
+    in  prod-cong Δ⊢G Δ⊢t′↑t
           (convConv↑Term (reflConEq ⊢Δ) Gt≡Gt′ Δ⊢u′↑u) ok
   symConv↓Term Γ≡Δ (η-eq x₁ x₂ y y₁ t<>u) =
     let ⊢F , _ = syntacticΠ (syntacticTerm x₁)

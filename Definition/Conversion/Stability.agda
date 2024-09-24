@@ -123,9 +123,11 @@ mutual
     in  Unit-refl ⊢Δ ok
   stabilityConv↓ Γ≡Δ (ne x) =
     ne (stability~↓ Γ≡Δ x)
-  stabilityConv↓ Γ≡Δ (ΠΣ-cong F A<>B A<>B₁ ok) =
-    ΠΣ-cong (stability Γ≡Δ F) (stabilityConv↑ Γ≡Δ A<>B)
-      (stabilityConv↑ (Γ≡Δ ∙ refl F) A<>B₁) ok
+  stabilityConv↓ Γ≡Δ (ΠΣ-cong A<>B A<>B₁ ok) =
+    ΠΣ-cong (stabilityConv↑ Γ≡Δ A<>B)
+      (stabilityConv↑
+         (Γ≡Δ ∙ refl (syntacticEq (soundnessConv↑ A<>B) .proj₁)) A<>B₁)
+      ok
   stabilityConv↓ Γ≡Δ (Id-cong A₁≡A₂ t₁≡t₂ u₁≡u₂) =
     Id-cong (stabilityConv↑ Γ≡Δ A₁≡A₂) (stabilityConv↑Term Γ≡Δ t₁≡t₂)
       (stabilityConv↑Term Γ≡Δ u₁≡u₂)
@@ -164,8 +166,8 @@ mutual
     let _ , ⊢Δ , _ = contextConvSubst Γ≡Δ
     in  starʷ-refl ⊢Δ ok no-η
   stabilityConv↓Term Γ≡Δ (suc-cong t<>u) = suc-cong (stabilityConv↑Term Γ≡Δ t<>u)
-  stabilityConv↓Term Γ≡Δ (prod-cong x x₁ x₂ x₃ ok) =
-    prod-cong (stability Γ≡Δ x) (stability (Γ≡Δ ∙ refl x) x₁)
+  stabilityConv↓Term Γ≡Δ (prod-cong x₁ x₂ x₃ ok) =
+    prod-cong (stability (Γ≡Δ ∙ refl (⊢∙→⊢ (wf x₁))) x₁)
       (stabilityConv↑Term Γ≡Δ x₂) (stabilityConv↑Term Γ≡Δ x₃) ok
   stabilityConv↓Term Γ≡Δ (η-eq x x₁ y y₁ t<>u) =
     let ⊢F , ⊢G = syntacticΠ (syntacticTerm x)

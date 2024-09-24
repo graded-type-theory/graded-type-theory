@@ -17,6 +17,7 @@ open import Definition.Untyped M as U hiding (wk)
 open import Definition.Untyped.Neutral M type-variant
 open import Definition.Untyped.Properties M
 open import Definition.Typed R
+open import Definition.Typed.Properties R
 open import Definition.Typed.Weakening R
 open import Definition.Typed.Consequences.Syntactic R
 open import Definition.Conversion R
@@ -162,9 +163,9 @@ mutual
   wkConv↓ ρ ⊢Δ (Empty-refl x) = Empty-refl ⊢Δ
   wkConv↓ ρ ⊢Δ (Unit-refl x ok) = Unit-refl ⊢Δ ok
   wkConv↓ ρ ⊢Δ (ne x) = ne (wk~↓ ρ ⊢Δ x)
-  wkConv↓ ρ ⊢Δ (ΠΣ-cong x A<>B A<>B₁ ok) =
-    let ⊢ρF = wk ρ ⊢Δ x
-    in  ΠΣ-cong ⊢ρF (wkConv↑ ρ ⊢Δ A<>B)
+  wkConv↓ ρ ⊢Δ (ΠΣ-cong A<>B A<>B₁ ok) =
+    let ⊢ρF = wk ρ ⊢Δ (syntacticEq (soundnessConv↑ A<>B) .proj₁)
+    in  ΠΣ-cong (wkConv↑ ρ ⊢Δ A<>B)
           (wkConv↑ (lift ρ) (⊢Δ ∙ ⊢ρF) A<>B₁) ok
   wkConv↓ ρ ⊢Δ (Id-cong A₁≡A₂ t₁≡t₂ u₁≡u₂) =
     Id-cong (wkConv↑ ρ ⊢Δ A₁≡A₂) (wkConv↑Term ρ ⊢Δ t₁≡t₂)
@@ -198,10 +199,10 @@ mutual
   wkConv↓Term ρ ⊢Δ (zero-refl x) = zero-refl ⊢Δ
   wkConv↓Term ρ ⊢Δ (starʷ-refl _ ok no-η) = starʷ-refl ⊢Δ ok no-η
   wkConv↓Term ρ ⊢Δ (suc-cong t<>u) = suc-cong (wkConv↑Term ρ ⊢Δ t<>u)
-  wkConv↓Term ρ ⊢Δ (prod-cong {G = G} x x₁ x₂ x₃ ok) =
-    let ⊢ρF = wk ρ ⊢Δ x
+  wkConv↓Term ρ ⊢Δ (prod-cong {G = G} x₁ x₂ x₃ ok) =
+    let ⊢ρF = wk ρ ⊢Δ (⊢∙→⊢ (wf x₁))
         ⊢ρG = wk (lift ρ) (⊢Δ ∙ ⊢ρF) x₁
-    in  prod-cong ⊢ρF ⊢ρG (wkConv↑Term ρ ⊢Δ x₂)
+    in  prod-cong ⊢ρG (wkConv↑Term ρ ⊢Δ x₂)
           (PE.subst (λ x → _ ⊢ _ [conv↑] _ ∷ x) (wk-β G)
              (wkConv↑Term ρ ⊢Δ x₃))
           ok

@@ -300,7 +300,7 @@ module _ (as : Full-reduction-assumptions) where
       (Empty-refl _)        ▸⊥    → ▸⊥
       (Unit-refl  _ _)      ▸⊤    → ▸⊤
       (ne A~)               ▸A    → fullRedNe~↓ A~ ▸A
-      (ΠΣ-cong ⊢A A↑ B↑ ok) ▸ΠΣAB →
+      (ΠΣ-cong A↑ B↑ ok) ▸ΠΣAB →
         case inv-usage-ΠΣ ▸ΠΣAB of λ {
           (invUsageΠΣ ▸A ▸B γ≤) →
         sub (ΠΣₘ (fullRedConv↑ A↑ ▸A) (fullRedConv↑ B↑ ▸B)) γ≤ }
@@ -337,7 +337,7 @@ module _ (as : Full-reduction-assumptions) where
         case inv-usage-suc ▸suc-t of λ {
           (invUsageSuc ▸t γ≤) →
         sub (sucₘ (fullRedTermConv↑ t↑ ▸t)) γ≤ }
-      (prod-cong _ _ t↑ u↑ _) ▸t,u →
+      (prod-cong _ t↑ u↑ _) ▸t,u →
         case inv-usage-prodʷ ▸t,u of λ {
           (invUsageProdʷ ▸t ▸u γ≤) →
         sub (prodʷₘ (fullRedTermConv↑ t↑ ▸t) (fullRedTermConv↑ u↑ ▸u))

@@ -886,13 +886,13 @@ opaque
     Γ ⊢ A [conv↓] B →
     Γ ⊢ A ~ B ↓ U ⊎ ¬ Neutral A × ¬ Neutral B
   inv-[conv↓]-ne′ = λ where
-    (ne A~B)          → inj₁ A~B
-    (U-refl _)        → inj₂ (¬-Neutral-U     , ¬-Neutral-U)
-    (ΠΣ-cong _ _ _ _) → inj₂ (¬-Neutral-ΠΣ    , ¬-Neutral-ΠΣ)
-    (Empty-refl _)    → inj₂ (¬-Neutral-Empty , ¬-Neutral-Empty)
-    (Unit-refl _ _)   → inj₂ (¬-Neutral-Unit  , ¬-Neutral-Unit)
-    (ℕ-refl _)        → inj₂ (¬-Neutral-ℕ     , ¬-Neutral-ℕ)
-    (Id-cong _ _ _)   → inj₂ (¬-Neutral-Id    , ¬-Neutral-Id)
+    (ne A~B)        → inj₁ A~B
+    (U-refl _)      → inj₂ (¬-Neutral-U     , ¬-Neutral-U)
+    (ΠΣ-cong _ _ _) → inj₂ (¬-Neutral-ΠΣ    , ¬-Neutral-ΠΣ)
+    (Empty-refl _)  → inj₂ (¬-Neutral-Empty , ¬-Neutral-Empty)
+    (Unit-refl _ _) → inj₂ (¬-Neutral-Unit  , ¬-Neutral-Unit)
+    (ℕ-refl _)      → inj₂ (¬-Neutral-ℕ     , ¬-Neutral-ℕ)
+    (Id-cong _ _ _) → inj₂ (¬-Neutral-Id    , ¬-Neutral-Id)
 
 opaque
 
@@ -921,11 +921,11 @@ opaque
         (_ , A-ne , B-ne) →
         (λ { PE.refl → ¬-Neutral-U A-ne })
       , (λ { PE.refl → ¬-Neutral-U B-ne })
-    (ΠΣ-cong _ _ _ _) → inj₂ ((λ ()) , (λ ()))
-    (Empty-refl _)    → inj₂ ((λ ()) , (λ ()))
-    (Unit-refl _ _)   → inj₂ ((λ ()) , (λ ()))
-    (ℕ-refl _)        → inj₂ ((λ ()) , (λ ()))
-    (Id-cong _ _ _)   → inj₂ ((λ ()) , (λ ()))
+    (ΠΣ-cong _ _ _) → inj₂ ((λ ()) , (λ ()))
+    (Empty-refl _)  → inj₂ ((λ ()) , (λ ()))
+    (Unit-refl _ _) → inj₂ ((λ ()) , (λ ()))
+    (ℕ-refl _)      → inj₂ ((λ ()) , (λ ()))
+    (Id-cong _ _ _) → inj₂ ((λ ()) , (λ ()))
 
 opaque
 
@@ -951,7 +951,7 @@ opaque
     ¬ (∃₅ λ b p q A₁ A₂ → A PE.≡ ΠΣ⟨ b ⟩ p , q ▷ A₁ ▹ A₂) ×
     ¬ (∃₅ λ b p q B₁ B₂ → B PE.≡ ΠΣ⟨ b ⟩ p , q ▷ B₁ ▹ B₂)
   inv-[conv↓]-ΠΣ′ = λ where
-    (ΠΣ-cong _ A₁≡B₁ A₂≡B₂ _) →
+    (ΠΣ-cong A₁≡B₁ A₂≡B₂ _) →
       inj₁ $
       _ , _ , _ , _ , _ , _ , _ , PE.refl , PE.refl , A₁≡B₁ , A₂≡B₂
     (ne A~B) →
@@ -996,11 +996,11 @@ opaque
         (_ , A-ne , B-ne) →
         (λ { PE.refl → ¬-Neutral-Empty A-ne })
       , (λ { PE.refl → ¬-Neutral-Empty B-ne })
-    (U-refl _)        → inj₂ ((λ ()) , (λ ()))
-    (ΠΣ-cong _ _ _ _) → inj₂ ((λ ()) , (λ ()))
-    (Unit-refl _ _)   → inj₂ ((λ ()) , (λ ()))
-    (ℕ-refl _)        → inj₂ ((λ ()) , (λ ()))
-    (Id-cong _ _ _)   → inj₂ ((λ ()) , (λ ()))
+    (U-refl _)      → inj₂ ((λ ()) , (λ ()))
+    (ΠΣ-cong _ _ _) → inj₂ ((λ ()) , (λ ()))
+    (Unit-refl _ _) → inj₂ ((λ ()) , (λ ()))
+    (ℕ-refl _)      → inj₂ ((λ ()) , (λ ()))
+    (Id-cong _ _ _) → inj₂ ((λ ()) , (λ ()))
 
 opaque
 
@@ -1029,11 +1029,11 @@ opaque
         (_ , A-ne , B-ne) →
         (λ { (_ , PE.refl) → ¬-Neutral-Unit A-ne })
       , (λ { (_ , PE.refl) → ¬-Neutral-Unit B-ne })
-    (U-refl _)        → inj₂ ((λ ()) , (λ ()))
-    (ΠΣ-cong _ _ _ _) → inj₂ ((λ ()) , (λ ()))
-    (Empty-refl _)    → inj₂ ((λ ()) , (λ ()))
-    (ℕ-refl _)        → inj₂ ((λ ()) , (λ ()))
-    (Id-cong _ _ _)   → inj₂ ((λ ()) , (λ ()))
+    (U-refl _)      → inj₂ ((λ ()) , (λ ()))
+    (ΠΣ-cong _ _ _) → inj₂ ((λ ()) , (λ ()))
+    (Empty-refl _)  → inj₂ ((λ ()) , (λ ()))
+    (ℕ-refl _)      → inj₂ ((λ ()) , (λ ()))
+    (Id-cong _ _ _) → inj₂ ((λ ()) , (λ ()))
 
 opaque
 
@@ -1061,11 +1061,11 @@ opaque
         (_ , A-ne , B-ne) →
         (λ { PE.refl → ¬-Neutral-ℕ A-ne })
       , (λ { PE.refl → ¬-Neutral-ℕ B-ne })
-    (U-refl _)        → inj₂ ((λ ()) , (λ ()))
-    (ΠΣ-cong _ _ _ _) → inj₂ ((λ ()) , (λ ()))
-    (Empty-refl _)    → inj₂ ((λ ()) , (λ ()))
-    (Unit-refl _ _)   → inj₂ ((λ ()) , (λ ()))
-    (Id-cong _ _ _)   → inj₂ ((λ ()) , (λ ()))
+    (U-refl _)      → inj₂ ((λ ()) , (λ ()))
+    (ΠΣ-cong _ _ _) → inj₂ ((λ ()) , (λ ()))
+    (Empty-refl _)  → inj₂ ((λ ()) , (λ ()))
+    (Unit-refl _ _) → inj₂ ((λ ()) , (λ ()))
+    (Id-cong _ _ _) → inj₂ ((λ ()) , (λ ()))
 
 opaque
 
@@ -1102,11 +1102,11 @@ opaque
         (_ , A-ne , B-ne) →
         (λ { (_ , _ , _ , PE.refl) → ¬-Neutral-Id A-ne })
       , (λ { (_ , _ , _ , PE.refl) → ¬-Neutral-Id B-ne })
-    (U-refl _)        → inj₂ ((λ ()) , (λ ()))
-    (ΠΣ-cong _ _ _ _) → inj₂ ((λ ()) , (λ ()))
-    (Empty-refl _)    → inj₂ ((λ ()) , (λ ()))
-    (Unit-refl _ _)   → inj₂ ((λ ()) , (λ ()))
-    (ℕ-refl _)        → inj₂ ((λ ()) , (λ ()))
+    (U-refl _)      → inj₂ ((λ ()) , (λ ()))
+    (ΠΣ-cong _ _ _) → inj₂ ((λ ()) , (λ ()))
+    (Empty-refl _)  → inj₂ ((λ ()) , (λ ()))
+    (Unit-refl _ _) → inj₂ ((λ ()) , (λ ()))
+    (ℕ-refl _)      → inj₂ ((λ ()) , (λ ()))
 
 opaque
 
@@ -1137,21 +1137,21 @@ opaque
     Γ ⊢ t [conv↓] u ∷ A →
     ∃ λ A → Γ ⊢ t ~ u ↓ A
   inv-[conv↓]∷-ne A-ne = λ where
-    (ne-ins _ _ _ t~u)    → _ , t~u
-    (univ _ _ _)          → ⊥-elim (¬-Neutral-U     A-ne)
-    (η-eq _ _ _ _ _)      → ⊥-elim (¬-Neutral-ΠΣ    A-ne)
-    (Σ-η _ _ _ _ _ _)     → ⊥-elim (¬-Neutral-ΠΣ    A-ne)
-    (Σʷ-ins _ _ _)        → ⊥-elim (¬-Neutral-ΠΣ    A-ne)
-    (prod-cong _ _ _ _ _) → ⊥-elim (¬-Neutral-ΠΣ    A-ne)
-    (Empty-ins _)         → ⊥-elim (¬-Neutral-Empty A-ne)
-    (Unitʷ-ins _ _)       → ⊥-elim (¬-Neutral-Unit  A-ne)
-    (η-unit _ _ _ _ _)    → ⊥-elim (¬-Neutral-Unit  A-ne)
-    (starʷ-refl _ _ _)    → ⊥-elim (¬-Neutral-Unit  A-ne)
-    (ℕ-ins _)             → ⊥-elim (¬-Neutral-ℕ     A-ne)
-    (zero-refl _)         → ⊥-elim (¬-Neutral-ℕ     A-ne)
-    (suc-cong _)          → ⊥-elim (¬-Neutral-ℕ     A-ne)
-    (Id-ins _ _)          → ⊥-elim (¬-Neutral-Id    A-ne)
-    (rfl-refl _)          → ⊥-elim (¬-Neutral-Id    A-ne)
+    (ne-ins _ _ _ t~u)  → _ , t~u
+    (univ _ _ _)        → ⊥-elim (¬-Neutral-U     A-ne)
+    (η-eq _ _ _ _ _)    → ⊥-elim (¬-Neutral-ΠΣ    A-ne)
+    (Σ-η _ _ _ _ _ _)   → ⊥-elim (¬-Neutral-ΠΣ    A-ne)
+    (Σʷ-ins _ _ _)      → ⊥-elim (¬-Neutral-ΠΣ    A-ne)
+    (prod-cong _ _ _ _) → ⊥-elim (¬-Neutral-ΠΣ    A-ne)
+    (Empty-ins _)       → ⊥-elim (¬-Neutral-Empty A-ne)
+    (Unitʷ-ins _ _)     → ⊥-elim (¬-Neutral-Unit  A-ne)
+    (η-unit _ _ _ _ _)  → ⊥-elim (¬-Neutral-Unit  A-ne)
+    (starʷ-refl _ _ _)  → ⊥-elim (¬-Neutral-Unit  A-ne)
+    (ℕ-ins _)           → ⊥-elim (¬-Neutral-ℕ     A-ne)
+    (zero-refl _)       → ⊥-elim (¬-Neutral-ℕ     A-ne)
+    (suc-cong _)        → ⊥-elim (¬-Neutral-ℕ     A-ne)
+    (Id-ins _ _)        → ⊥-elim (¬-Neutral-Id    A-ne)
+    (rfl-refl _)        → ⊥-elim (¬-Neutral-Id    A-ne)
 
 opaque
 
@@ -1201,7 +1201,7 @@ opaque
      Γ ⊢ t₂ [conv↑] u₂ ∷ B [ t₁ ]₀)
   inv-[conv↓]∷-Σʷ (Σʷ-ins _ _ t~u) =
     inj₁ (_ , _ , _ , _ , t~u)
-  inv-[conv↓]∷-Σʷ (prod-cong _ _ t₁≡u₁ t₂≡u₂ _) =
+  inv-[conv↓]∷-Σʷ (prod-cong _ t₁≡u₁ t₂≡u₂ _) =
     inj₂ (_ , _ , _ , _ , PE.refl , PE.refl , t₁≡u₁ , t₂≡u₂)
   inv-[conv↓]∷-Σʷ (ne-ins _ _ () _)
 

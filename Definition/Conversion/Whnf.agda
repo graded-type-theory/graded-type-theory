@@ -73,7 +73,7 @@ whnfConv↓ (Empty-refl x) = Emptyₙ , Emptyₙ
 whnfConv↓ (Unit-refl x _) = Unitₙ , Unitₙ
 whnfConv↓ (ne x) = let _ , neA , neB = ne~↓ x
                    in  ne neA , ne neB
-whnfConv↓ (ΠΣ-cong _ _ _ _) = ΠΣₙ , ΠΣₙ
+whnfConv↓ (ΠΣ-cong _ _ _) = ΠΣₙ , ΠΣₙ
 whnfConv↓ (Id-cong _ _ _) = Idₙ , Idₙ
 
 -- Extraction of WHNF from algorithmic equality of terms in WHNF.
@@ -97,7 +97,7 @@ whnfConv↓Term (univ x x₁ x₂) = Uₙ , whnfConv↓ x₂
 whnfConv↓Term (zero-refl x) = ℕₙ , zeroₙ , zeroₙ
 whnfConv↓Term (starʷ-refl _ _ _) = Unitₙ , starₙ , starₙ
 whnfConv↓Term (suc-cong x) = ℕₙ , sucₙ , sucₙ
-whnfConv↓Term (prod-cong _ _ _ _ _) = ΠΣₙ , prodₙ , prodₙ
+whnfConv↓Term (prod-cong _ _ _ _) = ΠΣₙ , prodₙ , prodₙ
 whnfConv↓Term (η-eq x₁ x₂ y y₁ x₃) = ΠΣₙ , functionWhnf y , functionWhnf y₁
 whnfConv↓Term (Σ-η _ _ pProd rProd _ _) = ΠΣₙ , productWhnf pProd , productWhnf rProd
 whnfConv↓Term (η-unit _ _ tWhnf uWhnf _) = Unitₙ , tWhnf , uWhnf

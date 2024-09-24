@@ -1121,7 +1121,7 @@ mutual
         (⊢nf∷U→⊢nf∷U ⊢A ⊢A∷U)
         (⊢nf∷U→⊢nf∷U ⊢B ⊢B∷U)
         A≡B }
-    (ΠΣ-cong _ A₁≡B₁ A₂≡B₂ _) →
+    (ΠΣ-cong A₁≡B₁ A₂≡B₂ _) →
       case inversion-nf-ΠΣ ⊢A of λ {
         (⊢A₁ , ⊢A₂ , _) →
       case inversion-nf-ΠΣ ⊢B of λ {
@@ -1356,7 +1356,7 @@ mutual
       case inversion-nf-suc ⊢v of λ {
         (⊢v , _) →
       PE.cong suc (normal-terms-unique-[conv↑]∷ ⊢u ⊢v u≡v) }}
-    (prod-cong _ _ t≡v u≡w _) →
+    (prod-cong _ t≡v u≡w _) →
       case inversion-nf-prod ⊢u of λ {
         (_ , _ , _ , _ , _ , ⊢t , ⊢u , Σ≡Σ₁ , _) →
       case inversion-nf-prod ⊢v of λ {

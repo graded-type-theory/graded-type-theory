@@ -102,8 +102,8 @@ mutual
   soundnessConv↓ (Empty-refl ⊢Γ) = refl (Emptyⱼ ⊢Γ)
   soundnessConv↓ (Unit-refl ⊢Γ ok) = refl (Unitⱼ ⊢Γ ok)
   soundnessConv↓ (ne x) = univ (soundness~↓ x)
-  soundnessConv↓ (ΠΣ-cong F c c₁ ok) =
-    ΠΣ-cong F (soundnessConv↑ c) (soundnessConv↑ c₁) ok
+  soundnessConv↓ (ΠΣ-cong A₁≡A₂ B₁≡B₂ ok) =
+    ΠΣ-cong′ (soundnessConv↑ A₁≡A₂) (soundnessConv↑ B₁≡B₂) ok
   soundnessConv↓ (Id-cong A₁≡A₂ t₁≡t₂ u₁≡u₂) =
     Id-cong (soundnessConv↑ A₁≡A₂) (soundnessConv↑Term t₁≡t₂)
       (soundnessConv↑Term u₁≡u₂)
@@ -136,8 +136,9 @@ mutual
   soundnessConv↓Term (zero-refl ⊢Γ) = refl (zeroⱼ ⊢Γ)
   soundnessConv↓Term (starʷ-refl ⊢Γ ok _) = refl (starⱼ ⊢Γ ok)
   soundnessConv↓Term (suc-cong c) = suc-cong (soundnessConv↑Term c)
-  soundnessConv↓Term (prod-cong x x₁ x₂ x₃ ok) =
-    prod-cong x x₁ (soundnessConv↑Term x₂) (soundnessConv↑Term x₃) ok
+  soundnessConv↓Term (prod-cong x₁ x₂ x₃ ok) =
+    prod-cong (⊢∙→⊢ (wf x₁)) x₁ (soundnessConv↑Term x₂)
+      (soundnessConv↑Term x₃) ok
   soundnessConv↓Term (η-eq x x₁ y y₁ c) =
     let ⊢ΠFG = syntacticTerm x
         ⊢F , _ = syntacticΠ ⊢ΠFG

@@ -605,7 +605,6 @@ private opaque
   -- A lemma used below.
 
   decConv↓-ΠΣ :
-    Γ ⊢ A₁ →
     ΠΣ-allowed b₁ p₁ q₁ →
     Dec
       (b₁ PE.≡ b₂ × p₁ PE.≡ p₂ × q₁ PE.≡ q₂ ×
@@ -614,16 +613,19 @@ private opaque
     Dec
       (Γ ⊢ ΠΣ⟨ b₁ ⟩ p₁ , q₁ ▷ A₁ ▹ B₁ [conv↓]
          ΠΣ⟨ b₂ ⟩ p₂ , q₂ ▷ A₂ ▹ B₂)
-  decConv↓-ΠΣ ⊢A₁ ok (yes (PE.refl , PE.refl , PE.refl , A₁≡A₂)) dec =
-    case dec (reflConEq (wf ⊢A₁) ∙ soundnessConv↑ A₁≡A₂) of λ where
-      (yes B₁≡B₂) → yes (ΠΣ-cong ⊢A₁ A₁≡A₂ B₁≡B₂ ok)
+  decConv↓-ΠΣ ok (yes (PE.refl , PE.refl , PE.refl , A₁≡A₂)) dec =
+    case
+      (let A₁≡A₂ = soundnessConv↑ A₁≡A₂ in
+       dec (reflConEq (wfEq A₁≡A₂) ∙ A₁≡A₂))
+      of λ where
+      (yes B₁≡B₂) → yes (ΠΣ-cong A₁≡A₂ B₁≡B₂ ok)
       (no B₁≢B₂)  →
         no λ ΠΣ≡ΠΣ →
         let _ , _ , ΠΣ≡ΠΣ , _ , B₁≡ = inv-[conv↓]-ΠΣ ΠΣ≡ΠΣ
             _ , _ , _ , _ , ≡B₂     = ΠΣ-PE-injectivity (PE.sym ΠΣ≡ΠΣ)
         in
         B₁≢B₂ (PE.subst (_⊢_[conv↑]_ _ _) ≡B₂ B₁≡)
-  decConv↓-ΠΣ _ _ (no not-all-equal) _ =
+  decConv↓-ΠΣ _ (no not-all-equal) _ =
     no λ ΠΣ≡ΠΣ →
     let _ , _ , ΠΣ≡ΠΣ , A₁≡ , _         = inv-[conv↓]-ΠΣ ΠΣ≡ΠΣ
         b₁≡b₂ , p₁≡p₂ , q₁≡q₂ , ≡A₂ , _ =
@@ -855,11 +857,11 @@ mutual
     case inv-[conv↓]-U′ B≡ of λ where
       (inj₁ (PE.refl , _)) → yes U≡U
       (inj₂ (B≢U , _))     → no (B≢U ∘→ inv-[conv↓]-U)
-  decConv↓ (ΠΣ-cong ⊢A₁ A₁≡ A₂≡ ok) B≡ =
+  decConv↓ (ΠΣ-cong A₁≡ A₂≡ ok) B≡ =
     case inv-[conv↓]-ΠΣ′ B≡ of λ where
       (inj₁
          (_ , _ , _ , _ , _ , _ , _ , PE.refl , PE.refl , B₁≡ , B₂≡)) →
-        decConv↓-ΠΣ ⊢A₁ ok
+        decConv↓-ΠΣ ok
           (decBinderMode _ _ ×-dec _ ≟ _ ×-dec _ ≟ _ ×-dec
            decConv↑ A₁≡ B₁≡)
           (λ eq → decConv↑′ eq A₂≡ B₂≡)
@@ -980,7 +982,7 @@ mutual
       no λ t≡prod →
       let _ , [~] _ _ ~prod = [conv↓]∷Σʷ→~↓ t~ t≡prod in
       inv-~prod ~prod
-  decConv↓Term (prod-cong ⊢A ⊢B t₁≡ t₂≡ ok) u≡ =
+  decConv↓Term (prod-cong ⊢B t₁≡ t₂≡ ok) u≡ =
     case inv-[conv↓]∷-Σʷ u≡ of λ where
       (inj₁ (_ , _ , _ , _ , u~)) →
         no λ prod≡u →
@@ -996,10 +998,10 @@ mutual
              (substTypeEq (refl ⊢B) (soundnessConv↑Term t₁≡u₁))
              t₂≡ u₂≡)
           of λ where
-          (yes (t₁≡u₁ , t₂≡u₂)) → yes (prod-cong ⊢A ⊢B t₁≡u₁ t₂≡u₂ ok)
+          (yes (t₁≡u₁ , t₂≡u₂)) → yes (prod-cong ⊢B t₁≡u₁ t₂≡u₂ ok)
           (no not-both-equal)   →
             no λ t≡u →
-            let _ , _ , _ , _ , t₁≡u₁ , t₂≡u₂ , _ = prod-cong⁻¹ t≡u in
+            let _ , _ , _ , t₁≡u₁ , t₂≡u₂ , _ = prod-cong⁻¹ t≡u in
             not-both-equal (t₁≡u₁ , t₂≡u₂)
   decConv↓Term (Empty-ins t~) u≡ =
     case dec~↓ t~ (inv-[conv↓]∷-Empty u≡) of λ where
