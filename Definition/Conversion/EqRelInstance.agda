@@ -94,7 +94,7 @@ record _⊢_~_∷_ (Γ : Con Term n) (k l A : Term n) : Set a where
     (app-cong
        (PE.subst (λ x → _ ⊢ _ ~ _ ↓ x) B≡ΠHE
           ([~] _ (red D , whnfB′) x))
-       (convConvTerm x₁ F≡H)) }}
+       (convConv↑Term F≡H x₁)) }}
 
 ~-fst :
   ∀ {p r F G} →
@@ -300,7 +300,7 @@ opaque
 
 ~-to-conv : ∀ {k l A} →
       Γ ⊢ k ~ l ∷ A → Γ ⊢ k [conv↑] l ∷ A
-~-to-conv (↑ x x₁) = convConvTerm (lift~toConv↑ x₁) (sym x)
+~-to-conv (↑ x x₁) = convConv↑Term (sym x) (lift~toConv↑ x₁)
 
 
 -- Algorithmic equality instance of the generic equality relation.
@@ -319,7 +319,7 @@ eqRelInstance = record {
   ≅-trans = transConv;
   ≅ₜ-trans = transConvTerm;
   ~-trans = ~-trans;
-  ≅-conv = convConvTerm;
+  ≅-conv = flip convConv↑Term;
   ~-conv = ~-conv;
   ≅-wk = wkConv↑;
   ≅ₜ-wk = wkConv↑Term;

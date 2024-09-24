@@ -150,9 +150,9 @@ private opaque
         , PE.subst (flip (_⊢_~_↑_ _ _) _)
             (PE.cong (_ ∘⟨_⟩ _) p₁≡p₂)
             (app-cong (PE.subst (_⊢_~_↓_ _ _ _) C≡Π t₁~u₁)
-               (convConvTerm t₂≡u₂ $
-                ΠΣ-injectivity (PE.subst (_⊢_≡_ _ _) C≡Π Π≡C)
-                  .proj₁))
+               (convConv↑Term
+                  (ΠΣ-injectivity (PE.subst (_⊢_≡_ _ _) C≡Π Π≡C) .proj₁)
+                  t₂≡u₂))
       (no t₂≢u₂) →
         no λ (_ , t~u) →
         let _ , _ , _ , _ , _ , _ , u≡∘ , t₁~ , t₂≡ = inv-∘~ t~u
@@ -161,8 +161,8 @@ private opaque
             Π≡Π = neTypeEq t₁-ne ⊢t₁ (~↓→∷ t₁~)
         in
         t₂≢u₂ $
-        convConvTerm (PE.subst (flip (_⊢_[conv↑]_∷_ _ _) _) ≡u₂ t₂≡)
-          (sym (ΠΣ-injectivity Π≡Π .proj₁))
+        convConv↑Term (sym (ΠΣ-injectivity Π≡Π .proj₁)) $
+        PE.subst (flip (_⊢_[conv↑]_∷_ _ _) _) ≡u₂ t₂≡
   dec~↑-app-cong _ _ (no ¬t₁~u₁) _ =
     no λ (_ , t~u) →
     let _ , _ , _ , _ , _ , _ , u≡∘ , t₁~ , _ = inv-∘~ t~u
@@ -712,7 +712,7 @@ mutual
       dec~↑-prodrec-cong (~↓→∷ t₁~) (~↓→∷ u₁~)
         (_ ≟ _ ×-dec _ ≟ _ ×-dec dec~↓ t₁~ u₁~)
         (λ eq → decConv↑′ eq B≡ C≡)
-        (λ eq₁ eq₂ → decConv↑Term t₂≡ (convConv↑Term eq₁ eq₂ u₂≡))
+        (λ eq₁ eq₂ → decConv↑Term t₂≡ (convConv↑Term′ eq₁ eq₂ u₂≡))
     (inj₂ (u≢pr , _)) →
       no λ (_ , t~u) →
       let _ , _ , _ , _ , _ , _ , _ , u≡pr , _ = inv-prodrec~ t~u in
@@ -746,7 +746,7 @@ mutual
           (_ ≟ _ ×-dec _ ≟ _ ×-dec _ ≟ _ ×-dec decConv↑ B≡ C≡ ×-dec
            dec~↓ t₃~ u₃~)
           (λ eq → decConv↑TermConv eq t₁≡ u₁≡)
-          (λ eq₁ eq₂ → decConv↑Term t₂≡ (convConv↑Term eq₁ eq₂ u₂≡))
+          (λ eq₁ eq₂ → decConv↑Term t₂≡ (convConv↑Term′ eq₁ eq₂ u₂≡))
       (inj₂ (u≢nr , _)) →
         no λ (_ , t~u) →
         let _ , _ , _ , _ , _ , u≡nr , _ = inv-natrec~ t~u in
@@ -894,8 +894,8 @@ mutual
          (_ , _ , _ , _ , _ , _ ,
           PE.refl , PE.refl , B′≡ , u₁≡ , u₂≡)) →
         decConv↓-Id (decConv↑ A′≡ B′≡)
-          (λ A′≡B′ → decConv↑Term t₁≡ (convConvTerm u₁≡ A′≡B′))
-          (λ A′≡B′ → decConv↑Term t₂≡ (convConvTerm u₂≡ A′≡B′))
+          (λ A′≡B′ → decConv↑Term t₁≡ (convConv↑Term A′≡B′ u₁≡))
+          (λ A′≡B′ → decConv↑Term t₂≡ (convConv↑Term A′≡B′ u₂≡))
       (inj₂ (B≢Id , _)) →
         no λ Id≡B →
         let _ , _ , _ , B≡Id , _ = inv-[conv↓]-Id Id≡B in
@@ -1129,4 +1129,4 @@ mutual
                 → Γ ⊢ u [conv↑] u′ ∷ B
                 → Dec (Γ ⊢ t [conv↑] u ∷ A)
   decConv↑TermConv A≡B t u =
-    decConv↑Term t (convConvTerm u (sym A≡B))
+    decConv↑Term t (convConv↑Term (sym A≡B) u)

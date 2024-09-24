@@ -65,7 +65,7 @@ mutual
       (F≡F′ , G≡G′ , _ , _) →
     _ , substTypeEq G≡G′ (soundnessConv↑Term x) ,
     app-cong (PE.subst (λ x → _ ⊢ _ ~ _ ↓ x) ΠF′G′≡B u~t)
-      (convConvTerm (symConv↑Term Γ≡Δ x) (stabilityEq Γ≡Δ F≡F′)) }}}}
+      (convConv↑Term (stabilityEq Γ≡Δ F≡F′) (symConv↑Term Γ≡Δ x)) }}}}
   sym~↑ Γ≡Δ (fst-cong p~r) =
     case sym~↓ Γ≡Δ p~r of λ (B , whnfB , A≡B , r~p) →
     case Σ≡A A≡B whnfB of λ where
@@ -88,10 +88,12 @@ mutual
         F≡G = stabilityEq (Γ≡Δ ∙ refl (ℕⱼ ⊢Γ)) (soundnessConv↑ x)
         F[0]≡G[0] = substTypeEq F≡G (refl (zeroⱼ ⊢Δ))
     in  _ , substTypeEq (soundnessConv↑ x) (soundness~↓ t~u)
-    ,   natrec-cong (symConv↑ (Γ≡Δ ∙ (refl (ℕⱼ ⊢Γ))) x)
-                    (convConvTerm (symConv↑Term Γ≡Δ x₁) F[0]≡G[0])
-                    (convConvTerm (symConv↑Term (Γ≡Δ ∙ refl (ℕⱼ ⊢Γ) ∙ soundnessConv↑ x) x₂) (sucCong′ F≡G))
-                    (PE.subst (λ x → _ ⊢ _ ~ _ ↓ x) B≡ℕ u~t)
+    ,   natrec-cong
+          (symConv↑ (Γ≡Δ ∙ refl (ℕⱼ ⊢Γ)) x)
+          (convConv↑Term F[0]≡G[0] (symConv↑Term Γ≡Δ x₁))
+          (convConv↑Term (sucCong′ F≡G)
+             (symConv↑Term (Γ≡Δ ∙ refl (ℕⱼ ⊢Γ) ∙ soundnessConv↑ x) x₂))
+          (PE.subst (_⊢_~_↓_ _ _ _) B≡ℕ u~t)
   sym~↑ {Γ = Γ} {Δ = Δ} Γ≡Δ
     (prodrec-cong {F = F} {G = G} C↑E g~h u↑v) =
     case sym~↓ Γ≡Δ g~h of λ (B , whnfB , ⊢Σ≡B , h~g) →
@@ -116,7 +118,7 @@ mutual
                           ok
             in  _ , substTypeEq C≡E g≡h
               , prodrec-cong E↑C h~g
-                  (convConv↑Term (reflConEq ⊢Δ ∙ ⊢F≡F′ ∙ ⊢G≡G′)
+                  (convConv↑Term′ (reflConEq ⊢Δ ∙ ⊢F≡F′ ∙ ⊢G≡G′)
                      C₊≡E₊ v↑u)
   sym~↑ Γ≡Δ (emptyrec-cong x t~u) =
     let ⊢Γ , ⊢Δ , _ = contextConvSubst Γ≡Δ
@@ -134,12 +136,12 @@ mutual
         l~k′ = PE.subst (λ x → _ ⊢ _ ~ _ ↓ x)
                         (Unit≡A Unit≡B whB)
                         l~k
-        ⊢Γ , ⊢Δ , _ = contextConvSubst Γ≡Δ
+        ⊢Γ , _ = contextConvSubst Γ≡Δ
         v<>u = symConv↑Term Γ≡Δ u<>v
         ⊢F≡H = soundnessConv↑ F<>H
         ⊢F₊≡H₊ = substTypeEq ⊢F≡H (refl (starⱼ ⊢Γ (inversion-Unit ⊢Unit)))
         ⊢Fk≡Hl = substTypeEq ⊢F≡H k≡l
-        v<>u′ = convConv↑Term (reflConEq ⊢Δ) (stabilityEq Γ≡Δ ⊢F₊≡H₊) v<>u
+        v<>u′ = convConv↑Term (stabilityEq Γ≡Δ ⊢F₊≡H₊) v<>u
     in  _ , ⊢Fk≡Hl , unitrec-cong H<>F l~k′ v<>u′ no-η
   sym~↑ Γ≡Δ (J-cong A₁≡A₂ t₁≡t₂ B₁≡B₂ u₁≡u₂ v₁≡v₂ w₁~w₂ C≡Id-t₁-v₁) =
     case sym~↓ Γ≡Δ w₁~w₂ of λ {
@@ -157,11 +159,11 @@ mutual
       _
     , J-result-cong ⊢B₁≡B₂ ⊢v₁≡v₂ (conv (soundness~↓ w₁~w₂) C≡Id-t₁-v₁)
     , J-cong (symConv↑ Γ≡Δ A₁≡A₂)
-        (convConv↑Term Γ≡Δ ⊢A₁≡A₂ (symConv↑Term Γ≡Γ t₁≡t₂))
+        (convConv↑Term′ Γ≡Δ ⊢A₁≡A₂ (symConv↑Term Γ≡Γ t₁≡t₂))
         (symConv↑ (J-motive-context-cong Γ≡Δ ⊢A₁≡A₂ ⊢t₁≡t₂) B₁≡B₂)
-        (convConv↑Term Γ≡Δ (J-motive-rfl-cong ⊢B₁≡B₂ ⊢t₁≡t₂)
+        (convConv↑Term′ Γ≡Δ (J-motive-rfl-cong ⊢B₁≡B₂ ⊢t₁≡t₂)
            (symConv↑Term Γ≡Γ u₁≡u₂))
-        (convConv↑Term Γ≡Δ ⊢A₁≡A₂ (symConv↑Term Γ≡Γ v₁≡v₂)) w₂~w₁
+        (convConv↑Term′ Γ≡Δ ⊢A₁≡A₂ (symConv↑Term Γ≡Γ v₁≡v₂)) w₂~w₁
         (stabilityEq Γ≡Δ $
          trans (trans (sym C≡D) C≡Id-t₁-v₁)
            (Id-cong ⊢A₁≡A₂ ⊢t₁≡t₂ ⊢v₁≡v₂)) }}}}}}
@@ -180,9 +182,9 @@ mutual
     , substTypeEq ⊢B₁≡B₂
         (conv (soundness~↓ v₁~v₂) C≡Id-t₁-t₁)
     , K-cong (symConv↑ Γ≡Δ A₁≡A₂)
-        (convConv↑Term Γ≡Δ ⊢A₁≡A₂ (symConv↑Term Γ≡Γ t₁≡t₂))
+        (convConv↑Term′ Γ≡Δ ⊢A₁≡A₂ (symConv↑Term Γ≡Γ t₁≡t₂))
         (symConv↑ (K-motive-context-cong Γ≡Δ ⊢A₁≡A₂ ⊢t₁≡t₂) B₁≡B₂)
-        (convConv↑Term Γ≡Δ (K-motive-rfl-cong ⊢B₁≡B₂)
+        (convConv↑Term′ Γ≡Δ (K-motive-rfl-cong ⊢B₁≡B₂)
            (symConv↑Term Γ≡Γ u₁≡u₂))
         v₂~v₁
         (stabilityEq Γ≡Δ $
@@ -206,8 +208,8 @@ mutual
     , Id-cong (Erased-cong Erased-ok ⊢A₁≡A₂) ([]-cong′ Erased-ok ⊢t₁≡t₂)
         ([]-cong′ Erased-ok ⊢u₁≡u₂)
     , []-cong-cong (symConv↑ Γ≡Δ A₁≡A₂)
-        (convConv↑Term Γ≡Δ ⊢A₁≡A₂ (symConv↑Term Γ≡Γ t₁≡t₂))
-        (convConv↑Term Γ≡Δ ⊢A₁≡A₂ (symConv↑Term Γ≡Γ u₁≡u₂))
+        (convConv↑Term′ Γ≡Δ ⊢A₁≡A₂ (symConv↑Term Γ≡Γ t₁≡t₂))
+        (convConv↑Term′ Γ≡Δ ⊢A₁≡A₂ (symConv↑Term Γ≡Γ u₁≡u₂))
         v₂~v₁
         (stabilityEq Γ≡Δ $
          trans (trans (sym B≡C) B≡Id-t₁-u₁)
@@ -259,8 +261,8 @@ mutual
     case reflConEq (wfEq ⊢A₁≡A₂) of λ {
       Γ≡Γ →
     Id-cong (symConv↑ Γ≡Δ A₁≡A₂)
-      (convConv↑Term Γ≡Δ ⊢A₁≡A₂ (symConv↑Term Γ≡Γ t₁≡t₂))
-      (convConv↑Term Γ≡Δ ⊢A₁≡A₂ (symConv↑Term Γ≡Γ u₁≡u₂)) }}
+      (convConv↑Term′ Γ≡Δ ⊢A₁≡A₂ (symConv↑Term Γ≡Γ t₁≡t₂))
+      (convConv↑Term′ Γ≡Δ ⊢A₁≡A₂ (symConv↑Term Γ≡Γ u₁≡u₂)) }}
 
   -- Symmetry of algorithmic equality of terms.
   symConv↑Term : ∀ {t u A} → ⊢ Γ ≡ Δ → Γ ⊢ t [conv↑] u ∷ A → Δ ⊢ u [conv↑] t ∷ A
@@ -302,11 +304,9 @@ mutual
   symConv↓Term Γ≡Δ (prod-cong x₁ x₂ x₃ ok) =
     let Δ⊢G = stability (Γ≡Δ ∙ refl (⊢∙→⊢ (wf x₁))) x₁
         Δ⊢t′↑t = symConv↑Term Γ≡Δ x₂
-        _ , ⊢Δ , _ = contextConvSubst Γ≡Δ
         Δ⊢u′↑u = symConv↑Term Γ≡Δ x₃
         Gt≡Gt′ = substTypeEq (refl Δ⊢G) (sym (soundnessConv↑Term Δ⊢t′↑t))
-    in  prod-cong Δ⊢G Δ⊢t′↑t
-          (convConv↑Term (reflConEq ⊢Δ) Gt≡Gt′ Δ⊢u′↑u) ok
+    in  prod-cong Δ⊢G Δ⊢t′↑t (convConv↑Term Gt≡Gt′ Δ⊢u′↑u) ok
   symConv↓Term Γ≡Δ (η-eq x₁ x₂ y y₁ t<>u) =
     let ⊢F , _ = syntacticΠ (syntacticTerm x₁)
     in  η-eq (stabilityTerm Γ≡Δ x₂) (stabilityTerm Γ≡Δ x₁)
@@ -319,7 +319,7 @@ mutual
         Δsnd≡₁ = symConv↑Term Γ≡Δ sndConv
         ΔGfstt≡Gfstu = stabilityEq Γ≡Δ (substTypeEq (refl ⊢G)
                                                     (soundnessConv↑Term fstConv))
-        Δsnd≡ = convConvTerm Δsnd≡₁ ΔGfstt≡Gfstu
+        Δsnd≡ = convConv↑Term ΔGfstt≡Gfstu Δsnd≡₁
     in  Σ-η Δ⊢r Δ⊢p rProd pProd Δfst≡ Δsnd≡
   symConv↓Term Γ≡Δ (η-unit [t] [u] tUnit uUnit ok) =
     let [t] = stabilityTerm Γ≡Δ [t]

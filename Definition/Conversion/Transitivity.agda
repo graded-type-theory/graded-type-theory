@@ -291,11 +291,11 @@ mutual
            (proj₁ (trans~↓ x₁ x₃))
   transConv↓Term A≡B (univ x x₁ x₂) (univ x₃ x₄ x₅) =
     univ x x₄ (transConv↓ x₂ x₅)
-  transConv↓Term A≡B (zero-refl x) conv↓ =
-    convConv↓Term (reflConEq x) (sym A≡B) ℕₙ conv↓
+  transConv↓Term A≡B (zero-refl _) conv↓ =
+    convConv↓Term (sym A≡B) ℕₙ conv↓
   transConv↓Term A≡B conv↓ (zero-refl _) = conv↓
-  transConv↓Term A≡B (starʷ-refl x ok _) conv↓ =
-    convConv↓Term (reflConEq x) (sym A≡B) Unitₙ conv↓
+  transConv↓Term A≡B (starʷ-refl _ ok _) conv↓ =
+    convConv↓Term (sym A≡B) Unitₙ conv↓
   transConv↓Term _ conv↓ (starʷ-refl _ _ _) = conv↓
   transConv↓Term A≡B (suc-cong x) (suc-cong x₁) =
     suc-cong (transConv↑Term A≡B x x₁)
@@ -327,8 +327,8 @@ mutual
     in  η-unit [t] [v] tUnit vWhnf ok
   transConv↓Term A≡B (Id-ins ⊢t t~u) (Id-ins _ u~v) =
     Id-ins ⊢t (trans~↓ t~u u~v .proj₁)
-  transConv↓Term A≡B (rfl-refl t≡u) rfl≡v =
-    convConv↓Term (reflConEq (wfEqTerm t≡u)) (sym A≡B) Idₙ rfl≡v
+  transConv↓Term A≡B (rfl-refl _) rfl≡v =
+    convConv↓Term (sym A≡B) Idₙ rfl≡v
   transConv↓Term _ t≡rfl (rfl-refl _) =
     t≡rfl
 
