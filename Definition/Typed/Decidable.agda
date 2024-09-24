@@ -48,9 +48,7 @@ dec ⊢Γ A =
 -- checkable, then Γ ⊢ t ∷ A is decidable.
 
 decTermᶜ : Γ ⊢ A → Checkable t → Dec (Γ ⊢ t ∷ A)
-decTermᶜ ⊢A t = Dec.map (soundness⇇ ⊢Γ) (completeness⇇ t) (dec⇇ ⊢Γ t ⊢A)
-  where
-  ⊢Γ = wf ⊢A
+decTermᶜ ⊢A t = Dec.map soundness⇇ (completeness⇇ t) (dec⇇ t ⊢A)
 
 -- Type-checking for arbitrary checkable types: if Γ is well-formed
 -- and A and t are checkable, then Γ ⊢ t ∷ A is decidable.

@@ -55,14 +55,14 @@ mutual
   soundness⇇Type ⊢Γ (ΠΣᶜ ⊢A ⊢B ok) =
     let ⊢F = soundness⇇Type ⊢Γ ⊢A
     in  ΠΣⱼ ⊢F (soundness⇇Type (⊢Γ ∙ ⊢F) ⊢B) ok
-  soundness⇇Type ⊢Γ (Idᶜ _ ⊢t ⊢u) =
-    Idⱼ (soundness⇇ ⊢Γ ⊢t) (soundness⇇ ⊢Γ ⊢u)
-  soundness⇇Type ⊢Γ (univᶜ x) = univ (soundness⇇ ⊢Γ x)
+  soundness⇇Type _ (Idᶜ _ ⊢t ⊢u) =
+    Idⱼ (soundness⇇ ⊢t) (soundness⇇ ⊢u)
+  soundness⇇Type _ (univᶜ x) = univ (soundness⇇ x)
 
   soundness⇉ : ⊢ Γ → Γ ⊢ t ⇉ A → (Γ ⊢ A) × (Γ ⊢ t ∷ A)
   soundness⇉ ⊢Γ (ΠΣᵢ F⇇U G⇇U ok) =
-    let ⊢F = soundness⇇ ⊢Γ F⇇U
-        ⊢G = soundness⇇ (⊢Γ ∙ univ ⊢F) G⇇U
+    let ⊢F = soundness⇇ F⇇U
+        ⊢G = soundness⇇ G⇇U
     in  Uⱼ ⊢Γ , ΠΣⱼ ⊢F ⊢G ok
   soundness⇉ ⊢Γ (varᵢ x∷A∈Γ) = soundness⇉-var ⊢Γ x∷A∈Γ
   soundness⇉ ⊢Γ (appᵢ t⇉A (A⇒ΠFG , _) u⇇F) =
@@ -70,7 +70,7 @@ mutual
         A≡ΠFG = subset* A⇒ΠFG
         _ , ⊢ΠFG = syntacticEq A≡ΠFG
         ⊢F , ⊢G = syntacticΠ ⊢ΠFG
-        ⊢u = soundness⇇ ⊢Γ u⇇F
+        ⊢u = soundness⇇ u⇇F
         ⊢t′ = conv ⊢t A≡ΠFG
     in  substType ⊢G ⊢u , ⊢t′ ∘ⱼ ⊢u
   soundness⇉ ⊢Γ (fstᵢ t⇉A (A⇒ΣFG , _)) =
@@ -92,76 +92,77 @@ mutual
         _ , ⊢ΣFG = syntacticEq B≡ΣFG
         ⊢F , ⊢G , ok = inversion-ΠΣ ⊢ΣFG
         ⊢A = soundness⇇Type (⊢Γ ∙ ⊢ΣFG) A⇇Type
-        ⊢u = soundness⇇ (⊢Γ ∙ ⊢F ∙ ⊢G) u⇇A₊
+        ⊢u = soundness⇇ u⇇A₊
     in  substType ⊢A ⊢t′ , prodrecⱼ ⊢F ⊢G ⊢A ⊢t′ ⊢u ok
   soundness⇉ ⊢Γ ℕᵢ = Uⱼ ⊢Γ , ℕⱼ ⊢Γ
   soundness⇉ ⊢Γ zeroᵢ = (ℕⱼ ⊢Γ) , (zeroⱼ ⊢Γ)
-  soundness⇉ ⊢Γ (sucᵢ t⇇ℕ) = (ℕⱼ ⊢Γ) , (sucⱼ (soundness⇇ ⊢Γ t⇇ℕ))
+  soundness⇉ ⊢Γ (sucᵢ t⇇ℕ) = ℕⱼ ⊢Γ , sucⱼ (soundness⇇ t⇇ℕ)
   soundness⇉ ⊢Γ (natrecᵢ A⇇Type z⇇A₀ s⇇A₊ n⇇ℕ) =
     let ⊢ℕ = ℕⱼ ⊢Γ
         ⊢A = soundness⇇Type (⊢Γ ∙ ⊢ℕ) A⇇Type
-        ⊢z = soundness⇇ ⊢Γ z⇇A₀
-        ⊢s = soundness⇇ (⊢Γ ∙ ⊢ℕ ∙ ⊢A) s⇇A₊
-        ⊢n = soundness⇇ ⊢Γ n⇇ℕ
+        ⊢z = soundness⇇ z⇇A₀
+        ⊢s = soundness⇇ s⇇A₊
+        ⊢n = soundness⇇ n⇇ℕ
     in  substType ⊢A ⊢n , (natrecⱼ ⊢A ⊢z ⊢s ⊢n)
   soundness⇉ ⊢Γ (Unitᵢ ok) = Uⱼ ⊢Γ , Unitⱼ ⊢Γ ok
   soundness⇉ ⊢Γ (starᵢ ok) = Unitⱼ ⊢Γ ok , starⱼ ⊢Γ ok
   soundness⇉ ⊢Γ (unitrecᵢ A⇇Type t⇇Unit u⇇A₊) =
-    let ⊢t = soundness⇇ ⊢Γ t⇇Unit
+    let ⊢t = soundness⇇ t⇇Unit
         ⊢Unit = syntacticTerm ⊢t
         ok = inversion-Unit ⊢Unit
         ⊢A = soundness⇇Type (⊢Γ ∙ ⊢Unit) A⇇Type
-        ⊢u = soundness⇇ ⊢Γ u⇇A₊
+        ⊢u = soundness⇇ u⇇A₊
     in  substType ⊢A ⊢t , unitrecⱼ ⊢A ⊢t ⊢u ok
   soundness⇉ ⊢Γ Emptyᵢ = (Uⱼ ⊢Γ) , (Emptyⱼ ⊢Γ)
   soundness⇉ ⊢Γ (emptyrecᵢ A⇇Type t⇇Empty) =
     let ⊢A = soundness⇇Type ⊢Γ A⇇Type
-    in  ⊢A , (emptyrecⱼ ⊢A (soundness⇇ ⊢Γ t⇇Empty))
+    in  ⊢A , (emptyrecⱼ ⊢A (soundness⇇ t⇇Empty))
   soundness⇉ ⊢Γ (Idᵢ ⊢A ⊢t ⊢u) =
-    Uⱼ ⊢Γ , Idⱼ (soundness⇇ ⊢Γ ⊢A) (soundness⇇ ⊢Γ ⊢t) (soundness⇇ ⊢Γ ⊢u)
+    Uⱼ ⊢Γ , Idⱼ (soundness⇇ ⊢A) (soundness⇇ ⊢t) (soundness⇇ ⊢u)
   soundness⇉ ⊢Γ (Jᵢ ⊢A ⊢t ⊢B ⊢u ⊢v ⊢w) =
     case soundness⇇Type ⊢Γ ⊢A of λ {
       ⊢A →
-    case soundness⇇ ⊢Γ ⊢t of λ {
+    case soundness⇇ ⊢t of λ {
       ⊢t →
     case soundness⇇Type (⊢Γ ∙ ⊢A ∙ Idⱼ (W.wkTerm₁ ⊢A ⊢t) (var₀ ⊢A))
            ⊢B of λ {
       ⊢B →
-    case soundness⇇ ⊢Γ ⊢w of λ {
+    case soundness⇇ ⊢w of λ {
       ⊢w →
-      substType₂ ⊢B (soundness⇇ ⊢Γ ⊢v)
+      substType₂ ⊢B (soundness⇇ ⊢v)
         (PE.subst (_⊢_∷_ _ _) ≡Id-wk1-wk1-0[]₀ ⊢w)
-    , Jⱼ′ ⊢B (soundness⇇ ⊢Γ ⊢u) ⊢w }}}}
+    , Jⱼ′ ⊢B (soundness⇇ ⊢u) ⊢w }}}}
   soundness⇉ ⊢Γ (Kᵢ ⊢A ⊢t ⊢B ⊢u ⊢v ok) =
     case soundness⇇Type ⊢Γ ⊢A of λ {
       ⊢A →
-    case soundness⇇ ⊢Γ ⊢t of λ {
+    case soundness⇇ ⊢t of λ {
       ⊢t →
     case soundness⇇Type (⊢Γ ∙ Idⱼ ⊢t ⊢t) ⊢B of λ {
       ⊢B →
-    case soundness⇇ ⊢Γ ⊢v of λ {
+    case soundness⇇ ⊢v of λ {
       ⊢v →
       substType ⊢B ⊢v
-    , Kⱼ′ ⊢B (soundness⇇ ⊢Γ ⊢u) ⊢v ok }}}}
-  soundness⇉ ⊢Γ ([]-congᵢ _ ⊢t ⊢u ⊢v ok) =
-      Idⱼ ([]ⱼ ([]-cong→Erased ok) (soundness⇇ ⊢Γ ⊢t))
-        ([]ⱼ ([]-cong→Erased ok) (soundness⇇ ⊢Γ ⊢u))
-    , []-congⱼ′ ok (soundness⇇ ⊢Γ ⊢v)
+    , Kⱼ′ ⊢B (soundness⇇ ⊢u) ⊢v ok }}}}
+  soundness⇉ _ ([]-congᵢ _ ⊢t ⊢u ⊢v ok) =
+      Idⱼ ([]ⱼ ([]-cong→Erased ok) (soundness⇇ ⊢t))
+        ([]ⱼ ([]-cong→Erased ok) (soundness⇇ ⊢u))
+    , []-congⱼ′ ok (soundness⇇ ⊢v)
 
-  soundness⇇ : ⊢ Γ → Γ ⊢ t ⇇ A → Γ ⊢ t ∷ A
-  soundness⇇ ⊢Γ (lamᶜ A↘ΠFG t⇇G)=
+  soundness⇇ : Γ ⊢ t ⇇ A → Γ ⊢ t ∷ A
+  soundness⇇ (lamᶜ A↘ΠFG t⇇G)=
     let A≡ΠFG = subset* (proj₁ A↘ΠFG)
         _ , ⊢ΠFG = syntacticEq A≡ΠFG
         ⊢F , ⊢G , ok = inversion-ΠΣ ⊢ΠFG
-        ⊢t = soundness⇇ (⊢Γ ∙ ⊢F) t⇇G
+        ⊢t = soundness⇇ t⇇G
     in  conv (lamⱼ ⊢F ⊢t ok) (sym A≡ΠFG)
-  soundness⇇ ⊢Γ (prodᶜ A↘ΣFG t⇇F u⇇Gt) =
+  soundness⇇ (prodᶜ A↘ΣFG t⇇F u⇇Gt) =
     let A≡ΣFG = subset* (proj₁ A↘ΣFG)
         _ , ⊢ΣFG = syntacticEq A≡ΣFG
         ⊢F , ⊢G , ok = inversion-ΠΣ ⊢ΣFG
-        ⊢t = soundness⇇ ⊢Γ t⇇F
-        ⊢u = soundness⇇ ⊢Γ u⇇Gt
+        ⊢t = soundness⇇ t⇇F
+        ⊢u = soundness⇇ u⇇Gt
     in  conv (prodⱼ ⊢F ⊢G ⊢t ⊢u ok) (sym A≡ΣFG)
-  soundness⇇ _ (rflᶜ (A⇒*Id , _) t≡u) =
+  soundness⇇ (rflᶜ (A⇒*Id , _) t≡u) =
     conv (rflⱼ′ t≡u) (sym (subset* A⇒*Id))
-  soundness⇇ ⊢Γ (infᶜ t⇉B A≡B) = conv (proj₂ (soundness⇉ ⊢Γ t⇉B)) A≡B
+  soundness⇇ (infᶜ t⇉B A≡B) =
+    conv (soundness⇉ (wfEq A≡B) t⇉B .proj₂) A≡B
