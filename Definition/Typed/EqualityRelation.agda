@@ -23,20 +23,20 @@ import Graded.Derived.Erased.Untyped 𝕄 as Erased
 
 open import Tools.Fin
 open import Tools.Function
-open import Tools.Level hiding (_⊔_)
+open import Tools.Level hiding (Level; _⊔_)
 open import Tools.Nat
 open import Tools.Relation
 
 private
   variable
     p q q′ r : M
-    n n′ l l₁ l₂ : Nat
+    n n′ : Nat
     Γ : Con Term n
     Δ : Con Term n′
     ρ : Wk n′ n
     A A₁ A₂ A′ B B₁ B₂ B′ C : Term n
     a a′ b b′ e e′ : Term n
-    m t t₁ t₂ u u₁ u₂ v v₁ v₂ w₁ w₂ : Term n
+    l l₁ l₂ m t t₁ t₂ u u₁ u₂ v v₁ v₂ w₁ w₂ : Term n
     s : Strength
     bm : BinderMode
 
@@ -108,17 +108,20 @@ record Equality-relations
            → Γ ⊢ a′ ≅ b′ ∷ B
            → Γ ⊢ a  ≅ b  ∷ A
 
+    -- Level type reflexivity
+    ≅-Levelrefl : ⊢ Γ → Γ ⊢ Level ≅ Level
+
     -- Universe type reflexivity
-    ≅-Urefl   : ⊢ Γ → Γ ⊢ U l ≅ U l ∷ U (1+ l)
+    ≅-Urefl   : Γ ⊢ l ∷ Level → Γ ⊢ U l ≅ U l ∷ U (sucᵘ l)
 
     -- Natural number type reflexivity
-    ≅ₜ-ℕrefl : ⊢ Γ → Γ ⊢ ℕ ≅ ℕ ∷ U 0
+    ≅ₜ-ℕrefl : ⊢ Γ → Γ ⊢ ℕ ≅ ℕ ∷ U zeroᵘ
 
     -- Empty type reflexivity
-    ≅ₜ-Emptyrefl : ⊢ Γ → Γ ⊢ Empty ≅ Empty ∷ U 0
+    ≅ₜ-Emptyrefl : ⊢ Γ → Γ ⊢ Empty ≅ Empty ∷ U zeroᵘ
 
     -- Unit type reflexivity
-    ≅ₜ-Unitrefl : ⊢ Γ → Unit-allowed s → Γ ⊢ Unit s l ≅ Unit s l ∷ U l
+    ≅ₜ-Unitrefl : Γ ⊢ l ∷ Level → Unit-allowed s → Γ ⊢ Unit s l ≅ Unit s l ∷ U l
 
     -- Unit η-equality
     ≅ₜ-η-unit : Γ ⊢ e ∷ Unit s l
@@ -139,7 +142,7 @@ record Equality-relations
               : ∀ {F G H E}
               → Γ ⊢ F
               → Γ ⊢ F ≅ H ∷ U l₁
-              → Γ ∙ F ⊢ G ≅ E ∷ U l₂
+              → Γ ∙ F ⊢ G ≅ E ∷ U (wk1 l₂)
               → ΠΣ-allowed bm p q
               → Γ ⊢ ΠΣ⟨ bm ⟩ p , q ▷ F ▹ G ≅ ΠΣ⟨ bm ⟩ p , q ▷ H ▹ E ∷
                   U (l₁ ⊔ᵘ l₂)
@@ -230,17 +233,18 @@ record Equality-relations
 
     -- Weak unit type recursion congruence
     ~-unitrec : ∀ {A A′ t t′ u u′}
+              → Γ ⊢ l ∷ Level
               → Γ ∙ Unitʷ l ⊢ A ≅ A′
               → Γ ⊢ t ~ t′ ∷ Unitʷ l
               → Γ ⊢ u ≅ u′ ∷ A [ starʷ l ]₀
               → Unitʷ-allowed
               → ¬ Unitʷ-η
-              → Γ ⊢ unitrec l p q A t u ~ unitrec l p q A′ t′ u′ ∷
+              → Γ ⊢ unitrec p q l A t u ~ unitrec p q l A′ t′ u′ ∷
                   A [ t ]₀
 
     -- Star reflexivity
     ≅ₜ-starrefl :
-      ⊢ Γ → Unit-allowed s → Γ ⊢ star s l ≅ star s l ∷ Unit s l
+      Γ ⊢ l ∷ Level → Unit-allowed s → Γ ⊢ star s l ≅ star s l ∷ Unit s l
 
     -- Id preserves "equality".
     ≅-Id-cong
@@ -316,8 +320,8 @@ record Equality-relations
 
     -- A variant of ≅ₜ-Unitrefl.
 
-    ≅-Unitrefl : ⊢ Γ → Unit-allowed s → Γ ⊢ Unit s l ≅ Unit s l
-    ≅-Unitrefl ⊢Γ ok = ≅-univ (≅ₜ-Unitrefl ⊢Γ ok)
+    ≅-Unitrefl : Γ ⊢ l ∷ Level → Unit-allowed s → Γ ⊢ Unit s l ≅ Unit s l
+    ≅-Unitrefl l ok = ≅-univ (≅ₜ-Unitrefl l ok)
 
 -- Values of type EqRelSet contain three relations that the logical
 -- relation in Definition.LogicalRelation can be instantiated with.

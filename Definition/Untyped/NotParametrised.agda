@@ -121,19 +121,23 @@ wk₀ {n = 1+ n} = step wk₀
 Universe-level : Set
 Universe-level = Nat
 
+-- data Universe-level : Set where
+--   0+_ : Nat → Universe-level
+--   ω+0 : Universe-level
+
 -- The maximum of two universe levels.
 
-infixl 6 _⊔ᵘ_
+-- infixl 6 _⊔ᵘ_
 
-_⊔ᵘ_ : (_ _ : Universe-level) → Universe-level
-_⊔ᵘ_ = flip Tools.Nat._⊔_
+-- _⊔ᵘ_ : (_ _ : Universe-level) → Universe-level
+-- _⊔ᵘ_ = flip Tools.Nat._⊔_
 
 -- The definition above is set up so that l ⊔ᵘ 0 is definitionally
 -- equal to l, with the intention to make it a little easier to work
 -- with Erased.
 
-_ : l ⊔ᵘ 0 ≡ l
-_ = refl
+-- _ : l ⊔ᵘ 0 ≡ l
+-- _ = refl
 
 -- Ordering of universe levels.
 

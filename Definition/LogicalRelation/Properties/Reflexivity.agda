@@ -32,9 +32,18 @@ open import Tools.Sum using (inj₁; inj₂)
 private
   variable
     n : Nat
-    l′ l : Universe-level
     A B t : Term _
     Γ : Con Term n
+    l l′ : Universe-level
+
+reflLevel-prop : ∀ {n}
+                 → Level-prop Γ n
+                 → [Level]-prop Γ n n
+reflLevel-prop (sucᵘᵣ (Levelₜ n d t≡t prop)) =
+  sucᵘᵣ (Levelₜ₌ n n d d t≡t
+            (reflLevel-prop prop))
+reflLevel-prop zeroᵘᵣ = zeroᵘᵣ
+reflLevel-prop (ne (neNfₜ neK ⊢k k≡k)) = ne (neNfₜ₌ neK neK k≡k)
 
 reflNatural-prop : ∀ {n}
                  → Natural-prop Γ n
@@ -50,9 +59,9 @@ reflEmpty-prop : ∀ {n}
                  → [Empty]-prop Γ n n
 reflEmpty-prop (ne (neNfₜ neK ⊢k k≡k)) = ne (neNfₜ₌ neK neK k≡k)
 
-reflUnitʷ-prop : ∀ {t}
-               → Unit-prop Γ l 𝕨 t
-               → [Unitʷ]-prop Γ l t t
+reflUnitʷ-prop : ∀ {t A [A]}
+               → Unit-prop Γ l 𝕨 A [A] t
+               → [Unitʷ]-prop Γ l A [A] t t
 reflUnitʷ-prop starᵣ = starᵣ
 reflUnitʷ-prop (ne (neNfₜ neK ⊢k k≡k)) = ne (neNfₜ₌ neK neK k≡k)
 
@@ -74,10 +83,11 @@ private
   reflEq-⊩< ≤ᵘ-refl     = reflEq
   reflEq-⊩< (≤ᵘ-step p) = reflEq-⊩< p
 
-reflEq (Uᵣ′ l′ l< ⊢Γ) = ⊢Γ
+reflEq (Levelᵣ D) = red D
+reflEq (Uᵣ′ k [k] k< ⊢Γ) = ⊢Γ
 reflEq (ℕᵣ D) = red D
 reflEq (Emptyᵣ D) = red D
-reflEq (Unitᵣ (Unitₜ D _)) = red D
+reflEq (Unitᵣ (Unitₜ _ _ _ D _)) = red D
 reflEq (ne′ _ [ ⊢A , ⊢B , D ] neK K≡K) =
    ne₌ _ [ ⊢A , ⊢B , D ] neK K≡K
 reflEq (Bᵣ′ _ _ _ D _ _ A≡A [F] [G] _ _) =
@@ -96,8 +106,10 @@ reflEq (Idᵣ ⊩A) = record
   open _⊩ₗId_ ⊩A
 reflEq (emb p [A]) = reflEq-⊩< p [A]
 
-reflEqTerm (Uᵣ′ _ p _) (Uₜ A d A-type A≅A ⊩A) =
-  Uₜ₌ A A d d A-type A-type A≅A ⊩A ⊩A (reflEq-⊩< p ⊩A)
+reflEqTerm (Levelᵣ D) (Levelₜ k d k≡k prop) =
+  Levelₜ₌ k k d d k≡k (reflLevel-prop prop)
+reflEqTerm (Uᵣ′ k [k] k< ⊢Γ) (Uₜ A d A-type A≅A ⊩A) =
+  Uₜ₌ A A d d A-type A-type A≅A ⊩A ⊩A (reflEq-⊩< k< ⊩A)
 reflEqTerm (ℕᵣ D) (ℕₜ n [ ⊢t , ⊢u , d ] t≡t prop) =
   ℕₜ₌ n n [ ⊢t , ⊢u , d ] [ ⊢t , ⊢u , d ] t≡t
       (reflNatural-prop prop)

@@ -150,6 +150,10 @@ opaque
 
   _≟ᵘ_ : Decidable (_≡_ {A = Universe-level})
   _≟ᵘ_ = _≟_
+  -- 0+ l₁ ≟ᵘ 0+ l₂ = map (cong 0+_) (λ { refl → refl }) (l₁ ≟ l₂)
+  -- 0+ l₁ ≟ᵘ ω+0 = no (λ ())
+  -- ω+0 ≟ᵘ 0+ l₂ = no (λ ())
+  -- ω+0 ≟ᵘ ω+0 = yes refl
 
 ------------------------------------------------------------------------
 -- Properties related to _≤ᵘ_ and _<ᵘ_
@@ -199,6 +203,7 @@ opaque
 ------------------------------------------------------------------------
 -- Properties related to _⊔ᵘ_
 
+{-
 opaque
 
   -- The level l₁ is bounded by the maximum of l₁ and l₂.
@@ -233,6 +238,7 @@ opaque
 
   ⊔ᵘ-idem : l ⊔ᵘ l ≡ l
   ⊔ᵘ-idem = ⊔-idem _
+-}
 
 ------------------------------------------------------------------------
 -- Other properties

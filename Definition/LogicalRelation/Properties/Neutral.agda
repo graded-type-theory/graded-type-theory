@@ -79,14 +79,19 @@ mutual
           → Γ ⊢ n ∷ A
           → Γ ⊢ n ~ n ∷ A
           → Γ ⊩⟨ l ⟩ n ∷ A / [A]
-  neuTerm (Uᵣ′ l ≤ᵘ-refl [ ⊢A , ⊢B , D ]) neN n n~n =
+  neuTerm (Levelᵣ [ ⊢A , ⊢B , D ]) neN n n~n =
+    let A≡Level = subset* D
+        n~n′ = ~-conv n~n A≡Level
+        n≡n  = ~-to-≅ₜ (~-conv n~n A≡Level)
+    in Levelₜ _ (idRedTerm:*: (conv n A≡Level)) n≡n (ne (neNfₜ neN (conv n A≡Level) n~n′))
+  neuTerm (Uᵣ′ l [l] ≤ᵘ-refl [ ⊢A , ⊢B , D ]) neN n n~n =
     let A≡U  = subset* D
         n≡n  = ~-to-≅ₜ (~-conv n~n A≡U)
     in Uₜ _ (idRedTerm:*: (conv n A≡U)) (ne neN) n≡n
       (neu neN (univ (conv n A≡U)) (~-to-≅ (~-conv n~n A≡U)))
-  neuTerm (Uᵣ′ _ (≤ᵘ-step p) A⇒*U) n-ne ⊢n n~n =
-    irrelevanceTerm (Uᵣ′ _ p A⇒*U) (Uᵣ′ _ (≤ᵘ-step p) A⇒*U)
-      (neuTerm (Uᵣ′ _ p A⇒*U) n-ne ⊢n n~n)
+  neuTerm (Uᵣ′ l [l] (≤ᵘ-step p) A⇒*U) n-ne ⊢n n~n =
+    irrelevanceTerm (Uᵣ′ _ [l] p A⇒*U) (Uᵣ′ _ [l] (≤ᵘ-step p) A⇒*U)
+      (neuTerm (Uᵣ′ _ [l] p A⇒*U) n-ne ⊢n n~n)
   neuTerm (ℕᵣ [ ⊢A , ⊢B , D ]) neN n n~n =
     let A≡ℕ  = subset* D
         n~n′ = ~-conv n~n A≡ℕ
@@ -97,7 +102,7 @@ mutual
         n~n′ = ~-conv n~n A≡Empty
         n≡n  = ~-to-≅ₜ n~n′
     in  Emptyₜ _ (idRedTerm:*: (conv n A≡Empty)) n≡n (ne (neNfₜ neN (conv n A≡Empty) n~n′))
-  neuTerm (Unitᵣ (Unitₜ [ ⊢A , ⊢B , D ] _)) neN n n~n =
+  neuTerm (Unitᵣ (Unitₜ k [k] k≡ [ ⊢A , ⊢B , D ] _)) neN n n~n =
     let A≡Unit  = subset* D
         n~n′ = ~-conv n~n A≡Unit
         n≡n′ = ~-to-≅ₜ n~n′
@@ -203,7 +208,13 @@ mutual
             → Γ ⊢ n′ ∷ A
             → Γ ⊢ n ~ n′ ∷ A
             → Γ ⊩⟨ l ⟩ n ≡ n′ ∷ A / [A]
-  neuEqTerm (Uᵣ′ l ≤ᵘ-refl [ ⊢A , ⊢B , D ]) neN neN′ n n′ n~n′ =
+  neuEqTerm (Levelᵣ [ ⊢A , ⊢B , D ]) neN neN′ n n′ n~n′ =
+    let A≡Level = subset* D
+        n~n′₁ = ~-conv n~n′ A≡Level
+        n≡n′  = ~-to-≅ₜ n~n′₁
+    in  Levelₜ₌ _ _ (idRedTerm:*: (conv n A≡Level)) (idRedTerm:*: (conv n′ A≡Level))
+            n≡n′ (ne (neNfₜ₌ neN neN′ n~n′₁))
+  neuEqTerm (Uᵣ′ l [l] ≤ᵘ-refl [ ⊢A , ⊢B , D ]) neN neN′ n n′ n~n′ =
     let A≡U = subset* D
         n~n′₁ = ~-conv n~n′ A≡U
         n≡n′ = ~-to-≅ₜ n~n′₁
@@ -213,9 +224,9 @@ mutual
     in Uₜ₌ _ _ (idRedTerm:*: (conv n A≡U)) (idRedTerm:*: (conv n′ A≡U)) (ne neN) (ne neN′) n≡n′
       wfn (neu neN′ nU′ (~-to-≅ (~-trans (~-sym n~n′₁) n~n′₁)))
       (neuEq wfn neN neN′ nU′ (≅-univ n≡n′))
-  neuEqTerm (Uᵣ′ _ (≤ᵘ-step p) A⇒*U) n-ne n′-ne ⊢n ⊢n′ n~n′ =
-    irrelevanceEqTerm (Uᵣ′ _ p A⇒*U) (Uᵣ′ _ (≤ᵘ-step p) A⇒*U)
-      (neuEqTerm (Uᵣ′ _ p A⇒*U) n-ne n′-ne ⊢n ⊢n′ n~n′)
+  neuEqTerm (Uᵣ′ _ [l] (≤ᵘ-step p) A⇒*U) n-ne n′-ne ⊢n ⊢n′ n~n′ =
+    irrelevanceEqTerm (Uᵣ′ _ [l] p A⇒*U) (Uᵣ′ _ [l] (≤ᵘ-step p) A⇒*U)
+      (neuEqTerm (Uᵣ′ _ [l] p A⇒*U) n-ne n′-ne ⊢n ⊢n′ n~n′)
   neuEqTerm (ℕᵣ [ ⊢A , ⊢B , D ]) neN neN′ n n′ n~n′ =
     let A≡ℕ = subset* D
         n~n′₁ = ~-conv n~n′ A≡ℕ
@@ -228,7 +239,7 @@ mutual
         n≡n′ = ~-to-≅ₜ n~n′₁
     in  Emptyₜ₌ _ _ (idRedTerm:*: (conv n A≡Empty)) (idRedTerm:*: (conv n′ A≡Empty))
             n≡n′ (ne (neNfₜ₌ neN neN′ n~n′₁))
-  neuEqTerm (Unitᵣ {s} (Unitₜ [ ⊢A , ⊢B , D ] _)) neN neN′ n n′ n~n′ =
+  neuEqTerm (Unitᵣ {s} (Unitₜ k [k] k≡ [ ⊢A , ⊢B , D ] _)) neN neN′ n n′ n~n′ =
     let A≡Unit = subset* D
         n~n′₁ = ~-conv n~n′ A≡Unit
         n≡n′ = ~-to-≅ₜ n~n′₁

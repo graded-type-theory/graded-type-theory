@@ -18,19 +18,22 @@ open import Definition.Untyped M
 open import Definition.Typed R
 
 open import Tools.Nat
+open import Tools.Function
 
 private variable
   Γ       : Con Term _
-  A B t u : Term _
-  l       : Nat
+  A B l l₁ l₂ t u : Term _
 
 -- If a term is well-typed with respect to Γ, then Γ is well-formed.
 
 wfTerm : Γ ⊢ t ∷ A → ⊢ Γ
-wfTerm (Uⱼ ⊢Γ) = ⊢Γ
+wfTerm (zeroᵘⱼ ⊢Γ) = ⊢Γ
+wfTerm (sucᵘⱼ l) = wfTerm l
+wfTerm (⊔ᵘⱼ l₁ l₂) = wfTerm l₁
+wfTerm (Uⱼ l) = wfTerm l
 wfTerm (ℕⱼ ⊢Γ) = ⊢Γ
 wfTerm (Emptyⱼ ⊢Γ) = ⊢Γ
-wfTerm (Unitⱼ ⊢Γ _) = ⊢Γ
+wfTerm (Unitⱼ l _) = wfTerm l
 wfTerm (ΠΣⱼ F _ _) = wfTerm F
 wfTerm (var ⊢Γ x₁) = ⊢Γ
 wfTerm (lamⱼ _ t _) with wfTerm t
@@ -41,7 +44,7 @@ wfTerm (sucⱼ n) = wfTerm n
 wfTerm (natrecⱼ F z s n) = wfTerm z
 wfTerm (prodrecⱼ _ _ _ t _ _) = wfTerm t
 wfTerm (emptyrecⱼ A e) = wfTerm e
-wfTerm (starⱼ ⊢Γ _) = ⊢Γ
+wfTerm (starⱼ l _) = wfTerm l
 wfTerm (conv t A≡B) = wfTerm t
 wfTerm (prodⱼ _ _ a _ _) = wfTerm a
 wfTerm (fstⱼ _ _ a) = wfTerm a
@@ -51,15 +54,16 @@ wfTerm (rflⱼ ⊢t) = wfTerm ⊢t
 wfTerm (Jⱼ _ ⊢t _ _ _ _) = wfTerm ⊢t
 wfTerm (Kⱼ ⊢t _ _ _ _) = wfTerm ⊢t
 wfTerm ([]-congⱼ ⊢t _ _ _) = wfTerm ⊢t
-wfTerm (unitrecⱼ _ ⊢t _ _) = wfTerm ⊢t
+wfTerm (unitrecⱼ l _ _ _ _) = wfTerm l
 
 -- If a type is well-typed with respect to Γ, then Γ is well-formed.
 
 wf : Γ ⊢ A → ⊢ Γ
+wf (Levelⱼ ⊢Γ) = ⊢Γ
+wf (Uⱼ l) = wfTerm l
 wf (ℕⱼ ⊢Γ) = ⊢Γ
 wf (Emptyⱼ ⊢Γ) = ⊢Γ
-wf (Unitⱼ ⊢Γ _) = ⊢Γ
-wf (Uⱼ ⊢Γ) = ⊢Γ
+wf (Unitⱼ l _) = wfTerm l
 wf (ΠΣⱼ F _ _) = wf F
 wf (Idⱼ ⊢t _) = wfTerm ⊢t
 wf (univ A) = wfTerm A
@@ -72,6 +76,7 @@ wfEqTerm (refl t) = wfTerm t
 wfEqTerm (sym t≡u) = wfEqTerm t≡u
 wfEqTerm (trans t≡u u≡r) = wfEqTerm t≡u
 wfEqTerm (conv t≡u A≡B) = wfEqTerm t≡u
+wfEqTerm (U-cong l₁≡l₂) = wfEqTerm l₁≡l₂
 wfEqTerm (ΠΣ-cong _ F≡H _ _) = wfEqTerm F≡H
 wfEqTerm (app-cong f≡g a≡b) = wfEqTerm f≡g
 wfEqTerm (β-red _ _ _ a _ _) = wfTerm a
@@ -97,9 +102,9 @@ wfEqTerm (K-cong _ _ t₁≡t₂ _ _ _ _) = wfEqTerm t₁≡t₂
 wfEqTerm (K-β ⊢t _ _ _) = wfTerm ⊢t
 wfEqTerm ([]-cong-cong _ t₁≡t₂ _ _ _) = wfEqTerm t₁≡t₂
 wfEqTerm ([]-cong-β ⊢t _ _) = wfTerm ⊢t
-wfEqTerm (unitrec-cong _ t≡t′ _ _ _) = wfEqTerm t≡t′
-wfEqTerm (unitrec-β _ ⊢u _ _) = wfTerm ⊢u
-wfEqTerm (unitrec-β-η _ ⊢u _ _ _) = wfTerm ⊢u
+wfEqTerm (unitrec-cong l _ _ _ _ _) = wfTerm l
+wfEqTerm (unitrec-β l _ _ _ _) = wfTerm l
+wfEqTerm (unitrec-β-η l _ _ _ _ _) = wfTerm l
 
 -- If a type equality is well-formed with respect to Γ, then Γ is
 -- well-formed.
@@ -109,6 +114,7 @@ wfEq (univ A≡B) = wfEqTerm A≡B
 wfEq (refl A) = wf A
 wfEq (sym A≡B) = wfEq A≡B
 wfEq (trans A≡B B≡C) = wfEq A≡B
+wfEq (U-cong l₁≡l₂) = wfEqTerm l₁≡l₂
 wfEq (ΠΣ-cong F _ _ _) = wf F
 wfEq (Id-cong A₁≡A₂ _ _) = wfEq A₁≡A₂
 
@@ -138,5 +144,5 @@ opaque
 
 -- An example of how _∙[_] can be used.
 
-_ : ⊢ ε ∙ ℕ ∙ U l ∙ Empty
-_ = ε ∙[ ℕⱼ ] ∙[ Uⱼ ] ∙[ Emptyⱼ ]
+_ : ⊢ ε ∙ ℕ ∙ U zeroᵘ ∙ Empty
+_ = ε ∙[ ℕⱼ ] ∙[ Uⱼ ∘ᶠ zeroᵘⱼ ] ∙[ Emptyⱼ ]

@@ -32,6 +32,20 @@ private variable
 
 opaque
 
+  -- If t satisfies Level-prop Γ, then t is a WHNF.
+
+  level : Level-prop Γ t → Whnf t
+  level zeroᵘᵣ = zeroᵘₙ
+  level (sucᵘᵣ x) = sucᵘₙ
+  level (ne (neNfₜ t-ne _ _)) = ne t-ne
+
+  lsplit : [Level]-prop Γ t u → Whnf t × Whnf u
+  lsplit zeroᵘᵣ = zeroᵘₙ , zeroᵘₙ
+  lsplit (sucᵘᵣ x) = sucᵘₙ , sucᵘₙ
+  lsplit (ne (neNfₜ₌ t-ne u-ne _)) = ne t-ne , ne u-ne
+
+opaque
+
   -- If t satisfies Natural-prop Γ, then t is a "Natural" (a specific
   -- kind of WHNF).
 
@@ -68,7 +82,7 @@ opaque
 
   -- If t satisfies Unit-prop Γ l s, then t is a WHNF.
 
-  unit : Unit-prop Γ l s t → Whnf t
+  unit : ∀ {A [A]} → Unit-prop Γ l s A [A] t → Whnf t
   unit starᵣ                 = starₙ
   unit (ne (neNfₜ t-ne _ _)) = ne t-ne
 
@@ -76,6 +90,6 @@ opaque
 
   -- If t and u satisfy [Unitʷ]-prop Γ, then they are WHNFs.
 
-  usplit : [Unitʷ]-prop Γ l t u → Whnf t × Whnf u
+  usplit : ∀ {A [A]} → [Unitʷ]-prop Γ l A [A] t u → Whnf t × Whnf u
   usplit starᵣ                     = starₙ , starₙ
   usplit (ne (neNfₜ₌ t-ne u-ne _)) = ne t-ne , ne u-ne

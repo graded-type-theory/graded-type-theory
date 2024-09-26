@@ -34,7 +34,7 @@ open import Tools.Relation
 open import Tools.Unit
 
 private variable
-  l l₁ l₂ n : Nat
+  k₁ k₂ l l₁ l₂ n : Nat
   Γ         : Con Term _
   A B       : Term _
 
@@ -103,10 +103,10 @@ opaque
   -- Irrelevance for _⊩<⟨_⟩_.
 
   irrelevance-⊩< :
-    (p : l <ᵘ l₁) (q : l <ᵘ l₂) → Γ ⊩<⟨ p ⟩ A → Γ ⊩<⟨ q ⟩ A
-  irrelevance-⊩<  ≤ᵘ-refl    ≤ᵘ-refl     = idᶠ
-  irrelevance-⊩< p           (≤ᵘ-step q) = irrelevance-⊩< p q
-  irrelevance-⊩< (≤ᵘ-step p) q           = irrelevance-⊩< p q
+    (eq : k₁ PE.≡ k₂) (p : k₁ <ᵘ l₁) (q : k₂ <ᵘ l₂) → Γ ⊩<⟨ p ⟩ A → Γ ⊩<⟨ q ⟩ A
+  irrelevance-⊩< PE.refl  ≤ᵘ-refl    ≤ᵘ-refl     = idᶠ
+  irrelevance-⊩< PE.refl p           (≤ᵘ-step q) = irrelevance-⊩< PE.refl p q
+  irrelevance-⊩< PE.refl (≤ᵘ-step p) q           = irrelevance-⊩< PE.refl p q
 
 opaque
   unfolding irrelevance-⊩<
@@ -114,11 +114,11 @@ opaque
   -- One form of irrelevance for _⊩<⟨_⟩_≡_/_.
 
   irrelevance-⊩<≡ :
-    (p : l <ᵘ l₁) (q : l <ᵘ l₂) {⊩A : Γ ⊩<⟨ p ⟩ A} →
+    (eq : k₁ PE.≡ k₂) (p : k₁ <ᵘ l₁) (q : k₂ <ᵘ l₂) {⊩A : Γ ⊩<⟨ p ⟩ A} →
     Γ ⊩<⟨ p ⟩ A ≡ B / ⊩A →
-    Γ ⊩<⟨ q ⟩ A ≡ B / irrelevance-⊩< p q ⊩A
-  irrelevance-⊩<≡ ≤ᵘ-refl     ≤ᵘ-refl     = idᶠ
-  irrelevance-⊩<≡ (≤ᵘ-step p) ≤ᵘ-refl     = irrelevance-⊩<≡ p ≤ᵘ-refl
-  irrelevance-⊩<≡ ≤ᵘ-refl     (≤ᵘ-step q) = irrelevance-⊩<≡ ≤ᵘ-refl q
-  irrelevance-⊩<≡ (≤ᵘ-step p) (≤ᵘ-step q) =
-    irrelevance-⊩<≡ (≤ᵘ-step p) q
+    Γ ⊩<⟨ q ⟩ A ≡ B / irrelevance-⊩< eq p q ⊩A
+  irrelevance-⊩<≡ PE.refl ≤ᵘ-refl     ≤ᵘ-refl     = idᶠ
+  irrelevance-⊩<≡ PE.refl (≤ᵘ-step p) ≤ᵘ-refl     = irrelevance-⊩<≡ PE.refl p ≤ᵘ-refl
+  irrelevance-⊩<≡ PE.refl ≤ᵘ-refl     (≤ᵘ-step q) = irrelevance-⊩<≡ PE.refl ≤ᵘ-refl q
+  irrelevance-⊩<≡ PE.refl (≤ᵘ-step p) (≤ᵘ-step q) =
+    irrelevance-⊩<≡ PE.refl (≤ᵘ-step p) q

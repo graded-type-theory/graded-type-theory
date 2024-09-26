@@ -85,7 +85,7 @@ opaque
   conv↘∷ (t⇒*u , u-whnf) A≡B = conv* t⇒*u A≡B , u-whnf
 
 -- Universe of reduction closures
-univ* : Γ ⊢ A ⇒* B ∷ U l → Γ ⊢ A ⇒* B
+univ* : Γ ⊢ A ⇒* B ∷ U t → Γ ⊢ A ⇒* B
 univ* (id x) = id (univ x)
 univ* (x ⇨ A⇒B) = univ x ⇨ univ* A⇒B
 
@@ -93,21 +93,21 @@ opaque
 
   -- A variant of univ*.
 
-  univ:*: : Γ ⊢ A :⇒*: B ∷ U l → Γ ⊢ A :⇒*: B
+  univ:*: : Γ ⊢ A :⇒*: B ∷ U t → Γ ⊢ A :⇒*: B
   univ:*: [ ⊢A , ⊢B , A⇒*B ] = [ univ ⊢A , univ ⊢B , univ* A⇒*B ]
 
 opaque
 
   -- If A reduces to B, then A reduces to B at type U l for some l.
 
-  inverseUnivRed : Γ ⊢ A ⇒ B → ∃ λ l → Γ ⊢ A ⇒ B ∷ U l
+  inverseUnivRed : Γ ⊢ A ⇒ B → ∃ λ t → Γ ⊢ A ⇒ B ∷ U t
   inverseUnivRed (univ A⇒B) = _ , A⇒B
 
 opaque
 
   -- Γ ⊢ A ⇒ B is logically equivalent to ∃ λ l → Γ ⊢ A ⇒ B ∷ U l.
 
-  ⊢⇒⇔⊢⇒∷U : Γ ⊢ A ⇒ B ⇔ ∃ λ l → Γ ⊢ A ⇒ B ∷ U l
+  ⊢⇒⇔⊢⇒∷U : Γ ⊢ A ⇒ B ⇔ ∃ λ t → Γ ⊢ A ⇒ B ∷ U t
   ⊢⇒⇔⊢⇒∷U = inverseUnivRed , univ ∘→ proj₂
 
 -- Application substitution of reduction closures

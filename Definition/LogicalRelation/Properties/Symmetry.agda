@@ -43,6 +43,14 @@ symNeutralTerm : ∀ {t u A}
                → Γ ⊩neNf u ≡ t ∷ A
 symNeutralTerm (neNfₜ₌ neK neM k≡m) = neNfₜ₌ neM neK (~-sym k≡m)
 
+symLevel-prop : ∀ {k k′}
+              → [Level]-prop Γ k k′
+              → [Level]-prop Γ k′ k
+symLevel-prop zeroᵘᵣ = zeroᵘᵣ
+symLevel-prop (sucᵘᵣ (Levelₜ₌ k k′ d d′ k≡k′ prop)) =
+  sucᵘᵣ (Levelₜ₌ k′ k d′ d (≅ₜ-sym k≡k′) (symLevel-prop prop))
+symLevel-prop (ne prop) = ne (symNeutralTerm prop)
+
 symNatural-prop : ∀ {k k′}
                 → [Natural]-prop Γ k k′
                 → [Natural]-prop Γ k′ k
@@ -56,9 +64,9 @@ symEmpty-prop : ∀ {k k′}
               → [Empty]-prop Γ k′ k
 symEmpty-prop (ne prop) = ne (symNeutralTerm prop)
 
-symUnit-prop : ∀ {k k′}
-             → [Unitʷ]-prop Γ l k k′
-             → [Unitʷ]-prop Γ l k′ k
+symUnit-prop : ∀ {k k′ A [A]}
+             → [Unitʷ]-prop Γ l A [A] k k′
+             → [Unitʷ]-prop Γ l A [A] k′ k
 symUnit-prop starᵣ = starᵣ
 symUnit-prop (ne prop) = ne (symNeutralTerm prop)
 
@@ -82,9 +90,10 @@ symEqTerm : ∀ {l A t u} ([A] : Γ ⊩⟨ l ⟩ A)
           → Γ ⊩⟨ l ⟩ t ≡ u ∷ A / [A]
           → Γ ⊩⟨ l ⟩ u ≡ t ∷ A / [A]
 
+symEqT (Levelᵥ D D′) A≡B = red D
 symEqT (ℕᵥ D D′) A≡B = red D
 symEqT (Emptyᵥ D D′) A≡B = red D
-symEqT (Unitᵥ (Unitₜ A⇒*Unit _) (Unitₜ B⇒*Unit₁ _)) B⇒*Unit₂ =
+symEqT (Unitᵥ (Unitₜ k [k] k< A⇒*Unit _) (Unitₜ k′ [k′] k′< B⇒*Unit₁ _)) B⇒*Unit₂ =
   case Unit-PE-injectivity $
        whrDet* (red B⇒*Unit₁ , Unitₙ) (B⇒*Unit₂ , Unitₙ) of λ {
     (_ , PE.refl) →
@@ -127,8 +136,8 @@ symEqT
                           ([G]₁ [ρ] ⊢Δ [a])
                           (symEq ([G] [ρ] ⊢Δ [a]₁) [ρG′a]
                                  ([G≡G′] [ρ] ⊢Δ [a]₁)))
-symEqT (Uᵥ (Uᵣ l′ l< ⇒*U) (Uᵣ l′₁ l<₁ ⇒*U₁)) D with whrDet* (red D , Uₙ) (red ⇒*U₁ , Uₙ)
-symEqT (Uᵥ (Uᵣ l′ l< ⇒*U) (Uᵣ l′₁ l<₁ ⇒*U₁)) D | PE.refl = ⇒*U
+symEqT (Uᵥ (Uᵣ l′ [l′] l< ⇒*U) (Uᵣ l′₁ [l′₁] l<₁ ⇒*U₁)) D with whrDet* (red D , Uₙ) (red ⇒*U₁ , Uₙ)
+... | PE.refl = ⇒*U
 symEqT (Idᵥ ⊩A ⊩B@record{}) A≡B =
   case
     whrDet*
@@ -161,6 +170,8 @@ symEqT (embᵥ₁ (≤ᵘ-step p) A≡B) = symEqT (embᵥ₁ p A≡B)
 symEqT (embᵥ₂ ≤ᵘ-refl     A≡B) = symEqT          A≡B
 symEqT (embᵥ₂ (≤ᵘ-step p) A≡B) = symEqT (embᵥ₂ p A≡B)
 
+symEqTerm (Levelᵣ D) (Levelₜ₌ k k′ d d′ k≡k′ prop) =
+  Levelₜ₌ k′ k d′ d (≅ₜ-sym k≡k′) (symLevel-prop prop)
 symEqTerm (ℕᵣ D) (ℕₜ₌ k k′ d d′ t≡u prop) =
   ℕₜ₌ k′ k d′ d (≅ₜ-sym t≡u) (symNatural-prop prop)
 symEqTerm (Emptyᵣ D) (Emptyₜ₌ k k′ d d′ t≡u prop) =
@@ -215,12 +226,12 @@ symEqTerm (Idᵣ ⊩A) t≡u =
 symEqTerm (emb ≤ᵘ-refl ⊩A)     = symEqTerm ⊩A
 symEqTerm (emb (≤ᵘ-step p) ⊩A) = symEqTerm (emb p ⊩A)
 symEqTerm
-  (Uᵣ′ _ ≤ᵘ-refl _) (Uₜ₌ A B d d′ typeA typeB A≡B [t] [u] [t≡u]) =
+  (Uᵣ′ _ _ ≤ᵘ-refl _) (Uₜ₌ A B d d′ typeA typeB A≡B [t] [u] [t≡u]) =
     Uₜ₌ B A d′ d typeB typeA (≅ₜ-sym A≡B) [u] [t] (symEq [t] [u] [t≡u])
 symEqTerm
-  {Γ} {A} {t = B} {u = C} (Uᵣ′ l′ (≤ᵘ-step {n = l} p) A⇒*U) B≡C =
+  {Γ} {A} {t = B} {u = C} (Uᵣ′ l′ [l′] (≤ᵘ-step {n = l} p) A⇒*U) B≡C =
                                                    $⟨ B≡C ⟩
-  Γ ⊩⟨ 1+ l ⟩ B ≡ C ∷ A / Uᵣ′ l′ (≤ᵘ-step p) A⇒*U  →⟨ irrelevanceEqTerm (Uᵣ′ l′ (≤ᵘ-step p) A⇒*U) (Uᵣ′ l′ p A⇒*U) ⟩
-  Γ ⊩⟨    l ⟩ B ≡ C ∷ A / Uᵣ′ l′ p A⇒*U            →⟨ symEqTerm (Uᵣ′ _ p A⇒*U) ⟩
-  Γ ⊩⟨    l ⟩ C ≡ B ∷ A / Uᵣ′ l′ p A⇒*U            →⟨ irrelevanceEqTerm (Uᵣ′ l′ p A⇒*U) (Uᵣ′ l′ (≤ᵘ-step p) A⇒*U) ⟩
-  Γ ⊩⟨ 1+ l ⟩ C ≡ B ∷ A / Uᵣ′ l′ (≤ᵘ-step p) A⇒*U  □
+  Γ ⊩⟨ 1+ l ⟩ B ≡ C ∷ A / Uᵣ′ l′ [l′] (≤ᵘ-step p) A⇒*U  →⟨ irrelevanceEqTerm (Uᵣ′ l′ [l′] (≤ᵘ-step p) A⇒*U) (Uᵣ′ l′ [l′] p A⇒*U) ⟩
+  Γ ⊩⟨    l ⟩ B ≡ C ∷ A / Uᵣ′ l′ [l′] p A⇒*U            →⟨ symEqTerm (Uᵣ′ _ _ p A⇒*U) ⟩
+  Γ ⊩⟨    l ⟩ C ≡ B ∷ A / Uᵣ′ l′ [l′] p A⇒*U            →⟨ irrelevanceEqTerm (Uᵣ′ l′ [l′] p A⇒*U) (Uᵣ′ l′ [l′] (≤ᵘ-step p) A⇒*U) ⟩
+  Γ ⊩⟨ 1+ l ⟩ C ≡ B ∷ A / Uᵣ′ l′ [l′] (≤ᵘ-step p) A⇒*U  □
