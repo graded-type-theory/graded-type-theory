@@ -882,14 +882,11 @@ _®_∷[_]_◂_ = Graded.Erasure.LogicalRelation.Hidden._®_∷[_]_◂_
 
 -- Definition 6.7: Erasure validity.
 --
--- In the paper the type level is written as a subscript instead of
--- within brackets.
---
 -- The current definition does not take the same arguments as the
--- definition in the paper: the context and type validity proofs have
--- been omitted, but a mode has been added.
+-- definition in the paper: the type level as well as the context and
+-- type validity proofs have been omitted, but a mode has been added.
 
-_▸_⊩ʳ⟨_⟩_∷[_]_ = Graded.Erasure.LogicalRelation.Hidden._▸_⊩ʳ⟨_⟩_∷[_]_
+_▸_⊩ʳ_∷[_]_ = Graded.Erasure.LogicalRelation.Hidden._▸_⊩ʳ_∷[_]_
 
 -- Theorem 6.8: Backwards closure of the logical relation under
 -- reduction.

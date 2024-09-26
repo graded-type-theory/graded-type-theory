@@ -62,7 +62,6 @@ private variable
   s   : Strength
   sem : Some-erased-matches
   str : Strictness
-  l   : Universe-level
 
 -- The module LR exports some module instantiations.
 
@@ -99,12 +98,12 @@ negation-of-fundamental-lemma-with-erased-matches₁ :
      Consistent Δ →
      ∀ {n} {Γ : Con Term n} {t A : Term n} {γ : Conₘ n} {m} →
      Γ ⊢ t ∷ A → γ ▸[ m ] t →
-     ∃ λ l → γ ▸ Γ ⊩ʳ⟨ l ⟩ t ∷[ m ] A)
+     γ ▸ Γ ⊩ʳ t ∷[ m ] A)
 negation-of-fundamental-lemma-with-erased-matches₁
   {p} {str} P-ok Σʷ-ok hyp =
   case soundness-ℕ-only-source-counterexample₁ P-ok Σʷ-ok of λ
     (consistent , ⊢t , ▸t , _) →
-  ¬t®t $ ▸⊩ʳ∷[𝟙ᵐ]→®∷ $ hyp ⊢Δ consistent ⊢t ▸t .proj₂
+  ¬t®t $ ▸⊩ʳ∷[𝟙ᵐ]→®∷ $ hyp ⊢Δ consistent ⊢t ▸t
   where
   Δ : Con Term 1
   Δ = ε ∙ (Σʷ p , 𝟘 ▷ ℕ ▹ ℕ)
@@ -120,7 +119,7 @@ negation-of-fundamental-lemma-with-erased-matches₁
 
   open LR ⊢Δ str
 
-  ¬t®t : ¬ t ®⟨ l ⟩ erase str t ∷ A
+  ¬t®t : ¬ t ® erase str t ∷ A
   ¬t®t t®t = case ®∷ℕ⇔ .proj₁ t®t of λ where
     (zeroᵣ t⇒* _) →
       case whnfRed*Term t⇒* (ne (prodrecₙ (var _))) of λ ()
@@ -140,9 +139,9 @@ opaque
        Consistent Δ →
        ∀ {n} {Γ : Con Term n} {t A : Term n} {γ : Conₘ n} {m} →
        Γ ⊢ t ∷ A → γ ▸[ m ] t →
-       ∃ λ l → γ ▸ Γ ⊩ʳ⟨ l ⟩ t ∷[ m ] A)
+       γ ▸ Γ ⊩ʳ t ∷[ m ] A)
   negation-of-fundamental-lemma-with-erased-matches₂ {s} {str} ok ok′ hyp =
-    ¬t®t $ ▸⊩ʳ∷[𝟙ᵐ]→®∷ $ hyp ⊢Δ consistent ⊢t ▸t .proj₂
+    ¬t®t $ ▸⊩ʳ∷[𝟙ᵐ]→®∷ $ hyp ⊢Δ consistent ⊢t ▸t
     where
     open Erased s
     Δ : Con Term 1
@@ -168,7 +167,7 @@ opaque
 
     open LR ⊢Δ str
 
-    ¬t®t : ¬ t ®⟨ l ⟩ erase str t ∷ A
+    ¬t®t : ¬ t ® erase str t ∷ A
     ¬t®t t®t =
       case ®∷Id⇔ .proj₁ t®t of λ {
         (_ , rflᵣ t⇒* _) →
@@ -187,12 +186,12 @@ opaque
        Consistent Δ →
        ∀ {n} {Γ : Con Term n} {t A : Term n} {γ : Conₘ n} {m} →
        Γ ⊢ t ∷ A → γ ▸[ m ] t →
-       ∃ λ l → γ ▸ Γ ⊩ʳ⟨ l ⟩ t ∷[ m ] A)
+       γ ▸ Γ ⊩ʳ t ∷[ m ] A)
   negation-of-fundamental-lemma-with-erased-matches₃
     {str} ≡not-none hyp =
     case soundness-ℕ-only-source-counterexample₃ ≡not-none of λ
       (consistent , ⊢t , ▸t , _) →
-    ¬t®t $ ▸⊩ʳ∷[𝟙ᵐ]→®∷ $ hyp ⊢Δ consistent ⊢t ▸t .proj₂
+    ¬t®t $ ▸⊩ʳ∷[𝟙ᵐ]→®∷ $ hyp ⊢Δ consistent ⊢t ▸t
     where
     Δ : Con Term 1
     Δ = ε ∙ Id ℕ zero zero
@@ -208,7 +207,7 @@ opaque
 
     open LR ⊢Δ str
 
-    ¬t®t : ¬ t ®⟨ l ⟩ erase str t ∷ A
+    ¬t®t : ¬ t ® erase str t ∷ A
     ¬t®t t®t = case ®∷ℕ⇔ .proj₁ t®t of λ where
       (zeroᵣ t⇒* _)    → case whnfRed*Term t⇒* (ne (Jₙ (var _))) of λ ()
       (sucᵣ t⇒* _ _ _) → case whnfRed*Term t⇒* (ne (Jₙ (var _))) of λ ()
@@ -227,12 +226,12 @@ opaque
        Consistent Δ →
        ∀ {n} {Γ : Con Term n} {t A : Term n} {γ : Conₘ n} {m} →
        Γ ⊢ t ∷ A → γ ▸[ m ] t →
-       ∃ λ l → γ ▸ Γ ⊩ʳ⟨ l ⟩ t ∷[ m ] A)
+       γ ▸ Γ ⊩ʳ t ∷[ m ] A)
   negation-of-fundamental-lemma-with-erased-matches₄
     {str} K-ok ≡not-none hyp =
     case soundness-ℕ-only-source-counterexample₄ K-ok ≡not-none of λ
       (consistent , ⊢t , ▸t , _) →
-    ¬t®t $ ▸⊩ʳ∷[𝟙ᵐ]→®∷ $ hyp ⊢Δ consistent ⊢t ▸t .proj₂
+    ¬t®t $ ▸⊩ʳ∷[𝟙ᵐ]→®∷ $ hyp ⊢Δ consistent ⊢t ▸t
     where
     Δ : Con Term 1
     Δ = ε ∙ Id ℕ zero zero
@@ -248,7 +247,7 @@ opaque
 
     open LR ⊢Δ str
 
-    ¬t®t : ¬ t ®⟨ l ⟩ erase str t ∷ A
+    ¬t®t : ¬ t ® erase str t ∷ A
     ¬t®t t®t = case ®∷ℕ⇔ .proj₁ t®t of λ where
       (zeroᵣ t⇒* _)    → case whnfRed*Term t⇒* (ne (Kₙ (var _))) of λ ()
       (sucᵣ t⇒* _ _ _) → case whnfRed*Term t⇒* (ne (Kₙ (var _))) of λ ()
@@ -270,12 +269,12 @@ opaque
        Consistent Δ →
        ∀ {n} {Γ : Con Term n} {t A : Term n} {γ : Conₘ n} {m} →
        Γ ⊢ t ∷ A → γ ▸[ m ] t →
-       ∃ λ l → γ ▸ Γ ⊩ʳ⟨ l ⟩ t ∷[ m ] A)
+       γ ▸ Γ ⊩ʳ t ∷[ m ] A)
   negation-of-fundamental-lemma-with-erased-matches₅
     {str} Unit-ok ok no-η hyp =
     case soundness-ℕ-only-source-counterexample₅ ok Unit-ok no-η of λ
       (consistent , ⊢t , ▸t , _) →
-    ¬t®t $ ▸⊩ʳ∷[𝟙ᵐ]→®∷ $ hyp ⊢Δ consistent ⊢t ▸t .proj₂
+    ¬t®t $ ▸⊩ʳ∷[𝟙ᵐ]→®∷ $ hyp ⊢Δ consistent ⊢t ▸t
     where
     Δ : Con Term 1
     Δ = ε ∙ Unitʷ
@@ -291,7 +290,7 @@ opaque
 
     open LR ⊢Δ str
 
-    ¬t®t : ¬ t ®⟨ l ⟩ erase str t ∷ A
+    ¬t®t : ¬ t ® erase str t ∷ A
     ¬t®t t®t = case ®∷ℕ⇔ .proj₁ t®t of λ where
       (zeroᵣ t⇒* _)    →
         case whnfRed*Term t⇒* (ne (unitrecₙ no-η (var _))) of λ ()
@@ -309,11 +308,11 @@ opaque
        let open LR ⊢Δ str in
        ∀ {n} {Γ : Con Term n} {t A : Term n} {γ : Conₘ n} {m} →
        Γ ⊢ t ∷ A → γ ▸[ m ] t →
-       ∃ λ l → γ ▸ Γ ⊩ʳ⟨ l ⟩ t ∷[ m ] A)
+       γ ▸ Γ ⊩ʳ t ∷[ m ] A)
   negation-of-fundamental-lemma-without-consistency₆ {str} ok hyp =
     case soundness-ℕ-counterexample₆ {str = str} ok of λ
       (⊢t , ▸t , _) →
-    ¬t®t $ ▸⊩ʳ∷[𝟙ᵐ]→®∷ $ hyp ⊢Δ ⊢t ▸t .proj₂
+    ¬t®t $ ▸⊩ʳ∷[𝟙ᵐ]→®∷ $ hyp ⊢Δ ⊢t ▸t
     where
     Δ : Con Term 1
     Δ = ε ∙ Empty
@@ -329,7 +328,7 @@ opaque
 
     open LR ⊢Δ str
 
-    ¬t®t : ¬ t ®⟨ l ⟩ erase str t ∷ A
+    ¬t®t : ¬ t ® erase str t ∷ A
     ¬t®t t®t = case ®∷ℕ⇔ .proj₁ t®t of λ where
       (zeroᵣ t⇒* _)    → case whnfRed*Term t⇒* (ne (emptyrecₙ (var _))) of λ ()
       (sucᵣ t⇒* _ _ _) → case whnfRed*Term t⇒* (ne (emptyrecₙ (var _))) of λ ()

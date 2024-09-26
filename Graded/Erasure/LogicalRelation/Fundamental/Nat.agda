@@ -65,22 +65,22 @@ private
     t′ u′ v′ : T.Term n
     p q r : M
     m : Mode
-    l l′ l″ l‴ : Universe-level
+    l : Universe-level
 
 opaque
 
   -- Validity of ℕ.
 
-  ℕʳ : γ ▸ Γ ⊩ʳ⟨ 1 ⟩ ℕ ∷[ m ] U 0
+  ℕʳ : γ ▸ Γ ⊩ʳ ℕ ∷[ m ] U 0
   ℕʳ =
     ▸⊩ʳ∷⇔ .proj₂ λ _ _ →
-    ®∷→®∷◂ (®∷U⇔ .proj₂ (≤ᵘ-refl , Uᵣ (λ { PE.refl → T.refl })))
+    ®∷→®∷◂ (®∷U⇔ .proj₂ (_ , ≤ᵘ-refl , Uᵣ (λ { PE.refl → T.refl })))
 
 opaque
 
   -- Validity of zero.
 
-  zeroʳ : γ ▸ Γ ⊩ʳ⟨ l ⟩ zero ∷[ m ] ℕ
+  zeroʳ : γ ▸ Γ ⊩ʳ zero ∷[ m ] ℕ
   zeroʳ =
     ▸⊩ʳ∷⇔ .proj₂ λ _ _ →
     ®∷→®∷◂ $ ®∷ℕ⇔ .proj₂ $
@@ -92,10 +92,10 @@ opaque
 
   sucʳ :
     Γ ⊢ t ∷ ℕ →
-    γ ▸ Γ ⊩ʳ⟨ l ⟩ t ∷[ m ] ℕ →
-    γ ▸ Γ ⊩ʳ⟨ l ⟩ suc t ∷[ m ] ℕ
-  sucʳ         {m = 𝟘ᵐ} _  _   = ▸⊩ʳ∷[𝟘ᵐ]
-  sucʳ {t} {l} {m = 𝟙ᵐ} ⊢t ⊩ʳt =
+    γ ▸ Γ ⊩ʳ t ∷[ m ] ℕ →
+    γ ▸ Γ ⊩ʳ suc t ∷[ m ] ℕ
+  sucʳ     {m = 𝟘ᵐ} _  _   = ▸⊩ʳ∷[𝟘ᵐ]
+  sucʳ {t} {m = 𝟙ᵐ} ⊢t ⊩ʳt =
     ▸⊩ʳ∷⇔ .proj₂ λ {σ = σ} {σ′ = σ′} ⊩σ σ®σ′ →
     case escape-⊩ˢ∷ ⊩σ of λ
       (⊢Δ , ⊢σ) →
@@ -105,10 +105,10 @@ opaque
     of λ
       suc-t[σ]⇒*suc-t[σ] →
 
-    case                                           $⟨ ▸⊩ʳ∷⇔ .proj₁ ⊩ʳt ⊩σ σ®σ′ ⟩
-      t [ σ ] ®⟨ l ⟩ erase str t T.[ σ′ ] ∷ ℕ ◂ 𝟙  →⟨ ®∷→®∷◂ω non-trivial ⟩
-      t [ σ ] ®⟨ l ⟩ erase str t T.[ σ′ ] ∷ ℕ      ⇔⟨ ®∷ℕ⇔ ⟩→
-      t [ σ ] ® erase str t T.[ σ′ ] ∷ℕ            □
+    case                                      $⟨ ▸⊩ʳ∷⇔ .proj₁ ⊩ʳt ⊩σ σ®σ′ ⟩
+      t [ σ ] ® erase str t T.[ σ′ ] ∷ ℕ ◂ 𝟙  →⟨ ®∷→®∷◂ω non-trivial ⟩
+      t [ σ ] ® erase str t T.[ σ′ ] ∷ ℕ      →⟨ ®∷ℕ⇔ .proj₁ ⟩
+      t [ σ ] ® erase str t T.[ σ′ ] ∷ℕ       □
     of λ
       t[σ]®t[σ′] →
 
@@ -127,11 +127,11 @@ opaque
 
            T.suc v′                                     ∎⇒)
           v′-num
-          (                                              $⟨ t[σ]®t[σ′] ⟩
-           t [ σ ] ® erase T.strict t T.[ σ′ ] ∷ℕ        ⇔˘⟨ ®∷ℕ⇔ ⟩→
-           t [ σ ] ®⟨ l ⟩ erase T.strict t T.[ σ′ ] ∷ ℕ  →⟨ ®∷-⇒* erase-t[σ′]⇒*v′ ⟩
-           t [ σ ] ®⟨ l ⟩ v′ ∷ ℕ                         ⇔⟨ ®∷ℕ⇔ ⟩→
-           t [ σ ] ® v′ ∷ℕ                               □)
+          (                                         $⟨ t[σ]®t[σ′] ⟩
+           t [ σ ] ® erase T.strict t T.[ σ′ ] ∷ℕ   ⇔˘⟨ ®∷ℕ⇔ ⟩→
+           t [ σ ] ® erase T.strict t T.[ σ′ ] ∷ ℕ  →⟨ ®∷-⇒* erase-t[σ′]⇒*v′ ⟩
+           t [ σ ] ® v′ ∷ ℕ                         ⇔⟨ ®∷ℕ⇔ ⟩→
+           t [ σ ] ® v′ ∷ℕ                          □)
 
 private opaque
 
@@ -152,73 +152,72 @@ opaque
     Δ ∙ ℕ ⊢ A →
     Δ ⊢ t ∷ A [ zero ]₀ →
     Δ ∙ ℕ ∙ A ⊢ u ∷ A [ suc (var x1) ]↑² →
-    t ®⟨ l ⟩ t′ ∷ A [ zero ]₀ →
+    t ® t′ ∷ A [ zero ]₀ →
     (∀ {v v′ w w′} →
      v ® v′ ∷ℕ →
      Δ ⊢ w ∷ A [ v ]₀ →
-     w ®⟨ l ⟩ w′ ∷ A [ v ]₀ →
-     u [ v , w ]₁₀ ®⟨ l ⟩ u′ T.[ v′ , w′ ]₁₀ ∷ A [ suc v ]₀) →
+     w ® w′ ∷ A [ v ]₀ →
+     u [ v , w ]₁₀ ® u′ T.[ v′ , w′ ]₁₀ ∷ A [ suc v ]₀) →
     v ® v′ ∷ℕ →
-    natrec p q r A t u v ®⟨ l ⟩ T.natrec t′ u′ v′ ∷ A [ v ]₀
+    natrec p q r A t u v ® T.natrec t′ u′ v′ ∷ A [ v ]₀
   natrecʳ′
-    {l} {A} {t} {u} {t′} {u′} {v} {v′} {p} {q} {r}
+    {A} {t} {u} {t′} {u′} {v} {v′} {p} {q} {r}
     A≡A ⊢A ⊢t ⊢u t®t′ u®u′ = λ where
-      (zeroᵣ v⇒zero v′⇒zero) →                                           $⟨ t®t′ ⟩
+      (zeroᵣ v⇒zero v′⇒zero) →                                         $⟨ t®t′ ⟩
+        t ® t′ ∷ A [ zero ]₀                                           →⟨ ®∷-⇐* (redMany (natrec-zero ⊢A ⊢t ⊢u))
+                                                                            (T.trans T.natrec-zero T.refl) ⟩
+        natrec p q r A t u zero ® T.natrec t′ u′ T.zero ∷ A [ zero ]₀  →⟨ conv-®∷ $ A≡A v⇒zero ⟩
+        natrec p q r A t u zero ® T.natrec t′ u′ T.zero ∷ A [ v ]₀     →⟨ ®∷-⇐* (RS.natrec-subst* ⊢A ⊢t ⊢u v⇒zero)
+                                                                            (TP.natrec-subst* v′⇒zero) ⟩
+        natrec p q r A t u v ® T.natrec t′ u′ v′ ∷ A [ v ]₀            □
 
-        t ®⟨ l ⟩ t′ ∷ A [ zero ]₀                                        →⟨ ®∷-⇐* (redMany (natrec-zero ⊢A ⊢t ⊢u))
-                                                                              (T.trans T.natrec-zero T.refl) ⟩
-        natrec p q r A t u zero ®⟨ l ⟩ T.natrec t′ u′ T.zero ∷
-          A [ zero ]₀                                                    →⟨ conv-®∷ $ A≡A v⇒zero ⟩
+      (sucᵣ {t′ = w} {v′ = w′} v⇒suc-w v′⇒suc-w′ _ w®w′) →        $⟨ natrecʳ′ A≡A ⊢A ⊢t ⊢u t®t′ u®u′ w®w′ ⟩
 
-        natrec p q r A t u zero ®⟨ l ⟩ T.natrec t′ u′ T.zero ∷ A [ v ]₀  →⟨ ®∷-⇐* (RS.natrec-subst* ⊢A ⊢t ⊢u v⇒zero)
-                                                                              (TP.natrec-subst* v′⇒zero) ⟩
-        natrec p q r A t u v ®⟨ l ⟩ T.natrec t′ u′ v′ ∷ A [ v ]₀         □
-
-      (sucᵣ {t′ = w} {v′ = w′} v⇒suc-w v′⇒suc-w′ _ w®w′) →             $⟨ natrecʳ′ A≡A ⊢A ⊢t ⊢u t®t′ u®u′ w®w′ ⟩
-
-        natrec p q r A t u w ®⟨ l ⟩ T.natrec t′ u′ w′ ∷ A [ w ]₀       →⟨ u®u′ w®w′ $
-                                                                          natrecⱼ ⊢A ⊢t ⊢u (®∷ℕ→⊢∷ℕ w®w′) ⟩
-        u [ w , natrec p q r A t u w ]₁₀ ®⟨ l ⟩
-          u′ T.[ w′ , T.natrec t′ u′ w′ ]₁₀ ∷ A [ suc w ]₀             →⟨ ®∷-⇐*
-                                                                            (redMany $ natrec-suc ⊢A ⊢t ⊢u $
-                                                                             inversion-suc (syntacticRedTerm v⇒suc-w .proj₂ .proj₂) .proj₁)
-                                                                            (T.trans T.natrec-suc T.refl) ⟩
-        natrec p q r A t u (suc w) ®⟨ l ⟩ T.natrec t′ u′ (T.suc w′) ∷
-          A [ suc w ]₀                                                 →⟨ conv-®∷ $ A≡A v⇒suc-w ⟩
-        natrec p q r A t u (suc w) ®⟨ l ⟩ T.natrec t′ u′ (T.suc w′) ∷
-          A [ v ]₀                                                     →⟨ ®∷-⇐* (RS.natrec-subst* ⊢A ⊢t ⊢u v⇒suc-w)
-                                                                            (TP.natrec-subst* v′⇒suc-w′) ⟩
-        natrec p q r A t u v ®⟨ l ⟩ T.natrec t′ u′ v′ ∷ A [ v ]₀       □
+        natrec p q r A t u w ® T.natrec t′ u′ w′ ∷ A [ w ]₀       →⟨ u®u′ w®w′ $
+                                                                     natrecⱼ ⊢A ⊢t ⊢u (®∷ℕ→⊢∷ℕ w®w′) ⟩
+        u [ w , natrec p q r A t u w ]₁₀ ®
+          u′ T.[ w′ , T.natrec t′ u′ w′ ]₁₀ ∷ A [ suc w ]₀        →⟨ ®∷-⇐*
+                                                                       (redMany $ natrec-suc ⊢A ⊢t ⊢u $
+                                                                        inversion-suc (syntacticRedTerm v⇒suc-w .proj₂ .proj₂) .proj₁)
+                                                                       (T.trans T.natrec-suc T.refl) ⟩
+        natrec p q r A t u (suc w) ® T.natrec t′ u′ (T.suc w′) ∷
+          A [ suc w ]₀                                            →⟨ conv-®∷ $ A≡A v⇒suc-w ⟩
+        natrec p q r A t u (suc w) ® T.natrec t′ u′ (T.suc w′) ∷
+          A [ v ]₀                                                →⟨ ®∷-⇐* (RS.natrec-subst* ⊢A ⊢t ⊢u v⇒suc-w)
+                                                                       (TP.natrec-subst* v′⇒suc-w′) ⟩
+        natrec p q r A t u v ® T.natrec t′ u′ v′ ∷ A [ v ]₀       □
 
 opaque
 
   -- Validity of natrec.
 
   natrecʳ :
-    Γ ∙ ℕ ⊩ᵛ⟨ l ⟩ A →
     Γ ⊢ t ∷ A [ zero ]₀ →
     Γ ∙ ℕ ∙ A ⊢ u ∷ A [ suc (var x1) ]↑² →
     Γ ⊢ v ∷ ℕ →
-    γ ▸ Γ ⊩ʳ⟨ l′ ⟩ t ∷[ m ] A [ zero ]₀ →
-    δ ∙ ⌜ m ⌝ · p ∙ ⌜ m ⌝ · r ▸ Γ ∙ ℕ ∙ A ⊩ʳ⟨ l″ ⟩ u ∷[ m ]
+    γ ▸ Γ ⊩ʳ t ∷[ m ] A [ zero ]₀ →
+    δ ∙ ⌜ m ⌝ · p ∙ ⌜ m ⌝ · r ▸ Γ ∙ ℕ ∙ A ⊩ʳ u ∷[ m ]
       A [ suc (var x1) ]↑² →
-    η ▸ Γ ⊩ʳ⟨ l‴ ⟩ v ∷[ m ] ℕ →
+    η ▸ Γ ⊩ʳ v ∷[ m ] ℕ →
     (∀ x → χ ⟨ x ⟩ PE.≡ 𝟘 →
      γ ⟨ x ⟩ PE.≡ 𝟘 × η ⟨ x ⟩ PE.≡ 𝟘 × δ ⟨ x ⟩ PE.≡ 𝟘) →
-    χ ▸ Γ ⊩ʳ⟨ l ⟩ natrec p q r A t u v ∷[ m ] A [ v ]₀
-  natrecʳ {m = 𝟘ᵐ} _ _ _ _ _ _ _ _ =
+    χ ▸ Γ ⊩ʳ natrec p q r A t u v ∷[ m ] A [ v ]₀
+  natrecʳ {m = 𝟘ᵐ} _ _ _ _ _ _ _ =
     ▸⊩ʳ∷[𝟘ᵐ]
   natrecʳ
-    {Γ} {l} {A} {t} {u} {v} {γ} {l′} {m = 𝟙ᵐ} {δ} {p} {r} {l″} {η} {l‴}
-    {χ} {q} ⊩A ⊢t ⊢u ⊢v ⊩ʳt ⊩ʳu ⊩ʳv ≡𝟘→≡𝟘 =
+    {Γ} {t} {A} {u} {v} {γ} {m = 𝟙ᵐ} {δ} {p} {r} {η} {χ} {q}
+    ⊢t ⊢u ⊢v ⊩ʳt ⊩ʳu ⊩ʳv ≡𝟘→≡𝟘 =
     ▸⊩ʳ∷⇔ .proj₂ λ {σ = σ} {σ′ = σ′} ⊩σ σ®σ′ →
-    case                                                            $⟨ σ®σ′ ⟩
-      σ ® σ′ ∷[ 𝟙ᵐ ] Γ ◂ χ                                          →⟨ subsumption-®∷[]◂ (λ x → proj₁ ∘→ ≡𝟘→≡𝟘 x) ⟩
-      σ ® σ′ ∷[ 𝟙ᵐ ] Γ ◂ γ                                          →⟨ ▸⊩ʳ∷⇔ .proj₁ ⊩ʳt ⊩σ ⟩
-      t [ σ ] ®⟨ l′ ⟩ erase str t T.[ σ′ ] ∷ A [ zero ]₀ [ σ ] ◂ 𝟙  →⟨ ®∷→®∷◂ω non-trivial ⟩
-      t [ σ ] ®⟨ l′ ⟩ erase str t T.[ σ′ ] ∷ A [ zero ]₀ [ σ ]      ≡⟨ PE.cong (_®⟨_⟩_∷_ _ _ _) $ singleSubstLift A _ ⟩→
-      t [ σ ] ®⟨ l′ ⟩ erase str t T.[ σ′ ] ∷ A [ σ ⇑ ] [ zero ]₀    →⟨ level-®∷ $ ⊩ᵛ→⊩ˢ∷→⊩∷→⊩[⇑][]₀ ⊩A ⊩σ (⊩zero {l = l} ⊢Δ) ⟩
-      t [ σ ] ®⟨ l ⟩ erase str t T.[ σ′ ] ∷ A [ σ ⇑ ] [ zero ]₀     □
+    case wfTerm ⊢u of λ {
+      (_ ∙ ⊢A) →
+    case fundamental-⊩ᵛ ⊢A of λ
+      (_ , ⊩A) →
+    case                                                      $⟨ σ®σ′ ⟩
+      σ ® σ′ ∷[ 𝟙ᵐ ] Γ ◂ χ                                    →⟨ subsumption-®∷[]◂ (λ x → proj₁ ∘→ ≡𝟘→≡𝟘 x) ⟩
+      σ ® σ′ ∷[ 𝟙ᵐ ] Γ ◂ γ                                    →⟨ ▸⊩ʳ∷⇔ .proj₁ ⊩ʳt ⊩σ ⟩
+      t [ σ ] ® erase str t T.[ σ′ ] ∷ A [ zero ]₀ [ σ ] ◂ 𝟙  →⟨ ®∷→®∷◂ω non-trivial ⟩
+      t [ σ ] ® erase str t T.[ σ′ ] ∷ A [ zero ]₀ [ σ ]      ≡⟨ PE.cong (_®_∷_ _ _) (singleSubstLift A _) ⟩→
+      t [ σ ] ® erase str t T.[ σ′ ] ∷ A [ σ ⇑ ] [ zero ]₀    □
     of λ
       t[σ]®t[σ′] →
 
@@ -226,7 +225,7 @@ opaque
       (λ {v = v} {v′ = v′} {w = w} {w′ = w′}
          (v®v′ : v ® v′ ∷ℕ)
          (⊢w : Δ ⊢ w ∷ A [ σ ⇑ ] [ v ]₀)
-         (w®w′ : w ®⟨ l ⟩ w′ ∷ A [ σ ⇑ ] [ v ]₀) →
+         (w®w′ : w ® w′ ∷ A [ σ ⇑ ] [ v ]₀) →
          case reducible-⊩∷ (®∷ℕ→⊢∷ℕ v®v′) of λ
            (_ , ⊩v) →                                                $⟨ σ®σ′ ⟩
 
@@ -234,12 +233,8 @@ opaque
 
          σ ® σ′ ∷[ 𝟙ᵐ ] Γ ◂ δ                                        →⟨ (λ σ®σ′ →
                                                                            ®∷[]∙◂∙⇔ .proj₂
-                                                                             ( ( _
-                                                                               , ®∷→®∷◂
-                                                                                   (PE.subst (_®⟨_⟩_∷_ _ _ _) (singleSubstComp _ _ A)
-                                                                                      w®w′)
-                                                                               )
-                                                                             , ®∷[]∙◂∙⇔ .proj₂ ((_ , ®∷→®∷◂ (®∷ℕ⇔ {l = l} .proj₂ v®v′)) , σ®σ′)
+                                                                             ( ®∷→®∷◂ (PE.subst (_®_∷_ _ _) (singleSubstComp _ _ A) w®w′)
+                                                                             , ®∷[]∙◂∙⇔ .proj₂ (®∷→®∷◂ (®∷ℕ⇔ .proj₂ v®v′) , σ®σ′)
                                                                              )) ⟩
          consSubst (consSubst σ v) w ®
            T.consSubst (T.consSubst σ′ v′) w′ ∷[ 𝟙ᵐ ] Γ ∙ ℕ ∙ A ◂
@@ -252,50 +247,48 @@ opaque
                                                                             )
                                                                           , ⊩ˢ∷∙⇔′ .proj₂ (wf-∙-⊩ᵛ ⊩A , (_ , ⊩v) , ⊩σ)
                                                                           ) ⟩
-         u [ consSubst (consSubst σ v) w ] ®⟨ l″ ⟩
+         u [ consSubst (consSubst σ v) w ] ®
            erase str u T.[ T.consSubst (T.consSubst σ′ v′) w′ ] ∷
-           A [ suc (var x1) ]↑² [ consSubst (consSubst σ v) w ] ◂ 𝟙  ≡⟨ PE.cong₅ _®⟨_⟩_∷_◂_ (PE.sym $ doubleSubstComp u _ _ _) PE.refl
+           A [ suc (var x1) ]↑² [ consSubst (consSubst σ v) w ] ◂ 𝟙  ≡⟨ PE.cong₄ _®_∷_◂_ (PE.sym $ doubleSubstComp u _ _ _)
                                                                           (PE.sym $ TP.doubleSubstComp (erase _ u) _ _ _)
                                                                           (
            A [ suc (var x1) ]↑² [ consSubst (consSubst σ v) w ]            ≡˘⟨ substComp↑² A _ ⟩
            A [ consSubst σ (suc v) ]                                       ≡˘⟨ singleSubstComp _ _ A ⟩
            A [ σ ⇑ ] [ suc v ]₀                                            ∎)
                                                                           PE.refl ⟩→
-         u [ σ ⇑ ⇑ ] [ v , w ]₁₀ ®⟨ l″ ⟩
+         u [ σ ⇑ ⇑ ] [ v , w ]₁₀ ®
            erase str u T.[ σ′ T.⇑ T.⇑ ] T.[ v′ , w′ ]₁₀ ∷
-           A [ σ ⇑ ] [ suc v ]₀ ◂ 𝟙                                  →⟨ level-®∷ (⊩ᵛ→⊩ˢ∷→⊩∷→⊩[⇑][]₀ ⊩A ⊩σ (⊩suc ⊩v)) ∘→
-                                                                        ®∷→®∷◂ω non-trivial ⟩
-         u [ σ ⇑ ⇑ ] [ v , w ]₁₀ ®⟨ l ⟩
+           A [ σ ⇑ ] [ suc v ]₀ ◂ 𝟙                                  →⟨ ®∷→®∷◂ω non-trivial ⟩
+
+         u [ σ ⇑ ⇑ ] [ v , w ]₁₀ ®
            erase str u T.[ σ′ T.⇑ T.⇑ ] T.[ v′ , w′ ]₁₀ ∷
            A [ σ ⇑ ] [ suc v ]₀                                      □)
     of λ
-      u[σ⇑⇑]®u[σ′⇑⇑] →                                            $⟨ σ®σ′ ⟩
+      u[σ⇑⇑]®u[σ′⇑⇑] →                                             $⟨ σ®σ′ ⟩
 
-    σ ® σ′ ∷[ 𝟙ᵐ ] Γ ◂ χ                                          →⟨ subsumption-®∷[]◂ (λ x → proj₁ ∘→ proj₂ ∘→ ≡𝟘→≡𝟘 x) ⟩
+    σ ® σ′ ∷[ 𝟙ᵐ ] Γ ◂ χ                                           →⟨ subsumption-®∷[]◂ (λ x → proj₁ ∘→ proj₂ ∘→ ≡𝟘→≡𝟘 x) ⟩
 
-    σ ® σ′ ∷[ 𝟙ᵐ ] Γ ◂ η                                          →⟨ ▸⊩ʳ∷⇔ .proj₁ ⊩ʳv ⊩σ ⟩
+    σ ® σ′ ∷[ 𝟙ᵐ ] Γ ◂ η                                           →⟨ ▸⊩ʳ∷⇔ .proj₁ ⊩ʳv ⊩σ ⟩
 
-    v [ σ ] ®⟨ l‴ ⟩ erase str v T.[ σ′ ] ∷ ℕ ◂ 𝟙                  →⟨ ®∷ℕ⇔ .proj₁ ∘→ ®∷→®∷◂ω non-trivial ⟩
+    v [ σ ] ® erase str v T.[ σ′ ] ∷ ℕ ◂ 𝟙                         →⟨ ®∷ℕ⇔ .proj₁ ∘→ ®∷→®∷◂ω non-trivial ⟩
 
-    v [ σ ] ® erase str v T.[ σ′ ] ∷ℕ                             →⟨ natrecʳ′
-                                                                       (⊩ᵛ≡→⊩ˢ≡∷→⊩≡∷→⊩[⇑][]₀≡[⇑][]₀ (refl-⊩ᵛ≡ ⊩A) (refl-⊩ˢ≡∷ ⊩σ) ∘→
-                                                                        sym-⊩≡∷ ∘→ proj₂ ∘→ reducible-⊩≡∷ ∘→ subset*Term)
-                                                                       (escape $ ⊩ᵛ→⊩ˢ∷→⊩[⇑] ⊩A ⊩σ)
-                                                                       (PE.subst (_⊢_∷_ _ _) (singleSubstLift A _) $
-                                                                        escape-⊩∷ $ ⊩ᵛ∷→⊩ˢ∷→⊩[]∷ (fundamental-⊩ᵛ∷ ⊢t .proj₂) ⊩σ)
-                                                                       (PE.subst (_⊢_∷_ _ _) (natrecSucCase _ A) $
-                                                                        escape-⊩∷ $ ⊩ᵛ∷→⊩ˢ∷→⊩[⇑⇑]∷ (fundamental-⊩ᵛ∷ ⊢u .proj₂) ⊩σ)
-                                                                       t[σ]®t[σ′] u[σ⇑⇑]®u[σ′⇑⇑] ⟩
-    (natrec p q r (A [ σ ⇑ ]) (t [ σ ]) (u [ σ ⇑ ⇑ ]) (v [ σ ])
-       ®⟨ l ⟩
+    v [ σ ] ® erase str v T.[ σ′ ] ∷ℕ                              →⟨ natrecʳ′
+                                                                        (⊩ᵛ≡→⊩ˢ≡∷→⊩≡∷→⊩[⇑][]₀≡[⇑][]₀ (refl-⊩ᵛ≡ ⊩A) (refl-⊩ˢ≡∷ ⊩σ) ∘→
+                                                                         sym-⊩≡∷ ∘→ proj₂ ∘→ reducible-⊩≡∷ ∘→ subset*Term)
+                                                                        (escape $ ⊩ᵛ→⊩ˢ∷→⊩[⇑] ⊩A ⊩σ)
+                                                                        (PE.subst (_⊢_∷_ _ _) (singleSubstLift A _) $
+                                                                         escape-⊩∷ $ ⊩ᵛ∷→⊩ˢ∷→⊩[]∷ (fundamental-⊩ᵛ∷ ⊢t .proj₂) ⊩σ)
+                                                                        (PE.subst (_⊢_∷_ _ _) (natrecSucCase _ A) $
+                                                                         escape-⊩∷ $ ⊩ᵛ∷→⊩ˢ∷→⊩[⇑⇑]∷ (fundamental-⊩ᵛ∷ ⊢u .proj₂) ⊩σ)
+                                                                        t[σ]®t[σ′] u[σ⇑⇑]®u[σ′⇑⇑] ⟩
+    (natrec p q r (A [ σ ⇑ ]) (t [ σ ]) (u [ σ ⇑ ⇑ ]) (v [ σ ]) ®
        T.natrec (erase str t T.[ σ′ ])
          (erase str u T.[ σ′ T.⇑ T.⇑ ]) (erase str v T.[ σ′ ]) ∷
-       A [ σ ⇑ ] [ v [ σ ] ]₀)                                    →⟨ ®∷→®∷◂ ∘→
-                                                                     PE.subst (_®⟨_⟩_∷_ _ _ _) (PE.sym $ singleSubstLift A _) ⟩
-    natrec p q r (A [ σ ⇑ ]) (t [ σ ]) (u [ σ ⇑ ⇑ ]) (v [ σ ])
-      ®⟨ l ⟩
+       A [ σ ⇑ ] [ v [ σ ] ]₀)                                     →⟨ ®∷→®∷◂ ∘→
+                                                                      PE.subst (_®_∷_ _ _) (PE.sym $ singleSubstLift A _) ⟩
+    natrec p q r (A [ σ ⇑ ]) (t [ σ ]) (u [ σ ⇑ ⇑ ]) (v [ σ ]) ®
       T.natrec (erase str t T.[ σ′ ])
         (erase str u T.[ σ′ T.⇑ T.⇑ ]) (erase str v T.[ σ′ ]) ∷
-      A [ v ]₀ [ σ ] ◂ 𝟙                                          □
+      A [ v ]₀ [ σ ] ◂ 𝟙                                           □ }
     where
     open Tools.Reasoning.PropositionalEquality

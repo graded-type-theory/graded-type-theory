@@ -33,16 +33,16 @@ private variable
   l   : Universe-level
 
 opaque
-  unfolding _®⟨_⟩_∷_
+  unfolding _®_∷_
 
   -- In the strict setting, if t is related to u, then u reduces to a
   -- value.
 
   reduces-to-value :
     str ≡ strict →
-    t ®⟨ l ⟩ u ∷ A →
+    t ® u ∷ A →
     ∃ λ v → T.Value v × u T.⇒* v
-  reduces-to-value refl = uncurry helper
+  reduces-to-value refl (_ , ⊩A , t®u) = helper ⊩A t®u
     where
     helper :
       (⊩A : Δ ⊩⟨ l ⟩ A) →

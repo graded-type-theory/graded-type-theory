@@ -75,7 +75,7 @@ opaque
               { well-formed       = wfTerm ⊢v
               ; other-assumptions = ok
               })
-           ⊢v ▸v .proj₂ of λ {
+           ⊢v ▸v of λ {
       (_ , rflᵣ v⇒rfl _) →
     inversion-rfl-Id
       (syntacticEqTerm (subset*Term v⇒rfl) .proj₂ .proj₂) }

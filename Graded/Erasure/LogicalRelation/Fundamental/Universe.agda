@@ -35,7 +35,7 @@ opaque
 
   -- Validity for U.
 
-  Uʳ : γ ▸ Γ ⊩ʳ⟨ 2+ l ⟩ U l ∷[ m ] U (1+ l)
+  Uʳ : γ ▸ Γ ⊩ʳ U l ∷[ m ] U (1+ l)
   Uʳ =
     ▸⊩ʳ∷⇔ .proj₂ λ _ _ →
-    ®∷→®∷◂ (®∷U⇔ .proj₂ (≤ᵘ-refl , Uᵣ (λ { PE.refl → T.refl })))
+    ®∷→®∷◂ (®∷U⇔ .proj₂ (_ , ≤ᵘ-refl , Uᵣ (λ { PE.refl → T.refl })))
