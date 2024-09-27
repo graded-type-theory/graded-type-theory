@@ -40,28 +40,19 @@ private
     s : Strength
     bm : BinderMode
 
--- Generic equality relation used with the logical relation
+-- If Equality-relations _⊢_≅_ _⊢_≅_∷_ _⊢_~_∷_ holds, then one can
+-- instantiate the logical relation in Definition.LogicalRelation with
+-- these relations and prove the fundamental lemma.
 
-record EqRelSet : Set (lsuc ℓ) where
-  constructor eqRel
+record Equality-relations
+  -- Equality of types.
+  (_⊢_≅_ : ∀ {n} → Con Term n → (_ _ : Term n) → Set ℓ)
+  -- Equality of terms.
+  (_⊢_≅_∷_ : ∀ {n} → Con Term n → (_ _ _ : Term n) → Set ℓ)
+  -- Equality of neutral terms.
+  (_⊢_~_∷_ : ∀ {n} → Con Term n → (t u A : Term n) → Set ℓ) :
+  Set ℓ where
   field
-    ---------------
-    -- Relations --
-    ---------------
-
-    -- Equality of types
-    _⊢_≅_   : Con Term n → (A B : Term n)   → Set ℓ
-
-    -- Equality of terms
-    _⊢_≅_∷_ : Con Term n → (t u A : Term n) → Set ℓ
-
-    -- Equality of neutral terms
-    _⊢_~_∷_ : Con Term n → (t u A : Term n) → Set ℓ
-
-    ----------------
-    -- Properties --
-    ----------------
-
     -- Generic equality compatibility
     ~-to-≅ₜ : Γ ⊢ t ~ u ∷ A
             → Γ ⊢ t ≅ u ∷ A
@@ -324,3 +315,32 @@ record EqRelSet : Set (lsuc ℓ) where
 
     ≅-Unitrefl : ⊢ Γ → Unit-allowed s → Γ ⊢ Unit s ≅ Unit s
     ≅-Unitrefl ⊢Γ ok = ≅-univ (≅ₜ-Unitrefl ⊢Γ ok)
+
+-- Values of type EqRelSet contain three relations that the logical
+-- relation in Definition.LogicalRelation can be instantiated with.
+-- The assumed properties ensure that the fundamental lemma can be
+-- proved.
+
+record EqRelSet : Set (lsuc ℓ) where
+  constructor eqRel
+  field
+    ---------------
+    -- Relations --
+    ---------------
+
+    -- Equality of types
+    _⊢_≅_   : Con Term n → (A B : Term n)   → Set ℓ
+
+    -- Equality of terms
+    _⊢_≅_∷_ : Con Term n → (t u A : Term n) → Set ℓ
+
+    -- Equality of neutral terms
+    _⊢_~_∷_ : Con Term n → (t u A : Term n) → Set ℓ
+
+    ----------------
+    -- Properties --
+    ----------------
+
+    equality-relations : Equality-relations _⊢_≅_ _⊢_≅_∷_ _⊢_~_∷_
+
+  open Equality-relations equality-relations public
