@@ -24,7 +24,7 @@ open import Definition.Typed.Properties R
 open import Definition.Typed.RedSteps R
 open import Definition.Typed.Reasoning.Reduction.Primitive R
 open import Definition.LogicalRelation R
-open import Definition.LogicalRelation.Hidden R
+open import Definition.LogicalRelation.Hidden.Levels R
 open import Definition.LogicalRelation.Irrelevance R
 open import Definition.LogicalRelation.Properties R
 open import Definition.LogicalRelation.Substitution R
@@ -53,10 +53,10 @@ opaque
   -- Reducibility of equality between applications of emptyrec.
 
   ⊩emptyrec≡emptyrec :
-    Γ ⊩ᵛ⟨ l ⟩ A₁ ≡ A₂ →
-    Γ ⊩ᵛ⟨ l′ ⟩ t₁ ≡ t₂ ∷ Empty →
+    Γ ⊩ᵛ A₁ ≡ A₂ →
+    Γ ⊩ᵛ t₁ ≡ t₂ ∷ Empty →
     Δ ⊩ˢ σ₁ ≡ σ₂ ∷ Γ →
-    Δ ⊩⟨ l ⟩ emptyrec p A₁ t₁ [ σ₁ ] ≡ emptyrec p A₂ t₂ [ σ₂ ] ∷ A₁ [ σ₁ ]
+    Δ ⊩ emptyrec p A₁ t₁ [ σ₁ ] ≡ emptyrec p A₂ t₂ [ σ₂ ] ∷ A₁ [ σ₁ ]
   ⊩emptyrec≡emptyrec
     {A₁} {A₂} {t₁} {t₂} {σ₁} {σ₂} {p}
     A₁≡A₂ t₁≡t₂ σ₁≡σ₂ =
@@ -74,9 +74,9 @@ opaque
       ⊢A₁[σ₁]≡A₂[σ₂] →
     case wf-⊩≡ A₁[σ₁]≡A₂[σ₂] of λ
       (⊩A₁[σ₁] , ⊩A₂[σ₂]) →
-    case escape ⊩A₁[σ₁] of λ
+    case escape-⊩ ⊩A₁[σ₁] of λ
       ⊢A₁[σ₁] →
-    case escape ⊩A₂[σ₂] of λ
+    case escape-⊩ ⊩A₂[σ₂] of λ
       ⊢A₂[σ₂] →
     case rest of λ where
       (ne (neNfₜ₌ t₁′-ne t₂′-ne t₁′~t₂′)) →
@@ -96,9 +96,9 @@ opaque
   -- Validity of equality between applications of emptyrec
 
   emptyrec-congᵛ :
-    Γ ⊩ᵛ⟨ l ⟩ A₁ ≡ A₂ →
-    Γ ⊩ᵛ⟨ l′ ⟩ t₁ ≡ t₂ ∷ Empty →
-    Γ ⊩ᵛ⟨ l ⟩ emptyrec p A₁ t₁ ≡ emptyrec p A₂ t₂ ∷ A₁
+    Γ ⊩ᵛ A₁ ≡ A₂ →
+    Γ ⊩ᵛ t₁ ≡ t₂ ∷ Empty →
+    Γ ⊩ᵛ emptyrec p A₁ t₁ ≡ emptyrec p A₂ t₂ ∷ A₁
   emptyrec-congᵛ A₁≡A₂ t₁≡t₂ =
     ⊩ᵛ≡∷⇔ .proj₂
       ( wf-⊩ᵛ≡ A₁≡A₂ .proj₁
@@ -110,9 +110,9 @@ opaque
   -- Validity of emptyrec.
 
   emptyrecᵛ :
-    Γ ⊩ᵛ⟨ l ⟩ A →
-    Γ ⊩ᵛ⟨ l′ ⟩ t ∷ Empty →
-    Γ ⊩ᵛ⟨ l ⟩ emptyrec p A t ∷ A
+    Γ ⊩ᵛ A →
+    Γ ⊩ᵛ t ∷ Empty →
+    Γ ⊩ᵛ emptyrec p A t ∷ A
   emptyrecᵛ ⊩A ⊩t =
     ⊩ᵛ∷⇔⊩ᵛ≡∷ .proj₂ $
     emptyrec-congᵛ (refl-⊩ᵛ≡ ⊩A) (refl-⊩ᵛ≡∷ ⊩t)

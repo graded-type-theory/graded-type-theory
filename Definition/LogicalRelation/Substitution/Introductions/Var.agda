@@ -22,7 +22,8 @@ open import Definition.Untyped.Properties M
 open import Definition.Typed R
 open import Definition.Typed.Properties R
 open import Definition.LogicalRelation R
-open import Definition.LogicalRelation.Hidden R
+open import Definition.LogicalRelation.Hidden R as H
+open import Definition.LogicalRelation.Hidden.Levels R
 open import Definition.LogicalRelation.Substitution R
 
 open import Tools.Fin
@@ -41,14 +42,25 @@ opaque
 
   -- Reducibility for variables.
 
-  ⊩var :
+  ⊩⟨⟩var :
     x ∷ A ∈ Γ →
     Γ ⊩⟨ l ⟩ A →
     Γ ⊩⟨ l ⟩ var x ∷ A
-  ⊩var x∈Γ ⊩A =
-    case var (wf (escape-⊩ ⊩A)) x∈Γ of λ
+  ⊩⟨⟩var x∈Γ ⊩A =
+    case var (wf (H.escape-⊩ ⊩A)) x∈Γ of λ
       ⊢var →
-    neutral-⊩∷ ⊩A (var _) ⊢var (~-var ⊢var)
+    H.neutral-⊩∷ ⊩A (var _) ⊢var (~-var ⊢var)
+
+opaque
+  unfolding _⊩_ _⊩_∷_
+
+  -- Reducibility for variables.
+
+  ⊩var :
+    x ∷ A ∈ Γ →
+    Γ ⊩ A →
+    Γ ⊩ var x ∷ A
+  ⊩var x∈Γ (_ , ⊩A) = _ , ⊩⟨⟩var x∈Γ ⊩A
 
 opaque
 
@@ -57,27 +69,21 @@ opaque
   varᵛ :
     x ∷ A ∈ Γ →
     ⊩ᵛ Γ →
-    ∃ λ l → Γ ⊩ᵛ⟨ l ⟩ var x ∷ A
+    Γ ⊩ᵛ var x ∷ A
   varᵛ (here {A}) ⊩Γ∙A =
     case wf-⊩ᵛ-∙ ⊩Γ∙A of λ
-      (l , ⊩A) →
-    case wk1-⊩ᵛ ⊩A ⊩A of λ
-      ⊩wk1-A →
-      l
-    , ⊩ᵛ∷⇔ .proj₂
-        ( ⊩wk1-A
-        , λ σ₁≡σ₂ →
-            case ⊩ˢ≡∷∙⇔ .proj₁ σ₁≡σ₂ of λ
-              ((_ , _ , σ₁₀≡σ₂₀) , _) →
-            level-⊩≡∷
-              (⊩ᵛ→⊩ˢ∷→⊩[] ⊩wk1-A (wf-⊩ˢ≡∷ σ₁≡σ₂ .proj₁))
-              (PE.subst (_⊩⟨_⟩_≡_∷_ _ _ _ _) (PE.sym $ wk1-tail A)
-                 σ₁₀≡σ₂₀)
-        )
+      ⊩A →
+    ⊩ᵛ∷⇔ .proj₂
+      ( wk1-⊩ᵛ ⊩A ⊩A
+      , λ σ₁≡σ₂ →
+          case ⊩ˢ≡∷∙⇔ .proj₁ σ₁≡σ₂ of λ
+            (_ , σ₁₀≡σ₂₀ , _) →
+          PE.subst (_⊩_≡_∷_ _ _ _) (PE.sym $ wk1-tail A) σ₁₀≡σ₂₀
+      )
   varᵛ (there x∈Γ) ⊩Γ∙B =
-    case wf-⊩ᵛ-∙ ⊩Γ∙B .proj₂ of λ
+    case wf-⊩ᵛ-∙ ⊩Γ∙B of λ
       ⊩B →
-    Σ.map idᶠ (wk1-⊩ᵛ∷ ⊩B) (varᵛ x∈Γ (wf-⊩ᵛ ⊩B))
+    wk1-⊩ᵛ∷ ⊩B (varᵛ x∈Γ (wf-⊩ᵛ ⊩B))
 
 opaque
 
@@ -85,7 +91,7 @@ opaque
 
   varᵛ′ :
     x ∷ A ∈ Γ →
-    Γ ⊩ᵛ⟨ l ⟩ A →
-    Γ ⊩ᵛ⟨ l ⟩ var x ∷ A
+    Γ ⊩ᵛ A →
+    Γ ⊩ᵛ var x ∷ A
   varᵛ′ x∈Γ ⊩A =
-    level-⊩ᵛ∷ ⊩A (varᵛ x∈Γ (wf-⊩ᵛ ⊩A) .proj₂)
+    varᵛ x∈Γ (wf-⊩ᵛ ⊩A)
