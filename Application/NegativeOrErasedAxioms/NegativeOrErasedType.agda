@@ -57,6 +57,8 @@ data NegativeType (Γ : Con Term m) : Term m → Set a where
           NegativeType (Γ ∙ A) B →
           NegativeType Γ (Σˢ p , q ▷ A ▹ B)
 
+  universe : NegativeType Γ (U l)
+
   conv  : NegativeType Γ A →
           Γ ⊢ A ≡ B →
           NegativeType Γ B
@@ -78,6 +80,8 @@ wkNeg w ⊢Δ (sigma-𝟘 dA nB) =
 wkNeg w ⊢Δ (sigma dA nA nB) =
   sigma dA′ (wkNeg w ⊢Δ nA) (wkNeg (lift w) (⊢Δ ∙ dA′) nB)
   where dA′ = T.wk w ⊢Δ dA
+
+wkNeg _ _ universe = universe
 
 wkNeg w ⊢Δ (conv n c) =
   conv (wkNeg w ⊢Δ n) (wkEq w ⊢Δ c)
@@ -102,6 +106,8 @@ subNeg (sigma ⊢A nA nB) s ⊢Δ =
     (subNeg nB (liftSubst′ (wf ⊢A) ⊢Δ ⊢A s) (⊢Δ ∙ ⊢σA))
   where ⊢σA = substitution ⊢A s ⊢Δ
 
+subNeg universe _ _ = universe
+
 subNeg (conv n c) s ⊢Δ =
   conv (subNeg n s ⊢Δ) (substitutionEq c (substRefl s) ⊢Δ)
 
@@ -123,6 +129,7 @@ fstNeg (pi _ _)       c  _   = ⊥-elim (Π≢Σⱼ c)
 fstNeg (sigma-𝟘 _ _)  c  𝟘≢p = let _ , _ , 𝟘≡p , _ = Σ-injectivity c in
                                ⊥-elim (𝟘≢p 𝟘≡p)
 fstNeg (sigma _ nA _) c  _   = conv nA (proj₁ (Σ-injectivity c))
+fstNeg universe       c  _   = ⊥-elim (U≢ΠΣⱼ c)
 fstNeg (conv n c)     c′ 𝟘≢p = fstNeg n (trans c c′) 𝟘≢p
 
 -- Any instance of the second component of a negative Σ-type is
@@ -141,6 +148,7 @@ sndNeg (sigma-𝟘 _ nB) c ⊢t =
 sndNeg (sigma _ _ nB) c ⊢t =
   let (cA , cB , _ , _) = Σ-injectivity c in
   subNeg (conv nB cB) (singleSubst (conv ⊢t (sym cA))) (wfTerm ⊢t)
+sndNeg universe   c  = ⊥-elim (U≢ΠΣⱼ c)
 sndNeg (conv n c) c′ = sndNeg n (trans c c′)
 
 -- Any instance of the codomain of a negative Π-type is negative.
@@ -156,6 +164,7 @@ appNeg (sigma _ _ _)  c = ⊥-elim (Π≢Σⱼ (sym c))
 appNeg (pi _ nB) c ⊢t =
   let (cA , cB , _ , _) = injectivity c in
   subNeg (conv nB cB) (singleSubst (conv ⊢t (sym cA))) (wfTerm ⊢t)
+appNeg universe   c  = ⊥-elim (U≢ΠΣⱼ c)
 appNeg (conv n c) c′ = appNeg n (trans c c′)
 
 -- The type ℕ is not negative.
@@ -165,6 +174,7 @@ appNeg (conv n c) c′ = appNeg n (trans c c′)
 ¬negℕ (pi _ _)      c  = ℕ≢Π (sym c)
 ¬negℕ (sigma-𝟘 _ _) c  = ℕ≢Σ (sym c)
 ¬negℕ (sigma _ _ _) c  = ℕ≢Σ (sym c)
+¬negℕ universe      c  = U≢ℕ c
 ¬negℕ (conv n c)    c′ = ¬negℕ n (trans c c′)
 
 -- Σʷ-types are not negative.
@@ -174,6 +184,7 @@ appNeg (conv n c) c′ = appNeg n (trans c c′)
 ¬negΣʷ (pi _ _)      c  = Π≢Σⱼ c
 ¬negΣʷ (sigma-𝟘 _ _) c  = Σˢ≢Σʷⱼ c
 ¬negΣʷ (sigma _ _ _) c  = Σˢ≢Σʷⱼ c
+¬negΣʷ universe      c  = U≢ΠΣⱼ c
 ¬negΣʷ (conv n c)    c′ = ¬negΣʷ n (trans c c′)
 
 -- Unit types are not negative
@@ -183,6 +194,7 @@ appNeg (conv n c) c′ = appNeg n (trans c c′)
 ¬negUnit (pi _ _)      c  = Unit≢Πⱼ (sym c)
 ¬negUnit (sigma-𝟘 _ _) c  = Unit≢Σⱼ (sym c)
 ¬negUnit (sigma _ _ _) c  = Unit≢Σⱼ (sym c)
+¬negUnit universe      c  = U≢Unitⱼ c
 ¬negUnit (conv n c)    c′ = ¬negUnit n (trans c c′)
 
 opaque
@@ -194,4 +206,5 @@ opaque
   ¬negId (pi _ _)      = I.Id≢ΠΣ ∘→ sym
   ¬negId (sigma-𝟘 _ _) = I.Id≢ΠΣ ∘→ sym
   ¬negId (sigma _ _ _) = I.Id≢ΠΣ ∘→ sym
+  ¬negId universe      = I.Id≢U ∘→ sym
   ¬negId (conv n B≡A)  = ¬negId n ∘→ trans B≡A
