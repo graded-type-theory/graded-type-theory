@@ -51,10 +51,10 @@ neu neA A A~A = ne′ _ (idRed:*: A) neA A~A
 neuEq′ : ∀ {l A B} ([A] : Γ ⊩⟨ l ⟩ne A)
          (neA : Neutral A)
          (neB : Neutral B)
-       → Γ ⊢ A → Γ ⊢ B
+       → Γ ⊢ B
        → Γ ⊢ A ≅ B
        → Γ ⊩⟨ l ⟩ A ≡ B / ne-intr [A]
-neuEq′ (noemb (ne K [ ⊢A , ⊢B , D ] neK K≡K)) neA neB A B A~B =
+neuEq′ (noemb (ne K [ ⊢A , ⊢B , D ] neK K≡K)) neA neB B A~B =
   let A≡K = whnfRed* D (ne neA)
   in  ne₌ _ (idRed:*: B) neB (PE.subst (λ x → _ ⊢ x ≅ _) A≡K A~B)
 neuEq′ (emb ≤ᵘ-refl x) neB A:≡:B = neuEq′ x neB A:≡:B
@@ -64,13 +64,13 @@ neuEq′ (emb (≤ᵘ-step p) x) neB A:≡:B = neuEq′ (emb p x) neB A:≡:B
 neuEq : ∀ {l A B} ([A] : Γ ⊩⟨ l ⟩ A)
         (neA : Neutral A)
         (neB : Neutral B)
-      → Γ ⊢ A → Γ ⊢ B
+      → Γ ⊢ B
       → Γ ⊢ A ≅ B
       → Γ ⊩⟨ l ⟩ A ≡ B / [A]
-neuEq [A] neA neB A B A~B =
+neuEq [A] neA neB B A~B =
   irrelevanceEq (ne-intr (ne-elim neA [A]))
                 [A]
-                (neuEq′ (ne-elim neA [A]) neA neB A B A~B)
+                (neuEq′ (ne-elim neA [A]) neA neB B A~B)
 
 mutual
 
@@ -212,7 +212,7 @@ mutual
         wfn = neu neN nU (~-to-≅ (~-trans n~n′₁ (~-sym n~n′₁)))
     in Uₜ₌ _ _ (idRedTerm:*: (conv n A≡U)) (idRedTerm:*: (conv n′ A≡U)) (ne neN) (ne neN′) n≡n′
       wfn (neu neN′ nU′ (~-to-≅ (~-trans (~-sym n~n′₁) n~n′₁)))
-      (neuEq wfn neN neN′ nU nU′ (≅-univ n≡n′))
+      (neuEq wfn neN neN′ nU′ (≅-univ n≡n′))
   neuEqTerm (Uᵣ′ _ (≤ᵘ-step p) A⇒*U) n-ne n′-ne ⊢n ⊢n′ n~n′ =
     irrelevanceEqTerm (Uᵣ′ _ p A⇒*U) (Uᵣ′ _ (≤ᵘ-step p) A⇒*U)
       (neuEqTerm (Uᵣ′ _ p A⇒*U) n-ne n′-ne ⊢n ⊢n′ n~n′)

@@ -933,7 +933,7 @@ opaque
     Γ ⊢ A ≅ B →
     Γ ⊩⟨ l ⟩ A ≡ B
   neutral-⊩≡ ⊩A ⊩B A-ne B-ne A≅B =
-    ⊩A , ⊩B , neuEq ⊩A A-ne B-ne (escape ⊩A) (escape ⊩B) A≅B
+    ⊩A , ⊩B , neuEq ⊩A A-ne B-ne (escape ⊩B) A≅B
 
 opaque
   unfolding _⊩⟨_⟩_≡_∷_
