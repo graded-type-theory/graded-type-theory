@@ -83,6 +83,7 @@ import Definition.Untyped.Properties.Neutral
 import Definition.Untyped.Identity
 import Definition.Untyped.Sigma
 import Definition.Untyped.Unit
+import Definition.Untyped.Lift
 import Graded.Derived.Erased.Eta.Untyped
 import Graded.Derived.Erased.NoEta.Untyped
 import Graded.Derived.Erased.Untyped
@@ -139,6 +140,7 @@ import Graded.Derived.Sigma
 -- Properties related to usage and certain type formers.
 import Graded.Derived.Identity
 import Graded.Derived.Unit
+import Graded.Derived.Lift
 import Graded.Derived.Erased.Eta.Usage
 import Graded.Derived.Erased.NoEta.Usage
 import Graded.Derived.Erased.Usage
@@ -254,14 +256,15 @@ import Definition.Typed.Consequences.Equality
 import Definition.Typed.Consequences.Canonicity
 import Definition.Typed.Consequences.Reduction
 import Definition.Typed.Reasoning.Reduction
+import Definition.Typed.Consequences.InverseUniv
 import Definition.Typed.Consequences.DerivedRules.Nat
 import Definition.Typed.Consequences.DerivedRules.Pi-Sigma
 import Definition.Typed.Consequences.DerivedRules.Pi
 import Definition.Typed.Consequences.DerivedRules.Identity
 import Definition.Typed.Consequences.DerivedRules.Sigma
 import Definition.Typed.Consequences.DerivedRules.Unit
+import Definition.Typed.Consequences.DerivedRules.Lift
 import Definition.Typed.Consequences.DerivedRules
-import Definition.Typed.Consequences.InverseUniv
 import Definition.Typed.Consequences.Consistency
 import Definition.Typed.Consequences.RedSteps
 import Graded.Derived.Erased.Eta.Typed.Primitive
