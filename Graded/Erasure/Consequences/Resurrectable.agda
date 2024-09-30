@@ -67,6 +67,7 @@ private variable
   Γ       : Con Term _
   q₁ q₂   : M
   s s₁ s₂ : Strength
+  l       : Universe-level
 
 -- The type A is "resurrectable" with respect to Γ (as well as a
 -- strength and some grades) if (roughly speaking) there is a function
@@ -145,7 +146,7 @@ opaque
 
 opaque
 
-  -- If certain assumptions hold, then Unit s₂ is resurrectable with
+  -- If certain assumptions hold, then Unit s₂ l is resurrectable with
   -- respect to certain things.
 
   Unit-resurrectable :
@@ -155,9 +156,11 @@ opaque
     Unit-allowed s₂ →
     (s₂ PE.≡ 𝕨 → Unitrec-allowed 𝟘ᵐ? 𝟙 Unit-η-grade) →
     ⊢ Γ →
-    Resurrectable s₁ q₁ q₂ Γ (Unit s₂)
-  Unit-resurrectable {s₁} {s₂} {Γ} ok₁ ok₂ Erased-ok Unit-ok ur-ok ⊢Γ =
-      lam 𝟘 (prod s₁ 𝟙 (star s₂) ([ Unit-η s₂ Unit-η-grade (var x0) ]))
+    Resurrectable s₁ q₁ q₂ Γ (Unit s₂ l)
+  Unit-resurrectable
+    {s₁} {s₂} {Γ} {l} ok₁ ok₂ Erased-ok Unit-ok ur-ok ⊢Γ =
+      lam 𝟘
+        (prod s₁ 𝟙 (star s₂ l) ([ Unit-η s₂ l Unit-η-grade (var x0) ]))
     , (lamₘ $
        prodₘ starₘ (▸[] _ $ ▸Unit-η′ ur-ok (λ _ → _ , var) .proj₂)
          (λ _ → begin
@@ -180,13 +183,13 @@ opaque
     open Erased s₁
     open Tools.Reasoning.PartialOrder ≤ᶜ-poset
 
-    ⊢Unit₁ : Γ ⊢ Unit s₂
+    ⊢Unit₁ : Γ ⊢ Unit s₂ l
     ⊢Unit₁ = Unitⱼ ⊢Γ Unit-ok
 
-    ⊢Γ∙Unit : ⊢ Γ ∙ Unit s₂
+    ⊢Γ∙Unit : ⊢ Γ ∙ Unit s₂ l
     ⊢Γ∙Unit = wf ⊢Unit₁ ∙ ⊢Unit₁
 
-    ⊢Unit₂ : Γ ∙ Unit s₂ ⊢ Unit s₂
+    ⊢Unit₂ : Γ ∙ Unit s₂ l ⊢ Unit s₂ l
     ⊢Unit₂ = Unitⱼ ⊢Γ∙Unit Unit-ok
 
 opaque
@@ -286,10 +289,10 @@ opaque
 
 opaque
 
-  -- If 𝟘ᵐ is allowed, η-equality is not allowed for the weak unit
-  -- type unless a certain condition is satisfied, and []-cong is
-  -- allowed for s (and another assumption holds if s is 𝕨), then ℕ is
-  -- not s-resurrectable with respect to any context that satisfies
+  -- If 𝟘ᵐ is allowed, η-equality is not allowed for weak unit types
+  -- unless a certain condition is satisfied, and []-cong is allowed
+  -- for s (and another assumption holds if s is 𝕨), then ℕ is not
+  -- s-resurrectable with respect to any context that satisfies
   -- Fundamental-assumptions⁻.
   --
   -- Note that if []-cong is allowed, then (at the time of writing)

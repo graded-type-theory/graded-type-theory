@@ -51,6 +51,7 @@ private
     n : Nat
     Γ : Con Term n
     t u v w A B : Term n
+    l : Universe-level
     p q r : M
 
 dec⇉-var : (x : Fin n) → ∃ λ A → x ∷ A ∈ Γ
@@ -127,7 +128,7 @@ mutual
     helper A@star! = λ where
       (yes A)  → yes (checkᶜ A)
       (no not) → no λ { (checkᶜ A) → not A }
-    helper A@(unitrec _ _ _ _ _) = λ where
+    helper A@(unitrec _ _ _ _ _ _) = λ where
       (yes A)  → yes (checkᶜ A)
       (no not) → no λ { (checkᶜ A) → not A }
     helper A@ℕ = λ where
@@ -205,7 +206,7 @@ mutual
     yes Unitᵢ
   dec-Inferable star! =
     yes starᵢ
-  dec-Inferable (unitrec _ _ A t u) =
+  dec-Inferable (unitrec _ _ _ A t u) =
     case dec-Checkable-type A ×-dec dec-Checkable t ×-dec
          dec-Checkable u of λ where
       (yes (A , t , u)) → yes (unitrecᵢ A t u)
@@ -303,7 +304,7 @@ mutual
     helper star! = λ where
       (yes t) → yes (infᶜ t)
       (no ¬t) → no λ { (infᶜ t) → ¬t t }
-    helper (unitrec _ _ _ _ _) = λ where
+    helper (unitrec _ _ _ _ _ _) = λ where
       (yes t) → yes (infᶜ t)
       (no ¬t) → no λ { (infᶜ t) → ¬t t }
     helper Empty = λ where
@@ -502,7 +503,7 @@ mutual
 
     dec⇉-unitrec :
       ⊢ Γ → Checkable-type A → Checkable t → Checkable u →
-      Dec (∃ λ B → Γ ⊢ unitrec p q A t u ⇉ B)
+      Dec (∃ λ B → Γ ⊢ unitrec l p q A t u ⇉ B)
     dec⇉-unitrec ⊢Γ A t u =
       case
         (Unit-allowed? 𝕨 ×-dec′ λ ok →
@@ -770,8 +771,8 @@ mutual
     (no ¬t⇇ℕ) → no λ where
       (_ , sucᵢ x) → ¬t⇇ℕ x
   dec⇉ ⊢Γ (natrecᵢ A z s n) = dec⇉-natrec ⊢Γ A z s n
-  dec⇉ ⊢Γ (Unitᵢ {s = s}) = case Unit-allowed? s of λ where
-    (yes ok)    → yes (U 0 , Unitᵢ ok)
+  dec⇉ ⊢Γ (Unitᵢ {s} {l}) = case Unit-allowed? s of λ where
+    (yes ok)    → yes (U l , Unitᵢ ok)
     (no not-ok) → no λ where
       (_ , Unitᵢ ok) → not-ok ok
   dec⇉ ⊢Γ (starᵢ {s = s}) = case Unit-allowed? s of λ where

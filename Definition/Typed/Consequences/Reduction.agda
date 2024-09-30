@@ -43,7 +43,7 @@ private
     Γ : Con Term n
     A B t u v : Term _
     p q : M
-    m : Strength
+    m s : Strength
     l : Universe-level
 
 opaque
@@ -69,13 +69,12 @@ opaque
 
 opaque
 
-  -- If the type of t is Unit, then t reduces to star or a neutral
-  -- term.
+  -- If t has a unit type, then t reduces to star or a neutral term.
 
-  red-Unit : Γ ⊢ t ∷ Unit m → ∃ λ u → Star u × Γ ⊢ t :⇒*: u ∷ Unit m
+  red-Unit : Γ ⊢ t ∷ Unit s l → ∃ λ u → Star u × Γ ⊢ t :⇒*: u ∷ Unit s l
   red-Unit ⊢t =
     case ⊩∷Unit⇔ .proj₁ $ proj₂ $ reducible-⊩∷ ⊢t of λ
-      (_ , Unitₜ u t⇒*u _ rest) →
+      (_ , _ , Unitₜ u t⇒*u _ rest) →
       u
     , (case rest of λ where
          starᵣ                 → starₙ

@@ -1668,7 +1668,7 @@ opaque
   𝟘ᶜ                                                     ∎
   where
   open Tools.Reasoning.Equivalence Conₘ-setoid
-⌈⌉-𝟘ᵐ {ok = ok} (unitrec p q A t u) = begin
+⌈⌉-𝟘ᵐ {ok} (unitrec _ p q _ t u) = begin
   p ·ᶜ ⌈ t ⌉ 𝟘ᵐ[ ok ] +ᶜ ⌈ u ⌉ 𝟘ᵐ[ ok ]  ≈⟨ +ᶜ-cong (·ᶜ-congˡ (⌈⌉-𝟘ᵐ t)) (⌈⌉-𝟘ᵐ u) ⟩
   p ·ᶜ 𝟘ᶜ +ᶜ 𝟘ᶜ                          ≈⟨ +ᶜ-identityʳ _ ⟩
   p ·ᶜ 𝟘ᶜ                                ≈⟨ ·ᶜ-zeroʳ _ ⟩
@@ -1777,8 +1777,8 @@ opaque
 open import Graded.Modality.Dedicated-nr.Instance
 
 -- For dedicated nr functions the function ⌈_⌉ provides upper bounds
--- for valid modality contexts when the strong unit type is not
--- allowed to be used as a sink: if γ ▸[ m ] t, then γ ≤ᶜ ⌈ t ⌉ m.
+-- for valid modality contexts when strong unit types are not allowed
+-- to be used as sinks: if γ ▸[ m ] t, then γ ≤ᶜ ⌈ t ⌉ m.
 
 usage-upper-bound :
   ⦃ has-nr : Dedicated-nr ⦄ →

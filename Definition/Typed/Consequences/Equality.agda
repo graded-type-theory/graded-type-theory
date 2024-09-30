@@ -81,16 +81,16 @@ opaque
 
 opaque
 
-  -- If the WHNF A is judgmentally equal to Unit s, then A is
-  -- propositionally equal to Unit s.
+  -- If the WHNF A is judgmentally equal to Unit s l, then A is
+  -- propositionally equal to Unit s l.
 
-  Unit≡A : Γ ⊢ Unit s ≡ A → Whnf A → A PE.≡ Unit s
-  Unit≡A {Γ} {s} {A} Unit≡A A-whnf =
-                                   $⟨ Unit≡A ⟩
-    Γ ⊢ Unit s ≡ A                 →⟨ reducible-⊩≡ ⟩
-    (∃ λ l → Γ ⊩⟨ l ⟩ Unit s ≡ A)  →⟨ proj₂ ∘→ proj₂ ∘→ ⊩Unit≡⇔ .proj₁ ∘→ proj₂ ⟩
-    Γ ⊢ A ⇒* Unit s                →⟨ flip whnfRed* A-whnf ⟩
-    A PE.≡ Unit s                  □
+  Unit≡A : Γ ⊢ Unit s l ≡ A → Whnf A → A PE.≡ Unit s l
+  Unit≡A {Γ} {s} {l} {A} Unit≡A A-whnf =
+                                       $⟨ Unit≡A ⟩
+    Γ ⊢ Unit s l ≡ A                   →⟨ reducible-⊩≡ ⟩
+    (∃ λ l′ → Γ ⊩⟨ l′ ⟩ Unit s l ≡ A)  →⟨ proj₂ ∘→ proj₂ ∘→ proj₂ ∘→ ⊩Unit≡⇔ .proj₁ ∘→ proj₂ ⟩
+    Γ ⊢ A ⇒* Unit s l                  →⟨ flip whnfRed* A-whnf ⟩
+    A PE.≡ Unit s l                    □
 
 opaque
 

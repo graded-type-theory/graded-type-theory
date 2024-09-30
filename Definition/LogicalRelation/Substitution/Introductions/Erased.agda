@@ -29,6 +29,7 @@ open import
 open import Definition.LogicalRelation.Substitution.Introductions.Unit R
 open import Definition.Typed.Properties R
 open import Definition.Untyped M
+open import Definition.Untyped.Properties M
 
 open import Graded.Derived.Erased.Untyped 𝕄 s
 
@@ -51,7 +52,7 @@ opaque
       , wf (escape-⊩ ⊩A)
       , λ ρ⊇ ⊢Δ →
             wk-⊩ ρ⊇ ⊢Δ ⊩A
-          , λ _ → refl-⊩≡ (⊩Unit ⊢Δ Unit-ok)
+          , λ _ → refl-⊩≡ $ emb-⊩ 0≤ᵘ $ ⊩Unit ⊢Δ Unit-ok
       )
 
 opaque
@@ -70,7 +71,7 @@ opaque
       , PE.refl , PE.refl , PE.refl
       , λ ρ⊇ ⊢Δ →
             wk-⊩≡ ρ⊇ ⊢Δ A₁≡A₂
-          , λ _ → refl-⊩≡ (⊩Unit ⊢Δ Unit-ok)
+          , λ _ → refl-⊩≡ $ emb-⊩ 0≤ᵘ $ ⊩Unit ⊢Δ Unit-ok
       )
 
 opaque
@@ -105,7 +106,7 @@ opaque
     case wf-⊩∷ (wf-⊩≡∷ t≡u .proj₁) of λ
       ⊩A →
     ⊩prod≡prod (⊩Erased ⊩A) t≡u
-      (refl-⊩≡∷ (⊩star {l = l} (wf (escape-⊩ ⊩A)) Unit-ok))
+      (refl-⊩≡∷ (⊩star (wf (escape-⊩ ⊩A)) Unit-ok))
 
 opaque
 

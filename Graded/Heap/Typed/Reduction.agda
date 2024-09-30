@@ -116,17 +116,9 @@ opaque
       ⊢A′ →
     PE.subst (λ x → _ ⨾ H′ ⊢ᵉ _ ⟨ _ ⟩∷ ℕ ↝ wk (lift ρ) A [ liftSubst x ] [ t [ x ] ]₀)
       (PE.sym H≡H′) (natrecₑ ⊢z′ ⊢s′ ⊢A′)
-  heapUpdate-⊢ᵉ {H} {t} {H′} (unitrecₑ {ρ} {u} {A} ⊢u ⊢A no-η) d =
-    case heapUpdateSubst d of λ
-      H≡H′ →
-    case PE.subst (λ x → _ ⊢ wk ρ u [ x ] ∷ (wk (lift ρ)) A [ liftSubst x ] [ starʷ ]₀)
-            H≡H′ ⊢u of λ
-      ⊢u′ →
-    case PE.subst (λ x → _ ∙ Unitʷ ⊢ wk (lift ρ) A [ liftSubst x ])
-           H≡H′ ⊢A of λ
-      ⊢A′ →
-    PE.subst (λ x → _ ⨾ H′ ⊢ᵉ _ ⟨ _ ⟩∷ Unitʷ ↝ wk (lift ρ) A [ liftSubst x ] [ t [ x ] ]₀)
-      (PE.sym H≡H′) (unitrecₑ ⊢u′ ⊢A′ no-η)
+  heapUpdate-⊢ᵉ (unitrecₑ ⊢u ⊢A no-η) d
+    rewrite heapUpdateSubst d =
+    unitrecₑ ⊢u ⊢A no-η
   heapUpdate-⊢ᵉ {H} {t} {H′} (emptyrecₑ {ρ} {A} ⊢A) d =
     case heapUpdateSubst d of λ
       H≡H′ →
@@ -759,7 +751,7 @@ opaque
         _ , _ , _ , sucₕ
   ⊢ˢValue-⇒ᵥ (unitrecₑ x x₁ x₂) ⊢t starᵥ =
     case inversion-star-Unit ⊢t of λ {
-      (PE.refl , _) →
+      (PE.refl , PE.refl , _) →
     _ , _ , _ , starʷₕ }
   ⊢ˢValue-⇒ᵥ (Jₑ x x₁) ⊢t rflᵥ =
     _ , _ , _ , rflₕⱼ

@@ -30,6 +30,7 @@ private
     p p₁ p₂ q q₁ q₂ r r₁ r₂ : M
     s s₁ s₂ : Strength
     b₁ b₂ : BinderMode
+    l₁ l₂ : Universe-level
 
 -- Extensionally equal weakenings, if applied to a term,
 -- yield the same weakened term.  Or:
@@ -1210,7 +1211,7 @@ opaque
   isNumeral? (prodrec _ _ _ _ _ _) = no λ ()
   isNumeral? (natrec _ _ _ _ _ _ _) = no λ ()
   isNumeral? star! = no λ ()
-  isNumeral? (unitrec _ _ _ _ _) = no λ ()
+  isNumeral? (unitrec _ _ _ _ _ _) = no λ ()
   isNumeral? (emptyrec _ _ _) = no λ ()
   isNumeral? rfl = no λ ()
   isNumeral? (J _ _ _ _ _ _ _ _) = no λ ()
@@ -1327,13 +1328,21 @@ emptyrec-PE-injectivity :
   p₁ PE.≡ p₂ × A₁ PE.≡ A₂ × t₁ PE.≡ t₂
 emptyrec-PE-injectivity PE.refl = PE.refl , PE.refl , PE.refl
 
+-- The constructor Unit is injective.
+
+Unit-PE-injectivity :
+  _≡_ {A = Term n} (Unit s₁ l₁) (Unit s₂ l₂) →
+  s₁ ≡ s₂ × l₁ ≡ l₂
+Unit-PE-injectivity refl = refl , refl
+
 -- The constructor unitrec is injective.
 
 unitrec-PE-injectivity :
-  unitrec p₁ q₁ A₁ t₁ u₁ PE.≡ unitrec p₂ q₂ A₂ t₂ u₂ →
-  p₁ PE.≡ p₂ × q₁ PE.≡ q₂ × A₁ PE.≡ A₂ × t₁ PE.≡ t₂ × u₁ PE.≡ u₂
+  unitrec l₁ p₁ q₁ A₁ t₁ u₁ PE.≡ unitrec l₂ p₂ q₂ A₂ t₂ u₂ →
+  l₁ PE.≡ l₂ × p₁ PE.≡ p₂ × q₁ PE.≡ q₂ × A₁ PE.≡ A₂ × t₁ PE.≡ t₂ ×
+  u₁ PE.≡ u₂
 unitrec-PE-injectivity PE.refl =
-  PE.refl , PE.refl , PE.refl , PE.refl , PE.refl
+  PE.refl , PE.refl , PE.refl , PE.refl , PE.refl , PE.refl
 
 -- The constructor suc is injective.
 

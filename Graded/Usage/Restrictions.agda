@@ -68,7 +68,7 @@ record Usage-restrictions : Set (lsuc a) where
     []-cong-allowed-mode-downwards-closed :
       []-cong-allowed-mode s 𝟙ᵐ → []-cong-allowed-mode s 𝟘ᵐ[ ok ]
 
-    -- Should the strong unit type act as a "sink"?
+    -- Should strong unit types act as "sinks"?
     starˢ-sink : Bool
 
     -- Are most things erased in the usage rule for Id?
@@ -165,12 +165,12 @@ record Usage-restrictions : Set (lsuc a) where
       ·ᵐ-lemma₁ (λ m → []-cong-allowed-mode _ m)
         []-cong-allowed-mode-downwards-closed
 
-  -- Does the strong unit type act as a "sink"?
+  -- Do strong unit types act as "sinks"?
 
   Starˢ-sink : Set
   Starˢ-sink = T starˢ-sink
 
-  -- Does the strong unit type not act as a "sink"?
+  -- Do strong unit types not act as "sinks"?
   --
   -- This type is used instead of ¬ Starˢ-sink because "¬ A" does not
   -- work well as the type of an instance argument.
@@ -178,15 +178,15 @@ record Usage-restrictions : Set (lsuc a) where
   ¬Starˢ-sink : Set
   ¬Starˢ-sink = T (not starˢ-sink)
 
-  -- The strong unit type is not allowed to both act and not act as a
-  -- sink.
+  -- Strong unit types are not allowed to both act and not act as
+  -- sinks.
 
   not-sink-and-no-sink : Starˢ-sink → ¬Starˢ-sink → ⊥
   not-sink-and-no-sink sink ¬sink with starˢ-sink
   … | false = sink
   … | true = ¬sink
 
-  -- The strong unit type either acts or does not act as a sink.
+  -- Strong unit types either act or do not act as sinks.
 
   sink-or-no-sink : Starˢ-sink ⊎ ¬Starˢ-sink
   sink-or-no-sink with starˢ-sink

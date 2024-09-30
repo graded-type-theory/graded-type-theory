@@ -61,9 +61,9 @@ data Kind : (ns : List Nat) → Set a where
   Suckind    : Kind (0 ∷ [])
   Natreckind : (p q r : M) → Kind (1 ∷ 0 ∷ 2 ∷ 0 ∷ [])
 
-  Unitkind : Strength → Kind []
-  Starkind : Strength → Kind []
-  Unitreckind : (p q : M) → Kind (1 ∷ 0 ∷ 0 ∷ [])
+  Unitkind : Strength → Universe-level → Kind []
+  Starkind : Strength → Universe-level → Kind []
+  Unitreckind : Universe-level → (p q : M) → Kind (1 ∷ 0 ∷ 0 ∷ [])
 
   Emptykind    : Kind []
   Emptyreckind : (p : M) → Kind (0 ∷ 0 ∷ [])
@@ -99,10 +99,10 @@ private variable
 pattern U n = gen (Ukind n) []
 pattern ℕ = gen Natkind []
 pattern Empty = gen Emptykind []
-pattern Unit! = gen (Unitkind _) []
-pattern Unit s = gen (Unitkind s) []
-pattern Unitʷ = gen (Unitkind 𝕨) []
-pattern Unitˢ = gen (Unitkind 𝕤) []
+pattern Unit! = gen (Unitkind _ _) []
+pattern Unit s l = gen (Unitkind s l) []
+pattern Unitʷ l = gen (Unitkind 𝕨 l) []
+pattern Unitˢ l = gen (Unitkind 𝕤 l) []
 
 pattern ΠΣ⟨_⟩_,_▷_▹_ b p q F G = gen (Binderkind b p q) (F ∷ₜ G ∷ₜ [])
 pattern Π_,_▷_▹_ p q F G = gen (Binderkind BMΠ p q) (F ∷ₜ G ∷ₜ [])
@@ -130,11 +130,12 @@ pattern suc t = gen Suckind (t ∷ₜ [])
 pattern natrec p q r A z s n =
   gen (Natreckind p q r) (A ∷ₜ z ∷ₜ s ∷ₜ n ∷ₜ [])
 
-pattern star! = gen (Starkind _) []
-pattern star s = gen (Starkind s) []
-pattern starʷ = gen (Starkind 𝕨) []
-pattern starˢ = gen (Starkind 𝕤) []
-pattern unitrec p q A t u = gen (Unitreckind p q) (A ∷ₜ t ∷ₜ u ∷ₜ [])
+pattern star! = gen (Starkind _ _) []
+pattern star s l = gen (Starkind s l) []
+pattern starʷ l = gen (Starkind 𝕨 l) []
+pattern starˢ l = gen (Starkind 𝕤 l) []
+pattern unitrec l p q A t u =
+  gen (Unitreckind l p q) (A ∷ₜ t ∷ₜ u ∷ₜ [])
 pattern emptyrec p A t = gen (Emptyreckind p) (A ∷ₜ t ∷ₜ [])
 
 pattern Id A t u = gen Idkind (A ∷ₜ t ∷ₜ u ∷ₜ [])

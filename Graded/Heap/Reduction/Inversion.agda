@@ -45,6 +45,7 @@ private variable
   S : Stack _
   s : State _ _ _
   s′ : Strength
+  l l₁ l₂ : Universe-level
   p p′ q r : M
 
 opaque
@@ -118,9 +119,11 @@ opaque
 
   -- Inversion of unitrec
 
-  ⇒ₙ-inv-unitrec : {t : Term n} {s : State _ _ m}
-                 → ⟨ H , unitrec p q A t u , ρ , S ⟩ ⇒ₙ s
-                 → Σ (m ≡ n) λ m≡n → subst (State _ _) m≡n s ≡ ⟨ H , t , ρ , unitrecₑ p q A u ρ ∙ S ⟩
+  ⇒ₙ-inv-unitrec :
+    {t : Term n} {s : State _ _ m} →
+    ⟨ H , unitrec l p q A t u , ρ , S ⟩ ⇒ₙ s →
+    ∃ λ (m≡n : m ≡ n) →
+    subst (State _ _) m≡n s ≡ ⟨ H , t , ρ , unitrecₑ l p q A u ρ ∙ S ⟩
   ⇒ₙ-inv-unitrec (unitrecₕ _) = refl , refl
 
 opaque
@@ -306,35 +309,38 @@ opaque
 
   -- Inversion of starʷ
 
-  ⇒ᵥ-inv-starʷ : {H : Heap k m′} {s : State _ m n}
-               → ⟨ H , starʷ , ρ , S ⟩ ⇒ᵥ s
-               → ∃₃ λ n′ p q → ∃₄ λ A u (ρ′ : Wk _ n′) S′ →
-               S ≡ unitrecₑ p q A u ρ′ ∙ S′ × Σ (m ≡ m′) λ m≡ → Σ (n ≡ n′) λ n≡ →
-                 subst₂ (State _) m≡ n≡ s ≡ ⟨ H , u , ρ′ , S′ ⟩
+  ⇒ᵥ-inv-starʷ :
+    {H : Heap k m′} {s : State _ m n} →
+    ⟨ H , starʷ l , ρ , S ⟩ ⇒ᵥ s →
+    ∃₇ λ n′ p q A u (ρ′ : Wk _ n′) S′ →
+    S ≡ unitrecₑ l p q A u ρ′ ∙ S′ ×
+    ∃₂ λ (m≡ : m ≡ m′) (n≡ : n ≡ n′) →
+    subst₂ (State _) m≡ n≡ s ≡ ⟨ H , u , ρ′ , S′ ⟩
   ⇒ᵥ-inv-starʷ starʷₕ = _ , _ , _ , _ , _ , _ , _ , refl , refl , refl , refl
 
 opaque
 
   -- Inversion of starʷ with unitrec on top of the stack
 
-  ⇒ᵥ-inv-starʷ-unitrecₑ : {H : Heap k m′} {u : Term n′} {s : State _ m n}
-                        → ⟨ H , starʷ , ρ , unitrecₑ p q A u ρ′ ∙ S ⟩ ⇒ᵥ s
-                        → Σ (m ≡ m′) λ m≡ → Σ (n ≡ n′) λ n≡ →
-                        subst₂ (State _) m≡ n≡ s ≡ ⟨ H , u , ρ′ , S ⟩
+  ⇒ᵥ-inv-starʷ-unitrecₑ :
+    {H : Heap k m′} {u : Term n′} {s : State _ m n} →
+    ⟨ H , starʷ l₁ , ρ , unitrecₑ l₂ p q A u ρ′ ∙ S ⟩ ⇒ᵥ s →
+    l₁ ≡ l₂ × ∃₂ λ (m≡ : m ≡ m′) (n≡ : n ≡ n′) →
+    subst₂ (State _) m≡ n≡ s ≡ ⟨ H , u , ρ′ , S ⟩
   ⇒ᵥ-inv-starʷ-unitrecₑ d =
     case ⇒ᵥ-inv-starʷ d of λ {
       (_ , _ , _ , _ , _ , _ , _ , refl , refl , refl , refl) →
-    refl , refl , refl}
+    refl , refl , refl , refl }
 
 opaque
 
   -- Inversion of unitrec with eta equality turned on
 
-  ⇒ᵥ-inv-unitrec-η : {H : Heap k m′} {s : State _ m n}
-                   → ⟨ H , unitrec p q A t u , ρ , S ⟩ ⇒ᵥ s
-                   → Unitʷ-η ×
-                    Σ (m ≡ m′) λ m≡ → Σ (n ≡ n′) λ n≡ →
-                      subst₂ (State _) m≡ n≡ s ≡ ⟨ H , u , ρ , S ⟩
+  ⇒ᵥ-inv-unitrec-η :
+    {H : Heap k m′} {s : State _ m n} →
+    ⟨ H , unitrec l p q A t u , ρ , S ⟩ ⇒ᵥ s →
+    Unitʷ-η × ∃₂ λ (m≡ : m ≡ m′) (n≡ : n ≡ n′) →
+    subst₂ (State _) m≡ n≡ s ≡ ⟨ H , u , ρ , S ⟩
   ⇒ᵥ-inv-unitrec-η (unitrec-ηₕ x) = x , refl , refl , refl
 
 opaque
@@ -445,15 +451,15 @@ opaque
 
   -- Inversion of star
 
-  ⇒ₙ-inv-star : ⟨ H , star s′ , ρ , S ⟩ ⇒ₙ s → ⊥
+  ⇒ₙ-inv-star : ⟨ H , star s′ l , ρ , S ⟩ ⇒ₙ s → ⊥
   ⇒ₙ-inv-star ()
 
 opaque
 
   -- Inversion of unitrec with η-equality
 
-  ⇒ₙ-inv-unitrec-η : Unitʷ-η
-                   → ⟨ H , unitrec p q A t u , ρ , S ⟩ ⇒ₙ s → ⊥
+  ⇒ₙ-inv-unitrec-η :
+    Unitʷ-η → ⟨ H , unitrec l p q A t u , ρ , S ⟩ ⇒ₙ s → ⊥
   ⇒ₙ-inv-unitrec-η η (unitrecₕ no-η) = no-η η
 
 opaque

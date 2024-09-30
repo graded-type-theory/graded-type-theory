@@ -723,11 +723,11 @@ module Is-order-embedding
         (emptyrec _ _ _) (emptyrecᵤ ok A t) →
           RS₁.emptyrecᵤ (Emptyrec-reflected m₁≳m₂ ok) (lemma-𝟘ᵐ?-𝟘ᵐ? A)
             (lemma (ᵐ·≳ᵐᵐ· m₁≳m₂) _ t)
-        (Unit _) Unitᵤ →
+        (Unit _ _) Unitᵤ →
           RS₁.Unitᵤ
-        (star _) starᵤ →
+        (star _ _) starᵤ →
           RS₁.starᵤ
-        (unitrec _ _ _ _ _) (unitrecᵤ ok A t u) →
+        (unitrec _ _ _ _ _ _) (unitrecᵤ ok A t u) →
           RS₁.unitrecᵤ (Unitrec-reflected m₁≳m₂ ok) (lemma-𝟘ᵐ?-𝟘ᵐ? A)
             (lemma (ᵐ·≳ᵐᵐ· m₁≳m₂) _ t) (lemma m₁≳m₂ _ u)
         (ΠΣ⟨ _ ⟩ _ , _ ▷ _ ▹ _) (ΠΣᵤ A B) →
@@ -885,7 +885,7 @@ module Is-order-embedding
     tr-▸⁻¹′ Unit! Unitₘ refl ≤𝟘 =
       sub Unitₘ (tr-Conₘ-≤ᶜ-𝟘ᶜ-→-≤ᶜ-𝟘ᶜ ≤𝟘)
 
-    tr-▸⁻¹′ starʷ starʷₘ refl ≤𝟘 =
+    tr-▸⁻¹′ (starʷ _) starʷₘ refl ≤𝟘 =
       sub starʷₘ (tr-Conₘ-≤ᶜ-𝟘ᶜ-→-≤ᶜ-𝟘ᶜ ≤𝟘)
 
     tr-▸⁻¹′ Empty Emptyₘ refl ≤𝟘 =
@@ -903,7 +903,7 @@ module Is-order-embedding
     tr-▸⁻¹′ (snd _ _) (sndₘ ▸t) refl ≤γ′ =
       sndₘ (tr-▸⁻¹′ _ ▸t refl ≤γ′)
 
-    tr-▸⁻¹′ {m = m} {γ = γ} starˢ (starˢₘ {γ = δ} prop) refl ≤mδ =
+    tr-▸⁻¹′ {m} {γ} (starˢ _) (starˢₘ {γ = δ} prop) refl ≤mδ =
       case lemma″ starˢ-sink-preserved prop of λ (_ , prop′ , γ≤) →
         sub (starˢₘ prop′) γ≤
       where
@@ -1131,7 +1131,7 @@ module Is-order-embedding
       open CR₁
 
     tr-▸⁻¹′
-      {m = m} {γ = γ} (unitrec p _ _ _ _)
+      {m = m} {γ = γ} (unitrec _ p _ _ _ _)
       (unitrecₘ {γ = δ} {δ = η} ▸t ▸u ▸A ok) refl γ≤pδ+η =
       case tr-Conₘ-≤ᶜ-+ᶜ γ≤pδ+η of λ (δ′ , η′ , δ′≤pδ , η′≤η , γ≤δ′+η′) →
       case tr-Conₘ-≤ᶜ-·ᶜ δ′≤pδ of λ (δ″ , δ″≤δ , δ′≤pδ″) →

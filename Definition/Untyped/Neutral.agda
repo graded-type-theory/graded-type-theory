@@ -44,7 +44,7 @@ data Neutral : Term n → Set a where
   prodrecₙ  : Neutral t   → Neutral (prodrec r p q A t u)
   emptyrecₙ : Neutral t   → Neutral (emptyrec p A t)
   unitrecₙ  : ¬ Unitʷ-η →
-              Neutral t   → Neutral (unitrec p q A t u)
+              Neutral t   → Neutral (unitrec l p q A t u)
   Jₙ        : Neutral w   → Neutral (J p q A t B u v w)
   Kₙ        : Neutral v   → Neutral (K p A t B u v)
   []-congₙ  : Neutral v   → Neutral ([]-cong s A t u v)
@@ -74,7 +74,7 @@ data Whnf {n : Nat} : Term n → Set a where
   Uₙ     : Whnf (U l)
   ΠΣₙ    : Whnf (ΠΣ⟨ b ⟩ p , q ▷ A ▹ B)
   ℕₙ     : Whnf ℕ
-  Unitₙ  : Whnf (Unit s)
+  Unitₙ  : Whnf (Unit s l)
   Emptyₙ : Whnf Empty
   Idₙ    : Whnf (Id A t u)
 
@@ -82,7 +82,7 @@ data Whnf {n : Nat} : Term n → Set a where
   lamₙ  : Whnf (lam p t)
   zeroₙ : Whnf zero
   sucₙ  : Whnf (suc t)
-  starₙ : Whnf (star s)
+  starₙ : Whnf (star s l)
   prodₙ : Whnf (prod s p t u)
   rflₙ  : Whnf rfl
 
@@ -104,7 +104,7 @@ U≢ne () PE.refl
 Empty≢ne : Neutral A → Empty PE.≢ A
 Empty≢ne () PE.refl
 
-Unit≢ne : Neutral A → Unit s PE.≢ A
+Unit≢ne : Neutral A → Unit s l PE.≢ A
 Unit≢ne () PE.refl
 
 B≢ne : ∀ W → Neutral A → ⟦ W ⟧ F ▹ G PE.≢ A
@@ -142,11 +142,11 @@ Empty≢ΠΣ : ∀ b → Empty PE.≢ ΠΣ⟨ b ⟩ p , q ▷ F ▹ G
 Empty≢ΠΣ BMΠ ()
 Empty≢ΠΣ (BMΣ _) ()
 
-Unit≢B : ∀ W → Unit s PE.≢ ⟦ W ⟧ F ▹ G
+Unit≢B : ∀ W → Unit s l PE.≢ ⟦ W ⟧ F ▹ G
 Unit≢B (BΠ p q) ()
 Unit≢B (BΣ m p q) ()
 
-Unit≢ΠΣ : ∀ b → Unit s PE.≢ ΠΣ⟨ b ⟩ p , q ▷ F ▹ G
+Unit≢ΠΣ : ∀ b → Unit s l PE.≢ ΠΣ⟨ b ⟩ p , q ▷ F ▹ G
 Unit≢ΠΣ BMΠ ()
 Unit≢ΠΣ (BMΣ _) ()
 
@@ -176,7 +176,7 @@ prod≢ne () PE.refl
 rfl≢ne : Neutral t → rfl PE.≢ t
 rfl≢ne () PE.refl
 
-star≢ne : Neutral t → star s PE.≢ t
+star≢ne : Neutral t → star s l PE.≢ t
 star≢ne () PE.refl
 
 ------------------------------------------------------------------------
@@ -200,7 +200,7 @@ data Type {n : Nat} : Term n → Set a where
   ΠΣₙ    :             Type (ΠΣ⟨ b ⟩ p , q ▷ A ▹ B)
   ℕₙ     :             Type ℕ
   Emptyₙ :             Type Empty
-  Unitₙ  :             Type (Unit s)
+  Unitₙ  :             Type (Unit s l)
   Idₙ    :             Type (Id A t u)
   ne     : Neutral t → Type t
 
@@ -220,10 +220,10 @@ data Product {n : Nat} : Term n → Set a where
   prodₙ : ∀ {m} → Product (prod m p t u)
   ne    : Neutral t → Product t
 
--- A WHNF of type Unit is either star or a neutral term.
+-- Star holds for applications of star as well as neutral terms.
 
 data Star {n : Nat} : Term n → Set a where
-  starₙ : Star (star s)
+  starₙ : Star (star s l)
   ne    : Neutral t → Star t
 
 -- A WHNF of type Id A t u is either rfl or a neutral term.
@@ -292,7 +292,7 @@ data No-η-equality {n : Nat} : Term n → Set a where
   Σʷₙ    : No-η-equality (Σʷ p , q ▷ A ▹ B)
   Emptyₙ : No-η-equality Empty
   ℕₙ     : No-η-equality ℕ
-  Unitʷₙ : ¬ Unitʷ-η → No-η-equality Unitʷ
+  Unitʷₙ : ¬ Unitʷ-η → No-η-equality (Unitʷ l)
   Idₙ    : No-η-equality (Id A t u)
   neₙ    : Neutral A → No-η-equality A
 
@@ -419,7 +419,7 @@ opaque
   -- An inversion lemma for unitrec.
 
   inv-ne-unitrec :
-    Neutral (unitrec p q A t u) → ¬ Unitʷ-η × Neutral t
+    Neutral (unitrec l p q A t u) → ¬ Unitʷ-η × Neutral t
   inv-ne-unitrec (unitrecₙ not-ok n) = not-ok , n
 
 opaque
@@ -493,7 +493,7 @@ opaque
   -- An inversion lemma for unitrec.
 
   inv-whnf-unitrec :
-    Whnf (unitrec p q A t u) → ¬ Unitʷ-η × Neutral t
+    Whnf (unitrec l p q A t u) → ¬ Unitʷ-η × Neutral t
   inv-whnf-unitrec (ne n) = inv-ne-unitrec n
 
 opaque
@@ -530,7 +530,7 @@ data NeutralAt (x : Fin n) : Term n → Set a where
   prodrecₙ  : NeutralAt x t   → NeutralAt x (prodrec r p q A t u)
   emptyrecₙ : NeutralAt x t   → NeutralAt x (emptyrec p A t)
   unitrecₙ  : ¬ Unitʷ-η →
-              NeutralAt x t   → NeutralAt x (unitrec p q A t u)
+              NeutralAt x t   → NeutralAt x (unitrec l p q A t u)
   Jₙ        : NeutralAt x w   → NeutralAt x (J p q A t B u v w)
   Kₙ        : NeutralAt x v   → NeutralAt x (K p A t B u v)
   []-congₙ  : NeutralAt x v   → NeutralAt x ([]-cong s A t u v)

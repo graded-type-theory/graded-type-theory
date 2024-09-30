@@ -39,6 +39,7 @@ private variable
   S S′ : Stack _
   p q r : M
   s′ : Strength
+  l : Universe-level
 
 -- The reduction relation is divided into three different relations:
 -- _⇒ₙ_, _⇒ᵥ_ and _⇒ₛ_
@@ -74,8 +75,8 @@ data _⇒ₙ_ {k m n} : State k m n → State k m n′ → Set a where
   natrecₕ : ⟨ H , natrec p q r A z s t , ρ , S                         ⟩
           ⇒ₙ ⟨ H , t                    , ρ , natrecₑ p q r A z s ρ ∙ S ⟩
   unitrecₕ : ¬ Unitʷ-η
-           → ⟨ H , unitrec p q A t u , ρ , S                      ⟩
-           ⇒ₙ ⟨ H , t                 , ρ , unitrecₑ p q A u ρ ∙ S ⟩
+           →  ⟨ H , unitrec l p q A t u , ρ ,                        S ⟩
+           ⇒ₙ ⟨ H ,                 t   , ρ , unitrecₑ l p q A u ρ ∙ S ⟩
   emptyrecₕ : ⟨ H , emptyrec p A t , ρ , S ⟩
             ⇒ₙ ⟨ H , t , ρ , emptyrecₑ p A ρ ∙ S ⟩
   Jₕ : ⟨ H , J p q A t B u v w , ρ , S ⟩
@@ -113,11 +114,11 @@ data _⇒ᵥ_ {k m n} : State k m n → State k m′ n′ → Set a where
   sucₕ    : ⟨ H , suc t , ρ , natrecₑ p q r A z s ρ′ ∙ S ⟩
           ⇒ᵥ ⟨ H ∙ (∣ S ∣ · nr₂ p r , t , ρ) ∙ (∣ S ∣ · r , natrec p q r (wk (lift (step id)) A) (wk1 z) (wk (liftn (step id) 2) s) (var x0) , lift ρ′)
                 , s , liftn ρ′ 2 , wk2ˢ S ⟩
-  starʷₕ : ⟨ H , starʷ , ρ  , unitrecₑ p q A u ρ′ ∙ S ⟩
-         ⇒ᵥ ⟨ H , u     , ρ′ , S                       ⟩
+  starʷₕ :  ⟨ H , starʷ l , ρ  , unitrecₑ l p q A u ρ′ ∙ S ⟩
+         ⇒ᵥ ⟨ H , u       , ρ′ ,                         S ⟩
   unitrec-ηₕ : Unitʷ-η
-             → ⟨ H , unitrec p q A t u , ρ , S ⟩
-             ⇒ᵥ ⟨ H , u , ρ , S ⟩
+             →  ⟨ H , unitrec l p q A t u , ρ , S ⟩
+             ⇒ᵥ ⟨ H ,                   u , ρ , S ⟩
   rflₕⱼ : ⟨ H , rfl , ρ , Jₑ p q A t B u v ρ′ ∙ S ⟩
         ⇒ᵥ ⟨ H , u , ρ′ , S ⟩
   rflₕₖ : ⟨ H , rfl , ρ ,  Kₑ p A t B u ρ′ ∙ S ⟩

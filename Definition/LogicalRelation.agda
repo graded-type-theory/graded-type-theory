@@ -190,52 +190,60 @@ record _⊩Empty_≡_∷Empty (Γ : Con Term ℓ) (t u : Term ℓ) : Set a where
 -- Reducibility of Unit
 
 -- Unit type
-record _⊩Unit⟨_⟩_ (Γ : Con Term ℓ) (s : Strength) (A : Term ℓ) : Set a where
+record _⊩Unit⟨_,_⟩_
+  (Γ : Con Term ℓ) (l : Universe-level) (s : Strength) (A : Term ℓ) :
+  Set a where
   no-eta-equality
   pattern
   constructor Unitₜ
   field
-    ⇒*-Unit : Γ ⊢ A :⇒*: Unit s
+    ⇒*-Unit : Γ ⊢ A :⇒*: Unit s l
     ok      : Unit-allowed s
 
 -- Unit type equality
-_⊩Unit⟨_⟩_≡_ : (Γ : Con Term ℓ) (s : Strength) (A B : Term ℓ) → Set a
-Γ ⊩Unit⟨ s ⟩ A ≡ B = Γ ⊢ B ⇒* Unit s
+_⊩Unit⟨_,_⟩_≡_ :
+  Con Term ℓ → Universe-level → Strength → (_ _ : Term ℓ) → Set a
+Γ ⊩Unit⟨ l , s ⟩ A ≡ B = Γ ⊢ B ⇒* Unit s l
 
-data Unit-prop (Γ : Con Term ℓ) (s : Strength) : (t : Term ℓ) → Set a where
-  starᵣ : Unit-prop Γ s (star s)
-  ne : ∀ {n} → Γ ⊩neNf n ∷ Unit s → Unit-prop Γ s n
+data Unit-prop
+  (Γ : Con Term ℓ) (l : Universe-level) (s : Strength) :
+  Term ℓ → Set a where
+  starᵣ : Unit-prop Γ l s (star s l)
+  ne : ∀ {n} → Γ ⊩neNf n ∷ Unit s l → Unit-prop Γ l s n
 
-record _⊩Unit⟨_⟩_∷Unit (Γ : Con Term ℓ) (s : Strength) (t : Term ℓ) : Set a where
+record _⊩Unit⟨_,_⟩_∷Unit
+  (Γ : Con Term ℓ) (l : Universe-level) (s : Strength) (t : Term ℓ) :
+  Set a where
   inductive
   constructor Unitₜ
   field
     n : Term ℓ
-    d : Γ ⊢ t :⇒*: n ∷ Unit s
-    n≡n : Γ ⊢ n ≅ n ∷ Unit s
-    prop : Unit-prop Γ s n
+    d : Γ ⊢ t :⇒*: n ∷ Unit s l
+    n≡n : Γ ⊢ n ≅ n ∷ Unit s l
+    prop : Unit-prop Γ l s n
 
 -- Unit term equality
 
-data [Unitʷ]-prop (Γ : Con Term ℓ) : (t u : Term ℓ) → Set a where
-  starᵣ : [Unitʷ]-prop Γ starʷ starʷ
-  ne : ∀ {n n′} → Γ ⊩neNf n ≡ n′ ∷ Unitʷ → [Unitʷ]-prop Γ n n′
+data [Unitʷ]-prop
+  (Γ : Con Term ℓ) (l : Universe-level) : (_ _ : Term ℓ) → Set a where
+  starᵣ : [Unitʷ]-prop Γ l (starʷ l) (starʷ l)
+  ne : ∀ {n n′} → Γ ⊩neNf n ≡ n′ ∷ Unitʷ l → [Unitʷ]-prop Γ l n n′
 
-data _⊩Unit⟨_⟩_≡_∷Unit
-  (Γ : Con Term ℓ) : Strength → (_ _ : Term ℓ) → Set a where
+data _⊩Unit⟨_,_⟩_≡_∷Unit
+  (Γ : Con Term ℓ) (l : Universe-level) : Strength → (_ _ : Term ℓ) → Set a where
   Unitₜ₌ˢ :
-    Γ ⊢ t ∷ Unit s →
-    Γ ⊢ u ∷ Unit s →
+    Γ ⊢ t ∷ Unit s l →
+    Γ ⊢ u ∷ Unit s l →
     Unit-with-η s →
-    Γ ⊩Unit⟨ s ⟩ t ≡ u ∷Unit
+    Γ ⊩Unit⟨ l , s ⟩ t ≡ u ∷Unit
   Unitₜ₌ʷ :
     (k k′ : Term ℓ) →
-    Γ ⊢ t :⇒*: k  ∷ Unitʷ →
-    Γ ⊢ u :⇒*: k′ ∷ Unitʷ →
-    Γ ⊢ k ≅ k′ ∷ Unitʷ →
-    [Unitʷ]-prop Γ k k′ →
+    Γ ⊢ t :⇒*: k  ∷ Unitʷ l →
+    Γ ⊢ u :⇒*: k′ ∷ Unitʷ l →
+    Γ ⊢ k ≅ k′ ∷ Unitʷ l →
+    [Unitʷ]-prop Γ l k k′ →
     ¬ Unitʷ-η →
-    Γ ⊩Unit⟨ 𝕨 ⟩ t ≡ u ∷Unit
+    Γ ⊩Unit⟨ l , 𝕨 ⟩ t ≡ u ∷Unit
 
 
 -- Logical relation
@@ -546,7 +554,7 @@ module LogRel
       Uᵣ  : ∀ {A} → Γ ⊩₁U A → Γ ⊩ₗ A
       ℕᵣ  : ∀ {A} → Γ ⊩ℕ A → Γ ⊩ₗ A
       Emptyᵣ : ∀ {A} → Γ ⊩Empty A → Γ ⊩ₗ A
-      Unitᵣ : ∀ {A} {s : Strength} → Γ ⊩Unit⟨ s ⟩ A → Γ ⊩ₗ A
+      Unitᵣ : ∀ {A} {s : Strength} → Γ ⊩Unit⟨ l , s ⟩ A → Γ ⊩ₗ A
       ne  : ∀ {A} → Γ ⊩ne A → Γ ⊩ₗ A
       Bᵣ  : ∀ {A} W → Γ ⊩ₗB⟨ W ⟩ A → Γ ⊩ₗ A
       Idᵣ : ∀ {A} → Γ ⊩ₗId A → Γ ⊩ₗ A
@@ -557,7 +565,7 @@ module LogRel
     Γ ⊩ₗ A ≡ B / Uᵣ (Uᵣ l′ _ _) = Γ ⊩₁U≡ B / l′
     Γ ⊩ₗ A ≡ B / ℕᵣ D = Γ ⊩ℕ A ≡ B
     Γ ⊩ₗ A ≡ B / Emptyᵣ D = Γ ⊩Empty A ≡ B
-    Γ ⊩ₗ A ≡ B / Unitᵣ {s = s} D = Γ ⊩Unit⟨ s ⟩ A ≡ B
+    Γ ⊩ₗ A ≡ B / Unitᵣ {s = s} D = Γ ⊩Unit⟨ l , s ⟩ A ≡ B
     Γ ⊩ₗ A ≡ B / ne neA = Γ ⊩ne A ≡ B / neA
     Γ ⊩ₗ A ≡ B / Bᵣ W BA = Γ ⊩ₗB⟨ W ⟩ A ≡ B / BA
     Γ ⊩ₗ A ≡ B / Idᵣ ⊩A = Γ ⊩ₗId A ≡ B / ⊩A
@@ -568,7 +576,7 @@ module LogRel
     Γ ⊩ₗ t ∷ A / Uᵣ p = Γ ⊩₁U t ∷U/ _⊩₁U_.l′< p
     Γ ⊩ₗ t ∷ A / ℕᵣ D = Γ ⊩ℕ t ∷ℕ
     Γ ⊩ₗ t ∷ A / Emptyᵣ D = Γ ⊩Empty t ∷Empty
-    Γ ⊩ₗ t ∷ A / Unitᵣ {s = s} D = Γ ⊩Unit⟨ s ⟩ t ∷Unit
+    Γ ⊩ₗ t ∷ A / Unitᵣ {s = s} D = Γ ⊩Unit⟨ l , s ⟩ t ∷Unit
     Γ ⊩ₗ t ∷ A / ne neA = Γ ⊩ne t ∷ A / neA
     Γ ⊩ₗ t ∷ A / Bᵣ BΠ! ΠA  = Γ ⊩ₗΠ t ∷ A / ΠA
     Γ ⊩ₗ t ∷ A / Bᵣ BΣ! ΣA  = Γ ⊩ₗΣ t ∷ A / ΣA
@@ -580,7 +588,7 @@ module LogRel
     Γ ⊩ₗ t ≡ u ∷ A / Uᵣ (Uᵣ l′ l< ⊢Γ) = Γ ⊩₁U t ≡ u ∷U/ l<
     Γ ⊩ₗ t ≡ u ∷ A / ℕᵣ D = Γ ⊩ℕ t ≡ u ∷ℕ
     Γ ⊩ₗ t ≡ u ∷ A / Emptyᵣ D = Γ ⊩Empty t ≡ u ∷Empty
-    Γ ⊩ₗ t ≡ u ∷ A / Unitᵣ {s = s} D = Γ ⊩Unit⟨ s ⟩ t ≡ u ∷Unit
+    Γ ⊩ₗ t ≡ u ∷ A / Unitᵣ {s = s} D = Γ ⊩Unit⟨ l , s ⟩ t ≡ u ∷Unit
     Γ ⊩ₗ t ≡ u ∷ A / ne neA = Γ ⊩ne t ≡ u ∷ A / neA
     Γ ⊩ₗ t ≡ u ∷ A / Bᵣ BΠ! ΠA = Γ ⊩ₗΠ t ≡ u ∷ A / ΠA
     Γ ⊩ₗ t ≡ u ∷ A / Bᵣ BΣ! ΣA  = Γ ⊩ₗΣ t ≡ u ∷ A / ΣA

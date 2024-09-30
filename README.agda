@@ -116,12 +116,14 @@ import Graded.Usage.Restrictions.Satisfied
 -- * Universe levels have been added. Instead of a single universe
 --   there is now a countably infinite universe hierarchy.
 --
--- * A weak unit type has been added. A variant of Theorem 6.13
+-- * Instead of a single strong unit type there is now one such type
+--   in each universe, and such types can now optionally be used as
+--   "sinks".
+--
+-- * Weak unit types have been added. A variant of Theorem 6.13
 --   (soundness of extraction) now holds in the presence of erased
 --   matches for weak unit types: the statement of this theorem makes
 --   use of a type system with η-equality for weak unit types.
---
--- * The strong unit type can now optionally be used as a "sink"
 --
 -- * One can now restrict uses of emptyrec, and if emptyrec 𝟘 is
 --   disallowed, then Theorem 6.13 holds also for inconsistent
@@ -280,7 +282,7 @@ Modality-variant  = Graded.Modality.Variant.Modality-variant
 Dedicated-star    = Graded.Modality.Dedicated-nr.Dedicated-nr
 No-dedicated-star = Graded.Modality.Dedicated-nr.No-dedicated-nr
 
--- * One can choose whether to allow the strong unit type. Furthermore
+-- * One can choose whether to allow strong unit types. Furthermore
 --   one can choose whether to allow binders of the form B_p^q, where
 --   p and q are grades and B is "Π", "strong Σ" or "weak Σ":
 
@@ -487,9 +489,9 @@ linearOrAffineModality′ =
 -- Pattern synonyms are used so that one can write code which is
 -- closer to the notation from the paper.
 --
--- The formalization includes a strong unit type which is discussed
--- mainly in Section 7.3. As discussed above use of this unit type can
--- be disallowed.
+-- The formalization includes strong unit types. Such types are
+-- discussed mainly in Section 7.3. As discussed above use of such
+-- unit types can be disallowed.
 
 grammar = Definition.Untyped.Term
 
@@ -1179,18 +1181,17 @@ erasure =
 
 affine = Graded.Modality.Instances.Affine.full-reduction-assumptions
 
--- The conditions are satisfied for the linear types modality if the
--- strong unit type is not allowed (or can be used as a sink), the
--- weak unit type does not come with η-equality, Σ_&,0^q is not
--- allowed, and Σ_&,ω^q is not allowed.
+-- The conditions are satisfied for the linear types modality if
+-- strong unit types are not allowed (or can be used as sinks), weak
+-- unit types do not come with η-equality, Σ_&,0^q is not allowed, and
+-- Σ_&,ω^q is not allowed.
 
 linear = Graded.Modality.Instances.Linearity.full-reduction-assumptions
 
 -- The conditions are satisfied for the linear or affine types
--- modality if the strong unit type is not allowed (or can be used as
--- a sink), the weak unit type does not come with η-equality, Σ_&,0^q
--- is not allowed, Σ_&,01^q is not allowed, and Σ_&,ω^q is not
--- allowed.
+-- modality if strong unit types are not allowed (or can be used as
+-- sinks), weak unit types do not come with η-equality, Σ_&,0^q is not
+-- allowed, Σ_&,01^q is not allowed, and Σ_&,ω^q is not allowed.
 
 linear-or-affine =
   Graded.Modality.Instances.Linear-or-affine.full-reduction-assumptions

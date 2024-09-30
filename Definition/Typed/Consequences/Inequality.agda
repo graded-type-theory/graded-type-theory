@@ -43,8 +43,8 @@ private
     b : BinderMode
     b′ : BindingType
     m : Strength
-    s : Strength
-    l l′ : Universe-level
+    s s₁ s₂ : Strength
+    l l′ l₁ l₂ : Universe-level
 
 opaque
   unfolding _⊩⟨_⟩_≡_
@@ -106,19 +106,19 @@ U≢Emptyⱼ U≡Empty =
 
 -- U and Unit
 U≢Unit′ :
-  (⊩U : Γ ⊩′⟨ l ⟩U A)
-  (⊩Unit : Γ ⊩Unit⟨ s ⟩ B) →
-  ShapeView Γ l l′ _ _ (Uᵣ ⊩U) (Unitᵣ ⊩Unit) → ⊥
+  (⊩U : Γ ⊩′⟨ l₁ ⟩U A)
+  (⊩Unit : Γ ⊩Unit⟨ l₂ , s ⟩ B) →
+  ShapeView Γ _ _ _ _ (Uᵣ ⊩U) (Unitᵣ ⊩Unit) → ⊥
 U≢Unit′ _ _ ()
 
-U≢Unit-red : Γ ⊢ B ⇒* Unit s → Γ ⊢ U l ≡ B → ⊥
+U≢Unit-red : Γ ⊢ B ⇒* Unit s l₁ → Γ ⊢ U l₂ ≡ B → ⊥
 U≢Unit-red D =
-  A≢B _⊩′⟨_⟩U_ (λ Γ _ B → Γ ⊩Unit⟨ _ ⟩ B) Uᵣ Unitᵣ
+  A≢B _⊩′⟨_⟩U_ _⊩Unit⟨_, _ ⟩_ Uᵣ Unitᵣ
     (extractMaybeEmb ∘→ U-elim)
     (extractMaybeEmb ∘→ Unit-elim′ D)
     U≢Unit′
 
-U≢Unitⱼ : Γ ⊢ U l ≡ Unit s → ⊥
+U≢Unitⱼ : Γ ⊢ U l₁ ≡ Unit s l₂ → ⊥
 U≢Unitⱼ U≡Unit =
   let _ , ⊢Unit = syntacticEq U≡Unit
   in  U≢Unit-red (id ⊢Unit) U≡Unit
@@ -144,38 +144,40 @@ U≢Unitⱼ U≡Unit =
 
 -- ℕ and Unit
 
-ℕ≢Unit′ : ∀ {B l l'}
-           ([ℕ] : Γ ⊩ℕ ℕ)
-           ([Unit] : Γ ⊩Unit⟨ s ⟩ B)
-           → ShapeView Γ l l' _ _ (ℕᵣ [ℕ]) (Unitᵣ [Unit]) → ⊥
+ℕ≢Unit′ :
+  (⊩ℕ : Γ ⊩ℕ ℕ)
+  (⊩Unit : Γ ⊩Unit⟨ l₂ , s ⟩ B) →
+  ShapeView Γ l₁ _ _ _ (ℕᵣ ⊩ℕ) (Unitᵣ ⊩Unit) → ⊥
 ℕ≢Unit′ a b ()
 
-ℕ≢Unit-red : ∀ {B} → Γ ⊢ B ⇒* Unit s → Γ ⊢ ℕ ≡ B → ⊥
-ℕ≢Unit-red D = A≢B (λ Γ l A → Γ ⊩ℕ A) (λ Γ l B → Γ ⊩Unit⟨ _ ⟩ B) ℕᵣ Unitᵣ
-                (λ x → extractMaybeEmb (ℕ-elim x))
-                (λ x → extractMaybeEmb (Unit-elim′ D x))
-                ℕ≢Unit′
+ℕ≢Unit-red : Γ ⊢ B ⇒* Unit s l → Γ ⊢ ℕ ≡ B → ⊥
+ℕ≢Unit-red D =
+  A≢B (λ Γ _ A → Γ ⊩ℕ A) _⊩Unit⟨_, _ ⟩_ ℕᵣ Unitᵣ
+    (extractMaybeEmb ∘→ ℕ-elim)
+    (extractMaybeEmb ∘→ Unit-elim′ D)
+    ℕ≢Unit′
 
-ℕ≢Unitⱼ : Γ ⊢ ℕ ≡ Unit s → ⊥
+ℕ≢Unitⱼ : Γ ⊢ ℕ ≡ Unit s l → ⊥
 ℕ≢Unitⱼ ℕ≡Unit =
   let _ , ⊢Unit = syntacticEq ℕ≡Unit
   in  ℕ≢Unit-red (id ⊢Unit) ℕ≡Unit
 
 -- Empty and Unit
 
-Empty≢Unit′ : ∀ {B l l'}
-           ([Empty] : Γ ⊩Empty Empty)
-           ([Unit] : Γ ⊩Unit⟨ s ⟩ B)
-           → ShapeView Γ l l' _ _ (Emptyᵣ [Empty]) (Unitᵣ [Unit]) → ⊥
-Empty≢Unit′ a b ()
+Empty≢Unit′ :
+  (⊩Empty : Γ ⊩Empty Empty)
+  (⊩Unit : Γ ⊩Unit⟨ l₂ , s ⟩ B) →
+  ShapeView Γ l₁ _ _ _ (Emptyᵣ ⊩Empty) (Unitᵣ ⊩Unit) → ⊥
+Empty≢Unit′ _ _ ()
 
-Empty≢Unit-red : ∀ {B} → Γ ⊢ B ⇒* Unit s → Γ ⊢ Empty ≡ B → ⊥
-Empty≢Unit-red D = A≢B (λ Γ l A → Γ ⊩Empty A) (λ Γ l B → Γ ⊩Unit⟨ _ ⟩ B) Emptyᵣ Unitᵣ
-                (λ x → extractMaybeEmb (Empty-elim x))
-                (λ x → extractMaybeEmb (Unit-elim′ D x))
-                Empty≢Unit′
+Empty≢Unit-red : Γ ⊢ B ⇒* Unit s l → Γ ⊢ Empty ≡ B → ⊥
+Empty≢Unit-red D =
+  A≢B (λ Γ _ A → Γ ⊩Empty A) _⊩Unit⟨_, _ ⟩_ Emptyᵣ Unitᵣ
+    (extractMaybeEmb ∘→ Empty-elim)
+    (extractMaybeEmb ∘→ Unit-elim′ D)
+    Empty≢Unit′
 
-Empty≢Unitⱼ : Γ ⊢ Empty ≡ Unit s → ⊥
+Empty≢Unitⱼ : Γ ⊢ Empty ≡ Unit s l → ⊥
 Empty≢Unitⱼ Empty≡Unit =
   let _ , ⊢Unit = syntacticEq Empty≡Unit
   in  Empty≢Unit-red (id ⊢Unit) Empty≡Unit
@@ -289,31 +291,32 @@ Empty≢ΠΣⱼ : Γ ⊢ Empty ≡ ΠΣ⟨ b ⟩ p , q ▷ F ▹ G → ⊥
 Empty≢ΠΣⱼ {b = BMΠ}   = Empty≢Πⱼ
 Empty≢ΠΣⱼ {b = BMΣ _} = Empty≢Σⱼ
 
--- Unit and Π
-Unit≢B′ : ∀ {A B l l′} W
-       ([Unit] : Γ ⊩Unit⟨ s ⟩ A)
-       ([W] : Γ ⊩′⟨ l′ ⟩B⟨ W ⟩ B)
-     → ShapeView Γ l l′ _ _ (Unitᵣ [Unit]) (Bᵣ W [W]) → ⊥
-Unit≢B′ W a b ()
+-- Unit and Π or Σ.
+Unit≢B′ :
+  (⊩Unit : Γ ⊩Unit⟨ l₁ , s ⟩ A)
+  (⊩B : Γ ⊩′⟨ l₂ ⟩B⟨ b′ ⟩ B) →
+  ShapeView Γ _ _ _ _ (Unitᵣ ⊩Unit) (Bᵣ _ ⊩B) → ⊥
+Unit≢B′ _ _ ()
 
-Unit≢B-red : ∀ {A B F G} W → Γ ⊢ A ⇒* Unit s → Γ ⊢ B ⇒* ⟦ W ⟧ F ▹ G → Γ ⊢ A ≡ B → ⊥
-Unit≢B-red W D D′ = A≢B (λ Γ l A → Γ ⊩Unit⟨ _ ⟩ A)
-                    (λ Γ l A → Γ ⊩′⟨ l ⟩B⟨ W ⟩ A) Unitᵣ (Bᵣ W)
-                    (λ x → extractMaybeEmb (Unit-elim′ D x))
-                    (λ x → extractMaybeEmb (B-elim′ W D′ x))
-                    (Unit≢B′ W)
+Unit≢B-red :
+  Γ ⊢ A ⇒* Unit s l → Γ ⊢ B ⇒* ⟦ b′ ⟧ C ▹ D → Γ ⊢ A ≡ B → ⊥
+Unit≢B-red D D′ =
+  A≢B _⊩Unit⟨_, _ ⟩_ _⊩′⟨_⟩B⟨ _ ⟩_ Unitᵣ (Bᵣ _)
+    (extractMaybeEmb ∘→ Unit-elim′ D)
+    (extractMaybeEmb ∘→ B-elim′ _ D′)
+    Unit≢B′
 
-Unit≢Bⱼ : ∀ {F G} W → Γ ⊢ Unit s ≡ ⟦ W ⟧ F ▹ G → ⊥
-Unit≢Bⱼ W Unit≡W =
+Unit≢Bⱼ : ∀ W → Γ ⊢ Unit s l ≡ ⟦ W ⟧ B ▹ C → ⊥
+Unit≢Bⱼ _ Unit≡W =
   let ⊢Unit , ⊢W = syntacticEq Unit≡W
-  in  Unit≢B-red W (id ⊢Unit) (id ⊢W) Unit≡W
+  in  Unit≢B-red (id ⊢Unit) (id ⊢W) Unit≡W
 
-Unit≢Πⱼ : ∀ {Γ : Con Term n} {F G p q s} → _
-Unit≢Πⱼ {Γ = Γ} {F} {G} {p} {q} {s} = Unit≢Bⱼ {Γ = Γ} {s} {F} {G} (BΠ p q)
-Unit≢Σⱼ : ∀ {Γ : Con Term n} {F G p q m s} → _
-Unit≢Σⱼ {Γ = Γ} {F} {G} {p} {q} {m} {s} = Unit≢Bⱼ {Γ = Γ} {s} {F} {G} (BΣ m p q)
+Unit≢Πⱼ : Γ ⊢ Unit s l ≡ Π p , q ▷ B ▹ C → ⊥
+Unit≢Πⱼ = Unit≢Bⱼ _
+Unit≢Σⱼ : Γ ⊢ Unit s₁ l ≡ Σ⟨ s₂ ⟩ p , q ▷ B ▹ C → ⊥
+Unit≢Σⱼ = Unit≢Bⱼ _
 
-Unit≢ΠΣⱼ : Γ ⊢ Unit s ≡ ΠΣ⟨ b ⟩ p , q ▷ F ▹ G → ⊥
+Unit≢ΠΣⱼ : Γ ⊢ Unit s l ≡ ΠΣ⟨ b ⟩ p , q ▷ B ▹ C → ⊥
 Unit≢ΠΣⱼ {b = BMΠ}   = Unit≢Πⱼ
 Unit≢ΠΣⱼ {b = BMΣ _} = Unit≢Σⱼ
 
@@ -354,22 +357,23 @@ Empty≢neⱼ neK Empty≡K =
   in  Empty≢ne-red (id ⊢Empty) (id ⊢K) neK Empty≡K
 
 -- Unit and neutral
-Unit≢ne′ : ∀ {A K l l′}
-       ([Unit] : Γ ⊩Unit⟨ s ⟩ A)
-       ([K] : Γ ⊩ne K)
-     → ShapeView Γ l l′ _ _ (Unitᵣ [Unit]) (ne [K]) → ⊥
-Unit≢ne′ a b ()
+Unit≢ne′ :
+  (⊩Unit : Γ ⊩Unit⟨ l₁ , s ⟩ A)
+  (⊩B : Γ ⊩ne B) →
+  ShapeView Γ _ l₂ _ _ (Unitᵣ ⊩Unit) (ne ⊩B) → ⊥
+Unit≢ne′ _ _ ()
 
-Unit≢ne-red : ∀ {A B K} → Γ ⊢ A ⇒* Unit s → Γ ⊢ B ⇒* K → Neutral K → Γ ⊢ A ≡ B → ⊥
-Unit≢ne-red D D′ neK = A≢B (λ Γ l A → Γ ⊩Unit⟨ _ ⟩ A) (λ Γ l B → Γ ⊩ne B) Unitᵣ ne
-                        (λ x → extractMaybeEmb (Unit-elim′ D x))
-                        (λ x → extractMaybeEmb (ne-elim′ D′ neK x))
-                        Unit≢ne′
+Unit≢ne-red : Γ ⊢ A ⇒* Unit s l → Γ ⊢ B ⇒* C → Neutral C → Γ ⊢ A ≡ B → ⊥
+Unit≢ne-red D D′ neC =
+  A≢B _⊩Unit⟨_, _ ⟩_ (λ Γ _ B → Γ ⊩ne B) Unitᵣ ne
+    (extractMaybeEmb ∘→ Unit-elim′ D)
+    (extractMaybeEmb ∘→ ne-elim′ D′ neC)
+    Unit≢ne′
 
-Unit≢neⱼ : ∀ {K} → Neutral K → Γ ⊢ Unit s ≡ K → ⊥
-Unit≢neⱼ neK Unit≡K =
-  let ⊢Unit , ⊢K = syntacticEq Unit≡K
-  in  Unit≢ne-red (id ⊢Unit) (id ⊢K) neK Unit≡K
+Unit≢neⱼ : Neutral B → Γ ⊢ Unit s l ≡ B → ⊥
+Unit≢neⱼ B-ne Unit≡B =
+  let ⊢Unit , ⊢B = syntacticEq Unit≡B
+  in  Unit≢ne-red (id ⊢Unit) (id ⊢B) B-ne Unit≡B
 
 B≢ne′ : ∀ {A K l l′} W
        ([W] : Γ ⊩′⟨ l ⟩B⟨ W ⟩ A)
@@ -445,22 +449,22 @@ B≢ne W neK W≡K =
 
 -- Weak and strong unit types
 
-Unitʷ≢Unitˢ′ : ([A] : Γ ⊩Unit⟨ 𝕨 ⟩ A)
-               ([B] : Γ ⊩Unit⟨ 𝕤 ⟩ B)
-             → ShapeView Γ l l′ A B (Unitᵣ [A]) (Unitᵣ [B]) → ⊥
-Unitʷ≢Unitˢ′ [A] [B] ()
+Unitʷ≢Unitˢ′ :
+  (⊩A : Γ ⊩Unit⟨ l₁ , 𝕨 ⟩ A)
+  (⊩B : Γ ⊩Unit⟨ l₂ , 𝕤 ⟩ B) →
+  ShapeView Γ _ _ _ _ (Unitᵣ ⊩A) (Unitᵣ ⊩B) → ⊥
+Unitʷ≢Unitˢ′ _ _ ()
 
-Unitʷ≢Unitˢ-red : Γ ⊢ A ⇒* Unitʷ
-                → Γ ⊢ B ⇒* Unitˢ
+Unitʷ≢Unitˢ-red : Γ ⊢ A ⇒* Unitʷ l₁
+                → Γ ⊢ B ⇒* Unitˢ l₂
                 → Γ ⊢ A ≡ B → ⊥
-Unitʷ≢Unitˢ-red D D′ = A≢B (λ Γ l A → Γ ⊩Unit⟨ 𝕨 ⟩ A)
-                           (λ Γ l B → Γ ⊩Unit⟨ 𝕤 ⟩ B)
-                           Unitᵣ Unitᵣ
-                           (λ x → extractMaybeEmb (Unit-elim′ D x))
-                           (λ x → extractMaybeEmb (Unit-elim′ D′ x))
-                           Unitʷ≢Unitˢ′
+Unitʷ≢Unitˢ-red D D′ =
+  A≢B _⊩Unit⟨_, 𝕨 ⟩_ _⊩Unit⟨_, 𝕤 ⟩_ Unitᵣ Unitᵣ
+    (extractMaybeEmb ∘→ Unit-elim′ D)
+    (extractMaybeEmb ∘→ Unit-elim′ D′)
+    Unitʷ≢Unitˢ′
 
-Unitʷ≢Unitˢ : Γ ⊢ Unitʷ ≡ Unitˢ → ⊥
+Unitʷ≢Unitˢ : Γ ⊢ Unitʷ l₁ ≡ Unitˢ l₂ → ⊥
 Unitʷ≢Unitˢ Unitʷ≡Unitˢ =
   let ⊢Unitʷ , ⊢Unitˢ = syntacticEq Unitʷ≡Unitˢ
   in  Unitʷ≢Unitˢ-red (id ⊢Unitʷ) (id ⊢Unitˢ) Unitʷ≡Unitˢ
@@ -494,11 +498,11 @@ opaque
       (extractMaybeEmb ∘→ ℕ-elim)
       (λ _ _ ())
 
-  -- Applications of Id are not definitionally equal to Unit.
+  -- Applications of Id are not definitionally equal to unit types.
 
-  Id≢Unit : Γ ⊢ Id A t u ≡ Unit s → ⊥
-  Id≢Unit {s = s} =
-    A≢B _⊩′⟨_⟩Id_ (λ Γ _ A → Γ ⊩Unit⟨ s ⟩ A) Idᵣ Unitᵣ
+  Id≢Unit : Γ ⊢ Id A t u ≡ Unit s l → ⊥
+  Id≢Unit {s} =
+    A≢B _⊩′⟨_⟩Id_ _⊩Unit⟨_, s ⟩_ Idᵣ Unitᵣ
       (extractMaybeEmb ∘→ Id-elim)
       (extractMaybeEmb ∘→ Unit-elim)
       (λ _ _ ())
@@ -568,7 +572,8 @@ No-η-equality→≢Σˢ = λ where
 -- If No-η-equality A holds, then A is not a unit type with
 -- η-equality.
 
-No-η-equality→≢Unit : No-η-equality A → Γ ⊢ A ≡ Unit s → ¬ Unit-with-η s
+No-η-equality→≢Unit :
+  No-η-equality A → Γ ⊢ A ≡ Unit s l → ¬ Unit-with-η s
 No-η-equality→≢Unit = λ where
   U.Uₙ            U≡Unit      _              → U≢Unitⱼ U≡Unit
   U.Σʷₙ           Σʷ≡Unit     _              → Unit≢ΠΣⱼ (sym Σʷ≡Unit)

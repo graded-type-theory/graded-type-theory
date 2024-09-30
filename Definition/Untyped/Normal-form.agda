@@ -35,14 +35,14 @@ mutual
     ΠΣₙ    : Nf A → Nf B → Nf (ΠΣ⟨ b ⟩ p , q ▷ A ▹ B)
     ℕₙ     : Nf ℕ
     Emptyₙ : Nf Empty
-    Unitₙ  : Nf (Unit s)
+    Unitₙ  : Nf (Unit s l)
     Idₙ    : Nf A → Nf t → Nf u → Nf (Id A t u)
 
     lamₙ   : Nf t → Nf (lam q t)
     prodₙ  : Nf t → Nf u → Nf (prod s p t u)
     zeroₙ  : Nf zero
     sucₙ   : Nf t → Nf (suc t)
-    starₙ  : Nf (star s)
+    starₙ  : Nf (star s l)
     rflₙ   : Nf rfl
 
     ne     : NfNeutral n → Nf n
@@ -61,7 +61,7 @@ mutual
                 NfNeutral (prodrec r p q C t u)
     emptyrecₙ : Nf C → NfNeutral k → NfNeutral (emptyrec p C k)
     unitrecₙ  : ¬ Unitʷ-η → Nf C → NfNeutral t → Nf u →
-                NfNeutral (unitrec p q A t u)
+                NfNeutral (unitrec l p q A t u)
     Jₙ        : Nf A → Nf t → Nf B → Nf u → Nf t′ → NfNeutral v →
                 NfNeutral (J p q A t B u t′ v)
     Kₙ        : Nf A → Nf t → Nf B → Nf u → NfNeutral v →

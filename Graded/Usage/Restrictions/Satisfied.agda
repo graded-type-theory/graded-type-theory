@@ -68,15 +68,15 @@ data Usage-restrictions-satisfied {n} (m : Mode) : Term n → Set a where
     Usage-restrictions-satisfied (m ᵐ· p) t →
     Usage-restrictions-satisfied m (emptyrec p A t)
   Unitᵤ :
-    Usage-restrictions-satisfied m (Unit s)
+    Usage-restrictions-satisfied m (Unit s l)
   starᵤ :
-    Usage-restrictions-satisfied m (star s)
+    Usage-restrictions-satisfied m (star s l)
   unitrecᵤ :
     Unitrec-allowed m p q →
     Usage-restrictions-satisfied 𝟘ᵐ? A →
     Usage-restrictions-satisfied (m ᵐ· p) t →
     Usage-restrictions-satisfied m u →
-    Usage-restrictions-satisfied m (unitrec p q A t u)
+    Usage-restrictions-satisfied m (unitrec l p q A t u)
   ΠΣᵤ :
     Usage-restrictions-satisfied (m ᵐ· p) A →
     Usage-restrictions-satisfied m B →

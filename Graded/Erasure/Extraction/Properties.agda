@@ -156,19 +156,19 @@ opaque
 opaque
 
   unitrec-𝟘 :
-    ∀ q A → p PE.≡ 𝟘 →
-    erase′ b s (U.unitrec p q A t u) PE.≡ erase′ b s u
-  unitrec-𝟘 {p} _ _ p≡𝟘 with is-𝟘? p
+    ∀ l q A → p PE.≡ 𝟘 →
+    erase′ b s (U.unitrec l p q A t u) PE.≡ erase′ b s u
+  unitrec-𝟘 {p} _ _ _ p≡𝟘 with is-𝟘? p
   … | yes _  = PE.refl
   … | no p≢𝟘 = ⊥-elim (p≢𝟘 p≡𝟘)
 
 opaque
 
   unitrec-ω :
-    ∀ q A → p PE.≢ 𝟘 →
-    erase′ b s (U.unitrec p q A t u) PE.≡
+    ∀ l q A → p PE.≢ 𝟘 →
+    erase′ b s (U.unitrec l p q A t u) PE.≡
     T.unitrec (erase′ b s t) (erase′ b s u)
-  unitrec-ω {p} _ _ p≢𝟘 with is-𝟘? p
+  unitrec-ω {p} _ _ _ p≢𝟘 with is-𝟘? p
   … | yes p≡𝟘 = ⊥-elim (p≢𝟘 p≡𝟘)
   … | no _    = PE.refl
 
@@ -325,7 +325,7 @@ wk-erase-comm ρ (U.natrec p q r A z s n) =
                  (wk-erase-comm ρ n)
 wk-erase-comm {s} _ Unit! = wk-loop? s
 wk-erase-comm ρ U.star! = refl
-wk-erase-comm ρ (U.unitrec p q A t u)
+wk-erase-comm ρ (U.unitrec _ p _ _ t u)
   with is-𝟘? p
 ... | yes _ =
   wk-erase-comm _ u
@@ -497,7 +497,7 @@ subst-erase-comm σ (U.natrec p q r A z s n) = cong₃ T.natrec
   (subst-erase-comm σ n)
 subst-erase-comm {s} _ Unit! = loop?-[] s
 subst-erase-comm σ U.star! = refl
-subst-erase-comm σ (U.unitrec p q A t u) with is-𝟘? p
+subst-erase-comm σ (U.unitrec _ p _ _ t u) with is-𝟘? p
 ... | yes _ =
   subst-erase-comm σ u
 ... | no _ =

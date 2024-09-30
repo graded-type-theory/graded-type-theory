@@ -28,6 +28,7 @@ private variable
   Γ   : Con Term _
   t u : Term _
   s   : Strength
+  l   : Universe-level
 
 opaque
 
@@ -65,9 +66,9 @@ opaque
 
 opaque
 
-  -- If t satisfies Unit-prop Γ s, then t is a WHNF.
+  -- If t satisfies Unit-prop Γ l s, then t is a WHNF.
 
-  unit : Unit-prop Γ s t → Whnf t
+  unit : Unit-prop Γ l s t → Whnf t
   unit starᵣ                 = starₙ
   unit (ne (neNfₜ t-ne _ _)) = ne t-ne
 
@@ -75,6 +76,6 @@ opaque
 
   -- If t and u satisfy [Unitʷ]-prop Γ, then they are WHNFs.
 
-  usplit : [Unitʷ]-prop Γ t u → Whnf t × Whnf u
+  usplit : [Unitʷ]-prop Γ l t u → Whnf t × Whnf u
   usplit starᵣ                     = starₙ , starₙ
   usplit (ne (neNfₜ₌ t-ne u-ne _)) = ne t-ne , ne u-ne

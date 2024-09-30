@@ -1083,9 +1083,9 @@ instance
 -- reduction theorem if
 -- * whenever Σˢ-allowed m n holds, then m is ⌞ 1 ⌟, or the affine
 --   ordering is used, m is ⌞ 0 ⌟, and 𝟘ᵐ is allowed, and
--- * if the "exact" ordering is used, then the strong unit type is
---   allowed to be used as a sink (if that type is allowed), and
---   η-equality is not allowed for the weak unit type (if that type is
+-- * if the "exact" ordering is used, then strong unit types are
+--   allowed to be used as sinks (if such types are allowed), and
+--   η-equality is not allowed for weak unit types (if such types are
 --   allowed).
 
 Suitable-for-full-reduction :

@@ -61,9 +61,9 @@ inv-usage-Empty : γ ▸[ m ] Empty → γ ≤ᶜ 𝟘ᶜ
 inv-usage-Empty Emptyₘ = ≤ᶜ-refl
 inv-usage-Empty (sub γ▸⊥ γ≤δ) = ≤ᶜ-trans γ≤δ (inv-usage-Empty γ▸⊥)
 
--- If γ ▸[ m ] Unit then γ ≤ᶜ 𝟘ᶜ.
+-- If γ ▸[ m ] Unit s l then γ ≤ᶜ 𝟘ᶜ.
 
-inv-usage-Unit : γ ▸[ m ] Unit s → γ ≤ᶜ 𝟘ᶜ
+inv-usage-Unit : γ ▸[ m ] Unit s l → γ ≤ᶜ 𝟘ᶜ
 inv-usage-Unit Unitₘ = ≤ᶜ-refl
 inv-usage-Unit (sub γ▸⊤ γ≤δ) = ≤ᶜ-trans γ≤δ (inv-usage-Unit γ▸⊤)
 
@@ -345,9 +345,9 @@ inv-usage-emptyrec (emptyrecₘ δ▸t η▸A ok) = invUsageEmptyrec δ▸t η�
 inv-usage-emptyrec (sub γ▸et γ≤γ′) with inv-usage-emptyrec γ▸et
 ... | invUsageEmptyrec δ▸t η▸A ok γ′≤δ = invUsageEmptyrec δ▸t η▸A ok (≤ᶜ-trans γ≤γ′ γ′≤δ)
 
--- If γ ▸[ m ] starʷ then γ ≤ᶜ 𝟘ᶜ.
+-- If γ ▸[ m ] starʷ l then γ ≤ᶜ 𝟘ᶜ.
 
-inv-usage-starʷ : γ ▸[ m ] starʷ → γ ≤ᶜ 𝟘ᶜ
+inv-usage-starʷ : γ ▸[ m ] starʷ l → γ ≤ᶜ 𝟘ᶜ
 inv-usage-starʷ starʷₘ = ≤ᶜ-refl
 inv-usage-starʷ (sub  δ▸star γ≤δ) = ≤ᶜ-trans γ≤δ (inv-usage-starʷ δ▸star)
 
@@ -362,7 +362,7 @@ record InvUsageStarˢ {n} (γ : Conₘ n) (m : Mode) : Set a where
 
 -- A usage inversion lemma for starˢ.
 
-inv-usage-starˢ : γ ▸[ m ] starˢ → InvUsageStarˢ γ m
+inv-usage-starˢ : γ ▸[ m ] starˢ l → InvUsageStarˢ γ m
 inv-usage-starˢ (starˢₘ ok) =
   invUsageStarˢ ≤ᶜ-refl ok
 inv-usage-starˢ (sub γ▸star γ≤γ′) with inv-usage-starˢ γ▸star
@@ -381,7 +381,8 @@ record InvUsageUnitrec {n} (γ : Conₘ n) (m : Mode) (p q : M)
 
 -- A usage inversion lemma for unitrec.
 
-inv-usage-unitrec : γ ▸[ m ] unitrec p q A t u → InvUsageUnitrec γ m p q A t u
+inv-usage-unitrec :
+  γ ▸[ m ] unitrec l p q A t u → InvUsageUnitrec γ m p q A t u
 inv-usage-unitrec (unitrecₘ δ▸t η▸u θ▸A ok) =
   invUsageUnitrec δ▸t η▸u θ▸A ok ≤ᶜ-refl
 inv-usage-unitrec (sub γ′▸ur γ≤γ′) with inv-usage-unitrec γ′▸ur

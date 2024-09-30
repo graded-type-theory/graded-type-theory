@@ -108,26 +108,26 @@ wkEqTermEmpty {ρ = ρ} [ρ] ⊢Δ (Emptyₜ₌ k k′ d d′ t≡u prop) =
 
 -- Unit
 wkUnit-prop : ∀ {s t} → ρ ∷ Δ ⊇ Γ → (⊢Δ : ⊢ Δ)
-            → Unit-prop Γ s t
-            → Unit-prop Δ s (U.wk ρ t)
+            → Unit-prop Γ l s t
+            → Unit-prop Δ l s (U.wk ρ t)
 wkUnit-prop [ρ] ⊢Δ starᵣ = starᵣ
 wkUnit-prop [ρ] ⊢Δ (ne x) = ne (wkTermNe [ρ] ⊢Δ x)
 
 wk[Unitʷ]-prop : ∀ {t u} → ρ ∷ Δ ⊇ Γ → (⊢Δ : ⊢ Δ)
-               → [Unitʷ]-prop Γ t u
-               → [Unitʷ]-prop Δ (U.wk ρ t) (U.wk ρ u)
+               → [Unitʷ]-prop Γ l t u
+               → [Unitʷ]-prop Δ l (U.wk ρ t) (U.wk ρ u)
 wk[Unitʷ]-prop [ρ] ⊢Δ starᵣ = starᵣ
 wk[Unitʷ]-prop [ρ] ⊢Δ (ne x) = ne (wkEqTermNe [ρ] ⊢Δ x)
 
 wkTermUnit : ∀ {n s} → ρ ∷ Δ ⊇ Γ → (⊢Δ : ⊢ Δ)
-           → Γ ⊩Unit⟨ s ⟩ n ∷Unit → Δ ⊩Unit⟨ s ⟩ U.wk ρ n ∷Unit
+           → Γ ⊩Unit⟨ l , s ⟩ n ∷Unit → Δ ⊩Unit⟨ l , s ⟩ U.wk ρ n ∷Unit
 wkTermUnit {ρ = ρ} [ρ] ⊢Δ (Unitₜ n d n≡n prop) =
   Unitₜ (U.wk ρ n) (wkRed:*:Term [ρ] ⊢Δ d)
         (≅ₜ-wk [ρ] ⊢Δ n≡n) (wkUnit-prop [ρ] ⊢Δ prop)
 
 wkEqTermUnit : ∀ {t u s} → ρ ∷ Δ ⊇ Γ → (⊢Δ : ⊢ Δ)
-          → Γ ⊩Unit⟨ s ⟩ t ≡ u ∷Unit
-          → Δ ⊩Unit⟨ s ⟩ U.wk ρ t ≡ U.wk ρ u ∷Unit
+          → Γ ⊩Unit⟨ l , s ⟩ t ≡ u ∷Unit
+          → Δ ⊩Unit⟨ l , s ⟩ U.wk ρ t ≡ U.wk ρ u ∷Unit
 wkEqTermUnit [ρ] ⊢Δ (Unitₜ₌ˢ ⊢t ⊢u ok) =
   Unitₜ₌ˢ (T.wkTerm [ρ] ⊢Δ ⊢t) (T.wkTerm [ρ] ⊢Δ ⊢u) ok
 wkEqTermUnit {ρ} [ρ] ⊢Δ (Unitₜ₌ʷ k k′ d d′ k≡k′ prop ok) =

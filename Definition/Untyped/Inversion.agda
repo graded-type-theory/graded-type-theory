@@ -160,43 +160,43 @@ subst-prodrec {t = prodrec _ _ _ _ _ _} refl =
 
 -- Inversion for Unit.
 
-wk-Unit : wk ρ t ≡ Unit s → t ≡ Unit s
+wk-Unit : wk ρ t ≡ Unit s l → t ≡ Unit s l
 wk-Unit {t = Unit!} refl = refl
 
-subst-Unit : t [ σ ] ≡ Unit s →
-             (∃ λ x → t ≡ var x) ⊎ t ≡ Unit s
+subst-Unit : t [ σ ] ≡ Unit s l →
+             (∃ λ x → t ≡ var x) ⊎ t ≡ Unit s l
 subst-Unit {t = var _} _ = inj₁ (_ , refl)
 subst-Unit {t = Unit!} refl = inj₂ refl
 
 -- Inversion for star.
 
-wk-star : wk ρ t ≡ star s → t ≡ star s
+wk-star : wk ρ t ≡ star s l → t ≡ star s l
 wk-star {t = star!} refl = refl
 
-subst-star : t [ σ ] ≡ star s →
-            (∃ λ x → t ≡ var x) ⊎ t ≡ star s
+subst-star : t [ σ ] ≡ star s l →
+            (∃ λ x → t ≡ var x) ⊎ t ≡ star s l
 subst-star {t = var _} _ = inj₁ (_ , refl)
 subst-star {t = star!} refl = inj₂ refl
 
 -- Inversion for unitrec.
 
 wk-unitrec :
-  wk ρ t ≡ unitrec p q A u v →
+  wk ρ t ≡ unitrec l p q A u v →
   ∃₃ λ A′ u′ v′ →
-     t ≡ unitrec p q A′ u′ v′ ×
+     t ≡ unitrec l p q A′ u′ v′ ×
      wk (lift ρ) A′ ≡ A × wk ρ u′ ≡ u × wk ρ v′ ≡ v
-wk-unitrec {t = unitrec _ _ _ _ _} refl =
+wk-unitrec {t = unitrec _ _ _ _ _ _} refl =
   _ , _ , _ , refl , refl , refl , refl
 
 subst-unitrec :
-  t [ σ ] ≡ unitrec p q A u v →
+  t [ σ ] ≡ unitrec l p q A u v →
   (∃ λ x → t ≡ var x) ⊎
   ∃₃ λ A′ u′ v′ →
-     t ≡ unitrec p q A′ u′ v′ ×
+     t ≡ unitrec l p q A′ u′ v′ ×
      A′ [ liftSubst σ ] ≡ A × u′ [ σ ] ≡ u × v′ [ σ ] ≡ v
 subst-unitrec {t = var _} _ =
   inj₁ (_ , refl)
-subst-unitrec {t = unitrec _ _ _ _ _} refl =
+subst-unitrec {t = unitrec _ _ _ _ _ _} refl =
   inj₂ (_ , _ , _ , refl , refl , refl , refl)
 
 -- Inversion for Empty.

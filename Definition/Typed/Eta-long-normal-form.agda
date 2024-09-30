@@ -79,7 +79,7 @@ mutual
              Γ ⊢nf Empty
     Unitₙ  : ⊢ Γ →
              Unit-allowed s →
-             Γ ⊢nf Unit s
+             Γ ⊢nf Unit s l
     ℕₙ     : ⊢ Γ →
              Γ ⊢nf ℕ
     Idₙ    : Γ ⊢nf A →
@@ -116,10 +116,10 @@ mutual
              Γ ⊢nf Empty ∷ U 0
     Unitₙ  : ⊢ Γ →
              Unit-allowed s →
-             Γ ⊢nf Unit s ∷ U 0
+             Γ ⊢nf Unit s l ∷ U l
     starₙ  : ⊢ Γ →
              Unit-allowed s →
-             Γ ⊢nf star s ∷ Unit s
+             Γ ⊢nf star s l ∷ Unit s l
     ℕₙ     : ⊢ Γ →
              Γ ⊢nf ℕ ∷ U 0
     zeroₙ  : ⊢ Γ →
@@ -175,12 +175,12 @@ mutual
                 Γ ∙ ℕ ∙ A ⊢nf u ∷ A [ suc (var x1) ]↑² →
                 Γ ⊢ne v ∷ ℕ →
                 Γ ⊢ne natrec p q r A t u v ∷ A [ v ]₀
-    unitrecₙ  : Γ ∙ Unitʷ ⊢nf A →
-                Γ ⊢ne t ∷ Unitʷ →
-                Γ ⊢nf u ∷ A [ starʷ ]₀ →
+    unitrecₙ  : Γ ∙ Unitʷ l ⊢nf A →
+                Γ ⊢ne t ∷ Unitʷ l →
+                Γ ⊢nf u ∷ A [ starʷ l ]₀ →
                 Unitʷ-allowed →
                 ¬ Unitʷ-η →
-                Γ ⊢ne unitrec p q A t u ∷ A [ t ]₀
+                Γ ⊢ne unitrec l p q A t u ∷ A [ t ]₀
     Jₙ        : Γ ⊢nf A →
                 Γ ⊢nf t ∷ A →
                 Γ ∙ A ∙ Id (wk1 A) (wk1 t) (var x0) ⊢nf B →
@@ -988,10 +988,10 @@ opaque
 opaque
 
   inversion-ne-unitrec :
-    Γ ⊢ne unitrec p q A t u ∷ B →
-    (Γ ∙ Unitʷ ⊢nf A) ×
-    Γ ⊢ne t ∷ Unitʷ ×
-    Γ ⊢nf u ∷ A [ starʷ ]₀ ×
+    Γ ⊢ne unitrec l p q A t u ∷ B →
+    (Γ ∙ Unitʷ l ⊢nf A) ×
+    Γ ⊢ne t ∷ Unitʷ l ×
+    Γ ⊢nf u ∷ A [ starʷ l ]₀ ×
     Γ ⊢ B ≡ A [ t ]₀ ×
     ¬ Unitʷ-η
   inversion-ne-unitrec (unitrecₙ ⊢A ⊢t ⊢u _ not-ok) =
@@ -1004,10 +1004,10 @@ opaque
 opaque
 
   inversion-nf-unitrec :
-    Γ ⊢nf unitrec p q A t u ∷ B →
-    (Γ ∙ Unitʷ ⊢nf A) ×
-    Γ ⊢ne t ∷ Unitʷ ×
-    Γ ⊢nf u ∷ A [ starʷ ]₀ ×
+    Γ ⊢nf unitrec l p q A t u ∷ B →
+    (Γ ∙ Unitʷ l ⊢nf A) ×
+    Γ ⊢ne t ∷ Unitʷ l ×
+    Γ ⊢nf u ∷ A [ starʷ l ]₀ ×
     Γ ⊢ B ≡ A [ t ]₀ ×
     ¬ Unitʷ-η
   inversion-nf-unitrec (neₙ _ ⊢ur) = inversion-ne-unitrec ⊢ur
@@ -1019,10 +1019,10 @@ opaque
 opaque
 
   inversion-nf-ne-unitrec :
-    Γ ⊢nf unitrec p q A t u ∷ B ⊎ Γ ⊢ne unitrec p q A t u ∷ B →
-    (Γ ∙ Unitʷ ⊢nf A) ×
-    Γ ⊢ne t ∷ Unitʷ ×
-    Γ ⊢nf u ∷ A [ starʷ ]₀ ×
+    Γ ⊢nf unitrec l p q A t u ∷ B ⊎ Γ ⊢ne unitrec l p q A t u ∷ B →
+    (Γ ∙ Unitʷ l ⊢nf A) ×
+    Γ ⊢ne t ∷ Unitʷ l ×
+    Γ ⊢nf u ∷ A [ starʷ l ]₀ ×
     Γ ⊢ B ≡ A [ t ]₀ ×
     ¬ Unitʷ-η
   inversion-nf-ne-unitrec (inj₁ ⊢ur) = inversion-nf-unitrec ⊢ur
@@ -1082,17 +1082,18 @@ opaque
     (Idₙ _ _ _)       _ ()
     (rflₙ _)          _ ()
 
--- Normal forms of type Unit s are equal to star s if Unit s comes
--- with η-equality.
+-- Normal forms of type Unit s l are equal to star s l if Unit s l
+-- comes with η-equality.
 
-⊢nf∷Unitˢ→≡starˢ : Unit-with-η s → Γ ⊢nf t ∷ Unit s → t PE.≡ star s
+⊢nf∷Unitˢ→≡starˢ : Unit-with-η s → Γ ⊢nf t ∷ Unit s l → t PE.≡ star s l
 ⊢nf∷Unitˢ→≡starˢ {s} ok ⊢t =
   ⊢nf∷Unitˢ→≡starˢ′ (refl (syntacticTerm (⊢nf∷→⊢∷ ⊢t))) ⊢t
   where
   ⊢nf∷Unitˢ→≡starˢ′ :
-    Γ ⊢ A ≡ Unit s → Γ ⊢nf t ∷ A → t PE.≡ star s
+    Γ ⊢ A ≡ Unit s l → Γ ⊢nf t ∷ A → t PE.≡ star s l
   ⊢nf∷Unitˢ→≡starˢ′ A≡Unit = λ where
-    (starₙ _ _)       → PE.cong star (Unit-injectivity A≡Unit)
+    (starₙ _ _)       → uncurry (PE.cong₂ star) $
+                        Unit-injectivity A≡Unit
     (convₙ ⊢t ≡A)     → ⊢nf∷Unitˢ→≡starˢ′ (trans ≡A A≡Unit) ⊢t
     (neₙ A-no-η _)    → ⊥-elim (No-η-equality→≢Unit A-no-η A≡Unit ok)
     (Uₙ _)            → ⊥-elim (U≢Unitⱼ A≡Unit)
@@ -1267,7 +1268,7 @@ mutual
         (⊢Unit , _) →
       case inversion-Unit ⊢Unit of λ ok →
       case substTypeEq (soundnessConv↑ A≡B) (refl (starⱼ ⊢Γ ok)) of λ A₊≡B₊ →
-      PE.cong₃ (unitrec _ _)
+      PE.cong₃ (unitrec _ _ _)
         (normal-types-unique-[conv↑] ⊢A ⊢B A≡B)
         (neutral-terms-unique-~↓ ⊢t ⊢t′ t≡t′)
         (normal-terms-unique-[conv↑]∷ ⊢u (convₙ ⊢u′ (sym A₊≡B₊)) u≡u′) }}}

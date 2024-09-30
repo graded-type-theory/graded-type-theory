@@ -111,7 +111,7 @@ opaque
   ⇒ᵥ-det d prodʷₕ = ⇒ᵥ-inv-prodʷ-prodrecₑ d
   ⇒ᵥ-det d zeroₕ = ⇒ᵥ-inv-zero-natrecₑ d
   ⇒ᵥ-det d sucₕ = ⇒ᵥ-inv-suc-natrecₑ d
-  ⇒ᵥ-det d starʷₕ = ⇒ᵥ-inv-starʷ-unitrecₑ d
+  ⇒ᵥ-det d starʷₕ = ⇒ᵥ-inv-starʷ-unitrecₑ d .proj₂
   ⇒ᵥ-det d (unitrec-ηₕ x) = ⇒ᵥ-inv-unitrec-η d .proj₂
   ⇒ᵥ-det d rflₕⱼ = ⇒ᵥ-inv-rfl-Jₑ d
   ⇒ᵥ-det d rflₕₖ = ⇒ᵥ-inv-rfl-Kₑ d

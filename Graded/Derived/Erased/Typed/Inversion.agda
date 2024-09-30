@@ -76,7 +76,7 @@ opaque
        Γ ⊢ t ∷ B ×
        (Unit-allowed s × Σ-allowed s 𝟘 q) ×
        Γ ⊢ A ≡ Σ⟨ s ⟩ 𝟘 , q ▷ B ▹ C ×
-       Γ ⊢ C U.[ t ]₀ ≡ Unit s
+       Γ ⊢ C U.[ t ]₀ ≡ Unit s 0
   inversion-[] ⊢[] =
     case inversion-prod ⊢[] of λ {
       (B , C , q , ⊢B , _ , ⊢t , ⊢star , A≡ , Σˢ-ok) →
@@ -107,7 +107,7 @@ opaque
     Erased-allowed s →
     ¬ (∀ {n} {Γ : Con Term n} {t A : Term n} →
        Γ ⊢ [ t ] ∷ A →
-       ∃₂ λ B q → Γ ⊢ t ∷ B × Γ ⊢ A ≡ Σ⟨ s ⟩ 𝟘 , q ▷ B ▹ Unit s)
+       ∃₂ λ B q → Γ ⊢ t ∷ B × Γ ⊢ A ≡ Σ⟨ s ⟩ 𝟘 , q ▷ B ▹ Unit s 0)
   ¬-inversion-[]′ (Unit-ok , Σ-ok) inversion-[] = bad
     where
     Γ′ : Con Term 0
@@ -142,7 +142,7 @@ opaque
           univ (natrec-zero (Uⱼ ⊢Γ′∙ℕ) (Unitⱼ ε Unit-ok) (ℕⱼ ⊢Γ′∙ℕ∙U))))
       Σ-ok
 
-    ℕ≡Unit : Γ′ ⊢ ℕ ≡ Unit s
+    ℕ≡Unit : Γ′ ⊢ ℕ ≡ Unit s 0
     ℕ≡Unit =
       case inversion-[] ⊢[t′] of
         λ (_ , _ , _ , A′≡) →

@@ -79,6 +79,7 @@ private
     v v′ w : T.Term n
     p q : M
     s : Strength
+    l : Universe-level
     sem : Some-erased-matches
     str : Strictness
 
@@ -224,8 +225,8 @@ module _
       -- Note the assumptions of the local module Soundness.
 
       soundness-Unit :
-        Δ ⊢ t ∷ Unit s → 𝟘ᶜ ▸[ 𝟙ᵐ ] t →
-        Δ ⊢ t ⇒* star s ∷ Unit s × erase str t T.⇒* T.star
+        Δ ⊢ t ∷ Unit s l → 𝟘ᶜ ▸[ 𝟙ᵐ ] t →
+        Δ ⊢ t ⇒* star s l ∷ Unit s l × erase str t T.⇒* T.star
       soundness-Unit ⊢t ▸t =
         case ®∷Unit⇔ .proj₁ $ fundamentalErased-𝟙ᵐ ⊢t ▸t of λ where
           (starᵣ t⇒*star erase-t⇒*star) →
@@ -410,7 +411,7 @@ opaque
 opaque
 
   -- If Unitrec-allowed 𝟙ᵐ 𝟘 𝟘 and Unitʷ-allowed hold and η-equality
-  -- is not allowed for the weak unit type, then there is a
+  -- is not allowed for weak unit types, then there is a
   -- counterexample to soundness-ℕ-only-source without the assumption
   -- "erased matches are not allowed unless the context is empty" (and
   -- without the strictness argument as well as the assumption that
@@ -420,8 +421,8 @@ opaque
     Unitrec-allowed 𝟙ᵐ 𝟘 𝟘 →
     Unitʷ-allowed →
     ¬ Unitʷ-η →
-    let Δ = ε ∙ Unitʷ
-        t = unitrec 𝟘 𝟘 ℕ (var {n = 1} x0) zero
+    let Δ = ε ∙ Unitʷ 0
+        t = unitrec 0 𝟘 𝟘 ℕ (var {n = 1} x0) zero
     in
     Consistent Δ ×
     Δ ⊢ t ∷ ℕ ×
@@ -684,14 +685,14 @@ opaque
   soundness-ℕ-only-target-not-counterexample₅ :
     Unitʷ-allowed →
     Run-time-canonicity-for str
-      (ε ∙ Unitʷ)
-      (unitrec 𝟘 𝟘 ℕ (var {n = 1} x0) zero)
+      (ε ∙ Unitʷ 0)
+      (unitrec 0 𝟘 𝟘 ℕ (var {n = 1} x0) zero)
   soundness-ℕ-only-target-not-counterexample₅ Unit-ok with is-𝟘? 𝟘
   … | no 𝟘≢𝟘 = ⊥-elim $ 𝟘≢𝟘 PE.refl
   … | yes _  =
       _
-    , subst ω Unitʷ (Id ℕ (unitrec 𝟘 𝟘 ℕ (var x0) zero) zero) starʷ
-        (var x0) (Unit-η 𝕨 ω (var x0)) rfl
+    , subst ω (Unitʷ 0) (Id ℕ (unitrec 0 𝟘 𝟘 ℕ (var x0) zero) zero)
+        (starʷ 0) (var x0) (Unit-η 𝕨 0 ω (var x0)) rfl
     , ⊢subst
         (Idⱼ
            (unitrecⱼ (ℕⱼ (ε ∙[ ⊢Unitʷ ] ∙[ ⊢Unitʷ ] ∙[ ⊢Unitʷ ]))
@@ -700,11 +701,11 @@ opaque
            (zeroⱼ (ε ∙[ ⊢Unitʷ ] ∙[ ⊢Unitʷ ])))
         (⊢Unit-η (var₀ (⊢Unitʷ ε)))
         (rflⱼ′
-           (unitrec 𝟘 𝟘 ℕ starʷ zero  ≡⟨ unitrec-β-≡ (ℕⱼ (ε ∙[ ⊢Unitʷ ] ∙[ ⊢Unitʷ ])) (zeroⱼ (ε ∙[ ⊢Unitʷ ])) ⟩⊢∎
-            zero                      ∎))
+           (unitrec 0 𝟘 𝟘 ℕ (starʷ 0) zero  ≡⟨ unitrec-β-≡ (ℕⱼ (ε ∙[ ⊢Unitʷ ] ∙[ ⊢Unitʷ ])) (zeroⱼ (ε ∙[ ⊢Unitʷ ])) ⟩⊢∎
+            zero                            ∎))
     , refl-⇒ˢ⟨⟩*
     where
-    ⊢Unitʷ : ⊢ Γ → Γ ⊢ Unitʷ
+    ⊢Unitʷ : ⊢ Γ → Γ ⊢ Unitʷ 0
     ⊢Unitʷ ⊢Γ = Unitⱼ ⊢Γ Unit-ok
 
 -- A variant of run-time canonicity that uses erase′ true instead of

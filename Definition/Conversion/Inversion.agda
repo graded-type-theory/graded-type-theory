@@ -427,28 +427,28 @@ opaque
 
   -- Inversion for Unit.
 
-  inv-Unit~ : ¬ Γ ⊢ Unit s ~ u ↑ A
+  inv-Unit~ : ¬ Γ ⊢ Unit s l ~ u ↑ A
   inv-Unit~ ()
 
 opaque
 
   -- Inversion for Unit.
 
-  inv-~Unit : ¬ Γ ⊢ t ~ Unit s ↑ A
+  inv-~Unit : ¬ Γ ⊢ t ~ Unit s l ↑ A
   inv-~Unit ()
 
 opaque
 
   -- Inversion for star.
 
-  inv-star~ : ¬ Γ ⊢ star s ~ u ↑ A
+  inv-star~ : ¬ Γ ⊢ star s l ~ u ↑ A
   inv-star~ ()
 
 opaque
 
   -- Inversion for star.
 
-  inv-~star : ¬ Γ ⊢ t ~ star s ↑ A
+  inv-~star : ¬ Γ ⊢ t ~ star s l ↑ A
   inv-~star ()
 
 opaque
@@ -457,20 +457,20 @@ opaque
 
   inv-~-unitrec :
     Γ ⊢ t ~ u ↑ A →
-    (∃₈ λ p q B C t₁ t₂ u₁ u₂ →
+    (∃₃ λ l p q → ∃₆ λ B C t₁ t₂ u₁ u₂ →
      A PE.≡ B [ t₁ ]₀ ×
-     t PE.≡ unitrec p q B t₁ t₂ ×
-     u PE.≡ unitrec p q C u₁ u₂ ×
-     (Γ ∙ Unitʷ ⊢ B [conv↑] C) ×
-     Γ ⊢ t₁ ~ u₁ ↓ Unitʷ ×
-     Γ ⊢ t₂ [conv↑] u₂ ∷ B [ starʷ ]₀ ×
+     t PE.≡ unitrec l p q B t₁ t₂ ×
+     u PE.≡ unitrec l p q C u₁ u₂ ×
+     (Γ ∙ Unitʷ l ⊢ B [conv↑] C) ×
+     Γ ⊢ t₁ ~ u₁ ↓ Unitʷ l ×
+     Γ ⊢ t₂ [conv↑] u₂ ∷ B [ starʷ l ]₀ ×
      ¬ Unitʷ-η) ⊎
-    ¬ (∃₅ λ p q B t₁ t₂ → t PE.≡ unitrec p q B t₁ t₂) ×
-    ¬ (∃₅ λ p q C u₁ u₂ → u PE.≡ unitrec p q C u₁ u₂)
+    ¬ (∃₆ λ l p q B t₁ t₂ → t PE.≡ unitrec l p q B t₁ t₂) ×
+    ¬ (∃₆ λ l p q C u₁ u₂ → u PE.≡ unitrec l p q C u₁ u₂)
   inv-~-unitrec = λ where
     (unitrec-cong B≡C t₁~u₁ t₂≡u₂ no-η) →
       inj₁ $
-      _ , _ , _ , _ , _ , _ , _ , _ ,
+      _ , _ , _ , _ , _ , _ , _ , _ , _ ,
       PE.refl , PE.refl , PE.refl , B≡C , t₁~u₁ , t₂≡u₂ , no-η
     (var-refl _ _)             → inj₂ ((λ ()) , (λ ()))
     (app-cong _ _)             → inj₂ ((λ ()) , (λ ()))
@@ -488,13 +488,13 @@ opaque
   -- Inversion for unitrec.
 
   inv-unitrec~ :
-    Γ ⊢ unitrec p q B t₁ t₂ ~ u ↑ A →
+    Γ ⊢ unitrec l p q B t₁ t₂ ~ u ↑ A →
     ∃₃ λ C u₁ u₂ →
     A PE.≡ B [ t₁ ]₀ ×
-    u PE.≡ unitrec p q C u₁ u₂ ×
-    (Γ ∙ Unitʷ ⊢ B [conv↑] C) ×
-    Γ ⊢ t₁ ~ u₁ ↓ Unitʷ ×
-    Γ ⊢ t₂ [conv↑] u₂ ∷ B [ starʷ ]₀ ×
+    u PE.≡ unitrec l p q C u₁ u₂ ×
+    (Γ ∙ Unitʷ l ⊢ B [conv↑] C) ×
+    Γ ⊢ t₁ ~ u₁ ↓ Unitʷ l ×
+    Γ ⊢ t₂ [conv↑] u₂ ∷ B [ starʷ l ]₀ ×
     ¬ Unitʷ-η
   inv-unitrec~ (unitrec-cong B≡C t₁~u₁ t₂≡u₂ no-η) =
     _ , _ , _ , PE.refl , PE.refl , B≡C , t₁~u₁ , t₂≡u₂ , no-η
@@ -504,13 +504,13 @@ opaque
   -- Inversion for unitrec.
 
   inv-~unitrec :
-    Γ ⊢ t ~ unitrec p q C u₁ u₂ ↑ A →
+    Γ ⊢ t ~ unitrec l p q C u₁ u₂ ↑ A →
     ∃₃ λ B t₁ t₂ →
     A PE.≡ B [ t₁ ]₀ ×
-    t PE.≡ unitrec p q B t₁ t₂ ×
-    (Γ ∙ Unitʷ ⊢ B [conv↑] C) ×
-    Γ ⊢ t₁ ~ u₁ ↓ Unitʷ ×
-    Γ ⊢ t₂ [conv↑] u₂ ∷ B [ starʷ ]₀ ×
+    t PE.≡ unitrec l p q B t₁ t₂ ×
+    (Γ ∙ Unitʷ l ⊢ B [conv↑] C) ×
+    Γ ⊢ t₁ ~ u₁ ↓ Unitʷ l ×
+    Γ ⊢ t₂ [conv↑] u₂ ∷ B [ starʷ l ]₀ ×
     ¬ Unitʷ-η
   inv-~unitrec (unitrec-cong B≡C t₁~u₁ t₂≡u₂ no-η) =
     _ , _ , _ , PE.refl , PE.refl , B≡C , t₁~u₁ , t₂≡u₂ , no-η
@@ -1022,16 +1022,16 @@ opaque
 
   inv-[conv↓]-Unit′ :
     Γ ⊢ A [conv↓] B →
-    (∃ λ s → A PE.≡ Unit s × B PE.≡ Unit s) ⊎
-    ¬ (∃ λ s → A PE.≡ Unit s) × ¬ (∃ λ s → B PE.≡ Unit s)
+    (∃₂ λ s l → A PE.≡ Unit s l × B PE.≡ Unit s l) ⊎
+    ¬ (∃₂ λ s l → A PE.≡ Unit s l) × ¬ (∃₂ λ s l → B PE.≡ Unit s l)
   inv-[conv↓]-Unit′ = λ where
-    (Unit-refl _ _) → inj₁ (_ , PE.refl , PE.refl)
+    (Unit-refl _ _) → inj₁ (_ , _ , PE.refl , PE.refl)
     (ne A~B) →
       inj₂ $
       case ne~↓ A~B of λ
         (_ , A-ne , B-ne) →
-        (λ { (_ , PE.refl) → ¬-Neutral-Unit A-ne })
-      , (λ { (_ , PE.refl) → ¬-Neutral-Unit B-ne })
+        (λ { (_ , _ , PE.refl) → ¬-Neutral-Unit A-ne })
+      , (λ { (_ , _ , PE.refl) → ¬-Neutral-Unit B-ne })
     (U-refl _)      → inj₂ ((λ ()) , (λ ()))
     (ΠΣ-cong _ _ _) → inj₂ ((λ ()) , (λ ()))
     (Empty-refl _)  → inj₂ ((λ ()) , (λ ()))
@@ -1043,11 +1043,12 @@ opaque
   -- Inversion for Unit.
 
   inv-[conv↓]-Unit :
-    Γ ⊢ Unit s [conv↓] A →
-    A PE.≡ Unit s
+    Γ ⊢ Unit s l [conv↓] A →
+    A PE.≡ Unit s l
   inv-[conv↓]-Unit Unit≡A = case inv-[conv↓]-Unit′ Unit≡A of λ where
-    (inj₁ (_ , PE.refl , A≡Unit)) → A≡Unit
-    (inj₂ (Unit≢Unit , _))        → ⊥-elim (Unit≢Unit (_ , PE.refl))
+    (inj₁ (_ , _ , PE.refl , A≡Unit)) → A≡Unit
+    (inj₂ (Unit≢Unit , _))            →
+      ⊥-elim (Unit≢Unit (_ , _ , PE.refl))
 
 opaque
 
@@ -1223,7 +1224,7 @@ opaque
   -- Inversion for Unitˢ.
 
   inv-[conv↓]∷-Unitˢ :
-    Γ ⊢ t [conv↓] u ∷ Unitˢ →
+    Γ ⊢ t [conv↓] u ∷ Unitˢ l →
     Whnf t × Whnf u
   inv-[conv↓]∷-Unitˢ (η-unit _ _ t-whnf u-whnf _) = t-whnf , u-whnf
   inv-[conv↓]∷-Unitˢ (ne-ins _ _ () _)
@@ -1233,10 +1234,10 @@ opaque
   -- Inversion for Unitʷ.
 
   inv-[conv↓]∷-Unitʷ :
-    Γ ⊢ t [conv↓] u ∷ Unitʷ →
+    Γ ⊢ t [conv↓] u ∷ Unitʷ l →
     ¬ Unitʷ-η ×
-    (Γ ⊢ t ~ u ↓ Unitʷ ⊎
-     t PE.≡ starʷ × u PE.≡ starʷ) ⊎
+    (Γ ⊢ t ~ u ↓ Unitʷ l ⊎
+     t PE.≡ starʷ l × u PE.≡ starʷ l) ⊎
     Unitʷ-η × Whnf t × Whnf u
   inv-[conv↓]∷-Unitʷ (Unitʷ-ins no-η t~u) =
     inj₁ (no-η , inj₁ t~u)
@@ -1252,11 +1253,11 @@ opaque
   -- Inversion for Unit.
 
   inv-[conv↓]∷-Unit :
-    Γ ⊢ t [conv↓] u ∷ Unit s →
+    Γ ⊢ t [conv↓] u ∷ Unit s l →
     Unit-with-η s × Whnf t × Whnf u ⊎
     ¬ Unit-with-η s ×
-    (Γ ⊢ t ~ u ↓ Unit s ⊎
-     t PE.≡ star s × u PE.≡ star s)
+    (Γ ⊢ t ~ u ↓ Unit s l ⊎
+     t PE.≡ star s l × u PE.≡ star s l)
   inv-[conv↓]∷-Unit {s = 𝕤} t≡u =
     inj₁ (inj₁ PE.refl , inv-[conv↓]∷-Unitˢ t≡u)
   inv-[conv↓]∷-Unit {s = 𝕨} t≡u =

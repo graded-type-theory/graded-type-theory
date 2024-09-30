@@ -116,7 +116,7 @@ mutual
       T.natrec (erase″ t) (erase″ u) (erase″ v)
     erase″ Unit!                 = loop? s
     erase″ U.star!               = T.star
-    erase″ (U.unitrec p q A t u) = case is-𝟘? p of λ where
+    erase″ (U.unitrec _ p _ _ t u) = case is-𝟘? p of λ where
       (no _)  → T.unitrec (erase″ t) (erase″ u)
       (yes _) → erase″ u
     erase″ Empty               = loop? s

@@ -113,7 +113,7 @@ wkUsage
 wkUsage ρ (emptyrecₘ γ▸t δ▸A ok) =
   sub (emptyrecₘ (wkUsage ρ γ▸t) (wkUsage ρ δ▸A) ok)
     (≤ᶜ-reflexive (wk-·ᶜ ρ))
-wkUsage ρ starʷₘ = subst (λ γ → γ ▸[ _ ] starʷ) (PE.sym (wk-𝟘ᶜ ρ)) starʷₘ
+wkUsage ρ starʷₘ = subst (_▸[ _ ] _) (PE.sym (wk-𝟘ᶜ ρ)) starʷₘ
 wkUsage ρ (starˢₘ prop) =
   sub (starˢₘ (λ ns → subst (λ γ → γ ≈ᶜ wkConₘ ρ _) (wk-𝟘ᶜ ρ) (wk-≈ᶜ ρ (prop ns))))
       (≤ᶜ-reflexive (wk-·ᶜ ρ))

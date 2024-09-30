@@ -51,9 +51,9 @@ opaque
   tr-Kind-id {k = Zerokind}          = refl
   tr-Kind-id {k = Suckind}           = refl
   tr-Kind-id {k = Natreckind _ _ _}  = refl
-  tr-Kind-id {k = Unitkind _}        = refl
-  tr-Kind-id {k = Starkind _}        = refl
-  tr-Kind-id {k = Unitreckind _ _}   = refl
+  tr-Kind-id {k = Unitkind _ _}      = refl
+  tr-Kind-id {k = Starkind _ _}      = refl
+  tr-Kind-id {k = Unitreckind _ _ _} = refl
   tr-Kind-id {k = Emptykind}         = refl
   tr-Kind-id {k = Emptyreckind _}    = refl
   tr-Kind-id {k = Idkind}            = refl

@@ -127,14 +127,14 @@ opaque mutual
     case normalize H t ρ (prodrecₑ r p q A u ρ ∙ S) of λ
       (_ , _ , _ , _ , n , d) →
     _ , _ , _ , _ , n , prodrecₕ ⇨ d
-  normalize H (star s) ρ S =
-    _ , star s , ρ , S , val starᵥ , id
-  normalize H (unitrec p q A t u) ρ S =
+  normalize H (star s l) ρ S =
+    _ , star s l , ρ , S , val starᵥ , id
+  normalize H (unitrec l p q A t u) ρ S =
     case Unitʷ-η? of λ where
       (yes η) →
-        _ , unitrec p q A t u , ρ , S , val (unitrec-ηᵥ η) , id
+        _ , unitrec l p q A t u , ρ , S , val (unitrec-ηᵥ η) , id
       (no no-η) →
-        case normalize H t ρ (unitrecₑ p q A u ρ ∙ S) of λ
+        case normalize H t ρ (unitrecₑ l p q A u ρ ∙ S) of λ
           (_ , _ , _ , _ , n , d) →
         _ , _ , _ , _ , n , unitrecₕ no-η ⇨ d
   normalize H zero ρ S =
@@ -169,8 +169,8 @@ opaque mutual
     _ , ℕ , ρ , S , val ℕᵥ , id
   normalize H Empty ρ S =
     _ , Empty , ρ , S , val Emptyᵥ , id
-  normalize H (Unit s) ρ S =
-    _ , Unit s , ρ , S , val Unitᵥ , id
+  normalize H (Unit s l) ρ S =
+    _ , Unit s l , ρ , S , val Unitᵥ , id
   normalize H (ΠΣ⟨ b ⟩ p , q ▷ A ▹ B) ρ S =
     _ , ΠΣ⟨ b ⟩ p , q ▷ A ▹ B , ρ , S , val ΠΣᵥ , id
   normalize H (Id A t u) ρ S =

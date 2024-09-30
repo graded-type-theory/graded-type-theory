@@ -209,7 +209,7 @@ record Common-properties
     -- of Is-morphism.
     𝟘ᵐ-preserved : T M₁.𝟘ᵐ-allowed → T M₂.𝟘ᵐ-allowed
 
-    -- The property that the strong unit acts as a sink is preserved.
+    -- The property that strong unit types act as sinks is preserved.
     starˢ-sink-preserved : R₁.starˢ-sink ≡ R₂.starˢ-sink
 
     -- R₁.Id-erased holds if and only if R₂.Id-erased holds.

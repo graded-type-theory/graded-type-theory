@@ -71,7 +71,7 @@ opaque
     Erasedʷ-allowed →
     ¬ (∀ {n} {Γ : Con Term n} {t A : Term n} →
        Γ ⊢ erased A t ∷ A →
-       ∃ λ q → Γ ⊢ t ∷ Σʷ 𝟘 , q ▷ A ▹ Unitʷ)
+       ∃₂ λ q l → Γ ⊢ t ∷ Σʷ 𝟘 , q ▷ A ▹ Unitʷ l)
   ¬-inversion-erased′ (Unit-ok , Σʷ-ok) inversion-erased = bad
     where
     Γ′ : Con Term 0
@@ -95,14 +95,16 @@ opaque
     erased-t′≡zero : Γ′ ⊢ erased A′ t′ ≡ zero ∷ A′
     erased-t′≡zero = fstʷ-β-≡ (ℕⱼ ⊢Γ′∙ℕ) (zeroⱼ ε) (zeroⱼ ε) Σʷ-ok
 
-    ⊢t′₂ : ∃ λ q → Γ′ ⊢ t′ ∷ Σʷ 𝟘 , q ▷ A′ ▹ Unitʷ
+    ⊢t′₂ : ∃₂ λ q l → Γ′ ⊢ t′ ∷ Σʷ 𝟘 , q ▷ A′ ▹ Unitʷ l
     ⊢t′₂ = inversion-erased ⊢erased-t′
 
-    ⊢snd-t′ : Γ′ ⊢ sndʷ 𝟘 (⊢t′₂ .proj₁) A′ Unitʷ t′ ∷ Unitʷ
-    ⊢snd-t′ = sndʷⱼ (⊢t′₂ .proj₂)
+    ⊢snd-t′ :
+      ∃ λ l → Γ′ ⊢ sndʷ 𝟘 (⊢t′₂ .proj₁) A′ (Unitʷ l) t′ ∷ Unitʷ l
+    ⊢snd-t′ = _ , sndʷⱼ (⊢t′₂ .proj₂ .proj₂)
 
-    ℕ≡Unit : Γ′ ⊢ ℕ ≡ Unitʷ
+    ℕ≡Unit : ∃ λ l → Γ′ ⊢ ℕ ≡ Unitʷ l
     ℕ≡Unit =
+      let l , ⊢snd-t′ = ⊢snd-t′ in
       case inversion-prodrec ⊢snd-t′ of
         λ (F , G , _ , _ , _ , _ , ⊢t′ , ⊢x₀ , Unit≡) →
       case inversion-var ⊢x₀ of λ {
@@ -122,15 +124,13 @@ opaque
       let ⊢σ : Γ′ ⊢ˢ consSubst (sgSubst zero) zero ∷ (Γ′ ∙ F ∙ G)
           ⊢σ = (idSubst′ ε , PE.subst (Γ′ ⊢ zero ∷_) (PE.sym (subst-id F)) ⊢zero″)
                 , conv ⊢zero′ (sym G₀≡G′₀)
-      in case PE.subst (Γ′ ⊢ Unitʷ ≡_) (wk1-tail G)
+      in case PE.subst (_⊢_≡_ _ _) (wk1-tail G)
                (substitutionEq Unit≡′ (substRefl ⊢σ) ε) of
         λ Unit≡″ →
-      _⊢_≡_.sym $
-      _⊢_≡_.trans Unit≡″ $
-        trans G₀≡G′₀ ≡ℕ′ }
+      l , sym (trans Unit≡″ (trans G₀≡G′₀ ≡ℕ′)) }
 
     bad : ⊥
-    bad = ℕ≢Unitⱼ ℕ≡Unit
+    bad = ℕ≢Unitⱼ (ℕ≡Unit .proj₂)
 
 opaque
 
@@ -144,4 +144,4 @@ opaque
        Γ ⊢ t ∷ Erased A)
   ¬-inversion-erased Erased-ok inversion-erased =
     ¬-inversion-erased′ Erased-ok λ ⊢erased →
-    _ , inversion-erased ⊢erased
+    _ , _ , inversion-erased ⊢erased

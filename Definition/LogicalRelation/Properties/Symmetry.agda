@@ -36,6 +36,7 @@ private
   variable
     n : Nat
     Γ : Con Term n
+    l : Universe-level
 
 symNeutralTerm : ∀ {t u A}
                → Γ ⊩neNf t ≡ u ∷ A
@@ -56,8 +57,8 @@ symEmpty-prop : ∀ {k k′}
 symEmpty-prop (ne prop) = ne (symNeutralTerm prop)
 
 symUnit-prop : ∀ {k k′}
-             → [Unitʷ]-prop Γ k k′
-             → [Unitʷ]-prop Γ k′ k
+             → [Unitʷ]-prop Γ l k k′
+             → [Unitʷ]-prop Γ l k′ k
 symUnit-prop starᵣ = starᵣ
 symUnit-prop (ne prop) = ne (symNeutralTerm prop)
 
@@ -83,7 +84,11 @@ symEqTerm : ∀ {l A t u} ([A] : Γ ⊩⟨ l ⟩ A)
 
 symEqT (ℕᵥ D D′) A≡B = red D
 symEqT (Emptyᵥ D D′) A≡B = red D
-symEqT (Unitᵥ (Unitₜ D _) D′) A≡B = red D
+symEqT (Unitᵥ (Unitₜ A⇒*Unit _) (Unitₜ B⇒*Unit₁ _)) B⇒*Unit₂ =
+  case Unit-PE-injectivity $
+       whrDet* (red B⇒*Unit₁ , Unitₙ) (B⇒*Unit₂ , Unitₙ) of λ {
+    (_ , PE.refl) →
+  red A⇒*Unit }
 symEqT (ne (ne K D neK K≡K) (ne K₁ D₁ neK₁ K≡K₁)) (ne₌ M D′ neM K≡M)
        rewrite whrDet* (red D′ , ne neM) (red D₁ , ne neK₁) =
   ne₌ _ D neK

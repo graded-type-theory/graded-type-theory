@@ -127,15 +127,17 @@ opaque
 
   -- A characterisation lemma for Unit.
 
-  ®∷Unit⇔ : t ® v ∷ Unit s ⇔ t ® v ∷Unit⟨ s ⟩
-  ®∷Unit⇔ =
+  ®∷Unit⇔ : t ® v ∷ Unit s l ⇔ t ® v ∷Unit⟨ s , l ⟩
+  ®∷Unit⇔ {l} =
       (λ (_ , ⊩U , t®v) →
-         irrelevanceTerm {l′ = 0} ⊩U
-           (Unitᵣ (extractMaybeEmb (Unit-elim ⊩U) .proj₂)) t®v)
+         let ⊩U′ = ⊩Unit⇔ .proj₂ (≤ᵘ-refl , ⊩Unit⇔ .proj₁ ⊩U .proj₂) in
+         irrelevanceTerm ⊩U
+           (Unitᵣ (extractMaybeEmb (Unit-elim ⊩U′) .proj₂)) t®v)
     , (λ t®v →
-           0
+           l
          , ⊩Unit⇔ .proj₂
-             ( ⊢Δ
+             ( ≤ᵘ-refl
+             , ⊢Δ
              , (case t®v of λ {
                   (starᵣ t⇒* _) →
                 inversion-Unit (syntacticRedTerm t⇒* .proj₁) })

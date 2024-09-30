@@ -240,8 +240,9 @@ mutual
       (inj₂ (Empty≢Empty , _))   → ⊥-elim (Empty≢Empty PE.refl)
   transConv↓ Unit≡Unit@(Unit-refl _ _) Unit≡C =
     case inv-[conv↓]-Unit′ Unit≡C of λ where
-      (inj₁ (_ , PE.refl , PE.refl)) → Unit≡Unit
-      (inj₂ (Unit≢Unit , _))         → ⊥-elim (Unit≢Unit (_ , PE.refl))
+      (inj₁ (_ , _ , PE.refl , PE.refl)) → Unit≡Unit
+      (inj₂ (Unit≢Unit , _))             →
+        ⊥-elim (Unit≢Unit (_ , _ , PE.refl))
   transConv↓ ℕ≡ℕ@(ℕ-refl _) ℕ≡C =
     case inv-[conv↓]-ℕ′ ℕ≡C of λ where
       (inj₁ (PE.refl , PE.refl)) → ℕ≡ℕ

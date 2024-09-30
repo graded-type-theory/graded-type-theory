@@ -35,7 +35,7 @@ private
     n : Nat
     Γ : Con Term n
     A B t u : Term n
-    l : Universe-level
+    l l′ : Universe-level
     b : BinderMode
     s : Strength
     p q : M
@@ -174,11 +174,10 @@ escapeTermEq {Γ = Γ} (Idᵣ ⊩A) t≡u@(_ , _ , t⇒*t′ , u⇒*u′ , _) =
 escapeTermEq (emb ≤ᵘ-refl A) t≡u = escapeTermEq A t≡u
 escapeTermEq (emb (≤ᵘ-step k) A) t≡u = escapeTermEq (emb k A) t≡u
 
--- If the type Unit (of some mode) is in the logical relation, then the
--- Unit type (of the same mode) is allowed.
+-- If a unit type is reducible, then that unit type is allowed.
 
 ⊩Unit→Unit-allowed :
-  Γ ⊩⟨ l ⟩ Unit s → Unit-allowed s
+  Γ ⊩⟨ l′ ⟩ Unit s l → Unit-allowed s
 ⊩Unit→Unit-allowed {Γ = Γ} = λ where
   (Uᵣ′ l′ l< [ ⊢Unit , _ , D ]) →
                   $⟨ D , Uₙ ⟩

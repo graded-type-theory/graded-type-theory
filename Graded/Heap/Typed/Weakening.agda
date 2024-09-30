@@ -110,9 +110,9 @@ opaque
   wk-⊢ᵉ {ρ} {H} {H′} {t} [ρ] (unitrecₑ {u} {A} ⊢u ⊢A no-η) =
     case wk-liftₕ 1 [ρ] A of λ
       A≡A′ →
-    case subst₂ (_ ⊢_∷_) (wk-liftₕ 0 [ρ] u) (cong _[ starʷ ]₀ A≡A′) ⊢u of λ
+    case subst₂ (_ ⊢_∷_) (wk-liftₕ 0 [ρ] u) (cong _[ _ ]₀ A≡A′) ⊢u of λ
       ⊢u′ →
-    case subst (λ x → (_ ∙ Unitʷ) ⊢ x) A≡A′ ⊢A of λ
+    case subst (_⊢_ _) A≡A′ ⊢A of λ
       ⊢A′ →
     subst₂ (λ x y → _ ⨾ H ⊢ᵉ _ ⟨ _ ⟩∷ _ ↝ (x [ y ]₀))
       (PE.sym A≡A′) (PE.sym (wk-[]ₕ [ρ] t))

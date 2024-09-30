@@ -176,7 +176,7 @@ mutual
   tr-⊢∷ (starⱼ Γ ok) =
     starⱼ (tr-⊢ Γ) (Unit-preserved ok)
   tr-⊢∷ (unitrecⱼ {A = A} ⊢A t u ok) =
-    PE.subst (_ T₂.⊢ unitrec _ _ _ _ _ ∷_) (tr-Term-[] A)
+    PE.subst (T₂._⊢_∷_ _ _) (tr-Term-[] A)
       (unitrecⱼ (tr-⊢′ ⊢A) (tr-⊢∷ t)
         (PE.subst (_ T₂.⊢ _ ∷_) (PE.sym (tr-Term-[] A)) (tr-⊢∷ u))
         (Unit-preserved ok))
@@ -323,15 +323,15 @@ mutual
   tr-⊢≡∷ (emptyrec-cong A≡B t≡u) =
     emptyrec-cong (tr-⊢≡ A≡B) (tr-⊢≡∷ t≡u)
   tr-⊢≡∷ (unitrec-cong {A = A} A≡A′ t≡t′ u≡u′ ok _) =
-    PE.subst (_ T₂.⊢ unitrec _ _ _ _ _ ≡ _ ∷_) (tr-Term-[] A)
+    PE.subst (T₂._⊢_≡_∷_ _ _ _) (tr-Term-[] A)
       (unitrec-cong′ (tr-⊢≡ A≡A′) (tr-⊢≡∷ t≡t′)
          (PE.subst (_ T₂.⊢ _ ≡ _ ∷_) (PE.sym (tr-Term-[] A)) (tr-⊢≡∷ u≡u′)))
   tr-⊢≡∷ (unitrec-β {A} ⊢A u _ _) =
-    PE.subst (_ T₂.⊢ unitrec _ _ (tr-Term A) _ _ ≡ _ ∷_) (tr-Term-[] A)
+    PE.subst (T₂._⊢_≡_∷_ _ _ _) (tr-Term-[] A)
       (unitrec-β-≡ (tr-⊢′ ⊢A)
          (PE.subst (_ T₂.⊢ _ ∷_) (PE.sym (tr-Term-[] A)) (tr-⊢∷ u)))
   tr-⊢≡∷ (unitrec-β-η {A} ⊢A t u ok₁ ok₂) =
-    PE.subst (_ T₂.⊢ unitrec _ _ (tr-Term A) _ _ ≡ _ ∷_) (tr-Term-[] A)
+    PE.subst (T₂._⊢_≡_∷_ _ _ _) (tr-Term-[] A)
       (unitrec-β-η (tr-⊢′ ⊢A) (tr-⊢∷ t)
          (PE.subst (_ T₂.⊢ _ ∷_) (PE.sym (tr-Term-[] A)) (tr-⊢∷ u))
          (Unit-preserved ok₁) (Unitʷ-η-preserved ok₂))
@@ -494,17 +494,17 @@ module _
   tr-⊢⇒∷ (emptyrec-subst A t⇒u) =
     emptyrec-subst (tr-⊢′ A) (tr-⊢⇒∷ t⇒u)
   tr-⊢⇒∷ (unitrec-subst {A} ⊢A u t⇒t′ ok₁ ok₂) =
-    PE.subst (_ T₂.⊢ unitrec _ _ _ _ _ ⇒ _ ∷_) (tr-Term-[] A)
+    PE.subst (T₂._⊢_⇒_∷_ _ _ _) (tr-Term-[] A)
       (unitrec-subst (tr-⊢′ ⊢A)
          (PE.subst (_ T₂.⊢ _ ∷_) (PE.sym (tr-Term-[] A)) (tr-⊢∷ u))
          (tr-⊢⇒∷ t⇒t′) (Unit-preserved ok₁)
          (ok₂ ∘→ Unitʷ-η-reflected))
   tr-⊢⇒∷ (unitrec-β {A} ⊢A u _ _) =
-    PE.subst (_ T₂.⊢ unitrec _ _ (tr-Term A) _ _ ⇒ _ ∷_) (tr-Term-[] A)
+    PE.subst (T₂._⊢_⇒_∷_ _ _ _) (tr-Term-[] A)
       (unitrec-β-⇒ (tr-⊢′ ⊢A)
          (PE.subst (_ T₂.⊢ _ ∷_) (PE.sym (tr-Term-[] A)) (tr-⊢∷ u)))
   tr-⊢⇒∷ (unitrec-β-η {A} ⊢A t u ok₁ ok₂) =
-    PE.subst (_ T₂.⊢ unitrec _ _ (tr-Term A) _ _ ⇒ _ ∷_) (tr-Term-[] A)
+    PE.subst (T₂._⊢_⇒_∷_ _ _ _) (tr-Term-[] A)
       (unitrec-β-η (tr-⊢′ ⊢A) (tr-⊢∷ t)
          (PE.subst (_ T₂.⊢ _ ∷_) (PE.sym (tr-Term-[] A)) (tr-⊢∷ u))
          (Unit-preserved ok₁) (Unitʷ-η-preserved ok₂))

@@ -198,7 +198,7 @@ infix 10 ⌈⌉▸[_]?_
       ¬▸u _ ▸u
     (inj₁ ▸u) → inj₁ (prodˢₘ ▸t ▸u)
 
-⌈⌉▸[ m ]? unitrec p q A t u = case Unitrec-allowed? m p q of λ where
+⌈⌉▸[ m ]? unitrec _ p q A t u = case Unitrec-allowed? m p q of λ where
   (no not-ok) → inj₂ λ _ ▸ur →
           case inv-usage-unitrec ▸ur of λ (invUsageUnitrec _ _ _ ok _) →
           not-ok ok

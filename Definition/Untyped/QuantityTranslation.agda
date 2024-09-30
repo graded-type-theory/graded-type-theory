@@ -73,9 +73,9 @@ tr-Kind Natkind             = Natkind
 tr-Kind Zerokind            = Zerokind
 tr-Kind Suckind             = Suckind
 tr-Kind (Natreckind p q r)  = Natreckind (tr p) (tr q) (tr r)
-tr-Kind (Unitkind s)        = Unitkind s
-tr-Kind (Starkind s)        = Starkind s
-tr-Kind (Unitreckind p q)   = Unitreckind (tr p) (tr q)
+tr-Kind (Unitkind s l)      = Unitkind s l
+tr-Kind (Starkind s l)      = Starkind s l
+tr-Kind (Unitreckind l p q) = Unitreckind l (tr p) (tr q)
 tr-Kind Emptykind           = Emptykind
 tr-Kind (Emptyreckind p)    = Emptyreckind (tr p)
 tr-Kind Idkind              = Idkind
@@ -411,22 +411,22 @@ tr-Term-prodrec {t = prodrec _ _ _ _ _ _} refl =
 
 -- Inversion for Unit.
 
-tr-Term-Unit : tr-Term t ≡ Unit s → t ≡ Unit s
+tr-Term-Unit : tr-Term t ≡ Unit s l → t ≡ Unit s l
 tr-Term-Unit {t = Unit!} refl = refl
 
 -- Inversion for star.
 
-tr-Term-star : tr-Term t ≡ star s → t ≡ star s
+tr-Term-star : tr-Term t ≡ star s l → t ≡ star s l
 tr-Term-star {t = star!} refl = refl
 
 -- Inversion for unitrec.
 
 tr-Term-unitrec :
-  tr-Term t ≡ unitrec p q A u v →
+  tr-Term t ≡ unitrec l p q A u v →
   ∃₅ λ p′ q′ A′ u′ v′ →
-     t ≡ unitrec p′ q′ A′ u′ v′ × tr p′ ≡ p × tr q′ ≡ q ×
+     t ≡ unitrec l p′ q′ A′ u′ v′ × tr p′ ≡ p × tr q′ ≡ q ×
      tr-Term A′ ≡ A × tr-Term u′ ≡ u × tr-Term v′ ≡ v
-tr-Term-unitrec {t = unitrec _ _ _ _ _} refl =
+tr-Term-unitrec {t = unitrec _ _ _ _ _ _} refl =
   _ # _ # _ # _ # _ # refl # refl # refl # refl # refl # refl
 
 -- Inversion for Empty.
@@ -573,8 +573,8 @@ module Injective
   tr-Kind-injective {k₁ = Natkind}       {k₂ = Natkind}       refl = refl
   tr-Kind-injective {k₁ = Zerokind}      {k₂ = Zerokind}      refl = refl
   tr-Kind-injective {k₁ = Suckind}       {k₂ = Suckind}       refl = refl
-  tr-Kind-injective {k₁ = Unitkind _}    {k₂ = Unitkind _}    refl = refl
-  tr-Kind-injective {k₁ = Starkind _}    {k₂ = Starkind _}    refl = refl
+  tr-Kind-injective {k₁ = Unitkind _ _}  {k₂ = Unitkind _ _}  refl = refl
+  tr-Kind-injective {k₁ = Starkind _ _}  {k₂ = Starkind _ _}  refl = refl
   tr-Kind-injective {k₁ = Emptykind}     {k₂ = Emptykind}     refl = refl
   tr-Kind-injective {k₁ = Idkind}        {k₂ = Idkind}        refl = refl
   tr-Kind-injective {k₁ = Reflkind}      {k₂ = Reflkind}      refl = refl
@@ -620,10 +620,10 @@ module Injective
     with tr p in tr-p≡
   tr-Kind-injective refl | _ =
     cong Emptyreckind (tr-injective tr-p≡)
-  tr-Kind-injective {k₁ = Unitreckind p q} {k₂ = Unitreckind _ _} eq
+  tr-Kind-injective {k₁ = Unitreckind _ p q} {k₂ = Unitreckind _ _ _} eq
     with tr p in tr-p≡ | tr q in tr-q≡
   tr-Kind-injective refl | _ | _ =
-    cong₂ Unitreckind (tr-injective tr-p≡) (tr-injective tr-q≡)
+    cong₂ (Unitreckind _) (tr-injective tr-p≡) (tr-injective tr-q≡)
   tr-Kind-injective {k₁ = Jkind p q} {k₂ = Jkind _ _} eq
     with tr p in tr-p≡ | tr q in tr-q≡
   tr-Kind-injective refl | _ | _ =

@@ -171,7 +171,8 @@ neNeg
   NegativeType Γ (A [ t ]₀)              □ }}
 neNeg (emptyrecⱼ _ d) (emptyrecₙ _) _ _ =
   ⊥-elim (consistent _ d)
-neNeg {γ} (unitrecⱼ {A} {t} {p} _ d _ ok) (unitrecₙ no-η n) γ▸unitrec =
+neNeg
+  {γ} (unitrecⱼ {l} {A} {t} {p} _ d _ ok) (unitrecₙ no-η n) γ▸unitrec =
   case inv-usage-unitrec γ▸unitrec of λ {
    (invUsageUnitrec {δ = δ} {η = η} δ▸t _ _ ok′ γ≤pδ+η) →
   case no-η ∘→ no-erased-matches non-trivial .proj₂ .proj₁ ok′ of λ
@@ -184,7 +185,7 @@ neNeg {γ} (unitrecⱼ {A} {t} {p} _ d _ ok) (unitrecₙ no-η n) γ▸unitrec =
                                                   }) ∘→
                                                ·ᶜ-zero-product-⟨⟩ δ) ⟩
   NegativeErasedContext Γ δ               →⟨ neNeg d n (▸-cong (≢𝟘→⌞⌟≡𝟙ᵐ p≢𝟘) δ▸t) ⟩
-  NegativeType Γ Unitʷ                    →⟨ flip ¬negUnit (refl (Unitⱼ (wfTerm d) ok)) ⟩
+  NegativeType Γ (Unitʷ l)                →⟨ flip ¬negUnit (refl (Unitⱼ (wfTerm d) ok)) ⟩
   ⊥                                       →⟨ ⊥-elim ⟩
   NegativeType Γ (A [ t ]₀)               □ }
 neNeg {γ} (Jⱼ {A} {t} {B} {v} {w} _ ⊢t _ _ ⊢v ⊢w) (Jₙ w-ne) ▸J =
@@ -281,8 +282,8 @@ nfN (starⱼ _ _)       _ _ starₙ       c = ⊥-elim (ℕ≢Unitⱼ (sym c))
 nfN (rflⱼ _)          _ _ rflₙ        c = ⊥-elim (Id≢ℕ c)
 -- q.e.d
 
--- The following results are proved under the assumption that, if the
--- weak unit type is allowed, η-equality is allowed for it, and
+-- The following results are proved under the assumption that, if weak
+-- unit types are allowed, η-equality is allowed for them, and
 -- Unitrec-allowed 𝟙ᵐ p q holds for some p and q, then p ≤ 𝟘.
 
 module _

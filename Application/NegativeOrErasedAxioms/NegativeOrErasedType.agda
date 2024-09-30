@@ -36,6 +36,7 @@ private variable
   Γ Δ   : Con Term m
   A B C : Term m
   t u   : Term m
+  l     : Universe-level
   p q   : M
 
 -- Negative types.
@@ -177,7 +178,7 @@ appNeg (conv n c) c′ = appNeg n (trans c c′)
 
 -- Unit types are not negative
 
-¬negUnit : ∀ {s} → NegativeType Γ C → Γ ⊢ C ≡ Unit s → ⊥
+¬negUnit : ∀ {s} → NegativeType Γ C → Γ ⊢ C ≡ Unit s l → ⊥
 ¬negUnit empty         c  = Empty≢Unitⱼ c
 ¬negUnit (pi _ _)      c  = Unit≢Πⱼ (sym c)
 ¬negUnit (sigma-𝟘 _ _) c  = Unit≢Σⱼ (sym c)

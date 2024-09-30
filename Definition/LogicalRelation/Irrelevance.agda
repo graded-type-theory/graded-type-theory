@@ -91,7 +91,11 @@ mutual
                        → Γ ⊩⟨ l ⟩ A ≡ B / p → Γ ⊩⟨ l′ ⟩ A ≡ B / q
   irrelevanceEqT (ℕᵥ D D′) A≡B = A≡B
   irrelevanceEqT (Emptyᵥ D D′) A≡B = A≡B
-  irrelevanceEqT (Unitᵥ D D′) A≡B = A≡B
+  irrelevanceEqT (Unitᵥ (Unitₜ A⇒*Unit₁ _) (Unitₜ A⇒*Unit₂ _)) A≡B =
+    case Unit-PE-injectivity $
+         whrDet* (red A⇒*Unit₁ , Unitₙ) (red A⇒*Unit₂ , Unitₙ) of λ {
+      (_ , PE.refl) →
+    A≡B }
   irrelevanceEqT (ne (ne K D neK _) (ne K₁ D₁ neK₁ K≡K₁)) (ne₌ M D′ neM K≡M)
                  rewrite whrDet* (red D , ne neK) (red D₁ , ne neK₁) =
     ne₌ M D′ neM K≡M
@@ -178,7 +182,11 @@ mutual
                          → Γ ⊩⟨ l ⟩ t ∷ A / p → Γ ⊩⟨ l′ ⟩ t ∷ A / q
   irrelevanceTermT (ℕᵥ D D′) t = t
   irrelevanceTermT (Emptyᵥ D D′) t = t
-  irrelevanceTermT (Unitᵥ D D′) t = t
+  irrelevanceTermT (Unitᵥ (Unitₜ A⇒*Unit₁ _) (Unitₜ A⇒*Unit₂ _)) ⊩t =
+    case Unit-PE-injectivity $
+         whrDet* (red A⇒*Unit₁ , Unitₙ) (red A⇒*Unit₂ , Unitₙ) of λ {
+      (_ , PE.refl) →
+    ⊩t }
   irrelevanceTermT (ne (ne K D neK K≡K) (ne K₁ D₁ neK₁ K≡K₁)) (neₜ k d nf)
                    with whrDet* (red D₁ , ne neK₁) (red D , ne neK)
   irrelevanceTermT (ne (ne K D neK K≡K) (ne .K D₁ neK₁ K≡K₁)) (neₜ k d nf)
@@ -295,7 +303,11 @@ mutual
                            → Γ ⊩⟨ l ⟩ t ≡ u ∷ A / p → Γ ⊩⟨ l′ ⟩ t ≡ u ∷ A / q
   irrelevanceEqTermT (ℕᵥ D D′) t≡u = t≡u
   irrelevanceEqTermT (Emptyᵥ D D′) t≡u = t≡u
-  irrelevanceEqTermT (Unitᵥ D D′) t≡u = t≡u
+  irrelevanceEqTermT (Unitᵥ (Unitₜ A⇒*Unit₁ _) (Unitₜ A⇒*Unit₂ _)) t≡u =
+    case Unit-PE-injectivity $
+         whrDet* (red A⇒*Unit₁ , Unitₙ) (red A⇒*Unit₂ , Unitₙ) of λ {
+      (_ , PE.refl) →
+    t≡u }
   irrelevanceEqTermT (ne (ne K D neK K≡K) (ne K₁ D₁ neK₁ K≡K₁)) (neₜ₌ k m d d′ nf)
                      with whrDet* (red D₁ , ne neK₁) (red D , ne neK)
   irrelevanceEqTermT (ne (ne K D neK K≡K) (ne .K D₁ neK₁ K≡K₁)) (neₜ₌ k m d d′ nf)

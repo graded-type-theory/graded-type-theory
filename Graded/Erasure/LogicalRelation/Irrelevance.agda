@@ -24,8 +24,10 @@ open import Definition.LogicalRelation.ShapeView R
 import Definition.LogicalRelation.Irrelevance R as I
 
 open import Definition.Typed R
+open import Definition.Typed.Consequences.Injectivity R
 open import Definition.Typed.Weakening R hiding (wk)
 open import Definition.Typed.Properties R
+open import Definition.Typed.Reasoning.Type R
 
 open import Definition.Untyped M
 open import Definition.Untyped.Neutral M type-variant
@@ -54,8 +56,14 @@ irrelevanceTermSV : ∀ {l l′ t v A}
 irrelevanceTermSV .(Uᵣ UA) .(Uᵣ UB) t®v (Uᵥ UA UB) = t®v
 irrelevanceTermSV .(ℕᵣ ℕA) .(ℕᵣ ℕB) t®v (ℕᵥ ℕA ℕB) = t®v
 irrelevanceTermSV
-  .(Unitᵣ UnitA) .(Unitᵣ UnitB) t®v (Unitᵥ UnitA UnitB) =
-  t®v
+  {l} {l′} {A}
+  _ _ t®v (Unitᵥ {s} (Unitₜ A⇒*Unit₁ _) (Unitₜ A⇒*Unit₂ _)) =
+  case Unit-injectivity
+         (Unit s l  ≡˘⟨ subset* (red A⇒*Unit₁) ⟩⊢
+          A         ≡⟨ subset* (red A⇒*Unit₂) ⟩⊢∎
+          Unit s l′ ∎) of λ {
+    (_ , PE.refl) →
+  t®v }
 irrelevanceTermSV
   [A] [A]′ t®v
   (Bᵥ (BΠ p q) (Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext _)

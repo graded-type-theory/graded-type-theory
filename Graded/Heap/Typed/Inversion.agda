@@ -41,6 +41,7 @@ private variable
   S : Stack _
   e : Elim _
   s′ : Strength
+  l : Universe-level
 
 opaque
 
@@ -129,12 +130,13 @@ opaque
 
   -- Inversion of unitrec
 
-  inversion-unitrecₑ : Δ ⨾ H ⊢ᵉ unitrecₑ p q A u ρ ⟨ t ⟩∷ B ↝ C
-                     → Δ ⊢ wk ρ u [ H ]ₕ ∷ wk (lift ρ) A [ H ]⇑ₕ [ starʷ ]₀
-                     × (Δ ∙ Unitʷ ⊢ wk (lift ρ) A [ H ]⇑ₕ)
-                     × ¬ Unitʷ-η
-                     × B PE.≡ Unitʷ
-                     × (Δ ⊢ t [ H ]ₕ ∷ B → Δ ⊢ C ≡ (wk (lift ρ) A [ H ]⇑ₕ [ t [ H ]ₕ ]₀))
+  inversion-unitrecₑ :
+    Δ ⨾ H ⊢ᵉ unitrecₑ l p q A u ρ ⟨ t ⟩∷ B ↝ C →
+    Δ ⊢ wk ρ u [ H ]ₕ ∷ wk (lift ρ) A [ H ]⇑ₕ [ starʷ l ]₀ ×
+    (Δ ∙ Unitʷ l ⊢ wk (lift ρ) A [ H ]⇑ₕ) ×
+    ¬ Unitʷ-η ×
+    B PE.≡ Unitʷ l ×
+    (Δ ⊢ t [ H ]ₕ ∷ B → Δ ⊢ C ≡ wk (lift ρ) A [ H ]⇑ₕ [ t [ H ]ₕ ]₀)
   inversion-unitrecₑ {A} (unitrecₑ ⊢u ⊢A no-η) =
     ⊢u , ⊢A , no-η , PE.refl
        , λ ⊢t → refl (substType ⊢A ⊢t)

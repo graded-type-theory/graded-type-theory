@@ -35,11 +35,12 @@ open import Tools.Empty using (⊥; ⊥-elim)
 
 private
   variable
-    l n : Nat
+    n : Nat
     Γ : Con Term n
     p p′ q q′ r : M
     b : BinderMode
-    s s′ : Strength
+    s s′ s₁ s₂ : Strength
+    l l₁ l₂ : Universe-level
     A B C t u v w : Term _
 
 -- Inversion for U.
@@ -57,27 +58,27 @@ inversion-Empty : Γ ⊢ Empty ∷ A → Γ ⊢ A ≡ U 0
 inversion-Empty (Emptyⱼ x) = refl (Uⱼ x)
 inversion-Empty (conv x x₁) = trans (sym x₁) (inversion-Empty x)
 
--- Inversion for the term Unit.
-inversion-Unit-U : Γ ⊢ Unit s ∷ A → Γ ⊢ A ≡ U 0 × Unit-allowed s
+-- Inversion for the term former Unit.
+inversion-Unit-U : Γ ⊢ Unit s l ∷ A → Γ ⊢ A ≡ U l × Unit-allowed s
 inversion-Unit-U (Unitⱼ ⊢Γ ok) = refl (Uⱼ ⊢Γ) , ok
 inversion-Unit-U (conv ⊢Unit B≡A) =
   case inversion-Unit-U ⊢Unit of λ {
     (B≡U , ok) →
   trans (sym B≡A) B≡U , ok }
 
--- Inversion for the Unit type.
-inversion-Unit : Γ ⊢ Unit s → Unit-allowed s
+-- Inversion for unit types.
+inversion-Unit : Γ ⊢ Unit s l → Unit-allowed s
 inversion-Unit = λ where
   (Unitⱼ _ ok) → ok
   (univ ⊢Unit) → case inversion-Unit-U ⊢Unit of λ where
     (_ , ok) → ok
 
--- If a term has type Unit, then Unit-allowed holds.
-⊢∷Unit→Unit-allowed : Γ ⊢ t ∷ Unit s → Unit-allowed s
-⊢∷Unit→Unit-allowed {Γ = Γ} {t = t} {s = s} =
-  Γ ⊢ t ∷ Unit s  →⟨ syntacticTerm ⟩
-  Γ ⊢ Unit s      →⟨ inversion-Unit ⟩
-  Unit-allowed s  □
+-- If a term has type Unit s l, then Unit-allowed s holds.
+⊢∷Unit→Unit-allowed : Γ ⊢ t ∷ Unit s l → Unit-allowed s
+⊢∷Unit→Unit-allowed {Γ} {t} {s} {l} =
+  Γ ⊢ t ∷ Unit s l  →⟨ syntacticTerm ⟩
+  Γ ⊢ Unit s l      →⟨ inversion-Unit ⟩
+  Unit-allowed s    □
 
 -- Inversion for terms that are Π- or Σ-types.
 inversion-ΠΣ-U :
@@ -255,8 +256,9 @@ inversion-prodrec (conv x x₁) =
   let F , G , q , a , b , c , d , e , f = inversion-prodrec x
   in  F , G , q , a , b , c , d , e , trans (sym x₁) f
 
--- Inversion of star.
-inversion-star : Γ ⊢ star s ∷ C → Γ ⊢ C ≡ Unit s × Unit-allowed s
+-- Inversion for star.
+inversion-star :
+  Γ ⊢ star s l ∷ B → Γ ⊢ B ≡ Unit s l × Unit-allowed s
 inversion-star (starⱼ ⊢Γ ok) = refl (Unitⱼ ⊢Γ ok) , ok
 inversion-star (conv ⊢star A≡B) =
   case inversion-star ⊢star of λ {
@@ -267,20 +269,22 @@ opaque
 
   -- A variant of the previous lemma.
 
-  inversion-star-Unit : Γ ⊢ star s ∷ Unit s′ →
-                        s PE.≡ s′ × Unit-allowed s
+  inversion-star-Unit :
+    Γ ⊢ star s₁ l₁ ∷ Unit s₂ l₂ →
+    s₁ PE.≡ s₂ × l₁ PE.≡ l₂ × Unit-allowed s₁
   inversion-star-Unit ⊢star =
-    case inversion-star ⊢star of λ
-      (Unit≡Unit , ok) →
-    Unit-injectivity (sym Unit≡Unit) , ok
+    let Unit≡Unit , ok = inversion-star ⊢star
+        eq₁ , eq₂      = Unit-injectivity (sym Unit≡Unit)
+    in
+    eq₁ , eq₂ , ok
 
-
--- Inversion of unitrec
-inversion-unitrec : Γ ⊢ unitrec p q A t u ∷ C
-                  → (Γ ∙ Unitʷ ⊢ A)
-                  × (Γ ⊢ t ∷ Unitʷ)
-                  × (Γ ⊢ u ∷ A [ starʷ ]₀)
-                  × (Γ ⊢ C ≡ A [ t ]₀)
+-- Inversion for unitrec.
+inversion-unitrec :
+  Γ ⊢ unitrec l p q A t u ∷ B →
+  (Γ ∙ Unitʷ l ⊢ A) ×
+  Γ ⊢ t ∷ Unitʷ l ×
+  Γ ⊢ u ∷ A [ starʷ l ]₀ ×
+  Γ ⊢ B ≡ A [ t ]₀
 inversion-unitrec (unitrecⱼ ⊢A ⊢t ⊢u _) =
   ⊢A , ⊢t , ⊢u , refl (substType ⊢A ⊢t)
 inversion-unitrec (conv x x₁) =

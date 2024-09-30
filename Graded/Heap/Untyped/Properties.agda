@@ -122,10 +122,12 @@ opaque
 
 opaque
 
-  -- Values are either terms in whnf or unitrec with η equality for the
-  -- weak unit type.
+  -- If t is a value, then either t is in WHNF, or t is an application
+  -- of unitrec and η-equality is allowed for weak unit types.
 
-  Value→Whnf : Value t → Whnf t ⊎ ∃₂ λ p q → ∃₃ λ A u v → t ≡ unitrec p q A u v × Unitʷ-η
+  Value→Whnf :
+    Value t →
+    Whnf t ⊎ ∃₆ λ l p q A u v → t ≡ unitrec l p q A u v × Unitʷ-η
   Value→Whnf lamᵥ = inj₁ lamₙ
   Value→Whnf zeroᵥ = inj₁ zeroₙ
   Value→Whnf sucᵥ = inj₁ sucₙ
@@ -138,7 +140,7 @@ opaque
   Value→Whnf Unitᵥ = inj₁ Unitₙ
   Value→Whnf Emptyᵥ = inj₁ Emptyₙ
   Value→Whnf Idᵥ = inj₁ Idₙ
-  Value→Whnf (unitrec-ηᵥ x) = inj₂ (_ , _ , _ , _ , _ , refl , x)
+  Value→Whnf (unitrec-ηᵥ x) = inj₂ (_ , _ , _ , _ , _ , _ , refl , x)
 
 ------------------------------------------------------------------------
 -- Properties of states in normal form
@@ -265,8 +267,8 @@ opaque
       (lifts-step-sgSubst 1 A)
       (lifts-step-sgSubst 0 z)
       (lifts-step-sgSubst 2 s)
-  ⦅⦆ᵉ-sgSubst {u = v} (unitrecₑ p q A u ρ) =
-    cong₂ (λ u A → unitrec p q A _ u)
+  ⦅⦆ᵉ-sgSubst {u = v} (unitrecₑ _ p q A u ρ) =
+    cong₂ (λ u A → unitrec _ p q A _ u)
       (sym (step-sgSubst _ _))
       (lifts-step-sgSubst 1 A)
   ⦅⦆ᵉ-sgSubst (emptyrecₑ p A ρ) =
@@ -319,8 +321,8 @@ opaque
       (lifts-step-[,] 1 A)
       (lifts-step-[,] 0 z)
       (lifts-step-[,] 2 s)
-  ⦅⦆ᵉ-[,] (unitrecₑ p q A u ρ) =
-    cong₂ (λ x y → unitrec p q x _ y)
+  ⦅⦆ᵉ-[,] (unitrecₑ _ p q A u ρ) =
+    cong₂ (λ x y → unitrec _ p q x _ y)
       (lifts-step-[,] 1 A) (lifts-step-[,] 0 u)
   ⦅⦆ᵉ-[,] (emptyrecₑ p A ρ) =
     cong (λ A → emptyrec p A _) (lifts-step-[,] 0 A)
@@ -370,8 +372,8 @@ opaque
       (wk-comp (lift ρ) (lift ρ′) A)
       (wk-comp ρ ρ′ z)
       (wk-comp (liftn ρ 2) (liftn ρ′ 2) s)
-  wk-⦅⦆ᵉ {ρ} (unitrecₑ p q A u ρ′) =
-    cong₂ (λ A u → unitrec p q A _ u)
+  wk-⦅⦆ᵉ {ρ} (unitrecₑ _ p q A u ρ′) =
+    cong₂ (λ A u → unitrec _ p q A _ u)
       (wk-comp (lift ρ) (lift ρ′) A)
       (wk-comp ρ ρ′ u)
   wk-⦅⦆ᵉ {ρ} (emptyrecₑ p A ρ′) =
@@ -407,8 +409,8 @@ opaque
     cong (λ t → prodrec _ _ _ _ t _) t≡u
   ⦅⦆ᵉ-cong (natrecₑ p q r A z s ρ) t≡u =
     cong (λ t → natrec _ _ _ _ _ _ t) t≡u
-  ⦅⦆ᵉ-cong (unitrecₑ p q A u ρ) t≡u =
-    cong (λ t → unitrec _ _ _ t _) t≡u
+  ⦅⦆ᵉ-cong (unitrecₑ _ p q A u ρ) t≡u =
+    cong (λ t → unitrec _ _ _ _ t _) t≡u
   ⦅⦆ᵉ-cong (emptyrecₑ p A ρ) t≡u =
     cong (emptyrec _ _) t≡u
   ⦅⦆ᵉ-cong (Jₑ p q A t B u v ρ) t≡u =
@@ -449,7 +451,7 @@ opaque
   wk-∣e∣ ρ (sndₑ x) = refl
   wk-∣e∣ ρ (prodrecₑ r p q A u ρ′) = refl
   wk-∣e∣ ρ (natrecₑ p q r A z s ρ′) = refl
-  wk-∣e∣ ρ (unitrecₑ p q A u ρ′) = refl
+  wk-∣e∣ ρ (unitrecₑ _ p q A u ρ′) = refl
   wk-∣e∣ ρ (emptyrecₑ p A ρ′) = refl
   wk-∣e∣ ρ (Jₑ p q A t B u v ρ′) = refl
   wk-∣e∣ ρ (Kₑ p A t B u ρ′) = refl
@@ -597,7 +599,7 @@ opaque
   ¬⦅⦆ᵉ-neutral (sndₑ x) ¬n (sndₙ n) = ¬n n
   ¬⦅⦆ᵉ-neutral (prodrecₑ r p q A u ρ) ¬n (prodrecₙ n) = ¬n n
   ¬⦅⦆ᵉ-neutral (natrecₑ p q r A z s ρ) ¬n (natrecₙ n) = ¬n n
-  ¬⦅⦆ᵉ-neutral (unitrecₑ p q A u ρ) ¬n (unitrecₙ _ n) = ¬n n
+  ¬⦅⦆ᵉ-neutral (unitrecₑ _ p q A u ρ) ¬n (unitrecₙ _ n) = ¬n n
   ¬⦅⦆ᵉ-neutral (emptyrecₑ p A ρ) ¬n (emptyrecₙ n) = ¬n n
   ¬⦅⦆ᵉ-neutral (Jₑ p q A t B u v ρ) ¬n (Jₙ n) = ¬n n
   ¬⦅⦆ᵉ-neutral (Kₑ p A t B u ρ) ¬n (Kₙ n) = ¬n n

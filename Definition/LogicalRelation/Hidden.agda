@@ -796,6 +796,7 @@ opaque
 -- Embedding
 
 opaque
+  unfolding emb-≤-⊩
 
   -- Embedding for _⊩⟨_⟩_.
 

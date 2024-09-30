@@ -85,7 +85,8 @@ data Elim (m : Nat) : Set a where
   prodrecₑ  : (r p q : M) (A : Term (1+ n)) (u : Term (2+ n)) (ρ : Wk m n) → Elim m
   natrecₑ   : (p q r : M) (A : Term (1+ n)) (z : Term n)
               (s : Term (2+ n)) (ρ : Wk m n) → Elim m
-  unitrecₑ  : (p q : M) (A : Term (1+ n)) (u : Term n) (ρ : Wk m n) → Elim m
+  unitrecₑ  : (l : Universe-level) (p q : M) (A : Term (1+ n))
+              (u : Term n) (ρ : Wk m n) → Elim m
   emptyrecₑ : (p : M) (A : Term n) (ρ : Wk m n) → Elim m
   Jₑ        : (p q : M) (A t : Term n) (B : Term (2+ n))
               (u v : Term n) (ρ : Wk m n) → Elim m
@@ -102,7 +103,7 @@ wkᵉ ρ (fstₑ p) = fstₑ p
 wkᵉ ρ (sndₑ p) = sndₑ p
 wkᵉ ρ (natrecₑ p q r A z s ρ′) = natrecₑ p q r A z s (ρ • ρ′)
 wkᵉ ρ (prodrecₑ r p q A u ρ′) = prodrecₑ r p q A u (ρ • ρ′)
-wkᵉ ρ (unitrecₑ p q A u ρ′) = unitrecₑ p q A u (ρ • ρ′)
+wkᵉ ρ (unitrecₑ l p q A u ρ′) = unitrecₑ l p q A u (ρ • ρ′)
 wkᵉ ρ (emptyrecₑ p A ρ′) = emptyrecₑ p A (ρ • ρ′)
 wkᵉ ρ (Jₑ p q A t B u v ρ′) = Jₑ p q A t B u v (ρ • ρ′)
 wkᵉ ρ (Kₑ p A t B u ρ′) = Kₑ p A t B u (ρ • ρ′)
@@ -149,7 +150,7 @@ wk2ᵉ = wkᵉ (step (step id))
 ∣ sndₑ _ ∣ᵉ = 𝟙
 ∣ prodrecₑ r _ _ _ _ _ ∣ᵉ = r
 ∣ natrecₑ p _ r _ _ _ _ ∣ᵉ = nr₂ p r
-∣ unitrecₑ p _ _ _ _ ∣ᵉ = p
+∣ unitrecₑ _ p _ _ _ _ ∣ᵉ = p
 ∣ emptyrecₑ p _ _ ∣ᵉ = p
 ∣ Jₑ p q _ _ _ _ _ _ ∣ᵉ = ∣∣ᵉ-J (erased-matches-for-J 𝟙ᵐ) p q
 ∣ Kₑ p _ _ _ _ _ ∣ᵉ = ∣∣ᵉ-K (erased-matches-for-K 𝟙ᵐ) p
@@ -341,8 +342,8 @@ record State (k m n : Nat) : Set a where
   prodrec r p q (wk (lift ρ) A) t (wk (liftn ρ 2) u)
 ⦅ natrecₑ p q r A z s ρ ⦆ᵉ t =
   natrec p q r (wk (lift ρ) A) (wk ρ z) (wk (liftn ρ 2) s) t
-⦅ unitrecₑ p q A u ρ ⦆ᵉ t =
-  unitrec p q (wk (lift ρ) A) t (wk ρ u)
+⦅ unitrecₑ l p q A u ρ ⦆ᵉ t =
+  unitrec l p q (wk (lift ρ) A) t (wk ρ u)
 ⦅ emptyrecₑ p A ρ ⦆ᵉ t =
   emptyrec p (wk ρ A) t
 ⦅ Jₑ p q A t B u v ρ ⦆ᵉ w =
@@ -379,16 +380,16 @@ data Value {n : Nat} : (t : Term n) → Set a where
   lamᵥ : Value (lam p t)
   zeroᵥ : Value zero
   sucᵥ : Value (suc t)
-  starᵥ : Value (star s)
+  starᵥ : Value (star s l)
   prodᵥ : Value (prod s p u t)
   rflᵥ : Value rfl
   Uᵥ : Value (U l)
   ΠΣᵥ : Value (ΠΣ⟨ b ⟩ p , q ▷ A ▹ B)
   ℕᵥ : Value ℕ
-  Unitᵥ : Value (Unit s)
+  Unitᵥ : Value (Unit s l)
   Emptyᵥ : Value Empty
   Idᵥ : Value (Id A t u)
-  unitrec-ηᵥ : Unitʷ-η → Value (unitrec p q A t u)
+  unitrec-ηᵥ : Unitʷ-η → Value (unitrec l p q A t u)
 
 -- States in normal form are either values, or variables without
 -- entries in the heap.

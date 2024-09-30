@@ -178,7 +178,7 @@ private opaque
   erasedrec-lemma₂ :
     let open Erased s in
     Γ ∙ Erased A₁ ⊢ B₁ ≡ B₂ →
-    Γ ∙ A₁ ∙ Unit s ∙ Unit s ⊢
+    Γ ∙ A₁ ∙ Unit s 0 ∙ Unit s 0 ⊢
       B₁ U.[ consSubst (wkSubst 3 idSubst) $
              prod s 𝟘 (var x2) (var x0) ] ≡
       B₂ U.[ consSubst (wkSubst 3 idSubst) $
@@ -210,10 +210,10 @@ private opaque
     ∀ B →
     Unit-allowed s →
     Γ ∙ A ⊢ t₁ ≡ t₂ ∷ B [ [ var x0 ] ]↑ →
-    Γ ∙ A ∙ Unit s ⊢ wk1 t₁ ≡ wk1 t₂ ∷
+    Γ ∙ A ∙ Unit s 0 ⊢ wk1 t₁ ≡ wk1 t₂ ∷
       B U.[ consSubst (wkSubst 3 idSubst) $
             prod s 𝟘 (var x2) (var x0) ]
-        [ star s ]₀
+        [ star s 0 ]₀
   erasedrec-lemma₃ {s} B Unit-ok t₁≡t₂ =
     flip (PE.subst (_⊢_≡_∷_ _ _ _))
       (wkEqTerm₁ (Unitⱼ (wfEqTerm t₁≡t₂) Unit-ok) t₁≡t₂) $
@@ -222,13 +222,13 @@ private opaque
     B U.[ wk1Subst $ consSubst (wk1Subst idSubst) [ var x0 ] ]  ≡⟨ (flip substVar-to-subst B λ where
                                                                       x0     → PE.refl
                                                                       (_ +1) → PE.refl) ⟩
-    B U.[ sgSubst (star s) ₛ•ₛ
+    B U.[ sgSubst (star s 0) ₛ•ₛ
           consSubst (wkSubst 3 idSubst)
             (prod s 𝟘 (var x2) (var x0)) ]                      ≡˘⟨ substCompEq B ⟩
 
     B U.[ consSubst (wkSubst 3 idSubst) $
           prod s 𝟘 (var x2) (var x0) ]
-      [ star s ]₀                                               ∎
+      [ star s 0 ]₀                                             ∎
     where
     open Erased s
 
@@ -289,51 +289,51 @@ opaque
     case Unitⱼ ⊢Γ Unit-ok of λ
       ⊢Unit →
     prodrec⟨ s ⟩ is-𝕨 𝟘 p B [ u ]
-      (unitrec⟨ s ⟩ 𝟙 p
+      (unitrec⟨ s ⟩ 0 𝟙 p
         (B U.[ consSubst (wkSubst 3 idSubst) $
                prod s 𝟘 (var x2) (var x0) ])
-        (var x0) (wk1 t))                                           ≡⟨ prodrec⟨⟩-β (λ _ → ⊢B) ⊢u (starⱼ ⊢Γ Unit-ok)
-                                                                         (PE.subst (_⊢_∷_ _ _) (erasedrec-lemma₁ B) $
-                                                                          ⊢unitrec⟨⟩ (syntacticEq (erasedrec-lemma₂ (refl ⊢B)) .proj₁)
-                                                                            (var₀ $ Unitⱼ (wfTerm ⊢t) Unit-ok)
-                                                                            (syntacticEqTerm (erasedrec-lemma₃ B Unit-ok (refl ⊢t))
-                                                                               .proj₂ .proj₁))
-                                                                         Σ-ok ⟩⊢
-    unitrec⟨ s ⟩ 𝟙 p
+        (var x0) (wk1 t))                                               ≡⟨ prodrec⟨⟩-β (λ _ → ⊢B) ⊢u (starⱼ ⊢Γ Unit-ok)
+                                                                             (PE.subst (_⊢_∷_ _ _) (erasedrec-lemma₁ B) $
+                                                                              ⊢unitrec⟨⟩ (syntacticEq (erasedrec-lemma₂ (refl ⊢B)) .proj₁)
+                                                                                (var₀ $ Unitⱼ (wfTerm ⊢t) Unit-ok)
+                                                                                (syntacticEqTerm (erasedrec-lemma₃ B Unit-ok (refl ⊢t))
+                                                                                   .proj₂ .proj₁))
+                                                                             Σ-ok ⟩⊢
+    unitrec⟨ s ⟩ 0 𝟙 p
       (B U.[ consSubst (wkSubst 3 idSubst) $
              prod s 𝟘 (var x2) (var x0) ])
       (var x0) (wk1 t)
-      [ u , star s ]₁₀                                              ≡⟨ PE.trans unitrec⟨⟩-[] $
-                                                                       PE.cong₃ (unitrec⟨_⟩ _ _ _)
-                                                                         (PE.trans (substCompEq B) $
-                                                                          flip substVar-to-subst B (λ { x0 → PE.refl; (_ +1) → PE.refl }))
-                                                                         PE.refl
-                                                                         (wk1-tail t) ⟩⊢≡
-    unitrec⟨ s ⟩ 𝟙 p (B U.[ prod s 𝟘 (wk1 u) (var x0) ]↑) (star s)
-      (t [ u ]₀)                                                    ≡⟨ (case PE.trans (substCompEq B)
-                                                                               (flip substVar-to-subst B λ where
-                                                                                  x0     → PE.cong₂ (prod s 𝟘) (wk1-sgSubst _ _) PE.refl
-                                                                                  (_ +1) → PE.refl) of λ
-                                                                          lemma →
-                                                                        PE.subst (_⊢_≡_∷_ _ _ _) lemma $
-                                                                        unitrec⟨⟩-β-≡
-                                                                          (λ _ →
-                                                                             substitution ⊢B
-                                                                               ( wk1Subst′ ⊢Γ ⊢Unit (idSubst′ ⊢Γ)
-                                                                               , ⊢prod
-                                                                                   (Unitⱼ
-                                                                                      (⊢→⊢∙ $
-                                                                                       substitution ⊢A (wk1Subst′ ⊢Γ ⊢Unit (idSubst′ ⊢Γ))
-                                                                                         (⊢→⊢∙ ⊢Unit))
-                                                                                      Unit-ok)
-                                                                                   (PE.subst (_⊢_∷_ _ _) (wk≡subst _ _) $
-                                                                                    wkTerm₁ ⊢Unit ⊢u)
-                                                                                   (var₀ ⊢Unit) Σ-ok
-                                                                               )
-                                                                               (⊢→⊢∙ ⊢Unit))
-                                                                          (PE.subst (_⊢_∷_ _ _) (PE.trans ([]↑-[]₀ B) (PE.sym lemma)) $
-                                                                           substTerm ⊢t ⊢u)) ⟩⊢∎
-    t [ u ]₀                                                        ∎ }
+      [ u , star s 0 ]₁₀                                                ≡⟨ PE.trans unitrec⟨⟩-[] $
+                                                                           PE.cong₃ (unitrec⟨_⟩ _ _ _ _)
+                                                                             (PE.trans (substCompEq B) $
+                                                                              flip substVar-to-subst B (λ { x0 → PE.refl; (_ +1) → PE.refl }))
+                                                                             PE.refl
+                                                                             (wk1-tail t) ⟩⊢≡
+    unitrec⟨ s ⟩ 0 𝟙 p (B U.[ prod s 𝟘 (wk1 u) (var x0) ]↑) (star s 0)
+      (t [ u ]₀)                                                        ≡⟨ (case PE.trans (substCompEq B)
+                                                                                   (flip substVar-to-subst B λ where
+                                                                                      x0     → PE.cong₂ (prod s 𝟘) (wk1-sgSubst _ _) PE.refl
+                                                                                      (_ +1) → PE.refl) of λ
+                                                                              lemma →
+                                                                            PE.subst (_⊢_≡_∷_ _ _ _) lemma $
+                                                                            unitrec⟨⟩-β-≡
+                                                                              (λ _ →
+                                                                                 substitution ⊢B
+                                                                                   ( wk1Subst′ ⊢Γ ⊢Unit (idSubst′ ⊢Γ)
+                                                                                   , ⊢prod
+                                                                                       (Unitⱼ
+                                                                                          (⊢→⊢∙ $
+                                                                                           substitution ⊢A (wk1Subst′ ⊢Γ ⊢Unit (idSubst′ ⊢Γ))
+                                                                                             (⊢→⊢∙ ⊢Unit))
+                                                                                          Unit-ok)
+                                                                                       (PE.subst (_⊢_∷_ _ _) (wk≡subst _ _) $
+                                                                                        wkTerm₁ ⊢Unit ⊢u)
+                                                                                       (var₀ ⊢Unit) Σ-ok
+                                                                                   )
+                                                                                   (⊢→⊢∙ ⊢Unit))
+                                                                              (PE.subst (_⊢_∷_ _ _) (PE.trans ([]↑-[]₀ B) (PE.sym lemma)) $
+                                                                               substTerm ⊢t ⊢u)) ⟩⊢∎
+    t [ u ]₀                                                            ∎ }
     where
     open Erased s
     open TermR

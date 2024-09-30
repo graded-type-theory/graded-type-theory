@@ -39,7 +39,7 @@ private variable
 record Full-reduction-assumptions : Set a where
   no-eta-equality
   field
-    -- If Unit s is allowed and η-equality is allowed for this type,
+    -- If Unit s is allowed and η-equality is allowed for such types,
     -- then either s is 𝕤 and Unitˢ is allowed to be used as a sink,
     -- or 𝟙 ≤ 𝟘.
     sink⊎𝟙≤𝟘 :
@@ -54,7 +54,7 @@ record Full-reduction-assumptions : Set a where
 record Full-reduction-assumptions′ : Set a where
   no-eta-equality
   field
-    -- If Unit s is allowed and η-equality is allowed for this type,
+    -- If Unit s is allowed and η-equality is allowed for such types,
     -- then either s is 𝕤 and Unitˢ is allowed to be used as a sink,
     -- or 𝟘 is the largest grade.
     sink⊎≤𝟘 :

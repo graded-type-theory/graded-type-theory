@@ -59,6 +59,7 @@ private
     ρ : Wk m n
     p p₁ p₂ p′ q q′ q₁ q₂ r r′ : M
     s : Strength
+    l : Universe-level
 
 -- Algorithmic equality of neutrals with injected conversion.
 record _⊢_~_∷_ (Γ : Con Term n) (k l A : Term n) : Set a where
@@ -191,12 +192,12 @@ record _⊢_~_∷_ (Γ : Con Term n) (k l A : Term n) : Set a where
         (emptyrec-cong x k~l′)
 
 ~-unitrec : ∀ {A A′ t t′ u u′}
-          → Γ ∙ Unitʷ ⊢ A [conv↑] A′
-          → Γ ⊢ t ~ t′ ∷ Unitʷ
-          → Γ ⊢ u [conv↑] u′ ∷ A [ starʷ ]₀
+          → Γ ∙ Unitʷ l ⊢ A [conv↑] A′
+          → Γ ⊢ t ~ t′ ∷ Unitʷ l
+          → Γ ⊢ u [conv↑] u′ ∷ A [ starʷ l ]₀
           → Unitʷ-allowed
           → ¬ Unitʷ-η
-          → Γ ⊢ unitrec p q A t u ~ unitrec p q A′ t′ u′ ∷ A [ t ]₀
+          → Γ ⊢ unitrec l p q A t u ~ unitrec l p q A′ t′ u′ ∷ A [ t ]₀
 ~-unitrec A<>A′ (↑ A≡B t~t′) u<>u′ ok no-η =
   let _ , ⊢B = syntacticEq A≡B
       B′ , whnfB′ , D = whNorm ⊢B

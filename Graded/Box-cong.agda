@@ -519,7 +519,7 @@ opaque
 
   -- If the modality's zero is well-behaved, erased matches (including
   -- the []-cong primitive) are not allowed, and η-equality is not
-  -- allowed for the weak unit type unless a certain condition is
+  -- allowed for weak unit types unless a certain condition is
   -- satisfied, then []-cong is not supported for the mode 𝟙ᵐ.
 
   ¬-[]-cong :

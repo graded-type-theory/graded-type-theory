@@ -61,7 +61,7 @@ private variable
 -- * The term former unitrec p is allowed when the mode is 𝟘ᵐ or p is
 --   non-zero or the modality is trivial.
 -- * There are no restrictions on emptyrec.
--- * The strong unit type is not allowed to be used as a sink.
+-- * Strong unit types are not allowed to be used as sinks.
 -- * Id-erased is not inhabited.
 -- * Erased matches are not allowed for J and K when the mode is 𝟙ᵐ,
 --   and all erased matches are allowed for J and K when the mode

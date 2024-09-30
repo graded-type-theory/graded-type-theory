@@ -52,6 +52,7 @@ private variable
   S S′ : Stack _
   γ δ η : Conₘ _
   Γ Δ : Con Term _
+  l : Universe-level
   m : Mode
   p q : M
 
@@ -304,7 +305,7 @@ module _ where
       bisim₄ᵥ {Δ} {s = ⟨ H , t , ρ , ε ⟩} d (val x) ⊢s =
         case Value→Whnf (substValue (toSubstₕ H) (wkValue ρ x)) of λ where
           (inj₁ w) → ⊥-elim (whnfRedTerm d w)
-          (inj₂ (_ , _ , _ , _ , _ , ≡ur , η)) →
+          (inj₂ (_ , _ , _ , _ , _ , _ , ≡ur , η)) →
             case subst-unitrec {t = wk ρ t} ≡ur of λ where
               (inj₁ (_ , ≡x)) → case subst Value ≡x (wkValue ρ x) of λ ()
               (inj₂ (_ , _ , _ , ≡ur′ , refl , refl , refl)) →
@@ -312,7 +313,7 @@ module _ where
                   (_ , _ , _ , refl , refl , refl , refl) →
                 _ , _ , _ , Rₙₜ.unitrec-ηₕ η , lemma η d}
         where
-        lemma : Unitʷ-η → Δ ⊢ unitrec p q A u v ⇒ w ∷ B → w PE.≡ v
+        lemma : Unitʷ-η → Δ ⊢ unitrec l p q A u v ⇒ w ∷ B → w PE.≡ v
         lemma η (conv d x) = lemma η d
         lemma η (unitrec-subst _ _ _ _ no-η) = ⊥-elim (no-η η)
         lemma η (unitrec-β _ _ _ no-η) = ⊥-elim (no-η η)

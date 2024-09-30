@@ -255,10 +255,10 @@ opaque
 opaque
 
   -- If Unitrec-allowed 𝟙ᵐ 𝟘 𝟘 holds and η-equality is not allowed for
-  -- the weak unit type (which means that certain kinds of erased
-  -- matches are allowed), and if additionally Unitʷ-allowed holds,
-  -- then one can prove a negation of a variant of the statement of
-  -- the fundamental lemma.
+  -- weak unit types (which means that certain kinds of erased matches
+  -- are allowed), and if additionally Unitʷ-allowed holds, then one
+  -- can prove a negation of a variant of the statement of the
+  -- fundamental lemma.
 
   negation-of-fundamental-lemma-with-erased-matches₅ :
     Unitʷ-allowed →
@@ -277,10 +277,10 @@ opaque
     ¬t®t $ ▸⊩ʳ∷[𝟙ᵐ]→®∷ $ hyp ⊢Δ consistent ⊢t ▸t
     where
     Δ : Con Term 1
-    Δ = ε ∙ Unitʷ
+    Δ = ε ∙ Unitʷ 0
 
     t : Term 1
-    t = unitrec 𝟘 𝟘 ℕ (var x0) zero
+    t = unitrec 0 𝟘 𝟘 ℕ (var x0) zero
 
     A : Term 1
     A = ℕ

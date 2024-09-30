@@ -38,6 +38,7 @@ private variable
   p q     : M
   m       : Mode
   s       : Strength
+  l       : Universe-level
 
 opaque
   unfolding unitrec⟨_⟩
@@ -51,7 +52,7 @@ opaque
     η ▸[ m ] u →
     (s ≡ 𝕨 → θ ≤ᶜ p ·ᶜ δ +ᶜ η) →
     (s ≡ 𝕤 → θ ≤ᶜ η) →
-    θ ▸[ m ] unitrec⟨ s ⟩ p q A t u
+    θ ▸[ m ] unitrec⟨ s ⟩ l p q A t u
   ▸unitrec⟨⟩ {s = 𝕨} ok ▸A ▸t ▸u hyp₁ _ =
     sub (unitrecₘ (▸t refl) ▸u (▸A refl) (ok refl)) (hyp₁ refl)
   ▸unitrec⟨⟩ {s = 𝕤} _ _ _ ▸u _ hyp₂ =
@@ -75,8 +76,8 @@ opaque
     (s ≡ 𝕨 → Unitrec-allowed m 𝟙 Unit-η-grade) →
     (s ≡ 𝕨 → γ ▸[ m ] t) →
     (s ≡ 𝕤 → γ ≤ᶜ 𝟘ᶜ) →
-    γ ▸[ m ] Unit-η s Unit-η-grade t
-  ▸Unit-η {γ} ok ▸t ≤𝟘ᶜ =
+    γ ▸[ m ] Unit-η s l Unit-η-grade t
+  ▸Unit-η {γ} {l} ok ▸t ≤𝟘ᶜ =
     ▸unitrec⟨⟩ ok lemma (▸-cong (sym ᵐ·-identityʳ) ∘→ ▸t) rflₘ
       (λ _ → begin
          γ             ≈˘⟨ ≈ᶜ-trans (+ᶜ-identityʳ _) $
@@ -89,7 +90,7 @@ opaque
     lemma :
       s ≡ 𝕨 →
       𝟘ᶜ {n = n} ∙ ⌜ 𝟘ᵐ? ⌝ · Unit-η-grade ▸[ 𝟘ᵐ? ]
-        Id (Unit s) (star s) (var x0)
+        Id (Unit s l) (star s l) (var x0)
     lemma refl with Id-erased?
     … | yes erased = sub
       (Id₀ₘ erased Unitₘ starₘ var)
@@ -110,7 +111,7 @@ opaque
   ▸Unit-η′ :
     (s ≡ 𝕨 → Unitrec-allowed m 𝟙 Unit-η-grade) →
     (s ≡ 𝕨 → ∃ λ γ → γ ▸[ m ] t) →
-    ∃ λ γ → γ ▸[ m ] Unit-η s Unit-η-grade t
+    ∃ λ γ → γ ▸[ m ] Unit-η s l Unit-η-grade t
   ▸Unit-η′ {s = 𝕤} _  _  = 𝟘ᶜ , ▸Unit-η (λ ()) (λ ()) (λ _ → ≤ᶜ-refl)
   ▸Unit-η′ {s = 𝕨} ok ▸t = case ▸t refl of λ where
     (γ , ▸t) → γ , ▸Unit-η ok (λ _ → ▸t) (λ ())

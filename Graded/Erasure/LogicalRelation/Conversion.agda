@@ -66,7 +66,16 @@ convTermʳ′ : ∀ {l l′}
            → t ®⟨ l′ ⟩ v ∷ B / [B]
 convTermʳ′ _ _ A≡B (Uᵥ UA UB) t®v = t®v
 convTermʳ′ _ _ A≡B (ℕᵥ ℕA ℕB) t®v = t®v
-convTermʳ′ _ _ A≡B (Unitᵥ UnitA UnitB) t®v = t®v
+convTermʳ′
+  {A} {B} {l} {l′}
+  _ _ A≡B (Unitᵥ {s} (Unitₜ A⇒*Unit _) (Unitₜ B⇒*Unit _)) t®v =
+  case Unit-injectivity
+         (Unit s l  ≡˘⟨ subset* (red A⇒*Unit) ⟩⊢
+          A         ≡⟨ A≡B ⟩⊢
+          B         ≡⟨ subset* (red B⇒*Unit) ⟩⊢∎
+          Unit s l′ ∎) of λ {
+    (_ , PE.refl) →
+  t®v }
 convTermʳ′
   [A] [B] A≡B
   (Bᵥ (BΠ p q) (Bᵣ F G [ _ , _ , A⇒Π ] ⊢F ⊢G A≡A [F] [G] G-ext _)

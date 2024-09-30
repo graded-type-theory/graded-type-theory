@@ -100,16 +100,16 @@ transEqTermEmpty
        (transEmpty-prop prop prop′)
 
 transUnit-prop : ∀ {k k′ k″}
-  → [Unitʷ]-prop Γ k k′
-  → [Unitʷ]-prop Γ k′ k″
-  → [Unitʷ]-prop Γ k k″
-transUnit-prop starᵣ starᵣ = starᵣ
+  → [Unitʷ]-prop Γ l k k′
+  → [Unitʷ]-prop Γ l k′ k″
+  → [Unitʷ]-prop Γ l k k″
+transUnit-prop starᵣ eq = eq
 transUnit-prop (ne [k≡k′]) (ne [k′≡k″]) = ne (transEqTermNe [k≡k′] [k′≡k″])
 
 transEqTermUnit : ∀ {s n n′ n″}
-  → Γ ⊩Unit⟨ s ⟩ n  ≡ n′ ∷Unit
-  → Γ ⊩Unit⟨ s ⟩ n′ ≡ n″ ∷Unit
-  → Γ ⊩Unit⟨ s ⟩ n  ≡ n″ ∷Unit
+  → Γ ⊩Unit⟨ l , s ⟩ n  ≡ n′ ∷Unit
+  → Γ ⊩Unit⟨ l , s ⟩ n′ ≡ n″ ∷Unit
+  → Γ ⊩Unit⟨ l , s ⟩ n  ≡ n″ ∷Unit
 transEqTermUnit (Unitₜ₌ˢ ⊢t _ ok) (Unitₜ₌ˢ _ ⊢v _) = Unitₜ₌ˢ ⊢t ⊢v ok
 transEqTermUnit
   (Unitₜ₌ʷ k _ d d′ k≡k′ prop ok) (Unitₜ₌ʷ _ k‴ d″ d‴ k″≡k‴ prop′ _) =
@@ -117,7 +117,7 @@ transEqTermUnit
       whK′ = proj₂ (usplit prop)
       k″≡k′ = whrDet*Term (redₜ d″ , whK″) (redₜ d′ , whK′)
       k′≡k‴ = PE.subst (λ x → _ ⊢ x ≅ _ ∷ _) k″≡k′ k″≡k‴
-      prop″ = PE.subst (λ x → [Unitʷ]-prop _ x _) k″≡k′ prop′
+      prop″ = PE.subst (λ x → [Unitʷ]-prop _ _ x _) k″≡k′ prop′
   in  Unitₜ₌ʷ k k‴ d d‴ (≅ₜ-trans k≡k′ k′≡k‴)
         (transUnit-prop prop prop″) ok
 transEqTermUnit (Unitₜ₌ˢ _ _ (inj₂ ok)) (Unitₜ₌ʷ _ _ _ _ _ _ not-ok) =
@@ -188,7 +188,11 @@ Id₌′ {⊩A = ⊩A} ⇒*Id′ Ty≡Ty′ lhs≡lhs′ rhs≡rhs′ = record
 
 transEqT (ℕᵥ D D′ D″) A≡B B≡C = B≡C
 transEqT (Emptyᵥ D D′ D″) A≡B B≡C = B≡C
-transEqT (Unitᵥ D D′ D″) A≡B B≡C = B≡C
+transEqT (Unitᵥ _ (Unitₜ B⇒*Unit₁ _) _) B⇒*Unit₂ C⇒*Unit =
+  case Unit-PE-injectivity $
+       whrDet* (red B⇒*Unit₁ , Unitₙ) (B⇒*Unit₂ , Unitₙ) of λ {
+    (_ , PE.refl) →
+  C⇒*Unit }
 transEqT (ne (ne K [ ⊢A , ⊢B , D ] neK K≡K) (ne K₁ D₁ neK₁ _)
              (ne K₂ D₂ neK₂ _))
          (ne₌ M D′ neM K≡M) (ne₌ M₁ D″ neM₁ K≡M₁)

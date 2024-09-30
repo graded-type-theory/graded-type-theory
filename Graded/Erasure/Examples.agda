@@ -334,17 +334,12 @@ opaque
 private
 
   -- Parts of the implementation of Vec.
-  --
-  -- The implementation uses U 0 because Unit targets U 0. If lifting
-  -- were to be implemented (in terms of existing constructs), or
-  -- added (as a primitive), then one could presumably support
-  -- arbitrary levels.
 
   Vec-body₂ : Term (2+ n)
   Vec-body₂ =
     natrec 𝟘 𝟘 ω
       (U 0)
-      (Unit s)
+      (Unit s 0)
       (Σˢ ω , r ▷ var x3 ▹ var x1)
       (var x0)
 
@@ -509,7 +504,7 @@ private module Vec-lemmas (⊢A : Γ ⊢ A ∷ U 0) where
 
 Vec∘zero⇒* :
   Γ ⊢ A ∷ U 0 →
-  Γ ⊢ wk wk₀ Vec ∘⟨ ω ⟩ A ∘⟨ ω ⟩ zero ⇒* Unit s ∷ U 0
+  Γ ⊢ wk wk₀ Vec ∘⟨ ω ⟩ A ∘⟨ ω ⟩ zero ⇒* Unit s 0 ∷ U 0
 Vec∘zero⇒* {A = A} ⊢A =
   app-subst
     (β-red (Uⱼ ⊢Γ) (syntacticTerm ⊢Vec-body₁′)
@@ -546,7 +541,7 @@ Vec∘suc≡ {Γ = Γ} {A = A} {t = t} ⊢A ⊢t =
      ΠΣ-cong (univ ⊢A)
        (PE.subst (_ ⊢ _ ≡_∷ _) (≡wk3[][] A) (refl ⊢A))
        (PE.subst (Γ ∙ A ⊢ (Vec-body₁ [ wk1 A ]₀) ∘⟨ ω ⟩ wk1 t ≡_∷ U 0)
-          (PE.cong (flip (natrec 𝟘 𝟘 ω (U 0) (Unit s)) _) $
+          (PE.cong (flip (natrec 𝟘 𝟘 ω (U 0) (Unit s 0)) _) $
            PE.cong (Σˢ _ , _ ▷_▹ _) $
            wk3[]≡ A) $
         β-red (ℕⱼ ⊢ΓA) (Uⱼ ⊢ΓAℕ) ⊢Vec-body₂″
@@ -571,7 +566,7 @@ private
     natrec 𝟘 𝟘 𝟘
       (U 0)
       Empty
-      (Unit s)
+      (Unit s 0)
       (var x0)
 
 -- A natural number predicate that holds for non-zero numbers.
@@ -631,7 +626,7 @@ Non-zero∘zero⇒* ⊢Γ =
 
 Non-zero∘suc⇒* :
   Γ ⊢ t ∷ ℕ →
-  Γ ⊢ wk wk₀ Non-zero ∘⟨ ω ⟩ suc t ⇒* Unit s ∷ U 0
+  Γ ⊢ wk wk₀ Non-zero ∘⟨ ω ⟩ suc t ⇒* Unit s 0 ∷ U 0
 Non-zero∘suc⇒* ⊢t =
   β-red (ℕⱼ ⊢Γ) (Uⱼ ⊢Γℕ)
     (W.wkTerm (W.lift W.wk₀∷⊇) ⊢Γℕ ⊢Non-zero-body)
@@ -875,7 +870,7 @@ opaque
 -- A concrete vector which contains a single natural number.
 
 [0] : Term 0
-[0] = prodˢ ω zero (star s)
+[0] = prodˢ ω zero (star s 0)
 
 -- [0] is well-resourced.
 
@@ -903,7 +898,7 @@ opaque
 -- An application of head to [0] and some other arguments.
 
 head-[0] : Term 0
-head-[0] = head ∘⟨ 𝟘 ⟩ ℕ ∘⟨ ω ⟩ suc zero ∘⟨ ω ⟩ [0] ∘⟨ 𝟘 ⟩ (star s)
+head-[0] = head ∘⟨ 𝟘 ⟩ ℕ ∘⟨ ω ⟩ suc zero ∘⟨ ω ⟩ [0] ∘⟨ 𝟘 ⟩ star s 0
 
 -- In the strict setting the extraction of id-ℕ-zero includes several
 -- erased parts (T.↯ and loop strict).

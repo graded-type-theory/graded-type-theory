@@ -265,9 +265,8 @@ opaque
 opaque
 
   -- If Unitrec-allowed 𝟙ᵐ 𝟘 𝟘 and Unitʷ-allowed hold and η-equality
-  -- is not allowed for the weak unit type, then there is a
-  -- well-typed, well-resourced, neutral term in a consistent,
-  -- erasable context.
+  -- is not allowed for weak unit types, then there is a well-typed,
+  -- well-resourced, neutral term in a consistent, erasable context.
 
   neutral-well-resourced₅ :
     Unitrec-allowed 𝟙ᵐ 𝟘 𝟘 →

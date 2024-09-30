@@ -60,7 +60,7 @@ opaque mutual
   fundamental-⊩ᵛ (Emptyⱼ x) =
     0 , Emptyᵛ (valid x)
   fundamental-⊩ᵛ (Unitⱼ ⊢Γ ok) =
-    0 , Unitᵛ (valid ⊢Γ) ok
+    _ , Unitᵛ (valid ⊢Γ) ok
   fundamental-⊩ᵛ (Uⱼ ⊢Γ) =
     _ , ⊩ᵛU (valid ⊢Γ)
   fundamental-⊩ᵛ (ΠΣⱼ ⊢A ⊢B ok)
@@ -105,7 +105,7 @@ opaque mutual
   fundamental-⊩ᵛ∷ (Emptyⱼ x) =
     1 , Emptyᵗᵛ (valid x)
   fundamental-⊩ᵛ∷ (Unitⱼ ⊢Γ ok) =
-    1 , Unitᵗᵛ (valid ⊢Γ) ok
+    _ , Unitᵗᵛ (valid ⊢Γ) ok
   fundamental-⊩ᵛ∷ (ΠΣⱼ ⊢A ⊢B ok) =
       _
     , ΠΣᵗᵛ ok (emb-⊩ᵛ∷ ≤ᵘ⊔ᵘʳ $ fundamental-⊩ᵛ∷ ⊢A .proj₂)
@@ -147,7 +147,7 @@ opaque mutual
     in
     l , emptyrecᵛ ⊩A ⊩t
   fundamental-⊩ᵛ∷ (starⱼ ⊢Γ ok) =
-    0 , starᵛ (valid ⊢Γ) ok
+    _ , starᵛ (valid ⊢Γ) ok
   fundamental-⊩ᵛ∷ (conv ⊢t A≡B) =
     let l , A≡B = fundamental-⊩ᵛ≡ A≡B in
     l , conv-⊩ᵛ∷ A≡B (fundamental-⊩ᵛ∷ ⊢t .proj₂)

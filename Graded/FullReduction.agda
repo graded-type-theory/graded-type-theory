@@ -73,6 +73,7 @@ private
     m : Mode
     q r : M
     s : Strength
+    l : Universe-level
 
 ------------------------------------------------------------------------
 -- Some lemmas
@@ -107,7 +108,7 @@ module _ (as : Full-reduction-assumptions) where
     -- require that these assumptions hold when the mode is 𝟙ᵐ.
 
     Unit-lemma :
-      Unit-allowed s → Unit-with-η s → γ ▸[ m ] t → γ ▸[ m ] star s
+      Unit-allowed s → Unit-with-η s → γ ▸[ m ] t → γ ▸[ m ] star s l
     Unit-lemma {s} {γ} {m} ok η ▸t =
       case lemma of λ
         (δ , prop , γ≤) →
@@ -417,11 +418,11 @@ Full-reduction-term⇔Full-reduction-assumptions :
 Full-reduction-term⇔Full-reduction-assumptions =
     (λ red → λ where
        .sink⊎𝟙≤𝟘 {s} ok η →                                        $⟨ η-long-nf-for-0⇔sink⊎𝟙≤𝟘 ok η ⟩
-         (let Γ = ε ∙ Unit s
+         (let Γ = ε ∙ Unit s 0
               γ = ε ∙ 𝟙
-              A = Unit s
+              A = Unit s 0
               t = var x0
-              u = star s
+              u = star s 0
           in
           Γ ⊢ t ∷ A ×
           γ ▸[ 𝟙ᵐ ] t ×
@@ -429,11 +430,11 @@ Full-reduction-term⇔Full-reduction-assumptions =
           Γ ⊢ t ≡ u ∷ A ×
           (γ ▸[ 𝟙ᵐ ] u ⇔ (s PE.≡ 𝕤 × Starˢ-sink ⊎ 𝟙 ≤ 𝟘)))         →⟨ (λ (⊢t , ▸t , ⊢u , t≡u , ▸u⇔) →
                                                                          ⊢u , t≡u , ▸u⇔ , red ⊢t ▸t) ⟩
-         (let Γ = ε ∙ Unit s
+         (let Γ = ε ∙ Unit s 0
               γ = ε ∙ 𝟙
-              A = Unit s
+              A = Unit s 0
               t = var x0
-              u = star s
+              u = star s 0
           in
           Γ ⊢nf u ∷ A ×
           Γ ⊢ t ≡ u ∷ A ×
@@ -513,9 +514,9 @@ Full-reduction-term-ε→Full-reduction-assumptions :
 Full-reduction-term-ε→Full-reduction-assumptions
   {r = r} ok red = λ where
     .sink⊎𝟙≤𝟘 {s} Unit-ok η →                               $⟨ η-long-nf-for-id⇔sink⊎𝟙≤𝟘 ok Unit-ok η ⟩
-      (let A = Π 𝟙 , r ▷ Unit s ▹ Unit s
+      (let A = Π 𝟙 , r ▷ Unit s 0 ▹ Unit s 0
            t = lam 𝟙 (var x0)
-           u = lam 𝟙 (star s)
+           u = lam 𝟙 (star s 0)
        in
        ε ⊢ t ∷ A ×
        ε ▸[ 𝟙ᵐ ] t ×
@@ -523,9 +524,9 @@ Full-reduction-term-ε→Full-reduction-assumptions
        ε ⊢ t ≡ u ∷ A ×
        (ε ▸[ 𝟙ᵐ ] u ⇔ (s PE.≡ 𝕤 × Starˢ-sink ⊎ 𝟙 ≤ 𝟘)))     →⟨ (λ (⊢t , ▸t , ⊢u , t≡u , ▸u⇔) →
                                                                   ⊢u , t≡u , ▸u⇔ , red ⊢t ▸t) ⟩
-      (let A = Π 𝟙 , r ▷ Unit s ▹ Unit s
+      (let A = Π 𝟙 , r ▷ Unit s 0 ▹ Unit s 0
            t = lam 𝟙 (var x0)
-           u = lam 𝟙 (star s)
+           u = lam 𝟙 (star s 0)
        in
        ε ⊢nf u ∷ A ×
        ε ⊢ t ≡ u ∷ A ×

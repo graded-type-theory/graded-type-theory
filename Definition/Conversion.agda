@@ -83,11 +83,11 @@ mutual
                   → Γ ⊢ t₁ ~ t₂ ↓ Empty
                   → Γ ⊢ emptyrec p A₁ t₁ ~ emptyrec p A₂ t₂ ↑ A₁
 
-    unitrec-cong : Γ ∙ Unitʷ ⊢ A₁ [conv↑] A₂
-                 → Γ ⊢ t₁ ~ t₂ ↓ Unitʷ
-                 → Γ ⊢ u₁ [conv↑] u₂ ∷ A₁ [ starʷ ]₀
+    unitrec-cong : Γ ∙ Unitʷ l ⊢ A₁ [conv↑] A₂
+                 → Γ ⊢ t₁ ~ t₂ ↓ Unitʷ l
+                 → Γ ⊢ u₁ [conv↑] u₂ ∷ A₁ [ starʷ l ]₀
                  → ¬ Unitʷ-η
-                 → Γ ⊢ unitrec p q A₁ t₁ u₁ ~ unitrec p q A₂ t₂ u₂ ↑
+                 → Γ ⊢ unitrec l p q A₁ t₁ u₁ ~ unitrec l p q A₂ t₂ u₂ ↑
                      A₁ [ t₁ ]₀
 
     J-cong        : Γ ⊢ A₁ [conv↑] A₂
@@ -149,7 +149,7 @@ mutual
 
     Empty-refl : ⊢ Γ → Γ ⊢ Empty [conv↓] Empty
 
-    Unit-refl  : ⊢ Γ → Unit-allowed s → Γ ⊢ Unit s [conv↓] Unit s
+    Unit-refl  : ⊢ Γ → Unit-allowed s → Γ ⊢ Unit s l [conv↓] Unit s l
 
     ne         : Γ ⊢ A₁ ~ A₂ ↓ U l
                → Γ ⊢ A₁ [conv↓] A₂
@@ -186,8 +186,8 @@ mutual
               → Γ ⊢ t₁ [conv↓] t₂ ∷ Empty
 
     Unitʷ-ins : ¬ Unitʷ-η
-              → Γ ⊢ t₁ ~ t₂ ↓ Unitʷ
-              → Γ ⊢ t₁ [conv↓] t₂ ∷ Unitʷ
+              → Γ ⊢ t₁ ~ t₂ ↓ Unitʷ l
+              → Γ ⊢ t₁ [conv↓] t₂ ∷ Unitʷ l
 
     Σʷ-ins    : ∀ {A A′ B B′}
               → Γ ⊢ t₁ ∷ Σʷ p , q ▷ A ▹ B
@@ -213,7 +213,7 @@ mutual
     starʷ-refl : ⊢ Γ
                → Unitʷ-allowed
                → ¬ Unitʷ-η
-               → Γ ⊢ starʷ [conv↓] starʷ ∷ Unitʷ
+               → Γ ⊢ starʷ l [conv↓] starʷ l ∷ Unitʷ l
 
     suc-cong  : ∀ {m n}
               → Γ ⊢ m [conv↑] n ∷ ℕ
@@ -243,12 +243,12 @@ mutual
               → Γ ⊢ snd p t₁ [conv↑] snd p t₂ ∷ B [ fst p t₁ ]₀
               → Γ ⊢ t₁ [conv↓] t₂ ∷ Σˢ p , q ▷ A ▹ B
 
-    η-unit    : Γ ⊢ t₁ ∷ Unit s
-              → Γ ⊢ t₂ ∷ Unit s
+    η-unit    : Γ ⊢ t₁ ∷ Unit s l
+              → Γ ⊢ t₂ ∷ Unit s l
               → Whnf t₁
               → Whnf t₂
               → Unit-with-η s
-              → Γ ⊢ t₁ [conv↓] t₂ ∷ Unit s
+              → Γ ⊢ t₁ [conv↓] t₂ ∷ Unit s l
 
     Id-ins    : ∀ {A A′ t′ u′}
               → Γ ⊢ v₁ ∷ Id A t u
@@ -261,7 +261,8 @@ mutual
 
 opaque
 
-  star-refl : ⊢ Γ → Unit-allowed s → Γ ⊢ star s [conv↓] star s ∷ Unit s
+  star-refl :
+    ⊢ Γ → Unit-allowed s → Γ ⊢ star s l [conv↓] star s l ∷ Unit s l
   star-refl {s} ⊢Γ ok =
     case Unit-with-η? s of λ where
       (inj₂ (PE.refl , no-η)) → starʷ-refl ⊢Γ ok no-η

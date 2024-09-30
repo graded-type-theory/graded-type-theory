@@ -228,11 +228,11 @@ mutual
          U l₂  ∎)
     where
     open TyR
-  soundnessConv↓-U {l₁} {l₂} ⊢Unit₁ ⊢Unit₂ (Unit-refl _ _) =
+  soundnessConv↓-U {l₁} {l₂} ⊢Unit₁ ⊢Unit₂ (Unit-refl {l} _ _) =
       refl ⊢Unit₁
     , U-injectivity
         (U l₁  ≡⟨ inversion-Unit-U ⊢Unit₁ .proj₁ ⟩⊢
-         U 0   ≡˘⟨ inversion-Unit-U ⊢Unit₂ .proj₁ ⟩⊢∎
+         U l   ≡˘⟨ inversion-Unit-U ⊢Unit₂ .proj₁ ⟩⊢∎
          U l₂  ∎)
     where
     open TyR

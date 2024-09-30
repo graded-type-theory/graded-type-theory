@@ -11,7 +11,7 @@ module Graded.Derived.Unrestricted.Eta.Typed
   (open Modality 𝕄)
   (R : Type-restrictions 𝕄)
   (open Type-restrictions R)
-  -- The strong unit type is assumed to be allowed.
+  -- Strong unit types are assumed to be allowed.
   (Unit-ok : Unitˢ-allowed)
   -- It is assumed that strong Σ-types are allowed for the quantities
   -- ω and ω.
@@ -178,7 +178,7 @@ inversion-[] :
   ∃₃ λ B q C →
      Γ ⊢ t ∷ B ×
      Γ ⊢ A ≡ Σˢ ω , q ▷ B ▹ C ×
-     Γ ⊢ C [ t ]₀ ≡ Unitˢ
+     Γ ⊢ C [ t ]₀ ≡ Unitˢ 0
 inversion-[] ⊢[] =
   case inversion-prod ⊢[] of
     λ (B , C , q , ⊢B , _ , ⊢t , ⊢star , A≡ , _) →
@@ -200,12 +200,12 @@ inversion-[]′ ⊢[] =
 ¬-inversion-[]′ :
   ¬ (∀ {n} {Γ : Con Term n} {t A : Term n} →
      Γ ⊢ [ t ] ∷ A →
-     ∃₂ λ B q → Γ ⊢ t ∷ B × Γ ⊢ A ≡ Σˢ ω , q ▷ B ▹ Unitˢ)
+     ∃₃ λ B q l → Γ ⊢ t ∷ B × Γ ⊢ A ≡ Σˢ ω , q ▷ B ▹ Unitˢ l)
 ¬-inversion-[]′ inversion-[] = bad
   where
   Γ′ = ε
   t′ = zero
-  A′ = Σˢ ω , ω ▷ ℕ ▹ natrec 𝟙 𝟙 𝟙 (U 0) Unitˢ ℕ (var x0)
+  A′ = Σˢ ω , ω ▷ ℕ ▹ natrec 𝟙 𝟙 𝟙 (U 0) (Unitˢ 0) ℕ (var x0)
 
   ⊢Γ′∙ℕ : ⊢ Γ′ ∙ ℕ
   ⊢Γ′∙ℕ = ε ∙ ℕⱼ ε
@@ -230,19 +230,20 @@ inversion-[]′ ⊢[] =
         univ (natrec-zero (Uⱼ ⊢Γ′∙ℕ) (Unitⱼ ε Unit-ok) (ℕⱼ ⊢Γ′∙ℕ∙U))))
     Σˢ-ok
 
-  ℕ≡Unit : Γ′ ⊢ ℕ ≡ Unitˢ
+  ℕ≡Unit : ∃ λ l → Γ′ ⊢ ℕ ≡ Unitˢ l
   ℕ≡Unit =
     case inversion-[] ⊢[t′] of
-      λ (_ , _ , _ , A′≡) →
+      λ (_ , _ , _ , _ , A′≡) →
     case Σ-injectivity A′≡ of
       λ (_ , ≡Unit , _ , _ , _) →
-    trans
-      (_⊢_≡_.sym $ _⊢_≡_.univ $
-       natrec-suc (Uⱼ ⊢Γ′∙ℕ) (Unitⱼ ε Unit-ok) (ℕⱼ ⊢Γ′∙ℕ∙U) (zeroⱼ ε))
-      (substTypeEq ≡Unit (refl (sucⱼ (zeroⱼ ε))))
+      _
+    , _⊢_≡_.trans
+        (_⊢_≡_.sym $ _⊢_≡_.univ $
+         natrec-suc (Uⱼ ⊢Γ′∙ℕ) (Unitⱼ ε Unit-ok) (ℕⱼ ⊢Γ′∙ℕ∙U) (zeroⱼ ε))
+        (substTypeEq ≡Unit (refl (sucⱼ (zeroⱼ ε))))
 
   bad : ⊥
-  bad = ℕ≢Unitⱼ ℕ≡Unit
+  bad = ℕ≢Unitⱼ (ℕ≡Unit .proj₂)
 
 -- Another form of inversion for [] also does not hold.
 
@@ -253,7 +254,7 @@ inversion-[]′ ⊢[] =
 ¬-inversion-[] inversion-[] =
   ¬-inversion-[]′ λ ⊢[] →
   case inversion-[] ⊢[] of λ (B , ⊢t , A≡) →
-  B , ω , ⊢t , A≡
+  B , ω , 0 , ⊢t , A≡
 
 -- An inversion lemma for unbox.
 --
@@ -276,7 +277,7 @@ inversion-unbox ⊢unbox =
 ¬-inversion-unbox′ :
   ¬ (∀ {n} {Γ : Con Term n} {t A : Term n} →
      Γ ⊢ unbox t ∷ A →
-     ∃ λ q → Γ ⊢ t ∷ Σˢ ω , q ▷ A ▹ Unitˢ)
+     ∃₂ λ q l → Γ ⊢ t ∷ Σˢ ω , q ▷ A ▹ Unitˢ l)
 ¬-inversion-unbox′ inversion-unbox = bad
   where
   Γ′ = ε
@@ -296,14 +297,16 @@ inversion-unbox ⊢unbox =
   unbox-t′≡zero =
     Σ-β₁ (ℕⱼ ε) (ℕⱼ ⊢Γ′∙ℕ) (zeroⱼ ε) (zeroⱼ ε) PE.refl Σˢ-ok
 
-  ⊢t′₂ : ∃ λ q → Γ′ ⊢ t′ ∷ Σˢ ω , q ▷ A′ ▹ Unitˢ
+  ⊢t′₂ : ∃₂ λ q l → Γ′ ⊢ t′ ∷ Σˢ ω , q ▷ A′ ▹ Unitˢ l
   ⊢t′₂ = inversion-unbox ⊢unbox-t′
 
-  ⊢snd-t′ : Γ′ ⊢ snd ω t′ ∷ Unitˢ
-  ⊢snd-t′ = sndⱼ (ℕⱼ ε) (Unitⱼ ⊢Γ′∙ℕ Unit-ok) (⊢t′₂ .proj₂)
+  ⊢snd-t′ : ∃ λ l → Γ′ ⊢ snd ω t′ ∷ Unitˢ l
+  ⊢snd-t′ = _ , sndⱼ (ℕⱼ ε) (Unitⱼ ⊢Γ′∙ℕ Unit-ok) (⊢t′₂ .proj₂ .proj₂)
 
-  ℕ≡Unit : Γ′ ⊢ ℕ ≡ Unitˢ
+  ℕ≡Unit : ∃ λ l → Γ′ ⊢ ℕ ≡ Unitˢ l
   ℕ≡Unit =
+    case ⊢snd-t′ of λ
+      (l , ⊢snd-t′) →
     case inversion-snd ⊢snd-t′ of
       λ (_ , _ , _ , _ , _ , ⊢t′ , Unit≡) →
     case inversion-prod ⊢t′ of
@@ -314,15 +317,16 @@ inversion-unbox ⊢unbox =
       λ ≡ℕ →
     case inversion-zero ⊢zero′ of
       λ ≡ℕ′ →
-    _⊢_≡_.sym $
-    _⊢_≡_.trans Unit≡ $
-    trans
-      (substTypeEq G≡G′ $
-       conv unbox-t′≡zero (_⊢_≡_.sym (trans F≡F′ ≡ℕ)))
-    ≡ℕ′
+      l
+    , (_⊢_≡_.sym $
+       trans Unit≡ $
+       trans
+         (substTypeEq G≡G′ $
+          conv unbox-t′≡zero (_⊢_≡_.sym (trans F≡F′ ≡ℕ)))
+       ≡ℕ′)
 
   bad : ⊥
-  bad = ℕ≢Unitⱼ ℕ≡Unit
+  bad = ℕ≢Unitⱼ (ℕ≡Unit .proj₂)
 
 -- Another form of inversion for unbox also does not hold.
 
@@ -332,4 +336,4 @@ inversion-unbox ⊢unbox =
      Γ ⊢ t ∷ Unrestricted A)
 ¬-inversion-unbox inversion-unbox =
   ¬-inversion-unbox′ λ ⊢unbox →
-  _ , inversion-unbox ⊢unbox
+  _ , _ , inversion-unbox ⊢unbox

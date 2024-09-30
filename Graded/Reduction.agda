@@ -61,11 +61,11 @@ private
 
 opaque
 
-  -- If η-equality is allowed for the weak unit type, the weak unit
-  -- type is allowed, and Unitrec-allowed 𝟙ᵐ 𝟙 𝟘 holds, then subject
-  -- reduction does not hold for modalities for which 𝟙 is not bounded
-  -- by 𝟘. Note that 𝟙 ≤ 𝟘 does not hold for the linear types
-  -- modalities in Graded.Modality.Instances.Linearity.
+  -- If η-equality is allowed for weak unit types, weak unit types are
+  -- allowed, and Unitrec-allowed 𝟙ᵐ 𝟙 𝟘 holds, then subject reduction
+  -- does not hold for modalities for which 𝟙 is not bounded by 𝟘.
+  -- Note that 𝟙 ≤ 𝟘 does not hold for the linear types modalities in
+  -- Graded.Modality.Instances.Linearity.
 
   no-subject-reduction :
     Unitʷ-η →
@@ -80,14 +80,14 @@ opaque
     open ≤ᶜ-reasoning
 
     Γ′ : Con Term 1
-    Γ′ = ε ∙ Unitʷ
+    Γ′ = ε ∙ Unitʷ 0
 
     γ′ : Conₘ 1
     γ′ = ε ∙ 𝟙
 
     A′ t′ u′ : Term 1
     A′ = ℕ
-    t′ = unitrec 𝟙 𝟘 ℕ (var x0) zero
+    t′ = unitrec 0 𝟙 𝟘 ℕ (var x0) zero
     u′ = zero
 
     ⊢Γ′ : ⊢ Γ′
@@ -120,12 +120,12 @@ opaque
 ------------------------------------------------------------------------
 -- Subject reduction properties for modality usage
 
--- These results are proved under the assumption that, if the weak
--- unit type is allowed, η-equality is allowed for it, and
--- Unitrec-allowed 𝟙ᵐ p q holds for some p and q, then p ≤ 𝟘.
+-- These results are proved under the assumption that, if weak unit
+-- types are allowed, η-equality is allowed for them, and
+-- Unitrec-allowed 𝟙ᵐ p q holds for some p and q, then p ≤ 𝟘.
 --
 -- Maybe things could be changed so that, if Unitʷ-η holds, then
--- η-equality for the weak unit type is not allowed for 𝟙ᵐ, but only
+-- η-equality for weak unit types is not allowed for 𝟙ᵐ, but only
 -- for 𝟘ᵐ. In that case this assumption could perhaps be removed.
 
 module _
@@ -448,21 +448,22 @@ Well-resourced-normal-form-without-η-long-normal-form =
     ε ⊢ t ∷ A × Nf t × ε ▸[ 𝟙ᵐ ] t ×
     ¬ ∃ λ u → ε ⊢nf u ∷ A × ε ⊢ t ≡ u ∷ A × ε ▸[ 𝟙ᵐ ] u
 
--- If the type Unit s is allowed and comes with η-equality, then
--- variable 0 is well-typed and well-resourced (with respect to the
--- usage context ε ∙ 𝟙), and is definitionally equal to the η-long
--- normal form star s. However, this η-long normal form is
--- well-resourced with respect to the usage context ε ∙ 𝟙 if and only
--- if either s is 𝕤 and Unitˢ can be used as a sink, or 𝟙 ≤ 𝟘.
+-- If Unit s is allowed and comes with η-equality, then variable 0 is
+-- well-typed and well-resourced (with respect to the context
+-- ε ∙ Unit s 0 and the usage context ε ∙ 𝟙), and is definitionally
+-- equal to the η-long normal form star s 0. However, this η-long
+-- normal form is well-resourced with respect to the usage context
+-- ε ∙ 𝟙 if and only if either s is 𝕤 and Unitˢ can be used as a sink,
+-- or 𝟙 ≤ 𝟘.
 
 η-long-nf-for-0⇔sink⊎𝟙≤𝟘 :
   Unit-allowed s →
   Unit-with-η s →
-  let Γ = ε ∙ Unit s
+  let Γ = ε ∙ Unit s 0
       γ = ε ∙ 𝟙
-      A = Unit s
+      A = Unit s 0
       t = var x0
-      u = star s
+      u = star s 0
   in
   Γ ⊢ t ∷ A ×
   γ ▸[ 𝟙ᵐ ] t ×
@@ -510,19 +511,19 @@ Well-resourced-normal-form-without-η-long-normal-form =
 
 -- If "Π 𝟙 , q" is allowed, and Unit s is allowed and comes with
 -- η-equality, then the identity function lam 𝟙 (var x0) has type
--- Π 𝟙 , q ▷ Unit s ▹ Unit s, is well-resourced in the empty context,
--- and is definitionally equal to the η-long normal form
--- lam 𝟙 (star s), however, this η-long normal form is well-resourced
--- in the empty context if and only if either s is 𝕤 and Unitˢ can be
--- used as a sink, or 𝟙 ≤ 𝟘.
+-- Π 𝟙 , q ▷ Unit s 0 ▹ Unit s 0, is well-resourced in the empty
+-- context, and is definitionally equal to the η-long normal form
+-- lam 𝟙 (star s 0), however, this η-long normal form is
+-- well-resourced in the empty context if and only if either s is 𝕤
+-- and Unitˢ can be used as a sink, or 𝟙 ≤ 𝟘.
 
 η-long-nf-for-id⇔sink⊎𝟙≤𝟘 :
   Π-allowed 𝟙 q →
   Unit-allowed s →
   Unit-with-η s →
-  let A = Π 𝟙 , q ▷ Unit s ▹ Unit s
+  let A = Π 𝟙 , q ▷ Unit s 0 ▹ Unit s 0
       t = lam 𝟙 (var x0)
-      u = lam 𝟙 (star s)
+      u = lam 𝟙 (star s 0)
   in
   ε ⊢ t ∷ A ×
   ε ▸[ 𝟙ᵐ ] t ×

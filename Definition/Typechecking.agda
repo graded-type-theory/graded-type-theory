@@ -38,7 +38,7 @@ mutual
     Uᶜ : Γ ⊢ U l ⇇Type
     ℕᶜ : Γ ⊢ ℕ ⇇Type
     Unitᶜ : Unit-allowed s
-          → Γ ⊢ Unit s ⇇Type
+          → Γ ⊢ Unit s l ⇇Type
     Emptyᶜ : Γ ⊢ Empty ⇇Type
     ΠΣᶜ : Γ ⊢ F ⇇Type
        → Γ ∙ F ⊢ G ⇇Type
@@ -89,13 +89,13 @@ mutual
             → Γ ⊢ n ⇇ ℕ
             → Γ ⊢ natrec p q r A z s n ⇉ A [ n ]₀
     Unitᵢ : Unit-allowed s
-          → Γ ⊢ Unit s ⇉ U 0
+          → Γ ⊢ Unit s l ⇉ U l
     starᵢ : Unit-allowed s
-          → Γ ⊢ star s ⇉ Unit s
-    unitrecᵢ : Γ ∙ Unitʷ ⊢ A ⇇Type
-             → Γ ⊢ t ⇇ Unitʷ
-             → Γ ⊢ u ⇇ A [ starʷ ]₀
-             → Γ ⊢ unitrec p q A t u ⇉ A [ t ]₀
+          → Γ ⊢ star s l ⇉ Unit s l
+    unitrecᵢ : Γ ∙ Unitʷ l ⊢ A ⇇Type
+             → Γ ⊢ t ⇇ Unitʷ l
+             → Γ ⊢ u ⇇ A [ starʷ l ]₀
+             → Γ ⊢ unitrec l p q A t u ⇉ A [ t ]₀
     Emptyᵢ : Γ ⊢ Empty ⇉ U 0
     emptyrecᵢ : Γ ⊢ A ⇇Type
               → Γ ⊢ t ⇇ Empty
@@ -171,10 +171,10 @@ mutual
     sucᵢ : Checkable t → Inferable (suc t)
     natrecᵢ : Checkable-type A → Checkable t → Checkable u → Checkable v →
               Inferable (natrec p q r A t u v)
-    Unitᵢ : Inferable (Unit s)
-    starᵢ : Inferable (star s)
+    Unitᵢ : Inferable (Unit s l)
+    starᵢ : Inferable (star s l)
     unitrecᵢ : Checkable-type A → Checkable t → Checkable u →
-               Inferable (unitrec p q A t u)
+               Inferable (unitrec l p q A t u)
     Emptyᵢ : Inferable Empty
     emptyrecᵢ : Checkable-type A → Checkable t →
                 Inferable (emptyrec p A t)

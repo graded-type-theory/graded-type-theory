@@ -103,7 +103,7 @@ mutual
     nrᶜ p r (⌈ z ⌉ m) (tailₘ (tailₘ (⌈ s ⌉ m))) (⌈ n ⌉ m)
   ⌈ Unit! ⌉ _ = 𝟘ᶜ
   ⌈ star! ⌉ _ = 𝟘ᶜ
-  ⌈ unitrec p q A t u ⌉ m = p ·ᶜ ⌈ t ⌉ (m ᵐ· p) +ᶜ ⌈ u ⌉ m
+  ⌈ unitrec _ p q A t u ⌉ m = p ·ᶜ ⌈ t ⌉ (m ᵐ· p) +ᶜ ⌈ u ⌉ m
   ⌈ Empty ⌉ _ = 𝟘ᶜ
   ⌈ emptyrec p _ t ⌉ m = p ·ᶜ ⌈ t ⌉ (m ᵐ· p)
   ⌈ Id _ t u ⌉ m = case Id-erased? of λ where
@@ -258,7 +258,7 @@ data _▸[_]_ {n : Nat} : (γ : Conₘ n) → Mode → Term n → Set a where
   Uₘ        : 𝟘ᶜ ▸[ m ] U l
   ℕₘ        : 𝟘ᶜ ▸[ m ] ℕ
   Emptyₘ    : 𝟘ᶜ ▸[ m ] Empty
-  Unitₘ     : 𝟘ᶜ ▸[ m ] Unit s
+  Unitₘ     : 𝟘ᶜ ▸[ m ] Unit s l
 
   ΠΣₘ       : γ ▸[ m ᵐ· p ] F
             → δ ∙ ⌜ m ⌝ · q ▸[ m ] G
@@ -357,18 +357,18 @@ data _▸[_]_ {n : Nat} : (γ : Conₘ n) → Mode → Term n → Set a where
             → Emptyrec-allowed m p
             → p ·ᶜ γ ▸[ m ] emptyrec p A t
 
-  starʷₘ    : 𝟘ᶜ ▸[ m ] starʷ
+  starʷₘ    : 𝟘ᶜ ▸[ m ] starʷ l
 
-  -- If the strong unit type is not allowed to be used as a sink
-  -- then its resources must be 𝟘ᶜ.
+  -- If strong unit types are not allowed to be used as sinks, then γ
+  -- must be 𝟘ᶜ.
   starˢₘ    : (¬Starˢ-sink → 𝟘ᶜ ≈ᶜ γ)
-            → ⌜ m ⌝ ·ᶜ γ ▸[ m ] starˢ
+            → ⌜ m ⌝ ·ᶜ γ ▸[ m ] starˢ l
 
   unitrecₘ : γ ▸[ m ᵐ· p ] t
            → δ ▸[ m ] u
            → η ∙ ⌜ 𝟘ᵐ? ⌝ · q ▸[ 𝟘ᵐ? ] A
            → Unitrec-allowed m p q
-           → p ·ᶜ γ +ᶜ δ ▸[ m ] unitrec p q A t u
+           → p ·ᶜ γ +ᶜ δ ▸[ m ] unitrec l p q A t u
 
   Idₘ       : ¬ Id-erased
             → γ ▸[ 𝟘ᵐ? ] A
@@ -447,7 +447,7 @@ data _▸[_]_ {n : Nat} : (γ : Conₘ n) → Mode → Term n → Set a where
 _▸_ : (γ : Conₘ n) (t : Term n) → Set a
 γ ▸ t = γ ▸[ 𝟙ᵐ ] t
 
-starₘ : 𝟘ᶜ {n} ▸[ m ] star s
+starₘ : 𝟘ᶜ {n} ▸[ m ] star s l
 starₘ {s = 𝕤} =
   sub (starˢₘ λ _ → ≈ᶜ-refl)
       (≤ᶜ-reflexive (≈ᶜ-sym (·ᶜ-zeroʳ _)))

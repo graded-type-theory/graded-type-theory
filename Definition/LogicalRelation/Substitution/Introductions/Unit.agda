@@ -1,5 +1,5 @@
 ------------------------------------------------------------------------
--- Validity of the unit type.
+-- Validity for unit types
 ------------------------------------------------------------------------
 
 open import Definition.Typed.EqualityRelation
@@ -32,7 +32,7 @@ open import Definition.LogicalRelation.Substitution.Introductions.Universe R
 open import Definition.LogicalRelation.Irrelevance R
 
 open import Tools.Function
-open import Tools.Nat using (Nat)
+open import Tools.Nat using (Nat; 1+)
 open import Tools.Product as Σ
 import Tools.PropositionalEquality as PE
 open import Tools.Relation
@@ -44,7 +44,7 @@ private
     Γ Δ : Con Term n
     σ σ₁ σ₂ : Subst _ _
     s s₁ s₂ : Strength
-    l l′ l″ : Universe-level
+    l l′ l″ l‴ l₁ l₂ : Universe-level
     A A₁ A₂ t t₁ t₂ u u₁ u₂ : Term n
     p q : M
 
@@ -52,23 +52,29 @@ private
 -- Characterisation lemmas
 
 opaque
+  unfolding emb-⊩
 
   -- A characterisation lemma for _⊩⟨_⟩_.
 
   ⊩Unit⇔ :
-    Γ ⊩⟨ l ⟩ Unit s ⇔
-    (⊢ Γ × Unit-allowed s)
+    Γ ⊩⟨ l′ ⟩ Unit s l ⇔
+    (l ≤ᵘ l′ × ⊢ Γ × Unit-allowed s)
   ⊩Unit⇔ =
       (λ ⊩Unit → lemma (Unit-elim ⊩Unit))
-    , (λ (⊢Γ , ok) →
-         Unitᵣ $
-         Unitₜ (idRed:*: (Unitⱼ ⊢Γ ok)) ok)
+    , (λ (l≤l′ , ⊢Γ , ok) →
+         emb-⊩ l≤l′ $
+         Unitᵣ (Unitₜ (idRed:*: (Unitⱼ ⊢Γ ok)) ok))
     where
     lemma :
-      Γ ⊩⟨ l ⟩Unit⟨ s ⟩ Unit s →
-      ⊢ Γ × Unit-allowed s
-    lemma (emb 0<1 ⊩Unit)               = lemma ⊩Unit
-    lemma (noemb (Unitₜ Unit⇒*Unit ok)) = wf (⊢A-red Unit⇒*Unit) , ok
+      Γ ⊩⟨ l′ ⟩Unit⟨ s ⟩ Unit s l →
+      l ≤ᵘ l′ × ⊢ Γ × Unit-allowed s
+    lemma (emb p ⊩Unit) =
+      Σ.map (flip ≤ᵘ-trans (<ᵘ→≤ᵘ p)) idᶠ (lemma ⊩Unit)
+    lemma (noemb (Unitₜ [ ⊢Unit , _ , Unit⇒*Unit ] ok)) =
+      case Unit-PE-injectivity $
+           whnfRed* Unit⇒*Unit Unitₙ of λ {
+        (_ , PE.refl) →
+      ≤ᵘ-refl , wf ⊢Unit , ok }
 
 opaque
   unfolding _⊩⟨_⟩_∷_ ⊩Unit⇔
@@ -76,24 +82,27 @@ opaque
   -- A characterisation lemma for _⊩⟨_⟩_∷_.
 
   ⊩∷Unit⇔ :
-    Γ ⊩⟨ l ⟩ t ∷ Unit s ⇔
-    (Unit-allowed s ×
-     Γ ⊩Unit⟨ s ⟩ t ∷Unit)
+    Γ ⊩⟨ l′ ⟩ t ∷ Unit s l ⇔
+    (l ≤ᵘ l′ × Unit-allowed s × Γ ⊩Unit⟨ l , s ⟩ t ∷Unit)
   ⊩∷Unit⇔ =
       (λ (⊩Unit , ⊩t) →
-         lemma (Unit-elim ⊩Unit)
+         lemma₁ (Unit-elim ⊩Unit)
            (irrelevanceTerm ⊩Unit (Unit-intr (Unit-elim ⊩Unit)) ⊩t))
-    , (λ (ok , ⊩t@(Unitₜ _ t⇒*u _ _)) →
-         ⊩Unit⇔ .proj₂ (wfTerm (⊢t-redₜ t⇒*u) , ok) , ⊩t)
+    , (λ (l≤l′ , ok , ⊩t@(Unitₜ _ [ ⊢t , _ , _ ] _ _)) →
+         emb-⊩∷ l≤l′ (⊩Unit⇔ .proj₂ (≤ᵘ-refl , wfTerm ⊢t , ok) , ⊩t))
     where
-    lemma :
-      (⊩Unit : Γ ⊩⟨ l ⟩Unit⟨ s ⟩ Unit s) →
-      Γ ⊩⟨ l ⟩ t ∷ Unit s / Unit-intr ⊩Unit →
-      Unit-allowed s ×
-      Γ ⊩Unit⟨ s ⟩ t ∷Unit
-    lemma (emb ≤ᵘ-refl ⊩Unit)      ⊩t = lemma ⊩Unit  ⊩t
-    lemma (emb (≤ᵘ-step s) ⊩Unit)  ⊩t = lemma (emb s ⊩Unit) ⊩t
-    lemma (noemb (Unitₜ _ ok)) ⊩t = ok , ⊩t
+    lemma₁ :
+      (⊩Unit : Γ ⊩⟨ l′ ⟩Unit⟨ s ⟩ Unit s l) →
+      Γ ⊩⟨ l′ ⟩ t ∷ Unit s l / Unit-intr ⊩Unit →
+      l ≤ᵘ l′ × Unit-allowed s × Γ ⊩Unit⟨ l , s ⟩ t ∷Unit
+    lemma₁ (emb ≤ᵘ-refl     ⊩Unit) = Σ.map ≤ᵘ-step idᶠ ∘→ lemma₁ ⊩Unit
+    lemma₁ (emb (≤ᵘ-step p) ⊩Unit) =
+      Σ.map ≤ᵘ-step idᶠ ∘→ lemma₁ (emb p ⊩Unit)
+    lemma₁ (noemb (Unitₜ [ ⊢Unit , _ , Unit⇒*Unit ] ok)) ⊩t =
+      case Unit-PE-injectivity $
+           whnfRed* Unit⇒*Unit Unitₙ of λ {
+        (_ , PE.refl) →
+      ≤ᵘ-refl , ok , ⊩t }
 
 opaque
   unfolding _⊩⟨_⟩_≡_
@@ -101,48 +110,49 @@ opaque
   -- A characterisation lemma for _⊩⟨_⟩_≡_.
 
   ⊩Unit≡⇔ :
-    Γ ⊩⟨ l ⟩ Unit s ≡ A ⇔
-    (⊢ Γ × Unit-allowed s × Γ ⊩Unit⟨ s ⟩ Unit s ≡ A)
-  ⊩Unit≡⇔ {s} {A} =
+    Γ ⊩⟨ l′ ⟩ Unit s l ≡ A ⇔
+    (l ≤ᵘ l′ × ⊢ Γ × Unit-allowed s × Γ ⊩Unit⟨ l , s ⟩ Unit s l ≡ A)
+  ⊩Unit≡⇔ {s} {l} {A} =
       (λ (⊩Unit₁ , _ , Unit₁≡Unit₂) →
          case Unit-elim ⊩Unit₁ of λ
            ⊩Unit₁′ →
          lemma ⊩Unit₁′
            (irrelevanceEq ⊩Unit₁ (Unit-intr ⊩Unit₁′) Unit₁≡Unit₂))
-    , (λ (⊢Γ , ok , A⇒*Unit) →
+    , (λ (l≤l′ , ⊢Γ , ok , A⇒*Unit) →
          sym-⊩≡
-           (A       ⇒*⟨ A⇒*Unit ⟩⊩
-            Unit s  ∎⟨ ⊩Unit⇔ .proj₂ (⊢Γ , ok) ⟩⊩))
+           (A         ⇒*⟨ A⇒*Unit ⟩⊩
+            Unit s l  ∎⟨ ⊩Unit⇔ .proj₂ (l≤l′ , ⊢Γ , ok) ⟩⊩))
     where
     lemma :
-      (⊩Unit : Γ ⊩⟨ l ⟩Unit⟨ s ⟩ Unit s) →
-      Γ ⊩⟨ l ⟩ Unit s ≡ A / Unit-intr ⊩Unit →
-      ⊢ Γ × Unit-allowed s × Γ ⊩Unit⟨ s ⟩ Unit s ≡ A
+      (⊩Unit : Γ ⊩⟨ l′ ⟩Unit⟨ s ⟩ Unit s l) →
+      Γ ⊩⟨ l′ ⟩ Unit s l ≡ A / Unit-intr ⊩Unit →
+      l ≤ᵘ l′ × ⊢ Γ × Unit-allowed s × Γ ⊩Unit⟨ l , s ⟩ Unit s l ≡ A
     lemma (emb ≤ᵘ-refl ⊩Unit) =
-      lemma ⊩Unit
+      Σ.map ≤ᵘ-step idᶠ ∘→ lemma ⊩Unit
     lemma (emb (≤ᵘ-step l<) ⊩Unit) =
-      lemma (emb l< ⊩Unit)
-    lemma {l} ⊩Unit@(noemb _) A⇒*Unit =
-      case ⊩Unit⇔ {l = l} .proj₁ $ Unit-intr ⊩Unit of λ
-        (⊢Γ , ok) →
-      ⊢Γ , ok , A⇒*Unit
+      Σ.map ≤ᵘ-step idᶠ ∘→ lemma (emb l< ⊩Unit)
+    lemma ⊩Unit@(noemb (Unitₜ Unit⇒*Unit _)) A⇒*Unit =
+      case ⊩Unit⇔ .proj₁ $ Unit-intr ⊩Unit of λ
+        (l≤l′ , ⊢Γ , ok) →
+      case Unit-PE-injectivity $
+           whnfRed* (red Unit⇒*Unit) Unitₙ of λ {
+        (_ , PE.refl) →
+      l≤l′ , ⊢Γ , ok , A⇒*Unit }
 
 opaque
 
   -- A characterisation lemma for _⊩⟨_⟩_≡_.
 
   ⊩Unit≡Unit⇔ :
-    Γ ⊩⟨ l ⟩ Unit s₁ ≡ Unit s₂ ⇔
-    (⊢ Γ × Unit-allowed s₁ × s₁ PE.≡ s₂)
-  ⊩Unit≡Unit⇔ {Γ} {l} {s₁} {s₂} =
-    Γ ⊩⟨ l ⟩ Unit s₁ ≡ Unit s₂                      ⇔⟨ ⊩Unit≡⇔ ⟩
-    ⊢ Γ × Unit-allowed s₁ × Γ ⊢ Unit s₂ ⇒* Unit s₁  ⇔⟨ (Σ-cong-⇔ λ ⊢Γ → Σ-cong-⇔ λ ok →
-                                                          (λ Unit⇒*Unit →
-                                                             case whnfRed* Unit⇒*Unit Unitₙ of λ {
-                                                               PE.refl →
-                                                             PE.refl })
-                                                        , (λ { PE.refl → id (Unitⱼ ⊢Γ ok) })) ⟩
-    ⊢ Γ × Unit-allowed s₁ × s₁ PE.≡ s₂              □⇔
+    Γ ⊩⟨ l ⟩ Unit s₁ l₁ ≡ Unit s₂ l₂ ⇔
+    (l₁ ≤ᵘ l × ⊢ Γ × Unit-allowed s₁ × s₁ PE.≡ s₂ × l₁ PE.≡ l₂)
+  ⊩Unit≡Unit⇔ {Γ} {l} {s₁} {l₁} {s₂} {l₂} =
+    Γ ⊩⟨ l ⟩ Unit s₁ l₁ ≡ Unit s₂ l₂                                ⇔⟨ ⊩Unit≡⇔ ⟩
+    l₁ ≤ᵘ l × ⊢ Γ × Unit-allowed s₁ × Γ ⊢ Unit s₂ l₂ ⇒* Unit s₁ l₁  ⇔⟨ (Σ-cong-⇔ λ _ → Σ-cong-⇔ λ ⊢Γ → Σ-cong-⇔ λ ok →
+                                                                          Σ.map PE.sym PE.sym ∘→ Unit-PE-injectivity ∘→ flip whnfRed* Unitₙ
+                                                                        , (λ { (PE.refl , PE.refl) → id (Unitⱼ ⊢Γ ok) }))
+                                                                     ⟩
+    l₁ ≤ᵘ l × ⊢ Γ × Unit-allowed s₁ × s₁ PE.≡ s₂ × l₁ PE.≡ l₂       □⇔
 
 opaque
   unfolding _⊩⟨_⟩_≡_∷_ ⊩Unit⇔
@@ -150,54 +160,63 @@ opaque
   -- A characterisation lemma for _⊩⟨_⟩_≡_∷_.
 
   ⊩≡∷Unit⇔ :
-    Γ ⊩⟨ l ⟩ t ≡ u ∷ Unit s ⇔
-    (Unit-allowed s ×
-     Γ ⊩Unit⟨ s ⟩ t ∷Unit ×
-     Γ ⊩Unit⟨ s ⟩ u ∷Unit ×
-     Γ ⊩Unit⟨ s ⟩ t ≡ u ∷Unit)
+    Γ ⊩⟨ l′ ⟩ t ≡ u ∷ Unit s l ⇔
+    (l ≤ᵘ l′ ×
+     Unit-allowed s ×
+     Γ ⊩Unit⟨ l , s ⟩ t ∷Unit ×
+     Γ ⊩Unit⟨ l , s ⟩ u ∷Unit ×
+     Γ ⊩Unit⟨ l , s ⟩ t ≡ u ∷Unit)
   ⊩≡∷Unit⇔ {s} =
       (λ (⊩Unit , ⊩t , ⊩u , t≡u) →
          lemma (Unit-elim ⊩Unit)
            (irrelevanceTerm ⊩Unit (Unit-intr (Unit-elim ⊩Unit)) ⊩t)
            (irrelevanceTerm ⊩Unit (Unit-intr (Unit-elim ⊩Unit)) ⊩u)
            (irrelevanceEqTerm ⊩Unit (Unit-intr (Unit-elim ⊩Unit)) t≡u))
-    , (λ (ok , ⊩t , ⊩u , t≡u) →
+    , (λ (l≤l′ , ok , ⊩t , ⊩u , t≡u) →
          case
            (case t≡u of λ where
               (Unitₜ₌ˢ ⊢t _ _)          → wfTerm ⊢t
               (Unitₜ₌ʷ _ _ t⇒* _ _ _ _) → wfTerm (⊢t-redₜ t⇒*))
          of λ
            ⊢Γ →
-         ⊩Unit⇔ .proj₂ (⊢Γ , ok) , ⊩t , ⊩u , t≡u)
+         emb-⊩≡∷ l≤l′ $
+         ⊩Unit⇔ .proj₂ (≤ᵘ-refl , ⊢Γ , ok) , ⊩t , ⊩u , t≡u)
     where
     lemma :
-      (⊩Unit : Γ ⊩⟨ l ⟩Unit⟨ s ⟩ Unit s) →
-      Γ ⊩⟨ l ⟩ t ∷ Unit s / Unit-intr ⊩Unit →
-      Γ ⊩⟨ l ⟩ u ∷ Unit s / Unit-intr ⊩Unit →
-      Γ ⊩⟨ l ⟩ t ≡ u ∷ Unit s / Unit-intr ⊩Unit →
+      (⊩Unit : Γ ⊩⟨ l′ ⟩Unit⟨ s ⟩ Unit s l) →
+      Γ ⊩⟨ l′ ⟩ t ∷ Unit s l / Unit-intr ⊩Unit →
+      Γ ⊩⟨ l′ ⟩ u ∷ Unit s l / Unit-intr ⊩Unit →
+      Γ ⊩⟨ l′ ⟩ t ≡ u ∷ Unit s l / Unit-intr ⊩Unit →
+      l ≤ᵘ l′ ×
       Unit-allowed s ×
-      Γ ⊩Unit⟨ s ⟩ t ∷Unit ×
-      Γ ⊩Unit⟨ s ⟩ u ∷Unit ×
-      Γ ⊩Unit⟨ s ⟩ t ≡ u ∷Unit
-    lemma (emb ≤ᵘ-refl ⊩Unit)            = lemma ⊩Unit
-    lemma (emb (≤ᵘ-step p) ⊩Unit)        = lemma (emb p ⊩Unit)
-    lemma (noemb (Unitₜ _ ok)) ⊩t ⊩u t≡u = ok , ⊩t , ⊩u , t≡u
+      Γ ⊩Unit⟨ l , s ⟩ t ∷Unit ×
+      Γ ⊩Unit⟨ l , s ⟩ u ∷Unit ×
+      Γ ⊩Unit⟨ l , s ⟩ t ≡ u ∷Unit
+    lemma (emb ≤ᵘ-refl ⊩Unit) ⊩t ⊩u t≡u =
+      Σ.map ≤ᵘ-step idᶠ (lemma ⊩Unit ⊩t ⊩u t≡u)
+    lemma (emb (≤ᵘ-step p) ⊩Unit) ⊩t ⊩u t≡u =
+      Σ.map ≤ᵘ-step idᶠ (lemma (emb p ⊩Unit) ⊩t ⊩u t≡u)
+    lemma (noemb (Unitₜ Unit⇒*Unit ok)) ⊩t ⊩u t≡u =
+      case Unit-PE-injectivity $
+           whnfRed* (red Unit⇒*Unit) Unitₙ of λ {
+        (_ , PE.refl) →
+      ≤ᵘ-refl , ok , ⊩t , ⊩u , t≡u }
 
 ------------------------------------------------------------------------
 -- Unit
 
 opaque
 
-  -- If the type Unit s is valid, then it is allowed.
+  -- If the type Unit s l is valid, then it is allowed.
 
   ⊩ᵛUnit→Unit-allowed :
-    Γ ⊩ᵛ⟨ l ⟩ Unit s →
+    Γ ⊩ᵛ⟨ l′ ⟩ Unit s l →
     Unit-allowed s
-  ⊩ᵛUnit→Unit-allowed {Γ} {l} {s} =
-    Γ ⊩ᵛ⟨ l ⟩ Unit s      →⟨ ⊩ᵛ→⊩ ⟩
-    Γ ⊩⟨ l ⟩ Unit s       ⇔⟨ ⊩Unit⇔ ⟩→
-    ⊢ Γ × Unit-allowed s  →⟨ proj₂ ⟩
-    Unit-allowed s        □
+  ⊩ᵛUnit→Unit-allowed {Γ} {l′} {s} {l} =
+    Γ ⊩ᵛ⟨ l′ ⟩ Unit s l             →⟨ ⊩ᵛ→⊩ ⟩
+    Γ ⊩⟨ l′ ⟩ Unit s l              ⇔⟨ ⊩Unit⇔ ⟩→
+    l ≤ᵘ l′ × ⊢ Γ × Unit-allowed s  →⟨ proj₂ ∘→ proj₂ ⟩
+    Unit-allowed s                  □
 
 opaque
 
@@ -206,8 +225,8 @@ opaque
   ⊩Unit :
     ⊢ Γ →
     Unit-allowed s →
-    Γ ⊩⟨ l ⟩ Unit s
-  ⊩Unit ⊢Γ ok = ⊩Unit⇔ .proj₂ (⊢Γ , ok)
+    Γ ⊩⟨ l ⟩ Unit s l
+  ⊩Unit ⊢Γ ok = ⊩Unit⇔ .proj₂ (≤ᵘ-refl , ⊢Γ , ok)
 
 opaque
 
@@ -216,15 +235,15 @@ opaque
   Unitᵛ :
     ⊩ᵛ Γ →
     Unit-allowed s →
-    Γ ⊩ᵛ⟨ l ⟩ Unit s
+    Γ ⊩ᵛ⟨ l ⟩ Unit s l
   Unitᵛ {Γ} {s} {l} ⊩Γ ok =
     ⊩ᵛ⇔ .proj₂
       ( ⊩Γ
       , λ {_} {Δ = Δ} {σ₁ = σ₁} {σ₂ = σ₂} →
-          Δ ⊩ˢ σ₁ ≡ σ₂ ∷ Γ          →⟨ proj₁ ∘→ escape-⊩ˢ≡∷ ⟩
-          ⊢ Δ                       →⟨ flip ⊩Unit ok ⟩
-          (Δ ⊩⟨ l ⟩ Unit s)         →⟨ refl-⊩≡ ⟩
-          Δ ⊩⟨ l ⟩ Unit s ≡ Unit s  □
+          Δ ⊩ˢ σ₁ ≡ σ₂ ∷ Γ              →⟨ proj₁ ∘→ escape-⊩ˢ≡∷ ⟩
+          ⊢ Δ                           →⟨ flip ⊩Unit ok ⟩
+          (Δ ⊩⟨ l ⟩ Unit s l)           →⟨ refl-⊩≡ ⟩
+          Δ ⊩⟨ l ⟩ Unit s l ≡ Unit s l  □
       )
 
 opaque
@@ -234,7 +253,7 @@ opaque
   Unitᵗᵛ :
     ⊩ᵛ Γ →
     Unit-allowed s →
-    Γ ⊩ᵛ⟨ 1 ⟩ Unit s ∷ U 0
+    Γ ⊩ᵛ⟨ 1+ l ⟩ Unit s l ∷ U l
   Unitᵗᵛ ⊩Γ ok =
     ⊩ᵛ∷⇔ .proj₂
       ( ⊩ᵛU ⊩Γ
@@ -258,10 +277,11 @@ opaque
   ⊩star :
     ⊢ Γ →
     Unit-allowed s →
-    Γ ⊩⟨ l ⟩ star s ∷ Unit s
+    Γ ⊩⟨ l ⟩ star s l ∷ Unit s l
   ⊩star ⊢Γ ok =
     ⊩∷Unit⇔ .proj₂
-      ( ok
+      ( ≤ᵘ-refl
+      , ok
       , Unitₜ _ (idRedTerm:*: (starⱼ ⊢Γ ok)) (≅ₜ-starrefl ⊢Γ ok) starᵣ
       )
 
@@ -272,15 +292,15 @@ opaque
   starᵛ :
     ⊩ᵛ Γ →
     Unit-allowed s →
-    Γ ⊩ᵛ⟨ l ⟩ star s ∷ Unit s
+    Γ ⊩ᵛ⟨ l ⟩ star s l ∷ Unit s l
   starᵛ {Γ} {s} {l} ⊩Γ ok =
     ⊩ᵛ∷⇔ .proj₂
       ( Unitᵛ ⊩Γ ok
       , λ {_} {Δ = Δ} {σ₁ = σ₁} {σ₂ = σ₂} →
-          Δ ⊩ˢ σ₁ ≡ σ₂ ∷ Γ                   →⟨ proj₁ ∘→ escape-⊩ˢ≡∷ ⟩
-          ⊢ Δ                                →⟨ flip ⊩star ok ⟩
-          Δ ⊩⟨ l ⟩ star s ∷ Unit s           →⟨ refl-⊩≡∷ ⟩
-          Δ ⊩⟨ l ⟩ star s ≡ star s ∷ Unit s  □
+          Δ ⊩ˢ σ₁ ≡ σ₂ ∷ Γ                         →⟨ proj₁ ∘→ escape-⊩ˢ≡∷ ⟩
+          ⊢ Δ                                      →⟨ flip ⊩star ok ⟩
+          Δ ⊩⟨ l ⟩ star s l ∷ Unit s l             →⟨ refl-⊩≡∷ ⟩
+          Δ ⊩⟨ l ⟩ star s l ≡ star s l ∷ Unit s l  □
       )
 
 ------------------------------------------------------------------------
@@ -291,10 +311,10 @@ opaque
   -- Validity of η-unit.
 
   η-unitᵛ :
-    Γ ⊩ᵛ⟨ l ⟩ t ∷ Unit s →
-    Γ ⊩ᵛ⟨ l′ ⟩ u ∷ Unit s →
+    Γ ⊩ᵛ⟨ l′ ⟩ t ∷ Unit s l →
+    Γ ⊩ᵛ⟨ l″ ⟩ u ∷ Unit s l →
     Unit-with-η s →
-    Γ ⊩ᵛ⟨ l ⟩ t ≡ u ∷ Unit s
+    Γ ⊩ᵛ⟨ l′ ⟩ t ≡ u ∷ Unit s l
   η-unitᵛ ⊩t ⊩u η =
     ⊩ᵛ≡∷⇔ .proj₂
       ( wf-⊩ᵛ∷ ⊩t
@@ -302,11 +322,12 @@ opaque
           case wf-⊩ˢ≡∷ σ₁≡σ₂ of λ
             (⊩σ₁ , ⊩σ₂) →
           case ⊩∷Unit⇔ .proj₁ (⊩ᵛ∷→⊩ˢ∷→⊩[]∷ ⊩t ⊩σ₁) of λ
-            (ok , ⊩t@(Unitₜ _ t⇒*t′ _ _)) →
+            (l≤l′ , ok , ⊩t@(Unitₜ _ t⇒*t′ _ _)) →
           case ⊩∷Unit⇔ .proj₁ (⊩ᵛ∷→⊩ˢ∷→⊩[]∷ ⊩u ⊩σ₂) of λ
-            (_ , ⊩u@(Unitₜ _ u⇒*u′ _ _)) →
+            (_ , _ , ⊩u@(Unitₜ _ u⇒*u′ _ _)) →
           ⊩≡∷Unit⇔ .proj₂
-            (ok , ⊩t , ⊩u , Unitₜ₌ˢ (⊢t-redₜ t⇒*t′) (⊢t-redₜ u⇒*u′) η)
+            (l≤l′ , ok , ⊩t , ⊩u ,
+             Unitₜ₌ˢ (⊢t-redₜ t⇒*t′) (⊢t-redₜ u⇒*u′) η)
       )
 
 ------------------------------------------------------------------------
@@ -317,15 +338,15 @@ private opaque
   -- A variant of unitrec-subst for _⊢_⇒*_∷_.
 
   unitrec-subst* :
-    Γ ∙ Unitʷ ⊩ᵛ⟨ l ⟩ A →
+    Γ ∙ Unitʷ l ⊩ᵛ⟨ l′ ⟩ A →
     Δ ⊩ˢ σ ∷ Γ →
-    Δ ⊩⟨ l′ ⟩ t₁ ∷ Unitʷ →
-    Δ ⊢ t₁ ⇒* t₂ ∷ Unitʷ →
-    Δ ⊢ u ∷ A [ σ ⇑ ] [ starʷ ]₀ →
+    Δ ⊩⟨ l″ ⟩ t₁ ∷ Unitʷ l →
+    Δ ⊢ t₁ ⇒* t₂ ∷ Unitʷ l →
+    Δ ⊢ u ∷ A [ σ ⇑ ] [ starʷ l ]₀ →
     ¬ Unitʷ-η →
-    Δ ⊢ unitrec p q (A [ σ ⇑ ]) t₁ u ⇒* unitrec p q (A [ σ ⇑ ]) t₂ u ∷
-      A [ σ ⇑ ] [ t₁ ]₀
-  unitrec-subst* {l} {A} ⊩A ⊩σ ⊩t₁ t₁⇒*t₂ ⊢u no-η =
+    Δ ⊢ unitrec l p q (A [ σ ⇑ ]) t₁ u ⇒*
+      unitrec l p q (A [ σ ⇑ ]) t₂ u ∷ A [ σ ⇑ ] [ t₁ ]₀
+  unitrec-subst* ⊩A ⊩σ ⊩t₁ t₁⇒*t₂ ⊢u no-η =
     case ⊩ᵛUnit→Unit-allowed $ wf-∙-⊩ᵛ ⊩A .proj₂ of λ
       ok →
     case escape $ ⊩ᵛ→⊩ˢ∷→⊩[⇑] ⊩A ⊩σ of λ
@@ -350,14 +371,14 @@ opaque
   -- Reducibility of equality between applications of unitrec.
 
   ⊩unitrec≡unitrec :
-    Γ ∙ Unitʷ ⊩ᵛ⟨ l ⟩ A₁ ≡ A₂ →
-    Γ ⊩ᵛ⟨ l′ ⟩ t₁ ≡ t₂ ∷ Unitʷ →
-    Γ ⊩ᵛ⟨ l″ ⟩ u₁ ≡ u₂ ∷ A₁ [ starʷ ]₀ →
+    Γ ∙ Unitʷ l ⊩ᵛ⟨ l′ ⟩ A₁ ≡ A₂ →
+    Γ ⊩ᵛ⟨ l″ ⟩ t₁ ≡ t₂ ∷ Unitʷ l →
+    Γ ⊩ᵛ⟨ l‴ ⟩ u₁ ≡ u₂ ∷ A₁ [ starʷ l ]₀ →
     Δ ⊩ˢ σ₁ ≡ σ₂ ∷ Γ →
-    Δ ⊩⟨ l ⟩ unitrec p q A₁ t₁ u₁ [ σ₁ ] ≡ unitrec p q A₂ t₂ u₂ [ σ₂ ] ∷
-      A₁ [ t₁ ]₀ [ σ₁ ]
+    Δ ⊩⟨ l′ ⟩ unitrec l p q A₁ t₁ u₁ [ σ₁ ] ≡
+      unitrec l p q A₂ t₂ u₂ [ σ₂ ] ∷ A₁ [ t₁ ]₀ [ σ₁ ]
   ⊩unitrec≡unitrec
-    {l} {A₁} {A₂} {t₁} {t₂} {u₁} {u₂} {σ₁} {σ₂} {p} {q}
+    {l} {l′} {A₁} {A₂} {t₁} {t₂} {u₁} {u₂} {Δ} {σ₁} {σ₂} {p} {q}
     A₁≡A₂ t₁≡t₂ u₁≡u₂ σ₁≡σ₂ =
     case wf-⊩ᵛ≡ A₁≡A₂ of λ
       (⊩A₁ , ⊩A₂) →
@@ -378,7 +399,7 @@ opaque
     case Σ.map escape escape (wf-⊩≡ A₁[σ₁⇑]≡A₂[σ₂⇑]) of λ
       (⊢A₁[σ₁⇑] , ⊢A₂[σ₂⇑]) →
     case refl-⊩≡∷ $
-         ⊩star {l = l} (escape-⊩ˢ∷ ⊩σ₁ .proj₁) $
+         ⊩star (escape-⊩ˢ∷ ⊩σ₁ .proj₁) $
          ⊩ᵛUnit→Unit-allowed ⊩Unit of λ
       ⋆≡⋆ →
     case PE.subst₂ (_⊢_≡_ _) (substConsId A₁) (substConsId A₂) $
@@ -386,49 +407,49 @@ opaque
          ⊩ᵛ≡→⊩ˢ≡∷→⊩≡∷→⊩[,]≡[,] A₁≡A₂ σ₁≡σ₂ ⋆≡⋆ of λ
       A₁[⋆]₀[σ₁]≡A₂[⋆]₀[σ₂] →
     case escape-⊩∷ $
-         PE.subst (_⊩⟨_⟩_∷_ _ _ _) (singleSubstLift A₁ starʷ) $
+         PE.subst (_⊩⟨_⟩_∷_ _ _ _) (singleSubstLift A₁ (starʷ _)) $
          ⊩ᵛ∷→⊩ˢ∷→⊩[]∷ ⊩u₁ ⊩σ₁ of λ
       ⊢u₁[σ₁] →
     case escape-⊩∷ $
          conv-⊩∷
            (⊩ᵛ≡→⊩ˢ≡∷→⊩≡∷→⊩[⇑][]₀≡[⇑][]₀ A₁≡A₂ (refl-⊩ˢ≡∷ ⊩σ₂) ⋆≡⋆) $
-         PE.subst (_⊩⟨_⟩_∷_ _ _ _) (singleSubstLift A₁ starʷ) $
+         PE.subst (_⊩⟨_⟩_∷_ _ _ _) (singleSubstLift A₁ (starʷ _)) $
          ⊩ᵛ∷→⊩ˢ∷→⊩[]∷ ⊩u₂ ⊩σ₂ of λ
       ⊢u₂[σ₂] →
     case ⊩≡∷Unit⇔ .proj₁ (t₁≡t₂ σ₁≡σ₂) of λ where
-      (ok , _ , _ , Unitₜ₌ˢ ⊢t₁ ⊢t₂ (inj₂ η)) →
-        case starᵛ {l = l} (wf-⊩ᵛ ⊩Unit) ok of λ
+      (_ , ok , _ , _ , Unitₜ₌ˢ ⊢t₁ ⊢t₂ (inj₂ η)) →
+        case starᵛ (wf-⊩ᵛ ⊩Unit) ok of λ
           ⊩⋆ →
-        unitrec p q A₁ t₁ u₁ [ σ₁ ] ∷ A₁ [ t₁ ]₀ [ σ₁ ]       ⇒⟨ PE.subst (_⊢_⇒_∷_ _ _ _) (PE.sym $ singleSubstLift A₁ t₁) $
-                                                                 unitrec-β-η ⊢A₁[σ₁⇑] (escape-⊩∷ ⊩t₁[σ₁]) ⊢u₁[σ₁] ok η ⟩⊩∷∷
-                                                               ⟨ ⊩ᵛ≡→⊩≡∷→⊩ˢ≡∷→⊩[]₀[]≡[]₀[] (refl-⊩ᵛ≡ ⊩A₁)
-                                                                   (⊩ᵛ≡∷⇔ .proj₁ (η-unitᵛ ⊩t₁ ⊩⋆ (inj₂ η)) .proj₂ $
-                                                                    refl-⊩ˢ≡∷ ⊩σ₁)
-                                                                   (refl-⊩ˢ≡∷ ⊩σ₁) ⟩⊩∷
-        u₁ [ σ₁ ]                   ∷ A₁ [ starʷ ]₀ [ σ₁ ]    ≡⟨ u₁≡u₂ σ₁≡σ₂ ⟩⊩∷∷⇐*
-                                                               ⟨ A₁[⋆]₀[σ₁]≡A₂[⋆]₀[σ₂] ⟩⇒
-                                    ∷ A₂ [ starʷ ]₀ [ σ₂ ]     ⟨ singleSubstLift A₂ starʷ ⟩⇐≡
-        u₂ [ σ₂ ]                   ∷ A₂ [ σ₂ ⇑ ] [ starʷ ]₀  ⇐⟨ conv (unitrec-β-η ⊢A₂[σ₂⇑] (escape-⊩∷ ⊩t₂[σ₂]) ⊢u₂[σ₂] ok η)
-                                                                   (≅-eq $ escape-⊩≡ $
-                                                                    ⊩ᵛ≡→⊩ˢ≡∷→⊩≡∷→⊩[⇑][]₀≡[⇑][]₀ (refl-⊩ᵛ≡ ⊩A₂) (refl-⊩ˢ≡∷ ⊩σ₂) $
-                                                                    ⊩ᵛ≡∷⇔ .proj₁ (η-unitᵛ ⊩t₂ ⊩⋆ (inj₂ η)) .proj₂ $
-                                                                    refl-⊩ˢ≡∷ ⊩σ₂)
-                                                               , ⊢u₂[σ₂]
-                                                               ⟩∎∷
-        unitrec p q A₂ t₂ u₂ [ σ₂ ]                           ∎
+        unitrec l p q A₁ t₁ u₁ [ σ₁ ] ∷ A₁ [ t₁ ]₀ [ σ₁ ]         ⇒⟨ PE.subst (_⊢_⇒_∷_ _ _ _) (PE.sym $ singleSubstLift A₁ t₁) $
+                                                                     unitrec-β-η ⊢A₁[σ₁⇑] (escape-⊩∷ ⊩t₁[σ₁]) ⊢u₁[σ₁] ok η ⟩⊩∷∷
+                                                                   ⟨ ⊩ᵛ≡→⊩≡∷→⊩ˢ≡∷→⊩[]₀[]≡[]₀[] (refl-⊩ᵛ≡ ⊩A₁)
+                                                                       (⊩ᵛ≡∷⇔ .proj₁ (η-unitᵛ ⊩t₁ ⊩⋆ (inj₂ η)) .proj₂ $
+                                                                        refl-⊩ˢ≡∷ ⊩σ₁)
+                                                                       (refl-⊩ˢ≡∷ ⊩σ₁) ⟩⊩∷
+        u₁ [ σ₁ ]                     ∷ A₁ [ starʷ l ]₀ [ σ₁ ]    ≡⟨ u₁≡u₂ σ₁≡σ₂ ⟩⊩∷∷⇐*
+                                                                   ⟨ A₁[⋆]₀[σ₁]≡A₂[⋆]₀[σ₂] ⟩⇒
+                                      ∷ A₂ [ starʷ l ]₀ [ σ₂ ]     ⟨ singleSubstLift A₂ (starʷ _) ⟩⇐≡
+        u₂ [ σ₂ ]                     ∷ A₂ [ σ₂ ⇑ ] [ starʷ l ]₀  ⇐⟨ conv (unitrec-β-η ⊢A₂[σ₂⇑] (escape-⊩∷ ⊩t₂[σ₂]) ⊢u₂[σ₂] ok η)
+                                                                       (≅-eq $ escape-⊩≡ $
+                                                                        ⊩ᵛ≡→⊩ˢ≡∷→⊩≡∷→⊩[⇑][]₀≡[⇑][]₀ (refl-⊩ᵛ≡ ⊩A₂) (refl-⊩ˢ≡∷ ⊩σ₂) $
+                                                                        ⊩ᵛ≡∷⇔ .proj₁ (η-unitᵛ ⊩t₂ ⊩⋆ (inj₂ η)) .proj₂ $
+                                                                        refl-⊩ˢ≡∷ ⊩σ₂)
+                                                                   , ⊢u₂[σ₂]
+                                                                   ⟩∎∷
+        unitrec l p q A₂ t₂ u₂ [ σ₂ ]                             ∎
 
-      (ok , _ , _ ,
+      (_ , ok , _ , _ ,
        Unitₜ₌ʷ t₁′ t₂′ t₁[σ₁]⇒*t₁′@([ _ , ⊢t₁′ , _ ])
          t₂[σ₂]⇒*t₂′@([ _ , ⊢t₂′ , _ ]) _ rest no-η) →
         case PE.subst (_⊢_⇒*_∷_ _ _ _)
                (PE.sym $ singleSubstLift A₁ t₁) $
-             unitrec-subst* ⊩A₁ ⊩σ₁ ⊩t₁[σ₁] (redₜ t₁[σ₁]⇒*t₁′) ⊢u₁[σ₁]
-               no-η of λ
+             unitrec-subst* {p = p} {q = q} ⊩A₁ ⊩σ₁ ⊩t₁[σ₁]
+               (redₜ t₁[σ₁]⇒*t₁′) ⊢u₁[σ₁] no-η of λ
           unitrec⇒*₁ →
         case PE.subst (_⊢_⇒*_∷_ _ _ _)
                (PE.sym $ singleSubstLift A₂ t₂) $
-             unitrec-subst* ⊩A₂ ⊩σ₂ ⊩t₂[σ₂] (redₜ t₂[σ₂]⇒*t₂′) ⊢u₂[σ₂]
-               no-η of λ
+             unitrec-subst* {p = p} {q = q} ⊩A₂ ⊩σ₂ ⊩t₂[σ₂]
+               (redₜ t₂[σ₂]⇒*t₂′) ⊢u₂[σ₂] no-η of λ
           unitrec⇒*₂ →
         case PE.subst₂ (_⊩⟨_⟩_≡_ _ _)
                (PE.sym $ singleSubstLift A₁ t₁) PE.refl $
@@ -443,17 +464,17 @@ opaque
           ⊢A₂[t₂]₀[σ₂]≡A₂[σ₂⇑][t₂′]₀ →
         case rest of λ where
           starᵣ →
-            unitrec p q A₁ t₁    u₁ [ σ₁ ] ∷ A₁ [ t₁ ]₀ [ σ₁ ]       ⇒*⟨ unitrec⇒*₁ ⟩⊩∷∷
-                                                                       ⟨ A₁[t₁]₀[σ₁]≡A₁[σ₁⇑][t₁′]₀ ⟩⊩∷
-            unitrec p q A₁ starʷ u₁ [ σ₁ ] ∷ A₁ [ σ₁ ⇑ ] [ starʷ ]₀  ⇒⟨ unitrec-β ⊢A₁[σ₁⇑] ⊢u₁[σ₁] ok no-η ⟩⊩∷∷
-                                                                     ˘⟨ singleSubstLift A₁ starʷ ⟩⊩∷≡
-            u₁ [ σ₁ ]                      ∷ A₁ [ starʷ ]₀ [ σ₁ ]    ≡⟨ u₁≡u₂ σ₁≡σ₂ ⟩⊩∷∷⇐*
-                                                                      ⟨ A₁[⋆]₀[σ₁]≡A₂[⋆]₀[σ₂] ⟩⇒
-                                           ∷ A₂ [ starʷ ]₀ [ σ₂ ]     ⟨ singleSubstLift A₂ starʷ ⟩⇐≡
-            u₂ [ σ₂ ]                      ∷ A₂ [ σ₂ ⇑ ] [ starʷ ]₀  ⇐⟨ unitrec-β ⊢A₂[σ₂⇑] ⊢u₂[σ₂] ok no-η , ⊢u₂[σ₂] ⟩∷
-                                                                     ˘⟨ ⊢A₂[t₂]₀[σ₂]≡A₂[σ₂⇑][t₂′]₀ ⟩⇒
-            unitrec p q A₂ starʷ u₂ [ σ₂ ] ∷ A₂ [ t₂ ]₀ [ σ₂ ]       ⇐*⟨ unitrec⇒*₂ ⟩∎∷
-            unitrec p q A₂ t₂    u₂ [ σ₂ ]                           ∎
+            unitrec l p q A₁ t₁        u₁ [ σ₁ ] ∷ A₁ [ t₁ ]₀ [ σ₁ ]         ⇒*⟨ unitrec⇒*₁ ⟩⊩∷∷
+                                                                               ⟨ A₁[t₁]₀[σ₁]≡A₁[σ₁⇑][t₁′]₀ ⟩⊩∷
+            unitrec l p q A₁ (starʷ l) u₁ [ σ₁ ] ∷ A₁ [ σ₁ ⇑ ] [ starʷ l ]₀  ⇒⟨ unitrec-β ⊢A₁[σ₁⇑] ⊢u₁[σ₁] ok no-η ⟩⊩∷∷
+                                                                             ˘⟨ singleSubstLift A₁ (starʷ _) ⟩⊩∷≡
+            u₁ [ σ₁ ]                            ∷ A₁ [ starʷ l ]₀ [ σ₁ ]    ≡⟨ u₁≡u₂ σ₁≡σ₂ ⟩⊩∷∷⇐*
+                                                                              ⟨ A₁[⋆]₀[σ₁]≡A₂[⋆]₀[σ₂] ⟩⇒
+                                                 ∷ A₂ [ starʷ l ]₀ [ σ₂ ]     ⟨ singleSubstLift A₂ (starʷ _) ⟩⇐≡
+            u₂ [ σ₂ ]                            ∷ A₂ [ σ₂ ⇑ ] [ starʷ l ]₀  ⇐⟨ unitrec-β ⊢A₂[σ₂⇑] ⊢u₂[σ₂] ok no-η , ⊢u₂[σ₂] ⟩∷
+                                                                             ˘⟨ ⊢A₂[t₂]₀[σ₂]≡A₂[σ₂⇑][t₂′]₀ ⟩⇒
+            unitrec l p q A₂ (starʷ l) u₂ [ σ₂ ] ∷ A₂ [ t₂ ]₀ [ σ₂ ]         ⇐*⟨ unitrec⇒*₂ ⟩∎∷
+            unitrec l p q A₂ t₂        u₂ [ σ₂ ]                             ∎
 
           (ne (neNfₜ₌ t₁′-ne t₂′-ne t₁′~t₂′)) →
             case ≅-eq $ escape-⊩≡ $
@@ -461,36 +482,41 @@ opaque
                  neutral-⊩≡∷ (⊩ᵛ→⊩ˢ∷→⊩[] ⊩Unit ⊩σ₁)
                    t₁′-ne t₂′-ne ⊢t₁′ ⊢t₂′ t₁′~t₂′ of λ
               ⊢A₁[σ₁⇑][t₁′]₀≡A₂[σ₂⇑][t₂′]₀ →
-            unitrec p q (A₁ [ σ₁ ⇑ ]) (t₁ [ σ₁ ]) (u₁ [ σ₁ ])
-              ∷ A₁ [ t₁ ]₀ [ σ₁ ]                              ⇒*⟨ unitrec⇒*₁ ⟩⊩∷∷
-                                                                 ⟨ A₁[t₁]₀[σ₁]≡A₁[σ₁⇑][t₁′]₀ ⟩⊩∷
-            unitrec p q (A₁ [ σ₁ ⇑ ]) t₁′         (u₁ [ σ₁ ])
-              ∷ A₁ [ σ₁ ⇑ ] [ t₁′ ]₀                           ≡⟨ neutral-⊩≡∷ (wf-⊩≡ A₁[t₁]₀[σ₁]≡A₁[σ₁⇑][t₁′]₀ .proj₂)
-                                                                    (unitrecₙ no-η t₁′-ne) (unitrecₙ no-η t₂′-ne)
-                                                                    (unitrecⱼ ⊢A₁[σ₁⇑] ⊢t₁′ ⊢u₁[σ₁] ok)
-                                                                    (conv (unitrecⱼ ⊢A₂[σ₂⇑] ⊢t₂′ ⊢u₂[σ₂] ok)
-                                                                       (sym ⊢A₁[σ₁⇑][t₁′]₀≡A₂[σ₂⇑][t₂′]₀))
-                                                                    (~-unitrec (escape-⊩≡ A₁[σ₁⇑]≡A₂[σ₂⇑]) t₁′~t₂′
-                                                                       (PE.subst (_⊢_≅_∷_ _ _ _) (singleSubstLift A₁ _) $
-                                                                        escape-⊩≡∷ (u₁≡u₂ σ₁≡σ₂))
-                                                                       ok no-η) ⟩⊩∷∷⇐*
-                                                                 ⟨ ⊢A₁[σ₁⇑][t₁′]₀≡A₂[σ₂⇑][t₂′]₀ ⟩⇒
-              ∷ A₂ [ σ₂ ⇑ ] [ t₂′ ]₀                            ˘⟨ ⊢A₂[t₂]₀[σ₂]≡A₂[σ₂⇑][t₂′]₀ ⟩⇒
+            Δ ⊩⟨ l′ ⟩
+              unitrec l p q (A₁ [ σ₁ ⇑ ]) (t₁ [ σ₁ ]) (u₁ [ σ₁ ]) ≡
+              unitrec l p q (A₂ [ σ₂ ⇑ ]) (t₂ [ σ₂ ]) (u₂ [ σ₂ ]) ∷
+              A₁ [ t₁ ]₀ [ σ₁ ] ∋
+            (unitrec l p q (A₁ [ σ₁ ⇑ ]) (t₁ [ σ₁ ]) (u₁ [ σ₁ ])
+               ∷ A₁ [ t₁ ]₀ [ σ₁ ]                                ⇒*⟨ unitrec⇒*₁ ⟩⊩∷∷
+                                                                    ⟨ A₁[t₁]₀[σ₁]≡A₁[σ₁⇑][t₁′]₀ ⟩⊩∷
+             unitrec l p q (A₁ [ σ₁ ⇑ ]) t₁′         (u₁ [ σ₁ ])
+               ∷ A₁ [ σ₁ ⇑ ] [ t₁′ ]₀                             ≡⟨ neutral-⊩≡∷ (wf-⊩≡ A₁[t₁]₀[σ₁]≡A₁[σ₁⇑][t₁′]₀ .proj₂)
+                                                                       (unitrecₙ no-η t₁′-ne) (unitrecₙ no-η t₂′-ne)
+                                                                       (unitrecⱼ ⊢A₁[σ₁⇑] ⊢t₁′ ⊢u₁[σ₁] ok)
+                                                                       (conv (unitrecⱼ ⊢A₂[σ₂⇑] ⊢t₂′ ⊢u₂[σ₂] ok)
+                                                                          (sym ⊢A₁[σ₁⇑][t₁′]₀≡A₂[σ₂⇑][t₂′]₀))
+                                                                       (~-unitrec (escape-⊩≡ A₁[σ₁⇑]≡A₂[σ₂⇑]) t₁′~t₂′
+                                                                          (PE.subst (_⊢_≅_∷_ _ _ _) (singleSubstLift A₁ _) $
+                                                                           escape-⊩≡∷ (u₁≡u₂ σ₁≡σ₂))
+                                                                          ok no-η) ⟩⊩∷∷⇐*
+                                                                    ⟨ ⊢A₁[σ₁⇑][t₁′]₀≡A₂[σ₂⇑][t₂′]₀ ⟩⇒
+               ∷ A₂ [ σ₂ ⇑ ] [ t₂′ ]₀                              ˘⟨ ⊢A₂[t₂]₀[σ₂]≡A₂[σ₂⇑][t₂′]₀ ⟩⇒
 
-            unitrec p q (A₂ [ σ₂ ⇑ ]) t₂′         (u₂ [ σ₂ ])
-              ∷ A₂ [ t₂ ]₀ [ σ₂ ]                              ⇐*⟨ unitrec⇒*₂ ⟩∎∷
+             unitrec l p q (A₂ [ σ₂ ⇑ ]) t₂′         (u₂ [ σ₂ ])
+               ∷ A₂ [ t₂ ]₀ [ σ₂ ]                                ⇐*⟨ unitrec⇒*₂ ⟩∎∷
 
-            unitrec p q (A₂ [ σ₂ ⇑ ]) (t₂ [ σ₂ ]) (u₂ [ σ₂ ])  ∎
+             unitrec l p q (A₂ [ σ₂ ⇑ ]) (t₂ [ σ₂ ]) (u₂ [ σ₂ ])  ∎)
 
 opaque
 
   -- Validity of equality between applications of unitrec.
 
   unitrec-congᵛ :
-    Γ ∙ Unitʷ ⊩ᵛ⟨ l ⟩ A₁ ≡ A₂ →
-    Γ ⊩ᵛ⟨ l′ ⟩ t₁ ≡ t₂ ∷ Unitʷ →
-    Γ ⊩ᵛ⟨ l″ ⟩ u₁ ≡ u₂ ∷ A₁ [ starʷ ]₀ →
-    Γ ⊩ᵛ⟨ l ⟩ unitrec p q A₁ t₁ u₁ ≡ unitrec p q A₂ t₂ u₂ ∷ A₁ [ t₁ ]₀
+    Γ ∙ Unitʷ l ⊩ᵛ⟨ l′ ⟩ A₁ ≡ A₂ →
+    Γ ⊩ᵛ⟨ l″ ⟩ t₁ ≡ t₂ ∷ Unitʷ l →
+    Γ ⊩ᵛ⟨ l‴ ⟩ u₁ ≡ u₂ ∷ A₁ [ starʷ l ]₀ →
+    Γ ⊩ᵛ⟨ l′ ⟩ unitrec l p q A₁ t₁ u₁ ≡ unitrec l p q A₂ t₂ u₂ ∷
+      A₁ [ t₁ ]₀
   unitrec-congᵛ A₁≡A₂ t₁≡t₂ u₁≡u₂ =
     ⊩ᵛ≡∷⇔ .proj₂
       ( ⊩ᵛ→⊩ᵛ∷→⊩ᵛ[]₀ (wf-⊩ᵛ≡ A₁≡A₂ .proj₁) (wf-⊩ᵛ≡∷ t₁≡t₂ .proj₁)
@@ -502,10 +528,10 @@ opaque
   -- Validity of unitrec.
 
   unitrecᵛ :
-    Γ ∙ Unitʷ ⊩ᵛ⟨ l ⟩ A →
-    Γ ⊩ᵛ⟨ l′ ⟩ t ∷ Unitʷ →
-    Γ ⊩ᵛ⟨ l″ ⟩ u ∷ A [ starʷ ]₀ →
-    Γ ⊩ᵛ⟨ l ⟩ unitrec p q A t u ∷ A [ t ]₀
+    Γ ∙ Unitʷ l ⊩ᵛ⟨ l′ ⟩ A →
+    Γ ⊩ᵛ⟨ l″ ⟩ t ∷ Unitʷ l →
+    Γ ⊩ᵛ⟨ l‴ ⟩ u ∷ A [ starʷ l ]₀ →
+    Γ ⊩ᵛ⟨ l′ ⟩ unitrec l p q A t u ∷ A [ t ]₀
   unitrecᵛ ⊩A ⊩t ⊩u =
     ⊩ᵛ∷⇔⊩ᵛ≡∷ .proj₂ $
     unitrec-congᵛ (refl-⊩ᵛ≡ ⊩A) (refl-⊩ᵛ≡∷ ⊩t) (refl-⊩ᵛ≡∷ ⊩u)
@@ -515,10 +541,10 @@ opaque
   -- Validity of the unitrec β rule.
 
   unitrec-βᵛ :
-    Γ ∙ Unitʷ ⊩ᵛ⟨ l′ ⟩ A →
-    Γ ⊩ᵛ⟨ l ⟩ t ∷ A [ starʷ ]₀ →
+    Γ ∙ Unitʷ l ⊩ᵛ⟨ l″ ⟩ A →
+    Γ ⊩ᵛ⟨ l′ ⟩ t ∷ A [ starʷ l ]₀ →
     ¬ Unitʷ-η →
-    Γ ⊩ᵛ⟨ l ⟩ unitrec p q A starʷ t ≡ t ∷ A [ starʷ ]₀
+    Γ ⊩ᵛ⟨ l′ ⟩ unitrec l p q A (starʷ l) t ≡ t ∷ A [ starʷ l ]₀
   unitrec-βᵛ {A} ⊩A ⊩t no-η =
     ⊩ᵛ∷-⇐
       (λ ⊩σ →
@@ -535,12 +561,12 @@ opaque
   -- Validity of the rule called unitrec-β-η.
 
   unitrec-β-ηᵛ :
-    Γ ∙ Unitʷ ⊩ᵛ⟨ l ⟩ A →
-    Γ ⊩ᵛ⟨ l′ ⟩ t ∷ Unitʷ →
-    Γ ⊩ᵛ⟨ l″ ⟩ u ∷ A [ starʷ ]₀ →
+    Γ ∙ Unitʷ l ⊩ᵛ⟨ l′ ⟩ A →
+    Γ ⊩ᵛ⟨ l″ ⟩ t ∷ Unitʷ l →
+    Γ ⊩ᵛ⟨ l‴ ⟩ u ∷ A [ starʷ l ]₀ →
     Unitʷ-η →
-    Γ ⊩ᵛ⟨ l ⟩ unitrec p q A t u ≡ u ∷ A [ t ]₀
-  unitrec-β-ηᵛ {A = A} {l″ = l} ⊩A ⊩t ⊩u η =
+    Γ ⊩ᵛ⟨ l′ ⟩ unitrec l p q A t u ≡ u ∷ A [ t ]₀
+  unitrec-β-ηᵛ {A = A} ⊩A ⊩t ⊩u η =
     case wf-⊩ᵛ (wf-⊩ᵛ∷ ⊩t) of λ
       ⊩Γ →
     case ⊩ᵛUnit→Unit-allowed (wf-∙-⊩ᵛ ⊩A .proj₂) of λ
@@ -551,12 +577,12 @@ opaque
          unitrec-β-η
            (escape $
             ⊩ᵛ→⊩ˢ∷→⊩[] ⊩A $
-            ⊩ˢ∷-liftSubst (Unitᵛ {l = l} ⊩Γ ok) ⊩σ)
+            ⊩ˢ∷-liftSubst (Unitᵛ ⊩Γ ok) ⊩σ)
            (escape-⊩∷ (⊩ᵛ∷→⊩ˢ∷→⊩[]∷ ⊩t ⊩σ))
            (PE.subst (_⊢_∷_ _ _) (singleSubstLift A _) $
             escape-⊩∷ (⊩ᵛ∷→⊩ˢ∷→⊩[]∷ ⊩u ⊩σ))
            ok η)
       (conv-⊩ᵛ∷
          (⊩ᵛ≡→⊩ᵛ≡∷→⊩ᵛ[]₀≡[]₀ (refl-⊩ᵛ≡ ⊩A) $
-          η-unitᵛ (starᵛ {l = l} ⊩Γ ok) ⊩t (inj₂ η))
+          η-unitᵛ (starᵛ ⊩Γ ok) ⊩t (inj₂ η))
          ⊩u)

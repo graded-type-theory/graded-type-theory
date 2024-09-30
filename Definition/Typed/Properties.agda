@@ -117,10 +117,10 @@ private opaque
   -- An inversion lemma related to unitrec.
 
   inv-⇒-unitrec :
-    Γ ⊢ unitrec p q A t u ⇒ v ∷ B →
-    (∃₂ λ t′ C → Γ ⊢ t ⇒ t′ ∷ C × v PE.≡ unitrec p q A t′ u ×
+    Γ ⊢ unitrec l p q A t u ⇒ v ∷ B →
+    (∃₂ λ t′ C → Γ ⊢ t ⇒ t′ ∷ C × v PE.≡ unitrec l p q A t′ u ×
      ¬ Unitʷ-η) ⊎
-    t PE.≡ starʷ × v PE.≡ u × ¬ Unitʷ-η ⊎
+    t PE.≡ starʷ l × v PE.≡ u × ¬ Unitʷ-η ⊎
     v PE.≡ u × Unitʷ-η
   inv-⇒-unitrec (conv d _) =
     inv-⇒-unitrec d
@@ -438,7 +438,7 @@ opaque
     (unitrec-subst _ _ d _ no-η) d′ →
       case inv-⇒-unitrec d′ of λ where
         (inj₁ (_ , _ , d′ , PE.refl , _)) →
-          PE.cong (λ t → unitrec _ _ _ t _) (whrDetTerm d d′)
+          PE.cong (λ t → unitrec _ _ _ _ t _) (whrDetTerm d d′)
         (inj₂ (inj₁ (PE.refl , _))) → ⊥-elim (whnfRedTerm d starₙ)
         (inj₂ (inj₂ (_ , η)))       → ⊥-elim (no-η η)
     (unitrec-β _ _ _ no-η) d′ →
@@ -535,11 +535,11 @@ whrDet* (A⇒A′ ⇨ A′⇒*B , whnfB) (A⇒A″ ⇨ A″⇒*B′ , whnfB′) 
                                      (A″⇒*B′ , whnfB′))
 
 -- Reduction does not include η-expansion (for WHNFs) for unit types
--- with (or without) η-equality: if a WHNF t reduces to star s (at
--- type Unit s), then t is equal to star s.
+-- with (or without) η-equality: if a WHNF t reduces to star s l (at
+-- type Unit s l), then t is equal to star s l.
 
 no-η-expansion-Unit :
-  Whnf t → Γ ⊢ t ⇒* star s ∷ Unit s → t PE.≡ star s
+  Whnf t → Γ ⊢ t ⇒* star s l ∷ Unit s l → t PE.≡ star s l
 no-η-expansion-Unit = flip whnfRed*Term
 
 -- Reduction does not include η-expansion for strong Σ-types (for

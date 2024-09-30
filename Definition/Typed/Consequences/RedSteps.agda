@@ -42,6 +42,7 @@ private
     n : Nat
     Γ : Con Term n
     A B C t t′ t₁ t₂ u u₁ u₂ v v₁ v₂ w₁ w₂ : Term n
+    l : Universe-level
     p q q′ r : M
 
 opaque
@@ -147,11 +148,11 @@ opaque
 -- Unitrec substitution of reduction closures
 
 unitrec-subst* :
-  Γ ⊢ t ⇒* t′ ∷ Unitʷ →
-  Γ ∙ Unitʷ ⊢ A →
-  Γ ⊢ u ∷ A [ starʷ ]₀ →
+  Γ ⊢ t ⇒* t′ ∷ Unitʷ l →
+  Γ ∙ Unitʷ l ⊢ A →
+  Γ ⊢ u ∷ A [ starʷ l ]₀ →
   ¬ Unitʷ-η →
-  Γ ⊢ unitrec p q A t u ⇒* unitrec p q A t′ u ∷ A [ t ]₀
+  Γ ⊢ unitrec l p q A t u ⇒* unitrec l p q A t′ u ∷ A [ t ]₀
 unitrec-subst* (id x) ⊢A ⊢u _ =
   id (unitrecⱼ ⊢A x ⊢u (⊢∷Unit→Unit-allowed x))
 unitrec-subst* (x ⇨ d) ⊢A ⊢u not-ok =

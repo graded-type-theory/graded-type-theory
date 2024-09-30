@@ -51,8 +51,8 @@ reflEmpty-prop : ∀ {n}
 reflEmpty-prop (ne (neNfₜ neK ⊢k k≡k)) = ne (neNfₜ₌ neK neK k≡k)
 
 reflUnitʷ-prop : ∀ {t}
-               → Unit-prop Γ 𝕨 t
-               → [Unitʷ]-prop Γ t t
+               → Unit-prop Γ l 𝕨 t
+               → [Unitʷ]-prop Γ l t t
 reflUnitʷ-prop starᵣ = starᵣ
 reflUnitʷ-prop (ne (neNfₜ neK ⊢k k≡k)) = ne (neNfₜ₌ neK neK k≡k)
 

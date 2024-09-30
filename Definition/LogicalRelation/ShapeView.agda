@@ -41,6 +41,7 @@ private
     A B C t u : Term n
     p q : M
     l l′ l″ l₁ l₁′ l₂ l₂′ l₃ l₃′ : Universe-level
+    s : Strength
 
 -- Type for maybe embeddings of reducible types
 data MaybeEmb
@@ -63,7 +64,7 @@ _⊩⟨_⟩Empty_ : (Γ : Con Term n) (l : Universe-level) (A : Term n) → Set 
 _⊩⟨_⟩Unit⟨_⟩_ :
   (Γ : Con Term n) (l : Universe-level) (s : Strength) (A : Term n) →
   Set a
-Γ ⊩⟨ l ⟩Unit⟨ s ⟩ A = MaybeEmb l (λ l′ → Γ ⊩Unit⟨ s ⟩ A)
+Γ ⊩⟨ l ⟩Unit⟨ s ⟩ A = MaybeEmb l (λ l′ → Γ ⊩Unit⟨ l′ , s ⟩ A)
 
 _⊩⟨_⟩ne_ : (Γ : Con Term n) (l : Universe-level) (A : Term n) → Set a
 Γ ⊩⟨ l ⟩ne A = MaybeEmb l (λ _ → Γ ⊩ne A)
@@ -176,7 +177,7 @@ Empty-elim′ A⇒E (emb (≤ᵘ-step p) x) = emb ≤ᵘ-refl (Empty-elim′ A�
 Empty-elim : ∀ {l} → Γ ⊩⟨ l ⟩ Empty → Γ ⊩⟨ l ⟩Empty Empty
 Empty-elim [Empty] = Empty-elim′ (id (escape [Empty])) [Empty]
 
-Unit-elim′ : ∀ {A l s} → Γ ⊢ A ⇒* Unit s → Γ ⊩⟨ l ⟩ A → Γ ⊩⟨ l ⟩Unit⟨ s ⟩ A
+Unit-elim′ : Γ ⊢ A ⇒* Unit s l → Γ ⊩⟨ l′ ⟩ A → Γ ⊩⟨ l′ ⟩Unit⟨ s ⟩ A
 Unit-elim′ D (Uᵣ′ l′ l< D') with whrDet* (D , Unitₙ) (red  D' , Uₙ)
 ... | ()
 Unit-elim′ D (Unitᵣ (Unitₜ D′ ok))
@@ -197,7 +198,7 @@ Unit-elim′ A⇒U (emb ≤ᵘ-refl x) | noemb x₁ =  emb ≤ᵘ-refl (noemb x�
 Unit-elim′ A⇒U (emb ≤ᵘ-refl x) | emb x1 k = emb ≤ᵘ-refl (emb x1 k)
 Unit-elim′ A⇒U (emb (≤ᵘ-step p) x) = emb ≤ᵘ-refl (Unit-elim′ A⇒U (emb p x))
 
-Unit-elim : ∀ {l s} → Γ ⊩⟨ l ⟩ Unit s → Γ ⊩⟨ l ⟩Unit⟨ s ⟩ Unit s
+Unit-elim : Γ ⊩⟨ l′ ⟩ Unit s l → Γ ⊩⟨ l′ ⟩Unit⟨ s ⟩ Unit s l
 Unit-elim [Unit] = Unit-elim′ (id (escape [Unit])) [Unit]
 
 ne-elim′ : ∀ {A l K} → Γ ⊢ A ⇒* K → Neutral K → Γ ⊩⟨ l ⟩ A → Γ ⊩⟨ l ⟩ne A
@@ -269,7 +270,7 @@ Id-elim′ ⇒*Id (ℕᵣ ⇒*ℕ) =
 Id-elim′ ⇒*Id (Emptyᵣ ⇒*Empty) =
   case whrDet* (red ⇒*Empty , Emptyₙ) (⇒*Id , Idₙ) of λ ()
 Id-elim′ ⇒*Id (Unitᵣ ⊩Unit) =
-  case whrDet* (red (_⊩Unit⟨_⟩_.⇒*-Unit ⊩Unit) , Unitₙ) (⇒*Id , Idₙ)
+  case whrDet* (red (_⊩Unit⟨_,_⟩_.⇒*-Unit ⊩Unit) , Unitₙ) (⇒*Id , Idₙ)
   of λ ()
 Id-elim′ ⇒*Id (ne′ _ ⇒*ne n _) =
   ⊥-elim (Id≢ne n (whrDet* (⇒*Id , Idₙ) (red ⇒*ne , ne n)))
@@ -482,7 +483,7 @@ goodCases (Idᵣ _) (Unitᵣ ⊩B) A≡B =
   case
     whrDet*
       (red (_⊩ₗId_≡_/_.⇒*Id′ A≡B) , Idₙ)
-      (red (_⊩Unit⟨_⟩_.⇒*-Unit ⊩B) , Unitₙ)
+      (red (_⊩Unit⟨_,_⟩_.⇒*-Unit ⊩B) , Unitₙ)
   of λ ()
 goodCases (Idᵣ _) (ne ⊩B) A≡B =
   ⊥-elim $ Id≢ne N.neK $
@@ -621,7 +622,7 @@ combine (Unitᵥ _ (Unitₜ UnitB _)) (Bᵥ W (Bᵣ _ _ D _ _ _ _ _ _ _) _) =
 combine (Unitᵥ _ ⊩B) (Idᵥ ⊩B′ _) =
   case
     whrDet*
-      (red (_⊩Unit⟨_⟩_.⇒*-Unit ⊩B) , Unitₙ)
+      (red (_⊩Unit⟨_,_⟩_.⇒*-Unit ⊩B) , Unitₙ)
       (red (_⊩ₗId_.⇒*Id ⊩B′) , Idₙ)
   of λ ()
 
@@ -678,7 +679,7 @@ combine (Idᵥ _ ⊩B) (Unitᵥ ⊩B′ _) =
   case
     whrDet*
       (red (_⊩ₗId_.⇒*Id ⊩B) , Idₙ)
-      (red (_⊩Unit⟨_⟩_.⇒*-Unit ⊩B′) , Unitₙ)
+      (red (_⊩Unit⟨_,_⟩_.⇒*-Unit ⊩B′) , Unitₙ)
   of λ ()
 combine (Idᵥ _ ⊩B) (ne ⊩B′ _) =
   ⊥-elim $ Id≢ne N.neK $

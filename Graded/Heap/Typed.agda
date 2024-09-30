@@ -38,6 +38,7 @@ private variable
   t u v w z s A B B′ C : Term _
   p q q′ r : M
   s′ : Strength
+  l : Universe-level
 
 -- Well-formed heaps
 
@@ -66,10 +67,11 @@ data _⨾_⊢ᵉ_⟨_⟩∷_↝_ (Δ : Con Term k) (H : Heap k m) :
           → Δ ∙ ℕ ∙ wk (lift ρ) A [ H ]⇑ₕ ⊢ wk (liftn ρ 2) s [ H ]⇑²ₕ ∷ wk (lift ρ) A [ H ]⇑ₕ [ suc (var x1) ]↑²
           → Δ ∙ ℕ ⊢ wk (lift ρ) A [ H ]⇑ₕ
           → Δ ⨾ H ⊢ᵉ natrecₑ p q r A z s ρ ⟨ t ⟩∷ ℕ ↝ wk (lift ρ) A [ H ]⇑ₕ [ t [ H ]ₕ ]₀
-  unitrecₑ : Δ ⊢ wk ρ u [ H ]ₕ ∷ wk (lift ρ) A [ H ]⇑ₕ [ starʷ ]₀
-           → Δ ∙ Unitʷ ⊢ wk (lift ρ) A [ H ]⇑ₕ
+  unitrecₑ : Δ ⊢ wk ρ u [ H ]ₕ ∷ wk (lift ρ) A [ H ]⇑ₕ [ starʷ l ]₀
+           → Δ ∙ Unitʷ l ⊢ wk (lift ρ) A [ H ]⇑ₕ
            → ¬ Unitʷ-η
-           → Δ ⨾ H ⊢ᵉ unitrecₑ p q A u ρ ⟨ t ⟩∷ Unitʷ ↝ (wk (lift ρ) A [ H ]⇑ₕ [ t [ H ]ₕ ]₀)
+           → Δ ⨾ H ⊢ᵉ unitrecₑ l p q A u ρ ⟨ t ⟩∷ Unitʷ l ↝
+               wk (lift ρ) A [ H ]⇑ₕ [ t [ H ]ₕ ]₀
   emptyrecₑ : Δ ⊢ wk ρ A [ H ]ₕ
             → Δ ⨾ H ⊢ᵉ emptyrecₑ p A ρ ⟨ t ⟩∷ Empty ↝ wk ρ A [ H ]ₕ
   Jₑ : let A′ = wk ρ A [ H ]ₕ

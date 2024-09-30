@@ -45,6 +45,7 @@ private variable
   m : Mode
   c : Entry _ _
   s′ : Strength
+  l : Universe-level
 
 -- A comparison relation for the grades in the heap.
 -- H ≤ʰ p iff all grades in the heap are bounded by p.
@@ -87,7 +88,8 @@ data _▸ᵉ[_]_ {n : Nat} : (γ : Conₘ n) (m : Mode) (e : Elim n) → Set a w
   natrecₑ : γ ▸[ m ] z → δ ∙ ⌜ m ⌝ · p ∙ ⌜ m ⌝ · r ▸[ m ] s
           → θ ∙ (⌜ 𝟘ᵐ? ⌝ · q′) ▸[ 𝟘ᵐ? ] A
           → wkᶜ ρ (nrᶜ p r γ δ 𝟘ᶜ) ▸ᵉ[ m ] natrecₑ p q′ r A z s ρ
-  unitrecₑ : γ ▸[ m ] u → Unitrec-allowed m p q → ¬ Unitʷ-η → wkᶜ ρ γ ▸ᵉ[ m ] unitrecₑ p q A u ρ
+  unitrecₑ : γ ▸[ m ] u → Unitrec-allowed m p q → ¬ Unitʷ-η →
+             wkᶜ ρ γ ▸ᵉ[ m ] unitrecₑ l p q A u ρ
   emptyrecₑ : Emptyrec-allowed m p → 𝟘ᶜ ▸ᵉ[ m ] emptyrecₑ p A ρ
   Jₑ : γ ▸[ m ] u → wkᶜ ρ γ ▸ᵉ[ m ] Jₑ p q A t B u v ρ
   Kₑ : γ ▸[ m ] u → wkᶜ ρ γ ▸ᵉ[ m ] Kₑ p A t B u ρ

@@ -121,10 +121,10 @@ opaque
   -- Injectivity of Unit.
 
   Unit-injectivity :
-    Γ ⊢ Unit s₁ ≡ Unit s₂ →
-    s₁ PE.≡ s₂
-  Unit-injectivity {Γ} {s₁} {s₂} =
-    Γ ⊢ Unit s₁ ≡ Unit s₂                 →⟨ reducible-⊩≡ ⟩
-    (∃ λ l → Γ ⊩⟨ l ⟩ Unit s₁ ≡ Unit s₂)  →⟨ ⊩Unit≡Unit⇔ .proj₁ ∘→ proj₂ ⟩
-    ⊢ Γ × Unit-allowed s₁ × s₁ PE.≡ s₂    →⟨ proj₂ ∘→ proj₂ ⟩
-    s₁ PE.≡ s₂                            □
+    Γ ⊢ Unit s₁ l₁ ≡ Unit s₂ l₂ →
+    s₁ PE.≡ s₂ × l₁ PE.≡ l₂
+  Unit-injectivity {Γ} {s₁} {l₁} {s₂} {l₂} =
+    Γ ⊢ Unit s₁ l₁ ≡ Unit s₂ l₂                      →⟨ reducible-⊩≡ ⟩
+    (∃ λ l → Γ ⊩⟨ l ⟩ Unit s₁ l₁ ≡ Unit s₂ l₂)       →⟨ proj₂ ∘→ ⊩Unit≡Unit⇔ .proj₁ ∘→ proj₂ ⟩
+    ⊢ Γ × Unit-allowed s₁ × s₁ PE.≡ s₂ × l₁ PE.≡ l₂  →⟨ proj₂ ∘→ proj₂ ⟩
+    s₁ PE.≡ s₂ × l₁ PE.≡ l₂                          □

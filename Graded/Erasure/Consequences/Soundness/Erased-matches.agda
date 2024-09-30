@@ -30,7 +30,7 @@ module Graded.Erasure.Consequences.Soundness.Erased-matches
   (Δ : Con Term k)
   -- If erased matches are allowed for emptyrec when the mode is 𝟙ᵐ,
   -- then Δ is consistent with respect to a variant of the type system
-  -- for which η-equality is allowed for the weak unit type.
+  -- for which η-equality is allowed for weak unit types.
   (consistent :
      let open Definition.Typed (TR with-η-for-Unitʷ) in
      Emptyrec-allowed 𝟙ᵐ 𝟘 →
@@ -64,9 +64,10 @@ private variable
   Γ   : Con Term _
   A t : Term _
   s   : Strength
+  l   : Universe-level
 
 -- A variant of the type restrictions for which η-equality is allowed
--- for the weak unit type.
+-- for weak unit types.
 
 TR-η : Type-restrictions 𝕄
 TR-η = TR with-η-for-Unitʷ
@@ -135,6 +136,6 @@ opaque
   -- unitrec-subst and unitrec-β.
 
   soundness-Unit :
-    Δ ⊢ t ∷ Unit s → 𝟘ᶜ ▸[ 𝟙ᵐ ] t →
-    Δ T-η.⊢ t ⇒* star s ∷ Unit s × erase str t T.⇒* T.star
+    Δ ⊢ t ∷ Unit s l → 𝟘ᶜ ▸[ 𝟙ᵐ ] t →
+    Δ T-η.⊢ t ⇒* star s l ∷ Unit s l × erase str t T.⇒* T.star
   soundness-Unit = Soundness-η.soundness-Unit ∘→ ⊢∷→⊢∷-η

@@ -57,7 +57,7 @@ private variable
 -- properties:
 --
 -- * There are no restrictions on prodrec, unitrec or emptyrec.
--- * The strong unit type is not allowed to be used as a sink.
+-- * Strong unit types are not allowed to be used as sinks.
 -- * Id-erased is not inhabited.
 -- * "Some" erased matches are allowed for J and K when the mode
 --   is 𝟙ᵐ, and all erased matches are allowed for J and K when the

@@ -52,10 +52,10 @@ opaque
   ¬-Neutral-Empty : ¬ Neutral {n = n} Empty
   ¬-Neutral-Empty ()
 
-  ¬-Neutral-Unit : ¬ Neutral {n = n} (Unit s)
+  ¬-Neutral-Unit : ¬ Neutral {n = n} (Unit s l)
   ¬-Neutral-Unit ()
 
-  ¬-Neutral-star : ¬ Neutral {n = n} (star s)
+  ¬-Neutral-star : ¬ Neutral {n = n} (star s l)
   ¬-Neutral-star ()
 
   ¬-Neutral-ℕ : ¬ Neutral {n = n} ℕ

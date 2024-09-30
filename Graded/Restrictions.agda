@@ -47,7 +47,7 @@ private variable
 -- No type restrictions except that
 -- * if the modality is trivial, then []-cong is not allowed,
 -- * the K rule is allowed if and only if the boolean is true, and
--- * η-equality is not allowed for the weak unit type.
+-- * η-equality is not allowed for weak unit types.
 
 no-type-restrictions : Bool → Type-restrictions
 no-type-restrictions allowed = λ where
@@ -134,7 +134,7 @@ strong-types-restricted′ P hyp R = record R
 -- The function strong-types-restricted adds the following
 -- restrictions:
 --
--- * The strong unit type is not allowed.
+-- * Strong unit types are not allowed.
 -- * If strong Σ-types are allowed for p and q, then p is 𝟙.
 -- * []-cong is not allowed for 𝕤.
 
@@ -146,7 +146,7 @@ strong-types-restricted =
 
 -- The function no-strong-types adds the following restrictions:
 --
--- * The strong unit type is not allowed.
+-- * Strong unit types are not allowed.
 -- * Strong Σ-types are not allowed.
 -- * []-cong is not allowed for 𝕤.
 
@@ -275,7 +275,7 @@ only-some-erased-matches UR = record UR
 -- not allowed for the mode 𝟙ᵐ. No restriction is added for emptyrec.
 -- For prodrec and unitrec the added restriction only applies to
 -- non-trivial modalities, and for unitrec the added restriction only
--- applies if η-equality is not allowed for the weak unit type.
+-- applies if η-equality is not allowed for weak unit types.
 
 no-erased-matches-UR :
   Type-restrictions → Usage-restrictions → Usage-restrictions
@@ -335,7 +335,7 @@ opaque
 -- The property of not allowing (certain) erased matches:
 -- * Erased matches are allowed for emptyrec.
 -- * "Erased" matches are allowed for unitrec if η-equality is allowed
---   for the weak unit type.
+--   for weak unit types.
 -- * "Erased" matches are allowed for trivial modalities.
 -- * Erased matches are allowed when the mode is not 𝟙ᵐ, except for
 --   []-cong. (Note that a variant of []-cong that works when the mode

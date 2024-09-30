@@ -41,6 +41,7 @@ private
     t u   : Term m
     p q   : M
     s     : Strength
+    l     : Universe-level
 
 -- Negative types
 ---------------------------------------------------------------------------
@@ -153,9 +154,9 @@ appNeg (conv n c)    c' = appNeg n (trans c c')
 ¬negΣʷ (sigma _ _ _) c = Σˢ≢Σʷⱼ c
 ¬negΣʷ (conv n c)   c' = ¬negΣʷ n (trans c c')
 
--- Lemma: The type Unit is not negative.
+-- Lemma: Unit types are not negative.
 
-¬negUnit : NegativeType Γ C → Γ ⊢ C ≡ Unit s → ⊥
+¬negUnit : NegativeType Γ C → Γ ⊢ C ≡ Unit s l → ⊥
 ¬negUnit empty c = Empty≢Unitⱼ c
 ¬negUnit (pi _ _) c = Unit≢Πⱼ (sym c)
 ¬negUnit (sigma _ _ _) c = Unit≢Σⱼ (sym c)

@@ -42,13 +42,13 @@ record Type-restrictions : Set (lsuc a) where
     -- Restrictions imposed upon Π- and Σ-types.
     ΠΣ-allowed : BinderMode → (p q : M) → Set a
 
-  -- The strong unit type is only allowed if the following predicate
+  -- The strong unit types are only allowed if the following predicate
   -- holds.
 
   Unitˢ-allowed : Set a
   Unitˢ-allowed = Unit-allowed 𝕤
 
-  -- The weak unit type is only allowed if the following predicate
+  -- The weak unit types are only allowed if the following predicate
   -- holds.
 
   Unitʷ-allowed : Set a

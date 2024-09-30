@@ -47,7 +47,7 @@ record Assumptions : Set a where
     -- A dedicated nr function is assumed to exist.
     ⦃ has-nr ⦄ : Dedicated-nr
 
-    -- The strong unit type is not allowed to be used as a sink.
+    -- Strong unit types are not allowed to be used as sinks.
     ⦃ no-sink ⦄ : ¬Starˢ-sink
 
   -- Inequality is decidable.
