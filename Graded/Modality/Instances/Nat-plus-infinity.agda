@@ -1079,160 +1079,109 @@ instance
 -- Instances of Full-reduction-assumptions
 
 -- Instances of Type-restrictions (ℕ⊎∞-modality variant) and
--- Usage-restrictions (ℕ⊎∞-modality variant) are suitable
--- for the full reduction theorem if whenever Σˢ-allowed m n holds,
--- then m is ⌞ 1 ⌟, or m is ⌞ 0 ⌟ and 𝟘ᵐ is allowed and additionally
--- the strong unit type is allowed to be used as a sink if the "exact"
--- order is used.
+-- Usage-restrictions (ℕ⊎∞-modality variant) are suitable for the full
+-- reduction theorem if
+-- * whenever Σˢ-allowed m n holds, then m is ⌞ 1 ⌟, or the affine
+--   ordering is used, m is ⌞ 0 ⌟, and 𝟘ᵐ is allowed, and
+-- * if the "exact" ordering is used, then the strong unit type is
+--   allowed to be used as a sink (if that type is allowed), and
+--   η-equality is not allowed for the weak unit type (if that type is
+--   allowed).
 
-Suitable-for-full-reduction′ :
-  (b : Bool) →
+Suitable-for-full-reduction :
   ∀ variant → Type-restrictions (ℕ⊎∞-modality variant) →
-              Usage-restrictions (ℕ⊎∞-modality variant) → Set
-Suitable-for-full-reduction′ true variant TRs URs =
-  ∀ m n → Σˢ-allowed m n → m ≡ ⌞ 1 ⌟ ⊎ m ≡ ⌞ 0 ⌟ × T 𝟘ᵐ-allowed
-  where
-  open Modality-variant variant
-  open Type-restrictions TRs
-Suitable-for-full-reduction′ false variant TRs URs =
-  (Unitˢ-allowed → Starˢ-sink) ×
-  (Unitʷ-allowed → ¬ Unitʷ-η) ×
-  (∀ m n → Σˢ-allowed m n → m ≡ ⌞ 1 ⌟)
+  Usage-restrictions (ℕ⊎∞-modality variant) → Set
+Suitable-for-full-reduction variant TRs URs =
+  (∀ m n → Σˢ-allowed m n →
+   m ≡ ⌞ 1 ⌟ ⊎ T affine × m ≡ ⌞ 0 ⌟ × T 𝟘ᵐ-allowed) ×
+  (¬ T affine →
+   (Unitˢ-allowed → Starˢ-sink) ×
+   (Unitʷ-allowed → ¬ Unitʷ-η))
   where
   open Modality-variant variant
   open Type-restrictions TRs
   open Usage-restrictions URs
-
-Suitable-for-full-reduction :
-  ∀ variant → Type-restrictions (ℕ⊎∞-modality variant) →
-              Usage-restrictions (ℕ⊎∞-modality variant) → Set
-Suitable-for-full-reduction = Suitable-for-full-reduction′ affine
 
 -- Given instances of Type-restrictions (ℕ⊎∞-modality variant) and
 -- Usage-restrictions (ℕ⊎∞-modality variant) one can create
 -- "suitable" instances.
 
-suitable-for-full-reduction′ :
-  (b : Bool) →
-  Type-restrictions (ℕ⊎∞-modality variant) →
-  Usage-restrictions (ℕ⊎∞-modality variant) →
-  ∃₂ (Suitable-for-full-reduction′ b variant)
-suitable-for-full-reduction′ {variant = variant} false TRs URs =
-    record TRs
-      { Unit-allowed = λ where
-          𝕤 → Unitˢ-allowed × Starˢ-sink
-          𝕨 → Unitʷ-allowed × ¬ Unitʷ-η
-      ; ΠΣ-allowed = λ b m n →
-          ΠΣ-allowed b m n ×
-          (b ≡ BMΣ 𝕤 → m ≡ ⌞ 1 ⌟)
-      ; []-cong-allowed = λ where
-          𝕤 → ⊥
-          𝕨 → []-congʷ-allowed × ¬ Unitʷ-η
-        -- s → []-cong-allowed s × s ≢ 𝕤
-      ; []-cong→Erased = λ where
-          {s = 𝕤} ()
-          {s = 𝕨} (ok , no-η) →
-              ([]-cong→Erased ok .proj₁ , no-η)
-            , []-cong→Erased ok .proj₂
-            , λ ()
-        ; []-cong→¬Trivial =
-          λ _ ()
-      }
-
-  , record URs { starˢ-sink = true }
-  , _
-  , (λ (_ , no-η) η → no-η η)
-  , λ _ _ → (_$ refl) ∘→ proj₂
-  where
-  open Modality-variant variant
-  open Type-restrictions TRs
-  open Usage-restrictions URs
-suitable-for-full-reduction′ {variant = variant} true TRs URs =
-    record TRs
-      { ΠΣ-allowed = λ b m n →
-          ΠΣ-allowed b m n ×
-          (b ≡ BMΣ 𝕤 → m ≡ ⌞ 1 ⌟ ⊎ m ≡ ⌞ 0 ⌟ × T 𝟘ᵐ-allowed)
-      ; []-cong-allowed = λ s →
-          []-cong-allowed s × T 𝟘ᵐ-allowed
-      ; []-cong→Erased = λ (ok₁ , ok₂) →
-            []-cong→Erased ok₁ .proj₁ , []-cong→Erased ok₁ .proj₂
-          , (λ _ → inj₂ (refl , ok₂))
-      ; []-cong→¬Trivial =
-          λ _ ()
-      }
-    , URs
-    , λ _ _ → (_$ refl) ∘→ proj₂
-  where
-  open Modality-variant variant
-  open Type-restrictions TRs
-
 suitable-for-full-reduction :
   Type-restrictions (ℕ⊎∞-modality variant) →
   Usage-restrictions (ℕ⊎∞-modality variant) →
   ∃₂ (Suitable-for-full-reduction variant)
-suitable-for-full-reduction = suitable-for-full-reduction′ affine
+suitable-for-full-reduction {variant} TRs URs =
+    record TRs
+      { Unit-allowed = λ s →
+          Unit-allowed s ×
+          (¬ T affine → s ≡ 𝕨 → ¬ Unitʷ-η)
+      ; ΠΣ-allowed = λ b m n →
+          ΠΣ-allowed b m n ×
+          (b ≡ BMΣ 𝕤 → m ≡ ⌞ 1 ⌟ ⊎ T affine × m ≡ ⌞ 0 ⌟ × T 𝟘ᵐ-allowed)
+      ; []-cong-allowed = λ s →
+          []-cong-allowed s ×
+          (T affine → T 𝟘ᵐ-allowed) ×
+          (¬ T affine → s ≢ 𝕤 × (s ≡ 𝕨 → ¬ Unitʷ-η))
+      ; []-cong→Erased = λ (ok , hyp₁ , hyp₂) →
+          let ok₁ , ok₂ = []-cong→Erased ok in
+            (ok₁ , proj₂ ∘→ hyp₂)
+          , ok₂
+          , (case PE.singleton affine of λ where
+               (true  , refl) _    → inj₂ (_ , refl , hyp₁ _)
+               (false , refl) refl → ⊥-elim (hyp₂ idᶠ .proj₁ refl))
+      ; []-cong→¬Trivial = λ _ ()
+      }
+  , record URs { starˢ-sink = not affine ∨ starˢ-sink }
+  , (λ _ _ (_ , hyp) → hyp refl)
+  , (λ not-affine →
+         (λ (_ , hyp) → case PE.singleton affine of λ where
+            (true  , refl) → ⊥-elim (not-affine _)
+            (false , refl) → _)
+       , (λ (_ , hyp) → hyp not-affine refl))
+  where
+  open Modality-variant variant
+  open Type-restrictions TRs
+  open Usage-restrictions URs
 
 -- The full reduction assumptions hold for ℕ⊎∞-modality variant and
 -- any "suitable" instance of Type-restrictions.
 
-full-reduction-assumptions′ :
-  (b : Bool) → b ≡ affine →
-  Suitable-for-full-reduction′ b variant TRs URs →
-  Full-reduction-assumptions TRs URs
-full-reduction-assumptions′ false refl ok = record
-  { sink⊎𝟙≤𝟘 = λ where
-      {s = 𝕨} Unitʷ-ok (inj₁ ())
-      {s = 𝕨} Unitʷ-ok (inj₂ η) → ⊥-elim (ok .proj₂ .proj₁ Unitʷ-ok η)
-      {s = 𝕤} Unitˢ-ok η → inj₁ (refl , ok .proj₁ Unitˢ-ok)
-  ; ≡𝟙⊎𝟙≤𝟘 = inj₁ ∘→ ok .proj₂ .proj₂ _ _
-  }
-full-reduction-assumptions′ true refl ok = record
-  { sink⊎𝟙≤𝟘 = λ _ _ → inj₂ refl
-  ; ≡𝟙⊎𝟙≤𝟘 = ⊎.map idᶠ (λ (p≡⌞0⌟ , ok) → p≡⌞0⌟ , ok , refl) ∘→ ok _ _
-  }
-
 full-reduction-assumptions :
   Suitable-for-full-reduction variant TRs URs →
   Full-reduction-assumptions TRs URs
-full-reduction-assumptions = full-reduction-assumptions′ affine refl
+full-reduction-assumptions (hyp₁ , hyp₂) =
+  case PE.singleton affine of λ where
+    (true , refl) → record
+      { sink⊎𝟙≤𝟘 = λ _ _ → inj₂ refl
+      ; ≡𝟙⊎𝟙≤𝟘   = ⊎.map idᶠ (Σ.map idᶠ (_, refl) ∘→ proj₂) ∘→ hyp₁ _ _
+      }
+    (false , refl) → record
+      { sink⊎𝟙≤𝟘 = λ where
+          {s = 𝕤} ok _         → inj₁ (refl , hyp₂ idᶠ .proj₁ ok)
+          {s = 𝕨} _  (inj₁ ())
+          {s = 𝕨} ok (inj₂ η)  → ⊥-elim (hyp₂ idᶠ .proj₂ ok η)
+      ; ≡𝟙⊎𝟙≤𝟘 = ⊎.map idᶠ (⊥-elim ∘→ proj₁) ∘→ hyp₁ _ _
+      }
 
 -- Type and usage restrictions that satisfy the full reduction
 -- assumptions are "suitable".
 
-full-reduction-assumptions-suitable′ :
-  (b : Bool) → b ≡ affine →
-  Full-reduction-assumptions TRs URs →
-  Suitable-for-full-reduction′ b variant TRs URs
-full-reduction-assumptions-suitable′ true refl as =
-  λ m n Σ-ok →
-    case ≡𝟙⊎𝟙≤𝟘 Σ-ok of λ where
-      (inj₁ m≡𝟙) → inj₁ m≡𝟙
-      (inj₂ (m≡𝟘 , 𝟘ᵐ-ok , _)) → inj₂ (m≡𝟘 , 𝟘ᵐ-ok)
-  where
-  open Full-reduction-assumptions as
-full-reduction-assumptions-suitable′ false refl as =
-    (λ Unit-ok →
-       case sink⊎𝟙≤𝟘 Unit-ok (inj₁ refl) of λ where
-         (inj₁ (_ , sink)) → sink
-         (inj₂ ()))
-  , (λ Unit-ok η →
-       case sink⊎𝟙≤𝟘 Unit-ok (inj₂ η) of λ where
-         (inj₁ (() , _))
-         (inj₂ ()))
-  , λ m n Σ-ok →
-      case ≡𝟙⊎𝟙≤𝟘 Σ-ok of λ where
-        (inj₁ m≡𝟙) → m≡𝟙
-        (inj₂ (_ , _ , ()))
-  where
-  open Full-reduction-assumptions as
-
-
 full-reduction-assumptions-suitable :
   Full-reduction-assumptions TRs URs →
   Suitable-for-full-reduction variant TRs URs
-full-reduction-assumptions-suitable =
-  full-reduction-assumptions-suitable′ affine refl
-
+full-reduction-assumptions-suitable as =
+  case PE.singleton affine of λ where
+    (true , refl) →
+        (λ _ _ → ⊎.map idᶠ ((_ ,_) ∘→ Σ.map idᶠ proj₁) ∘→ ≡𝟙⊎𝟙≤𝟘)
+      , ⊥-elim ∘→ (_$ _)
+    (false , refl) →
+        (λ _ _ → inj₁ ∘→ ⊎.[ idᶠ , (λ { (_ , _ , ()) }) ] ∘→ ≡𝟙⊎𝟙≤𝟘)
+      , (λ _ →
+             ⊎.[ proj₂ , (λ ()) ] ∘→ flip sink⊎𝟙≤𝟘 (inj₁ refl)
+           , (λ ok η →
+                ⊎.[ (λ { (() , _) }) , (λ ()) ] (sink⊎𝟙≤𝟘 ok (inj₂ η))))
+  where
+  open Full-reduction-assumptions as
 
 ------------------------------------------------------------------------
 -- Subtraction
