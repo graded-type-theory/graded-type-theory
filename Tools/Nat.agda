@@ -16,6 +16,7 @@ open _≤_ public
 open import Data.Nat.DivMod
 open Data.Nat.DivMod using (_/_; m/n*n≤m) public
 open import Data.Nat.Properties
+open import Data.Nat using (_<′_; ≤′-refl; ≤′-step; _≤′_) public
 open Data.Nat.Properties
   using (_≟_; _<?_; ≤-total;
          +-identityʳ; +-assoc; +-comm; +-0-isCommutativeMonoid; +-suc;
@@ -24,17 +25,19 @@ open Data.Nat.Properties
          *-1-isCommutativeMonoid;
          m*n≡0⇒m≡0∨n≡0;
          ⊔-identityʳ; ⊔-assoc; ⊔-comm; ⊔-idem; m≥n⇒m⊔n≡m; m⊔n≡m⇒n≤m;
+         <⇒<′; <′⇒<;  ≤⇒≤′; ≤′⇒≤;
+         ≤′-trans;
          ⊓-assoc; ⊓-comm;
          +-distribˡ-⊔; *-distribˡ-+; *-distribˡ-⊔;
-         ⊓-distribʳ-⊔; ⊔-distribʳ-⊓;
+         ⊓-distribʳ-⊔; ⊔-distribʳ-⊓; ≤⇒pred≤;
          ⊔-absorbs-⊓; ⊓-absorbs-⊔;
          ≤-refl; ≤-reflexive; ≤-trans; ≤-antisym; module ≤-Reasoning;
          n≮n;
          +-mono-≤; m≤m+n; m≤n+m; m+n≤o⇒n≤o; 0<1+n; n≤1+n;
          *-mono-≤; m≤m*n; m≤n*m;
-         m≤m⊔n; m≤n⊔m;
+         m≤m⊔n; m≤n⊔m; s≤′s;
          m<n⊓o⇒m<n; m<n⊓o⇒m<o; ⊓-pres-m<;
-         m⊓n≤m⊔n; m+n∸n≡m; m∸n+n≡m)
+         m⊓n≤m⊔n; m+n∸n≡m; m∸n+n≡m; n<1+n; ⊔-mono-<)
   renaming (suc-injective to +1-injective)
   public
 open import Data.Nat.Show using (show) public
@@ -288,3 +291,24 @@ T-== = ≡ᵇ⇒≡ _ _ , ≡⇒≡ᵇ _ _
     (tri< n₁<n₂ _     _)     → ⊥-elim (least₂ _ n₁<n₂ p₁)
     (tri≈ _     n₁≡n₂ _)     → n₁≡n₂
     (tri> _     _     n₁>n₂) → ⊥-elim (least₁ _ n₁>n₂ p₂)
+
+opaque
+  ≤→<s : {a b : Nat} → a ≤′ b → a <′ 1+ b
+  ≤→<s ≤′-refl = ≤′-refl
+  ≤→<s (≤′-step l<) = ≤′-step (≤→<s l<)
+
+opaque
+  <→≤ : {a b : Nat} → a <′ b → a ≤′ b
+  <→≤ ≤′-refl = ≤′-step ≤′-refl
+  <→≤ (≤′-step l<) = ≤′-step (<→≤ l<)
+
+opaque
+  ≤pred≤ : {a b : Nat} → 1+ a ≤′ b → a ≤′ b
+  ≤pred≤ l< = (≤⇒≤′ (≤⇒pred≤ (≤′⇒≤ l<)))
+
+opaque
+  m≤n⇒m≤n⊔o′ : {l l′ : Nat} → (l″ : Nat) → l ≤′ l′ → l ≤′ (l′ ⊔ l″)
+  m≤n⇒m≤n⊔o′ l l< = ≤⇒≤′ (m≤n⇒m≤n⊔o l (≤′⇒≤ l<))
+
+  m≤n⇒m≤o⊔n′ : {l l′ : Nat} → (l″ : Nat) → l ≤′ l′ → l ≤′ (l″ ⊔ l′)
+  m≤n⇒m≤o⊔n′ l l< = ≤⇒≤′ (m≤n⇒m≤o⊔n l (≤′⇒≤ l<))

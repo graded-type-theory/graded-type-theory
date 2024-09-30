@@ -60,7 +60,7 @@ tr-BinderMode (BMΣ _) = tr-Σ
 -- Translation of kinds.
 
 tr-Kind : U₁.Kind bs → U₂.Kind bs
-tr-Kind Ukind               = Ukind
+tr-Kind (Ukind n)           = Ukind n
 tr-Kind (Binderkind b p q)  = Binderkind b (tr-BinderMode b p) (tr q)
 tr-Kind (Lamkind p)         = Lamkind (tr p)
 tr-Kind (Appkind p)         = Appkind (tr p)
@@ -345,8 +345,8 @@ tr-Term-var {t = var _} refl = refl
 
 -- Inversion for U.
 
-tr-Term-U : tr-Term t ≡ U → t ≡ U
-tr-Term-U {t = U} refl = refl
+tr-Term-U : tr-Term t ≡ (U n) → t ≡ (U n)
+tr-Term-U {t = U n} refl = refl
 
 -- Inversion for ΠΣ⟨_⟩_,_▷_▹_.
 
@@ -568,7 +568,7 @@ module Injective
   -- The function tr-Kind is injective.
 
   tr-Kind-injective : tr-Kind k ≡ tr-Kind l → k ≡ l
-  tr-Kind-injective {k = Ukind}         {l = Ukind}         refl = refl
+  tr-Kind-injective {k = Ukind _}       {l = Ukind _}       refl = refl
   tr-Kind-injective {k = Natkind}       {l = Natkind}       refl = refl
   tr-Kind-injective {k = Zerokind}      {l = Zerokind}      refl = refl
   tr-Kind-injective {k = Suckind}       {l = Suckind}       refl = refl

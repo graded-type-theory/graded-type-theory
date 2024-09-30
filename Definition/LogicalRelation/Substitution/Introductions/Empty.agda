@@ -29,6 +29,7 @@ open import Definition.LogicalRelation.Substitution R
 open import Definition.LogicalRelation.Substitution.Introductions.Universe R
 
 open import Tools.Function
+open import Tools.Nat using (Nat; 1+; ≤′-refl; ≤′-step)
 open import Tools.Product
 
 private variable
@@ -71,7 +72,8 @@ opaque
       (⊩Empty : Γ ⊩⟨ l ⟩Empty Empty) →
       Γ ⊩⟨ l ⟩ t ∷ Empty / Empty-intr ⊩Empty →
       Γ ⊩Empty t ∷Empty
-    lemma (emb 0<1 ⊩Empty′) ⊩t = lemma ⊩Empty′ ⊩t
+    lemma (emb ≤′-refl ⊩Empty′) ⊩t = lemma ⊩Empty′ ⊩t
+    lemma (emb (≤′-step s) ⊩Empty′) ⊩t = lemma (emb s ⊩Empty′) ⊩t
     lemma (noemb _) ⊩t = ⊩t
 
 opaque
@@ -99,7 +101,8 @@ opaque
       Γ ⊩⟨ l ⟩ A ≡ B / Empty-intr ⊩A →
       Γ ⊩Empty A ≡ B
     lemma (noemb _)    A≡B = A≡B
-    lemma (emb 0<1 ⊩A) A≡B = lemma ⊩A A≡B
+    lemma (emb ≤′-refl ⊩A) A≡B = lemma ⊩A A≡B
+    lemma (emb (≤′-step l<) ⊩A) A≡B = lemma (emb l< ⊩A) A≡B
 
 opaque
   unfolding _⊩⟨_⟩_≡_∷_ ⊩Empty⇔
@@ -127,7 +130,8 @@ opaque
       Γ ⊩Empty t ∷Empty ×
       Γ ⊩Empty u ∷Empty ×
       Γ ⊩Empty t ≡ u ∷Empty
-    lemma (emb 0<1 ⊩Empty′) ⊩t ⊩u t≡u = lemma ⊩Empty′ ⊩t ⊩u t≡u
+    lemma (emb ≤′-refl ⊩Empty′) ⊩t ⊩u t≡u = lemma ⊩Empty′  ⊩t   ⊩u   t≡u 
+    lemma (emb (≤′-step s) ⊩Empty′) ⊩t ⊩u t≡u = lemma (emb s ⊩Empty′)  ⊩t   ⊩u   t≡u 
     lemma (noemb _) ⊩t ⊩u t≡u = ⊩t , ⊩u , t≡u
 
 ------------------------------------------------------------------------
@@ -159,17 +163,16 @@ opaque
 
   -- Validity for Empty, seen as a term former.
 
-  Emptyᵗᵛ : ⊩ᵛ Γ → Γ ⊩ᵛ⟨ ¹ ⟩ Empty ∷ U
+  Emptyᵗᵛ : ⊩ᵛ Γ → Γ ⊩ᵛ⟨ 1 ⟩ Empty ∷ U 0
   Emptyᵗᵛ ⊩Γ =
     ⊩ᵛ∷⇔ .proj₂
       ( ⊩ᵛU ⊩Γ
       , λ σ₁≡σ₂ →
           case escape-⊩ˢ≡∷ σ₁≡σ₂ of λ
             (⊢Δ , _) →
-          case Emptyⱼ ⊢Δ of λ
+          case Emptyⱼ ⊢Δ  of λ
             ⊢Empty →
           Type→⊩≡∷U⇔ Emptyₙ Emptyₙ .proj₂
-            ( ⊢Empty , ⊢Empty , ≅ₜ-Emptyrefl ⊢Δ
-            , (_ , 0<1 , refl-⊩≡ (⊩Empty ⊢Δ))
-            )
+            (≤′-refl , refl-⊩≡ (⊩Empty ⊢Δ) ,
+            ⊢Empty , ⊢Empty , ≅ₜ-Emptyrefl ⊢Δ)
       )

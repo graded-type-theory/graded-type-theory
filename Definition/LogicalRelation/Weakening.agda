@@ -147,7 +147,7 @@ wkEq :
   Δ ⊩⟨ l ⟩ U.wk ρ A ≡ U.wk ρ B / wk [ρ] ⊢Δ [A]
 
 wkTerm :
-  ([ρ] : ρ ∷ Δ ⊇ Γ) (⊢Δ : ⊢ Δ) ([A] : Γ ⊩⟨ l ⟩ A) →
+  {l : TypeLevel} → ([ρ] : ρ ∷ Δ ⊇ Γ) (⊢Δ : ⊢ Δ) ([A] : Γ ⊩⟨ l ⟩ A) →
   Γ ⊩⟨ l ⟩ t ∷ A / [A] →
   Δ ⊩⟨ l ⟩ U.wk ρ t ∷ U.wk ρ A / wk [ρ] ⊢Δ [A]
 
@@ -156,7 +156,7 @@ wkEqTerm :
   Γ ⊩⟨ l ⟩ t ≡ u ∷ A / [A] →
   Δ ⊩⟨ l ⟩ U.wk ρ t ≡ U.wk ρ u ∷ U.wk ρ A / wk [ρ] ⊢Δ [A]
 
-wk ρ ⊢Δ (Uᵣ′ l′ l< ⊢Γ) = Uᵣ′ l′ l< ⊢Δ
+wk ρ ⊢Δ (Uᵣ′ l′ l< D) = Uᵣ′ l′ l< (wkRed:*: ρ ⊢Δ D)
 wk ρ ⊢Δ (ℕᵣ D) = ℕᵣ (wkRed:*: ρ ⊢Δ D)
 wk ρ ⊢Δ (Emptyᵣ D) = Emptyᵣ (wkRed:*: ρ ⊢Δ D)
 wk ρ ⊢Δ (Unitᵣ (Unitₜ D ok)) =
@@ -253,9 +253,10 @@ wk ρ∷⊇ ⊢Δ (Idᵣ ⊩A) = Idᵣ (record
   })
   where
   open _⊩ₗId_ ⊩A
-wk ρ ⊢Δ (emb 0<1 x) = emb 0<1 (wk ρ ⊢Δ x)
+wk ρ ⊢Δ (emb ≤′-refl x) = emb ≤′-refl (wk ρ ⊢Δ x)
+wk ρ ⊢Δ (emb (≤′-step l<) x) = cumulStep (wk ρ ⊢Δ (emb l< x))
 
-wkEq ρ ⊢Δ (Uᵣ′ _ _ _) PE.refl = PE.refl
+wkEq ρ ⊢Δ (Uᵣ′ l l< D) D′ = wkRed:*: ρ ⊢Δ D′
 wkEq ρ ⊢Δ (ℕᵣ D) A≡B = wkRed* ρ ⊢Δ A≡B
 wkEq ρ ⊢Δ (Emptyᵣ D) A≡B = wkRed* ρ ⊢Δ A≡B
 wkEq ρ ⊢Δ (Unitᵣ (Unitₜ D _)) A≡B = wkRed* ρ ⊢Δ A≡B
@@ -312,9 +313,16 @@ wkEq ρ∷⊇ ⊢Δ (Idᵣ ⊩A) A≡B = Id₌′
   where
   open _⊩ₗId_ ⊩A
   open _⊩ₗId_≡_/_ A≡B
-wkEq ρ ⊢Δ (emb 0<1 x) A≡B = wkEq ρ ⊢Δ x A≡B
+wkEq ρ ⊢Δ (emb ≤′-refl x) A≡B = wkEq ρ ⊢Δ x A≡B
+wkEq ρ ⊢Δ (emb (≤′-step l<) x) A≡B =
+  let wkx = wk ρ ⊢Δ (emb l< x)
+  in irrelevanceEq wkx (cumulStep wkx)
+    (wkEq ρ ⊢Δ (emb l< x) A≡B)
 
-wkTerm {ρ = ρ} [ρ] ⊢Δ (Uᵣ′ .⁰ 0<1 ⊢Γ) (Uₜ A d typeA A≡A [t]) =
+wkTerm {ρ = ρ} {l = 1+ l} [ρ] ⊢Δ ⊩U@(Uᵣ′ l′ (≤′-step l<) D) (Uₜ A d typeA A≡A [t]) =
+  let nRes = wkTerm [ρ] ⊢Δ (Uᵣ′ l′ l< D) (Uₜ A d typeA A≡A [t])
+  in irrelevanceTerm (wk [ρ] ⊢Δ (Uᵣ′ l′ l< D)) (wk [ρ] ⊢Δ ⊩U) nRes
+wkTerm {ρ = ρ} [ρ] ⊢Δ (Uᵣ′ l ≤′-refl D) (Uₜ A d typeA A≡A [t]) =
   Uₜ (U.wk ρ A) (wkRed:*:Term [ρ] ⊢Δ d)
      (wkType ρ typeA) (≅ₜ-wk [ρ] ⊢Δ A≡A) (wk [ρ] ⊢Δ [t])
 wkTerm ρ ⊢Δ (ℕᵣ D) [t] = wkTermℕ ρ ⊢Δ [t]
@@ -434,9 +442,15 @@ wkTerm ρ∷⊇ ⊢Δ (Idᵣ ⊩A) ⊩t@(_ , t⇒*u , _) =
        (ne u-n u~u)   → ne (wkNeutral _ u-n) , ~-wk ρ∷⊇ ⊢Δ u~u)
   where
   open _⊩ₗId_ ⊩A
-wkTerm ρ ⊢Δ (emb 0<1 x) t = wkTerm ρ ⊢Δ x t
-
-wkEqTerm {ρ = ρ} [ρ] ⊢Δ (Uᵣ′ .⁰ 0<1 ⊢Γ) (Uₜ₌ A B d d′ typeA typeB A≡B [t] [u] [t≡u]) =
+wkTerm ρ ⊢Δ (emb ≤′-refl x) t = wkTerm ρ ⊢Δ x t
+wkTerm ρ ⊢Δ (emb (≤′-step l<) x) t =
+  let wkn = wkTerm ρ ⊢Δ (emb l< x) t
+  in irrelevanceTerm (wk ρ ⊢Δ (emb l< x))
+    (wk ρ ⊢Δ (emb (≤′-step l<) x)) wkn
+wkEqTerm {ρ = ρ} {l = 1+ l′} [ρ] ⊢Δ (Uᵣ′ l (≤′-step l<) D) (Uₜ₌ A B d d′ typeA typeB A≡B [t] [u] [t≡u]) =
+  let wkET′ = wkEqTerm {ρ = ρ} [ρ] ⊢Δ (Uᵣ′ l l< D) (Uₜ₌ A B d d′ typeA typeB A≡B [t] [u] [t≡u])
+  in irrelevanceEqTerm (wk [ρ] ⊢Δ (Uᵣ′ l l< D)) (wk [ρ] ⊢Δ (Uᵣ′ l (≤′-step l<) D)) wkET′
+wkEqTerm {ρ = ρ} [ρ] ⊢Δ (Uᵣ′ l ≤′-refl D) (Uₜ₌ A B d d′ typeA typeB A≡B [t] [u] [t≡u]) =
   Uₜ₌ (U.wk ρ A) (U.wk ρ B) (wkRed:*:Term [ρ] ⊢Δ d) (wkRed:*:Term [ρ] ⊢Δ d′)
       (wkType ρ typeA) (wkType ρ typeB) (≅ₜ-wk [ρ] ⊢Δ A≡B)
       (wk [ρ] ⊢Δ [t]) (wk [ρ] ⊢Δ [u]) (wkEq [ρ] ⊢Δ [t] [t≡u])
@@ -596,7 +610,12 @@ wkEqTerm ρ∷⊇ ⊢Δ (Idᵣ ⊩A) t≡u@(_ , _ , t⇒*t′ , u⇒*u′ , _) =
          , ~-wk ρ∷⊇ ⊢Δ t′~u′)
   where
   open _⊩ₗId_ ⊩A
-wkEqTerm ρ ⊢Δ (emb 0<1 x) t≡u = wkEqTerm ρ ⊢Δ x t≡u
+wkEqTerm ρ ⊢Δ (emb ≤′-refl x) t≡u = wkEqTerm ρ ⊢Δ x t≡u
+wkEqTerm ρ ⊢Δ (emb (≤′-step s) x) t≡u =
+  let wkET′ = wkEqTerm ρ ⊢Δ (emb s x) t≡u
+  in irrelevanceEqTerm (wk ρ ⊢Δ (emb s x))
+    (wk ρ ⊢Δ (emb (≤′-step s) x)) wkET′
+
 -- Impossible cases
 wkEqTerm ρ ⊢Δ (Bᵣ BΣʷ x) (Σₜ₌ p r d d′ prodₙ (ne y) p≅r [t] [u] ())
 wkEqTerm ρ ⊢Δ (Bᵣ BΣʷ x) (Σₜ₌ p r d d′ (ne y) prodₙ p≅r [t] [u] ())

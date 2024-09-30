@@ -32,7 +32,7 @@ open import Tools.Sum using (_⊎_; inj₁; inj₂)
 
 private
   variable
-    n : Nat
+    n l l₁ l₂ : Nat
     Γ : Con Term n
     A A′ B B′ C D E F U′ : Term n
     a b t t′ u u′ v w : Term n
@@ -559,74 +559,6 @@ idRed:*: A = [ A , A , id A ]
 
 idRedTerm:*: : Γ ⊢ t ∷ A → Γ ⊢ t :⇒*: t ∷ A
 idRedTerm:*: t = [ t , t , id t ]
-
-------------------------------------------------------------------------
--- Some lemmas related to U
-
--- U cannot be a term
-
-UnotInA : Γ ⊢ U ∷ A → ⊥
-UnotInA (conv U∷U x) = UnotInA U∷U
-
-UnotInA[t] : t [ a ]₀ PE.≡ U
-         → Γ ⊢ a ∷ A
-         → Γ ∙ A ⊢ t ∷ B
-         → ⊥
-UnotInA[t] () x₁ (ℕⱼ x₂)
-UnotInA[t] () x₁ (Emptyⱼ x₂)
-UnotInA[t] () _  (ΠΣⱼ _ _ _)
-UnotInA[t] x₁ x₂ (var x₃ here) rewrite x₁ = UnotInA x₂
-UnotInA[t] () x₂ (var x₃ (there x₄))
-UnotInA[t] () _  (lamⱼ _ _ _)
-UnotInA[t] () x₁ (x₂ ∘ⱼ x₃)
-UnotInA[t] () x₁ (zeroⱼ x₂)
-UnotInA[t] () x₁ (sucⱼ x₂)
-UnotInA[t] () x₁ (natrecⱼ x₂ x₃ x₄ x₅)
-UnotInA[t] () x₁ (emptyrecⱼ x₂ x₃)
-UnotInA[t] x x₁ (conv x₂ x₃) = UnotInA[t] x x₁ x₂
-
-UnotInA[t,u] : t [ consSubst (consSubst idSubst u) u′ ] PE.≡ U
-              → Γ ⊢ u ∷ A
-              → Γ ⊢ u′ ∷ B [ a ]₀
-              → Γ ∙ A ∙ B ⊢ t ∷ C
-              → ⊥
-UnotInA[t,u] PE.refl u u′ (var x here) = UnotInA u′
-UnotInA[t,u] PE.refl u u′ (var x (there here)) = UnotInA u
-UnotInA[t,u] eq u u′ (conv t x) = UnotInA[t,u] eq u u′ t
-
-redU*Term′ : U′ PE.≡ U → Γ ⊢ A ⇒ U′ ∷ B → ⊥
-redU*Term′ U′≡U (conv A⇒U x) = redU*Term′ U′≡U A⇒U
-redU*Term′ () (app-subst A⇒U x)
-redU*Term′ U′≡U (β-red _ _ ⊢t ⊢u _ _) = UnotInA[t] U′≡U ⊢u ⊢t
-redU*Term′ () (natrec-subst x x₁ x₂ A⇒U)
-redU*Term′ PE.refl (natrec-zero x x₁ x₂) = UnotInA x₁
-redU*Term′ U′≡U (natrec-suc x x₁ x₂ x₃) =
-  UnotInA[t,u] U′≡U x₃ (natrecⱼ x x₁ x₂ x₃) x₂
-redU*Term′ U′≡U (prodrec-β _ _ _ ⊢t ⊢u ⊢v _ _) =
-  UnotInA[t,u] U′≡U ⊢t ⊢u ⊢v
-redU*Term′ () (emptyrec-subst x A⇒U)
-redU*Term′ PE.refl (Σ-β₁ _ _ x _ _ _) = UnotInA x
-redU*Term′ PE.refl (Σ-β₂ _ _ _ x _ _) = UnotInA x
-redU*Term′ PE.refl (J-β _ _ _ _ _ _ ⊢u) = UnotInA ⊢u
-redU*Term′ PE.refl (K-β _ _ ⊢u _) = UnotInA ⊢u
-redU*Term′ PE.refl (unitrec-β _ x _ _) = UnotInA x
-redU*Term′ PE.refl (unitrec-β-η _ _ x _ _) = UnotInA x
-
-redU*Term : Γ ⊢ A ⇒* U ∷ B → ⊥
-redU*Term (id x) = UnotInA x
-redU*Term (x ⇨ A⇒*U) = redU*Term A⇒*U
-
--- Nothing reduces to U
-
-redU : Γ ⊢ A ⇒ U → ⊥
-redU (univ x) = redU*Term′ PE.refl x
-
-redU* : Γ ⊢ A ⇒* U → A PE.≡ U
-redU* (id x) = PE.refl
-redU* (x ⇨ A⇒*U) rewrite redU* A⇒*U = ⊥-elim (redU x)
-
-------------------------------------------------------------------------
--- A lemma related to _∷_∈_
 
 det∈ : ∀ {x} → x ∷ A ∈ Γ → x ∷ B ∈ Γ → A PE.≡ B
 det∈ here here = PE.refl

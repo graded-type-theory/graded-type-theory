@@ -23,14 +23,14 @@ import Graded.Derived.Erased.Untyped 𝕄 as Erased
 
 open import Tools.Fin
 open import Tools.Function
-open import Tools.Level
+open import Tools.Level hiding (_⊔_)
 open import Tools.Nat
 open import Tools.Relation
 
 private
   variable
     p q q′ r : M
-    n n′ : Nat
+    n n′ l₁ l₂ : Nat
     Γ : Con Term n
     Δ : Con Term n′
     ρ : Wk n′ n
@@ -73,7 +73,7 @@ record EqRelSet : Set (lsuc ℓ) where
           → Γ ⊢ t ≡ u ∷ A
 
     -- Universe
-    ≅-univ : Γ ⊢ A ≅ B ∷ U
+    ≅-univ : Γ ⊢ A ≅ B ∷ U l₁
            → Γ ⊢ A ≅ B
 
     -- Symmetry
@@ -117,16 +117,16 @@ record EqRelSet : Set (lsuc ℓ) where
            → Γ ⊢ a  ≅ b  ∷ A
 
     -- Universe type reflexivity
-    ≅-Urefl   : ⊢ Γ → Γ ⊢ U ≅ U
+    ≅-Urefl   : ⊢ Γ → Γ ⊢ U l₁ ≅ U l₁ ∷ U (1+ l₁)
 
     -- Natural number type reflexivity
-    ≅ₜ-ℕrefl : ⊢ Γ → Γ ⊢ ℕ ≅ ℕ ∷ U
+    ≅ₜ-ℕrefl : ⊢ Γ → Γ ⊢ ℕ ≅ ℕ ∷ U 0
 
     -- Empty type reflexivity
-    ≅ₜ-Emptyrefl : ⊢ Γ → Γ ⊢ Empty ≅ Empty ∷ U
+    ≅ₜ-Emptyrefl : ⊢ Γ → Γ ⊢ Empty ≅ Empty ∷ U 0
 
     -- Unit type reflexivity
-    ≅ₜ-Unitrefl : ⊢ Γ → Unit-allowed s → Γ ⊢ Unit s ≅ Unit s ∷ U
+    ≅ₜ-Unitrefl : ⊢ Γ → Unit-allowed s → Γ ⊢ Unit s ≅ Unit s ∷ U 0
 
     -- Unit η-equality
     ≅ₜ-η-unit : Γ ⊢ e ∷ Unit s
@@ -146,10 +146,10 @@ record EqRelSet : Set (lsuc ℓ) where
     ≅ₜ-ΠΣ-cong
               : ∀ {F G H E}
               → Γ ⊢ F
-              → Γ ⊢ F ≅ H ∷ U
-              → Γ ∙ F ⊢ G ≅ E ∷ U
+              → Γ ⊢ F ≅ H ∷ U l₁
+              → Γ ∙ F ⊢ G ≅ E ∷ U l₂
               → ΠΣ-allowed bm p q
-              → Γ ⊢ ΠΣ⟨ bm ⟩ p , q ▷ F ▹ G ≅ ΠΣ⟨ bm ⟩ p , q ▷ H ▹ E ∷ U
+              → Γ ⊢ ΠΣ⟨ bm ⟩ p , q ▷ F ▹ G ≅ ΠΣ⟨ bm ⟩ p , q ▷ H ▹ E ∷ U (l₁ ⊔ l₂)
 
     -- Zero reflexivity
     ≅ₜ-zerorefl : ⊢ Γ → Γ ⊢ zero ≅ zero ∷ ℕ
@@ -254,10 +254,10 @@ record EqRelSet : Set (lsuc ℓ) where
       → Γ ⊢ u₁ ≅ u₂ ∷ A₁
       → Γ ⊢ Id A₁ t₁ u₁ ≅ Id A₂ t₂ u₂
     ≅ₜ-Id-cong
-      : Γ ⊢ A₁ ≅ A₂ ∷ U
+      : Γ ⊢ A₁ ≅ A₂ ∷ U l₁
       → Γ ⊢ t₁ ≅ t₂ ∷ A₁
       → Γ ⊢ u₁ ≅ u₂ ∷ A₁
-      → Γ ⊢ Id A₁ t₁ u₁ ≅ Id A₂ t₂ u₂ ∷ U
+      → Γ ⊢ Id A₁ t₁ u₁ ≅ Id A₂ t₂ u₂ ∷ U l₁
 
     -- Reflexivity for rfl.
     ≅ₜ-rflrefl : Γ ⊢ t ∷ A → Γ ⊢ rfl ≅ rfl ∷ Id A t t
@@ -300,7 +300,7 @@ record EqRelSet : Set (lsuc ℓ) where
 
 
   -- Composition of universe and generic equality compatibility
-  ~-to-≅ : ∀ {k l} → Γ ⊢ k ~ l ∷ U → Γ ⊢ k ≅ l
+  ~-to-≅ : ∀ {k l l′} → Γ ⊢ k ~ l ∷ U l′ → Γ ⊢ k ≅ l
   ~-to-≅ k~l = ≅-univ (~-to-≅ₜ k~l)
 
   opaque

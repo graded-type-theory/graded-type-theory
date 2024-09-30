@@ -32,7 +32,7 @@ open import Definition.LogicalRelation.Substitution.Introductions.Universe R
 open import Definition.LogicalRelation.Irrelevance R
 
 open import Tools.Function
-open import Tools.Nat using (Nat)
+open import Tools.Nat using (Nat; ≤′-refl; ≤′-step)
 open import Tools.Product as Σ
 import Tools.PropositionalEquality as PE
 open import Tools.Relation
@@ -91,7 +91,8 @@ opaque
       Γ ⊩⟨ l ⟩ t ∷ Unit s / Unit-intr ⊩Unit →
       Unit-allowed s ×
       Γ ⊩Unit⟨ s ⟩ t ∷Unit
-    lemma (emb 0<1 ⊩Unit)      ⊩t = lemma ⊩Unit ⊩t
+    lemma (emb ≤′-refl ⊩Unit)      ⊩t = lemma ⊩Unit  ⊩t 
+    lemma (emb (≤′-step s) ⊩Unit)  ⊩t = lemma (emb s ⊩Unit) ⊩t
     lemma (noemb (Unitₜ _ ok)) ⊩t = ok , ⊩t
 
 opaque
@@ -117,8 +118,10 @@ opaque
       (⊩Unit : Γ ⊩⟨ l ⟩Unit⟨ s ⟩ Unit s) →
       Γ ⊩⟨ l ⟩ Unit s ≡ A / Unit-intr ⊩Unit →
       ⊢ Γ × Unit-allowed s × Γ ⊩Unit⟨ s ⟩ Unit s ≡ A
-    lemma (emb 0<1 ⊩Unit) =
+    lemma (emb ≤′-refl ⊩Unit) =
       lemma ⊩Unit
+    lemma (emb (≤′-step l<) ⊩Unit) =
+      lemma (emb l< ⊩Unit)
     lemma {l} ⊩Unit@(noemb _) A⇒*Unit =
       case ⊩Unit⇔ {l = l} .proj₁ $ Unit-intr ⊩Unit of λ
         (⊢Γ , ok) →
@@ -176,7 +179,8 @@ opaque
       Γ ⊩Unit⟨ s ⟩ t ∷Unit ×
       Γ ⊩Unit⟨ s ⟩ u ∷Unit ×
       Γ ⊩Unit⟨ s ⟩ t ≡ u ∷Unit
-    lemma (emb 0<1 ⊩Unit)      ⊩t ⊩u t≡u = lemma ⊩Unit ⊩t ⊩u t≡u
+    lemma (emb ≤′-refl ⊩Unit)   ⊩t ⊩u t≡u = lemma ⊩Unit ⊩t ⊩u t≡u
+    lemma (emb (≤′-step s) ⊩Unit) ⊩t ⊩u t≡u = lemma (emb s ⊩Unit) ⊩t ⊩u t≡u
     lemma (noemb (Unitₜ _ ok)) ⊩t ⊩u t≡u = ok , ⊩t , ⊩u , t≡u
 
 ------------------------------------------------------------------------
@@ -230,7 +234,7 @@ opaque
   Unitᵗᵛ :
     ⊩ᵛ Γ →
     Unit-allowed s →
-    Γ ⊩ᵛ⟨ ¹ ⟩ Unit s ∷ U
+    Γ ⊩ᵛ⟨ 1 ⟩ Unit s ∷ U 0
   Unitᵗᵛ ⊩Γ ok =
     ⊩ᵛ∷⇔ .proj₂
       ( ⊩ᵛU ⊩Γ
@@ -240,8 +244,8 @@ opaque
           case Unitⱼ ⊢Δ ok of λ
             ⊢Unit →
           Type→⊩≡∷U⇔ Unitₙ Unitₙ .proj₂
-            ( ⊢Unit , ⊢Unit , ≅ₜ-Unitrefl ⊢Δ ok
-            , (_ , 0<1 , refl-⊩≡ (⊩Unit ⊢Δ ok))
+            (
+            ≤′-refl , refl-⊩≡ (⊩Unit ⊢Δ ok) , ⊢Unit , ⊢Unit , ≅ₜ-Unitrefl ⊢Δ ok
             )
       )
 
@@ -484,6 +488,7 @@ opaque
   -- Validity of equality between applications of unitrec.
 
   unitrec-congᵛ :
+    {l″ : TypeLevel} →
     Γ ∙ Unitʷ ⊩ᵛ⟨ l ⟩ A₁ ≡ A₂ →
     Γ ⊩ᵛ⟨ l′ ⟩ t₁ ≡ t₂ ∷ Unitʷ →
     Γ ⊩ᵛ⟨ l″ ⟩ u₁ ≡ u₂ ∷ A₁ [ starʷ ]₀ →
@@ -533,11 +538,11 @@ opaque
 
   unitrec-β-ηᵛ :
     Γ ∙ Unitʷ ⊩ᵛ⟨ l ⟩ A →
-    Γ ⊩ᵛ⟨ l ⟩ t ∷ Unitʷ →
-    Γ ⊩ᵛ⟨ l ⟩ u ∷ A [ starʷ ]₀ →
+    Γ ⊩ᵛ⟨ l′ ⟩ t ∷ Unitʷ →
+    Γ ⊩ᵛ⟨ l″ ⟩ u ∷ A [ starʷ ]₀ →
     Unitʷ-η →
     Γ ⊩ᵛ⟨ l ⟩ unitrec p q A t u ≡ u ∷ A [ t ]₀
-  unitrec-β-ηᵛ {l} {A} ⊩A ⊩t ⊩u η =
+  unitrec-β-ηᵛ {A = A} {l″ = l} ⊩A ⊩t ⊩u η =
     case wf-⊩ᵛ (wf-⊩ᵛ∷ ⊩t) of λ
       ⊩Γ →
     case ⊩ᵛUnit→Unit-allowed (wf-∙-⊩ᵛ ⊩A .proj₂) of λ

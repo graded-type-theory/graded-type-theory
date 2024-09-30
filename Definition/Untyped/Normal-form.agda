@@ -24,13 +24,14 @@ private variable
   p q r                  : M
   b                      : BinderMode
   s                      : Strength
+  l                      : Nat
 
 mutual
 
   -- Normal forms.
 
   data Nf {m : Nat} : Term m → Set a where
-    Uₙ     : Nf U
+    Uₙ     : Nf (U l)
     ΠΣₙ    : Nf A → Nf B → Nf (ΠΣ⟨ b ⟩ p , q ▷ A ▹ B)
     ℕₙ     : Nf ℕ
     Emptyₙ : Nf Empty

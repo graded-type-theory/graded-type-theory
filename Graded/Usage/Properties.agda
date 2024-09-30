@@ -49,7 +49,7 @@ private
 
 private
   variable
-    n : Nat
+    n l : Nat
     Γ : Con Term n
     A B F t u v w : Term n
     G : Term (1+ n)
@@ -1626,7 +1626,7 @@ opaque
   𝟘ᶜ          ∎
   where
   open Tools.Reasoning.Equivalence Conₘ-setoid
-⌈⌉-𝟘ᵐ U =
+⌈⌉-𝟘ᵐ (U l) =
   ≈ᶜ-refl
 ⌈⌉-𝟘ᵐ {ok = ok} (ΠΣ⟨ _ ⟩ _ , _ ▷ F ▹ G) = begin
   (⌈ F ⌉ 𝟘ᵐ[ ok ] +ᶜ tailₘ (⌈ G ⌉ 𝟘ᵐ[ ok ]))  ≈⟨ +ᶜ-cong (⌈⌉-𝟘ᵐ F) (tailₘ-cong (⌈⌉-𝟘ᵐ G)) ⟩
@@ -2049,12 +2049,12 @@ module _ (TR : Type-restrictions) where
       (ε ∙ 𝟘≤𝟙 ∙ 𝟙≤𝟘) →
     ≤-antisym 𝟙≤𝟘 𝟘≤𝟙 }
     where
-    Γ′ = ε ∙ U ∙ var x0
+    Γ′ = ε ∙ (U l) ∙ var x0
     t′ = var x0
     A′ = var x1
     γ′ = ε ∙ 𝟘 ∙ 𝟙
 
-    ⊢U : ⊢ ε ∙ U
+    ⊢U : ⊢ ε ∙ (U l)
     ⊢U = ε ∙ Uⱼ ε
 
     ⊢Γ : ⊢ Γ′

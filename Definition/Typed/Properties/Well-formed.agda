@@ -22,10 +22,12 @@ open import Tools.Nat
 private variable
   Γ       : Con Term _
   A B t u : Term _
+  l       : Nat
 
 -- If a term is well-typed with respect to Γ, then Γ is well-formed.
 
 wfTerm : Γ ⊢ t ∷ A → ⊢ Γ
+wfTerm (Uⱼ ⊢Γ) = ⊢Γ
 wfTerm (ℕⱼ ⊢Γ) = ⊢Γ
 wfTerm (Emptyⱼ ⊢Γ) = ⊢Γ
 wfTerm (Unitⱼ ⊢Γ _) = ⊢Γ
@@ -136,5 +138,5 @@ opaque
 
 -- An example of how _∙[_] can be used.
 
-_ : ⊢ ε ∙ ℕ ∙ U ∙ Empty
+_ : ⊢ ε ∙ ℕ ∙ (U l) ∙ Empty
 _ = ε ∙[ ℕⱼ ] ∙[ Uⱼ ] ∙[ Emptyⱼ ]

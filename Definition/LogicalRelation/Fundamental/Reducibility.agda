@@ -24,6 +24,7 @@ open import Definition.LogicalRelation.Irrelevance R
 open import Definition.LogicalRelation.Substitution R
 
 open import Tools.Function
+open import Tools.Product
 open import Tools.Nat using (Nat)
 
 private
@@ -37,26 +38,26 @@ opaque
 
   -- Well-formed types are reducible.
 
-  reducible-⊩ : Γ ⊢ A → Γ ⊩⟨ ¹ ⟩ A
-  reducible-⊩ = ⊩ᵛ→⊩ ∘→ fundamental-⊩ᵛ
+  reducible-⊩ : Γ ⊢ A → ∃ λ l → Γ ⊩⟨ l ⟩ A
+  reducible-⊩ ⊢A = _ , ⊩ᵛ→⊩ (fundamental-⊩ᵛ ⊢A .proj₂)
 
 opaque
 
-  -- The relation _⊢_≡_ is contained in _⊩⟨ ¹ ⟩_≡_.
+  -- The relation _⊢_≡_ is contained in _⊩⟨ ⟩_≡_.
 
-  reducible-⊩≡ : Γ ⊢ A ≡ B → Γ ⊩⟨ ¹ ⟩ A ≡ B
-  reducible-⊩≡ = ⊩ᵛ≡→⊩≡ ∘→ fundamental-⊩ᵛ≡
+  reducible-⊩≡ : Γ ⊢ A ≡ B → ∃ λ l → Γ ⊩⟨ l ⟩ A ≡ B
+  reducible-⊩≡ ⊢A≡B = _ , ⊩ᵛ≡→⊩≡ (fundamental-⊩ᵛ≡ ⊢A≡B .proj₂)
 
 opaque
 
   -- Well-formed terms are reducible.
 
-  reducible-⊩∷ : Γ ⊢ t ∷ A → Γ ⊩⟨ ¹ ⟩ t ∷ A
-  reducible-⊩∷ = ⊩ᵛ∷→⊩∷ ∘→ fundamental-⊩ᵛ∷
+  reducible-⊩∷ : Γ ⊢ t ∷ A → ∃ λ l → Γ ⊩⟨ l ⟩ t ∷ A
+  reducible-⊩∷ ⊢t∷A = _ , ⊩ᵛ∷→⊩∷ (fundamental-⊩ᵛ∷ ⊢t∷A .proj₂)
 
 opaque
 
-  -- The relation _⊢_≡_∷_ is contained in _⊩⟨ ¹ ⟩_≡_∷_.
+  -- The relation _⊢_≡_∷_ is contained in _⊩⟨ ⟩_≡_∷_.
 
-  reducible-⊩≡∷ : Γ ⊢ t ≡ u ∷ A → Γ ⊩⟨ ¹ ⟩ t ≡ u ∷ A
-  reducible-⊩≡∷ = ⊩ᵛ≡∷→⊩≡∷ ∘→ fundamental-⊩ᵛ≡∷
+  reducible-⊩≡∷ : Γ ⊢ t ≡ u ∷ A → ∃ λ l → Γ ⊩⟨ l ⟩ t ≡ u ∷ A
+  reducible-⊩≡∷ ⊢t≡u∷A = _ , ⊩ᵛ≡∷→⊩≡∷ (fundamental-⊩ᵛ≡∷ ⊢t≡u∷A .proj₂)

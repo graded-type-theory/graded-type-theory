@@ -17,6 +17,7 @@ open EqRelSet eqrel
 open Type-restrictions R
 
 open import Definition.LogicalRelation R
+open import Definition.LogicalRelation.Kit R
 open import Definition.LogicalRelation.Hidden R
 open import Definition.LogicalRelation.Irrelevance R
 open import Definition.LogicalRelation.Properties R
@@ -39,7 +40,7 @@ open import Definition.Untyped.Properties M
 
 open import Tools.Fin
 open import Tools.Function
-open import Tools.Nat using (Nat; 1+)
+open import Tools.Nat using (Nat; 1+; ≤′-refl; ≤′-step; <→≤)
 open import Tools.Product
 import Tools.PropositionalEquality as PE
 open import Tools.Reasoning.PropositionalEquality
@@ -82,7 +83,7 @@ opaque
     , (λ (⊩Π , rest) →
          case B-elim _ ⊩Π of λ
            ⊩Π′ →
-         B-intr _ ⊩Π′ , lemma₂ refl ⊩Π′ rest)
+         B-intr _ ⊩Π′ , lemma₂ ≤′-refl ⊩Π′ rest)
     where
     lemma₁ :
       (⊩Π : Γ ⊩⟨ l ⟩B⟨ BΠ p q ⟩ Π p , q ▷ A ▹ B) →
@@ -96,15 +97,21 @@ opaque
       Δ ⊩⟨ l ⟩ v₁ ≡ v₂ ∷ wk ρ A →
       Δ ⊩⟨ l ⟩ wk ρ u ∘⟨ p ⟩ v₁ ≡ wk ρ u ∘⟨ p ⟩ v₂ ∷
         wk (lift ρ) B [ v₁ ]₀
-    lemma₁ (emb 0<1 ⊩Π) ⊩t =
-      case lemma₁ ⊩Π ⊩t of λ
+    lemma₁ (emb ≤′-refl ⊩Π) ⊩t =
+      case lemma₁ ⊩Π  ⊩t  of λ
         (u , t⇒*u , u-fun , u≅u , rest) →
         u , t⇒*u , u-fun , u≅u
       , λ ρ⊇ ⊢Δ v₁≡v₂ →
-          emb-⊩≡∷ (emb 0<1) $ rest ρ⊇ ⊢Δ $
+          emb-⊩≡∷ (≤′-step ≤′-refl) $ rest ρ⊇ ⊢Δ $
           level-⊩≡∷
             (⊩ΠΣ⇔ .proj₁ (B-intr _ ⊩Π) .proj₂ .proj₂ ρ⊇ ⊢Δ .proj₁)
             v₁≡v₂
+    lemma₁ (emb (≤′-step l<) ⊩Π) ⊩t =
+      let u , t⇒*u , u-fun , u≅u , rest = lemma₁ (emb l< ⊩Π) ⊩t in
+        u , t⇒*u , u-fun , u≅u , λ ρ⊇ ⊢Δ v₁≡v₂ →
+          emb-⊩≡∷ (≤′-step ≤′-refl) $ rest ρ⊇ ⊢Δ $
+            level-⊩≡∷ (⊩ΠΣ⇔ .proj₁ (B-intr _ (emb l< ⊩Π))
+            .proj₂ .proj₂ ρ⊇ ⊢Δ .proj₁) v₁≡v₂
     lemma₁
       {l} ⊩Π@(noemb (Bᵣ _ _ Π⇒*Π _ _ _ ⊩wk-A ⊩wk-B _ _))
       (u , t⇒*u , u-fun , u≅u , u∘≡u∘ , u∷) =
@@ -148,9 +155,9 @@ opaque
        Δ ⊩⟨ l ⟩ wk ρ u ∘⟨ p ⟩ v₁ ≡ wk ρ u ∘⟨ p ⟩ v₂ ∷
          wk (lift ρ) B [ v₁ ]₀) →
       Γ ⊩⟨ l′ ⟩ t ∷ Π p , q ▷ A ▹ B / B-intr (BΠ p q) ⊩Π
-    lemma₂ ¹≤l (emb 0<1 ⊩Π) rest =
-      irrelevanceTerm (B-intr _ ⊩Π) (B-intr _ (emb 0<1 ⊩Π)) $
-      lemma₂ (≤-trans (emb 0<1) ¹≤l) ⊩Π rest
+    lemma₂ ¹≤l (emb l< ⊩Π) rest =
+      irrelevanceTerm (B-intr _ ⊩Π) (B-intr _ (emb l< ⊩Π)) $
+      lemma₂ (≤-trans (<→≤ l<) ¹≤l) ⊩Π rest
     lemma₂
       l′≤l ⊩Π@(noemb (Bᵣ _ _ Π⇒*Π _ _ _ ⊩wk-A ⊩wk-B _ _))
       (u , t⇒*u , u-fun , u≅u , rest) =
@@ -160,7 +167,7 @@ opaque
         u , t⇒*u , u-fun , u≅u
       , (λ ρ⊇ ⊢Δ ⊩v₁ ⊩v₂ v₁≡v₂ →
            let ⊩wk-ρ-A = ⊩wk-A ρ⊇ ⊢Δ in
-           case emb-⊩ l′≤l ⊩wk-ρ-A of λ
+           case emb-⊩≤ l′≤l  ⊩wk-ρ-A of λ
              ⊩wk-ρ-A′ →
            ⊩≡∷→⊩≡∷/ (⊩wk-B ρ⊇ ⊢Δ ⊩v₁) $
            rest ρ⊇ ⊢Δ
@@ -171,7 +178,7 @@ opaque
              ))
       , (λ ρ⊇ ⊢Δ ⊩v →
            let ⊩wk-ρ-A = ⊩wk-A ρ⊇ ⊢Δ in
-           case emb-⊩ l′≤l ⊩wk-ρ-A of λ
+           case emb-⊩≤  l′≤l ⊩wk-ρ-A of λ
              ⊩wk-ρ-A′ →
            ⊩∷→⊩∷/ (⊩wk-B ρ⊇ ⊢Δ ⊩v) $
            proj₁ $ wf-⊩≡∷ $
@@ -206,7 +213,7 @@ opaque
     , (λ (⊩Π , rest) →
          case B-elim _ ⊩Π of λ
            ⊩Π′ →
-         B-intr _ ⊩Π′ , lemma₂ refl ⊩Π′ rest)
+         B-intr _ ⊩Π′ , lemma₂ ≤′-refl ⊩Π′ rest)
     where
     lemma₁ :
       (⊩Π : Γ ⊩⟨ l ⟩B⟨ BΠ p q ⟩ Π p , q ▷ A ▹ B) →
@@ -222,14 +229,23 @@ opaque
       Δ ⊩⟨ l ⟩ v₁ ≡ v₂ ∷ wk ρ A →
       Δ ⊩⟨ l ⟩ wk ρ u₁ ∘⟨ p ⟩ v₁ ≡ wk ρ u₂ ∘⟨ p ⟩ v₂ ∷
         wk (lift ρ) B [ v₁ ]₀
-    lemma₁ (emb 0<1 ⊩Π) t₁≡t₂ =
+    lemma₁ (emb ≤′-refl ⊩Π) t₁≡t₂ =
       case lemma₁ ⊩Π t₁≡t₂ of λ
         (u₁ , u₂ , t₁⇒*u₁ , t₂⇒*u₂ , u₁-fun , u₂-fun , u₁≅u₂ , rest) →
         u₁ , u₂ , t₁⇒*u₁ , t₂⇒*u₂ , u₁-fun , u₂-fun , u₁≅u₂
       , λ ρ⊇ ⊢Δ v₁≡v₂ →
-          emb-⊩≡∷ (emb 0<1) $ rest ρ⊇ ⊢Δ $
+          emb-⊩≡∷ (≤′-step ≤′-refl) $ rest ρ⊇ ⊢Δ $
           level-⊩≡∷
             (⊩ΠΣ⇔ .proj₁ (B-intr _ ⊩Π) .proj₂ .proj₂ ρ⊇ ⊢Δ .proj₁)
+            v₁≡v₂
+    lemma₁ (emb (≤′-step l<) ⊩Π) t₁≡t₂ =
+      case lemma₁ (emb l< ⊩Π) t₁≡t₂ of λ
+        (u₁ , u₂ , t₁⇒*u₁ , t₂⇒*u₂ , u₁-fun , u₂-fun , u₁≅u₂ , rest) →
+        u₁ , u₂ , t₁⇒*u₁ , t₂⇒*u₂ , u₁-fun , u₂-fun , u₁≅u₂
+      , λ ρ⊇ ⊢Δ v₁≡v₂ →
+          emb-⊩≡∷ (≤′-step ≤′-refl) $ rest ρ⊇ ⊢Δ $
+          level-⊩≡∷
+            (⊩ΠΣ⇔ .proj₁ (B-intr _ (emb l< ⊩Π)) .proj₂ .proj₂ ρ⊇ ⊢Δ .proj₁)
             v₁≡v₂
     lemma₁
       {l} ⊩Π@(noemb (Bᵣ _ _ Π⇒*Π _ _ _ ⊩wk-A ⊩wk-B _ _))
@@ -289,11 +305,11 @@ opaque
       Γ ⊩⟨ l′ ⟩ t₁ ∷ Π p , q ▷ A ▹ B / ⊩Π′ ×
       Γ ⊩⟨ l′ ⟩ t₂ ∷ Π p , q ▷ A ▹ B / ⊩Π′ ×
       Γ ⊩⟨ l′ ⟩ t₁ ≡ t₂ ∷ Π p , q ▷ A ▹ B / ⊩Π′
-    lemma₂ ¹≤l (emb 0<1 ⊩Π) rest =
+    lemma₂ ¹≤l (emb l< ⊩Π) rest =
       let ⊩Π₁ = B-intr _ ⊩Π
-          ⊩Π₂ = B-intr _ (emb 0<1 ⊩Π)
+          ⊩Π₂ = B-intr _ (emb l< ⊩Π)
       in
-      case lemma₂ (≤-trans (emb 0<1) ¹≤l) ⊩Π rest of λ
+      case lemma₂ (≤-trans (<→≤ l<) ¹≤l) ⊩Π rest of λ
         (⊩t₁ , ⊩t₂ , t₁≡t₂) →
         irrelevanceTerm ⊩Π₁ ⊩Π₂ ⊩t₁
       , irrelevanceTerm ⊩Π₁ ⊩Π₂ ⊩t₂

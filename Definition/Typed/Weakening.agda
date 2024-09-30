@@ -100,6 +100,7 @@ mutual
          let ρA = U.wk ρ A
              ρt = U.wk ρ t
          in ⊢ Δ → Γ ⊢ t ∷ A → Δ ⊢ ρt ∷ ρA
+  wkTerm ρ ⊢Δ (Uⱼ ⊢Γ) = Uⱼ ⊢Δ
   wkTerm ρ ⊢Δ (ℕⱼ ⊢Γ) = ℕⱼ ⊢Δ
   wkTerm ρ ⊢Δ (Emptyⱼ ⊢Γ) = Emptyⱼ ⊢Δ
   wkTerm ρ ⊢Δ (Unitⱼ ⊢Γ ok) = Unitⱼ ⊢Δ ok

@@ -17,6 +17,7 @@ open EqRelSet eqrel
 open Type-restrictions R
 
 open import Definition.LogicalRelation R
+open import Definition.LogicalRelation.Kit R
 open import Definition.LogicalRelation.Hidden R
 open import Definition.LogicalRelation.Irrelevance R
 open import Definition.LogicalRelation.Properties R
@@ -36,7 +37,9 @@ open import Definition.Untyped.Neutral M type-variant
 open import Definition.Untyped.Properties M
 
 open import Tools.Function
-open import Tools.Nat using (Nat; 1+)
+open import Tools.Nat using
+  (Nat; 1+; ≤′-trans; ≤′-refl; ≤′-step; ⊔-mono-<; <⇒<′; <′⇒<; <→≤;
+  m≤n⇒m≤n⊔o′; m≤n⇒m≤o⊔n′)
 open import Tools.Product
 import Tools.PropositionalEquality as PE
 import Tools.Reasoning.PropositionalEquality
@@ -47,7 +50,7 @@ private variable
   A A₁ A₂ B B₁ B₂ C t t₁ t₂ : Term _
   σ σ₁ σ₂                   : Subst _ _
   p p₁ p₂ q q₁ q₂           : M
-  l l′                      : TypeLevel
+  l l′ l″ l‴                : TypeLevel
   b b₁ b₂                   : BinderMode
 
 ------------------------------------------------------------------------
@@ -124,7 +127,7 @@ opaque
       , λ ρ⊇ ⊢Δ →
           case rest ρ⊇ ⊢Δ of λ
             (⊩A , B≡B) →
-          emb 0<1 ⊩A , emb-⊩≡ (emb 0<1) ∘→ B≡B ∘→ level-⊩≡∷ ⊩A
+          emb 0<1 (PE.subst (λ k → LogRelKit._⊩_ k _ _) (kit≡kit′ 0<1) ⊩A)  ,  emb-⊩≡ (<→≤ 0<1) ∘→ B≡B ∘→ level-⊩≡∷ ⊩A
     lemma (noemb (Bᵣ _ _ ⇒*ΠΣ ⊢A _ _ ⊩wk-A ⊩wk-B wk-B≡wk-B ok)) =
       case B-PE-injectivity _ _ $ whnfRed* (red ⇒*ΠΣ) ΠΣₙ of λ {
         (PE.refl , PE.refl , _) →
@@ -186,7 +189,7 @@ opaque
          case B-elim _ ⊩ΠΣ of λ
            ⊩ΠΣ′ →
            ⊩ΠΣ , ⊩C
-         , lemma₁ refl ⊩ΠΣ′ ⊩C (irrelevanceEq ⊩ΠΣ (B-intr _ ⊩ΠΣ′) ΠΣ≡C))
+         , lemma₁ ≤′-refl ⊩ΠΣ′ ⊩C (irrelevanceEq ⊩ΠΣ (B-intr _ ⊩ΠΣ′) ΠΣ≡C))
     , (λ (⊩ΠΣ , ⊩C , _ , _ , C⇒* , rest) →
          case B-elim _ ⊩ΠΣ of λ
            ⊩ΠΣ′ →
@@ -204,8 +207,9 @@ opaque
        (∀ {t} →
         Δ ⊩⟨ l ⟩ t ∷ wk ρ A →
         Δ ⊩⟨ l ⟩ wk (lift ρ) B [ t ]₀ ≡ wk (lift ρ) B′ [ t ]₀))
-    lemma₁ ¹≤l (emb 0<1 ⊩ΠΣ) ⊩C ΠΣ≡C =
-      lemma₁ (≤-trans (emb 0<1) ¹≤l) ⊩ΠΣ ⊩C ΠΣ≡C
+    lemma₁ ¹≤l (emb l< ⊩ΠΣ₁) ⊩ΠΣ₂ ΠΣ≡ΠΣ =
+                    lemma₁ (≤′-trans (<→≤ l<) ¹≤l) ⊩ΠΣ₁ ⊩ΠΣ₂
+                    (irrelevanceEq (B-intr _ (emb l< ⊩ΠΣ₁)) (B-intr _ ⊩ΠΣ₁) ΠΣ≡ΠΣ)
     lemma₁
       l′≤l (noemb (Bᵣ _ _ ⇒*ΠΣ ⊢A _ _ ⊩wk-A ⊩wk-B _ ok)) ⊩C
       (B₌ _ _ ⇒*ΠΣ′ _ wk-A≡wk-A′ wk-B≡wk-B′) =
@@ -246,8 +250,8 @@ opaque
         Δ ⊩⟨ l ⟩ t ∷ wk ρ A₁ →
         Δ ⊩⟨ l ⟩ wk (lift ρ) B₁ [ t ]₀ ≡ wk (lift ρ) B₂ [ t ]₀)) →
       Γ ⊩⟨ l′ ⟩ ΠΣ⟨ b ⟩ p , q ▷ A₁ ▹ B₁ ≡ C / B-intr _ ⊩ΠΣ
-    lemma₂ (emb 0<1 ⊩ΠΣ₁) C⇒* rest =
-      lemma₂ ⊩ΠΣ₁ C⇒* rest
+    lemma₂ (emb ≤′-refl ⊩ΠΣ₁) C⇒* rest = lemma₂ ⊩ΠΣ₁ C⇒* rest
+    lemma₂ (emb (≤′-step l<) ⊩ΠΣ₁) C⇒* rest = lemma₂ (emb l< ⊩ΠΣ₁) C⇒* rest
     lemma₂
       {B₁} {B₂} (noemb ⊩ΠΣ₁@(Bᵣ _ _ ⇒*ΠΣ₁ ⊢A₁ _ _ ⊩wk-A₁ ⊩wk-B₁ _ ok))
       C⇒* rest =
@@ -551,17 +555,19 @@ opaque
 
   ⊩ΠΣ≡ΠΣ∷U :
     ΠΣ-allowed b p q →
-    Γ ⊩ᵛ⟨ l ⟩ A₁ ≡ A₂ ∷ U →
-    Γ ∙ A₁ ⊩ᵛ⟨ l′ ⟩ B₁ ≡ B₂ ∷ U →
+    Γ ⊩ᵛ⟨ l ⟩ A₁ ≡ A₂ ∷ U l″ →
+    Γ ∙ A₁ ⊩ᵛ⟨ l′ ⟩ B₁ ≡ B₂ ∷ U l‴ →
     Δ ⊩ˢ σ₁ ≡ σ₂ ∷ Γ →
-    Δ ⊩⟨ l ⟩ (ΠΣ⟨ b ⟩ p , q ▷ A₁ ▹ B₁) [ σ₁ ] ≡
-      (ΠΣ⟨ b ⟩ p , q ▷ A₂ ▹ B₂) [ σ₂ ] ∷ U
-  ⊩ΠΣ≡ΠΣ∷U ok A₁≡A₂∷U B₁≡B₂∷U σ₁≡σ₂ =
+    Δ ⊩⟨ l ⊔T l′ ⟩ (ΠΣ⟨ b ⟩ p , q ▷ A₁ ▹ B₁) [ σ₁ ] ≡
+      (ΠΣ⟨ b ⟩ p , q ▷ A₂ ▹ B₂) [ σ₂ ] ∷ U (l″ ⊔T l‴)
+  ⊩ΠΣ≡ΠΣ∷U {l″ = l″} {l‴ = l‴} ok A₁≡A₂∷U B₁≡B₂∷U σ₁≡σ₂ =
     case ⊩∷U⇔ .proj₁ (⊩ᵛ∷→⊩∷ (wf-⊩ᵛ≡∷ A₁≡A₂∷U .proj₁)) of λ
-      ((l″ , l″<l , _) , _) →
-    case ⊩ᵛ≡∷U→⊩ᵛ≡ {l′ = l″} A₁≡A₂∷U of λ
+      (l″<l , _ , _ , _) →
+    case ⊩∷U⇔ .proj₁ (⊩ᵛ∷→⊩∷ (wf-⊩ᵛ≡∷ B₁≡B₂∷U .proj₁)) of λ
+      (l‴<l′ , _ , _ , _) →
+    case ⊩ᵛ≡∷U→⊩ᵛ≡ A₁≡A₂∷U of λ
       A₁≡A₂ →
-    case ⊩ᵛ≡∷U→⊩ᵛ≡ {l′ = l″} B₁≡B₂∷U of λ
+    case ⊩ᵛ≡∷U→⊩ᵛ≡ B₁≡B₂∷U of λ
       B₁≡B₂ →
     case ⊩ᵛ≡∷⇔ .proj₁ A₁≡A₂∷U .proj₂ σ₁≡σ₂ of λ
       A₁[σ₁]≡A₂[σ₂]∷U →
@@ -579,39 +585,66 @@ opaque
     case escape-⊩∷ ⊩B₁[σ₁] of λ
       ⊢B₁[σ₁] →
     Type→⊩≡∷U⇔ ΠΣₙ ΠΣₙ .proj₂
-      ( ΠΣⱼ ⊢A₁[σ₁] ⊢B₁[σ₁] ok
-      , ΠΣⱼ (escape-⊩∷ ⊩A₂[σ₂]) (escape-⊩∷ ⊩B₂[σ₂]) ok
-      , ≅ₜ-ΠΣ-cong (univ ⊢A₁[σ₁]) (escape-⊩≡∷ A₁[σ₁]≡A₂[σ₂]∷U)
+      (let l<₁ , _ = ⊩∷U⇔ .proj₁ ⊩A₁[σ₁]
+           l<₂ , _ = ⊩∷U⇔ .proj₁ ⊩B₁[σ₁]
+           in <⇒<′ (⊔-mono-< (<′⇒< l<₁) (<′⇒< l<₂)) ,
+           ⊩ᵛ≡⇔ .proj₁ (ΠΣ-congᵛ ok
+           (emb-⊩ᵛ≡ (m≤n⇒m≤n⊔o′ l‴ ≤′-refl) A₁≡A₂)
+           (emb-⊩ᵛ≡ (m≤n⇒m≤o⊔n′ l″ ≤′-refl) B₁≡B₂))
+           .proj₂ σ₁≡σ₂
+         , ΠΣⱼ ⊢A₁[σ₁] ⊢B₁[σ₁] ok ,
+           ΠΣⱼ (escape-⊩∷ ⊩A₂[σ₂]) (escape-⊩∷ ⊩B₂[σ₂]) ok ,
+           ≅ₜ-ΠΣ-cong (univ ⊢A₁[σ₁]) (escape-⊩≡∷ A₁[σ₁]≡A₂[σ₂]∷U)
           (escape-⊩≡∷ B₁[σ₁⇑]≡B₂[σ₂⇑]∷U) ok
-      , ( _ , l″<l
-        , ⊩ᵛ≡⇔ .proj₁ (ΠΣ-congᵛ ok A₁≡A₂ B₁≡B₂) .proj₂ σ₁≡σ₂
-        )
       )
 
 opaque
+  unfolding _⊩ᵛ⟨_⟩_∷_ _⊩ᵛ⟨_⟩_
 
   -- Validity of equality preservation for Π and Σ, seen as term
   -- formers.
 
   ΠΣ-congᵗᵛ :
     ΠΣ-allowed b p q →
-    Γ ⊩ᵛ⟨ l ⟩ A₁ ≡ A₂ ∷ U →
-    Γ ∙ A₁ ⊩ᵛ⟨ l′ ⟩ B₁ ≡ B₂ ∷ U →
-    Γ ⊩ᵛ⟨ l ⟩ ΠΣ⟨ b ⟩ p , q ▷ A₁ ▹ B₁ ≡ ΠΣ⟨ b ⟩ p , q ▷ A₂ ▹ B₂ ∷ U
-  ΠΣ-congᵗᵛ ok A₁≡A₂ B₁≡B₂ =
+    Γ ⊩ᵛ⟨ l ⟩ A₁ ≡ A₂ ∷ U l″ →
+    Γ ∙ A₁ ⊩ᵛ⟨ l′ ⟩ B₁ ≡ B₂ ∷ U l‴ →
+    Γ ⊩ᵛ⟨ l ⊔T l′ ⟩ ΠΣ⟨ b ⟩ p , q ▷ A₁ ▹ B₁ ≡ ΠΣ⟨ b ⟩ p , q ▷ A₂ ▹ B₂ ∷ U (l″ ⊔T l‴)
+  ΠΣ-congᵗᵛ {Γ} {l} {A₁} {A₂} {l″} {B₁} {B₂} {l‴} ok A₁≡A₂ B₁≡B₂ =
+    case wf-⊩ᵛ≡∷ A₁≡A₂ of λ
+      (⊩A₁ , ⊩A₂) →
+    case wf-⊩ᵛ≡∷ B₁≡B₂ of λ
+      (⊩B₁ , ⊩B₂) →
+    case conv-∙-⊩ᵛ∷ {B = A₂} (⊩ᵛ≡∷U→⊩ᵛ≡ A₁≡A₂) ⊩B₂ of λ
+      ⊩B₂ →
     ⊩ᵛ≡∷⇔ .proj₂
-      ( wf-⊩ᵛ∷ (wf-⊩ᵛ≡∷ A₁≡A₂ .proj₁)
+      (  ⊩ᵛU< (wf-⊩ᵛ {A = U l″} (wf-⊩ᵛ∷ (wf-⊩ᵛ≡∷ A₁≡A₂ .proj₁)))
+              (<⇒<′ (⊔-mono-< (<′⇒< (lemma1 (wf-⊩ᵛ∷ (wf-⊩ᵛ≡∷ A₁≡A₂ .proj₁))))
+              (<′⇒< (lemma1 {Γ = Γ ∙ A₁} (wf-⊩ᵛ∷ (wf-⊩ᵛ≡∷ B₁≡B₂ .proj₁))))))
       , ⊩ΠΣ≡ΠΣ∷U ok A₁≡A₂ B₁≡B₂
       )
+    where
+      lemma1 : {l l′ : TypeLevel} {n : Nat} {Γ : Con Term n}
+                  → Γ ⊩ᵛ⟨ l ⟩ U l′ → l′ < l
+      lemma1 ⊩ᵛU = proj₁ (⊩U⇔ .proj₁ (⊩ᵛ→⊩ ⊩ᵛU))
 
 opaque
+  unfolding _⊩ᵛ⟨_⟩_∷_
 
   -- Validity of Π and Σ, seen as term formers.
 
   ΠΣᵗᵛ :
+    {A : Term n} {B : Term (1+ n)} →
     ΠΣ-allowed b p q →
-    Γ ⊩ᵛ⟨ l ⟩ A ∷ U →
-    Γ ∙ A ⊩ᵛ⟨ l′ ⟩ B ∷ U →
-    Γ ⊩ᵛ⟨ l ⟩ ΠΣ⟨ b ⟩ p , q ▷ A ▹ B ∷ U
-  ΠΣᵗᵛ ok ⊩A ⊩B =
-    ⊩ᵛ∷⇔⊩ᵛ≡∷ .proj₂ $ ΠΣ-congᵗᵛ ok (refl-⊩ᵛ≡∷ ⊩A) (refl-⊩ᵛ≡∷ ⊩B)
+    Γ ⊩ᵛ⟨ l ⟩ A ∷ U l″ →
+    Γ ∙ A ⊩ᵛ⟨ l′ ⟩ B ∷ U l‴ →
+    Γ ⊩ᵛ⟨ l ⊔T l′ ⟩ ΠΣ⟨ b ⟩ p , q ▷ A ▹ B ∷ U (l″ ⊔T l‴)
+  ΠΣᵗᵛ {A} {B} ok ⊩A ⊩B =
+    ⊩ᵛ∷⇔ {t = ΠΣ⟨ _ ⟩ _ , _ ▷ A ▹ B} .proj₂
+      let ⊩AU = wf-⊩ᵛ∷ (wf-⊩ᵛ≡∷ ⊩A .proj₁)
+          ⊩BU = wf-⊩ᵛ∷ (wf-⊩ᵛ≡∷ ⊩B .proj₁)
+      in ( ⊩ᵛU< (wf-⊩ᵛ ⊩AU) (<⇒<′ (⊔-mono-< (<′⇒< (lemma1 ⊩AU) ) (<′⇒< (lemma1 ⊩BU))))
+      , ⊩ΠΣ≡ΠΣ∷U {B₁ = B} ok (refl-⊩ᵛ≡∷ ⊩A) (refl-⊩ᵛ≡∷ ⊩B)
+      )
+    where
+      lemma1 : Γ ⊩ᵛ⟨ l ⟩ gen (Ukind l′) [] → l′ < l
+      lemma1 ⊩ᵛU = proj₁ (⊩U⇔ .proj₁ (⊩ᵛ→⊩ ⊩ᵛU))

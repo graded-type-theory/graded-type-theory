@@ -29,7 +29,7 @@ open import Tools.Product
 
 private
   variable
-    n : Nat
+    n l : Nat
     Γ : Con Term n
     A B C : Term n
     a t t₁ t₂ t′ u v v₁ v₂ r : Term n
@@ -85,7 +85,7 @@ opaque
   conv↘∷ (t⇒*u , u-whnf) A≡B = conv* t⇒*u A≡B , u-whnf
 
 -- Universe of reduction closures
-univ* : Γ ⊢ A ⇒* B ∷ U → Γ ⊢ A ⇒* B
+univ* : Γ ⊢ A ⇒* B ∷ U l → Γ ⊢ A ⇒* B
 univ* (id x) = id (univ x)
 univ* (x ⇨ A⇒B) = univ x ⇨ univ* A⇒B
 
@@ -93,7 +93,7 @@ opaque
 
   -- A variant of univ*.
 
-  univ:*: : Γ ⊢ A :⇒*: B ∷ U → Γ ⊢ A :⇒*: B
+  univ:*: : Γ ⊢ A :⇒*: B ∷ U l → Γ ⊢ A :⇒*: B
   univ:*: [ ⊢A , ⊢B , A⇒*B ] = [ univ ⊢A , univ ⊢B , univ* A⇒*B ]
 
 -- Application substitution of reduction closures

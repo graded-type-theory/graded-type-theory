@@ -17,6 +17,7 @@ open import Definition.LogicalRelation.Properties.Reflexivity R public
 open import Definition.LogicalRelation.Properties.Symmetry R public
 open import Definition.LogicalRelation.Properties.Transitivity R public
 open import Definition.LogicalRelation.Properties.Conversion R public
+open import Definition.LogicalRelation.Properties.Cumulativity R public
 open import Definition.LogicalRelation.Properties.Escape R public
 open import Definition.LogicalRelation.Properties.Universe R public
 open import Definition.LogicalRelation.Properties.Neutral R public

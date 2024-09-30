@@ -34,7 +34,7 @@ open import Tools.Sum
 
 private
   variable
-    k n : Nat
+    k n l : Nat
     γ χ : Conₘ n
     p q r : M
     A B F t t′ u v z n' : Term n
@@ -45,7 +45,7 @@ private
 
 -- If γ ▸[ m ] U then γ ≤ᶜ 𝟘ᶜ.
 
-inv-usage-U : γ ▸[ m ] U → γ ≤ᶜ 𝟘ᶜ
+inv-usage-U : γ ▸[ m ] U l → γ ≤ᶜ 𝟘ᶜ
 inv-usage-U Uₘ = ≤ᶜ-refl
 inv-usage-U (sub γ▸U γ≤δ) = ≤ᶜ-trans γ≤δ (inv-usage-U γ▸U)
 

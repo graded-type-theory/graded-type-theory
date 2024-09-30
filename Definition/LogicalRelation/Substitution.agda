@@ -1257,6 +1257,19 @@ opaque
 
 opaque
 
+  -- Embedding for _⊩ᵛ⟨_⟩_≡_.
+
+  emb-⊩ᵛ≡ :
+    l ≤ l′ →
+    Γ ⊩ᵛ⟨ l ⟩ t ≡ u →
+    Γ ⊩ᵛ⟨ l′ ⟩ t ≡ u
+  emb-⊩ᵛ≡ l≤l′ t≡u =
+    let ⊩t , ⊩u = wf-⊩ᵛ≡ t≡u
+    in level-⊩ᵛ≡ (emb-⊩ᵛ l≤l′ ⊩t) (emb-⊩ᵛ l≤l′ ⊩u) t≡u
+
+
+opaque
+
   -- Embedding for _⊩ᵛ⟨_⟩_∷_.
 
   emb-⊩ᵛ∷ :
@@ -1265,6 +1278,18 @@ opaque
     Γ ⊩ᵛ⟨ l′ ⟩ t ∷ A
   emb-⊩ᵛ∷ l≤l′ ⊩t =
     level-⊩ᵛ∷ (emb-⊩ᵛ l≤l′ (wf-⊩ᵛ∷ ⊩t)) ⊩t
+
+opaque
+
+  -- Embedding for _⊩ᵛ⟨_⟩_≡_∷_.
+
+  emb-⊩ᵛ≡∷ :
+    l ≤ l′ →
+    Γ ⊩ᵛ⟨ l ⟩ t ≡ u ∷ A →
+    Γ ⊩ᵛ⟨ l′ ⟩ t ≡ u ∷ A
+  emb-⊩ᵛ≡∷ l≤l′ t≡u∷A =
+    let ⊩A = wf-⊩ᵛ∷ (wf-⊩ᵛ≡∷ t≡u∷A .proj₁)
+    in level-⊩ᵛ≡∷ (emb-⊩ᵛ l≤l′ ⊩A) t≡u∷A
 
 ------------------------------------------------------------------------
 -- Weakening

@@ -6,6 +6,7 @@ open import Definition.Typed.EqualityRelation
 open import Definition.Typed.Restrictions
 open import Graded.Modality
 
+
 module Definition.LogicalRelation.Irrelevance
   {a} {M : Set a}
   {𝕄 : Modality M}
@@ -26,7 +27,7 @@ open import Definition.LogicalRelation R
 open import Definition.LogicalRelation.ShapeView R
 
 open import Tools.Function
-open import Tools.Nat
+open import Tools.Nat hiding (_<_)
 open import Tools.Product
 import Tools.PropositionalEquality as PE
 
@@ -109,7 +110,8 @@ mutual
                                          ([F]₁ [ρ] ⊢Δ) ([F] [ρ] ⊢Δ) [a]₁
               in  irrelevanceEq′ (PE.cong (λ y → wk (lift ρ) y [ _ ]) G≡G₁)
                                  ([G] [ρ] ⊢Δ [a]) ([G]₁ [ρ] ⊢Δ [a]₁) ([G≡G′] [ρ] ⊢Δ [a]))
-  irrelevanceEqT (Uᵥ (Uᵣ _ _ _) (Uᵣ _ _ _)) A≡B = A≡B
+  irrelevanceEqT (Uᵥ (Uᵣ _ _ D1) (Uᵣ _ _ D2)) A≡B
+    rewrite whrDet* (red D1 , Uₙ) (red D2 , Uₙ) = A≡B
   irrelevanceEqT (Idᵥ ⊩A ⊩A′) A≡B =
     case
       whrDet* (red (_⊩ₗId_.⇒*Id ⊩A) , Idₙ) (red (_⊩ₗId_.⇒*Id ⊩A′) , Idₙ)
@@ -133,8 +135,10 @@ mutual
       } }
     where
     open _⊩ₗId_≡_/_ A≡B
-  irrelevanceEqT (emb⁰¹ x) A≡B = irrelevanceEqT x A≡B
-  irrelevanceEqT (emb¹⁰ x) A≡B = irrelevanceEqT x A≡B
+  irrelevanceEqT (embl- .≤′-refl (refl-emb _) x) A≡B = irrelevanceEqT x A≡B
+  irrelevanceEqT (embl- .(≤′-step _) (step-emb _ _ e) x) A≡B = irrelevanceEqT (embl- _ e x) A≡B
+  irrelevanceEqT (emb-l .≤′-refl (refl-emb _) x) A≡B = irrelevanceEqT x A≡B
+  irrelevanceEqT (emb-l .(≤′-step _) (step-emb _ _ e) x) A≡B = irrelevanceEqT (emb-l _ e x) A≡B
 
 --------------------------------------------------------------------------------
 
@@ -241,7 +245,14 @@ mutual
     in  Σₜ p (PE.subst (λ x → Γ ⊢ t :⇒*: p ∷ x) ΣFG≡ΣF₁G₁ d)
            (PE.subst (λ x →  Γ ⊢ p ≅ p ∷ x) ΣFG≡ΣF₁G₁ p≅p) (ne x)
            (PE.subst (λ x → Γ ⊢ p ~ p ∷ x) ΣFG≡ΣF₁G₁ p~p)
-  irrelevanceTermT (Uᵥ (Uᵣ .⁰ 0<1 ⊢Γ) (Uᵣ .⁰ 0<1 ⊢Γ₁)) t = t
+  irrelevanceTermT (Uᵥ (Uᵣ _ l<1 ⇒*U1) (Uᵣ _ l<2 ⇒*U2)) (Uₜ A d typeA A≡A [t]) with whrDet* (red ⇒*U1 , Uₙ) (red  ⇒*U2 ,  Uₙ)
+  irrelevanceTermT (Uᵥ (Uᵣ _ l<1 ⇒*U1) (Uᵣ _ l<2 ⇒*U2)) (Uₜ A d typeA A≡A [t]) | PE.refl = Uₜ A d typeA A≡A (helper l<1 l<2 [t])
+    where
+      helper : {l l' l'' : TypeLevel} (p : l < l') → (q : l < l'') → LogRelKit._⊩_ (kit′ p) _ _ → LogRelKit._⊩_ (kit′ q) _ _
+      helper ≤′-refl ≤′-refl t = t
+      helper p (≤′-step q) t = helper p q t
+      helper (≤′-step p) q t = helper p q t
+
   irrelevanceTermT (Idᵥ ⊩A ⊩A′) ⊩t@(_ , t⇒*u , _) =
     case
       whrDet* (red (_⊩ₗId_.⇒*Id ⊩A) , Idₙ) (red (_⊩ₗId_.⇒*Id ⊩A′) , Idₙ)
@@ -255,8 +266,10 @@ mutual
              rflₙ
            , irrelevanceEqTerm
                (_⊩ₗId_.⊩Ty ⊩A) (_⊩ₗId_.⊩Ty ⊩A′) lhs≡rhs) }
-  irrelevanceTermT (emb⁰¹ x) t = irrelevanceTermT x t
-  irrelevanceTermT (emb¹⁰ x) t = irrelevanceTermT x t
+  irrelevanceTermT (embl- .≤′-refl (refl-emb _) x) t = irrelevanceTermT x t
+  irrelevanceTermT (embl- .(≤′-step _) (step-emb _ _ e) x) t = irrelevanceTermT (embl- _ e x) t
+  irrelevanceTermT (emb-l .≤′-refl (refl-emb _) x) t = irrelevanceTermT x t
+  irrelevanceTermT (emb-l .(≤′-step _) (step-emb _ _ e) x) t = irrelevanceTermT (emb-l _ e x) t
 
 --------------------------------------------------------------------------------
 
@@ -385,7 +398,26 @@ mutual
             (PE.subst (λ x → Γ ⊢ p ≅ r ∷ x) ΣFG≡ΣF₁G₁ p≅r)
             (irrelevanceTerm [A] [A]₁ [t]) (irrelevanceTerm [A] [A]₁ [u])
             p~r′
-  irrelevanceEqTermT (Uᵥ (Uᵣ .⁰ 0<1 ⊢Γ) (Uᵣ .⁰ 0<1 ⊢Γ₁)) t≡u = t≡u
+  irrelevanceEqTermT (Uᵥ (Uᵣ _ l<1 ⇒*U1) (Uᵣ _ l<2 ⇒*U2))
+    (Uₜ₌ A B d d′ typeA typeB A≡B [t] [u] [t≡u])
+    with whrDet* (red ⇒*U1 , Uₙ) (red  ⇒*U2 ,  Uₙ)
+  irrelevanceEqTermT (Uᵥ (Uᵣ _ l<1 ⇒*U1) (Uᵣ _ l<2 ⇒*U2))
+    (Uₜ₌ A B d d′ typeA typeB A≡B [t] [u] [t≡u]) | PE.refl =
+        Uₜ₌ A B d d′ typeA typeB A≡B (helper l<1 l<2 [t]) (helper l<1 l<2 [u])
+          (helperEq l<1 l<2 [t] [t≡u])
+    where
+      helper : {Γ : Con Term n} {t : Term n} {l l' l'' : TypeLevel} (p : l < l') → (q : l < l'')
+                                        → LogRelKit._⊩_ (kit′ p) Γ t → LogRelKit._⊩_ (kit′ q) Γ t
+      helper ≤′-refl ≤′-refl t = t
+      helper p (≤′-step q) t = helper p q t
+      helper (≤′-step p) q t = helper p q t
+      helperEq : {Γ : Con Term n} {t u : Term n} {l l' l'' : TypeLevel} (p : l < l') → (q : l < l'')
+               ([t] : LogRelKit._⊩_ (kit′ p) Γ t) → LogRelKit._⊩_≡_/_ (kit′ p) Γ t u [t]
+                                    → LogRelKit._⊩_≡_/_ (kit′ q) Γ t u (helper p q [t])
+      helperEq ≤′-refl ≤′-refl [t] eq = eq
+      helperEq (≤′-step p) ≤′-refl [t] eq = helperEq p ≤′-refl [t] eq
+      helperEq ≤′-refl (≤′-step q) [t] eq = helperEq ≤′-refl q [t] eq
+      helperEq (≤′-step p) (≤′-step q) [t] eq = helperEq (≤′-step p) q [t] eq
   irrelevanceEqTermT (Idᵥ ⊩A ⊩A′) t≡u@(_ , _ , t⇒*t′ , u⇒*u′ , _) =
     case whrDet*
            (red (_⊩ₗId_.⇒*Id ⊩A) , Idₙ)
@@ -399,5 +431,7 @@ mutual
              rflₙ , rflₙ
            , irrelevanceEqTerm
                (_⊩ₗId_.⊩Ty ⊩A) (_⊩ₗId_.⊩Ty ⊩A′) lhs≡rhs) }
-  irrelevanceEqTermT (emb⁰¹ x) t≡u = irrelevanceEqTermT x t≡u
-  irrelevanceEqTermT (emb¹⁰ x) t≡u = irrelevanceEqTermT x t≡u
+  irrelevanceEqTermT (embl- .≤′-refl (refl-emb _) x) t≡u = irrelevanceEqTermT x t≡u
+  irrelevanceEqTermT (embl- .(≤′-step _) (step-emb _ _ e) x) t≡u = irrelevanceEqTermT (embl- _ e x) t≡u
+  irrelevanceEqTermT (emb-l .≤′-refl (refl-emb _) x) t≡u = irrelevanceEqTermT x t≡u
+  irrelevanceEqTermT (emb-l .(≤′-step _) (step-emb _ _ e) x) t≡u = irrelevanceEqTermT (emb-l _ e x) t≡u

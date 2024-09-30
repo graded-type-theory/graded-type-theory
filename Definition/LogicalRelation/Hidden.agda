@@ -18,6 +18,7 @@ open EqRelSet eqrel
 open Type-restrictions R
 
 open import Definition.LogicalRelation R
+open import Definition.LogicalRelation.Kit R hiding (emb-⊩)
 open import Definition.LogicalRelation.Irrelevance R
 open import Definition.LogicalRelation.Properties R
 open import Definition.LogicalRelation.ShapeView R
@@ -31,7 +32,7 @@ open import Definition.Untyped M
 open import Definition.Untyped.Neutral M type-variant
 
 open import Tools.Function
-open import Tools.Nat using (Nat)
+open import Tools.Nat using (Nat; 1+; ≤′-refl; ≤′-step; ≤→<s)
 open import Tools.Product
 import Tools.PropositionalEquality as PE
 
@@ -812,17 +813,17 @@ opaque
     l ≤ l′ →
     Γ ⊩⟨ l ⟩ A ≡ B →
     Γ ⊩⟨ l′ ⟩ A ≡ B
-  emb-⊩≡     refl       A≡B             = A≡B
-  emb-⊩≡ {Γ} (emb l<l′) (⊩A , ⊩B , A≡B) =
-      emb l<l′ (PE.subst (λ k → LogRelKit._⊩_ k _ _) (kit≡kit′ l<l′) ⊩A)
-    , emb l<l′ (PE.subst (λ k → LogRelKit._⊩_ k _ _) (kit≡kit′ l<l′) ⊩B)
-    , lemma (kit≡kit′ l<l′) A≡B
+  emb-⊩≡     ≤′-refl    A≡B             = A≡B
+  emb-⊩≡ {Γ} (≤′-step l<l′) (⊩A , ⊩B , A≡B) =
+      emb (≤→<s l<l′) (PE.subst (λ k → LogRelKit._⊩_ k _ _) (kit≡kit′ (≤→<s l<l′)) ⊩A)
+    , emb (≤→<s l<l′) (PE.subst (λ k → LogRelKit._⊩_ k _ _) (kit≡kit′ (≤→<s l<l′)) ⊩B)
+    , lemma (kit≡kit′ (≤→<s l<l′)) A≡B
     where
     lemma :
       {⊩A : LogRelKit._⊩_ k Γ A}
-      (eq : k PE.≡ kit′ l<l′) →
+      (eq : k PE.≡ kit′ (≤→<s l<l′)) →
       LogRelKit._⊩_≡_/_ k Γ A B ⊩A →
-      LogRelKit._⊩_≡_/_ (kit′ l<l′) Γ A B
+      LogRelKit._⊩_≡_/_ (kit′ (≤→<s l<l′)) Γ A B
         (PE.subst (λ k → LogRelKit._⊩_ k _ _) eq ⊩A)
     lemma PE.refl A≡B = A≡B
 
@@ -835,11 +836,13 @@ opaque
     l ≤ l′ →
     Γ ⊩⟨ l ⟩ t ≡ u ∷ A →
     Γ ⊩⟨ l′ ⟩ t ≡ u ∷ A
-  emb-⊩≡∷     refl       t≡u                  = t≡u
-  emb-⊩≡∷ {Γ} (emb l<l′) (⊩A , ⊩t , ⊩u , t≡u) =
-      emb l<l′ (PE.subst (λ k → LogRelKit._⊩_ k _ _) (kit≡kit′ l<l′) ⊩A)
-    , lemma₁ (kit≡kit′ l<l′) ⊩t , lemma₁ (kit≡kit′ l<l′) ⊩u
-    , lemma₂ (kit≡kit′ l<l′) t≡u
+
+  emb-⊩≡∷     ≤′-refl       t≡u                  = t≡u
+  emb-⊩≡∷ {Γ} (≤′-step l<l′) (⊩A , ⊩t , ⊩u , t≡u) =
+      emb (≤→<s l<l′) (PE.subst (λ k → LogRelKit._⊩_ k _ _) (kit≡kit′ (≤→<s l<l′)) ⊩A)
+    , lemma₁ {l<l′ = ≤→<s l<l′} (kit≡kit′ (≤→<s l<l′)) ⊩t
+    , lemma₁ {l<l′ = ≤→<s l<l′} (kit≡kit′ (≤→<s l<l′)) ⊩u
+    , lemma₂ (kit≡kit′ (≤→<s l<l′)) t≡u
     where
     lemma₁ :
       {l<l′ : l < l′} {⊩A : LogRelKit._⊩_ k Γ A}
@@ -851,11 +854,12 @@ opaque
 
     lemma₂ :
       {⊩A : LogRelKit._⊩_ k Γ A}
-      (eq : k PE.≡ kit′ l<l′) →
+      (eq : k PE.≡ kit′ (≤→<s l<l′)) →
       LogRelKit._⊩_≡_∷_/_ k Γ t u A ⊩A →
-      LogRelKit._⊩_≡_∷_/_ (kit′ l<l′) Γ t u A
+      LogRelKit._⊩_≡_∷_/_ (kit′ (≤→<s l<l′)) Γ t u A
         (PE.subst (λ k → LogRelKit._⊩_ k _ _) eq ⊩A)
     lemma₂ PE.refl t≡u = t≡u
+
 
 opaque
 
@@ -1010,8 +1014,10 @@ opaque
       (⊩A : Γ ⊩⟨ l ⟩ne A) →
       Γ ⊩⟨ l ⟩ t ∷ A / ne-intr ⊩A →
       ∃ λ u → Γ ⊢ t :⇒*: u ∷ A × Neutral u × Γ ⊢ u ~ u ∷ A
-    lemma (emb 0<1 ⊩A) ⊩t =
+    lemma (emb ≤′-refl ⊩A) ⊩t =
       lemma ⊩A ⊩t
+    lemma (emb (≤′-step l<) ⊩A) ⊩t =
+      lemma (emb l< ⊩A) ⊩t
     lemma (noemb (ne _ A⇒*A′ _ _)) (neₜ u t⇒*u (neNfₜ u-ne _ u~u)) =
       case whnfRed* (red A⇒*A′) (ne A-ne) of λ {
         PE.refl →
@@ -1045,8 +1051,10 @@ opaque
       (⊩A : Γ ⊩⟨ l ⟩ne A) →
       Γ ⊩⟨ l ⟩ A ≡ B / ne-intr ⊩A →
       ∃ λ C → Neutral C × (Γ ⊢ C) × Γ ⊢ B ⇒* C × Γ ⊢ A ≅ C
-    lemma (emb 0<1 ⊩A) A≡B =
+    lemma (emb ≤′-refl ⊩A) A≡B =
       lemma ⊩A A≡B
+    lemma (emb (≤′-step l<) ⊩A) A≡B =
+      lemma (emb l< ⊩A) A≡B
     lemma (noemb (ne _ A⇒*A′ _ _)) (ne₌ C [ _ , ⊢C , B⇒*C ] C-ne A′≅C) =
       case whnfRed* (red A⇒*A′) (ne A-ne) of λ {
         PE.refl →
@@ -1110,8 +1118,10 @@ opaque
       ∃₂ λ u₁ u₂ →
       Γ ⊢ t₁ :⇒*: u₁ ∷ A × Γ ⊢ t₂ :⇒*: u₂ ∷ A ×
       Γ ⊩neNf u₁ ≡ u₂ ∷ A
-    lemma (emb 0<1 ⊩A) t₁≡t₂ =
+    lemma (emb ≤′-refl ⊩A) t₁≡t₂ =
       lemma ⊩A t₁≡t₂
+    lemma (emb (≤′-step l<) ⊩A) t₁≡t₂ =
+      lemma (emb l< ⊩A) t₁≡t₂
     lemma (noemb (ne _ A⇒*A′ _ _)) (neₜ₌ u₁ u₂ t₁⇒*u₁ t₂⇒*u₂ u₁≡u₂) =
       case whnfRed* (red A⇒*A′) (ne A-ne) of λ {
         PE.refl →

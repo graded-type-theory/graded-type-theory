@@ -204,12 +204,14 @@ import Graded.Modality.Instances.Linearity.Good
 
 -- The logical relation for reducibility.
 import Definition.LogicalRelation
+import Definition.LogicalRelation.Kit
 import Definition.LogicalRelation.Properties.Whnf
 import Definition.LogicalRelation.Properties.Reflexivity
 import Definition.LogicalRelation.Properties.Escape
 import Definition.LogicalRelation.ShapeView
 import Definition.LogicalRelation.Irrelevance
 import Definition.LogicalRelation.Properties.Conversion
+import Definition.LogicalRelation.Properties.Cumulativity
 import Definition.LogicalRelation.Properties.MaybeEmb
 import Definition.LogicalRelation.Properties.Symmetry
 import Definition.LogicalRelation.Properties.Neutral

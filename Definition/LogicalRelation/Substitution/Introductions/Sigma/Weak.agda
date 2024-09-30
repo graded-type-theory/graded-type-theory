@@ -41,7 +41,7 @@ open import Tools.Empty
 open import Tools.Fin
 open import Tools.Function
 open import Tools.Level
-open import Tools.Nat using (Nat; 1+)
+open import Tools.Nat using (Nat; 1+; ≤′-refl; ≤′-step)
 open import Tools.Product
 import Tools.PropositionalEquality as PE
 open import Tools.Reasoning.PropositionalEquality
@@ -111,13 +111,22 @@ opaque
       Γ ⊢ t :⇒*: u ∷ Σʷ p , q ▷ A ▹ B ×
       Γ ⊢ u ≅ u ∷ Σʷ p , q ▷ A ▹ B ×
       Γ ⊩⟨ l ⟩ u ∷Σʷ p , q ▷ A ▹ B
-    lemma₁ (emb 0<1 ⊩Σ) ⊩t =
+    lemma₁ (emb ≤′-refl ⊩Σ) ⊩t =
       case lemma₁ ⊩Σ ⊩t of λ
         (u , t⇒*u , u≅u , u-val) →
         u , t⇒*u , u≅u
       , (case u-val of λ where
            (prodₙ ⊩u₁ ⊩u₂) →
-             prodₙ (emb-⊩∷ (emb 0<1) ⊩u₁) (emb-⊩∷ (emb 0<1) ⊩u₂)
+             prodₙ (emb-⊩∷ (≤′-step ≤′-refl) ⊩u₁) (emb-⊩∷ (≤′-step ≤′-refl) ⊩u₂)
+           (ne u-ne u~u) →
+             ne u-ne u~u)
+    lemma₁ (emb (≤′-step l<) ⊩Σ) ⊩t =
+      case lemma₁ (emb l< ⊩Σ) ⊩t of λ
+        (u , t⇒*u , u≅u , u-val) →
+        u , t⇒*u , u≅u
+      , (case u-val of λ where
+           (prodₙ ⊩u₁ ⊩u₂) →
+             prodₙ (emb-⊩∷ (≤′-step ≤′-refl) ⊩u₁) (emb-⊩∷ (≤′-step ≤′-refl) ⊩u₂)
            (ne u-ne u~u) →
              ne u-ne u~u)
     lemma₁
@@ -221,14 +230,24 @@ opaque
       Γ ⊢ t₂ :⇒*: u₂ ∷ Σʷ p , q ▷ A ▹ B ×
       Γ ⊢ u₁ ≅ u₂ ∷ Σʷ p , q ▷ A ▹ B ×
       Γ ⊩⟨ l ⟩ u₁ ≡ u₂ ∷Σʷ p , q ▷ A ▹ B
-    lemma₁ (emb 0<1 ⊩Σ) t₁≡t₂ =
+    lemma₁ (emb ≤′-refl ⊩Σ) t₁≡t₂ =
       case lemma₁ ⊩Σ t₁≡t₂ of λ
         (u₁ , u₂ , t₁⇒*u₁ , t₂⇒*u₂ , u₁≅u₂ , u₁≡u₂) →
         u₁ , u₂ , t₁⇒*u₁ , t₂⇒*u₂ , u₁≅u₂
       , (case u₁≡u₂ of λ where
            (prodₙ u₁₁≡u₂₁ u₁₂≡u₂₂) →
-             prodₙ (emb-⊩≡∷ (emb 0<1) u₁₁≡u₂₁)
-               (emb-⊩≡∷ (emb 0<1) u₁₂≡u₂₂)
+             prodₙ (emb-⊩≡∷ (≤′-step ≤′-refl) u₁₁≡u₂₁)
+               (emb-⊩≡∷ (≤′-step ≤′-refl) u₁₂≡u₂₂)
+           (ne u₁-ne u₂-ne u₁~u₂) →
+             ne u₁-ne u₂-ne u₁~u₂)
+    lemma₁ (emb (≤′-step l<) ⊩Σ) t₁≡t₂ =
+      case lemma₁ (emb l< ⊩Σ) t₁≡t₂ of λ
+        (u₁ , u₂ , t₁⇒*u₁ , t₂⇒*u₂ , u₁≅u₂ , u₁≡u₂) →
+        u₁ , u₂ , t₁⇒*u₁ , t₂⇒*u₂ , u₁≅u₂
+      , (case u₁≡u₂ of λ where
+           (prodₙ u₁₁≡u₂₁ u₁₂≡u₂₂) →
+             prodₙ (emb-⊩≡∷ (≤′-step ≤′-refl) u₁₁≡u₂₁)
+               (emb-⊩≡∷ (≤′-step ≤′-refl) u₁₂≡u₂₂)
            (ne u₁-ne u₂-ne u₁~u₂) →
              ne u₁-ne u₂-ne u₁~u₂)
     lemma₁

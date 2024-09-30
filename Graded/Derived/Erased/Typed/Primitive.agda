@@ -26,11 +26,13 @@ open import Definition.Untyped M hiding (_[_])
 open import Graded.Derived.Erased.Untyped 𝕄 s
 
 open import Tools.Function
+open import Tools.Nat
 import Tools.PropositionalEquality as PE
 
 private variable
   Γ       : Con Term _
   A B t u : Term _
+  l       : Nat
 
 -- A formation rule for Erased.
 
@@ -49,17 +51,18 @@ Erased-cong ⊢A A≡B =
 -- An introduction rule for U.
 
 Erasedⱼ-U :
-  Γ ⊢ A → Γ ⊢ A ∷ U → Γ ⊢ Erased A ∷ U
-Erasedⱼ-U ⊢A ⊢A∷U = ΠΣⱼ ⊢A∷U (Unitⱼ (wf ⊢A ∙ ⊢A) Unit-ok) Σ-ok
+ Γ ⊢ A → Γ ⊢ A ∷ U l → Γ ⊢ Erased A ∷ U l
+Erasedⱼ-U ⊢A ⊢A∷U = PE.subst (λ l → _ ⊢ Erased _ ∷ U l)
+          ( ⊔-identityʳ _) (ΠΣⱼ ⊢A∷U (Unitⱼ (wf ⊢A ∙ ⊢A) Unit-ok) Σ-ok)
 
 -- A corresponding congruence rule.
 
 Erased-cong-U :
   Γ ⊢ A →
-  Γ ⊢ A ≡ B ∷ U →
-  Γ ⊢ Erased A ≡ Erased B ∷ U
-Erased-cong-U ⊢A A≡B =
-  ΠΣ-cong ⊢A A≡B (refl (Unitⱼ (wf ⊢A ∙ ⊢A) Unit-ok)) Σ-ok
+  Γ ⊢ A ≡ B ∷ U l →
+  Γ ⊢ Erased A ≡ Erased B ∷ U l
+Erased-cong-U ⊢A A≡B = PE.subst (λ l → _ ⊢ Erased _ ≡ Erased _ ∷ U l)
+          ( ⊔-identityʳ _) (ΠΣ-cong ⊢A A≡B (refl (Unitⱼ (wf ⊢A ∙ ⊢A) Unit-ok)) Σ-ok)
 
 -- An introduction rule for Erased.
 

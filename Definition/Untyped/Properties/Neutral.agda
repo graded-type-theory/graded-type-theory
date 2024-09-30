@@ -29,14 +29,14 @@ private variable
   b : BinderMode
   s : Strength
   p q : M
-  n : Nat
+  n l : Nat
   x : Fin _
 
 opaque
 
   -- Constructor applications are not neutral.
 
-  ¬-Neutral-U : ¬ Neutral {n = n} U
+  ¬-Neutral-U : ¬ Neutral {n = n} (U l)
   ¬-Neutral-U ()
 
   ¬-Neutral-ΠΣ : ¬ Neutral (ΠΣ⟨ b ⟩ p , q ▷ A ▹ B)

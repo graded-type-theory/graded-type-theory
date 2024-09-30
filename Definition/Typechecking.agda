@@ -23,7 +23,7 @@ open import Tools.Nat
 
 private
   variable
-    n : Nat
+    n l l₁ l₂ : Nat
     Γ : Con Term n
     t u v w A B F G : Term n
     p q r p′ q′ : M
@@ -35,7 +35,7 @@ private
 mutual
 
   data _⊢_⇇Type (Γ : Con Term n) : (A : Term n) → Set a where
-    Uᶜ : Γ ⊢ U ⇇Type
+    Uᶜ : Γ ⊢ U l ⇇Type
     ℕᶜ : Γ ⊢ ℕ ⇇Type
     Unitᶜ : Unit-allowed s
           → Γ ⊢ Unit s ⇇Type
@@ -48,14 +48,14 @@ mutual
         → Γ ⊢ t ⇇ A
         → Γ ⊢ u ⇇ A
         → Γ ⊢ Id A t u ⇇Type
-    univᶜ : Γ ⊢ A ⇇ U
+    univᶜ : Γ ⊢ A ⇇ U l
           → Γ ⊢ A ⇇Type
 
   data _⊢_⇉_ (Γ : Con Term n) : (t A : Term n) → Set a where
-    ΠΣᵢ : Γ ⊢ F ⇇ U
-       → Γ ∙ F ⊢ G ⇇ U
+    ΠΣᵢ : Γ ⊢ F ⇇ U l₁
+       → Γ ∙ F ⊢ G ⇇ U l₂
        → ΠΣ-allowed b p q
-       → Γ ⊢ ΠΣ⟨ b ⟩ p , q ▷ F ▹ G ⇉ U
+       → Γ ⊢ ΠΣ⟨ b ⟩ p , q ▷ F ▹ G ⇉ U (l₁ ⊔ l₂)
     varᵢ : ∀ {x}
          → x ∷ A ∈ Γ
          → Γ ⊢ var x ⇉ A
@@ -74,7 +74,7 @@ mutual
              → Γ ⊢ B ↘ Σʷ p , q ▷ F ▹ G
              → Γ ∙ F ∙ G ⊢ u ⇇ (A [ prodʷ p (var x1) (var x0) ]↑²)
              → Γ ⊢ prodrec r p q′ A t u ⇉ A [ t ]₀
-    ℕᵢ : Γ ⊢ ℕ ⇉ U
+    ℕᵢ : Γ ⊢ ℕ ⇉ U 0
     zeroᵢ : Γ ⊢ zero ⇉ ℕ
     sucᵢ : Γ ⊢ t ⇇ ℕ
          → Γ ⊢ suc t ⇉ ℕ
@@ -85,21 +85,21 @@ mutual
             → Γ ⊢ n ⇇ ℕ
             → Γ ⊢ natrec p q r A z s n ⇉ A [ n ]₀
     Unitᵢ : Unit-allowed s
-          → Γ ⊢ Unit s ⇉ U
+          → Γ ⊢ Unit s ⇉ U 0
     starᵢ : Unit-allowed s
           → Γ ⊢ star s ⇉ Unit s
     unitrecᵢ : Γ ∙ Unitʷ ⊢ A ⇇Type
              → Γ ⊢ t ⇇ Unitʷ
              → Γ ⊢ u ⇇ A [ starʷ ]₀
              → Γ ⊢ unitrec p q A t u ⇉ A [ t ]₀
-    Emptyᵢ : Γ ⊢ Empty ⇉ U
+    Emptyᵢ : Γ ⊢ Empty ⇉ U 0
     emptyrecᵢ : Γ ⊢ A ⇇Type
               → Γ ⊢ t ⇇ Empty
               → Γ ⊢ emptyrec p A t ⇉ A
-    Idᵢ : Γ ⊢ A ⇇ U
+    Idᵢ : Γ ⊢ A ⇇ U l
         → Γ ⊢ t ⇇ A
         → Γ ⊢ u ⇇ A
-        → Γ ⊢ Id A t u ⇉ U
+        → Γ ⊢ Id A t u ⇉ U l
     Jᵢ : Γ ⊢ A ⇇Type
        → Γ ⊢ t ⇇ A
        → Γ ∙ A ∙ Id (wk1 A) (wk1 t) (var x0) ⊢ B ⇇Type
@@ -145,7 +145,7 @@ mutual
 mutual
 
   data Inferable {n : Nat} : (Term n) → Set a where
-    Uᵢ : Inferable U
+    Uᵢ : Inferable (U l)
     ΠΣᵢ : Checkable F → Checkable G → Inferable (ΠΣ⟨ b ⟩ p , q ▷ F ▹ G)
     varᵢ : ∀ {x} → Inferable (var x)
     ∘ᵢ : Inferable t → Checkable u → Inferable (t ∘⟨ p ⟩ u)

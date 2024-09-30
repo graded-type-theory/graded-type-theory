@@ -22,7 +22,7 @@ open import Graded.Erasure.Target.Non-terminating
 
 private
   variable
-    m n : Nat
+    m n l : Nat
     Γ : Con U.Term n
     A t t′ u : U.Term n
     v v′ w : T.Term n

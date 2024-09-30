@@ -23,7 +23,7 @@ open import Definition.Untyped M
 
 private variable
   p p₁ p₂ q q₁ q₂ r   : M
-  n                   : Nat
+  n l                 : Nat
   b                   : BinderMode
   s                   : Strength
   ρ                   : Wk _ _
@@ -71,7 +71,7 @@ noClosedNe ([]-congₙ net) = noClosedNe net
 data Whnf {n : Nat} : Term n → Set a where
 
   -- Type constructors are whnfs.
-  Uₙ     : Whnf U
+  Uₙ     : Whnf (U l)
   ΠΣₙ    : Whnf (ΠΣ⟨ b ⟩ p , q ▷ A ▹ B)
   ℕₙ     : Whnf ℕ
   Unitₙ  : Whnf (Unit s)
@@ -95,7 +95,7 @@ data Whnf {n : Nat} : Term n → Set a where
 -- Different whnfs are trivially distinguished by propositional equality.
 -- (The following statements are sometimes called "no-confusion theorems".)
 
-U≢ne : Neutral A → U PE.≢ A
+U≢ne : Neutral A → U l PE.≢ A
 U≢ne () PE.refl
 
 ℕ≢ne : Neutral A → ℕ PE.≢ A
@@ -118,11 +118,11 @@ B≢ne (BΣ m p q) () PE.refl
 Id≢ne : Neutral B → Id A t u PE.≢ B
 Id≢ne () PE.refl
 
-U≢B : ∀ W → U PE.≢ ⟦ W ⟧ F ▹ G
+U≢B : ∀ W → U l PE.≢ ⟦ W ⟧ F ▹ G
 U≢B (BΠ p q) ()
 U≢B (BΣ m p q) ()
 
-U≢ΠΣ : ∀ b → U PE.≢ ΠΣ⟨ b ⟩ p , q ▷ F ▹ G
+U≢ΠΣ : ∀ b → U l PE.≢ ΠΣ⟨ b ⟩ p , q ▷ F ▹ G
 U≢ΠΣ BMΠ ()
 U≢ΠΣ (BMΣ s) ()
 
@@ -196,6 +196,7 @@ data Natural {n : Nat} : Term n → Set a where
 -- Unit, an identity type, or neutral. Large types could also be U.
 
 data Type {n : Nat} : Term n → Set a where
+  Uₙ     :             Type (U l)
   ΠΣₙ    :             Type (ΠΣ⟨ b ⟩ p , q ▷ A ▹ B)
   ℕₙ     :             Type ℕ
   Emptyₙ :             Type Empty
@@ -250,6 +251,7 @@ naturalWhnf zeroₙ  = zeroₙ
 naturalWhnf (ne x) = ne x
 
 typeWhnf : Type A → Whnf A
+typeWhnf Uₙ     = Uₙ
 typeWhnf ΠΣₙ    = ΠΣₙ
 typeWhnf ℕₙ     = ℕₙ
 typeWhnf Emptyₙ = Emptyₙ
@@ -286,7 +288,7 @@ identityWhnf (ne n) = ne n
 -- neutral.
 
 data No-η-equality {n : Nat} : Term n → Set a where
-  Uₙ     : No-η-equality U
+  Uₙ     : No-η-equality (U l)
   Σʷₙ    : No-η-equality (Σʷ p , q ▷ A ▹ B)
   Emptyₙ : No-η-equality Empty
   ℕₙ     : No-η-equality ℕ
@@ -332,6 +334,7 @@ wkNatural ρ zeroₙ  = zeroₙ
 wkNatural ρ (ne x) = ne (wkNeutral ρ x)
 
 wkType : ∀ ρ → Type t → Type {n = n} (wk ρ t)
+wkType ρ Uₙ     = Uₙ
 wkType ρ ΠΣₙ    = ΠΣₙ
 wkType ρ ℕₙ     = ℕₙ
 wkType ρ Emptyₙ = Emptyₙ

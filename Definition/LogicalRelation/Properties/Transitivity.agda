@@ -32,14 +32,14 @@ open import Definition.LogicalRelation.Properties.Whnf R
 open import Tools.Empty
 open import Tools.Function
 open import Tools.Level
-open import Tools.Nat
+open import Tools.Nat hiding (_<_)
 open import Tools.Product
 import Tools.PropositionalEquality as PE
 open import Tools.Sum using (inj₂)
 
 private
   variable
-    n                 : Nat
+    n ℓ               : Nat
     Γ                 : Con Term n
     A B Ty′ lhs′ rhs′ : Term _
     l                 : TypeLevel
@@ -155,7 +155,7 @@ transEq′ PE.refl PE.refl [A] [B] [C] A≡B B≡C =
   transEq [A] [B] [C] A≡B B≡C
 
 -- Transitivty of term equality.
-transEqTerm : ∀ {Γ : Con Term n} {l A t u v}
+transEqTerm : {n : Nat} → ∀ {Γ : Con Term n} {l A t u v}
               ([A] : Γ ⊩⟨ l ⟩ A)
             → Γ ⊩⟨ l ⟩ t ≡ u ∷ A / [A]
             → Γ ⊩⟨ l ⟩ u ≡ v ∷ A / [A]
@@ -217,7 +217,9 @@ transEqT {n = n} {Γ = Γ} {l = l} {l′ = l′} {l″ = l″}
                     [a′]
        in  transEq ([G] ρ ⊢Δ [a]) ([G]₁ ρ ⊢Δ [a′]) ([G]₂ ρ ⊢Δ [a″])
                    ([G≡G′] ρ ⊢Δ [a]) ([G≡G′]₁ ρ ⊢Δ [a′])) }}
-transEqT (Uᵥ ⊢Γ ⊢Γ₁ ⊢Γ₂) A≡B B≡C = A≡B
+transEqT (Uᵥ (Uᵣ l′ l< ⇒*U) (Uᵣ l′₁ l<₁ ⇒*U₁) (Uᵣ l′₂ l<₂ ⇒*U₂)) D D₁
+  rewrite whrDet* (red ⇒*U₁ , Uₙ) (red D , Uₙ)  | whrDet* (red ⇒*U₂ , Uₙ) (red D₁ , Uₙ) =
+    [ _⊢_:⇒*:_.⊢A D₁ , _⊢_:⇒*:_.⊢B D , _⊢_:⇒*:_.D D₁ ]
 transEqT (Idᵥ ⊩A ⊩B ⊩C) A≡B B≡C =
   case
     whrDet*
@@ -255,23 +257,29 @@ transEqT (Idᵥ ⊩A ⊩B ⊩C) A≡B B≡C =
        (_⊩ₗId_.⊩Ty ⊩B)
        (_⊩ₗId_≡_/_.Ty≡Ty′ A≡B)
        (_⊩ₗId_≡_/_.rhs≡rhs′ B≡C)) }}
-transEqT (emb⁰¹¹ AB) A≡B B≡C = transEqT AB A≡B B≡C
-transEqT (emb¹⁰¹ AB) A≡B B≡C = transEqT AB A≡B B≡C
-transEqT (emb¹¹⁰ AB) A≡B B≡C = transEqT AB A≡B B≡C
+transEqT (embl-- ≤′-refl (refl-emb _) AB) A≡B B≡C = transEqT AB A≡B B≡C
+transEqT (embl-- (≤′-step l<) (step-emb _ _ embV) AB) A≡B B≡C = transEqT (embl-- l< embV AB) A≡B B≡C
+transEqT (emb-l- ≤′-refl (refl-emb _) AB) A≡B B≡C = transEqT AB A≡B B≡C
+transEqT (emb-l- (≤′-step l<) (step-emb _ _ embV) AB) A≡B B≡C = transEqT (emb-l- l< embV AB) A≡B B≡C
+transEqT (emb--l ≤′-refl (refl-emb _) AB) A≡B B≡C = transEqT AB A≡B B≡C
+transEqT (emb--l (≤′-step l<) (step-emb _ _ embV) AB) A≡B B≡C = transEqT (emb--l l< embV AB) A≡B B≡C
 
-transEqTerm (Uᵣ′ .⁰ 0<1 ⊢Γ)
+transEqTerm  {l = 1+ l} (Uᵣ′ l′ (≤′-step s) D)
             (Uₜ₌ A B d d′ typeA typeB t≡u [t] [u] [t≡u])
             (Uₜ₌ A₁ B₁ d₁ d₁′ typeA₁ typeB₁ t≡u₁ [t]₁ [u]₁ [t≡u]₁) =
-  Uₜ₌ A B₁ d d₁′ typeA typeB₁
-    (case
-       whrDet*Term
-         (redₜ d′ , typeWhnf typeB)
-         (redₜ d₁ , typeWhnf typeA₁)
-     of λ {
-       PE.refl →
-     ≅ₜ-trans t≡u t≡u₁ })
-    [t] [u]₁
-    (transEq [t] [u] [u]₁ [t≡u] (irrelevanceEq [t]₁ [u] [t≡u]₁))
+            lemma {D = D} (
+                transEqTerm (Uᵣ′ l′ s D) (Uₜ₌ A B d d′ typeA typeB t≡u [t] [u] [t≡u])
+                (Uₜ₌ A₁ B₁ d₁ d₁′ typeA₁ typeB₁ t≡u₁ [t]₁ [u]₁ [t≡u]₁))
+            where
+              lemma : {n' : Nat} {Γ : Con Term n'}{t v A : Term n'} {l′ n : TypeLevel} {D : Γ ⊢ A :⇒*: U l′} {s : l′ < n} →
+                Γ ⊩⟨ n ⟩ t ≡ v ∷ A / Uᵣ′ l′ s D → Γ ⊩⟨ Nat.suc n ⟩ t ≡ v ∷ A / Uᵣ′ l′ (≤′-step s) D
+              lemma (Uₜ₌ A B d d′ typeA typeB A≡B [t] [u] [t≡u]) = Uₜ₌ A B d d′ typeA typeB A≡B [t] [u] [t≡u]
+transEqTerm (Uᵣ′ l′ ≤′-refl D)
+            (Uₜ₌ A B d d′ typeA typeB t≡u [t] [u] [t≡u])
+            (Uₜ₌ A₁ B₁ d₁ d₁′ typeA₁ typeB₁ t≡u₁ [t]₁ [u]₁ [t≡u]₁) =
+                case whrDet*Term (redₜ d₁ , typeWhnf typeA₁) (redₜ d′ , typeWhnf typeB) of λ where
+                PE.refl →
+                    Uₜ₌ A B₁ d  d₁′ typeA typeB₁ (≅ₜ-trans t≡u t≡u₁) [t] [u]₁ (transEq [t] [t]₁ [u]₁ [t≡u] [t≡u]₁)
 transEqTerm (ℕᵣ D) [t≡u] [u≡v] = transEqTermℕ [t≡u] [u≡v]
 transEqTerm (Emptyᵣ D) [t≡u] [u≡v] = transEqTermEmpty [t≡u] [u≡v]
 transEqTerm (Unitᵣ D) [t≡u] [u≡v] = transEqTermUnit [t≡u] [u≡v]
@@ -408,4 +416,5 @@ transEqTerm
          (ne u″-n _ _) →
            ⊥-elim $ rfl≢ne u″-n $
            whrDet*Term (redₜ u⇒*u′ , rflₙ) (redₜ u⇒*u″ , ne u″-n)) }
-transEqTerm (emb 0<1 x) t≡u u≡v = transEqTerm x t≡u u≡v
+transEqTerm (emb ≤′-refl x) t≡u u≡v = transEqTerm x t≡u u≡v
+transEqTerm (emb (≤′-step l<) x) t≡u u≡v = transEqTerm (emb l< x) t≡u u≡v

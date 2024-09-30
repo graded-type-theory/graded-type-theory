@@ -35,7 +35,7 @@ infix 10 _▸[_]_
 
 private
   variable
-    n : Nat
+    n l : Nat
     p q r : M
     γ γ′ γ₁ γ₂ γ₃ γ₄ γ₅ γ₆ δ η θ χ : Conₘ n
     A B F G : Term n
@@ -86,7 +86,7 @@ mutual
     ⦃ has-nr : Has-nr semiring-with-meet ⦄ →
     Term n → Mode → Conₘ n
   ⌈ var x ⌉ m = 𝟘ᶜ , x ≔ ⌜ m ⌝
-  ⌈ U ⌉ _ = 𝟘ᶜ
+  ⌈ U l ⌉ _ = 𝟘ᶜ
   ⌈ ΠΣ⟨ _ ⟩ p , q ▷ F ▹ G ⌉ m = ⌈ F ⌉ (m ᵐ· p) +ᶜ tailₘ (⌈ G ⌉ m)
   ⌈ lam p t ⌉ m = tailₘ (⌈ t ⌉ m)
   ⌈ t ∘⟨ p ⟩ u ⌉ m = ⌈ t ⌉ m +ᶜ p ·ᶜ ⌈ u ⌉ (m ᵐ· p)
@@ -255,7 +255,7 @@ open import Graded.Modality.Dedicated-nr.Instance
 -- mirror the rules for J, but if the K rule is available, then it
 -- might be a better idea to use the "all" rules.
 data _▸[_]_ {n : Nat} : (γ : Conₘ n) → Mode → Term n → Set a where
-  Uₘ        : 𝟘ᶜ ▸[ m ] U
+  Uₘ        : 𝟘ᶜ ▸[ m ] U l
   ℕₘ        : 𝟘ᶜ ▸[ m ] ℕ
   Emptyₘ    : 𝟘ᶜ ▸[ m ] Empty
   Unitₘ     : 𝟘ᶜ ▸[ m ] Unit s

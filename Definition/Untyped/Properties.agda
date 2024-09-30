@@ -1196,7 +1196,7 @@ opaque
       (yes n) → yes (sucₙ n)
       (no ¬n) → no (λ { (sucₙ n) → ¬n n})
   isNumeral? (var x) = no (λ ())
-  isNumeral? U = no (λ ())
+  isNumeral? (U _) = no (λ ())
   isNumeral? ℕ = no λ ()
   isNumeral? Empty = no λ ()
   isNumeral? Unit! = no λ ()

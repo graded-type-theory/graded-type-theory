@@ -18,7 +18,8 @@ open import Definition.Untyped.NotParametrised public
 
 private
   variable
-    n m ℓ : Nat
+    p p′ : M
+    n m ℓ l : Nat
     bs bs′ : List _
     ts ts′ : GenTs _ _ _
 
@@ -44,7 +45,7 @@ infix 25 _[_]↑²
 -- in the list).
 
 data Kind : (ns : List Nat) → Set a where
-  Ukind : Kind []
+  Ukind : Nat → Kind []
 
   Binderkind : (b : BinderMode) (p q : M) → Kind (0 ∷ 1 ∷ [])
 
@@ -96,7 +97,7 @@ private variable
 -- Π, lam, and natrec are binders.
 
 -- Type constructors.
-pattern U = gen Ukind []
+pattern U n = gen (Ukind n) []
 pattern ℕ = gen Natkind []
 pattern Empty = gen Emptykind []
 pattern Unit! = gen (Unitkind _) []
@@ -341,19 +342,19 @@ sgSubst = consSubst idSubst
 --
 -- If Γ ⊢ σ : Δ and Δ ⊢ σ′ : Φ then Γ ⊢ σ ₛ•ₛ σ′ : Φ.
 
-_ₛ•ₛ_ : Subst ℓ m → Subst m n → Subst ℓ n
+_ₛ•ₛ_ : Subst l m → Subst m n → Subst l n
 _ₛ•ₛ_ σ σ′ x = σ′ x [ σ ]
 
 -- Composition of weakening and substitution.
 --
 --  If ρ : Γ ≤ Δ and Δ ⊢ σ : Φ then Γ ⊢ ρ •ₛ σ : Φ.
 
-_•ₛ_ : Wk ℓ m → Subst m n → Subst ℓ n
+_•ₛ_ : Wk l m → Subst m n → Subst l n
 _•ₛ_ ρ σ x = wk ρ (σ x)
 
 --  If Γ ⊢ σ : Δ and ρ : Δ ≤ Φ then Γ ⊢ σ ₛ• ρ : Φ.
 
-_ₛ•_ : Subst ℓ m → Wk m n → Subst ℓ n
+_ₛ•_ : Subst l m → Wk m n → Subst l n
 _ₛ•_ σ ρ x = σ (wkVar ρ x)
 
 -- Substitute the first variable of a term with an other term.

@@ -29,10 +29,10 @@ infixl 24 _∙_
 
 private
   variable
-    n : Nat
+    n l l₁ l₂ : Nat
     Γ : Con Term _
     A A₁ A₂ A′ B B₁ B₂ C E F F′ G H : Term _
-    a f g m n′ s s′ t t₁ t₂ t′ u u₁ u₂ u′ v v₁ v₂ v′ w w₁ w₂ w′ z z′ :
+    a f g n′ s s′ t t₁ t₂ t′ u u₁ u₂ u′ v v₁ v₂ v′ w w₁ w₂ w′ z z′ :
       Term _
     σ σ′ : Subst _ _
     x : Fin _
@@ -56,7 +56,7 @@ mutual
 
   -- Well-formed type
   data _⊢_ (Γ : Con Term n) : Term n → Set ℓ where
-    Uⱼ     : ⊢ Γ → Γ ⊢ U
+    Uⱼ     : ⊢ Γ → Γ ⊢ U l
     ℕⱼ     : ⊢ Γ → Γ ⊢ ℕ
     Emptyⱼ : ⊢ Γ → Γ ⊢ Empty
     Unitⱼ  : ⊢ Γ → Unit-allowed k → Γ ⊢ Unit k
@@ -67,18 +67,19 @@ mutual
     Idⱼ    : Γ ⊢ t ∷ A
            → Γ ⊢ u ∷ A
            → Γ ⊢ Id A t u
-    univ   : Γ ⊢ A ∷ U
+    univ   : Γ ⊢ A ∷ U l
            → Γ ⊢ A
 
   -- Well-formed term of a type
   data _⊢_∷_ (Γ : Con Term n) : Term n → Term n → Set ℓ where
-    ΠΣⱼ       : Γ     ⊢ F ∷ U
-              → Γ ∙ F ⊢ G ∷ U
+    ΠΣⱼ       : Γ     ⊢ F ∷ U l₁
+              → Γ ∙ F ⊢ G ∷ U l₂
               → ΠΣ-allowed b p q
-              → Γ     ⊢ ΠΣ⟨ b ⟩ p , q ▷ F ▹ G ∷ U
-    ℕⱼ        : ⊢ Γ → Γ ⊢ ℕ ∷ U
-    Emptyⱼ    : ⊢ Γ → Γ ⊢ Empty ∷ U
-    Unitⱼ     : ⊢ Γ → Unit-allowed k → Γ ⊢ Unit k ∷ U
+              → Γ     ⊢ ΠΣ⟨ b ⟩ p , q ▷ F ▹ G ∷ U (l₁ ⊔ l₂)
+    Uⱼ        : ⊢ Γ → Γ ⊢ U l ∷ U (1+ l)
+    ℕⱼ        : ⊢ Γ → Γ ⊢ ℕ ∷ U 0
+    Emptyⱼ    : ⊢ Γ → Γ ⊢ Empty ∷ U 0
+    Unitⱼ     : ⊢ Γ → Unit-allowed k → Γ ⊢ Unit k ∷ U 0
 
     conv      : Γ ⊢ t ∷ A
               → Γ ⊢ A ≡ B
@@ -138,10 +139,10 @@ mutual
               → Unitʷ-allowed
               → Γ ⊢ unitrec p q A t u ∷ A [ t ]₀
 
-    Idⱼ       : Γ ⊢ A ∷ U
+    Idⱼ       : Γ ⊢ A ∷ U l
               → Γ ⊢ t ∷ A
               → Γ ⊢ u ∷ A
-              → Γ ⊢ Id A t u ∷ U
+              → Γ ⊢ Id A t u ∷ U l
     rflⱼ      : Γ ⊢ t ∷ A
               → Γ ⊢ rfl ∷ Id A t t
     Jⱼ        : Γ ⊢ A
@@ -167,7 +168,7 @@ mutual
 
   -- Type equality
   data _⊢_≡_ (Γ : Con Term n) : Term n → Term n → Set ℓ where
-    univ   : Γ ⊢ A ≡ B ∷ U
+    univ   : Γ ⊢ A ≡ B ∷ U l
            → Γ ⊢ A ≡ B
     refl   : Γ ⊢ A
            → Γ ⊢ A ≡ A
@@ -201,11 +202,11 @@ mutual
                   → Γ ⊢ A ≡ B
                   → Γ ⊢ t ≡ u ∷ B
     ΠΣ-cong       : Γ     ⊢ F
-                  → Γ     ⊢ F ≡ H ∷ U
-                  → Γ ∙ F ⊢ G ≡ E ∷ U
+                  → Γ     ⊢ F ≡ H ∷ U l₁
+                  → Γ ∙ F ⊢ G ≡ E ∷ U l₂
                   → ΠΣ-allowed b p q
                   → Γ     ⊢ ΠΣ⟨ b ⟩ p , q ▷ F ▹ G ≡
-                            ΠΣ⟨ b ⟩ p , q ▷ H ▹ E ∷ U
+                            ΠΣ⟨ b ⟩ p , q ▷ H ▹ E ∷ U (l₁ ⊔ l₂)
     app-cong      : ∀ {b}
                   → Γ ⊢ f ≡ g ∷ Π p , q ▷ F ▹ G
                   → Γ ⊢ a ≡ b ∷ F
@@ -278,8 +279,8 @@ mutual
                   → Γ ⊢ prodrec r p q A (prodʷ p′ t t′) u ≡
                         u [ t , t′ ]₁₀ ∷ A [ prodʷ p′ t t′ ]₀
     suc-cong      : ∀ {n}
-                  → Γ ⊢ m ≡ n ∷ ℕ
-                  → Γ ⊢ suc m ≡ suc n ∷ ℕ
+                  → Γ ⊢ t ≡ n ∷ ℕ
+                  → Γ ⊢ suc t ≡ suc n ∷ ℕ
     natrec-cong   : ∀ {n}
                   → Γ ∙ ℕ     ⊢ A
                   → Γ ∙ ℕ     ⊢ A ≡ A′
@@ -325,10 +326,10 @@ mutual
                   → Γ ⊢ t′ ∷ Unit k
                   → Unit-with-η k
                   → Γ ⊢ t ≡ t′ ∷ Unit k
-    Id-cong       : Γ ⊢ A₁ ≡ A₂ ∷ U
+    Id-cong       : Γ ⊢ A₁ ≡ A₂ ∷ U l
                   → Γ ⊢ t₁ ≡ t₂ ∷ A₁
                   → Γ ⊢ u₁ ≡ u₂ ∷ A₁
-                  → Γ ⊢ Id A₁ t₁ u₁ ≡ Id A₂ t₂ u₂ ∷ U
+                  → Γ ⊢ Id A₁ t₁ u₁ ≡ Id A₂ t₂ u₂ ∷ U l
     J-cong        : Γ ⊢ A₁
                   → Γ ⊢ A₁ ≡ A₂
                   → Γ ⊢ t₁ ∷ A₁
@@ -520,7 +521,7 @@ data _⊢_⇒_∷_ (Γ : Con Term n) : Term n → Term n → Term n → Set ℓ 
 
 -- Type reduction
 data _⊢_⇒_ (Γ : Con Term n) : Term n → Term n → Set ℓ where
-  univ : Γ ⊢ A ⇒ B ∷ U
+  univ : Γ ⊢ A ⇒ B ∷ U l
        → Γ ⊢ A ⇒ B
 
 -- Term reduction closure
@@ -603,10 +604,10 @@ data _⊢ˢ_≡_∷_ {k} (Δ : Con Term k) :
 ⟦ BΣ _ _ _ ⟧ⱼ = ΠΣⱼ
 
 ⟦_⟧ⱼᵤ : (W : BindingType) → ∀ {F G}
-     → Γ     ⊢ F ∷ U
-     → Γ ∙ F ⊢ G ∷ U
+     → Γ     ⊢ F ∷ U l₁
+     → Γ ∙ F ⊢ G ∷ U l₂
      → BindingType-allowed W
-     → Γ     ⊢ ⟦ W ⟧ F ▹ G ∷ U
+     → Γ     ⊢ ⟦ W ⟧ F ▹ G ∷ U (l₁ ⊔ l₂)
 ⟦ BΠ _ _   ⟧ⱼᵤ = ΠΣⱼ
 ⟦ BΣ _ _ _ ⟧ⱼᵤ = ΠΣⱼ
 

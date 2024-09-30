@@ -16,40 +16,59 @@ module Definition.LogicalRelation.Properties.Universe
 open EqRelSet {{...}}
 
 open import Definition.Untyped M
+open import Definition.Untyped.Neutral M
+open import Definition.Typed R
+open import Definition.Typed.Properties R
 open import Definition.LogicalRelation R
+open import Definition.LogicalRelation.Kit R
 open import Definition.LogicalRelation.ShapeView R
+open import Definition.LogicalRelation.Properties.Escape R
+open import Definition.LogicalRelation.Properties.Cumulativity R
 open import Definition.LogicalRelation.Irrelevance R
 
-open import Tools.Nat
+open import Tools.Nat hiding (_<_; _≤_)
+open import Tools.Product
+open import Tools.Empty
+open import Tools.Function
 
 private
   variable
-    n : Nat
+    n l′ : Nat
     Γ : Con Term n
 
 -- Helper function for reducible terms of type U for specific type derivations.
-univEq′ : ∀ {l A} ([U] : Γ ⊩⟨ l ⟩U) → Γ ⊩⟨ l ⟩ A ∷ U / U-intr [U] → Γ ⊩⟨ ⁰ ⟩ A
-univEq′ (noemb (Uᵣ .⁰ 0<1 ⊢Γ)) (Uₜ A₁ d typeA A≡A [A]) = [A]
-univEq′ (emb 0<1 x) [A] = univEq′ x [A]
+univEq′ :
+  ∀ {l l′ A} ([U] : Γ ⊩⟨ l ⟩U U l′) → Γ ⊩⟨ l ⟩ A ∷ U l′ / U-intr [U] → Γ ⊩⟨ l′ ⟩ A
+univEq′ (noemb (Uᵣ l′ l< [ ⊢A , ⊢B , id x ])) (Uₜ A d typeA A≡A [t]) = kitToLogRel l< [t]
+univEq′ (noemb (Uᵣ l′ l< [ ⊢A , ⊢B , x ⇨ D ])) (Uₜ A d typeA A≡A [t]) = ⊥-elim (whnfRed x Uₙ)
+univEq′ (emb ≤′-refl [U]) [A] = univEq′ [U] [A]
+univEq′ (emb (≤′-step x) [U]) [A] = univEq′ (emb x [U]) [A]
 
 -- Reducible terms of type U are reducible types.
-univEq : ∀ {l A} ([U] : Γ ⊩⟨ l ⟩ U) → Γ ⊩⟨ l ⟩ A ∷ U / [U] → Γ ⊩⟨ ⁰ ⟩ A
-univEq [U] [A] = univEq′ (U-elim [U])
-                         (irrelevanceTerm [U] (U-intr (U-elim [U])) [A])
+univEq :
+  ∀ {l l′ A} ([U] : Γ ⊩⟨ l ⟩ U l′) → Γ ⊩⟨ l ⟩ A ∷ U l′ / [U] → Γ ⊩⟨ l′ ⟩ A
+univEq [U] [A] =
+  let Uel = U-elim (id (escape [U])) [U]
+  in univEq′ Uel (irrelevanceTerm [U] (U-intr Uel) [A])
+
 
 -- Helper function for reducible term equality of type U for specific type derivations.
-univEqEq′ : ∀ {l l′ A B} ([U] : Γ ⊩⟨ l ⟩U) ([A] : Γ ⊩⟨ l′ ⟩ A)
-         → Γ ⊩⟨ l ⟩ A ≡ B ∷ U / U-intr [U]
+univEqEq′ : ∀ {l l′ l″ A B} ([U] : Γ ⊩⟨ l ⟩U U l″) ([A] : Γ ⊩⟨ l′ ⟩ A)
+         → Γ ⊩⟨ l ⟩ A ≡ B ∷ U l″ / U-intr [U]
          → Γ ⊩⟨ l′ ⟩ A ≡ B / [A]
-univEqEq′ (noemb (Uᵣ .⁰ 0<1 ⊢Γ)) [A]
-          (Uₜ₌ A₁ B₁ d d′ typeA typeB A≡B [t] [u] [t≡u]) =
-  irrelevanceEq [t] [A] [t≡u]
-univEqEq′ (emb 0<1 x) [A] [A≡B] = univEqEq′ x [A] [A≡B]
+univEqEq′ (noemb (Uᵣ l′ ≤′-refl ⇒*U)) [A] (Uₜ₌ A B d d′ typeA typeB A≡B [t] [u] [t≡u]) =
+  irrelevanceEq (kitToLogRel ≤′-refl [t]) [A] [t≡u]
+univEqEq′ (noemb (Uᵣ l′ (≤′-step l<) ⇒*U)) [A] (Uₜ₌ A B d d′ typeA typeB A≡B [t] [u] [t≡u]) =
+  univEqEq′ (noemb (Uᵣ l′ l< ⇒*U)) [A] (Uₜ₌ A B d d′ typeA typeB A≡B [t] [u] [t≡u])
+                     --
+univEqEq′ (emb ≤′-refl [U]) [A] A≡B = univEqEq′ [U] [A] A≡B
+univEqEq′ (emb (≤′-step x) [U]) [A] A≡B = univEqEq′ (emb x [U]) [A] A≡B
 
 -- Reducible term equality of type U is reducible type equality.
-univEqEq : ∀ {l l′ A B} ([U] : Γ ⊩⟨ l ⟩ U) ([A] : Γ ⊩⟨ l′ ⟩ A)
-         → Γ ⊩⟨ l ⟩ A ≡ B ∷ U / [U]
-         → Γ ⊩⟨ l′ ⟩ A ≡ B / [A]
-univEqEq [U] [A] [A≡B] =
-  let [A≡B]′ = irrelevanceEqTerm [U] (U-intr (U-elim [U])) [A≡B]
-  in  univEqEq′ (U-elim [U]) [A] [A≡B]′
+univEqEq : ∀ {l l′ l″ t v} ([U] : Γ ⊩⟨ l ⟩ (U l″ )) ([t] : Γ ⊩⟨ l′ ⟩ t)
+         → Γ ⊩⟨ l ⟩ t ≡ v ∷ (U l″ ) / [U]
+         → Γ ⊩⟨ l′ ⟩ t ≡ v / [t]
+univEqEq [U] [t] [t≡v] =
+  let [U]′ = U-elim (id (escape [U])) [U]
+      [t≡v]′ = irrelevanceEqTerm [U] (U-intr [U]′) [t≡v]
+  in univEqEq′ [U]′ [t] [t≡v]′
