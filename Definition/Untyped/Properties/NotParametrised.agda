@@ -222,6 +222,13 @@ opaque
 
 opaque
 
+  -- 0 is a left identity for _⊔ᵘ_.
+
+  ⊔ᵘ-identityˡ : 0 ⊔ᵘ l ≡ l
+  ⊔ᵘ-identityˡ = ⊔-identityʳ _
+
+opaque
+
   -- The function _⊔ᵘ_ is idempotent.
 
   ⊔ᵘ-idem : l ⊔ᵘ l ≡ l
