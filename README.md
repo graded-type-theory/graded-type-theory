@@ -3,15 +3,16 @@
 This formalization originated as a fork of [logrel-mltt](https://github.com/mr-ohman/logrel-mltt).
 The original work consisted of the following contributions:
 
-- _A Logical Relation for Martin-Löf Type Theory in Agda_,
-  code mostly written by Joakim Öhman (@mr-ohman) in 2016
-  as Master's thesis supervised by Andrea Vezzosi (@Saizan)
-  and Andreas Abel (@andreasabel).
+- _A Logical Relation for Martin-Löf Type Theory in Agda_, code mostly
+  written by Joakim Öhman (@mr-ohman) in 2016 as part of a master's
+  thesis supervised by Andrea Vezzosi (@Saizan) and Andreas Abel
+  (@andreasabel).
 
-  The development is described in the article
-  _Decidability of Conversion for Type Theory in Type Theory_
-  by Andreas Abel, Joakim Öhman and Andrea Vezzosi,
-  _Proceedings of the ACM on Programming Languages_, volume 2(POPL), 2018.
+  That development is described in the article _Decidability of
+  Conversion for Type Theory in Type Theory_ by Andreas Abel, Joakim
+  Öhman and Andrea Vezzosi, _Proceedings of the ACM on Programming
+  Languages_, Volume 2, Issue POPL, 2017
+  ([doi:10.1145/3158111](https://doi.org/10.1145/3158111)).
 
 - The empty type was added by Gaëtan Gilbert (@SkySkimmer, 2018).
 
@@ -19,12 +20,23 @@ The original work consisted of the following contributions:
 
 - The code was refactored to use well-scoped syntax by Oskar Eriksson (@oskeri, 2021).
 
-This work lifts the original formalization to graded modal type theory.
-It is the basis of the ICFP 2023 paper
-_A Graded Modal Type Theory with a Universe and Erasure, Formalized_
-by Andreas Abel, Nils Anders Danielsson and Oskar Eriksson. (This
-version of the code contains changes made after publication, see
-[README.agda](README.agda).)
+This work lifts the original formalization to graded modal type
+theory. It is the basis of the paper _A Graded Modal Type Theory with
+a Universe and Erasure, Formalized_ by Andreas Abel, Nils Anders
+Danielsson and Oskar Eriksson, _Proceedings of the ACM on Programming
+Languages_, Volume 7, Issue ICFP, 2023
+([doi:10.1145/3607862](https://doi.org/10.1145/3607862)).
+
+The present version of the code contains changes made after
+publication of the ICFP paper, see [README.agda](README.agda). Some
+highlights:
+
+- Identity types were added by Nils Anders Danielsson (@nad, 2023).
+
+- A weak unit type was added by Oskar Eriksson (@oskeri, 2023).
+
+- A universe hierarchy was added by Nils Anders Danielsson and Ondřej
+  Kubánek (@nad and @kubaneko, 2024).
 
 ### Dependencies ###
 
