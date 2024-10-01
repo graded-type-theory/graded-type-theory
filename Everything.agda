@@ -50,6 +50,26 @@ import Graded.Modality.Properties.Subtraction
 import Graded.Modality.Properties
 
 ------------------------------------------------------------------------
+-- The type theory's syntax
+
+import Definition.Untyped.NotParametrised
+import Definition.Untyped
+import Definition.Untyped.Inversion
+import Definition.Untyped.Properties.NotParametrised
+import Definition.Untyped.Properties
+import Definition.Untyped.Identity
+import Definition.Untyped.Sigma
+import Definition.Untyped.Unit
+import Definition.Untyped.Lift
+import Graded.Derived.Erased.Eta.Untyped
+import Graded.Derived.Erased.NoEta.Untyped
+import Graded.Derived.Erased.Untyped
+import Graded.Derived.Unrestricted.Eta.Untyped
+import Definition.Typed.Variant
+import Definition.Untyped.Neutral
+import Definition.Untyped.Properties.Neutral
+
+------------------------------------------------------------------------
 -- Modality contexts and their properties
 
 import Graded.Context
@@ -70,26 +90,6 @@ import Graded.Context.Weakening
 -- Usage modes
 
 import Graded.Mode
-
-------------------------------------------------------------------------
--- The type theory's syntax
-
-import Definition.Untyped.NotParametrised
-import Definition.Untyped
-import Definition.Untyped.Inversion
-import Definition.Untyped.Properties.NotParametrised
-import Definition.Untyped.Properties
-import Definition.Untyped.Properties.Neutral
-import Definition.Untyped.Identity
-import Definition.Untyped.Sigma
-import Definition.Untyped.Unit
-import Definition.Untyped.Lift
-import Graded.Derived.Erased.Eta.Untyped
-import Graded.Derived.Erased.NoEta.Untyped
-import Graded.Derived.Erased.Untyped
-import Graded.Derived.Unrestricted.Eta.Untyped
-import Definition.Typed.Variant
-import Definition.Untyped.Neutral
 
 ------------------------------------------------------------------------
 -- The type theory, along with some basic properties
