@@ -60,6 +60,7 @@ private variable
 -- as well as some properties elsewhere that follow from them
 
 record Assumptions : Set a where
+  no-eta-equality
   field
     subtraction-ok : Supports-subtraction
     erased-assumption : T (not erased-heap) ⊎ No-erased-matches′ type-variant UR
@@ -154,7 +155,7 @@ module _ (ℕ-fullred : Bool) where
               → ∃ λ H′ → s Rₙₜ.⇒* ⟨ H′ , t , ρ , S ⟩ × H ~ʰ H′
       bisim₁* Rₜ.id =
         _ , Rₙₜ.id , ~ʰ-refl
-      bisim₁* (x Rₜ.⇨ d) =
+      bisim₁* (Rₜ._⇨_ {s′ = record{}} x d) =
         case bisim₁ x of λ
           (_ , x′ , H~H′) →
         case bisim₁* d of λ
@@ -244,7 +245,7 @@ module _ (ℕ-fullred : Bool) where
               → ∃ λ H‴ → ⟨ H″ , t , ρ , S ⟩ Rₜ.⇒* ⟨ H‴ , t′ , ρ′ , S′ ⟩ × H′ ~ʰ H‴
       bisim₂* Rₙₜ.id H~H′ ▸s =
         _ , Rₜ.id , H~H′
-      bisim₂* (x Rₙₜ.⇨ d) H~H′ ▸s =
+      bisim₂* (Rₙₜ._⇨_ {s′ = record{}} x d) H~H′ ▸s =
         case bisim₂ x H~H′ ▸s of λ
           (_ , x′ , H~H″) →
         case ▸-⇒ ▸s x′ of λ
@@ -281,7 +282,7 @@ module _ where
 
       bisim₃ : Δ ⨾ Γ ⊢ s ∷ A → s Rₙₜ.⇒ s′
              → Δ ⊢ ⦅ s ⦆ ⇒* ⦅ s′ ⦆ ∷ A
-      bisim₃ (_ , _ , ⊢t , ⊢S) (Rₙₜ.⇒ₙ d) =
+      bisim₃ {s = record{}} (_ , _ , ⊢t , ⊢S) (Rₙₜ.⇒ₙ d) =
         subst (_ ⊢ _ ⇒*_∷ _) (⇒ₙ-⦅⦆-≡ d) (id (⊢⦅⦆ˢ ⊢S ⊢t))
       bisim₃ ⊢s (Rₙₜ.⇒ᵥ d) =
         redMany (⇒ᵥ→⇒ ⊢s d)
@@ -290,7 +291,7 @@ module _ where
 
       bisim₃* : Δ ⨾ Γ ⊢ s ∷ A → s Rₙₜ.⇒* s′
               → Δ ⊢ ⦅ s ⦆ ⇒* ⦅ s′ ⦆ ∷ A
-      bisim₃* (_ , ⊢H , ⊢t , ⊢S) Rₙₜ.id = id (⊢⦅⦆ˢ ⊢S ⊢t)
+      bisim₃* {s = record{}} (_ , ⊢H , ⊢t , ⊢S) Rₙₜ.id = id (⊢⦅⦆ˢ ⊢S ⊢t)
       bisim₃* ⊢s (x Rₙₜ.⇨ d) =
         case ⊢ₛ-⇒ ⊢s x of λ
           (_ , _ , _ , ⊢s′) →
@@ -380,7 +381,7 @@ module _ where
               → Δ ⨾ Γ ⊢ s ∷ B
               → γ ⨾ δ ⨾ η ▸ s
               → ∃₃ λ m n (s′ : State _ m n) → s Rₜ.⇒* s′ × u PE.≡ ⦅ s′ ⦆
-      bisim₆* d ⊢s ▸s =
+      bisim₆* {s = record{}} d ⊢s ▸s =
         case bisim₄* d ⊢s of λ
           (_ , _ , ⟨ H , t , ρ , S ⟩ , d′ , u≡) →
         case bisim₂* false As d′ ~ʰ-refl ▸s of λ

@@ -624,5 +624,5 @@ wkEqTerm ρ ⊢Δ (emb (≤ᵘ-step s) x) t≡u =
     (wk ρ ⊢Δ (emb (≤ᵘ-step s) x)) wkET′
 
 -- Impossible cases
-wkEqTerm ρ ⊢Δ (Bᵣ BΣʷ x) (Σₜ₌ p r d d′ prodₙ (ne y) p≅r [t] [u] ())
-wkEqTerm ρ ⊢Δ (Bᵣ BΣʷ x) (Σₜ₌ p r d d′ (ne y) prodₙ p≅r [t] [u] ())
+wkEqTerm _ _ (Bᵣ BΣʷ record{}) (Σₜ₌ _ _ _ _ prodₙ (ne _) _ _ _ ())
+wkEqTerm _ _ (Bᵣ BΣʷ record{}) (Σₜ₌ _ _ _ _ (ne _) prodₙ _ _ _ ())

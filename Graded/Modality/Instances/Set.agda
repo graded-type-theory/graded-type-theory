@@ -27,6 +27,8 @@ private variable
 -- multiplication.
 
 record Is-set-+· (S : Set a) : Set (lsuc a) where
+  no-eta-equality
+
   infixr 45 _·_
   infixr 40 _+_
   infix  10 _∈_
@@ -99,7 +101,7 @@ module ∅-𝟘
     Semiring-with-meet._+_ semiring ≡ _+_ →
     Semiring-with-meet._·_ semiring ≡ _·_ →
     ⊥
-  no-semiring-with-meet semiring refl refl =
+  no-semiring-with-meet semiring@record{} refl refl =
     no-right-zero (_ , +-identityʳ , ·-zeroʳ)
     where
     open Semiring-with-meet semiring
@@ -228,7 +230,7 @@ module 𝟙-𝟚
     Semiring-with-meet._+_ semiring ≡ _+_ →
     Semiring-with-meet._·_ semiring ≡ _·_ →
     ⊥
-  no-semiring-with-meet semiring refl refl =
+  no-semiring-with-meet semiring@record{} refl refl =
     ¬-·-distribˡ-+ ·-distribˡ-+
     where
     open Semiring-with-meet semiring

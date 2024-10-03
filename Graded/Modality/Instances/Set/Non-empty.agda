@@ -38,6 +38,8 @@ private variable
 -- singleton operation.
 
 record Is-non-empty-set-[] (S : Set a) : Set (lsuc (lsuc a)) where
+  no-eta-equality
+
   infix 10 _∈_
 
   field
@@ -202,6 +204,8 @@ record Is-non-empty-set-[] (S : Set a) : Set (lsuc (lsuc a)) where
 -- Graded.Modality.Instances.Set.Non-empty.Implementation.
 
 record Is-non-empty-set (S : Set a) : Set (lsuc (lsuc a)) where
+  no-eta-equality
+
   field
     -- Is-non-empty-set S implies Is-non-empty-set-[] S.
     is-non-empty-set-[] : Is-non-empty-set-[] S

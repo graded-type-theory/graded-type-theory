@@ -49,16 +49,16 @@ opaque
       t ®⟨ l ⟩ u ∷ A / ⊩A →
       ∃ λ v → T.Value v × u T.⇒* v
     helper = λ where
-      (Uᵣ _)          (Uᵣ v⇒*↯)           → _ , T.↯    , v⇒*↯ refl
-      (ℕᵣ _)          (zeroᵣ _ v⇒*zero)   → _ , T.zero , v⇒*zero
-      (ℕᵣ _)          (sucᵣ _ v⇒*suc _ _) → _ , T.suc  , v⇒*suc
-      (Emptyᵣ _)      ()
-      (Unitᵣ _)       (starᵣ _ v⇒*star)   → _ , T.star , v⇒*star
-      (ne _)          ()
-      (Idᵣ _)         (rflᵣ _ v⇒*↯)       → _ , T.↯    , v⇒*↯ refl
-      (Bᵣ (BΠ _ _) _) (u⇒*lam , _)        → _ , T.lam  , u⇒*lam refl
-                                                           .proj₂
-      (Bᵣ′ (BΣ _ _ _) _ _ _ _ _ _ _ ⊩B _ _)
+      (Uᵣ _)            (Uᵣ v⇒*↯)           → _ , T.↯    , v⇒*↯ refl
+      (ℕᵣ _)            (zeroᵣ _ v⇒*zero)   → _ , T.zero , v⇒*zero
+      (ℕᵣ _)            (sucᵣ _ v⇒*suc _ _) → _ , T.suc  , v⇒*suc
+      (Emptyᵣ _)        ()
+      (Unitᵣ _)         (starᵣ _ v⇒*star)   → _ , T.star , v⇒*star
+      (ne record{})     ()
+      (Idᵣ _)           (rflᵣ _ v⇒*↯)       → _ , T.↯    , v⇒*↯ refl
+      (Bᵣ BΠ! record{}) (u⇒*lam , _)        → _ , T.lam  ,
+                                              u⇒*lam refl .proj₂
+      (Bᵣ′ BΣ! _ _ _ _ _ _ _ ⊩B _ _)
         (_ , _ , _ , _ , _ , t₂®v₂ , more) →
         Σ-®-elim _ more
           (λ u⇒*v₂ _ →

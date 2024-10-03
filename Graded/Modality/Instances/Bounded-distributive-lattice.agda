@@ -25,6 +25,8 @@ private variable
 -- Bounded, distributive lattices over M.
 
 record Bounded-distributive-lattice : Set a where
+  no-eta-equality
+  pattern
   infixr 40 _∧_ _∨_
   field
     -- Meet.
@@ -65,7 +67,7 @@ semiring-with-meet :
   let open Bounded-distributive-lattice bl in
   ((p : M) → Dec (p ≡ ⊤)) →
   Semiring-with-meet
-semiring-with-meet bl is-⊤? = record
+semiring-with-meet bl@record{} is-⊤? = record
   { _+_           = _∧_
   ; _·_           = _∨_
   ; _∧_           = _∧_
@@ -149,7 +151,7 @@ has-star :
   let open Bounded-distributive-lattice bl in
   {is-⊤? : (p : M) → Dec (p ≡ ⊤)} →
   Has-star (semiring-with-meet bl is-⊤?)
-has-star bl = L.has-star _ ⊥ ⊥≤
+has-star bl@record{} = L.has-star _ ⊥ ⊥≤
   where
   open Bounded-distributive-lattice bl
 
@@ -165,7 +167,7 @@ modality :
   {is-⊤? : (p : M) → Dec (p ≡ ⊤)} →
   (T 𝟘ᵐ-allowed → Has-well-behaved-zero (semiring-with-meet 𝕃 is-⊤?)) →
   Modality
-modality variant 𝕃 = L.isModality
+modality variant 𝕃@record{} = L.isModality
   (semiring-with-meet 𝕃 _)
   ⊥
   ⊥≤
@@ -182,6 +184,6 @@ opaque
     let open Bounded-distributive-lattice bl in
     (_≟⊤ : (p : M) → Dec (p ≡ ⊤)) →
     Supports-subtraction (semiring-with-meet bl _≟⊤)
-  supports-subtraction bl _≟⊤ =
+  supports-subtraction bl@record{} _≟⊤ =
     Addition≡Meet.supports-subtraction (semiring-with-meet bl _≟⊤)
       λ _ _ → refl

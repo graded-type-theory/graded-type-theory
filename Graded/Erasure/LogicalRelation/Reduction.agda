@@ -96,6 +96,7 @@ sourceRedSubstTerm (Idᵣ ⊩A) (rflᵣ t′⇒*rfl ⇒*↯) t⇒t′ =
   rflᵣ (conv t⇒t′ (subset* (red (_⊩ₗId_.⇒*Id ⊩A))) ⇨ t′⇒*rfl) ⇒*↯
 sourceRedSubstTerm (emb ≤ᵘ-refl     ⊩A) = sourceRedSubstTerm ⊩A
 sourceRedSubstTerm (emb (≤ᵘ-step p) ⊩A) = sourceRedSubstTerm (emb p ⊩A)
+sourceRedSubstTerm (ne record{}) ()
 
 
 -- Logical relation for erasure is preserved under reduction closure backwards on the source language term
@@ -147,6 +148,7 @@ targetRedSubstTerm (Idᵣ _) (rflᵣ t⇒*rfl ⇒*↯) v⇒v′ =
   rflᵣ t⇒*rfl (T.trans v⇒v′ ∘→ ⇒*↯)
 targetRedSubstTerm (emb ≤ᵘ-refl     ⊩A) = targetRedSubstTerm ⊩A
 targetRedSubstTerm (emb (≤ᵘ-step p) ⊩A) = targetRedSubstTerm (emb p ⊩A)
+targetRedSubstTerm (ne record{}) ()
 
 
 -- Logical relation for erasure is preserved under reduction closure backwards
@@ -236,6 +238,7 @@ sourceRedSubstTerm′ (Idᵣ ⊩A) (rflᵣ t⇒*rfl ⇒*↯) t⇒t′ =
 sourceRedSubstTerm′ (emb ≤ᵘ-refl     ⊩A) = sourceRedSubstTerm′ ⊩A
 sourceRedSubstTerm′ (emb (≤ᵘ-step p) ⊩A) =
   sourceRedSubstTerm′ (emb p ⊩A)
+sourceRedSubstTerm′ (ne record{}) ()
 
 
 -- Logical relation for erasure is preserved under reduction closure on the source language term
@@ -332,6 +335,7 @@ targetRedSubstTerm′ (Idᵣ _) (rflᵣ t⇒*rfl v⇒*↯) v⇒v′ =
 targetRedSubstTerm′ (emb ≤ᵘ-refl     ⊩A) = targetRedSubstTerm′ ⊩A
 targetRedSubstTerm′ (emb (≤ᵘ-step p) ⊩A) =
   targetRedSubstTerm′ (emb p ⊩A)
+targetRedSubstTerm′ (ne record{}) ()
 
 
 targetRedSubstTerm*′ [A] t®v refl = t®v

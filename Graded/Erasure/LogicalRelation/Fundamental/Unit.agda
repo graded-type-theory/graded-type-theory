@@ -185,7 +185,7 @@ opaque
          escape-⊩∷ $ ⊩ᵛ∷→⊩ˢ∷→⊩[]∷ (fundamental-⊩ᵛ∷ ⊢u .proj₂) ⊩σ of λ
       ⊢u[σ] →
 
-    case ⊩∷Unit⇔ .proj₁ ⊩t[σ] of λ
+    case ⊩∷Unit⇔ .proj₁ ⊩t[σ] of λ {
       (_ , ok , Unitₜ _ [ _ , ⊢t′ , t[σ]⇒t′ ] _ rest) →
 
     let open RR in
@@ -219,4 +219,4 @@ opaque
               whrDet*Term (t[σ]⇒⋆ , starₙ) (t[σ]⇒t′ , ne t′-ne) }
             (yes p≡𝟘) → case p≡𝟘→ p≡𝟘 of λ where
               (inj₁ PE.refl) → noClosedNe t′-ne
-              (inj₂ η)       → no-η η
+              (inj₂ η)       → no-η η }

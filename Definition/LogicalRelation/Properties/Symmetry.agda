@@ -129,7 +129,7 @@ symEqT
                                  ([G≡G′] [ρ] ⊢Δ [a]₁)))
 symEqT (Uᵥ (Uᵣ l′ l< ⇒*U) (Uᵣ l′₁ l<₁ ⇒*U₁)) D with whrDet* (red D , Uₙ) (red ⇒*U₁ , Uₙ)
 symEqT (Uᵥ (Uᵣ l′ l< ⇒*U) (Uᵣ l′₁ l<₁ ⇒*U₁)) D | PE.refl = ⇒*U
-symEqT (Idᵥ ⊩A ⊩B) A≡B =
+symEqT (Idᵥ ⊩A ⊩B@record{}) A≡B =
   case
     whrDet*
       (red (_⊩ₗId_.⇒*Id ⊩B) , Idₙ)

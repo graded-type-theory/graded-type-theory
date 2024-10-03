@@ -17,6 +17,8 @@ open import Tools.Empty
 -- rules.
 
 record Options : Set where
+  no-eta-equality
+
   field
     track-resources : Bool
     ℕ-fullred : Bool

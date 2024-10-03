@@ -644,11 +644,12 @@ whnf≢ne {A} {t} {u} ¬-A-η t-whnf ¬-t-ne u-ne t≡u =
     (Bᵣ BΣˢ (Bᵣ _ _ A⇒*Σ _ _ _ _ _ _ _)) _ →
       case A⇒*no-η A⇒*Σ of λ where
         (U.neₙ ())
-    (Bᵣ BΣʷ _) (_ , _ , _ , u⇒*w , _ , _ , _ , _ , U.prodₙ , _) →
+    (Bᵣ BΣʷ record{}) (_ , _ , _ , u⇒*w , _ , _ , _ , _ , U.prodₙ , _) →
       U.prod≢ne (u⇒*ne u⇒*w) PE.refl
-    (Bᵣ BΣʷ _) (_ , _ , t⇒*v , _ , _ , _ , _ , U.ne v-ne , _) →
+    (Bᵣ BΣʷ record{}) (_ , _ , t⇒*v , _ , _ , _ , _ , U.ne v-ne , _) →
       ¬t⇒*ne t⇒*v v-ne
-    (Bᵣ BΣʷ _) (_ , _ , _ , _ , _ , _ , _ , U.prodₙ , U.ne _  , ())
+    (Bᵣ BΣʷ record{})
+      (_ , _ , _ , _ , _ , _ , _ , U.prodₙ , U.ne _  , ())
     (Idᵣ ⊩Id) t≡u@(_ , _ , t⇒*t′ , u⇒*u′ , _) →
       case ⊩Id≡∷-view-inhabited ⊩Id t≡u of λ where
         (ne t′-ne _ _) → ¬t⇒*ne t⇒*t′ t′-ne

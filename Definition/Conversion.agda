@@ -124,6 +124,8 @@ mutual
   -- Neutral equality with types in WHNF.
   record _⊢_~_↓_ (Γ : Con Term n) (k l B : Term n) : Set a where
     inductive
+    no-eta-equality
+    pattern
     constructor [~]
     field
       A   : Term n
@@ -133,6 +135,8 @@ mutual
   -- Type equality.
   record _⊢_[conv↑]_ (Γ : Con Term n) (A B : Term n) : Set a where
     inductive
+    no-eta-equality
+    pattern
     constructor [↑]
     field
       A′ B′  : Term n
@@ -168,6 +172,8 @@ mutual
   -- Term equality.
   record _⊢_[conv↑]_∷_ (Γ : Con Term n) (t u A : Term n) : Set a where
     inductive
+    no-eta-equality
+    pattern
     constructor [↑]ₜ
     field
       B t′ u′ : Term n
@@ -282,6 +288,7 @@ prod-cong⁻¹ :
   Σʷ-allowed p q
 prod-cong⁻¹ (prod-cong G t u ok) =
   PE.refl , PE.refl , G , t , u , ok
+prod-cong⁻¹ (Σʷ-ins _ _ ([~] _ _ ()))
 
 -- An inversion lemma for J-cong.
 

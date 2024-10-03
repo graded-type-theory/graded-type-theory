@@ -834,7 +834,8 @@ Star-requirements-required′ :
   (∀ r → _·_ SubDistributesOverʳ (_⊛_▷ r) by _≤_) →
   Star-requirements _⊛_▷_
 Star-requirements-required′
-  M refl refl refl refl refl star ⊛-ineq₁ ⊛-ineq₂ ·-sub-distribʳ-⊛ =
+  M@record{} refl refl refl refl refl star ⊛-ineq₁ ⊛-ineq₂
+  ·-sub-distribʳ-⊛ =
     (λ {_ _} → ω⊛▷)
   , (λ {_ _} → ⊛ω▷)
   , (λ {_ _} → ⊛▷ω _ _)

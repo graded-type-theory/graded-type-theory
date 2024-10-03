@@ -560,6 +560,8 @@ _⊢_:≡:_∷_ : (Γ : Con Term n) → Term n → Term n → Term n → Set ℓ
 
 -- Type reduction closure with well-formed types
 record _⊢_:⇒*:_ (Γ : Con Term n) (A B : Term n) : Set ℓ where
+  no-eta-equality
+  pattern
   constructor [_,_,_]
   field
     ⊢A : Γ ⊢ A
@@ -570,6 +572,8 @@ open _⊢_:⇒*:_ using () renaming (D to red; ⊢A to ⊢A-red; ⊢B to ⊢B-re
 
 -- Term reduction closure with well-formed terms
 record _⊢_:⇒*:_∷_ (Γ : Con Term n) (t u A : Term n) : Set ℓ where
+  no-eta-equality
+  pattern
   constructor [_,_,_]
   field
     ⊢t : Γ ⊢ t ∷ A

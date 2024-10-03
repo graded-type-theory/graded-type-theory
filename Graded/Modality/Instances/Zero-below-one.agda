@@ -5,7 +5,7 @@
 module Graded.Modality.Instances.Zero-below-one where
 
 import Tools.Algebra
-open import Tools.Bool using (false)
+open import Tools.Bool using (T)
 open import Tools.Empty
 open import Tools.Function
 open import Tools.Level
@@ -321,12 +321,12 @@ _≟_ = λ where
 𝟘≤𝟙 :
   (variant : Modality-variant) →
   let open Modality-variant variant in
-  𝟘ᵐ-allowed ≡ false →
+  ¬ T 𝟘ᵐ-allowed →
   Modality
-𝟘≤𝟙 variant refl = record
+𝟘≤𝟙 variant not-ok = record
   { variant            = variant
   ; semiring-with-meet = 𝟘≤𝟙-semiring-with-meet
-  ; 𝟘-well-behaved     = λ ()
+  ; 𝟘-well-behaved     = ⊥-elim ∘→ not-ok
   ; has-nr             = λ _ → Star.has-nr _ ⦃ has-star = 𝟘≤𝟙-has-star ⦄
   }
 
@@ -340,9 +340,9 @@ _≟_ = λ where
 -- * Σˢ-allowed 𝟘 p does not hold.
 
 Suitable-for-full-reduction :
-  ∀ variant ok →
-  Type-restrictions (𝟘≤𝟙 variant ok) →
-  Usage-restrictions (𝟘≤𝟙 variant ok) →
+  ∀ variant not-ok →
+  Type-restrictions (𝟘≤𝟙 variant not-ok) →
+  Usage-restrictions (𝟘≤𝟙 variant not-ok) →
   Set
 Suitable-for-full-reduction _ _ TR UR =
   (Unitˢ-allowed → Starˢ-sink) ×
@@ -356,9 +356,9 @@ Suitable-for-full-reduction _ _ TR UR =
 -- create a "suitable" instance of Type-restrictions.
 
 suitable-for-full-reduction :
-  ∀ ok {UR} → Type-restrictions (𝟘≤𝟙 variant ok) →
-  ∃ λ TR → (Suitable-for-full-reduction variant ok TR UR)
-suitable-for-full-reduction refl {UR} R =
+  ∀ not-ok {UR} → Type-restrictions (𝟘≤𝟙 variant not-ok) →
+  ∃ λ TR → (Suitable-for-full-reduction variant not-ok TR UR)
+suitable-for-full-reduction _ {UR} R =
     record R
       { Unit-allowed = λ where
           𝕤 → Unitˢ-allowed × Starˢ-sink
@@ -383,10 +383,10 @@ suitable-for-full-reduction refl {UR} R =
 -- "suitable" Type-restrictionsa and Usage-restrictions.
 
 full-reduction-assumptions :
-  ∀ ok {TR UR} →
-  Suitable-for-full-reduction variant ok TR UR →
+  ∀ not-ok {TR UR} →
+  Suitable-for-full-reduction variant not-ok TR UR →
   Full-reduction-assumptions TR UR
-full-reduction-assumptions refl (sink , no-η , ¬𝟘) = record
+full-reduction-assumptions _ (sink , no-η , ¬𝟘) = record
   { sink⊎𝟙≤𝟘 = λ where
       {s = 𝕤} ok _         → inj₁ (refl , sink ok)
       {s = 𝕨} _  (inj₁ ())
@@ -400,10 +400,10 @@ full-reduction-assumptions refl (sink , no-η , ¬𝟘) = record
 -- assumptions are "suitable".
 
 full-reduction-assumptions-suitable :
-  ∀ {ok UR} {TR : Type-restrictions (𝟘≤𝟙 variant ok)} →
+  ∀ {not-ok UR} {TR : Type-restrictions (𝟘≤𝟙 variant not-ok)} →
   Full-reduction-assumptions TR UR →
-  Suitable-for-full-reduction variant ok TR UR
-full-reduction-assumptions-suitable {ok = refl} {UR = UR} as =
+  Suitable-for-full-reduction variant not-ok TR UR
+full-reduction-assumptions-suitable {not-ok} {UR = UR} as =
     (λ ok → case sink⊎𝟙≤𝟘 ok (inj₁ refl) of λ where
        (inj₁ (_ , sink)) → sink
        (inj₂ ()))
@@ -412,7 +412,7 @@ full-reduction-assumptions-suitable {ok = refl} {UR = UR} as =
        (inj₂ ()))
   , λ p Σ-ok → case ≡𝟙⊎𝟙≤𝟘 Σ-ok of λ where
      (inj₁ ())
-     (inj₂ (_ , () , _))
+     (inj₂ (_ , ok , _)) → not-ok ok
   where
   open Full-reduction-assumptions as
   open Usage-restrictions UR

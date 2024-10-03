@@ -196,6 +196,8 @@ record Common-properties
   {𝕄₁ : Modality M₁} {𝕄₂ : Modality M₂}
   (R₁ : Usage-restrictions 𝕄₁) (R₂ : Usage-restrictions 𝕄₂) :
   Set (a₁ ⊔ a₂) where
+  no-eta-equality
+
   private
     module M₁ = Modality 𝕄₁
     module M₂ = Modality 𝕄₂
@@ -276,6 +278,8 @@ record Are-preserving-usage-restrictions
          {𝕄₁ : Modality M₁} {𝕄₂ : Modality M₂}
          (R₁ : Usage-restrictions 𝕄₁) (R₂ : Usage-restrictions 𝕄₂)
          (tr tr-Σ : M₁ → M₂) : Set (a₁ ⊔ a₂) where
+  no-eta-equality
+
   private
     module R₁ = Usage-restrictions R₁
     module R₂ = Usage-restrictions R₂
@@ -368,6 +372,8 @@ record Are-reflecting-usage-restrictions
          {𝕄₁ : Modality M₁} {𝕄₂ : Modality M₂}
          (R₁ : Usage-restrictions 𝕄₁) (R₂ : Usage-restrictions 𝕄₂)
          (tr tr-Σ : M₁ → M₂) : Set (a₁ ⊔ a₂) where
+  no-eta-equality
+
   private
     module M₁ = Modality 𝕄₁
     module M₂ = Modality 𝕄₂

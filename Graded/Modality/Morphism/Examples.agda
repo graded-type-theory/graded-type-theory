@@ -204,7 +204,8 @@ erasure⇨zero-one-many :
   in
   Dedicated-nr 𝕄₁ ⇔ Dedicated-nr 𝕄₂ →
   Is-order-embedding 𝕄₁ 𝕄₂ erasure→zero-one-many
-erasure⇨zero-one-many {v₁ = v₁} {v₂ = v₂} {𝟙≤𝟘 = 𝟙≤𝟘} refl s⇔s = λ where
+erasure⇨zero-one-many {v₁ = v₁@record{}} {v₂} {𝟙≤𝟘 = 𝟙≤𝟘} refl s⇔s =
+  λ where
     .Is-order-embedding.trivial not-ok ok   → ⊥-elim (not-ok ok)
     .Is-order-embedding.tr-≤                → ω , refl
     .Is-order-embedding.tr-≤-𝟙              → tr-≤-𝟙 _
@@ -619,7 +620,7 @@ zero-one-many⇨erasure :
   in
   Dedicated-nr 𝕄₁ ⇔ Dedicated-nr 𝕄₂ →
   Is-morphism 𝕄₁ 𝕄₂ zero-one-many→erasure
-zero-one-many⇨erasure {v₂ = v₂} {𝟙≤𝟘 = 𝟙≤𝟘} refl s⇔s = λ where
+zero-one-many⇨erasure {v₂ = v₂@record{}} {𝟙≤𝟘 = 𝟙≤𝟘} refl s⇔s = λ where
     .Is-morphism.tr-𝟘-≤                    → refl
     .Is-morphism.trivial-⊎-tr-≡-𝟘-⇔        → inj₂ ( tr-≡-𝟘 _
                                                   , λ { refl → refl }
@@ -1277,7 +1278,7 @@ linearity⇨linear-or-affine :
   in
   Dedicated-nr 𝕄₁ ⇔ Dedicated-nr 𝕄₂ →
   Is-order-embedding 𝕄₁ 𝕄₂ linearity→linear-or-affine
-linearity⇨linear-or-affine {v₁ = v₁} {v₂ = v₂} refl s⇔s = λ where
+linearity⇨linear-or-affine {v₁ = v₁@record{}} {v₂} refl s⇔s = λ where
     .Is-order-embedding.trivial not-ok ok   → ⊥-elim (not-ok ok)
     .Is-order-embedding.tr-≤                → ω , refl
     .Is-order-embedding.tr-≤-𝟙              → tr-≤-𝟙 _
@@ -2932,7 +2933,7 @@ linear-or-affine⇨linearity :
   in
   Dedicated-nr 𝕄₁ ⇔ Dedicated-nr 𝕄₂ →
   Is-morphism 𝕄₁ 𝕄₂ linear-or-affine→linearity
-linear-or-affine⇨linearity {v₂ = v₂} refl s⇔s = λ where
+linear-or-affine⇨linearity {v₂ = v₂@record{}} refl s⇔s = λ where
     .Is-morphism.tr-𝟘-≤                    → refl
     .Is-morphism.trivial-⊎-tr-≡-𝟘-⇔        → inj₂ ( tr-≡-𝟘 _
                                                   , λ { refl → refl }
@@ -4063,7 +4064,7 @@ affine⇨linear-or-affine :
   in
   Dedicated-nr 𝕄₁ ⇔ Dedicated-nr 𝕄₂ →
   Is-order-embedding 𝕄₁ 𝕄₂ affine→linear-or-affine
-affine⇨linear-or-affine {v₁ = v₁} {v₂ = v₂} refl s⇔s = λ where
+affine⇨linear-or-affine {v₁ = v₁@record{}} {v₂} refl s⇔s = λ where
     .Is-order-embedding.trivial not-ok ok   → ⊥-elim (not-ok ok)
     .Is-order-embedding.tr-≤                → ω , refl
     .Is-order-embedding.tr-≤-𝟙              → tr-≤-𝟙 _
@@ -5735,7 +5736,7 @@ linear-or-affine⇨affine :
   in
   Dedicated-nr 𝕄₁ ⇔ Dedicated-nr 𝕄₂ →
   Is-morphism 𝕄₁ 𝕄₂ linear-or-affine→affine
-linear-or-affine⇨affine {v₂ = v₂} refl s⇔s = λ where
+linear-or-affine⇨affine {v₂ = v₂@record{}} refl s⇔s = λ where
     .Is-morphism.tr-𝟘-≤                    → refl
     .Is-morphism.trivial-⊎-tr-≡-𝟘-⇔        → inj₂ ( tr-≡-𝟘 _
                                                   , λ { refl → refl }
@@ -6865,7 +6866,7 @@ affine⇨linearity :
   in
   Dedicated-nr 𝕄₁ ⇔ Dedicated-nr 𝕄₂ →
   Is-morphism 𝕄₁ 𝕄₂ affine→linearity
-affine⇨linearity {v₁ = v₁} {v₂ = v₂} refl s⇔s = λ where
+affine⇨linearity {v₁ = v₁@record{}} {v₂} refl s⇔s = λ where
     .Is-morphism.tr-𝟘-≤                    → refl
     .Is-morphism.trivial-⊎-tr-≡-𝟘-⇔        → inj₂ ( tr-≡-𝟘 _
                                                   , λ { refl → refl }
@@ -7193,7 +7194,7 @@ linearity⇨affine :
   in
   Dedicated-nr 𝕄₁ ⇔ Dedicated-nr 𝕄₂ →
   Is-morphism 𝕄₁ 𝕄₂ linearity→affine
-linearity⇨affine {v₁ = v₁} {v₂ = v₂} refl s⇔s = λ where
+linearity⇨affine {v₁ = v₁@record{}} {v₂} refl s⇔s = λ where
     .Is-morphism.tr-𝟘-≤                    → refl
     .Is-morphism.trivial-⊎-tr-≡-𝟘-⇔        → inj₂ ( tr-≡-𝟘 _
                                                   , λ { refl → refl }
@@ -7657,7 +7658,10 @@ affine→linear-or-affine-Σ-not-monotone mono =
   , affineModality variant
   , linear-or-affine variant
   , affine→linear-or-affine , affine→linear-or-affine-Σ
-  , affine⇨linear-or-affine refl _
+  , affine⇨linear-or-affine refl
+      (Dedicated-nr (affineModality variant)                 ⇔⟨ Dedicated-nr⇔ _ ⟩
+       T (Modality.nr-available (linear-or-affine variant))  ⇔˘⟨ Dedicated-nr⇔ _ ⟩
+       Dedicated-nr (linear-or-affine variant)               □⇔)
   , Is-Σ-order-embedding.tr-Σ-morphism (affine⇨linear-or-affine-Σ _)
   , affine⇨linear-or-affine-Σ _
   , affine→linear-or-affine-Σ-not-monotone ∘→ Is-morphism.tr-monotone

@@ -21,6 +21,9 @@ open import Tools.Unit
 --   such functions can perhaps still be defined.
 
 record Modality-variant : Set (lsuc a) where
+  no-eta-equality
+  pattern
+
   field
     -- Is the mode 𝟘ᵐ allowed?
     𝟘ᵐ-allowed : Bool

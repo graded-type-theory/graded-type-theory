@@ -21,5 +21,5 @@ instance
 
   has-dedicated-nr :
     ⦃ nr : Dedicated-nr ⦄ → Has-nr semiring-with-meet
-  has-dedicated-nr ⦃ nr = dedicated-nr nr ⦄ =
-    has-nr nr
+  has-dedicated-nr ⦃ nr ⦄ =
+    has-nr (Dedicated-nr.nr nr)

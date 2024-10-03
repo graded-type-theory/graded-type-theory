@@ -70,6 +70,8 @@ inv-usage-Unit (sub γ▸⊤ γ≤δ) = ≤ᶜ-trans γ≤δ (inv-usage-Unit γ�
 
 record InvUsageΠΣ {n} (γ : Conₘ n) (m : Mode) (b : BinderMode) (p q : M)
                  (F : Term n) (G : Term (1+ n)) : Set a where
+  no-eta-equality
+  pattern
   constructor invUsageΠΣ
   field
     {δ η} : Conₘ n
@@ -98,6 +100,8 @@ inv-usage-var (sub γ▸x γ≤γ′) with inv-usage-var γ▸x
 record InvUsageLam
          {n} (γ : Conₘ n) (m : Mode) (p : M) (t : Term (1+ n)) :
          Set a where
+  no-eta-equality
+  pattern
   constructor invUsageLam
   field
     {δ} : Conₘ n
@@ -115,6 +119,8 @@ inv-usage-lam (sub γ′▸λpt γ≤γ′) with inv-usage-lam γ′▸λpt
 record InvUsageApp
          {n} (γ : Conₘ n) (t : Term n) (m : Mode) (p : M) (u : Term n) :
          Set a where
+  no-eta-equality
+  pattern
   constructor invUsageApp
   field
     {δ η} : Conₘ n
@@ -134,6 +140,8 @@ inv-usage-app (sub γ▸t∘p▷u γ′≤γ) with inv-usage-app γ▸t∘p▷u
 record InvUsageProdʷ
          {n} (γ : Conₘ n) (m : Mode) (p : M) (t u : Term n) :
          Set a where
+  no-eta-equality
+  pattern
   constructor invUsageProdʷ
   field
     {δ η} : Conₘ n
@@ -153,6 +161,8 @@ inv-usage-prodʷ (sub γ▸tu γ≤γ′) with inv-usage-prodʷ γ▸tu
 record InvUsageProdˢ
          {n} (γ : Conₘ n) (m : Mode) (p : M) (t u : Term n) :
          Set a where
+  no-eta-equality
+  pattern
   constructor invUsageProdˢ
   field
     {δ η}  : Conₘ n
@@ -174,6 +184,8 @@ record InvUsageProd
          {n}
          (γ : Conₘ n) (m : Mode) (s : Strength) (p : M) (t u : Term n) :
          Set a where
+  no-eta-equality
+  pattern
   constructor invUsageProd
   field
     {δ η} : Conₘ n
@@ -196,6 +208,8 @@ inv-usage-prod (sub δ▸tu γ≤γ′) with inv-usage-prod δ▸tu
 record InvUsageFst
          {n} (γ : Conₘ n) (m : Mode) (p : M) (t : Term n) :
          Set a where
+  no-eta-equality
+  pattern
   constructor invUsageFst
   field
     {δ}          : Conₘ n
@@ -217,6 +231,8 @@ inv-usage-fst (sub ▸t γ≤γ′) with inv-usage-fst ▸t
 
 record InvUsageSnd
          {n} (γ : Conₘ n) (m : Mode) (t : Term n) : Set a where
+  no-eta-equality
+  pattern
   constructor invUsageSnd
   field
     {δ} : Conₘ n
@@ -233,6 +249,8 @@ inv-usage-snd (sub ▸t γ≤γ′) with inv-usage-snd ▸t
 record InvUsageProdrec
          {n} (γ : Conₘ n) (m : Mode) (r p q : M) (A : Term (1+ n))
          (t : Term n) (u : Term (2+ n)) : Set a where
+  no-eta-equality
+  pattern
   constructor invUsageProdrec
   field
     {δ η θ} : Conₘ n
@@ -261,6 +279,8 @@ inv-usage-zero (sub  δ▸zero γ≤δ) = ≤ᶜ-trans γ≤δ (inv-usage-zero �
 
 record InvUsageSuc
          {n} (γ : Conₘ n) (m : Mode) (t : Term n) : Set a where
+  no-eta-equality
+  pattern
   constructor invUsageSuc
   field
     {δ} : Conₘ n
@@ -329,6 +349,8 @@ inv-usage-natrec (sub γ▸natrec γ≤γ′) with inv-usage-natrec γ▸natrec
 record InvUsageEmptyrec
          {n} (γ : Conₘ n) (m : Mode) (p : M) (A t : Term n) :
          Set a where
+  no-eta-equality
+  pattern
   constructor invUsageEmptyrec
   field
     {δ η}   : Conₘ n
@@ -354,6 +376,8 @@ inv-usage-starʷ (sub  δ▸star γ≤δ) = ≤ᶜ-trans γ≤δ (inv-usage-star
 -- A type used to state inv-usage-starˢ.
 
 record InvUsageStarˢ {n} (γ : Conₘ n) (m : Mode) : Set a where
+  no-eta-equality
+  pattern
   constructor invUsageStarˢ
   field
     {δ}  : Conₘ n
@@ -370,6 +394,8 @@ inv-usage-starˢ (sub γ▸star γ≤γ′) with inv-usage-starˢ γ▸star
 
 record InvUsageUnitrec {n} (γ : Conₘ n) (m : Mode) (p q : M)
                        (A : Term (1+ n)) (t u : Term n) : Set a where
+  no-eta-equality
+  pattern
   constructor invUsageUnitrec
   field
     {δ η θ} : Conₘ n
@@ -547,6 +573,8 @@ inv-usage-K (sub γ′▸ γ≤γ′) with inv-usage-K γ′▸
 record InvUsage-[]-cong
          {n} (γ : Conₘ n) (m : Mode) (s : Strength)
          (A t u v : Term n) : Set a where
+  no-eta-equality
+  pattern
   constructor invUsage-[]-cong
   field
     {γ₁ γ₂ γ₃ γ₄} : Conₘ n

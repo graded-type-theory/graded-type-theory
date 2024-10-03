@@ -121,10 +121,10 @@ opaque
     Γ ⊩⟨ l ⟩ t ∷ ℕ
   ⊩suc∷ℕ⇔ {Γ} {l} {t} =
     Γ ⊩⟨ l ⟩ suc t ∷ ℕ  ⇔⟨ ⊩∷ℕ⇔ ⟩
-    Γ ⊩ℕ suc t ∷ℕ       ⇔⟨ (λ (ℕₜ _ suc-t⇒*u _ u-ok) →
-                              case whnfRed*Term (redₜ suc-t⇒*u) sucₙ of λ {
-                                PE.refl →
-                              lemma u-ok })
+    Γ ⊩ℕ suc t ∷ℕ       ⇔⟨ (λ { (ℕₜ _ suc-t⇒*u _ u-ok) →
+                                case whnfRed*Term (redₜ suc-t⇒*u) sucₙ of λ {
+                                  PE.refl →
+                                lemma u-ok }})
                          , (λ ⊩t@(ℕₜ _ [ ⊢t , _ , t⇒*u ] u≅u u-ok) →
                               let t↘u = t⇒*u , naturalWhnf (natural u-ok) in
                               ℕₜ _ (idRedTerm:*: (sucⱼ ⊢t))
@@ -136,7 +136,8 @@ opaque
     Γ ⊩⟨ l ⟩ t ∷ ℕ      □⇔
     where
     lemma : Natural-prop Γ (suc t) → Γ ⊩ℕ t ∷ℕ
-    lemma (sucᵣ ⊩t) = ⊩t
+    lemma (sucᵣ ⊩t)           = ⊩t
+    lemma (ne (neNfₜ () _ _))
 
 opaque
   unfolding _⊩⟨_⟩_≡_
@@ -238,7 +239,8 @@ opaque
     Γ ⊩⟨ l ⟩ t ≡ u ∷ ℕ                                     □⇔
     where
     lemma₀ : [Natural]-prop Γ (suc t) (suc u) → Γ ⊩ℕ t ≡ u ∷ℕ
-    lemma₀ (sucᵣ t≡u) = t≡u
+    lemma₀ (sucᵣ t≡u)           = t≡u
+    lemma₀ (ne (neNfₜ₌ () _ _))
 
     lemma₁ : Γ ⊩ℕ suc t ≡ suc u ∷ℕ → Γ ⊩ℕ t ≡ u ∷ℕ
     lemma₁ (ℕₜ₌ _ _ suc-t⇒*t′ suc-u⇒*u′ _ t′≡u′) =
@@ -265,14 +267,14 @@ opaque
   ⊩zero≡suc∷ℕ⇔ : Γ ⊩⟨ l ⟩ zero ≡ suc t ∷ ℕ ⇔ ⊥
   ⊩zero≡suc∷ℕ⇔ =
       (λ zero≡suc →
-         case ⊩≡∷ℕ⇔ .proj₁ zero≡suc of λ
+         case ⊩≡∷ℕ⇔ .proj₁ zero≡suc of λ {
            (_ , _ , ℕₜ₌ _ _ zero⇒* suc⇒* _ rest) →
          case whnfRed*Term (redₜ zero⇒*) zeroₙ of λ {
            PE.refl →
          case whnfRed*Term (redₜ suc⇒*) sucₙ of λ {
            PE.refl →
          case rest of λ where
-           (ne (neNfₜ₌ () _ _)) }})
+           (ne (neNfₜ₌ () _ _)) }}})
     , ⊥-elim
 
 ------------------------------------------------------------------------

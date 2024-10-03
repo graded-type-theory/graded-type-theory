@@ -102,7 +102,7 @@ irrelevanceTermSV {v = v}
                  λ v₁ v⇒p t₁®v₁ p≢𝟘 →
                    Σ-®-intro-ω v₁ v⇒p (irrelevanceTermSV [F]′ [F]₁′ t₁®v₁
                                (goodCasesRefl [F]′ [F]₁′)) p≢𝟘
-irrelevanceTermSV _ _ t®v (Idᵥ ⊩A ⊩B) =
+irrelevanceTermSV _ _ t®v (Idᵥ ⊩A@record{} ⊩B) =
   case whrDet* (red (_⊩ₗId_.⇒*Id ⊩A) , Idₙ)
          (red (_⊩ₗId_.⇒*Id ⊩B) , Idₙ) of λ {
     PE.refl →
@@ -117,7 +117,7 @@ irrelevanceTermSV _ _ t®v (embᵥ₂ (≤ᵘ-step p) A≡B) =
   irrelevanceTermSV _ _ t®v (embᵥ₂ p A≡B)
 -- Impossible cases
 irrelevanceTermSV _ _ () (Emptyᵥ _ _)
-irrelevanceTermSV _ _ () (ne _ _)
+irrelevanceTermSV _ _ () (ne record{} _)
 
 -- Irrelevance of logical relation for erasure
 

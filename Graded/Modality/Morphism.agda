@@ -45,6 +45,8 @@ record Is-morphism
   {M₁ : Set a₁} {M₂ : Set a₂}
   (𝕄₁ : Modality M₁) (𝕄₂ : Modality M₂)
   (tr : M₁ → M₂) : Set (a₁ ⊔ a₂) where
+  no-eta-equality
+
   private
     module M₁ = Modality 𝕄₁
     open module M₂ = Modality 𝕄₂ using (_≤_; _<_)
@@ -237,6 +239,8 @@ record Is-order-embedding
   {M₁ : Set a₁} {M₂ : Set a₂}
   (𝕄₁ : Modality M₁) (𝕄₂ : Modality M₂)
   (tr : M₁ → M₂) : Set (a₁ ⊔ a₂) where
+  no-eta-equality
+
   private
     module M₁ = Modality 𝕄₁
     module M₂ = Modality 𝕄₂
@@ -380,6 +384,8 @@ record Is-Σ-morphism
   {M₁ : Set a₁} {M₂ : Set a₂}
   (𝕄₁ : Modality M₁) (𝕄₂ : Modality M₂)
   (tr tr-Σ : M₁ → M₂) : Set (a₁ ⊔ a₂) where
+  no-eta-equality
+
   private
     module M₁  = Modality 𝕄₁
     module M₂  = Modality 𝕄₂
@@ -465,6 +471,8 @@ record Is-Σ-order-embedding
   {M₁ : Set a₁} {M₂ : Set a₂}
   (𝕄₁ : Modality M₁) (𝕄₂ : Modality M₂)
   (tr tr-Σ : M₁ → M₂) : Set (a₁ ⊔ a₂) where
+  no-eta-equality
+
   private
     module M₁ = Modality 𝕄₁
     module M₂ = Modality 𝕄₂

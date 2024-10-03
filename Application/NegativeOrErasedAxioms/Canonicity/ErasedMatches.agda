@@ -126,27 +126,31 @@ module Counterexample
       ε ∙ (Σʷ ω , 𝟘 ▷ ℕ ▹ ℕ) ⊢
         prodrec 𝟘 ω 𝟘 ℕ (var x0) zero [conv↑] zero ∷ ℕ →
       ⊥
-    lem ([↑]ₜ _ _ _ (D , _) (d , _) (d′ , _) _)
-      with whnfRed*Term d (ne (prodrecₙ (var x0)))
-         | whnfRed*Term d′ zeroₙ
-         | whnfRed* D ℕₙ
-    lem ([↑]ₜ _ _ _ _ _ _ (ℕ-ins ()))
-      | PE.refl | PE.refl | PE.refl
-    lem ([↑]ₜ _ _ _ _ _ _ (ne-ins _ _ _ ()))
-      | PE.refl | PE.refl | PE.refl
+    lem ([↑]ₜ _ _ _ (D , _) (d , _) (d′ , _) prodrec-0-zero≡zero) =
+      case whnfRed*Term d (ne (prodrecₙ (var x0))) of λ {
+        PE.refl →
+      case whnfRed*Term d′ zeroₙ of λ {
+        PE.refl →
+      case whnfRed* D ℕₙ of λ {
+        PE.refl →
+      case prodrec-0-zero≡zero of λ where
+         (ℕ-ins ([~] _ _ ()))
+         (ne-ins _ _ _ ([~] _ _ ())) }}}
 
     lem′ :
       ε ∙ (Σʷ ω , 𝟘 ▷ ℕ ▹ ℕ) ⊢
         prodrec 𝟘 ω 𝟘 ℕ (var x0) zero [conv↑] suc t ∷ ℕ →
       ⊥
-    lem′ ([↑]ₜ _ _ _ (D , _) (d , _) (d′ , _) _)
-      with whnfRed*Term d (ne (prodrecₙ (var x0)))
-         | whnfRed*Term d′ sucₙ
-         | whnfRed* D ℕₙ
-    lem′ ([↑]ₜ _ _ _ _ _ _ (ℕ-ins ()))
-      | PE.refl | PE.refl | PE.refl
-    lem′ ([↑]ₜ _ _ _ _ _ _ (ne-ins _ _ _ ()))
-      | PE.refl | PE.refl | PE.refl
+    lem′ ([↑]ₜ _ _ _ (D , _) (d , _) (d′ , _) prodrec-0-zero≡suc) =
+      case whnfRed*Term d (ne (prodrecₙ (var x0))) of λ {
+        PE.refl →
+      case whnfRed*Term d′ sucₙ of λ {
+        PE.refl →
+      case whnfRed* D ℕₙ of λ {
+        PE.refl →
+      case prodrec-0-zero≡suc of λ where
+         (ℕ-ins ([~] _ _ ()))
+         (ne-ins _ _ _ ([~] _ _ ())) }}}
 
     ε⊢ℕ = ℕⱼ ε
     ⊢εℕ = ε ∙ ε⊢ℕ

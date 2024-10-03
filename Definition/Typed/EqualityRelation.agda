@@ -52,6 +52,7 @@ record Equality-relations
   -- Equality of neutral terms.
   (_⊢_~_∷_ : ∀ {n} → Con Term n → (t u A : Term n) → Set ℓ) :
   Set ℓ where
+  no-eta-equality
   field
     -- Generic equality compatibility
     ~-to-≅ₜ : Γ ⊢ t ~ u ∷ A
@@ -324,6 +325,7 @@ record Equality-relations
 -- proved.
 
 record EqRelSet : Set (lsuc ℓ) where
+  no-eta-equality
   field
     ---------------
     -- Relations --

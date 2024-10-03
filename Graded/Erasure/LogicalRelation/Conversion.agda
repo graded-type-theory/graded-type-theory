@@ -162,7 +162,7 @@ convTermʳ′ _ _ A≡B (embᵥ₂ (≤ᵘ-step p) A≡B′) =
   convTermʳ′ _ _ A≡B (embᵥ₂ p A≡B′)
 -- Impossible cases
 convTermʳ′ _ _ _ (Emptyᵥ _ _) ()
-convTermʳ′ _ _ _ (ne _ _) ()
+convTermʳ′ _ _ _ (ne record{} _) ()
 
 -- Conversion of logical relation for erasure
 -- If t ® v ∷ A and Δ ⊢ A ≡ B then t ® v ∷ B

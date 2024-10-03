@@ -74,13 +74,13 @@ opaque
          → (d : s ⇒ₙ s′) (d′ : s ⇒ₙ s″)
          → Σ (n ≡ n′) λ n≡n′ →
             subst (State k m) n≡n′ s′ ≡ s″
-  ⇒ₙ-det d (varₕ x′) =
+  ⇒ₙ-det {s′ = record{}} d (varₕ x′) =
     case ⇒ₙ-inv-var d of λ {
       (refl , x) →
     case lookup-det x x′ of λ {
       (refl , refl , refl , refl) →
     refl , refl }}
-  ⇒ₙ-det d (varₕ′ x′) =
+  ⇒ₙ-det {s′ = record{}} d (varₕ′ x′) =
     case ⇒ₙ-inv-var′ d of λ {
       (refl , refl , x) →
     case lookup-det′ x x′ of λ {
@@ -263,7 +263,7 @@ opaque
   wk1-⇒ₙ* : (d : ⟨ H , t , ρ , S ⟩ ⇒ₙ* ⟨ H′ , t′ , ρ′ , S′ ⟩)
           → ⟨ H ∙ c , t , step ρ , wk1ˢ S ⟩ ⇒ₙ* ⟨ H′ ∙ c , t′ , step ρ′ , wk1ˢ S′ ⟩
   wk1-⇒ₙ* id = id
-  wk1-⇒ₙ* (x ⇨ d) = wk1-⇒ₙ x ⇨ wk1-⇒ₙ* d
+  wk1-⇒ₙ* (_⇨_ {s′ = record{}} x d) = wk1-⇒ₙ x ⇨ wk1-⇒ₙ* d
 
 opaque
 
@@ -291,7 +291,7 @@ opaque
   wk1●-⇒ₙ* : (d : ⟨ H , t , ρ , S ⟩ ⇒ₙ* ⟨ H′ , t′ , ρ′ , S′ ⟩)
           → ⟨ H ∙● , t , step ρ , wk1ˢ S ⟩ ⇒ₙ* ⟨ H′ ∙● , t′ , step ρ′ , wk1ˢ S′ ⟩
   wk1●-⇒ₙ* id = id
-  wk1●-⇒ₙ* (x ⇨ d) = wk1●-⇒ₙ x ⇨ wk1●-⇒ₙ* d
+  wk1●-⇒ₙ* (_⇨_ {s′ = record{}} x d) = wk1●-⇒ₙ x ⇨ wk1●-⇒ₙ* d
 
 opaque
 
@@ -346,7 +346,7 @@ opaque
          → ∀ S₀ → (d : ⟨ H , t , ρ , S ⟩ ⇒ₙ* ⟨ H′ , t′ , ρ′ , S′ ⟩)
          → ⟨ H , t , ρ , S ++ S₀ ⟩ ⇒ₙ* ⟨ H′ , t′ , ρ′ , S′ ++ S₀ ⟩
   ++-⇒ₙ* S₀ id = id
-  ++-⇒ₙ* S₀ (x ⇨ d) = ++-⇒ₙ S₀ x ⇨ ++-⇒ₙ* S₀ d
+  ++-⇒ₙ* S₀ (_⇨_ {s′ = record{}} x d) = ++-⇒ₙ S₀ x ⇨ ++-⇒ₙ* S₀ d
 
 opaque
 
@@ -429,7 +429,7 @@ opaque
   ++sucₛ-⇒* : (d : ⟨ H , t , ρ , S ⟩ ⇒* ⟨ H′ , t′ , ρ′ , S′ ⟩)
             → ⟨ H , t , ρ , S ++ sucₛ k ⟩ ⇒* ⟨ H′ , t′ , ρ′ , S′ ++ sucₛ k ⟩
   ++sucₛ-⇒* id = id
-  ++sucₛ-⇒* (x ⇨ d) = ++sucₛ-⇒ x ⇨ ++sucₛ-⇒* d
+  ++sucₛ-⇒* (_⇨_ {s′ = record{}} x d) = ++sucₛ-⇒ x ⇨ ++sucₛ-⇒* d
 
 opaque
 
@@ -532,7 +532,7 @@ opaque
         → ∃ λ H‴ → ⟨ H″ , t , ρ , S ⟩ ⇒* ⟨ H‴ , t′ , ρ′ , S′ ⟩ × H′ ~ʰ H‴
   ~ʰ-⇒* id H~H′ =
     _ , id , H~H′
-  ~ʰ-⇒* (x ⇨ d) H~H′ =
+  ~ʰ-⇒* (_⇨_ {s′ = record{}} x d) H~H′ =
     case ~ʰ-⇒ x H~H′ of λ
       (_ , x′ , H~H″) →
     case ~ʰ-⇒* d H~H″ of λ

@@ -26,6 +26,7 @@ private variable
 -- proofs.
 
 record Extended-modality a : Set (lsuc a) where
+  no-eta-equality
   field
     -- The type of grades.
     M  : Set a
@@ -79,6 +80,7 @@ infix 4 _⇨_
 record _⇨_
   (𝕄₁ : Extended-modality a₁) (𝕄₂ : Extended-modality a₂) :
   Set (a₁ ⊔ a₂) where
+  no-eta-equality
   module M₁ = Extended-modality 𝕄₁
   module M₂ = Extended-modality 𝕄₂
   field

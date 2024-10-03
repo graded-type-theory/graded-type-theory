@@ -93,7 +93,7 @@ Meet-requirements-required :
   Semiring-with-meet._∧_ M    𝟘 𝟙 ≢ 𝟘 →
   (∀ p → Semiring-with-meet._≤_ M ω p) →
   Meet-requirements (Semiring-with-meet._∧_ M)
-Meet-requirements-required M refl refl 𝟘∧𝟙≢𝟘 ω≤ =
+Meet-requirements-required M@record{} refl refl 𝟘∧𝟙≢𝟘 ω≤ =
     (𝟘 ∧ 𝟘  ≡⟨ ∧-idem _ ⟩
      𝟘      ∎)
   , (𝟙 ∧ 𝟙  ≡⟨ ∧-idem _ ⟩
@@ -264,7 +264,7 @@ Order-requirements-required :
   Semiring-with-meet._∧_ M    𝟘 𝟙 ≢ 𝟘 →
   (∀ p → Semiring-with-meet._≤_ M ω p) →
   Order-requirements (Semiring-with-meet._≤_ M)
-Order-requirements-required M refl refl 𝟘∧𝟙≢𝟘 ω≤ =
+Order-requirements-required M@record{} refl refl 𝟘∧𝟙≢𝟘 ω≤ =
   case Meet-requirements-required M refl refl 𝟘∧𝟙≢𝟘 ω≤ of λ where
     (_ , _ , _ , _ , ω⊓𝟘≡ω , _ , ω⊓𝟙≡ω , 𝟘⊓𝟙≢𝟘 , _) →
         (ω      ≡˘⟨ ω⊓𝟙≡ω ⟩
@@ -753,7 +753,8 @@ Star-requirements-required′ :
   (∀ r → _·_ SubDistributesOverʳ (_⊛_▷ r) by _≤_) →
   Star-requirements _⊛_▷_ _∧_
 Star-requirements-required′
-  M refl refl refl refl refl star ⊛-ineq₁ ⊛-ineq₂ ·-sub-distribʳ-⊛ =
+  M@record{} refl refl refl refl refl star ⊛-ineq₁ ⊛-ineq₂
+  ·-sub-distribʳ-⊛ =
   case Meet-requirements-required M refl refl 𝟘∧𝟙≢𝟘 ω≤ of λ where
     (_ , _ , ω⊓ω≡ω , _ , ω⊓𝟘≡ω , _ , ω⊓𝟙≡ω , _ , _) →
         (λ {_ _} → ω⊛▷)

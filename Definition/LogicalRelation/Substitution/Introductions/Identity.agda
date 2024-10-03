@@ -91,7 +91,7 @@ opaque
       case lemma ⊩Id of λ
         (⊩t , ⊩u) →
       emb-⊩∷ (<ᵘ→≤ᵘ 0<1) ⊩t , emb-⊩∷ (<ᵘ→≤ᵘ 0<1) ⊩u
-    lemma (noemb ⊩Id) =
+    lemma (noemb ⊩Id@record{}) =
       case whnfRed* (red ⇒*Id) Idₙ of λ {
         PE.refl →
       (⊩Ty , ⊩lhs) , (⊩Ty , ⊩rhs) }
@@ -191,7 +191,7 @@ opaque
       , (case rest of λ where
            (rflᵣ t≡u)    → rflᵣ (emb-⊩≡∷ (≤ᵘ-step ≤ᵘ-refl) t≡u)
            (ne v-ne v~v) → ne v-ne v~v)
-    lemma (noemb ⊩Id) ⊩v@(w , v⇒*w , _) =
+    lemma (noemb ⊩Id@record{}) ⊩v@(w , v⇒*w , _) =
       case whnfRed* (red ⇒*Id) Idₙ of λ {
         PE.refl →
         w , v⇒*w
@@ -268,10 +268,13 @@ opaque
       lemma₁ (<ᵘ→≤ᵘ l′<l) ⊩Id ⊩B Id≡A
     lemma₁ l′<l (emb (≤ᵘ-step l″<l′) ⊩Id) ⊩B Id≡A =
       lemma₁ (<ᵘ→≤ᵘ l′<l) (emb l″<l′ ⊩Id) ⊩B Id≡A
-    lemma₁ l′≤l (noemb ⊩Id) ⊩B (Id₌ A′ t′ u′ ⇒*Id′ A≡A′ t≡t′ u≡u′ _ _) =
+    lemma₁
+      l′≤l (noemb ⊩Id@record{}) ⊩B
+      (Id₌ A′ t′ u′ ⇒*Id′ A≡A′ t≡t′ u≡u′ _ _) =
       case whnfRed* (red ⇒*Id) Idₙ of λ {
         PE.refl →
-      case extractMaybeEmb′ (Id-elim (redSubst*′ ⇒*Id′ ⊩B .proj₁)) of λ
+      case extractMaybeEmb′
+             (Id-elim (redSubst*′ ⇒*Id′ ⊩B .proj₁)) of λ {
         (_ , l″≤l , Idᵣ _ _ _ ⇒*Id″ ⊩Ty″ ⊩lhs″ ⊩rhs″) →
       case whnfRed* (red ⇒*Id″) Idₙ of λ {
         PE.refl →
@@ -289,7 +292,7 @@ opaque
         , emb-≤-⊩∷ ⊩rhs
         , convTerm₂ ⊩Ty′ ⊩Ty″ A≡A′ ⊩rhs″
         , emb-≤-⊩≡∷ u≡u′
-        ) }}
+        ) }}}
       where
       open _⊩ₗId_ ⊩Id
 
@@ -306,7 +309,7 @@ opaque
     lemma₂ (emb (≤ᵘ-step s) ⊩Id) rest =
       lemma₂ (emb s ⊩Id) rest
     lemma₂
-      (noemb ⊩Id)
+      (noemb ⊩Id@record{})
       ( A′ , t′ , u′ , B⇒*Id , (⊩A , ⊩A′ , A≡A′)
       , (⊩A″ , _ , ⊩t′ , t≡t′) , (⊩A‴ , _ , ⊩u′ , u≡u′)
       ) =
@@ -488,7 +491,7 @@ opaque
       , (case rest of λ where
            (rfl₌ t≡u)             → rfl₌ (emb-⊩≡∷ (≤ᵘ-step ≤ᵘ-refl) t≡u)
            (ne v′-ne w′-ne v′~w′) → ne v′-ne w′-ne v′~w′)
-    lemma (noemb ⊩Id) v≡w@(v′ , w′ , v⇒*v′ , w⇒*w′ , _) =
+    lemma (noemb ⊩Id@record{}) v≡w@(v′ , w′ , v⇒*v′ , w⇒*w′ , _) =
       case whnfRed* (red ⇒*Id) Idₙ of λ {
         PE.refl →
         v′ , w′ , v⇒*v′ , w⇒*w′

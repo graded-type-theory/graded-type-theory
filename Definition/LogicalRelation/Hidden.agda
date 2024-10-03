@@ -965,11 +965,11 @@ opaque
     Γ ⊩⟨ l ⟩ A ⇔ ((Γ ⊢ A) × Γ ⊢ A ≅ A)
   ⊩ne⇔ A-ne =
       (λ ⊩A →
-         case extractMaybeEmb (ne-elim A-ne ⊩A) of λ
-           (_ , ne _ A⇒*B _ B≅B) →
+         case extractMaybeEmb (ne-elim A-ne ⊩A) of λ {
+           (_ , ne B A⇒*B _ B≅B) →
          case whnfRed* (red A⇒*B) (ne A-ne) of λ {
            PE.refl →
-         ⊢A-red A⇒*B , B≅B })
+         ⊢A-red A⇒*B , B≅B }})
     , (λ (⊢A , A≅A) → neu A-ne ⊢A A≅A)
 
 opaque

@@ -37,6 +37,8 @@ record Are-preserving-type-restrictions
          {𝕄₁ : Modality M₁} {𝕄₂ : Modality M₂}
          (R₁ : Type-restrictions 𝕄₁) (R₂ : Type-restrictions 𝕄₂)
          (tr tr-Σ : M₁ → M₂) : Set (a₁ ⊔ a₂) where
+  no-eta-equality
+
   private
     module R₁ = Type-restrictions R₁
     module R₂ = Type-restrictions R₂
@@ -71,6 +73,8 @@ record Are-reflecting-type-restrictions
          {𝕄₁ : Modality M₁} {𝕄₂ : Modality M₂}
          (R₁ : Type-restrictions 𝕄₁) (R₂ : Type-restrictions 𝕄₂)
          (tr tr-Σ : M₁ → M₂) : Set (a₁ ⊔ a₂) where
+  no-eta-equality
+
   private
     module M₁ = Modality 𝕄₁
     module M₂ = Modality 𝕄₂

@@ -530,7 +530,7 @@ opaque
   𝟘 · nr p r z s n                ≡⟨ ·-zeroˡ _ ⟩
   𝟘                               ≡˘⟨ nr-𝟘 ⟩
   nr p r 𝟘 𝟘 𝟘                    ≡˘⟨ cong₂ (nr _ _ _) (·-zeroˡ _) (·-zeroˡ _) ⟩
-  nr p r 𝟘 (𝟘 · s) (𝟘 · n)        ≡˘⟨ cong (λ z → nr _ _ z (_ · _) (_ · _)) (·-zeroˡ _) ⟩
+  nr p r 𝟘 (𝟘 · s) (𝟘 · n)        ≡˘⟨ cong (λ z → nr _ _ z (𝟘 · _) (𝟘 · _)) (·-zeroˡ _) ⟩
   nr p r (𝟘 · z) (𝟘 · s) (𝟘 · n)  ∎
   where
   open Tools.Reasoning.PropositionalEquality
@@ -614,9 +614,10 @@ opaque
         (𝟘ᵐ-allowed-elim-helper b
            (λ ok → ⌞ p ⌟′ (subst T eq ok))
            (λ _ → 𝟙ᵐ))
-    lemma false refl = 𝟘ᵐ-not-allowed idᶠ refl
-    lemma true  refl with is-𝟘? p
-    … | no p≢𝟘  = 𝟙ᵐ ⦃ ok = _ ⦄ p≢𝟘 refl
+    lemma false ≡𝟘ᵐ-allowed =
+      𝟘ᵐ-not-allowed (subst T (PE.sym ≡𝟘ᵐ-allowed)) refl
+    lemma true  ≡𝟘ᵐ-allowed with is-𝟘? p
+    … | no p≢𝟘  = 𝟙ᵐ ⦃ ok = subst T ≡𝟘ᵐ-allowed _ ⦄ p≢𝟘 refl
     … | yes p≡𝟘 = 𝟘ᵐ ⦃ ok = _ ⦄ p≡𝟘 refl
 
 opaque
@@ -665,21 +666,29 @@ opaque
       𝟘ᵐ?
         ⇔
       (¬ T 𝟘ᵐ-allowed ⊎ T 𝟘ᵐ-allowed × p ≡ 𝟘)
-    lemma false refl =
+    lemma false ≡𝟘ᵐ-allowed =
       𝟘ᵐ?-elim
         (λ m →
            𝟙ᵐ ≡ m ⇔ (¬ T 𝟘ᵐ-allowed ⊎ T 𝟘ᵐ-allowed × p ≡ 𝟘))
-        (λ ⦃ ok = ok ⦄ → ⊥-elim ok)
-        (λ _ → (λ _ → inj₁ idᶠ) , (λ _ → refl))
-    lemma true refl with is-𝟘? p
+        (λ ⦃ ok = ok ⦄ → ⊥-elim (subst T (PE.sym ≡𝟘ᵐ-allowed) ok))
+        (λ _ →
+           (λ _ → inj₁ (subst T (PE.sym ≡𝟘ᵐ-allowed))) , (λ _ → refl))
+    lemma true ≡𝟘ᵐ-allowed with is-𝟘? p
     … | no p≢𝟘 =
-        (λ ())
+        𝟘ᵐ?-elim
+          (λ m →
+             𝟙ᵐ ≡ m → (¬ T 𝟘ᵐ-allowed ⊎ T 𝟘ᵐ-allowed × p ≡ 𝟘))
+          (λ ())
+          (λ not-ok _ → inj₁ not-ok)
       , (λ where
-           (inj₁ ¬⊤)        → ⊥-elim $ ¬⊤ _
+           (inj₁ ¬⊤)        → ⊥-elim $ ¬⊤ (subst T ≡𝟘ᵐ-allowed _)
            (inj₂ (_ , p≡𝟘)) → ⊥-elim $ p≢𝟘 p≡𝟘)
     … | yes p≡𝟘 =
-        (λ _ → inj₂ (_ , p≡𝟘))
-      , (λ _ → refl)
+      let ok = subst T ≡𝟘ᵐ-allowed _ in
+        (λ _ → inj₂ (ok , p≡𝟘))
+      , (λ _ →
+           𝟘ᵐ?-elim (λ m → 𝟘ᵐ[ _ ] ≡ m) 𝟘ᵐ-cong
+             (λ not-ok → ⊥-elim (not-ok ok)))
 
 -- If p is equal to 𝟘, then ⌞ p ⌟ is equal to 𝟘ᵐ[ ok ].
 

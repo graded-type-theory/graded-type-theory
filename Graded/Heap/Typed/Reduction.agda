@@ -701,11 +701,11 @@ opaque
   -- Reduction preserves definitional equality
 
   ⇒→≡ : Δ ⨾ Γ ⊢ s ∷ A → s ⇒ s′ → Δ ⊢ ⦅ s ⦆ ≡ ⦅ s′ ⦆ ∷ A
-  ⇒→≡ (_ , _ , ⊢t , ⊢S) (⇒ₙ d) =
+  ⇒→≡ {s = record{}} (_ , _ , ⊢t , ⊢S) (⇒ₙ d) =
     PE.subst (_ ⊢ _ ≡_∷ _) (⇒ₙ-⦅⦆-≡ d) (refl (⊢⦅⦆ˢ ⊢S ⊢t))
   ⇒→≡ ⊢s (⇒ᵥ d) =
     ⇒ᵥ→≡ ⊢s d
-  ⇒→≡ (_ , _ , ⊢t , ⊢S) (⇒ₛ d) =
+  ⇒→≡ {s = record{}} (_ , _ , ⊢t , ⊢S) (⇒ₛ d) =
     PE.subst (_ ⊢ _ ≡_∷ _) (⇒ₛ-⦅⦆-≡ d) (refl (⊢⦅⦆ˢ ⊢S ⊢t))
 
 opaque
@@ -713,7 +713,7 @@ opaque
   -- Reduction preserves definitional equality
 
   ⇒*→≡ : Δ ⨾ Γ ⊢ s ∷ A → s ⇒* s′ → Δ ⊢ ⦅ s ⦆ ≡ ⦅ s′ ⦆ ∷ A
-  ⇒*→≡ (_ , _ , ⊢t , ⊢S) id = refl (⊢⦅⦆ˢ ⊢S ⊢t)
+  ⇒*→≡ {s = record{}} (_ , _ , ⊢t , ⊢S) id = refl (⊢⦅⦆ˢ ⊢S ⊢t)
   ⇒*→≡ ⊢s (x ⇨ d) =
     trans (⇒→≡ ⊢s x) (⇒*→≡ (⊢ₛ-⇒ ⊢s x .proj₂ .proj₂ .proj₂) d)
 

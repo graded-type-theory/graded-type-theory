@@ -202,8 +202,8 @@ opaque
        t ∘⟨ p ⟩ t′ ® v T.∘⟨ str ⟩ v′ ∷ B [ t′ ]₀)))
   ®∷Π⇔ {p} {B} =
       (λ (_ , ⊩Π , t®v) →
-         case extractMaybeEmb′ (B-elim _ ⊩Π) of λ
-           (_ , _ , ⊩Π′) →
+         case extractMaybeEmb′ (B-elim _ ⊩Π) of λ {
+           (_ , _ , ⊩Π′@record{}) →
          case irrelevanceTerm ⊩Π (Bᵣ _ ⊩Π′) t®v of λ
            t®v →
            escape-⊩ ⊩Π , t®v .proj₁
@@ -234,7 +234,7 @@ opaque
                          (irrelevanceTerm′ (PE.sym $ wk-id _)
                             (t′®v′ .proj₂ .proj₁)
                             (_⊩ₗB⟨_⟩_.[F] ⊩Π′ W.id ⊢Δ) $
-                          t′®v′ .proj₂ .proj₂))) })
+                          t′®v′ .proj₂ .proj₂))) }})
     , (λ (⊢Π , v⇒*lam , t®v) →
            _
          , ⊩ΠΣ⇔ .proj₂ (⊩ΠΣ⇔ .proj₁ (reducible-⊩ ⊢Π .proj₂))
@@ -338,8 +338,8 @@ opaque
      (p ≢ 𝟘 → ∃ λ v₁ → v T.⇒* T.prod v₁ v₂ × t₁ ® v₁ ∷ A))
   ®∷Σ⇔ {t} {v} {s} {p} {q} {A} {B} =
       (λ (_ , ⊩Σ , t®v) →
-         case extractMaybeEmb′ (B-elim _ ⊩Σ) of λ
-           (_ , _ , ⊩Σ′) →
+         case extractMaybeEmb′ (B-elim _ ⊩Σ) of λ {
+           (_ , _ , ⊩Σ′@record{}) →
          case irrelevanceTerm ⊩Σ (Bᵣ _ ⊩Σ′) t®v of λ
            (t₁ , t₂ , t⇒ , ⊩t₁ , v₂ , t₂®v₂ , rest) →
          case B-PE-injectivity (BΣ _ _ _) (BΣ _ _ _)
@@ -369,8 +369,8 @@ opaque
          , (λ p≢𝟘 →
               case Σ-®-ω p≢𝟘 rest of λ
                 (v₁ , v⇒ , t₁®v₁) →
-                v₁ , v⇒
-              , (_ , ⊩A , irrelevanceTerm′ (wk-id _) ⊩wk-A ⊩A t₁®v₁)) })
+              v₁ , v⇒ ,
+              (_ , ⊩A , irrelevanceTerm′ (wk-id _) ⊩wk-A ⊩A t₁®v₁)) }})
     , (λ (⊢Σ , _ , _ , v₂ , t⇒*prod , (_ , ⊩B , t₂®v₂) , hyp₁ , hyp₂) →
          case ⊩ΠΣ⇔ .proj₁ (reducible-⊩ ⊢Σ .proj₂) of λ
            ⊩Σ′@(_ , _ , rest) →

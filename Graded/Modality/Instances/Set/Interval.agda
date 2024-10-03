@@ -169,6 +169,8 @@ Closure-⊎ {P = P} {Q = Q} {n = n} =
 -- Graded.Modality.Instances.Set.Interval.Implementation.
 
 record Is-non-empty-interval (S : Set a) : Set (lsuc (lsuc a)) where
+  no-eta-equality
+
   field
     -- Is-non-empty-interval S implies Is-non-empty-set-[] S.
     is-non-empty-set-[] : Is-non-empty-set-[] S
@@ -1012,20 +1014,20 @@ record Is-non-empty-interval (S : Set a) : Set (lsuc (lsuc a)) where
     -- A "semiring with meet" for S.
 
     semiring-with-meet : Semiring-with-meet
-    semiring-with-meet = λ where
-      .Semiring-with-meet._∧_      → _∪_
-      .Semiring-with-meet._+_      → _+_
-      .Semiring-with-meet._·_      → _·_
-      .Semiring-with-meet.𝟘        → 𝟘
-      .Semiring-with-meet.𝟙        → 𝟙
-      .Semiring-with-meet.ω        → ℕ
-      .Semiring-with-meet.ω≤𝟙      → ℕ-least
-      .Semiring-with-meet.ω·+≤ω·ʳ  → ℕ·+≤ℕ·ʳ
-      .Semiring-with-meet.is-𝟘? xs → case is-𝟘? xs of λ where
-        (inj₁ xs≡𝟘) → yes (xs≡𝟘 ext)
-        (inj₂ xs≢𝟘) → no xs≢𝟘
-      .Semiring-with-meet.∧-Semilattice → ∪-semilattice
-      .Semiring-with-meet.+-·-Semiring  → record
+    semiring-with-meet = record
+      { _∧_     = _∪_
+      ; _+_     = _+_
+      ; _·_     = _·_
+      ; 𝟘       = 𝟘
+      ; 𝟙       = 𝟙
+      ; ω       = ℕ
+      ; ω≤𝟙     = ℕ-least
+      ; ω·+≤ω·ʳ = ℕ·+≤ℕ·ʳ
+      ; is-𝟘?   = λ xs → case is-𝟘? xs of λ where
+          (inj₁ xs≡𝟘) → yes (xs≡𝟘 ext)
+          (inj₂ xs≢𝟘) → no xs≢𝟘
+      ; ∧-Semilattice = ∪-semilattice
+      ; +-·-Semiring  = record
         { isSemiringWithoutAnnihilatingZero = record
            { +-isCommutativeMonoid = +-𝟘-commutative-monoid
            ; *-cong = cong₂ _·_
@@ -1035,17 +1037,19 @@ record Is-non-empty-interval (S : Set a) : Set (lsuc (lsuc a)) where
            }
         ; zero = ·-zero
         }
-      .Semiring-with-meet.+-distrib-∧   → +-distrib-∪
-      .Semiring-with-meet.·-distrib-∧   → ·-distrib-∪
+      ; +-distrib-∧ = +-distrib-∪
+      ; ·-distrib-∧ = ·-distrib-∪
+      }
 
     -- The "semiring with meet" has a well-behaved zero.
 
     has-well-behaved-zero : Has-well-behaved-zero semiring-with-meet
-    has-well-behaved-zero = λ where
-      .Has-well-behaved-zero.non-trivial  → 𝟙≢𝟘
-      .Has-well-behaved-zero.∧-positiveˡ  → proj₁ ∘→ ∪-positive
-      .Has-well-behaved-zero.+-positiveˡ  → proj₁ ∘→ +-positive
-      .Has-well-behaved-zero.zero-product → zero-product
+    has-well-behaved-zero = record
+      { non-trivial  = 𝟙≢𝟘
+      ; ∧-positiveˡ  = proj₁ ∘→ ∪-positive
+      ; +-positiveˡ  = proj₁ ∘→ +-positive
+      ; zero-product = zero-product
+      }
 
     private
       module LB = LowerBounded semiring-with-meet ℕ (λ _ → ℕ-least)

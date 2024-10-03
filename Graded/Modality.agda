@@ -21,6 +21,9 @@ private variable
 
 -- Semiring with meet
 record Semiring-with-meet : Set a where
+  no-eta-equality
+  pattern
+
   infixr 40 _+_
   infixr 40 _∧_
   infixr 45 _·_
@@ -137,6 +140,8 @@ record Semiring-with-meet : Set a where
 
 -- Meet-Semirings with well-behaved zero
 record Has-well-behaved-zero (𝕄 : Semiring-with-meet) : Set a where
+  no-eta-equality
+  pattern
   open Semiring-with-meet 𝕄
   field
     -- 𝕄 is non-trivial.
@@ -166,6 +171,9 @@ record Has-well-behaved-zero (𝕄 : Semiring-with-meet) : Set a where
 -- Such a function is used in one of the usage rules for natrec.
 
 record Has-nr (𝕄 : Semiring-with-meet) : Set a where
+  no-eta-equality
+  pattern
+
   open Semiring-with-meet 𝕄
 
   field
@@ -218,6 +226,9 @@ record Has-nr (𝕄 : Semiring-with-meet) : Set a where
 -- The property of having an nr function that factors in a certain way
 
 record Has-factoring-nr (𝕄 : Semiring-with-meet) ⦃ has-nr : Has-nr 𝕄 ⦄ : Set a where
+  no-eta-equality
+  pattern
+
   open Semiring-with-meet 𝕄
 
   open Has-nr has-nr
@@ -231,6 +242,9 @@ record Has-factoring-nr (𝕄 : Semiring-with-meet) ⦃ has-nr : Has-nr 𝕄 ⦄
 
 -- The property of having a natrec-star operator.
 record Has-star (r : Semiring-with-meet) : Set a where
+  no-eta-equality
+  pattern
+
   open Semiring-with-meet r
 
   infix 50 _⊛_▷_
@@ -264,6 +278,8 @@ record Has-star (r : Semiring-with-meet) : Set a where
 
 -- The modality structure
 record Modality : Set (lsuc a) where
+  no-eta-equality
+  pattern
   field
     -- The modality variant.
     variant            : Modality-variant

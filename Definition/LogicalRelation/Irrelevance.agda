@@ -117,7 +117,7 @@ mutual
                                  ([G] [ρ] ⊢Δ [a]) ([G]₁ [ρ] ⊢Δ [a]₁) ([G≡G′] [ρ] ⊢Δ [a]))
   irrelevanceEqT (Uᵥ (Uᵣ _ _ D1) (Uᵣ _ _ D2)) A≡B
     rewrite whrDet* (red D1 , Uₙ) (red D2 , Uₙ) = A≡B
-  irrelevanceEqT (Idᵥ ⊩A ⊩A′) A≡B =
+  irrelevanceEqT (Idᵥ ⊩A@record{} ⊩A′) A≡B =
     case
       whrDet* (red (_⊩ₗId_.⇒*Id ⊩A) , Idₙ) (red (_⊩ₗId_.⇒*Id ⊩A′) , Idₙ)
     of λ {
@@ -259,7 +259,7 @@ mutual
     | PE.refl =
     Uₜ A d typeA A≡A (irrelevance-⊩< l<1 l<2 [t])
 
-  irrelevanceTermT (Idᵥ ⊩A ⊩A′) ⊩t@(_ , t⇒*u , _) =
+  irrelevanceTermT (Idᵥ ⊩A@record{} ⊩A′) ⊩t@(_ , t⇒*u , _) =
     case
       whrDet* (red (_⊩ₗId_.⇒*Id ⊩A) , Idₙ) (red (_⊩ₗId_.⇒*Id ⊩A′) , Idₙ)
     of λ {
@@ -415,7 +415,8 @@ mutual
     (Uₜ₌ A B d d′ typeA typeB A≡B [t] [u] [t≡u]) | PE.refl =
     Uₜ₌ A B d d′ typeA typeB A≡B _ (irrelevance-⊩< l<1 l<2 [u])
       (irrelevance-⊩<≡ l<1 l<2 [t≡u])
-  irrelevanceEqTermT (Idᵥ ⊩A ⊩A′) t≡u@(_ , _ , t⇒*t′ , u⇒*u′ , _) =
+  irrelevanceEqTermT
+    (Idᵥ ⊩A@record{} ⊩A′) t≡u@(_ , _ , t⇒*t′ , u⇒*u′ , _) =
     case whrDet*
            (red (_⊩ₗId_.⇒*Id ⊩A) , Idₙ)
            (red (_⊩ₗId_.⇒*Id ⊩A′) , Idₙ) of λ {

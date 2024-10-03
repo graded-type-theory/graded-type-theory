@@ -27,6 +27,7 @@ private variable
   n : Nat
 
 record Assumptions : Set a where
+  no-eta-equality
   infix 10 _≟_ _≤?_ _≤ᶜ?_
   field
     -- Equality is assumed to be decidable for M.
@@ -44,11 +45,12 @@ record Assumptions : Set a where
     -- The []-cong-allowed-mode relation is assumed to be decidable.
     []-cong-allowed-mode? : ∀ s m → Dec ([]-cong-allowed-mode s m)
 
-    -- A dedicated nr function is assumed to exist.
-    ⦃ has-nr ⦄ : Dedicated-nr
+    instance
+      -- A dedicated nr function is assumed to exist.
+      ⦃ has-nr ⦄ : Dedicated-nr
 
-    -- Strong unit types are not allowed to be used as sinks.
-    ⦃ no-sink ⦄ : ¬Starˢ-sink
+      -- Strong unit types are not allowed to be used as sinks.
+      ⦃ no-sink ⦄ : ¬Starˢ-sink
 
   -- Inequality is decidable.
 

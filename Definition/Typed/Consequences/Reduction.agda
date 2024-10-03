@@ -73,13 +73,13 @@ opaque
 
   red-Unit : Γ ⊢ t ∷ Unit s l → ∃ λ u → Star u × Γ ⊢ t :⇒*: u ∷ Unit s l
   red-Unit ⊢t =
-    case ⊩∷Unit⇔ .proj₁ $ proj₂ $ reducible-⊩∷ ⊢t of λ
+    case ⊩∷Unit⇔ .proj₁ $ proj₂ $ reducible-⊩∷ ⊢t of λ {
       (_ , _ , Unitₜ u t⇒*u _ rest) →
       u
     , (case rest of λ where
          starᵣ                 → starₙ
          (ne (neNfₜ u-ne _ _)) → ne u-ne)
-    , t⇒*u
+    , t⇒*u }
 
 opaque
 
@@ -88,14 +88,14 @@ opaque
 
   red-ℕ : Γ ⊢ t ∷ ℕ → ∃ λ u → Natural u × Γ ⊢ t :⇒*: u ∷ ℕ
   red-ℕ ⊢t =
-    case ⊩∷ℕ⇔ .proj₁ $ proj₂ $ reducible-⊩∷ ⊢t of λ
+    case ⊩∷ℕ⇔ .proj₁ $ proj₂ $ reducible-⊩∷ ⊢t of λ {
       (ℕₜ u t⇒*u _ rest) →
       u
     , (case rest of λ where
          zeroᵣ                 → zeroₙ
          (sucᵣ _)              → sucₙ
          (ne (neNfₜ u-ne _ _)) → ne u-ne)
-    , t⇒*u
+    , t⇒*u }
 
 opaque
 

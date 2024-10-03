@@ -131,10 +131,10 @@ has-nr = record
     lemma = begin
       (s₁ + p · n₁) + (s₂ + p · n₂)  ≡⟨ +-assoc _ _ _ ⟩
       s₁ + (p · n₁ + (s₂ + p · n₂))  ≡˘⟨ cong (_ +_) (+-assoc _ _ _) ⟩
-      s₁ + ((p · n₁ + s₂) + p · n₂)  ≡⟨ cong (_ +_) (cong (_+ _) (+-comm _ _)) ⟩
+      s₁ + ((p · n₁ + s₂) + p · n₂)  ≡⟨ cong (_ +_) (cong (flip _+_ _) (+-comm _ _)) ⟩
       s₁ + ((s₂ + p · n₁) + p · n₂)  ≡⟨ cong (_ +_) (+-assoc _ _ _) ⟩
       s₁ + (s₂ + (p · n₁ + p · n₂))  ≡˘⟨ +-assoc _ _ _ ⟩
-      (s₁ + s₂) + (p · n₁ + p · n₂)  ≡˘⟨ cong (_ +_) (·-distribˡ-+ _ _ _) ⟩
+      (s₁ + s₂) + (p · n₁ + p · n₂)  ≡˘⟨ cong (_+_ _) (·-distribˡ-+ _ _ _) ⟩
       (s₁ + s₂) + p · (n₁ + n₂)      ∎
 
   nr′-positive :

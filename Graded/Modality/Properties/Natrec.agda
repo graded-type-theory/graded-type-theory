@@ -44,6 +44,8 @@ module _ ⦃ has-nr : Has-nr _ 𝕄 ⦄ where
 -- A type used to express that there isn't a greatest factoring nr function.
 
 record No-greatest-factoring-nr : Set a where
+  no-eta-equality
+
   field
     -- There are two nr functions
     has-nr₁ : Has-nr M 𝕄

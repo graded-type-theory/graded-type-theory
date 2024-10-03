@@ -49,6 +49,8 @@ private
 
 -- Neutral type
 record _⊩ne_ {ℓ : Nat} (Γ : Con Term ℓ) (A : Term ℓ) : Set a where
+  no-eta-equality
+  pattern
   constructor ne
   field
     K   : Term ℓ
@@ -58,6 +60,8 @@ record _⊩ne_ {ℓ : Nat} (Γ : Con Term ℓ) (A : Term ℓ) : Set a where
 
 -- Neutral type equality
 record _⊩ne_≡_/_ (Γ : Con Term ℓ) (A B : Term ℓ) ([A] : Γ ⊩ne A) : Set a where
+  no-eta-equality
+  pattern
   constructor ne₌
   open _⊩ne_ [A]
   field
@@ -69,6 +73,8 @@ record _⊩ne_≡_/_ (Γ : Con Term ℓ) (A B : Term ℓ) ([A] : Γ ⊩ne A) : S
 -- Neutral term in WHNF
 record _⊩neNf_∷_ (Γ : Con Term ℓ) (k A : Term ℓ) : Set a where
   inductive
+  no-eta-equality
+  pattern
   constructor neNfₜ
   field
     neK  : Neutral k
@@ -78,6 +84,8 @@ record _⊩neNf_∷_ (Γ : Con Term ℓ) (k A : Term ℓ) : Set a where
 -- Neutral term
 record _⊩ne_∷_/_ (Γ : Con Term ℓ) (t A : Term ℓ) ([A] : Γ ⊩ne A) : Set a where
   inductive
+  no-eta-equality
+  pattern
   constructor neₜ
   open _⊩ne_ [A]
   field
@@ -88,6 +96,8 @@ record _⊩ne_∷_/_ (Γ : Con Term ℓ) (t A : Term ℓ) ([A] : Γ ⊩ne A) : S
 -- Neutral term equality in WHNF
 record _⊩neNf_≡_∷_ (Γ : Con Term ℓ) (k m A : Term ℓ) : Set a where
   inductive
+  no-eta-equality
+  pattern
   constructor neNfₜ₌
   field
     neK  : Neutral k
@@ -96,6 +106,8 @@ record _⊩neNf_≡_∷_ (Γ : Con Term ℓ) (k m A : Term ℓ) : Set a where
 
 -- Neutral term equality
 record _⊩ne_≡_∷_/_ (Γ : Con Term ℓ) (t u A : Term ℓ) ([A] : Γ ⊩ne A) : Set a where
+  no-eta-equality
+  pattern
   constructor neₜ₌
   open _⊩ne_ [A]
   field
@@ -118,6 +130,8 @@ mutual
   -- Natural number term
   record _⊩ℕ_∷ℕ (Γ : Con Term ℓ) (t : Term ℓ) : Set a where
     inductive
+    no-eta-equality
+    pattern
     constructor ℕₜ
     field
       n : Term ℓ
@@ -135,6 +149,8 @@ mutual
   -- Natural number term equality
   record _⊩ℕ_≡_∷ℕ (Γ : Con Term ℓ) (t u : Term ℓ) : Set a where
     inductive
+    no-eta-equality
+    pattern
     constructor ℕₜ₌
     field
       k k′ : Term ℓ
@@ -166,6 +182,8 @@ data Empty-prop (Γ : Con Term ℓ) : (n : Term ℓ) → Set a where
 -- Empty term
 record _⊩Empty_∷Empty (Γ : Con Term ℓ) (t : Term ℓ) : Set a where
   inductive
+  no-eta-equality
+  pattern
   constructor Emptyₜ
   field
     n : Term ℓ
@@ -179,6 +197,8 @@ data [Empty]-prop (Γ : Con Term ℓ) : (n n′ : Term ℓ) → Set a where
 -- Empty term equality
 record _⊩Empty_≡_∷Empty (Γ : Con Term ℓ) (t u : Term ℓ) : Set a where
   inductive
+  no-eta-equality
+  pattern
   constructor Emptyₜ₌
   field
     k k′ : Term ℓ
@@ -215,6 +235,8 @@ record _⊩Unit⟨_,_⟩_∷Unit
   (Γ : Con Term ℓ) (l : Universe-level) (s : Strength) (t : Term ℓ) :
   Set a where
   inductive
+  no-eta-equality
+  pattern
   constructor Unitₜ
   field
     n : Term ℓ
@@ -249,6 +271,8 @@ data _⊩Unit⟨_,_⟩_≡_∷Unit
 -- Logical relation
 -- Exported interface
 record LogRelKit : Set (lsuc a) where
+  no-eta-equality
+  pattern
   constructor Kit
   field
     _⊩U_ : Con Term ℓ → Term ℓ → Set a
@@ -268,6 +292,8 @@ module LogRel
 
   -- Universe type
   record _⊩₁U_ (Γ : Con Term ℓ) (A : Term ℓ) : Set a where
+    no-eta-equality
+    pattern
     constructor Uᵣ
     field
       l′  : Universe-level
@@ -283,6 +309,8 @@ module LogRel
   record _⊩₁U_∷U/_
            {l′} (Γ : Con Term ℓ) (t : Term ℓ) (l< : l′ <ᵘ l) :
            Set a where
+    no-eta-equality
+    pattern
     constructor Uₜ
     open LogRelKit (rec l<)
     field
@@ -296,6 +324,8 @@ module LogRel
   record _⊩₁U_≡_∷U/_
            {l′} (Γ : Con Term ℓ) (t u : Term ℓ) (l< : l′ <ᵘ l) :
            Set a where
+    no-eta-equality
+    pattern
     constructor Uₜ₌
     open LogRelKit (rec l<)
     field
@@ -318,8 +348,9 @@ module LogRel
     -- B-type
     record _⊩ₗB⟨_⟩_ (Γ : Con Term ℓ) (W : BindingType) (A : Term ℓ) : Set a where
       inductive
+      no-eta-equality
+      pattern
       constructor Bᵣ
-      eta-equality
       field
         F : Term ℓ
         G : Term (1+ ℓ)
@@ -343,8 +374,9 @@ module LogRel
     -- B-type equality
     record _⊩ₗB⟨_⟩_≡_/_ (Γ : Con Term ℓ) (W : BindingType) (A B : Term ℓ) ([A] : Γ ⊩ₗB⟨ W ⟩ A) : Set a where
       inductive
+      no-eta-equality
+      pattern
       constructor B₌
-      eta-equality
       open _⊩ₗB⟨_⟩_ [A]
       field
         F′     : Term ℓ
@@ -481,8 +513,9 @@ module LogRel
     -- Well-formed identity types.
     record _⊩ₗId_ (Γ : Con Term ℓ) (A : Term ℓ) : Set a where
       inductive
+      no-eta-equality
+      pattern
       constructor Idᵣ
-      eta-equality
       field
         Ty lhs rhs : Term ℓ
         ⇒*Id       : Γ ⊢ A :⇒*: Id Ty lhs rhs
@@ -494,8 +527,9 @@ module LogRel
     record _⊩ₗId_≡_/_
       (Γ : Con Term ℓ) (A B : Term ℓ) (⊩A : Γ ⊩ₗId A) : Set a where
       inductive
+      no-eta-equality
+      pattern
       constructor Id₌
-      eta-equality
 
       open _⊩ₗId_ ⊩A
 
@@ -562,7 +596,7 @@ module LogRel
             ([A] : Γ ⊩ A) → Γ ⊩ₗ A
 
     _⊩ₗ_≡_/_ : (Γ : Con Term ℓ) (A B : Term ℓ) → Γ ⊩ₗ A → Set a
-    Γ ⊩ₗ A ≡ B / Uᵣ (Uᵣ l′ _ _) = Γ ⊩₁U≡ B / l′
+    Γ ⊩ₗ A ≡ B / Uᵣ ⊩A = Γ ⊩₁U≡ B / _⊩₁U_.l′ ⊩A
     Γ ⊩ₗ A ≡ B / ℕᵣ D = Γ ⊩ℕ A ≡ B
     Γ ⊩ₗ A ≡ B / Emptyᵣ D = Γ ⊩Empty A ≡ B
     Γ ⊩ₗ A ≡ B / Unitᵣ {s = s} D = Γ ⊩Unit⟨ l , s ⟩ A ≡ B
@@ -585,7 +619,7 @@ module LogRel
       where open LogRelKit (rec l<)
 
     _⊩ₗ_≡_∷_/_ : (Γ : Con Term ℓ) (t u A : Term ℓ) → Γ ⊩ₗ A → Set a
-    Γ ⊩ₗ t ≡ u ∷ A / Uᵣ (Uᵣ l′ l< ⊢Γ) = Γ ⊩₁U t ≡ u ∷U/ l<
+    Γ ⊩ₗ t ≡ u ∷ A / Uᵣ ⊩A = Γ ⊩₁U t ≡ u ∷U/ _⊩₁U_.l′< ⊩A
     Γ ⊩ₗ t ≡ u ∷ A / ℕᵣ D = Γ ⊩ℕ t ≡ u ∷ℕ
     Γ ⊩ₗ t ≡ u ∷ A / Emptyᵣ D = Γ ⊩Empty t ≡ u ∷Empty
     Γ ⊩ₗ t ≡ u ∷ A / Unitᵣ {s = s} D = Γ ⊩Unit⟨ l , s ⟩ t ≡ u ∷Unit

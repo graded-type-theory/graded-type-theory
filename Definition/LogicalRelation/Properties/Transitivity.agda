@@ -105,6 +105,7 @@ transUnit-prop : ∀ {k k′ k″}
   → [Unitʷ]-prop Γ l k k″
 transUnit-prop starᵣ eq = eq
 transUnit-prop (ne [k≡k′]) (ne [k′≡k″]) = ne (transEqTermNe [k≡k′] [k′≡k″])
+transUnit-prop (ne (neNfₜ₌ _ () _)) starᵣ
 
 transEqTermUnit : ∀ {s n n′ n″}
   → Γ ⊩Unit⟨ l , s ⟩ n  ≡ n′ ∷Unit
@@ -224,7 +225,7 @@ transEqT {n = n} {Γ = Γ} {l = l} {l′ = l′} {l″ = l″}
 transEqT (Uᵥ (Uᵣ l′ l< ⇒*U) (Uᵣ l′₁ l<₁ ⇒*U₁) (Uᵣ l′₂ l<₂ ⇒*U₂)) D D₁
   rewrite whrDet* (red ⇒*U₁ , Uₙ) (red D , Uₙ)  | whrDet* (red ⇒*U₂ , Uₙ) (red D₁ , Uₙ) =
     [ _⊢_:⇒*:_.⊢A D₁ , _⊢_:⇒*:_.⊢B D , _⊢_:⇒*:_.D D₁ ]
-transEqT (Idᵥ ⊩A ⊩B ⊩C) A≡B B≡C =
+transEqT (Idᵥ ⊩A ⊩B@record{} ⊩C@record{}) A≡B B≡C =
   case
     whrDet*
       (red (_⊩ₗId_.⇒*Id ⊩B) , Idₙ)

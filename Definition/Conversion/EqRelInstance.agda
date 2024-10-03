@@ -64,6 +64,8 @@ private
 -- Algorithmic equality of neutrals with injected conversion.
 record _⊢_~_∷_ (Γ : Con Term n) (k l A : Term n) : Set a where
   inductive
+  no-eta-equality
+  pattern
   constructor ↑
   field
     {B} : Term n

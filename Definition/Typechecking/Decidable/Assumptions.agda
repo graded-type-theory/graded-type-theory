@@ -18,6 +18,7 @@ open import Tools.PropositionalEquality
 open import Tools.Relation
 
 record Assumptions : Set a where
+  no-eta-equality
   infix 10 _≟_
   field
     -- Equality is assumed to be decidable for M.

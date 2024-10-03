@@ -325,6 +325,8 @@ toWkₕ (H ∙●) = lift (toWkₕ H)
 infix 2 ⟨_,_,_,_⟩
 
 record State (k m n : Nat) : Set a where
+  no-eta-equality
+  pattern
   constructor ⟨_,_,_,_⟩
   field
     heap : Heap k m

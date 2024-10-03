@@ -29,6 +29,8 @@ private variable
 -- arguments.
 
 record Dedicated-nr : Set a where
+  no-eta-equality
+  pattern
   constructor dedicated-nr
   field
     nr : T nr-available
@@ -39,6 +41,13 @@ Dedicated-nr-propositional : (p q : Dedicated-nr) → p ≡ q
 Dedicated-nr-propositional (dedicated-nr _) (dedicated-nr _) =
   cong dedicated-nr T-propositional
 
+opaque
+
+  -- A characterisation lemma for Dedicated-nr.
+
+  Dedicated-nr⇔ : Dedicated-nr ⇔ T nr-available
+  Dedicated-nr⇔ = Dedicated-nr.nr , dedicated-nr
+
 ------------------------------------------------------------------------
 -- No-dedicated-nr
 
@@ -46,6 +55,8 @@ Dedicated-nr-propositional (dedicated-nr _) (dedicated-nr _) =
 -- arguments.
 
 record No-dedicated-nr : Set a where
+  no-eta-equality
+  pattern
   constructor no-dedicated-nr
   field
     no-nr′ : T (not nr-available)
