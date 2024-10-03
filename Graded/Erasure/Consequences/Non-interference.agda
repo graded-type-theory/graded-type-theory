@@ -19,11 +19,11 @@ module Graded.Erasure.Consequences.Non-interference
   (TR : Type-restrictions 𝕄)
   (UR : Usage-restrictions 𝕄)
   ⦃ 𝟘-well-behaved : Has-well-behaved-zero M semiring-with-meet ⦄
+  ⦃ eqrel : EqRelSet TR ⦄
   {k : Nat}
   {Δ : Con Term k}
   (FA : Fundamental-assumptions TR UR Δ)
   {str : Strictness}
-  {{eqrel : EqRelSet TR}}
   where
 
 open Fundamental-assumptions FA
@@ -46,7 +46,11 @@ open import Graded.Erasure.LogicalRelation.Assumptions TR
 private
 
   as : Assumptions
-  as = record { ⊢Δ = well-formed; str = str }
+  as = record
+    { ⊢Δ  = well-formed
+    ; inc = Fundamental-assumptions.inc FA
+    ; str = str
+    }
 
 open import Graded.Erasure.LogicalRelation as
 open import Graded.Erasure.LogicalRelation.Hidden as

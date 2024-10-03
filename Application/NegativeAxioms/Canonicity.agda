@@ -38,6 +38,7 @@ open import Tools.Function
 open import Tools.Nat
 import Tools.PropositionalEquality as PE
 open import Tools.Product
+open import Tools.Sum
 
 
 -- Preliminaries
@@ -137,7 +138,7 @@ module Main {Γ : Con Term m} (nΓ : NegativeContext Γ)
     in  suc v , sucₙ numV , ⇒ˢ*∷ℕ-trans (whred* d) (sucred* d′)
   canonicityRed′ (ℕₜ _ d n≡n zeroᵣ) =
     zero , zeroₙ , whred* d
-  canonicityRed′ (ℕₜ n d n≡n (ne (neNfₜ neK k≡k))) =
+  canonicityRed′ (ℕₜ n d n≡n (ne (neNfₜ _ neK k≡k))) =
     let u , d′ , ¬neU =
           ¬NeutralNf (redFirst*Term d)
             (flip ¬negℕ $ refl (ℕⱼ $ wfTerm $ redFirst*Term d))
@@ -145,7 +146,8 @@ module Main {Γ : Con Term m} (nΓ : NegativeContext Γ)
         PE.subst Neutral (whrDet*Term (d , ne neK) d′) neK
 
   canonicityRed : Γ ⊢ t ∷ ℕ → ∃ λ u → Numeral u × Γ ⊢ t ⇒ˢ* u ∷ℕ
-  canonicityRed = canonicityRed′ ∘→ ⊩∷ℕ⇔ .proj₁ ∘→ proj₂ ∘→ reducible-⊩∷
+  canonicityRed =
+    canonicityRed′ ∘→ ⊩∷ℕ⇔ .proj₁ ∘→ proj₂ ∘→ reducible-⊩∷ (inj₁ _)
 
   -- Canonicity theorem: Any well-typed term Γ ⊢ t : ℕ is convertible to a numeral.
 

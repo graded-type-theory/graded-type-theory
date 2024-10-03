@@ -30,6 +30,7 @@ open import Definition.Conversion.Weakening R
 open import Definition.LogicalRelation R
 open import Definition.LogicalRelation.Properties R
 open import Definition.LogicalRelation.Fundamental.Reducibility R
+open import Definition.LogicalRelation.Weakening.Restricted R
 open import Definition.Typed.Consequences.Reduction R
 
 open import Tools.Fin
@@ -96,7 +97,7 @@ mutual
         case subset* B⇒*A of λ
           B≡Unit →
         η-unit (conv ⊢t B≡Unit) (conv ⊢u B≡Unit) (ne t-ne) (ne u-ne) η }
-  lift~toConv↓′ (ne′ H D neH H≡H) D₁ ([~] A (D₂ , whnfB) k~l)
+  lift~toConv↓′ (ne′ _ H D neH H≡H) D₁ ([~] A (D₂ , whnfB) k~l)
                 rewrite PE.sym (whrDet* (D , ne neH) (D₁ , whnfB)) =
     let _ , ⊢t , ⊢u = syntacticEqTerm (soundness~↑ k~l)
         A≡H = subset* D₂
@@ -109,11 +110,12 @@ mutual
         ⊢F , ⊢G , _ = inversion-ΠΣ ⊢ΠFG
         neT , neU = ne~↑ k~l
         step-id = stepʷ id ⊢F
-        var0 = neuTerm ([F] step-id) (var x0) (refl (var₀ ⊢F))
-        0≡0 = lift~toConv↑′ ([F] step-id) (var-refl (var₀ ⊢F) PE.refl)
+        step-idʳ = ∷ʷ⊇→∷ʷʳ⊇ (inj₁ _) step-id
+        var0 = neuTerm _ ([F] step-idʳ) (var x0) (refl (var₀ ⊢F))
+        0≡0 = lift~toConv↑′ ([F] step-idʳ) (var-refl (var₀ ⊢F) PE.refl)
     in  η-eq ⊢t ⊢u (ne neT) (ne neU)
           (PE.subst (λ x → _ ⊢ _ [conv↑] _ ∷ x) (wkSingleSubstId _) $
-           lift~toConv↑′ ([G] step-id var0) $
+           lift~toConv↑′ ([G] step-idʳ var0) $
            app-cong (wk~↓ step-id ([~] A (D₂ , ΠΣₙ) k~l)) 0≡0)
   lift~toConv↓′
     (Bᵣ′ BΣˢ F G D Σ≡Σ [F] [G] G-ext _) D₁
@@ -130,11 +132,11 @@ mutual
         wkId = wk-id F
         wkLiftId = PE.cong (λ x → x [ fst _ _ ]₀) (wk-lift-id G)
 
-        wk[F] = [F] (idʷ ⊢Γ)
+        wk[F] = [F] (id ⊢Γ)
         wkfst≡ = PE.subst (_⊢_≡_∷_ _ _ _) (PE.sym wkId)
                    (fst-cong ⊢G (refl ⊢t))
-        wk[fst] = neuTerm wk[F] (fstₙ neT) wkfst≡
-        wk[Gfst] = [G] (idʷ ⊢Γ) wk[fst]
+        wk[fst] = neuTerm _ wk[F] (fstₙ neT) wkfst≡
+        wk[Gfst] = [G] (id ⊢Γ) wk[fst]
 
         wkfst~ = PE.subst (λ x → _ ⊢ _ ~ _ ↑ x) (PE.sym wkId) (fst-cong t~u↓)
         wksnd~ = PE.subst (λ x → _ ⊢ _ ~ _ ↑ x) (PE.sym wkLiftId) (snd-cong t~u↓)
@@ -179,7 +181,8 @@ lift~toConv↓ : ∀ {t u A}
              → Γ ⊢ t ~ u ↓ A
              → Γ ⊢ t [conv↓] u ∷ A
 lift~toConv↓ ([~] A₁ D@(D′ , _) k~l) =
-  lift~toConv↓′ (reducible-⊩ (proj₁ (syntacticRed D′)) .proj₂) D′
+  lift~toConv↓′
+    (reducible-⊩ (inj₁ _) (syntacticRed D′ .proj₁) .proj₂) D′
     ([~] A₁ D k~l)
 
 -- Lifting of algorithmic equality of terms from neutrals to generic terms.
@@ -188,4 +191,6 @@ lift~toConv↑ : ∀ {t u A}
              → Γ ⊢ t [conv↑] u ∷ A
 lift~toConv↑ t~u =
   lift~toConv↑′
-    (reducible-⊩ (proj₁ (syntacticEqTerm (soundness~↑ t~u))) .proj₂) t~u
+    (reducible-⊩ (inj₁ _) (syntacticEqTerm (soundness~↑ t~u) .proj₁)
+       .proj₂)
+    t~u

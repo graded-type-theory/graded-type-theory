@@ -30,6 +30,7 @@ import Graded.Erasure.Target as T
 open import Graded.Erasure.Extraction 𝕄
 
 open import Definition.LogicalRelation R
+import Definition.LogicalRelation.Hidden.Restricted R as R
 open import Definition.LogicalRelation.Fundamental R
 open import Definition.LogicalRelation.Substitution R
 open import Definition.LogicalRelation.Substitution.Introductions.Empty R
@@ -81,7 +82,7 @@ opaque
     ▸⊩ʳ∷[𝟘ᵐ]
   emptyrecʳ {m = 𝟙ᵐ} {p} {Γ} {t} {γ} ok ⊢t ⊩ʳt =
     ▸⊩ʳ∷⇔ .proj₂ λ {σ = σ} {σ′ = σ′} ⊩σ σ®σ′ →
-    case ⊩∷Empty⇔ .proj₁ $
+    case ⊩∷Empty⇔ .proj₁ $ R.⊩∷→ inc $
          ⊩ᵛ∷→⊩ˢ∷→⊩[]∷ (fundamental-⊩ᵛ∷ ⊢t .proj₂) ⊩σ of λ
       (Emptyₜ _ ⊢t[σ]⇒* _ _) →
     case is-𝟘? p of λ where

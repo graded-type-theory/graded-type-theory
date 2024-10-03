@@ -114,13 +114,13 @@ opaque
              t≡u))
     , λ t≡u@(Emptyₜ₌ _ _ t⇒*t′ u⇒*u′ t′≅u′ prop) →
         case prop of λ where
-          (ne (neNfₜ₌ t′-ne u′-ne t′~u′)) →
+          (ne (neNfₜ₌ inc t′-ne u′-ne t′~u′)) →
             let ≅t′ , ≅u′ = wf-⊢≅∷ t′≅u′
                 ~t′ , ~u′ = wf-⊢~∷ t′~u′
             in
               ⊩Empty⇔ .proj₂ (wfEqTerm (subset*Term t⇒*t′))
-            , Emptyₜ _ t⇒*t′ ≅t′ (ne (neNfₜ t′-ne ~t′))
-            , Emptyₜ _ u⇒*u′ ≅u′ (ne (neNfₜ u′-ne ~u′))
+            , Emptyₜ _ t⇒*t′ ≅t′ (ne (neNfₜ inc t′-ne ~t′))
+            , Emptyₜ _ u⇒*u′ ≅u′ (ne (neNfₜ inc u′-ne ~u′))
             , t≡u
     where
     lemma :
@@ -147,10 +147,10 @@ opaque
 
   Emptyᵛ : ⊩ᵛ Γ → Γ ⊩ᵛ⟨ l ⟩ Empty
   Emptyᵛ {Γ} {l} ⊩Γ =
-    ⊩ᵛ⇔ .proj₂
+    ⊩ᵛ⇔ʰ .proj₂
       ( ⊩Γ
-      , λ {_} {Δ = Δ} {σ₁ = σ₁} {σ₂ = σ₂} →
-          Δ ⊩ˢ σ₁ ≡ σ₂ ∷ Γ        →⟨ proj₁ ∘→ escape-⊩ˢ≡∷ ⟩
+      , λ {_} {Δ = Δ} {σ₁ = σ₁} {σ₂ = σ₂} inc →
+          Δ ⊩ˢ σ₁ ≡ σ₂ ∷ Γ        →⟨ proj₁ ∘→ escape-⊩ˢ≡∷ inc ⟩
           ⊢ Δ                     ⇔˘⟨ ⊩Empty⇔ ⟩→
           (Δ ⊩⟨ l ⟩ Empty)        →⟨ refl-⊩≡ ⟩
           Δ ⊩⟨ l ⟩ Empty ≡ Empty  □
@@ -162,10 +162,10 @@ opaque
 
   Emptyᵗᵛ : ⊩ᵛ Γ → Γ ⊩ᵛ⟨ 1 ⟩ Empty ∷ U 0
   Emptyᵗᵛ ⊩Γ =
-    ⊩ᵛ∷⇔ .proj₂
+    ⊩ᵛ∷⇔ʰ .proj₂
       ( ⊩ᵛU ⊩Γ
-      , λ σ₁≡σ₂ →
-          case escape-⊩ˢ≡∷ σ₁≡σ₂ of λ
+      , λ inc σ₁≡σ₂ →
+          case escape-⊩ˢ≡∷ inc σ₁≡σ₂ of λ
             (⊢Δ , _) →
           Type→⊩≡∷U⇔ Emptyₙ Emptyₙ .proj₂
             (≤ᵘ-refl , refl-⊩≡ (⊩Empty ⊢Δ) , ≅ₜ-Emptyrefl ⊢Δ)

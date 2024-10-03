@@ -19,16 +19,20 @@ module Definition.LogicalRelation.Substitution.Introductions.Erased
   ⦃ eqrel : EqRelSet R ⦄
   where
 
+open EqRelSet eqrel
+
 open import Definition.LogicalRelation R
 open import Definition.LogicalRelation.Hidden R
+import Definition.LogicalRelation.Hidden.Restricted R as R
 open import Definition.LogicalRelation.Substitution R
 open import
   Definition.LogicalRelation.Substitution.Introductions.Pi-Sigma R
 open import
   Definition.LogicalRelation.Substitution.Introductions.Sigma R
 open import Definition.LogicalRelation.Substitution.Introductions.Unit R
+open import Definition.LogicalRelation.Weakening.Restricted R
+open import Definition.Typed R
 open import Definition.Typed.Properties R
-open import Definition.Typed.Weakening R
 open import Definition.Untyped M
 open import Definition.Untyped.Erased 𝕄 s
 open import Definition.Untyped.Properties M
@@ -48,11 +52,11 @@ opaque
   ⊩Erased : Γ ⊩⟨ l ⟩ A → Γ ⊩⟨ l ⟩ Erased A
   ⊩Erased ⊩A =
     ⊩ΠΣ⇔ .proj₂
-      ( Σ-ok
-      , wf (escape-⊩ ⊩A)
+      ( ≅-ΠΣ-cong (escape-⊩≡ $ refl-⊩≡ ⊩A)
+          (≅-Unitrefl (∙ escape-⊩ ⊩A) Unit-ok) Σ-ok
       , λ ρ⊇ →
             wk-⊩ ρ⊇ ⊩A
-          , λ _ → refl-⊩≡ $ emb-⊩ 0≤ᵘ $ ⊩Unit (wf-∷ʷ⊇ ρ⊇) Unit-ok
+          , λ _ → refl-⊩≡ $ emb-⊩ 0≤ᵘ $ ⊩Unit (wf-∷ʷʳ⊇ ρ⊇) Unit-ok
       )
 
 opaque
@@ -68,10 +72,12 @@ opaque
     ⊩ΠΣ≡ΠΣ⇔ .proj₂
       ( ⊩Erased ⊩A₁
       , ⊩Erased ⊩A₂
+      , ≅-ΠΣ-cong (escape-⊩≡ A₁≡A₂)
+          (≅-Unitrefl (∙ escape-⊩ ⊩A₁) Unit-ok) Σ-ok
       , PE.refl , PE.refl , PE.refl
       , λ ρ⊇ →
             wk-⊩≡ ρ⊇ A₁≡A₂
-          , λ _ → refl-⊩≡ $ emb-⊩ 0≤ᵘ $ ⊩Unit (wf-∷ʷ⊇ ρ⊇) Unit-ok
+          , λ _ → refl-⊩≡ $ emb-⊩ 0≤ᵘ $ ⊩Unit (wf-∷ʷʳ⊇ ρ⊇) Unit-ok
       )
 
 opaque
@@ -82,9 +88,9 @@ opaque
     Γ ⊩ᵛ⟨ l ⟩ A₁ ≡ A₂ →
     Γ ⊩ᵛ⟨ l ⟩ Erased A₁ ≡ Erased A₂
   Erased-congᵛ A₁≡A₂ =
-    case ⊩ᵛ≡⇔ .proj₁ A₁≡A₂ of λ
+    case ⊩ᵛ≡⇔ʰ .proj₁ A₁≡A₂ of λ
       (⊩Γ , A₁≡A₂) →
-    ⊩ᵛ≡⇔ .proj₂ (⊩Γ , ⊩Erased≡Erased ∘→ A₁≡A₂)
+    ⊩ᵛ≡⇔ʰ .proj₂ (⊩Γ , λ inc → ⊩Erased≡Erased ∘→ A₁≡A₂ inc)
 
 opaque
 
@@ -105,8 +111,10 @@ opaque
   ⊩[]≡[] {l} t≡u =
     case wf-⊩∷ (wf-⊩≡∷ t≡u .proj₁) of λ
       ⊩A →
-    ⊩prod≡prod (⊩Erased ⊩A) t≡u
-      (refl-⊩≡∷ (⊩star (wf (escape-⊩ ⊩A)) Unit-ok))
+    case escape-⊩ ⊩A of λ
+      ⊢A →
+    ⊩prod≡prod (Unitⱼ (∙ ⊢A) Unit-ok) (⊩Erased ⊩A) t≡u
+      (refl-⊩≡∷ (⊩star (wf ⊢A) Unit-ok))
 
 opaque
 
@@ -127,7 +135,10 @@ opaque
   []-congᵛ t≡u =
     case ⊩ᵛ≡∷⇔ .proj₁ t≡u of λ
       (⊩A , _) →
-    ⊩ᵛ≡∷⇔ .proj₂ (Erasedᵛ ⊩A , ⊩[]≡[] ∘→ ⊩ᵛ≡∷→⊩ˢ≡∷→⊩[]≡[]∷ t≡u)
+    ⊩ᵛ≡∷⇔ʰ .proj₂
+      ( Erasedᵛ ⊩A
+      , λ inc → ⊩[]≡[] ∘→ R.⊩≡∷→ inc ∘→ ⊩ᵛ≡∷→⊩ˢ≡∷→⊩[]≡[]∷ t≡u
+      )
 
 opaque
 

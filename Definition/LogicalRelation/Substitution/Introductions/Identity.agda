@@ -19,6 +19,7 @@ open Type-restrictions R
 open import Definition.LogicalRelation R
 open import Definition.LogicalRelation.Irrelevance R
 open import Definition.LogicalRelation.Hidden R
+import Definition.LogicalRelation.Hidden.Restricted R as R
 open import Definition.LogicalRelation.Properties R
 open import Definition.LogicalRelation.ShapeView R
 open import Definition.LogicalRelation.Substitution R
@@ -30,22 +31,24 @@ open import Definition.LogicalRelation.Substitution.Introductions.Var R
 open import Definition.Typed R
 open import Definition.Typed.Properties R
 open import Definition.Typed.Reasoning.Reduction R
--- The imported operator _,_ is not "supposed" to be used below, but
--- another operator with the same name is used, and if this import
--- statement is removed, then some code below fails to type-check (at
--- the time of writing).
-open import Definition.Typed.Substitution R using (_,_)
+open import Definition.Typed.Stability R
+open import Definition.Typed.Substitution R
+open import Definition.Typed.Weakening R
+open import Definition.Typed.Well-formed R
 open import Definition.Untyped M as U hiding (_[_])
 import Definition.Untyped.Erased
 open import Definition.Untyped.Neutral M type-variant
 open import Definition.Untyped.Properties M
 
+open import Tools.Empty
 open import Tools.Fin using (x0)
 open import Tools.Function
 open import Tools.Nat using (Nat)
 open import Tools.Product as Σ
 import Tools.PropositionalEquality as PE
 import Tools.Reasoning.PropositionalEquality
+open import Tools.Relation
+open import Tools.Sum
 
 private variable
   Γ Δ                                             : Con Term _
@@ -137,7 +140,8 @@ data ⊩Id∷-view′
        Term n → Set a where
   rflᵣ : Γ ⊩⟨ l ⟩ t ≡ u ∷ A →
          ⊩Id∷-view′ Γ l A t u rfl
-  ne   : Neutral v →
+  ne   : Neutrals-included →
+         Neutral v →
          Γ ⊢~ v ∷ Id A t u →
          ⊩Id∷-view′ Γ l A t u v
 
@@ -165,7 +169,7 @@ opaque
            Idᵣ (Idᵣ _ _ _ Id⇒*Id ⊩A ⊩t (irrelevanceTerm ⊩A′ ⊩A ⊩u))
          , ( w , v⇒*w
            , (case rest of λ where
-                (ne w-ne w~w)              → ne w-ne , w~w
+                (ne inc w-ne w~w)          → ne w-ne , inc , w~w
                 (rflᵣ (⊩A″ , _ , _ , t≡u)) →
                   rflₙ , irrelevanceEqTerm ⊩A″ ⊩A t≡u)
            ))
@@ -184,16 +188,16 @@ opaque
         w , v⇒*w , emb-⊩∷ (≤ᵘ-step ≤ᵘ-refl) ⊩t
       , emb-⊩∷ (≤ᵘ-step ≤ᵘ-refl) ⊩u
       , (case rest of λ where
-           (rflᵣ t≡u)    → rflᵣ (emb-⊩≡∷ (≤ᵘ-step ≤ᵘ-refl) t≡u)
-           (ne v-ne v~v) → ne v-ne v~v)
+           (rflᵣ t≡u)        → rflᵣ (emb-⊩≡∷ (≤ᵘ-step ≤ᵘ-refl) t≡u)
+           (ne inc v-ne v~v) → ne inc v-ne v~v)
     lemma (emb (≤ᵘ-step s) ⊩Id) ⊩v =
       case lemma (emb s ⊩Id) ⊩v of λ
         (w , v⇒*w , ⊩t , ⊩u , rest) →
         w , v⇒*w , emb-⊩∷ (≤ᵘ-step ≤ᵘ-refl) ⊩t
       , emb-⊩∷ (≤ᵘ-step ≤ᵘ-refl) ⊩u
       , (case rest of λ where
-           (rflᵣ t≡u)    → rflᵣ (emb-⊩≡∷ (≤ᵘ-step ≤ᵘ-refl) t≡u)
-           (ne v-ne v~v) → ne v-ne v~v)
+           (rflᵣ t≡u)        → rflᵣ (emb-⊩≡∷ (≤ᵘ-step ≤ᵘ-refl) t≡u)
+           (ne inc v-ne v~v) → ne inc v-ne v~v)
     lemma (noemb ⊩Id@record{}) ⊩v@(w , v⇒*w , _) =
       case whnfRed* ⇒*Id Idₙ of λ {
         PE.refl →
@@ -201,8 +205,8 @@ opaque
       , (⊩Ty , ⊩lhs)
       , (⊩Ty , ⊩rhs)
       , (case ⊩Id∷-view-inhabited ⊩v of λ where
-           (rflᵣ lhs≡rhs) → rflᵣ (⊩Ty , ⊩lhs , ⊩rhs , lhs≡rhs)
-           (ne w-ne w~w)  → ne w-ne w~w) }
+           (rflᵣ lhs≡rhs)    → rflᵣ (⊩Ty , ⊩lhs , ⊩rhs , lhs≡rhs)
+           (ne inc w-ne w~w) → ne inc w-ne w~w) }
       where
       open _⊩ₗId_ ⊩Id
 
@@ -419,7 +423,8 @@ data ⊩Id≡∷-view′
        Term n → Term n → Set a where
   rfl₌ : Γ ⊩⟨ l ⟩ t ≡ u ∷ A →
          ⊩Id≡∷-view′ Γ l A t u rfl rfl
-  ne   : Neutral v → Neutral w →
+  ne   : Neutrals-included →
+         Neutral v → Neutral w →
          Γ ⊢ v ~ w ∷ Id A t u →
          ⊩Id≡∷-view′ Γ l A t u v w
 
@@ -447,12 +452,12 @@ opaque
            Id⇒*Id →
            Idᵣ (Idᵣ _ _ _ Id⇒*Id ⊩A ⊩t (irrelevanceTerm ⊩A′ ⊩A ⊩u))
          , (case rest of λ where
-              (ne v′-ne w′-ne v′~w′) →
+              (ne inc v′-ne w′-ne v′~w′) →
                 let ~v′ , ~w′ = wf-⊢~∷ v′~w′ in
-                  (v′ , v⇒*v′ , ne v′-ne , ~v′)
-                , (w′ , w⇒*w′ , ne w′-ne , ~w′)
+                  (v′ , v⇒*v′ , ne v′-ne , inc , ~v′)
+                , (w′ , w⇒*w′ , ne w′-ne , inc , ~w′)
                 , ( v′ , w′ , v⇒*v′ , w⇒*w′
-                  , ne v′-ne , ne w′-ne , v′~w′
+                  , ne v′-ne , ne w′-ne , inc , v′~w′
                   )
               (rfl₌ (⊩A″ , _ , _ , t≡u)) →
                 case irrelevanceEqTerm ⊩A″ ⊩A t≡u of λ
@@ -476,16 +481,19 @@ opaque
         v′ , w′ , v⇒*v′ , w⇒*w′
       , emb-⊩∷ (≤ᵘ-step ≤ᵘ-refl) ⊩t , emb-⊩∷ (≤ᵘ-step ≤ᵘ-refl) ⊩u
       , (case rest of λ where
-           (rfl₌ t≡u)             → rfl₌ (emb-⊩≡∷ (≤ᵘ-step ≤ᵘ-refl) t≡u)
-           (ne v′-ne w′-ne v′~w′) → ne v′-ne w′-ne v′~w′)
+           (rfl₌ t≡u) →
+             rfl₌ (emb-⊩≡∷ (≤ᵘ-step ≤ᵘ-refl) t≡u)
+           (ne inc v′-ne w′-ne v′~w′) →
+             ne inc v′-ne w′-ne v′~w′)
     lemma (emb (≤ᵘ-step s) ⊩Id) v≡w =
       case lemma (emb s ⊩Id) v≡w of λ
         (v′ , w′ , v⇒*v′ , w⇒*w′ , ⊩t , ⊩u , rest) →
         v′ , w′ , v⇒*v′ , w⇒*w′
       , emb-⊩∷ (≤ᵘ-step ≤ᵘ-refl) ⊩t , emb-⊩∷ (≤ᵘ-step ≤ᵘ-refl) ⊩u
       , (case rest of λ where
-           (rfl₌ t≡u)             → rfl₌ (emb-⊩≡∷ (≤ᵘ-step ≤ᵘ-refl) t≡u)
-           (ne v′-ne w′-ne v′~w′) → ne v′-ne w′-ne v′~w′)
+           (rfl₌ t≡u) →
+             rfl₌ (emb-⊩≡∷ (≤ᵘ-step ≤ᵘ-refl) t≡u)
+           (ne inc v′-ne w′-ne v′~w′) → ne inc v′-ne w′-ne v′~w′)
     lemma (noemb ⊩Id@record{}) v≡w@(v′ , w′ , v⇒*v′ , w⇒*w′ , _) =
       case whnfRed* ⇒*Id Idₙ of λ {
         PE.refl →
@@ -493,8 +501,8 @@ opaque
       , (⊩Ty , ⊩lhs)
       , (⊩Ty , ⊩rhs)
       , (case ⊩Id≡∷-view-inhabited ⊩Id v≡w of λ where
-           (rfl₌ t≡u)             → rfl₌ (⊩Ty , ⊩lhs , ⊩rhs , t≡u)
-           (ne v′-ne w′-ne v′~w′) → ne v′-ne w′-ne v′~w′) }
+           (rfl₌ t≡u)                 → rfl₌ (⊩Ty , ⊩lhs , ⊩rhs , t≡u)
+           (ne inc v′-ne w′-ne v′~w′) → ne inc v′-ne w′-ne v′~w′) }
       where
       open _⊩ₗId_ ⊩Id
 
@@ -542,45 +550,49 @@ opaque
     Γ ⊩ᵛ⟨ l ⟩ Id A t u ⇔
     (Γ ⊩ᵛ⟨ l ⟩ t ∷ A × Γ ⊩ᵛ⟨ l ⟩ u ∷ A)
   ⊩ᵛId⇔ {Γ} {l} {A} {t} {u} =
-    (Γ ⊩ᵛ⟨ l ⟩ Id A t u)                                 ⇔⟨ ⊩ᵛ⇔ ⟩
+    (Γ ⊩ᵛ⟨ l ⟩ Id A t u)                                 ⇔⟨ ⊩ᵛ⇔ʰ ⟩
 
     ⊩ᵛ Γ ×
     (∀ {m Δ} {σ₁ σ₂ : Subst m _} →
+     Neutrals-included-or-empty Δ →
      Δ ⊩ˢ σ₁ ≡ σ₂ ∷ Γ →
      Δ ⊩⟨ l ⟩ Id A t u U.[ σ₁ ] ≡ Id A t u U.[ σ₂ ])     ⇔⟨ id⇔
                                                               ×-cong-⇔
                                                             (implicit-Π-cong-⇔ λ _ → implicit-Π-cong-⇔ λ _ →
                                                              implicit-Π-cong-⇔ λ _ → implicit-Π-cong-⇔ λ _ →
-                                                             Π-cong-⇔ λ _ →
+                                                             Π-cong-⇔ λ _ → Π-cong-⇔ λ _ →
                                                              ⊩Id≡Id⇔) ⟩
     ⊩ᵛ Γ ×
     (∀ {m Δ} {σ₁ σ₂ : Subst m _} →
+     Neutrals-included-or-empty Δ →
      Δ ⊩ˢ σ₁ ≡ σ₂ ∷ Γ →
      (Δ ⊩⟨ l ⟩ A U.[ σ₁ ] ≡ A U.[ σ₂ ]) ×
      Δ ⊩⟨ l ⟩ t U.[ σ₁ ] ≡ t U.[ σ₂ ] ∷ A U.[ σ₁ ] ×
      Δ ⊩⟨ l ⟩ u U.[ σ₁ ] ≡ u U.[ σ₂ ] ∷ A U.[ σ₁ ])      ⇔⟨ (λ (⊩Γ , A≡A×t≡t×u≡u) →
-                                                               case ⊩ᵛ⇔ .proj₂ (⊩Γ , proj₁ ∘→ A≡A×t≡t×u≡u) of λ
+                                                               case ⊩ᵛ⇔ʰ .proj₂ (⊩Γ , λ inc → proj₁ ∘→ A≡A×t≡t×u≡u inc) of λ
                                                                  ⊩A →
                                                                  ( ⊩A
-                                                                 , λ σ₁≡σ₂ → A≡A×t≡t×u≡u σ₁≡σ₂ .proj₂ .proj₁
+                                                                 , λ inc σ₁≡σ₂ → A≡A×t≡t×u≡u inc σ₁≡σ₂ .proj₂ .proj₁
                                                                  )
                                                                , ( ⊩A
-                                                                 , λ σ₁≡σ₂ → A≡A×t≡t×u≡u σ₁≡σ₂ .proj₂ .proj₂
+                                                                 , λ inc σ₁≡σ₂ → A≡A×t≡t×u≡u inc σ₁≡σ₂ .proj₂ .proj₂
                                                                  ))
                                                           , (λ ((⊩A , t≡t) , (_ , u≡u)) →
                                                                  wf-⊩ᵛ ⊩A
-                                                               , (λ σ₁≡σ₂ →
-                                                                      ⊩ᵛ⇔ .proj₁ ⊩A .proj₂ σ₁≡σ₂
-                                                                    , t≡t σ₁≡σ₂ , u≡u σ₁≡σ₂))
+                                                               , (λ inc σ₁≡σ₂ →
+                                                                      ⊩ᵛ⇔ʰ .proj₁ ⊩A .proj₂ inc σ₁≡σ₂
+                                                                    , t≡t inc σ₁≡σ₂ , u≡u inc σ₁≡σ₂))
                                                           ⟩
     (Γ ⊩ᵛ⟨ l ⟩ A ×
      (∀ {m Δ} {σ₁ σ₂ : Subst m _} →
+      Neutrals-included-or-empty Δ →
       Δ ⊩ˢ σ₁ ≡ σ₂ ∷ Γ →
       Δ ⊩⟨ l ⟩ t U.[ σ₁ ] ≡ t U.[ σ₂ ] ∷ A U.[ σ₁ ])) ×
     (Γ ⊩ᵛ⟨ l ⟩ A ×
      (∀ {m Δ} {σ₁ σ₂ : Subst m _} →
+      Neutrals-included-or-empty Δ →
       Δ ⊩ˢ σ₁ ≡ σ₂ ∷ Γ →
-      Δ ⊩⟨ l ⟩ u U.[ σ₁ ] ≡ u U.[ σ₂ ] ∷ A U.[ σ₁ ]))    ⇔˘⟨ ⊩ᵛ∷⇔ ×-cong-⇔ ⊩ᵛ∷⇔ ⟩
+      Δ ⊩⟨ l ⟩ u U.[ σ₁ ] ≡ u U.[ σ₂ ] ∷ A U.[ σ₁ ]))    ⇔˘⟨ ⊩ᵛ∷⇔ʰ ×-cong-⇔ ⊩ᵛ∷⇔ʰ ⟩
 
     Γ ⊩ᵛ⟨ l ⟩ t ∷ A × Γ ⊩ᵛ⟨ l ⟩ u ∷ A                    □⇔
 
@@ -599,13 +611,15 @@ opaque
   Id-congᵛ A₁≡A₂ t₁≡t₂ u₁≡u₂ =
     case ⊩ᵛ≡⇔″ .proj₁ A₁≡A₂ of λ
       (⊩A₁ , _ , A₁≡A₂) →
-    ⊩ᵛ≡⇔ .proj₂
+    ⊩ᵛ≡⇔ʰ .proj₂
       ( wf-⊩ᵛ ⊩A₁
-      , λ σ₁≡σ₂ →
+      , λ inc σ₁≡σ₂ →
           ⊩Id≡Id⇔ .proj₂
-            ( A₁≡A₂ σ₁≡σ₂
-            , ⊩ᵛ≡∷→⊩ˢ≡∷→⊩[]≡[]∷ (level-⊩ᵛ≡∷ ⊩A₁ t₁≡t₂) σ₁≡σ₂
-            , ⊩ᵛ≡∷→⊩ˢ≡∷→⊩[]≡[]∷ (level-⊩ᵛ≡∷ ⊩A₁ u₁≡u₂) σ₁≡σ₂
+            ( R.⊩≡→ inc (A₁≡A₂ σ₁≡σ₂)
+            , R.⊩≡∷→ inc
+                (⊩ᵛ≡∷→⊩ˢ≡∷→⊩[]≡[]∷ (level-⊩ᵛ≡∷ ⊩A₁ t₁≡t₂) σ₁≡σ₂)
+            , R.⊩≡∷→ inc
+                (⊩ᵛ≡∷→⊩ˢ≡∷→⊩[]≡[]∷ (level-⊩ᵛ≡∷ ⊩A₁ u₁≡u₂) σ₁≡σ₂)
             )
       )
 
@@ -631,13 +645,14 @@ opaque
     Γ ⊩ᵛ⟨ l‴ ⟩ u₁ ≡ u₂ ∷ A₁ →
     Γ ⊩ᵛ⟨ l′ ⟩ Id A₁ t₁ u₁ ≡ Id A₂ t₂ u₂ ∷ U l
   Id-congᵗᵛ A₁≡A₂∷U t₁≡t₂ u₁≡u₂ =
-    case ⊩ᵛ≡∷⇔ .proj₁ A₁≡A₂∷U of λ
+    case ⊩ᵛ≡∷⇔ʰ .proj₁ A₁≡A₂∷U of λ
       (⊩U , A₁≡A₂∷U) →
-    ⊩ᵛ≡∷⇔ .proj₂
+    ⊩ᵛ≡∷⇔ʰ .proj₂
       ( ⊩U
-      , λ σ₁≡σ₂ →
-          →⊩Id≡Id∷U (A₁≡A₂∷U σ₁≡σ₂) (⊩ᵛ≡∷→⊩ˢ≡∷→⊩[]≡[]∷ t₁≡t₂ σ₁≡σ₂)
-            (⊩ᵛ≡∷→⊩ˢ≡∷→⊩[]≡[]∷ u₁≡u₂ σ₁≡σ₂)
+      , λ inc σ₁≡σ₂ →
+          →⊩Id≡Id∷U (A₁≡A₂∷U inc σ₁≡σ₂)
+            (R.⊩≡∷→ inc $ ⊩ᵛ≡∷→⊩ˢ≡∷→⊩[]≡[]∷ t₁≡t₂ σ₁≡σ₂)
+            (R.⊩≡∷→ inc $ ⊩ᵛ≡∷→⊩ˢ≡∷→⊩[]≡[]∷ u₁≡u₂ σ₁≡σ₂)
       )
 
 opaque
@@ -707,10 +722,11 @@ opaque
     Γ ⊩ᵛ⟨ l ⟩ t ∷ A →
     Γ ⊩ᵛ⟨ l ⟩ rfl ≡ rfl ∷ Id A t t
   rfl-congᵛ ⊩t =
-    ⊩ᵛ≡∷⇔ .proj₂
+    ⊩ᵛ≡∷⇔ʰ .proj₂
       ( Idᵛ ⊩t ⊩t
-      , ⊩rfl≡rfl ∘→ ⊩ᵛ∷⇔ .proj₁ ⊩t .proj₂ ∘→
-        refl-⊩ˢ≡∷ ∘→ proj₁ ∘→ wf-⊩ˢ≡∷
+      , λ inc →
+          ⊩rfl≡rfl ∘→ ⊩ᵛ∷⇔ʰ .proj₁ ⊩t .proj₂ inc ∘→
+          refl-⊩ˢ≡∷ ∘→ proj₁ ∘→ wf-⊩ˢ≡∷
       )
 
 opaque
@@ -792,9 +808,9 @@ opaque
         []-cong s A₂ t₂ u₂ rfl              ⇐*⟨ []-cong⇒*[]-cong₂ ⟩∎
         []-cong s A₂ t₂ u₂ v₂               ∎)
 
-      (ne v₁′-ne v₂′-ne v₁′~v₂′) →
+      (ne inc v₁′-ne v₂′-ne v₁′~v₂′) →
         []-cong s A₁ t₁ u₁ v₁                                  ⇒*⟨ []-cong⇒*[]-cong₁ ⟩⊩∷
-        []-cong s A₁ t₁ u₁ v₁′ ∷ Id (Erased A₁) [ t₁ ] [ u₁ ]  ≡⟨ neutral-⊩≡∷ (⊩Id⇔ .proj₂ (⊩[] ⊩t₁ , ⊩[] ⊩u₁))
+        []-cong s A₁ t₁ u₁ v₁′ ∷ Id (Erased A₁) [ t₁ ] [ u₁ ]  ≡⟨ neutral-⊩≡∷ inc (⊩Id⇔ .proj₂ (⊩[] ⊩t₁ , ⊩[] ⊩u₁))
                                                                     ([]-congₙ v₁′-ne) ([]-congₙ v₂′-ne)
                                                                     (~-[]-cong A₁≅A₂ t₁≅t₂ u₁≅u₂ v₁′~v₂′ ok) ⟩⊩∷∷⇐* (
                                                                  ⟨ ⊢Id≡Id ⟩⇒
@@ -833,16 +849,16 @@ opaque
     Γ ⊩ᵛ⟨ l ⟩ []-cong s A₁ t₁ u₁ v₁ ≡ []-cong s A₂ t₂ u₂ v₂ ∷
       Id (Erased A₁) [ t₁ ] [ u₁ ]
   []-cong-congᵛ ok A₁≡A₂ t₁≡t₂ u₁≡u₂ v₁≡v₂ =
-    ⊩ᵛ≡∷⇔ .proj₂
+    ⊩ᵛ≡∷⇔ʰ .proj₂
       ( wf-⊩ᵛ≡
           (Id-congᵛ (Erased-congᵛ A₁≡A₂) ([]-congᵛ′ t₁≡t₂)
              ([]-congᵛ′ u₁≡u₂))
           .proj₁
-      , λ σ₁≡σ₂ →
-          ⊩[]-cong≡[]-cong ok (⊩ᵛ≡→⊩ˢ≡∷→⊩[]≡[] A₁≡A₂ σ₁≡σ₂)
-            (⊩ᵛ≡∷→⊩ˢ≡∷→⊩[]≡[]∷ t₁≡t₂ σ₁≡σ₂)
-            (⊩ᵛ≡∷→⊩ˢ≡∷→⊩[]≡[]∷ u₁≡u₂ σ₁≡σ₂)
-            (⊩ᵛ≡∷→⊩ˢ≡∷→⊩[]≡[]∷ v₁≡v₂ σ₁≡σ₂)
+      , λ inc σ₁≡σ₂ →
+          ⊩[]-cong≡[]-cong ok (R.⊩≡→ inc $ ⊩ᵛ≡→⊩ˢ≡∷→⊩[]≡[] A₁≡A₂ σ₁≡σ₂)
+            (R.⊩≡∷→ inc $ ⊩ᵛ≡∷→⊩ˢ≡∷→⊩[]≡[]∷ t₁≡t₂ σ₁≡σ₂)
+            (R.⊩≡∷→ inc $ ⊩ᵛ≡∷→⊩ˢ≡∷→⊩[]≡[]∷ u₁≡u₂ σ₁≡σ₂)
+            (R.⊩≡∷→ inc $ ⊩ᵛ≡∷→⊩ˢ≡∷→⊩[]≡[]∷ v₁≡v₂ σ₁≡σ₂)
       )
     where
     open E ok
@@ -876,8 +892,8 @@ opaque
     Γ ⊩ᵛ⟨ l ⟩ []-cong s A t t rfl ≡ rfl ∷ Id (Erased A) [ t ] [ t ]
   []-cong-βᵛ {s} {t} {A} ok ⊩t =
     ⊩ᵛ∷-⇐
-      (λ ⊩σ →
-         case escape-⊩∷ $ ⊩ᵛ∷→⊩ˢ∷→⊩[]∷ ⊩t ⊩σ of λ
+      (λ inc ⊩σ →
+         case R.escape-⊩∷ inc $ ⊩ᵛ∷→⊩ˢ∷→⊩[]∷ ⊩t ⊩σ of λ
            ⊢t[σ] →
          []-cong-β-⇒ (refl ⊢t[σ]) ok)
       (rflᵛ ([]ᵛ ⊩t))
@@ -895,15 +911,17 @@ opaque
     K-allowed →
     Γ ⊩ᵛ⟨ l′ ⟩ A₁ ≡ A₂ →
     Γ ⊩ᵛ⟨ l″ ⟩ t₁ ≡ t₂ ∷ A₁ →
+    Γ ∙ Id A₁ t₁ t₁ ⊢ B₁ ≡ B₂ →
     Γ ∙ Id A₁ t₁ t₁ ⊩ᵛ⟨ l ⟩ B₁ ≡ B₂ →
     Γ ⊩ᵛ⟨ l‴ ⟩ u₁ ≡ u₂ ∷ B₁ [ rfl ]₀ →
     Γ ⊩ᵛ⟨ l⁗ ⟩ v₁ ≡ v₂ ∷ Id A₁ t₁ t₁ →
+    Neutrals-included-or-empty Δ →
     Δ ⊩ˢ σ₁ ≡ σ₂ ∷ Γ →
     Δ ⊩⟨ l ⟩ K p A₁ t₁ B₁ u₁ v₁ U.[ σ₁ ] ≡ K p A₂ t₂ B₂ u₂ v₂ U.[ σ₂ ] ∷
       B₁ [ v₁ ]₀ U.[ σ₁ ]
   ⊩K≡K
     {A₁} {A₂} {t₁} {t₂} {B₁} {B₂} {u₁} {u₂} {v₁} {v₂} {σ₁} {σ₂} {p}
-    ok A₁≡A₂ t₁≡t₂ B₁≡B₂ u₁≡u₂ v₁≡v₂ σ₁≡σ₂ =
+    ok A₁≡A₂ t₁≡t₂ ⊢B₁≡B₂ B₁≡B₂ u₁≡u₂ v₁≡v₂ inc σ₁≡σ₂ =
 
     -- Some definitions related to σ₁ and σ₂.
     case wf-⊩ˢ≡∷ σ₁≡σ₂ of λ
@@ -912,23 +930,30 @@ opaque
     -- Some definitions related to Id.
     case Id-congᵛ A₁≡A₂ t₁≡t₂ t₁≡t₂ of λ
       Id≡Id →
-    case ⊩ᵛ≡→⊩ˢ≡∷→⊩[]≡[] Id≡Id σ₁≡σ₂ of λ
+    case R.⊩≡→ inc $ ⊩ᵛ≡→⊩ˢ≡∷→⊩[]≡[] Id≡Id σ₁≡σ₂ of λ
       Id[σ₁]≡Id[σ₂] →
     case ≅-eq $ escape-⊩≡ Id[σ₁]≡Id[σ₂] of λ
       ⊢Id[σ₁]≡Id[σ₂] →
 
-    -- A definition related to t₁.
+    -- Some definitions related to t₁ and t₂.
     case wf-⊩ᵛ≡∷ t₁≡t₂ of λ
       (⊩t₁ , _) →
+    case ≅ₜ-eq $ R.escape-⊩≡∷ inc $ ⊩ᵛ≡∷→⊩ˢ≡∷→⊩[]≡[]∷ t₁≡t₂ σ₁≡σ₂ of λ
+      t₁[σ₁]≡t₂[σ₂] →
 
     -- Some definitions related to B₁ and B₂.
     case wf-⊩ᵛ≡ B₁≡B₂ of λ
       (⊩B₁ , ⊩B₂) →
     case conv-∙-⊩ᵛ Id≡Id ⊩B₂ of λ
       ⊩B₂ →
-    case escape-⊩ $ ⊩ᵛ→⊩ˢ∷→⊩[⇑] ⊩B₁ ⊩σ₁ of λ
-      ⊢B₁[σ₁⇑] →
-    case escape-⊩ $ ⊩ᵛ→⊩ˢ∷→⊩[⇑] ⊩B₂ ⊩σ₂ of λ
+    case wf-⊢≡ $ subst-⊢≡-⇑ ⊢B₁≡B₂ $ escape-⊩ˢ≡∷ inc σ₁≡σ₂ .proj₂ of λ
+      (⊢B₁[σ₁⇑] , ⊢B₂[σ₂⇑]) →
+    case stability
+           (refl-∙ $
+            Id-cong
+              (≅-eq $ R.escape-⊩≡ inc $ ⊩ᵛ≡→⊩ˢ≡∷→⊩[]≡[] A₁≡A₂ σ₁≡σ₂)
+              t₁[σ₁]≡t₂[σ₂] t₁[σ₁]≡t₂[σ₂])
+           ⊢B₂[σ₂⇑] of λ
       ⊢B₂[σ₂⇑] →
 
     -- Some definitions related to u₁ and u₂.
@@ -938,12 +963,13 @@ opaque
            ⊩u₂ of λ
       ⊩u₂ →
     case PE.subst (_⊢_∷_ _ _) (singleSubstLift B₁ _) $
-         escape-⊩∷ $ ⊩ᵛ∷→⊩ˢ∷→⊩[]∷ ⊩u₁ ⊩σ₁ of λ
+         R.escape-⊩∷ inc $ ⊩ᵛ∷→⊩ˢ∷→⊩[]∷ ⊩u₁ ⊩σ₁ of λ
       ⊢u₁[σ₁] →
     case PE.subst (_⊢_∷_ _ _) (singleSubstLift B₂ _) $
-         escape-⊩∷ $ ⊩ᵛ∷→⊩ˢ∷→⊩[]∷ ⊩u₂ ⊩σ₂ of λ
+         R.escape-⊩∷ inc $ ⊩ᵛ∷→⊩ˢ∷→⊩[]∷ ⊩u₂ ⊩σ₂ of λ
       ⊢u₂[σ₂] →
     case PE.subst (_⊩⟨_⟩_≡_∷_ _ _ _ _) (singleSubstLift B₁ _) $
+         R.⊩≡∷→ inc $
          ⊩ᵛ≡∷→⊩ˢ≡∷→⊩[]≡[]∷
            (level-⊩ᵛ≡∷ (⊩ᵛ→⊩ᵛ∷→⊩ᵛ[]₀ ⊩B₁ (rflᵛ ⊩t₁)) u₁≡u₂) σ₁≡σ₂ of λ
       u₁[σ₁]≡u₂[σ₂] →
@@ -953,7 +979,7 @@ opaque
       (⊩v₁ , ⊩v₂) →
     case conv-⊩ᵛ∷ Id≡Id ⊩v₂ of λ
       ⊩v₂ →
-    case ⊩ᵛ≡∷→⊩ˢ≡∷→⊩[]≡[]∷ v₁≡v₂ σ₁≡σ₂ of λ
+    case R.⊩≡∷→ inc $ ⊩ᵛ≡∷→⊩ˢ≡∷→⊩[]≡[]∷ v₁≡v₂ σ₁≡σ₂ of λ
       v₁[σ₁]≡v₂[σ₂] →
     case ⊩≡∷Id⇔ .proj₁ v₁[σ₁]≡v₂[σ₂] of λ
       (v₁′ , v₂′ , v₁[σ₁]⇒*v₁′ , v₂[σ₂]⇒*v₂′ , _ , _ , rest) →
@@ -961,11 +987,12 @@ opaque
       v₂[σ₂]⇒*v₂′ →
 
     -- Some definitions related to v₁′ and v₂′.
-    case ⊩∷-⇒* v₁[σ₁]⇒*v₁′ $ ⊩ᵛ∷→⊩ˢ∷→⊩[]∷ ⊩v₁ ⊩σ₁ of λ
+    case ⊩∷-⇒* v₁[σ₁]⇒*v₁′ $ R.⊩∷→ inc $ ⊩ᵛ∷→⊩ˢ∷→⊩[]∷ ⊩v₁ ⊩σ₁ of λ
       v₁[σ₁]≡v₁′ →
-    case ⊩∷-⇒* v₂[σ₂]⇒*v₂′ $ ⊩ᵛ∷→⊩ˢ∷→⊩[]∷ ⊩v₂ ⊩σ₂ of λ
+    case ⊩∷-⇒* v₂[σ₂]⇒*v₂′ $ R.⊩∷→ inc $ ⊩ᵛ∷→⊩ˢ∷→⊩[]∷ ⊩v₂ ⊩σ₂ of λ
       v₂[σ₂]≡v₂′ →
-    case ⊩ᵛ≡→⊩ˢ≡∷→⊩≡∷→⊩[⇑][]₀≡[⇑][]₀ B₁≡B₂ σ₁≡σ₂
+    case R.⊩≡→ inc $ ⊩ᵛ≡→⊩ˢ≡∷→⊩≡∷→⊩[⇑][]₀≡[⇑][]₀ B₁≡B₂ σ₁≡σ₂ $
+         R.→⊩≡∷
            (v₁′                                 ≡˘⟨ v₁[σ₁]≡v₁′ ⟩⊩∷
             v₁ U.[ σ₁ ] ∷ Id A₁ t₁ t₁ U.[ σ₁ ]  ≡⟨ v₁[σ₁]≡v₂[σ₂] ⟩⊩∷∷
                                                  ⟨ Id[σ₁]≡Id[σ₂] ⟩⊩∷
@@ -983,14 +1010,15 @@ opaque
            (v₁ U.[ σ₁ ]) ∷ B₁ [ v₁ ]₀ U.[ σ₁ ]                          ≡⟨⟩⊩∷∷
                                                                          ⟨ singleSubstLift B₁ _ ⟩⊩∷≡
          _               ∷ B₁ U.[ σ₁ ⇑ ] [ v₁ U.[ σ₁ ] ]₀               ⇒*⟨ K-subst* ⊢B₁[σ₁⇑] ⊢u₁[σ₁] v₁[σ₁]⇒*v₁′ ok ⟩⊩∷∷
-                                                                          ⟨ ⊩ᵛ≡→⊩ˢ≡∷→⊩≡∷→⊩[⇑][]₀≡[⇑][]₀
-                                                                              (refl-⊩ᵛ≡ ⊩B₁) (refl-⊩ˢ≡∷ ⊩σ₁) v₁[σ₁]≡v₁′ ⟩⊩∷
+                                                                          ⟨ R.⊩≡→ inc $
+                                                                            ⊩ᵛ≡→⊩ˢ≡∷→⊩≡∷→⊩[⇑][]₀≡[⇑][]₀
+                                                                              (refl-⊩ᵛ≡ ⊩B₁) (refl-⊩ˢ≡∷ ⊩σ₁) (R.→⊩≡∷ v₁[σ₁]≡v₁′) ⟩⊩∷
          K p (A₁ U.[ σ₁ ]) (t₁ U.[ σ₁ ]) (B₁ U.[ σ₁ ⇑ ]) (u₁ U.[ σ₁ ])
            v₁′ ∷ B₁ U.[ σ₁ ⇑ ] [ v₁′ ]₀                                 ≡⟨ hyp ⟩⊩∷∷⇐*
                                                                          ⟨ ⊢B₁[σ₁⇑][v₁′]₀≡B₂[σ₂⇑][v₂′]₀ ⟩⇒
-               ∷ B₂ U.[ σ₂ ⇑ ] [ v₂′ ]₀                                 ˘⟨ ≅-eq $ escape-⊩≡ $
+               ∷ B₂ U.[ σ₂ ⇑ ] [ v₂′ ]₀                                 ˘⟨ ≅-eq $ escape-⊩≡ $ R.⊩≡→ inc $
                                                                            ⊩ᵛ≡→⊩ˢ≡∷→⊩≡∷→⊩[⇑][]₀≡[⇑][]₀
-                                                                             (refl-⊩ᵛ≡ ⊩B₂) (refl-⊩ˢ≡∷ ⊩σ₂) v₂[σ₂]≡v₂′ ⟩⇒
+                                                                             (refl-⊩ᵛ≡ ⊩B₂) (refl-⊩ˢ≡∷ ⊩σ₂) (R.→⊩≡∷ v₂[σ₂]≡v₂′) ⟩⇒
          K p (A₂ U.[ σ₂ ]) (t₂ U.[ σ₂ ]) (B₂ U.[ σ₂ ⇑ ]) (u₂ U.[ σ₂ ])
            v₂′ ∷ B₂ U.[ σ₂ ⇑ ] [ v₂ U.[ σ₂ ] ]₀                         ⇐*⟨ K-subst* ⊢B₂[σ₂⇑] ⊢u₂[σ₂] v₂[σ₂]⇒*v₂′ ok ⟩∎∷
          K p (A₂ U.[ σ₂ ]) (t₂ U.[ σ₂ ]) (B₂ U.[ σ₂ ⇑ ]) (u₂ U.[ σ₂ ])
@@ -1010,17 +1038,17 @@ opaque
            u₂ U.[ σ₂ ] ∷ B₂ U.[ σ₂ ⇑ ] [ rfl ]₀  ⇐⟨ K-β ⊢B₂[σ₂⇑] ⊢u₂[σ₂] ok ⟩∎∷
            K p A₂ t₂ B₂ u₂ rfl U.[ σ₂ ]          ∎)
 
-      (ne v₁′-ne v₂′-ne v₁′~v₂′) →
+      (ne inc v₁′-ne v₂′-ne v₁′~v₂′) →
         -- If v₁′ and v₂′ are equal neutral terms, then one can
         -- conclude by using the fact that the applications of K to
         -- v₁′ and v₂′ are equal neutral terms.
         lemma $
-        neutral-⊩≡∷
+        neutral-⊩≡∷ inc
           (wf-⊩≡ B₁[σ₁⇑][v₁′]₀≡B₂[σ₂⇑][v₂′]₀ .proj₁)
           (Kₙ v₁′-ne) (Kₙ v₂′-ne) $
-        ~-K (escape-⊩≡ $ ⊩ᵛ≡→⊩ˢ≡∷→⊩[]≡[] A₁≡A₂ σ₁≡σ₂)
-          (escape-⊩≡∷ $ ⊩ᵛ≡∷→⊩ˢ≡∷→⊩[]≡[]∷ t₁≡t₂ σ₁≡σ₂)
-          (escape-⊩≡ $ ⊩ᵛ≡→⊩ˢ≡∷→⊩[⇑]≡[⇑] B₁≡B₂ σ₁≡σ₂)
+        ~-K (R.escape-⊩≡ (inj₁ inc) $ ⊩ᵛ≡→⊩ˢ≡∷→⊩[]≡[] A₁≡A₂ σ₁≡σ₂)
+          (R.escape-⊩≡∷ (inj₁ inc) $ ⊩ᵛ≡∷→⊩ˢ≡∷→⊩[]≡[]∷ t₁≡t₂ σ₁≡σ₂)
+          (R.escape-⊩≡ (inj₁ inc) $ ⊩ᵛ≡→⊩ˢ≡∷→⊩[⇑]≡[⇑] B₁≡B₂ σ₁≡σ₂)
           (escape-⊩≡∷ u₁[σ₁]≡u₂[σ₂]) v₁′~v₂′ ok
 
 opaque
@@ -1031,14 +1059,15 @@ opaque
     K-allowed →
     Γ ⊩ᵛ⟨ l′ ⟩ A₁ ≡ A₂ →
     Γ ⊩ᵛ⟨ l″ ⟩ t₁ ≡ t₂ ∷ A₁ →
+    Γ ∙ Id A₁ t₁ t₁ ⊢ B₁ ≡ B₂ →
     Γ ∙ Id A₁ t₁ t₁ ⊩ᵛ⟨ l ⟩ B₁ ≡ B₂ →
     Γ ⊩ᵛ⟨ l‴ ⟩ u₁ ≡ u₂ ∷ B₁ [ rfl ]₀ →
     Γ ⊩ᵛ⟨ l⁗ ⟩ v₁ ≡ v₂ ∷ Id A₁ t₁ t₁ →
     Γ ⊩ᵛ⟨ l ⟩ K p A₁ t₁ B₁ u₁ v₁ ≡ K p A₂ t₂ B₂ u₂ v₂ ∷ B₁ [ v₁ ]₀
-  K-congᵛ ok A₁≡A₂ t₁≡t₂ B₁≡B₂ u₁≡u₂ v₁≡v₂ =
-    ⊩ᵛ≡∷⇔ .proj₂
+  K-congᵛ ok A₁≡A₂ t₁≡t₂ ⊢B₁≡B₂ B₁≡B₂ u₁≡u₂ v₁≡v₂ =
+    ⊩ᵛ≡∷⇔ʰ .proj₂
       ( ⊩ᵛ→⊩ᵛ∷→⊩ᵛ[]₀ (wf-⊩ᵛ≡ B₁≡B₂ .proj₁) (wf-⊩ᵛ≡∷ v₁≡v₂ .proj₁)
-      , ⊩K≡K ok A₁≡A₂ t₁≡t₂ B₁≡B₂ u₁≡u₂ v₁≡v₂
+      , ⊩K≡K ok A₁≡A₂ t₁≡t₂ ⊢B₁≡B₂ B₁≡B₂ u₁≡u₂ v₁≡v₂
       )
 
 opaque
@@ -1047,18 +1076,19 @@ opaque
 
   Kᵛ :
     K-allowed →
+    Γ ∙ Id A t t ⊢ B →
     Γ ∙ Id A t t ⊩ᵛ⟨ l ⟩ B →
     Γ ⊩ᵛ⟨ l′ ⟩ u ∷ B [ rfl ]₀ →
     Γ ⊩ᵛ⟨ l″ ⟩ v ∷ Id A t t →
     Γ ⊩ᵛ⟨ l ⟩ K p A t B u v ∷ B [ v ]₀
-  Kᵛ ok ⊩B ⊩u ⊩v =
+  Kᵛ ok ⊢B ⊩B ⊩u ⊩v =
     case ⊩ᵛId⇔ .proj₁ $ wf-⊩ᵛ∷ ⊩v of λ
       (⊩t , _) →
     case wf-⊩ᵛ∷ ⊩t of λ
       ⊩A →
     ⊩ᵛ∷⇔⊩ᵛ≡∷ .proj₂ $
-    K-congᵛ ok (refl-⊩ᵛ≡ ⊩A) (refl-⊩ᵛ≡∷ ⊩t) (refl-⊩ᵛ≡ ⊩B) (refl-⊩ᵛ≡∷ ⊩u)
-      (refl-⊩ᵛ≡∷ ⊩v)
+    K-congᵛ ok (refl-⊩ᵛ≡ ⊩A) (refl-⊩ᵛ≡∷ ⊩t) (refl ⊢B) (refl-⊩ᵛ≡ ⊩B)
+      (refl-⊩ᵛ≡∷ ⊩u) (refl-⊩ᵛ≡∷ ⊩v)
 
 opaque
 
@@ -1066,17 +1096,17 @@ opaque
 
   K-βᵛ :
     K-allowed →
-    Γ ∙ Id A t t ⊩ᵛ⟨ l′ ⟩ B →
+    Γ ∙ Id A t t ⊢ B →
     Γ ⊩ᵛ⟨ l ⟩ u ∷ B [ rfl ]₀ →
     Γ ⊩ᵛ⟨ l ⟩ K p A t B u rfl ≡ u ∷ B [ rfl ]₀
-  K-βᵛ {B} ok ⊩B ⊩u =
+  K-βᵛ {B} ok ⊢B ⊩u =
     ⊩ᵛ∷-⇐
-      (λ ⊩σ →
+      (λ inc ⊩σ →
          PE.subst (_⊢_⇒_∷_ _ _ _) (PE.sym $ singleSubstLift B _) $
          K-β
-           (escape $ ⊩ᵛ→⊩ˢ∷→⊩[⇑] ⊩B ⊩σ)
+           (subst-⊢-⇑ ⊢B (escape-⊩ˢ∷ inc ⊩σ .proj₂))
            (PE.subst (_⊢_∷_ _ _) (singleSubstLift B _) $
-            escape-⊩∷ $ ⊩ᵛ∷→⊩ˢ∷→⊩[]∷ ⊩u ⊩σ)
+            R.escape-⊩∷ inc $ ⊩ᵛ∷→⊩ˢ∷→⊩[]∷ ⊩u ⊩σ)
            ok)
       ⊩u
 
@@ -1106,35 +1136,47 @@ opaque
   ⊩J≡J :
     Γ ⊩ᵛ⟨ l′₁ ⟩ A₁ ≡ A₂ →
     Γ ⊩ᵛ⟨ l′₂ ⟩ t₁ ≡ t₂ ∷ A₁ →
+    Γ ∙ A₁ ∙ Id (wk1 A₁) (wk1 t₁) (var x0) ⊢ B₁ ≡ B₂ →
     Γ ∙ A₁ ∙ Id (wk1 A₁) (wk1 t₁) (var x0) ⊩ᵛ⟨ l ⟩ B₁ ≡ B₂ →
     Γ ⊩ᵛ⟨ l′₃ ⟩ u₁ ≡ u₂ ∷ B₁ [ t₁ , rfl ]₁₀ →
     Γ ⊩ᵛ⟨ l′₄ ⟩ v₁ ≡ v₂ ∷ A₁ →
     Γ ⊩ᵛ⟨ l′₅ ⟩ w₁ ≡ w₂ ∷ Id A₁ t₁ v₁ →
+    Neutrals-included-or-empty Δ →
     Δ ⊩ˢ σ₁ ≡ σ₂ ∷ Γ →
     Δ ⊩⟨ l ⟩ J p q A₁ t₁ B₁ u₁ v₁ w₁ U.[ σ₁ ] ≡
       J p q A₂ t₂ B₂ u₂ v₂ w₂ U.[ σ₂ ] ∷ B₁ [ v₁ , w₁ ]₁₀ U.[ σ₁ ]
   ⊩J≡J
     {A₁} {A₂} {t₁} {t₂} {B₁} {B₂} {u₁} {u₂} {v₁} {v₂} {w₁} {w₂} {σ₁}
-    {σ₂} {p} {q} A₁≡A₂ t₁≡t₂ B₁≡B₂ u₁≡u₂ v₁≡v₂ w₁≡w₂ σ₁≡σ₂ =
+    {σ₂} {p} {q} A₁≡A₂ t₁≡t₂ ⊢B₁≡B₂ B₁≡B₂ u₁≡u₂ v₁≡v₂ w₁≡w₂ inc σ₁≡σ₂ =
 
     -- Some definitions related to σ₁ and σ₂.
     case wf-⊩ˢ≡∷ σ₁≡σ₂ of λ
       (⊩σ₁ , ⊩σ₂) →
+    case escape-⊩ˢ≡∷ inc σ₁≡σ₂ of λ
+      (_ , ⊢σ₁≡σ₂) →
+    case wf-⊢ˢʷ≡∷ ⊢σ₁≡σ₂ of λ
+      (_ , _ , ⊢σ₂) →
 
     -- Some definitions related to A₁ and A₂.
     case wf-⊩ᵛ≡ A₁≡A₂ of λ
       (⊩A₁ , _) →
-    case ⊩ᵛ≡→⊩ˢ≡∷→⊩[]≡[] A₁≡A₂ σ₁≡σ₂ of λ
+    case R.⊩≡→ inc $ ⊩ᵛ≡→⊩ˢ≡∷→⊩[]≡[] A₁≡A₂ σ₁≡σ₂ of λ
       A₁[σ₁]≡A₂[σ₂] →
+    case escape-⊩≡ A₁[σ₁]≡A₂[σ₂] of λ
+      A₁[σ₁]≅A₂[σ₂] →
+    case ≅-eq A₁[σ₁]≅A₂[σ₂] of λ
+      ⊢A₁[σ₁]≡A₂[σ₂] →
+    case wf-⊢≡ ⊢A₁[σ₁]≡A₂[σ₂] of λ
+      (⊢A₁[σ₁] , _) →
 
     -- Some definitions related to t₁ and t₂.
-    case ⊩ᵛ≡∷→⊩ˢ≡∷→⊩[]≡[]∷ t₁≡t₂ σ₁≡σ₂ of λ
+    case R.⊩≡∷→ inc $ ⊩ᵛ≡∷→⊩ˢ≡∷→⊩[]≡[]∷ t₁≡t₂ σ₁≡σ₂ of λ
       t₁[σ₁]≡t₂[σ₂] →
     case wf-⊩≡∷ t₁[σ₁]≡t₂[σ₂] of λ
       (⊩t₁[σ₁] , ⊩t₂[σ₂]) →
     case conv-⊩∷ A₁[σ₁]≡A₂[σ₂] ⊩t₂[σ₂] of λ
       ⊩t₂[σ₂] →
-    case refl-⊩≡∷ $
+    case R.refl-⊩≡∷ $ R.→⊩∷ $
          PE.subst (_⊩⟨_⟩_∷_ _ _ _) (Id[]≡Id-wk1-0-[⇑][]₀ A₁ t₁) $
          ⊩rfl ⊩t₁[σ₁] of λ
       rfl≡rfl →
@@ -1142,7 +1184,7 @@ opaque
     -- Some definitions related to Id.
     case Id-congᵛ A₁≡A₂ t₁≡t₂ v₁≡v₂ of λ
       Id-v₁≡Id-v₂ →
-    case ⊩ᵛ≡→⊩ˢ≡∷→⊩[]≡[] Id-v₁≡Id-v₂ σ₁≡σ₂ of λ
+    case R.⊩≡→ inc $ ⊩ᵛ≡→⊩ˢ≡∷→⊩[]≡[] Id-v₁≡Id-v₂ σ₁≡σ₂ of λ
       Id-v₁[σ₁]≡Id-v₂[σ₂] →
 
     -- Some definitions related to B₁ and B₂.
@@ -1153,24 +1195,26 @@ opaque
               (refl-⊩ᵛ≡∷ (varᵛ′ here (wk1-⊩ᵛ ⊩A₁ ⊩A₁))))
            ⊩B₂ of λ
       ⊩B₂ →
-    case PE.subst₄ _⊩⟨_⟩_≡_ (PE.cong (_∙_ _) $ Id-wk1-wk1-0[⇑]≡ A₁ t₁)
-           PE.refl PE.refl PE.refl $
-         ⊩ᵛ≡→⊩ˢ≡∷→⊩[⇑⇑]≡[⇑⇑] B₁≡B₂ σ₁≡σ₂ of λ
-      B₁[σ₁⇑⇑]≡B₂[σ₂⇑⇑] →
-    case ≅-eq $ escape-⊩≡ $
-         ⊩ᵛ≡→⊩ˢ≡∷→⊩≡∷→⊩≡∷→⊩[⇑⇑][]₁₀≡[⇑⇑][]₁₀ B₁≡B₂ σ₁≡σ₂ t₁[σ₁]≡t₂[σ₂]
-           rfl≡rfl of λ
+    case ≅-eq $ R.escape-⊩≡ inc $
+         ⊩ᵛ≡→⊩ˢ≡∷→⊩≡∷→⊩≡∷→⊩[⇑⇑][]₁₀≡[⇑⇑][]₁₀ B₁≡B₂ σ₁≡σ₂
+           (R.→⊩≡∷ t₁[σ₁]≡t₂[σ₂]) rfl≡rfl of λ
       ⊢B₁[σ₁⇑⇑][t₁[σ₁],rfl]≡B₂[σ₂⇑⇑][t₂[σ₂],rfl] →
-    case escape $ wf-⊩≡ B₁[σ₁⇑⇑]≡B₂[σ₂⇑⇑] .proj₁ of λ
-      ⊢B₁[σ₁⇑²] →
-    case PE.subst₂ _⊢_
-           (PE.cong (_∙_ _) $ Id-wk1-wk1-0[⇑]≡ A₂ t₂) PE.refl $
-         escape $ ⊩ᵛ→⊩ˢ∷→⊩[⇑⇑] ⊩B₂ ⊩σ₂ of λ
+    case wf-⊢≡ $
+         PE.subst₃ _⊢_≡_
+           (PE.cong (_∙_ _) $ Id-wk1-wk1-0[⇑]≡ A₁ t₁) PE.refl PE.refl $
+         subst-⊢≡-⇑ ⊢B₁≡B₂ ⊢σ₁≡σ₂ of λ
+      (⊢B₁[σ₁⇑²] , ⊢B₁[σ₂⇑²]) →
+    case stability
+           (refl-∙ ⊢A₁[σ₁]≡A₂[σ₂] ∙
+            Id-cong (wkEq₁ ⊢A₁[σ₁] ⊢A₁[σ₁]≡A₂[σ₂])
+              (wkEqTerm₁ ⊢A₁[σ₁] (≅ₜ-eq $ escape-⊩≡∷ t₁[σ₁]≡t₂[σ₂]))
+              (refl (var₀ ⊢A₁[σ₁])))
+           ⊢B₁[σ₂⇑²] of λ
       ⊢B₂[σ₂⇑²] →
 
     -- Some definitions related to u₁ and u₂.
     case PE.subst (_⊩⟨_⟩_≡_∷_ _ _ _ _) ([,]-[]-commute B₁) $
-         ⊩ᵛ≡∷→⊩ˢ≡∷→⊩[]≡[]∷ u₁≡u₂ σ₁≡σ₂ of λ
+         R.⊩≡∷→ inc $ ⊩ᵛ≡∷→⊩ˢ≡∷→⊩[]≡[]∷ u₁≡u₂ σ₁≡σ₂ of λ
       u₁[σ₁]≡u₂[σ₂] →
     case escape-⊩∷ $ wf-⊩≡∷ u₁[σ₁]≡u₂[σ₂] .proj₁ of λ
       ⊢u₁[σ₁] →
@@ -1179,7 +1223,7 @@ opaque
       ⊢u₂[σ₂] →
 
     -- Some definitions related to v₁ and v₂.
-    case ⊩ᵛ≡∷→⊩ˢ≡∷→⊩[]≡[]∷ v₁≡v₂ σ₁≡σ₂ of λ
+    case R.⊩≡∷→ inc $ ⊩ᵛ≡∷→⊩ˢ≡∷→⊩[]≡[]∷ v₁≡v₂ σ₁≡σ₂ of λ
       v₁[σ₁]≡v₂[σ₂] →
     case wf-⊩≡∷ v₁[σ₁]≡v₂[σ₂] of λ
       (⊩v₁[σ₁] , ⊩v₂[σ₂]) →
@@ -1191,7 +1235,7 @@ opaque
       (⊩w₁ , ⊩w₂) →
     case conv-⊩ᵛ∷ Id-v₁≡Id-v₂ ⊩w₂ of λ
       ⊩w₂ →
-    case ⊩ᵛ≡∷→⊩ˢ≡∷→⊩[]≡[]∷ w₁≡w₂ σ₁≡σ₂ of λ
+    case R.⊩≡∷→ inc $ ⊩ᵛ≡∷→⊩ˢ≡∷→⊩[]≡[]∷ w₁≡w₂ σ₁≡σ₂ of λ
       w₁[σ₁]≡w₂[σ₂] →
     case ⊩≡∷Id⇔ .proj₁ w₁[σ₁]≡w₂[σ₂] of λ
       (w₁′ , w₂′ , w₁⇒*w₁′ , w₂⇒*w₂′ , _ , _ , rest) →
@@ -1199,9 +1243,9 @@ opaque
       w₂⇒*w₂′ →
 
     -- Some definitions related to w₁′ and w₂′.
-    case ⊩∷-⇒* w₁⇒*w₁′ $ ⊩ᵛ∷→⊩ˢ∷→⊩[]∷ ⊩w₁ ⊩σ₁ of λ
+    case ⊩∷-⇒* w₁⇒*w₁′ $ R.⊩∷→ inc $ ⊩ᵛ∷→⊩ˢ∷→⊩[]∷ ⊩w₁ ⊩σ₁ of λ
       w₁[σ₁]≡w₁′ →
-    case ⊩∷-⇒* w₂⇒*w₂′ $ ⊩ᵛ∷→⊩ˢ∷→⊩[]∷ ⊩w₂ ⊩σ₂ of λ
+    case ⊩∷-⇒* w₂⇒*w₂′ $ R.⊩∷→ inc $ ⊩ᵛ∷→⊩ˢ∷→⊩[]∷ ⊩w₂ ⊩σ₂ of λ
       w₂[σ₂]≡w₂′ →
     case
       w₁′ ∷ Id (wk1 A₁) (wk1 t₁) (var x0) U.[ σ₁ ⇑ ] [ v₁ U.[ σ₁ ] ]₀  ≡⟨⟩⊩∷∷
@@ -1213,8 +1257,9 @@ opaque
       w₂′                                                              ∎
     of λ
       w₁′≡w₂′ →
-    case ⊩ᵛ≡→⊩ˢ≡∷→⊩≡∷→⊩≡∷→⊩[⇑⇑][]₁₀≡[⇑⇑][]₁₀ B₁≡B₂ σ₁≡σ₂ v₁[σ₁]≡v₂[σ₂]
-           w₁′≡w₂′ of λ
+    case R.⊩≡→ inc $
+         ⊩ᵛ≡→⊩ˢ≡∷→⊩≡∷→⊩≡∷→⊩[⇑⇑][]₁₀≡[⇑⇑][]₁₀ B₁≡B₂ σ₁≡σ₂
+           (R.→⊩≡∷ v₁[σ₁]≡v₂[σ₂]) (R.→⊩≡∷ w₁′≡w₂′) of λ
       B₁[σ₁⇑⇑][v₁[σ₁],w₁′]≡B₂[σ₂⇑⇑][v₂[σ₂],w₂′] →
 
     -- The two applications of J are equal if applications of J to w₁′
@@ -1226,18 +1271,21 @@ opaque
            ∷ B₁ [ v₁ , w₁ ]₁₀ U.[ σ₁ ]                        ≡⟨⟩⊩∷∷
                                                                ⟨ [,]-[]-commute B₁ ⟩⊩∷≡
          _ ∷ B₁ U.[ σ₁ ⇑ ⇑ ] [ v₁ U.[ σ₁ ] , w₁ U.[ σ₁ ] ]₁₀  ⇒*⟨ J-subst* ⊢B₁[σ₁⇑²] ⊢u₁[σ₁] w₁⇒*w₁′ ⟩⊩∷∷
-                                                                ⟨ ⊩ᵛ≡→⊩ˢ≡∷→⊩≡∷→⊩≡∷→⊩[⇑⇑][]₁₀≡[⇑⇑][]₁₀ (refl-⊩ᵛ≡ ⊩B₁)
-                                                                    (refl-⊩ˢ≡∷ ⊩σ₁) (refl-⊩≡∷ ⊩v₁[σ₁])
-                                                                    (PE.subst (_⊩⟨_⟩_≡_∷_ _ _ _ _) (Id[]≡Id-wk1-0-[⇑][]₀ A₁ t₁)
+                                                                ⟨ R.⊩≡→ inc $
+                                                                  ⊩ᵛ≡→⊩ˢ≡∷→⊩≡∷→⊩≡∷→⊩[⇑⇑][]₁₀≡[⇑⇑][]₁₀ (refl-⊩ᵛ≡ ⊩B₁)
+                                                                    (refl-⊩ˢ≡∷ ⊩σ₁) (R.→⊩≡∷ $ refl-⊩≡∷ ⊩v₁[σ₁])
+                                                                    (R.→⊩≡∷ $
+                                                                     PE.subst (_⊩⟨_⟩_≡_∷_ _ _ _ _) (Id[]≡Id-wk1-0-[⇑][]₀ A₁ t₁)
                                                                        w₁[σ₁]≡w₁′) ⟩⊩∷
          J p q (A₁ U.[ σ₁ ]) (t₁ U.[ σ₁ ]) (B₁ U.[ σ₁ ⇑ ⇑ ])
            (u₁ U.[ σ₁ ]) (v₁ U.[ σ₁ ]) w₁′
             ∷ B₁ U.[ σ₁ ⇑ ⇑ ] [ v₁ U.[ σ₁ ] , w₁′ ]₁₀         ≡⟨ hyp ⟩⊩∷∷⇐*
                                                                ⟨ ≅-eq $ escape-⊩≡ B₁[σ₁⇑⇑][v₁[σ₁],w₁′]≡B₂[σ₂⇑⇑][v₂[σ₂],w₂′] ⟩⇒
-            ∷ B₂ U.[ σ₂ ⇑ ⇑ ] [ v₂ U.[ σ₂ ] , w₂′ ]₁₀         ˘⟨ ≅-eq $ escape-⊩≡ $
+            ∷ B₂ U.[ σ₂ ⇑ ⇑ ] [ v₂ U.[ σ₂ ] , w₂′ ]₁₀         ˘⟨ ≅-eq $ R.escape-⊩≡ inc $
                                                                  ⊩ᵛ≡→⊩ˢ≡∷→⊩≡∷→⊩≡∷→⊩[⇑⇑][]₁₀≡[⇑⇑][]₁₀ (refl-⊩ᵛ≡ ⊩B₂)
-                                                                   (refl-⊩ˢ≡∷ ⊩σ₂) (refl-⊩≡∷ ⊩v₂[σ₂])
-                                                                   (PE.subst (_⊩⟨_⟩_≡_∷_ _ _ _ _) (Id[]≡Id-wk1-0-[⇑][]₀ A₂ t₂)
+                                                                   (refl-⊩ˢ≡∷ ⊩σ₂) (R.→⊩≡∷ $ refl-⊩≡∷ ⊩v₂[σ₂])
+                                                                   (R.→⊩≡∷ $
+                                                                    PE.subst (_⊩⟨_⟩_≡_∷_ _ _ _ _) (Id[]≡Id-wk1-0-[⇑][]₀ A₂ t₂)
                                                                       w₂[σ₂]≡w₂′) ⟩⇒
          J p q (A₂ U.[ σ₂ ]) (t₂ U.[ σ₂ ]) (B₂ U.[ σ₂ ⇑ ⇑ ])
            (u₂ U.[ σ₂ ]) (v₂ U.[ σ₂ ]) w₂′
@@ -1264,9 +1312,10 @@ opaque
         lemma
           (J p q A₁ t₁ B₁ u₁ v₁ rfl U.[ σ₁ ]
              ∷ B₁ U.[ σ₁ ⇑ ⇑ ] [ v₁ U.[ σ₁ ] , rfl ]₁₀            ≡⟨⟩⊩∷∷
-                                                                   ⟨ ⊩ᵛ≡→⊩ˢ≡∷→⊩≡∷→⊩≡∷→⊩[⇑⇑][]₁₀≡[⇑⇑][]₁₀ (refl-⊩ᵛ≡ ⊩B₁)
-                                                                       (refl-⊩ˢ≡∷ ⊩σ₁) (sym-⊩≡∷ t₁[σ₁]≡v₁[σ₁])
-                                                                       (refl-⊩≡∷ $
+                                                                   ⟨ R.⊩≡→ inc $
+                                                                     ⊩ᵛ≡→⊩ˢ≡∷→⊩≡∷→⊩≡∷→⊩[⇑⇑][]₁₀≡[⇑⇑][]₁₀ (refl-⊩ᵛ≡ ⊩B₁)
+                                                                       (refl-⊩ˢ≡∷ ⊩σ₁) (R.→⊩≡∷ $ sym-⊩≡∷ t₁[σ₁]≡v₁[σ₁])
+                                                                       (R.→⊩≡∷ $ refl-⊩≡∷ $
                                                                         PE.subst (_⊩⟨_⟩_∷_ _ _ _) (Id[]≡Id-wk1-0-[⇑][]₀ A₁ t₁) $
                                                                         wf-⊩≡∷ w₁[σ₁]≡w₁′ .proj₂) ⟩⊩∷
            _ ∷ B₁ U.[ σ₁ ⇑ ⇑ ] [ t₁ U.[ σ₁ ] , rfl ]₁₀            ⇒⟨ J-β-⇒ (≅ₜ-eq (escape-⊩≡∷ t₁[σ₁]≡v₁[σ₁])) ⊢B₁[σ₁⇑²] ⊢u₁[σ₁] ⟩⊩∷∷
@@ -1277,16 +1326,20 @@ opaque
 
            J p q A₂ t₂ B₂ u₂ v₂ rfl U.[ σ₂ ]                      ∎)
 
-      (ne w₁′-ne w₂′-ne w₁′~w₂′) →
+      (ne inc w₁′-ne w₂′-ne w₁′~w₂′) →
         -- If w₁′ and w₂′ are equal neutral terms, then one can
         -- conclude by using the fact that the applications of J to
         -- w₁′ and w₂′ are equal neutral terms.
         lemma $
-        neutral-⊩≡∷
+        neutral-⊩≡∷ inc
           (wf-⊩≡ B₁[σ₁⇑⇑][v₁[σ₁],w₁′]≡B₂[σ₂⇑⇑][v₂[σ₂],w₂′] .proj₁)
           (Jₙ w₁′-ne) (Jₙ w₂′-ne)
-          (~-J (escape-⊩≡ A₁[σ₁]≡A₂[σ₂]) (escape-⊩∷ ⊩t₁[σ₁])
-             (escape-⊩≡∷ t₁[σ₁]≡t₂[σ₂]) (escape-⊩≡ B₁[σ₁⇑⇑]≡B₂[σ₂⇑⇑])
+          (~-J A₁[σ₁]≅A₂[σ₂] (escape-⊩∷ ⊩t₁[σ₁])
+             (escape-⊩≡∷ t₁[σ₁]≡t₂[σ₂])
+             (PE.subst₃ _⊢_≅_ (PE.cong (_∙_ _) $ Id-wk1-wk1-0[⇑]≡ A₁ t₁)
+                PE.refl PE.refl $
+              R.escape-⊩≡ (inj₁ inc) $
+              ⊩ᵛ≡→⊩ˢ≡∷→⊩[⇑⇑]≡[⇑⇑] B₁≡B₂ σ₁≡σ₂)
              (escape-⊩≡∷ u₁[σ₁]≡u₂[σ₂])
              (escape-⊩≡∷ v₁[σ₁]≡v₂[σ₂]) w₁′~w₂′)
 
@@ -1297,18 +1350,19 @@ opaque
   J-congᵛ :
     Γ ⊩ᵛ⟨ l′₁ ⟩ A₁ ≡ A₂ →
     Γ ⊩ᵛ⟨ l′₂ ⟩ t₁ ≡ t₂ ∷ A₁ →
+    Γ ∙ A₁ ∙ Id (wk1 A₁) (wk1 t₁) (var x0) ⊢ B₁ ≡ B₂ →
     Γ ∙ A₁ ∙ Id (wk1 A₁) (wk1 t₁) (var x0) ⊩ᵛ⟨ l ⟩ B₁ ≡ B₂ →
     Γ ⊩ᵛ⟨ l′₃ ⟩ u₁ ≡ u₂ ∷ B₁ [ t₁ , rfl ]₁₀ →
     Γ ⊩ᵛ⟨ l′₄ ⟩ v₁ ≡ v₂ ∷ A₁ →
     Γ ⊩ᵛ⟨ l′₅ ⟩ w₁ ≡ w₂ ∷ Id A₁ t₁ v₁ →
     Γ ⊩ᵛ⟨ l ⟩ J p q A₁ t₁ B₁ u₁ v₁ w₁ ≡ J p q A₂ t₂ B₂ u₂ v₂ w₂ ∷
       B₁ [ v₁ , w₁ ]₁₀
-  J-congᵛ A₁≡A₂ t₁≡t₂ B₁≡B₂ u₁≡u₂ v₁≡v₂ w₁≡w₂ =
-    ⊩ᵛ≡∷⇔ .proj₂
+  J-congᵛ A₁≡A₂ t₁≡t₂ ⊢B₁≡B₂ B₁≡B₂ u₁≡u₂ v₁≡v₂ w₁≡w₂ =
+    ⊩ᵛ≡∷⇔ʰ .proj₂
       ( ⊩ᵛ→⊩ᵛ∷→⊩ᵛ∷→⊩ᵛ[]₁₀ (wf-⊩ᵛ≡ B₁≡B₂ .proj₁) (wf-⊩ᵛ≡∷ v₁≡v₂ .proj₁)
           (PE.subst (_⊩ᵛ⟨_⟩_∷_ _ _ _) ≡Id-wk1-wk1-0[]₀ $
            wf-⊩ᵛ≡∷ w₁≡w₂ .proj₁)
-      , ⊩J≡J A₁≡A₂ t₁≡t₂ B₁≡B₂ u₁≡u₂ v₁≡v₂ w₁≡w₂
+      , ⊩J≡J A₁≡A₂ t₁≡t₂ ⊢B₁≡B₂ B₁≡B₂ u₁≡u₂ v₁≡v₂ w₁≡w₂
       )
 
 opaque
@@ -1316,36 +1370,39 @@ opaque
   -- Validity of J.
 
   Jᵛ :
+    Γ ∙ A ∙ Id (wk1 A) (wk1 t) (var x0) ⊢ B →
     Γ ∙ A ∙ Id (wk1 A) (wk1 t) (var x0) ⊩ᵛ⟨ l ⟩ B →
     Γ ⊩ᵛ⟨ l′ ⟩ u ∷ B [ t , rfl ]₁₀ →
     Γ ⊩ᵛ⟨ l″ ⟩ w ∷ Id A t v →
     Γ ⊩ᵛ⟨ l ⟩ J p q A t B u v w ∷ B [ v , w ]₁₀
-  Jᵛ ⊩B ⊩u ⊩w =
+  Jᵛ ⊢B ⊩B ⊩u ⊩w =
     case ⊩ᵛId⇔ .proj₁ (wf-⊩ᵛ∷ ⊩w) of λ
       (⊩t , ⊩v) →
     case wf-⊩ᵛ∷ ⊩t of λ
       ⊩A →
     ⊩ᵛ∷⇔⊩ᵛ≡∷ .proj₂ $
-    J-congᵛ (refl-⊩ᵛ≡ ⊩A) (refl-⊩ᵛ≡∷ ⊩t) (refl-⊩ᵛ≡ ⊩B) (refl-⊩ᵛ≡∷ ⊩u)
-      (refl-⊩ᵛ≡∷ ⊩v) (refl-⊩ᵛ≡∷ ⊩w)
+    J-congᵛ (refl-⊩ᵛ≡ ⊩A) (refl-⊩ᵛ≡∷ ⊩t) (refl ⊢B) (refl-⊩ᵛ≡ ⊩B)
+      (refl-⊩ᵛ≡∷ ⊩u) (refl-⊩ᵛ≡∷ ⊩v) (refl-⊩ᵛ≡∷ ⊩w)
 
 opaque
 
   -- Validity of the J β rule.
 
   J-βᵛ :
-    Γ ⊩ᵛ⟨ l′ ⟩ t ∷ A →
-    Γ ∙ A ∙ Id (wk1 A) (wk1 t) (var x0) ⊩ᵛ⟨ l″ ⟩ B →
+    Γ ⊢ t ∷ A →
+    Γ ∙ A ∙ Id (wk1 A) (wk1 t) (var x0) ⊢ B →
     Γ ⊩ᵛ⟨ l ⟩ u ∷ B [ t , rfl ]₁₀ →
     Γ ⊩ᵛ⟨ l ⟩ J p q A t B u t rfl ≡ u ∷ B [ t , rfl ]₁₀
-  J-βᵛ {t} {A} {B} ⊩t ⊩B ⊩u =
+  J-βᵛ {t} {A} {B} ⊢t ⊢B ⊩u =
     ⊩ᵛ∷-⇐
-      (λ {_ _} {σ = σ} ⊩σ →
+      (λ {_ _} {σ = σ} inc ⊩σ →
+         case escape-⊩ˢ∷ inc ⊩σ of λ
+           (_ , ⊢σ) →
          PE.subst (_⊢_⇒_∷_ _ _ _) (PE.sym $ [,]-[]-commute B) $
-         J-β-⇒ (refl $ escape-⊩∷ $ ⊩ᵛ∷→⊩ˢ∷→⊩[]∷ ⊩t ⊩σ)
+         J-β-⇒ (refl $ subst-⊢∷ ⊢t ⊢σ)
            (PE.subst₂ _⊢_
               (PE.cong (_∙_ _) $ Id-wk1-wk1-0[⇑]≡ A t) PE.refl $
-            escape $ ⊩ᵛ→⊩ˢ∷→⊩[⇑⇑] ⊩B ⊩σ)
+            subst-⊢-⇑ ⊢B ⊢σ)
            (PE.subst (_⊢_∷_ _ _) ([,]-[]-commute B) $
-            escape-⊩∷ $ ⊩ᵛ∷→⊩ˢ∷→⊩[]∷ ⊩u ⊩σ))
+            R.escape-⊩∷ inc $ ⊩ᵛ∷→⊩ˢ∷→⊩[]∷ ⊩u ⊩σ))
       ⊩u

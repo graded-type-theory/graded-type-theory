@@ -36,18 +36,18 @@ opaque
   -- kind of WHNF).
 
   natural : Natural-prop Γ t → Natural t
-  natural (sucᵣ _)            = sucₙ
-  natural zeroᵣ               = zeroₙ
-  natural (ne (neNfₜ t-ne _)) = ne t-ne
+  natural (sucᵣ _)              = sucₙ
+  natural zeroᵣ                 = zeroₙ
+  natural (ne (neNfₜ _ t-ne _)) = ne t-ne
 
 opaque
 
   -- If t and u satisfy [Natural]-prop Γ, then they are "Naturals".
 
   split : [Natural]-prop Γ t u → Natural t × Natural u
-  split (sucᵣ _)                  = sucₙ , sucₙ
-  split zeroᵣ                     = zeroₙ , zeroₙ
-  split (ne (neNfₜ₌ t-ne u-ne _)) = ne t-ne , ne u-ne
+  split (sucᵣ _)                    = sucₙ , sucₙ
+  split zeroᵣ                       = zeroₙ , zeroₙ
+  split (ne (neNfₜ₌ _ t-ne u-ne _)) = ne t-ne , ne u-ne
 
 opaque
 
@@ -55,27 +55,27 @@ opaque
   -- kind of WHNF).
 
   empty : Empty-prop Γ t → Neutral t
-  empty (ne (neNfₜ t-ne _)) = t-ne
+  empty (ne (neNfₜ _ t-ne _)) = t-ne
 
 opaque
 
   -- If t and u satisfy [Empty]-prop Γ, then they are neutral terms.
 
   esplit : [Empty]-prop Γ t u → Neutral t × Neutral u
-  esplit (ne (neNfₜ₌ t-ne u-ne _)) = t-ne , u-ne
+  esplit (ne (neNfₜ₌ _ t-ne u-ne _)) = t-ne , u-ne
 
 opaque
 
   -- If t satisfies Unit-prop Γ l s, then t is a WHNF.
 
   unit : Unit-prop Γ l s t → Whnf t
-  unit starᵣ               = starₙ
-  unit (ne (neNfₜ t-ne _)) = ne t-ne
+  unit starᵣ                 = starₙ
+  unit (ne (neNfₜ _ t-ne _)) = ne t-ne
 
 opaque
 
   -- If t and u satisfy [Unitʷ]-prop Γ, then they are WHNFs.
 
   usplit : [Unitʷ]-prop Γ l t u → Whnf t × Whnf u
-  usplit starᵣ                     = starₙ , starₙ
-  usplit (ne (neNfₜ₌ t-ne u-ne _)) = ne t-ne , ne u-ne
+  usplit starᵣ                       = starₙ , starₙ
+  usplit (ne (neNfₜ₌ _ t-ne u-ne _)) = ne t-ne , ne u-ne

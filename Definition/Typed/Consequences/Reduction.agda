@@ -36,6 +36,7 @@ open import Tools.Function
 open import Tools.Nat using (Nat)
 open import Tools.Product
 import Tools.PropositionalEquality as PE
+open import Tools.Sum
 
 private
   variable
@@ -54,7 +55,7 @@ opaque
 
   red-U : Γ ⊢ t ∷ U l → ∃ λ u → Type u × Γ ⊢ t ⇒* u ∷ U l
   red-U ⊢t =
-    case ⊩∷U⇔ .proj₁ $ proj₂ $ reducible-⊩∷ ⊢t of λ
+    case ⊩∷U⇔ .proj₁ $ proj₂ $ reducible-⊩∷ (inj₁ _) ⊢t of λ
       (_ , _ , u , t⇒*u , u-type , _) →
     u , u-type , t⇒*u
 
@@ -64,8 +65,8 @@ opaque
 
   red-Empty : Γ ⊢ t ∷ Empty → ∃ λ u → Neutral u × Γ ⊢ t ⇒* u ∷ Empty
   red-Empty ⊢t =
-    case ⊩∷Empty⇔ .proj₁ $ proj₂ $ reducible-⊩∷ ⊢t of λ {
-      (Emptyₜ u t⇒*u _ (ne (neNfₜ u-ne _))) →
+    case ⊩∷Empty⇔ .proj₁ $ proj₂ $ reducible-⊩∷ (inj₁ _) ⊢t of λ {
+      (Emptyₜ u t⇒*u _ (ne (neNfₜ _ u-ne _))) →
     u , u-ne , t⇒*u }
 
 opaque
@@ -74,12 +75,12 @@ opaque
 
   red-Unit : Γ ⊢ t ∷ Unit s l → ∃ λ u → Star u × Γ ⊢ t ⇒* u ∷ Unit s l
   red-Unit ⊢t =
-    case ⊩∷Unit⇔ .proj₁ $ proj₂ $ reducible-⊩∷ ⊢t of λ {
+    case ⊩∷Unit⇔ .proj₁ $ proj₂ $ reducible-⊩∷ (inj₁ _) ⊢t of λ {
       (_ , _ , Unitₜ u t⇒*u _ rest) →
       u
     , (case rest of λ where
-         starᵣ               → starₙ
-         (ne (neNfₜ u-ne _)) → ne u-ne)
+         starᵣ                 → starₙ
+         (ne (neNfₜ _ u-ne _)) → ne u-ne)
     , t⇒*u }
 
 opaque
@@ -89,13 +90,13 @@ opaque
 
   red-ℕ : Γ ⊢ t ∷ ℕ → ∃ λ u → Natural u × Γ ⊢ t ⇒* u ∷ ℕ
   red-ℕ ⊢t =
-    case ⊩∷ℕ⇔ .proj₁ $ proj₂ $ reducible-⊩∷ ⊢t of λ {
+    case ⊩∷ℕ⇔ .proj₁ $ proj₂ $ reducible-⊩∷ (inj₁ _) ⊢t of λ {
       (ℕₜ u t⇒*u _ rest) →
       u
     , (case rest of λ where
-         zeroᵣ               → zeroₙ
-         (sucᵣ _)            → sucₙ
-         (ne (neNfₜ u-ne _)) → ne u-ne)
+         zeroᵣ                 → zeroₙ
+         (sucᵣ _)              → sucₙ
+         (ne (neNfₜ _ u-ne _)) → ne u-ne)
     , t⇒*u }
 
 opaque
@@ -106,7 +107,7 @@ opaque
     Γ ⊢ t ∷ Π p , q ▷ A ▹ B →
     ∃ λ u → Function u × Γ ⊢ t ⇒* u ∷ Π p , q ▷ A ▹ B
   red-Π ⊢t =
-    case ⊩∷Π⇔ .proj₁ $ proj₂ $ reducible-⊩∷ ⊢t of λ
+    case ⊩∷Π⇔ .proj₁ $ proj₂ $ reducible-⊩∷ (inj₁ _) ⊢t of λ
       (_ , u , t⇒*u , u-fun , _) →
     u , u-fun , t⇒*u
 
@@ -118,11 +119,11 @@ opaque
     Γ ⊢ t ∷ Σ⟨ m ⟩ p , q ▷ A ▹ B →
     ∃ λ u → Product u × Γ ⊢ t ⇒* u ∷ Σ⟨ m ⟩ p , q ▷ A ▹ B
   red-Σ {m = 𝕤} ⊢t =
-    case ⊩∷Σˢ⇔ .proj₁ $ proj₂ $ reducible-⊩∷ ⊢t of λ
+    case ⊩∷Σˢ⇔ .proj₁ $ proj₂ $ reducible-⊩∷ (inj₁ _) ⊢t of λ
       (_ , u , t⇒*u , u-prod , _) →
     u , u-prod , t⇒*u
   red-Σ {m = 𝕨} ⊢t =
-    case ⊩∷Σʷ⇔ .proj₁ $ proj₂ $ reducible-⊩∷ ⊢t of λ
+    case ⊩∷Σʷ⇔ .proj₁ $ proj₂ $ reducible-⊩∷ (inj₁ _) ⊢t of λ
       (_ , u , t⇒*u , _ , rest) →
     u , ⊩∷Σʷ→Product rest , t⇒*u
 
@@ -135,12 +136,12 @@ opaque
     Γ ⊢ t ∷ Id A u v →
     ∃ λ w → Identity w × Γ ⊢ t ⇒* w ∷ Id A u v
   red-Id ⊢t =
-    case ⊩∷Id⇔ .proj₁ $ proj₂ $ reducible-⊩∷ ⊢t of λ
+    case ⊩∷Id⇔ .proj₁ $ proj₂ $ reducible-⊩∷ (inj₁ _) ⊢t of λ
       (w , t⇒*w , _ , _ , rest) →
       w
     , (case rest of λ where
-         (rflᵣ _)    → rflₙ
-         (ne w-ne _) → ne w-ne)
+         (rflᵣ _)      → rflₙ
+         (ne _ w-ne _) → ne w-ne)
     , t⇒*w
 
 -- Helper function where all reducible types can be reduced to WHNF.
@@ -150,7 +151,7 @@ whNorm′ (Uᵣ′ l _ ⇒*U) = U l , Uₙ , ⇒*U
 whNorm′ (ℕᵣ D) = ℕ , ℕₙ , D
 whNorm′ (Emptyᵣ D) = Empty , Emptyₙ , D
 whNorm′ (Unitᵣ (Unitₜ D _)) = Unit! , Unitₙ , D
-whNorm′ (ne′ H D neH H≡H) = H , ne neH , D
+whNorm′ (ne′ _ H D neH H≡H) = H , ne neH , D
 whNorm′ (Πᵣ′ F G D _ _ _ _ _) = Π _ , _ ▷ F ▹ G , ΠΣₙ , D
 whNorm′ (Σᵣ′ F G D _ _ _ _ _) = Σ _ , _ ▷ F ▹ G , ΠΣₙ , D
 whNorm′ (Idᵣ ⊩Id) = _ , Idₙ , _⊩ₗId_.⇒*Id ⊩Id
@@ -159,7 +160,7 @@ whNorm′ (emb (≤ᵘ-step p) ⊩A) = whNorm′ (emb p ⊩A)
 
 -- Well-formed types can all be reduced to WHNF.
 whNorm : ∀ {A} → Γ ⊢ A → ∃ λ B → Whnf B × Γ ⊢ A ⇒* B
-whNorm A = whNorm′ (reducible-⊩ A .proj₂)
+whNorm A = whNorm′ (reducible-⊩ (inj₁ _) A .proj₂)
 
 opaque
 
@@ -265,7 +266,7 @@ whNormTerm′ (Emptyᵣ x) (Emptyₜ n d n≡n prop) =
   in  n , ne emptyN , conv* d (sym (subset* x))
 whNormTerm′ (Unitᵣ (Unitₜ x _)) (Unitₜ n d n≡n prop) =
   n , unit prop , conv* d (sym (subset* x))
-whNormTerm′ (ne (ne H D neH H≡H)) (neₜ k d (neNfₜ neH₁ k≡k)) =
+whNormTerm′ (ne (ne _ H D neH H≡H)) (neₜ k d (neNfₜ _ neH₁ k≡k)) =
   k , ne neH₁ , conv* d (sym (subset* D))
 whNormTerm′ (Πᵣ′ _ _ D _ _ _ _ _) (Πₜ f d funcF _ _ _) =
   f , functionWhnf funcF , conv* d (sym (subset* D))
@@ -283,7 +284,7 @@ opaque
 
   whNormTerm : Γ ⊢ t ∷ A → ∃ λ u → Whnf u × Γ ⊢ t ⇒* u ∷ A
   whNormTerm ⊢t =
-    case reducible-⊩∷ ⊢t of λ
+    case reducible-⊩∷ (inj₁ _) ⊢t of λ
       (_ , ⊩t) →
     case wf-⊩∷ ⊩t of λ
       ⊩A →

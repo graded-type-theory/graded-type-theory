@@ -18,14 +18,22 @@ open import Definition.Typed.Weakening R
 open import Definition.Typed.EqualityRelation R
 
 open import Tools.Function
+open import Tools.Level
 open import Tools.Product
+open import Tools.Relation
+open import Tools.Unit
 
 private opaque
 
   -- A lemma used below.
 
-  equality-relations : Equality-relations _⊢_≡_ _⊢_≡_∷_ _⊢_≡_∷_
+  equality-relations :
+    Equality-relations _⊢_≡_ _⊢_≡_∷_ _⊢_≡_∷_ (Lift a ⊤)
   equality-relations = λ where
+      .Neutrals-included? →
+        yes (lift tt)
+      .⊢≡→⊢≅        → λ _ → idᶠ
+      .⊢≡∷→⊢≅∷      → λ _ → idᶠ
       .~-to-≅ₜ      → idᶠ
       .≅-eq         → idᶠ
       .≅ₜ-eq        → idᶠ
@@ -84,4 +92,7 @@ instance
     .EqRelSet._⊢_≅_              → _⊢_≡_
     .EqRelSet._⊢_≅_∷_            → _⊢_≡_∷_
     .EqRelSet._⊢_~_∷_            → _⊢_≡_∷_
+    .EqRelSet.Neutrals-included  → Lift a ⊤
     .EqRelSet.equality-relations → equality-relations
+
+open EqRelSet eqRelInstance public

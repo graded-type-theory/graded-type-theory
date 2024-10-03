@@ -17,15 +17,19 @@ open Type-restrictions R
 open import Definition.Untyped M
 import Definition.Untyped.Erased 𝕄 as Erased
 open import Definition.Untyped.Neutral M type-variant
+open import Definition.Untyped.Properties M
 open import Definition.Typed R
 open import Definition.Typed.Weakening R using (_∷ʷ_⊇_)
 
+open import Tools.Empty
 open import Tools.Fin
 open import Tools.Function
 open import Tools.Level hiding (_⊔_)
 open import Tools.Nat
 open import Tools.Product
+import Tools.PropositionalEquality as PE
 open import Tools.Relation
+open import Tools.Sum
 
 private
   variable
@@ -50,7 +54,9 @@ record Equality-relations
   -- Equality of terms.
   (_⊢_≅_∷_ : ∀ {n} → Con Term n → (_ _ _ : Term n) → Set ℓ)
   -- Equality of neutral terms.
-  (_⊢_~_∷_ : ∀ {n} → Con Term n → (t u A : Term n) → Set ℓ) :
+  (_⊢_~_∷_ : ∀ {n} → Con Term n → (t u A : Term n) → Set ℓ)
+  -- Are neutral cases included in the logical relation?
+  (Neutrals-included : Set ℓ) :
   Set ℓ where
   no-eta-equality
 
@@ -70,6 +76,19 @@ record Equality-relations
   Γ ⊢~ t ∷ A = Γ ⊢ t ~ t ∷ A
 
   field
+    -- Neutrals-included is decided.
+    Neutrals-included? : Dec Neutrals-included
+
+    -- If Neutrals-included does not hold, then definitional equality
+    -- for types and terms is contained in _⊢_≅_ and _⊢_≅_∷_,
+    -- respectively.
+    ⊢≡→⊢≅ :
+      ¬ Neutrals-included →
+      Γ ⊢ A ≡ B → Γ ⊢ A ≅ B
+    ⊢≡∷→⊢≅∷ :
+      ¬ Neutrals-included →
+      Γ ⊢ t ≡ u ∷ A → Γ ⊢ t ≅ u ∷ A
+
     -- Generic equality compatibility
     ~-to-≅ₜ : Γ ⊢ t ~ u ∷ A
             → Γ ⊢ t ≅ u ∷ A
@@ -346,6 +365,82 @@ record Equality-relations
       ~-trans t~u (~-sym t~u) ,
       ~-trans (~-sym t~u) t~u
 
+  opaque
+
+    -- If Γ ⊢ A ≡ B holds, then one can assume Neutrals-included when
+    -- proving Γ ⊢ A ≅ B.
+
+    with-inc-⊢≅ :
+      Γ ⊢ A ≡ B →
+      (Neutrals-included → Γ ⊢ A ≅ B) →
+      Γ ⊢ A ≅ B
+    with-inc-⊢≅ A≡B A≅B =
+      case Neutrals-included? of λ where
+        (yes inc) → A≅B inc
+        (no ni)   → ⊢≡→⊢≅ ni A≡B
+
+  opaque
+
+    -- If Γ ⊢ t ≡ u ∷ A holds, then one can assume Neutrals-included
+    -- when proving Γ ⊢ t ≅ u ∷ A.
+
+    with-inc-⊢≅∷ :
+      Γ ⊢ t ≡ u ∷ A →
+      (Neutrals-included → Γ ⊢ t ≅ u ∷ A) →
+      Γ ⊢ t ≅ u ∷ A
+    with-inc-⊢≅∷ t≡u t≅u =
+      case Neutrals-included? of λ where
+        (yes inc) → t≅u inc
+        (no ni)   → ⊢≡∷→⊢≅∷ ni t≡u
+
+  -- Neutrals-included-or-empty Γ holds if Neutrals-included holds or
+  -- if Γ is empty.
+
+  Neutrals-included-or-empty : Con Term n → Set ℓ
+  Neutrals-included-or-empty Γ = Neutrals-included ⊎ Empty-con Γ
+
+  opaque
+
+    -- Neutrals-included-or-empty is decidable.
+
+    Neutrals-included-or-empty? : Dec (Neutrals-included-or-empty Γ)
+    Neutrals-included-or-empty? =
+      Neutrals-included? ⊎-dec Empty-con?
+
+  opaque
+
+    -- If the size of Γ is positive, then Neutrals-included-or-empty Γ
+    -- implies Neutrals-included.
+
+    1+→Neutrals-included :
+      {Γ : Con Term (1+ n)} →
+      Neutrals-included-or-empty Γ → Neutrals-included
+    1+→Neutrals-included (inj₁ inc) = inc
+    1+→Neutrals-included (inj₂ ())
+
+  opaque
+
+    -- Neutrals-included-or-empty (Γ ∙ A) implies
+    -- Neutrals-included-or-empty Γ.
+
+    Neutrals-included-or-empty-∙→ :
+      Neutrals-included-or-empty (Γ ∙ A) → Neutrals-included-or-empty Γ
+    Neutrals-included-or-empty-∙→ =
+      inj₁ ∘→ 1+→Neutrals-included
+
+  opaque
+
+    -- If Γ and t are both indexed by n, t is neutral, and
+    -- Neutrals-included-or-empty Γ holds, then Neutrals-included
+    -- holds.
+
+    Neutral→Neutrals-included :
+      {Γ : Con Term n} {t : Term n} →
+      Neutral t → Neutrals-included-or-empty Γ → Neutrals-included
+    Neutral→Neutrals-included _    (inj₁ inc) = inc
+    Neutral→Neutrals-included t-ne (inj₂ ε)   =
+      ⊥-elim (noClosedNe t-ne)
+
 -- Values of type EqRelSet contain three relations that the logical
 -- relation in Definition.LogicalRelation can be instantiated with.
 -- The assumed properties ensure that the fundamental lemma can be
@@ -367,10 +462,14 @@ record EqRelSet : Set (lsuc ℓ) where
     -- Equality of neutral terms
     _⊢_~_∷_ : Con Term n → (t u A : Term n) → Set ℓ
 
+    -- Are neutral cases included in the logical relation?
+    Neutrals-included : Set ℓ
+
     ----------------
     -- Properties --
     ----------------
 
-    equality-relations : Equality-relations _⊢_≅_ _⊢_≅_∷_ _⊢_~_∷_
+    equality-relations :
+      Equality-relations _⊢_≅_ _⊢_≅_∷_ _⊢_~_∷_ Neutrals-included
 
   open Equality-relations equality-relations public

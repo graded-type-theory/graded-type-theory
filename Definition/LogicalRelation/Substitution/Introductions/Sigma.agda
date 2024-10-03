@@ -24,6 +24,7 @@ open import
 open import
   Definition.LogicalRelation.Substitution.Introductions.Sigma.Weak R
 
+open import Definition.Typed R
 open import Definition.Untyped M
 
 private variable
@@ -38,6 +39,7 @@ opaque
   -- Reducibility of equality between applications of prod.
 
   ⊩prod≡prod :
+    Γ ∙ A ⊢ B →
     Γ ⊩⟨ l ⟩ Σ⟨ s ⟩ p , q ▷ A ▹ B →
     Γ ⊩⟨ l′ ⟩ t₁ ≡ t₂ ∷ A →
     Γ ⊩⟨ l″ ⟩ u₁ ≡ u₂ ∷ B [ t₁ ]₀ →
@@ -51,6 +53,7 @@ opaque
 
   prod-congᵛ :
     Σ-allowed s p q →
+    Γ ∙ A ⊢ B →
     Γ ∙ A ⊩ᵛ⟨ l ⟩ B →
     Γ ⊩ᵛ⟨ l ⟩ t₁ ≡ t₂ ∷ A →
     Γ ⊩ᵛ⟨ l′ ⟩ u₁ ≡ u₂ ∷ B [ t₁ ]₀ →
@@ -64,6 +67,7 @@ opaque
 
   prodᵛ :
     Σ-allowed s p q →
+    Γ ∙ A ⊢ B →
     Γ ∙ A ⊩ᵛ⟨ l ⟩ B →
     Γ ⊩ᵛ⟨ l ⟩ t ∷ A →
     Γ ⊩ᵛ⟨ l′ ⟩ u ∷ B [ t ]₀ →

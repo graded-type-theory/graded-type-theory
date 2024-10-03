@@ -6,6 +6,7 @@
 
 open import Graded.Modality
 open import Graded.Usage.Restrictions
+open import Definition.Typed.EqualityRelation
 open import Definition.Typed.Restrictions
 
 module Graded.Erasure.LogicalRelation.Fundamental.Assumptions
@@ -13,8 +14,10 @@ module Graded.Erasure.LogicalRelation.Fundamental.Assumptions
   {𝕄 : Modality M}
   (TR : Type-restrictions 𝕄)
   (UR : Usage-restrictions 𝕄)
+  ⦃ eqrel : EqRelSet TR ⦄
   where
 
+open EqRelSet eqrel
 open Modality 𝕄
 open Usage-restrictions UR
 
@@ -44,6 +47,8 @@ record Fundamental-assumptions⁻ (Δ : Con Term k) : Set a where
     consistent : Emptyrec-allowed 𝟙ᵐ 𝟘 → Consistent Δ
     -- Erased matches are not allowed unless the context is empty.
     closed-or-no-erased-matches : No-erased-matches TR UR ⊎ Empty-con Δ
+    -- Neutrals-included holds or the context is empty.
+    inc : Neutrals-included ⊎ Empty-con Δ
 
 -- The fundamental lemma is proved under the assumption that a given
 -- context Δ satisfies the following assumptions.
@@ -66,6 +71,7 @@ fundamental-assumptions⁻₀ = record
                                     inhabited-consistent
                                       (⊢ˢʷ∷-idSubst ε)
   ; closed-or-no-erased-matches = inj₂ ε
+  ; inc                         = inj₂ ε
   }
 
 -- Fundamental-assumptions holds unconditionally for empty contexts.

@@ -19,6 +19,7 @@ module Graded.Erasure.LogicalRelation.Fundamental.Counterexample
   {{eqrel : EqRelSet TR}}
   where
 
+open EqRelSet eqrel
 open Type-restrictions TR
 open Usage-restrictions UR
 
@@ -65,15 +66,21 @@ private variable
 
 -- The module LR exports some module instantiations.
 
-private module LR {Δ : Con Term k} (⊢Δ : ⊢ Δ) (str : Strictness) where
+private
+  module LR
+    {Δ : Con Term k}
+    (⊢Δ : ⊢ Δ)
+    (inc : Neutrals-included-or-empty Δ)
+    (str : Strictness)
+    where
 
-  private
+    private
 
-    as : Assumptions
-    as = record { ⊢Δ = ⊢Δ; str = str }
+      as : Assumptions
+      as = record { ⊢Δ = ⊢Δ; inc = inc; str = str }
 
-  open Graded.Erasure.LogicalRelation as public
-  open Graded.Erasure.LogicalRelation.Hidden as public
+    open Graded.Erasure.LogicalRelation as public
+    open Graded.Erasure.LogicalRelation.Hidden as public
 
 -- Below negations of variants of the statement of the fundamental
 -- lemma are proved. In each case the variants are given for the
@@ -87,23 +94,25 @@ private module LR {Δ : Con Term k} (⊢Δ : ⊢ Δ) (str : Strictness) where
 
 -- If Prodrec-allowed 𝟙ᵐ 𝟘 p 𝟘 holds for some p (which means that
 -- certain kinds of erased matches are allowed), and if additionally
--- Σʷ-allowed p 𝟘 holds, then one can prove a negation of a variant of
--- the statement of the fundamental lemma.
+-- Σʷ-allowed p 𝟘 and Neutrals-included hold, then one can prove a
+-- negation of a variant of the statement of the fundamental lemma.
 
 negation-of-fundamental-lemma-with-erased-matches₁ :
   Prodrec-allowed 𝟙ᵐ 𝟘 p 𝟘 →
   Σʷ-allowed p 𝟘 →
+  Neutrals-included →
   ¬ (∀ {k} {Δ : Con Term k} (⊢Δ : ⊢ Δ) →
-     let open LR ⊢Δ str in
      Consistent Δ →
+     (inc : Neutrals-included-or-empty Δ) →
+     let open LR ⊢Δ inc str in
      ∀ {n} {Γ : Con Term n} {t A : Term n} {γ : Conₘ n} {m} →
      Γ ⊢ t ∷ A → γ ▸[ m ] t →
      γ ▸ Γ ⊩ʳ t ∷[ m ] A)
 negation-of-fundamental-lemma-with-erased-matches₁
-  {p} {str} P-ok Σʷ-ok hyp =
+  {p} {str} P-ok Σʷ-ok inc hyp =
   case soundness-ℕ-only-source-counterexample₁ P-ok Σʷ-ok of λ
     (consistent , ⊢t , ▸t , _) →
-  ¬t®t $ ▸⊩ʳ∷[𝟙ᵐ]→®∷ $ hyp ⊢Δ consistent ⊢t ▸t
+  ¬t®t $ ▸⊩ʳ∷[𝟙ᵐ]→®∷ $ hyp ⊢Δ consistent (inj₁ inc) ⊢t ▸t
   where
   Δ : Con Term 1
   Δ = ε ∙ (Σʷ p , 𝟘 ▷ ℕ ▹ ℕ)
@@ -117,7 +126,7 @@ negation-of-fundamental-lemma-with-erased-matches₁
   ⊢Δ : ⊢ Δ
   ⊢Δ = ∙ ΠΣⱼ (ℕⱼ (∙ ℕⱼ ε)) Σʷ-ok
 
-  open LR ⊢Δ str
+  open LR ⊢Δ (inj₁ inc) str
 
   ¬t®t : ¬ t ® erase str t ∷ A
   ¬t®t t®t = case ®∷ℕ⇔ .proj₁ t®t of λ where
@@ -128,20 +137,24 @@ negation-of-fundamental-lemma-with-erased-matches₁
 
 opaque
 
-  -- If []-cong-allowed and []-cong-allowed-mode hold, then one can prove
-  -- a negation of a variant of the statement of the fundamental lemma.
+  -- If []-cong-allowed, []-cong-allowed-mode and Neutrals-included
+  -- hold, then one can prove a negation of a variant of the statement
+  -- of the fundamental lemma.
 
   negation-of-fundamental-lemma-with-erased-matches₂ :
     []-cong-allowed s →
     []-cong-allowed-mode s 𝟙ᵐ →
+    Neutrals-included →
     ¬ (∀ {k} {Δ : Con Term k} (⊢Δ : ⊢ Δ) →
-       let open LR ⊢Δ str in
        Consistent Δ →
+       (inc : Neutrals-included-or-empty Δ) →
+       let open LR ⊢Δ inc str in
        ∀ {n} {Γ : Con Term n} {t A : Term n} {γ : Conₘ n} {m} →
        Γ ⊢ t ∷ A → γ ▸[ m ] t →
        γ ▸ Γ ⊩ʳ t ∷[ m ] A)
-  negation-of-fundamental-lemma-with-erased-matches₂ {s} {str} ok ok′ hyp =
-    ¬t®t $ ▸⊩ʳ∷[𝟙ᵐ]→®∷ $ hyp ⊢Δ consistent ⊢t ▸t
+  negation-of-fundamental-lemma-with-erased-matches₂
+    {s} {str} ok ok′ inc hyp =
+    ¬t®t $ ▸⊩ʳ∷[𝟙ᵐ]→®∷ $ hyp ⊢Δ consistent (inj₁ inc) ⊢t ▸t
     where
     open Erased s
     Δ : Con Term 1
@@ -165,7 +178,7 @@ opaque
     ▸t : 𝟘ᶜ ▸[ 𝟙ᵐ ] t
     ▸t = []-congₘ ℕₘ zeroₘ zeroₘ var ok′
 
-    open LR ⊢Δ str
+    open LR ⊢Δ (inj₁ inc) str
 
     ¬t®t : ¬ t ® erase str t ∷ A
     ¬t®t t®t =
@@ -175,23 +188,25 @@ opaque
 
 opaque
 
-  -- If erased-matches-for-J 𝟙ᵐ is equal to not-none sem, then one can
-  -- prove a negation of a variant of the statement of the fundamental
-  -- lemma.
+  -- If erased-matches-for-J 𝟙ᵐ is equal to not-none sem and
+  -- Neutrals-included holds, then one can prove a negation of a
+  -- variant of the statement of the fundamental lemma.
 
   negation-of-fundamental-lemma-with-erased-matches₃ :
     erased-matches-for-J 𝟙ᵐ ≡ not-none sem →
+    Neutrals-included →
     ¬ (∀ {k} {Δ : Con Term k} (⊢Δ : ⊢ Δ) →
-       let open LR ⊢Δ str in
        Consistent Δ →
+       (inc : Neutrals-included-or-empty Δ) →
+       let open LR ⊢Δ inc str in
        ∀ {n} {Γ : Con Term n} {t A : Term n} {γ : Conₘ n} {m} →
        Γ ⊢ t ∷ A → γ ▸[ m ] t →
        γ ▸ Γ ⊩ʳ t ∷[ m ] A)
   negation-of-fundamental-lemma-with-erased-matches₃
-    {str} ≡not-none hyp =
+    {str} ≡not-none inc hyp =
     case soundness-ℕ-only-source-counterexample₃ ≡not-none of λ
       (consistent , ⊢t , ▸t , _) →
-    ¬t®t $ ▸⊩ʳ∷[𝟙ᵐ]→®∷ $ hyp ⊢Δ consistent ⊢t ▸t
+    ¬t®t $ ▸⊩ʳ∷[𝟙ᵐ]→®∷ $ hyp ⊢Δ consistent (inj₁ inc) ⊢t ▸t
     where
     Δ : Con Term 1
     Δ = ε ∙ Id ℕ zero zero
@@ -205,7 +220,7 @@ opaque
     ⊢Δ : ⊢ Δ
     ⊢Δ = ∙ Idⱼ′ (zeroⱼ ε) (zeroⱼ ε)
 
-    open LR ⊢Δ str
+    open LR ⊢Δ (inj₁ inc) str
 
     ¬t®t : ¬ t ® erase str t ∷ A
     ¬t®t t®t = case ®∷ℕ⇔ .proj₁ t®t of λ where
@@ -214,24 +229,26 @@ opaque
 
 opaque
 
-  -- If the K rule is allowed and erased-matches-for-K 𝟙ᵐ is equal to
-  -- not-none sem, then one can prove a negation of a variant of the
-  -- statement of the fundamental lemma.
+  -- If the K rule is allowed, erased-matches-for-K 𝟙ᵐ is equal to
+  -- not-none sem, and Neutrals-included holds, then one can prove a
+  -- negation of a variant of the statement of the fundamental lemma.
 
   negation-of-fundamental-lemma-with-erased-matches₄ :
     K-allowed →
     erased-matches-for-K 𝟙ᵐ ≡ not-none sem →
+    Neutrals-included →
     ¬ (∀ {k} {Δ : Con Term k} (⊢Δ : ⊢ Δ) →
-       let open LR ⊢Δ str in
        Consistent Δ →
+       (inc : Neutrals-included-or-empty Δ) →
+       let open LR ⊢Δ inc str in
        ∀ {n} {Γ : Con Term n} {t A : Term n} {γ : Conₘ n} {m} →
        Γ ⊢ t ∷ A → γ ▸[ m ] t →
        γ ▸ Γ ⊩ʳ t ∷[ m ] A)
   negation-of-fundamental-lemma-with-erased-matches₄
-    {str} K-ok ≡not-none hyp =
+    {str} K-ok ≡not-none inc hyp =
     case soundness-ℕ-only-source-counterexample₄ K-ok ≡not-none of λ
       (consistent , ⊢t , ▸t , _) →
-    ¬t®t $ ▸⊩ʳ∷[𝟙ᵐ]→®∷ $ hyp ⊢Δ consistent ⊢t ▸t
+    ¬t®t $ ▸⊩ʳ∷[𝟙ᵐ]→®∷ $ hyp ⊢Δ consistent (inj₁ inc) ⊢t ▸t
     where
     Δ : Con Term 1
     Δ = ε ∙ Id ℕ zero zero
@@ -245,7 +262,7 @@ opaque
     ⊢Δ : ⊢ Δ
     ⊢Δ = ∙ Idⱼ′ (zeroⱼ ε) (zeroⱼ ε)
 
-    open LR ⊢Δ str
+    open LR ⊢Δ (inj₁ inc) str
 
     ¬t®t : ¬ t ® erase str t ∷ A
     ¬t®t t®t = case ®∷ℕ⇔ .proj₁ t®t of λ where
@@ -256,25 +273,27 @@ opaque
 
   -- If Unitrec-allowed 𝟙ᵐ 𝟘 𝟘 holds and η-equality is not allowed for
   -- weak unit types (which means that certain kinds of erased matches
-  -- are allowed), and if additionally Unitʷ-allowed holds, then one
-  -- can prove a negation of a variant of the statement of the
-  -- fundamental lemma.
+  -- are allowed), and if additionally Unitʷ-allowed and
+  -- Neutrals-included hold, then one can prove a negation of a
+  -- variant of the statement of the fundamental lemma.
 
   negation-of-fundamental-lemma-with-erased-matches₅ :
     Unitʷ-allowed →
     Unitrec-allowed 𝟙ᵐ 𝟘 𝟘 →
     ¬ Unitʷ-η →
+    Neutrals-included →
     ¬ (∀ {k} {Δ : Con Term k} (⊢Δ : ⊢ Δ) →
-       let open LR ⊢Δ str in
        Consistent Δ →
+       (inc : Neutrals-included-or-empty Δ) →
+       let open LR ⊢Δ inc str in
        ∀ {n} {Γ : Con Term n} {t A : Term n} {γ : Conₘ n} {m} →
        Γ ⊢ t ∷ A → γ ▸[ m ] t →
        γ ▸ Γ ⊩ʳ t ∷[ m ] A)
   negation-of-fundamental-lemma-with-erased-matches₅
-    {str} Unit-ok ok no-η hyp =
+    {str} Unit-ok ok no-η inc hyp =
     case soundness-ℕ-only-source-counterexample₅ ok Unit-ok no-η of λ
       (consistent , ⊢t , ▸t , _) →
-    ¬t®t $ ▸⊩ʳ∷[𝟙ᵐ]→®∷ $ hyp ⊢Δ consistent ⊢t ▸t
+    ¬t®t $ ▸⊩ʳ∷[𝟙ᵐ]→®∷ $ hyp ⊢Δ consistent (inj₁ inc) ⊢t ▸t
     where
     Δ : Con Term 1
     Δ = ε ∙ Unitʷ 0
@@ -288,7 +307,7 @@ opaque
     ⊢Δ : ⊢ Δ
     ⊢Δ = ∙ Unitⱼ ε Unit-ok
 
-    open LR ⊢Δ str
+    open LR ⊢Δ (inj₁ inc) str
 
     ¬t®t : ¬ t ® erase str t ∷ A
     ¬t®t t®t = case ®∷ℕ⇔ .proj₁ t®t of λ where
@@ -299,20 +318,23 @@ opaque
 
 opaque
 
-  -- If Emptyrec-allowed 𝟙ᵐ 𝟘 holds, then one can prove a negation of
-  -- a variant of the statement of the fundamental lemma.
+  -- If Emptyrec-allowed 𝟙ᵐ 𝟘 and Neutrals-included hold, then one can
+  -- prove a negation of a variant of the statement of the fundamental
+  -- lemma.
 
   negation-of-fundamental-lemma-without-consistency₆ :
     Emptyrec-allowed 𝟙ᵐ 𝟘 →
+    Neutrals-included →
     ¬ (∀ {k} {Δ : Con Term k} (⊢Δ : ⊢ Δ) →
-       let open LR ⊢Δ str in
+       (inc : Neutrals-included-or-empty Δ) →
+       let open LR ⊢Δ inc str in
        ∀ {n} {Γ : Con Term n} {t A : Term n} {γ : Conₘ n} {m} →
        Γ ⊢ t ∷ A → γ ▸[ m ] t →
        γ ▸ Γ ⊩ʳ t ∷[ m ] A)
-  negation-of-fundamental-lemma-without-consistency₆ {str} ok hyp =
+  negation-of-fundamental-lemma-without-consistency₆ {str} ok inc hyp =
     case soundness-ℕ-counterexample₆ {str = str} ok of λ
       (⊢t , ▸t , _) →
-    ¬t®t $ ▸⊩ʳ∷[𝟙ᵐ]→®∷ $ hyp ⊢Δ ⊢t ▸t
+    ¬t®t $ ▸⊩ʳ∷[𝟙ᵐ]→®∷ $ hyp ⊢Δ (inj₁ inc) ⊢t ▸t
     where
     Δ : Con Term 1
     Δ = ε ∙ Empty
@@ -326,7 +348,7 @@ opaque
     ⊢Δ : ⊢ Δ
     ⊢Δ = ∙ Emptyⱼ ε
 
-    open LR ⊢Δ str
+    open LR ⊢Δ (inj₁ inc) str
 
     ¬t®t : ¬ t ® erase str t ∷ A
     ¬t®t t®t = case ®∷ℕ⇔ .proj₁ t®t of λ where

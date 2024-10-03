@@ -94,9 +94,9 @@ module _
   -- The following results make use of some assumptions.
 
   module Soundness′
+    ⦃ eqrel : EqRelSet TR ⦄
     (FA : Fundamental-assumptions Δ)
     {str : Strictness}
-    {{eqrel : EqRelSet TR}}
     where
 
     open Fundamental-assumptions FA
@@ -104,7 +104,7 @@ module _
     private
 
       as : Assumptions
-      as = record { ⊢Δ = well-formed; str = str }
+      as = record { ⊢Δ = well-formed; inc = inc; str = str }
 
     open Graded.Erasure.LogicalRelation as
     open Graded.Erasure.LogicalRelation.Fundamental.Fundamental TR UR FA
@@ -161,14 +161,14 @@ module _
 
   -- The following results make use of some assumptions.
 
+  open import Definition.Typed.EqRelInstance TR
+
   module Soundness
     (FA⁻ : Fundamental-assumptions⁻ Δ)
     (str : Strictness)
     where
 
     private module L (⊢Δ : ⊢ Δ) where
-
-      open import Definition.Typed.EqRelInstance TR public
 
       FA : Fundamental-assumptions Δ
       FA = record
@@ -177,7 +177,11 @@ module _
         }
 
       as : Assumptions
-      as = record { ⊢Δ = ⊢Δ; str = str }
+      as = record
+        { ⊢Δ  = ⊢Δ
+        ; inc = Fundamental-assumptions.inc FA
+        ; str = str
+        }
 
       open Soundness′ FA public
 

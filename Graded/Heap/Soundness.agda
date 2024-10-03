@@ -138,7 +138,8 @@ opaque
     _ , _ , _ , _ , _ , ⇾*→↠* d′ , zeroₙ , ⇾*→≡ ⊢s d′ , ▸-⇾* ▸s d′ }}
 
   redNumeral′
-    {s} consistent nem (ℕₜ _ d n≡n (ne (neNfₜ neK k≡k))) PE.refl ⊢s ▸s =
+    {s}
+    consistent nem (ℕₜ _ d n≡n (ne (neNfₜ _ neK k≡k))) PE.refl ⊢s ▸s =
     case whBisim {s = s} consistent nem ⊢s ▸s (d , ne neK) of λ {
       (_ , _ , H , t , ρ , d′ , PE.refl , v) →
     ⊥-elim (Value→¬Neutral (substValue (toSubstₕ H) (wkValue ρ v)) neK) }
@@ -157,7 +158,7 @@ opaque
                ▸ ⟨ H , t , ρ , ε ⟩
   redNumeral {s} consistent nem ⊢s ▸s =
     redNumeral′ consistent nem
-      (⊩∷ℕ⇔ .proj₁ (reducible-⊩∷ (⊢⦅⦆ {s = s} ⊢s) .proj₂))
+      (⊩∷ℕ⇔ .proj₁ (reducible-⊩∷ (inj₁ _) (⊢⦅⦆ {s = s} ⊢s) .proj₂))
       PE.refl ⊢s ▸s
 
 opaque

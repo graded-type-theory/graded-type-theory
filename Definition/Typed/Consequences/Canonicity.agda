@@ -33,6 +33,7 @@ open import Tools.Function
 open import Tools.Nat
 open import Tools.Product as Σ
 open import Tools.Relation
+open import Tools.Sum
 
 private
   variable
@@ -44,7 +45,7 @@ opaque
 
   canonicity : ε ⊢ t ∷ ℕ → ∃ λ n → ε ⊢ t ≡ sucᵏ n ∷ ℕ
   canonicity {t} =
-    ε ⊢ t ∷ ℕ                     →⟨ ⊩∷ℕ⇔ .proj₁ ∘→ proj₂ ∘→ reducible-⊩∷ ⟩
+    ε ⊢ t ∷ ℕ                     →⟨ ⊩∷ℕ⇔ .proj₁ ∘→ proj₂ ∘→ reducible-⊩∷ (inj₂ ε) ⟩
     ε ⊩ℕ t ∷ℕ                     →⟨ lemma ⟩
     (∃ λ n → ε ⊢ t ≡ sucᵏ n ∷ ℕ)  □
     where
@@ -52,9 +53,9 @@ opaque
     lemma (ℕₜ v u⇒*v _ ⊩v) =
       Σ.map idᶠ (trans (subset*Term u⇒*v))
         (case ⊩v of λ where
-           (ne (neNfₜ u-ne _)) → ⊥-elim $ noClosedNe u-ne
-           zeroᵣ               → 0 , refl (zeroⱼ ε)
-           (sucᵣ ⊩u)           → Σ.map 1+ suc-cong (lemma ⊩u))
+           (ne (neNfₜ _ u-ne _)) → ⊥-elim $ noClosedNe u-ne
+           zeroᵣ                 → 0 , refl (zeroⱼ ε)
+           (sucᵣ ⊩u)             → Σ.map 1+ suc-cong (lemma ⊩u))
 
 opaque
 
@@ -62,8 +63,8 @@ opaque
 
   ¬Empty : ¬ ε ⊢ t ∷ Empty
   ¬Empty {t} =
-    ε ⊢ t ∷ Empty      →⟨ ⊩∷Empty⇔ .proj₁ ∘→ proj₂ ∘→ reducible-⊩∷ ⟩
-    ε ⊩Empty t ∷Empty  →⟨ (λ { (Emptyₜ _ _ _ (ne (neNfₜ u-ne _))) →
+    ε ⊢ t ∷ Empty      →⟨ ⊩∷Empty⇔ .proj₁ ∘→ proj₂ ∘→ reducible-⊩∷ (inj₂ ε) ⟩
+    ε ⊩Empty t ∷Empty  →⟨ (λ { (Emptyₜ _ _ _ (ne (neNfₜ _ u-ne _))) →
                                noClosedNe u-ne }) ⟩
     ⊥                  □
 
@@ -73,11 +74,11 @@ opaque
 
   ε⊢⇒*rfl∷Id : ε ⊢ v ∷ Id A t u → ε ⊢ v ⇒* rfl ∷ Id A t u
   ε⊢⇒*rfl∷Id ⊢v =
-    case ⊩∷Id⇔ .proj₁ $ reducible-⊩∷ ⊢v .proj₂ of λ
+    case ⊩∷Id⇔ .proj₁ $ reducible-⊩∷ (inj₂ ε) ⊢v .proj₂ of λ
       (_ , v⇒*w , _ , _ , rest) →
     case rest of λ where
-      (rflᵣ _)    → v⇒*w
-      (ne w-ne _) → ⊥-elim $ noClosedNe w-ne
+      (rflᵣ _)      → v⇒*w
+      (ne _ w-ne _) → ⊥-elim $ noClosedNe w-ne
 
 opaque
 

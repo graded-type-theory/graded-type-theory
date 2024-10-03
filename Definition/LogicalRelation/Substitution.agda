@@ -16,8 +16,8 @@ module Definition.LogicalRelation.Substitution
 open EqRelSet eqrel
 open Type-restrictions R
 
-open import Definition.LogicalRelation R
-open import Definition.LogicalRelation.Hidden R
+import Definition.LogicalRelation.Hidden R as H
+open import Definition.LogicalRelation.Hidden.Restricted R
 open import Definition.LogicalRelation.Properties R
 
 open import Definition.Typed R
@@ -36,6 +36,7 @@ open import Tools.Nat using (Nat)
 open import Tools.Product as Σ
 import Tools.PropositionalEquality as PE
 open import Tools.Reasoning.PropositionalEquality
+open import Tools.Sum
 open import Tools.Unit
 
 private variable
@@ -82,7 +83,7 @@ opaque mutual
   infix 4 _⊩ˢ_≡_∷_
 
   _⊩ˢ_≡_∷_ : Con Term m → Subst m n → Subst m n → Con Term n → Set a
-  Δ ⊩ˢ _  ≡ _  ∷ ε     = ⊢ Δ
+  Δ ⊩ˢ _  ≡ _  ∷ ε     = Neutrals-included-or-empty Δ → ⊢ Δ
   Δ ⊩ˢ σ₁ ≡ σ₂ ∷ Γ ∙ A =
     (∃ λ l →
      (Γ ⊩ᵛ⟨ l ⟩ A) ×
@@ -160,6 +161,30 @@ opaque
   ⊩ᵛ⇔ = id⇔
 
 opaque
+
+  -- A characterisation lemma for _⊩ᵛ⟨_⟩_.
+
+  ⊩ᵛ⇔ʰ :
+    Γ ⊩ᵛ⟨ l ⟩ A ⇔
+    (⊩ᵛ Γ ×
+     (∀ {m Δ} {σ₁ σ₂ : Subst m n} →
+      Neutrals-included-or-empty Δ →
+      Δ ⊩ˢ σ₁ ≡ σ₂ ∷ Γ → Δ H.⊩⟨ l ⟩ A [ σ₁ ] ≡ A [ σ₂ ]))
+  ⊩ᵛ⇔ʰ {n} {Γ} {l} {A} =
+    Γ ⊩ᵛ⟨ l ⟩ A                                          ⇔⟨ ⊩ᵛ⇔ ⟩
+
+    ⊩ᵛ Γ ×
+    (∀ {m Δ} {σ₁ σ₂ : Subst m n} →
+     Δ ⊩ˢ σ₁ ≡ σ₂ ∷ Γ → Δ ⊩⟨ l ⟩ A [ σ₁ ] ≡ A [ σ₂ ])    ⇔⟨ (Σ-cong-⇔ λ _ →
+                                                             implicit-Π-cong-⇔ λ _ → implicit-Π-cong-⇔ λ _ →
+                                                             implicit-Π-cong-⇔ λ _ → implicit-Π-cong-⇔ λ _ →
+                                                             Π-comm-⇔ ∘⇔ (Π-cong-⇔ λ _ → ⊩≡⇔)) ⟩
+    ⊩ᵛ Γ ×
+    (∀ {m Δ} {σ₁ σ₂ : Subst m n} →
+     Neutrals-included-or-empty Δ →
+     Δ ⊩ˢ σ₁ ≡ σ₂ ∷ Γ → Δ H.⊩⟨ l ⟩ A [ σ₁ ] ≡ A [ σ₂ ])  □⇔
+
+opaque
   unfolding _⊩ᵛ⟨_⟩_≡_
 
   -- A characterisation lemma for _⊩ᵛ⟨_⟩_≡_.
@@ -170,6 +195,30 @@ opaque
      (∀ {m Δ} {σ₁ σ₂ : Subst m n} →
       Δ ⊩ˢ σ₁ ≡ σ₂ ∷ Γ → Δ ⊩⟨ l ⟩ A [ σ₁ ] ≡ B [ σ₂ ]))
   ⊩ᵛ≡⇔ = id⇔
+
+opaque
+
+  -- A characterisation lemma for _⊩ᵛ⟨_⟩_.
+
+  ⊩ᵛ≡⇔ʰ :
+    Γ ⊩ᵛ⟨ l ⟩ A ≡ B ⇔
+    (⊩ᵛ Γ ×
+     (∀ {m Δ} {σ₁ σ₂ : Subst m n} →
+      Neutrals-included-or-empty Δ →
+      Δ ⊩ˢ σ₁ ≡ σ₂ ∷ Γ → Δ H.⊩⟨ l ⟩ A [ σ₁ ] ≡ B [ σ₂ ]))
+  ⊩ᵛ≡⇔ʰ {n} {Γ} {l} {A} {B} =
+    Γ ⊩ᵛ⟨ l ⟩ A ≡ B                                      ⇔⟨ ⊩ᵛ≡⇔ ⟩
+
+    ⊩ᵛ Γ ×
+    (∀ {m Δ} {σ₁ σ₂ : Subst m n} →
+     Δ ⊩ˢ σ₁ ≡ σ₂ ∷ Γ → Δ ⊩⟨ l ⟩ A [ σ₁ ] ≡ B [ σ₂ ])    ⇔⟨ (Σ-cong-⇔ λ _ →
+                                                             implicit-Π-cong-⇔ λ _ → implicit-Π-cong-⇔ λ _ →
+                                                             implicit-Π-cong-⇔ λ _ → implicit-Π-cong-⇔ λ _ →
+                                                             Π-comm-⇔ ∘⇔ (Π-cong-⇔ λ _ → ⊩≡⇔)) ⟩
+    ⊩ᵛ Γ ×
+    (∀ {m Δ} {σ₁ σ₂ : Subst m n} →
+     Neutrals-included-or-empty Δ →
+     Δ ⊩ˢ σ₁ ≡ σ₂ ∷ Γ → Δ H.⊩⟨ l ⟩ A [ σ₁ ] ≡ B [ σ₂ ])  □⇔
 
 opaque
   unfolding _⊩ᵛ⟨_⟩_∷_
@@ -193,6 +242,31 @@ opaque
   ⊩ᵛ∷⇔ = id⇔
 
 opaque
+
+  -- A characterisation lemma for _⊩ᵛ⟨_⟩_∷_.
+
+  ⊩ᵛ∷⇔ʰ :
+    Γ ⊩ᵛ⟨ l ⟩ t ∷ A ⇔
+    (Γ ⊩ᵛ⟨ l ⟩ A ×
+     (∀ {m Δ} {σ₁ σ₂ : Subst m n} →
+      Neutrals-included-or-empty Δ →
+      Δ ⊩ˢ σ₁ ≡ σ₂ ∷ Γ →
+      Δ H.⊩⟨ l ⟩ t [ σ₁ ] ≡ t [ σ₂ ] ∷ A [ σ₁ ]))
+  ⊩ᵛ∷⇔ʰ {n} {Γ} {l} {t} {A} =
+    Γ ⊩ᵛ⟨ l ⟩ t ∷ A                                                 ⇔⟨ ⊩ᵛ∷⇔ ⟩
+
+    Γ ⊩ᵛ⟨ l ⟩ A ×
+    (∀ {m Δ} {σ₁ σ₂ : Subst m n} →
+     Δ ⊩ˢ σ₁ ≡ σ₂ ∷ Γ → Δ ⊩⟨ l ⟩ t [ σ₁ ] ≡ t [ σ₂ ] ∷ A [ σ₁ ])    ⇔⟨ (Σ-cong-⇔ λ _ →
+                                                                        implicit-Π-cong-⇔ λ _ → implicit-Π-cong-⇔ λ _ →
+                                                                        implicit-Π-cong-⇔ λ _ → implicit-Π-cong-⇔ λ _ →
+                                                                        Π-comm-⇔ ∘⇔ (Π-cong-⇔ λ _ → ⊩≡∷⇔)) ⟩
+    Γ ⊩ᵛ⟨ l ⟩ A ×
+    (∀ {m Δ} {σ₁ σ₂ : Subst m n} →
+     Neutrals-included-or-empty Δ →
+     Δ ⊩ˢ σ₁ ≡ σ₂ ∷ Γ → Δ H.⊩⟨ l ⟩ t [ σ₁ ] ≡ t [ σ₂ ] ∷ A [ σ₁ ])  □⇔
+
+opaque
   unfolding _⊩ᵛ⟨_⟩_≡_∷_
 
   -- A characterisation lemma for _⊩ᵛ⟨_⟩_≡_∷_.
@@ -206,11 +280,36 @@ opaque
   ⊩ᵛ≡∷⇔ = id⇔
 
 opaque
+
+  -- A characterisation lemma for _⊩ᵛ⟨_⟩_∷_.
+
+  ⊩ᵛ≡∷⇔ʰ :
+    Γ ⊩ᵛ⟨ l ⟩ t ≡ u ∷ A ⇔
+    (Γ ⊩ᵛ⟨ l ⟩ A ×
+     (∀ {m Δ} {σ₁ σ₂ : Subst m n} →
+      Neutrals-included-or-empty Δ →
+      Δ ⊩ˢ σ₁ ≡ σ₂ ∷ Γ →
+      Δ H.⊩⟨ l ⟩ t [ σ₁ ] ≡ u [ σ₂ ] ∷ A [ σ₁ ]))
+  ⊩ᵛ≡∷⇔ʰ {n} {Γ} {l} {t} {u} {A} =
+    Γ ⊩ᵛ⟨ l ⟩ t ≡ u ∷ A                                             ⇔⟨ ⊩ᵛ≡∷⇔ ⟩
+
+    Γ ⊩ᵛ⟨ l ⟩ A ×
+    (∀ {m Δ} {σ₁ σ₂ : Subst m n} →
+     Δ ⊩ˢ σ₁ ≡ σ₂ ∷ Γ → Δ ⊩⟨ l ⟩ t [ σ₁ ] ≡ u [ σ₂ ] ∷ A [ σ₁ ])    ⇔⟨ (Σ-cong-⇔ λ _ →
+                                                                        implicit-Π-cong-⇔ λ _ → implicit-Π-cong-⇔ λ _ →
+                                                                        implicit-Π-cong-⇔ λ _ → implicit-Π-cong-⇔ λ _ →
+                                                                        Π-comm-⇔ ∘⇔ (Π-cong-⇔ λ _ → ⊩≡∷⇔)) ⟩
+    Γ ⊩ᵛ⟨ l ⟩ A ×
+    (∀ {m Δ} {σ₁ σ₂ : Subst m n} →
+     Neutrals-included-or-empty Δ →
+     Δ ⊩ˢ σ₁ ≡ σ₂ ∷ Γ → Δ H.⊩⟨ l ⟩ t [ σ₁ ] ≡ u [ σ₂ ] ∷ A [ σ₁ ])  □⇔
+
+opaque
   unfolding _⊩ˢ_≡_∷_
 
   -- A characterisation lemma for _⊩ˢ_≡_∷_.
 
-  ⊩ˢ≡∷ε⇔ : Δ ⊩ˢ σ₁ ≡ σ₂ ∷ ε ⇔ ⊢ Δ
+  ⊩ˢ≡∷ε⇔ : Δ ⊩ˢ σ₁ ≡ σ₂ ∷ ε ⇔ (Neutrals-included-or-empty Δ → ⊢ Δ)
   ⊩ˢ≡∷ε⇔ = id⇔
 
 opaque
@@ -238,11 +337,11 @@ opaque
 
   -- A characterisation lemma for _⊩ˢ_∷_.
 
-  ⊩ˢ∷ε⇔ : Δ ⊩ˢ σ ∷ ε ⇔ ⊢ Δ
+  ⊩ˢ∷ε⇔ : Δ ⊩ˢ σ ∷ ε ⇔ (Neutrals-included-or-empty Δ → ⊢ Δ)
   ⊩ˢ∷ε⇔ {Δ} {σ} =
-    Δ ⊩ˢ σ ∷ ε      ⇔⟨ ⊩ˢ∷⇔⊩ˢ≡∷ ⟩
-    Δ ⊩ˢ σ ≡ σ ∷ ε  ⇔⟨ ⊩ˢ≡∷ε⇔ ⟩
-    ⊢ Δ             □⇔
+    Δ ⊩ˢ σ ∷ ε                            ⇔⟨ ⊩ˢ∷⇔⊩ˢ≡∷ ⟩
+    Δ ⊩ˢ σ ≡ σ ∷ ε                        ⇔⟨ ⊩ˢ≡∷ε⇔ ⟩
+    (Neutrals-included-or-empty Δ → ⊢ Δ)  □⇔
 
 opaque
 
@@ -619,6 +718,36 @@ opaque
 
 opaque
 
+  -- A variant of ⊩ᵛ≡⇔′.
+
+  ⊩ᵛ≡⇔′ʰ :
+    Γ ⊩ᵛ⟨ l ⟩ A ≡ B ⇔
+    (Γ ⊩ᵛ⟨ l ⟩ A ×
+     Γ ⊩ᵛ⟨ l ⟩ B ×
+     (∀ {m Δ} {σ : Subst m n} →
+      Neutrals-included-or-empty Δ →
+      Δ ⊩ˢ σ ∷ Γ →
+      Δ H.⊩⟨ l ⟩ A [ σ ] ≡ B [ σ ]))
+  ⊩ᵛ≡⇔′ʰ {n} {Γ} {l} {A} {B} =
+    Γ ⊩ᵛ⟨ l ⟩ A ≡ B                  ⇔⟨ ⊩ᵛ≡⇔′ ⟩
+
+    Γ ⊩ᵛ⟨ l ⟩ A ×
+    Γ ⊩ᵛ⟨ l ⟩ B ×
+    (∀ {m Δ} {σ : Subst m n} →
+     Δ ⊩ˢ σ ∷ Γ →
+     Δ ⊩⟨ l ⟩ A [ σ ] ≡ B [ σ ])     ⇔⟨ (Σ-cong-⇔ λ _ → Σ-cong-⇔ λ _ →
+                                         implicit-Π-cong-⇔ λ _ → implicit-Π-cong-⇔ λ _ →
+                                         implicit-Π-cong-⇔ λ _ →
+                                         Π-comm-⇔ ∘⇔ (Π-cong-⇔ λ _ → ⊩≡⇔)) ⟩
+    Γ ⊩ᵛ⟨ l ⟩ A ×
+    Γ ⊩ᵛ⟨ l ⟩ B ×
+    (∀ {m Δ} {σ : Subst m n} →
+     Neutrals-included-or-empty Δ →
+     Δ ⊩ˢ σ ∷ Γ →
+     Δ H.⊩⟨ l ⟩ A [ σ ] ≡ B [ σ ])   □⇔
+
+opaque
+
   -- A variant of ⊩ᵛ≡⇔.
 
   ⊩ᵛ≡⇔″ :
@@ -635,6 +764,36 @@ opaque
          ⊩A , ⊩B , λ {_ _ _ _} → ⊩ᵛ≡→⊩ˢ≡∷→⊩[]≡[] A≡B)
     , (λ (⊩A , _ , A≡B) →
          ⊩ᵛ≡⇔ .proj₂ (wf-⊩ᵛ ⊩A , A≡B))
+
+opaque
+
+  -- A variant of ⊩ᵛ≡⇔″.
+
+  ⊩ᵛ≡⇔″ʰ :
+    Γ ⊩ᵛ⟨ l ⟩ A ≡ B ⇔
+    (Γ ⊩ᵛ⟨ l ⟩ A ×
+     Γ ⊩ᵛ⟨ l ⟩ B ×
+     (∀ {m Δ} {σ₁ σ₂ : Subst m n} →
+      Neutrals-included-or-empty Δ →
+      Δ ⊩ˢ σ₁ ≡ σ₂ ∷ Γ →
+      Δ H.⊩⟨ l ⟩ A [ σ₁ ] ≡ B [ σ₂ ]))
+  ⊩ᵛ≡⇔″ʰ {n} {Γ} {l} {A} {B} =
+    Γ ⊩ᵛ⟨ l ⟩ A ≡ B                   ⇔⟨ ⊩ᵛ≡⇔″ ⟩
+
+    Γ ⊩ᵛ⟨ l ⟩ A ×
+    Γ ⊩ᵛ⟨ l ⟩ B ×
+    (∀ {m Δ} {σ₁ σ₂ : Subst m n} →
+     Δ ⊩ˢ σ₁ ≡ σ₂ ∷ Γ →
+     Δ ⊩⟨ l ⟩ A [ σ₁ ] ≡ B [ σ₂ ])    ⇔⟨ (Σ-cong-⇔ λ _ → Σ-cong-⇔ λ _ →
+                                          implicit-Π-cong-⇔ λ _ → implicit-Π-cong-⇔ λ _ →
+                                          implicit-Π-cong-⇔ λ _ → implicit-Π-cong-⇔ λ _ →
+                                          Π-comm-⇔ ∘⇔ (Π-cong-⇔ λ _ → ⊩≡⇔)) ⟩
+    Γ ⊩ᵛ⟨ l ⟩ A ×
+    Γ ⊩ᵛ⟨ l ⟩ B ×
+    (∀ {m Δ} {σ₁ σ₂ : Subst m n} →
+     Neutrals-included-or-empty Δ →
+     Δ ⊩ˢ σ₁ ≡ σ₂ ∷ Γ →
+     Δ H.⊩⟨ l ⟩ A [ σ₁ ] ≡ B [ σ₂ ])  □⇔
 
 opaque
 
@@ -663,6 +822,36 @@ opaque
 
 opaque
 
+  -- A variant of ⊩ᵛ≡∷⇔′.
+
+  ⊩ᵛ≡∷⇔′ʰ :
+    Γ ⊩ᵛ⟨ l ⟩ t ≡ u ∷ A ⇔
+    (Γ ⊩ᵛ⟨ l ⟩ t ∷ A ×
+     Γ ⊩ᵛ⟨ l ⟩ u ∷ A ×
+     (∀ {m Δ} {σ : Subst m n} →
+      Neutrals-included-or-empty Δ →
+      Δ ⊩ˢ σ ∷ Γ →
+      Δ H.⊩⟨ l ⟩ t [ σ ] ≡ u [ σ ] ∷ A [ σ ]))
+  ⊩ᵛ≡∷⇔′ʰ {n} {Γ} {l} {t} {u} {A} =
+    Γ ⊩ᵛ⟨ l ⟩ t ≡ u ∷ A                       ⇔⟨ ⊩ᵛ≡∷⇔′ ⟩
+
+    Γ ⊩ᵛ⟨ l ⟩ t ∷ A ×
+    Γ ⊩ᵛ⟨ l ⟩ u ∷ A ×
+    (∀ {m Δ} {σ : Subst m n} →
+     Δ ⊩ˢ σ ∷ Γ →
+     Δ ⊩⟨ l ⟩ t [ σ ] ≡ u [ σ ] ∷ A [ σ ])    ⇔⟨ (Σ-cong-⇔ λ _ → Σ-cong-⇔ λ _ →
+                                                  implicit-Π-cong-⇔ λ _ → implicit-Π-cong-⇔ λ _ →
+                                                  implicit-Π-cong-⇔ λ _ →
+                                                  Π-comm-⇔ ∘⇔ (Π-cong-⇔ λ _ → ⊩≡∷⇔)) ⟩
+    Γ ⊩ᵛ⟨ l ⟩ t ∷ A ×
+    Γ ⊩ᵛ⟨ l ⟩ u ∷ A ×
+    (∀ {m Δ} {σ : Subst m n} →
+     Neutrals-included-or-empty Δ →
+     Δ ⊩ˢ σ ∷ Γ →
+     Δ H.⊩⟨ l ⟩ t [ σ ] ≡ u [ σ ] ∷ A [ σ ])  □⇔
+
+opaque
+
   -- A variant of ⊩ᵛ≡∷⇔.
 
   ⊩ᵛ≡∷⇔″ :
@@ -679,6 +868,36 @@ opaque
          ⊩t , ⊩u , λ {_ _ _ _} → ⊩ᵛ≡∷→⊩ˢ≡∷→⊩[]≡[]∷ t≡u)
     , (λ (⊩t , _ , t≡u) →
          ⊩ᵛ≡∷⇔ .proj₂ (wf-⊩ᵛ∷ ⊩t , t≡u))
+
+opaque
+
+  -- A variant of ⊩ᵛ≡∷⇔″.
+
+  ⊩ᵛ≡∷⇔″ʰ :
+    Γ ⊩ᵛ⟨ l ⟩ t ≡ u ∷ A ⇔
+    (Γ ⊩ᵛ⟨ l ⟩ t ∷ A ×
+     Γ ⊩ᵛ⟨ l ⟩ u ∷ A ×
+     (∀ {m Δ} {σ₁ σ₂ : Subst m n} →
+      Neutrals-included-or-empty Δ →
+      Δ ⊩ˢ σ₁ ≡ σ₂ ∷ Γ →
+      Δ H.⊩⟨ l ⟩ t [ σ₁ ] ≡ u [ σ₂ ] ∷ A [ σ₁ ]))
+  ⊩ᵛ≡∷⇔″ʰ {n} {Γ} {l} {t} {u} {A} =
+    Γ ⊩ᵛ⟨ l ⟩ t ≡ u ∷ A                          ⇔⟨ ⊩ᵛ≡∷⇔″ ⟩
+
+    Γ ⊩ᵛ⟨ l ⟩ t ∷ A ×
+    Γ ⊩ᵛ⟨ l ⟩ u ∷ A ×
+    (∀ {m Δ} {σ₁ σ₂ : Subst m n} →
+     Δ ⊩ˢ σ₁ ≡ σ₂ ∷ Γ →
+     Δ ⊩⟨ l ⟩ t [ σ₁ ] ≡ u [ σ₂ ] ∷ A [ σ₁ ])    ⇔⟨ (Σ-cong-⇔ λ _ → Σ-cong-⇔ λ _ →
+                                                     implicit-Π-cong-⇔ λ _ → implicit-Π-cong-⇔ λ _ →
+                                                     implicit-Π-cong-⇔ λ _ → implicit-Π-cong-⇔ λ _ →
+                                                     Π-comm-⇔ ∘⇔ (Π-cong-⇔ λ _ → ⊩≡∷⇔)) ⟩
+    Γ ⊩ᵛ⟨ l ⟩ t ∷ A ×
+    Γ ⊩ᵛ⟨ l ⟩ u ∷ A ×
+    (∀ {m Δ} {σ₁ σ₂ : Subst m n} →
+     Neutrals-included-or-empty Δ →
+     Δ ⊩ˢ σ₁ ≡ σ₂ ∷ Γ →
+     Δ H.⊩⟨ l ⟩ t [ σ₁ ] ≡ u [ σ₂ ] ∷ A [ σ₁ ])  □⇔
 
 opaque
 
@@ -890,11 +1109,12 @@ opaque
 
   ⊩ᵛ∷-⇐ :
     (∀ {m Δ} {σ : Subst m n} →
+     Neutrals-included-or-empty Δ →
      Δ ⊩ˢ σ ∷ Γ →
      Δ ⊢ t [ σ ] ⇒ u [ σ ] ∷ A [ σ ]) →
     Γ ⊩ᵛ⟨ l ⟩ u ∷ A →
     Γ ⊩ᵛ⟨ l ⟩ t ≡ u ∷ A
-  ⊩ᵛ∷-⇐ {t} {u} t⇒u ⊩u =
+  ⊩ᵛ∷-⇐ {t} {u} t[]⇒u[] ⊩u =
     case ⊩ᵛ∷⇔ .proj₁ ⊩u of λ
       (⊩A , u≡u) →
     ⊩ᵛ≡∷⇔ .proj₂
@@ -902,7 +1122,10 @@ opaque
       , λ {_ _} {σ₁ = σ₁} {σ₂ = σ₂} σ₁≡σ₂ →
           case wf-⊩ˢ≡∷ σ₁≡σ₂ of λ
             (⊩σ₁ , _) →
-          t [ σ₁ ]  ≡⟨ ⊩∷-⇐* (redMany (t⇒u ⊩σ₁)) (⊩ᵛ∷→⊩ˢ∷→⊩[]∷ ⊩u ⊩σ₁) ⟩⊩∷
+          case ⊩ᵛ∷→⊩ˢ∷→⊩[]∷ ⊩u ⊩σ₁ of λ
+            ⊩u[σ₁] →
+          with-inc-⊩≡∷ λ inc →
+          t [ σ₁ ]  ≡⟨ ⊩∷-⇐* (redMany (t[]⇒u[] inc ⊩σ₁)) ⊩u[σ₁] ⟩⊩∷
           u [ σ₁ ]  ≡⟨ u≡u σ₁≡σ₂ ⟩⊩∷∎
           u [ σ₂ ]  ∎
       )
@@ -937,18 +1160,19 @@ opaque
   -- A lemma related to _•ₛ_.
 
   ⊩ˢ≡∷-•ₛ :
-    ρ ∷ʷ Η ⊇ Δ →
+    (Neutrals-included-or-empty Η → ρ ∷ʷ Η ⊇ Δ) →
     Δ ⊩ˢ σ₁ ≡ σ₂ ∷ Γ →
     Η ⊩ˢ ρ •ₛ σ₁ ≡ ρ •ₛ σ₂ ∷ Γ
   ⊩ˢ≡∷-•ₛ {Γ = ε} ρ⊇ _ =
-    ⊩ˢ≡∷ε⇔ .proj₂ (TW.wf-∷ʷ⊇ ρ⊇)
+    ⊩ˢ≡∷ε⇔ .proj₂ (TW.wf-∷ʷ⊇ ∘→ ρ⊇)
   ⊩ˢ≡∷-•ₛ {Γ = _ ∙ A} ρ⊇ σ₁≡σ₂ =
     case ⊩ˢ≡∷∙⇔ .proj₁ σ₁≡σ₂ of λ
       ((_ , ⊩A , σ₁₀≡σ₂₀) , σ₁₊≡σ₂₊) →
     ⊩ˢ≡∷∙⇔ .proj₂
       ( ( _ , ⊩A
-        , PE.subst (_⊩⟨_⟩_≡_∷_ _ _ _ _) (wk-subst A)
-            (wk-⊩≡∷ ρ⊇ σ₁₀≡σ₂₀)
+        , (with-inc-⊩≡∷ λ inc →
+           PE.subst (_⊩⟨_⟩_≡_∷_ _ _ _ _) (wk-subst A)
+             (wk-⊩≡∷ (ρ⊇ inc) σ₁₀≡σ₂₀))
         )
       , ⊩ˢ≡∷-•ₛ ρ⊇ σ₁₊≡σ₂₊
       )
@@ -958,7 +1182,7 @@ opaque
   -- A lemma related to _•ₛ_.
 
   ⊩ˢ∷-•ₛ :
-    ρ ∷ʷ Η ⊇ Δ →
+    (Neutrals-included-or-empty Η → ρ ∷ʷ Η ⊇ Δ) →
     Δ ⊩ˢ σ ∷ Γ →
     Η ⊩ˢ ρ •ₛ σ ∷ Γ
   ⊩ˢ∷-•ₛ ρ⊇ =
@@ -1001,17 +1225,18 @@ opaque
   -- A lemma related to wk1Subst.
 
   ⊩ˢ≡∷-wk1Subst :
-    Δ ⊢ A →
+    (Neutrals-included → Δ ⊢ A) →
     Δ ⊩ˢ σ₁ ≡ σ₂ ∷ Γ →
     Δ ∙ A ⊩ˢ wk1Subst σ₁ ≡ wk1Subst σ₂ ∷ Γ
-  ⊩ˢ≡∷-wk1Subst ⊢A = ⊩ˢ≡∷-•ₛ (TW.stepʷ TW.id ⊢A)
+  ⊩ˢ≡∷-wk1Subst ⊢A =
+    ⊩ˢ≡∷-•ₛ (TW.stepʷ TW.id ∘→ ⊢A ∘→ 1+→Neutrals-included)
 
 opaque
 
   -- A lemma related to wk1Subst.
 
   ⊩ˢ∷-wk1Subst :
-    Δ ⊢ A →
+    (Neutrals-included → Δ ⊢ A) →
     Δ ⊩ˢ σ ∷ Γ →
     Δ ∙ A ⊩ˢ wk1Subst σ ∷ Γ
   ⊩ˢ∷-wk1Subst ⊢A =
@@ -1026,18 +1251,20 @@ opaque
     Δ ⊩ˢ σ₁ ≡ σ₂ ∷ Γ →
     Δ ∙ A [ σ₁ ] ⊩ˢ liftSubst σ₁ ≡ liftSubst σ₂ ∷ Γ ∙ A
   ⊩ˢ≡∷-liftSubst {A} ⊩A σ₁≡σ₂ =
-    case escape-⊩ $ ⊩ᵛ→⊩ˢ∷→⊩[] ⊩A (wf-⊩ˢ≡∷ σ₁≡σ₂ .proj₁) of λ
-      ⊢A[σ₁] →
-    case ⊩ˢ≡∷-wk1Subst ⊢A[σ₁] σ₁≡σ₂ of λ
-      σ₁⇑₊≡σ₂⇑₊ →
-    case var (∙ ⊢A[σ₁])
-           (PE.subst₂ (_∷_∈_ _) (PE.sym $ wk1Subst-wk1 A) PE.refl
-              here) of λ
-      ⊢0 →
+    let ⊢A[σ₁]    = λ inc →
+                      escape-⊩ (inj₁ inc) $
+                      ⊩ᵛ→⊩ˢ∷→⊩[] ⊩A (wf-⊩ˢ≡∷ σ₁≡σ₂ .proj₁)
+        σ₁⇑₊≡σ₂⇑₊ = ⊩ˢ≡∷-wk1Subst ⊢A[σ₁] σ₁≡σ₂
+    in
     ⊩ˢ≡∷∙⇔ .proj₂
       ( ( _ , ⊩A
-        , neutral-⊩≡∷ (⊩ᵛ→⊩ˢ∷→⊩[] ⊩A $ wf-⊩ˢ≡∷ σ₁⇑₊≡σ₂⇑₊ .proj₁)
-            (var _) (var _) (~-var ⊢0)
+        , (with-inc-⊩≡∷ λ inc →
+           refl-⊩≡∷ $
+           neutral-⊩∷ (⊩ᵛ→⊩ˢ∷→⊩[] ⊩A $ wf-⊩ˢ≡∷ σ₁⇑₊≡σ₂⇑₊ .proj₁)
+             (var _) $
+           ~-var $
+           _⊢_∷_.var (∙ (⊢A[σ₁] (1+→Neutrals-included inc))) $
+           PE.subst₂ (_∷_∈_ _) (PE.sym $ wk1Subst-wk1 A) PE.refl here)
         )
       , σ₁⇑₊≡σ₂⇑₊
       )
@@ -1084,7 +1311,7 @@ opaque
     ⊩ᵛ Γ →
     Γ ⊩ˢ idSubst ∷ Γ
   ⊩ˢ∷-idSubst {Γ = ε} _ =
-    ⊩ˢ∷ε⇔ .proj₂ ε
+    ⊩ˢ∷ε⇔ .proj₂ (λ _ → ε)
   ⊩ˢ∷-idSubst {Γ = _ ∙ _} ⊩Γ∙A =
     case ⊩ᵛ∙⇔ .proj₁ ⊩Γ∙A .proj₂ of λ
       ⊩A →
@@ -1177,56 +1404,74 @@ opaque
 -- Escape lemmas
 
 opaque
+  unfolding _⊩ᵛ⟨_⟩_
 
   -- An escape lemma for _⊩ᵛ⟨_⟩_.
 
-  escape-⊩ᵛ : Γ ⊩ᵛ⟨ l ⟩ A → Γ ⊢ A
-  escape-⊩ᵛ = escape-⊩ ∘→ ⊩ᵛ→⊩
+  escape-⊩ᵛ :
+    Neutrals-included-or-empty Γ →
+    Γ ⊩ᵛ⟨ l ⟩ A → Γ ⊢ A
+  escape-⊩ᵛ inc = escape-⊩ inc ∘→ ⊩ᵛ→⊩
 
 opaque
 
   -- An escape lemma for ⊩ᵛ_.
 
-  escape-⊩ᵛ′ : ⊩ᵛ Γ → ⊢ Γ
-  escape-⊩ᵛ′ {Γ = ε}     = λ _ → ε
-  escape-⊩ᵛ′ {Γ = _ ∙ _} = ∙_ ∘→ escape-⊩ᵛ ∘→ proj₂ ∘→ ⊩ᵛ∙⇔ .proj₁
+  escape-⊩ᵛ′ :
+    Neutrals-included-or-empty Γ →
+    ⊩ᵛ Γ → ⊢ Γ
+  escape-⊩ᵛ′ {Γ = ε}     _   _ = ε
+  escape-⊩ᵛ′ {Γ = _ ∙ _} inc ⊩Γ =
+    ∙ escape-⊩ᵛ (Neutrals-included-or-empty-∙→ inc)
+        (⊩ᵛ∙⇔ .proj₁ ⊩Γ .proj₂)
 
 opaque
+  unfolding _⊩ᵛ⟨_⟩_≡_
 
   -- An escape lemma for _⊩ᵛ⟨_⟩_≡_.
 
-  escape-⊩ᵛ≡ : Γ ⊩ᵛ⟨ l ⟩ A ≡ B → Γ ⊢ A ≅ B
-  escape-⊩ᵛ≡ = escape-⊩≡ ∘→ ⊩ᵛ≡→⊩≡
+  escape-⊩ᵛ≡ :
+    Neutrals-included-or-empty Γ →
+    Γ ⊩ᵛ⟨ l ⟩ A ≡ B → Γ ⊢ A ≅ B
+  escape-⊩ᵛ≡ inc = escape-⊩≡ inc ∘→ ⊩ᵛ≡→⊩≡
 
 opaque
 
   -- An escape lemma for _⊩ᵛ⟨_⟩_∷_.
 
-  escape-⊩ᵛ∷ : Γ ⊩ᵛ⟨ l ⟩ t ∷ A → Γ ⊢ t ∷ A
-  escape-⊩ᵛ∷ = escape-⊩∷ ∘→ ⊩ᵛ∷→⊩∷
+  escape-⊩ᵛ∷ :
+    Neutrals-included-or-empty Γ →
+    Γ ⊩ᵛ⟨ l ⟩ t ∷ A → Γ ⊢ t ∷ A
+  escape-⊩ᵛ∷ inc = escape-⊩∷ inc ∘→ ⊩ᵛ∷→⊩∷
 
 opaque
+  unfolding _⊩ᵛ⟨_⟩_≡_∷_
 
   -- An escape lemma for _⊩ᵛ⟨_⟩_≡_∷_.
 
-  escape-⊩ᵛ≡∷ : Γ ⊩ᵛ⟨ l ⟩ t ≡ u ∷ A → Γ ⊢ t ≅ u ∷ A
-  escape-⊩ᵛ≡∷ = escape-⊩≡∷ ∘→ ⊩ᵛ≡∷→⊩≡∷
+  escape-⊩ᵛ≡∷ :
+    Neutrals-included-or-empty Γ →
+    Γ ⊩ᵛ⟨ l ⟩ t ≡ u ∷ A → Γ ⊢ t ≅ u ∷ A
+  escape-⊩ᵛ≡∷ inc = escape-⊩≡∷ inc ∘→ ⊩ᵛ≡∷→⊩≡∷
 
 opaque
 
   -- An escape lemma for _⊩ˢ_∷_.
 
-  escape-⊩ˢ∷ : Δ ⊩ˢ σ ∷ Γ → ⊢ Δ × Δ ⊢ˢʷ σ ∷ Γ
-  escape-⊩ˢ∷ {Δ} {σ} {Γ = ε} =
-    Δ ⊩ˢ σ ∷ ε         ⇔⟨ ⊩ˢ∷ε⇔ ⟩→
-    ⊢ Δ                →⟨ (λ ⊢Δ → ⊢Δ , ⊢ˢʷ∷ε⇔ .proj₂ ⊢Δ) ⟩
-    ⊢ Δ × Δ ⊢ˢʷ σ ∷ ε  □
-  escape-⊩ˢ∷ {Δ} {σ} {Γ = Γ ∙ A} =
+  escape-⊩ˢ∷ :
+    Neutrals-included-or-empty Δ →
+    Δ ⊩ˢ σ ∷ Γ → ⊢ Δ × Δ ⊢ˢʷ σ ∷ Γ
+  escape-⊩ˢ∷ {Δ} {σ} {Γ = ε} inc =
+    Δ ⊩ˢ σ ∷ ε                            ⇔⟨ ⊩ˢ∷ε⇔ ⟩→
+    (Neutrals-included-or-empty Δ → ⊢ Δ)  →⟨ _$ inc ⟩
+    ⊢ Δ                                   →⟨ (λ ⊢Δ → ⊢Δ , ⊢ˢʷ∷ε⇔ .proj₂ ⊢Δ) ⟩
+    ⊢ Δ × Δ ⊢ˢʷ σ ∷ ε                     □
+  escape-⊩ˢ∷ {Δ} {σ} {Γ = Γ ∙ A} inc =
     Δ ⊩ˢ σ ∷ Γ ∙ A                                              ⇔⟨ ⊩ˢ∷∙⇔ ⟩→
 
     (∃ λ l → (Γ ⊩ᵛ⟨ l ⟩ A) × Δ ⊩⟨ l ⟩ head σ ∷ A [ tail σ ]) ×
     Δ ⊩ˢ tail σ ∷ Γ                                             →⟨ (λ ((_ , _ , ⊩σ₀) , ⊩σ₊) →
-                                                                      escape-⊩∷ ⊩σ₀ , escape-⊩ˢ∷ ⊩σ₊) ⟩
+                                                                      escape-⊩∷ inc ⊩σ₀ , escape-⊩ˢ∷ inc ⊩σ₊) ⟩
 
     Δ ⊢ head σ ∷ A [ tail σ ] × ⊢ Δ × Δ ⊢ˢʷ tail σ ∷ Γ          →⟨ (λ (⊢σ₀ , ⊢Δ , ⊢σ₊) → ⊢Δ , →⊢ˢʷ∷∙ ⊢σ₊ ⊢σ₀) ⟩
 
@@ -1236,22 +1481,30 @@ opaque
 
   -- An escape lemma for _⊩ˢ_≡_∷_.
 
-  escape-⊩ˢ≡∷ : Δ ⊩ˢ σ₁ ≡ σ₂ ∷ Γ → ⊢ Δ × Δ ⊢ˢʷ σ₁ ≡ σ₂ ∷ Γ
-  escape-⊩ˢ≡∷ {Δ} {σ₁} {σ₂} {Γ = ε} =
-    Δ ⊩ˢ σ₁ ≡ σ₂ ∷ ε         ⇔⟨ ⊩ˢ≡∷ε⇔ ⟩→
-    ⊢ Δ                      →⟨ (λ ⊢Δ → ⊢Δ , ⊢ˢʷ≡∷ε⇔ .proj₂ ⊢Δ) ⟩
-    ⊢ Δ × Δ ⊢ˢʷ σ₁ ≡ σ₂ ∷ ε  □
-  escape-⊩ˢ≡∷ {Δ} {σ₁} {σ₂} {Γ = Γ ∙ A} =
+  escape-⊩ˢ≡∷ :
+    Neutrals-included-or-empty Δ →
+    Δ ⊩ˢ σ₁ ≡ σ₂ ∷ Γ → ⊢ Δ × Δ ⊢ˢʷ σ₁ ≡ σ₂ ∷ Γ
+  escape-⊩ˢ≡∷ {Δ} {σ₁} {σ₂} {Γ = ε} inc =
+    Δ ⊩ˢ σ₁ ≡ σ₂ ∷ ε                      ⇔⟨ ⊩ˢ≡∷ε⇔ ⟩→
+    (Neutrals-included-or-empty Δ → ⊢ Δ)  →⟨ _$ inc ⟩
+    ⊢ Δ                                   →⟨ (λ ⊢Δ → ⊢Δ , ⊢ˢʷ≡∷ε⇔ .proj₂ ⊢Δ) ⟩
+    ⊢ Δ × Δ ⊢ˢʷ σ₁ ≡ σ₂ ∷ ε               □
+  escape-⊩ˢ≡∷ {Δ} {σ₁} {σ₂} {Γ = Γ ∙ A} inc =
     Δ ⊩ˢ σ₁ ≡ σ₂ ∷ Γ ∙ A                                            ⇔⟨ ⊩ˢ≡∷∙⇔ ⟩→
 
     (∃ λ l →
      (Γ ⊩ᵛ⟨ l ⟩ A) × Δ ⊩⟨ l ⟩ head σ₁ ≡ head σ₂ ∷ A [ tail σ₁ ]) ×
     Δ ⊩ˢ tail σ₁ ≡ tail σ₂ ∷ Γ                                      →⟨ (λ ((_ , ⊩A , σ₁₀≡σ₂₀) , σ₁₊≡σ₂₊) →
-                                                                          escape-⊩ᵛ ⊩A , ≅ₜ-eq (escape-⊩≡∷ σ₁₀≡σ₂₀) , escape-⊩ˢ≡∷ σ₁₊≡σ₂₊) ⟩
-    (Γ ⊢ A) ×
+                                                                          let ⊩σ₁₀ , ⊩σ₂₀ = wf-⊩≡∷ σ₁₀≡σ₂₀ in
+                                                                          escape-⊩∷ inc ⊩σ₁₀ ,
+                                                                          escape-⊩∷ inc (conv-⊩∷ (⊩ᵛ≡→⊩ˢ≡∷→⊩[]≡[] (refl-⊩ᵛ≡ ⊩A) σ₁₊≡σ₂₊) ⊩σ₂₀) ,
+                                                                          ≅ₜ-eq (escape-⊩≡∷ inc σ₁₀≡σ₂₀) ,
+                                                                          escape-⊩ˢ≡∷ inc σ₁₊≡σ₂₊) ⟩
+    Δ ⊢ head σ₁ ∷ A [ tail σ₁ ] ×
+    Δ ⊢ head σ₂ ∷ A [ tail σ₂ ] ×
     Δ ⊢ head σ₁ ≡ head σ₂ ∷ A [ tail σ₁ ] ×
-    ⊢ Δ × Δ ⊢ˢʷ tail σ₁ ≡ tail σ₂ ∷ Γ                               →⟨ (λ (⊢A , σ₁₀≡σ₂₀ , ⊢Δ , σ₁₊≡σ₂₊) → ⊢Δ , →⊢ˢʷ≡∷∙ ⊢A σ₁₊≡σ₂₊ σ₁₀≡σ₂₀) ⟩
-
+    ⊢ Δ × Δ ⊢ˢʷ tail σ₁ ≡ tail σ₂ ∷ Γ                               →⟨ (λ (⊢σ₁₀ , ⊢σ₂₀ , σ₁₀≡σ₂₀ , ⊢Δ , σ₁₊≡σ₂₊) →
+                                                                          ⊢Δ , ⊢ˢʷ≡∷∙⇔ .proj₂ (σ₁₊≡σ₂₊ , ⊢σ₁₀ , ⊢σ₂₀ , σ₁₀≡σ₂₀)) ⟩
     ⊢ Δ × Δ ⊢ˢʷ σ₁ ≡ σ₂ ∷ Γ ∙ A                                     □
 
 ------------------------------------------------------------------------

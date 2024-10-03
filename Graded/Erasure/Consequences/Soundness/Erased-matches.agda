@@ -79,6 +79,8 @@ open Graded.Erasure.SucRed TR
 
 -- The modules T-η and SR-η use TR-η.
 
+open import Definition.Typed.EqRelInstance TR-η
+
 private
   module T-η         = Definition.Typed TR-η
   module SR-η        = Graded.Erasure.SucRed TR-η
@@ -86,6 +88,7 @@ private
     Graded.Erasure.Consequences.Soundness.Soundness TR-η UR
       (record
          { consistent                  = consistent
+         ; inc                         = inj₁ _
          ; closed-or-no-erased-matches =
              inj₁ $
              Only-some-erased-matches→No-erased-matches

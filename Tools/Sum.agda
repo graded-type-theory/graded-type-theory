@@ -5,6 +5,8 @@
 module Tools.Sum where
 
 open import Data.Sum.Base public using (_⊎_; inj₁; inj₂; map; [_,_])
+open import Relation.Nullary.Decidable public
+  using (_⊎-dec_)
 
 -- Idempotency.
 

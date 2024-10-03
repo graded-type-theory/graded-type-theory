@@ -22,8 +22,10 @@ open Type-restrictions TR
 
 open import Definition.LogicalRelation TR
 open import Definition.LogicalRelation.Fundamental TR
-open import Definition.LogicalRelation.Fundamental.Reducibility TR
+open import
+  Definition.LogicalRelation.Fundamental.Reducibility.Restricted TR
 open import Definition.LogicalRelation.Hidden TR
+import Definition.LogicalRelation.Hidden.Restricted TR as R
 open import Definition.LogicalRelation.Properties TR
 open import Definition.LogicalRelation.Substitution TR
 import Definition.LogicalRelation.Substitution.Introductions TR as I
@@ -124,8 +126,11 @@ opaque
 
     ®∷→®∷◂ $
     ®∷Π⇔ .proj₂
-      ( escape-⊩
-          (⊩ᵛ→⊩ˢ∷→⊩[] (I.ΠΣᵛ ok (emb-⊩ᵛ ≤ᵘ⊔ᵘʳ ⊩A) (emb-⊩ᵛ ≤ᵘ⊔ᵘˡ ⊩B)) ⊩σ)
+      ( R.escape-⊩ inc
+          (⊩ᵛ→⊩ˢ∷→⊩[]
+             (I.ΠΣᵛ (ΠΣⱼ (wf-⊢∷ ⊢t) ok) (emb-⊩ᵛ ≤ᵘ⊔ᵘʳ ⊩A)
+                (emb-⊩ᵛ ≤ᵘ⊔ᵘˡ ⊩B))
+             ⊩σ)
       , (λ { PE.refl → _ , T.refl })
       , λ t′ ⊢t′ →
           case reducible-⊩∷ ⊢t′ of λ
@@ -133,7 +138,8 @@ opaque
           case ⊩ˢ∷∙⇔′ .proj₂ ((_ , ⊩A) , (_ , ⊩t′) , ⊩σ) of λ
             ⊩σ,t′ →
           case redMany $
-               β-red-⇒ (escape-⊩∷ (⊩ᵛ∷→⊩ˢ∷→⊩[⇑]∷ ⊩t ⊩σ)) ⊢t′ ok of λ
+               β-red-⇒ (subst-⊢∷-⇑ ⊢t (escape-⊩ˢ∷ inc ⊩σ .proj₂)) ⊢t′
+                 ok of λ
             lam-t[σ]∘t′⇒* →
 
             (λ { p≡𝟘@PE.refl →
@@ -306,7 +312,7 @@ opaque
                                                                    ▸⊩ʳ∷⇔ .proj₁ ⊩ʳt ⊩σ ⟩
 
     (t [ σ ] ® erase str t T.[ σ′ ] ∷ (Π p , q ▷ A ▹ B) [ σ ])  →⟨ (λ hyp →
-                                                                      hyp _ $ escape-⊩∷ $ ⊩ᵛ∷→⊩ˢ∷→⊩[]∷ (fundamental-⊩ᵛ∷ ⊢u .proj₂) ⊩σ) ∘→
+                                                                      hyp _ $ R.escape-⊩∷ inc $ ⊩ᵛ∷→⊩ˢ∷→⊩[]∷ (fundamental-⊩ᵛ∷ ⊢u .proj₂) ⊩σ) ∘→
                                                                    proj₂ ∘→ proj₂ ∘→ ®∷Π⇔ .proj₁ ⟩
     (p PE.≡ 𝟘 →
      (t ∘⟨ 𝟘 ⟩ u) [ σ ] ® app-𝟘 str (erase str t T.[ σ′ ]) ∷
@@ -358,6 +364,8 @@ opaque
       (_ , ⊩t) →
     case wf-⊩ᵛ∷ ⊩t of λ
       ⊩A →
+    case escape-⊩ˢ∷ inc ⊩σ of λ
+      (_ , ⊢σ) →
 
     case                                                       $⟨ σ®σ′ ⟩
       σ ® σ′ ∷[ 𝟙ᵐ ] Γ ◂ ((p ·ᶜ γ) ⊕ᶜ δ)                       →⟨ subsumption-®∷[]◂ (λ _ → proj₂ ∘→ ⊕ᶜ-positive-⟨⟩) ⟩
@@ -429,14 +437,15 @@ opaque
 
     ®∷→®∷◂ $
     ®∷Σ⇔ .proj₂
-      ( escape-⊩
-          (⊩ᵛ→⊩ˢ∷→⊩[] (I.ΠΣᵛ ok (emb-⊩ᵛ ≤ᵘ⊔ᵘʳ ⊩A) (emb-⊩ᵛ ≤ᵘ⊔ᵘˡ ⊩B)) ⊩σ)
+      ( R.escape-⊩ inc
+          (⊩ᵛ→⊩ˢ∷→⊩[]
+             (I.ΠΣᵛ (ΠΣⱼ ⊢B ok) (emb-⊩ᵛ ≤ᵘ⊔ᵘʳ ⊩A) (emb-⊩ᵛ ≤ᵘ⊔ᵘˡ ⊩B))
+             ⊩σ)
       , t [ σ ] , u [ σ ] , v₂
       , (_⊢_⇒*_∷_.id $
-         prodⱼ (escape $ ⊩ᵛ→⊩ˢ∷→⊩[⇑] ⊩B ⊩σ)
-           (escape-⊩∷ $ ⊩ᵛ∷→⊩ˢ∷→⊩[]∷ ⊩t ⊩σ)
+         prodⱼ (subst-⊢-⇑ ⊢B ⊢σ) (subst-⊢∷ ⊢t ⊢σ)
            (PE.subst (_⊢_∷_ _ _) (singleSubstLift B _) $
-            subst-⊢∷ ⊢u (escape-⊩ˢ∷ ⊩σ .proj₂))
+            subst-⊢∷ ⊢u ⊢σ)
            ok)
       , ®∷-⇒* u[σ′]⇒*v₂ u[σ]®
       , (λ p≡𝟘 →
@@ -501,8 +510,8 @@ opaque
     ▸⊩ʳ∷[𝟘ᵐ]
   fstʳ {Γ} {t} {p} {q} {A} {B} {γ} {m = 𝟙ᵐ} ⊢t ⊩ʳt ▸fst-t =
     ▸⊩ʳ∷⇔ .proj₂ λ {σ = σ} {σ′ = σ′} ⊩σ →
-    case I.⊩ᵛΠΣ⇔ .proj₁ (wf-⊩ᵛ∷ $ fundamental-⊩ᵛ∷ ⊢t .proj₂) of λ
-      (ok , _ , ⊩B) →
+    case inversion-ΠΣ (wf-⊢∷ ⊢t) of λ
+      (_ , ⊢B , ok) →
     case
       (λ p≡𝟘 →
          let open Tools.Reasoning.PartialOrder ≤-poset in
@@ -530,7 +539,7 @@ opaque
                                                                        ®∷-⇐*
                                                                          (let open RR in
        fst p (t [ σ ])                                                      ⇒*⟨ fst-subst* t[σ]⇒*t₁,t₂ ⟩
-       fst p (prodˢ p t₁ t₂)                                                ⇒⟨ Σ-β₁-⇒ (escape $ ⊩ᵛ→⊩ˢ∷→⊩[⇑] ⊩B ⊩σ) ⊢t₁ ⊢t₂ ok ⟩∎
+       fst p (prodˢ p t₁ t₂)                                                ⇒⟨ Σ-β₁-⇒ (subst-⊢-⇑ ⊢B (escape-⊩ˢ∷ inc ⊩σ .proj₂)) ⊢t₁ ⊢t₂ ok ⟩∎
        t₁                                                                   ∎)
                                                                          (let open Graded.Erasure.Target.Reasoning in
        T.fst (erase str t T.[ σ′ ])                                         ⇒*⟨ TP.fst-subst* t[σ′]⇒*v₂,v₂ ⟩
@@ -556,9 +565,11 @@ opaque
     ▸⊩ʳ∷[𝟘ᵐ]
   sndʳ {Γ} {t} {p} {q} {A} {B} {γ} {m = 𝟙ᵐ} ⊢t ⊩ʳt =
     ▸⊩ʳ∷⇔ .proj₂ λ {σ = σ} {σ′ = σ′} ⊩σ →
-    case I.⊩ᵛΠΣ⇔ .proj₁ (wf-⊩ᵛ∷ $ fundamental-⊩ᵛ∷ ⊢t .proj₂) of λ
-      (ok , _ , ⊩B) →
-    case escape $ ⊩ᵛ→⊩ˢ∷→⊩[⇑] ⊩B ⊩σ of λ
+    case I.⊩ᵛΠΣ→ (wf-⊩ᵛ∷ $ fundamental-⊩ᵛ∷ ⊢t .proj₂) of λ
+      (_ , _ , ⊩B) →
+    case inversion-ΠΣ (wf-⊢∷ ⊢t) of λ
+      (_ , ⊢B , ok) →
+    case subst-⊢-⇑ ⊢B (escape-⊩ˢ∷ inc ⊩σ .proj₂) of λ
       ⊢B[σ⇑] →
 
     σ ® σ′ ∷[ 𝟙ᵐ ] Γ ◂ γ                                            →⟨ ®∷→®∷◂ω non-trivial ∘→
@@ -579,9 +590,8 @@ opaque
                                                                           ®∷-⇐*
                                                                             (let open RR in
       snd p (t [ σ ])       ∷ B [ σ ⇑ ] [ fst p (t [ σ ]) ]₀                   ⇒*⟨ snd-subst* t[σ]⇒*t₁,t₂ ⟩∷
-                                                                                 ⟨ ≅-eq $ escape-⊩≡ $
-                                                                                   ⊩ᵛ≡→⊩ˢ≡∷→⊩≡∷→⊩[⇑][]₀≡[⇑][]₀ (refl-⊩ᵛ≡ ⊩B) (refl-⊩ˢ≡∷ ⊩σ) $
-                                                                                   reducible-⊩≡∷ (subset*Term $ fst-subst* t[σ]⇒*t₁,t₂) .proj₂ ⟩⇒
+                                                                                 ⟨ subst-⊢≡ (refl ⊢B[σ⇑]) $
+                                                                                   ⊢ˢʷ≡∷-sgSubst (subset*Term $ fst-subst* t[σ]⇒*t₁,t₂) ⟩⇒
       snd p (prodˢ p t₁ t₂) ∷ B [ σ ⇑ ] [ fst p (prodˢ p t₁ t₂) ]₀             ⇒⟨ Σ-β₂-⇒ ⊢B[σ⇑] ⊢t₁ ⊢t₂ ok ⟩∎∷
       t₂                                                                       ∎)
                                                                             (let open Graded.Erasure.Target.Reasoning in
@@ -600,8 +610,9 @@ opaque
       v₂                                                                         ∎⇒ }) $
                                                                           conv-®∷
                                                                             (let open RR in
+                                                                             R.⊩≡→ inc $
                                                                              ⊩ᵛ≡→⊩ˢ≡∷→⊩≡∷→⊩[⇑][]₀≡[⇑][]₀ (refl-⊩ᵛ≡ ⊩B) (refl-⊩ˢ≡∷ ⊩σ) $
-                                                                             sym-⊩≡∷ $ proj₂ $ reducible-⊩≡∷ $ subset*Term (
+                                                                             R.sym-⊩≡∷ $ proj₂ $ reducible-⊩≡∷ $ subset*Term (
       fst p (t [ σ ])                                                          ⇒*⟨ fst-subst* t[σ]⇒*t₁,t₂ ⟩
       fst p (prodˢ p t₁ t₂)                                                    ⇒⟨ Σ-β₁-⇒ ⊢B[σ⇑] ⊢t₁ ⊢t₂ ok ⟩∎
       t₁                                                                       ∎))
@@ -677,8 +688,7 @@ opaque
       ⊢A,⊢B : Γ ⊢ A × Γ ∙ A ⊢ B
       ⊢A,⊢B =
         Σ.map idᶠ proj₁ $
-        inversion-ΠΣ $ syntacticTerm $ escape-⊩ᵛ∷ $
-        fundamental-⊩ᵛ∷ ⊢t .proj₂
+        inversion-ΠΣ $ syntacticTerm ⊢t
 
     opaque
 
@@ -753,6 +763,11 @@ opaque
 
       private opaque
 
+        ⊢σ : Δ ⊢ˢʷ σ ∷ Γ
+        ⊢σ = escape-⊩ˢ∷ inc ⊩σ .proj₂
+
+      private opaque
+
         -- The Prodrec-assumptions hold for σ and σ′ when r is 𝟘:
         --
         -- * In this case the context is empty, so t [ σ ] must reduce
@@ -764,7 +779,7 @@ opaque
         r≡𝟘-lemma PE.refl =
           case r≡𝟘→ε PE.refl of λ {
             ε →
-          case red-Σ (subst-⊢∷ ⊢t (escape-⊩ˢ∷ ⊩σ .proj₂)) of λ {
+          case red-Σ (subst-⊢∷ ⊢t ⊢σ) of λ {
             (_ , ne n , _) →
               ⊥-elim (noClosedNe n);
             (_ , prodₙ {t = t₁} {u = t₂} , t[σ]⇒*t₁,t₂) →
@@ -1004,7 +1019,7 @@ opaque
       private opaque
 
         ⊢C[σ⇑] : Δ ∙ (Σʷ p , q ▷ A ▹ B) [ σ ] ⊢ C [ σ ⇑ ]
-        ⊢C[σ⇑] = escape $ ⊩ᵛ→⊩ˢ∷→⊩[⇑] ⊩C ⊩σ
+        ⊢C[σ⇑] = subst-⊢-⇑ ⊢C ⊢σ
 
       private opaque
 
@@ -1013,7 +1028,7 @@ opaque
             C [ σ ⇑ ] [ prodʷ p (var x1) (var x0) ]↑²
         ⊢u[σ⇑⇑] =
           PE.subst (_⊢_∷_ _ _) (subst-β-prodrec C _) $
-          escape-⊩∷ $ ⊩ᵛ∷→⊩ˢ∷→⊩[⇑⇑]∷ (fundamental-⊩ᵛ∷ ⊢u .proj₂) ⊩σ
+          subst-⊢∷-⇑ ⊢u ⊢σ
 
       private opaque
 
@@ -1021,6 +1036,7 @@ opaque
           Δ ⊩⟨ l′ ⟩ C [ σ ⇑ ] [ t [ σ ] ]₀ ≡
             C [ σ ⇑ ] [ prodʷ p t₁ t₂ ]₀
         C[σ⇑][t[σ]]≡C[σ⇑][t₁,t₂] =
+          R.⊩≡→ inc $
           ⊩ᵛ≡→⊩ˢ≡∷→⊩≡∷→⊩[⇑][]₀≡[⇑][]₀ (refl-⊩ᵛ≡ ⊩C)
             (refl-⊩ˢ≡∷ ⊩σ)
             (reducible-⊩≡∷ (subset*Term t[σ]⇒*t₁,t₂) .proj₂)

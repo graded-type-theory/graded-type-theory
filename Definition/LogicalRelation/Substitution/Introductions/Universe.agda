@@ -18,6 +18,7 @@ open Type-restrictions R
 
 open import Definition.Typed R
 open import Definition.Typed.Properties R
+open import Definition.Typed.Substitution.Primitive R
 open import Definition.Typed.Well-formed R
 open import Definition.Untyped M
 open import Definition.Untyped.Neutral M type-variant
@@ -257,10 +258,10 @@ opaque
 
   ⊩ᵛU : ⊩ᵛ Γ → Γ ⊩ᵛ⟨ 1+ l ⟩ U l
   ⊩ᵛU {Γ} {l} ⊩Γ =
-    ⊩ᵛ⇔ .proj₂
+    ⊩ᵛ⇔ʰ .proj₂
       ( ⊩Γ
-      , λ {_} {Δ = Δ} {σ₁ = σ₁} {σ₂ = σ₂} →
-          Δ ⊩ˢ σ₁ ≡ σ₂ ∷ Γ            →⟨ proj₁ ∘→ escape-⊩ˢ≡∷ ⟩
+      , λ {_} {Δ = Δ} {σ₁ = σ₁} {σ₂ = σ₂} inc →
+          Δ ⊩ˢ σ₁ ≡ σ₂ ∷ Γ            →⟨ proj₁ ∘→ escape-⊩ˢ≡∷ inc ⟩
           ⊢ Δ                         →⟨ (λ ⊢Δ → ≤ᵘ-refl , id (Uⱼ ⊢Δ)) ⟩
           l <ᵘ 1+ l × Δ ⊢ U l ⇒* U l  ⇔˘⟨ ⊩U≡⇔ ⟩→
           Δ ⊩⟨ 1+ l ⟩ U l ≡ U l       □
@@ -272,10 +273,10 @@ opaque
 
   ⊩ᵛU∷U : ⊩ᵛ Γ → Γ ⊩ᵛ⟨ 2+ l ⟩ U l ∷ U (1+ l)
   ⊩ᵛU∷U {Γ} {l} ⊩Γ =
-    ⊩ᵛ∷⇔ .proj₂
+    ⊩ᵛ∷⇔ʰ .proj₂
       ( ⊩ᵛU ⊩Γ
-      , λ {_} {Δ = Δ} {σ₁ = σ₁} {σ₂ = σ₂} →
-          Δ ⊩ˢ σ₁ ≡ σ₂ ∷ Γ                                        →⟨ proj₁ ∘→ escape-⊩ˢ≡∷ ⟩
+      , λ {_} {Δ = Δ} {σ₁ = σ₁} {σ₂ = σ₂} inc →
+          Δ ⊩ˢ σ₁ ≡ σ₂ ∷ Γ                                        →⟨ proj₁ ∘→ escape-⊩ˢ≡∷ inc ⟩
 
           ⊢ Δ                                                     →⟨ (λ ⊢Δ → ≤ᵘ-refl , ⊩U⇔ .proj₂ (≤ᵘ-refl , ⊢Δ) , ≅-Urefl ⊢Δ) ⟩
 
@@ -294,11 +295,11 @@ opaque
     Γ ⊩ᵛ⟨ l ⟩ A ≡ B ∷ U l′ →
     Γ ⊩ᵛ⟨ l′ ⟩ A ≡ B
   ⊩ᵛ≡∷U→⊩ᵛ≡ A≡B∷U =
-    case ⊩ᵛ≡∷⇔ .proj₁ A≡B∷U of λ
+    case ⊩ᵛ≡∷⇔ʰ .proj₁ A≡B∷U of λ
       (⊩U , A≡B∷U) →
-    ⊩ᵛ≡⇔ .proj₂
+    ⊩ᵛ≡⇔ʰ .proj₂
       ( wf-⊩ᵛ ⊩U
-      , proj₁ ∘→ proj₂ ∘→ ⊩≡∷U⇔ .proj₁ ∘→ A≡B∷U
+      , ((proj₁ ∘→ proj₂ ∘→ ⊩≡∷U⇔ .proj₁) ∘→_) ∘→ A≡B∷U
       )
 
 opaque

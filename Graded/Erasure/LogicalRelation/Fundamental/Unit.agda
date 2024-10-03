@@ -43,8 +43,8 @@ open import Definition.Typed.Substitution R
 open import Definition.LogicalRelation R
 open import Definition.LogicalRelation.Fundamental R
 open import Definition.LogicalRelation.Hidden R
+import Definition.LogicalRelation.Hidden.Restricted R as R
 open import Definition.LogicalRelation.Properties R
-open import Definition.LogicalRelation.Fundamental.Reducibility R
 open import Definition.LogicalRelation.Substitution R
 open import Definition.LogicalRelation.Substitution.Introductions.Unit R
 
@@ -165,9 +165,9 @@ opaque
 
          σ ® σ′ ∷[ 𝟙ᵐ ] Γ ◂ δ                                             →⟨ ▸⊩ʳ∷⇔ .proj₁ ⊩ʳu ⊩σ ⟩
 
-         u [ σ ] ® erase str u T.[ σ′ ] ∷ A [ starʷ l ]₀ [ σ ] ◂ 𝟙        →⟨ conv-®∷◂ $
+         u [ σ ] ® erase str u T.[ σ′ ] ∷ A [ starʷ l ]₀ [ σ ] ◂ 𝟙        →⟨ conv-®∷◂ $ R.⊩≡→ inc $
                                                                              ⊩ᵛ≡→⊩≡∷→⊩ˢ≡∷→⊩[]₀[]≡[]₀[] (refl-⊩ᵛ≡ ⊩A)
-                                                                               (sym-⊩≡∷ t[σ]≡⋆) (refl-⊩ˢ≡∷ ⊩σ) ⟩
+                                                                               (R.→⊩≡∷ $ sym-⊩≡∷ t[σ]≡⋆) (refl-⊩ˢ≡∷ ⊩σ) ⟩
 
          u [ σ ] ® erase str u T.[ σ′ ] ∷ A [ t ]₀ [ σ ] ◂ 𝟙              →⟨ ®∷◂-⇐* unitrec⇒u[σ] unitrec⇒u[σ′] ⟩
 
@@ -176,12 +176,14 @@ opaque
     of λ
       unitrec® →
 
-    case escape $ ⊩ᵛ→⊩ˢ∷→⊩[⇑] ⊩A ⊩σ of λ
+    case escape-⊩ˢ∷ inc ⊩σ of λ
+      (_ , ⊢σ) →
+    case subst-⊢-⇑ ⊢A ⊢σ of λ
       ⊢A[σ⇑] →
-    case ⊩ᵛ∷→⊩ˢ∷→⊩[]∷ ⊩t ⊩σ of λ
+    case R.⊩∷→ inc $ ⊩ᵛ∷→⊩ˢ∷→⊩[]∷ ⊩t ⊩σ of λ
       ⊩t[σ] →
     case PE.subst (_⊢_∷_ _ _) (singleSubstLift A _) $
-         escape-⊩∷ $ ⊩ᵛ∷→⊩ˢ∷→⊩[]∷ (fundamental-⊩ᵛ∷ ⊢u .proj₂) ⊩σ of λ
+         subst-⊢∷-⇑ ⊢u ⊢σ of λ
       ⊢u[σ] →
 
     case ⊩∷Unit⇔ .proj₁ ⊩t[σ] of λ {
@@ -192,9 +194,9 @@ opaque
       (inj₁ (inj₁ ()))
       (inj₁ (inj₂ η)) →
         unitrec® _
-          (⊩ᵛ≡∷⇔′ .proj₁
+          (⊩ᵛ≡∷⇔′ʰ .proj₁
              (η-unitᵛ ⊩t (starᵛ (wf-⊩ᵛ (wf-⊩ᵛ∷ ⊩t)) ok) (inj₂ η))
-             .proj₂ .proj₂ ⊩σ)
+             .proj₂ .proj₂ inc ⊩σ)
           (                          ∷ A [ t ]₀ [ σ ]           ⟨ singleSubstLift A _ ⟩⇒≡
            unitrec l p q A t u [ σ ] ∷ A [ σ ⇑ ] [ t [ σ ] ]₀  ⇒⟨ unitrec-β-η ⊢A[σ⇑] (escape-⊩∷ ⊩t[σ]) ⊢u[σ] ok η ⟩∎∷
            u [ σ ]                                             ∎)
@@ -208,7 +210,7 @@ opaque
              unitrec l p q A (starʷ l) u [ σ ] ∷ A [ σ ⇑ ] [ starʷ l ]₀  ⇒⟨ unitrec-β ⊢A[σ⇑] ⊢u[σ] ok no-η ⟩∎∷
              u [ σ ]                                                     ∎)
 
-        (ne (neNfₜ t′-ne _)) →
+        (ne (neNfₜ _ t′-ne _)) →
           ⊥-elim $
           case is-𝟘? p of λ where
             (no p≢𝟘) →

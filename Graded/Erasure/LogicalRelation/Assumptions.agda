@@ -25,6 +25,9 @@ record Assumptions : Set (lsuc a) where
     -- An "EqRelSet".
     ⦃ eqRelSet ⦄ : EqRelSet
 
+  open EqRelSet eqRelSet public
+
+  field
     -- The size of the context below.
     {k} : Nat
 
@@ -34,8 +37,9 @@ record Assumptions : Set (lsuc a) where
     -- The context is well-formed.
     ⊢Δ : ⊢ Δ
 
+    -- Neutrals-included holds or Δ is empty.
+    inc : Neutrals-included-or-empty Δ
+
     -- Should applications be extracted to strict or non-strict
     -- applications?
     str : Strictness
-
-  open EqRelSet eqRelSet public

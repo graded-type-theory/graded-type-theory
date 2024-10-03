@@ -20,19 +20,19 @@ open Type-restrictions TR
 
 open import Definition.LogicalRelation TR as L
 open import Definition.LogicalRelation.Fundamental TR
-open import Definition.LogicalRelation.Fundamental.Reducibility TR
+open import Definition.LogicalRelation.Fundamental.Reducibility TR inc
 open import Definition.LogicalRelation.Hidden TR
 import Definition.LogicalRelation.Irrelevance TR as IR
 open import Definition.LogicalRelation.Properties TR
 open import Definition.LogicalRelation.ShapeView TR
 open import Definition.LogicalRelation.Substitution TR
 open import Definition.LogicalRelation.Substitution.Introductions TR
+open import Definition.LogicalRelation.Weakening.Restricted TR
 open import Definition.Typed TR
 open import Definition.Typed.Consequences.Inversion TR
 open import Definition.Typed.Inversion TR
 open import Definition.Typed.Properties TR
 open import Definition.Typed.Syntactic TR
-import Definition.Typed.Weakening TR as W
 open import Definition.Untyped M
 open import Definition.Untyped.Neutral M type-variant
 open import Definition.Untyped.Properties M
@@ -214,26 +214,26 @@ opaque
              case reducible-⊩∷ $
                   PE.subst (_⊢_∷_ _ _) (PE.sym $ wk-id _) ⊢t′ of λ
                (_ , ⊩A , ⊩t′) →
-             case IR.irrelevanceTerm ⊩A (_⊩ₗB⟨_⟩_.[F] ⊩Π′ (W.idʷ ⊢Δ))
+             case IR.irrelevanceTerm ⊩A (_⊩ₗB⟨_⟩_.[F] ⊩Π′ (id ⊢Δ))
                     ⊩t′ of λ
                ⊩t′ →
              case PE.subst (_⊩⟨_⟩_ _ _)
                     (PE.cong _[ _ ]₀ $ wk-lift-id B) $
-                  _⊩ₗB⟨_⟩_.[G] ⊩Π′ (W.idʷ ⊢Δ) ⊩t′ of λ
+                  _⊩ₗB⟨_⟩_.[G] ⊩Π′ (id ⊢Δ) ⊩t′ of λ
                ⊩B[t′] →
                (λ { PE.refl →
                     _ , ⊩B[t′]
                   , irrelevanceTerm′ (PE.cong _[ t′ ]₀ $ wk-lift-id B)
-                      (_⊩ₗB⟨_⟩_.[G] ⊩Π′ (W.idʷ ⊢Δ) ⊩t′) ⊩B[t′]
+                      (_⊩ₗB⟨_⟩_.[G] ⊩Π′ (id ⊢Δ) ⊩t′) ⊩B[t′]
                       (Π-®-𝟘 (is-𝟘? 𝟘) (t®v .proj₂ ⊩t′)) })
              , (λ p≢𝟘 _ t′®v′ →
                     _ , ⊩B[t′]
                   , irrelevanceTerm′ (PE.cong _[ t′ ]₀ $ wk-lift-id B)
-                      (_⊩ₗB⟨_⟩_.[G] ⊩Π′ (W.idʷ ⊢Δ) ⊩t′) ⊩B[t′]
+                      (_⊩ₗB⟨_⟩_.[G] ⊩Π′ (id ⊢Δ) ⊩t′) ⊩B[t′]
                       (Π-®-ω p≢𝟘 (is-𝟘? p) (t®v .proj₂ ⊩t′)
                          (irrelevanceTerm′ (PE.sym $ wk-id _)
                             (t′®v′ .proj₂ .proj₁)
-                            (_⊩ₗB⟨_⟩_.[F] ⊩Π′ (W.idʷ ⊢Δ)) $
+                            (_⊩ₗB⟨_⟩_.[F] ⊩Π′ (id ⊢Δ)) $
                           t′®v′ .proj₂ .proj₂))) }})
     , (λ (⊢Π , v⇒*lam , t®v) →
            _
@@ -345,8 +345,8 @@ opaque
          case B-PE-injectivity (BΣ _ _ _) (BΣ _ _ _)
                 (whnfRed* (_⊩ₗB⟨_⟩_.D ⊩Σ′) ΠΣₙ) of λ {
            (PE.refl , PE.refl , _) →
-         let ⊩wk-A     = _⊩ₗB⟨_⟩_.[F] ⊩Σ′ (W.idʷ ⊢Δ)
-             ⊩wk-B[t₁] = _⊩ₗB⟨_⟩_.[G] ⊩Σ′ (W.idʷ ⊢Δ) ⊩t₁
+         let ⊩wk-A     = _⊩ₗB⟨_⟩_.[F] ⊩Σ′ (id ⊢Δ)
+             ⊩wk-B[t₁] = _⊩ₗB⟨_⟩_.[G] ⊩Σ′ (id ⊢Δ) ⊩t₁
          in
          case PE.subst (_⊩⟨_⟩_ _ _) (wk-id _) ⊩wk-A of λ
            ⊩A →
@@ -373,8 +373,8 @@ opaque
               (_ , ⊩A , irrelevanceTerm′ (wk-id _) ⊩wk-A ⊩A t₁®v₁)) }})
     , (λ (⊢Σ , _ , _ , v₂ , t⇒*prod , (_ , ⊩B , t₂®v₂) , hyp₁ , hyp₂) →
          case ⊩ΠΣ⇔ .proj₁ (reducible-⊩ ⊢Σ .proj₂) of λ
-           ⊩Σ′@(_ , _ , rest) →
-         let ⊩wk-A , wk-B≡wk-B = rest (W.idʷ ⊢Δ) in
+           ⊩Σ′@(_ , rest) →
+         let ⊩wk-A , wk-B≡wk-B = rest (id ⊢Δ) in
          case inversion-prod-Σ $
               syntacticEqTerm (subset*Term t⇒*prod) .proj₂ .proj₂ of λ
            (⊢t₁ , _) →
@@ -795,7 +795,7 @@ opaque
 
     (∀ {σ σ′} → Δ ⊩ˢ σ ∷ Γ → σ ® σ′ ∷[ m ] Γ ◂ γ →
      t [ σ ] ® erase str t T.[ σ′ ] ∷ A [ σ ] ◂ ⌜ m ⌝)  →⟨ (λ hyp ⊩σ σ®σ′ →
-                                                              conv-®∷◂ (⊩ᵛ≡⇔′ .proj₁ A≡B .proj₂ .proj₂ ⊩σ) $
+                                                              conv-®∷◂ (⊩ᵛ≡⇔′ʰ .proj₁ A≡B .proj₂ .proj₂ inc ⊩σ) $
                                                               hyp ⊩σ σ®σ′) ⟩
     (∀ {σ σ′} → Δ ⊩ˢ σ ∷ Γ → σ ® σ′ ∷[ m ] Γ ◂ γ →
      t [ σ ] ® erase str t T.[ σ′ ] ∷ B [ σ ] ◂ ⌜ m ⌝)  ⇔˘⟨ ▸⊩ʳ∷⇔ ⟩→

@@ -320,7 +320,7 @@ module _
     in  suc v , sucₙ numV , ⇒ˢ*∷ℕ-trans (whred* d) (sucred* d′)
   canonicityRed′ _ _ (ℕₜ _ d _ zeroᵣ) =
     zero , zeroₙ , whred* d
-  canonicityRed′ γ▸t nΓγ (ℕₜ n d n≡n (ne (neNfₜ neK k≡k))) =
+  canonicityRed′ γ▸t nΓγ (ℕₜ n d n≡n (ne (neNfₜ _ neK k≡k))) =
     let u , d′ , ¬neU =
           ¬NeutralNf (redFirst*Term d) γ▸t nΓγ
             (flip ¬negℕ $ refl (ℕⱼ $ wfTerm $ redFirst*Term d))
@@ -331,7 +331,8 @@ module _
     Γ ⊢ t ∷ ℕ → γ ▸[ 𝟙ᵐ ] t → NegativeErasedContext Γ γ →
     ∃ λ u → Numeral u × Γ ⊢ t ⇒ˢ* u ∷ℕ
   canonicityRed ⊢t γ▸t nΓγ =
-    canonicityRed′ γ▸t nΓγ $ ⊩∷ℕ⇔ .proj₁ $ proj₂ $ reducible-⊩∷ ⊢t
+    canonicityRed′ γ▸t nΓγ $ ⊩∷ℕ⇔ .proj₁ $ proj₂ $
+    reducible-⊩∷ (inj₁ _) ⊢t
 
   -- A variant of the previous result for terms that are
   -- well-resourced with respect to 𝟘ᶜ.

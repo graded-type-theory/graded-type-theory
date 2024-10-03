@@ -249,6 +249,7 @@ import Graded.Modality.Instances.Linearity.Good
 -- Properties of the type theory
 
 -- The logical relation for reducibility.
+import Definition.LogicalRelation.Weakening.Restricted
 import Definition.LogicalRelation
 import Definition.LogicalRelation.Properties.Kit
 import Definition.LogicalRelation.Properties.Whnf
@@ -266,6 +267,7 @@ import Definition.LogicalRelation.Properties.Reduction
 import Definition.LogicalRelation.Properties
 import Definition.LogicalRelation.Weakening
 import Definition.LogicalRelation.Hidden
+import Definition.LogicalRelation.Hidden.Restricted
 
 -- The logical relation for validity.
 import Definition.LogicalRelation.Substitution
@@ -287,6 +289,7 @@ import Definition.LogicalRelation.Substitution.Introductions.Erased
 import Definition.LogicalRelation.Substitution.Introductions.Identity
 import Definition.LogicalRelation.Substitution.Introductions
 import Definition.LogicalRelation.Fundamental
+import Definition.LogicalRelation.Fundamental.Reducibility.Restricted
 import Definition.LogicalRelation.Fundamental.Reducibility
 
 -- Some consequences of the fundamental lemma.

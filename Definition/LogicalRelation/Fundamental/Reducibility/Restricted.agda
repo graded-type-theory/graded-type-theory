@@ -1,35 +1,29 @@
 ------------------------------------------------------------------------
--- The fundamental lemma of the logical relation for reducibility.
+-- Variants of the lemmas in
+-- Definition.LogicalRelation.Fundamental.Reducibility
 ------------------------------------------------------------------------
 
 open import Definition.Typed.EqualityRelation
 open import Definition.Typed.Restrictions
-import Definition.Untyped
 open import Graded.Modality
 
-module Definition.LogicalRelation.Fundamental.Reducibility
+module Definition.LogicalRelation.Fundamental.Reducibility.Restricted
   {a} {M : Set a}
-  (open Definition.Untyped M)
   {𝕄 : Modality M}
   (R : Type-restrictions 𝕄)
-  {{eqrel : EqRelSet R}}
-  (open EqRelSet eqrel)
-  {n} {Γ : Con Term n}
-  -- Neutrals are included or Γ is empty.
-  (inc : Neutrals-included-or-empty Γ)
+  ⦃ eqrel : EqRelSet R ⦄
   where
 
+open import Definition.Untyped M
 open import Definition.Typed R
-open import Definition.LogicalRelation R
-import Definition.LogicalRelation.Fundamental.Reducibility.Restricted R
-  as RR
-open import Definition.LogicalRelation.Hidden R
-import Definition.LogicalRelation.Hidden.Restricted R as R
+open import Definition.LogicalRelation.Hidden.Restricted R
+open import Definition.LogicalRelation.Fundamental R
+open import Definition.LogicalRelation.Substitution R
 
-open import Tools.Function
-open import Tools.Product as Σ
+open import Tools.Product
 
 private variable
+  Γ       : Con Term _
   A B t u : Term _
 
 opaque
@@ -37,7 +31,7 @@ opaque
   -- Well-formed types are reducible.
 
   reducible-⊩ : Γ ⊢ A → ∃ λ l → Γ ⊩⟨ l ⟩ A
-  reducible-⊩ = Σ.map idᶠ (R.⊩→ inc) ∘→ RR.reducible-⊩
+  reducible-⊩ ⊢A = _ , ⊩ᵛ→⊩ (fundamental-⊩ᵛ ⊢A .proj₂)
 
 opaque
 
@@ -45,14 +39,14 @@ opaque
   -- Γ ⊩⟨ l ⟩ A ≡ B holds for some type level l.
 
   reducible-⊩≡ : Γ ⊢ A ≡ B → ∃ λ l → Γ ⊩⟨ l ⟩ A ≡ B
-  reducible-⊩≡ = Σ.map idᶠ (R.⊩≡→ inc) ∘→ RR.reducible-⊩≡
+  reducible-⊩≡ ⊢A≡B = _ , ⊩ᵛ≡→⊩≡ (fundamental-⊩ᵛ≡ ⊢A≡B .proj₂)
 
 opaque
 
   -- Well-formed terms are reducible.
 
   reducible-⊩∷ : Γ ⊢ t ∷ A → ∃ λ l → Γ ⊩⟨ l ⟩ t ∷ A
-  reducible-⊩∷ = Σ.map idᶠ (R.⊩∷→ inc) ∘→ RR.reducible-⊩∷
+  reducible-⊩∷ ⊢t∷A = _ , ⊩ᵛ∷→⊩∷ (fundamental-⊩ᵛ∷ ⊢t∷A .proj₂)
 
 opaque
 
@@ -60,4 +54,4 @@ opaque
   -- then Γ ⊩⟨ l ⟩ t ≡ u ∷ A holds for some type level l.
 
   reducible-⊩≡∷ : Γ ⊢ t ≡ u ∷ A → ∃ λ l → Γ ⊩⟨ l ⟩ t ≡ u ∷ A
-  reducible-⊩≡∷ = Σ.map idᶠ (R.⊩≡∷→ inc) ∘→ RR.reducible-⊩≡∷
+  reducible-⊩≡∷ ⊢t≡u∷A = _ , ⊩ᵛ≡∷→⊩≡∷ (fundamental-⊩ᵛ≡∷ ⊢t≡u∷A .proj₂)

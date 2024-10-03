@@ -86,10 +86,12 @@ private
 
 -- A lemma.
 
-module _ (⊢Δ : ⊢ Δ) {s : Strictness} where
+module _
+  (⊢Δ : ⊢ Δ) (inc : Neutrals-included-or-empty Δ) {s : Strictness}
+  where
 
   open Graded.Erasure.LogicalRelation.Hidden
-         (record { ⊢Δ = ⊢Δ; str = s })
+         (record { ⊢Δ = ⊢Δ; inc = inc; str = s })
 
   opaque
 
@@ -132,7 +134,7 @@ module Fundamental
   private
 
     as : Assumptions
-    as = record { ⊢Δ = well-formed; str = s }
+    as = record { ⊢Δ = well-formed; inc = inc; str = s }
 
   open Graded.Erasure.LogicalRelation.Fundamental.Empty UR as consistent
   open Graded.Erasure.LogicalRelation.Fundamental.Identity as
@@ -170,7 +172,7 @@ module Fundamental
     fundamental (Unitⱼ _ _) _ =
       Unitʳ
     fundamental (var _ x∈Γ) ▸x =
-      fundamentalVar well-formed x∈Γ ▸x
+      fundamentalVar well-formed inc x∈Γ ▸x
     fundamental (lamⱼ _ ⊢t ok) ▸lam =
       case inv-usage-lam ▸lam of λ
         (invUsageLam ▸t γ≤δ) →

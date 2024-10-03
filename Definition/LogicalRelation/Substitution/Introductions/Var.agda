@@ -23,6 +23,7 @@ open import Definition.Typed R
 open import Definition.Typed.Properties R
 open import Definition.LogicalRelation R
 open import Definition.LogicalRelation.Hidden R
+import Definition.LogicalRelation.Hidden.Restricted R as R
 open import Definition.LogicalRelation.Substitution R
 
 open import Tools.Fin
@@ -42,13 +43,14 @@ opaque
   -- Reducibility for variables.
 
   ⊩var :
+    Neutrals-included →
     x ∷ A ∈ Γ →
     Γ ⊩⟨ l ⟩ A →
     Γ ⊩⟨ l ⟩ var x ∷ A
-  ⊩var x∈Γ ⊩A =
+  ⊩var inc x∈Γ ⊩A =
     case var (wf (escape-⊩ ⊩A)) x∈Γ of λ
       ⊢var →
-    neutral-⊩∷ ⊩A (var _) (~-var ⊢var)
+    neutral-⊩∷ inc ⊩A (var _) (~-var ⊢var)
 
 opaque
 
@@ -69,9 +71,9 @@ opaque
         , λ σ₁≡σ₂ →
             case ⊩ˢ≡∷∙⇔ .proj₁ σ₁≡σ₂ of λ
               ((_ , _ , σ₁₀≡σ₂₀) , _) →
-            level-⊩≡∷
+            R.level-⊩≡∷
               (⊩ᵛ→⊩ˢ∷→⊩[] ⊩wk1-A (wf-⊩ˢ≡∷ σ₁≡σ₂ .proj₁))
-              (PE.subst (_⊩⟨_⟩_≡_∷_ _ _ _ _) (PE.sym $ wk1-tail A)
+              (PE.subst (R._⊩⟨_⟩_≡_∷_ _ _ _ _) (PE.sym $ wk1-tail A)
                  σ₁₀≡σ₂₀)
         )
   varᵛ (there x∈Γ) ⊩Γ∙B =

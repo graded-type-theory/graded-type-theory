@@ -1,13 +1,12 @@
 ------------------------------------------------------------------------
--- A variant of the logical relation with hidden reducibility
--- arguments, along with variants of some other relations
+-- Restricted variants of the logical relations
 ------------------------------------------------------------------------
 
 open import Definition.Typed.EqualityRelation
 open import Definition.Typed.Restrictions
 open import Graded.Modality
 
-module Definition.LogicalRelation.Hidden
+module Definition.LogicalRelation.Hidden.Restricted
   {a} {M : Set a}
   {𝕄 : Modality M}
   (R : Type-restrictions 𝕄)
@@ -17,24 +16,20 @@ module Definition.LogicalRelation.Hidden
 open EqRelSet eqrel
 open Type-restrictions R
 
-open import Definition.LogicalRelation R
-open import Definition.LogicalRelation.Irrelevance R
-open import Definition.LogicalRelation.Properties R
-open import Definition.LogicalRelation.ShapeView R
-import Definition.LogicalRelation.Weakening R as W
+import Definition.LogicalRelation R as L
+import Definition.LogicalRelation.Hidden R as H
 open import Definition.LogicalRelation.Weakening.Restricted R
 
 open import Definition.Typed R
 open import Definition.Typed.Properties R
-open import Definition.Typed.Well-formed R
+open import Definition.Typed.Weakening R using (_∷ʷ_⊇_)
 
 open import Definition.Untyped M
 open import Definition.Untyped.Neutral M type-variant
-open import Definition.Untyped.Properties M
 
 open import Tools.Function
 open import Tools.Nat using (Nat)
-open import Tools.Product as Σ
+open import Tools.Product
 import Tools.PropositionalEquality as PE
 
 private variable
@@ -43,10 +38,19 @@ private variable
   A B C t t₁ t₂ u v : Term _
   ρ                 : Wk _ _
   l l′              : Universe-level
-  k                 : LogRelKit
 
 ------------------------------------------------------------------------
 -- The type formers
+
+opaque
+
+  -- Reducible types.
+
+  infix 4 _⊩⟨_⟩_
+
+  _⊩⟨_⟩_ : Con Term n → Universe-level → Term n → Set a
+  Γ ⊩⟨ l ⟩ A =
+    Neutrals-included-or-empty Γ → Γ L.⊩⟨ l ⟩ A
 
 opaque
 
@@ -56,7 +60,7 @@ opaque
 
   _⊩⟨_⟩_∷_ : Con Term n → Universe-level → Term n → Term n → Set a
   Γ ⊩⟨ l ⟩ t ∷ A =
-    ∃ λ (⊩A : Γ ⊩⟨ l ⟩ A) → Γ ⊩⟨ l ⟩ t ∷ A / ⊩A
+    Neutrals-included-or-empty Γ → Γ H.⊩⟨ l ⟩ t ∷ A
 
 opaque
 
@@ -66,7 +70,7 @@ opaque
 
   _⊩⟨_⟩_≡_ : Con Term n → Universe-level → Term n → Term n → Set a
   Γ ⊩⟨ l ⟩ A ≡ B =
-    ∃ λ (⊩A : Γ ⊩⟨ l ⟩ A) → (Γ ⊩⟨ l ⟩ B) × Γ ⊩⟨ l ⟩ A ≡ B / ⊩A
+    Neutrals-included-or-empty Γ → Γ H.⊩⟨ l ⟩ A ≡ B
 
 opaque
 
@@ -77,53 +81,173 @@ opaque
   _⊩⟨_⟩_≡_∷_ :
     Con Term n → Universe-level → Term n → Term n → Term n → Set a
   Γ ⊩⟨ l ⟩ t ≡ u ∷ A =
-    ∃ λ (⊩A : Γ ⊩⟨ l ⟩ A) →
-    Γ ⊩⟨ l ⟩ t ∷ A / ⊩A ×
-    Γ ⊩⟨ l ⟩ u ∷ A / ⊩A ×
-    Γ ⊩⟨ l ⟩ t ≡ u ∷ A / ⊩A
+    Neutrals-included-or-empty Γ → Γ H.⊩⟨ l ⟩ t ≡ u ∷ A
 
 ------------------------------------------------------------------------
--- Conversions to the underlying type formers
+-- Characterisation lemmas
+
+opaque
+  unfolding _⊩⟨_⟩_
+
+  -- A characterisation lemma for _⊩⟨_⟩_.
+
+  ⊩⇔ :
+    Γ ⊩⟨ l ⟩ A ⇔
+    (Neutrals-included-or-empty Γ → Γ L.⊩⟨ l ⟩ A)
+  ⊩⇔ = id⇔
 
 opaque
   unfolding _⊩⟨_⟩_∷_
 
-  -- A conversion to _⊩⟨_⟩_∷_/_.
+  -- A characterisation lemma for _⊩⟨_⟩_∷_.
 
-  ⊩∷→⊩∷/ : (⊩A : Γ ⊩⟨ l ⟩ A) → Γ ⊩⟨ l′ ⟩ t ∷ A → Γ ⊩⟨ l ⟩ t ∷ A / ⊩A
-  ⊩∷→⊩∷/ ⊩A (⊩A′ , ⊩t) = irrelevanceTerm ⊩A′ ⊩A ⊩t
+  ⊩∷⇔ :
+    Γ ⊩⟨ l ⟩ t ∷ A ⇔
+    (Neutrals-included-or-empty Γ → Γ H.⊩⟨ l ⟩ t ∷ A)
+  ⊩∷⇔ = id⇔
 
 opaque
   unfolding _⊩⟨_⟩_≡_
 
-  -- A conversion to _⊩⟨_⟩_≡_/_.
+  -- A characterisation lemma for _⊩⟨_⟩_≡_.
 
-  ⊩≡→⊩≡/ : (⊩A : Γ ⊩⟨ l ⟩ A) → Γ ⊩⟨ l′ ⟩ A ≡ B → Γ ⊩⟨ l ⟩ A ≡ B / ⊩A
-  ⊩≡→⊩≡/ ⊩A (⊩A′ , _ , A≡B) = irrelevanceEq ⊩A′ ⊩A A≡B
+  ⊩≡⇔ :
+    Γ ⊩⟨ l ⟩ A ≡ B ⇔
+    (Neutrals-included-or-empty Γ → Γ H.⊩⟨ l ⟩ A ≡ B)
+  ⊩≡⇔ = id⇔
 
 opaque
   unfolding _⊩⟨_⟩_≡_∷_
 
-  -- A conversion to _⊩⟨_⟩_≡_∷_/_.
+  -- A characterisation lemma for _⊩⟨_⟩_≡_∷_.
 
-  ⊩≡∷→⊩≡∷/ :
-    (⊩A : Γ ⊩⟨ l ⟩ A) → Γ ⊩⟨ l′ ⟩ t ≡ u ∷ A →
-    Γ ⊩⟨ l ⟩ t ≡ u ∷ A / ⊩A
-  ⊩≡∷→⊩≡∷/ ⊩A (⊩A′ , _ , _ , t≡u) = irrelevanceEqTerm ⊩A′ ⊩A t≡u
+  ⊩≡∷⇔ :
+    Γ ⊩⟨ l ⟩ t ≡ u ∷ A ⇔
+    (Neutrals-included-or-empty Γ → Γ H.⊩⟨ l ⟩ t ≡ u ∷ A)
+  ⊩≡∷⇔ = id⇔
+
+------------------------------------------------------------------------
+-- Conversion functions
+
+opaque
+
+  -- A conversion function for _⊩⟨_⟩_.
+
+  →⊩ : Γ L.⊩⟨ l ⟩ A → Γ ⊩⟨ l ⟩ A
+  →⊩ ⊩A = ⊩⇔ .proj₂ (λ _ → ⊩A)
+
+opaque
+
+  -- A conversion function for _⊩⟨_⟩_.
+
+  ⊩→ : Neutrals-included-or-empty Γ → Γ ⊩⟨ l ⟩ A → Γ L.⊩⟨ l ⟩ A
+  ⊩→ inc ⊩A = ⊩⇔ .proj₁ ⊩A inc
+
+opaque
+
+  -- A conversion function for _⊩⟨_⟩_∷_.
+
+  →⊩∷ : Γ H.⊩⟨ l ⟩ t ∷ A → Γ ⊩⟨ l ⟩ t ∷ A
+  →⊩∷ ⊩t = ⊩∷⇔ .proj₂ (λ _ → ⊩t)
+
+opaque
+
+  -- A conversion function for _⊩⟨_⟩_∷_.
+
+  ⊩∷→ :
+    Neutrals-included-or-empty Γ → Γ ⊩⟨ l ⟩ t ∷ A → Γ H.⊩⟨ l ⟩ t ∷ A
+  ⊩∷→ inc ⊩t = ⊩∷⇔ .proj₁ ⊩t inc
+
+opaque
+
+  -- A conversion function for _⊩⟨_⟩_≡_.
+
+  →⊩≡ : Γ H.⊩⟨ l ⟩ A ≡ B → Γ ⊩⟨ l ⟩ A ≡ B
+  →⊩≡ A≡B = ⊩≡⇔ .proj₂ (λ _ → A≡B)
+
+opaque
+
+  -- A conversion function for _⊩⟨_⟩_≡_.
+
+  ⊩≡→ :
+    Neutrals-included-or-empty Γ → Γ ⊩⟨ l ⟩ A ≡ B → Γ H.⊩⟨ l ⟩ A ≡ B
+  ⊩≡→ inc A≡B = ⊩≡⇔ .proj₁ A≡B inc
+
+opaque
+
+  -- A conversion function for _⊩⟨_⟩_≡_∷_.
+
+  →⊩≡∷ : Γ H.⊩⟨ l ⟩ t ≡ u ∷ A → Γ ⊩⟨ l ⟩ t ≡ u ∷ A
+  →⊩≡∷ t≡u = ⊩≡∷⇔ .proj₂ (λ _ → t≡u)
+
+opaque
+
+  -- A conversion function for _⊩⟨_⟩_≡_∷_.
+
+  ⊩≡∷→ :
+    Neutrals-included-or-empty Γ →
+    Γ ⊩⟨ l ⟩ t ≡ u ∷ A → Γ H.⊩⟨ l ⟩ t ≡ u ∷ A
+  ⊩≡∷→ inc t≡u = ⊩≡∷⇔ .proj₁ t≡u inc
+
+------------------------------------------------------------------------
+-- Some utility functions
+
+opaque
+  unfolding _⊩⟨_⟩_
+
+  -- If one can prove Γ ⊩⟨ l ⟩ A given Neutrals-included-or-empty Γ,
+  -- then Γ ⊩⟨ l ⟩ A holds.
+
+  with-inc-⊩ :
+    (Neutrals-included-or-empty Γ → Γ ⊩⟨ l ⟩ A) →
+    Γ ⊩⟨ l ⟩ A
+  with-inc-⊩ f inc = f inc inc
+
+opaque
+  unfolding _⊩⟨_⟩_∷_
+
+  -- If one can prove Γ ⊩⟨ l ⟩ t ∷ A given
+  -- Neutrals-included-or-empty Γ, then Γ ⊩⟨ l ⟩ t ∷ A holds.
+
+  with-inc-⊩∷ :
+    (Neutrals-included-or-empty Γ → Γ ⊩⟨ l ⟩ t ∷ A) →
+    Γ ⊩⟨ l ⟩ t ∷ A
+  with-inc-⊩∷ f inc = f inc inc
+
+opaque
+  unfolding _⊩⟨_⟩_≡_
+
+  -- If one can prove Γ ⊩⟨ l ⟩ A ≡ B given
+  -- Neutrals-included-or-empty Γ, then Γ ⊩⟨ l ⟩ A ≡ B holds.
+
+  with-inc-⊩≡ :
+    (Neutrals-included-or-empty Γ → Γ ⊩⟨ l ⟩ A ≡ B) →
+    Γ ⊩⟨ l ⟩ A ≡ B
+  with-inc-⊩≡ f inc = f inc inc
+
+opaque
+  unfolding _⊩⟨_⟩_≡_∷_
+
+  -- If one can prove Γ ⊩⟨ l ⟩ t ≡ u ∷ A given
+  -- Neutrals-included-or-empty Γ, then Γ ⊩⟨ l ⟩ t ≡ u ∷ A holds.
+
+  with-inc-⊩≡∷ :
+    (Neutrals-included-or-empty Γ → Γ ⊩⟨ l ⟩ t ≡ u ∷ A) →
+    Γ ⊩⟨ l ⟩ t ≡ u ∷ A
+  with-inc-⊩≡∷ f inc = f inc inc
 
 ------------------------------------------------------------------------
 -- Reflexivity
 
 opaque
-  unfolding _⊩⟨_⟩_≡_
+  unfolding _⊩⟨_⟩_ _⊩⟨_⟩_≡_
 
   -- Reflexivity for _⊩⟨_⟩_≡_.
 
   refl-⊩≡ :
     Γ ⊩⟨ l ⟩ A →
     Γ ⊩⟨ l ⟩ A ≡ A
-  refl-⊩≡ ⊩A =
-    ⊩A , ⊩A , reflEq ⊩A
+  refl-⊩≡ = H.refl-⊩≡ ∘→_
 
 opaque
   unfolding _⊩⟨_⟩_∷_ _⊩⟨_⟩_≡_∷_
@@ -133,8 +257,7 @@ opaque
   refl-⊩≡∷ :
     Γ ⊩⟨ l ⟩ t ∷ A →
     Γ ⊩⟨ l ⟩ t ≡ t ∷ A
-  refl-⊩≡∷ (⊩A , ⊩t) =
-    ⊩A , ⊩t , ⊩t , reflEqTerm ⊩A ⊩t
+  refl-⊩≡∷ = H.refl-⊩≡∷ ∘→_
 
 ------------------------------------------------------------------------
 -- Symmetry
@@ -147,8 +270,7 @@ opaque
   sym-⊩≡ :
     Γ ⊩⟨ l ⟩ A ≡ B →
     Γ ⊩⟨ l ⟩ B ≡ A
-  sym-⊩≡ (⊩A , ⊩B , A≡B) =
-    ⊩B , ⊩A , symEq ⊩A ⊩B A≡B
+  sym-⊩≡ = H.sym-⊩≡ ∘→_
 
 opaque
   unfolding _⊩⟨_⟩_≡_∷_
@@ -158,8 +280,7 @@ opaque
   sym-⊩≡∷ :
     Γ ⊩⟨ l ⟩ t ≡ u ∷ A →
     Γ ⊩⟨ l ⟩ u ≡ t ∷ A
-  sym-⊩≡∷ (⊩A , ⊩t , ⊩u , t≡u) =
-    ⊩A , ⊩u , ⊩t , symEqTerm ⊩A t≡u
+  sym-⊩≡∷ = H.sym-⊩≡∷ ∘→_
 
 ------------------------------------------------------------------------
 -- Transitivity
@@ -173,8 +294,7 @@ opaque
     Γ ⊩⟨ l ⟩ A ≡ B →
     Γ ⊩⟨ l ⟩ B ≡ C →
     Γ ⊩⟨ l ⟩ A ≡ C
-  trans-⊩≡ (⊩A , _ , A≡B) (⊩B , ⊩C , B≡C) =
-    ⊩A , ⊩C , transEq ⊩A ⊩B ⊩C A≡B B≡C
+  trans-⊩≡ A≡B B≡C inc = H.trans-⊩≡ (A≡B inc) (B≡C inc)
 
 opaque
   unfolding _⊩⟨_⟩_≡_∷_
@@ -185,28 +305,26 @@ opaque
     Γ ⊩⟨ l′ ⟩ t ≡ u ∷ A →
     Γ ⊩⟨ l ⟩ u ≡ v ∷ A →
     Γ ⊩⟨ l ⟩ t ≡ v ∷ A
-  trans-⊩≡∷ (⊩A′ , ⊩t , _ , t≡u) (⊩A , _ , ⊩v , u≡v) =
-      ⊩A , irrelevanceTerm ⊩A′ ⊩A ⊩t , ⊩v
-    , transEqTerm ⊩A (irrelevanceEqTerm ⊩A′ ⊩A t≡u) u≡v
+  trans-⊩≡∷ t≡u u≡v inc = H.trans-⊩≡∷ (t≡u inc) (u≡v inc)
 
 ------------------------------------------------------------------------
 -- Well-formedness lemmas
 
 opaque
-  unfolding _⊩⟨_⟩_∷_
+  unfolding _⊩⟨_⟩_ _⊩⟨_⟩_∷_
 
   -- A well-formedness lemma for _⊩⟨_⟩_∷_.
 
   wf-⊩∷ : Γ ⊩⟨ l ⟩ t ∷ A → Γ ⊩⟨ l ⟩ A
-  wf-⊩∷ (⊩A , _) = ⊩A
+  wf-⊩∷ = H.wf-⊩∷ ∘→_
 
 opaque
-  unfolding _⊩⟨_⟩_≡_
+  unfolding _⊩⟨_⟩_ _⊩⟨_⟩_≡_
 
   -- A well-formedness lemma for _⊩⟨_⟩_≡_.
 
   wf-⊩≡ : Γ ⊩⟨ l ⟩ A ≡ B → Γ ⊩⟨ l ⟩ A × Γ ⊩⟨ l ⟩ B
-  wf-⊩≡ (⊩A , ⊩B , _) = ⊩A , ⊩B
+  wf-⊩≡ A≡B = proj₁ ∘→ H.wf-⊩≡ ∘→ A≡B , proj₂ ∘→ H.wf-⊩≡ ∘→ A≡B
 
 opaque
   unfolding _⊩⟨_⟩_∷_ _⊩⟨_⟩_≡_∷_
@@ -216,30 +334,32 @@ opaque
   wf-⊩≡∷ :
     Γ ⊩⟨ l ⟩ t ≡ u ∷ A →
     Γ ⊩⟨ l ⟩ t ∷ A × Γ ⊩⟨ l ⟩ u ∷ A
-  wf-⊩≡∷ (⊩A , ⊩t , ⊩u , _) = (⊩A , ⊩t) , (⊩A , ⊩u)
+  wf-⊩≡∷ t≡u = proj₁ ∘→ H.wf-⊩≡∷ ∘→ t≡u , proj₂ ∘→ H.wf-⊩≡∷ ∘→ t≡u
 
 ------------------------------------------------------------------------
 -- Some characterisation lemmas
 
 opaque
+  unfolding _⊩⟨_⟩_ _⊩⟨_⟩_≡_
 
   -- A characterisation lemma for _⊩⟨_⟩_.
 
   ⊩⇔⊩≡ : (Γ ⊩⟨ l ⟩ A) ⇔ Γ ⊩⟨ l ⟩ A ≡ A
-  ⊩⇔⊩≡ = refl-⊩≡ , proj₁ ∘→ wf-⊩≡
+  ⊩⇔⊩≡ = Π-cong-⇔ λ _ → H.⊩⇔⊩≡
 
 opaque
+  unfolding _⊩⟨_⟩_∷_ _⊩⟨_⟩_≡_∷_
 
   -- A characterisation lemma for _⊩⟨_⟩_∷_.
 
   ⊩∷⇔⊩≡∷ : Γ ⊩⟨ l ⟩ t ∷ A ⇔ Γ ⊩⟨ l ⟩ t ≡ t ∷ A
-  ⊩∷⇔⊩≡∷ = refl-⊩≡∷ , proj₁ ∘→ wf-⊩≡∷
+  ⊩∷⇔⊩≡∷ = Π-cong-⇔ λ _ → H.⊩∷⇔⊩≡∷
 
 ------------------------------------------------------------------------
 -- Changing type levels
 
 opaque
-  unfolding _⊩⟨_⟩_≡_
+  unfolding _⊩⟨_⟩_ _⊩⟨_⟩_≡_
 
   -- Changing type levels for _⊩⟨_⟩_≡_.
 
@@ -248,11 +368,10 @@ opaque
     Γ ⊩⟨ l ⟩ B →
     Γ ⊩⟨ l′ ⟩ A ≡ B →
     Γ ⊩⟨ l ⟩ A ≡ B
-  level-⊩≡ ⊩A ⊩B A≡B =
-    ⊩A , ⊩B , ⊩≡→⊩≡/ ⊩A A≡B
+  level-⊩≡ ⊩A ⊩B A≡B inc = H.level-⊩≡ (⊩A inc) (⊩B inc) (A≡B inc)
 
 opaque
-  unfolding _⊩⟨_⟩_≡_∷_
+  unfolding _⊩⟨_⟩_ _⊩⟨_⟩_≡_∷_
 
   -- Changing type levels for _⊩⟨_⟩_≡_∷_.
 
@@ -260,10 +379,7 @@ opaque
     Γ ⊩⟨ l ⟩ A →
     Γ ⊩⟨ l′ ⟩ t ≡ u ∷ A →
     Γ ⊩⟨ l ⟩ t ≡ u ∷ A
-  level-⊩≡∷ ⊩A t≡u =
-    case wf-⊩≡∷ t≡u of λ
-      (⊩t , ⊩u) →
-    ⊩A , ⊩∷→⊩∷/ ⊩A ⊩t , ⊩∷→⊩∷/ ⊩A ⊩u , ⊩≡∷→⊩≡∷/ ⊩A t≡u
+  level-⊩≡∷ ⊩A t≡u inc = H.level-⊩≡∷ (⊩A inc) (t≡u inc)
 
 opaque
 
@@ -288,11 +404,7 @@ opaque
     Γ ⊩⟨ l ⟩ A ≡ B →
     Γ ⊩⟨ l′ ⟩ t ≡ u ∷ A →
     Γ ⊩⟨ l ⟩ t ≡ u ∷ B
-  conv-⊩≡∷ (⊩A , ⊩B , A≡B) (⊩A′ , ⊩t , ⊩u , t≡u) =
-    case irrelevanceEq ⊩A ⊩A′ A≡B of λ
-      A≡B →
-      ⊩B , convTerm₁ ⊩A′ ⊩B A≡B ⊩t , convTerm₁ ⊩A′ ⊩B A≡B ⊩u
-    , convEqTerm₁ ⊩A′ ⊩B A≡B t≡u
+  conv-⊩≡∷ A≡B t≡u inc = H.conv-⊩≡∷ (A≡B inc) (t≡u inc)
 
 opaque
 
@@ -309,20 +421,21 @@ opaque
 -- Weakening
 
 opaque
-
-  -- Weakening for _⊩⟨_⟩_.
-
-  wk-⊩ : ρ ∷ʷʳ Δ ⊇ Γ → Γ ⊩⟨ l ⟩ A → Δ ⊩⟨ l ⟩ wk ρ A
-  wk-⊩ = W.wk
-
-opaque
   unfolding _⊩⟨_⟩_≡_
 
   -- Weakening for _⊩⟨_⟩_≡_.
 
-  wk-⊩≡ : ρ ∷ʷʳ Δ ⊇ Γ → Γ ⊩⟨ l ⟩ A ≡ B → Δ ⊩⟨ l ⟩ wk ρ A ≡ wk ρ B
-  wk-⊩≡ Δ⊇Γ (⊩A , ⊩B , A≡B) =
-    W.wk Δ⊇Γ ⊩A , W.wk Δ⊇Γ ⊩B , W.wkEq Δ⊇Γ ⊩A A≡B
+  wk-⊩≡ : ρ ∷ʷ Δ ⊇ Γ → Γ ⊩⟨ l ⟩ A ≡ B → Δ ⊩⟨ l ⟩ wk ρ A ≡ wk ρ B
+  wk-⊩≡ Δ⊇Γ A≡B inc =
+    let Δ⊇Γ = ∷ʷ⊇→∷ʷʳ⊇ inc Δ⊇Γ in
+    H.wk-⊩≡ Δ⊇Γ $ A≡B $ wk-Neutrals-included-or-empty Δ⊇Γ .proj₁ inc
+
+opaque
+
+  -- Weakening for _⊩⟨_⟩_.
+
+  wk-⊩ : ρ ∷ʷ Δ ⊇ Γ → Γ ⊩⟨ l ⟩ A → Δ ⊩⟨ l ⟩ wk ρ A
+  wk-⊩ Δ⊇Γ = ⊩⇔⊩≡ .proj₂ ∘→ wk-⊩≡ Δ⊇Γ ∘→ ⊩⇔⊩≡ .proj₁
 
 opaque
   unfolding _⊩⟨_⟩_≡_∷_
@@ -330,29 +443,28 @@ opaque
   -- Weakening for _⊩⟨_⟩_≡_∷_.
 
   wk-⊩≡∷ :
-    ρ ∷ʷʳ Δ ⊇ Γ → Γ ⊩⟨ l ⟩ t ≡ u ∷ A →
-    Δ ⊩⟨ l ⟩ wk ρ t ≡ wk ρ u ∷ wk ρ A
-  wk-⊩≡∷ Δ⊇Γ (⊩A , ⊩t , ⊩u , t≡u) =
-      W.wk Δ⊇Γ ⊩A , W.wkTerm Δ⊇Γ ⊩A ⊩t , W.wkTerm Δ⊇Γ ⊩A ⊩u
-    , W.wkEqTerm Δ⊇Γ ⊩A t≡u
+    ρ ∷ʷ Δ ⊇ Γ → Γ ⊩⟨ l ⟩ t ≡ u ∷ A → Δ ⊩⟨ l ⟩ wk ρ t ≡ wk ρ u ∷ wk ρ A
+  wk-⊩≡∷ Δ⊇Γ t≡u inc =
+    let Δ⊇Γ = ∷ʷ⊇→∷ʷʳ⊇ inc Δ⊇Γ in
+    H.wk-⊩≡∷ Δ⊇Γ $ t≡u $ wk-Neutrals-included-or-empty Δ⊇Γ .proj₁ inc
 
 opaque
 
   -- Weakening for _⊩⟨_⟩_∷_.
 
-  wk-⊩∷ : ρ ∷ʷʳ Δ ⊇ Γ → Γ ⊩⟨ l ⟩ t ∷ A → Δ ⊩⟨ l ⟩ wk ρ t ∷ wk ρ A
+  wk-⊩∷ : ρ ∷ʷ Δ ⊇ Γ → Γ ⊩⟨ l ⟩ t ∷ A → Δ ⊩⟨ l ⟩ wk ρ t ∷ wk ρ A
   wk-⊩∷ Δ⊇Γ = ⊩∷⇔⊩≡∷ .proj₂ ∘→ wk-⊩≡∷ Δ⊇Γ ∘→ ⊩∷⇔⊩≡∷ .proj₁
 
 ------------------------------------------------------------------------
 -- Reduction
 
 opaque
-  unfolding _⊩⟨_⟩_≡_
+  unfolding _⊩⟨_⟩_ _⊩⟨_⟩_≡_
 
   -- A reduction lemma for _⊩⟨_⟩_.
 
   ⊩-⇒* : Γ ⊢ A ⇒* B → Γ ⊩⟨ l ⟩ A → Γ ⊩⟨ l ⟩ A ≡ B
-  ⊩-⇒* A⇒*B ⊩A = ⊩A , redSubst*′ A⇒*B ⊩A
+  ⊩-⇒* A⇒*B = H.⊩-⇒* A⇒*B ∘→_
 
 opaque
   unfolding _⊩⟨_⟩_∷_ _⊩⟨_⟩_≡_∷_
@@ -363,22 +475,18 @@ opaque
     Γ ⊢ t ⇒* u ∷ A →
     Γ ⊩⟨ l ⟩ t ∷ A →
     Γ ⊩⟨ l ⟩ t ≡ u ∷ A
-  ⊩∷-⇒* t⇒*u (⊩A , ⊩t) =
-    ⊩A , ⊩t , redSubst*Term′ t⇒*u ⊩A ⊩t
+  ⊩∷-⇒* t⇒*u = H.⊩∷-⇒* t⇒*u ∘→_
 
 ------------------------------------------------------------------------
 -- Expansion
 
 opaque
-  unfolding _⊩⟨_⟩_≡_
+  unfolding _⊩⟨_⟩_ _⊩⟨_⟩_≡_
 
   -- An expansion lemma for _⊩⟨_⟩_.
 
   ⊩-⇐* : Γ ⊢ A ⇒* B → Γ ⊩⟨ l ⟩ B → Γ ⊩⟨ l ⟩ A ≡ B
-  ⊩-⇐* A⇒*B ⊩B =
-    case redSubst* A⇒*B ⊩B of λ
-      (⊩A , A≡B) →
-    ⊩A , ⊩B , A≡B
+  ⊩-⇐* A⇒*B = H.⊩-⇐* A⇒*B ∘→_
 
 opaque
   unfolding _⊩⟨_⟩_∷_ _⊩⟨_⟩_≡_∷_
@@ -389,50 +497,49 @@ opaque
     Γ ⊢ t ⇒* u ∷ A →
     Γ ⊩⟨ l ⟩ u ∷ A →
     Γ ⊩⟨ l ⟩ t ≡ u ∷ A
-  ⊩∷-⇐* t⇒*u (⊩A , ⊩u) =
-    case redSubst*Term t⇒*u ⊩A ⊩u of λ
-      (⊩t , t≡u) →
-    ⊩A , ⊩t , ⊩u , t≡u
+  ⊩∷-⇐* t⇒*u = H.⊩∷-⇐* t⇒*u ∘→_
 
 ------------------------------------------------------------------------
 -- Escape lemmas
 
 opaque
+  unfolding _⊩⟨_⟩_
 
   -- An escape lemma for _⊩⟨_⟩_.
 
-  escape-⊩ : Γ ⊩⟨ l ⟩ A → Γ ⊢ A
-  escape-⊩ = escape
+  escape-⊩ : Neutrals-included-or-empty Γ → Γ ⊩⟨ l ⟩ A → Γ ⊢ A
+  escape-⊩ inc ⊩A = H.escape-⊩ (⊩A inc)
 
 opaque
   unfolding _⊩⟨_⟩_∷_
 
   -- An escape lemma for _⊩⟨_⟩_∷_.
 
-  escape-⊩∷ : Γ ⊩⟨ l ⟩ t ∷ A → Γ ⊢ t ∷ A
-  escape-⊩∷ (⊩A , ⊩t) = escapeTerm ⊩A ⊩t
+  escape-⊩∷ : Neutrals-included-or-empty Γ → Γ ⊩⟨ l ⟩ t ∷ A → Γ ⊢ t ∷ A
+  escape-⊩∷ inc ⊩t = H.escape-⊩∷ (⊩t inc)
 
 opaque
   unfolding _⊩⟨_⟩_≡_
 
   -- An escape lemma for _⊩⟨_⟩_≡_.
 
-  escape-⊩≡ : Γ ⊩⟨ l ⟩ A ≡ B → Γ ⊢ A ≅ B
-  escape-⊩≡ (⊩A , _ , A≡B) = escapeEq ⊩A A≡B
+  escape-⊩≡ : Neutrals-included-or-empty Γ → Γ ⊩⟨ l ⟩ A ≡ B → Γ ⊢ A ≅ B
+  escape-⊩≡ inc A≡B = H.escape-⊩≡ (A≡B inc)
 
 opaque
   unfolding _⊩⟨_⟩_≡_∷_
 
   -- An escape lemma for _⊩⟨_⟩_≡_∷_.
 
-  escape-⊩≡∷ : Γ ⊩⟨ l ⟩ t ≡ u ∷ A → Γ ⊢ t ≅ u ∷ A
-  escape-⊩≡∷ (⊩A , _ , _ , t≡u) = escapeTermEq ⊩A t≡u
+  escape-⊩≡∷ :
+    Neutrals-included-or-empty Γ → Γ ⊩⟨ l ⟩ t ≡ u ∷ A → Γ ⊢ t ≅ u ∷ A
+  escape-⊩≡∷ inc t≡u = H.escape-⊩≡∷ (t≡u inc)
 
 ------------------------------------------------------------------------
 -- Equational reasoning combinators
 
 -- For more explanations of the combinators, see
--- Definition.Typed.Reasoning.Reduction.
+-- Definition.Typed.Reasoning.Reduction.Primitive.
 
 opaque
 
@@ -471,7 +578,7 @@ opaque
   syntax step-⊩≡⇒* A B≡C A⇒*B = A ⇒*⟨ A⇒*B ⟩⊩ B≡C
 
   step-⊩≡⇒ : ∀ A → Γ ⊩⟨ l ⟩ B ≡ C → Γ ⊢ A ⇒ B → Γ ⊩⟨ l ⟩ A ≡ C
-  step-⊩≡⇒ _ B≡C A⇒B = step-⊩≡⇒* _ B≡C (redMany-⊢ A⇒B)
+  step-⊩≡⇒ _ B≡C = step-⊩≡⇒* _ B≡C ∘→ redMany-⊢
 
   syntax step-⊩≡⇒ A B≡C A⇒B = A ⇒⟨ A⇒B ⟩⊩ B≡C
 
@@ -482,7 +589,7 @@ opaque
   syntax step-⊩≡⇐* A B≡C B⇒*A = A ⇐*⟨ B⇒*A ⟩⊩ B≡C
 
   step-⊩≡⇐ : ∀ A → Γ ⊩⟨ l ⟩ B ≡ C → Γ ⊢ B ⇒ A → Γ ⊩⟨ l ⟩ A ≡ C
-  step-⊩≡⇐ _ B≡C B⇒A = step-⊩≡⇐* _ B≡C (redMany-⊢ B⇒A)
+  step-⊩≡⇐ _ B≡C = step-⊩≡⇐* _ B≡C ∘→ redMany-⊢
 
   syntax step-⊩≡⇐ A B≡C B⇒A = A ⇐⟨ B⇒A ⟩⊩ B≡C
 
@@ -519,8 +626,7 @@ opaque
 
   syntax finally-⊩≡⇐* A C⇒*B A≡B = A ≡⟨ A≡B ⟩⊩⇐* C⇒*B
 
-  finally-⊩≡⇒* :
-    ∀ A → Γ ⊢ B ⇒* C → Γ ⊩⟨ l ⟩ A ≡ B → Γ ⊩⟨ l ⟩ A ≡ C
+  finally-⊩≡⇒* : ∀ A → Γ ⊢ B ⇒* C → Γ ⊩⟨ l ⟩ A ≡ B → Γ ⊩⟨ l ⟩ A ≡ C
   finally-⊩≡⇒* _ B⇒*C A≡B =
     case wf-⊩≡ A≡B of λ
       (_ , ⊩B) →
@@ -572,7 +678,7 @@ opaque
 
   step-⊩≡∷⇒ :
     ∀ t → Γ ⊩⟨ l ⟩ u ≡ v ∷ A → Γ ⊢ t ⇒ u ∷ A → Γ ⊩⟨ l ⟩ t ≡ v ∷ A
-  step-⊩≡∷⇒ _ u≡v t⇒u = step-⊩≡∷⇒* _ u≡v (redMany t⇒u)
+  step-⊩≡∷⇒ _ u≡v = step-⊩≡∷⇒* _ u≡v ∘→ redMany
 
   syntax step-⊩≡∷⇒ t u≡v t⇒u = t ⇒⟨ t⇒u ⟩⊩∷ u≡v
 
@@ -584,9 +690,8 @@ opaque
   syntax step-⊩≡∷⇐* t u≡v u⇒*t = t ⇐*⟨ u⇒*t ⟩⊩∷ u≡v
 
   step-⊩≡∷⇐ :
-    ∀ t → Γ ⊩⟨ l ⟩ u ≡ v ∷ A → Γ ⊢ u ⇒ t ∷ A →
-    Γ ⊩⟨ l ⟩ t ≡ v ∷ A
-  step-⊩≡∷⇐ _ u≡v u⇒t = step-⊩≡∷⇐* _ u≡v (redMany u⇒t)
+    ∀ t → Γ ⊩⟨ l ⟩ u ≡ v ∷ A → Γ ⊢ u ⇒ t ∷ A → Γ ⊩⟨ l ⟩ t ≡ v ∷ A
+  step-⊩≡∷⇐ _ u≡v = step-⊩≡∷⇐* _ u≡v ∘→ redMany
 
   syntax step-⊩≡∷⇐ t u≡v u⇒t = t ⇐⟨ u⇒t ⟩⊩∷ u≡v
 
@@ -718,7 +823,7 @@ opaque
     ∀ t A → Γ ⊩⟨ l ⟩ u ≡ v ∷ A → Γ ⊢ u ⇒ t ∷ A → Γ ⊩⟨ l ⟩ t ≡ v ∷ A
   step-⊩≡∷∷⇐ _ _ = step-⊩≡∷⇐ _
 
-  syntax step-⊩≡∷∷⇐ t A u≡v u⇒t = t ∷ A ⇐⟨ u⇒t ⟩⊩∷∷ u≡v
+  syntax step-⊩≡∷∷⇐ t A u≡v u⇒t ⊢t = t ∷ A ⇐⟨ u⇒t , ⊢t ⟩⊩∷∷ u≡v
 
   _∷_≡⟨⟩⊩∷∷_ : ∀ t A → Γ ⊩⟨ l ⟩ t ≡ u ∷ A → Γ ⊩⟨ l ⟩ t ≡ u ∷ A
   _ ∷ _ ≡⟨⟩⊩∷∷ t≡u = t≡u
@@ -788,7 +893,7 @@ opaque
 -- Embedding
 
 opaque
-  unfolding emb-≤-⊩
+  unfolding _⊩⟨_⟩_
 
   -- Embedding for _⊩⟨_⟩_.
 
@@ -796,7 +901,7 @@ opaque
     l ≤ᵘ l′ →
     Γ ⊩⟨ l ⟩ A →
     Γ ⊩⟨ l′ ⟩ A
-  emb-⊩ = emb-≤-⊩
+  emb-⊩ p = H.emb-⊩ p ∘→_
 
 opaque
   unfolding _⊩⟨_⟩_≡_
@@ -807,12 +912,7 @@ opaque
     l ≤ᵘ l′ →
     Γ ⊩⟨ l ⟩ A ≡ B →
     Γ ⊩⟨ l′ ⟩ A ≡ B
-  emb-⊩≡ ≤ᵘ-refl        A≡B             = A≡B
-  emb-⊩≡ (≤ᵘ-step l<l′) (⊩A , ⊩B , A≡B) =
-    let p = 1+≤ᵘ1+ l<l′ in
-      emb p (⊩<⇔⊩ p .proj₂ ⊩A)
-    , emb p (⊩<⇔⊩ p .proj₂ ⊩B)
-    , ⊩<≡⇔⊩≡′ p .proj₂ A≡B
+  emb-⊩≡ p = H.emb-⊩≡ p ∘→_
 
 opaque
   unfolding _⊩⟨_⟩_≡_∷_
@@ -823,17 +923,10 @@ opaque
     l ≤ᵘ l′ →
     Γ ⊩⟨ l ⟩ t ≡ u ∷ A →
     Γ ⊩⟨ l′ ⟩ t ≡ u ∷ A
-  emb-⊩≡∷ ≤ᵘ-refl        t≡u                  = t≡u
-  emb-⊩≡∷ (≤ᵘ-step l<l′) (⊩A , ⊩t , ⊩u , t≡u) =
-    let p   = 1+≤ᵘ1+ l<l′
-        ⊩A′ = emb p (⊩<⇔⊩ p .proj₂ ⊩A)
-    in
-      ⊩A′
-    , irrelevanceTerm ⊩A ⊩A′ ⊩t
-    , irrelevanceTerm ⊩A ⊩A′ ⊩u
-    , irrelevanceEqTerm ⊩A ⊩A′ t≡u
+  emb-⊩≡∷ p = H.emb-⊩≡∷ p ∘→_
 
 opaque
+  unfolding _⊩⟨_⟩_∷_
 
   -- Embedding for _⊩⟨_⟩_∷_.
 
@@ -841,81 +934,38 @@ opaque
     l ≤ᵘ l′ →
     Γ ⊩⟨ l ⟩ t ∷ A →
     Γ ⊩⟨ l′ ⟩ t ∷ A
-  emb-⊩∷ l≤l′ =
-    ⊩∷⇔⊩≡∷ .proj₂ ∘→ emb-⊩≡∷ l≤l′ ∘→ ⊩∷⇔⊩≡∷ .proj₁
-
-------------------------------------------------------------------------
--- Some introduction lemmas
-
-opaque
-  unfolding _⊩⟨_⟩_∷_
-
-  -- An introduction lemma for _⊩⟨_⟩_∷_.
-
-  ⊩∷-intro :
-    (⊩A : Γ ⊩⟨ l ⟩ A) →
-    Γ ⊩⟨ l ⟩ t ∷ A / ⊩A →
-    Γ ⊩⟨ l ⟩ t ∷ A
-  ⊩∷-intro = _,_
-
-opaque
-  unfolding _⊩⟨_⟩_≡_
-
-  -- An introduction lemma for _⊩⟨_⟩_≡_.
-
-  ⊩≡-intro :
-    (⊩A : Γ ⊩⟨ l ⟩ A) →
-    Γ ⊩⟨ l ⟩ B →
-    Γ ⊩⟨ l ⟩ A ≡ B / ⊩A →
-    Γ ⊩⟨ l ⟩ A ≡ B
-  ⊩≡-intro ⊩A ⊩B A≡B = ⊩A , ⊩B , A≡B
-
-opaque
-  unfolding _⊩⟨_⟩_≡_∷_
-
-  -- An introduction lemma for _⊩⟨_⟩_≡_∷_.
-
-  ⊩≡∷-intro :
-    (⊩A : Γ ⊩⟨ l ⟩ A) →
-    Γ ⊩⟨ l ⟩ t ∷ A →
-    Γ ⊩⟨ l ⟩ u ∷ A →
-    Γ ⊩⟨ l ⟩ t ≡ u ∷ A / ⊩A →
-    Γ ⊩⟨ l ⟩ t ≡ u ∷ A
-  ⊩≡∷-intro ⊩A ⊩t ⊩u t≡u =
-    ⊩A , ⊩∷→⊩∷/ ⊩A ⊩t , ⊩∷→⊩∷/ ⊩A ⊩u , t≡u
+  emb-⊩∷ p = H.emb-⊩∷ p ∘→_
 
 ------------------------------------------------------------------------
 -- Neutral types and terms
 
 opaque
+  unfolding _⊩⟨_⟩_
 
-  -- Neutral types that satisfy certain properties are reducible (if
-  -- Neutrals-included holds).
+  -- Neutral types that satisfy certain properties are reducible.
 
   neutral-⊩ :
-    Neutrals-included →
     Neutral A →
     Γ ⊢≅ A →
     Γ ⊩⟨ l ⟩ A
-  neutral-⊩ = neu
+  neutral-⊩ A-ne ≅A inc =
+    H.neutral-⊩ (Neutral→Neutrals-included A-ne inc) A-ne ≅A
 
 opaque
-  unfolding _⊩⟨_⟩_∷_
+  unfolding _⊩⟨_⟩_ _⊩⟨_⟩_∷_
 
-  -- Neutral terms that satisfy certain properties are reducible (if
-  -- Neutrals-included holds).
+  -- Neutral terms that satisfy certain properties are reducible.
 
   neutral-⊩∷ :
-    Neutrals-included →
     Γ ⊩⟨ l ⟩ A →
     Neutral t →
     Γ ⊢~ t ∷ A →
     Γ ⊩⟨ l ⟩ t ∷ A
-  neutral-⊩∷ inc ⊩A t-ne t~t =
-    ⊩A , neuTerm inc ⊩A t-ne t~t
+  neutral-⊩∷ ⊩A t-ne ~t inc =
+    H.neutral-⊩∷ (Neutral→Neutrals-included t-ne inc) (⊩A inc) t-ne ~t
 
 opaque
-  unfolding _⊩⟨_⟩_≡_
+  unfolding _⊩⟨_⟩_ _⊩⟨_⟩_≡_
 
   -- Reducible equality holds between neutral types that satisfy
   -- certain properties.
@@ -927,28 +977,24 @@ opaque
     Neutral B →
     Γ ⊢ A ≅ B →
     Γ ⊩⟨ l ⟩ A ≡ B
-  neutral-⊩≡ ⊩A ⊩B A-ne B-ne A≅B =
-    ⊩A , ⊩B , neuEq ⊩A A-ne B-ne A≅B
+  neutral-⊩≡ ⊩A ⊩B A-ne B-ne A≅B inc =
+    H.neutral-⊩≡ (⊩A inc) (⊩B inc) A-ne B-ne A≅B
 
 opaque
-  unfolding _⊩⟨_⟩_≡_∷_
+  unfolding _⊩⟨_⟩_ _⊩⟨_⟩_≡_∷_
 
   -- Reducible equality holds between neutral terms that satisfy
-  -- certain properties (if Neutrals-included holds).
+  -- certain properties.
 
   neutral-⊩≡∷ :
-    Neutrals-included →
     Γ ⊩⟨ l ⟩ A →
     Neutral t →
     Neutral u →
     Γ ⊢ t ~ u ∷ A →
     Γ ⊩⟨ l ⟩ t ≡ u ∷ A
-  neutral-⊩≡∷ inc ⊩A t-ne u-ne t~u =
-    let ~t , ~u = wf-⊢~∷ t~u in
-      ⊩A
-    , neuTerm inc ⊩A t-ne ~t
-    , neuTerm inc ⊩A u-ne ~u
-    , neuEqTerm inc ⊩A t-ne u-ne t~u
+  neutral-⊩≡∷ ⊩A t-ne u-ne t~u inc =
+    H.neutral-⊩≡∷ (Neutral→Neutrals-included t-ne inc) (⊩A inc)
+      t-ne u-ne t~u
 
 opaque
 
@@ -956,49 +1002,38 @@ opaque
 
   ⊩ne⇔ :
     Neutral A →
-    Γ ⊩⟨ l ⟩ A ⇔ (Neutrals-included × Γ ⊢≅ A)
-  ⊩ne⇔ A-ne =
-      (λ ⊩A →
-         case extractMaybeEmb (ne-elim A-ne ⊩A) of λ {
-           (_ , ne inc _ A⇒*B _ B≅B) →
-         case whnfRed* A⇒*B (ne A-ne) of λ {
-           PE.refl →
-         inc , B≅B }})
-    , (λ (inc , A≅A) → neu inc A-ne A≅A)
+    Γ ⊩⟨ l ⟩ A ⇔ (Neutrals-included-or-empty Γ → Γ ⊢≅ A)
+  ⊩ne⇔ {A} {Γ} {l} A-ne =
+    Γ ⊩⟨ l ⟩ A                                                   ⇔⟨ ⊩⇔ ⟩
+    (Neutrals-included-or-empty Γ → Γ L.⊩⟨ l ⟩ A)                ⇔⟨ (Π-cong-⇔ λ _ → H.⊩ne⇔ A-ne) ⟩
+    (Neutrals-included-or-empty Γ → Neutrals-included × Γ ⊢≅ A)  ⇔⟨ (Π-cong-⇔ λ inc →
+                                                                       proj₂
+                                                                     , (Neutral→Neutrals-included A-ne inc ,_))
+                                                                  ⟩
+    (Neutrals-included-or-empty Γ → Γ ⊢≅ A)                      □⇔
 
 opaque
-  unfolding _⊩⟨_⟩_∷_ ⊩ne⇔ neu
 
   -- A characterisation lemma for _⊩⟨_⟩_∷_.
 
   ⊩∷ne⇔ :
     Neutral A →
     Γ ⊩⟨ l ⟩ t ∷ A ⇔
-    (Neutrals-included × Γ ⊢≅ A ×
-     ∃ λ u → Γ ⊢ t ⇒* u ∷ A × Neutral u × Γ ⊢~ u ∷ A)
-  ⊩∷ne⇔ {A} A-ne =
-      (λ (⊩A , ⊩t) →
-         case ne-elim A-ne ⊩A of λ
-           ⊩A′ →
-         Σ.map idᶠ (⊩ne⇔ A-ne .proj₁ ⊩A .proj₂ ,_)
-           (lemma ⊩A′ (irrelevanceTerm ⊩A (ne-intr ⊩A′) ⊩t)))
-    , (λ (inc , ≅A , u , t⇒*u , u-ne , u~u) →
-           ⊩ne⇔ A-ne .proj₂ (inc , ≅A)
-         , neₜ u t⇒*u (neNfₜ inc u-ne u~u))
-    where
-    lemma :
-      (⊩A : Γ ⊩⟨ l ⟩ne A) →
-      Γ ⊩⟨ l ⟩ t ∷ A / ne-intr ⊩A →
-      Neutrals-included ×
-      ∃ λ u → Γ ⊢ t ⇒* u ∷ A × Neutral u × Γ ⊢~ u ∷ A
-    lemma (emb ≤ᵘ-refl ⊩A) ⊩t =
-      lemma ⊩A ⊩t
-    lemma (emb (≤ᵘ-step l<) ⊩A) ⊩t =
-      lemma (emb l< ⊩A) ⊩t
-    lemma (noemb (ne _ _ A⇒*A′ _ _)) (neₜ u t⇒*u (neNfₜ inc u-ne u~u)) =
-      case whnfRed* A⇒*A′ (ne A-ne) of λ {
-        PE.refl →
-      inc , u , t⇒*u , u-ne , u~u }
+    (Neutrals-included-or-empty Γ →
+     Γ ⊢≅ A × ∃ λ u → Γ ⊢ t ⇒* u ∷ A × Neutral u × Γ ⊢~ u ∷ A)
+  ⊩∷ne⇔ {A} {Γ} {l} {t} A-ne =
+    Γ ⊩⟨ l ⟩ t ∷ A                                              ⇔⟨ ⊩∷⇔ ⟩
+
+    (Neutrals-included-or-empty Γ → Γ H.⊩⟨ l ⟩ t ∷ A)           ⇔⟨ (Π-cong-⇔ λ _ → H.⊩∷ne⇔ A-ne) ⟩
+
+    (Neutrals-included-or-empty Γ →
+     Neutrals-included × Γ ⊢≅ A ×
+     ∃ λ u → Γ ⊢ t ⇒* u ∷ A × Neutral u × Γ ⊢~ u ∷ A)           ⇔⟨ (Π-cong-⇔ λ inc →
+                                                                      proj₂
+                                                                    , (Neutral→Neutrals-included A-ne inc ,_))
+                                                                 ⟩
+    (Neutrals-included-or-empty Γ →
+     Γ ⊢≅ A × ∃ λ u → Γ ⊢ t ⇒* u ∷ A × Neutral u × Γ ⊢~ u ∷ A)  □⇔
 
 opaque
   unfolding _⊩⟨_⟩_≡_
@@ -1008,34 +1043,19 @@ opaque
   ⊩ne≡⇔ :
     Neutral A →
     Γ ⊩⟨ l ⟩ A ≡ B ⇔
-    (Neutrals-included × ∃ λ C → Neutral C × Γ ⊢ B ⇒* C × Γ ⊢ A ≅ C)
-  ⊩ne≡⇔ {A} {B} A-ne =
-      (λ (⊩A , ⊩B , A≡B) →
-         case ne-elim A-ne ⊩A of λ
-           ⊩A′ →
-         lemma ⊩A′ (irrelevanceEq ⊩A (ne-intr ⊩A′) A≡B))
-    , (λ (inc , C , C-ne , B⇒*C , A≅C) →
-         let ≅A , ≅C = wf-⊢≅ A≅C in
-         sym-⊩≡
-           (B  ⇒*⟨ B⇒*C ⟩⊩
-            C  ≡⟨ neutral-⊩≡
-                    (⊩ne⇔ C-ne .proj₂ (inc , ≅C))
-                    (⊩ne⇔ A-ne .proj₂ (inc , ≅A))
-                    C-ne A-ne (≅-sym A≅C) ⟩⊩∎
-            A  ∎))
-    where
-    lemma :
-      (⊩A : Γ ⊩⟨ l ⟩ne A) →
-      Γ ⊩⟨ l ⟩ A ≡ B / ne-intr ⊩A →
-      Neutrals-included × ∃ λ C → Neutral C × Γ ⊢ B ⇒* C × Γ ⊢ A ≅ C
-    lemma (emb ≤ᵘ-refl ⊩A) A≡B =
-      lemma ⊩A A≡B
-    lemma (emb (≤ᵘ-step l<) ⊩A) A≡B =
-      lemma (emb l< ⊩A) A≡B
-    lemma (noemb (ne _ _ A⇒*A′ _ _)) (ne₌ inc C B⇒*C C-ne A′≅C) =
-      case whnfRed* A⇒*A′ (ne A-ne) of λ {
-        PE.refl →
-      inc , C , C-ne , B⇒*C , A′≅C }
+    (Neutrals-included-or-empty Γ →
+     ∃ λ C → Neutral C × Γ ⊢ B ⇒* C × Γ ⊢ A ≅ C)
+  ⊩ne≡⇔ {A} {Γ} {l} {B} A-ne =
+    Γ ⊩⟨ l ⟩ A ≡ B                                                    ⇔⟨ ⊩≡⇔ ⟩
+
+    (Neutrals-included-or-empty Γ → Γ H.⊩⟨ l ⟩ A ≡ B)                 ⇔⟨ (Π-cong-⇔ λ _ → H.⊩ne≡⇔ A-ne) ⟩
+
+    (Neutrals-included-or-empty Γ →
+     Neutrals-included × ∃ λ C → Neutral C × Γ ⊢ B ⇒* C × Γ ⊢ A ≅ C)  ⇔⟨ (Π-cong-⇔ λ inc →
+                                                                            proj₂
+                                                                          , (Neutral→Neutrals-included A-ne inc ,_)) ⟩
+    (Neutrals-included-or-empty Γ →
+     ∃ λ C → Neutral C × Γ ⊢ B ⇒* C × Γ ⊢ A ≅ C)                      □⇔
 
 opaque
 
@@ -1044,59 +1064,32 @@ opaque
   ⊩ne≡ne⇔ :
     Neutral A →
     Neutral B →
-    Γ ⊩⟨ l ⟩ A ≡ B ⇔ (Neutrals-included × Γ ⊢ A ≅ B)
+    Γ ⊩⟨ l ⟩ A ≡ B ⇔
+    (Neutrals-included-or-empty Γ → Γ ⊢ A ≅ B)
   ⊩ne≡ne⇔ {A} {B} {Γ} {l} A-ne B-ne =
-    Γ ⊩⟨ l ⟩ A ≡ B                                                    ⇔⟨ ⊩ne≡⇔ A-ne ⟩
-    (Neutrals-included × ∃ λ C → Neutral C × Γ ⊢ B ⇒* C × Γ ⊢ A ≅ C)  ⇔⟨ (Σ-cong-⇔ λ _ →
-                                                                            (λ (_ , _ , B⇒*C , A≅C) →
-                                                                               case whnfRed* B⇒*C (ne B-ne) of λ {
-                                                                                 PE.refl →
-                                                                               A≅C })
-                                                                          , (λ A≅B → _ , B-ne , id (wf-⊢≡ (≅-eq A≅B) .proj₂) , A≅B))
-                                                                       ⟩
-    Neutrals-included × Γ ⊢ A ≅ B                                     □⇔
+    Γ ⊩⟨ l ⟩ A ≡ B                                     ⇔⟨ ⊩≡⇔ ⟩
+
+    (Neutrals-included-or-empty Γ → Γ H.⊩⟨ l ⟩ A ≡ B)  ⇔⟨ (Π-cong-⇔ λ _ → H.⊩ne≡ne⇔ A-ne B-ne) ⟩
+
+    (Neutrals-included-or-empty Γ →
+     Neutrals-included × Γ ⊢ A ≅ B)                    ⇔⟨ (Π-cong-⇔ λ inc →
+                                                             proj₂
+                                                           , (Neutral→Neutrals-included A-ne inc ,_))
+                                                        ⟩
+
+    (Neutrals-included-or-empty Γ → Γ ⊢ A ≅ B)         □⇔
 
 opaque
-  unfolding _⊩⟨_⟩_≡_∷_ ⊩ne⇔ neu
+  unfolding _⊩⟨_⟩_≡_∷_ ⊩ne⇔
 
   -- A characterisation lemma for _⊩⟨_⟩_≡_∷_.
 
   ⊩≡∷ne⇔ :
     Neutral A →
     Γ ⊩⟨ l ⟩ t₁ ≡ t₂ ∷ A ⇔
-    (Γ ⊢≅ A ×
+    (Neutrals-included-or-empty Γ →
+     Γ ⊢≅ A ×
      ∃₂ λ u₁ u₂ →
      Γ ⊢ t₁ ⇒* u₁ ∷ A × Γ ⊢ t₂ ⇒* u₂ ∷ A ×
-     Γ ⊩neNf u₁ ≡ u₂ ∷ A)
-  ⊩≡∷ne⇔ {A} {l} A-ne =
-      (λ (⊩A , _ , _ , t₁≡t₂) →
-         case ne-elim A-ne ⊩A of λ
-           ⊩A′ →
-         ⊩ne⇔ A-ne .proj₁ ⊩A .proj₂ ,
-         lemma ⊩A′ (irrelevanceEqTerm ⊩A (ne-intr ⊩A′) t₁≡t₂))
-    , (λ (≅A , u₁ , u₂ , t₁⇒*u₁ , t₂⇒*u₂ ,
-          u₁≡u₂@(neNfₜ₌ inc u₁-ne u₂-ne u₁~u₂)) →
-         let ⊩A′       = ⊩ne⇔ A-ne .proj₂ (inc , ≅A)
-             ~u₁ , ~u₂ = wf-⊢~∷ u₁~u₂
-         in
-           ⊩A′
-         , ⊩∷→⊩∷/ {l′ = l} ⊩A′
-             (⊩∷ne⇔ A-ne .proj₂ (inc , ≅A , u₁ , t₁⇒*u₁ , u₁-ne , ~u₁))
-         , ⊩∷→⊩∷/ {l′ = l} ⊩A′
-             (⊩∷ne⇔ A-ne .proj₂ (inc , ≅A , u₂ , t₂⇒*u₂ , u₂-ne , ~u₂))
-         , neₜ₌ u₁ u₂ t₁⇒*u₁ t₂⇒*u₂ u₁≡u₂)
-    where
-    lemma :
-      ∀ {l} (⊩A : Γ ⊩⟨ l ⟩ne A) →
-      Γ ⊩⟨ l ⟩ t₁ ≡ t₂ ∷ A / ne-intr ⊩A →
-      ∃₂ λ u₁ u₂ →
-      Γ ⊢ t₁ ⇒* u₁ ∷ A × Γ ⊢ t₂ ⇒* u₂ ∷ A ×
-      Γ ⊩neNf u₁ ≡ u₂ ∷ A
-    lemma (emb ≤ᵘ-refl ⊩A) t₁≡t₂ =
-      lemma ⊩A t₁≡t₂
-    lemma (emb (≤ᵘ-step l<) ⊩A) t₁≡t₂ =
-      lemma (emb l< ⊩A) t₁≡t₂
-    lemma (noemb (ne _ _ A⇒*A′ _ _)) (neₜ₌ u₁ u₂ t₁⇒*u₁ t₂⇒*u₂ u₁≡u₂) =
-      case whnfRed* A⇒*A′ (ne A-ne) of λ {
-        PE.refl →
-      u₁ , u₂ , t₁⇒*u₁ , t₂⇒*u₂ , u₁≡u₂ }
+     Γ L.⊩neNf u₁ ≡ u₂ ∷ A)
+  ⊩≡∷ne⇔ A-ne = (Π-cong-⇔ λ _ → H.⊩≡∷ne⇔ A-ne) ∘⇔ ⊩≡∷⇔

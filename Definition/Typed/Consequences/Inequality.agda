@@ -57,7 +57,7 @@ opaque
      ¬ ShapeView Γ l₁ l₂ A B (A-intr ⊩A) (B-intr ⊩B)) →
     ¬ Γ ⊢ A ≡ B
   A≢B _ _ A-intr B-intr A-elim B-elim A≢B′ A≡B =
-    let _ , ⊩A , ⊩B , A≡B = reducible-⊩≡ A≡B
+    let _ , ⊩A , ⊩B , A≡B = reducible-⊩≡ (inj₁ _) A≡B
         _ , ⊩A′           = A-elim ⊩A
         _ , ⊩B′           = B-elim ⊩B
         A≡B′              = irrelevanceEq ⊩A (A-intr ⊩A′) A≡B
@@ -399,7 +399,7 @@ whnf≢ne :
   No-η-equality A → Whnf t → ¬ Neutral t → Neutral u →
   ¬ Γ ⊢ t ≡ u ∷ A
 whnf≢ne {A} {t} {u} ¬-A-η t-whnf ¬-t-ne u-ne t≡u =
-  case reducible-⊩≡∷ t≡u of λ
+  case reducible-⊩≡∷ (inj₁ _) t≡u of λ
     (_ , t≡u) →
   case wf-⊩∷ $ wf-⊩≡∷ t≡u .proj₁ of λ
     ⊩A →
@@ -429,9 +429,9 @@ whnf≢ne {A} {t} {u} ¬-A-η t-whnf ¬-t-ne u-ne t≡u =
       U.zero≢ne (u⇒*ne u⇒*zero) PE.refl
     (ℕᵣ _) (ℕₜ₌ _ _ _ u⇒*suc _ (sucᵣ _)) →
       U.suc≢ne (u⇒*ne u⇒*suc) PE.refl
-    (ℕᵣ _) (ℕₜ₌ _ _ t⇒*v _ _ (ne (neNfₜ₌ v-ne _ _))) →
+    (ℕᵣ _) (ℕₜ₌ _ _ t⇒*v _ _ (ne (neNfₜ₌ _ v-ne _ _))) →
       ¬t⇒*ne t⇒*v v-ne
-    (Emptyᵣ _) (Emptyₜ₌ _ _ t⇒*v _ _ (ne (neNfₜ₌ v-ne _ _))) →
+    (Emptyᵣ _) (Emptyₜ₌ _ _ t⇒*v _ _ (ne (neNfₜ₌ _ v-ne _ _))) →
       ¬t⇒*ne t⇒*v v-ne
     (Unitᵣ (Unitₜ A⇒*Unit _)) [t≡u] →
       case A⇒*no-η A⇒*Unit of λ where
@@ -439,11 +439,11 @@ whnf≢ne {A} {t} {u} ¬-A-η t-whnf ¬-t-ne u-ne t≡u =
         (U.Unitʷₙ not-ok) → case [t≡u] of λ where
           (Unitₜ₌ʷ _ _ _ d′ _ starᵣ _) →
             U.star≢ne (u⇒*ne d′) PE.refl
-          (Unitₜ₌ʷ _ _ d _ _ (ne (neNfₜ₌ neK _ _)) _) →
+          (Unitₜ₌ʷ _ _ d _ _ (ne (neNfₜ₌ _ neK _ _)) _) →
             ¬t⇒*ne d neK
           (Unitₜ₌ˢ _ _ (inj₂ ok)) →
             not-ok ok
-    (ne _) (neₜ₌ _ _ t⇒*v _ (neNfₜ₌ v-ne _ _)) →
+    (ne _) (neₜ₌ _ _ t⇒*v _ (neNfₜ₌ _ v-ne _ _)) →
       ¬t⇒*ne t⇒*v v-ne
     (Bᵣ BΠ! (Bᵣ _ _ A⇒*Π _ _ _ _ _)) _ →
       case A⇒*no-η A⇒*Π of λ where
@@ -459,8 +459,8 @@ whnf≢ne {A} {t} {u} ¬-A-η t-whnf ¬-t-ne u-ne t≡u =
       (_ , _ , _ , _ , _ , _ , _ , U.prodₙ , U.ne _  , ())
     (Idᵣ ⊩Id) t≡u@(_ , _ , t⇒*t′ , u⇒*u′ , _) →
       case ⊩Id≡∷-view-inhabited ⊩Id t≡u of λ where
-        (ne t′-ne _ _) → ¬t⇒*ne t⇒*t′ t′-ne
-        (rfl₌ _)       → U.rfl≢ne (u⇒*ne u⇒*u′) PE.refl
+        (ne _ t′-ne _ _) → ¬t⇒*ne t⇒*t′ t′-ne
+        (rfl₌ _)         → U.rfl≢ne (u⇒*ne u⇒*u′) PE.refl
     (Uᵣ _) (Uₜ₌ _ _ t⇒*A u⇒*B A-type B-type A≡B _ _ _) →
       case B-type of λ where
         U.Uₙ        → U.U≢ne     (u⇒*ne u⇒*B) PE.refl

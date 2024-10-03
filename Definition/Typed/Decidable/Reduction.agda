@@ -31,6 +31,7 @@ open import Tools.Function
 open import Tools.Nat
 open import Tools.Product
 import Tools.Relation as Dec
+open import Tools.Sum
 
 private
   variable
@@ -87,7 +88,7 @@ private opaque
   isΠΣ′ (Unitᵣ (Unitₜ A⇒*Unit _)) =
     no λ (_ , _ , _ , _ , _ , A⇒*W) →
     Unit≢ΠΣⱼ (trans (sym (subset* A⇒*Unit)) (subset* A⇒*W))
-  isΠΣ′ (ne′ _ A⇒*B B-ne _) =
+  isΠΣ′ (ne′ _ _ A⇒*B B-ne _) =
     no λ (_ , _ , _ , _ , _ , A⇒*W) →
     I.ΠΣ≢ne B-ne (trans (sym (subset* A⇒*W)) (subset* A⇒*B))
   isΠΣ′ (Πᵣ′ _ _ A⇒*ΠΣ _ _ _ _ _) =
@@ -107,7 +108,7 @@ opaque
   -- not reduce to) either a Π-type or a Σ-type.
 
   isΠΣ : Γ ⊢ A → Dec (∃₅ λ b p q B C → Γ ⊢ A ⇒* ΠΣ⟨ b ⟩ p , q ▷ B ▹ C)
-  isΠΣ ⊢A = isΠΣ′ (reducible-⊩ ⊢A .proj₂)
+  isΠΣ ⊢A = isΠΣ′ (reducible-⊩ (inj₁ _) ⊢A .proj₂)
 
 opaque
 
@@ -165,7 +166,7 @@ opaque
   -- type.
 
   is-Id : Γ ⊢ A → Dec (∃₃ λ B t u → Γ ⊢ A ⇒* Id B t u)
-  is-Id = helper ∘→ proj₂ ∘→ reducible-⊩
+  is-Id = helper ∘→ proj₂ ∘→ reducible-⊩ (inj₁ _)
     where
     helper : Γ ⊩⟨ l ⟩ A → Dec (∃₃ λ B t u → Γ ⊢ A ⇒* Id B t u)
     helper (Uᵣ ⊩U) =
