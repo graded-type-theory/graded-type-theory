@@ -13,11 +13,13 @@ open import Relation.Nullary.Decidable public
   using (_×-dec_)
 
 open import Tools.Relation
+open import Tools.Sum
 
 private variable
   a b c d e f g h i : Level
   A B               : Set _
-  P                 : A → Set _
+  P Q               : A → Set _
+  x y               : A
 
 -- 4-tuples.
 
@@ -121,3 +123,13 @@ yes a ×-dec′ d with d a
 Σ-dec (yes a) irr d with d a
 … | yes b = yes (a , b)
 … | no ¬B = no (λ (_ , b) → ¬B (irr _ _ b))
+
+-- A variant of _×-dec_ for Dec-∀.
+
+infixr 2 _×-Dec-∀_
+
+_×-Dec-∀_ :
+  Dec-∀ P x → Dec-∀ Q y → Dec-∀ (λ (x , y) → P x × Q y) (x , y)
+inj₂ ¬P ×-Dec-∀ _       = inj₂ (λ _ (p , _) → ¬P _ p)
+inj₁ _  ×-Dec-∀ inj₂ ¬Q = inj₂ (λ _ (_ , q) → ¬Q _ q)
+inj₁ p  ×-Dec-∀ inj₁ q  = inj₁ (p , q)

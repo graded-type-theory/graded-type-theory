@@ -9,11 +9,11 @@ module Everything where
 
 import Tools.Level
 import Tools.Unit
+import Tools.Sum
 import Tools.Relation
 import Tools.Product
 import Tools.PropositionalEquality
 import Tools.Empty
-import Tools.Sum
 import Tools.Function
 import Tools.Bool
 import Tools.Nat
