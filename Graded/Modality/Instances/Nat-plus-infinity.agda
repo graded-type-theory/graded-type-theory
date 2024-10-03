@@ -2,7 +2,7 @@
 -- A modality for the natural numbers extended with infinity
 ------------------------------------------------------------------------
 
-open import Tools.Bool hiding (_∧_)
+open import Tools.Bool hiding (_∧_; ∧-decreasingˡ; ∧-decreasingʳ)
 
 module Graded.Modality.Instances.Nat-plus-infinity
   -- Should the total order be used (as opposed to the flat)

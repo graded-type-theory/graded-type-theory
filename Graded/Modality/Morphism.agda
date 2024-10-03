@@ -4,7 +4,7 @@
 
 module Graded.Modality.Morphism where
 
-open import Tools.Bool
+open import Tools.Bool hiding (∧-decreasingˡ)
 open import Tools.Empty
 open import Tools.Function
 open import Tools.Level
