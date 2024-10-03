@@ -138,10 +138,10 @@ data _⇒ₛ_ {m′ m n} : State m′ m n → State m′ m n → Set a where
        → ⟨ H , t , ρ , sucₑ ∙ S ⟩ ⇒ₛ ⟨ H , suc t , ρ , S ⟩
 
 
--- The main reductio relation is the conjunction of the three relations
+-- The main reduction relation is the conjunction of the three relations
 -- described above.
 -- The reduction _⇒ₛ_ is included only if evaluation under suc is allowed
--- as specified by the Options
+-- as specified by the Options.
 
 infix 30 ⇒ₙ_
 infix 30 ⇒ᵥ_
@@ -153,7 +153,7 @@ data _⇒_ (s : State k m n) : State k m′ n′ → Set a where
   ⇒ᵥ_ : {s′ : State k m′ n′} → s ⇒ᵥ s′ → s ⇒ s′
   ⇒ₛ_ : {s′ : State k m n} → ⦃ ℕ-Fullred ⦄ → s ⇒ₛ s′ → s ⇒ s′
 
--- Reflexive, transistive closure of the reduction relation
+-- Reflexive, transitive closure of the reduction relation.
 
 infixr 30 _⇨_
 infix 28 _⇒*_

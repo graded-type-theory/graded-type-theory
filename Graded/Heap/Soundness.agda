@@ -66,8 +66,7 @@ open import Graded.Heap.Typed.Properties UR TR
 open import Graded.Heap.Reduction type-variant UR (tracking-and-ℕ-fullred-if true)
 open import Graded.Heap.Reduction.Properties type-variant UR (tracking-and-ℕ-fullred-if true)
   using (_⇨*_; ++sucₛ-⇒*)
-open import Graded.Heap.Reduction.Properties type-variant UR (not-tracking-and-ℕ-fullred-if false)
-  using (⇒ₙ*_)
+
 
 private variable
   k : Nat
@@ -85,8 +84,8 @@ opaque
   -- All well-typed and well-resourced states of type ℕ reduce to numerals
 
   redNumeral : (Emptyrec-allowed 𝟙ᵐ 𝟘 → Consistent Δ)
-             → Δ ⊩ℕ n ∷ℕ → n PE.≡ ⦅ s ⦆ → Δ ⨾ Γ ⊢ s ∷ ℕ → γ ⨾ δ ⨾ η ▸[ m ] s
-             → ∃₄ λ m n H (ρ : Wk m n) → ∃ λ t → s ⇒* ⟨ H , t , ρ , ε ⟩ × Numeral t
+             → Δ ⊩ℕ n ∷ℕ → n PE.≡ ⦅ s ⦆ → Δ ⨾ Γ ⊢ s ∷ ℕ → γ ⨾ δ ⨾ η ▸ s
+             → ∃₅ λ m n H (ρ : Wk m n) t → s ⇒* ⟨ H , t , ρ , ε ⟩ × Numeral t
   redNumeral consistent (ℕₜ _ d n≡n (sucᵣ x)) PE.refl ⊢s ▸s =
     case whBisim consistent (redₜ d , sucₙ) ⊢s ▸s of λ
       (_ , _ , H , t , ρ , d′ , ≡u , v) →
@@ -107,13 +106,13 @@ opaque
     case inversion-suc ⊢t of λ
       (⊢n″ , ≡ℕ) →
     case URᶠ.▸-⇒* ▸s d′ of λ
-      (_ , _ , _ , _ , ▸H , ▸t , ▸ε , m≤ , γ≤) →
+      (_ , _ , _ , ▸H , ▸t , ▸ε , γ≤) →
     case inv-usage-suc ▸t of λ
       (invUsageSuc ▸n″ δ≤)  →
     case redNumeral {s = ⟨ H , n″ , ρ , ε ⟩} consistent x
           (PE.sym (PE.trans (PE.cong (_[ H ]ₕ) ≡n′) ≡n))
           (_ , ⊢H , ⊢n″ , ε)
-          (▸H , ▸n″ , ▸ε , m≤ , ≤ᶜ-trans γ≤ (+ᶜ-monotoneˡ (·ᶜ-monotoneʳ (wk-≤ᶜ ρ δ≤)))) of λ
+          (▸H , ▸n″ , ▸ε , ≤ᶜ-trans γ≤ (+ᶜ-monotoneˡ (·ᶜ-monotoneʳ (wk-≤ᶜ ρ δ≤)))) of λ
       (_ , _ , H′ , ρ′ , t′ , d₀ , n) →
     _ , _ , _ , _ , _
       , (bisim₇* true d′ ⇨* ((⇒ₛ (sucₕ ¬num)) ⇨
@@ -148,7 +147,7 @@ opaque
   soundness : {Δ : Con Term k}
             → (k PE.≡ 0 ⊎ (Emptyrec-allowed 𝟙ᵐ 𝟘 → Consistent Δ) × T erased-heap)
             → Δ ⊢ t ∷ ℕ → 𝟘ᶜ ▸ t
-            → ∃₂ λ m n → ∃₃ λ H k (ρ : Wk m n) →
+            → ∃₅ λ m n H k (ρ : Wk m n) →
               initial t ⇒* ⟨ H , sucᵏ k , ρ , ε ⟩ ×
               (Δ ⊢ t ≡ sucᵏ k ∷ ℕ) ×
               H ≤ʰ 𝟘
@@ -161,7 +160,7 @@ opaque
            (⊢initial false ⊢t) ▸s of λ
       (_ , _ , H , ρ , t , d , num) →
     case URᵗ.▸-⇒* ▸s d of λ {
-      (γ , δ , _ , _ , ▸H , ▸n , ε , _ , γ≤) →
+      (γ , δ , _ , ▸H , ▸n , ε , γ≤) →
     case Numeral→sucᵏ num of λ
       (k , ≡sucᵏ) →
     case PE.subst (λ x → _ ⇒* ⟨ _ , x , _ , _ ⟩) ≡sucᵏ d of λ
@@ -174,12 +173,12 @@ opaque
           (PE.trans (PE.cong (_[ H ]ₕ) (wk-sucᵏ k)) (subst-sucᵏ k))
           (⇒*→≡ (⊢initial true ⊢t) d′)
       , 𝟘▸H→H≤𝟘 (subₕ ▸H (begin
-          γ                  ≤⟨ γ≤ ⟩
-          𝟙 ·ᶜ wkᶜ ρ δ +ᶜ 𝟘ᶜ ≈⟨ +ᶜ-identityʳ _ ⟩
-          𝟙 ·ᶜ wkᶜ ρ δ       ≈⟨ ·ᶜ-identityˡ _ ⟩
-          wkᶜ ρ δ            ≤⟨ wk-≤ᶜ ρ (inv-usage-numeral ▸n num) ⟩
-          wkᶜ ρ 𝟘ᶜ           ≡⟨ wk-𝟘ᶜ ρ ⟩
-          𝟘ᶜ                 ∎ ))}
+          γ                     ≤⟨ γ≤ ⟩
+          𝟙 ·ᶜ wkConₘ ρ δ +ᶜ 𝟘ᶜ ≈⟨ +ᶜ-identityʳ _ ⟩
+          𝟙 ·ᶜ wkConₘ ρ δ       ≈⟨ ·ᶜ-identityˡ _ ⟩
+          wkConₘ ρ δ            ≤⟨ wk-≤ᶜ ρ (inv-usage-numeral ▸n num) ⟩
+          wkConₘ ρ 𝟘ᶜ           ≡⟨ wk-𝟘ᶜ ρ ⟩
+          𝟘ᶜ                    ∎ ))}
     where
     consistent : Emptyrec-allowed 𝟙ᵐ 𝟘 → Consistent Δ
     consistent ok =
@@ -203,7 +202,7 @@ opaque
   -- Note that some assumptions to this theorem are given as a module parameter.
 
   soundness-closed : ε ⊢ t ∷ ℕ → ε ▸ t
-                   → ∃₂ λ m n → ∃₃ λ H k (ρ : Wk m n) →
+                   → ∃₅ λ m n H k (ρ : Wk m n) →
                    initial t ⇒* ⟨ H , sucᵏ k , ρ , ε ⟩ ×
                    (ε ⊢ t ≡ sucᵏ k ∷ ℕ) ×
                    H ≤ʰ 𝟘
@@ -220,7 +219,7 @@ opaque
   soundness-open : (Emptyrec-allowed 𝟙ᵐ 𝟘 → Consistent Δ)
                    → T erased-heap
                    → Δ ⊢ t ∷ ℕ → 𝟘ᶜ ▸ t
-                   → ∃₂ λ m n → ∃₃ λ H k (ρ : Wk m n) →
+                   → ∃₅ λ m n H k (ρ : Wk m n) →
                    initial t ⇒* ⟨ H , sucᵏ k , ρ , ε ⟩ ×
                    (Δ ⊢ t ≡ sucᵏ k ∷ ℕ) ×
                    H ≤ʰ 𝟘

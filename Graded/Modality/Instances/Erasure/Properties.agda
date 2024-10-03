@@ -42,6 +42,7 @@ open import Tools.Function
 open import Tools.Nat using (Nat)
 open import Tools.Product as Σ
 open import Tools.PropositionalEquality as PE using (_≡_; _≢_)
+open import Tools.Relation
 import Tools.Reasoning.PartialOrder
 import Tools.Reasoning.PropositionalEquality
 open import Tools.Sum
@@ -357,6 +358,36 @@ full-reduction-assumptions-suitable as =
          𝟘 ⊛ 𝟘 ▷ r        ∎)
   where
   open Tools.Reasoning.PartialOrder ≤-poset
+
+opaque
+
+  -- There is only one lawful way to define the nr function for
+  -- erasure-semiring-with-meet.
+
+  nr-unique :
+    (has-nr : Has-nr erasure-semiring-with-meet) →
+    ∀ p r z s n → Has-nr.nr has-nr p r z s n ≡ nr p r z s n
+  nr-unique has-nr = λ where
+      p r ω s n → nr′ω≡nrω λ ()
+      p r z ω n → nr′ω≡nrω λ ()
+      p r z s ω → nr′ω≡nrω λ ()
+      p r 𝟘 𝟘 𝟘 → nr′𝟘≡nr𝟘 (PE.refl , PE.refl , PE.refl)
+    where
+    open Has-nr has-nr renaming (nr to nr′; nr-positive to nr′-positive; nr-𝟘 to nr′-𝟘)
+    open Has-nr erasure-has-nr using (nr-positive; nr-𝟘)
+    open Tools.Reasoning.PropositionalEquality
+    nr′ω≡nrω : ∀ {p r z s n} → ¬ (z ≡ 𝟘 × s ≡ 𝟘 × n ≡ 𝟘)
+         → nr′ p r z s n ≡ nr p r z s n
+    nr′ω≡nrω {p} {r} {z} {s} {n} ≢𝟘 = begin
+      nr′ p r z s n ≡⟨ ≢𝟘→≡ω (≢𝟘 ∘→ nr′-positive) ⟩
+      ω             ≡˘⟨ ≢𝟘→≡ω (≢𝟘 ∘→ nr-positive {r = r}) ⟩
+      nr p r z s n  ∎
+    nr′𝟘≡nr𝟘 : ∀ {p r z s n} → (z ≡ 𝟘 × s ≡ 𝟘 × n ≡ 𝟘)
+         → nr′ p r z s n ≡ nr p r z s n
+    nr′𝟘≡nr𝟘 {p} {r} {z} {s} {n} (PE.refl , PE.refl , PE.refl) = begin
+      nr′ p r z s n ≡⟨ nr′-𝟘 ⟩
+      𝟘             ≡˘⟨ nr-𝟘 {r = r} ⟩
+      nr p r z s n  ∎
 
 opaque
 

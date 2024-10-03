@@ -198,7 +198,7 @@ module _ (ℕ-fullred : Bool) where
 
       bisim₂ₙ : ⟨ H , t , ρ , S ⟩ Rₙₜ.⇒ₙ ⟨ H′ , t′ , ρ′ , S′ ⟩
               → H ~ʰ H″
-              → γ ⨾ δ ⨾ η ▸[ m ] ⟨ H″ , t , ρ , S ⟩
+              → γ ⨾ δ ⨾ η ▸ ⟨ H″ , t , ρ , S ⟩
               → ∃ λ H‴ → ⟨ H″ , t , ρ , S ⟩ Rₜ.⇒ₙ ⟨ H‴ , t′ , ρ′ , S′ ⟩ × H′ ~ʰ H‴
       bisim₂ₙ (Rₙₜ.varₕ′ d) H~H′ ▸s =
         case ▸↦→↦[] subtraction-ok (~ʰ-lookup H~H′ d) ▸s .proj₂ of λ
@@ -219,7 +219,7 @@ module _ (ℕ-fullred : Bool) where
 
       bisim₂ : ⟨ H , t , ρ , S ⟩ Rₙₜ.⇒ ⟨ H′ , t′ , ρ′ , S′ ⟩
              → H ~ʰ H″
-             → γ ⨾ δ ⨾ η ▸[ m ] ⟨ H″ , t , ρ , S ⟩
+             → γ ⨾ δ ⨾ η ▸ ⟨ H″ , t , ρ , S ⟩
              → ∃ λ H‴ → ⟨ H″ , t , ρ , S ⟩ Rₜ.⇒ ⟨ H‴ , t′ , ρ′ , S′ ⟩ × H′ ~ʰ H‴
       bisim₂ (Rₙₜ.⇒ₙ d) H~H′ ▸s =
         case bisim₂ₙ d H~H′ ▸s of λ
@@ -240,7 +240,7 @@ module _ (ℕ-fullred : Bool) where
 
       bisim₂* : ⟨ H , t , ρ , S ⟩ Rₙₜ.⇒* ⟨ H′ , t′ , ρ′ , S′ ⟩
               → H ~ʰ H″
-              → γ ⨾ δ ⨾ η ▸[ m ] ⟨ H″ , t , ρ , S ⟩
+              → γ ⨾ δ ⨾ η ▸ ⟨ H″ , t , ρ , S ⟩
               → ∃ λ H‴ → ⟨ H″ , t , ρ , S ⟩ Rₜ.⇒* ⟨ H‴ , t′ , ρ′ , S′ ⟩ × H′ ~ʰ H‴
       bisim₂* Rₙₜ.id H~H′ ▸s =
         _ , Rₜ.id , H~H′
@@ -248,7 +248,7 @@ module _ (ℕ-fullred : Bool) where
         case bisim₂ x H~H′ ▸s of λ
           (_ , x′ , H~H″) →
         case ▸-⇒ ▸s x′ of λ
-          (_ , _ , _ , _ , ▸s′) →
+          (_ , _ , _ , ▸s′) →
         case bisim₂* d H~H″ ▸s′ of λ
           (_ , d′ , H~H‴) →
         _ , (x′ Rₜ.⇨ d′) , H~H‴
@@ -378,7 +378,7 @@ module _ where
 
       bisim₆* : Δ ⊢ ⦅ s ⦆ ⇒* u ∷ A
               → Δ ⨾ Γ ⊢ s ∷ B
-              → γ ⨾ δ ⨾ η ▸[ m ] s
+              → γ ⨾ δ ⨾ η ▸ s
               → ∃₃ λ m n (s′ : State _ m n) → s Rₜ.⇒* s′ × u PE.≡ ⦅ s′ ⦆
       bisim₆* d ⊢s ▸s =
         case bisim₄* d ⊢s of λ

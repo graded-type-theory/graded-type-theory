@@ -230,7 +230,7 @@ opaque
 
   ⇒ᵥ-inv-prodʷ : {H : Heap k m′} {t u : Term n′} {s : State _ m n}
                → ⟨ H , prodʷ p t u , ρ , S ⟩ ⇒ᵥ s
-               → ∃₄ λ k r q A → ∃₃ λ v (ρ′ : Wk _ k) S′ → S ≡ prodrecₑ r p q A v ρ′ ∙ S′ ×
+               → ∃₇ λ k r q A v (ρ′ : Wk _ k) S′ → S ≡ prodrecₑ r p q A v ρ′ ∙ S′ ×
                  Σ (m ≡ 2+ m′) λ m≡ → Σ (n ≡ 2+ k) λ n≡ →
                    subst₂ (State _) m≡ n≡ s ≡
                    ⟨ H ∙ (∣ S′ ∣ · r · p , t , ρ) ∙ (∣ S′ ∣ · r , u , step ρ) , v , liftn ρ′ 2 , wk2ˢ S′ ⟩
@@ -256,7 +256,7 @@ opaque
 
   ⇒ᵥ-inv-zero : {H : Heap k m′} {s : State _ m n}
               → ⟨ H , zero , ρ , S ⟩ ⇒ᵥ s
-              → ∃ λ n′ → ∃₄ λ p q r A → ∃₄ λ u v (ρ′ : Wk _ n′) S′ →
+              → ∃₉ λ n′ p q r A u v (ρ′ : Wk _ n′) S′ →
                 S ≡ natrecₑ p q r A u v ρ′ ∙ S′ ×
                 Σ (m ≡ m′) λ m≡ → Σ (n ≡ n′) λ n≡ →
                   subst₂ (State _) m≡ n≡ s ≡ ⟨ H , u , ρ′ , S′ ⟩
@@ -281,7 +281,7 @@ opaque
 
   ⇒ᵥ-inv-suc : {H : Heap k m′} {t : Term n′} {s : State _ m n}
               → ⟨ H , suc t , ρ , S ⟩ ⇒ᵥ s
-              → ∃ λ n′ → ∃₄ λ p q r A → ∃₄ λ u v (ρ′ : Wk _ n′) S′ →
+              → ∃₉ λ n′ p q r A u v (ρ′ : Wk _ n′) S′ →
                 S ≡ natrecₑ p q r A u v ρ′ ∙ S′ ×
                 Σ (m ≡ 2+ m′) λ m≡ → Σ (n ≡ 2+ n′) λ n≡ →
                   subst₂ (State _) m≡ n≡ s ≡
@@ -349,7 +349,7 @@ opaque
 
   ⇒ᵥ-inv-rfl : {H : Heap k m′} {s : State _ m n}
              → ⟨ H , rfl , ρ , S ⟩ ⇒ᵥ s
-             → ∃ λ S′ → ∃₄ λ A t u ρ′ → Σ (m ≡ m′) λ m≡ →
+             → ∃₅ λ S′ A t u ρ′ → Σ (m ≡ m′) λ m≡ →
                (∃₄ λ p q B v → S ≡ Jₑ p q A t B u v ρ′ ∙ S′ × subst (λ m → State _ m _) m≡ s ≡ ⟨ H , u , ρ′ , S′ ⟩) ⊎
                (∃₂ λ p B → S ≡ Kₑ p A t B u ρ′ ∙ S′ × subst (λ m → State _ m _) m≡ s ≡ ⟨ H , u , ρ′ , S′ ⟩) ⊎
                (∃ λ s′ → S ≡ []-congₑ s′ A t u ρ′ ∙ S′ × subst (λ m → State _ m _) m≡ s ≡ ⟨ H , rfl , ρ′ , S′ ⟩)

@@ -196,7 +196,7 @@ no-usage-restrictions erased sink = λ where
     .Unitrec-allowed-downwards-closed       → _
     .Emptyrec-allowed                       → λ _ _ → Lift _ ⊤
     .Emptyrec-allowed-downwards-closed      → _
-    .[]-cong-allowed-mode                   → λ _ _ → ⊤
+    .[]-cong-allowed-mode                   → λ _ _ → Lift _ ⊤
     .[]-cong-allowed-mode-downwards-closed  → _
     .starˢ-sink                              → sink
     .Id-erased                              → Lift _ (T erased)

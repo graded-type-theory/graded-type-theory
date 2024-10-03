@@ -334,10 +334,12 @@ record State (k m n : Nat) : Set a where
 
 -- Converting eliminators back to terms
 
-⦅_⦆ᵉ : Elim m → (Term m → Term m)
-⦅ ∘ₑ p u ρ ⦆ᵉ = _∘⟨ p ⟩ wk ρ u
-⦅ fstₑ p ⦆ᵉ = fst p
-⦅ sndₑ p ⦆ᵉ = snd p
+infixr 29 ⦅_⦆ᵉ_
+
+⦅_⦆ᵉ_ : Elim m → (Term m → Term m)
+⦅ ∘ₑ p u ρ ⦆ᵉ t = t ∘⟨ p ⟩ wk ρ u
+⦅ fstₑ p ⦆ᵉ t = fst p t
+⦅ sndₑ p ⦆ᵉ t = snd p t
 ⦅ prodrecₑ r p q A u ρ ⦆ᵉ t =
   prodrec r p q (wk (lift ρ) A) t (wk (liftn ρ 2) u)
 ⦅ natrecₑ p q r A z s ρ ⦆ᵉ t =
@@ -352,15 +354,19 @@ record State (k m n : Nat) : Set a where
   K p (wk ρ A) (wk ρ t) (wk (lift ρ) B) (wk ρ u) v
 ⦅ []-congₑ s A t u ρ ⦆ᵉ v =
   []-cong s (wk ρ A ) (wk ρ t) (wk ρ u) v
-⦅ sucₑ ⦆ᵉ = suc
+⦅ sucₑ ⦆ᵉ t = suc t
 
 -- Converting stacks back to terms
 
-⦅_⦆ˢ : Stack m → (Term m → Term m)
-⦅ ε ⦆ˢ = idᶠ
-⦅ e ∙ S ⦆ˢ = ⦅ S ⦆ˢ ∘ᶠ ⦅ e ⦆ᵉ
+infixr 28 ⦅_⦆ˢ_
+
+⦅_⦆ˢ_ : Stack m → (Term m → Term m)
+⦅ ε ⦆ˢ t = t
+⦅ e ∙ S ⦆ˢ t = ⦅ S ⦆ˢ ⦅ e ⦆ᵉ t
 
 -- Converting states back to terms
+
+infix 28 ⦅_⦆
 
 ⦅_⦆ : (s : State k m n) → Term k
 ⦅ ⟨ H , t , ρ , S ⟩ ⦆ = ⦅ S ⦆ˢ (wk ρ t) [ H ]ₕ

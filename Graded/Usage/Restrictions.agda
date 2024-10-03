@@ -61,7 +61,7 @@ record Usage-restrictions : Set (lsuc a) where
       Emptyrec-allowed 𝟙ᵐ p → Emptyrec-allowed 𝟘ᵐ[ ok ] p
 
     -- Should []-cong be allowed for the current mode?
-    []-cong-allowed-mode : Strength → Mode → Set
+    []-cong-allowed-mode : Strength → Mode → Set a
 
     -- []-cong-allowed is downwards closed in the mode (if 𝟙ᵐ is seen
     -- as a largest element).

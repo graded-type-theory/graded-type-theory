@@ -83,6 +83,9 @@ opaque
 
 opaque
 
+  -- Terms that are neutral after applying a substitution are neutral
+  -- before applying the substitution.
+
   neutral-subst : Neutral (t [ σ ]) → Neutral t
   neutral-subst n = lemma n refl
     where
@@ -146,63 +149,63 @@ opaque
 
 opaque
 
-  -- Not being in Whnf is preseved by substitutions
+  -- Terms in whnf after applying a substitution are in whnf before
+  -- applying the substitution.
 
-  ¬whnf-subst : ¬ Whnf t → ¬ Whnf (t [ σ ])
-  ¬whnf-subst ¬w w = lemma ¬w refl w
+  whnf-subst : Whnf (t [ σ ]) → Whnf t
+  whnf-subst {t} = lemma refl
     where
-    open import Tools.Product
-    lemma : ¬ Whnf t → t [ σ ] ≡ u → ¬ Whnf u
-    lemma {t} ¬w ≡u Uₙ =
-      case subst-U {t = t} ≡u of λ {
-        (inj₁ (_ , refl)) → ¬w (ne (var _));
-        (inj₂ refl) → ¬w Uₙ}
-    lemma {t} ¬w ≡u ΠΣₙ =
-      case subst-ΠΣ {t = t} ≡u of λ {
-        (inj₁ (_ , refl)) → ¬w (ne (var _));
-        (inj₂ (_ , _ , refl , _)) → ¬w ΠΣₙ}
-    lemma {t} ¬w ≡u ℕₙ =
-      case subst-ℕ {t = t} ≡u of λ {
-        (inj₁ (_ , refl)) → ¬w (ne (var _));
-        (inj₂ refl) → ¬w ℕₙ}
-    lemma {t} ¬w ≡u Unitₙ =
-      case subst-Unit {t = t} ≡u of λ {
-        (inj₁ (_ , refl)) → ¬w (ne (var _));
-        (inj₂ refl) → ¬w Unitₙ}
-    lemma {t} ¬w ≡u Emptyₙ =
-      case subst-Empty {t = t} ≡u of λ {
-        (inj₁ (_ , refl)) → ¬w (ne (var _));
-        (inj₂ refl) → ¬w Emptyₙ}
-    lemma {t} ¬w ≡u Idₙ =
-      case subst-Id {v = t} ≡u of λ {
-        (inj₁ (_ , refl)) → ¬w (ne (var _));
-        (inj₂ (_ , _ , _ , refl , _)) → ¬w Idₙ}
-    lemma {t} ¬w ≡u lamₙ =
-      case subst-lam {t = t} ≡u of λ {
-        (inj₁ (_ , refl)) → ¬w (ne (var _));
-        (inj₂ (_ , refl , _)) → ¬w lamₙ}
-    lemma {t} ¬w ≡u zeroₙ =
-      case subst-zero {t = t} ≡u of λ {
-        (inj₁ (_ , refl)) → ¬w (ne (var _));
-        (inj₂ refl) → ¬w zeroₙ}
-    lemma {t} ¬w ≡u sucₙ =
-      case subst-suc {t = t} ≡u of λ {
-        (inj₁ (_ , refl)) → ¬w (ne (var _));
-        (inj₂ (_ , refl , _)) → ¬w sucₙ}
-    lemma {t} ¬w ≡u starₙ =
-      case subst-star {t = t} ≡u of λ {
-        (inj₁ (_ , refl)) → ¬w (ne (var _));
-        (inj₂ refl) → ¬w starₙ}
-    lemma {t} ¬w ≡u prodₙ =
-      case subst-prod {t = t} ≡u of λ {
-        (inj₁ (_ , refl)) → ¬w (ne (var _));
-        (inj₂ (_ , _ , refl , _)) → ¬w prodₙ}
-    lemma {t} ¬w ≡u rflₙ =
-      case subst-rfl {t = t} ≡u of λ {
-        (inj₁ (_ , refl)) → ¬w (ne (var _));
-        (inj₂ refl) → ¬w rflₙ}
-    lemma ¬w ≡u (ne n) =
-      ¬w (ne (neutral-subst (subst Neutral (sym ≡u) n)))
+    lemma : t [ σ ] ≡ u → Whnf u → Whnf t
+    lemma ≡u Uₙ =
+      case subst-U {t = t} ≡u of λ where
+        (inj₁ (x , refl)) → ne (var x)
+        (inj₂ refl) → Uₙ
+    lemma ≡u ΠΣₙ =
+      case subst-ΠΣ {t = t} ≡u of λ where
+        (inj₁ (_ , refl)) → ne (var _)
+        (inj₂ (_ , _ , refl , _)) → ΠΣₙ
+    lemma ≡u ℕₙ =
+      case subst-ℕ {t = t} ≡u of λ where
+        (inj₁ (_ , refl)) → ne (var _)
+        (inj₂ refl) → ℕₙ
+    lemma ≡u Unitₙ =
+      case subst-Unit {t = t} ≡u of λ where
+        (inj₁ (_ , refl)) → ne (var _)
+        (inj₂ refl) → Unitₙ
+    lemma ≡u Emptyₙ =
+      case subst-Empty {t = t} ≡u of λ where
+        (inj₁ (_ , refl)) → ne (var _)
+        (inj₂ refl) → Emptyₙ
+    lemma ≡u Idₙ =
+      case subst-Id {v = t} ≡u of λ where
+        (inj₁ (_ , refl)) → ne (var _)
+        (inj₂ (_ , _ , _ , refl , _)) → Idₙ
+    lemma ≡u lamₙ =
+      case subst-lam {t = t} ≡u of λ where
+        (inj₁ (_ , refl)) → ne (var _)
+        (inj₂ (_ , refl , _)) → lamₙ
+    lemma ≡u zeroₙ =
+      case subst-zero {t = t} ≡u of λ where
+        (inj₁ (_ , refl)) → ne (var _)
+        (inj₂ refl) → zeroₙ
+    lemma ≡u sucₙ =
+      case subst-suc {t = t} ≡u of λ where
+        (inj₁ (_ , refl)) → ne (var _)
+        (inj₂ (_ , refl , _)) → sucₙ
+    lemma ≡u starₙ =
+      case subst-star {t = t} ≡u of λ where
+        (inj₁ (_ , refl)) → ne (var _)
+        (inj₂ refl) → starₙ
+    lemma ≡u prodₙ =
+      case subst-prod {t = t} ≡u of λ where
+        (inj₁ (_ , refl)) → ne (var _)
+        (inj₂ (_ , _ , refl , _)) → prodₙ
+    lemma ≡u rflₙ =
+      case subst-rfl {t = t} ≡u of λ where
+        (inj₁ (_ , refl)) → ne (var _)
+        (inj₂ refl) → rflₙ
+    lemma ≡u (ne n) =
+      ne (neutral-subst (subst Neutral (sym ≡u) n))
 
 opaque
 

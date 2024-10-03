@@ -325,6 +325,15 @@ p ≤ q = p ≡ p ∧ q
   where
   open Tools.Reasoning.PropositionalEquality
 
+opaque
+
+  -- Non-zero grades are less than or equal to 𝟙
+
+  ≢𝟘→≤𝟙 : ∀ p → p ≢ 𝟘 → p ≤ 𝟙
+  ≢𝟘→≤𝟙 𝟘 p≢𝟘 = ⊥-elim (p≢𝟘 refl)
+  ≢𝟘→≤𝟙 𝟙 p≢𝟘 = refl
+  ≢𝟘→≤𝟙 ω p≢𝟘 = refl
+
 ------------------------------------------------------------------------
 -- Addition
 
@@ -422,6 +431,15 @@ _ · _ = ω
 ω·≢𝟘 {p = 𝟘} 𝟘≢𝟘 = ⊥-elim (𝟘≢𝟘 refl)
 ω·≢𝟘 {p = 𝟙} _   = refl
 ω·≢𝟘 {p = ω} _   = refl
+
+opaque
+
+  -- If p is not 𝟘, then p · ω is equal to ω.
+
+  ≢𝟘·ω : p ≢ 𝟘 → p · ω ≡ ω
+  ≢𝟘·ω {(𝟘)} 𝟘≢𝟘 = ⊥-elim (𝟘≢𝟘 refl)
+  ≢𝟘·ω {(𝟙)} _ = refl
+  ≢𝟘·ω {(ω)} _ = refl
 
 -- If p is not 𝟘, then 𝟙 · p is not 𝟘.
 
@@ -1776,6 +1794,132 @@ opaque
     nr-factoring p 𝟙 z s n rewrite ·-zeroʳ (𝟙 + p) =
       +-congʳ (·-congʳ (𝟙+p≡𝟙∧𝟙+p p))
     nr-factoring p ω z s n = ·-distribˡ-+ ω n (s + z)
+
+opaque
+
+  -- The nr function returns results that are at least as large as those
+  -- of any other factoring nr function for zero-one-many-semiring-with-meet.
+
+  nr-greatest-factoring :
+    ⦃ has-nr : Has-nr zero-one-many-semiring-with-meet ⦄
+    (has-factoring-nr : Has-factoring-nr zero-one-many-semiring-with-meet) →
+    ∀ p r z s n → Has-nr.nr has-nr p r z s n ≤ nr p r z s n
+  nr-greatest-factoring ⦃ has-nr ⦄ has-factoring-nr = λ where
+      p r ω s n → lemma $ begin
+        nr″ p r ω s n                ≡⟨ nr-factoring ⟩
+        nr₂″ p r · n + nr″ p r ω s 𝟘 ≤⟨ +-monotoneʳ (nr-zero refl) ⟩
+        nr₂″ p r · n + ω             ≡⟨ +-zeroʳ _ ⟩
+        ω                            ∎
+      p r z ω n → lemma $ begin
+        nr″ p r z ω n                 ≤⟨ nr-suc ⟩
+        ω + p · n + r · nr″ p r z ω n ≡⟨⟩
+        ω                             ∎
+      p r z s ω → lemma $ begin
+        nr″ p r z s ω                ≡⟨ nr-factoring ⟩
+        nr₂″ p r · ω + nr″ p r z s 𝟘 ≡⟨ +-congʳ (≢𝟘·ω nr₂≢𝟘) ⟩
+        ω                            ∎
+      p r 𝟘 𝟘 𝟘 → begin
+        nr″ p r 𝟘 𝟘 𝟘 ≡⟨ nr″-𝟘 ⟩
+        𝟘             ≡˘⟨ nr-𝟘 p r .proj₂ (refl , refl , refl)  ⟩
+        nr p r 𝟘 𝟘 𝟘  ∎
+      ω r z s 𝟙 → lemma $ begin
+        nr″ ω r z s 𝟙             ≤⟨ nr-suc ⟩
+        s + ω + r · nr″ ω r z s 𝟙 ≡⟨⟩
+        s + ω                     ≡⟨ +-zeroʳ s ⟩
+        ω                         ∎
+      𝟙 r z 𝟙 𝟙 → lemma $ begin
+        nr″ 𝟙 r z 𝟙 𝟙              ≤⟨ nr-suc ⟩
+        𝟙 + 𝟙 + r · nr″ 𝟙 r z 𝟙 𝟙 ≡˘⟨ +-assoc 𝟙 𝟙 (r · nr″ 𝟙 r z 𝟙 𝟙) ⟩
+        ω + r · nr″ 𝟙 r z 𝟙 𝟙      ≡⟨⟩
+        ω                           ∎
+      p r 𝟘 𝟙 𝟙 → nr″przs𝟙≤ λ ()
+      p r 𝟙 s 𝟙 → nr″przs𝟙≤ λ ()
+      p ω 𝟙 𝟘 𝟘 → nr″pω≤ λ ()
+      p ω z 𝟙 𝟘 → nr″pω≤ λ ()
+      p ω z s 𝟙 → nr″pω≤ λ ()
+      𝟙 𝟙 z s 𝟙 → lemma $ begin
+        nr″ 𝟙 𝟙 z s 𝟙              ≤⟨ nr-suc ⟩
+        s + 𝟙 + 𝟙 · nr″ 𝟙 𝟙 z s 𝟙 ≡⟨ +-congˡ {s} (+-congˡ {𝟙} (·-identityˡ (nr″ 𝟙 𝟙 z s 𝟙))) ⟩
+        s + 𝟙 + nr″ 𝟙 𝟙 z s 𝟙     ≡⟨ +-congˡ {s} (≢𝟘+≢𝟘 {𝟙} {nr″ 𝟙 𝟙 z s 𝟙} (λ ())
+                                        λ nr″≡𝟘 → case nr″-positive nr″≡𝟘 of λ ()) ⟩
+        s + ω                      ≡⟨ +-zeroʳ s ⟩
+        ω                          ∎
+      p 𝟙 z 𝟙 n → lemma $ begin
+        nr″ p 𝟙 z 𝟙 n                  ≤⟨ nr-suc ⟩
+        𝟙 + p · n + 𝟙 · nr″ p 𝟙 z 𝟙 n ≡⟨ +-congˡ {𝟙} (+-congˡ {p · n} (·-identityˡ _)) ⟩
+        𝟙 + p · n + nr″ p 𝟙 z 𝟙 n     ≡⟨ +-congˡ {𝟙} (+-comm (p · n) (nr″ p 𝟙 z 𝟙 n)) ⟩
+        𝟙 + nr″ p 𝟙 z 𝟙 n + p · n     ≡˘⟨ +-assoc 𝟙 (nr″ p 𝟙 z 𝟙 n) (p · n) ⟩
+        (𝟙 + nr″ p 𝟙 z 𝟙 n) + p · n   ≡⟨ +-congʳ {p · n} (≢𝟘+≢𝟘 {𝟙} {nr″ p 𝟙 z 𝟙 n} (λ ())
+                                            λ nr″≡𝟘 → case nr″-positive nr″≡𝟘 of λ ()) ⟩
+        ω + p · n                      ≡⟨⟩
+        ω                              ∎
+      𝟘 𝟘 𝟘 𝟘 𝟙 → begin
+        nr″ 𝟘 𝟘 𝟘 𝟘 𝟙 ≤⟨ ∧-greatest-lower-bound {q = 𝟘} {𝟙} nr-suc
+                            (≢𝟘→≤𝟙 (nr″ 𝟘 𝟘 𝟘 𝟘 𝟙) (λ nr″≡𝟘 → case nr″-positive nr″≡𝟘 of λ ())) ⟩
+        𝟘∧𝟙           ≡⟨⟩
+        nr′ 𝟘 𝟘 𝟘 𝟘 𝟙 ≡˘⟨ nr≡nr′ {𝟘} {𝟘} {𝟙} 𝟘 𝟘 ⟩
+        nr  𝟘 𝟘 𝟘 𝟘 𝟙 ∎
+      𝟙 𝟘 𝟘 𝟘 𝟙 → begin
+        nr″ 𝟙 𝟘 𝟘 𝟘 𝟙 ≤⟨ nr-suc ⟩
+        𝟙              ≡⟨⟩
+        nr  𝟙 𝟘 𝟘 𝟘 𝟙 ∎
+      𝟘 𝟙 𝟘 𝟘 𝟙 → begin
+        nr″ 𝟘 𝟙 𝟘 𝟘 𝟙 ≤⟨ ≢𝟘→≤𝟙 (nr″ 𝟘 𝟙 𝟘 𝟘 𝟙) (λ nr″≡𝟘 → case nr″-positive nr″≡𝟘 of λ ()) ⟩
+        𝟙              ≡⟨⟩
+        nr  𝟘 𝟙 𝟘 𝟘 𝟙 ∎
+      p 𝟘 𝟘 𝟙 𝟘 → begin
+        nr″ p 𝟘 𝟘 𝟙 𝟘 ≤⟨ ∧-greatest-lower-bound {q = 𝟘} {𝟙} (nr-zero refl) nr-suc′ ⟩
+        𝟘∧𝟙           ≡⟨⟩
+        nr′ p 𝟘 𝟘 𝟙 𝟘 ≡˘⟨ nr≡nr′ {𝟘} {𝟙} {𝟘} p 𝟘 ⟩
+        nr  p 𝟘 𝟘 𝟙 𝟘 ∎
+      p 𝟘 𝟙 𝟘 𝟘 → begin
+        nr″ p 𝟘 𝟙 𝟘 𝟘 ≤⟨ ∧-greatest-lower-bound {q = 𝟘} {𝟙} nr-suc′ (nr-zero refl) ⟩
+        𝟘∧𝟙           ≡⟨⟩
+        nr′ p 𝟘 𝟙 𝟘 𝟘 ≡˘⟨ nr≡nr′ {𝟙} {𝟘} {𝟘} p 𝟘  ⟩
+        nr  p 𝟘 𝟙 𝟘 𝟘 ∎
+      p 𝟘 𝟙 𝟙 𝟘 → begin
+        nr″ p 𝟘 𝟙 𝟙 𝟘 ≤⟨ nr-suc′ ⟩
+        𝟙              ≡⟨⟩
+        nr′ p 𝟘 𝟙 𝟙 𝟘 ≡˘⟨ nr≡nr′ {𝟙} {𝟙} {𝟘} p 𝟘 ⟩
+        nr  p 𝟘 𝟙 𝟙 𝟘 ∎
+      p 𝟙 𝟙 𝟘 𝟘 → begin
+        nr″ p 𝟙 𝟙 𝟘 𝟘 ≤⟨ nr-zero refl ⟩
+        𝟙              ≡⟨⟩
+        nr′ p 𝟙 𝟙 𝟘 𝟘 ≡˘⟨ nr≡nr′ {𝟙} {𝟘} {𝟘} p 𝟙 ⟩
+        nr  p 𝟙 𝟙 𝟘 𝟘 ∎
+    where
+    open Has-nr has-nr renaming (nr to nr″; nr-𝟘 to nr″-𝟘; nr-positive to nr″-positive)
+    open Has-factoring-nr has-factoring-nr renaming (nr₂ to nr₂″)
+    open Addition zero-one-many-semiring-with-meet
+    open Meet zero-one-many-semiring-with-meet
+    open PartialOrder zero-one-many-semiring-with-meet
+    open Semiring-with-meet zero-one-many-semiring-with-meet
+      hiding (𝟘; 𝟙; ω; _+_; _·_; _∧_; _≤_)
+    open Tools.Reasoning.PartialOrder ≤-poset
+    lemma : nr″ p r z s n ≤ ω → nr″ p r z s n ≤ nr p r z s n
+    lemma {p} {r} {z} {s} {n} nr″≤ω =
+      ≤-trans nr″≤ω (ω≤ (nr p r z s n))
+    nr-suc′ : nr″ p r z s 𝟘 ≤ s + r · nr″ p r z s 𝟘
+    nr-suc′ {p} {r} {z} {s} = begin
+      nr″ p r z s 𝟘 ≤⟨ nr-suc ⟩
+      s + p · 𝟘 + r · nr″ p r z s 𝟘 ≡⟨ +-congˡ {s} (+-congʳ (·-zeroʳ p)) ⟩
+      s + 𝟘 + r · nr″ p r z s 𝟘     ≡⟨⟩
+      s + r · nr″ p r z s 𝟘         ∎
+    nr″pω≤ : ¬ (z ≡ 𝟘 × s ≡ 𝟘 × n ≡ 𝟘) → nr″ p ω z s n ≤ nr p ω z s n
+    nr″pω≤ {z} {s} {n} {p} ≢𝟘 = lemma $ begin
+      nr″ p ω z s n                 ≤⟨ nr-suc ⟩
+      s + p · n + ω · nr″ p ω z s n ≡⟨ +-congˡ {s} (+-congˡ (ω·≢𝟘 (≢𝟘 ∘→ nr″-positive))) ⟩
+      s + p · n + ω                 ≡⟨ +-congˡ (+-zeroʳ _) ⟩
+      s + ω                         ≡⟨ +-zeroʳ _ ⟩
+      ω                             ∎
+    nr″przs𝟙≤ : ¬ (z ≡ 𝟘 × s ≡ 𝟘) → nr″ p r z s 𝟙 ≤ nr p r z s 𝟙
+    nr″przs𝟙≤ {z} {s} {p} {r} ≢𝟘 = lemma $ begin
+        nr″ p r z s 𝟙                ≡⟨ nr-factoring ⟩
+        nr₂″ p r · 𝟙 + nr″ p r z s 𝟘 ≡⟨ +-congʳ {nr″ p r z s 𝟘} (·-identityʳ _) ⟩
+        nr₂″ p r + nr″ p r z s 𝟘     ≡⟨ ≢𝟘+≢𝟘 nr₂≢𝟘 (λ nr″≡𝟘 →
+                                         let z≡𝟘 , s≡𝟘 , _ = nr″-positive nr″≡𝟘
+                                         in  ≢𝟘 (z≡𝟘 , s≡𝟘)) ⟩
+        ω                            ∎
 
 -- A modality defined using zero-one-many-has-nr.
 

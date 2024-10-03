@@ -77,18 +77,18 @@ opaque
   whBisim : (Emptyrec-allowed 𝟙ᵐ 𝟘 → Consistent Δ)
           → Δ ⊢ ⦅ s ⦆ ↘ u ∷ A
           → Δ ⨾ Γ ⊢ s ∷ B
-          → γ ⨾ δ ⨾ η ▸[ m ] s
-          → ∃₂ λ m n → ∃₃ λ H t (ρ : Wk m n)
+          → γ ⨾ δ ⨾ η ▸ s
+          → ∃₅ λ m n H t (ρ : Wk m n)
           → s ⇒* ⟨ H , t , ρ , ε ⟩ × wk ρ t [ H ]ₕ ≡ u × Value t
   whBisim {s = ⟨ H , t , ρ , S ⟩} consistent (d , w) ⊢s ▸s =
     case bisim₆* As d ⊢s ▸s of λ {
       (_ , _ , ⟨ H , t′ , ρ , S ⟩ , d₁ , refl) →
     case normalize H t′ ρ S of λ
       (_ , t″ , ρ′ , S′ , n , dₙ) →
-    case RPₙₜ.⇒ₙ*-⦅⦆-≡ dₙ of λ {
+    case RPₙₜ.⇒ₙ*-⦅⦆-≡ dₙ of λ
       t′≡t″ →
     case ▸-⇒* ▸s d₁ of λ
-      (_ , _ , _ , _ , ▸s′) →
+      (_ , _ , _ , ▸s′) →
     case RTₜ.⊢ₛ-⇒* ⊢s d₁ of λ
       (_ , _ , _ , ⊢s′) →
     case bisim₂* false As (RPₙₜ.⇒ₙ* dₙ) ~ʰ-refl ▸s′ of λ
@@ -105,7 +105,7 @@ opaque
         case ~ʰ-lookup● H~H′ d of λ
           d′ →
         case ▸-⇒* ▸s′ dₜ of λ
-              (_ , _ , _ , _ , ▸s″@(▸H , _ , ▸S , _)) →
+              (_ , _ , _ , ▸s″@(▸H , _ , ▸S , _)) →
         case erased-assumption of λ where
           (inj₁ ¬eh) → ⊥-elim (¬erased-heap→¬↦● ⦃ neh = ¬eh ⦄ ▸H d′)
           (inj₂ nem) →
@@ -115,19 +115,18 @@ opaque
               (inj₁ ∣S∣≢𝟘) →
                 ⊥-elim (∣S∣≢𝟘 ∣S∣≡𝟘)
               (inj₂ (er∈S , ok)) →
-                ⊥-elim (⊢emptyrec₀∉S {ρ = ρ′} (consistent ok) ⊢s″ er∈S) }}
+                ⊥-elim (⊢emptyrec₀∉S {ρ = ρ′} (consistent ok) ⊢s″ er∈S) }
     where
     lemma : ∀ {n} {t : Term n} {H ρ S}
           → Whnf u → Value t → Δ ⨾ Γ ⊢ ⟨ H , t , ρ , S ⟩ ∷ A
           → u PE.≡ ⦅ ⟨ H , t , ρ , S ⟩ ⦆ → S PE.≡ ε
     lemma {S = ε} w n _ u≡ = refl
     lemma {t} {H} {ρ} {S = e ∙ S} w v (_ , _ , _ , ⊢S) u≡ =
-      case Value→¬Neutral v of λ
-        ¬n →
-      ⊥-elim (¬whnf-subst {σ = toSubstₕ H}
-        (⊢whnf⦅⦆ˢ {t = wk ρ t} ⊢S
-          λ n → ¬n (neutral-subst (subst Neutral (wk≡subst ρ t) n)))
-        (subst Whnf u≡ w))
+      case whnf-subst {t = ⦅ e ∙ S ⦆ˢ (wk ρ t)} (subst Whnf u≡ w) of λ
+        w′ →
+      case subst Neutral (wk≡subst ρ t) (⊢whnf⦅⦆ˢ′ ⊢S w′) of λ
+        n′ →
+      ⊥-elim (Value→¬Neutral v (neutral-subst n′))
 
 opaque
 
@@ -136,7 +135,7 @@ opaque
   whBisim-initial : {Δ : Con Term k}
                   → k ≡ 0 ⊎ ((Emptyrec-allowed 𝟙ᵐ 𝟘 → Consistent Δ) × T erased-heap)
                   → Δ ⊢ t ↘ u ∷ A → 𝟘ᶜ ▸ t
-                  → ∃₂ λ m n → ∃₃ λ H u′ (ρ : Wk m n)
+                  → ∃₅ λ m n H u′ (ρ : Wk m n)
                   → initial t ⇒* ⟨ H , u′ , ρ , ε ⟩ × wk ρ u′ [ H ]ₕ ≡ u × Value u′
   whBisim-initial {k} {Δ} as d ▸t =
     whBisim consistent
@@ -166,7 +165,7 @@ opaque
   whRed : {Δ : Con Term k}
         → (k ≡ 0 ⊎ (Emptyrec-allowed 𝟙ᵐ 𝟘 → Consistent Δ) × T erased-heap)
         → Δ ⊢ t ∷ A → 𝟘ᶜ ▸ t
-        → ∃₂ λ m n → ∃₃ λ H u (ρ : Wk m n)
+        → ∃₅ λ m n H u (ρ : Wk m n)
           → initial t ⇒* ⟨ H , u , ρ , ε ⟩ × Value u × Whnf ⦅ ⟨ H , u , ρ , ε ⟩ ⦆
   whRed as ⊢t ▸t =
     case whNormTerm ⊢t of λ

@@ -1,7 +1,20 @@
+------------------------------------------------------------------------
+-- Options for the reduction relation of the abstract machine.
+------------------------------------------------------------------------
+
 module Graded.Heap.Options where
 
 open import Tools.Bool
 open import Tools.Empty
+
+-- The reduction relation can be changed in two different ways. One can
+-- either have resource tracking or not. In the latter case the heap is
+-- not updated during lookup and lookup cannot fail due to insufficient
+-- resources. This option affects which variable rule is used.
+-- One can also chose whether to fully evaluate natural numbers to
+-- numerals or not (i.e. whether evaluation should continue under the
+-- successor constructor). Turning this option on adds two reduction
+-- rules.
 
 record Options : Set where
   field
