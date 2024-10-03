@@ -361,8 +361,8 @@ full-reduction-assumptions-suitable as =
 
 opaque
 
-  -- With the given definitions of _∧_, _+_ and _·_ there is only one
-  -- lawful way to define the nr function.
+  -- There is only one lawful way to define the nr function for
+  -- erasure-semiring-with-meet.
 
   nr-unique :
     (has-nr : Has-nr erasure-semiring-with-meet) →
