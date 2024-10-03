@@ -17,6 +17,7 @@ open import Graded.Context.Properties.Equivalence 𝕄
 open import Graded.Context.Properties.Addition 𝕄
 open import Graded.Context.Properties.Multiplication 𝕄
 open import Graded.Modality.Nr-instances
+open import Graded.Modality.Properties.Natrec semiring-with-meet
 
 open import Tools.Fin
 open import Tools.Function

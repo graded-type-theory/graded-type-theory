@@ -5,14 +5,17 @@
 module Tools.Bool where
 
 open import Data.Bool.Base
-  using (Bool; true; false; not; _∧_; _∨_; if_then_else_; T)
+  using (Bool; true; false; not; _∧_; _∨_; if_then_else_; T; f≤t; b≤b)
+  renaming (_≤_ to _≤ᵇ_)
   public
 open import Data.Bool.Properties
   using (∨-comm; ∨-assoc; ∨-identityʳ;
-         ∧-comm; ∧-assoc; ∨-∧-absorptive;
+         ∧-comm; ∧-assoc; ∧-identityʳ; ∧-idem; ∧-zeroʳ; ∧-zeroˡ;
+         ∨-∧-absorptive;
          ∧-distribʳ-∨; ∧-distribˡ-∨; ∨-distribʳ-∧; ∨-distribˡ-∧;
          T?)
   public
+open import Data.Bool.Properties using (≤-isPartialOrder)
 import Function.Bundles as Fun
 
 open import Tools.Empty
@@ -20,10 +23,16 @@ open import Tools.Function
 open import Tools.Relation
 open import Tools.Product
 open import Tools.PropositionalEquality
+import Tools.Reasoning.PartialOrder
 open import Tools.Sum
 
 private variable
   b x y : Bool
+
+module ≤ᵇ-Reasoning = Tools.Reasoning.PartialOrder
+  (record { Carrier = Bool ; _≈_ = _≡_ ; _≤_ = _≤ᵇ_
+          ; isPartialOrder = ≤-isPartialOrder })
+
 
 -- The function T is pointwise propositional.
 
@@ -91,3 +100,31 @@ not-T-and-¬T true t ¬t = ¬t
 
 not-T-and-¬T′ : (b : Bool) → ⦃ T b ⦄ → ⦃ T (not b) ⦄ → ⊥
 not-T-and-¬T′ b ⦃ (x) ⦄ ⦃ (y) ⦄ = not-T-and-¬T b x y
+
+
+opaque
+
+  -- _∧_ is a decreasing function
+
+  ∧-decreasingˡ : x ∧ y ≤ᵇ x
+  ∧-decreasingˡ {(false)} = b≤b
+  ∧-decreasingˡ {(true)} {(false)} = f≤t
+  ∧-decreasingˡ {(true)} {(true)} = b≤b
+
+opaque
+
+  -- _∧_ is a decreasing function
+
+  ∧-decreasingʳ : x ∧ y ≤ᵇ y
+  ∧-decreasingʳ {(false)} {(false)} = b≤b
+  ∧-decreasingʳ {(false)} {(true)} = f≤t
+  ∧-decreasingʳ {(true)} {(false)} = b≤b
+  ∧-decreasingʳ {(true)} {(true)} = b≤b
+
+opaque
+
+  -- Relating _≤ᵇ_ and _∧_
+
+  ≤ᵇ-∧ : x ≤ᵇ y → x ∧ y ≡ x
+  ≤ᵇ-∧ f≤t = refl
+  ≤ᵇ-∧ b≤b = ∧-idem _

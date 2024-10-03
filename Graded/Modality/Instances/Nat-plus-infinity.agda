@@ -2,7 +2,7 @@
 -- A modality for the natural numbers extended with infinity
 ------------------------------------------------------------------------
 
-open import Tools.Bool hiding (_∧_)
+open import Tools.Bool hiding (_∧_; ∧-decreasingˡ; ∧-decreasingʳ)
 
 module Graded.Modality.Instances.Nat-plus-infinity
   -- Should the total order be used (as opposed to the flat)
@@ -30,6 +30,7 @@ import Graded.Modality.Properties.Division
 import Graded.Modality.Properties.Has-well-behaved-zero
 import Graded.Modality.Properties.Meet
 import Graded.Modality.Properties.Multiplication
+import Graded.Modality.Properties.Natrec
 import Graded.Modality.Properties.PartialOrder
 import Graded.Modality.Properties.Subtraction
 open import Graded.Modality.Variant lzero
@@ -987,7 +988,6 @@ opaque
     ; nr-monotone = λ {p = p} {r} → nr-monotone p r
     ; nr-· = λ {p} {r} {z} {s} {n} {q} → ≤-reflexive (nr-· p r z s n q)
     ; nr-+ = λ {p} {r} {z₁} {s₁} {n₁} {z₂} {s₂} {n₂} → nr-+ p r z₁ s₁ n₁ z₂ s₂ n₂
-    ; nr-𝟘 = λ {p} {r} → nr-𝟘 p r
     ; nr-positive = λ {p} {r} → nr-positive {p} {r}
     ; nr-zero = λ {n} {p} {r} {z} {s} → nr-zero p r z s n
     ; nr-suc = λ {p} {r} {z} {s} {n} → nr-suc p r z s n
@@ -1067,21 +1067,6 @@ opaque
         (z₁ + z₂) + ∞ · (s₁ + s₂)   ∎
       lemma ⌞ 2+ _ ⌟ = lemma′
       lemma ∞        = lemma′
-
-    nr-𝟘 : ∀ p r → nr p r 𝟘 𝟘 𝟘 ≡ 𝟘
-    nr-𝟘 p r = begin
-      nr p r 𝟘 𝟘 𝟘            ≡⟨⟩
-      nr₂ p r · 𝟘 + nr₃ r 𝟘 𝟘 ≡⟨ +-congʳ (·-zeroʳ _) ⟩
-      𝟘 + nr₃ r 𝟘 𝟘           ≡⟨ +-identityˡ _ ⟩
-      nr₃ r 𝟘 𝟘               ≡⟨ lemma r ⟩
-      𝟘                       ∎
-      where
-      open Tools.Reasoning.PropositionalEquality
-      lemma : ∀ r → nr₃ r 𝟘 𝟘 ≡ 𝟘
-      lemma ⌞ 0 ⌟    = ∧-idem 𝟘
-      lemma ⌞ 1 ⌟    = refl
-      lemma ⌞ 2+ _ ⌟ = refl
-      lemma ∞        = refl
 
     nr-positive : ∀ {p r z s n} → nr p r z s n ≡ 𝟘 → z ≡ 𝟘 × s ≡ 𝟘 × n ≡ 𝟘
     nr-positive {r = r} nr≡𝟘 =
@@ -1210,44 +1195,21 @@ opaque
     where
     open Graded.Modality.Properties.PartialOrder ℕ⊎∞-semiring-with-meet
 
--- A type used to express that there isn't a greatest factoring nr function.
-
-record No-greatest-nr : Set where
-  field
-    -- There are two nr functions
-    has-nr₁ : Has-nr ℕ⊎∞-semiring-with-meet
-    has-nr₂ : Has-nr ℕ⊎∞-semiring-with-meet
-    -- Both nr functions are factoring
-    factoring₁ : Has-factoring-nr ℕ⊎∞-semiring-with-meet ⦃ has-nr₁ ⦄
-    factoring₂ : Has-factoring-nr ℕ⊎∞-semiring-with-meet ⦃ has-nr₂ ⦄
-
-  open Has-nr has-nr₁ renaming (nr to nr₁)
-  open Has-nr has-nr₂ renaming (nr to nr₂)
-
-  field
-    -- There is some input to the nr functions...
-    p₀ r₀ z₀ s₀ n₀ : ℕ⊎∞
-
-    -- ...such that their outputs are not equal...
-    nr₁≢nr₂ : nr₁ p₀ r₀ z₀ s₀ n₀ ≢ nr₂ p₀ r₀ z₀ s₀ n₀
-
-    -- ...and there is no other possible output that is greater than both
-    -- i.e. no other nr function could be greater than both of them.
-    nr≰ : ∀ q → nr₁ p₀ r₀ z₀ s₀ n₀ ≤ q → nr₂ p₀ r₀ z₀ s₀ n₀ ≤ q → ⊥
+open Graded.Modality.Properties.Natrec ℕ⊎∞-semiring-with-meet
 
 opaque
   unfolding nr₂→has-nr
 
   -- With the the flat order, there is no greatest factoring nr function.
 
-  no-greatest-nrₑ : T (not total) → No-greatest-nr
+  no-greatest-nrₑ : T (not total) → No-greatest-factoring-nr
   no-greatest-nrₑ not-total = lemma _ refl not-total
     where
     nr₂ : (p r : ℕ⊎∞) → ℕ⊎∞
     nr₂ p r = nr₃ r ⌞ 2 ⌟ p
     nr₂≢𝟘 : ∀ {p r} → nr₂ p r ≢ ⌞ 0 ⌟
     nr₂≢𝟘 {r} nr₂≡𝟘 = case nr₃-positive r nr₂≡𝟘 of λ ()
-    lemma : ∀ b → total ≡ b → T (not b) → No-greatest-nr
+    lemma : ∀ b → total ≡ b → T (not b) → No-greatest-factoring-nr
     lemma true _ ()
     lemma false refl _ = record
       { has-nr₁ = ℕ⊎∞-has-nr
@@ -1291,8 +1253,8 @@ opaque
         ∞ + nr′ p r z s 𝟘            ≡⟨⟩
         ∞                            ∎
       p r ⌞ 0 ⌟ ⌞ 0 ⌟ ⌞ 0 ⌟ → begin
-        nr′ p r 𝟘 𝟘 𝟘 ≡⟨ nr′-𝟘 ⟩
-        𝟘             ≡˘⟨ Has-nr.nr-𝟘 ℕ⊎∞-has-nr {p} {r} ⟩
+        nr′ p r 𝟘 𝟘 𝟘 ≡⟨ nr-𝟘 ⦃ has-nr ⦄ ⟩
+        𝟘             ≡˘⟨ nr-𝟘 {p} {r} ⟩
         nr p r 𝟘 𝟘 𝟘  ∎
       ∞ r z s ⌞ 1+ n ⌟ → lemma $ begin
         nr′ ∞ r z s ⌞ 1+ n ⌟             ≤⟨ nr-suc ⟩
@@ -1340,7 +1302,7 @@ opaque
     𝟘 = ⌞ 0 ⌟
     𝟙 = ⌞ 1 ⌟
     open Has-nr has-nr
-      renaming (nr to nr′; nr-𝟘 to nr′-𝟘; nr-positive to nr′-positive)
+      renaming (nr to nr′; nr-positive to nr′-positive)
     open Has-factoring-nr ⦃ has-nr ⦄ has-factoring-nr
       renaming (nr₂ to nr₂′)
     open Graded.Modality.Properties.Addition ℕ⊎∞-semiring-with-meet
@@ -1386,7 +1348,7 @@ opaque
     nr₂p𝟘≤p {p} = begin
       nr₂′ p 𝟘                       ≡˘⟨ ·-identityʳ _ ⟩
       nr₂′ p 𝟘 · 𝟙                   ≡˘⟨ +-identityʳ _ ⟩
-      nr₂′ p 𝟘 · 𝟙 + 𝟘               ≡˘⟨ +-congˡ nr′-𝟘 ⟩
+      nr₂′ p 𝟘 · 𝟙 + 𝟘               ≡˘⟨ +-congˡ (nr-𝟘 ⦃ has-nr ⦄) ⟩
       nr₂′ p 𝟘 · 𝟙 + nr′ p 𝟘 𝟘 𝟘 𝟘  ≡˘⟨ nr-factoring ⟩
       nr′ p 𝟘 𝟘 𝟘 𝟙                 ≤⟨ nr-suc ⟩
       𝟘 + p · 𝟙 + 𝟘                 ≡⟨ +-identityˡ _ ⟩

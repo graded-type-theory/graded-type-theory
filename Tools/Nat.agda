@@ -22,15 +22,16 @@ open Data.Nat.Properties
          +-identityʳ; +-assoc; +-comm; +-0-isCommutativeMonoid; +-suc;
          +-cancelˡ-≡;
          *-identityˡ; *-identityʳ; *-assoc; *-comm; *-zeroʳ; *-cancelˡ-≡;
-         *-1-isCommutativeMonoid;
+         *-suc; *-1-isCommutativeMonoid;
          m*n≡0⇒m≡0∨n≡0;
          ⊔-identityʳ; ⊔-assoc; ⊔-comm; ⊔-idem; m≥n⇒m⊔n≡m; m⊔n≡m⇒n≤m;
          ⊓-assoc; ⊓-comm;
-         +-distribˡ-⊔; *-distribˡ-+; *-distribˡ-⊔;
+         +-distribˡ-⊔; +-distribʳ-⊔; ∸-distribʳ-⊔;
+         *-distribˡ-+; *-distribʳ-+; *-distribˡ-⊔;
          ⊓-distribʳ-⊔; ⊔-distribʳ-⊓;
          ⊔-absorbs-⊓; ⊓-absorbs-⊔;
          ≤-refl; ≤-reflexive; ≤-trans; ≤-antisym; module ≤-Reasoning;
-         n≮n;
+         n≮n; ≤∧≢⇒<;
          ≤⇒pred≤;
          +-mono-≤; m≤m+n; m≤n+m; m+n≤o⇒n≤o; 0<1+n; n≤1+n;
          *-mono-≤; m≤m*n; m≤n*m; m+1+n≰m;
@@ -334,3 +335,37 @@ opaque
 
   ⊔-mono : m ≤′ m′ → n ≤′ n′ → m ⊔ n ≤′ m′ ⊔ n′
   ⊔-mono p q = ≤⇒≤′ (⊔-mono-≤ (≤′⇒≤ p) (≤′⇒≤ q))
+
+opaque
+
+  -- "Reflexivity" of _==_
+
+  ==-refl : ∀ n → (n == n) ≡ true
+  ==-refl 0 = refl
+  ==-refl (1+ n) = ==-refl n
+
+opaque
+
+  -- "Symmetry" of _==_
+
+  ==-sym : ∀ m n → (m == n) ≡ (n == m)
+  ==-sym zero zero = refl
+  ==-sym zero (1+ n) = refl
+  ==-sym (1+ m) zero = refl
+  ==-sym (1+ m) (1+ n) = ==-sym m n
+
+opaque
+
+  -- If m < n then n == m ≡ false
+
+  <⇒¬== : m < n → (n == m) ≡ false
+  <⇒¬== {(zero)} {1+ n} m<n = refl
+  <⇒¬== {1+ m} {1+ n} (s≤s m<n) = <⇒¬== m<n
+
+opaque
+
+  -- A "preservation" property for _==_ under subtraction
+
+  <⇒==∸ : k ≤ m → k ≤ n → (m == n) ≡ (m ∸ k == n ∸ k)
+  <⇒==∸ {(zero)} k<m k<n = refl
+  <⇒==∸ {1+ k} (s≤s k<m) (s≤s k<n) = <⇒==∸ k<m k<n

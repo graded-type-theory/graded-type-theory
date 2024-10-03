@@ -46,6 +46,7 @@ import Graded.Modality.Properties.Addition
 import Graded.Modality.Properties.Division
 import Graded.Modality.Properties.Has-well-behaved-zero
 import Graded.Modality.Properties.Star
+import Graded.Modality.Properties.Natrec
 import Graded.Modality.Properties.Subtraction
 import Graded.Modality.Properties
 
@@ -181,6 +182,7 @@ import Graded.Modality.Instances.Linear-or-affine
 import Graded.Modality.Instances.Information-flow
 import Graded.Modality.Instances.Zero-below-one
 import Graded.Modality.Instances.Nat-plus-infinity
+import Graded.Modality.Instances.Exact-or-at-most
 import
   Graded.Modality.Instances.Bounded-distributive-lattice.No-division
 import

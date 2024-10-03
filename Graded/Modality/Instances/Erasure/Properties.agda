@@ -373,8 +373,8 @@ opaque
       p r z s ω → nr′ω≡nrω λ ()
       p r 𝟘 𝟘 𝟘 → nr′𝟘≡nr𝟘 (PE.refl , PE.refl , PE.refl)
     where
-    open Has-nr has-nr renaming (nr to nr′; nr-positive to nr′-positive; nr-𝟘 to nr′-𝟘)
-    open Has-nr erasure-has-nr using (nr-positive; nr-𝟘)
+    open Has-nr has-nr renaming (nr to nr′; nr-positive to nr′-positive)
+    open Has-nr erasure-has-nr using (nr-positive)
     open Tools.Reasoning.PropositionalEquality
     nr′ω≡nrω : ∀ {p r z s n} → ¬ (z ≡ 𝟘 × s ≡ 𝟘 × n ≡ 𝟘)
          → nr′ p r z s n ≡ nr p r z s n
@@ -385,7 +385,7 @@ opaque
     nr′𝟘≡nr𝟘 : ∀ {p r z s n} → (z ≡ 𝟘 × s ≡ 𝟘 × n ≡ 𝟘)
          → nr′ p r z s n ≡ nr p r z s n
     nr′𝟘≡nr𝟘 {p} {r} {z} {s} {n} (PE.refl , PE.refl , PE.refl) = begin
-      nr′ p r z s n ≡⟨ nr′-𝟘 ⟩
+      nr′ p r z s n ≡⟨ nr-𝟘 ⦃ has-nr ⦄ ⟩
       𝟘             ≡˘⟨ nr-𝟘 {r = r} ⟩
       nr p r z s n  ∎
 

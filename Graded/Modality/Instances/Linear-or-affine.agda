@@ -25,6 +25,7 @@ open import Graded.FullReduction.Assumptions
 import Graded.Modality.Properties.Addition as Addition
 import Graded.Modality.Properties.Meet as Meet
 import Graded.Modality.Properties.Multiplication as Multiplication
+import Graded.Modality.Properties.Natrec as Natrec
 import Graded.Modality.Properties.PartialOrder as PartialOrder
 import Graded.Modality.Properties.Star as Star
 import Graded.Modality.Properties.Subtraction as Subtraction
@@ -2453,7 +2454,6 @@ linear-or-affine-has-nr = record
   ; nr-monotone = λ {p = p} {r = r} → nr-monotone p r
   ; nr-·        = λ {p = _} {r = r} → nr-· r
   ; nr-+        = λ {p = _} {r = r} → nr-+ r
-  ; nr-𝟘        = λ {p = _} {r = r} → nr-𝟘 r .proj₂ (refl , refl , refl)
   ; nr-positive = λ {p = _} {r = r} → nr-𝟘 r .proj₁
   ; nr-zero     = λ {n = _} {p = _} {r = r} → nr-zero r _ _ _ _
   ; nr-suc      = λ {p = _} {r = r} → nr-suc r _ _ _ _
@@ -4225,7 +4225,7 @@ opaque
         (≤𝟙 + p) · 𝟘 + ≤𝟙 · z    ≡⟨⟩
         nr p ≤𝟙 z 𝟘 𝟘            ∎
     where
-    open Has-nr has-nr renaming (nr to nr′; nr-𝟘 to nr′-𝟘; nr-positive to nr′-positive)
+    open Has-nr has-nr renaming (nr to nr′; nr-positive to nr′-positive)
     open Has-factoring-nr has-factoring-nr renaming (nr₂ to nr₂′)
     open Addition linear-or-affine-semiring-with-meet
     open Meet linear-or-affine-semiring-with-meet
@@ -4243,6 +4243,8 @@ opaque
       s + p · 𝟘 + r · nr′ p r z s 𝟘 ≡⟨ +-congˡ {s} (+-congʳ (·-zeroʳ p)) ⟩
       s + 𝟘 + r · nr′ p r z s 𝟘     ≡⟨⟩
       s + r · nr′ p r z s 𝟘         ∎
+    nr′-𝟘 : nr′ p r 𝟘 𝟘 𝟘 ≡ 𝟘
+    nr′-𝟘 = Natrec.nr-𝟘 linear-or-affine-semiring-with-meet ⦃ has-nr ⦄
     pn≡ω→nr′≤ : p · n ≡ ≤ω → nr′ p r z s n ≤ nr p r z s n
     pn≡ω→nr′≤ {p} {n} {r} {z} {s} pn≡ω = lemma $ begin
       nr′ p r z s n                 ≤⟨ nr-suc ⟩

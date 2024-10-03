@@ -2,7 +2,7 @@
 -- A finite semiring is a modality instance.
 ------------------------------------------------------------------------
 
-open import Tools.Bool hiding (_∧_)
+open import Tools.Bool hiding (_∧_; ∧-decreasingˡ; ∧-decreasingʳ)
 open import Tools.Fin
 open import Tools.Nat using (Nat; 1+)
 open import Tools.Product
