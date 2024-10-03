@@ -324,7 +324,6 @@ record Equality-relations
 -- proved.
 
 record EqRelSet : Set (lsuc ℓ) where
-  constructor eqRel
   field
     ---------------
     -- Relations --
