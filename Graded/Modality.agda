@@ -185,9 +185,6 @@ record Has-nr (𝕄 : Semiring-with-meet) : Set a where
       nr p r z₁ s₁ n₁ + nr p r z₂ s₂ n₂ ≤
       nr p r (z₁ + z₂) (s₁ + s₂) (n₁ + n₂)
 
-    -- The value of nr p r 𝟘 𝟘 𝟘 is 𝟘.
-    nr-𝟘 : nr p r 𝟘 𝟘 𝟘 ≡ 𝟘
-
     -- If the zero is well-behaved, then nr p r is only 𝟘 for 𝟘, 𝟘
     -- and 𝟘.
     nr-positive :

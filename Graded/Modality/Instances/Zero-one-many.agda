@@ -31,6 +31,7 @@ import Graded.Modality.Properties.Meet as Meet
 import Graded.Modality.Properties.Multiplication as Multiplication
 import Graded.Modality.Properties.PartialOrder as PartialOrder
 import Graded.Modality.Properties.Star as Star
+import Graded.Modality.Properties.Natrec as Natrec
 import Graded.Modality.Properties.Subtraction as Subtraction
 open import Graded.Modality.Variant lzero
 
@@ -1580,8 +1581,6 @@ zero-one-many-has-nr = record
   ; nr-monotone = λ {p = p} {r = r} → nr-monotone p r
   ; nr-·        = λ {p = p} {r = r} → nr-· p r
   ; nr-+        = λ {p = p} {r = r} → nr-+ p r
-  ; nr-𝟘        = λ {p = p} {r = r} →
-                    nr-𝟘 p r .proj₂ (refl , refl , refl)
   ; nr-positive = λ {p = p} {r = r} → nr-𝟘 p r .proj₁
   ; nr-zero     = λ {n = _} {p = p} {r = r} n≤𝟘 → nr-zero p r n≤𝟘
   ; nr-suc      = λ {p = p} {r = r} → nr-suc p r
@@ -1819,7 +1818,7 @@ opaque
         nr₂″ p r · ω + nr″ p r z s 𝟘 ≡⟨ +-congʳ (≢𝟘·ω nr₂≢𝟘) ⟩
         ω                            ∎
       p r 𝟘 𝟘 𝟘 → begin
-        nr″ p r 𝟘 𝟘 𝟘 ≡⟨ nr″-𝟘 ⟩
+        nr″ p r 𝟘 𝟘 𝟘 ≡⟨ nr″-𝟘 ⦃ has-nr ⦄ ⟩
         𝟘             ≡˘⟨ nr-𝟘 p r .proj₂ (refl , refl , refl)  ⟩
         nr p r 𝟘 𝟘 𝟘  ∎
       ω r z s 𝟙 → lemma $ begin
@@ -1888,10 +1887,11 @@ opaque
         nr′ p 𝟙 𝟙 𝟘 𝟘 ≡˘⟨ nr≡nr′ {𝟙} {𝟘} {𝟘} p 𝟙 ⟩
         nr  p 𝟙 𝟙 𝟘 𝟘 ∎
     where
-    open Has-nr has-nr renaming (nr to nr″; nr-𝟘 to nr″-𝟘; nr-positive to nr″-positive)
+    open Has-nr has-nr renaming (nr to nr″; nr-positive to nr″-positive)
     open Has-factoring-nr has-factoring-nr renaming (nr₂ to nr₂″)
     open Addition zero-one-many-semiring-with-meet
     open Meet zero-one-many-semiring-with-meet
+    open Natrec zero-one-many-semiring-with-meet renaming (nr-𝟘 to nr″-𝟘)
     open PartialOrder zero-one-many-semiring-with-meet
     open Semiring-with-meet zero-one-many-semiring-with-meet
       hiding (𝟘; 𝟙; ω; _+_; _·_; _∧_; _≤_)

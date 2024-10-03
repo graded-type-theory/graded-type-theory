@@ -86,7 +86,6 @@ has-nr = record
   ; nr-monotone = nr′-monotone
   ; nr-·        = nr′-·
   ; nr-+        = nr′-+
-  ; nr-𝟘        = nr′-𝟘
   ; nr-positive = nr′-positive
   ; nr-zero     = nr′-zero
   ; nr-suc      = nr′-suc
@@ -137,15 +136,6 @@ has-nr = record
       s₁ + (s₂ + (p · n₁ + p · n₂))  ≡˘⟨ +-assoc _ _ _ ⟩
       (s₁ + s₂) + (p · n₁ + p · n₂)  ≡˘⟨ cong (_ +_) (·-distribˡ-+ _ _ _) ⟩
       (s₁ + s₂) + p · (n₁ + n₂)      ∎
-
-  nr′-𝟘 : nr′ p r 𝟘 𝟘 𝟘 ≡ 𝟘
-  nr′-𝟘 {p = p} {r = r} =
-    (𝟘 ∧ 𝟘) ⊛ 𝟘 + p · 𝟘 ▷ r  ≡⟨ ⊛ᵣ-cong (∧-idem _) (+-identityˡ _) ⟩
-    𝟘 ⊛ p · 𝟘 ▷ r            ≡⟨ ⊛ᵣ-congˡ (·-zeroʳ _) ⟩
-    𝟘 ⊛ 𝟘 ▷ r                ≡⟨ ⊛-idem-𝟘 _ ⟩
-    𝟘                        ∎
-    where
-    open Tools.Reasoning.PropositionalEquality
 
   nr′-positive :
     ⦃ 𝟘-well-behaved : Has-well-behaved-zero 𝕄 ⦄ →
