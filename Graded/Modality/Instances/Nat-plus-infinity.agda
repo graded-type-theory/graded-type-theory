@@ -5,8 +5,8 @@
 open import Tools.Bool hiding (_∧_)
 
 module Graded.Modality.Instances.Nat-plus-infinity
-  -- Should the order give "affine" uses (as opposed to exact)
-  (affine : Bool) where
+  -- Should the total order be used (as opposed to the flat)
+  (total : Bool) where
 
 import Tools.Algebra
 open import Tools.Empty
@@ -68,38 +68,40 @@ _+_ : ℕ⊎∞ → ℕ⊎∞ → ℕ⊎∞
 
 -- Meet.
 
--- The meet operation used for the "affine" order
+-- The meet operation used for the flat order
 
-_∧ₐ_ : ℕ⊎∞ → ℕ⊎∞ → ℕ⊎∞
-∞ ∧ₐ _ = ∞
-⌞ _ ⌟ ∧ₐ ∞ = ∞
-⌞ m ⌟ ∧ₐ ⌞ n ⌟ = ⌞ m N.⊔ n ⌟
+_∧ᶠ_ : ℕ⊎∞ → ℕ⊎∞ → ℕ⊎∞
+∞ ∧ᶠ _ = ∞
+⌞ _ ⌟ ∧ᶠ ∞ = ∞
+⌞ m ⌟ ∧ᶠ ⌞ n ⌟ = ⌞ m N.⊔ n ⌟
 
 -- The meet operation used for the "exact" order
 
-_∧ₑ_ : ℕ⊎∞ → ℕ⊎∞ → ℕ⊎∞
-∞ ∧ₑ _ = ∞
-⌞ _ ⌟ ∧ₑ ∞ = ∞
-⌞ m ⌟ ∧ₑ ⌞ n ⌟ =
+_∧ᵗ_ : ℕ⊎∞ → ℕ⊎∞ → ℕ⊎∞
+∞ ∧ᵗ _ = ∞
+⌞ _ ⌟ ∧ᵗ ∞ = ∞
+⌞ m ⌟ ∧ᵗ ⌞ n ⌟ =
   case m N.≟ n of λ where
     (yes _) → ⌞ m ⌟
     (no _) → ∞
 
 -- The meet operation is defined in such a way that
--- ∞ ≤ … ≤ ⌞ 1 ⌟ ≤ ⌞ 0 ⌟ if "affine" is true
+-- ∞ ≤ … ≤ ⌞ 1 ⌟ ≤ ⌞ 0 ⌟ if "total" is true
 -- and ∞ ≤ ⌞ m ⌟ and ⌞ m ⌟≰⌞ n ⌟ otherwise (for all m and n).
+-- These correspond to ⌞ n ⌟ representing at most n and exactly n
+-- uses respectively.
 
 infixr 40 _∧_
 
 _∧_ : ℕ⊎∞ → ℕ⊎∞ → ℕ⊎∞
-p ∧ q = if affine then p ∧ₐ q else p ∧ₑ q
+p ∧ q = if total then p ∧ᶠ q else p ∧ᵗ q
 
 -- An "introduction rule" for predicates over _∧_
 
-∧-intro : (P : Op₂ ℕ⊎∞ → Set) (Pₐ : P _∧ₐ_) (Pₑ : P _∧ₑ_) → P _∧_
-∧-intro P Pₐ Pₑ = lemma affine
+∧-intro : (P : Op₂ ℕ⊎∞ → Set) (Pₐ : P _∧ᶠ_) (Pₑ : P _∧ᵗ_) → P _∧_
+∧-intro P Pₐ Pₑ = lemma total
   where
-  lemma : ∀ b → P (λ p q → if b then p ∧ₐ q else p ∧ₑ q)
+  lemma : ∀ b → P (λ p q → if b then p ∧ᶠ q else p ∧ᵗ q)
   lemma false = Pₑ
   lemma true = Pₐ
 
@@ -140,57 +142,57 @@ infix 10 _≤_
 _≤_ : ℕ⊎∞ → ℕ⊎∞ → Set
 m ≤ n = m ≡ m ∧ n
 
--- The inferred ordering relation for the "affine" order
+-- The inferred ordering relation for the "total" order
 
-infix 10 _≤ₐ_
+infix 10 _≤ᵗ_
 
-_≤ₐ_ : ℕ⊎∞ → ℕ⊎∞ → Set
-m ≤ₐ n = m ≡ m ∧ₐ n
+_≤ᵗ_ : ℕ⊎∞ → ℕ⊎∞ → Set
+m ≤ᵗ n = m ≡ m ∧ᶠ n
 
--- The inferred ordering relation for the "exact" order
+-- The inferred ordering relation for the "flat" order
 
-infix 10 _≤ₑ_
+infix 10 _≤ᶠ_
 
-_≤ₑ_ : ℕ⊎∞ → ℕ⊎∞ → Set
-m ≤ₑ n = m ≡ m ∧ₑ n
+_≤ᶠ_ : ℕ⊎∞ → ℕ⊎∞ → Set
+m ≤ᶠ n = m ≡ m ∧ᵗ n
 
 opaque
 
   -- An "introduction rule" for the order relation
 
-  ≤-intro : m ≤ₐ n → m ≤ₑ n → m ≤ n
-  ≤-intro {m} {n} ≤ₐ ≤ₑ = lemma affine
+  ≤-intro : m ≤ᵗ n → m ≤ᶠ n → m ≤ n
+  ≤-intro {m} {n} ≤ᵗ ≤ᶠ = lemma total
     where
-    lemma : ∀ b → m ≡ (if b then m ∧ₐ n else (m ∧ₑ n))
-    lemma false = ≤ₑ
-    lemma true = ≤ₐ
+    lemma : ∀ b → m ≡ (if b then m ∧ᶠ n else (m ∧ᵗ n))
+    lemma false = ≤ᶠ
+    lemma true = ≤ᵗ
 
 opaque
 
   -- Another "introduction rule" for the order relation
 
-  ≤ₐ-intro : T affine → m ≤ₐ n → m ≤ n
-  ≤ₐ-intro {m} {n} x ≤ₐ = lemma affine x
+  ≤ᵗ-intro : T total → m ≤ᵗ n → m ≤ n
+  ≤ᵗ-intro {m} {n} x ≤ᵗ = lemma total x
     where
-    lemma : ∀ b → T b → m ≡ (if b then m ∧ₐ n else (m ∧ₑ n))
-    lemma true _ = ≤ₐ
+    lemma : ∀ b → T b → m ≡ (if b then m ∧ᶠ n else (m ∧ᵗ n))
+    lemma true _ = ≤ᵗ
 
 opaque
 
-  -- The "exact" order relation is a subset of the "affine" order
+  -- The "flat" order relation is a subset of the "total" order
 
-  ≤ₑ→≤ₐ : m ≤ₑ n → m ≤ₐ n
-  ≤ₑ→≤ₐ {(∞)} {n} ≤ₑ = refl
-  ≤ₑ→≤ₐ {(⌞ m ⌟)} {(⌞ n ⌟)} ≤ₑ with m N.≟ n
-  ≤ₑ→≤ₐ ≤ₑ | yes refl = cong ⌞_⌟ (sym (N.⊔-idem _))
-  ≤ₑ→≤ₐ () | no _
+  ≤ᶠ→≤ᵗ : m ≤ᶠ n → m ≤ᵗ n
+  ≤ᶠ→≤ᵗ {(∞)} {n} ≤ᶠ = refl
+  ≤ᶠ→≤ᵗ {(⌞ m ⌟)} {(⌞ n ⌟)} ≤ᶠ with m N.≟ n
+  ≤ᶠ→≤ᵗ ≤ᶠ | yes refl = cong ⌞_⌟ (sym (N.⊔-idem _))
+  ≤ᶠ→≤ᵗ () | no _
 
 opaque
 
   -- Another "introduction rule" for the order relation
 
-  ≤ₑ-intro : m ≤ₑ n → m ≤ n
-  ≤ₑ-intro ≤ₑ = ≤-intro (≤ₑ→≤ₐ ≤ₑ) ≤ₑ
+  ≤ᶠ-intro : m ≤ᶠ n → m ≤ n
+  ≤ᶠ-intro ≤ᶠ = ≤-intro (≤ᶠ→≤ᵗ ≤ᶠ) ≤ᶠ
 
 ------------------------------------------------------------------------
 -- Some properties
@@ -205,26 +207,26 @@ opaque
 -- The grade ∞ is the least one.
 
 ∞≤ : ∀ n → ∞ ≤ n
-∞≤ _ = ≤ₑ-intro {n = ∞} refl
+∞≤ _ = ≤ᶠ-intro {n = ∞} refl
 
 opaque
 
   -- The grade ∞ is not larger than ⌞ n ⌟ for any n
 
   ≰∞ : ∀ {n} → ⌞ n ⌟ ≤ ∞ → ⊥
-  ≰∞ = lemma affine
+  ≰∞ = lemma total
     where
     lemma : ∀ {n} → (b : Bool) → ⌞ n ⌟ ≢ (if b then ∞ else ∞)
     lemma true ()
     lemma false ()
 
--- For the affine order, the grade ⌞ 0 ⌟ is the greatest one.
+-- For the total order, the grade ⌞ 0 ⌟ is the greatest one.
 
-≤0 : T affine → n ≤ ⌞ 0 ⌟
-≤0 x = ≤ₐ-intro x lemma
+≤0 : T total → n ≤ ⌞ 0 ⌟
+≤0 x = ≤ᵗ-intro x lemma
   where
   open Tools.Reasoning.PropositionalEquality
-  lemma : n ≤ₐ ⌞ 0 ⌟
+  lemma : n ≤ᵗ ⌞ 0 ⌟
   lemma {n = ∞} = refl
   lemma {n = ⌞ n ⌟} = cong ⌞_⌟ (
     n        ≡˘⟨ N.⊔-identityʳ _ ⟩
@@ -232,12 +234,12 @@ opaque
 
 opaque
 
-  -- A non-zero grade is at most ⌞ 1 ⌟ in the affine order
+  -- A non-zero grade is at most ⌞ 1 ⌟ in the total order
 
-  ≢𝟘→≤ₐ𝟙 : m ≢ ⌞ 0 ⌟ → m ≤ₐ ⌞ 1 ⌟
-  ≢𝟘→≤ₐ𝟙 {⌞ 0 ⌟} m≢𝟘 = ⊥-elim (m≢𝟘 refl)
-  ≢𝟘→≤ₐ𝟙 {⌞ 1+ m ⌟} m≢𝟘 rewrite N.⊔-identityʳ m = refl
-  ≢𝟘→≤ₐ𝟙 {(∞)} m≢𝟘 = refl
+  ≢𝟘→≤ᵗ𝟙 : m ≢ ⌞ 0 ⌟ → m ≤ᵗ ⌞ 1 ⌟
+  ≢𝟘→≤ᵗ𝟙 {⌞ 0 ⌟} m≢𝟘 = ⊥-elim (m≢𝟘 refl)
+  ≢𝟘→≤ᵗ𝟙 {⌞ 1+ m ⌟} m≢𝟘 rewrite N.⊔-identityʳ m = refl
+  ≢𝟘→≤ᵗ𝟙 {(∞)} m≢𝟘 = refl
 
 -- Multiplication is commutative.
 
@@ -259,9 +261,9 @@ opaque
 ⌞⌟-injective refl = refl
 
 opaque
-  -- The function ⌞_⌟ is antitone for the "affine" order
+  -- The function ⌞_⌟ is antitone for the "total" order
 
-  ⌞⌟-antitoneₐ : ∀ {m n} → m N.≤ n → ⌞ n ⌟ ≤ₐ ⌞ m ⌟
+  ⌞⌟-antitoneₐ : ∀ {m n} → m N.≤ n → ⌞ n ⌟ ≤ᵗ ⌞ m ⌟
   ⌞⌟-antitoneₐ {m = m} {n = n} m≤n =
     ⌞ n ⌟        ≡˘⟨ cong ⌞_⌟ (N.m≥n⇒m⊔n≡m m≤n) ⟩
     ⌞ n N.⊔ m ⌟  ∎
@@ -270,20 +272,20 @@ opaque
 
 opaque
 
-  ⌞⌟-antitone : ∀ {m n} → T affine → m N.≤ n → ⌞ n ⌟ ≤ ⌞ m ⌟
+  ⌞⌟-antitone : ∀ {m n} → T total → m N.≤ n → ⌞ n ⌟ ≤ ⌞ m ⌟
   ⌞⌟-antitone {m = m} {n = n} x m≤n =
-    ≤ₐ-intro x (⌞⌟-antitoneₐ m≤n)
+    ≤ᵗ-intro x (⌞⌟-antitoneₐ m≤n)
 
 opaque
 
   -- An inverse to ⌞⌟-antitone.
   -- Note that unlike ⌞⌟-antitone this property holds for both the
-  -- "affine" and "exact" orders.
+  -- "total" and "flat" orders.
 
   ⌞⌟-antitone⁻¹ : ∀ {m n} → ⌞ n ⌟ ≤ ⌞ m ⌟ → m N.≤ n
-  ⌞⌟-antitone⁻¹ {m = m} {n = n} = lemma affine
+  ⌞⌟-antitone⁻¹ {m = m} {n = n} = lemma total
     where
-    lemma : ∀ b → ⌞ n ⌟ ≡ (if b then ⌞ n ⌟ ∧ₐ ⌞ m ⌟ else ⌞ n ⌟ ∧ₑ ⌞ m ⌟)
+    lemma : ∀ b → ⌞ n ⌟ ≡ (if b then ⌞ n ⌟ ∧ᶠ ⌞ m ⌟ else ⌞ n ⌟ ∧ᵗ ⌞ m ⌟)
           → m N.≤ n
     lemma false n≤m with n N.≟ m
     … | yes refl = N.≤-refl
@@ -299,17 +301,17 @@ opaque
 
 opaque
 
-  -- Addition is decreasing for the left argument for the "affine" order
+  -- Addition is decreasing for the left argument for the "total" order
 
-  +-decreasingˡₐ : m + n ≤ₐ m
+  +-decreasingˡₐ : m + n ≤ᵗ m
   +-decreasingˡₐ {m = ∞}                 = refl
   +-decreasingˡₐ {m = ⌞ _ ⌟} {n = ∞}     = refl
   +-decreasingˡₐ {m = ⌞ _ ⌟} {n = ⌞ n ⌟} = ⌞⌟-antitoneₐ (N.m≤m+n _ n)
 
 opaque
 
-  +-decreasingˡ : T affine → m + n ≤ m
-  +-decreasingˡ x = ≤ₐ-intro x +-decreasingˡₐ
+  +-decreasingˡ : T total → m + n ≤ m
+  +-decreasingˡ x = ≤ᵗ-intro x +-decreasingˡₐ
 
 -- One of the two characteristic properties of the star operator of a
 -- star semiring.
@@ -332,12 +334,12 @@ opaque
   -- The star operator is bounded from above by ⌞ 1 ⌟
 
   n*≤1 : n * ≤ ⌞ 1 ⌟
-  n*≤1 = ≤ₑ-intro n*≤ₑ1
+  n*≤1 = ≤ᶠ-intro n*≤ᶠ1
     where
-    n*≤ₑ1 : n * ≤ₑ ⌞ 1 ⌟
-    n*≤ₑ1 {n = ⌞ 0 ⌟} = refl
-    n*≤ₑ1 {n = ⌞ 1+ _ ⌟} = refl
-    n*≤ₑ1 {n = ∞} = refl
+    n*≤ᶠ1 : n * ≤ᶠ ⌞ 1 ⌟
+    n*≤ᶠ1 {n = ⌞ 0 ⌟} = refl
+    n*≤ᶠ1 {n = ⌞ 1+ _ ⌟} = refl
+    n*≤ᶠ1 {n = ∞} = refl
 
 -- Equality is decidable.
 
@@ -352,24 +354,24 @@ _≟_ = λ where
 
 opaque
 
-  -- The relation _≤ₐ_ is total.
+  -- The relation _≤ᵗ_ is total.
 
-  ≤ₐ-total : ∀ m n → m ≤ₐ n ⊎ n ≤ₐ m
-  ≤ₐ-total ∞     _     = inj₁ refl
-  ≤ₐ-total _     ∞     = inj₂ refl
-  ≤ₐ-total ⌞ m ⌟ ⌞ n ⌟ = case N.≤-total m n of λ where
+  ≤ᵗ-total : ∀ m n → m ≤ᵗ n ⊎ n ≤ᵗ m
+  ≤ᵗ-total ∞     _     = inj₁ refl
+  ≤ᵗ-total _     ∞     = inj₂ refl
+  ≤ᵗ-total ⌞ m ⌟ ⌞ n ⌟ = case N.≤-total m n of λ where
     (inj₁ m≤n) → inj₂ (⌞⌟-antitoneₐ m≤n)
     (inj₂ n≤m) → inj₁ (⌞⌟-antitoneₐ n≤m)
 
 opaque
 
-  -- The relation _≤_ is total for the affine order
+  -- The relation _≤_ is total for the total order
 
-  ≤-total : T affine → ∀ m n → m ≤ n ⊎ n ≤ m
+  ≤-total : T total → ∀ m n → m ≤ n ⊎ n ≤ m
   ≤-total x m n =
-    case ≤ₐ-total m n of λ where
-      (inj₁ m≤n) → inj₁ (≤ₐ-intro x m≤n)
-      (inj₂ n≤m) → inj₂ (≤ₐ-intro x n≤m)
+    case ≤ᵗ-total m n of λ where
+      (inj₁ m≤n) → inj₁ (≤ᵗ-intro x m≤n)
+      (inj₂ n≤m) → inj₂ (≤ᵗ-intro x n≤m)
 
 -- The type ℕ⊎∞ is a set.
 
@@ -391,7 +393,7 @@ opaque
   ∞·+≤∞·ʳ : ∞ · (m + n) ≤ ∞ · n
   ∞·+≤∞·ʳ {m = ∞}        {n = n}        = ∞≤ (∞ · n)
   ∞·+≤∞·ʳ {m = ⌞ _ ⌟}    {n = ∞}        = ∞≤ ∞
-  ∞·+≤∞·ʳ {m = ⌞ 0 ⌟}    {n = ⌞ 0 ⌟}    = lemma affine
+  ∞·+≤∞·ʳ {m = ⌞ 0 ⌟}    {n = ⌞ 0 ⌟}    = lemma total
     where
     lemma : ∀ b → ⌞ 0 ⌟ ≡ (if b then ⌞ 0 ⌟ else ⌞ 0 ⌟)
     lemma false = refl
@@ -402,8 +404,8 @@ opaque
 
 opaque
 
-  m≢n→m∧ₑn≡∞ : ∀ {m n} → m ≢ n → ⌞ m ⌟ ∧ₑ ⌞ n ⌟ ≡ ∞
-  m≢n→m∧ₑn≡∞ {m} {n} m≢n with m N.≟ n
+  m≢n→m∧ᵗn≡∞ : ∀ {m n} → m ≢ n → ⌞ m ⌟ ∧ᵗ ⌞ n ⌟ ≡ ∞
+  m≢n→m∧ᵗn≡∞ {m} {n} m≢n with m N.≟ n
   … | yes m≡n = ⊥-elim (m≢n m≡n)
   … | no _ = refl
 
@@ -502,11 +504,11 @@ opaque
           { isEquivalence = PE.isEquivalence
           ; ∙-cong        = cong₂ _∧_
           }
-        ; assoc = ∧-intro Associative ∧ₐ-assoc ∧ₑ-assoc
+        ; assoc = ∧-intro Associative ∧ᶠ-assoc ∧ᵗ-assoc
         }
-      ; idem = ∧-intro Idempotent ∧ₐ-idem ∧ₑ-idem
+      ; idem = ∧-intro Idempotent ∧ᶠ-idem ∧ᵗ-idem
       }
-    ; comm = ∧-intro Commutative ∧ₐ-comm ∧ₑ-comm
+    ; comm = ∧-intro Commutative ∧ᶠ-comm ∧ᵗ-comm
     }
   ; ·-distrib-∧ = ·-distrib-∧
   ; +-distrib-∧ = +-distrib-∧
@@ -584,39 +586,39 @@ opaque
   ·-distrib-+ =
     ·-distribˡ-+ , comm∧distrˡ⇒distrʳ ·-comm ·-distribˡ-+
 
-  ∧ₐ-comm : Commutative _∧ₐ_
-  ∧ₐ-comm ⌞ m ⌟ ⌞ n ⌟ = cong ⌞_⌟ (N.⊔-comm m n)
-  ∧ₐ-comm ⌞ m ⌟ ∞ = refl
-  ∧ₐ-comm ∞ ⌞ n ⌟ = refl
-  ∧ₐ-comm ∞ ∞ = refl
+  ∧ᶠ-comm : Commutative _∧ᶠ_
+  ∧ᶠ-comm ⌞ m ⌟ ⌞ n ⌟ = cong ⌞_⌟ (N.⊔-comm m n)
+  ∧ᶠ-comm ⌞ m ⌟ ∞ = refl
+  ∧ᶠ-comm ∞ ⌞ n ⌟ = refl
+  ∧ᶠ-comm ∞ ∞ = refl
 
-  ∧ₑ-comm : Commutative _∧ₑ_
-  ∧ₑ-comm ⌞ m ⌟ ⌞ n ⌟ with m N.≟ n | n N.≟ m
+  ∧ᵗ-comm : Commutative _∧ᵗ_
+  ∧ᵗ-comm ⌞ m ⌟ ⌞ n ⌟ with m N.≟ n | n N.≟ m
   … | yes refl | yes _ = refl
   … | no m≢n | no n≢m = refl
   … | yes m≡n | no n≢m = ⊥-elim (n≢m (sym m≡n))
   … | no m≢n | yes n≡m = ⊥-elim (m≢n (sym n≡m))
-  ∧ₑ-comm ⌞ m ⌟ ∞ = refl
-  ∧ₑ-comm ∞ ⌞ n ⌟ = refl
-  ∧ₑ-comm ∞ ∞ = refl
+  ∧ᵗ-comm ⌞ m ⌟ ∞ = refl
+  ∧ᵗ-comm ∞ ⌞ n ⌟ = refl
+  ∧ᵗ-comm ∞ ∞ = refl
 
-  ∧ₐ-assoc : Associative _∧ₐ_
-  ∧ₐ-assoc = λ where
+  ∧ᶠ-assoc : Associative _∧ᶠ_
+  ∧ᶠ-assoc = λ where
     ⌞ m ⌟ ⌞ _ ⌟ ⌞ _ ⌟ → cong ⌞_⌟ (N.⊔-assoc m _ _)
     ⌞ _ ⌟ ⌞ _ ⌟ ∞     → refl
     ⌞ _ ⌟ ∞     _     → refl
     ∞     _     _     → refl
 
-  ∧ₑ-assoc : Associative _∧ₑ_
-  ∧ₑ-assoc = λ where
+  ∧ᵗ-assoc : Associative _∧ᵗ_
+  ∧ᵗ-assoc = λ where
     ⌞ m ⌟ ⌞ n ⌟ ⌞ o ⌟ → lemma m n o
-    ⌞ m ⌟ ⌞ n ⌟ ∞ → ∧ₑ-comm (⌞ m ⌟ ∧ₑ ⌞ n ⌟) ∞
+    ⌞ m ⌟ ⌞ n ⌟ ∞ → ∧ᵗ-comm (⌞ m ⌟ ∧ᵗ ⌞ n ⌟) ∞
     ⌞ _ ⌟ ∞ _ → refl
     ∞ _ _ → refl
       where
       lemma : ∀ m n o
-            → (⌞ m ⌟ ∧ₑ ⌞ n ⌟) ∧ₑ ⌞ o ⌟
-            ≡ ⌞ m ⌟ ∧ₑ (⌞ n ⌟ ∧ₑ ⌞ o ⌟)
+            → (⌞ m ⌟ ∧ᵗ ⌞ n ⌟) ∧ᵗ ⌞ o ⌟
+            ≡ ⌞ m ⌟ ∧ᵗ (⌞ n ⌟ ∧ᵗ ⌞ o ⌟)
       lemma m n o with n N.≟ o
       lemma m n o | yes n≡o with m N.≟ n
       lemma m n o | yes n≡o | no m≢n = refl
@@ -629,83 +631,83 @@ opaque
       lemma m n o | no n≢o | yes m≡n | yes m≡o = ⊥-elim (n≢o (trans (sym m≡n) m≡o))
       lemma m n o | no n≢o | yes m≡n | no m≢o = refl
 
-  ∧ₐ-idem : Idempotent _∧ₐ_
-  ∧ₐ-idem = λ where
+  ∧ᶠ-idem : Idempotent _∧ᶠ_
+  ∧ᶠ-idem = λ where
     ∞     → refl
     ⌞ _ ⌟ → cong ⌞_⌟ (N.⊔-idem _)
 
-  ∧ₑ-idem : Idempotent _∧ₑ_
-  ∧ₑ-idem ⌞ m ⌟ with m N.≟ m
+  ∧ᵗ-idem : Idempotent _∧ᵗ_
+  ∧ᵗ-idem ⌞ m ⌟ with m N.≟ m
   … | yes _ = refl
   … | no m≢m = ⊥-elim (m≢m refl)
-  ∧ₑ-idem ∞ = refl
+  ∧ᵗ-idem ∞ = refl
 
-  ·-distribˡ-∧ₐ : _·_ DistributesOverˡ _∧ₐ_
-  ·-distribˡ-∧ₐ ⌞ 0 ⌟ _ _ = refl
-  ·-distribˡ-∧ₐ ⌞ 1+ _ ⌟ ⌞ 0 ⌟ ⌞ 0 ⌟ = refl
-  ·-distribˡ-∧ₐ ⌞ 1+ _ ⌟ ⌞ 0 ⌟ ⌞ 1+ _ ⌟ = refl
-  ·-distribˡ-∧ₐ ⌞ 1+ _ ⌟ ⌞ 0 ⌟ ∞ = refl
-  ·-distribˡ-∧ₐ ⌞ 1+ _ ⌟ ⌞ 1+ _ ⌟ ⌞ 0 ⌟ = refl
-  ·-distribˡ-∧ₐ ⌞ 1+ m ⌟ ⌞ 1+ n ⌟ ⌞ 1+ _ ⌟ = cong ⌞_⌟ $
+  ·-distribˡ-∧ᶠ : _·_ DistributesOverˡ _∧ᶠ_
+  ·-distribˡ-∧ᶠ ⌞ 0 ⌟ _ _ = refl
+  ·-distribˡ-∧ᶠ ⌞ 1+ _ ⌟ ⌞ 0 ⌟ ⌞ 0 ⌟ = refl
+  ·-distribˡ-∧ᶠ ⌞ 1+ _ ⌟ ⌞ 0 ⌟ ⌞ 1+ _ ⌟ = refl
+  ·-distribˡ-∧ᶠ ⌞ 1+ _ ⌟ ⌞ 0 ⌟ ∞ = refl
+  ·-distribˡ-∧ᶠ ⌞ 1+ _ ⌟ ⌞ 1+ _ ⌟ ⌞ 0 ⌟ = refl
+  ·-distribˡ-∧ᶠ ⌞ 1+ m ⌟ ⌞ 1+ n ⌟ ⌞ 1+ _ ⌟ = cong ⌞_⌟ $
                                              N.*-distribˡ-⊔ (1+ m) (1+ n) (1+ _)
-  ·-distribˡ-∧ₐ ⌞ 1+ _ ⌟ ⌞ 1+ _ ⌟ ∞ = refl
-  ·-distribˡ-∧ₐ ⌞ 1+ _ ⌟ ∞ _ = refl
-  ·-distribˡ-∧ₐ ∞ ⌞ 0 ⌟ ⌞ 0 ⌟ = refl
-  ·-distribˡ-∧ₐ ∞ ⌞ 0 ⌟ ⌞ 1+ _ ⌟ = refl
-  ·-distribˡ-∧ₐ ∞ ⌞ 0 ⌟ ∞ = refl
-  ·-distribˡ-∧ₐ ∞ ⌞ 1+ _ ⌟ ⌞ 0 ⌟ = refl
-  ·-distribˡ-∧ₐ ∞ ⌞ 1+ _ ⌟ ⌞ 1+ _ ⌟ = refl
-  ·-distribˡ-∧ₐ ∞ ⌞ 1+ _ ⌟ ∞ = refl
-  ·-distribˡ-∧ₐ ∞ ∞ _ = refl
+  ·-distribˡ-∧ᶠ ⌞ 1+ _ ⌟ ⌞ 1+ _ ⌟ ∞ = refl
+  ·-distribˡ-∧ᶠ ⌞ 1+ _ ⌟ ∞ _ = refl
+  ·-distribˡ-∧ᶠ ∞ ⌞ 0 ⌟ ⌞ 0 ⌟ = refl
+  ·-distribˡ-∧ᶠ ∞ ⌞ 0 ⌟ ⌞ 1+ _ ⌟ = refl
+  ·-distribˡ-∧ᶠ ∞ ⌞ 0 ⌟ ∞ = refl
+  ·-distribˡ-∧ᶠ ∞ ⌞ 1+ _ ⌟ ⌞ 0 ⌟ = refl
+  ·-distribˡ-∧ᶠ ∞ ⌞ 1+ _ ⌟ ⌞ 1+ _ ⌟ = refl
+  ·-distribˡ-∧ᶠ ∞ ⌞ 1+ _ ⌟ ∞ = refl
+  ·-distribˡ-∧ᶠ ∞ ∞ _ = refl
 
-  ·-distribˡ-∧ₑ : _·_ DistributesOverˡ _∧ₑ_
-  ·-distribˡ-∧ₑ ⌞ 0 ⌟ _ _ = refl
-  ·-distribˡ-∧ₑ ⌞ 1+ m ⌟ ⌞ 0 ⌟ ⌞ 0 ⌟ = refl
-  ·-distribˡ-∧ₑ ⌞ 1+ m ⌟ ⌞ 0 ⌟ ⌞ 1+ o ⌟ = refl
-  ·-distribˡ-∧ₑ ⌞ 1+ m ⌟ ⌞ 1+ n ⌟ ⌞ 0 ⌟ = refl
-  ·-distribˡ-∧ₑ ⌞ 1+ m ⌟ ⌞ 1+ n ⌟ ⌞ 1+ o ⌟
+  ·-distribˡ-∧ᵗ : _·_ DistributesOverˡ _∧ᵗ_
+  ·-distribˡ-∧ᵗ ⌞ 0 ⌟ _ _ = refl
+  ·-distribˡ-∧ᵗ ⌞ 1+ m ⌟ ⌞ 0 ⌟ ⌞ 0 ⌟ = refl
+  ·-distribˡ-∧ᵗ ⌞ 1+ m ⌟ ⌞ 0 ⌟ ⌞ 1+ o ⌟ = refl
+  ·-distribˡ-∧ᵗ ⌞ 1+ m ⌟ ⌞ 1+ n ⌟ ⌞ 0 ⌟ = refl
+  ·-distribˡ-∧ᵗ ⌞ 1+ m ⌟ ⌞ 1+ n ⌟ ⌞ 1+ o ⌟
     with 1+ n N.≟ 1+ o | 1+ m N.* 1+ n N.≟ 1+ m N.* 1+ o
   … | yes refl | yes _ = refl
   … | yes refl | no ¬≡ = ⊥-elim (¬≡ refl)
   … | no n≢o | yes eq = ⊥-elim (n≢o (N.*-cancelˡ-≡ (1+ n) (1+ o) (1+ m) eq))
   … | no _ | no _ = refl
-  ·-distribˡ-∧ₑ ⌞ 1+ m ⌟ ⌞ n ⌟ ∞ = sym (∧ₑ-comm (⌞ 1+ m ⌟ · ⌞ n ⌟) ∞)
-  ·-distribˡ-∧ₑ ⌞ 1+ _ ⌟ ∞ _ = refl
-  ·-distribˡ-∧ₑ ∞ ⌞ n ⌟ ⌞ o ⌟ with n N.≟ o
-  … | yes refl = sym (∧ₑ-idem (∞ · ⌞ n ⌟))
-  ·-distribˡ-∧ₑ ∞ ⌞ 0 ⌟ ⌞ 0 ⌟ | no n≢o = ⊥-elim (n≢o refl)
-  ·-distribˡ-∧ₑ ∞ ⌞ 0 ⌟ ⌞ 1+ o ⌟ | no n≢o = refl
-  ·-distribˡ-∧ₑ ∞ ⌞ 1+ n ⌟ ⌞ o ⌟ | no n≢o = refl
-  ·-distribˡ-∧ₑ ∞ ⌞ n ⌟ ∞ = sym (∧ₑ-comm (∞ · ⌞ n ⌟) ∞)
-  ·-distribˡ-∧ₑ ∞ ∞ _ = refl
+  ·-distribˡ-∧ᵗ ⌞ 1+ m ⌟ ⌞ n ⌟ ∞ = sym (∧ᵗ-comm (⌞ 1+ m ⌟ · ⌞ n ⌟) ∞)
+  ·-distribˡ-∧ᵗ ⌞ 1+ _ ⌟ ∞ _ = refl
+  ·-distribˡ-∧ᵗ ∞ ⌞ n ⌟ ⌞ o ⌟ with n N.≟ o
+  … | yes refl = sym (∧ᵗ-idem (∞ · ⌞ n ⌟))
+  ·-distribˡ-∧ᵗ ∞ ⌞ 0 ⌟ ⌞ 0 ⌟ | no n≢o = ⊥-elim (n≢o refl)
+  ·-distribˡ-∧ᵗ ∞ ⌞ 0 ⌟ ⌞ 1+ o ⌟ | no n≢o = refl
+  ·-distribˡ-∧ᵗ ∞ ⌞ 1+ n ⌟ ⌞ o ⌟ | no n≢o = refl
+  ·-distribˡ-∧ᵗ ∞ ⌞ n ⌟ ∞ = sym (∧ᵗ-comm (∞ · ⌞ n ⌟) ∞)
+  ·-distribˡ-∧ᵗ ∞ ∞ _ = refl
 
   ·-distribˡ-∧ : _·_ DistributesOverˡ _∧_
   ·-distribˡ-∧ =
-    ∧-intro (_·_ DistributesOverˡ_) ·-distribˡ-∧ₐ ·-distribˡ-∧ₑ
+    ∧-intro (_·_ DistributesOverˡ_) ·-distribˡ-∧ᶠ ·-distribˡ-∧ᵗ
 
   ·-distrib-∧ : _·_ DistributesOver _∧_
   ·-distrib-∧ =
     ·-distribˡ-∧ , comm∧distrˡ⇒distrʳ ·-comm ·-distribˡ-∧
 
-  +-distribˡ-∧ₐ : _+_ DistributesOverˡ _∧ₐ_
-  +-distribˡ-∧ₐ ⌞ m ⌟ ⌞ _ ⌟ ⌞ _ ⌟ = cong ⌞_⌟ (N.+-distribˡ-⊔ m _ _)
-  +-distribˡ-∧ₐ ⌞ _ ⌟ ⌞ _ ⌟ ∞     = refl
-  +-distribˡ-∧ₐ ⌞ _ ⌟ ∞     _     = refl
-  +-distribˡ-∧ₐ ∞     _     _     = refl
+  +-distribˡ-∧ᶠ : _+_ DistributesOverˡ _∧ᶠ_
+  +-distribˡ-∧ᶠ ⌞ m ⌟ ⌞ _ ⌟ ⌞ _ ⌟ = cong ⌞_⌟ (N.+-distribˡ-⊔ m _ _)
+  +-distribˡ-∧ᶠ ⌞ _ ⌟ ⌞ _ ⌟ ∞     = refl
+  +-distribˡ-∧ᶠ ⌞ _ ⌟ ∞     _     = refl
+  +-distribˡ-∧ᶠ ∞     _     _     = refl
 
-  +-distribˡ-∧ₑ : _+_ DistributesOverˡ _∧ₑ_
-  +-distribˡ-∧ₑ ⌞ m ⌟ ⌞ n ⌟ ⌞ o ⌟ with n N.≟ o | m N.+ n N.≟ m N.+ o
+  +-distribˡ-∧ᵗ : _+_ DistributesOverˡ _∧ᵗ_
+  +-distribˡ-∧ᵗ ⌞ m ⌟ ⌞ n ⌟ ⌞ o ⌟ with n N.≟ o | m N.+ n N.≟ m N.+ o
   … | yes n≡o | yes m+n≡m+o = refl
   … | yes refl | no m+n≢m+o = ⊥-elim (m+n≢m+o refl)
   … | no n≢o | yes m+n≡m+o = ⊥-elim (n≢o (N.+-cancelˡ-≡ m n o m+n≡m+o))
   … | no n≢o | no m+n≢m+o = refl
-  +-distribˡ-∧ₑ ⌞ _ ⌟ ⌞ _ ⌟ ∞     = refl
-  +-distribˡ-∧ₑ ⌞ _ ⌟ ∞     _     = refl
-  +-distribˡ-∧ₑ ∞     _     _     = refl
+  +-distribˡ-∧ᵗ ⌞ _ ⌟ ⌞ _ ⌟ ∞     = refl
+  +-distribˡ-∧ᵗ ⌞ _ ⌟ ∞     _     = refl
+  +-distribˡ-∧ᵗ ∞     _     _     = refl
 
   +-distribˡ-∧ : _+_ DistributesOverˡ _∧_
   +-distribˡ-∧ =
-    ∧-intro (_+_ DistributesOverˡ_) +-distribˡ-∧ₐ +-distribˡ-∧ₑ
+    ∧-intro (_+_ DistributesOverˡ_) +-distribˡ-∧ᶠ +-distribˡ-∧ᵗ
 
   +-distrib-∧ : _+_ DistributesOver _∧_
   +-distrib-∧ =
@@ -736,7 +738,7 @@ instance
         {p = ⌞ 1+ m ⌟} {q = ⌞ 1+ n ⌟} x → ⊥-elim (lemma m n x))
     }
    where
-   lemma : ∀ m n → ⌞ 1+ m ⌟ ∧ₑ ⌞ 1+ n ⌟ ≢ ⌞ 0 ⌟
+   lemma : ∀ m n → ⌞ 1+ m ⌟ ∧ᵗ ⌞ 1+ n ⌟ ≢ ⌞ 0 ⌟
    lemma m n 1+m∧1+n≡0 with 1+ m N.≟ 1+ n
    lemma m .m () | yes refl
    lemma m n () | no _
@@ -783,7 +785,7 @@ private
   (∃₃ λ m n o → m HS₂.⊛ n ▷ o ≢ m HS₁.⊛ n ▷ o)
 ⊛▷<⊛▷ =
     BS.LowerBounded.⊛′≤⊛ ∞ ∞≤
-  , ⌞ 1 ⌟ , ⌞ 1 ⌟ , ⌞ 0 ⌟ , lemma affine
+  , ⌞ 1 ⌟ , ⌞ 1 ⌟ , ⌞ 0 ⌟ , lemma total
   where
   lemma : ∀ b
         → ∞ · (if b then ⌞ 1 ⌟ else ⌞ 1 ⌟)
@@ -799,12 +801,12 @@ private
 
 opaque
 
-  -- The division operator is correctly defined (for the affine order).
+  -- The division operator is correctly defined (for the total order).
 
-  /≡/ : T affine → m D./ n ≡ m / n
+  /≡/ : T total → m D./ n ≡ m / n
   /≡/ {m} {n} x = lemma (proj₁ T-true x) m n
     where
-    lemma : affine ≡ true → (m n : ℕ⊎∞) → m D./ n ≡ m / n
+    lemma : total ≡ true → (m n : ℕ⊎∞) → m D./ n ≡ m / n
     lemma refl ∞     ∞        = refl , λ _ _ → refl
     lemma refl ⌞ _ ⌟ ∞        = ≤0 _ , λ { ⌞ 0 ⌟ _ → refl }
     lemma refl _     ⌞ 0 ⌟    = ≤0 _ , λ _ _ → refl
@@ -828,12 +830,12 @@ opaque
 
 opaque
 
-  -- The division operator is not correctly defined (for the exact order).
+  -- The division operator is not correctly defined (for the flat order).
 
-  ¬/≡/ : T (not affine) → ¬ (∀ m n → m D./ n ≡ m / n)
+  ¬/≡/ : T (not total) → ¬ (∀ m n → m D./ n ≡ m / n)
   ¬/≡/ x /≡/ = lemma (proj₁ ¬-T (proj₁ T-not⇔¬-T x)) /≡/
     where
-    lemma : affine ≡ false → ¬ (∀ m n → m D./ n ≡ m / n)
+    lemma : total ≡ false → ¬ (∀ m n → m D./ n ≡ m / n)
     lemma refl /≡/ = case /≡/ ⌞ 1 ⌟ ∞ of λ {(() , _)}
 
 ------------------------------------------------------------------------
@@ -847,7 +849,7 @@ module _ where
   -- The family of sequences that Graded.Modality.Instances.Recursive is
   -- about does not have the required fixpoints.
 
-  ¬-Has-fixpoints-nr : T affine → ¬ Has-fixpoints-nr
+  ¬-Has-fixpoints-nr : T total → ¬ Has-fixpoints-nr
   ¬-Has-fixpoints-nr x = lemma (proj₁ T-true x)
     where
     open module S = Semiring-with-meet ℕ⊎∞-semiring-with-meet using (𝟘; 𝟙)
@@ -858,7 +860,7 @@ module _ where
     p = 𝟘
     q = 𝟙
 
-    increasing : affine ≡ true → ∀ n → nr (1+ n) p q r ≡ 𝟙 + nr n p q r
+    increasing : total ≡ true → ∀ n → nr (1+ n) p q r ≡ 𝟙 + nr n p q r
     increasing refl 0      = refl
     increasing refl (1+ n) =
       p ∧ (q + r · nr (1+ n) p q r)   ≡⟨ largest→∧≡ʳ (λ _ → ≤0 _) ⟩
@@ -871,7 +873,7 @@ module _ where
       𝟙 + (q + r · nr n p q r)        ≡˘⟨ cong (𝟙 +_) (largest→∧≡ʳ (λ _ → ≤0 _)) ⟩
       𝟙 + (p ∧ (q + r · nr n p q r))  ∎
 
-    always-⌞⌟ : affine ≡ true → ∀ m → ∃ λ n → nr m p q r ≡ ⌞ n ⌟
+    always-⌞⌟ : total ≡ true → ∀ m → ∃ λ n → nr m p q r ≡ ⌞ n ⌟
     always-⌞⌟ refl 0      = _ , refl
     always-⌞⌟ refl (1+ m) =
       case always-⌞⌟ refl m of λ {
@@ -881,7 +883,7 @@ module _ where
          𝟙 + nr m p q r   ≡⟨ cong (𝟙 +_) eq ⟩
          ⌞ 1+ n ⌟         ∎) }
 
-    lemma : affine ≡ true → ¬ Has-fixpoints-nr
+    lemma : total ≡ true → ¬ Has-fixpoints-nr
     lemma refl =
       (∀ r → ∃ λ n → ∀ p q → nr (1+ n) p q r ≡ nr n p q r)  →⟨ (λ hyp → Σ.map idᶠ (λ f → f p q) (hyp r)) ⟩
       (∃ λ n → nr (1+ n) p q r ≡ nr n p q r)                →⟨ Σ.map idᶠ (λ {x = n} → trans (sym (increasing refl n))) ⟩
@@ -1236,16 +1238,16 @@ record No-greatest-nr : Set where
 opaque
   unfolding nr₂→has-nr
 
-  -- For the "exact" usage counting, there is not greatest factoring nr function.
+  -- With the the flat order, there is no greatest factoring nr function.
 
-  no-greatest-nrₑ : T (not affine) → No-greatest-nr
-  no-greatest-nrₑ not-affine = lemma _ refl not-affine
+  no-greatest-nrₑ : T (not total) → No-greatest-nr
+  no-greatest-nrₑ not-total = lemma _ refl not-total
     where
     nr₂ : (p r : ℕ⊎∞) → ℕ⊎∞
     nr₂ p r = nr₃ r ⌞ 2 ⌟ p
     nr₂≢𝟘 : ∀ {p r} → nr₂ p r ≢ ⌞ 0 ⌟
     nr₂≢𝟘 {r} nr₂≡𝟘 = case nr₃-positive r nr₂≡𝟘 of λ ()
-    lemma : ∀ b → affine ≡ b → T (not b) → No-greatest-nr
+    lemma : ∀ b → total ≡ b → T (not b) → No-greatest-nr
     lemma true _ ()
     lemma false refl _ = record
       { has-nr₁ = ℕ⊎∞-has-nr
@@ -1266,7 +1268,7 @@ opaque
 
   -- The nr function returns results that are at least as large as those
   -- of any other factoring nr function with nr₂ p ⌞ 0 ⌟ ≤ ⌞ 1 ⌟ and
-  -- nr₂ ⌞ 0 ⌟ ⌞ 1 ⌟ ≤ ⌞ 1 ⌟ for zero-one-many-semiring-with-meet.
+  -- nr₂ ⌞ 0 ⌟ ⌞ 1 ⌟ ≤ ⌞ 1 ⌟ for ℕ⊎∞-semiring-with-meet.
   -- (Note that the nr₂ function used by nr has these properties,
   -- see nr₂p𝟘≤𝟙 and nr₂𝟘𝟙≤𝟙 above)
 
@@ -1408,22 +1410,22 @@ opaque
 opaque
 
   -- The nr function returns results that are at least as large as those
-  -- of any other factoring nr function for zero-one-many-semiring-with-meet
-  -- when the affine order is used.
+  -- of any other factoring nr function for ℕ⊎∞-semiring-with-meet
+  -- when the total order is used.
 
   nr-greatest-factoringₐ :
-    T affine →
+    T total →
     (has-nr : Has-nr ℕ⊎∞-semiring-with-meet)
     (has-factoring-nr : Has-factoring-nr ℕ⊎∞-semiring-with-meet ⦃ has-nr ⦄) →
     ∀ p r z s n → Has-nr.nr has-nr p r z s n ≤ nr p r z s n
   nr-greatest-factoringₐ x has-nr has-factoring-nr = lemma _ refl x
     where
     open Has-factoring-nr ⦃ has-nr ⦄ has-factoring-nr
-    lemma : ∀ b → b ≡ affine → T b →
+    lemma : ∀ b → b ≡ total → T b →
             ∀ p r z s n → Has-nr.nr has-nr p r z s n ≤ nr p r z s n
     lemma true refl _ =
       nr-greatest-factoring has-nr has-factoring-nr
-        (≢𝟘→≤ₐ𝟙 nr₂≢𝟘) (≢𝟘→≤ₐ𝟙 nr₂≢𝟘)
+        (≢𝟘→≤ᵗ𝟙 nr₂≢𝟘) (≢𝟘→≤ᵗ𝟙 nr₂≢𝟘)
 
 -- A modality (of any kind) for ℕ⊎∞ defined using the nr function
 
@@ -1441,9 +1443,9 @@ opaque
 -- Instances of Type-restrictions (ℕ⊎∞-modality variant) and
 -- Usage-restrictions (ℕ⊎∞-modality variant) are suitable for the full
 -- reduction theorem if
--- * whenever Σˢ-allowed m n holds, then m is ⌞ 1 ⌟, or the affine
+-- * whenever Σˢ-allowed m n holds, then m is ⌞ 1 ⌟, or the total
 --   ordering is used, m is ⌞ 0 ⌟, and 𝟘ᵐ is allowed, and
--- * if the "exact" ordering is used, then strong unit types are
+-- * if the "flat" ordering is used, then strong unit types are
 --   allowed to be used as sinks (if such types are allowed), and
 --   η-equality is not allowed for weak unit types (if such types are
 --   allowed).
@@ -1453,8 +1455,8 @@ Suitable-for-full-reduction :
   Usage-restrictions (ℕ⊎∞-modality variant) → Set
 Suitable-for-full-reduction variant TRs URs =
   (∀ m n → Σˢ-allowed m n →
-   m ≡ ⌞ 1 ⌟ ⊎ T affine × m ≡ ⌞ 0 ⌟ × T 𝟘ᵐ-allowed) ×
-  (¬ T affine →
+   m ≡ ⌞ 1 ⌟ ⊎ T total × m ≡ ⌞ 0 ⌟ × T 𝟘ᵐ-allowed) ×
+  (¬ T total →
    (Unitˢ-allowed → Starˢ-sink) ×
    (Unitʷ-allowed → ¬ Unitʷ-η))
   where
@@ -1474,30 +1476,30 @@ suitable-for-full-reduction {variant} TRs URs =
     record TRs
       { Unit-allowed = λ s →
           Unit-allowed s ×
-          (¬ T affine → s ≡ 𝕨 → ¬ Unitʷ-η)
+          (¬ T total → s ≡ 𝕨 → ¬ Unitʷ-η)
       ; ΠΣ-allowed = λ b m n →
           ΠΣ-allowed b m n ×
-          (b ≡ BMΣ 𝕤 → m ≡ ⌞ 1 ⌟ ⊎ T affine × m ≡ ⌞ 0 ⌟ × T 𝟘ᵐ-allowed)
+          (b ≡ BMΣ 𝕤 → m ≡ ⌞ 1 ⌟ ⊎ T total × m ≡ ⌞ 0 ⌟ × T 𝟘ᵐ-allowed)
       ; []-cong-allowed = λ s →
           []-cong-allowed s ×
-          (T affine → T 𝟘ᵐ-allowed) ×
-          (¬ T affine → s ≢ 𝕤 × (s ≡ 𝕨 → ¬ Unitʷ-η))
+          (T total → T 𝟘ᵐ-allowed) ×
+          (¬ T total → s ≢ 𝕤 × (s ≡ 𝕨 → ¬ Unitʷ-η))
       ; []-cong→Erased = λ (ok , hyp₁ , hyp₂) →
           let ok₁ , ok₂ = []-cong→Erased ok in
             (ok₁ , proj₂ ∘→ hyp₂)
           , ok₂
-          , (case PE.singleton affine of λ where
+          , (case PE.singleton total of λ where
                (true  , refl) _    → inj₂ (_ , refl , hyp₁ _)
                (false , refl) refl → ⊥-elim (hyp₂ idᶠ .proj₁ refl))
       ; []-cong→¬Trivial = λ _ ()
       }
-  , record URs { starˢ-sink = not affine ∨ starˢ-sink }
+  , record URs { starˢ-sink = not total ∨ starˢ-sink }
   , (λ _ _ (_ , hyp) → hyp refl)
-  , (λ not-affine →
-         (λ (_ , hyp) → case PE.singleton affine of λ where
-            (true  , refl) → ⊥-elim (not-affine _)
+  , (λ not-total →
+         (λ (_ , hyp) → case PE.singleton total of λ where
+            (true  , refl) → ⊥-elim (not-total _)
             (false , refl) → _)
-       , (λ (_ , hyp) → hyp not-affine refl))
+       , (λ (_ , hyp) → hyp not-total refl))
   where
   open Modality-variant variant
   open Type-restrictions TRs
@@ -1510,7 +1512,7 @@ full-reduction-assumptions :
   Suitable-for-full-reduction variant TRs URs →
   Full-reduction-assumptions TRs URs
 full-reduction-assumptions (hyp₁ , hyp₂) =
-  case PE.singleton affine of λ where
+  case PE.singleton total of λ where
     (true , refl) → record
       { sink⊎𝟙≤𝟘 = λ _ _ → inj₂ refl
       ; ≡𝟙⊎𝟙≤𝟘   = ⊎.map idᶠ (Σ.map idᶠ (_, refl) ∘→ proj₂) ∘→ hyp₁ _ _
@@ -1530,7 +1532,7 @@ full-reduction-assumptions-suitable :
   Full-reduction-assumptions TRs URs →
   Suitable-for-full-reduction variant TRs URs
 full-reduction-assumptions-suitable as =
-  case PE.singleton affine of λ where
+  case PE.singleton total of λ where
     (true , refl) →
         (λ _ _ → ⊎.map idᶠ ((_ ,_) ∘→ Σ.map idᶠ proj₁) ∘→ ≡𝟙⊎𝟙≤𝟘)
       , ⊥-elim ∘→ (_$ _)
@@ -1561,9 +1563,9 @@ opaque
   -- Subtraction of ⌞ m ⌟ by ⌞ n ⌟ is only possible if n ≤ m
 
   ⌞m⌟-⌞n⌟≤ : ∀ {m n} → ⌞ m ⌟ - ⌞ n ⌟ ≤ o → n N.≤ m
-  ⌞m⌟-⌞n⌟≤ {⌞ o ⌟} {m} {n} m≤o+n = lemma affine refl
+  ⌞m⌟-⌞n⌟≤ {⌞ o ⌟} {m} {n} m≤o+n = lemma total refl
     where
-    lemma : ∀ b → b ≡ affine → n N.≤ m
+    lemma : ∀ b → b ≡ total → n N.≤ m
     lemma false refl with m N.≟ o N.+ n
     … | yes refl = N.m≤n+m n o
     … | no _ = ⊥-elim (∞≢⌞m⌟ (sym m≤o+n))
@@ -1586,7 +1588,7 @@ opaque
   -- is greater than the second (in the natural number order)
 
   m-n≡ : ∀ m n → (n≤m : n N.≤ m) → ⌞ m ⌟ - ⌞ n ⌟ ≡ ⌞ m N.∸ n ⌟
-  m-n≡ m n n≤m = lemma affine refl
+  m-n≡ m n n≤m = lemma total refl
     where
     lemma₁ : ∀ m n → n N.≤ m → m ≡ m N.⊔ (m N.∸ n N.+ n)
     lemma₁ m 0 n≤m
@@ -1602,14 +1604,14 @@ opaque
     lemma₂ (1+ m) (1+ n) k x rewrite N.+-suc k n =
       lemma₂ m n k (N.+1-injective x)
 
-    lemma₃ : ∀ k → ⌞ m ⌟ ≤ₑ ⌞ k N.+ n ⌟ → ⌞ m N.∸ n ⌟ ≤ₑ ⌞ k ⌟
+    lemma₃ : ∀ k → ⌞ m ⌟ ≤ᶠ ⌞ k N.+ n ⌟ → ⌞ m N.∸ n ⌟ ≤ᶠ ⌞ k ⌟
     lemma₃ k m≤ with m N.∸ n N.≟ k
     … | yes _ = refl
     … | no m-n≢k with m N.≟ k N.+ n
     … | yes refl = ⊥-elim (m-n≢k (N.m+n∸n≡m k n))
     lemma₃ k () | no _ | no _
 
-    lemma : ∀ b → b ≡ affine → ⌞ m ⌟ - ⌞ n ⌟ ≡ ⌞ m N.∸ n ⌟
+    lemma : ∀ b → b ≡ total → ⌞ m ⌟ - ⌞ n ⌟ ≡ ⌞ m N.∸ n ⌟
     lemma false refl with m N.≟ m N.∸ n N.+ n
     … | yes _ = refl , λ { ⌞ k ⌟ x → lemma₃ k x}
     … | no m≢m-n+n = ⊥-elim (m≢m-n+n (sym (N.m∸n+n≡m n≤m)))
