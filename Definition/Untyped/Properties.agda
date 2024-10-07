@@ -1542,6 +1542,9 @@ opaque
     σ₊ : Subst m (2+ n)
     σ₊ = consSubst (consSubst σ u) v
 
+------------------------------------------------------------------------
+-- Some lemmas related to numerals
+
 -- The predicate Numeral is decidable
 
 opaque
