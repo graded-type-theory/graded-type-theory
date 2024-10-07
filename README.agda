@@ -59,6 +59,7 @@ import Graded.Erasure.LogicalRelation.Reduction
 import Graded.Erasure.SucRed
 import Graded.Erasure.Target
 import Graded.FullReduction
+import Graded.Heap.Soundness
 import Graded.Modality
 import Graded.Modality.Dedicated-nr
 import Graded.Modality.Instances.Affine
@@ -200,9 +201,7 @@ linear-or-affine-nr =
 incomparable = Graded.Modality.Instances.Linearity.incomparable
 smaller      = Graded.Modality.Instances.Affine.alternative-greater
 
--- The problems mentioned above do not affect the obtained modalities,
--- but (at the time of writing) there is no solid evidence showing
--- that these modalities are "correct".
+-- The problems mentioned above do not affect the obtained modalities.
 
 double-not-ok₁ = Graded.Modality.Instances.Linearity.Good.¬▸double
 double-not-ok₂ = Graded.Modality.Instances.Affine.Good.¬▸double
@@ -211,6 +210,12 @@ double-not-ok₃ =
 
 plus-ok₁ = Graded.Modality.Instances.Linearity.Good.▸plus
 plus-ok₂ = Graded.Modality.Instances.Linear-or-affine.Good.▸plus
+
+-- Additionally, some evidence that there modalities are "correct" is
+-- available in the form of a resource aware abstract machine that ensures
+-- that variables are used as many times as specified.
+
+abstract-machine-soundness = Graded.Heap.Soundness.soundness
 
 -- Section 7.1.4 in the paper briefly discusses an alternative usage
 -- rule for natrec. This rule has been changed:
