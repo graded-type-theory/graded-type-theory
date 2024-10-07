@@ -15,16 +15,17 @@ import Tools.Product
 import Tools.PropositionalEquality
 import Tools.Empty
 import Tools.Function
-import Tools.Bool
-import Tools.Nat
-import Tools.Fin
-import Tools.List
-import Tools.Algebra
 
 import Tools.Reasoning.Preorder
 import Tools.Reasoning.Equivalence
 import Tools.Reasoning.PartialOrder
 import Tools.Reasoning.PropositionalEquality
+
+import Tools.Bool
+import Tools.Nat
+import Tools.Fin
+import Tools.List
+import Tools.Algebra
 
 ------------------------------------------------------------------------
 -- Graded modalities
