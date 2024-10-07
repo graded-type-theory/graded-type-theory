@@ -193,7 +193,7 @@ transEqT (Unitᵥ _ (Unitₜ B⇒*Unit₁ _) _) B⇒*Unit₂ C⇒*Unit =
        whrDet* (red B⇒*Unit₁ , Unitₙ) (B⇒*Unit₂ , Unitₙ) of λ {
     (_ , PE.refl) →
   C⇒*Unit }
-transEqT (ne (ne K [ ⊢A , ⊢B , D ] neK K≡K) (ne K₁ D₁ neK₁ _)
+transEqT (ne (ne _ [ ⊢A , ⊢B , D ] neK K≡K) (ne K₁ D₁ neK₁ _)
              (ne K₂ D₂ neK₂ _))
          (ne₌ M D′ neM K≡M) (ne₌ M₁ D″ neM₁ K≡M₁)
          rewrite whrDet* (red D₁ , ne neK₁) (red D′ , ne neM)
@@ -282,7 +282,7 @@ transEqTerm (Uᵣ′ l′ ≤ᵘ-refl D)
 transEqTerm (ℕᵣ D) [t≡u] [u≡v] = transEqTermℕ [t≡u] [u≡v]
 transEqTerm (Emptyᵣ D) [t≡u] [u≡v] = transEqTermEmpty [t≡u] [u≡v]
 transEqTerm (Unitᵣ D) [t≡u] [u≡v] = transEqTermUnit [t≡u] [u≡v]
-transEqTerm {n} (ne′ K D neK K≡K) (neₜ₌ k m d d′ (neNfₜ₌ neK₁ neM k≡m))
+transEqTerm {n} (ne′ _ D neK K≡K) (neₜ₌ k m d d′ (neNfₜ₌ neK₁ neM k≡m))
                               (neₜ₌ k₁ m₁ d₁ d″ (neNfₜ₌ neK₂ neM₁ k≡m₁)) =
   let k₁≡m = whrDet*Term (redₜ d₁ , ne neK₂) (redₜ d′ , ne neM)
   in  neₜ₌ k m₁ d d″

@@ -38,6 +38,101 @@ infix 25 _[_]↑
 infix 25 _[_,_]₁₀
 infix 25 _[_]↑²
 
+------------------------------------------------------------------------
+-- The syntax
+
+-- The type of terms is parametrised by the number of free variables.
+-- Variables are de Bruijn indices.
+
+data Term (n : Nat) : Set a where
+  var : (x : Fin n) → Term n
+  U : Universe-level → Term n
+  ΠΣ⟨_⟩_,_▷_▹_ : (b : BinderMode) (p q : M) (A : Term n)
+               (B : Term (1+ n)) → Term n
+  lam : (p : M) (t : Term (1+ n)) → Term n
+  _∘⟨_⟩_ : (t : Term n) (p : M) (u : Term n) → Term n
+  prod : Strength → (p : M) (t u : Term n) → Term n
+  fst : (p : M) (t : Term n) → Term n
+  snd : (p : M) (t : Term n) → Term n
+  prodrec : (r p q : M) (A : Term (1+ n)) (t : Term n)
+            (u : Term (2+ n)) → Term n
+  ℕ : Term n
+  zero : Term n
+  suc : (t : Term n) → Term n
+  natrec : (p q r : M) (A : Term (1+ n)) (z : Term n)
+           (s : Term (2+ n)) (t : Term n) → Term n
+  Unit : Strength → Universe-level → Term n
+  star : Strength → Universe-level → Term n
+  unitrec : Universe-level → (p q : M) (A : Term (1+ n))
+            (t u : Term n) → Term n
+  Empty : Term n
+  emptyrec : (p : M) (A t : Term n) → Term n
+  Id : (A t u : Term n) → Term n
+  rfl : Term n
+  J : (p q : M) (A t : Term n) (B : Term (2+ n)) (u v w : Term n) →
+      Term n
+  K : (p : M) (A t : Term n) (B : Term (1+ n)) (u v : Term n) →
+      Term n
+  []-cong : Strength → (A t u v : Term n) → Term n
+
+pattern Unit! = Unit _ _
+pattern Unitʷ l = Unit 𝕨 l
+pattern Unitˢ l = Unit 𝕤 l
+
+pattern Π_,_▷_▹_ p q F G = ΠΣ⟨ BMΠ ⟩ p , q ▷ F ▹ G
+pattern Σˢ_,_▷_▹_ p q F G = ΠΣ⟨ BMΣ 𝕤 ⟩ p , q ▷ F ▹ G
+pattern Σʷ_,_▷_▹_ p q F G = ΠΣ⟨ BMΣ 𝕨 ⟩ p , q ▷ F ▹ G
+pattern Σ_,_▷_▹_ p q F G = ΠΣ⟨ BMΣ _ ⟩ p , q ▷ F ▹ G
+pattern Σ⟨_⟩_,_▷_▹_ s p q F G = ΠΣ⟨ BMΣ s ⟩ p , q ▷ F ▹ G
+
+pattern _∘_ t u = t ∘⟨ _ ⟩ u
+
+pattern prodˢ p t u = prod 𝕤 p t u
+pattern prodʷ p t u = prod 𝕨 p t u
+pattern prod! t u = prod _ _ t u
+
+pattern star! = star _ _
+pattern starʷ l = star 𝕨 l
+pattern starˢ l = star 𝕤 l
+
+pattern []-cong! A t u v = []-cong _ A t u v
+pattern []-congʷ A t u v = []-cong 𝕨 A t u v
+pattern []-congˢ A t u v = []-cong 𝕤 A t u v
+
+private variable
+  t : Term _
+
+-- Type constructors.
+
+data BindingType : Set a where
+  BM : BinderMode → (p q : M) → BindingType
+
+pattern BΠ p q = BM BMΠ p q
+pattern BΠ! = BΠ _ _
+pattern BΣ s p q = BM (BMΣ s) p q
+pattern BΣ! = BΣ _ _ _
+pattern BΣʷ = BΣ 𝕨 _ _
+pattern BΣˢ = BΣ 𝕤 _ _
+
+⟦_⟧_▹_ : BindingType → Term n → Term (1+ n) → Term n
+⟦ BM b p q ⟧ A ▹ B = ΠΣ⟨ b ⟩ p , q ▷ A ▹ B
+
+-- Fully normalized natural numbers
+
+data Numeral {n : Nat} : Term n → Set a where
+  zeroₙ : Numeral zero
+  sucₙ : Numeral t → Numeral (suc t)
+
+-- The canonical term corresponding to the given natural number.
+
+sucᵏ : (k : Nat) → Term n
+sucᵏ 0      = zero
+sucᵏ (1+ n) = suc (sucᵏ n)
+
+------------------------------------------------------------------------
+-- An alternative syntax representation
+
+
 -- Kinds are indexed by a list of natural numbers specifying
 -- the number of sub-terms (the length of the list) and the
 -- number of new variables bound by each sub-term (each element
@@ -74,121 +169,182 @@ data Kind : (ns : List Nat) → Set a where
   Kkind       : M → Kind (0 ∷ 0 ∷ 1 ∷ 0 ∷ 0 ∷ [])
   Boxcongkind : Strength → Kind (0 ∷ 0 ∷ 0 ∷ 0 ∷ [])
 
--- The type of terms is parametrised by the number of free variables.
--- A term is either a variable (a de Bruijn index) or a generic term,
--- consisting of a kind and a list of sub-terms.
+-- In the alternative term representations, a term is either a
+-- variable (de Bruijn index) or a "generic"
+
+-- The alternative term representation is parametrised by the number of
+-- free variables. A term is either a variable (a de Bruijn index) or a
+-- generic term, consisting of a kind and a list of sub-terms.
 --
 -- A term (gen k (n₁ ∷ … ∷ nₘ)) consists of m sub-terms (possibly zero)
--- each binding nᵢ variables.
+-- with sub-term i binding nᵢ variables.
 
-data Term (n : Nat) : Set a where
-  var : (x : Fin n) → Term n
-  gen : {bs : List Nat} (k : Kind bs) (ts : GenTs Term n bs) → Term n
+data Term′ (n : Nat) : Set a where
+  var : (x : Fin n) → Term′ n
+  gen : {bs : List Nat} (k : Kind bs) (ts : GenTs Term′ n bs) → Term′ n
 
 private variable
-  t    : Term n
   k k′ : Kind _
 
--- The Grammar of our language.
+-- Converting from the alternative syntax.
 
--- We represent the expressions of our language as de Bruijn terms.
--- Variables are natural numbers interpreted as de Bruijn indices.
--- Π, lam, and natrec are binders.
+toTerm : Term′ n → Term n
+toTerm (var x) =
+  var x
+toTerm (gen (Ukind l) []) =
+  U l
+toTerm (gen (Binderkind b p q) (A ∷ₜ B ∷ₜ [])) =
+  ΠΣ⟨ b ⟩ p , q ▷ (toTerm A) ▹ (toTerm B)
+toTerm (gen (Lamkind p) (t ∷ₜ [])) =
+  lam p (toTerm t)
+toTerm (gen (Appkind p) (t ∷ₜ u ∷ₜ [])) =
+  toTerm t ∘⟨ p ⟩ toTerm u
+toTerm (gen (Prodkind s p) (t ∷ₜ u ∷ₜ [])) =
+  prod s p (toTerm t) (toTerm u)
+toTerm (gen (Fstkind p) (t ∷ₜ [])) =
+  fst p (toTerm t)
+toTerm (gen (Sndkind p) (t ∷ₜ [])) =
+  snd p (toTerm t)
+toTerm (gen (Prodreckind r p q) (A ∷ₜ t ∷ₜ u ∷ₜ [])) =
+  prodrec r p q (toTerm A) (toTerm t) (toTerm u)
+toTerm (gen Natkind []) =
+  ℕ
+toTerm (gen Zerokind []) =
+  zero
+toTerm (gen Suckind (t ∷ₜ [])) =
+  suc (toTerm t)
+toTerm (gen (Natreckind p q r) (A ∷ₜ z ∷ₜ s ∷ₜ n ∷ₜ [])) =
+  natrec p q r (toTerm A) (toTerm z) (toTerm s) (toTerm n)
+toTerm (gen (Unitkind s l) []) =
+  Unit s l
+toTerm (gen (Starkind s l) []) =
+  star s l
+toTerm (gen (Unitreckind l p q) (A ∷ₜ t ∷ₜ u ∷ₜ [])) =
+  unitrec l p q (toTerm A) (toTerm t) (toTerm u)
+toTerm (gen Emptykind []) =
+  Empty
+toTerm (gen (Emptyreckind p) (A ∷ₜ t ∷ₜ [])) =
+  emptyrec p (toTerm A) (toTerm t)
+toTerm (gen Idkind (A ∷ₜ t ∷ₜ u ∷ₜ [])) =
+  Id (toTerm A) (toTerm t) (toTerm u)
+toTerm (gen Reflkind []) =
+  rfl
+toTerm (gen (Jkind p q) (A ∷ₜ t ∷ₜ B ∷ₜ u ∷ₜ v ∷ₜ w ∷ₜ [])) =
+  J p q (toTerm A) (toTerm t) (toTerm B) (toTerm u) (toTerm v) (toTerm w)
+toTerm (gen (Kkind p) (A ∷ₜ t ∷ₜ B ∷ₜ u ∷ₜ v ∷ₜ [])) =
+  K p (toTerm A) (toTerm t) (toTerm B) (toTerm u) (toTerm v)
+toTerm (gen (Boxcongkind s) (A ∷ₜ t ∷ₜ u ∷ₜ v ∷ₜ [])) =
+  []-cong s (toTerm A) (toTerm t) (toTerm u) (toTerm v)
 
--- Type constructors.
-pattern U n = gen (Ukind n) []
-pattern ℕ = gen Natkind []
-pattern Empty = gen Emptykind []
-pattern Unit! = gen (Unitkind _ _) []
-pattern Unit s l = gen (Unitkind s l) []
-pattern Unitʷ l = gen (Unitkind 𝕨 l) []
-pattern Unitˢ l = gen (Unitkind 𝕤 l) []
+-- Converting to the alternative syntax.
 
-pattern ΠΣ⟨_⟩_,_▷_▹_ b p q F G = gen (Binderkind b p q) (F ∷ₜ G ∷ₜ [])
-pattern Π_,_▷_▹_ p q F G = gen (Binderkind BMΠ p q) (F ∷ₜ G ∷ₜ [])
-pattern Σˢ_,_▷_▹_ p q F G = gen (Binderkind (BMΣ 𝕤) p q) (F ∷ₜ G ∷ₜ [])
-pattern Σʷ_,_▷_▹_ p q F G = gen (Binderkind (BMΣ 𝕨) p q) (F ∷ₜ G ∷ₜ [])
-pattern Σ_,_▷_▹_ p q F G = gen (Binderkind (BMΣ _) p q) (F ∷ₜ G ∷ₜ [])
-pattern Σ⟨_⟩_,_▷_▹_ s p q F G =
-  gen (Binderkind (BMΣ s) p q) (F ∷ₜ G ∷ₜ [])
-
-pattern lam p t = gen (Lamkind p) (t ∷ₜ [])
-pattern _∘⟨_⟩_ t p u = gen (Appkind p) (t ∷ₜ u ∷ₜ [])
-pattern _∘_ t u = gen (Appkind _) (t ∷ₜ u ∷ₜ [])
-
-pattern prodˢ p t u = gen (Prodkind 𝕤 p) (t ∷ₜ u ∷ₜ [])
-pattern prodʷ p t u = gen (Prodkind 𝕨 p) (t ∷ₜ u ∷ₜ [])
-pattern prod m p t u = gen (Prodkind m p) (t ∷ₜ u ∷ₜ [])
-pattern prod! t u = gen (Prodkind _ _) (t ∷ₜ u ∷ₜ [])
-pattern fst p t = gen (Fstkind p) (t ∷ₜ [])
-pattern snd p t = gen (Sndkind p) (t ∷ₜ [])
-pattern prodrec r p q A t u =
-  gen (Prodreckind r p q) (A ∷ₜ t ∷ₜ u ∷ₜ [])
-
-pattern zero = gen Zerokind []
-pattern suc t = gen Suckind (t ∷ₜ [])
-pattern natrec p q r A z s n =
-  gen (Natreckind p q r) (A ∷ₜ z ∷ₜ s ∷ₜ n ∷ₜ [])
-
-pattern star! = gen (Starkind _ _) []
-pattern star s l = gen (Starkind s l) []
-pattern starʷ l = gen (Starkind 𝕨 l) []
-pattern starˢ l = gen (Starkind 𝕤 l) []
-pattern unitrec l p q A t u =
-  gen (Unitreckind l p q) (A ∷ₜ t ∷ₜ u ∷ₜ [])
-pattern emptyrec p A t = gen (Emptyreckind p) (A ∷ₜ t ∷ₜ [])
-
-pattern Id A t u = gen Idkind (A ∷ₜ t ∷ₜ u ∷ₜ [])
-pattern rfl = gen Reflkind []
-pattern J p q A t B u v w =
-  gen (Jkind p q) (A ∷ₜ t ∷ₜ B ∷ₜ u ∷ₜ v ∷ₜ w ∷ₜ [])
-pattern K p A t B u v = gen (Kkind p) (A ∷ₜ t ∷ₜ B ∷ₜ u ∷ₜ v ∷ₜ [])
-pattern []-cong! A t u v = gen (Boxcongkind _) (A ∷ₜ t ∷ₜ u ∷ₜ v ∷ₜ [])
-pattern []-cong m A t u v = gen (Boxcongkind m) (A ∷ₜ t ∷ₜ u ∷ₜ v ∷ₜ [])
-pattern []-congʷ A t u v = gen (Boxcongkind 𝕨) (A ∷ₜ t ∷ₜ u ∷ₜ v ∷ₜ [])
-pattern []-congˢ A t u v = gen (Boxcongkind 𝕤) (A ∷ₜ t ∷ₜ u ∷ₜ v ∷ₜ [])
-
-
-data BindingType : Set a where
-  BM : BinderMode → (p q : M) → BindingType
-
-pattern BΠ p q = BM BMΠ p q
-pattern BΠ! = BΠ _ _
-pattern BΣ s p q = BM (BMΣ s) p q
-pattern BΣ! = BΣ _ _ _
-pattern BΣʷ = BΣ 𝕨 _ _
-pattern BΣˢ = BΣ 𝕤 _ _
-
-⟦_⟧_▹_ : BindingType → Term n → Term (1+ n) → Term n
-⟦ BM b p q ⟧ A ▹ B = ΠΣ⟨ b ⟩ p , q ▷ A ▹ B
-
--- Fully normalized natural numbers
-
-data Numeral {n : Nat} : Term n → Set a where
-  zeroₙ : Numeral zero
-  sucₙ : Numeral t → Numeral (suc t)
-
--- The canonical term corresponding to the given natural number.
-
-sucᵏ : (k : Nat) → Term n
-sucᵏ 0      = zero
-sucᵏ (1+ n) = suc (sucᵏ n)
+fromTerm : Term n → Term′ n
+fromTerm (var x) =
+  var x
+fromTerm (U l) =
+  gen (Ukind l) []
+fromTerm (ΠΣ⟨ b ⟩ p , q ▷ A ▹ B) =
+  gen (Binderkind b p q) (fromTerm A ∷ₜ fromTerm B ∷ₜ [])
+fromTerm (lam p t) =
+  gen (Lamkind p) (fromTerm t ∷ₜ [])
+fromTerm (t ∘⟨ p ⟩ u) =
+  gen (Appkind p) (fromTerm t ∷ₜ fromTerm u ∷ₜ [])
+fromTerm (prod s p t u) =
+  gen (Prodkind s p) (fromTerm t ∷ₜ fromTerm u ∷ₜ [])
+fromTerm (fst p t) =
+  gen (Fstkind p) (fromTerm t ∷ₜ [])
+fromTerm (snd p t) =
+  gen (Sndkind p) (fromTerm t ∷ₜ [])
+fromTerm (prodrec r p q A t u) =
+  gen (Prodreckind r p q)
+    (fromTerm A ∷ₜ fromTerm t ∷ₜ fromTerm u ∷ₜ [])
+fromTerm ℕ =
+  gen Natkind []
+fromTerm zero =
+  gen Zerokind []
+fromTerm (suc t) =
+  gen Suckind (fromTerm t ∷ₜ [])
+fromTerm (natrec p q r A z s n) =
+  gen (Natreckind p q r)
+    (fromTerm A ∷ₜ fromTerm z ∷ₜ fromTerm s ∷ₜ fromTerm n ∷ₜ [])
+fromTerm (Unit s l) =
+  gen (Unitkind s l) []
+fromTerm (star s l) =
+  gen (Starkind s l) []
+fromTerm (unitrec l p q A t u) =
+  gen (Unitreckind l p q)
+    (fromTerm A ∷ₜ fromTerm t ∷ₜ fromTerm u ∷ₜ [])
+fromTerm Empty =
+  gen Emptykind []
+fromTerm (emptyrec p A t) =
+  gen (Emptyreckind p) (fromTerm A ∷ₜ fromTerm t ∷ₜ [])
+fromTerm (Id A t u) =
+  gen Idkind (fromTerm A ∷ₜ fromTerm t ∷ₜ fromTerm u ∷ₜ [])
+fromTerm rfl =
+  gen Reflkind []
+fromTerm (J p q A t B u v w) =
+  gen (Jkind p q)
+    (fromTerm A ∷ₜ fromTerm t ∷ₜ fromTerm B ∷ₜ fromTerm u
+                ∷ₜ fromTerm v ∷ₜ fromTerm w ∷ₜ [])
+fromTerm (K p A t B u v) =
+  gen (Kkind p)
+    (fromTerm A ∷ₜ fromTerm t ∷ₜ fromTerm B
+                ∷ₜ fromTerm u ∷ₜ fromTerm v ∷ₜ [])
+fromTerm ([]-cong s A t u v) =
+  gen (Boxcongkind s)
+    (fromTerm A ∷ₜ fromTerm t ∷ₜ fromTerm u
+                ∷ₜ fromTerm v ∷ₜ [])
 
 ------------------------------------------------------------------------
 -- Weakening
 
-  -- Weakening of terms.
-  -- If η : Γ ≤ Δ and Δ ⊢ t : A then Γ ⊢ wk η t : wk η A.
+-- Weakening of terms.
+-- If η : Γ ≤ Δ and Δ ⊢ t : A then Γ ⊢ wk η t : wk η A.
+
+wk : (ρ : Wk m n) (t : Term n) → Term m
+wk ρ (var x) = var (wkVar ρ x)
+wk ρ (U l) = U l
+wk ρ (ΠΣ⟨ b ⟩ p , q ▷ A ▹ B) =
+  ΠΣ⟨ b ⟩ p , q ▷ wk ρ A ▹ wk (lift ρ) B
+wk ρ (lam p t) = lam p (wk (lift ρ) t)
+wk ρ (t ∘⟨ p ⟩ u) = wk ρ t ∘⟨ p ⟩ wk ρ u
+wk ρ (prod s p t u) = prod s p (wk ρ t) (wk ρ u)
+wk ρ (fst p t) = fst p (wk ρ t)
+wk ρ (snd p t) = snd p (wk ρ t)
+wk ρ (prodrec r p q A t u) =
+  prodrec r p q (wk (lift ρ) A) (wk ρ t) (wk (liftn ρ 2) u)
+wk ρ ℕ = ℕ
+wk ρ zero = zero
+wk ρ (suc t) = suc (wk ρ t)
+wk ρ (natrec p q r A z s n) =
+  natrec p q r (wk (lift ρ) A) (wk ρ z) (wk (liftn ρ 2) s) (wk ρ n)
+wk ρ (Unit s l) = Unit s l
+wk ρ (star s l) = star s l
+wk ρ (unitrec l p q A t u) =
+  unitrec l p q (wk (lift ρ) A) (wk ρ t) (wk ρ u)
+wk ρ Empty = Empty
+wk ρ (emptyrec p A t) = emptyrec p (wk ρ A) (wk ρ t)
+wk ρ (Id A t u) = Id (wk ρ A) (wk ρ t) (wk ρ u)
+wk ρ rfl = rfl
+wk ρ (J p q A t B u v w) =
+  J p q (wk ρ A) (wk ρ t) (wk (liftn ρ 2) B) (wk ρ u) (wk ρ v) (wk ρ w)
+wk ρ (K p A t B u v) =
+  K p (wk ρ A) (wk ρ t) (wk (lift ρ) B) (wk ρ u) (wk ρ v)
+wk ρ ([]-cong s A t u v) =
+  []-cong s (wk ρ A) (wk ρ t) (wk ρ u) (wk ρ v)
+
+-- Weakening for the alternative term representation.
 
 mutual
-  wkGen : {m n : Nat} {bs : List Nat} (ρ : Wk m n) (c : GenTs (Term) n bs) → GenTs (Term) m bs
+
+  wkGen : {m n : Nat} {bs : List Nat} (ρ : Wk m n)
+          (c : GenTs Term′ n bs) → GenTs Term′ m bs
   wkGen ρ []                 = []
-  wkGen ρ (_∷ₜ_ {b = b} t c) = wk (liftn ρ b) t ∷ₜ wkGen ρ c
+  wkGen ρ (_∷ₜ_ {b = b} t c) = wk′ (liftn ρ b) t ∷ₜ wkGen ρ c
 
-  wk : {m n : Nat} (ρ : Wk m n) (t : Term n) → Term m
-  wk ρ (var x)   = var (wkVar ρ x)
-  wk ρ (gen k c) = gen k (wkGen ρ c)
-
+  wk′ : (ρ : Wk m n) (t : Term′ n) → Term′ m
+  wk′ ρ (var x) = var (wkVar ρ x)
+  wk′ ρ (gen k ts) = gen k (wkGen ρ ts)
 
 -- Adding one variable to the context requires wk1.
 -- If Γ ⊢ t : B then Γ∙A ⊢ wk1 t : wk1 B.
@@ -216,14 +372,11 @@ wk3 = wk1 ∘→ wk2
 wk₃ : Term n → Term (3+ n)
 wk₃ = wk (step (step (step id)))
 
-
-
-
 ------------------------------------------------------------------------
 -- Substitution
 
--- The substitution operation t [ σ ] replaces the free de Bruijn indices
--- of term t by chosen terms as specified by σ.
+-- The substitution operation t [ σ ] replaces the free de Bruijn
+-- indices of term t by chosen terms as specified by σ.
 
 -- The substitution σ itself is a map from Fin n to terms.
 
@@ -302,6 +455,10 @@ liftSubstn σ (1+ n)   = liftSubst (liftSubstn σ n)
 _⇑ : Subst m n → Subst (1+ m) (1+ n)
 _⇑ = liftSubst
 
+-- A synonym of liftSubst ∘ liftSubst
+_⇑² : Subst m n → Subst (2+ m) (2+ n)
+_⇑² = flip liftSubstn 2
+
 -- Transform a weakening into a substitution.
 --
 -- If ρ : Γ ≤ Δ then Γ ⊢ toSubst ρ : Δ.
@@ -313,14 +470,49 @@ toSubst pr x = var (wkVar pr x)
 --
 -- If Γ ⊢ σ : Δ and Δ ⊢ t : A then Γ ⊢ t [ σ ] : A [ σ ].
 
-mutual
-  substGen : {bs : List Nat} (σ : Subst m n) (g : GenTs (Term) n bs) → GenTs (Term) m bs
-  substGen σ []              = []
-  substGen σ (_∷ₜ_ {b} t ts) = t [ liftSubstn σ b ] ∷ₜ substGen σ ts
+_[_] : (t : Term n) (σ : Subst m n) → Term m
+var x [ σ ] = σ x
+U l [ σ ] = U l
+ΠΣ⟨ b ⟩ p , q ▷ A ▹ B [ σ ] =
+  ΠΣ⟨ b ⟩ p , q ▷ A [ σ ] ▹ (B [ σ ⇑ ])
+lam p t [ σ ] = lam p (t [ σ ⇑ ])
+t ∘⟨ p ⟩ u [ σ ] = (t [ σ ]) ∘⟨ p ⟩ (u [ σ ])
+prod s p t u [ σ ] = prod s p (t [ σ ]) (u [ σ ])
+fst p t [ σ ] = fst p (t [ σ ])
+snd p t [ σ ] = snd p (t [ σ ])
+prodrec r p q A t u [ σ ] =
+  prodrec r p q (A [ σ ⇑ ]) (t [ σ ]) (u [ σ ⇑² ])
+ℕ [ σ ] = ℕ
+zero [ σ ] = zero
+suc t [ σ ] = suc (t [ σ ])
+natrec p q r A z s n [ σ ] =
+  natrec p q r (A [ σ ⇑ ]) (z [ σ ]) (s [ σ ⇑² ]) (n [ σ ])
+Unit s l [ σ ] = Unit s l
+star s l [ σ ] = star s l
+unitrec l p q A t u [ σ ] =
+  unitrec l p q (A [ σ ⇑ ]) (t [ σ ]) (u [ σ ])
+Empty [ σ ] = Empty
+emptyrec p A t [ σ ] = emptyrec p (A [ σ ]) (t [ σ ])
+Id A t u [ σ ] = Id (A [ σ ]) (t [ σ ]) (u [ σ ])
+rfl [ σ ] = rfl
+J p q A t B u v w [ σ ] =
+  J p q (A [ σ ]) (t [ σ ]) (B [ σ ⇑² ]) (u [ σ ]) (v [ σ ]) (w [ σ ])
+K p A t B u v [ σ ] =
+  K p (A [ σ ]) (t [ σ ]) (B [ σ ⇑ ]) (u [ σ ]) (v [ σ ])
+[]-cong s A t u v [ σ ] =
+  []-cong s (A [ σ ]) (t [ σ ]) (u [ σ ]) (v [ σ ])
 
-  _[_] : (t : Term n) (σ : Subst m n) → Term m
-  var x [ σ ] = substVar σ x
-  gen x c [ σ ] = gen x (substGen σ c)
+-- Substitution for the alternative term representation.
+
+mutual
+  substGen : {bs : List Nat} (σ : Subst m n)
+             (ts : GenTs Term′ n bs) → GenTs Term′ m bs
+  substGen σ []              = []
+  substGen σ (_∷ₜ_ {b} t ts) = t [ liftSubstn σ b ]′ ∷ₜ substGen σ ts
+
+  _[_]′ : (t : Term′ n) (σ : Subst m n) → Term′ m
+  var x [ σ ]′ = fromTerm (σ x)
+  gen k ts [ σ ]′ = gen k (substGen σ ts)
 
 -- Extend a substitution by adding a term as
 -- the first variable substitution and shift the rest.
@@ -375,19 +567,21 @@ t [ s ]↑ = t [ consSubst (wk1Subst idSubst) s ]
 
 -- Substitute the first two variables of a term with other terms.
 --
--- If Γ∙A∙B ⊢ t : C, Γ ⊢ s : A and Γ ⊢ s′ : B and  then Γ ⊢ t[s,s′] : C[s,s′]
+-- If Γ∙A∙B ⊢ t : C, Γ ⊢ s : A and Γ ⊢ s′ : B then Γ ⊢ t[s,s′] : C[s,s′]
 
 _[_,_]₁₀ : (t : Term (2+ n)) (s s′ : Term n) → Term n
 t [ s , s′ ]₁₀ = t [ consSubst (sgSubst s) s′ ]
 
--- Substitute the first variable with a term and shift remaining variables up by one
+-- Substitute the first variable with a term and shift remaining
+-- variables up by one
 -- If Γ ∙ A ⊢ t : A′ and Γ ∙ B ∙ C ⊢ s : A then Γ ∙ B ∙ C ⊢ t[s]↑² : A′
 
 _[_]↑² : (t : Term (1+ n)) (s : Term (2+ n)) → Term (2+ n)
 t [ s ]↑² = t [ consSubst (wk1Subst (wk1Subst idSubst)) s ]
 
 
-B-subst : (σ : Subst m n) (W : BindingType) (F : Term n) (G : Term (1+ n))
+B-subst : (σ : Subst m n) (W : BindingType)
+          (F : Term n) (G : Term (1+ n))
         → (⟦ W ⟧ F ▹ G) [ σ ] PE.≡ ⟦ W ⟧ F [ σ ] ▹ (G [ liftSubst σ ])
 B-subst σ (BΠ p q) F G = PE.refl
 B-subst σ (BΣ m p q) F G = PE.refl
@@ -401,13 +595,13 @@ gen-cong⁻¹ :
   gen {bs = bs} k ts ≡ gen {bs = bs′} k′ ts′ →
   ∃ λ (eq : bs ≡ bs′) →
     PE.subst Kind eq k ≡ k′ ×
-    PE.subst (GenTs Term _) eq ts ≡ ts′
+    PE.subst (GenTs Term′ _) eq ts ≡ ts′
 gen-cong⁻¹ refl = refl , refl , refl
 
--- Inversion of equality for _∷_.
+-- Inversion of equality for _∷ₜ_.
 
 ∷-cong⁻¹ :
-  ∀ {b} {t t′ : Term (b + n)} →
-  _∷ₜ_ {A = Term} {b = b} t ts ≡ t′ ∷ₜ ts′ →
+  ∀ {b} {t t′ : Term′ (b + n)} →
+  _∷ₜ_ {A = Term′} {b = b} t ts ≡ t′ ∷ₜ ts′ →
   t ≡ t′ × ts ≡ ts′
 ∷-cong⁻¹ refl = refl , refl

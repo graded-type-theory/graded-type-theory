@@ -54,7 +54,7 @@ neuEq′ : ∀ {l A B} ([A] : Γ ⊩⟨ l ⟩ne A)
        → Γ ⊢ B
        → Γ ⊢ A ≅ B
        → Γ ⊩⟨ l ⟩ A ≡ B / ne-intr [A]
-neuEq′ (noemb (ne K [ ⊢A , ⊢B , D ] neK K≡K)) neA neB B A~B =
+neuEq′ (noemb (ne _ [ ⊢A , ⊢B , D ] neK K≡K)) neA neB B A~B =
   let A≡K = whnfRed* D (ne neA)
   in  ne₌ _ (idRed:*: B) neB (PE.subst (λ x → _ ⊢ x ≅ _) A≡K A~B)
 neuEq′ (emb ≤ᵘ-refl x) neB A:≡:B = neuEq′ x neB A:≡:B
@@ -103,7 +103,7 @@ mutual
         n≡n′ = ~-to-≅ₜ n~n′
     in  Unitₜ _ (idRedTerm:*: (conv n A≡Unit)) n≡n′
               (ne (neNfₜ neN (conv n A≡Unit) n~n′))
-  neuTerm (ne′ K [ ⊢A , ⊢B , D ] neK K≡K) neN n n~n =
+  neuTerm (ne′ _ [ ⊢A , ⊢B , D ] neK K≡K) neN n n~n =
     let A≡K = subset* D
     in  neₜ _ (idRedTerm:*: (conv n A≡K)) (neNfₜ neN (conv n A≡K)
             (~-conv n~n A≡K))
@@ -240,7 +240,7 @@ mutual
                      (idRedTerm:*: (conv n′ A≡Unit)) n≡n′
                      (ne (neNfₜ₌ neN neN′ n~n′₁)) no-η)
             ]
-  neuEqTerm (ne (ne K [ ⊢A , ⊢B , D ] neK K≡K)) neN neN′ n n′ n~n′ =
+  neuEqTerm (ne (ne _ [ ⊢A , ⊢B , D ] neK K≡K)) neN neN′ n n′ n~n′ =
     let A≡K = subset* D
     in  neₜ₌ _ _ (idRedTerm:*: (conv n A≡K)) (idRedTerm:*: (conv n′ A≡K))
              (neNfₜ₌ neN neN′ (~-conv n~n′ A≡K))

@@ -102,7 +102,7 @@ mutual
   t ®⟨ l ⟩ v ∷ A / ℕᵣ x            = t ® v ∷ℕ
   t ®⟨ l ⟩ v ∷ A / Emptyᵣ x        = t ® v ∷Empty
   t ®⟨ l ⟩ v ∷ A / Unitᵣ {s = s} x = t ® v ∷Unit⟨ s , l ⟩
-  t ®⟨ l ⟩ v ∷ A / ne′ K D neK K≡K = Lift a ⊥
+  t ®⟨ l ⟩ v ∷ A / ne′ _ D neK K≡K = Lift a ⊥
 
   -- Π:
   t ®⟨ l ⟩ v ∷ A / Bᵣ′ (BΠ p q) F G D ⊢F ⊢G A≡A [F] [G] G-ext _ =

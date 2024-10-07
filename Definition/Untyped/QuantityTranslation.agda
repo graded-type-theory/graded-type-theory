@@ -86,17 +86,22 @@ tr-Kind (Boxcongkind s)     = Boxcongkind s
 
 mutual
 
-  -- Translation of terms.
+  -- Translation of the alternative term representation.
 
-  tr-Term : U₁.Term n → U₂.Term n
-  tr-Term (var x)    = var x
-  tr-Term (gen k ts) = gen (tr-Kind k) (tr-GenTs ts)
+  tr-Term′ : U₁.Term′ n → U₂.Term′ n
+  tr-Term′ (var x)    = var x
+  tr-Term′ (gen k ts) = gen (tr-Kind k) (tr-GenTs ts)
 
   -- Translation for GenTs.
 
-  tr-GenTs : U₁.GenTs U₁.Term n bs → U₂.GenTs U₂.Term n bs
+  tr-GenTs : U₁.GenTs U₁.Term′ n bs → U₂.GenTs U₂.Term′ n bs
   tr-GenTs []        = []
-  tr-GenTs (t ∷ₜ ts) = tr-Term t ∷ₜ tr-GenTs ts
+  tr-GenTs (t ∷ₜ ts) = tr-Term′ t ∷ₜ tr-GenTs ts
+
+-- Translation of terms.
+
+tr-Term : U₁.Term n → U₂.Term n
+tr-Term t = U₂.toTerm (tr-Term′ (U₁.fromTerm t))
 
 -- Translation of contexts.
 
@@ -167,17 +172,29 @@ module _
 
 mutual
 
-  -- Weakening commutes with translation.
+  -- Weakening commutes with translation of the alternative term
+  -- representation.
 
-  tr-Term-wk : U₂.wk ρ (tr-Term t) ≡ tr-Term (U₁.wk ρ t)
-  tr-Term-wk {t = var _}   = refl
-  tr-Term-wk {t = gen _ _} = cong (gen _) tr-GenTs-wkGen
+  tr-Term′-wk′ : ∀ {t} → U₂.wk′ ρ (tr-Term′ t) ≡ tr-Term′ (U₁.wk′ ρ t)
+  tr-Term′-wk′ {t = var _}   = refl
+  tr-Term′-wk′ {t = gen _ _} = cong (gen _) tr-GenTs-wkGen
 
   -- Weakening commutes with translation.
 
   tr-GenTs-wkGen : U₂.wkGen ρ (tr-GenTs ts) ≡ tr-GenTs (U₁.wkGen ρ ts)
   tr-GenTs-wkGen {ts = []}     = refl
-  tr-GenTs-wkGen {ts = _ ∷ₜ _} = cong₂ _∷ₜ_ tr-Term-wk tr-GenTs-wkGen
+  tr-GenTs-wkGen {ts = _ ∷ₜ _} = cong₂ _∷ₜ_ tr-Term′-wk′ tr-GenTs-wkGen
+
+-- Weakening commutes with translation.
+
+tr-Term-wk : U₂.wk ρ (tr-Term t) ≡ tr-Term (U₁.wk ρ t)
+tr-Term-wk {ρ} {t} = begin
+  U₂.wk ρ (U₂.toTerm (tr-Term′ (U₁.fromTerm t)))                            ≡⟨ UP₂.wk≡wk′ (U₂.toTerm (tr-Term′ (U₁.fromTerm t))) ⟩
+  U₂.toTerm (U₂.wk′ ρ (U₂.fromTerm (U₂.toTerm (tr-Term′ (U₁.fromTerm t))))) ≡⟨ cong (λ x → U₂.toTerm (U₂.wk′ ρ x)) (UP₂.fromTerm∘toTerm _) ⟩
+  U₂.toTerm (U₂.wk′ ρ (tr-Term′ (U₁.fromTerm t)))                           ≡⟨ cong U₂.toTerm tr-Term′-wk′ ⟩
+  U₂.toTerm (tr-Term′ (U₁.wk′ ρ (U₁.fromTerm t)))                           ≡˘⟨ cong (λ x → U₂.toTerm (tr-Term′ x)) (UP₁.fromTerm∘toTerm _) ⟩
+  U₂.toTerm (tr-Term′ (U₁.fromTerm (U₁.toTerm (U₁.wk′ ρ (U₁.fromTerm t))))) ≡˘⟨ cong (λ x → U₂.toTerm (tr-Term′ (U₁.fromTerm x))) (UP₁.wk≡wk′ t) ⟩
+  U₂.toTerm (tr-Term′ (U₁.fromTerm (U₁.wk ρ t)))                            ∎
 
 -- The function liftSubst commutes with translation.
 
@@ -226,12 +243,13 @@ tr-Subst-wk1Subst (_ +1) = tr-Term-wk
 
 mutual
 
-  -- Substitution commutes with translation.
+  -- Substitution commutes with translation of the alternative term
+  -- representation.
 
-  tr-Term-subst :
-    ∀ t → tr-Term t U₂.[ tr-Subst σ ] ≡ tr-Term (t U₁.[ σ ])
-  tr-Term-subst (var _)   = refl
-  tr-Term-subst (gen _ _) = cong (gen _) tr-GenTs-substGen
+  tr-Term′-subst′ :
+    ∀ t → tr-Term′ t U₂.[ tr-Subst σ ]′ ≡ tr-Term′ (t U₁.[ σ ]′)
+  tr-Term′-subst′ (var _)   = UP₂.fromTerm∘toTerm _
+  tr-Term′-subst′ (gen _ _) = cong (gen _) tr-GenTs-substGen
 
   -- Substitution commutes with translation.
 
@@ -239,10 +257,24 @@ mutual
     U₂.substGen (tr-Subst σ) (tr-GenTs ts) ≡ tr-GenTs (U₁.substGen σ ts)
   tr-GenTs-substGen         {ts = []}               = refl
   tr-GenTs-substGen {σ = σ} {ts = _∷ₜ_ {b = b} t _} = cong₂ _∷ₜ_
-    (tr-Term t U₂.[ U₂.liftSubstn (tr-Subst σ) b ]  ≡⟨ UP₂.substVar-to-subst (λ _ → tr-Subst-liftSubstn b) (tr-Term t) ⟩
-     tr-Term t U₂.[ tr-Subst (U₁.liftSubstn σ b) ]  ≡⟨ tr-Term-subst t ⟩
-     tr-Term (t U₁.[ U₁.liftSubstn σ b ])           ∎)
+    (tr-Term′ t U₂.[ U₂.liftSubstn (tr-Subst σ) b ]′  ≡⟨ UP₂.substVar-to-subst′ (λ _ → tr-Subst-liftSubstn b) (tr-Term′ t) ⟩
+     tr-Term′ t U₂.[ tr-Subst (U₁.liftSubstn σ b) ]′  ≡⟨ tr-Term′-subst′ t ⟩
+     tr-Term′ (t U₁.[ U₁.liftSubstn σ b ]′)           ∎)
     tr-GenTs-substGen
+
+-- Substitution commutes with translation.
+
+tr-Term-subst :
+  ∀ t → tr-Term t U₂.[ tr-Subst σ ] ≡ tr-Term (t U₁.[ σ ])
+tr-Term-subst {σ} t = begin
+  U₂.toTerm (tr-Term′ (U₁.fromTerm t)) U₂.[ tr-Subst σ ]                   ≡⟨ UP₂.subst≡subst′ (U₂.toTerm (tr-Term′ (U₁.fromTerm t))) ⟩
+  U₂.toTerm (U₂.fromTerm (U₂.toTerm (tr-Term′ (U₁.fromTerm t)))
+     U₂.[ tr-Subst σ ]′)                                                   ≡⟨ cong (λ x → U₂.toTerm (x U₂.[ tr-Subst σ ]′))
+                                                                               (UP₂.fromTerm∘toTerm (tr-Term′ (U₁.fromTerm t))) ⟩
+  U₂.toTerm (tr-Term′ (U₁.fromTerm t) U₂.[ tr-Subst σ ]′)                  ≡⟨ cong U₂.toTerm (tr-Term′-subst′ (U₁.fromTerm t)) ⟩
+  U₂.toTerm (tr-Term′ (U₁.fromTerm t U₁.[ σ ]′))                           ≡˘⟨ cong (λ x → U₂.toTerm (tr-Term′ x)) (UP₁.fromTerm∘toTerm _) ⟩
+  U₂.toTerm (tr-Term′ (U₁.fromTerm (U₁.toTerm (U₁.fromTerm t U₁.[ σ ]′)))) ≡˘⟨ cong (λ x → U₂.toTerm (tr-Term′ (U₁.fromTerm x))) (UP₁.subst≡subst′ t) ⟩
+  U₂.toTerm (tr-Term′ (U₁.fromTerm (t U₁.[ σ ])))                          ∎
 
 -- Substitution commutes with translation.
 
@@ -521,13 +553,14 @@ tr-Term-[]-cong {w = []-cong _ _ _ _ _} refl =
 
 mutual
 
-  -- Inversion for wk.
+  -- Inversion for wk′.
 
-  tr-Term-wk⁻¹ :
-    tr-Term t ≡ U₂.wk ρ u →
-    ∃ λ t′ → tr-Term t′ ≡ u × t ≡ U₁.wk ρ t′
-  tr-Term-wk⁻¹ {t = var _}   {u = var x}   refl = var x # refl # refl
-  tr-Term-wk⁻¹ {t = gen k _} {u = gen _ _} eq   =
+  tr-Term′-wk′⁻¹ :
+    ∀ {t u} →
+    tr-Term′ t ≡ U₂.wk′ ρ u →
+    ∃ λ t′ → tr-Term′ t′ ≡ u × t ≡ U₁.wk′ ρ t′
+  tr-Term′-wk′⁻¹ {t = var _}   {u = var x}   refl = var x # refl # refl
+  tr-Term′-wk′⁻¹ {t = gen k _} {u = gen _ _} eq   =
     case U₂.gen-cong⁻¹ eq of λ where
       (refl # refl # eq) →
         case tr-GenTs-wkGen⁻¹ eq of λ (ts′ # eq₁ # eq₂) →
@@ -541,9 +574,38 @@ mutual
   tr-GenTs-wkGen⁻¹ {ts = []}     {us = []}     refl = [] # refl # refl
   tr-GenTs-wkGen⁻¹ {ts = _ ∷ₜ _} {us = _ ∷ₜ _} eq   =
     case U₂.∷-cong⁻¹ eq of λ (eq₁ # eq₂) →
-    case tr-Term-wk⁻¹ eq₁ of λ (t′ # eq₃ # eq₄) →
+    case tr-Term′-wk′⁻¹ eq₁ of λ (t′ # eq₃ # eq₄) →
     case tr-GenTs-wkGen⁻¹ eq₂ of λ (ts′ # eq₅ # eq₆) →
     t′ ∷ₜ ts′ # cong₂ _∷ₜ_ eq₃ eq₅ # cong₂ _∷ₜ_ eq₄ eq₆
+
+-- Inversion for wk.
+
+tr-Term-wk⁻¹ :
+  tr-Term t ≡ U₂.wk ρ u →
+  ∃ λ t′ → tr-Term t′ ≡ u × t ≡ U₁.wk ρ t′
+tr-Term-wk⁻¹ {t} {ρ} {u} eq =
+  let t′ # ≡u # t≡ = tr-Term′-wk′⁻¹ eq′
+  in  U₁.toTerm t′
+      # (begin
+          tr-Term (U₁.toTerm t′)                            ≡⟨⟩
+          U₂.toTerm (tr-Term′ (U₁.fromTerm (U₁.toTerm t′))) ≡⟨ cong (U₂.toTerm ∘→ tr-Term′) (UP₁.fromTerm∘toTerm t′) ⟩
+          U₂.toTerm (tr-Term′ t′)                           ≡⟨ cong U₂.toTerm ≡u ⟩
+          U₂.toTerm (U₂.fromTerm u)                         ≡⟨ UP₂.toTerm∘fromTerm u ⟩
+          u ∎)
+      # (begin
+          t                                                 ≡˘⟨ UP₁.toTerm∘fromTerm t ⟩
+          U₁.toTerm (U₁.fromTerm t)                         ≡⟨ cong U₁.toTerm t≡ ⟩
+          U₁.toTerm (U₁.wk′ ρ t′)                           ≡˘⟨ cong (U₁.toTerm ∘→ U₁.wk′ ρ) (UP₁.fromTerm∘toTerm t′) ⟩
+          U₁.toTerm (U₁.wk′ ρ (U₁.fromTerm (U₁.toTerm t′))) ≡˘⟨ UP₁.wk≡wk′ (U₁.toTerm t′) ⟩
+          U₁.wk ρ (U₁.toTerm t′)                            ∎)
+  where
+  eq′ : tr-Term′ (U₁.fromTerm t) ≡ U₂.wk′ ρ (U₂.fromTerm u)
+  eq′ = begin
+    tr-Term′ (U₁.fromTerm t)                           ≡˘⟨ UP₂.fromTerm∘toTerm _ ⟩
+    U₂.fromTerm (U₂.toTerm (tr-Term′ (U₁.fromTerm t))) ≡⟨ cong U₂.fromTerm eq ⟩
+    U₂.fromTerm (U₂.wk ρ u)                            ≡⟨ cong U₂.fromTerm (UP₂.wk≡wk′ u) ⟩
+    U₂.fromTerm (U₂.toTerm (U₂.wk′ ρ (U₂.fromTerm u))) ≡⟨ UP₂.fromTerm∘toTerm _ ⟩
+    U₂.wk′ ρ (U₂.fromTerm u)                           ∎
 
 ------------------------------------------------------------------------
 -- Results that are proved under the assumption that the translation
@@ -635,11 +697,11 @@ module Injective
 
   mutual
 
-    -- The function tr-Term is injective.
+    -- The function tr-Term′ is injective.
 
-    tr-Term-injective : tr-Term t ≡ tr-Term u → t ≡ u
-    tr-Term-injective {t = var _}   {u = var _}   refl = refl
-    tr-Term-injective {t = gen _ _} {u = gen _ _} eq   =
+    tr-Term′-injective : {t u : U₁.Term′ n} → tr-Term′ t ≡ tr-Term′ u → t ≡ u
+    tr-Term′-injective {t = var _}   {u = var _}   refl = refl
+    tr-Term′-injective {t = gen _ _} {u = gen _ _} eq   =
       case U₂.gen-cong⁻¹ eq of λ where
         (refl # eq₁ # eq₂) →
           case tr-Kind-injective eq₁ of λ where
@@ -651,24 +713,41 @@ module Injective
     tr-GenTs-injective {ts = []}     {us = []}     _  = refl
     tr-GenTs-injective {ts = _ ∷ₜ _} {us = _ ∷ₜ _} eq =
       case U₂.∷-cong⁻¹ eq of λ (eq₁ # eq₂) →
-      cong₂ _∷ₜ_ (tr-Term-injective eq₁) (tr-GenTs-injective eq₂)
+      cong₂ _∷ₜ_ (tr-Term′-injective eq₁) (tr-GenTs-injective eq₂)
+
+  -- The function tr-Term is injective.
+
+  tr-Term-injective : tr-Term t ≡ tr-Term u → t ≡ u
+  tr-Term-injective {t} {u} eq = begin
+    t                         ≡˘⟨ UP₁.toTerm∘fromTerm t ⟩
+    U₁.toTerm (U₁.fromTerm t) ≡⟨ cong U₁.toTerm (tr-Term′-injective eq′) ⟩
+    U₁.toTerm (U₁.fromTerm u) ≡⟨ UP₁.toTerm∘fromTerm u ⟩
+    u                         ∎
+    where
+    eq′ : tr-Term′ (U₁.fromTerm t) ≡ tr-Term′ (U₁.fromTerm u)
+    eq′ = begin
+      tr-Term′ (U₁.fromTerm t) ≡˘⟨ UP₂.fromTerm∘toTerm _ ⟩
+      U₂.fromTerm (tr-Term t)  ≡⟨ cong U₂.fromTerm eq ⟩
+      U₂.fromTerm (tr-Term u)  ≡⟨ UP₂.fromTerm∘toTerm _ ⟩
+      tr-Term′ (U₁.fromTerm u) ∎
 
   ----------------------------------------------------------------------
   -- Inversion lemmas
 
   mutual
 
-    -- Inversion for subst.
+    -- Inversion for _[_]′.
 
-    tr-Term-subst⁻¹ :
-      tr-Term t ≡ u U₂.[ tr-Subst σ ] →
-      ∃ λ u′ → tr-Term u′ ≡ u × t ≡ u′ U₁.[ σ ]
-    tr-Term-subst⁻¹ {t = t} {u = var x} {σ = σ} eq =
-      var x # refl # tr-Term-injective (
-        tr-Term t                 ≡⟨ eq ⟩
-        var x U₂.[ tr-Subst σ ]   ≡˘⟨ tr-Term-subst {σ = σ} (var x) ⟩
-        tr-Term (var x U₁.[ σ ])  ∎)
-    tr-Term-subst⁻¹ {t = gen k _} {u = gen _ _} eq =
+    tr-Term′-subst′⁻¹ :
+      ∀ {t u} →
+      tr-Term′ t ≡ u U₂.[ tr-Subst σ ]′ →
+      ∃ λ u′ → tr-Term′ u′ ≡ u × t ≡ u′ U₁.[ σ ]′
+    tr-Term′-subst′⁻¹ {σ} {t} {u = var x} eq =
+      var x # refl # tr-Term′-injective (
+        tr-Term′ t                  ≡⟨ eq ⟩
+        var x U₂.[ tr-Subst σ ]′    ≡⟨ tr-Term′-subst′ {σ = σ} (var x) ⟩
+        tr-Term′ (var x U₁.[ σ ]′)  ∎)
+    tr-Term′-subst′⁻¹ {t = gen k _} {u = gen _ _} eq =
       case U₂.gen-cong⁻¹ eq of λ where
         (refl # refl # eq) →
           case tr-Term-substGen⁻¹ eq of λ where
@@ -685,21 +764,50 @@ module Injective
       {ts = _∷ₜ_ {b = b} t _} {σ = σ} {us = u ∷ₜ _} eq =
       case U₂.∷-cong⁻¹ eq of λ (eq₁ # eq₂) →
       case
-        tr-Term t                              ≡⟨ eq₁ ⟩
-        u U₂.[ U₂.liftSubstn (tr-Subst σ) b ]  ≡⟨ UP₂.substVar-to-subst (λ _ → tr-Subst-liftSubstn b) u ⟩
-        u U₂.[ tr-Subst (U₁.liftSubstn σ b) ]  ∎
+        tr-Term′ t                              ≡⟨ eq₁ ⟩
+        u U₂.[ U₂.liftSubstn (tr-Subst σ) b ]′  ≡⟨ UP₂.substVar-to-subst′ (λ _ → tr-Subst-liftSubstn b) u ⟩
+        u U₂.[ tr-Subst (U₁.liftSubstn σ b) ]′  ∎
       of λ lemma →
       case tr-Term-substGen⁻¹ eq₂ of λ where
         (us′ # refl # refl) →
-          case tr-Term-subst⁻¹ {u = u} lemma of λ where
+          case tr-Term′-subst′⁻¹ {u = u} lemma of λ where
             (u′ # refl # refl) → u′ ∷ₜ us′ # refl # refl
 
-  -- Inversion for _[_].
+  -- Inversion for _[_]′.
 
-  tr-Term-[]⁻¹ :
+  tr-Term-subst⁻¹ :
+    tr-Term t ≡ u U₂.[ tr-Subst σ ] →
+    ∃ λ u′ → tr-Term u′ ≡ u × t ≡ u′ U₁.[ σ ]
+  tr-Term-subst⁻¹ {t} {u} {σ} eq =
+    let u′ # eq₁ # eq₂ = tr-Term′-subst′⁻¹ {u = U₂.fromTerm u} eq′
+    in  U₁.toTerm u′
+        # (begin
+            U₂.toTerm (tr-Term′ (U₁.fromTerm (U₁.toTerm u′))) ≡⟨ cong (U₂.toTerm ∘→ tr-Term′) (UP₁.fromTerm∘toTerm u′) ⟩
+            U₂.toTerm (tr-Term′ u′)                           ≡⟨ cong U₂.toTerm eq₁ ⟩
+            U₂.toTerm (U₂.fromTerm u)                         ≡⟨ UP₂.toTerm∘fromTerm u ⟩
+            u                                                 ∎)
+        # (begin
+            t                                                ≡˘⟨ UP₁.toTerm∘fromTerm t ⟩
+            U₁.toTerm (U₁.fromTerm t)                        ≡⟨ cong U₁.toTerm eq₂ ⟩
+            U₁.toTerm (u′ U₁.[ σ ]′)                         ≡˘⟨ cong (λ x → U₁.toTerm (x U₁.[ σ ]′))
+                                                                 (UP₁.fromTerm∘toTerm u′) ⟩
+            U₁.toTerm (U₁.fromTerm (U₁.toTerm u′) U₁.[ σ ]′) ≡˘⟨ UP₁.subst≡subst′ (U₁.toTerm u′) ⟩
+            U₁.toTerm u′ U₁.[ σ ]                            ∎)
+    where
+    eq′ : tr-Term′ (U₁.fromTerm t) ≡ U₂.fromTerm u U₂.[ tr-Subst σ ]′
+    eq′ = begin
+      tr-Term′ (U₁.fromTerm t)                                   ≡˘⟨ UP₂.fromTerm∘toTerm _ ⟩
+      U₂.fromTerm (U₂.toTerm (tr-Term′ (U₁.fromTerm t)))         ≡⟨ cong U₂.fromTerm eq ⟩
+      U₂.fromTerm (u U₂.[ tr-Subst σ ])                          ≡⟨ cong U₂.fromTerm (UP₂.subst≡subst′ u) ⟩
+      U₂.fromTerm (U₂.toTerm (U₂.fromTerm u U₂.[ tr-Subst σ ]′)) ≡⟨ UP₂.fromTerm∘toTerm _ ⟩
+      U₂.fromTerm u U₂.[ tr-Subst σ ]′                           ∎
+
+  -- Inversion for _[_]₀.
+
+  tr-Term-[]₀⁻¹ :
     ∀ u → tr-Term t ≡ u U₂.[ tr-Term v ]₀ →
     ∃ λ u′ → tr-Term u′ ≡ u × t ≡ u′ U₁.[ v ]₀
-  tr-Term-[]⁻¹ {t = t} {v = v} u eq = tr-Term-subst⁻¹ (
+  tr-Term-[]₀⁻¹ {t = t} {v = v} u eq = tr-Term-subst⁻¹ (
     tr-Term t                         ≡⟨ eq ⟩
     u U₂.[ tr-Term v ]₀               ≡⟨⟩
     u U₂.[ U₂.sgSubst (tr-Term v) ]   ≡⟨ UP₂.substVar-to-subst tr-Subst-sgSubst u ⟩

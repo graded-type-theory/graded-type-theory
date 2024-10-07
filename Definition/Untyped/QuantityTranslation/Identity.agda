@@ -13,6 +13,7 @@ open import Tools.Function
 open import Tools.PropositionalEquality
 
 open import Definition.Untyped M
+open import Definition.Untyped.Properties M
 open import Definition.Untyped.QuantityTranslation {M₁ = M} idᶠ idᶠ
 
 private variable
@@ -64,17 +65,24 @@ opaque
 
 opaque mutual
 
-  -- The function tr-Term is pointwise equal to an identity function.
+  -- The function tr-Term′ is pointwise equal to an identity function.
 
-  tr-Term-id : tr-Term t ≡ t
-  tr-Term-id {t = var _}   = refl
-  tr-Term-id {t = gen _ _} = cong₂ gen tr-Kind-id tr-GenTs-id
+  tr-Term′-id : ∀ {n} {t : Term′ n} → tr-Term′ t ≡ t
+  tr-Term′-id {t = var _}   = refl
+  tr-Term′-id {t = gen _ _} = cong₂ gen tr-Kind-id tr-GenTs-id
 
   -- The function tr-GenTs is pointwise equal to an identity function.
 
   tr-GenTs-id : tr-GenTs ts ≡ ts
   tr-GenTs-id {ts = []}     = refl
-  tr-GenTs-id {ts = _ ∷ₜ _} = cong₂ _∷ₜ_ tr-Term-id tr-GenTs-id
+  tr-GenTs-id {ts = _ ∷ₜ _} = cong₂ _∷ₜ_ tr-Term′-id tr-GenTs-id
+
+opaque
+
+  -- The function tr-Term is pointwise equal to an identity function.
+
+  tr-Term-id : tr-Term t ≡ t
+  tr-Term-id {t} rewrite tr-Term′-id {t = fromTerm t} = toTerm∘fromTerm t
 
 opaque
 

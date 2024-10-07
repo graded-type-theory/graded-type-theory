@@ -161,8 +161,8 @@ wk ρ ⊢Δ (ℕᵣ D) = ℕᵣ (wkRed:*: ρ ⊢Δ D)
 wk ρ ⊢Δ (Emptyᵣ D) = Emptyᵣ (wkRed:*: ρ ⊢Δ D)
 wk ρ ⊢Δ (Unitᵣ (Unitₜ D ok)) =
   Unitᵣ (Unitₜ (wkRed:*: ρ ⊢Δ D) ok)
-wk {ρ = ρ} [ρ] ⊢Δ (ne′ K D neK K≡K) =
-  ne′ (U.wk ρ K) (wkRed:*: [ρ] ⊢Δ D) (wkNeutral ρ neK) (≅-wk [ρ] ⊢Δ K≡K)
+wk {ρ = ρ} [ρ] ⊢Δ (ne′ _ D neK K≡K) =
+  ne′ (U.wk ρ _) (wkRed:*: [ρ] ⊢Δ D) (wkNeutral ρ neK) (≅-wk [ρ] ⊢Δ K≡K)
 wk
   {m = m} {Δ = Δ} {Γ = Γ} {l = l} {A = A} {ρ = ρ} [ρ] ⊢Δ
   (Πᵣ′ F G D ⊢F ⊢G A≡A [F] [G] G-ext ok) =
@@ -329,7 +329,7 @@ wkTerm {ρ = ρ} [ρ] ⊢Δ (Uᵣ′ l ≤ᵘ-refl D) (Uₜ A d typeA A≡A [t])
 wkTerm ρ ⊢Δ (ℕᵣ D) [t] = wkTermℕ ρ ⊢Δ [t]
 wkTerm ρ ⊢Δ (Emptyᵣ D) [t] = wkTermEmpty ρ ⊢Δ [t]
 wkTerm ρ ⊢Δ (Unitᵣ (Unitₜ D _)) [t] = wkTermUnit ρ ⊢Δ [t]
-wkTerm {ρ = ρ} [ρ] ⊢Δ (ne′ K D neK K≡K) (neₜ k d nf) =
+wkTerm {ρ = ρ} [ρ] ⊢Δ (ne′ _ D neK K≡K) (neₜ k d nf) =
   neₜ (U.wk ρ k) (wkRed:*:Term [ρ] ⊢Δ d) (wkTermNe [ρ] ⊢Δ nf)
 wkTerm
   {ρ = ρ} [ρ] ⊢Δ (Πᵣ′ F G D ⊢F ⊢G A≡A [F] [G] G-ext _)
@@ -464,7 +464,7 @@ wkEqTerm
 wkEqTerm ρ ⊢Δ (ℕᵣ D) [t≡u] = wkEqTermℕ ρ ⊢Δ [t≡u]
 wkEqTerm ρ ⊢Δ (Emptyᵣ D) [t≡u] = wkEqTermEmpty ρ ⊢Δ [t≡u]
 wkEqTerm ρ ⊢Δ (Unitᵣ (Unitₜ D _)) [t≡u] = wkEqTermUnit ρ ⊢Δ [t≡u]
-wkEqTerm {ρ  = ρ} [ρ] ⊢Δ (ne′ K D neK K≡K) (neₜ₌ k m d d′ nf) =
+wkEqTerm {ρ  = ρ} [ρ] ⊢Δ (ne′ _ D neK K≡K) (neₜ₌ k m d d′ nf) =
   neₜ₌ (U.wk ρ k) (U.wk ρ m)
        (wkRed:*:Term [ρ] ⊢Δ d) (wkRed:*:Term [ρ] ⊢Δ d′)
        (wkEqTermNe [ρ] ⊢Δ nf)
