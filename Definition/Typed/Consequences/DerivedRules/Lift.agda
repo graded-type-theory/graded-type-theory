@@ -46,25 +46,6 @@ private variable
   p q r                     : M
 
 ------------------------------------------------------------------------
--- Some lemmas used below
-
-private opaque
-
-  wk2≡ : wk2 A PE.≡ A [ wkSubst 2 idSubst ]
-  wk2≡ {A} =
-    wk2 A                           ≡⟨ wk2≡wk₂ ⟩
-    wk₂ A                           ≡⟨ wk≡subst _ _ ⟩
-    A [ toSubst (step (step id)) ]  ≡⟨⟩
-    A [ wkSubst 2 idSubst ]         ∎
-
-  wk3≡ : wk3 A PE.≡ A [ wkSubst 3 idSubst ]
-  wk3≡ {A} =
-    wk3 A                                  ≡⟨ wk3≡wk₃ ⟩
-    wk₃ A                                  ≡⟨ wk≡subst _ _ ⟩
-    A [ toSubst (step (step (step id))) ]  ≡⟨⟩
-    A [ wkSubst 3 idSubst ]                ∎
-
-------------------------------------------------------------------------
 -- Definitions related to Lift
 
 -- Lift s l A is allowed if Lift-allowed s holds.
@@ -184,7 +165,7 @@ private opaque
                     W.wk (W.step (W.step (W.step W.id))) (⊢→⊢∙ ⊢Unit′)
                       ⊢A)
                    ok₂)
-                (PE.subst (_⊢_∷_ _ _) wk3≡ (var₂ ⊢Unit′))
+                (PE.subst (_⊢_∷_ _ _) (wk[]≡[] 3) (var₂ ⊢Unit′))
                 (var₀ ⊢Unit′) ok₁
             ))
          (⊢→⊢∙ ⊢Unit′))

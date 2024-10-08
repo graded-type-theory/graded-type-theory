@@ -11,7 +11,8 @@ open import Agda.Builtin.Nat using (zero; suc)
 import Data.Fin as F
 import Data.Fin.Properties as FP
 open import Data.Nat.Base
-open Data.Nat.Base using (_≤_; _<_; _⊔_; _⊓_; >-nonZero; nonZero; _∸_) public
+open Data.Nat.Base public
+  using (_≤_; _<_; pred; _⊔_; _⊓_; >-nonZero; nonZero; _∸_)
 open _≤_ public
 open import Data.Nat.DivMod
 open Data.Nat.DivMod using (_/_; m/n*n≤m) public

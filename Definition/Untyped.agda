@@ -362,15 +362,16 @@ wk2 = wk1 ∘→ wk1
 wk₂ : Term n → Term (2+ n)
 wk₂ = wk (step (step id))
 
--- Three successive uses of wk1.
+-- The function wk[ k ] applies wk1 k times.
 
-wk3 : Term n → Term (3+ n)
-wk3 = wk1 ∘→ wk2
+wk[_] : ∀ k → Term n → Term (k + n)
+wk[ 0    ] t = t
+wk[ 1+ k ] t = wk1 (wk[ k ] t)
 
--- An alternative to wk3.
+-- An alternative to wk[_].
 
-wk₃ : Term n → Term (3+ n)
-wk₃ = wk (step (step (step id)))
+wk[_]′ : ∀ k → Term n → Term (k + n)
+wk[ k ]′ = wk (stepn id k)
 
 ------------------------------------------------------------------------
 -- Substitution

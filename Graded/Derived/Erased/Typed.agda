@@ -200,7 +200,7 @@ private opaque
          ( ⊢wk3
          , ⊢prod
              (Unitⱼ (⊢→⊢∙ $ substitution ⊢A ⊢wk3 (⊢→⊢∙ ⊢Unit₂)) Unit-ok)
-             (PE.subst (_⊢_∷_ _ _) wk3≡[] $ var₂ ⊢Unit₂)
+             (PE.subst (_⊢_∷_ _ _) (wk[]≡[] 3) $ var₂ ⊢Unit₂)
              (var₀ ⊢Unit₂) Σ-ok
          ))
       (⊢→⊢∙ ⊢Unit₂) }
@@ -637,7 +637,7 @@ module _ (ok : []-cong-allowed s) where
     lemma₂ :
       wk2 t PE.≡ U.wk (lift (step (step id))) (wk1 t) [ u ]₀
     lemma₂ {t} {u} =
-      wk2 t                                        ≡⟨ wk2≡wk₂ ⟩
+      wk2 t                                        ≡⟨ wk[]≡wk[]′ ⟩
       wk₂ t                                        ≡⟨ lemma₁ ⟩
       U.wk (lift (step (step id))) (wk1 t) [ u ]₀  ∎
 
@@ -718,7 +718,7 @@ module _ (ok : []-cong-allowed s) where
            (W.wk (lift (step (step id))) (⊢→⊢∙ ⊢A₁′)
               (J-motive-context-type ⊢t₁))
            (_⊢_≡_∷_.refl $
-            PE.subst (_⊢_∷_ _ _) wk2≡wk₂ $
+            PE.subst (_⊢_∷_ _ _) wk[]≡wk[]′ $
             var₁ (J-motive-context-type ⊢t₁))
            (_⊢_≡_∷_.refl $
             PE.subst (_⊢_∷_ _ _)
@@ -798,7 +798,7 @@ module _ (ok : []-cong-allowed s) where
             (snd⟨⟩-cong A₁≡A₂′
                (Id-cong (wkEq (step (step id)) (⊢→⊢∙ ⊢A₁′) A₁≡A₂)
                   (wkEqTerm (step (step id)) (⊢→⊢∙ ⊢A₁′) t₁≡t₂)
-                  (refl (PE.subst (_⊢_∷_ _ _) wk2≡wk₂ $ var₀ ⊢A₁′))) $
+                  (refl (PE.subst (_⊢_∷_ _ _) wk[]≡wk[]′ $ var₀ ⊢A₁′))) $
              PE.subst (_⊢_≡_∷_ _ _ _)
                (PE.cong (Σ⟨_⟩_,_▷_▹_ s 𝟘 𝟘 (wk1 A₁)) $
                 PE.cong₃ Id (lift-wk1 _ _) (lift-wk1 _ _) PE.refl) $

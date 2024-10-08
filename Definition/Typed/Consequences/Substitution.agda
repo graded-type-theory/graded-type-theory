@@ -229,11 +229,7 @@ opaque
       ⊢ΓCD@(⊢Γ ∙ ⊢C ∙ ⊢D) →
     substitution ⊢B
       ( wk1Subst′ ⊢Γ ⊢D (wk1Subst′ ⊢Γ ⊢C (idSubst′ ⊢Γ))
-      , PE.subst (_⊢_∷_ _ _)
-          (wk2 A                           ≡⟨ wk2≡wk₂ ⟩
-           wk₂ A                           ≡⟨ wk≡subst _ _ ⟩
-           A [ toSubst (step (step id)) ]  ∎)
-          ⊢t
+      , PE.subst (_⊢_∷_ _ _) (wk[]≡[] 2) ⊢t
       )
       ⊢ΓCD }
 
@@ -286,11 +282,7 @@ opaque
       ⊢ΓDE@(⊢Γ ∙ ⊢D ∙ ⊢E) →
     substitutionEq B≡C
       ( substRefl (wk1Subst′ ⊢Γ ⊢E (wk1Subst′ ⊢Γ ⊢D (idSubst′ ⊢Γ)))
-      , PE.subst (_⊢_≡_∷_ _ _ _)
-          (wk2 A                           ≡⟨ wk2≡wk₂ ⟩
-           wk₂ A                           ≡⟨ wk≡subst _ _ ⟩
-           A [ toSubst (step (step id)) ]  ∎)
-          t≡u
+      , PE.subst (_⊢_≡_∷_ _ _ _) (wk[]≡[] 2) t≡u
       )
       ⊢ΓDE }
 

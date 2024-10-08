@@ -483,9 +483,9 @@ opaque
             (▸snd⟨⟩ ok″ ok var
                (λ _ →
                   Idₘ-generalised
-                    (PE.subst (_▸[_]_ _ _) (PE.sym wk₂-[]↑) $
+                    (PE.subst (_▸[_]_ _ _) (PE.sym wk[]′-[]↑) $
                      wkUsage _ ▸A)
-                    (PE.subst (_▸[_]_ _ _) (PE.sym wk₂-[]↑) $
+                    (PE.subst (_▸[_]_ _ _) (PE.sym wk[]′-[]↑) $
                      wkUsage _ ▸t)
                     (▸fst⟨⟩ ok″ ok 𝟘≤𝟙′ var
                        (λ _ → wkUsage _ $ wkUsage _ ▸A))

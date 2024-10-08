@@ -119,7 +119,7 @@ opaque
                                                                           PE.trans (flip substVar-to-subst B λ
                                                                                       { x0     → PE.refl
                                                                                       ; (x +1) →
-      wk3 (σ x)                                                                           ≡⟨ wk3≡[] ⟩
+      wk[ 3 ] (σ x)                                                                       ≡⟨ wk[]≡[] 3 ⟩
 
       σ x U.[ wkSubst 3 idSubst ]                                                         ≡˘⟨ wk1-tail (σ _) ⟩
 
@@ -339,7 +339,7 @@ opaque
              (var x0))
           (var x0)                                                                      ≡⟨ cong₃ (snd⟨ _ ⟩ _ _)
                                                                                              (wk1-liftSubst A)
-                                                                                             (cong₃ Id (wk₂-liftSubst A) (wk₂-liftSubst t) refl)
+                                                                                             (cong₃ Id (wk[]′-[⇑] A) (wk[]′-[⇑] t) refl)
                                                                                              refl ⟩
         snd⟨ s ⟩ 𝟘 𝟘 (wk1 (A U.[ σ ]))
           (Id (wk₂ (A U.[ σ ])) (wk₂ (t U.[ σ ])) (var x0)) (var x0)                    ∎;
@@ -369,12 +369,10 @@ opaque
                                                                                (cong₄ (J 𝟘 (𝟘 ∧ 𝟙) (A U.[ σ ]) (t U.[ σ ]))
                                                                                   (cong₃ Id
                                                                                      (trans
-                                                                                        (wk₂-liftSubst
+                                                                                        (wk[]′-[⇑]
                                                                                            (Σ⟨ _ ⟩ _ , _ ▷ A ▹ Id (wk1 A) (wk1 t) (var x0))) $
                                                                                       PE.cong wk₂ lemma)
-                                                                                     (cong₂ (prod s 𝟘)
-                                                                                        (wk₂-liftSubst t)
-                                                                                        refl)
+                                                                                     (cong₂ (prod s 𝟘) (wk[]′-[⇑] t) refl)
                                                                                      refl)
                                                                                   refl refl refl)
                                                                                refl ⟩

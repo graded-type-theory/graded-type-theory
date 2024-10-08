@@ -15,14 +15,15 @@ open import Tools.Function
 open import Tools.Nat
 open import Tools.Relation
 open import Tools.Product
-open import Tools.PropositionalEquality as PE hiding (subst)
+open import Tools.PropositionalEquality as PE
 open import Tools.Reasoning.PropositionalEquality
 open import Tools.Sum hiding (id; sym)
 
 private
   variable
-    ℓ m n : Nat
-    x₁ x₂ : Fin _
+    k ℓ m n o : Nat
+    x x₁ x₂ : Fin _
+    eq : _ ≡ _
     A A₁ A₂ B₁ B₂ t t₁ t₂ u u₁ u₂ v v₁ v₂ w₁ w₂ : Term _
     ρ ρ′ : Wk m n
     η : Wk n ℓ
@@ -316,22 +317,6 @@ lift-wk1 pr A = trans (wk-comp (lift pr) (step id) A)
 wk1-wk≡lift-wk1 : (ρ : Wk m n) (t : Term n) → wk1 (wk ρ t) ≡ wk (lift ρ) (wk1 t)
 wk1-wk≡lift-wk1 ρ t = trans (wk1-wk ρ t) (sym (lift-wk1 ρ t))
 
-opaque
-
-  -- The functions wk2 and wk₂ are interchangeable.
-
-  wk2≡wk₂ : wk2 t ≡ wk₂ t
-  wk2≡wk₂ = wk-comp _ _ _
-
-opaque
-
-  -- The functions wk3 and wk₃ are interchangeable.
-
-  wk3≡wk₃ : wk3 t ≡ wk₃ t
-  wk3≡wk₃ {t} =
-    wk1 (wk2 t)  ≡⟨ cong wk1 wk2≡wk₂ ⟩
-    wk1 (wk₂ t)  ≡⟨ wk-comp _ _ _ ⟩
-    wk₃ t        ∎
 ------------------------------------------------------------------------
 -- Substitution properties.
 
@@ -669,17 +654,6 @@ opaque
     t [ wk1Subst σ ]              ≡⟨ wk1Subst-wk1 t ⟩
     wk1 (t [ σ ])                 ∎
 
-opaque
-
-  -- A variant of wk1-liftSubst for wk₂.
-
-  wk₂-liftSubst : ∀ t → wk₂ t [ liftSubstn σ 2 ] ≡ wk₂ (t [ σ ])
-  wk₂-liftSubst {σ} t =
-    wk₂ t [ liftSubstn σ 2 ]                ≡⟨ subst-wk t ⟩
-    t [ liftSubstn σ 2 ₛ• step (step id) ]  ≡⟨ substVar-to-subst (wk-comp _ _ ∘→ σ) t ⟩
-    t [ step (step id) •ₛ σ ]               ≡˘⟨ wk-subst t ⟩
-    wk₂ (t [ σ ])                           ∎
-
 -- Composition of liftings is lifting of the composition.
 
 wk-subst-lift : (G : Term (1+ n))
@@ -915,19 +889,19 @@ wk-β-doubleSubst ρ s t u =
     wk ρ (s [ σₜ t u ])
        ≡⟨ wk-subst s ⟩
      s [ ρ •ₛ (σₜ t u) ]
-       ≡⟨ substVar-to-subst eq s ⟩
+       ≡⟨ substVar-to-subst eq′ s ⟩
      s [ (σₜ (wk ρ t) (wk ρ u)) ₛ• (lift (lift ρ)) ]
        ≡⟨ sym (subst-wk s) ⟩
      wk (lift (lift ρ)) s [ wk ρ u , wk ρ t ]₁₀ ∎
   where
     σₜ : (x y : Term ℓ) → Subst ℓ (2+ ℓ)
     σₜ x y = consSubst (consSubst idSubst y) x
-    eq : ∀ x
+    eq′ : ∀ x
        → substVar ((ρ •ₛ (σₜ t u))) x
        ≡ substVar (σₜ (wk ρ t) (wk ρ u)) (wkVar (lift (lift ρ)) x)
-    eq x0      = refl
-    eq (x0 +1) = refl
-    eq (x +2)  = refl
+    eq′ x0      = refl
+    eq′ (x0 +1) = refl
+    eq′ (x +2)  = refl
 
 natrecSucCaseLemma : (x : Fin (1+ n))
   → (liftSubstn σ 2 ₛ•ₛ consSubst (wkSubst 2 idSubst) (suc (var x1))) x
@@ -1075,13 +1049,15 @@ wk2-tail-B′ {n} {σ = σ} W F G = begin
   ⟦ W ⟧ wk1 (wk1 F) [ σ ] ▹ (wk (lift (step (step id))) G [ liftSubst σ ])
     ≡⟨ cong₂ (⟦ W ⟧_▹_) (wk1-tail (wk1 F)) (subst-wk G) ⟩
   ⟦ W ⟧ wk1 F [ tail σ ] ▹ (G [ liftSubst σ ₛ• lift (step (step id)) ])
-    ≡⟨ cong₂ (⟦ W ⟧_▹_) (wk1-tail F) (substVar-to-subst eq G) ⟩
+    ≡⟨ cong₂ (⟦ W ⟧_▹_) (wk1-tail F) (substVar-to-subst eq′ G) ⟩
   ⟦ W ⟧ F [ tail (tail σ) ] ▹ (G [ liftSubst (tail (tail σ)) ]) ∎
   where
-  eq : (x : Fin (1+ n))
-     → (liftSubst σ ₛ• lift (step (step id))) x ≡ liftSubst (tail (tail σ)) x
-  eq x0 = refl
-  eq (x +1) = refl
+  eq′ :
+    (x : Fin (1+ n)) →
+    (liftSubst σ ₛ• lift (step (step id))) x ≡
+    liftSubst (tail (tail σ)) x
+  eq′ x0 = refl
+  eq′ (x +1) = refl
 
 wk2-tail-B : ∀ (W : BindingType) (F : Term n) (G : Term (1+ n))
            → ⟦ W ⟧ wk1 (wk1 F) [ σ ] ▹ (wk (lift (step (step id))) G [ liftSubst σ ])
@@ -1121,40 +1097,6 @@ opaque
     wk₂ t [ u , v ]₁₀  ≡⟨ subst-wk t ⟩
     t [ idSubst ]      ≡⟨ subst-id _ ⟩
     t                  ∎
-
-opaque
-
-  -- Applying _[ u ]↑ to a doubly weakened term amounts to the same
-  -- thing as doing nothing.
-
-  wk₂-[]↑ : wk₂ t [ u ]↑ ≡ wk₂ t
-  wk₂-[]↑ {t} {u} =
-    wk₂ t [ u ]↑                                            ≡⟨⟩
-    wk₂ t [ consSubst (wk1Subst idSubst) u ]                ≡⟨ subst-wk t ⟩
-    t [ consSubst (wk1Subst idSubst) u ₛ• step (step id) ]  ≡˘⟨ wk≡subst _ _ ⟩
-    wk₂ t                                                   ∎
-
-opaque
-
-  -- Applying _[ u ]↑ to a doubly weakened term amounts to the same
-  -- thing as doing nothing.
-
-  wk2-[]↑ : wk2 t [ u ]↑ ≡ wk2 t
-  wk2-[]↑ {t} {u} =
-    wk2 t [ u ]↑  ≡⟨ cong (_[ _ ]↑) $ wk2≡wk₂ {t = t} ⟩
-    wk₂ t [ u ]↑  ≡⟨ wk₂-[]↑ ⟩
-    wk₂ t         ≡˘⟨ wk2≡wk₂ ⟩
-    wk2 t         ∎
-
-opaque
-
-  -- Applications of wk3 can be expressed using a substitution.
-
-  wk3≡[] : wk3 t ≡ t [ wkSubst 3 idSubst ]
-  wk3≡[] {t} =
-    wk3 t                    ≡⟨ wk3≡wk₃ ⟩
-    wk₃ t                    ≡⟨ wk≡subst _ _ ⟩
-    t [ wkSubst 3 idSubst ]  ∎
 
 -- Substituting variable one into t using _[_]↑² amounts to the same
 -- thing as applying wk1 to t.
@@ -1556,6 +1498,174 @@ opaque
     where
     σ₊ : Subst m (2+ n)
     σ₊ = consSubst (consSubst σ u) v
+
+------------------------------------------------------------------------
+-- Some lemmas related to wk[_], wk[_]′ and wkSubst
+
+opaque
+
+  -- The functions wk[_] and wk[_]′ are interchangeable.
+
+  wk[]≡wk[]′ : wk[ k ] t ≡ wk[ k ]′ t
+  wk[]≡wk[]′ {k = 0} {t} =
+    t        ≡˘⟨ wk-id _ ⟩
+    wk id t  ∎
+  wk[]≡wk[]′ {k = 1+ k} {t} =
+    wk1 (wk[ k ] t)   ≡⟨ cong wk1 wk[]≡wk[]′ ⟩
+    wk1 (wk[ k ]′ t)  ≡⟨ wk-comp _ _ _ ⟩
+    wk[ 1+ k ]′ t     ∎
+
+opaque
+
+  -- Applications of wk[_] can be expressed using a substitution.
+
+  wk[]≡[] : ∀ k → wk[ k ] t ≡ t [ wkSubst k idSubst ]
+  wk[]≡[] {t} 0 =
+    t              ≡˘⟨ subst-id _ ⟩
+    t [ idSubst ]  ∎
+  wk[]≡[] {t} (1+ k) =
+    wk1 (wk[ k ] t)                               ≡⟨ cong wk1 $ wk[]≡[] k ⟩
+    wk1 (t [ wkSubst k idSubst ])                 ≡⟨ wk≡subst _ _ ⟩
+    t [ wkSubst k idSubst ] [ wk1Subst idSubst ]  ≡⟨ substCompEq t ⟩
+    t [ wk1Subst idSubst ₛ•ₛ wkSubst k idSubst ]  ≡⟨ substVar-to-subst lemma t ⟩
+    t [ wkSubst (1+ k) idSubst ]                  ∎
+    where
+    lemma :
+      (x : Fin n) →
+      (wk1Subst idSubst ₛ•ₛ wkSubst k idSubst) x ≡
+      wkSubst (1+ k) idSubst x
+    lemma x =
+      (wk1Subst idSubst ₛ•ₛ wkSubst k idSubst) x  ≡⟨⟩
+      wkSubst k idSubst x [ wk1Subst idSubst ]    ≡⟨ wk1Subst-wk1 (wkSubst k _ _) ⟩
+      wk1 (wkSubst k idSubst x [ idSubst ])       ≡⟨ cong wk1 $ subst-id _ ⟩
+      wk1 (wkSubst k idSubst x)                   ≡⟨⟩
+      wkSubst (1+ k) idSubst x                    ∎
+
+opaque
+
+  -- A lemma relating wk[_] and wkSubst.
+
+  wk[]≡wkSubst : ∀ k x → wk[ k ] (σ x) ≡ wkSubst k σ x
+  wk[]≡wkSubst 0      _ = refl
+  wk[]≡wkSubst (1+ k) _ = cong wk1 (wk[]≡wkSubst k _)
+
+opaque
+
+  -- A composition lemma for wkSubst.
+
+  wkSubst-idSubst-ₛ•ₛ :
+    ∀ k x → (wkSubst k idSubst ₛ•ₛ σ) x ≡ wkSubst k σ x
+  wkSubst-idSubst-ₛ•ₛ {σ} k x =
+    σ x [ wkSubst k idSubst ]  ≡˘⟨ wk[]≡[] k ⟩
+    wk[ k ] (σ x)              ≡⟨ wk[]≡wkSubst k _ ⟩
+    wkSubst k σ x              ∎
+
+opaque
+
+  -- A composition lemma for wkSubst.
+
+  wkSubst-comp :
+    ∀ m x →
+    subst Term (+-assoc m n o) (wkSubst (m + n) σ x) ≡
+    wkSubst m (wkSubst n σ) x
+  wkSubst-comp             0      _ = refl
+  wkSubst-comp {n} {o} {σ} (1+ m) x =
+    subst Term (cong 1+ (+-assoc m n o)) (wk1 (wkSubst (m + n) σ x))  ≡⟨ lemma {eq = +-assoc m _ _} ⟩
+    wk1 (subst Term (+-assoc m n o) (wkSubst (m + n) σ x))            ≡⟨ cong wk1 $ wkSubst-comp m _ ⟩
+    wk1 (wkSubst m (wkSubst n σ) x)                                   ∎
+    where
+    lemma :
+      subst Term (cong 1+ eq) (wk1 t) ≡
+      wk1 (subst Term eq t)
+    lemma {eq = refl} = refl
+
+opaque
+
+  -- A composition lemma for wk[_].
+
+  wk[]-comp :
+    ∀ m →
+    subst Term (+-assoc m n o) (wk[ m + n ] t) ≡
+    wk[ m ] (wk[ n ] t)
+  wk[]-comp {n} {o} {t} m =
+    subst Term (+-assoc m n o) (wk[ m + n ] t)                   ≡⟨ cong (subst _ _) $ wk[]≡[] (m + _) ⟩
+    subst Term (+-assoc m n o) (t [ wkSubst (m + n) idSubst ])   ≡⟨ lemma t ⟩
+    t [ subst Term (+-assoc m n o) ∘→ wkSubst (m + n) idSubst ]  ≡⟨ flip substVar-to-subst t $ wkSubst-comp m ⟩
+    t [ wkSubst m (wkSubst n idSubst) ]                          ≡˘⟨ flip substVar-to-subst t $ wkSubst-idSubst-ₛ•ₛ m ⟩
+    t [ wkSubst m idSubst ₛ•ₛ wkSubst n idSubst ]                ≡˘⟨ substCompEq t ⟩
+    t [ wkSubst n idSubst ] [ wkSubst m idSubst ]                ≡˘⟨ wk[]≡[] m ⟩
+    wk[ m ] (t [ wkSubst n idSubst ])                            ≡˘⟨ cong wk[ m ] $ wk[]≡[] n ⟩
+    wk[ m ] (wk[ n ] t)                                          ∎
+    where
+    lemma :
+      ∀ t → subst Term eq (t [ σ ]) ≡ t [ subst Term eq ∘→ σ ]
+    lemma {eq = refl} _ = refl
+
+opaque
+
+  -- A composition lemma for wk[_]′.
+
+  wk[]′-comp :
+    ∀ m →
+    subst Term (+-assoc m n o) (wk[ m + n ]′ t) ≡
+    wk[ m ]′ (wk[ n ]′ t)
+  wk[]′-comp {n} {o} {t} m =
+    subst Term (+-assoc m n o) (wk[ m + n ]′ t)  ≡˘⟨ cong (subst Term (+-assoc m _ _)) wk[]≡wk[]′ ⟩
+    subst Term (+-assoc m n o) (wk[ m + n ] t)   ≡⟨ wk[]-comp m ⟩
+    wk[ m ] (wk[ n ] t)                          ≡⟨ trans wk[]≡wk[]′ $
+                                                    cong wk[ _ ]′ wk[]≡wk[]′ ⟩
+    wk[ m ]′ (wk[ n ]′ t)                        ∎
+
+opaque
+
+  -- A lemma relating wk[_], _[_] and _⇑[_].
+
+  wk[]-⇑[] : ∀ k → wk[ k ] t [ σ ⇑[ k ] ] ≡ wk[ k ] (t [ σ ])
+  wk[]-⇑[]         0      = refl
+  wk[]-⇑[] {t} {σ} (1+ k) =
+    wk1 (wk[ k ] t) [ σ ⇑[ k ] ⇑ ]  ≡⟨ wk1-liftSubst (wk[ k ] _) ⟩
+    wk1 (wk[ k ] t [ σ ⇑[ k ] ])    ≡⟨ cong wk1 $ wk[]-⇑[] k ⟩
+    wk1 (wk[ k ] (t [ σ ]))         ∎
+
+opaque
+
+  -- A lemma relating wk[_]′, _[_] and _⇑[_].
+
+  wk[]′-[⇑] : ∀ t → wk[ k ]′ t [ σ ⇑[ k ] ] ≡ wk[ k ]′ (t [ σ ])
+  wk[]′-[⇑] {k} {σ} t =
+    wk[ k ]′ t [ σ ⇑[ k ] ]  ≡˘⟨ cong _[ _ ] $ wk[]≡wk[]′ {t = t} ⟩
+    wk[ k ] t [ σ ⇑[ k ] ]   ≡⟨ wk[]-⇑[] k ⟩
+    wk[ k ] (t [ σ ])        ≡⟨ wk[]≡wk[]′ ⟩
+    wk[ k ]′ (t [ σ ])       ∎
+
+opaque
+
+  -- Applying _[ u ]↑ to a term that has been weakened at least two
+  -- steps amounts to the same thing as doing nothing.
+
+  wk[]′-[]↑ : wk[ 2+ k ]′ t [ u ]↑ ≡ wk[ 2+ k ]′ t
+  wk[]′-[]↑ {k} {t} {u} =
+    wk[ 2+ k ]′ t [ u ]↑                                     ≡⟨⟩
+    wk[ 2+ k ]′ t [ consSubst (wk1Subst idSubst) u ]         ≡⟨ subst-wk t ⟩
+    t [ consSubst (wk1Subst idSubst) u ₛ• stepn id (2+ k) ]  ≡⟨⟩
+    t [ toSubst (stepn id (2+ k)) ]                          ≡˘⟨ wk≡subst _ _ ⟩
+    wk[ 2+ k ]′ t                                            ∎
+
+opaque
+
+  -- A variant of wk₂-[,].
+
+  wk[2+]′[,⇑]≡ :
+    {t : Term n} →
+    subst Term (+-assoc k _ _) (wk[ k + 2 ]′ t)
+      [ consSubst (sgSubst u) v ⇑[ k ] ] ≡
+    wk[ k ]′ t
+  wk[2+]′[,⇑]≡ {k} {u} {v} {t} =
+    subst Term (+-assoc k _ _) (wk[ k + 2 ]′ t)
+      [ consSubst (sgSubst u) v ⇑[ k ] ]                      ≡⟨ cong _[ _ ] $ wk[]′-comp k ⟩
+    wk[ k ]′ (wk[ 2 ]′ t) [ consSubst (sgSubst u) v ⇑[ k ] ]  ≡⟨ wk[]′-[⇑] (wk[ _ ]′ t) ⟩
+    wk[ k ]′ (wk[ 2 ]′ t [ u , v ]₁₀)                         ≡⟨ cong wk[ _ ]′ wk₂-[,] ⟩
+    wk[ k ]′ t                                                ∎
 
 ------------------------------------------------------------------------
 -- Some lemmas related to numerals

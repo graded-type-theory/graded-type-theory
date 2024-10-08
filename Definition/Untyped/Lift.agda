@@ -120,13 +120,11 @@ opaque
     where
     lemma₁ :
       (t : Term n) →
-      wk3 t ≡
+      wk[ 3 ] t ≡
       wk1 t
         [ consSubst (wkSubst 3 idSubst) (prod s 𝟙 (var x2) (var x0)) ]
     lemma₁ t =
-      wk3 t                                                             ≡⟨ wk3≡wk₃ ⟩
-
-      wk₃ t                                                             ≡⟨ wk≡subst _ _ ⟩
+      wk[ 3 ] t                                                         ≡⟨ wk[]≡[] 3 ⟩
 
       t [ wkSubst 3 idSubst ]                                           ≡˘⟨ cong _[ _ ] $ wk-id t ⟩
 
