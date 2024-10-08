@@ -37,6 +37,7 @@ infix 25 _[_]₀
 infix 25 _[_]↑
 infix 25 _[_,_]₁₀
 infix 25 _[_]↑²
+infix 25 _[_][_]↑
 
 ------------------------------------------------------------------------
 -- The syntax
@@ -582,6 +583,10 @@ t [ s , s′ ]₁₀ = t [ consSubst (sgSubst s) s′ ]
 _[_]↑² : (t : Term (1+ n)) (s : Term (2+ n)) → Term (2+ n)
 t [ s ]↑² = t [ consSubst (wk1Subst (wk1Subst idSubst)) s ]
 
+-- A generalisation of _[_]↑ and _[_]↑².
+
+_[_][_]↑ : Term (1+ n) → ∀ k → Term (k + n) → Term (k + n)
+t [ k ][ u ]↑ = t [ consSubst (wkSubst k idSubst) u ]
 
 B-subst : (σ : Subst m n) (W : BindingType)
           (F : Term n) (G : Term (1+ n))

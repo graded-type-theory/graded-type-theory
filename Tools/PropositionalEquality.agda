@@ -18,9 +18,11 @@ open Eq using
   public
 
 private variable
-  a p                                 : Level
-  A B C D E F G                       : Set _
-  a₁ a₂ b₁ b₂ c₁ c₂ d₁ d₂ e₁ e₂ f₁ f₂ : A
+  a p                                     : Level
+  A B C D E F G                           : Set _
+  P                                       : A → Set _
+  a₁ a₂ b₁ b₂ c₁ c₂ d₁ d₂ e₁ e₂ f₁ f₂ x y : A
+  eq                                      : _ ≡ _
 
 -- Non-dependent congruence rules.
 
@@ -79,3 +81,11 @@ Is-set A = {x y : A} → Is-proposition (x ≡ y)
 
 singleton : (x : A) → ∃ λ (y : A) → x ≡ y
 singleton x = x , refl
+
+opaque
+
+  -- If subst P eq x ≡ y holds, then subst P (sym eq) y ≡ x also
+  -- holds.
+
+  swap-subst : subst P eq x ≡ y → subst P (sym eq) y ≡ x
+  swap-subst {eq = refl} = sym

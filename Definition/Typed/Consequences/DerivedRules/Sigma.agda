@@ -645,7 +645,7 @@ private
   1∷wk1[1,0] {Γ = Γ} {A = A} {B = B} {p = p} ⊢B =                      $⟨ ⊢B ⟩
     Γ ∙ A ⊢ B                                                          →⟨ ⊢wk1-wk1 ⟩
     Γ ∙ A ∙ B ⊢ wk1 (wk1 A)                                            →⟨ refl ⟩
-    (Γ ∙ A ∙ B ⊢ wk1 (wk1 A) ≡ wk1 (wk1 A))                            →⟨ PE.subst (_⊢_≡_ _ _) (PE.sym wk1-[]↑²) ⟩
+    (Γ ∙ A ∙ B ⊢ wk1 (wk1 A) ≡ wk1 (wk1 A))                            →⟨ PE.subst (_⊢_≡_ _ _) (PE.sym $ wk1-[][]↑ 2) ⟩
     (Γ ∙ A ∙ B ⊢ wk1 (wk1 A) ≡ wk1 A [ prodʷ p (var x1) (var x0) ]↑²)  →⟨ conv (var₁ ⊢B) ⟩
     (Γ ∙ A ∙ B ⊢ var x1 ∷ wk1 A [ prodʷ p (var x1) (var x0) ]↑²)       □
 
@@ -1082,7 +1082,7 @@ opaque
     case inversion-ΠΣ ⊢ΣAB of λ {
       (⊢A , ⊢B , ok) →
     case
-      wk1 A [ pair ]↑²         ≡⟨ wk1-[]↑² ⟩
+      wk1 A [ pair ]↑²         ≡⟨ wk1-[][]↑ 2 ⟩
       wk2 A                    ≡⟨ wk-comp _ _ _ ⟩
       U.wk (step (step id)) A  ∎
     of λ {
@@ -1414,7 +1414,7 @@ inversion-fstʷ {p = p} {A} {t} ⊢t₁ =
     (_ , there here , ≡wk2F) →
   case PE.subst (_ ⊢ _ ≡_) (wk1-sgSubst A t) C≡ of λ
     C≡A →
-  case PE.subst (_ ⊢_≡ _) (wk1-[]↑² {t = A}) ≡wk2F of λ
+  case PE.subst (_ ⊢_≡ _) (wk1-[][]↑ {t = A} 2) ≡wk2F of λ
     wk2A≡wk2F →
   case PE.subst (_ ⊢ fstʷ p F t ∷_) (PE.sym (subst-id F)) (fstʷⱼ ⊢t) of λ
     ⊢t₁ →

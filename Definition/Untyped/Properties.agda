@@ -21,10 +21,10 @@ open import Tools.Sum hiding (id; sym)
 
 private
   variable
-    k ℓ m n o : Nat
+    j k k₁ k₂ ℓ m n o : Nat
     x x₁ x₂ : Fin _
-    eq : _ ≡ _
-    A A₁ A₂ B₁ B₂ t t₁ t₂ u u₁ u₂ v v₁ v₂ w₁ w₂ : Term _
+    eq eq₁ eq₂ : _ ≡ _
+    A A₁ A₂ B₁ B₂ t t₁ t₂ u u₁ u₂ v v₁ v₂ w w₁ w₂ : Term _
     ρ ρ′ : Wk m n
     η : Wk n ℓ
     σ σ₁ σ₂ σ′ : Subst m n
@@ -1109,18 +1109,6 @@ opaque
   t [ (λ x → var (x +1)) ]                     ≡˘⟨ wk≡subst _ _ ⟩
   wk1 t                                        ∎
 
--- Substituting something into wk1 t using _[_]↑² amounts to the same
--- thing as applying wk1 once more.
-
-wk1-[]↑² : wk1 t [ u ]↑² ≡ wk1 (wk1 t)
-wk1-[]↑² {t = t} {u = u} =
-  wk1 t [ u ]↑²                                       ≡⟨⟩
-  wk (step id) t [ consSubst (wkSubst 2 idSubst) u ]  ≡⟨ subst-wk t ⟩
-  t [ consSubst (wkSubst 2 idSubst) u ₛ• step id ]    ≡⟨⟩
-  t [ toSubst (step (step id)) ]                      ≡˘⟨ wk≡subst _ _ ⟩
-  wk (step (step id)) t                               ≡˘⟨ wk1-wk _ _ ⟩
-  wk1 (wk1 t)                                         ∎
-
 -- Substituting wk1 u into t using _[_]↑² amounts to the same thing as
 -- substituting u into t using _[_]↑ and then weakening one step.
 
@@ -1666,6 +1654,247 @@ opaque
     wk[ k ]′ (wk[ 2 ]′ t) [ consSubst (sgSubst u) v ⇑[ k ] ]  ≡⟨ wk[]′-[⇑] (wk[ _ ]′ t) ⟩
     wk[ k ]′ (wk[ 2 ]′ t [ u , v ]₁₀)                         ≡⟨ cong wk[ _ ]′ wk₂-[,] ⟩
     wk[ k ]′ t                                                ∎
+
+------------------------------------------------------------------------
+-- Some lemmas related to _[_][_]↑
+
+opaque
+
+  -- The function _[_][_]↑ commutes (in a certain sense) with _[_].
+
+  [][]↑-commutes :
+    ∀ t →
+    t [ k ][ u ]↑ [ σ ⇑[ k ] ] ≡
+    t [ σ ⇑ ] [ k ][ u [ σ ⇑[ k ] ] ]↑
+  [][]↑-commutes {k} {u} {σ} t =
+    t [ k ][ u ]↑ [ σ ⇑[ k ] ]                                      ≡⟨ substCompEq t ⟩
+    t [ (σ ⇑[ k ]) ₛ•ₛ consSubst (wkSubst k idSubst) u ]            ≡⟨ (flip substVar-to-subst t λ where
+                                                                          x0     → refl
+                                                                          (x +1) → lemma (var x)) ⟩
+    t [ consSubst (wkSubst k idSubst) (u [ σ ⇑[ k ] ]) ₛ•ₛ (σ ⇑) ]  ≡˘⟨ substCompEq t ⟩
+    t [ σ ⇑ ] [ k ][ u [ σ ⇑[ k ] ] ]↑                              ∎
+    where
+    lemma :
+      ∀ t →
+      t [ wkSubst k idSubst ] [ σ ⇑[ k ] ] ≡
+      wk1 (t [ σ ]) [ k ][ u [ σ ⇑[ k ] ] ]↑
+    lemma t =
+      t [ wkSubst k idSubst ] [ σ ⇑[ k ] ]    ≡˘⟨ cong _[ _ ] $ wk[]≡[] k ⟩
+      wk[ k ] t [ σ ⇑[ k ] ]                  ≡⟨ wk[]-⇑[] k ⟩
+      wk[ k ] (t [ σ ])                       ≡⟨ wk[]≡[] k ⟩
+      t [ σ ] [ wkSubst k idSubst ]           ≡˘⟨ subst-wk (t [ _ ]) ⟩
+      wk1 (t [ σ ]) [ k ][ u [ σ ⇑[ k ] ] ]↑  ∎
+
+opaque
+
+  -- The function _[_][_]↑ commutes (in another sense) with _[_].
+
+  [][]↑-commutes-+ :
+    let cast =
+          subst₂ Subst (sym $ +-assoc j k₂ n) (sym $ +-assoc j k₁ n)
+    in
+    (t : Term (1+ n)) →
+    (∀ x → wk[ k₁ ] (var x) [ σ ] ≡ wk[ k₂ ] (var x)) →
+    t [ j + k₁ ][ u ]↑ [ cast (σ ⇑[ j ]) ] ≡
+    t [ j + k₂ ][ u [ cast (σ ⇑[ j ]) ] ]↑
+  [][]↑-commutes-+ {j} {k₂} {n} {k₁} {σ} {u} t hyp =
+    t [ consSubst (wkSubst (j + k₁) idSubst) u ] [ cast₁ (σ ⇑[ j ]) ]    ≡⟨ substCompEq t ⟩
+
+    t [ cast₁ (σ ⇑[ j ]) ₛ•ₛ consSubst (wkSubst (j + k₁) idSubst) u ]    ≡⟨ (flip substVar-to-subst t λ where
+                                                                               x0     → refl
+                                                                               (_ +1) → lemma₂ _) ⟩
+    t [ consSubst (wkSubst (j + k₂) idSubst) (u [ cast₁ (σ ⇑[ j ]) ]) ]  ∎
+    where
+    cast₁ :
+      Subst (j + (k₂ + n)) (j + (k₁ + n)) →
+      Subst (j + k₂ + n) (j + k₁ + n)
+    cast₁ = subst₂ Subst (sym $ +-assoc j _ _) (sym $ +-assoc j _ _)
+
+    cast₂ : Term (j + (k₂ + n)) → Term (j + k₂ + n)
+    cast₂ = subst Term (sym $ +-assoc j _ _)
+
+    lemma₁ :
+      v [ subst₂ Subst eq₁ (sym eq₂) σ′ ] ≡
+      subst Term eq₁ (subst Term eq₂ v [ σ′ ])
+    lemma₁ {eq₁ = refl} {eq₂ = refl} = refl
+
+    lemma₂ :
+      ∀ x →
+      wkSubst (j + k₁) idSubst x [ cast₁ (σ ⇑[ j ]) ] ≡
+      wkSubst (j + k₂) idSubst x
+    lemma₂ x =
+      wkSubst (j + k₁) idSubst x [ cast₁ (σ ⇑[ j ]) ]       ≡˘⟨ cong _[ _ ] $ wk[]≡wkSubst (j + _) _ ⟩
+
+      wk[ j + k₁ ] (var x) [ cast₁ (σ ⇑[ j ]) ]             ≡⟨ lemma₁ {eq₁ = sym $ +-assoc j _ _} {eq₂ = +-assoc j _ _} ⟩
+
+      cast₂
+        (subst Term (+-assoc j _ _) (wk[ j + k₁ ] (var x))
+           [ σ ⇑[ j ] ])                                    ≡⟨ cong cast₂ $ cong _[ _ ] $ wk[]-comp j ⟩
+
+      cast₂ (wk[ j ] (wk[ k₁ ] (var x)) [ σ ⇑[ j ] ])       ≡⟨ cong cast₂ $ wk[]-⇑[] j ⟩
+
+      cast₂ (wk[ j ] (wk[ k₁ ] (var x) [ σ ]))              ≡⟨ cong cast₂ $ cong wk[ j ] $ hyp _ ⟩
+
+      cast₂ (wk[ j ] (wk[ k₂ ] (var x)))                    ≡⟨ swap-subst $ wk[]-comp j ⟩
+
+      wk[ j + k₂ ] (var x)                                  ≡⟨ wk[]≡[] (j + _) ⟩
+
+      var x [ wkSubst (j + k₂) idSubst ]                    ≡⟨⟩
+
+      wkSubst (j + k₂) idSubst x                            ∎
+
+opaque
+
+  -- A variant of [][]↑-commutes-+.
+
+  [][]↑-[₀⇑] :
+    ∀ j {u} (t : Term (1+ n)) →
+    let cast =
+          subst₂ Subst (sym $ +-assoc j k n) (sym $ +-assoc j (1+ k) n)
+    in
+    t [ j + 1+ k ][ u ]↑ [ cast (sgSubst v ⇑[ j ]) ] ≡
+    t [ j + k ][ u [ cast (sgSubst v ⇑[ j ]) ] ]↑
+  [][]↑-[₀⇑] {k} {v} _ t =
+    [][]↑-commutes-+ t λ x →
+      wk[ 1+ k ] (var x) [ v ]₀     ≡⟨⟩
+      wk1 (wk[ k ] (var x)) [ v ]₀  ≡⟨ wk1-sgSubst _ _ ⟩
+      wk[ k ] (var x)               ∎
+
+private opaque
+
+  -- An example of how [][]↑-[₀⇑] can be used. Note that the cast
+  -- "disappears".
+
+  _ :
+    (t : Term (1+ n)) →
+    t [ 1+ k ][ u ]↑ [ v ]₀ ≡
+    t [ k ][ u [ v ]₀ ]↑
+  _ = [][]↑-[₀⇑] 0
+
+opaque
+
+  -- A variant of [][]↑-commutes-+.
+
+  [][]↑-[,⇑] :
+    ∀ j {u} (t : Term (1+ n)) →
+    let cast =
+          subst₂ Subst (sym $ +-assoc j k n) (sym $ +-assoc j (2+ k) n)
+    in
+    t [ j + 2+ k ][ u ]↑ [ cast (consSubst (sgSubst v) w ⇑[ j ]) ] ≡
+    t [ j + k ][ u [ cast (consSubst (sgSubst v) w ⇑[ j ]) ] ]↑
+  [][]↑-[,⇑] {k} {v} {w} _ t =
+    [][]↑-commutes-+ t λ x →
+      wk[ 2+ k ] (var x) [ v , w ]₁₀  ≡⟨ wk2-[,] ⟩
+      wk[ k ] (var x)                 ∎
+
+private opaque
+
+  -- An example of how [][]↑-[,⇑] can be used.
+
+  _ :
+    (t : Term (1+ n)) →
+    t [ 2+ k ][ u ]↑ [ v , w ]₁₀ ≡
+    t [ k ][ u [ v , w ]₁₀ ]↑
+  _ = [][]↑-[,⇑] 0
+
+opaque
+
+  -- A variant of [][]↑-commutes-+.
+
+  [][]↑-[↑⇑] :
+    ∀ j {u} (t : Term (1+ n)) →
+    let σ    = wk1Subst idSubst
+        cast =
+          subst₂ Subst (sym $ +-assoc j (1+ k) n)
+            (sym $ +-assoc j (1+ k) n)
+    in
+    t [ j + 1+ k ][ u ]↑ [ cast (consSubst σ v ⇑[ j ]) ] ≡
+    t [ j + 1+ k ][ u [ cast (consSubst σ v ⇑[ j ]) ] ]↑
+  [][]↑-[↑⇑] {k} {v} _ t =
+    [][]↑-commutes-+ t λ x →
+      wk[ 1+ k ] (var x) [ consSubst (wk1Subst idSubst) v ]  ≡⟨ wk1-tail (wk[ k ] _) ⟩
+      wk[ k ] (var x) [ wk1Subst idSubst ]                   ≡˘⟨ wk[]≡[] 1 ⟩
+      wk[ 1+ k ] (var x)                                     ∎
+
+private opaque
+
+  -- An example of how [][]↑-[↑⇑] can be used.
+
+  _ :
+    (t : Term (1+ n)) →
+    t [ 1+ k ][ u ]↑ [ v ]↑ ≡
+    t [ 1+ k ][ u [ v ]↑ ]↑
+  _ = [][]↑-[↑⇑] 0
+
+opaque
+
+  -- A weakening lemma for _[_][_]↑.
+
+  [][wk[]′]↑ :
+    (t : Term (1+ n)) →
+    t [ k ][ wk[ k ]′ u ]↑ ≡ wk[ k ]′ (t [ u ]₀)
+  [][wk[]′]↑ {k} {u} t =
+    t [ consSubst (wkSubst k idSubst) (wk[ k ]′ u) ]  ≡⟨ (flip substVar-to-subst t λ where
+                                                            x0     → refl
+                                                            (x +1) →
+                                                              trans (sym $ wk[]≡wkSubst k _) $
+                                                              wk[]≡wk[]′ {t = var x}) ⟩
+    t [ sgSubst (wk[ k ]′ u) ₛ• lift (stepn id k) ]   ≡˘⟨ subst-wk t ⟩
+    wk (lift (stepn id k)) t [ wk[ k ]′ u ]₀          ≡˘⟨ wk-β t ⟩
+    wk[ k ]′ (t [ u ]₀)                               ∎
+
+opaque
+
+  -- A weakening lemma for _[_][_]↑.
+
+  wk[]′[][]↑ :
+    ∀ j →
+    let cast = subst Term (sym $ +-assoc j k n) in
+    (t : Term (1+ n)) →
+    cast (wk[ j ]′ (t [ k ][ u ]↑)) ≡
+    t [ j + k ][ cast (wk[ j ]′ u) ]↑
+  wk[]′[][]↑ {k} {n} {u} j t =
+    cast (wk[ j ]′ (t [ consSubst (wkSubst k idSubst) u ]))        ≡⟨ cong cast $ wk-subst t ⟩
+    cast (t [ stepn id j •ₛ consSubst (wkSubst k idSubst) u ])     ≡⟨ lemma₁ ⟩
+    t [ cast ∘→ (stepn id j •ₛ consSubst (wkSubst k idSubst) u) ]  ≡⟨ (flip substVar-to-subst t λ where
+                                                                         x0     → refl
+                                                                         (_ +1) → lemma₂ _) ⟩
+    t [ consSubst (wkSubst (j + k) idSubst) (cast (wk[ j ]′ u)) ]  ∎
+    where
+    cast : Term (j + (k + n)) → Term ((j + k) + n)
+    cast = subst Term (sym $ +-assoc j k n)
+
+    lemma₁ : cast (t [ σ ]) ≡ t [ cast ∘→ σ ]
+    lemma₁ rewrite +-assoc j k n = refl
+
+    lemma₂ :
+      ∀ x →
+      cast (wk[ j ]′ (wkSubst k idSubst x)) ≡ wkSubst (j + k) idSubst x
+    lemma₂ x =
+      cast (wk[ j ]′ (wkSubst k idSubst x))   ≡˘⟨ cong cast wk[]≡wk[]′ ⟩
+      cast (wk[ j ] (wkSubst k idSubst x))    ≡⟨ cong cast $ wk[]≡wkSubst j _ ⟩
+      cast (wkSubst j (wkSubst k idSubst) x)  ≡⟨ swap-subst $ wkSubst-comp j _ ⟩
+      wkSubst (j + k) idSubst x               ∎
+
+private opaque
+
+  -- An example of how wk[]′[][]↑ can be used.
+
+  _ :
+    (t : Term (1+ n)) →
+    wk1 (t [ k ][ u ]↑) ≡ t [ 1+ k ][ wk1 u ]↑
+  _ = wk[]′[][]↑ 1
+
+opaque
+
+  -- A weakening lemma for _[_][_]↑.
+
+  wk1-[][]↑ : ∀ k {u} → wk1 t [ k ][ u ]↑ ≡ wk[ k ] t
+  wk1-[][]↑ {t} k {u} =
+    wk1 t [ consSubst (wkSubst k idSubst) u ]         ≡⟨ subst-wk t ⟩
+    t [ consSubst (wkSubst k idSubst) u ₛ• step id ]  ≡⟨⟩
+    t [ wkSubst k idSubst ]                           ≡˘⟨ wk[]≡[] k ⟩
+    wk[ k ] t                                         ∎
 
 ------------------------------------------------------------------------
 -- Some lemmas related to numerals

@@ -35,7 +35,7 @@ private
   variable
     k ℓ m n : Nat
     Γ Δ Η : Con Term n
-    A B C C₁ C₂ D E t t₁ t₂ u u₁ u₂ v : Term _
+    A B B₁ B₂ C C₁ C₂ D E t t₁ t₂ u u₁ u₂ v : Term _
     σ σ′ : Subst m n
     ρ : Wk ℓ m
     p q : M
@@ -369,6 +369,36 @@ opaque
     Γ ⊢ t [ u , v ]₁₀ ∷ C [ u , v ]₁₀
   substTerm₂ ⊢t ⊢u ⊢v =
     substitutionTerm ⊢t (singleSubst ⊢u , ⊢v) (wfTerm ⊢u)
+
+opaque
+
+  -- A variant of substTypeEq for _[_][_]↑.
+
+  [][]↑-cong :
+    drop k Γ ∙ A ⊢ B₁ ≡ B₂ →
+    Γ ⊢ t₁ ≡ t₂ ∷ A [ wkSubst k idSubst ] →
+    Γ ⊢ B₁ [ k ][ t₁ ]↑ ≡ B₂ [ k ][ t₂ ]↑
+  [][]↑-cong {k} {Γ} B₁≡B₂ t₁≡t₂ =
+    substitutionEq B₁≡B₂
+      (substRefl (⊢ˢ-wkSubst ⊢Γ (idSubst′ ⊢Γ⁻)) , t₁≡t₂)
+      ⊢Γ
+    where
+    ⊢Γ : ⊢ Γ
+    ⊢Γ = wfEqTerm t₁≡t₂
+
+    ⊢Γ⁻ : ⊢ drop k Γ
+    ⊢Γ⁻ = wf (⊢∙→⊢ (wfEq B₁≡B₂))
+
+opaque
+
+  -- A variant of substType for _[_][_]↑.
+
+  ⊢[][]↑ :
+    drop k Γ ∙ A ⊢ B →
+    Γ ⊢ t ∷ A [ wkSubst k idSubst ] →
+    Γ ⊢ B [ k ][ t ]↑
+  ⊢[][]↑ ⊢B ⊢t =
+    syntacticEq ([][]↑-cong (refl ⊢B) (refl ⊢t)) .proj₁
 
 opaque
 

@@ -80,9 +80,7 @@ opaque
   erasedrec : M → Term (1+ n) → Term (1+ n) → Term n → Term n
   erasedrec p B t u =
     prodrec⟨ s ⟩ is-𝕨 𝟘 p B u
-      (unitrec⟨ s ⟩ 0 𝟙 p
-         (B U.[ consSubst (wkSubst 3 idSubst) $
-                prod s 𝟘 (var x2) (var x0) ])
+      (unitrec⟨ s ⟩ 0 𝟙 p (B [ 3 ][ prod s 𝟘 (var x2) (var x0) ]↑)
          (var x0) (wk1 t))
 
 opaque
@@ -95,47 +93,33 @@ opaque
     erasedrec p (B U.[ liftSubst σ ]) (t U.[ liftSubst σ ]) (u U.[ σ ])
   erasedrec-[] {p} {B} {t} {u} {σ} =
     prodrec⟨ s ⟩ is-𝕨 𝟘 p B u
-      (unitrec⟨ s ⟩ 0 𝟙 p
-         (B U.[ consSubst (wkSubst 3 idSubst) $
-                prod s 𝟘 (var x2) (var x0) ])
+      (unitrec⟨ s ⟩ 0 𝟙 p (B [ 3 ][ prod s 𝟘 (var x2) (var x0) ]↑)
          (var x0) (wk1 t))
-      U.[ σ ]                                                       ≡⟨ prodrec⟨⟩-[] ⟩
+      U.[ σ ]                                                        ≡⟨ prodrec⟨⟩-[] ⟩
 
     prodrec⟨ s ⟩ is-𝕨 𝟘 p (B U.[ liftSubst σ ]) (u U.[ σ ])
-      (unitrec⟨ s ⟩ 0 𝟙 p
-         (B U.[ consSubst (wkSubst 3 idSubst) $
-                prod s 𝟘 (var x2) (var x0) ])
+      (unitrec⟨ s ⟩ 0 𝟙 p (B [ 3 ][ prod s 𝟘 (var x2) (var x0) ]↑)
          (var x0) (wk1 t)
-         U.[ liftSubstn σ 2 ])                                      ≡⟨ PE.cong (prodrec⟨_⟩ _ _ _ _ _ _)
-                                                                       unitrec⟨⟩-[] ⟩
+         U.[ liftSubstn σ 2 ])                                       ≡⟨ PE.cong (prodrec⟨_⟩ _ _ _ _ _ _)
+                                                                        unitrec⟨⟩-[] ⟩
     prodrec⟨ s ⟩ is-𝕨 𝟘 p (B U.[ liftSubst σ ]) (u U.[ σ ])
       (unitrec⟨ s ⟩ 0 𝟙 p
-         (B U.[ consSubst (wkSubst 3 idSubst) $
-                prod s 𝟘 (var x2) (var x0) ]
+         (B [ 3 ][ prod s 𝟘 (var x2) (var x0) ]↑
             U.[ liftSubstn σ 3 ])
-         (var x0) (wk1 t U.[ liftSubstn σ 2 ]))                     ≡⟨ PE.cong (prodrec⟨_⟩ _ _ _ _ _ _) $
-                                                                       PE.cong₃ (unitrec⟨_⟩ _ _ _ _)
-                                                                         (PE.trans (substCompEq B) $
-                                                                          PE.trans (flip substVar-to-subst B λ
-                                                                                      { x0     → PE.refl
-                                                                                      ; (x +1) →
-      wk[ 3 ] (σ x)                                                                       ≡⟨ wk[]≡[] 3 ⟩
-
-      σ x U.[ wkSubst 3 idSubst ]                                                         ≡˘⟨ wk1-tail (σ _) ⟩
-
-      wk1 (σ x)
-        U.[ consSubst (wkSubst 3 idSubst) $
-            prod s 𝟘 (var x2) (var x0) ]                                                  ∎
-                                                                                      }) $
-                                                                          PE.sym $ substCompEq B)
-                                                                         PE.refl
-                                                                         (wk1-liftSubst t) ⟩
+         (var x0) (wk1 t U.[ liftSubstn σ 2 ]))                      ≡⟨ PE.cong (prodrec⟨_⟩ _ _ _ _ _ _) $
+                                                                        PE.cong₃ (unitrec⟨_⟩ _ _ _ _)
+                                                                          (PE.trans (substCompEq B) $
+                                                                           PE.trans (flip substVar-to-subst B λ
+                                                                                       { x0     → PE.refl
+                                                                                       ; (_ +1) → PE.sym $ wk1-[][]↑ 3
+                                                                                       }) $
+                                                                           PE.sym $ substCompEq B)
+                                                                          PE.refl
+                                                                          (wk1-liftSubst t) ⟩
     prodrec⟨ s ⟩ is-𝕨 𝟘 p (B U.[ liftSubst σ ]) (u U.[ σ ])
       (unitrec⟨ s ⟩ 0 𝟙 p
-         (B U.[ liftSubst σ ]
-            U.[ consSubst (wkSubst 3 idSubst) $
-                prod s 𝟘 (var x2) (var x0) ])
-         (var x0) (wk1 (t U.[ liftSubst σ ])))                      ∎
+         (B U.[ liftSubst σ ] [ 3 ][ prod s 𝟘 (var x2) (var x0) ]↑)
+         (var x0) (wk1 (t U.[ liftSubst σ ])))                       ∎
 
 opaque
 

@@ -2018,6 +2018,30 @@ doubleSubstₘ-lemma₃ ▸t ▸u ▸u′ =
         (doubleSubstₘ-lemma₂ ▸t ▸u ▸u′)
         (≤ᶜ-reflexive (+ᶜ-congˡ (+ᶜ-cong eq eq′)))
 
+opaque
+
+  -- A substitution lemma for _[_][_]↑.
+
+  ▸[][]↑ :
+    γ ∙ p ▸[ mo ] t →
+    ⌜ ⌞ p ⌟ ⌝ ·ᶜ δ ▸[ ⌞ p ⌟ ] u →
+    wkConₘ (stepn id k) γ +ᶜ p ·ᶜ δ ▸[ mo ] t [ k ][ u ]↑
+  ▸[][]↑ {γ} {p} {k} {δ} ▸t ▸u = sub
+    (substₘ-lemma _
+       (▶-cong _
+          (λ where
+             x0     → PE.refl
+             (_ +1) → PE.refl) $
+        wf-consSubstₘ (wf-wkSubstₘ′ wf-idSubstₘ) ▸u)
+       ▸t)
+    (begin
+       wkConₘ (stepn id k) γ +ᶜ p ·ᶜ δ                ≈⟨ +ᶜ-comm _ _ ⟩
+       p ·ᶜ δ +ᶜ wkConₘ (stepn id k) γ                ≈˘⟨ +ᶜ-congˡ (wk-≈ᶜ (stepn _ k) (<*-identityˡ _)) ⟩
+       p ·ᶜ δ +ᶜ wkConₘ (stepn id k) (γ <* idSubstₘ)  ≈˘⟨ +ᶜ-congˡ (<*-wkSubstₘ′ γ) ⟩
+       p ·ᶜ δ +ᶜ γ <* wkSubstₘ′ k idSubstₘ            ∎)
+    where
+    open ≤ᶜ-reasoning
+
 -------------------------------------
 -- Substitution matrix inference --
 -------------------------------------
