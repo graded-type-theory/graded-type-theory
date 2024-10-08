@@ -455,9 +455,10 @@ liftSubstn σ (1+ n)   = liftSubst (liftSubstn σ n)
 _⇑ : Subst m n → Subst (1+ m) (1+ n)
 _⇑ = liftSubst
 
--- A synonym of liftSubst ∘ liftSubst
-_⇑² : Subst m n → Subst (2+ m) (2+ n)
-_⇑² = flip liftSubstn 2
+-- A synonym of liftSubstn.
+
+_⇑[_] : Subst m n → ∀ k → Subst (k + m) (k + n)
+_⇑[_] = liftSubstn
 
 -- Transform a weakening into a substitution.
 --
@@ -481,12 +482,12 @@ prod s p t u [ σ ] = prod s p (t [ σ ]) (u [ σ ])
 fst p t [ σ ] = fst p (t [ σ ])
 snd p t [ σ ] = snd p (t [ σ ])
 prodrec r p q A t u [ σ ] =
-  prodrec r p q (A [ σ ⇑ ]) (t [ σ ]) (u [ σ ⇑² ])
+  prodrec r p q (A [ σ ⇑ ]) (t [ σ ]) (u [ σ ⇑[ 2 ] ])
 ℕ [ σ ] = ℕ
 zero [ σ ] = zero
 suc t [ σ ] = suc (t [ σ ])
 natrec p q r A z s n [ σ ] =
-  natrec p q r (A [ σ ⇑ ]) (z [ σ ]) (s [ σ ⇑² ]) (n [ σ ])
+  natrec p q r (A [ σ ⇑ ]) (z [ σ ]) (s [ σ ⇑[ 2 ] ]) (n [ σ ])
 Unit s l [ σ ] = Unit s l
 star s l [ σ ] = star s l
 unitrec l p q A t u [ σ ] =
@@ -496,7 +497,8 @@ emptyrec p A t [ σ ] = emptyrec p (A [ σ ]) (t [ σ ])
 Id A t u [ σ ] = Id (A [ σ ]) (t [ σ ]) (u [ σ ])
 rfl [ σ ] = rfl
 J p q A t B u v w [ σ ] =
-  J p q (A [ σ ]) (t [ σ ]) (B [ σ ⇑² ]) (u [ σ ]) (v [ σ ]) (w [ σ ])
+  J p q (A [ σ ]) (t [ σ ]) (B [ σ ⇑[ 2 ] ]) (u [ σ ]) (v [ σ ])
+    (w [ σ ])
 K p A t B u v [ σ ] =
   K p (A [ σ ]) (t [ σ ]) (B [ σ ⇑ ]) (u [ σ ]) (v [ σ ])
 []-cong s A t u v [ σ ] =
