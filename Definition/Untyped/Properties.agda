@@ -692,11 +692,26 @@ wk-subst-lift G = trans (wk-subst G) (subst-lift-•ₛ G)
 wk≡subst : (ρ : Wk m n) (t : Term n) → wk ρ t ≡ t [ toSubst ρ ]
 wk≡subst ρ t = trans (cong (wk ρ) (sym (subst-id t))) (wk-subst t)
 
-liftWk≡liftSubst : (ρ : Wk m n) (t : Term (1+ n))
-                 → wk (lift ρ) t ≡ t [ liftSubst (toSubst ρ) ]
-liftWk≡liftSubst ρ t =
-  trans (wk≡subst (lift ρ) t)
-    (substVar-to-subst (λ { x0 → refl ; (x +1) → refl}) t)
+opaque
+
+  -- The function toSubst commutes, in a certain sense, with lifting.
+
+  toSubst-liftn : ∀ k x → toSubst (liftn ρ k) x ≡ (toSubst ρ ⇑[ k ]) x
+  toSubst-liftn 0      _      = refl
+  toSubst-liftn (1+ _) x0     = refl
+  toSubst-liftn (1+ k) (x +1) =
+    cong wk1 $ toSubst-liftn k x
+
+opaque
+
+  -- The application of a lifted weakening can be expressed as the
+  -- application of a lifted substitution.
+
+  wk-liftn : ∀ k {t} → wk (liftn ρ k) t ≡ t [ toSubst ρ ⇑[ k ] ]
+  wk-liftn {ρ} k {t} =
+    wk (liftn ρ k) t           ≡⟨ wk≡subst _ _ ⟩
+    t [ toSubst (liftn ρ k) ]  ≡⟨ substVar-to-subst (toSubst-liftn k) t ⟩
+    t [ toSubst ρ ⇑[ k ] ]     ∎
 
 -- Composition of substitutions.
 

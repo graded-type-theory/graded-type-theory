@@ -63,6 +63,6 @@ opaque
     natcase p q A t u v [ toSubst ρ ]                              ≡⟨ natcase-[] ⟩
 
     natcase p q (A [ toSubst ρ ⇑ ]) (t [ toSubst ρ ])
-      (u [ toSubst ρ ⇑ ]) (v [ toSubst ρ ])                        ≡˘⟨ cong₄ (natcase _ _) (liftWk≡liftSubst _ _) (wk≡subst _ _)
-                                                                         (liftWk≡liftSubst _ _) (wk≡subst _ _) ⟩
+      (u [ toSubst ρ ⇑ ]) (v [ toSubst ρ ])                        ≡˘⟨ cong₄ (natcase _ _) (wk-liftn 1) (wk≡subst _ _)
+                                                                         (wk-liftn 1) (wk≡subst _ _) ⟩
     natcase p q (wk (lift ρ) A) (wk ρ t) (wk (lift ρ) u) (wk ρ v)  ∎
