@@ -46,7 +46,7 @@ escape (Uᵣ′ l′ l< [ ⊢A , ⊢B , D ]) = ⊢A
 escape (ℕᵣ [ ⊢A , ⊢B , D ]) = ⊢A
 escape (Emptyᵣ [ ⊢A , ⊢B , D ]) = ⊢A
 escape (Unitᵣ (Unitₜ [ ⊢A , ⊢B , D ] _)) = ⊢A
-escape (ne′ K [ ⊢A , ⊢B , D ] neK K≡K) = ⊢A
+escape (ne′ _ [ ⊢A , ⊢B , D ] neK K≡K) = ⊢A
 escape (Bᵣ′ _ _ _ [ ⊢A , _ , _ ] _ _ _ _ _ _ _) = ⊢A
 escape (Idᵣ ⊩A) = ⊢A-red (_⊩ₗId_.⇒*Id ⊩A)
 escape (emb ≤ᵘ-refl A) = escape A
@@ -64,7 +64,7 @@ escapeTerm (Emptyᵣ D) (Emptyₜ e [ ⊢t , ⊢u , d ] t≡t prop) =
   conv ⊢t (sym (subset* (red D)))
 escapeTerm (Unitᵣ (Unitₜ D _)) (Unitₜ e [ ⊢t , ⊢u , d ] _ prop) =
   conv ⊢t (sym (subset* (red D)))
-escapeTerm (ne′ K D neK K≡K) (neₜ k [ ⊢t , ⊢u , d ] nf) =
+escapeTerm (ne′ _ D neK K≡K) (neₜ k [ ⊢t , ⊢u , d ] nf) =
   conv ⊢t (sym (subset* (red D)))
 escapeTerm (Bᵣ′ BΠ! _ _ D _ _ _ _ _ _ _) (Πₜ _ [ ⊢t , _ , _ ] _ _ _ _) =
   conv ⊢t (sym (subset* (red D)))
@@ -113,7 +113,7 @@ escapeEq (Emptyᵣ [ ⊢A , ⊢B , D ]) D′ =
   ≅-red (D , Emptyₙ) (D′ , Emptyₙ) (≅-Emptyrefl (wf ⊢A))
 escapeEq (Unitᵣ (Unitₜ [ ⊢A , ⊢B , D ] ok)) D′ =
   ≅-red (D , Unitₙ) (D′ , Unitₙ) (≅-Unitrefl (wf ⊢A) ok)
-escapeEq (ne′ K D neK K≡K) (ne₌ M D′ neM K≡M) =
+escapeEq (ne′ _ D neK K≡K) (ne₌ M D′ neM K≡M) =
   ≅-red (red D , ne neK) (red D′ , ne neM) K≡M
 escapeEq (Bᵣ′ W _ _ D _ _ _ _ _ _ _) (B₌ _ _ D′ A≡B _ _) =
   ≅-red (red D , ⟦ W ⟧ₙ) (red D′ , ⟦ W ⟧ₙ) A≡B
@@ -140,7 +140,7 @@ escapeTermEq (Unitᵣ (Unitₜ D _)) (Unitₜ₌ˢ ⊢t ⊢u ok) =
 escapeTermEq (Unitᵣ (Unitₜ D _)) (Unitₜ₌ʷ _ _ d d′ k≡k′ prop _) =
   let whK , whK′ = usplit prop
   in  ≅ₜ-red (red D , Unitₙ) (redₜ d , whK) (redₜ d′ , whK′) k≡k′
-escapeTermEq (ne′ K D neK K≡K)
+escapeTermEq (ne′ _ D neK K≡K)
                  (neₜ₌ k m d d′ (neNfₜ₌ neT neU t≡u)) =
   ≅ₜ-red (red D , ne neK) (redₜ d , ne neT) (redₜ d′ , ne neU)
          (~-to-≅ₜ t≡u)

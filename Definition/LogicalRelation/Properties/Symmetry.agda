@@ -89,7 +89,7 @@ symEqT (Unitᵥ (Unitₜ A⇒*Unit _) (Unitₜ B⇒*Unit₁ _)) B⇒*Unit₂ =
        whrDet* (red B⇒*Unit₁ , Unitₙ) (B⇒*Unit₂ , Unitₙ) of λ {
     (_ , PE.refl) →
   red A⇒*Unit }
-symEqT (ne (ne K D neK K≡K) (ne K₁ D₁ neK₁ K≡K₁)) (ne₌ M D′ neM K≡M)
+symEqT (ne (ne _ D neK K≡K) (ne K₁ D₁ neK₁ K≡K₁)) (ne₌ M D′ neM K≡M)
        rewrite whrDet* (red D′ , ne neM) (red D₁ , ne neK₁) =
   ne₌ _ D neK
       (≅-sym K≡M)
@@ -169,7 +169,7 @@ symEqTerm (Unitᵣ _) (Unitₜ₌ˢ ⊢t ⊢u ok) =
   Unitₜ₌ˢ ⊢u ⊢t ok
 symEqTerm (Unitᵣ _) (Unitₜ₌ʷ k k′ d d′ k≡k′ prop ok) =
   Unitₜ₌ʷ k′ k d′ d (≅ₜ-sym k≡k′) (symUnit-prop prop) ok
-symEqTerm (ne′ K D neK K≡K) (neₜ₌ k m d d′ nf) =
+symEqTerm (ne′ _ D neK K≡K) (neₜ₌ k m d d′ nf) =
   neₜ₌ m k d′ d (symNeutralTerm nf)
 symEqTerm (Bᵣ′ BΠ! F G D ⊢F ⊢G A≡A [F] [G] G-ext _)
           (Πₜ₌ f g d d′ funcF funcG f≡g [f] [g] [f≡g]) =

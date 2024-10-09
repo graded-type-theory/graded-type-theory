@@ -62,9 +62,9 @@ redSubst* D (Emptyᵣ [ ⊢B , ⊢Empty , D′ ]) =
 redSubst* D (Unitᵣ (Unitₜ [ ⊢B , ⊢Unit , D′ ] ok)) =
   let ⊢A = redFirst* D
   in  Unitᵣ (Unitₜ [ ⊢A , ⊢Unit , D ⇨* D′ ] ok) , D′
-redSubst* D (ne′ K [ ⊢B , ⊢K , D′ ] neK K≡K) =
+redSubst* D (ne′ _ [ ⊢B , ⊢K , D′ ] neK K≡K) =
   let ⊢A = redFirst* D
-  in  (ne′ K [ ⊢A , ⊢K , D ⇨* D′ ] neK K≡K)
+  in  (ne′ _ [ ⊢A , ⊢K , D ⇨* D′ ] neK K≡K)
   ,   (ne₌ _ [ ⊢B , ⊢K , D′ ] neK K≡K)
 redSubst*
   D (Bᵣ′ W F G D′@([ _ , ⊢ΠFG , D″ ]) ⊢F ⊢G A≡A [F] [G] G-ext ok) =
@@ -139,7 +139,7 @@ redSubst*Term
          (inj₂ (PE.refl , no-η)) →
            Unitₜ₌ʷ n n d′ [ ⊢u , ⊢n , d ] n≡n (reflUnitʷ-prop prop)
              no-η)
-redSubst*Term t⇒u (ne′ K D neK K≡K) (neₜ k [ ⊢t , ⊢u , d ] (neNfₜ neK₁ ⊢k k≡k)) =
+redSubst*Term t⇒u (ne′ _ D neK K≡K) (neₜ k [ ⊢t , ⊢u , d ] (neNfₜ neK₁ ⊢k k≡k)) =
   let A≡K  = subset* (red D)
       [d]  = [ ⊢t , ⊢u , d ]
       [d′] = [ conv (redFirst*Term t⇒u) A≡K , ⊢u , conv* t⇒u A≡K ⇨∷* d ]

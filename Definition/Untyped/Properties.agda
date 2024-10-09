@@ -32,55 +32,263 @@ private
     b₁ b₂ : BinderMode
     l₁ l₂ : Universe-level
 
--- Extensionally equal weakenings, if applied to a term,
--- yield the same weakened term.  Or:
--- If two weakenings are equal under wkVar, then they are equal under wk.
+------------------------------------------------------------------------
+-- Properties of toTerm and fromTerm.
 
-mutual
-  wkVar-to-wk : (∀ x → wkVar ρ x ≡ wkVar ρ′ x)
-              → ∀ (t : Term n) → wk ρ t ≡ wk ρ′ t
-  wkVar-to-wk eq (var x)   = cong var (eq x)
-  wkVar-to-wk eq (gen k c) = cong (gen k) (wkVar-to-wkGen eq c)
+opaque
 
-  wkVar-to-wkGen : (∀ x → wkVar ρ x ≡ wkVar ρ′ x)
-                 → ∀ {bs} c → wkGen {bs = bs} ρ c ≡ wkGen {bs = bs} ρ′ c
+  -- Converting to the alternative term representation and back is
+  -- identity.
+
+  toTerm∘fromTerm : (t : Term n) → toTerm (fromTerm t) ≡ t
+  toTerm∘fromTerm (var x) = refl
+  toTerm∘fromTerm (U l) = refl
+  toTerm∘fromTerm (ΠΣ⟨ b ⟩ p , q ▷ A ▹ B) =
+    cong₂ (ΠΣ⟨ b ⟩ p , q ▷_▹_) (toTerm∘fromTerm A) (toTerm∘fromTerm B)
+  toTerm∘fromTerm (lam p t) =
+    cong (lam p) (toTerm∘fromTerm t)
+  toTerm∘fromTerm (t ∘⟨ p ⟩ u) =
+    cong₂ (_∘⟨ p ⟩_) (toTerm∘fromTerm t) (toTerm∘fromTerm u)
+  toTerm∘fromTerm (prod s p t u) =
+    cong₂ (prod s p) (toTerm∘fromTerm t) (toTerm∘fromTerm u)
+  toTerm∘fromTerm (fst p t) =
+    cong (fst p) (toTerm∘fromTerm t)
+  toTerm∘fromTerm (snd p t) =
+    cong (snd p) (toTerm∘fromTerm t)
+  toTerm∘fromTerm (prodrec r p q A t u) =
+    cong₃ (prodrec r p q) (toTerm∘fromTerm A)
+      (toTerm∘fromTerm t) (toTerm∘fromTerm u)
+  toTerm∘fromTerm ℕ = refl
+  toTerm∘fromTerm zero = refl
+  toTerm∘fromTerm (suc t) =
+    cong suc (toTerm∘fromTerm t)
+  toTerm∘fromTerm (natrec p q r A z s n) =
+    cong₄ (natrec p q r) (toTerm∘fromTerm A) (toTerm∘fromTerm z)
+      (toTerm∘fromTerm s) (toTerm∘fromTerm n)
+  toTerm∘fromTerm (Unit s l) = refl
+  toTerm∘fromTerm (star s l) = refl
+  toTerm∘fromTerm (unitrec l p q A t u) =
+    cong₃ (unitrec l p q) (toTerm∘fromTerm A)
+      (toTerm∘fromTerm t) (toTerm∘fromTerm u)
+  toTerm∘fromTerm Empty = refl
+  toTerm∘fromTerm (emptyrec p A t) =
+    cong₂ (emptyrec p) (toTerm∘fromTerm A) (toTerm∘fromTerm t)
+  toTerm∘fromTerm (Id A t u) =
+    cong₃ Id (toTerm∘fromTerm A) (toTerm∘fromTerm t) (toTerm∘fromTerm u)
+  toTerm∘fromTerm rfl = refl
+  toTerm∘fromTerm (J p q A t B u v w) =
+    cong₆ (J p q) (toTerm∘fromTerm A) (toTerm∘fromTerm t)
+      (toTerm∘fromTerm B) (toTerm∘fromTerm u)
+      (toTerm∘fromTerm v) (toTerm∘fromTerm w)
+  toTerm∘fromTerm (K p A t B u v) =
+    cong₅ (K p) (toTerm∘fromTerm A) (toTerm∘fromTerm t)
+      (toTerm∘fromTerm B) (toTerm∘fromTerm u) (toTerm∘fromTerm v)
+  toTerm∘fromTerm ([]-cong s A t u v) =
+    cong₄ ([]-cong s) (toTerm∘fromTerm A) (toTerm∘fromTerm t)
+      (toTerm∘fromTerm u) (toTerm∘fromTerm v)
+
+opaque
+
+  -- Converting from the alternative term representation and back is
+  -- identity.
+
+  fromTerm∘toTerm : (t : Term′ n) → fromTerm (toTerm t) ≡ t
+  fromTerm∘toTerm (var x) = refl
+  fromTerm∘toTerm (gen (Ukind l) []) = refl
+  fromTerm∘toTerm (gen (Binderkind b p q) (A ∷ₜ B ∷ₜ [])) =
+    cong₂ (λ A B → gen (Binderkind b p q) (A ∷ₜ B ∷ₜ []))
+      (fromTerm∘toTerm A) (fromTerm∘toTerm B)
+  fromTerm∘toTerm (gen (Lamkind p) (t ∷ₜ [])) =
+    cong (λ t → gen (Lamkind p) (t ∷ₜ [])) (fromTerm∘toTerm t)
+  fromTerm∘toTerm (gen (Appkind p) (t ∷ₜ u ∷ₜ [])) =
+    cong₂ (λ t u → gen (Appkind p) (t ∷ₜ u ∷ₜ []))
+      (fromTerm∘toTerm t) (fromTerm∘toTerm u)
+  fromTerm∘toTerm (gen (Prodkind s p) (t ∷ₜ u ∷ₜ [])) =
+    cong₂ (λ t u → gen (Prodkind s p) (t ∷ₜ u ∷ₜ []))
+      (fromTerm∘toTerm t) (fromTerm∘toTerm u)
+  fromTerm∘toTerm (gen (Fstkind p) (t ∷ₜ [])) =
+    cong (λ t → gen (Fstkind p) (t ∷ₜ [])) (fromTerm∘toTerm t)
+  fromTerm∘toTerm (gen (Sndkind p) (t ∷ₜ [])) =
+    cong (λ t → gen (Sndkind p) (t ∷ₜ [])) (fromTerm∘toTerm t)
+  fromTerm∘toTerm (gen (Prodreckind r p q) (A ∷ₜ t ∷ₜ u ∷ₜ [])) =
+    cong₃ (λ A t u → gen (Prodreckind r p q) (A ∷ₜ t ∷ₜ u ∷ₜ []))
+      (fromTerm∘toTerm A) (fromTerm∘toTerm t) (fromTerm∘toTerm u)
+  fromTerm∘toTerm (gen Natkind []) = refl
+  fromTerm∘toTerm (gen Zerokind []) = refl
+  fromTerm∘toTerm (gen Suckind (t ∷ₜ [])) =
+    cong (λ t → gen Suckind (t ∷ₜ [])) (fromTerm∘toTerm t)
+  fromTerm∘toTerm (gen (Natreckind p q r) (A ∷ₜ z ∷ₜ s ∷ₜ n ∷ₜ [])) =
+    cong₄ (λ A z s n → gen (Natreckind p q r) (A ∷ₜ z ∷ₜ s ∷ₜ n ∷ₜ []))
+      (fromTerm∘toTerm A) (fromTerm∘toTerm z)
+      (fromTerm∘toTerm s) (fromTerm∘toTerm n)
+  fromTerm∘toTerm (gen (Unitkind s l) []) = refl
+  fromTerm∘toTerm (gen (Starkind s l) []) = refl
+  fromTerm∘toTerm (gen (Unitreckind l p q) (A ∷ₜ t ∷ₜ u ∷ₜ [])) =
+    cong₃ (λ A t u → gen (Unitreckind l p q) (A ∷ₜ t ∷ₜ u ∷ₜ []))
+      (fromTerm∘toTerm A) (fromTerm∘toTerm t) (fromTerm∘toTerm u)
+  fromTerm∘toTerm (gen Emptykind []) = refl
+  fromTerm∘toTerm (gen (Emptyreckind p) (A ∷ₜ t ∷ₜ [])) =
+    cong₂ (λ A t → gen (Emptyreckind p) (A ∷ₜ t ∷ₜ []))
+      (fromTerm∘toTerm A) (fromTerm∘toTerm t)
+  fromTerm∘toTerm (gen Idkind (A ∷ₜ t ∷ₜ u ∷ₜ [])) =
+    cong₃ (λ A t u → gen Idkind (A ∷ₜ t ∷ₜ u ∷ₜ []))
+      (fromTerm∘toTerm A) (fromTerm∘toTerm t) (fromTerm∘toTerm u)
+  fromTerm∘toTerm (gen Reflkind []) = refl
+  fromTerm∘toTerm (gen (Jkind p q) (A ∷ₜ t ∷ₜ B ∷ₜ u ∷ₜ v ∷ₜ w ∷ₜ [])) =
+    cong₆ (λ A t B u v w →
+            gen (Jkind p q) (A ∷ₜ t ∷ₜ B ∷ₜ u ∷ₜ v ∷ₜ w ∷ₜ []))
+      (fromTerm∘toTerm A) (fromTerm∘toTerm t) (fromTerm∘toTerm B)
+      (fromTerm∘toTerm u) (fromTerm∘toTerm v) (fromTerm∘toTerm w)
+  fromTerm∘toTerm (gen (Kkind p) (A ∷ₜ t ∷ₜ B ∷ₜ u ∷ₜ v ∷ₜ [])) =
+    cong₅ (λ A t B u v → gen (Kkind p) (A ∷ₜ t ∷ₜ B ∷ₜ u ∷ₜ v ∷ₜ []))
+      (fromTerm∘toTerm A) (fromTerm∘toTerm t) (fromTerm∘toTerm B)
+      (fromTerm∘toTerm u) (fromTerm∘toTerm v)
+  fromTerm∘toTerm (gen (Boxcongkind s) (A ∷ₜ t ∷ₜ u ∷ₜ v ∷ₜ [])) =
+    cong₄ (λ A t u v → gen (Boxcongkind s) (A ∷ₜ t ∷ₜ u ∷ₜ v ∷ₜ []))
+      (fromTerm∘toTerm A) (fromTerm∘toTerm t)
+      (fromTerm∘toTerm u) (fromTerm∘toTerm v)
+
+------------------------------------------------------------------------
+-- Weakening properties
+
+opaque
+
+  -- Relating weakening of terms with weakening of the alternative
+  -- term representation.
+
+  wk≡wk′ : ∀ t → wk ρ t ≡ toTerm (wk′ ρ (fromTerm t))
+  wk≡wk′ (var x) = refl
+  wk≡wk′ (U x) = refl
+  wk≡wk′ (ΠΣ⟨ b ⟩ p , q ▷ t ▹ t₁) =
+    cong₂ (ΠΣ⟨ b ⟩ p , q ▷_▹_) (wk≡wk′ t) (wk≡wk′ t₁)
+  wk≡wk′ (lam p t) = cong (lam p) (wk≡wk′ t)
+  wk≡wk′ (t ∘⟨ p ⟩ t₁) = cong₂ _∘_ (wk≡wk′ t) (wk≡wk′ t₁)
+  wk≡wk′ (prod x p t t₁) = cong₂ prod! (wk≡wk′ t) (wk≡wk′ t₁)
+  wk≡wk′ (fst p t) = cong (fst p) (wk≡wk′ t)
+  wk≡wk′ (snd p t) = cong (snd p) (wk≡wk′ t)
+  wk≡wk′ (prodrec r p q t t₁ t₂) =
+    cong₃ (prodrec r p q) (wk≡wk′ t) (wk≡wk′ t₁) (wk≡wk′ t₂)
+  wk≡wk′ ℕ = refl
+  wk≡wk′ zero = refl
+  wk≡wk′ (suc t) = cong suc (wk≡wk′ t)
+  wk≡wk′ (natrec p q r t t₁ t₂ t₃) =
+    cong₄ (natrec p q r) (wk≡wk′ t) (wk≡wk′ t₁) (wk≡wk′ t₂) (wk≡wk′ t₃)
+  wk≡wk′ (Unit x x₁) = refl
+  wk≡wk′ (star x x₁) = refl
+  wk≡wk′ (unitrec x p q t t₁ t₂) =
+    cong₃ (unitrec x p q) (wk≡wk′ t) (wk≡wk′ t₁) (wk≡wk′ t₂)
+  wk≡wk′ Empty = refl
+  wk≡wk′ (emptyrec p t t₁) =
+    cong₂ (emptyrec p) (wk≡wk′ t) (wk≡wk′ t₁)
+  wk≡wk′ (Id t t₁ t₂) =
+    cong₃ Id (wk≡wk′ t) (wk≡wk′ t₁) (wk≡wk′ t₂)
+  wk≡wk′ rfl = refl
+  wk≡wk′ (J p q t t₁ t₂ t₃ t₄ t₅) =
+    cong₆ (J p q) (wk≡wk′ t) (wk≡wk′ t₁) (wk≡wk′ t₂)
+      (wk≡wk′ t₃) (wk≡wk′ t₄) (wk≡wk′ t₅)
+  wk≡wk′ (K p t t₁ t₂ t₃ t₄) =
+    cong₅ (K p) (wk≡wk′ t) (wk≡wk′ t₁) (wk≡wk′ t₂)
+      (wk≡wk′ t₃) (wk≡wk′ t₄)
+  wk≡wk′ ([]-cong x t t₁ t₂ t₃) =
+    cong₄ []-cong! (wk≡wk′ t) (wk≡wk′ t₁) (wk≡wk′ t₂) (wk≡wk′ t₃)
+
+opaque mutual
+
+  -- If two weakenings are equal under wkVar, then they are equal under
+  -- wk′.
+
+  wkVar-to-wk′ :
+    (∀ x → wkVar ρ x ≡ wkVar ρ′ x) →
+    ∀ (t : Term′ n) → wk′ ρ t ≡ wk′ ρ′ t
+  wkVar-to-wk′ eq (var x)    = cong var (eq x)
+  wkVar-to-wk′ eq (gen k ts) = cong (gen k) (wkVar-to-wkGen eq ts)
+
+  wkVar-to-wkGen :
+    (∀ x → wkVar ρ x ≡ wkVar ρ′ x) →
+    ∀ {bs} ts → wkGen {bs = bs} ρ ts ≡ wkGen {bs = bs} ρ′ ts
   wkVar-to-wkGen eq []              = refl
   wkVar-to-wkGen eq (_∷ₜ_ {b} t ts) =
-    cong₂ _∷ₜ_ (wkVar-to-wk (wkVar-lifts eq b) t) (wkVar-to-wkGen eq ts)
+    cong₂ _∷ₜ_ (wkVar-to-wk′ (wkVar-lifts eq b) t)
+      (wkVar-to-wkGen eq ts)
 
--- id is the identity renaming.
+opaque
 
-mutual
-  wk-id : (t : Term n) → wk id t ≡ t
-  wk-id (var x)   = refl
-  wk-id (gen k ts) = cong (gen k) (wkGen-id ts)
+  -- Extensionally equal weakenings, if applied to a term,
+  -- yield the same weakened term.  Or:
+  -- If two weakenings are equal under wkVar, then they are equal under
+  -- wk.
 
-  wkGen-id : ∀ {bs} x → wkGen {m = n} {n} {bs} id x ≡ x
+  wkVar-to-wk : (∀ x → wkVar ρ x ≡ wkVar ρ′ x)
+              → (t : Term n) → wk ρ t ≡ wk ρ′ t
+  wkVar-to-wk {ρ} {ρ′} eq t = begin
+    wk ρ t                       ≡⟨ wk≡wk′ t ⟩
+    toTerm (wk′ ρ (fromTerm t))  ≡⟨ cong toTerm (wkVar-to-wk′ eq _) ⟩
+    toTerm (wk′ ρ′ (fromTerm t)) ≡˘⟨ wk≡wk′ t ⟩
+    wk ρ′ t                      ∎
+
+opaque mutual
+
+  -- id is the identity renaming for the alternative term representation
+
+  wk′-id : (t : Term′ n) → wk′ id t ≡ t
+  wk′-id (var x)   = refl
+  wk′-id (gen k ts) = cong (gen k) (wkGen-id ts)
+
+  wkGen-id : ∀ {bs} ts → wkGen {m = n} {n} {bs} id ts ≡ ts
   wkGen-id []              = refl
   wkGen-id (_∷ₜ_ {b} t ts) =
-    cong₂ _∷ₜ_ (trans (wkVar-to-wk (wkVar-lifts-id b) t) (wk-id t))
+    cong₂ _∷ₜ_ (trans (wkVar-to-wk′ (wkVar-lifts-id b) t) (wk′-id t))
       (wkGen-id ts)
+
+opaque
+
+  -- id is the identity renaming.
+
+  wk-id : (t : Term n) → wk id t ≡ t
+  wk-id t = begin
+    wk id t                      ≡⟨ wk≡wk′ t ⟩
+    toTerm (wk′ id (fromTerm t)) ≡⟨ cong toTerm (wk′-id _) ⟩
+    toTerm (fromTerm t)          ≡⟨ toTerm∘fromTerm t ⟩
+    t                            ∎
 
 -- lift id  is also the identity renaming.
 
 wk-lift-id : (t : Term (1+ n)) → wk (lift id) t ≡ t
 wk-lift-id t = trans (wkVar-to-wk wkVar-lift-id t) (wk-id t)
 
--- The function wk commutes with composition.
+opaque mutual
 
-mutual
-  wk-comp : (ρ : Wk m ℓ) (ρ′ : Wk ℓ n) (t : Term n) → wk ρ (wk ρ′ t) ≡ wk (ρ • ρ′) t
-  wk-comp ρ ρ′ (var x) = cong var (wkVar-comp ρ ρ′ x)
-  wk-comp ρ ρ′ (gen k ts) = cong (gen k) (wkGen-comp ρ ρ′ ts)
+  -- The function wk′ commutes with composition.
+
+  wk′-comp :
+    (ρ : Wk m ℓ) (ρ′ : Wk ℓ n) (t : Term′ n) →
+    wk′ ρ (wk′ ρ′ t) ≡ wk′ (ρ • ρ′) t
+  wk′-comp ρ ρ′ (var x) = cong var (wkVar-comp ρ ρ′ x)
+  wk′-comp ρ ρ′ (gen k ts) = cong (gen k) (wkGen-comp ρ ρ′ ts)
 
   wkGen-comp : (ρ : Wk m ℓ) (ρ′ : Wk ℓ n) → ∀ {bs} g
              → wkGen ρ (wkGen ρ′ g) ≡ wkGen {bs = bs} (ρ • ρ′) g
   wkGen-comp ρ ρ′ []              = refl
   wkGen-comp ρ ρ′ (_∷ₜ_ {b} t ts) =
     cong₂ _∷ₜ_
-      (trans (wk-comp (liftn ρ b) (liftn ρ′ b) t)
-         (wkVar-to-wk (wkVar-comps b ρ ρ′) t))
+      (trans (wk′-comp (liftn ρ b) (liftn ρ′ b) t)
+        (wkVar-to-wk′ (wkVar-comps b ρ ρ′) t))
       (wkGen-comp ρ ρ′ ts)
+
+opaque
+
+  -- The function wk commutes with composition.
+
+  wk-comp :
+    (ρ : Wk m ℓ) (ρ′ : Wk ℓ n) (t : Term n) →
+    wk ρ (wk ρ′ t) ≡ wk (ρ • ρ′) t
+  wk-comp ρ ρ′ t = begin
+    wk ρ (wk ρ′ t)                                           ≡⟨ cong (wk ρ) (wk≡wk′ t) ⟩
+    wk ρ (toTerm (wk′ ρ′ (fromTerm t)))                      ≡⟨ wk≡wk′ _ ⟩
+    toTerm (wk′ ρ (fromTerm (toTerm (wk′ ρ′ (fromTerm t))))) ≡⟨ cong (λ x → toTerm (wk′ ρ x)) (fromTerm∘toTerm _) ⟩
+    toTerm (wk′ ρ (wk′ ρ′ (fromTerm t)))                     ≡⟨ cong toTerm (wk′-comp ρ ρ′ _) ⟩
+    toTerm (wk′ (ρ • ρ′) (fromTerm t))                       ≡˘⟨ wk≡wk′ t ⟩
+    wk (ρ • ρ′) t                                            ∎
 
 opaque
 
@@ -124,8 +332,55 @@ opaque
     wk1 (wk2 t)  ≡⟨ cong wk1 wk2≡wk₂ ⟩
     wk1 (wk₂ t)  ≡⟨ wk-comp _ _ _ ⟩
     wk₃ t        ∎
-
+------------------------------------------------------------------------
 -- Substitution properties.
+
+opaque
+
+  -- Relating substitution of terms with susbtitution of the alternative
+  -- term representation.
+
+  subst≡subst′ : ∀ t → t [ σ ] ≡ toTerm (fromTerm t [ σ ]′)
+  subst≡subst′ (var x) = sym (toTerm∘fromTerm _)
+  subst≡subst′ (U x) = refl
+  subst≡subst′ (ΠΣ⟨ b ⟩ p , q ▷ t ▹ t₁) =
+    cong₂ (ΠΣ⟨ b ⟩ p , q ▷_▹_) (subst≡subst′ t) (subst≡subst′ t₁)
+  subst≡subst′ (lam p t) = cong (lam p) (subst≡subst′ t)
+  subst≡subst′ (t ∘⟨ p ⟩ t₁) =
+    cong₂ _∘_ (subst≡subst′ t) (subst≡subst′ t₁)
+  subst≡subst′ (prod x p t t₁) =
+    cong₂ prod! (subst≡subst′ t) (subst≡subst′ t₁)
+  subst≡subst′ (fst p t) = cong (fst p) (subst≡subst′ t)
+  subst≡subst′ (snd p t) = cong (snd p) (subst≡subst′ t)
+  subst≡subst′ (prodrec r p q t t₁ t₂) =
+    cong₃ (prodrec r p q) (subst≡subst′ t)
+      (subst≡subst′ t₁) (subst≡subst′ t₂)
+  subst≡subst′ ℕ = refl
+  subst≡subst′ zero = refl
+  subst≡subst′ (suc t) = cong suc (subst≡subst′ t)
+  subst≡subst′ (natrec p q r t t₁ t₂ t₃) =
+    cong₄ (natrec p q r) (subst≡subst′ t)
+      (subst≡subst′ t₁) (subst≡subst′ t₂) (subst≡subst′ t₃)
+  subst≡subst′ (Unit x x₁) = refl
+  subst≡subst′ (star x x₁) = refl
+  subst≡subst′ (unitrec x p q t t₁ t₂) =
+    cong₃ (unitrec x p q) (subst≡subst′ t)
+      (subst≡subst′ t₁) (subst≡subst′ t₂)
+  subst≡subst′ Empty = refl
+  subst≡subst′ (emptyrec p t t₁) =
+    cong₂ (emptyrec p) (subst≡subst′ t) (subst≡subst′ t₁)
+  subst≡subst′ (Id t t₁ t₂) =
+    cong₃ Id (subst≡subst′ t) (subst≡subst′ t₁) (subst≡subst′ t₂)
+  subst≡subst′ rfl = refl
+  subst≡subst′ (J p q t t₁ t₂ t₃ t₄ t₅) =
+    cong₆ (J p q) (subst≡subst′ t) (subst≡subst′ t₁) (subst≡subst′ t₂)
+      (subst≡subst′ t₃) (subst≡subst′ t₄) (subst≡subst′ t₅)
+  subst≡subst′ (K p t t₁ t₂ t₃ t₄) =
+    cong₅ (K p) (subst≡subst′ t) (subst≡subst′ t₁) (subst≡subst′ t₂)
+      (subst≡subst′ t₃) (subst≡subst′ t₄)
+  subst≡subst′ ([]-cong x t t₁ t₂ t₃) =
+    cong₄ []-cong! (subst≡subst′ t) (subst≡subst′ t₁)
+      (subst≡subst′ t₂) (subst≡subst′ t₃)
 
 -- Two substitutions σ and σ′ are equal if they are pointwise equal,
 -- i.e., agree on all variables.
@@ -169,21 +424,33 @@ wk1Subst-cong :
   ∀ x → wk1Subst σ x ≡ wk1Subst σ′ x
 wk1Subst-cong eq x = cong wk1 (eq x)
 
--- If  σ = σ′  then  t [ σ ] = t [ σ′ ].
+opaque mutual
 
-mutual
-  substVar-to-subst : ((x : Fin n) → σ x ≡ σ′ x)
-                    → (t : Term n) → t [ σ ] ≡ t [ σ′ ]
-  substVar-to-subst eq (var x)    = eq x
-  substVar-to-subst eq (gen k ts) = cong (gen k) (substVar-to-substGen eq ts)
+  -- If  σ = σ′  then  t [ σ ]′ = t [ σ′ ]′.
+
+  substVar-to-subst′ : ((x : Fin n) → σ x ≡ σ′ x)
+                     → (t : Term′ n) → t [ σ ]′ ≡ t [ σ′ ]′
+  substVar-to-subst′ eq (var x)    = cong fromTerm (eq x)
+  substVar-to-subst′ eq (gen k ts) = cong (gen k) (substVar-to-substGen eq ts)
 
   substVar-to-substGen : ∀ {bs} → ((x : Fin n) → σ x ≡ σ′ x)
-                       → ∀ g → substGen {bs = bs} σ g ≡ substGen {bs = bs} σ′ g
+                       → ∀ ts → substGen {bs = bs} σ ts ≡ substGen {bs = bs} σ′ ts
   substVar-to-substGen eq []              = refl
   substVar-to-substGen eq (_∷ₜ_ {b} t ts) =
-    cong₂ _∷ₜ_ (substVar-to-subst (substVar-lifts eq b) t)
+    cong₂ _∷ₜ_ (substVar-to-subst′ (substVar-lifts eq b) t)
       (substVar-to-substGen eq ts)
 
+opaque
+
+  -- If  σ = σ′  then  t [ σ ] = t [ σ′ ].
+
+  substVar-to-subst : ((x : Fin n) → σ x ≡ σ′ x)
+                    → (t : Term n) → t [ σ ] ≡ t [ σ′ ]
+  substVar-to-subst {σ} {σ′} eq t = begin
+    t [ σ ]                     ≡⟨ subst≡subst′ t ⟩
+    toTerm (fromTerm t [ σ ]′)  ≡⟨ cong toTerm (substVar-to-subst′ eq (fromTerm t)) ⟩
+    toTerm (fromTerm t [ σ′ ]′) ≡˘⟨ subst≡subst′ t ⟩
+    t [ σ′ ]                    ∎
 
 -- lift id = id  (as substitutions)
 
@@ -196,20 +463,33 @@ subst-lifts-id 0 x = refl
 subst-lifts-id (1+ n) x0 = refl
 subst-lifts-id (1+ n) (x +1) = cong wk1 (subst-lifts-id n x)
 
--- Identity substitution.
+opaque mutual
 
-mutual
-  subst-id : (t : Term n) → t [ idSubst ] ≡ t
-  subst-id (var x) = refl
-  subst-id (gen k ts) = cong (gen k) (substGen-id ts)
+  -- idSubst is the identity substitution for the alternative term
+  -- representation.
 
-  substGen-id : ∀ {bs} g → substGen {m = n} {n} {bs} idSubst g ≡ g
+  subst′-id : (t : Term′ n) → t [ idSubst ]′ ≡ t
+  subst′-id (var x) = refl
+  subst′-id (gen k ts) = cong (gen k) (substGen-id ts)
+
+  substGen-id : ∀ {bs} ts → substGen {m = n} {n} {bs} idSubst ts ≡ ts
   substGen-id []              = refl
   substGen-id (_∷ₜ_ {b} t ts) =
     cong₂ _∷ₜ_
-      (trans (substVar-to-subst (subst-lifts-id b) t)
-         (subst-id t))
+      (trans (substVar-to-subst′ (subst-lifts-id b) t)
+         (subst′-id t))
       (substGen-id ts)
+
+opaque
+
+  -- idSubst is the identity substitution.
+
+  subst-id : (t : Term n) → t [ idSubst ] ≡ t
+  subst-id t = begin
+    t [ idSubst ]                    ≡⟨ subst≡subst′ t ⟩
+    toTerm (fromTerm t [ idSubst ]′) ≡⟨ cong toTerm (subst′-id (fromTerm t)) ⟩
+    toTerm (fromTerm t)              ≡⟨ toTerm∘fromTerm t ⟩
+    t                                ∎
 
 opaque
 
@@ -263,6 +543,13 @@ subst-lifts-•ₛ : ∀ n t
 subst-lifts-•ₛ 0 t = refl
 subst-lifts-•ₛ (1+ n) t = substVar-to-subst (helper1 n) t
 
+subst′-lifts-•ₛ : ∀ n t
+              → t [ liftn ρ n •ₛ liftSubstn σ n ]′
+              ≡ t [ liftSubstn (ρ •ₛ σ) n ]′
+subst′-lifts-•ₛ 0 t = refl
+subst′-lifts-•ₛ (1+ n) t = substVar-to-subst′ (helper1 n) t
+
+
 -- lift σ ₛ• lift ρ = lift (σ ₛ• ρ)
 
 subst-lift-ₛ• : ∀ t
@@ -284,32 +571,80 @@ subst-lifts-ₛ• : ∀ n t
 subst-lifts-ₛ• 0 t = refl
 subst-lifts-ₛ• (1+ n) t = substVar-to-subst (helper2 n) t
 
--- wk ρ ∘ _[ σ ] = _[ ρ •ₛ σ ]
+opaque
 
-mutual
-  wk-subst : ∀ t → wk ρ (t [ σ ]) ≡ t [ ρ •ₛ σ ]
-  wk-subst (var x) = refl
-  wk-subst (gen k ts) = cong (gen k) (wkGen-substGen ts)
+  -- A variant of the above property for the alternative term
+  -- representation.
 
-  wkGen-substGen : ∀ {bs} t → wkGen ρ (substGen σ t) ≡ substGen {bs = bs} (ρ •ₛ σ) t
+  subst′-lifts-ₛ• : ∀ n t
+                → t [ liftSubstn σ n ₛ• liftn ρ n ]′
+                ≡ t [ liftSubstn (σ ₛ• ρ) n ]′
+  subst′-lifts-ₛ• 0 t = refl
+  subst′-lifts-ₛ• (1+ n) t = substVar-to-subst′ (helper2 n) t
+
+
+
+opaque mutual
+
+  -- Soundness of weakening-substitution composition for the alternative
+  -- term representation.
+
+  wk′-subst′ : ∀ t → wk′ ρ (t [ σ ]′) ≡ t [ ρ •ₛ σ ]′
+  wk′-subst′ {ρ} {σ} (var x) = begin
+    wk′ ρ (var x [ σ ]′)                       ≡⟨⟩
+    wk′ ρ (fromTerm (σ x))                     ≡˘⟨ fromTerm∘toTerm _ ⟩
+    fromTerm (toTerm (wk′ ρ (fromTerm (σ x)))) ≡˘⟨ cong fromTerm (wk≡wk′ (σ x)) ⟩
+    fromTerm (wk ρ (σ x))                      ≡⟨⟩
+    (var x [ ρ •ₛ σ ]′)                        ∎
+  wk′-subst′ (gen k ts) = cong (gen k) (wkGen-substGen ts)
+
+  wkGen-substGen : ∀ {bs} ts → wkGen ρ (substGen σ ts) ≡ substGen {bs = bs} (ρ •ₛ σ) ts
   wkGen-substGen []              = refl
-  wkGen-substGen (_∷ₜ_ {b} t ts) =
-    cong₂ _∷ₜ_ (trans (wk-subst t) (subst-lifts-•ₛ b t))
-      (wkGen-substGen ts)
+  wkGen-substGen {ρ} {σ} (_∷ₜ_ {b} t ts) =
+    cong₂ _∷ₜ_ (trans (wk′-subst′ t) (subst′-lifts-•ₛ b t)) (wkGen-substGen ts)
 
+opaque
+
+  -- Soundness of weakening-substitution composition.
+
+  wk-subst : ∀ t → wk ρ (t [ σ ]) ≡ t [ ρ •ₛ σ ]
+  wk-subst {ρ} {σ} t = begin
+    wk ρ (t [ σ ])                                         ≡⟨ cong (wk ρ) (subst≡subst′ t) ⟩
+    wk ρ (toTerm (fromTerm t [ σ ]′))                      ≡⟨ wk≡wk′ _ ⟩
+    toTerm (wk′ ρ (fromTerm (toTerm (fromTerm t [ σ ]′)))) ≡⟨ cong (λ x → toTerm (wk′ ρ x)) (fromTerm∘toTerm _ ) ⟩
+    toTerm (wk′ ρ (fromTerm t [ σ ]′))                     ≡⟨ cong toTerm (wk′-subst′ (fromTerm t)) ⟩
+    toTerm (fromTerm t [ ρ •ₛ σ ]′)                        ≡˘⟨ subst≡subst′ t ⟩
+    t [ ρ •ₛ σ ]                                           ∎
 
 -- _[ σ ] ∘ wk ρ = _[ σ •ₛ ρ ]
 
 mutual
-  subst-wk : ∀ t → wk ρ t [ σ ] ≡ t [ σ ₛ• ρ ]
-  subst-wk (var x) = refl
-  subst-wk (gen k ts) = cong (gen k) (substGen-wkGen ts)
 
-  substGen-wkGen : ∀ {bs} t → substGen σ (wkGen ρ t) ≡ substGen {bs = bs} (σ ₛ• ρ) t
+  -- Soundness of substitution-weakening composition for the alternative
+  -- term representation.
+
+  subst′-wk′ : ∀ t → wk′ ρ t [ σ ]′ ≡ t [ σ ₛ• ρ ]′
+  subst′-wk′ (var x) = refl
+  subst′-wk′ (gen k ts) = cong (gen k) (substGen-wkGen ts)
+
+  substGen-wkGen : ∀ {bs} ts → substGen σ (wkGen ρ ts) ≡ substGen {bs = bs} (σ ₛ• ρ) ts
   substGen-wkGen []              = refl
   substGen-wkGen (_∷ₜ_ {b} t ts) =
-    cong₂ _∷ₜ_ (trans (subst-wk t) (subst-lifts-ₛ• b t))
+    cong₂ _∷ₜ_ (trans (subst′-wk′ t) (subst′-lifts-ₛ• b t))
       (substGen-wkGen ts)
+
+opaque
+
+  -- Soundness of substitution-weakening composition.
+
+  subst-wk : ∀ t → wk ρ t [ σ ] ≡ t [ σ ₛ• ρ ]
+  subst-wk {ρ} {σ} t = begin
+    wk ρ t [ σ ]                                           ≡⟨ cong (_[ σ ]) (wk≡wk′ t) ⟩
+    toTerm (wk′ ρ (fromTerm t)) [ σ ]                      ≡⟨ subst≡subst′ (toTerm (wk′ ρ (fromTerm t))) ⟩
+    toTerm (fromTerm (toTerm (wk′ ρ (fromTerm t))) [ σ ]′) ≡⟨ cong (λ x → toTerm (x [ σ ]′)) (fromTerm∘toTerm (wk′ ρ (fromTerm t))) ⟩
+    toTerm (wk′ ρ (fromTerm t) [ σ ]′)                     ≡⟨ cong toTerm (subst′-wk′ (fromTerm t)) ⟩
+    toTerm (fromTerm t [ σ ₛ• ρ ]′)                        ≡˘⟨ subst≡subst′ t ⟩
+    t [ σ ₛ• ρ ]                                           ∎
 
 opaque
 
@@ -381,21 +716,42 @@ substCompLifts                   (1+ n)  x0    = refl
 substCompLifts {σ = σ} {σ′ = σ′} (1+ n) (x +1) =
   trans (substCompLift {σ = liftSubstn σ n} {σ′ = liftSubstn σ′ n} (x +1))
         (cong wk1 (substCompLifts n x))
--- Soundness of the composition of substitutions.
 
-mutual
-  substCompEq : ∀ (t : Term n)
-              → (t [ σ′ ]) [ σ ] ≡ t [ σ ₛ•ₛ σ′ ]
-  substCompEq (var x) = refl
-  substCompEq (gen k ts) = cong (gen k) (substGenCompEq ts)
 
-  substGenCompEq : ∀ {bs} t
-              → substGen σ (substGen σ′ t) ≡ substGen {bs = bs} (σ ₛ•ₛ σ′) t
+opaque mutual
+
+  -- Soundness of the composition of substitutions for the alternative
+  -- term representation.
+
+  subst′CompEq : ∀ (t : Term′ n)
+               → (t [ σ′ ]′) [ σ ]′ ≡ t [ σ ₛ•ₛ σ′ ]′
+  subst′CompEq {σ′} {σ} (var x) = begin
+    fromTerm (σ′ x) [ σ ]′                     ≡˘⟨ fromTerm∘toTerm _ ⟩
+    fromTerm (toTerm (fromTerm (σ′ x) [ σ ]′)) ≡˘⟨ cong fromTerm (subst≡subst′ (σ′ x)) ⟩
+    fromTerm (σ′ x [ σ ])                      ∎
+  subst′CompEq (gen k ts) = cong (gen k) (substGenCompEq ts)
+
+  substGenCompEq : ∀ {bs} ts
+                 → substGen σ (substGen σ′ ts) ≡ substGen {bs = bs} (σ ₛ•ₛ σ′) ts
   substGenCompEq []              = refl
   substGenCompEq (_∷ₜ_ {b} t ts) =
     cong₂ _∷ₜ_
-      (trans (substCompEq t) (substVar-to-subst (substCompLifts b) t))
+      (trans (subst′CompEq t) (substVar-to-subst′ (substCompLifts b) t))
       (substGenCompEq ts)
+
+opaque
+
+  -- Soundness of the composition of substitutions.
+
+  substCompEq : ∀ (t : Term n)
+              → (t [ σ′ ]) [ σ ] ≡ t [ σ ₛ•ₛ σ′ ]
+  substCompEq {σ′} {σ} t = begin
+    (t [ σ′ ]) [ σ ]                                       ≡⟨ subst≡subst′ (t [ σ′ ]) ⟩
+    toTerm (fromTerm (t [ σ′ ]) [ σ ]′)                    ≡⟨ cong (λ x → toTerm (fromTerm x [ σ ]′)) (subst≡subst′ t) ⟩
+    toTerm (fromTerm (toTerm (fromTerm t [ σ′ ]′)) [ σ ]′) ≡⟨ cong (λ x → toTerm (x [ σ ]′)) (fromTerm∘toTerm (fromTerm t [ σ′ ]′)) ⟩
+    toTerm ((fromTerm t [ σ′ ]′) [ σ ]′)                   ≡⟨ cong toTerm (subst′CompEq (fromTerm t)) ⟩
+    toTerm (fromTerm t [ σ ₛ•ₛ σ′ ]′)                      ≡˘⟨ subst≡subst′ t ⟩
+    t [ σ ₛ•ₛ σ′ ]                                         ∎
 
 -- Weakening single substitutions.
 
