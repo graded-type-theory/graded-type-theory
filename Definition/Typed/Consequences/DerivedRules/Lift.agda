@@ -156,8 +156,8 @@ private opaque
     unitrec⟨⟩-cong
       (substitutionEq B₁≡B₂
          (substRefl
-            ( wk1Subst′ ⊢Γ ⊢Unit′
-                (wk1Subst′ ⊢Γ ⊢Unit (wk1Subst′ ⊢Γ ⊢A (idSubst′ ⊢Γ)))
+            ( wk1Subst′ ⊢Unit′
+                (wk1Subst′ ⊢Unit (wk1Subst′ ⊢A (idSubst′ ⊢Γ)))
             , ⊢prod
                 (Unitⱼ
                    (⊢→⊢∙ $

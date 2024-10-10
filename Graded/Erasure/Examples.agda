@@ -489,7 +489,7 @@ private module Vec-lemmas (⊢A : Γ ⊢ A ∷ U l) where
   ⊢Vec-body₂′ = substitutionTerm
     {σ = liftSubst (consSubst (toSubst wk₀) A)}
     ⊢Vec-body₂
-    (liftSubst′ ⊢U ⊢Γ U⊢ℕ (DT.id , ⊢A))
+    (liftSubst′ ⊢Γ U⊢ℕ (DT.id , ⊢A))
     ⊢Γℕ
 
   ⊢Vec-body₂″ :
@@ -498,7 +498,7 @@ private module Vec-lemmas (⊢A : Γ ⊢ A ∷ U l) where
   ⊢Vec-body₂″ = substitutionTerm
     {σ = liftSubst (consSubst (toSubst wk₀) (wk1 A))}
     ⊢Vec-body₂
-    (liftSubst′ ⊢U ⊢ΓA U⊢ℕ (DT.id , W.wkTerm₁ (univ ⊢A) ⊢A))
+    (liftSubst′ ⊢ΓA U⊢ℕ (DT.id , W.wkTerm₁ (univ ⊢A) ⊢A))
     ⊢ΓAℕ
 
 -- A computation rule for Vec.
@@ -809,7 +809,7 @@ opaque
     wk wk₀ Non-zero ∘⟨ ω ⟩ zero ∷ U 0
   ⊢Non-zero-zero = substitutionTerm
     ⊢Non-zero-1
-    (liftSubst′ ⊢Uℕℕ ⊢Uℕ (univ ⊢Vec-2-0) (singleSubst (zeroⱼ ⊢Uℕ)))
+    (liftSubst′ ⊢Uℕ (univ ⊢Vec-2-0) (singleSubst (zeroⱼ ⊢Uℕ)))
     ⊢Uℕ∙Vec
 
   ⊢Uℕ∙Vec∙Non-zero  = ⊢Uℕ∙Vec ∙ univ ⊢Non-zero-zero
@@ -845,8 +845,7 @@ opaque
     Uℕℕ∙ΠΠ ⊢ wk wk₀ (Vec l) ∘⟨ ω ⟩ var x3 ∘⟨ ω ⟩ suc (var x1) ∷ U l
   ⊢Vec-3-1+1 = substitutionTerm
     ⊢Vec-2-0
-    (wk1Subst′ ⊢Uℕℕ (univ Uℕℕ⊢ΠΠ∷U)
-       (singleSubst↑ (sucⱼ (var ⊢Uℕℕ here))))
+    (wk1Subst′ (univ Uℕℕ⊢ΠΠ∷U) (singleSubst↑ (sucⱼ (var ⊢Uℕℕ here))))
     ⊢Uℕℕ∙ΠΠ
 
   Uℕℕ∙ΠΠ∙Vec =
@@ -857,9 +856,8 @@ opaque
     Uℕℕ∙ΠΠ∙Vec ⊢ wk wk₀ Non-zero ∘⟨ ω ⟩ suc (var x2) ∷ U 0
   ⊢Non-zero-1+2 = substitutionTerm
     ⊢Non-zero-0
-    (wk1Subst′ ⊢Uℕℕ (univ ⊢Vec-3-1+1)
-       (wk1Subst′ ⊢Uℕℕ (univ Uℕℕ⊢ΠΠ∷U)
-          (singleSubst↑ (sucⱼ (var ⊢Uℕℕ here)))))
+    (wk1Subst′ (univ ⊢Vec-3-1+1) $
+     wk1Subst′ (univ Uℕℕ⊢ΠΠ∷U) (singleSubst↑ (sucⱼ (var ⊢Uℕℕ here))))
     ⊢Uℕℕ∙ΠΠ∙Vec
 
   Uℕℕ∙ΠΠ∙Vec∙Non-zero =

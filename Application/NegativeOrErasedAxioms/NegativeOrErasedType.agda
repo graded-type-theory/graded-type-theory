@@ -94,16 +94,16 @@ subNeg :
 subNeg empty _ _ = empty
 
 subNeg (pi ⊢A n) s ⊢Δ =
-  pi ⊢σA (subNeg n (liftSubst′ (wf ⊢A) ⊢Δ ⊢A s) (⊢Δ ∙ ⊢σA))
+  pi ⊢σA (subNeg n (liftSubst′ ⊢Δ ⊢A s) (⊢Δ ∙ ⊢σA))
   where ⊢σA = substitution ⊢A s ⊢Δ
 
 subNeg (sigma-𝟘 ⊢A n) s ⊢Δ =
-  sigma-𝟘 ⊢σA (subNeg n (liftSubst′ (wf ⊢A) ⊢Δ ⊢A s) (⊢Δ ∙ ⊢σA))
+  sigma-𝟘 ⊢σA (subNeg n (liftSubst′ ⊢Δ ⊢A s) (⊢Δ ∙ ⊢σA))
   where ⊢σA = substitution ⊢A s ⊢Δ
 
 subNeg (sigma ⊢A nA nB) s ⊢Δ =
   sigma ⊢σA (subNeg nA s ⊢Δ)
-    (subNeg nB (liftSubst′ (wf ⊢A) ⊢Δ ⊢A s) (⊢Δ ∙ ⊢σA))
+    (subNeg nB (liftSubst′ ⊢Δ ⊢A s) (⊢Δ ∙ ⊢σA))
   where ⊢σA = substitution ⊢A s ⊢Δ
 
 subNeg universe _ _ = universe

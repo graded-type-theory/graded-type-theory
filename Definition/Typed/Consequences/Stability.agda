@@ -45,7 +45,7 @@ mutual
         ⊢A , ⊢B = syntacticEq A≡B
         Δ⊢B = stability Γ≡Δ ⊢B
     in  ⊢Γ ∙ ⊢A , ⊢Δ ∙ Δ⊢B
-        , (wk1Subst′ ⊢Γ Δ⊢B [σ]
+        , (wk1Subst′ Δ⊢B [σ]
         , conv (var₀ Δ⊢B)
                (PE.subst (λ x → _ ⊢ _ ≡ x)
                          (wk1-tailId A)

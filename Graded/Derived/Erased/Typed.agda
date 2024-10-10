@@ -192,7 +192,7 @@ private opaque
       ⊢Unit₁ →
     case Unitⱼ (⊢→⊢∙ ⊢Unit₁) Unit-ok of λ
       ⊢Unit₂ →
-    case wk1Subst′ ⊢Γ ⊢Unit₂ $ wk1Subst′ ⊢Γ ⊢Unit₁ $ wk1Subst′ ⊢Γ ⊢A $
+    case wk1Subst′ ⊢Unit₂ $ wk1Subst′ ⊢Unit₁ $ wk1Subst′ ⊢A $
          idSubst′ ⊢Γ of λ
       ⊢wk3 →
     substitutionEq B₁≡B₂
@@ -319,11 +319,11 @@ opaque
                                                                             unitrec⟨⟩-β-≡
                                                                               (λ _ →
                                                                                  substitution ⊢B
-                                                                                   ( wk1Subst′ ⊢Γ ⊢Unit (idSubst′ ⊢Γ)
+                                                                                   ( wk1Subst′ ⊢Unit (idSubst′ ⊢Γ)
                                                                                    , ⊢prod
                                                                                        (Unitⱼ
                                                                                           (⊢→⊢∙ $
-                                                                                           substitution ⊢A (wk1Subst′ ⊢Γ ⊢Unit (idSubst′ ⊢Γ))
+                                                                                           substitution ⊢A (wk1Subst′ ⊢Unit (idSubst′ ⊢Γ))
                                                                                              (⊢→⊢∙ ⊢Unit))
                                                                                           Unit-ok)
                                                                                        (PE.subst (_⊢_∷_ _ _) (wk≡subst _ _) $
@@ -469,7 +469,7 @@ module _ (ok : []-cong-allowed s) where
       case Erasedⱼ Erased-ok ⊢A of λ
         ⊢Erased-A →
       substitution ⊢B
-        ( wk1Subst′ ⊢Γ ⊢Erased-A (idSubst′ ⊢Γ)
+        ( wk1Subst′ ⊢Erased-A (idSubst′ ⊢Γ)
         , PE.subst (_⊢_∷_ _ _) (wk≡subst _ _)
             (erasedⱼ $ var₀ ⊢Erased-A)
         )
@@ -582,7 +582,7 @@ module _ (ok : []-cong-allowed s) where
       conv
         (subst-cong (Erased-cong Erased-ok A₁≡A₂)
            (substitutionEq B₁≡B₂
-              ( substRefl (wk1Subst′ ⊢Γ ⊢Erased-A₁ (idSubst′ ⊢Γ))
+              ( substRefl (wk1Subst′ ⊢Erased-A₁ (idSubst′ ⊢Γ))
               , PE.subst (_⊢_≡_∷_ _ _ _) (wk≡subst _ _)
                   (erased-cong (wkEq₁ ⊢Erased-A₁ A₁≡A₂)
                      (refl $ var₀ ⊢Erased-A₁))
@@ -788,7 +788,7 @@ module _ (ok : []-cong-allowed s) where
       case syntacticEq A₁≡A₂′ of λ
         (⊢A₁′ , _) →
       substitutionEq B₁≡B₂
-        ( ( substRefl (wk1Subst′ ⊢Γ ⊢Singleton₁ (idSubst′ ⊢Γ))
+        ( ( substRefl (wk1Subst′ ⊢Singleton₁ (idSubst′ ⊢Γ))
           , PE.subst (_⊢_≡_∷_ _ _ _) (wk1-tailId _)
               (fst⟨⟩-cong A₁≡A₂′ $
                refl (var₀ ⊢Singleton₁))
