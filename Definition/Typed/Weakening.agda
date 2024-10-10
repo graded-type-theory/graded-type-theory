@@ -27,7 +27,7 @@ import Tools.PropositionalEquality as PE
 
 private
   variable
-    ℓ n m  : Nat
+    k ℓ n m : Nat
     A B C t u : Term n
     Γ  : Con Term n
     Δ  : Con Term m
@@ -61,6 +61,15 @@ _•ₜ_ {ρ = lift ρ} {ρ′ = lift ρ′} {Δ′ = Δ′ ∙ A} (lift η) (li
 wk₀∷⊇ : wk₀ ∷ Γ ⊇ ε
 wk₀∷⊇ {Γ = ε}     = id
 wk₀∷⊇ {Γ = _ ∙ _} = step wk₀∷⊇
+
+opaque
+
+  -- The weakening stepn id k is a well-formed weakening from drop k Δ
+  -- to Δ.
+
+  ⊇-drop : stepn id k ∷ Δ ⊇ drop k Δ
+  ⊇-drop {k = 0}                = id
+  ⊇-drop {k = 1+ _} {Δ = _ ∙ _} = step ⊇-drop
 
 -- Weakening of judgements
 

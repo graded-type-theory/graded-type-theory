@@ -15,6 +15,7 @@ open import Tools.PropositionalEquality
 private variable
   a   : Level
   l n : Nat
+  P   : Nat → Set _
 
 ------------------------------------------------------------------------
 -- Definitions related to terms
@@ -51,6 +52,12 @@ data Strength : Set where
 data BinderMode : Set where
   BMΠ : BinderMode
   BMΣ : (s : Strength) → BinderMode
+
+-- The function drop k removes the last k entries from contexts.
+
+drop : ∀ k → Con P (k + n) → Con P n
+drop 0      Γ       = Γ
+drop (1+ k) (Γ ∙ _) = drop k Γ
 
 ------------------------------------------------------------------------
 -- Weakening

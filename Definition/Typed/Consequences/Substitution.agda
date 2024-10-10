@@ -33,7 +33,7 @@ open import Tools.Reasoning.PropositionalEquality
 
 private
   variable
-    ℓ m n : Nat
+    k ℓ m n : Nat
     Γ Δ Η : Con Term n
     A B C C₁ C₂ D E t t₁ t₂ u u₁ u₂ v : Term _
     σ σ′ : Subst m n
@@ -107,6 +107,18 @@ opaque
 
   wk1Subst′ : Δ ⊢ A → Δ ⊢ˢ σ ∷ Γ → Δ ∙ A ⊢ˢ wk1Subst σ ∷ Γ
   wk1Subst′ ⊢A = wkSubst′ (⊢→⊢∙ ⊢A) (step id)
+
+opaque
+
+  -- A well-formedness lemma for wkSubst.
+
+  ⊢ˢ-wkSubst :
+    ⊢ Δ →
+    drop k Δ ⊢ˢ σ ∷ Γ →
+    Δ ⊢ˢ wkSubst k σ ∷ Γ
+  ⊢ˢ-wkSubst {k = 0}    _         ⊢σ = ⊢σ
+  ⊢ˢ-wkSubst {k = 1+ _} (⊢Δ ∙ ⊢A) ⊢σ =
+    wk1Subst′ ⊢A (⊢ˢ-wkSubst ⊢Δ ⊢σ)
 
 opaque
 
