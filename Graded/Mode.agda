@@ -438,6 +438,21 @@ open IsCommutativeSemiring Mode ∨ᵐ-·ᵐ-is-commutative-semiring
   where
   open Tools.Reasoning.PropositionalEquality
 
+opaque
+
+  -- ⌜_⌝ commutes, in a certain sense, with _·_/_ᵐ·_.
+
+  ⌜ᵐ·⌝ : ∀ m → ⌜ m ᵐ· p ⌝ ≡ ⌜ m ⌝ · ⌜ ⌞ p ⌟ ⌝
+  ⌜ᵐ·⌝ {p} = λ where
+      𝟘ᵐ →
+        𝟘              ≡˘⟨ ·-zeroˡ _ ⟩
+        𝟘 · ⌜ ⌞ p ⌟ ⌝  ∎
+      𝟙ᵐ →
+        ⌜ ⌞ p ⌟ ⌝      ≡˘⟨ ·-identityˡ _ ⟩
+        𝟙 · ⌜ ⌞ p ⌟ ⌝  ∎
+    where
+    open Tools.Reasoning.PropositionalEquality
+
 -- A form of commutativity.
 
 ⌜⌝-·-comm : ∀ m → ⌜ m ⌝ · p ≡ p · ⌜ m ⌝
