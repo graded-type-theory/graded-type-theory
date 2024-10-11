@@ -22,7 +22,8 @@ open import Graded.Usage 𝕄 R
 open import Graded.Mode 𝕄
 
 open import Tools.Fin
-open import Tools.Nat using (Nat; 1+)
+open import Tools.Function
+open import Tools.Nat as N using (Nat; 1+)
 
 infixl 50 _<*_
 infixr 50 _*>_
@@ -130,3 +131,10 @@ consSubstₘ = _⊙_
 
 sgSubstₘ : (γ : Conₘ n) → Substₘ n (1+ n)
 sgSubstₘ = consSubstₘ idSubstₘ
+
+-- Substitution matrices corresponding to the substitutions returned
+-- by Definition.Untyped.wkSubst.
+
+wkSubstₘ′ : ∀ k → Substₘ m n → Substₘ (k N.+ m) n
+wkSubstₘ′ 0      = idᶠ
+wkSubstₘ′ (1+ k) = wk1Substₘ ∘→ wkSubstₘ′ k

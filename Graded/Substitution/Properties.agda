@@ -17,6 +17,7 @@ open Usage-restrictions R
 
 open import Graded.Context 𝕄
 open import Graded.Context.Properties 𝕄
+open import Graded.Context.Weakening 𝕄
 open import Graded.Substitution 𝕄 R
 open import Graded.Modality.Dedicated-nr 𝕄
 open import Graded.Modality.Nr-instances
@@ -32,7 +33,7 @@ open import Tools.Bool using (T)
 open import Tools.Empty
 open import Tools.Fin
 open import Tools.Function
-open import Tools.Nat using (Nat)
+open import Tools.Nat using (Nat; 1+)
 open import Tools.Product
 open import Tools.PropositionalEquality as PE
 import Tools.Reasoning.Equivalence
@@ -43,7 +44,7 @@ open import Tools.Sum using (_⊎_; inj₁; inj₂)
 
 private
   variable
-    ℓ m n : Nat
+    k ℓ m n : Nat
     x y : Fin n
     γ γ′ γ₁ γ₂ γ₃ γ₄ γ₅ γ₆ δ η θ χ : Conₘ n
     Ψ : Substₘ m n
@@ -258,6 +259,20 @@ wk1Substₘ-app (Ψ ⊙ δ) (γ ∙ p) = begin
   ((γ ∙ p) <* (Ψ ⊙ δ)) ∙ 𝟘         ∎
   where open Tools.Reasoning.Equivalence Conₘ-setoid
 
+opaque
+
+  -- A "reduction rule" for _<*_ and wkSubstₘ′.
+
+  <*-wkSubstₘ′ :
+    (γ : Conₘ n) →
+    γ <* wkSubstₘ′ k Ψ ≈ᶜ wkConₘ (stepn id k) (γ <* Ψ)
+  <*-wkSubstₘ′ {k = 0}        _ = ≈ᶜ-refl
+  <*-wkSubstₘ′ {k = 1+ k} {Ψ} γ = begin
+    γ <* wk1Substₘ (wkSubstₘ′ k Ψ)    ≈⟨ wk1Substₘ-app _ γ ⟩
+    (γ <* wkSubstₘ′ k Ψ) ∙ 𝟘          ≈⟨ <*-wkSubstₘ′ γ ∙ refl ⟩
+    wkConₘ (stepn id k) (γ <* Ψ) ∙ 𝟘  ∎
+    where
+    open Tools.Reasoning.Equivalence Conₘ-setoid
 
 -- Application of a lifted substitution.
 -- (γ ∙ p) <* liftSubstₘ Ψ ≡ (γ <* Ψ) ∙ p.
@@ -351,6 +366,14 @@ wf-wk1Substₘ : (Ψ : Substₘ m n) (σ : Subst m n)
              → Ψ ▶[ mos ] σ → wk1Substₘ Ψ ▶[ mos ] wk1Subst σ
 wf-wk1Substₘ Ψ σ Ψ▶σ x =
   sub (wkUsage (step id) (Ψ▶σ x)) (≤ᶜ-reflexive (wk1Substₘ-app Ψ (𝟘ᶜ , x ≔ _)))
+
+opaque
+
+  -- A well-formedness lemma for wkSubstₘ′.
+
+  wf-wkSubstₘ′ : Ψ ▶[ mos ] σ → wkSubstₘ′ k Ψ ▶[ mos ] wkSubst k σ
+  wf-wkSubstₘ′ {k = 0}    = idᶠ
+  wf-wkSubstₘ′ {k = 1+ _} = wf-wk1Substₘ _ _ ∘→ wf-wkSubstₘ′
 
 -- The one-step lift of a well-formed substitution is well-formed.
 
