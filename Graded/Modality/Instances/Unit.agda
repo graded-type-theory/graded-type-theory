@@ -193,6 +193,11 @@ unit-has-star = record
   ; ⊛-sub-distrib-∧ = λ r → (λ p q q′ → refl) , (λ q p p′ → refl)
   }
 
+-- An nr function can be defined for unit-semiring-with-meet.
+
+unit-has-nr : Has-nr unit-semiring-with-meet
+unit-has-nr = Star.has-nr _ ⦃ has-star = unit-has-star ⦄
+
 -- A trivial modality (without 𝟘ᵐ).
 
 UnitModality :
@@ -204,8 +209,7 @@ UnitModality variant not-ok = record
   { variant            = variant
   ; semiring-with-meet = unit-semiring-with-meet
   ; 𝟘-well-behaved     = ⊥-elim ∘→ not-ok
-  ; has-nr             = λ _ →
-                           Star.has-nr _ ⦃ has-star = unit-has-star ⦄
+  ; has-nr             = λ _ → unit-has-nr
   }
 
 -- The full reduction assumptions hold for any instance of
