@@ -4290,6 +4290,22 @@ opaque
       ≤ω + p · n                      ≡⟨ +-zeroˡ (p · n) ⟩
       ≤ω                              ∎
 
+opaque
+
+  -- The nr function satisfies Linearity-like-nr-for-𝟘.
+
+  nr-linearity-like-for-𝟘 :
+    Has-nr.Linearity-like-nr-for-𝟘 linear-or-affine-has-nr
+  nr-linearity-like-for-𝟘 = refl
+
+opaque
+
+  -- The nr function satisfies Linearity-like-nr-for-𝟙.
+
+  nr-linearity-like-for-𝟙 :
+    Has-nr.Linearity-like-nr-for-𝟙 linear-or-affine-has-nr
+  nr-linearity-like-for-𝟙 = refl
+
 -- A modality defined using linear-or-affine-has-nr.
 
 linear-or-affine : Modality-variant → Modality

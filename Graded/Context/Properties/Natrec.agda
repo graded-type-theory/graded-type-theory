@@ -143,3 +143,27 @@ nrᶜ-factoring : ⦃ _ : Has-factoring-nr semiring-with-meet ⦄
 nrᶜ-factoring {γ = ε} {(ε)} {(ε)} = ε
 nrᶜ-factoring {γ = _ ∙ _} {_ ∙ _} {_ ∙ _} =
   nrᶜ-factoring ∙ nr-factoring
+
+opaque
+
+  -- If the nr function satisfies Linearity-like-nr-for-𝟘, then a
+  -- corresponding property holds for nrᶜ.
+
+  nrᶜ-linearity-like-for-𝟘 :
+    Linearity-like-nr-for-𝟘 →
+    nrᶜ p 𝟘 γ δ η ≈ᶜ ((𝟙 ∧ p) ·ᶜ η +ᶜ δ) ∧ᶜ (η +ᶜ γ)
+  nrᶜ-linearity-like-for-𝟘 {γ = ε}     {δ = ε}     {η = ε}     _   = ε
+  nrᶜ-linearity-like-for-𝟘 {γ = _ ∙ _} {δ = _ ∙ _} {η = _ ∙ _} hyp =
+    nrᶜ-linearity-like-for-𝟘 hyp ∙ hyp
+
+opaque
+
+  -- If the nr function satisfies Linearity-like-nr-for-𝟙, then a
+  -- corresponding property holds for nrᶜ.
+
+  nrᶜ-linearity-like-for-𝟙 :
+    Linearity-like-nr-for-𝟙 →
+    nrᶜ p 𝟙 γ δ η ≈ᶜ (𝟙 + p) ·ᶜ η +ᶜ ω ·ᶜ δ +ᶜ γ
+  nrᶜ-linearity-like-for-𝟙 {γ = ε}     {δ = ε}     {η = ε}     _   = ε
+  nrᶜ-linearity-like-for-𝟙 {γ = _ ∙ _} {δ = _ ∙ _} {η = _ ∙ _} hyp =
+    nrᶜ-linearity-like-for-𝟙 hyp ∙ hyp

@@ -33,6 +33,9 @@ record Extended-modality a : Set (lsuc a) where
     -- M is a modality.
     𝕄  : Modality M
 
+  open Modality 𝕄 public
+
+  field
     -- Type restrictions for 𝕄.
     TR : Type-restrictions 𝕄
 
@@ -50,7 +53,18 @@ record Extended-modality a : Set (lsuc a) where
     -- decidable hold for UR.
     UA : UD.Assumptions UR
 
-  open Modality 𝕄 public
+    -- The modality comes with a dedicated nr function.
+    NR : Nr-available
+
+  open Has-nr (has-nr NR) public
+
+  field
+    -- The dedicated nr function satisfies Linearity-like-nr-for-𝟘.
+    NR₀ : Linearity-like-nr-for-𝟘
+
+    -- The dedicated nr function satisfies Linearity-like-nr-for-𝟙.
+    NR₁ : Linearity-like-nr-for-𝟙
+
   open Type-restrictions TR public
   open Usage-restrictions UR public
   open Full-reduction-assumptions FA public

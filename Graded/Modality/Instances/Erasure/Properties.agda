@@ -391,6 +391,51 @@ opaque
 
 opaque
 
+  -- The nr function satisfies Linearity-like-nr-for-𝟙.
+
+  nr-linearity-like-for-𝟙 :
+    Has-nr.Linearity-like-nr-for-𝟙 erasure-has-nr
+  nr-linearity-like-for-𝟙 {p = 𝟘} {z} {s} {n} =
+    (z + n) + (s + 𝟘)  ≡⟨ PE.cong₂ _+_ (EM.+-comm z _) (EM.+-identityʳ _) ⟩
+    (n + z) + s        ≡⟨ EM.+-assoc n _ _ ⟩
+    n + (z + s)        ≡˘⟨ PE.cong (n +_) (EM.+-comm s _) ⟩
+    n + (s + z)        ∎
+    where
+    open Tools.Reasoning.PropositionalEquality
+  nr-linearity-like-for-𝟙 {p = ω} {z} {s} {n} =
+    (z + n) + (s + n)  ≡⟨ PE.cong₂ _+_ (EM.+-comm z _) (EM.+-comm s _) ⟩
+    (n + z) + (n + s)  ≡˘⟨ EM.+-assoc (n + _) _ _ ⟩
+    ((n + z) + n) + s  ≡⟨ PE.cong (_+ _) $ EM.+-assoc n _ _ ⟩
+    (n + (z + n)) + s  ≡⟨ PE.cong (_+ _) $ PE.cong (n +_) $ EM.+-comm z _ ⟩
+    (n + (n + z)) + s  ≡˘⟨ PE.cong (_+ _) $ EM.+-assoc n _ _ ⟩
+    ((n + n) + z) + s  ≡⟨ EM.+-assoc (n + _) _ _ ⟩
+    (n + n) + (z + s)  ≡⟨ PE.cong₂ _+_ (+-Idempotent n) (EM.+-comm z _) ⟩
+    n + (s + z)        ∎
+    where
+    open Tools.Reasoning.PropositionalEquality
+
+opaque
+
+  -- The nr function satisfies Linearity-like-nr-for-𝟘.
+
+  nr-linearity-like-for-𝟘 :
+    Has-nr.Linearity-like-nr-for-𝟘 erasure-has-nr
+  nr-linearity-like-for-𝟘 {p} {z} {s} {n} =
+    nr p 𝟘 z s n       ≡⟨⟩
+    nr p ω z s n       ≡⟨ nr-linearity-like-for-𝟙 {z = z} ⟩
+    n + (s + z)        ≡⟨ PE.cong (n +_) $ EM.+-comm s _ ⟩
+    n + (z + s)        ≡˘⟨ PE.cong₂ _+_ (+-Idempotent n) (EM.+-comm s _) ⟩
+    (n + n) + (s + z)  ≡⟨ EM.+-assoc n _ _ ⟩
+    n + (n + (s + z))  ≡˘⟨ PE.cong (n +_) $ EM.+-assoc n _ _ ⟩
+    n + ((n + s) + z)  ≡⟨ PE.cong (n +_) $ PE.cong (_+ _) $ EM.+-comm n _ ⟩
+    n + ((s + n) + z)  ≡⟨ PE.cong (n +_) $ EM.+-assoc s _ _ ⟩
+    n + (s + (n + z))  ≡˘⟨ EM.+-assoc n _ _ ⟩
+    (n + s) + (n + z)  ∎
+    where
+    open Tools.Reasoning.PropositionalEquality
+
+opaque
+
   -- Subtraction of ω by anything is ω
 
   ω-p≡ω : ∀ p → ω - p ≡ ω

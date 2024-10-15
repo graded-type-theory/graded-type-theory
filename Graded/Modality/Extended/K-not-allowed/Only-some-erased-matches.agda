@@ -78,7 +78,6 @@ private variable
 -- * The K rule is not allowed.
 -- * []-cong is not allowed.
 -- * 𝟘ᵐ is allowed exactly when the modality is non-trivial.
--- * A dedicated nr function is available.
 
 All-properties-hold-for : Extended-modality a → Set a
 All-properties-hold-for M =
@@ -99,8 +98,7 @@ All-properties-hold-for M =
    (b ≢ BMΣ 𝕤 × (p ≡ ω → q ≡ ω) × (p ≢ ω → q ≡ 𝟘))) ×
   ¬ K-allowed ×
   (∀ {s} → ¬ []-cong-allowed s) ×
-  (T 𝟘ᵐ-allowed ⇔ (¬ Trivial)) ×
-  Nr-available
+  (T 𝟘ᵐ-allowed ⇔ (¬ Trivial))
   where
   open Extended-modality M
 
@@ -154,13 +152,16 @@ private
 
 Trivial : Extended-modality lzero
 Trivial = λ where
-    .M  → ⊤
-    .𝕄  → U.UnitModality (nr-available-and-𝟘ᵐ-allowed-if false) (λ ())
-    .TR → TR′
-    .UR → UR′
-    .FA → U.full-reduction-assumptions (λ ())
-    .TA → Assumptions-TR′ U._≟_
-    .UA → Assumptions-UR′ U._≟_
+    .M   → ⊤
+    .𝕄   → U.UnitModality (nr-available-and-𝟘ᵐ-allowed-if false) (λ ())
+    .TR  → TR′
+    .UR  → UR′
+    .FA  → U.full-reduction-assumptions (λ ())
+    .TA  → Assumptions-TR′ U._≟_
+    .UA  → Assumptions-UR′ U._≟_
+    .NR  → _
+    .NR₀ → U.nr-linearity-like-for-𝟘
+    .NR₁ → U.nr-linearity-like-for-𝟙
   where
   open Extended-modality
 
@@ -192,21 +193,25 @@ opaque
          {s = 𝕤} → (_$ refl) ∘→ proj₂
          {s = 𝕨} → (_$ refl) ∘→ proj₂ ∘→ proj₁)
     , ((λ ()) , (_$ refl))
-    , _
 
 -- An erasure modality.
 
 Erasure : Extended-modality lzero
 Erasure = λ where
-    .M  → E.Erasure
-    .𝕄  → EM.ErasureModality (nr-available-and-𝟘ᵐ-allowed-if true)
-    .TR → TR′
-    .UR → UR′
-    .FA → EP.full-reduction-assumptions _ _
-    .TA → Assumptions-TR′ E._≟_
-    .UA → Assumptions-UR′ E._≟_
+    .M       → E.Erasure
+    .𝕄       → EM.ErasureModality var
+    .TR      → TR′
+    .UR      → UR′
+    .FA      → EP.full-reduction-assumptions _ _
+    .TA      → Assumptions-TR′ E._≟_
+    .UA      → Assumptions-UR′ E._≟_
+    .NR      → _
+    .NR₀ {z} → EP.nr-linearity-like-for-𝟘 var {z = z}
+    .NR₁ {z} → EP.nr-linearity-like-for-𝟙 var {z = z}
   where
   open Extended-modality
+
+  var = nr-available-and-𝟘ᵐ-allowed-if true
 
 opaque
 
@@ -244,19 +249,21 @@ opaque
          {s = 𝕤} → (_$ refl) ∘→ proj₂
          {s = 𝕨} → (_$ refl) ∘→ proj₂ ∘→ proj₁)
     , ((λ _ ()) , _)
-    , _
 
 -- An affine types modality.
 
 Affine-types : Extended-modality lzero
 Affine-types = λ where
-    .M  → A.Affine
-    .𝕄  → 𝕄′
-    .TR → TR′
-    .UR → UR′
-    .FA → FA′
-    .TA → Assumptions-TR′ A._≟_
-    .UA → Assumptions-UR′ A._≟_
+    .M           → A.Affine
+    .𝕄           → 𝕄′
+    .TR          → TR′
+    .UR          → UR′
+    .FA          → FA′
+    .TA          → Assumptions-TR′ A._≟_
+    .UA          → Assumptions-UR′ A._≟_
+    .NR          → _
+    .NR₀ {p}     → A.nr-linearity-like-for-𝟘 {p = p}
+    .NR₁ {p} {z} → A.nr-linearity-like-for-𝟙 {p = p} {z = z}
   where
   open Extended-modality
 
@@ -306,19 +313,21 @@ opaque
          {s = 𝕤} → (_$ refl) ∘→ proj₂
          {s = 𝕨} → (_$ refl) ∘→ proj₂ ∘→ proj₁)
     , ((λ _ ()) , _)
-    , _
 
 -- A linearity modality.
 
 Linearity : Extended-modality lzero
 Linearity = λ where
-    .M  → L.Linearity
-    .𝕄  → 𝕄′
-    .TR → TR′
-    .UR → UR′
-    .FA → FA′
-    .TA → Assumptions-TR′ L._≟_
-    .UA → Assumptions-UR′ L._≟_
+    .M           → L.Linearity
+    .𝕄           → 𝕄′
+    .TR          → TR′
+    .UR          → UR′
+    .FA          → FA′
+    .TA          → Assumptions-TR′ L._≟_
+    .UA          → Assumptions-UR′ L._≟_
+    .NR          → _
+    .NR₀ {p}     → L.nr-linearity-like-for-𝟘 {p = p}
+    .NR₁ {p} {z} → L.nr-linearity-like-for-𝟙 {p = p} {z = z}
   where
   open Extended-modality
 
@@ -372,19 +381,21 @@ opaque
          {s = 𝕤} → (_$ refl) ∘→ proj₂
          {s = 𝕨} → (_$ refl) ∘→ proj₂ ∘→ proj₁)
     , ((λ _ ()) , _)
-    , _
 
 -- A linear or affine types modality.
 
 Linear-or-affine-types : Extended-modality lzero
 Linear-or-affine-types = λ where
-    .M  → LA.Linear-or-affine
-    .𝕄  → 𝕄′
-    .TR → TR′
-    .UR → UR′
-    .FA → FA′
-    .TA → Assumptions-TR′ LA._≟_
-    .UA → Assumptions-UR′ LA._≟_
+    .M           → LA.Linear-or-affine
+    .𝕄           → 𝕄′
+    .TR          → TR′
+    .UR          → UR′
+    .FA          → FA′
+    .TA          → Assumptions-TR′ LA._≟_
+    .UA          → Assumptions-UR′ LA._≟_
+    .NR          → _
+    .NR₀ {p}     → LA.nr-linearity-like-for-𝟘 {p = p}
+    .NR₁ {p} {s} → LA.nr-linearity-like-for-𝟙 {p = p} {s = s}
   where
   open Extended-modality
 
@@ -439,7 +450,6 @@ opaque
          {s = 𝕤} → (_$ refl) ∘→ proj₂
          {s = 𝕨} → (_$ refl) ∘→ proj₂ ∘→ proj₁)
     , ((λ _ ()) , _)
-    , _
 
 ------------------------------------------------------------------------
 -- Some morphisms between the modalities above

@@ -1921,6 +1921,22 @@ opaque
                                          in  ≢𝟘 (z≡𝟘 , s≡𝟘)) ⟩
         ω                            ∎
 
+opaque
+
+  -- The nr function satisfies Linearity-like-nr-for-𝟘.
+
+  nr-linearity-like-for-𝟘 :
+    Has-nr.Linearity-like-nr-for-𝟘 zero-one-many-has-nr
+  nr-linearity-like-for-𝟘 = refl
+
+opaque
+
+  -- The nr function satisfies Linearity-like-nr-for-𝟙.
+
+  nr-linearity-like-for-𝟙 :
+    Has-nr.Linearity-like-nr-for-𝟙 zero-one-many-has-nr
+  nr-linearity-like-for-𝟙 = refl
+
 -- A modality defined using zero-one-many-has-nr.
 
 zero-one-many-modality : Modality-variant → Modality

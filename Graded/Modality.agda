@@ -201,6 +201,20 @@ record Has-nr (𝕄 : Semiring-with-meet) : Set a where
     -- that the reduction rule natrec-suc preserves usage.
     nr-suc : nr p r z s n ≤ s + p · n + r · nr p r z s n
 
+  -- A property that nr functions can satisfy.
+
+  Linearity-like-nr-for-𝟘 : Set a
+  Linearity-like-nr-for-𝟘 =
+    ∀ {p z s n} →
+    nr p 𝟘 z s n ≡ ((𝟙 ∧ p) · n + s) ∧ (n + z)
+
+  -- Another property that nr functions can satisfy.
+
+  Linearity-like-nr-for-𝟙 : Set a
+  Linearity-like-nr-for-𝟙 =
+    ∀ {p z s n} →
+    nr p 𝟙 z s n ≡ (𝟙 + p) · n + ω · s + z
+
 -- The property of having an nr function that factors in a certain way
 
 record Has-factoring-nr (𝕄 : Semiring-with-meet) ⦃ has-nr : Has-nr 𝕄 ⦄ : Set a where

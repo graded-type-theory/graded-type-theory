@@ -198,6 +198,22 @@ unit-has-star = record
 unit-has-nr : Has-nr unit-semiring-with-meet
 unit-has-nr = Star.has-nr _ ⦃ has-star = unit-has-star ⦄
 
+opaque
+
+  -- The nr function satisfies Linearity-like-nr-for-𝟘.
+
+  nr-linearity-like-for-𝟘 :
+    Has-nr.Linearity-like-nr-for-𝟘 unit-has-nr
+  nr-linearity-like-for-𝟘 = refl
+
+opaque
+
+  -- The nr function satisfies Linearity-like-nr-for-𝟙.
+
+  nr-linearity-like-for-𝟙 :
+    Has-nr.Linearity-like-nr-for-𝟙 unit-has-nr
+  nr-linearity-like-for-𝟙 = refl
+
 -- A trivial modality (without 𝟘ᵐ).
 
 UnitModality :
