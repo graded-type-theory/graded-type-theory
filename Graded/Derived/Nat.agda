@@ -52,3 +52,26 @@ opaque
       ▸v ▸A
     where
     open ≤ᶜ-reasoning
+
+opaque
+  unfolding strict-const
+
+  -- A usage lemma for strict-const.
+
+  ▸strict-const :
+    ⦃ has-nr : Dedicated-nr ⦄ →
+    γ ▸[ 𝟘ᵐ? ] A →
+    δ ▸[ m ] t →
+    η ▸[ m ] u →
+    nrᶜ 𝟘 𝟙 δ 𝟘ᶜ η ▸[ m ] strict-const A t u
+  ▸strict-const {γ} {m} ▸A ▸t ▸u =
+    natrecₘ ▸t
+      (sub var $ begin
+         𝟘ᶜ ∙ ⌜ m ⌝ · 𝟘 ∙ ⌜ m ⌝ · 𝟙  ≈⟨ ≈ᶜ-refl ∙ ·-zeroʳ _ ∙ ·-identityʳ _ ⟩
+         𝟘ᶜ ∙ ⌜ m ⌝                  ∎)
+      ▸u
+      (sub (wkUsage (step id) ▸A) $ begin
+         γ ∙ ⌜ 𝟘ᵐ? ⌝ · 𝟘  ≈⟨ ≈ᶜ-refl ∙ ·-zeroʳ _ ⟩
+         γ ∙ 𝟘            ∎)
+    where
+    open ≤ᶜ-reasoning

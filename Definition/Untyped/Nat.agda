@@ -18,6 +18,7 @@ open Modality 𝕄
 open import Definition.Untyped M
 open import Definition.Untyped.Properties M
 
+open import Tools.Fin
 open import Tools.Nat
 open import Tools.PropositionalEquality
 open import Tools.Reasoning.PropositionalEquality
@@ -66,3 +67,38 @@ opaque
       (u [ toSubst ρ ⇑ ]) (v [ toSubst ρ ])                        ≡˘⟨ cong₄ (natcase _ _) (wk-liftn 1) (wk≡subst _ _)
                                                                          (wk-liftn 1) (wk≡subst _ _) ⟩
     natcase p q (wk (lift ρ) A) (wk ρ t) (wk (lift ρ) u) (wk ρ v)  ∎
+
+opaque
+
+  -- A "strict const function". The idea is that strict-const A t u
+  -- traverses u and then returns t.
+
+  strict-const : Term n → Term n → Term n → Term n
+  strict-const A t u =
+    natrec 𝟘 𝟘 𝟙 (wk1 A) t (var x0) u
+
+opaque
+  unfolding strict-const
+
+  -- A substitution lemma for strict-const.
+
+  strict-const-[] :
+    strict-const A t u [ σ ] ≡
+    strict-const (A [ σ ]) (t [ σ ]) (u [ σ ])
+  strict-const-[] {A} {t} {u} {σ} =
+    natrec 𝟘 𝟘 𝟙 (wk1 A) t (var x0) u [ σ ]                    ≡⟨⟩
+    natrec 𝟘 𝟘 𝟙 (wk1 A [ σ ⇑ ]) (t [ σ ]) (var x0) (u [ σ ])  ≡⟨ cong₄ (natrec _ _ _) (wk1-liftSubst A) refl refl refl ⟩
+    natrec 𝟘 𝟘 𝟙 (wk1 (A [ σ ])) (t [ σ ]) (var x0) (u [ σ ])  ∎
+
+opaque
+
+  -- A weakening lemma for strict-const.
+
+  wk-strict-const :
+    wk ρ (strict-const A t u) ≡
+    strict-const (wk ρ A) (wk ρ t) (wk ρ u)
+  wk-strict-const {ρ} {A} {t} {u} =
+    wk ρ (strict-const A t u)                                           ≡⟨ wk≡subst _ _ ⟩
+    strict-const A t u [ toSubst ρ ]                                    ≡⟨ strict-const-[] ⟩
+    strict-const (A [ toSubst ρ ]) (t [ toSubst ρ ]) (u [ toSubst ρ ])  ≡˘⟨ cong₃ strict-const (wk≡subst _ _) (wk≡subst _ _) (wk≡subst _ _) ⟩
+    strict-const (wk ρ A) (wk ρ t) (wk ρ u)                             ∎
