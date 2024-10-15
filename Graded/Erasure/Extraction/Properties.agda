@@ -51,6 +51,7 @@ private
     b : Bool
     m n : Nat
     t u A : U.Term n
+    v₁ v₂ : T.Term n
     σ : U.Subst m n
     σ′ : T.Subst m n
     ρ : Wk _ _
@@ -246,6 +247,14 @@ opaque
   Value⟨⟩-loop? : ∀ s → Value⟨ s ⟩ (loop? {n = n} s)
   Value⟨⟩-loop? non-strict = _
   Value⟨⟩-loop? strict     = T.↯
+
+opaque
+
+  -- A reduction lemma for app-𝟘′.
+
+  app-𝟘′-subst : v₁ T.⇒ v₂ → app-𝟘′ b s v₁ T.⇒ app-𝟘′ b s v₂
+  app-𝟘′-subst {b = true}  v₁⇒v₂ = v₁⇒v₂
+  app-𝟘′-subst {b = false} v₁⇒v₂ = app-subst v₁⇒v₂
 
 -- The functions wk ρ/U.wk ρ and erase′ b s commute.
 

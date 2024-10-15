@@ -35,6 +35,7 @@ open import Definition.Typed.Weakening R
 
 open import Definition.Untyped.Properties M as UP using (wk-id ; wk-lift-id)
 
+open import Graded.Erasure.Extraction.Properties 𝕄
 open import Graded.Erasure.LogicalRelation as
 open import Graded.Erasure.Target as T hiding (_⇒_; _⇒*_)
 open import Graded.Erasure.Target.Properties as TP
@@ -128,10 +129,7 @@ targetRedSubstTerm
 ... | yes PE.refl | v⇒*lam = v⇒*lam , λ {a = a} [a] →
   let t®v = t®v′ [a]
       [G[a]] = [G] id ⊢Δ [a]
-  in  targetRedSubstTerm [G[a]] t®v $
-      case PE.singleton str of λ where
-        (strict     , PE.refl) → T.app-subst v⇒v′
-        (non-strict , PE.refl) → v⇒v′
+  in  targetRedSubstTerm [G[a]] t®v (app-𝟘′-subst v⇒v′)
 ... | no p≢𝟘 | v⇒*lam = v⇒*lam , λ {a = a} [a] a®w →
   let t®v = t®v′ [a] a®w
       v∘w⇒v′∘w′ = T.app-subst v⇒v′
@@ -305,10 +303,7 @@ targetRedSubstTerm′
   with is-𝟘? p
 ... | yes PE.refl = Π-lemma v⇒v′ ∘→ t®v′ .proj₁ , λ [a] →
   let t®v = t®v′ .proj₂ [a]
-  in  targetRedSubstTerm′ ([G] id ⊢Δ [a]) t®v $
-      case PE.singleton str of λ where
-        (strict     , PE.refl) → T.app-subst v⇒v′
-        (non-strict , PE.refl) → v⇒v′
+  in  targetRedSubstTerm′ ([G] id ⊢Δ [a]) t®v (app-𝟘′-subst v⇒v′)
 ... | no p≢𝟘 = Π-lemma v⇒v′ ∘→ t®v′ .proj₁ , λ [a] a®w →
   let t®v = t®v′ .proj₂ [a] a®w
       v∘w⇒v′∘w = T.app-subst v⇒v′
