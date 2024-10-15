@@ -19,4 +19,9 @@ open import Definition.Typed.Consequences.DerivedRules.Pi-Sigma R public
 open import Definition.Typed.Consequences.DerivedRules.Sigma R public
 open import Definition.Typed.Consequences.DerivedRules.Unit R public
 open import Definition.Typed.Consequences.DerivedRules.Empty R public
+open import Definition.Typed.Consequences.DerivedRules.Bool.OK R public
 open import Definition.Typed.Consequences.DerivedRules.Bool R public
+
+module Erased-Bool where
+  open import Definition.Typed.Consequences.DerivedRules.Bool.Erased R
+    public

@@ -3,8 +3,9 @@
 ------------------------------------------------------------------------
 
 -- Typing rules for the term formers defined in this module can be
--- found in Definition.Typed.Consequences.DerivedRules.Bool, and usage
--- rules can be found in Graded.Derived.Bool.
+-- found in Definition.Typed.Consequences.DerivedRules.Bool.OK and
+-- Definition.Typed.Consequences.DerivedRules.Bool, and usage rules
+-- can be found in Graded.Derived.Bool.
 
 import Graded.Modality
 import Graded.Modality.Dedicated-nr
@@ -233,12 +234,12 @@ opaque
     where
     open Tools.Reasoning.PropositionalEquality
 
-private opaque
+opaque
 
   -- A lemma used below.
 
-  ≡𝟙 : ((𝟙 ∧ 𝟙) · 𝟙 + 𝟘) ∧ (𝟙 + 𝟘) ≡ 𝟙
-  ≡𝟙 =
+  [[𝟙∧𝟙]·𝟙+𝟘]∧[𝟙+𝟘]≡𝟙 : ((𝟙 ∧ 𝟙) · 𝟙 + 𝟘) ∧ (𝟙 + 𝟘) ≡ 𝟙
+  [[𝟙∧𝟙]·𝟙+𝟘]∧[𝟙+𝟘]≡𝟙 =
     ((𝟙 ∧ 𝟙) · 𝟙 + 𝟘) ∧ (𝟙 + 𝟘)  ≡⟨ cong₂ _∧_ (M.+-identityʳ _) (M.+-identityʳ _) ⟩
     ((𝟙 ∧ 𝟙) · 𝟙) ∧ 𝟙            ≡⟨ cong (flip _∧_ _) $ M.·-identityʳ _ ⟩
     (𝟙 ∧ 𝟙) ∧ 𝟙                  ≡⟨ cong (flip _∧_ _) $ M.∧-comm _ _ ⟩
@@ -262,7 +263,7 @@ opaque
   boolrecᵍ-nc₂≡ hyp₁ hyp₂ =
     nr boolrecᵍ-nc₁ 𝟘 𝟘 𝟘 𝟙      ≡⟨ cong (λ p → nr p _ _ _ _) $ boolrecᵍ-nc₁≡ hyp₂ ⟩
     nr 𝟙 𝟘 𝟘 𝟘 𝟙                 ≡⟨ hyp₁ ⟩
-    ((𝟙 ∧ 𝟙) · 𝟙 + 𝟘) ∧ (𝟙 + 𝟘)  ≡⟨ ≡𝟙 ⟩
+    ((𝟙 ∧ 𝟙) · 𝟙 + 𝟘) ∧ (𝟙 + 𝟘)  ≡⟨ [[𝟙∧𝟙]·𝟙+𝟘]∧[𝟙+𝟘]≡𝟙 ⟩
     𝟙                            ∎
     where
     open Tools.Reasoning.PropositionalEquality
@@ -282,7 +283,7 @@ opaque
                                                (cong (λ p → nr p _ _ _ _) $ boolrecᵍ-nc₂≡ hyp₁ hyp₂)
                                                (boolrecᵍ-Π≡ hyp₂) ⟩
     nr 𝟙 𝟘 𝟘 𝟘 𝟙 ∧ 𝟙                      ≡⟨ cong (flip _∧_ _) hyp₁ ⟩
-    (((𝟙 ∧ 𝟙) · 𝟙 + 𝟘) ∧ (𝟙 + 𝟘)) ∧ 𝟙     ≡⟨ cong (flip _∧_ _) ≡𝟙 ⟩
+    (((𝟙 ∧ 𝟙) · 𝟙 + 𝟘) ∧ (𝟙 + 𝟘)) ∧ 𝟙     ≡⟨ cong (flip _∧_ _) [[𝟙∧𝟙]·𝟙+𝟘]∧[𝟙+𝟘]≡𝟙 ⟩
     𝟙 ∧ 𝟙                                 ≡⟨ M.∧-idem _ ⟩
     𝟙                                     ∎
     where

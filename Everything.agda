@@ -52,27 +52,10 @@ import Graded.Modality.Properties.Subtraction
 import Graded.Modality.Properties
 
 ------------------------------------------------------------------------
--- The type theory's syntax
+-- Some definitions that are re-exported from Definition.Untyped but
+-- do not depend on that module's module parameter
 
 import Definition.Untyped.NotParametrised
-import Definition.Untyped
-import Definition.Untyped.Inversion
-import Definition.Untyped.Properties.NotParametrised
-import Definition.Untyped.Properties
-import Definition.Untyped.Identity
-import Definition.Untyped.Sigma
-import Definition.Untyped.Unit
-import Definition.Untyped.Nat
-import Definition.Untyped.Lift
-import Definition.Untyped.Empty
-import Definition.Untyped.Bool
-import Graded.Derived.Erased.Eta.Untyped
-import Graded.Derived.Erased.NoEta.Untyped
-import Graded.Derived.Erased.Untyped
-import Graded.Derived.Unrestricted.Eta.Untyped
-import Definition.Typed.Variant
-import Definition.Untyped.Neutral
-import Definition.Untyped.Properties.Neutral
 
 ------------------------------------------------------------------------
 -- Modality contexts and their properties
@@ -95,6 +78,29 @@ import Graded.Context.Weakening
 -- Usage modes
 
 import Graded.Mode
+
+------------------------------------------------------------------------
+-- The type theory's syntax
+
+import Definition.Untyped
+import Definition.Untyped.Inversion
+import Definition.Untyped.Properties.NotParametrised
+import Definition.Untyped.Properties
+import Definition.Untyped.Identity
+import Definition.Untyped.Sigma
+import Definition.Untyped.Unit
+import Definition.Untyped.Nat
+import Definition.Untyped.Lift
+import Definition.Untyped.Empty
+import Definition.Untyped.Bool
+import Graded.Derived.Erased.Eta.Untyped
+import Graded.Derived.Erased.NoEta.Untyped
+import Graded.Derived.Erased.Untyped
+import Definition.Untyped.Bool.Erased
+import Graded.Derived.Unrestricted.Eta.Untyped
+import Definition.Typed.Variant
+import Definition.Untyped.Neutral
+import Definition.Untyped.Properties.Neutral
 
 ------------------------------------------------------------------------
 -- The type theory, along with some basic properties
@@ -152,6 +158,7 @@ import Graded.Derived.Bool
 import Graded.Derived.Erased.Eta.Usage
 import Graded.Derived.Erased.NoEta.Usage
 import Graded.Derived.Erased.Usage
+import Graded.Derived.Bool.Erased
 import Graded.Derived.Unrestricted.Eta.Usage
 
 ------------------------------------------------------------------------
@@ -274,7 +281,9 @@ import Definition.Typed.Consequences.DerivedRules.Sigma
 import Definition.Typed.Consequences.DerivedRules.Unit
 import Definition.Typed.Consequences.DerivedRules.Lift
 import Definition.Typed.Consequences.DerivedRules.Empty
+import Definition.Typed.Consequences.DerivedRules.Bool.OK
 import Definition.Typed.Consequences.DerivedRules.Bool
+import Definition.Typed.Consequences.DerivedRules.Bool.Erased
 import Definition.Typed.Consequences.DerivedRules
 import Definition.Typed.Consequences.Consistency
 import Definition.Typed.Consequences.RedSteps
