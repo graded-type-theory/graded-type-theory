@@ -65,6 +65,7 @@ import Definition.Untyped.Unit
 import Definition.Untyped.Nat
 import Definition.Untyped.Lift
 import Definition.Untyped.Empty
+import Definition.Untyped.Bool
 import Graded.Derived.Erased.Eta.Untyped
 import Graded.Derived.Erased.NoEta.Untyped
 import Graded.Derived.Erased.Untyped
@@ -147,6 +148,7 @@ import Graded.Derived.Unit
 import Graded.Derived.Nat
 import Graded.Derived.Lift
 import Graded.Derived.Empty
+import Graded.Derived.Bool
 import Graded.Derived.Erased.Eta.Usage
 import Graded.Derived.Erased.NoEta.Usage
 import Graded.Derived.Erased.Usage
@@ -272,6 +274,7 @@ import Definition.Typed.Consequences.DerivedRules.Sigma
 import Definition.Typed.Consequences.DerivedRules.Unit
 import Definition.Typed.Consequences.DerivedRules.Lift
 import Definition.Typed.Consequences.DerivedRules.Empty
+import Definition.Typed.Consequences.DerivedRules.Bool
 import Definition.Typed.Consequences.DerivedRules
 import Definition.Typed.Consequences.Consistency
 import Definition.Typed.Consequences.RedSteps
