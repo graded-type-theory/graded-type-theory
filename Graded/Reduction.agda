@@ -557,7 +557,7 @@ Well-resourced-normal-form-without-η-long-normal-form =
 
 well-resourced-normal-form-without-η-long-normal-form-Unit :
   ¬ 𝟙 ≤ 𝟘 →
-  s PE.≡ 𝕨 ⊎ ¬Starˢ-sink →
+  s PE.≡ 𝕨 ⊎ ¬ Starˢ-sink →
   Unit-allowed s →
   Unit-with-η s →
   Π-allowed 𝟙 q →

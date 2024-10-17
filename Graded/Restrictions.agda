@@ -19,6 +19,7 @@ open import Tools.Level
 open import Tools.Product as Σ
 open import Tools.PropositionalEquality
 open import Tools.Relation as Dec
+open import Tools.Sum
 open import Tools.Unit
 
 open import Graded.Modality.Dedicated-nr 𝕄
@@ -559,6 +560,7 @@ opaque
       .Unitrec-allowed?  _ _ _   → yes _
       .Emptyrec-allowed? _ _     → yes _
       .[]-cong-allowed-mode? _ _ → yes _
+      .no-sink-or-≤𝟘             → inj₁ idᶠ
     where
     open UD.Assumptions
 
@@ -574,6 +576,7 @@ opaque
       .Unitrec-allowed?      → A.Unitrec-allowed?
       .Emptyrec-allowed?     → A.Emptyrec-allowed?
       .[]-cong-allowed-mode? → A.[]-cong-allowed-mode?
+      .no-sink-or-≤𝟘         → A.no-sink-or-≤𝟘
     where
     module A = UD.Assumptions as
     open UD.Assumptions
@@ -596,6 +599,7 @@ opaque
       .Unitrec-allowed?         → A.Unitrec-allowed?
       .Emptyrec-allowed?        → A.Emptyrec-allowed?
       .[]-cong-allowed-mode?    → A.[]-cong-allowed-mode?
+      .no-sink-or-≤𝟘            → A.no-sink-or-≤𝟘
     where
     module A = UD.Assumptions as
     open UD.Assumptions
@@ -621,6 +625,7 @@ opaque
                                  Unitʷ-η?)
       .Emptyrec-allowed?      → A.Emptyrec-allowed?
       .[]-cong-allowed-mode?  → A.[]-cong-allowed-mode?
+      .no-sink-or-≤𝟘          → A.no-sink-or-≤𝟘
     where
     module A = UD.Assumptions (Assumptions-only-some-erased-matches as)
     open UD.Assumptions

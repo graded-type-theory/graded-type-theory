@@ -123,7 +123,7 @@ module _ (as : Full-reduction-assumptions) where
       open ≤ᶜ-reasoning
 
       lemma :
-        ∃ λ δ → (s PE.≡ 𝕨 ⊎ ¬Starˢ-sink → 𝟘ᶜ ≈ᶜ δ) × γ ≤ᶜ ⌜ m ⌝ ·ᶜ δ
+        ∃ λ δ → (s PE.≡ 𝕨 ⊎ ¬ Starˢ-sink → 𝟘ᶜ ≈ᶜ δ) × γ ≤ᶜ ⌜ m ⌝ ·ᶜ δ
       lemma =
         case PE.singleton m of λ where
           (𝟘ᵐ , PE.refl) →

@@ -268,18 +268,18 @@ module Is-morphism
       open CR₂
       lemma : {b b′ : Bool} →
         b ≡ b′ →
-        (T (not b) → C₁.𝟘ᶜ C₁.≈ᶜ γ) →
+        (¬ T b → C₁.𝟘ᶜ C₁.≈ᶜ γ) →
           ∃ λ γ′ →
-            (T (not b′) → C₂.𝟘ᶜ C₂.≈ᶜ γ′) ×
+            (¬ T b′ → C₂.𝟘ᶜ C₂.≈ᶜ γ′) ×
             tr-Conₘ (Mo₁.⌜ m ⌝ C₁.·ᶜ γ) C₂.≤ᶜ Mo₂.⌜ tr-Mode m ⌝ C₂.·ᶜ γ′
       lemma {(false)} refl prop =
         _ , (λ _ → ≈ᶜ-refl) , (begin
           tr-Conₘ (Mo₁.⌜ m ⌝ C₁.·ᶜ γ)       ≈⟨ tr-Conₘ-·ᶜ ⟩
-          tr Mo₁.⌜ m ⌝ C₂.·ᶜ tr-Conₘ γ      ≈⟨ ·ᶜ-congˡ (CQ.tr-≈ᶜ (CP₁.≈ᶜ-sym (prop _))) ⟩
+          tr Mo₁.⌜ m ⌝ C₂.·ᶜ tr-Conₘ γ      ≈⟨ ·ᶜ-congˡ (CQ.tr-≈ᶜ (CP₁.≈ᶜ-sym (prop idᶠ))) ⟩
           tr Mo₁.⌜ m ⌝ C₂.·ᶜ tr-Conₘ C₁.𝟘ᶜ  ≤⟨ ·ᶜ-monotone tr-Conₘ-𝟘ᶜ-≤ᶜ (tr-⌜⌝ m) ⟩
           Mo₂.⌜ tr-Mode m ⌝ C₂.·ᶜ C₂.𝟘ᶜ     ∎)
       lemma {(true)} refl prop =
-        _ , (λ ()) , (begin
+        _ , ⊥-elim ∘→ (_$ _) , (begin
           tr-Conₘ (Mo₁.⌜ m ⌝ C₁.·ᶜ γ)        ≈⟨ tr-Conₘ-·ᶜ ⟩
           tr Mo₁.⌜ m ⌝ C₂.·ᶜ tr-Conₘ γ       ≤⟨ ·ᶜ-monotoneˡ (tr-⌜⌝ m) ⟩
           Mo₂.⌜ tr-Mode m ⌝ C₂.·ᶜ tr-Conₘ γ  ∎)
@@ -926,22 +926,22 @@ module Is-order-embedding
 
       lemma″ :
         ∀ {b b′} → b′ ≡ b →
-        (T (not b) → C₂.𝟘ᶜ C₂.≈ᶜ δ) →
-          ∃ λ η → (T (not b′) → C₁.𝟘ᶜ C₁.≈ᶜ η) × γ C₁.≤ᶜ Mo₁.⌜ m ⌝ C₁.·ᶜ η
+        (¬ T b → C₂.𝟘ᶜ C₂.≈ᶜ δ) →
+          ∃ λ η → (¬ T b′ → C₁.𝟘ᶜ C₁.≈ᶜ η) × γ C₁.≤ᶜ Mo₁.⌜ m ⌝ C₁.·ᶜ η
       lemma″ {(false)} refl prop =
         _ , (λ _ → CP₁.≈ᶜ-refl) ,
         (case trivial-⊎-tr-Conₘ-𝟘ᶜ-≈ᶜ of λ where
           (inj₁ trivial) → trivial
           (inj₂ tr-Conₘ-𝟘ᶜ-≈ᶜ) → tr-Conₘ-order-reflecting (begin
             tr-Conₘ γ                         ≤⟨ ≤mδ ⟩
-            Mo₂.⌜ tr-Mode m ⌝ C₂.·ᶜ δ         ≈˘⟨ CP₂.·ᶜ-congˡ (prop _) ⟩
+            Mo₂.⌜ tr-Mode m ⌝ C₂.·ᶜ δ         ≈˘⟨ CP₂.·ᶜ-congˡ (prop idᶠ) ⟩
             Mo₂.⌜ tr-Mode m ⌝ C₂.·ᶜ C₂.𝟘ᶜ     ≈⟨ CP₂.·ᶜ-zeroʳ _ ⟩
             C₂.𝟘ᶜ                             ≈˘⟨ CP₂.·ᶜ-zeroʳ _ ⟩
             tr Mo₁.⌜ m ⌝ C₂.·ᶜ C₂.𝟘ᶜ          ≈˘⟨ CP₂.·ᶜ-congˡ tr-Conₘ-𝟘ᶜ-≈ᶜ ⟩
             tr Mo₁.⌜ m ⌝ C₂.·ᶜ tr-Conₘ C₁.𝟘ᶜ  ≈˘⟨ tr-Conₘ-·ᶜ ⟩
             tr-Conₘ (Mo₁.⌜ m ⌝ C₁.·ᶜ C₁.𝟘ᶜ)   ∎))
       lemma″ {(true)} refl _ = case lemma′ m ≤mδ of λ (_ , γ≤) →
-        _ , (λ ()) , γ≤
+        _ , ⊥-elim ∘→ (_$ _) , γ≤
 
     tr-▸⁻¹′ {m = m} {γ = γ} (var x) var refl ≤𝟘,x≔⌜tr-m⌝ = sub
       var

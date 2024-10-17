@@ -2130,18 +2130,19 @@ subst-calc-correct′ (Ψ ⊙ γ) Ψ▶σ (x +1) =
   sub (subst-calc-correct′ Ψ (wf-tailSubstₘ Ψ▶σ) x)
       (≤ᶜ-reflexive (≈ᶜ-trans (+ᶜ-congʳ (·ᶜ-zeroˡ _)) (+ᶜ-identityˡ _)))
 
--- If there is a dedicated nr function and strong unit types are not
--- allowed to be used as sinks, then each row of a calculated
--- substitution matrix is an upper bound of the usage contexts (for a
--- suitable mode) of the corresponding substituted term.
+-- If there is a dedicated nr function, and either strong unit types
+-- are not allowed to be used as sinks or 𝟘 is a greatest grade, then
+-- each row of a calculated substitution matrix is an upper bound of
+-- the usage contexts (for a suitable mode) of the corresponding
+-- substituted term.
 
 substₘ-calc-upper-bound :
   ⦃ has-nr : Dedicated-nr ⦄ →
-  ⦃ ¬Starˢ-sink ⦄ →
+  ¬ Starˢ-sink ⊎ (∀ {p} → p ≤ 𝟘) →
   {γ : Conₘ m} (σ : Subst m n) (x : Fin n) →
   γ ▸[ mos x ] σ x → γ ≤ᶜ  (𝟘ᶜ , x ≔ 𝟙) <* ∥ σ ∥ mos
-substₘ-calc-upper-bound σ x γ▸σx =
-  ≤ᶜ-trans (usage-upper-bound γ▸σx)
+substₘ-calc-upper-bound ok σ x γ▸σx =
+  ≤ᶜ-trans (usage-upper-bound ok γ▸σx)
            (≤ᶜ-reflexive (≈ᶜ-sym (substₘ-calc-row σ x)))
 
 --------------------------------------------------

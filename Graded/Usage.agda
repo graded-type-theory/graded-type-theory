@@ -361,7 +361,7 @@ data _▸[_]_ {n : Nat} : (γ : Conₘ n) → Mode → Term n → Set a where
 
   -- If strong unit types are not allowed to be used as sinks, then γ
   -- must be 𝟘ᶜ.
-  starˢₘ    : (¬Starˢ-sink → 𝟘ᶜ ≈ᶜ γ)
+  starˢₘ    : (¬ Starˢ-sink → 𝟘ᶜ ≈ᶜ γ)
             → ⌜ m ⌝ ·ᶜ γ ▸[ m ] starˢ l
 
   unitrecₘ : γ ▸[ m ᵐ· p ] t

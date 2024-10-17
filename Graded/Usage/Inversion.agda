@@ -382,7 +382,7 @@ record InvUsageStarˢ {n} (γ : Conₘ n) (m : Mode) : Set a where
   field
     {δ}  : Conₘ n
     ≤⌜⌝· : γ ≤ᶜ ⌜ m ⌝ ·ᶜ δ
-    𝟘≈   : ¬Starˢ-sink → 𝟘ᶜ ≈ᶜ δ
+    𝟘≈   : ¬ Starˢ-sink → 𝟘ᶜ ≈ᶜ δ
 
 -- A usage inversion lemma for starˢ.
 

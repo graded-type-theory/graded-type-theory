@@ -20,8 +20,10 @@ open import Graded.Modality.Dedicated-nr 𝕄
 open import Graded.Modality.Properties 𝕄 hiding (has-nr)
 
 open import Tools.Nat using (Nat)
+open import Tools.Product
 open import Tools.PropositionalEquality
 open import Tools.Relation
+open import Tools.Sum
 
 private variable
   n : Nat
@@ -49,8 +51,9 @@ record Assumptions : Set a where
       -- A dedicated nr function is assumed to exist.
       ⦃ has-nr ⦄ : Dedicated-nr
 
-      -- Strong unit types are not allowed to be used as sinks.
-      ⦃ no-sink ⦄ : ¬Starˢ-sink
+    -- Either strong unit types are not allowed to be used as sinks,
+    -- or 𝟘 is a greatest grade.
+    no-sink-or-≤𝟘 : ¬ Starˢ-sink ⊎ (∀ {p} → p ≤ 𝟘)
 
   -- Inequality is decidable.
 

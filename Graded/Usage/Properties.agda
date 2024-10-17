@@ -1777,165 +1777,180 @@ opaque
 open import Graded.Modality.Dedicated-nr.Instance
 
 -- For dedicated nr functions the function ⌈_⌉ provides upper bounds
--- for valid modality contexts when strong unit types are not allowed
--- to be used as sinks: if γ ▸[ m ] t, then γ ≤ᶜ ⌈ t ⌉ m.
+-- for valid modality contexts if strong unit types are not allowed to
+-- be used as sinks, or if 𝟘 is a greatest grade.
 
 usage-upper-bound :
   ⦃ has-nr : Dedicated-nr ⦄ →
-  ⦃ no-sink : ¬Starˢ-sink ⦄ →
+  ¬ Starˢ-sink ⊎ (∀ {p} → p ≤ 𝟘) →
   γ ▸[ m ] t → γ ≤ᶜ ⌈ t ⌉ m
-usage-upper-bound Uₘ     = ≤ᶜ-refl
-usage-upper-bound ℕₘ     = ≤ᶜ-refl
-usage-upper-bound Emptyₘ = ≤ᶜ-refl
-usage-upper-bound Unitₘ  = ≤ᶜ-refl
-
-usage-upper-bound (ΠΣₘ {G = G} ▸F ▸G) =
-  +ᶜ-monotone (usage-upper-bound ▸F)
-              (subst (_ ≈ᶜ_) (tailₘ-distrib-∧ᶜ (_ ∙ _) (⌈ G ⌉ _))
-                     (tailₘ-cong (usage-upper-bound ▸G)))
-
-usage-upper-bound var = ≤ᶜ-refl
-
-usage-upper-bound (lamₘ {t = t} ▸t) =
-  subst (_ ≈ᶜ_) (tailₘ-distrib-∧ᶜ (_ ∙ _) (⌈ t ⌉ _))
-    (tailₘ-cong (usage-upper-bound ▸t))
-
-usage-upper-bound (▸t ∘ₘ ▸u) =
-  +ᶜ-monotone (usage-upper-bound ▸t)
-    (·ᶜ-monotoneʳ (usage-upper-bound ▸u))
-
-usage-upper-bound (prodʷₘ t u) =
-  +ᶜ-monotone (·ᶜ-monotoneʳ (usage-upper-bound t)) (usage-upper-bound u)
-usage-upper-bound (prodˢₘ t u) =
-  ∧ᶜ-monotone (·ᶜ-monotoneʳ (usage-upper-bound t))
-    (usage-upper-bound u)
-usage-upper-bound (fstₘ _ t PE.refl _) = usage-upper-bound t
-usage-upper-bound (sndₘ t) = usage-upper-bound t
-usage-upper-bound (prodrecₘ t u A _) =
-  +ᶜ-monotone (·ᶜ-monotoneʳ (usage-upper-bound t))
-              (tailₘ-monotone (tailₘ-monotone (usage-upper-bound u)))
-
-usage-upper-bound zeroₘ    = ≤ᶜ-refl
-usage-upper-bound (sucₘ t) = usage-upper-bound t
-
-usage-upper-bound
-  ⦃ has-nr = nr₁ ⦄
-  (natrecₘ {z = z} {s = s} {n = n} ⦃ has-nr = nr₂ ⦄ γ▸z δ▸s η▸n θ▸A) =
-  case Dedicated-nr-propositional nr₁ nr₂ of λ {
-    refl →
-  case usage-upper-bound γ▸z of λ {
-    γ≤γ′ →
-  case usage-upper-bound δ▸s of λ {
-    δ≤δ′ →
-  case usage-upper-bound η▸n of λ {
-    η≤η′ →
-  nrᶜ-monotone γ≤γ′ (tailₘ-monotone (tailₘ-monotone δ≤δ′)) η≤η′ }}}}
-
-usage-upper-bound (natrec-no-nrₘ _ _ _ _ _ _ _ _) =
-  ⊥-elim not-nr-and-no-nr
-
-usage-upper-bound (emptyrecₘ e A _) =
-  ·ᶜ-monotoneʳ (usage-upper-bound e)
-
-usage-upper-bound starʷₘ = ≤ᶜ-refl
-usage-upper-bound ⦃ no-sink = ns ⦄ (starˢₘ prop) =
-  ≤ᶜ-reflexive (≈ᶜ-trans (·ᶜ-congˡ (≈ᶜ-sym (prop ns)))
-                 (·ᶜ-zeroʳ _))
-
-usage-upper-bound (unitrecₘ t u A ok) =
-  +ᶜ-monotone (·ᶜ-monotoneʳ (usage-upper-bound t)) (usage-upper-bound u)
-
-usage-upper-bound {m} (Idₘ {δ} {t} {η} {u} not-ok _ ▸t ▸u)
-  with Id-erased?
-… | yes ok = ⊥-elim (not-ok ok)
-… | no _   = begin
-  δ +ᶜ η              ≤⟨ +ᶜ-monotone (usage-upper-bound ▸t) (usage-upper-bound ▸u) ⟩
-  ⌈ t ⌉ m +ᶜ ⌈ u ⌉ m  ∎
+usage-upper-bound ⦃ has-nr = nr₁ ⦄ ok = usage-upper-bound′
   where
-  open Tools.Reasoning.PartialOrder ≤ᶜ-poset
+  usage-upper-bound′ : γ ▸[ m ] t → γ ≤ᶜ ⌈ t ⌉ m
+  usage-upper-bound′ Uₘ     = ≤ᶜ-refl
+  usage-upper-bound′ ℕₘ     = ≤ᶜ-refl
+  usage-upper-bound′ Emptyₘ = ≤ᶜ-refl
+  usage-upper-bound′ Unitₘ  = ≤ᶜ-refl
 
-usage-upper-bound (Id₀ₘ ok _ _ _) with Id-erased?
-… | no not-ok = ⊥-elim (not-ok ok)
-… | yes _     = ≤ᶜ-refl
+  usage-upper-bound′ (ΠΣₘ {G = G} ▸F ▸G) =
+    +ᶜ-monotone (usage-upper-bound′ ▸F)
+                (subst (_ ≈ᶜ_) (tailₘ-distrib-∧ᶜ (_ ∙ _) (⌈ G ⌉ _))
+                       (tailₘ-cong (usage-upper-bound′ ▸G)))
 
-usage-upper-bound rflₘ =
-  ≤ᶜ-refl
+  usage-upper-bound′ var = ≤ᶜ-refl
 
-usage-upper-bound
-  {m}
-  (Jₘ {p} {q} {γ₂} {t} {γ₃} {B} {γ₄} {u} {γ₅} {v} {γ₆} {w}
-     ≤some ok _ ▸t ▸B ▸u ▸v ▸w)
-  with J-view p q m
-… | is-all ≡all               = case ≤ᵉᵐ→≡all→≡all ≤some ≡all of λ ()
-… | is-some-yes ≡some p≡𝟘×q≡𝟘 = ⊥-elim $ ok ≡some p≡𝟘×q≡𝟘
-… | is-other _ _              = begin
-  ω ·ᶜ (γ₂ +ᶜ γ₃ +ᶜ γ₄ +ᶜ γ₅ +ᶜ γ₆)                                      ≤⟨ ·ᶜ-monotoneʳ $
-                                                                            +ᶜ-monotone (usage-upper-bound ▸t) $
-                                                                            +ᶜ-monotone (tailₘ-monotone (tailₘ-monotone (usage-upper-bound ▸B))) $
-                                                                            +ᶜ-monotone (usage-upper-bound ▸u) $
-                                                                            +ᶜ-monotone (usage-upper-bound ▸v) $
-                                                                            usage-upper-bound ▸w ⟩
-  ω ·ᶜ
-  (⌈ t ⌉ m +ᶜ tailₘ (tailₘ (⌈ B ⌉ m)) +ᶜ ⌈ u ⌉ m +ᶜ ⌈ v ⌉ m +ᶜ ⌈ w ⌉ m)  ∎
-  where
-  open Tools.Reasoning.PartialOrder ≤ᶜ-poset
+  usage-upper-bound′ (lamₘ {t = t} ▸t) =
+    subst (_ ≈ᶜ_) (tailₘ-distrib-∧ᶜ (_ ∙ _) (⌈ t ⌉ _))
+      (tailₘ-cong (usage-upper-bound′ ▸t))
 
-usage-upper-bound
-  {m} (J₀ₘ₁ {p} {q} {γ₃} {B} {γ₄} {u} ≡some p≡𝟘 q≡𝟘 _ ▸t ▸B ▸u ▸v ▸w)
-  with J-view p q m
-… | is-all ≡all     = case trans (PE.sym ≡some) ≡all of λ ()
-… | is-other _ 𝟘≢𝟘  = ⊥-elim $ 𝟘≢𝟘 ≡some (p≡𝟘 , q≡𝟘)
-… | is-some-yes _ _ = begin
-  ω ·ᶜ (γ₃ +ᶜ γ₄)                            ≤⟨ ·ᶜ-monotoneʳ $
-                                                +ᶜ-monotone (tailₘ-monotone (tailₘ-monotone (usage-upper-bound ▸B))) $
-                                                usage-upper-bound ▸u ⟩
-  ω ·ᶜ (tailₘ (tailₘ (⌈ B ⌉ m)) +ᶜ ⌈ u ⌉ m)  ∎
-  where
-  open Tools.Reasoning.PartialOrder ≤ᶜ-poset
+  usage-upper-bound′ (▸t ∘ₘ ▸u) =
+    +ᶜ-monotone (usage-upper-bound′ ▸t)
+      (·ᶜ-monotoneʳ (usage-upper-bound′ ▸u))
 
-usage-upper-bound {m} (J₀ₘ₂ {p} {q} ≡all _ _ _ ▸u _ _) with J-view p q m
-… | is-other ≤some _    = case ≤ᵉᵐ→≡all→≡all ≤some ≡all of λ ()
-… | is-some-yes ≡some _ = case trans (PE.sym ≡some) ≡all of λ ()
-… | is-all _            = usage-upper-bound ▸u
+  usage-upper-bound′ (prodʷₘ t u) =
+    +ᶜ-monotone (·ᶜ-monotoneʳ (usage-upper-bound′ t))
+      (usage-upper-bound′ u)
+  usage-upper-bound′ (prodˢₘ t u) =
+    ∧ᶜ-monotone (·ᶜ-monotoneʳ (usage-upper-bound′ t))
+      (usage-upper-bound′ u)
+  usage-upper-bound′ (fstₘ _ t PE.refl _) = usage-upper-bound′ t
+  usage-upper-bound′ (sndₘ t) = usage-upper-bound′ t
+  usage-upper-bound′ (prodrecₘ t u A _) =
+    +ᶜ-monotone (·ᶜ-monotoneʳ (usage-upper-bound′ t))
+                (tailₘ-monotone (tailₘ-monotone (usage-upper-bound′ u)))
 
-usage-upper-bound
-  {m}
-  (Kₘ {p} {γ₂} {t} {γ₃} {B} {γ₄} {u} {γ₅} {v} ≤some ok _ ▸t ▸B ▸u ▸v)
-  with K-view p m
-… | is-all ≡all           = case ≤ᵉᵐ→≡all→≡all ≤some ≡all of λ ()
-… | is-some-yes ≡some p≡𝟘 = ⊥-elim $ ok ≡some p≡𝟘
-… | is-other _ _          = begin
-  ω ·ᶜ (γ₂ +ᶜ γ₃ +ᶜ γ₄ +ᶜ γ₅)                              ≤⟨ ·ᶜ-monotoneʳ $
-                                                              +ᶜ-monotone (usage-upper-bound ▸t) $
-                                                              +ᶜ-monotone (tailₘ-monotone (usage-upper-bound ▸B)) $
-                                                              +ᶜ-monotone (usage-upper-bound ▸u) $
-                                                              usage-upper-bound ▸v ⟩
-  ω ·ᶜ (⌈ t ⌉ m +ᶜ tailₘ (⌈ B ⌉ m) +ᶜ ⌈ u ⌉ m +ᶜ ⌈ v ⌉ m)  ∎
-  where
-  open Tools.Reasoning.PartialOrder ≤ᶜ-poset
+  usage-upper-bound′ zeroₘ    = ≤ᶜ-refl
+  usage-upper-bound′ (sucₘ t) = usage-upper-bound′ t
 
-usage-upper-bound
-  {m} (K₀ₘ₁ {p} {γ₃} {B} {γ₄} {u} ≡some p≡𝟘 _ ▸t ▸B ▸u ▸v)
-  with K-view p m
-… | is-all ≡all     = case trans (PE.sym ≡some) ≡all of λ ()
-… | is-other _ 𝟘≢𝟘  = ⊥-elim $ 𝟘≢𝟘 ≡some p≡𝟘
-… | is-some-yes _ _ = begin
-  ω ·ᶜ (γ₃ +ᶜ γ₄)                    ≤⟨ ·ᶜ-monotoneʳ $
-                                        +ᶜ-monotone (tailₘ-monotone (usage-upper-bound ▸B)) $
-                                        usage-upper-bound ▸u ⟩
-  ω ·ᶜ (tailₘ (⌈ B ⌉ m) +ᶜ ⌈ u ⌉ m)  ∎
-  where
-  open Tools.Reasoning.PartialOrder ≤ᶜ-poset
+  usage-upper-bound′
+    (natrecₘ {z = z} {s = s} {n = n} ⦃ has-nr = nr₂ ⦄ γ▸z δ▸s η▸n θ▸A) =
+    case Dedicated-nr-propositional nr₁ nr₂ of λ {
+      refl →
+    case usage-upper-bound′ γ▸z of λ {
+      γ≤γ′ →
+    case usage-upper-bound′ δ▸s of λ {
+      δ≤δ′ →
+    case usage-upper-bound′ η▸n of λ {
+      η≤η′ →
+    nrᶜ-monotone γ≤γ′ (tailₘ-monotone (tailₘ-monotone δ≤δ′)) η≤η′ }}}}
 
-usage-upper-bound {m} (K₀ₘ₂ {p} ≡all _ _ _ ▸u _) with K-view p m
-… | is-other ≤some _    = case ≤ᵉᵐ→≡all→≡all ≤some ≡all of λ ()
-… | is-some-yes ≡some _ = case trans (PE.sym ≡some) ≡all of λ ()
-… | is-all _            = usage-upper-bound ▸u
+  usage-upper-bound′ (natrec-no-nrₘ _ _ _ _ _ _ _ _) =
+    ⊥-elim not-nr-and-no-nr
 
-usage-upper-bound ([]-congₘ _ _ _ _ _) =
-  ≤ᶜ-refl
+  usage-upper-bound′ (emptyrecₘ e A _) =
+    ·ᶜ-monotoneʳ (usage-upper-bound′ e)
 
-usage-upper-bound (sub t x) = ≤ᶜ-trans x (usage-upper-bound t)
+  usage-upper-bound′ starʷₘ = ≤ᶜ-refl
+  usage-upper-bound′ {m} (starˢₘ {γ} {l} hyp) =
+    case ok of λ where
+      (inj₁ no-sink) → begin
+        ⌜ m ⌝ ·ᶜ γ   ≈˘⟨ ·ᶜ-congˡ (hyp no-sink) ⟩
+        ⌜ m ⌝ ·ᶜ 𝟘ᶜ  ≈⟨ ·ᶜ-zeroʳ _ ⟩
+        𝟘ᶜ           ∎
+      (inj₂ ≤𝟘) → begin
+        ⌜ m ⌝ ·ᶜ γ   ≤⟨ ·ᶜ-monotoneʳ (≤ᶜ𝟘ᶜ ≤𝟘) ⟩
+        ⌜ m ⌝ ·ᶜ 𝟘ᶜ  ≈⟨ ·ᶜ-zeroʳ _ ⟩
+        𝟘ᶜ           ∎
+    where
+    open ≤ᶜ-reasoning
+
+  usage-upper-bound′ (unitrecₘ t u A ok) =
+    +ᶜ-monotone (·ᶜ-monotoneʳ (usage-upper-bound′ t))
+      (usage-upper-bound′ u)
+
+  usage-upper-bound′ {m} (Idₘ {δ} {t} {η} {u} not-ok _ ▸t ▸u)
+    with Id-erased?
+  … | yes ok = ⊥-elim (not-ok ok)
+  … | no _   = begin
+    δ +ᶜ η              ≤⟨ +ᶜ-monotone (usage-upper-bound′ ▸t) (usage-upper-bound′ ▸u) ⟩
+    ⌈ t ⌉ m +ᶜ ⌈ u ⌉ m  ∎
+    where
+    open ≤ᶜ-reasoning
+
+  usage-upper-bound′ (Id₀ₘ ok _ _ _) with Id-erased?
+  … | no not-ok = ⊥-elim (not-ok ok)
+  … | yes _     = ≤ᶜ-refl
+
+  usage-upper-bound′ rflₘ =
+    ≤ᶜ-refl
+
+  usage-upper-bound′
+    {m}
+    (Jₘ {p} {q} {γ₂} {t} {γ₃} {B} {γ₄} {u} {γ₅} {v} {γ₆} {w}
+       ≤some ok _ ▸t ▸B ▸u ▸v ▸w)
+    with J-view p q m
+  … | is-all ≡all               = case ≤ᵉᵐ→≡all→≡all ≤some ≡all of λ ()
+  … | is-some-yes ≡some p≡𝟘×q≡𝟘 = ⊥-elim $ ok ≡some p≡𝟘×q≡𝟘
+  … | is-other _ _              = begin
+    ω ·ᶜ (γ₂ +ᶜ γ₃ +ᶜ γ₄ +ᶜ γ₅ +ᶜ γ₆)                           ≤⟨ ·ᶜ-monotoneʳ $
+                                                                   +ᶜ-monotone (usage-upper-bound′ ▸t) $
+                                                                   +ᶜ-monotone (tailₘ-monotone (tailₘ-monotone (usage-upper-bound′ ▸B))) $
+                                                                   +ᶜ-monotone (usage-upper-bound′ ▸u) $
+                                                                   +ᶜ-monotone (usage-upper-bound′ ▸v) $
+                                                                   usage-upper-bound′ ▸w ⟩
+    ω ·ᶜ
+    (⌈ t ⌉ m +ᶜ
+     tailₘ (tailₘ (⌈ B ⌉ m)) +ᶜ ⌈ u ⌉ m +ᶜ ⌈ v ⌉ m +ᶜ ⌈ w ⌉ m)  ∎
+    where
+    open ≤ᶜ-reasoning
+
+  usage-upper-bound′
+    {m} (J₀ₘ₁ {p} {q} {γ₃} {B} {γ₄} {u} ≡some p≡𝟘 q≡𝟘 _ ▸t ▸B ▸u ▸v ▸w)
+    with J-view p q m
+  … | is-all ≡all     = case trans (PE.sym ≡some) ≡all of λ ()
+  … | is-other _ 𝟘≢𝟘  = ⊥-elim $ 𝟘≢𝟘 ≡some (p≡𝟘 , q≡𝟘)
+  … | is-some-yes _ _ = begin
+    ω ·ᶜ (γ₃ +ᶜ γ₄)                            ≤⟨ ·ᶜ-monotoneʳ $
+                                                  +ᶜ-monotone (tailₘ-monotone (tailₘ-monotone (usage-upper-bound′ ▸B))) $
+                                                  usage-upper-bound′ ▸u ⟩
+    ω ·ᶜ (tailₘ (tailₘ (⌈ B ⌉ m)) +ᶜ ⌈ u ⌉ m)  ∎
+    where
+    open ≤ᶜ-reasoning
+
+  usage-upper-bound′ {m} (J₀ₘ₂ {p} {q} ≡all _ _ _ ▸u _ _)
+    with J-view p q m
+  … | is-other ≤some _    = case ≤ᵉᵐ→≡all→≡all ≤some ≡all of λ ()
+  … | is-some-yes ≡some _ = case trans (PE.sym ≡some) ≡all of λ ()
+  … | is-all _            = usage-upper-bound′ ▸u
+
+  usage-upper-bound′
+    {m}
+    (Kₘ {p} {γ₂} {t} {γ₃} {B} {γ₄} {u} {γ₅} {v} ≤some ok _ ▸t ▸B ▸u ▸v)
+    with K-view p m
+  … | is-all ≡all           = case ≤ᵉᵐ→≡all→≡all ≤some ≡all of λ ()
+  … | is-some-yes ≡some p≡𝟘 = ⊥-elim $ ok ≡some p≡𝟘
+  … | is-other _ _          = begin
+    ω ·ᶜ (γ₂ +ᶜ γ₃ +ᶜ γ₄ +ᶜ γ₅)                              ≤⟨ ·ᶜ-monotoneʳ $
+                                                                +ᶜ-monotone (usage-upper-bound′ ▸t) $
+                                                                +ᶜ-monotone (tailₘ-monotone (usage-upper-bound′ ▸B)) $
+                                                                +ᶜ-monotone (usage-upper-bound′ ▸u) $
+                                                                usage-upper-bound′ ▸v ⟩
+    ω ·ᶜ (⌈ t ⌉ m +ᶜ tailₘ (⌈ B ⌉ m) +ᶜ ⌈ u ⌉ m +ᶜ ⌈ v ⌉ m)  ∎
+    where
+    open ≤ᶜ-reasoning
+
+  usage-upper-bound′
+    {m} (K₀ₘ₁ {p} {γ₃} {B} {γ₄} {u} ≡some p≡𝟘 _ ▸t ▸B ▸u ▸v)
+    with K-view p m
+  … | is-all ≡all     = case trans (PE.sym ≡some) ≡all of λ ()
+  … | is-other _ 𝟘≢𝟘  = ⊥-elim $ 𝟘≢𝟘 ≡some p≡𝟘
+  … | is-some-yes _ _ = begin
+    ω ·ᶜ (γ₃ +ᶜ γ₄)                    ≤⟨ ·ᶜ-monotoneʳ $
+                                          +ᶜ-monotone (tailₘ-monotone (usage-upper-bound′ ▸B)) $
+                                          usage-upper-bound′ ▸u ⟩
+    ω ·ᶜ (tailₘ (⌈ B ⌉ m) +ᶜ ⌈ u ⌉ m)  ∎
+    where
+    open ≤ᶜ-reasoning
+
+  usage-upper-bound′ {m} (K₀ₘ₂ {p} ≡all _ _ _ ▸u _) with K-view p m
+  … | is-other ≤some _    = case ≤ᵉᵐ→≡all→≡all ≤some ≡all of λ ()
+  … | is-some-yes ≡some _ = case trans (PE.sym ≡some) ≡all of λ ()
+  … | is-all _            = usage-upper-bound′ ▸u
+
+  usage-upper-bound′ ([]-congₘ _ _ _ _ _) =
+    ≤ᶜ-refl
+
+  usage-upper-bound′ (sub t x) = ≤ᶜ-trans x (usage-upper-bound′ t)
 
 
 -- A valid modality context can be computed from a well-resourced term

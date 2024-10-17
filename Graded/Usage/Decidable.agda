@@ -92,7 +92,8 @@ infix 10 ⌈⌉▸[_]?_
         ⌈ t ⌉ m                            ∎
     (inj₂ problem) → inj₂ λ _ ▸lam →
       let invUsageLam ▸t _ = inv-usage-lam ▸lam in
-      problem _ (▸t , headₘ-monotone (usage-upper-bound ▸t))
+      problem _
+        (▸t , headₘ-monotone (usage-upper-bound no-sink-or-≤𝟘 ▸t))
   where
   open ≤ᶜ-reasoning
 
@@ -148,7 +149,8 @@ infix 10 ⌈⌉▸[_]?_
       in inj₁ (ΠΣₘ ▸A (sub ▸B lemma))
     (inj₂ problem) → inj₂ λ _ ▸ΠΣ →
       let invUsageΠΣ ▸A ▸B _ = inv-usage-ΠΣ ▸ΠΣ in
-      problem _ (▸A , ▸B , headₘ-monotone (usage-upper-bound ▸B))
+      problem _
+        (▸A , ▸B , headₘ-monotone (usage-upper-bound no-sink-or-≤𝟘 ▸B))
   where
   open ≤ᶜ-reasoning
 
@@ -181,7 +183,8 @@ infix 10 ⌈⌉▸[_]?_
     (inj₂ problem) → inj₂ λ _ ▸ur →
       let invUsageUnitrec ▸t ▸u ▸A ok _ = inv-usage-unitrec ▸ur in
       problem _
-        (ok , ▸t , ▸u , ▸A , headₘ-monotone (usage-upper-bound ▸A))
+        (ok , ▸t , ▸u , ▸A ,
+         headₘ-monotone (usage-upper-bound no-sink-or-≤𝟘 ▸A))
   where
   open ≤ᶜ-reasoning
 
@@ -211,12 +214,13 @@ infix 10 ⌈⌉▸[_]?_
       inj₁ (prodrecₘ ▸t (sub ▸u lemma₁) (sub ▸A lemma₂) ok)
     (inj₂ problem) → inj₂ λ _ ▸pr →
       let invUsageProdrec ▸t ▸u ▸A ok _ = inv-usage-prodrec ▸pr
-          ≤⌈u⌉m                         = usage-upper-bound ▸u
+          ≤⌈u⌉m                         =
+            usage-upper-bound no-sink-or-≤𝟘 ▸u
       in
       problem _
         ( ok , ▸t , ▸u , headₘ-monotone (tailₘ-monotone ≤⌈u⌉m)
         , headₘ-monotone ≤⌈u⌉m , ▸A
-        , headₘ-monotone (usage-upper-bound ▸A)
+        , headₘ-monotone (usage-upper-bound no-sink-or-≤𝟘 ▸A)
         )
   where
   open ≤ᶜ-reasoning
@@ -247,11 +251,11 @@ infix 10 ⌈⌉▸[_]?_
     (inj₂ problem) → inj₂ λ _ ▸nr →
       case inv-usage-natrec ▸nr of λ {
         (invUsageNatrec ▸t ▸u ▸v ▸A _ _) →
-      let ≤⌈u⌉m = usage-upper-bound ▸u in
+      let ≤⌈u⌉m = usage-upper-bound no-sink-or-≤𝟘 ▸u in
       problem _
         ( ▸t , ▸u , headₘ-monotone (tailₘ-monotone ≤⌈u⌉m)
         , headₘ-monotone ≤⌈u⌉m , ▸v , ▸A
-        , headₘ-monotone (usage-upper-bound ▸A)
+        , headₘ-monotone (usage-upper-bound no-sink-or-≤𝟘 ▸A)
         ) }
   where
   open ≤ᶜ-reasoning
@@ -298,7 +302,7 @@ infix 10 ⌈⌉▸[_]?_
     (inj₂ problem) → inj₂ λ _ ▸J →
       case inv-usage-J ▸J of λ where
         (invUsageJ₀₂ _ ▸A ▸t ▸B ▸u ▸v ▸w _) →
-          let ≤⌈B⌉𝟘ᵐ? = usage-upper-bound ▸B in
+          let ≤⌈B⌉𝟘ᵐ? = usage-upper-bound no-sink-or-≤𝟘 ▸B in
           problem _
             ( ▸A , ▸t , ▸u , ▸v , ▸w , ▸B
             , headₘ-monotone (tailₘ-monotone ≤⌈B⌉𝟘ᵐ?)
@@ -330,7 +334,7 @@ infix 10 ⌈⌉▸[_]?_
     (inj₂ problem) → inj₂ λ _ ▸J →
       case inv-usage-J ▸J of λ where
         (invUsageJ₀₁ _ _ _ ▸A ▸t ▸B ▸u ▸v ▸w _) →
-          let ≤⌈B⌉m = usage-upper-bound ▸B in
+          let ≤⌈B⌉m = usage-upper-bound no-sink-or-≤𝟘 ▸B in
           problem _
             ( ▸A , ▸t , ▸u , ▸v , ▸w , ▸B
             , headₘ-monotone (tailₘ-monotone ≤⌈B⌉m)
@@ -362,7 +366,7 @@ infix 10 ⌈⌉▸[_]?_
     (inj₂ problem) → inj₂ λ _ ▸J →
       case inv-usage-J ▸J of λ where
         (invUsageJ _ _ ▸A ▸t ▸B ▸u ▸v ▸w _) →
-          let ≤⌈B⌉m = usage-upper-bound ▸B in
+          let ≤⌈B⌉m = usage-upper-bound no-sink-or-≤𝟘 ▸B in
           problem _
             ( ▸A , ▸t , ▸u , ▸v , ▸w , ▸B
             , headₘ-monotone (tailₘ-monotone ≤⌈B⌉m)
@@ -392,7 +396,7 @@ infix 10 ⌈⌉▸[_]?_
         (invUsageK₀₂ _ ▸A ▸t ▸B ▸u ▸v _) →
           problem _
             ( ▸A , ▸t , ▸u , ▸v , ▸B
-            , headₘ-monotone (usage-upper-bound ▸B)
+            , headₘ-monotone (usage-upper-bound no-sink-or-≤𝟘 ▸B)
             )
         (invUsageK ≤some _ _ _ _ _ _ _) →
           case ≤ᵉᵐ→≡all→≡all ≤some ≡all of λ ()
@@ -416,7 +420,7 @@ infix 10 ⌈⌉▸[_]?_
         (invUsageK₀₁ _ _ ▸A ▸t ▸B ▸u ▸v _) →
           problem _
             ( ▸A , ▸t , ▸u , ▸v , ▸B
-            , headₘ-monotone (usage-upper-bound ▸B)
+            , headₘ-monotone (usage-upper-bound no-sink-or-≤𝟘 ▸B)
             )
         (invUsageK _ ≢𝟘 _ _ _ _ _ _) →
           ⊥-elim $ ≢𝟘 ≡some refl
@@ -440,7 +444,7 @@ infix 10 ⌈⌉▸[_]?_
         (invUsageK _ _ ▸A ▸t ▸B ▸u ▸v ▸w) →
           problem _
             ( ▸A , ▸t , ▸u , ▸v , ▸B
-            , headₘ-monotone (usage-upper-bound ▸B)
+            , headₘ-monotone (usage-upper-bound no-sink-or-≤𝟘 ▸B)
             )
         (invUsageK₀₁ ≡some p≡𝟘 _ _ _ _ _ _) →
           ⊥-elim $ ≢𝟘 ≡some p≡𝟘
@@ -483,7 +487,8 @@ infix 10 ▸[_]?_
       (yes (γ , _)) → ∀ δ → δ ▸[ m ] t → δ ≤ᶜ γ
       (no _)        → Lift _ ⊤
 ▸[ m ]? t = case ⌈⌉▸[ m ]? t of λ where
-  (inj₁ ▸t)  → yes (⌈ t ⌉ m , ▸t) , λ _ → usage-upper-bound
+  (inj₁ ▸t)  → yes (⌈ t ⌉ m , ▸t) ,
+               λ _ → usage-upper-bound no-sink-or-≤𝟘
   (inj₂ ¬▸t) → no (λ (_ , ▸t) → ¬▸t _ ▸t) , _
 
 -- It is decidable whether a term is well-resourced with respect to a

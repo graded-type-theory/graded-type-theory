@@ -170,27 +170,19 @@ record Usage-restrictions : Set (lsuc a) where
   Starˢ-sink : Set
   Starˢ-sink = T starˢ-sink
 
-  -- Do strong unit types not act as "sinks"?
-  --
-  -- This type is used instead of ¬ Starˢ-sink because "¬ A" does not
-  -- work well as the type of an instance argument.
-
-  ¬Starˢ-sink : Set
-  ¬Starˢ-sink = T (not starˢ-sink)
-
   -- Strong unit types are not allowed to both act and not act as
   -- sinks.
 
-  not-sink-and-no-sink : Starˢ-sink → ¬Starˢ-sink → ⊥
+  not-sink-and-no-sink : Starˢ-sink → ¬ Starˢ-sink → ⊥
   not-sink-and-no-sink sink ¬sink with starˢ-sink
   … | false = sink
-  … | true = ¬sink
+  … | true = ¬sink _
 
   -- Strong unit types either act or do not act as sinks.
 
-  sink-or-no-sink : Starˢ-sink ⊎ ¬Starˢ-sink
+  sink-or-no-sink : Starˢ-sink ⊎ ¬ Starˢ-sink
   sink-or-no-sink with starˢ-sink
-  … | false = inj₂ _
+  … | false = inj₂ idᶠ
   … | true = inj₁ _
 
   opaque
