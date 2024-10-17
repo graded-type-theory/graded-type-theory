@@ -26,11 +26,13 @@ module Definition.Untyped.Bool
 private
   open module M = Modality 𝕄 using (𝟘; 𝟙; ω; _+_; _·_; _∧_)
 
+open import Definition.Untyped.Empty 𝕄
 open import Definition.Untyped.Nat 𝕄
 open import Definition.Untyped.Properties M
 open import Definition.Untyped.Sigma 𝕄
 open import Definition.Untyped.Unit 𝕄
 
+open import Graded.Derived.Erased.Untyped 𝕄 s using (is-𝕨)
 open import Graded.Modality.Dedicated-nr.Instance
 open import Graded.Modality.Nr-instances
 open import Graded.Modality.Properties 𝕄
@@ -73,10 +75,6 @@ private module Sketch where
   natcase′ _ z _ 0      = z
   natcase′ _ _ s (1+ n) = s n
 
-  strict-const′ : ∀ {a} (A : Set a) → A → Nat → A
-  strict-const′ _ x 0      = x
-  strict-const′ A x (1+ n) = strict-const′ A x n
-
   OK : Nat → Set
   OK =
     natcase′ (λ _ → Set) ⊤
@@ -104,9 +102,7 @@ private module Sketch where
            (λ n →
               natcase′ (λ n → (ok : OK (1+ n)) → Target P (1+ n) ok)
                 (λ ok → unitrec′ (λ ok → Target P 1 ok) ok t)
-                (λ n ok →
-                   emptyrec′ (Target P (2+ n) ok)
-                     (strict-const′ ⊥ ok n))
+                (λ n ok → emptyrec′ (Target P (2+ n) ok) ok)
                 n)
            n ok)
 
@@ -131,24 +127,15 @@ opaque
 
   -- A grade that is used in the implementation of boolrec.
 
-  boolrecᵍ-er : M
-  boolrecᵍ-er = case s of λ where
-    𝕨 → 𝟙
-    𝕤 → 𝟘
-
-opaque
-
-  -- A grade that is used in the implementation of boolrec.
-
   boolrecᵍ-Π : M
-  boolrecᵍ-Π = nr 𝟘 𝟙 boolrecᵍ-er 𝟘 𝟘
+  boolrecᵍ-Π = nr 𝟘 𝟙 is-𝕨 𝟘 𝟘
 
 opaque
 
   -- A grade that is used in the implementation of boolrec.
 
   boolrecᵍ-nc₁ : M
-  boolrecᵍ-nc₁ = nr 𝟘 𝟙 𝟘 𝟘 boolrecᵍ-er
+  boolrecᵍ-nc₁ = nr 𝟘 𝟙 𝟘 𝟘 is-𝕨
 
 opaque
 
@@ -221,22 +208,22 @@ opaque
   unfolding boolrecᵍ-Π
 
   -- If the dedicated nr function satisfies Linearity-like-nr-for-𝟙,
-  -- then boolrecᵍ-Π is equal to boolrecᵍ-er.
+  -- then boolrecᵍ-Π is equal to is-𝕨.
 
   boolrecᵍ-Π≡ :
     Has-nr.Linearity-like-nr-for-𝟙 has-dedicated-nr →
-    boolrecᵍ-Π ≡ boolrecᵍ-er
+    boolrecᵍ-Π ≡ is-𝕨
   boolrecᵍ-Π≡ hyp =
-    nr 𝟘 𝟙 boolrecᵍ-er 𝟘 𝟘             ≡⟨ hyp ⟩
-    (𝟙 + 𝟘) · 𝟘 + ω · 𝟘 + boolrecᵍ-er  ≡⟨ trans (cong₂ _+_ (M.·-zeroʳ _) (cong (flip _+_ _) $ M.·-zeroʳ _)) $
-                                          trans (M.+-identityˡ _) $
-                                          M.+-identityˡ _ ⟩
-    boolrecᵍ-er                        ∎
+    nr 𝟘 𝟙 is-𝕨 𝟘 𝟘             ≡⟨ hyp ⟩
+    (𝟙 + 𝟘) · 𝟘 + ω · 𝟘 + is-𝕨  ≡⟨ trans (cong₂ _+_ (M.·-zeroʳ _) (cong (flip _+_ _) $ M.·-zeroʳ _)) $
+                                   trans (M.+-identityˡ _) $
+                                   M.+-identityˡ _ ⟩
+    is-𝕨                        ∎
     where
     open Tools.Reasoning.PropositionalEquality
 
 opaque
-  unfolding boolrecᵍ-er boolrecᵍ-Π
+  unfolding is-𝕨 boolrecᵍ-Π
 
   -- If s is 𝕤, then boolrecᵍ-Π is equal to 𝟘.
 
@@ -251,17 +238,17 @@ opaque
   unfolding boolrecᵍ-nc₁
 
   -- If the dedicated nr function satisfies Linearity-like-nr-for-𝟙,
-  -- then boolrecᵍ-nc₁ is equal to boolrecᵍ-er.
+  -- then boolrecᵍ-nc₁ is equal to is-𝕨.
 
   boolrecᵍ-nc₁≡ :
     Has-nr.Linearity-like-nr-for-𝟙 has-dedicated-nr →
-    boolrecᵍ-nc₁ ≡ boolrecᵍ-er
+    boolrecᵍ-nc₁ ≡ is-𝕨
   boolrecᵍ-nc₁≡ hyp =
-    nr 𝟘 𝟙 𝟘 𝟘 boolrecᵍ-er             ≡⟨ hyp ⟩
-    (𝟙 + 𝟘) · boolrecᵍ-er + ω · 𝟘 + 𝟘  ≡⟨ cong₂ _+_ (cong (flip _·_ _) $ M.+-identityʳ _) (M.+-identityʳ _) ⟩
-    𝟙 · boolrecᵍ-er + ω · 𝟘            ≡⟨ cong₂ _+_ (M.·-identityˡ _) (M.·-zeroʳ _) ⟩
-    boolrecᵍ-er + 𝟘                    ≡⟨ M.+-identityʳ _ ⟩
-    boolrecᵍ-er                        ∎
+    nr 𝟘 𝟙 𝟘 𝟘 is-𝕨             ≡⟨ hyp ⟩
+    (𝟙 + 𝟘) · is-𝕨 + ω · 𝟘 + 𝟘  ≡⟨ cong₂ _+_ (cong (flip _·_ _) $ M.+-identityʳ _) (M.+-identityʳ _) ⟩
+    𝟙 · is-𝕨 + ω · 𝟘            ≡⟨ cong₂ _+_ (M.·-identityˡ _) (M.·-zeroʳ _) ⟩
+    is-𝕨 + 𝟘                    ≡⟨ M.+-identityʳ _ ⟩
+    is-𝕨                        ∎
     where
     open Tools.Reasoning.PropositionalEquality
 
@@ -269,15 +256,15 @@ private opaque
 
   -- A lemma used below.
 
-  ≡boolrecᵍ-er∧𝟙 :
-    ((𝟙 ∧ boolrecᵍ-er) · 𝟙 + 𝟘) ∧ (𝟙 + 𝟘) ≡ boolrecᵍ-er ∧ 𝟙
-  ≡boolrecᵍ-er∧𝟙 =
-    ((𝟙 ∧ boolrecᵍ-er) · 𝟙 + 𝟘) ∧ (𝟙 + 𝟘)  ≡⟨ cong₂ _∧_ (M.+-identityʳ _) (M.+-identityʳ _) ⟩
-    ((𝟙 ∧ boolrecᵍ-er) · 𝟙) ∧ 𝟙            ≡⟨ cong (flip _∧_ _) $ M.·-identityʳ _ ⟩
-    (𝟙 ∧ boolrecᵍ-er) ∧ 𝟙                  ≡⟨ cong (flip _∧_ _) $ M.∧-comm _ _ ⟩
-    (boolrecᵍ-er ∧ 𝟙) ∧ 𝟙                  ≡⟨ M.∧-assoc _ _ _ ⟩
-    boolrecᵍ-er ∧ (𝟙 ∧ 𝟙)                  ≡⟨ cong (_∧_ _) $ M.∧-idem _ ⟩
-    boolrecᵍ-er ∧ 𝟙                        ∎
+  ≡is-𝕨∧𝟙 :
+    ((𝟙 ∧ is-𝕨) · 𝟙 + 𝟘) ∧ (𝟙 + 𝟘) ≡ is-𝕨 ∧ 𝟙
+  ≡is-𝕨∧𝟙 =
+    ((𝟙 ∧ is-𝕨) · 𝟙 + 𝟘) ∧ (𝟙 + 𝟘)  ≡⟨ cong₂ _∧_ (M.+-identityʳ _) (M.+-identityʳ _) ⟩
+    ((𝟙 ∧ is-𝕨) · 𝟙) ∧ 𝟙            ≡⟨ cong (flip _∧_ _) $ M.·-identityʳ _ ⟩
+    (𝟙 ∧ is-𝕨) ∧ 𝟙                  ≡⟨ cong (flip _∧_ _) $ M.∧-comm _ _ ⟩
+    (is-𝕨 ∧ 𝟙) ∧ 𝟙                  ≡⟨ M.∧-assoc _ _ _ ⟩
+    is-𝕨 ∧ (𝟙 ∧ 𝟙)                  ≡⟨ cong (_∧_ _) $ M.∧-idem _ ⟩
+    is-𝕨 ∧ 𝟙                        ∎
     where
     open Tools.Reasoning.PropositionalEquality
 
@@ -286,45 +273,45 @@ opaque
 
   -- If the dedicated nr function satisfies Linearity-like-nr-for-𝟘
   -- and Linearity-like-nr-for-𝟙, then boolrecᵍ-nc₂ is equal to
-  -- boolrecᵍ-er ∧ 𝟙.
+  -- is-𝕨 ∧ 𝟙.
 
   boolrecᵍ-nc₂≡ :
     Has-nr.Linearity-like-nr-for-𝟘 has-dedicated-nr →
     Has-nr.Linearity-like-nr-for-𝟙 has-dedicated-nr →
-    boolrecᵍ-nc₂ ≡ boolrecᵍ-er ∧ 𝟙
+    boolrecᵍ-nc₂ ≡ is-𝕨 ∧ 𝟙
   boolrecᵍ-nc₂≡ hyp₁ hyp₂ =
-    nr boolrecᵍ-nc₁ 𝟘 𝟘 𝟘 𝟙                ≡⟨ cong (λ p → nr p _ _ _ _) $ boolrecᵍ-nc₁≡ hyp₂ ⟩
-    nr boolrecᵍ-er 𝟘 𝟘 𝟘 𝟙                 ≡⟨ hyp₁ ⟩
-    ((𝟙 ∧ boolrecᵍ-er) · 𝟙 + 𝟘) ∧ (𝟙 + 𝟘)  ≡⟨ ≡boolrecᵍ-er∧𝟙 ⟩
-    boolrecᵍ-er ∧ 𝟙                        ∎
+    nr boolrecᵍ-nc₁ 𝟘 𝟘 𝟘 𝟙         ≡⟨ cong (λ p → nr p _ _ _ _) $ boolrecᵍ-nc₁≡ hyp₂ ⟩
+    nr is-𝕨 𝟘 𝟘 𝟘 𝟙                 ≡⟨ hyp₁ ⟩
+    ((𝟙 ∧ is-𝕨) · 𝟙 + 𝟘) ∧ (𝟙 + 𝟘)  ≡⟨ ≡is-𝕨∧𝟙 ⟩
+    is-𝕨 ∧ 𝟙                        ∎
     where
     open Tools.Reasoning.PropositionalEquality
 
 opaque
-  unfolding boolrecᵍ-er boolrecᵍ-pr
+  unfolding is-𝕨 boolrecᵍ-pr
 
   -- If the dedicated nr function satisfies Linearity-like-nr-for-𝟘
   -- and Linearity-like-nr-for-𝟙, then boolrecᵍ-pr is equal to
-  -- boolrecᵍ-er ∧ 𝟙.
+  -- is-𝕨 ∧ 𝟙.
 
   boolrecᵍ-pr≡ :
     Has-nr.Linearity-like-nr-for-𝟘 has-dedicated-nr →
     Has-nr.Linearity-like-nr-for-𝟙 has-dedicated-nr →
-    boolrecᵍ-pr ≡ boolrecᵍ-er ∧ 𝟙
+    boolrecᵍ-pr ≡ is-𝕨 ∧ 𝟙
   boolrecᵍ-pr≡ hyp₁ hyp₂ =
-    nr boolrecᵍ-nc₂ 𝟘 𝟘 𝟘 𝟙 ∧ boolrecᵍ-Π                         ≡⟨ cong₂ _∧_
-                                                                      (cong (λ p → nr p _ _ _ _) $ boolrecᵍ-nc₂≡ hyp₁ hyp₂)
-                                                                      (boolrecᵍ-Π≡ hyp₂) ⟩
-    nr (boolrecᵍ-er ∧ 𝟙) 𝟘 𝟘 𝟘 𝟙 ∧ boolrecᵍ-er                   ≡⟨ cong (flip _∧_ _) hyp₁ ⟩
-    (((𝟙 ∧ (boolrecᵍ-er ∧ 𝟙)) · 𝟙 + 𝟘) ∧ (𝟙 + 𝟘)) ∧ boolrecᵍ-er  ≡⟨ cong (flip _∧_ _) $ cong (flip _∧_ _) $ cong (flip _+_ _) $ cong (flip _·_ _) $
-                                                                    trans (cong (_∧_ _) $ M.∧-comm _ _) $
-                                                                    trans (sym $ M.∧-assoc _ _ _) $
-                                                                    cong (flip _∧_ _) $ M.∧-idem _ ⟩
-    (((𝟙 ∧ boolrecᵍ-er) · 𝟙 + 𝟘) ∧ (𝟙 + 𝟘)) ∧ boolrecᵍ-er        ≡⟨ cong (flip _∧_ _) ≡boolrecᵍ-er∧𝟙 ⟩
-    (boolrecᵍ-er ∧ 𝟙) ∧ boolrecᵍ-er                              ≡⟨ trans (M.∧-comm _ _) $
-                                                                    trans (sym $ M.∧-assoc _ _ _) $
-                                                                    cong (flip _∧_ _) $ M.∧-idem _ ⟩
-    boolrecᵍ-er ∧ 𝟙                                              ∎
+    nr boolrecᵍ-nc₂ 𝟘 𝟘 𝟘 𝟙 ∧ boolrecᵍ-Π           ≡⟨ cong₂ _∧_
+                                                        (cong (λ p → nr p _ _ _ _) $ boolrecᵍ-nc₂≡ hyp₁ hyp₂)
+                                                        (boolrecᵍ-Π≡ hyp₂) ⟩
+    nr (is-𝕨 ∧ 𝟙) 𝟘 𝟘 𝟘 𝟙 ∧ is-𝕨                   ≡⟨ cong (flip _∧_ _) hyp₁ ⟩
+    (((𝟙 ∧ (is-𝕨 ∧ 𝟙)) · 𝟙 + 𝟘) ∧ (𝟙 + 𝟘)) ∧ is-𝕨  ≡⟨ cong (flip _∧_ _) $ cong (flip _∧_ _) $ cong (flip _+_ _) $ cong (flip _·_ _) $
+                                                      trans (cong (_∧_ _) $ M.∧-comm _ _) $
+                                                      trans (sym $ M.∧-assoc _ _ _) $
+                                                      cong (flip _∧_ _) $ M.∧-idem _ ⟩
+    (((𝟙 ∧ is-𝕨) · 𝟙 + 𝟘) ∧ (𝟙 + 𝟘)) ∧ is-𝕨        ≡⟨ cong (flip _∧_ _) ≡is-𝕨∧𝟙 ⟩
+    (is-𝕨 ∧ 𝟙) ∧ is-𝕨                              ≡⟨ trans (M.∧-comm _ _) $
+                                                      trans (sym $ M.∧-assoc _ _ _) $
+                                                      cong (flip _∧_ _) $ M.∧-idem _ ⟩
+    is-𝕨 ∧ 𝟙                                       ∎
     where
     open Tools.Reasoning.PropositionalEquality
 
@@ -403,9 +390,8 @@ opaque
              unitrec⟨ s ⟩ 0 boolrecᵍ-Π p
                (Target 5 A (suc zero) (var x0)) (var x0) (wk[ 4 ]′ t))
             (lam boolrecᵍ-Π $
-             emptyrec boolrecᵍ-er
-               (Target 5 A (suc (suc (var x1))) (var x0))
-               (strict-const Empty (var x0) (var x1)))
+             emptyrec-sink (Target 5 A (suc (suc (var x1))) (var x0))
+               (var x0))
             (var x0))
          (var x1) ∘⟨ boolrecᵍ-Π ⟩
        var x0)
@@ -558,9 +544,8 @@ opaque
              unitrec⟨ s ⟩ 0 boolrecᵍ-Π p
                (Target 5 A (suc zero) (var x0)) (var x0) (wk[ 4 ]′ t))
             (lam boolrecᵍ-Π $
-             emptyrec boolrecᵍ-er
-               (Target 5 A (suc (suc (var x1))) (var x0))
-               (strict-const Empty (var x0) (var x1)))
+             emptyrec-sink (Target 5 A (suc (suc (var x1))) (var x0))
+               (var x0))
             (var x0))
          (var x1) ∘⟨ boolrecᵍ-Π ⟩
        var x0)
@@ -575,8 +560,7 @@ opaque
                                                                                 cong₄ (natcase _ _)
                                                                                   (cong₂ (Π_,_▷_▹_ _ _) OK-[] refl)
                                                                                   (cong (lam _) unitrec⟨⟩-[])
-                                                                                  (cong (lam _) $
-                                                                                   cong (emptyrec _ _) strict-const-[])
+                                                                                  (cong (lam _) emptyrec-sink-[])
                                                                                   refl)
                                                                                refl ⟩
     prodrec⟨ s ⟩ boolrecᵍ-pr 𝟙 p (A [ σ ⇑ ]) (v [ σ ])
@@ -595,9 +579,9 @@ opaque
                (Target 5 A (suc zero) (var x0) [ σ ⇑[ 5 ] ]) (var x0)
                (wk[ 4 ]′ t [ σ ⇑[ 4 ] ]))
             (lam boolrecᵍ-Π $
-             emptyrec boolrecᵍ-er
+             emptyrec-sink
                (Target 5 A (suc (suc (var x1))) (var x0) [ σ ⇑[ 5 ] ])
-               (strict-const Empty (var x0) (var x1)))
+               (var x0))
             (var x0))
          (var x1) ∘⟨ boolrecᵍ-Π ⟩
        var x0)                                                            ≡⟨ cong (prodrec⟨ _ ⟩ _ _ _ _ _) $
@@ -613,7 +597,7 @@ opaque
                                                                                    cong₃ (unitrec⟨ _ ⟩ _ _ _)
                                                                                      Target-[⇑] refl (wk[]′-[⇑] t))
                                                                                   (cong (lam _) $
-                                                                                   cong₂ (emptyrec _) Target-[⇑] refl)
+                                                                                   cong₂ emptyrec-sink Target-[⇑] refl)
                                                                                   refl)
                                                                                refl ⟩
     prodrec⟨ s ⟩ boolrecᵍ-pr 𝟙 p (A [ σ ⇑ ]) (v [ σ ])
@@ -632,9 +616,9 @@ opaque
                (Target 5 (A [ σ ⇑ ]) (suc zero) (var x0)) (var x0)
                (wk[ 4 ]′ (t [ σ ])))
             (lam boolrecᵍ-Π $
-             emptyrec boolrecᵍ-er
+             emptyrec-sink
                (Target 5 (A [ σ ⇑ ]) (suc (suc (var x1))) (var x0))
-               (strict-const Empty (var x0) (var x1)))
+               (var x0))
             (var x0))
          (var x1) ∘⟨ boolrecᵍ-Π ⟩
        var x0)                                                            ∎

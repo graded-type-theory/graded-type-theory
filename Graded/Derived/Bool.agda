@@ -26,6 +26,8 @@ open Usage-restrictions R
 open import Graded.Context 𝕄
 open import Graded.Context.Properties 𝕄
 open import Graded.Context.Weakening 𝕄
+open import Graded.Derived.Empty R
+open import Graded.Derived.Erased.Untyped 𝕄 s using (is-𝕨)
 open import Graded.Derived.Nat 𝕄 R
 open import Graded.Derived.Sigma 𝕄 R
 open import Graded.Derived.Unit R
@@ -53,27 +55,15 @@ import Tools.Reasoning.PropositionalEquality
 open import Tools.Relation
 
 private variable
-  k n           : Nat
-  A t u v       : Term _
-  γ γ₁ γ₂ γ₃ γ₄ : Conₘ _
-  p p′ q r      : M
-  m             : Mode
+  k n             : Nat
+  A t u v         : Term _
+  γ γ₁ γ₂ γ₃ γ₄ δ : Conₘ _
+  p p′ q r        : M
+  m               : Mode
 
 private opaque
 
-  -- Some lemmas used below.
-
-  ≡nr-⌜⌝-𝟘-𝟘 : ∀ m → ⌜ m ⌝ · nr p q 𝟙 𝟘 𝟘 PE.≡ nr p q ⌜ m ⌝ 𝟘 𝟘
-  ≡nr-⌜⌝-𝟘-𝟘 {p} {q} = λ where
-      𝟘ᵐ →
-        𝟘 · nr p q 𝟙 𝟘 𝟘  ≡⟨ ·-zeroˡ _ ⟩
-        𝟘                 ≡˘⟨ nr-𝟘 ⟩
-        nr p q 𝟘 𝟘 𝟘      ∎
-      𝟙ᵐ →
-        𝟙 · nr p q 𝟙 𝟘 𝟘  ≡⟨ ·-identityˡ _ ⟩
-        nr p q 𝟙 𝟘 𝟘      ∎
-    where
-    open Tools.Reasoning.PropositionalEquality
+  -- A lemma used below.
 
   ≡nr-𝟘-𝟘-⌜⌝ : ∀ m → ⌜ m ⌝ · nr p q 𝟘 𝟘 𝟙 PE.≡ nr p q 𝟘 𝟘 ⌜ m ⌝
   ≡nr-𝟘-𝟘-⌜⌝ {p} {q} = λ where
@@ -200,7 +190,7 @@ opaque
     open ≤ᶜ-reasoning
 
 opaque
-  unfolding boolrec boolrecᵍ-Π boolrecᵍ-nc₁ boolrecᵍ-nc₂ boolrecᵍ-pr
+  unfolding boolrec boolrecᵍ-nc₂ boolrecᵍ-pr
 
   -- A usage lemma for boolrec.
 
@@ -210,16 +200,18 @@ opaque
     (s PE.≡ 𝕨 → r ≤ boolrecᵍ-pr) →
     (s PE.≡ 𝕨 → Prodrec-allowed m boolrecᵍ-pr 𝟙 p) →
     (s PE.≡ 𝕨 → Unitrec-allowed m boolrecᵍ-Π p) →
-    Emptyrec-allowed m boolrecᵍ-er →
+    Emptyrec-allowed m 𝟘 →
+    Starˢ-sink →
     γ₁ ∙ ⌜ 𝟘ᵐ? ⌝ · p ▸[ 𝟘ᵐ? ] A →
     γ₂ ▸[ m ] t →
     γ₃ ▸[ m ] u →
     γ₄ ▸[ m ] v →
-    nrᶜ boolrecᵍ-nc₂ 𝟘 γ₃ (nrᶜ boolrecᵍ-nc₁ 𝟘 γ₂ 𝟘ᶜ 𝟘ᶜ) 𝟘ᶜ +ᶜ r ·ᶜ γ₄
-      ▸[ m ] boolrec p A t u v
+    nrᶜ boolrecᵍ-nc₂ 𝟘 γ₃ (nrᶜ boolrecᵍ-nc₁ 𝟘 γ₂ (⌜ m ⌝ ·ᶜ δ) 𝟘ᶜ) 𝟘ᶜ +ᶜ
+      r ·ᶜ γ₄ ▸[ m ]
+      boolrec p A t u v
   ▸boolrec
-    {r} {m} {p} {γ₁} {A} {γ₂} {γ₃} {γ₄}
-    𝟙≤𝟘 hyp₁ hyp₂ ok₁ ok₂ ok₃ ▸A ▸t ▸u ▸v = sub
+    {r} {m} {p} {γ₁} {A} {γ₂} {γ₃} {γ₄} {δ}
+    𝟙≤𝟘 hyp₁ hyp₂ ok₁ ok₂ ok₃ ok₄ ▸A ▸t ▸u ▸v = sub
     (▸prodrec⟨⟩ (λ _ _ → ≤-refl) hyp₁ hyp₂ ok₁ (λ _ → γ₁ , ▸A)
        (▸-cong
           (PE.sym $ ≢𝟘→ᵐ·≡′ λ ok →
@@ -231,67 +223,73 @@ opaque
                 (▸natcase (unitrec-lemma (sucₘ zeroₘ) ▸t)
                    (lamₘ $
                     sub
-                      (emptyrecₘ (▸strict-const Emptyₘ var var)
-                         (Target-lemma (sucₘ (sucₘ var))) ok₃)
+                      (▸emptyrec-sink var
+                         (Target-lemma (sucₘ (sucₘ var))) ok₃ ok₄)
                       (begin
-                         𝟘ᶜ ∙ ⌜ m ⌝ · boolrecᵍ-nc₁ ∙ ⌜ m ⌝ · boolrecᵍ-Π   ≡⟨⟩
+                         wkConₘ (stepn id 3) (⌜ m ⌝ ·ᶜ δ) ∙
+                         ⌜ m ⌝ · boolrecᵍ-nc₁ ∙ ⌜ m ⌝ · boolrecᵍ-Π  ≈⟨ wk-·ᶜ (stepn id 3) ∙ PE.refl ∙ PE.refl ⟩
 
-                         𝟘ᶜ ∙ ⌜ m ⌝ · nr 𝟘 𝟙 𝟘 𝟘 boolrecᵍ-er ∙
-                         ⌜ m ⌝ · nr 𝟘 𝟙 boolrecᵍ-er 𝟘 𝟘                   ≈⟨ ≈ᶜ-refl ∙ ⌜⌝·nr≡₂ m ∙ ⌜⌝·nr≡₁ m ⟩
-
-
-                         𝟘ᶜ ∙
-                         boolrecᵍ-er · nr 𝟘 𝟙 𝟘 𝟘 ⌜ m ᵐ· boolrecᵍ-er ⌝ ∙
-                         boolrecᵍ-er · nr 𝟘 𝟙 ⌜ m ᵐ· boolrecᵍ-er ⌝ 𝟘 𝟘    ≈˘⟨ ≈ᶜ-trans (·ᶜ-congˡ nrᶜ-𝟘ᶜ) (·ᶜ-zeroʳ _) ∙ PE.refl ∙ PE.refl ⟩
-
-                         boolrecᵍ-er ·ᶜ
-                         nrᶜ 𝟘 𝟙 (𝟘ᶜ ∙ ⌜ m ᵐ· boolrecᵍ-er ⌝) 𝟘ᶜ
-                           (𝟘ᶜ ∙ ⌜ m ᵐ· boolrecᵍ-er ⌝ ∙ 𝟘)                ∎))
+                         ⌜ m ⌝ ·ᶜ
+                         (wkConₘ (stepn id 3) δ ∙
+                          boolrecᵍ-nc₁ ∙ boolrecᵍ-Π)                ∎))
                    var (Π-lemma (sucₘ var) (sucₘ var)))
                 (begin
-                   wkConₘ (stepn id 2) (nrᶜ boolrecᵍ-nc₁ 𝟘 γ₂ 𝟘ᶜ 𝟘ᶜ) ∙
-                   ⌜ m ⌝ · boolrecᵍ-nc₂                                 ≡⟨⟩
+                   wkConₘ (stepn id 2)
+                     (nrᶜ boolrecᵍ-nc₁ 𝟘 γ₂ (⌜ m ⌝ ·ᶜ δ) 𝟘ᶜ) ∙
+                   ⌜ m ⌝ · boolrecᵍ-nc₂                               ≡⟨⟩
 
-                   wkConₘ (stepn id 2) (nrᶜ boolrecᵍ-nc₁ 𝟘 γ₂ 𝟘ᶜ 𝟘ᶜ) ∙
-                   ⌜ m ⌝ · nr boolrecᵍ-nc₁ 𝟘 𝟘 𝟘 𝟙                      ≈⟨ wk-nrᶜ (stepn id 2) ∙ ≡nr-𝟘-𝟘-⌜⌝ m ⟩
+                   wkConₘ (stepn id 2)
+                     (nrᶜ boolrecᵍ-nc₁ 𝟘 γ₂ (⌜ m ⌝ ·ᶜ δ) 𝟘ᶜ) ∙
+                   ⌜ m ⌝ · nr boolrecᵍ-nc₁ 𝟘 𝟘 𝟘 𝟙                    ≈⟨ wk-nrᶜ (stepn id 2) ∙ ≡nr-𝟘-𝟘-⌜⌝ m ⟩
 
                    nrᶜ boolrecᵍ-nc₁ 𝟘 (wkConₘ (stepn id 2) γ₂)
-                     (wkConₘ (stepn id 2) 𝟘ᶜ)
+                     (wkConₘ (stepn id 2) (⌜ m ⌝ ·ᶜ δ))
                      (wkConₘ (stepn id 2) 𝟘ᶜ) ∙
-                   nr boolrecᵍ-nc₁ 𝟘 𝟘 𝟘 ⌜ m ⌝                          ≡⟨⟩
+                   nr boolrecᵍ-nc₁ 𝟘 𝟘 𝟘 ⌜ m ⌝                        ≡⟨⟩
 
-                   nrᶜ boolrecᵍ-nc₁ 𝟘 (wkConₘ (stepn id 3) γ₂) 𝟘ᶜ
-                     (𝟘ᶜ ∙ ⌜ m ⌝)                                       ∎))
+                   nrᶜ boolrecᵍ-nc₁ 𝟘 (wkConₘ (stepn id 3) γ₂)
+                     (wkConₘ (stepn id 3) (⌜ m ⌝ ·ᶜ δ)) (𝟘ᶜ ∙ ⌜ m ⌝)  ∎))
              var (Π-lemma var var) ∘ₘ
            var)
           (begin
-             nrᶜ boolrecᵍ-nc₂ 𝟘 γ₃ (nrᶜ boolrecᵍ-nc₁ 𝟘 γ₂ 𝟘ᶜ 𝟘ᶜ) 𝟘ᶜ ∙
+             nrᶜ boolrecᵍ-nc₂ 𝟘 γ₃
+               (nrᶜ boolrecᵍ-nc₁ 𝟘 γ₂ (⌜ m ⌝ ·ᶜ δ) 𝟘ᶜ) 𝟘ᶜ ∙
              ⌜ m ⌝ · boolrecᵍ-pr · 𝟙 ∙ ⌜ m ⌝ · boolrecᵍ-pr               ≈⟨ ≈ᶜ-refl ∙ PE.cong (_·_ _) (·-identityʳ _) ∙ PE.refl ⟩
 
-             nrᶜ boolrecᵍ-nc₂ 𝟘 γ₃ (nrᶜ boolrecᵍ-nc₁ 𝟘 γ₂ 𝟘ᶜ 𝟘ᶜ) 𝟘ᶜ ∙
+             nrᶜ boolrecᵍ-nc₂ 𝟘 γ₃
+               (nrᶜ boolrecᵍ-nc₁ 𝟘 γ₂ (⌜ m ⌝ ·ᶜ δ) 𝟘ᶜ) 𝟘ᶜ ∙
              ⌜ m ⌝ · (nr boolrecᵍ-nc₂ 𝟘 𝟘 𝟘 𝟙 ∧ boolrecᵍ-Π) ∙
              ⌜ m ⌝ · (nr boolrecᵍ-nc₂ 𝟘 𝟘 𝟘 𝟙 ∧ boolrecᵍ-Π)              ≤⟨ ≤ᶜ-refl ∙ ·-monotoneʳ (∧-decreasingˡ _ _) ∙
                                                                          ·-monotoneʳ (∧-decreasingʳ _ _) ⟩
-             nrᶜ boolrecᵍ-nc₂ 𝟘 γ₃ (nrᶜ boolrecᵍ-nc₁ 𝟘 γ₂ 𝟘ᶜ 𝟘ᶜ) 𝟘ᶜ ∙
+             nrᶜ boolrecᵍ-nc₂ 𝟘 γ₃
+               (nrᶜ boolrecᵍ-nc₁ 𝟘 γ₂ (⌜ m ⌝ ·ᶜ δ) 𝟘ᶜ) 𝟘ᶜ ∙
              ⌜ m ⌝ · nr boolrecᵍ-nc₂ 𝟘 𝟘 𝟘 𝟙 ∙ ⌜ m ⌝ · boolrecᵍ-Π        ≈⟨ ≈ᶜ-refl ∙ ⌜⌝-·-comm m ⟩
 
-             nrᶜ boolrecᵍ-nc₂ 𝟘 γ₃ (nrᶜ boolrecᵍ-nc₁ 𝟘 γ₂ 𝟘ᶜ 𝟘ᶜ) 𝟘ᶜ ∙
+             nrᶜ boolrecᵍ-nc₂ 𝟘 γ₃
+               (nrᶜ boolrecᵍ-nc₁ 𝟘 γ₂ (⌜ m ⌝ ·ᶜ δ) 𝟘ᶜ) 𝟘ᶜ ∙
              ⌜ m ⌝ · nr boolrecᵍ-nc₂ 𝟘 𝟘 𝟘 𝟙 ∙ boolrecᵍ-Π · ⌜ m ⌝        ≈⟨ ≈ᶜ-refl ∙ ≡nr-𝟘-𝟘-⌜⌝ m ∙ PE.sym (+-identityˡ _) ⟩
 
-             nrᶜ boolrecᵍ-nc₂ 𝟘 γ₃ (nrᶜ boolrecᵍ-nc₁ 𝟘 γ₂ 𝟘ᶜ 𝟘ᶜ) 𝟘ᶜ ∙
+             nrᶜ boolrecᵍ-nc₂ 𝟘 γ₃
+               (nrᶜ boolrecᵍ-nc₁ 𝟘 γ₂ (⌜ m ⌝ ·ᶜ δ) 𝟘ᶜ) 𝟘ᶜ ∙
              nr boolrecᵍ-nc₂ 𝟘 𝟘 𝟘 ⌜ m ⌝ ∙ 𝟘 + boolrecᵍ-Π · ⌜ m ⌝        ≈˘⟨ +ᶜ-identityʳ _ ∙ PE.cong (flip _+_ _) nr-𝟘 ⟩
 
-             (nrᶜ boolrecᵍ-nc₂ 𝟘 γ₃ (nrᶜ boolrecᵍ-nc₁ 𝟘 γ₂ 𝟘ᶜ 𝟘ᶜ) 𝟘ᶜ ∙
+             (nrᶜ boolrecᵍ-nc₂ 𝟘 γ₃
+                (nrᶜ boolrecᵍ-nc₁ 𝟘 γ₂ (⌜ m ⌝ ·ᶜ δ) 𝟘ᶜ) 𝟘ᶜ ∙
               nr boolrecᵍ-nc₂ 𝟘 𝟘 𝟘 ⌜ m ⌝ ∙ nr boolrecᵍ-nc₂ 𝟘 𝟘 𝟘 𝟘) +ᶜ
              (𝟘ᶜ ∙ boolrecᵍ-Π · ⌜ m ⌝)                                   ≈˘⟨ +ᶜ-congˡ (·ᶜ-zeroʳ _ ∙ ·⌜ᵐ·⌝ m) ⟩
 
              nrᶜ boolrecᵍ-nc₂ 𝟘 (wkConₘ (stepn id 2) γ₃)
-               (wkConₘ (stepn id 2) (nrᶜ boolrecᵍ-nc₁ 𝟘 γ₂ 𝟘ᶜ 𝟘ᶜ))
+               (wkConₘ (stepn id 2)
+                  (nrᶜ boolrecᵍ-nc₁ 𝟘 γ₂ (⌜ m ⌝ ·ᶜ δ) 𝟘ᶜ))
                (𝟘ᶜ ∙ ⌜ m ⌝ ∙ 𝟘) +ᶜ
              boolrecᵍ-Π ·ᶜ (𝟘ᶜ ∙ ⌜ m ᵐ· boolrecᵍ-Π ⌝)                    ∎)))
     (begin
-       nrᶜ boolrecᵍ-nc₂ 𝟘 γ₃ (nrᶜ boolrecᵍ-nc₁ 𝟘 γ₂ 𝟘ᶜ 𝟘ᶜ) 𝟘ᶜ +ᶜ r ·ᶜ γ₄  ≈⟨ +ᶜ-comm _ _ ⟩
-       r ·ᶜ γ₄ +ᶜ nrᶜ boolrecᵍ-nc₂ 𝟘 γ₃ (nrᶜ boolrecᵍ-nc₁ 𝟘 γ₂ 𝟘ᶜ 𝟘ᶜ) 𝟘ᶜ  ∎)
+       nrᶜ boolrecᵍ-nc₂ 𝟘 γ₃
+         (nrᶜ boolrecᵍ-nc₁ 𝟘 γ₂ (⌜ m ⌝ ·ᶜ δ) 𝟘ᶜ) 𝟘ᶜ +ᶜ
+       r ·ᶜ γ₄                                                           ≈⟨ +ᶜ-comm _ _ ⟩
+
+       r ·ᶜ γ₄ +ᶜ
+       nrᶜ boolrecᵍ-nc₂ 𝟘 γ₃ (nrᶜ boolrecᵍ-nc₁ 𝟘 γ₂ (⌜ m ⌝ ·ᶜ δ) 𝟘ᶜ) 𝟘ᶜ  ∎)
     where
     ≤𝟘∧ :
       s PE.≡ 𝕤 →
@@ -313,47 +311,6 @@ opaque
            ⌜ 𝟙ᵐ ⌝         ≡⟨⟩
            𝟙              ≤⟨ 𝟙≤𝟘 s≡𝕤 not-ok ⟩
            𝟘              ∎)
-
-    opaque
-      unfolding boolrecᵍ-er
-
-      ⌜⌝·nr≡₁ :
-        ∀ m →
-        ⌜ m ⌝ · nr p′ q boolrecᵍ-er 𝟘 𝟘 PE.≡
-        boolrecᵍ-er · nr p′ q ⌜ m ᵐ· boolrecᵍ-er ⌝ 𝟘 𝟘
-      ⌜⌝·nr≡₁ {p′} {q} m =
-        case PE.singleton s of λ where
-          (𝕨 , PE.refl) →
-            ⌜ m ⌝ · nr p′ q 𝟙 𝟘 𝟘       ≡⟨ ≡nr-⌜⌝-𝟘-𝟘 m ⟩
-            nr p′ q ⌜ m ⌝ 𝟘 𝟘           ≡˘⟨ PE.cong (λ p → nr _ _ p _ _) $ PE.cong ⌜_⌝ $ ᵐ·-identityʳ {m = m} ⟩
-            nr p′ q ⌜ m ᵐ· 𝟙 ⌝ 𝟘 𝟘      ≡˘⟨ ·-identityˡ _ ⟩
-            𝟙 · nr p′ q ⌜ m ᵐ· 𝟙 ⌝ 𝟘 𝟘  ∎
-          (𝕤 , PE.refl) →
-            ⌜ m ⌝ · nr p′ q 𝟘 𝟘 𝟘       ≡⟨ PE.cong (_·_ _) nr-𝟘 ⟩
-            ⌜ m ⌝ · 𝟘                   ≡⟨ ·-zeroʳ _ ⟩
-            𝟘                           ≡˘⟨ ·-zeroˡ _ ⟩
-            𝟘 · nr p′ q ⌜ m ᵐ· 𝟘 ⌝ 𝟘 𝟘  ∎
-        where
-        open Tools.Reasoning.PropositionalEquality
-
-      ⌜⌝·nr≡₂ :
-        ∀ m →
-        ⌜ m ⌝ · nr p′ q 𝟘 𝟘 boolrecᵍ-er PE.≡
-        boolrecᵍ-er · nr p′ q 𝟘 𝟘 ⌜ m ᵐ· boolrecᵍ-er ⌝
-      ⌜⌝·nr≡₂ {p′} {q} m =
-        case PE.singleton s of λ where
-          (𝕨 , PE.refl) →
-            ⌜ m ⌝ · nr p′ q 𝟘 𝟘 𝟙       ≡⟨ ≡nr-𝟘-𝟘-⌜⌝ m ⟩
-            nr p′ q 𝟘 𝟘 ⌜ m ⌝           ≡˘⟨ PE.cong (nr _ _ _ _) $ PE.cong ⌜_⌝ $ ᵐ·-identityʳ {m = m} ⟩
-            nr p′ q 𝟘 𝟘 ⌜ m ᵐ· 𝟙 ⌝      ≡˘⟨ ·-identityˡ _ ⟩
-            𝟙 · nr p′ q 𝟘 𝟘 ⌜ m ᵐ· 𝟙 ⌝  ∎
-          (𝕤 , PE.refl) →
-            ⌜ m ⌝ · nr p′ q 𝟘 𝟘 𝟘       ≡⟨ PE.cong (_·_ _) nr-𝟘 ⟩
-            ⌜ m ⌝ · 𝟘                   ≡⟨ ·-zeroʳ _ ⟩
-            𝟘                           ≡˘⟨ ·-zeroˡ _ ⟩
-            𝟘 · nr p′ q 𝟘 𝟘 ⌜ m ᵐ· 𝟘 ⌝  ∎
-        where
-        open Tools.Reasoning.PropositionalEquality
 
     open ≤ᶜ-reasoning
 
@@ -457,14 +414,11 @@ opaque
         (wkUsage (stepn id (1+ k)) ▸u)
 
 opaque
-  unfolding boolrecᵍ-er
+  unfolding is-𝕨
 
   -- A variant of ▸boolrec that can be used if the dedicated nr
   -- function satisfies Linearity-like-nr-for-𝟘 and
   -- Linearity-like-nr-for-𝟙.
-  --
-  -- Note that the resulting usage vector might not be what one would
-  -- have hoped for (maybe something like γ₂ ∧ᶜ γ₃ +ᶜ γ₄).
 
   ▸boolrec′ :
     Linearity-like-nr-for-𝟘 →
@@ -474,15 +428,16 @@ opaque
     (s PE.≡ 𝕨 → r ≤ 𝟙) →
     (s PE.≡ 𝕨 → Prodrec-allowed m 𝟙 𝟙 p) →
     (s PE.≡ 𝕨 → Unitrec-allowed m 𝟙 p) →
-    Emptyrec-allowed m boolrecᵍ-er →
+    Emptyrec-allowed m 𝟘 →
+    Starˢ-sink →
     γ₁ ∙ ⌜ 𝟘ᵐ? ⌝ · p ▸[ 𝟘ᵐ? ] A →
     γ₂ ▸[ m ] t →
     γ₃ ▸[ m ] u →
     γ₄ ▸[ m ] v →
-    (𝟘ᶜ ∧ᶜ γ₂ ∧ᶜ γ₃) +ᶜ r ·ᶜ γ₄ ▸[ m ] boolrec p A t u v
+    γ₂ ∧ᶜ γ₃ +ᶜ r ·ᶜ γ₄ ▸[ m ] boolrec p A t u v
   ▸boolrec′
     {r} {m} {γ₂} {γ₃}
-    lin₀ lin₁ 𝟙≤𝟘 hyp₁ hyp₂ ok₁ ok₂ ok₃ ▸A ▸t ▸u ▸v = sub
+    lin₀ lin₁ 𝟙≤𝟘 hyp₁ hyp₂ ok₁ ok₂ ok₃ ok₄ ▸A ▸t ▸u ▸v = sub
     (▸boolrec 𝟙≤𝟘
        (λ { PE.refl →
             let open Tools.Reasoning.PartialOrder ≤-poset in begin
@@ -504,23 +459,26 @@ opaque
             PE.subst₂ (Unitrec-allowed _)
               (PE.sym $ boolrecᵍ-Π≡ lin₁) PE.refl $
             ok₂ PE.refl })
-       ok₃ ▸A ▸t ▸u ▸v)
+       ok₃ ok₄ ▸A ▸t ▸u ▸v)
     (let open ≤ᶜ-reasoning in
      +ᶜ-monotoneˡ $ begin
-       𝟘ᶜ ∧ᶜ γ₂ ∧ᶜ γ₃                                                ≈˘⟨ ∧ᶜ-assoc _ _ _ ⟩
+       γ₂ ∧ᶜ γ₃                                                           ≈˘⟨ ∧ᶜ-congʳ (∧ᶜ-idem _) ⟩
 
-       (𝟘ᶜ ∧ᶜ γ₂) ∧ᶜ γ₃                                              ≈˘⟨ ∧ᶜ-congʳ $
-                                                                         ∧ᶜ-cong (≈ᶜ-trans (+ᶜ-congʳ $ ·ᶜ-zeroʳ _) $ +ᶜ-identityˡ _)
-                                                                           (+ᶜ-identityˡ _) ⟩
+       (γ₂ ∧ᶜ γ₂) ∧ᶜ γ₃                                                   ≤⟨ ∧ᶜ-monotoneˡ $ ∧ᶜ-monotoneˡ $ ≤ᶜ⌜⌝·ᶜ ▸t ⟩
 
-       (((𝟙 ∧ boolrecᵍ-nc₁) ·ᶜ 𝟘ᶜ +ᶜ 𝟘ᶜ) ∧ᶜ (𝟘ᶜ +ᶜ γ₂)) ∧ᶜ γ₃        ≈˘⟨ ∧ᶜ-congʳ $ nrᶜ-linearity-like-for-𝟘 lin₀ ⟩
+       (⌜ m ⌝ ·ᶜ γ₂ ∧ᶜ γ₂) ∧ᶜ γ₃                                          ≈˘⟨ ∧ᶜ-congʳ $
+                                                                              ∧ᶜ-cong (≈ᶜ-trans (+ᶜ-congʳ $ ·ᶜ-zeroʳ _) $ +ᶜ-identityˡ _)
+                                                                                (+ᶜ-identityˡ _) ⟩
 
-       nrᶜ boolrecᵍ-nc₁ 𝟘 γ₂ 𝟘ᶜ 𝟘ᶜ ∧ᶜ γ₃                             ≈˘⟨ ∧ᶜ-cong (≈ᶜ-trans (+ᶜ-congʳ $ ·ᶜ-zeroʳ _) $ +ᶜ-identityˡ _)
-                                                                           (+ᶜ-identityˡ _) ⟩
-       ((𝟙 ∧ boolrecᵍ-nc₂) ·ᶜ 𝟘ᶜ +ᶜ nrᶜ boolrecᵍ-nc₁ 𝟘 γ₂ 𝟘ᶜ 𝟘ᶜ) ∧ᶜ
-         (𝟘ᶜ +ᶜ γ₃)                                                  ≈˘⟨ nrᶜ-linearity-like-for-𝟘 lin₀ ⟩
+       (((𝟙 ∧ boolrecᵍ-nc₁) ·ᶜ 𝟘ᶜ +ᶜ ⌜ m ⌝ ·ᶜ γ₂) ∧ᶜ (𝟘ᶜ +ᶜ γ₂)) ∧ᶜ γ₃    ≈˘⟨ ∧ᶜ-congʳ $ nrᶜ-linearity-like-for-𝟘 lin₀ ⟩
 
-       nrᶜ boolrecᵍ-nc₂ 𝟘 γ₃ (nrᶜ boolrecᵍ-nc₁ 𝟘 γ₂ 𝟘ᶜ 𝟘ᶜ) 𝟘ᶜ        ∎)
+       nrᶜ boolrecᵍ-nc₁ 𝟘 γ₂ (⌜ m ⌝ ·ᶜ γ₂) 𝟘ᶜ ∧ᶜ γ₃                       ≈˘⟨ ∧ᶜ-cong (≈ᶜ-trans (+ᶜ-congʳ $ ·ᶜ-zeroʳ _) $ +ᶜ-identityˡ _)
+                                                                                (+ᶜ-identityˡ _) ⟩
+       ((𝟙 ∧ boolrecᵍ-nc₂) ·ᶜ 𝟘ᶜ +ᶜ
+        nrᶜ boolrecᵍ-nc₁ 𝟘 γ₂ (⌜ m ⌝ ·ᶜ γ₂) 𝟘ᶜ) ∧ᶜ
+       (𝟘ᶜ +ᶜ γ₃)                                                         ≈˘⟨ nrᶜ-linearity-like-for-𝟘 lin₀ ⟩
+
+       nrᶜ boolrecᵍ-nc₂ 𝟘 γ₃ (nrᶜ boolrecᵍ-nc₁ 𝟘 γ₂ (⌜ m ⌝ ·ᶜ γ₂) 𝟘ᶜ) 𝟘ᶜ  ∎)
     where
     lemma : s PE.≡ 𝕨 → 𝟙 PE.≡ boolrecᵍ-pr
     lemma PE.refl =
