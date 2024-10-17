@@ -27,7 +27,8 @@ private variable
 record Bounded-distributive-lattice : Set a where
   no-eta-equality
   pattern
-  infixr 40 _∧_ _∨_
+  infixr 40 _∨_
+  infixr 43 _∧_
   field
     -- Meet.
     _∧_ : M → M → M

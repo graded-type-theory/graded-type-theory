@@ -47,7 +47,7 @@ private variable
 --
 -- The meet operation is defined in such a way that 𝟘 ≤ 𝟙.
 
-infixr 40 _∧_
+infixr 43 _∧_
 
 _∧_ : Grade → Grade → Grade
 𝟘 ∧ _ = 𝟘

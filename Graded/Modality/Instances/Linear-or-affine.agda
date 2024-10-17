@@ -59,7 +59,7 @@ private variable
 
 -- Meet.
 
-infixr 40 _∧_
+infixr 43 _∧_
 
 _∧_ : Linear-or-affine → Linear-or-affine → Linear-or-affine
 𝟘  ∧ 𝟘  = 𝟘
@@ -4051,20 +4051,20 @@ opaque
     nr₂ : Op₂ Linear-or-affine
     nr₂ p r = 𝟙 ∧ (r + p)
 
-    𝟙∧≤𝟙+p≡≤1+p : ∀ p → 𝟙 ∧ ≤𝟙 + p ≡ ≤𝟙 + p
+    𝟙∧≤𝟙+p≡≤1+p : ∀ p → 𝟙 ∧ (≤𝟙 + p) ≡ ≤𝟙 + p
     𝟙∧≤𝟙+p≡≤1+p 𝟘 = refl
     𝟙∧≤𝟙+p≡≤1+p 𝟙 = refl
     𝟙∧≤𝟙+p≡≤1+p ≤𝟙 = refl
     𝟙∧≤𝟙+p≡≤1+p ≤ω = refl
 
-    𝟙∧𝟙+p≡1+p : ∀ p → 𝟙 ∧ 𝟙 + p ≡ 𝟙 + p
+    𝟙∧𝟙+p≡1+p : ∀ p → 𝟙 ∧ (𝟙 + p) ≡ 𝟙 + p
     𝟙∧𝟙+p≡1+p 𝟘 = refl
     𝟙∧𝟙+p≡1+p 𝟙 = refl
     𝟙∧𝟙+p≡1+p ≤𝟙 = refl
     𝟙∧𝟙+p≡1+p ≤ω = refl
 
     lemma : ∀ p z s n → p ≢ 𝟘
-          → (p · n + s) ∧ n + z ≡ p · n + s ∧ z
+          → (p · n + s) ∧ (n + z) ≡ p · n + s ∧ z
     lemma 𝟘 z s n p≢𝟘 = ⊥-elim (p≢𝟘 refl)
     lemma 𝟙 z s n p≢𝟘 rewrite ·-identityˡ n =
       sym (+-distribˡ-∧ n s z)

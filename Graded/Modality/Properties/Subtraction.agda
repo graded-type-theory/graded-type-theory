@@ -150,7 +150,7 @@ opaque
     p ∧ (r′ + q)             ≡⟨ ∧-congʳ ≤r ⟩
     (p ∧ (r + q)) ∧ (r′ + q) ≡⟨ ∧-assoc p (r + q) (r′ + q) ⟩
     p ∧ ((r + q) ∧ (r′ + q)) ≡˘⟨ ∧-congˡ (+-distribʳ-∧ q r r′) ⟩
-    p ∧ (r ∧ r′) + q         ∎
+    p ∧ (r ∧ r′ + q)         ∎
     where
     open import Tools.Reasoning.PropositionalEquality
 

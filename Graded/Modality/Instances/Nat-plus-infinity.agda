@@ -92,7 +92,7 @@ _∧ᵗ_ : ℕ⊎∞ → ℕ⊎∞ → ℕ⊎∞
 -- These correspond to ⌞ n ⌟ representing at most n and exactly n
 -- uses respectively.
 
-infixr 40 _∧_
+infixr 43 _∧_
 
 _∧_ : ℕ⊎∞ → ℕ⊎∞ → ℕ⊎∞
 p ∧ q = if total then p ∧ᶠ q else p ∧ᵗ q

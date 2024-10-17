@@ -100,7 +100,7 @@ xs ∪ ys =
 
 -- Intersection.
 
-infixr 40 _∩_
+infixr 43 _∩_
 
 _∩_ : Op₂ Set-ℕ
 xs ∩ ys =

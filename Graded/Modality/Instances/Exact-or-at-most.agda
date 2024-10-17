@@ -35,7 +35,7 @@ import Graded.Modality.Properties.Natrec
 import Graded.Modality.Properties.PartialOrder
 
 infixr 40 _+_
-infixr 40 _∧_
+infixr 43 _∧_
 infixr 45 _·_
 
 -- The grade ≈/≤1+ b m represents 1+ m uses

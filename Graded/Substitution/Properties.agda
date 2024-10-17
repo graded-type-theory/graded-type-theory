@@ -123,7 +123,7 @@ private
   (p ∧ q) ·ᶜ η +ᶜ (γ ∧ᶜ δ) <* Ψ             ≤⟨ +ᶜ-monotone (≤ᶜ-reflexive (·ᶜ-distribʳ-∧ᶜ _ _ _))
                                                           (<*-sub-distrib-∧ᶜ Ψ γ δ) ⟩
   (p ·ᶜ η ∧ᶜ q ·ᶜ η) +ᶜ (γ <* Ψ ∧ᶜ δ <* Ψ)  ≤⟨ +ᶜ-sub-interchangeable-∧ᶜ _ _ _ _ ⟩
-  (p ·ᶜ η +ᶜ γ <* Ψ) ∧ᶜ q ·ᶜ η +ᶜ δ <* Ψ    ∎
+  (p ·ᶜ η +ᶜ γ <* Ψ) ∧ᶜ (q ·ᶜ η +ᶜ δ <* Ψ)  ∎
   where
   open Tools.Reasoning.PartialOrder ≤ᶜ-poset
 

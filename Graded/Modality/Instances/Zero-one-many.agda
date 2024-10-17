@@ -128,7 +128,7 @@ Meet-requirements-required M@record{} refl refl 𝟘∧𝟙≢𝟘 ω≤ =
 
 -- Meet.
 
-infixr 40 _∧_
+infixr 43 _∧_
 
 _∧_ : Zero-one-many → Zero-one-many → Zero-one-many
 𝟘 ∧ 𝟘 = 𝟘
@@ -1186,9 +1186,9 @@ zero-one-many-greatest-star = record
       𝟘 p _ _ →
         lemma p _ _
       𝟙 p q q′ →
-        p + ω · (q ∧ q′)          ≡⟨ cong (_ +_) (·-distribˡ-∧ ω q _) ⟩
-        p + (ω · q ∧ ω · q′)      ≡⟨ +-distribˡ-∧ p _ _ ⟩
-        (p + ω · q) ∧ p + ω · q′  ∎
+        p + ω · (q ∧ q′)            ≡⟨ cong (_ +_) (·-distribˡ-∧ ω q _) ⟩
+        p + (ω · q ∧ ω · q′)        ≡⟨ +-distribˡ-∧ p _ _ ⟩
+        (p + ω · q) ∧ (p + ω · q′)  ∎
       ω p q q′ →
         ω · (p ∧ q ∧ q′)            ≡⟨ cong (_ ·_) (lemma p _ _) ⟩
         ω · ((p ∧ q) ∧ (p ∧ q′))    ≡⟨ ·-distribˡ-∧ ω (p ∧ _) _ ⟩
@@ -1776,11 +1776,11 @@ opaque
            hiding (𝟘; 𝟙; ω; _+_; _·_; _∧_)
     nr₂ : Op₂ Zero-one-many
     nr₂ p r = 𝟙 ∧ (r + p)
-    𝟙+p≡𝟙∧𝟙+p : ∀ p → 𝟙 + p ≡ 𝟙 ∧ 𝟙 + p
+    𝟙+p≡𝟙∧𝟙+p : ∀ p → 𝟙 + p ≡ 𝟙 ∧ (𝟙 + p)
     𝟙+p≡𝟙∧𝟙+p 𝟘 = refl
     𝟙+p≡𝟙∧𝟙+p 𝟙 = refl
     𝟙+p≡𝟙∧𝟙+p ω = refl
-    lemma : ∀ p q r → p ≢ 𝟘 → (p + q) ∧ 𝟙 + r ≡ p + q ∧ r
+    lemma : ∀ p q r → p ≢ 𝟘 → (p + q) ∧ (𝟙 + r) ≡ p + q ∧ r
     lemma 𝟘 q r p≢𝟘 = ⊥-elim (p≢𝟘 refl)
     lemma 𝟙 q r p≢𝟘 = sym (+-distribˡ-∧ 𝟙 q r)
     lemma ω q r p≢𝟘 = refl

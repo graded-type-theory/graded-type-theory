@@ -48,7 +48,7 @@ private variable
 --
 -- The meet operation is defined in such a way that L ≤ M ≤ H.
 
-infixr 40 _∧_
+infixr 43 _∧_
 
 _∧_ : Level → Level → Level
 L ∧ _ = L

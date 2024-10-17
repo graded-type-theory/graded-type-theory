@@ -25,7 +25,7 @@ record Semiring-with-meet : Set a where
   pattern
 
   infixr 40 _+_
-  infixr 40 _∧_
+  infixr 43 _∧_
   infixr 45 _·_
   infix  10 _≤_ _<_
 

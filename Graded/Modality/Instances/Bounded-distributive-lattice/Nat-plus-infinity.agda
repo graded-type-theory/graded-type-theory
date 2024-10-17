@@ -94,7 +94,7 @@ _∪_ = ℕ⊎∞._∧_
 
 -- Intersection.
 
-infixr 40 _∩_
+infixr 43 _∩_
 
 _∩_ : Set-ℕ → Set-ℕ → Set-ℕ
 ∞     ∩ n     = n

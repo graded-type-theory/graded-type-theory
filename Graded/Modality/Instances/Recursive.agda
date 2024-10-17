@@ -67,7 +67,7 @@ solvesIneqs =
   ((p + p′) ∧ (p + (q′ + r · nr n p′ q′ r))) ∧ (((q + r · nr n p q r) + p′)
     ∧ ((q + r · nr n p q r) + (q′ + r · nr n p′ q′ r)))
     ≤⟨ ∧-monotone (∧-decreasingˡ _ _) (∧-decreasingʳ _ _) ⟩
-  (p + p′) ∧ (q + r · nr n p q r) + q′ + r · nr n p′ q′ r
+  (p + p′) ∧ ((q + r · nr n p q r) + q′ + r · nr n p′ q′ r)
     ≈⟨ ∧-congˡ (+-assoc _ _ _) ⟩
   (p + p′) ∧ (q + r · nr n p q r + q′ + r · nr n p′ q′ r)
     ≈˘⟨ ∧-congˡ (+-congˡ (+-assoc _ _ _)) ⟩
@@ -98,15 +98,15 @@ solvesIneqs =
 ·-sub-distribʳ-nr (1+ n) r q p p′ = begin
   nr (1+ n) p p′ r · q
     ≡⟨⟩
-  (p ∧ p′ + r · nr n p p′ r) · q
+  (p ∧ (p′ + r · nr n p p′ r)) · q
     ≈⟨ ·-distribʳ-∧ q p _ ⟩
   (p · q) ∧ (p′ + r · nr n p p′ r) · q
     ≈⟨ ∧-congˡ (·-distribʳ-+ q p′ _) ⟩
-  (p · q) ∧ (p′ · q) + (r · nr n p p′ r) · q
+  (p · q) ∧ (p′ · q + (r · nr n p p′ r) · q)
     ≈⟨ ∧-congˡ (+-congˡ (·-assoc r _ q)) ⟩
-  (p · q) ∧ (p′ · q) + r · (nr n p p′ r · q)
+  (p · q) ∧ (p′ · q + r · (nr n p p′ r · q))
     ≤⟨ ∧-monotoneʳ (+-monotoneʳ (·-monotoneʳ (·-sub-distribʳ-nr n r q p p′))) ⟩
-  (p · q) ∧ (p′ · q) + r · nr n (p · q) (p′ · q) r
+  (p · q) ∧ (p′ · q + r · nr n (p · q) (p′ · q) r)
     ≡⟨⟩
   nr (1+ n) (p · q) (p′ · q) r ∎
   where
@@ -141,7 +141,7 @@ nr-sub-distribˡ-∧ (1+ n) r p q q′ = begin
     ≈˘⟨ ∧-congʳ (∧-assoc p _ p) ⟩
   ((p ∧ (q + r · nr n p q r)) ∧ p) ∧ (q′ + r · nr n p q′ r)
     ≈⟨ ∧-assoc _ _ _ ⟩
-  (p ∧ q + r · nr n p q r) ∧ (p ∧ q′ + r · nr n p q′ r)
+  (p ∧ (q + r · nr n p q r)) ∧ (p ∧ (q′ + r · nr n p q′ r))
     ≡⟨⟩
   nr (1+ n) p q r ∧ nr (1+ n) p q′ r ∎
   where
@@ -165,7 +165,7 @@ nr-sub-distribʳ-∧ (1+ n) r q p p′ = begin
   (p ∧ p′ ∧ (q + r · nr n p q r)) ∧ (q + r · nr n p′ q r) ≈⟨ ∧-congʳ (∧-congˡ (∧-comm p′ _)) ⟩
   (p ∧ (q + r · nr n p q r) ∧ p′) ∧ (q + r · nr n p′ q r) ≈˘⟨ ∧-congʳ (∧-assoc p _ p′) ⟩
   ((p ∧ (q + r · nr n p q r)) ∧ p′) ∧ (q + r · nr n p′ q r) ≈⟨ ∧-assoc _ _ _ ⟩
-  (p ∧ q + r · nr n p q r) ∧ (p′ ∧ q + r · nr n p′ q r) ≡⟨⟩
+  (p ∧ (q + r · nr n p q r)) ∧ (p′ ∧ (q + r · nr n p′ q r)) ≡⟨⟩
   nr (1+ n) p q r ∧ nr (1+ n) p′ q r ∎
   where
   open Tools.Reasoning.PartialOrder ≤-poset
