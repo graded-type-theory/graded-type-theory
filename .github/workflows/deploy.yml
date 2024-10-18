@@ -18,7 +18,7 @@ permissions:
   contents: write
 
 env:
-  AGDA_VERSION: '2.7.0.1'
+  AGDA_VERSION: '2.7.0'
   STDLIB_VERSION: '2.1'
   DEPLOY_DIR: ${{ github.ref_name }}
   HTML_DIR: html/${{ github.ref_name }}
