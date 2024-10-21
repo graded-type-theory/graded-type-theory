@@ -459,7 +459,6 @@ private
            Target (2+ k) A₁ (var x1) (var x0))
             [ zero ]₀
       lam-lemma-0 ≡Γ ⊢Δ =
-        let ⊢OK = ⊢OK (zeroⱼ ⊢Δ) in
         flip lam-cong Π-ok $
         PE.subst₄ _⊢_≡_∷_
           (PE.cong (_∙_ _) $ PE.sym OK-[]) PE.refl PE.refl
