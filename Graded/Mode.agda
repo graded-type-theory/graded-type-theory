@@ -547,6 +547,20 @@ opaque
 ⌜⌝ᶜ-·ᶜ-distribˡ-nrᶜ {γ = _ ∙ _} {δ = _ ∙ _} {η = _ ∙ _} m =
   ⌜⌝ᶜ-·ᶜ-distribˡ-nrᶜ m ∙ ⌜⌝-·-distribˡ-nr m
 
+opaque
+
+  -- A variant of ⌜⌝-·-distribˡ-nr.
+
+  ≡nr-𝟘-𝟘-⌜⌝ :
+    ⦃ has-nr : Has-nr semiring-with-meet ⦄ →
+    ∀ m → ⌜ m ⌝ · nr p r 𝟘 𝟘 𝟙 ≡ nr p r 𝟘 𝟘 ⌜ m ⌝
+  ≡nr-𝟘-𝟘-⌜⌝ {p} {r} m =
+    ⌜ m ⌝ · nr p r 𝟘 𝟘 𝟙                        ≡⟨ ⌜⌝-·-distribˡ-nr m ⟩
+    nr p r (⌜ m ⌝ · 𝟘) (⌜ m ⌝ · 𝟘) (⌜ m ⌝ · 𝟙)  ≡⟨ cong₃ (nr _ _) (·-zeroʳ _) (·-zeroʳ _) (·-identityʳ _) ⟩
+    nr p r 𝟘 𝟘 ⌜ m ⌝                            ∎
+    where
+    open Tools.Reasoning.PropositionalEquality
+
 -- The result of looking up the x-th entry in ⌜ ms ⌝ᶜ is ⌜ ms x ⌝.
 
 ⌜⌝ᶜ⟨⟩ : (x : Fin n) → ⌜ ms ⌝ᶜ ⟨ x ⟩ ≡ ⌜ ms x ⌝

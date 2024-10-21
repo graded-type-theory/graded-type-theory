@@ -43,31 +43,14 @@ open import Tools.Nat using (Nat; 1+; 2+)
 open import Tools.Product
 import Tools.PropositionalEquality as PE
 import Tools.Reasoning.PartialOrder
-import Tools.Reasoning.PropositionalEquality
 open import Tools.Relation
 
 private variable
   k n             : Nat
   A t u v         : Term _
   γ γ₁ γ₂ γ₃ γ₄ δ : Conₘ _
-  p p′ q r        : M
+  p               : M
   m               : Mode
-
-private opaque
-
-  -- A lemma used below.
-
-  ≡nr-𝟘-𝟘-⌜⌝ : ∀ m → ⌜ m ⌝ · nr p q 𝟘 𝟘 𝟙 PE.≡ nr p q 𝟘 𝟘 ⌜ m ⌝
-  ≡nr-𝟘-𝟘-⌜⌝ {p} {q} = λ where
-      𝟘ᵐ →
-        𝟘 · nr p q 𝟘 𝟘 𝟙  ≡⟨ ·-zeroˡ _ ⟩
-        𝟘                 ≡˘⟨ nr-𝟘 ⟩
-        nr p q 𝟘 𝟘 𝟘      ∎
-      𝟙ᵐ →
-        𝟙 · nr p q 𝟘 𝟘 𝟙  ≡⟨ ·-identityˡ _ ⟩
-        nr p q 𝟘 𝟘 𝟙      ∎
-    where
-    open Tools.Reasoning.PropositionalEquality
 
 opaque
   unfolding OK OKᵍ
