@@ -1641,6 +1641,20 @@ opaque
 
 opaque
 
+  -- A variant of wk1-sgSubst.
+
+  wk[+1]′-[₀⇑]≡ :
+    {t : Term n} →
+    subst Term (+-assoc k _ _) (wk[ k + 1 ]′ t) [ sgSubst u ⇑[ k ] ] ≡
+    wk[ k ]′ t
+  wk[+1]′-[₀⇑]≡ {k} {u} {t} =
+    subst Term (+-assoc k _ _) (wk[ k + 1 ]′ t) [ sgSubst u ⇑[ k ] ]  ≡⟨ cong _[ _ ] $ wk[]′-comp {t = t} _ ⟩
+    wk[ k ]′ (wk1 t) [ sgSubst u ⇑[ k ] ]                             ≡⟨ wk[]′-[⇑] (wk1 t) ⟩
+    wk[ k ]′ (wk1 t [ u ]₀)                                           ≡⟨ cong wk[ _ ]′ $ wk1-sgSubst _ _ ⟩
+    wk[ k ]′ t                                                        ∎
+
+opaque
+
   -- A variant of wk₂-[,].
 
   wk[2+]′[,⇑]≡ :
