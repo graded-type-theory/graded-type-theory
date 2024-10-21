@@ -1,5 +1,5 @@
 ------------------------------------------------------------------------
--- Booleans
+-- Typing, equality and reduction rules related to Bool
 ------------------------------------------------------------------------
 
 open import Definition.Typed.Restrictions
