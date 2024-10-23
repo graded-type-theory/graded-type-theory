@@ -37,7 +37,7 @@ open import Graded.Reduction TR UR
 open import Graded.Usage 𝕄 UR
 open import Graded.Usage.Inversion 𝕄 UR
 open import Graded.Usage.Properties 𝕄 UR
-open import Graded.Modality.Dedicated-nr.Instance
+open import Graded.Usage.Restrictions.Instance UR
 open import Graded.Modality.Properties 𝕄
 open import Graded.Mode 𝕄
 
@@ -142,7 +142,11 @@ neNeg {γ} (natrecⱼ {A} {n} _ _ ⊢n) (natrecₙ n-ne) γ▸natrec =
                                              (invUsageNatrecNoNr _ _ χ≤θ _) →
                                                 $⟨ χ≤θ ⟩
     χ ≤ᶜ θ                                      →⟨ ≤ᶜ→⟨⟩≡𝟘→⟨⟩≡𝟘 ⟩
-    (χ ⟨ x ⟩ PE.≡ 𝟘 → θ ⟨ x ⟩ PE.≡ 𝟘)           □ }) ⟩
+    (χ ⟨ x ⟩ PE.≡ 𝟘 → θ ⟨ x ⟩ PE.≡ 𝟘)           □ ;
+                                             (invUsageNatrecNoNrGLB {χ} {x} x-glb χ-glb) xθ+χ≈𝟘 →
+    case ·ᶜ-zero-product-⟨⟩ θ (+ᶜ-positive-⟨⟩ (x ·ᶜ θ) xθ+χ≈𝟘 .proj₁) of λ {
+        (inj₁ PE.refl) → ⊥-elim (𝟘≰𝟙 (x-glb .proj₁ 0));
+        (inj₂ θ≈𝟘) → θ≈𝟘                                 }}) ⟩
 
   NegativeErasedContext Γ θ            →⟨ neNeg ⊢n n-ne θ▸n ⟩
   NegativeType Γ ℕ                     →⟨ flip ¬negℕ (refl (ℕⱼ (wfTerm ⊢n))) ⟩

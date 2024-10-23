@@ -17,6 +17,7 @@ open import Graded.Context 𝕄
 open import Graded.Context.Properties 𝕄
 open import Graded.Context.Weakening 𝕄
 open import Graded.Usage 𝕄 R
+open import Graded.Usage.Restrictions.Instance R
 open import Graded.Mode 𝕄
 open import Definition.Untyped M
 open import Definition.Untyped.Inversion M
@@ -86,8 +87,6 @@ wkUsage ρ (sucₘ γ▸t) = sucₘ (wkUsage ρ γ▸t)
 wkUsage ρ (natrecₘ γ▸z δ▸s η▸n θ▸A) =
   sub (natrecₘ (wkUsage ρ γ▸z) (wkUsage (liftn ρ 2) δ▸s) (wkUsage ρ η▸n) (wkUsage (lift ρ) θ▸A))
     (≤ᶜ-reflexive (wk-nrᶜ ρ))
-  where
-  open import Graded.Modality.Dedicated-nr.Instance
 wkUsage
   ρ
   (natrec-no-nrₘ {γ = γ} {δ = δ} {p = p} {r = r} {η = η} {χ = χ}
@@ -108,6 +107,16 @@ wkUsage
                                                             ≈ᶜ-trans (wk-+ᶜ ρ) $
                                                             +ᶜ-cong (wk-·ᶜ ρ) (wk-·ᶜ ρ) ⟩
        wkConₘ ρ δ +ᶜ p ·ᶜ wkConₘ ρ η +ᶜ r ·ᶜ wkConₘ ρ χ  ∎)
+  where
+  open Tools.Reasoning.PartialOrder ≤ᶜ-poset
+wkUsage ρ (natrec-no-nr-glbₘ {η} {χ} {x} ▸z ▸s ▸n ▸A x≤ χ≤) =
+  sub (natrec-no-nr-glbₘ (wkUsage ρ ▸z) (wkUsage (liftn ρ 2) ▸s)
+        (wkUsage ρ ▸n) (wkUsage (lift ρ) ▸A) x≤
+        (GLBᶜ-congˡ (λ i → wk-nrᵢᶜ i ρ) (wk-GLBᶜ ρ χ≤)))
+    (begin
+      wkConₘ ρ (x ·ᶜ η +ᶜ χ)          ≈⟨ wk-+ᶜ ρ ⟩
+      wkConₘ ρ (x ·ᶜ η) +ᶜ wkConₘ ρ χ ≈⟨ +ᶜ-congʳ (wk-·ᶜ ρ) ⟩
+      x ·ᶜ wkConₘ ρ η +ᶜ wkConₘ ρ χ   ∎)
   where
   open Tools.Reasoning.PartialOrder ≤ᶜ-poset
 wkUsage ρ (emptyrecₘ γ▸t δ▸A ok) =
@@ -326,6 +335,17 @@ wkUsage⁻¹ ▸t = wkUsage⁻¹′ ▸t refl
                                                                         ≈ᶜ-trans (wkConₘ⁻¹-+ᶜ ρ) $
                                                                         +ᶜ-cong (wkConₘ⁻¹-·ᶜ ρ) (wkConₘ⁻¹-·ᶜ ρ) ⟩
              wkConₘ⁻¹ ρ δ +ᶜ p ·ᶜ wkConₘ⁻¹ ρ η +ᶜ r ·ᶜ wkConₘ⁻¹ ρ χ  ∎) }
+      (natrec-no-nr-glbₘ {η} {χ} {x} ▸z ▸s ▸n ▸A x≤ χ≤) eq →
+        case wk-natrec eq of λ {
+          (_ , _ , _ , _ , refl , refl , refl , refl , refl) →
+        sub (natrec-no-nr-glbₘ (wkUsage⁻¹ ▸z) (wkUsage⁻¹ ▸s) (wkUsage⁻¹ ▸n) (wkUsage⁻¹ ▸A)
+              x≤
+              (GLBᶜ-congˡ (λ i → wkConₘ⁻¹-nrᵢᶜ i ρ) (wkConₘ⁻¹-GLBᶜ ρ χ≤)))
+          (begin
+            wkConₘ⁻¹ ρ (x ·ᶜ η +ᶜ χ)            ≈⟨ wkConₘ⁻¹-+ᶜ ρ ⟩
+            wkConₘ⁻¹ ρ (x ·ᶜ η) +ᶜ wkConₘ⁻¹ ρ χ ≈⟨ +ᶜ-congʳ (wkConₘ⁻¹-·ᶜ ρ) ⟩
+            x ·ᶜ wkConₘ⁻¹ ρ η +ᶜ wkConₘ⁻¹ ρ χ   ∎) }
+
       (emptyrecₘ ▸t ▸A ok) eq →
         case wk-emptyrec eq of λ {
           (_ , _ , refl , refl , refl) →
@@ -436,8 +456,6 @@ wkUsage⁻¹ ▸t = wkUsage⁻¹′ ▸t refl
         ≤ᶜ-reflexive (wkConₘ⁻¹-𝟘ᶜ ρ) }
       (sub ▸t leq) refl →
         sub (wkUsage⁻¹ ▸t) (wkConₘ⁻¹-monotone ρ leq)
-    where
-    open import Graded.Modality.Dedicated-nr.Instance
 
 -- An inversion lemma for the usage relation and weakening.
 

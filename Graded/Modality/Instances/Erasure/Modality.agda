@@ -84,7 +84,7 @@ instance
 
   -- The nr function factors
 
-  erasure-has-factoring-nr : Has-factoring-nr erasure-semiring-with-meet
+  erasure-has-factoring-nr : Is-factoring-nr erasure-has-nr
   erasure-has-factoring-nr = record
     { nr₂ = λ p r → ω
     ; nr₂≢𝟘 = λ ()
@@ -105,6 +105,5 @@ ErasureModality : Modality-variant → Modality
 ErasureModality variant = record
   { variant            = variant
   ; semiring-with-meet = erasure-semiring-with-meet
-  ; has-nr             = λ _ → erasure-has-nr
   ; 𝟘-well-behaved     = λ _ → erasure-has-well-behaved-zero
   }

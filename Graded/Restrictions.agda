@@ -22,12 +22,12 @@ open import Tools.Relation as Dec
 open import Tools.Sum
 open import Tools.Unit
 
-open import Graded.Modality.Dedicated-nr 𝕄
 open import Graded.Modality.Properties 𝕄
 open import Graded.Mode 𝕄 as Mode hiding (_≟_)
 import Graded.Usage.Decidable.Assumptions as UD
 open import Graded.Usage.Erased-matches
 open import Graded.Usage.Restrictions 𝕄
+open import Graded.Usage.Restrictions.Natrec 𝕄
 
 import Definition.Typechecking.Decidable.Assumptions as TD
 open import Definition.Typed.Restrictions 𝕄
@@ -189,12 +189,13 @@ TR with-η-for-Unitʷ = record TR
 -- Functions that construct Usage-restrictions
 
 -- No restrictions for prodrec, unitrec or emptyrec, all erased
--- matches are allowed for J and K, Id-erased is inhabited if the
--- first boolean is true, and starˢ is treated as a sink if the second
--- boolean is true.
+-- matches are allowed for J and K, the natrec mode can be anyting,
+-- Id-erased is inhabited if the, first boolean is true, and starˢ
+-- is treated as a sink if the second boolean is true.
 
-no-usage-restrictions : Bool → Bool → Usage-restrictions
-no-usage-restrictions erased sink = λ where
+no-usage-restrictions : Natrec-mode → Bool → Bool → Usage-restrictions
+no-usage-restrictions nm erased sink = λ where
+    .natrec-mode                            → nm
     .Prodrec-allowed                        → λ _ _ _ _ → Lift _ ⊤
     .Prodrec-allowed-downwards-closed       → _
     .Unitrec-allowed                        → λ _ _ _ → Lift _ ⊤
@@ -294,6 +295,14 @@ no-erased-matches-UR TR UR = record (only-some-erased-matches UR)
   where
   open Type-restrictions TR
   open Usage-restrictions UR
+
+-- The function updates the usage restrictions to use the usage rule
+-- natrecₘ for natrec using a given nr function.
+
+nr-available-UR :
+  Has-nr semiring-with-meet → Usage-restrictions → Usage-restrictions
+nr-available-UR has-nr UR =
+  record UR { natrec-mode = Nr ⦃ has-nr ⦄ }
 
 ------------------------------------------------------------------------
 -- Only-some-erased-matches
@@ -561,12 +570,12 @@ opaque
 
   -- If grade equality is decidable and the modality comes with a
   -- dedicated nr function, then UD.Assumptions holds for
-  -- no-usage-restrictions b false.
+  -- no-usage-restrictions Nr b false.
 
   Assumptions-no-usage-restrictions :
-    ⦃ has-nr : Dedicated-nr ⦄ →
+    ⦃ has-nr : Has-nr semiring-with-meet ⦄ →
     Decidable (_≡_ {A = M}) →
-    UD.Assumptions (no-usage-restrictions b false)
+    UD.Assumptions (no-usage-restrictions Nr b false)
   Assumptions-no-usage-restrictions dec = λ where
       ._≟_                       → dec
       .Prodrec-allowed? _ _ _ _  → yes _

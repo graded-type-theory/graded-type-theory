@@ -49,32 +49,16 @@ private variable
   rs : Type-restrictions
   us : Usage-restrictions
 
--- An alternative (not very good) "affine types" modality.
---
--- See Graded.Modality.Instances.Affine.Bad for an example that
--- illustrates in what sense this modality is not very good. The
--- modality affineModality does not suffer from this problem (see
--- Graded.Modality.Instances.Affine.Good), but note that, at the time
--- of writing, this formalisation does not contain any solid evidence
--- showing that affineModality captures a good notion of "affine
--- type".
-
-bad-affine-modality : Modality
-bad-affine-modality = zero-one-many-greatest variant
-
--- The nr function obtained from bad-affine-modality (if any) is
--- strictly greater than the one obtained from affineModality.
+-- The nr function obtained from zero-one-many-greatest-star-nr is
+-- strictly greater than the one obtained from zero-one-many-has-nr.
 
 alternative-greater :
-  (nr-available : Nr-available) →
-  let nr₁ = affineModality
-              .Modality.has-nr nr-available .Has-nr.nr
-      nr₂ = bad-affine-modality
-              .Modality.has-nr nr-available .Has-nr.nr
+  let nr₁ = zero-one-many-has-nr .Has-nr.nr
+      nr₂ = zero-one-many-greatest-star-nr .Has-nr.nr
   in
   (∃₅ λ p r z s n → ¬ nr₁ p r z s n ≡ nr₂ p r z s n) ×
   (∀ p r z s n → nr₁ p r z s n ≤ nr₂ p r z s n)
-alternative-greater _ =
+alternative-greater =
     (𝟘 , 𝟙 , 𝟙 , 𝟘 , 𝟙 , (λ ()))
   , λ where
       𝟘 𝟘 𝟘 𝟘 𝟘 → refl
@@ -323,7 +307,7 @@ alternative-greater _ =
 
 instance
 
-  -- The affine types" modality has a well-behaved zero.
+  -- The "affine types" modality has a well-behaved zero.
 
   affine-has-well-behaved-zero :
     Has-well-behaved-zero (Modality.semiring-with-meet affineModality)

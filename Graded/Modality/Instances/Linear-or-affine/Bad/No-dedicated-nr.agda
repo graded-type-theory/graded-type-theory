@@ -8,7 +8,6 @@ open import Tools.Level
 
 open import Definition.Typed.Restrictions
 
-import Graded.Modality.Dedicated-nr
 open import Graded.Modality.Instances.Linear-or-affine
 open import Graded.Modality.Variant lzero
 open import Graded.Usage.Restrictions
@@ -16,14 +15,14 @@ open import Graded.Usage.Restrictions
 module Graded.Modality.Instances.Linear-or-affine.Bad.No-dedicated-nr
   -- The modality variant.
   (variant : Modality-variant)
-  (open Graded.Modality.Dedicated-nr (linear-or-affine variant))
   (TR : Type-restrictions (linear-or-affine variant))
   (open Type-restrictions TR)
   (UR : Usage-restrictions (linear-or-affine variant))
+  (open Usage-restrictions UR)
   -- It is assumed that "Π 𝟙 , 𝟘" is allowed.
   (Π-𝟙-𝟘 : Π-allowed 𝟙 𝟘)
   -- There is no dedicated nr function.
-  ⦃ no-nr : No-dedicated-nr ⦄
+  ⦃ no-nr : Nr-not-available ⦄
   where
 
 open Modality-variant variant
@@ -75,12 +74,9 @@ open import Graded.Usage.Inversion linear-or-affine′ UR
      λ ▸λ+ ok →
        case inv-usage-lam ▸λ+ of λ {
          (invUsageLam ▸+ _) →
-       case inv-usage-natrec ▸+ of λ {
-         (invUsageNatrec _ _ _ _ _ invUsageNatrecNr) →
-            ⊥-elim not-nr-and-no-nr;
-         (invUsageNatrec {η = _ ∙ p} {θ = _ ∙ q} {χ = _ ∙ r}
-            _ _ _ _ (_ ∙ 𝟙≤r)
-            (invUsageNatrecNoNr _ r≤₁ _ (_ ∙ r≤₂))) →
+       case inv-usage-natrec-no-nr ▸+ of λ {
+         (_ , _ ∙ p , _ ∙ q , _ , _ ∙ r , _ , _ , _ , _
+            , _ ∙ 𝟙≤r , _ , r≤₁ , _ , _ ∙ r≤₂) →
        case r≤₁ ok of λ {
          (_ ∙ r≤₁) →
        case lemma p $ begin
@@ -117,12 +113,9 @@ open import Graded.Usage.Inversion linear-or-affine′ UR
     (invUsageLam {δ = _ ∙ 𝟘}  _  (_ ∙ ()));
     (invUsageLam {δ = _ ∙ ≤𝟙} _  (_ ∙ ()));
     (invUsageLam {δ = _ ∙ 𝟙}  ▸+ _) →
-  case inv-usage-natrec ▸+ of λ {
-    (invUsageNatrec _ _ _ _ _ invUsageNatrecNr) →
-       ⊥-elim not-nr-and-no-nr;
-    (invUsageNatrec {δ = _ ∙ p ∙ _} {χ = _ ∙ q ∙ _}
-       ▸x0 _ _ _ (_ ∙ 𝟙≤q ∙ _)
-       (invUsageNatrecNoNr (_ ∙ q≤p ∙ _) _ _ _)) →
+  case inv-usage-natrec-no-nr ▸+ of λ {
+    (_ ∙ p ∙ _ , _ , _ , _ , _ ∙ q ∙ _ , ▸x0 , _ , _ , _
+               , _ ∙ 𝟙≤q ∙ _ , _ ∙ q≤p ∙ _ , _) →
   case inv-usage-var ▸x0 of λ {
     (_ ∙ p≤𝟘 ∙ _) →
   case begin

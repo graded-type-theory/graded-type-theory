@@ -19,12 +19,12 @@ open import Graded.Context 𝕄
 open import Graded.Context.Properties 𝕄
 open import Graded.Context.Weakening 𝕄
 open import Graded.Substitution 𝕄 R
-open import Graded.Modality.Dedicated-nr 𝕄
 open import Graded.Modality.Nr-instances
 open import Graded.Modality.Properties 𝕄
 open import Graded.Usage 𝕄 R
 open import Graded.Usage.Erased-matches
 open import Graded.Usage.Properties 𝕄 R
+import Graded.Usage.Restrictions.Instance
 open import Graded.Usage.Weakening 𝕄 R
 open import Graded.Mode 𝕄
 open import Definition.Untyped M
@@ -44,7 +44,7 @@ open import Tools.Sum using (_⊎_; inj₁; inj₂)
 
 private
   variable
-    k ℓ m n : Nat
+    k ℓ m n i : Nat
     x y : Fin n
     γ γ′ γ₁ γ₂ γ₃ γ₄ γ₅ γ₆ δ η θ χ : Conₘ n
     Ψ : Substₘ m n
@@ -57,6 +57,22 @@ private
 ----------------------
 -- Properties of <* --
 ----------------------
+
+-- Modality substitution application is a monotone function.
+-- If γ ≤ᶜ δ, then γ <* Ψ ≤ᶜ δ <* Ψ.
+-- Proof by induction on Ψ using monotonicity of addition and multiplication.
+
+<*-monotone : {γ δ : Conₘ n} (Ψ : Substₘ m n) → γ ≤ᶜ δ → γ <* Ψ ≤ᶜ δ <* Ψ
+<*-monotone {γ = ε}     {δ = ε}     []      γ≤δ         = ≤ᶜ-refl
+<*-monotone {γ = _ ∙ _} {δ = _ ∙ _} (Ψ ⊙ η) (γ≤δ ∙ p≤q) =
+  +ᶜ-monotone (·ᶜ-monotoneˡ p≤q) (<*-monotone Ψ γ≤δ)
+
+-- The function  <*_Ψ preserves equivalence.
+
+<*-cong : (Ψ : Substₘ m n) → γ ≈ᶜ δ → γ <* Ψ ≈ᶜ δ <* Ψ
+<*-cong Ψ γ≈ᶜδ = ≤ᶜ-antisym
+  (<*-monotone Ψ (≤ᶜ-reflexive γ≈ᶜδ))
+  (<*-monotone Ψ (≤ᶜ-reflexive (≈ᶜ-sym γ≈ᶜδ)))
 
 -- Modality substitution application distributes over addition.
 -- (γ +ᶜ δ) <* Ψ ≡ γ <* Ψ +ᶜ δ <* Ψ.
@@ -172,7 +188,22 @@ private
   where
   open Tools.Reasoning.PartialOrder ≤ᶜ-poset
 
---- The zero-context is a left zero to modality substitution application.
+opaque
+
+  -- Distributivity of <* over nrᵢ
+
+  <*-distrib-nrᵢᶜ :
+    ∀ (Ψ : Substₘ m n) (γ : Conₘ n) →
+    nrᵢᶜ r γ δ i <* Ψ ≈ᶜ nrᵢᶜ r (γ <* Ψ) (δ <* Ψ) i
+  <*-distrib-nrᵢᶜ {r = r} {(ε)} [] ε = ≈ᶜ-sym nrᵢᶜ-𝟘ᶜ
+  <*-distrib-nrᵢᶜ {r = r} {δ ∙ q} {i} (Ψ ⊙ η) (γ ∙ p) = begin
+    nrᵢ r p q i ·ᶜ η +ᶜ nrᵢᶜ r γ δ i <* Ψ                    ≈⟨ +ᶜ-cong ·ᶜ-distribʳ-nrᵢᶜ (<*-distrib-nrᵢᶜ Ψ γ) ⟩
+    nrᵢᶜ r (p ·ᶜ η) (q ·ᶜ η) i +ᶜ nrᵢᶜ r (γ <* Ψ) (δ <* Ψ) i ≈˘⟨ nrᵢᶜ-+ᶜ ⟩
+    nrᵢᶜ r (p ·ᶜ η +ᶜ γ <* Ψ) (q ·ᶜ η +ᶜ δ <* Ψ) i ∎
+    where
+    open Tools.Reasoning.Equivalence Conₘ-setoid
+
+-- The zero-context is a left zero to modality substitution application.
 -- 𝟘ᶜ <* Ψ ≡ 𝟘ᶜ.
 -- Proof by induction on Ψ using zero of multiplication and identity of addition.
 
@@ -195,22 +226,6 @@ private
   ε             ∎
   where
   open Tools.Reasoning.Equivalence Conₘ-setoid
-
--- Modality substitution application is a monotone function.
--- If γ ≤ᶜ δ, then γ <* Ψ ≤ᶜ δ <* Ψ.
--- Proof by induction on Ψ using monotonicity of addition and multiplication.
-
-<*-monotone : {γ δ : Conₘ n} (Ψ : Substₘ m n) → γ ≤ᶜ δ → γ <* Ψ ≤ᶜ δ <* Ψ
-<*-monotone {γ = ε}     {δ = ε}     []      γ≤δ         = ≤ᶜ-refl
-<*-monotone {γ = _ ∙ _} {δ = _ ∙ _} (Ψ ⊙ η) (γ≤δ ∙ p≤q) =
-  +ᶜ-monotone (·ᶜ-monotoneˡ p≤q) (<*-monotone Ψ γ≤δ)
-
--- The function  <*_Ψ preserves equivalence.
-
-<*-cong : (Ψ : Substₘ m n) → γ ≈ᶜ δ → γ <* Ψ ≈ᶜ δ <* Ψ
-<*-cong Ψ γ≈ᶜδ = ≤ᶜ-antisym
-  (<*-monotone Ψ (≤ᶜ-reflexive γ≈ᶜδ))
-  (<*-monotone Ψ (≤ᶜ-reflexive (≈ᶜ-sym γ≈ᶜδ)))
 
 -- Matrix/vector multiplication is associative.
 -- γ <* (Ψ <*> Φ) ≡ (γ <* Φ) <* Ψ.
@@ -237,6 +252,35 @@ private
   (𝟘ᶜ , x ≔ p) <* Ψ           ∎
   where
   open Tools.Reasoning.Equivalence Conₘ-setoid
+
+opaque
+
+  -- A kind of "sub-distributivity" property for greatest lower bounds
+  -- of nrᵢᶜ sequences.
+
+  nrᵢᶜ-<*-GLBᶜ :
+    ⦃ no-nr : Nr-not-available-GLB ⦄ →
+    (Ψ : Substₘ m n) →
+    Greatest-lower-boundᶜ γ (nrᵢᶜ r δ η) →
+    ∃ λ χ → Greatest-lower-boundᶜ χ (λ i → nrᵢᶜ r δ η i <* Ψ) ×
+      γ <* Ψ ≤ᶜ χ
+  nrᵢᶜ-<*-GLBᶜ {γ = ε} {δ = ε} {η = ε} [] _ =
+    𝟘ᶜ , GLBᶜ-const (λ _ → ≈ᶜ-refl) , ≤ᶜ-refl
+  nrᵢᶜ-<*-GLBᶜ {γ = γ ∙ p} {r} {δ = δ ∙ q} {η = η ∙ q′} (Ψ ⊙ θ) γp-glb =
+    let γ-glb , p-glb = GLBᶜ-pointwise γp-glb
+        χ′ , χ′-glb , ≤χ′ = nrᵢᶜ-<*-GLBᶜ Ψ γ-glb
+        pθ-glb = GLBᶜ-congˡ (λ _ → ·ᶜ-distribʳ-nrᵢᶜ)
+                   (·ᶜ-GLBᶜʳ {γ = θ} p-glb)
+        χ , χ-glb , ≤χ = +ᶜnrᵢᶜ-GLBᶜ pθ-glb (GLBᶜ-congˡ (λ _ → <*-distrib-nrᵢᶜ Ψ δ) χ′-glb)
+    in  _ , GLBᶜ-congˡ (λ i → ≈ᶜ-trans nrᵢᶜ-+ᶜ (≈ᶜ-sym (+ᶜ-cong ·ᶜ-distribʳ-nrᵢᶜ (<*-distrib-nrᵢᶜ Ψ δ)))) χ-glb ,
+        (begin
+          (γ ∙ p) <* (Ψ ⊙ θ) ≡⟨⟩
+          p ·ᶜ θ +ᶜ γ <* Ψ   ≤⟨ +ᶜ-monotoneʳ ≤χ′ ⟩
+          p ·ᶜ θ +ᶜ χ′       ≤⟨ ≤χ ⟩
+          χ ∎)
+    where
+    open ≤ᶜ-reasoning
+    open Graded.Usage.Restrictions.Instance R
 
 ------------------------------------------
 -- Properties of specific substitutions --
@@ -1130,11 +1174,11 @@ mutual
        (substₘ-lemma-∙⌜𝟘ᵐ?⌝·▸[𝟘ᵐ?] Ψ Ψ▶σ θ▸A .proj₂))
     (<*-sub-distrib-nrᶜ Ψ γ)
     where
-    open import Graded.Modality.Dedicated-nr.Instance
+    open import Graded.Usage.Restrictions.Instance R
 
   substₘ-lemma
     Ψ Ψ▶σ
-    ▸natrec@(natrec-no-nrₘ
+    (natrec-no-nrₘ
                {γ = γ} {m = mo} {δ = δ} {p = p} {r = r} {η = η} {χ = χ}
                ⦃ no-nr = no-nr ⦄ γ▸z δ▸s η▸n θ▸A χ≤γ χ≤δ χ≤η fix) =
     let ▸z = substₘ-lemma Ψ (▶-≤ Ψ χ≤γ Ψ▶σ) γ▸z
@@ -1175,6 +1219,38 @@ mutual
            (substₘ-lemma₁′ not-ok Ψ Ψ▶σ η▸n)
            ▸A
            χΨ≤γΨ χΨ≤δΨ (λ ⦃ ok ⦄ → <*-monotone Ψ (χ≤η ⦃ ok ⦄)) fixΨ)
+
+  substₘ-lemma Ψ Ψ▶σ (natrec-no-nr-glbₘ {γ} {δ} {η} {χ} {x} ▸z ▸s ▸n ▸A x≤ χ≤) =
+    let Ψ▶σ₁ = ▶-≤ Ψ (≤ᶜ-trans (χ≤ .proj₁ 0) (≤ᶜ-reflexive nrᵢᶜ-zero))
+                (▶-⌞+ᶜ⌟ʳ Ψ (x ·ᶜ η) Ψ▶σ)
+        Ψ▶σ₂ = ▶-⌞+ᶜ⌟ˡ Ψ δ (▶-≤ Ψ (≤ᶜ-trans (χ≤ .proj₁ 1) (≤ᶜ-reflexive nrᵢᶜ-suc))
+                (▶-⌞+ᶜ⌟ʳ Ψ (x ·ᶜ η) Ψ▶σ))
+        Ψ▶σ₃ = case ▶-⌞·⌟ Ψ η (▶-⌞+ᶜ⌟ˡ Ψ (x ·ᶜ η) Ψ▶σ) of λ where
+                 (inj₁ (refl , ok)) →
+                   ⊥-elim (𝟘≰𝟙 ⦃ 𝟘-well-behaved ok ⦄ (x≤ .proj₁ 0))
+                 (inj₂ ▶σ) → ▶σ
+        ▸z′ = substₘ-lemma Ψ Ψ▶σ₁ ▸z
+        ▸s′ = sub (substₘ-lemma (liftSubstₘ (liftSubstₘ Ψ))
+                    (▶-cong (liftSubstₘ (liftSubstₘ Ψ))
+                      (λ where
+                        x0 → refl
+                        (x0 +1) → refl
+                        (x +2) → refl)
+                      (wf-liftSubstₘ (wf-liftSubstₘ Ψ▶σ₂)))
+                    ▸s)
+                  (*>∙∙≤liftSubst-listSubst*>∙∙ {δ = δ} Ψ)
+        ▸n′ = substₘ-lemma Ψ Ψ▶σ₃ ▸n
+        _ , ▸A′ = substₘ-lemma-∙⌜𝟘ᵐ?⌝·▸[𝟘ᵐ?] Ψ Ψ▶σ ▸A
+        χ′ , χ′-glb , χΨ≤χ′ = nrᵢᶜ-<*-GLBᶜ Ψ χ≤
+    in  sub (natrec-no-nr-glbₘ ▸z′ ▸s′ ▸n′ ▸A′ x≤
+              (GLBᶜ-congˡ (λ _ → <*-distrib-nrᵢᶜ Ψ γ) χ′-glb))
+            (begin
+              (x ·ᶜ η +ᶜ χ) <* Ψ      ≈⟨ <*-distrib-+ᶜ Ψ (x ·ᶜ η) χ ⟩
+              (x ·ᶜ η) <* Ψ +ᶜ χ <* Ψ ≈⟨ +ᶜ-congʳ (<*-distrib-·ᶜ Ψ x η) ⟩
+              x ·ᶜ η <* Ψ +ᶜ χ <* Ψ   ≤⟨ +ᶜ-monotoneʳ χΨ≤χ′ ⟩
+              x ·ᶜ η <* Ψ +ᶜ χ′       ∎)
+    where
+    open ≤ᶜ-reasoning
 
   substₘ-lemma {mo = mo} Ψ Ψ▶σ (emptyrecₘ {γ = γ} {p = p} γ▸t δ▸A ok) =
     case ▶-⌞·⌟ Ψ γ Ψ▶σ of λ where
@@ -1514,7 +1590,7 @@ opaque
 -- x-th row of ∥ σ ∥ mos is equivalent to ⌈ σ x ⌉ (mos x).
 
 substₘ-calc-row :
-  ⦃ has-nr : Has-nr semiring-with-meet ⦄ →
+  ⦃ has-nr : Nr-available ⦄ →
   (σ : Subst m n) (x : Fin n) →
   (𝟘ᶜ , x ≔ 𝟙) <* ∥ σ ∥ mos ≈ᶜ ⌈ σ x ⌉ (mos x)
 substₘ-calc-row {mos = mos} σ x0 = begin
@@ -1536,7 +1612,7 @@ substₘ-calc-row {mos = mos} σ (x +1) = begin
 -- potentially different values of p: 𝟙 and ⌜ mos x ⌝.
 
 ∥∥-*>-𝟘ᶜ,≔𝟙 :
-  ⦃ has-nr : Has-nr semiring-with-meet ⦄ →
+  ⦃ has-nr : Nr-available ⦄ →
   (σ : Subst m n) →
   (𝟘ᶜ , x ≔ 𝟙) <* ∥ σ ∥ mos ≈ᶜ (𝟘ᶜ , x ≔ ⌜ mos x ⌝) <* ∥ σ ∥ mos
 ∥∥-*>-𝟘ᶜ,≔𝟙 {x = x} {mos = mos} σ = begin
@@ -1548,14 +1624,12 @@ substₘ-calc-row {mos = mos} σ (x +1) = begin
   where
   open Tools.Reasoning.Equivalence Conₘ-setoid
 
-open import Graded.Modality.Dedicated-nr.Instance
-
 -- An inferred substitution matrix is well-formed if all substituted
 -- terms are well-resourced (for suitable modes), and there is a
 -- dedicated nr function.
 
 substₘ-calc-correct :
-  ⦃ has-nr : Dedicated-nr ⦄ →
+  ⦃ has-nr : Nr-available ⦄ →
   (σ : Subst m n) →
   (∀ x → ∃ λ γ → γ ▸[ mos x ] σ x) → ∥ σ ∥ mos ▶[ mos ] σ
 substₘ-calc-correct {mos = mos} σ prop x with prop x
@@ -1574,7 +1648,7 @@ substₘ-calc-correct {mos = mos} σ prop x with prop x
 -- a dedicated nr function.
 
 subst-calc-correct′ :
-  ⦃ has-nr : Dedicated-nr ⦄ →
+  ⦃ has-nr : Nr-available ⦄ →
   (Ψ : Substₘ m n) →
   Ψ ▶[ mos ] σ → ∥ σ ∥ mos ▶[ mos ] σ
 subst-calc-correct′           []      _   ()
@@ -1602,7 +1676,7 @@ subst-calc-correct′ (Ψ ⊙ γ) Ψ▶σ (x +1) =
 -- substituted term.
 
 substₘ-calc-upper-bound :
-  ⦃ has-nr : Dedicated-nr ⦄ →
+  ⦃ has-nr : Nr-available ⦄ →
   ¬ Starˢ-sink ⊎ (∀ {p} → p ≤ 𝟘) →
   {γ : Conₘ m} (σ : Subst m n) (x : Fin n) →
   γ ▸[ mos x ] σ x → γ ≤ᶜ  (𝟘ᶜ , x ≔ 𝟙) <* ∥ σ ∥ mos

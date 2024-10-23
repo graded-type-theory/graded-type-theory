@@ -55,9 +55,13 @@ record Extended-modality a : Set (lsuc a) where
     UA : UD.Assumptions UR
 
     -- The modality comes with a dedicated nr function.
-    NR : Nr-available
+    NR : Has-nr _ semiring-with-meet
 
-  open Has-nr (has-nr NR) public
+    -- The modality supports the additional properties required
+    -- when the natrec-mode is chosen to be No-nr-glb.
+    NO-NR-GLB : Supports-GLB-for-natrec _ semiring-with-meet
+
+  open Has-nr NR public
 
   field
     -- The dedicated nr function satisfies Linearity-like-nr-for-𝟘.
@@ -116,7 +120,10 @@ record _⇨_
     hiding
       (common-properties; 𝟘ᵐ-preserved; starˢ-sink-preserved;
        Id-erased-preserved; erased-matches-for-J-preserved;
-       erased-matches-for-K-preserved)
+       erased-matches-for-K-preserved;
+       nr-in-first-if-in-second; nr-in-second-if-in-first;
+       no-nr-in-first-if-in-second; no-nr-in-second-if-in-first;
+       no-nr-glb-in-first-if-in-second; no-nr-glb-in-second-if-in-first)
 
 -- An identity morphism.
 
@@ -164,10 +171,13 @@ m₁ ∘ m₂ = λ where
         M₂.are-reflecting-type-restrictions
     ._⇨_.are-preserving-usage-restrictions →
       Are-preserving-usage-restrictions-∘
+        M₁.tr-morphism
+        M₂.tr-morphism
         M₁.are-preserving-usage-restrictions
         M₂.are-preserving-usage-restrictions
     ._⇨_.are-reflecting-usage-restrictions →
       Are-reflecting-usage-restrictions-∘
+        M₁.tr-morphism
         M₁.are-reflecting-usage-restrictions
         M₂.are-reflecting-usage-restrictions
   where

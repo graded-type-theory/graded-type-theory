@@ -5,7 +5,9 @@
 open import Graded.Modality
 open import Graded.Modality.Morphism as M
   using (Is-morphism; Is-order-embedding;
-         Is-Σ-morphism; Is-Σ-order-embedding)
+         Is-Σ-morphism; Is-Σ-order-embedding;
+         Is-no-nr-preserving-morphism;
+         Is-no-nr-glb-preserving-morphism)
   hiding (module Is-morphism; module Is-order-embedding)
 open import Graded.Usage.Restrictions
 
@@ -29,6 +31,8 @@ open import Graded.Usage.Erased-matches
 import Graded.Usage.Properties
 import Graded.Usage.Restrictions.Satisfied
 open import Graded.Modality.Morphism.Usage-restrictions
+import Graded.Modality.Morphism.Backward-instances
+import Graded.Modality.Morphism.Forward-instances
 
 open import Graded.Mode
 open import Graded.Mode.QuantityTranslation 𝕄₁ 𝕄₂ tr tr-Σ
@@ -214,8 +218,10 @@ module Is-morphism
          (tr-∙▸[𝟘ᵐ?] ▸P))
       tr-Conₘ-nrᶜ
       where
-      open import Graded.Modality.Morphism.Forward-instances tr-m
-      open import Graded.Modality.Dedicated-nr.Instance
+      open Graded.Modality.Morphism.Forward-instances common-properties
+      open import Graded.Usage.Restrictions.Instance R₁
+      open import Graded.Usage.Restrictions.Instance R₂
+      open CQ.Is-nr-preserving-morphism nr-preserving
       open CR₂
     tr-▸
       (natrec-no-nrₘ {m = m} {δ = δ} {p = p} {r = r} {η = η} {χ = χ}
@@ -230,7 +236,7 @@ module Is-morphism
         (tr-∙▸[𝟘ᵐ?] ▸P)
         (tr-Conₘ-monotone χ≤γ)
         (λ ok →
-           case 𝟘ᵐ-in-first-if-in-second (inj₁ ok) of λ where
+           case 𝟘ᵐ-in-first-if-in-second ok of λ where
              (inj₁ ok) →
                tr-Conₘ-monotone (χ≤δ ok)
              (inj₂ trivial) → begin
@@ -238,7 +244,7 @@ module Is-morphism
                tr-Conₘ δ  ∎)
         (λ ⦃ 𝟘-well-behaved = 𝟘-well-behaved ⦄ →
            case 𝟘-well-behaved-in-first-if-in-second
-                  (inj₁ 𝟘-well-behaved) of λ where
+                  𝟘-well-behaved of λ where
              (inj₁ 𝟘-well-behaved) →
                tr-Conₘ-monotone
                  (χ≤η ⦃ 𝟘-well-behaved = 𝟘-well-behaved ⦄)
@@ -254,7 +260,36 @@ module Is-morphism
            tr-Conₘ δ C₂.+ᶜ tr p C₂.·ᶜ tr-Conₘ η C₂.+ᶜ
            tr r C₂.·ᶜ tr-Conₘ χ                         ∎)
       where
-      open import Graded.Modality.Morphism.Forward-instances tr-m
+      open Graded.Modality.Morphism.Forward-instances common-properties
+      open Is-no-nr-preserving-morphism no-nr-preserving
+      open CR₂
+    tr-▸
+      (natrec-no-nr-glbₘ {m} {δ} {p} {r} {η} {χ} {x} ▸z ▸s ▸n ▸P x-glb χ-glb) =
+      let x′ , x′-glb = tr-nrᵢ-𝟙-GLB x-glb
+          χ′ , χ′-glb = tr-Conₘ-nrᵢᶜ-GLBᶜ χ-glb
+      in  sub
+           (natrec-no-nr-glbₘ (tr-▸ ▸z)
+             (sub (tr-▸ ▸s) (begin
+               tr-Conₘ δ ∙ Mo₂.⌜ tr-Mode m ⌝ M₂.· tr p ∙
+                Mo₂.⌜ tr-Mode m ⌝ M₂.· tr r                                ≈⟨ ≈ᶜ-refl ∙ tr-⌜⌝-· m ∙ tr-⌜⌝-· m ⟩
+
+                tr-Conₘ δ ∙ tr (Mo₁.⌜ m ⌝ M₁.· p) ∙ tr (Mo₁.⌜ m ⌝ M₁.· r)  ∎))
+             (tr-▸ ▸n)
+             (tr-∙▸[𝟘ᵐ?] ▸P)
+             x′-glb χ′-glb) (begin
+               tr-Conₘ (x C₁.·ᶜ η C₁.+ᶜ χ) ≈⟨ tr-Conₘ-+ᶜ ⟩
+               tr-Conₘ (x C₁.·ᶜ η) C₂.+ᶜ tr-Conₘ χ ≈⟨ +ᶜ-congʳ tr-Conₘ-·ᶜ ⟩
+               tr x C₂.·ᶜ tr-Conₘ η C₂.+ᶜ tr-Conₘ χ ≤⟨ +ᶜ-monotone (·ᶜ-monotoneˡ
+                                                        (x′-glb .proj₂ _ (λ i → ≤-trans (tr-monotone (x-glb .proj₁ i))
+                                                                                 (≤-trans (≤-reflexive (tr-nrᵢ i))
+                                                                                 (nrᵢ-monotone i tr-𝟙 ≤-refl)))))
+                                                        (χ′-glb .proj₂ _ (λ i → ≤ᶜ-trans (tr-Conₘ-monotone (χ-glb .proj₁ i))
+                                                                                 (≤ᶜ-reflexive tr-Conₘ-nrᵢᶜ))) ⟩
+               x′ C₂.·ᶜ tr-Conₘ η C₂.+ᶜ χ′ ∎)
+      where
+      open Graded.Modality.Morphism.Forward-instances common-properties
+      open Is-no-nr-glb-preserving-morphism no-nr-glb-preserving
+      open CQ.Is-no-nr-glb-preserving-morphism no-nr-glb-preserving
       open CR₂
     tr-▸ (emptyrecₘ {m = m} ▸t ▸A ok) = sub
       (emptyrecₘ (▸-cong (tr-Mode-ᵐ· m BMΠ) (tr-▸ ▸t)) (tr-▸[𝟘ᵐ?] ▸A)
@@ -752,9 +787,12 @@ module Is-order-embedding
           RS₁.zeroᵤ
         (suc _) (sucᵤ t) →
           RS₁.sucᵤ (lemma m₁≳m₂ _ t)
-        (natrec _ _ _ _ _ _ _) (natrecᵤ A t u v) →
-          RS₁.natrecᵤ (lemma-𝟘ᵐ?-𝟘ᵐ? A) (lemma m₁≳m₂ _ t)
-            (lemma m₁≳m₂ _ u) (lemma m₁≳m₂ _ v)
+        (natrec _ _ _ _ _ _ _) (natrecᵤ x A t u v) →
+          let open Graded.Modality.Morphism.Forward-instances common-properties
+          in  RS₁.natrecᵤ
+                (M.Is-no-nr-glb-reflecting-morphism.tr-nrᵢ-glb no-nr-glb-reflected (x .proj₂))
+                (lemma-𝟘ᵐ?-𝟘ᵐ? A) (lemma m₁≳m₂ _ t)
+                (lemma m₁≳m₂ _ u) (lemma m₁≳m₂ _ v)
         (U _) Uᵤ →
           RS₁.Uᵤ
         (Id _ _ _) (Idᵤ not-erased A t u) →
@@ -1088,8 +1126,10 @@ module Is-order-embedding
            (tr-∙▸[𝟘ᵐ?]⁻¹ ▸P .proj₂))
         γ≤nr-prθ′δ′η′
       where
-      open import
-        Graded.Modality.Morphism.Backward-instances tr-morphism
+      open Graded.Modality.Morphism.Backward-instances common-properties
+      open import Graded.Usage.Restrictions.Instance R₁
+      open import Graded.Usage.Restrictions.Instance R₂
+      open CQ.Is-nr-reflecting-morphism nr-reflected
 
     tr-▸⁻¹′
       {m = m} (natrec p _ r _ _ _ _)
@@ -1113,9 +1153,27 @@ module Is-order-embedding
            fix′)
         γ≤γ″ }
       where
-      open import
-        Graded.Modality.Morphism.Backward-instances tr-morphism
+      open Graded.Modality.Morphism.Backward-instances common-properties
+      open CQ.Is-no-nr-reflecting-morphism no-nr-reflected
 
+    tr-▸⁻¹′ {m = m} (natrec p _ r _ _ _ _)
+      (natrec-no-nr-glbₘ {δ} ▸z ▸s ▸n ▸P x-glb χ-glb) refl γ≤γ′ =
+      let _ , δ′ , η′ , _ , _ , ≤γ , ≤δ , ≤η , x′-glb , χ′-glb , θ≤ = tr-Conₘ-≤ᶜ-no-nr γ≤γ′ x-glb χ-glb
+      in  sub
+            (natrec-no-nr-glbₘ {δ = δ′} {η = η′}
+              (tr-▸⁻¹′ _ ▸z refl ≤γ)
+              (tr-▸⁻¹′ _ ▸s refl $ let open CR₂ in begin
+                tr-Conₘ δ′ ∙ tr (Mo₁.⌜ m ⌝ M₁.· p) ∙
+                tr (Mo₁.⌜ m ⌝ M₁.· r)                 ≤⟨ ≤δ ∙ ≤-refl ∙ ≤-refl ⟩
+                δ ∙ tr (Mo₁.⌜ m ⌝ M₁.· p) ∙
+                tr (Mo₁.⌜ m ⌝ M₁.· r)                 ≈˘⟨ CP₂.≈ᶜ-refl ∙ tr-⌜⌝-· m ∙ tr-⌜⌝-· m ⟩
+                δ ∙  Mo₂.⌜ tr-Mode m ⌝ M₂.· tr p ∙
+                Mo₂.⌜ tr-Mode m ⌝ M₂.· tr r ∎)
+              (tr-▸⁻¹′ _ ▸n refl ≤η)
+              (tr-∙▸[𝟘ᵐ?]⁻¹ ▸P .proj₂) x′-glb χ′-glb) θ≤
+      where
+      open Graded.Modality.Morphism.Backward-instances common-properties
+      open CQ.Is-no-nr-glb-reflecting-morphism no-nr-glb-reflected
     tr-▸⁻¹′
       {m = m} {γ = γ} (emptyrec p _ _)
       (emptyrecₘ ▸t ▸A ok) refl γ≤pδ =

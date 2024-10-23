@@ -5,22 +5,25 @@
 open import Graded.Modality
 open import Graded.Usage.Restrictions
 open import Definition.Typed.Variant
+open import Graded.Usage.Restrictions.Natrec
 
 module Graded.Heap.Reduction.Inversion
   {a} {M : Set a} {𝕄 : Modality M}
   (type-variant : Type-variant)
   (UR : Usage-restrictions 𝕄)
-  (open Modality 𝕄)
-  ⦃ _ : Has-nr M semiring-with-meet ⦄
-  ⦃ _ : Has-factoring-nr M semiring-with-meet ⦄
+  (open Usage-restrictions UR)
+  (factoring-nr :
+    ⦃ has-nr : Nr-available ⦄ →
+    Is-factoring-nr M (Natrec-mode-Has-nr 𝕄 has-nr))
   where
 
 open Type-variant type-variant
+open Modality 𝕄
 
 open import Definition.Untyped M
 
-open import Graded.Heap.Untyped type-variant UR
-open import Graded.Heap.Reduction type-variant UR
+open import Graded.Heap.Untyped type-variant UR factoring-nr
+open import Graded.Heap.Reduction type-variant UR factoring-nr
 
 open import Graded.Modality.Nr-instances
 
@@ -43,7 +46,7 @@ private variable
   s : State _ _ _
   s′ : Strength
   l l₁ l₂ : Universe-level
-  p p′ q r : M
+  p p′ q q′ r : M
 
 opaque
 
@@ -107,10 +110,28 @@ opaque
 
   -- Inversion of natrec
 
-  ⇒ₑ-inv-natrec :
-    ⟨ H , natrec p q r A u v t , ρ , S ⟩ ⇒ₑ s →
-    s ≡ ⟨ H , t , ρ , natrecₑ p q r A u v ρ ∙ S ⟩
-  ⇒ₑ-inv-natrec natrecₕ = refl
+  ⇾ₑ-inv-natrec :
+    {t : Term n}
+    {s : State _ _ n′} →
+    ⟨ H , natrec p q r A u v t , ρ , S ⟩ ⇾ₑ s →
+    Σ (n′ ≡ n) λ n′≡n → ∃ λ q′ →
+      subst (State _ _) n′≡n s ≡ ⟨ H , t , ρ , natrecₑ p q r q′ A u v ρ ∙ S ⟩ ×
+      Ok-natrec-multiplicity q′ p r
+  ⇾ₑ-inv-natrec (natrecₕ ok) = refl , _ , refl , ok
+  ⇾ₑ-inv-natrec (⇒ₑ ())
+
+opaque
+
+  -- Inversion of natrec
+
+  ⇢ₑ-inv-natrec :
+    {t : Term n}
+    {s : State _ _ n′} →
+    ⟨ H , natrec p q r A u v t , ρ , S ⟩ ⇢ₑ s →
+    Σ (n′ ≡ n) λ n′≡n →
+      subst (State _ _) n′≡n s ≡ ⟨ H , t , ρ , natrecₑ p q r 𝟘 A u v ρ ∙ S ⟩
+  ⇢ₑ-inv-natrec natrecₕ = refl , refl
+  ⇢ₑ-inv-natrec (⇒ₑ ())
 
 opaque
 
@@ -265,12 +286,12 @@ opaque
   ⇒ᵥ-inv-zero :
     {H : Heap k m′} {s : State _ m n} →
     ⟨ H , zero , ρ , S ⟩ ⇒ᵥ s →
-    ∃₉ λ n′ p q r A u v (ρ′ : Wk _ n′) S′ →
-       S ≡ natrecₑ p q r A u v ρ′ ∙ S′ ×
+    ∃₁₀ λ n′ p q r q′ A u v (ρ′ : Wk _ n′) S′ →
+       S ≡ natrecₑ p q r q′ A u v ρ′ ∙ S′ ×
        Σ (m ≡ m′) λ m≡ → Σ (n ≡ n′) λ n≡ →
          subst₂ (State _) m≡ n≡ s ≡ ⟨ H , u , ρ′ , S′ ⟩
   ⇒ᵥ-inv-zero zeroₕ =
-    _ , _ , _ , _ , _ , _ , _ , _ , _ , refl , refl , refl , refl
+    _ , _ , _ , _ , _ , _ , _ , _ , _ , _ , refl , refl , refl , refl
 
 opaque
 
@@ -278,12 +299,13 @@ opaque
 
   ⇒ᵥ-inv-zero-natrecₑ :
     {H : Heap k m′} {u : Term n′} {s : State _ m n} →
-    ⟨ H , zero , ρ , natrecₑ p q r A u v ρ′ ∙ S ⟩ ⇒ᵥ s →
+    ⟨ H , zero , ρ , natrecₑ p q r q′ A u v ρ′ ∙ S ⟩ ⇒ᵥ s →
     Σ (m ≡ m′) λ m≡ → Σ (n ≡ n′) λ n≡ →
       subst₂ (State _) m≡ n≡ s ≡ ⟨ H , u , ρ′ , S ⟩
   ⇒ᵥ-inv-zero-natrecₑ d =
     case ⇒ᵥ-inv-zero d of λ {
-      (_ , _ , _ , _ , _ , _ , _ , _ , _ , refl , refl , refl , refl) →
+      (_ , _ , _ , _ , _ , _ , _ , _ , _ , _
+         , refl , refl , refl , refl) →
     refl , refl , refl }
 
 opaque
@@ -293,17 +315,17 @@ opaque
   ⇒ᵥ-inv-suc :
     {H : Heap k m′} {t : Term n′} {s : State _ m n} →
     ⟨ H , suc t , ρ , S ⟩ ⇒ᵥ s →
-    ∃₉ λ n′ p q r A u v (ρ′ : Wk _ n′) S′ →
-       S ≡ natrecₑ p q r A u v ρ′ ∙ S′ ×
+    ∃₁₀ λ n′ p q r q′ A u v (ρ′ : Wk _ n′) S′ →
+       S ≡ natrecₑ p q r q′ A u v ρ′ ∙ S′ ×
        Σ (m ≡ 2+ m′) λ m≡ → Σ (n ≡ 2+ n′) λ n≡ →
          subst₂ (State _) m≡ n≡ s ≡
-           ⟨ H ∙ (∣ S′ ∣ · nr₂ p r , t , ρ)
+           ⟨ H ∙ (∣ S′ ∣ · q′ , t , ρ)
               ∙ (∣ S′ ∣ · r , natrec p q r (wk (lift (step id)) A)
                               (wk1 u) (wk (liftn (step id) 2) v) (var x0)
                             , lift ρ′)
               , v , liftn ρ′ 2  , wk2ˢ S′ ⟩
   ⇒ᵥ-inv-suc sucₕ =
-    _ , _ , _ , _ , _ , _ , _ , _ , _ , refl , refl , refl , refl
+    _ , _ , _ , _ , _ , _ , _ , _ , _ , _ , refl , refl , refl , refl
 
 opaque
 
@@ -311,17 +333,18 @@ opaque
 
   ⇒ᵥ-inv-suc-natrecₑ :
     {H : Heap k m′} {u : Term n′} {s : State _ m n} →
-    ⟨ H , suc t , ρ , natrecₑ p q r A u v ρ′ ∙ S ⟩ ⇒ᵥ s →
+    ⟨ H , suc t , ρ , natrecₑ p q r q′ A u v ρ′ ∙ S ⟩ ⇒ᵥ s →
     Σ (m ≡ 2+ m′) λ m≡ → Σ (n ≡ 2+ n′) λ n≡ →
       subst₂ (State _) m≡ n≡ s ≡
-        ⟨ H ∙ (∣ S ∣ · nr₂ p r , t , ρ)
+        ⟨ H ∙ (∣ S ∣ · q′ , t , ρ)
             ∙ (∣ S ∣ · r , natrec p q r (wk (lift (step id)) A) (wk1 u)
                              (wk (liftn (step id) 2) v) (var x0)
                          , lift ρ′)
             , v , liftn ρ′ 2  , wk2ˢ S ⟩
   ⇒ᵥ-inv-suc-natrecₑ d =
     case ⇒ᵥ-inv-suc d of λ {
-      (_ , _ , _ , _ , _ , _ , _ , _ , _ , refl , refl , refl , refl) →
+      (_ , _ , _ , _ , _ , _ , _ , _ , _ , _
+         , refl , refl , refl , refl) →
     refl , refl , refl}
 
 opaque
@@ -515,3 +538,10 @@ opaque
 
   ⇒ₙ-inv-var : ⟨ H , var x , ρ , S ⟩ ⇒ₙ s → ⊥
   ⇒ₙ-inv-var (numₕ ())
+
+opaque
+
+  -- Inversion of natrec
+
+  ⇒ₙ-inv-natrec : ⟨ H , natrec p q r A t u v , ρ , S ⟩ ⇒ₙ s → ⊥
+  ⇒ₙ-inv-natrec (numₕ ())

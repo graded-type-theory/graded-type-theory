@@ -201,3 +201,11 @@ opaque
     χ ⟨ x ⟩                             ≤⟨ lookup-monotone _ fix ⟩
     (δ +ᶜ p ·ᶜ η +ᶜ r ·ᶜ χ) ⟨ x ⟩       ≡⟨ lookup-distrib-+ᶜ δ _ _ ⟩
     δ ⟨ x ⟩ + (p ·ᶜ η +ᶜ r ·ᶜ χ) ⟨ x ⟩  ∎
+
+opaque
+
+  -- 𝟘ᶜ is not smaller than any other context
+
+  𝟘ᶜ≮ : 𝟘ᶜ ≤ᶜ γ → γ ≈ᶜ 𝟘ᶜ
+  𝟘ᶜ≮ {γ = ε} ε = ε
+  𝟘ᶜ≮ {γ = γ ∙ p} (≤γ ∙ ≤p) = 𝟘ᶜ≮ ≤γ ∙ 𝟘≮ ≤p

@@ -17,19 +17,21 @@ open Usage-restrictions R
 
 open import Graded.Context 𝕄
 open import Graded.Context.Properties 𝕄
-open import Graded.Modality.Dedicated-nr 𝕄
 open import Graded.Modality.Properties 𝕄
 open import Graded.Mode 𝕄
 open import Graded.Usage 𝕄 R
 open import Graded.Usage.Erased-matches
+open import Graded.Usage.Restrictions.Natrec 𝕄
+open import Graded.Usage.Restrictions.Instance R
 open import Graded.Usage.Properties 𝕄 R
 
 open import Definition.Untyped M
 
 open import Tools.Bool using (T)
+open import Tools.Empty
 open import Tools.Fin
 open import Tools.Function
-open import Tools.Nat
+open import Tools.Nat hiding (_≤_)
 open import Tools.Product
 open import Tools.PropositionalEquality
 import Tools.Reasoning.PartialOrder
@@ -112,6 +114,8 @@ data Usage-restrictions-satisfied {n} (m : Mode) : Term n → Set a where
     Usage-restrictions-satisfied m t →
     Usage-restrictions-satisfied m (suc t)
   natrecᵤ :
+    (⦃ no-nr : Nr-not-available-GLB ⦄ →
+       ∃ λ x → Greatest-lower-bound x (nrᵢ r 𝟙 p)) →
     Usage-restrictions-satisfied 𝟘ᵐ? A →
     Usage-restrictions-satisfied m t →
     Usage-restrictions-satisfied m u →
@@ -365,8 +369,8 @@ opaque
       zeroᵤ
     (sucᵤ t) →
       sucᵤ (Usage-restrictions-satisfied-𝟙ᵐ→ t)
-    (natrecᵤ A t u v) →
-      natrecᵤ A (Usage-restrictions-satisfied-𝟙ᵐ→ t)
+    (natrecᵤ x≤ A t u v) →
+      natrecᵤ x≤ A (Usage-restrictions-satisfied-𝟙ᵐ→ t)
         (Usage-restrictions-satisfied-𝟙ᵐ→ u)
         (Usage-restrictions-satisfied-𝟙ᵐ→ v)
     Uᵤ →
@@ -493,16 +497,26 @@ opaque
       zeroᵤ
     (sucₘ ▸t) →
       sucᵤ (▸→Usage-restrictions-satisfied ▸t)
-    (natrecₘ ▸t ▸u ▸v ▸A) →
-      natrecᵤ (▸→Usage-restrictions-satisfied ▸A)
+    (natrecₘ ⦃ has-nr ⦄ ▸t ▸u ▸v ▸A) →
+      natrecᵤ
+        (λ ⦃ no-nr ⦄ → ⊥-elim (¬[Nr∧No-nr-glb] has-nr no-nr))
+        (▸→Usage-restrictions-satisfied ▸A)
         (▸→Usage-restrictions-satisfied ▸t)
         (▸→Usage-restrictions-satisfied ▸u)
         (▸→Usage-restrictions-satisfied ▸v)
-    (natrec-no-nrₘ ▸t ▸u ▸v ▸A _ _ _ _) →
-      natrecᵤ (▸→Usage-restrictions-satisfied ▸A)
+    (natrec-no-nrₘ ⦃ no-nr ⦄ ▸t ▸u ▸v ▸A _ _ _ _) →
+      natrecᵤ
+        (λ ⦃ no-nr′ ⦄ → ⊥-elim (¬[No-nr∧No-nr-glb] no-nr no-nr′))
+        (▸→Usage-restrictions-satisfied ▸A)
         (▸→Usage-restrictions-satisfied ▸t)
         (▸→Usage-restrictions-satisfied ▸u)
         (▸→Usage-restrictions-satisfied ▸v)
+    (natrec-no-nr-glbₘ ▸z ▸s ▸n ▸A x≤ _) →
+      natrecᵤ (_ , x≤)
+        (▸→Usage-restrictions-satisfied ▸A)
+        (▸→Usage-restrictions-satisfied ▸z)
+        (▸→Usage-restrictions-satisfied ▸s)
+        (▸→Usage-restrictions-satisfied ▸n)
     Uₘ →
       Uᵤ
     (Idₘ ok ▸A ▸t ▸u) →
@@ -572,7 +586,6 @@ opaque
   Usage-restrictions-satisfied→▸[𝟘ᵐ] {ok = 𝟘ᵐ-ok} = lemma
     where
     open CR
-    open import Graded.Modality.Dedicated-nr.Instance
 
     𝟘ᵐ?≡𝟘ᵐ′ : 𝟘ᵐ? ≡ 𝟘ᵐ[ 𝟘ᵐ-ok ]
     𝟘ᵐ?≡𝟘ᵐ′ = 𝟘ᵐ?≡𝟘ᵐ
@@ -634,7 +647,7 @@ opaque
         sndₘ (lemma t-ok)
       (sucᵤ t-ok) →
         sucₘ (lemma t-ok)
-      (natrecᵤ {p} {q} {r} A-ok t-ok u-ok v-ok) →
+      (natrecᵤ {r} {p} {q} x≤ A-ok t-ok u-ok v-ok) →
         let u-lemma =
               sub (lemma u-ok) $ begin
                 𝟘ᶜ ∙ 𝟘 · p ∙ 𝟘 · r  ≈⟨ ≈ᶜ-refl ∙ ·-zeroˡ _ ∙ ·-zeroˡ _ ⟩
@@ -644,19 +657,27 @@ opaque
                 𝟘ᶜ ∙ ⌜ 𝟘ᵐ? ⌝ · q  ≈⟨ ≈ᶜ-refl ∙ ·-congʳ (cong ⌜_⌝ 𝟘ᵐ?≡𝟘ᵐ′) ⟩
                 𝟘ᶜ ∙ 𝟘 · q        ≈⟨ ≈ᶜ-refl ∙ ·-zeroˡ _ ⟩
                 𝟘ᶜ                ∎
-        in case dedicated-nr? of λ where
-          does-have-nr →
-            sub (natrecₘ (lemma t-ok) u-lemma (lemma v-ok) A-lemma) $
-            begin
-              𝟘ᶜ                ≈˘⟨ nrᶜ-𝟘ᶜ ⟩
-              nrᶜ p r 𝟘ᶜ 𝟘ᶜ 𝟘ᶜ  ∎
-          does-not-have-nr →
-            natrec-no-nrₘ (lemma t-ok) u-lemma (lemma v-ok) A-lemma
-              ≤ᶜ-refl (λ _ → ≤ᶜ-refl) ≤ᶜ-refl $ begin
-              𝟘ᶜ                        ≈˘⟨ +ᶜ-identityʳ _ ⟩
-              𝟘ᶜ +ᶜ 𝟘ᶜ                  ≈˘⟨ +ᶜ-cong (·ᶜ-zeroʳ _) (·ᶜ-zeroʳ _) ⟩
-              p ·ᶜ 𝟘ᶜ +ᶜ r ·ᶜ 𝟘ᶜ        ≈˘⟨ +ᶜ-identityˡ _ ⟩
-              𝟘ᶜ +ᶜ p ·ᶜ 𝟘ᶜ +ᶜ r ·ᶜ 𝟘ᶜ  ∎
+        in  case natrec-mode? natrec-mode of λ where
+              does-have-nr →
+                sub (natrecₘ (lemma t-ok) u-lemma (lemma v-ok) A-lemma) $
+                begin
+                  𝟘ᶜ                ≈˘⟨ nrᶜ-𝟘ᶜ ⟩
+                  nrᶜ p r 𝟘ᶜ 𝟘ᶜ 𝟘ᶜ  ∎
+              does-not-have-nr →
+                natrec-no-nrₘ (lemma t-ok) u-lemma (lemma v-ok) A-lemma
+                  ≤ᶜ-refl (λ _ → ≤ᶜ-refl) ≤ᶜ-refl $ begin
+                  𝟘ᶜ                        ≈˘⟨ +ᶜ-identityʳ _ ⟩
+                  𝟘ᶜ +ᶜ 𝟘ᶜ                  ≈˘⟨ +ᶜ-cong (·ᶜ-zeroʳ _) (·ᶜ-zeroʳ _) ⟩
+                  p ·ᶜ 𝟘ᶜ +ᶜ r ·ᶜ 𝟘ᶜ        ≈˘⟨ +ᶜ-identityˡ _ ⟩
+                  𝟘ᶜ +ᶜ p ·ᶜ 𝟘ᶜ +ᶜ r ·ᶜ 𝟘ᶜ  ∎
+              does-not-have-nr-glb →
+                let x , x≤ = x≤
+                in  sub (natrec-no-nr-glbₘ (lemma t-ok) u-lemma
+                           (lemma v-ok) A-lemma x≤
+                           (GLBᶜ-const (λ _ → nrᵢᶜ-𝟘ᶜ))) $ begin
+                      𝟘ᶜ            ≈˘⟨ +ᶜ-identityˡ _ ⟩
+                      𝟘ᶜ +ᶜ 𝟘ᶜ      ≈˘⟨ +ᶜ-congʳ (·ᶜ-zeroʳ _) ⟩
+                      x ·ᶜ 𝟘ᶜ +ᶜ 𝟘ᶜ ∎
       (emptyrecᵤ {p} ok A-ok t-ok) →
         sub (emptyrecₘ (lemma t-ok) (lemma-𝟘ᵐ? A-ok) ok) $ begin
           𝟘ᶜ       ≈˘⟨ ·ᶜ-zeroʳ _ ⟩
@@ -830,8 +851,8 @@ opaque
         sndₘ (lemma t-ok)
       (sucᵤ t-ok) →
         sucₘ (lemma t-ok)
-      (natrecᵤ A-ok t-ok u-ok v-ok) →
-        case dedicated-nr? of λ where
+      (natrecᵤ x≤ A-ok t-ok u-ok v-ok) →
+        case natrec-mode? natrec-mode of λ where
           does-have-nr →
             sub
               (natrecₘ {δ = 𝟘ᶜ} {θ = 𝟘ᶜ} (lemma₀ t-ok) (lemma u-ok)
@@ -841,6 +862,11 @@ opaque
             natrec-no-nrₘ {δ = 𝟘ᶜ} {θ = 𝟘ᶜ} (lemma₀ t-ok) (lemma u-ok)
               (lemma₀ v-ok) (lemma A-ok) (≈ᶜ-trivial 𝟙≡𝟘)
               (λ _ → ≈ᶜ-trivial 𝟙≡𝟘) (≈ᶜ-trivial 𝟙≡𝟘) (≈ᶜ-trivial 𝟙≡𝟘)
+          does-not-have-nr-glb →
+            sub (natrec-no-nr-glbₘ {δ = 𝟘ᶜ} {θ = 𝟘ᶜ} {χ = 𝟘ᶜ}
+                  (lemma₀ t-ok) (lemma u-ok) (lemma₀ v-ok)
+                  (lemma A-ok) (x≤ .proj₂) (GLBᶜ-const (λ _ → nrᵢᶜ-𝟘ᶜ)))
+                (≈ᶜ-trivial 𝟙≡𝟘)
       (emptyrecᵤ ok A-ok t-ok) →
         sub (emptyrecₘ (lemma₀ t-ok) (lemma₀ A-ok) ok) (≈ᶜ-trivial 𝟙≡𝟘)
       (unitrecᵤ ok A-ok t-ok u-ok) →

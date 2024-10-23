@@ -5,17 +5,22 @@
 open import Graded.Modality
 open import Graded.Usage.Restrictions
 open import Definition.Typed.Variant
+open import Graded.Usage.Restrictions.Natrec
 
 module Graded.Heap.Untyped
   {a} {M : Set a}
   {𝕄 : Modality M}
   (type-variant : Type-variant)
   (UR : Usage-restrictions 𝕄)
+  (open Usage-restrictions UR)
+  -- If the usage rules use an nr function it must be factoring
+  (factoring-nr :
+    ⦃ has-nr : Nr-available ⦄ →
+    Is-factoring-nr M (Natrec-mode-Has-nr 𝕄 has-nr))
   where
 
-open Modality 𝕄 hiding (_+_)
+open Modality 𝕄
 open Type-variant type-variant
-open Usage-restrictions UR
 
 open import Tools.Fin
 open import Tools.Function
@@ -25,21 +30,27 @@ open import Tools.PropositionalEquality
 open import Tools.Relation
 
 open import Definition.Untyped M hiding (head)
+open import Graded.Modality.Nr-instances
 open import Graded.Mode
 open import Graded.Modality.Properties.Subtraction semiring-with-meet
-open import Graded.Modality.Nr-instances
 open import Graded.Usage.Erased-matches
 
 private variable
   n n′ m m′ m″ n″ k : Nat
   Γ : Con Term _
-  t t₁ t₂ u v A B : Term _
+  t t′ t₁ t₂ u v A B : Term _
   x : Fin _
-  p q r : M
+  p q r q′ q″ : M
   s : Strength
   b : BinderMode
   l : Universe-level
   ρ ρ′ : Wk _ _
+
+opaque instance
+  factoring-nr′ :
+    ⦃ has-nr : Nr-available ⦄ →
+    Is-factoring-nr _ (Natrec-mode-Has-nr 𝕄 has-nr)
+  factoring-nr′ ⦃ has-nr ⦄ = factoring-nr ⦃ has-nr ⦄
 
 ------------------------------------------------------------------------
 -- Pointers, closures and environments
@@ -83,8 +94,9 @@ data Elim (m : Nat) : Set a where
   ∘ₑ        : (p : M) (u : Term n) (ρ : Wk m n) → Elim m
   fstₑ      : M → Elim m
   sndₑ      : M → Elim m
-  prodrecₑ  : (r p q : M) (A : Term (1+ n)) (u : Term (2+ n)) (ρ : Wk m n) → Elim m
-  natrecₑ   : (p q r : M) (A : Term (1+ n)) (z : Term n)
+  prodrecₑ  : (r p q : M) (A : Term (1+ n)) (u : Term (2+ n))
+              (ρ : Wk m n) → Elim m
+  natrecₑ   : (p q r q′ : M) (A : Term (1+ n)) (z : Term n)
               (s : Term (2+ n)) (ρ : Wk m n) → Elim m
   unitrecₑ  : (l : Universe-level) (p q : M) (A : Term (1+ n))
               (u : Term n) (ρ : Wk m n) → Elim m
@@ -96,13 +108,28 @@ data Elim (m : Nat) : Set a where
   []-congₑ  : (s : Strength) (A t u : Term n) (ρ : Wk m n) → Elim m
   sucₑ      : Elim m
 
+private variable
+  e e′ : Elim _
+
+-- A predicate on grades indicating whether the grades on
+-- natrecₑ are "compatible" for the chosen natrec-mode.
+
+data Ok-natrec-multiplicity (q p r : M) : Set a where
+  has-nr :
+    ⦃ has-nr : Nr-available ⦄ →
+    q ≡ nr₂ p r → Ok-natrec-multiplicity q p r
+  no-nr :
+    ⦃ no-nr : Nr-not-available-GLB ⦄ →
+    Greatest-lower-bound q (nrᵢ r 𝟙 p) →
+    Ok-natrec-multiplicity q p r
+
 -- Weakening of eliminators
 
 wkᵉ : Wk m′ m → Elim m → Elim m′
 wkᵉ ρ (∘ₑ p u ρ′) = ∘ₑ p u (ρ • ρ′)
 wkᵉ ρ (fstₑ p) = fstₑ p
 wkᵉ ρ (sndₑ p) = sndₑ p
-wkᵉ ρ (natrecₑ p q r A z s ρ′) = natrecₑ p q r A z s (ρ • ρ′)
+wkᵉ ρ (natrecₑ p q r x A z s ρ′) = natrecₑ p q r x A z s (ρ • ρ′)
 wkᵉ ρ (prodrecₑ r p q A u ρ′) = prodrecₑ r p q A u (ρ • ρ′)
 wkᵉ ρ (unitrecₑ l p q A u ρ′) = unitrecₑ l p q A u (ρ • ρ′)
 wkᵉ ρ (emptyrecₑ p A ρ′) = emptyrecₑ p A (ρ • ρ′)
@@ -141,16 +168,15 @@ wk2ᵉ = wkᵉ (step (step id))
     (no _) → ω
     (yes _) → 𝟘
 
--- Multiplicity of an eliminator, representing how many copies need to be evaluated
+-- Multiplicity of an eliminator, representing how many copies need to
+-- be evaluated.
 
-∣_∣ᵉ : ⦃ _ : Has-nr M semiring-with-meet ⦄
-     → ⦃ _ : Has-factoring-nr M semiring-with-meet ⦄
-     → Elim m → M
+∣_∣ᵉ : Elim m → M
 ∣ ∘ₑ _ _ _ ∣ᵉ = 𝟙
 ∣ fstₑ _ ∣ᵉ = 𝟙
 ∣ sndₑ _ ∣ᵉ = 𝟙
 ∣ prodrecₑ r _ _ _ _ _ ∣ᵉ = r
-∣ natrecₑ p _ r _ _ _ _ ∣ᵉ = nr₂ p r
+∣ natrecₑ _ _ _ q′ _ _ _ _ ∣ᵉ = q′
 ∣ unitrecₑ _ p _ _ _ _ ∣ᵉ = p
 ∣ emptyrecₑ p _ _ ∣ᵉ = p
 ∣ Jₑ p q _ _ _ _ _ _ ∣ᵉ = ∣∣ᵉ-J (erased-matches-for-J 𝟙ᵐ) p q
@@ -158,19 +184,32 @@ wk2ᵉ = wkᵉ (step (step id))
 ∣ []-congₑ _ _ _ _ _ ∣ᵉ = 𝟘
 ∣ sucₑ ∣ᵉ = 𝟙
 
+-- An equality relation for eliminators.
+-- Eliminators are equal if they are (syntactically) the same up to
+-- the multiplicity of natrec, i.e. if they are representations of the
+-- same syntactic term.
+
+infix 5 _~ᵉ_
+
+data _~ᵉ_ {m} : (e e′ : Elim m) → Set a where
+  ~ᵉ-refl : e ~ᵉ e
+  ~ᵉ-natrec : natrecₑ p q r q′ A t u ρ ~ᵉ natrecₑ p q r q″ A t u ρ
+
 -- Evaluation stacks, indexed by the size of the heap
 
 data Stack (m : Nat) : Set a where
   ε : Stack m
   _∙_ : (e : Elim m) → (S : Stack m) → Stack m
 
--- Multiplicity of a stack, representing how many copies are currently being evaluated
+-- Multiplicity of a stack, representing how many copies are currently
+-- being evaluated.
 
-∣_∣ : ⦃ _ : Has-nr M semiring-with-meet ⦄
-    → ⦃ _ : Has-factoring-nr M semiring-with-meet ⦄
-    →  Stack m → M
+∣_∣ : Stack m → M
 ∣ ε ∣ = 𝟙
 ∣ e ∙ S ∣ = ∣ S ∣ · ∣ e ∣ᵉ
+
+private variable
+  S S′ : Stack _
 
 -- Weakening of stacks
 
@@ -196,15 +235,22 @@ sucₛ : Nat → Stack m
 sucₛ 0 = ε
 sucₛ (1+ n) = sucₑ ∙ sucₛ n
 
-private variable
-  e : Elim _
-  S : Stack _
-
 -- A utility predicate: stacks containing erased emptyrec
 
 data emptyrec₀∈_ : (S : Stack m) → Set a where
   here : emptyrec₀∈ (emptyrecₑ 𝟘 A ρ ∙ S)
   there : emptyrec₀∈ S → emptyrec₀∈ (e ∙ S)
+
+-- An equality relation for stacks.
+-- Stacks are equal if all eliminators are pairwise equal up to the
+-- multiplicity of natrec i.e. if they are representations of the same
+-- syntactic term.
+
+infix 5 _~ˢ_
+
+data _~ˢ_ {m} : (S S′ : Stack m) → Set a where
+  ε : ε ~ˢ ε
+  _∙_ : e ~ᵉ e′ → S ~ˢ S′ → e ∙ S ~ˢ e′ ∙ S′
 
 ------------------------------------------------------------------------
 -- Heaps
@@ -345,7 +391,7 @@ infixr 29 ⦅_⦆ᵉ_
 ⦅ sndₑ p ⦆ᵉ t = snd p t
 ⦅ prodrecₑ r p q A u ρ ⦆ᵉ t =
   prodrec r p q (wk (lift ρ) A) t (wk (liftn ρ 2) u)
-⦅ natrecₑ p q r A z s ρ ⦆ᵉ t =
+⦅ natrecₑ p q r _ A z s ρ ⦆ᵉ t =
   natrec p q r (wk (lift ρ) A) (wk ρ z) (wk (liftn ρ 2) s) t
 ⦅ unitrecₑ l p q A u ρ ⦆ᵉ t =
   unitrec l p q (wk (lift ρ) A) t (wk ρ u)
@@ -424,8 +470,8 @@ data Matching {m n} : Term n → Stack m → Set a where
   fstₑ : Matching (prodˢ p t u) (fstₑ p ∙ S)
   sndₑ : Matching (prodˢ p t u) (sndₑ p ∙ S)
   prodrecₑ : Matching (prodʷ p t u) (prodrecₑ r p q A v ρ ∙ S)
-  natrecₑ₀ : Matching zero (natrecₑ p q r A t u ρ ∙ S)
-  natrecₑ₊ : Matching (suc v) (natrecₑ p q r A t u ρ ∙ S)
+  natrecₑ₀ : Matching zero (natrecₑ p q r q′ A t u ρ ∙ S)
+  natrecₑ₊ : Matching (suc v) (natrecₑ p q r q′ A t u ρ ∙ S)
   unitrecₑ : Matching (starʷ l) (unitrecₑ l p q A u ρ ∙ S)
   unitrec-η : Unitʷ-η → Matching (unitrec l p q A t u) S
   Jₑ : Matching rfl (Jₑ p q A t B u v ρ ∙ S)

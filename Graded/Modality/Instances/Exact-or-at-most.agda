@@ -910,8 +910,7 @@ opaque
   nr₂→exact-or-at-most-has-factoring-nr :
     (nr₂ : Op₂ Exact-or-at-most) (nr₂≢𝟘 : ∀ {p r} → nr₂ p r ≢ 𝟘)
     (nr₂≤ : ∀ {p r} → nr₂ p r ≤ p + r · nr₂ p r) →
-    Has-factoring-nr exact-or-at-most-semiring-with-meet
-      ⦃ nr₂→exact-or-at-most-has-nr nr₂ nr₂≢𝟘 nr₂≤ ⦄
+    Is-factoring-nr (nr₂→exact-or-at-most-has-nr nr₂ nr₂≢𝟘 nr₂≤)
   nr₂→exact-or-at-most-has-factoring-nr nr₂ nr₂≢𝟘 _ = record
     { nr₂ = nr₂
     ; nr₂≢𝟘 = nr₂≢𝟘
@@ -933,7 +932,7 @@ instance opaque
 
   -- The nr function is factoring
 
-  exact-or-at-most-has-factoring-nr : Has-factoring-nr exact-or-at-most-semiring-with-meet
+  exact-or-at-most-has-factoring-nr : Is-factoring-nr exact-or-at-most-has-nr
   exact-or-at-most-has-factoring-nr =
     nr₂→exact-or-at-most-has-factoring-nr (λ p r → nr₃ r 𝟙 p)
       (λ {_} {r} nr₃≡𝟘 → case nr₃-positive r nr₃≡𝟘 of λ ())
@@ -1001,11 +1000,11 @@ opaque
 
   nr-greatest-factoring :
     (has-nr : Has-nr exact-or-at-most-semiring-with-meet)
-    (has-factoring-nr : Has-factoring-nr exact-or-at-most-semiring-with-meet ⦃ has-nr ⦄)
-    (nr₂p𝟘≤𝟙 : ∀ {p} → Has-factoring-nr.nr₂ ⦃ has-nr ⦄ has-factoring-nr p 𝟘 ≤ 𝟙)
-    (nr₂𝟘𝟙≤𝟙 : Has-factoring-nr.nr₂ ⦃ has-nr ⦄ has-factoring-nr 𝟘 𝟙 ≤ 𝟙) →
+    (is-factoring-nr : Is-factoring-nr has-nr)
+    (nr₂p𝟘≤𝟙 : ∀ {p} → Is-factoring-nr.nr₂ is-factoring-nr p 𝟘 ≤ 𝟙)
+    (nr₂𝟘𝟙≤𝟙 : Is-factoring-nr.nr₂ is-factoring-nr 𝟘 𝟙 ≤ 𝟙) →
     ∀ p r z s n → Has-nr.nr has-nr p r z s n ≤ nr p r z s n
-  nr-greatest-factoring has-nr has-factoring-nr nr₂p𝟘≤𝟙 nr₂𝟘𝟙≤𝟙 = λ where
+  nr-greatest-factoring has-nr is-factoring-nr nr₂p𝟘≤𝟙 nr₂𝟘𝟙≤𝟙 = λ where
     p r ∞ s n → lemma $ begin
       nr′ p r ∞ s n                ≡⟨ nr-factoring ⟩
       nr₂′ p r · n + nr′ p r ∞ s 𝟘 ≤⟨ +-monotoneʳ (nr-zero ≤-refl) ⟩
@@ -1123,7 +1122,7 @@ opaque
 
       open Has-nr has-nr
         renaming (nr to nr′; nr-positive to nr′-positive)
-      open Has-factoring-nr ⦃ has-nr ⦄ has-factoring-nr
+      open Is-factoring-nr is-factoring-nr
         renaming (nr₂ to nr₂′; nr₂≢𝟘 to nr₂′≢𝟘)
 
       nr₂′≡ : nr₂′ p r ≡ nr′ p r 𝟘 𝟘 𝟙
@@ -1174,7 +1173,6 @@ opaque
     { variant = variant
     ; semiring-with-meet = exact-or-at-most-semiring-with-meet
     ; 𝟘-well-behaved = λ _ → exact-or-at-most-has-well-behaved-zero
-    ; has-nr = λ _ → exact-or-at-most-has-nr
     }
 
 ------------------------------------------------------------------------

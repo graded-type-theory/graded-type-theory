@@ -45,34 +45,17 @@ private variable
   rs : Type-restrictions
   us : Usage-restrictions
 
-
--- An alternative (not very good) "linear types" modality.
---
--- See Graded.Modality.Instances.Linearity.Bad for some examples that
--- illustrate in what sense this modality is not very good. The
--- modality linearityModality does not suffer from these problems (see
--- Graded.Modality.Instances.Linearity.Good), but note that, at the
--- time of writing, this formalisation does not contain any solid
--- evidence showing that linearityModality captures a good notion of
--- "linearity".
-
-bad-linearity-modality : Modality
-bad-linearity-modality = zero-one-many-greatest variant
-
--- The nr function obtained from linearityModality (if any) is
+-- The nr function zero-one-many-has-nr is
 -- incomparable to (neither bounded from below nor from above by) the
--- nr function obtained from bad-linearity-modality.
+-- nr function zero-one-many-greatest-star-nr.
 
 incomparable :
-  (nr-available : Nr-available) →
-  let nr₁ = linearityModality
-              .Modality.has-nr nr-available .Has-nr.nr
-      nr₂ = bad-linearity-modality
-              .Modality.has-nr nr-available .Has-nr.nr
+ let nr₁ = zero-one-many-has-nr .Has-nr.nr
+     nr₂ = zero-one-many-greatest-star-nr .Has-nr.nr
   in
   (∃₅ λ p r z s n → ¬ nr₁ p r z s n ≤ nr₂ p r z s n) ×
   (∃₅ λ p r z s n → ¬ nr₂ p r z s n ≤ nr₁ p r z s n)
-incomparable _ =
+incomparable =
     (𝟘 , 𝟙 , 𝟘 , 𝟘 , 𝟙 , (λ ()))
   , (𝟘 , 𝟙 , 𝟙 , 𝟘 , 𝟙 , (λ ()))
 

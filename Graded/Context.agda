@@ -15,7 +15,10 @@ open Modality 𝕄
 open import Graded.Modality.Nr-instances
 
 open import Tools.Fin
-open import Tools.Nat using (Nat; 1+) renaming (_+_ to _+ⁿ_)
+open import Tools.Function
+open import Tools.Level
+open import Tools.Nat using (Nat; 1+)
+open import Tools.Product
 open import Tools.PropositionalEquality
 
 infixl 24 _∙_
@@ -125,3 +128,9 @@ _⊛ᶜ_▷_ :
 𝟙ᶜ : Conₘ n
 𝟙ᶜ {n = 0}    = ε
 𝟙ᶜ {n = 1+ n} = 𝟙ᶜ ∙ 𝟙
+
+Greatest-such-thatᶜ : ∀ {ℓ} → (Conₘ n → Set ℓ) → Conₘ n → Set (a ⊔ ℓ)
+Greatest-such-thatᶜ P γ = P γ × (∀ δ → P δ → δ ≤ᶜ γ)
+
+Greatest-lower-boundᶜ : Conₘ n → Sequence (Conₘ n) → Set a
+Greatest-lower-boundᶜ γ γᵢ = Greatest-such-thatᶜ (λ δ → ∀ i → δ ≤ᶜ γᵢ i) γ

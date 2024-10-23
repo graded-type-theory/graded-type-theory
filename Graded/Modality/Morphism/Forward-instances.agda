@@ -3,31 +3,42 @@
 ------------------------------------------------------------------------
 
 open import Graded.Modality
-open import Graded.Modality.Morphism
+open import Graded.Usage.Restrictions
+open import Graded.Modality.Morphism.Usage-restrictions
 
 module Graded.Modality.Morphism.Forward-instances
   {a₁ a₂} {M₁ : Set a₁} {M₂ : Set a₂}
   {𝕄₁ : Modality M₁} {𝕄₂ : Modality M₂}
-  {tr : M₁ → M₂}
-  (m : Is-morphism 𝕄₁ 𝕄₂ tr)
+  {R₁ : Usage-restrictions 𝕄₁}
+  {R₂ : Usage-restrictions 𝕄₂}
+  (cp : Common-properties R₁ R₂)
   where
 
-open Is-morphism m
+open Common-properties cp
 
-open import Graded.Modality.Dedicated-nr
+module R₁ = Usage-restrictions R₁
+module R₂ = Usage-restrictions R₂
 
 instance
 
-  -- If the source modality has a dedicated nr function, then the
-  -- target modality also has one.
+  -- If the source modality uses the usage rule for natrec with
+  -- an nr function then so does the target one.
 
   nr-in-second-if-in-first′ :
-    ⦃ has-nr : Dedicated-nr 𝕄₁ ⦄ → Dedicated-nr 𝕄₂
+    ⦃ has-nr : R₁.Nr-available ⦄ → R₂.Nr-available
   nr-in-second-if-in-first′ = nr-in-second-if-in-first
 
-  -- If the source modality does not have a dedicated nr function,
-  -- then neither does the target modality.
+  -- If the source modality uses the usage rule for natrec with
+  -- inequalities then so does the target one.
 
   no-nr-in-second-if-in-first′ :
-    ⦃ no-nr : No-dedicated-nr 𝕄₁ ⦄ → No-dedicated-nr 𝕄₂
+    ⦃ no-nr : R₁.Nr-not-available ⦄ → R₂.Nr-not-available
   no-nr-in-second-if-in-first′ = no-nr-in-second-if-in-first
+
+  -- If the source modality uses the usage rule for natrec with
+  -- the greatest lower bound of an nrᵢ sequence then so does the
+  -- target one.
+
+  no-nr-glb-in-second-if-in-first′ :
+    ⦃ no-nr : R₁.Nr-not-available-GLB ⦄ → R₂.Nr-not-available-GLB
+  no-nr-glb-in-second-if-in-first′ = no-nr-glb-in-second-if-in-first

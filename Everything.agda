@@ -35,8 +35,6 @@ import Tools.Algebra
 import Graded.Modality.Variant
 import Graded.Modality
 import Graded.Modality.Nr-instances
-import Graded.Modality.Dedicated-nr
-import Graded.Modality.Dedicated-nr.Instance
 
 ------------------------------------------------------------------------
 -- Properties of the modality semiring
@@ -49,6 +47,7 @@ import Graded.Modality.Properties.Addition
 import Graded.Modality.Properties.Division
 import Graded.Modality.Properties.Has-well-behaved-zero
 import Graded.Modality.Properties.Star
+import Graded.Modality.Properties.Greatest-lower-bound
 import Graded.Modality.Properties.Natrec
 import Graded.Modality.Properties.Subtraction
 import Graded.Modality.Properties
@@ -153,7 +152,9 @@ import Definition.Typed.EqRelInstance
 -- The usage relation
 
 import Graded.Usage.Erased-matches
+import Graded.Usage.Restrictions.Natrec
 import Graded.Usage.Restrictions
+import Graded.Usage.Restrictions.Instance
 import Graded.Usage
 import Graded.Usage.Inversion
 import Graded.Usage.Properties
@@ -233,18 +234,6 @@ import
 import
   Graded.Modality.Instances.Bounded-distributive-lattice.Downward-closed
 import Graded.Modality.Instances.Set.Interval.Implementation
-
--- Some examples.
-import Graded.Modality.Instances.Examples
-import Graded.Modality.Instances.Affine.Bad
-import Graded.Modality.Instances.Affine.Bad.No-dedicated-nr
-import Graded.Modality.Instances.Affine.Good
-import Graded.Modality.Instances.Linear-or-affine.Bad
-import Graded.Modality.Instances.Linear-or-affine.Bad.No-dedicated-nr
-import Graded.Modality.Instances.Linear-or-affine.Good
-import Graded.Modality.Instances.Linearity.Bad
-import Graded.Modality.Instances.Linearity.Bad.No-dedicated-nr
-import Graded.Modality.Instances.Linearity.Good
 
 ------------------------------------------------------------------------
 -- Properties of the type theory
@@ -352,6 +341,20 @@ import Definition.Typed.Decidable
 import Graded.Restrictions
 
 ------------------------------------------------------------------------
+-- Some examples related to some modality instances
+
+import Graded.Modality.Instances.Examples
+import Graded.Modality.Instances.Affine.Bad
+import Graded.Modality.Instances.Affine.Bad.No-dedicated-nr
+import Graded.Modality.Instances.Affine.Good
+import Graded.Modality.Instances.Linear-or-affine.Bad
+import Graded.Modality.Instances.Linear-or-affine.Bad.No-dedicated-nr
+import Graded.Modality.Instances.Linear-or-affine.Good
+import Graded.Modality.Instances.Linearity.Bad
+import Graded.Modality.Instances.Linearity.Bad.No-dedicated-nr
+import Graded.Modality.Instances.Linearity.Good
+
+------------------------------------------------------------------------
 -- Subject reduction for modalities
 
 import Graded.Reduction
@@ -364,12 +367,12 @@ import Definition.Untyped.QuantityTranslation
 import Definition.Untyped.QuantityTranslation.Identity
 import Graded.Modality.Morphism
 import Graded.Modality.Morphism.Examples
-import Graded.Modality.Morphism.Forward-instances
-import Graded.Modality.Morphism.Backward-instances
 import Graded.Modality.Morphism.Type-restrictions
 import Graded.Modality.Morphism.Type-restrictions.Examples
 import Graded.Modality.Morphism.Usage-restrictions
 import Graded.Modality.Morphism.Usage-restrictions.Examples
+import Graded.Modality.Morphism.Forward-instances
+import Graded.Modality.Morphism.Backward-instances
 import Definition.Typed.QuantityTranslation
 import Graded.Context.QuantityTranslation
 import Graded.Mode.QuantityTranslation
@@ -468,6 +471,7 @@ import Graded.Heap.Usage
 import Graded.Heap.Usage.Inversion
 import Graded.Heap.Usage.Weakening
 import Graded.Heap.Usage.Properties
+import Graded.Heap.Usage.Inversion
 import Graded.Heap.Usage.Reduction
 
 -- Other properties of the abstract machine

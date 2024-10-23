@@ -11,6 +11,8 @@ open import Function.Base
 open import Relation.Nullary.Decidable public
   using (_→-dec_)
 
+open import Agda.Builtin.Nat
+
 open import Tools.Empty
 open import Tools.Level
 open import Tools.Product
@@ -299,3 +301,8 @@ Is-proposition-Dec = λ where
   _  _    {x = no x}  {y = yes y} → ⊥-elim (x y)
   fe _    {x = no x}  {y = no y}  →
     cong no (Is-proposition-Π fe λ _ → ⊥-propositional)
+
+-- Infinite sequences of elements of a given type
+
+Sequence : (A : Set a) → Set a
+Sequence A = Nat → A

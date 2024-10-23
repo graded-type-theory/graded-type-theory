@@ -17,6 +17,7 @@ import Tools.Algebra
 open import Tools.Empty
 open import Tools.Function
 open import Tools.Level
+open import Tools.Nat using (1+)
 open import Tools.Product
 open import Tools.PropositionalEquality as PE
 import Tools.Reasoning.PartialOrder
@@ -27,6 +28,7 @@ open import Tools.Sum using (_⊎_; inj₁; inj₂)
 import Graded.Modality
 import Graded.Modality.Instances.LowerBounded as LowerBounded
 import Graded.Modality.Properties.Addition as Addition
+import Graded.Modality.Properties.Greatest-lower-bound as GLB
 import Graded.Modality.Properties.Meet as Meet
 import Graded.Modality.Properties.Multiplication as Multiplication
 import Graded.Modality.Properties.PartialOrder as PartialOrder
@@ -929,16 +931,6 @@ zero-one-many-lower-bounded-⊛ =
   open Has-star zero-one-many-lower-bounded-star
   open Tools.Reasoning.PropositionalEquality
 
--- A zero-one-many modality. The dedicated nr function, if any, is
--- defined using the construction in
--- Graded.Modality.Instances.LowerBounded.
-
-zero-one-many-lower-bounded : Modality-variant → Modality
-zero-one-many-lower-bounded variant = LowerBounded.isModality
-  zero-one-many-semiring-with-meet ω ω≤
-  variant
-  (λ _ → zero-one-many-has-well-behaved-zero)
-
 ------------------------------------------------------------------------
 -- A variant of the modality with a "greatest" star operation
 
@@ -1262,20 +1254,35 @@ zero-one-many-greatest-star = record
 ¬-lower-bounded-greatest hyp =
   case hyp zero-one-many-greatest-star 𝟙 𝟙 𝟘 of λ ()
 
--- A zero-one-many modality (with arbitrary "restrictions").
---
--- The dedicated nr function, if any, is the "greatest" one defined
--- above.
+-- The "greatest" natrec-star operator defined above provides a
+-- possible nr function.
 
-zero-one-many-greatest : Modality-variant → Modality
-zero-one-many-greatest variant = record
-  { variant            = variant
-  ; semiring-with-meet = zero-one-many-semiring-with-meet
-  ; 𝟘-well-behaved     = λ _ → zero-one-many-has-well-behaved-zero
-  ; has-nr             = λ _ →
-                           Star.has-nr _
-                             ⦃ has-star = zero-one-many-greatest-star ⦄
-  }
+zero-one-many-greatest-star-nr : Has-nr zero-one-many-semiring-with-meet
+zero-one-many-greatest-star-nr =
+  Star.has-nr _ ⦃ has-star = zero-one-many-greatest-star ⦄
+
+opaque
+
+  -- The nr function given by the "greatest" natrec-star operator does
+  -- not give a "factoring" nr function.
+
+  ¬zero-one-many-greatest-star-factoring-nr :
+    ¬ Is-factoring-nr zero-one-many-greatest-star-nr
+  ¬zero-one-many-greatest-star-factoring-nr factoring = case 𝟙≡ω of λ ()
+    where
+    open Has-nr zero-one-many-greatest-star-nr
+    open Is-factoring-nr factoring
+    open Semiring-with-meet zero-one-many-semiring-with-meet
+      hiding (𝟘; 𝟙; ω; _+_; _·_)
+    open Tools.Reasoning.PropositionalEquality
+    𝟙≡ω : 𝟙 ≡ ω
+    𝟙≡ω = begin
+      𝟙                            ≡⟨⟩
+      nr 𝟘 𝟙 𝟙 𝟘 𝟙                ≡⟨ nr-factoring {z = 𝟙} {s = 𝟘} ⟩
+      nr₂ 𝟘 𝟙 · 𝟙 + nr 𝟘 𝟙 𝟙 𝟘 𝟘 ≡⟨⟩
+      nr₂ 𝟘 𝟙 · 𝟙 + 𝟘∧𝟙 + 𝟘       ≡⟨ +-cong (·-identityʳ _) (+-identityʳ 𝟘∧𝟙) ⟩
+      nr₂ 𝟘 𝟙 + 𝟘∧𝟙               ≡⟨ ≢𝟘+≢𝟘 nr₂≢𝟘 𝟘∧𝟙≢𝟘 ⟩
+      ω ∎
 
 ------------------------------------------------------------------------
 -- A variant of the modality with a custom nr function
@@ -1794,7 +1801,7 @@ opaque
   -- The nr function defined above is factoring.
 
   zero-one-many-has-factoring-nr :
-    Has-factoring-nr zero-one-many-semiring-with-meet ⦃ zero-one-many-has-nr ⦄
+    Is-factoring-nr zero-one-many-has-nr
   zero-one-many-has-factoring-nr = record
     { nr₂ = nr₂
     ; nr₂≢𝟘 = λ {p} {r} → 𝟙∧p≢𝟘 (r + p)
@@ -1831,10 +1838,10 @@ opaque
   -- of any other factoring nr function for zero-one-many-semiring-with-meet.
 
   nr-greatest-factoring :
-    ⦃ has-nr : Has-nr zero-one-many-semiring-with-meet ⦄
-    (has-factoring-nr : Has-factoring-nr zero-one-many-semiring-with-meet) →
+    (has-nr : Has-nr zero-one-many-semiring-with-meet)
+    (is-factoring-nr : Is-factoring-nr has-nr) →
     ∀ p r z s n → Has-nr.nr has-nr p r z s n ≤ nr p r z s n
-  nr-greatest-factoring ⦃ has-nr ⦄ has-factoring-nr = λ where
+  nr-greatest-factoring has-nr is-factoring-nr = λ where
       p r ω s n → lemma $ begin
         nr″ p r ω s n                ≡⟨ nr-factoring ⟩
         nr₂″ p r · n + nr″ p r ω s 𝟘 ≤⟨ +-monotoneʳ (nr-zero refl) ⟩
@@ -1918,8 +1925,8 @@ opaque
         nr′ p 𝟙 𝟙 𝟘 𝟘 ≡˘⟨ nr≡nr′ {𝟙} {𝟘} {𝟘} p 𝟙 ⟩
         nr  p 𝟙 𝟙 𝟘 𝟘 ∎
     where
+    open Is-factoring-nr is-factoring-nr renaming (nr₂ to nr₂″)
     open Has-nr has-nr renaming (nr to nr″; nr-positive to nr″-positive)
-    open Has-factoring-nr has-factoring-nr renaming (nr₂ to nr₂″)
     open Addition zero-one-many-semiring-with-meet
     open Meet zero-one-many-semiring-with-meet
     open Natrec zero-one-many-semiring-with-meet renaming (nr-𝟘 to nr″-𝟘)
@@ -1975,7 +1982,6 @@ zero-one-many-modality variant = record
   { variant            = variant
   ; semiring-with-meet = zero-one-many-semiring-with-meet
   ; 𝟘-well-behaved     = λ _ → zero-one-many-has-well-behaved-zero
-  ; has-nr             = λ _ → zero-one-many-has-nr
   }
 
 ------------------------------------------------------------------------
@@ -2087,3 +2093,155 @@ opaque
     right ω-p≡′ω = ω-p≡ω q
     right p-𝟘≡′p = p-𝟘≡p
     right 𝟙-𝟙≡′𝟘 = 𝟙-𝟙≡𝟘
+
+------------------------------------------------------------------------
+-- Properties of greatest lower bounds
+
+opaque
+
+  -- nr 𝟘 r z s 𝟘 is the greatest lower bound of nrᵢ r z s.
+
+  nr-nrᵢ-GLB :
+    let 𝕄 = zero-one-many-semiring-with-meet in
+    ∀ r → Semiring-with-meet.Greatest-lower-bound
+            𝕄 (nr 𝟘 r z s 𝟘) (Semiring-with-meet.nrᵢ 𝕄 r z s)
+  nr-nrᵢ-GLB {z} {s} = λ where
+      𝟘 → GLB-congʳ (sym (trans (∧-congʳ (+-congʳ (·-zeroʳ (𝟙 ∧ 𝟘))))
+            (∧-comm s z))) nrᵢ-𝟘-GLB
+      𝟙 → lemma-𝟙 _ _
+      ω → lemma-ω _ _
+    where
+    open Semiring-with-meet zero-one-many-semiring-with-meet
+      hiding (𝟘; 𝟙; ω; _∧_; _·_; _+_)
+    open GLB zero-one-many-semiring-with-meet
+    open Natrec zero-one-many-semiring-with-meet
+    open PartialOrder zero-one-many-semiring-with-meet
+    lemma′ : ∀ {z} i → nrᵢ 𝟙 z 𝟘 i ≡ z
+    lemma′ 0 = refl
+    lemma′ (1+ i) =
+      trans (·-identityˡ _) (lemma′ i)
+    lemma : ∀ {r z s} i →
+      nrᵢ r z s i ≡ ω → Greatest-lower-bound ω (nrᵢ r z s)
+    lemma {r} {z} {s} i nrᵢ≡ω =
+      (λ i → ω≤ (nrᵢ r z s i)) , λ q q≤ → ≤-trans (q≤ i) (≤-reflexive nrᵢ≡ω)
+    lemma-𝟙 : ∀ z s → Greatest-lower-bound (ω · s + z) (nrᵢ 𝟙 z s)
+    lemma-𝟙 z 𝟘 =
+      GLB-const lemma′
+    lemma-𝟙 𝟘 𝟙 = lemma 2 refl
+    lemma-𝟙 𝟙 𝟙 = lemma 1 refl
+    lemma-𝟙 ω 𝟙 = lemma 0 refl
+    lemma-𝟙 z ω = lemma 1 refl
+    lemma-ω : ∀ z s → Greatest-lower-bound (ω · (s + z)) (nrᵢ ω z s)
+    lemma-ω 𝟘 𝟘 = GLB-nrᵢ-𝟘
+    lemma-ω 𝟙 𝟘 = lemma 1 refl
+    lemma-ω ω 𝟘 = lemma 0 refl
+    lemma-ω 𝟘 𝟙 = lemma 2 refl
+    lemma-ω 𝟙 𝟙 = lemma 1 refl
+    lemma-ω ω 𝟙 = lemma 0 refl
+    lemma-ω z ω = lemma 1 refl
+
+opaque
+
+  -- The modality supports the usage rule for natrec using
+  -- greatest lower bounds.
+
+  zero-one-many-supports-glb-for-natrec :
+    Supports-GLB-for-natrec zero-one-many-semiring-with-meet
+  zero-one-many-supports-glb-for-natrec = record
+    { +-GLBˡ = +-GLBˡ
+    ; ·-GLBˡ = ·-GLBˡ
+    ; ·-GLBʳ = ·-GLBʳ
+    ; +nrᵢ-GLB = +nrᵢ-GLB
+    }
+    where
+    open Semiring-with-meet zero-one-many-semiring-with-meet
+      hiding (_+_; _·_; _≤_; 𝟘; 𝟙; ω)
+    open GLB zero-one-many-semiring-with-meet
+    open Multiplication zero-one-many-semiring-with-meet
+    open PartialOrder zero-one-many-semiring-with-meet
+
+    ·-GLBˡ :
+      {pᵢ : Sequence Zero-one-many} →
+      Greatest-lower-bound p pᵢ →
+      Greatest-lower-bound (q · p) (λ i → q · pᵢ i)
+    ·-GLBˡ {q = 𝟘} p-glb = GLB-const′
+    ·-GLBˡ {q = 𝟙} p-glb =
+      GLB-cong (sym (·-identityˡ _)) (λ _ → sym (·-identityˡ _)) p-glb
+    ·-GLBˡ {q = ω} {pᵢ} p-glb = lemma _ p-glb
+      where
+      lemma″ : 𝟙 ≤ ω · p → p ≡ 𝟘
+      lemma″ {(𝟘)} _ = refl
+      lemma″ {(𝟙)} ()
+      lemma″ {(ω)} ()
+      lemma′ : 𝟘 ≤ ω · p → p ≡ 𝟘
+      lemma′ {(𝟘)} _ = refl
+      lemma′ {(𝟙)} ()
+      lemma′ {(ω)} ()
+      lemma : ∀ p → Greatest-lower-bound p pᵢ →
+              Greatest-lower-bound (ω · p) (λ i → ω · pᵢ i)
+      lemma 𝟘 p-glb =
+        GLB-const λ i → ·-congˡ (𝟘-GLB-inv p-glb i)
+      lemma 𝟙 p-glb =
+          (λ i → ω≤ (pᵢ i))
+        , λ { 𝟘 q≤ → ⊥-elim (≢p-GLB-inv (λ ()) p-glb (lemma′ ∘→ q≤))
+            ; 𝟙 q≤ → ⊥-elim (≢p-GLB-inv (λ ()) p-glb (lemma″ ∘→ q≤))
+            ; ω q≤ → refl}
+      lemma ω p-glb =
+          (λ i → ω≤ (pᵢ i))
+        , λ { 𝟘 q≤ → ⊥-elim (≢p-GLB-inv (λ ()) p-glb (lemma′ ∘→ q≤))
+            ; 𝟙 q≤ → ⊥-elim (≢p-GLB-inv (λ ()) p-glb (lemma″ ∘→ q≤))
+            ; ω q≤ → refl}
+
+    ·-GLBʳ :
+      {pᵢ : Sequence Zero-one-many} →
+      Greatest-lower-bound p pᵢ →
+      Greatest-lower-bound (p · q) (λ i → pᵢ i · q)
+    ·-GLBʳ {p} {q} {pᵢ} p-glb =
+      GLB-cong (·-comm q p) (λ i → ·-comm q (pᵢ i)) (·-GLBˡ p-glb)
+
+    +-GLBˡ :
+      {pᵢ : Sequence Zero-one-many} →
+      Greatest-lower-bound p pᵢ →
+      Greatest-lower-bound (q + p) (λ i → q + pᵢ i)
+    +-GLBˡ {q = 𝟘} p-glb = p-glb
+    +-GLBˡ {(𝟘)} {q = 𝟙} p-glb =
+      GLB-const (λ i → +-congˡ (𝟘-GLB-inv p-glb i))
+    +-GLBˡ {q = 𝟙} {pᵢ} p-glb = lemma _ p-glb
+      where
+      lemma″ : 𝟙 ≤ 𝟙 + p → p ≡ 𝟘
+      lemma″ {(𝟘)} _ = refl
+      lemma″ {(𝟙)} ()
+      lemma″ {(ω)} ()
+      lemma′ : 𝟘 ≤ 𝟙 + p → p ≡ 𝟘
+      lemma′ {(𝟘)} _ = refl
+      lemma′ {(𝟙)} ()
+      lemma′ {(ω)} ()
+      lemma : ∀ p → Greatest-lower-bound p pᵢ →
+              Greatest-lower-bound (𝟙 + p) (λ i → 𝟙 + pᵢ i)
+      lemma 𝟘 p-glb =
+        GLB-const (λ i → +-congˡ (𝟘-GLB-inv p-glb i))
+      lemma 𝟙 p-glb =
+          (λ _ → refl)
+        , λ { 𝟘 q≤ → ⊥-elim (≢p-GLB-inv (λ ()) p-glb (lemma′ ∘→ q≤))
+            ; 𝟙 q≤ → ⊥-elim (≢p-GLB-inv (λ ()) p-glb (lemma″ ∘→ q≤))
+            ; ω q≤ → refl}
+      lemma ω p-glb =
+          (λ _ → refl)
+        , λ { 𝟘 q≤ → ⊥-elim (≢p-GLB-inv (λ ()) p-glb (lemma′ ∘→ q≤))
+            ; 𝟙 q≤ → ⊥-elim (≢p-GLB-inv (λ ()) p-glb (lemma″ ∘→ q≤))
+            ; ω q≤ → refl }
+    +-GLBˡ {q = ω} p-glb = GLB-const′
+
+    open Tools.Reasoning.PartialOrder ≤-poset
+
+    +nrᵢ-GLB :
+      Greatest-lower-bound p₁ (nrᵢ r z₁ s₁) →
+      Greatest-lower-bound p₂ (nrᵢ r z₂ s₂) →
+      ∃ λ q → Greatest-lower-bound q (nrᵢ r (z₁ + z₂) (s₁ + s₂)) ×
+          p₁ + p₂ ≤ q
+    +nrᵢ-GLB {p₁} {r} {z₁} {s₁} {p₂} {z₂} {s₂} p₁-glb p₂-glb =
+      _ , nr-nrᵢ-GLB r , (begin
+        p₁ + p₂                         ≡⟨ +-cong (GLB-unique p₁-glb (nr-nrᵢ-GLB r))
+                                           (GLB-unique p₂-glb (nr-nrᵢ-GLB r)) ⟩
+        nr 𝟘 r z₁ s₁ 𝟘 + nr 𝟘 r z₂ s₂ 𝟘 ≤⟨ Has-nr.nr-+ zero-one-many-has-nr {𝟘} {r} ⟩
+        nr 𝟘 r (z₁ + z₂) (s₁ + s₂) 𝟘    ∎)

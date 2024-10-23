@@ -6,7 +6,6 @@ open import Tools.Level
 
 open import Definition.Typed.Restrictions
 
-import Graded.Modality.Dedicated-nr
 import Graded.Modality.Instances.Affine
 open import Graded.Modality.Variant lzero
 open import Graded.Usage.Restrictions
@@ -15,29 +14,40 @@ module Graded.Modality.Instances.Affine.Good
   -- The modality variant.
   (variant : Modality-variant)
   (open Graded.Modality.Instances.Affine variant)
-  (open Graded.Modality.Dedicated-nr affineModality)
   (TR : Type-restrictions affineModality)
   (open Type-restrictions TR)
   (UR : Usage-restrictions affineModality)
   -- It is assumed that "Π 𝟙 , 𝟘" is allowed.
   (Π-𝟙-𝟘 : Π-allowed 𝟙 𝟘)
-  -- There is a dedicated nr function.
-  ⦃ has-nr : Dedicated-nr ⦄
   where
+
+open import Graded.Restrictions affineModality
+open import Graded.Usage.Restrictions.Natrec affineModality
+open import Graded.Modality Affine
+
+private
+  -- The "good" nr function is used
+  UR′ = nr-available-UR zero-one-many-has-nr UR
+  open Usage-restrictions UR′
+  instance
+    has-nr : Has-nr (Modality.semiring-with-meet affineModality)
+    has-nr = zero-one-many-has-nr
+    nr-avail : Nr-available
+    nr-avail = Natrec-mode-has-nr.Nr
 
 open import Tools.Empty
 open import Tools.Function
 import Tools.Reasoning.PartialOrder
+open import Tools.Product
 open import Tools.Relation
 
 open import Graded.Context affineModality
 open import Graded.Context.Properties affineModality
-open import Graded.Modality Affine
 open import Graded.Modality.Instances.Examples TR Π-𝟙-𝟘
 open import Graded.Modality.Properties affineModality
 open import Graded.Mode affineModality
-open import Graded.Usage affineModality UR
-open import Graded.Usage.Inversion affineModality UR
+open import Graded.Usage affineModality UR′
+open import Graded.Usage.Inversion affineModality UR′
 
 private
   module M = Modality affineModality
@@ -48,11 +58,9 @@ private
 ¬▸double ▸λ+ =
   case inv-usage-lam ▸λ+ of λ {
     (invUsageLam {δ = ε} ▸+ ε) →
-  case inv-usage-natrec ▸+ of λ {
-    (invUsageNatrec _ _ _ _ _ (invUsageNatrecNoNr _ _ _ _)) →
-       ⊥-elim not-nr-and-no-nr;
-    (invUsageNatrec {δ = _ ∙ p} {η = _ ∙ q} {θ = _ ∙ r}
-       ▸x0₁ _ ▸x0₂ _ (_ ∙ 𝟙≤nr) invUsageNatrecNr) →
+  case inv-usage-natrec-has-nr ▸+ of λ {
+    (_ ∙ p , _ ∙ q , _ ∙ r , _
+           , ▸x0₁ , _ , ▸x0₂ , _ , _ ∙ 𝟙≤nr) →
   case inv-usage-var ▸x0₁ of λ {
     (_ ∙ p≤𝟙) →
   case inv-usage-var ▸x0₂ of λ {
