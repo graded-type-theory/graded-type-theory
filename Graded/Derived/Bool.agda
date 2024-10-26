@@ -216,7 +216,7 @@ opaque
                (nrᶜ boolrecᵍ-nc₁ 𝟘 γ₂ (⌜ m ⌝ ·ᶜ δ) 𝟘ᶜ) 𝟘ᶜ ∙
              ⌜ m ⌝ · (nr boolrecᵍ-nc₂ 𝟘 𝟘 𝟘 𝟙 ∧ boolrecᵍ-Π) ∙
              ⌜ m ⌝ · (nr boolrecᵍ-nc₂ 𝟘 𝟘 𝟘 𝟙 ∧ boolrecᵍ-Π)              ≤⟨ ≤ᶜ-refl ∙ ·-monotoneʳ (∧-decreasingˡ _ _) ∙
-                                                                         ·-monotoneʳ (∧-decreasingʳ _ _) ⟩
+                                                                            ·-monotoneʳ (∧-decreasingʳ _ _) ⟩
              nrᶜ boolrecᵍ-nc₂ 𝟘 γ₃
                (nrᶜ boolrecᵍ-nc₁ 𝟘 γ₂ (⌜ m ⌝ ·ᶜ δ) 𝟘ᶜ) 𝟘ᶜ ∙
              ⌜ m ⌝ · nr boolrecᵍ-nc₂ 𝟘 𝟘 𝟘 𝟙 ∙ ⌜ m ⌝ · boolrecᵍ-Π        ≈⟨ ≈ᶜ-refl ∙ ⌜⌝-·-comm m ⟩

@@ -379,7 +379,7 @@ opaque
                (var x0))
             (var x0))
          (var x1) ∘⟨ 𝟙 ⟩
-       var x0)                                                            ≡⟨ (cong (prodrec _ _ _ _ _) $
+       var x0)                                                            ≡⟨ cong (prodrec _ _ _ _ _) $
                                                                              cong (flip (_∘⟨ 𝟙 ⟩_) _) $
                                                                              cong₄ (natcase _ _)
                                                                                (cong (ΠΣ⟨_⟩_,_▷_▹_ _ _ _ _) B.Target-[⇑])
@@ -401,7 +401,7 @@ opaque
                                                                                      (cong₂ emptyrec-sink B.Target-[⇑] refl)
                                                                                      refl)
                                                                                   refl)
-                                                                               refl) ⟩
+                                                                               refl ⟩
     prodrec boolrecᵍ-pr 𝟙 p (A [ σ ⇑ ]) (v [ σ ])
       (natcase boolrecᵍ-nc₂ (Boolᵍ + p)
          (Π 𝟙 , p ▷ Erased (OK (var x0)) ▹
