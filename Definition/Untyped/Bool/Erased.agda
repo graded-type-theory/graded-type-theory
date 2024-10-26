@@ -24,7 +24,7 @@ open Modality 𝕄
 
 open import Definition.Untyped M hiding (_[_]′)
 open import Definition.Untyped.Bool 𝕄 as B
-  using (OK; OKᵍ; Target; boolrecᵍ-nc₁; boolrecᵍ-nc₂)
+  using (OK; OKᵍ; boolrecᵍ-nc₁; boolrecᵍ-nc₂)
 open import Definition.Untyped.Empty 𝕄
 open import Definition.Untyped.Nat 𝕄
 open import Definition.Untyped.Properties M
@@ -47,11 +47,11 @@ open import Tools.Relation
 open import Tools.Unit
 
 private variable
-  n       : Nat
-  A t u v : Term _
-  σ       : Subst _ _
-  ρ       : Wk _ _
-  p       : M
+  k k₁ k₂ n : Nat
+  A t u v w : Term _
+  σ         : Subst _ _
+  ρ         : Wk _ _
+  p         : M
 
 ------------------------------------------------------------------------
 -- An Agda sketch of the implementation
@@ -242,6 +242,14 @@ opaque
 
 opaque
 
+  -- A definition that is used in the implementation of boolrec.
+
+  Target :
+    ∀ k → Term (1+ n) → Term (k N.+ n) → Term (k N.+ n) → Term (k N.+ n)
+  Target k A t u = A [ k ][ prodʷ 𝟙 t u ]↑
+
+opaque
+
   -- An eliminator for Bool.
 
   boolrec : M → Term (1+ n) → Term n → Term n → Term n → Term n
@@ -273,6 +281,17 @@ opaque
        var x0)
 
 ------------------------------------------------------------------------
+-- An unfolding lemma
+
+opaque
+  unfolding Target
+
+  -- An unfolding lemma for Target.
+
+  Target≡ : Target k A t u ≡ A [ k ][ prodʷ 𝟙 t u ]↑
+  Target≡ = refl
+
+------------------------------------------------------------------------
 -- Substitution lemmas
 
 opaque
@@ -301,6 +320,83 @@ opaque
 
   false-[] : false [ σ ] ≡ false
   false-[] = refl
+
+opaque
+  unfolding Target
+
+  -- A substitution lemma for Target.
+
+  Target-[⇑] :
+    Target k A t u [ σ ⇑[ k ] ] ≡
+    Target k (A [ σ ⇑ ]) (t [ σ ⇑[ k ] ]) (u [ σ ⇑[ k ] ])
+  Target-[⇑] {A} = [][]↑-commutes A
+
+opaque
+  unfolding Target
+
+  -- A substitution lemma for Target.
+
+  Target-+-[⇑] :
+    ∀ j {t u} →
+    let cast =
+          subst₂ Subst (sym $ N.+-assoc j k₂ n) (sym $ N.+-assoc j k₁ n)
+    in
+    (∀ x → wk[ k₁ ] (var x) [ σ ] ≡ wk[ k₂ ] (var x)) →
+    Target (j N.+ k₁) A t u [ cast (σ ⇑[ j ]) ] ≡
+    Target (j N.+ k₂) A (t [ cast (σ ⇑[ j ]) ]) (u [ cast (σ ⇑[ j ]) ])
+  Target-+-[⇑] {A} _ = [][]↑-commutes-+ A
+
+opaque
+  unfolding Target
+
+  -- A substitution lemma for Target.
+
+  Target-[₀⇑] :
+    ∀ j {t u} →
+    let cast =
+          subst₂ Subst (sym $ N.+-assoc j k n)
+            (sym $ N.+-assoc j (1+ k) n)
+    in
+    Target (j N.+ 1+ k) A t u [ cast (sgSubst v ⇑[ j ]) ] ≡
+    Target (j N.+ k) A (t [ cast (sgSubst v ⇑[ j ]) ])
+      (u [ cast (sgSubst v ⇑[ j ]) ])
+  Target-[₀⇑] {A} _ = [][]↑-[₀⇑] _ A
+
+opaque
+  unfolding Target
+
+  -- A substitution lemma for Target.
+
+  Target-[↑⇑] :
+    ∀ j {t u} →
+    let cast =
+          subst₂ Subst (sym $ N.+-assoc j (1+ k) n)
+            (sym $ N.+-assoc j (1+ k) n)
+    in
+    Target (j N.+ 1+ k) A t u
+      [ cast (consSubst (wk1Subst idSubst) v ⇑[ j ]) ] ≡
+    Target (j N.+ 1+ k) A
+      (t [ cast (consSubst (wk1Subst idSubst) v ⇑[ j ]) ])
+      (u [ cast (consSubst (wk1Subst idSubst) v ⇑[ j ]) ])
+  Target-[↑⇑] {A} _ = [][]↑-[↑⇑] _ A
+
+opaque
+  unfolding Target
+
+  -- A substitution lemma for Target.
+
+  Target-[,⇑] :
+    ∀ j {t u} →
+    let cast =
+          subst₂ Subst (sym $ N.+-assoc j k n)
+            (sym $ N.+-assoc j (2+ k) n)
+    in
+    Target (j N.+ 2+ k) A t u
+      [ cast (consSubst (sgSubst v) w ⇑[ j ]) ] ≡
+    Target (j N.+ k) A
+      (t [ cast (consSubst (sgSubst v) w ⇑[ j ]) ])
+      (u [ cast (consSubst (sgSubst v) w ⇑[ j ]) ])
+  Target-[,⇑] {A} _ = [][]↑-[,⇑] _ A
 
 opaque
   unfolding boolrec
@@ -382,23 +478,23 @@ opaque
        var x0)                                                            ≡⟨ cong (prodrec _ _ _ _ _) $
                                                                              cong (flip (_∘⟨ 𝟙 ⟩_) _) $
                                                                              cong₄ (natcase _ _)
-                                                                               (cong (ΠΣ⟨_⟩_,_▷_▹_ _ _ _ _) B.Target-[⇑])
+                                                                               (cong (ΠΣ⟨_⟩_,_▷_▹_ _ _ _ _) Target-[⇑])
                                                                                (cong (lam _) $
                                                                                 cong₃ (erasedrec _)
-                                                                                  B.Target-[⇑]
-                                                                                  (cong₃ (unitrec _ _ _) B.Target-[⇑] refl (wk[]′-[⇑] u))
+                                                                                  Target-[⇑]
+                                                                                  (cong₃ (unitrec _ _ _) Target-[⇑] refl (wk[]′-[⇑] u))
                                                                                   refl)
                                                                                (cong₄ (natcase _ _)
-                                                                                  (cong (ΠΣ⟨_⟩_,_▷_▹_ _ _ _ _) B.Target-[⇑])
+                                                                                  (cong (ΠΣ⟨_⟩_,_▷_▹_ _ _ _ _) Target-[⇑])
                                                                                   (cong (lam _) $
                                                                                    cong₃ (erasedrec _)
-                                                                                     B.Target-[⇑]
-                                                                                     (cong₃ (unitrec _ _ _) B.Target-[⇑] refl (wk[]′-[⇑] t))
+                                                                                     Target-[⇑]
+                                                                                     (cong₃ (unitrec _ _ _) Target-[⇑] refl (wk[]′-[⇑] t))
                                                                                      refl)
                                                                                   (cong (lam _) $
                                                                                    cong₃ (erasedrec _)
-                                                                                     B.Target-[⇑]
-                                                                                     (cong₂ emptyrec-sink B.Target-[⇑] refl)
+                                                                                     Target-[⇑]
+                                                                                     (cong₂ emptyrec-sink Target-[⇑] refl)
                                                                                      refl)
                                                                                   refl)
                                                                                refl ⟩
@@ -464,6 +560,36 @@ opaque
     wk ρ false           ≡⟨ wk≡subst _ _ ⟩
     false [ toSubst ρ ]  ≡⟨ false-[] ⟩
     false                ∎
+
+opaque
+
+  -- A weakening lemma for Target.
+
+  wk-liftn-Target :
+    wk (liftn ρ k) (Target k A t u) ≡
+    Target k (wk (lift ρ) A) (wk (liftn ρ k) t) (wk (liftn ρ k) u)
+  wk-liftn-Target {ρ} {k} {A} {t} {u} =
+    wk (liftn ρ k) (Target k A t u)                                 ≡⟨ wk-liftn k ⟩
+
+    Target k A t u [ toSubst ρ ⇑[ k ] ]                             ≡⟨ Target-[⇑] ⟩
+
+    Target k (A [ toSubst ρ ⇑ ]) (t [ toSubst ρ ⇑[ k ] ])
+      (u [ toSubst ρ ⇑[ k ] ])                                      ≡˘⟨ cong₃ (Target _) (wk-liftn 1) (wk-liftn k) (wk-liftn k) ⟩
+
+    Target k (wk (lift ρ) A) (wk (liftn ρ k) t) (wk (liftn ρ k) u)  ∎
+
+opaque
+  unfolding Target
+
+  -- Another weakening lemma for Target.
+
+  Target-wk[]′ :
+    Target k A (wk[ k ]′ t) (wk[ k ]′ u) ≡
+    wk[ k ]′ (A [ prodʷ 𝟙 t u ]₀)
+  Target-wk[]′ {k} {A} {t} {u} =
+    A [ k ][ prodʷ 𝟙 (wk[ k ]′ t) (wk[ k ]′ u) ]↑  ≡⟨⟩
+    A [ k ][ wk[ k ]′ (prodʷ 𝟙 t u) ]↑             ≡⟨ [][wk[]′]↑ A ⟩
+    wk[ k ]′ (A [ prodʷ 𝟙 t u ]₀)                  ∎
 
 opaque
 

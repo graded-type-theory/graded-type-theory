@@ -21,7 +21,7 @@ open Usage-restrictions R
 
 open import Definition.Untyped M
 open import Definition.Untyped.Bool 𝕄
-  using (OK; OKᵍ; Target; boolrecᵍ-nc₁; boolrecᵍ-nc₂)
+  using (OK; OKᵍ; boolrecᵍ-nc₁; boolrecᵍ-nc₂)
 open import Definition.Untyped.Bool.Erased 𝕄
 
 open import Graded.Context 𝕄
@@ -116,6 +116,26 @@ opaque
     open ≤ᶜ-reasoning
 
 opaque
+  unfolding Target
+
+  -- A usage lemma for Target.
+
+  ▸Target :
+    γ₁ ∙ p ▸[ m ] A →
+    γ₂ ▸[ ⌞ p ⌟ ] t →
+    γ₃ ▸[ ⌞ p ⌟ ] u →
+    (⌜ ⌞ p ⌟ ⌝ ·ᶜ γ₄ ≤ᶜ γ₂ +ᶜ γ₃) →
+    wkConₘ (stepn id k) γ₁ +ᶜ p ·ᶜ γ₄ ▸[ m ] Target k A t u
+  ▸Target {p} {γ₂} {γ₃} {γ₄} ▸A ▸t ▸u ≤+ =
+    ▸[][]↑ ▸A $
+    sub (prodʷₘ (▸-cong (PE.sym ᵐ·-identityʳ) ▸t) ▸u) $ (begin
+      ⌜ ⌞ p ⌟ ⌝ ·ᶜ γ₄  ≤⟨ ≤+ ⟩
+      γ₂ +ᶜ γ₃         ≈˘⟨ +ᶜ-congʳ (·ᶜ-identityˡ _) ⟩
+      𝟙 ·ᶜ γ₂ +ᶜ γ₃    ∎)
+    where
+    open ≤ᶜ-reasoning
+
+opaque
   unfolding boolrec boolrecᵍ-nc₂ boolrecᵍ-pr is-𝕨
 
   -- A usage lemma for boolrec.
@@ -152,7 +172,7 @@ opaque
                          (λ _ →
                             wkConₘ (stepn id 3) γ₁ ∙ ⌜ 𝟘ᵐ? ⌝ · p ∙ 𝟘 ,
                             sub
-                              (B.▸Target ▸A (sucₘ (sucₘ var)) var $
+                              (▸Target ▸A (sucₘ (sucₘ var)) var $
                                begin
                                  ⌜ ⌞ ⌜ 𝟘ᵐ? ⌝ · p ⌟ ⌝ ·ᶜ (𝟘ᶜ ∙ 𝟙 ∙ 𝟘 ∙ 𝟙)  ≈⟨ ·ᶜ-zeroʳ _ ∙ ·-identityʳ _ ∙ ·-zeroʳ _ ∙ ·-identityʳ _ ⟩
 
@@ -172,7 +192,7 @@ opaque
                                  (⌜ 𝟘ᵐ? ⌝ · p) ·ᶜ (𝟘ᶜ ∙ 𝟙 ∙ 𝟘 ∙ 𝟙)     ∎))
                          (sub
                             (▸emptyrec-sink var
-                               (B.▸Target ▸A (sucₘ (sucₘ var))
+                               (▸Target ▸A (sucₘ (sucₘ var))
                                   (▸[] var) $
                                 begin
                                   ⌜ ⌞ ⌜ 𝟘ᵐ? ⌝ · p ⌟ ⌝ ·ᶜ
@@ -286,7 +306,7 @@ opaque
       Π-lemma {k} ▸t ▸u = sub
         (ΠΣₘ (▸Erased (B.▸OK ▸t)) $
          sub
-           (B.▸Target ▸A ▸u var $ begin
+           (▸Target ▸A ▸u var $ begin
               ⌜ ⌞ ⌜ 𝟘ᵐ? ⌝ · p ⌟ ⌝ ·ᶜ (𝟘ᶜ ∙ 𝟙 ∙ 𝟙)             ≈⟨ ·ᶜ-zeroʳ _ ∙ ·-identityʳ _ ∙ ·-identityʳ _ ⟩
 
               𝟘ᶜ ∙ ⌜ ⌞ ⌜ 𝟘ᵐ? ⌝ · p ⌟ ⌝ ∙ ⌜ ⌞ ⌜ 𝟘ᵐ? ⌝ · p ⌟ ⌝  ≈˘⟨ +ᶜ-identityʳ _ ∙ +-identityˡ _ ⟩
@@ -331,7 +351,7 @@ opaque
            (λ _ →
               wkConₘ (stepn id (1+ k)) γ₁ ,
               sub
-                (B.▸Target ▸A ▸t var $ begin
+                (▸Target ▸A ▸t var $ begin
                    ⌜ ⌞ ⌜ 𝟘ᵐ? ⌝ · p ⌟ ⌝ ·ᶜ (𝟘ᶜ ∙ 𝟙)   ≈⟨ ·ᶜ-zeroʳ _ ∙ ·-identityʳ _ ⟩
                    𝟘ᶜ ∙ ⌜ ⌞ ⌜ 𝟘ᵐ? ⌝ · p ⌟ ⌝          ≈˘⟨ +ᶜ-identityˡ _ ⟩
                    𝟘ᶜ +ᶜ (𝟘ᶜ ∙ ⌜ ⌞ ⌜ 𝟘ᵐ? ⌝ · p ⌟ ⌝)  ∎)
@@ -345,7 +365,7 @@ opaque
            (sub
               (unitrecₘ var (wkUsage (stepn id (2+ k)) ▸u)
                  (sub
-                    (B.▸Target ▸A (wkUsage (step id) ▸t) (▸[] var) $
+                    (▸Target ▸A (wkUsage (step id) ▸t) (▸[] var) $
                      begin
                        ⌜ ⌞ ⌜ 𝟘ᵐ? ⌝ · p ⌟ ⌝ ·ᶜ 𝟘ᶜ  ≈⟨ ·ᶜ-zeroʳ _ ⟩
                        𝟘ᶜ                         ≈˘⟨ +ᶜ-identityˡ _ ⟩
