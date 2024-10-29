@@ -20,15 +20,15 @@ open import Definition.Typed R
 open import Definition.Typed.Properties R
 open import Definition.Untyped M
 open import Definition.Untyped.Neutral M type-variant
-open import Definition.LogicalRelation R
-open import Definition.LogicalRelation.Hidden R
+open import Definition.LogicalRelation R {{eqrel}}
+open import Definition.LogicalRelation.Hidden R {{eqrel}}
 open import Definition.LogicalRelation.Irrelevance R
 open import Definition.LogicalRelation.Properties R
 open import Definition.LogicalRelation.ShapeView R
 open import Definition.LogicalRelation.Substitution R
 
 open import Tools.Function
-open import Tools.Nat using (Nat; 1+; 2+)
+open import Tools.Nat as N using (Nat; 1+; 2+)
 open import Tools.Product as Σ
 open import Tools.Empty
 import Tools.PropositionalEquality as PE
@@ -37,7 +37,7 @@ private
   variable
     n    : Nat
     Γ    : Con Term n
-    A B  : Term n
+    A B t u : Term n
     l l′ : Universe-level
     k    : LogRelKit
 
@@ -48,13 +48,14 @@ private
 
   -- A lemma used below.
 
-  U⇒*U→≡ : Γ ⊢ U l :⇒*: U l′ → l PE.≡ l′
-  U⇒*U→≡ {Γ} {l} {l′} =
-    Γ ⊢ U l :⇒*: U l′ →⟨ red ⟩
-    Γ ⊢ U l ⇒* U l′   →⟨ flip whnfRed* Uₙ ⟩
-    U l PE.≡ U l′     →⟨ (λ { PE.refl → PE.refl }) ⟩
-    l PE.≡ l′         □
+  U⇒*U→≡ : Γ ⊢ U t :⇒*: U u → t PE.≡ u
+  U⇒*U→≡ {Γ} {t} {u} =
+    Γ ⊢ U t :⇒*: U u →⟨ red ⟩
+    Γ ⊢ U t ⇒* U u   →⟨ flip whnfRed* Uₙ ⟩
+    U t PE.≡ U u     →⟨ (λ { PE.refl → PE.refl }) ⟩
+    t PE.≡ u         □
 
+{-
 opaque
 
   -- A characterisation lemma for _⊩⟨_⟩_.
@@ -71,9 +72,10 @@ opaque
       Γ ⊩⟨ l ⟩U U l′ →
       l′ <ᵘ l × ⊢ Γ
     lemma (noemb (Uᵣ _ l′<l U⇒*U@([ ⊢U , _ , _ ]))) =
-      case U⇒*U→≡ U⇒*U of λ {
-        PE.refl →
-      l′<l , wf ⊢U }
+      -- case U⇒*U→≡ U⇒*U of λ {
+      --   PE.refl →
+      -- l′<l , wf ⊢U }
+      ?
     lemma (emb ≤ᵘ-refl     ⊩U) = Σ.map ≤ᵘ-step idᶠ (lemma ⊩U)
     lemma (emb (≤ᵘ-step p) ⊩U) = Σ.map ≤ᵘ-step idᶠ (lemma (emb p ⊩U))
 
@@ -99,9 +101,10 @@ opaque
       (l′ <ᵘ l × Γ ⊩⟨ l′ ⟩ A ×
        ∃ λ B → Γ ⊢ A :⇒*: B ∷ U l′ × Type B × Γ ⊢ B ≅ B ∷ U l′)
     lemma (noemb (Uᵣ _ l′<l U⇒*U)) (Uₜ _ A⇒*B B-type B≅B ⊩A) =
-      case U⇒*U→≡ U⇒*U of λ {
-         PE.refl →
-      l′<l , ⊩<⇔⊩ l′<l .proj₁ ⊩A , _ , A⇒*B , B-type , B≅B }
+      -- case U⇒*U→≡ U⇒*U of λ {
+      --    PE.refl →
+      -- l′<l , ⊩<⇔⊩ l′<l .proj₁ ⊩A , _ , A⇒*B , B-type , B≅B }
+      ?
     lemma (emb ≤ᵘ-refl     ⊩U) = Σ.map ≤ᵘ-step idᶠ ∘→ lemma ⊩U
     lemma (emb (≤ᵘ-step p) ⊩U) = Σ.map ≤ᵘ-step idᶠ ∘→ lemma (emb p ⊩U)
 
@@ -132,6 +135,7 @@ opaque
                                                                 ⟩
 
     l′ <ᵘ l × (Γ ⊩⟨ l′ ⟩ A) × Γ ⊢ A ∷ U l′ × Γ ⊢ A ≅ A ∷ U l′  □⇔
+-}
 
 opaque
   unfolding _⊩⟨_⟩_≡_
@@ -139,29 +143,30 @@ opaque
   -- A characterisation lemma for _⊩⟨_⟩_≡_.
 
   ⊩U≡⇔ :
-    Γ ⊩⟨ l ⟩ U l′ ≡ A ⇔
-    (l′ <ᵘ l × Γ ⊢ A :⇒*: U l′ × Γ ⊩⟨ l ⟩ A)
-  ⊩U≡⇔ =
+    ([t] : Γ ⊩Level t ∷Level) →
+    Γ ⊩⟨ l ⟩ U t ≡ A ⇔
+    (reflect-level [t] <ᵘ l × Γ ⊢ A :⇒*: U t × Γ ⊩⟨ l ⟩ A)
+  ⊩U≡⇔ {Γ} {t} {A} [t] =
       (λ (⊩U , ⊩A , U≡A) →
          Σ.map idᶠ (_, ⊩A) $
          lemma (U-elim ⊩U)
            (irrelevanceEq ⊩U (U-intr (U-elim ⊩U)) U≡A))
-    , (λ (p , A⇒*U@([ _ , ⊢U , _ ]) , ⊩A) →
-         Uᵣ (Uᵣ _ p (idRed:*: ⊢U)) , ⊩A , A⇒*U)
+      , λ (p , A⇒*U@([ _ , ⊢U , _ ]) , ⊩A) → Uᵣ′ _ [t] p (idRed:*: ⊢U) , ⊩A , A⇒*U
     where
     lemma :
-      (⊩U : Γ ⊩⟨ l ⟩U U l′) →
-      Γ ⊩⟨ l ⟩ U l′ ≡ A / U-intr ⊩U →
-      l′ <ᵘ l × Γ ⊢ A :⇒*: U l′
-    lemma (noemb (Uᵣ _ p U⇒*U)) A≡U =
+      (⊩U : Γ ⊩⟨ l ⟩U U t) →
+      Γ ⊩⟨ l ⟩ U t ≡ A / U-intr ⊩U →
+      reflect-level [t] <ᵘ l × Γ ⊢ A :⇒*: U t
+    lemma (noemb (Uᵣ k [k] k< U⇒*U)) A≡U =
       case U⇒*U→≡ U⇒*U of λ {
         PE.refl →
-      p , A≡U }
+      PE.subst (_<ᵘ _) (reflect-level-cong [k] [t] PE.refl) k< , A≡U }
     lemma (emb ≤ᵘ-refl ⊩U) A≡U =
       Σ.map ≤ᵘ-step idᶠ (lemma ⊩U A≡U)
     lemma (emb (≤ᵘ-step p) ⊩U) A≡U =
       Σ.map ≤ᵘ-step idᶠ (lemma (emb p ⊩U) A≡U)
 
+{-
 opaque
   unfolding _⊩⟨_⟩_≡_ _⊩⟨_⟩_≡_∷_
 
@@ -204,14 +209,15 @@ opaque
     lemma
       (noemb (Uᵣ _ l′<l U⇒*U))
       (Uₜ₌ _ _ A⇒*A′ B⇒*B′ A′-type B′-type A′≅B′ ⊩A ⊩B A≡B) =
-        case U⇒*U→≡ U⇒*U of λ {
-          PE.refl →
-          l′<l
-        , ( ⊩<⇔⊩ l′<l .proj₁ ⊩A
-          , ⊩<⇔⊩ l′<l .proj₁ ⊩B
-          , ⊩<≡⇔⊩≡ l′<l .proj₁ A≡B
-          )
-        , _ , _ , A⇒*A′ , B⇒*B′ , A′-type , B′-type , A′≅B′ }
+        -- case U⇒*U→≡ U⇒*U of λ {
+        --   PE.refl →
+        --   l′<l
+        -- , ( ⊩<⇔⊩ l′<l .proj₁ ⊩A
+        --   , ⊩<⇔⊩ l′<l .proj₁ ⊩B
+        --   , ⊩<≡⇔⊩≡ l′<l .proj₁ A≡B
+        --   )
+        -- , _ , _ , A⇒*A′ , B⇒*B′ , A′-type , B′-type , A′≅B′ }
+        ?
     lemma (emb ≤ᵘ-refl     ⊩U) = Σ.map ≤ᵘ-step idᶠ ∘→ lemma ⊩U
     lemma (emb (≤ᵘ-step p) ⊩U) = Σ.map ≤ᵘ-step idᶠ ∘→ lemma (emb p ⊩U)
 
@@ -251,6 +257,7 @@ opaque
     Γ ⊢ A ∷ U l′ ×
     Γ ⊢ B ∷ U l′ ×
     Γ ⊢ A ≅ B ∷ U l′               □⇔
+-}
 
 ------------------------------------------------------------------------
 -- Validity
@@ -259,17 +266,18 @@ opaque
 
   -- Validity of U.
 
-  ⊩ᵛU : ⊩ᵛ Γ → Γ ⊩ᵛ⟨ 1+ l ⟩ U l
-  ⊩ᵛU {Γ} {l} ⊩Γ =
+  ⊩ᵛU : ([t] : Γ ⊩Level t ∷Level) → ⊩ᵛ Γ → Γ ⊩ᵛ⟨ 1+ (reflect-level [t]) ⟩ U t
+  ⊩ᵛU {Γ} {t} [t] ⊩Γ =
     ⊩ᵛ⇔ .proj₂
       ( ⊩Γ
       , λ {_} {Δ = Δ} {σ₁ = σ₁} {σ₂ = σ₂} →
           Δ ⊩ˢ σ₁ ≡ σ₂ ∷ Γ                                  →⟨ proj₁ ∘→ escape-⊩ˢ≡∷ ⟩
-          ⊢ Δ                                               →⟨ (λ ⊢Δ → ≤ᵘ-refl , idRed:*: (Uⱼ ⊢Δ) , ⊩U⇔ .proj₂ (≤ᵘ-refl , ⊢Δ)) ⟩
-          l <ᵘ 1+ l × Δ ⊢ U l :⇒*: U l × (Δ ⊩⟨ 1+ l ⟩ U l)  ⇔˘⟨ ⊩U≡⇔ ⟩→
-          Δ ⊩⟨ 1+ l ⟩ U l ≡ U l                             □
+          ⊢ Δ                                               →⟨ (λ ⊢Δ → {!≤ᵘ-refl!} , {!idRed:*: (Uⱼ ⊢Δ)!} , {! ⊩U⇔ .proj₂ (≤ᵘ-refl , ⊢Δ) !}) ⟩
+          reflect-level {!   !} <ᵘ 1+ (reflect-level [t]) × Δ ⊢ U (t [ σ₂ ]) :⇒*: U (t [ σ₁ ]) × (Δ ⊩⟨ 1+ (reflect-level [t]) ⟩ U (t [ σ₂ ]))  ⇔˘⟨ ⊩U≡⇔ {! [t]  !} ⟩→
+          Δ ⊩⟨ 1+ (reflect-level [t]) ⟩ U (t [ σ₁ ]) ≡ U (t [ σ₂ ])                             □
       )
 
+{-
 opaque
 
   -- Validity of U, seen as a term former.
@@ -321,3 +329,4 @@ opaque
       ( wf-⊩ᵛ ⊩U
       , proj₁ ∘→ proj₂ ∘→ ⊩≡∷U⇔ .proj₁ ∘→ A≡B∷U
       )
+-}

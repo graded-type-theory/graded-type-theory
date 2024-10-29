@@ -163,16 +163,17 @@ opaque
 
   -- Validity for Empty, seen as a term former.
 
-  Emptyᵗᵛ : ⊩ᵛ Γ → Γ ⊩ᵛ⟨ 1 ⟩ Empty ∷ U 0
+  Emptyᵗᵛ : ⊩ᵛ Γ → Γ ⊩ᵛ⟨ 1 ⟩ Empty ∷ U zeroᵘ
   Emptyᵗᵛ ⊩Γ =
     ⊩ᵛ∷⇔ .proj₂
-      ( ⊩ᵛU ⊩Γ
+      ( {!⊩ᵛU ⊩Γ!}
       , λ σ₁≡σ₂ →
           case escape-⊩ˢ≡∷ σ₁≡σ₂ of λ
             (⊢Δ , _) →
           case Emptyⱼ ⊢Δ  of λ
             ⊢Empty →
-          Type→⊩≡∷U⇔ Emptyₙ Emptyₙ .proj₂
-            (≤ᵘ-refl , refl-⊩≡ (⊩Empty ⊢Δ) ,
-            ⊢Empty , ⊢Empty , ≅ₜ-Emptyrefl ⊢Δ)
+          -- Type→⊩≡∷U⇔ Emptyₙ Emptyₙ .proj₂
+          --   (≤ᵘ-refl , refl-⊩≡ (⊩Empty ⊢Δ) ,
+          --   ⊢Empty , ⊢Empty , ≅ₜ-Emptyrefl ⊢Δ)
+          {!   !}
       )

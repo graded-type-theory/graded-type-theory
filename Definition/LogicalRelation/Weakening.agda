@@ -22,8 +22,8 @@ open import Definition.Untyped.Properties M
 open import Definition.Typed R
 open import Definition.Typed.Properties R
 open import Definition.Typed.Weakening R as T hiding (wk; wkEq; wkTerm; wkEqTerm)
-open import Definition.LogicalRelation R
-open import Definition.LogicalRelation.Irrelevance R
+open import Definition.LogicalRelation R {{eqrel}}
+open import Definition.LogicalRelation.Irrelevance R {{eqrel}}
 open import Definition.LogicalRelation.Properties R
 
 open import Tools.Function
@@ -51,6 +51,52 @@ wkEqTermNe : ∀ {k k′ A} → ρ ∷ Δ ⊇ Γ → (⊢Δ : ⊢ Δ)
            → Γ ⊩neNf k ≡ k′ ∷ A → Δ ⊩neNf U.wk ρ k ≡ U.wk ρ k′ ∷ U.wk ρ A
 wkEqTermNe {ρ = ρ} [ρ] ⊢Δ (neNfₜ₌ neK neM k≡m) =
   neNfₜ₌ (wkNeutral ρ neK) (wkNeutral ρ neM) (~-wk [ρ] ⊢Δ k≡m)
+
+-- Weakening of reducible levels
+
+mutual
+  wkTermLevel : ∀ {n} → ρ ∷ Δ ⊇ Γ → (⊢Δ : ⊢ Δ)
+          → Γ ⊩Level n ∷Level → Δ ⊩Level U.wk ρ n ∷Level
+  wkTermLevel {ρ = ρ} [ρ] ⊢Δ (Levelₜ n d n≡n prop) =
+    Levelₜ (U.wk ρ n) (wkRed:*:Term [ρ] ⊢Δ d)
+       (≅ₜ-wk [ρ] ⊢Δ n≡n)
+       (wkLevel-prop [ρ] ⊢Δ prop)
+
+  wkLevel-prop : ∀ {n} → ρ ∷ Δ ⊇ Γ → (⊢Δ : ⊢ Δ)
+                 → Level-prop Γ n
+                 → Level-prop Δ (U.wk ρ n)
+  wkLevel-prop ρ ⊢Δ (sucᵘᵣ n) = sucᵘᵣ (wkTermLevel ρ ⊢Δ n)
+  wkLevel-prop ρ ⊢Δ zeroᵘᵣ = zeroᵘᵣ
+  wkLevel-prop ρ ⊢Δ (ne nf) = ne (wkTermNe ρ ⊢Δ nf)
+
+mutual
+  wkEqTermLevel : ∀ {t u} → ρ ∷ Δ ⊇ Γ → (⊢Δ : ⊢ Δ)
+            → Γ ⊩Level t ≡ u ∷Level
+            → Δ ⊩Level U.wk ρ t ≡ U.wk ρ u ∷Level
+  wkEqTermLevel {ρ = ρ} [ρ] ⊢Δ (Levelₜ₌ k k′ d d′ t≡u prop) =
+    Levelₜ₌ (U.wk ρ k) (U.wk ρ k′) (wkRed:*:Term [ρ] ⊢Δ d)
+        (wkRed:*:Term [ρ] ⊢Δ d′) (≅ₜ-wk [ρ] ⊢Δ t≡u)
+        (wk[Level]-prop [ρ] ⊢Δ prop)
+
+  wk[Level]-prop : ∀ {n n′} → ρ ∷ Δ ⊇ Γ → (⊢Δ : ⊢ Δ)
+                   → [Level]-prop Γ n n′
+                   → [Level]-prop Δ (U.wk ρ n) (U.wk ρ n′)
+  wk[Level]-prop ρ ⊢Δ (sucᵘᵣ [n≡n′]) = sucᵘᵣ (wkEqTermLevel ρ ⊢Δ [n≡n′])
+  wk[Level]-prop ρ ⊢Δ zeroᵘᵣ = zeroᵘᵣ
+  wk[Level]-prop ρ ⊢Δ (ne x) = ne (wkEqTermNe ρ ⊢Δ x)
+
+mutual
+  wk-reflect-level
+    : ([ρ] : ρ ∷ Δ ⊇ Γ) (⊢Δ : ⊢ Δ) ([t] : Γ ⊩Level t ∷Level)
+    → reflect-level (wkTermLevel [ρ] ⊢Δ [t]) PE.≡ reflect-level [t]
+  wk-reflect-level [ρ] ⊢Δ [t] = wk-reflect-level-prop [ρ] ⊢Δ _
+
+  wk-reflect-level-prop
+    : ([ρ] : ρ ∷ Δ ⊇ Γ) (⊢Δ : ⊢ Δ) ([t] : Level-prop Γ t)
+    → reflect-level-prop (wkLevel-prop [ρ] ⊢Δ [t]) PE.≡ reflect-level-prop [t]
+  wk-reflect-level-prop [ρ] ⊢Δ zeroᵘᵣ = PE.refl
+  wk-reflect-level-prop [ρ] ⊢Δ (sucᵘᵣ x) = PE.cong 1+ (wk-reflect-level [ρ] ⊢Δ x)
+  wk-reflect-level-prop [ρ] ⊢Δ (ne x) = PE.refl
 
 -- Weakening of reducible natural numbers
 
@@ -107,33 +153,33 @@ wkEqTermEmpty {ρ = ρ} [ρ] ⊢Δ (Emptyₜ₌ k k′ d d′ t≡u prop) =
       (wk[Empty]-prop [ρ] ⊢Δ prop)
 
 -- Unit
-wkUnit-prop : ∀ {s t} → ρ ∷ Δ ⊇ Γ → (⊢Δ : ⊢ Δ)
-            → Unit-prop Γ l s t
-            → Unit-prop Δ l s (U.wk ρ t)
-wkUnit-prop [ρ] ⊢Δ starᵣ = starᵣ
-wkUnit-prop [ρ] ⊢Δ (ne x) = ne (wkTermNe [ρ] ⊢Δ x)
+-- wkUnit-prop : ∀ {s t A [A]} → ρ ∷ Δ ⊇ Γ → (⊢Δ : ⊢ Δ)
+--             → Unit-prop Γ l s A [A] t
+--             → Unit-prop Δ l s A [A] (U.wk ρ t)
+-- wkUnit-prop [ρ] ⊢Δ starᵣ = starᵣ
+-- wkUnit-prop [ρ] ⊢Δ (ne x) = ne (wkTermNe [ρ] ⊢Δ x)
 
-wk[Unitʷ]-prop : ∀ {t u} → ρ ∷ Δ ⊇ Γ → (⊢Δ : ⊢ Δ)
-               → [Unitʷ]-prop Γ l t u
-               → [Unitʷ]-prop Δ l (U.wk ρ t) (U.wk ρ u)
-wk[Unitʷ]-prop [ρ] ⊢Δ starᵣ = starᵣ
-wk[Unitʷ]-prop [ρ] ⊢Δ (ne x) = ne (wkEqTermNe [ρ] ⊢Δ x)
+-- wk[Unitʷ]-prop : ∀ {t u A [A]} → ρ ∷ Δ ⊇ Γ → (⊢Δ : ⊢ Δ)
+--                → [Unitʷ]-prop Γ l A [A] t u
+--                → [Unitʷ]-prop Δ l A [A] (U.wk ρ t) (U.wk ρ u)
+-- wk[Unitʷ]-prop [ρ] ⊢Δ starᵣ = starᵣ
+-- wk[Unitʷ]-prop [ρ] ⊢Δ (ne x) = ne (wkEqTermNe [ρ] ⊢Δ x)
 
-wkTermUnit : ∀ {n s} → ρ ∷ Δ ⊇ Γ → (⊢Δ : ⊢ Δ)
-           → Γ ⊩Unit⟨ l , s ⟩ n ∷Unit → Δ ⊩Unit⟨ l , s ⟩ U.wk ρ n ∷Unit
-wkTermUnit {ρ = ρ} [ρ] ⊢Δ (Unitₜ n d n≡n prop) =
-  Unitₜ (U.wk ρ n) (wkRed:*:Term [ρ] ⊢Δ d)
-        (≅ₜ-wk [ρ] ⊢Δ n≡n) (wkUnit-prop [ρ] ⊢Δ prop)
+-- wkTermUnit : ∀ {n s A [A]} → ρ ∷ Δ ⊇ Γ → (⊢Δ : ⊢ Δ)
+--            → Γ ⊩Unit⟨ l , s ⟩ n ∷ A / [A] → Δ ⊩Unit⟨ l , s ⟩ U.wk ρ n ∷ A / [A]
+-- wkTermUnit {ρ = ρ} [ρ] ⊢Δ (Unitₜ n d n≡n prop) =
+--   Unitₜ (U.wk ρ n) (wkRed:*:Term [ρ] ⊢Δ d)
+--         (≅ₜ-wk [ρ] ⊢Δ n≡n) (wkUnit-prop [ρ] ⊢Δ prop)
 
-wkEqTermUnit : ∀ {t u s} → ρ ∷ Δ ⊇ Γ → (⊢Δ : ⊢ Δ)
-          → Γ ⊩Unit⟨ l , s ⟩ t ≡ u ∷Unit
-          → Δ ⊩Unit⟨ l , s ⟩ U.wk ρ t ≡ U.wk ρ u ∷Unit
-wkEqTermUnit [ρ] ⊢Δ (Unitₜ₌ˢ ⊢t ⊢u ok) =
-  Unitₜ₌ˢ (T.wkTerm [ρ] ⊢Δ ⊢t) (T.wkTerm [ρ] ⊢Δ ⊢u) ok
-wkEqTermUnit {ρ} [ρ] ⊢Δ (Unitₜ₌ʷ k k′ d d′ k≡k′ prop ok) =
-  Unitₜ₌ʷ (U.wk ρ k) (U.wk ρ k′) (wkRed:*:Term [ρ] ⊢Δ d)
-    (wkRed:*:Term [ρ] ⊢Δ d′) (≅ₜ-wk [ρ] ⊢Δ k≡k′)
-    (wk[Unitʷ]-prop [ρ] ⊢Δ prop) ok
+-- wkEqTermUnit : ∀ {t u s A [A]} → ρ ∷ Δ ⊇ Γ → (⊢Δ : ⊢ Δ)
+--           → Γ ⊩Unit⟨ l , s ⟩ t ≡ u ∷ A / [A]
+--           → Δ ⊩Unit⟨ l , s ⟩ U.wk ρ t ≡ U.wk ρ u ∷ A / [A]
+-- wkEqTermUnit [ρ] ⊢Δ (Unitₜ₌ˢ ⊢t ⊢u ok) =
+--   Unitₜ₌ˢ (T.wkTerm [ρ] ⊢Δ ⊢t) (T.wkTerm [ρ] ⊢Δ ⊢u) ok
+-- wkEqTermUnit {ρ} [ρ] ⊢Δ (Unitₜ₌ʷ k k′ d d′ k≡k′ prop ok) =
+--   Unitₜ₌ʷ (U.wk ρ k) (U.wk ρ k′) (wkRed:*:Term [ρ] ⊢Δ d)
+--     (wkRed:*:Term [ρ] ⊢Δ d′) (≅ₜ-wk [ρ] ⊢Δ k≡k′)
+--     (wk[Unitʷ]-prop [ρ] ⊢Δ prop) ok
 
 -- Weakening of the logical relation
 
@@ -156,11 +202,15 @@ wkEqTerm :
   Γ ⊩⟨ l ⟩ t ≡ u ∷ A / [A] →
   Δ ⊩⟨ l ⟩ U.wk ρ t ≡ U.wk ρ u ∷ U.wk ρ A / wk [ρ] ⊢Δ [A]
 
-wk ρ ⊢Δ (Uᵣ′ l′ l< D) = Uᵣ′ l′ l< (wkRed:*: ρ ⊢Δ D)
+wk ρ ⊢Δ (Levelᵣ D) = Levelᵣ (wkRed:*: ρ ⊢Δ D)
+wk {ρ = ρ} [ρ] ⊢Δ (Uᵣ′ l′ [l′] l< D) = Uᵣ′ (U.wk ρ l′)
+  (wkTermLevel [ρ] ⊢Δ [l′])
+  (PE.subst (_<ᵘ _) (PE.sym (wk-reflect-level [ρ] ⊢Δ [l′])) l<)
+  (wkRed:*: [ρ] ⊢Δ D)
 wk ρ ⊢Δ (ℕᵣ D) = ℕᵣ (wkRed:*: ρ ⊢Δ D)
 wk ρ ⊢Δ (Emptyᵣ D) = Emptyᵣ (wkRed:*: ρ ⊢Δ D)
-wk ρ ⊢Δ (Unitᵣ (Unitₜ D ok)) =
-  Unitᵣ (Unitₜ (wkRed:*: ρ ⊢Δ D) ok)
+wk {ρ = ρ} [ρ] ⊢Δ (Unitᵣ (Unitₜ k [k] k≡ D ok)) =
+  Unitᵣ (Unitₜ (U.wk ρ k) (wkTermLevel [ρ] ⊢Δ [k]) (PE.trans (wk-reflect-level [ρ] ⊢Δ [k]) k≡) (wkRed:*: [ρ] ⊢Δ D) ok)
 wk {ρ = ρ} [ρ] ⊢Δ (ne′ _ D neK K≡K) =
   ne′ (U.wk ρ _) (wkRed:*: [ρ] ⊢Δ D) (wkNeutral ρ neK) (≅-wk [ρ] ⊢Δ K≡K)
 wk
@@ -256,10 +306,11 @@ wk ρ∷⊇ ⊢Δ (Idᵣ ⊩A) = Idᵣ (record
 wk ρ ⊢Δ (emb ≤ᵘ-refl x) = emb ≤ᵘ-refl (wk ρ ⊢Δ x)
 wk ρ ⊢Δ (emb (≤ᵘ-step l<) x) = emb-<-⊩ ≤ᵘ-refl (wk ρ ⊢Δ (emb l< x))
 
-wkEq ρ ⊢Δ (Uᵣ′ l l< D) D′ = wkRed:*: ρ ⊢Δ D′
+wkEq ρ ⊢Δ (Levelᵣ D) A≡B = wkRed* ρ ⊢Δ A≡B
+wkEq ρ ⊢Δ (Uᵣ′ l [l] l< D) D′ = wkRed:*: ρ ⊢Δ D′
 wkEq ρ ⊢Δ (ℕᵣ D) A≡B = wkRed* ρ ⊢Δ A≡B
 wkEq ρ ⊢Δ (Emptyᵣ D) A≡B = wkRed* ρ ⊢Δ A≡B
-wkEq ρ ⊢Δ (Unitᵣ (Unitₜ D _)) A≡B = wkRed* ρ ⊢Δ A≡B
+wkEq ρ ⊢Δ (Unitᵣ (Unitₜ k [k] k≡ D _)) A≡B = wkRed* ρ ⊢Δ A≡B
 wkEq {ρ = ρ} [ρ] ⊢Δ (ne′ _ _ _ _) (ne₌ M D′ neM K≡M) =
   ne₌ (U.wk ρ M) (wkRed:*: [ρ] ⊢Δ D′)
       (wkNeutral ρ neM) (≅-wk [ρ] ⊢Δ K≡M)
@@ -318,17 +369,20 @@ wkEq ρ ⊢Δ (emb (≤ᵘ-step p) ⊩A) A≡B =
   let ⊩A′ = wk ρ ⊢Δ (emb p ⊩A) in
   irrelevanceEq ⊩A′ (emb-<-⊩ ≤ᵘ-refl ⊩A′) (wkEq ρ ⊢Δ (emb p ⊩A) A≡B)
 
+wkTerm ρ ⊢Δ (Levelᵣ D) [t] = wkTermLevel ρ ⊢Δ [t]
 wkTerm
   {ρ} {l = 1+ l}
-  [ρ] ⊢Δ ⊩U@(Uᵣ′ l′ (≤ᵘ-step l<) D) (Uₜ A d typeA A≡A [t]) =
-  let nRes = wkTerm [ρ] ⊢Δ (Uᵣ′ l′ l< D) (Uₜ A d typeA A≡A [t])
-  in irrelevanceTerm (wk [ρ] ⊢Δ (Uᵣ′ l′ l< D)) (wk [ρ] ⊢Δ ⊩U) nRes
-wkTerm {ρ = ρ} [ρ] ⊢Δ (Uᵣ′ l ≤ᵘ-refl D) (Uₜ A d typeA A≡A [t]) =
-  Uₜ (U.wk ρ A) (wkRed:*:Term [ρ] ⊢Δ d)
-     (wkType ρ typeA) (≅ₜ-wk [ρ] ⊢Δ A≡A) (wk [ρ] ⊢Δ [t])
+  [ρ] ⊢Δ ⊩U@(Uᵣ′ l′ [l′] (≤ᵘ-step l<) D) (Uₜ A d typeA A≡A [t]) =
+  -- let nRes = wkTerm [ρ] ⊢Δ {!Uᵣ′ l′ l< D!} (Uₜ A d typeA A≡A [t])
+  -- in irrelevanceTerm (wk [ρ] ⊢Δ {!Uᵣ′ l′ l< D!}) (wk [ρ] ⊢Δ ⊩U) nRes
+  {!   !}
+wkTerm {ρ = ρ} [ρ] ⊢Δ (Uᵣ′ l [l] ≤ᵘ-refl D) (Uₜ A d typeA A≡A [t]) =
+  -- Uₜ (U.wk ρ A) (wkRed:*:Term [ρ] ⊢Δ d)
+  --    (wkType ρ typeA) (≅ₜ-wk [ρ] ⊢Δ A≡A) (wk [ρ] ⊢Δ [t])
+  {!   !}
 wkTerm ρ ⊢Δ (ℕᵣ D) [t] = wkTermℕ ρ ⊢Δ [t]
 wkTerm ρ ⊢Δ (Emptyᵣ D) [t] = wkTermEmpty ρ ⊢Δ [t]
-wkTerm ρ ⊢Δ (Unitᵣ (Unitₜ D _)) [t] = wkTermUnit ρ ⊢Δ [t]
+wkTerm ρ ⊢Δ (Unitᵣ (Unitₜ k [k] k≡ D _)) [t] = {!wkTermUnit ρ ⊢Δ [t]!}
 wkTerm {ρ = ρ} [ρ] ⊢Δ (ne′ _ D neK K≡K) (neₜ k d nf) =
   neₜ (U.wk ρ k) (wkRed:*:Term [ρ] ⊢Δ d) (wkTermNe [ρ] ⊢Δ nf)
 wkTerm
@@ -448,22 +502,24 @@ wkTerm ρ ⊢Δ (emb (≤ᵘ-step l<) x) t =
   let wkn = wkTerm ρ ⊢Δ (emb l< x) t
   in irrelevanceTerm (wk ρ ⊢Δ (emb l< x))
     (wk ρ ⊢Δ (emb (≤ᵘ-step l<) x)) wkn
+wkEqTerm ρ ⊢Δ (Levelᵣ D) [t≡u] = wkEqTermLevel ρ ⊢Δ [t≡u]
 wkEqTerm
-  {ρ} {l = 1+ l′} [ρ] ⊢Δ (Uᵣ′ l (≤ᵘ-step l<) D)
+  {ρ} {l = 1+ l′} [ρ] ⊢Δ (Uᵣ′ l [l] (≤ᵘ-step l<) D)
   (Uₜ₌ A B d d′ typeA typeB A≡B [t] [u] [t≡u]) =
-  let wkET′ = wkEqTerm {ρ = ρ} [ρ] ⊢Δ (Uᵣ′ l l< D) (Uₜ₌ A B d d′ typeA typeB A≡B [t] [u] [t≡u])
+  let wkET′ = wkEqTerm {ρ = ρ} [ρ] ⊢Δ {!Uᵣ′ l l< D!} (Uₜ₌ A B d d′ typeA typeB A≡B [t] [u] [t≡u])
   in
-  irrelevanceEqTerm (wk [ρ] ⊢Δ (Uᵣ′ l l< D))
-    (wk [ρ] ⊢Δ (Uᵣ′ l (≤ᵘ-step l<) D)) wkET′
+  irrelevanceEqTerm (wk [ρ] ⊢Δ {!Uᵣ′ l l< D!})
+    (wk [ρ] ⊢Δ {!Uᵣ′ l (≤ᵘ-step l<) D!}) wkET′
 wkEqTerm
-  {ρ} [ρ] ⊢Δ (Uᵣ′ l ≤ᵘ-refl D)
+  {ρ} [ρ] ⊢Δ (Uᵣ′ l [l] ≤ᵘ-refl D)
   (Uₜ₌ A B d d′ typeA typeB A≡B [t] [u] [t≡u]) =
-  Uₜ₌ (U.wk ρ A) (U.wk ρ B) (wkRed:*:Term [ρ] ⊢Δ d) (wkRed:*:Term [ρ] ⊢Δ d′)
-      (wkType ρ typeA) (wkType ρ typeB) (≅ₜ-wk [ρ] ⊢Δ A≡B)
-      (wk [ρ] ⊢Δ [t]) (wk [ρ] ⊢Δ [u]) (wkEq [ρ] ⊢Δ [t] [t≡u])
+  -- Uₜ₌ (U.wk ρ A) (U.wk ρ B) (wkRed:*:Term [ρ] ⊢Δ d) (wkRed:*:Term [ρ] ⊢Δ d′)
+  --     (wkType ρ typeA) (wkType ρ typeB) (≅ₜ-wk [ρ] ⊢Δ A≡B)
+  --     (wk [ρ] ⊢Δ [t]) (wk [ρ] ⊢Δ [u]) (wkEq [ρ] ⊢Δ [t] [t≡u])
+  {!   !}
 wkEqTerm ρ ⊢Δ (ℕᵣ D) [t≡u] = wkEqTermℕ ρ ⊢Δ [t≡u]
 wkEqTerm ρ ⊢Δ (Emptyᵣ D) [t≡u] = wkEqTermEmpty ρ ⊢Δ [t≡u]
-wkEqTerm ρ ⊢Δ (Unitᵣ (Unitₜ D _)) [t≡u] = wkEqTermUnit ρ ⊢Δ [t≡u]
+wkEqTerm ρ ⊢Δ (Unitᵣ (Unitₜ k [k] k≡ D _)) [t≡u] = {!wkEqTermUnit ρ ⊢Δ [t≡u]!}
 wkEqTerm {ρ  = ρ} [ρ] ⊢Δ (ne′ _ D neK K≡K) (neₜ₌ k m d d′ nf) =
   neₜ₌ (U.wk ρ k) (U.wk ρ m)
        (wkRed:*:Term [ρ] ⊢Δ d) (wkRed:*:Term [ρ] ⊢Δ d′)
