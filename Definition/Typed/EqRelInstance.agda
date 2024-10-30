@@ -42,7 +42,10 @@ private opaque
       .~-wk         → wkEqTerm
       .≅-red        → reduction
       .≅ₜ-red       → reductionₜ
+      .≅-Levelrefl  → refl ∘ᶠ Levelⱼ
       .≅-Urefl      → refl ∘ᶠ Uⱼ
+      .≅-U-cong     → U-cong
+      .≅ₜ-U-cong    → U-cong
       .≅ₜ-ℕrefl     → refl ∘ᶠ ℕⱼ
       .≅ₜ-Emptyrefl → refl ∘ᶠ Emptyⱼ
       .≅ₜ-Unitrefl  → λ ⊢Γ → refl ∘ᶠ Unitⱼ ⊢Γ

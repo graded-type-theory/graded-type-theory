@@ -20,7 +20,7 @@ open import Definition.Untyped M hiding (K)
 open import Definition.Untyped.Neutral M type-variant
 open import Definition.Typed R
 open import Definition.Typed.Properties R
-open import Definition.LogicalRelation R
+open import Definition.LogicalRelation R {{eqrel}}
 open import Definition.LogicalRelation.Properties.Reflexivity R
 open import Definition.LogicalRelation.Properties.Whnf R
 
@@ -108,10 +108,17 @@ Id≅Id {⊩A = ⊩A} A≡B =
   open _⊩ₗId_ ⊩A
   open _⊩ₗId_≡_/_ A≡B
 
+escapeLevelEq
+  : Γ ⊩Level t ≡ u ∷Level
+  → Γ ⊢ t ≅ u ∷ Level
+escapeLevelEq (Levelₜ₌ k k′ d d′ k≡k′ prop) =
+  let lk , lk′ = lsplit prop
+  in ≅ₜ-red (id (Levelⱼ (wfTerm (⊢t-redₜ d))) , Levelₙ) (redₜ d , lk) (redₜ d′ , lk′) k≡k′
+
 escapeEq (Levelᵣ [ ⊢A , ⊢B , D ]) D′ =
   ≅-red (D , Levelₙ) (D′ , Levelₙ) (≅-Levelrefl (wf ⊢A))
-escapeEq (Uᵣ′ _ (Levelₜ m [ ⊢k , _ , _ ] m≡m prop) _ [ ⊢A , ⊢B , D ]) [ ⊢A₁ , ⊢B₁ , D₁ ] =
-  ≅-red (D , Uₙ) (D₁ , Uₙ) (≅-univ (≅-Urefl ⊢k))
+escapeEq (Uᵣ′ _ _ _ [ ⊢A , ⊢B , D ]) (U₌ k′ [ ⊢A₁ , ⊢B₁ , D₁ ] k≡k′) =
+  ≅-red (D , Uₙ) (D₁ , Uₙ) (≅-univ (≅ₜ-U-cong (escapeLevelEq k≡k′)))
 escapeEq (ℕᵣ [ ⊢A , ⊢B , D ]) D′ =
   ≅-red (D , ℕₙ) (D′ , ℕₙ) (≅-ℕrefl (wf ⊢A))
 escapeEq (Emptyᵣ [ ⊢A , ⊢B , D ]) D′ =

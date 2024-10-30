@@ -43,13 +43,19 @@ symNeutralTerm : ∀ {t u A}
                → Γ ⊩neNf u ≡ t ∷ A
 symNeutralTerm (neNfₜ₌ neK neM k≡m) = neNfₜ₌ neM neK (~-sym k≡m)
 
-symLevel-prop : ∀ {k k′}
-              → [Level]-prop Γ k k′
-              → [Level]-prop Γ k′ k
-symLevel-prop zeroᵘᵣ = zeroᵘᵣ
-symLevel-prop (sucᵘᵣ (Levelₜ₌ k k′ d d′ k≡k′ prop)) =
-  sucᵘᵣ (Levelₜ₌ k′ k d′ d (≅ₜ-sym k≡k′) (symLevel-prop prop))
-symLevel-prop (ne prop) = ne (symNeutralTerm prop)
+mutual
+  symLevel-prop : ∀ {k k′}
+                → [Level]-prop Γ k k′
+                → [Level]-prop Γ k′ k
+  symLevel-prop zeroᵘᵣ = zeroᵘᵣ
+  symLevel-prop (sucᵘᵣ x) = sucᵘᵣ (symLevel x)
+  symLevel-prop (ne prop) = ne (symNeutralTerm prop)
+
+  symLevel : ∀ {k k′}
+           → Γ ⊩Level k ≡ k′ ∷Level
+           → Γ ⊩Level k′ ≡ k ∷Level
+  symLevel (Levelₜ₌ k k′ d d′ k≡k′ prop) =
+    Levelₜ₌ k′ k d′ d (≅ₜ-sym k≡k′) (symLevel-prop prop)
 
 symNatural-prop : ∀ {k k′}
                 → [Natural]-prop Γ k k′
@@ -136,8 +142,8 @@ symEqT
                           ([G]₁ [ρ] ⊢Δ [a])
                           (symEq ([G] [ρ] ⊢Δ [a]₁) [ρG′a]
                                  ([G≡G′] [ρ] ⊢Δ [a]₁)))
-symEqT (Uᵥ (Uᵣ l′ [l′] l< ⇒*U) (Uᵣ l′₁ [l′₁] l<₁ ⇒*U₁)) D with whrDet* (red D , Uₙ) (red ⇒*U₁ , Uₙ)
-... | PE.refl = ⇒*U
+symEqT (Uᵥ (Uᵣ l′ [l′] l< ⇒*U) (Uᵣ l′₁ [l′₁] l<₁ ⇒*U₁)) (U₌ k D l′≡k) with whrDet* (red D , Uₙ) (red ⇒*U₁ , Uₙ)
+... | PE.refl = U₌ l′ ⇒*U (symLevel l′≡k)
 symEqT (Idᵥ ⊩A ⊩B@record{}) A≡B =
   case
     whrDet*

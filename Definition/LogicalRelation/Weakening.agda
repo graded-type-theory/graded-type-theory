@@ -307,7 +307,7 @@ wk ρ ⊢Δ (emb ≤ᵘ-refl x) = emb ≤ᵘ-refl (wk ρ ⊢Δ x)
 wk ρ ⊢Δ (emb (≤ᵘ-step l<) x) = emb-<-⊩ ≤ᵘ-refl (wk ρ ⊢Δ (emb l< x))
 
 wkEq ρ ⊢Δ (Levelᵣ D) A≡B = wkRed* ρ ⊢Δ A≡B
-wkEq ρ ⊢Δ (Uᵣ′ l [l] l< D) D′ = wkRed:*: ρ ⊢Δ D′
+wkEq ρ ⊢Δ (Uᵣ′ l [l] l< D) (U₌ k D′ l≡k) = U₌ (U.wk _ k) (wkRed:*: ρ ⊢Δ D′) (wkEqTermLevel ρ ⊢Δ l≡k)
 wkEq ρ ⊢Δ (ℕᵣ D) A≡B = wkRed* ρ ⊢Δ A≡B
 wkEq ρ ⊢Δ (Emptyᵣ D) A≡B = wkRed* ρ ⊢Δ A≡B
 wkEq ρ ⊢Δ (Unitᵣ (Unitₜ k [k] k≡ D _)) A≡B = wkRed* ρ ⊢Δ A≡B

@@ -149,7 +149,7 @@ transEqTermUnit (Unitₜ₌ʷ _ _ _ _ _ _ not-ok) (Unitₜ₌ˢ _ _ (inj₂ ok))
 
 
 -- Helper function for transitivity of type equality using shape views.
-{-# TERMINATING #-}
+{-# TERMINATING #-} -- TODO
 transEqT : ∀ {n} {Γ : Con Term n} {A B C l l′ l″}
            {[A] : Γ ⊩⟨ l ⟩ A} {[B] : Γ ⊩⟨ l′ ⟩ B} {[C] : Γ ⊩⟨ l″ ⟩ C}
          → ShapeView₃ Γ l l′ l″ A B C [A] [B] [C]
@@ -245,9 +245,10 @@ transEqT {n = n} {Γ = Γ} {l = l} {l′ = l′} {l″ = l″}
                     [a′]
        in  transEq ([G] ρ ⊢Δ [a]) ([G]₁ ρ ⊢Δ [a′]) ([G]₂ ρ ⊢Δ [a″])
                    ([G≡G′] ρ ⊢Δ [a]) ([G≡G′]₁ ρ ⊢Δ [a′])) }}
-transEqT (Uᵥ (Uᵣ l′ [l′] l< ⇒*U) (Uᵣ l′₁ [l′₁] l<₁ ⇒*U₁) (Uᵣ l′₂ [l′₂] l<₂ ⇒*U₂)) D D₁
-  rewrite whrDet* (red ⇒*U₁ , Uₙ) (red D , Uₙ)  | whrDet* (red ⇒*U₂ , Uₙ) (red D₁ , Uₙ) =
-    [ _⊢_:⇒*:_.⊢A D₁ , _⊢_:⇒*:_.⊢B D , _⊢_:⇒*:_.D D₁ ]
+transEqT (Uᵥ (Uᵣ l′ [l′] l< ⇒*U) (Uᵣ l′₁ [l′₁] l<₁ ⇒*U₁) (Uᵣ l′₂ [l′₂] l<₂ ⇒*U₂)) (U₌ k D l′≡k) (U₌ k′ D₁ k≡k′)
+  with whrDet* (red ⇒*U₁ , Uₙ) (red D , Uₙ)  | whrDet* (red ⇒*U₂ , Uₙ) (red D₁ , Uₙ)
+... | PE.refl | PE.refl =
+    U₌ k′ D₁ (transEqTermLevel l′≡k k≡k′)
 transEqT (Idᵥ ⊩A ⊩B@record{} ⊩C@record{}) A≡B B≡C =
   case
     whrDet*

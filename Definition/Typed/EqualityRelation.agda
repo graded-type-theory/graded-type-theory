@@ -36,7 +36,7 @@ private
     ρ : Wk n′ n
     A A₁ A₂ A′ B B₁ B₂ B′ C : Term n
     a a′ b b′ e e′ : Term n
-    l l₁ l₂ m t t₁ t₂ u u₁ u₂ v v₁ v₂ w₁ w₂ : Term n
+    k l l₁ l₂ m t t₁ t₂ u u₁ u₂ v v₁ v₂ w₁ w₂ : Term n
     s : Strength
     bm : BinderMode
 
@@ -113,6 +113,10 @@ record Equality-relations
 
     -- Universe type reflexivity
     ≅-Urefl   : Γ ⊢ l ∷ Level → Γ ⊢ U l ≅ U l ∷ U (sucᵘ l)
+
+    -- Universe congruence
+    ≅-U-cong : Γ ⊢ l ≅ k ∷ Level → Γ ⊢ U l ≅ U k
+    ≅ₜ-U-cong : Γ ⊢ l ≅ k ∷ Level → Γ ⊢ U l ≅ U k ∷ U (sucᵘ l)
 
     -- Natural number type reflexivity
     ≅ₜ-ℕrefl : ⊢ Γ → Γ ⊢ ℕ ≅ ℕ ∷ U zeroᵘ

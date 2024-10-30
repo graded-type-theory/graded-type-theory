@@ -153,7 +153,10 @@ mutual
               in  irrelevanceEq′ (PE.cong (λ y → wk (lift ρ) y [ _ ]) G≡G₁)
                                  ([G] [ρ] ⊢Δ [a]) ([G]₁ [ρ] ⊢Δ [a]₁) ([G≡G′] [ρ] ⊢Δ [a]))
   irrelevanceEqT (Uᵥ (Uᵣ _ _ _ D1) (Uᵣ _ _ _ D2)) A≡B
-    rewrite whrDet* (red D1 , Uₙ) (red D2 , Uₙ) = A≡B
+    = case whrDet* (red D1 , Uₙ) (red D2 , Uₙ) of λ { PE.refl →
+        U₌ k′ ⇒*U′ k≡k′ }
+    where
+    open _⊩₁U≡_/_ A≡B
   irrelevanceEqT (Idᵥ ⊩A@record{} ⊩A′) A≡B =
     case
       whrDet* (red (_⊩ₗId_.⇒*Id ⊩A) , Idₙ) (red (_⊩ₗId_.⇒*Id ⊩A′) , Idₙ)

@@ -51,6 +51,9 @@ data MaybeEmb
 
 -- Specific reducible types with possible embedding
 
+_⊩⟨_⟩Level_ : (Γ : Con Term n) (l : Universe-level) (A : Term n) → Set a
+Γ ⊩⟨ l ⟩Level A = MaybeEmb l (λ l′ → Γ ⊩Level A)
+
 _⊩⟨_⟩U_ : (Γ : Con Term n) (l : Universe-level) (A : Term n) → Set a
 Γ ⊩⟨ l ⟩U A = MaybeEmb l (λ l′ → Γ ⊩′⟨ l′ ⟩U A)
 
@@ -78,6 +81,10 @@ _⊩⟨_⟩Id_ : Con Term n → Universe-level → Term n → Set a
 
 -- Construct a general reducible type from a specific
 
+Level-intr : ∀ {A l} → Γ ⊩⟨ l ⟩Level A → Γ ⊩⟨ l ⟩ A
+Level-intr (noemb x) = Levelᵣ x
+Level-intr (emb p x) = emb-<-⊩ p (Level-intr x)
+
 U-intr : ∀ {A l} → Γ ⊩⟨ l ⟩U A → Γ ⊩⟨ l ⟩ A
 U-intr (noemb x) = Uᵣ x
 U-intr (emb p x) = emb-<-⊩ p (U-intr x)
@@ -85,7 +92,6 @@ U-intr (emb p x) = emb-<-⊩ p (U-intr x)
 ℕ-intr : ∀ {A l} → Γ ⊩⟨ l ⟩ℕ A → Γ ⊩⟨ l ⟩ A
 ℕ-intr (noemb x) = ℕᵣ x
 ℕ-intr (emb p x) = emb-<-⊩ p (ℕ-intr x)
-
 
 Empty-intr : ∀ {A l} → Γ ⊩⟨ l ⟩Empty A → Γ ⊩⟨ l ⟩ A
 Empty-intr (noemb x) = Emptyᵣ x
@@ -108,6 +114,30 @@ Id-intr (noemb ⊩A)   = Idᵣ ⊩A
 Id-intr (emb p ⊩A) = emb-<-⊩ p (Id-intr ⊩A)
 
 -- Construct a specific reducible type from a general with some criterion
+
+Level-elim′ : ∀ {A l} → Γ ⊢ A ⇒* Level → Γ ⊩⟨ l ⟩ A → Γ ⊩⟨ l ⟩Level A
+Level-elim′ D (Levelᵣ D′) = noemb D′
+Level-elim′ D (Uᵣ′ _ _ _ D') with whrDet* (D , Levelₙ) (red  D' , Uₙ)
+... | ()
+Level-elim′ D (ℕᵣ D′) with whrDet* (D , Levelₙ) (red D′ , ℕₙ)
+... | ()
+Level-elim′ D (ne′ _ D′ neK K≡K) =
+  ⊥-elim (Level≢ne neK (whrDet* (D , Levelₙ) (red D′ , ne neK)))
+Level-elim′ D (Bᵣ′ W _ _ D′ _ _ _ _ _ _ _) =
+  ⊥-elim (Level≢B W (whrDet* (D , Levelₙ) (red D′ , ⟦ W ⟧ₙ)))
+Level-elim′ D (Emptyᵣ D′) with whrDet* (D , Levelₙ) (red D′ , Emptyₙ)
+... | ()
+Level-elim′ D (Unitᵣ (Unitₜ _ _ _ D′ _)) with whrDet* (D , Levelₙ) (red D′ , Unitₙ)
+... | ()
+Level-elim′ A⇒*Level (Idᵣ ⊩A) =
+  case whrDet* (A⇒*Level , Levelₙ) (red (_⊩ₗId_.⇒*Id ⊩A) , Idₙ) of λ ()
+Level-elim′ A⇒Level (emb ≤ᵘ-refl x) with Level-elim′  A⇒Level x
+Level-elim′ A⇒Level (emb ≤ᵘ-refl x) | noemb x₁ =  emb ≤ᵘ-refl (noemb x₁)
+Level-elim′ A⇒Level (emb ≤ᵘ-refl x) | emb x1 k = emb ≤ᵘ-refl (emb x1 k)
+Level-elim′ A⇒Level (emb (≤ᵘ-step p) x) = emb ≤ᵘ-refl (Level-elim′ A⇒Level (emb p x))
+
+Level-elim : ∀ {l} → Γ ⊩⟨ l ⟩ Level → Γ ⊩⟨ l ⟩Level Level
+Level-elim [Level] = Level-elim′ (id (escape [Level])) [Level]
 
 U-elim′ : Γ ⊢ A ⇒* U t → Γ ⊩⟨ l ⟩ A → Γ ⊩⟨ l ⟩U A
 U-elim′ A⇒U (Levelᵣ D) with whrDet* (A⇒U , Uₙ) (red D , Levelₙ)
@@ -399,19 +429,19 @@ goodCases (Levelᵣ _) (Idᵣ ⊩B) D =
   case whrDet* (D , Levelₙ) (red (_⊩ₗId_.⇒*Id ⊩B) , Idₙ) of λ ()
 
 -- U ≡ _
-goodCases (Uᵣ _) (Levelᵣ D') [ _ , _ , D ] with whrDet* (D , Uₙ) (red D' , Levelₙ)
+goodCases (Uᵣ _) (Levelᵣ D') (U₌ _ [ _ , _ , D ] _) with whrDet* (D , Uₙ) (red D' , Levelₙ)
 ... | ()
-goodCases (Uᵣ _) (ℕᵣ D') [ _ , _ , D ] with whrDet* (D , Uₙ) (red D' , ℕₙ)
+goodCases (Uᵣ _) (ℕᵣ D') (U₌ _ [ _ , _ , D ] _) with whrDet* (D , Uₙ) (red D' , ℕₙ)
 ... | ()
-goodCases (Uᵣ _) (Emptyᵣ D') [ _ , _ , D ] with whrDet* (D , Uₙ) (red D' , Emptyₙ)
+goodCases (Uᵣ _) (Emptyᵣ D') (U₌ _ [ _ , _ , D ] _) with whrDet* (D , Uₙ) (red D' , Emptyₙ)
 ... | ()
-goodCases (Uᵣ _) (Unitᵣ (Unitₜ _ _ _ D' _)) [ _ , _ , D ] with whrDet* (D , Uₙ) (red D' , Unitₙ)
+goodCases (Uᵣ _) (Unitᵣ (Unitₜ _ _ _ D' _)) (U₌ _ [ _ , _ , D ] _) with whrDet* (D , Uₙ) (red D' , Unitₙ)
 ... | ()
-goodCases (Uᵣ′ _ _ _ ⊢Γ) (ne′ _ D' neK K≡K) [ _ , _ , D ] =
+goodCases (Uᵣ′ _ _ _ ⊢Γ) (ne′ _ D' neK K≡K) (U₌ _ [ _ , _ , D ] _) =
   ⊥-elim (U≢ne neK (whrDet* ( D , Uₙ ) ( red D' , ne neK)))
-goodCases (Uᵣ′ _ _ _ _) (Bᵣ′ W _ _ D' _ _ _ _ _ _ _) [ _ , _ , D ] =
+goodCases (Uᵣ′ _ _ _ _) (Bᵣ′ W _ _ D' _ _ _ _ _ _ _) (U₌ _ [ _ , _ , D ] _) =
   ⊥-elim (U≢B W (whrDet* ( D , Uₙ ) ( red D' , ⟦ W ⟧ₙ )))
-goodCases (Uᵣ _) (Idᵣ ⊩B) [ _ , _ , D ] =
+goodCases (Uᵣ _) (Idᵣ ⊩B) (U₌ _ [ _ , _ , D ] _) =
   case whrDet* (D , Uₙ) (red (_⊩ₗId_.⇒*Id ⊩B) , Idₙ) of λ ()
 
 -- ℕ ≡ _

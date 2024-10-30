@@ -397,8 +397,14 @@ module LogRel
       ⇒*U : Γ ⊢ A :⇒*: U k
 
   -- Universe type equality
-  _⊩₁U≡_/_ : Con Term ℓ → Term ℓ → Term ℓ → Set a
-  Γ ⊩₁U≡ B / k = Γ ⊢ B :⇒*: U k
+  record _⊩₁U≡_/_ (Γ : Con Term ℓ) (B : Term ℓ) (k : Term ℓ) : Set a where
+    no-eta-equality
+    pattern
+    constructor U₌
+    field
+      k′ : Term ℓ
+      ⇒*U′ : Γ ⊢ B :⇒*: U k′
+      k≡k′ : Γ ⊩Level k ≡ k′ ∷Level
 
 
   -- Universe term
@@ -738,8 +744,8 @@ module LogRel
 
 open LogRel public
   using
-    (Levelᵣ; Uᵣ; ℕᵣ; Emptyᵣ; Unitᵣ; ne; Bᵣ; B₌; Idᵣ; Id₌; emb; Uₜ; Uₜ₌;
-     module _⊩₁U_; module _⊩₁U_∷U/_; module _⊩₁U_≡_∷U/_;
+    (Levelᵣ; Uᵣ; U₌; ℕᵣ; Emptyᵣ; Unitᵣ; ne; Bᵣ; B₌; Idᵣ; Id₌; emb; Uₜ; Uₜ₌;
+     module _⊩₁U_; module _⊩₁U≡_/_; module _⊩₁U_∷U/_; module _⊩₁U_≡_∷U/_;
      module _⊩ₗB⟨_⟩_; module _⊩ₗB⟨_⟩_≡_/_;
      module _⊩ₗId_; module _⊩ₗId_≡_/_)
 

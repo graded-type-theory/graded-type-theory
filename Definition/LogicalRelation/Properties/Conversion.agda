@@ -152,9 +152,11 @@ mutual
             (≅-eq A≡B)
     in  Σₜ f (convRed:*: d ΣFG≡ΣF₁G₁) (≅-conv f≡f ΣFG≡ΣF₁G₁)
            (ne x) (~-conv f~f ΣFG≡ΣF₁G₁)
-  convTermT₁ (Uᵥ (Uᵣ k [k] k< D1) (Uᵣ k′ [k′] k′< D2)) D (Uₜ A d typeA A≡A [t]) with whrDet* (red D2 , Uₙ) (red D , Uₙ)
-  ... | PE.refl = Uₜ A (convRed:*: d (refl (_⊢_:⇒*:_.⊢B D))) typeA A≡A
-    (irrelevance-⊩< (reflect-level-cong [k] [k′] PE.refl) k< k′< [t])
+  convTermT₁ (Uᵥ (Uᵣ k [k] k< D1) (Uᵣ k′ [k′] k′< D2)) (U₌ _ D _) (Uₜ A d typeA A≡A [t]) with whrDet* (red D2 , Uₙ) (red D , Uₙ)
+  ... | PE.refl =
+    Uₜ A {!  (convRed:*: d (refl (_⊢_:⇒*:_.⊢B D))) !} typeA {! A≡A  !} {!   !}
+    -- Uₜ A (convRed:*: d (refl (_⊢_:⇒*:_.⊢B D))) typeA A≡A
+    -- (irrelevance-⊩< (reflect-level-cong [k] [k′] PE.refl) k< k′< [t])
   convTermT₁ (Idᵥ ⊩A ⊩B@record{}) A≡B ⊩t@(_ , t⇒*u , _) =
     case whrDet* (red (_⊩ₗId_.⇒*Id ⊩B) , Idₙ) (red ⇒*Id′ , Idₙ) of λ {
       PE.refl →
@@ -287,10 +289,11 @@ mutual
             (≅-eq A≡B)
     in  Σₜ f (convRed:*: d (sym ΣFG≡ΣF₁G₁)) (≅-conv f≡f (sym ΣFG≡ΣF₁G₁))
            (ne x) (~-conv f~f (sym ΣFG≡ΣF₁G₁))
-  convTermT₂ (Uᵥ (Uᵣ k [k] k< D1) (Uᵣ k′ [k′] k′< D2)) D (Uₜ A d typeA A≡A [t]) with whrDet* (red D2 , Uₙ) (red D , Uₙ)
+  convTermT₂ (Uᵥ (Uᵣ k [k] k< D1) (Uᵣ k′ [k′] k′< D2)) (U₌ _ D _) (Uₜ A d typeA A≡A [t]) with whrDet* (red D2 , Uₙ) (red D , Uₙ)
   ... | PE.refl =
-    Uₜ A (convRed:*: d (refl (_⊢_:⇒*:_.⊢B D))) typeA A≡A
-      (irrelevance-⊩< (reflect-level-cong [k′] [k] PE.refl) k′< k< [t])
+    {!   !}
+    -- Uₜ A (convRed:*: d (refl (_⊢_:⇒*:_.⊢B D))) typeA A≡A
+    --   (irrelevance-⊩< (reflect-level-cong [k′] [k] PE.refl) k′< k< [t])
   convTermT₂ (Idᵥ ⊩A ⊩B@record{}) A≡B ⊩t@(_ , t⇒*u , _) =
     case whrDet* (red (_⊩ₗId_.⇒*Id ⊩B) , Idₙ) (red ⇒*Id′ , Idₙ) of λ {
       PE.refl →
@@ -480,13 +483,14 @@ mutual
             (convTerm₁ [A] [B] [A≡B] [t]) (convTerm₁ [A] [B] [A≡B] [u])
             p~r₁
   convEqTermT₁
-    (Uᵥ (Uᵣ k [k] k< D1) (Uᵣ k′ [k′] k′< D2)) D
+    (Uᵥ (Uᵣ k [k] k< D1) (Uᵣ k′ [k′] k′< D2)) (U₌ _ D _)
     (Uₜ₌ A B d d′ typeA typeB A≡B _ [u] [t≡u])
     with whrDet* (red D2 , Uₙ) (red D , Uₙ)
   ... | PE.refl =
-    Uₜ₌ A B d d′ typeA typeB A≡B _
-      (irrelevance-⊩< (reflect-level-cong [k] [k′] PE.refl) k< k′< [u])
-      (irrelevance-⊩<≡ (reflect-level-cong [k] [k′] PE.refl) k< k′< [t≡u])
+    -- Uₜ₌ A B d d′ typeA typeB A≡B _
+    --   (irrelevance-⊩< (reflect-level-cong [k] [k′] PE.refl) k< k′< [u])
+    --   (irrelevance-⊩<≡ (reflect-level-cong [k] [k′] PE.refl) k< k′< [t≡u])
+    {!   !}
   convEqTermT₁
     (Idᵥ ⊩A ⊩B@record{}) A≡B t≡u@(_ , _ , t⇒*t′ , u⇒*u′ , _) =
     case whrDet* (red (_⊩ₗId_.⇒*Id ⊩B) , Idₙ) (red ⇒*Id′ , Idₙ) of λ {
@@ -650,13 +654,14 @@ mutual
             (convTerm₂ [A] [B] [A≡B] [t]) (convTerm₂ [A] [B] [A≡B] [u])
             p~r
   convEqTermT₂
-    (Uᵥ (Uᵣ k [k] k< D1) (Uᵣ k′ [k′] k′< D2)) D
+    (Uᵥ (Uᵣ k [k] k< D1) (Uᵣ k′ [k′] k′< D2)) (U₌ _ D _)
     (Uₜ₌ A B d d′ typeA typeB A≡B _ [u] [t≡u])
     with whrDet* (red D2 , Uₙ) (red D , Uₙ)
   ... | PE.refl =
-    Uₜ₌ A B d d′ typeA typeB A≡B _
-      (irrelevance-⊩< (reflect-level-cong [k′] [k] PE.refl) k′< k< [u])
-      (irrelevance-⊩<≡ (reflect-level-cong [k′] [k] PE.refl) k′< k< [t≡u])
+    -- Uₜ₌ A B d d′ typeA typeB A≡B _
+    --   (irrelevance-⊩< (reflect-level-cong [k′] [k] PE.refl) k′< k< [u])
+    --   (irrelevance-⊩<≡ (reflect-level-cong [k′] [k] PE.refl) k′< k< [t≡u])
+    {!   !}
   convEqTermT₂
     (Idᵥ ⊩A ⊩B@record{}) A≡B t≡u@(_ , _ , t⇒*t′ , u⇒*u′ , _) =
     case whrDet* (red (_⊩ₗId_.⇒*Id ⊩B) , Idₙ) (red ⇒*Id′ , Idₙ) of λ {

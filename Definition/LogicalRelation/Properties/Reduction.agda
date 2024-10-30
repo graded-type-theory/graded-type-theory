@@ -55,7 +55,7 @@ redSubst* D (Levelᵣ [ ⊢B , ⊢Level , D′ ]) =
   in  Levelᵣ ([ ⊢A , ⊢Level , D ⇨* D′ ]) , D′
 redSubst* D (Uᵣ′ l′ [l′] l< [ ⊢A₁ , ⊢B , D′ ]) =
   let ⊢A = redFirst* D
-  in Uᵣ′ l′ [l′] l< ([ ⊢A , ⊢B , D ⇨* D′ ])  , [ ⊢A₁ , ⊢B , D′ ]
+  in Uᵣ′ l′ [l′] l< ([ ⊢A , ⊢B , D ⇨* D′ ])  , U₌ l′ [ ⊢A₁ , ⊢B , D′ ] (reflLevel [l′])
 redSubst* D (ℕᵣ [ ⊢B , ⊢ℕ , D′ ]) =
   let ⊢A = redFirst* D
   in  ℕᵣ ([ ⊢A , ⊢ℕ , D ⇨* D′ ]) , D′
@@ -259,7 +259,7 @@ opaque
   redSubst*′ A⇒*B ⊩U@(Uᵣ′ l [l] l< D) =
     case whrDet:⇒*: Uₙ D A⇒*B of λ
       B⇒*U →
-    Uᵣ′ l [l] l< B⇒*U , B⇒*U
+    Uᵣ′ l [l] l< B⇒*U , U₌ l B⇒*U (reflLevel [l])
   redSubst*′ A⇒*B (ℕᵣ A⇒*ℕ) =
     case whrDet:⇒*: ℕₙ A⇒*ℕ A⇒*B of λ
       B⇒*ℕ →

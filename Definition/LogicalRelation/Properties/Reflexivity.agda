@@ -20,8 +20,8 @@ open import Definition.Untyped.Neutral M type-variant
 open import Definition.Typed R
 open import Definition.Typed.Weakening R
 open import Definition.Typed.Properties R
-open import Definition.LogicalRelation R
-open import Definition.LogicalRelation.Properties.Kit R
+open import Definition.LogicalRelation R {{eqrel}}
+open import Definition.LogicalRelation.Properties.Kit R {{eqrel}}
 
 open import Tools.Function
 open import Tools.Nat using (Nat)
@@ -36,14 +36,19 @@ private
     Γ : Con Term n
     l l′ : Universe-level
 
-reflLevel-prop : ∀ {n}
+mutual
+  reflLevel-prop : ∀ {n}
                  → Level-prop Γ n
                  → [Level]-prop Γ n n
-reflLevel-prop (sucᵘᵣ (Levelₜ n d t≡t prop)) =
-  sucᵘᵣ (Levelₜ₌ n n d d t≡t
-            (reflLevel-prop prop))
-reflLevel-prop zeroᵘᵣ = zeroᵘᵣ
-reflLevel-prop (ne (neNfₜ neK ⊢k k≡k)) = ne (neNfₜ₌ neK neK k≡k)
+  reflLevel-prop (sucᵘᵣ [n]) = sucᵘᵣ (reflLevel [n])
+  reflLevel-prop zeroᵘᵣ = zeroᵘᵣ
+  reflLevel-prop (ne (neNfₜ neK ⊢k k≡k)) = ne (neNfₜ₌ neK neK k≡k)
+
+  reflLevel : ∀ {n}
+            → Γ ⊩Level n ∷Level
+            → Γ ⊩Level n ≡ n ∷Level
+  reflLevel (Levelₜ n d t≡t prop) =
+    Levelₜ₌ n n d d t≡t (reflLevel-prop prop)
 
 reflNatural-prop : ∀ {n}
                  → Natural-prop Γ n
@@ -84,7 +89,7 @@ private
   reflEq-⊩< (≤ᵘ-step p) = reflEq-⊩< p
 
 reflEq (Levelᵣ D) = red D
-reflEq (Uᵣ′ k [k] k< ⊢Γ) = ⊢Γ
+reflEq (Uᵣ′ k [k] k< A⇒*U) = U₌ k A⇒*U (reflLevel [k])
 reflEq (ℕᵣ D) = red D
 reflEq (Emptyᵣ D) = red D
 reflEq (Unitᵣ (Unitₜ _ _ _ D _)) = red D
@@ -106,8 +111,7 @@ reflEq (Idᵣ ⊩A) = record
   open _⊩ₗId_ ⊩A
 reflEq (emb p [A]) = reflEq-⊩< p [A]
 
-reflEqTerm (Levelᵣ D) (Levelₜ k d k≡k prop) =
-  Levelₜ₌ k k d d k≡k (reflLevel-prop prop)
+reflEqTerm (Levelᵣ D) = reflLevel
 reflEqTerm (Uᵣ′ k [k] k< ⊢Γ) (Uₜ A d A-type A≅A ⊩A) =
   Uₜ₌ A A d d A-type A-type A≅A ⊩A ⊩A (reflEq-⊩< k< ⊩A)
 reflEqTerm (ℕᵣ D) (ℕₜ n [ ⊢t , ⊢u , d ] t≡t prop) =

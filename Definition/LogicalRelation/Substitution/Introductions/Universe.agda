@@ -26,6 +26,7 @@ open import Definition.LogicalRelation.Irrelevance R
 open import Definition.LogicalRelation.Properties R
 open import Definition.LogicalRelation.ShapeView R
 open import Definition.LogicalRelation.Substitution R
+open import Definition.LogicalRelation.Substitution.Introductions.Level R
 
 open import Tools.Function
 open import Tools.Nat as N using (Nat; 1+; 2+)
@@ -55,30 +56,30 @@ private
     U t PE.≡ U u     →⟨ (λ { PE.refl → PE.refl }) ⟩
     t PE.≡ u         □
 
-{-
 opaque
 
   -- A characterisation lemma for _⊩⟨_⟩_.
 
   ⊩U⇔ :
-    Γ ⊩⟨ l ⟩ U l′ ⇔
-    (l′ <ᵘ l × ⊢ Γ)
-  ⊩U⇔ =
+    ([t] : Γ ⊩Level t ∷Level) →
+    Γ ⊩⟨ l ⟩ U t ⇔
+    (reflect-level [t] <ᵘ l × ⊢ Γ)
+  ⊩U⇔ {Γ} {t} [t]@(Levelₜ n [ ⊢t , _ , _ ] n≡n prop) =
       lemma ∘→ U-elim
-    , (λ (l′<l , ⊢Γ) →
-        Uᵣ (Uᵣ _ l′<l (idRed:*: (Uⱼ ⊢Γ))))
+    , (λ (k<l , ⊢Γ) →
+        Uᵣ′ _ [t] k<l (idRed:*: (Uⱼ ⊢t)))
     where
     lemma :
-      Γ ⊩⟨ l ⟩U U l′ →
-      l′ <ᵘ l × ⊢ Γ
-    lemma (noemb (Uᵣ _ l′<l U⇒*U@([ ⊢U , _ , _ ]))) =
-      -- case U⇒*U→≡ U⇒*U of λ {
-      --   PE.refl →
-      -- l′<l , wf ⊢U }
-      ?
+      Γ ⊩⟨ l ⟩U U t →
+      reflect-level [t] <ᵘ l × ⊢ Γ
+    lemma (noemb (Uᵣ k [k] k<l U⇒*U@([ ⊢U , _ , _ ]))) =
+      case U⇒*U→≡ U⇒*U of λ {
+        PE.refl →
+      PE.subst (_<ᵘ _) (reflect-level-cong [k] [t] PE.refl) k<l , wf ⊢U }
     lemma (emb ≤ᵘ-refl     ⊩U) = Σ.map ≤ᵘ-step idᶠ (lemma ⊩U)
     lemma (emb (≤ᵘ-step p) ⊩U) = Σ.map ≤ᵘ-step idᶠ (lemma (emb p ⊩U))
 
+{-
 opaque
   unfolding _⊩⟨_⟩_∷_
 
@@ -145,22 +146,23 @@ opaque
   ⊩U≡⇔ :
     ([t] : Γ ⊩Level t ∷Level) →
     Γ ⊩⟨ l ⟩ U t ≡ A ⇔
-    (reflect-level [t] <ᵘ l × Γ ⊢ A :⇒*: U t × Γ ⊩⟨ l ⟩ A)
+    (reflect-level [t] <ᵘ l × ∃ λ u → Γ ⊢ A :⇒*: U u × Γ ⊩Level t ≡ u ∷Level × Γ ⊩⟨ l ⟩ A)
   ⊩U≡⇔ {Γ} {t} {A} [t] =
       (λ (⊩U , ⊩A , U≡A) →
          Σ.map idᶠ (_, ⊩A) $
          lemma (U-elim ⊩U)
            (irrelevanceEq ⊩U (U-intr (U-elim ⊩U)) U≡A))
-      , λ (p , A⇒*U@([ _ , ⊢U , _ ]) , ⊩A) → Uᵣ′ _ [t] p (idRed:*: ⊢U) , ⊩A , A⇒*U
+      , λ (p , A⇒*U@([ _ , ⊢U , _ ]) , ⊩A) → Uᵣ′ _ [t] p (idRed:*: ⊢U) , ⊩A , U₌ t A⇒*U (reflLevel [t])
     where
     lemma :
       (⊩U : Γ ⊩⟨ l ⟩U U t) →
       Γ ⊩⟨ l ⟩ U t ≡ A / U-intr ⊩U →
       reflect-level [t] <ᵘ l × Γ ⊢ A :⇒*: U t
-    lemma (noemb (Uᵣ k [k] k< U⇒*U)) A≡U =
+    lemma (noemb (Uᵣ k [k] k< U⇒*U)) (U₌ k′ D k≡k′) =
       case U⇒*U→≡ U⇒*U of λ {
         PE.refl →
-      PE.subst (_<ᵘ _) (reflect-level-cong [k] [t] PE.refl) k< , A≡U }
+      -- PE.subst (_<ᵘ _) (reflect-level-cong [k] [t] PE.refl) k< , A≡U }
+      {!   !} , {! A≡U  !} }
     lemma (emb ≤ᵘ-refl ⊩U) A≡U =
       Σ.map ≤ᵘ-step idᶠ (lemma ⊩U A≡U)
     lemma (emb (≤ᵘ-step p) ⊩U) A≡U =
@@ -266,15 +268,20 @@ opaque
 
   -- Validity of U.
 
-  ⊩ᵛU : ([t] : Γ ⊩Level t ∷Level) → ⊩ᵛ Γ → Γ ⊩ᵛ⟨ 1+ (reflect-level [t]) ⟩ U t
-  ⊩ᵛU {Γ} {t} [t] ⊩Γ =
+  ⊩ᵛU : (⊩t : Γ ⊩ᵛ⟨ l ⟩ t ∷ Level) → Γ ⊩ᵛ⟨ 1+ {!   !} ⟩ U t
+  ⊩ᵛU {Γ} {t} ⊩t =
     ⊩ᵛ⇔ .proj₂
-      ( ⊩Γ
-      , λ {_} {Δ = Δ} {σ₁ = σ₁} {σ₂ = σ₂} →
-          Δ ⊩ˢ σ₁ ≡ σ₂ ∷ Γ                                  →⟨ proj₁ ∘→ escape-⊩ˢ≡∷ ⟩
-          ⊢ Δ                                               →⟨ (λ ⊢Δ → {!≤ᵘ-refl!} , {!idRed:*: (Uⱼ ⊢Δ)!} , {! ⊩U⇔ .proj₂ (≤ᵘ-refl , ⊢Δ) !}) ⟩
-          reflect-level {!   !} <ᵘ 1+ (reflect-level [t]) × Δ ⊢ U (t [ σ₂ ]) :⇒*: U (t [ σ₁ ]) × (Δ ⊩⟨ 1+ (reflect-level [t]) ⟩ U (t [ σ₂ ]))  ⇔˘⟨ ⊩U≡⇔ {! [t]  !} ⟩→
-          Δ ⊩⟨ 1+ (reflect-level [t]) ⟩ U (t [ σ₁ ]) ≡ U (t [ σ₂ ])                             □
+      ( wf-⊩ᵛ (wf-⊩ᵛ∷ ⊩t)
+      , λ {_} {Δ} {σ₁} {σ₂} →
+          λ σ₁≡σ₂ →
+            let (⊩t[σ₁] , ⊩t[σ₂] , ⊩t≡) = ⊩≡∷Level⇔ .proj₁ (⊩ᵛ∷⇔ .proj₁ ⊩t .proj₂ σ₁≡σ₂)
+                ⊢Δ = escape-⊩ˢ≡∷ σ₁≡σ₂ .proj₁
+            in
+              -- ⊩U≡⇔ ⊩t[σ₁] .proj₂ $
+              -- {!   !}
+              -- , {!   !}
+              -- , ⊩U⇔ ⊩t[σ₂] .proj₂ ({!   !} , ⊢Δ)
+              {!   !}
       )
 
 {-
