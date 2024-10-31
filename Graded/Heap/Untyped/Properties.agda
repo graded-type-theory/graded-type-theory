@@ -203,6 +203,25 @@ opaque
 
 opaque
 
+  -- If a heap does not contain erased entries then lookup to ● will always fail.
+
+  ¬erased-heap→¬↦● : {H : Heap k _} → H ⊢ y ↦● → k ≡ 0 → ⊥
+  ¬erased-heap→¬↦● here ()
+  ¬erased-heap→¬↦● (there d) k≡0 = ¬erased-heap→¬↦● d k≡0
+  ¬erased-heap→¬↦● (there● d) ()
+
+opaque
+
+  ¬erased-heap→↦ :
+    {H : Heap k m} → k ≡ 0 → (y : Ptr m) →
+    ∃₂ λ n (c : Entry m n) → H ⊢ y ↦ c
+  ¬erased-heap→↦ k≡0 y =
+    case ↦⊎↦● y of λ where
+      (inj₁ x) → x
+      (inj₂ x) → ⊥-elim (¬erased-heap→¬↦● x k≡0)
+
+opaque
+
   -- If heap lookup with update succeeds lookup without heap update
   -- succeeds with the same result.
 

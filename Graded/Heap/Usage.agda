@@ -11,7 +11,6 @@ module Graded.Heap.Usage
   {a} {M : Set a} {𝕄 : Modality M}
   (type-variant : Type-variant)
   (UR : Usage-restrictions 𝕄)
-  (erased-heap : Bool)
   (open Modality 𝕄)
   ⦃ _ : Has-nr M semiring-with-meet ⦄
   ⦃ _ : Has-factoring-nr M semiring-with-meet ⦄
@@ -71,8 +70,7 @@ data _▸ʰ_ : (γ : Conₘ n) (H : Heap k n) → Set a where
   _∙_ : (γ +ᶜ p ·ᶜ wkConₘ ρ δ) ▸ʰ H
       → δ ⨾ p ▸ᶜ (q , t , ρ)
       → γ ∙ p ▸ʰ H ∙ (q , t , ρ)
-  _∙● : ⦃ T erased-heap ⦄
-      → γ ▸ʰ H → γ ∙ 𝟘 ▸ʰ H ∙●
+  _∙● : γ ▸ʰ H → γ ∙ 𝟘 ▸ʰ H ∙●
 
 ------------------------------------------------------------------------
 -- Usage of eliminators and stacks

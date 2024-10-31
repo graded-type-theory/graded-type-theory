@@ -5,14 +5,12 @@
 
 open import Graded.Modality
 open import Graded.Usage.Restrictions
-open import Tools.Bool
 open import Definition.Typed.Restrictions
 
 module Graded.Heap.Bisimilarity
   {a} {M : Set a} {𝕄 : Modality M}
   (UR : Usage-restrictions 𝕄)
   (TR : Type-restrictions 𝕄)
-  (erased-heap : Bool)
   where
 
 open Modality 𝕄 hiding (has-nr)
@@ -27,9 +25,9 @@ open import Tools.Sum hiding (id)
 
 open import Graded.Heap.Untyped type-variant UR
 open import Graded.Heap.Untyped.Properties type-variant UR
-open import Graded.Heap.Usage type-variant UR erased-heap
-open import Graded.Heap.Usage.Properties type-variant UR erased-heap
-open import Graded.Heap.Usage.Reduction type-variant UR erased-heap
+open import Graded.Heap.Usage type-variant UR
+open import Graded.Heap.Usage.Properties type-variant UR
+open import Graded.Heap.Usage.Reduction type-variant UR
 open import Graded.Heap.Normalization type-variant UR
 open import Graded.Heap.Reduction type-variant UR
 open import Graded.Heap.Reduction.Properties type-variant UR

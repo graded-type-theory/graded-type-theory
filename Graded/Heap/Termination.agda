@@ -4,9 +4,7 @@
 
 open import Graded.Modality
 open import Graded.Usage.Restrictions
-open import Graded.Restrictions
 open import Definition.Typed.Restrictions
-open import Tools.Bool
 open import Tools.Sum hiding (sym; id)
 import Graded.Heap.Bisimilarity
 
@@ -14,12 +12,9 @@ module Graded.Heap.Termination
   {a} {M : Set a} {𝕄 : Modality M}
   (UR : Usage-restrictions 𝕄)
   (TR : Type-restrictions 𝕄)
-  (erased-heap : Bool)
-  (open Graded.Heap.Bisimilarity UR TR erased-heap)
+  (open Graded.Heap.Bisimilarity UR TR)
   (open Type-restrictions TR)
   (As : Assumptions)
-  (erased-assumption :
-    T (not erased-heap) ⊎ No-erased-matches′ 𝕄 type-variant UR)
   where
 
 open Usage-restrictions UR
@@ -44,6 +39,7 @@ open import Definition.Typed.Properties TR
 open import Graded.Context 𝕄 hiding (_⟨_⟩)
 open import Graded.Usage 𝕄 UR
 open import Graded.Mode 𝕄
+open import Graded.Restrictions 𝕄
 
 open import Graded.Heap.Normalization type-variant UR
 open import Graded.Heap.Untyped type-variant UR
@@ -51,9 +47,9 @@ open import Graded.Heap.Untyped.Properties type-variant UR
 open import Graded.Heap.Typed UR TR
 open import Graded.Heap.Typed.Properties UR TR
 open import Graded.Heap.Typed.Reduction UR TR
-open import Graded.Heap.Usage type-variant UR erased-heap
-open import Graded.Heap.Usage.Properties type-variant UR erased-heap
-open import Graded.Heap.Usage.Reduction type-variant UR erased-heap Unitʷ-η→
+open import Graded.Heap.Usage type-variant UR
+open import Graded.Heap.Usage.Properties type-variant UR
+open import Graded.Heap.Usage.Reduction type-variant UR Unitʷ-η→
 open import Graded.Heap.Reduction type-variant UR
 open import Graded.Heap.Reduction.Properties type-variant UR
 
@@ -74,14 +70,16 @@ opaque
   -- Well-typed and well-resourced terms evaluate to values with empty stacks
   -- corresponding to terms in Whnf.
 
-  whBisim : (Emptyrec-allowed 𝟙ᵐ 𝟘 → Consistent Δ)
+  whBisim : {Δ : Con Term k}
+          → (Emptyrec-allowed 𝟙ᵐ 𝟘 → Consistent Δ)
+          → (k ≢ 0 → No-erased-matches′ type-variant UR)
           → suc∉ (State.stack s)
           → Δ ⊢ ⦅ s ⦆ ↘ u ∷ A
           → Δ ⨾ Γ ⊢ s ∷ B
           → γ ⨾ δ ⨾ η ▸ s
           → ∃₅ λ m n H t (ρ : Wk m n)
           → s ⇾* ⟨ H , t , ρ , ε ⟩ × wk ρ t [ H ]ₕ ≡ u × Value t
-  whBisim {s = s@record{}} consistent suc∉S (d , w) ⊢s ▸s =
+  whBisim {s = s@record{}} consistent nem suc∉S (d , w) ⊢s ▸s =
     case ⊢⇒*→⇾* As {s = s} d suc∉S ⊢s ▸s of λ {
       (_ , _ , s′ , d₁ , refl) →
     case ⊢ₛ-⇾* ⊢s d₁ of λ
@@ -105,16 +103,13 @@ opaque
         _ , _ , _ , _ , _ , d₁ ⇨* ⇾ₑ* dₑ
           , PE.sym (⇾ₑ*-⦅⦆-≡ dₑ) , v }
       (var d′) →
-        case erased-assumption of λ where
-          (inj₁ ¬eh) → ⊥-elim (¬erased-heap→¬↦● ⦃ neh = ¬eh ⦄ (▸s″ .proj₁) d′)
-          (inj₂ nem) →
-            case ▸s● subtraction-ok d′ ▸s″ of λ
-              (∣S∣≡𝟘 , _) →
-            case ▸∣S∣≢𝟘 nem (▸s″ .proj₂ .proj₂ .proj₁) of λ where
-              (inj₁ ∣S∣≢𝟘) →
-                ⊥-elim (∣S∣≢𝟘 ∣S∣≡𝟘)
-              (inj₂ (er∈S , ok)) →
-                ⊥-elim (⊢emptyrec₀∉S {ρ = State.env s″} (consistent ok) ⊢s″ er∈S) }
+        case ▸s● subtraction-ok d′ ▸s″ of λ
+          (∣S∣≡𝟘 , _) →
+        case ▸∣S∣≢𝟘 (nem (¬erased-heap→¬↦● d′)) (▸s″ .proj₂ .proj₂ .proj₁) of λ where
+          (inj₁ ∣S∣≢𝟘) →
+            ⊥-elim (∣S∣≢𝟘 ∣S∣≡𝟘)
+          (inj₂ (er∈S , ok)) →
+            ⊥-elim (⊢emptyrec₀∉S {ρ = State.env s″} (consistent ok) ⊢s″ er∈S) }
     where
     lemma : ∀ {n} {t : Term n} {H ρ S}
           → Whnf u → Value t → Δ ⨾ Γ ⊢ ⟨ H , t , ρ , S ⟩ ∷ A
@@ -132,29 +127,17 @@ opaque
   -- A variant of the above, starting with the initial state
 
   whBisim-initial : {Δ : Con Term k}
-                  → k ≡ 0 ⊎ ((Emptyrec-allowed 𝟙ᵐ 𝟘 → Consistent Δ) × T erased-heap)
+                  → (Emptyrec-allowed 𝟙ᵐ 𝟘 → Consistent Δ)
+                  → (k ≢ 0 → No-erased-matches′ type-variant UR)
                   → Δ ⊢ t ↘ u ∷ A → 𝟘ᶜ ▸ t
                   → ∃₅ λ m n H u′ (ρ : Wk m n)
                   → initial t ⇾* ⟨ H , u′ , ρ , ε ⟩ × wk ρ u′ [ H ]ₕ ≡ u × Value u′
-  whBisim-initial {k} {Δ} as d ▸t =
-    whBisim consistent ε
+  whBisim-initial {k} {Δ} consistent nem d ▸t =
+    whBisim consistent nem ε
       (subst (_ ⊢_↘ _ ∷ _)
         (PE.sym (PE.trans (erasedHeap-subst (wk id _)) (wk-id _))) d)
       (⊢initial (redFirst*Term (proj₁ d)))
-      (▸initial k≡0⊎erased-heap ▸t)
-    where
-    consistent : Emptyrec-allowed 𝟙ᵐ 𝟘 → Consistent Δ
-    consistent ok =
-      case as of λ where
-        (inj₂ (c , _)) → c ok
-        (inj₁ refl) →
-          case singleton Δ of λ where
-            (ε , refl) → λ _ → ¬Empty
-    k≡0⊎erased-heap : k ≡ 0 ⊎ T erased-heap
-    k≡0⊎erased-heap =
-      case as of λ where
-        (inj₁ x) → inj₁ x
-        (inj₂ (_ , x)) → inj₂ x
+      (▸initial ▸t)
 
 opaque
 
@@ -162,13 +145,25 @@ opaque
   -- corresponding to terms in Whnf.
 
   whRed : {Δ : Con Term k}
-        → (k ≡ 0 ⊎ (Emptyrec-allowed 𝟙ᵐ 𝟘 → Consistent Δ) × T erased-heap)
+        → (Emptyrec-allowed 𝟙ᵐ 𝟘 → Consistent Δ)
+        → (k ≢ 0 → No-erased-matches′ type-variant UR)
         → Δ ⊢ t ∷ A → 𝟘ᶜ ▸ t
         → ∃₅ λ m n H u (ρ : Wk m n)
           → initial t ⇾* ⟨ H , u , ρ , ε ⟩ × Value u × Whnf ⦅ ⟨ H , u , ρ , ε ⟩ ⦆
-  whRed as ⊢t ▸t =
+  whRed consistent nem ⊢t ▸t =
     case whNormTerm ⊢t of λ
       (u , w , d) →
-    case whBisim-initial as (redₜ d , w) ▸t of λ {
+    case whBisim-initial consistent nem (redₜ d , w) ▸t of λ {
       (_ , _ , _ , _ , _ , d′ , refl , v) →
     _ , _ , _ , _ , _ , d′ , v , w }
+
+opaque
+
+  -- The previous property specialized to empty terms.
+
+  whRed-closed :
+    ε ⊢ t ∷ A → ε ▸ t →
+    ∃₅ λ m n H u (ρ : Wk m n)
+       → initial t ⇾* ⟨ H , u , ρ , ε ⟩ × Value u ×
+         Whnf ⦅ ⟨ H , u , ρ , ε ⟩ ⦆
+  whRed-closed = whRed (λ _ _ → ¬Empty) λ 0≢0 → ⊥-elim (0≢0 refl)

@@ -5,13 +5,11 @@
 open import Graded.Modality
 open import Graded.Usage.Restrictions
 open import Definition.Typed.Variant
-open import Tools.Bool
 
 module Graded.Heap.Usage.Properties
   {a} {M : Set a} {𝕄 : Modality M}
   (type-variant : Type-variant)
   (UR : Usage-restrictions 𝕄)
-  (erased-heap : Bool)
   (open Modality 𝕄)
   ⦃ _ : Has-nr M semiring-with-meet ⦄
   ⦃ _ : Has-factoring-nr M semiring-with-meet ⦄
@@ -32,7 +30,7 @@ open import Graded.Usage.Inversion 𝕄 UR
 open import Graded.Usage.Properties 𝕄 UR
 
 open import Graded.Heap.Untyped type-variant UR
-open import Graded.Heap.Usage type-variant UR erased-heap
+open import Graded.Heap.Usage type-variant UR
 
 open import Tools.Empty
 open import Tools.Fin
@@ -65,8 +63,7 @@ opaque
 
   -- Usage for erased heaps
 
-  ▸erasedHeap : ⦃ T erased-heap ⦄ →
-              ∀ {n} → 𝟘ᶜ ▸ʰ erasedHeap n
+  ▸erasedHeap : 𝟘ᶜ ▸ʰ erasedHeap n
   ▸erasedHeap {(0)} = ε
   ▸erasedHeap {(1+ n)} = ▸erasedHeap ∙●
 
@@ -74,23 +71,10 @@ opaque
 
   -- Well-usage for the initial state
 
-  ▸initial : n ≡ 0 ⊎ T erased-heap → 𝟘ᶜ {n} ▸ t → 𝟘ᶜ ⨾ 𝟘ᶜ ⨾ 𝟘ᶜ ▸ initial t
-  ▸initial P ▸t =
-    lemma P , ▸-cong (sym ⌞𝟙⌟) ▸t , ε
-            , ≤ᶜ-reflexive (≈ᶜ-sym (≈ᶜ-trans (+ᶜ-identityʳ _) (·ᶜ-zeroʳ _)))
-      where
-      lemma : n ≡ 0 ⊎ T erased-heap → 𝟘ᶜ ▸ʰ erasedHeap n
-      lemma (inj₁ refl) = ε
-      lemma (inj₂ x) = ▸erasedHeap ⦃ x ⦄
-
-opaque
-
-  -- If heaps are not allowed to be erased then lookup to ● will always fail
-
-  ¬erased-heap→¬↦● : ⦃ neh : T (not erased-heap) ⦄ → γ ▸ʰ H → H ⊢ y ↦● → ⊥
-  ¬erased-heap→¬↦● (▸H ∙●) here = not-T-and-¬T′ erased-heap
-  ¬erased-heap→¬↦● (▸H ∙ _) (there d) = ¬erased-heap→¬↦● ▸H d
-  ¬erased-heap→¬↦● (▸H ∙●) (there● d) = ¬erased-heap→¬↦● ▸H d
+  ▸initial : 𝟘ᶜ {n} ▸ t → 𝟘ᶜ ⨾ 𝟘ᶜ ⨾ 𝟘ᶜ ▸ initial t
+  ▸initial ▸t =
+    ▸erasedHeap , ▸-cong (sym ⌞𝟙⌟) ▸t , ε
+     , ≤ᶜ-reflexive (≈ᶜ-sym (≈ᶜ-trans (+ᶜ-identityʳ _) (·ᶜ-zeroʳ _)))
 
 opaque
 
@@ -155,17 +139,7 @@ opaque
 
 opaque
 
-  -- If erased matches are turned on then a well-resourced heap does
-  -- not contain any erased entries.
-
-  no-erased-heap : {H : Heap k n} → T (not erased-heap) → γ ▸ʰ H → k ≡ 0
-  no-erased-heap _ ε = refl
-  no-erased-heap ¬eh (▸H ∙ x) = no-erased-heap ¬eh ▸H
-  no-erased-heap ¬eh (_∙● ⦃ (eh) ⦄ _) = ⊥-elim (not-T-and-¬T erased-heap eh ¬eh)
-
-opaque
-
-  -- An inversion lemma for ▸ʰ
+  -- An inversion lemma for ▸ʰ with a dummy entry.
 
   inv-▸ʰ● : γ ∙ p ▸ʰ H ∙● → p ≡ 𝟘 × γ ▸ʰ H
   inv-▸ʰ● (▸H ∙●) = refl , ▸H
