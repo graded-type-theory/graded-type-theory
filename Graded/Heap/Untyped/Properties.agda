@@ -187,6 +187,22 @@ opaque
 
 opaque
 
+  -- Lookup will either yield an entry or a dummy entry
+
+  ↦⊎↦● : ∀ y → (∃₂ λ n (c : Entry _ n) → H ⊢ y ↦ c) ⊎ H ⊢ y ↦●
+  ↦⊎↦● {H = H ∙ c} y0 = inj₁ (_ , _ , here)
+  ↦⊎↦● {H = H ∙●} y0 = inj₂ here
+  ↦⊎↦● {H = H ∙ c} (y +1) =
+    case ↦⊎↦● y of λ where
+      (inj₁ (_ , _ , d)) → inj₁ (_ , _ , there d)
+      (inj₂ d) → inj₂ (there d)
+  ↦⊎↦● {H = H ∙●} (y +1) =
+    case ↦⊎↦● y of λ where
+      (inj₁ (_ , _ , d)) → inj₁ (_ , _ , there● d)
+      (inj₂ d) → inj₂ (there● d)
+
+opaque
+
   -- If heap lookup with update succeeds lookup without heap update
   -- succeeds with the same result.
 

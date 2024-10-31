@@ -16,8 +16,9 @@ module Graded.Heap.Reduction
   ⦃ _ : Has-factoring-nr M semiring-with-meet ⦄
   where
 
+open import Tools.Empty
 open import Tools.Fin
-open import Tools.Nat hiding (_+_)
+open import Tools.Nat
 open import Tools.Product
 open import Tools.Relation
 
@@ -184,6 +185,8 @@ data _↠_ (s₁ : State k m n) : State k m′ n′ → Set a where
   ⇒ᵥ_ : s₁ ⇒ᵥ s₂ → s₁ ↠ s₂
   ⇒ₙ_ : s₁ ⇒ₙ s₂ → s₁ ↠ s₂
 
+pattern ⇾ₑ′ d = ⇾ₑ (⇒ₑ d)
+
 -- Evaluation to WHNF without resource tracking.
 
 data _⇢_ (s₁ : State k m n) : State k m′ n′ → Set a where
@@ -211,3 +214,9 @@ data _↠*_ (s₁ : State k m n) : State k m′ n′ → Set a where
 data _⇢*_ (s₁ : State k m n) : State k m′ n′ → Set a where
   id  : s₁ ⇢* s₁
   _⇨_ : s₁ ⇢ s₂ → s₂ ⇢* s₃ → s₁ ⇢* s₃
+
+Final : State k m n → Set a
+Final s = ∀ {m n} {s′ : State _ m n} → s ⇾ s′ → ⊥
+
+_⇘_ : State k m n → State k m′ n′ → Set a
+s ⇘ s′ = s ⇾* s′ × Final s′

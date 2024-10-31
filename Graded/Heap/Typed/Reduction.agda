@@ -1149,3 +1149,49 @@ opaque
   ⊢Value-⇒ᵥ : e PE.≢ sucₑ → Δ ⨾ Γ ⊢ ⟨ H , t , ρ , e ∙ S ⟩ ∷ A → Value t
             → ∃₃ λ m n (s : State _ m n) → ⟨ H , t , ρ , e ∙ S ⟩ ⇒ᵥ s
   ⊢Value-⇒ᵥ e≢suc (_ , _ , ⊢t , ⊢e ∙ _) v = ⊢ˢValue-⇒ᵥ e≢suc ⊢e ⊢t v
+
+opaque
+
+  ⊢Matching :
+    Δ ⨾ Γ ⊢ ⟨ H , t , ρ , e ∙ S ⟩ ∷ A →
+    Value t →
+    e PE.≢ sucₑ →
+    Matching t (e ∙ S)
+  ⊢Matching ⊢s v e≢suc =
+    let _ , _ , _ , d = ⊢Value-⇒ᵥ e≢suc ⊢s v
+    in  ⇒ᵥ→Matching d
+
+opaque
+
+  -- For well-typed states there are two reasons a state can be Final:
+  -- 1. It has a variable in head position bu lookup does not succeed
+  -- 2. It has a value in head position and the stack is empty.
+
+  ⊢Final-reasons :
+    Δ ⨾ Γ ⊢ ⟨ H , t , ρ , S ⟩ ∷ A →
+    suc∉ S →
+    Final ⟨ H , t , ρ , S ⟩ →
+    (∃ λ x → t PE.≡ var x ×
+       (∀ {n H′} {c : Entry _ n} → H ⊢ wkVar ρ x ↦[ ∣ S ∣ ] c ⨾ H′ → ⊥)) ⊎
+    Value t × S PE.≡ ε
+  ⊢Final-reasons ⊢s suc∉S f =
+    case Final-reasons _ f of λ where
+      (inj₁ x) → inj₁ x
+      (inj₂ (inj₂ x)) → inj₂ x
+      (inj₂ (inj₁ (_ , _ , PE.refl , v , ¬m))) →
+        case suc∉S of λ where
+          (e≢suc ∙ _) →
+            ⊥-elim (¬m (⊢Matching ⊢s v e≢suc))
+
+opaque
+
+  -- A variant of the above property.
+
+  ⊢⇘-reasons :
+    Δ ⨾ Γ ⊢ ⟨ H , t , ρ , S ⟩ ∷ A →
+    suc∉ S →
+    s ⇘ ⟨ H , t , ρ , S ⟩ →
+    (∃ λ x → t PE.≡ var x ×
+       (∀ {n H′} {c : Entry _ n} → H ⊢ wkVar ρ x ↦[ ∣ S ∣ ] c ⨾ H′ → ⊥)) ⊎
+    Value t × S PE.≡ ε
+  ⊢⇘-reasons ⊢s suc∉S (_ , f) = ⊢Final-reasons ⊢s suc∉S f

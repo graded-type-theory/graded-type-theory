@@ -15,12 +15,16 @@ module Graded.Heap.Reduction.Properties
   ⦃ _ : Has-factoring-nr M semiring-with-meet ⦄
   where
 
+open Type-variant type-variant
+
+open import Tools.Bool
 open import Tools.Empty
 open import Tools.Fin
 open import Tools.Function
 open import Tools.Nat using (Nat; 1+; 2+; Nat-set)
 open import Tools.PropositionalEquality
 open import Tools.Product
+open import Tools.Relation
 open import Tools.Sum hiding (id; sym)
 
 open import Definition.Untyped M
@@ -36,6 +40,7 @@ private variable
   t t′ u A : Term _
   H H′ H″ H‴ : Heap _ _
   ρ ρ′ ρ″ : Wk _ _
+  e : Elim _
   S S′ : Stack _
   p p′ q r r′ : M
   s s′ s″ : State _ _ _
@@ -749,3 +754,116 @@ opaque
   ⇾*→↠* : s ⇾* s′ → s ↠* s′
   ⇾*→↠* id = id
   ⇾*→↠* (x ⇨ d) = ⇾→↠ x ⇨ ⇾*→↠* d
+
+opaque
+
+  Matching→⇒ᵥ :
+    Matching t S →
+    ∃₃ λ m n (s : State _ m n) → ⟨ H , t , ρ , S ⟩ ⇒ᵥ s
+  Matching→⇒ᵥ ∘ₑ = _ , _ , _ , lamₕ
+  Matching→⇒ᵥ fstₑ = _ , _ , _ , prodˢₕ₁
+  Matching→⇒ᵥ sndₑ = _ , _ , _ , prodˢₕ₂
+  Matching→⇒ᵥ prodrecₑ = _ , _ , _ , prodʷₕ
+  Matching→⇒ᵥ natrecₑ₀ = _ , _ , _ , zeroₕ
+  Matching→⇒ᵥ natrecₑ₊ = _ , _ , _ , sucₕ
+  Matching→⇒ᵥ unitrecₑ = _ , _ , _ , starʷₕ
+  Matching→⇒ᵥ (unitrec-η η) = _ , _ , _ , unitrec-ηₕ η
+  Matching→⇒ᵥ Jₑ = _ , _ , _ , rflₕⱼ
+  Matching→⇒ᵥ Kₑ = _ , _ , _ , rflₕₖ
+  Matching→⇒ᵥ []-congₑ = _ , _ , _ , rflₕₑ
+
+opaque
+
+  ⇒ᵥ→Matching :
+    ⟨ H , t , ρ , S ⟩ ⇒ᵥ s →
+    Matching t S
+  ⇒ᵥ→Matching lamₕ = ∘ₑ
+  ⇒ᵥ→Matching prodˢₕ₁ = fstₑ
+  ⇒ᵥ→Matching prodˢₕ₂ = sndₑ
+  ⇒ᵥ→Matching prodʷₕ = prodrecₑ
+  ⇒ᵥ→Matching zeroₕ = natrecₑ₀
+  ⇒ᵥ→Matching sucₕ = natrecₑ₊
+  ⇒ᵥ→Matching starʷₕ = unitrecₑ
+  ⇒ᵥ→Matching (unitrec-ηₕ η) = unitrec-η η
+  ⇒ᵥ→Matching rflₕⱼ = Jₑ
+  ⇒ᵥ→Matching rflₕₖ = Kₑ
+  ⇒ᵥ→Matching rflₕₑ = []-congₑ
+
+opaque
+
+  -- A kind of inversion lemma for Final
+  -- There are three different reasons a state can be Final:
+  -- 1. It has a variable in head position but lookup does not succeed.
+  -- 2. It has a value in head position, the stack is not empty and the
+  --    top of the stack does not match the head.
+  -- 3. It has a value in head position and the stack is empty.
+
+  Final-reasons :
+    ∀ t → Final ⟨ H , t , ρ , S ⟩ →
+    (∃ λ x → t ≡ var x ×
+       (∀ {n H′} {c : Entry _ n} → H ⊢ wkVar ρ x ↦[ ∣ S ∣ ] c ⨾ H′ → ⊥)) ⊎
+    (∃₂ λ e S′ → S ≡ e ∙ S′ × Value t × (Matching t S → ⊥)) ⊎
+    Value t × S ≡ ε
+  Final-reasons = λ where
+    (var x) ¬d → inj₁ (_ , refl , λ d → ¬d (⇾ₑ (var d)))
+    (U x) ¬d → inj₂ (lemma Uᵥ ¬d)
+    (ΠΣ⟨ b ⟩ p , q ▷ t ▹ t₁) ¬d → inj₂ (lemma ΠΣᵥ ¬d)
+    (lam p t) ¬d → inj₂ (lemma lamᵥ ¬d)
+    (t ∘⟨ p ⟩ t₁) ¬d → ⊥-elim (¬d (⇾ₑ′ appₕ))
+    (prod x p t t₁) ¬d → inj₂ (lemma prodᵥ ¬d)
+    (fst p t) ¬d → ⊥-elim (¬d (⇾ₑ′ fstₕ))
+    (snd p t) ¬d → ⊥-elim (¬d (⇾ₑ′ sndₕ))
+    (prodrec r p q t t₁ t₂) ¬d → ⊥-elim (¬d (⇾ₑ′ prodrecₕ))
+    ℕ ¬d → inj₂ (lemma ℕᵥ ¬d)
+    zero ¬d → inj₂ (lemma zeroᵥ ¬d)
+    (suc t) ¬d → inj₂ (lemma sucᵥ ¬d)
+    (natrec p q r t t₁ t₂ t₃) ¬d → ⊥-elim (¬d (⇾ₑ′ natrecₕ))
+    (Unit x x₁) ¬d → inj₂ (lemma Unitᵥ ¬d)
+    (star x x₁) ¬d → inj₂ (lemma starᵥ ¬d)
+    (unitrec x p q t t₁ t₂) ¬d →
+      case Unitʷ-η? of λ where
+        (yes η) → inj₂ (lemma (unitrec-ηᵥ η) ¬d)
+        (no no-η) → ⊥-elim (¬d (⇾ₑ′ (unitrecₕ no-η)))
+    Empty ¬d → inj₂ (lemma Emptyᵥ ¬d)
+    (emptyrec p t t₁) ¬d → ⊥-elim (¬d (⇾ₑ′ emptyrecₕ))
+    (Id t t₁ t₂) ¬d → inj₂ (lemma Idᵥ ¬d)
+    rfl ¬d → inj₂ (lemma rflᵥ ¬d)
+    (J p q t t₁ t₂ t₃ t₄ t₅) ¬d → ⊥-elim (¬d (⇾ₑ′ Jₕ))
+    (K p t t₁ t₂ t₃ t₄) ¬d → ⊥-elim (¬d (⇾ₑ′ Kₕ))
+    ([]-cong x t t₁ t₂ t₃) ¬d → ⊥-elim (¬d (⇾ₑ′ []-congₕ))
+      where
+      lemma′ : Value t → Final ⟨ H , t , ρ , e ∙ S ⟩ → Matching t (e ∙ S) → ⊥
+      lemma′ lamᵥ ¬d ∘ₑ = ¬d (⇒ᵥ lamₕ)
+      lemma′ zeroᵥ ¬d natrecₑ₀ = ¬d (⇒ᵥ zeroₕ)
+      lemma′ sucᵥ ¬d natrecₑ₊ = ¬d (⇒ᵥ sucₕ)
+      lemma′ starᵥ ¬d unitrecₑ = ¬d (⇒ᵥ starʷₕ)
+      lemma′ prodᵥ ¬d fstₑ = ¬d (⇒ᵥ prodˢₕ₁)
+      lemma′ prodᵥ ¬d sndₑ = ¬d (⇒ᵥ prodˢₕ₂)
+      lemma′ prodᵥ ¬d prodrecₑ = ¬d (⇒ᵥ prodʷₕ)
+      lemma′ rflᵥ ¬d Jₑ = ¬d (⇒ᵥ rflₕⱼ)
+      lemma′ rflᵥ ¬d Kₑ = ¬d (⇒ᵥ rflₕₖ)
+      lemma′ rflᵥ ¬d []-congₑ = ¬d (⇒ᵥ rflₕₑ)
+      lemma′ Uᵥ ¬d ()
+      lemma′ ΠΣᵥ ¬d ()
+      lemma′ ℕᵥ ¬d ()
+      lemma′ Unitᵥ ¬d ()
+      lemma′ Emptyᵥ ¬d ()
+      lemma′ Idᵥ ¬d ()
+      lemma′ (unitrec-ηᵥ x) ¬d t = ¬d (⇒ᵥ (unitrec-ηₕ x))
+      lemma : ∀ {S : Stack m} → Value t → Final ⟨ H , t , ρ , S ⟩ →
+              (∃₂ λ e S′ → S ≡ e ∙ S′ × Value t × (Matching t S → ⊥)) ⊎
+              Value t × S ≡ ε
+      lemma {S = ε} v _ = inj₂ (v , refl)
+      lemma {S = e ∙ S} v ¬d = inj₁ (_ , _ , refl , v , lemma′ v ¬d)
+
+opaque
+
+  -- A variant of the above property.
+
+  ⇘-reasons :
+    s ⇘ ⟨ H , t , ρ , S ⟩ →
+    (∃ λ x → t ≡ var x ×
+       (∀ {n H′} {c : Entry _ n} → H ⊢ wkVar ρ x ↦[ ∣ S ∣ ] c ⨾ H′ → ⊥)) ⊎
+    (∃₂ λ e S′ → S ≡ e ∙ S′ × Value t × (Matching t S → ⊥)) ⊎
+    Value t × S ≡ ε
+  ⇘-reasons (d , ¬d) = Final-reasons _ ¬d

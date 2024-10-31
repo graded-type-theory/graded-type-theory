@@ -413,3 +413,27 @@ data Value {n : Nat} : (t : Term n) → Set a where
 data Normal : (State k m n) → Set a where
   val : Value t → Normal ⟨ H , t , ρ , S ⟩
   var : H ⊢ wkVar ρ x ↦● → Normal ⟨ H , var x , ρ , S ⟩
+
+------------------------------------------------------------------------
+-- Matching terms and eliminators
+
+-- "Matching" terms and stacks. A term and an eliminator are considered
+-- to match if a state with the term in head position and the eliminator
+-- on top of the stack would reduce using _⇒ᵥ_, see ⇒ᵥ→Matching and
+-- Matching→⇒ᵥ in Graded.Heap.Reduction.Properties.
+--
+-- Note that when the weak unit type has eta-equality, unitrec is
+-- considered a value and matches any stack.
+
+data Matching {m n} : Term n → Stack m → Set a where
+  ∘ₑ : Matching (lam p t) (∘ₑ p u ρ ∙ S)
+  fstₑ : Matching (prodˢ p t u) (fstₑ p ∙ S)
+  sndₑ : Matching (prodˢ p t u) (sndₑ p ∙ S)
+  prodrecₑ : Matching (prodʷ p t u) (prodrecₑ r p q A v ρ ∙ S)
+  natrecₑ₀ : Matching zero (natrecₑ p q r A t u ρ ∙ S)
+  natrecₑ₊ : Matching (suc v) (natrecₑ p q r A t u ρ ∙ S)
+  unitrecₑ : Matching (starʷ l) (unitrecₑ l p q A u ρ ∙ S)
+  unitrec-η : Unitʷ-η → Matching (unitrec l p q A t u) S
+  Jₑ : Matching rfl (Jₑ p q A t B u v ρ ∙ S)
+  Kₑ : Matching rfl (Kₑ p A t B u ρ ∙ S)
+  []-congₑ : Matching rfl ([]-congₑ s A t u ρ ∙ S)
