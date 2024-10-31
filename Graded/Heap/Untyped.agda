@@ -21,6 +21,7 @@ open import Tools.Fin
 open import Tools.Function
 open import Tools.Nat hiding (_≤_)
 open import Tools.Product
+open import Tools.PropositionalEquality
 open import Tools.Relation
 
 open import Definition.Untyped M hiding (head)
@@ -204,6 +205,12 @@ private variable
 data emptyrec₀∈_ : (S : Stack m) → Set a where
   here : emptyrec₀∈ (emptyrecₑ 𝟘 A ρ ∙ S)
   there : emptyrec₀∈ S → emptyrec₀∈ (e ∙ S)
+
+-- A similar predicate for stacks not containing sucₑ
+
+data suc∉_ {m} : (S : Stack m) → Set a where
+  ε : suc∉ ε
+  _∙_ : e ≢ sucₑ → suc∉ S → suc∉ (e ∙ S)
 
 ------------------------------------------------------------------------
 -- Heaps

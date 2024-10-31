@@ -437,7 +437,6 @@ import Graded.Box-cong
 -- The abstract machine
 import Graded.Heap.Untyped
 import Graded.Heap.Untyped.Properties
-import Graded.Heap.Options
 import Graded.Heap.Reduction
 import Graded.Heap.Reduction.Inversion
 import Graded.Heap.Reduction.Properties

@@ -43,19 +43,17 @@ open import Graded.Usage 𝕄 UR
 open import Graded.Mode 𝕄
 
 open import Graded.Heap.Normalization type-variant UR
-open import Graded.Heap.Options
 open import Graded.Heap.Untyped type-variant UR
 open import Graded.Heap.Untyped.Properties type-variant UR
-open import Graded.Heap.Typed UR TR false
-open import Graded.Heap.Typed.Properties UR TR false
-import Graded.Heap.Typed.Reduction UR TR (tracking-and-ℕ-fullred-if false) as RTₜ
-import Graded.Heap.Typed.Reduction UR TR (not-tracking-and-ℕ-fullred-if false) as RTₙₜ
+open import Graded.Heap.Typed UR TR
+open import Graded.Heap.Typed.Properties UR TR
+open import Graded.Heap.Typed.Reduction UR TR
 open import Graded.Heap.Usage type-variant UR erased-heap
 open import Graded.Heap.Usage.Properties type-variant UR erased-heap
-open import Graded.Heap.Usage.Reduction type-variant UR erased-heap (tracking-and-ℕ-fullred-if false) Unitʷ-η→
-open import Graded.Heap.Reduction type-variant UR (tracking-and-ℕ-fullred-if false)
-import Graded.Heap.Reduction.Properties type-variant UR (tracking-and-ℕ-fullred-if false) as RPₜ
-import Graded.Heap.Reduction.Properties type-variant UR (not-tracking-and-ℕ-fullred-if false) as RPₙₜ
+open import Graded.Heap.Usage.Reduction type-variant UR erased-heap Unitʷ-η→
+open import Graded.Heap.Reduction type-variant UR
+open import Graded.Heap.Reduction.Properties type-variant UR
+
 
 private variable
   t u A B : Term _
@@ -75,56 +73,55 @@ opaque
   -- corresponding to terms in Whnf.
 
   whBisim : (Emptyrec-allowed 𝟙ᵐ 𝟘 → Consistent Δ)
+          → suc∉ (State.stack s)
           → Δ ⊢ ⦅ s ⦆ ↘ u ∷ A
           → Δ ⨾ Γ ⊢ s ∷ B
           → γ ⨾ δ ⨾ η ▸ s
           → ∃₅ λ m n H t (ρ : Wk m n)
-          → s ⇒* ⟨ H , t , ρ , ε ⟩ × wk ρ t [ H ]ₕ ≡ u × Value t
-  whBisim {s = ⟨ H , t , ρ , S ⟩} consistent (d , w) ⊢s ▸s =
-    case bisim₆* As d ⊢s ▸s of λ {
-      (_ , _ , ⟨ H , t′ , ρ , S ⟩ , d₁ , refl) →
-    case normalize H t′ ρ S of λ
-      (_ , t″ , ρ′ , S′ , n , dₙ) →
-    case RPₙₜ.⇒ₙ*-⦅⦆-≡ dₙ of λ
-      t′≡t″ →
-    case ▸-⇒* ▸s d₁ of λ
-      (_ , _ , _ , ▸s′) →
-    case RTₜ.⊢ₛ-⇒* ⊢s d₁ of λ
+          → s ⇾* ⟨ H , t , ρ , ε ⟩ × wk ρ t [ H ]ₕ ≡ u × Value t
+  whBisim {s = s@record{}} consistent suc∉S (d , w) ⊢s ▸s =
+    case ⊢⇒*→⇾* As {s = s} d suc∉S ⊢s ▸s of λ {
+      (_ , _ , s′ , d₁ , refl) →
+    case ⊢ₛ-⇾* ⊢s d₁ of λ
       (_ , _ , _ , ⊢s′) →
-    case bisim₂* false As (RPₙₜ.⇒ₙ* dₙ) ~ʰ-refl ▸s′ of λ
-      (H′ , dₜ , H~H′) →
-    case RTₙₜ.⊢ₛ-⇒* ⊢s′ (RPₙₜ.⇒ₙ* dₙ) of λ
-      (_ , _ , _ , ⊢s″@(B , _ , ⊢t″ , ⊢S′)) →
+    case ▸-⇾* ▸s d₁ of λ
+      (_ , _ , _ , ▸s′) →
+    case suc∉-⇾* suc∉S d₁ of λ
+      suc∉S′ →
+    case ▸normalize As s′ ▸s′ of λ
+      (_ , s″ , n , dₑ) →
+    case ⊢ₛ-⇾ₑ* ⊢s′ dₑ of λ
+      ⊢s″ →
+    case ▸-⇾ₑ* ▸s′ dₑ of λ
+      (_ , _ , _ , ▸s″) →
+    case suc∉-⇾ₑ* suc∉S′ dₑ of λ
+      suc∉S″ →
     case n of λ where
       (val v) →
-        case lemma {H = H} {S = S′} w v ⊢s″ (RPₙₜ.⇒ₙ*-⦅⦆-≡ dₙ) of λ {
+        case lemma w v ⊢s″ suc∉S″ (⇾ₑ*-⦅⦆-≡ dₑ) of λ {
           refl →
-        _ , _ , _ , t″ , ρ′ , d₁ RPₜ.⇨* dₜ
-          , PE.sym (PE.trans t′≡t″ (cong (wk ρ′ t″ [_]) (~ʰ-subst H~H′))) , v}
-      (var d) →
-        case ~ʰ-lookup● H~H′ d of λ
-          d′ →
-        case ▸-⇒* ▸s′ dₜ of λ
-              (_ , _ , _ , ▸s″@(▸H , _ , ▸S , _)) →
+        _ , _ , _ , _ , _ , d₁ ⇨* ⇾ₑ* dₑ
+          , PE.sym (⇾ₑ*-⦅⦆-≡ dₑ) , v }
+      (var d′) →
         case erased-assumption of λ where
-          (inj₁ ¬eh) → ⊥-elim (¬erased-heap→¬↦● ⦃ neh = ¬eh ⦄ ▸H d′)
+          (inj₁ ¬eh) → ⊥-elim (¬erased-heap→¬↦● ⦃ neh = ¬eh ⦄ (▸s″ .proj₁) d′)
           (inj₂ nem) →
             case ▸s● subtraction-ok d′ ▸s″ of λ
               (∣S∣≡𝟘 , _) →
-            case ▸∣S∣≢𝟘 nem ▸S of λ where
+            case ▸∣S∣≢𝟘 nem (▸s″ .proj₂ .proj₂ .proj₁) of λ where
               (inj₁ ∣S∣≢𝟘) →
                 ⊥-elim (∣S∣≢𝟘 ∣S∣≡𝟘)
               (inj₂ (er∈S , ok)) →
-                ⊥-elim (⊢emptyrec₀∉S {ρ = ρ′} (consistent ok) ⊢s″ er∈S) }
+                ⊥-elim (⊢emptyrec₀∉S {ρ = State.env s″} (consistent ok) ⊢s″ er∈S) }
     where
     lemma : ∀ {n} {t : Term n} {H ρ S}
           → Whnf u → Value t → Δ ⨾ Γ ⊢ ⟨ H , t , ρ , S ⟩ ∷ A
-          → u PE.≡ ⦅ ⟨ H , t , ρ , S ⟩ ⦆ → S PE.≡ ε
-    lemma {S = ε} w n _ u≡ = refl
-    lemma {t} {H} {ρ} {S = e ∙ S} w v (_ , _ , _ , ⊢S) u≡ =
+          → suc∉ S → u PE.≡ ⦅ ⟨ H , t , ρ , S ⟩ ⦆ → S PE.≡ ε
+    lemma {S = ε} w n _ _ u≡ = refl
+    lemma {t} {H} {ρ} {S = e ∙ S} w v (_ , _ , _ , ⊢S) suc∉S u≡ =
       case whnf-subst {t = ⦅ e ∙ S ⦆ˢ (wk ρ t)} (subst Whnf u≡ w) of λ
         w′ →
-      case subst Neutral (wk≡subst ρ t) (⊢whnf⦅⦆ˢ′ ⊢S w′) of λ
+      case subst Neutral (wk≡subst ρ t) (⊢whnf⦅⦆ˢ′ suc∉S ⊢S w′) of λ
         n′ →
       ⊥-elim (Value→¬Neutral v (neutral-subst n′))
 
@@ -136,9 +133,9 @@ opaque
                   → k ≡ 0 ⊎ ((Emptyrec-allowed 𝟙ᵐ 𝟘 → Consistent Δ) × T erased-heap)
                   → Δ ⊢ t ↘ u ∷ A → 𝟘ᶜ ▸ t
                   → ∃₅ λ m n H u′ (ρ : Wk m n)
-                  → initial t ⇒* ⟨ H , u′ , ρ , ε ⟩ × wk ρ u′ [ H ]ₕ ≡ u × Value u′
+                  → initial t ⇾* ⟨ H , u′ , ρ , ε ⟩ × wk ρ u′ [ H ]ₕ ≡ u × Value u′
   whBisim-initial {k} {Δ} as d ▸t =
-    whBisim consistent
+    whBisim consistent ε
       (subst (_ ⊢_↘ _ ∷ _)
         (PE.sym (PE.trans (erasedHeap-subst (wk id _)) (wk-id _))) d)
       (⊢initial (redFirst*Term (proj₁ d)))
@@ -166,7 +163,7 @@ opaque
         → (k ≡ 0 ⊎ (Emptyrec-allowed 𝟙ᵐ 𝟘 → Consistent Δ) × T erased-heap)
         → Δ ⊢ t ∷ A → 𝟘ᶜ ▸ t
         → ∃₅ λ m n H u (ρ : Wk m n)
-          → initial t ⇒* ⟨ H , u , ρ , ε ⟩ × Value u × Whnf ⦅ ⟨ H , u , ρ , ε ⟩ ⦆
+          → initial t ⇾* ⟨ H , u , ρ , ε ⟩ × Value u × Whnf ⦅ ⟨ H , u , ρ , ε ⟩ ⦆
   whRed as ⊢t ▸t =
     case whNormTerm ⊢t of λ
       (u , w , d) →

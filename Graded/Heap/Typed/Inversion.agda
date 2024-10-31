@@ -5,13 +5,11 @@
 open import Graded.Modality
 open import Graded.Usage.Restrictions
 open import Definition.Typed.Restrictions
-open import Tools.Bool
 
 module Graded.Heap.Typed.Inversion
   {a} {M : Set a} {𝕄 : Modality M}
   (UR : Usage-restrictions 𝕄)
   (TR : Type-restrictions 𝕄)
-  (ℕ-fullred : Bool)
   where
 
 open Type-restrictions TR
@@ -23,7 +21,7 @@ open import Definition.Typed.Consequences.Substitution TR
 import Graded.Derived.Erased.Untyped 𝕄 as E
 open import Graded.Derived.Erased.Typed TR
 
-open import Graded.Heap.Typed UR TR ℕ-fullred
+open import Graded.Heap.Typed UR TR
 open import Graded.Heap.Untyped type-variant UR
 
 open import Tools.Fin
@@ -219,10 +217,10 @@ opaque
   -- Inversion of suc
 
   inversion-sucₑ : Δ ⨾ H ⊢ᵉ sucₑ ⟨ t ⟩∷ A ↝ B
-                 → T ℕ-fullred × A PE.≡ ℕ × (⊢ Δ → Δ ⊢ B ≡ ℕ)
-  inversion-sucₑ (sucₑ ⦃ (x) ⦄) =
-    x , PE.refl , λ ⊢Δ → refl (ℕⱼ ⊢Δ)
+                 → A PE.≡ ℕ × (⊢ Δ → Δ ⊢ B ≡ ℕ)
+  inversion-sucₑ sucₑ =
+    PE.refl , λ ⊢Δ → refl (ℕⱼ ⊢Δ)
   inversion-sucₑ (conv ⊢e ≡B) =
     case inversion-sucₑ ⊢e of λ
-      (x , A≡ , B′≡) →
-    x , A≡ , λ ⊢Δ → trans (sym ≡B) (B′≡ ⊢Δ)
+      (A≡ , B′≡) →
+    A≡ , λ ⊢Δ → trans (sym ≡B) (B′≡ ⊢Δ)

@@ -50,22 +50,18 @@ open import Graded.Mode 𝕄
 open import Graded.Usage 𝕄 UR
 open import Graded.Usage.Inversion 𝕄 UR
 
-open import Graded.Heap.Options
 open import Graded.Heap.Untyped type-variant UR
 open import Graded.Heap.Untyped.Properties type-variant UR
 open import Graded.Heap.Usage type-variant UR erased-heap
 open import Graded.Heap.Usage.Properties type-variant UR erased-heap
-import Graded.Heap.Usage.Reduction type-variant UR erased-heap (tracking-and-ℕ-fullred-if false) Unitʷ-η→ as URᶠ
-import Graded.Heap.Usage.Reduction type-variant UR erased-heap (tracking-and-ℕ-fullred-if true) Unitʷ-η→ as URᵗ
+open import Graded.Heap.Usage.Reduction type-variant UR erased-heap Unitʷ-η→
 open import Graded.Heap.Termination UR TR erased-heap As
-open import Graded.Heap.Typed UR TR false
-import Graded.Heap.Typed UR TR true as HTₜ
-open import Graded.Heap.Typed.Reduction UR TR (tracking-and-ℕ-fullred-if false) hiding (⇒*→≡)
-open import Graded.Heap.Typed.Reduction UR TR (tracking-and-ℕ-fullred-if true) using (⇒*→≡)
+open import Graded.Heap.Typed UR TR
+open import Graded.Heap.Typed.Reduction UR TR
 open import Graded.Heap.Typed.Properties UR TR
-open import Graded.Heap.Reduction type-variant UR (tracking-and-ℕ-fullred-if true)
-open import Graded.Heap.Reduction.Properties type-variant UR (tracking-and-ℕ-fullred-if true)
-  using (_⇨*_; ++sucₛ-⇒*)
+open import Graded.Heap.Reduction type-variant UR
+open import Graded.Heap.Reduction.Properties type-variant UR
+
 
 
 private variable
@@ -84,10 +80,11 @@ opaque
   -- All well-typed and well-resourced states of type ℕ reduce to numerals
 
   redNumeral : (Emptyrec-allowed 𝟙ᵐ 𝟘 → Consistent Δ)
+             → suc∉ (State.stack s)
              → Δ ⊩ℕ n ∷ℕ → n PE.≡ ⦅ s ⦆ → Δ ⨾ Γ ⊢ s ∷ ℕ → γ ⨾ δ ⨾ η ▸ s
-             → ∃₅ λ m n H (ρ : Wk m n) t → s ⇒* ⟨ H , t , ρ , ε ⟩ × Numeral t
-  redNumeral consistent (ℕₜ _ d n≡n (sucᵣ x)) PE.refl ⊢s ▸s =
-    case whBisim consistent (redₜ d , sucₙ) ⊢s ▸s of λ
+             → ∃₅ λ m n H (ρ : Wk m n) t → s ↠* ⟨ H , t , ρ , ε ⟩ × Numeral t
+  redNumeral consistent suc∉S (ℕₜ _ d n≡n (sucᵣ x)) PE.refl ⊢s ▸s =
+    case whBisim consistent suc∉S (redₜ d , sucₙ) ⊢s ▸s of λ
       (_ , _ , H , t , ρ , d′ , ≡u , v) →
     case subst-suc {t = wk ρ t} ≡u of λ {
       (inj₁ (x , ≡x)) →
@@ -99,28 +96,28 @@ opaque
       (n″ , PE.refl , ≡n′) →
     case isNumeral? n″ of λ {
       (yes num) →
-    _ , _ , _ , _ , _ , bisim₇* true d′ , sucₙ num ;
+    _ , _ , _ , _ , _ , ⇾*→↠* d′ , sucₙ num ;
       (no ¬num) →
-    case ⊢ₛ-⇒* ⊢s d′ of λ
+    case ⊢ₛ-⇾* ⊢s d′ of λ
       (_ , _ , _ , _ , ⊢H , ⊢t , ⊢S) →
     case inversion-suc ⊢t of λ
       (⊢n″ , ≡ℕ) →
-    case URᶠ.▸-⇒* ▸s d′ of λ
+    case ▸-⇾* ▸s d′ of λ
       (_ , _ , _ , ▸H , ▸t , ▸ε , γ≤) →
     case inv-usage-suc ▸t of λ
       (invUsageSuc ▸n″ δ≤)  →
-    case redNumeral {s = ⟨ H , n″ , ρ , ε ⟩} consistent x
+    case redNumeral {s = ⟨ H , n″ , ρ , ε ⟩} consistent ε x
           (PE.sym (PE.trans (PE.cong (_[ H ]ₕ) ≡n′) ≡n))
           (_ , ⊢H , ⊢n″ , ε)
           (▸H , ▸n″ , ▸ε , ≤ᶜ-trans γ≤ (+ᶜ-monotoneˡ (·ᶜ-monotoneʳ (wk-≤ᶜ ρ δ≤)))) of λ
       (_ , _ , H′ , ρ′ , t′ , d₀ , n) →
     _ , _ , _ , _ , _
-      , (bisim₇* true d′ ⇨* ((⇒ₛ (sucₕ ¬num)) ⇨
-          (++sucₛ-⇒* {k = 1} d₀ ⇨* ((⇒ₛ (numₕ n)) ⇨ id))))
+      , ↠*-concat (⇾*→↠* d′)
+          (⇒ₙ sucₕ ¬num ⇨ ↠*-concat (++sucₛ-↠* d₀) (⇒ₙ (numₕ n) ⇨ id))
       , sucₙ n }}}
 
-  redNumeral consistent (ℕₜ _ d n≡n zeroᵣ) PE.refl ⊢s ▸s =
-    case whBisim consistent (redₜ d , zeroₙ) ⊢s ▸s of λ
+  redNumeral consistent suc∉S (ℕₜ _ d n≡n zeroᵣ) PE.refl ⊢s ▸s =
+    case whBisim consistent suc∉S (redₜ d , zeroₙ) ⊢s ▸s of λ
       (_ , _ , H , t , ρ , d′ , ≡u , v) →
     case subst-zero {t = wk ρ t} ≡u of λ {
       (inj₁ (x , ≡x)) →
@@ -130,11 +127,11 @@ opaque
       (inj₂ ≡zero) →
     case wk-zero ≡zero of λ {
       PE.refl →
-    _ , _ , _ , _ , _ , bisim₇* true d′ , zeroₙ }}
+    _ , _ , _ , _ , _ , ⇾*→↠* d′ , zeroₙ }}
 
   redNumeral
-    {s} consistent (ℕₜ _ d n≡n (ne (neNfₜ neK ⊢k k≡k))) PE.refl ⊢s ▸s =
-    case whBisim {s = s} consistent (redₜ d , ne neK) ⊢s ▸s of λ {
+    {s} consistent suc∉S (ℕₜ _ d n≡n (ne (neNfₜ neK ⊢k k≡k))) PE.refl ⊢s ▸s =
+    case whBisim {s = s} consistent suc∉S (redₜ d , ne neK) ⊢s ▸s of λ {
       (_ , _ , H , t , ρ , d′ , PE.refl , v) →
     ⊥-elim (Value→¬Neutral (substValue (toSubstₕ H) (wkValue ρ v)) neK) }
 
@@ -149,7 +146,7 @@ opaque
             → (k PE.≡ 0 ⊎ (Emptyrec-allowed 𝟙ᵐ 𝟘 → Consistent Δ) × T erased-heap)
             → Δ ⊢ t ∷ ℕ → 𝟘ᶜ ▸ t
             → ∃₅ λ m n H k (ρ : Wk m n) →
-              initial t ⇒* ⟨ H , sucᵏ k , ρ , ε ⟩ ×
+              initial t ↠* ⟨ H , sucᵏ k , ρ , ε ⟩ ×
               (Δ ⊢ t ≡ sucᵏ k ∷ ℕ) ×
               H ≤ʰ 𝟘
   soundness {k} {t} {Δ} as ⊢t ▸t =
@@ -157,14 +154,14 @@ opaque
       ▸s →
     case ⊩∷ℕ⇔ .proj₁ (reducible-⊩∷ ⊢t .proj₂) of λ
       [t] →
-    case redNumeral consistent [t] (PE.sym (PE.trans (erasedHeap-subst (wk id t)) (wk-id t)))
-           (⊢initial false ⊢t) ▸s of λ
+    case redNumeral consistent ε [t] (PE.sym (PE.trans (erasedHeap-subst (wk id t)) (wk-id t)))
+           (⊢initial ⊢t) ▸s of λ
       (_ , _ , H , ρ , t , d , num) →
-    case URᵗ.▸-⇒* ▸s d of λ {
+    case ▸-↠* ▸s d of λ {
       (γ , δ , _ , ▸H , ▸n , ε , γ≤) →
     case Numeral→sucᵏ num of λ
       (k , ≡sucᵏ) →
-    case PE.subst (λ x → _ ⇒* ⟨ _ , x , _ , _ ⟩) ≡sucᵏ d of λ
+    case PE.subst (λ x → _ ↠* ⟨ _ , x , _ , _ ⟩) ≡sucᵏ d of λ
       d′ →
     let open RPo ≤ᶜ-poset in
     _ , _ , _ , _ , _
@@ -172,7 +169,7 @@ opaque
       , PE.subst₂ (_ ⊢_≡_∷ ℕ)
           (PE.trans (erasedHeap-subst (wk id _)) (wk-id _))
           (PE.trans (PE.cong (_[ H ]ₕ) (wk-sucᵏ k)) (subst-sucᵏ k))
-          (⇒*→≡ (⊢initial true ⊢t) d′)
+          (↠*→≡ (⊢initial ⊢t) d′)
       , 𝟘▸H→H≤𝟘 (subₕ ▸H (begin
           γ                     ≤⟨ γ≤ ⟩
           𝟙 ·ᶜ wkConₘ ρ δ +ᶜ 𝟘ᶜ ≈⟨ +ᶜ-identityʳ _ ⟩
@@ -204,7 +201,7 @@ opaque
 
   soundness-closed : ε ⊢ t ∷ ℕ → ε ▸ t
                    → ∃₅ λ m n H k (ρ : Wk m n) →
-                   initial t ⇒* ⟨ H , sucᵏ k , ρ , ε ⟩ ×
+                   initial t ↠* ⟨ H , sucᵏ k , ρ , ε ⟩ ×
                    (ε ⊢ t ≡ sucᵏ k ∷ ℕ) ×
                    H ≤ʰ 𝟘
   soundness-closed = soundness (inj₁ PE.refl)
@@ -221,7 +218,7 @@ opaque
                    → T erased-heap
                    → Δ ⊢ t ∷ ℕ → 𝟘ᶜ ▸ t
                    → ∃₅ λ m n H k (ρ : Wk m n) →
-                   initial t ⇒* ⟨ H , sucᵏ k , ρ , ε ⟩ ×
+                   initial t ↠* ⟨ H , sucᵏ k , ρ , ε ⟩ ×
                    (Δ ⊢ t ≡ sucᵏ k ∷ ℕ) ×
                    H ≤ʰ 𝟘
   soundness-open consistent erased = soundness (inj₂ (consistent , erased))

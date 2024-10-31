@@ -143,29 +143,6 @@ opaque
   Value→Whnf (unitrec-ηᵥ x) = inj₂ (_ , _ , _ , _ , _ , _ , refl , x)
 
 ------------------------------------------------------------------------
--- Properties of states in normal form
-
-opaque
-
-  wk1-Normal : Normal ⟨ H , t , ρ , S ⟩ → Normal ⟨ H ∙ (p , c) , t , step ρ , wk1ˢ S ⟩
-  wk1-Normal (val x) = val x
-  wk1-Normal (var d) = var (there d)
-
-opaque
-
-  wk1●-Normal : Normal ⟨ H , t , ρ , S ⟩ → Normal ⟨ H ∙● , t , step ρ , wk1ˢ S ⟩
-  wk1●-Normal (val x) = val x
-  wk1●-Normal (var d) = var (there● d)
-
-opaque
-
-  -- The stack of a normal state can be replaced to give a normal state
-
-  Normal-stack : Normal ⟨ H , t , ρ , S ⟩ → Normal ⟨ H , t , ρ , S′ ⟩
-  Normal-stack (val x) = val x
-  Normal-stack (var x) = var x
-
-------------------------------------------------------------------------
 -- Properties of the lookup relations
 
 opaque
@@ -591,6 +568,20 @@ opaque
 
 opaque
 
+  suc∉-pop : suc∉ (e ∙ S) → suc∉ S
+  suc∉-pop (_ ∙ x) = x
+
+opaque
+
+  wk-suc∉ : suc∉ S → suc∉ (wkˢ ρ S)
+  wk-suc∉ ε = ε
+  wk-suc∉ (e≢suc ∙ suc∉S) = (e≢suc ∘→ lemma) ∙ wk-suc∉ suc∉S
+    where
+    lemma : wkᵉ ρ e ≡ sucₑ → e ≡ sucₑ
+    lemma {e = sucₑ} _ = refl
+
+opaque
+
   -- Applying a term to an eliminator becomes neutral only if the
   -- term is neutral.
 
@@ -693,6 +684,38 @@ opaque
   update-~ʰ (here _) = ~ʰ-refl ∙ _
   update-~ʰ (there d) = update-~ʰ d ∙ _
   update-~ʰ (there● d) = update-~ʰ d ∙●
+
+------------------------------------------------------------------------
+-- Properties of states in normal form
+
+opaque
+
+  wk1-Normal : Normal ⟨ H , t , ρ , S ⟩ → Normal ⟨ H ∙ (p , c) , t , step ρ , wk1ˢ S ⟩
+  wk1-Normal (val x) = val x
+  wk1-Normal (var d) = var (there d)
+
+opaque
+
+  wk1●-Normal : Normal ⟨ H , t , ρ , S ⟩ → Normal ⟨ H ∙● , t , step ρ , wk1ˢ S ⟩
+  wk1●-Normal (val x) = val x
+  wk1●-Normal (var d) = var (there● d)
+
+opaque
+
+  -- The stack of a normal state can be replaced to give a normal state
+
+  Normal-stack : Normal ⟨ H , t , ρ , S ⟩ → Normal ⟨ H , t , ρ , S′ ⟩
+  Normal-stack (val x) = val x
+  Normal-stack (var x) = var x
+
+opaque
+
+  -- The heap of a normal state can be replaced by an equal heap to give
+  -- a normal state.
+
+  ~ʰ-Normal : H ~ʰ H′ → Normal ⟨ H , t , ρ , S ⟩ → Normal ⟨ H′ , t , ρ , S ⟩
+  ~ʰ-Normal H~H′ (val x) = val x
+  ~ʰ-Normal H~H′ (var x) = var (~ʰ-lookup● H~H′ x)
 
 ------------------------------------------------------------------------
 -- Properties of heaps as substitutions
