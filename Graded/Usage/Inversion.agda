@@ -25,6 +25,7 @@ open import Graded.Mode 𝕄
 open import Definition.Untyped M hiding (_∙_)
 
 open import Tools.Bool using (T)
+open import Tools.Empty
 open import Tools.Function
 open import Tools.Nat using (Nat; 1+; 2+)
 open import Tools.Product
@@ -345,6 +346,26 @@ inv-usage-natrec (natrec-no-nrₘ ▸z ▸s ▸n ▸A χ≤₁ χ≤₂ χ≤₃
 inv-usage-natrec (sub γ▸natrec γ≤γ′) with inv-usage-natrec γ▸natrec
 ... | invUsageNatrec δ▸z η▸s θ▸n φ▸A γ′≤γ″ extra =
   invUsageNatrec δ▸z η▸s θ▸n φ▸A (≤ᶜ-trans γ≤γ′ γ′≤γ″) extra
+
+opaque
+
+  -- An inversion lemma for natrec with a dedicated nr function
+
+  inv-usage-natrec-has-nr :
+    {s : Term _} {n : Term _}
+    ⦃ has-nr : Dedicated-nr ⦄ →
+    γ ▸[ m ] natrec p q r G z s n →
+    ∃₄ λ δ η θ φ → δ ▸[ m ] z ×
+    η ∙ ⌜ m ⌝ · p ∙ ⌜ m ⌝ · r ▸[ m ] s ×
+    θ ▸[ m ] n × φ ∙ ⌜ 𝟘ᵐ? ⌝ · q ▸[ 𝟘ᵐ? ] G ×
+    γ ≤ᶜ nrᶜ p r δ η θ
+  inv-usage-natrec-has-nr ⦃ has-nr ⦄ ▸nr =
+    case inv-usage-natrec ▸nr of λ where
+      (invUsageNatrec ▸z ▸s ▸n ▸A γ≤ (invUsageNatrecNr ⦃ (has-nr′) ⦄)) →
+        case Dedicated-nr-propositional has-nr has-nr′ of λ where
+          refl → _ , _ , _ , _ , ▸z , ▸s , ▸n , ▸A , γ≤
+      (invUsageNatrec ▸z ▸s ▸n ▸A γ≤ (invUsageNatrecNoNr x x₁ x₂ x₃)) →
+        ⊥-elim not-nr-and-no-nr
 
 record InvUsageEmptyrec
          {n} (γ : Conₘ n) (m : Mode) (p : M) (A t : Term n) :

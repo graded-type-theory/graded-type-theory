@@ -451,6 +451,7 @@ import Graded.Heap.Typed.Reduction
 
 -- Usage for the abstract machine
 import Graded.Heap.Usage
+import Graded.Heap.Usage.Inversion
 import Graded.Heap.Usage.Weakening
 import Graded.Heap.Usage.Properties
 import Graded.Heap.Usage.Reduction

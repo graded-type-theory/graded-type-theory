@@ -126,7 +126,7 @@ module _ (As : Assumptions) where
   opaque
 
     ⇢ₑ→⇾ₑ : H ~ʰ H″
-          → γ ⨾ δ ⨾ η ▸ ⟨ H″ , t , ρ , S ⟩
+          → ▸ ⟨ H″ , t , ρ , S ⟩
           → ⟨ H , t , ρ , S ⟩ ⇢ₑ ⟨ H′ , t′ , ρ′ , S′ ⟩
           → ∃ λ H‴ → ⟨ H″ , t , ρ , S ⟩ ⇾ₑ ⟨ H‴ , t′ , ρ′ , S′ ⟩ × H′ ~ʰ H‴
     ⇢ₑ→⇾ₑ H~H″ ▸s (var d) =
@@ -139,20 +139,20 @@ module _ (As : Assumptions) where
   opaque
 
     ⇢ₑ*→⇾ₑ* : H ~ʰ H″
-            → γ ⨾ δ ⨾ η ▸ ⟨ H″ , t , ρ , S ⟩
+            → ▸ ⟨ H″ , t , ρ , S ⟩
             → ⟨ H , t , ρ , S ⟩ ⇢ₑ* ⟨ H′ , t′ , ρ′ , S′ ⟩
             → ∃ λ H‴ → ⟨ H″ , t , ρ , S ⟩ ⇾ₑ* ⟨ H‴ , t′ , ρ′ , S′ ⟩ × H′ ~ʰ H‴
     ⇢ₑ*→⇾ₑ* H~H″ ▸s id = _ , id , H~H″
     ⇢ₑ*→⇾ₑ* H~H″ ▸s (_⇨_ {s′ = record{}} x d) =
       let _ , x′ , H′~H‴ = ⇢ₑ→⇾ₑ H~H″ ▸s x
-          _ , _ , _ , ▸s′ = ▸-⇾ₑ Unitʷ-η→ ▸s x′
+          ▸s′ = ▸-⇾ₑ Unitʷ-η→ ▸s x′
           _ , d′ , H′~H⁗ = ⇢ₑ*→⇾ₑ* H′~H‴ ▸s′ d
       in  _ , x′ ⇨ d′ , H′~H⁗
 
   opaque
 
     ⇢→⇾ : H ~ʰ H″
-        → γ ⨾ δ ⨾ η ▸ ⟨ H″ , t , ρ , S ⟩
+        → ▸ ⟨ H″ , t , ρ , S ⟩
         → ⟨ H , t , ρ , S ⟩ ⇢ ⟨ H′ , t′ , ρ′ , S′ ⟩
         → ∃ λ H‴ → ⟨ H″ , t , ρ , S ⟩ ⇾ ⟨ H‴ , t′ , ρ′ , S′ ⟩ × H′ ~ʰ H‴
     ⇢→⇾ H~H″ ▸s (⇢ₑ d) =
@@ -165,13 +165,13 @@ module _ (As : Assumptions) where
   opaque
 
     ⇢*→⇾* : H ~ʰ H″
-          → γ ⨾ δ ⨾ η ▸ ⟨ H″ , t , ρ , S ⟩
+          → ▸ ⟨ H″ , t , ρ , S ⟩
           → ⟨ H , t , ρ , S ⟩ ⇢* ⟨ H′ , t′ , ρ′ , S′ ⟩
           → ∃ λ H‴ → ⟨ H″ , t , ρ , S ⟩ ⇾* ⟨ H‴ , t′ , ρ′ , S′ ⟩ × H′ ~ʰ H‴
     ⇢*→⇾* H~H″ ▸s id = _ , id , H~H″
     ⇢*→⇾* H~H″ ▸s (_⇨_ {s₂ = record{}} x d) =
       let _ , x′ , H′~H‴ = ⇢→⇾ H~H″ ▸s x
-          _ , _ , _ , ▸s′ = ▸-⇾ Unitʷ-η→ ▸s x′
+          ▸s′ = ▸-⇾ Unitʷ-η→ ▸s x′
           _ , d′ , H′~H⁗ = ⇢*→⇾* H′~H‴ ▸s′ d
       in  _ , x′ ⇨ d′ , H′~H⁗
 
@@ -179,8 +179,8 @@ module _ (As : Assumptions) where
 
     -- Normalization for the tracking semantics
 
-    ▸normalize : ∀ {k} (s : State k _ _) → γ ⨾ δ ⨾ η ▸ s
-               → ∃₂ λ n (s′ : State _ _ n) → Normal s′ × s ⇾ₑ* s′
+    ▸normalize : ∀ {k m n} (s : State k m n) → ▸ s
+               → ∃₂ λ n′ (s′ : State _ _ n′) → Normal s′ × s ⇾ₑ* s′
     ▸normalize s@record{} ▸s =
       let (_ , record{} , n , d) = normalizeₛ s
           _ , d′ , H~H′ = ⇢ₑ*→⇾ₑ* ~ʰ-refl ▸s d
@@ -253,7 +253,7 @@ module _ (As : Assumptions) where
 
     ⊢⇒→⇾* : Δ ⊢ ⦅ s ⦆ ⇒ u ∷ A
          → Δ ⊢ₛ s ∷ B
-         → γ ⨾ δ ⨾ η ▸ s
+         → ▸ s
          → ∃₃ λ m n (s′ : State _ m n) → s ⇾* s′ × u PE.≡ ⦅ s′ ⦆
     ⊢⇒→⇾* {s} d ⊢s ▸s =
       let _ , s′ , n , d′ = ▸normalize As s ▸s
@@ -266,7 +266,7 @@ module _ (As : Assumptions) where
 
     ⊢⇒*→⇾* : Δ ⊢ ⦅ s ⦆ ⇒* u ∷ A
            → Δ ⊢ₛ s ∷ B
-           → γ ⨾ δ ⨾ η ▸ s
+           → ▸ s
            → ∃₃ λ m n (s′ : State _ m n) → s ⇾* s′ × u PE.≡ ⦅ s′ ⦆
     ⊢⇒*→⇾* (id x) ⊢s ▸s =
       _ , _ , _ , id , refl
@@ -276,7 +276,7 @@ module _ (As : Assumptions) where
       case ⊢ₛ-⇾* ⊢s x′ of λ
         ⊢s′ →
       case ▸-⇾* Unitʷ-η→ ▸s x′ of λ
-        (_ , _ , _ , ▸s′) →
+        ▸s′ →
       case ⊢⇒*→⇾* d ⊢s′ ▸s′ of λ
         (_ , _ , s′ , d′ , u≡) →
       _ , _ , s′ , x′ ⇨* d′ , u≡ }

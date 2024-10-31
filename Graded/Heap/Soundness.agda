@@ -52,6 +52,7 @@ open import Graded.Usage.Inversion 𝕄 UR
 open import Graded.Heap.Untyped type-variant UR
 open import Graded.Heap.Untyped.Properties type-variant UR
 open import Graded.Heap.Usage type-variant UR
+open import Graded.Heap.Usage.Inversion type-variant UR
 open import Graded.Heap.Usage.Properties type-variant UR
 open import Graded.Heap.Usage.Reduction type-variant UR Unitʷ-η→
 open import Graded.Heap.Termination UR TR As
@@ -81,9 +82,10 @@ opaque
   redNumeral′ : {Δ : Con Term k}
              → (Emptyrec-allowed 𝟙ᵐ 𝟘 → Consistent Δ)
              → (k PE.≢ 0 → No-erased-matches′ type-variant UR)
-             → Δ ⊩ℕ n ∷ℕ → n PE.≡ ⦅ s ⦆ → Δ ⊢ₛ s ∷ ℕ → γ ⨾ δ ⨾ η ▸ s
+             → Δ ⊩ℕ n ∷ℕ → n PE.≡ ⦅ s ⦆ → Δ ⊢ₛ s ∷ ℕ → ▸ s
              → ∃₅ λ m n H (ρ : Wk m n) t → s ↠* ⟨ H , t , ρ , ε ⟩ ×
-               Numeral t × Δ ⊢ ⦅ s ⦆ ≡ wk ρ t [ H ]ₕ ∷ ℕ
+               Numeral t × Δ ⊢ ⦅ s ⦆ ≡ wk ρ t [ H ]ₕ ∷ ℕ ×
+               ▸ ⟨ H , t , ρ , ε ⟩
   redNumeral′ consistent nem (ℕₜ _ d n≡n (sucᵣ x)) PE.refl ⊢s ▸s =
     case whBisim consistent nem ⊢s ▸s (redₜ d , sucₙ) of λ
       (_ , _ , H , t , ρ , (d′ , _) , ≡u , v) →
@@ -99,25 +101,28 @@ opaque
       s≡ →
     case isNumeral? n″ of λ {
       (yes num) →
-    _ , _ , _ , _ , _ , ⇾*→↠* d′ , sucₙ num , s≡ ;
+    _ , _ , _ , _ , _ , ⇾*→↠* d′ , sucₙ num , s≡ , ▸-⇾* ▸s d′ ;
       (no ¬num) →
     case ⊢ₛ-inv (⊢ₛ-⇾* ⊢s d′) of λ
       (_ , _ , ⊢H , ⊢t , ⊢S) →
     case inversion-suc ⊢t of λ
       (⊢n″ , ≡ℕ) →
-    case ▸-⇾* ▸s d′ of λ
+    case ▸ₛ-inv (▸-⇾* ▸s d′) of λ
       (_ , _ , _ , ▸H , ▸t , ▸ε , γ≤) →
     case inv-usage-suc ▸t of λ
       (invUsageSuc ▸n″ δ≤)  →
     case redNumeral′ {s = ⟨ H , n″ , ρ , ε ⟩} consistent nem x
           (PE.sym (PE.trans (PE.cong (_[ H ]ₕ) ≡n′) ≡n))
           (⊢ₛ ⊢H ⊢n″ ε)
-          (▸H , ▸n″ , ▸ε , ≤ᶜ-trans γ≤ (+ᶜ-monotoneˡ (·ᶜ-monotoneʳ (wk-≤ᶜ ρ δ≤)))) of λ
-      (_ , _ , H′ , ρ′ , t′ , d₀ , n , s′≡) →
+          (▸ₛ ▸H ▸n″ ▸ε (≤ᶜ-trans γ≤ (+ᶜ-monotoneˡ (·ᶜ-monotoneʳ (wk-≤ᶜ ρ δ≤))))) of λ
+      (_ , _ , H′ , ρ′ , t′ , d₀ , n , s′≡ , ▸s′) →
+    case ▸ₛ-inv ▸s′ of λ
+      (_ , _ , _ , ▸H , ▸t , ▸S , γ≤) →
     _ , _ , _ , _ , _
       , ↠*-concat (⇾*→↠* d′)
           (⇒ₙ sucₕ ¬num ⇨ ↠*-concat (++sucₛ-↠* d₀) (⇒ₙ (numₕ n) ⇨ id))
-      , sucₙ n , trans s≡ (suc-cong s′≡) }}}
+      , sucₙ n , trans s≡ (suc-cong s′≡)
+      , ▸ₛ ▸H (sucₘ ▸t) ▸S γ≤ }}}
 
   redNumeral′ consistent nem (ℕₜ _ d n≡n zeroᵣ) PE.refl ⊢s ▸s =
     case whBisim consistent nem ⊢s ▸s (redₜ d , zeroₙ) of λ
@@ -130,7 +135,7 @@ opaque
       (inj₂ ≡zero) →
     case wk-zero ≡zero of λ {
       PE.refl →
-    _ , _ , _ , _ , _ , ⇾*→↠* d′ , zeroₙ , ⇾*→≡ ⊢s d′ }}
+    _ , _ , _ , _ , _ , ⇾*→↠* d′ , zeroₙ , ⇾*→≡ ⊢s d′ , ▸-⇾* ▸s d′ }}
 
   redNumeral′
     {s} consistent nem (ℕₜ _ d n≡n (ne (neNfₜ neK ⊢k k≡k))) PE.refl ⊢s ▸s =
@@ -146,9 +151,10 @@ opaque
   redNumeral : {Δ : Con Term k}
              → (Emptyrec-allowed 𝟙ᵐ 𝟘 → Consistent Δ)
              → (k PE.≢ 0 → No-erased-matches′ type-variant UR)
-             → Δ ⊢ₛ s ∷ ℕ → γ ⨾ δ ⨾ η ▸ s
+             → Δ ⊢ₛ s ∷ ℕ → ▸ s
              → ∃₅ λ m n H (ρ : Wk m n) t → s ↠* ⟨ H , t , ρ , ε ⟩ ×
-               Numeral t × Δ ⊢ ⦅ s ⦆ ≡ wk ρ t [ H ]ₕ ∷ ℕ
+               Numeral t × Δ ⊢ ⦅ s ⦆ ≡ wk ρ t [ H ]ₕ ∷ ℕ ×
+               ▸ ⟨ H , t , ρ , ε ⟩
   redNumeral {s} consistent nem ⊢s ▸s =
     redNumeral′ consistent nem
       (⊩∷ℕ⇔ .proj₁ (reducible-⊩∷ (⊢⦅⦆ {s = s} ⊢s) .proj₂))
@@ -173,9 +179,10 @@ opaque
     case ▸initial ▸t of λ
       ▸s →
     case redNumeral consistent nem (⊢initial ⊢t) ▸s of λ
-      (_ , _ , H , ρ , t , d , num , s≡) →
-    case ▸-↠* ▸s d of λ {
-      (γ , δ , _ , ▸H , ▸n , ε , γ≤) →
+      (_ , _ , H , ρ , t , d , num , s≡ , ▸s′) →
+    case ▸ₛ-inv ▸s′ of λ
+    -- case ▸-↠* ▸s d of λ {
+      (γ , δ , η , ▸H , ▸n , ▸ε , γ≤) →
     case Numeral→sucᵏ num of λ
       (k , ≡sucᵏ) →
     case PE.subst (λ x → _ ↠* ⟨ _ , x , _ , _ ⟩) ≡sucᵏ d of λ
@@ -188,13 +195,14 @@ opaque
           (PE.trans (PE.cong (λ x → wk ρ x [ H ]ₕ) ≡sucᵏ)
             (PE.trans (PE.cong (_[ H ]ₕ) (wk-sucᵏ k)) (subst-sucᵏ k)))
           s≡
-      , 𝟘▸H→H≤𝟘 (subₕ ▸H (begin
-          γ                     ≤⟨ γ≤ ⟩
-          𝟙 ·ᶜ wkConₘ ρ δ +ᶜ 𝟘ᶜ ≈⟨ +ᶜ-identityʳ _ ⟩
-          𝟙 ·ᶜ wkConₘ ρ δ       ≈⟨ ·ᶜ-identityˡ _ ⟩
-          wkConₘ ρ δ            ≤⟨ wk-≤ᶜ ρ (inv-usage-numeral ▸n num) ⟩
-          wkConₘ ρ 𝟘ᶜ           ≡⟨ wk-𝟘ᶜ ρ ⟩
-          𝟘ᶜ                    ∎ ))}
+      , 𝟘▸H→H≤𝟘 (subₕ ▸H $ begin
+          γ                      ≤⟨ γ≤ ⟩
+          𝟙 ·ᶜ wkConₘ ρ δ +ᶜ η   ≈⟨ +ᶜ-congˡ (▸ˢ-ε-inv ▸ε) ⟩
+          𝟙 ·ᶜ wkConₘ ρ δ +ᶜ 𝟘ᶜ  ≈⟨ +ᶜ-identityʳ _ ⟩
+          𝟙 ·ᶜ wkConₘ ρ δ        ≈⟨ ·ᶜ-identityˡ _ ⟩
+          wkConₘ ρ δ             ≤⟨ wk-≤ᶜ ρ (inv-usage-numeral ▸n num) ⟩
+          wkConₘ ρ 𝟘ᶜ            ≡⟨ wk-𝟘ᶜ ρ ⟩
+          𝟘ᶜ                     ∎ )
 
 opaque
 

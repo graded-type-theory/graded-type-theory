@@ -72,7 +72,7 @@ opaque
     (Emptyrec-allowed 𝟙ᵐ 𝟘 → Consistent Δ) →
     (k ≢ 0 → No-erased-matches′ type-variant UR) →
     Δ ⊢ₛ ⟨ H , t , ρ , S ⟩ ∷ A →
-    γ ⨾ δ ⨾ η ▸ ⟨ H , t , ρ , S ⟩ →
+    ▸ ⟨ H , t , ρ , S ⟩ →
     Final (⟨_,_,_,_⟩ H t ρ S) →
     Value t × S ≡ ε
   ⊢▸Final-reasons consistent nem ⊢s ▸s f =
@@ -90,24 +90,24 @@ opaque
     (Emptyrec-allowed 𝟙ᵐ 𝟘 → Consistent Δ) →
     (k ≢ 0 → No-erased-matches′ type-variant UR) →
     Δ ⊢ₛ s ∷ A →
-    γ ⨾ δ ⨾ η ▸ s →
+    ▸ s →
     s ⇘ s′ →
     Value (State.head s′) × State.stack s′ ≡ ε
   ⊢▸-⇘-reasons {s′ = record{}} consistent nem ⊢s ▸s (d , f) =
     let ⊢s′ = ⊢ₛ-⇾* ⊢s d
-        _ , _ , _ , ▸s′ = ▸-⇾* ▸s d
+        ▸s′ = ▸-⇾* ▸s d
     in  ⊢▸Final-reasons consistent nem ⊢s′ ▸s′ f
 
 opaque
 
   ↘→⇘ :
     Δ ⊢ₛ s ∷ B →
-    γ ⨾ δ ⨾ η ▸ s →
+    ▸ s →
     Δ ⊢ ⦅ s ⦆ ↘ u ∷ A →
     ∃₃ λ m n (s′ : State _ m n) → s ⇘ s′ × u ≡ ⦅ s′ ⦆
   ↘→⇘ ⊢s ▸s (d , w) =
     let _ , _ , s′ , d₁ , u≡ = ⊢⇒*→⇾* As d ⊢s ▸s
-        _ , _ , _ , ▸s′ = ▸-⇾* ▸s d₁
+        ▸s′ = ▸-⇾* ▸s d₁
         _ , s″ , n , d₂ = ▸normalize As s′ ▸s′
         d′ = d₁ ⇨* ⇾ₑ* d₂
         ⊢s″ = ⊢ₛ-⇾* ⊢s d′
@@ -124,7 +124,7 @@ opaque
     (Emptyrec-allowed 𝟙ᵐ 𝟘 → Consistent Δ) →
     (k ≢ 0 → No-erased-matches′ type-variant UR) →
     Δ ⊢ₛ s ∷ B →
-    γ ⨾ δ ⨾ η ▸ s →
+    ▸ s →
     Δ ⊢ ⦅ s ⦆ ↘ u ∷ A →
     ∃₅ λ m n H t (ρ : Wk m n) → s ⇘ ⟨ H , t , ρ , ε ⟩ × wk ρ t [ H ]ₕ ≡ u × Value t
   whBisim {s = ⟨ H , t , ρ , S ⟩} consistent nem ⊢s ▸s d
@@ -159,7 +159,7 @@ opaque
     (Emptyrec-allowed 𝟙ᵐ 𝟘 → Consistent Δ) →
     (k ≢ 0 → No-erased-matches′ type-variant UR) →
     Δ ⊢ₛ s ∷ B →
-    γ ⨾ δ ⨾ η ▸ s →
+    ▸ s →
     ∃₅ λ m n H t (ρ : Wk m n) → s ⇘ ⟨ H , t , ρ , ε ⟩ × Value t
   ⊢▸-⇘ {s = ⟨ H , t , ρ , S ⟩} consistent nem ⊢s ▸s =
     let u , w , d = whNormTerm (⊢⦅⦆ {s = ⟨ H , t , ρ , S ⟩} ⊢s)

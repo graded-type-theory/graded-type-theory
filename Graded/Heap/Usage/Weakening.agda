@@ -76,8 +76,6 @@ opaque
     subst (_▸ᵉ[ _ ] _) (wk-•ᶜ ρ ρ′) (Kₑ ▸u)
   wk-▸ᵉ ρ ([]-congₑ ok) =
     subst (_▸ᵉ[ _ ] _) (sym (wk-𝟘ᶜ ρ)) ([]-congₑ ok)
-  wk-▸ᵉ ρ sucₑ =
-    subst (_▸ᵉ[ _ ] _) (sym (wk-𝟘ᶜ ρ)) sucₑ
 
 opaque
 
