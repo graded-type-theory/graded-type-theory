@@ -50,7 +50,6 @@ open import Definition.Typed.Consequences.Reduction TR
 open import Graded.Context 𝕄 hiding (_⟨_⟩)
 open import Graded.Mode 𝕄
 open import Graded.Modality.Properties.Subtraction semiring-with-meet
-open import Graded.Restrictions 𝕄
 
 private variable
   s s′ : State _ _ _
@@ -69,8 +68,6 @@ private variable
 record Assumptions : Set a where
   field
     subtraction-ok : Supports-subtraction
-    erased-assumption :
-      T (not erased-heap) ⊎ No-erased-matches′ type-variant UR
     Unitʷ-η→ : ∀ {p q} → Unitʷ-η → Unitrec-allowed 𝟙ᵐ p q → p ≤ 𝟘
     instance
       has-well-behaved-zero : Has-well-behaved-zero M semiring-with-meet

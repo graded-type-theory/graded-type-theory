@@ -4,9 +4,11 @@
 
 open import Graded.Modality
 open import Graded.Usage.Restrictions
+open import Graded.Restrictions
 open import Definition.Typed.Restrictions
 open import Tools.Bool
 import Graded.Heap.Bisimilarity
+open import Tools.Sum hiding (id; sym)
 
 module Graded.Heap.Soundness
   {a} {M : Set a} {𝕄 : Modality M}
@@ -14,10 +16,12 @@ module Graded.Heap.Soundness
   (TR : Type-restrictions 𝕄)
   (erased-heap : Bool)
   (open Graded.Heap.Bisimilarity UR TR erased-heap)
+  (open Type-restrictions TR)
   (As : Assumptions)
+  (erased-assumption :
+    T (not erased-heap) ⊎ No-erased-matches′ 𝕄 type-variant UR)
   where
 
-open Type-restrictions TR
 open Usage-restrictions UR
 open Modality 𝕄
 open Assumptions As
@@ -29,7 +33,6 @@ open import Tools.Product
 import Tools.PropositionalEquality as PE
 open import Tools.Relation
 import Tools.Reasoning.PartialOrder as RPo
-open import Tools.Sum hiding (id; sym)
 
 open import Definition.Untyped M
 open import Definition.Untyped.Neutral M type-variant
@@ -55,14 +58,12 @@ open import Graded.Heap.Untyped.Properties type-variant UR
 open import Graded.Heap.Usage type-variant UR erased-heap
 open import Graded.Heap.Usage.Properties type-variant UR erased-heap
 open import Graded.Heap.Usage.Reduction type-variant UR erased-heap Unitʷ-η→
-open import Graded.Heap.Termination UR TR erased-heap As
+open import Graded.Heap.Termination UR TR erased-heap As erased-assumption
 open import Graded.Heap.Typed UR TR
 open import Graded.Heap.Typed.Reduction UR TR
 open import Graded.Heap.Typed.Properties UR TR
 open import Graded.Heap.Reduction type-variant UR
 open import Graded.Heap.Reduction.Properties type-variant UR
-
-
 
 private variable
   k : Nat

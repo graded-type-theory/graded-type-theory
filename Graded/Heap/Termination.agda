@@ -4,8 +4,10 @@
 
 open import Graded.Modality
 open import Graded.Usage.Restrictions
+open import Graded.Restrictions
 open import Definition.Typed.Restrictions
 open import Tools.Bool
+open import Tools.Sum hiding (sym; id)
 import Graded.Heap.Bisimilarity
 
 module Graded.Heap.Termination
@@ -14,10 +16,12 @@ module Graded.Heap.Termination
   (TR : Type-restrictions 𝕄)
   (erased-heap : Bool)
   (open Graded.Heap.Bisimilarity UR TR erased-heap)
+  (open Type-restrictions TR)
   (As : Assumptions)
+  (erased-assumption :
+    T (not erased-heap) ⊎ No-erased-matches′ 𝕄 type-variant UR)
   where
 
-open Type-restrictions TR
 open Usage-restrictions UR
 open Assumptions As
 open Modality 𝕄
@@ -27,7 +31,6 @@ open import Tools.Function
 open import Tools.Nat
 open import Tools.Product
 open import Tools.PropositionalEquality as PE hiding (sym)
-open import Tools.Sum hiding (sym; id)
 
 open import Definition.Untyped M
 open import Definition.Untyped.Neutral M type-variant
@@ -53,7 +56,6 @@ open import Graded.Heap.Usage.Properties type-variant UR erased-heap
 open import Graded.Heap.Usage.Reduction type-variant UR erased-heap Unitʷ-η→
 open import Graded.Heap.Reduction type-variant UR
 open import Graded.Heap.Reduction.Properties type-variant UR
-
 
 private variable
   t u A B : Term _
