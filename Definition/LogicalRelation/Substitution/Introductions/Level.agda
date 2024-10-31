@@ -16,24 +16,20 @@ module Definition.LogicalRelation.Substitution.Introductions.Level
 open EqRelSet eqrel
 open Type-restrictions R
 
-open import Definition.LogicalRelation R
+open import Definition.LogicalRelation R {{eqrel}}
 open import Definition.LogicalRelation.Hidden R
 open import Definition.LogicalRelation.Irrelevance R
 open import Definition.LogicalRelation.Properties R
 open import Definition.LogicalRelation.ShapeView R
 open import Definition.LogicalRelation.Substitution R
-open import Definition.LogicalRelation.Substitution.Introductions.Var R
 
 open import Definition.Typed R
 open import Definition.Typed.Properties R
-open import Definition.Typed.Reasoning.Reduction.Primitive R
 
 open import Definition.Untyped M
-open import Definition.Untyped.Neutral M type-variant
 open import Definition.Untyped.Properties M
 
 open import Tools.Empty
-open import Tools.Fin
 open import Tools.Function
 open import Tools.Product as Σ
 import Tools.PropositionalEquality as PE
@@ -45,6 +41,30 @@ private variable
   σ₁ σ₂                             : Subst _ _
   l l′ l″ l‴                        : Universe-level
   p q r                             : M
+
+mutual
+  reflect-level-subst
+    : ∀ {n m} {Γ : Con Term n} {Δ : Con Term m} {σ : Subst m n} {t : Term n}
+    → (⊩t : Γ ⊩Level t ∷Level)
+    → (⊩t[σ] : Δ ⊩Level t [ σ ] ∷Level)
+    → reflect-level ⊩t ≤ᵘ reflect-level ⊩t[σ]
+  reflect-level-subst {σ} (Levelₜ k [ _ , _ , t⇒k ] k≡k (ne x)) (Levelₜ k′ [ _ , _ , t[σ]⇒k′ ] k′≡k′ prop′) =
+    0≤ᵘ
+  reflect-level-subst {σ} (Levelₜ k [ _ , _ , t⇒k ] k≡k zeroᵘᵣ) (Levelₜ k′ [ _ , _ , t[σ]⇒k′ ] k′≡k′ prop′) =
+    0≤ᵘ
+  reflect-level-subst {σ} (Levelₜ k [ _ , _ , t⇒k ] k≡k (sucᵘᵣ x)) (Levelₜ k′ [ _ , _ , t[σ]⇒k′ ] k′≡k′ (sucᵘᵣ y)) =
+    1+≤ᵘ1+ {!   !}
+  reflect-level-subst {σ} (Levelₜ k [ _ , _ , t⇒k ] k≡k (sucᵘᵣ x)) (Levelₜ k′ [ _ , _ , t[σ]⇒k′ ] k′≡k′ zeroᵘᵣ) =
+    ⊥-elim {!   !}
+  reflect-level-subst {σ} (Levelₜ k [ _ , _ , t⇒k ] k≡k (sucᵘᵣ x)) (Levelₜ k′ [ _ , _ , t[σ]⇒k′ ] k′≡k′ (ne y)) =
+    ⊥-elim {!   !}
+
+  -- reflect-level-prop-subst
+  --   : ∀ {n m} {Γ : Con Term n} {Δ : Con Term m} {σ : Subst m n} {t : Term n}
+  --   → (⊩t : Level-prop Γ t)
+  --   → (⊩t[σ] : Level-prop Δ (t [ σ ]))
+  --   → reflect-level-prop ⊩t ≤ᵘ reflect-level-prop ⊩t[σ]
+  -- reflect-level-prop-subst ⊩t ⊩t[σ] = {!   !}
 
 ------------------------------------------------------------------------
 -- Characterisation lemmas

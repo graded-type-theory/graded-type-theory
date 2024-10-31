@@ -44,7 +44,7 @@ import Tools.Reasoning.PropositionalEquality
 private variable
   n                         : Nat
   Γ Δ                       : Con Term _
-  A A₁ A₂ B B₁ B₂ C t t₁ t₂ : Term _
+  A A₁ A₂ B B₁ B₂ C t t₁ t₂ u : Term _
   σ σ₁ σ₂                   : Subst _ _
   p p₁ p₂ q q₁ q₂           : M
   l l′ l₁ l₂                : Universe-level
@@ -555,11 +555,11 @@ opaque
 
   ⊩ΠΣ≡ΠΣ∷U :
     ΠΣ-allowed b p q →
-    Γ ⊩ᵛ⟨ l ⟩ A₁ ≡ A₂ ∷ U l₁ →
-    Γ ∙ A₁ ⊩ᵛ⟨ l ⟩ B₁ ≡ B₂ ∷ U l₂ →
+    Γ ⊩ᵛ⟨ l ⟩ A₁ ≡ A₂ ∷ U t →
+    Γ ∙ A₁ ⊩ᵛ⟨ l ⟩ B₁ ≡ B₂ ∷ U (wk1 u) →
     Δ ⊩ˢ σ₁ ≡ σ₂ ∷ Γ →
     Δ ⊩⟨ l ⟩ (ΠΣ⟨ b ⟩ p , q ▷ A₁ ▹ B₁) [ σ₁ ] ≡
-      (ΠΣ⟨ b ⟩ p , q ▷ A₂ ▹ B₂) [ σ₂ ] ∷ U (l₁ ⊔ᵘ l₂)
+      (ΠΣ⟨ b ⟩ p , q ▷ A₂ ▹ B₂) [ σ₂ ] ∷ U ((t [ σ₁ ]) ⊔ᵘ (u [ σ₁ ]))
   ⊩ΠΣ≡ΠΣ∷U ok A₁≡A₂∷U B₁≡B₂∷U σ₁≡σ₂ =
     case ⊩ᵛ≡∷U→⊩ᵛ≡ A₁≡A₂∷U of λ
       A₁≡A₂ →
@@ -581,17 +581,18 @@ opaque
     case escape-⊩∷ ⊩B₁[σ₁] of λ
       ⊢B₁[σ₁] →
     Type→⊩≡∷U⇔ ΠΣₙ ΠΣₙ .proj₂
-      ( PE.subst (_ <ᵘ_) ⊔ᵘ-idem
-          (⊔ᵘ-mono (⊩∷U⇔ .proj₁ ⊩A₁[σ₁] .proj₁)
-             (⊩∷U⇔ .proj₁ ⊩B₁[σ₁] .proj₁))
-      , ⊩ᵛ≡⇔ .proj₁
-          (ΠΣ-congᵛ ok (emb-⊩ᵛ≡ ≤ᵘ⊔ᵘʳ A₁≡A₂) (emb-⊩ᵛ≡ ≤ᵘ⊔ᵘˡ B₁≡B₂))
-          .proj₂ σ₁≡σ₂
-      , ΠΣⱼ ⊢A₁[σ₁] ⊢B₁[σ₁] ok
-      , ΠΣⱼ (escape-⊩∷ ⊩A₂[σ₂]) (escape-⊩∷ ⊩B₂[σ₂]) ok
-      , ≅ₜ-ΠΣ-cong (univ ⊢A₁[σ₁]) (escape-⊩≡∷ A₁[σ₁]≡A₂[σ₂]∷U)
-          (escape-⊩≡∷ B₁[σ₁⇑]≡B₂[σ₂⇑]∷U) ok
-      )
+      -- ( PE.subst (_ <ᵘ_) ⊔ᵘ-idem
+      --     (⊔ᵘ-mono (⊩∷U⇔ .proj₁ ⊩A₁[σ₁] .proj₁)
+      --        (⊩∷U⇔ .proj₁ ⊩B₁[σ₁] .proj₁))
+      -- , ⊩ᵛ≡⇔ .proj₁
+      --     (ΠΣ-congᵛ ok (emb-⊩ᵛ≡ ≤ᵘ⊔ᵘʳ A₁≡A₂) (emb-⊩ᵛ≡ ≤ᵘ⊔ᵘˡ B₁≡B₂))
+      --     .proj₂ σ₁≡σ₂
+      -- , ΠΣⱼ ⊢A₁[σ₁] ⊢B₁[σ₁] ok
+      -- , ΠΣⱼ (escape-⊩∷ ⊩A₂[σ₂]) (escape-⊩∷ ⊩B₂[σ₂]) ok
+      -- , ≅ₜ-ΠΣ-cong (univ ⊢A₁[σ₁]) (escape-⊩≡∷ A₁[σ₁]≡A₂[σ₂]∷U)
+      --     (escape-⊩≡∷ B₁[σ₁⇑]≡B₂[σ₂⇑]∷U) ok
+      -- )
+      {!   !}
 
 opaque
 
@@ -600,10 +601,10 @@ opaque
 
   ΠΣ-congᵗᵛ :
     ΠΣ-allowed b p q →
-    Γ ⊩ᵛ⟨ l ⟩ A₁ ≡ A₂ ∷ U l₁ →
-    Γ ∙ A₁ ⊩ᵛ⟨ l ⟩ B₁ ≡ B₂ ∷ U l₂ →
+    Γ ⊩ᵛ⟨ l ⟩ A₁ ≡ A₂ ∷ U t →
+    Γ ∙ A₁ ⊩ᵛ⟨ l ⟩ B₁ ≡ B₂ ∷ U (wk1 u) →
     Γ ⊩ᵛ⟨ l ⟩ ΠΣ⟨ b ⟩ p , q ▷ A₁ ▹ B₁ ≡
-      ΠΣ⟨ b ⟩ p , q ▷ A₂ ▹ B₂ ∷ U (l₁ ⊔ᵘ l₂)
+      ΠΣ⟨ b ⟩ p , q ▷ A₂ ▹ B₂ ∷ U (t ⊔ᵘ u)
   ΠΣ-congᵗᵛ ok A₁≡A₂ B₁≡B₂ =
     case wf-⊩ᵛ≡∷ A₁≡A₂ of λ
       (⊩A₁ , ⊩A₂) →
@@ -612,13 +613,14 @@ opaque
     case conv-∙-⊩ᵛ∷ (⊩ᵛ≡∷U→⊩ᵛ≡ A₁≡A₂) ⊩B₂ of λ
       ⊩B₂ →
     ⊩ᵛ≡∷⇔ .proj₂
-      ( PE.subst (_ ⊩ᵛ⟨_⟩ _) ⊔ᵘ-idem
-          (emb-⊩ᵛ
-             (⊔ᵘ-mono (⊩∷U⇔ .proj₁ (⊩ᵛ∷→⊩∷ ⊩A₁) .proj₁)
-                (⊩∷U⇔ .proj₁ (⊩ᵛ∷→⊩∷ ⊩B₁) .proj₁))
-             (⊩ᵛU (wf-⊩ᵛ (wf-⊩ᵛ∷ (wf-⊩ᵛ≡∷ A₁≡A₂ .proj₁)))))
-      , ⊩ΠΣ≡ΠΣ∷U ok A₁≡A₂ B₁≡B₂
-      )
+      -- ( PE.subst (_ ⊩ᵛ⟨_⟩ _) ⊔ᵘ-idem
+      --     (emb-⊩ᵛ
+      --        (⊔ᵘ-mono (⊩∷U⇔ .proj₁ (⊩ᵛ∷→⊩∷ ⊩A₁) .proj₁)
+      --           (⊩∷U⇔ .proj₁ (⊩ᵛ∷→⊩∷ ⊩B₁) .proj₁))
+      --        (⊩ᵛU (wf-⊩ᵛ (wf-⊩ᵛ∷ (wf-⊩ᵛ≡∷ A₁≡A₂ .proj₁)))))
+      -- , ⊩ΠΣ≡ΠΣ∷U ok A₁≡A₂ B₁≡B₂
+      -- )
+      {!   !}
 
 opaque
   unfolding _⊩ᵛ⟨_⟩_∷_
@@ -627,15 +629,16 @@ opaque
 
   ΠΣᵗᵛ :
     ΠΣ-allowed b p q →
-    Γ ⊩ᵛ⟨ l ⟩ A ∷ U l₁ →
-    Γ ∙ A ⊩ᵛ⟨ l ⟩ B ∷ U l₂ →
-    Γ ⊩ᵛ⟨ l ⟩ ΠΣ⟨ b ⟩ p , q ▷ A ▹ B ∷ U (l₁ ⊔ᵘ l₂)
+    Γ ⊩ᵛ⟨ l ⟩ A ∷ U t →
+    Γ ∙ A ⊩ᵛ⟨ l ⟩ B ∷ U (wk1 u) →
+    Γ ⊩ᵛ⟨ l ⟩ ΠΣ⟨ b ⟩ p , q ▷ A ▹ B ∷ U (t ⊔ᵘ u)
   ΠΣᵗᵛ ok ⊩A ⊩B =
     ⊩ᵛ∷⇔ .proj₂
-      ( PE.subst (_ ⊩ᵛ⟨_⟩ _) ⊔ᵘ-idem
-          (emb-⊩ᵛ
-             (⊔ᵘ-mono (⊩∷U⇔ .proj₁ (⊩ᵛ∷→⊩∷ ⊩A) .proj₁)
-                (⊩∷U⇔ .proj₁ (⊩ᵛ∷→⊩∷ ⊩B) .proj₁))
-             (⊩ᵛU (wf-⊩ᵛ (wf-⊩ᵛ∷ ⊩A))))
-      , ⊩ΠΣ≡ΠΣ∷U ok (refl-⊩ᵛ≡∷ ⊩A) (refl-⊩ᵛ≡∷ ⊩B)
-      )
+      -- ( PE.subst (_ ⊩ᵛ⟨_⟩ _) ⊔ᵘ-idem
+      --     (emb-⊩ᵛ
+      --        (⊔ᵘ-mono (⊩∷U⇔ .proj₁ (⊩ᵛ∷→⊩∷ ⊩A) .proj₁)
+      --           (⊩∷U⇔ .proj₁ (⊩ᵛ∷→⊩∷ ⊩B) .proj₁))
+      --        (⊩ᵛU (wf-⊩ᵛ (wf-⊩ᵛ∷ ⊩A))))
+      -- , ⊩ΠΣ≡ΠΣ∷U ok (refl-⊩ᵛ≡∷ ⊩A) (refl-⊩ᵛ≡∷ ⊩B)
+      -- )
+      {!   !}

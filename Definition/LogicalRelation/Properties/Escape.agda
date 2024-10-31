@@ -40,6 +40,12 @@ private
     s : Strength
     p q : M
 
+-- Reducible levels are well-formed.
+escapeLevel
+  : Γ ⊩Level t ∷Level
+  → Γ ⊢ t ∷ Level
+escapeLevel (Levelₜ k [ ⊢t , ⊢u , d ] k≡k prop) = ⊢t
+
 -- Reducible types are well-formed.
 escape : ∀ {l A} → Γ ⊩⟨ l ⟩ A → Γ ⊢ A
 escape (Levelᵣ [ ⊢A , _ , _ ]) = ⊢A
