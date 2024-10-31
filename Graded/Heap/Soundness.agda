@@ -56,6 +56,7 @@ open import Graded.Heap.Usage.Properties type-variant UR
 open import Graded.Heap.Usage.Reduction type-variant UR Unitʷ-η→
 open import Graded.Heap.Termination UR TR As
 open import Graded.Heap.Typed UR TR
+open import Graded.Heap.Typed.Inversion UR TR
 open import Graded.Heap.Typed.Reduction UR TR
 open import Graded.Heap.Typed.Properties UR TR
 open import Graded.Heap.Reduction type-variant UR
@@ -80,7 +81,7 @@ opaque
   redNumeral′ : {Δ : Con Term k}
              → (Emptyrec-allowed 𝟙ᵐ 𝟘 → Consistent Δ)
              → (k PE.≢ 0 → No-erased-matches′ type-variant UR)
-             → Δ ⊩ℕ n ∷ℕ → n PE.≡ ⦅ s ⦆ → Δ ⨾ Γ ⊢ s ∷ ℕ → γ ⨾ δ ⨾ η ▸ s
+             → Δ ⊩ℕ n ∷ℕ → n PE.≡ ⦅ s ⦆ → Δ ⊢ₛ s ∷ ℕ → γ ⨾ δ ⨾ η ▸ s
              → ∃₅ λ m n H (ρ : Wk m n) t → s ↠* ⟨ H , t , ρ , ε ⟩ ×
                Numeral t × Δ ⊢ ⦅ s ⦆ ≡ wk ρ t [ H ]ₕ ∷ ℕ
   redNumeral′ consistent nem (ℕₜ _ d n≡n (sucᵣ x)) PE.refl ⊢s ▸s =
@@ -100,8 +101,8 @@ opaque
       (yes num) →
     _ , _ , _ , _ , _ , ⇾*→↠* d′ , sucₙ num , s≡ ;
       (no ¬num) →
-    case ⊢ₛ-⇾* ⊢s d′ of λ
-      (_ , _ , _ , _ , ⊢H , ⊢t , ⊢S) →
+    case ⊢ₛ-inv (⊢ₛ-⇾* ⊢s d′) of λ
+      (_ , _ , ⊢H , ⊢t , ⊢S) →
     case inversion-suc ⊢t of λ
       (⊢n″ , ≡ℕ) →
     case ▸-⇾* ▸s d′ of λ
@@ -110,7 +111,7 @@ opaque
       (invUsageSuc ▸n″ δ≤)  →
     case redNumeral′ {s = ⟨ H , n″ , ρ , ε ⟩} consistent nem x
           (PE.sym (PE.trans (PE.cong (_[ H ]ₕ) ≡n′) ≡n))
-          (_ , ⊢H , ⊢n″ , ε)
+          (⊢ₛ ⊢H ⊢n″ ε)
           (▸H , ▸n″ , ▸ε , ≤ᶜ-trans γ≤ (+ᶜ-monotoneˡ (·ᶜ-monotoneʳ (wk-≤ᶜ ρ δ≤)))) of λ
       (_ , _ , H′ , ρ′ , t′ , d₀ , n , s′≡) →
     _ , _ , _ , _ , _
@@ -145,7 +146,7 @@ opaque
   redNumeral : {Δ : Con Term k}
              → (Emptyrec-allowed 𝟙ᵐ 𝟘 → Consistent Δ)
              → (k PE.≢ 0 → No-erased-matches′ type-variant UR)
-             → Δ ⨾ Γ ⊢ s ∷ ℕ → γ ⨾ δ ⨾ η ▸ s
+             → Δ ⊢ₛ s ∷ ℕ → γ ⨾ δ ⨾ η ▸ s
              → ∃₅ λ m n H (ρ : Wk m n) t → s ↠* ⟨ H , t , ρ , ε ⟩ ×
                Numeral t × Δ ⊢ ⦅ s ⦆ ≡ wk ρ t [ H ]ₕ ∷ ℕ
   redNumeral {s} consistent nem ⊢s ▸s =

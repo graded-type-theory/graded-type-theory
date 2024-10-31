@@ -102,6 +102,6 @@ data _⨾_⊢_⟨_⟩∷_↝_ (Δ : Con Term k) (H : Heap k m) : (S : Stack m) (
 
 -- Well-formed evaluation states
 
-_⨾_⊢_∷_ : (Δ : Con Term k) (Γ : Con Term m) (s : State k m n) (A : Term k) → Set a
-Δ ⨾ Γ ⊢ ⟨ H , t , ρ , S ⟩ ∷ A =
-  ∃ λ B → (Δ ⊢ʰ H ∷ Γ) × (Δ ⊢ wk ρ t [ H ]ₕ ∷ B) × Δ ⨾ H ⊢ S ⟨ wk ρ t ⟩∷ B ↝ A
+data _⊢ₛ_∷_ {m n} (Δ : Con Term k) : (s : State k m n) (A : Term k) → Set a where
+  ⊢ₛ : Δ ⊢ʰ H ∷ Γ → Δ ⊢ wk ρ t [ H ]ₕ ∷ B → Δ ⨾ H ⊢ S ⟨ wk ρ t ⟩∷ B ↝ A
+     → Δ ⊢ₛ ⟨ H , t , ρ , S ⟩ ∷ A

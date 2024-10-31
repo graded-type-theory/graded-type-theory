@@ -219,3 +219,40 @@ opaque
 
   inversion-sucₑ : Δ ⨾ H ⊢ᵉ sucₑ ⟨ t ⟩∷ A ↝ B → ⊥
   inversion-sucₑ (conv ⊢e _) = inversion-sucₑ ⊢e
+
+opaque
+
+  -- Inversion of stack typing
+
+  ⊢ˢ-inv :
+    Δ ⨾ H ⊢ e ∙ S ⟨ t ⟩∷ A ↝ B →
+    ∃ λ C → Δ ⨾ H ⊢ᵉ e ⟨ t ⟩∷ A ↝ C ×
+    (Δ ⨾ H ⊢ S ⟨ ⦅ e ⦆ᵉ t ⟩∷ C ↝ B)
+  ⊢ˢ-inv (⊢e ∙ ⊢S) = _ , ⊢e , ⊢S
+
+opaque
+
+  -- Inversion of state typing
+
+  ⊢ₛ-inv :
+    Δ ⊢ₛ ⟨ H , t , ρ , S ⟩ ∷ A →
+    ∃₂ λ Γ B → Δ ⊢ʰ H ∷ Γ ×
+    Δ ⊢ wk ρ t [ H ]ₕ ∷ B ×
+    Δ ⨾ H ⊢ S ⟨ wk ρ t ⟩∷ B ↝ A
+  ⊢ₛ-inv (⊢ₛ ⊢H ⊢t ⊢S) =
+    _ , _ , ⊢H , ⊢t , ⊢S
+
+opaque
+
+  -- Inversion of state typing with a non-empty stack.
+
+  ⊢ₛ-inv′ :
+    Δ ⊢ₛ ⟨ H , t , ρ , e ∙ S ⟩ ∷ A →
+    ∃₃ λ Γ B C → Δ ⊢ʰ H ∷ Γ ×
+    Δ ⊢ wk ρ t [ H ]ₕ ∷ B ×
+    Δ ⨾ H ⊢ᵉ e ⟨ wk ρ t ⟩∷ B ↝ C ×
+    Δ ⨾ H ⊢ S ⟨ ⦅ e ⦆ᵉ (wk ρ t) ⟩∷ C ↝ A
+  ⊢ₛ-inv′ ⊢s =
+    let _ , _ , ⊢H , ⊢t , ⊢eS = ⊢ₛ-inv ⊢s
+        _ , ⊢e , ⊢S = ⊢ˢ-inv ⊢eS
+    in  _ , _ , _ , (⊢H , ⊢t , ⊢e , ⊢S)

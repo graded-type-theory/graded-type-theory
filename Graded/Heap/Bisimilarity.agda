@@ -32,6 +32,7 @@ open import Graded.Heap.Normalization type-variant UR
 open import Graded.Heap.Reduction type-variant UR
 open import Graded.Heap.Reduction.Properties type-variant UR
 open import Graded.Heap.Typed UR TR
+open import Graded.Heap.Typed.Inversion UR TR
 open import Graded.Heap.Typed.Properties UR TR
 open import Graded.Heap.Typed.Reduction UR TR
 
@@ -199,8 +200,7 @@ module _
 
   opaque
 
-    ⇾→⊢⇒ : Δ ⨾ Γ ⊢ s ∷ A → s ⇾ s′
-         → Δ ⊢ ⦅ s ⦆ ⇒* ⦅ s′ ⦆ ∷ A
+    ⇾→⊢⇒ : Δ ⊢ₛ s ∷ A → s ⇾ s′ → Δ ⊢ ⦅ s ⦆ ⇒* ⦅ s′ ⦆ ∷ A
     ⇾→⊢⇒ {s} ⊢s (⇾ₑ d) =
       subst (_ ⊢ _ ⇒*_∷ _) (⇾ₑ-⦅⦆-≡ d) (id (⊢⦅⦆ {s = s} ⊢s))
     ⇾→⊢⇒ ⊢s (⇒ᵥ d) =
@@ -208,19 +208,17 @@ module _
 
   opaque
 
-    ⇾*→⊢⇒* : Δ ⨾ Γ ⊢ s ∷ A → s ⇾* s′
-           → Δ ⊢ ⦅ s ⦆ ⇒* ⦅ s′ ⦆ ∷ A
+    ⇾*→⊢⇒* : Δ ⊢ₛ s ∷ A → s ⇾* s′ → Δ ⊢ ⦅ s ⦆ ⇒* ⦅ s′ ⦆ ∷ A
     ⇾*→⊢⇒* {s} ⊢s id = id (⊢⦅⦆ {s = s} ⊢s)
     ⇾*→⊢⇒* {s = record{}} ⊢s (_⇨_ {s₂ = record{}} x d) =
-      let _ , _ , _ , ⊢s′ = ⊢ₛ-⇾ ⊢s x
-      in  ⇾→⊢⇒ ⊢s x ⇨∷* ⇾*→⊢⇒* ⊢s′ d
+      ⇾→⊢⇒ ⊢s x ⇨∷* ⇾*→⊢⇒* (⊢ₛ-⇾ ⊢s x) d
 
 
   opaque
 
     ⊢⇒→⇒ᵥ : Δ ⊢ ⦅ s ⦆ ⇒ u ∷ A
           → Normal s
-          → Δ ⨾ Γ ⊢ s ∷ B
+          → Δ ⊢ₛ s ∷ B
           → ∃₃ λ m n (s′ : State _ m n) → s ⇒ᵥ s′ × u PE.≡ ⦅ s′ ⦆
     ⊢⇒→⇒ᵥ {Δ} {s = ⟨ H , t , ρ , ε ⟩} d (val x) ⊢s =
       case Value→Whnf (substValue (toSubstₕ H) (wkValue ρ x)) of λ where
@@ -242,9 +240,10 @@ module _
       case ⊢Value-⇒ᵥ ⊢s v of λ
         (_ , _ , _ , d′) →
       _ , _ , _ , d′ , whrDetTerm d (⇒ᵥ→⇒ ⊢s d′)
-    ⊢⇒→⇒ᵥ d (var d′) (_ , _ , _ , ⊢S) =
-      ⊥-elim (neRedTerm d (NeutralAt→Neutral
-        (toSubstₕ-NeutralAt d′ (⊢⦅⦆ˢ-NeutralAt ⊢S var))))
+    ⊢⇒→⇒ᵥ d (var d′) ⊢s =
+      let _ , _ , _ , _ , ⊢S = ⊢ₛ-inv ⊢s
+      in  ⊥-elim (neRedTerm d (NeutralAt→Neutral
+            (toSubstₕ-NeutralAt d′ (⊢⦅⦆ˢ-NeutralAt ⊢S var))))
 
 module _ (As : Assumptions) where
 
@@ -253,7 +252,7 @@ module _ (As : Assumptions) where
   opaque
 
     ⊢⇒→⇾* : Δ ⊢ ⦅ s ⦆ ⇒ u ∷ A
-         → Δ ⨾ Γ ⊢ s ∷ B
+         → Δ ⊢ₛ s ∷ B
          → γ ⨾ δ ⨾ η ▸ s
          → ∃₃ λ m n (s′ : State _ m n) → s ⇾* s′ × u PE.≡ ⦅ s′ ⦆
     ⊢⇒→⇾* {s} d ⊢s ▸s =
@@ -266,7 +265,7 @@ module _ (As : Assumptions) where
   opaque
 
     ⊢⇒*→⇾* : Δ ⊢ ⦅ s ⦆ ⇒* u ∷ A
-           → Δ ⨾ Γ ⊢ s ∷ B
+           → Δ ⊢ₛ s ∷ B
            → γ ⨾ δ ⨾ η ▸ s
            → ∃₃ λ m n (s′ : State _ m n) → s ⇾* s′ × u PE.≡ ⦅ s′ ⦆
     ⊢⇒*→⇾* (id x) ⊢s ▸s =
@@ -275,7 +274,7 @@ module _ (As : Assumptions) where
       case ⊢⇒→⇾* {s = s} x ⊢s ▸s of λ {
         (_ , _ , _ , x′ , refl) →
       case ⊢ₛ-⇾* ⊢s x′ of λ
-        (_ , _ , _ , ⊢s′) →
+        ⊢s′ →
       case ▸-⇾* Unitʷ-η→ ▸s x′ of λ
         (_ , _ , _ , ▸s′) →
       case ⊢⇒*→⇾* d ⊢s′ ▸s′ of λ

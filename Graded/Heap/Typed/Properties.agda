@@ -64,11 +64,10 @@ opaque
 
  -- Typing of the initial state
 
-  ⊢initial : Δ ⊢ t ∷ A → Δ ⨾ Δ ⊢ initial t ∷ A
+  ⊢initial : Δ ⊢ t ∷ A → Δ ⊢ₛ initial t ∷ A
   ⊢initial {Δ} {t} {A} ⊢t =
-    A , ⊢erasedHeap (wfTerm ⊢t)
-      , PE.subst (Δ ⊢_∷ _) (lemma t) ⊢t
-      , ε
+    ⊢ₛ (⊢erasedHeap (wfTerm ⊢t))
+      (PE.subst (Δ ⊢_∷ _) (lemma t) ⊢t) ε
     where
     lemma : ∀ {n} (t : Term n) → t PE.≡ wk id t [ erasedHeap _ ]ₕ
     lemma t = PE.sym (PE.trans (erasedHeap-subst (wk id t)) (wk-id t))
@@ -120,8 +119,8 @@ opaque
 
   -- Well-typed states are well-typed when translated into terms
 
-  ⊢⦅⦆ : Δ ⨾ Γ ⊢ s ∷ A → Δ ⊢ ⦅ s ⦆ ∷ A
-  ⊢⦅⦆ {s = record{}} (_ , _ , ⊢t , ⊢S) = ⊢⦅⦆ˢ ⊢S ⊢t
+  ⊢⦅⦆ : Δ ⊢ₛ s ∷ A → Δ ⊢ ⦅ s ⦆ ∷ A
+  ⊢⦅⦆ (⊢ₛ _ ⊢t ⊢S) = ⊢⦅⦆ˢ ⊢S ⊢t
 
 opaque
 
@@ -360,8 +359,8 @@ opaque
 
   -- A version of the property above for well-typed states
 
-  ⊢emptyrec₀∉S : Consistent Δ → Δ ⨾ Γ ⊢ ⟨ H , t , ρ , S ⟩ ∷ A → emptyrec₀∈ S → ⊥
-  ⊢emptyrec₀∉S consistent (_ , _ , ⊢t , ⊢S) x = ⊢ˢemptyrec₀∉S consistent ⊢S ⊢t x
+  ⊢emptyrec₀∉S : Consistent Δ → Δ ⊢ₛ ⟨ H , t , ρ , S ⟩ ∷ A → emptyrec₀∈ S → ⊥
+  ⊢emptyrec₀∉S consistent (⊢ₛ _ ⊢t ⊢S) x = ⊢ˢemptyrec₀∉S consistent ⊢S ⊢t x
 
 opaque
 
