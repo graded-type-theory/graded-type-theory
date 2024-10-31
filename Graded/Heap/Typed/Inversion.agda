@@ -24,6 +24,7 @@ open import Graded.Derived.Erased.Typed TR
 open import Graded.Heap.Typed UR TR
 open import Graded.Heap.Untyped type-variant UR
 
+open import Tools.Empty
 open import Tools.Fin
 open import Tools.Function
 open import Tools.Product
@@ -216,11 +217,5 @@ opaque
 
   -- Inversion of suc
 
-  inversion-sucₑ : Δ ⨾ H ⊢ᵉ sucₑ ⟨ t ⟩∷ A ↝ B
-                 → A PE.≡ ℕ × (⊢ Δ → Δ ⊢ B ≡ ℕ)
-  inversion-sucₑ sucₑ =
-    PE.refl , λ ⊢Δ → refl (ℕⱼ ⊢Δ)
-  inversion-sucₑ (conv ⊢e ≡B) =
-    case inversion-sucₑ ⊢e of λ
-      (A≡ , B′≡) →
-    A≡ , λ ⊢Δ → trans (sym ≡B) (B′≡ ⊢Δ)
+  inversion-sucₑ : Δ ⨾ H ⊢ᵉ sucₑ ⟨ t ⟩∷ A ↝ B → ⊥
+  inversion-sucₑ (conv ⊢e _) = inversion-sucₑ ⊢e

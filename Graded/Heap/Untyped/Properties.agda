@@ -612,20 +612,6 @@ opaque
 
 opaque
 
-  suc∉-pop : suc∉ (e ∙ S) → suc∉ S
-  suc∉-pop (_ ∙ x) = x
-
-opaque
-
-  wk-suc∉ : suc∉ S → suc∉ (wkˢ ρ S)
-  wk-suc∉ ε = ε
-  wk-suc∉ (e≢suc ∙ suc∉S) = (e≢suc ∘→ lemma) ∙ wk-suc∉ suc∉S
-    where
-    lemma : wkᵉ ρ e ≡ sucₑ → e ≡ sucₑ
-    lemma {e = sucₑ} _ = refl
-
-opaque
-
   -- Applying a term to an eliminator becomes neutral only if the
   -- term is neutral.
 

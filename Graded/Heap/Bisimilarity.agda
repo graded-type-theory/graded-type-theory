@@ -199,33 +199,30 @@ module _
 
   opaque
 
-    ⇾→⊢⇒ : suc∉ State.stack s
-         → Δ ⨾ Γ ⊢ s ∷ A → s ⇾ s′
+    ⇾→⊢⇒ : Δ ⨾ Γ ⊢ s ∷ A → s ⇾ s′
          → Δ ⊢ ⦅ s ⦆ ⇒* ⦅ s′ ⦆ ∷ A
-    ⇾→⊢⇒ {s} _ ⊢s (⇾ₑ d) =
+    ⇾→⊢⇒ {s} ⊢s (⇾ₑ d) =
       subst (_ ⊢ _ ⇒*_∷ _) (⇾ₑ-⦅⦆-≡ d) (id (⊢⦅⦆ {s = s} ⊢s))
-    ⇾→⊢⇒ suc∉S ⊢s (⇒ᵥ d) =
-      redMany (⇒ᵥ→⇒ suc∉S ⊢s d)
+    ⇾→⊢⇒ ⊢s (⇒ᵥ d) =
+      redMany (⇒ᵥ→⇒ ⊢s d)
 
   opaque
 
-    ⇾*→⊢⇒* : suc∉ State.stack s
-           → Δ ⨾ Γ ⊢ s ∷ A → s ⇾* s′
+    ⇾*→⊢⇒* : Δ ⨾ Γ ⊢ s ∷ A → s ⇾* s′
            → Δ ⊢ ⦅ s ⦆ ⇒* ⦅ s′ ⦆ ∷ A
-    ⇾*→⊢⇒* {s} suc∉S ⊢s id = id (⊢⦅⦆ {s = s} ⊢s)
-    ⇾*→⊢⇒* {s = record{}} suc∉S ⊢s (_⇨_ {s₂ = record{}} x d) =
+    ⇾*→⊢⇒* {s} ⊢s id = id (⊢⦅⦆ {s = s} ⊢s)
+    ⇾*→⊢⇒* {s = record{}} ⊢s (_⇨_ {s₂ = record{}} x d) =
       let _ , _ , _ , ⊢s′ = ⊢ₛ-⇾ ⊢s x
-      in  ⇾→⊢⇒ suc∉S ⊢s x ⇨∷* ⇾*→⊢⇒* (suc∉-⇾ suc∉S x) ⊢s′ d
+      in  ⇾→⊢⇒ ⊢s x ⇨∷* ⇾*→⊢⇒* ⊢s′ d
 
 
   opaque
 
     ⊢⇒→⇒ᵥ : Δ ⊢ ⦅ s ⦆ ⇒ u ∷ A
           → Normal s
-          → suc∉ (State.stack s)
           → Δ ⨾ Γ ⊢ s ∷ B
           → ∃₃ λ m n (s′ : State _ m n) → s ⇒ᵥ s′ × u PE.≡ ⦅ s′ ⦆
-    ⊢⇒→⇒ᵥ {Δ} {s = ⟨ H , t , ρ , ε ⟩} d (val x) _ ⊢s =
+    ⊢⇒→⇒ᵥ {Δ} {s = ⟨ H , t , ρ , ε ⟩} d (val x) ⊢s =
       case Value→Whnf (substValue (toSubstₕ H) (wkValue ρ x)) of λ where
           (inj₁ w) → ⊥-elim (whnfRedTerm d w)
           (inj₂ (_ , _ , _ , _ , _ , _ , ≡ur , η)) →
@@ -241,13 +238,13 @@ module _
         lemma η (unitrec-subst _ _ _ _ no-η) = ⊥-elim (no-η η)
         lemma η (unitrec-β _ _ _ no-η) = ⊥-elim (no-η η)
         lemma η (unitrec-β-η _ _ _ _ _) = refl
-    ⊢⇒→⇒ᵥ {s = ⟨ H , t , ρ , e ∙ S ⟩} d (val v) (e≢suc ∙ suc∉S) ⊢s =
-      case ⊢Value-⇒ᵥ e≢suc ⊢s v of λ
+    ⊢⇒→⇒ᵥ {s = ⟨ H , t , ρ , e ∙ S ⟩} d (val v) ⊢s =
+      case ⊢Value-⇒ᵥ ⊢s v of λ
         (_ , _ , _ , d′) →
-      _ , _ , _ , d′ , whrDetTerm d (⇒ᵥ→⇒ (e≢suc ∙ suc∉S) ⊢s d′)
-    ⊢⇒→⇒ᵥ d (var d′) suc∉S (_ , _ , _ , ⊢S) =
+      _ , _ , _ , d′ , whrDetTerm d (⇒ᵥ→⇒ ⊢s d′)
+    ⊢⇒→⇒ᵥ d (var d′) (_ , _ , _ , ⊢S) =
       ⊥-elim (neRedTerm d (NeutralAt→Neutral
-        (toSubstₕ-NeutralAt d′ (⊢⦅⦆ˢ-NeutralAt suc∉S ⊢S var))))
+        (toSubstₕ-NeutralAt d′ (⊢⦅⦆ˢ-NeutralAt ⊢S var))))
 
 module _ (As : Assumptions) where
 
@@ -256,33 +253,31 @@ module _ (As : Assumptions) where
   opaque
 
     ⊢⇒→⇾* : Δ ⊢ ⦅ s ⦆ ⇒ u ∷ A
-         → suc∉ (State.stack s)
          → Δ ⨾ Γ ⊢ s ∷ B
          → γ ⨾ δ ⨾ η ▸ s
          → ∃₃ λ m n (s′ : State _ m n) → s ⇾* s′ × u PE.≡ ⦅ s′ ⦆
-    ⊢⇒→⇾* {s} d suc∉S ⊢s ▸s =
+    ⊢⇒→⇾* {s} d ⊢s ▸s =
       let _ , s′ , n , d′ = ▸normalize As s ▸s
           d″ = PE.subst (_ ⊢_⇒ _ ∷ _) (⇾ₑ*-⦅⦆-≡ d′) d
           ⊢s′ = ⊢ₛ-⇾ₑ* ⊢s d′
-          _ , _ , s″ , d‴ , u≡ = ⊢⇒→⇒ᵥ d″ n (suc∉-⇾ₑ* suc∉S d′) ⊢s′
+          _ , _ , s″ , d‴ , u≡ = ⊢⇒→⇒ᵥ d″ n ⊢s′
       in  _ , _ , s″ , ⇾ₑ* d′ ⇨* ⇒ᵥ d‴ ⇨ id , u≡
 
   opaque
 
     ⊢⇒*→⇾* : Δ ⊢ ⦅ s ⦆ ⇒* u ∷ A
-           → suc∉ (State.stack s)
            → Δ ⨾ Γ ⊢ s ∷ B
            → γ ⨾ δ ⨾ η ▸ s
            → ∃₃ λ m n (s′ : State _ m n) → s ⇾* s′ × u PE.≡ ⦅ s′ ⦆
-    ⊢⇒*→⇾* (id x) suc∉ ⊢s ▸s =
+    ⊢⇒*→⇾* (id x) ⊢s ▸s =
       _ , _ , _ , id , refl
-    ⊢⇒*→⇾* {s} (x ⇨ d) suc∉ ⊢s ▸s =
-      case ⊢⇒→⇾* {s = s} x suc∉ ⊢s ▸s of λ {
+    ⊢⇒*→⇾* {s} (x ⇨ d) ⊢s ▸s =
+      case ⊢⇒→⇾* {s = s} x ⊢s ▸s of λ {
         (_ , _ , _ , x′ , refl) →
       case ⊢ₛ-⇾* ⊢s x′ of λ
         (_ , _ , _ , ⊢s′) →
       case ▸-⇾* Unitʷ-η→ ▸s x′ of λ
         (_ , _ , _ , ▸s′) →
-      case ⊢⇒*→⇾* d (suc∉-⇾* suc∉ x′) ⊢s′ ▸s′ of λ
+      case ⊢⇒*→⇾* d ⊢s′ ▸s′ of λ
         (_ , _ , s′ , d′ , u≡) →
       _ , _ , s′ , x′ ⇨* d′ , u≡ }

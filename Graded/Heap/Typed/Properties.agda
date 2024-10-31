@@ -101,8 +101,6 @@ opaque
     Kⱼ′ ⊢B ⊢u ⊢t ok
   ⊢⦅⦆ᵉ ([]-congₑ ok) ⊢t =
     []-congⱼ′ ok ⊢t
-  ⊢⦅⦆ᵉ sucₑ ⊢t =
-    sucⱼ ⊢t
   ⊢⦅⦆ᵉ (conv ⊢e B≡B′) ⊢t =
     conv (⊢⦅⦆ᵉ ⊢e ⊢t) B≡B′
 
@@ -159,8 +157,6 @@ opaque
     case inversion-Id (syntacticEqTerm t≡u .proj₁) of λ
       (⊢A , ⊢t , ⊢u) →
     []-cong-cong (refl ⊢A) (refl ⊢t) (refl ⊢u) t≡u ok
-  ⊢⦅⦆ᵉ-cong sucₑ t≡u =
-    suc-cong t≡u
   ⊢⦅⦆ᵉ-cong (conv ⊢e B≡B′) t≡u =
     conv (⊢⦅⦆ᵉ-cong ⊢e t≡u) B≡B′
 
@@ -180,44 +176,42 @@ opaque
 
   -- Applying terms to eliminators respects reduction
 
-  ⊢⦅⦆ᵉ-subst : e PE.≢ sucₑ → Δ ⨾ H ⊢ᵉ e ⟨ t ⟩∷ A ↝ B
+  ⊢⦅⦆ᵉ-subst : Δ ⨾ H ⊢ᵉ e ⟨ t ⟩∷ A ↝ B
             → Δ ⊢ t [ H ]ₕ ⇒ u [ H ]ₕ ∷ A
             → Δ ⊢ ⦅ e ⦆ᵉ t [ H ]ₕ ⇒ ⦅ e ⦆ᵉ u [ H ]ₕ ∷ B
-  ⊢⦅⦆ᵉ-subst _ (∘ₑ ⊢u _) d =
+  ⊢⦅⦆ᵉ-subst (∘ₑ ⊢u _) d =
     app-subst d ⊢u
-  ⊢⦅⦆ᵉ-subst _ (fstₑ _ _) d =
+  ⊢⦅⦆ᵉ-subst (fstₑ _ _) d =
     fst-subst′ d
-  ⊢⦅⦆ᵉ-subst _ (sndₑ _ _) d =
+  ⊢⦅⦆ᵉ-subst (sndₑ _ _) d =
     snd-subst′ d
-  ⊢⦅⦆ᵉ-subst _ (prodrecₑ ⊢u ⊢A) d =
+  ⊢⦅⦆ᵉ-subst (prodrecₑ ⊢u ⊢A) d =
     prodrec-subst′ ⊢A ⊢u d
-  ⊢⦅⦆ᵉ-subst _ (natrecₑ ⊢z ⊢s ⊢A) d =
+  ⊢⦅⦆ᵉ-subst (natrecₑ ⊢z ⊢s ⊢A) d =
     natrec-subst ⊢A ⊢z ⊢s d
-  ⊢⦅⦆ᵉ-subst _ (unitrecₑ ⊢u ⊢A no-η) d =
+  ⊢⦅⦆ᵉ-subst (unitrecₑ ⊢u ⊢A no-η) d =
     unitrec-subst′ ⊢A ⊢u d no-η
-  ⊢⦅⦆ᵉ-subst _ (emptyrecₑ ⊢A) d =
+  ⊢⦅⦆ᵉ-subst (emptyrecₑ ⊢A) d =
     emptyrec-subst ⊢A d
-  ⊢⦅⦆ᵉ-subst _ (Jₑ ⊢u ⊢B) d =
+  ⊢⦅⦆ᵉ-subst (Jₑ ⊢u ⊢B) d =
     J-subst′ ⊢B ⊢u d
-  ⊢⦅⦆ᵉ-subst _ (Kₑ ⊢u ⊢B ok) d =
+  ⊢⦅⦆ᵉ-subst (Kₑ ⊢u ⊢B ok) d =
     K-subst′ ⊢B ⊢u d ok
-  ⊢⦅⦆ᵉ-subst _ ([]-congₑ ok) d =
+  ⊢⦅⦆ᵉ-subst ([]-congₑ ok) d =
     []-cong-subst′ d ok
-  ⊢⦅⦆ᵉ-subst e≢suc sucₑ d = ⊥-elim (e≢suc PE.refl)
-  ⊢⦅⦆ᵉ-subst e≢suc (conv ⊢e B≡B′) d =
-    conv (⊢⦅⦆ᵉ-subst e≢suc ⊢e d) B≡B′
+  ⊢⦅⦆ᵉ-subst (conv ⊢e B≡B′) d =
+    conv (⊢⦅⦆ᵉ-subst ⊢e d) B≡B′
 
 opaque
 
   -- Applying terms to stacks respects reduction
 
-  ⊢⦅⦆ˢ-subst : suc∉ S → Δ ⨾ H ⊢ S ⟨ t ⟩∷ A ↝ B
+  ⊢⦅⦆ˢ-subst : Δ ⨾ H ⊢ S ⟨ t ⟩∷ A ↝ B
             → Δ ⊢ (t [ H ]ₕ) ⇒ (u [ H ]ₕ) ∷ A
             → Δ ⊢ ⦅ S ⦆ˢ t [ H ]ₕ ⇒ ⦅ S ⦆ˢ u [ H ]ₕ ∷ B
-  ⊢⦅⦆ˢ-subst _ ε d = d
-  ⊢⦅⦆ˢ-subst (e≢suc ∙ suc∉S) (⊢e ∙ ⊢S) d =
-    ⊢⦅⦆ˢ-subst suc∉S ⊢S
-      (⊢⦅⦆ᵉ-subst e≢suc ⊢e d)
+  ⊢⦅⦆ˢ-subst ε d = d
+  ⊢⦅⦆ˢ-subst (⊢e ∙ ⊢S) d =
+    ⊢⦅⦆ˢ-subst ⊢S (⊢⦅⦆ᵉ-subst ⊢e d)
 
 opaque
 
@@ -260,8 +254,6 @@ opaque
       (substTypeEq (refl ⊢B) (sym t≡u))
   ⊢ᵉ-convₜ {H} {t} {u} ([]-congₑ ok) t≡u =
     []-congₑ ok
-  ⊢ᵉ-convₜ sucₑ t≡u =
-    sucₑ
   ⊢ᵉ-convₜ (conv ⊢e B≡B′) t≡u =
     conv (⊢ᵉ-convₜ ⊢e t≡u) B≡B′
 
@@ -281,34 +273,31 @@ opaque
   -- If a term applied to an eliminator is in whnf then the term was
   -- neutral and the applied eliminator is also neutral.
 
-  ⊢whnf⦅⦆ᵉ : e PE.≢ sucₑ
-          → Δ ⨾ H ⊢ᵉ e ⟨ u ⟩∷ A ↝ B
+  ⊢whnf⦅⦆ᵉ : Δ ⨾ H ⊢ᵉ e ⟨ u ⟩∷ A ↝ B
           → Whnf (⦅ e ⦆ᵉ t)
           → Neutral t × Neutral (⦅ e ⦆ᵉ t)
-  ⊢whnf⦅⦆ᵉ _ (∘ₑ x x₁) (ne (∘ₙ n)) = n , ∘ₙ n
-  ⊢whnf⦅⦆ᵉ _ (fstₑ x x₁) (ne (fstₙ n)) = n , fstₙ n
-  ⊢whnf⦅⦆ᵉ _ (sndₑ x x₁) (ne (sndₙ n)) = n , sndₙ n
-  ⊢whnf⦅⦆ᵉ _ (prodrecₑ x x₁) (ne (prodrecₙ n)) = n , prodrecₙ n
-  ⊢whnf⦅⦆ᵉ _ (natrecₑ x x₁ x₂) (ne (natrecₙ n)) = n , natrecₙ n
-  ⊢whnf⦅⦆ᵉ _ (unitrecₑ x x₁ x₂) (ne (unitrecₙ no-η n)) = n , unitrecₙ no-η n
-  ⊢whnf⦅⦆ᵉ _ (emptyrecₑ x) (ne (emptyrecₙ n)) = n , emptyrecₙ n
-  ⊢whnf⦅⦆ᵉ _ (Jₑ x x₁) (ne (Jₙ n)) = n , Jₙ n
-  ⊢whnf⦅⦆ᵉ _ (Kₑ x x₁ x₂) (ne (Kₙ n)) = n , Kₙ n
-  ⊢whnf⦅⦆ᵉ _ ([]-congₑ x) (ne ([]-congₙ n)) = n , []-congₙ n
-  ⊢whnf⦅⦆ᵉ e≢suc sucₑ _ = ⊥-elim (e≢suc PE.refl)
-  ⊢whnf⦅⦆ᵉ e≢suc (conv ⊢e x) w = ⊢whnf⦅⦆ᵉ e≢suc ⊢e w
+  ⊢whnf⦅⦆ᵉ (∘ₑ x x₁) (ne (∘ₙ n)) = n , ∘ₙ n
+  ⊢whnf⦅⦆ᵉ (fstₑ x x₁) (ne (fstₙ n)) = n , fstₙ n
+  ⊢whnf⦅⦆ᵉ (sndₑ x x₁) (ne (sndₙ n)) = n , sndₙ n
+  ⊢whnf⦅⦆ᵉ (prodrecₑ x x₁) (ne (prodrecₙ n)) = n , prodrecₙ n
+  ⊢whnf⦅⦆ᵉ (natrecₑ x x₁ x₂) (ne (natrecₙ n)) = n , natrecₙ n
+  ⊢whnf⦅⦆ᵉ (unitrecₑ x x₁ x₂) (ne (unitrecₙ no-η n)) = n , unitrecₙ no-η n
+  ⊢whnf⦅⦆ᵉ (emptyrecₑ x) (ne (emptyrecₙ n)) = n , emptyrecₙ n
+  ⊢whnf⦅⦆ᵉ (Jₑ x x₁) (ne (Jₙ n)) = n , Jₙ n
+  ⊢whnf⦅⦆ᵉ (Kₑ x x₁ x₂) (ne (Kₙ n)) = n , Kₙ n
+  ⊢whnf⦅⦆ᵉ ([]-congₑ x) (ne ([]-congₙ n)) = n , []-congₙ n
+  ⊢whnf⦅⦆ᵉ (conv ⊢e x) w = ⊢whnf⦅⦆ᵉ ⊢e w
 
 opaque
 
   -- If a term applied to a stack is in whnf then the term was in whnf.
 
-  ⊢whnf⦅⦆ˢ : suc∉ S
-          → Δ ⨾ H ⊢ S ⟨ u ⟩∷ A ↝ B
+  ⊢whnf⦅⦆ˢ : Δ ⨾ H ⊢ S ⟨ u ⟩∷ A ↝ B
           → Whnf (⦅ S ⦆ˢ t)
           → Whnf t
-  ⊢whnf⦅⦆ˢ _ ε w = w
-  ⊢whnf⦅⦆ˢ (e≢sucₑ ∙ suc∉S) (⊢e ∙ ⊢S) w =
-    ne (⊢whnf⦅⦆ᵉ e≢sucₑ ⊢e (⊢whnf⦅⦆ˢ suc∉S ⊢S w) .proj₁)
+  ⊢whnf⦅⦆ˢ ε w = w
+  ⊢whnf⦅⦆ˢ (⊢e ∙ ⊢S) w =
+    ne (⊢whnf⦅⦆ᵉ ⊢e (⊢whnf⦅⦆ˢ ⊢S w) .proj₁)
 
 
 opaque
@@ -316,47 +305,43 @@ opaque
   -- If a term applied to a non-empty stack is in whnf then the term
   -- was neutral and the applied stack is also neutral.
 
-  ⊢whnf⦅⦆ˢ′ : suc∉ (e ∙ S)
-           → Δ ⨾ H ⊢ e ∙ S ⟨ u ⟩∷ A ↝ B
+  ⊢whnf⦅⦆ˢ′ : Δ ⨾ H ⊢ e ∙ S ⟨ u ⟩∷ A ↝ B
            → Whnf (⦅ e ∙ S ⦆ˢ t)
            → Neutral t
-  ⊢whnf⦅⦆ˢ′ (e≢suc ∙ suc∉S) (⊢e ∙ ⊢S) w =
-    ⊢whnf⦅⦆ᵉ e≢suc ⊢e (⊢whnf⦅⦆ˢ suc∉S ⊢S w) .proj₁
+  ⊢whnf⦅⦆ˢ′ (⊢e ∙ ⊢S) w =
+    ⊢whnf⦅⦆ᵉ ⊢e (⊢whnf⦅⦆ˢ ⊢S w) .proj₁
 
 opaque
 
   -- Applying a term that is neutral at a variable to an eliminator
   -- gives a term that is neutral at the same variable.
 
-  ⊢⦅⦆ᵉ-NeutralAt : e PE.≢ sucₑ
-                → Δ ⨾ H ⊢ᵉ e ⟨ t ⟩∷ A ↝ B
+  ⊢⦅⦆ᵉ-NeutralAt : Δ ⨾ H ⊢ᵉ e ⟨ t ⟩∷ A ↝ B
                 → NeutralAt x t
                 → NeutralAt x (⦅ e ⦆ᵉ t)
-  ⊢⦅⦆ᵉ-NeutralAt _ (∘ₑ _ _) n = ∘ₙ n
-  ⊢⦅⦆ᵉ-NeutralAt _ (fstₑ _ _) n = fstₙ n
-  ⊢⦅⦆ᵉ-NeutralAt _ (sndₑ _ _) n = sndₙ n
-  ⊢⦅⦆ᵉ-NeutralAt _ (prodrecₑ _ _) n = prodrecₙ n
-  ⊢⦅⦆ᵉ-NeutralAt _ (natrecₑ _ _ _) n = natrecₙ n
-  ⊢⦅⦆ᵉ-NeutralAt _ (unitrecₑ _ _ x) n = unitrecₙ x n
-  ⊢⦅⦆ᵉ-NeutralAt _ (emptyrecₑ _) n = emptyrecₙ n
-  ⊢⦅⦆ᵉ-NeutralAt _ (Jₑ _ _) n = Jₙ n
-  ⊢⦅⦆ᵉ-NeutralAt _ (Kₑ _ _ _) n = Kₙ n
-  ⊢⦅⦆ᵉ-NeutralAt _ ([]-congₑ _) n = []-congₙ n
-  ⊢⦅⦆ᵉ-NeutralAt e≢suc sucₑ n = ⊥-elim (e≢suc PE.refl)
-  ⊢⦅⦆ᵉ-NeutralAt e≢suc (conv ⊢e x) n = ⊢⦅⦆ᵉ-NeutralAt e≢suc ⊢e n
+  ⊢⦅⦆ᵉ-NeutralAt (∘ₑ _ _) n = ∘ₙ n
+  ⊢⦅⦆ᵉ-NeutralAt (fstₑ _ _) n = fstₙ n
+  ⊢⦅⦆ᵉ-NeutralAt (sndₑ _ _) n = sndₙ n
+  ⊢⦅⦆ᵉ-NeutralAt (prodrecₑ _ _) n = prodrecₙ n
+  ⊢⦅⦆ᵉ-NeutralAt (natrecₑ _ _ _) n = natrecₙ n
+  ⊢⦅⦆ᵉ-NeutralAt (unitrecₑ _ _ x) n = unitrecₙ x n
+  ⊢⦅⦆ᵉ-NeutralAt (emptyrecₑ _) n = emptyrecₙ n
+  ⊢⦅⦆ᵉ-NeutralAt (Jₑ _ _) n = Jₙ n
+  ⊢⦅⦆ᵉ-NeutralAt (Kₑ _ _ _) n = Kₙ n
+  ⊢⦅⦆ᵉ-NeutralAt ([]-congₑ _) n = []-congₙ n
+  ⊢⦅⦆ᵉ-NeutralAt (conv ⊢e x) n = ⊢⦅⦆ᵉ-NeutralAt ⊢e n
 
 opaque
 
   -- Applying a term that is neutral at a variable to a non-empty stack
   -- gives a term that is neutral at the same variable.
 
-  ⊢⦅⦆ˢ-NeutralAt : suc∉ S
-                → Δ ⨾ H ⊢ S ⟨ t ⟩∷ A ↝ B
+  ⊢⦅⦆ˢ-NeutralAt : Δ ⨾ H ⊢ S ⟨ t ⟩∷ A ↝ B
                 → NeutralAt x t
                 → NeutralAt x (⦅ S ⦆ˢ t)
-  ⊢⦅⦆ˢ-NeutralAt _ ε n = n
-  ⊢⦅⦆ˢ-NeutralAt (e≢suc ∙ suc∉S) (⊢e ∙ ⊢S) n =
-    ⊢⦅⦆ˢ-NeutralAt suc∉S ⊢S (⊢⦅⦆ᵉ-NeutralAt e≢suc ⊢e n)
+  ⊢⦅⦆ˢ-NeutralAt ε n = n
+  ⊢⦅⦆ˢ-NeutralAt (⊢e ∙ ⊢S) n =
+    ⊢⦅⦆ˢ-NeutralAt ⊢S (⊢⦅⦆ᵉ-NeutralAt ⊢e n)
 
 opaque
 
@@ -393,5 +378,4 @@ opaque
   hole-type-not-U (Jₑ _ _)         = Id≢U
   hole-type-not-U (Kₑ _ _ _)       = Id≢U
   hole-type-not-U ([]-congₑ _)     = Id≢U
-  hole-type-not-U sucₑ             = U≢ℕ ∘→ sym
   hole-type-not-U (conv ⊢e _)      = hole-type-not-U ⊢e

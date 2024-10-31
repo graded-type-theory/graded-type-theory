@@ -164,7 +164,6 @@ opaque
       (PE.sym (wk-liftₕ 0 [ρ] (Id (Erased A) ([ t ]) ([ u ])))) ([]-congₑ ok)
     where
     open Erased s
-  wk-⊢ᵉ ρ sucₑ = sucₑ
   wk-⊢ᵉ ρ (conv ⊢e x) =
     conv (wk-⊢ᵉ ρ ⊢e) x
 
