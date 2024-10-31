@@ -1188,10 +1188,12 @@ opaque
   -- A variant of the above property.
 
   ⊢⇘-reasons :
-    Δ ⨾ Γ ⊢ ⟨ H , t , ρ , S ⟩ ∷ A →
-    suc∉ S →
+    Δ ⨾ Γ ⊢ s ∷ A →
+    suc∉ (State.stack s) →
     s ⇘ ⟨ H , t , ρ , S ⟩ →
     (∃ λ x → t PE.≡ var x ×
        (∀ {n H′} {c : Entry _ n} → H ⊢ wkVar ρ x ↦[ ∣ S ∣ ] c ⨾ H′ → ⊥)) ⊎
     Value t × S PE.≡ ε
-  ⊢⇘-reasons ⊢s suc∉S (_ , f) = ⊢Final-reasons ⊢s suc∉S f
+  ⊢⇘-reasons ⊢s suc∉S (d , f) =
+    let _ , _ , _ , ⊢s′ = ⊢ₛ-⇾* ⊢s d
+    in  ⊢Final-reasons ⊢s′ (suc∉-⇾* suc∉S d) f

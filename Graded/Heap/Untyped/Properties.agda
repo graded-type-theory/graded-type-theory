@@ -203,6 +203,15 @@ opaque
 
 opaque
 
+  -- Lookup cannot yield both an entry and a dummy entry.
+
+  ¬↦∧↦● : H ⊢ y ↦ c → H ⊢ y ↦● → ⊥
+  ¬↦∧↦● here ()
+  ¬↦∧↦● (there d) (there d′) = ¬↦∧↦● d d′
+  ¬↦∧↦● (there● d) (there● d′) = ¬↦∧↦● d d′
+
+opaque
+
   -- If a heap does not contain erased entries then lookup to ● will always fail.
 
   ¬erased-heap→¬↦● : {H : Heap k _} → H ⊢ y ↦● → k ≡ 0 → ⊥
@@ -864,3 +873,10 @@ opaque
     Kₙ (toSubstₕ-NeutralAt d n)
   toSubstₕ-NeutralAt d ([]-congₙ n) =
     []-congₙ (toSubstₕ-NeutralAt d n)
+
+opaque
+
+  -- ⦅_⦆ is an inverse of initial.
+
+  ⦅initial⦆≡ : ⦅ initial t ⦆ ≡ t
+  ⦅initial⦆≡ = trans (erasedHeap-subst (wk id _)) (wk-id _)

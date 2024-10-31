@@ -83,8 +83,8 @@ opaque
              → Δ ⊩ℕ n ∷ℕ → n PE.≡ ⦅ s ⦆ → Δ ⨾ Γ ⊢ s ∷ ℕ → γ ⨾ δ ⨾ η ▸ s
              → ∃₅ λ m n H (ρ : Wk m n) t → s ↠* ⟨ H , t , ρ , ε ⟩ × Numeral t
   redNumeral consistent nem suc∉S (ℕₜ _ d n≡n (sucᵣ x)) PE.refl ⊢s ▸s =
-    case whBisim consistent nem suc∉S (redₜ d , sucₙ) ⊢s ▸s of λ
-      (_ , _ , H , t , ρ , d′ , ≡u , v) →
+    case whBisim consistent nem suc∉S ⊢s ▸s (redₜ d , sucₙ) of λ
+      (_ , _ , H , t , ρ , (d′ , _) , ≡u , v) →
     case subst-suc {t = wk ρ t} ≡u of λ {
       (inj₁ (x , ≡x)) →
     case wk-var ≡x of λ {
@@ -116,8 +116,8 @@ opaque
       , sucₙ n }}}
 
   redNumeral consistent nem suc∉S (ℕₜ _ d n≡n zeroᵣ) PE.refl ⊢s ▸s =
-    case whBisim consistent nem suc∉S (redₜ d , zeroₙ) ⊢s ▸s of λ
-      (_ , _ , H , t , ρ , d′ , ≡u , v) →
+    case whBisim consistent nem suc∉S ⊢s ▸s (redₜ d , zeroₙ) of λ
+      (_ , _ , H , t , ρ , (d′ , _) , ≡u , v) →
     case subst-zero {t = wk ρ t} ≡u of λ {
       (inj₁ (x , ≡x)) →
     case wk-var ≡x of λ {
@@ -130,7 +130,7 @@ opaque
 
   redNumeral
     {s} consistent nem suc∉S (ℕₜ _ d n≡n (ne (neNfₜ neK ⊢k k≡k))) PE.refl ⊢s ▸s =
-    case whBisim {s = s} consistent nem suc∉S (redₜ d , ne neK) ⊢s ▸s of λ {
+    case whBisim {s = s} consistent nem suc∉S ⊢s ▸s (redₜ d , ne neK) of λ {
       (_ , _ , H , t , ρ , d′ , PE.refl , v) →
     ⊥-elim (Value→¬Neutral (substValue (toSubstₕ H) (wkValue ρ v)) neK) }
 

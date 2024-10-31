@@ -361,7 +361,8 @@ module _ (nem : No-erased-matches′ type-variant UR) where
     -- The multiplicity of a well-resourced eliminator is not zero
 
     ▸∣e∣≢𝟘 : ⦃ Has-well-behaved-zero M semiring-with-meet ⦄
-           → γ ▸ᵉ[ 𝟙ᵐ ] e → ∣ e ∣ᵉ ≢ 𝟘 ⊎ ∃₃ λ n (A : Term n) ρ → e ≡ emptyrecₑ 𝟘 A ρ × Emptyrec-allowed 𝟙ᵐ 𝟘
+           → γ ▸ᵉ[ 𝟙ᵐ ] e → ∣ e ∣ᵉ ≢ 𝟘 ⊎
+             ∃₃ λ n (A : Term n) ρ → e ≡ emptyrecₑ 𝟘 A ρ × Emptyrec-allowed 𝟙ᵐ 𝟘
     ▸∣e∣≢𝟘 (∘ₑ x) = inj₁ non-trivial
     ▸∣e∣≢𝟘 (fstₑ x) = inj₁ non-trivial
     ▸∣e∣≢𝟘 sndₑ = inj₁ non-trivial

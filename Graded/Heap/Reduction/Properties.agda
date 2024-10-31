@@ -867,3 +867,30 @@ opaque
     (∃₂ λ e S′ → S ≡ e ∙ S′ × Value t × (Matching t S → ⊥)) ⊎
     Value t × S ≡ ε
   ⇘-reasons (d , ¬d) = Final-reasons _ ¬d
+
+opaque
+
+  Value-¬⇒ₑ : Value t → ⟨ H , t , ρ , S ⟩ ⇒ₑ s → ⊥
+  Value-¬⇒ₑ () appₕ
+  Value-¬⇒ₑ () fstₕ
+  Value-¬⇒ₑ () sndₕ
+  Value-¬⇒ₑ () prodrecₕ
+  Value-¬⇒ₑ () natrecₕ
+  Value-¬⇒ₑ (unitrec-ηᵥ η) (unitrecₕ no-η) = no-η η
+  Value-¬⇒ₑ () emptyrecₕ
+  Value-¬⇒ₑ () Jₕ
+  Value-¬⇒ₑ () Kₕ
+  Value-¬⇒ₑ () []-congₕ
+
+opaque
+
+  Value-⇾→⇒ᵥ : Value t → ⟨ H , t , ρ , S ⟩ ⇾ s′ → ⟨ H , t , ρ , S ⟩ ⇒ᵥ s′
+  Value-⇾→⇒ᵥ v (⇾ₑ′ d) = ⊥-elim (Value-¬⇒ₑ v d)
+  Value-⇾→⇒ᵥ _ (⇒ᵥ d) = d
+
+opaque
+
+  Normal-⇾→⇒ᵥ : Normal s → s ⇾ s′ → s ⇒ᵥ s′
+  Normal-⇾→⇒ᵥ (val v) d = Value-⇾→⇒ᵥ v d
+  Normal-⇾→⇒ᵥ (var x) (⇾ₑ d) =
+    ⊥-elim (¬↦∧↦● (↦[]→↦ (⇾ₑ-inv-var d .proj₂)) x)

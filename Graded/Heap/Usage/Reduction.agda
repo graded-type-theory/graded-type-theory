@@ -37,6 +37,7 @@ open import Tools.Function
 open import Tools.Product
 open import Tools.PropositionalEquality
 open import Tools.Relation
+open import Tools.Sum hiding (id; sym)
 import Tools.Reasoning.PartialOrder as RPo
 import Tools.Reasoning.PropositionalEquality as RPe
 import Tools.Reasoning.Equivalence as REq
@@ -46,6 +47,7 @@ open import Definition.Untyped M
 open import Graded.Heap.Untyped type-variant UR
 open import Graded.Heap.Untyped.Properties type-variant UR
 open import Graded.Heap.Reduction type-variant UR
+open import Graded.Heap.Reduction.Properties type-variant UR
 open import Graded.Heap.Usage type-variant UR
 open import Graded.Heap.Usage.Properties type-variant UR
 open import Graded.Heap.Usage.Weakening type-variant UR
@@ -60,6 +62,7 @@ open import Graded.Usage.Erased-matches
 open import Graded.Usage.Inversion 𝕄 UR
 open import Graded.Usage.Properties 𝕄 UR
 open import Graded.Usage.Weakening 𝕄 UR
+open import Graded.Restrictions 𝕄
 
 private variable
   γ δ η : Conₘ _
@@ -858,3 +861,98 @@ opaque
     case ▸-↠ ▸s d of λ
       (_ , _ , _ , ▸s′) →
     ▸-↠* ▸s′ d′
+
+opaque
+
+  -- There are three different reasons a well-resourced state can be Final:
+  -- 1. It has a variable in head position pointing to a dummy entry
+  --    in the heap and the stack multiplicity is 𝟘.
+  -- 2. It has a value in head position, the stack is not empty and the
+  --    top of the stack does not match the head.
+  -- 3. It has a value in head position and the stack is empty.
+
+  ▸Final-reasons :
+    Supports-subtraction →
+    γ ⨾ δ ⨾ η ▸ ⟨ H , t , ρ , S ⟩ →
+    Final (⟨_,_,_,_⟩ H t ρ S) →
+    (∃ λ x → t ≡ var x × H ⊢ wkVar ρ x ↦● × ∣ S ∣ ≡ 𝟘) ⊎
+    (∃₂ λ e S′ → S ≡ e ∙ S′ × Value t × (Matching t S → ⊥)) ⊎
+    Value t × S ≡ ε
+  ▸Final-reasons {ρ} ok ▸s f =
+    case Final-reasons _ f of λ where
+      (inj₂ x) → inj₂ x
+      (inj₁ (x , refl , ¬d)) →
+        case ↦⊎↦● (wkVar ρ x) of λ where
+          (inj₁ (_ , _ , d)) →
+            case ▸↦→↦[] ok d ▸s of λ
+              (_ , d′) →
+            ⊥-elim (¬d d′)
+          (inj₂ d) →
+            case ▸s● ok d ▸s of λ
+              (∣S∣≡𝟘 , _) →
+            inj₁ (_ , refl , d , ∣S∣≡𝟘)
+
+opaque
+
+  -- A variant of the above property with the added assumption that
+  -- there are no erased matches if the state is not closed.
+
+  -- Under this assumption there are three different reasons a wel-resourced
+  -- state can be Final:
+  -- 1. It has a variable in head position pointing to a dummy entry
+  --    in the heap, the stack contains an erased emptyrec and erased uses
+  --    of emptyrec are allowed.
+  -- 2. It has a value in head position, the stack is not empty and the
+  --    top of the stack does not match the head.
+  -- 3. It has a value in head position and the stack is empty.
+
+  ▸Final-reasons′ :
+    ∀ {k} {H : Heap k _} →
+    Supports-subtraction →
+    (k ≢ 0 → No-erased-matches′ type-variant UR) →
+    γ ⨾ δ ⨾ η ▸ ⟨ H , t , ρ , S ⟩ →
+    Final (⟨_,_,_,_⟩ H t ρ S) →
+    (∃ λ x → t ≡ var x × H ⊢ wkVar ρ x ↦● × emptyrec₀∈ S × Emptyrec-allowed 𝟙ᵐ 𝟘) ⊎
+    (∃₂ λ e S′ → S ≡ e ∙ S′ × Value t × (Matching t S → ⊥)) ⊎
+    Value t × S ≡ ε
+  ▸Final-reasons′ {ρ} ok nem ▸s f =
+    case ▸Final-reasons ok ▸s f of λ where
+      (inj₂ x) → inj₂ x
+      (inj₁ (x , t≡x , d , ∣S∣≡𝟘)) →
+        case ▸∣S∣≢𝟘 (nem (¬erased-heap→¬↦● d)) (▸s .proj₂ .proj₂ .proj₁) of λ where
+           (inj₁ ∣S∣≢𝟘) → ⊥-elim (∣S∣≢𝟘 ∣S∣≡𝟘)
+           (inj₂ prop) → inj₁ (x , t≡x , d , prop)
+
+opaque
+
+  -- A variant of ▸Final-reasons
+
+  ▸-⇘-reasons :
+    Supports-subtraction →
+    γ ⨾ δ ⨾ η ▸ s →
+    s ⇘ ⟨ H , t , ρ , S ⟩ →
+    (∃ λ x → t ≡ var x × H ⊢ wkVar ρ x ↦● × ∣ S ∣ ≡ 𝟘) ⊎
+    (∃₂ λ e S′ → S ≡ e ∙ S′ × Value t × (Matching t S → ⊥)) ⊎
+    Value t × S ≡ ε
+  ▸-⇘-reasons ok ▸s (d , f) =
+    let _ , _ , _ , ▸s′ = ▸-⇾* ▸s d
+    in  ▸Final-reasons ok ▸s′ f
+
+opaque
+
+  -- There are two different reasons a closed state can be Final:
+  -- 1. It has a value in head position, the stack is not empty and the
+  --    top of the stack does not match the head.
+  -- 2. It has a value in head position and the stack is empty.
+
+  ▸Final-reasons-closed :
+    {H : Heap 0 _} →
+    Supports-subtraction →
+    γ ⨾ δ ⨾ η ▸ ⟨ H , t , ρ , S ⟩ →
+    Final (⟨_,_,_,_⟩ H t ρ S) →
+    (∃₂ λ e S′ → S ≡ e ∙ S′ × Value t × (Matching t S → ⊥)) ⊎
+    Value t × S ≡ ε
+  ▸Final-reasons-closed ok ▸s f =
+    case ▸Final-reasons ok ▸s f of λ where
+      (inj₁ (_ , _ , d , _)) → ⊥-elim (¬erased-heap→¬↦● d refl)
+      (inj₂ x) → x
