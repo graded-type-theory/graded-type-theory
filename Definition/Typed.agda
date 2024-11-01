@@ -224,6 +224,9 @@ mutual
     -- ⊔ᵘ-sucᵘ-sucᵘ
     --   : Γ ⊢ l₁ level → Γ ⊢ l₂ level
     --   → Γ ⊢ sucᵘ l₁ ⊔ᵘ suc l₂ ≡ sucᵘ (l₁ ⊔ᵘ l₂) level
+    sucᵘ-cong     : ∀ {n}
+                  → Γ ⊢ t ≡ n ∷ Level
+                  → Γ ⊢ sucᵘ t ≡ sucᵘ n ∷ Level
     U-cong        : Γ ⊢ l₁ ≡ l₂ ∷ Level
                   → Γ ⊢ U l₁ ≡ U l₂ ∷ U (sucᵘ l₁)
     ΠΣ-cong       : Γ     ⊢ F

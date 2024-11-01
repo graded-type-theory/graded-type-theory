@@ -57,7 +57,7 @@ mutual
   reflect-level-subst {σ} (Levelₜ k [ _ , _ , t⇒k ] k≡k (sucᵘᵣ x)) (Levelₜ k′ [ _ , _ , t[σ]⇒k′ ] k′≡k′ zeroᵘᵣ) =
     ⊥-elim {!   !}
   reflect-level-subst {σ} (Levelₜ k [ _ , _ , t⇒k ] k≡k (sucᵘᵣ x)) (Levelₜ k′ [ _ , _ , t[σ]⇒k′ ] k′≡k′ (ne y)) =
-    ⊥-elim {!   !}
+    ⊥-elim {!    !}
 
   -- reflect-level-prop-subst
   --   : ∀ {n m} {Γ : Con Term n} {Δ : Con Term m} {σ : Subst m n} {t : Term n}
@@ -144,6 +144,27 @@ opaque
     lemma (emb ≤ᵘ-refl ⊩A) ⊩t ⊩u t≡u = lemma ⊩A ⊩t ⊩u t≡u
     lemma (emb (≤ᵘ-step s) ⊩A) ⊩t ⊩u t≡u = lemma (emb s ⊩A) ⊩t ⊩u t≡u
 
+opaque
+
+  -- A characterisation lemma for _⊩⟨_⟩_∷_.
+
+  ⊩zeroᵘ∷Level⇔ : Γ ⊩⟨ l ⟩ zeroᵘ ∷ Level ⇔ ⊢ Γ
+  ⊩zeroᵘ∷Level⇔ =
+      wfTerm ∘→ escape-⊩∷
+    , (λ ⊢Γ →
+         ⊩∷Level⇔ .proj₂ $
+         Levelₜ _ (idRedTerm:*: (zeroᵘⱼ ⊢Γ)) (≅ₜ-zeroᵘrefl ⊢Γ) zeroᵘᵣ)
+
+opaque
+
+  -- A characterisation lemma for _⊩⟨_⟩_≡_∷_.
+
+  ⊩zeroᵘ≡zeroᵘ∷Level⇔ : Γ ⊩⟨ l ⟩ zeroᵘ ≡ zeroᵘ ∷ Level ⇔ ⊢ Γ
+  ⊩zeroᵘ≡zeroᵘ∷Level⇔ {Γ} {l} =
+    Γ ⊩⟨ l ⟩ zeroᵘ ≡ zeroᵘ ∷ Level  ⇔⟨ proj₁ ∘→ wf-⊩≡∷ , refl-⊩≡∷ ⟩
+    Γ ⊩⟨ l ⟩ zeroᵘ ∷ Level         ⇔⟨ ⊩zeroᵘ∷Level⇔ ⟩
+    ⊢ Γ                       □⇔
+
 ------------------------------------------------------------------------
 -- Level
 
@@ -161,4 +182,23 @@ opaque
           (Δ ⊢ Level)           →⟨ id ⟩
           Δ ⊢ Level ⇒* Level        ⇔˘⟨ ⊩Level≡⇔ ⟩→
           Δ ⊩⟨ l ⟩ Level ≡ Level    □
+      )
+
+
+opaque
+
+  ⊩Level-zeroᵘ : ⊢ Γ → Γ ⊩Level zeroᵘ ∷Level
+  ⊩Level-zeroᵘ ⊢Γ = Levelₜ zeroᵘ (idRedTerm:*: (zeroᵘⱼ ⊢Γ)) (≅ₜ-zeroᵘrefl ⊢Γ) zeroᵘᵣ
+
+  ⊩zeroᵘ : ⊢ Γ → Γ ⊩⟨ l ⟩ zeroᵘ ∷ Level
+  ⊩zeroᵘ = ⊩zeroᵘ∷Level⇔ .proj₂
+
+  zeroᵘᵛ : ⊩ᵛ Γ → Γ ⊩ᵛ⟨ l ⟩ zeroᵘ ∷ Level
+  zeroᵘᵛ {Γ} {l} ⊩Γ =
+    ⊩ᵛ∷⇔ .proj₂
+      ( Levelᵛ ⊩Γ
+      , λ {_} {Δ = Δ} {σ₁ = σ₁} {σ₂ = σ₂} →
+          Δ ⊩ˢ σ₁ ≡ σ₂ ∷ Γ          →⟨ proj₁ ∘→ escape-⊩ˢ≡∷ ⟩
+          ⊢ Δ                       ⇔˘⟨ ⊩zeroᵘ≡zeroᵘ∷Level⇔ ⟩→
+          Δ ⊩⟨ l ⟩ zeroᵘ ≡ zeroᵘ ∷ Level  □
       )

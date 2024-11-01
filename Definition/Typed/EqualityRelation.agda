@@ -111,6 +111,12 @@ record Equality-relations
     -- Level type reflexivity
     ≅-Levelrefl : ⊢ Γ → Γ ⊢ Level ≅ Level
 
+    -- Zero level reflexivity
+    ≅ₜ-zeroᵘrefl : ⊢ Γ → Γ ⊢ zeroᵘ ≅ zeroᵘ ∷ Level
+
+    -- Successor level congruence
+    ≅ₜ-sucᵘ-cong : ∀ {m n} → Γ ⊢ m ≅ n ∷ Level → Γ ⊢ sucᵘ m ≅ sucᵘ n ∷ Level
+
     -- Universe type reflexivity
     ≅-Urefl   : Γ ⊢ l ∷ Level → Γ ⊢ U l ≅ U l ∷ U (sucᵘ l)
 

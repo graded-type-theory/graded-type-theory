@@ -250,6 +250,7 @@ mutual
   wkEqTerm ρ ⊢Δ (sym t≡u) = sym (wkEqTerm ρ ⊢Δ t≡u)
   wkEqTerm ρ ⊢Δ (trans t≡u u≡r) = trans (wkEqTerm ρ ⊢Δ t≡u) (wkEqTerm ρ ⊢Δ u≡r)
   wkEqTerm ρ ⊢Δ (conv t≡u A≡B) = conv (wkEqTerm ρ ⊢Δ t≡u) (wkEq ρ ⊢Δ A≡B)
+  wkEqTerm ρ ⊢Δ (sucᵘ-cong m≡n) = sucᵘ-cong (wkEqTerm ρ ⊢Δ m≡n)
   wkEqTerm ρ ⊢Δ (U-cong l₁≡l₂) = U-cong (wkEqTerm ρ ⊢Δ l₁≡l₂)
   wkEqTerm ρ ⊢Δ (ΠΣ-cong F F≡H G≡E ok) =
     let ρF = wk ρ ⊢Δ F

@@ -314,15 +314,16 @@ record _⊩Unit⟨_,_⟩_
 -- Unit type equality
 _⊩Unit⟨_,_⟩_≡_/_ :
   (Γ : Con Term ℓ) → (l : Universe-level) → (s : Strength) → (A B : Term ℓ) → Γ ⊩Unit⟨ l , s ⟩ A → Set a
-Γ ⊩Unit⟨ l , s ⟩ A ≡ B / [A] = Γ ⊢ B ⇒* Unit s ([A] ._⊩Unit⟨_,_⟩_.k)
+Γ ⊩Unit⟨ l , s ⟩ A ≡ B / [A] = Γ ⊢ B ⇒* Unit s k
+  where open _⊩Unit⟨_,_⟩_ [A]
 
 -- Unit term
 
 data Unit-prop
   (Γ : Con Term ℓ) (l : Universe-level) (s : Strength) (A : Term ℓ) ([A] : Γ ⊩Unit⟨ l , s ⟩ A) :
   Term ℓ → Set a where
-  starᵣ : Unit-prop Γ l s A [A] (star s ([A] ._⊩Unit⟨_,_⟩_.k))
-  ne : ∀ {n} → Γ ⊩neNf n ∷ Unit s ([A] ._⊩Unit⟨_,_⟩_.k) → Unit-prop Γ l s A [A] n
+  starᵣ : (open _⊩Unit⟨_,_⟩_ [A]) → Unit-prop Γ l s A [A] (star s k) -- TODO k′ ≡ k ∷Level → Unit-prop (star s k′) ?
+  ne : ∀ {n} (open _⊩Unit⟨_,_⟩_ [A]) → Γ ⊩neNf n ∷ Unit s k → Unit-prop Γ l s A [A] n
 
 record _⊩Unit⟨_,_⟩_∷_/_
   (Γ : Con Term ℓ) (l : Universe-level) (s : Strength) (t : Term ℓ) (A : Term ℓ) ([A] : Γ ⊩Unit⟨ l , s ⟩ A) :
@@ -342,8 +343,8 @@ record _⊩Unit⟨_,_⟩_∷_/_
 
 data [Unitʷ]-prop
   (Γ : Con Term ℓ) (l : Universe-level) (A : Term ℓ) ([A] : Γ ⊩Unit⟨ l , 𝕨 ⟩ A) : (_ _ : Term ℓ) → Set a where
-  starᵣ : [Unitʷ]-prop Γ l A [A] (starʷ ([A] ._⊩Unit⟨_,_⟩_.k)) (starʷ ([A] ._⊩Unit⟨_,_⟩_.k))
-  ne : ∀ {n n′} → Γ ⊩neNf n ≡ n′ ∷ Unit 𝕨 ([A] ._⊩Unit⟨_,_⟩_.k) → [Unitʷ]-prop Γ l A [A] n n′
+  starᵣ : (open _⊩Unit⟨_,_⟩_ [A]) → [Unitʷ]-prop Γ l A [A] (starʷ k) (starʷ k)
+  ne : ∀ {n n′} (open _⊩Unit⟨_,_⟩_ [A]) → Γ ⊩neNf n ≡ n′ ∷ Unit 𝕨 k → [Unitʷ]-prop Γ l A [A] n n′
 
 data _⊩Unit⟨_,_⟩_≡_∷_/_
   (Γ : Con Term ℓ) (l : Universe-level) : (s : Strength) (t u : Term ℓ) (A : Term ℓ) ([A] : Γ ⊩Unit⟨ l , s ⟩ A) → Set a where

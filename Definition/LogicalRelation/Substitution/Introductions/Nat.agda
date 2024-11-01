@@ -16,15 +16,16 @@ module Definition.LogicalRelation.Substitution.Introductions.Nat
 open EqRelSet eqrel
 open Type-restrictions R
 
-open import Definition.LogicalRelation R
+open import Definition.LogicalRelation R {{eqrel}}
 open import Definition.LogicalRelation.Hidden R
 open import Definition.LogicalRelation.Irrelevance R
 open import Definition.LogicalRelation.Properties R
 open import Definition.LogicalRelation.ShapeView R
-open import Definition.LogicalRelation.Substitution R
+open import Definition.LogicalRelation.Substitution R {{eqrel}}
 open import
-  Definition.LogicalRelation.Substitution.Introductions.Universe R
+  Definition.LogicalRelation.Substitution.Introductions.Universe R {{eqrel}}
 open import Definition.LogicalRelation.Substitution.Introductions.Var R
+open import Definition.LogicalRelation.Substitution.Introductions.Level R
 
 open import Definition.Typed R
 open import Definition.Typed.Properties R
@@ -65,20 +66,23 @@ opaque
     lemma (noemb [ ⊢ℕ , _ , _ ]) = wf ⊢ℕ
 
 opaque
+  unfolding ⊩zeroᵘ
 
   -- A characterisation lemma for _⊩⟨_⟩_∷_.
 
-  ⊩ℕ∷U⇔ : Γ ⊩⟨ 1 ⟩ ℕ ∷ U 0 ⇔ ⊢ Γ
+  ⊩ℕ∷U⇔ : Γ ⊩⟨ 1 ⟩ ℕ ∷ U zeroᵘ ⇔ ⊢ Γ
   ⊩ℕ∷U⇔ =
       (λ ⊩ℕ →
          case ⊩∷U⇔ .proj₁ ⊩ℕ of λ
-           (_ , _ , _ , ℕ⇒* , _) →
+           (_ , _ , _ , _ , ℕ⇒* , _) →
          wfTerm (⊢t-redₜ ℕ⇒*))
     , (λ ⊢Γ →
          ⊩∷U⇔ .proj₂
-           ( ≤ᵘ-refl , ⊩ℕ⇔ .proj₂ ⊢Γ
-           , (_ , idRedTerm:*: (ℕⱼ ⊢Γ) , ℕₙ , ≅ₜ-ℕrefl ⊢Γ)
-           ))
+          ( ⊩Level-zeroᵘ ⊢Γ
+          , ≤ᵘ-refl
+          , ⊩ℕ⇔ .proj₂ ⊢Γ
+          , (_ , idRedTerm:*: (ℕⱼ ⊢Γ) , ℕₙ , ≅ₜ-ℕrefl ⊢Γ)
+          ))
 
 opaque
   unfolding _⊩⟨_⟩_∷_
@@ -166,22 +170,23 @@ opaque
     lemma (emb (≤ᵘ-step s) ⊩A) A≡B = lemma (emb s ⊩A) A≡B
 
 opaque
+  unfolding ⊩zeroᵘ
 
   -- A characterisation lemma for _⊩⟨_⟩_≡_∷_.
 
-  ⊩ℕ≡ℕ∷U⇔ : Γ ⊩⟨ 1 ⟩ ℕ ≡ ℕ ∷ U 0 ⇔ ⊢ Γ
+  ⊩ℕ≡ℕ∷U⇔ : Γ ⊩⟨ 1 ⟩ ℕ ≡ ℕ ∷ U zeroᵘ ⇔ ⊢ Γ
   ⊩ℕ≡ℕ∷U⇔ =
       (λ ℕ≡ℕ →
          case ⊩≡∷U⇔ .proj₁ ℕ≡ℕ of λ
-           (_ , _ , _ , _ , ℕ⇒* , _) →
+           (_ , _ , _ , _ , _ , ℕ⇒* , _) →
          wfTerm (⊢t-redₜ ℕ⇒*))
     , (λ ⊢Γ →
          case idRedTerm:*: (ℕⱼ ⊢Γ) of λ
            ℕ⇒*ℕ →
          ⊩≡∷U⇔ .proj₂
-           ( ≤ᵘ-refl , ⊩ℕ≡⇔ .proj₂ (id (ℕⱼ ⊢Γ))
-           , (_ , _ , ℕ⇒*ℕ , ℕ⇒*ℕ , ℕₙ , ℕₙ , ≅ₜ-ℕrefl ⊢Γ)
-           ))
+           ( ⊩Level-zeroᵘ ⊢Γ
+           , ≤ᵘ-refl , ⊩ℕ≡⇔ .proj₂ (id (ℕⱼ ⊢Γ))
+           , (_ , _ , ℕ⇒*ℕ , ℕ⇒*ℕ , ℕₙ , ℕₙ , ≅ₜ-ℕrefl ⊢Γ)))
 
 opaque
   unfolding _⊩⟨_⟩_≡_∷_
@@ -297,17 +302,20 @@ opaque
       )
 
 opaque
+  unfolding zeroᵘᵛ
+  unfolding ⊩zeroᵘ≡zeroᵘ∷Level⇔
+  unfolding ⊩zeroᵘ∷Level⇔
 
   -- Validity of ℕ, seen as a term former.
 
-  ℕᵗᵛ : ⊩ᵛ Γ → Γ ⊩ᵛ⟨ 1 ⟩ ℕ ∷ U 0
+  ℕᵗᵛ : ⊩ᵛ Γ → Γ ⊩ᵛ⟨ 1 ⟩ ℕ ∷ U zeroᵘ
   ℕᵗᵛ {Γ} ⊩Γ =
     ⊩ᵛ∷⇔ .proj₂
-      ( ⊩ᵛU ⊩Γ
+      ( PE.subst (λ x → Γ ⊩ᵛ⟨ x ⟩ U zeroᵘ) {!   !} (⊩ᵛU (zeroᵘᵛ ⊩Γ))
       , λ {_} {Δ = Δ} {σ₁ = σ₁} {σ₂ = σ₂} →
           Δ ⊩ˢ σ₁ ≡ σ₂ ∷ Γ    →⟨ proj₁ ∘→ escape-⊩ˢ≡∷ ⟩
           ⊢ Δ                 ⇔˘⟨ ⊩ℕ≡ℕ∷U⇔ ⟩→
-          Δ ⊩⟨ 1 ⟩ ℕ ≡ ℕ ∷ U 0  □
+          Δ ⊩⟨ 1 ⟩ ℕ ≡ ℕ ∷ U zeroᵘ  □
       )
 
 ------------------------------------------------------------------------

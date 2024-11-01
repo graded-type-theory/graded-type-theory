@@ -16,8 +16,8 @@ module Definition.LogicalRelation.Substitution.Introductions.Pi-Sigma
 open EqRelSet eqrel
 open Type-restrictions R
 
-open import Definition.LogicalRelation R
-open import Definition.LogicalRelation.Hidden R
+open import Definition.LogicalRelation R {{eqrel}}
+open import Definition.LogicalRelation.Hidden R {{eqrel}}
 open import Definition.LogicalRelation.Irrelevance R
 open import Definition.LogicalRelation.Properties R
 open import Definition.LogicalRelation.ShapeView R
@@ -558,9 +558,10 @@ opaque
     Γ ⊩ᵛ⟨ l ⟩ A₁ ≡ A₂ ∷ U t →
     Γ ∙ A₁ ⊩ᵛ⟨ l ⟩ B₁ ≡ B₂ ∷ U (wk1 u) →
     Δ ⊩ˢ σ₁ ≡ σ₂ ∷ Γ →
+    ∃ λ l →
     Δ ⊩⟨ l ⟩ (ΠΣ⟨ b ⟩ p , q ▷ A₁ ▹ B₁) [ σ₁ ] ≡
       (ΠΣ⟨ b ⟩ p , q ▷ A₂ ▹ B₂) [ σ₂ ] ∷ U ((t [ σ₁ ]) ⊔ᵘ (u [ σ₁ ]))
-  ⊩ΠΣ≡ΠΣ∷U ok A₁≡A₂∷U B₁≡B₂∷U σ₁≡σ₂ =
+  ⊩ΠΣ≡ΠΣ∷U {u} ok A₁≡A₂∷U B₁≡B₂∷U σ₁≡σ₂ =
     case ⊩ᵛ≡∷U→⊩ᵛ≡ A₁≡A₂∷U of λ
       A₁≡A₂ →
     case ⊩ᵛ≡∷U→⊩ᵛ≡ B₁≡B₂∷U of λ
@@ -580,6 +581,7 @@ opaque
       ⊢A₁[σ₁] →
     case escape-⊩∷ ⊩B₁[σ₁] of λ
       ⊢B₁[σ₁] →
+    {!   !} ,
     Type→⊩≡∷U⇔ ΠΣₙ ΠΣₙ .proj₂
       -- ( PE.subst (_ <ᵘ_) ⊔ᵘ-idem
       --     (⊔ᵘ-mono (⊩∷U⇔ .proj₁ ⊩A₁[σ₁] .proj₁)
@@ -592,7 +594,13 @@ opaque
       -- , ≅ₜ-ΠΣ-cong (univ ⊢A₁[σ₁]) (escape-⊩≡∷ A₁[σ₁]≡A₂[σ₂]∷U)
       --     (escape-⊩≡∷ B₁[σ₁⇑]≡B₂[σ₂⇑]∷U) ok
       -- )
-      {!   !}
+      ( {!    !}
+      , {!   !}
+      , ⊩ᵛ≡⇔ .proj₁ (ΠΣ-congᵛ ok (emb-⊩ᵛ≡ {!   !} A₁≡A₂) (emb-⊩ᵛ≡ {!   !} B₁≡B₂)) .proj₂ σ₁≡σ₂
+      , ΠΣⱼ ⊢A₁[σ₁] (PE.subst (λ x → _ ⊢ _ ∷ U x) (wk1-liftSubst u) ⊢B₁[σ₁]) ok
+      , ΠΣⱼ (escape-⊩∷ ⊩A₂[σ₂]) (escape-⊩∷ {!⊩B₂[σ₂] !}) ok
+      , ≅ₜ-ΠΣ-cong (univ ⊢A₁[σ₁]) (escape-⊩≡∷ A₁[σ₁]≡A₂[σ₂]∷U) (escape-⊩≡∷ {! B₁[σ₁⇑]≡B₂[σ₂⇑]∷U  !}) ok
+      )
 
 opaque
 

@@ -76,6 +76,7 @@ wfEqTerm (refl t) = wfTerm t
 wfEqTerm (sym t≡u) = wfEqTerm t≡u
 wfEqTerm (trans t≡u u≡r) = wfEqTerm t≡u
 wfEqTerm (conv t≡u A≡B) = wfEqTerm t≡u
+wfEqTerm (sucᵘ-cong n) = wfEqTerm n
 wfEqTerm (U-cong l₁≡l₂) = wfEqTerm l₁≡l₂
 wfEqTerm (ΠΣ-cong _ F≡H _ _) = wfEqTerm F≡H
 wfEqTerm (app-cong f≡g a≡b) = wfEqTerm f≡g

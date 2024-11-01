@@ -43,6 +43,8 @@ private opaque
       .≅-red        → reduction
       .≅ₜ-red       → reductionₜ
       .≅-Levelrefl  → refl ∘ᶠ Levelⱼ
+      .≅ₜ-zeroᵘrefl → refl ∘ᶠ zeroᵘⱼ
+      .≅ₜ-sucᵘ-cong → sucᵘ-cong
       .≅-Urefl      → refl ∘ᶠ Uⱼ
       .≅-U-cong     → U-cong
       .≅ₜ-U-cong    → U-cong
