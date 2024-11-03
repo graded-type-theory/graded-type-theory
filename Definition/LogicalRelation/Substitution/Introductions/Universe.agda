@@ -130,14 +130,14 @@ opaque
   -- A characterisation lemma for _⊩⟨_⟩_≡_.
 
   ⊩U≡⇔ :
-    ([t] : Γ ⊩Level t ∷Level) →
     Γ ⊩⟨ l ⟩ U t ≡ A ⇔
-    (reflect-level [t] <ᵘ l × ∃ λ u → Γ ⊢ A :⇒*: U u × Γ ⊩Level t ≡ u ∷Level × Γ ⊩⟨ l ⟩ A)
-  ⊩U≡⇔ {Γ} {t} {A} [t] =
+    Σ (Γ ⊩Level t ∷Level) λ [t] → reflect-level [t] <ᵘ l ×
+    ∃ λ u → Γ ⊢ A :⇒*: U u × Γ ⊩Level t ≡ u ∷Level × Γ ⊩⟨ l ⟩ A
+  ⊩U≡⇔ {Γ} {t} {A} =
       (λ (⊩U , ⊩A , U≡A) →
-        Σ.map idᶠ (Σ.map idᶠ (Σ.map idᶠ (_, ⊩A))) $
+        Σ.map idᶠ (Σ.map idᶠ (Σ.map idᶠ (Σ.map idᶠ (_, ⊩A)))) $
         lemma (U-elim ⊩U) (irrelevanceEq ⊩U (U-intr (U-elim ⊩U)) U≡A))
-      , λ (t<l , u , A⇒*U@([ _ , ⊢U , _ ]) , t≡u , ⊩A) →
+      , λ ([t] , t<l , u , A⇒*U@([ _ , ⊢U , _ ]) , t≡u , ⊩A) →
         Uᵣ′ _ [t] t<l (idRed:*: (Uⱼ (escapeLevel [t])))
         , ⊩A
         , U₌ u A⇒*U t≡u
@@ -145,15 +145,14 @@ opaque
     lemma :
       (⊩U : Γ ⊩⟨ l ⟩U U t) →
       Γ ⊩⟨ l ⟩ U t ≡ A / U-intr ⊩U →
-      reflect-level [t] <ᵘ l × ∃ λ u → Γ ⊢ A :⇒*: U u × Γ ⊩Level t ≡ u ∷Level
+      Σ (Γ ⊩Level t ∷Level) λ [t] → reflect-level [t] <ᵘ l × ∃ λ u → Γ ⊢ A :⇒*: U u × Γ ⊩Level t ≡ u ∷Level
     lemma (noemb (Uᵣ k [k] k< U⇒*U)) (U₌ k′ D k≡k′) =
       case U⇒*U→≡ U⇒*U of λ {
-        PE.refl →
-      PE.subst (_<ᵘ _) (reflect-level-cong [k] [t] PE.refl) k< , k′ , D , k≡k′ }
+        PE.refl → [k] , k< , k′ , D , k≡k′ }
     lemma (emb ≤ᵘ-refl ⊩U) A≡U =
-      Σ.map ≤ᵘ-step idᶠ (lemma ⊩U A≡U)
+      Σ.map idᶠ (Σ.map ≤ᵘ-step idᶠ) (lemma ⊩U A≡U)
     lemma (emb (≤ᵘ-step p) ⊩U) A≡U =
-      Σ.map ≤ᵘ-step idᶠ (lemma (emb p ⊩U) A≡U)
+      Σ.map idᶠ (Σ.map ≤ᵘ-step idᶠ) (lemma (emb p ⊩U) A≡U)
 
 opaque
   unfolding _⊩⟨_⟩_≡_ _⊩⟨_⟩_≡_∷_
@@ -256,8 +255,9 @@ opaque
             let (⊩t[σ₁] , ⊩t[σ₂] , ⊩t≡) = ⊩≡∷Level⇔ .proj₁ (⊩ᵛ∷⇔ .proj₁ ⊩t .proj₂ σ₁≡σ₂)
                 ⊢Δ = escape-⊩ˢ≡∷ σ₁≡σ₂ .proj₁
             in
-              ⊩U≡⇔ ⊩t[σ₁] .proj₂ $
-              {!   !}
+              ⊩U≡⇔ .proj₂ $
+                ⊩t[σ₁]
+              , {!   !}
               , t [ σ₂ ]
               , idRed:*: (Uⱼ (escapeLevel ⊩t[σ₂]))
               , ⊩t≡
@@ -271,7 +271,7 @@ opaque
   ⊩ᵛU∷U : (⊩t : Γ ⊩ᵛ⟨ l ⟩ t ∷ Level) → Γ ⊩ᵛ⟨ 2+ (reflect-level (⊩∷Level⇔ .proj₁ (⊩ᵛ∷→⊩∷ ⊩t))) ⟩ U t ∷ U (sucᵘ t)
   ⊩ᵛU∷U {Γ} {t} ⊩t =
     ⊩ᵛ∷⇔ .proj₂
-      ( {! ⊩t  !}
+      ( {!   !}
       , λ {_} {Δ} {σ₁} {σ₂} →
           -- Δ ⊩ˢ σ₁ ≡ σ₂ ∷ Γ                                         →⟨ proj₁ ∘→ escape-⊩ˢ≡∷ ⟩
 
@@ -283,14 +283,24 @@ opaque
           -- Δ ⊩⟨ 2+ l ⟩ U l ∷ U (1+ l)                               →⟨ refl-⊩≡∷ ⟩
 
           -- Δ ⊩⟨ 2+ l ⟩ U l ≡ U l ∷ U (1+ l)                         □
-          λ σ₁≡σ₂ → Type→⊩≡∷U⇔ Uₙ Uₙ .proj₂
-            ( {! ⊩ᵛ∷⇔ .proj₁ ⊩t .proj₂ σ₁≡σ₂  !}
-            , {!   !}
-            , {!   !}
-            , {!   !}
-            , {!   !}
-            , {!   !}
-            )
+          λ σ₁≡σ₂ →
+            let ⊩t[σ₁]≡t[σ₂] = ⊩ᵛ∷⇔ .proj₁ ⊩t .proj₂ σ₁≡σ₂
+                (⊩t[σ₁] , ⊩t[σ₂] , ⊩t≡) = ⊩≡∷Level⇔ .proj₁ ⊩t[σ₁]≡t[σ₂]
+            in
+              Type→⊩≡∷U⇔ Uₙ Uₙ .proj₂ $
+                {! ⊩t[σ₁]≡t[σ₂]  !}
+              , {!   !}
+              , ⊩U≡⇔ .proj₂
+                ( ⊩t[σ₁]
+                , {!   !}
+                , t [ σ₂ ]
+                , idRed:*: (Uⱼ (escapeLevel ⊩t[σ₂]))
+                , ⊩t≡
+                , ⊩U⇔ .proj₂ (⊩t[σ₂] , {!   !})
+                )
+              , Uⱼ (escapeLevel ⊩t[σ₁])
+              , conv (Uⱼ (escapeLevel ⊩t[σ₂])) (U-cong (sucᵘ-cong (sym (≅ₜ-eq (escapeLevelEq ⊩t≡)))))
+              , ≅ₜ-U-cong (escapeLevelEq ⊩t≡)
       )
 
 opaque
