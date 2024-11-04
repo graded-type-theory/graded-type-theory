@@ -190,6 +190,9 @@ opaque
   ⊩Level-zeroᵘ : ⊢ Γ → Γ ⊩Level zeroᵘ ∷Level
   ⊩Level-zeroᵘ ⊢Γ = Levelₜ zeroᵘ (idRedTerm:*: (zeroᵘⱼ ⊢Γ)) (≅ₜ-zeroᵘrefl ⊢Γ) zeroᵘᵣ
 
+  reflect-level-zero : (⊢Γ : ⊢ Γ) → reflect-level (⊩Level-zeroᵘ ⊢Γ) PE.≡ 0
+  reflect-level-zero ⊢Γ = PE.refl
+
   ⊩zeroᵘ : ⊢ Γ → Γ ⊩⟨ l ⟩ zeroᵘ ∷ Level
   ⊩zeroᵘ = ⊩zeroᵘ∷Level⇔ .proj₂
 

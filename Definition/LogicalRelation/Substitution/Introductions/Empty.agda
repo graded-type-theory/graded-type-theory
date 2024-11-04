@@ -21,12 +21,13 @@ open import Definition.Untyped.Neutral M type-variant
 open import Definition.Typed R
 open import Definition.Typed.Properties R
 open import Definition.LogicalRelation R
-open import Definition.LogicalRelation.Hidden R
+open import Definition.LogicalRelation.Hidden R {{eqrel}}
 open import Definition.LogicalRelation.Irrelevance R
 open import Definition.LogicalRelation.Properties R
 open import Definition.LogicalRelation.ShapeView R
-open import Definition.LogicalRelation.Substitution R
-open import Definition.LogicalRelation.Substitution.Introductions.Universe R
+open import Definition.LogicalRelation.Substitution R {{eqrel}}
+open import Definition.LogicalRelation.Substitution.Introductions.Level R {{eqrel}}
+open import Definition.LogicalRelation.Substitution.Introductions.Universe R {{eqrel}}
 
 open import Tools.Function
 open import Tools.Nat using (Nat; 1+)
@@ -166,14 +167,13 @@ opaque
   Emptyᵗᵛ : ⊩ᵛ Γ → Γ ⊩ᵛ⟨ 1 ⟩ Empty ∷ U zeroᵘ
   Emptyᵗᵛ ⊩Γ =
     ⊩ᵛ∷⇔ .proj₂
-      ( {!⊩ᵛU ⊩Γ!}
+      ( {!⊩ᵛU!}
       , λ σ₁≡σ₂ →
           case escape-⊩ˢ≡∷ σ₁≡σ₂ of λ
             (⊢Δ , _) →
           case Emptyⱼ ⊢Δ  of λ
             ⊢Empty →
-          -- Type→⊩≡∷U⇔ Emptyₙ Emptyₙ .proj₂
-          --   (≤ᵘ-refl , refl-⊩≡ (⊩Empty ⊢Δ) ,
-          --   ⊢Empty , ⊢Empty , ≅ₜ-Emptyrefl ⊢Δ)
-          {!   !}
+          Type→⊩≡∷U⇔ Emptyₙ Emptyₙ .proj₂
+            (⊩Level-zeroᵘ ⊢Δ , {!   !} , refl-⊩≡ (⊩Empty ⊢Δ) ,
+            ⊢Empty , ⊢Empty , ≅ₜ-Emptyrefl ⊢Δ)
       )

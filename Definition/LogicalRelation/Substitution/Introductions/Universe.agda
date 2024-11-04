@@ -26,8 +26,8 @@ open import Definition.LogicalRelation.Hidden R {{eqrel}}
 open import Definition.LogicalRelation.Irrelevance R
 open import Definition.LogicalRelation.Properties R
 open import Definition.LogicalRelation.ShapeView R
-open import Definition.LogicalRelation.Substitution R
-open import Definition.LogicalRelation.Substitution.Introductions.Level R
+open import Definition.LogicalRelation.Substitution R {{eqrel}}
+open import Definition.LogicalRelation.Substitution.Introductions.Level R {{eqrel}}
 
 open import Tools.Function
 open import Tools.Nat as N using (Nat; 1+; 2+)
@@ -257,7 +257,7 @@ opaque
             in
               ⊩U≡⇔ .proj₂ $
                 ⊩t[σ₁]
-              , {!   !}
+              , {!    !}
               , t [ σ₂ ]
               , idRed:*: (Uⱼ (escapeLevel ⊩t[σ₂]))
               , ⊩t≡
@@ -271,7 +271,7 @@ opaque
   ⊩ᵛU∷U : (⊩t : Γ ⊩ᵛ⟨ l ⟩ t ∷ Level) → Γ ⊩ᵛ⟨ 2+ (reflect-level (⊩∷Level⇔ .proj₁ (⊩ᵛ∷→⊩∷ ⊩t))) ⟩ U t ∷ U (sucᵘ t)
   ⊩ᵛU∷U {Γ} {t} ⊩t =
     ⊩ᵛ∷⇔ .proj₂
-      ( {!   !}
+      ( {!    !}
       , λ {_} {Δ} {σ₁} {σ₂} →
           -- Δ ⊩ˢ σ₁ ≡ σ₂ ∷ Γ                                         →⟨ proj₁ ∘→ escape-⊩ˢ≡∷ ⟩
 
