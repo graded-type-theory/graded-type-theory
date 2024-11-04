@@ -147,33 +147,33 @@ opaque
 
 opaque
 
-  -- Validity for Empty, seen as a type formerr.
+  -- Validity for Empty, seen as a type former.
 
-  Emptyᵛ : ⊩ᵛ Γ → Γ ⊩ᵛ⟨ l ⟩ Empty
-  Emptyᵛ {Γ} {l} ⊩Γ =
-    ⊩ᵛ⇔ .proj₂
+  Emptyᵛ : ⊩ᵛ Γ → Γ ⊩ᵛ Empty
+  Emptyᵛ {Γ} ⊩Γ =
+    ⊩ᵛ-const-intro
       ( ⊩Γ
       , λ {_} {Δ = Δ} {σ₁ = σ₁} {σ₂ = σ₂} →
           Δ ⊩ˢ σ₁ ≡ σ₂ ∷ Γ        →⟨ proj₁ ∘→ escape-⊩ˢ≡∷ ⟩
           ⊢ Δ                     ⇔˘⟨ ⊩Empty⇔ ⟩→
-          (Δ ⊩⟨ l ⟩ Empty)        →⟨ refl-⊩≡ ⟩
-          Δ ⊩⟨ l ⟩ Empty ≡ Empty  □
+          (Δ ⊩⟨ 0 ⟩ Empty)        →⟨ refl-⊩≡ ⟩
+          Δ ⊩⟨ 0 ⟩ Empty ≡ Empty  □
       )
 
 opaque
 
   -- Validity for Empty, seen as a term former.
 
-  Emptyᵗᵛ : ⊩ᵛ Γ → Γ ⊩ᵛ⟨ 1 ⟩ Empty ∷ U zeroᵘ
+  Emptyᵗᵛ : ⊩ᵛ Γ → Γ ⊩ᵛ Empty ∷ U zeroᵘ
   Emptyᵗᵛ ⊩Γ =
-    ⊩ᵛ∷⇔ .proj₂
-      ( {!⊩ᵛU!}
+    ⊩ᵛ∷-const-intro {l = 1}
+      ( ⊩ᵛU (zeroᵘᵛ ⊩Γ)
       , λ σ₁≡σ₂ →
           case escape-⊩ˢ≡∷ σ₁≡σ₂ of λ
             (⊢Δ , _) →
           case Emptyⱼ ⊢Δ  of λ
             ⊢Empty →
           Type→⊩≡∷U⇔ Emptyₙ Emptyₙ .proj₂
-            (⊩Level-zeroᵘ ⊢Δ , {!   !} , refl-⊩≡ (⊩Empty ⊢Δ) ,
+            (⊩Level-zeroᵘ ⊢Δ , {! ≤ᵘ-refl  !} , refl-⊩≡ (⊩Empty ⊢Δ) ,
             ⊢Empty , ⊢Empty , ≅ₜ-Emptyrefl ⊢Δ)
       )

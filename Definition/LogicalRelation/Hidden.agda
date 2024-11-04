@@ -17,7 +17,7 @@ module Definition.LogicalRelation.Hidden
 open EqRelSet eqrel
 open Type-restrictions R
 
-open import Definition.LogicalRelation R
+open import Definition.LogicalRelation R {{eqrel}}
 open import Definition.LogicalRelation.Irrelevance R
 open import Definition.LogicalRelation.Properties R
 open import Definition.LogicalRelation.ShapeView R
@@ -851,6 +851,20 @@ opaque
     Γ ⊩⟨ l′ ⟩ t ∷ A
   emb-⊩∷ l≤l′ =
     ⊩∷⇔⊩≡∷ .proj₂ ∘→ emb-⊩≡∷ l≤l′ ∘→ ⊩∷⇔⊩≡∷ .proj₁
+
+opaque
+  unfolding _⊩⟨_⟩_≡_
+
+  -- Heterogeneous transitivity for _⊩⟨_⟩_≡_.
+
+  trans′-⊩≡ :
+    Γ ⊩⟨ l ⟩ A ≡ B →
+    Γ ⊩⟨ l′ ⟩ B ≡ C →
+    Γ ⊩⟨ l Tools.Nat.⊔ l′ ⟩ A ≡ C
+  trans′-⊩≡ (⊩A , _ , A≡B) (⊩B , ⊩C , B≡C) =
+    let ⊩A′ = emb-⊩ Tools.Nat.≤′⊔ʳ ⊩A
+        ⊩C′ = emb-⊩ Tools.Nat.≤′⊔ˡ ⊩C
+    in ⊩A′ , ⊩C′ , transEq ⊩A′ ⊩B ⊩C′ (irrelevanceEq ⊩A ⊩A′ A≡B) B≡C
 
 ------------------------------------------------------------------------
 -- Some introduction lemmas

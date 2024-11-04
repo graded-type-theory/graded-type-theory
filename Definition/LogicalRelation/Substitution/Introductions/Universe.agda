@@ -246,32 +246,33 @@ opaque
 
   -- Validity of U.
 
-  ⊩ᵛU : (⊩t : Γ ⊩ᵛ⟨ l ⟩ t ∷ Level) → Γ ⊩ᵛ⟨ 1+ (reflect-level (⊩∷Level⇔ .proj₁ (⊩ᵛ∷→⊩∷ ⊩t))) ⟩ U t
+  ⊩ᵛU : Γ ⊩ᵛ t ∷ Level → Γ ⊩ᵛ U t
   ⊩ᵛU {Γ} {t} ⊩t =
     ⊩ᵛ⇔ .proj₂
       ( wf-⊩ᵛ (wf-⊩ᵛ∷ ⊩t)
       , λ {_} {Δ} {σ₁} {σ₂} →
           λ σ₁≡σ₂ →
-            let (⊩t[σ₁] , ⊩t[σ₂] , ⊩t≡) = ⊩≡∷Level⇔ .proj₁ (⊩ᵛ∷⇔ .proj₁ ⊩t .proj₂ σ₁≡σ₂)
+            let (⊩t[σ₁] , ⊩t[σ₂] , ⊩t≡) = ⊩≡∷Level⇔ .proj₁ (⊩ᵛ∷⇔ .proj₁ ⊩t .proj₂ σ₁≡σ₂ .proj₂)
                 ⊢Δ = escape-⊩ˢ≡∷ σ₁≡σ₂ .proj₁
             in
+              _ , (
               ⊩U≡⇔ .proj₂ $
                 ⊩t[σ₁]
-              , {!    !}
+              , ≤ᵘ-refl
               , t [ σ₂ ]
               , idRed:*: (Uⱼ (escapeLevel ⊩t[σ₂]))
               , ⊩t≡
-              , ⊩U⇔ .proj₂ (⊩t[σ₂] , {!   !})
+              , ⊩U⇔ .proj₂ (⊩t[σ₂] , 1+≤ᵘ1+ {!   !}))
       )
 
 opaque
 
   -- Validity of U, seen as a term former.
 
-  ⊩ᵛU∷U : (⊩t : Γ ⊩ᵛ⟨ l ⟩ t ∷ Level) → Γ ⊩ᵛ⟨ 2+ (reflect-level (⊩∷Level⇔ .proj₁ (⊩ᵛ∷→⊩∷ ⊩t))) ⟩ U t ∷ U (sucᵘ t)
+  ⊩ᵛU∷U : Γ ⊩ᵛ t ∷ Level → Γ ⊩ᵛ U t ∷ U (sucᵘ t)
   ⊩ᵛU∷U {Γ} {t} ⊩t =
     ⊩ᵛ∷⇔ .proj₂
-      ( {!    !}
+      ( ⊩ᵛU (sucᵘᵛ ⊩t)
       , λ {_} {Δ} {σ₁} {σ₂} →
           -- Δ ⊩ˢ σ₁ ≡ σ₂ ∷ Γ                                         →⟨ proj₁ ∘→ escape-⊩ˢ≡∷ ⟩
 
@@ -284,12 +285,13 @@ opaque
 
           -- Δ ⊩⟨ 2+ l ⟩ U l ≡ U l ∷ U (1+ l)                         □
           λ σ₁≡σ₂ →
-            let ⊩t[σ₁]≡t[σ₂] = ⊩ᵛ∷⇔ .proj₁ ⊩t .proj₂ σ₁≡σ₂
+            let ⊩t[σ₁]≡t[σ₂] = ⊩ᵛ∷⇔ .proj₁ ⊩t .proj₂ σ₁≡σ₂ .proj₂
                 (⊩t[σ₁] , ⊩t[σ₂] , ⊩t≡) = ⊩≡∷Level⇔ .proj₁ ⊩t[σ₁]≡t[σ₂]
             in
+              _ , (
               Type→⊩≡∷U⇔ Uₙ Uₙ .proj₂ $
                 {! ⊩t[σ₁]≡t[σ₂]  !}
-              , {!   !}
+              , ≤ᵘ-refl
               , ⊩U≡⇔ .proj₂
                 ( ⊩t[σ₁]
                 , {!   !}
@@ -300,7 +302,7 @@ opaque
                 )
               , Uⱼ (escapeLevel ⊩t[σ₁])
               , conv (Uⱼ (escapeLevel ⊩t[σ₂])) (U-cong (sucᵘ-cong (sym (≅ₜ-eq (escapeLevelEq ⊩t≡)))))
-              , ≅ₜ-U-cong (escapeLevelEq ⊩t≡)
+              , ≅ₜ-U-cong (escapeLevelEq ⊩t≡))
       )
 
 opaque
@@ -308,16 +310,16 @@ opaque
   -- Validity of one of the typing rules called univ.
 
   ⊩ᵛ∷U→⊩ᵛ :
-    Γ ⊩ᵛ⟨ l ⟩ A ∷ U t →
-    Γ ⊩ᵛ⟨ l ⟩ A
+    Γ ⊩ᵛ A ∷ U t →
+    Γ ⊩ᵛ A
   ⊩ᵛ∷U→⊩ᵛ ⊩A∷U =
     case ⊩ᵛ∷⇔ .proj₁ ⊩A∷U of λ
       (⊩U , A≡A∷U) →
     ⊩ᵛ⇔ .proj₂
       ( wf-⊩ᵛ ⊩U
       , λ σ₁≡σ₂ →
-        let ([t] , t<l , A≡A , _) = ⊩≡∷U⇔ .proj₁ (A≡A∷U σ₁≡σ₂) in
-        emb-⊩≡ (<ᵘ→≤ᵘ t<l) A≡A
+        let ([t] , t<l , A≡A , _) = ⊩≡∷U⇔ .proj₁ (A≡A∷U σ₁≡σ₂ .proj₂) in
+        _ , emb-⊩≡ (<ᵘ→≤ᵘ t<l) A≡A
       )
 
 opaque
@@ -325,14 +327,14 @@ opaque
   -- Validity of another of the typing rules called univ.
 
   ⊩ᵛ≡∷U→⊩ᵛ≡ :
-    Γ ⊩ᵛ⟨ l ⟩ A ≡ B ∷ U t →
-    Γ ⊩ᵛ⟨ l ⟩ A ≡ B
+    Γ ⊩ᵛ A ≡ B ∷ U t →
+    Γ ⊩ᵛ A ≡ B
   ⊩ᵛ≡∷U→⊩ᵛ≡ A≡B∷U =
     case ⊩ᵛ≡∷⇔ .proj₁ A≡B∷U of λ
       (⊩U , A≡B∷U) →
     ⊩ᵛ≡⇔ .proj₂
       ( wf-⊩ᵛ ⊩U
       , λ σ₁≡σ₂ →
-        let ([t] , t<l , A≡B , _) = ⊩≡∷U⇔ .proj₁ (A≡B∷U σ₁≡σ₂) in
-        emb-⊩≡ (<ᵘ→≤ᵘ t<l) A≡B
+        let ([t] , t<l , A≡B , _) = ⊩≡∷U⇔ .proj₁ (A≡B∷U σ₁≡σ₂ .proj₂) in
+        _ , emb-⊩≡ (<ᵘ→≤ᵘ t<l) A≡B
       )

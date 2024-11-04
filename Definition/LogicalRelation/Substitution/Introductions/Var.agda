@@ -57,27 +57,26 @@ opaque
   varᵛ :
     x ∷ A ∈ Γ →
     ⊩ᵛ Γ →
-    ∃ λ l → Γ ⊩ᵛ⟨ l ⟩ var x ∷ A
+    Γ ⊩ᵛ var x ∷ A
   varᵛ (here {A}) ⊩Γ∙A =
     case wf-⊩ᵛ-∙ ⊩Γ∙A of λ
-      (l , ⊩A) →
+      ⊩A →
     case wk1-⊩ᵛ ⊩A ⊩A of λ
       ⊩wk1-A →
-      l
-    , ⊩ᵛ∷⇔ .proj₂
+      ⊩ᵛ∷⇔ .proj₂
         ( ⊩wk1-A
         , λ σ₁≡σ₂ →
+            _ , (
             case ⊩ˢ≡∷∙⇔ .proj₁ σ₁≡σ₂ of λ
               ((_ , _ , σ₁₀≡σ₂₀) , _) →
             level-⊩≡∷
-              (⊩ᵛ→⊩ˢ∷→⊩[] ⊩wk1-A (wf-⊩ˢ≡∷ σ₁≡σ₂ .proj₁))
+              (⊩ᵛ→⊩ˢ∷→⊩[] ⊩wk1-A (wf-⊩ˢ≡∷ σ₁≡σ₂ .proj₁) .proj₂)
               (PE.subst (_⊩⟨_⟩_≡_∷_ _ _ _ _) (PE.sym $ wk1-tail A)
-                 σ₁₀≡σ₂₀)
+                 σ₁₀≡σ₂₀))
         )
   varᵛ (there x∈Γ) ⊩Γ∙B =
-    case wf-⊩ᵛ-∙ ⊩Γ∙B .proj₂ of λ
-      ⊩B →
-    Σ.map idᶠ (wk1-⊩ᵛ∷ ⊩B) (varᵛ x∈Γ (wf-⊩ᵛ ⊩B))
+    case wf-⊩ᵛ-∙ ⊩Γ∙B of λ
+      ⊩B → wk1-⊩ᵛ∷ ⊩B (varᵛ x∈Γ (wf-⊩ᵛ ⊩B))
 
 opaque
 
@@ -85,7 +84,6 @@ opaque
 
   varᵛ′ :
     x ∷ A ∈ Γ →
-    Γ ⊩ᵛ⟨ l ⟩ A →
-    Γ ⊩ᵛ⟨ l ⟩ var x ∷ A
-  varᵛ′ x∈Γ ⊩A =
-    level-⊩ᵛ∷ ⊩A (varᵛ x∈Γ (wf-⊩ᵛ ⊩A) .proj₂)
+    Γ ⊩ᵛ A →
+    Γ ⊩ᵛ var x ∷ A
+  varᵛ′ x∈Γ ⊩A = varᵛ x∈Γ (wf-⊩ᵛ ⊩A)

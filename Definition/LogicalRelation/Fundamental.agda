@@ -54,7 +54,7 @@ opaque mutual
 
 
   -- Fundamental theorem for types.
-  fundamental-⊩ᵛ : Γ ⊢ A → ∃ λ l → Γ ⊩ᵛ⟨ l ⟩ A
+  fundamental-⊩ᵛ : Γ ⊢ A → Γ ⊩ᵛ A
   fundamental-⊩ᵛ (ℕⱼ ⊢Γ) =
     0 , ℕᵛ (valid ⊢Γ)
   fundamental-⊩ᵛ (Emptyⱼ x) =
@@ -73,7 +73,7 @@ opaque mutual
     _ , ⊩ᵛ∷U→⊩ᵛ (fundamental-⊩ᵛ∷ ⊢A .proj₂)
 
   -- Fundamental theorem for type equality.
-  fundamental-⊩ᵛ≡ : Γ ⊢ A ≡ B → ∃ λ l → Γ ⊩ᵛ⟨ l ⟩ A ≡ B
+  fundamental-⊩ᵛ≡ : Γ ⊢ A ≡ B → Γ ⊩ᵛ A ≡ B
   fundamental-⊩ᵛ≡ (univ A≡B) =
     let a = ⊩ᵛ≡∷U→⊩ᵛ≡ (proj₂ (fundamental-⊩ᵛ≡∷ A≡B))
     in _ , a
@@ -99,7 +99,7 @@ opaque mutual
                    (proj₂ (fundamental-⊩ᵛ≡∷ u₁≡u₂)))
 
   -- Fundamental theorem for terms.
-  fundamental-⊩ᵛ∷ : Γ ⊢ t ∷ A → ∃ λ l → Γ ⊩ᵛ⟨ l ⟩ t ∷ A
+  fundamental-⊩ᵛ∷ : Γ ⊢ t ∷ A → Γ ⊩ᵛ t ∷ A
   fundamental-⊩ᵛ∷ (ℕⱼ ⊢Γ) =
     1 , ℕᵗᵛ (valid ⊢Γ)
   fundamental-⊩ᵛ∷ (Emptyⱼ x) =
@@ -177,7 +177,7 @@ opaque mutual
     _ , ⊩ᵛU∷U (valid ⊢Γ)
 
   -- Fundamental theorem for term equality.
-  fundamental-⊩ᵛ≡∷ : Γ ⊢ t ≡ u ∷ A → ∃ λ l → Γ ⊩ᵛ⟨ l ⟩ t ≡ u ∷ A
+  fundamental-⊩ᵛ≡∷ : Γ ⊢ t ≡ u ∷ A → Γ ⊩ᵛ t ≡ u ∷ A
   fundamental-⊩ᵛ≡∷ (refl ⊢t) =
     _ , refl-⊩ᵛ≡∷ (proj₂ (fundamental-⊩ᵛ∷ ⊢t))
   fundamental-⊩ᵛ≡∷ (sym t≡u) =

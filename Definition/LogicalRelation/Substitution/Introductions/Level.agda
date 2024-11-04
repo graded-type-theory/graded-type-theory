@@ -17,7 +17,7 @@ open EqRelSet eqrel
 open Type-restrictions R
 
 open import Definition.LogicalRelation R {{eqrel}}
-open import Definition.LogicalRelation.Hidden R
+open import Definition.LogicalRelation.Hidden R {{eqrel}}
 open import Definition.LogicalRelation.Irrelevance R
 open import Definition.LogicalRelation.Properties R
 open import Definition.LogicalRelation.ShapeView R
@@ -27,6 +27,7 @@ open import Definition.Typed R
 open import Definition.Typed.Properties R
 
 open import Definition.Untyped M
+open import Definition.Untyped.Neutral M
 open import Definition.Untyped.Properties M
 
 open import Tools.Empty
@@ -42,22 +43,22 @@ private variable
   l l′ l″ l‴                        : Universe-level
   p q r                             : M
 
-mutual
-  reflect-level-subst
-    : ∀ {n m} {Γ : Con Term n} {Δ : Con Term m} {σ : Subst m n} {t : Term n}
-    → (⊩t : Γ ⊩Level t ∷Level)
-    → (⊩t[σ] : Δ ⊩Level t [ σ ] ∷Level)
-    → reflect-level ⊩t ≤ᵘ reflect-level ⊩t[σ]
-  reflect-level-subst {σ} (Levelₜ k [ _ , _ , t⇒k ] k≡k (ne x)) (Levelₜ k′ [ _ , _ , t[σ]⇒k′ ] k′≡k′ prop′) =
-    0≤ᵘ
-  reflect-level-subst {σ} (Levelₜ k [ _ , _ , t⇒k ] k≡k zeroᵘᵣ) (Levelₜ k′ [ _ , _ , t[σ]⇒k′ ] k′≡k′ prop′) =
-    0≤ᵘ
-  reflect-level-subst {σ} (Levelₜ k [ _ , _ , t⇒k ] k≡k (sucᵘᵣ x)) (Levelₜ k′ [ _ , _ , t[σ]⇒k′ ] k′≡k′ (sucᵘᵣ y)) =
-    1+≤ᵘ1+ {!   !}
-  reflect-level-subst {σ} (Levelₜ k [ _ , _ , t⇒k ] k≡k (sucᵘᵣ x)) (Levelₜ k′ [ _ , _ , t[σ]⇒k′ ] k′≡k′ zeroᵘᵣ) =
-    ⊥-elim {!   !}
-  reflect-level-subst {σ} (Levelₜ k [ _ , _ , t⇒k ] k≡k (sucᵘᵣ x)) (Levelₜ k′ [ _ , _ , t[σ]⇒k′ ] k′≡k′ (ne y)) =
-    ⊥-elim {!    !}
+-- mutual
+--   reflect-level-subst
+--     : ∀ {n m} {Γ : Con Term n} {Δ : Con Term m} {σ : Subst m n} {t : Term n}
+--     → (⊩t : Γ ⊩Level t ∷Level)
+--     → (⊩t[σ] : Δ ⊩Level t [ σ ] ∷Level)
+--     → reflect-level ⊩t ≤ᵘ reflect-level ⊩t[σ]
+--   reflect-level-subst {σ} (Levelₜ k [ _ , _ , t⇒k ] k≡k (ne x)) (Levelₜ k′ [ _ , _ , t[σ]⇒k′ ] k′≡k′ prop′) =
+--     0≤ᵘ
+--   reflect-level-subst {σ} (Levelₜ k [ _ , _ , t⇒k ] k≡k zeroᵘᵣ) (Levelₜ k′ [ _ , _ , t[σ]⇒k′ ] k′≡k′ prop′) =
+--     0≤ᵘ
+--   reflect-level-subst {σ} (Levelₜ k [ _ , _ , t⇒k ] k≡k (sucᵘᵣ x)) (Levelₜ k′ [ _ , _ , t[σ]⇒k′ ] k′≡k′ (sucᵘᵣ y)) =
+--     1+≤ᵘ1+ {!   !}
+--   reflect-level-subst {σ} (Levelₜ k [ _ , _ , t⇒k ] k≡k (sucᵘᵣ x)) (Levelₜ k′ [ _ , _ , t[σ]⇒k′ ] k′≡k′ zeroᵘᵣ) =
+--     ⊥-elim {!   !}
+--   reflect-level-subst {σ} (Levelₜ k [ _ , _ , t⇒k ] k≡k (sucᵘᵣ x)) (Levelₜ k′ [ _ , _ , t[σ]⇒k′ ] k′≡k′ (ne y)) =
+--     ⊥-elim {!    !}
 
   -- reflect-level-prop-subst
   --   : ∀ {n m} {Γ : Con Term n} {Δ : Con Term m} {σ : Subst m n} {t : Term n}
@@ -165,6 +166,72 @@ opaque
     Γ ⊩⟨ l ⟩ zeroᵘ ∷ Level         ⇔⟨ ⊩zeroᵘ∷Level⇔ ⟩
     ⊢ Γ                       □⇔
 
+opaque
+
+  -- A characterisation lemma for _⊩⟨_⟩_∷_.
+
+  ⊩sucᵘ∷Level⇔ :
+    Γ ⊩⟨ l ⟩ sucᵘ t ∷ Level ⇔
+    Γ ⊩⟨ l ⟩ t ∷ Level
+  ⊩sucᵘ∷Level⇔ {Γ} {l} {t} =
+    Γ ⊩⟨ l ⟩ sucᵘ t ∷ Level  ⇔⟨ ⊩∷Level⇔ ⟩
+    Γ ⊩Level sucᵘ t ∷Level       ⇔⟨ (λ { (Levelₜ _ sucᵘ-t⇒*u _ u-ok) →
+                                case whnfRed*Term (redₜ sucᵘ-t⇒*u) sucᵘₙ of λ {
+                                  PE.refl →
+                                lemma u-ok }})
+                         , (λ ⊩t@(Levelₜ _ [ ⊢t , _ , t⇒*u ] u≅u u-ok) →
+                              let t↘u = t⇒*u , level u-ok in
+                              Levelₜ _ (idRedTerm:*: (sucᵘⱼ ⊢t))
+                                (≅ₜ-sucᵘ-cong $
+                                 ≅ₜ-red (id (Levelⱼ (wfTerm ⊢t)) , Levelₙ) t↘u t↘u u≅u)
+                                (sucᵘᵣ ⊩t))
+                         ⟩
+    Γ ⊩Level t ∷Level           ⇔˘⟨ ⊩∷Level⇔ ⟩
+    Γ ⊩⟨ l ⟩ t ∷ Level      □⇔
+    where
+    lemma : Level-prop Γ (sucᵘ t) → Γ ⊩Level t ∷Level
+    lemma (sucᵘᵣ ⊩t)           = ⊩t
+    lemma (ne (neNfₜ () _ _))
+
+opaque
+
+  -- A characterisation lemma for _⊩⟨_⟩_≡_∷_.
+
+  ⊩sucᵘ≡sucᵘ∷Level⇔ :
+    Γ ⊩⟨ l ⟩ sucᵘ t ≡ sucᵘ u ∷ Level ⇔
+    Γ ⊩⟨ l ⟩ t ≡ u ∷ Level
+  ⊩sucᵘ≡sucᵘ∷Level⇔ {Γ} {l} {t} {u} =
+    Γ ⊩⟨ l ⟩ sucᵘ t ≡ sucᵘ u ∷ Level                             ⇔⟨ ⊩≡∷Level⇔ ⟩
+    Γ ⊩Level sucᵘ t ∷Level × Γ ⊩Level sucᵘ u ∷Level × Γ ⊩Level sucᵘ t ≡ sucᵘ u ∷Level  ⇔⟨ ⊩∷Level⇔ {l = l} ∘⇔ ⊩sucᵘ∷Level⇔ ∘⇔ sym⇔ ⊩∷Level⇔
+                                                                ×-cong-⇔
+                                                              ⊩∷Level⇔ {l = l} ∘⇔ ⊩sucᵘ∷Level⇔ ∘⇔ sym⇔ ⊩∷Level⇔
+                                                                ×-cong-⇔
+                                                              (lemma₁ , lemma₂) ⟩
+    Γ ⊩Level t ∷Level × Γ ⊩Level u ∷Level × Γ ⊩Level t ≡ u ∷Level                  ⇔˘⟨ ⊩≡∷Level⇔ ⟩
+    Γ ⊩⟨ l ⟩ t ≡ u ∷ Level                                     □⇔
+    where
+    lemma₀ : [Level]-prop Γ (sucᵘ t) (sucᵘ u) → Γ ⊩Level t ≡ u ∷Level
+    lemma₀ (sucᵘᵣ t≡u)           = t≡u
+    lemma₀ (ne (neNfₜ₌ () _ _))
+
+    lemma₁ : Γ ⊩Level sucᵘ t ≡ sucᵘ u ∷Level → Γ ⊩Level t ≡ u ∷Level
+    lemma₁ (Levelₜ₌ _ _ sucᵘ-t⇒*t′ sucᵘ-u⇒*u′ _ t′≡u′) =
+      case whnfRed*Term (redₜ sucᵘ-t⇒*t′) sucᵘₙ of λ {
+        PE.refl →
+      case whnfRed*Term (redₜ sucᵘ-u⇒*u′) sucᵘₙ of λ {
+        PE.refl →
+      lemma₀ t′≡u′}}
+
+    lemma₂ : Γ ⊩Level t ≡ u ∷Level → Γ ⊩Level sucᵘ t ≡ sucᵘ u ∷Level
+    lemma₂
+      t≡u@(Levelₜ₌ _ _ [ ⊢t , _ , t⇒*t′ ] [ ⊢u , _ , u⇒*u′ ] t′≅u′ t′≡u′) =
+      let t′-ok , u′-ok = lsplit t′≡u′ in
+      Levelₜ₌ _ _ (idRedTerm:*: (sucᵘⱼ ⊢t)) (idRedTerm:*: (sucᵘⱼ ⊢u))
+        (≅ₜ-sucᵘ-cong $
+         ≅ₜ-red (id (Levelⱼ (wfTerm ⊢t)) , Levelₙ) (t⇒*t′ , t′-ok)
+           (u⇒*u′ , u′-ok) t′≅u′)
+        (sucᵘᵣ t≡u)
+
 ------------------------------------------------------------------------
 -- Level
 
@@ -172,16 +239,16 @@ opaque
 
   -- Validity of Level, seen as a type former.
 
-  Levelᵛ : ⊩ᵛ Γ → Γ ⊩ᵛ⟨ l ⟩ Level
-  Levelᵛ {Γ} {l} ⊩Γ =
-    ⊩ᵛ⇔ .proj₂
+  Levelᵛ : ⊩ᵛ Γ → Γ ⊩ᵛ Level
+  Levelᵛ {Γ} ⊩Γ =
+    ⊩ᵛ-const-intro
       ( ⊩Γ
       , λ {_} {Δ = Δ} {σ₁ = σ₁} {σ₂ = σ₂} →
           Δ ⊩ˢ σ₁ ≡ σ₂ ∷ Γ  →⟨ proj₁ ∘→ escape-⊩ˢ≡∷ ⟩
           ⊢ Δ               →⟨ Levelⱼ ⟩
           (Δ ⊢ Level)           →⟨ id ⟩
           Δ ⊢ Level ⇒* Level        ⇔˘⟨ ⊩Level≡⇔ ⟩→
-          Δ ⊩⟨ l ⟩ Level ≡ Level    □
+          Δ ⊩⟨ 0 ⟩ Level ≡ Level    □
       )
 
 
@@ -193,15 +260,36 @@ opaque
   reflect-level-zero : (⊢Γ : ⊢ Γ) → reflect-level (⊩Level-zeroᵘ ⊢Γ) PE.≡ 0
   reflect-level-zero ⊢Γ = PE.refl
 
+  zeroᵘ≤ᵘ : (⊢Γ : ⊢ Γ) → reflect-level (⊩Level-zeroᵘ ⊢Γ) ≤ᵘ l
+  zeroᵘ≤ᵘ {l} ⊢Γ = PE.subst (_≤ᵘ l) (PE.sym (reflect-level-zero ⊢Γ)) 0≤ᵘ
+
   ⊩zeroᵘ : ⊢ Γ → Γ ⊩⟨ l ⟩ zeroᵘ ∷ Level
   ⊩zeroᵘ = ⊩zeroᵘ∷Level⇔ .proj₂
 
-  zeroᵘᵛ : ⊩ᵛ Γ → Γ ⊩ᵛ⟨ l ⟩ zeroᵘ ∷ Level
-  zeroᵘᵛ {Γ} {l} ⊩Γ =
-    ⊩ᵛ∷⇔ .proj₂
+  zeroᵘᵛ : ⊩ᵛ Γ → Γ ⊩ᵛ zeroᵘ ∷ Level
+  zeroᵘᵛ {Γ} ⊩Γ =
+    ⊩ᵛ∷-const-intro
       ( Levelᵛ ⊩Γ
       , λ {_} {Δ = Δ} {σ₁ = σ₁} {σ₂ = σ₂} →
           Δ ⊩ˢ σ₁ ≡ σ₂ ∷ Γ          →⟨ proj₁ ∘→ escape-⊩ˢ≡∷ ⟩
           ⊢ Δ                       ⇔˘⟨ ⊩zeroᵘ≡zeroᵘ∷Level⇔ ⟩→
-          Δ ⊩⟨ l ⟩ zeroᵘ ≡ zeroᵘ ∷ Level  □
+          Δ ⊩⟨ 0 ⟩ zeroᵘ ≡ zeroᵘ ∷ Level  □
       )
+
+opaque
+
+  sucᵘ-congᵛ : Γ ⊩ᵛ t ≡ u ∷ Level → Γ ⊩ᵛ sucᵘ t ≡ sucᵘ u ∷ Level
+  sucᵘ-congᵛ t≡u = ⊩ᵛ≡∷⇔ .proj₂
+    ( Levelᵛ (wf-⊩ᵛ $ wf-⊩ᵛ∷ $ wf-⊩ᵛ≡∷ t≡u .proj₁)
+    , Σ.map idᶠ (⊩sucᵘ≡sucᵘ∷Level⇔ .proj₂) ∘→ ⊩ᵛ≡∷⇔ .proj₁ t≡u .proj₂)
+
+opaque
+
+  -- Validity of sucᵘ.
+
+  sucᵘᵛ :
+    Γ ⊩ᵛ t ∷ Level →
+    Γ ⊩ᵛ sucᵘ t ∷ Level
+  sucᵘᵛ ⊩t =
+    ⊩ᵛ∷⇔⊩ᵛ≡∷ .proj₂ $
+    sucᵘ-congᵛ (refl-⊩ᵛ≡∷ ⊩t)
