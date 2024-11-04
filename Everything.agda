@@ -23,6 +23,7 @@ import Tools.Reasoning.PropositionalEquality
 
 import Tools.Bool
 import Tools.Nat
+import Tools.Size
 import Tools.Fin
 import Tools.List
 import Tools.Algebra
@@ -107,6 +108,7 @@ import Definition.Untyped.Properties.Neutral
 
 import Definition.Typed.Restrictions
 import Definition.Typed
+import Definition.Typed.Size
 import Definition.Typed.Reasoning.Type
 import Definition.Typed.Properties.Well-formed
 import Graded.Derived.Erased.Typed.Primitive
