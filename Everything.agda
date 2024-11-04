@@ -283,10 +283,6 @@ import Definition.Typed.Consequences.DerivedRules.Lift
 import Definition.Typed.Consequences.DerivedRules.Empty
 import Definition.Typed.Consequences.DerivedRules.Bool.OK
 import Definition.Typed.Consequences.DerivedRules.Bool
-import Definition.Typed.Consequences.DerivedRules.Bool.Erased
-import Definition.Typed.Consequences.DerivedRules
-import Definition.Typed.Consequences.Consistency
-import Definition.Typed.Consequences.RedSteps
 import Graded.Derived.Erased.Eta.Typed.Primitive
 import Graded.Derived.Erased.Eta.Typed
 import Graded.Derived.Erased.NoEta.Typed
@@ -294,6 +290,10 @@ import Graded.Derived.Erased.Typed.Inversion
 import Graded.Derived.Erased.Eta.Typed.Inversion
 import Graded.Derived.Erased.NoEta.Typed.Inversion
 import Graded.Derived.Erased.Typed
+import Definition.Typed.Consequences.DerivedRules.Bool.Erased
+import Definition.Typed.Consequences.DerivedRules
+import Definition.Typed.Consequences.Consistency
+import Definition.Typed.Consequences.RedSteps
 import Graded.Derived.Unrestricted.Eta.Typed
 import Definition.Typed.Consequences.NeTypeEq
 
