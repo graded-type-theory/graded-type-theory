@@ -24,6 +24,9 @@ private variable
   A B t u : Term _
   l       : Nat
 
+------------------------------------------------------------------------
+-- Context well-formedness lemmas
+
 -- If a term is well-typed with respect to Γ, then Γ is well-formed.
 
 wfTerm : Γ ⊢ t ∷ A → ⊢ Γ
