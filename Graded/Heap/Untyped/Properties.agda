@@ -143,29 +143,6 @@ opaque
   Value→Whnf (unitrec-ηᵥ x) = inj₂ (_ , _ , _ , _ , _ , _ , refl , x)
 
 ------------------------------------------------------------------------
--- Properties of states in normal form
-
-opaque
-
-  wk1-Normal : Normal ⟨ H , t , ρ , S ⟩ → Normal ⟨ H ∙ (p , c) , t , step ρ , wk1ˢ S ⟩
-  wk1-Normal (val x) = val x
-  wk1-Normal (var d) = var (there d)
-
-opaque
-
-  wk1●-Normal : Normal ⟨ H , t , ρ , S ⟩ → Normal ⟨ H ∙● , t , step ρ , wk1ˢ S ⟩
-  wk1●-Normal (val x) = val x
-  wk1●-Normal (var d) = var (there● d)
-
-opaque
-
-  -- The stack of a normal state can be replaced to give a normal state
-
-  Normal-stack : Normal ⟨ H , t , ρ , S ⟩ → Normal ⟨ H , t , ρ , S′ ⟩
-  Normal-stack (val x) = val x
-  Normal-stack (var x) = var x
-
-------------------------------------------------------------------------
 -- Properties of the lookup relations
 
 opaque
@@ -207,6 +184,50 @@ opaque
     case lookup-det′ d d′ of λ {
       (refl , refl , refl) →
     refl , refl , refl }
+
+opaque
+
+  -- Lookup will either yield an entry or a dummy entry
+
+  ↦⊎↦● : ∀ y → (∃₂ λ n (c : Entry _ n) → H ⊢ y ↦ c) ⊎ H ⊢ y ↦●
+  ↦⊎↦● {H = H ∙ c} y0 = inj₁ (_ , _ , here)
+  ↦⊎↦● {H = H ∙●} y0 = inj₂ here
+  ↦⊎↦● {H = H ∙ c} (y +1) =
+    case ↦⊎↦● y of λ where
+      (inj₁ (_ , _ , d)) → inj₁ (_ , _ , there d)
+      (inj₂ d) → inj₂ (there d)
+  ↦⊎↦● {H = H ∙●} (y +1) =
+    case ↦⊎↦● y of λ where
+      (inj₁ (_ , _ , d)) → inj₁ (_ , _ , there● d)
+      (inj₂ d) → inj₂ (there● d)
+
+opaque
+
+  -- Lookup cannot yield both an entry and a dummy entry.
+
+  ¬↦∧↦● : H ⊢ y ↦ c → H ⊢ y ↦● → ⊥
+  ¬↦∧↦● here ()
+  ¬↦∧↦● (there d) (there d′) = ¬↦∧↦● d d′
+  ¬↦∧↦● (there● d) (there● d′) = ¬↦∧↦● d d′
+
+opaque
+
+  -- If a heap does not contain erased entries then lookup to ● will always fail.
+
+  ¬erased-heap→¬↦● : {H : Heap k _} → H ⊢ y ↦● → k ≡ 0 → ⊥
+  ¬erased-heap→¬↦● here ()
+  ¬erased-heap→¬↦● (there d) k≡0 = ¬erased-heap→¬↦● d k≡0
+  ¬erased-heap→¬↦● (there● d) ()
+
+opaque
+
+  ¬erased-heap→↦ :
+    {H : Heap k m} → k ≡ 0 → (y : Ptr m) →
+    ∃₂ λ n (c : Entry m n) → H ⊢ y ↦ c
+  ¬erased-heap→↦ k≡0 y =
+    case ↦⊎↦● y of λ where
+      (inj₁ x) → x
+      (inj₂ x) → ⊥-elim (¬erased-heap→¬↦● x k≡0)
 
 opaque
 
@@ -695,6 +716,38 @@ opaque
   update-~ʰ (there● d) = update-~ʰ d ∙●
 
 ------------------------------------------------------------------------
+-- Properties of states in normal form
+
+opaque
+
+  wk1-Normal : Normal ⟨ H , t , ρ , S ⟩ → Normal ⟨ H ∙ (p , c) , t , step ρ , wk1ˢ S ⟩
+  wk1-Normal (val x) = val x
+  wk1-Normal (var d) = var (there d)
+
+opaque
+
+  wk1●-Normal : Normal ⟨ H , t , ρ , S ⟩ → Normal ⟨ H ∙● , t , step ρ , wk1ˢ S ⟩
+  wk1●-Normal (val x) = val x
+  wk1●-Normal (var d) = var (there● d)
+
+opaque
+
+  -- The stack of a normal state can be replaced to give a normal state
+
+  Normal-stack : Normal ⟨ H , t , ρ , S ⟩ → Normal ⟨ H , t , ρ , S′ ⟩
+  Normal-stack (val x) = val x
+  Normal-stack (var x) = var x
+
+opaque
+
+  -- The heap of a normal state can be replaced by an equal heap to give
+  -- a normal state.
+
+  ~ʰ-Normal : H ~ʰ H′ → Normal ⟨ H , t , ρ , S ⟩ → Normal ⟨ H′ , t , ρ , S ⟩
+  ~ʰ-Normal H~H′ (val x) = val x
+  ~ʰ-Normal H~H′ (var x) = var (~ʰ-lookup● H~H′ x)
+
+------------------------------------------------------------------------
 -- Properties of heaps as substitutions
 
 opaque
@@ -806,3 +859,10 @@ opaque
     Kₙ (toSubstₕ-NeutralAt d n)
   toSubstₕ-NeutralAt d ([]-congₙ n) =
     []-congₙ (toSubstₕ-NeutralAt d n)
+
+opaque
+
+  -- ⦅_⦆ is an inverse of initial.
+
+  ⦅initial⦆≡ : ⦅ initial t ⦆ ≡ t
+  ⦅initial⦆≡ = trans (erasedHeap-subst (wk id _)) (wk-id _)

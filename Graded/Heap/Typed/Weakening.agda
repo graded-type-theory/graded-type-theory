@@ -5,13 +5,11 @@
 open import Graded.Modality
 open import Graded.Usage.Restrictions
 open import Definition.Typed.Restrictions
-open import Tools.Bool
 
 module Graded.Heap.Typed.Weakening
   {a} {M : Set a} {𝕄 : Modality M}
   (UR : Usage-restrictions 𝕄)
   (TR : Type-restrictions 𝕄)
-  (ℕ-fullred : Bool)
   where
 
 open Type-restrictions TR
@@ -23,7 +21,7 @@ import Graded.Derived.Erased.Untyped 𝕄 as Erased
 
 open import Graded.Heap.Untyped type-variant UR
 open import Graded.Heap.Untyped.Properties type-variant UR
-open import Graded.Heap.Typed UR TR ℕ-fullred
+open import Graded.Heap.Typed UR TR
 
 open import Tools.Fin
 open import Tools.Function
@@ -166,7 +164,6 @@ opaque
       (PE.sym (wk-liftₕ 0 [ρ] (Id (Erased A) ([ t ]) ([ u ])))) ([]-congₑ ok)
     where
     open Erased s
-  wk-⊢ᵉ ρ sucₑ = sucₑ
   wk-⊢ᵉ ρ (conv ⊢e x) =
     conv (wk-⊢ᵉ ρ ⊢e) x
 

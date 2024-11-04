@@ -283,10 +283,6 @@ import Definition.Typed.Consequences.DerivedRules.Lift
 import Definition.Typed.Consequences.DerivedRules.Empty
 import Definition.Typed.Consequences.DerivedRules.Bool.OK
 import Definition.Typed.Consequences.DerivedRules.Bool
-import Definition.Typed.Consequences.DerivedRules.Bool.Erased
-import Definition.Typed.Consequences.DerivedRules
-import Definition.Typed.Consequences.Consistency
-import Definition.Typed.Consequences.RedSteps
 import Graded.Derived.Erased.Eta.Typed.Primitive
 import Graded.Derived.Erased.Eta.Typed
 import Graded.Derived.Erased.NoEta.Typed
@@ -294,6 +290,10 @@ import Graded.Derived.Erased.Typed.Inversion
 import Graded.Derived.Erased.Eta.Typed.Inversion
 import Graded.Derived.Erased.NoEta.Typed.Inversion
 import Graded.Derived.Erased.Typed
+import Definition.Typed.Consequences.DerivedRules.Bool.Erased
+import Definition.Typed.Consequences.DerivedRules
+import Definition.Typed.Consequences.Consistency
+import Definition.Typed.Consequences.RedSteps
 import Graded.Derived.Unrestricted.Eta.Typed
 import Definition.Typed.Consequences.NeTypeEq
 
@@ -437,7 +437,6 @@ import Graded.Box-cong
 -- The abstract machine
 import Graded.Heap.Untyped
 import Graded.Heap.Untyped.Properties
-import Graded.Heap.Options
 import Graded.Heap.Reduction
 import Graded.Heap.Reduction.Inversion
 import Graded.Heap.Reduction.Properties
@@ -452,6 +451,7 @@ import Graded.Heap.Typed.Reduction
 
 -- Usage for the abstract machine
 import Graded.Heap.Usage
+import Graded.Heap.Usage.Inversion
 import Graded.Heap.Usage.Weakening
 import Graded.Heap.Usage.Properties
 import Graded.Heap.Usage.Reduction

@@ -5,13 +5,11 @@
 open import Graded.Modality
 open import Graded.Usage.Restrictions
 open import Definition.Typed.Restrictions
-open import Tools.Bool
 
 module Graded.Heap.Typed.Properties
   {a} {M : Set a} {𝕄 : Modality M}
   (UR : Usage-restrictions 𝕄)
   (TR : Type-restrictions 𝕄)
-  (ℕ-fullred : Bool)
   where
 
 open Type-restrictions TR
@@ -27,8 +25,8 @@ open import Definition.Typed.Consequences.Inversion TR
 open import Definition.Typed.Consequences.Substitution TR
 open import Definition.Typed.Consequences.Syntactic TR
 
-open import Graded.Heap.Typed UR TR ℕ-fullred
-open import Graded.Heap.Typed.Inversion UR TR ℕ-fullred
+open import Graded.Heap.Typed UR TR
+open import Graded.Heap.Typed.Inversion UR TR
 open import Graded.Heap.Untyped type-variant UR
 open import Graded.Heap.Untyped.Properties type-variant UR
 
@@ -66,11 +64,10 @@ opaque
 
  -- Typing of the initial state
 
-  ⊢initial : Δ ⊢ t ∷ A → Δ ⨾ Δ ⊢ initial t ∷ A
+  ⊢initial : Δ ⊢ t ∷ A → Δ ⊢ₛ initial t ∷ A
   ⊢initial {Δ} {t} {A} ⊢t =
-    A , ⊢erasedHeap (wfTerm ⊢t)
-      , PE.subst (Δ ⊢_∷ _) (lemma t) ⊢t
-      , ε
+    ⊢ₛ (⊢erasedHeap (wfTerm ⊢t))
+      (PE.subst (Δ ⊢_∷ _) (lemma t) ⊢t) ε
     where
     lemma : ∀ {n} (t : Term n) → t PE.≡ wk id t [ erasedHeap _ ]ₕ
     lemma t = PE.sym (PE.trans (erasedHeap-subst (wk id t)) (wk-id t))
@@ -103,8 +100,6 @@ opaque
     Kⱼ′ ⊢B ⊢u ⊢t ok
   ⊢⦅⦆ᵉ ([]-congₑ ok) ⊢t =
     []-congⱼ′ ok ⊢t
-  ⊢⦅⦆ᵉ sucₑ ⊢t =
-    sucⱼ ⊢t
   ⊢⦅⦆ᵉ (conv ⊢e B≡B′) ⊢t =
     conv (⊢⦅⦆ᵉ ⊢e ⊢t) B≡B′
 
@@ -119,6 +114,13 @@ opaque
   ⊢⦅⦆ˢ ε ⊢t = ⊢t
   ⊢⦅⦆ˢ {H} {S = e ∙ S} {t} (⊢e ∙ ⊢S) ⊢t =
     ⊢⦅⦆ˢ ⊢S (⊢⦅⦆ᵉ ⊢e ⊢t)
+
+opaque
+
+  -- Well-typed states are well-typed when translated into terms
+
+  ⊢⦅⦆ : Δ ⊢ₛ s ∷ A → Δ ⊢ ⦅ s ⦆ ∷ A
+  ⊢⦅⦆ (⊢ₛ _ ⊢t ⊢S) = ⊢⦅⦆ˢ ⊢S ⊢t
 
 opaque
 
@@ -154,8 +156,6 @@ opaque
     case inversion-Id (syntacticEqTerm t≡u .proj₁) of λ
       (⊢A , ⊢t , ⊢u) →
     []-cong-cong (refl ⊢A) (refl ⊢t) (refl ⊢u) t≡u ok
-  ⊢⦅⦆ᵉ-cong sucₑ t≡u =
-    suc-cong t≡u
   ⊢⦅⦆ᵉ-cong (conv ⊢e B≡B′) t≡u =
     conv (⊢⦅⦆ᵉ-cong ⊢e t≡u) B≡B′
 
@@ -175,8 +175,7 @@ opaque
 
   -- Applying terms to eliminators respects reduction
 
-  ⊢⦅⦆ᵉ-subst : ⦃ T (not ℕ-fullred) ⦄
-            → Δ ⨾ H ⊢ᵉ e ⟨ t ⟩∷ A ↝ B
+  ⊢⦅⦆ᵉ-subst : Δ ⨾ H ⊢ᵉ e ⟨ t ⟩∷ A ↝ B
             → Δ ⊢ t [ H ]ₕ ⇒ u [ H ]ₕ ∷ A
             → Δ ⊢ ⦅ e ⦆ᵉ t [ H ]ₕ ⇒ ⦅ e ⦆ᵉ u [ H ]ₕ ∷ B
   ⊢⦅⦆ᵉ-subst (∘ₑ ⊢u _) d =
@@ -199,8 +198,6 @@ opaque
     K-subst′ ⊢B ⊢u d ok
   ⊢⦅⦆ᵉ-subst ([]-congₑ ok) d =
     []-cong-subst′ d ok
-  ⊢⦅⦆ᵉ-subst ⦃ (fr) ⦄ (sucₑ ⦃ (¬fr) ⦄) d =
-    ⊥-elim (not-T-and-¬T′ ℕ-fullred)
   ⊢⦅⦆ᵉ-subst (conv ⊢e B≡B′) d =
     conv (⊢⦅⦆ᵉ-subst ⊢e d) B≡B′
 
@@ -208,8 +205,7 @@ opaque
 
   -- Applying terms to stacks respects reduction
 
-  ⊢⦅⦆ˢ-subst : ⦃ T (not ℕ-fullred) ⦄
-            → Δ ⨾ H ⊢ S ⟨ t ⟩∷ A ↝ B
+  ⊢⦅⦆ˢ-subst : Δ ⨾ H ⊢ S ⟨ t ⟩∷ A ↝ B
             → Δ ⊢ (t [ H ]ₕ) ⇒ (u [ H ]ₕ) ∷ A
             → Δ ⊢ ⦅ S ⦆ˢ t [ H ]ₕ ⇒ ⦅ S ⦆ˢ u [ H ]ₕ ∷ B
   ⊢⦅⦆ˢ-subst ε d = d
@@ -257,8 +253,6 @@ opaque
       (substTypeEq (refl ⊢B) (sym t≡u))
   ⊢ᵉ-convₜ {H} {t} {u} ([]-congₑ ok) t≡u =
     []-congₑ ok
-  ⊢ᵉ-convₜ sucₑ t≡u =
-    sucₑ
   ⊢ᵉ-convₜ (conv ⊢e B≡B′) t≡u =
     conv (⊢ᵉ-convₜ ⊢e t≡u) B≡B′
 
@@ -278,8 +272,7 @@ opaque
   -- If a term applied to an eliminator is in whnf then the term was
   -- neutral and the applied eliminator is also neutral.
 
-  ⊢whnf⦅⦆ᵉ : ⦃ T (not ℕ-fullred) ⦄
-          → Δ ⨾ H ⊢ᵉ e ⟨ u ⟩∷ A ↝ B
+  ⊢whnf⦅⦆ᵉ : Δ ⨾ H ⊢ᵉ e ⟨ u ⟩∷ A ↝ B
           → Whnf (⦅ e ⦆ᵉ t)
           → Neutral t × Neutral (⦅ e ⦆ᵉ t)
   ⊢whnf⦅⦆ᵉ (∘ₑ x x₁) (ne (∘ₙ n)) = n , ∘ₙ n
@@ -292,39 +285,37 @@ opaque
   ⊢whnf⦅⦆ᵉ (Jₑ x x₁) (ne (Jₙ n)) = n , Jₙ n
   ⊢whnf⦅⦆ᵉ (Kₑ x x₁ x₂) (ne (Kₙ n)) = n , Kₙ n
   ⊢whnf⦅⦆ᵉ ([]-congₑ x) (ne ([]-congₙ n)) = n , []-congₙ n
-  ⊢whnf⦅⦆ᵉ sucₑ w = ⊥-elim (not-T-and-¬T′ ℕ-fullred)
   ⊢whnf⦅⦆ᵉ (conv ⊢e x) w = ⊢whnf⦅⦆ᵉ ⊢e w
 
 opaque
 
   -- If a term applied to a stack is in whnf then the term was in whnf.
 
-  ⊢whnf⦅⦆ˢ : ⦃ T (not ℕ-fullred) ⦄
-          → Δ ⨾ H ⊢ S ⟨ u ⟩∷ A ↝ B
+  ⊢whnf⦅⦆ˢ : Δ ⨾ H ⊢ S ⟨ u ⟩∷ A ↝ B
           → Whnf (⦅ S ⦆ˢ t)
           → Whnf t
   ⊢whnf⦅⦆ˢ ε w = w
   ⊢whnf⦅⦆ˢ (⊢e ∙ ⊢S) w =
     ne (⊢whnf⦅⦆ᵉ ⊢e (⊢whnf⦅⦆ˢ ⊢S w) .proj₁)
 
+
 opaque
 
   -- If a term applied to a non-empty stack is in whnf then the term
   -- was neutral and the applied stack is also neutral.
 
-  ⊢whnf⦅⦆ˢ′ : ⦃ T (not ℕ-fullred) ⦄
-           → Δ ⨾ H ⊢ e ∙ S ⟨ u ⟩∷ A ↝ B
+  ⊢whnf⦅⦆ˢ′ : Δ ⨾ H ⊢ e ∙ S ⟨ u ⟩∷ A ↝ B
            → Whnf (⦅ e ∙ S ⦆ˢ t)
            → Neutral t
-  ⊢whnf⦅⦆ˢ′ (⊢e ∙ ⊢S) w = ⊢whnf⦅⦆ᵉ ⊢e (⊢whnf⦅⦆ˢ ⊢S w) .proj₁
+  ⊢whnf⦅⦆ˢ′ (⊢e ∙ ⊢S) w =
+    ⊢whnf⦅⦆ᵉ ⊢e (⊢whnf⦅⦆ˢ ⊢S w) .proj₁
 
 opaque
 
   -- Applying a term that is neutral at a variable to an eliminator
   -- gives a term that is neutral at the same variable.
 
-  ⊢⦅⦆ᵉ-NeutralAt : ⦃ T (not ℕ-fullred) ⦄
-                → Δ ⨾ H ⊢ᵉ e ⟨ t ⟩∷ A ↝ B
+  ⊢⦅⦆ᵉ-NeutralAt : Δ ⨾ H ⊢ᵉ e ⟨ t ⟩∷ A ↝ B
                 → NeutralAt x t
                 → NeutralAt x (⦅ e ⦆ᵉ t)
   ⊢⦅⦆ᵉ-NeutralAt (∘ₑ _ _) n = ∘ₙ n
@@ -337,7 +328,6 @@ opaque
   ⊢⦅⦆ᵉ-NeutralAt (Jₑ _ _) n = Jₙ n
   ⊢⦅⦆ᵉ-NeutralAt (Kₑ _ _ _) n = Kₙ n
   ⊢⦅⦆ᵉ-NeutralAt ([]-congₑ _) n = []-congₙ n
-  ⊢⦅⦆ᵉ-NeutralAt sucₑ n = ⊥-elim (not-T-and-¬T′ ℕ-fullred)
   ⊢⦅⦆ᵉ-NeutralAt (conv ⊢e x) n = ⊢⦅⦆ᵉ-NeutralAt ⊢e n
 
 opaque
@@ -345,12 +335,12 @@ opaque
   -- Applying a term that is neutral at a variable to a non-empty stack
   -- gives a term that is neutral at the same variable.
 
-  ⊢⦅⦆ˢ-NeutralAt : ⦃ T (not ℕ-fullred) ⦄
-                → Δ ⨾ H ⊢ S ⟨ t ⟩∷ A ↝ B
+  ⊢⦅⦆ˢ-NeutralAt : Δ ⨾ H ⊢ S ⟨ t ⟩∷ A ↝ B
                 → NeutralAt x t
                 → NeutralAt x (⦅ S ⦆ˢ t)
   ⊢⦅⦆ˢ-NeutralAt ε n = n
-  ⊢⦅⦆ˢ-NeutralAt (⊢e ∙ ⊢S) n = ⊢⦅⦆ˢ-NeutralAt ⊢S (⊢⦅⦆ᵉ-NeutralAt ⊢e n)
+  ⊢⦅⦆ˢ-NeutralAt (⊢e ∙ ⊢S) n =
+    ⊢⦅⦆ˢ-NeutralAt ⊢S (⊢⦅⦆ᵉ-NeutralAt ⊢e n)
 
 opaque
 
@@ -369,8 +359,8 @@ opaque
 
   -- A version of the property above for well-typed states
 
-  ⊢emptyrec₀∉S : Consistent Δ → Δ ⨾ Γ ⊢ ⟨ H , t , ρ , S ⟩ ∷ A → emptyrec₀∈ S → ⊥
-  ⊢emptyrec₀∉S consistent (_ , _ , ⊢t , ⊢S) x = ⊢ˢemptyrec₀∉S consistent ⊢S ⊢t x
+  ⊢emptyrec₀∉S : Consistent Δ → Δ ⊢ₛ ⟨ H , t , ρ , S ⟩ ∷ A → emptyrec₀∈ S → ⊥
+  ⊢emptyrec₀∉S consistent (⊢ₛ _ ⊢t ⊢S) x = ⊢ˢemptyrec₀∉S consistent ⊢S ⊢t x
 
 opaque
 
@@ -387,5 +377,4 @@ opaque
   hole-type-not-U (Jₑ _ _)         = Id≢U
   hole-type-not-U (Kₑ _ _ _)       = Id≢U
   hole-type-not-U ([]-congₑ _)     = Id≢U
-  hole-type-not-U sucₑ             = U≢ℕ ∘→ sym
   hole-type-not-U (conv ⊢e _)      = hole-type-not-U ⊢e

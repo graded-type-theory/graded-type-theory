@@ -5,13 +5,11 @@
 open import Graded.Modality
 open import Graded.Usage.Restrictions
 open import Definition.Typed.Restrictions
-open import Tools.Bool
 
 module Graded.Heap.Typed
   {a} {M : Set a} {𝕄 : Modality M}
   (UR : Usage-restrictions 𝕄)
   (TR : Type-restrictions 𝕄)
-  (ℕ-fullred : Bool)
   where
 
 open Type-restrictions TR
@@ -90,7 +88,6 @@ data _⨾_⊢ᵉ_⟨_⟩∷_↝_ (Δ : Con Term k) (H : Heap k m) :
   []-congₑ : []-cong-allowed s′
            → let open Erased s′
              in  Δ ⨾ H ⊢ᵉ []-congₑ s′ A t u ρ ⟨ v ⟩∷ wk ρ (Id A t u) [ H ]ₕ ↝ (wk ρ (Id (Erased A) ([ t ]) ([ u ])) [ H ]ₕ)
-  sucₑ : ⦃ T ℕ-fullred ⦄ → Δ ⨾ H ⊢ᵉ sucₑ ⟨ t ⟩∷ ℕ ↝ ℕ
   conv : Δ ⨾ H ⊢ᵉ e ⟨ t ⟩∷ A ↝ B
        → Δ ⊢ B ≡ B′
        → Δ ⨾ H ⊢ᵉ e ⟨ t ⟩∷ A ↝ B′
@@ -105,6 +102,6 @@ data _⨾_⊢_⟨_⟩∷_↝_ (Δ : Con Term k) (H : Heap k m) : (S : Stack m) (
 
 -- Well-formed evaluation states
 
-_⨾_⊢_∷_ : (Δ : Con Term k) (Γ : Con Term m) (s : State k m n) (A : Term k) → Set a
-Δ ⨾ Γ ⊢ ⟨ H , t , ρ , S ⟩ ∷ A =
-  ∃ λ B → (Δ ⊢ʰ H ∷ Γ) × (Δ ⊢ wk ρ t [ H ]ₕ ∷ B) × Δ ⨾ H ⊢ S ⟨ wk ρ t ⟩∷ B ↝ A
+data _⊢ₛ_∷_ {m n} (Δ : Con Term k) : (s : State k m n) (A : Term k) → Set a where
+  ⊢ₛ : Δ ⊢ʰ H ∷ Γ → Δ ⊢ wk ρ t [ H ]ₕ ∷ B → Δ ⨾ H ⊢ S ⟨ wk ρ t ⟩∷ B ↝ A
+     → Δ ⊢ₛ ⟨ H , t , ρ , S ⟩ ∷ A

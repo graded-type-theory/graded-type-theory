@@ -5,19 +5,18 @@
 open import Graded.Modality
 open import Graded.Usage.Restrictions
 open import Definition.Typed.Restrictions
-open import Tools.Bool
+open import Tools.Sum hiding (sym; id)
 import Graded.Heap.Bisimilarity
 
 module Graded.Heap.Termination
   {a} {M : Set a} {𝕄 : Modality M}
   (UR : Usage-restrictions 𝕄)
   (TR : Type-restrictions 𝕄)
-  (erased-heap : Bool)
-  (open Graded.Heap.Bisimilarity UR TR erased-heap)
+  (open Graded.Heap.Bisimilarity UR TR)
+  (open Type-restrictions TR)
   (As : Assumptions)
   where
 
-open Type-restrictions TR
 open Usage-restrictions UR
 open Assumptions As
 open Modality 𝕄
@@ -27,7 +26,6 @@ open import Tools.Function
 open import Tools.Nat
 open import Tools.Product
 open import Tools.PropositionalEquality as PE hiding (sym)
-open import Tools.Sum hiding (sym; id)
 
 open import Definition.Untyped M
 open import Definition.Untyped.Neutral M type-variant
@@ -41,135 +39,149 @@ open import Definition.Typed.Properties TR
 open import Graded.Context 𝕄 hiding (_⟨_⟩)
 open import Graded.Usage 𝕄 UR
 open import Graded.Mode 𝕄
+open import Graded.Restrictions 𝕄
 
 open import Graded.Heap.Normalization type-variant UR
-open import Graded.Heap.Options
 open import Graded.Heap.Untyped type-variant UR
 open import Graded.Heap.Untyped.Properties type-variant UR
-open import Graded.Heap.Typed UR TR false
-open import Graded.Heap.Typed.Properties UR TR false
-import Graded.Heap.Typed.Reduction UR TR (tracking-and-ℕ-fullred-if false) as RTₜ
-import Graded.Heap.Typed.Reduction UR TR (not-tracking-and-ℕ-fullred-if false) as RTₙₜ
-open import Graded.Heap.Usage type-variant UR erased-heap
-open import Graded.Heap.Usage.Properties type-variant UR erased-heap
-open import Graded.Heap.Usage.Reduction type-variant UR erased-heap (tracking-and-ℕ-fullred-if false) Unitʷ-η→
-open import Graded.Heap.Reduction type-variant UR (tracking-and-ℕ-fullred-if false)
-import Graded.Heap.Reduction.Properties type-variant UR (tracking-and-ℕ-fullred-if false) as RPₜ
-import Graded.Heap.Reduction.Properties type-variant UR (not-tracking-and-ℕ-fullred-if false) as RPₙₜ
+open import Graded.Heap.Typed UR TR
+open import Graded.Heap.Typed.Properties UR TR
+open import Graded.Heap.Typed.Reduction UR TR
+open import Graded.Heap.Usage type-variant UR
+open import Graded.Heap.Usage.Properties type-variant UR
+open import Graded.Heap.Usage.Reduction type-variant UR Unitʷ-η→
+open import Graded.Heap.Reduction type-variant UR
+open import Graded.Heap.Reduction.Properties type-variant UR
 
 private variable
-  t u A B : Term _
+  t t′ u A B : Term _
   γ δ η : Conₘ _
-  H : Heap _ _
-  ρ : Wk _ _
-  S : Stack _
+  H H′ : Heap _ _
+  ρ ρ′ : Wk _ _
+  S S′ : Stack _
   e : Elim _
   Γ Δ : Con Term _
-  s : State _ _ _
+  s s′ : State _ _ _
   m : Mode
   k : Nat
 
 opaque
 
-  -- Well-typed and well-resourced terms evaluate to values with empty stacks
-  -- corresponding to terms in Whnf.
-
-  whBisim : (Emptyrec-allowed 𝟙ᵐ 𝟘 → Consistent Δ)
-          → Δ ⊢ ⦅ s ⦆ ↘ u ∷ A
-          → Δ ⨾ Γ ⊢ s ∷ B
-          → γ ⨾ δ ⨾ η ▸ s
-          → ∃₅ λ m n H t (ρ : Wk m n)
-          → s ⇒* ⟨ H , t , ρ , ε ⟩ × wk ρ t [ H ]ₕ ≡ u × Value t
-  whBisim {s = ⟨ H , t , ρ , S ⟩} consistent (d , w) ⊢s ▸s =
-    case bisim₆* As d ⊢s ▸s of λ {
-      (_ , _ , ⟨ H , t′ , ρ , S ⟩ , d₁ , refl) →
-    case normalize H t′ ρ S of λ
-      (_ , t″ , ρ′ , S′ , n , dₙ) →
-    case RPₙₜ.⇒ₙ*-⦅⦆-≡ dₙ of λ
-      t′≡t″ →
-    case ▸-⇒* ▸s d₁ of λ
-      (_ , _ , _ , ▸s′) →
-    case RTₜ.⊢ₛ-⇒* ⊢s d₁ of λ
-      (_ , _ , _ , ⊢s′) →
-    case bisim₂* false As (RPₙₜ.⇒ₙ* dₙ) ~ʰ-refl ▸s′ of λ
-      (H′ , dₜ , H~H′) →
-    case RTₙₜ.⊢ₛ-⇒* ⊢s′ (RPₙₜ.⇒ₙ* dₙ) of λ
-      (_ , _ , _ , ⊢s″@(B , _ , ⊢t″ , ⊢S′)) →
-    case n of λ where
-      (val v) →
-        case lemma {H = H} {S = S′} w v ⊢s″ (RPₙₜ.⇒ₙ*-⦅⦆-≡ dₙ) of λ {
-          refl →
-        _ , _ , _ , t″ , ρ′ , d₁ RPₜ.⇨* dₜ
-          , PE.sym (PE.trans t′≡t″ (cong (wk ρ′ t″ [_]) (~ʰ-subst H~H′))) , v}
-      (var d) →
-        case ~ʰ-lookup● H~H′ d of λ
-          d′ →
-        case ▸-⇒* ▸s′ dₜ of λ
-              (_ , _ , _ , ▸s″@(▸H , _ , ▸S , _)) →
-        case erased-assumption of λ where
-          (inj₁ ¬eh) → ⊥-elim (¬erased-heap→¬↦● ⦃ neh = ¬eh ⦄ ▸H d′)
-          (inj₂ nem) →
-            case ▸s● subtraction-ok d′ ▸s″ of λ
-              (∣S∣≡𝟘 , _) →
-            case ▸∣S∣≢𝟘 nem ▸S of λ where
-              (inj₁ ∣S∣≢𝟘) →
-                ⊥-elim (∣S∣≢𝟘 ∣S∣≡𝟘)
-              (inj₂ (er∈S , ok)) →
-                ⊥-elim (⊢emptyrec₀∉S {ρ = ρ′} (consistent ok) ⊢s″ er∈S) }
-    where
-    lemma : ∀ {n} {t : Term n} {H ρ S}
-          → Whnf u → Value t → Δ ⨾ Γ ⊢ ⟨ H , t , ρ , S ⟩ ∷ A
-          → u PE.≡ ⦅ ⟨ H , t , ρ , S ⟩ ⦆ → S PE.≡ ε
-    lemma {S = ε} w n _ u≡ = refl
-    lemma {t} {H} {ρ} {S = e ∙ S} w v (_ , _ , _ , ⊢S) u≡ =
-      case whnf-subst {t = ⦅ e ∙ S ⦆ˢ (wk ρ t)} (subst Whnf u≡ w) of λ
-        w′ →
-      case subst Neutral (wk≡subst ρ t) (⊢whnf⦅⦆ˢ′ ⊢S w′) of λ
-        n′ →
-      ⊥-elim (Value→¬Neutral v (neutral-subst n′))
+  ⊢▸Final-reasons :
+    {Δ : Con Term k} →
+    (Emptyrec-allowed 𝟙ᵐ 𝟘 → Consistent Δ) →
+    (k ≢ 0 → No-erased-matches′ type-variant UR) →
+    Δ ⊢ₛ ⟨ H , t , ρ , S ⟩ ∷ A →
+    ▸ ⟨ H , t , ρ , S ⟩ →
+    Final (⟨_,_,_,_⟩ H t ρ S) →
+    Value t × S ≡ ε
+  ⊢▸Final-reasons consistent nem ⊢s ▸s f =
+    case ▸Final-reasons′ subtraction-ok nem ▸s f of λ where
+      (inj₁ (_ , _  , _ , er∈S , ok)) →
+        ⊥-elim (⊢emptyrec₀∉S (consistent ok) ⊢s er∈S)
+      (inj₂ (inj₁ (_ , _ , refl , v , ¬m))) →
+        ⊥-elim (¬m (⊢Matching ⊢s v))
+      (inj₂ (inj₂ x)) → x
 
 opaque
 
-  -- A variant of the above, starting with the initial state
-
-  whBisim-initial : {Δ : Con Term k}
-                  → k ≡ 0 ⊎ ((Emptyrec-allowed 𝟙ᵐ 𝟘 → Consistent Δ) × T erased-heap)
-                  → Δ ⊢ t ↘ u ∷ A → 𝟘ᶜ ▸ t
-                  → ∃₅ λ m n H u′ (ρ : Wk m n)
-                  → initial t ⇒* ⟨ H , u′ , ρ , ε ⟩ × wk ρ u′ [ H ]ₕ ≡ u × Value u′
-  whBisim-initial {k} {Δ} as d ▸t =
-    whBisim consistent
-      (subst (_ ⊢_↘ _ ∷ _)
-        (PE.sym (PE.trans (erasedHeap-subst (wk id _)) (wk-id _))) d)
-      (⊢initial (redFirst*Term (proj₁ d)))
-      (▸initial k≡0⊎erased-heap ▸t)
-    where
-    consistent : Emptyrec-allowed 𝟙ᵐ 𝟘 → Consistent Δ
-    consistent ok =
-      case as of λ where
-        (inj₂ (c , _)) → c ok
-        (inj₁ refl) →
-          case singleton Δ of λ where
-            (ε , refl) → λ _ → ¬Empty
-    k≡0⊎erased-heap : k ≡ 0 ⊎ T erased-heap
-    k≡0⊎erased-heap =
-      case as of λ where
-        (inj₁ x) → inj₁ x
-        (inj₂ (_ , x)) → inj₂ x
+  ⊢▸-⇘-reasons :
+    {Δ : Con Term k} →
+    (Emptyrec-allowed 𝟙ᵐ 𝟘 → Consistent Δ) →
+    (k ≢ 0 → No-erased-matches′ type-variant UR) →
+    Δ ⊢ₛ s ∷ A →
+    ▸ s →
+    s ⇘ s′ →
+    Value (State.head s′) × State.stack s′ ≡ ε
+  ⊢▸-⇘-reasons {s′ = record{}} consistent nem ⊢s ▸s (d , f) =
+    let ⊢s′ = ⊢ₛ-⇾* ⊢s d
+        ▸s′ = ▸-⇾* ▸s d
+    in  ⊢▸Final-reasons consistent nem ⊢s′ ▸s′ f
 
 opaque
 
-  -- Well-typed and well-resourced terms evaluate to values with empty stacks
-  -- corresponding to terms in Whnf.
+  ↘→⇘ :
+    Δ ⊢ₛ s ∷ B →
+    ▸ s →
+    Δ ⊢ ⦅ s ⦆ ↘ u ∷ A →
+    ∃₃ λ m n (s′ : State _ m n) → s ⇘ s′ × u ≡ ⦅ s′ ⦆
+  ↘→⇘ ⊢s ▸s (d , w) =
+    let _ , _ , s′ , d₁ , u≡ = ⊢⇒*→⇾* As d ⊢s ▸s
+        ▸s′ = ▸-⇾* ▸s d₁
+        _ , s″ , n , d₂ = ▸normalize As s′ ▸s′
+        d′ = d₁ ⇨* ⇾ₑ* d₂
+        ⊢s″ = ⊢ₛ-⇾* ⊢s d′
+        u≡′ = PE.trans u≡ (⇾ₑ*-⦅⦆-≡ d₂)
+        w′ = subst Whnf u≡′ w
+    in  _ , _ , s″
+          , (d′ , λ d″ → whnfRedTerm (⇒ᵥ→⇒ ⊢s″ (Normal-⇾→⇒ᵥ n d″)) w′)
+          , u≡′
 
-  whRed : {Δ : Con Term k}
-        → (k ≡ 0 ⊎ (Emptyrec-allowed 𝟙ᵐ 𝟘 → Consistent Δ) × T erased-heap)
-        → Δ ⊢ t ∷ A → 𝟘ᶜ ▸ t
-        → ∃₅ λ m n H u (ρ : Wk m n)
-          → initial t ⇒* ⟨ H , u , ρ , ε ⟩ × Value u × Whnf ⦅ ⟨ H , u , ρ , ε ⟩ ⦆
-  whRed as ⊢t ▸t =
-    case whNormTerm ⊢t of λ
-      (u , w , d) →
-    case whBisim-initial as (redₜ d , w) ▸t of λ {
-      (_ , _ , _ , _ , _ , d′ , refl , v) →
-    _ , _ , _ , _ , _ , d′ , v , w }
+opaque
+
+  whBisim :
+    {Δ : Con Term k} →
+    (Emptyrec-allowed 𝟙ᵐ 𝟘 → Consistent Δ) →
+    (k ≢ 0 → No-erased-matches′ type-variant UR) →
+    Δ ⊢ₛ s ∷ B →
+    ▸ s →
+    Δ ⊢ ⦅ s ⦆ ↘ u ∷ A →
+    ∃₅ λ m n H t (ρ : Wk m n) → s ⇘ ⟨ H , t , ρ , ε ⟩ × wk ρ t [ H ]ₕ ≡ u × Value t
+  whBisim {s = ⟨ H , t , ρ , S ⟩} consistent nem ⊢s ▸s d
+    with ↘→⇘ {s = ⟨ H , t , ρ , S ⟩} ⊢s ▸s d
+  … |  _ , _ , ⟨ H′ , t′ , ρ′ , S′ ⟩ , d′ , u≡ =
+    let v , S≡ε = ⊢▸-⇘-reasons consistent nem ⊢s ▸s d′
+    in  _ , _ , H′ , t′ , ρ′ , lemma S≡ε d′ u≡ v
+    where
+    lemma :
+      S′ ≡ ε → ⟨ H , t , ρ , S ⟩ ⇘ ⟨ H′ , t′ , ρ′ , S′ ⟩ →
+      u ≡ ⦅ ⟨ H′ , t′ , ρ′ , S′ ⟩ ⦆ → Value t′ →
+      ⟨ H , t , ρ , S ⟩ ⇘ ⟨ H′ , t′ , ρ′ , ε ⟩ × wk ρ′ t′ [ H′ ]ₕ ≡ u × Value t′
+    lemma refl d u≡ v = d , PE.sym u≡ , v
+
+opaque
+
+  whBisim-initial :
+    {Δ : Con Term k} →
+    (Emptyrec-allowed 𝟙ᵐ 𝟘 → Consistent Δ) →
+    (k ≢ 0 → No-erased-matches′ type-variant UR) →
+    𝟘ᶜ ▸ t →
+    Δ ⊢ t ↘ u ∷ A →
+    ∃₅ λ m n H u′ (ρ : Wk m n) → initial t ⇘ ⟨ H , u′ , ρ , ε ⟩ × wk ρ u′ [ H ]ₕ ≡ u × Value u′
+  whBisim-initial consistent nem ▸t d =
+    whBisim consistent nem (⊢initial (redFirst*Term (d .proj₁)))
+      (▸initial ▸t) (PE.subst (_ ⊢_↘ _ ∷ _) (PE.sym ⦅initial⦆≡) d)
+
+opaque
+
+  ⊢▸-⇘ :
+    {Δ : Con Term k} →
+    (Emptyrec-allowed 𝟙ᵐ 𝟘 → Consistent Δ) →
+    (k ≢ 0 → No-erased-matches′ type-variant UR) →
+    Δ ⊢ₛ s ∷ B →
+    ▸ s →
+    ∃₅ λ m n H t (ρ : Wk m n) → s ⇘ ⟨ H , t , ρ , ε ⟩ × Value t
+  ⊢▸-⇘ {s = ⟨ H , t , ρ , S ⟩} consistent nem ⊢s ▸s =
+    let u , w , d = whNormTerm (⊢⦅⦆ {s = ⟨ H , t , ρ , S ⟩} ⊢s)
+        _ , _ , H′ , t′ , ρ′ , d′ , _ , v =
+          whBisim {s = ⟨ H , t , ρ , S ⟩} consistent nem ⊢s ▸s (redₜ d , w)
+    in  _ , _ , H′ , t′ , ρ′ , d′ , v
+
+opaque
+
+  initial-⇘ :
+    {Δ : Con Term k} →
+    (Emptyrec-allowed 𝟙ᵐ 𝟘 → Consistent Δ) →
+    (k ≢ 0 → No-erased-matches′ type-variant UR) →
+    Δ ⊢ t ∷ A → 𝟘ᶜ ▸ t →
+    ∃₅ λ m n H u (ρ : Wk m n)→ initial t ⇘ ⟨ H , u , ρ , ε ⟩ × Value u
+  initial-⇘ consistent nem ⊢t ▸t =
+    ⊢▸-⇘ consistent nem (⊢initial ⊢t) (▸initial ▸t)
+
+opaque
+
+  initial-⇘-closed :
+    ε ⊢ t ∷ A → ε ▸ t →
+    ∃₅ λ m n H u (ρ : Wk m n)→ initial t ⇘ ⟨ H , u , ρ , ε ⟩ × Value u
+  initial-⇘-closed ⊢t ▸t =
+    initial-⇘ (λ _ _ → ¬Empty) (λ 0≢0 → ⊥-elim (0≢0 refl)) ⊢t ▸t

@@ -5,13 +5,11 @@
 open import Graded.Modality
 open import Graded.Usage.Restrictions
 open import Definition.Typed.Variant
-open import Tools.Bool
 
 module Graded.Heap.Usage.Properties
   {a} {M : Set a} {𝕄 : Modality M}
   (type-variant : Type-variant)
   (UR : Usage-restrictions 𝕄)
-  (erased-heap : Bool)
   (open Modality 𝕄)
   ⦃ _ : Has-nr M semiring-with-meet ⦄
   ⦃ _ : Has-factoring-nr M semiring-with-meet ⦄
@@ -32,7 +30,8 @@ open import Graded.Usage.Inversion 𝕄 UR
 open import Graded.Usage.Properties 𝕄 UR
 
 open import Graded.Heap.Untyped type-variant UR
-open import Graded.Heap.Usage type-variant UR erased-heap
+open import Graded.Heap.Usage type-variant UR
+open import Graded.Heap.Usage.Inversion type-variant UR
 
 open import Tools.Empty
 open import Tools.Fin
@@ -65,8 +64,7 @@ opaque
 
   -- Usage for erased heaps
 
-  ▸erasedHeap : ⦃ T erased-heap ⦄ →
-              ∀ {n} → 𝟘ᶜ ▸ʰ erasedHeap n
+  ▸erasedHeap : 𝟘ᶜ ▸ʰ erasedHeap n
   ▸erasedHeap {(0)} = ε
   ▸erasedHeap {(1+ n)} = ▸erasedHeap ∙●
 
@@ -74,23 +72,10 @@ opaque
 
   -- Well-usage for the initial state
 
-  ▸initial : n ≡ 0 ⊎ T erased-heap → 𝟘ᶜ {n} ▸ t → 𝟘ᶜ ⨾ 𝟘ᶜ ⨾ 𝟘ᶜ ▸ initial t
-  ▸initial P ▸t =
-    lemma P , ▸-cong (sym ⌞𝟙⌟) ▸t , ε
-            , ≤ᶜ-reflexive (≈ᶜ-sym (≈ᶜ-trans (+ᶜ-identityʳ _) (·ᶜ-zeroʳ _)))
-      where
-      lemma : n ≡ 0 ⊎ T erased-heap → 𝟘ᶜ ▸ʰ erasedHeap n
-      lemma (inj₁ refl) = ε
-      lemma (inj₂ x) = ▸erasedHeap ⦃ x ⦄
-
-opaque
-
-  -- If heaps are not allowed to be erased then lookup to ● will always fail
-
-  ¬erased-heap→¬↦● : ⦃ neh : T (not erased-heap) ⦄ → γ ▸ʰ H → H ⊢ y ↦● → ⊥
-  ¬erased-heap→¬↦● (▸H ∙●) here = not-T-and-¬T′ erased-heap
-  ¬erased-heap→¬↦● (▸H ∙ _) (there d) = ¬erased-heap→¬↦● ▸H d
-  ¬erased-heap→¬↦● (▸H ∙●) (there● d) = ¬erased-heap→¬↦● ▸H d
+  ▸initial : 𝟘ᶜ {n} ▸ t → ▸ initial t
+  ▸initial ▸t =
+    ▸ₛ ▸erasedHeap (▸-cong (sym ⌞𝟙⌟) ▸t) ε
+      (≤ᶜ-reflexive (≈ᶜ-sym (≈ᶜ-trans (+ᶜ-identityʳ _) (·ᶜ-zeroʳ _))))
 
 opaque
 
@@ -155,17 +140,7 @@ opaque
 
 opaque
 
-  -- If erased matches are turned on then a well-resourced heap does
-  -- not contain any erased entries.
-
-  no-erased-heap : {H : Heap k n} → T (not erased-heap) → γ ▸ʰ H → k ≡ 0
-  no-erased-heap _ ε = refl
-  no-erased-heap ¬eh (▸H ∙ x) = no-erased-heap ¬eh ▸H
-  no-erased-heap ¬eh (_∙● ⦃ (eh) ⦄ _) = ⊥-elim (not-T-and-¬T erased-heap eh ¬eh)
-
-opaque
-
-  -- An inversion lemma for ▸ʰ
+  -- An inversion lemma for ▸ʰ with a dummy entry.
 
   inv-▸ʰ● : γ ∙ p ▸ʰ H ∙● → p ≡ 𝟘 × γ ▸ʰ H
   inv-▸ʰ● (▸H ∙●) = refl , ▸H
@@ -186,38 +161,6 @@ opaque
       𝟘 ·ᶜ wkConₘ ρ δ        ≈⟨ ·ᶜ-zeroˡ _ ⟩
       𝟘ᶜ                     ∎
   𝟘▸H→H≤𝟘 {H = H ∙●} ▸H = 𝟘▸H→H≤𝟘 (inv-▸ʰ● ▸H .proj₂) ∙●
-
-opaque
-
-  -- An inversion lemma for usage of states with variables in head position
-
-  ▸var : γ ⨾ δ ⨾ η ▸ ⟨ H , var x , ρ , S ⟩
-       → γ ≤ᶜ (𝟘ᶜ , wkVar ρ x ≔ ∣ S ∣) +ᶜ η
-  ▸var {γ} {δ} {η} {x} {ρ} {S} (▸H , ▸x , ▸S , γ≤) = begin
-    γ                                                        ≤⟨ γ≤ ⟩
-    ∣ S ∣ ·ᶜ wkConₘ ρ δ +ᶜ η                                 ≤⟨ +ᶜ-monotoneˡ (·ᶜ-monotoneʳ (wk-≤ᶜ ρ (inv-usage-var ▸x))) ⟩
-    ∣ S ∣ ·ᶜ wkConₘ ρ (𝟘ᶜ , x ≔ ⌜ ⌞ ∣ S ∣ ⌟ ⌝) +ᶜ η          ≡⟨ cong (λ y → ∣ S ∣ ·ᶜ y +ᶜ η) (wk-,≔ ρ) ⟩
-    ∣ S ∣ ·ᶜ (wkConₘ ρ 𝟘ᶜ , wkVar ρ x ≔ ⌜ ⌞ ∣ S ∣ ⌟ ⌝) +ᶜ η  ≡⟨ cong (λ y → ∣ S ∣ ·ᶜ (y , wkVar ρ x ≔ ⌜ ⌞ ∣ S ∣ ⌟ ⌝) +ᶜ η) (wk-𝟘ᶜ ρ) ⟩
-    ∣ S ∣ ·ᶜ (𝟘ᶜ , wkVar ρ x ≔ ⌜ ⌞ ∣ S ∣ ⌟ ⌝) +ᶜ η           ≡˘⟨ cong (_+ᶜ η) (update-distrib-·ᶜ _ _ _ _) ⟩
-    (∣ S ∣ ·ᶜ 𝟘ᶜ , wkVar ρ x ≔ ∣ S ∣ · ⌜ ⌞ ∣ S ∣ ⌟ ⌝) +ᶜ η   ≈⟨ +ᶜ-congʳ (update-congˡ (·ᶜ-zeroʳ _)) ⟩
-    (𝟘ᶜ , wkVar ρ x ≔ ∣ S ∣ · ⌜ ⌞ ∣ S ∣ ⌟ ⌝) +ᶜ η            ≡⟨ cong (λ y → (𝟘ᶜ , wkVar ρ x ≔ y) +ᶜ η) ·⌜⌞⌟⌝ ⟩
-    (𝟘ᶜ , wkVar ρ x ≔ ∣ S ∣) +ᶜ η                            ∎
-    where
-    open RPo ≤ᶜ-poset
-
-opaque
-
-  -- A consequence of the above lemma
-
-  ▸var′ : γ ⨾ δ ⨾ η ▸ ⟨ H , var x , ρ , S ⟩
-        → γ ⟨ wkVar ρ x ⟩ ≤ ∣ S ∣ + η ⟨ wkVar ρ x ⟩
-  ▸var′ {γ} {δ} {η} {x} {ρ} {S} ▸s = begin
-    γ ⟨ wkVar ρ x ⟩                                         ≤⟨ lookup-monotone (wkVar ρ x) (▸var ▸s) ⟩
-    ((𝟘ᶜ , wkVar ρ x ≔ ∣ S ∣) +ᶜ η) ⟨ wkVar ρ x ⟩           ≡⟨ lookup-distrib-+ᶜ (𝟘ᶜ , wkVar ρ x ≔ ∣ S ∣) η (wkVar ρ x) ⟩
-    (𝟘ᶜ , wkVar ρ x ≔ ∣ S ∣) ⟨ wkVar ρ x ⟩ + η ⟨ wkVar ρ x ⟩ ≡⟨ +-congʳ (update-lookup 𝟘ᶜ (wkVar ρ x)) ⟩
-    ∣ S ∣ + η ⟨ wkVar ρ x ⟩                                 ∎
-    where
-    open RPo ≤-poset
 
 opaque
 
@@ -387,7 +330,8 @@ module _ (nem : No-erased-matches′ type-variant UR) where
     -- The multiplicity of a well-resourced eliminator is not zero
 
     ▸∣e∣≢𝟘 : ⦃ Has-well-behaved-zero M semiring-with-meet ⦄
-           → γ ▸ᵉ[ 𝟙ᵐ ] e → ∣ e ∣ᵉ ≢ 𝟘 ⊎ ∃₃ λ n (A : Term n) ρ → e ≡ emptyrecₑ 𝟘 A ρ × Emptyrec-allowed 𝟙ᵐ 𝟘
+           → γ ▸ᵉ[ 𝟙ᵐ ] e → ∣ e ∣ᵉ ≢ 𝟘 ⊎
+             ∃₃ λ n (A : Term n) ρ → e ≡ emptyrecₑ 𝟘 A ρ × Emptyrec-allowed 𝟙ᵐ 𝟘
     ▸∣e∣≢𝟘 (∘ₑ x) = inj₁ non-trivial
     ▸∣e∣≢𝟘 (fstₑ x) = inj₁ non-trivial
     ▸∣e∣≢𝟘 sndₑ = inj₁ non-trivial
@@ -401,7 +345,6 @@ module _ (nem : No-erased-matches′ type-variant UR) where
     ▸∣e∣≢𝟘 (Jₑ x) rewrite nem non-trivial .proj₂ .proj₂ .proj₂ .proj₁ = inj₁ ω≢𝟘
     ▸∣e∣≢𝟘 (Kₑ x) rewrite nem non-trivial .proj₂ .proj₂ .proj₂ .proj₂ = inj₁ ω≢𝟘
     ▸∣e∣≢𝟘 ([]-congₑ ok) = inj₁ λ _ → nem non-trivial .proj₂ .proj₂ .proj₁ ok
-    ▸∣e∣≢𝟘 sucₑ = inj₁ non-trivial
 
   opaque
 
@@ -462,15 +405,11 @@ module _ ⦃ _ : Has-well-behaved-zero M semiring-with-meet ⦄
 
     ▸↦→↦[] : {H : Heap k _}
           → H ⊢ wkVar ρ x ↦ c′
-          → γ ⨾ δ ⨾ η ▸ ⟨ H , var x , ρ , S ⟩
+          → ▸ ⟨ H , var x , ρ , S ⟩
           → ∃ λ H′ → H ⊢ wkVar ρ x ↦[ ∣ S ∣ ] c′ ⨾ H′
-    ▸↦→↦[] {ρ} {x} {γ} {η} {S} d ▸s@(▸H , _) =
-      ↦→↦[] d ▸H (begin
-        γ ⟨ wkVar ρ x ⟩         ≤⟨ ▸var′ ▸s ⟩
-        ∣ S ∣ + η ⟨ wkVar ρ x ⟩ ≡⟨ +-comm _ _ ⟩
-        η ⟨ wkVar ρ x ⟩ + ∣ S ∣ ∎)
-      where
-      open RPo ≤-poset
+    ▸↦→↦[] {ρ} {x} {S} d ▸s =
+      let _ , _ , ▸H , _ , γ⟨x⟩≤ = ▸ₛ-var-inv′ ▸s
+      in  ↦→↦[] d ▸H (≤-trans γ⟨x⟩≤ (≤-reflexive (+-comm _ _)))
 
   opaque
 
@@ -489,7 +428,7 @@ module _ ⦃ _ : Has-well-behaved-zero M semiring-with-meet ⦄
     -- corresponding dummy entry in the heap, the stack multiplicity and usage
     -- context of the stack are both 𝟘.
 
-    ▸s● : H ⊢ wkVar ρ x ↦● → γ ⨾ δ ⨾ η ▸ ⟨ H , var x , ρ , S ⟩
-        → ∣ S ∣ ≡ 𝟘 × η ⟨ wkVar ρ x ⟩ ≡ 𝟘
-    ▸s● d ▸s@(▸H , ▸t , ▸S , γ≤) =
-      +-positive (𝟘≮ (≤-trans (≤-reflexive (sym (▸H● d ▸H))) (▸var′ ▸s)))
+    ▸s● : H ⊢ wkVar ρ x ↦● → ▸ ⟨ H , var x , ρ , S ⟩ → ∣ S ∣ ≡ 𝟘
+    ▸s● d ▸s =
+      let _ , _ , ▸H , ▸S , γ⟨x⟩≤ = ▸ₛ-var-inv′ ▸s
+      in  +-positiveˡ (𝟘≮ (≤-trans (≤-reflexive (sym (▸H● d ▸H))) γ⟨x⟩≤))
