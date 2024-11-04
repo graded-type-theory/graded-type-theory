@@ -322,7 +322,7 @@ opaque
           PE.cong₂ erased (wk1-sgSubst _ _) PE.refl)
          PE.refl) $
     ⊢erasedrec
-      (Idⱼ ([]ⱼ Erased-ok (erasedⱼ (var₀ ⊢Erased-A))) (var₀ ⊢Erased-A))
+      (Idⱼ′ ([]ⱼ Erased-ok (erasedⱼ (var₀ ⊢Erased-A))) (var₀ ⊢Erased-A))
       (rflⱼ′ $
        []-cong′ Erased-ok
          (erased (wk1 A) (var x0) [ [ var x0 ] ]↑    ≡⟨ erased-[] ⟩⊢≡
@@ -483,7 +483,7 @@ module _ (ok : []-cong-allowed s) where
       conv*
         (subst 𝟘 (Erased A) (B [ erased (wk1 A) (var x0) ]↑)
            [ t ] [ t′ ] ([]-cong s A t t′ rfl) u              ⇒⟨ conv (subst-subst ⊢B[]↑ ([]-cong-β-⇒ t≡t′ ok) ⊢u) $
-                                                                 substTypeEq (refl ⊢B[]↑) (sym [t]≡[t′]) ⟩
+                                                                 substTypeEq (refl ⊢B[]↑) (sym′ [t]≡[t′]) ⟩
          subst 𝟘 (Erased A) (B [ erased (wk1 A) (var x0) ]↑)
            [ t ] [ t′ ] rfl u                                 ⇒⟨ subst-⇒′ ⊢B[]↑ [t]≡[t′] ⊢u ⟩∎
 
@@ -739,7 +739,7 @@ module _ (ok : []-cong-allowed s) where
         (⊢A₁ , ⊢t₁ , _) →
       case wf ⊢A₁ of λ
         ⊢Γ →
-      case ΠΣⱼ (Idⱼ (wkTerm₁ ⊢A₁ ⊢t₁) (var₀ ⊢A₁)) Σ-ok of λ
+      case ΠΣⱼ (Idⱼ′ (wkTerm₁ ⊢A₁ ⊢t₁) (var₀ ⊢A₁)) Σ-ok of λ
         ⊢Singleton₁ →
       case wkEq₁ ⊢Singleton₁ A₁≡A₂ of λ
         A₁≡A₂′ →
@@ -930,7 +930,7 @@ module _ (ok : []-cong-allowed s) where
       case prod-cong (J-motive-context-type ⊢t) t≡t′ (refl ⊢rfl)
              Σ-ok of λ
         t,rfl≡t′,rfl →
-      case ΠΣⱼ (Idⱼ (wkTerm₁ ⊢A ⊢t) (var₀ ⊢A)) Σ-ok of λ
+      case ΠΣⱼ (Idⱼ′ (wkTerm₁ ⊢A ⊢t) (var₀ ⊢A)) Σ-ok of λ
         ⊢Singleton →
 
       substᵉ
@@ -957,7 +957,7 @@ module _ (ok : []-cong-allowed s) where
                                                                                      t,rfl≡t′,rfl))
                                                                               (conv ⊢u $ sym $ lemma₉ ⊢B (rflⱼ ⊢t))) $
                                                                          _⊢_≡_.trans (lemma₉ ⊢B (rflⱼ′ t≡t′)) $
-                                                                         substTypeEq₂ (refl ⊢B) (sym t≡t′) $
+                                                                         substTypeEq₂ (refl ⊢B) (sym′ t≡t′) $
                                                                          PE.subst (_⊢_≡_∷_ _ _ _)
                                                                            (PE.sym $ PE.cong₃ Id
                                                                               (wk1-sgSubst _ _)
@@ -1033,14 +1033,14 @@ module _ (ok : []-cong-allowed s) where
       rhs = Jᵉ A′ t″ B′ u′ v′ w₂′
 
       ⊢B′ : Γ′ ∙ A′ ∙ Id (wk1 A′) (wk1 t″) (var x0) ⊢ B′
-      ⊢B′ = ℕⱼ (∙ Idⱼ (zeroⱼ (∙ ℕⱼ ε)) (var₀ (ℕⱼ ε)))
+      ⊢B′ = ℕⱼ (∙ Idⱼ′ (zeroⱼ (∙ ℕⱼ ε)) (var₀ (ℕⱼ ε)))
 
       ⊢u′ : Γ′ ⊢ u′ ∷ B′ [ t″ , rfl ]₁₀
       ⊢u′ = zeroⱼ ε
 
       w₁′⇒w₂′ : Γ′ ⊢ w₁′ ⇒ w₂′ ∷ Id A′ t″ v′
       w₁′⇒w₂′ = subst-⇒
-        (Idⱼ (zeroⱼ (∙ ℕⱼ ε)) (zeroⱼ (∙ ℕⱼ ε)))
+        (Idⱼ′ (zeroⱼ (∙ ℕⱼ ε)) (zeroⱼ (∙ ℕⱼ ε)))
         (zeroⱼ ε)
         (rflⱼ (zeroⱼ ε))
 

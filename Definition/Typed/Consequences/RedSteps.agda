@@ -60,7 +60,7 @@ opaque
       (t⇒v ⇨ v⇨*u) →
         snd-subst′ t⇒v ⇨
         conv* (snd-subst* v⇨*u)
-          (substTypeEq (refl ⊢B) (sym (fst-cong′ (subsetTerm t⇒v))))
+          (substTypeEq (refl ⊢B) (sym′ (fst-cong′ (subsetTerm t⇒v))))
 
 private opaque
 
@@ -143,7 +143,7 @@ opaque
       (t₁⇒t₃ ⇨ t₃⇒*t₂) →
         prodrec-subst′ ⊢C ⊢u t₁⇒t₃ ⇨
         conv* (prodrec-subst* ⊢C t₃⇒*t₂ ⊢u)
-          (substTypeEq (refl ⊢C) (sym (subsetTerm t₁⇒t₃)))
+          (substTypeEq (refl ⊢C) (sym′ (subsetTerm t₁⇒t₃)))
 
 -- Unitrec substitution of reduction closures
 
@@ -158,7 +158,7 @@ unitrec-subst* (id x) ⊢A ⊢u _ =
 unitrec-subst* (x ⇨ d) ⊢A ⊢u not-ok =
   unitrec-subst ⊢A ⊢u x ok not-ok ⇨
   conv* (unitrec-subst* d ⊢A ⊢u not-ok)
-        (substTypeEq (refl ⊢A) (sym (subsetTerm x)))
+        (substTypeEq (refl ⊢A) (sym′ (subsetTerm x)))
   where
   ok = ⊢∷Unit→Unit-allowed (redFirstTerm x)
 

@@ -167,13 +167,13 @@ stabilityRedTerm Γ≡Δ (unitrec-β-η ⊢A ⊢t ⊢u ok₁ ok₂) =
 stabilityRedTerm Γ≡Δ (J-subst ⊢t ⊢B ⊢u ⊢v w₁⇒w₂) =
   let ⊢A = ⊢∙→⊢ (wf (⊢∙→⊢ (wf ⊢B))) in
   J-subst (stabilityTerm Γ≡Δ ⊢t)
-    (stability (Γ≡Δ ∙ refl ⊢A ∙ refl (Idⱼ (wkTerm₁ ⊢A ⊢t) (var₀ ⊢A)))
+    (stability (Γ≡Δ ∙ refl ⊢A ∙ refl (Idⱼ′ (wkTerm₁ ⊢A ⊢t) (var₀ ⊢A)))
        ⊢B)
     (stabilityTerm Γ≡Δ ⊢u) (stabilityTerm Γ≡Δ ⊢v)
     (stabilityRedTerm Γ≡Δ w₁⇒w₂)
 stabilityRedTerm Γ≡Δ (K-subst ⊢A ⊢t ⊢B ⊢u v₁⇒v₂ ok) =
   K-subst (stability Γ≡Δ ⊢A) (stabilityTerm Γ≡Δ ⊢t)
-    (stability (Γ≡Δ ∙ refl (Idⱼ ⊢t ⊢t)) ⊢B) (stabilityTerm Γ≡Δ ⊢u)
+    (stability (Γ≡Δ ∙ refl (Idⱼ′ ⊢t ⊢t)) ⊢B) (stabilityTerm Γ≡Δ ⊢u)
     (stabilityRedTerm Γ≡Δ v₁⇒v₂) ok
 stabilityRedTerm Γ≡Δ ([]-cong-subst ⊢A ⊢t ⊢u v₁⇒v₂ ok) =
   []-cong-subst (stability Γ≡Δ ⊢A) (stabilityTerm Γ≡Δ ⊢t)
@@ -182,11 +182,11 @@ stabilityRedTerm Γ≡Δ (J-β ⊢t ⊢t′ t≡t′ ⊢B ⊢B[t,rfl]≡B[t′,r
   let ⊢A = ⊢∙→⊢ (wf (⊢∙→⊢ (wf ⊢B))) in
   J-β (stabilityTerm Γ≡Δ ⊢t) (stabilityTerm Γ≡Δ ⊢t′)
     (stabilityEqTerm Γ≡Δ t≡t′)
-    (stability (Γ≡Δ ∙ refl ⊢A ∙ refl (Idⱼ (wkTerm₁ ⊢A ⊢t) (var₀ ⊢A)))
+    (stability (Γ≡Δ ∙ refl ⊢A ∙ refl (Idⱼ′ (wkTerm₁ ⊢A ⊢t) (var₀ ⊢A)))
        ⊢B)
     (stabilityEq Γ≡Δ ⊢B[t,rfl]≡B[t′,rfl]) (stabilityTerm Γ≡Δ ⊢u)
 stabilityRedTerm Γ≡Δ (K-β ⊢t ⊢B ⊢u ok) =
-  K-β (stabilityTerm Γ≡Δ ⊢t) (stability (Γ≡Δ ∙ refl (Idⱼ ⊢t ⊢t)) ⊢B)
+  K-β (stabilityTerm Γ≡Δ ⊢t) (stability (Γ≡Δ ∙ refl (Idⱼ′ ⊢t ⊢t)) ⊢B)
     (stabilityTerm Γ≡Δ ⊢u) ok
 stabilityRedTerm Γ≡Δ ([]-cong-β ⊢A ⊢t ⊢t′ t≡t′ ok) =
   []-cong-β (stability Γ≡Δ ⊢A) (stabilityTerm Γ≡Δ ⊢t)

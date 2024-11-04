@@ -277,6 +277,6 @@ opaque
     case inversion-Unit ⊢Unit of λ
       ok →
     ⊢unitrec⟨⟩
-      (Idⱼ (starⱼ (∙ Unitⱼ ⊢Γ ok) ok) (var₀ ⊢Unit))
+      (Idⱼ′ (starⱼ (∙ Unitⱼ ⊢Γ ok) ok) (var₀ ⊢Unit))
       ⊢t
       (rflⱼ (starⱼ ⊢Γ ok))

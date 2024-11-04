@@ -205,9 +205,8 @@ opaque
                         Δ ⊢ wk ρ u [ H ]ₕ ∷ wk ρ A [ H ]ₕ →
                         Δ ⊢ C ≡ (wk ρ (Id (Erased A) ([ t ]) ([ u ])) [ H ]ₕ))
   inversion-[]-congₑ ([]-congₑ ok) =
-    ok , PE.refl
-       , λ ⊢t ⊢u → refl (Idⱼ ([]ⱼ ([]-cong→Erased ok) ⊢t)
-                             ([]ⱼ ([]-cong→Erased ok) ⊢u))
+    let E-ok = []-cong→Erased ok in
+    ok , PE.refl , λ ⊢t ⊢u → refl (Idⱼ′ ([]ⱼ E-ok ⊢t) ([]ⱼ E-ok ⊢u))
   inversion-[]-congₑ (conv ⊢e ≡C) =
     case inversion-[]-congₑ ⊢e of λ
       (ok , B≡ , C′≡) →

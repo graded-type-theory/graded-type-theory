@@ -61,7 +61,8 @@ mutual
     ΠΣⱼ    : Γ ∙ F ⊢ G
            → ΠΣ-allowed b p q
            → Γ     ⊢ ΠΣ⟨ b ⟩ p , q ▷ F ▹ G
-    Idⱼ    : Γ ⊢ t ∷ A
+    Idⱼ    : Γ ⊢ A
+           → Γ ⊢ t ∷ A
            → Γ ⊢ u ∷ A
            → Γ ⊢ Id A t u
     univ   : Γ ⊢ A ∷ U l
@@ -86,7 +87,8 @@ mutual
               → x ∷ A ∈ Γ
               → Γ ⊢ var x ∷ A
 
-    lamⱼ      : Γ ∙ F ⊢ t ∷ G
+    lamⱼ      : Γ ∙ F ⊢ G
+              → Γ ∙ F ⊢ t ∷ G
               → Π-allowed p q
               → Γ     ⊢ lam p t ∷ Π p , q ▷ F ▹ G
     _∘ⱼ_      : Γ ⊢ t ∷ Π p , q ▷ F ▹ G
@@ -147,7 +149,8 @@ mutual
               → Γ ⊢ v ∷ Id A t t
               → K-allowed
               → Γ ⊢ K p A t B u v ∷ B [ v ]₀
-    []-congⱼ  : Γ ⊢ t ∷ A
+    []-congⱼ  : Γ ⊢ A
+              → Γ ⊢ t ∷ A
               → Γ ⊢ u ∷ A
               → Γ ⊢ v ∷ Id A t u
               → []-cong-allowed k
@@ -181,7 +184,8 @@ mutual
   data _⊢_≡_∷_ (Γ : Con Term n) : Term n → Term n → Term n → Set ℓ where
     refl          : Γ ⊢ t ∷ A
                   → Γ ⊢ t ≡ t ∷ A
-    sym           : Γ ⊢ t ≡ u ∷ A
+    sym           : Γ ⊢ A
+                  → Γ ⊢ t ≡ u ∷ A
                   → Γ ⊢ u ≡ t ∷ A
     trans         : Γ ⊢ t ≡ u ∷ A
                   → Γ ⊢ u ≡ v ∷ A
@@ -205,9 +209,11 @@ mutual
                   → -- Note that q can be chosen arbitrarily.
                     Π-allowed p q
                   → Γ     ⊢ lam p t ∘⟨ p′ ⟩ a ≡ t [ a ]₀ ∷ G [ a ]₀
-    η-eq          : Γ     ⊢ f ∷ Π p , q ▷ F ▹ G
+    η-eq          : Γ ∙ F ⊢ G
+                  → Γ     ⊢ f ∷ Π p , q ▷ F ▹ G
                   → Γ     ⊢ g ∷ Π p , q ▷ F ▹ G
                   → Γ ∙ F ⊢ wk1 f ∘⟨ p ⟩ var x0 ≡ wk1 g ∘⟨ p ⟩ var x0 ∷ G
+                  → Π-allowed p q
                   → Γ     ⊢ f ≡ g ∷ Π p , q ▷ F ▹ G
     fst-cong      : Γ ∙ F ⊢ G
                   → Γ ⊢ t ≡ t′ ∷ Σˢ p , q ▷ F ▹ G
@@ -234,6 +240,7 @@ mutual
                   → Γ ⊢ u ∷ Σˢ p , q ▷ F ▹ G
                   → Γ ⊢ fst p t ≡ fst p u ∷ F
                   → Γ ⊢ snd p t ≡ snd p u ∷ G [ fst p t ]₀
+                  → Σˢ-allowed p q
                   → Γ ⊢ t ≡ u ∷ Σˢ p , q ▷ F ▹ G
     prod-cong     : Γ ∙ F ⊢ G
                   → Γ ⊢ t ≡ t′ ∷ F

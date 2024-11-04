@@ -18,7 +18,7 @@ module Graded.Derived.Erased.Eta.Typed.Primitive
   where
 
 open import Definition.Typed R
-open import Definition.Typed.Properties.Well-formed R
+open import Definition.Typed.Properties R
 
 open import Definition.Untyped M hiding (_[_])
 
@@ -67,8 +67,8 @@ Erased-η-≡ :
   Γ ⊢ u ∷ Erased A →
   Γ ⊢ erased t ≡ erased u ∷ A →
   Γ ⊢ t ≡ u ∷ Erased A
-Erased-η-≡ ⊢A ⊢t ⊢u t≡u = Σ-η
-  Γ∙A⊢Unit ⊢t ⊢u t≡u
+Erased-η-≡ ⊢A ⊢t ⊢u t≡u = Σ-η′
+  ⊢t ⊢u t≡u
   (η-unit (sndⱼ Γ∙A⊢Unit ⊢t) (sndⱼ Γ∙A⊢Unit ⊢u) (inj₁ PE.refl))
   where
   Γ∙A⊢Unit = Unitⱼ (∙ ⊢A) Unit-ok

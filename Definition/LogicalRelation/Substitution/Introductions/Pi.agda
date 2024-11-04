@@ -385,13 +385,15 @@ opaque
       (⊩t₁ , ⊩t₂) →
     case wf-⊩ᵛ∷ ⊩t₁ of λ
       ⊩B →
+    case escape-⊩ $ ⊩ᵛ→⊩ˢ∷→⊩[⇑] ⊩B ⊩σ₁ of λ
+      ⊢B[σ₁⇑] →
     case ⊩ᵛ→⊩ˢ∷→⊩[] ⊩A ⊩σ₁ of λ
       ⊩A[σ₁] →
     case escape ⊩A[σ₁] of λ
       ⊢A[σ₁] →
-    case lamⱼ (escape-⊩∷ $ ⊩ᵛ∷→⊩ˢ∷→⊩[⇑]∷ ⊩t₁ ⊩σ₁) ok of λ
+    case lamⱼ ⊢B[σ₁⇑] (escape-⊩∷ $ ⊩ᵛ∷→⊩ˢ∷→⊩[⇑]∷ ⊩t₁ ⊩σ₁) ok of λ
       ⊢lam-t₁[σ₁] →
-    case lamⱼ
+    case lamⱼ ⊢B[σ₁⇑]
            (escape-⊩∷ $
             wf-⊩≡∷ (⊩ᵛ≡∷→⊩ˢ≡∷→⊩[⇑]≡[⇑]∷ (refl-⊩ᵛ≡∷ ⊩t₂) σ₁≡σ₂) .proj₂)
            ok of λ

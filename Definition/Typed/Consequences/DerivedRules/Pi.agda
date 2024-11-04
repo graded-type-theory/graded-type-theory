@@ -20,6 +20,7 @@ open import Definition.Typed.Consequences.Syntactic R
 open import Definition.Typed.Properties R
 open import Definition.Typed.Reasoning.Reduction R
 open import Definition.Typed.RedSteps R
+import Definition.Typed.Substitution R as S
 open import Definition.Typed.Weakening R as W hiding (wk)
 
 open import Definition.Untyped M
@@ -38,16 +39,6 @@ private variable
 
 ------------------------------------------------------------------------
 -- Simple variants of typing/equality/reduction rules
-
-opaque
-
-  -- A variant of lamⱼ.
-
-  lamⱼ′ :
-    Π-allowed p q →
-    Γ ∙ A ⊢ t ∷ B →
-    Γ ⊢ lam p t ∷ Π p , q ▷ A ▹ B
-  lamⱼ′ = flip lamⱼ
 
 opaque
 
@@ -188,29 +179,9 @@ opaque
     Γ ∙ A ⊢ t ≡ u ∷ B →
     Π-allowed p q →
     Γ ⊢ lam p t ≡ lam p u ∷ Π p , q ▷ A ▹ B
-  lam-cong t≡u ok =
-    case syntacticEqTerm t≡u of λ {
-      (⊢B , ⊢t , ⊢u) →
-    case wf ⊢B of λ {
-      (∙ ⊢A) →
-    case ∙ W.wk₁ ⊢A ⊢A of λ {
-      ⊢∙A∙A →
-    case lift (step id) of λ {
-      ρ →
-    η-eq (lamⱼ′ ok ⊢t) (lamⱼ′ ok ⊢u) $
-    _⊢_≡_∷_.trans
-      (PE.subst (_ ⊢ _ ≡ _ ∷_)
-         (wkSingleSubstId _)
-         (β-red-≡ (wkTerm ρ ⊢∙A∙A ⊢t) (var₀ ⊢A) ok)) $
-    _⊢_≡_∷_.trans
-      (PE.subst₂ (_ ⊢_≡_∷ _)
-        (PE.sym (wkSingleSubstId _))
-        (PE.sym (wkSingleSubstId _))
-        t≡u) $
-    _⊢_≡_∷_.sym $
-    PE.subst (_ ⊢ _ ≡ _ ∷_)
-      (wkSingleSubstId _)
-      (β-red-≡ (wkTerm ρ ⊢∙A∙A ⊢u) (var₀ ⊢A) ok) }}}}
+  lam-cong t≡u =
+    let ⊢B , ⊢t , ⊢u = syntacticEqTerm t≡u in
+    S.lam-cong ⊢B ⊢t ⊢u t≡u
 
 opaque
 
@@ -262,7 +233,7 @@ opaque
 
     Γ ∙ A ⊢ wk1 (lam p t) ∘⟨ p ⟩ var x0 ≡ wk1 (lam p u) ∘⟨ p ⟩ var x0 ∷
       B                                                                  →⟨ (λ hyp → trans
-                                                                               (sym (wk1-lam∘0≡ ⊢lam-t))
+                                                                               (sym′ (wk1-lam∘0≡ ⊢lam-t))
                                                                                (trans hyp (wk1-lam∘0≡ ⊢lam-u))) ⟩
 
     Γ ∙ A ⊢ t ≡ u ∷ B                                                    →⟨ _, inversion-lam-Π ⊢lam-t .proj₂ .proj₂ ⟩
@@ -303,7 +274,7 @@ opaque
       Γ ⊢ lam p (wk1 t ∘⟨ p ⟩ var x0) ∷ Π p , q ▷ A ▹ B                □
     of λ {
       ⊢lam →
-    η-eq ⊢lam ⊢t
+    η-eq′ ⊢lam ⊢t
       (                                                     $⟨ ⊢lam ⟩
 
        Γ ⊢ lam p (wk1 t ∘⟨ p ⟩ var x0) ∷ Π p , q ▷ A ▹ B    →⟨ wk1-lam∘0≡ ⟩

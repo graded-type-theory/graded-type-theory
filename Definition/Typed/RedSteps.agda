@@ -155,7 +155,7 @@ opaque
     Γ ⊢ []-cong s A t u v₁ ⇒* []-cong s A t u v₂ ∷
       Id (Erased A) ([ t ]) ([ u ])
 []-cong-subst* ⊢A ⊢t ⊢u = λ where
-  (id ⊢v₁)         ok → id ([]-congⱼ ⊢t ⊢u ⊢v₁ ok)
+  (id ⊢v₁)         ok → id ([]-congⱼ ⊢A ⊢t ⊢u ⊢v₁ ok)
   (v₁⇒v₃ ⇨ v₃⇒*v₂) ok →
     []-cong-subst  ⊢A ⊢t ⊢u v₁⇒v₃  ok ⇨
     []-cong-subst* ⊢A ⊢t ⊢u v₃⇒*v₂ ok
@@ -172,7 +172,7 @@ opaque
     Γ ⊢ []-cong s A t u v₁ :⇒*: []-cong s A t u v₂ ∷
       Id (Erased A) ([ t ]) ([ u ])
 []-cong-subst:*: ⊢A ⊢t ⊢u [ ⊢v₁ , ⊢v₂ , v₁⇒*v₂ ] ok = record
-  { ⊢t = []-congⱼ ⊢t ⊢u ⊢v₁ ok
-  ; ⊢u = []-congⱼ ⊢t ⊢u ⊢v₂ ok
+  { ⊢t = []-congⱼ ⊢A ⊢t ⊢u ⊢v₁ ok
+  ; ⊢u = []-congⱼ ⊢A ⊢t ⊢u ⊢v₂ ok
   ; d  = []-cong-subst* ⊢A ⊢t ⊢u v₁⇒*v₂ ok
   }

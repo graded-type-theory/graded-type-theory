@@ -612,7 +612,8 @@ opaque
     PE.subst (_ ⊢ K _ A t B u v₁ [ σ ] ⇒ _ ∷_)
       (PE.sym (singleSubstLift B v₁))
       (K-subst ⊢σA ⊢σt
-        (substitution x₂ (liftSubst′ ⊢Δ (Idⱼ x₁ x₁) ⊢σ) (∙ Idⱼ ⊢σt ⊢σt))
+        (substitution x₂ (liftSubst′ ⊢Δ (Idⱼ′ x₁ x₁) ⊢σ)
+           (∙ Idⱼ′ ⊢σt ⊢σt))
         (PE.subst (_ ⊢ _ ∷_) (singleSubstLift B rfl) (substitutionTerm x₃ ⊢σ ⊢Δ))
         (substitutionRedTerm d ⊢σ ⊢Δ) x₄)
   substitutionRedTerm ([]-cong-subst x x₁ x₂ d x₃) ⊢σ ⊢Δ =

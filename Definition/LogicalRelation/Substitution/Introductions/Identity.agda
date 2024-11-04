@@ -81,7 +81,9 @@ opaque
     , (λ ((⊩A , ⊩t) , (⊩A′ , ⊩u)) →
          Idᵣ
            (Idᵣ A t u
-              (idRed:*: (Idⱼ (escapeTerm ⊩A ⊩t) (escapeTerm ⊩A′ ⊩u))) ⊩A
+              (idRed:*: $
+               Idⱼ (escape ⊩A) (escapeTerm ⊩A ⊩t) (escapeTerm ⊩A′ ⊩u))
+              ⊩A
               ⊩t (irrelevanceTerm ⊩A′ ⊩A ⊩u)))
     where
     lemma :
@@ -157,7 +159,9 @@ opaque
          lemma (Id-elim ⊩Id)
            (irrelevanceTerm ⊩Id (Id-intr (Id-elim ⊩Id)) ⊩v))
     , (λ (w , v⇒*w , (⊩A , ⊩t) , (⊩A′ , ⊩u) , rest) →
-         case idRed:*: $ Idⱼ (escapeTerm ⊩A ⊩t) (escapeTerm ⊩A′ ⊩u) of λ
+         case idRed:*: $
+              Idⱼ (escape ⊩A) (escapeTerm ⊩A ⊩t)
+                (escapeTerm ⊩A′ ⊩u) of λ
            Id⇒*Id →
            Idᵣ (Idᵣ _ _ _ Id⇒*Id ⊩A ⊩t (irrelevanceTerm ⊩A′ ⊩A ⊩u))
          , ( w , v⇒*w
@@ -321,7 +325,7 @@ opaque
           (Idᵣ
              (Idᵣ A′ t′ u′
                 (idRed:*: $
-                 Idⱼ (conv (escapeTerm ⊩A″ ⊩t′) ⊢A≡A′)
+                 Idⱼ (escape ⊩A′) (conv (escapeTerm ⊩A″ ⊩t′) ⊢A≡A′)
                    (conv (escapeTerm ⊩A‴ ⊩u′) ⊢A≡A′))
                 ⊩A′
                 (convTerm₁ ⊩A″ ⊩A′ (irrelevanceEq ⊩A ⊩A″ A≡A′) ⊩t′)
@@ -358,7 +362,8 @@ opaque
                                                    ⊩Id⇔ .proj₂ (wf-⊩≡∷ t₁≡t₂ .proj₁ , wf-⊩≡∷ u₁≡u₂ .proj₁)
                                                  , _ , _ , _
                                                  , idRed:*:
-                                                     (Idⱼ (escape-⊩∷ (conv-⊩∷ A₁≡A₂ (wf-⊩≡∷ t₁≡t₂ .proj₂)))
+                                                     (Idⱼ (escape-⊩ (wf-⊩≡ A₁≡A₂ .proj₂))
+                                                        (escape-⊩∷ (conv-⊩∷ A₁≡A₂ (wf-⊩≡∷ t₁≡t₂ .proj₂)))
                                                         (escape-⊩∷ (conv-⊩∷ A₁≡A₂ (wf-⊩≡∷ u₁≡u₂ .proj₂))))
                                                  , A₁≡A₂ , t₁≡t₂ , u₁≡u₂)
                                             ⟩
@@ -449,7 +454,9 @@ opaque
          lemma (Id-elim ⊩Id)
            (irrelevanceEqTerm ⊩Id (Id-intr (Id-elim ⊩Id)) ⊩v))
     , (λ (v′ , w′ , v⇒*v′ , w⇒*w′ , (⊩A , ⊩t) , (⊩A′ , ⊩u) , rest) →
-         case idRed:*: $ Idⱼ (escapeTerm ⊩A ⊩t) (escapeTerm ⊩A′ ⊩u) of λ
+         case idRed:*: $
+              Idⱼ (escape ⊩A) (escapeTerm ⊩A ⊩t)
+                (escapeTerm ⊩A′ ⊩u) of λ
            Id⇒*Id →
            Idᵣ (Idᵣ _ _ _ Id⇒*Id ⊩A ⊩t (irrelevanceTerm ⊩A′ ⊩A ⊩u))
          , (case rest of λ where
@@ -815,8 +822,8 @@ opaque
         []-cong s A₁ t₁ u₁ v₁                                  ⇒*⟨ []-cong⇒*[]-cong₁ ⟩⊩∷
         []-cong s A₁ t₁ u₁ v₁′ ∷ Id (Erased A₁) [ t₁ ] [ u₁ ]  ≡⟨ neutral-⊩≡∷ (⊩Id⇔ .proj₂ (⊩[] ⊩t₁ , ⊩[] ⊩u₁))
                                                                     ([]-congₙ v₁′-ne) ([]-congₙ v₂′-ne)
-                                                                    ([]-congⱼ ⊢t₁ ⊢u₁ ⊢v₁′ ok)
-                                                                    (conv ([]-congⱼ ⊢t₂ ⊢u₂ (conv ⊢v₂′ ⊢Id≡Id) ok)
+                                                                    ([]-congⱼ ⊢A₁ ⊢t₁ ⊢u₁ ⊢v₁′ ok)
+                                                                    (conv ([]-congⱼ ⊢A₂ ⊢t₂ ⊢u₂ (conv ⊢v₂′ ⊢Id≡Id) ok)
                                                                        (sym ⊢Id≡Id′))
                                                                     (~-[]-cong A₁≅A₂ t₁≅t₂ u₁≅u₂ v₁′~v₂′ ok) ⟩⊩∷∷⇐* (
                                                                  ⟨ ⊢Id≡Id′ ⟩⇒

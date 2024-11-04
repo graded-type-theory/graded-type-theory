@@ -317,7 +317,7 @@ opaque
     𝟘ᶜ ▸[ 𝟙ᵐ ] t ×
     ¬ ∃ λ n → Δ ⊢ t ⇒ˢ* sucᵏ n ∷ℕ
   soundness-ℕ-only-source-counterexample₂ {s = s} ok ok′ =
-    case ∙ Idⱼ (zeroⱼ ε) (zeroⱼ ε) of λ {
+    case ∙ Idⱼ′ (zeroⱼ ε) (zeroⱼ ε) of λ {
       ⊢Id →
       inhabited-consistent (singleSubst (rflⱼ (zeroⱼ ε)))
     , Jⱼ′ (ℕⱼ (J-motive-context ([]ⱼ ([]-cong→Erased ok) (zeroⱼ ⊢Id))))
@@ -354,7 +354,7 @@ opaque
     𝟘ᶜ ▸[ 𝟙ᵐ ] t ×
     ¬ ∃ λ n → Δ ⊢ t ⇒ˢ* sucᵏ n ∷ℕ
   soundness-ℕ-only-source-counterexample₃ ≡not-none =
-    case ∙ Idⱼ (zeroⱼ ε) (zeroⱼ ε) of λ {
+    case ∙ Idⱼ′ (zeroⱼ ε) (zeroⱼ ε) of λ {
       ⊢Id →
       inhabited-consistent (singleSubst (rflⱼ (zeroⱼ ε)))
     , Jⱼ′ (ℕⱼ (J-motive-context (zeroⱼ ⊢Id))) (zeroⱼ ⊢Id) (var ⊢Id here)
@@ -390,7 +390,7 @@ opaque
     𝟘ᶜ ▸[ 𝟙ᵐ ] t ×
     ¬ ∃ λ n → Δ ⊢ t ⇒ˢ* sucᵏ n ∷ℕ
   soundness-ℕ-only-source-counterexample₄ K-ok ≡not-none =
-    case ∙ Idⱼ (zeroⱼ ε) (zeroⱼ ε) of λ {
+    case ∙ Idⱼ′ (zeroⱼ ε) (zeroⱼ ε) of λ {
       ⊢Id →
       inhabited-consistent (singleSubst (rflⱼ (zeroⱼ ε)))
     , Kⱼ′ (ℕⱼ (K-motive-context (zeroⱼ ⊢Id))) (zeroⱼ ⊢Id) (var ⊢Id here)
@@ -513,7 +513,7 @@ soundness-ℕ-only-target-not-counterexample₁ {p} ok
 ... | yes _ =
     0
   , subst ω ℕ² (Id ℕ pr zero) 0,0 (var x0) η rfl
-  , ⊢subst (Idⱼ ⊢pr (zeroⱼ (ε ∙[ ⊢ℕ² ] ∙[ ⊢ℕ² ])))
+  , ⊢subst (Idⱼ′ ⊢pr (zeroⱼ (ε ∙[ ⊢ℕ² ] ∙[ ⊢ℕ² ])))
       (⊢Σʷ-η-prodʷ-fstʷ-sndʷ (var₀ (⊢ℕ² ε)))
       (rflⱼ′
          (prodrec 𝟘 p 𝟘 ℕ 0,0 zero  ≡⟨ prodrec-β-≡ (ℕⱼ (ε ∙[ ⊢ℕ² ] ∙[ ⊢ℕ² ]))
@@ -564,7 +564,7 @@ opaque
             zero)
         rfl zero (var x0)
     , Jⱼ′
-        (Idⱼ
+        (Idⱼ′
            (Jⱼ′ (ℕⱼ (J-motive-context ([]ⱼ Erased-ok ⊢zero))) ⊢zero
               ([]-congⱼ′ ok
                  (var₀ (J-motive-context-type (zeroⱼ ⊢Δ)))))
@@ -591,7 +591,7 @@ opaque
     Δ′ = ε ∙ Id ℕ zero zero
 
     ⊢0≡0 : ε ⊢ Id ℕ zero zero
-    ⊢0≡0 = Idⱼ (zeroⱼ ε) (zeroⱼ ε)
+    ⊢0≡0 = Idⱼ′ (zeroⱼ ε) (zeroⱼ ε)
 
     ⊢Δ : ⊢ Δ′
     ⊢Δ = ∙ ⊢0≡0
@@ -614,7 +614,7 @@ opaque
         (Id ℕ (J 𝟘 𝟘 ℕ zero ℕ zero (var x1) (var x0)) zero)
         rfl zero (var x0)
     , Jⱼ′
-        (Idⱼ
+        (Idⱼ′
            (Jⱼ′ (ℕⱼ (J-motive-context ⊢zero)) ⊢zero
               (var₀ (J-motive-context-type (zeroⱼ ⊢Δ))))
            ⊢zero)
@@ -628,7 +628,7 @@ opaque
     Δ′ = ε ∙ Id ℕ zero zero
 
     ⊢0≡0 : ε ⊢ Id ℕ zero zero
-    ⊢0≡0 = Idⱼ (zeroⱼ ε) (zeroⱼ ε)
+    ⊢0≡0 = Idⱼ′ (zeroⱼ ε) (zeroⱼ ε)
 
     ⊢Δ : ⊢ Δ′
     ⊢Δ = ∙ ⊢0≡0
@@ -652,7 +652,7 @@ opaque
         (Id ℕ (K 𝟘 ℕ zero ℕ zero (var x0)) zero)
         rfl (var x0)
     , Kⱼ′
-        (Idⱼ
+        (Idⱼ′
            (Kⱼ′ (ℕⱼ (K-motive-context ⊢zero)) ⊢zero
               (var₀ (K-motive-context-type (zeroⱼ ⊢Δ))) ok)
            ⊢zero)
@@ -667,7 +667,7 @@ opaque
     Δ′ = ε ∙ Id ℕ zero zero
 
     ⊢0≡0 : ε ⊢ Id ℕ zero zero
-    ⊢0≡0 = Idⱼ (zeroⱼ ε) (zeroⱼ ε)
+    ⊢0≡0 = Idⱼ′ (zeroⱼ ε) (zeroⱼ ε)
 
     ⊢Δ : ⊢ Δ′
     ⊢Δ = ∙ ⊢0≡0
@@ -692,7 +692,7 @@ opaque
     , subst ω (Unitʷ 0) (Id ℕ (unitrec 0 𝟘 𝟘 ℕ (var x0) zero) zero)
         (starʷ 0) (var x0) (Unit-η 𝕨 0 ω (var x0)) rfl
     , ⊢subst
-        (Idⱼ
+        (Idⱼ′
            (unitrecⱼ (ℕⱼ (ε ∙[ ⊢Unitʷ ] ∙[ ⊢Unitʷ ] ∙[ ⊢Unitʷ ]))
               (var₀ (⊢Unitʷ (ε ∙[ ⊢Unitʷ ])))
               (zeroⱼ (ε ∙[ ⊢Unitʷ ] ∙[ ⊢Unitʷ ])) Unit-ok)

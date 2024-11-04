@@ -13,6 +13,7 @@ module Definition.Typed.EqRelInstance
   where
 
 open import Definition.Typed R
+open import Definition.Typed.Properties R
 open import Definition.Typed.Weakening R
 open import Definition.Typed.Reduction R
 open import Definition.Typed.EqualityRelation R
@@ -30,8 +31,8 @@ private opaque
       .≅ₜ-eq        → idᶠ
       .≅-univ       → univ
       .≅-sym        → sym
-      .≅ₜ-sym       → sym
-      .~-sym        → sym
+      .≅ₜ-sym       → sym′
+      .~-sym        → sym′
       .≅-trans      → trans
       .≅ₜ-trans     → trans
       .~-trans      → trans
@@ -52,8 +53,8 @@ private opaque
       .≅ₜ-zerorefl  → refl ∘ᶠ zeroⱼ
       .≅-suc-cong   → suc-cong
       .≅-prod-cong  → prod-cong
-      .≅-η-eq       → λ ⊢t ⊢u _ _ t0≡u0 → η-eq ⊢t ⊢u t0≡u0
-      .≅-Σ-η        → λ ⊢B ⊢t ⊢u _ _ fst≡ snd≡ → Σ-η ⊢B ⊢t ⊢u fst≡ snd≡
+      .≅-η-eq       → λ ⊢t ⊢u _ _ t0≡u0 → η-eq′ ⊢t ⊢u t0≡u0
+      .≅-Σ-η        → λ _ ⊢t ⊢u _ _ fst≡ snd≡ → Σ-η′ ⊢t ⊢u fst≡ snd≡
       .~-var        → refl
       .~-app        → app-cong
       .~-fst        → fst-cong

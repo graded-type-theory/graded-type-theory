@@ -303,7 +303,8 @@ mutual
     let Δ⊢G = stability (Γ≡Δ ∙ refl (⊢∙→⊢ (wf x₁))) x₁
         Δ⊢t′↑t = symConv↑Term Γ≡Δ x₂
         Δ⊢u′↑u = symConv↑Term Γ≡Δ x₃
-        Gt≡Gt′ = substTypeEq (refl Δ⊢G) (sym (soundnessConv↑Term Δ⊢t′↑t))
+        Gt≡Gt′ = substTypeEq (refl Δ⊢G)
+                   (sym′ (soundnessConv↑Term Δ⊢t′↑t))
     in  prod-cong Δ⊢G Δ⊢t′↑t (convConv↑Term Gt≡Gt′ Δ⊢u′↑u) ok
   symConv↓Term Γ≡Δ (η-eq x₁ x₂ y y₁ t<>u) =
     let ⊢F , _ = syntacticΠ (syntacticTerm x₁)

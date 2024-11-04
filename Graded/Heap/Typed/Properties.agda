@@ -225,16 +225,16 @@ opaque
     fstₑ ⊢B
   ⊢ᵉ-convₜ (sndₑ ⊢B) t≡u =
     conv (sndₑ ⊢B)
-      (substTypeEq (refl ⊢B) (fst-cong′ (sym t≡u)))
+      (substTypeEq (refl ⊢B) (fst-cong′ (sym′ t≡u)))
   ⊢ᵉ-convₜ (prodrecₑ {B} {C} ⊢v ⊢A) t≡u =
     conv (prodrecₑ {B = B} {C} ⊢v ⊢A)
-      (substTypeEq (refl ⊢A) (sym t≡u))
+      (substTypeEq (refl ⊢A) (sym′ t≡u))
   ⊢ᵉ-convₜ (natrecₑ ⊢z ⊢s) t≡u =
     conv (natrecₑ ⊢z ⊢s)
-      (substTypeEq (refl (⊢∙→⊢ (wfTerm ⊢s))) (sym t≡u))
+      (substTypeEq (refl (⊢∙→⊢ (wfTerm ⊢s))) (sym′ t≡u))
   ⊢ᵉ-convₜ (unitrecₑ ⊢v ⊢A no-η) t≡u =
     conv (unitrecₑ ⊢v ⊢A no-η)
-      (substTypeEq (refl ⊢A) (sym t≡u))
+      (substTypeEq (refl ⊢A) (sym′ t≡u))
   ⊢ᵉ-convₜ (emptyrecₑ ⊢A) t≡u =
     emptyrecₑ ⊢A
   ⊢ᵉ-convₜ {Δ} {H} {t} {u} (Jₑ ⊢u ⊢B) t≡u =
@@ -247,10 +247,10 @@ opaque
              (wk1-sgSubst _ _) (wk1-sgSubst _ _))) t≡u of λ
       t≡u′ →
     conv (Jₑ ⊢u ⊢B)
-      (substTypeEq₂ (refl ⊢B) (refl ⊢v) (sym t≡u′))
+      (substTypeEq₂ (refl ⊢B) (refl ⊢v) (sym′ t≡u′))
   ⊢ᵉ-convₜ {H} {t} {u} (Kₑ ⊢u ⊢B ok) t≡u =
     conv (Kₑ ⊢u ⊢B ok)
-      (substTypeEq (refl ⊢B) (sym t≡u))
+      (substTypeEq (refl ⊢B) (sym′ t≡u))
   ⊢ᵉ-convₜ {H} {t} {u} ([]-congₑ ok) t≡u =
     []-congₑ ok
   ⊢ᵉ-convₜ (conv ⊢e B≡B′) t≡u =

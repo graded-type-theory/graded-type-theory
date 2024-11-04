@@ -266,7 +266,7 @@ opaque
     case Id-norm (sym Id-t₁-u₁≡B) of λ {
       (_ , _ , _ , B⇒*Id-t₃-u₃ , A₁≡A₃ , t₁≡t₃ , u₁≡u₃) →
     ↑ (_⊢_≡_.refl $
-       Idⱼ
+       Idⱼ′
          ([]ⱼ ([]-cong→Erased ok) (syntacticEqTerm t₁≡t₃ .proj₂ .proj₁))
          ([]ⱼ ([]-cong→Erased ok)
             (syntacticEqTerm u₁≡u₃ .proj₂ .proj₁)))

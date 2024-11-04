@@ -85,7 +85,7 @@ private opaque
   -- Some lemmas used below.
 
   ⊢Id-2-1-0 : ε ∙ U l ∙ var x0 ∙ var x1 ⊢ Id (var x2) (var x1) (var x0)
-  ⊢Id-2-1-0 = Idⱼ (var₁ ⊢1) (var₀ ⊢1)
+  ⊢Id-2-1-0 = Idⱼ′ (var₁ ⊢1) (var₀ ⊢1)
     where
     ⊢1 : ε ∙ U l ∙ var x0 ⊢ var x1
     ⊢1 = univ (var₁ (univ (var₀ (Uⱼ ε))))
@@ -93,7 +93,7 @@ private opaque
   ⊢Id-4-3-0 :
     ε ∙ U l ∙ var x0 ∙ var x1 ∙ Id (var x2) (var x1) (var x0) ∙ var x3 ⊢
     Id (var x4) (var x3) (var x0)
-  ⊢Id-4-3-0 = Idⱼ (var₃ ⊢3) (var₀ ⊢3)
+  ⊢Id-4-3-0 = Idⱼ′ (var₃ ⊢3) (var₀ ⊢3)
     where
     ⊢3 :
       ε ∙ U l ∙ var x0 ∙ var x1 ∙ Id (var x2) (var x1) (var x0) ⊢ var x3
@@ -231,7 +231,7 @@ opaque
     case inversion-Id (syntacticTerm ⊢v) of λ
       (⊢A , ⊢t , _) →
     PE.subst (_⊢_∷_ _ _) Id-[]₀≡ $
-    ⊢subst (Idⱼ ([]ⱼ ok (W.wkTerm₁ ⊢A ⊢t)) ([]ⱼ ok (var₀ ⊢A))) ⊢v
+    ⊢subst (Idⱼ′ ([]ⱼ ok (W.wkTerm₁ ⊢A ⊢t)) ([]ⱼ ok (var₀ ⊢A))) ⊢v
       (PE.subst (_⊢_∷_ _ _) (PE.sym Id-[]₀≡) $
        rflⱼ ([]ⱼ ok ⊢t))
 
@@ -250,7 +250,8 @@ opaque
       (⊢A , ⊢t , _) →
     PE.subst (_⊢_⇒_∷_ _ _ _) Id-[]₀≡ $
     conv
-      (subst-⇒′ (Idⱼ ([]ⱼ ok (W.wkTerm₁ ⊢A ⊢t)) ([]ⱼ ok (var₀ ⊢A))) t≡t′
+      (subst-⇒′ (Idⱼ′ ([]ⱼ ok (W.wkTerm₁ ⊢A ⊢t)) ([]ⱼ ok (var₀ ⊢A)))
+         t≡t′
          (PE.subst (_⊢_∷_ _ _) (PE.sym Id-[]₀≡) $
          rflⱼ ([]ⱼ ok ⊢t)))
       (Id-cong
@@ -330,7 +331,7 @@ opaque
     case inversion-Id (syntacticEqTerm (subsetTerm v₁⇒v₂) .proj₁) of λ
       (⊢A , ⊢t , _) →
     PE.subst (_⊢_⇒_∷_ _ _ _) Id-[]₀≡ $
-    subst-subst (Idⱼ ([]ⱼ ok (W.wkTerm₁ ⊢A ⊢t)) ([]ⱼ ok (var₀ ⊢A)))
+    subst-subst (Idⱼ′ ([]ⱼ ok (W.wkTerm₁ ⊢A ⊢t)) ([]ⱼ ok (var₀ ⊢A)))
       v₁⇒v₂
       (PE.subst (_⊢_∷_ _ _) (PE.sym Id-[]₀≡) $
        rflⱼ ([]ⱼ ok ⊢t))
@@ -708,7 +709,7 @@ opaque
       ⊢1 = univ (var₁ (univ (var₀ (Uⱼ ε))))
 
       ⊢Id : ε ∙ U l ∙ var x0 ∙ var x1 ⊢ Id (var x2) (var x1) (var x0)
-      ⊢Id = Idⱼ (var₁ ⊢1) (var₀ ⊢1)
+      ⊢Id = Idⱼ′ (var₁ ⊢1) (var₀ ⊢1)
 
 opaque
   unfolding Has-[]-cong→Has-weaker-[]-cong
@@ -805,7 +806,7 @@ opaque
           (_ , Erased-ok) →
         case _⊢_.univ $ var₁ $ _⊢_.univ $ var₀ $ Uⱼ ε of λ
           ⊢1 →
-        case Idⱼ (var₁ ⊢1) (var₀ ⊢1) of λ
+        case Idⱼ′ (var₁ ⊢1) (var₀ ⊢1) of λ
           ⊢Id →
         case _⊢_.univ $ var₃ ⊢Id of λ
           ⊢3 →

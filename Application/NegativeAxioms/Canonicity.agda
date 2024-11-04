@@ -77,11 +77,11 @@ module Main {Γ : Con Term m} (nΓ : NegativeContext Γ)
     let ⊢Unit = refl (Unitⱼ (wfTerm d) ok)
     in  ⊥-elim (¬negUnit (neNeg d n) ⊢Unit)
   neNeg (Jⱼ ⊢t _ _ ⊢v ⊢w) (Jₙ w-ne) =
-    ⊥-elim (¬negId (neNeg ⊢w w-ne) (refl (Idⱼ ⊢t ⊢v)))
+    ⊥-elim (¬negId (neNeg ⊢w w-ne) (refl (Idⱼ′ ⊢t ⊢v)))
   neNeg (Kⱼ ⊢t _ _ ⊢v _) (Kₙ v-ne) =
-    ⊥-elim (¬negId (neNeg ⊢v v-ne) (refl (Idⱼ ⊢t ⊢t)))
-  neNeg ([]-congⱼ ⊢t ⊢u ⊢v _) ([]-congₙ v-ne) =
-    ⊥-elim (¬negId (neNeg ⊢v v-ne) (refl (Idⱼ ⊢t ⊢u)))
+    ⊥-elim (¬negId (neNeg ⊢v v-ne) (refl (Idⱼ′ ⊢t ⊢t)))
+  neNeg ([]-congⱼ _ ⊢t ⊢u ⊢v _) ([]-congₙ v-ne) =
+    ⊥-elim (¬negId (neNeg ⊢v v-ne) (refl (Idⱼ′ ⊢t ⊢u)))
   neNeg (conv d c          ) n          = conv (neNeg d n) c
 
   -- Lemma: A normal form of type ℕ is a numeral in a consistent negative context.
@@ -113,7 +113,7 @@ module Main {Γ : Con Term m} (nΓ : NegativeContext Γ)
   nfN (Idⱼ _ _ _) (Idₙ _ _ _) c = ⊥-elim (U≢ℕ c)
 
   -- * Canonical forms
-  nfN (lamⱼ _ _)      (lamₙ _)    c = ⊥-elim (ℕ≢Π (sym c))
+  nfN (lamⱼ _ _ _)    (lamₙ _)    c = ⊥-elim (ℕ≢Π (sym c))
   nfN (prodⱼ _ _ _ _) (prodₙ _ _) c = ⊥-elim (ℕ≢Σ (sym c))
   nfN (starⱼ _ _)     starₙ       c = ⊥-elim (ℕ≢Unitⱼ (sym c))
   nfN (rflⱼ _)        rflₙ        c = ⊥-elim (Id≢ℕ c)

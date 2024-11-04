@@ -13,6 +13,8 @@ module Definition.Typed.Properties
 
 open Type-restrictions R
 
+open import Definition.Typed.Properties.Admissible R public
+open import Definition.Typed.Properties.Inversion R public
 open import Definition.Typed.Properties.Well-formed R public
 
 open import Definition.Untyped M
@@ -34,7 +36,7 @@ private
   variable
     n l l₁ l₂ : Nat
     Γ : Con Term n
-    A A′ B B′ C D E F U′ : Term n
+    A A′ B B′ C U′ : Term n
     a b t t′ u u′ v w : Term n
     p p′ q r : M
     s : Strength
@@ -204,14 +206,14 @@ subsetTerm (K-subst ⊢A ⊢t ⊢B ⊢u v⇒v′ ok) =
 subsetTerm ([]-cong-subst ⊢A ⊢t ⊢u v⇒v′ ok) =
   []-cong-cong (refl ⊢A) (refl ⊢t) (refl ⊢u) (subsetTerm v⇒v′) ok
 subsetTerm (J-β ⊢t _ t≡t′ ⊢B _ ⊢u) =
-  trans (sym (J-cong (refl (⊢∙→⊢ (wf (⊢∙→⊢ (wf ⊢B))))) ⊢t (refl ⊢t)
-                (refl ⊢B) (refl ⊢u) t≡t′ (refl (rflⱼ ⊢t))))
+  trans (sym′ (J-cong (refl (⊢∙→⊢ (wf (⊢∙→⊢ (wf ⊢B))))) ⊢t (refl ⊢t)
+                 (refl ⊢B) (refl ⊢u) t≡t′ (refl (rflⱼ ⊢t))))
     (J-β ⊢t ⊢B ⊢u PE.refl)
 subsetTerm (K-β ⊢t ⊢B ⊢u ok) = K-β ⊢t ⊢B ⊢u ok
 subsetTerm ([]-cong-β ⊢A ⊢t _ t≡t′ ok) =
   trans
     ([]-cong-cong (refl ⊢A) (refl ⊢t)
-       (sym t≡t′)
+       (sym′ t≡t′)
        (conv (refl (rflⱼ ⊢t)) (Id-cong (refl ⊢A) (refl ⊢t) t≡t′))
        ok)
     (conv ([]-cong-β ⊢t PE.refl ok)
@@ -243,7 +245,7 @@ redFirstTerm :{Γ : Con Term n} → Γ ⊢ t ⇒ u ∷ A → Γ ⊢ t ∷ A
 redFirstTerm (conv t⇒u A≡B) = conv (redFirstTerm t⇒u) A≡B
 redFirstTerm (app-subst t⇒u a) = (redFirstTerm t⇒u) ∘ⱼ a
 redFirstTerm (β-red B t a PE.refl ok) =
-  conv (lamⱼ t ok) (ΠΣ-cong (refl (⊢∙→⊢ (wf B))) (refl B) ok) ∘ⱼ a
+  conv (lamⱼ′ ok t) (ΠΣ-cong (refl (⊢∙→⊢ (wf B))) (refl B) ok) ∘ⱼ a
 redFirstTerm (natrec-subst z s n⇒n′) = natrecⱼ z s (redFirstTerm n⇒n′)
 redFirstTerm (natrec-zero z s) = natrecⱼ z s (zeroⱼ (wfTerm z))
 redFirstTerm (natrec-suc z s n) = natrecⱼ z s (sucⱼ n)
@@ -268,8 +270,8 @@ redFirstTerm (J-subst ⊢t ⊢B ⊢u ⊢t′ v⇒v′) =
   Jⱼ ⊢t ⊢B ⊢u ⊢t′ (redFirstTerm v⇒v′)
 redFirstTerm (K-subst _ ⊢t ⊢B ⊢u v⇒v′ ok) =
   Kⱼ ⊢t ⊢B ⊢u (redFirstTerm v⇒v′) ok
-redFirstTerm ([]-cong-subst _ ⊢t ⊢u v⇒v′ ok) =
-  []-congⱼ ⊢t ⊢u (redFirstTerm v⇒v′) ok
+redFirstTerm ([]-cong-subst _ _ _ v⇒v′ ok) =
+  []-congⱼ′ ok (redFirstTerm v⇒v′)
 redFirstTerm (J-β ⊢t ⊢t′ t≡t′ ⊢B B≡B ⊢u) =
   conv (Jⱼ ⊢t ⊢B ⊢u ⊢t′
           (conv (rflⱼ ⊢t)
@@ -278,8 +280,8 @@ redFirstTerm (J-β ⊢t ⊢t′ t≡t′ ⊢B B≡B ⊢u) =
     (sym B≡B)
 redFirstTerm (K-β ⊢t ⊢B ⊢u ok) =
   Kⱼ ⊢t ⊢B ⊢u (rflⱼ ⊢t) ok
-redFirstTerm ([]-cong-β ⊢A ⊢t ⊢t′ t≡t′ ok) =
-  []-congⱼ ⊢t ⊢t′ (conv (rflⱼ ⊢t) (Id-cong (refl ⊢A) (refl ⊢t) t≡t′)) ok
+redFirstTerm ([]-cong-β ⊢A ⊢t _ t≡t′ ok) =
+  []-congⱼ′ ok (conv (rflⱼ ⊢t) (Id-cong (refl ⊢A) (refl ⊢t) t≡t′))
 redFirstTerm (unitrec-subst A u t⇒t′ ok _) =
   unitrecⱼ A (redFirstTerm t⇒t′) u ok
 redFirstTerm (unitrec-β A u ok _) =
@@ -570,55 +572,3 @@ idRedTerm:*: t = [ t , t , id t ]
 det∈ : ∀ {x} → x ∷ A ∈ Γ → x ∷ B ∈ Γ → A PE.≡ B
 det∈ here here = PE.refl
 det∈ (there x) (there y) = PE.cong wk1 (det∈ x y)
-
-------------------------------------------------------------------------
--- Some derived typing rules
-
-opaque
-
-  -- A typing rule for variable 0.
-
-  var₀ : Γ ⊢ A → Γ ∙ A ⊢ var x0 ∷ wk1 A
-  var₀ ⊢A = var (∙ ⊢A) here
-
-opaque
-
-  -- A typing rule for variable 1.
-
-  var₁ : Γ ∙ A ⊢ B → Γ ∙ A ∙ B ⊢ var x1 ∷ wk1 (wk1 A)
-  var₁ ⊢B = var (∙ ⊢B) (there here)
-
-opaque
-
-  -- A typing rule for variable 2.
-
-  var₂ : Γ ∙ A ∙ B ⊢ C → Γ ∙ A ∙ B ∙ C ⊢ var x2 ∷ wk1 (wk1 (wk1 A))
-  var₂ ⊢C = var (∙ ⊢C) (there (there here))
-
-opaque
-
-  -- A typing rule for variable 3.
-
-  var₃ :
-    Γ ∙ A ∙ B ∙ C ⊢ D →
-    Γ ∙ A ∙ B ∙ C ∙ D ⊢ var x3 ∷ wk1 (wk1 (wk1 (wk1 A)))
-  var₃ ⊢D = var (∙ ⊢D) (there (there (there here)))
-
-opaque
-
-  -- A typing rule for variable 4.
-
-  var₄ :
-    Γ ∙ A ∙ B ∙ C ∙ D ⊢ E →
-    Γ ∙ A ∙ B ∙ C ∙ D ∙ E ⊢ var x4 ∷ wk1 (wk1 (wk1 (wk1 (wk1 A))))
-  var₄ ⊢E = var (∙ ⊢E) (there (there (there (there here))))
-
-opaque
-
-  -- A typing rule for variable 5.
-
-  var₅ :
-    Γ ∙ A ∙ B ∙ C ∙ D ∙ E ⊢ F →
-    Γ ∙ A ∙ B ∙ C ∙ D ∙ E ∙ F ⊢ var x5 ∷
-      wk1 (wk1 (wk1 (wk1 (wk1 (wk1 A)))))
-  var₅ ⊢F = var (∙ ⊢F) (there (there (there (there (there here)))))

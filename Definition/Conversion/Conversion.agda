@@ -134,7 +134,7 @@ mutual
       (A≡A′ , t≡t′ , u≡u′) →
     rfl-refl
       (stabilityEqTerm Γ≡Δ $
-       conv (trans (sym t≡t′) (trans t≡u u≡u′)) A≡A′) }}
+       conv (trans (sym′ t≡t′) (trans t≡u u≡u′)) A≡A′) }}
 
 -- Conversion of algorithmic equality with the same context.
 convConv↑Term :

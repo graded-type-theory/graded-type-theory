@@ -293,21 +293,6 @@ opaque
   prodrec-β-≡₁ ⊢C ⊢p ⊢v =
     subsetTerm (prodrec-β-⇒₁ ⊢C ⊢p ⊢v)
 
-opaque
-
-  -- A variant of Σ-η.
-
-  Σ-η′ :
-    Γ ⊢ t ∷ Σˢ p , q ▷ A ▹ B →
-    Γ ⊢ u ∷ Σˢ p , q ▷ A ▹ B →
-    Γ ⊢ fst p t ≡ fst p u ∷ A →
-    Γ ⊢ snd p t ≡ snd p u ∷ B [ fst p t ]₀ →
-    Γ ⊢ t ≡ u ∷ Σˢ p , q ▷ A ▹ B
-  Σ-η′ ⊢t =
-    case inversion-ΠΣ (syntacticTerm ⊢t) of λ {
-      (_ , ⊢B , _) →
-    Σ-η ⊢B ⊢t }
-
 -- An η-rule for strong Σ-types.
 
 Σ-η-prod-fst-snd :
@@ -350,7 +335,7 @@ prod-cong⁻¹-Σˢ
 
   t≡v =                                                $⟨ prod≡prod ⟩
     Γ ⊢ prodˢ p t u ≡ prodˢ p v w ∷ Σˢ p , q ▷ A ▹ B   →⟨ fst-cong′ ⟩
-    Γ ⊢ fst p (prodˢ p t u) ≡ fst p (prodˢ p v w) ∷ A  →⟨ (λ hyp → trans (sym fst-t,u≡t) (trans hyp (Σ-β₁-≡ ⊢B ⊢v ⊢w ok))) ⟩
+    Γ ⊢ fst p (prodˢ p t u) ≡ fst p (prodˢ p v w) ∷ A  →⟨ (λ hyp → trans (sym′ fst-t,u≡t) (trans hyp (Σ-β₁-≡ ⊢B ⊢v ⊢w ok))) ⟩
     Γ ⊢ t ≡ v ∷ A                                      □
 
   u≡w =                                               $⟨ prod≡prod ⟩
@@ -358,11 +343,11 @@ prod-cong⁻¹-Σˢ
 
     Γ ⊢ snd p (prodˢ p t u) ≡ snd p (prodˢ p v w) ∷
       B [ fst p (prodˢ p t u) ]₀                       →⟨ (λ hyp → trans
-                                                            (sym (Σ-β₂-≡ ⊢B ⊢t ⊢u ok))
+                                                            (sym′ (Σ-β₂-≡ ⊢B ⊢t ⊢u ok))
                                                                (trans hyp
                                                                   (conv (Σ-β₂-≡ ⊢B ⊢v ⊢w ok)
                                                                      (substTypeEq (refl ⊢B)
-                                                                        (fst-cong′ (sym prod≡prod)))))) ⟩
+                                                                        (fst-cong′ (sym′ prod≡prod)))))) ⟩
 
     Γ ⊢ u ≡ w ∷ B [ fst p (prodˢ p t u) ]₀             →⟨ flip _⊢_≡_∷_.conv (substTypeEq (refl ⊢B) fst-t,u≡t) ⟩
 
@@ -450,7 +435,7 @@ prodrecˢ-β {Γ} {t} {A} {u} {B} {v} {p} C ⊢t ⊢u ⊢v ok =                 
                                                                              , conv hyp₂ (substTypeEq (refl ⊢B) hyp₁)) ⟩
   Γ ⊢ fst p (prodˢ p t u) ≡ t ∷ A [ idSubst ] ×
   Γ ⊢ snd p (prodˢ p t u) ≡ u ∷ B [ t ]₀                               →⟨ (λ (hyp₁ , hyp₂) →
-                                                                             (substRefl (idSubst′ ⊢Γ) , sym hyp₁) , sym hyp₂) ⟩
+                                                                             (substRefl (idSubst′ ⊢Γ) , sym′ hyp₁) , sym′ hyp₂) ⟩
   Γ ⊢ˢ
     consSubst (consSubst idSubst t) u ≡
     consSubst (consSubst idSubst (fst p (prodˢ p t u)))
@@ -460,7 +445,7 @@ prodrecˢ-β {Γ} {t} {A} {u} {B} {v} {p} C ⊢t ⊢u ⊢v ok =                 
   Γ ⊢
     v [ t , u ]₁₀ ≡
     prodrecˢ p (prodˢ p t u) v ∷
-    C [ prodˢ p (var x1) (var x0) ]↑² [ t , u ]₁₀                      →⟨ PE.subst (_⊢_≡_∷_ _ _ _) ([1,0]↑²[,] C) ∘→ sym ⟩
+    C [ prodˢ p (var x1) (var x0) ]↑² [ t , u ]₁₀                      →⟨ PE.subst (_⊢_≡_∷_ _ _ _) ([1,0]↑²[,] C) ∘→ sym′ ⟩
 
   Γ ⊢ prodrecˢ p (prodˢ p t u) v ≡ v [ t , u ]₁₀ ∷ C [ prodˢ p t u ]₀  □
   where
@@ -821,7 +806,7 @@ private
       (Γ ∙ A ∙ B ⊢
          fstʷ p (wk1 (wk1 A)) (prodʷ p (var x1) (var x0)) ≡
          var x1 ∷
-         wk1 (wk1 A))                                        →⟨ flip _⊢_≡_∷_.conv (⊢wk1-wk1≡ ⊢B) ∘→ _⊢_≡_∷_.sym ⟩
+         wk1 (wk1 A))                                        →⟨ flip _⊢_≡_∷_.conv (⊢wk1-wk1≡ ⊢B) ∘→ sym′ ⟩
 
       (Γ ∙ A ∙ B ⊢
          var x1 ≡
@@ -1116,7 +1101,7 @@ opaque
        Id (Σʷ p , q ▷ A ▹ B)
          (prodʷ p (fstʷ p A t) (sndʷ p q A B t)) t                  ∎) $
     prodrecⱼ′
-      (Idⱼ
+      (Idⱼ′
          (prodⱼ ⊢B″ (fstʷⱼ (var₀ ⊢ΣAB)) (sndʷⱼ (var₀ ⊢ΣAB)) ok)
          (var₀ ⊢ΣAB))
       ⊢t
@@ -1434,7 +1419,7 @@ prod-cong⁻¹-Σʷ
 
   t≡v =                                                      $⟨ prod≡prod ⟩
     Γ ⊢ prodʷ p t u ≡ prodʷ p v w ∷ Σʷ p , q ▷ A ▹ B         →⟨ fstʷ-cong (refl ⊢A) ⟩
-    Γ ⊢ fstʷ p A (prodʷ p t u) ≡ fstʷ p A (prodʷ p v w) ∷ A  →⟨ (λ hyp → trans (sym fst-t,u≡t)
+    Γ ⊢ fstʷ p A (prodʷ p t u) ≡ fstʷ p A (prodʷ p v w) ∷ A  →⟨ (λ hyp → trans (sym′ fst-t,u≡t)
                                                                    (trans hyp (fstʷ-β-≡ ⊢B ⊢v ⊢w ok))) ⟩
     Γ ⊢ t ≡ v ∷ A                                            □
 
@@ -1443,11 +1428,11 @@ prod-cong⁻¹-Σʷ
 
     Γ ⊢ sndʷ p q A B (prodʷ p t u) ≡ sndʷ p q A B (prodʷ p v w) ∷
       B [ fstʷ p A (prodʷ p t u) ]₀                                →⟨ (λ hyp → trans
-                                                                         (sym (sndʷ-β-≡ ⊢B ⊢t ⊢u ok))
+                                                                         (sym′ (sndʷ-β-≡ ⊢B ⊢t ⊢u ok))
                                                                             (trans hyp
                                                                                (conv (sndʷ-β-≡ ⊢B ⊢v ⊢w ok)
                                                                                   (substTypeEq (refl ⊢B)
-                                                                                     (fstʷ-cong (refl ⊢A) (sym prod≡prod)))))) ⟩
+                                                                                     (fstʷ-cong (refl ⊢A) (sym′ prod≡prod)))))) ⟩
 
     Γ ⊢ u ≡ w ∷ B [ fstʷ p A (prodʷ p t u) ]₀                      →⟨ flip _⊢_≡_∷_.conv (substTypeEq (refl ⊢B) fst-t,u≡t) ⟩
 

@@ -20,6 +20,7 @@ open import Definition.Typed R
 open import Definition.Typed.Consequences.Syntactic R
 open import Definition.Typed.Consequences.Injectivity R
 open import Definition.Typed.Consequences.Substitution R
+open import Definition.Typed.Properties R
 
 open import Graded.Derived.Erased.Typed R
 
@@ -70,8 +71,8 @@ neTypeEq {Γ} (Jₙ _) (Jⱼ {w} _ ⊢B _ ⊢v ⊢w) (Jⱼ _ _ _ _ _) =
   PE.subst (Γ ⊢ w ∷_) ≡Id-wk1-wk1-0[]₀ ⊢w
 neTypeEq (Kₙ _) (Kⱼ _ ⊢B _ ⊢v _) (Kⱼ _ _ _ _ _) =
   refl (substType ⊢B ⊢v)
-neTypeEq ([]-congₙ _) ([]-congⱼ ⊢t ⊢u _ ok) ([]-congⱼ _ _ _ _) =
-  refl (Idⱼ ([]ⱼ ([]-cong→Erased ok) ⊢t) ([]ⱼ ([]-cong→Erased ok) ⊢u))
+neTypeEq ([]-congₙ _) ([]-congⱼ _ ⊢t ⊢u _ ok) ([]-congⱼ _ _ _ _ _) =
+  refl (Idⱼ′ ([]ⱼ ([]-cong→Erased ok) ⊢t) ([]ⱼ ([]-cong→Erased ok) ⊢u))
 neTypeEq x (conv t∷A x₁) t∷B = let q = neTypeEq x t∷A t∷B
                                in  trans (sym x₁) q
 neTypeEq x t∷A (conv t∷B x₃) = let q = neTypeEq x t∷A t∷B

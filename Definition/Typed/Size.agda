@@ -31,13 +31,13 @@ opaque mutual
   -- The size of a derivation.
 
   size-⊢ : Γ ⊢ A → Size
-  size-⊢ (Uⱼ ⊢Γ)      = node (size-⊢′ ⊢Γ)
-  size-⊢ (univ ⊢A)    = node (size-⊢∷ ⊢A)
-  size-⊢ (ΠΣⱼ ⊢B _)   = node (size-⊢ ⊢B)
-  size-⊢ (Emptyⱼ ⊢Γ)  = node (size-⊢′ ⊢Γ)
-  size-⊢ (Unitⱼ ⊢Γ _) = node (size-⊢′ ⊢Γ)
-  size-⊢ (ℕⱼ ⊢Γ)      = node (size-⊢′ ⊢Γ)
-  size-⊢ (Idⱼ ⊢t ⊢u)  = size-⊢∷ ⊢t ⊕ size-⊢∷ ⊢u
+  size-⊢ (Uⱼ ⊢Γ)        = node (size-⊢′ ⊢Γ)
+  size-⊢ (univ ⊢A)      = node (size-⊢∷ ⊢A)
+  size-⊢ (ΠΣⱼ ⊢B _)     = node (size-⊢ ⊢B)
+  size-⊢ (Emptyⱼ ⊢Γ)    = node (size-⊢′ ⊢Γ)
+  size-⊢ (Unitⱼ ⊢Γ _)   = node (size-⊢′ ⊢Γ)
+  size-⊢ (ℕⱼ ⊢Γ)        = node (size-⊢′ ⊢Γ)
+  size-⊢ (Idⱼ ⊢A ⊢t ⊢u) = size-⊢ ⊢A ⊕ size-⊢∷ ⊢t ⊕ size-⊢∷ ⊢u
 
   -- The size of a derivation.
 
@@ -50,8 +50,8 @@ opaque mutual
     node (size-⊢′ ⊢Γ)
   size-⊢∷ (ΠΣⱼ ⊢A ⊢B _) =
     size-⊢∷ ⊢A ⊕ size-⊢∷ ⊢B
-  size-⊢∷ (lamⱼ ⊢t _) =
-    node (size-⊢∷ ⊢t)
+  size-⊢∷ (lamⱼ ⊢B ⊢t _) =
+    size-⊢ ⊢B ⊕ size-⊢∷ ⊢t
   size-⊢∷ (⊢t ∘ⱼ ⊢u) =
     size-⊢∷ ⊢t ⊕ size-⊢∷ ⊢u
   size-⊢∷ (prodⱼ ⊢B ⊢t ⊢u _) =
@@ -89,8 +89,8 @@ opaque mutual
     (size-⊢∷ ⊢u ⊕ size-⊢∷ ⊢v ⊕ size-⊢∷ ⊢w)
   size-⊢∷ (Kⱼ ⊢t ⊢B ⊢u ⊢v _) =
     (size-⊢∷ ⊢t ⊕ size-⊢ ⊢B) ⊕ (size-⊢∷ ⊢u ⊕ size-⊢∷ ⊢v)
-  size-⊢∷ ([]-congⱼ ⊢t ⊢u ⊢v _) =
-    size-⊢∷ ⊢t ⊕ size-⊢∷ ⊢u ⊕ size-⊢∷ ⊢v
+  size-⊢∷ ([]-congⱼ ⊢A ⊢t ⊢u ⊢v _) =
+    (size-⊢ ⊢A ⊕ size-⊢∷ ⊢t) ⊕ (size-⊢∷ ⊢u ⊕ size-⊢∷ ⊢v)
 
   -- The size of a derivation.
 
@@ -113,8 +113,8 @@ opaque mutual
   size-⊢≡∷ : Γ ⊢ t ≡ u ∷ A → Size
   size-⊢≡∷ (refl ⊢t) =
     node (size-⊢∷ ⊢t)
-  size-⊢≡∷ (sym u≡t) =
-    node (size-⊢≡∷ u≡t)
+  size-⊢≡∷ (sym ⊢A u≡t) =
+    size-⊢ ⊢A ⊕ size-⊢≡∷ u≡t
   size-⊢≡∷ (trans t≡u u≡v) =
     size-⊢≡∷ t≡u ⊕ size-⊢≡∷ u≡v
   size-⊢≡∷ (conv t≡u B≡A) =
@@ -125,8 +125,8 @@ opaque mutual
     size-⊢≡∷ t₁≡u₁ ⊕ size-⊢≡∷ t₂≡u₂
   size-⊢≡∷ (β-red ⊢B ⊢t ⊢u _ _) =
     size-⊢ ⊢B ⊕ size-⊢∷ ⊢t ⊕ size-⊢∷ ⊢u
-  size-⊢≡∷ (η-eq ⊢t₁ ⊢t₂ t₁0≡t₂0) =
-    size-⊢∷ ⊢t₁ ⊕ size-⊢∷ ⊢t₂ ⊕ size-⊢≡∷ t₁0≡t₂0
+  size-⊢≡∷ (η-eq ⊢B ⊢t₁ ⊢t₂ t₁0≡t₂0 _) =
+    (size-⊢ ⊢B ⊕ size-⊢∷ ⊢t₁) ⊕ (size-⊢∷ ⊢t₂ ⊕ size-⊢≡∷ t₁0≡t₂0)
   size-⊢≡∷ (fst-cong ⊢B t≡u) =
     size-⊢ ⊢B ⊕ size-⊢≡∷ t≡u
   size-⊢≡∷ (snd-cong ⊢B t≡u) =
@@ -135,7 +135,7 @@ opaque mutual
     size-⊢ ⊢B ⊕ size-⊢∷ ⊢t ⊕ size-⊢∷ ⊢u
   size-⊢≡∷ (Σ-β₂ ⊢B ⊢t ⊢u _ _) =
     size-⊢ ⊢B ⊕ size-⊢∷ ⊢t ⊕ size-⊢∷ ⊢u
-  size-⊢≡∷ (Σ-η ⊢B ⊢t ⊢u fst-t≡fst-u snd-t≡snd-u) =
+  size-⊢≡∷ (Σ-η ⊢B ⊢t ⊢u fst-t≡fst-u snd-t≡snd-u _) =
     (size-⊢ ⊢B ⊕ size-⊢∷ ⊢t ⊕ size-⊢∷ ⊢u) ⊕
     (size-⊢≡∷ fst-t≡fst-u ⊕ size-⊢≡∷ snd-t≡snd-u)
   size-⊢≡∷ (prod-cong ⊢B t₁≡u₁ t₂≡u₂ _) =

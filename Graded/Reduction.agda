@@ -473,7 +473,7 @@ Well-resourced-normal-form-without-η-long-normal-form =
     ⊢0
   , var
   , starₙ (∙ ⊢Unit) ok
-  , sym (Unit-η-≡ η ⊢0)
+  , sym′ (Unit-η-≡ η ⊢0)
   , (λ ▸* →
        let open Tools.Reasoning.PartialOrder ≤-poset in
        case PE.singleton s of λ where
@@ -532,7 +532,7 @@ Well-resourced-normal-form-without-η-long-normal-form =
 η-long-nf-for-id⇔sink⊎𝟙≤𝟘 {s} ok₁ ok₂ ok₃ =
   case η-long-nf-for-0⇔sink⊎𝟙≤𝟘 ok₂ ok₃ of λ {
     (⊢t , ▸t , ⊢u , t≡u , ▸u⇔) →
-    lamⱼ ⊢t ok₁
+    lamⱼ′ ok₁ ⊢t
   , lamₘ (sub ▸t $
           let open Tools.Reasoning.PartialOrder ≤ᶜ-poset in begin
             𝟘ᶜ ∙ 𝟙 · 𝟙  ≈⟨ ≈ᶜ-refl ∙ ·-identityˡ _ ⟩
@@ -570,7 +570,7 @@ well-resourced-normal-form-without-η-long-normal-form-Unit
   , λ (v , ⊢v , t≡v , ▸v) →
                                      $⟨ ▸v ⟩
       ε ▸[ 𝟙ᵐ ] v                    →⟨ PE.subst (_ ▸[ _ ]_) $
-                                        normal-terms-unique ⊢v ⊢u (trans (sym t≡v) t≡u) ⟩
+                                        normal-terms-unique ⊢v ⊢u (trans (sym′ t≡v) t≡u) ⟩
       ε ▸[ 𝟙ᵐ ] lam 𝟙 star!          →⟨ ▸u→ ⟩
       s PE.≡ 𝕤 × Starˢ-sink ⊎ 𝟙 ≤ 𝟘  →⟨ (λ where
                                            (inj₂ 𝟙≤𝟘)              → 𝟙≰𝟘 𝟙≤𝟘
@@ -608,7 +608,7 @@ well-resourced-normal-form-without-η-long-normal-form-Unit
       (neₙ ℕₙ (fstₙ Σℕℕ∙ℕ⊢ℕ (varₙ (∙ ⊢Σℕℕ) here)))
       (neₙ ℕₙ (sndₙ Σℕℕ∙ℕ⊢ℕ (varₙ (∙ ⊢Σℕℕ) here)))
       ok
-  , sym (Σ-η-prod-fst-snd ⊢0)
+  , sym′ (Σ-η-prod-fst-snd ⊢0)
   , (ε ∙ 𝟙 ▸[ 𝟙ᵐ ] u′                              ⇔⟨ lemma₁ ⟩
      (𝟙 ≤ p × (⌞ p ⌟ PE.≡ 𝟙ᵐ → p ≤ 𝟙))             ⇔⟨ id⇔ ×-cong-⇔ ⌞⌟≡𝟙→⇔⊎𝟘ᵐ×≡𝟘 ⟩
      (𝟙 ≤ p × (p ≤ 𝟙 ⊎ T 𝟘ᵐ-allowed × p PE.≡ 𝟘))   ⇔⟨ lemma₂ ⟩
@@ -684,7 +684,7 @@ well-resourced-normal-form-without-η-long-normal-form-Unit
 η-long-nf-for-id⇔≡𝟙⊎≡𝟘 {r = r} {p = p} {q = q} ok₁ ok₂ =
   case η-long-nf-for-0⇔≡𝟙⊎≡𝟘 ok₂ of λ {
     (⊢t , ▸t , ⊢u , t≡u , ▸u⇔) →
-    lamⱼ ⊢t ok₁
+    lamⱼ′ ok₁ ⊢t
   , lamₘ (sub ▸t
             (let open Tools.Reasoning.PartialOrder ≤ᶜ-poset in begin
                𝟘ᶜ ∙ 𝟙 · 𝟙  ≈⟨ ≈ᶜ-refl ∙ ·-identityˡ _ ⟩
@@ -725,7 +725,7 @@ well-resourced-normal-form-without-η-long-normal-form-Σˢ
   , ▸t
   , λ (v , ⊢v , t≡v , ▸v) →                                        $⟨ ▸v ⟩
       ε ▸[ 𝟙ᵐ ] v                                                  →⟨ PE.subst (_ ▸[ _ ]_) $
-                                                                      normal-terms-unique ⊢v ⊢u (trans (sym t≡v) t≡u) ⟩
+                                                                      normal-terms-unique ⊢v ⊢u (trans (sym′ t≡v) t≡u) ⟩
       ε ▸[ 𝟙ᵐ ] lam 𝟙 (prodˢ p (fst p (var x0)) (snd p (var x0)))  →⟨ ▸u→ ⟩
       p PE.≡ 𝟙 ⊎ p PE.≡ 𝟘 × T 𝟘ᵐ-allowed × 𝟙 ≤ 𝟘                   →⟨ (λ { (inj₁ p≡𝟙) → p≢𝟙 p≡𝟙; (inj₂ hyp) → ¬[p≡𝟘×𝟘ᵐ×𝟙≤𝟘] hyp }) ⟩
       ⊥                                                            □ }

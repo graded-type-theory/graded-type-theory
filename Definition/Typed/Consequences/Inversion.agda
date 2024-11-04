@@ -159,7 +159,7 @@ inversion-lam : ∀ {t A} → Γ ⊢ lam p t ∷ A →
      Γ ∙ F ⊢ t ∷ G ×
      Γ ⊢ A ≡ Π p , q ▷ F ▹ G ×
      Π-allowed p q
-inversion-lam (lamⱼ ⊢t ok) =
+inversion-lam (lamⱼ _ ⊢t ok) =
   let ⊢B = syntacticTerm ⊢t in
   _ , _ , _ , ⊢∙→⊢ (wf ⊢B) , ⊢t , refl (ΠΣⱼ ⊢B ok) , ok
 inversion-lam (conv x x₁) =
@@ -327,8 +327,8 @@ opaque
     Γ ⊢ Id A t u →
     (Γ ⊢ A) × Γ ⊢ t ∷ A × Γ ⊢ u ∷ A
   inversion-Id = λ where
-    (Idⱼ ⊢t ⊢u) → syntacticTerm ⊢t , ⊢t , ⊢u
-    (univ ⊢Id)  →
+    (Idⱼ _ ⊢t ⊢u) → syntacticTerm ⊢t , ⊢t , ⊢u
+    (univ ⊢Id)    →
       case inversion-Id-U ⊢Id of λ {
         (_ , ⊢A , ⊢t , ⊢u , _) →
       univ ⊢A , ⊢t , ⊢u }
@@ -358,7 +358,7 @@ opaque
       (_ , _ , _ , _ , Id≡Id) →
     case Id-injectivity Id≡Id of λ {
       (_ , t≡v , u≡v) →
-    trans t≡v (sym u≡v) }}
+    trans t≡v (sym′ u≡v) }}
 
 opaque
 
@@ -418,7 +418,7 @@ opaque
       []-cong-allowed s ×
       Γ ⊢ B ≡ Id (Erased A) ([ t ]) ([ u ])
   inversion-[]-cong = λ where
-    ⊢[]-cong@([]-congⱼ ⊢t ⊢u ⊢v ok) →
+    ⊢[]-cong@([]-congⱼ _ ⊢t ⊢u ⊢v ok) →
         syntacticTerm ⊢t , ⊢t , ⊢u , ⊢v , ok
       , refl (syntacticTerm ⊢[]-cong)
     (conv ⊢[]-cong C≡B) →

@@ -197,7 +197,7 @@ neNeg {γ} (Jⱼ {t} {A} {B} {v} {w} ⊢t _ _ ⊢v ⊢w) (Jₙ w-ne) ▸J =
                                                                       ω·ᶜ+ᶜ≤ω·ᶜʳ ⟩
       NegativeErasedContext Γ (ω ·ᶜ γ₆)                            →⟨ NegativeErasedContext-upwards-closed ω·ᶜ-decreasing ⟩
       NegativeErasedContext Γ γ₆                                   →⟨ neNeg ⊢w w-ne ▸w ⟩
-      NegativeType Γ (Id A t v)                                    →⟨ flip ¬negId (refl (Idⱼ ⊢t ⊢v)) ⟩
+      NegativeType Γ (Id A t v)                                    →⟨ flip ¬negId (refl (Idⱼ′ ⊢t ⊢v)) ⟩
       ⊥                                                            →⟨ ⊥-elim ⟩
       NegativeType Γ (B [ v , w ]₁₀)                               □
     (invUsageJ₀₁ em _ _ _ _ _ _ _ _ _) →
@@ -220,7 +220,7 @@ neNeg {γ} (Kⱼ {t} {A} {B} {v} ⊢t _ _ ⊢v ok) (Kₙ v-ne) ▸K =
                                                                 ω·ᶜ+ᶜ≤ω·ᶜʳ ⟩
       NegativeErasedContext Γ (ω ·ᶜ γ₅)                      →⟨ NegativeErasedContext-upwards-closed ω·ᶜ-decreasing ⟩
       NegativeErasedContext Γ γ₅                             →⟨ neNeg ⊢v v-ne ▸v ⟩
-      NegativeType Γ (Id A t t)                              →⟨ flip ¬negId (refl (Idⱼ ⊢t ⊢t)) ⟩
+      NegativeType Γ (Id A t t)                              →⟨ flip ¬negId (refl (Idⱼ′ ⊢t ⊢t)) ⟩
       ⊥                                                      →⟨ ⊥-elim ⟩
       NegativeType Γ (B [ v ]₀)                              □
     (invUsageK₀₁ em _ _ _ _ _ _ _) →
@@ -233,7 +233,7 @@ neNeg {γ} (Kⱼ {t} {A} {B} {v} ⊢t _ _ ⊢v ok) (Kₙ v-ne) ▸K =
         PE.trans (PE.sym em)
           (no-erased-matches non-trivial .proj₂ .proj₂ .proj₂ .proj₂)
       of λ ()
-neNeg ([]-congⱼ _ _ _ ok) ([]-congₙ _) _ =
+neNeg ([]-congⱼ _ _ _ _ ok) ([]-congₙ _) _ =
   ⊥-elim (no-erased-matches non-trivial .proj₂ .proj₂ .proj₁ ok)
 neNeg (conv d c) n γ▸u nΓγ =
   conv (neNeg d n γ▸u nΓγ) c
@@ -274,7 +274,7 @@ nfN (Unitⱼ _ _) _ _ Unitₙ       c = ⊥-elim (U≢ℕ c)
 nfN (Idⱼ _ _ _) _ _ (Idₙ _ _ _) c = ⊥-elim (U≢ℕ c)
 
 -- * Canonical forms
-nfN (lamⱼ _ _)      _ _ (lamₙ _)    c = ⊥-elim (ℕ≢Π (sym c))
+nfN (lamⱼ _ _ _)    _ _ (lamₙ _)    c = ⊥-elim (ℕ≢Π (sym c))
 nfN (prodⱼ _ _ _ _) _ _ (prodₙ _ _) c = ⊥-elim (ℕ≢Σ (sym c))
 nfN (starⱼ _ _)     _ _ starₙ       c = ⊥-elim (ℕ≢Unitⱼ (sym c))
 nfN (rflⱼ _)        _ _ rflₙ        c = ⊥-elim (Id≢ℕ c)

@@ -213,7 +213,7 @@ mutual
     (Emptyₙ ⊢Γ)   → Emptyⱼ ⊢Γ
     (Unitₙ ⊢Γ ok) → Unitⱼ ⊢Γ ok
     (ℕₙ ⊢Γ)       → ℕⱼ ⊢Γ
-    (Idₙ _ ⊢t ⊢u) → Idⱼ (⊢nf∷→⊢∷ ⊢t) (⊢nf∷→⊢∷ ⊢u)
+    (Idₙ _ ⊢t ⊢u) → Idⱼ′ (⊢nf∷→⊢∷ ⊢t) (⊢nf∷→⊢∷ ⊢u)
 
   -- If t is an η-long normal term, then t is well-typed.
 
@@ -222,7 +222,7 @@ mutual
     (convₙ ⊢t A≡B)      → conv (⊢nf∷→⊢∷ ⊢t) A≡B
     (Uₙ ⊢Γ)             → Uⱼ ⊢Γ
     (ΠΣₙ ⊢A ⊢B ok)      → ΠΣⱼ (⊢nf∷→⊢∷ ⊢A) (⊢nf∷→⊢∷ ⊢B) ok
-    (lamₙ ⊢t ok)        → lamⱼ (⊢nf∷→⊢∷ ⊢t) ok
+    (lamₙ ⊢t ok)        → lamⱼ′ ok (⊢nf∷→⊢∷ ⊢t)
     (prodₙ ⊢B ⊢t ⊢u ok) → prodⱼ ⊢B (⊢nf∷→⊢∷ ⊢t) (⊢nf∷→⊢∷ ⊢u) ok
     (Emptyₙ ⊢Γ)         → Emptyⱼ ⊢Γ
     (Unitₙ ⊢Γ ok)       → Unitⱼ ⊢Γ ok
@@ -254,8 +254,7 @@ mutual
                                  (⊢nf∷→⊢∷ ⊢v) (⊢ne∷→⊢∷ ⊢w)
     (Kₙ _ ⊢t ⊢B ⊢u ⊢v ok)    → Kⱼ (⊢nf∷→⊢∷ ⊢t) (⊢nf→⊢ ⊢B) (⊢nf∷→⊢∷ ⊢u)
                                  (⊢ne∷→⊢∷ ⊢v) ok
-    ([]-congₙ _ ⊢t ⊢u ⊢v ok) → []-congⱼ (⊢nf∷→⊢∷ ⊢t) (⊢nf∷→⊢∷ ⊢u)
-                                 (⊢ne∷→⊢∷ ⊢v) ok
+    ([]-congₙ _ _ _ ⊢v ok)   → []-congⱼ′ ok (⊢ne∷→⊢∷ ⊢v)
 
 mutual
 
@@ -465,7 +464,7 @@ mutual
       (Kₙ ⊢A ⊢t ⊢B ⊢u ⊢v ok) → Kₙ
         (⊢nf-stable Γ≡Δ ⊢A)
         (⊢nf∷-stable Γ≡Δ ⊢t)
-        (⊢nf-stable (Γ≡Δ ∙ refl (Idⱼ (⊢nf∷→⊢∷ ⊢t) (⊢nf∷→⊢∷ ⊢t))) ⊢B)
+        (⊢nf-stable (Γ≡Δ ∙ refl (Idⱼ′ (⊢nf∷→⊢∷ ⊢t) (⊢nf∷→⊢∷ ⊢t))) ⊢B)
         (⊢nf∷-stable Γ≡Δ ⊢u)
         (⊢ne∷-stable Γ≡Δ ⊢v)
         ok
@@ -1417,10 +1416,10 @@ mutual
         PE.refl →
       PE.cong (prod _ _ _)
         (normal-terms-unique-[conv↑]∷′
-           (convₙ ⊢u (substTypeEq C≡ (sym (subsetTerm fst-t,u⇒t))))
+           (convₙ ⊢u (substTypeEq C≡ (sym′ (subsetTerm fst-t,u⇒t))))
            (convₙ ⊢w
               (substTypeEq E≡
-                 (conv (sym (subsetTerm fst-t,u⇒t)) B≡D)))
+                 (conv (sym′ (subsetTerm fst-t,u⇒t)) B≡D)))
            (redMany
               (conv (Σ-β₂ ⊢C (⊢nf∷→⊢∷ ⊢t) (⊢nf∷→⊢∷ ⊢u) PE.refl ok₁)
                  (substTypeEq C≡ (refl (redFirstTerm fst-t,u⇒t)))))
@@ -1428,7 +1427,7 @@ mutual
               (conv (Σ-β₂ ⊢E (⊢nf∷→⊢∷ ⊢v) (⊢nf∷→⊢∷ ⊢w) PE.refl ok₂)
                  (substTypeEq E≡
                     (fst-cong ⊢E
-                       (sym (conv (soundnessConv↓Term ,≡,) Σ≡₂))))))
+                       (sym′ (conv (soundnessConv↓Term ,≡,) Σ≡₂))))))
            snd≡snd) }}}}}}}
     (Σ-η _ _ (ne u-ne) _ _ _) →
       ⊥-elim (⊢nf∷Σˢ→Neutral→⊥ ⊢u u-ne)

@@ -69,7 +69,7 @@ mutual
         t′ ∘ u′
       , (                           $⟨ ∘ₙ t′-ne u′-nf ⟩
          Γ ⊢ne t′ ∘ u′ ∷ B [ u′ ]₀  →⟨ flip convₙ $
-                                      substTypeEq (refl ⊢B) (sym u≡u′) ⟩
+                                       substTypeEq (refl ⊢B) (sym′ u≡u′) ⟩
          Γ ⊢ne t′ ∘ u′ ∷ B [ u ]₀   □)
       , app-cong t≡t′ u≡u′ }}}
     (fst-cong {p = p} t~) →
@@ -88,7 +88,7 @@ mutual
         snd p t′
       , (                                  $⟨ sndₙ ⊢B t′-ne ⟩
          Γ ⊢ne snd p t′ ∷ B [ fst p t′ ]₀  →⟨ flip _⊢ne_∷_.convₙ $
-                                             substTypeEq (refl ⊢B) (fst-cong ⊢B (sym t≡t′)) ⟩
+                                              substTypeEq (refl ⊢B) (fst-cong ⊢B (sym′ t≡t′)) ⟩
          Γ ⊢ne snd p t′ ∷ B [ fst p t ]₀   □)
       , snd-cong ⊢B t≡t′ }}
     (natrec-cong {A₁ = A} {v₁ = v} {p} {q} {r} A↑ t↑ u↑ v~) →
@@ -376,7 +376,7 @@ mutual
         ok →
         lam p u
       , lamₙ u-nf ok
-      , (                                                       $⟨ sym (Π-η ⊢t) ⟩
+      , (                                                       $⟨ sym′ (Π-η ⊢t) ⟩
          Γ ⊢ t ≡ lam p (wk1 t ∘⟨ p ⟩ var x0) ∷ Π p , q ▷ A ▹ B  →⟨ flip _⊢_≡_∷_.trans (lam-cong t0≡u ok) ⟩
          Γ ⊢ t ≡ lam p u ∷ Π p , q ▷ A ▹ B                      □) }}
     (Σ-η {p} {q} {A} {B} ⊢t _ _ _ fst-t↑ snd-t↑) →
@@ -392,7 +392,7 @@ mutual
                                                     substTypeEq (refl ⊢B) fst-t≡u₁ ⟩
          Γ ⊢nf u₂ ∷ B [ u₁ ]₀                    →⟨ flip (prodₙ ⊢B u₁-nf) ok ⟩
          Γ ⊢nf prodˢ p u₁ u₂ ∷ Σˢ p , q ▷ A ▹ B  □)
-      , (                                                        $⟨ sym (Σ-η-prod-fst-snd ⊢t) ⟩
+      , (                                                        $⟨ sym′ (Σ-η-prod-fst-snd ⊢t) ⟩
          Γ ⊢ t ≡ prodˢ p (fst p t) (snd p t) ∷ Σˢ p , q ▷ A ▹ B  →⟨ flip _⊢_≡_∷_.trans $
                                                                     prod-cong ⊢B fst-t≡u₁ snd-t≡u₂ ok ⟩
          Γ ⊢ t ≡ prodˢ p u₁ u₂ ∷ Σˢ p , q ▷ A ▹ B                □) }}}

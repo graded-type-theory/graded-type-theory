@@ -129,8 +129,8 @@ Unrestricted-η :
   Γ ⊢ t ≡ u ∷ Unrestricted A
 Unrestricted-η ⊢t ⊢u t≡u =
   case Unitⱼ (∙ syntacticEqTerm t≡u .proj₁) Unit-ok of λ
-    Γ∙A⊢Unit → Σ-η
-      Γ∙A⊢Unit ⊢t ⊢u t≡u
+    Γ∙A⊢Unit → Σ-η′
+      ⊢t ⊢u t≡u
       (η-unit (sndⱼ Γ∙A⊢Unit ⊢t) (sndⱼ Γ∙A⊢Unit ⊢u) (inj₁ PE.refl))
 
 -- An instance of the η-rule.

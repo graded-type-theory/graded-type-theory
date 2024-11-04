@@ -154,7 +154,7 @@ opaque
     A = Id (Erased ℕ) ([ zero ]) ([ zero ])
 
     ⊢Δ : ⊢ Δ
-    ⊢Δ = ∙ Idⱼ (zeroⱼ ε) (zeroⱼ ε)
+    ⊢Δ = ∙ Idⱼ′ (zeroⱼ ε) (zeroⱼ ε)
 
     consistent : Consistent Δ
     consistent = inhabited-consistent (singleSubst (rflⱼ (zeroⱼ ε)))
@@ -203,7 +203,7 @@ opaque
     A = ℕ
 
     ⊢Δ : ⊢ Δ
-    ⊢Δ = ∙ Idⱼ (zeroⱼ ε) (zeroⱼ ε)
+    ⊢Δ = ∙ Idⱼ′ (zeroⱼ ε) (zeroⱼ ε)
 
     open LR ⊢Δ str
 
@@ -243,7 +243,7 @@ opaque
     A = ℕ
 
     ⊢Δ : ⊢ Δ
-    ⊢Δ = ∙ Idⱼ (zeroⱼ ε) (zeroⱼ ε)
+    ⊢Δ = ∙ Idⱼ′ (zeroⱼ ε) (zeroⱼ ε)
 
     open LR ⊢Δ str
 

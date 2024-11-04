@@ -14,7 +14,9 @@ module Definition.Typed.Stability
   where
 
 open import Definition.Typed R
-open import Definition.Typed.Properties R
+open import Definition.Typed.Properties.Admissible.Primitive R
+open import Definition.Typed.Properties.Inversion R
+open import Definition.Typed.Properties.Well-formed R
 open import Definition.Typed.Size R
 open import Definition.Typed.Weakening R
 open import Definition.Untyped M
@@ -180,8 +182,9 @@ private module Inhabited where
         Unitⱼ (wf-⊢≡ʳ Γ≡Δ) ok
       (ℕⱼ _) _ →
         ℕⱼ (wf-⊢≡ʳ Γ≡Δ)
-      (Idⱼ ⊢t ⊢u) PE.refl →
-        Idⱼ (stability-⊢∷ Γ≡Δ ⊢t) (stability-⊢∷ Γ≡Δ ⊢u)
+      (Idⱼ ⊢A ⊢t ⊢u) PE.refl →
+        Idⱼ (stability-⊢ Γ≡Δ ⊢A) (stability-⊢∷ Γ≡Δ ⊢t)
+          (stability-⊢∷ Γ≡Δ ⊢u)
 
   opaque
     unfolding size-⊢≡
@@ -236,11 +239,12 @@ private module Inhabited where
       (ΠΣⱼ ⊢A ⊢B ok) PE.refl →
         let ⊢A′ = stability-⊢∷ Γ≡Δ ⊢A in
         ΠΣⱼ ⊢A′ (stability-⊢∷ (Γ≡Δ ∙⟨ univ ⊢A′ ⟩) ⊢B) ok
-      (lamⱼ ⊢t ok) PE.refl →
+      (lamⱼ ⊢B ⊢t ok) PE.refl →
         let _ , (⊢A , A<) = ∙⊢∷→⊢-<ˢ ⊢t
             ⊢A′           = stability-⊢ Γ≡Δ ⊢A ⦃ lt = <ˢ-trans A< ! ⦄
+            Γ∙A≡Δ∙A       = Γ≡Δ ∙⟨ ⊢A′ ⟩
         in
-        lamⱼ (stability-⊢∷ (Γ≡Δ ∙⟨ ⊢A′ ⟩) ⊢t) ok
+        lamⱼ (stability-⊢ Γ∙A≡Δ∙A ⊢B) (stability-⊢∷ Γ∙A≡Δ∙A ⊢t) ok
       (⊢t ∘ⱼ ⊢u) PE.refl →
         stability-⊢∷ Γ≡Δ ⊢t ∘ⱼ stability-⊢∷ Γ≡Δ ⊢u
       (prodⱼ ⊢B ⊢t ⊢u ok) PE.refl →
@@ -307,16 +311,23 @@ private module Inhabited where
         in
         Jⱼ ⊢t′
           (stability-⊢
-             (Γ≡Δ ∙⟨ ⊢A′ ⟩ ∙⟨ Idⱼ (wkTerm₁ ⊢A′ ⊢t′) (var₀ ⊢A′) ⟩) ⊢B)
+             (Γ≡Δ
+                ∙⟨ ⊢A′ ⟩
+                ∙⟨ Idⱼ (wk₁ ⊢A′ ⊢A′) (wkTerm₁ ⊢A′ ⊢t′) (var₀ ⊢A′) ⟩)
+             ⊢B)
           (stability-⊢∷ Γ≡Δ ⊢u) (stability-⊢∷ Γ≡Δ ⊢v)
           (stability-⊢∷ Γ≡Δ ⊢w)
       (Kⱼ ⊢t ⊢B ⊢u ⊢v ok) PE.refl →
-        let ⊢t′ = stability-⊢∷ Γ≡Δ ⊢t in
-        Kⱼ ⊢t′ (stability-⊢ (Γ≡Δ ∙⟨ Idⱼ ⊢t′ ⊢t′ ⟩) ⊢B)
+        let _ , ⊢Id       = ∙⊢→⊢-<ˢ ⊢B
+            (⊢A , A<) , _ = inversion-Id-⊢-<ˢ ⊢Id
+            ⊢A′           = stability-⊢ Γ≡Δ ⊢A ⦃ lt = <ˢ-trans A< ! ⦄
+            ⊢t′           = stability-⊢∷ Γ≡Δ ⊢t
+        in
+        Kⱼ ⊢t′ (stability-⊢ (Γ≡Δ ∙⟨ Idⱼ ⊢A′ ⊢t′ ⊢t′ ⟩) ⊢B)
           (stability-⊢∷ Γ≡Δ ⊢u) (stability-⊢∷ Γ≡Δ ⊢v) ok
-      ([]-congⱼ ⊢t ⊢u ⊢v ok) PE.refl →
-        []-congⱼ (stability-⊢∷ Γ≡Δ ⊢t) (stability-⊢∷ Γ≡Δ ⊢u)
-          (stability-⊢∷ Γ≡Δ ⊢v) ok
+      ([]-congⱼ ⊢A ⊢t ⊢u ⊢v ok) PE.refl →
+        []-congⱼ (stability-⊢ Γ≡Δ ⊢A) (stability-⊢∷ Γ≡Δ ⊢t)
+          (stability-⊢∷ Γ≡Δ ⊢u) (stability-⊢∷ Γ≡Δ ⊢v) ok
 
   opaque
     unfolding size-⊢≡∷
@@ -332,8 +343,8 @@ private module Inhabited where
     stability-⊢≡∷′ hyp Γ≡Δ = let open Variants hyp in λ where
       (refl ⊢t) PE.refl →
         refl (stability-⊢∷ Γ≡Δ ⊢t)
-      (sym t₂≡t₁) PE.refl →
-        sym (stability-⊢≡∷ Γ≡Δ t₂≡t₁)
+      (sym ⊢A t₂≡t₁) PE.refl →
+        sym (stability-⊢ Γ≡Δ ⊢A) (stability-⊢≡∷ Γ≡Δ t₂≡t₁)
       (trans t₁≡t₂ t₂≡t₃) PE.refl →
         trans (stability-⊢≡∷ Γ≡Δ t₁≡t₂) (stability-⊢≡∷ Γ≡Δ t₂≡t₃)
       (conv t₁≡t₂ B≡A) PE.refl →
@@ -353,12 +364,13 @@ private module Inhabited where
         in
         β-red (stability-⊢ (Γ≡Δ ∙⟨ ⊢A′ ⟩) ⊢B)
           (stability-⊢∷ (Γ≡Δ ∙⟨ ⊢A′ ⟩) ⊢t) (stability-⊢∷ Γ≡Δ ⊢u) eq ok
-      (η-eq ⊢t₁ ⊢t₂ t₁0≡t₂0) PE.refl →
+      (η-eq ⊢B ⊢t₁ ⊢t₂ t₁0≡t₂0 ok) PE.refl →
         let _ , (⊢A , A<) = ∙⊢≡∷→⊢-<ˢ t₁0≡t₂0
             ⊢A′           = stability-⊢ Γ≡Δ ⊢A ⦃ lt = <ˢ-trans A< ! ⦄
+            Γ∙A≡Δ∙A       = Γ≡Δ ∙⟨ ⊢A′ ⟩
         in
-        η-eq (stability-⊢∷ Γ≡Δ ⊢t₁) (stability-⊢∷ Γ≡Δ ⊢t₂)
-          (stability-⊢≡∷ (Γ≡Δ ∙⟨ ⊢A′ ⟩) t₁0≡t₂0)
+        η-eq (stability-⊢ Γ∙A≡Δ∙A ⊢B) (stability-⊢∷ Γ≡Δ ⊢t₁)
+          (stability-⊢∷ Γ≡Δ ⊢t₂) (stability-⊢≡∷ Γ∙A≡Δ∙A t₁0≡t₂0) ok
       (fst-cong ⊢B t₁≡t₂) PE.refl →
         let _ , (⊢A , A<) = ∙⊢→⊢-<ˢ ⊢B
             ⊢A′           = stability-⊢ Γ≡Δ ⊢A ⦃ lt = <ˢ-trans A< ! ⦄
@@ -383,13 +395,13 @@ private module Inhabited where
         in
         Σ-β₂ (stability-⊢ (Γ≡Δ ∙⟨ ⊢A′ ⟩) ⊢B) (stability-⊢∷ Γ≡Δ ⊢t₁)
           (stability-⊢∷ Γ≡Δ ⊢t₂) eq ok
-      (Σ-η ⊢B ⊢t₁ ⊢t₂ fst-t₁≡fst-t₂ snd-t₁≡snd-t₂) PE.refl →
+      (Σ-η ⊢B ⊢t₁ ⊢t₂ fst-t₁≡fst-t₂ snd-t₁≡snd-t₂ ok) PE.refl →
         let _ , (⊢A , A<) = ∙⊢→⊢-<ˢ ⊢B
             ⊢A′           = stability-⊢ Γ≡Δ ⊢A ⦃ lt = <ˢ-trans A< ! ⦄
         in
         Σ-η (stability-⊢ (Γ≡Δ ∙⟨ ⊢A′ ⟩) ⊢B) (stability-⊢∷ Γ≡Δ ⊢t₁)
           (stability-⊢∷ Γ≡Δ ⊢t₂) (stability-⊢≡∷ Γ≡Δ fst-t₁≡fst-t₂)
-          (stability-⊢≡∷ Γ≡Δ snd-t₁≡snd-t₂)
+          (stability-⊢≡∷ Γ≡Δ snd-t₁≡snd-t₂) ok
       (prod-cong ⊢B t₁≡t₂ u₁≡u₂ ok) PE.refl →
         let _ , (⊢A , A<) = ∙⊢→⊢-<ˢ ⊢B
             ⊢A′           = stability-⊢ Γ≡Δ ⊢A ⦃ lt = <ˢ-trans A< ! ⦄
@@ -470,7 +482,10 @@ private module Inhabited where
         J-cong (stability-⊢≡ Γ≡Δ A₁≡A₂) ⊢t₁′
           (stability-⊢≡∷ Γ≡Δ t₁≡t₂)
           (stability-⊢≡
-             (Γ≡Δ ∙⟨ ⊢A₁′ ⟩ ∙⟨ Idⱼ (wkTerm₁ ⊢A₁′ ⊢t₁′) (var₀ ⊢A₁′) ⟩)
+             (Γ≡Δ
+                ∙⟨ ⊢A₁′ ⟩
+                ∙⟨ Idⱼ (wk₁ ⊢A₁′ ⊢A₁′) (wkTerm₁ ⊢A₁′ ⊢t₁′)
+                     (var₀ ⊢A₁′) ⟩)
              B₁≡B₂)
           (stability-⊢≡∷ Γ≡Δ u₁≡u₂) (stability-⊢≡∷ Γ≡Δ v₁≡v₂)
           (stability-⊢≡∷ Γ≡Δ w₁≡w₂)
@@ -482,16 +497,29 @@ private module Inhabited where
         in
         J-β ⊢t′
           (stability-⊢
-             (Γ≡Δ ∙⟨ ⊢A′ ⟩ ∙⟨ Idⱼ (wkTerm₁ ⊢A′ ⊢t′) (var₀ ⊢A′) ⟩) ⊢B)
+             (Γ≡Δ
+                ∙⟨ ⊢A′ ⟩
+                ∙⟨ Idⱼ (wk₁ ⊢A′ ⊢A′) (wkTerm₁ ⊢A′ ⊢t′) (var₀ ⊢A′) ⟩)
+             ⊢B)
           (stability-⊢∷ Γ≡Δ ⊢u) eq
       (K-cong A₁≡A₂ ⊢t₁ t₁≡t₂ B₁≡B₂ u₁≡u₂ v₁≡v₂ ok) PE.refl →
-        let ⊢t₁′ = stability-⊢∷ Γ≡Δ ⊢t₁ in
+        let _ , (⊢Id , Id<) = ∙⊢≡→⊢-<ˢ B₁≡B₂
+            (⊢A₁ , A₁<) , _ = inversion-Id-⊢ ⊢Id
+            ⊢A₁′            = stability-⊢ Γ≡Δ ⊢A₁
+                                ⦃ lt = <ˢ-trans (<ˢ-trans A₁< Id<) ! ⦄
+            ⊢t₁′            = stability-⊢∷ Γ≡Δ ⊢t₁
+        in
         K-cong (stability-⊢≡ Γ≡Δ A₁≡A₂) ⊢t₁′ (stability-⊢≡∷ Γ≡Δ t₁≡t₂)
-          (stability-⊢≡ (Γ≡Δ ∙⟨ Idⱼ ⊢t₁′ ⊢t₁′ ⟩) B₁≡B₂)
+          (stability-⊢≡ (Γ≡Δ ∙⟨ Idⱼ ⊢A₁′ ⊢t₁′ ⊢t₁′ ⟩) B₁≡B₂)
           (stability-⊢≡∷ Γ≡Δ u₁≡u₂) (stability-⊢≡∷ Γ≡Δ v₁≡v₂) ok
       (K-β ⊢t ⊢B ⊢u ok) PE.refl →
-        let ⊢t′ = stability-⊢∷ Γ≡Δ ⊢t in
-        K-β ⊢t′ (stability-⊢ (Γ≡Δ ∙⟨ Idⱼ ⊢t′ ⊢t′ ⟩) ⊢B)
+        let _ , (⊢Id , Id<) = ∙⊢→⊢-<ˢ ⊢B
+            (⊢A , A<) , _   = inversion-Id-⊢ ⊢Id
+            ⊢A′             = stability-⊢ Γ≡Δ ⊢A
+                                ⦃ lt = <ˢ-trans (<ˢ-trans A< Id<) ! ⦄
+            ⊢t′             = stability-⊢∷ Γ≡Δ ⊢t
+        in
+        K-β ⊢t′ (stability-⊢ (Γ≡Δ ∙⟨ Idⱼ ⊢A′ ⊢t′ ⊢t′ ⟩) ⊢B)
           (stability-⊢∷ Γ≡Δ ⊢u) ok
       ([]-cong-cong A₁≡A₂ t₁≡t₂ u₁≡u₂ v₁≡v₂ ok) PE.refl →
         []-cong-cong (stability-⊢≡ Γ≡Δ A₁≡A₂) (stability-⊢≡∷ Γ≡Δ t₁≡t₂)

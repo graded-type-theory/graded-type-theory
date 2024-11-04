@@ -55,7 +55,7 @@ mutual
   soundness⇇Type ⊢Γ (ΠΣᶜ ⊢A ⊢B ok) =
     ΠΣⱼ (soundness⇇Type (∙ soundness⇇Type ⊢Γ ⊢A) ⊢B) ok
   soundness⇇Type _ (Idᶜ _ ⊢t ⊢u) =
-    Idⱼ (soundness⇇ ⊢t) (soundness⇇ ⊢u)
+    Idⱼ′ (soundness⇇ ⊢t) (soundness⇇ ⊢u)
   soundness⇇Type ⊢Γ (univᶜ ⊢A (A⇒*U , _)) =
     univ (conv (soundness⇉ ⊢Γ ⊢A .proj₂) (subset* A⇒*U))
 
@@ -131,7 +131,7 @@ mutual
       ⊢A →
     case soundness⇇ ⊢t of λ {
       ⊢t →
-    case soundness⇇Type (∙ Idⱼ (W.wkTerm₁ ⊢A ⊢t) (var₀ ⊢A)) ⊢B of λ {
+    case soundness⇇Type (∙ Idⱼ′ (W.wkTerm₁ ⊢A ⊢t) (var₀ ⊢A)) ⊢B of λ {
       ⊢B →
     case soundness⇇ ⊢w of λ {
       ⊢w →
@@ -143,14 +143,14 @@ mutual
       ⊢A →
     case soundness⇇ ⊢t of λ {
       ⊢t →
-    case soundness⇇Type (∙ Idⱼ ⊢t ⊢t) ⊢B of λ {
+    case soundness⇇Type (∙ Idⱼ′ ⊢t ⊢t) ⊢B of λ {
       ⊢B →
     case soundness⇇ ⊢v of λ {
       ⊢v →
       substType ⊢B ⊢v
     , Kⱼ′ ⊢B (soundness⇇ ⊢u) ⊢v ok }}}}
   soundness⇉ _ ([]-congᵢ _ ⊢t ⊢u ⊢v ok) =
-      Idⱼ ([]ⱼ ([]-cong→Erased ok) (soundness⇇ ⊢t))
+      Idⱼ′ ([]ⱼ ([]-cong→Erased ok) (soundness⇇ ⊢t))
         ([]ⱼ ([]-cong→Erased ok) (soundness⇇ ⊢u))
     , []-congⱼ′ ok (soundness⇇ ⊢v)
 
@@ -160,7 +160,7 @@ mutual
         _ , ⊢ΠFG = syntacticEq A≡ΠFG
         _ , ⊢G , ok = inversion-ΠΣ ⊢ΠFG
         ⊢t = soundness⇇ t⇇G
-    in  conv (lamⱼ ⊢t ok) (sym A≡ΠFG)
+    in  conv (lamⱼ′ ok ⊢t) (sym A≡ΠFG)
   soundness⇇ (prodᶜ A↘ΣFG t⇇F u⇇Gt) =
     let A≡ΣFG = subset* (proj₁ A↘ΣFG)
         _ , ⊢ΣFG = syntacticEq A≡ΣFG

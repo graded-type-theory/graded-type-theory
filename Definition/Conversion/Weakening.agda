@@ -108,7 +108,7 @@ mutual
             (PE.sym $ wk1-wk≡lift-wk1 _ _)
             (PE.sym $ wk1-wk≡lift-wk1 _ _)) $
        wkConv↑ (lift (lift [ρ]))
-         (∙ (Idⱼ
+         (∙ (Idⱼ′
                (PE.subst₂ (_⊢_∷_ _)
                   (PE.sym $ lift-wk1 _ _)
                   (PE.sym $ lift-wk1 _ _) $
@@ -126,7 +126,7 @@ mutual
     PE.subst (_ ⊢ K _ _ _ _ _ _ ~ _ ↑_)
       (PE.sym $ wk-β B₁) $
     K-cong (wkConv↑ [ρ] ⊢Δ A₁≡A₂) (wkConv↑Term [ρ] ⊢Δ t₁≡t₂)
-      (wkConv↑ (lift [ρ]) (∙ wk [ρ] ⊢Δ (Idⱼ ⊢t₁ ⊢t₁)) B₁≡B₂)
+      (wkConv↑ (lift [ρ]) (∙ wk [ρ] ⊢Δ (Idⱼ′ ⊢t₁ ⊢t₁)) B₁≡B₂)
       (PE.subst (_⊢_[conv↑]_∷_ _ _ _) (wk-β B₁) $
        wkConv↑Term [ρ] ⊢Δ u₁≡u₂)
       (wk~↓ [ρ] ⊢Δ v₁~v₂) (wkEq [ρ] ⊢Δ ≡Id) ok }

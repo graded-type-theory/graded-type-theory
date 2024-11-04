@@ -196,7 +196,7 @@ opaque
   J-motive-context-type ⊢t =
     case syntacticTerm ⊢t of λ {
       ⊢A →
-    Idⱼ (wkTerm₁ ⊢A ⊢t) (var₀ ⊢A) }
+    Idⱼ′ (wkTerm₁ ⊢A ⊢t) (var₀ ⊢A) }
 
 opaque
 
@@ -338,7 +338,7 @@ opaque
   -- A lemma related to the context of one of the assumptions of K.
 
   K-motive-context-type : Γ ⊢ t ∷ A → Γ ⊢ Id A t t
-  K-motive-context-type ⊢t = Idⱼ ⊢t ⊢t
+  K-motive-context-type ⊢t = Idⱼ′ ⊢t ⊢t
 
 opaque
 
@@ -372,20 +372,6 @@ opaque
 
 ------------------------------------------------------------------------
 -- Lemmas related to []-cong
-
-opaque
-
-  -- A variant of the typing rule for []-cong.
-
-  []-congⱼ′ :
-    []-cong-allowed s →
-    Γ ⊢ v ∷ Id A t u →
-    let open Erased s in
-      Γ ⊢ []-cong s A t u v ∷ Id (Erased A) ([ t ]) ([ u ])
-  []-congⱼ′ ok ⊢v =
-    case inversion-Id (syntacticTerm ⊢v) of λ {
-      (_ , ⊢t , ⊢u) →
-    []-congⱼ ⊢t ⊢u ⊢v ok }
 
 opaque
 
@@ -445,7 +431,8 @@ opaque
   []-cong-β-≡ t≡t′ ok =
     case syntacticEqTerm t≡t′ of λ {
       (⊢A , ⊢t , ⊢t′) →
-    case []-cong-cong (refl ⊢A) (refl ⊢t) (sym t≡t′) (refl (rflⱼ′ t≡t′)) ok of λ
+    case []-cong-cong (refl ⊢A) (refl ⊢t) (sym′ t≡t′)
+           (refl (rflⱼ′ t≡t′)) ok of λ
       []-cong-t≡[]-cong-t′ →
     case ([]-cong-β ⊢t PE.refl ok) of λ
       []-cong-⇒ →
@@ -586,7 +573,7 @@ opaque
     PE.subst (_⊢_∷_ _ _)
       (PE.cong₃ Id (wk1-sgSubst _ _) PE.refl (wk1-sgSubst _ _)) $
     ⊢subst
-      (Idⱼ (var₀ ⊢A) (wkTerm₁ ⊢A ⊢t))
+      (Idⱼ′ (var₀ ⊢A) (wkTerm₁ ⊢A ⊢t))
       ⊢eq
       (PE.subst (_⊢_∷_ _ _)
          (PE.sym $
@@ -608,7 +595,7 @@ opaque
       Id≡Id →
     PE.subst (_⊢_⇒_∷_ _ _ _) Id≡Id $
     subst-⇒
-      (Idⱼ (var₀ ⊢A) (wkTerm₁ ⊢A ⊢t))
+      (Idⱼ′ (var₀ ⊢A) (wkTerm₁ ⊢A ⊢t))
       ⊢t
       (PE.subst (_⊢_∷_ _ _) (PE.sym Id≡Id) $
        rflⱼ ⊢t)
@@ -659,7 +646,7 @@ opaque
       Id≡Id →
     PE.subst (_⊢_⇒_∷_ _ _ _) Id≡Id $
     subst-⇒
-      (Idⱼ (wkTerm₁ ⊢A ⊢t) (var₀ ⊢A))
+      (Idⱼ′ (wkTerm₁ ⊢A ⊢t) (var₀ ⊢A))
       ⊢u
       (PE.subst (_⊢_∷_ _ _) (PE.sym Id≡Id) ⊢eq)
 
@@ -688,7 +675,7 @@ opaque
   ⊢transitivity-symmetryˡ {eq} {A} {t} {u} ⊢eq =
     case inversion-Id (syntacticTerm ⊢eq) of λ
       (⊢A , ⊢t , _) →
-    case Idⱼ (wkTerm₁ ⊢A ⊢t) (var₀ ⊢A) of λ
+    case Idⱼ′ (wkTerm₁ ⊢A ⊢t) (var₀ ⊢A) of λ
       ⊢Id-t′-0 →
     PE.subst (_⊢_∷_ _ _)
       (PE.cong₃ Id
@@ -709,7 +696,7 @@ opaque
           transitivity A u t u (symmetry A t u eq) eq                  ∎)
          PE.refl) $
     Jⱼ′
-      (Idⱼ
+      (Idⱼ′
          (⊢transitivity (⊢symmetry (var₀ ⊢Id-t′-0)) (var₀ ⊢Id-t′-0))
          (rflⱼ (var₁ ⊢Id-t′-0)))
       (rflⱼ′
@@ -729,7 +716,7 @@ opaque
 
                                                                            ⟨ PE.subst (flip (_⊢_≡_ _) _)
                                                                                (PE.sym $ PE.cong₃ Id wk2-[,] PE.refl PE.refl) $
-                                                                             refl (Idⱼ ⊢t ⊢t) ⟩≡
+                                                                             refl (Idⱼ′ ⊢t ⊢t) ⟩≡
 
           transitivity A t t t (symmetry A t t rfl) rfl                   ≡⟨ transitivity-≡ (⊢symmetry (rflⱼ ⊢t)) ⟩⊢
 
@@ -756,7 +743,7 @@ opaque
     PE.subst (_⊢_∷_ _ _)
       (PE.cong₃ Id (wk1-sgSubst _ _) (wk1-sgSubst _ _) PE.refl) $
     ⊢subst
-      (Idⱼ
+      (Idⱼ′
          (PE.subst (_⊢_∷_ _ _) (PE.cong wk1 $ wk1-sgSubst _ _) $
           wkTerm₁ ⊢A (substTerm ⊢v ⊢t))
          ⊢v)
@@ -811,7 +798,7 @@ opaque
     PE.subst (_⊢_⇒_∷_ _ _ _)
       (PE.cong₃ Id (wk1-sgSubst _ _) (wk1-sgSubst _ _) PE.refl) $
     subst-⇒
-      (Idⱼ
+      (Idⱼ′
          (PE.subst (_⊢_∷_ _ _)
             (PE.cong wk1 $ wk1-sgSubst _ _) $
           wkTerm₁ (syntacticTerm ⊢t) (substTerm ⊢u ⊢t))
@@ -848,7 +835,7 @@ opaque
     PE.subst (_⊢_⇒_∷_ _ _ _)
       (PE.cong₃ Id (wk1-sgSubst _ _) (wk1-sgSubst _ _) PE.refl) $
     subst-subst
-      (Idⱼ
+      (Idⱼ′
          (PE.subst (_⊢_∷_ _ _) (PE.cong wk1 $ wk1-sgSubst _ _) $
           wkTerm₁ ⊢A (substTerm ⊢v ⊢t))
          ⊢v)
@@ -947,14 +934,14 @@ opaque
   ⊢uip {eq₁} {A} {t} {u} {eq₂} ok ⊢eq₁ ⊢eq₂ =
     case inversion-Id (syntacticTerm ⊢eq₁) of λ
       (⊢A , ⊢t , ⊢u) →
-    case Idⱼ ⊢t ⊢t of λ
+    case Idⱼ′ ⊢t ⊢t of λ
       ⊢Id-t-t →
-    case Idⱼ ⊢u ⊢u of λ
+    case Idⱼ′ ⊢u ⊢u of λ
       ⊢Id-u-u →
     ⊢transitivity
       (PE.subst (_⊢_∷_ _ _) lemma₁ $
        Jⱼ′
-         (Idⱼ
+         (Idⱼ′
             (var₀ (J-motive-context-type ⊢t))
             (⊢transitivity
                (wkTerm₁ (J-motive-context-type ⊢t) (wkTerm₁ ⊢A ⊢eq₂)) $
@@ -979,7 +966,7 @@ opaque
                      (var x0)))
                [ t , rfl ]₁₀                                             ∎) $
           Kⱼ′
-            (Idⱼ (rflⱼ (wkTerm₁ ⊢Id-t-t ⊢t)) (var₀ ⊢Id-t-t))
+            (Idⱼ′ (rflⱼ (wkTerm₁ ⊢Id-t-t ⊢t)) (var₀ ⊢Id-t-t))
             (rflⱼ $ rflⱼ $
              PE.subst₂ (_⊢_∷_ _)
                (PE.sym $ wk1-sgSubst _ _)
@@ -994,7 +981,7 @@ opaque
             (⊢transitivity (wkTerm₁ ⊢Id-u-u ⊢eq₂) (var₀ ⊢Id-u-u))
             (⊢transitivity-symmetryˡ ⊢eq₁))
          (Id-cong
-            (refl (Idⱼ ⊢t ⊢u))
+            (refl (Idⱼ′ ⊢t ⊢u))
             (transitivity (wk1 A) (wk1 t) (wk1 u) (wk1 u) (wk1 eq₂)
                (var x0)
                [ transitivity A u t u (symmetry A t u eq₁) eq₁ ]₀       ≡⟨ lemma₂ ⟩⊢≡

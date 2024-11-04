@@ -32,6 +32,7 @@ open import Tools.Sum using (inj₁; inj₂)
 
 open import Definition.Typed
 open import Definition.Typed.Consequences.DerivedRules R₂
+open import Definition.Typed.Properties R₂
 open import Definition.Untyped
 open import Definition.Untyped.QuantityTranslation tr tr-Σ
 
@@ -121,8 +122,8 @@ mutual
     Unitⱼ (tr-⊢ Γ) (Unit-preserved ok)
   tr-⊢′ (ΠΣⱼ P ok) =
     ΠΣⱼ (tr-⊢′ P) (ΠΣ-preserved ok)
-  tr-⊢′ (Idⱼ t u) =
-    Idⱼ (tr-⊢∷ t) (tr-⊢∷ u)
+  tr-⊢′ (Idⱼ _ t u) =
+    Idⱼ′ (tr-⊢∷ t) (tr-⊢∷ u)
   tr-⊢′ (univ A) =
     univ (tr-⊢∷ A)
 
@@ -141,8 +142,8 @@ mutual
     Unitⱼ (tr-⊢ Γ) (Unit-preserved ok)
   tr-⊢∷ (var Γ x) =
     var (tr-⊢ Γ) (tr-∷∈ x)
-  tr-⊢∷ (lamⱼ t ok) =
-    lamⱼ (tr-⊢∷ t) (ΠΣ-preserved ok)
+  tr-⊢∷ (lamⱼ _ t ok) =
+    lamⱼ′ (ΠΣ-preserved ok) (tr-⊢∷ t)
   tr-⊢∷ (_∘ⱼ_ {G = P} t u) =
     PE.subst (_ T₂.⊢ _ ∷_) (tr-Term-[] P) (tr-⊢∷ t ∘ⱼ tr-⊢∷ u)
   tr-⊢∷ (prodⱼ {G = P} ⊢P t u ok) =
@@ -202,7 +203,7 @@ mutual
       (PE.subst (T₂._⊢_∷_ _ _) (PE.sym $ tr-Term-[] B) $
        tr-⊢∷ u)
       (tr-⊢∷ v) (K-preserved ok)
-  tr-⊢∷ ([]-congⱼ _ _ v ok) =
+  tr-⊢∷ ([]-congⱼ _ _ _ v ok) =
     PE.subst (T₂._⊢_∷_ _ _) (tr-Term-Id-Erased-[]-[] ok) $
     []-congⱼ′ ([]-cong-preserved ok) (tr-⊢∷ v)
   tr-⊢∷ (conv t A≡B) =
@@ -230,8 +231,8 @@ mutual
     Γ T₁.⊢ t ≡ u ∷ A → tr-Con Γ T₂.⊢ tr-Term t ≡ tr-Term u ∷ tr-Term A
   tr-⊢≡∷ (refl t) =
     refl (tr-⊢∷ t)
-  tr-⊢≡∷ (sym t≡u) =
-    sym (tr-⊢≡∷ t≡u)
+  tr-⊢≡∷ (sym _ t≡u) =
+    sym′ (tr-⊢≡∷ t≡u)
   tr-⊢≡∷ (trans t≡u u≡v) =
     trans (tr-⊢≡∷ t≡u) (tr-⊢≡∷ u≡v)
   tr-⊢≡∷ (conv t≡u A≡B) =
@@ -247,8 +248,8 @@ mutual
       (tr-Term-[] t)
       (tr-Term-[] P)
       (β-red (tr-⊢′ ⊢P) (tr-⊢∷ ⊢t) (tr-⊢∷ u) PE.refl (ΠΣ-preserved ok))
-  tr-⊢≡∷ {Γ} (η-eq {F = A} {G = P} t u t≡u) =
-    η-eq (tr-⊢∷ t) (tr-⊢∷ u)
+  tr-⊢≡∷ {Γ} (η-eq {F = A} {G = P} _ t u t≡u _) =
+    η-eq′ (tr-⊢∷ t) (tr-⊢∷ u)
       (PE.subst₂ (tr-Con (Γ ∙ A) T₂.⊢_≡_∷ tr-Term P)
          (PE.sym (PE.cong (_∘⟨ _ ⟩ _ ) tr-Term-wk))
          (PE.sym (PE.cong (_∘⟨ _ ⟩ _ ) tr-Term-wk))
@@ -271,8 +272,8 @@ mutual
       (Σ-β₂ (tr-⊢′ ⊢P) (tr-⊢∷ t)
          (PE.subst (_ T₂.⊢ _ ∷_) (PE.sym (tr-Term-[] P)) (tr-⊢∷ u))
          PE.refl (ΠΣ-preserved ok))
-  tr-⊢≡∷ (Σ-η {G = P} ⊢P t u t₁≡u₁ t₂≡u₂) =
-    Σ-η (tr-⊢′ ⊢P) (tr-⊢∷ t) (tr-⊢∷ u) (tr-⊢≡∷ t₁≡u₁)
+  tr-⊢≡∷ (Σ-η {G = P} _ t u t₁≡u₁ t₂≡u₂ _) =
+    Σ-η′ (tr-⊢∷ t) (tr-⊢∷ u) (tr-⊢≡∷ t₁≡u₁)
       (PE.subst (_ T₂.⊢ _ ≡ _ ∷_) (PE.sym (tr-Term-[] P))
          (tr-⊢≡∷ t₂≡u₂))
   tr-⊢≡∷ (prodrec-cong {A = Q} Q≡R t≡u v≡w ok) =

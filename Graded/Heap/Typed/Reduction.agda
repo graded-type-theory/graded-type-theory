@@ -340,7 +340,7 @@ opaque
     in  ⊢ₛ ⊢H (conv ⊢u (trans Bt≡Bv (sym (B′≡ ⊢rfl))))
            (⊢ˢ-convₜ ⊢S (conv
              (⦅ Jₑ p q A t B u v ρ′ ⦆ᵉ rfl [ H ]ₕ
-               ≡⟨ J-cong′ (refl ⊢A) (refl ⊢t) (refl ⊢B) (refl ⊢u) (sym t≡v) (refl (rflⱼ′ t≡v)) ⟩⊢
+               ≡⟨ J-cong′ (refl ⊢A) (refl ⊢t) (refl ⊢B) (refl ⊢u) (sym′ t≡v) (refl (rflⱼ′ t≡v)) ⟩⊢
              ⦅ Jₑ p q A t B u t ρ′ ⦆ᵉ rfl [ H ]ₕ
                ≡⟨ conv (J-β-≡ ⊢t ⊢B ⊢u) (J-motive-rfl-cong (refl ⊢B) t≡v) ⟩⊢∎
              wk ρ′ u [ H ]ₕ ∎)

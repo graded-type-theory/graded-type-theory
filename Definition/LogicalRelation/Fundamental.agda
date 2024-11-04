@@ -69,7 +69,7 @@ opaque mutual
         _ , ⊩A = wf-∙-⊩ᵛ ⊩B
     in
     _ , ΠΣᵛ ok (emb-⊩ᵛ ≤ᵘ⊔ᵘʳ ⊩A) (emb-⊩ᵛ ≤ᵘ⊔ᵘˡ ⊩B)
-  fundamental-⊩ᵛ (Idⱼ ⊢t ⊢u) =
+  fundamental-⊩ᵛ (Idⱼ _ ⊢t ⊢u) =
     _ , Idᵛ (fundamental-⊩ᵛ∷ ⊢t .proj₂) (fundamental-⊩ᵛ∷ ⊢u .proj₂)
   fundamental-⊩ᵛ (univ ⊢A) =
     _ , ⊩ᵛ∷U→⊩ᵛ (fundamental-⊩ᵛ∷ ⊢A .proj₂)
@@ -114,7 +114,7 @@ opaque mutual
         (emb-⊩ᵛ∷ ≤ᵘ⊔ᵘˡ $ fundamental-⊩ᵛ∷ ⊢B .proj₂)
   fundamental-⊩ᵛ∷ (var ⊢Γ x∈Γ) =
     _ , varᵛ x∈Γ (valid ⊢Γ) .proj₂
-  fundamental-⊩ᵛ∷ (lamⱼ ⊢t ok) =
+  fundamental-⊩ᵛ∷ (lamⱼ _ ⊢t ok) =
     let l₁ , ⊩t = fundamental-⊩ᵛ∷ ⊢t
         l₂ , ⊩A = wf-∙-⊩ᵛ (wf-⊩ᵛ∷ ⊩t)
     in
@@ -174,7 +174,7 @@ opaque mutual
       _
     , Kᵛ ok (fundamental-⊩ᵛ ⊢B .proj₂) (fundamental-⊩ᵛ∷ ⊢u .proj₂)
         (fundamental-⊩ᵛ∷ ⊢v .proj₂)
-  fundamental-⊩ᵛ∷ ([]-congⱼ ⊢t ⊢u ⊢v ok) =
+  fundamental-⊩ᵛ∷ ([]-congⱼ _ _ _ ⊢v ok) =
     _ , []-congᵛ ok (fundamental-⊩ᵛ∷ ⊢v .proj₂)
   fundamental-⊩ᵛ∷ (Uⱼ ⊢Γ) =
     _ , ⊩ᵛU∷U (valid ⊢Γ)
@@ -183,7 +183,7 @@ opaque mutual
   fundamental-⊩ᵛ≡∷ : Γ ⊢ t ≡ u ∷ A → ∃ λ l → Γ ⊩ᵛ⟨ l ⟩ t ≡ u ∷ A
   fundamental-⊩ᵛ≡∷ (refl ⊢t) =
     _ , refl-⊩ᵛ≡∷ (proj₂ (fundamental-⊩ᵛ∷ ⊢t))
-  fundamental-⊩ᵛ≡∷ (sym t≡u) =
+  fundamental-⊩ᵛ≡∷ (sym _ t≡u) =
     _ , sym-⊩ᵛ≡∷ (proj₂ (fundamental-⊩ᵛ≡∷ t≡u))
   fundamental-⊩ᵛ≡∷ (trans t≡u u≡v) =
     let l , [u≡v] = fundamental-⊩ᵛ≡∷ u≡v
@@ -198,7 +198,7 @@ opaque mutual
     _ , ∘-congᵛ (fundamental-⊩ᵛ≡∷ t₁≡t₂ .proj₂) (fundamental-⊩ᵛ≡∷ u₁≡u₂ .proj₂)
   fundamental-⊩ᵛ≡∷ (β-red _ ⊢t ⊢u PE.refl ok) =
     _ , β-redᵛ ok (fundamental-⊩ᵛ∷ ⊢t .proj₂) (fundamental-⊩ᵛ∷ ⊢u .proj₂)
-  fundamental-⊩ᵛ≡∷ (η-eq ⊢t₁ ⊢t₂ wk1-t₁∘0≡wk1-t₂∘0) =
+  fundamental-⊩ᵛ≡∷ (η-eq _ ⊢t₁ ⊢t₂ wk1-t₁∘0≡wk1-t₂∘0 _) =
     _ , η-eqᵛ (fundamental-⊩ᵛ∷ ⊢t₁ .proj₂) (fundamental-⊩ᵛ∷ ⊢t₂ .proj₂)
       (fundamental-⊩ᵛ≡∷ wk1-t₁∘0≡wk1-t₂∘0 .proj₂)
   fundamental-⊩ᵛ≡∷ (suc-cong t≡u) =
@@ -235,7 +235,7 @@ opaque mutual
   fundamental-⊩ᵛ≡∷ (Σ-β₂ ⊢B ⊢t ⊢u PE.refl ok) =
     _ , Σ-β₂ᵛ ok (fundamental-⊩ᵛ ⊢B .proj₂)
       (fundamental-⊩ᵛ∷ ⊢t .proj₂) (fundamental-⊩ᵛ∷ ⊢u .proj₂)
-  fundamental-⊩ᵛ≡∷ (Σ-η _ ⊢t₁ ⊢t₂ fst-t₁≡fst-t₂ snd-t₁≡snd-t₂) =
+  fundamental-⊩ᵛ≡∷ (Σ-η _ ⊢t₁ ⊢t₂ fst-t₁≡fst-t₂ snd-t₁≡snd-t₂ _) =
     _ , Σ-ηᵛ (fundamental-⊩ᵛ∷ ⊢t₁ .proj₂) (fundamental-⊩ᵛ∷ ⊢t₂ .proj₂)
       (fundamental-⊩ᵛ≡∷ fst-t₁≡fst-t₂ .proj₂)
       (fundamental-⊩ᵛ≡∷ snd-t₁≡snd-t₂ .proj₂)

@@ -1,11 +1,8 @@
 ------------------------------------------------------------------------
--- Some lemmas that are re-exported from Definition.Typed.Properties
+-- Context well-formedness lemmas
 ------------------------------------------------------------------------
 
 {-# OPTIONS --backtracking-instance-search #-}
-
--- This module is imported from Graded.Derived.Erased.Typed.Primitive,
--- which is imported from Definition.Typed.Properties.
 
 open import Definition.Typed.Restrictions
 open import Graded.Modality
@@ -32,9 +29,6 @@ private variable
   A B C D t u : Term _
   l           : Nat
   s s₁ s₂     : Size
-
-------------------------------------------------------------------------
--- Context well-formedness lemmas
 
 private opaque
 
@@ -155,7 +149,7 @@ private module Lemmas where
         (Emptyⱼ ⊢Γ)  _       → ⊢Γ , !
         (Unitⱼ ⊢Γ _) _       → ⊢Γ , !
         (ℕⱼ ⊢Γ)      _       → ⊢Γ , !
-        (Idⱼ ⊢t _)   PE.refl → fix (wfTerm-<ˢ ⊢t)
+        (Idⱼ ⊢A _ _) PE.refl → fix (wf-<ˢ ⊢A)
       where
       open Variants hyp
 
@@ -171,30 +165,30 @@ private module Lemmas where
       size-⊢∷ ⊢t PE.≡ s₂ →
       ∃ λ (⊢Γ : ⊢ Γ) → size-⊢′ ⊢Γ <ˢ size-⊢∷ ⊢t
     wfTerm-<ˢ′ hyp = λ where
-        (conv ⊢t _)          PE.refl → fix (wfTerm-<ˢ ⊢t)
-        (var ⊢Γ _)           _       → ⊢Γ , !
-        (Uⱼ ⊢Γ)              _       → ⊢Γ , !
-        (ΠΣⱼ ⊢A _ _)         PE.refl → fix (wfTerm-<ˢ ⊢A)
-        (lamⱼ ⊢t _)          PE.refl → fix (∙⊢∷→⊢-<ˢ ⊢t .proj₁)
-        (⊢t ∘ⱼ _)            PE.refl → fix (wfTerm-<ˢ ⊢t)
-        (prodⱼ _ ⊢t _ _)     PE.refl → fix (wfTerm-<ˢ ⊢t)
-        (fstⱼ _ ⊢t)          PE.refl → fix (wfTerm-<ˢ ⊢t)
-        (sndⱼ _ ⊢t)          PE.refl → fix (wfTerm-<ˢ ⊢t)
-        (prodrecⱼ _ ⊢t _ _)  PE.refl → fix (wfTerm-<ˢ ⊢t)
-        (Emptyⱼ ⊢Γ)          _       → ⊢Γ , !
-        (emptyrecⱼ ⊢A _)     PE.refl → fix (wf-<ˢ ⊢A)
-        (Unitⱼ ⊢Γ _)         _       → ⊢Γ , !
-        (starⱼ ⊢Γ _)         _       → ⊢Γ , !
-        (unitrecⱼ ⊢A ⊢t _ _) PE.refl → fix (wfTerm-<ˢ ⊢t)
-        (ℕⱼ ⊢Γ)              _       → ⊢Γ , !
-        (zeroⱼ ⊢Γ)           _       → ⊢Γ , !
-        (sucⱼ n)             PE.refl → fix (wfTerm-<ˢ n)
-        (natrecⱼ ⊢t _ _)     PE.refl → fix (wfTerm-<ˢ ⊢t)
-        (Idⱼ ⊢A _ _)         PE.refl → fix (wfTerm-<ˢ ⊢A)
-        (rflⱼ ⊢t)            PE.refl → fix (wfTerm-<ˢ ⊢t)
-        (Jⱼ ⊢t _ _ _ _)      PE.refl → fix (wfTerm-<ˢ ⊢t)
-        (Kⱼ ⊢t _ _ _ _)      PE.refl → fix (wfTerm-<ˢ ⊢t)
-        ([]-congⱼ ⊢t _ _ _)  PE.refl → fix (wfTerm-<ˢ ⊢t)
+        (conv ⊢t _)           PE.refl → fix (wfTerm-<ˢ ⊢t)
+        (var ⊢Γ _)            _       → ⊢Γ , !
+        (Uⱼ ⊢Γ)               _       → ⊢Γ , !
+        (ΠΣⱼ ⊢A _ _)          PE.refl → fix (wfTerm-<ˢ ⊢A)
+        (lamⱼ _ ⊢t _)         PE.refl → fix (∙⊢∷→⊢-<ˢ ⊢t .proj₁)
+        (⊢t ∘ⱼ _)             PE.refl → fix (wfTerm-<ˢ ⊢t)
+        (prodⱼ _ ⊢t _ _)      PE.refl → fix (wfTerm-<ˢ ⊢t)
+        (fstⱼ _ ⊢t)           PE.refl → fix (wfTerm-<ˢ ⊢t)
+        (sndⱼ _ ⊢t)           PE.refl → fix (wfTerm-<ˢ ⊢t)
+        (prodrecⱼ _ ⊢t _ _)   PE.refl → fix (wfTerm-<ˢ ⊢t)
+        (Emptyⱼ ⊢Γ)           _       → ⊢Γ , !
+        (emptyrecⱼ ⊢A _)      PE.refl → fix (wf-<ˢ ⊢A)
+        (Unitⱼ ⊢Γ _)          _       → ⊢Γ , !
+        (starⱼ ⊢Γ _)          _       → ⊢Γ , !
+        (unitrecⱼ ⊢A ⊢t _ _)  PE.refl → fix (wfTerm-<ˢ ⊢t)
+        (ℕⱼ ⊢Γ)               _       → ⊢Γ , !
+        (zeroⱼ ⊢Γ)            _       → ⊢Γ , !
+        (sucⱼ n)              PE.refl → fix (wfTerm-<ˢ n)
+        (natrecⱼ ⊢t _ _)      PE.refl → fix (wfTerm-<ˢ ⊢t)
+        (Idⱼ ⊢A _ _)          PE.refl → fix (wfTerm-<ˢ ⊢A)
+        (rflⱼ ⊢t)             PE.refl → fix (wfTerm-<ˢ ⊢t)
+        (Jⱼ ⊢t _ _ _ _)       PE.refl → fix (wfTerm-<ˢ ⊢t)
+        (Kⱼ ⊢t _ _ _ _)       PE.refl → fix (wfTerm-<ˢ ⊢t)
+        ([]-congⱼ ⊢A _ _ _ _) PE.refl → fix (wf-<ˢ ⊢A)
       where
       open Variants hyp
 
@@ -254,8 +248,8 @@ opaque
       ∃ λ (⊢Γ : ⊢ Γ) → size-⊢′ ⊢Γ <ˢ size-⊢≡∷ t≡u
     wfEqTerm-<ˢ (refl ⊢t) =
       fix (wfTerm-<ˢ ⊢t)
-    wfEqTerm-<ˢ (sym u≡t) =
-      fix (wfEqTerm-<ˢ u≡t)
+    wfEqTerm-<ˢ (sym ⊢A _) =
+      fix (wf-<ˢ ⊢A)
     wfEqTerm-<ˢ (trans t≡u _) =
       fix (wfEqTerm-<ˢ t≡u)
     wfEqTerm-<ˢ (conv t≡u _) =
@@ -266,7 +260,7 @@ opaque
       fix (wfEqTerm-<ˢ t₁≡u₁)
     wfEqTerm-<ˢ (β-red _ _ ⊢u _ _) =
       fix (wfTerm-<ˢ ⊢u)
-    wfEqTerm-<ˢ (η-eq ⊢t _ _) =
+    wfEqTerm-<ˢ (η-eq _ ⊢t _ _ _) =
       fix (wfTerm-<ˢ ⊢t)
     wfEqTerm-<ˢ (fst-cong _ t≡u) =
       fix (wfEqTerm-<ˢ t≡u)
@@ -276,7 +270,7 @@ opaque
       fix (wfTerm-<ˢ ⊢t)
     wfEqTerm-<ˢ (Σ-β₂ _ ⊢t _ _ _) =
       fix (wfTerm-<ˢ ⊢t)
-    wfEqTerm-<ˢ (Σ-η _ ⊢t _ _ _) =
+    wfEqTerm-<ˢ (Σ-η _ ⊢t _ _ _ _) =
       fix (wfTerm-<ˢ ⊢t)
     wfEqTerm-<ˢ (prod-cong _ t₁≡u₁ _ _) =
       fix (wfEqTerm-<ˢ t₁≡u₁)

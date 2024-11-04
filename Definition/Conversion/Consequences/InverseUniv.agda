@@ -65,9 +65,9 @@ opaque
   inverseUnivEq′ (inj₂ ⊢A) (refl _) =
     refl ⊢A
   inverseUnivEq′ (inj₁ ⊢A) (sym B≡A) =
-    sym (inverseUnivEq′ (inj₂ ⊢A) B≡A)
+    sym′ (inverseUnivEq′ (inj₂ ⊢A) B≡A)
   inverseUnivEq′ (inj₂ ⊢B) (sym B≡A) =
-    sym (inverseUnivEq′ (inj₁ ⊢B) B≡A)
+    sym′ (inverseUnivEq′ (inj₁ ⊢B) B≡A)
   inverseUnivEq′ (inj₁ ⊢A) (trans A≡C C≡B) =
     case inverseUnivEq′ (inj₁ ⊢A) A≡C of λ
       A≡C →

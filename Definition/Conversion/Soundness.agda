@@ -122,7 +122,7 @@ mutual
   soundnessConv↑Term ([↑]ₜ B t′ u′ (D , _) (d , _) (d′ , _) t<>u) =
     conv (trans (subset*Term d)
                 (trans (soundnessConv↓Term t<>u)
-                       (sym (subset*Term d′))))
+                       (sym′ (subset*Term d′))))
          (sym (subset* D))
 
   -- Algorithmic equality of terms in WHNF is well-formed.
@@ -150,13 +150,11 @@ mutual
     prod-cong x₁ (soundnessConv↑Term x₂)
       (soundnessConv↑Term x₃) ok
   soundnessConv↓Term (η-eq x x₁ y y₁ c) =
-    η-eq x x₁ (soundnessConv↑Term c)
+    η-eq′ x x₁ (soundnessConv↑Term c)
   soundnessConv↓Term (Σ-η ⊢p ⊢r pProd rProd fstConv sndConv) =
-    let ⊢ΣFG = syntacticTerm ⊢p
-        _ , ⊢G = syntacticΣ ⊢ΣFG
-        fst≡ = soundnessConv↑Term fstConv
+    let fst≡ = soundnessConv↑Term fstConv
         snd≡ = soundnessConv↑Term sndConv
-    in  Σ-η ⊢G ⊢p ⊢r fst≡ snd≡
+    in  Σ-η′ ⊢p ⊢r fst≡ snd≡
   soundnessConv↓Term (η-unit [a] [b] aUnit bUnit ok) =
     η-unit [a] [b] ok
   soundnessConv↓Term

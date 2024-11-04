@@ -258,7 +258,7 @@ opaque
       t[σ]≡v[σ] →
     case                      ∷ B [ v , w ]₁₀ [ σ ]                    ⟨ [,]-[]-commute B ⟩⇒≡
       J p q A t B u v w [ σ ] ∷ B [ σ ⇑ ⇑ ] [ v [ σ ] , w [ σ ] ]₁₀  ⇒*⟨ RS.J-subst* ⊢B[σ⇑⇑] ⊢u[σ] w[σ]⇒rfl ⟩∷
-                                                                       ⟨ substTypeEq₂ (refl ⊢B[σ⇑⇑]) (sym t[σ]≡v[σ]) $
+                                                                       ⟨ substTypeEq₂ (refl ⊢B[σ⇑⇑]) (sym′ t[σ]≡v[σ]) $
                                                                          PE.subst (_⊢_≡_∷_ _ _ _) ≡Id-wk1-wk1-0[]₀ $
                                                                          subset*Term w[σ]⇒rfl ⟩⇒
       J p q A t B u v rfl [ σ ] ∷ B [ σ ⇑ ⇑ ] [ t [ σ ] , rfl ]₁₀    ⇒⟨ J-β-⇒ t[σ]≡v[σ] ⊢B[σ⇑⇑] ⊢u[σ] ⟩∎∷

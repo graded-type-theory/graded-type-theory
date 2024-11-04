@@ -80,7 +80,7 @@ subset*Termˢ (x ⇨ˢ d) = trans (subsetTermˢ x) (subset*Termˢ d)
 
 ⇒ˢ∷ℕ≡zero→⇒ : Γ ⊢ t ⇒ˢ u ∷ℕ → Γ ⊢ u ≡ zero ∷ ℕ → Γ ⊢ t ⇒ u ∷ ℕ
 ⇒ˢ∷ℕ≡zero→⇒ (whred t⇒u) _        = t⇒u
-⇒ˢ∷ℕ≡zero→⇒ (sucred _)  suc≡zero = ⊥-elim (zero≢suc (sym suc≡zero))
+⇒ˢ∷ℕ≡zero→⇒ (sucred _)  suc≡zero = ⊥-elim (zero≢suc (sym′ suc≡zero))
 
 -- If t reduces to u according to _⊢_⇒ˢ*_∷ℕ, and u is definitionally
 -- equal to zero, then t reduces to u.

@@ -171,7 +171,7 @@ module Fundamental
       Unitʳ
     fundamental (var _ x∈Γ) ▸x =
       fundamentalVar well-formed x∈Γ ▸x
-    fundamental (lamⱼ ⊢t ok) ▸lam =
+    fundamental (lamⱼ _ ⊢t ok) ▸lam =
       case inv-usage-lam ▸lam of λ
         (invUsageLam ▸t γ≤δ) →
       subsumption-▸⊩ʳ∷[]-≤ γ≤δ $
@@ -337,7 +337,7 @@ module Fundamental
                (γ₄ ∧ᶜ γ₅) ⟨ x ⟩ PE.≡ 𝟘                         □) $
           Kʳ ⊢B ⊢u ⊢v ok (∧ᶜ-decreasingˡ γ₄ _) (fundamental ⊢u ▸u)
             (inj₂ (_ , ∧ᶜ-decreasingʳ γ₄ _ , fundamental ⊢v ▸v))
-    fundamental ([]-congⱼ _ _ ⊢v ok) _ =
+    fundamental ([]-congⱼ _ _ _ ⊢v ok) _ =
       []-congʳ
         (case closed-or-no-erased-matches of λ where
            (inj₁ nem) → ⊥-elim (nem non-trivial .proj₂ .proj₂ .proj₁ ok)

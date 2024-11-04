@@ -38,7 +38,7 @@ opaque
   inverseUniv (ΠΣⱼ ⊢B ok)   =
     _ ,
     ΠΣⱼ (inverseUniv (⊢∙→⊢ (wf ⊢B)) .proj₂) (inverseUniv ⊢B .proj₂) ok
-  inverseUniv (Idⱼ ⊢t ⊢u) =
+  inverseUniv (Idⱼ _ ⊢t ⊢u) =
     _ , Idⱼ (inverseUniv (syntacticTerm ⊢t) .proj₂) ⊢t ⊢u
   inverseUniv (univ ⊢A) = _ , ⊢A
 

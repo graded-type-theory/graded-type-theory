@@ -442,7 +442,7 @@ Full-reduction-term⇔Full-reduction-assumptions =
           ∃ λ v → Γ ⊢nf v ∷ A × Γ ⊢ t ≡ v ∷ A × γ ▸[ 𝟙ᵐ ] v)       →⟨ (λ (⊢u , t≡u , ▸u⇔ , v , ⊢v , t≡v , ▸v) →
                                                                          v ,
                                                                          PE.subst (λ u → _ ▸[ _ ] u ⇔ _)
-                                                                           (normal-terms-unique ⊢u ⊢v (trans (sym t≡u) t≡v))
+                                                                           (normal-terms-unique ⊢u ⊢v (trans (sym′ t≡u) t≡v))
                                                                            ▸u⇔ ,
                                                                          ▸v) ⟩
          (∃ λ v →
@@ -478,7 +478,7 @@ Full-reduction-term⇔Full-reduction-assumptions =
           ∃ λ v → Γ ⊢nf v ∷ A × Γ ⊢ t ≡ v ∷ A × γ ▸[ 𝟙ᵐ ] v)              →⟨ (λ (⊢u , t≡u , ▸u⇔ , v , ⊢v , t≡v , ▸v) →
                                                                                 v ,
                                                                                 PE.subst (λ u → _ ▸[ _ ] u ⇔ _)
-                                                                                  (normal-terms-unique ⊢u ⊢v (trans (sym t≡u) t≡v))
+                                                                                  (normal-terms-unique ⊢u ⊢v (trans (sym′ t≡u) t≡v))
                                                                                   ▸u⇔ ,
                                                                                 ▸v) ⟩
          (∃ λ v →
@@ -534,7 +534,7 @@ Full-reduction-term-ε→Full-reduction-assumptions
        ∃ λ v → ε ⊢nf v ∷ A × ε ⊢ t ≡ v ∷ A × ε ▸[ 𝟙ᵐ ] v)   →⟨ (λ (⊢u , t≡u , ▸u⇔ , v , ⊢v , t≡v , ▸v) →
                                                                   v ,
                                                                   PE.subst (λ u → _ ▸[ _ ] u ⇔ _)
-                                                                    (normal-terms-unique ⊢u ⊢v (trans (sym t≡u) t≡v))
+                                                                    (normal-terms-unique ⊢u ⊢v (trans (sym′ t≡u) t≡v))
                                                                     ▸u⇔ ,
                                                                   ▸v) ⟩
       (∃ λ v →
@@ -566,7 +566,7 @@ Full-reduction-term-ε→Full-reduction-assumptions
        ∃ λ v → ε ⊢nf v ∷ A × ε ⊢ t ≡ v ∷ A × ε ▸[ 𝟙ᵐ ] v)             →⟨ (λ (⊢u , t≡u , ▸u⇔ , v , ⊢v , t≡v , ▸v) →
                                                                             v ,
                                                                             PE.subst (λ u → _ ▸[ _ ] u ⇔ _)
-                                                                              (normal-terms-unique ⊢u ⊢v (trans (sym t≡u) t≡v))
+                                                                              (normal-terms-unique ⊢u ⊢v (trans (sym′ t≡u) t≡v))
                                                                               ▸u⇔ ,
                                                                             ▸v) ⟩
       (∃ λ v →

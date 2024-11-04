@@ -17,7 +17,7 @@ open Modality 𝕄
 open Type-restrictions R
 
 open import Definition.Typed R
-open import Definition.Typed.Properties.Well-formed R
+open import Definition.Typed.Properties R
 open import Definition.Typed.Consequences.Inequality R
 open import Definition.Typed.Consequences.Injectivity R
 open import Definition.Typed.Consequences.DerivedRules.Sigma R

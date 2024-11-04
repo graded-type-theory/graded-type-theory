@@ -23,6 +23,7 @@ open import Tools.Function
 import Tools.Reasoning.PartialOrder
 
 open import Definition.Typed R
+open import Definition.Typed.Properties R
 open import Definition.Untyped M
 
 private
@@ -60,7 +61,7 @@ double = lam 𝟙 (natrec 𝟘 𝟘 𝟙 ℕ (var x0) (suc (var x0)) (var x0))
 
 ⊢double : ε ⊢ double ∷ Π 𝟙 , 𝟘 ▷ ℕ ▹ ℕ
 ⊢double =
-  flip lamⱼ Π-𝟙-𝟘 $
+  lamⱼ′ Π-𝟙-𝟘 $
   natrecⱼ (var ⊢ℕ here)
     (sucⱼ (var ⊢ℕℕℕ here))
     (var ⊢ℕ here)
@@ -81,8 +82,8 @@ plus = lam 𝟙 $ lam 𝟙 $ natrec 𝟘 𝟘 𝟙 ℕ (var x0) (suc (var x0)) (
 
 ⊢plus : ε ⊢ plus ∷ Π 𝟙 , 𝟘 ▷ ℕ ▹ Π 𝟙 , 𝟘 ▷ ℕ ▹ ℕ
 ⊢plus =
-  flip lamⱼ Π-𝟙-𝟘 $
-  flip lamⱼ Π-𝟙-𝟘 $
+  lamⱼ′ Π-𝟙-𝟘 $
+  lamⱼ′ Π-𝟙-𝟘 $
   natrecⱼ (var ⊢ℕℕ here)
     (sucⱼ (var ⊢ℕℕℕℕ here))
     (var ⊢ℕℕ (there here))

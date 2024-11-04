@@ -210,7 +210,7 @@ mutual
     case Id-norm A≡Id-B-t-t of λ {
       (_ , _ , _ , A⇒*Id-B′-t′-u′ , A≡A′ , t≡t′ , t≡u′) →
     rflᶜ (A⇒*Id-B′-t′-u′ , Idₙ)
-      (conv (trans (sym t≡t′) t≡u′) A≡A′) }}
+      (conv (trans (sym′ t≡t′) t≡u′) A≡A′) }}
   completeness⇇ (infᶜ t) ⊢t =
     let B , t⇉B , A≡B = completeness⇉ t ⊢t
     in  infᶜ t⇉B (sym A≡B)

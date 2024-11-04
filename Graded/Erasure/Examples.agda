@@ -107,7 +107,7 @@ private
   ⊢U0 = ∙ U⊢0
 
   U⊢id : ε ∙ U l ⊢ lam ω (var x0) ∷ Π ω , q ▷ var x0 ▹ var x1
-  U⊢id = lamⱼ (var ⊢U0 here) Π-ω-ok
+  U⊢id = lamⱼ′ Π-ω-ok (var ⊢U0 here)
 
   ΓU⊢id : ⊢ Γ → Γ ∙ U l ⊢ lam ω (var x0) ∷ Π ω , q ▷ var x0 ▹ var x1
   ΓU⊢id ε = U⊢id
@@ -149,7 +149,7 @@ id = lam 𝟘 (lam ω (var x0))
 -- context).
 
 ⊢id : ⊢ Γ → Γ ⊢ id ∷ Π 𝟘 , p ▷ U l ▹ Π ω , q ▷ var x0 ▹ var x1
-⊢id ⊢Γ = lamⱼ (ΓU⊢id ⊢Γ) Π-𝟘-ok
+⊢id ⊢Γ = lamⱼ′ Π-𝟘-ok (ΓU⊢id ⊢Γ)
 
 -- The polymorphic identity function is well-resourced (with respect
 -- to the zero usage context).
@@ -243,7 +243,7 @@ id₀ = lam 𝟘 (var x0)
 -- The function id₀ is well-typed (in the empty context).
 
 ⊢id₀ : ε ⊢ id₀ ∷ Π 𝟘 , p ▷ ℕ ▹ ℕ
-⊢id₀ = lamⱼ (var₀ (ℕⱼ ε)) Π-𝟘-ok
+⊢id₀ = lamⱼ′ Π-𝟘-ok (var₀ (ℕⱼ ε))
 
 -- The function id₀ is not well-resourced.
 
@@ -383,12 +383,12 @@ private
   -- A typing rule for Vec-body₁.
 
   ⊢Vec-body₁ : ε ∙ U l ⊢ Vec-body₁ l ∷ Π ω , q ▷ ℕ ▹ U l
-  ⊢Vec-body₁ = lamⱼ ⊢Vec-body₂ Π-ω-ok
+  ⊢Vec-body₁ = lamⱼ′ Π-ω-ok ⊢Vec-body₂
 
 -- A typing rule for Vec.
 
 ⊢Vec : ε ⊢ Vec l ∷ Π ω , q ▷ U l ▹ Π ω , q ▷ ℕ ▹ U l
-⊢Vec = lamⱼ ⊢Vec-body₁ Π-ω-ok
+⊢Vec = lamⱼ′ Π-ω-ok ⊢Vec-body₁
 
 -- Some lemmas used below.
 
@@ -531,7 +531,7 @@ Vec∘suc≡ {A} {l} ⊢A ⊢t =
      ΠΣⱼ ΓℕU⊢A (var₁ (univ ΓℕU⊢A)) Σˢ-ω-ok) $
   PE.subst (_⊢_≡_∷_ _ _ _) (PE.cong U ⊔ᵘ-idem) $
   _⊢_≡_∷_.trans
-    (_⊢_≡_∷_.sym $
+    (sym′ $
      ΠΣ-cong (PE.subst (_ ⊢ _ ≡_∷ _) (≡wk3[][] A) (refl ⊢A))
        (PE.subst₂ (_⊢_≡_∷_ _ _)
           (PE.cong (flip (natrec 𝟘 𝟘 ω (U l) (Unit s l)) _) $
@@ -541,7 +541,7 @@ Vec∘suc≡ {A} {l} ⊢A ⊢t =
         β-red (Uⱼ ⊢ΓAℕ) ⊢Vec-body₂″ (W.wkTerm₁ (univ ⊢A) ⊢t) PE.refl
           Π-ω-ok)
        Σˢ-ω-ok) $
-  _⊢_≡_∷_.sym $
+  sym′ $
   flip (_⊢_≡_∷_.ΠΣ-cong (refl ⊢A)) Σˢ-ω-ok $
   app-cong
     (β-red (syntacticTerm ⊢Vec-body₁″) ⊢Vec-body₁″
@@ -598,7 +598,7 @@ private
 -- A typing rule for Non-zero.
 
 ⊢Non-zero : ε ⊢ Non-zero ∷ Π ω , q ▷ ℕ ▹ U 0
-⊢Non-zero = lamⱼ ⊢Non-zero-body Π-ω-ok
+⊢Non-zero = lamⱼ′ Π-ω-ok ⊢Non-zero-body
 
 -- A computation rule for Non-zero.
 
@@ -743,19 +743,19 @@ opaque
   Π 𝟘 , p ▷ wk wk₀ Non-zero ∘⟨ ω ⟩ var x1 ▹
   var x3
 ⊢head {l} =
-  flip lamⱼ Π-𝟘-ok $
-  flip lamⱼ Π-ω-ok $
+  lamⱼ′ Π-𝟘-ok $
+  lamⱼ′ Π-ω-ok $
   natrecⱼ
-    (flip lamⱼ Π-ω-ok $
-     flip lamⱼ Π-𝟘-ok $
+    (lamⱼ′ Π-ω-ok $
+     lamⱼ′ Π-𝟘-ok $
      emptyrecⱼ
        (univ (var₃ (univ ⊢Non-zero-zero)))
        (_⊢_∷_.conv (var₀ (univ ⊢Non-zero-zero)) $
         _⊢_≡_.univ $
         subset*Term $
         Non-zero∘zero⇒* ⊢Uℕ∙Vec∙Non-zero))
-    (flip lamⱼ Π-ω-ok $
-     flip lamⱼ Π-𝟘-ok $
+    (lamⱼ′ Π-ω-ok $
+     lamⱼ′ Π-𝟘-ok $
      fstⱼ (univ ⊢Vec-6-4) $
      _⊢_∷_.conv (var₁ (univ ⊢Non-zero-1+2)) $
      _⊢_≡_.univ $
@@ -875,7 +875,7 @@ opaque
   _⊢nf_∷_.convₙ
     (prodₙ (Unitⱼ ⊢ℕ Unit-ok) (zeroₙ ε) (starₙ ε Unit-ok) Σˢ-ω-ok) $
   _⊢_≡_.univ $
-  _⊢_≡_∷_.sym $
+  sym′ $
   _⊢_≡_∷_.trans (Vec∘suc≡ (ℕⱼ ε) (zeroⱼ ε)) $
   ΠΣ-cong (refl (ℕⱼ ε)) (subset*Term (Vec∘zero⇒* (ℕⱼ (∙ ℕⱼ ε)))) Σˢ-ω-ok
 
@@ -933,7 +933,7 @@ opaque
   (((⊢head ∘ⱼ ℕⱼ ε) ∘ⱼ sucⱼ (zeroⱼ ε)) ∘ⱼ ⊢[0]) ∘ⱼ
   conv (starⱼ ε Unit-ok)
     (_⊢_≡_.univ $
-     _⊢_≡_∷_.sym $
+     sym′ $
      subset*Term (Non-zero∘suc⇒* (zeroⱼ ε)))
 
 -- The erasure of head-[0] reduces to T.zero.

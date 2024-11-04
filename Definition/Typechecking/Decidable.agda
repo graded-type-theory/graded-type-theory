@@ -524,13 +524,13 @@ mutual
       case
         (dec⇇Type-with-cont ⊢Γ A λ ⊢A →
          dec⇇-with-cont t ⊢A λ ⊢t →
-         dec⇇Type-with-cont (∙ Idⱼ (wkTerm₁ ⊢A ⊢t) (var₀ ⊢A)) B λ ⊢B →
+         dec⇇Type-with-cont (∙ Idⱼ′ (wkTerm₁ ⊢A ⊢t) (var₀ ⊢A)) B λ ⊢B →
          dec⇇ u
            (substType₂ ⊢B ⊢t $
             PE.subst (_⊢_∷_ _ _) ≡Id-wk1-wk1-0[]₀ $
             rflⱼ ⊢t) ×-dec
          dec⇇-with-cont v ⊢A λ ⊢v →
-         dec⇇ w (Idⱼ ⊢t ⊢v))
+         dec⇇ w (Idⱼ′ ⊢t ⊢v))
         of λ where
         (yes (A , t , B , u , v , w)) → yes (_ , Jᵢ A t B u v w)
         (no not)                      →
@@ -545,9 +545,9 @@ mutual
         (K-allowed? ×-dec′ λ ok →
          dec⇇Type-with-cont ⊢Γ A λ ⊢A →
          dec⇇-with-cont t ⊢A λ ⊢t →
-         dec⇇Type-with-cont (∙ Idⱼ ⊢t ⊢t) B λ ⊢B →
+         dec⇇Type-with-cont (∙ Idⱼ′ ⊢t ⊢t) B λ ⊢B →
          dec⇇ u (substType ⊢B (rflⱼ ⊢t)) ×-dec
-         dec⇇ v (Idⱼ ⊢t ⊢t))
+         dec⇇ v (Idⱼ′ ⊢t ⊢t))
         of λ where
         (yes (ok , A , t , B , u , v)) → yes (_ , Kᵢ A t B u v ok)
         (no not)                       →
@@ -800,7 +800,7 @@ mutual
        dec⇇Type-with-cont ⊢Γ A λ ⊢A →
        dec⇇-with-cont t ⊢A λ ⊢t →
        dec⇇-with-cont u ⊢A λ ⊢u →
-       dec⇇ v (Idⱼ ⊢t ⊢u))
+       dec⇇ v (Idⱼ′ ⊢t ⊢u))
       of λ where
       (yes (ok , A , t , u , v)) → yes (_ , []-congᵢ A t u v ok)
       (no not)                   →

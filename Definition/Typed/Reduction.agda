@@ -51,7 +51,7 @@ reductionₜ : Γ ⊢ A ↘ B
            → Γ ⊢ a ≡ b ∷ A
 reductionₜ (D , _) (d , _) (d′ , _) a′≡b′ =
   conv (trans (subset*Term d)
-              (trans a′≡b′ (sym (subset*Term d′))))
+              (trans a′≡b′ (sym′ (subset*Term d′))))
        (sym (subset* D))
 
 reductionₜ′ : Γ ⊢ A ↘ B
@@ -60,5 +60,5 @@ reductionₜ′ : Γ ⊢ A ↘ B
             → Γ ⊢ a ≡ b ∷ A
             → Γ ⊢ a′ ≡ b′ ∷ B
 reductionₜ′ (D , _) (d , _) (d′ , _) a≡b =
-  trans (sym (subset*Term d))
+  trans (sym′ (subset*Term d))
         (trans (conv a≡b (subset* D)) (subset*Term d′))
