@@ -389,9 +389,9 @@ opaque
       ⊩A[σ₁] →
     case escape ⊩A[σ₁] of λ
       ⊢A[σ₁] →
-    case lamⱼ ⊢A[σ₁] (escape-⊩∷ $ ⊩ᵛ∷→⊩ˢ∷→⊩[⇑]∷ ⊩t₁ ⊩σ₁) ok of λ
+    case lamⱼ (escape-⊩∷ $ ⊩ᵛ∷→⊩ˢ∷→⊩[⇑]∷ ⊩t₁ ⊩σ₁) ok of λ
       ⊢lam-t₁[σ₁] →
-    case lamⱼ ⊢A[σ₁]
+    case lamⱼ
            (escape-⊩∷ $
             wf-⊩≡∷ (⊩ᵛ≡∷→⊩ˢ≡∷→⊩[⇑]≡[⇑]∷ (refl-⊩ᵛ≡∷ ⊩t₂) σ₁≡σ₂) .proj₂)
            ok of λ
@@ -421,8 +421,7 @@ opaque
                 , ⊩ˢ≡∷-•ₛ ⊢Ε ρ⊇ σ₁≡σ₂
                 ) of λ
            ρ•ₛσ₁,v₁≡ρ•ₛσ₂,v₂ →
-         lam p (wk (lift ρ) (t₁ [ σ₁ ⇑ ])) ∘⟨ p ⟩ v₁  ⇒⟨ β-red ⊢wk-ρ-A[σ₁]
-                                                           (W.wk (W.lift ρ⊇) (⊢→⊢∙ ⊢wk-ρ-A[σ₁]) (escape $ ⊩ᵛ→⊩ˢ∷→⊩[⇑] ⊩B ⊩σ₁))
+         lam p (wk (lift ρ) (t₁ [ σ₁ ⇑ ])) ∘⟨ p ⟩ v₁  ⇒⟨ β-red (W.wk (W.lift ρ⊇) (⊢→⊢∙ ⊢wk-ρ-A[σ₁]) (escape $ ⊩ᵛ→⊩ˢ∷→⊩[⇑] ⊩B ⊩σ₁))
                                                            (W.wkTerm (W.lift ρ⊇) (⊢→⊢∙ ⊢wk-ρ-A[σ₁]) (escape-⊩∷ $ ⊩ᵛ∷→⊩ˢ∷→⊩[⇑]∷ ⊩t₁ ⊩σ₁))
                                                            (escape-⊩∷ ⊩v₁) PE.refl ok ⟩⊩∷
          wk (lift ρ) (t₁ [ σ₁ ⇑ ]) [ v₁ ]₀ ∷
@@ -436,8 +435,7 @@ opaque
            B [ consSubst (ρ •ₛ σ₂) v₂ ]               ≡˘⟨ singleSubstWkComp _ _ t₂ ⟩⇐∷
                                                        ˘⟨ singleSubstWkComp _ _ B ⟩⇒≡
          wk (lift ρ) (t₂ [ σ₂ ⇑ ]) [ v₂ ]₀ ∷
-           wk (lift ρ) (B [ σ₂ ⇑ ]) [ v₂ ]₀           ⇐⟨ β-red ⊢wk-ρ-A[σ₂]
-                                                           (W.wk (W.lift ρ⊇) (⊢→⊢∙ ⊢wk-ρ-A[σ₂]) (escape $ ⊩ᵛ→⊩ˢ∷→⊩[⇑] ⊩B ⊩σ₂))
+           wk (lift ρ) (B [ σ₂ ⇑ ]) [ v₂ ]₀           ⇐⟨ β-red (W.wk (W.lift ρ⊇) (⊢→⊢∙ ⊢wk-ρ-A[σ₂]) (escape $ ⊩ᵛ→⊩ˢ∷→⊩[⇑] ⊩B ⊩σ₂))
                                                            (W.wkTerm (W.lift ρ⊇) (⊢→⊢∙ ⊢wk-ρ-A[σ₂]) (escape-⊩∷ $ ⊩ᵛ∷→⊩ˢ∷→⊩[⇑]∷ ⊩t₂ ⊩σ₂))
                                                            (escape-⊩∷ ⊩v₂) PE.refl ok
                                                        , PE.subst₂ (_⊢_∷_ _) (PE.sym $ singleSubstWkComp _ _ t₂)
@@ -454,7 +452,7 @@ opaque
       , idRedTerm:*: ⊢lam-t₁[σ₁]
       , idRedTerm:*: ⊢lam-t₂[σ₂]
       , lamₙ , lamₙ
-      , ≅-η-eq ⊢A[σ₁] ⊢lam-t₁[σ₁] ⊢lam-t₂[σ₂] lamₙ lamₙ
+      , ≅-η-eq ⊢lam-t₁[σ₁] ⊢lam-t₂[σ₂] lamₙ lamₙ
           (escape-⊩≡∷ $
            PE.subst (_⊩⟨_⟩_≡_∷_ _ _ _ _) (idWkLiftSubstLemma _ B) $
            lemma _ (step id) _ _ _ (W.step W.id) (⊢→⊢∙ ⊢A[σ₁]) $
@@ -579,14 +577,11 @@ opaque
   β-redᵛ {t} {B} ok ⊩t ⊩u =
     case wf-⊩ᵛ∷ ⊩t of λ
       ⊩B →
-    case wf-⊩ᵛ∷ ⊩u of λ
-      ⊩A →
     ⊩ᵛ∷-⇐
       (λ ⊩σ →
          PE.subst₂ (_⊢_⇒_∷_ _ _) (PE.sym $ singleSubstLift t _)
            (PE.sym $ singleSubstLift B _) $
-         β-red (escape-⊩ $ ⊩ᵛ→⊩ˢ∷→⊩[] ⊩A ⊩σ)
-           (escape-⊩ $ ⊩ᵛ→⊩ˢ∷→⊩[⇑] ⊩B ⊩σ)
+         β-red (escape-⊩ $ ⊩ᵛ→⊩ˢ∷→⊩[⇑] ⊩B ⊩σ)
            (escape-⊩∷ $ ⊩ᵛ∷→⊩ˢ∷→⊩[⇑]∷ ⊩t ⊩σ)
            (escape-⊩∷ $ ⊩ᵛ∷→⊩ˢ∷→⊩[]∷ ⊩u ⊩σ) PE.refl ok)
       (⊩ᵛ∷→⊩ᵛ∷→⊩ᵛ[]₀∷ ⊩t ⊩u)
@@ -674,7 +669,7 @@ opaque
           ⊩≡∷Π⇔ .proj₂
             ( ⊩ΠAB[σ]
             , u₁ , u₂ , t₁[σ]⇒*u₁ , t₂[σ]⇒*u₂ , u₁-fun , u₂-fun
-            , ≅-η-eq ⊢A[σ] (⊢u-redₜ t₁[σ]⇒*u₁) (⊢u-redₜ t₂[σ]⇒*u₂)
+            , ≅-η-eq (⊢u-redₜ t₁[σ]⇒*u₁) (⊢u-redₜ t₂[σ]⇒*u₂)
                 u₁-fun u₂-fun
                 (PE.subst (_⊢_≅_∷_ _ _ _) (idWkLiftSubstLemma _ B) $
                  escape-⊩≡∷ $

@@ -19,7 +19,6 @@ open Type-restrictions R
 
 open import Definition.Typed R
 open import Definition.Typed.Consequences.DerivedRules.Identity R
-open import Definition.Typed.Consequences.DerivedRules.Pi-Sigma R
 open import Definition.Typed.Consequences.DerivedRules.Sigma R
 open import Definition.Typed.Consequences.DerivedRules.Unit R
 open import Definition.Typed.Consequences.Inversion R
@@ -182,7 +181,7 @@ private opaque
          idSubst′ ⊢Γ of λ
       ⊢wk3 →
     [][]↑-cong B₁≡B₂ $ _⊢_≡_∷_.refl $
-    ⊢prod
+    prodⱼ
       (Unitⱼ (⊢→⊢∙ $ substitution ⊢A ⊢wk3 (⊢→⊢∙ ⊢Unit₂)) Unit-ok)
       (PE.subst (_⊢_∷_ _ _) (wk[]≡[] 3) $ var₂ ⊢Unit₂)
       (var₀ ⊢Unit₂) Σ-ok }
@@ -283,7 +282,7 @@ opaque
                                                                           unitrec⟨⟩-β-≡
                                                                             (λ _ →
                                                                                ⊢[][]↑ ⊢B $
-                                                                               ⊢prod
+                                                                               prodⱼ
                                                                                  (Unitⱼ
                                                                                     (⊢→⊢∙ $
                                                                                      substitution ⊢A (wk1Subst′ ⊢Unit (idSubst′ ⊢Γ))
@@ -651,7 +650,7 @@ module _ (ok : []-cong-allowed s) where
              ⊢A₁ of λ
         ⊢A₁′ →
       Id-cong
-        (ΠΣ-cong′
+        (ΠΣ-cong
            (wkEq (step (step id)) (⊢→⊢∙ (J-motive-context-type ⊢t₁))
               A₁≡A₂)
            (Id-cong
@@ -663,7 +662,7 @@ module _ (ok : []-cong-allowed s) where
                PE.subst (_⊢_∷_ _ _) (wk1-wk≡lift-wk1 _ _) $
                var₀ ⊢A₁′))
            Σ-ok)
-        (prod-cong′
+        (prod-cong
            (W.wk (lift (step (step id))) (⊢→⊢∙ ⊢A₁′)
               (J-motive-context-type ⊢t₁))
            (wkEqTerm (step (step id)) (⊢→⊢∙ (J-motive-context-type ⊢t₁))
@@ -675,7 +674,7 @@ module _ (ok : []-cong-allowed s) where
             wkTerm (step (step id)) (⊢→⊢∙ (J-motive-context-type ⊢t₁))
               ⊢t₁)
            Σ-ok)
-        (prod-cong′
+        (prod-cong
            (W.wk (lift (step (step id))) (⊢→⊢∙ ⊢A₁′)
               (J-motive-context-type ⊢t₁))
            (_⊢_≡_∷_.refl $
@@ -711,7 +710,7 @@ module _ (ok : []-cong-allowed s) where
            (PE.cong₂ (prod s 𝟘) wk₂-[,] PE.refl)
            PE.refl) $
       rflⱼ $
-      ⊢prod (J-motive-context-type ⊢t) ⊢t
+      prodⱼ (J-motive-context-type ⊢t) ⊢t
         (PE.subst (_⊢_∷_ _ _)
            (PE.sym $ PE.cong₃ Id
               (wk1-sgSubst _ _)
@@ -742,7 +741,7 @@ module _ (ok : []-cong-allowed s) where
         (⊢A₁ , ⊢t₁ , _) →
       case wf ⊢A₁ of λ
         ⊢Γ →
-      case ΠΣⱼ′ (Idⱼ (wkTerm₁ ⊢A₁ ⊢t₁) (var₀ ⊢A₁)) Σ-ok of λ
+      case ΠΣⱼ (Idⱼ (wkTerm₁ ⊢A₁ ⊢t₁) (var₀ ⊢A₁)) Σ-ok of λ
         ⊢Singleton₁ →
       case wkEq₁ ⊢Singleton₁ A₁≡A₂ of λ
         A₁≡A₂′ →
@@ -864,12 +863,12 @@ module _ (ok : []-cong-allowed s) where
         (_ , ⊢w₁  , _) →
       conv
         (substᵉ-cong
-           (ΠΣ-cong′ A₁≡A₂
+           (ΠΣ-cong A₁≡A₂
               (Id-cong (wkEq₁ ⊢A₁ A₁≡A₂) (wkEqTerm₁ ⊢A₁ t₁≡t₂)
                  (refl (var₀ ⊢A₁)))
               Σ-ok)
            (lemma₈ A₁≡A₂ B₁≡B₂ t₁≡t₂)
-           (prod-cong′ (J-motive-context-type ⊢t₁) t₁≡t₂
+           (prod-cong (J-motive-context-type ⊢t₁) t₁≡t₂
               (_⊢_≡_∷_.refl $
                PE.subst (_⊢_∷_ _ _)
                  (PE.sym $ PE.cong₃ Id
@@ -878,7 +877,7 @@ module _ (ok : []-cong-allowed s) where
                     PE.refl) $
                rflⱼ ⊢t₁)
               Σ-ok)
-           (prod-cong′ (J-motive-context-type ⊢t₁) v₁≡v₂
+           (prod-cong (J-motive-context-type ⊢t₁) v₁≡v₂
               (PE.subst (_⊢_≡_∷_ _ _ _)
                  (PE.sym $ PE.cong₃ Id
                     (wk1-sgSubst _ _)
@@ -930,10 +929,10 @@ module _ (ok : []-cong-allowed s) where
                 PE.refl) $
            rflⱼ ⊢t of λ
         ⊢rfl →
-      case prod-cong′ (J-motive-context-type ⊢t) t≡t′ (refl ⊢rfl)
+      case prod-cong (J-motive-context-type ⊢t) t≡t′ (refl ⊢rfl)
              Σ-ok of λ
         t,rfl≡t′,rfl →
-      case ΠΣⱼ′ (Idⱼ (wkTerm₁ ⊢A ⊢t) (var₀ ⊢A)) Σ-ok of λ
+      case ΠΣⱼ (Idⱼ (wkTerm₁ ⊢A ⊢t) (var₀ ⊢A)) Σ-ok of λ
         ⊢Singleton →
 
       substᵉ
@@ -956,7 +955,7 @@ module _ (ok : []-cong-allowed s) where
                                                                                     (PE.cong₃ Id wk₂-[,] wk₂-[,] PE.refl) $
                                                                                   J-β-⇒ t≡t′ (lemma₆′ ⊢t) (lemma₇ ⊢t))
                                                                                   (Id-cong (refl ⊢Singleton)
-                                                                                     (refl (⊢prod (J-motive-context-type ⊢t) ⊢t ⊢rfl Σ-ok))
+                                                                                     (refl (prodⱼ (J-motive-context-type ⊢t) ⊢t ⊢rfl Σ-ok))
                                                                                      t,rfl≡t′,rfl))
                                                                               (conv ⊢u $ sym $ lemma₉ ⊢B (rflⱼ ⊢t))) $
                                                                          _⊢_≡_.trans (lemma₉ ⊢B (rflⱼ′ t≡t′)) $

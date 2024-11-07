@@ -139,6 +139,9 @@ import Graded.Usage.Restrictions.Satisfied
 --
 -- * The logical relations for reducibility and erasure have been
 --   changed.
+--
+-- * Some "superfluous" assumptions have been removed from the typing
+--   and definitional equality relations.
 
 -- Another notable change is related to the natrec-star operators. The
 -- paper does not focus on linearity, but some modalities for linear
@@ -566,11 +569,6 @@ Con = Definition.Untyped.Con
 -- A weakening lemma.
 
 wkEq = Definition.Typed.Weakening.wkEq
-
--- A derived congruence rule for Π- and Σ-types with fewer
--- assumptions.
-
-ΠΣ-cong′ = Definition.Typed.Consequences.DerivedRules.ΠΣ-cong′
 
 -- One can define something like prodrec for the strong Σ-types.
 

@@ -49,22 +49,22 @@ neTypeEq (var x) (var x₁ x₂) (var x₃ x₄) =
 neTypeEq (∘ₙ neT) (t∷A ∘ⱼ t∷A₁) (t∷B ∘ⱼ t∷B₁) with neTypeEq neT t∷A t∷B
 ... | q = let w = proj₁ (proj₂ (injectivity q))
           in  substTypeEq w (refl t∷A₁)
-neTypeEq (fstₙ neP) (fstⱼ ⊢F ⊢G ⊢t) (fstⱼ ⊢F′ ⊢G′ ⊢t′) with neTypeEq neP ⊢t ⊢t′
+neTypeEq (fstₙ neP) (fstⱼ _ ⊢t) (fstⱼ _ ⊢t′) with neTypeEq neP ⊢t ⊢t′
 ... | q = proj₁ (Σ-injectivity q)
-neTypeEq (sndₙ neP) (sndⱼ ⊢F ⊢G ⊢t) (sndⱼ ⊢F′ ⊢G′ ⊢t′) with neTypeEq neP ⊢t ⊢t′
+neTypeEq (sndₙ neP) (sndⱼ ⊢G ⊢t) (sndⱼ _ ⊢t′) with neTypeEq neP ⊢t ⊢t′
 ... | q = let G≡G₁ = proj₁ (proj₂ (Σ-injectivity q))
-              ⊢fst = fstⱼ ⊢F ⊢G ⊢t
+              ⊢fst = fstⱼ ⊢G ⊢t
           in  substTypeEq G≡G₁ (refl ⊢fst)
-neTypeEq (natrecₙ neT) (natrecⱼ x t∷A t∷A₁ t∷A₂) (natrecⱼ x₁ t∷B t∷B₁ t∷B₂) =
-  refl (substType x₁ t∷B₂)
+neTypeEq (natrecₙ _) ⊢t@(natrecⱼ _ _ _) (natrecⱼ _ _ _) =
+  refl (syntacticTerm ⊢t)
 neTypeEq
-  (prodrecₙ neT) (prodrecⱼ _ _ ⊢A ⊢t _ _) (prodrecⱼ _ _ _ _ _ _) =
+  (prodrecₙ neT) (prodrecⱼ ⊢A ⊢t _ _) (prodrecⱼ _ _ _ _) =
   refl (substType ⊢A ⊢t)
 neTypeEq (emptyrecₙ neT) (emptyrecⱼ x t∷A) (emptyrecⱼ x₁ t∷B) =
   refl x₁
 neTypeEq (unitrecₙ _ neT) (unitrecⱼ ⊢A ⊢t _ _) (unitrecⱼ _ _ _ _) =
   refl (substType ⊢A ⊢t)
-neTypeEq {Γ} (Jₙ _) (Jⱼ {w} _ _ ⊢B _ ⊢v ⊢w) (Jⱼ _ _ _ _ _ _) =
+neTypeEq {Γ} (Jₙ _) (Jⱼ {w} _ ⊢B _ ⊢v ⊢w) (Jⱼ _ _ _ _ _) =
   refl $
   substType₂ ⊢B ⊢v $
   PE.subst (Γ ⊢ w ∷_) ≡Id-wk1-wk1-0[]₀ ⊢w

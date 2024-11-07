@@ -388,7 +388,6 @@ private opaque
   -- A variant of natrec-subst for _⊢_⇒*_∷_.
 
   natrec-subst*′ :
-    Γ ∙ ℕ ⊢ A →
     (∀ {v₁ v₂} →
      Γ ⊩⟨ l′ ⟩ v₁ ≡ v₂ ∷ ℕ →
      Γ ⊩⟨ l ⟩ A [ v₁ ]₀ ≡ A [ v₂ ]₀) →
@@ -398,19 +397,19 @@ private opaque
     Γ ⊩⟨ l′ ⟩ v₂ ∷ ℕ →
     Γ ⊢ natrec p q r A t u v₁ ⇒* natrec p q r A t u v₂ ∷ A [ v₁ ]₀
   natrec-subst*′
-    {A} {t} {u} {v₁} {v₂} {p} {q} {r} ⊢A A≡A ⊢t ⊢u v₁⇒*v₂ ⊩v₂ =
+    {A} {t} {u} {v₁} {v₂} {p} {q} {r} A≡A ⊢t ⊢u v₁⇒*v₂ ⊩v₂ =
     case v₁⇒*v₂ of λ where
       (id ⊢v₁) →
-        id (natrecⱼ ⊢A ⊢t ⊢u ⊢v₁)
+        id (natrecⱼ ⊢t ⊢u ⊢v₁)
       (_⇨_ {t′ = v₃} v₁⇒v₃ v₃⇒*v₂) →
         case
           v₁  ⇒⟨ v₁⇒v₃ ⟩⊩∷
           v₃  ∎⟨ wf-⊩≡∷ (⊩∷-⇐* v₃⇒*v₂ ⊩v₂) .proj₁ ⟩⊩∷
         of λ
           v₁≡v₃ →
-        natrec p q r A t u v₁ ∷ A [ v₁ ]₀  ⇒⟨ natrec-subst ⊢A ⊢t ⊢u v₁⇒v₃ ⟩∷
+        natrec p q r A t u v₁ ∷ A [ v₁ ]₀  ⇒⟨ natrec-subst ⊢t ⊢u v₁⇒v₃ ⟩∷
                                             ⟨ ≅-eq $ escape-⊩≡ $ A≡A v₁≡v₃ ⟩⇒
-        natrec p q r A t u v₃ ∷ A [ v₃ ]₀  ⇒*⟨ natrec-subst*′ ⊢A A≡A ⊢t ⊢u v₃⇒*v₂ ⊩v₂ ⟩∎∷
+        natrec p q r A t u v₃ ∷ A [ v₃ ]₀  ⇒*⟨ natrec-subst*′ A≡A ⊢t ⊢u v₃⇒*v₂ ⊩v₂ ⟩∎∷
         natrec p q r A t u v₂              ∎
 
 opaque
@@ -425,15 +424,13 @@ opaque
     Γ ⊩⟨ l′ ⟩ v₂ ∷ ℕ →
     Γ ⊢ natrec p q r A t u v₁ ⇒* natrec p q r A t u v₂ ∷ A [ v₁ ]₀
   natrec-subst* ⊩A =
-    natrec-subst*′ (escape-⊩ᵛ ⊩A) (⊩ᵛ≡→⊩≡∷→⊩[]₀≡[]₀ (refl-⊩ᵛ≡ ⊩A))
+    natrec-subst*′ (⊩ᵛ≡→⊩≡∷→⊩[]₀≡[]₀ (refl-⊩ᵛ≡ ⊩A))
 
 private opaque
 
   -- A lemma used to prove ⊩natrec≡natrec.
 
   ⊩natrec≡natrec′ :
-    Γ ∙ ℕ ⊢ A₁ →
-    Γ ∙ ℕ ⊢ A₂ →
     Γ ∙ ℕ ⊢ A₁ ≅ A₂ →
     (∀ {v₁ v₂} →
      Γ ⊩⟨ l ⟩ v₁ ≡ v₂ ∷ ℕ →
@@ -461,7 +458,7 @@ private opaque
       natrec p q r A₂ t₂ u₂ v₂ ∷ A₁ [ v₁ ]₀
   ⊩natrec≡natrec′
     {A₁} {A₂} {l} {t₁} {t₂} {u₁} {u₂} {v₁} {v₂} {p} {q} {r}
-    ⊢A₁ ⊢A₂ A₁≅A₂ A₁≡A₁ A₂≡A₂ A₁≡A₂ ⊢t₁ ⊢t₂ t₁≡t₂ ⊢u₁ ⊢u₂ u₁≅u₂ u₁≡u₂
+    A₁≅A₂ A₁≡A₁ A₂≡A₂ A₁≡A₂ ⊢t₁ ⊢t₂ t₁≡t₂ ⊢u₁ ⊢u₂ u₁≅u₂ u₁≡u₂
     ⊩ℕ-v₁@(ℕₜ v₁′′ v₁⇒*v₁′′ _ v₁′′-prop)
     ⊩ℕ-v₂@(ℕₜ v₂′′ v₂⇒*v₂′′ _ v₂′′-prop)
     ⊩ℕ-v₁≡v₂@(ℕₜ₌ v₁′ v₂′ v₁⇒*v₁′ v₂⇒*v₂′ v₁′≅v₂′ v₁′∼v₂′) =
@@ -507,12 +504,12 @@ private opaque
     -- natrec to v₁′ and v₂′ are equal.
     case
       (λ (hyp : _ ⊩⟨ l ⟩ _ ≡ _ ∷ _) →
-         natrec p q r A₁ t₁ u₁ v₁ ∷ A₁ [ v₁ ]₀    ⇒*⟨ natrec-subst*′ ⊢A₁ A₁≡A₁ ⊢t₁ ⊢u₁ (redₜ v₁⇒*v₁′) ⊩v₁′ ⟩⊩∷∷
+         natrec p q r A₁ t₁ u₁ v₁ ∷ A₁ [ v₁ ]₀    ⇒*⟨ natrec-subst*′ A₁≡A₁ ⊢t₁ ⊢u₁ (redₜ v₁⇒*v₁′) ⊩v₁′ ⟩⊩∷∷
                                                     ⟨ A₁≡A₁ v₁≡v₁′ ⟩⊩∷
          natrec p q r A₁ t₁ u₁ v₁′ ∷ A₁ [ v₁′ ]₀  ≡⟨ hyp ⟩⊩∷∷⇐*
                                                    ⟨ ⊢A₁[v₁′]≡A₂[v₂′] ⟩⇒
                                    ∷ A₂ [ v₂′ ]₀  ˘⟨ ≅-eq $ escape-⊩≡ $ A₂≡A₂ v₂≡v₂′ ⟩⇐
-         natrec p q r A₂ t₂ u₂ v₂′ ∷ A₂ [ v₂ ]₀   ⇐*⟨ natrec-subst*′ ⊢A₂ A₂≡A₂ ⊢t₂ ⊢u₂ (redₜ v₂⇒*v₂′) ⊩v₂′ ⟩∎∷
+         natrec p q r A₂ t₂ u₂ v₂′ ∷ A₂ [ v₂ ]₀   ⇐*⟨ natrec-subst*′ A₂≡A₂ ⊢t₂ ⊢u₂ (redₜ v₂⇒*v₂′) ⊩v₂′ ⟩∎∷
          natrec p q r A₂ t₂ u₂ v₂                 ∎)
     of λ
       lemma →
@@ -525,19 +522,19 @@ private opaque
          (ne (neNfₜ₌ v₁′-ne v₂′-ne v₁′~v₂′)) →
            neutral-⊩≡∷ (wf-⊩≡ A₁[v₁′]≡A₂[v₂′] .proj₁)
              (natrecₙ v₁′-ne) (natrecₙ v₂′-ne)
-             (natrecⱼ ⊢A₁ ⊢t₁ ⊢u₁ (escape-⊩∷ ⊩v₁′))
-             (conv (natrecⱼ ⊢A₂ ⊢t₂ ⊢u₂ (escape-⊩∷ ⊩v₂′))
+             (natrecⱼ ⊢t₁ ⊢u₁ (escape-⊩∷ ⊩v₁′))
+             (conv (natrecⱼ ⊢t₂ ⊢u₂ (escape-⊩∷ ⊩v₂′))
                 (sym ⊢A₁[v₁′]≡A₂[v₂′])) $
-           ~-natrec ⊢A₁ A₁≅A₂ (escape-⊩≡∷ t₁≡t₂) u₁≅u₂ v₁′~v₂′
+           ~-natrec A₁≅A₂ (escape-⊩≡∷ t₁≡t₂) u₁≅u₂ v₁′~v₂′
 
          -- If v₁′ and v₂′ are both zero, then one can conclude by
          -- using the rule natrec-zero and the fact that t₁ is equal
          -- to t₂.
          zeroᵣ →
-           natrec p q r A₁ t₁ u₁ zero  ⇒⟨ natrec-zero ⊢A₁ ⊢t₁ ⊢u₁ ⟩⊩∷
+           natrec p q r A₁ t₁ u₁ zero  ⇒⟨ natrec-zero ⊢t₁ ⊢u₁ ⟩⊩∷
            t₁ ∷ A₁ [ zero ]₀           ≡⟨ t₁≡t₂ ⟩⊩∷∷⇐*
                                         ⟨ ⊢A₁[v₁′]≡A₂[v₂′] ⟩⇒
-           t₂ ∷ A₂ [ zero ]₀           ⇐⟨ natrec-zero ⊢A₂ ⊢t₂ ⊢u₂ , ⊢t₂ ⟩∎∷
+           t₂ ∷ A₂ [ zero ]₀           ⇐⟨ natrec-zero ⊢t₂ ⊢u₂ , ⊢t₂ ⟩∎∷
            natrec p q r A₂ t₂ u₂ zero  ∎
 
          -- If v₁′ and v₂′ are applications of suc to equal terms,
@@ -555,15 +552,14 @@ private opaque
            case wf-⊩≡∷ v₁″≡v₂″ of λ
              (⊩v₁″ , ⊩v₂″) →
            case u₁≡u₂ v₁″≡v₂″ $
-                ⊩natrec≡natrec′ ⊢A₁ ⊢A₂ A₁≅A₂ A₁≡A₁ A₂≡A₂ A₁≡A₂
-                  ⊢t₁ ⊢t₂ t₁≡t₂ ⊢u₁ ⊢u₂ u₁≅u₂ u₁≡u₂
-                  ⊩ℕ-v₁″ ⊩ℕ-v₂″ ⊩ℕ-v₁″≡v₂″ of λ
+                ⊩natrec≡natrec′ A₁≅A₂ A₁≡A₁ A₂≡A₂ A₁≡A₂ ⊢t₁ ⊢t₂ t₁≡t₂
+                  ⊢u₁ ⊢u₂ u₁≅u₂ u₁≡u₂ ⊩ℕ-v₁″ ⊩ℕ-v₂″ ⊩ℕ-v₁″≡v₂″ of λ
              u₁[v₁″,nr]≡u₂[v₂″,nr] →
 
-           natrec p q r A₁ t₁ u₁ (suc v₁″)                             ⇒⟨ natrec-suc ⊢A₁ ⊢t₁ ⊢u₁ (escape-⊩∷ ⊩v₁″) ⟩⊩∷
+           natrec p q r A₁ t₁ u₁ (suc v₁″)                             ⇒⟨ natrec-suc ⊢t₁ ⊢u₁ (escape-⊩∷ ⊩v₁″) ⟩⊩∷
            u₁ [ v₁″ , natrec p q r A₁ t₁ u₁ v₁″ ]₁₀ ∷ A₁ [ suc v₁″ ]₀  ≡⟨ u₁[v₁″,nr]≡u₂[v₂″,nr] ⟩⊩∷∷⇐*
                                                                         ⟨ ⊢A₁[v₁′]≡A₂[v₂′] ⟩⇒
-           u₂ [ v₂″ , natrec p q r A₂ t₂ u₂ v₂″ ]₁₀ ∷ A₂ [ suc v₂″ ]₀  ⇐⟨ natrec-suc ⊢A₂ ⊢t₂ ⊢u₂ (escape-⊩∷ ⊩v₂″)
+           u₂ [ v₂″ , natrec p q r A₂ t₂ u₂ v₂″ ]₁₀ ∷ A₂ [ suc v₂″ ]₀  ⇐⟨ natrec-suc ⊢t₂ ⊢u₂ (escape-⊩∷ ⊩v₂″)
                                                                         , escape-⊩∷ $
                                                                           conv-⊩∷ A₁[v₁′]≡A₂[v₂′] $
                                                                           wf-⊩≡∷ u₁[v₁″,nr]≡u₂[v₂″,nr] .proj₂
@@ -618,8 +614,6 @@ opaque
 
     PE.subst (_⊩⟨_⟩_≡_∷_ _ _ _ _) (PE.sym $ singleSubstLift A₁ _) $
     ⊩natrec≡natrec′
-      (escape $ wf-⊩≡ A₁[σ₁⇑]≡A₂[σ₂⇑] .proj₁)
-      (escape $ ⊩ᵛ→⊩ˢ∷→⊩[⇑] ⊩A₂ ⊩σ₂)
       (escape-⊩≡ A₁[σ₁⇑]≡A₂[σ₂⇑])
       (⊩ᵛ≡→⊩ˢ≡∷→⊩≡∷→⊩[⇑][]₀≡[⇑][]₀ (refl-⊩ᵛ≡ ⊩A₁) (refl-⊩ˢ≡∷ ⊩σ₁))
       (⊩ᵛ≡→⊩ˢ≡∷→⊩≡∷→⊩[⇑][]₀≡[⇑][]₀ (refl-⊩ᵛ≡ ⊩A₂) (refl-⊩ˢ≡∷ ⊩σ₂))
@@ -689,16 +683,14 @@ opaque
   -- Validity of the equality rule called natrec-zero.
 
   natrec-zeroᵛ :
-    Γ ∙ ℕ ⊩ᵛ⟨ l′ ⟩ A →
     Γ ⊩ᵛ⟨ l ⟩ t ∷ A [ zero ]₀ →
-    Γ ∙ ℕ ∙ A ⊩ᵛ⟨ l″ ⟩ u ∷ A [ suc (var x1) ]↑² →
+    Γ ∙ ℕ ∙ A ⊩ᵛ⟨ l′ ⟩ u ∷ A [ suc (var x1) ]↑² →
     Γ ⊩ᵛ⟨ l ⟩ natrec p q r A t u zero ≡ t ∷ A [ zero ]₀
-  natrec-zeroᵛ {A} ⊩A ⊩t ⊩u =
+  natrec-zeroᵛ {A} ⊩t ⊩u =
     ⊩ᵛ∷-⇐
       (λ ⊩σ →
          PE.subst (_⊢_⇒_∷_ _ _ _) (PE.sym $ singleSubstLift A _) $
          natrec-zero
-           (escape $ ⊩ᵛ→⊩ˢ∷→⊩[⇑] ⊩A ⊩σ)
            (PE.subst (_⊢_∷_ _ _) (singleSubstLift A _) $
             escape-⊩∷ $ ⊩ᵛ∷→⊩ˢ∷→⊩[]∷ ⊩t ⊩σ)
            (PE.subst (_⊢_∷_ _ _) (natrecSucCase _ A) $
@@ -722,7 +714,6 @@ opaque
          PE.subst₂ (_⊢_⇒_∷_ _ _) (PE.sym $ [,]-[]-commute u)
            (PE.sym $ singleSubstLift A _) $
          natrec-suc
-           (escape $ ⊩ᵛ→⊩ˢ∷→⊩[⇑] ⊩A ⊩σ)
            (PE.subst (_⊢_∷_ _ _) (singleSubstLift A _) $
             escape-⊩∷ $ ⊩ᵛ∷→⊩ˢ∷→⊩[]∷ ⊩t ⊩σ)
            (PE.subst (_⊢_∷_ _ _) (natrecSucCase _ A) $

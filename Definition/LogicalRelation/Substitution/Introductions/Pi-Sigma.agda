@@ -90,8 +90,8 @@ opaque
          case escape $ wf-⊩≡ B≡B .proj₁ of λ
            ⊢B →
          Bᵣ (BM b p q)
-           (Bᵣ _ _ (idRed:*: (ΠΣⱼ ⊢A ⊢B ok)) ⊢A ⊢B
-              (≅-ΠΣ-cong ⊢A (escape-⊩≡ $ refl-⊩≡ ⊩A) (escape-⊩≡ B≡B) ok)
+           (Bᵣ _ _ (idRed:*: (ΠΣⱼ ⊢B ok)) ⊢A ⊢B
+              (≅-ΠΣ-cong (escape-⊩≡ $ refl-⊩≡ ⊩A) (escape-⊩≡ B≡B) ok)
               (λ ρ⊇ ⊢Δ → rest ρ⊇ ⊢Δ .proj₁)
               (λ ρ⊇ ⊢Δ ⊩t →
                  wf-⊩≡
@@ -271,7 +271,7 @@ opaque
              (var _) ⊢x0 (~-var ⊢x0) of λ
         B₁≡B₂ →
       _ ⊩⟨ _ ⟩ _ ≡ _ / Bᵣ _ ⊩ΠΣ₁ ∋
-      B₌ _ _ C⇒* (≅-ΠΣ-cong ⊢A₁ (escape-⊩≡ A₁≡A₂) (escape-⊩≡ B₁≡B₂) ok)
+      B₌ _ _ C⇒* (≅-ΠΣ-cong (escape-⊩≡ A₁≡A₂) (escape-⊩≡ B₁≡B₂) ok)
         (λ ρ⊇ ⊢Δ → ⊩≡→⊩≡/ (⊩wk-A₁ ρ⊇ ⊢Δ) (rest ρ⊇ ⊢Δ .proj₁))
         (λ ρ⊇ ⊢Δ ⊩t →
            case rest ρ⊇ ⊢Δ of λ
@@ -589,7 +589,7 @@ opaque
           .proj₂ σ₁≡σ₂
       , ΠΣⱼ ⊢A₁[σ₁] ⊢B₁[σ₁] ok
       , ΠΣⱼ (escape-⊩∷ ⊩A₂[σ₂]) (escape-⊩∷ ⊩B₂[σ₂]) ok
-      , ≅ₜ-ΠΣ-cong (univ ⊢A₁[σ₁]) (escape-⊩≡∷ A₁[σ₁]≡A₂[σ₂]∷U)
+      , ≅ₜ-ΠΣ-cong (escape-⊩≡∷ A₁[σ₁]≡A₂[σ₂]∷U)
           (escape-⊩≡∷ B₁[σ₁⇑]≡B₂[σ₂⇑]∷U) ok
       )
 

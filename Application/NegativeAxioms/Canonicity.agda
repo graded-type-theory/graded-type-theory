@@ -61,23 +61,22 @@ module Main {Γ : Con Term m} (nΓ : NegativeContext Γ)
   neNeg (var ⊢Γ h          ) (var x      ) = lookupNegative ⊢Γ nΓ h
   neNeg (d ∘ⱼ ⊢t           ) (∘ₙ n       ) =
     appNeg (neNeg d n) (refl (syntacticTerm d)) ⊢t
-  neNeg (fstⱼ ⊢A A⊢B d     ) (fstₙ n     ) =
-    fstNeg (neNeg d n) (refl (ΠΣⱼ ⊢A A⊢B (⊢∷ΠΣ→ΠΣ-allowed d)))
-  neNeg (sndⱼ ⊢A A⊢B d     ) (sndₙ n     ) =
-    sndNeg (neNeg d n) (refl (ΠΣⱼ ⊢A A⊢B (⊢∷ΠΣ→ΠΣ-allowed d)))
-      (fstⱼ ⊢A A⊢B d)
-  neNeg (natrecⱼ _ _ _ d   ) (natrecₙ n  ) =
+  neNeg (fstⱼ A⊢B d) (fstₙ n) =
+    fstNeg (neNeg d n) (refl (ΠΣⱼ A⊢B (⊢∷ΠΣ→ΠΣ-allowed d)))
+  neNeg (sndⱼ A⊢B d) (sndₙ n) =
+    sndNeg (neNeg d n) (refl (ΠΣⱼ A⊢B (⊢∷ΠΣ→ΠΣ-allowed d))) (fstⱼ A⊢B d)
+  neNeg (natrecⱼ _ _ d) (natrecₙ n) =
     let ⊢ℕ = refl (ℕⱼ (wfTerm d))
     in  ⊥-elim (¬negℕ (neNeg d n) ⊢ℕ)
-  neNeg (prodrecⱼ ⊢A A⊢B _ d _ ok) (prodrecₙ n) =
-    let ⊢Σ = refl (ΠΣⱼ ⊢A A⊢B ok)
+  neNeg (prodrecⱼ ⊢A d _ ok) (prodrecₙ n) =
+    let ⊢Σ = refl (⊢∙→⊢ (wf ⊢A))
     in  ⊥-elim (¬negΣʷ (neNeg d n) ⊢Σ)
   neNeg (emptyrecⱼ _ d     ) (emptyrecₙ n) =
     ⊥-elim (consistent _ d)
   neNeg (unitrecⱼ _ d _ ok) (unitrecₙ _ n) =
     let ⊢Unit = refl (Unitⱼ (wfTerm d) ok)
     in  ⊥-elim (¬negUnit (neNeg d n) ⊢Unit)
-  neNeg (Jⱼ _ ⊢t _ _ ⊢v ⊢w) (Jₙ w-ne) =
+  neNeg (Jⱼ ⊢t _ _ ⊢v ⊢w) (Jₙ w-ne) =
     ⊥-elim (¬negId (neNeg ⊢w w-ne) (refl (Idⱼ ⊢t ⊢v)))
   neNeg (Kⱼ ⊢t _ _ ⊢v _) (Kₙ v-ne) =
     ⊥-elim (¬negId (neNeg ⊢v v-ne) (refl (Idⱼ ⊢t ⊢t)))
@@ -114,10 +113,10 @@ module Main {Γ : Con Term m} (nΓ : NegativeContext Γ)
   nfN (Idⱼ _ _ _) (Idₙ _ _ _) c = ⊥-elim (U≢ℕ c)
 
   -- * Canonical forms
-  nfN (lamⱼ _ _ _)      (lamₙ _)    c = ⊥-elim (ℕ≢Π (sym c))
-  nfN (prodⱼ _ _ _ _ _) (prodₙ _ _) c = ⊥-elim (ℕ≢Σ (sym c))
-  nfN (starⱼ _ _)       starₙ       c = ⊥-elim (ℕ≢Unitⱼ (sym c))
-  nfN (rflⱼ _)          rflₙ        c = ⊥-elim (Id≢ℕ c)
+  nfN (lamⱼ _ _)      (lamₙ _)    c = ⊥-elim (ℕ≢Π (sym c))
+  nfN (prodⱼ _ _ _ _) (prodₙ _ _) c = ⊥-elim (ℕ≢Σ (sym c))
+  nfN (starⱼ _ _)     starₙ       c = ⊥-elim (ℕ≢Unitⱼ (sym c))
+  nfN (rflⱼ _)        rflₙ        c = ⊥-elim (Id≢ℕ c)
   -- q.e.d
 
    -- Terms of non-negative types reduce to non-neutrals

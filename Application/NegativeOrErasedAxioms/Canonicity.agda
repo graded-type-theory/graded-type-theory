@@ -113,10 +113,10 @@ neNeg {γ = γ}
   NegativeErasedContext Γ δ              →⟨ neNeg ⊢t t-ne δ▸t ⟩
   NegativeType Γ (Π p , q ▷ A ▹ B)       →⟨ (λ hyp → appNeg hyp (refl (syntacticTerm ⊢t)) ⊢u) ⟩
   NegativeType Γ (B [ u ]₀)              □ }
-neNeg (fstⱼ ⊢A A⊢B d) (fstₙ {p = p} n) γ▸u nΓγ =
+neNeg (fstⱼ A⊢B d) (fstₙ {p = p} n) γ▸u nΓγ =
   let invUsageFst m 𝟙ᵐ≡mᵐ·p δ▸t γ≤δ ok = inv-usage-fst γ▸u
   in  fstNeg (neNeg d n (sub δ▸t γ≤δ) nΓγ)
-             (refl (ΠΣⱼ ⊢A A⊢B (⊢∷ΠΣ→ΠΣ-allowed d)))
+             (refl (ΠΣⱼ A⊢B (⊢∷ΠΣ→ΠΣ-allowed d)))
              (𝟘≢p m 𝟙ᵐ≡mᵐ·p (ok PE.refl))
   where
   𝟘≢p :
@@ -126,13 +126,12 @@ neNeg (fstⱼ ⊢A A⊢B d) (fstₙ {p = p} n) γ▸u nΓγ =
     𝟘 ≢ p
   𝟘≢p 𝟘ᵐ ()
   𝟘≢p 𝟙ᵐ _  𝟘≤𝟙 PE.refl = 𝟘≰𝟙 𝟘≤𝟙
-neNeg (sndⱼ ⊢A A⊢B d) (sndₙ n) γ▸u nΓγ =
+neNeg (sndⱼ A⊢B d) (sndₙ n) γ▸u nΓγ =
   let invUsageSnd δ▸t γ≤δ = inv-usage-snd γ▸u
   in  sndNeg (neNeg d n (sub δ▸t γ≤δ) nΓγ)
-             (refl (ΠΣⱼ ⊢A A⊢B (⊢∷ΠΣ→ΠΣ-allowed d)))
-             (fstⱼ ⊢A A⊢B d)
-neNeg {γ = γ}
-  (natrecⱼ {A = A} {n = n} _ _ _ ⊢n) (natrecₙ n-ne) γ▸natrec =
+             (refl (ΠΣⱼ A⊢B (⊢∷ΠΣ→ΠΣ-allowed d)))
+             (fstⱼ A⊢B d)
+neNeg {γ} (natrecⱼ {A} {n} _ _ ⊢n) (natrecₙ n-ne) γ▸natrec =
   case inv-usage-natrec γ▸natrec of λ {
     (invUsageNatrec {δ = δ} {θ = θ} {χ = χ} _ _ θ▸n _ γ≤χ extra) →
   NegativeErasedContext Γ γ            →⟨ NegativeErasedContext-upwards-closed γ≤χ ⟩
@@ -150,8 +149,7 @@ neNeg {γ = γ}
   NegativeType Γ (A [ n ]₀)            □ }
 neNeg
   {γ = γ}
-  (prodrecⱼ {F = B} {G = C} {p = p} {q′ = q} {A = A} {t = t} {r = r}
-     ⊢B ⊢C _ ⊢t _ ok₁)
+  (prodrecⱼ {p} {q′ = q} {F = B} {G = C} {A} {t} {r} _ ⊢t ⊢u ok₁)
   (prodrecₙ t-ne)
   γ▸prodrec =
   case inv-usage-prodrec γ▸prodrec of λ {
@@ -166,7 +164,7 @@ neNeg
                                                   }) ∘→
                                                ·ᶜ-zero-product-⟨⟩ δ) ⟩
   NegativeErasedContext Γ δ              →⟨ neNeg ⊢t t-ne (▸-cong (≢𝟘→⌞⌟≡𝟙ᵐ r≢𝟘) δ▸t) ⟩
-  NegativeType Γ (Σʷ p , q ▷ B ▹ C)      →⟨ flip ¬negΣʷ (refl (ΠΣⱼ ⊢B ⊢C ok₁)) ⟩
+  NegativeType Γ (Σʷ p , q ▷ B ▹ C)      →⟨ flip ¬negΣʷ (refl (ΠΣⱼ (⊢∙→⊢ (wfTerm ⊢u)) ok₁)) ⟩
   ⊥                                      →⟨ ⊥-elim ⟩
   NegativeType Γ (A [ t ]₀)              □ }}
 neNeg (emptyrecⱼ _ d) (emptyrecₙ _) _ _ =
@@ -188,7 +186,7 @@ neNeg
   NegativeType Γ (Unitʷ l)                →⟨ flip ¬negUnit (refl (Unitⱼ (wfTerm d) ok)) ⟩
   ⊥                                       →⟨ ⊥-elim ⟩
   NegativeType Γ (A [ t ]₀)               □ }
-neNeg {γ} (Jⱼ {A} {t} {B} {v} {w} _ ⊢t _ _ ⊢v ⊢w) (Jₙ w-ne) ▸J =
+neNeg {γ} (Jⱼ {t} {A} {B} {v} {w} ⊢t _ _ ⊢v ⊢w) (Jₙ w-ne) ▸J =
   case inv-usage-J ▸J of λ where
     (invUsageJ {γ₂} {γ₃} {γ₄} {γ₅} {γ₆} _ _ _ _ _ _ _ ▸w γ≤) →
       NegativeErasedContext Γ γ                                    →⟨ NegativeErasedContext-upwards-closed γ≤ ⟩
@@ -276,10 +274,10 @@ nfN (Unitⱼ _ _) _ _ Unitₙ       c = ⊥-elim (U≢ℕ c)
 nfN (Idⱼ _ _ _) _ _ (Idₙ _ _ _) c = ⊥-elim (U≢ℕ c)
 
 -- * Canonical forms
-nfN (lamⱼ _ _ _)      _ _ (lamₙ _)    c = ⊥-elim (ℕ≢Π (sym c))
-nfN (prodⱼ _ _ _ _ _) _ _ (prodₙ _ _) c = ⊥-elim (ℕ≢Σ (sym c))
-nfN (starⱼ _ _)       _ _ starₙ       c = ⊥-elim (ℕ≢Unitⱼ (sym c))
-nfN (rflⱼ _)          _ _ rflₙ        c = ⊥-elim (Id≢ℕ c)
+nfN (lamⱼ _ _)      _ _ (lamₙ _)    c = ⊥-elim (ℕ≢Π (sym c))
+nfN (prodⱼ _ _ _ _) _ _ (prodₙ _ _) c = ⊥-elim (ℕ≢Σ (sym c))
+nfN (starⱼ _ _)     _ _ starₙ       c = ⊥-elim (ℕ≢Unitⱼ (sym c))
+nfN (rflⱼ _)        _ _ rflₙ        c = ⊥-elim (Id≢ℕ c)
 -- q.e.d
 
 -- The following results are proved under the assumption that, if weak

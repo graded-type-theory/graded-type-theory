@@ -432,7 +432,7 @@ opaque
           (⊩ᵛ→⊩ˢ∷→⊩[] (I.ΠΣᵛ ok (emb-⊩ᵛ ≤ᵘ⊔ᵘʳ ⊩A) (emb-⊩ᵛ ≤ᵘ⊔ᵘˡ ⊩B)) ⊩σ)
       , t [ σ ] , u [ σ ] , v₂
       , (_⊢_⇒*_∷_.id $
-         ⊢prod (escape $ ⊩ᵛ→⊩ˢ∷→⊩[⇑] ⊩B ⊩σ)
+         prodⱼ (escape $ ⊩ᵛ→⊩ˢ∷→⊩[⇑] ⊩B ⊩σ)
            (escape-⊩∷ $ ⊩ᵛ∷→⊩ˢ∷→⊩[]∷ ⊩t ⊩σ)
            (PE.subst (_⊢_∷_ _ _) (singleSubstLift B _) $
             substitutionTerm ⊢u (escape-⊩ˢ∷ ⊩σ .proj₂) ⊢Δ)

@@ -104,10 +104,12 @@ mutual
         F′ , G′ , B⇒Σ′ , F≡F′ , G≡G′ = ΣNorm (proj₁ (soundness⇉ (wfTerm ⊢t) t⇉B)) (sym ΣFG≡B)
     in  _ , fstᵢ t⇉B (B⇒Σ′ , ΠΣₙ) , trans A≡F F≡F′
   completeness⇉ (sndᵢ t) ⊢t =
-    let F , G , q , ⊢F , ⊢G , ⊢t , A≡Gt = inversion-snd ⊢t
+    let F , G , q , _ , ⊢G , ⊢t , A≡Gt = inversion-snd ⊢t
         B , t⇉B , ΣFG≡B = completeness⇉ t ⊢t
         F′ , G′ , B⇒Σ′ , F≡F′ , G≡G′ = ΣNorm (proj₁ (soundness⇉ (wfTerm ⊢t) t⇉B)) (sym ΣFG≡B)
-    in  _ , sndᵢ t⇉B (B⇒Σ′ , ΠΣₙ) , trans A≡Gt (substTypeEq G≡G′ (refl (fstⱼ ⊢F ⊢G ⊢t)))
+    in
+    _ , sndᵢ t⇉B (B⇒Σ′ , ΠΣₙ) ,
+    trans A≡Gt (substTypeEq G≡G′ (refl (fstⱼ ⊢G ⊢t)))
   completeness⇉ (prodrecᵢ C t u) ⊢t =
     let F , G , q , ⊢F , ⊢G , ⊢C , ⊢t , ⊢u , A≡Ct = inversion-prodrec ⊢t
         ok = ⊢∷ΠΣ→ΠΣ-allowed ⊢t
@@ -115,8 +117,7 @@ mutual
         F′ , G′ , B⇒Σ′ , F≡F′ , G≡G′ = ΣNorm (proj₁ (soundness⇉ (wfTerm ⊢t) t⇉B)) (sym ΣFG≡B)
         u⇇C₊ = completeness⇇ u (stabilityTerm ((reflConEq (wf ⊢F)) ∙ F≡F′ ∙ G≡G′) ⊢u)
         C⇇Type = completeness⇇Type C $
-                 stability
-                   (reflConEq (wf ⊢F) ∙ ΠΣ-cong ⊢F F≡F′ G≡G′ ok) ⊢C
+                 stability (reflConEq (wf ⊢F) ∙ ΠΣ-cong F≡F′ G≡G′ ok) ⊢C
     in  _ , prodrecᵢ C⇇Type t⇉B (B⇒Σ′ , ΠΣₙ) u⇇C₊ , A≡Ct
   completeness⇉ ℕᵢ ⊢t = _ , ℕᵢ , inversion-ℕ ⊢t
   completeness⇉ zeroᵢ ⊢t = _ , zeroᵢ , inversion-zero ⊢t

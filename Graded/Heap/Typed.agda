@@ -52,18 +52,15 @@ data _⨾_⊢ᵉ_⟨_⟩∷_↝_ (Δ : Con Term k) (H : Heap k m) :
   ∘ₑ : Δ ⊢ wk ρ u [ H ]ₕ ∷ A
      → Δ ∙ A ⊢ B
      → Δ ⨾ H ⊢ᵉ ∘ₑ p u ρ ⟨ t ⟩∷ Π p , q ▷ A ▹ B ↝ B [ wk ρ u [ H ]ₕ ]₀
-  fstₑ : Δ ⊢ A
-       → Δ ∙ A ⊢ B
+  fstₑ : Δ ∙ A ⊢ B
        → Δ ⨾ H ⊢ᵉ fstₑ p ⟨ t ⟩∷ Σˢ p , q ▷ A ▹ B ↝ A
-  sndₑ : Δ ⊢ A
-       → Δ ∙ A ⊢ B
+  sndₑ : Δ ∙ A ⊢ B
        → Δ ⨾ H ⊢ᵉ sndₑ p ⟨ t ⟩∷ Σˢ p , q ▷ A ▹ B ↝ B [ fst p t [ H ]ₕ ]₀
   prodrecₑ : Δ ∙ B ∙ C ⊢ wk (liftn ρ 2) u [ H ]⇑²ₕ ∷ (wk (lift ρ) A [ H ]⇑ₕ [ prodʷ p (var x1) (var x0) ]↑²)
            → Δ ∙ Σʷ p , q′ ▷ B ▹ C ⊢ wk (lift ρ) A [ H ]⇑ₕ
            → Δ ⨾ H ⊢ᵉ prodrecₑ r p q A u ρ ⟨ t ⟩∷ Σʷ p , q′ ▷ B ▹ C ↝ (wk (lift ρ) A [ H ]⇑ₕ [ t [ H ]ₕ ]₀)
   natrecₑ : Δ ⊢ wk ρ z [ H ]ₕ ∷ wk (lift ρ) A [ H ]⇑ₕ [ zero ]₀
           → Δ ∙ ℕ ∙ wk (lift ρ) A [ H ]⇑ₕ ⊢ wk (liftn ρ 2) s [ H ]⇑²ₕ ∷ wk (lift ρ) A [ H ]⇑ₕ [ suc (var x1) ]↑²
-          → Δ ∙ ℕ ⊢ wk (lift ρ) A [ H ]⇑ₕ
           → Δ ⨾ H ⊢ᵉ natrecₑ p q r A z s ρ ⟨ t ⟩∷ ℕ ↝ wk (lift ρ) A [ H ]⇑ₕ [ t [ H ]ₕ ]₀
   unitrecₑ : Δ ⊢ wk ρ u [ H ]ₕ ∷ wk (lift ρ) A [ H ]⇑ₕ [ starʷ l ]₀
            → Δ ∙ Unitʷ l ⊢ wk (lift ρ) A [ H ]⇑ₕ

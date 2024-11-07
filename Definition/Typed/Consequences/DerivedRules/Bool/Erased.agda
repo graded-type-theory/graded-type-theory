@@ -30,7 +30,6 @@ import Definition.Typed.Consequences.DerivedRules.Bool.OK
 open import Definition.Typed.Consequences.DerivedRules.Empty R
 open import Definition.Typed.Consequences.DerivedRules.Nat R
 open import Definition.Typed.Consequences.DerivedRules.Pi R
-open import Definition.Typed.Consequences.DerivedRules.Pi-Sigma R
 open import Definition.Typed.Consequences.DerivedRules.Sigma R
 open import Definition.Typed.Consequences.DerivedRules.Unit R
 open import Definition.Typed.Consequences.Substitution R
@@ -111,7 +110,7 @@ opaque
     ⊢ Γ →
     Γ ⊢ true ∷ Bool
   ⊢true ⊢Γ =
-    prodⱼ (ℕⱼ ⊢Γ) (⊢Erased-OK (var₀ (ℕⱼ ⊢Γ)))
+    prodⱼ (⊢Erased-OK (var₀ (ℕⱼ ⊢Γ)))
       (sucⱼ (zeroⱼ ⊢Γ))
       ([]ⱼ Erased-ok $
        _⊢_∷_.conv (starⱼ ⊢Γ Unitʷ-ok)
@@ -131,7 +130,7 @@ opaque
     ⊢ Γ →
     Γ ⊢ false ∷ Bool
   ⊢false ⊢Γ =
-    prodⱼ (ℕⱼ ⊢Γ) (⊢Erased-OK (var₀ (ℕⱼ ⊢Γ))) (zeroⱼ ⊢Γ)
+    prodⱼ (⊢Erased-OK (var₀ (ℕⱼ ⊢Γ))) (zeroⱼ ⊢Γ)
       ([]ⱼ Erased-ok $
        _⊢_∷_.conv (starⱼ ⊢Γ Unitʷ-ok)
          (Unitʷ 0                ≡˘⟨ OK-0≡ ⊢Γ ⟩⊢∎≡
@@ -159,7 +158,7 @@ opaque
     PE.subst (_⊢_≡_∷_ _ _ _)
       (PE.cong (ΠΣ⟨_⟩_,_▷_▹_ _ _ _ _) $
        PE.cong Erased $ PE.sym B.OK-[]) $
-    prod-cong′ (⊢Erased-OK (var₀ (ℕⱼ (wfEqTerm t₁≡t₂)))) t₁≡t₂
+    prod-cong (⊢Erased-OK (var₀ (ℕⱼ (wfEqTerm t₁≡t₂)))) t₁≡t₂
       (PE.subst (_⊢_≡_∷_ _ _ _) (PE.cong Erased $ PE.sym B.OK-[]) u₁≡u₂)
       Σ-ok
 
@@ -232,7 +231,7 @@ private
           Π 𝟙 , p ▷ Erased (OK t) ▹ Target (2+ k) A₂ (wk1 t) (var x0)
       Π-lemma PE.refl ⊢t =
         let ⊢OK = ⊢Erased-OK ⊢t in
-        ΠΣ-cong′ (refl ⊢OK)
+        ΠΣ-cong (refl ⊢OK)
           (Target-cong′ A₁≡A₂ (wkTerm₁ ⊢OK ⊢t) $
            PE.subst (_⊢_∷_ _ _) (PE.cong Erased B.wk-OK) $
            var₀ ⊢OK)
@@ -256,7 +255,7 @@ private
              (PE.trans (Target-[₀⇑] 1) $
               PE.cong (flip (Target _ _) _) $
               wk1-liftSubst t)) $
-        flip (ΠΣ-cong′ (Erased-cong Erased-ok OK-t[u]₀≡Unit)) Π-ok $
+        flip (ΠΣ-cong (Erased-cong Erased-ok OK-t[u]₀≡Unit)) Π-ok $
         Target-cong′ A₁≡A₂ (wkTerm₁ ⊢OK ⊢t[u]₀) $
         PE.subst (_⊢_∷_ _ _) (PE.cong Erased B.wk-OK) $
         var₀ ⊢OK

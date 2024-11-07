@@ -135,7 +135,7 @@ opaque
             𝟘 ·ᶜ (𝟘ᶜ , x0 ≔ ⌜ ⌞ 𝟘 ⌟ ⌝)  ∎))
     , (lamⱼ′ ok₁ $
        emptyrecⱼ
-         (ΠΣⱼ′
+         (ΠΣⱼ
             (Erasedⱼ Erased-ok $
              Idⱼ (var₀ (Emptyⱼ (⊢Γ ∙[ Emptyⱼ ])))
                (var₁ (Emptyⱼ (⊢Γ ∙[ Emptyⱼ ]))))
@@ -174,7 +174,7 @@ opaque
             𝟘ᶜ ∧ᶜ 𝟘ᶜ       ≈˘⟨ ∧ᶜ-congʳ $ ·ᶜ-zeroʳ _ ⟩
             𝟙 ·ᶜ 𝟘ᶜ ∧ᶜ 𝟘ᶜ  ∎))
     , (lamⱼ′ ok₁ $
-       ⊢prod
+       prodⱼ
          (Erasedⱼ Erased-ok (Idⱼ (var₀ ⊢Unit₂) (var₁ ⊢Unit₂)))
          (starⱼ ⊢Γ∙Unit Unit-ok)
          ([]ⱼ Erased-ok (⊢Unit-η (var₀ ⊢Unit₁)))

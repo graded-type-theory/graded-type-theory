@@ -109,9 +109,8 @@ mutual
     with Σ≡A A≡B whnfB
   ... | F , G , PE.refl with Σ-injectivity A≡B
   ...   | F≡ , G≡ , _ , _ =
-    let ⊢F = proj₁ (syntacticEq F≡)
-        ⊢G = proj₁ (syntacticEq G≡)
-        ⊢fst = fstⱼ ⊢F ⊢G ⊢p
+    let ⊢G = proj₁ (syntacticEq G≡)
+        ⊢fst = fstⱼ ⊢G ⊢p
     in  Σ-η (stabilityTerm Γ≡Δ (conv ⊢p A≡B))
             (stabilityTerm Γ≡Δ (conv ⊢r A≡B))
             pProd

@@ -17,7 +17,6 @@ open Type-restrictions R
 open import Definition.Untyped M as U
 open import Definition.Typed R
 open import Definition.Typed.Consequences.DerivedRules.Pi R
-open import Definition.Typed.Consequences.DerivedRules.Pi-Sigma R
 open import Definition.Typed.Consequences.Inversion R
 open import Definition.Typed.Consequences.Stability R
 open import Definition.Typed.Consequences.Substitution R
@@ -77,8 +76,8 @@ opaque
     Γ ⊢ J p q A t B u v w ∷ B [ v , w ]₁₀
   Jⱼ′ ⊢B ⊢u ⊢w =
     case inversion-Id (syntacticTerm ⊢w) of λ {
-      (⊢A , ⊢t , ⊢v) →
-    Jⱼ ⊢A ⊢t ⊢B ⊢u ⊢v ⊢w }
+      (_ , ⊢t , ⊢v) →
+    Jⱼ ⊢t ⊢B ⊢u ⊢v ⊢w }
 
 opaque
 
@@ -94,8 +93,7 @@ opaque
     Γ ⊢ J p q A₁ t₁ B₁ u₁ v₁ w₁ ≡ J p q A₂ t₂ B₂ u₂ v₂ w₂ ∷
       B₁ [ v₁ , w₁ ]₁₀
   J-cong′ A₁≡A₂ t₁≡t₂ =
-    J-cong (syntacticEq A₁≡A₂ .proj₁) A₁≡A₂
-      (syntacticEqTerm t₁≡t₂ .proj₂ .proj₁) t₁≡t₂
+    J-cong A₁≡A₂ (syntacticEqTerm t₁≡t₂ .proj₂ .proj₁) t₁≡t₂
 
 opaque
 
@@ -107,9 +105,7 @@ opaque
     Γ ⊢ u ∷ B [ t , rfl ]₁₀ →
     Γ ⊢ J p q A t B u t rfl ≡ u ∷ B [ t , rfl ]₁₀
   J-β-≡ {Γ} {t} {A} ⊢t ⊢B ⊢u =
-    case wf ⊢B of λ {
-      (_ ∙ ⊢A ∙ _) →
-    J-β ⊢A ⊢t ⊢B ⊢u PE.refl }
+    J-β ⊢t ⊢B ⊢u PE.refl
     where
     -- If a strengthening lemma is proved then one can perhaps drop
     -- the first argument of J-β-≡.
@@ -135,8 +131,8 @@ opaque
     Γ ⊢ J p q A t B u v w₁ ⇒ J p q A t B u v w₂ ∷ B [ v , w₁ ]₁₀
   J-subst′ ⊢B ⊢u w₁⇒w₂ =
     case inversion-Id (syntacticTerm (redFirstTerm w₁⇒w₂)) of λ {
-      (⊢A , ⊢t , ⊢v) →
-    J-subst ⊢A ⊢t ⊢B ⊢u ⊢v w₁⇒w₂ }
+      (_ , ⊢t , ⊢v) →
+    J-subst ⊢t ⊢B ⊢u ⊢v w₁⇒w₂ }
 
 opaque
 
@@ -187,8 +183,8 @@ opaque
     Γ ⊢ J p q A t B u t′ rfl ⇒ u ∷ B [ t , rfl ]₁₀
   J-β-⇒ t≡t′ ⊢B =
     case syntacticEqTerm t≡t′ of λ {
-      (⊢A , ⊢t , ⊢t′) →
-    J-β ⊢A ⊢t ⊢t′ t≡t′ ⊢B (J-motive-rfl-cong (refl ⊢B) t≡t′) }
+      (_ , ⊢t , ⊢t′) →
+    J-β ⊢t ⊢t′ t≡t′ ⊢B (J-motive-rfl-cong (refl ⊢B) t≡t′) }
 
 opaque
 

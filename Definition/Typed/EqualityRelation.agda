@@ -129,7 +129,6 @@ record Equality-relations
     -- Π- and Σ-congruence
 
     ≅-ΠΣ-cong : ∀ {F G H E}
-              → Γ ⊢ F
               → Γ ⊢ F ≅ H
               → Γ ∙ F ⊢ G ≅ E
               → ΠΣ-allowed bm p q
@@ -137,7 +136,6 @@ record Equality-relations
 
     ≅ₜ-ΠΣ-cong
               : ∀ {F G H E}
-              → Γ ⊢ F
               → Γ ⊢ F ≅ H ∷ U l₁
               → Γ ∙ F ⊢ G ≅ E ∷ U l₂
               → ΠΣ-allowed bm p q
@@ -152,7 +150,6 @@ record Equality-relations
 
     -- Product congruence
     ≅-prod-cong : ∀ {F G t t′ u u′}
-                → Γ ⊢ F
                 → Γ ∙ F ⊢ G
                 → Γ ⊢ t ≅ t′ ∷ F
                 → Γ ⊢ u ≅ u′ ∷ G [ t ]₀
@@ -161,7 +158,6 @@ record Equality-relations
 
     -- η-equality
     ≅-η-eq : ∀ {f g F G}
-           → Γ ⊢ F
            → Γ ⊢ f ∷ Π p , q ▷ F ▹ G
            → Γ ⊢ g ∷ Π p , q ▷ F ▹ G
            → Function f
@@ -171,7 +167,6 @@ record Equality-relations
 
     -- η for product types
     ≅-Σ-η : ∀ {r s F G}
-          → Γ ⊢ F
           → Γ ∙ F ⊢ G
           → Γ ⊢ r ∷ Σˢ p , q ▷ F ▹ G
           → Γ ⊢ s ∷ Σˢ p , q ▷ F ▹ G
@@ -192,20 +187,17 @@ record Equality-relations
 
     -- Product projections congruence
     ~-fst : ∀ {r s F G}
-          → Γ ⊢ F
           → Γ ∙ F ⊢ G
           → Γ ⊢ r ~ s ∷ Σˢ p , q ▷ F ▹ G
           → Γ ⊢ fst p r ~ fst p s ∷ F
 
     ~-snd : ∀ {r s F G}
-          → Γ ⊢ F
           → Γ ∙ F ⊢ G
           → Γ ⊢ r ~ s ∷ Σˢ p , q ▷ F ▹ G
           → Γ ⊢ snd p r ~ snd p s ∷ G [ fst p r ]₀
 
     -- Natural recursion congruence
     ~-natrec : ∀ {z z′ s s′ n n′ F F′}
-             → Γ ∙ ℕ     ⊢ F
              → Γ ∙ ℕ     ⊢ F ≅ F′
              → Γ         ⊢ z ≅ z′ ∷ F [ zero ]₀
              → Γ ∙ ℕ ∙ F ⊢ s ≅ s′ ∷ F [ suc (var x1) ]↑²
@@ -214,8 +206,6 @@ record Equality-relations
 
     -- Product recursion congruence
     ~-prodrec : ∀ {F G A A′ t t′ u u′}
-             → Γ                      ⊢ F
-             → Γ ∙ F                  ⊢ G
              → Γ ∙ (Σʷ p , q ▷ F ▹ G) ⊢ A ≅ A′
              → Γ                      ⊢ t ~ t′ ∷ Σʷ p , q ▷ F ▹ G
              → Γ ∙ F ∙ G              ⊢ u ≅ u′ ∷ A [ prodʷ p (var x1) (var x0) ]↑²
@@ -259,8 +249,7 @@ record Equality-relations
 
     -- J preserves the _⊢_~_ relation (in a certain way).
     ~-J
-      : Γ ⊢ A₁
-      → Γ ⊢ A₁ ≅ A₂
+      : Γ ⊢ A₁ ≅ A₂
       → Γ ⊢ t₁ ∷ A₁
       → Γ ⊢ t₁ ≅ t₂ ∷ A₁
       → Γ ∙ A₁ ∙ Id (wk1 A₁) (wk1 t₁) (var x0) ⊢ B₁ ≅ B₂

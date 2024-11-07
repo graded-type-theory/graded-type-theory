@@ -17,7 +17,6 @@ open Type-restrictions TR
 open import Definition.Untyped M hiding (wk)
 open import Definition.Untyped.Properties M
 open import Definition.Typed TR
-open import Definition.Typed.Consequences.DerivedRules.Pi-Sigma TR
 open import Definition.Typed.Consequences.Syntactic TR
 open import Definition.Typed.Weakening TR
 open import Definition.Typed.Properties TR
@@ -47,7 +46,7 @@ opaque
     in
     PE.subst (_⊢_≡_∷_ _ _ _) (wk1-sgSubst _ _) $
     app-cong
-      (emptyrec-cong (ΠΣ-cong′ (refl ⊢Unit) (wkEq₁ ⊢Unit A₁≡A₂) ok₂)
+      (emptyrec-cong (ΠΣ-cong (refl ⊢Unit) (wkEq₁ ⊢Unit A₁≡A₂) ok₂)
          t₁≡t₂)
       (refl (starⱼ ⊢Γ ok₁))
 

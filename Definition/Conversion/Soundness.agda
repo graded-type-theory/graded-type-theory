@@ -51,24 +51,23 @@ mutual
   soundness~↑ (fst-cong x) =
     let p≡ = soundness~↓ x
         ⊢ΣFG = proj₁ (syntacticEqTerm p≡)
-        ⊢F , ⊢G = syntacticΣ ⊢ΣFG
-    in  fst-cong ⊢F ⊢G p≡
+        _ , ⊢G = syntacticΣ ⊢ΣFG
+    in  fst-cong ⊢G p≡
   soundness~↑ (snd-cong x) =
     let p≡ = soundness~↓ x
         ⊢ΣFG = proj₁ (syntacticEqTerm p≡)
-        ⊢F , ⊢G = syntacticΣ ⊢ΣFG
-    in  snd-cong ⊢F ⊢G p≡
+        _ , ⊢G = syntacticΣ ⊢ΣFG
+    in  snd-cong ⊢G p≡
   soundness~↑ (natrec-cong x₁ x₂ x₃ k~l) =
-    let F≡G = soundnessConv↑ x₁
-        ⊢F = proj₁ (syntacticEq F≡G)
-    in  natrec-cong ⊢F F≡G (soundnessConv↑Term x₂)
-                    (soundnessConv↑Term x₃) (soundness~↓ k~l)
+    let F≡G = soundnessConv↑ x₁ in
+    natrec-cong F≡G (soundnessConv↑Term x₂) (soundnessConv↑Term x₃)
+      (soundness~↓ k~l)
   soundness~↑ (prodrec-cong x x₁ x₂) =
     let C≡E = soundnessConv↑ x
         g≡h = soundness~↓ x₁
         u≡v = soundnessConv↑Term x₂
-        ⊢F , ⊢G , ok = inversion-ΠΣ (proj₁ (syntacticEqTerm g≡h))
-    in  prodrec-cong ⊢F ⊢G C≡E g≡h u≡v ok
+        _ , _ , ok = inversion-ΠΣ (proj₁ (syntacticEqTerm g≡h))
+    in  prodrec-cong C≡E g≡h u≡v ok
   soundness~↑ (emptyrec-cong x₁ k~l) =
     emptyrec-cong (soundnessConv↑ x₁) (soundness~↓ k~l)
   soundness~↑ (unitrec-cong x x₁ x₂ no-η) =
@@ -82,7 +81,7 @@ mutual
       A₁≡A₂ →
     case soundnessConv↑Term t₁≡t₂ of λ {
       t₁≡t₂ →
-    J-cong (syntacticEq A₁≡A₂ .proj₁) A₁≡A₂
+    J-cong A₁≡A₂
       (syntacticEqTerm t₁≡t₂ .proj₂ .proj₁) t₁≡t₂ (soundnessConv↑ B₁≡B₂)
       (soundnessConv↑Term u₁≡u₂) (soundnessConv↑Term v₁≡v₂)
       (conv (soundness~↓ w₁~w₂) ≡Id) }}
@@ -113,7 +112,7 @@ mutual
   soundnessConv↓ (Unit-refl ⊢Γ ok) = refl (Unitⱼ ⊢Γ ok)
   soundnessConv↓ (ne x) = univ (soundness~↓ x)
   soundnessConv↓ (ΠΣ-cong A₁≡A₂ B₁≡B₂ ok) =
-    ΠΣ-cong′ (soundnessConv↑ A₁≡A₂) (soundnessConv↑ B₁≡B₂) ok
+    ΠΣ-cong (soundnessConv↑ A₁≡A₂) (soundnessConv↑ B₁≡B₂) ok
   soundnessConv↓ (Id-cong A₁≡A₂ t₁≡t₂ u₁≡u₂) =
     Id-cong (soundnessConv↑ A₁≡A₂) (soundnessConv↑Term t₁≡t₂)
       (soundnessConv↑Term u₁≡u₂)
@@ -148,18 +147,16 @@ mutual
   soundnessConv↓Term (starʷ-refl ⊢Γ ok _) = refl (starⱼ ⊢Γ ok)
   soundnessConv↓Term (suc-cong c) = suc-cong (soundnessConv↑Term c)
   soundnessConv↓Term (prod-cong x₁ x₂ x₃ ok) =
-    prod-cong (⊢∙→⊢ (wf x₁)) x₁ (soundnessConv↑Term x₂)
+    prod-cong x₁ (soundnessConv↑Term x₂)
       (soundnessConv↑Term x₃) ok
   soundnessConv↓Term (η-eq x x₁ y y₁ c) =
-    let ⊢ΠFG = syntacticTerm x
-        ⊢F , _ = syntacticΠ ⊢ΠFG
-    in  η-eq ⊢F x x₁ (soundnessConv↑Term c)
+    η-eq x x₁ (soundnessConv↑Term c)
   soundnessConv↓Term (Σ-η ⊢p ⊢r pProd rProd fstConv sndConv) =
     let ⊢ΣFG = syntacticTerm ⊢p
-        ⊢F , ⊢G = syntacticΣ ⊢ΣFG
+        _ , ⊢G = syntacticΣ ⊢ΣFG
         fst≡ = soundnessConv↑Term fstConv
         snd≡ = soundnessConv↑Term sndConv
-    in  Σ-η ⊢F ⊢G ⊢p ⊢r fst≡ snd≡
+    in  Σ-η ⊢G ⊢p ⊢r fst≡ snd≡
   soundnessConv↓Term (η-unit [a] [b] aUnit bUnit ok) =
     η-unit [a] [b] ok
   soundnessConv↓Term
@@ -212,7 +209,7 @@ mutual
                ⊢B₂)
             A₂≡B₂
     in
-      conv (ΠΣ-cong (univ ⊢A₁) A₁≡B₁ A₂≡B₂ ok) (sym U≡U₁)
+      conv (ΠΣ-cong A₁≡B₁ A₂≡B₂ ok) (sym U≡U₁)
     , U-injectivity
         (U l₁          ≡⟨ U≡U₁ ⟩⊢
          U (l₃ ⊔ᵘ l₄)  ≡⟨ PE.cong U $ PE.cong₂ _⊔ᵘ_ l₃≡l₅ l₄≡l₆ ⟩⊢≡

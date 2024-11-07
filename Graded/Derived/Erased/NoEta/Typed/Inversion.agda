@@ -58,8 +58,8 @@ opaque
     case inversion-fstʷ ⊢erased of λ
       (q , B , ⊢t , A≡C) →
     case inversion-ΠΣ (syntacticTerm ⊢t) of λ
-      (⊢C , ⊢B , Σ-ok) →
-    q , B , conv ⊢t (ΠΣ-cong ⊢C (sym A≡C) (refl ⊢B) Σ-ok) , Σ-ok
+      (_ , ⊢B , Σ-ok) →
+    q , B , conv ⊢t (ΠΣ-cong (sym A≡C) (refl ⊢B) Σ-ok) , Σ-ok
 
 
 opaque
@@ -87,7 +87,7 @@ opaque
     ⊢Γ′∙ℕ = ε ∙ ℕⱼ ε
 
     ⊢t′₁ : Γ′ ⊢ t′ ∷ Σʷ 𝟘 , 𝟘 ▷ ℕ ▹ ℕ
-    ⊢t′₁ = prodⱼ (ℕⱼ ε) (ℕⱼ ⊢Γ′∙ℕ) (zeroⱼ ε) (zeroⱼ ε) Σʷ-ok
+    ⊢t′₁ = prodⱼ (ℕⱼ ⊢Γ′∙ℕ) (zeroⱼ ε) (zeroⱼ ε) Σʷ-ok
 
     ⊢erased-t′ : Γ′ ⊢ erased A′ t′ ∷ A′
     ⊢erased-t′ = fstʷⱼ ⊢t′₁

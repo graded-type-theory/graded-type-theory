@@ -421,7 +421,7 @@ opaque
     ⊢ Γ →
     Γ ⊢ loops q ∷ ℕ
   ⊢loops 𝟘-ok ω-ok ω+ω-ok ⊢Γ =
-    lamⱼ′ ω-ok (zeroⱼ (⊢Γ ∙ ΠΣⱼ′ Empty⊢ℕ 𝟘-ok)) ∘ⱼ
+    lamⱼ′ ω-ok (zeroⱼ (⊢Γ ∙ ΠΣⱼ Empty⊢ℕ 𝟘-ok)) ∘ⱼ
     ⊢extracts-to-loop 𝟘-ok ω-ok ω+ω-ok ⊢Γ
     where
     open Lemmas ⊢Γ

@@ -107,7 +107,7 @@ private
   ⊢U0 = ⊢U ∙ U⊢0
 
   U⊢id : ε ∙ U l ⊢ lam ω (var x0) ∷ Π ω , q ▷ var x0 ▹ var x1
-  U⊢id = lamⱼ U⊢0 (var ⊢U0 here) Π-ω-ok
+  U⊢id = lamⱼ (var ⊢U0 here) Π-ω-ok
 
   ΓU⊢id : ⊢ Γ → Γ ∙ U l ⊢ lam ω (var x0) ∷ Π ω , q ▷ var x0 ▹ var x1
   ΓU⊢id ε = U⊢id
@@ -125,14 +125,11 @@ private
   ⊢Uℕℕ : ⊢ ε ∙ U l ∙ ℕ ∙ ℕ
   ⊢Uℕℕ = ⊢Uℕ ∙ ℕⱼ ⊢Uℕ
 
-  Uℕℕ⊢U : ε ∙ U l ∙ ℕ ∙ ℕ ⊢ U l
-  Uℕℕ⊢U = Uⱼ ⊢Uℕℕ
+  UℕℕU⊢3 : ε ∙ U l ∙ ℕ ∙ ℕ ∙ U l ⊢ var x3 ∷ U l
+  UℕℕU⊢3 = var₃ (Uⱼ ⊢Uℕℕ)
 
   ⊢UℕℕU : ⊢ ε ∙ U l ∙ ℕ ∙ ℕ ∙ U l
-  ⊢UℕℕU = ⊢Uℕℕ ∙ Uℕℕ⊢U
-
-  UℕℕU⊢3 : ε ∙ U l ∙ ℕ ∙ ℕ ∙ U l ⊢ var x3 ∷ U l
-  UℕℕU⊢3 = var₃ Uℕℕ⊢U
+  ⊢UℕℕU = wfTerm UℕℕU⊢3
 
   ⊢UℕℕU3 : ⊢ ε ∙ U l ∙ ℕ ∙ ℕ ∙ U l ∙ var x3
   ⊢UℕℕU3 = ⊢UℕℕU ∙ univ UℕℕU⊢3
@@ -140,11 +137,8 @@ private
   ⊢ℕℕ : ⊢ ε ∙ ℕ ∙ ℕ
   ⊢ℕℕ = ⊢ℕ ∙ ℕⱼ ⊢ℕ
 
-  ℕℕ⊢U : ε ∙ ℕ ∙ ℕ ⊢ U l
-  ℕℕ⊢U = Uⱼ ⊢ℕℕ
-
   ⊢ℕℕU : ⊢ ε ∙ ℕ ∙ ℕ ∙ U l
-  ⊢ℕℕU = ⊢ℕℕ ∙ ℕℕ⊢U
+  ⊢ℕℕU = ⊢→⊢∙ (Uⱼ ⊢ℕℕ)
 
 ------------------------------------------------------------------------
 -- A polymorphic identity function
@@ -158,7 +152,7 @@ id = lam 𝟘 (lam ω (var x0))
 -- context).
 
 ⊢id : ⊢ Γ → Γ ⊢ id ∷ Π 𝟘 , p ▷ U l ▹ Π ω , q ▷ var x0 ▹ var x1
-⊢id ⊢Γ = lamⱼ (Uⱼ ⊢Γ) (ΓU⊢id ⊢Γ) Π-𝟘-ok
+⊢id ⊢Γ = lamⱼ (ΓU⊢id ⊢Γ) Π-𝟘-ok
 
 -- The polymorphic identity function is well-resourced (with respect
 -- to the zero usage context).
@@ -224,10 +218,10 @@ erase-non-strict-id-ℕ-zero = PE.refl
 id-ℕ-zero⇒*zero : ε ⊢ id-ℕ-zero ⇒* zero ∷ ℕ
 id-ℕ-zero⇒*zero =
   app-subst
-    (β-red (Uⱼ ε) (ΠΣⱼ U⊢0 (univ (var ⊢U0 (there here))) Π-ω-ok)
-       U⊢id (ℕⱼ ε) PE.refl Π-𝟘-ok)
+    (β-red (ΠΣⱼ (univ (var ⊢U0 (there here))) Π-ω-ok) U⊢id (ℕⱼ ε)
+       PE.refl Π-𝟘-ok)
     (zeroⱼ ε) ⇨
-  (β-red (ℕⱼ ε) (ℕⱼ ⊢ℕ) (var ⊢ℕ here) (zeroⱼ ε) PE.refl Π-ω-ok ⇨
+  (β-red (ℕⱼ ⊢ℕ) (var ⊢ℕ here) (zeroⱼ ε) PE.refl Π-ω-ok ⇨
    DT.id (zeroⱼ ε))
 
 -- The erasure of id-ℕ-zero reduces to zero.
@@ -252,7 +246,7 @@ id₀ = lam 𝟘 (var x0)
 -- The function id₀ is well-typed (in the empty context).
 
 ⊢id₀ : ε ⊢ id₀ ∷ Π 𝟘 , p ▷ ℕ ▹ ℕ
-⊢id₀ = lamⱼ (ℕⱼ ε) (var₀ (ℕⱼ ε)) Π-𝟘-ok
+⊢id₀ = lamⱼ (var₀ (ℕⱼ ε)) Π-𝟘-ok
 
 -- The function id₀ is not well-resourced.
 
@@ -299,7 +293,7 @@ erase-non-strict-id₀-zero = PE.refl
 
 id₀-zero⇒*zero : ε ⊢ id₀-zero ⇒* zero ∷ ℕ
 id₀-zero⇒*zero =
-  β-red (ℕⱼ ε) (ℕⱼ ⊢ℕ) (var ⊢ℕ here) (zeroⱼ ε) PE.refl Π-𝟘-ok ⇨
+  β-red (ℕⱼ ⊢ℕ) (var ⊢ℕ here) (zeroⱼ ε) PE.refl Π-𝟘-ok ⇨
   DT.id (zeroⱼ ε)
 
 -- The erasure of id₀-zero reduces to loop?.
@@ -384,7 +378,7 @@ private
 
   ⊢Vec-body₂ : ε ∙ U l ∙ ℕ ⊢ Vec-body₂ l ∷ U l
   ⊢Vec-body₂ =
-    natrecⱼ Uℕℕ⊢U (Unitⱼ ⊢Uℕ Unit-ok)
+    natrecⱼ (Unitⱼ ⊢Uℕ Unit-ok)
       (PE.subst (_⊢_∷_ _ _) (PE.cong U ⊔ᵘ-idem) $
        ΠΣⱼ UℕℕU⊢3 (var ⊢UℕℕU3 (there here)) Σˢ-ω-ok)
       (var ⊢Uℕ here)
@@ -392,12 +386,12 @@ private
   -- A typing rule for Vec-body₁.
 
   ⊢Vec-body₁ : ε ∙ U l ⊢ Vec-body₁ l ∷ Π ω , q ▷ ℕ ▹ U l
-  ⊢Vec-body₁ = lamⱼ U⊢ℕ ⊢Vec-body₂ Π-ω-ok
+  ⊢Vec-body₁ = lamⱼ ⊢Vec-body₂ Π-ω-ok
 
 -- A typing rule for Vec.
 
 ⊢Vec : ε ⊢ Vec l ∷ Π ω , q ▷ U l ▹ Π ω , q ▷ ℕ ▹ U l
-⊢Vec = lamⱼ (Uⱼ ε) ⊢Vec-body₁ Π-ω-ok
+⊢Vec = lamⱼ ⊢Vec-body₁ Π-ω-ok
 
 -- Some lemmas used below.
 
@@ -508,12 +502,12 @@ Vec∘zero⇒* :
   Γ ⊢ wk wk₀ (Vec l) ∘⟨ ω ⟩ A ∘⟨ ω ⟩ zero ⇒* Unit s l ∷ U l
 Vec∘zero⇒* {A = A} ⊢A =
   app-subst
-    (β-red (Uⱼ ⊢Γ) (syntacticTerm ⊢Vec-body₁′)
+    (β-red (syntacticTerm ⊢Vec-body₁′)
        ⊢Vec-body₁′ ⊢A PE.refl Π-ω-ok)
     (zeroⱼ ⊢Γ) ⇨
-  (β-red (ℕⱼ ⊢Γ) Γℕ⊢U ⊢Vec-body₂′ (zeroⱼ ⊢Γ) PE.refl Π-ω-ok ⇨
+  (β-red Γℕ⊢U ⊢Vec-body₂′ (zeroⱼ ⊢Γ) PE.refl Π-ω-ok ⇨
    (redMany $
-    _⊢_⇒_∷_.natrec-zero Γℕ⊢U (Unitⱼ ⊢Γ Unit-ok) $
+    _⊢_⇒_∷_.natrec-zero (Unitⱼ ⊢Γ Unit-ok) $
     PE.subst (_⊢_∷_ _ _) (PE.cong U ⊔ᵘ-idem) $
     ΠΣⱼ ΓℕU⊢A (var₁ (univ ΓℕU⊢A)) Σˢ-ω-ok))
   where
@@ -530,33 +524,31 @@ Vec∘suc≡ :
 Vec∘suc≡ {A} {l} ⊢A ⊢t =
   _⊢_≡_∷_.trans
     (app-cong
-       (β-red (Uⱼ ⊢Γ) (syntacticTerm ⊢Vec-body₁′)
-          ⊢Vec-body₁′ ⊢A PE.refl Π-ω-ok)
+       (β-red (syntacticTerm ⊢Vec-body₁′) ⊢Vec-body₁′ ⊢A PE.refl Π-ω-ok)
        (refl (sucⱼ ⊢t))) $
   _⊢_≡_∷_.trans
-    (β-red (ℕⱼ ⊢Γ) Γℕ⊢U ⊢Vec-body₂′ (sucⱼ ⊢t) PE.refl Π-ω-ok) $
+    (β-red Γℕ⊢U ⊢Vec-body₂′ (sucⱼ ⊢t) PE.refl Π-ω-ok) $
   _⊢_≡_∷_.trans
-    (flip (_⊢_≡_∷_.natrec-suc Γℕ⊢U (Unitⱼ ⊢Γ Unit-ok)) ⊢t $
+    (flip (_⊢_≡_∷_.natrec-suc (Unitⱼ ⊢Γ Unit-ok)) ⊢t $
      PE.subst (_⊢_∷_ _ _) (PE.cong U ⊔ᵘ-idem) $
      ΠΣⱼ ΓℕU⊢A (var₁ (univ ΓℕU⊢A)) Σˢ-ω-ok) $
   PE.subst (_⊢_≡_∷_ _ _ _) (PE.cong U ⊔ᵘ-idem) $
   _⊢_≡_∷_.trans
     (_⊢_≡_∷_.sym $
-     ΠΣ-cong (univ ⊢A)
-       (PE.subst (_ ⊢ _ ≡_∷ _) (≡wk3[][] A) (refl ⊢A))
+     ΠΣ-cong (PE.subst (_ ⊢ _ ≡_∷ _) (≡wk3[][] A) (refl ⊢A))
        (PE.subst₂ (_⊢_≡_∷_ _ _)
           (PE.cong (flip (natrec 𝟘 𝟘 ω (U l) (Unit s l)) _) $
            PE.cong (Σˢ _ , _ ▷_▹ _) $
            wk3[]≡ A)
           PE.refl $
-        β-red (ℕⱼ ⊢ΓA) (Uⱼ ⊢ΓAℕ) ⊢Vec-body₂″
-          (W.wkTerm₁ (univ ⊢A) ⊢t) PE.refl Π-ω-ok)
+        β-red (Uⱼ ⊢ΓAℕ) ⊢Vec-body₂″ (W.wkTerm₁ (univ ⊢A) ⊢t) PE.refl
+          Π-ω-ok)
        Σˢ-ω-ok) $
   _⊢_≡_∷_.sym $
-  flip (_⊢_≡_∷_.ΠΣ-cong (univ ⊢A) (refl ⊢A)) Σˢ-ω-ok $
+  flip (_⊢_≡_∷_.ΠΣ-cong (refl ⊢A)) Σˢ-ω-ok $
   app-cong
-    (β-red (Uⱼ ⊢ΓA) (syntacticTerm ⊢Vec-body₁″)
-       ⊢Vec-body₁″ (W.wkTerm₁ (univ ⊢A) ⊢A) PE.refl Π-ω-ok) $
+    (β-red (syntacticTerm ⊢Vec-body₁″) ⊢Vec-body₁″
+       (W.wkTerm₁ (univ ⊢A) ⊢A) PE.refl Π-ω-ok) $
   _⊢_≡_∷_.refl $
   W.wkTerm₁ (univ ⊢A) ⊢t
   where
@@ -604,13 +596,12 @@ private
 
   ⊢Non-zero-body : ε ∙ ℕ ⊢ Non-zero-body ∷ U 0
   ⊢Non-zero-body =
-    natrecⱼ ℕℕ⊢U (Emptyⱼ ⊢ℕ) (Unitⱼ ⊢ℕℕU Unit-ok)
-      (var ⊢ℕ here)
+    natrecⱼ (Emptyⱼ ⊢ℕ) (Unitⱼ ⊢ℕℕU Unit-ok) (var ⊢ℕ here)
 
 -- A typing rule for Non-zero.
 
 ⊢Non-zero : ε ⊢ Non-zero ∷ Π ω , q ▷ ℕ ▹ U 0
-⊢Non-zero = lamⱼ (ℕⱼ ε) ⊢Non-zero-body Π-ω-ok
+⊢Non-zero = lamⱼ ⊢Non-zero-body Π-ω-ok
 
 -- A computation rule for Non-zero.
 
@@ -618,12 +609,10 @@ Non-zero∘zero⇒* :
   ⊢ Γ →
   Γ ⊢ wk wk₀ Non-zero ∘⟨ ω ⟩ zero ⇒* Empty ∷ U 0
 Non-zero∘zero⇒* ⊢Γ =
-  β-red (ℕⱼ ⊢Γ) (Uⱼ ⊢Γℕ)
-    (W.wkTerm (W.lift W.wk₀∷⊇) ⊢Γℕ ⊢Non-zero-body)
+  β-red (Uⱼ ⊢Γℕ) (W.wkTerm (W.lift W.wk₀∷⊇) ⊢Γℕ ⊢Non-zero-body)
     (zeroⱼ ⊢Γ) PE.refl Π-ω-ok ⇨
   (redMany $
-   natrec-zero (Uⱼ ⊢Γℕ) (Emptyⱼ ⊢Γ)
-     (Unitⱼ (⊢Γℕ ∙ Uⱼ ⊢Γℕ) Unit-ok))
+   natrec-zero (Emptyⱼ ⊢Γ) (Unitⱼ (⊢→⊢∙ (Uⱼ ⊢Γℕ)) Unit-ok))
   where
   ⊢Γℕ = ⊢Γ ∙ ℕⱼ ⊢Γ
 
@@ -633,12 +622,10 @@ Non-zero∘suc⇒* :
   Γ ⊢ t ∷ ℕ →
   Γ ⊢ wk wk₀ Non-zero ∘⟨ ω ⟩ suc t ⇒* Unit s 0 ∷ U 0
 Non-zero∘suc⇒* ⊢t =
-  β-red (ℕⱼ ⊢Γ) (Uⱼ ⊢Γℕ)
-    (W.wkTerm (W.lift W.wk₀∷⊇) ⊢Γℕ ⊢Non-zero-body)
+  β-red (Uⱼ ⊢Γℕ) (W.wkTerm (W.lift W.wk₀∷⊇) ⊢Γℕ ⊢Non-zero-body)
     (sucⱼ ⊢t) PE.refl Π-ω-ok ⇨
   (redMany $
-   natrec-suc (Uⱼ ⊢Γℕ) (Emptyⱼ ⊢Γ)
-     (Unitⱼ (⊢Γℕ ∙ Uⱼ ⊢Γℕ) Unit-ok) ⊢t)
+   natrec-suc (Emptyⱼ ⊢Γ) (Unitⱼ (⊢→⊢∙ (Uⱼ ⊢Γℕ)) Unit-ok) ⊢t)
   where
   ⊢Γ  = wfTerm ⊢t
   ⊢Γℕ = ⊢Γ ∙ ℕⱼ ⊢Γ
@@ -759,20 +746,20 @@ opaque
   Π 𝟘 , p ▷ wk wk₀ Non-zero ∘⟨ ω ⟩ var x1 ▹
   var x3
 ⊢head {l} =
-  flip (lamⱼ (Uⱼ ε)) Π-𝟘-ok $
-  flip (lamⱼ U⊢ℕ) Π-ω-ok $
-  natrecⱼ (univ Uℕℕ⊢ΠΠ∷U)
-    (flip (lamⱼ (univ ⊢Vec-1-0)) Π-ω-ok $
-     flip (lamⱼ (univ ⊢Non-zero-zero)) Π-𝟘-ok $
+  flip lamⱼ Π-𝟘-ok $
+  flip lamⱼ Π-ω-ok $
+  natrecⱼ
+    (flip lamⱼ Π-ω-ok $
+     flip lamⱼ Π-𝟘-ok $
      emptyrecⱼ
        (univ (var₃ (univ ⊢Non-zero-zero)))
        (_⊢_∷_.conv (var₀ (univ ⊢Non-zero-zero)) $
         _⊢_≡_.univ $
         subset*Term $
         Non-zero∘zero⇒* ⊢Uℕ∙Vec∙Non-zero))
-    (flip (lamⱼ (univ ⊢Vec-3-1+1)) Π-ω-ok $
-     flip (lamⱼ (univ ⊢Non-zero-1+2)) Π-𝟘-ok $
-     fstⱼ (univ ⊢5) (univ ⊢Vec-6-4) $
+    (flip lamⱼ Π-ω-ok $
+     flip lamⱼ Π-𝟘-ok $
+     fstⱼ (univ ⊢Vec-6-4) $
      _⊢_∷_.conv (var₁ (univ ⊢Non-zero-1+2)) $
      _⊢_≡_.univ $
      Vec∘suc≡ ⊢5 (var₃ (univ ⊢Non-zero-1+2)))
@@ -893,13 +880,12 @@ opaque
 [0]-normal : ε ⊢nf [0] ∷ Vec 0 ∘⟨ ω ⟩ ℕ ∘⟨ ω ⟩ suc zero
 [0]-normal =
   _⊢nf_∷_.convₙ
-    (prodₙ (ℕⱼ ε) (Unitⱼ ⊢ℕ Unit-ok) (zeroₙ ε)
-       (starₙ ε Unit-ok) Σˢ-ω-ok) $
+    (prodₙ (Unitⱼ ⊢ℕ Unit-ok) (zeroₙ ε) (starₙ ε Unit-ok) Σˢ-ω-ok) $
   _⊢_≡_.univ $
   _⊢_≡_∷_.sym $
   _⊢_≡_∷_.trans (Vec∘suc≡ (ℕⱼ ε) (zeroⱼ ε)) $
-  ΠΣ-cong (ℕⱼ ε) (refl (ℕⱼ ε))
-    (subset*Term (Vec∘zero⇒* (ℕⱼ (ε ∙ ℕⱼ ε)))) Σˢ-ω-ok
+  ΠΣ-cong (refl (ℕⱼ ε)) (subset*Term (Vec∘zero⇒* (ℕⱼ (ε ∙ ℕⱼ ε))))
+    Σˢ-ω-ok
 
 -- A typing rule for [0].
 

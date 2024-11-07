@@ -80,21 +80,21 @@ opaque
     case syntacticEqTerm C≡B of λ
       (_ , ⊢C , _) →
     trans (inverseUnivEq′ (inj₂ ⊢C) A≡C) C≡B
-  inverseUnivEq′ (inj₁ ⊢ΠΣ) (ΠΣ-cong ⊢A₁ A₁≡A₂ B₁≡B₂ ok) =
+  inverseUnivEq′ (inj₁ ⊢ΠΣ) (ΠΣ-cong A₁≡A₂ B₁≡B₂ ok) =
     case inversion-ΠΣ-U ⊢ΠΣ of λ
       (_ , _ , ⊢A₁∷U , ⊢B₁∷U , U≡U , _) →
     conv
-      (ΠΣ-cong ⊢A₁ (inverseUnivEq′ (inj₁ ⊢A₁∷U) A₁≡A₂)
+      (ΠΣ-cong (inverseUnivEq′ (inj₁ ⊢A₁∷U) A₁≡A₂)
          (inverseUnivEq′ (inj₁ ⊢B₁∷U) B₁≡B₂) ok)
       (sym U≡U)
-  inverseUnivEq′ (inj₂ ⊢ΠΣ) (ΠΣ-cong ⊢A₁ A₁≡A₂ B₁≡B₂ ok) =
+  inverseUnivEq′ (inj₂ ⊢ΠΣ) (ΠΣ-cong A₁≡A₂ B₁≡B₂ ok) =
     case inversion-ΠΣ-U ⊢ΠΣ of λ
       (_ , _ , ⊢A₂∷U , ⊢B₂∷U , U≡U , _) →
     conv
-      (ΠΣ-cong ⊢A₁ (inverseUnivEq′ (inj₂ ⊢A₂∷U) A₁≡A₂)
+      (ΠΣ-cong (inverseUnivEq′ (inj₂ ⊢A₂∷U) A₁≡A₂)
          (inverseUnivEq′
             (inj₂ $
-             stabilityTerm (reflConEq (wf ⊢A₁) ∙ sym A₁≡A₂) ⊢B₂∷U)
+             stabilityTerm (reflConEq (wfEq A₁≡A₂) ∙ sym A₁≡A₂) ⊢B₂∷U)
             B₁≡B₂)
          ok)
       (sym U≡U)

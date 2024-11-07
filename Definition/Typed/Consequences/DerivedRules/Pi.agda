@@ -47,10 +47,7 @@ opaque
     Π-allowed p q →
     Γ ∙ A ⊢ t ∷ B →
     Γ ⊢ lam p t ∷ Π p , q ▷ A ▹ B
-  lamⱼ′ ok ⊢t =
-    case wfTerm ⊢t of λ {
-      (_ ∙ ⊢A) →
-    lamⱼ ⊢A ⊢t ok }
+  lamⱼ′ = flip lamⱼ
 
 opaque
 
@@ -62,7 +59,7 @@ opaque
     Π-allowed p q →
     Γ ⊢ lam p t ∘⟨ p ⟩ u ⇒ t [ u ]₀ ∷ B [ u ]₀
   β-red-⇒ ⊢t ⊢u =
-    β-red (syntacticTerm ⊢u) (syntacticTerm ⊢t) ⊢t ⊢u PE.refl
+    β-red (syntacticTerm ⊢t) ⊢t ⊢u PE.refl
 
 opaque
 
@@ -75,18 +72,6 @@ opaque
     Γ ⊢ lam p t ∘⟨ p ⟩ u ≡ t [ u ]₀ ∷ B [ u ]₀
   β-red-≡ ⊢t ⊢u ok =
     subsetTerm (β-red-⇒ ⊢t ⊢u ok)
-
-opaque
-
-  -- A variant of η-eq.
-
-  η-eq′ :
-    Γ ⊢ t ∷ Π p , q ▷ A ▹ B →
-    Γ ⊢ u ∷ Π p , q ▷ A ▹ B →
-    Γ ∙ A ⊢ wk1 t ∘⟨ p ⟩ var x0 ≡ wk1 u ∘⟨ p ⟩ var x0 ∷ B →
-    Γ ⊢ t ≡ u ∷ Π p , q ▷ A ▹ B
-  η-eq′ ⊢t =
-    η-eq (inversion-ΠΣ (syntacticTerm ⊢t) .proj₁) ⊢t
 
 ------------------------------------------------------------------------
 -- Other derived rules
@@ -212,7 +197,7 @@ opaque
       ⊢∙A∙A →
     case lift (step id) of λ {
       ρ →
-    η-eq′ (lamⱼ′ ok ⊢t) (lamⱼ′ ok ⊢u) $
+    η-eq (lamⱼ′ ok ⊢t) (lamⱼ′ ok ⊢u) $
     _⊢_≡_∷_.trans
       (PE.subst (_ ⊢ _ ≡ _ ∷_)
          (wkSingleSubstId _)
@@ -314,11 +299,11 @@ opaque
       (⊢A , _ , ok) →
     case                                                               $⟨ wkTerm₁ ⊢A ⊢t ∘ⱼ var₀ ⊢A ⟩
       Γ ∙ A ⊢ wk1 t ∘⟨ p ⟩ var x0 ∷ wk (lift (step id)) B [ var x0 ]₀  →⟨ PE.subst (_ ⊢ _ ∷_) (wkSingleSubstId _) ⟩
-      Γ ∙ A ⊢ wk1 t ∘⟨ p ⟩ var x0 ∷ B                                  →⟨ flip (lamⱼ ⊢A) ok ⟩
+      Γ ∙ A ⊢ wk1 t ∘⟨ p ⟩ var x0 ∷ B                                  →⟨ lamⱼ′ ok ⟩
       Γ ⊢ lam p (wk1 t ∘⟨ p ⟩ var x0) ∷ Π p , q ▷ A ▹ B                □
     of λ {
       ⊢lam →
-    η-eq′ ⊢lam ⊢t
+    η-eq ⊢lam ⊢t
       (                                                     $⟨ ⊢lam ⟩
 
        Γ ⊢ lam p (wk1 t ∘⟨ p ⟩ var x0) ∷ Π p , q ▷ A ▹ B    →⟨ wk1-lam∘0≡ ⟩

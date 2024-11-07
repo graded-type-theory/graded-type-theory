@@ -133,8 +133,9 @@ mutual
         wkLiftId = PE.cong (λ x → x [ fst _ _ ]₀) (wk-lift-id G)
 
         wk[F] = [F] id ⊢Γ
-        wk⊢fst = PE.subst (λ x → _ ⊢ _ ∷ x) (PE.sym wkId) (fstⱼ ⊢F ⊢G ⊢t)
-        wkfst≡ = PE.subst (λ x → _ ⊢ _ ≡ _ ∷ x) (PE.sym wkId) (fst-cong ⊢F ⊢G (refl ⊢t))
+        wk⊢fst = PE.subst (_⊢_∷_ _ _) (PE.sym wkId) (fstⱼ ⊢G ⊢t)
+        wkfst≡ = PE.subst (_⊢_≡_∷_ _ _ _) (PE.sym wkId)
+                   (fst-cong ⊢G (refl ⊢t))
         wk[fst] = neuTerm wk[F] (fstₙ neT) wk⊢fst wkfst≡
         wk[Gfst] = [G] id ⊢Γ wk[fst]
 

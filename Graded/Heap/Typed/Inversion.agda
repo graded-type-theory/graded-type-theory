@@ -18,6 +18,7 @@ open import Definition.Untyped M
 open import Definition.Typed TR
 open import Definition.Typed.Consequences.DerivedRules TR
 open import Definition.Typed.Consequences.Substitution TR
+open import Definition.Typed.Properties TR
 import Graded.Derived.Erased.Untyped 𝕄 as E
 open import Graded.Derived.Erased.Typed TR
 
@@ -62,31 +63,31 @@ opaque
 
   -- Inversion of fst
 
-  inversion-fstₑ : Δ ⨾ H ⊢ᵉ fstₑ p ⟨ t ⟩∷ A ↝ B
-                 → ∃₃ λ F G q → (Δ ⊢ F) × (Δ ∙ F ⊢ G)
-                   × A PE.≡ Σˢ p , q ▷ F ▹ G × Δ ⊢ B ≡ F
-  inversion-fstₑ (fstₑ ⊢A ⊢B) =
-    _ , _ , _ , ⊢A , ⊢B , PE.refl , refl ⊢A
+  inversion-fstₑ :
+    Δ ⨾ H ⊢ᵉ fstₑ p ⟨ t ⟩∷ A ↝ B →
+    ∃₃ λ F G q → (Δ ∙ F ⊢ G) × A PE.≡ Σˢ p , q ▷ F ▹ G × Δ ⊢ B ≡ F
+  inversion-fstₑ (fstₑ ⊢B) =
+    _ , _ , _ , ⊢B , PE.refl , refl (⊢∙→⊢ (wf ⊢B))
   inversion-fstₑ (conv ⊢e B≡B′) =
     case inversion-fstₑ ⊢e of λ
-      (F , G , q , ⊢F , ⊢G , A≡Σ , B′≡) →
-    _ , _ , _ , ⊢F , ⊢G , A≡Σ , trans (sym B≡B′) B′≡
+      (F , G , q , ⊢G , A≡Σ , B′≡) →
+    _ , _ , _ , ⊢G , A≡Σ , trans (sym B≡B′) B′≡
 
 opaque
 
   -- Inversion of snd
 
-  inversion-sndₑ : Δ ⨾ H ⊢ᵉ sndₑ p ⟨ t ⟩∷ A ↝ B
-                 → ∃₃ λ F G q → (Δ ⊢ F) × (Δ ∙ F ⊢ G)
-                   × A PE.≡ Σˢ p , q ▷ F ▹ G
-                   × (Δ ⊢ t [ H ]ₕ ∷ A → Δ ⊢ B ≡ G [ fst p t [ H ]ₕ ]₀)
-  inversion-sndₑ (sndₑ ⊢A ⊢B) =
-    _ , _ , _ , ⊢A , ⊢B , PE.refl
+  inversion-sndₑ :
+    Δ ⨾ H ⊢ᵉ sndₑ p ⟨ t ⟩∷ A ↝ B →
+    ∃₃ λ F G q → (Δ ∙ F ⊢ G) × A PE.≡ Σˢ p , q ▷ F ▹ G ×
+      (Δ ⊢ t [ H ]ₕ ∷ A → Δ ⊢ B ≡ G [ fst p t [ H ]ₕ ]₀)
+  inversion-sndₑ (sndₑ ⊢B) =
+    _ , _ , _ , ⊢B , PE.refl
       , λ ⊢t → refl (substType ⊢B (fstⱼ′ ⊢t))
   inversion-sndₑ (conv ⊢e B≡B′) =
     case inversion-sndₑ ⊢e of λ
-      (F , G , q , ⊢F , ⊢G , A≡Σ , B≡Gt) →
-    _ , _ , _ , ⊢F , ⊢G , A≡Σ
+      (F , G , q , ⊢G , A≡Σ , B≡Gt) →
+    _ , _ , _ , ⊢G , A≡Σ
       , λ ⊢t → trans (sym B≡B′) (B≡Gt ⊢t)
 
 opaque
@@ -115,15 +116,14 @@ opaque
   inversion-natrecₑ : Δ ⨾ H ⊢ᵉ natrecₑ p q r A z s ρ ⟨ t ⟩∷ B ↝ C
                     → Δ ⊢ wk ρ z [ H ]ₕ ∷ wk (lift ρ) A [ H ]⇑ₕ [ zero ]₀
                     × Δ ∙ ℕ ∙ wk (lift ρ) A [ H ]⇑ₕ ⊢ wk (liftn ρ 2) s [ H ]⇑²ₕ ∷ wk (lift ρ) A [ H ]⇑ₕ [ suc (var x1) ]↑²
-                    × Δ ∙ ℕ ⊢ wk (lift ρ) A [ H ]⇑ₕ
                     × B PE.≡ ℕ
                     × (Δ ⊢ t [ H ]ₕ ∷ ℕ → Δ ⊢ C ≡ wk (lift ρ) A [ H ]⇑ₕ [ t [ H ]ₕ ]₀)
-  inversion-natrecₑ (natrecₑ ⊢z ⊢s ⊢A) =
-    ⊢z , ⊢s , ⊢A , PE.refl , λ ⊢t → refl (substType ⊢A ⊢t)
+  inversion-natrecₑ (natrecₑ ⊢z ⊢s) =
+    ⊢z , ⊢s , PE.refl , λ ⊢t → refl (substType (⊢∙→⊢ (wfTerm ⊢s)) ⊢t)
   inversion-natrecₑ (conv ⊢e ≡C) =
     case inversion-natrecₑ ⊢e of λ
-      (⊢z , ⊢s , ⊢A , B≡ , C′≡) →
-    ⊢z , ⊢s , ⊢A , B≡ , λ ⊢t → trans (sym ≡C) (C′≡ ⊢t)
+      (⊢z , ⊢s , B≡ , C′≡) →
+    ⊢z , ⊢s , B≡ , λ ⊢t → trans (sym ≡C) (C′≡ ⊢t)
 
 opaque
 

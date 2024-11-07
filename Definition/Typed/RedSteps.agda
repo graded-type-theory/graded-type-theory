@@ -129,11 +129,10 @@ opaque
 
 -- First projection substitution of reduction closures
 fst-subst* : Γ ⊢ t ⇒* t′ ∷ Σˢ p , q ▷ A ▹ B
-           → Γ ⊢ A
            → Γ ∙ A ⊢ B
            → Γ ⊢ fst p t ⇒* fst p t′ ∷ A
-fst-subst* (id x) ⊢F ⊢G = id (fstⱼ ⊢F ⊢G x)
-fst-subst* (x ⇨ t⇒t′) ⊢F ⊢G = (fst-subst ⊢F ⊢G x) ⇨ (fst-subst* t⇒t′ ⊢F ⊢G)
+fst-subst* (id x) ⊢G = id (fstⱼ ⊢G x)
+fst-subst* (x ⇨ t⇒t′) ⊢G = fst-subst ⊢G x ⇨ fst-subst* t⇒t′ ⊢G
 
 opaque
 

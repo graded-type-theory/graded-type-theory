@@ -97,8 +97,8 @@ inversion-ΠΣ :
   Γ ⊢ ΠΣ⟨ b ⟩ p , q ▷ A ▹ B →
   Γ ⊢ A × Γ ∙ A ⊢ B × ΠΣ-allowed b p q
 inversion-ΠΣ = λ where
-  (ΠΣⱼ ⊢A ⊢B ok) → ⊢A , ⊢B , ok
-  (univ ⊢ΠΣAB)  → case inversion-ΠΣ-U ⊢ΠΣAB of λ where
+  (ΠΣⱼ ⊢B ok)  → ⊢∙→⊢ (wf ⊢B) , ⊢B , ok
+  (univ ⊢ΠΣAB) → case inversion-ΠΣ-U ⊢ΠΣAB of λ where
     (_ , _ , ⊢A , ⊢B , _ , ok) → univ ⊢A , univ ⊢B , ok
 
 -- If a term has type ΠΣ⟨ b ⟩ p , q ▷ A ▹ B, then ΠΣ-allowed b p q
@@ -139,7 +139,9 @@ inversion-natrec : ∀ {c g n A C} → Γ ⊢ natrec p q r C c g n ∷ A
   × Γ ∙ ℕ ∙ C ⊢ g ∷ C [ suc (var x1) ]↑²
   × Γ ⊢ n ∷ ℕ
   × Γ ⊢ A ≡ C [ n ]₀
-inversion-natrec (natrecⱼ x d d₁ n) = x , d , d₁ , n , refl (substType x n)
+inversion-natrec (natrecⱼ d d₁ n) =
+  let x = ⊢∙→⊢ (wfTerm d₁) in
+  x , d , d₁ , n , refl (substType x n)
 inversion-natrec (conv d x) = let a , b , c , d , e = inversion-natrec d
                               in  a , b , c , d , trans (sym x) e
 
@@ -157,8 +159,9 @@ inversion-lam : ∀ {t A} → Γ ⊢ lam p t ∷ A →
      Γ ∙ F ⊢ t ∷ G ×
      Γ ⊢ A ≡ Π p , q ▷ F ▹ G ×
      Π-allowed p q
-inversion-lam (lamⱼ ⊢F ⊢G ok) =
-  _ , _ , _ , ⊢F , ⊢G , refl (ΠΣⱼ ⊢F (syntacticTerm ⊢G) ok) , ok
+inversion-lam (lamⱼ ⊢t ok) =
+  let ⊢B = syntacticTerm ⊢t in
+  _ , _ , _ , ⊢∙→⊢ (wf ⊢B) , ⊢t , refl (ΠΣⱼ ⊢B ok) , ok
 inversion-lam (conv x x₁) =
   let a , b , c , d , e , f , g = inversion-lam x
   in  a , b , c , d , e , trans (sym x₁) f , g
@@ -192,8 +195,8 @@ inversion-prod :
     Γ ⊢ A ≡ Σ⟨ m ⟩ p , q ▷ F ▹ G ×
     Σ-allowed m p q
   -- NOTE fundamental theorem not required since prodⱼ has inversion built-in.
-inversion-prod (prodⱼ ⊢F ⊢G ⊢t ⊢u ok) =
-  _ , _ , _ , ⊢F , ⊢G , ⊢t , ⊢u , refl (ΠΣⱼ ⊢F ⊢G ok) , ok
+inversion-prod (prodⱼ ⊢G ⊢t ⊢u ok) =
+  _ , _ , _ , ⊢∙→⊢ (wf ⊢G) , ⊢G , ⊢t , ⊢u , refl (ΠΣⱼ ⊢G ok) , ok
 inversion-prod (conv x x₁) =
   let F , G , q , a , b , c , d , e , ok = inversion-prod x
   in F , G , q , a , b , c , d , trans (sym x₁) e , ok
@@ -224,7 +227,9 @@ inversion-fst : ∀ {t A} → Γ ⊢ fst p t ∷ A →
   ∃₃ λ F G q →
     Γ ⊢ F × Γ ∙ F ⊢ G ×
     (Γ ⊢ t ∷ Σˢ p , q ▷ F ▹ G) × (Γ ⊢ A ≡ F)
-inversion-fst (fstⱼ ⊢F ⊢G ⊢t) = _ , _ , _ , ⊢F , ⊢G , ⊢t , refl ⊢F
+inversion-fst (fstⱼ ⊢G ⊢t) =
+  let ⊢F = ⊢∙→⊢ (wf ⊢G) in
+  _ , _ , _ , ⊢F , ⊢G , ⊢t , refl ⊢F
 inversion-fst (conv ⊢t x) =
   let F , G , q , a , b , c , d = inversion-fst ⊢t
   in  F , G , q , a , b , c , trans (sym x) d
@@ -233,8 +238,8 @@ inversion-snd : ∀ {t A} → Γ ⊢ snd p t ∷ A →
   ∃₃ λ F G q →
     Γ ⊢ F × Γ ∙ F ⊢ G ×
     (Γ ⊢ t ∷ Σˢ p , q ▷ F ▹ G) × (Γ ⊢ A ≡ G [ fst p t ]₀)
-inversion-snd (sndⱼ ⊢F ⊢G ⊢t) =
-  _ , _ , _ , ⊢F , ⊢G , ⊢t , refl (substType ⊢G (fstⱼ ⊢F ⊢G ⊢t))
+inversion-snd (sndⱼ ⊢G ⊢t) =
+  _ , _ , _ , ⊢∙→⊢ (wf ⊢G) , ⊢G , ⊢t , refl (substType ⊢G (fstⱼ ⊢G ⊢t))
 inversion-snd (conv ⊢t x) =
   let F , G , q , a , b , c , d = inversion-snd ⊢t
   in  F , G , q , a , b , c , trans (sym x) d
@@ -250,8 +255,9 @@ inversion-prodrec :
     Γ ⊢ t ∷ Σʷ p , q ▷ F ▹ G ×
     Γ ∙ F ∙ G ⊢ u ∷ C [ prodʷ p (var x1) (var x0) ]↑² ×
     Γ ⊢ A ≡ C [ t ]₀
-inversion-prodrec (prodrecⱼ ⊢F ⊢G ⊢C ⊢t ⊢u _) =
-  _ , _ , _ , ⊢F , ⊢G , ⊢C , ⊢t , ⊢u , refl (substType ⊢C ⊢t)
+inversion-prodrec (prodrecⱼ ⊢C ⊢t ⊢u _) =
+  let ⊢B = ⊢∙→⊢ (wfTerm ⊢u) in
+  _ , _ , _ , ⊢∙→⊢ (wf ⊢B) , ⊢B , ⊢C , ⊢t , ⊢u , refl (substType ⊢C ⊢t)
 inversion-prodrec (conv x x₁) =
   let F , G , q , a , b , c , d , e , f = inversion-prodrec x
   in  F , G , q , a , b , c , d , e , trans (sym x₁) f
@@ -368,8 +374,9 @@ opaque
     Γ ⊢ w ∷ Id A t v ×
     Γ ⊢ C ≡ B [ v , w ]₁₀
   inversion-J = λ where
-    ⊢J@(Jⱼ ⊢A ⊢t ⊢B ⊢u ⊢v ⊢w) →
-      ⊢A , ⊢t , ⊢B , ⊢u , ⊢v , ⊢w , refl (syntacticTerm ⊢J)
+    ⊢J@(Jⱼ ⊢t ⊢B ⊢u ⊢v ⊢w) →
+      ⊢∙→⊢ (wf (⊢∙→⊢ (wf ⊢B))) , ⊢t , ⊢B , ⊢u , ⊢v , ⊢w ,
+      refl (syntacticTerm ⊢J)
     (conv ⊢J D≡C) →
       case inversion-J ⊢J of λ {
         (⊢A , ⊢t , ⊢B , ⊢u , ⊢v , ⊢w , D≡B) →

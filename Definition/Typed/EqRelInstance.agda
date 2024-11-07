@@ -52,9 +52,8 @@ private opaque
       .≅ₜ-zerorefl  → refl ∘ᶠ zeroⱼ
       .≅-suc-cong   → suc-cong
       .≅-prod-cong  → prod-cong
-      .≅-η-eq       → λ ⊢A ⊢t ⊢u _ _ t0≡u0 → η-eq ⊢A ⊢t ⊢u t0≡u0
-      .≅-Σ-η        → λ ⊢A ⊢B ⊢t ⊢u _ _ fst≡ snd≡ →
-                        Σ-η ⊢A ⊢B ⊢t ⊢u fst≡ snd≡
+      .≅-η-eq       → λ ⊢t ⊢u _ _ t0≡u0 → η-eq ⊢t ⊢u t0≡u0
+      .≅-Σ-η        → λ ⊢B ⊢t ⊢u _ _ fst≡ snd≡ → Σ-η ⊢B ⊢t ⊢u fst≡ snd≡
       .~-var        → refl
       .~-app        → app-cong
       .~-fst        → fst-cong

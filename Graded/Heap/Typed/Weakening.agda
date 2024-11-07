@@ -72,12 +72,12 @@ opaque
       ⊢u′ →
     subst (Δ ⨾ H ⊢ᵉ ∘ₑ p u (ρ • ρ′) ⟨ wk ρ t ⟩∷ _ ↝_)
       (cong (B [_]₀) (PE.sym u≡u′)) (∘ₑ ⊢u′ ⊢B)
-  wk-⊢ᵉ ρ (fstₑ ⊢A ⊢B) =
-    fstₑ ⊢A ⊢B
-  wk-⊢ᵉ {ρ} {H} {Δ} {t} [ρ] (sndₑ {A} {B} {p} {q} ⊢A ⊢B) =
+  wk-⊢ᵉ ρ (fstₑ ⊢B) =
+    fstₑ ⊢B
+  wk-⊢ᵉ {ρ} {H} {Δ} {t} [ρ] (sndₑ {A} {B} {p} {q} ⊢B) =
     subst (λ x → Δ ⨾ H ⊢ᵉ wkᵉ ρ (sndₑ p) ⟨ wk ρ t ⟩∷ Σˢ p , q ▷ A ▹ B ↝ B [ x ]₀)
       (PE.sym (wk-[]ₕ [ρ] (fst p t)))
-      (sndₑ ⊢A ⊢B)
+      (sndₑ ⊢B)
   wk-⊢ᵉ {ρ} {H} {H′} {Δ} {t} [ρ] (prodrecₑ {ρ = ρ′} {u} {A} {p} {r} {q} ⊢u ⊢A) =
     case wk-liftₕ 1 [ρ] A of λ
       A≡A′ →
@@ -89,7 +89,7 @@ opaque
       ⊢A′ →
     subst (Δ ⨾ H ⊢ᵉ prodrecₑ r p q A u (ρ • ρ′) ⟨ wk ρ t ⟩∷ _ ↝_)
       (PE.sym (cong₂ _[_]₀ A≡A′ (wk-[]ₕ [ρ] t))) (prodrecₑ ⊢u′ ⊢A′)
-  wk-⊢ᵉ {ρ} {H} {H′} {t} [ρ] (natrecₑ {z} {A} {s} ⊢z ⊢s ⊢A) =
+  wk-⊢ᵉ {ρ} {H} {H′} {t} [ρ] (natrecₑ {z} {A} {s} ⊢z ⊢s) =
     case wk-liftₕ 0 [ρ] z of λ
       z≡z′ →
     case wk-liftₕ 2 [ρ] s of λ
@@ -100,11 +100,9 @@ opaque
       ⊢z′ →
     case subst₂ (λ x y → _ ∙ ℕ ∙ x ⊢ y ∷ x [ suc (var x1) ]↑²) A≡A′ s≡s′ ⊢s of λ
       ⊢s′ →
-    case subst (λ x → _ ∙ ℕ ⊢ x) A≡A′ ⊢A of λ
-      ⊢A′ →
     subst₂ (λ x y → _ ⨾ H ⊢ᵉ _ ⟨ _ ⟩∷ ℕ ↝ x [ y ]₀)
       (PE.sym A≡A′) (PE.sym (wk-[]ₕ [ρ] t))
-      (natrecₑ ⊢z′ ⊢s′ ⊢A′)
+      (natrecₑ ⊢z′ ⊢s′)
   wk-⊢ᵉ {ρ} {H} {H′} {t} [ρ] (unitrecₑ {u} {A} ⊢u ⊢A no-η) =
     case wk-liftₕ 1 [ρ] A of λ
       A≡A′ →

@@ -115,7 +115,7 @@ negation-of-fundamental-lemma-with-erased-matches₁
   A = ℕ
 
   ⊢Δ : ⊢ Δ
-  ⊢Δ = ε ∙ ΠΣⱼ (ℕⱼ ε) (ℕⱼ (ε ∙ ℕⱼ ε)) Σʷ-ok
+  ⊢Δ = ε ∙ ΠΣⱼ (ℕⱼ (ε ∙ ℕⱼ ε)) Σʷ-ok
 
   open LR ⊢Δ str
 

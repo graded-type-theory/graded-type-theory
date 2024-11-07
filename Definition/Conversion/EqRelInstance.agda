@@ -126,20 +126,19 @@ record _⊢_~_∷_ (Γ : Con Term n) (k l A : Term n) : Set a where
       case Σ-injectivity ΣFG≡B′ of λ where
         (_ , G≡E , _ , _) →
           let p~r↓       = [~] _ (red D , whnfB′) p~r
-              ⊢F , ⊢G    = syntacticΣ ⊢ΣFG
+              _ , ⊢G     = syntacticΣ ⊢ΣFG
               _ , ⊢p , _ = syntacticEqTerm (soundness~↑ p~r)
-              ⊢fst       = fstⱼ ⊢F ⊢G (conv ⊢p (sym A≡B))
+              ⊢fst       = fstⱼ ⊢G (conv ⊢p (sym A≡B))
           in
           ↑ (substTypeEq G≡E (refl ⊢fst)) (snd-cong p~r↓)
 
 ~-natrec : ∀ {z z′ s s′ n n′ F F′}
-         → Γ ∙ ℕ ⊢ F
          → (Γ ∙ ℕ) ⊢ F [conv↑] F′ →
       Γ ⊢ z [conv↑] z′ ∷ (F [ zero ]₀) →
       Γ ∙ ℕ ∙ F ⊢ s [conv↑] s′ ∷ F [ suc (var x1) ]↑² →
       Γ ⊢ n ~ n′ ∷ ℕ →
       Γ ⊢ natrec p q r F z s n ~ natrec p q r F′ z′ s′ n′ ∷ (F [ n ]₀)
-~-natrec _ x x₁ x₂ (↑ A≡B x₄) =
+~-natrec x x₁ x₂ (↑ A≡B x₄) =
   let _ , ⊢B = syntacticEq A≡B
       B′ , whnfB′ , D = whNorm ⊢B
       ℕ≡B′ = trans A≡B (subset* (red D))
@@ -153,13 +152,11 @@ record _⊢_~_∷_ (Γ : Con Term n) (k l A : Term n) : Set a where
 
 ~-prodrec :
   ∀ {F G A A′ t t′ u u′} →
-  Γ ⊢ F →
-  Γ ∙ F ⊢ G →
   Γ ∙ (Σʷ p , q ▷ F ▹ G) ⊢ A [conv↑] A′ →
   Γ ⊢ t ~ t′ ∷ (Σʷ p , q ▷ F ▹ G) →
   Γ ∙ F ∙ G ⊢ u [conv↑] u′ ∷ A [ prodʷ p (var x1) (var x0) ]↑² →
   Γ ⊢ prodrec r p q′ A t u ~ prodrec r p q′ A′ t′ u′ ∷ (A [ t ]₀)
-~-prodrec x x₁ x₂ (↑ A≡B k~↑l) x₄ =
+~-prodrec x₂ (↑ A≡B k~↑l) x₄ =
   case syntacticEq A≡B of λ (_ , ⊢B) →
   case whNorm ⊢B of λ (B′ , whnfB′ , D) →
   case _⊢_≡_.trans A≡B (subset* (red D)) of λ Σ≡Σ′ →
@@ -215,7 +212,6 @@ record _⊢_~_∷_ (Γ : Con Term n) (k l A : Term n) : Set a where
 opaque
 
   ~-J :
-    Γ ⊢ A₁ →
     Γ ⊢ A₁ [conv↑] A₂ →
     Γ ⊢ t₁ ∷ A₁ →
     Γ ⊢ t₁ [conv↑] t₂ ∷ A₁ →
@@ -225,7 +221,7 @@ opaque
     Γ ⊢ w₁ ~ w₂ ∷ Id A₁ t₁ v₁ →
     Γ ⊢ J p q A₁ t₁ B₁ u₁ v₁ w₁ ~ J p q A₂ t₂ B₂ u₂ v₂ w₂ ∷
       B₁ [ v₁ , w₁ ]₁₀
-  ~-J _ A₁≡A₂ _ t₁≡t₂ B₁≡B₂ u₁≡u₂ v₁≡v₂ (↑ Id-t₁-v₁≡C w₁~w₂) =
+  ~-J A₁≡A₂ _ t₁≡t₂ B₁≡B₂ u₁≡u₂ v₁≡v₂ (↑ Id-t₁-v₁≡C w₁~w₂) =
     case Id-norm (sym Id-t₁-v₁≡C) of λ {
       (_ , _ , _ , C⇒*Id-t₃-v₃ , A₁≡A₃ , t₁≡t₃ , v₁≡v₃) →
     ↑ (refl $
@@ -353,9 +349,9 @@ private opaque
               (redₜ u'Red , u'Whnf)
               (η-unit [u] [u'] uWhnf u'Whnf ok)
     .Equality-relations.≅-ΠΣ-cong →
-      λ _ x₁ x₂ ok → liftConv (ΠΣ-cong x₁ x₂ ok)
+      λ x₁ x₂ ok → liftConv (ΠΣ-cong x₁ x₂ ok)
     .Equality-relations.≅ₜ-ΠΣ-cong →
-      λ _ x₁ x₂ ok →
+      λ x₁ x₂ ok →
         let _ , F∷U , H∷U = syntacticEqTerm (soundnessConv↑Term x₁)
             _ , G∷U , E∷U = syntacticEqTerm (soundnessConv↑Term x₂)
             ⊢Γ = wfTerm F∷U
@@ -373,20 +369,20 @@ private opaque
     .Equality-relations.≅-suc-cong →
       liftConvTerm ∘ᶠ suc-cong
     .Equality-relations.≅-prod-cong →
-      λ _ x₁ x₂ x₃ x₄ → liftConvTerm (prod-cong x₁ x₂ x₃ x₄)
+      λ x₁ x₂ x₃ x₄ → liftConvTerm (prod-cong x₁ x₂ x₃ x₄)
     .Equality-relations.≅-η-eq →
-      λ x x₁ x₂ x₃ x₄ x₅ → liftConvTerm (η-eq x₁ x₂ x₃ x₄ x₅)
+      λ x₁ x₂ x₃ x₄ x₅ → liftConvTerm (η-eq x₁ x₂ x₃ x₄ x₅)
     .Equality-relations.≅-Σ-η →
-      λ x x₁ x₂ x₃ x₄ x₅ x₆ x₇ → (liftConvTerm (Σ-η x₂ x₃ x₄ x₅ x₆ x₇))
+      λ _ x₂ x₃ x₄ x₅ x₆ x₇ → (liftConvTerm (Σ-η x₂ x₃ x₄ x₅ x₆ x₇))
     .Equality-relations.~-var → ~-var
     .Equality-relations.~-app → ~-app
     .Equality-relations.~-fst →
-      λ x x₁ x₂ → ~-fst x₂
+      λ _ x₂ → ~-fst x₂
     .Equality-relations.~-snd →
-      λ x x₁ x₂ → ~-snd x₂
+      λ _ x₂ → ~-snd x₂
     .Equality-relations.~-natrec → ~-natrec
     .Equality-relations.~-prodrec →
-      λ ⊢A ⊢B C↑D t₁~t₂ u₁↑u₂ _ → ~-prodrec ⊢A ⊢B C↑D t₁~t₂ u₁↑u₂
+      λ C↑D t₁~t₂ u₁↑u₂ _ → ~-prodrec C↑D t₁~t₂ u₁↑u₂
     .Equality-relations.~-emptyrec → ~-emptyrec
     .Equality-relations.~-unitrec  → ~-unitrec
     .Equality-relations.≅-Id-cong  →

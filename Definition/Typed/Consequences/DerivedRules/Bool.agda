@@ -29,7 +29,6 @@ open import Definition.Typed.Consequences.DerivedRules.Bool.OK
 open import Definition.Typed.Consequences.DerivedRules.Empty R
 open import Definition.Typed.Consequences.DerivedRules.Nat R
 open import Definition.Typed.Consequences.DerivedRules.Pi R
-open import Definition.Typed.Consequences.DerivedRules.Pi-Sigma R
 open import Definition.Typed.Consequences.DerivedRules.Sigma R
 open import Definition.Typed.Consequences.DerivedRules.Unit R
 open import Definition.Typed.Consequences.Substitution R
@@ -88,7 +87,7 @@ opaque
     ⊢ Γ →
     Γ ⊢ true ∷ Bool
   ⊢true ⊢Γ =
-    prodⱼ (ℕⱼ ⊢Γ) (⊢OK (var₀ (ℕⱼ ⊢Γ))) (sucⱼ (zeroⱼ ⊢Γ))
+    prodⱼ (⊢OK (var₀ (ℕⱼ ⊢Γ))) (sucⱼ (zeroⱼ ⊢Γ))
       (conv (starⱼ ⊢Γ Unitʷ-ok)
          (Unitʷ 0                    ≡˘⟨ OK-1≡ ⊢Γ ⟩⊢∎≡
           OK (suc zero)              ≡˘⟨ OK-[] ⟩
@@ -104,7 +103,7 @@ opaque
     ⊢ Γ →
     Γ ⊢ false ∷ Bool
   ⊢false ⊢Γ =
-    prodⱼ (ℕⱼ ⊢Γ) (⊢OK (var₀ (ℕⱼ ⊢Γ))) (zeroⱼ ⊢Γ)
+    prodⱼ (⊢OK (var₀ (ℕⱼ ⊢Γ))) (zeroⱼ ⊢Γ)
       (conv (starⱼ ⊢Γ Unitʷ-ok)
          (Unitʷ 0                ≡˘⟨ OK-0≡ ⊢Γ ⟩⊢∎≡
           OK zero                ≡˘⟨ OK-[] ⟩
@@ -128,7 +127,7 @@ opaque
     [][]↑-cong A₁≡A₂ $
     PE.subst (_⊢_≡_∷_ _ _ _)
       (PE.cong (Σ⟨_⟩_,_▷_▹_ _ _ _ _) $ PE.sym OK-[]) $
-    prod-cong′ (⊢OK (var₀ (ℕⱼ (wfEqTerm t₁≡t₂)))) t₁≡t₂
+    prod-cong (⊢OK (var₀ (ℕⱼ (wfEqTerm t₁≡t₂)))) t₁≡t₂
       (PE.subst (_⊢_≡_∷_ _ _ _) (PE.sym OK-[]) u₁≡u₂)
       Σ-ok
 
@@ -191,7 +190,7 @@ private
           Π boolrecᵍ-Π , p ▷ OK t ▹ Target (2+ k) A₂ (wk1 t) (var x0)
       Π-lemma PE.refl ⊢t =
         let ⊢OK = ⊢OK ⊢t in
-        ΠΣ-cong′ (refl ⊢OK)
+        ΠΣ-cong (refl ⊢OK)
           (Target-cong′ A₁≡A₂ (wkTerm₁ ⊢OK ⊢t) $
            (PE.subst (_⊢_∷_ _ _) wk-OK $
             var₀ ⊢OK))
@@ -215,7 +214,7 @@ private
              (PE.trans (Target-[₀⇑] 1) $
               PE.cong (flip (Target _ _) _) $
               wk1-liftSubst t)) $
-        flip (ΠΣ-cong′ OK-t[u]₀≡Unit) Π-ok $
+        flip (ΠΣ-cong OK-t[u]₀≡Unit) Π-ok $
         Target-cong′ A₁≡A₂ (wkTerm₁ ⊢OK ⊢t[u]₀) $
         PE.subst (_⊢_∷_ _ _) wk-OK $
         var₀ ⊢OK

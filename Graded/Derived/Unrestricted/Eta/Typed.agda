@@ -48,7 +48,7 @@ private variable
 -- A formation rule for Unrestricted.
 
 Unrestrictedⱼ : Γ ⊢ A → Γ ⊢ Unrestricted A
-Unrestrictedⱼ ⊢A = ΠΣⱼ ⊢A (Unitⱼ (wf ⊢A ∙ ⊢A) Unit-ok) Σˢ-ok
+Unrestrictedⱼ ⊢A = ΠΣⱼ (Unitⱼ (wf ⊢A ∙ ⊢A) Unit-ok) Σˢ-ok
 
 -- A corresponding congruence rule.
 
@@ -56,7 +56,7 @@ Unrestricted-cong :
   Γ ⊢ A ≡ B →
   Γ ⊢ Unrestricted A ≡ Unrestricted B
 Unrestricted-cong A≡B =
-  ΠΣ-cong ⊢A A≡B (refl (Unitⱼ (wf ⊢A ∙ ⊢A) Unit-ok)) Σˢ-ok
+  ΠΣ-cong A≡B (refl (Unitⱼ (⊢→⊢∙ ⊢A) Unit-ok)) Σˢ-ok
   where
   ⊢A = syntacticEq A≡B .proj₁
 
@@ -73,14 +73,14 @@ Unrestricted-cong-U :
   Γ ⊢ A ≡ B ∷ U l →
   Γ ⊢ Unrestricted A ≡ Unrestricted B ∷ U l
 Unrestricted-cong-U A≡B =
-  ΠΣ-cong ⊢A A≡B (refl (Unitⱼ (wf ⊢A ∙ ⊢A) Unit-ok)) Σˢ-ok
+  ΠΣ-cong A≡B (refl (Unitⱼ (⊢→⊢∙ ⊢A) Unit-ok)) Σˢ-ok
   where
   ⊢A = univ (syntacticEqTerm A≡B .proj₂ .proj₁)
 
 -- An introduction rule for Unrestricted.
 
 []ⱼ : Γ ⊢ t ∷ A → Γ ⊢ [ t ] ∷ Unrestricted A
-[]ⱼ ⊢t = prodⱼ ⊢A (Unitⱼ (⊢Γ ∙ ⊢A) Unit-ok) ⊢t (starⱼ ⊢Γ Unit-ok) Σˢ-ok
+[]ⱼ ⊢t = prodⱼ (Unitⱼ (⊢→⊢∙ ⊢A) Unit-ok) ⊢t (starⱼ ⊢Γ Unit-ok) Σˢ-ok
   where
   ⊢A = syntacticTerm ⊢t
   ⊢Γ = wf ⊢A
@@ -90,7 +90,7 @@ Unrestricted-cong-U A≡B =
 []-cong′ :
   Γ ⊢ t ≡ u ∷ A → Γ ⊢ [ t ] ≡ [ u ] ∷ Unrestricted A
 []-cong′ t≡u =
-  prod-cong ⊢A (Unitⱼ (wf ⊢A ∙ ⊢A) Unit-ok) t≡u
+  prod-cong (Unitⱼ (⊢→⊢∙ ⊢A) Unit-ok) t≡u
     (refl (starⱼ (wf ⊢A) Unit-ok)) Σˢ-ok
   where
   ⊢A = syntacticEqTerm t≡u .proj₁
@@ -98,14 +98,14 @@ Unrestricted-cong-U A≡B =
 -- An elimination rule for Unrestricted.
 
 unboxⱼ : Γ ⊢ t ∷ Unrestricted A → Γ ⊢ unbox t ∷ A
-unboxⱼ ⊢t = fstⱼ ⊢A (Unitⱼ (wf ⊢A ∙ ⊢A) Unit-ok) ⊢t
+unboxⱼ ⊢t = fstⱼ (Unitⱼ (⊢→⊢∙ ⊢A) Unit-ok) ⊢t
   where
   ⊢A = inversion-ΠΣ (syntacticTerm ⊢t) .proj₁
 
 -- A corresponding congruence rule.
 
 unbox-cong : Γ ⊢ t ≡ u ∷ Unrestricted A → Γ ⊢ unbox t ≡ unbox u ∷ A
-unbox-cong t≡u = fst-cong ⊢A (Unitⱼ (wf ⊢A ∙ ⊢A) Unit-ok) t≡u
+unbox-cong t≡u = fst-cong (Unitⱼ (⊢→⊢∙ ⊢A) Unit-ok) t≡u
   where
   ⊢A = inversion-ΠΣ (syntacticEqTerm t≡u .proj₁) .proj₁
 
@@ -115,7 +115,7 @@ Unrestricted-β :
   Γ ⊢ t ∷ A →
   Γ ⊢ unbox [ t ] ≡ t ∷ A
 Unrestricted-β ⊢t =
-  Σ-β₁ ⊢A (Unitⱼ (⊢Γ ∙ ⊢A) Unit-ok) ⊢t (starⱼ ⊢Γ Unit-ok) PE.refl Σˢ-ok
+  Σ-β₁ (Unitⱼ (⊢→⊢∙ ⊢A) Unit-ok) ⊢t (starⱼ ⊢Γ Unit-ok) PE.refl Σˢ-ok
   where
   ⊢A = syntacticTerm ⊢t
   ⊢Γ = wf ⊢A
@@ -128,13 +128,10 @@ Unrestricted-η :
   Γ ⊢ unbox t ≡ unbox u ∷ A →
   Γ ⊢ t ≡ u ∷ Unrestricted A
 Unrestricted-η ⊢t ⊢u t≡u =
-  case syntacticEqTerm t≡u of λ
-    (⊢A , _) →
-  case Unitⱼ (wf ⊢A ∙ ⊢A) Unit-ok of λ
+  case Unitⱼ (⊢→⊢∙ (syntacticEqTerm t≡u .proj₁)) Unit-ok of λ
     Γ∙A⊢Unit → Σ-η
-      ⊢A Γ∙A⊢Unit ⊢t ⊢u t≡u
-      (η-unit (sndⱼ ⊢A Γ∙A⊢Unit ⊢t) (sndⱼ ⊢A Γ∙A⊢Unit ⊢u)
-         (inj₁ PE.refl))
+      Γ∙A⊢Unit ⊢t ⊢u t≡u
+      (η-unit (sndⱼ Γ∙A⊢Unit ⊢t) (sndⱼ Γ∙A⊢Unit ⊢u) (inj₁ PE.refl))
 
 -- An instance of the η-rule.
 
@@ -163,7 +160,7 @@ inversion-Unrestricted-∷ ⊢Unrestricted =
 -- Another inversion lemma for Unrestricted.
 
 inversion-Unrestricted : Γ ⊢ Unrestricted A → Γ ⊢ A
-inversion-Unrestricted (ΠΣⱼ ⊢A _ _)         = ⊢A
+inversion-Unrestricted (ΠΣⱼ ⊢Unit _)        = ⊢∙→⊢ (wf ⊢Unit)
 inversion-Unrestricted (univ ⊢Unrestricted) =
   univ (inversion-Unrestricted-∷ ⊢Unrestricted .proj₂ .proj₁)
 
@@ -218,16 +215,14 @@ inversion-[]′ ⊢[] =
 
   ⊢[t′] : Γ′ ⊢ [ t′ ] ∷ A′
   ⊢[t′] = prodⱼ
-    (ℕⱼ ε)
     (univ (natrecⱼ
-             (Uⱼ ⊢Γ′∙ℕ∙ℕ)
              (Unitⱼ ⊢Γ′∙ℕ Unit-ok)
              (ℕⱼ (⊢Γ′∙ℕ∙ℕ ∙ Uⱼ ⊢Γ′∙ℕ∙ℕ))
              (var ⊢Γ′∙ℕ here)))
     (zeroⱼ ε)
     (conv (starⱼ ε Unit-ok)
        (_⊢_≡_.sym $
-        univ (natrec-zero (Uⱼ ⊢Γ′∙ℕ) (Unitⱼ ε Unit-ok) (ℕⱼ ⊢Γ′∙ℕ∙U))))
+        univ (natrec-zero (Unitⱼ ε Unit-ok) (ℕⱼ ⊢Γ′∙ℕ∙U))))
     Σˢ-ok
 
   ℕ≡Unit : ∃ λ l → Γ′ ⊢ ℕ ≡ Unitˢ l
@@ -239,7 +234,7 @@ inversion-[]′ ⊢[] =
       _
     , _⊢_≡_.trans
         (_⊢_≡_.sym $ _⊢_≡_.univ $
-         natrec-suc (Uⱼ ⊢Γ′∙ℕ) (Unitⱼ ε Unit-ok) (ℕⱼ ⊢Γ′∙ℕ∙U) (zeroⱼ ε))
+         natrec-suc (Unitⱼ ε Unit-ok) (ℕⱼ ⊢Γ′∙ℕ∙U) (zeroⱼ ε))
         (substTypeEq ≡Unit (refl (sucⱼ (zeroⱼ ε))))
 
   bad : ⊥
@@ -266,11 +261,10 @@ inversion-unbox :
   Γ ⊢ unbox t ∷ A →
   ∃₂ λ q B → Γ ⊢ t ∷ Σˢ ω , q ▷ A ▹ B
 inversion-unbox ⊢unbox =
-  case inversion-fst ⊢unbox of λ (_ , C , q , ⊢B , ⊢C , ⊢t , ≡B) →
+  case inversion-fst ⊢unbox of λ (_ , C , q , _ , ⊢C , ⊢t , ≡B) →
     q
   , C
-  , conv ⊢t
-      (ΠΣ-cong ⊢B (_⊢_≡_.sym ≡B) (refl ⊢C) (⊢∷ΠΣ→ΠΣ-allowed ⊢t))
+  , conv ⊢t (ΠΣ-cong (_⊢_≡_.sym ≡B) (refl ⊢C) (⊢∷ΠΣ→ΠΣ-allowed ⊢t))
 
 -- A certain form of inversion for unbox does not hold.
 
@@ -288,20 +282,20 @@ inversion-unbox ⊢unbox =
   ⊢Γ′∙ℕ = ε ∙ ℕⱼ ε
 
   ⊢t′₁ : Γ′ ⊢ t′ ∷ Σ ω , ω ▷ ℕ ▹ ℕ
-  ⊢t′₁ = prodⱼ (ℕⱼ ε) (ℕⱼ ⊢Γ′∙ℕ) (zeroⱼ ε) (zeroⱼ ε) Σˢ-ok
+  ⊢t′₁ = prodⱼ (ℕⱼ ⊢Γ′∙ℕ) (zeroⱼ ε) (zeroⱼ ε) Σˢ-ok
 
   ⊢unbox-t′ : Γ′ ⊢ unbox t′ ∷ A′
-  ⊢unbox-t′ = fstⱼ (ℕⱼ ε) (ℕⱼ ⊢Γ′∙ℕ) ⊢t′₁
+  ⊢unbox-t′ = fstⱼ (ℕⱼ ⊢Γ′∙ℕ) ⊢t′₁
 
   unbox-t′≡zero : Γ′ ⊢ unbox t′ ≡ zero ∷ A′
   unbox-t′≡zero =
-    Σ-β₁ (ℕⱼ ε) (ℕⱼ ⊢Γ′∙ℕ) (zeroⱼ ε) (zeroⱼ ε) PE.refl Σˢ-ok
+    Σ-β₁ (ℕⱼ ⊢Γ′∙ℕ) (zeroⱼ ε) (zeroⱼ ε) PE.refl Σˢ-ok
 
   ⊢t′₂ : ∃₂ λ q l → Γ′ ⊢ t′ ∷ Σˢ ω , q ▷ A′ ▹ Unitˢ l
   ⊢t′₂ = inversion-unbox ⊢unbox-t′
 
   ⊢snd-t′ : ∃ λ l → Γ′ ⊢ snd ω t′ ∷ Unitˢ l
-  ⊢snd-t′ = _ , sndⱼ (ℕⱼ ε) (Unitⱼ ⊢Γ′∙ℕ Unit-ok) (⊢t′₂ .proj₂ .proj₂)
+  ⊢snd-t′ = _ , sndⱼ (Unitⱼ ⊢Γ′∙ℕ Unit-ok) (⊢t′₂ .proj₂ .proj₂)
 
   ℕ≡Unit : ∃ λ l → Γ′ ⊢ ℕ ≡ Unitˢ l
   ℕ≡Unit =

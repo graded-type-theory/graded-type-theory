@@ -60,8 +60,8 @@ double = lam 𝟙 (natrec 𝟘 𝟘 𝟙 ℕ (var x0) (suc (var x0)) (var x0))
 
 ⊢double : ε ⊢ double ∷ Π 𝟙 , 𝟘 ▷ ℕ ▹ ℕ
 ⊢double =
-  flip (lamⱼ (ℕⱼ ε)) Π-𝟙-𝟘 $
-  natrecⱼ (ℕⱼ ⊢ℕℕ) (var ⊢ℕ here)
+  flip lamⱼ Π-𝟙-𝟘 $
+  natrecⱼ (var ⊢ℕ here)
     (sucⱼ (var ⊢ℕℕℕ here))
     (var ⊢ℕ here)
 
@@ -81,8 +81,8 @@ plus = lam 𝟙 $ lam 𝟙 $ natrec 𝟘 𝟘 𝟙 ℕ (var x0) (suc (var x0)) (
 
 ⊢plus : ε ⊢ plus ∷ Π 𝟙 , 𝟘 ▷ ℕ ▹ Π 𝟙 , 𝟘 ▷ ℕ ▹ ℕ
 ⊢plus =
-  flip (lamⱼ (ℕⱼ ε)) Π-𝟙-𝟘 $
-  flip (lamⱼ (ℕⱼ ⊢ℕ)) Π-𝟙-𝟘 $
-  natrecⱼ (ℕⱼ ⊢ℕℕℕ) (var ⊢ℕℕ here)
+  flip lamⱼ Π-𝟙-𝟘 $
+  flip lamⱼ Π-𝟙-𝟘 $
+  natrecⱼ (var ⊢ℕℕ here)
     (sucⱼ (var ⊢ℕℕℕℕ here))
     (var ⊢ℕℕ (there here))

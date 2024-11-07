@@ -16,7 +16,6 @@ open Type-restrictions R
 
 open import Definition.Typed R
 open import Definition.Typed.Consequences.DerivedRules.Identity R
-open import Definition.Typed.Consequences.DerivedRules.Pi-Sigma R
 open import Definition.Typed.Consequences.Inequality R
 open import Definition.Typed.Consequences.Injectivity R
 open import Definition.Typed.Consequences.Inversion R
@@ -51,16 +50,6 @@ private variable
 ------------------------------------------------------------------------
 -- Some derived rules
 
--- A variant of the typing rule for prod.
-
-⊢prod :
-  Γ ∙ A ⊢ B →
-  Γ ⊢ t ∷ A →
-  Γ ⊢ u ∷ B [ t ]₀ →
-  Σ-allowed s p q →
-  Γ ⊢ prod s p t u ∷ Σ⟨ s ⟩ p , q ▷ A ▹ B
-⊢prod ⊢B ⊢t = prodⱼ (syntacticTerm ⊢t) ⊢B ⊢t
-
 opaque
 
   -- A variant of the typing rule for fst.
@@ -70,8 +59,8 @@ opaque
     Γ ⊢ fst p t ∷ A
   fstⱼ′ ⊢t =
     case inversion-ΠΣ (syntacticTerm ⊢t) of λ {
-      (⊢A , ⊢B , _) →
-    fstⱼ ⊢A ⊢B ⊢t }
+      (_ , ⊢B , _) →
+    fstⱼ ⊢B ⊢t }
 
 opaque
 
@@ -82,8 +71,8 @@ opaque
     Γ ⊢ snd p t ∷ B [ fst p t ]₀
   sndⱼ′ ⊢t =
     case inversion-ΠΣ (syntacticTerm ⊢t) of λ {
-      (⊢A , ⊢B , _) →
-    sndⱼ ⊢A ⊢B ⊢t }
+      (_ , ⊢B , _) →
+    sndⱼ ⊢B ⊢t }
 
 opaque
 
@@ -96,21 +85,8 @@ opaque
     Γ ⊢ prodrec r p q C t u ∷ C [ t ]₀
   prodrecⱼ′ ⊢C ⊢t ⊢u =
     case inversion-ΠΣ (syntacticTerm ⊢t) of λ {
-      (⊢A , ⊢B , ok) →
-    prodrecⱼ ⊢A ⊢B ⊢C ⊢t ⊢u ok }
-
-opaque
-
-  -- A variant of prod-cong.
-
-  prod-cong′ :
-    Γ ∙ A ⊢ B →
-    Γ ⊢ t₁ ≡ t₂ ∷ A →
-    Γ ⊢ u₁ ≡ u₂ ∷ B [ t₁ ]₀ →
-    Σ-allowed s p q →
-    Γ ⊢ prod s p t₁ u₁ ≡ prod s p t₂ u₂ ∷ Σ⟨ s ⟩ p , q ▷ A ▹ B
-  prod-cong′ ⊢B t₁≡t₂ =
-    prod-cong (syntacticEqTerm t₁≡t₂ .proj₁) ⊢B t₁≡t₂
+      (_ , _ , ok) →
+    prodrecⱼ ⊢C ⊢t ⊢u ok }
 
 opaque
 
@@ -121,8 +97,8 @@ opaque
     Γ ⊢ fst p t ⇒ fst p u ∷ A
   fst-subst′ t⇒u =
     case inversion-ΠΣ (syntacticTerm (redFirstTerm t⇒u)) of λ {
-      (⊢A , ⊢B , _) →
-    fst-subst ⊢A ⊢B t⇒u }
+      (_ , ⊢B , _) →
+    fst-subst ⊢B t⇒u }
 
 opaque
 
@@ -133,8 +109,8 @@ opaque
     Γ ⊢ fst p t ⇒* fst p u ∷ A
   fst-subst*′ t⇒*u =
     case inversion-ΠΣ (syntacticTerm (redFirst*Term t⇒*u)) of λ {
-      (⊢A , ⊢B , _) →
-    fst-subst* t⇒*u ⊢A ⊢B }
+      (_ , ⊢B , _) →
+    fst-subst* t⇒*u ⊢B }
 
 opaque
 
@@ -145,8 +121,8 @@ opaque
     Γ ⊢ fst p t ≡ fst p u ∷ A
   fst-cong′ t≡u =
     case inversion-ΠΣ (syntacticEqTerm t≡u .proj₁) of λ {
-      (⊢A , ⊢B , _) →
-    fst-cong ⊢A ⊢B t≡u }
+      (_ , ⊢B , _) →
+    fst-cong ⊢B t≡u }
 
 opaque
 
@@ -157,8 +133,8 @@ opaque
     Γ ⊢ snd p t ⇒ snd p u ∷ B [ fst p t ]₀
   snd-subst′ t⇒u =
     case inversion-ΠΣ (syntacticTerm (redFirstTerm t⇒u)) of λ {
-      (⊢A , ⊢B , _) →
-    snd-subst ⊢A ⊢B t⇒u }
+      (_ , ⊢B , _) →
+    snd-subst ⊢B t⇒u }
 
 opaque
 
@@ -169,8 +145,8 @@ opaque
     Γ ⊢ snd p t ≡ snd p u ∷ B [ fst p t ]₀
   snd-cong′ t≡u =
     case inversion-ΠΣ (syntacticEqTerm t≡u .proj₁) of λ {
-      (⊢A , ⊢B , _) →
-    snd-cong ⊢A ⊢B t≡u }
+      (_ , ⊢B , _) →
+    snd-cong ⊢B t≡u }
 
 opaque
 
@@ -183,8 +159,8 @@ opaque
     Γ ⊢ prodrec r p q C t₁ u ⇒ prodrec r p q C t₂ u ∷ C [ t₁ ]₀
   prodrec-subst′ ⊢C ⊢u t₁⇒t₂ =
     case inversion-ΠΣ (syntacticTerm (redFirstTerm t₁⇒t₂)) of λ {
-      (⊢A , ⊢B , ok) →
-    prodrec-subst ⊢A ⊢B ⊢C ⊢u t₁⇒t₂ ok }
+      (_ , _ , ok) →
+    prodrec-subst ⊢C ⊢u t₁⇒t₂ ok }
 
 opaque
 
@@ -197,8 +173,8 @@ opaque
     Γ ⊢ prodrec r p q C₁ t₁ u₁ ≡ prodrec r p q C₂ t₂ u₂ ∷ C₁ [ t₁ ]₀
   prodrec-cong′ C₁≡C₂ t₁≡t₂ u₁≡u₂ =
     case inversion-ΠΣ (syntacticEqTerm t₁≡t₂ .proj₁) of λ {
-      (⊢A , ⊢B , ok) →
-    prodrec-cong ⊢A ⊢B C₁≡C₂ t₁≡t₂ u₁≡u₂ ok }
+      (_ , _ , ok) →
+    prodrec-cong C₁≡C₂ t₁≡t₂ u₁≡u₂ ok }
 
 opaque
 
@@ -211,7 +187,7 @@ opaque
     Σˢ-allowed p q →
     Γ ⊢ fst p (prodˢ p t u) ⇒ t ∷ A
   Σ-β₁-⇒ ⊢B ⊢t ⊢u =
-    Σ-β₁ (syntacticTerm ⊢t) ⊢B ⊢t ⊢u PE.refl
+    Σ-β₁ ⊢B ⊢t ⊢u PE.refl
 
 opaque
 
@@ -237,7 +213,7 @@ opaque
     Σˢ-allowed p q →
     Γ ⊢ snd p (prodˢ p t u) ⇒ u ∷ B [ fst p (prodˢ p t u) ]₀
   Σ-β₂-⇒ ⊢B ⊢t ⊢u =
-    Σ-β₂ (syntacticTerm ⊢t) ⊢B ⊢t ⊢u PE.refl
+    Σ-β₂ ⊢B ⊢t ⊢u PE.refl
 
 opaque
 
@@ -265,11 +241,7 @@ opaque
     Γ ⊢ prodrec r p q C (prodʷ p t u) v ⇒ v [ t , u ]₁₀ ∷
       C [ prodʷ p t u ]₀
   prodrec-β-⇒ ⊢C ⊢t ⊢u ⊢v ok =
-    case wf ⊢C of λ {
-      (_ ∙ ⊢ΣAB) →
-    case inversion-ΠΣ ⊢ΣAB of λ {
-      (⊢A , ⊢B , _) →
-    prodrec-β ⊢A ⊢B ⊢C ⊢t ⊢u ⊢v PE.refl ok }}
+    prodrec-β ⊢C ⊢t ⊢u ⊢v PE.refl ok
 
 opaque
 
@@ -333,8 +305,8 @@ opaque
     Γ ⊢ t ≡ u ∷ Σˢ p , q ▷ A ▹ B
   Σ-η′ ⊢t =
     case inversion-ΠΣ (syntacticTerm ⊢t) of λ {
-      (⊢A , ⊢B , _) →
-    Σ-η ⊢A ⊢B ⊢t }
+      (_ , ⊢B , _) →
+    Σ-η ⊢B ⊢t }
 
 -- An η-rule for strong Σ-types.
 
@@ -342,7 +314,7 @@ opaque
   Γ ⊢ t ∷ Σˢ p , q ▷ A ▹ B →
   Γ ⊢ prodˢ p (fst p t) (snd p t) ≡ t ∷ Σˢ p , q ▷ A ▹ B
 Σ-η-prod-fst-snd ⊢t = Σ-η′
-  (⊢prod ⊢B ⊢fst ⊢snd ok)
+  (prodⱼ ⊢B ⊢fst ⊢snd ok)
   ⊢t
   (Σ-β₁-≡ ⊢B ⊢fst ⊢snd ok)
   (Σ-β₂-≡ ⊢B ⊢fst ⊢snd ok)
@@ -558,7 +530,7 @@ private
     Γ ∙ A ⊢ B →
     Σʷ-allowed p q →
     Γ ∙ (Σʷ p , q ▷ A ▹ B) ⊢ wk1 A
-  Σ⊢wk1 ⊢B ok = W.wk₁ (ΠΣⱼ′ ⊢B ok) ⊢A
+  Σ⊢wk1 ⊢B ok = W.wk₁ (ΠΣⱼ ⊢B ok) ⊢A
     where
     ⊢A = case wf ⊢B of λ where
            (_ ∙ ⊢A) → ⊢A
@@ -721,7 +693,7 @@ fstʷ-cong :
   Γ ⊢ fstʷ p A₁ t₁ ≡ fstʷ p A₂ t₂ ∷ A₁
 fstʷ-cong {Γ} {A₁} {A₂} {t₁} {t₂} {p} {q} {B₁} A₁≡A₂ t₁≡t₂ =
   case inversion-ΠΣ (syntacticEqTerm t₁≡t₂ .proj₁) of λ
-    (⊢A₁ , ⊢B₁ , ok) →                                            $⟨ W.wkEq₁ (ΠΣⱼ′ ⊢B₁ ok) A₁≡A₂
+    (⊢A₁ , ⊢B₁ , ok) →                                            $⟨ W.wkEq₁ (ΠΣⱼ ⊢B₁ ok) A₁≡A₂
                                                                   , 1∷wk1[1,0] ⊢B₁
                                                                   ⟩
   (Γ ∙ (Σʷ p , q ▷ A₁ ▹ B₁) ⊢ wk1 A₁ ≡ wk1 A₂) ×
@@ -892,7 +864,7 @@ private
     where
     ⊢A₁     = syntacticEq A₁≡A₂ .proj₁
     ⊢B₁     = syntacticEq B₁≡B₂ .proj₁
-    ⊢ΣA₁B₁  = ΠΣⱼ′ ⊢B₁ ok
+    ⊢ΣA₁B₁  = ΠΣⱼ ⊢B₁ ok
     ⊢ΓΣA₁B₁ = wf ⊢A₁ ∙ ⊢ΣA₁B₁
 
   ⊢[fstʷ-0]↑ :
@@ -928,13 +900,12 @@ private
 sndʷⱼ :
   Γ ⊢ t ∷ Σʷ p , q ▷ A ▹ B →
   Γ ⊢ sndʷ p q A B t ∷ B [ fstʷ p A t ]₀
-sndʷⱼ {Γ = Γ} {t = t} {p = p} {q = q} {A = A} {B = B} ⊢t =    $⟨ prodrecⱼ ⊢A ⊢B (⊢[fstʷ-0]↑ ⊢B ok) ⊢t
+sndʷⱼ {Γ = Γ} {t = t} {p = p} {q = q} {A = A} {B = B} ⊢t =    $⟨ prodrecⱼ (⊢[fstʷ-0]↑ ⊢B ok) ⊢t
                                                                    (⊢0∷[fstʷ-0]↑[1,0]↑² ⊢B ok) ok ⟩
   Γ ⊢ sndʷ p q A B t ∷ B [ fstʷ p (wk1 A) (var x0) ]↑ [ t ]₀  →⟨ flip conv (⊢≡[fstʷ] ⊢t) ⟩
   Γ ⊢ sndʷ p q A B t ∷ B [ fstʷ p A t ]₀                      □
   where
   ⊢A,⊢B,ok = inversion-ΠΣ (syntacticTerm ⊢t)
-  ⊢A       = ⊢A,⊢B,ok .proj₁
   ⊢B       = ⊢A,⊢B,ok .proj₂ .proj₁
   ok       = ⊢A,⊢B,ok .proj₂ .proj₂
 
@@ -948,10 +919,10 @@ sndʷ-β-⇒ :
   Γ ⊢ sndʷ p q A B (prodʷ p t u) ⇒ u ∷ B [ fstʷ p A (prodʷ p t u) ]₀
 sndʷ-β-⇒
   {Γ = Γ} {A = A} {B = B} {t = t} {u = u} {p = p} {q = q}
-  ⊢B ⊢t ⊢u ok =                                      $⟨ prodrec-β (syntacticTerm ⊢t) ⊢B (⊢[fstʷ-0]↑ {q = q} ⊢B ok)
+  ⊢B ⊢t ⊢u ok =                                      $⟨ prodrec-β (⊢[fstʷ-0]↑ {q = q} ⊢B ok)
                                                           ⊢t ⊢u (⊢0∷[fstʷ-0]↑[1,0]↑² ⊢B ok) PE.refl ok ⟩
   Γ ⊢ sndʷ p q A B (prodʷ p t u) ⇒ u ∷
-    B [ fstʷ p (wk1 A) (var x0) ]↑ [ prodʷ p t u ]₀  →⟨ flip conv (⊢≡[fstʷ] (⊢prod ⊢B ⊢t ⊢u ok)) ⟩
+    B [ fstʷ p (wk1 A) (var x0) ]↑ [ prodʷ p t u ]₀  →⟨ flip conv (⊢≡[fstʷ] (prodⱼ ⊢B ⊢t ⊢u ok)) ⟩
 
   Γ ⊢ sndʷ p q A B (prodʷ p t u) ⇒ u ∷
     B [ fstʷ p A (prodʷ p t u) ]₀                    □
@@ -1031,7 +1002,7 @@ sndʷ-cong
   t′ = var x0
 
   ⊢Γ : ⊢ Γ′
-  ⊢Γ = ε ∙ ΠΣⱼ′ (ℕⱼ (ε ∙ ℕⱼ ε)) Σ-ok
+  ⊢Γ = ε ∙ ΠΣⱼ (ℕⱼ (ε ∙ ℕⱼ ε)) Σ-ok
 
   ⊢B : Γ′ ∙ A′ ⊢ B′
   ⊢B = ℕⱼ (⊢Γ ∙ ℕⱼ ⊢Γ)
@@ -1146,7 +1117,7 @@ opaque
          (prodʷ p (fstʷ p A t) (sndʷ p q A B t)) t                  ∎) $
     prodrecⱼ′
       (Idⱼ
-         (⊢prod ⊢B″ (fstʷⱼ (var₀ ⊢ΣAB)) (sndʷⱼ (var₀ ⊢ΣAB)) ok)
+         (prodⱼ ⊢B″ (fstʷⱼ (var₀ ⊢ΣAB)) (sndʷⱼ (var₀ ⊢ΣAB)) ok)
          (var₀ ⊢ΣAB))
       ⊢t
       (rflⱼ′
@@ -1166,7 +1137,7 @@ opaque
             (sndʷ p q (U.wk (step (step id)) A)
                (U.wk (lift (step (step id))) B) pair)                ≡⟨ PE.subst (_⊢_≡_∷_ _ _ _)
                                                                           (PE.sym $ PE.cong₂ (Σʷ _ , _ ▷_▹_) eq₁ eq₂) $
-                                                                        prod-cong′ ⊢B′
+                                                                        prod-cong ⊢B′
                                                                           (fstʷ-β-≡ ⊢B′ ⊢₁ ⊢₀ ok)
                                                                           (sndʷ-β-≡ ⊢B′ ⊢₁ ⊢₀ ok)
                                                                           ok ⟩⊢∎
@@ -1190,7 +1161,7 @@ opaque
   ¬-Σʷ-η-prodʷ-fstʷ-sndʷ Σ-ok λ ⊢t →
     case inversion-ΠΣ (syntacticTerm ⊢t) of λ {
       (_ , ⊢B , ok) →
-    hyp (⊢prod ⊢B (fstʷⱼ ⊢t) (sndʷⱼ ⊢t) ok) ⊢t
+    hyp (prodⱼ ⊢B (fstʷⱼ ⊢t) (sndʷⱼ ⊢t) ok) ⊢t
       (fstʷ-β-≡ ⊢B (fstʷⱼ ⊢t) (sndʷⱼ ⊢t) ok)
       (sndʷ-β-≡ ⊢B (fstʷⱼ ⊢t) (sndʷⱼ ⊢t) ok) }
 
@@ -1409,7 +1380,7 @@ inversion-fstʷ : Γ ⊢ fstʷ p A t ∷ C →
   ∃₂ λ q B → Γ ⊢ t ∷ Σʷ p , q ▷ A ▹ B × Γ ⊢ C ≡ A
 inversion-fstʷ {p = p} {A} {t} ⊢t₁ =
   case inversion-prodrec ⊢t₁ of λ
-    (F , G , q , ⊢F , ⊢G , ⊢wk1A , ⊢t , ⊢x₁ , C≡) →
+    (F , G , q , _ , ⊢G , ⊢wk1A , ⊢t , ⊢x₁ , C≡) →
   case inversion-var ⊢x₁ of λ {
     (_ , there here , ≡wk2F) →
   case PE.subst (_ ⊢ _ ≡_) (wk1-sgSubst A t) C≡ of λ
@@ -1432,7 +1403,7 @@ inversion-fstʷ {p = p} {A} {t} ⊢t₁ =
     A≡F →
   case inversion-ΠΣ (syntacticTerm ⊢t) of λ
     (_ , _ , Σ-ok) →
-  q , G , conv ⊢t (ΠΣ-cong ⊢F (sym A≡F) (refl ⊢G) Σ-ok) , C≡A  }
+  q , G , conv ⊢t (ΠΣ-cong (sym A≡F) (refl ⊢G) Σ-ok) , C≡A  }
 
 ------------------------------------------------------------------------
 -- More derived rules

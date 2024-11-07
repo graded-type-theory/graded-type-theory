@@ -318,16 +318,14 @@ opaque
     Γ ⊩⟨ l ⟩ fst p t₁ ≡ fst p t₂ ∷ A
   ⊩fst≡fst {t₁} {t₂} {p} t₁≡t₂ =
     case ⊩ΠΣ→ $ wf-⊩∷ $ wf-⊩≡∷ t₁≡t₂ .proj₁ of λ
-      (_ , ⊩A , ⊩B) →
-    case escape-⊩ ⊩A of λ
-      ⊢A →
+      (_ , _ , ⊩B) →
     case escape-⊩ ⊩B of λ
       ⊢B →
     case ⊩≡∷Σˢ⇔ .proj₁ t₁≡t₂ of λ
       (_ , u₁ , u₂ , t₁⇒*u₁ , t₂⇒*u₂ , _ , _ , _ , fst-u₁≡fst-u₂ , _) →
-    fst p t₁  ⇒*⟨ fst-subst* (redₜ t₁⇒*u₁) ⊢A ⊢B ⟩⊩∷
+    fst p t₁  ⇒*⟨ fst-subst* (redₜ t₁⇒*u₁) ⊢B ⟩⊩∷
     fst p u₁  ≡⟨ fst-u₁≡fst-u₂ ⟩⊩∷⇐*
-    fst p u₂  ⇐*⟨ fst-subst* (redₜ t₂⇒*u₂) ⊢A ⊢B ⟩∎
+    fst p u₂  ⇐*⟨ fst-subst* (redₜ t₂⇒*u₂) ⊢B ⟩∎
     fst p t₂  ∎
 
 opaque
@@ -369,20 +367,18 @@ opaque
     case wf-⊩∷ ⊩t₂ of λ
       ⊩ΣAB →
     case ⊩ΠΣ→ ⊩ΣAB of λ
-      (_ , ⊩A , ⊩B) →
-    case escape-⊩ ⊩A of λ
-      ⊢A →
+      (_ , _ , ⊩B) →
     case escape-⊩ ⊩B of λ
       ⊢B →
     case t₁⇒*t₂ of λ where
-      (id ⊢t₁)                     → id (sndⱼ ⊢A ⊢B ⊢t₁)
+      (id ⊢t₁)                     → id (sndⱼ ⊢B ⊢t₁)
       (_⇨_ {t′ = t₃} t₁⇒t₃ t₃⇒*t₂) →
         case
           t₁  ⇒⟨ t₁⇒t₃ ⟩⊩∷
           t₃  ∎⟨ wf-⊩≡∷ (⊩∷-⇐* t₃⇒*t₂ ⊩t₂) .proj₁ ⟩⊩∷
         of λ
           t₁≡t₃ →
-        snd p t₁ ∷ B [ fst p t₁ ]₀  ⇒⟨ snd-subst ⊢A ⊢B t₁⇒t₃ ⟩∷
+        snd p t₁ ∷ B [ fst p t₁ ]₀  ⇒⟨ snd-subst ⊢B t₁⇒t₃ ⟩∷
                                      ⟨ ≅-eq $ escape-⊩≡ $
                                        ⊩ΠΣ≡ΠΣ→⊩≡∷→⊩[]₀≡[]₀ (refl-⊩≡ ⊩ΣAB) (⊩fst≡fst t₁≡t₃) ⟩⇒
         snd p t₃ ∷ B [ fst p t₃ ]₀  ⇒*⟨ snd-subst* t₃⇒*t₂ ⊩t₂ ⟩∎∷
@@ -461,7 +457,7 @@ opaque
     case escape-⊩∷ ⊩t of λ
       ⊢t →
     ⊩∷-⇐*
-      (fst p (prodˢ p t u)  ⇒⟨ Σ-β₁ (escape-⊩ $ wf-⊩∷ ⊩t) ⊢B ⊢t ⊢u PE.refl ok ⟩
+      (fst p (prodˢ p t u)  ⇒⟨ Σ-β₁ ⊢B ⊢t ⊢u PE.refl ok ⟩
        t                    ∎⟨ ⊢t ⟩⇒)
       ⊩t
 
@@ -476,12 +472,9 @@ opaque
     Γ ⊩ᵛ⟨ l″ ⟩ u ∷ B [ t ]₀ →
     Γ ⊩ᵛ⟨ l ⟩ fst p (prodˢ p t u) ≡ t ∷ A
   Σ-β₁ᵛ {B} ok ⊩B ⊩t ⊩u =
-    case wf-⊩ᵛ∷ ⊩t of λ
-      ⊩A →
     ⊩ᵛ∷-⇐
       (λ ⊩σ →
-         Σ-β₁ (escape-⊩ $ ⊩ᵛ→⊩ˢ∷→⊩[] ⊩A ⊩σ)
-           (escape-⊩ $ ⊩ᵛ→⊩ˢ∷→⊩[⇑] ⊩B ⊩σ)
+         Σ-β₁ (escape-⊩ $ ⊩ᵛ→⊩ˢ∷→⊩[⇑] ⊩B ⊩σ)
            (escape-⊩∷ $ ⊩ᵛ∷→⊩ˢ∷→⊩[]∷ ⊩t ⊩σ)
            (PE.subst (_⊢_∷_ _ _) (singleSubstLift B _) $
             escape-⊩∷ $ ⊩ᵛ∷→⊩ˢ∷→⊩[]∷ ⊩u ⊩σ)
@@ -499,13 +492,10 @@ opaque
     Γ ⊩ᵛ⟨ l″ ⟩ u ∷ B [ t ]₀ →
     Γ ⊩ᵛ⟨ l ⟩ snd p (prodˢ p t u) ≡ u ∷ B [ fst p (prodˢ p t u) ]₀
   Σ-β₂ᵛ {B} ok ⊩B ⊩t ⊩u =
-    case wf-⊩ᵛ∷ ⊩t of λ
-      ⊩A →
     ⊩ᵛ∷-⇐
       (λ ⊩σ →
          PE.subst (_⊢_⇒_∷_ _ _ _) (PE.sym $ singleSubstLift B _) $
-         Σ-β₂ (escape-⊩ $ ⊩ᵛ→⊩ˢ∷→⊩[] ⊩A ⊩σ)
-           (escape-⊩ $ ⊩ᵛ→⊩ˢ∷→⊩[⇑] ⊩B ⊩σ)
+         Σ-β₂ (escape-⊩ $ ⊩ᵛ→⊩ˢ∷→⊩[⇑] ⊩B ⊩σ)
            (escape-⊩∷ $ ⊩ᵛ∷→⊩ˢ∷→⊩[]∷ ⊩t ⊩σ)
            (PE.subst (_⊢_∷_ _ _) (singleSubstLift B _) $
             escape-⊩∷ $ ⊩ᵛ∷→⊩ˢ∷→⊩[]∷ ⊩u ⊩σ)
@@ -573,8 +563,8 @@ opaque
           ⊩≡∷Σˢ⇔ .proj₂
             ( ⊩ΣAB[σ]
             , u₁ , u₂ , t₁[σ]⇒*u₁ , t₂[σ]⇒*u₂ , u₁-prod , u₂-prod
-            , ≅-Σ-η (escape-⊩ ⊩A[σ]) (escape-⊩ $ ⊩ᵛ→⊩ˢ∷→⊩[⇑] ⊩B ⊩σ)
-                (⊢u-redₜ t₁[σ]⇒*u₁) (⊢u-redₜ t₂[σ]⇒*u₂) u₁-prod u₂-prod
+            , ≅-Σ-η (escape-⊩ $ ⊩ᵛ→⊩ˢ∷→⊩[⇑] ⊩B ⊩σ) (⊢u-redₜ t₁[σ]⇒*u₁)
+                (⊢u-redₜ t₂[σ]⇒*u₂) u₁-prod u₂-prod
                 (escape-⊩≡∷ fst-u₁≡fst-u₂) (escape-⊩≡∷ snd-u₁≡snd-u₂)
             , fst-u₁≡fst-u₂ , snd-u₁≡snd-u₂
             )
@@ -601,8 +591,6 @@ opaque
       (⊩u₁ , ⊩u₂) →
     case conv-⊩∷ (⊩ΠΣ≡ΠΣ→⊩≡∷→⊩[]₀≡[]₀ (refl-⊩≡ ⊩ΣAB) t₁≡t₂) ⊩u₂ of λ
       ⊩u₂ →
-    case escape-⊩ ⊩A of λ
-      ⊢A →
     case escape-⊩ ⊩B of λ
       ⊢B →
     case escape-⊩∷ ⊩t₁ of λ
@@ -613,25 +601,25 @@ opaque
       ⊢u₁ →
     case escape-⊩∷ ⊩u₂ of λ
       ⊢u₂ →
-    case prodⱼ ⊢A ⊢B ⊢t₁ ⊢u₁ ok of λ
+    case prodⱼ ⊢B ⊢t₁ ⊢u₁ ok of λ
       ⊢t₁,u₁ →
-    case prodⱼ ⊢A ⊢B ⊢t₂ ⊢u₂ ok of λ
+    case prodⱼ ⊢B ⊢t₂ ⊢u₂ ok of λ
       ⊢t₂,u₂ →
     case
-      fst p (prodˢ p t₁ u₁)  ⇒⟨ Σ-β₁ ⊢A ⊢B ⊢t₁ ⊢u₁ PE.refl ok ⟩⊩∷
+      fst p (prodˢ p t₁ u₁)  ⇒⟨ Σ-β₁ ⊢B ⊢t₁ ⊢u₁ PE.refl ok ⟩⊩∷
       t₁                     ≡⟨ level-⊩≡∷ ⊩A t₁≡t₂ ⟩⊩∷⇐*
-      t₂                     ⇐⟨ Σ-β₁ ⊢A ⊢B ⊢t₂ ⊢u₂ PE.refl ok , ⊢t₂ ⟩∎
+      t₂                     ⇐⟨ Σ-β₁ ⊢B ⊢t₂ ⊢u₂ PE.refl ok , ⊢t₂ ⟩∎
       fst p (prodˢ p t₂ u₂)  ∎
     of λ
       fst≡fst →
     case
-      snd p (prodˢ p t₁ u₁) ∷ B [ fst p (prodˢ p t₁ u₁) ]₀  ⇒⟨ Σ-β₂ ⊢A ⊢B ⊢t₁ ⊢u₁ PE.refl ok ⟩⊩∷∷
+      snd p (prodˢ p t₁ u₁) ∷ B [ fst p (prodˢ p t₁ u₁) ]₀  ⇒⟨ Σ-β₂ ⊢B ⊢t₁ ⊢u₁ PE.refl ok ⟩⊩∷∷
                                                              ⟨ ⊩ΠΣ≡ΠΣ→⊩≡∷→⊩[]₀≡[]₀ (refl-⊩≡ ⊩ΣAB) $
                                                                ⊩Σ-β₁ ok ⊢B ⊩t₁ ⊢u₁ ⟩⊩∷
       u₁                    ∷ B [ t₁ ]₀                     ≡⟨ u₁≡u₂ ⟩⊩∷∷⇐*
                                                              ⟨ ≅-eq $ escape-⊩≡ $
                                                                ⊩ΠΣ≡ΠΣ→⊩≡∷→⊩[]₀≡[]₀ (refl-⊩≡ ⊩ΣAB) t₁≡t₂ ⟩⇒
-      u₂                    ∷ B [ t₂ ]₀                     ⇐⟨ conv (Σ-β₂ ⊢A ⊢B ⊢t₂ ⊢u₂ PE.refl ok) $
+      u₂                    ∷ B [ t₂ ]₀                     ⇐⟨ conv (Σ-β₂ ⊢B ⊢t₂ ⊢u₂ PE.refl ok) $
                                                                ≅-eq $ escape-⊩≡ $
                                                                ⊩ΠΣ≡ΠΣ→⊩≡∷→⊩[]₀≡[]₀ (refl-⊩≡ ⊩ΣAB) $
                                                                ⊩Σ-β₁ ok ⊢B ⊩t₂ ⊢u₂
@@ -645,7 +633,7 @@ opaque
       , _ , _
       , idRedTerm:*: ⊢t₁,u₁ , idRedTerm:*: ⊢t₂,u₂
       , prodₙ , prodₙ
-      , ≅-Σ-η ⊢A ⊢B ⊢t₁,u₁ ⊢t₂,u₂ prodₙ prodₙ
+      , ≅-Σ-η ⊢B ⊢t₁,u₁ ⊢t₂,u₂ prodₙ prodₙ
           (escape-⊩≡∷ fst≡fst) (escape-⊩≡∷ snd≡snd)
       , fst≡fst , snd≡snd
       )

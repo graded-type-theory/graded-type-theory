@@ -25,7 +25,6 @@ open import Definition.Typed R
 open import Definition.Typed.Properties R
 open import Definition.Typed.Reasoning.Type R
 open import Definition.Typed.Weakening R as W
-open import Definition.Typed.Consequences.DerivedRules R
 open import Definition.Typed.Consequences.Inequality R
 open import Definition.Typed.Consequences.Inversion R
 open import Definition.Typed.Consequences.NeTypeEq R
@@ -475,7 +474,7 @@ mutual
          isΠΣ-with-cont ⊢B λ {b = b} {p = p′} _ ⊢D ok _ →
          decBinderMode b (BMΣ 𝕨) ×-dec′ λ b≡ →
          p ≟ p′ ×-dec
-         dec⇇Type-with-cont (⊢→⊢∙ (ΠΣⱼ′ ⊢D ok)) A λ ⊢A →
+         dec⇇Type-with-cont (⊢→⊢∙ (ΠΣⱼ ⊢D ok)) A λ ⊢A →
          dec⇇ u
            (subst↑²Type-prod
               (PE.subst (λ b → _ ∙ ΠΣ⟨ b ⟩ _ , _ ▷ _ ▹ _ ⊢ _) b≡ ⊢A)

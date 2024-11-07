@@ -164,7 +164,7 @@ opaque
     {A} {t} {u} {t′} {u′} {v} {v′} {p} {q} {r}
     A≡A ⊢A ⊢t ⊢u t®t′ u®u′ = λ where
       (zeroᵣ v⇒zero v′⇒zero) →                                         $⟨ t®t′ ⟩
-        t ® t′ ∷ A [ zero ]₀                                           →⟨ ®∷-⇐* (redMany (natrec-zero ⊢A ⊢t ⊢u))
+        t ® t′ ∷ A [ zero ]₀                                           →⟨ ®∷-⇐* (redMany (natrec-zero ⊢t ⊢u))
                                                                             (T.trans T.natrec-zero T.refl) ⟩
         natrec p q r A t u zero ® T.natrec t′ u′ T.zero ∷ A [ zero ]₀  →⟨ conv-®∷ $ A≡A v⇒zero ⟩
         natrec p q r A t u zero ® T.natrec t′ u′ T.zero ∷ A [ v ]₀     →⟨ ®∷-⇐* (RS.natrec-subst* ⊢A ⊢t ⊢u v⇒zero)
@@ -174,10 +174,10 @@ opaque
       (sucᵣ {t′ = w} {v′ = w′} v⇒suc-w v′⇒suc-w′ _ w®w′) →        $⟨ natrecʳ′ A≡A ⊢A ⊢t ⊢u t®t′ u®u′ w®w′ ⟩
 
         natrec p q r A t u w ® T.natrec t′ u′ w′ ∷ A [ w ]₀       →⟨ u®u′ w®w′ $
-                                                                     natrecⱼ ⊢A ⊢t ⊢u (®∷ℕ→⊢∷ℕ w®w′) ⟩
+                                                                     natrecⱼ ⊢t ⊢u (®∷ℕ→⊢∷ℕ w®w′) ⟩
         u [ w , natrec p q r A t u w ]₁₀ ®
           u′ T.[ w′ , T.natrec t′ u′ w′ ]₁₀ ∷ A [ suc w ]₀        →⟨ ®∷-⇐*
-                                                                       (redMany $ natrec-suc ⊢A ⊢t ⊢u $
+                                                                       (redMany $ natrec-suc ⊢t ⊢u $
                                                                         inversion-suc (syntacticRedTerm v⇒suc-w .proj₂ .proj₂) .proj₁)
                                                                        (T.trans T.natrec-suc T.refl) ⟩
         natrec p q r A t u (suc w) ® T.natrec t′ u′ (T.suc w′) ∷

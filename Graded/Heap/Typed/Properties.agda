@@ -82,14 +82,14 @@ opaque
       → Δ ⊢ ⦅ e ⦆ᵉ t [ H ]ₕ ∷ B
   ⊢⦅⦆ᵉ (∘ₑ ⊢u _) ⊢t =
     ⊢t ∘ⱼ ⊢u
-  ⊢⦅⦆ᵉ (fstₑ _ _) ⊢t =
+  ⊢⦅⦆ᵉ (fstₑ _) ⊢t =
     fstⱼ′ ⊢t
-  ⊢⦅⦆ᵉ (sndₑ _ _) ⊢t =
+  ⊢⦅⦆ᵉ (sndₑ _) ⊢t =
     sndⱼ′ ⊢t
   ⊢⦅⦆ᵉ (prodrecₑ ⊢u ⊢A) ⊢t =
     prodrecⱼ′ ⊢A ⊢t ⊢u
-  ⊢⦅⦆ᵉ (natrecₑ ⊢z ⊢s ⊢A) ⊢t =
-    natrecⱼ ⊢A ⊢z ⊢s ⊢t
+  ⊢⦅⦆ᵉ (natrecₑ ⊢z ⊢s) ⊢t =
+    natrecⱼ ⊢z ⊢s ⊢t
   ⊢⦅⦆ᵉ (unitrecₑ ⊢u ⊢A no-η) ⊢t =
     unitrecⱼ′ ⊢A ⊢t ⊢u
   ⊢⦅⦆ᵉ (emptyrecₑ ⊢A) ⊢t =
@@ -132,14 +132,14 @@ opaque
            → Δ ⊢ ⦅ e ⦆ᵉ t [ H ]ₕ ≡ ⦅ e ⦆ᵉ u [ H ]ₕ ∷ B
   ⊢⦅⦆ᵉ-cong (∘ₑ ⊢u _) t≡u =
     app-cong t≡u (refl ⊢u)
-  ⊢⦅⦆ᵉ-cong (fstₑ _ _) t≡u =
+  ⊢⦅⦆ᵉ-cong (fstₑ _) t≡u =
     fst-cong′ t≡u
-  ⊢⦅⦆ᵉ-cong (sndₑ _ _) t≡u =
+  ⊢⦅⦆ᵉ-cong (sndₑ _) t≡u =
     snd-cong′ t≡u
   ⊢⦅⦆ᵉ-cong (prodrecₑ ⊢v ⊢A) t≡u =
     prodrec-cong′ (refl ⊢A) t≡u (refl ⊢v)
-  ⊢⦅⦆ᵉ-cong (natrecₑ ⊢z ⊢s ⊢A) t≡u =
-    natrec-cong′ (refl ⊢A) (refl ⊢z) (refl ⊢s) t≡u
+  ⊢⦅⦆ᵉ-cong (natrecₑ ⊢z ⊢s) t≡u =
+    natrec-cong (refl (⊢∙→⊢ (wfTerm ⊢s))) (refl ⊢z) (refl ⊢s) t≡u
   ⊢⦅⦆ᵉ-cong (unitrecₑ ⊢v ⊢A no-η) t≡u =
     unitrec-cong′ (refl ⊢A) t≡u (refl ⊢v)
   ⊢⦅⦆ᵉ-cong (emptyrecₑ ⊢A) t≡u =
@@ -180,14 +180,14 @@ opaque
             → Δ ⊢ ⦅ e ⦆ᵉ t [ H ]ₕ ⇒ ⦅ e ⦆ᵉ u [ H ]ₕ ∷ B
   ⊢⦅⦆ᵉ-subst (∘ₑ ⊢u _) d =
     app-subst d ⊢u
-  ⊢⦅⦆ᵉ-subst (fstₑ _ _) d =
+  ⊢⦅⦆ᵉ-subst (fstₑ _) d =
     fst-subst′ d
-  ⊢⦅⦆ᵉ-subst (sndₑ _ _) d =
+  ⊢⦅⦆ᵉ-subst (sndₑ _) d =
     snd-subst′ d
   ⊢⦅⦆ᵉ-subst (prodrecₑ ⊢u ⊢A) d =
     prodrec-subst′ ⊢A ⊢u d
-  ⊢⦅⦆ᵉ-subst (natrecₑ ⊢z ⊢s ⊢A) d =
-    natrec-subst ⊢A ⊢z ⊢s d
+  ⊢⦅⦆ᵉ-subst (natrecₑ ⊢z ⊢s) d =
+    natrec-subst ⊢z ⊢s d
   ⊢⦅⦆ᵉ-subst (unitrecₑ ⊢u ⊢A no-η) d =
     unitrec-subst′ ⊢A ⊢u d no-η
   ⊢⦅⦆ᵉ-subst (emptyrecₑ ⊢A) d =
@@ -221,17 +221,17 @@ opaque
            → Δ ⨾ H ⊢ᵉ e ⟨ u ⟩∷ A ↝ B
   ⊢ᵉ-convₜ (∘ₑ {A} {B} ⊢v ⊢B) t≡u =
     ∘ₑ {A = A} {B} ⊢v ⊢B
-  ⊢ᵉ-convₜ (fstₑ ⊢A ⊢B) t≡u =
-    fstₑ ⊢A ⊢B
-  ⊢ᵉ-convₜ (sndₑ ⊢A ⊢B) t≡u =
-    conv (sndₑ ⊢A ⊢B)
+  ⊢ᵉ-convₜ (fstₑ ⊢B) t≡u =
+    fstₑ ⊢B
+  ⊢ᵉ-convₜ (sndₑ ⊢B) t≡u =
+    conv (sndₑ ⊢B)
       (substTypeEq (refl ⊢B) (fst-cong′ (sym t≡u)))
   ⊢ᵉ-convₜ (prodrecₑ {B} {C} ⊢v ⊢A) t≡u =
     conv (prodrecₑ {B = B} {C} ⊢v ⊢A)
       (substTypeEq (refl ⊢A) (sym t≡u))
-  ⊢ᵉ-convₜ (natrecₑ ⊢z ⊢s ⊢A) t≡u =
-    conv (natrecₑ ⊢z ⊢s ⊢A)
-      (substTypeEq (refl ⊢A) (sym t≡u))
+  ⊢ᵉ-convₜ (natrecₑ ⊢z ⊢s) t≡u =
+    conv (natrecₑ ⊢z ⊢s)
+      (substTypeEq (refl (⊢∙→⊢ (wfTerm ⊢s))) (sym t≡u))
   ⊢ᵉ-convₜ (unitrecₑ ⊢v ⊢A no-η) t≡u =
     conv (unitrecₑ ⊢v ⊢A no-η)
       (substTypeEq (refl ⊢A) (sym t≡u))
@@ -276,10 +276,10 @@ opaque
           → Whnf (⦅ e ⦆ᵉ t)
           → Neutral t × Neutral (⦅ e ⦆ᵉ t)
   ⊢whnf⦅⦆ᵉ (∘ₑ x x₁) (ne (∘ₙ n)) = n , ∘ₙ n
-  ⊢whnf⦅⦆ᵉ (fstₑ x x₁) (ne (fstₙ n)) = n , fstₙ n
-  ⊢whnf⦅⦆ᵉ (sndₑ x x₁) (ne (sndₙ n)) = n , sndₙ n
+  ⊢whnf⦅⦆ᵉ (fstₑ _) (ne (fstₙ n)) = n , fstₙ n
+  ⊢whnf⦅⦆ᵉ (sndₑ _) (ne (sndₙ n)) = n , sndₙ n
   ⊢whnf⦅⦆ᵉ (prodrecₑ x x₁) (ne (prodrecₙ n)) = n , prodrecₙ n
-  ⊢whnf⦅⦆ᵉ (natrecₑ x x₁ x₂) (ne (natrecₙ n)) = n , natrecₙ n
+  ⊢whnf⦅⦆ᵉ (natrecₑ _ _) (ne (natrecₙ n)) = n , natrecₙ n
   ⊢whnf⦅⦆ᵉ (unitrecₑ x x₁ x₂) (ne (unitrecₙ no-η n)) = n , unitrecₙ no-η n
   ⊢whnf⦅⦆ᵉ (emptyrecₑ x) (ne (emptyrecₙ n)) = n , emptyrecₙ n
   ⊢whnf⦅⦆ᵉ (Jₑ x x₁) (ne (Jₙ n)) = n , Jₙ n
@@ -319,10 +319,10 @@ opaque
                 → NeutralAt x t
                 → NeutralAt x (⦅ e ⦆ᵉ t)
   ⊢⦅⦆ᵉ-NeutralAt (∘ₑ _ _) n = ∘ₙ n
-  ⊢⦅⦆ᵉ-NeutralAt (fstₑ _ _) n = fstₙ n
-  ⊢⦅⦆ᵉ-NeutralAt (sndₑ _ _) n = sndₙ n
+  ⊢⦅⦆ᵉ-NeutralAt (fstₑ _) n = fstₙ n
+  ⊢⦅⦆ᵉ-NeutralAt (sndₑ _) n = sndₙ n
   ⊢⦅⦆ᵉ-NeutralAt (prodrecₑ _ _) n = prodrecₙ n
-  ⊢⦅⦆ᵉ-NeutralAt (natrecₑ _ _ _) n = natrecₙ n
+  ⊢⦅⦆ᵉ-NeutralAt (natrecₑ _ _) n = natrecₙ n
   ⊢⦅⦆ᵉ-NeutralAt (unitrecₑ _ _ x) n = unitrecₙ x n
   ⊢⦅⦆ᵉ-NeutralAt (emptyrecₑ _) n = emptyrecₙ n
   ⊢⦅⦆ᵉ-NeutralAt (Jₑ _ _) n = Jₙ n
@@ -368,10 +368,10 @@ opaque
 
   hole-type-not-U : Δ ⨾ H ⊢ᵉ e ⟨ t ⟩∷ A ↝ B → ¬ Γ ⊢ A ≡ U l
   hole-type-not-U (∘ₑ _ _)         = U≢ΠΣⱼ ∘→ sym
-  hole-type-not-U (fstₑ _ _)       = U≢ΠΣⱼ ∘→ sym
-  hole-type-not-U (sndₑ _ _)       = U≢ΠΣⱼ ∘→ sym
+  hole-type-not-U (fstₑ _)         = U≢ΠΣⱼ ∘→ sym
+  hole-type-not-U (sndₑ _)         = U≢ΠΣⱼ ∘→ sym
   hole-type-not-U (prodrecₑ _ _)   = U≢ΠΣⱼ ∘→ sym
-  hole-type-not-U (natrecₑ _ _ _)  = U≢ℕ ∘→ sym
+  hole-type-not-U (natrecₑ _ _)    = U≢ℕ ∘→ sym
   hole-type-not-U (unitrecₑ _ _ _) = U≢Unitⱼ ∘→ sym
   hole-type-not-U (emptyrecₑ _)    = U≢Emptyⱼ ∘→ sym
   hole-type-not-U (Jₑ _ _)         = Id≢U

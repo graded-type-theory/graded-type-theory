@@ -171,7 +171,7 @@ module Fundamental
       Unitʳ
     fundamental (var _ x∈Γ) ▸x =
       fundamentalVar well-formed x∈Γ ▸x
-    fundamental (lamⱼ _ ⊢t ok) ▸lam =
+    fundamental (lamⱼ ⊢t ok) ▸lam =
       case inv-usage-lam ▸lam of λ
         (invUsageLam ▸t γ≤δ) →
       subsumption-▸⊩ʳ∷[]-≤ γ≤δ $
@@ -181,25 +181,25 @@ module Fundamental
         (invUsageApp ▸t ▸u γ≤δ+pη) →
       subsumption-▸⊩ʳ∷[]-≤ γ≤δ+pη $
       ∘ʳ ⊢u (fundamental ⊢t ▸t) (fundamental ⊢u ▸u)
-    fundamental (prodⱼ {k = 𝕤} _ ⊢B ⊢t ⊢u ok) ▸prod =
+    fundamental (prodⱼ {k = 𝕤} ⊢B ⊢t ⊢u ok) ▸prod =
       case inv-usage-prodˢ ▸prod of λ
         (invUsageProdˢ ▸t ▸u γ≤pδ∧η) →
       subsumption-▸⊩ʳ∷[]-≤ γ≤pδ∧η $
       prodˢʳ ok ⊢B ⊢t ⊢u (fundamental ⊢t ▸t) (fundamental ⊢u ▸u)
-    fundamental (prodⱼ {k = 𝕨} _ ⊢B ⊢t ⊢u ok) ▸prod =
+    fundamental (prodⱼ {k = 𝕨} ⊢B ⊢t ⊢u ok) ▸prod =
       case inv-usage-prodʷ ▸prod of λ
         (invUsageProdʷ ▸t ▸u γ≤pδ+η) →
       subsumption-▸⊩ʳ∷[]-≤ γ≤pδ+η $
       prodʷʳ ok ⊢B ⊢t ⊢u (fundamental ⊢t ▸t) (fundamental ⊢u ▸u)
-    fundamental (fstⱼ _ _ ⊢t) ▸fst =
+    fundamental (fstⱼ _ ⊢t) ▸fst =
       case inv-usage-fst ▸fst of λ
         (invUsageFst _ _ ▸t γ≤δ _) →
       fstʳ ⊢t (fundamental ⊢t (sub ▸t γ≤δ)) ▸fst
-    fundamental (sndⱼ _ _ ⊢t) ▸snd =
+    fundamental (sndⱼ _ ⊢t) ▸snd =
       case inv-usage-snd ▸snd of λ
         (invUsageSnd ▸t γ≤δ) →
       sndʳ ⊢t (fundamental ⊢t (sub ▸t γ≤δ))
-    fundamental {m = 𝟙ᵐ} (prodrecⱼ ⊢A ⊢B ⊢C ⊢t ⊢u _) ▸prodrec =
+    fundamental {m = 𝟙ᵐ} (prodrecⱼ ⊢C ⊢t ⊢u _) ▸prodrec =
       case inv-usage-prodrec ▸prodrec of λ
         (invUsageProdrec ▸t ▸u _ ok γ≤rδ+η) →
       subsumption-▸⊩ʳ∷[]-≤ γ≤rδ+η $
@@ -214,7 +214,7 @@ module Fundamental
         (invUsageSuc δ▸t γ≤δ) →
       subsumption-▸⊩ʳ∷[]-≤ γ≤δ $
       sucʳ ⊢t (fundamental ⊢t δ▸t)
-    fundamental (natrecⱼ {p} {r} _ ⊢t ⊢u ⊢v) γ▸nr =
+    fundamental (natrecⱼ {p} {r} ⊢t ⊢u ⊢v) γ▸nr =
       case inv-usage-natrec γ▸nr of λ {
         (invUsageNatrec {δ} {η} {θ} δ▸t η▸u θ▸v _ γ≤χ extra) →
       subsumption-▸⊩ʳ∷[]-≤ γ≤χ $
@@ -252,7 +252,7 @@ module Fundamental
       Idʳ
     fundamental (rflⱼ ⊢t) _ =
       rflʳ ⊢t
-    fundamental {γ} {m = 𝟙ᵐ} (Jⱼ _ _ ⊢B ⊢u _ ⊢w) ▸J =
+    fundamental {γ} {m = 𝟙ᵐ} (Jⱼ _ ⊢B ⊢u _ ⊢w) ▸J =
       case inv-usage-J ▸J of λ where
         (invUsageJ₀₂ em _ _ _ ▸u _ _ γ≤) →
           Jʳ ⊢B ⊢u ⊢w γ≤ (fundamental ⊢u ▸u)

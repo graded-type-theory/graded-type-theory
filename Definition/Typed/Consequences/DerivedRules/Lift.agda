@@ -110,7 +110,7 @@ opaque
     Γ ⊢ lift s l t ∷ Lift s l A
   ⊢lift (ok₁ , ok₂) ⊢t =
     let ⊢A = syntacticTerm ⊢t in
-    ⊢prod (Unitⱼ (⊢→⊢∙ ⊢A) ok₂) ⊢t (starⱼ (wf ⊢A) ok₂) ok₁
+    prodⱼ (Unitⱼ (⊢→⊢∙ ⊢A) ok₂) ⊢t (starⱼ (wf ⊢A) ok₂) ok₁
 
 ------------------------------------------------------------------------
 -- Typing rules for liftrec
@@ -158,7 +158,7 @@ private opaque
          (substRefl
             ( wk1Subst′ ⊢Unit′
                 (wk1Subst′ ⊢Unit (wk1Subst′ ⊢A (idSubst′ ⊢Γ)))
-            , ⊢prod
+            , prodⱼ
                 (Unitⱼ
                    (⊢→⊢∙ $
                     PE.subst (_⊢_ _) (wk≡subst _ _) $
@@ -258,7 +258,7 @@ opaque
                                                                                (λ _ →
                                                                                   PE.subst (_⊢_ _) (PE.sym lemma₁) $
                                                                                   subst↑Type ⊢B $
-                                                                                  ⊢prod (W.wk₁ (W.wk₁ ⊢Unit ⊢A) (W.wk₁ ⊢Unit ⊢Unit))
+                                                                                  prodⱼ (W.wk₁ (W.wk₁ ⊢Unit ⊢A) (W.wk₁ ⊢Unit ⊢Unit))
                                                                                     (W.wkTerm₁ ⊢Unit ⊢u) (var₀ ⊢Unit) ok₁) $
                                                                              PE.subst₂ (_⊢_∷_ _) (PE.sym lemma₄) (PE.sym lemma₃) $
                                                                              substTerm ⊢t ⊢u ⟩⊢∷∎≡

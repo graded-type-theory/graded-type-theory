@@ -130,16 +130,14 @@ opaque
 
     ⊢[t′] : Γ′ ⊢ [ t′ ] ∷ A′
     ⊢[t′] = prodⱼ
-      (ℕⱼ ε)
       (univ (natrecⱼ
-               (Uⱼ ⊢Γ′∙ℕ∙ℕ)
                (Unitⱼ ⊢Γ′∙ℕ Unit-ok)
                (ℕⱼ (⊢Γ′∙ℕ∙ℕ ∙ Uⱼ ⊢Γ′∙ℕ∙ℕ))
                (var ⊢Γ′∙ℕ here)))
       (zeroⱼ ε)
       (conv (starⱼ ε Unit-ok)
          (_⊢_≡_.sym $
-          univ (natrec-zero (Uⱼ ⊢Γ′∙ℕ) (Unitⱼ ε Unit-ok) (ℕⱼ ⊢Γ′∙ℕ∙U))))
+          univ (natrec-zero (Unitⱼ ε Unit-ok) (ℕⱼ ⊢Γ′∙ℕ∙U))))
       Σ-ok
 
     ℕ≡Unit : Γ′ ⊢ ℕ ≡ Unit s 0
@@ -150,7 +148,7 @@ opaque
         λ (_ , ≡Unit , _ , _ , _) →
       trans
         (_⊢_≡_.sym $ _⊢_≡_.univ $
-         natrec-suc (Uⱼ ⊢Γ′∙ℕ) (Unitⱼ ε Unit-ok) (ℕⱼ ⊢Γ′∙ℕ∙U) (zeroⱼ ε))
+         natrec-suc (Unitⱼ ε Unit-ok) (ℕⱼ ⊢Γ′∙ℕ∙U) (zeroⱼ ε))
         (substTypeEq ≡Unit (refl (sucⱼ (zeroⱼ ε))))
 
     bad : ⊥
