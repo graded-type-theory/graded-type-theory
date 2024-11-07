@@ -29,21 +29,15 @@ private variable
 -- The type s₁ ≤ˢ s₂ is inhabited when s₁ can be transformed into s₂
 -- through the addition of zero or more nodes (where one child is an
 -- arbitrary tree) anywhere in the tree.
---
--- One could replace ◻ with "leaf : leaf ≤ˢ leaf" and instead prove
--- reflexivity. However, if ◻ is a constructor, then Agda's auto
--- command can (at the time of writing) in quite a few cases be used
--- to infer values of this type, and (at the time of writing) that
--- seems to work less well if ◻ is a defined function.
 
 infix 10 ↙_ ↘_
 infix  4 _≤ˢ_
 
 data _≤ˢ_ : Size → Size → Set where
-  ◻   : s ≤ˢ s
-  _⊕_ : l₁ ≤ˢ l₂ → r₁ ≤ˢ r₂ → l₁ ⊕ r₁ ≤ˢ l₂ ⊕ r₂
-  ↙_  : s ≤ˢ l → s ≤ˢ l ⊕ r
-  ↘_  : s ≤ˢ r → s ≤ˢ l ⊕ r
+  leaf : leaf ≤ˢ leaf
+  _⊕_  : l₁ ≤ˢ l₂ → r₁ ≤ˢ r₂ → l₁ ⊕ r₁ ≤ˢ l₂ ⊕ r₂
+  ↙_   : s ≤ˢ l → s ≤ˢ l ⊕ r
+  ↘_   : s ≤ˢ r → s ≤ˢ l ⊕ r
 
 -- The type s₁ <ˢ s₂ is inhabited when s₁ can be transformed into s₂
 -- through the addition of one or more nodes (where one child is an
@@ -71,6 +65,18 @@ opaque
   <ˢ→≤ˢ (p ↙⊕ q) = <ˢ→≤ˢ p ⊕ q
   <ˢ→≤ˢ (p ⊕↘ q) = p ⊕ <ˢ→≤ˢ q
 
+
+------------------------------------------------------------------------
+-- Reflexivity
+
+opaque
+
+  -- Reflexivity for _≤ˢ_.
+
+  ◻ : s ≤ˢ s
+  ◻ {s = leaf}  = leaf
+  ◻ {s = _ ⊕ _} = ◻ ⊕ ◻
+
 ------------------------------------------------------------------------
 -- Transitivity
 
@@ -79,10 +85,9 @@ opaque
   -- Transitivity for _≤ˢ_.
 
   ≤ˢ-trans : s₁ ≤ˢ s₂ → s₂ ≤ˢ s₃ → s₁ ≤ˢ s₃
-  ≤ˢ-trans p         ◻         = p
+  ≤ˢ-trans p         leaf      = p
   ≤ˢ-trans p         (↙ q)     = ↙ ≤ˢ-trans p q
   ≤ˢ-trans p         (↘ q)     = ↘ ≤ˢ-trans p q
-  ≤ˢ-trans ◻         q         = q
   ≤ˢ-trans (↙ p)     (q₁ ⊕ q₂) = ≤ˢ-trans p (↙ q₁)
   ≤ˢ-trans (↘ p)     (q₁ ⊕ q₂) = ≤ˢ-trans p (↘ q₂)
   ≤ˢ-trans (p₁ ⊕ p₂) (q₁ ⊕ q₂) = ≤ˢ-trans p₁ q₁ ⊕ ≤ˢ-trans p₂ q₂
@@ -92,7 +97,7 @@ opaque
   -- A variant of transitivity for _<ˢ_ and _≤ˢ_.
 
   <ˢ-trans-≤ˢʳ : s₁ <ˢ s₂ → s₂ ≤ˢ s₃ → s₁ <ˢ s₃
-  <ˢ-trans-≤ˢʳ p          ◻         = p
+  <ˢ-trans-≤ˢʳ p          leaf      = p
   <ˢ-trans-≤ˢʳ p          (↙ q)     = ↙ ≤ˢ-trans (<ˢ→≤ˢ p) q
   <ˢ-trans-≤ˢʳ p          (↘ q)     = ↘ ≤ˢ-trans (<ˢ→≤ˢ p) q
   <ˢ-trans-≤ˢʳ (↙ p)      (q ⊕ _)   = ↙ ≤ˢ-trans p q
@@ -114,7 +119,7 @@ opaque
   -- A variant of transitivity for _<ˢ_ and _≤ˢ_.
 
   <ˢ-trans-≤ˢˡ : s₁ ≤ˢ s₂ → s₂ <ˢ s₃ → s₁ <ˢ s₃
-  <ˢ-trans-≤ˢˡ ◻         q          = q
+  <ˢ-trans-≤ˢˡ leaf      q          = q
   <ˢ-trans-≤ˢˡ (↙ p)     q          = <ˢ-trans (↙ p) q
   <ˢ-trans-≤ˢˡ (↘ p)     q          = <ˢ-trans (↘ p) q
   <ˢ-trans-≤ˢˡ p@(_ ⊕ _) (↙ q)      = ↙ ≤ˢ-trans p q
@@ -132,7 +137,6 @@ opaque
   -- If s₁ ⊕ s₂ ≤ˢ s₃, then s₁ <ˢ s₃.
 
   ⊕≤ˢ→<ˢˡ : s₁ ⊕ s₂ ≤ˢ s₃ → s₁ <ˢ s₃
-  ⊕≤ˢ→<ˢˡ ◻       = ↙ ◻
   ⊕≤ˢ→<ˢˡ (↙ p)   = ↙ <ˢ→≤ˢ (⊕≤ˢ→<ˢˡ p)
   ⊕≤ˢ→<ˢˡ (↘ p)   = ↘ <ˢ→≤ˢ (⊕≤ˢ→<ˢˡ p)
   ⊕≤ˢ→<ˢˡ (p ⊕ _) = ↙ p
@@ -142,7 +146,6 @@ opaque
   -- If s₁ ⊕ s₂ ≤ˢ s₃, then s₂ <ˢ s₃.
 
   ⊕≤ˢ→<ˢʳ : s₁ ⊕ s₂ ≤ˢ s₃ → s₂ <ˢ s₃
-  ⊕≤ˢ→<ˢʳ ◻       = ↘ ◻
   ⊕≤ˢ→<ˢʳ (↙ p)   = ↙ <ˢ→≤ˢ (⊕≤ˢ→<ˢʳ p)
   ⊕≤ˢ→<ˢʳ (↘ p)   = ↘ <ˢ→≤ˢ (⊕≤ˢ→<ˢʳ p)
   ⊕≤ˢ→<ˢʳ (_ ⊕ p) = ↘ p
@@ -166,7 +169,7 @@ opaque
 
   size-of-size-mono-≤ :
     s₁ ≤ˢ s₂ → size-of-size s₁ ≤ size-of-size s₂
-  size-of-size-mono-≤ ◻ =
+  size-of-size-mono-≤ leaf =
     ≤-refl
   size-of-size-mono-≤ (↙ p) =
     ≤-trans (size-of-size-mono-≤ p) (≤-trans (m≤m+n _ _) (n≤1+n _))

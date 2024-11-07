@@ -2,6 +2,8 @@
 -- Some lemmas that are re-exported from Definition.Typed.Properties
 ------------------------------------------------------------------------
 
+{-# OPTIONS --backtracking-instance-search #-}
+
 -- This module is imported from Graded.Derived.Erased.Typed.Primitive,
 -- which is imported from Definition.Typed.Properties.
 
@@ -23,6 +25,7 @@ open import Tools.Nat
 open import Tools.Product as Σ
 import Tools.PropositionalEquality as PE
 open import Tools.Size
+open import Tools.Size.Instances
 
 private variable
   Γ           : Con Term _
@@ -38,10 +41,10 @@ private opaque
   -- A lemma used below.
 
   fix :
-    s₁ ≤ˢ s₂ →
+    ⦃ leq : s₁ ≤ˢ s₂ ⦄ →
     (∃ λ (⊢Γ : ⊢ Γ) → size-⊢′ ⊢Γ <ˢ s₁) →
     (∃ λ (⊢Γ : ⊢ Γ) → size-⊢′ ⊢Γ <ˢ s₂)
-  fix s₁≤ˢs₂ = Σ.map idᶠ (flip <ˢ-trans-≤ˢʳ s₁≤ˢs₂)
+  fix ⦃ leq ⦄ = Σ.map idᶠ (flip <ˢ-trans-≤ˢʳ leq)
 
 private
 
@@ -69,17 +72,17 @@ private module Variants (hyp : ∀ {s₁} → s₁ <ˢ s₂ → P s₁) where
 
     -- Variants of the fields of P.
 
-    wf-<ˢ′ :
+    wf-<ˢ :
       (⊢A : Γ ⊢ A) →
-      size-⊢ ⊢A <ˢ s₂ →
+      ⦃ lt : size-⊢ ⊢A <ˢ s₂ ⦄ →
       ∃ λ (⊢Γ : ⊢ Γ) → size-⊢′ ⊢Γ <ˢ size-⊢ ⊢A
-    wf-<ˢ′ ⊢A <s₂ = P.wf-<ˢ (hyp <s₂) ⊢A PE.refl
+    wf-<ˢ ⊢A ⦃ lt ⦄ = P.wf-<ˢ (hyp lt) ⊢A PE.refl
 
-    wfTerm-<ˢ′ :
+    wfTerm-<ˢ :
       (⊢t : Γ ⊢ t ∷ A) →
-      size-⊢∷ ⊢t <ˢ s₂ →
+      ⦃ lt : size-⊢∷ ⊢t <ˢ s₂ ⦄ →
       ∃ λ (⊢Γ : ⊢ Γ) → size-⊢′ ⊢Γ <ˢ size-⊢∷ ⊢t
-    wfTerm-<ˢ′ ⊢t <s₂ = P.wfTerm-<ˢ (hyp <s₂) ⊢t PE.refl
+    wfTerm-<ˢ ⊢t ⦃ lt ⦄ = P.wfTerm-<ˢ (hyp lt) ⊢t PE.refl
 
   opaque
     unfolding size-⊢′
@@ -89,12 +92,12 @@ private module Variants (hyp : ∀ {s₁} → s₁ <ˢ s₂ → P s₁) where
 
     ⊢∙→⊢-<ˢ :
       (⊢Γ∙A : ⊢ Γ ∙ A) →
-      size-⊢′ ⊢Γ∙A ≤ˢ s₂ →
+      ⦃ leq : size-⊢′ ⊢Γ∙A ≤ˢ s₂ ⦄ →
       (∃ λ (⊢Γ : ⊢ Γ) → size-⊢′ ⊢Γ <ˢ size-⊢′ ⊢Γ∙A) ×
       (∃ λ (⊢A : Γ ⊢ A) → size-⊢ ⊢A <ˢ size-⊢′ ⊢Γ∙A)
-    ⊢∙→⊢-<ˢ (∙ ⊢A) ≤s₂ =
-      let ⊢Γ , Γ< = wf-<ˢ′ ⊢A (⊕≤ˢ→<ˢˡ ≤s₂) in
-      (⊢Γ , ↙ <ˢ→≤ˢ Γ<) , (⊢A , ↙ ◻)
+    ⊢∙→⊢-<ˢ (∙ ⊢A) ⦃ leq ⦄ =
+      let ⊢Γ , Γ< = wf-<ˢ ⊢A ⦃ lt = ⊕≤ˢ→<ˢˡ leq ⦄ in
+      (⊢Γ , ↙ <ˢ→≤ˢ Γ<) , (⊢A , !)
 
   opaque
 
@@ -103,13 +106,13 @@ private module Variants (hyp : ∀ {s₁} → s₁ <ˢ s₂ → P s₁) where
 
     ∙⊢→⊢-<ˢ :
       (⊢B : Γ ∙ A ⊢ B) →
-      size-⊢ ⊢B <ˢ s₂ →
+      ⦃ lt : size-⊢ ⊢B <ˢ s₂ ⦄ →
       (∃ λ (⊢Γ : ⊢ Γ) → size-⊢′ ⊢Γ <ˢ size-⊢ ⊢B) ×
       (∃ λ (⊢A : Γ ⊢ A) → size-⊢ ⊢A <ˢ size-⊢ ⊢B)
-    ∙⊢→⊢-<ˢ ⊢B B< =
-      let ⊢Γ∙A , Γ∙A<           = wf-<ˢ′ ⊢B B<
-          (⊢Γ , Γ<) , (⊢A , A<) = ⊢∙→⊢-<ˢ ⊢Γ∙A $
-                                  <ˢ→≤ˢ (<ˢ-trans Γ∙A< B<)
+    ∙⊢→⊢-<ˢ ⊢B =
+      let ⊢Γ∙A , Γ∙A<           = wf-<ˢ ⊢B
+          (⊢Γ , Γ<) , (⊢A , A<) = ⊢∙→⊢-<ˢ ⊢Γ∙A
+                                    ⦃ leq = <ˢ→≤ˢ (<ˢ-trans Γ∙A< !) ⦄
       in
       (⊢Γ , <ˢ-trans Γ< Γ∙A<) , (⊢A , <ˢ-trans A< Γ∙A<)
 
@@ -120,13 +123,13 @@ private module Variants (hyp : ∀ {s₁} → s₁ <ˢ s₂ → P s₁) where
 
     ∙⊢∷→⊢-<ˢ :
       (⊢t : Γ ∙ A ⊢ t ∷ B) →
-      size-⊢∷ ⊢t <ˢ s₂ →
+      ⦃ lt : size-⊢∷ ⊢t <ˢ s₂ ⦄ →
       (∃ λ (⊢Γ : ⊢ Γ) → size-⊢′ ⊢Γ <ˢ size-⊢∷ ⊢t) ×
       (∃ λ (⊢A : Γ ⊢ A) → size-⊢ ⊢A <ˢ size-⊢∷ ⊢t)
-    ∙⊢∷→⊢-<ˢ ⊢t t< =
-      let ⊢Γ∙A , Γ∙A<           = wfTerm-<ˢ′ ⊢t t<
-          (⊢Γ , Γ<) , (⊢A , A<) = ⊢∙→⊢-<ˢ ⊢Γ∙A $
-                                  <ˢ→≤ˢ (<ˢ-trans Γ∙A< t<)
+    ∙⊢∷→⊢-<ˢ ⊢t =
+      let ⊢Γ∙A , Γ∙A<           = wfTerm-<ˢ ⊢t
+          (⊢Γ , Γ<) , (⊢A , A<) = ⊢∙→⊢-<ˢ ⊢Γ∙A
+                                    ⦃ leq = <ˢ→≤ˢ (<ˢ-trans Γ∙A< !) ⦄
       in
       (⊢Γ , <ˢ-trans Γ< Γ∙A<) , (⊢A , <ˢ-trans A< Γ∙A<)
 
@@ -140,19 +143,19 @@ private module Lemmas where
     -- If there is a proof of type Γ ⊢ A, then there is a strictly
     -- smaller proof of type ⊢ Γ.
 
-    wf-<ˢ :
+    wf-<ˢ′ :
       (∀ {s₁} → s₁ <ˢ s₂ → P s₁) →
       (⊢A : Γ ⊢ A) →
       size-⊢ ⊢A PE.≡ s₂ →
       ∃ λ (⊢Γ : ⊢ Γ) → size-⊢′ ⊢Γ <ˢ size-⊢ ⊢A
-    wf-<ˢ hyp = λ where
-        (Uⱼ ⊢Γ)      _       → ⊢Γ , ↙ ◻
-        (univ A)     PE.refl → fix (↙ ◻) (wfTerm-<ˢ′ A (↙ ◻))
-        (ΠΣⱼ ⊢B _)   PE.refl → fix (↙ ◻) (∙⊢→⊢-<ˢ ⊢B (↙ ◻) .proj₁)
-        (Emptyⱼ ⊢Γ)  _       → ⊢Γ , ↙ ◻
-        (Unitⱼ ⊢Γ _) _       → ⊢Γ , ↙ ◻
-        (ℕⱼ ⊢Γ)      _       → ⊢Γ , ↙ ◻
-        (Idⱼ ⊢t _)   PE.refl → fix (↙ ◻) (wfTerm-<ˢ′ ⊢t (↙ ◻))
+    wf-<ˢ′ hyp = λ where
+        (Uⱼ ⊢Γ)      _       → ⊢Γ , !
+        (univ A)     PE.refl → fix (wfTerm-<ˢ A)
+        (ΠΣⱼ ⊢B _)   PE.refl → fix (∙⊢→⊢-<ˢ ⊢B .proj₁)
+        (Emptyⱼ ⊢Γ)  _       → ⊢Γ , !
+        (Unitⱼ ⊢Γ _) _       → ⊢Γ , !
+        (ℕⱼ ⊢Γ)      _       → ⊢Γ , !
+        (Idⱼ ⊢t _)   PE.refl → fix (wfTerm-<ˢ ⊢t)
       where
       open Variants hyp
 
@@ -162,42 +165,36 @@ private module Lemmas where
     -- If there is a proof of type Γ ⊢ t ∷ A, then there is a strictly
     -- smaller proof of type ⊢ Γ.
 
-    wfTerm-<ˢ :
+    wfTerm-<ˢ′ :
       (∀ {s₁} → s₁ <ˢ s₂ → P s₁) →
       (⊢t : Γ ⊢ t ∷ A) →
       size-⊢∷ ⊢t PE.≡ s₂ →
       ∃ λ (⊢Γ : ⊢ Γ) → size-⊢′ ⊢Γ <ˢ size-⊢∷ ⊢t
-    wfTerm-<ˢ hyp = λ where
-        (conv ⊢t _)          PE.refl → fix (↙ ◻) (wfTerm-<ˢ′ ⊢t (↙ ◻))
-        (var ⊢Γ _)           _       → ⊢Γ , ↙ ◻
-        (Uⱼ ⊢Γ)              _       → ⊢Γ , ↙ ◻
-        (ΠΣⱼ ⊢A _ _)         PE.refl → fix (↙ ◻) (wfTerm-<ˢ′ ⊢A (↙ ◻))
-        (lamⱼ ⊢t _)          PE.refl → fix (↙ ◻) $
-                                       ∙⊢∷→⊢-<ˢ ⊢t (↙ ◻) .proj₁
-        (⊢t ∘ⱼ _)            PE.refl → fix (↙ ◻) (wfTerm-<ˢ′ ⊢t (↙ ◻))
-        (prodⱼ _ ⊢t _ _)     PE.refl → fix (↘ ↙ ◻) $
-                                       wfTerm-<ˢ′ ⊢t (↘ ↙ ◻)
-        (fstⱼ _ ⊢t)          PE.refl → fix (↘ ◻) (wfTerm-<ˢ′ ⊢t (↘ ◻))
-        (sndⱼ _ ⊢t)          PE.refl → fix (↘ ◻) (wfTerm-<ˢ′ ⊢t (↘ ◻))
-        (prodrecⱼ _ ⊢t _ _)  PE.refl → fix (↘ ↙ ◻) $
-                                       wfTerm-<ˢ′ ⊢t (↘ ↙ ◻)
-        (Emptyⱼ ⊢Γ)          _       → ⊢Γ , ↙ ◻
-        (emptyrecⱼ ⊢A _)     PE.refl → fix (↙ ◻) (wf-<ˢ′ ⊢A (↙ ◻))
-        (Unitⱼ ⊢Γ _)         _       → ⊢Γ , ↙ ◻
-        (starⱼ ⊢Γ _)         _       → ⊢Γ , ↙ ◻
-        (unitrecⱼ ⊢A ⊢t _ _) PE.refl → fix (↘ ↙ ◻) $
-                                       wfTerm-<ˢ′ ⊢t (↘ ↙ ◻)
-        (ℕⱼ ⊢Γ)              _       → ⊢Γ , ↙ ◻
-        (zeroⱼ ⊢Γ)           _       → ⊢Γ , ↙ ◻
-        (sucⱼ n)             PE.refl → fix (↙ ◻) (wfTerm-<ˢ′ n (↙ ◻))
-        (natrecⱼ ⊢t _ _)     PE.refl → fix (↙ ◻) (wfTerm-<ˢ′ ⊢t (↙ ◻))
-        (Idⱼ ⊢A _ _)         PE.refl → fix (↙ ◻) (wfTerm-<ˢ′ ⊢A (↙ ◻))
-        (rflⱼ ⊢t)            PE.refl → fix (↙ ◻) (wfTerm-<ˢ′ ⊢t (↙ ◻))
-        (Jⱼ ⊢t _ _ _ _)      PE.refl → fix (↙ ↙ ◻) $
-                                       wfTerm-<ˢ′ ⊢t (↙ ↙ ◻)
-        (Kⱼ ⊢t _ _ _ _)      PE.refl → fix (↙ ↙ ◻) $
-                                       wfTerm-<ˢ′ ⊢t (↙ ↙ ◻)
-        ([]-congⱼ ⊢t _ _ _)  PE.refl → fix (↙ ◻) (wfTerm-<ˢ′ ⊢t (↙ ◻))
+    wfTerm-<ˢ′ hyp = λ where
+        (conv ⊢t _)          PE.refl → fix (wfTerm-<ˢ ⊢t)
+        (var ⊢Γ _)           _       → ⊢Γ , !
+        (Uⱼ ⊢Γ)              _       → ⊢Γ , !
+        (ΠΣⱼ ⊢A _ _)         PE.refl → fix (wfTerm-<ˢ ⊢A)
+        (lamⱼ ⊢t _)          PE.refl → fix (∙⊢∷→⊢-<ˢ ⊢t .proj₁)
+        (⊢t ∘ⱼ _)            PE.refl → fix (wfTerm-<ˢ ⊢t)
+        (prodⱼ _ ⊢t _ _)     PE.refl → fix (wfTerm-<ˢ ⊢t)
+        (fstⱼ _ ⊢t)          PE.refl → fix (wfTerm-<ˢ ⊢t)
+        (sndⱼ _ ⊢t)          PE.refl → fix (wfTerm-<ˢ ⊢t)
+        (prodrecⱼ _ ⊢t _ _)  PE.refl → fix (wfTerm-<ˢ ⊢t)
+        (Emptyⱼ ⊢Γ)          _       → ⊢Γ , !
+        (emptyrecⱼ ⊢A _)     PE.refl → fix (wf-<ˢ ⊢A)
+        (Unitⱼ ⊢Γ _)         _       → ⊢Γ , !
+        (starⱼ ⊢Γ _)         _       → ⊢Γ , !
+        (unitrecⱼ ⊢A ⊢t _ _) PE.refl → fix (wfTerm-<ˢ ⊢t)
+        (ℕⱼ ⊢Γ)              _       → ⊢Γ , !
+        (zeroⱼ ⊢Γ)           _       → ⊢Γ , !
+        (sucⱼ n)             PE.refl → fix (wfTerm-<ˢ n)
+        (natrecⱼ ⊢t _ _)     PE.refl → fix (wfTerm-<ˢ ⊢t)
+        (Idⱼ ⊢A _ _)         PE.refl → fix (wfTerm-<ˢ ⊢A)
+        (rflⱼ ⊢t)            PE.refl → fix (wfTerm-<ˢ ⊢t)
+        (Jⱼ ⊢t _ _ _ _)      PE.refl → fix (wfTerm-<ˢ ⊢t)
+        (Kⱼ ⊢t _ _ _ _)      PE.refl → fix (wfTerm-<ˢ ⊢t)
+        ([]-congⱼ ⊢t _ _ _)  PE.refl → fix (wfTerm-<ˢ ⊢t)
       where
       open Variants hyp
 
@@ -210,8 +207,8 @@ private module Lemmas where
       well-founded-induction P
         (λ _ hyp →
            record
-             { wf-<ˢ     = wf-<ˢ     hyp
-             ; wfTerm-<ˢ = wfTerm-<ˢ hyp
+             { wf-<ˢ     = wf-<ˢ′     hyp
+             ; wfTerm-<ˢ = wfTerm-<ˢ′ hyp
              })
         _
 
@@ -242,12 +239,12 @@ opaque
 
     wfEq-<ˢ :
       (A≡B : Γ ⊢ A ≡ B) → ∃ λ (⊢Γ : ⊢ Γ) → size-⊢′ ⊢Γ <ˢ size-⊢≡ A≡B
-    wfEq-<ˢ (univ A≡B)          = fix (↙ ◻) (wfEqTerm-<ˢ A≡B)
-    wfEq-<ˢ (refl ⊢A)           = fix (↙ ◻) (wf-<ˢ ⊢A)
-    wfEq-<ˢ (sym B≡A)           = fix (↙ ◻) (wfEq-<ˢ B≡A)
-    wfEq-<ˢ (trans A≡B B≡C)     = fix (↙ ◻) (wfEq-<ˢ A≡B)
-    wfEq-<ˢ (ΠΣ-cong A₁≡B₁ _ _) = fix (↙ ◻) (wfEq-<ˢ A₁≡B₁)
-    wfEq-<ˢ (Id-cong A≡B _ _)   = fix (↙ ◻) (wfEq-<ˢ A≡B)
+    wfEq-<ˢ (univ A≡B)          = fix (wfEqTerm-<ˢ A≡B)
+    wfEq-<ˢ (refl ⊢A)           = fix (wf-<ˢ ⊢A)
+    wfEq-<ˢ (sym B≡A)           = fix (wfEq-<ˢ B≡A)
+    wfEq-<ˢ (trans A≡B B≡C)     = fix (wfEq-<ˢ A≡B)
+    wfEq-<ˢ (ΠΣ-cong A₁≡B₁ _ _) = fix (wfEq-<ˢ A₁≡B₁)
+    wfEq-<ˢ (Id-cong A≡B _ _)   = fix (wfEq-<ˢ A≡B)
 
     -- If there is a proof of type Γ ⊢ t ≡ u ∷ A, then there is a
     -- strictly smaller proof of type ⊢ Γ.
@@ -256,69 +253,69 @@ opaque
       (t≡u : Γ ⊢ t ≡ u ∷ A) →
       ∃ λ (⊢Γ : ⊢ Γ) → size-⊢′ ⊢Γ <ˢ size-⊢≡∷ t≡u
     wfEqTerm-<ˢ (refl ⊢t) =
-      fix (↙ ◻) (wfTerm-<ˢ ⊢t)
+      fix (wfTerm-<ˢ ⊢t)
     wfEqTerm-<ˢ (sym u≡t) =
-      fix (↙ ◻) (wfEqTerm-<ˢ u≡t)
+      fix (wfEqTerm-<ˢ u≡t)
     wfEqTerm-<ˢ (trans t≡u _) =
-      fix (↙ ◻) (wfEqTerm-<ˢ t≡u)
+      fix (wfEqTerm-<ˢ t≡u)
     wfEqTerm-<ˢ (conv t≡u _) =
-      fix (↙ ◻) (wfEqTerm-<ˢ t≡u)
+      fix (wfEqTerm-<ˢ t≡u)
     wfEqTerm-<ˢ (ΠΣ-cong A≡B _ _) =
-      fix (↙ ◻) (wfEqTerm-<ˢ A≡B)
+      fix (wfEqTerm-<ˢ A≡B)
     wfEqTerm-<ˢ (app-cong t₁≡u₁ _) =
-      fix (↙ ◻) (wfEqTerm-<ˢ t₁≡u₁)
+      fix (wfEqTerm-<ˢ t₁≡u₁)
     wfEqTerm-<ˢ (β-red _ _ ⊢u _ _) =
-      fix (↘ ↘ ◻) (wfTerm-<ˢ ⊢u)
+      fix (wfTerm-<ˢ ⊢u)
     wfEqTerm-<ˢ (η-eq ⊢t _ _) =
-      fix (↙ ◻) (wfTerm-<ˢ ⊢t)
+      fix (wfTerm-<ˢ ⊢t)
     wfEqTerm-<ˢ (fst-cong _ t≡u) =
-      fix (↘ ◻) (wfEqTerm-<ˢ t≡u)
+      fix (wfEqTerm-<ˢ t≡u)
     wfEqTerm-<ˢ (snd-cong _ t≡u) =
-      fix (↘ ◻) (wfEqTerm-<ˢ t≡u)
+      fix (wfEqTerm-<ˢ t≡u)
     wfEqTerm-<ˢ (Σ-β₁ _ ⊢t _ _ _) =
-      fix (↘ ↙ ◻) (wfTerm-<ˢ ⊢t)
+      fix (wfTerm-<ˢ ⊢t)
     wfEqTerm-<ˢ (Σ-β₂ _ ⊢t _ _ _) =
-      fix (↘ ↙ ◻) (wfTerm-<ˢ ⊢t)
+      fix (wfTerm-<ˢ ⊢t)
     wfEqTerm-<ˢ (Σ-η _ ⊢t _ _ _) =
-      fix (↙ ↘ ↙ ◻) (wfTerm-<ˢ ⊢t)
+      fix (wfTerm-<ˢ ⊢t)
     wfEqTerm-<ˢ (prod-cong _ t₁≡u₁ _ _) =
-      fix (↘ ↙ ◻) (wfEqTerm-<ˢ t₁≡u₁)
+      fix (wfEqTerm-<ˢ t₁≡u₁)
     wfEqTerm-<ˢ (prodrec-cong _ t₁≡u₁ _ _) =
-      fix (↘ ↙ ◻) (wfEqTerm-<ˢ t₁≡u₁)
+      fix (wfEqTerm-<ˢ t₁≡u₁)
     wfEqTerm-<ˢ (prodrec-β _ ⊢t _ _ _ _) =
-      fix (↙ ↘ ◻) (wfTerm-<ˢ ⊢t)
+      fix (wfTerm-<ˢ ⊢t)
     wfEqTerm-<ˢ (emptyrec-cong A≡B _) =
-      fix (↙ ◻) (wfEq-<ˢ A≡B)
+      fix (wfEq-<ˢ A≡B)
     wfEqTerm-<ˢ (unitrec-cong _ t₁≡u₁ _ _ _) =
-      fix (↘ ↙ ◻) (wfEqTerm-<ˢ t₁≡u₁)
+      fix (wfEqTerm-<ˢ t₁≡u₁)
     wfEqTerm-<ˢ (unitrec-β _ ⊢t _ _) =
-      fix (↘ ◻) (wfTerm-<ˢ ⊢t)
+      fix (wfTerm-<ˢ ⊢t)
     wfEqTerm-<ˢ (unitrec-β-η _ ⊢t _ _ _) =
-      fix (↘ ↙ ◻) (wfTerm-<ˢ ⊢t)
+      fix (wfTerm-<ˢ ⊢t)
     wfEqTerm-<ˢ (η-unit ⊢t _ _) =
-      fix (↙ ◻) (wfTerm-<ˢ ⊢t)
+      fix (wfTerm-<ˢ ⊢t)
     wfEqTerm-<ˢ (suc-cong t≡u) =
-      fix (↙ ◻) (wfEqTerm-<ˢ t≡u)
+      fix (wfEqTerm-<ˢ t≡u)
     wfEqTerm-<ˢ (natrec-cong _ t₁≡u₁ _ _) =
-      fix (↙ ↘ ◻) (wfEqTerm-<ˢ t₁≡u₁)
+      fix (wfEqTerm-<ˢ t₁≡u₁)
     wfEqTerm-<ˢ (natrec-zero ⊢t _) =
-      fix (↙ ◻) (wfTerm-<ˢ ⊢t)
+      fix (wfTerm-<ˢ ⊢t)
     wfEqTerm-<ˢ (natrec-suc ⊢t _ _) =
-      fix (↙ ◻) (wfTerm-<ˢ ⊢t)
+      fix (wfTerm-<ˢ ⊢t)
     wfEqTerm-<ˢ (Id-cong A≡B _ _) =
-      fix (↙ ◻) (wfEqTerm-<ˢ A≡B)
+      fix (wfEqTerm-<ˢ A≡B)
     wfEqTerm-<ˢ (J-cong _ ⊢t₁ _ _ _ _ _) =
-      fix (↙ ↘ ↙ ◻) (wfTerm-<ˢ ⊢t₁)
+      fix (wfTerm-<ˢ ⊢t₁)
     wfEqTerm-<ˢ (K-cong A₁≡A₂ _ _ _ _ _ _) =
-      fix (↙ ↙ ◻) (wfEq-<ˢ A₁≡A₂)
+      fix (wfEq-<ˢ A₁≡A₂)
     wfEqTerm-<ˢ ([]-cong-cong A≡B _ _ _ _) =
-      fix (↙ ↙ ◻) (wfEq-<ˢ A≡B)
+      fix (wfEq-<ˢ A≡B)
     wfEqTerm-<ˢ (J-β ⊢t _ _ _) =
-      fix (↙ ◻) (wfTerm-<ˢ ⊢t)
+      fix (wfTerm-<ˢ ⊢t)
     wfEqTerm-<ˢ (K-β ⊢t _ _ _) =
-      fix (↙ ◻) (wfTerm-<ˢ ⊢t)
+      fix (wfTerm-<ˢ ⊢t)
     wfEqTerm-<ˢ ([]-cong-β ⊢t _ _) =
-      fix (↙ ◻) (wfTerm-<ˢ ⊢t)
+      fix (wfTerm-<ˢ ⊢t)
 
 opaque
 
@@ -394,7 +391,8 @@ opaque
     (⊢Γ∙A : ⊢ Γ ∙ A) →
     (∃ λ (⊢Γ : ⊢ Γ) → size-⊢′ ⊢Γ <ˢ size-⊢′ ⊢Γ∙A) ×
     (∃ λ (⊢A : Γ ⊢ A) → size-⊢ ⊢A <ˢ size-⊢′ ⊢Γ∙A)
-  ⊢∙→⊢-<ˢ ⊢Γ∙A = Variants.⊢∙→⊢-<ˢ (λ _ → Lemmas.P-inhabited) ⊢Γ∙A ◻
+  ⊢∙→⊢-<ˢ ⊢Γ∙A =
+    Variants.⊢∙→⊢-<ˢ (λ _ → Lemmas.P-inhabited) ⊢Γ∙A ⦃ leq = ◻ ⦄
 
 opaque
 
@@ -413,7 +411,8 @@ opaque
     (∃ λ (⊢Γ : ⊢ Γ) → size-⊢′ ⊢Γ <ˢ size-⊢ ⊢B) ×
     (∃ λ (⊢A : Γ ⊢ A) → size-⊢ ⊢A <ˢ size-⊢ ⊢B)
   ∙⊢→⊢-<ˢ ⊢B =
-    Variants.∙⊢→⊢-<ˢ {s₂ = node _} (λ _ → Lemmas.P-inhabited) ⊢B (↙ ◻)
+    Variants.∙⊢→⊢-<ˢ {s₂ = node _} (λ _ → Lemmas.P-inhabited) ⊢B
+      ⦃ lt = ↙ ◻ ⦄
 
 opaque
 
@@ -425,7 +424,8 @@ opaque
     (∃ λ (⊢Γ : ⊢ Γ) → size-⊢′ ⊢Γ <ˢ size-⊢∷ ⊢t) ×
     (∃ λ (⊢A : Γ ⊢ A) → size-⊢ ⊢A <ˢ size-⊢∷ ⊢t)
   ∙⊢∷→⊢-<ˢ ⊢t =
-    Variants.∙⊢∷→⊢-<ˢ {s₂ = node _} (λ _ → Lemmas.P-inhabited) ⊢t (↙ ◻)
+    Variants.∙⊢∷→⊢-<ˢ {s₂ = node _} (λ _ → Lemmas.P-inhabited) ⊢t
+      ⦃ lt = ↙ ◻ ⦄
 
 opaque
 

@@ -24,6 +24,7 @@ import Tools.Reasoning.PropositionalEquality
 import Tools.Bool
 import Tools.Nat
 import Tools.Size
+import Tools.Size.Instances
 import Tools.Fin
 import Tools.List
 import Tools.Algebra
