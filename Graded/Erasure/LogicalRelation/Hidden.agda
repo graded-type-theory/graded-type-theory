@@ -123,7 +123,7 @@ opaque
     , (λ ())
 
 opaque
-  unfolding _®_∷_ ⊩Unit⇔
+  unfolding _®_∷_ ⊩Unit⇔ whrDet* idRed:*:
 
   -- A characterisation lemma for Unit.
 

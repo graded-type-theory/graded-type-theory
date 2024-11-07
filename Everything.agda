@@ -121,6 +121,7 @@ import Definition.Typed.Stability
 import Definition.Typed.Substitution
 import Definition.Typed.Well-formed
 import Definition.Typed.Properties.Admissible
+import Definition.Typed.Properties.Reduction
 import Definition.Typed.Properties
 import Definition.Typed.Reasoning.Term
 import Definition.Typed.RedSteps
