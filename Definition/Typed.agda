@@ -25,7 +25,7 @@ import Tools.PropositionalEquality as PE
 open import Tools.Relation
 
 
-infixl 24 _∙_
+infix 24 ∙_
 
 private
   variable
@@ -49,10 +49,8 @@ data _∷_∈_ : (x : Fin n) (A : Term n) (Γ : Con Term n) → Set ℓ where
 mutual
   -- Well-formed context
   data ⊢_ : Con Term n → Set ℓ where
-    ε   : ⊢ ε
-    _∙_ : ⊢ Γ
-        → Γ ⊢ A
-        → ⊢ Γ ∙ A
+    ε  : ⊢ ε
+    ∙_ : Γ ⊢ A → ⊢ Γ ∙ A
 
   -- Well-formed type
   data _⊢_ (Γ : Con Term n) : Term n → Set ℓ where

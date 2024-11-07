@@ -37,7 +37,7 @@ private variable
 -- A formation rule for Erased.
 
 Erasedⱼ : Γ ⊢ A → Γ ⊢ Erased A
-Erasedⱼ ⊢A = ΠΣⱼ (Unitⱼ (wf ⊢A ∙ ⊢A) Unit-ok) Σ-ok
+Erasedⱼ ⊢A = ΠΣⱼ (Unitⱼ (∙ ⊢A) Unit-ok) Σ-ok
 
 -- A corresponding congruence rule.
 
@@ -46,14 +46,13 @@ Erased-cong :
   Γ ⊢ A ≡ B →
   Γ ⊢ Erased A ≡ Erased B
 Erased-cong ⊢A A≡B =
-  ΠΣ-cong A≡B (refl (Unitⱼ (⊢→⊢∙ ⊢A) Unit-ok)) Σ-ok
+  ΠΣ-cong A≡B (refl (Unitⱼ (∙ ⊢A) Unit-ok)) Σ-ok
 
 -- An introduction rule for U.
 
 Erasedⱼ-U :
  Γ ⊢ A → Γ ⊢ A ∷ U l → Γ ⊢ Erased A ∷ U l
-Erasedⱼ-U ⊢A ⊢A∷U =
-  ΠΣⱼ ⊢A∷U (Unitⱼ (wf ⊢A ∙ ⊢A) Unit-ok) Σ-ok
+Erasedⱼ-U ⊢A ⊢A∷U = ΠΣⱼ ⊢A∷U (Unitⱼ (∙ ⊢A) Unit-ok) Σ-ok
 
 -- A corresponding congruence rule.
 
@@ -62,7 +61,7 @@ Erased-cong-U :
   Γ ⊢ A ≡ B ∷ U l →
   Γ ⊢ Erased A ≡ Erased B ∷ U l
 Erased-cong-U ⊢A A≡B =
-  ΠΣ-cong A≡B (refl (Unitⱼ (⊢→⊢∙ ⊢A) Unit-ok)) Σ-ok
+  ΠΣ-cong A≡B (refl (Unitⱼ (∙ ⊢A) Unit-ok)) Σ-ok
 
 -- An introduction rule for Erased.
 
@@ -71,7 +70,7 @@ Erased-cong-U ⊢A A≡B =
   Γ ⊢ t ∷ A →
   Γ ⊢ [ t ] ∷ Erased A
 []ⱼ ⊢A ⊢t =
-  prodⱼ (Unitⱼ (⊢→⊢∙ ⊢A) Unit-ok) ⊢t (starⱼ ⊢Γ Unit-ok) Σ-ok
+  prodⱼ (Unitⱼ (∙ ⊢A) Unit-ok) ⊢t (starⱼ ⊢Γ Unit-ok) Σ-ok
   where
   ⊢Γ = wf ⊢A
 
@@ -82,5 +81,5 @@ Erased-cong-U ⊢A A≡B =
   Γ ⊢ t ≡ u ∷ A →
   Γ ⊢ [ t ] ≡ [ u ] ∷ Erased A
 []-cong′ ⊢A t≡u =
-  prod-cong (Unitⱼ (⊢→⊢∙ ⊢A) Unit-ok) t≡u
-    (refl (starⱼ (wf ⊢A) Unit-ok)) Σ-ok
+  prod-cong (Unitⱼ (∙ ⊢A) Unit-ok) t≡u (refl (starⱼ (wf ⊢A) Unit-ok))
+    Σ-ok

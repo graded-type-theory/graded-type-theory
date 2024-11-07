@@ -49,8 +49,10 @@ opaque mutual
     let ⊢σ = ⊢ʰ→⊢ˢ ⊢H
         ⊢Δ = wfHeap ⊢H
         ⊢σA = substitution ⊢A ⊢σ ⊢Δ
-    in    wk1Subst′ ⊢σA ⊢σ
-        , var (⊢Δ ∙ ⊢σA) (PE.subst (y0 ∷_∈ Δ ∙ A [ H ]ₕ) (PE.sym (wk1Subst-wk1 A)) here)
+    in
+    wk1Subst′ ⊢σA ⊢σ ,
+    var (∙ ⊢σA)
+      (PE.subst (y0 ∷_∈ Δ ∙ A [ H ]ₕ) (PE.sym (wk1Subst-wk1 A)) here)
 
   -- Well-formed contexts from well-formed heaps
 
@@ -58,8 +60,8 @@ opaque mutual
   wfHeap {Δ = ε} ε = ε
   wfHeap (⊢H ∙ ⊢t) = wfHeap ⊢H
   wfHeap (⊢H ∙● ⊢A) =
-    let ⊢Δ = wfHeap ⊢H
-    in  ⊢Δ ∙ substitution ⊢A (⊢ʰ→⊢ˢ ⊢H) ⊢Δ
+    let ⊢Δ = wfHeap ⊢H in
+    ∙ substitution ⊢A (⊢ʰ→⊢ˢ ⊢H) ⊢Δ
 
 opaque
 

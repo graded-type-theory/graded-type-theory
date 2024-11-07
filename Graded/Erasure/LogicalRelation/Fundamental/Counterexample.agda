@@ -115,7 +115,7 @@ negation-of-fundamental-lemma-with-erased-matches₁
   A = ℕ
 
   ⊢Δ : ⊢ Δ
-  ⊢Δ = ε ∙ ΠΣⱼ (ℕⱼ (ε ∙ ℕⱼ ε)) Σʷ-ok
+  ⊢Δ = ∙ ΠΣⱼ (ℕⱼ (∙ ℕⱼ ε)) Σʷ-ok
 
   open LR ⊢Δ str
 
@@ -154,7 +154,7 @@ opaque
     A = Id (Erased ℕ) ([ zero ]) ([ zero ])
 
     ⊢Δ : ⊢ Δ
-    ⊢Δ = ε ∙ Idⱼ (zeroⱼ ε) (zeroⱼ ε)
+    ⊢Δ = ∙ Idⱼ (zeroⱼ ε) (zeroⱼ ε)
 
     consistent : Consistent Δ
     consistent = inhabited-consistent (singleSubst (rflⱼ (zeroⱼ ε)))
@@ -203,7 +203,7 @@ opaque
     A = ℕ
 
     ⊢Δ : ⊢ Δ
-    ⊢Δ = ε ∙ Idⱼ (zeroⱼ ε) (zeroⱼ ε)
+    ⊢Δ = ∙ Idⱼ (zeroⱼ ε) (zeroⱼ ε)
 
     open LR ⊢Δ str
 
@@ -243,7 +243,7 @@ opaque
     A = ℕ
 
     ⊢Δ : ⊢ Δ
-    ⊢Δ = ε ∙ Idⱼ (zeroⱼ ε) (zeroⱼ ε)
+    ⊢Δ = ∙ Idⱼ (zeroⱼ ε) (zeroⱼ ε)
 
     open LR ⊢Δ str
 
@@ -286,7 +286,7 @@ opaque
     A = ℕ
 
     ⊢Δ : ⊢ Δ
-    ⊢Δ = ε ∙ Unitⱼ ε Unit-ok
+    ⊢Δ = ∙ Unitⱼ ε Unit-ok
 
     open LR ⊢Δ str
 
@@ -324,7 +324,7 @@ opaque
     A = ℕ
 
     ⊢Δ : ⊢ Δ
-    ⊢Δ = ε ∙ Emptyⱼ ε
+    ⊢Δ = ∙ Emptyⱼ ε
 
     open LR ⊢Δ str
 

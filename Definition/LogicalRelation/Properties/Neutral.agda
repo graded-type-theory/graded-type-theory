@@ -120,7 +120,7 @@ mutual
                   b = escapeTerm ([F] [ρ] ⊢Δ) [b]
                   a≡b = escapeTermEq ([F] [ρ] ⊢Δ) [a≡b]
                   ⊢ρF = Wk.wk [ρ] ⊢Δ ⊢F
-                  ⊢ρG = Wk.wk (Wk.lift [ρ]) (⊢Δ ∙ ⊢ρF) ⊢G
+                  ⊢ρG = Wk.wk (Wk.lift [ρ]) (∙ ⊢ρF) ⊢G
                   A≡ΠFG₁ = trans A≡ΠFG
                              (ΠΣ-cong (refl ⊢F) (refl ⊢G) ok)
                   ρA≡ρΠFG₁ = trans ρA≡ρΠFG
@@ -141,7 +141,7 @@ mutual
                   a = escapeTerm ([F] [ρ] ⊢Δ) [a]
                   a≡a = escapeTermEq ([F] [ρ] ⊢Δ) (reflEqTerm ([F] [ρ] ⊢Δ) [a])
                   ⊢ρF = Wk.wk [ρ] ⊢Δ ⊢F
-                  ⊢ρG = Wk.wk (Wk.lift [ρ]) (⊢Δ ∙ ⊢ρF) ⊢G
+                  ⊢ρG = Wk.wk (Wk.lift [ρ]) (∙ ⊢ρF) ⊢G
                   A≡ΠFG′ = trans A≡ΠFG
                              (ΠΣ-cong (refl ⊢F) (refl ⊢G) ok)
                   ρA≡ρΠFG′ = trans ρA≡ρΠFG
@@ -265,7 +265,7 @@ mutual
                    neN∙a   = ∘ₙ (wkNeutral ρ neN)
                    neN′∙a′ = ∘ₙ (wkNeutral ρ neN′)
                    ⊢ρF = Wk.wk [ρ] ⊢Δ ⊢F
-                   ⊢ρG = Wk.wk (Wk.lift [ρ]) (⊢Δ ∙ ⊢ρF) ⊢G
+                   ⊢ρG = Wk.wk (Wk.lift [ρ]) (∙ ⊢ρF) ⊢G
                    ρA≡ρΠp₁FG = trans ρA≡ρΠFG
                                  (ΠΣ-cong (refl ⊢ρF) (refl ⊢ρG) ok)
                    ρA≡ρΠp₂FG = trans ρA≡ρΠFG

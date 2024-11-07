@@ -43,7 +43,7 @@ Erased-β (Unit-ok , Σ-ok) ⊢t =
   fstʷ-β-≡ (Unitⱼ ⊢ΓA Unit-ok) ⊢t (starⱼ ⊢Γ Unit-ok) Σ-ok
   where
   ⊢Γ = wfTerm ⊢t
-  ⊢ΓA = ⊢Γ ∙ syntacticTerm ⊢t
+  ⊢ΓA = ∙ syntacticTerm ⊢t
 
 -- An elimination rule for Erased.
 

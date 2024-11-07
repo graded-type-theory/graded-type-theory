@@ -192,8 +192,8 @@ opaque
     case syntacticEqTerm t≡u of λ {
       (⊢B , ⊢t , ⊢u) →
     case wf ⊢B of λ {
-      ⊢∙A@(_ ∙ ⊢A) →
-    case ⊢∙A ∙ W.wk₁ ⊢A ⊢A of λ {
+      (∙ ⊢A) →
+    case ∙ W.wk₁ ⊢A ⊢A of λ {
       ⊢∙A∙A →
     case lift (step id) of λ {
       ρ →
@@ -223,12 +223,12 @@ opaque
     case inversion-lam-Π ⊢lam of λ {
       (⊢t , PE.refl , ok) →
     case wfTerm ⊢t of λ {
-      ⊢ΓA@(_ ∙ ⊢A) →
+      ⊢ΓA@(∙ ⊢A) →
     PE.subst₂ (_⊢_⇒_∷_ _ _)
       (wkSingleSubstId _)
       (wkSingleSubstId _)
       (β-red-⇒
-         (wkTerm (lift (step id)) (⊢ΓA ∙ W.wk (step id) ⊢ΓA ⊢A) ⊢t)
+         (wkTerm (lift (step id)) (∙ W.wk (step id) ⊢ΓA ⊢A) ⊢t)
          (var₀ ⊢A) ok) }}
 
 opaque

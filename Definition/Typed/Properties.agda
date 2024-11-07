@@ -579,21 +579,21 @@ opaque
   -- A typing rule for variable 0.
 
   var₀ : Γ ⊢ A → Γ ∙ A ⊢ var x0 ∷ wk1 A
-  var₀ ⊢A = var (wf ⊢A ∙ ⊢A) here
+  var₀ ⊢A = var (∙ ⊢A) here
 
 opaque
 
   -- A typing rule for variable 1.
 
   var₁ : Γ ∙ A ⊢ B → Γ ∙ A ∙ B ⊢ var x1 ∷ wk1 (wk1 A)
-  var₁ ⊢B = var (wf ⊢B ∙ ⊢B) (there here)
+  var₁ ⊢B = var (∙ ⊢B) (there here)
 
 opaque
 
   -- A typing rule for variable 2.
 
   var₂ : Γ ∙ A ∙ B ⊢ C → Γ ∙ A ∙ B ∙ C ⊢ var x2 ∷ wk1 (wk1 (wk1 A))
-  var₂ ⊢C = var (wf ⊢C ∙ ⊢C) (there (there here))
+  var₂ ⊢C = var (∙ ⊢C) (there (there here))
 
 opaque
 
@@ -602,7 +602,7 @@ opaque
   var₃ :
     Γ ∙ A ∙ B ∙ C ⊢ D →
     Γ ∙ A ∙ B ∙ C ∙ D ⊢ var x3 ∷ wk1 (wk1 (wk1 (wk1 A)))
-  var₃ ⊢D = var (wf ⊢D ∙ ⊢D) (there (there (there here)))
+  var₃ ⊢D = var (∙ ⊢D) (there (there (there here)))
 
 opaque
 
@@ -611,7 +611,7 @@ opaque
   var₄ :
     Γ ∙ A ∙ B ∙ C ∙ D ⊢ E →
     Γ ∙ A ∙ B ∙ C ∙ D ∙ E ⊢ var x4 ∷ wk1 (wk1 (wk1 (wk1 (wk1 A))))
-  var₄ ⊢E = var (wf ⊢E ∙ ⊢E) (there (there (there (there here))))
+  var₄ ⊢E = var (∙ ⊢E) (there (there (there (there here))))
 
 opaque
 
@@ -621,5 +621,4 @@ opaque
     Γ ∙ A ∙ B ∙ C ∙ D ∙ E ⊢ F →
     Γ ∙ A ∙ B ∙ C ∙ D ∙ E ∙ F ⊢ var x5 ∷
       wk1 (wk1 (wk1 (wk1 (wk1 (wk1 A)))))
-  var₅ ⊢F =
-    var (wf ⊢F ∙ ⊢F) (there (there (there (there (there here)))))
+  var₅ ⊢F = var (∙ ⊢F) (there (there (there (there (there here)))))

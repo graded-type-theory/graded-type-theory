@@ -106,7 +106,7 @@ opaque
   -- A well-formedness lemma for wk1Subst.
 
   wk1Subst′ : Δ ⊢ A → Δ ⊢ˢ σ ∷ Γ → Δ ∙ A ⊢ˢ wk1Subst σ ∷ Γ
-  wk1Subst′ ⊢A = wkSubst′ (⊢→⊢∙ ⊢A) (step id)
+  wk1Subst′ ⊢A = wkSubst′ (∙ ⊢A) (step id)
 
 opaque
 
@@ -116,9 +116,9 @@ opaque
     ⊢ Δ →
     drop k Δ ⊢ˢ σ ∷ Γ →
     Δ ⊢ˢ wkSubst k σ ∷ Γ
-  ⊢ˢ-wkSubst {k = 0}    _         ⊢σ = ⊢σ
-  ⊢ˢ-wkSubst {k = 1+ _} (⊢Δ ∙ ⊢A) ⊢σ =
-    wk1Subst′ ⊢A (⊢ˢ-wkSubst ⊢Δ ⊢σ)
+  ⊢ˢ-wkSubst {k = 0}    _      ⊢σ = ⊢σ
+  ⊢ˢ-wkSubst {k = 1+ _} (∙ ⊢A) ⊢σ =
+    wk1Subst′ ⊢A (⊢ˢ-wkSubst (wf ⊢A) ⊢σ)
 
 opaque
 
@@ -129,16 +129,16 @@ opaque
     Δ ∙ A [ σ ] ⊢ˢ liftSubst σ ∷ Γ ∙ A
   liftSubst′ {A} ⊢Δ ⊢A ⊢σ =
     let ⊢A = substitution ⊢A ⊢σ ⊢Δ in
-    wkSubst′ (⊢→⊢∙ ⊢A) (step id) ⊢σ ,
+    wkSubst′ (∙ ⊢A) (step id) ⊢σ ,
     PE.subst (_⊢_∷_ _ _) (wk-subst A) (var₀ ⊢A)
 
 -- Well-formed identity substitution.
 idSubst′ : (⊢Γ : ⊢ Γ)
          → Γ ⊢ˢ idSubst ∷ Γ
-idSubst′ ε = id
-idSubst′ (_∙_ {Γ = Γ} {A} ⊢Γ ⊢A) =
-  wk1Subst′ ⊢A (idSubst′ ⊢Γ)
-  , PE.subst (λ x → Γ ∙ A ⊢ _ ∷ x) (wk1-tailId A) (var₀ ⊢A)
+idSubst′ ε      = id
+idSubst′ (∙ ⊢A) =
+  wk1Subst′ ⊢A (idSubst′ (wf ⊢A)) ,
+  PE.subst (_⊢_∷_ _ _) (wk1-tailId _) (var₀ ⊢A)
 
 opaque
 
@@ -175,17 +175,23 @@ opaque
     Γ ∙ A ⊢ t ∷ wk1 B →
     Γ ∙ A ⊢ˢ consSubst (wk1Subst idSubst) t ∷ Γ ∙ B
   singleSubst↑ {A} t =
-    case wfTerm t of λ {
-      (⊢Γ ∙ ⊢A) →
-      wk1Subst′ ⊢A (idSubst′ ⊢Γ)
-    , PE.subst (_⊢_∷_ _ _) (wk1-tailId _) t }
+    let ⊢A = ⊢∙→⊢ (wfTerm t) in
+      wk1Subst′ ⊢A (idSubst′ (wf ⊢A))
+    , PE.subst (_⊢_∷_ _ _) (wk1-tailId _) t
 
--- Well-formed singleton substitution of term equality with lifting.
-singleSubst↑Eq : ∀ {A t u} → Γ ∙ A ⊢ t ≡ u ∷ wk1 A
-              → Γ ∙ A ⊢ˢ consSubst (wk1Subst idSubst) t ≡ consSubst (wk1Subst idSubst) u ∷ Γ ∙ A
-singleSubst↑Eq {A = A} t with wfEqTerm t
-... | ⊢Γ ∙ ⊢A = substRefl (wk1Subst′ ⊢A (idSubst′ ⊢Γ))
-              , PE.subst (λ x → _ ∙ A ⊢ _ ≡ _ ∷ x) (wk1-tailId A) t
+opaque
+
+  -- Well-formed singleton substitution of term equality with lifting.
+  singleSubst↑Eq :
+    Γ ∙ A ⊢ t ≡ u ∷ wk1 A →
+    Γ ∙ A ⊢ˢ
+      consSubst (wk1Subst idSubst) t ≡
+      consSubst (wk1Subst idSubst) u ∷
+      Γ ∙ A
+  singleSubst↑Eq t =
+    let ⊢A = ⊢∙→⊢ (wfEqTerm t) in
+      substRefl (wk1Subst′ ⊢A (idSubst′ (wf ⊢A)))
+    , PE.subst (_⊢_≡_∷_ _ _ _) (wk1-tailId _) t
 
 -- Helper lemmas for single substitution
 
@@ -240,13 +246,16 @@ opaque
     Γ ∙ C ∙ D ⊢ t ∷ wk2 A →
     Γ ∙ C ∙ D ⊢ B [ t ]↑²
   subst↑²Type {A} ⊢B ⊢t =
-    case wfTerm ⊢t of λ {
-      ⊢ΓCD@(⊢Γ ∙ ⊢C ∙ ⊢D) →
+    let ⊢ΓCD = wfTerm ⊢t
+        ⊢D   = ⊢∙→⊢ ⊢ΓCD
+        ⊢C   = ⊢∙→⊢ (wf ⊢D)
+        ⊢Γ   = wf ⊢C
+    in
     substitution ⊢B
       ( wk1Subst′ ⊢D (wk1Subst′ ⊢C (idSubst′ ⊢Γ))
       , PE.subst (_⊢_∷_ _ _) (wk[]≡[] 2) ⊢t
       )
-      ⊢ΓCD }
+      ⊢ΓCD
 
 subst↑²Type-prod : ∀ {m F G A}
                  → Γ ∙ (Σ⟨ m ⟩ p , q ▷ F ▹ G) ⊢ A
@@ -256,9 +265,9 @@ subst↑²Type-prod {Γ = Γ} {F = F} {G} {A} ⊢A ok =
   let ⊢ΓΣ = wf ⊢A
       ⊢Γ , ⊢Σ = splitCon ⊢ΓΣ
       ⊢F , ⊢G = syntacticΣ ⊢Σ
-      ⊢ΓFG = ⊢Γ ∙ ⊢F ∙ ⊢G
+      ⊢ΓFG = ∙ ⊢G
       ⊢ρF = wk (step (step id)) ⊢ΓFG ⊢F
-      ⊢ρG = wk (lift (step (step id))) (⊢ΓFG ∙ ⊢ρF) ⊢G
+      ⊢ρG = wk (lift (step (step id))) (∙ ⊢ρF) ⊢G
       ⊢ρG′ = PE.subst₂ (λ x y → (Γ ∙ F ∙ G ∙ x) ⊢ y)
                        (wk≡subst (step (step id)) F)
                        (PE.trans (wk≡subst (lift (step (step id))) G)
@@ -281,7 +290,7 @@ subst↑²Type-prod {Γ = Γ} {F = F} {G} {A} ⊢A ok =
                    ⊢ΓFG
   where
   splitCon : ∀ {Γ : Con Term n} {F} → ⊢ (Γ ∙ F) → ⊢ Γ × Γ ⊢ F
-  splitCon (x ∙ x₁) = x , x₁
+  splitCon (∙ x₁) = wf x₁ , x₁
 
 opaque
 
@@ -292,13 +301,16 @@ opaque
     Γ ∙ D ∙ E ⊢ t ≡ u ∷ wk2 A →
     Γ ∙ D ∙ E ⊢ B [ t ]↑² ≡ C [ u ]↑²
   subst↑²TypeEq {A} B≡C t≡u =
-    case wfEqTerm t≡u of λ {
-      ⊢ΓDE@(⊢Γ ∙ ⊢D ∙ ⊢E) →
+    let ⊢ΓDE = wfEqTerm t≡u
+        ⊢E   = ⊢∙→⊢ ⊢ΓDE
+        ⊢D   = ⊢∙→⊢ (wf ⊢E)
+        ⊢Γ   = wf ⊢D
+    in
     substitutionEq B≡C
       ( substRefl (wk1Subst′ ⊢E (wk1Subst′ ⊢D (idSubst′ ⊢Γ)))
       , PE.subst (_⊢_≡_∷_ _ _ _) (wk[]≡[] 2) t≡u
       )
-      ⊢ΓDE }
+      ⊢ΓDE
 
 subst↑²TypeEq-prod : ∀ {m F G A B}
               → Γ ∙ (Σ⟨ m ⟩ p , q ▷ F ▹ G) ⊢ A ≡ B
@@ -310,9 +322,9 @@ subst↑²TypeEq-prod {Γ = Γ} {F = F} {G} {A} {B} A≡B ok =
       ⊢ΓΣ = wf ⊢A
       ⊢Γ , ⊢Σ = splitCon ⊢ΓΣ
       ⊢F , ⊢G = syntacticΣ ⊢Σ
-      ⊢ΓFG = ⊢Γ ∙ ⊢F ∙ ⊢G
+      ⊢ΓFG = ∙ ⊢G
       ⊢ρF = wk (step (step id)) ⊢ΓFG ⊢F
-      ⊢ρG = wk (lift (step (step id))) (⊢ΓFG ∙ ⊢ρF) ⊢G
+      ⊢ρG = wk (lift (step (step id))) (∙ ⊢ρF) ⊢G
       ⊢ρG′ = PE.subst₂ (λ x y → (Γ ∙ F ∙ G ∙ x) ⊢ y)
                        (wk≡subst (step (step id)) F)
                        (PE.trans (wk≡subst (lift (step (step id))) G)
@@ -335,7 +347,7 @@ subst↑²TypeEq-prod {Γ = Γ} {F = F} {G} {A} {B} A≡B ok =
         ⊢ΓFG
   where
   splitCon : ∀ {Γ : Con Term n} {F} → ⊢ (Γ ∙ F) → ⊢ Γ × Γ ⊢ F
-  splitCon (x ∙ x₁) = x , x₁
+  splitCon (∙ x₁) = wf x₁ , x₁
 
 opaque
 
@@ -421,14 +433,14 @@ opaque
     PE.subst₂ (_ ⊢ (lam _ t ∘ a) [ σ ] ⇒_∷_)
       (PE.sym (singleSubstLift t a))
       (PE.sym (singleSubstLift G a))
-      (β-red (substitution x₁ ⊢⇑σ (⊢Δ ∙ ⊢σF))
-        (substitutionTerm x₂ ⊢⇑σ (⊢Δ ∙ ⊢σF))
+      (β-red (substitution x₁ ⊢⇑σ (∙ ⊢σF))
+        (substitutionTerm x₂ ⊢⇑σ (∙ ⊢σF))
         (substitutionTerm x₃ ⊢σ ⊢Δ) x₄ x₅)
   substitutionRedTerm (fst-subst x₁ d) ⊢σ ⊢Δ =
     let x = ⊢∙→⊢ (wf x₁) in
     case substitution x ⊢σ ⊢Δ of λ
       ⊢σA →
-    fst-subst (substitution x₁ (liftSubst′ ⊢Δ x ⊢σ) (⊢→⊢∙ ⊢σA))
+    fst-subst (substitution x₁ (liftSubst′ ⊢Δ x ⊢σ) (∙ ⊢σA))
       (substitutionRedTerm d ⊢σ ⊢Δ)
   substitutionRedTerm (snd-subst {G} {t} x₁ d) ⊢σ ⊢Δ =
     let x = ⊢∙→⊢ (wf x₁) in
@@ -436,13 +448,13 @@ opaque
       ⊢σA →
     PE.subst (_ ⊢ _ ⇒ _ ∷_)
       (PE.sym (singleSubstLift G (fst _ t)))
-      (snd-subst (substitution x₁ (liftSubst′ ⊢Δ x ⊢σ) (⊢→⊢∙ ⊢σA))
+      (snd-subst (substitution x₁ (liftSubst′ ⊢Δ x ⊢σ) (∙ ⊢σA))
         (substitutionRedTerm d ⊢σ ⊢Δ))
   substitutionRedTerm (Σ-β₁ {G} {t} x₁ x₂ x₃ x₄ x₅) ⊢σ ⊢Δ =
     let x = ⊢∙→⊢ (wf x₁) in
     case substitution x ⊢σ ⊢Δ of λ
       ⊢σA →
-    Σ-β₁ (substitution x₁ (liftSubst′ ⊢Δ x ⊢σ) (⊢→⊢∙ ⊢σA))
+    Σ-β₁ (substitution x₁ (liftSubst′ ⊢Δ x ⊢σ) (∙ ⊢σA))
       (substitutionTerm x₂ ⊢σ ⊢Δ)
       (PE.subst (_ ⊢ _ ∷_) (singleSubstLift G t) (substitutionTerm x₃ ⊢σ ⊢Δ))
       x₄ x₅
@@ -452,7 +464,7 @@ opaque
       ⊢σA →
     PE.subst (_ ⊢ _ ⇒ _ ∷_)
       (PE.sym (singleSubstLift G _))
-      (Σ-β₂ (substitution x₁ (liftSubst′ ⊢Δ x ⊢σ) (⊢→⊢∙ ⊢σA))
+      (Σ-β₂ (substitution x₁ (liftSubst′ ⊢Δ x ⊢σ) (∙ ⊢σA))
         (substitutionTerm x₂ ⊢σ ⊢Δ)
         (PE.subst (_ ⊢ _ ∷_) (singleSubstLift G _) (substitutionTerm x₃ ⊢σ ⊢Δ))
         x₄ x₅)
@@ -465,14 +477,14 @@ opaque
       ⊢σA →
     case liftSubst′ ⊢Δ x ⊢σ of λ
       ⊢⇑σ →
-    case substitution x₁ ⊢⇑σ (⊢Δ ∙ ⊢σA) of λ
+    case substitution x₁ ⊢⇑σ (∙ ⊢σA) of λ
       ⊢σB →
     PE.subst (_ ⊢ prodrec _ _ _ A t u [ σ ] ⇒ _ ∷_)
       (PE.sym (singleSubstLift A t))
       (prodrec-subst
-        (substitution x₂ (liftSubst′ ⊢Δ (ΠΣⱼ x₁ x₄) ⊢σ) (⊢Δ ∙ ΠΣⱼ ⊢σB x₄))
+        (substitution x₂ (liftSubst′ ⊢Δ (ΠΣⱼ x₁ x₄) ⊢σ) (∙ ΠΣⱼ ⊢σB x₄))
         (PE.subst (_ ⊢ _ ∷_) (subst-β-prodrec A σ)
-          (substitutionTerm x₃ (liftSubst′ (⊢Δ ∙ ⊢σA) x₁ ⊢⇑σ) (⊢Δ ∙ ⊢σA ∙ ⊢σB)))
+          (substitutionTerm x₃ (liftSubst′ (∙ ⊢σA) x₁ ⊢⇑σ) (∙ ⊢σB)))
         (substitutionRedTerm d ⊢σ ⊢Δ) x₄)
   substitutionRedTerm
     {σ} (prodrec-β {G} {A} {t} {t′} {u} x₂ x₃ x₄ x₅ x₆ x₇) ⊢σ ⊢Δ =
@@ -483,18 +495,18 @@ opaque
       ⊢σA →
     case liftSubst′ ⊢Δ x ⊢σ of λ
       ⊢⇑σ →
-    case substitution x₁ ⊢⇑σ (⊢Δ ∙ ⊢σA) of λ
+    case substitution x₁ ⊢⇑σ (∙ ⊢σA) of λ
       ⊢σB →
     PE.subst₂ (_ ⊢ prodrec _ _ _ A (prod! t t′) u [ σ ] ⇒_∷_)
       (PE.sym ([,]-[]-commute u))
       (PE.sym (singleSubstLift A _))
       (prodrec-β
-        (substitution x₂ (liftSubst′ ⊢Δ (ΠΣⱼ x₁ x₇) ⊢σ) (⊢Δ ∙ ΠΣⱼ ⊢σB x₇))
+        (substitution x₂ (liftSubst′ ⊢Δ (ΠΣⱼ x₁ x₇) ⊢σ) (∙ ΠΣⱼ ⊢σB x₇))
         (substitutionTerm x₃ ⊢σ ⊢Δ)
         (PE.subst (_ ⊢ _ ∷_) (singleSubstLift G _)
           (substitutionTerm x₄ ⊢σ ⊢Δ))
         (PE.subst (_ ⊢ _ ∷_) (subst-β-prodrec A σ)
-          (substitutionTerm x₅ (liftSubst′ (⊢Δ ∙ ⊢σA) x₁ ⊢⇑σ) (⊢Δ ∙ ⊢σA ∙ ⊢σB)))
+          (substitutionTerm x₅ (liftSubst′ (∙ ⊢σA) x₁ ⊢⇑σ) (∙ ⊢σB)))
         x₆ x₇)
   substitutionRedTerm {σ} (natrec-subst {z} {A} {s} {n} x₁ x₂ d) ⊢σ ⊢Δ =
     let x = ⊢∙→⊢ (wfTerm x₂) in
@@ -502,14 +514,14 @@ opaque
       ⊢Γ →
     case liftSubst′ ⊢Δ (ℕⱼ ⊢Γ) ⊢σ of λ
       ⊢⇑σ →
-    case substitution x ⊢⇑σ (⊢Δ ∙ ℕⱼ ⊢Δ) of λ
+    case substitution x ⊢⇑σ (∙ ℕⱼ ⊢Δ) of λ
       ⊢σA →
     PE.subst (_ ⊢ natrec _ _ _ A z s n [ σ ] ⇒ _ ∷_)
       (PE.sym (singleSubstLift A n))
       (natrec-subst
         (PE.subst (_ ⊢ _ ∷_) (singleSubstLift A zero) (substitutionTerm x₁ ⊢σ ⊢Δ))
         (PE.subst (_ ∙ ℕ ∙ A [ liftSubst σ ] ⊢ _ ∷_) (natrecSucCase σ A)
-          (substitutionTerm x₂ (liftSubst′ (⊢Δ ∙ ℕⱼ ⊢Δ) x ⊢⇑σ) (⊢Δ ∙ ℕⱼ ⊢Δ ∙ ⊢σA)))
+          (substitutionTerm x₂ (liftSubst′ (∙ ℕⱼ ⊢Δ) x ⊢⇑σ) (∙ ⊢σA)))
         (substitutionRedTerm d ⊢σ ⊢Δ))
   substitutionRedTerm {σ} (natrec-zero {z} {A} {s} x₁ x₂) ⊢σ ⊢Δ =
     let x = ⊢∙→⊢ (wfTerm x₂) in
@@ -517,21 +529,21 @@ opaque
       ⊢Γ →
     case liftSubst′ ⊢Δ (ℕⱼ ⊢Γ) ⊢σ of λ
       ⊢⇑σ →
-    case substitution x ⊢⇑σ (⊢Δ ∙ ℕⱼ ⊢Δ) of λ
+    case substitution x ⊢⇑σ (∙ ℕⱼ ⊢Δ) of λ
       ⊢σA →
     PE.subst (_ ⊢ natrec _ _ _ A z s zero [ σ ] ⇒ _ ∷_)
       (PE.sym (singleSubstLift A zero))
       (natrec-zero
         (PE.subst (_ ⊢ _ ∷_) (singleSubstLift A zero) (substitutionTerm x₁ ⊢σ ⊢Δ))
         (PE.subst ((_ ∙ ℕ ∙ A [ liftSubst σ ]) ⊢ _ ∷_) (natrecSucCase σ A)
-        (substitutionTerm x₂ (liftSubst′ (⊢Δ ∙ ℕⱼ ⊢Δ) x ⊢⇑σ) (⊢Δ ∙ ℕⱼ ⊢Δ ∙ ⊢σA))))
+        (substitutionTerm x₂ (liftSubst′ (∙ ℕⱼ ⊢Δ) x ⊢⇑σ) (∙ ⊢σA))))
   substitutionRedTerm {σ} (natrec-suc {z} {A} {s} {n} x₁ x₂ x₃) ⊢σ ⊢Δ =
     let x = ⊢∙→⊢ (wfTerm x₂) in
     case wfTerm x₁ of λ
       ⊢Γ →
     case liftSubst′ ⊢Δ (ℕⱼ ⊢Γ) ⊢σ of λ
       ⊢⇑σ →
-    case substitution x ⊢⇑σ (⊢Δ ∙ ℕⱼ ⊢Δ) of λ
+    case substitution x ⊢⇑σ (∙ ℕⱼ ⊢Δ) of λ
       ⊢σA →
     PE.subst₂ (_ ⊢ natrec _ _ _ A z s (suc n) [ σ ] ⇒_∷_)
       (PE.sym ([,]-[]-commute s))
@@ -539,7 +551,7 @@ opaque
       (natrec-suc
         (PE.subst (_ ⊢ _ ∷_) (singleSubstLift A zero) (substitutionTerm x₁ ⊢σ ⊢Δ))
         (PE.subst ((_ ∙ ℕ ∙ A [ liftSubst σ ]) ⊢ _ ∷_) (natrecSucCase σ A)
-          (substitutionTerm x₂ (liftSubst′ (⊢Δ ∙ ℕⱼ ⊢Δ) x ⊢⇑σ) (⊢Δ ∙ ℕⱼ ⊢Δ ∙ ⊢σA)))
+          (substitutionTerm x₂ (liftSubst′ (∙ ℕⱼ ⊢Δ) x ⊢⇑σ) (∙ ⊢σA)))
         (substitutionTerm x₃ ⊢σ ⊢Δ))
   substitutionRedTerm (emptyrec-subst x d) ⊢σ ⊢Δ =
     emptyrec-subst (substitution x ⊢σ ⊢Δ) (substitutionRedTerm d ⊢σ ⊢Δ)
@@ -547,7 +559,8 @@ opaque
     PE.subst (_⊢_⇒_∷_ _ _ _)
       (PE.sym (singleSubstLift A t))
       (unitrec-subst
-        (substitution x (liftSubst′ ⊢Δ (Unitⱼ (wfTerm x₁) x₂) ⊢σ) (⊢Δ ∙ Unitⱼ ⊢Δ x₂))
+        (substitution x (liftSubst′ ⊢Δ (Unitⱼ (wfTerm x₁) x₂) ⊢σ)
+           (∙ Unitⱼ ⊢Δ x₂))
         (PE.subst (_ ⊢ _ ∷_) (singleSubstLift A _) $
          substitutionTerm x₁ ⊢σ ⊢Δ)
         (substitutionRedTerm d ⊢σ ⊢Δ) x₂ x₃)
@@ -555,7 +568,8 @@ opaque
     PE.subst (_⊢_⇒_∷_ _ _ _)
       (PE.sym (singleSubstLift A _))
       (unitrec-β
-        (substitution x (liftSubst′ ⊢Δ (Unitⱼ (wfTerm x₁) x₂) ⊢σ) (⊢Δ ∙ Unitⱼ ⊢Δ x₂))
+        (substitution x (liftSubst′ ⊢Δ (Unitⱼ (wfTerm x₁) x₂) ⊢σ)
+           (∙ Unitⱼ ⊢Δ x₂))
         (PE.subst (_ ⊢ _ ∷_) (singleSubstLift A _) $
          substitutionTerm x₁ ⊢σ ⊢Δ)
         x₂ x₃)
@@ -563,7 +577,8 @@ opaque
     PE.subst (_⊢_⇒_∷_ _ _ _)
       (PE.sym (singleSubstLift A t))
       (unitrec-β-η
-        (substitution x (liftSubst′ ⊢Δ (Unitⱼ (wfTerm x₁) x₃) ⊢σ) (⊢Δ ∙ Unitⱼ ⊢Δ x₃))
+        (substitution x (liftSubst′ ⊢Δ (Unitⱼ (wfTerm x₁) x₃) ⊢σ)
+           (∙ Unitⱼ ⊢Δ x₃))
         (substitutionTerm x₁ ⊢σ ⊢Δ)
         (PE.subst (_ ⊢ _ ∷_) (singleSubstLift A _) $
          substitutionTerm x₂ ⊢σ ⊢Δ)
@@ -574,14 +589,12 @@ opaque
     case substitution x ⊢σ ⊢Δ of λ
       ⊢σA →
     case wf x₂ of λ {
-      (_ ∙ ⊢Id) →
+      (∙ ⊢Id) →
     case liftSubst′ ⊢Δ x ⊢σ of
       λ ⊢⇑σ →
-    case substitution ⊢Id ⊢⇑σ (⊢Δ ∙ ⊢σA) of λ
+    case substitution ⊢Id ⊢⇑σ (∙ ⊢σA) of λ
       ⊢σId →
-    case substitution x₂
-           (liftSubst′ (⊢Δ ∙ ⊢σA) ⊢Id ⊢⇑σ)
-           (⊢Δ ∙ ⊢σA ∙ ⊢σId) of λ
+    case substitution x₂ (liftSubst′ (∙ ⊢σA) ⊢Id ⊢⇑σ) (∙ ⊢σId) of λ
       ⊢σB →
     PE.subst (_ ⊢ J _ _ A t B u v w₁ [ σ ] ⇒ _ ∷_)
       (PE.sym ([,]-[]-commute B))
@@ -599,7 +612,7 @@ opaque
     PE.subst (_ ⊢ K _ A t B u v₁ [ σ ] ⇒ _ ∷_)
       (PE.sym (singleSubstLift B v₁))
       (K-subst ⊢σA ⊢σt
-        (substitution x₂ (liftSubst′ ⊢Δ (Idⱼ x₁ x₁) ⊢σ) (⊢Δ ∙ Idⱼ ⊢σt ⊢σt))
+        (substitution x₂ (liftSubst′ ⊢Δ (Idⱼ x₁ x₁) ⊢σ) (∙ Idⱼ ⊢σt ⊢σt))
         (PE.subst (_ ⊢ _ ∷_) (singleSubstLift B rfl) (substitutionTerm x₃ ⊢σ ⊢Δ))
         (substitutionRedTerm d ⊢σ ⊢Δ) x₄)
   substitutionRedTerm ([]-cong-subst x x₁ x₂ d x₃) ⊢σ ⊢Δ =
@@ -611,14 +624,12 @@ opaque
     case substitution x ⊢σ ⊢Δ of λ
       ⊢σA →
     case wf x₄ of λ {
-      (_ ∙ ⊢Id) →
+      (∙ ⊢Id) →
     case liftSubst′ ⊢Δ x ⊢σ of
       λ ⊢⇑σ →
-    case substitution ⊢Id ⊢⇑σ (⊢Δ ∙ ⊢σA) of λ
+    case substitution ⊢Id ⊢⇑σ (∙ ⊢σA) of λ
       ⊢σId →
-    case substitution x₄
-           (liftSubst′ (⊢Δ ∙ ⊢σA) ⊢Id ⊢⇑σ)
-           (⊢Δ ∙ ⊢σA ∙ ⊢σId) of λ
+    case substitution x₄ (liftSubst′ (∙ ⊢σA) ⊢Id ⊢⇑σ) (∙ ⊢σId) of λ
       ⊢σB →
     case substitutionTerm x₁ ⊢σ ⊢Δ of λ
       ⊢σt →
@@ -643,12 +654,12 @@ opaque
         (wk1-sgSubst (t [ σ ]) _))
   substitutionRedTerm {σ} (K-β {t = t} {A} {B} {u} x x₁ x₂ x₃) ⊢σ ⊢Δ =
     case wf x₁ of λ {
-      (_ ∙ ⊢Id) →
+      (∙ ⊢Id) →
     PE.subst (_ ⊢ K _ A t B u rfl [ σ ] ⇒ _ ∷_)
       (PE.sym (singleSubstLift B rfl))
       (K-β (substitutionTerm x ⊢σ ⊢Δ)
         (substitution x₁ (liftSubst′ ⊢Δ ⊢Id ⊢σ)
-          (⊢Δ ∙ substitution ⊢Id ⊢σ ⊢Δ))
+          (∙ substitution ⊢Id ⊢σ ⊢Δ))
         (PE.subst (_ ⊢ _ ∷_) (singleSubstLift B rfl) (substitutionTerm x₂ ⊢σ ⊢Δ))
         x₃)}
   substitutionRedTerm ([]-cong-β  x x₁ x₂ x₃ x₄) ⊢σ ⊢Δ =

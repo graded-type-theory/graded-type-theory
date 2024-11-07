@@ -105,8 +105,8 @@ mutual
   -- Preservation of ⊢_.
 
   tr-⊢ : T₁.⊢ Γ → T₂.⊢ tr-Con Γ
-  tr-⊢ ε       = ε
-  tr-⊢ (Γ ∙ A) = tr-⊢ Γ ∙ tr-⊢′ A
+  tr-⊢ ε     = ε
+  tr-⊢ (∙ A) = ∙ tr-⊢′ A
 
   -- Preservation of _⊢_.
 

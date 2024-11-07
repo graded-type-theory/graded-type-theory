@@ -107,5 +107,5 @@ syntacticΣ ΣFG | F≡F , G≡G , _ = proj₁ (syntacticEq F≡F) , proj₁ (sy
 -- Syntactic validity of context lookup
 
 syntacticVar : ∀ {x A} → x ∷ A ∈ Γ → ⊢ Γ → Γ ⊢ A
-syntacticVar here (_ ∙ ⊢A) = wk₁ ⊢A ⊢A
-syntacticVar (there x) (⊢Γ ∙ ⊢B) = wk₁ ⊢B (syntacticVar x ⊢Γ)
+syntacticVar here (∙ ⊢A) = wk₁ ⊢A ⊢A
+syntacticVar (there x) (∙ ⊢B) = wk₁ ⊢B (syntacticVar x (wf ⊢B))

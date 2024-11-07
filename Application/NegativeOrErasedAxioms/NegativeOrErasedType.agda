@@ -70,15 +70,15 @@ wkNeg w ⊢Δ empty =
   empty
 
 wkNeg w ⊢Δ (pi dA nB) =
-  pi dA′ (wkNeg (lift w) (⊢Δ ∙ dA′) nB)
+  pi dA′ (wkNeg (lift w) (∙ dA′) nB)
   where dA′ = T.wk w ⊢Δ dA
 
 wkNeg w ⊢Δ (sigma-𝟘 dA nB) =
-  sigma-𝟘 dA′ (wkNeg (lift w) (⊢Δ ∙ dA′) nB)
+  sigma-𝟘 dA′ (wkNeg (lift w) (∙ dA′) nB)
   where dA′ = T.wk w ⊢Δ dA
 
 wkNeg w ⊢Δ (sigma dA nA nB) =
-  sigma dA′ (wkNeg w ⊢Δ nA) (wkNeg (lift w) (⊢Δ ∙ dA′) nB)
+  sigma dA′ (wkNeg w ⊢Δ nA) (wkNeg (lift w) (∙ dA′) nB)
   where dA′ = T.wk w ⊢Δ dA
 
 wkNeg _ _ universe = universe
@@ -94,16 +94,16 @@ subNeg :
 subNeg empty _ _ = empty
 
 subNeg (pi ⊢A n) s ⊢Δ =
-  pi ⊢σA (subNeg n (liftSubst′ ⊢Δ ⊢A s) (⊢Δ ∙ ⊢σA))
+  pi ⊢σA (subNeg n (liftSubst′ ⊢Δ ⊢A s) (∙ ⊢σA))
   where ⊢σA = substitution ⊢A s ⊢Δ
 
 subNeg (sigma-𝟘 ⊢A n) s ⊢Δ =
-  sigma-𝟘 ⊢σA (subNeg n (liftSubst′ ⊢Δ ⊢A s) (⊢Δ ∙ ⊢σA))
+  sigma-𝟘 ⊢σA (subNeg n (liftSubst′ ⊢Δ ⊢A s) (∙ ⊢σA))
   where ⊢σA = substitution ⊢A s ⊢Δ
 
 subNeg (sigma ⊢A nA nB) s ⊢Δ =
   sigma ⊢σA (subNeg nA s ⊢Δ)
-    (subNeg nB (liftSubst′ ⊢Δ ⊢A s) (⊢Δ ∙ ⊢σA))
+    (subNeg nB (liftSubst′ ⊢Δ ⊢A s) (∙ ⊢σA))
   where ⊢σA = substitution ⊢A s ⊢Δ
 
 subNeg universe _ _ = universe

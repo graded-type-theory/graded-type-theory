@@ -55,10 +55,10 @@ opaque
 
   ⊢erasedHeap : ∀ {n} {Δ : Con Term n} → ⊢ Δ → Δ ⊢ʰ erasedHeap n ∷ Δ
   ⊢erasedHeap {0} {(ε)} ⊢Δ = ε
-  ⊢erasedHeap {1+ n} {(Δ ∙ A)} (⊢Δ ∙ ⊢A) =
+  ⊢erasedHeap {n = 1+ n} {Δ = Δ ∙ A} (∙ ⊢A) =
     PE.subst (λ x → Δ ∙ x ⊢ʰ _ ∷ Δ ∙ A)
       (erasedHeap-subst A)
-      (⊢erasedHeap ⊢Δ ∙● ⊢A)
+      (⊢erasedHeap (wf ⊢A) ∙● ⊢A)
 
 opaque
 

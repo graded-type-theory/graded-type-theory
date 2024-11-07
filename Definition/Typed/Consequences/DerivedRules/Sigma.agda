@@ -466,7 +466,7 @@ prodrecˢ-β {Γ} {t} {A} {u} {B} {v} {p} C ⊢t ⊢u ⊢v ok =                 
   where
   ⊢Γ = wfTerm ⊢t
   ⊢B = case wfTerm ⊢v of λ where
-         (_ ∙ _ ∙ ⊢B) → ⊢B
+         (∙ ⊢B) → ⊢B
 
 -- Another equality rule for prodrecˢ.
 
@@ -533,7 +533,7 @@ private
   Σ⊢wk1 ⊢B ok = W.wk₁ (ΠΣⱼ ⊢B ok) ⊢A
     where
     ⊢A = case wf ⊢B of λ where
-           (_ ∙ ⊢A) → ⊢A
+           (∙ ⊢A) → ⊢A
 
   ⊢wk1-wk1 :
     Γ ∙ A ⊢ B →
@@ -541,7 +541,7 @@ private
   ⊢wk1-wk1 ⊢B = W.wk₁ ⊢B (W.wk₁ ⊢A ⊢A)
     where
     ⊢A = case wf ⊢B of λ where
-           (_ ∙ ⊢A) → ⊢A
+           (∙ ⊢A) → ⊢A
 
   ⊢wk1[]≡ :
     Γ ⊢ A →
@@ -599,7 +599,7 @@ private
     Γ ∙ A ⊢ B →
     Γ ∙ A ∙ B ⊢ˢ wk1Subst (wk1Subst idSubst) ∷ Γ
   ⊢ˢwk1Subst-wk1Subst-idSubst {Γ = Γ} {A = A} {B = B} ⊢B =
-    case wf ⊢B of λ { (_ ∙ ⊢A) →
+    case wf ⊢B of λ { (∙ ⊢A) →
                                                   $⟨ ⊢ˢwk1Subst-idSubst ⊢A ⟩
     Γ ∙ A ⊢ˢ wk1Subst idSubst ∷ Γ                 →⟨ wk1Subst′ ⊢B ⟩
     Γ ∙ A ∙ B ⊢ˢ wk1Subst (wk1Subst idSubst) ∷ Γ  □ }
@@ -794,7 +794,7 @@ private
       consSubst (wk1Subst (wk1Subst idSubst)) (var x1) ≡
       consSubst (wk1Subst (wk1Subst idSubst))
         (fstʷ p (wk1 (wk1 A)) (prodʷ p (var x1) (var x0))) ∷
-      Γ ∙ A                                                           →⟨ flip (substitutionEq (refl ⊢B)) (wf ⊢B ∙ ⊢B) ⟩
+      Γ ∙ A                                                           →⟨ flip (substitutionEq (refl ⊢B)) (∙ ⊢B) ⟩
 
     Γ ∙ A ∙ B ⊢
       B [ var x1 ]↑² ≡
@@ -865,7 +865,7 @@ private
     ⊢A₁     = syntacticEq A₁≡A₂ .proj₁
     ⊢B₁     = syntacticEq B₁≡B₂ .proj₁
     ⊢ΣA₁B₁  = ΠΣⱼ ⊢B₁ ok
-    ⊢ΓΣA₁B₁ = wf ⊢A₁ ∙ ⊢ΣA₁B₁
+    ⊢ΓΣA₁B₁ = ∙ ⊢ΣA₁B₁
 
   ⊢[fstʷ-0]↑ :
     Γ ∙ A ⊢ B →
@@ -875,7 +875,7 @@ private
     syntacticEq (⊢[fstʷ-0]↑≡[fstʷ-0]↑ (refl ⊢A) (refl ⊢B) ok) .proj₁
     where
     ⊢A = case wf ⊢B of λ where
-           (_ ∙ ⊢A) → ⊢A
+           (∙ ⊢A) → ⊢A
 
   ⊢0∷[fstʷ-0]↑[1,0]↑² :
     Γ ∙ A ⊢ B →
@@ -1002,10 +1002,10 @@ sndʷ-cong
   t′ = var x0
 
   ⊢Γ : ⊢ Γ′
-  ⊢Γ = ε ∙ ΠΣⱼ (ℕⱼ (ε ∙ ℕⱼ ε)) Σ-ok
+  ⊢Γ = ∙ ΠΣⱼ (ℕⱼ (∙ ℕⱼ ε)) Σ-ok
 
   ⊢B : Γ′ ∙ A′ ⊢ B′
-  ⊢B = ℕⱼ (⊢Γ ∙ ℕⱼ ⊢Γ)
+  ⊢B = ℕⱼ (∙ ℕⱼ ⊢Γ)
 
   ⊢t : Γ′ ⊢ t′ ∷ Σʷ p , q ▷ A′ ▹ B′
   ⊢t = var ⊢Γ here
@@ -1073,10 +1073,10 @@ opaque
     of λ {
       eq₂ →
     case W.wk (lift (step (step id)))
-           (wf ⊢B ∙ ⊢B ∙ W.wk (step (step id)) (wf ⊢B ∙ ⊢B) ⊢A)
+           (∙ W.wk (step (step id)) (∙ ⊢B) ⊢A)
            ⊢B of λ {
       ⊢B′ →
-    case W.wk (lift (step id)) (wf ⊢A ∙ ⊢ΣAB ∙ wk₁ ⊢ΣAB ⊢A) ⊢B of λ {
+    case W.wk (lift (step id)) (∙ wk₁ ⊢ΣAB ⊢A) ⊢B of λ {
       ⊢B″ →
     case PE.subst (_⊢_∷_ _ _) (wk-comp _ _ _) $ var₁ ⊢B of λ {
       ⊢₁ →

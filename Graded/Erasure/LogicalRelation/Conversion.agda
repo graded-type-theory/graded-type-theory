@@ -90,7 +90,7 @@ convTermʳ′
                  (PE.sym $ wk-id _) $
                reducible-⊩≡ (sym F≡F₁) .proj₂
       [a] = convTerm₁ ([F]₁ id ⊢Δ) ([F] id ⊢Δ) [F₁≡F] [a]′
-      G≡G₁′ = wkEq (lift id) (⊢Δ ∙ escape ([F] id ⊢Δ)) G≡G₁
+      G≡G₁′ = wkEq (lift id) (∙ escape ([F] id ⊢Δ)) G≡G₁
       G[a]≡G₁[a] = substTypeEq G≡G₁′ (refl (escapeTerm ([F] id ⊢Δ) [a]))
       [Ga≡G₁a] = ⊩≡→⊩≡/ ([G] _ _ _) (reducible-⊩≡ G[a]≡G₁[a] .proj₂)
       t®v′ = t®v .proj₂ [a]
@@ -104,7 +104,7 @@ convTermʳ′
                  (PE.sym $ wk-id _) $
                reducible-⊩≡ (sym F≡F₁) .proj₂
       [a] = convTerm₁ ([F]₁ id ⊢Δ) ([F] id ⊢Δ) [F₁≡F] [a]′
-      G≡G₁′ = wkEq (lift id) (⊢Δ ∙ escape ([F] id ⊢Δ)) G≡G₁
+      G≡G₁′ = wkEq (lift id) (∙ escape ([F] id ⊢Δ)) G≡G₁
       G[a]≡G₁[a] = substTypeEq G≡G₁′ (refl (escapeTerm ([F] id ⊢Δ) [a]))
       [Ga≡G₁a] = ⊩≡→⊩≡/ ([G] _ _ _) (reducible-⊩≡ G[a]≡G₁[a] .proj₂)
       SV = goodCases ([F]₁ id ⊢Δ) ([F] id ⊢Δ) [F₁≡F]
@@ -128,7 +128,7 @@ convTermʳ′ {v = v}
                reducible-⊩≡ F≡F₁ .proj₂
       F≡F₁′ = PE.subst₂ (Δ ⊢_≡_) (PE.sym (wk-id F)) (PE.sym (wk-id F₁)) F≡F₁
       [t₁]′ = convTerm₁ [F]′ [F]₁′ [F≡F₁] [t₁]
-      G≡G₁′ = wkEq (lift id) (⊢Δ ∙ escape [F]′) G≡G₁
+      G≡G₁′ = wkEq (lift id) (∙ escape [F]′) G≡G₁
       G[t₁]≡G₁[t₁] = substTypeEq G≡G₁′ (refl (escapeTerm [F]′ [t₁]))
       [Gt₁] = [G] id ⊢Δ [t₁]
       [Gt₁]₁ = [G]₁ id ⊢Δ [t₁]′

@@ -2087,10 +2087,10 @@ module _ (TR : Type-restrictions) where
     γ′ = ε ∙ 𝟘 ∙ 𝟙
 
     ⊢U : ⊢ ε ∙ U 0
-    ⊢U = ε ∙ Uⱼ ε
+    ⊢U = ∙ Uⱼ ε
 
     ⊢Γ : ⊢ Γ′
-    ⊢Γ = ⊢U ∙ univ (var ⊢U here)
+    ⊢Γ = ∙ univ (var ⊢U here)
 
     ⊢t : Γ′ ⊢ t′ ∷ A′
     ⊢t = var ⊢Γ here

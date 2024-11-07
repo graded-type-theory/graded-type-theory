@@ -37,19 +37,17 @@ opaque
   -- Congruence of the type of the successor case in natrec.
   sucCong : ∀ {F G} → Γ ∙ ℕ ⊢ F ≡ G
           → Γ ∙ ℕ ∙ F ⊢ F [ suc (var x1) ]↑² ≡ G [ suc (var x1) ]↑²
-  sucCong F≡G with wfEq F≡G
-  sucCong F≡G | ⊢Γ ∙ ⊢ℕ =
+  sucCong F≡G =
     let ⊢F , ⊢G = syntacticEq F≡G
-    in subst↑²TypeEq F≡G (refl (sucⱼ (var (⊢Γ ∙ ⊢ℕ ∙ ⊢F) (there here))))
+    in subst↑²TypeEq F≡G (refl (sucⱼ (var (∙ ⊢F) (there here))))
 
 opaque
 
   sucCong′ : ∀ {F G} → Γ ∙ ℕ ⊢ F ≡ G
           → Γ ∙ ℕ ∙ G ⊢ F [ suc (var x1) ]↑² ≡ G [ suc (var x1) ]↑²
-  sucCong′ F≡G with wfEq F≡G
-  sucCong′ F≡G | ⊢Γ ∙ ⊢ℕ =
+  sucCong′ F≡G =
     let ⊢F , ⊢G = syntacticEq F≡G
-    in subst↑²TypeEq F≡G (refl (sucⱼ (var (⊢Γ ∙ ⊢ℕ ∙ ⊢G) (there here))))
+    in subst↑²TypeEq F≡G (refl (sucⱼ (var (∙ ⊢G) (there here))))
 
 ------------------------------------------------------------------------
 -- Lemmas related to natcase

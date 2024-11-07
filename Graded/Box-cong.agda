@@ -702,7 +702,7 @@ opaque
       flip _∘ⱼ_ (var₁ ⊢Id) $
       flip _∘ⱼ_ (var₂ ⊢Id) $
       flip _∘ⱼ_ (var₃ ⊢Id) $
-      W.wkTerm W.wk₀∷⊇ (⊢→⊢∙ ⊢Id) ⊢[]-cong′
+      W.wkTerm W.wk₀∷⊇ (∙ ⊢Id) ⊢[]-cong′
       where
       ⊢1 : ε ∙ U l ∙ var x0 ⊢ var x1
       ⊢1 = univ (var₁ (univ (var₀ (Uⱼ ε))))

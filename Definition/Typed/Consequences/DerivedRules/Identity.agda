@@ -113,7 +113,7 @@ opaque
     _ : Γ ∙ A ⊢ wk1 t ∷ wk1 A
     _ =
       case wf ⊢B of λ {
-        (_ ∙ _ ∙ ⊢Id) →
+        (∙ ⊢Id) →
       case inversion-Id ⊢Id of λ {
         (_ , ⊢wk1-t , _) →
       ⊢wk1-t }}
@@ -205,10 +205,7 @@ opaque
   J-motive-context :
     Γ ⊢ t ∷ A →
     ⊢ Γ ∙ A ∙ Id (wk1 A) (wk1 t) (var x0)
-  J-motive-context ⊢t =
-    case J-motive-context-type ⊢t of λ {
-      ⊢Id →
-    wf ⊢Id ∙ ⊢Id }
+  J-motive-context ⊢t = ∙ J-motive-context-type ⊢t
 
 opaque
 
@@ -253,7 +250,7 @@ opaque
     Γ ⊢ K p A t B u v ∷ B [ v ]₀
   Kⱼ′ ⊢B =
     case wf ⊢B of λ {
-      (_ ∙ ⊢Id) →
+      (∙ ⊢Id) →
     case inversion-Id ⊢Id of λ {
       (_ , ⊢t , _) →
     Kⱼ ⊢t ⊢B }}
@@ -284,7 +281,7 @@ opaque
     Γ ⊢ K p A t B u rfl ≡ u ∷ B [ rfl ]₀
   K-β-≡ ⊢B =
     case wf ⊢B of λ {
-      (_ ∙ ⊢Id) →
+      (∙ ⊢Id) →
     case inversion-Id ⊢Id of λ {
       (_ , ⊢t , _) →
     K-β ⊢t ⊢B }}
@@ -303,7 +300,7 @@ opaque
     Γ ⊢ K p A t B u v₁ ⇒ K p A t B u v₂ ∷ B [ v₁ ]₀
   K-subst′ ⊢B =
     case wf ⊢B of λ {
-      (_ ∙ ⊢Id) →
+      (∙ ⊢Id) →
     case inversion-Id ⊢Id of λ {
       (⊢A , ⊢t , _) →
     K-subst ⊢A ⊢t ⊢B }}
@@ -319,7 +316,7 @@ opaque
     Γ ⊢ K p A t B u rfl ⇒ u ∷ B [ rfl ]₀
   K-β-⇒ ⊢B =
     case wf ⊢B of λ {
-      (_ ∙ ⊢Id) →
+      (∙ ⊢Id) →
     case inversion-Id ⊢Id of λ {
       (_ , ⊢t , _) →
     K-β ⊢t ⊢B }}
@@ -333,7 +330,7 @@ opaque
     Γ ⊢ B₁ [ rfl ]₀ ≡ B₂ [ rfl ]₀
   K-motive-rfl-cong B₁≡B₂ =
     case wfEq B₁≡B₂ of λ {
-      (_ ∙ ⊢Id) →
+      (∙ ⊢Id) →
     substTypeEq B₁≡B₂ (refl (rflⱼ (inversion-Id ⊢Id .proj₂ .proj₁))) }
 
 opaque
@@ -348,7 +345,7 @@ opaque
   -- A lemma related to the context of one of the assumptions of K.
 
   K-motive-context : Γ ⊢ t ∷ A → ⊢ Γ ∙ Id A t t
-  K-motive-context ⊢t = wfTerm ⊢t ∙ K-motive-context-type ⊢t
+  K-motive-context ⊢t = ∙ K-motive-context-type ⊢t
 
 opaque
 

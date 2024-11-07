@@ -106,12 +106,12 @@ opaque
     Γ ⊢ unitrec l p q A (starʷ l) t ≡ t ∷ A [ starʷ l ]₀
   unitrec-β-≡ ⊢A ⊢t =
     case wf ⊢A of λ {
-      (⊢Γ ∙ ⊢Unit) →
+      (∙ ⊢Unit) →
     case inversion-Unit ⊢Unit of λ
       Unit-ok →
     case Unitʷ-η? of λ where
       (yes ok) →
-        unitrec-β-η ⊢A (starⱼ ⊢Γ Unit-ok) ⊢t Unit-ok ok
+        unitrec-β-η ⊢A (starⱼ (wf ⊢Unit) Unit-ok) ⊢t Unit-ok ok
       (no not-ok) →
         unitrec-β ⊢A ⊢t Unit-ok not-ok }
 
@@ -125,12 +125,12 @@ opaque
     Γ ⊢ unitrec l p q A (starʷ l) t ⇒ t ∷ A [ starʷ l ]₀
   unitrec-β-⇒ ⊢A ⊢t =
     case wf ⊢A of λ {
-      (⊢Γ ∙ ⊢Unit) →
+      (∙ ⊢Unit) →
     case inversion-Unit ⊢Unit of λ
       Unit-ok →
     case Unitʷ-η? of λ where
       (yes ok) →
-        unitrec-β-η ⊢A (starⱼ ⊢Γ Unit-ok) ⊢t Unit-ok ok
+        unitrec-β-η ⊢A (starⱼ (wf ⊢Unit) Unit-ok) ⊢t Unit-ok ok
       (no not-ok) →
         unitrec-β ⊢A ⊢t Unit-ok not-ok }
 
@@ -277,6 +277,6 @@ opaque
     case inversion-Unit ⊢Unit of λ
       ok →
     ⊢unitrec⟨⟩
-      (Idⱼ (starⱼ (⊢→⊢∙ (Unitⱼ ⊢Γ ok)) ok) (var₀ ⊢Unit))
+      (Idⱼ (starⱼ (∙ Unitⱼ ⊢Γ ok) ok) (var₀ ⊢Unit))
       ⊢t
       (rflⱼ (starⱼ ⊢Γ ok))

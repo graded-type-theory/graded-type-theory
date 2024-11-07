@@ -87,7 +87,8 @@ mutual
         A<>C = transConv↑ A<>B B<>C
         a₀<>c₀ = transConv↑Term F[0]≡F₁[0] a₀<>b₀ b₀<>c₀
         aₛ<>cₛ = transConv↑Term F↑̂²≡F₁↑² aₛ<>bₛ
-                                (stabilityConv↑Term ((reflConEq (⊢Γ ∙ (ℕⱼ ⊢Γ))) ∙ sym A≡B) bₛ<>cₛ)
+                   (stabilityConv↑Term (reflConEq (∙ ℕⱼ ⊢Γ) ∙ sym A≡B)
+                      bₛ<>cₛ)
         t~v , _ = trans~↓ t~u u~v
     in  natrec-cong A<>C a₀<>c₀ aₛ<>cₛ t~v
     ,   substTypeEq A≡B (soundness~↓ t~u)

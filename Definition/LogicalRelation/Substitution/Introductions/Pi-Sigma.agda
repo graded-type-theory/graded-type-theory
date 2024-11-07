@@ -77,7 +77,7 @@ opaque
            ⊩A →
          case escape ⊩A of λ
            ⊢A →
-         case ⊢Γ ∙ ⊢A of λ
+         case ∙ ⊢A of λ
            ⊢Γ∙A →
          case var ⊢Γ∙A here of λ
            ⊢x0 →
@@ -157,7 +157,7 @@ opaque
       (⊩wk-id-A , _) →
     case PE.subst (_⊩⟨_⟩_ _ _) (wk-id _) ⊩wk-id-A of λ
       ⊩A →
-    case rest (TW.step TW.id) (⊢→⊢∙ $ escape-⊩ ⊩A) of λ
+    case rest (TW.step TW.id) (∙ escape-⊩ ⊩A) of λ
       (⊩wk₁-A , wk-lift-step-id-B[]₀≡wk-lift-step-id-B[]₀) →
       ok , ⊩A
     , PE.subst (_⊩⟨_⟩_ _ _) (wkSingleSubstId _)
@@ -260,7 +260,7 @@ opaque
       case PE.subst₂ (_⊩⟨_⟩_≡_ _ _) (wk-id _) (wk-id _) $
            rest TW.id (wf ⊢A₁) .proj₁ of λ
         A₁≡A₂ →
-      case ⊢→⊢∙ ⊢A₁ of λ
+      case ∙ ⊢A₁ of λ
         ⊢Γ∙A₁ →
       case var ⊢Γ∙A₁ here of λ
         ⊢x0 →
@@ -349,8 +349,7 @@ opaque
     case PE.subst₂ (_⊩⟨_⟩_≡_ _ _) (wk-id _) (wk-id _)
            wk-id-A₁≡wk-id-A₂ of λ
       A₁≡A₂ →
-    case rest (TW.step TW.id)
-           (⊢→⊢∙ $ escape-⊩ $ wf-⊩≡ A₁≡A₂ .proj₁) of λ
+    case rest (TW.step TW.id) (∙ escape-⊩ (wf-⊩≡ A₁≡A₂ .proj₁)) of λ
       (wk₁-A₁≡wk₁-A₂ , wk-lift-step-id-B₁[]₀≡wk-lift-step-id-B₂[]₀) →
       ok , b₁≡b₂ , p₁≡p₂ , q₁≡q₂ , A₁≡A₂
     , PE.subst₂ (_⊩⟨_⟩_≡_ _ _) (wkSingleSubstId _) (wkSingleSubstId _)

@@ -54,16 +54,16 @@ opaque
   -- A well-formedness lemma for ⊢_≡_.
 
   wf-⊢≡ʳ : ⊢ Γ ≡ Δ → ⊢ Δ
-  wf-⊢≡ʳ ε                 = ε
-  wf-⊢≡ʳ (Γ≡Δ ∙⟨ ⊢B ∣ _ ⟩) = wf-⊢≡ʳ Γ≡Δ ∙ ⊢B
+  wf-⊢≡ʳ ε               = ε
+  wf-⊢≡ʳ (_ ∙⟨ ⊢B ∣ _ ⟩) = ∙ ⊢B
 
 opaque
 
   -- Reflexivity for ⊢_≡_.
 
   reflConEq : ⊢ Γ → ⊢ Γ ≡ Γ
-  reflConEq ε         = ε
-  reflConEq (⊢Γ ∙ ⊢A) = reflConEq ⊢Γ ∙⟨ ⊢A ⟩
+  reflConEq ε      = ε
+  reflConEq (∙ ⊢A) = reflConEq (wf ⊢A) ∙⟨ ⊢A ⟩
 
 opaque
 

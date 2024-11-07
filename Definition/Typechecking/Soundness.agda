@@ -38,11 +38,11 @@ private
     t A : Term n
 
 soundness⇉-var : ∀ {x} →  ⊢ Γ → x ∷ A ∈ Γ → (Γ ⊢ A) × (Γ ⊢ var x ∷ A)
-soundness⇉-var (_ ∙ ⊢A) here =
+soundness⇉-var (∙ ⊢A) here =
   W.wk₁ ⊢A ⊢A , var₀ ⊢A
-soundness⇉-var (⊢Γ ∙ ⊢B) (there x) =
-  let ⊢A , ⊢x = soundness⇉-var ⊢Γ x
-  in  W.wk₁ ⊢B ⊢A , var (⊢Γ ∙ ⊢B) (there x)
+soundness⇉-var (∙ ⊢B) (there x) =
+  let ⊢A , ⊢x = soundness⇉-var (wf ⊢B) x
+  in  W.wk₁ ⊢B ⊢A , var (∙ ⊢B) (there x)
 
 
 mutual
@@ -53,7 +53,7 @@ mutual
   soundness⇇Type ⊢Γ (Unitᶜ ok) = Unitⱼ ⊢Γ ok
   soundness⇇Type ⊢Γ Emptyᶜ = Emptyⱼ ⊢Γ
   soundness⇇Type ⊢Γ (ΠΣᶜ ⊢A ⊢B ok) =
-    ΠΣⱼ (soundness⇇Type (⊢→⊢∙ (soundness⇇Type ⊢Γ ⊢A)) ⊢B) ok
+    ΠΣⱼ (soundness⇇Type (∙ soundness⇇Type ⊢Γ ⊢A) ⊢B) ok
   soundness⇇Type _ (Idᶜ _ ⊢t ⊢u) =
     Idⱼ (soundness⇇ ⊢t) (soundness⇇ ⊢u)
   soundness⇇Type ⊢Γ (univᶜ ⊢A (A⇒*U , _)) =
@@ -64,7 +64,7 @@ mutual
   soundness⇉ ⊢Γ (ΠΣᵢ ⊢A (⇒*U₁ , _) ⊢B (⇒*U₂ , _) ok) =
     let _ , ⊢A = soundness⇉ ⊢Γ ⊢A
         ⊢A     = conv ⊢A (subset* ⇒*U₁)
-        _ , ⊢B = soundness⇉ (⊢Γ ∙ univ ⊢A) ⊢B
+        _ , ⊢B = soundness⇉ (∙ univ ⊢A) ⊢B
         ⊢B     = conv ⊢B (subset* ⇒*U₂)
     in
     Uⱼ ⊢Γ , ΠΣⱼ ⊢A ⊢B ok
@@ -95,7 +95,7 @@ mutual
         ⊢t′ = conv ⊢t B≡ΣFG
         _ , ⊢ΣFG = syntacticEq B≡ΣFG
         _ , _ , ok = inversion-ΠΣ ⊢ΣFG
-        ⊢A = soundness⇇Type (⊢Γ ∙ ⊢ΣFG) A⇇Type
+        ⊢A = soundness⇇Type (∙ ⊢ΣFG) A⇇Type
         ⊢u = soundness⇇ u⇇A₊
     in  substType ⊢A ⊢t′ , prodrecⱼ ⊢A ⊢t′ ⊢u ok
   soundness⇉ ⊢Γ ℕᵢ = Uⱼ ⊢Γ , ℕⱼ ⊢Γ
@@ -103,18 +103,18 @@ mutual
   soundness⇉ ⊢Γ (sucᵢ t⇇ℕ) = ℕⱼ ⊢Γ , sucⱼ (soundness⇇ t⇇ℕ)
   soundness⇉ ⊢Γ (natrecᵢ A⇇Type z⇇A₀ s⇇A₊ n⇇ℕ) =
     let ⊢ℕ = ℕⱼ ⊢Γ
-        ⊢A = soundness⇇Type (⊢Γ ∙ ⊢ℕ) A⇇Type
+        ⊢A = soundness⇇Type (∙ ⊢ℕ) A⇇Type
         ⊢z = soundness⇇ z⇇A₀
         ⊢s = soundness⇇ s⇇A₊
         ⊢n = soundness⇇ n⇇ℕ
     in  substType ⊢A ⊢n , natrecⱼ ⊢z ⊢s ⊢n
   soundness⇉ ⊢Γ (Unitᵢ ok) = Uⱼ ⊢Γ , Unitⱼ ⊢Γ ok
   soundness⇉ ⊢Γ (starᵢ ok) = Unitⱼ ⊢Γ ok , starⱼ ⊢Γ ok
-  soundness⇉ ⊢Γ (unitrecᵢ A⇇Type t⇇Unit u⇇A₊) =
+  soundness⇉ _ (unitrecᵢ A⇇Type t⇇Unit u⇇A₊) =
     let ⊢t = soundness⇇ t⇇Unit
         ⊢Unit = syntacticTerm ⊢t
         ok = inversion-Unit ⊢Unit
-        ⊢A = soundness⇇Type (⊢Γ ∙ ⊢Unit) A⇇Type
+        ⊢A = soundness⇇Type (∙ ⊢Unit) A⇇Type
         ⊢u = soundness⇇ u⇇A₊
     in  substType ⊢A ⊢t , unitrecⱼ ⊢A ⊢t ⊢u ok
   soundness⇉ ⊢Γ Emptyᵢ = (Uⱼ ⊢Γ) , (Emptyⱼ ⊢Γ)
@@ -131,8 +131,7 @@ mutual
       ⊢A →
     case soundness⇇ ⊢t of λ {
       ⊢t →
-    case soundness⇇Type (⊢Γ ∙ ⊢A ∙ Idⱼ (W.wkTerm₁ ⊢A ⊢t) (var₀ ⊢A))
-           ⊢B of λ {
+    case soundness⇇Type (∙ Idⱼ (W.wkTerm₁ ⊢A ⊢t) (var₀ ⊢A)) ⊢B of λ {
       ⊢B →
     case soundness⇇ ⊢w of λ {
       ⊢w →
@@ -144,7 +143,7 @@ mutual
       ⊢A →
     case soundness⇇ ⊢t of λ {
       ⊢t →
-    case soundness⇇Type (⊢Γ ∙ Idⱼ ⊢t ⊢t) ⊢B of λ {
+    case soundness⇇Type (∙ Idⱼ ⊢t ⊢t) ⊢B of λ {
       ⊢B →
     case soundness⇇ ⊢v of λ {
       ⊢v →

@@ -329,9 +329,9 @@ private
           (PE.trans (Target-[₀⇑] 0) $ PE.sym $ Target-[↑⇑] 0) $
         unitrec-cong′
           (Target-lemma-0 ≡Γ $
-           []ⱼ Erased-ok (var₀ (Unitⱼ (⊢→⊢∙ ⊢Unitʷ) Unitʷ-ok)))
+           []ⱼ Erased-ok (var₀ (Unitⱼ (∙ ⊢Unitʷ) Unitʷ-ok)))
           (refl (var₀ ⊢Unitʷ))
-          (wk-u₁≡wk-u₂ ≡Γ (⊢→⊢∙ ⊢Unitʷ))
+          (wk-u₁≡wk-u₂ ≡Γ (∙ ⊢Unitʷ))
 
     opaque
 
@@ -350,9 +350,9 @@ private
           (PE.trans (Target-[₀⇑] 0) $ PE.sym $ Target-[↑⇑] 0) $
         unitrec-cong′
           (Target-lemma-1 ≡Γ $
-           []ⱼ Erased-ok (var₀ (Unitⱼ (⊢→⊢∙ ⊢Unitʷ) Unitʷ-ok)))
+           []ⱼ Erased-ok (var₀ (Unitⱼ (∙ ⊢Unitʷ) Unitʷ-ok)))
           (refl (var₀ ⊢Unitʷ))
-          (wk-t₁≡wk-t₂ ≡Γ (⊢→⊢∙ ⊢Unitʷ))
+          (wk-t₁≡wk-t₂ ≡Γ (∙ ⊢Unitʷ))
 
     opaque
 
@@ -373,7 +373,7 @@ private
         let ⊢B , ⊢E = syntacticEq B≡Unit in
         erasedrec-cong
           (Target-lemma-0 ≡Γ (var₀ (wk₁ ⊢B ⊢E)))
-          (unitrec-lemma-0 ≡Γ (⊢→⊢∙ ⊢B))
+          (unitrec-lemma-0 ≡Γ (∙ ⊢B))
           (refl (conv (var₀ ⊢B) (wkEq₁ ⊢B B≡Unit)))
 
     opaque
@@ -395,7 +395,7 @@ private
         let ⊢B , ⊢E = syntacticEq B≡Unit in
         erasedrec-cong
           (Target-lemma-1 ≡Γ (var₀ (wk₁ ⊢B ⊢E)))
-          (unitrec-lemma-1 ≡Γ (⊢→⊢∙ ⊢B))
+          (unitrec-lemma-1 ≡Γ (∙ ⊢B))
           (refl (conv (var₀ ⊢B) (wkEq₁ ⊢B B≡Unit)))
 
     opaque
@@ -545,7 +545,7 @@ private
             [ suc (var x0) ]↑
       natcase-lemma ≡Γ ⊢Δ =
         let ⊢ℕ   = ℕⱼ ⊢Δ
-            ⊢Δ∙ℕ = ⊢→⊢∙ ⊢ℕ
+            ⊢Δ∙ℕ = ∙ ⊢ℕ
         in
         PE.subst (_⊢_≡_∷_ _ _ _)
           (PE.cong₂ (ΠΣ⟨_⟩_,_▷_▹_ _ _ _)
@@ -626,9 +626,9 @@ private
                 (PE.cong Erased $ PE.trans B.OK-[] $ PE.sym B.wk-OK)
                 PE.refl) $
            natcase-cong
-             (Π-lemma PE.refl (var₀ (ℕⱼ (⊢→⊢∙ ⊢OK))))
-             (lam-lemma-0 PE.refl (⊢→⊢∙ ⊢OK))
-             (natcase-lemma PE.refl (⊢→⊢∙ ⊢OK))
+             (Π-lemma PE.refl (var₀ (ℕⱼ (∙ ⊢OK))))
+             (lam-lemma-0 PE.refl (∙ ⊢OK))
+             (natcase-lemma PE.refl (∙ ⊢OK))
              (refl (var₁ ⊢OK)))
           (refl (var₀ ⊢OK))
 

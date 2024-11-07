@@ -187,7 +187,7 @@ opaque
     ⊢Unit₁ = Unitⱼ ⊢Γ Unit-ok
 
     ⊢Γ∙Unit : ⊢ Γ ∙ Unit s₂ l
-    ⊢Γ∙Unit = wf ⊢Unit₁ ∙ ⊢Unit₁
+    ⊢Γ∙Unit = ∙ ⊢Unit₁
 
     ⊢Unit₂ : Γ ∙ Unit s₂ l ⊢ Unit s₂ l
     ⊢Unit₂ = Unitⱼ ⊢Γ∙Unit Unit-ok

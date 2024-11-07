@@ -41,10 +41,10 @@ mutual
   contextConvSubst : ⊢ Γ ≡ Δ → ⊢ Γ × ⊢ Δ × Δ ⊢ˢ idSubst ∷ Γ
   contextConvSubst ε = ε , ε , id
   contextConvSubst (_∙_ {Γ = Γ} {Δ} {A} {B} Γ≡Δ A≡B) =
-    let ⊢Γ , ⊢Δ , [σ] = contextConvSubst Γ≡Δ
+    let _ , _ , [σ] = contextConvSubst Γ≡Δ
         ⊢A , ⊢B = syntacticEq A≡B
         Δ⊢B = stability Γ≡Δ ⊢B
-    in  ⊢Γ ∙ ⊢A , ⊢Δ ∙ Δ⊢B
+    in  ∙ ⊢A , ∙ Δ⊢B
         , (wk1Subst′ Δ⊢B [σ]
         , conv (var₀ Δ⊢B)
                (PE.subst (λ x → _ ⊢ _ ≡ x)
@@ -68,7 +68,7 @@ mutual
 -- Reflexivity of context equality.
 reflConEq : ⊢ Γ → ⊢ Γ ≡ Γ
 reflConEq ε = ε
-reflConEq (⊢Γ ∙ ⊢A) = reflConEq ⊢Γ ∙ refl ⊢A
+reflConEq (∙ ⊢A) = reflConEq (wf ⊢A) ∙ refl ⊢A
 
 -- Symmetry of context equality.
 symConEq : ⊢ Γ ≡ Δ → ⊢ Δ ≡ Γ

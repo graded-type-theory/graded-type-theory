@@ -284,16 +284,16 @@ soundness-ℕ-only-source-counterexample₁ {p = p} P-ok Σʷ-ok =
       (1+ _ , whred d ⇨ˢ _) → whnfRedTerm d (ne (prodrecₙ (var _)))
   where
   ε⊢ℕ = ℕⱼ ε
-  ⊢εℕ = ε ∙ ε⊢ℕ
+  ⊢εℕ = ∙ ε⊢ℕ
   εℕ⊢ℕ = ℕⱼ ⊢εℕ
   ε⊢Σ = ΠΣⱼ εℕ⊢ℕ Σʷ-ok
-  ⊢εΣ = ε ∙ ε⊢Σ
-  ⊢εΣℕ = ⊢→⊢∙ (ℕⱼ ⊢εΣ)
+  ⊢εΣ = ∙ ε⊢Σ
+  ⊢εΣℕ = ∙ ℕⱼ ⊢εΣ
   εΣℕ⊢ℕ = ℕⱼ ⊢εΣℕ
   εΣ⊢Σ = ΠΣⱼ εΣℕ⊢ℕ Σʷ-ok
-  ⊢εΣΣ = ⊢εΣ ∙ εΣ⊢Σ
+  ⊢εΣΣ = ∙ εΣ⊢Σ
   εΣΣ⊢ℕ = ℕⱼ ⊢εΣΣ
-  ⊢εΣℕℕ = ⊢εΣℕ ∙ εΣℕ⊢ℕ
+  ⊢εΣℕℕ = ∙ εΣℕ⊢ℕ
   ⊢prodrec = prodrecⱼ {r = 𝟘} εΣΣ⊢ℕ (var₀ ε⊢Σ) (zeroⱼ ⊢εΣℕℕ) Σʷ-ok
 
 opaque
@@ -317,7 +317,7 @@ opaque
     𝟘ᶜ ▸[ 𝟙ᵐ ] t ×
     ¬ ∃ λ n → Δ ⊢ t ⇒ˢ* sucᵏ n ∷ℕ
   soundness-ℕ-only-source-counterexample₂ {s = s} ok ok′ =
-    case ε ∙ Idⱼ (zeroⱼ ε) (zeroⱼ ε) of λ {
+    case ∙ Idⱼ (zeroⱼ ε) (zeroⱼ ε) of λ {
       ⊢Id →
       inhabited-consistent (singleSubst (rflⱼ (zeroⱼ ε)))
     , Jⱼ′ (ℕⱼ (J-motive-context ([]ⱼ ([]-cong→Erased ok) (zeroⱼ ⊢Id))))
@@ -354,7 +354,7 @@ opaque
     𝟘ᶜ ▸[ 𝟙ᵐ ] t ×
     ¬ ∃ λ n → Δ ⊢ t ⇒ˢ* sucᵏ n ∷ℕ
   soundness-ℕ-only-source-counterexample₃ ≡not-none =
-    case ε ∙ Idⱼ (zeroⱼ ε) (zeroⱼ ε) of λ {
+    case ∙ Idⱼ (zeroⱼ ε) (zeroⱼ ε) of λ {
       ⊢Id →
       inhabited-consistent (singleSubst (rflⱼ (zeroⱼ ε)))
     , Jⱼ′ (ℕⱼ (J-motive-context (zeroⱼ ⊢Id))) (zeroⱼ ⊢Id) (var ⊢Id here)
@@ -390,7 +390,7 @@ opaque
     𝟘ᶜ ▸[ 𝟙ᵐ ] t ×
     ¬ ∃ λ n → Δ ⊢ t ⇒ˢ* sucᵏ n ∷ℕ
   soundness-ℕ-only-source-counterexample₄ K-ok ≡not-none =
-    case ε ∙ Idⱼ (zeroⱼ ε) (zeroⱼ ε) of λ {
+    case ∙ Idⱼ (zeroⱼ ε) (zeroⱼ ε) of λ {
       ⊢Id →
       inhabited-consistent (singleSubst (rflⱼ (zeroⱼ ε)))
     , Kⱼ′ (ℕⱼ (K-motive-context (zeroⱼ ⊢Id))) (zeroⱼ ⊢Id) (var ⊢Id here)
@@ -429,7 +429,7 @@ opaque
   soundness-ℕ-only-source-counterexample₅ unitrec-ok Unit-ok no-η =
     case Unitⱼ ε Unit-ok of λ
       ⊢Unit →
-    case ε ∙ ⊢Unit of λ
+    case ∙ ⊢Unit of λ
       ⊢∙Unit →
       inhabited-consistent (singleSubst (starⱼ ε Unit-ok))
     , unitrecⱼ (ℕⱼ (⊢∙Unit ∙[ flip Unitⱼ Unit-ok ])) (var₀ ⊢Unit)
@@ -594,7 +594,7 @@ opaque
     ⊢0≡0 = Idⱼ (zeroⱼ ε) (zeroⱼ ε)
 
     ⊢Δ : ⊢ Δ′
-    ⊢Δ = ε ∙ ⊢0≡0
+    ⊢Δ = ∙ ⊢0≡0
 
     ⊢ℕ : Δ′ ∙ Erased ℕ ∙ Id (Erased ℕ) Er.[ zero ] (var x0) ⊢ ℕ
     ⊢ℕ = ℕⱼ (J-motive-context ([]ⱼ Erased-ok (zeroⱼ ⊢Δ)))
@@ -631,7 +631,7 @@ opaque
     ⊢0≡0 = Idⱼ (zeroⱼ ε) (zeroⱼ ε)
 
     ⊢Δ : ⊢ Δ′
-    ⊢Δ = ε ∙ ⊢0≡0
+    ⊢Δ = ∙ ⊢0≡0
 
     ⊢ℕ : Δ′ ∙ ℕ ∙ Id ℕ zero (var x0) ⊢ ℕ
     ⊢ℕ = ℕⱼ (J-motive-context (zeroⱼ ⊢Δ))
@@ -670,7 +670,7 @@ opaque
     ⊢0≡0 = Idⱼ (zeroⱼ ε) (zeroⱼ ε)
 
     ⊢Δ : ⊢ Δ′
-    ⊢Δ = ε ∙ ⊢0≡0
+    ⊢Δ = ∙ ⊢0≡0
 
     ⊢ℕ : Δ′ ∙ Id ℕ zero zero ⊢ ℕ
     ⊢ℕ = ℕⱼ (K-motive-context (zeroⱼ ⊢Δ))

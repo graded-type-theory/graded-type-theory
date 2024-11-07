@@ -337,7 +337,7 @@ private opaque
   dec~↑-unitrec-cong
     no-η ⊢t₁ (yes (PE.refl , PE.refl , PE.refl , _ , t₁~t₂)) dec₁ dec₂ =
     case
-      (dec₁ (reflConEq (⊢→⊢∙ (syntacticTerm ⊢t₁))) ×-dec′ λ A₁≡A₂ →
+      (dec₁ (reflConEq (∙ syntacticTerm ⊢t₁)) ×-dec′ λ A₁≡A₂ →
        dec₂
          (substTypeEq (soundnessConv↑ A₁≡A₂) $
           _⊢_≡_∷_.refl $

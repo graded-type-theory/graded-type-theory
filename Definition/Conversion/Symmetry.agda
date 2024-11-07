@@ -110,10 +110,8 @@ mutual
                 ⊢Γ , ⊢Δ , ⊢idsubst = contextConvSubst Γ≡Δ
                 ⊢F′ = stability Γ≡Δ ⊢F
                 ⊢G′ = stability (Γ≡Δ ∙ refl ⊢F) ⊢G
-                ⊢ΔF = ⊢Δ ∙ ⊢F′
-                ⊢ΔFG = ⊢ΔF ∙ ⊢G′
-                ⊢ρF = W.wk (step (step id)) ⊢ΔFG ⊢F′
-                ⊢ρG = W.wk (lift (step (step id))) (⊢ΔFG ∙ ⊢ρF) ⊢G′
+                ⊢ρF = W.wk (step (step id)) (∙ ⊢G′) ⊢F′
+                ⊢ρG = W.wk (lift (step (step id))) (∙ ⊢ρF) ⊢G′
                 C₊≡E₊ = subst↑²TypeEq-prod (stabilityEq (Γ≡Δ ∙ refl ⊢Σ) C≡E)
                           ok
             in  _ , substTypeEq C≡E g≡h

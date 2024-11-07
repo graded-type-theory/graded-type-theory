@@ -63,7 +63,7 @@ opaque
     Γ ⊢ A ∷ U l₁ →
     Γ ⊢ Lift s l₂ A ∷ U (l₁ ⊔ᵘ l₂)
   ⊢Lift (ok₁ , ok₂) ⊢A =
-    ΠΣⱼ ⊢A (Unitⱼ (⊢→⊢∙ (univ ⊢A)) ok₂) ok₁
+    ΠΣⱼ ⊢A (Unitⱼ (∙ univ ⊢A) ok₂) ok₁
 
 opaque
   unfolding Lift
@@ -110,7 +110,7 @@ opaque
     Γ ⊢ lift s l t ∷ Lift s l A
   ⊢lift (ok₁ , ok₂) ⊢t =
     let ⊢A = syntacticTerm ⊢t in
-    prodⱼ (Unitⱼ (⊢→⊢∙ ⊢A) ok₂) ⊢t (starⱼ (wf ⊢A) ok₂) ok₁
+    prodⱼ (Unitⱼ (∙ ⊢A) ok₂) ⊢t (starⱼ (wf ⊢A) ok₂) ok₁
 
 ------------------------------------------------------------------------
 -- Typing rules for liftrec
@@ -136,7 +136,7 @@ private opaque
   liftrec-lemma {s} {l} {B₁} B₁≡B₂ t₁≡t₂ =
     let (ok₁ , ok₂) , ⊢A = inversion-Lift (⊢∙→⊢ (wfEq B₁≡B₂))
         ⊢Γ               = wf ⊢A
-        ⊢Unit            = Unitⱼ (⊢→⊢∙ ⊢A) ok₂
+        ⊢Unit            = Unitⱼ (∙ ⊢A) ok₂
         ⊢Unit′           = W.wk₁ ⊢Unit ⊢Unit
     in
     PE.subst (_⊢_≡_∷_ _ _ _)
@@ -160,15 +160,14 @@ private opaque
                 (wk1Subst′ ⊢Unit (wk1Subst′ ⊢A (idSubst′ ⊢Γ)))
             , prodⱼ
                 (Unitⱼ
-                   (⊢→⊢∙ $
-                    PE.subst (_⊢_ _) (wk≡subst _ _) $
-                    W.wk (W.step (W.step (W.step W.id))) (⊢→⊢∙ ⊢Unit′)
-                      ⊢A)
+                   (∙ (PE.subst (_⊢_ _) (wk≡subst _ _) $
+                       W.wk (W.step (W.step (W.step W.id))) (∙ ⊢Unit′)
+                         ⊢A))
                    ok₂)
                 (PE.subst (_⊢_∷_ _ _) (wk[]≡[] 3) (var₂ ⊢Unit′))
                 (var₀ ⊢Unit′) ok₁
             ))
-         (⊢→⊢∙ ⊢Unit′))
+         (∙ ⊢Unit′))
       (refl (var₀ ⊢Unit)) $
     PE.subst (_⊢_≡_∷_ _ _ _)
       (wk1 (B₁ [ lift s l (var x0) ]↑)                                    ≡⟨⟩

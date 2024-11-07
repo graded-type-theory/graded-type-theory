@@ -40,7 +40,7 @@ erasedⱼ :
   Γ ⊢ A →
   Γ ⊢ t ∷ Erased A →
   Γ ⊢ erased t ∷ A
-erasedⱼ ⊢A ⊢t = fstⱼ (Unitⱼ (⊢→⊢∙ ⊢A) Unit-ok) ⊢t
+erasedⱼ ⊢A ⊢t = fstⱼ (Unitⱼ (∙ ⊢A) Unit-ok) ⊢t
 
 -- A corresponding congruence rule.
 
@@ -48,7 +48,7 @@ erased-cong :
   Γ ⊢ A →
   Γ ⊢ t ≡ u ∷ Erased A →
   Γ ⊢ erased t ≡ erased u ∷ A
-erased-cong ⊢A t≡u = fst-cong (Unitⱼ (⊢→⊢∙ ⊢A) Unit-ok) t≡u
+erased-cong ⊢A t≡u = fst-cong (Unitⱼ (∙ ⊢A) Unit-ok) t≡u
 
 -- A β-rule for Erased.
 
@@ -57,7 +57,7 @@ Erased-β :
   Γ ⊢ t ∷ A →
   Γ ⊢ erased [ t ] ≡ t ∷ A
 Erased-β ⊢A ⊢t =
-  Σ-β₁ (Unitⱼ (⊢→⊢∙ ⊢A) Unit-ok) ⊢t (starⱼ (wf ⊢A) Unit-ok) PE.refl Σ-ok
+  Σ-β₁ (Unitⱼ (∙ ⊢A) Unit-ok) ⊢t (starⱼ (wf ⊢A) Unit-ok) PE.refl Σ-ok
 
 -- A definitional η-rule for Erased.
 
@@ -71,7 +71,7 @@ Erased-η-≡ ⊢A ⊢t ⊢u t≡u = Σ-η
   Γ∙A⊢Unit ⊢t ⊢u t≡u
   (η-unit (sndⱼ Γ∙A⊢Unit ⊢t) (sndⱼ Γ∙A⊢Unit ⊢u) (inj₁ PE.refl))
   where
-  Γ∙A⊢Unit = Unitⱼ (wf ⊢A ∙ ⊢A) Unit-ok
+  Γ∙A⊢Unit = Unitⱼ (∙ ⊢A) Unit-ok
 
 -- An instance of the η-rule.
 

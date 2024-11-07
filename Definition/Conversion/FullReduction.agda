@@ -106,7 +106,7 @@ mutual
         ⊢Γ →
         natrec p q r A′ t′ u′ v′
       , (                                             $⟨ u′-nf ⟩
-         Γ ∙ ℕ ∙ A ⊢nf u′ ∷ A [ suc (var x1) ]↑²      →⟨ ⊢nf∷-stable (reflConEq (⊢Γ ∙ ℕⱼ ⊢Γ) ∙ A≡A′) ⟩
+         Γ ∙ ℕ ∙ A ⊢nf u′ ∷ A [ suc (var x1) ]↑²      →⟨ ⊢nf∷-stable (reflConEq (∙ ℕⱼ ⊢Γ) ∙ A≡A′) ⟩
          Γ ∙ ℕ ∙ A′ ⊢nf u′ ∷ A [ suc (var x1) ]↑²     →⟨ flip _⊢nf_∷_.convₙ $
                                                          subst↑²TypeEq A≡A′ (refl (sucⱼ (var₁ ⊢A′))) ⟩
          Γ ∙ ℕ ∙ A′ ⊢nf u′ ∷ A′ [ suc (var x1) ]↑²    →⟨ (λ hyp → natrecₙ

@@ -30,16 +30,16 @@ private
   -- Some lemmas used below.
 
   ⊢ℕ : ⊢ ε ∙ ℕ
-  ⊢ℕ  = ε ∙ ℕⱼ ε
+  ⊢ℕ  = ∙ ℕⱼ ε
 
   ⊢ℕℕ : ⊢ ε ∙ ℕ ∙ ℕ
-  ⊢ℕℕ = ⊢ℕ ∙ ℕⱼ ⊢ℕ
+  ⊢ℕℕ = ∙ ℕⱼ ⊢ℕ
 
   ⊢ℕℕℕ : ⊢ ε ∙ ℕ ∙ ℕ ∙ ℕ
-  ⊢ℕℕℕ = ⊢ℕℕ ∙ ℕⱼ ⊢ℕℕ
+  ⊢ℕℕℕ = ∙ ℕⱼ ⊢ℕℕ
 
   ⊢ℕℕℕℕ : ⊢ ε ∙ ℕ ∙ ℕ ∙ ℕ ∙ ℕ
-  ⊢ℕℕℕℕ = ⊢ℕℕℕ ∙ ℕⱼ ⊢ℕℕℕ
+  ⊢ℕℕℕℕ = ∙ ℕⱼ ⊢ℕℕℕ
 
 -- A program that takes a natural number and adds it to itself:
 -- λ n. n + n. This program should presumably not be seen as linear,

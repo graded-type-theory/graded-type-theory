@@ -474,7 +474,7 @@ mutual
          isΠΣ-with-cont ⊢B λ {b = b} {p = p′} _ ⊢D ok _ →
          decBinderMode b (BMΣ 𝕨) ×-dec′ λ b≡ →
          p ≟ p′ ×-dec
-         dec⇇Type-with-cont (⊢→⊢∙ (ΠΣⱼ ⊢D ok)) A λ ⊢A →
+         dec⇇Type-with-cont (∙ ΠΣⱼ ⊢D ok) A λ ⊢A →
          dec⇇ u
            (subst↑²Type-prod
               (PE.subst (λ b → _ ∙ ΠΣ⟨ b ⟩ _ , _ ▷ _ ▹ _ ⊢ _) b≡ ⊢A)
@@ -507,7 +507,7 @@ mutual
       case
         (Unit-allowed? 𝕨 ×-dec′ λ ok →
          let ⊢Unit = Unitⱼ ⊢Γ ok in
-         dec⇇Type-with-cont (⊢→⊢∙ ⊢Unit) A λ ⊢A →
+         dec⇇Type-with-cont (∙ ⊢Unit) A λ ⊢A →
          dec⇇ t ⊢Unit ×-dec
          dec⇇ u (substType ⊢A (starⱼ ⊢Γ ok)))
         of λ where
@@ -524,8 +524,7 @@ mutual
       case
         (dec⇇Type-with-cont ⊢Γ A λ ⊢A →
          dec⇇-with-cont t ⊢A λ ⊢t →
-         dec⇇Type-with-cont
-           (⊢→⊢∙ (Idⱼ (wkTerm₁ ⊢A ⊢t) (var₀ ⊢A))) B λ ⊢B →
+         dec⇇Type-with-cont (∙ Idⱼ (wkTerm₁ ⊢A ⊢t) (var₀ ⊢A)) B λ ⊢B →
          dec⇇ u
            (substType₂ ⊢B ⊢t $
             PE.subst (_⊢_∷_ _ _) ≡Id-wk1-wk1-0[]₀ $
@@ -546,7 +545,7 @@ mutual
         (K-allowed? ×-dec′ λ ok →
          dec⇇Type-with-cont ⊢Γ A λ ⊢A →
          dec⇇-with-cont t ⊢A λ ⊢t →
-         dec⇇Type-with-cont (⊢→⊢∙ (Idⱼ ⊢t ⊢t)) B λ ⊢B →
+         dec⇇Type-with-cont (∙ Idⱼ ⊢t ⊢t) B λ ⊢B →
          dec⇇ u (substType ⊢B (rflⱼ ⊢t)) ×-dec
          dec⇇ v (Idⱼ ⊢t ⊢t))
         of λ where
@@ -562,7 +561,7 @@ mutual
     case
       (ΠΣ-allowed? b p q ×-dec
        dec⇉Type-with-cont ⊢Γ A λ ⊢A →
-       dec⇉Type (⊢→⊢∙ ⊢A) B)
+       dec⇉Type (∙ ⊢A) B)
       of λ where
       (yes (ok , A , B)) → yes (ΠΣᶜ A B ok)
       (no not)           → no λ where
@@ -716,7 +715,7 @@ mutual
     case
       (ΠΣ-allowed? b p q ×-dec
        dec⇇Type-with-cont ⊢Γ A λ ⊢A →
-       dec⇇Type (⊢→⊢∙ ⊢A) B)
+       dec⇇Type (∙ ⊢A) B)
       of λ where
       (yes (ok , A , B)) → yes (ΠΣᶜ A B ok)
       (no not)           → no λ where
@@ -750,7 +749,7 @@ mutual
        dec⇉-with-cont ⊢Γ A λ ⊢C₁ ⊢A →
        ↘U? ⊢C₁ ×-dec′ λ (_ , C₁⇒*U , _) →
        let ⊢A = univ (conv ⊢A (subset* C₁⇒*U)) in
-       dec⇉-with-cont (⊢→⊢∙ ⊢A) B λ ⊢C₂ _ →
+       dec⇉-with-cont (∙ ⊢A) B λ ⊢C₂ _ →
        ↘U? ⊢C₂)
       of λ where
       (yes (ok , (_ , A) , (_ , ↘U₁) , (_ , B) , (_ , ↘U₂))) →

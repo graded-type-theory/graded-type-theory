@@ -74,11 +74,11 @@ decWfCon : CheckableCon Γ → Dec (⊢ Γ)
 decWfCon ε = yes ε
 decWfCon (Γ ∙ A) = case decWfCon Γ of λ where
   (yes ⊢Γ) → case dec ⊢Γ A of λ where
-    (yes ⊢A) → yes (⊢Γ ∙ ⊢A)
+    (yes ⊢A) → yes (∙ ⊢A)
     (no ⊬A) → no λ where
-      (⊢Γ ∙ ⊢A) → ⊬A ⊢A
+      (∙ ⊢A) → ⊬A ⊢A
   (no ⊬Γ) → no λ where
-    (⊢Γ ∙ ⊢A) → ⊬Γ ⊢Γ
+    (∙ ⊢A) → ⊬Γ (wf ⊢A)
 
 -- If Γ and A are checkable, then Γ ⊢ A is decidable.
 

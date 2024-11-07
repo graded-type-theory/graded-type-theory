@@ -990,7 +990,7 @@ opaque
     Δ ⊢ A →
     Δ ⊩ˢ σ₁ ≡ σ₂ ∷ Γ →
     Δ ∙ A ⊩ˢ wk1Subst σ₁ ≡ wk1Subst σ₂ ∷ Γ
-  ⊩ˢ≡∷-wk1Subst ⊢A = ⊩ˢ≡∷-•ₛ (⊢→⊢∙ ⊢A) (TW.step TW.id)
+  ⊩ˢ≡∷-wk1Subst ⊢A = ⊩ˢ≡∷-•ₛ (∙ ⊢A) (TW.step TW.id)
 
 opaque
 
@@ -1016,7 +1016,7 @@ opaque
       ⊢A[σ₁] →
     case ⊩ˢ≡∷-wk1Subst ⊢A[σ₁] σ₁≡σ₂ of λ
       σ₁⇑₊≡σ₂⇑₊ →
-    case var (⊢→⊢∙ ⊢A[σ₁])
+    case var (∙ ⊢A[σ₁])
            (PE.subst₂ (_∷_∈_ _) (PE.sym $ wk1Subst-wk1 A) PE.refl
               here) of λ
       ⊢0 →
@@ -1175,7 +1175,7 @@ opaque
 
   escape-⊩ᵛ′ : ⊩ᵛ Γ → ⊢ Γ
   escape-⊩ᵛ′ {Γ = ε}     = λ _ → ε
-  escape-⊩ᵛ′ {Γ = _ ∙ _} = ⊢→⊢∙ ∘→ escape-⊩ᵛ ∘→ proj₂ ∘→ ⊩ᵛ∙⇔ .proj₁
+  escape-⊩ᵛ′ {Γ = _ ∙ _} = ∙_ ∘→ escape-⊩ᵛ ∘→ proj₂ ∘→ ⊩ᵛ∙⇔ .proj₁
 
 opaque
 

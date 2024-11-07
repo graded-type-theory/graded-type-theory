@@ -51,30 +51,31 @@ mutual
              (PE.sym (wk-β B))
              (snd-cong (wk~↓ ρ ⊢Δ p~r))
   wk~↑ [ρ] ⊢Δ (natrec-cong {A₁} x x₁ x₂ t~u) =
-    let ⊢Δℕ = ⊢Δ ∙ (ℕⱼ ⊢Δ)
-        Δℕ⊢F = wk (lift [ρ]) ⊢Δℕ (proj₁ (syntacticEq (soundnessConv↑ x)))
+    let Δℕ⊢F =
+          wk (lift [ρ]) (∙ ℕⱼ ⊢Δ)
+            (proj₁ (syntacticEq (soundnessConv↑ x)))
     in
     PE.subst (_⊢_~_↑_ _ _ _) (PE.sym (wk-β A₁)) $
-    natrec-cong (wkConv↑ (lift [ρ]) (⊢Δ ∙ ℕⱼ ⊢Δ) x)
+    natrec-cong (wkConv↑ (lift [ρ]) (∙ ℕⱼ ⊢Δ) x)
       (PE.subst (_⊢_[conv↑]_∷_ _ _ _) (wk-β A₁) $
        wkConv↑Term [ρ] ⊢Δ x₁)
       (PE.subst (_⊢_[conv↑]_∷_ _ _ _) (wk-β-natrec _ A₁) $
-       wkConv↑Term (lift (lift [ρ])) (⊢Δℕ ∙ Δℕ⊢F) x₂)
+       wkConv↑Term (lift (lift [ρ])) (∙ Δℕ⊢F) x₂)
       (wk~↓ [ρ] ⊢Δ t~u)
   wk~↑
     {ρ = ρ} {Δ = Δ} [ρ] ⊢Δ
     (prodrec-cong {C = C} {E} {g} {h} {u} {v} x g~h x₁) =
     let ρg~ρh = wk~↓ [ρ] ⊢Δ g~h
         ⊢ρΣ , _ , _ = syntacticEqTerm (soundness~↓ ρg~ρh)
-        ⊢ρF , ⊢ρG = syntacticΣ ⊢ρΣ
+        _ , ⊢ρG = syntacticΣ ⊢ρΣ
         u↓v = PE.subst (λ x → _ ⊢ U.wk (liftn ρ 2) u [conv↑] U.wk (liftn ρ 2) v ∷ x)
                        (wk-β-prodrec ρ C)
-                       (wkConv↑Term (lift (lift [ρ])) (⊢Δ ∙ ⊢ρF ∙ ⊢ρG) x₁)
+                       (wkConv↑Term (lift (lift [ρ])) (∙ ⊢ρG) x₁)
     in  PE.subst  (λ x → _ ⊢ U.wk ρ (prodrec _ _ _ C g u) ~
                            U.wk ρ (prodrec _ _ _ E h v) ↑ x)
                   (PE.sym (wk-β C))
-                  (prodrec-cong (wkConv↑ (lift [ρ]) (⊢Δ ∙ ⊢ρΣ) x)
-                     ρg~ρh u↓v)
+                  (prodrec-cong (wkConv↑ (lift [ρ]) (∙ ⊢ρΣ) x) ρg~ρh
+                     u↓v)
   wk~↑ [ρ] ⊢Δ (emptyrec-cong x t~u) =
     emptyrec-cong (wkConv↑ [ρ] ⊢Δ x) (wk~↓ [ρ] ⊢Δ t~u)
   wk~↑ [ρ] ⊢Δ (unitrec-cong {A₁} x x₁ x₂ no-η) =
@@ -85,8 +86,8 @@ mutual
                        (wkConv↑Term [ρ] ⊢Δ x₂)
     in  PE.subst (_⊢_~_↑_ _ _ _)
                  (PE.sym (wk-β A₁))
-                 (unitrec-cong (wkConv↑ (lift [ρ]) (⊢Δ ∙ ⊢Unit) x)
-                               k~l u↑v no-η)
+                 (unitrec-cong (wkConv↑ (lift [ρ]) (∙ ⊢Unit) x) k~l u↑v
+                    no-η)
   wk~↑
     {ρ} {Δ} [ρ] ⊢Δ
     (J-cong {A₁} {B₁} {B₂} A₁≡A₂ t₁≡t₂ B₁≡B₂ u₁≡u₂ v₁≡v₂ w₁~w₂ ≡Id) =
@@ -94,7 +95,7 @@ mutual
       ⊢A₁ →
     case syntacticEqTerm (soundnessConv↑Term t₁≡t₂) .proj₂ .proj₁ of λ {
       ⊢t₁ →
-    case ⊢Δ ∙ wk [ρ] ⊢Δ ⊢A₁ of λ {
+    case ∙ wk [ρ] ⊢Δ ⊢A₁ of λ {
       ⊢Δ∙wk-ρ-A₁ →
     PE.subst (_ ⊢ J _ _ _ _ _ _ _ _ ~ _ ↑_)
       (PE.sym $ wk-β-doubleSubst _ B₁ _ _) $
@@ -107,14 +108,13 @@ mutual
             (PE.sym $ wk1-wk≡lift-wk1 _ _)
             (PE.sym $ wk1-wk≡lift-wk1 _ _)) $
        wkConv↑ (lift (lift [ρ]))
-         (⊢Δ∙wk-ρ-A₁ ∙
-          Idⱼ
-            (PE.subst₂ (_⊢_∷_ _)
-               (PE.sym $ lift-wk1 _ _)
-               (PE.sym $ lift-wk1 _ _) $
-             wkTerm (step [ρ]) ⊢Δ∙wk-ρ-A₁ ⊢t₁)
-            (PE.subst (_⊢_∷_ _ _) (wk1-wk≡lift-wk1 _ _) $
-             var ⊢Δ∙wk-ρ-A₁ here))
+         (∙ (Idⱼ
+               (PE.subst₂ (_⊢_∷_ _)
+                  (PE.sym $ lift-wk1 _ _)
+                  (PE.sym $ lift-wk1 _ _) $
+                wkTerm (step [ρ]) ⊢Δ∙wk-ρ-A₁ ⊢t₁)
+               (PE.subst (_⊢_∷_ _ _) (wk1-wk≡lift-wk1 _ _) $
+                var ⊢Δ∙wk-ρ-A₁ here)))
          B₁≡B₂)
       (PE.subst (_⊢_[conv↑]_∷_ _ _ _) (wk-β-doubleSubst _ B₁ _ _) $
        wkConv↑Term [ρ] ⊢Δ u₁≡u₂)
@@ -126,7 +126,7 @@ mutual
     PE.subst (_ ⊢ K _ _ _ _ _ _ ~ _ ↑_)
       (PE.sym $ wk-β B₁) $
     K-cong (wkConv↑ [ρ] ⊢Δ A₁≡A₂) (wkConv↑Term [ρ] ⊢Δ t₁≡t₂)
-      (wkConv↑ (lift [ρ]) (⊢Δ ∙ wk [ρ] ⊢Δ (Idⱼ ⊢t₁ ⊢t₁)) B₁≡B₂)
+      (wkConv↑ (lift [ρ]) (∙ wk [ρ] ⊢Δ (Idⱼ ⊢t₁ ⊢t₁)) B₁≡B₂)
       (PE.subst (_⊢_[conv↑]_∷_ _ _ _) (wk-β B₁) $
        wkConv↑Term [ρ] ⊢Δ u₁≡u₂)
       (wk~↓ [ρ] ⊢Δ v₁~v₂) (wkEq [ρ] ⊢Δ ≡Id) ok }
@@ -160,9 +160,8 @@ mutual
   wkConv↓ ρ ⊢Δ (Unit-refl x ok) = Unit-refl ⊢Δ ok
   wkConv↓ ρ ⊢Δ (ne x) = ne (wk~↓ ρ ⊢Δ x)
   wkConv↓ ρ ⊢Δ (ΠΣ-cong A<>B A<>B₁ ok) =
-    let ⊢ρF = wk ρ ⊢Δ (syntacticEq (soundnessConv↑ A<>B) .proj₁)
-    in  ΠΣ-cong (wkConv↑ ρ ⊢Δ A<>B)
-          (wkConv↑ (lift ρ) (⊢Δ ∙ ⊢ρF) A<>B₁) ok
+    let ⊢ρF = wk ρ ⊢Δ (syntacticEq (soundnessConv↑ A<>B) .proj₁) in
+    ΠΣ-cong (wkConv↑ ρ ⊢Δ A<>B) (wkConv↑ (lift ρ) (∙ ⊢ρF) A<>B₁) ok
   wkConv↓ ρ ⊢Δ (Id-cong A₁≡A₂ t₁≡t₂ u₁≡u₂) =
     Id-cong (wkConv↑ ρ ⊢Δ A₁≡A₂) (wkConv↑Term ρ ⊢Δ t₁≡t₂)
       (wkConv↑Term ρ ⊢Δ u₁≡u₂)
@@ -197,7 +196,7 @@ mutual
   wkConv↓Term ρ ⊢Δ (suc-cong t<>u) = suc-cong (wkConv↑Term ρ ⊢Δ t<>u)
   wkConv↓Term ρ ⊢Δ (prod-cong {G = G} x₁ x₂ x₃ ok) =
     let ⊢ρF = wk ρ ⊢Δ (⊢∙→⊢ (wf x₁))
-        ⊢ρG = wk (lift ρ) (⊢Δ ∙ ⊢ρF) x₁
+        ⊢ρG = wk (lift ρ) (∙ ⊢ρF) x₁
     in  prod-cong ⊢ρG (wkConv↑Term ρ ⊢Δ x₂)
           (PE.subst (λ x → _ ⊢ _ [conv↑] _ ∷ x) (wk-β G)
              (wkConv↑Term ρ ⊢Δ x₃))
@@ -212,7 +211,7 @@ mutual
       (PE.cong₃ _∘⟨_⟩_ (PE.sym (wk1-wk≡lift-wk1 _ _)) PE.refl PE.refl)
       (PE.cong₃ _∘⟨_⟩_ (PE.sym (wk1-wk≡lift-wk1 _ _)) PE.refl PE.refl)
       PE.refl $
-    wkConv↑Term (lift [ρ]) (⊢Δ ∙ ⊢ρF) t<>u
+    wkConv↑Term (lift [ρ]) (∙ ⊢ρF) t<>u
   wkConv↓Term {ρ} [ρ] ⊢Δ (Σ-η {B} ⊢p ⊢r pProd rProd fstConv sndConv) =
     Σ-η (wkTerm [ρ] ⊢Δ ⊢p)
         (wkTerm [ρ] ⊢Δ ⊢r)

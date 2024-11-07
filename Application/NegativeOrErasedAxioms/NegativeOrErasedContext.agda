@@ -15,6 +15,7 @@ module Application.NegativeOrErasedAxioms.NegativeOrErasedContext
 
 open import Definition.Untyped M
 open import Definition.Typed R
+open import Definition.Typed.Properties R
 open import Definition.Typed.Weakening R
 open import Graded.Context 𝕄
 open import Graded.Modality.Properties 𝕄
@@ -55,12 +56,12 @@ lookupNegative :
   NegativeType Γ A
 lookupNegative ⊢Γ∙A (nΓγ ∙ nA) here _ =
   wkNeg (step id) ⊢Γ∙A nA
-lookupNegative ⊢Γ∙A@(⊢Γ ∙ Γ⊢A) (nΓγ ∙ nA) (there h) ≢𝟘 =
-  wkNeg (step id) ⊢Γ∙A (lookupNegative ⊢Γ nΓγ h ≢𝟘)
+lookupNegative ⊢Γ∙A@(∙ Γ⊢A) (nΓγ ∙ nA) (there h) ≢𝟘 =
+  wkNeg (step id) ⊢Γ∙A (lookupNegative (wf Γ⊢A) nΓγ h ≢𝟘)
 lookupNegative ⊢Γ∙A (nΓγ ∙𝟘) here ≢𝟘 =
   ⊥-elim (≢𝟘 PE.refl)
-lookupNegative ⊢Γ∙A@(⊢Γ ∙ Γ⊢A) (nΓγ ∙𝟘) (there h) ≢𝟘 =
-  wkNeg (step id) ⊢Γ∙A (lookupNegative ⊢Γ nΓγ h ≢𝟘)
+lookupNegative ⊢Γ∙A@(∙ Γ⊢A) (nΓγ ∙𝟘) (there h) ≢𝟘 =
+  wkNeg (step id) ⊢Γ∙A (lookupNegative (wf Γ⊢A) nΓγ h ≢𝟘)
 
 erasedContext : NegativeErasedContext Γ 𝟘ᶜ
 erasedContext {Γ = ε} = ε

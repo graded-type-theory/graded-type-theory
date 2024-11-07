@@ -20,6 +20,7 @@ open import Definition.Untyped M
 open import Definition.Untyped.Properties M
 
 open import Definition.Typed R
+open import Definition.Typed.Properties R
 open import Definition.LogicalRelation R
 open import Definition.LogicalRelation.Properties R
 open import Definition.LogicalRelation.Substitution R
@@ -49,8 +50,8 @@ opaque mutual
 
   -- Fundamental theorem for contexts.
   valid : ⊢ Γ → ⊩ᵛ Γ
-  valid ε        = ⊩ᵛε⇔ .proj₂ _
-  valid (_ ∙ ⊢A) = ⊩ᵛ-∙-intro (fundamental-⊩ᵛ ⊢A .proj₂)
+  valid ε      = ⊩ᵛε⇔ .proj₂ _
+  valid (∙ ⊢A) = ⊩ᵛ-∙-intro (fundamental-⊩ᵛ ⊢A .proj₂)
 
 
   -- Fundamental theorem for types.
@@ -281,11 +282,11 @@ opaque
   fundamental-⊩ˢ∷ : ⊢ Δ → ⊢ Γ → Δ ⊢ˢ σ ∷ Γ → Δ ⊩ˢ σ ∷ Γ
   fundamental-⊩ˢ∷ ⊢Δ ε _ =
     ⊩ˢ∷ε⇔ .proj₂ ⊢Δ
-  fundamental-⊩ˢ∷ ⊢Δ (⊢Γ ∙ ⊢A) (⊢tail , ⊢head) =
+  fundamental-⊩ˢ∷ ⊢Δ (∙ ⊢A) (⊢tail , ⊢head) =
     ⊩ˢ∷∙⇔′ .proj₂
       ( (_ , fundamental-⊩ᵛ ⊢A .proj₂)
       , (_ , ⊩ᵛ∷→⊩∷ (fundamental-⊩ᵛ∷ ⊢head .proj₂))
-      , fundamental-⊩ˢ∷ ⊢Δ ⊢Γ ⊢tail
+      , fundamental-⊩ˢ∷ ⊢Δ (wf ⊢A) ⊢tail
       )
 
 opaque
@@ -295,9 +296,9 @@ opaque
   fundamental-⊩ˢ≡∷ : ⊢ Δ → ⊢ Γ → Δ ⊢ˢ σ₁ ≡ σ₂ ∷ Γ → Δ ⊩ˢ σ₁ ≡ σ₂ ∷ Γ
   fundamental-⊩ˢ≡∷ ⊢Δ ε _ =
     ⊩ˢ≡∷ε⇔ .proj₂ ⊢Δ
-  fundamental-⊩ˢ≡∷ ⊢Δ (⊢Γ ∙ ⊢A) (tail≡tail , head≡head) =
+  fundamental-⊩ˢ≡∷ ⊢Δ (∙ ⊢A) (tail≡tail , head≡head) =
     ⊩ˢ≡∷∙⇔′ .proj₂
       ( (_ , fundamental-⊩ᵛ ⊢A .proj₂)
       , (_ , ⊩ᵛ≡∷→⊩≡∷ (fundamental-⊩ᵛ≡∷ head≡head .proj₂))
-      , fundamental-⊩ˢ≡∷ ⊢Δ ⊢Γ tail≡tail
+      , fundamental-⊩ˢ≡∷ ⊢Δ (wf ⊢A) tail≡tail
       )
