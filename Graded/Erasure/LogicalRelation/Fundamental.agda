@@ -298,7 +298,7 @@ module Fundamental
                (γ₄ ∧ᶜ γ₆) ⟨ x ⟩ PE.≡ 𝟘                               □)
             (Jʳ ⊢B ⊢u ⊢w (∧ᶜ-decreasingˡ γ₄ _) (fundamental ⊢u ▸u)
                (inj₂ (_ , ∧ᶜ-decreasingʳ γ₄ _ , fundamental ⊢w ▸w)))
-    fundamental {γ} {m = 𝟙ᵐ} (Kⱼ _ ⊢B ⊢u ⊢v ok) ▸K =
+    fundamental {γ} {m = 𝟙ᵐ} (Kⱼ ⊢B ⊢u ⊢v ok) ▸K =
       case inv-usage-K ▸K of λ where
         (invUsageK₀₂ em _ _ _ ▸u _ γ≤) →
           Kʳ ⊢B ⊢u ⊢v ok γ≤ (fundamental ⊢u ▸u)

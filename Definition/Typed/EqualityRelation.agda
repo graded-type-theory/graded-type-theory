@@ -262,7 +262,6 @@ record Equality-relations
     -- K preserves the _⊢_~_ relation (in a certain way).
     ~-K
       : Γ ⊢ A₁ ≅ A₂
-      → Γ ⊢ t₁ ∷ A₁
       → Γ ⊢ t₁ ≅ t₂ ∷ A₁
       → Γ ∙ Id A₁ t₁ t₁ ⊢ B₁ ≅ B₂
       → Γ ⊢ u₁ ≅ u₂ ∷ B₁ [ rfl ]₀

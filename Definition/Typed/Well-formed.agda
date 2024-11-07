@@ -108,7 +108,7 @@ opaque mutual
              PE.cong₃ Id (wk1-sgSubst _ _) (wk1-sgSubst _ _) PE.refl)
             ⊢w
         )
-    (Kⱼ _ ⊢B _ ⊢v _) →
+    (Kⱼ ⊢B _ ⊢v _) →
       subst-⊢ ⊢B (⊢ˢʷ∷-sgSubst ⊢v)
     ([]-congⱼ ⊢A ⊢t ⊢u _ ok) →
       let open Erased ([]-cong→Erased ok) in
@@ -398,9 +398,9 @@ opaque mutual
         (sym (subst-⊢≡ B₁≡B₂ [v₁,w₁]≡[v₂,w₂]))
     (J-β ⊢t ⊢B ⊢u PE.refl) →
       wf-⊢∷ ⊢u , Jⱼ ⊢t ⊢B ⊢u ⊢t (rflⱼ ⊢t) , ⊢u
-    (K-cong A₁≡A₂ ⊢t₁ t₁≡t₂ B₁≡B₂ u₁≡u₂ v₁≡v₂ ok) →
+    (K-cong A₁≡A₂ t₁≡t₂ B₁≡B₂ u₁≡u₂ v₁≡v₂ ok) →
       let ⊢A₁ , ⊢A₂     = wf-⊢≡ A₁≡A₂
-          _ , _ , ⊢t₂   = wf-⊢≡∷ t₁≡t₂
+          _ , ⊢t₁ , ⊢t₂ = wf-⊢≡∷ t₁≡t₂
           ⊢B₁ , ⊢B₂     = wf-⊢≡ B₁≡B₂
           _ , ⊢u₁ , ⊢u₂ = wf-⊢≡∷ u₁≡u₂
           _ , ⊢v₁ , ⊢v₂ = wf-⊢≡∷ v₁≡v₂
@@ -408,17 +408,18 @@ opaque mutual
           ⊢t₂′          = conv ⊢t₂ A₁≡A₂
       in
       subst-⊢ ⊢B₁ (⊢ˢʷ∷-sgSubst ⊢v₁) ,
-      Kⱼ ⊢t₁ ⊢B₁ ⊢u₁ ⊢v₁ ok ,
+      Kⱼ ⊢B₁ ⊢u₁ ⊢v₁ ok ,
       conv
-        (Kⱼ ⊢t₂′
+        (Kⱼ
            (stability-⊢
               (reflConEq (wf ⊢A₁) ∙⟨ Idⱼ ⊢A₂ ⊢t₂′ ⊢t₂′ ∣ Id≡Id ⟩) ⊢B₂)
            (conv ⊢u₂ $
             subst-⊢≡ B₁≡B₂ (refl-⊢ˢʷ≡∷ (⊢ˢʷ∷-sgSubst (rflⱼ ⊢t₁))))
            (conv ⊢v₂ Id≡Id) ok)
         (sym (subst-⊢≡ B₁≡B₂ (⊢ˢʷ≡∷-sgSubst ⊢v₁ ⊢v₂ v₁≡v₂)))
-    (K-β ⊢t ⊢B ⊢u ok) →
-      wf-⊢∷ ⊢u , Kⱼ ⊢t ⊢B ⊢u (rflⱼ ⊢t) ok , ⊢u
+    (K-β ⊢B ⊢u ok) →
+      let _ , (⊢t , _) , _ = inversion-Id-⊢ (⊢∙→⊢ (wf ⊢B)) in
+      wf-⊢∷ ⊢u , Kⱼ ⊢B ⊢u (rflⱼ ⊢t) ok , ⊢u
     ([]-cong-cong A₁≡A₂ t₁≡t₂ u₁≡u₂ v₁≡v₂ ok) →
       let open Erased ([]-cong→Erased ok)
           ⊢A₁ , ⊢A₂     = wf-⊢≡ A₁≡A₂

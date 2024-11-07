@@ -240,89 +240,6 @@ opaque
 
 opaque
 
-  -- A variant of the typing rule for K.
-
-  Kⱼ′ :
-    Γ ∙ Id A t t ⊢ B →
-    Γ ⊢ u ∷ B [ rfl ]₀ →
-    Γ ⊢ v ∷ Id A t t →
-    K-allowed →
-    Γ ⊢ K p A t B u v ∷ B [ v ]₀
-  Kⱼ′ ⊢B =
-    case wf ⊢B of λ {
-      (∙ ⊢Id) →
-    case inversion-Id ⊢Id of λ {
-      (_ , ⊢t , _) →
-    Kⱼ ⊢t ⊢B }}
-
-opaque
-
-  -- A variant of K-cong.
-
-  K-cong′ :
-    Γ ⊢ A₁ ≡ A₂ →
-    Γ ⊢ t₁ ≡ t₂ ∷ A₁ →
-    Γ ∙ Id A₁ t₁ t₁ ⊢ B₁ ≡ B₂ →
-    Γ ⊢ u₁ ≡ u₂ ∷ B₁ [ rfl ]₀ →
-    Γ ⊢ v₁ ≡ v₂ ∷ Id A₁ t₁ t₁ →
-    K-allowed →
-    Γ ⊢ K p A₁ t₁ B₁ u₁ v₁ ≡ K p A₂ t₂ B₂ u₂ v₂ ∷ B₁ [ v₁ ]₀
-  K-cong′ A₁≡A₂ t₁≡t₂ =
-    K-cong A₁≡A₂ (syntacticEqTerm t₁≡t₂ .proj₂ .proj₁) t₁≡t₂
-
-opaque
-
-  -- A variant of the equality rule K-β.
-
-  K-β-≡ :
-    Γ ∙ Id A t t ⊢ B →
-    Γ ⊢ u ∷ B [ rfl ]₀ →
-    K-allowed →
-    Γ ⊢ K p A t B u rfl ≡ u ∷ B [ rfl ]₀
-  K-β-≡ ⊢B =
-    case wf ⊢B of λ {
-      (∙ ⊢Id) →
-    case inversion-Id ⊢Id of λ {
-      (_ , ⊢t , _) →
-    K-β ⊢t ⊢B }}
-
-opaque
-
-  -- A variant of K-subst.
-  --
-  -- See also Definition.Typed.Consequences.RedSteps.K-subst*.
-
-  K-subst′ :
-    Γ ∙ Id A t t ⊢ B →
-    Γ ⊢ u ∷ B [ rfl ]₀ →
-    Γ ⊢ v₁ ⇒ v₂ ∷ Id A t t →
-    K-allowed →
-    Γ ⊢ K p A t B u v₁ ⇒ K p A t B u v₂ ∷ B [ v₁ ]₀
-  K-subst′ ⊢B =
-    case wf ⊢B of λ {
-      (∙ ⊢Id) →
-    case inversion-Id ⊢Id of λ {
-      (⊢A , ⊢t , _) →
-    K-subst ⊢A ⊢t ⊢B }}
-
-opaque
-
-  -- A variant of the reduction rule K-β.
-
-  K-β-⇒ :
-    Γ ∙ Id A t t ⊢ B →
-    Γ ⊢ u ∷ B [ rfl ]₀ →
-    K-allowed →
-    Γ ⊢ K p A t B u rfl ⇒ u ∷ B [ rfl ]₀
-  K-β-⇒ ⊢B =
-    case wf ⊢B of λ {
-      (∙ ⊢Id) →
-    case inversion-Id ⊢Id of λ {
-      (_ , ⊢t , _) →
-    K-β ⊢t ⊢B }}
-
-opaque
-
   -- A lemma related to the type of one of the assumptions of K.
 
   K-motive-rfl-cong :
@@ -965,7 +882,7 @@ opaque
                      (symmetry (wk2 A) (wk2 t) (wk2 u) (wk2 eq₁))
                      (var x0)))
                [ t , rfl ]₁₀                                             ∎) $
-          Kⱼ′
+          Kⱼ
             (Idⱼ′ (rflⱼ (wkTerm₁ ⊢Id-t-t ⊢t)) (var₀ ⊢Id-t-t))
             (rflⱼ $ rflⱼ $
              PE.subst₂ (_⊢_∷_ _)

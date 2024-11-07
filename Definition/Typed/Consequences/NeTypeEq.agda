@@ -69,7 +69,7 @@ neTypeEq {Γ} (Jₙ _) (Jⱼ {w} _ ⊢B _ ⊢v ⊢w) (Jⱼ _ _ _ _ _) =
   refl $
   substType₂ ⊢B ⊢v $
   PE.subst (Γ ⊢ w ∷_) ≡Id-wk1-wk1-0[]₀ ⊢w
-neTypeEq (Kₙ _) (Kⱼ _ ⊢B _ ⊢v _) (Kⱼ _ _ _ _ _) =
+neTypeEq (Kₙ _) (Kⱼ ⊢B _ ⊢v _) (Kⱼ _ _ _ _) =
   refl (substType ⊢B ⊢v)
 neTypeEq ([]-congₙ _) ([]-congⱼ _ ⊢t ⊢u _ ok) ([]-congⱼ _ _ _ _ _) =
   refl (Idⱼ′ ([]ⱼ ([]-cong→Erased ok) ⊢t) ([]ⱼ ([]-cong→Erased ok) ⊢u))

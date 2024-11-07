@@ -933,16 +933,10 @@ private opaque
       K p (A U.[ σ ]) (t U.[ σ ]) (B U.[ σ ⇑ ]) u v₂ ∷
       B U.[ σ ⇑ ] [ v₁ ]₀
   K-subst*′ {A} {t} {B} {σ} {u} {v₁} {v₂} {p} ⊩B ⊩σ ⊢u v₁⇒*v₂ ⊩v₂ ok =
-    case ⊩ᵛId⇔ .proj₁ $ wf-∙-⊩ᵛ ⊩B .proj₂ of λ
-      (⊩t , _) →
-    case ⊩ᵛ∷→⊩ˢ∷→⊩[]∷ ⊩t ⊩σ of λ
-      ⊩t[σ] →
-    case escape-⊩∷ ⊩t[σ] of λ
-      ⊢t[σ] →
     case escape $ ⊩ᵛ→⊩ˢ∷→⊩[⇑] ⊩B ⊩σ of λ
       ⊢B[σ⇑] →
     case v₁⇒*v₂ of λ where
-      (id ⊢v₁)                     → id (Kⱼ ⊢t[σ] ⊢B[σ⇑] ⊢u ⊢v₁ ok)
+      (id ⊢v₁)                     → id (Kⱼ ⊢B[σ⇑] ⊢u ⊢v₁ ok)
       (_⇨_ {t′ = v₃} v₁⇒v₃ v₃⇒*v₂) →
         case
           v₁  ⇒⟨ v₁⇒v₃ ⟩⊩∷
@@ -950,7 +944,7 @@ private opaque
         of λ
           v₁≡v₃ →
         K p (A U.[ σ ]) (t U.[ σ ]) (B U.[ σ ⇑ ]) u v₁
-          ∷ B U.[ σ ⇑ ] [ v₁ ]₀                         ⇒⟨ K-subst (escape (wf-⊩∷ ⊩t[σ])) ⊢t[σ] ⊢B[σ⇑] ⊢u v₁⇒v₃ ok ⟩∷
+          ∷ B U.[ σ ⇑ ] [ v₁ ]₀                         ⇒⟨ K-subst ⊢B[σ⇑] ⊢u v₁⇒v₃ ok ⟩∷
                                                          ⟨ ≅-eq $ escape-⊩≡ $
                                                            ⊩ᵛ≡→⊩ˢ≡∷→⊩≡∷→⊩[⇑][]₀≡[⇑][]₀
                                                              (refl-⊩ᵛ≡ ⊩B) (refl-⊩ˢ≡∷ ⊩σ) v₁≡v₃ ⟩⇒
@@ -1015,15 +1009,9 @@ opaque
     case ≅-eq $ escape-⊩≡ Id[σ₁]≡Id[σ₂] of λ
       ⊢Id[σ₁]≡Id[σ₂] →
 
-    -- Some definitions related to t₁ and t₂.
+    -- A definition related to t₁.
     case wf-⊩ᵛ≡∷ t₁≡t₂ of λ
-      (⊩t₁ , ⊩t₂) →
-    case conv-⊩ᵛ∷ A₁≡A₂ ⊩t₂ of λ
-      ⊩t₂ →
-    case escape-⊩∷ $ ⊩ᵛ∷→⊩ˢ∷→⊩[]∷ ⊩t₁ ⊩σ₁ of λ
-      ⊢t₁[σ₁] →
-    case escape-⊩∷ $ ⊩ᵛ∷→⊩ˢ∷→⊩[]∷ ⊩t₂ ⊩σ₂ of λ
-      ⊢t₂[σ₂] →
+      (⊩t₁ , _) →
 
     -- Some definitions related to B₁ and B₂.
     case wf-⊩ᵛ≡ B₁≡B₂ of λ
@@ -1112,10 +1100,10 @@ opaque
         -- the β-rule for K and the fact that u₁ [σ₁] is equal to
         -- u₂ [σ₂].
         lemma
-          (K p A₁ t₁ B₁ u₁ rfl U.[ σ₁ ]          ⇒⟨ K-β ⊢t₁[σ₁] ⊢B₁[σ₁⇑] ⊢u₁[σ₁] ok ⟩⊩∷
+          (K p A₁ t₁ B₁ u₁ rfl U.[ σ₁ ]          ⇒⟨ K-β ⊢B₁[σ₁⇑] ⊢u₁[σ₁] ok ⟩⊩∷
            u₁ U.[ σ₁ ] ∷ B₁ U.[ σ₁ ⇑ ] [ rfl ]₀  ≡⟨ u₁[σ₁]≡u₂[σ₂] ⟩⊩∷∷⇐*
                                                   ⟨ ⊢B₁[σ₁⇑][v₁′]₀≡B₂[σ₂⇑][v₂′]₀ ⟩⇒
-           u₂ U.[ σ₂ ] ∷ B₂ U.[ σ₂ ⇑ ] [ rfl ]₀  ⇐⟨ K-β ⊢t₂[σ₂] ⊢B₂[σ₂⇑] ⊢u₂[σ₂] ok , ⊢u₂[σ₂] ⟩∎∷
+           u₂ U.[ σ₂ ] ∷ B₂ U.[ σ₂ ⇑ ] [ rfl ]₀  ⇐⟨ K-β ⊢B₂[σ₂⇑] ⊢u₂[σ₂] ok , ⊢u₂[σ₂] ⟩∎∷
            K p A₂ t₂ B₂ u₂ rfl U.[ σ₂ ]          ∎)
 
       (ne v₁′-ne v₂′-ne v₁′~v₂′) →
@@ -1125,10 +1113,10 @@ opaque
         lemma $
         neutral-⊩≡∷
           (wf-⊩≡ B₁[σ₁⇑][v₁′]₀≡B₂[σ₂⇑][v₂′]₀ .proj₁) (Kₙ v₁′-ne)
-          (Kₙ v₂′-ne) (Kⱼ ⊢t₁[σ₁] ⊢B₁[σ₁⇑] ⊢u₁[σ₁] ⊢v₁′ ok)
-          (conv (Kⱼ ⊢t₂[σ₂] ⊢B₂[σ₂⇑] ⊢u₂[σ₂] ⊢v₂′ ok)
+          (Kₙ v₂′-ne) (Kⱼ ⊢B₁[σ₁⇑] ⊢u₁[σ₁] ⊢v₁′ ok)
+          (conv (Kⱼ ⊢B₂[σ₂⇑] ⊢u₂[σ₂] ⊢v₂′ ok)
              (sym ⊢B₁[σ₁⇑][v₁′]₀≡B₂[σ₂⇑][v₂′]₀)) $
-        ~-K (escape-⊩≡ $ ⊩ᵛ≡⇔ .proj₁ A₁≡A₂ .proj₂ σ₁≡σ₂) ⊢t₁[σ₁]
+        ~-K (escape-⊩≡ $ ⊩ᵛ≡⇔ .proj₁ A₁≡A₂ .proj₂ σ₁≡σ₂)
           (escape-⊩≡∷ $ ⊩ᵛ≡∷⇔ .proj₁ t₁≡t₂ .proj₂ σ₁≡σ₂)
           (escape-⊩≡ $ ⊩ᵛ≡→⊩ˢ≡∷→⊩[⇑]≡[⇑] B₁≡B₂ σ₁≡σ₂)
           (escape-⊩≡∷ u₁[σ₁]≡u₂[σ₂]) v₁′~v₂′ ok
@@ -1180,12 +1168,10 @@ opaque
     Γ ⊩ᵛ⟨ l ⟩ u ∷ B [ rfl ]₀ →
     Γ ⊩ᵛ⟨ l ⟩ K p A t B u rfl ≡ u ∷ B [ rfl ]₀
   K-βᵛ {B} ok ⊩B ⊩u =
-    case ⊩ᵛId⇔ .proj₁ $ wf-∙-⊩ᵛ ⊩B .proj₂ of λ
-      (⊩t , _) →
     ⊩ᵛ∷-⇐
       (λ ⊩σ →
          PE.subst (_⊢_⇒_∷_ _ _ _) (PE.sym $ singleSubstLift B _) $
-         K-β (escape-⊩∷ $ ⊩ᵛ∷→⊩ˢ∷→⊩[]∷ ⊩t ⊩σ)
+         K-β
            (escape $ ⊩ᵛ→⊩ˢ∷→⊩[⇑] ⊩B ⊩σ)
            (PE.subst (_⊢_∷_ _ _) (singleSubstLift B _) $
             escape-⊩∷ $ ⊩ᵛ∷→⊩ˢ∷→⊩[]∷ ⊩u ⊩σ)

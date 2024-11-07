@@ -352,7 +352,7 @@ opaque
     case inversion-Kₑ ⊢e of λ {
       (⊢u , ⊢B , ok , PE.refl , B′≡) →
     ⊢ₛ ⊢H (conv ⊢u (sym (B′≡ ⊢rfl)))
-       (⊢ˢ-convₜ ⊢S (conv (K-β-≡ ⊢B ⊢u ok) (sym (B′≡ ⊢rfl)))) }
+       (⊢ˢ-convₜ ⊢S (conv (K-β ⊢B ⊢u ok) (sym (B′≡ ⊢rfl)))) }
 
   ⊢ₛ-⇒ᵥ ⊢s rflₕₑ =
     case ⊢ₛ-inv′ ⊢s of λ
@@ -628,7 +628,7 @@ opaque
       (_ , _ , _ , ⊢H , ⊢rfl , ⊢e , ⊢S) →
     case inversion-Kₑ ⊢e of λ {
       (⊢v , ⊢B , ok , PE.refl , B′≡)  →
-    ⊢⦅⦆ˢ-subst ⊢S (conv (K-β-⇒ ⊢B ⊢v ok) (sym (B′≡ ⊢rfl))) }
+    ⊢⦅⦆ˢ-subst ⊢S (conv (K-β ⊢B ⊢v ok) (sym (B′≡ ⊢rfl))) }
   ⇒ᵥ→⇒ ⊢s rflₕₑ =
     case ⊢ₛ-inv′ ⊢s of λ
       (_ , _ , _ , ⊢H , ⊢rfl , ⊢e , ⊢S) →

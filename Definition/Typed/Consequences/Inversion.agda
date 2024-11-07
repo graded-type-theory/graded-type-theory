@@ -396,8 +396,9 @@ opaque
     K-allowed ×
     Γ ⊢ C ≡ B [ v ]₀
   inversion-K = λ where
-    ⊢K@(Kⱼ ⊢t ⊢B ⊢u ⊢v ok) →
-        syntacticTerm ⊢t , ⊢t , ⊢B , ⊢u , ⊢v , ok
+    ⊢K@(Kⱼ ⊢B ⊢u ⊢v ok) →
+        let ⊢A , ⊢t , _ = inversion-Id (⊢∙→⊢ (wf ⊢B)) in
+        ⊢A , ⊢t , ⊢B , ⊢u , ⊢v , ok
       , refl (syntacticTerm ⊢K)
     (conv ⊢K D≡C) →
       case inversion-K ⊢K of λ {

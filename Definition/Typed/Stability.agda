@@ -317,13 +317,15 @@ private module Inhabited where
              ⊢B)
           (stability-⊢∷ Γ≡Δ ⊢u) (stability-⊢∷ Γ≡Δ ⊢v)
           (stability-⊢∷ Γ≡Δ ⊢w)
-      (Kⱼ ⊢t ⊢B ⊢u ⊢v ok) PE.refl →
-        let _ , ⊢Id       = ∙⊢→⊢-<ˢ ⊢B
-            (⊢A , A<) , _ = inversion-Id-⊢-<ˢ ⊢Id
-            ⊢A′           = stability-⊢ Γ≡Δ ⊢A ⦃ lt = <ˢ-trans A< ! ⦄
-            ⊢t′           = stability-⊢∷ Γ≡Δ ⊢t
+      (Kⱼ ⊢B ⊢u ⊢v ok) PE.refl →
+        let _ , ⊢Id                   = ∙⊢→⊢-<ˢ ⊢B
+            (⊢A , A<) , (⊢t , t<) , _ = inversion-Id-⊢-<ˢ ⊢Id
+            ⊢A′                       = stability-⊢ Γ≡Δ ⊢A
+                                          ⦃ lt = <ˢ-trans A< ! ⦄
+            ⊢t′                       = stability-⊢∷ Γ≡Δ ⊢t
+                                          ⦃ lt = <ˢ-trans t< ! ⦄
         in
-        Kⱼ ⊢t′ (stability-⊢ (Γ≡Δ ∙⟨ Idⱼ ⊢A′ ⊢t′ ⊢t′ ⟩) ⊢B)
+        Kⱼ (stability-⊢ (Γ≡Δ ∙⟨ Idⱼ ⊢A′ ⊢t′ ⊢t′ ⟩) ⊢B)
           (stability-⊢∷ Γ≡Δ ⊢u) (stability-⊢∷ Γ≡Δ ⊢v) ok
       ([]-congⱼ ⊢A ⊢t ⊢u ⊢v ok) PE.refl →
         []-congⱼ (stability-⊢ Γ≡Δ ⊢A) (stability-⊢∷ Γ≡Δ ⊢t)
@@ -502,24 +504,26 @@ private module Inhabited where
                 ∙⟨ Idⱼ (wk₁ ⊢A′ ⊢A′) (wkTerm₁ ⊢A′ ⊢t′) (var₀ ⊢A′) ⟩)
              ⊢B)
           (stability-⊢∷ Γ≡Δ ⊢u) eq
-      (K-cong A₁≡A₂ ⊢t₁ t₁≡t₂ B₁≡B₂ u₁≡u₂ v₁≡v₂ ok) PE.refl →
-        let _ , (⊢Id , Id<) = ∙⊢≡→⊢-<ˢ B₁≡B₂
-            (⊢A₁ , A₁<) , _ = inversion-Id-⊢ ⊢Id
-            ⊢A₁′            = stability-⊢ Γ≡Δ ⊢A₁
-                                ⦃ lt = <ˢ-trans (<ˢ-trans A₁< Id<) ! ⦄
-            ⊢t₁′            = stability-⊢∷ Γ≡Δ ⊢t₁
+      (K-cong A₁≡A₂ t₁≡t₂ B₁≡B₂ u₁≡u₂ v₁≡v₂ ok) PE.refl →
+        let _ , ⊢Id                       = ∙⊢≡→⊢-<ˢ B₁≡B₂
+            (⊢A₁ , A₁<) , (⊢t₁ , t₁<) , _ = inversion-Id-⊢-<ˢ ⊢Id
+            ⊢A₁′                          = stability-⊢ Γ≡Δ ⊢A₁
+                                              ⦃ lt = <ˢ-trans A₁< ! ⦄
+            ⊢t₁′                          = stability-⊢∷ Γ≡Δ ⊢t₁
+                                              ⦃ lt = <ˢ-trans t₁< ! ⦄
         in
-        K-cong (stability-⊢≡ Γ≡Δ A₁≡A₂) ⊢t₁′ (stability-⊢≡∷ Γ≡Δ t₁≡t₂)
+        K-cong (stability-⊢≡ Γ≡Δ A₁≡A₂) (stability-⊢≡∷ Γ≡Δ t₁≡t₂)
           (stability-⊢≡ (Γ≡Δ ∙⟨ Idⱼ ⊢A₁′ ⊢t₁′ ⊢t₁′ ⟩) B₁≡B₂)
           (stability-⊢≡∷ Γ≡Δ u₁≡u₂) (stability-⊢≡∷ Γ≡Δ v₁≡v₂) ok
-      (K-β ⊢t ⊢B ⊢u ok) PE.refl →
-        let _ , (⊢Id , Id<) = ∙⊢→⊢-<ˢ ⊢B
-            (⊢A , A<) , _   = inversion-Id-⊢ ⊢Id
-            ⊢A′             = stability-⊢ Γ≡Δ ⊢A
-                                ⦃ lt = <ˢ-trans (<ˢ-trans A< Id<) ! ⦄
-            ⊢t′             = stability-⊢∷ Γ≡Δ ⊢t
+      (K-β ⊢B ⊢u ok) PE.refl →
+        let _ , ⊢Id                   = ∙⊢→⊢-<ˢ ⊢B
+            (⊢A , A<) , (⊢t , t<) , _ = inversion-Id-⊢-<ˢ ⊢Id
+            ⊢A′                       = stability-⊢ Γ≡Δ ⊢A
+                                          ⦃ lt = <ˢ-trans A< ! ⦄
+            ⊢t′                       = stability-⊢∷ Γ≡Δ ⊢t
+                                          ⦃ lt = <ˢ-trans t< ! ⦄
         in
-        K-β ⊢t′ (stability-⊢ (Γ≡Δ ∙⟨ Idⱼ ⊢A′ ⊢t′ ⊢t′ ⟩) ⊢B)
+        K-β (stability-⊢ (Γ≡Δ ∙⟨ Idⱼ ⊢A′ ⊢t′ ⊢t′ ⟩) ⊢B)
           (stability-⊢∷ Γ≡Δ ⊢u) ok
       ([]-cong-cong A₁≡A₂ t₁≡t₂ u₁≡u₂ v₁≡v₂ ok) PE.refl →
         []-cong-cong (stability-⊢≡ Γ≡Δ A₁≡A₂) (stability-⊢≡∷ Γ≡Δ t₁≡t₂)

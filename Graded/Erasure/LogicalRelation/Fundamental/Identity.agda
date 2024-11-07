@@ -187,7 +187,7 @@ opaque
     case                  ∷ B [ v ]₀ [ σ ]            ⟨ singleSubstLift B _ ⟩⇒≡
       K p A t B u v [ σ ] ∷ B [ σ ⇑ ] [ v [ σ ] ]₀  ⇒*⟨ RS.K-subst* ⊢B[σ⇑] ⊢u[σ] v[σ]⇒rfl ok ⟩∷
                                                       ⟨ substTypeEq (refl ⊢B[σ⇑]) (subset*Term v[σ]⇒rfl) ⟩⇒
-      K p A t B u rfl [ σ ] ∷ B [ σ ⇑ ] [ rfl ]₀    ⇒⟨ K-β-⇒ ⊢B[σ⇑] ⊢u[σ] ok ⟩∎∷
+      K p A t B u rfl [ σ ] ∷ B [ σ ⇑ ] [ rfl ]₀    ⇒⟨ K-β ⊢B[σ⇑] ⊢u[σ] ok ⟩∎∷
       u [ σ ]                                       ∎
     of λ
       K⇒u[σ] →                                                       $⟨ σ®σ′ ⟩

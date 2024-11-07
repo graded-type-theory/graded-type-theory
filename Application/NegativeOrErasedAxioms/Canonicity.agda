@@ -210,7 +210,7 @@ neNeg {γ} (Jⱼ {t} {A} {B} {v} {w} ⊢t _ _ ⊢v ⊢w) (Jₙ w-ne) ▸J =
         PE.trans (PE.sym em)
           (no-erased-matches non-trivial .proj₂ .proj₂ .proj₂ .proj₁)
         of λ ()
-neNeg {γ} (Kⱼ {t} {A} {B} {v} ⊢t _ _ ⊢v ok) (Kₙ v-ne) ▸K =
+neNeg {γ} (Kⱼ {A} {t} {B} {v} _ _ ⊢v ok) (Kₙ v-ne) ▸K =
   case inv-usage-K ▸K of λ where
     (invUsageK {γ₂} {γ₃} {γ₄} {γ₅} _ _ _ _ _ _ ▸v γ≤) →
       NegativeErasedContext Γ γ                              →⟨ NegativeErasedContext-upwards-closed γ≤ ⟩
@@ -220,7 +220,7 @@ neNeg {γ} (Kⱼ {t} {A} {B} {v} ⊢t _ _ ⊢v ok) (Kₙ v-ne) ▸K =
                                                                 ω·ᶜ+ᶜ≤ω·ᶜʳ ⟩
       NegativeErasedContext Γ (ω ·ᶜ γ₅)                      →⟨ NegativeErasedContext-upwards-closed ω·ᶜ-decreasing ⟩
       NegativeErasedContext Γ γ₅                             →⟨ neNeg ⊢v v-ne ▸v ⟩
-      NegativeType Γ (Id A t t)                              →⟨ flip ¬negId (refl (Idⱼ′ ⊢t ⊢t)) ⟩
+      NegativeType Γ (Id A t t)                              →⟨ flip ¬negId (refl (syntacticTerm ⊢v)) ⟩
       ⊥                                                      →⟨ ⊥-elim ⟩
       NegativeType Γ (B [ v ]₀)                              □
     (invUsageK₀₁ em _ _ _ _ _ _ _) →

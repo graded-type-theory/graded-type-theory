@@ -504,6 +504,18 @@ private module Lemmas (hyp : ∀ {s₁} → s₁ <ˢ s₂ → P s₁) where
       Δ ⊢ˢʷ σ₁ ≡ σ₂ ∷ Γ → Δ ⊢ A [ σ₁ ] ≡ A [ σ₂ ]
     subst-⊢→⊢≡-<ˢ (⊢A , lt) = subst-⊢→⊢≡ ⊢A ⦃ lt = <ˢ-trans lt ! ⦄
 
+    subst-⊢∷-<ˢ :
+      (∃ λ (⊢t : Γ ⊢ t ∷ A) → size-⊢∷ ⊢t <ˢ s) →
+      ⦃ lt : s <ˢ s₂ ⦄ →
+      Δ ⊢ˢʷ σ ∷ Γ → Δ ⊢ t [ σ ] ∷ A [ σ ]
+    subst-⊢∷-<ˢ (⊢t , lt) = subst-⊢∷ ⊢t ⦃ lt = <ˢ-trans lt ! ⦄
+
+    subst-⊢∷→⊢≡∷-<ˢ :
+      (∃ λ (⊢t : Γ ⊢ t ∷ A) → size-⊢∷ ⊢t <ˢ s) →
+      ⦃ lt : s <ˢ s₂ ⦄ →
+      Δ ⊢ˢʷ σ₁ ≡ σ₂ ∷ Γ → Δ ⊢ t [ σ₁ ] ≡ t [ σ₂ ] ∷ A [ σ₁ ]
+    subst-⊢∷→⊢≡∷-<ˢ (⊢t , lt) = subst-⊢∷→⊢≡∷ ⊢t ⦃ lt = <ˢ-trans lt ! ⦄
+
   opaque
 
     -- A variant of ⊢ˢʷ∷-⇑.
@@ -848,14 +860,14 @@ private module Inhabited where
           (PE.subst (_⊢_∷_ _ _) ([,]-[]-commute B) $
            subst-⊢∷ ⊢u ⊢σ)
           (subst-⊢∷ ⊢v ⊢σ) (subst-⊢∷ ⊢w ⊢σ)
-      (Kⱼ {B} ⊢t ⊢B ⊢u ⊢v ok) PE.refl →
-        let _ , ⊢Id = ∙⊢→⊢-<ˢ ⊢B
-            ⊢A , _  = inversion-Id-⊢-<ˢ ⊢Id
-            ⊢A[σ]   = subst-⊢-<ˢ ⊢A ⊢σ
-            ⊢t[σ]   = subst-⊢∷ ⊢t ⊢σ
+      (Kⱼ {B} ⊢B ⊢u ⊢v ok) PE.refl →
+        let _ , ⊢Id     = ∙⊢→⊢-<ˢ ⊢B
+            ⊢A , ⊢t , _ = inversion-Id-⊢-<ˢ ⊢Id
+            ⊢A[σ]       = subst-⊢-<ˢ ⊢A ⊢σ
+            ⊢t[σ]       = subst-⊢∷-<ˢ ⊢t ⊢σ
         in
         PE.subst (_⊢_∷_ _ _) (PE.sym $ singleSubstLift B _) $
-        Kⱼ ⊢t[σ]
+        Kⱼ
           (subst-⊢ ⊢B $ ⊢ˢʷ∷-⇑ (Idⱼ ⊢A[σ] ⊢t[σ] ⊢t[σ]) ⊢σ)
           (PE.subst (_⊢_∷_ _ _) (singleSubstLift B _) $
            subst-⊢∷ ⊢u ⊢σ)
@@ -1030,17 +1042,17 @@ private module Inhabited where
           (PE.subst (_⊢_≡_∷_ _ _ _) ([,]-[]-commute B) $
            subst-⊢∷→⊢≡∷ ⊢u σ₁≡σ₂)
           (subst-⊢∷→⊢≡∷ ⊢v σ₁≡σ₂) (subst-⊢∷→⊢≡∷ ⊢w σ₁≡σ₂)
-      (Kⱼ {B} ⊢t ⊢B ⊢u ⊢v ok) PE.refl →
+      (Kⱼ {B} ⊢B ⊢u ⊢v ok) PE.refl →
         let _ , ⊢Id     = ∙⊢→⊢-<ˢ ⊢B
-            ⊢A , _      = inversion-Id-⊢-<ˢ ⊢Id
+            ⊢A , ⊢t , _ = inversion-Id-⊢-<ˢ ⊢Id
             _ , ⊢σ₁ , _ = wf-⊢ˢʷ≡∷ σ₁≡σ₂
             ⊢A[σ₁]      = subst-⊢-<ˢ ⊢A ⊢σ₁
             A[σ₁]≡A[σ₂] = subst-⊢→⊢≡-<ˢ ⊢A σ₁≡σ₂
-            ⊢t[σ₁]      = subst-⊢∷ ⊢t ⊢σ₁
-            t[σ₁]≡t[σ₂] = subst-⊢∷→⊢≡∷ ⊢t σ₁≡σ₂
+            ⊢t[σ₁]      = subst-⊢∷-<ˢ ⊢t ⊢σ₁
+            t[σ₁]≡t[σ₂] = subst-⊢∷→⊢≡∷-<ˢ ⊢t σ₁≡σ₂
         in
         PE.subst (_⊢_≡_∷_ _ _ _) (PE.sym $ singleSubstLift B _) $
-        K-cong A[σ₁]≡A[σ₂] ⊢t[σ₁] t[σ₁]≡t[σ₂]
+        K-cong A[σ₁]≡A[σ₂] t[σ₁]≡t[σ₂]
           (subst-⊢→⊢≡ ⊢B $
            ⊢ˢʷ≡∷-⇑ (Idⱼ ⊢A[σ₁] ⊢t[σ₁] ⊢t[σ₁])
              (Id-cong A[σ₁]≡A[σ₂] t[σ₁]≡t[σ₂] t[σ₁]≡t[σ₂]) σ₁≡σ₂)
@@ -1376,15 +1388,15 @@ private module Inhabited where
                                          PE.refl ⟩⊢
         u [ σ₁ ]                    ≡⟨ subst-⊢∷→⊢≡∷ ⊢u σ₁≡σ₂ ⟩⊢∎
         u [ σ₂ ]                    ∎
-      (K-cong {B₁} A₁≡A₂ ⊢t₁ t₁≡t₂ B₁≡B₂ u₁≡u₂ v₁≡v₂ ok) PE.refl →
+      (K-cong {B₁} A₁≡A₂ t₁≡t₂ B₁≡B₂ u₁≡u₂ v₁≡v₂ ok) PE.refl →
         let _ , ⊢Id       = ∙⊢≡→⊢-<ˢ B₁≡B₂
-            ⊢A₁ , _       = inversion-Id-⊢-<ˢ ⊢Id
+            ⊢A₁ , ⊢t₁ , _ = inversion-Id-⊢-<ˢ ⊢Id
             _ , ⊢σ₁ , _   = wf-⊢ˢʷ≡∷ σ₁≡σ₂
-            ⊢t₁[σ₁]       = subst-⊢∷ ⊢t₁ ⊢σ₁
-            t₁[σ₁]≡t₁[σ₂] = subst-⊢∷→⊢≡∷ ⊢t₁ σ₁≡σ₂
+            ⊢t₁[σ₁]       = subst-⊢∷-<ˢ ⊢t₁ ⊢σ₁
+            t₁[σ₁]≡t₁[σ₂] = subst-⊢∷→⊢≡∷-<ˢ ⊢t₁ σ₁≡σ₂
         in
         PE.subst (_⊢_≡_∷_ _ _ _) (PE.sym $ singleSubstLift B₁ _) $
-        K-cong (subst-⊢≡ A₁≡A₂ σ₁≡σ₂) ⊢t₁[σ₁] (subst-⊢≡∷ t₁≡t₂ σ₁≡σ₂)
+        K-cong (subst-⊢≡ A₁≡A₂ σ₁≡σ₂) (subst-⊢≡∷ t₁≡t₂ σ₁≡σ₂)
           (subst-⊢≡ B₁≡B₂ $
            ⊢ˢʷ≡∷-⇑ (Idⱼ (subst-⊢-<ˢ ⊢A₁ ⊢σ₁) ⊢t₁[σ₁] ⊢t₁[σ₁])
              (Id-cong (subst-⊢→⊢≡-<ˢ ⊢A₁ σ₁≡σ₂) t₁[σ₁]≡t₁[σ₂]
@@ -1393,14 +1405,14 @@ private module Inhabited where
           (PE.subst (_⊢_≡_∷_ _ _ _) (singleSubstLift B₁ _) $
            subst-⊢≡∷ u₁≡u₂ σ₁≡σ₂)
           (subst-⊢≡∷ v₁≡v₂ σ₁≡σ₂) ok
-      (K-β {t} {A} {B} {u} {p} ⊢t ⊢B ⊢u ok) PE.refl →
+      (K-β {A} {t} {B} {u} {p} ⊢B ⊢u ok) PE.refl →
         let _ , ⊢Id     = ∙⊢→⊢-<ˢ ⊢B
-            ⊢A , _      = inversion-Id-⊢-<ˢ ⊢Id
+            ⊢A , ⊢t , _ = inversion-Id-⊢-<ˢ ⊢Id
             _ , ⊢σ₁ , _ = wf-⊢ˢʷ≡∷ σ₁≡σ₂
-            ⊢t[σ₁]      = subst-⊢∷ ⊢t ⊢σ₁
+            ⊢t[σ₁]      = subst-⊢∷-<ˢ ⊢t ⊢σ₁
         in
         K p A t B u rfl [ σ₁ ]  ≡⟨ PE.subst (_⊢_≡_∷_ _ _ _) (PE.sym $ singleSubstLift B _) $
-                                   K-β ⊢t[σ₁]
+                                   K-β
                                      (subst-⊢ ⊢B $
                                       ⊢ˢʷ∷-⇑ (Idⱼ (subst-⊢-<ˢ ⊢A ⊢σ₁) ⊢t[σ₁] ⊢t[σ₁]) ⊢σ₁)
                                      (PE.subst (_⊢_∷_ _ _) (singleSubstLift B _) $

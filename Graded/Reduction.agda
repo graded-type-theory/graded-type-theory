@@ -339,7 +339,7 @@ module _
         (J₀ₘ₂ ok ▸A ▸t ▸B ▸u ▸t′ (usagePresTerm ▸v v⇒v′))
         γ≤
 
-  usagePresTerm γ▸ (K-subst _ _ _ _ v⇒v′ _) =
+  usagePresTerm γ▸ (K-subst _ _ v⇒v′ _) =
     case inv-usage-K γ▸ of λ where
       (invUsageK ok₁ ok₂ ▸A ▸t ▸B ▸u ▸v γ≤) → sub
         (Kₘ ok₁ ok₂ ▸A ▸t ▸B ▸u (usagePresTerm ▸v v⇒v′))
@@ -380,7 +380,7 @@ module _
     where
     open import Tools.Reasoning.PartialOrder ≤ᶜ-poset
 
-  usagePresTerm {γ = γ} γ▸ (K-β _ _ _ _) =
+  usagePresTerm {γ = γ} γ▸ (K-β _ _ _) =
     case inv-usage-K γ▸ of λ where
       (invUsageK {γ₂ = γ₂} {γ₃ = γ₃} {γ₄ = γ₄} {γ₅ = γ₅}
          _ _ _ _ _ ▸u _ γ≤) → sub

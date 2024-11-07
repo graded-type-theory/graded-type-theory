@@ -252,8 +252,8 @@ mutual
                                  (⊢nf∷→⊢∷ ⊢u) ok
     (Jₙ _ ⊢t ⊢B ⊢u ⊢v ⊢w)    → Jⱼ (⊢nf∷→⊢∷ ⊢t) (⊢nf→⊢ ⊢B) (⊢nf∷→⊢∷ ⊢u)
                                  (⊢nf∷→⊢∷ ⊢v) (⊢ne∷→⊢∷ ⊢w)
-    (Kₙ _ ⊢t ⊢B ⊢u ⊢v ok)    → Kⱼ (⊢nf∷→⊢∷ ⊢t) (⊢nf→⊢ ⊢B) (⊢nf∷→⊢∷ ⊢u)
-                                 (⊢ne∷→⊢∷ ⊢v) ok
+    (Kₙ _ _ ⊢B ⊢u ⊢v ok)     → Kⱼ (⊢nf→⊢ ⊢B) (⊢nf∷→⊢∷ ⊢u) (⊢ne∷→⊢∷ ⊢v)
+                                 ok
     ([]-congₙ _ _ _ ⊢v ok)   → []-congⱼ′ ok (⊢ne∷→⊢∷ ⊢v)
 
 mutual

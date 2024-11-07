@@ -393,7 +393,7 @@ opaque
     case ∙ Idⱼ′ (zeroⱼ ε) (zeroⱼ ε) of λ {
       ⊢Id →
       inhabited-consistent (singleSubst (rflⱼ (zeroⱼ ε)))
-    , Kⱼ′ (ℕⱼ (K-motive-context (zeroⱼ ⊢Id))) (zeroⱼ ⊢Id) (var ⊢Id here)
+    , Kⱼ (ℕⱼ (K-motive-context (zeroⱼ ⊢Id))) (zeroⱼ ⊢Id) (var ⊢Id here)
         K-ok
     , sub
         (K₀ₘ₁-generalised ≡not-none PE.refl ℕₘ zeroₘ ℕₘ zeroₘ var)
@@ -651,13 +651,13 @@ opaque
     , K 𝟘 ℕ zero
         (Id ℕ (K 𝟘 ℕ zero ℕ zero (var x0)) zero)
         rfl (var x0)
-    , Kⱼ′
+    , Kⱼ
         (Idⱼ′
-           (Kⱼ′ (ℕⱼ (K-motive-context ⊢zero)) ⊢zero
+           (Kⱼ (ℕⱼ (K-motive-context ⊢zero)) ⊢zero
               (var₀ (K-motive-context-type (zeroⱼ ⊢Δ))) ok)
            ⊢zero)
         (rflⱼ′
-           (K 𝟘 ℕ zero ℕ zero rfl  ≡⟨ K-β-≡ ⊢ℕ (zeroⱼ ⊢Δ) ok ⟩⊢∎
+           (K 𝟘 ℕ zero ℕ zero rfl  ≡⟨ K-β ⊢ℕ (zeroⱼ ⊢Δ) ok ⟩⊢∎
             zero                   ∎))
         (var₀ ⊢0≡0)
         ok

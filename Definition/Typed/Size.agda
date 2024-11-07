@@ -87,8 +87,8 @@ opaque mutual
   size-⊢∷ (Jⱼ ⊢t ⊢B ⊢u ⊢v ⊢w) =
     (size-⊢∷ ⊢t ⊕ size-⊢ ⊢B) ⊕
     (size-⊢∷ ⊢u ⊕ size-⊢∷ ⊢v ⊕ size-⊢∷ ⊢w)
-  size-⊢∷ (Kⱼ ⊢t ⊢B ⊢u ⊢v _) =
-    (size-⊢∷ ⊢t ⊕ size-⊢ ⊢B) ⊕ (size-⊢∷ ⊢u ⊕ size-⊢∷ ⊢v)
+  size-⊢∷ (Kⱼ ⊢B ⊢u ⊢v _) =
+    size-⊢ ⊢B ⊕ size-⊢∷ ⊢u ⊕ size-⊢∷ ⊢v
   size-⊢∷ ([]-congⱼ ⊢A ⊢t ⊢u ⊢v _) =
     (size-⊢ ⊢A ⊕ size-⊢∷ ⊢t) ⊕ (size-⊢∷ ⊢u ⊕ size-⊢∷ ⊢v)
 
@@ -168,14 +168,14 @@ opaque mutual
     (size-⊢≡ A₁≡B₁ ⊕ size-⊢∷ ⊢t₁ ⊕ size-⊢≡∷ t₁≡u₁) ⊕
     ((size-⊢≡ A₂≡B₂ ⊕ size-⊢≡∷ t₂≡u₂) ⊕
      (size-⊢≡∷ t₃≡u₃ ⊕ size-⊢≡∷ t₄≡u₄))
-  size-⊢≡∷ (K-cong A₁≡B₁ ⊢t₁ t₁≡u₁ A₂≡B₂ t₂≡u₂ t₃≡u₃ _) =
-    (size-⊢≡ A₁≡B₁ ⊕ size-⊢∷ ⊢t₁ ⊕ size-⊢≡∷ t₁≡u₁) ⊕
+  size-⊢≡∷ (K-cong A₁≡B₁ t₁≡u₁ A₂≡B₂ t₂≡u₂ t₃≡u₃ _) =
+    (size-⊢≡ A₁≡B₁ ⊕ size-⊢≡∷ t₁≡u₁) ⊕
     (size-⊢≡ A₂≡B₂ ⊕ size-⊢≡∷ t₂≡u₂ ⊕ size-⊢≡∷ t₃≡u₃)
   size-⊢≡∷ ([]-cong-cong A≡B t₁≡u₁ t₂≡u₂ t₃≡u₃ _) =
     (size-⊢≡ A≡B ⊕ size-⊢≡∷ t₁≡u₁) ⊕ (size-⊢≡∷ t₂≡u₂ ⊕ size-⊢≡∷ t₃≡u₃)
   size-⊢≡∷ (J-β ⊢t ⊢B ⊢u _) =
     size-⊢∷ ⊢t ⊕ size-⊢ ⊢B ⊕ size-⊢∷ ⊢u
-  size-⊢≡∷ (K-β ⊢t ⊢B ⊢u _) =
-    size-⊢∷ ⊢t ⊕ size-⊢ ⊢B ⊕ size-⊢∷ ⊢u
+  size-⊢≡∷ (K-β ⊢B ⊢u _) =
+    size-⊢ ⊢B ⊕ size-⊢∷ ⊢u
   size-⊢≡∷ ([]-cong-β ⊢t _ _) =
     node (size-⊢∷ ⊢t)

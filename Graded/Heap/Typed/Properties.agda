@@ -97,7 +97,7 @@ opaque
   ⊢⦅⦆ᵉ (Jₑ ⊢u ⊢B) ⊢t =
     Jⱼ′ ⊢B ⊢u ⊢t
   ⊢⦅⦆ᵉ (Kₑ ⊢u ⊢B ok) ⊢t =
-    Kⱼ′ ⊢B ⊢u ⊢t ok
+    Kⱼ ⊢B ⊢u ⊢t ok
   ⊢⦅⦆ᵉ ([]-congₑ ok) ⊢t =
     []-congⱼ′ ok ⊢t
   ⊢⦅⦆ᵉ (conv ⊢e B≡B′) ⊢t =
@@ -151,7 +151,7 @@ opaque
   ⊢⦅⦆ᵉ-cong (Kₑ ⊢u ⊢B ok) t≡u =
     case inversion-Id (syntacticEqTerm t≡u .proj₁) of λ
       (⊢A , ⊢t , _) →
-    K-cong′ (refl ⊢A) (refl ⊢t) (refl ⊢B) (refl ⊢u) t≡u ok
+    K-cong (refl ⊢A) (refl ⊢t) (refl ⊢B) (refl ⊢u) t≡u ok
   ⊢⦅⦆ᵉ-cong ([]-congₑ ok) t≡u =
     case inversion-Id (syntacticEqTerm t≡u .proj₁) of λ
       (⊢A , ⊢t , ⊢u) →
@@ -195,7 +195,7 @@ opaque
   ⊢⦅⦆ᵉ-subst (Jₑ ⊢u ⊢B) d =
     J-subst′ ⊢B ⊢u d
   ⊢⦅⦆ᵉ-subst (Kₑ ⊢u ⊢B ok) d =
-    K-subst′ ⊢B ⊢u d ok
+    K-subst ⊢B ⊢u d ok
   ⊢⦅⦆ᵉ-subst ([]-congₑ ok) d =
     []-cong-subst′ d ok
   ⊢⦅⦆ᵉ-subst (conv ⊢e B≡B′) d =

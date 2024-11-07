@@ -604,14 +604,13 @@ opaque
         (PE.subst (_ ⊢ _ ∷_) ([,]-[]-commute B) (substitutionTerm x₃ ⊢σ ⊢Δ))
         (substitutionTerm x₄ ⊢σ ⊢Δ)
         (substitutionRedTerm d ⊢σ ⊢Δ)) }
-  substitutionRedTerm {σ} (K-subst {A = A} {t} {B} {u} {v₁} x x₁ x₂ x₃ d x₄) ⊢σ ⊢Δ =
-    case substitution x ⊢σ ⊢Δ of λ
-      ⊢σA →
+  substitutionRedTerm (K-subst {B} x₂ x₃ d x₄) ⊢σ ⊢Δ =
+    let _ , (x₁ , _) , _ = inversion-Id-⊢ (⊢∙→⊢ (wf x₂)) in
     case substitutionTerm x₁ ⊢σ ⊢Δ of λ
       ⊢σt →
-    PE.subst (_ ⊢ K _ A t B u v₁ [ σ ] ⇒ _ ∷_)
-      (PE.sym (singleSubstLift B v₁))
-      (K-subst ⊢σA ⊢σt
+    PE.subst (_⊢_⇒_∷_ _ _ _)
+      (PE.sym (singleSubstLift B _))
+      (K-subst
         (substitution x₂ (liftSubst′ ⊢Δ (Idⱼ′ x₁ x₁) ⊢σ)
            (∙ Idⱼ′ ⊢σt ⊢σt))
         (PE.subst (_ ⊢ _ ∷_) (singleSubstLift B rfl) (substitutionTerm x₃ ⊢σ ⊢Δ))
@@ -653,12 +652,12 @@ opaque
     lemma t u =
       PE.sym (PE.trans (PE.cong (_[ u [ σ ] ]₀) (wk1-liftSubst t))
         (wk1-sgSubst (t [ σ ]) _))
-  substitutionRedTerm {σ} (K-β {t = t} {A} {B} {u} x x₁ x₂ x₃) ⊢σ ⊢Δ =
+  substitutionRedTerm (K-β {B} x₁ x₂ x₃) ⊢σ ⊢Δ =
     case wf x₁ of λ {
       (∙ ⊢Id) →
-    PE.subst (_ ⊢ K _ A t B u rfl [ σ ] ⇒ _ ∷_)
+    PE.subst (_⊢_⇒_∷_ _ _ _)
       (PE.sym (singleSubstLift B rfl))
-      (K-β (substitutionTerm x ⊢σ ⊢Δ)
+      (K-β
         (substitution x₁ (liftSubst′ ⊢Δ ⊢Id ⊢σ)
           (∙ substitution ⊢Id ⊢σ ⊢Δ))
         (PE.subst (_ ⊢ _ ∷_) (singleSubstLift B rfl) (substitutionTerm x₂ ⊢σ ⊢Δ))

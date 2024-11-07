@@ -78,8 +78,8 @@ module Main {Γ : Con Term m} (nΓ : NegativeContext Γ)
     in  ⊥-elim (¬negUnit (neNeg d n) ⊢Unit)
   neNeg (Jⱼ ⊢t _ _ ⊢v ⊢w) (Jₙ w-ne) =
     ⊥-elim (¬negId (neNeg ⊢w w-ne) (refl (Idⱼ′ ⊢t ⊢v)))
-  neNeg (Kⱼ ⊢t _ _ ⊢v _) (Kₙ v-ne) =
-    ⊥-elim (¬negId (neNeg ⊢v v-ne) (refl (Idⱼ′ ⊢t ⊢t)))
+  neNeg (Kⱼ _ _ ⊢v _) (Kₙ v-ne) =
+    ⊥-elim (¬negId (neNeg ⊢v v-ne) (refl (syntacticTerm ⊢v)))
   neNeg ([]-congⱼ _ ⊢t ⊢u ⊢v _) ([]-congₙ v-ne) =
     ⊥-elim (¬negId (neNeg ⊢v v-ne) (refl (Idⱼ′ ⊢t ⊢u)))
   neNeg (conv d c          ) n          = conv (neNeg d n) c

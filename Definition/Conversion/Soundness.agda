@@ -86,11 +86,9 @@ mutual
       (soundnessConv↑Term u₁≡u₂) (soundnessConv↑Term v₁≡v₂)
       (conv (soundness~↓ w₁~w₂) ≡Id) }}
   soundness~↑ (K-cong A₁≡A₂ t₁≡t₂ B₁≡B₂ u₁≡u₂ v₁~v₂ ≡Id ok) =
-    case soundnessConv↑Term t₁≡t₂ of λ {
-      t₁≡t₂ →
-    K-cong (soundnessConv↑ A₁≡A₂) (syntacticEqTerm t₁≡t₂ .proj₂ .proj₁)
-      t₁≡t₂ (soundnessConv↑ B₁≡B₂) (soundnessConv↑Term u₁≡u₂)
-      (conv (soundness~↓ v₁~v₂) ≡Id) ok }
+    K-cong (soundnessConv↑ A₁≡A₂) (soundnessConv↑Term t₁≡t₂)
+      (soundnessConv↑ B₁≡B₂) (soundnessConv↑Term u₁≡u₂)
+      (conv (soundness~↓ v₁~v₂) ≡Id) ok
   soundness~↑ ([]-cong-cong A₁≡A₂ t₁≡t₂ u₁≡u₂ v₁~v₂ ≡Id ok) =
     []-cong-cong (soundnessConv↑ A₁≡A₂) (soundnessConv↑Term t₁≡t₂)
       (soundnessConv↑Term u₁≡u₂) (conv (soundness~↓ v₁~v₂) ≡Id) ok

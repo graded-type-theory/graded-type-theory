@@ -148,7 +148,7 @@ mutual
     case soundness⇇ ⊢v of λ {
       ⊢v →
       substType ⊢B ⊢v
-    , Kⱼ′ ⊢B (soundness⇇ ⊢u) ⊢v ok }}}}
+    , Kⱼ ⊢B (soundness⇇ ⊢u) ⊢v ok }}}}
   soundness⇉ _ ([]-congᵢ _ ⊢t ⊢u ⊢v ok) =
       Idⱼ′ ([]ⱼ ([]-cong→Erased ok) (soundness⇇ ⊢t))
         ([]ⱼ ([]-cong→Erased ok) (soundness⇇ ⊢u))

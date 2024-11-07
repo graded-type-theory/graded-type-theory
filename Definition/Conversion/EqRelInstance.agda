@@ -236,14 +236,13 @@ opaque
 
   ~-K :
     Γ ⊢ A₁ [conv↑] A₂ →
-    Γ ⊢ t₁ ∷ A₁ →
     Γ ⊢ t₁ [conv↑] t₂ ∷ A₁ →
     Γ ∙ Id A₁ t₁ t₁ ⊢ B₁ [conv↑] B₂ →
     Γ ⊢ u₁ [conv↑] u₂ ∷ B₁ [ rfl ]₀ →
     Γ ⊢ v₁ ~ v₂ ∷ Id A₁ t₁ t₁ →
     K-allowed →
     Γ ⊢ K p A₁ t₁ B₁ u₁ v₁ ~ K p A₂ t₂ B₂ u₂ v₂ ∷ B₁ [ v₁ ]₀
-  ~-K A₁≡A₂ _ t₁≡t₂ B₁≡B₂ u₁≡u₂ (↑ Id-t₁-t₁≡C v₁~v₂) ok =
+  ~-K A₁≡A₂ t₁≡t₂ B₁≡B₂ u₁≡u₂ (↑ Id-t₁-t₁≡C v₁~v₂) ok =
     case Id-norm (sym Id-t₁-t₁≡C) of λ {
       (_ , _ , _ , C⇒*Id-t₃-t₄ , A₁≡A₃ , t₁≡t₃ , t₁≡t₄) →
     ↑ (refl $

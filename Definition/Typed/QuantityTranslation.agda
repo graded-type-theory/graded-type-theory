@@ -197,9 +197,9 @@ mutual
       (PE.subst (T₂._⊢_∷_ _ _) (PE.sym $ tr-Term-[,] B) $
        tr-⊢∷ u)
       (tr-⊢∷ w)
-  tr-⊢∷ (Kⱼ {B} _ ⊢B u v ok) =
+  tr-⊢∷ (Kⱼ {B} ⊢B u v ok) =
     PE.subst (T₂._⊢_∷_ _ _) (tr-Term-[] B) $
-    Kⱼ′ (tr-⊢′ ⊢B)
+    Kⱼ (tr-⊢′ ⊢B)
       (PE.subst (T₂._⊢_∷_ _ _) (PE.sym $ tr-Term-[] B) $
        tr-⊢∷ u)
       (tr-⊢∷ v) (K-preserved ok)
@@ -354,9 +354,9 @@ mutual
       (PE.subst (T₂._⊢_≡_∷_ _ _ _) (PE.sym $ tr-Term-[,] B₁) $
        tr-⊢≡∷ u₁≡u₂)
       (tr-⊢≡∷ v₁≡v₂) (tr-⊢≡∷ w₁≡w₂)
-  tr-⊢≡∷ (K-cong {B₁} A₁≡A₂ _ t₁≡t₂ B₁≡B₂ u₁≡u₂ v₁≡v₂ ok) =
+  tr-⊢≡∷ (K-cong {B₁} A₁≡A₂ t₁≡t₂ B₁≡B₂ u₁≡u₂ v₁≡v₂ ok) =
     PE.subst (T₂._⊢_≡_∷_ _ _ _) (tr-Term-[] B₁) $
-    K-cong′ (tr-⊢≡ A₁≡A₂) (tr-⊢≡∷ t₁≡t₂) (tr-⊢≡ B₁≡B₂)
+    K-cong (tr-⊢≡ A₁≡A₂) (tr-⊢≡∷ t₁≡t₂) (tr-⊢≡ B₁≡B₂)
       (PE.subst (T₂._⊢_≡_∷_ _ _ _) (PE.sym $ tr-Term-[] B₁) $
        tr-⊢≡∷ u₁≡u₂)
       (tr-⊢≡∷ v₁≡v₂) (K-preserved ok)
@@ -375,9 +375,9 @@ mutual
        tr-⊢′ ⊢B)
       (PE.subst (T₂._⊢_∷_ _ _) (PE.sym $ tr-Term-[,] B) $
        tr-⊢∷ u)
-  tr-⊢≡∷ (K-β {B} _ ⊢B u ok) =
+  tr-⊢≡∷ (K-β {B} ⊢B u ok) =
     PE.subst (T₂._⊢_≡_∷_ _ _ _) (tr-Term-[] B) $
-    K-β-≡ (tr-⊢′ ⊢B)
+    K-β (tr-⊢′ ⊢B)
       (PE.subst (T₂._⊢_∷_ _ _) (PE.sym $ tr-Term-[] B) $
        tr-⊢∷ u)
       (K-preserved ok)
@@ -518,9 +518,9 @@ module _
       (PE.subst (T₂._⊢_∷_ _ _) (PE.sym $ tr-Term-[,] B) $
        tr-⊢∷ u)
       (tr-⊢⇒∷ w₁⇒w₂)
-  tr-⊢⇒∷ (K-subst {B} _ _ ⊢B u v₁⇒v₂ ok) =
+  tr-⊢⇒∷ (K-subst {B} ⊢B u v₁⇒v₂ ok) =
     PE.subst (T₂._⊢_⇒_∷_ _ _ _) (tr-Term-[] B) $
-    K-subst′ (tr-⊢′ ⊢B)
+    K-subst (tr-⊢′ ⊢B)
       (PE.subst (T₂._⊢_∷_ _ _) (PE.sym $ tr-Term-[] B) $
        tr-⊢∷ u)
       (tr-⊢⇒∷ v₁⇒v₂) (K-preserved ok)
@@ -538,9 +538,9 @@ module _
        tr-⊢′ ⊢B)
       (PE.subst (T₂._⊢_∷_ _ _) (PE.sym $ tr-Term-[,] B) $
        tr-⊢∷ u)
-  tr-⊢⇒∷ (K-β {B} _ ⊢B u ok) =
+  tr-⊢⇒∷ (K-β {B} ⊢B u ok) =
     PE.subst (T₂._⊢_⇒_∷_ _ _ _) (tr-Term-[] B) $
-    K-β-⇒ (tr-⊢′ ⊢B)
+    K-β (tr-⊢′ ⊢B)
       (PE.subst (T₂._⊢_∷_ _ _) (PE.sym $ tr-Term-[] B) $
        tr-⊢∷ u)
       (K-preserved ok)

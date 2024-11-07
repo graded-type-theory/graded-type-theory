@@ -143,8 +143,7 @@ mutual
               → Γ ⊢ v ∷ A
               → Γ ⊢ w ∷ Id A t v
               → Γ ⊢ J p q A t B u v w ∷ B [ v , w ]₁₀
-    Kⱼ        : Γ ⊢ t ∷ A
-              → Γ ∙ Id A t t ⊢ B
+    Kⱼ        : Γ ∙ Id A t t ⊢ B
               → Γ ⊢ u ∷ B [ rfl ]₀
               → Γ ⊢ v ∷ Id A t t
               → K-allowed
@@ -320,7 +319,6 @@ mutual
                   → Γ ⊢ J p q A₁ t₁ B₁ u₁ v₁ w₁ ≡
                         J p q A₂ t₂ B₂ u₂ v₂ w₂ ∷ B₁ [ v₁ , w₁ ]₁₀
     K-cong        : Γ ⊢ A₁ ≡ A₂
-                  → Γ ⊢ t₁ ∷ A₁
                   → Γ ⊢ t₁ ≡ t₂ ∷ A₁
                   → Γ ∙ Id A₁ t₁ t₁ ⊢ B₁ ≡ B₂
                   → Γ ⊢ u₁ ≡ u₂ ∷ B₁ [ rfl ]₀
@@ -341,8 +339,7 @@ mutual
                   → Γ ⊢ u ∷ B [ t , rfl ]₁₀
                   → t PE.≡ t′
                   → Γ ⊢ J p q A t B u t′ rfl ≡ u ∷ B [ t , rfl ]₁₀
-    K-β           : Γ ⊢ t ∷ A
-                  → Γ ∙ Id A t t ⊢ B
+    K-β           : Γ ∙ Id A t t ⊢ B
                   → Γ ⊢ u ∷ B [ rfl ]₀
                   → K-allowed
                   → Γ ⊢ K p A t B u rfl ≡ u ∷ B [ rfl ]₀
@@ -448,9 +445,7 @@ data _⊢_⇒_∷_ (Γ : Con Term n) : Term n → Term n → Term n → Set ℓ 
                  → Γ ⊢ w₁ ⇒ w₂ ∷ Id A t v
                  → Γ ⊢ J p q A t B u v w₁ ⇒ J p q A t B u v w₂ ∷
                      B [ v , w₁ ]₁₀
-  K-subst        : Γ ⊢ A
-                 → Γ ⊢ t ∷ A
-                 → Γ ∙ Id A t t ⊢ B
+  K-subst        : Γ ∙ Id A t t ⊢ B
                  → Γ ⊢ u ∷ B [ rfl ]₀
                  → Γ ⊢ v₁ ⇒ v₂ ∷ Id A t t
                  → K-allowed
@@ -470,8 +465,7 @@ data _⊢_⇒_∷_ (Γ : Con Term n) : Term n → Term n → Term n → Set ℓ 
                  → Γ ⊢ B [ t , rfl ]₁₀ ≡ B [ t′ , rfl ]₁₀
                  → Γ ⊢ u ∷ B [ t , rfl ]₁₀
                  → Γ ⊢ J p q A t B u t′ rfl ⇒ u ∷ B [ t , rfl ]₁₀
-  K-β            : Γ ⊢ t ∷ A
-                 → Γ ∙ Id A t t ⊢ B
+  K-β            : Γ ∙ Id A t t ⊢ B
                  → Γ ⊢ u ∷ B [ rfl ]₀
                  → K-allowed
                  → Γ ⊢ K p A t B u rfl ⇒ u ∷ B [ rfl ]₀

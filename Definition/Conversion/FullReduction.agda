@@ -213,7 +213,7 @@ mutual
                 (trans C≡Id-t₁-t₁ (Id-cong A₁≡A₁′ t₁≡t₁′ t₁≡t₁′)))
              ok)
           (sym (substTypeEq B₁≡B₁′ v₁≡v₁′))
-      , K-cong′ A₁≡A₁′ t₁≡t₁′ B₁≡B₁′ u₁≡u₁′ v₁≡v₁′ ok }}}}}}
+      , K-cong A₁≡A₁′ t₁≡t₁′ B₁≡B₁′ u₁≡u₁′ v₁≡v₁′ ok }}}}}}
     ([]-cong-cong A₁≡A₂ t₁≡t₂ u₁≡u₂ v₁~v₂ B≡Id-t₁-u₁ ok) →
       case fullRedConv↑ A₁≡A₂ of λ {
         (A₁′ , ⊢A₁′ , A₁≡A₁′) →

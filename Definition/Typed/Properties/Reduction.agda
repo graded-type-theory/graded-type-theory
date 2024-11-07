@@ -15,6 +15,7 @@ open Type-restrictions R
 
 open import Definition.Typed R
 open import Definition.Typed.Properties.Admissible R
+open import Definition.Typed.Properties.Inversion R
 open import Definition.Typed.Properties.Well-formed R
 open import Definition.Typed.Reasoning.Term.Primitive R
 
@@ -149,9 +150,9 @@ private opaque
     v PE.≡ rfl × w PE.≡ u
   inv-⇒-K (conv d _) =
     inv-⇒-K d
-  inv-⇒-K (K-subst _ _ _ _ d _) =
+  inv-⇒-K (K-subst _ _ d _) =
     inj₁ (_ , _ , d , PE.refl)
-  inv-⇒-K (K-β _ _ _ _) =
+  inv-⇒-K (K-β _ _ _) =
     inj₂ (PE.refl , PE.refl)
 
   -- An inversion lemma related to []-cong.
@@ -198,9 +199,9 @@ opaque
   subsetTerm (J-subst ⊢t ⊢B ⊢u ⊢t′ v⇒v′) =
     J-cong (refl (⊢∙→⊢ (wf (⊢∙→⊢ (wf ⊢B))))) ⊢t (refl ⊢t) (refl ⊢B)
       (refl ⊢u) (refl ⊢t′) (subsetTerm v⇒v′)
-  subsetTerm (K-subst ⊢A ⊢t ⊢B ⊢u v⇒v′ ok) =
-    K-cong (refl ⊢A) ⊢t (refl ⊢t) (refl ⊢B) (refl ⊢u)
-      (subsetTerm v⇒v′) ok
+  subsetTerm (K-subst ⊢B ⊢u v⇒v′ ok) =
+    let (⊢A , _) , (⊢t , _) , _ = inversion-Id-⊢ (⊢∙→⊢ (wf ⊢B)) in
+    K-cong (refl ⊢A) (refl ⊢t) (refl ⊢B) (refl ⊢u) (subsetTerm v⇒v′) ok
   subsetTerm ([]-cong-subst ⊢A ⊢t ⊢u v⇒v′ ok) =
     []-cong-cong (refl ⊢A) (refl ⊢t) (refl ⊢u) (subsetTerm v⇒v′) ok
   subsetTerm (J-β {t} {A} {t′} {B} {u} {p} {q} ⊢t _ t≡t′ ⊢B _ ⊢u) =
@@ -209,7 +210,8 @@ opaque
                                ⊢t (refl ⊢t) (refl ⊢B) (refl ⊢u) t≡t′ (refl (rflⱼ ⊢t)) ⟩⊢
     J p q A t B u t rfl   ≡⟨ J-β ⊢t ⊢B ⊢u PE.refl ⟩⊢∎
     u                     ∎
-  subsetTerm (K-β ⊢t ⊢B ⊢u ok) = K-β ⊢t ⊢B ⊢u ok
+  subsetTerm (K-β ⊢B ⊢u ok) =
+    K-β ⊢B ⊢u ok
   subsetTerm ([]-cong-β ⊢A ⊢t _ t≡t′ ok) =
     trans
       ([]-cong-cong (refl ⊢A) (refl ⊢t) (sym′ t≡t′)
@@ -286,8 +288,8 @@ opaque
          (ΠΣ-cong (refl (⊢∙→⊢ (wf G))) (refl G) ok))
   redFirstTerm (J-subst ⊢t ⊢B ⊢u ⊢t′ v⇒v′) =
     Jⱼ ⊢t ⊢B ⊢u ⊢t′ (redFirstTerm v⇒v′)
-  redFirstTerm (K-subst _ ⊢t ⊢B ⊢u v⇒v′ ok) =
-    Kⱼ ⊢t ⊢B ⊢u (redFirstTerm v⇒v′) ok
+  redFirstTerm (K-subst ⊢B ⊢u v⇒v′ ok) =
+    Kⱼ ⊢B ⊢u (redFirstTerm v⇒v′) ok
   redFirstTerm ([]-cong-subst ⊢A ⊢t ⊢u v⇒v′ ok) =
     []-congⱼ ⊢A ⊢t ⊢u (redFirstTerm v⇒v′) ok
   redFirstTerm (J-β ⊢t ⊢t′ t≡t′ ⊢B B≡B ⊢u) =
@@ -296,8 +298,9 @@ opaque
                (Id-cong (refl (⊢∙→⊢ (wf (⊢∙→⊢ (wf ⊢B))))) (refl ⊢t)
                   t≡t′)))
       (sym B≡B)
-  redFirstTerm (K-β ⊢t ⊢B ⊢u ok) =
-    Kⱼ ⊢t ⊢B ⊢u (rflⱼ ⊢t) ok
+  redFirstTerm (K-β ⊢B ⊢u ok) =
+    let _ , (⊢t , _) , _ = inversion-Id-⊢ (⊢∙→⊢ (wf ⊢B)) in
+    Kⱼ ⊢B ⊢u (rflⱼ ⊢t) ok
   redFirstTerm ([]-cong-β ⊢A ⊢t ⊢t′ t≡t′ ok) =
     []-congⱼ ⊢A ⊢t ⊢t′
       (conv (rflⱼ ⊢t) (Id-cong (refl ⊢A) (refl ⊢t) t≡t′)) ok
@@ -351,10 +354,10 @@ opaque
     (Σ-β₁ _ _ _ _ _)          → (λ ()) ∘→ inv-ne-fst
     (Σ-β₂ _ _ _ _ _)          → (λ ()) ∘→ inv-ne-snd
     (J-subst _ _ _ _ d)       → neRedTerm d ∘→ inv-ne-J
-    (K-subst _ _ _ _ d _)     → neRedTerm d ∘→ inv-ne-K
+    (K-subst _ _ d _)         → neRedTerm d ∘→ inv-ne-K
     ([]-cong-subst _ _ _ d _) → neRedTerm d ∘→ inv-ne-[]-cong
     (J-β _ _ _ _ _ _)         → (λ ()) ∘→ inv-ne-J
-    (K-β _ _ _ _)             → (λ ()) ∘→ inv-ne-K
+    (K-β _ _ _)               → (λ ()) ∘→ inv-ne-K
     ([]-cong-β _ _ _ _ _)     → (λ ()) ∘→ inv-ne-[]-cong
     (unitrec-subst _ _ d _ _) → neRedTerm d ∘→ proj₂ ∘→ inv-ne-unitrec
     (unitrec-β _ _ _ _)       → (λ ()) ∘→ proj₂ ∘→ inv-ne-unitrec
@@ -387,10 +390,10 @@ opaque
     (Σ-β₁ _ _ _ _ _)          → (λ ()) ∘→ inv-whnf-fst
     (Σ-β₂ _ _ _ _ _)          → (λ ()) ∘→ inv-whnf-snd
     (J-subst _ _ _ _ d)       → neRedTerm d ∘→ inv-whnf-J
-    (K-subst _ _ _ _ d _)     → neRedTerm d ∘→ inv-whnf-K
+    (K-subst _ _ d _)         → neRedTerm d ∘→ inv-whnf-K
     ([]-cong-subst _ _ _ d _) → neRedTerm d ∘→ inv-whnf-[]-cong
     (J-β _ _ _ _ _ _)         → (λ ()) ∘→ inv-whnf-J
-    (K-β _ _ _ _)             → (λ ()) ∘→ inv-whnf-K
+    (K-β _ _ _)               → (λ ()) ∘→ inv-whnf-K
     ([]-cong-β _ _ _ _ _)     → (λ ()) ∘→ inv-whnf-[]-cong
     (unitrec-subst _ _ d _ _) → neRedTerm d ∘→ proj₂ ∘→
                                 inv-whnf-unitrec
@@ -515,12 +518,12 @@ opaque
       case inv-⇒-J d′ of λ where
         (inj₁ (_ , _ , d′ , _)) → ⊥-elim (whnfRedTerm d′ rflₙ)
         (inj₂ (_ , PE.refl))    → PE.refl
-    (K-subst _ _ _ _ d _) d′ →
+    (K-subst _ _ d _) d′ →
       case inv-⇒-K d′ of λ where
         (inj₁ (_ , _ , d′ , PE.refl)) →
           PE.cong (K _ _ _ _ _) (whrDetTerm d d′)
         (inj₂ (PE.refl , _)) → ⊥-elim (whnfRedTerm d rflₙ)
-    (K-β _ _ _ _) d′ →
+    (K-β _ _ _) d′ →
       case inv-⇒-K d′ of λ where
         (inj₁ (_ , _ , d′ , _)) → ⊥-elim (whnfRedTerm d′ rflₙ)
         (inj₂ (_ , PE.refl))    → PE.refl
