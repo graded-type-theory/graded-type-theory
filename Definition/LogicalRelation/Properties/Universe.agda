@@ -32,7 +32,8 @@ open import Tools.Function
 
 private
   variable
-    n l l′ l″ : Nat
+    n : Nat
+    l l′ l″ : Universe-level
     Γ : Con Term n
     A B t u : Term _
 
@@ -46,8 +47,7 @@ private opaque
     _ , ⊩<⇔⊩ k< .proj₁ ⊩A
   univEq′ (noemb (Uᵣ _ _ _ [ _ , _ , U⇒ ⇨ _ ])) _ =
     ⊥-elim (whnfRed U⇒ Uₙ)
-  univEq′ (emb ≤ᵘ-refl     ⊩U) ⊩A = univEq′ ⊩U ⊩A
-  univEq′ (emb (≤ᵘ-step p) ⊩U) ⊩A = univEq′ (emb p ⊩U) ⊩A
+  univEq′ (emb p     ⊩U) ⊩A = {!univEq′ ⊩U ⊩A!}
 
 -- Reducible terms of type U are reducible types.
 univEq :
@@ -65,15 +65,15 @@ private opaque
   univEqEq′ :
     (⊩U : Γ ⊩⟨ l ⟩U U t) (⊩A : Γ ⊩⟨ l′ ⟩ A) →
     Γ ⊩⟨ l ⟩ A ≡ B ∷ U t / U-intr ⊩U → Γ ⊩⟨ l′ ⟩ A ≡ B / ⊩A
-  univEqEq′ (noemb (Uᵣ k [k] ≤ᵘ-refl _)) ⊩A (Uₜ₌ _ _ _ _ _ _ _ ⊩A′ _ A≡B) =
-    irrelevanceEq ⊩A′ ⊩A A≡B
-  univEqEq′
-    (noemb (Uᵣ k [k] (≤ᵘ-step p) ⇒*U)) ⊩A
-    (Uₜ₌ _ _ A⇒*A′ B⇒*B′ A′-type B′-type A′≅B′ _ ⊩B A≡B) =
-    univEqEq′ (noemb (Uᵣ k [k] p ⇒*U)) ⊩A
-      (Uₜ₌ _ _ A⇒*A′ B⇒*B′ A′-type B′-type A′≅B′ _ ⊩B A≡B)
-  univEqEq′ (emb ≤ᵘ-refl     ⊩U) = univEqEq′ ⊩U
-  univEqEq′ (emb (≤ᵘ-step p) ⊩U) = univEqEq′ (emb p ⊩U)
+  univEqEq′ (noemb (Uᵣ k [k] p _)) ⊩A (Uₜ₌ _ _ _ _ _ _ _ ⊩A′ _ A≡B) = {!   !}
+  -- univEqEq′ (noemb (Uᵣ k [k] ≤ᵘ-refl _)) ⊩A (Uₜ₌ _ _ _ _ _ _ _ ⊩A′ _ A≡B) =
+  --   irrelevanceEq ⊩A′ ⊩A A≡B
+  -- univEqEq′
+  --   (noemb (Uᵣ k [k] (≤ᵘ-step p) ⇒*U)) ⊩A
+  --   (Uₜ₌ _ _ A⇒*A′ B⇒*B′ A′-type B′-type A′≅B′ _ ⊩B A≡B) =
+  --   univEqEq′ (noemb (Uᵣ k [k] p ⇒*U)) ⊩A
+  --     (Uₜ₌ _ _ A⇒*A′ B⇒*B′ A′-type B′-type A′≅B′ _ ⊩B A≡B)
+  univEqEq′ (emb p     ⊩U) = {!univEqEq′ ⊩U!}
 
 -- Reducible term equality of type U is reducible type equality.
 univEqEq :

@@ -286,25 +286,23 @@ transEqT (Idᵥ ⊩A ⊩B@record{} ⊩C@record{}) A≡B B≡C =
        (_⊩ₗId_.⊩Ty ⊩B)
        (_⊩ₗId_≡_/_.Ty≡Ty′ A≡B)
        (_⊩ₗId_≡_/_.rhs≡rhs′ B≡C)) }}
-transEqT (embᵥ₁ ≤ᵘ-refl     A≡B≡C) = transEqT          A≡B≡C
-transEqT (embᵥ₁ (≤ᵘ-step p) A≡B≡C) = transEqT (embᵥ₁ p A≡B≡C)
-transEqT (embᵥ₂ ≤ᵘ-refl     A≡B≡C) = transEqT          A≡B≡C
-transEqT (embᵥ₂ (≤ᵘ-step p) A≡B≡C) = transEqT (embᵥ₂ p A≡B≡C)
-transEqT (embᵥ₃ ≤ᵘ-refl     A≡B≡C) = transEqT          A≡B≡C
-transEqT (embᵥ₃ (≤ᵘ-step p) A≡B≡C) = transEqT (embᵥ₃ p A≡B≡C)
+transEqT (embᵥ₁ p     A≡B≡C) = {!transEqT          A≡B≡C!}
+transEqT (embᵥ₂ p     A≡B≡C) = {!transEqT          A≡B≡C!}
+transEqT (embᵥ₃ p     A≡B≡C) = {!transEqT          A≡B≡C!}
 
 transEqTerm (Levelᵣ D) B≡C C≡D = transEqTermLevel B≡C C≡D
-transEqTerm (Uᵣ′ k [k] (≤ᵘ-step p) A⇒*U) B≡C C≡D =
-  irrelevanceEqTerm (Uᵣ′ _ [k] p A⇒*U) (Uᵣ′ k [k] (≤ᵘ-step p) A⇒*U)
-    (transEqTerm (Uᵣ′ _ _ p A⇒*U)
-       (irrelevanceEqTerm (Uᵣ′ _ _ (≤ᵘ-step p) A⇒*U) (Uᵣ′ _ _ p A⇒*U) B≡C)
-       (irrelevanceEqTerm (Uᵣ′ _ _ (≤ᵘ-step p) A⇒*U) (Uᵣ′ _ _ p A⇒*U) C≡D))
-transEqTerm (Uᵣ′ l′ [l′] ≤ᵘ-refl D)
-            (Uₜ₌ A B d d′ typeA typeB t≡u [t] [u] [t≡u])
-            (Uₜ₌ A₁ B₁ d₁ d₁′ typeA₁ typeB₁ t≡u₁ [t]₁ [u]₁ [t≡u]₁) =
-                case whrDet*Term (redₜ d₁ , typeWhnf typeA₁) (redₜ d′ , typeWhnf typeB) of λ where
-                PE.refl →
-                    Uₜ₌ A B₁ d  d₁′ typeA typeB₁ (≅ₜ-trans t≡u t≡u₁) [t] [u]₁ (transEq [t] [t]₁ [u]₁ [t≡u] [t≡u]₁)
+transEqTerm (Uᵣ′ k [k] p A⇒*U) B≡C C≡D = {!   !}
+-- transEqTerm (Uᵣ′ k [k] (≤ᵘ-step p) A⇒*U) B≡C C≡D =
+--   irrelevanceEqTerm (Uᵣ′ _ [k] p A⇒*U) (Uᵣ′ k [k] (≤ᵘ-step p) A⇒*U)
+--     (transEqTerm (Uᵣ′ _ _ p A⇒*U)
+--        (irrelevanceEqTerm (Uᵣ′ _ _ (≤ᵘ-step p) A⇒*U) (Uᵣ′ _ _ p A⇒*U) B≡C)
+--        (irrelevanceEqTerm (Uᵣ′ _ _ (≤ᵘ-step p) A⇒*U) (Uᵣ′ _ _ p A⇒*U) C≡D))
+-- transEqTerm (Uᵣ′ l′ [l′] ≤ᵘ-refl D)
+--             (Uₜ₌ A B d d′ typeA typeB t≡u [t] [u] [t≡u])
+--             (Uₜ₌ A₁ B₁ d₁ d₁′ typeA₁ typeB₁ t≡u₁ [t]₁ [u]₁ [t≡u]₁) =
+--                 case whrDet*Term (redₜ d₁ , typeWhnf typeA₁) (redₜ d′ , typeWhnf typeB) of λ where
+--                 PE.refl →
+--                     Uₜ₌ A B₁ d  d₁′ typeA typeB₁ (≅ₜ-trans t≡u t≡u₁) [t] [u]₁ (transEq [t] [t]₁ [u]₁ [t≡u] [t≡u]₁)
 transEqTerm (ℕᵣ D) [t≡u] [u≡v] = transEqTermℕ [t≡u] [u≡v]
 transEqTerm (Emptyᵣ D) [t≡u] [u≡v] = transEqTermEmpty [t≡u] [u≡v]
 transEqTerm (Unitᵣ D) [t≡u] [u≡v] = transEqTermUnit [t≡u] [u≡v]
@@ -441,5 +439,4 @@ transEqTerm
          (ne u″-n _ _) →
            ⊥-elim $ rfl≢ne u″-n $
            whrDet*Term (redₜ u⇒*u′ , rflₙ) (redₜ u⇒*u″ , ne u″-n)) }
-transEqTerm (emb ≤ᵘ-refl     ⊩A) = transEqTerm ⊩A
-transEqTerm (emb (≤ᵘ-step p) ⊩A) = transEqTerm (emb p ⊩A)
+transEqTerm (emb p     ⊩A) = {!transEqTerm ⊩A!}

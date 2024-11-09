@@ -43,22 +43,22 @@ private variable
   l l′ l″ l‴                        : Universe-level
   p q r                             : M
 
--- mutual
---   reflect-level-subst
---     : ∀ {n m} {Γ : Con Term n} {Δ : Con Term m} {σ : Subst m n} {t : Term n}
---     → (⊩t : Γ ⊩Level t ∷Level)
---     → (⊩t[σ] : Δ ⊩Level t [ σ ] ∷Level)
---     → reflect-level ⊩t ≤ᵘ reflect-level ⊩t[σ]
---   reflect-level-subst {σ} (Levelₜ k [ _ , _ , t⇒k ] k≡k (ne x)) (Levelₜ k′ [ _ , _ , t[σ]⇒k′ ] k′≡k′ prop′) =
---     0≤ᵘ
---   reflect-level-subst {σ} (Levelₜ k [ _ , _ , t⇒k ] k≡k zeroᵘᵣ) (Levelₜ k′ [ _ , _ , t[σ]⇒k′ ] k′≡k′ prop′) =
---     0≤ᵘ
---   reflect-level-subst {σ} (Levelₜ k [ _ , _ , t⇒k ] k≡k (sucᵘᵣ x)) (Levelₜ k′ [ _ , _ , t[σ]⇒k′ ] k′≡k′ (sucᵘᵣ y)) =
---     1+≤ᵘ1+ {!   !}
---   reflect-level-subst {σ} (Levelₜ k [ _ , _ , t⇒k ] k≡k (sucᵘᵣ x)) (Levelₜ k′ [ _ , _ , t[σ]⇒k′ ] k′≡k′ zeroᵘᵣ) =
---     ⊥-elim {!   !}
---   reflect-level-subst {σ} (Levelₜ k [ _ , _ , t⇒k ] k≡k (sucᵘᵣ x)) (Levelₜ k′ [ _ , _ , t[σ]⇒k′ ] k′≡k′ (ne y)) =
---     ⊥-elim {!    !}
+mutual
+  -- reflect-level-subst
+  --   : ∀ {n m} {Γ : Con Term n} {Δ : Con Term m} {σ : Subst m n} {t : Term n}
+  --   → (⊩t : Γ ⊩Level t ∷Level)
+  --   → (⊩t[σ] : Δ ⊩Level t [ σ ] ∷Level)
+  --   → reflect-level ⊩t ≤ᵘ reflect-level ⊩t[σ]
+  -- reflect-level-subst {σ} (Levelₜ k [ _ , _ , t⇒k ] k≡k (ne x)) (Levelₜ k′ [ _ , _ , t[σ]⇒k′ ] k′≡k′ prop′) =
+  --   0≤ᵘ
+  -- reflect-level-subst {σ} (Levelₜ k [ _ , _ , t⇒k ] k≡k zeroᵘᵣ) (Levelₜ k′ [ _ , _ , t[σ]⇒k′ ] k′≡k′ prop′) =
+  --   0≤ᵘ
+  -- reflect-level-subst {σ} (Levelₜ k [ _ , _ , t⇒k ] k≡k (sucᵘᵣ x)) (Levelₜ k′ [ _ , _ , t[σ]⇒k′ ] k′≡k′ (sucᵘᵣ y)) =
+  --   1+≤ᵘ1+ {!   !}
+  -- reflect-level-subst {σ} (Levelₜ k [ _ , _ , t⇒k ] k≡k (sucᵘᵣ x)) (Levelₜ k′ [ _ , _ , t[σ]⇒k′ ] k′≡k′ zeroᵘᵣ) =
+  --   ⊥-elim {!   !}
+  -- reflect-level-subst {σ} (Levelₜ k [ _ , _ , t⇒k ] k≡k (sucᵘᵣ x)) (Levelₜ k′ [ _ , _ , t[σ]⇒k′ ] k′≡k′ (ne y)) =
+  --   ⊥-elim {!    !}
 
   -- reflect-level-prop-subst
   --   : ∀ {n m} {Γ : Con Term n} {Δ : Con Term m} {σ : Subst m n} {t : Term n}
@@ -66,6 +66,23 @@ private variable
   --   → (⊩t[σ] : Level-prop Δ (t [ σ ]))
   --   → reflect-level-prop ⊩t ≤ᵘ reflect-level-prop ⊩t[σ]
   -- reflect-level-prop-subst ⊩t ⊩t[σ] = {!   !}
+
+  reflect-level<ω
+    : ∀ {n} {Γ : Con Term n} {t : Term n}
+    → (⊩t : Γ ⊩Level t ∷Level)
+    → reflect-level ⊩t <ᵘ ω+0
+  reflect-level<ω ⊩t = reflect-level-prop<ω (⊩t ._⊩Level_∷Level.prop)
+
+  reflect-level-prop<ω
+    : ∀ {n} {Γ : Con Term n} {t : Term n}
+    → (⊩t : Level-prop Γ t)
+    → reflect-level-prop ⊩t <ᵘ ω+0
+  reflect-level-prop<ω zeroᵘᵣ = <ᵘ-ω
+  reflect-level-prop<ω (sucᵘᵣ x) = lemma (reflect-level<ω x)
+    where
+      lemma : ∀ {n} → n <ᵘ ω+0 → 1+ᵘ n <ᵘ ω+0
+      lemma <ᵘ-ω = <ᵘ-ω
+  reflect-level-prop<ω (ne x) = <ᵘ-ω
 
 ------------------------------------------------------------------------
 -- Characterisation lemmas
@@ -93,8 +110,9 @@ opaque
       Γ ⊩⟨ l ⟩ A ≡ B / Level-intr ⊩A →
       Γ ⊩Level A ≡ B
     lemma (noemb _)    A≡B = A≡B
-    lemma (emb ≤ᵘ-refl ⊩A) A≡B = lemma ⊩A A≡B
-    lemma (emb (≤ᵘ-step s) ⊩A) A≡B = lemma (emb s ⊩A) A≡B
+    lemma (emb p ⊩A) A≡B = {!   !}
+    -- lemma (emb ≤ᵘ-refl ⊩A) A≡B = lemma ⊩A A≡B
+    -- lemma (emb (≤ᵘ-step s) ⊩A) A≡B = lemma (emb s ⊩A) A≡B
 
 opaque
   unfolding _⊩⟨_⟩_∷_
@@ -114,8 +132,9 @@ opaque
       Γ ⊩⟨ l ⟩ t ∷ A / Level-intr ⊩A →
       Γ ⊩Level t ∷Level
     lemma (noemb _)    ⊩t = ⊩t
-    lemma (emb ≤ᵘ-refl ⊩A) ⊩t = lemma ⊩A ⊩t
-    lemma (emb (≤ᵘ-step s) ⊩A) ⊩t = lemma (emb s ⊩A) ⊩t
+    lemma (emb p ⊩A) ⊩t = {!   !}
+    -- lemma (emb ≤ᵘ-refl ⊩A) ⊩t = lemma ⊩A ⊩t
+    -- lemma (emb (≤ᵘ-step s) ⊩A) ⊩t = lemma (emb s ⊩A) ⊩t
 
 opaque
   unfolding _⊩⟨_⟩_≡_∷_
@@ -142,8 +161,9 @@ opaque
       Γ ⊩⟨ l ⟩ t ≡ u ∷ A / Level-intr ⊩A →
       Γ ⊩Level t ∷Level × Γ ⊩Level u ∷Level × Γ ⊩Level t ≡ u ∷Level
     lemma (noemb _)    ⊩t ⊩u t≡u = ⊩t , ⊩u , t≡u
-    lemma (emb ≤ᵘ-refl ⊩A) ⊩t ⊩u t≡u = lemma ⊩A ⊩t ⊩u t≡u
-    lemma (emb (≤ᵘ-step s) ⊩A) ⊩t ⊩u t≡u = lemma (emb s ⊩A) ⊩t ⊩u t≡u
+    lemma (emb p ⊩A) ⊩t ⊩u t≡u = {!   !}
+    -- lemma (emb ≤ᵘ-refl ⊩A) ⊩t ⊩u t≡u = lemma ⊩A ⊩t ⊩u t≡u
+    -- lemma (emb (≤ᵘ-step s) ⊩A) ⊩t ⊩u t≡u = lemma (emb s ⊩A) ⊩t ⊩u t≡u
 
 opaque
 
@@ -257,7 +277,7 @@ opaque
   ⊩Level-zeroᵘ : ⊢ Γ → Γ ⊩Level zeroᵘ ∷Level
   ⊩Level-zeroᵘ ⊢Γ = Levelₜ zeroᵘ (idRedTerm:*: (zeroᵘⱼ ⊢Γ)) (≅ₜ-zeroᵘrefl ⊢Γ) zeroᵘᵣ
 
-  reflect-level-zero : (⊢Γ : ⊢ Γ) → reflect-level (⊩Level-zeroᵘ ⊢Γ) PE.≡ 0
+  reflect-level-zero : (⊢Γ : ⊢ Γ) → reflect-level (⊩Level-zeroᵘ ⊢Γ) PE.≡ 0ᵘ
   reflect-level-zero ⊢Γ = PE.refl
 
   zeroᵘ≤ᵘ : (⊢Γ : ⊢ Γ) → reflect-level (⊩Level-zeroᵘ ⊢Γ) ≤ᵘ l
@@ -275,6 +295,11 @@ opaque
           ⊢ Δ                       ⇔˘⟨ ⊩zeroᵘ≡zeroᵘ∷Level⇔ ⟩→
           Δ ⊩⟨ 0 ⟩ zeroᵘ ≡ zeroᵘ ∷ Level  □
       )
+
+opaque
+
+  ⊩Level-sucᵘ : Γ ⊩Level t ∷Level → Γ ⊩Level sucᵘ t ∷Level
+  ⊩Level-sucᵘ ⊩t = Levelₜ _ (idRedTerm:*: (sucᵘⱼ (escapeLevel ⊩t))) (≅ₜ-sucᵘ-cong (escapeLevelEq (reflLevel ⊩t))) (sucᵘᵣ ⊩t)
 
 opaque
 

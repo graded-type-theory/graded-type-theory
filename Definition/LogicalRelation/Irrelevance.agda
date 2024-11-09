@@ -24,7 +24,7 @@ open import Definition.Typed R
 import Definition.Typed.Weakening R as Wk
 open import Definition.Typed.Properties R
 open import Definition.LogicalRelation R {{eqrel}}
-open import Definition.LogicalRelation.Properties.Kit R
+open import Definition.LogicalRelation.Properties.Kit R {{eqrel}}
 open import Definition.LogicalRelation.ShapeView R {{eqrel}}
 
 open import Tools.Function
@@ -46,13 +46,13 @@ mutual
     : ∀ {t u} ([t] : Γ ⊩Level t ∷Level) ([u] : Γ ⊩Level u ∷Level)
     → t PE.≡ u → reflect-level [t] PE.≡ reflect-level [u]
   reflect-level-cong (Levelₜ m [ _ , _ , d ] m≡m prop) (Levelₜ m′ [ _ , _ , d′ ] m′≡m′ prop′) PE.refl =
-    reflect-level-prop-cong _ _ (whrDet*Term (d , level prop) (d′ , level prop′))
+    reflect-level-prop-cong prop prop′ (whrDet*Term (d , level prop) (d′ , level prop′))
 
   reflect-level-prop-cong
     : ∀ {t u} ([t] : Level-prop Γ t) ([u] : Level-prop Γ u)
     → t PE.≡ u → reflect-level-prop [t] PE.≡ reflect-level-prop [u]
   reflect-level-prop-cong zeroᵘᵣ zeroᵘᵣ PE.refl = PE.refl
-  reflect-level-prop-cong (sucᵘᵣ [t]) (sucᵘᵣ [u]) PE.refl = PE.cong 1+ (reflect-level-cong [t] [u] PE.refl)
+  reflect-level-prop-cong (sucᵘᵣ [t]) (sucᵘᵣ [u]) PE.refl = PE.cong 1+ᵘ (reflect-level-cong [t] [u] PE.refl)
   reflect-level-prop-cong (ne _) (ne _) PE.refl = PE.refl
   reflect-level-prop-cong (ne (neNfₜ () _ _)) (sucᵘᵣ [u]) PE.refl
   reflect-level-prop-cong (ne (neNfₜ () _ _)) zeroᵘᵣ PE.refl
@@ -180,10 +180,8 @@ mutual
       } }
     where
     open _⊩ₗId_≡_/_ A≡B
-  irrelevanceEqT (embᵥ₁ ≤ᵘ-refl     A≡A) = irrelevanceEqT          A≡A
-  irrelevanceEqT (embᵥ₁ (≤ᵘ-step p) A≡A) = irrelevanceEqT (embᵥ₁ p A≡A)
-  irrelevanceEqT (embᵥ₂ ≤ᵘ-refl     A≡A) = irrelevanceEqT          A≡A
-  irrelevanceEqT (embᵥ₂ (≤ᵘ-step p) A≡A) = irrelevanceEqT (embᵥ₂ p A≡A)
+  irrelevanceEqT (embᵥ₁ p     A≡A) A≡B = {!irrelevanceEqT A≡A (⊩<≡⇔⊩≡ p .proj₁ A≡B)!}
+  irrelevanceEqT (embᵥ₂ p     A≡A) A≡B = {!⊩<≡⇔⊩≡ p .proj₂ (irrelevanceEqT A≡A A≡B)!}
 
 --------------------------------------------------------------------------------
 
@@ -313,10 +311,8 @@ mutual
              rflₙ
            , irrelevanceEqTerm
                (_⊩ₗId_.⊩Ty ⊩A) (_⊩ₗId_.⊩Ty ⊩A′) lhs≡rhs) }
-  irrelevanceTermT (embᵥ₁ ≤ᵘ-refl     A≡A) = irrelevanceTermT          A≡A
-  irrelevanceTermT (embᵥ₁ (≤ᵘ-step p) A≡A) = irrelevanceTermT (embᵥ₁ p A≡A)
-  irrelevanceTermT (embᵥ₂ ≤ᵘ-refl     A≡A) = irrelevanceTermT          A≡A
-  irrelevanceTermT (embᵥ₂ (≤ᵘ-step p) A≡A) = irrelevanceTermT (embᵥ₂ p A≡A)
+  irrelevanceTermT (embᵥ₁ p     A≡A) = {!irrelevanceTermT          A≡A!}
+  irrelevanceTermT (embᵥ₂ p     A≡A) = {!irrelevanceTermT          A≡A!}
 
 --------------------------------------------------------------------------------
 
@@ -475,7 +471,5 @@ mutual
              rflₙ , rflₙ
            , irrelevanceEqTerm
                (_⊩ₗId_.⊩Ty ⊩A) (_⊩ₗId_.⊩Ty ⊩A′) lhs≡rhs) }
-  irrelevanceEqTermT (embᵥ₁ ≤ᵘ-refl     A≡A) = irrelevanceEqTermT          A≡A
-  irrelevanceEqTermT (embᵥ₁ (≤ᵘ-step p) A≡A) = irrelevanceEqTermT (embᵥ₁ p A≡A)
-  irrelevanceEqTermT (embᵥ₂ ≤ᵘ-refl     A≡A) = irrelevanceEqTermT          A≡A
-  irrelevanceEqTermT (embᵥ₂ (≤ᵘ-step p) A≡A) = irrelevanceEqTermT (embᵥ₂ p A≡A)
+  irrelevanceEqTermT (embᵥ₁ p     A≡A) = {!irrelevanceEqTermT          A≡A!}
+  irrelevanceEqTermT (embᵥ₂ p     A≡A) = {!irrelevanceEqTermT          A≡A!}

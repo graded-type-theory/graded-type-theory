@@ -74,8 +74,9 @@ opaque
     lemma (noemb (Uᵣ k [k] k<l U⇒*U@([ ⊢U , _ , _ ]))) =
       case U⇒*U→≡ U⇒*U of λ {
         PE.refl → [k] , k<l }
-    lemma (emb ≤ᵘ-refl     ⊩U) = Σ.map idᶠ ≤ᵘ-step (lemma ⊩U)
-    lemma (emb (≤ᵘ-step p) ⊩U) = Σ.map idᶠ ≤ᵘ-step (lemma (emb p ⊩U))
+    lemma (emb p     ⊩U) = {!   !}
+    -- lemma (emb ≤ᵘ-refl     ⊩U) = Σ.map idᶠ ≤ᵘ-step (lemma ⊩U)
+    -- lemma (emb (≤ᵘ-step p) ⊩U) = Σ.map idᶠ ≤ᵘ-step (lemma (emb p ⊩U))
 
 opaque
   unfolding _⊩⟨_⟩_∷_
@@ -101,8 +102,9 @@ opaque
     lemma (noemb (Uᵣ k [k] k<l U⇒*U)) (Uₜ _ A⇒*B B-type B≅B ⊩A) =
       case U⇒*U→≡ U⇒*U of λ where
         PE.refl → [k] , k<l , ⊩<⇔⊩ k<l .proj₁ ⊩A , _ , A⇒*B , B-type , B≅B
-    lemma (emb ≤ᵘ-refl     ⊩U) = Σ.map idᶠ (Σ.map ≤ᵘ-step idᶠ) ∘→ lemma ⊩U
-    lemma (emb (≤ᵘ-step p) ⊩U) = Σ.map idᶠ (Σ.map ≤ᵘ-step idᶠ) ∘→ lemma (emb p ⊩U)
+    lemma (emb p     ⊩U) = {!   !}
+    -- lemma (emb ≤ᵘ-refl     ⊩U) = Σ.map idᶠ (Σ.map ≤ᵘ-step idᶠ) ∘→ lemma ⊩U
+    -- lemma (emb (≤ᵘ-step p) ⊩U) = Σ.map idᶠ (Σ.map ≤ᵘ-step idᶠ) ∘→ lemma (emb p ⊩U)
 
 opaque
 
@@ -149,10 +151,11 @@ opaque
     lemma (noemb (Uᵣ k [k] k< U⇒*U)) (U₌ k′ D k≡k′) =
       case U⇒*U→≡ U⇒*U of λ {
         PE.refl → [k] , k< , k′ , D , k≡k′ }
-    lemma (emb ≤ᵘ-refl ⊩U) A≡U =
-      Σ.map idᶠ (Σ.map ≤ᵘ-step idᶠ) (lemma ⊩U A≡U)
-    lemma (emb (≤ᵘ-step p) ⊩U) A≡U =
-      Σ.map idᶠ (Σ.map ≤ᵘ-step idᶠ) (lemma (emb p ⊩U) A≡U)
+    lemma (emb p ⊩U) A≡U = {!   !}
+    -- lemma (emb ≤ᵘ-refl ⊩U) A≡U =
+    --   Σ.map idᶠ (Σ.map ≤ᵘ-step idᶠ) (lemma ⊩U A≡U)
+    -- lemma (emb (≤ᵘ-step p) ⊩U) A≡U =
+    --   Σ.map idᶠ (Σ.map ≤ᵘ-step idᶠ) (lemma (emb p ⊩U) A≡U)
 
 opaque
   unfolding _⊩⟨_⟩_≡_ _⊩⟨_⟩_≡_∷_
@@ -201,8 +204,9 @@ opaque
               [k] , k<l
             , (⊩<⇔⊩ k<l .proj₁ ⊩A , ⊩<⇔⊩ k<l .proj₁ ⊩B , ⊩<≡⇔⊩≡ k<l .proj₁ A≡B)
             , _ , _ , A⇒*A′ , B⇒*B′ , A′-type , B′-type , A′≅B′
-    lemma (emb ≤ᵘ-refl     ⊩U) = Σ.map idᶠ (Σ.map ≤ᵘ-step idᶠ) ∘→ lemma ⊩U
-    lemma (emb (≤ᵘ-step p) ⊩U) = Σ.map idᶠ (Σ.map ≤ᵘ-step idᶠ) ∘→ lemma (emb p ⊩U)
+    lemma (emb p     ⊩U) = {!   !}
+    -- lemma (emb ≤ᵘ-refl     ⊩U) = Σ.map idᶠ (Σ.map ≤ᵘ-step idᶠ) ∘→ lemma ⊩U
+    -- lemma (emb (≤ᵘ-step p) ⊩U) = Σ.map idᶠ (Σ.map ≤ᵘ-step idᶠ) ∘→ lemma (emb p ⊩U)
 
 opaque
 
@@ -262,7 +266,7 @@ opaque
               , t [ σ₂ ]
               , idRed:*: (Uⱼ (escapeLevel ⊩t[σ₂]))
               , ⊩t≡
-              , ⊩U⇔ .proj₂ (⊩t[σ₂] , 1+≤ᵘ1+ {!   !}))
+              , ⊩U⇔ .proj₂ (⊩t[σ₂] , {!   !}))
       )
 
 opaque
@@ -287,11 +291,15 @@ opaque
           λ σ₁≡σ₂ →
             let ⊩t[σ₁]≡t[σ₂] = ⊩ᵛ∷⇔ .proj₁ ⊩t .proj₂ σ₁≡σ₂ .proj₂
                 (⊩t[σ₁] , ⊩t[σ₂] , ⊩t≡) = ⊩≡∷Level⇔ .proj₁ ⊩t[σ₁]≡t[σ₂]
+                ⊩1+t[σ₁] : Δ ⊩Level sucᵘ (t [ σ₁ ]) ∷Level
+                ⊩1+t[σ₁] = ⊩Level-sucᵘ ⊩t[σ₁]
             in
               _ , (
               Type→⊩≡∷U⇔ Uₙ Uₙ .proj₂ $
                 {! ⊩t[σ₁]≡t[σ₂]  !}
               , ≤ᵘ-refl
+              --   ⊩1+t[σ₁]
+              -- , reflect-level<ω ⊩1+t[σ₁]
               , ⊩U≡⇔ .proj₂
                 ( ⊩t[σ₁]
                 , {!   !}

@@ -18,6 +18,7 @@ open Type-restrictions R
 
 open import Definition.Untyped Mod as U hiding (K)
 open import Definition.Untyped.Neutral Mod type-variant
+open import Definition.Untyped.Properties Mod
 open import Definition.Typed.Properties R
 open import Definition.Typed R
 open import Definition.Typed.Weakening R
@@ -163,46 +164,13 @@ mutual
     ne     : ∀ {k k′} → Γ ⊩neNf k ≡ k′ ∷ Level → [Level]-prop Γ k k′
 
 mutual
-  _⊩_≤ᵘ_ : (Γ : Con Term ℓ) → ∀ {l′} ([l′] : Γ ⊩Level l′ ∷Level) (l : Universe-level) → Set a
-  Γ ⊩ [l′] ≤ᵘ l = Γ ⊩ [l′] ._⊩Level_∷Level.prop ≤ᵘ′ l
-
-  data _⊩_≤ᵘ′_ (Γ : Con Term ℓ) : ∀ {l′} (prop : Level-prop Γ l′) (l : Universe-level) → Set a where
-    ≤ᵘ-ne : ∀ {l l′} ([l′] : Γ ⊩neNf l′ ∷ Level) → Γ ⊩ ne [l′] ≤ᵘ′ l
-    ≤ᵘ-zeroᵘ : ∀ {l} → Γ ⊩ zeroᵘᵣ ≤ᵘ′ l
-    ≤ᵘ-sucᵘ : ∀ {l l′} {[l′] : Γ ⊩Level l′ ∷Level} → Γ ⊩ [l′] ≤ᵘ l → Γ ⊩ sucᵘᵣ [l′] ≤ᵘ′ 1+ l
-
-_⊩_<ᵘ_ : (Γ : Con Term ℓ) → ∀ {l′} ([l′] : Γ ⊩Level l′ ∷Level) (l : Universe-level) → Set a
-Γ ⊩ [l′] <ᵘ l = Γ ⊩ sucᵘᵣ [l′] ≤ᵘ′ l
-
-mutual
-  _⊩_≡ᵘ_ : (Γ : Con Term ℓ) → ∀ {l′} ([l′] : Γ ⊩Level l′ ∷Level) (l : Universe-level) → Set a
-  Γ ⊩ [l′] ≡ᵘ l = Γ ⊩ [l′] ._⊩Level_∷Level.prop ≡ᵘ′ l
-
-  data _⊩_≡ᵘ′_ (Γ : Con Term ℓ) : ∀ {l′} (prop : Level-prop Γ l′) (l : Universe-level) → Set a where
-    ≡ᵘ-ne : ∀ {l′} ([l′] : Γ ⊩neNf l′ ∷ Level) → Γ ⊩ ne [l′] ≡ᵘ′ 0
-    ≡ᵘ-zeroᵘ : Γ ⊩ zeroᵘᵣ ≡ᵘ′ 0
-    ≡ᵘ-sucᵘ : ∀ {l l′} {[l′] : Γ ⊩Level l′ ∷Level} → Γ ⊩ [l′] ≡ᵘ l → Γ ⊩ sucᵘᵣ [l′] ≡ᵘ′ 1+ l
-
-mutual
   reflect-level : Γ ⊩Level t ∷Level → Universe-level
   reflect-level [t] = reflect-level-prop ([t] ._⊩Level_∷Level.prop)
 
   reflect-level-prop : Level-prop Γ t → Universe-level
-  reflect-level-prop zeroᵘᵣ = 0
-  reflect-level-prop (sucᵘᵣ x) = 1+ (reflect-level x)
-  reflect-level-prop (ne x) = 0
-
--- mutual
---   _⊩_<ᵘ_ : (Γ : Con Term ℓ) → ∀ {l′} ([l′] : Γ ⊩Level l′ ∷Level) (l : Universe-level) → Set a
---   Γ ⊩ [l′] <ᵘ l = Γ ⊩ [l′] ._⊩Level_∷Level.prop <ᵘ′ l
-
---   data _⊩_<ᵘ′_ (Γ : Con Term ℓ) : ∀ {l′} (prop : Level-prop Γ l′) (l : Universe-level) → Set a where
---     zeroᵘ-<ᵘ : ∀ {n} → Γ ⊩ zeroᵘᵣ <ᵘ′ lnat (1+ n)
---     sucᵘ-<ᵘ
---       : ∀ {n l} {[l] : Γ ⊩Level l ∷Level}
---       → Γ ⊩ [l] <ᵘ lnat n
---       → Γ ⊩ sucᵘᵣ [l] <ᵘ′ lnat (1+ n)
---     <ᵘ-lω : ∀ {l′} {[l′] : Level-prop Γ l′} → Γ ⊩ [l′] <ᵘ′ lω
+  reflect-level-prop zeroᵘᵣ = 0ᵘ
+  reflect-level-prop (sucᵘᵣ x) = 1+ᵘ (reflect-level x)
+  reflect-level-prop (ne x) = 0ᵘ
 
 -- Reducibility of natural numbers:
 
@@ -762,37 +730,13 @@ pattern Bᵣ′ W a b c d e f g h i j = Bᵣ W (Bᵣ a b c d e f g h i j)
 pattern Πᵣ′ a b c d e f g h i j = Bᵣ′ BΠ! a b c d e f g h i j
 pattern 𝕨′ a b c d e f g h i j = Bᵣ′ BΣ! a b c d e f g h i j
 
-mutual
+-- A LogRelKit for the given Universe-level.
 
-  -- A LogRelKit for the first Universe-level.
+kit′ : ∀ {n m} → n <ᵘ m → LogRelKit
+kit′ p = <ᵘ-recBuilder _ LogRel.kit _ p
 
-  -- kit0 : LogRelKit
-  -- kit0 = LogRel.kit 0 (λ ())
-
-  -- A LogRelKit for the given Universe-level.
-
-  kit : Universe-level → LogRelKit
-  kit l = LogRel.kit l kit′
-  -- kit (lnat n) = LogRel.kit (lnat n) (λ {_} {_} {_} {[l′]} → kit′ {n = n} {[m] = [l′]})
-  -- kit lω = LogRel.kit lω λ {_} {_} {_} {[l′]} → kitω {[m] = [l′]}
-
-  -- A LogRelKit for m.
-
-  kit′ : {n m : Universe-level} → m <ᵘ n → LogRelKit
-  -- kit′ (≤ᵘ-sucᵘ (≤ᵘ-ne [l′])) = kit0
-  -- kit′ (≤ᵘ-sucᵘ ≤ᵘ-zeroᵘ) = kit0
-  -- kit′ (≤ᵘ-sucᵘ (≤ᵘ-sucᵘ {[l′]} x)) = kit′ {[m] = [l′]} (≤ᵘ-sucᵘ x)
-  kit′ {m = m} ≤′-refl = kit m
-  kit′ (≤′-step m<n) = kit′ m<n
-
-  -- kit′ {.(1+ᵘ ⟦ [m] ⟧ᵘ)} {[m]} (≤ᵘ-refl .(sucᵘᵣ _)) = kit ⟦ [m] ⟧ᵘ
-  -- kit′ {(n)} (≤ᵘ-suc _ m<n) = kit′ m<n
-
-  -- kit′ {(1+ n)} zeroᵘ-<ᵘ = kit0
-  -- kit′ {(1+ n)} (sucᵘ-<ᵘ {[l]} m<n) = kit′ {n} {[m] = [l]} m<n
-
-  -- kitω : ∀ {ℓ} {Γ : Con Term ℓ} {m} {[m] : Γ ⊩Level m ∷Level} → Γ ⊩ [m] <ᵘ lω → LogRelKit
-  -- kitω <ᵘ-lω = {!   !}
+kit : Universe-level → LogRelKit
+kit = <ᵘ-rec _ LogRel.kit
 
 _⊩′⟨_⟩U_ : Con Term ℓ → Universe-level → Term ℓ → Set a
 Γ ⊩′⟨ l ⟩U A = Γ ⊩U A where open LogRelKit (kit l)

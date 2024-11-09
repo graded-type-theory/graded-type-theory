@@ -56,8 +56,7 @@ escape (Unitᵣ (Unitₜ _ _ _ [ ⊢A , ⊢B , D ] _)) = ⊢A
 escape (ne′ _ [ ⊢A , ⊢B , D ] neK K≡K) = ⊢A
 escape (Bᵣ′ _ _ _ [ ⊢A , _ , _ ] _ _ _ _ _ _ _) = ⊢A
 escape (Idᵣ ⊩A) = ⊢A-red (_⊩ₗId_.⇒*Id ⊩A)
-escape (emb ≤ᵘ-refl A) = escape A
-escape (emb (≤ᵘ-step k) A) = escape (emb k A)
+escape (emb p A) = {!   !}
 
 -- Reducible terms are well-formed.
 escapeTerm : ∀ {l A t} → ([A] : Γ ⊩⟨ l ⟩ A)
@@ -81,8 +80,7 @@ escapeTerm (Bᵣ′ BΣ! _ _ D _ _ _ _ _ _ _) (Σₜ _ [ ⊢t , _ , _ ] _ _ _) =
   conv ⊢t (sym (subset* (red D)))
 escapeTerm (Idᵣ ⊩A) (_ , t⇒*u , _) =
   conv (⊢t-redₜ t⇒*u) (sym (subset* (red (_⊩ₗId_.⇒*Id ⊩A))))
-escapeTerm (emb ≤ᵘ-refl A) t = escapeTerm A t
-escapeTerm (emb (≤ᵘ-step k) A) t = escapeTerm (emb k A) t
+escapeTerm (emb p A) t = {!   !}
 
 -- Reducible type equality is contained in the equality relation.
 escapeEq :
@@ -138,8 +136,7 @@ escapeEq (Bᵣ′ W _ _ D _ _ _ _ _ _ _) (B₌ _ _ D′ A≡B _ _) =
 escapeEq (Idᵣ ⊩A) A≡B =
   ≅-red (red (_⊩ₗId_.⇒*Id ⊩A) , Idₙ) (red (_⊩ₗId_≡_/_.⇒*Id′ A≡B) , Idₙ)
     (Id≅Id A≡B)
-escapeEq (emb ≤ᵘ-refl A) A≡B = escapeEq A A≡B
-escapeEq (emb (≤ᵘ-step k) A) A≡B = escapeEq (emb k A) A≡B
+escapeEq (emb p A) A≡B = escapeEq {!   !} {!   !}
 
 escapeTermEq (Levelᵣ [ ⊢A , ⊢B , D ]) (Levelₜ₌ k k′ d d′ k≡k′ prop) =
   let lk , lk′ = lsplit prop
@@ -192,8 +189,7 @@ escapeTermEq {Γ = Γ} (Idᵣ ⊩A) t≡u@(_ , _ , t⇒*t′ , u⇒*u′ , _) =
             ≅ₜ-red (red ⇒*Id , Idₙ) (redₜ t⇒*t′ , t′-whnf)
               (redₜ u⇒*u′ , u′-whnf)
 
-escapeTermEq (emb ≤ᵘ-refl A) t≡u = escapeTermEq A t≡u
-escapeTermEq (emb (≤ᵘ-step k) A) t≡u = escapeTermEq (emb k A) t≡u
+escapeTermEq (emb p A) t≡u = {!   !}
 
 -- If a unit type is reducible, then that unit type is allowed.
 
@@ -238,8 +234,7 @@ escapeTermEq (emb (≤ᵘ-step k) A) t≡u = escapeTermEq (emb k A) t≡u
     Γ ⊢ Unit! ↘ Id Ty lhs rhs  →⟨ whrDet* (id (⊢A-red ⇒*Id) , Unitₙ) ⟩
     Unit! PE.≡ Id Ty lhs rhs   →⟨ (λ ()) ⟩
     Unit-allowed _             □
-  (emb ≤ᵘ-refl [Unit]) → ⊩Unit→Unit-allowed [Unit]
-  (emb (≤ᵘ-step k) [Unit]) →  ⊩Unit→Unit-allowed (emb k [Unit])
+  (emb p [Unit]) → {!⊩Unit→Unit-allowed [Unit]!}
 
 -- If the type ΠΣ⟨ b ⟩ p , q ▷ A ▹ B is in the logical relation, then
 -- it is allowed.
@@ -271,5 +266,4 @@ escapeTermEq (emb (≤ᵘ-step k) A) t≡u = escapeTermEq (emb k A) t≡u
   (Idᵣ ⊩A) →
     let open _⊩ₗId_ ⊩A in
     ⊥-elim (Id≢ΠΣ b (whrDet* (red ⇒*Id , Idₙ) (id (⊢A-red ⇒*Id) , ΠΣₙ)))
-  (emb ≤ᵘ-refl [ΠΣ]) →  ⊩ΠΣ→ΠΣ-allowed [ΠΣ]
-  (emb (≤ᵘ-step k) [ΠΣ]) →  ⊩ΠΣ→ΠΣ-allowed (emb k [ΠΣ])
+  (emb p [ΠΣ]) → {!⊩ΠΣ→ΠΣ-allowed [ΠΣ]!}

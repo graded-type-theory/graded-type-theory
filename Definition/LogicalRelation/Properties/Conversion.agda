@@ -172,10 +172,8 @@ mutual
                (lhs≡rhs→lhs′≡rhs′ lhs≡rhs)) }}
     where
     open _⊩ₗId_≡_/_ A≡B
-  convTermT₁ (embᵥ₁ ≤ᵘ-refl     A≡B) = convTermT₁          A≡B
-  convTermT₁ (embᵥ₁ (≤ᵘ-step p) A≡B) = convTermT₁ (embᵥ₁ p A≡B)
-  convTermT₁ (embᵥ₂ ≤ᵘ-refl     A≡B) = convTermT₁          A≡B
-  convTermT₁ (embᵥ₂ (≤ᵘ-step p) A≡B) = convTermT₁ (embᵥ₂ p A≡B)
+  convTermT₁ (embᵥ₁ p     A≡B) = {!convTermT₁          A≡B!}
+  convTermT₁ (embᵥ₂ p     A≡B) = {!convTermT₁          A≡B!}
 
   -- Helper function for conversion of terms converting from right to left.
   convTermT₂ : ∀ {l l′ A B t} {[A] : Γ ⊩⟨ l ⟩ A} {[B] : Γ ⊩⟨ l′ ⟩ B}
@@ -310,10 +308,8 @@ mutual
                   lhs≡rhs)) }}
     where
     open _⊩ₗId_≡_/_ A≡B
-  convTermT₂ (embᵥ₁ ≤ᵘ-refl     A≡B) = convTermT₂          A≡B
-  convTermT₂ (embᵥ₁ (≤ᵘ-step p) A≡B) = convTermT₂ (embᵥ₁ p A≡B)
-  convTermT₂ (embᵥ₂ ≤ᵘ-refl     A≡B) = convTermT₂          A≡B
-  convTermT₂ (embᵥ₂ (≤ᵘ-step p) A≡B) = convTermT₂ (embᵥ₂ p A≡B)
+  convTermT₂ (embᵥ₁ p     A≡B) = {!convTermT₂          A≡B!}
+  convTermT₂ (embᵥ₂ p     A≡B) = {!convTermT₂          A≡B!}
 
   -- Conversion of terms converting from left to right.
   convTerm₁ : ∀ {A B t l l′} ([A] : Γ ⊩⟨ l ⟩ A) ([B] : Γ ⊩⟨ l′ ⟩ B)
@@ -509,10 +505,8 @@ mutual
                (lhs≡rhs→lhs′≡rhs′ lhs≡rhs)) }}
     where
     open _⊩ₗId_≡_/_ A≡B
-  convEqTermT₁ (embᵥ₁ ≤ᵘ-refl     A≡B) = convEqTermT₁          A≡B
-  convEqTermT₁ (embᵥ₁ (≤ᵘ-step p) A≡B) = convEqTermT₁ (embᵥ₁ p A≡B)
-  convEqTermT₁ (embᵥ₂ ≤ᵘ-refl     A≡B) = convEqTermT₁          A≡B
-  convEqTermT₁ (embᵥ₂ (≤ᵘ-step p) A≡B) = convEqTermT₁ (embᵥ₂ p A≡B)
+  convEqTermT₁ (embᵥ₁ p     A≡B) = {!convEqTermT₁          A≡B!}
+  convEqTermT₁ (embᵥ₂ p     A≡B) = {!convEqTermT₁          A≡B!}
 
   -- Helper function for conversion of term equality converting from right to left.
   convEqTermT₂ : ∀ {l l′ A B t u} {[A] : Γ ⊩⟨ l ⟩ A} {[B] : Γ ⊩⟨ l′ ⟩ B}
@@ -681,10 +675,8 @@ mutual
                   lhs≡rhs)) }}
     where
     open _⊩ₗId_≡_/_ A≡B
-  convEqTermT₂ (embᵥ₁ ≤ᵘ-refl     A≡B) = convEqTermT₂          A≡B
-  convEqTermT₂ (embᵥ₁ (≤ᵘ-step p) A≡B) = convEqTermT₂ (embᵥ₁ p A≡B)
-  convEqTermT₂ (embᵥ₂ ≤ᵘ-refl     A≡B) = convEqTermT₂          A≡B
-  convEqTermT₂ (embᵥ₂ (≤ᵘ-step p) A≡B) = convEqTermT₂ (embᵥ₂ p A≡B)
+  convEqTermT₂ (embᵥ₁ p     A≡B) = {!convEqTermT₂          A≡B!}
+  convEqTermT₂ (embᵥ₂ p     A≡B) = {!convEqTermT₂          A≡B!}
 
   -- Conversion of term equality converting from left to right.
   convEqTerm₁ : ∀ {l l′ A B t u} ([A] : Γ ⊩⟨ l ⟩ A) ([B] : Γ ⊩⟨ l′ ⟩ B)

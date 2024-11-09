@@ -22,7 +22,7 @@ open import Definition.Untyped.Properties Mod
 open import Definition.Typed.Properties R
 open import Definition.Typed R
 open import Definition.Typed.Weakening R
-open import Definition.LogicalRelation R
+open import Definition.LogicalRelation R {{eqrel}}
 
 open import Tools.Empty
 open import Tools.Function
@@ -31,10 +31,12 @@ open import Tools.Nat
 open import Tools.Product
 import Tools.PropositionalEquality as PE
 open import Tools.Relation
+open import Tools.Sum
 open import Tools.Unit
 
 private variable
-  k₁ k₂ l l₁ l₂ n : Nat
+  n : Nat
+  k₁ k₂ l l₁ l₂ : Universe-level
   Γ         : Con Term _
   A B       : Term _
 
@@ -57,8 +59,9 @@ _⊩<⟨_⟩_≡_/_ :
 -- Γ ⊩⟨ l₁ ⟩ A.
 
 ⊩<⇔⊩ : (p : l₁ <ᵘ l₂) → Γ ⊩<⟨ p ⟩ A ⇔ Γ ⊩⟨ l₁ ⟩ A
-⊩<⇔⊩ ≤ᵘ-refl     = id⇔
-⊩<⇔⊩ (≤ᵘ-step p) = ⊩<⇔⊩ p
+⊩<⇔⊩ (<ᵘ-nat ≤′-refl) = id⇔
+⊩<⇔⊩ (<ᵘ-nat (≤′-step p)) = ⊩<⇔⊩ (<ᵘ-nat p)
+⊩<⇔⊩ <ᵘ-ω = id⇔
 
 -- If p : l₁ <ᵘ l₂ and ⊩A : Γ ⊩<⟨ p ⟩ A, then Γ ⊩<⟨ p ⟩ A ≡ B / ⊩A is
 -- logically equivalent to Γ ⊩⟨ l₁ ⟩ A ≡ B / ⊩<⇔⊩ p .proj₁ ⊩A.
@@ -66,16 +69,18 @@ _⊩<⟨_⟩_≡_/_ :
 ⊩<≡⇔⊩≡ :
   (p : l₁ <ᵘ l₂) {⊩A : Γ ⊩<⟨ p ⟩ A} →
   Γ ⊩<⟨ p ⟩ A ≡ B / ⊩A ⇔ Γ ⊩⟨ l₁ ⟩ A ≡ B / ⊩<⇔⊩ p .proj₁ ⊩A
-⊩<≡⇔⊩≡ ≤ᵘ-refl     = id⇔
-⊩<≡⇔⊩≡ (≤ᵘ-step p) = ⊩<≡⇔⊩≡ p
+⊩<≡⇔⊩≡ (<ᵘ-nat ≤′-refl)     = id⇔
+⊩<≡⇔⊩≡ (<ᵘ-nat (≤′-step p))     = ⊩<≡⇔⊩≡ (<ᵘ-nat p)
+⊩<≡⇔⊩≡ <ᵘ-ω = id⇔
 
 -- A variant of ⊩<≡⇔⊩≡.
 
 ⊩<≡⇔⊩≡′ :
   (p : l₁ <ᵘ l₂) {⊩A : Γ ⊩⟨ l₁ ⟩ A} →
   Γ ⊩<⟨ p ⟩ A ≡ B / ⊩<⇔⊩ p .proj₂ ⊩A ⇔ Γ ⊩⟨ l₁ ⟩ A ≡ B / ⊩A
-⊩<≡⇔⊩≡′ ≤ᵘ-refl     = id⇔
-⊩<≡⇔⊩≡′ (≤ᵘ-step p) = ⊩<≡⇔⊩≡′ p
+⊩<≡⇔⊩≡′ (<ᵘ-nat ≤′-refl)     = id⇔
+⊩<≡⇔⊩≡′ (<ᵘ-nat (≤′-step p)) = ⊩<≡⇔⊩≡′ (<ᵘ-nat p)
+⊩<≡⇔⊩≡′ <ᵘ-ω                 = id⇔
 
 -- If l₁ <ᵘ l₂, then Γ ⊩⟨ l₁ ⟩ A is contained in Γ ⊩⟨ l₂ ⟩ A.
 
@@ -87,16 +92,18 @@ opaque
   -- If l₁ ≤ᵘ l₂, then Γ ⊩⟨ l₁ ⟩ A is contained in Γ ⊩⟨ l₂ ⟩ A.
 
   emb-≤-⊩ : l₁ ≤ᵘ l₂ → Γ ⊩⟨ l₁ ⟩ A → Γ ⊩⟨ l₂ ⟩ A
-  emb-≤-⊩ ≤ᵘ-refl     = idᶠ
-  emb-≤-⊩ (≤ᵘ-step p) = emb (1+≤ᵘ1+ p) ∘→ ⊩<⇔⊩ (1+≤ᵘ1+ p) .proj₂
+  emb-≤-⊩ p with ≤ᵘ→<ᵘ⊎≡ p
+  ... | inj₁ l₁<l₂ = emb-<-⊩ l₁<l₂
+  ... | inj₂ PE.refl = idᶠ
 
 opaque
 
   -- If p : l₁ <ᵘ l₂, then kit l₁ is equal to kit′ p.
 
   kit≡kit′ : (p : l₁ <ᵘ l₂) → kit l₁ PE.≡ kit′ p
-  kit≡kit′ ≤ᵘ-refl     = PE.refl
-  kit≡kit′ (≤ᵘ-step p) = kit≡kit′ p
+  kit≡kit′ (<ᵘ-nat ≤′-refl) = PE.refl
+  kit≡kit′ (<ᵘ-nat (≤′-step p)) = kit≡kit′ (<ᵘ-nat p)
+  kit≡kit′ <ᵘ-ω = PE.refl
 
 opaque
 
@@ -104,9 +111,7 @@ opaque
 
   irrelevance-⊩< :
     (eq : k₁ PE.≡ k₂) (p : k₁ <ᵘ l₁) (q : k₂ <ᵘ l₂) → Γ ⊩<⟨ p ⟩ A → Γ ⊩<⟨ q ⟩ A
-  irrelevance-⊩< PE.refl  ≤ᵘ-refl    ≤ᵘ-refl     = idᶠ
-  irrelevance-⊩< PE.refl p           (≤ᵘ-step q) = irrelevance-⊩< PE.refl p q
-  irrelevance-⊩< PE.refl (≤ᵘ-step p) q           = irrelevance-⊩< PE.refl p q
+  irrelevance-⊩< PE.refl p q = ⊩<⇔⊩ q .proj₂ ∘→ ⊩<⇔⊩ p .proj₁
 
 opaque
   unfolding irrelevance-⊩<
@@ -114,11 +119,8 @@ opaque
   -- One form of irrelevance for _⊩<⟨_⟩_≡_/_.
 
   irrelevance-⊩<≡ :
-    (eq : k₁ PE.≡ k₂) (p : k₁ <ᵘ l₁) (q : k₂ <ᵘ l₂) {⊩A : Γ ⊩<⟨ p ⟩ A} →
+    ∀ {Γ : Con Term n} (eq : k₁ PE.≡ k₂) (p : k₁ <ᵘ l₁) (q : k₂ <ᵘ l₂) {⊩A : Γ ⊩<⟨ p ⟩ A} →
     Γ ⊩<⟨ p ⟩ A ≡ B / ⊩A →
     Γ ⊩<⟨ q ⟩ A ≡ B / irrelevance-⊩< eq p q ⊩A
-  irrelevance-⊩<≡ PE.refl ≤ᵘ-refl     ≤ᵘ-refl     = idᶠ
-  irrelevance-⊩<≡ PE.refl (≤ᵘ-step p) ≤ᵘ-refl     = irrelevance-⊩<≡ PE.refl p ≤ᵘ-refl
-  irrelevance-⊩<≡ PE.refl ≤ᵘ-refl     (≤ᵘ-step q) = irrelevance-⊩<≡ PE.refl ≤ᵘ-refl q
-  irrelevance-⊩<≡ PE.refl (≤ᵘ-step p) (≤ᵘ-step q) =
-    irrelevance-⊩<≡ PE.refl (≤ᵘ-step p) q
+  irrelevance-⊩<≡ {B} PE.refl p q {⊩A} =
+    ⊩<≡⇔⊩≡′ {B = B} q .proj₂ ∘→ ⊩<≡⇔⊩≡ {B = B} p {⊩A} .proj₁

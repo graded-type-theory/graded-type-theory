@@ -171,10 +171,8 @@ symEqT (Idᵥ ⊩A ⊩B@record{}) A≡B =
     } }
   where
   open _⊩ₗId_≡_/_ A≡B
-symEqT (embᵥ₁ ≤ᵘ-refl     A≡B) = symEqT          A≡B
-symEqT (embᵥ₁ (≤ᵘ-step p) A≡B) = symEqT (embᵥ₁ p A≡B)
-symEqT (embᵥ₂ ≤ᵘ-refl     A≡B) = symEqT          A≡B
-symEqT (embᵥ₂ (≤ᵘ-step p) A≡B) = symEqT (embᵥ₂ p A≡B)
+symEqT (embᵥ₁ p     A≡B) = {!symEqT          A≡B!}
+symEqT (embᵥ₂ p     A≡B) = {!symEqT          A≡B!}
 
 symEqTerm (Levelᵣ D) (Levelₜ₌ k k′ d d′ k≡k′ prop) =
   Levelₜ₌ k′ k d′ d (≅ₜ-sym k≡k′) (symLevel-prop prop)
@@ -229,15 +227,16 @@ symEqTerm (Idᵣ ⊩A) t≡u =
     (case ⊩Id≡∷-view-inhabited ⊩A t≡u of λ where
        (ne _ _ t′~u′) → ~-sym t′~u′
        (rfl₌ _)       → _)
-symEqTerm (emb ≤ᵘ-refl ⊩A)     = symEqTerm ⊩A
-symEqTerm (emb (≤ᵘ-step p) ⊩A) = symEqTerm (emb p ⊩A)
+symEqTerm (emb p ⊩A)     = {!symEqTerm ⊩A!}
 symEqTerm
-  (Uᵣ′ _ _ ≤ᵘ-refl _) (Uₜ₌ A B d d′ typeA typeB A≡B [t] [u] [t≡u]) =
-    Uₜ₌ B A d′ d typeB typeA (≅ₜ-sym A≡B) [u] [t] (symEq [t] [u] [t≡u])
-symEqTerm
-  {Γ} {A} {t = B} {u = C} (Uᵣ′ l′ [l′] (≤ᵘ-step {n = l} p) A⇒*U) B≡C =
-                                                   $⟨ B≡C ⟩
-  Γ ⊩⟨ 1+ l ⟩ B ≡ C ∷ A / Uᵣ′ l′ [l′] (≤ᵘ-step p) A⇒*U  →⟨ irrelevanceEqTerm (Uᵣ′ l′ [l′] (≤ᵘ-step p) A⇒*U) (Uᵣ′ l′ [l′] p A⇒*U) ⟩
-  Γ ⊩⟨    l ⟩ B ≡ C ∷ A / Uᵣ′ l′ [l′] p A⇒*U            →⟨ symEqTerm (Uᵣ′ _ _ p A⇒*U) ⟩
-  Γ ⊩⟨    l ⟩ C ≡ B ∷ A / Uᵣ′ l′ [l′] p A⇒*U            →⟨ irrelevanceEqTerm (Uᵣ′ l′ [l′] p A⇒*U) (Uᵣ′ l′ [l′] (≤ᵘ-step p) A⇒*U) ⟩
-  Γ ⊩⟨ 1+ l ⟩ C ≡ B ∷ A / Uᵣ′ l′ [l′] (≤ᵘ-step p) A⇒*U  □
+  (Uᵣ′ _ _ p _) (Uₜ₌ A B d d′ typeA typeB A≡B [t] [u] [t≡u]) = {!   !}
+-- symEqTerm
+--   (Uᵣ′ _ _ ≤ᵘ-refl _) (Uₜ₌ A B d d′ typeA typeB A≡B [t] [u] [t≡u]) =
+--     Uₜ₌ B A d′ d typeB typeA (≅ₜ-sym A≡B) [u] [t] (symEq [t] [u] [t≡u])
+-- symEqTerm
+--   {Γ} {A} {t = B} {u = C} (Uᵣ′ l′ [l′] (≤ᵘ-step {n = l} p) A⇒*U) B≡C =
+--                                                    $⟨ B≡C ⟩
+--   Γ ⊩⟨ 1+ l ⟩ B ≡ C ∷ A / Uᵣ′ l′ [l′] (≤ᵘ-step p) A⇒*U  →⟨ irrelevanceEqTerm (Uᵣ′ l′ [l′] (≤ᵘ-step p) A⇒*U) (Uᵣ′ l′ [l′] p A⇒*U) ⟩
+--   Γ ⊩⟨    l ⟩ B ≡ C ∷ A / Uᵣ′ l′ [l′] p A⇒*U            →⟨ symEqTerm (Uᵣ′ _ _ p A⇒*U) ⟩
+--   Γ ⊩⟨    l ⟩ C ≡ B ∷ A / Uᵣ′ l′ [l′] p A⇒*U            →⟨ irrelevanceEqTerm (Uᵣ′ l′ [l′] p A⇒*U) (Uᵣ′ l′ [l′] (≤ᵘ-step p) A⇒*U) ⟩
+--   Γ ⊩⟨ 1+ l ⟩ C ≡ B ∷ A / Uᵣ′ l′ [l′] (≤ᵘ-step p) A⇒*U  □

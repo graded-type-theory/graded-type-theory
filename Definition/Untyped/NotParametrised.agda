@@ -118,12 +118,12 @@ wk₀ {n = 1+ n} = step wk₀
 
 -- Universe levels.
 
-Universe-level : Set
-Universe-level = Nat
+-- Universe-level : Set
+-- Universe-level = Nat
 
--- data Universe-level : Set where
---   0+_ : Nat → Universe-level
---   ω+0 : Universe-level
+data Universe-level : Set where
+  0+_ : Nat → Universe-level
+  ω+0 : Universe-level
 
 -- The maximum of two universe levels.
 
@@ -143,16 +143,38 @@ Universe-level = Nat
 
 infix 4 _≤ᵘ_
 
-_≤ᵘ_ : (_ _ : Universe-level) → Set
-i ≤ᵘ j = i ≤′ j
+-- _≤ᵘ_ : (_ _ : Universe-level) → Set
+-- i ≤ᵘ j = i ≤′ j
 
-open Tools.Nat public
-  using ()
-  renaming (≤′-refl to ≤ᵘ-refl; ≤′-step to ≤ᵘ-step)
+0ᵘ : Universe-level
+0ᵘ = 0+ 0
+
+1+ᵘ : Universe-level → Universe-level
+1+ᵘ (0+ n) = 0+ (1+ n)
+1+ᵘ ω+0 = ω+0
+
+data _≤ᵘ_ : Universe-level → Universe-level → Set where
+  ≤ᵘ-nat : ∀ {l l′} → l ≤′ l′ → 0+ l ≤ᵘ 0+ l′
+  ≤ᵘ-ω : ∀ {l} → l ≤ᵘ ω+0
+
+-- open Tools.Nat public
+--   using ()
+--   renaming (≤′-refl to ≤ᵘ-refl; ≤′-step to ≤ᵘ-step)
+
+≤ᵘ-refl : ∀ {l} → l ≤ᵘ l
+≤ᵘ-refl {0+ n} = ≤ᵘ-nat ≤′-refl
+≤ᵘ-refl {(ω+0)} = ≤ᵘ-ω
+
+≤ᵘ-step : ∀ {l l′} → l ≤ᵘ l′ → l ≤ᵘ 1+ᵘ l′
+≤ᵘ-step p = {!   !}
 
 -- Strict ordering of universe levels.
 
 infix 4 _<ᵘ_
 
-_<ᵘ_ : (_ _ : Universe-level) → Set
-i <ᵘ j = i <′ j
+-- _<ᵘ_ : (_ _ : Universe-level) → Set
+-- i <ᵘ j = i <′ j
+
+data _<ᵘ_ : Universe-level → Universe-level → Set where
+  <ᵘ-nat : ∀ {l l′} → l <′ l′ → 0+ l <ᵘ 0+ l′
+  <ᵘ-ω : ∀ {l} → 0+ l <ᵘ ω+0

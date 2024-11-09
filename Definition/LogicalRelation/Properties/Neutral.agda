@@ -57,8 +57,7 @@ neuEq′ : ∀ {l A B} ([A] : Γ ⊩⟨ l ⟩ne A)
 neuEq′ (noemb (ne _ [ ⊢A , ⊢B , D ] neK K≡K)) neA neB B A~B =
   let A≡K = whnfRed* D (ne neA)
   in  ne₌ _ (idRed:*: B) neB (PE.subst (λ x → _ ⊢ x ≅ _) A≡K A~B)
-neuEq′ (emb ≤ᵘ-refl x) neB A:≡:B = neuEq′ x neB A:≡:B
-neuEq′ (emb (≤ᵘ-step p) x) neB A:≡:B = neuEq′ (emb p x) neB A:≡:B
+neuEq′ (emb p x) neB A:≡:B = {!neuEq′ x neB A:≡:B!}
 
 -- Neutrally equal types are of reducible equality.
 neuEq : ∀ {l A B} ([A] : Γ ⊩⟨ l ⟩ A)
@@ -84,14 +83,15 @@ mutual
         n~n′ = ~-conv n~n A≡Level
         n≡n  = ~-to-≅ₜ (~-conv n~n A≡Level)
     in Levelₜ _ (idRedTerm:*: (conv n A≡Level)) n≡n (ne (neNfₜ neN (conv n A≡Level) n~n′))
-  neuTerm (Uᵣ′ l [l] ≤ᵘ-refl [ ⊢A , ⊢B , D ]) neN n n~n =
-    let A≡U  = subset* D
-        n≡n  = ~-to-≅ₜ (~-conv n~n A≡U)
-    in Uₜ _ (idRedTerm:*: (conv n A≡U)) (ne neN) n≡n
-      (neu neN (univ (conv n A≡U)) (~-to-≅ (~-conv n~n A≡U)))
-  neuTerm (Uᵣ′ l [l] (≤ᵘ-step p) A⇒*U) n-ne ⊢n n~n =
-    irrelevanceTerm (Uᵣ′ _ [l] p A⇒*U) (Uᵣ′ _ [l] (≤ᵘ-step p) A⇒*U)
-      (neuTerm (Uᵣ′ _ [l] p A⇒*U) n-ne ⊢n n~n)
+  neuTerm (Uᵣ′ l [l] p [ ⊢A , ⊢B , D ]) neN n n~n = {!!}
+  -- neuTerm (Uᵣ′ l [l] ≤ᵘ-refl [ ⊢A , ⊢B , D ]) neN n n~n =
+  --   let A≡U  = subset* D
+  --       n≡n  = ~-to-≅ₜ (~-conv n~n A≡U)
+  --   in Uₜ _ (idRedTerm:*: (conv n A≡U)) (ne neN) n≡n
+  --     (neu neN (univ (conv n A≡U)) (~-to-≅ (~-conv n~n A≡U)))
+  -- neuTerm (Uᵣ′ l [l] (≤ᵘ-step p) A⇒*U) n-ne ⊢n n~n =
+  --   irrelevanceTerm (Uᵣ′ _ [l] p A⇒*U) (Uᵣ′ _ [l] (≤ᵘ-step p) A⇒*U)
+  --     (neuTerm (Uᵣ′ _ [l] p A⇒*U) n-ne ⊢n n~n)
   neuTerm (ℕᵣ [ ⊢A , ⊢B , D ]) neN n n~n =
     let A≡ℕ  = subset* D
         n~n′ = ~-conv n~n A≡ℕ
@@ -198,8 +198,7 @@ mutual
     , ~-conv n~n A≡Id }
     where
     open _⊩ₗId_ ⊩A
-  neuTerm (emb ≤ᵘ-refl x) neN n = neuTerm x neN n
-  neuTerm (emb (≤ᵘ-step l<) x) neN n = neuTerm (emb l< x) neN n
+  neuTerm (emb p x) neN n = {!neuTerm x neN n!}
 
   -- Neutrally equal terms are of reducible equality.
   neuEqTerm : ∀ {l A n n′} ([A] : Γ ⊩⟨ l ⟩ A)
@@ -214,19 +213,20 @@ mutual
         n≡n′  = ~-to-≅ₜ n~n′₁
     in  Levelₜ₌ _ _ (idRedTerm:*: (conv n A≡Level)) (idRedTerm:*: (conv n′ A≡Level))
             n≡n′ (ne (neNfₜ₌ neN neN′ n~n′₁))
-  neuEqTerm (Uᵣ′ l [l] ≤ᵘ-refl [ ⊢A , ⊢B , D ]) neN neN′ n n′ n~n′ =
-    let A≡U = subset* D
-        n~n′₁ = ~-conv n~n′ A≡U
-        n≡n′ = ~-to-≅ₜ n~n′₁
-        nU = univ (conv n A≡U)
-        nU′ = univ (conv n′ A≡U)
-        wfn = neu neN nU (~-to-≅ (~-trans n~n′₁ (~-sym n~n′₁)))
-    in Uₜ₌ _ _ (idRedTerm:*: (conv n A≡U)) (idRedTerm:*: (conv n′ A≡U)) (ne neN) (ne neN′) n≡n′
-      wfn (neu neN′ nU′ (~-to-≅ (~-trans (~-sym n~n′₁) n~n′₁)))
-      (neuEq wfn neN neN′ nU′ (≅-univ n≡n′))
-  neuEqTerm (Uᵣ′ _ [l] (≤ᵘ-step p) A⇒*U) n-ne n′-ne ⊢n ⊢n′ n~n′ =
-    irrelevanceEqTerm (Uᵣ′ _ [l] p A⇒*U) (Uᵣ′ _ [l] (≤ᵘ-step p) A⇒*U)
-      (neuEqTerm (Uᵣ′ _ [l] p A⇒*U) n-ne n′-ne ⊢n ⊢n′ n~n′)
+  neuEqTerm (Uᵣ′ l [l] p [ ⊢A , ⊢B , D ]) neN neN′ n n′ n~n′ = {!!}
+  -- neuEqTerm (Uᵣ′ l [l] ≤ᵘ-refl [ ⊢A , ⊢B , D ]) neN neN′ n n′ n~n′ =
+  --   let A≡U = subset* D
+  --       n~n′₁ = ~-conv n~n′ A≡U
+  --       n≡n′ = ~-to-≅ₜ n~n′₁
+  --       nU = univ (conv n A≡U)
+  --       nU′ = univ (conv n′ A≡U)
+  --       wfn = neu neN nU (~-to-≅ (~-trans n~n′₁ (~-sym n~n′₁)))
+  --   in Uₜ₌ _ _ (idRedTerm:*: (conv n A≡U)) (idRedTerm:*: (conv n′ A≡U)) (ne neN) (ne neN′) n≡n′
+  --     wfn (neu neN′ nU′ (~-to-≅ (~-trans (~-sym n~n′₁) n~n′₁)))
+  --     (neuEq wfn neN neN′ nU′ (≅-univ n≡n′))
+  -- neuEqTerm (Uᵣ′ _ [l] (≤ᵘ-step p) A⇒*U) n-ne n′-ne ⊢n ⊢n′ n~n′ =
+  --   irrelevanceEqTerm (Uᵣ′ _ [l] p A⇒*U) (Uᵣ′ _ [l] (≤ᵘ-step p) A⇒*U)
+  --     (neuEqTerm (Uᵣ′ _ [l] p A⇒*U) n-ne n′-ne ⊢n ⊢n′ n~n′)
   neuEqTerm (ℕᵣ [ ⊢A , ⊢B , D ]) neN neN′ n n′ n~n′ =
     let A≡ℕ = subset* D
         n~n′₁ = ~-conv n~n′ A≡ℕ
@@ -383,5 +383,4 @@ mutual
       (~-conv n~n′ A≡Id) }}}
     where
     open _⊩ₗId_ ⊩A
-  neuEqTerm (emb ≤ᵘ-refl     ⊩A) = neuEqTerm ⊩A
-  neuEqTerm (emb (≤ᵘ-step p) ⊩A) = neuEqTerm (emb p ⊩A)
+  neuEqTerm (emb p     ⊩A) = {! neuEqTerm ⊩A!}

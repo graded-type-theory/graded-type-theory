@@ -87,12 +87,13 @@ redSubst* A⇒*B (Idᵣ ⊩B) =
   , Id₌′ ⇒*Id (reflEq ⊩Ty) (reflEqTerm ⊩Ty ⊩lhs) (reflEqTerm ⊩Ty ⊩rhs) }
   where
   open _⊩ₗId_ ⊩B
-redSubst* D (emb ≤ᵘ-refl x) with redSubst* D x
-redSubst* D (emb ≤ᵘ-refl x) | y , y₁ = emb ≤ᵘ-refl y , y₁
-redSubst* A⇒*B (emb (≤ᵘ-step p) ⊩B) =
-  let ⊩A , A≡B = redSubst* A⇒*B (emb p ⊩B) in
-    emb-<-⊩ ≤ᵘ-refl ⊩A
-  , irrelevanceEq ⊩A (emb-<-⊩ ≤ᵘ-refl ⊩A) A≡B
+redSubst* D (emb p x) = {!   !}
+-- redSubst* D (emb ≤ᵘ-refl x) with redSubst* D x
+-- redSubst* D (emb ≤ᵘ-refl x) | y , y₁ = emb ≤ᵘ-refl y , y₁
+-- redSubst* A⇒*B (emb (≤ᵘ-step p) ⊩B) =
+--   let ⊩A , A≡B = redSubst* A⇒*B (emb p ⊩B) in
+--     emb-<-⊩ ≤ᵘ-refl ⊩A
+--   , irrelevanceEq ⊩A (emb-<-⊩ ≤ᵘ-refl ⊩A) A≡B
 
 -- Weak head expansion of reducible terms.
 redSubst*Term : ∀ {A : Term n} {t u l}
@@ -108,24 +109,25 @@ redSubst*Term t⇒u (Levelᵣ D) (Levelₜ n [ ⊢u , ⊢n , d ] n≡n prop) =
   in  Levelₜ n [ ⊢t , ⊢n , t⇒u′ ⇨∷* d ] n≡n prop
   ,   Levelₜ₌ n n [ ⊢t , ⊢n , t⇒u′ ⇨∷* d ] [ ⊢u , ⊢n , d ]
           n≡n (reflLevel-prop prop)
-redSubst*Term
-  t⇒u (Uᵣ′ l [l] ≤ᵘ-refl D) (Uₜ A [ ⊢t , ⊢u , d ] typeA A≡A [u]) =
-  let A≡K  = subset* (red D)
-      [d]  = [ ⊢t , ⊢u , d ]
-      [d′] = [ conv (redFirst*Term t⇒u) A≡K , ⊢u , conv* t⇒u A≡K ⇨∷* d ]
-      q = redSubst* (univ* (conv* t⇒u A≡K))
-            (univEq (Uᵣ′ l [l] ≤ᵘ-refl (idRed:*: (_⊢_:⇒*:_.⊢B D)))
-               (Uₜ A [d] typeA A≡A [u])
-               .proj₂)
-  in Uₜ A [d′] typeA A≡A {!   !} ,
-  {!Uₜ₌ A A [d′] [d] typeA typeA A≡A (proj₁ q) [u] (proj₂ q)!}
-  -- in {!Uₜ A [d′] typeA A≡A (proj₁ q)!} ,
-  -- {!Uₜ₌ A A [d′] [d] typeA typeA A≡A (proj₁ q) [u] (proj₂ q)!}
-redSubst*Term t⇒u ⊩U@(Uᵣ′ l [l] (≤ᵘ-step l<) D) (Uₜ A D′ typeA A≡A [u]) =
-  let Un = Uᵣ′ l [l] l< D
-      y , eq = redSubst*Term t⇒u Un (Uₜ A D′ typeA A≡A [u])
-      y′ = irrelevanceTerm Un ⊩U y
-  in y′ , irrelevanceEqTerm Un ⊩U eq
+redSubst*Term t⇒u (Uᵣ′ l [l] p D) (Uₜ A [ ⊢t , ⊢u , d ] typeA A≡A [u]) = {!   !}
+-- redSubst*Term
+--   t⇒u (Uᵣ′ l [l] ≤ᵘ-refl D) (Uₜ A [ ⊢t , ⊢u , d ] typeA A≡A [u]) =
+--   let A≡K  = subset* (red D)
+--       [d]  = [ ⊢t , ⊢u , d ]
+--       [d′] = [ conv (redFirst*Term t⇒u) A≡K , ⊢u , conv* t⇒u A≡K ⇨∷* d ]
+--       q = redSubst* (univ* (conv* t⇒u A≡K))
+--             (univEq (Uᵣ′ l [l] ≤ᵘ-refl (idRed:*: (_⊢_:⇒*:_.⊢B D)))
+--                (Uₜ A [d] typeA A≡A [u])
+--                .proj₂)
+--   in Uₜ A [d′] typeA A≡A {!   !} ,
+--   {!Uₜ₌ A A [d′] [d] typeA typeA A≡A (proj₁ q) [u] (proj₂ q)!}
+--   -- in {!Uₜ A [d′] typeA A≡A (proj₁ q)!} ,
+--   -- {!Uₜ₌ A A [d′] [d] typeA typeA A≡A (proj₁ q) [u] (proj₂ q)!}
+-- redSubst*Term t⇒u ⊩U@(Uᵣ′ l [l] (≤ᵘ-step l<) D) (Uₜ A D′ typeA A≡A [u]) =
+--   let Un = Uᵣ′ l [l] l< D
+--       y , eq = redSubst*Term t⇒u Un (Uₜ A D′ typeA A≡A [u])
+--       y′ = irrelevanceTerm Un ⊩U y
+--   in y′ , irrelevanceEqTerm Un ⊩U eq
 redSubst*Term t⇒u (ℕᵣ D) (ℕₜ n [ ⊢u , ⊢n , d ] n≡n prop) =
   let A≡ℕ  = subset* (red D)
       ⊢t   = conv (redFirst*Term t⇒u) A≡ℕ
@@ -224,8 +226,7 @@ redSubst*Term
          (rflᵣ _)     → _) }
   where
   open _⊩ₗId_ ⊩A
-redSubst*Term t⇒u (emb ≤ᵘ-refl     ⊩A) = redSubst*Term t⇒u ⊩A
-redSubst*Term t⇒u (emb (≤ᵘ-step p) ⊩A) = redSubst*Term t⇒u (emb p ⊩A)
+redSubst*Term t⇒u (emb p     ⊩A) = {!redSubst*Term t⇒u ⊩A!}
 
 -- Weak head expansion of reducible types with single reduction step.
 redSubst : ∀ {A B : Term n} {l}
@@ -288,15 +289,16 @@ opaque
       Idᵣ (Idᵣ Ty lhs rhs B⇒*Id ⊩Ty ⊩lhs ⊩rhs)
     , Id₌′ B⇒*Id (reflEq ⊩Ty) (reflEqTerm ⊩Ty ⊩lhs)
         (reflEqTerm ⊩Ty ⊩rhs)
-  redSubst*′ A⇒*B (emb ≤ᵘ-refl ⊩A) =
-      case redSubst*′ A⇒*B ⊩A of λ
-        (⊩B , A≡B) → (emb ≤ᵘ-refl ⊩B) ,
-          (irrelevanceEq ⊩A (emb ≤ᵘ-refl ⊩A) A≡B)
-  redSubst*′ A⇒*B (emb (≤ᵘ-step p) ⊩A) =
-      case redSubst*′ A⇒*B (emb p ⊩A) of λ
-        (⊩B , A≡B) →
-        emb-<-⊩ ≤ᵘ-refl ⊩B
-      , irrelevanceEq (emb p ⊩A) (emb (≤ᵘ-step p) ⊩A) A≡B
+  redSubst*′ A⇒*B (emb p ⊩A) = {!   !}
+  -- redSubst*′ A⇒*B (emb ≤ᵘ-refl ⊩A) =
+  --     case redSubst*′ A⇒*B ⊩A of λ
+  --       (⊩B , A≡B) → (emb ≤ᵘ-refl ⊩B) ,
+  --         (irrelevanceEq ⊩A (emb ≤ᵘ-refl ⊩A) A≡B)
+  -- redSubst*′ A⇒*B (emb (≤ᵘ-step p) ⊩A) =
+  --     case redSubst*′ A⇒*B (emb p ⊩A) of λ
+  --       (⊩B , A≡B) →
+  --       emb-<-⊩ ≤ᵘ-refl ⊩B
+  --     , irrelevanceEq (emb p ⊩A) (emb (≤ᵘ-step p) ⊩A) A≡B
 
 opaque
 
@@ -312,19 +314,20 @@ opaque
       u⇒*v →
       Levelₜ v u⇒*v v≅v v-ok
     , Levelₜ₌ v v t⇒*v u⇒*v v≅v (reflLevel-prop v-ok)
-  redSubst*Term′ t⇒*u ⊩U@(Uᵣ′ l [l] ≤ᵘ-refl D) (Uₜ A t⇒*A A-type A≅A ⊩t) =
-    case whrDet:⇒*:Term (typeWhnf A-type) t⇒*A
-      (convRed:*: t⇒*u (subset* (red D))) of λ
-      u⇒*A →
-      case redSubst*′ (univ:*: (convRed:*: t⇒*u (subset* (red D)))) ⊩t of λ
-        (⊩u , t≡u) →
-      Uₜ A u⇒*A A-type A≅A ⊩u
-    , Uₜ₌ A A t⇒*A u⇒*A A-type A-type A≅A ⊩t ⊩u t≡u
-  redSubst*Term′
-    t⇒*u ⊩U@(Uᵣ′ l [l] (≤ᵘ-step l<) D) (Uₜ A t⇒*A A-type A≅A ⊩t) =
-    case redSubst*Term′ t⇒*u (Uᵣ′ l [l] l< D) (Uₜ A t⇒*A A-type A≅A ⊩t) of λ
-      (⊩u , t≡u) → (irrelevanceTerm (Uᵣ′ l [l] l< D) ⊩U ⊩u)
-        , irrelevanceEqTerm (Uᵣ′ l [l] l< D) ⊩U t≡u
+  redSubst*Term′ t⇒*u ⊩U@(Uᵣ′ l [l] p D) (Uₜ A t⇒*A A-type A≅A ⊩t) = {!   !}
+  -- redSubst*Term′ t⇒*u ⊩U@(Uᵣ′ l [l] ≤ᵘ-refl D) (Uₜ A t⇒*A A-type A≅A ⊩t) =
+  --   case whrDet:⇒*:Term (typeWhnf A-type) t⇒*A
+  --     (convRed:*: t⇒*u (subset* (red D))) of λ
+  --     u⇒*A →
+  --     case redSubst*′ (univ:*: (convRed:*: t⇒*u (subset* (red D)))) ⊩t of λ
+  --       (⊩u , t≡u) →
+  --     Uₜ A u⇒*A A-type A≅A ⊩u
+  --   , Uₜ₌ A A t⇒*A u⇒*A A-type A-type A≅A ⊩t ⊩u t≡u
+  -- redSubst*Term′
+  --   t⇒*u ⊩U@(Uᵣ′ l [l] (≤ᵘ-step l<) D) (Uₜ A t⇒*A A-type A≅A ⊩t) =
+  --   case redSubst*Term′ t⇒*u (Uᵣ′ l [l] l< D) (Uₜ A t⇒*A A-type A≅A ⊩t) of λ
+  --     (⊩u , t≡u) → (irrelevanceTerm (Uᵣ′ l [l] l< D) ⊩U ⊩u)
+  --       , irrelevanceEqTerm (Uᵣ′ l [l] l< D) ⊩U t≡u
   redSubst*Term′ t⇒*u (ℕᵣ A⇒*ℕ) (ℕₜ v t⇒*v v≅v v-ok) =
     case whrDet:⇒*:Term (naturalWhnf (natural v-ok)) t⇒*v
            (convRed:*: t⇒*u (subset* (red A⇒*ℕ))) of λ
@@ -405,6 +408,4 @@ opaque
            (rflₙ , PE.refl) → v-ok
            (ne _ , PE.refl) → v-ok)
       )
-  redSubst*Term′ t⇒*u (emb ≤ᵘ-refl ⊩A)     = redSubst*Term′ t⇒*u ⊩A
-  redSubst*Term′ t⇒*u (emb (≤ᵘ-step p) ⊩A) =
-    redSubst*Term′ t⇒*u (emb p ⊩A)
+  redSubst*Term′ t⇒*u (emb p ⊩A)     = {!redSubst*Term′ t⇒*u ⊩A!}

@@ -85,8 +85,7 @@ private
 
   reflEq-⊩< :
     (p : l′ <ᵘ l) (⊩A : Γ ⊩<⟨ p ⟩ A) → Γ ⊩⟨ l ⟩ A ≡ A / emb p ⊩A
-  reflEq-⊩< ≤ᵘ-refl     = reflEq
-  reflEq-⊩< (≤ᵘ-step p) = reflEq-⊩< p
+  reflEq-⊩< p = {!   !}
 
 reflEq (Levelᵣ D) = red D
 reflEq (Uᵣ′ k [k] k< A⇒*U) = U₌ k A⇒*U (reflLevel [k])
@@ -156,5 +155,4 @@ reflEqTerm (emb p ⊩A) ⊩t = reflEqTerm-⊩< p ⊩A ⊩t
   reflEqTerm-⊩< :
     (p : l′ <ᵘ l) (⊩A : Γ ⊩<⟨ p ⟩ A) →
     Γ ⊩⟨ l ⟩ t ∷ A / emb p ⊩A → Γ ⊩⟨ l ⟩ t ≡ t ∷ A / emb p ⊩A
-  reflEqTerm-⊩< ≤ᵘ-refl     ⊩A = reflEqTerm ⊩A
-  reflEqTerm-⊩< (≤ᵘ-step p) ⊩A = reflEqTerm-⊩< p ⊩A
+  reflEqTerm-⊩< p     ⊩A = {!   !}
