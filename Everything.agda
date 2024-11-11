@@ -117,7 +117,7 @@ import Definition.Typed.Properties.Well-formed
 import Definition.Typed.Properties.Inversion
 import Graded.Derived.Erased.Typed.Primitive
 import Definition.Typed.Weakening
-import Definition.Typed.Stability
+import Definition.Typed.Stability.Primitive
 import Definition.Typed.Substitution
 import Definition.Typed.Well-formed
 import Definition.Typed.Properties.Admissible
