@@ -18,7 +18,7 @@ open import Definition.Typed.Properties.Admissible.Primitive R
 open import Definition.Typed.Properties.Inversion R
 open import Definition.Typed.Properties.Well-formed R
 open import Definition.Typed.Stability.Primitive R
-open import Definition.Typed.Substitution R
+open import Definition.Typed.Substitution.Primitive R
 open import Definition.Typed.Weakening R
 
 open import Definition.Untyped M
