@@ -73,8 +73,8 @@ opaque
       (⊩Empty : Γ ⊩⟨ l ⟩Empty Empty) →
       Γ ⊩⟨ l ⟩ t ∷ Empty / Empty-intr ⊩Empty →
       Γ ⊩Empty t ∷Empty
-    lemma (emb ≤ᵘ-refl ⊩Empty′) ⊩t = lemma ⊩Empty′ ⊩t
-    lemma (emb (≤ᵘ-step s) ⊩Empty′) ⊩t = lemma (emb s ⊩Empty′) ⊩t
+    lemma (emb p ⊩Empty′) ⊩t = {!   !}
+    -- lemma (emb (≤ᵘ-step s) ⊩Empty′) ⊩t = lemma (emb s ⊩Empty′) ⊩t
     lemma (noemb _) ⊩t = ⊩t
 
 opaque
@@ -102,8 +102,8 @@ opaque
       Γ ⊩⟨ l ⟩ A ≡ B / Empty-intr ⊩A →
       Γ ⊩Empty A ≡ B
     lemma (noemb _)    A≡B = A≡B
-    lemma (emb ≤ᵘ-refl ⊩A) A≡B = lemma ⊩A A≡B
-    lemma (emb (≤ᵘ-step l<) ⊩A) A≡B = lemma (emb l< ⊩A) A≡B
+    lemma (emb p ⊩A) A≡B = {!   !}
+    -- lemma (emb (≤ᵘ-step l<) ⊩A) A≡B = lemma (emb l< ⊩A) A≡B
 
 opaque
   unfolding _⊩⟨_⟩_≡_∷_ ⊩Empty⇔
@@ -131,8 +131,8 @@ opaque
       Γ ⊩Empty t ∷Empty ×
       Γ ⊩Empty u ∷Empty ×
       Γ ⊩Empty t ≡ u ∷Empty
-    lemma (emb ≤ᵘ-refl     ⊩Empty′) = lemma ⊩Empty′
-    lemma (emb (≤ᵘ-step s) ⊩Empty′) = lemma (emb s ⊩Empty′)
+    lemma (emb p     ⊩Empty′) = {!   !}
+    -- lemma (emb (≤ᵘ-step s) ⊩Empty′) = lemma (emb s ⊩Empty′)
     lemma (noemb _) ⊩t ⊩u t≡u       = ⊩t , ⊩u , t≡u
 
 ------------------------------------------------------------------------
@@ -156,8 +156,8 @@ opaque
       , λ {_} {Δ = Δ} {σ₁ = σ₁} {σ₂ = σ₂} →
           Δ ⊩ˢ σ₁ ≡ σ₂ ∷ Γ        →⟨ proj₁ ∘→ escape-⊩ˢ≡∷ ⟩
           ⊢ Δ                     ⇔˘⟨ ⊩Empty⇔ ⟩→
-          (Δ ⊩⟨ 0 ⟩ Empty)        →⟨ refl-⊩≡ ⟩
-          Δ ⊩⟨ 0 ⟩ Empty ≡ Empty  □
+          (Δ ⊩⟨ 0ᵘ ⟩ Empty)        →⟨ refl-⊩≡ ⟩
+          Δ ⊩⟨ 0ᵘ ⟩ Empty ≡ Empty  □
       )
 
 opaque
@@ -166,7 +166,7 @@ opaque
 
   Emptyᵗᵛ : ⊩ᵛ Γ → Γ ⊩ᵛ Empty ∷ U zeroᵘ
   Emptyᵗᵛ ⊩Γ =
-    ⊩ᵛ∷-const-intro {l = 1}
+    ⊩ᵛ∷-const-intro {l = 1+ᵘ 0ᵘ}
       ( ⊩ᵛU (zeroᵘᵛ ⊩Γ)
       , λ σ₁≡σ₂ →
           case escape-⊩ˢ≡∷ σ₁≡σ₂ of λ

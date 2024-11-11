@@ -15,6 +15,7 @@ open import Tools.Relation
 open import Tools.PropositionalEquality
 open import Tools.Sum hiding (id; map)
 
+open import Induction
 open import Induction.WellFounded
 
 private variable
@@ -205,6 +206,11 @@ opaque
 
 opaque
 
+  <ᵘ-≤ᵘ-trans : l₁ <ᵘ l₂ → l₂ ≤ᵘ l₃ → l₁ <ᵘ l₃
+  <ᵘ-≤ᵘ-trans = {!   !}
+
+opaque
+
   -- The relation _<ᵘ_ is contained in _≤ᵘ_.
 
   <ᵘ→≤ᵘ : l₁ <ᵘ l₂ → l₁ ≤ᵘ l₂
@@ -236,6 +242,9 @@ private
 <ᵘ-wellFounded : WellFounded _<ᵘ_
 <ᵘ-wellFounded (0+ n) = nat-accessible n
 <ᵘ-wellFounded ω+0 = ω-accessible
+
+<ᵘ-Rec : ∀ {ℓ} → RecStruct Universe-level ℓ ℓ
+<ᵘ-Rec = WfRec _<ᵘ_
 
 module _ {ℓ} where
   open All <ᵘ-wellFounded ℓ public

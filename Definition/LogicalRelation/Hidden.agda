@@ -20,7 +20,7 @@ open Type-restrictions R
 open import Definition.LogicalRelation R {{eqrel}}
 open import Definition.LogicalRelation.Irrelevance R
 open import Definition.LogicalRelation.Properties R
-open import Definition.LogicalRelation.ShapeView R
+open import Definition.LogicalRelation.ShapeView R {{eqrel}}
 import Definition.LogicalRelation.Weakening R as W
 
 open import Definition.Typed R
@@ -815,13 +815,7 @@ opaque
     l ≤ᵘ l′ →
     Γ ⊩⟨ l ⟩ A ≡ B →
     Γ ⊩⟨ l′ ⟩ A ≡ B
-  -- emb-⊩≡ ≤ᵘ-refl        A≡B             = A≡B
-  -- emb-⊩≡ (≤ᵘ-step l<l′) (⊩A , ⊩B , A≡B) =
-  --   let p = 1+≤ᵘ1+ l<l′ in
-  --     emb p (⊩<⇔⊩ p .proj₂ ⊩A)
-  --   , emb p (⊩<⇔⊩ p .proj₂ ⊩B)
-  --   , ⊩<≡⇔⊩≡′ p .proj₂ A≡B
-  emb-⊩≡ p A≡B = {!   !}
+  emb-⊩≡ p (⊩A , ⊩B , A≡B) = emb-≤-⊩ p ⊩A , emb-≤-⊩ p ⊩B , emb-≤-⊩≡ A≡B
 
 opaque
   unfolding _⊩⟨_⟩_≡_∷_
@@ -832,16 +826,11 @@ opaque
     l ≤ᵘ l′ →
     Γ ⊩⟨ l ⟩ t ≡ u ∷ A →
     Γ ⊩⟨ l′ ⟩ t ≡ u ∷ A
-  -- emb-⊩≡∷ ≤ᵘ-refl        t≡u                  = t≡u
-  -- emb-⊩≡∷ (≤ᵘ-step l<l′) (⊩A , ⊩t , ⊩u , t≡u) =
-  --   let p   = 1+≤ᵘ1+ l<l′
-  --       ⊩A′ = emb p (⊩<⇔⊩ p .proj₂ ⊩A)
-  --   in
-  --     ⊩A′
-  --   , irrelevanceTerm ⊩A ⊩A′ ⊩t
-  --   , irrelevanceTerm ⊩A ⊩A′ ⊩u
-  --   , irrelevanceEqTerm ⊩A ⊩A′ t≡u
-  emb-⊩≡∷ p t≡u = {!   !}
+  emb-⊩≡∷ p (⊩A , ⊩t , ⊩u , t≡u) =
+      emb-≤-⊩ p ⊩A
+    , emb-≤-⊩∷ ⊩t
+    , emb-≤-⊩∷ ⊩u
+    , emb-≤-⊩≡∷ t≡u
 
 opaque
 
@@ -862,10 +851,10 @@ opaque
   trans′-⊩≡ :
     Γ ⊩⟨ l ⟩ A ≡ B →
     Γ ⊩⟨ l′ ⟩ B ≡ C →
-    Γ ⊩⟨ l Tools.Nat.⊔ l′ ⟩ A ≡ C
+    Γ ⊩⟨ {!l Tools.Nat.⊔ l′!} ⟩ A ≡ C
   trans′-⊩≡ (⊩A , _ , A≡B) (⊩B , ⊩C , B≡C) =
-    let ⊩A′ = emb-⊩ Tools.Nat.≤′⊔ʳ ⊩A
-        ⊩C′ = emb-⊩ Tools.Nat.≤′⊔ˡ ⊩C
+    let ⊩A′ = emb-⊩ {!Tools.Nat.≤′⊔ʳ!} ⊩A
+        ⊩C′ = emb-⊩ {!Tools.Nat.≤′⊔ˡ!} ⊩C
     in ⊩A′ , ⊩C′ , transEq ⊩A′ ⊩B ⊩C′ (irrelevanceEq ⊩A ⊩A′ A≡B) B≡C
 
 ------------------------------------------------------------------------
@@ -1001,24 +990,19 @@ opaque
       (λ (⊩A , ⊩t) →
          case ne-elim A-ne ⊩A of λ
            ⊩A′ →
-         ⊩A , lemma ⊩A′ (irrelevanceTerm ⊩A (ne-intr ⊩A′) ⊩t))
+         ⊩A , lemma _ ⊩A′ (irrelevanceTerm ⊩A (ne-intr ⊩A′) ⊩t))
     , (λ (⊩A , u , t⇒*u , u-ne , u~u) →
            ⊩ne⇔ A-ne .proj₂ (⊩ne⇔ A-ne .proj₁ ⊩A)
          , neₜ u t⇒*u (neNfₜ u-ne (⊢u-redₜ t⇒*u) u~u))
     where
-    lemma :
-      (⊩A : Γ ⊩⟨ l ⟩ne A) →
+    lemma : ∀ l → (⊩A : Γ ⊩⟨ l ⟩ne A) →
       Γ ⊩⟨ l ⟩ t ∷ A / ne-intr ⊩A →
       ∃ λ u → Γ ⊢ t :⇒*: u ∷ A × Neutral u × Γ ⊢ u ~ u ∷ A
-    lemma (emb p ⊩A) ⊩t = {!   !}
-    -- lemma (emb ≤ᵘ-refl ⊩A) ⊩t =
-    --   lemma ⊩A ⊩t
-    -- lemma (emb (≤ᵘ-step l<) ⊩A) ⊩t =
-    --   lemma (emb l< ⊩A) ⊩t
-    lemma (noemb (ne _ A⇒*A′ _ _)) (neₜ u t⇒*u (neNfₜ u-ne _ u~u)) =
-      case whnfRed* (red A⇒*A′) (ne A-ne) of λ {
-        PE.refl →
-      u , t⇒*u , u-ne , u~u }
+    lemma = <ᵘ-rec _ λ where
+      l rec (noemb (ne _ A⇒*A′ _ _)) (neₜ u t⇒*u (neNfₜ u-ne _ u~u)) →
+        case whnfRed* (red A⇒*A′) (ne A-ne) of λ {
+          PE.refl → u , t⇒*u , u-ne , u~u }
+      l rec (emb p ⊩A) ⊩t → rec p ⊩A (⊩<∷⇔⊩∷′ p .proj₁ ⊩t)
 
 opaque
   unfolding _⊩⟨_⟩_≡_
@@ -1034,7 +1018,7 @@ opaque
          case ne-elim A-ne ⊩A of λ
            ⊩A′ →
            escape-⊩ ⊩A
-         , lemma ⊩A′ (irrelevanceEq ⊩A (ne-intr ⊩A′) A≡B))
+         , lemma _ ⊩A′ (irrelevanceEq ⊩A (ne-intr ⊩A′) A≡B))
     , (λ (⊢A , C , C-ne , ⊢C , B⇒*C , A≅C) →
          sym-⊩≡
            (B  ⇒*⟨ B⇒*C ⟩⊩
@@ -1045,18 +1029,14 @@ opaque
             A  ∎))
     where
     lemma :
-      (⊩A : Γ ⊩⟨ l ⟩ne A) →
+      ∀ l → (⊩A : Γ ⊩⟨ l ⟩ne A) →
       Γ ⊩⟨ l ⟩ A ≡ B / ne-intr ⊩A →
       ∃ λ C → Neutral C × (Γ ⊢ C) × Γ ⊢ B ⇒* C × Γ ⊢ A ≅ C
-    lemma (emb p ⊩A) A≡B = {!   !}
-    -- lemma (emb ≤ᵘ-refl ⊩A) A≡B =
-    --   lemma ⊩A A≡B
-    -- lemma (emb (≤ᵘ-step l<) ⊩A) A≡B =
-    --   lemma (emb l< ⊩A) A≡B
-    lemma (noemb (ne _ A⇒*A′ _ _)) (ne₌ C [ _ , ⊢C , B⇒*C ] C-ne A′≅C) =
-      case whnfRed* (red A⇒*A′) (ne A-ne) of λ {
-        PE.refl →
-      C , C-ne , ⊢C , B⇒*C , A′≅C }
+    lemma = <ᵘ-rec _ λ where
+      l rec (noemb (ne _ A⇒*A′ _ _)) (ne₌ C [ _ , ⊢C , B⇒*C ] C-ne A′≅C) →
+        case whnfRed* (red A⇒*A′) (ne A-ne) of λ {
+          PE.refl → C , C-ne , ⊢C , B⇒*C , A′≅C }
+      l rec (emb p ⊩A) A≡B → rec p ⊩A (⊩<≡⇔⊩≡′ p .proj₁ A≡B)
 
 opaque
 
@@ -1093,7 +1073,7 @@ opaque
       (λ (⊩A , _ , _ , t₁≡t₂) →
          case ne-elim A-ne ⊩A of λ
            ⊩A′ →
-         ⊩A , lemma ⊩A′ (irrelevanceEqTerm ⊩A (ne-intr ⊩A′) t₁≡t₂))
+         ⊩A , lemma _ ⊩A′ (irrelevanceEqTerm ⊩A (ne-intr ⊩A′) t₁≡t₂))
     , (λ (⊩A , u₁ , u₂ , t₁⇒*u₁ , t₂⇒*u₂ ,
           u₁≡u₂@(neNfₜ₌ u₁-ne u₂-ne u₁~u₂)) →
          let ⊩A′ = ⊩ne⇔ A-ne .proj₂ (⊩ne⇔ A-ne .proj₁ ⊩A) in
@@ -1111,17 +1091,13 @@ opaque
          , neₜ₌ u₁ u₂ t₁⇒*u₁ t₂⇒*u₂ u₁≡u₂)
     where
     lemma :
-      (⊩A : Γ ⊩⟨ l ⟩ne A) →
+      ∀ l → (⊩A : Γ ⊩⟨ l ⟩ne A) →
       Γ ⊩⟨ l ⟩ t₁ ≡ t₂ ∷ A / ne-intr ⊩A →
       ∃₂ λ u₁ u₂ →
       Γ ⊢ t₁ :⇒*: u₁ ∷ A × Γ ⊢ t₂ :⇒*: u₂ ∷ A ×
       Γ ⊩neNf u₁ ≡ u₂ ∷ A
-    lemma (emb p ⊩A) t₁≡t₂ = {!   !}
-    -- lemma (emb ≤ᵘ-refl ⊩A) t₁≡t₂ =
-    --   lemma ⊩A t₁≡t₂
-    -- lemma (emb (≤ᵘ-step l<) ⊩A) t₁≡t₂ =
-    --   lemma (emb l< ⊩A) t₁≡t₂
-    lemma (noemb (ne _ A⇒*A′ _ _)) (neₜ₌ u₁ u₂ t₁⇒*u₁ t₂⇒*u₂ u₁≡u₂) =
-      case whnfRed* (red A⇒*A′) (ne A-ne) of λ {
-        PE.refl →
-      u₁ , u₂ , t₁⇒*u₁ , t₂⇒*u₂ , u₁≡u₂ }
+    lemma = <ᵘ-rec _ λ where
+      l rec (noemb (ne _ A⇒*A′ _ _)) (neₜ₌ u₁ u₂ t₁⇒*u₁ t₂⇒*u₂ u₁≡u₂) →
+        case whnfRed* (red A⇒*A′) (ne A-ne) of λ {
+          PE.refl → u₁ , u₂ , t₁⇒*u₁ , t₂⇒*u₂ , u₁≡u₂ }
+      l rec (emb p ⊩A) t₁≡t₂ → rec p ⊩A (⊩<≡∷⇔⊩≡∷′ p .proj₁ t₁≡t₂)

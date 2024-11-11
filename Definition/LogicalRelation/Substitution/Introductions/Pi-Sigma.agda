@@ -419,32 +419,24 @@ opaque
     ∃ λ l → Δ ⊩⟨ l ⟩ (ΠΣ⟨ b ⟩ p , q ▷ A ▹ B) [ σ ]
   ⊩ΠΣ {Γ} {A} {B} {Δ} ok ⊩A ⊩B ⊩σ =
     let (l , ⊩A[σ]) = ⊩ᵛ→⊩ˢ∷→⊩[] ⊩A ⊩σ in
-      l
+      ω+0
     , ⊩ΠΣ⇔ .proj₂
       ( ok
       , escape-⊩ˢ∷ ⊩σ .proj₁
       , λ ρ⊇ ⊢Δ →
-        wk-⊩ ρ⊇ ⊢Δ ⊩A[σ]
-        , λ t≡u → {!   !}
+        emb-⊩ ≤ᵘ-ω (wk-⊩ ρ⊇ ⊢Δ ⊩A[σ])
+        , λ t≡u →
+          PE.subst₂ (_ ⊩⟨ _ ⟩_≡_)
+            (PE.sym $ singleSubstWkComp _ _ B)
+            (PE.sym $ singleSubstWkComp _ _ B) $
+          emb-⊩≡ ≤ᵘ-ω $
+          ⊩ᵛ⇔ .proj₁ ⊩B .proj₂
+            (⊩ˢ≡∷∙⇔ .proj₂
+              ( ( _ , ⊩A
+                , PE.subst (_ ⊩⟨ _ ⟩ _ ≡ _ ∷_) (wk-subst A) t≡u)
+              , refl-⊩ˢ≡∷ (⊩ˢ∷-•ₛ ⊢Δ ρ⊇ ⊩σ)))
+            .proj₂
       )
-    -- ⊩ΠΣ⇔ .proj₂
-    --   ( ok
-    --   , escape-⊩ˢ∷ ⊩σ .proj₁
-    --   , λ ρ⊇ ⊢Η →
-    --         PE.subst (_⊩⟨_⟩_ _ _) (PE.sym $ wk-subst A)
-    --           (⊩ᵛ→⊩ˢ∷→⊩[] ⊩A (⊩ˢ∷-•ₛ ⊢Η ρ⊇ ⊩σ) .proj₂)
-    --       , λ t≡u →
-    --           PE.subst₂ (_⊩⟨_⟩_≡_ _ _)
-    --             (PE.sym $ singleSubstWkComp _ _ B)
-    --             (PE.sym $ singleSubstWkComp _ _ B) $
-    --           ⊩ᵛ⇔ .proj₁ ⊩B .proj₂ $
-    --           ⊩ˢ≡∷∙⇔ .proj₂
-    --             ( ( _ , ⊩A
-    --               , PE.subst (_⊩⟨_⟩_≡_∷_ _ _ _ _) (wk-subst A) t≡u
-    --               )
-    --             , refl-⊩ˢ≡∷ (⊩ˢ∷-•ₛ ⊢Η ρ⊇ ⊩σ)
-    --             )
-    --   )
 
 opaque
 
@@ -545,7 +537,7 @@ opaque
          , ⊩A
          , ⊩ᵛ⇔ .proj₂
              ( ⊩ᵛ-∙-intro ⊩A
-             , λ {_ _} {σ₁ = σ₁} {σ₂ = σ₂} σ₁≡σ₂ → _ , (
+             , λ {_ _} {σ₁ = σ₁} {σ₂ = σ₂} σ₁≡σ₂ → ω+0 , (
                  case ⊩ˢ≡∷∙⇔ .proj₁ σ₁≡σ₂ of λ
                    ((_ , _ , head-σ₁≡head-σ₂) , tail-σ₁≡tail-σ₂) →
                  B [ σ₁ ]                             ≡˘⟨ substVar-to-subst consSubst-η B ⟩⊩≡
@@ -613,9 +605,10 @@ opaque
       -- )
       ( ⊩t⊔u
       , reflect-level<ω ⊩t⊔u
-      , ⊩ᵛ≡⇔ .proj₁ (ΠΣ-congᵛ ok (emb-⊩ᵛ≡ {!   !} A₁≡A₂) (emb-⊩ᵛ≡ {!   !} B₁≡B₂)) .proj₂ σ₁≡σ₂
+      -- , ⊩ᵛ≡⇔ .proj₁ (ΠΣ-congᵛ ok (emb-⊩ᵛ≡ {!   !} A₁≡A₂) (emb-⊩ᵛ≡ {!   !} B₁≡B₂)) .proj₂ σ₁≡σ₂ .proj₂
+      , {! ΠΣ-congᵛ ok A₁≡A₂ B₁≡B₂  !}
       , ΠΣⱼ ⊢A₁[σ₁] (PE.subst (λ x → _ ⊢ _ ∷ U x) (wk1-liftSubst u) ⊢B₁[σ₁]) ok
-      , ΠΣⱼ (escape-⊩∷ ⊩A₂[σ₂]) (escape-⊩∷ (conv-⊩∷ {!   !} ⊩B₂[σ₂])) ok
+      , ΠΣⱼ (escape-⊩∷ ⊩A₂[σ₂]) (escape-⊩∷ {!   !}) ok
       , ≅ₜ-ΠΣ-cong (univ ⊢A₁[σ₁]) (escape-⊩≡∷ A₁[σ₁]≡A₂[σ₂]∷U) (escape-⊩≡∷ {! B₁[σ₁⇑]≡B₂[σ₂⇑]∷U  !}) ok
       )
 

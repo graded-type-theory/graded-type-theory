@@ -55,6 +55,18 @@ _⊩<⟨_⟩_≡_/_ :
   (Γ : Con Term n) (p : l₁ <ᵘ l₂) (A _ : Term n) → Γ ⊩<⟨ p ⟩ A → Set a
 Γ ⊩<⟨ p ⟩ A ≡ B / ⊩A = LogRelKit._⊩_≡_/_ (kit′ p) Γ A B ⊩A
 
+infix 4 _⊩<⟨_⟩_∷_/_
+
+_⊩<⟨_⟩_∷_/_ :
+  (Γ : Con Term n) (p : l₁ <ᵘ l₂) (t A : Term n) → Γ ⊩<⟨ p ⟩ A → Set a
+Γ ⊩<⟨ p ⟩ t ∷ A / ⊩A = LogRelKit._⊩_∷_/_ (kit′ p) Γ t A ⊩A
+
+infix 4 _⊩<⟨_⟩_≡_∷_/_
+
+_⊩<⟨_⟩_≡_∷_/_ :
+  (Γ : Con Term n) (p : l₁ <ᵘ l₂) (t u : Term n) (A : Term n) → Γ ⊩<⟨ p ⟩ A → Set a
+Γ ⊩<⟨ p ⟩ t ≡ u ∷ A / ⊩A = LogRelKit._⊩_≡_∷_/_ (kit′ p) Γ t u A ⊩A
+
 -- If p : l₁ <ᵘ l₂, then Γ ⊩<⟨ p ⟩ A is logically equivalent to
 -- Γ ⊩⟨ l₁ ⟩ A.
 
@@ -69,8 +81,8 @@ _⊩<⟨_⟩_≡_/_ :
 ⊩<≡⇔⊩≡ :
   (p : l₁ <ᵘ l₂) {⊩A : Γ ⊩<⟨ p ⟩ A} →
   Γ ⊩<⟨ p ⟩ A ≡ B / ⊩A ⇔ Γ ⊩⟨ l₁ ⟩ A ≡ B / ⊩<⇔⊩ p .proj₁ ⊩A
-⊩<≡⇔⊩≡ (<ᵘ-nat ≤′-refl)     = id⇔
-⊩<≡⇔⊩≡ (<ᵘ-nat (≤′-step p))     = ⊩<≡⇔⊩≡ (<ᵘ-nat p)
+⊩<≡⇔⊩≡ (<ᵘ-nat ≤′-refl) = id⇔
+⊩<≡⇔⊩≡ (<ᵘ-nat (≤′-step p)) = ⊩<≡⇔⊩≡ (<ᵘ-nat p)
 ⊩<≡⇔⊩≡ <ᵘ-ω = id⇔
 
 -- A variant of ⊩<≡⇔⊩≡.
@@ -78,9 +90,37 @@ _⊩<⟨_⟩_≡_/_ :
 ⊩<≡⇔⊩≡′ :
   (p : l₁ <ᵘ l₂) {⊩A : Γ ⊩⟨ l₁ ⟩ A} →
   Γ ⊩<⟨ p ⟩ A ≡ B / ⊩<⇔⊩ p .proj₂ ⊩A ⇔ Γ ⊩⟨ l₁ ⟩ A ≡ B / ⊩A
-⊩<≡⇔⊩≡′ (<ᵘ-nat ≤′-refl)     = id⇔
+⊩<≡⇔⊩≡′ (<ᵘ-nat ≤′-refl) = id⇔
 ⊩<≡⇔⊩≡′ (<ᵘ-nat (≤′-step p)) = ⊩<≡⇔⊩≡′ (<ᵘ-nat p)
-⊩<≡⇔⊩≡′ <ᵘ-ω                 = id⇔
+⊩<≡⇔⊩≡′ <ᵘ-ω = id⇔
+
+⊩<∷⇔⊩∷ :
+  ∀ (p : l₁ <ᵘ l₂) {⊩A : Γ ⊩<⟨ p ⟩ A} {t} →
+  Γ ⊩<⟨ p ⟩ t ∷ A / ⊩A ⇔ Γ ⊩⟨ l₁ ⟩ t ∷ A / ⊩<⇔⊩ p .proj₁ ⊩A
+⊩<∷⇔⊩∷ (<ᵘ-nat ≤′-refl)     = id⇔
+⊩<∷⇔⊩∷ (<ᵘ-nat (≤′-step p))     = ⊩<∷⇔⊩∷ (<ᵘ-nat p)
+⊩<∷⇔⊩∷ <ᵘ-ω = id⇔
+
+⊩<∷⇔⊩∷′ :
+  ∀ (p : l₁ <ᵘ l₂) {⊩A : Γ ⊩⟨ l₁ ⟩ A} {t} →
+  Γ ⊩<⟨ p ⟩ t ∷ A / ⊩<⇔⊩ p .proj₂ ⊩A ⇔ Γ ⊩⟨ l₁ ⟩ t ∷ A / ⊩A
+⊩<∷⇔⊩∷′ (<ᵘ-nat ≤′-refl) = id⇔
+⊩<∷⇔⊩∷′ (<ᵘ-nat (≤′-step p)) = ⊩<∷⇔⊩∷′ (<ᵘ-nat p)
+⊩<∷⇔⊩∷′ <ᵘ-ω = id⇔
+
+⊩<≡∷⇔⊩≡∷ :
+  ∀ (p : l₁ <ᵘ l₂) {⊩A : Γ ⊩<⟨ p ⟩ A} {t u} →
+  Γ ⊩<⟨ p ⟩ t ≡ u ∷ A / ⊩A ⇔ Γ ⊩⟨ l₁ ⟩ t ≡ u ∷ A / ⊩<⇔⊩ p .proj₁ ⊩A
+⊩<≡∷⇔⊩≡∷ (<ᵘ-nat ≤′-refl) = id⇔
+⊩<≡∷⇔⊩≡∷ (<ᵘ-nat (≤′-step p)) = ⊩<≡∷⇔⊩≡∷ (<ᵘ-nat p)
+⊩<≡∷⇔⊩≡∷ <ᵘ-ω = id⇔
+
+⊩<≡∷⇔⊩≡∷′ :
+  ∀ (p : l₁ <ᵘ l₂) {⊩A : Γ ⊩⟨ l₁ ⟩ A} {t u} →
+  Γ ⊩<⟨ p ⟩ t ≡ u ∷ A / ⊩<⇔⊩ p .proj₂ ⊩A ⇔ Γ ⊩⟨ l₁ ⟩ t ≡ u ∷ A / ⊩A
+⊩<≡∷⇔⊩≡∷′ (<ᵘ-nat ≤′-refl) = id⇔
+⊩<≡∷⇔⊩≡∷′ (<ᵘ-nat (≤′-step p)) = ⊩<≡∷⇔⊩≡∷′ (<ᵘ-nat p)
+⊩<≡∷⇔⊩≡∷′ <ᵘ-ω = id⇔
 
 -- If l₁ <ᵘ l₂, then Γ ⊩⟨ l₁ ⟩ A is contained in Γ ⊩⟨ l₂ ⟩ A.
 

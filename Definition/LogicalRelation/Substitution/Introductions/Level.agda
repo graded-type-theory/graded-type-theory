@@ -95,7 +95,7 @@ opaque
   ⊩Level≡⇔ : Γ ⊩⟨ l ⟩ Level ≡ A ⇔ Γ ⊩Level Level ≡ A
   ⊩Level≡⇔ =
       (λ (⊩Level , _ , Level≡A) →
-         lemma (Level-elim ⊩Level)
+         lemma _ (Level-elim ⊩Level)
            ((irrelevanceEq ⊩Level) (Level-intr (Level-elim ⊩Level)) Level≡A))
     , (λ Level≡A →
          case idRed:*: (Levelⱼ (wfEq (subset* Level≡A))) of λ
@@ -106,13 +106,12 @@ opaque
          , Level≡A)
     where
     lemma :
-      (⊩A : Γ ⊩⟨ l ⟩Level A) →
+      ∀ l → (⊩A : Γ ⊩⟨ l ⟩Level A) →
       Γ ⊩⟨ l ⟩ A ≡ B / Level-intr ⊩A →
       Γ ⊩Level A ≡ B
-    lemma (noemb _)    A≡B = A≡B
-    lemma (emb p ⊩A) A≡B = {!   !}
-    -- lemma (emb ≤ᵘ-refl ⊩A) A≡B = lemma ⊩A A≡B
-    -- lemma (emb (≤ᵘ-step s) ⊩A) A≡B = lemma (emb s ⊩A) A≡B
+    lemma = <ᵘ-rec _ λ where
+      l rec (noemb _) A≡B → A≡B
+      l rec (emb p ⊩A) A≡B → rec p ⊩A (⊩<≡⇔⊩≡′ p .proj₁ A≡B)
 
 opaque
   unfolding _⊩⟨_⟩_∷_
@@ -122,19 +121,18 @@ opaque
   ⊩∷Level⇔ : Γ ⊩⟨ l ⟩ t ∷ Level ⇔ Γ ⊩Level t ∷Level
   ⊩∷Level⇔ =
       (λ (⊩Level , ⊩t) →
-         lemma (Level-elim ⊩Level)
+         lemma _ (Level-elim ⊩Level)
            ((irrelevanceTerm ⊩Level) (Level-intr (Level-elim ⊩Level)) ⊩t))
     , (λ ⊩t →
          Levelᵣ (idRed:*: (Levelⱼ (wfTerm (⊢t-redₜ (_⊩Level_∷Level.d ⊩t))))) , ⊩t)
     where
     lemma :
-      (⊩A : Γ ⊩⟨ l ⟩Level A) →
+      ∀ l → (⊩A : Γ ⊩⟨ l ⟩Level A) →
       Γ ⊩⟨ l ⟩ t ∷ A / Level-intr ⊩A →
       Γ ⊩Level t ∷Level
-    lemma (noemb _)    ⊩t = ⊩t
-    lemma (emb p ⊩A) ⊩t = {!   !}
-    -- lemma (emb ≤ᵘ-refl ⊩A) ⊩t = lemma ⊩A ⊩t
-    -- lemma (emb (≤ᵘ-step s) ⊩A) ⊩t = lemma (emb s ⊩A) ⊩t
+    lemma = <ᵘ-rec _ λ where
+      l rec (noemb _) ⊩t → ⊩t
+      l rec (emb p ⊩A) ⊩t → rec p ⊩A (⊩<∷⇔⊩∷′ p .proj₁ ⊩t)
 
 opaque
   unfolding _⊩⟨_⟩_≡_∷_
@@ -146,7 +144,7 @@ opaque
     (Γ ⊩Level t ∷Level × Γ ⊩Level u ∷Level × Γ ⊩Level t ≡ u ∷Level)
   ⊩≡∷Level⇔ =
       (λ (⊩Level , ⊩t , ⊩u , t≡u) →
-         lemma (Level-elim ⊩Level)
+         lemma _ (Level-elim ⊩Level)
            ((irrelevanceTerm ⊩Level) (Level-intr (Level-elim ⊩Level)) ⊩t)
            ((irrelevanceTerm ⊩Level) (Level-intr (Level-elim ⊩Level)) ⊩u)
            ((irrelevanceEqTerm ⊩Level) (Level-intr (Level-elim ⊩Level)) t≡u))
@@ -155,15 +153,14 @@ opaque
        , ⊩t , ⊩u , t≡u)
     where
     lemma :
-      (⊩A : Γ ⊩⟨ l ⟩Level A) →
+      ∀ l → (⊩A : Γ ⊩⟨ l ⟩Level A) →
       Γ ⊩⟨ l ⟩ t ∷ A / Level-intr ⊩A →
       Γ ⊩⟨ l ⟩ u ∷ A / Level-intr ⊩A →
       Γ ⊩⟨ l ⟩ t ≡ u ∷ A / Level-intr ⊩A →
       Γ ⊩Level t ∷Level × Γ ⊩Level u ∷Level × Γ ⊩Level t ≡ u ∷Level
-    lemma (noemb _)    ⊩t ⊩u t≡u = ⊩t , ⊩u , t≡u
-    lemma (emb p ⊩A) ⊩t ⊩u t≡u = {!   !}
-    -- lemma (emb ≤ᵘ-refl ⊩A) ⊩t ⊩u t≡u = lemma ⊩A ⊩t ⊩u t≡u
-    -- lemma (emb (≤ᵘ-step s) ⊩A) ⊩t ⊩u t≡u = lemma (emb s ⊩A) ⊩t ⊩u t≡u
+    lemma = <ᵘ-rec _ λ where
+      l rec (noemb _) ⊩t ⊩u t≡u → ⊩t , ⊩u , t≡u
+      l rec (emb p ⊩A) ⊩t ⊩u t≡u → rec p ⊩A (⊩<∷⇔⊩∷′ p .proj₁ ⊩t) (⊩<∷⇔⊩∷′ p .proj₁ ⊩u) (⊩<≡∷⇔⊩≡∷′ p .proj₁ t≡u)
 
 opaque
 
@@ -268,7 +265,7 @@ opaque
           ⊢ Δ               →⟨ Levelⱼ ⟩
           (Δ ⊢ Level)           →⟨ id ⟩
           Δ ⊢ Level ⇒* Level        ⇔˘⟨ ⊩Level≡⇔ ⟩→
-          Δ ⊩⟨ 0 ⟩ Level ≡ Level    □
+          Δ ⊩⟨ 0ᵘ ⟩ Level ≡ Level    □
       )
 
 
@@ -293,7 +290,7 @@ opaque
       , λ {_} {Δ = Δ} {σ₁ = σ₁} {σ₂ = σ₂} →
           Δ ⊩ˢ σ₁ ≡ σ₂ ∷ Γ          →⟨ proj₁ ∘→ escape-⊩ˢ≡∷ ⟩
           ⊢ Δ                       ⇔˘⟨ ⊩zeroᵘ≡zeroᵘ∷Level⇔ ⟩→
-          Δ ⊩⟨ 0 ⟩ zeroᵘ ≡ zeroᵘ ∷ Level  □
+          Δ ⊩⟨ 0ᵘ ⟩ zeroᵘ ≡ zeroᵘ ∷ Level  □
       )
 
 opaque
