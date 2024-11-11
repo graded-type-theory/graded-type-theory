@@ -32,13 +32,13 @@ import Definition.Typed.Consequences.DerivedRules
 import Definition.Typed.Consequences.DerivedRules.Sigma
 import Definition.Typed.Consequences.Inversion
 import Definition.Typed.Consequences.Reduction
-import Definition.Typed.Consequences.Substitution
 import Definition.Typed.Consequences.Syntactic
 import Definition.Typed.Decidable
 import Definition.Typed.Decidable.Equality
 import Definition.Typed.Eta-long-normal-form
 import Definition.Typed.Properties
 import Definition.Typed.Restrictions
+import Definition.Typed.Substitution
 import Definition.Typed.Weakening
 import Definition.Untyped
 import Definition.Untyped.Sigma
@@ -614,13 +614,13 @@ Theorem-4-4b = Definition.Typed.Properties.whrDet*
 -- * Admissibility of substitution.
 
 substitutionAdmissible =
-  Definition.Typed.Consequences.Substitution.substitution
+  Definition.Typed.Substitution.substitution
 substitutionAdmissibleEq =
-  Definition.Typed.Consequences.Substitution.substitutionEq
+  Definition.Typed.Substitution.substitutionEq
 substitutionAdmissibleTerm =
-  Definition.Typed.Consequences.Substitution.substitutionTerm
+  Definition.Typed.Substitution.substitutionTerm
 substitutionAdmissibleEqTerm =
-  Definition.Typed.Consequences.Substitution.substitutionEqTerm
+  Definition.Typed.Substitution.substitutionEqTerm
 
 -- * Subject reduction.
 

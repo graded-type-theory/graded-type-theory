@@ -18,10 +18,10 @@ open import Definition.Typed TR
 open import Definition.Typed.Consequences.DerivedRules.Identity TR
 open import Definition.Typed.Consequences.Inversion TR
 open import Definition.Typed.Consequences.Reduction TR
-open import Definition.Typed.Consequences.Substitution TR
 open import Definition.Typed.Consequences.Syntactic TR
 open import Definition.Typed.Properties TR
 open import Definition.Typed.Reasoning.Term TR
+open import Definition.Typed.Substitution TR
 open import Definition.Untyped.Unit 𝕄
 
 open import Tools.Function

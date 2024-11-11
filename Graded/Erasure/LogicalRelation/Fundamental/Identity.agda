@@ -24,10 +24,10 @@ open import Definition.Typed.Consequences.Canonicity R
 open import Definition.Typed.Consequences.DerivedRules R
 open import Definition.Typed.Consequences.Inversion R
 import Definition.Typed.Consequences.RedSteps R as RS
-open import Definition.Typed.Consequences.Substitution R
 open import Definition.Typed.Consequences.Syntactic R
 open import Definition.Typed.Properties R
 open import Definition.Typed.Reasoning.Reduction R
+open import Definition.Typed.Substitution R
 
 open import Definition.LogicalRelation R
 open import Definition.LogicalRelation.Fundamental R

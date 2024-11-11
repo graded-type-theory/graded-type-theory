@@ -18,12 +18,12 @@ open Type-restrictions R
 
 open import Definition.Typed R
 open import Definition.Typed.Properties R
+open import Definition.Typed.Substitution R
 open import Definition.Typed.Consequences.Inequality R
 open import Definition.Typed.Consequences.Injectivity R
 open import Definition.Typed.Consequences.DerivedRules.Sigma R
 open import Definition.Typed.Consequences.Inversion R
 open import Definition.Typed.Consequences.Syntactic R
-open import Definition.Typed.Consequences.Substitution R
 
 open import Definition.Untyped M as U
 open import Definition.Untyped.Properties M

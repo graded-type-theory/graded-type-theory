@@ -51,11 +51,11 @@ open import Tools.Sum as ⊎ using (_⊎_; inj₁; inj₂)
 
 open import Definition.Typed TR as DT hiding (id)
 open import Definition.Typed.Consequences.Reduction TR
-open import Definition.Typed.Consequences.Substitution TR
 open import Definition.Typed.Consequences.Syntactic TR
 open import Definition.Typed.EqRelInstance TR
 open import Definition.Typed.Eta-long-normal-form TR
 open import Definition.Typed.Properties TR
+open import Definition.Typed.Substitution TR
 import Definition.Typed.Weakening TR as W
 open import Definition.Untyped Erasure as U hiding (id; head)
 open import Definition.Untyped.Properties Erasure

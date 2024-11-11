@@ -27,11 +27,11 @@ open import Definition.Typed TR
 open import Definition.Typed.Consequences.Consistency TR
 open import Definition.Typed.Consequences.DerivedRules TR
 open import Definition.Typed.Consequences.Inversion TR
-open import Definition.Typed.Consequences.Substitution TR
 import Definition.Typed.Consequences.Canonicity TR as TC
 open import Definition.Typed.EqualityRelation
 open import Definition.Typed.Properties TR
 open import Definition.Typed.Reasoning.Term TR
+open import Definition.Typed.Substitution TR
 open import Definition.LogicalRelation TR
 
 open import Graded.Context 𝕄

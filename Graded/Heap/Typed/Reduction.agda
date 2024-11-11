@@ -23,13 +23,13 @@ open import Definition.Untyped.Properties M
 open import Definition.Typed TR as T
 open import Definition.Typed.Properties TR
 open import Definition.Typed.Reasoning.Term TR
+open import Definition.Typed.Substitution TR
 open import Definition.Typed.Weakening TR using (id; step; _∷_⊇_)
 import Definition.Typed.Weakening TR as W
 open import Definition.Typed.Consequences.DerivedRules TR
 open import Definition.Typed.Consequences.Inequality TR
 open import Definition.Typed.Consequences.Injectivity TR
 open import Definition.Typed.Consequences.Inversion TR
-open import Definition.Typed.Consequences.Substitution TR
 open import Definition.Typed.Consequences.Syntactic TR
 import Graded.Derived.Erased.Typed TR as ET
 

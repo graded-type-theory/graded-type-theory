@@ -14,8 +14,8 @@ module Definition.Typed.Consequences.Consistency
 open import Definition.Untyped M
 open import Definition.Typed R
 open import Definition.Typed.Consequences.Canonicity R
-open import Definition.Typed.Consequences.Substitution R
 open import Definition.Typed.EqRelInstance R
+open import Definition.Typed.Substitution R
 open import Definition.LogicalRelation R
 open import Definition.LogicalRelation.Hidden R
 open import Definition.LogicalRelation.Substitution.Introductions R

@@ -5,7 +5,7 @@
 open import Definition.Typed.Restrictions
 open import Graded.Modality
 
-module Definition.Typed.Consequences.Substitution
+module Definition.Typed.Substitution
   {a} {M : Set a}
   {𝕄 : Modality M}
   (R : Type-restrictions 𝕄)
@@ -16,13 +16,12 @@ open Type-restrictions R
 open import Definition.Untyped M hiding (wk)
 open import Definition.Untyped.Properties M
 open import Definition.Typed R
-open import Definition.Typed.Properties R
-open import Definition.Typed.EqRelInstance R
+open import Definition.Typed.Properties.Admissible R
+open import Definition.Typed.Properties.Inversion R
+open import Definition.Typed.Properties.Well-formed R
+import Definition.Typed.Substitution.Primitive R as P
 open import Definition.Typed.Weakening R
-open import Definition.Typed.Consequences.Syntactic R
-open import Definition.LogicalRelation.Fundamental R
-open import Definition.LogicalRelation.Hidden R
-open import Definition.LogicalRelation.Substitution R
+open import Definition.Typed.Well-formed R
 
 open import Tools.Fin
 open import Tools.Function
@@ -31,12 +30,14 @@ open import Tools.Product
 import Tools.PropositionalEquality as PE
 open import Tools.Reasoning.PropositionalEquality
 
+open P public using () renaming (refl-⊢ˢ≡∷ to substRefl)
+
 private
   variable
     k ℓ m n : Nat
     Γ Δ Η : Con Term n
-    A B B₁ B₂ C C₁ C₂ D E t t₁ t₂ u u₁ u₂ v : Term _
-    σ σ′ : Subst m n
+    A A₁ A₂ B B₁ B₂ C C₁ C₂ D E t t₁ t₂ u u₁ u₂ v : Term _
+    σ σ₁ σ₂ σ′ : Subst m n
     ρ : Wk ℓ m
     p q : M
 
@@ -46,20 +47,16 @@ opaque
 
   substitution : Γ ⊢ A → Δ ⊢ˢ σ ∷ Γ → ⊢ Δ → Δ ⊢ A [ σ ]
   substitution ⊢A ⊢σ ⊢Δ =
-    escape-⊩ $
-    ⊩ᵛ→⊩ˢ∷→⊩[] (fundamental-⊩ᵛ ⊢A .proj₂)
-      (fundamental-⊩ˢ∷ ⊢Δ (wf ⊢A) ⊢σ)
+    P.subst-⊢ ⊢A (P.⊢ˢʷ∷⇔ .proj₂ (⊢Δ , ⊢σ))
 
 opaque
 
   -- A substitution lemma for _⊢_≡_.
 
   substitutionEq :
-    Γ ⊢ A ≡ B → Δ ⊢ˢ σ ≡ σ′ ∷ Γ → ⊢ Δ → Δ ⊢ A [ σ ] ≡ B [ σ′ ]
-  substitutionEq A≡B σ≡σ′ ⊢Δ =
-    escape-⊩≡ $
-    ⊩ᵛ≡⇔ .proj₁ (fundamental-⊩ᵛ≡ A≡B .proj₂) .proj₂ $
-    fundamental-⊩ˢ≡∷ ⊢Δ (wfEq A≡B) σ≡σ′
+    Γ ⊢ A₁ ≡ A₂ → Δ ⊢ˢ σ₁ ≡ σ₂ ∷ Γ → ⊢ Δ → Δ ⊢ A₁ [ σ₁ ] ≡ A₂ [ σ₂ ]
+  substitutionEq A₁≡A₂ σ₁≡σ₂ ⊢Δ =
+    P.subst-⊢≡ A₁≡A₂ (⊢ˢʷ≡∷⇔′ (wfEq A₁≡A₂) .proj₂ (⊢Δ , σ₁≡σ₂))
 
 opaque
 
@@ -68,28 +65,17 @@ opaque
   substitutionTerm :
     Γ ⊢ t ∷ A → Δ ⊢ˢ σ ∷ Γ → ⊢ Δ → Δ ⊢ t [ σ ] ∷ A [ σ ]
   substitutionTerm ⊢t ⊢σ ⊢Δ =
-    escape-⊩∷ $
-    ⊩ᵛ∷→⊩ˢ∷→⊩[]∷ (fundamental-⊩ᵛ∷ ⊢t .proj₂)
-      (fundamental-⊩ˢ∷ ⊢Δ (wfTerm ⊢t) ⊢σ)
+    P.subst-⊢∷ ⊢t (P.⊢ˢʷ∷⇔ .proj₂ (⊢Δ , ⊢σ))
 
 opaque
 
   -- A substitution lemma for _⊢_≡_∷_.
 
   substitutionEqTerm :
-    Γ ⊢ t ≡ u ∷ A → Δ ⊢ˢ σ ≡ σ′ ∷ Γ → ⊢ Δ →
-    Δ ⊢ t [ σ ] ≡ u [ σ′ ] ∷ A [ σ ]
-  substitutionEqTerm t≡u σ≡σ′ ⊢Δ =
-    escape-⊩≡∷ $
-    ⊩ᵛ≡∷⇔ .proj₁ (fundamental-⊩ᵛ≡∷ t≡u .proj₂) .proj₂ $
-    fundamental-⊩ˢ≡∷ ⊢Δ (wfEqTerm t≡u) σ≡σ′
-
--- Reflexivity of well-formed substitution.
-substRefl : ∀ {Γ Δ}
-          → Δ ⊢ˢ σ ∷ Γ
-          → Δ ⊢ˢ σ ≡ σ ∷ Γ
-substRefl id = id
-substRefl (σ , x) = substRefl σ , refl x
+    Γ ⊢ t₁ ≡ t₂ ∷ A → Δ ⊢ˢ σ₁ ≡ σ₂ ∷ Γ → ⊢ Δ →
+    Δ ⊢ t₁ [ σ₁ ] ≡ t₂ [ σ₂ ] ∷ A [ σ₁ ]
+  substitutionEqTerm t₁≡t₂ σ₁≡σ₂ ⊢Δ =
+    P.subst-⊢≡∷ t₁≡t₂ (⊢ˢʷ≡∷⇔′ (wfEqTerm t₁≡t₂) .proj₂ (⊢Δ , σ₁≡σ₂))
 
 opaque
 
@@ -132,13 +118,12 @@ opaque
     wkSubst′ (stepʷ id ⊢A) ⊢σ ,
     PE.subst (_⊢_∷_ _ _) (wk-subst A) (var₀ ⊢A)
 
--- Well-formed identity substitution.
-idSubst′ : (⊢Γ : ⊢ Γ)
-         → Γ ⊢ˢ idSubst ∷ Γ
-idSubst′ ε      = id
-idSubst′ (∙ ⊢A) =
-  wk1Subst′ ⊢A (idSubst′ (wf ⊢A)) ,
-  PE.subst (_⊢_∷_ _ _) (wk1-tailId _) (var₀ ⊢A)
+opaque
+
+  -- A well-formedness lemma for idSubst.
+
+  idSubst′ : (⊢Γ : ⊢ Γ) → Γ ⊢ˢ idSubst ∷ Γ
+  idSubst′ = proj₂ ∘→ P.⊢ˢʷ∷⇔ .proj₁ ∘→ P.⊢ˢʷ∷-idSubst
 
 opaque
 
@@ -154,18 +139,20 @@ opaque
     substComp′ ⊢Η ⊢σ ⊢tail ,
     PE.subst (_⊢_∷_ _ _) (substCompEq A) (substitutionTerm ⊢head ⊢σ ⊢Η)
 
--- Well-formed singleton substitution of terms.
-singleSubst : ∀ {A t} → Γ ⊢ t ∷ A → Γ ⊢ˢ sgSubst t ∷ Γ ∙ A
-singleSubst {A = A} t =
-  let ⊢Γ = wfTerm t
-  in  idSubst′ ⊢Γ , PE.subst (λ x → _ ⊢ _ ∷ x) (PE.sym (subst-id A)) t
+opaque
 
--- Well-formed singleton substitution of term equality.
-singleSubstEq : ∀ {A t u} → Γ ⊢ t ≡ u ∷ A
-              → Γ ⊢ˢ sgSubst t ≡ sgSubst u ∷ Γ ∙ A
-singleSubstEq {A = A} t =
-  let ⊢Γ = wfEqTerm t
-  in  substRefl (idSubst′ ⊢Γ) , PE.subst (λ x → _ ⊢ _ ≡ _ ∷ x) (PE.sym (subst-id A)) t
+  -- A well-formedness lemma for sgSubst.
+
+  singleSubst : Γ ⊢ t ∷ A → Γ ⊢ˢ sgSubst t ∷ Γ ∙ A
+  singleSubst = proj₂ ∘→ P.⊢ˢʷ∷⇔ .proj₁ ∘→ P.⊢ˢʷ∷-sgSubst
+
+opaque
+
+  -- A well-formedness lemma for sgSubst.
+
+  singleSubstEq : Γ ⊢ t ≡ u ∷ A → Γ ⊢ˢ sgSubst t ≡ sgSubst u ∷ Γ ∙ A
+  singleSubstEq =
+    proj₂ ∘→ proj₂ ∘→ proj₂ ∘→ P.⊢ˢʷ≡∷⇔ .proj₁ ∘→ ⊢ˢʷ≡∷-sgSubst′
 
 opaque
 
@@ -220,9 +207,12 @@ opaque
   substTermEq t₁≡t₂ u₁≡u₂ =
     substitutionEqTerm t₁≡t₂ (singleSubstEq u₁≡u₂) (wfEqTerm u₁≡u₂)
 
-substTypeΠ : ∀ {t F G} → Γ ⊢ Π p , q ▷ F ▹ G → Γ ⊢ t ∷ F → Γ ⊢ G [ t ]₀
-substTypeΠ ΠFG t with syntacticΠ ΠFG
-substTypeΠ ΠFG t | F , G = substType G t
+opaque
+
+  substTypeΠ : Γ ⊢ Π p , q ▷ A ▹ B → Γ ⊢ t ∷ A → Γ ⊢ B [ t ]₀
+  substTypeΠ ⊢ΠAB ⊢t =
+    let _ , (⊢B , _) , _ = inversion-ΠΣ-⊢ ⊢ΠAB in
+    substType ⊢B ⊢t
 
 opaque
 
@@ -264,7 +254,7 @@ subst↑²Type-prod : ∀ {m F G A}
 subst↑²Type-prod {Γ = Γ} {F = F} {G} {A} ⊢A ok =
   let ⊢ΓΣ = wf ⊢A
       ⊢Γ , ⊢Σ = splitCon ⊢ΓΣ
-      ⊢F , ⊢G = syntacticΣ ⊢Σ
+      (⊢F , _) , (⊢G , _) , _ = inversion-ΠΣ-⊢ ⊢Σ
       ⊢ρF = wk (stepʷ (step id) ⊢G) ⊢F
       ⊢ρG = wk (liftʷ (step (step id)) ⊢ρF) ⊢G
       ⊢ρG′ = PE.subst₂ (λ x y → (Γ ∙ F ∙ G ∙ x) ⊢ y)
@@ -317,10 +307,10 @@ subst↑²TypeEq-prod : ∀ {m F G A B}
               → Γ ∙ F ∙ G ⊢ A [ prod m p (var x1) (var x0) ]↑²
                           ≡ B [ prod m p (var x1) (var x0) ]↑²
 subst↑²TypeEq-prod {Γ = Γ} {F = F} {G} {A} {B} A≡B ok =
-  let ⊢A , ⊢B = syntacticEq A≡B
+  let ⊢A , ⊢B = wf-⊢≡ A≡B
       ⊢ΓΣ = wf ⊢A
       ⊢Γ , ⊢Σ = splitCon ⊢ΓΣ
-      ⊢F , ⊢G = syntacticΣ ⊢Σ
+      (⊢F , _) , (⊢G , _) , _ = inversion-ΠΣ-⊢ ⊢Σ
       ⊢ρF = wk (stepʷ (step id) ⊢G) ⊢F
       ⊢ρG = wk (liftʷ (step (step id)) ⊢ρF) ⊢G
       ⊢ρG′ = PE.subst₂ (λ x y → (Γ ∙ F ∙ G ∙ x) ⊢ y)
@@ -406,7 +396,7 @@ opaque
     Γ ⊢ t ∷ A [ wkSubst k idSubst ] →
     Γ ⊢ B [ k ][ t ]↑
   ⊢[][]↑ ⊢B ⊢t =
-    syntacticEq ([][]↑-cong (refl ⊢B) (refl ⊢t)) .proj₁
+    wf-⊢≡ ([][]↑-cong (refl ⊢B) (refl ⊢t)) .proj₁
 
 opaque
 

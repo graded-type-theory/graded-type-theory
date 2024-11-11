@@ -34,8 +34,8 @@ open import Definition.Untyped.Neutral M type-variant
 open import Definition.Typed TR
 open import Definition.Typed.Consequences.Consistency TR
 open import Definition.Typed.Consequences.DerivedRules TR
-open import Definition.Typed.Consequences.Substitution TR
 open import Definition.Typed.Properties TR
+open import Definition.Typed.Substitution TR
 open import Definition.LogicalRelation TR
 open import Definition.LogicalRelation.Substitution TR
 

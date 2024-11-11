@@ -197,6 +197,16 @@ opaque
 -- Some lemmas related to _⊢ˢʷ_∷_ and _⊢ˢʷ_≡_∷_
 
 opaque
+
+  -- Reflexivity for _⊢ˢ_≡_∷_.
+
+  refl-⊢ˢ≡∷ :
+    Δ ⊢ˢ σ ∷ Γ →
+    Δ ⊢ˢ σ ≡ σ ∷ Γ
+  refl-⊢ˢ≡∷ id        = id
+  refl-⊢ˢ≡∷ (⊢σ , ⊢t) = refl-⊢ˢ≡∷ ⊢σ , refl ⊢t
+
+opaque
   unfolding _⊢ˢʷ_∷_ _⊢ˢʷ_≡_∷_
 
   -- Reflexivity for _⊢ˢʷ_≡_∷_.
@@ -207,12 +217,6 @@ opaque
     Δ ⊢ˢʷ σ ∷ Γ →
     Δ ⊢ˢʷ σ ≡ σ ∷ Γ
   refl-⊢ˢʷ≡∷ (⊢Δ , ⊢σ) = ⊢Δ , ⊢σ , ⊢σ , refl-⊢ˢ≡∷ ⊢σ
-    where
-    refl-⊢ˢ≡∷ :
-      Δ ⊢ˢ σ ∷ Γ →
-      Δ ⊢ˢ σ ≡ σ ∷ Γ
-    refl-⊢ˢ≡∷ id        = id
-    refl-⊢ˢ≡∷ (⊢σ , ⊢t) = refl-⊢ˢ≡∷ ⊢σ , refl ⊢t
 
 opaque
 

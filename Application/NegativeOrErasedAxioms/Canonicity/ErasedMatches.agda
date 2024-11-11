@@ -22,9 +22,9 @@ import Definition.Conversion.Consequences.Completeness
 import Definition.Typed
 import Definition.Typed.Consequences.Canonicity
 import Definition.Typed.Consequences.Consistency
-import Definition.Typed.Consequences.Substitution
 import Definition.Typed.Properties
 open import Definition.Typed.Restrictions
+import Definition.Typed.Substitution
 import Definition.Untyped
 import Definition.Untyped.Neutral
 
@@ -75,8 +75,8 @@ module Counterexample
   open Definition.Typed TR
   open Definition.Typed.Consequences.Canonicity TR
   open Definition.Typed.Consequences.Consistency TR
-  open Definition.Typed.Consequences.Substitution TR
   open Definition.Typed.Properties TR
+  open Definition.Typed.Substitution TR
   open Definition.Untyped Erasure
   open Definition.Untyped.Neutral Erasure type-variant
 

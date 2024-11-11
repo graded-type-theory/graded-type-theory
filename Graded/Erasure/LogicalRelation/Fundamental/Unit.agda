@@ -38,8 +38,8 @@ open import Definition.Untyped.Properties M
 open import Definition.Typed R
 open import Definition.Typed.Properties R
 import Definition.Typed.Reasoning.Reduction R as RR
+open import Definition.Typed.Substitution R
 open import Definition.Typed.Consequences.RedSteps R
-open import Definition.Typed.Consequences.Substitution R
 
 open import Definition.LogicalRelation R
 open import Definition.LogicalRelation.Fundamental R

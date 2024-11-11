@@ -20,7 +20,7 @@ open import Definition.Typed R
 open import Definition.Typed.Consequences.Inequality R
 open import Definition.Typed.Consequences.Injectivity R
 open import Definition.Typed.Consequences.Inversion R
-open import Definition.Typed.Consequences.Substitution R
+open import Definition.Typed.Substitution R
 
 open import Definition.Untyped M as U
 open import Graded.Derived.Erased.Eta.Untyped 𝕄

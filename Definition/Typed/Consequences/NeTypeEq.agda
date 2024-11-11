@@ -19,8 +19,8 @@ open import Definition.Untyped.Properties M
 open import Definition.Typed R
 open import Definition.Typed.Consequences.Syntactic R
 open import Definition.Typed.Consequences.Injectivity R
-open import Definition.Typed.Consequences.Substitution R
 open import Definition.Typed.Properties R
+open import Definition.Typed.Substitution R
 
 open import Graded.Derived.Erased.Typed R
 

@@ -19,11 +19,11 @@ open import Definition.Typed R
 open import Definition.Typed.RedSteps R
 open import Definition.Typed.Properties R
 open import Definition.Typed.Stability R
+open import Definition.Typed.Substitution R
 open import Definition.Conversion R
 open import Definition.Conversion.Soundness R
 open import Definition.Conversion.Stability R
 open import Definition.Typed.Consequences.Syntactic R
-open import Definition.Typed.Consequences.Substitution R
 open import Definition.Typed.Consequences.Injectivity R
 open import Definition.Typed.Consequences.Equality R
 open import Definition.Typed.Consequences.Reduction R

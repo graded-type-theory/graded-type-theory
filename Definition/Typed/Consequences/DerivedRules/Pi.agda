@@ -15,11 +15,11 @@ open Type-restrictions R
 
 open import Definition.Typed R
 open import Definition.Typed.Consequences.Inversion R
-open import Definition.Typed.Consequences.Substitution R
 open import Definition.Typed.Consequences.Syntactic R
 open import Definition.Typed.Properties R
 open import Definition.Typed.Reasoning.Reduction R
 open import Definition.Typed.RedSteps R
+open import Definition.Typed.Substitution R
 import Definition.Typed.Substitution.Primitive R as S
 open import Definition.Typed.Weakening R as W hiding (wk)
 
