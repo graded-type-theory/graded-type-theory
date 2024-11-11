@@ -140,14 +140,15 @@ opaque
 
   ⊩U≡⇔ :
     Γ ⊩⟨ l ⟩ U l′ ≡ A ⇔
-    (l′ <ᵘ l × Γ ⊢ A :⇒*: U l′ × Γ ⊩⟨ l ⟩ A)
+    (l′ <ᵘ l × Γ ⊢ A :⇒*: U l′)
   ⊩U≡⇔ =
-      (λ (⊩U , ⊩A , U≡A) →
-         Σ.map idᶠ (_, ⊩A) $
+      (λ (⊩U , _ , U≡A) →
          lemma (U-elim ⊩U)
            (irrelevanceEq ⊩U (U-intr (U-elim ⊩U)) U≡A))
-    , (λ (p , A⇒*U@([ _ , ⊢U , _ ]) , ⊩A) →
-         Uᵣ (Uᵣ _ p (idRed:*: ⊢U)) , ⊩A , A⇒*U)
+    , (λ (p , A:⇒*:U@([ _ , ⊢U , A⇒*U ])) →
+           Uᵣ (Uᵣ _ p (idRed:*: ⊢U))
+         , wf-⊩≡ (⊩-⇐* A⇒*U (⊩U⇔ .proj₂ (p , wf ⊢U))) .proj₁
+         , A:⇒*:U)
     where
     lemma :
       (⊩U : Γ ⊩⟨ l ⟩U U l′) →
@@ -264,10 +265,10 @@ opaque
     ⊩ᵛ⇔ .proj₂
       ( ⊩Γ
       , λ {_} {Δ = Δ} {σ₁ = σ₁} {σ₂ = σ₂} →
-          Δ ⊩ˢ σ₁ ≡ σ₂ ∷ Γ                                  →⟨ proj₁ ∘→ escape-⊩ˢ≡∷ ⟩
-          ⊢ Δ                                               →⟨ (λ ⊢Δ → ≤ᵘ-refl , idRed:*: (Uⱼ ⊢Δ) , ⊩U⇔ .proj₂ (≤ᵘ-refl , ⊢Δ)) ⟩
-          l <ᵘ 1+ l × Δ ⊢ U l :⇒*: U l × (Δ ⊩⟨ 1+ l ⟩ U l)  ⇔˘⟨ ⊩U≡⇔ ⟩→
-          Δ ⊩⟨ 1+ l ⟩ U l ≡ U l                             □
+          Δ ⊩ˢ σ₁ ≡ σ₂ ∷ Γ              →⟨ proj₁ ∘→ escape-⊩ˢ≡∷ ⟩
+          ⊢ Δ                           →⟨ (λ ⊢Δ → ≤ᵘ-refl , idRed:*: (Uⱼ ⊢Δ)) ⟩
+          l <ᵘ 1+ l × Δ ⊢ U l :⇒*: U l  ⇔˘⟨ ⊩U≡⇔ ⟩→
+          Δ ⊩⟨ 1+ l ⟩ U l ≡ U l         □
       )
 
 opaque

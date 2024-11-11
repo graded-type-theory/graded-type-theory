@@ -48,7 +48,7 @@ opaque
   U-injectivity : Γ ⊢ U l₁ ≡ U l₂ → l₁ PE.≡ l₂
   U-injectivity U≡U =
     case ⊩U≡⇔ .proj₁ $ reducible-⊩≡ U≡U .proj₂ of λ
-      (_ , U⇒*U , _) →
+      (_ , U⇒*U) →
     case whnfRed* (red U⇒*U) Uₙ of λ {
       PE.refl →
     PE.refl }

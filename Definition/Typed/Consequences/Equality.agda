@@ -49,7 +49,7 @@ opaque
   U≡A : Γ ⊢ U l ≡ A → Whnf A → A PE.≡ U l
   U≡A {Γ} {l} {A} U≡A A-whnf =    $⟨ U≡A ⟩
     Γ ⊢ U l ≡ A                   →⟨ reducible-⊩≡ ⟩
-    (∃ λ l′ → Γ ⊩⟨ l′ ⟩ U l ≡ A)  →⟨ red ∘→ proj₁ ∘→ proj₂ ∘→ ⊩U≡⇔ .proj₁ ∘→ proj₂ ⟩
+    (∃ λ l′ → Γ ⊩⟨ l′ ⟩ U l ≡ A)  →⟨ red ∘→ proj₂ ∘→ ⊩U≡⇔ .proj₁ ∘→ proj₂ ⟩
     Γ ⊢ A ⇒* U l                  →⟨ flip whnfRed* A-whnf ⟩
     A PE.≡ U l                    □
 
