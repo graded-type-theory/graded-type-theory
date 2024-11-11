@@ -901,7 +901,7 @@ opaque
   neutral-⊩ :
     Neutral A →
     Γ ⊢ A →
-    Γ ⊢ A ≅ A →
+    Γ ⊢≅ A →
     Γ ⊩⟨ l ⟩ A
   neutral-⊩ = neu
 
@@ -914,7 +914,7 @@ opaque
     Γ ⊩⟨ l ⟩ A →
     Neutral t →
     Γ ⊢ t ∷ A →
-    Γ ⊢ t ~ t ∷ A →
+    Γ ⊢~ t ∷ A →
     Γ ⊩⟨ l ⟩ t ∷ A
   neutral-⊩∷ ⊩A t-ne ⊢t t~t =
     ⊩A , neuTerm ⊩A t-ne ⊢t t~t
@@ -961,7 +961,7 @@ opaque
 
   ⊩ne⇔ :
     Neutral A →
-    Γ ⊩⟨ l ⟩ A ⇔ ((Γ ⊢ A) × Γ ⊢ A ≅ A)
+    Γ ⊩⟨ l ⟩ A ⇔ ((Γ ⊢ A) × Γ ⊢≅ A)
   ⊩ne⇔ A-ne =
       (λ ⊩A →
          case extractMaybeEmb (ne-elim A-ne ⊩A) of λ {
@@ -979,7 +979,7 @@ opaque
   ⊩∷ne⇔ :
     Neutral A →
     Γ ⊩⟨ l ⟩ t ∷ A ⇔
-    (Γ ⊩⟨ l ⟩ A × ∃ λ u → Γ ⊢ t :⇒*: u ∷ A × Neutral u × Γ ⊢ u ~ u ∷ A)
+    (Γ ⊩⟨ l ⟩ A × ∃ λ u → Γ ⊢ t :⇒*: u ∷ A × Neutral u × Γ ⊢~ u ∷ A)
   ⊩∷ne⇔ {A} A-ne =
       (λ (⊩A , ⊩t) →
          case ne-elim A-ne ⊩A of λ
@@ -992,7 +992,7 @@ opaque
     lemma :
       (⊩A : Γ ⊩⟨ l ⟩ne A) →
       Γ ⊩⟨ l ⟩ t ∷ A / ne-intr ⊩A →
-      ∃ λ u → Γ ⊢ t :⇒*: u ∷ A × Neutral u × Γ ⊢ u ~ u ∷ A
+      ∃ λ u → Γ ⊢ t :⇒*: u ∷ A × Neutral u × Γ ⊢~ u ∷ A
     lemma (emb ≤ᵘ-refl ⊩A) ⊩t =
       lemma ⊩A ⊩t
     lemma (emb (≤ᵘ-step l<) ⊩A) ⊩t =

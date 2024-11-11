@@ -43,7 +43,7 @@ private
 -- Neutral reflexive types are reducible.
 neu : ∀ {l A} (neA : Neutral A)
     → Γ ⊢ A
-    → Γ ⊢ A ≅ A
+    → Γ ⊢≅ A
     → Γ ⊩⟨ l ⟩ A
 neu neA A A~A = ne′ _ (idRed:*: A) neA A~A
 
@@ -77,7 +77,7 @@ mutual
   -- Neutral reflexive terms are reducible.
   neuTerm : ∀ {l A n} ([A] : Γ ⊩⟨ l ⟩ A) (neN : Neutral n)
           → Γ ⊢ n ∷ A
-          → Γ ⊢ n ~ n ∷ A
+          → Γ ⊢~ n ∷ A
           → Γ ⊩⟨ l ⟩ n ∷ A / [A]
   neuTerm (Uᵣ′ l ≤ᵘ-refl [ ⊢A , ⊢B , D ]) neN n n~n =
     let A≡U  = subset* D

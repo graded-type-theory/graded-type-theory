@@ -68,7 +68,7 @@ opaque
      ∃ λ u →
      Γ ⊢ t :⇒*: u ∷ Π p , q ▷ A ▹ B ×
      Function u ×
-     Γ ⊢ u ≅ u ∷ Π p , q ▷ A ▹ B ×
+     Γ ⊢≅ u ∷ Π p , q ▷ A ▹ B ×
      ∀ {m} {ρ : Wk m n} {Δ : Con Term m} {v₁ v₂} →
      ρ ∷ʷ Δ ⊇ Γ →
      Δ ⊩⟨ l ⟩ v₁ ≡ v₂ ∷ wk ρ A →
@@ -90,7 +90,7 @@ opaque
       ∃ λ u →
       Γ ⊢ t :⇒*: u ∷ Π p , q ▷ A ▹ B ×
       Function u ×
-      Γ ⊢ u ≅ u ∷ Π p , q ▷ A ▹ B ×
+      Γ ⊢≅ u ∷ Π p , q ▷ A ▹ B ×
       ∀ {m} {ρ : Wk m n} {Δ : Con Term m} {v₁ v₂} →
       ρ ∷ʷ Δ ⊇ Γ →
       Δ ⊩⟨ l ⟩ v₁ ≡ v₂ ∷ wk ρ A →
@@ -121,7 +121,7 @@ opaque
       (∃ λ u →
        Γ ⊢ t :⇒*: u ∷ Π p , q ▷ A ▹ B ×
        Function u ×
-       Γ ⊢ u ≅ u ∷ Π p , q ▷ A ▹ B ×
+       Γ ⊢≅ u ∷ Π p , q ▷ A ▹ B ×
        ∀ {m} {ρ : Wk m n} {Δ : Con Term m} {v₁ v₂} →
        ρ ∷ʷ Δ ⊇ Γ →
        Δ ⊩⟨ l ⟩ v₁ ≡ v₂ ∷ wk ρ A →
@@ -149,7 +149,7 @@ opaque
       (∃ λ u →
        Γ ⊢ t :⇒*: u ∷ Π p , q ▷ A ▹ B ×
        Function u ×
-       Γ ⊢ u ≅ u ∷ Π p , q ▷ A ▹ B ×
+       Γ ⊢≅ u ∷ Π p , q ▷ A ▹ B ×
        ∀ {m} {ρ : Wk m n} {Δ : Con Term m} {v₁ v₂} →
        ρ ∷ʷ Δ ⊇ Γ →
        Δ ⊩⟨ l ⟩ v₁ ≡ v₂ ∷ wk ρ A →

@@ -53,6 +53,22 @@ record Equality-relations
   (_⊢_~_∷_ : ∀ {n} → Con Term n → (t u A : Term n) → Set ℓ) :
   Set ℓ where
   no-eta-equality
+
+  -- A variant of _⊢_≅_.
+
+  _⊢≅_ : Con Term n → Term n → Set ℓ
+  Γ ⊢≅ A = Γ ⊢ A ≅ A
+
+  -- A variant of _⊢_≅_∷_.
+
+  _⊢≅_∷_ : Con Term n → Term n → Term n → Set ℓ
+  Γ ⊢≅ t ∷ A = Γ ⊢ t ≅ t ∷ A
+
+  -- A variant of _⊢_~_∷_.
+
+  _⊢~_∷_ : Con Term n → Term n → Term n → Set ℓ
+  Γ ⊢~ t ∷ A = Γ ⊢ t ~ t ∷ A
+
   field
     -- Generic equality compatibility
     ~-to-≅ₜ : Γ ⊢ t ~ u ∷ A
@@ -106,16 +122,16 @@ record Equality-relations
            → Γ ⊢ a  ≅ b  ∷ A
 
     -- Universe type reflexivity
-    ≅-Urefl   : ⊢ Γ → Γ ⊢ U l ≅ U l ∷ U (1+ l)
+    ≅-Urefl   : ⊢ Γ → Γ ⊢≅ U l ∷ U (1+ l)
 
     -- Natural number type reflexivity
-    ≅ₜ-ℕrefl : ⊢ Γ → Γ ⊢ ℕ ≅ ℕ ∷ U 0
+    ≅ₜ-ℕrefl : ⊢ Γ → Γ ⊢≅ ℕ ∷ U 0
 
     -- Empty type reflexivity
-    ≅ₜ-Emptyrefl : ⊢ Γ → Γ ⊢ Empty ≅ Empty ∷ U 0
+    ≅ₜ-Emptyrefl : ⊢ Γ → Γ ⊢≅ Empty ∷ U 0
 
     -- Unit type reflexivity
-    ≅ₜ-Unitrefl : ⊢ Γ → Unit-allowed s → Γ ⊢ Unit s l ≅ Unit s l ∷ U l
+    ≅ₜ-Unitrefl : ⊢ Γ → Unit-allowed s → Γ ⊢≅ Unit s l ∷ U l
 
     -- Unit η-equality
     ≅ₜ-η-unit : Γ ⊢ e ∷ Unit s l
@@ -140,7 +156,7 @@ record Equality-relations
                   U (l₁ ⊔ᵘ l₂)
 
     -- Zero reflexivity
-    ≅ₜ-zerorefl : ⊢ Γ → Γ ⊢ zero ≅ zero ∷ ℕ
+    ≅ₜ-zerorefl : ⊢ Γ → Γ ⊢≅ zero ∷ ℕ
 
     -- Successor congruence
     ≅-suc-cong : ∀ {m n} → Γ ⊢ m ≅ n ∷ ℕ → Γ ⊢ suc m ≅ suc n ∷ ℕ
@@ -174,7 +190,7 @@ record Equality-relations
           → Γ ⊢ r ≅ s ∷ Σˢ p , q ▷ F ▹ G
 
     -- Variable reflexivity
-    ~-var : ∀ {x A} → Γ ⊢ var x ∷ A → Γ ⊢ var x ~ var x ∷ A
+    ~-var : ∀ {x A} → Γ ⊢ var x ∷ A → Γ ⊢~ var x ∷ A
 
     -- Application congruence
     ~-app : ∀ {a b f g F G}
@@ -227,7 +243,7 @@ record Equality-relations
 
     -- Star reflexivity
     ≅ₜ-starrefl :
-      ⊢ Γ → Unit-allowed s → Γ ⊢ star s l ≅ star s l ∷ Unit s l
+      ⊢ Γ → Unit-allowed s → Γ ⊢≅ star s l ∷ Unit s l
 
     -- Id preserves "equality".
     ≅-Id-cong
@@ -242,7 +258,7 @@ record Equality-relations
       → Γ ⊢ Id A₁ t₁ u₁ ≅ Id A₂ t₂ u₂ ∷ U l
 
     -- Reflexivity for rfl.
-    ≅ₜ-rflrefl : Γ ⊢ t ∷ A → Γ ⊢ rfl ≅ rfl ∷ Id A t t
+    ≅ₜ-rflrefl : Γ ⊢ t ∷ A → Γ ⊢≅ rfl ∷ Id A t t
 
     -- J preserves the _⊢_~_ relation (in a certain way).
     ~-J
@@ -287,21 +303,21 @@ record Equality-relations
 
     -- A variant of ≅ₜ-ℕrefl.
 
-    ≅-ℕrefl : ⊢ Γ → Γ ⊢ ℕ ≅ ℕ
+    ≅-ℕrefl : ⊢ Γ → Γ ⊢≅ ℕ
     ≅-ℕrefl = ≅-univ ∘→ ≅ₜ-ℕrefl
 
   opaque
 
     -- A variant of ≅ₜ-Emptyrefl.
 
-    ≅-Emptyrefl : ⊢ Γ → Γ ⊢ Empty ≅ Empty
+    ≅-Emptyrefl : ⊢ Γ → Γ ⊢≅ Empty
     ≅-Emptyrefl = ≅-univ ∘→ ≅ₜ-Emptyrefl
 
   opaque
 
     -- A variant of ≅ₜ-Unitrefl.
 
-    ≅-Unitrefl : ⊢ Γ → Unit-allowed s → Γ ⊢ Unit s l ≅ Unit s l
+    ≅-Unitrefl : ⊢ Γ → Unit-allowed s → Γ ⊢≅ Unit s l
     ≅-Unitrefl ⊢Γ ok = ≅-univ (≅ₜ-Unitrefl ⊢Γ ok)
 
 -- Values of type EqRelSet contain three relations that the logical

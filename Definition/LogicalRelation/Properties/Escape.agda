@@ -164,7 +164,7 @@ escapeTermEq {Γ = Γ} (Idᵣ ⊩A) t≡u@(_ , _ , t⇒*t′ , u⇒*u′ , _) =
                                                  (escapeTermEq ⊩Ty lhs≡rhs) ⟩
          Γ ⊢ Id Ty lhs lhs ≅ Id Ty lhs rhs  →⟨ ≅-eq ⟩
          Γ ⊢ Id Ty lhs lhs ≡ Id Ty lhs rhs  →⟨ ≅-conv (≅ₜ-rflrefl (escapeTerm ⊩Ty ⊩lhs)) ⟩
-         (Γ ⊢ rfl ≅ rfl ∷ Id Ty lhs rhs)    □)
+         (Γ ⊢≅ rfl ∷ Id Ty lhs rhs)         □)
   where
   open _⊩ₗId_ ⊩A
   lemma = λ t′-whnf u′-whnf →

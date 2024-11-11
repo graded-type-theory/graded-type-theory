@@ -109,27 +109,28 @@ opaque
     Γ ⊩⟨ l″ ⟩ t ∷ A →
     Γ ⊩⟨ l‴ ⟩ u ∷ A →
     Γ ⊩⟨ l′ ⟩ Id A t u ∷ U l
-  →⊩Id∷U {Γ} {l′} {A} {l} {l″} {t} {l‴} {u} ⊩A ⊩t ⊩u =                       $⟨ ⊩A , ⊩t , ⊩u ⟩
+  →⊩Id∷U {Γ} {l′} {A} {l} {l″} {t} {l‴} {u} ⊩A ⊩t ⊩u =
+                                                   $⟨ ⊩A , ⊩t , ⊩u ⟩
     Γ ⊩⟨ l′ ⟩ A ∷ U l ×
     Γ ⊩⟨ l″ ⟩ t ∷ A ×
-    Γ ⊩⟨ l‴ ⟩ u ∷ A                                            →⟨ (λ (⊩A∷U , ⊩t , ⊩u) →
-                                                                    case ⊩∷U⇔ .proj₁ ⊩A∷U of λ
-                                                                      (l′<l , ⊩A , _) →
-                                                                      l′<l
-                                                                    , (level-⊩∷ ⊩A ⊩t , level-⊩∷ ⊩A ⊩u)
-                                                                    , (Idⱼ (escape-⊩∷ ⊩A∷U) (escape-⊩∷ ⊩t) (escape-⊩∷ ⊩u)
-                                                                    , ≅ₜ-Id-cong (escape-⊩≡∷ (refl-⊩≡∷ ⊩A∷U))
-                                                                        (escape-⊩≡∷ (refl-⊩≡∷ ⊩t)) (escape-⊩≡∷ (refl-⊩≡∷ ⊩u)) ))
-                                                               ⟩
-    (l <ᵘ l′ × (Γ ⊩⟨ l ⟩ t ∷ A × Γ ⊩⟨ l ⟩ u ∷ A) ×
-     Γ ⊢ Id A t u ∷ U l ×
-     Γ ⊢ Id A t u ≅ Id A t u ∷ U l)                             ⇔˘⟨ id⇔ ×-cong-⇔ ⊩Id⇔ ×-cong-⇔ id⇔ ⟩→
+    Γ ⊩⟨ l‴ ⟩ u ∷ A                                →⟨ (λ (⊩A∷U , ⊩t , ⊩u) →
+                                                         case ⊩∷U⇔ .proj₁ ⊩A∷U of λ
+                                                           (l′<l , ⊩A , _) →
+                                                           l′<l
+                                                         , (level-⊩∷ ⊩A ⊩t , level-⊩∷ ⊩A ⊩u)
+                                                         , (Idⱼ (escape-⊩∷ ⊩A∷U) (escape-⊩∷ ⊩t) (escape-⊩∷ ⊩u)
+                                                         , ≅ₜ-Id-cong (escape-⊩≡∷ (refl-⊩≡∷ ⊩A∷U))
+                                                             (escape-⊩≡∷ (refl-⊩≡∷ ⊩t)) (escape-⊩≡∷ (refl-⊩≡∷ ⊩u)) ))
+                                                   ⟩
+    l <ᵘ l′ × (Γ ⊩⟨ l ⟩ t ∷ A × Γ ⊩⟨ l ⟩ u ∷ A) ×
+    Γ ⊢ Id A t u ∷ U l ×
+    Γ ⊢≅ Id A t u ∷ U l                            ⇔˘⟨ id⇔ ×-cong-⇔ ⊩Id⇔ ×-cong-⇔ id⇔ ⟩→
 
-    (l <ᵘ l′ × (Γ ⊩⟨ l ⟩ Id A t u) ×
-     Γ ⊢ Id A t u ∷ U l ×
-     Γ ⊢ Id A t u ≅ Id A t u ∷ U l)                             ⇔˘⟨ Type→⊩∷U⇔ Idₙ ⟩→
+    l <ᵘ l′ × (Γ ⊩⟨ l ⟩ Id A t u) ×
+    Γ ⊢ Id A t u ∷ U l ×
+    Γ ⊢≅ Id A t u ∷ U l                            ⇔˘⟨ Type→⊩∷U⇔ Idₙ ⟩→
 
-    Γ ⊩⟨ l′ ⟩ Id A t u ∷ U l                                     □
+    Γ ⊩⟨ l′ ⟩ Id A t u ∷ U l                       □
 
 -- A variant of ⊩Id∷-view.
 
@@ -139,7 +140,7 @@ data ⊩Id∷-view′
   rflᵣ : Γ ⊩⟨ l ⟩ t ≡ u ∷ A →
          ⊩Id∷-view′ Γ l A t u rfl
   ne   : Neutral v →
-         Γ ⊢ v ~ v ∷ Id A t u →
+         Γ ⊢~ v ∷ Id A t u →
          ⊩Id∷-view′ Γ l A t u v
 
 opaque

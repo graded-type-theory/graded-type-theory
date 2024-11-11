@@ -56,7 +56,7 @@ record _⊩ne_ {ℓ : Nat} (Γ : Con Term ℓ) (A : Term ℓ) : Set a where
     K   : Term ℓ
     D   : Γ ⊢ A :⇒*: K
     neK : Neutral K
-    K≡K : Γ ⊢ K ≅ K
+    K≡K : Γ ⊢≅ K
 
 -- Neutral type equality
 record _⊩ne_≡_/_ (Γ : Con Term ℓ) (A B : Term ℓ) ([A] : Γ ⊩ne A) : Set a where
@@ -79,7 +79,7 @@ record _⊩neNf_∷_ (Γ : Con Term ℓ) (k A : Term ℓ) : Set a where
   field
     neK  : Neutral k
     ⊢k   : Γ ⊢ k ∷ A
-    k≡k  : Γ ⊢ k ~ k ∷ A
+    k≡k  : Γ ⊢~ k ∷ A
 
 -- Neutral term
 record _⊩ne_∷_/_ (Γ : Con Term ℓ) (t A : Term ℓ) ([A] : Γ ⊩ne A) : Set a where
@@ -136,7 +136,7 @@ mutual
     field
       n : Term ℓ
       d : Γ ⊢ t :⇒*: n ∷ ℕ
-      n≡n : Γ ⊢ n ≅ n ∷ ℕ
+      n≡n : Γ ⊢≅ n ∷ ℕ
       prop : Natural-prop Γ n
 
   -- WHNF property of natural number terms
@@ -188,7 +188,7 @@ record _⊩Empty_∷Empty (Γ : Con Term ℓ) (t : Term ℓ) : Set a where
   field
     n : Term ℓ
     d : Γ ⊢ t :⇒*: n ∷ Empty
-    n≡n : Γ ⊢ n ≅ n ∷ Empty
+    n≡n : Γ ⊢≅ n ∷ Empty
     prop : Empty-prop Γ n
 
 data [Empty]-prop (Γ : Con Term ℓ) : (n n′ : Term ℓ) → Set a where
@@ -241,7 +241,7 @@ record _⊩Unit⟨_,_⟩_∷Unit
   field
     n : Term ℓ
     d : Γ ⊢ t :⇒*: n ∷ Unit s l
-    n≡n : Γ ⊢ n ≅ n ∷ Unit s l
+    n≡n : Γ ⊢≅ n ∷ Unit s l
     prop : Unit-prop Γ l s n
 
 -- Unit term equality
@@ -317,7 +317,7 @@ module LogRel
       A     : Term ℓ
       d     : Γ ⊢ t :⇒*: A ∷ U l′
       typeA : Type A
-      A≡A   : Γ ⊢ A ≅ A ∷ U l′
+      A≡A   : Γ ⊢≅ A ∷ U l′
       [t]   : Γ ⊩ t
 
   -- Universe term equality
@@ -357,7 +357,7 @@ module LogRel
         D : Γ ⊢ A :⇒*: ⟦ W ⟧ F ▹ G
         ⊢F : Γ ⊢ F
         ⊢G : Γ ∙ F ⊢ G
-        A≡A : Γ ⊢ ⟦ W ⟧ F ▹ G ≅ ⟦ W ⟧ F ▹ G
+        A≡A : Γ ⊢≅ ⟦ W ⟧ F ▹ G
         [F] : ∀ {m} {ρ : Wk m ℓ} {Δ : Con Term m} →
               ρ ∷ʷ Δ ⊇ Γ → Δ ⊩ₗ U.wk ρ F
         [G] : ∀ {m} {ρ : Wk m ℓ} {Δ : Con Term m} {a : Term m}
@@ -399,7 +399,7 @@ module LogRel
     _⊩ₗΠ_∷_/_ {ℓ} {p} {q} Γ t A (Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext _) =
       ∃ λ f → Γ ⊢ t :⇒*: f ∷ Π p , q ▷ F ▹ G
             × Function f
-            × Γ ⊢ f ≅ f ∷ Π p , q ▷ F ▹ G
+            × Γ ⊢≅ f ∷ Π p , q ▷ F ▹ G
             × (∀ {m} {ρ : Wk m ℓ} {Δ : Con Term m} {a b}
               ([ρ] : ρ ∷ʷ Δ ⊇ Γ)
               ([a] : Δ ⊩ₗ a ∷ U.wk ρ F / [F] [ρ])
@@ -444,7 +444,7 @@ module LogRel
       {p = p} {q = q} {m = m} Γ t A
       [A]@(Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext _) =
       ∃ λ u → Γ ⊢ t :⇒*: u ∷ Σ⟨ m ⟩ p , q ▷ F ▹ G
-            × Γ ⊢ u ≅ u ∷ Σ⟨ m ⟩ p , q ▷ F ▹ G
+            × Γ ⊢≅ u ∷ Σ⟨ m ⟩ p , q ▷ F ▹ G
             × Σ (Product u) λ pProd
             → Σ-prop m u Γ [A] pProd
 
@@ -464,7 +464,7 @@ module LogRel
     Σ-prop
       {p = p} {q = q}
       𝕨 t Γ (Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext _) (ne x) =
-      Γ ⊢ t ~ t ∷ Σʷ p , q ▷ F ▹ G
+      Γ ⊢~ t ∷ Σʷ p , q ▷ F ▹ G
 
     -- Term equality of Σ-type
     _⊩ₗΣ_≡_∷_/_ :
@@ -570,7 +570,7 @@ module LogRel
       Γ ⊢ t :⇒*: u ∷ Id Ty lhs rhs ×
       ∃ λ (u-id : Identity u) →
       case u-id of λ where
-        (ne _) → Γ ⊢ u ~ u ∷ Id Ty lhs rhs
+        (ne _) → Γ ⊢~ u ∷ Id Ty lhs rhs
         rflₙ   → Γ ⊩ₗ lhs ≡ rhs ∷ Ty / ⊩Ty
       where
       open _⊩ₗId_ ⊩A
@@ -726,7 +726,7 @@ data ⊩Id∷-view
          ⊩Id∷-view ⊩A rfl rflₙ
   ne   : let open _⊩ₗId_ ⊩A in
          (u-n : Neutral u) →
-         Γ ⊢ u ~ u ∷ Id Ty lhs rhs →
+         Γ ⊢~ u ∷ Id Ty lhs rhs →
          ⊩Id∷-view ⊩A u (ne u-n)
 
 -- The view is inhabited for well-formed identity terms.

@@ -85,7 +85,7 @@ opaque
   ⊩∷U⇔ :
     Γ ⊩⟨ l ⟩ A ∷ U l′ ⇔
     (l′ <ᵘ l × Γ ⊩⟨ l′ ⟩ A ×
-     ∃ λ B → Γ ⊢ A :⇒*: B ∷ U l′ × Type B × Γ ⊢ B ≅ B ∷ U l′)
+     ∃ λ B → Γ ⊢ A :⇒*: B ∷ U l′ × Type B × Γ ⊢≅ B ∷ U l′)
   ⊩∷U⇔ =
       (λ (⊩U , ⊩A) →
          lemma (U-elim ⊩U) (irrelevanceTerm ⊩U (U-intr (U-elim ⊩U)) ⊩A))
@@ -97,7 +97,7 @@ opaque
       (⊩U : Γ ⊩⟨ l ⟩U U l′) →
       Γ ⊩⟨ l ⟩ A ∷ U l′ / U-intr ⊩U →
       (l′ <ᵘ l × Γ ⊩⟨ l′ ⟩ A ×
-       ∃ λ B → Γ ⊢ A :⇒*: B ∷ U l′ × Type B × Γ ⊢ B ≅ B ∷ U l′)
+       ∃ λ B → Γ ⊢ A :⇒*: B ∷ U l′ × Type B × Γ ⊢≅ B ∷ U l′)
     lemma (noemb (Uᵣ _ l′<l U⇒*U)) (Uₜ _ A⇒*B B-type B≅B ⊩A) =
       case U⇒*U→≡ U⇒*U of λ {
          PE.refl →
@@ -114,24 +114,24 @@ opaque
     Γ ⊩⟨ l ⟩ A ∷ U l′ ⇔
     (l′ <ᵘ l × (Γ ⊩⟨ l′ ⟩ A) ×
      Γ ⊢ A ∷ U l′ ×
-     Γ ⊢ A ≅ A ∷ U l′)
+     Γ ⊢≅ A ∷ U l′)
   Type→⊩∷U⇔ {A} {Γ} {l} {l′} A-type =
-    Γ ⊩⟨ l ⟩ A ∷ U l′                                          ⇔⟨ ⊩∷U⇔ ⟩
+    Γ ⊩⟨ l ⟩ A ∷ U l′                                       ⇔⟨ ⊩∷U⇔ ⟩
 
     l′ <ᵘ l × (Γ ⊩⟨ l′ ⟩ A) ×
-    (∃ λ B → Γ ⊢ A :⇒*: B ∷ U l′ × Type B × Γ ⊢ B ≅ B ∷ U l′)  ⇔⟨ id⇔
-                                                                    ×-cong-⇔
-                                                                  id⇔
-                                                                    ×-cong-⇔
-                                                                  ( (λ (_ , A⇒*B , _ , B≅B) →
-                                                                      case whnfRed*Term (redₜ A⇒*B) (typeWhnf A-type) of λ {
-                                                                        PE.refl →
-                                                                      ⊢t-redₜ A⇒*B , B≅B })
-                                                                  , (λ (⊢A , A≅A) → _ , idRedTerm:*: ⊢A , A-type , A≅A)
-                                                                  )
-                                                                ⟩
+    (∃ λ B → Γ ⊢ A :⇒*: B ∷ U l′ × Type B × Γ ⊢≅ B ∷ U l′)  ⇔⟨ id⇔
+                                                                 ×-cong-⇔
+                                                               id⇔
+                                                                 ×-cong-⇔
+                                                               ( (λ (_ , A⇒*B , _ , B≅B) →
+                                                                   case whnfRed*Term (redₜ A⇒*B) (typeWhnf A-type) of λ {
+                                                                     PE.refl →
+                                                                   ⊢t-redₜ A⇒*B , B≅B })
+                                                               , (λ (⊢A , A≅A) → _ , idRedTerm:*: ⊢A , A-type , A≅A)
+                                                               )
+                                                             ⟩
 
-    l′ <ᵘ l × (Γ ⊩⟨ l′ ⟩ A) × Γ ⊢ A ∷ U l′ × Γ ⊢ A ≅ A ∷ U l′  □⇔
+    l′ <ᵘ l × (Γ ⊩⟨ l′ ⟩ A) × Γ ⊢ A ∷ U l′ × Γ ⊢≅ A ∷ U l′  □⇔
 
 opaque
   unfolding _⊩⟨_⟩_≡_
@@ -285,7 +285,7 @@ opaque
           ⊢ Δ                                                      →⟨ (λ ⊢Δ → ≤ᵘ-refl , ⊩U⇔ .proj₂ (≤ᵘ-refl , ⊢Δ) , Uⱼ ⊢Δ , ≅-Urefl ⊢Δ) ⟩
 
           1+ l <ᵘ 2+ l × (Δ ⊩⟨ 1+ l ⟩ U l) × Δ ⊢ U l ∷ U (1+ l) ×
-          Δ ⊢ U l ≅ U l ∷ U (1+ l)                                 →⟨ Type→⊩∷U⇔ Uₙ .proj₂ ⟩
+          Δ ⊢≅ U l ∷ U (1+ l)                                      →⟨ Type→⊩∷U⇔ Uₙ .proj₂ ⟩
 
           Δ ⊩⟨ 2+ l ⟩ U l ∷ U (1+ l)                               →⟨ refl-⊩≡∷ ⟩
 
