@@ -1,5 +1,5 @@
 ------------------------------------------------------------------------
--- A direct proof of stability
+-- A variant of Definition.Typed.Stability with fewer dependencies
 ------------------------------------------------------------------------
 
 {-# OPTIONS --backtracking-instance-search #-}

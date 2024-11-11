@@ -19,6 +19,7 @@ open import Definition.Untyped.Neutral M type-variant
 open import Definition.Untyped.Properties M
 open import Definition.Typed R
 open import Definition.Typed.Properties R
+open import Definition.Typed.Stability R
 open import Definition.Typed.Weakening R using (_∷ʷ_⊇_; wkEq)
 open import Definition.Conversion R
 open import Definition.Conversion.Reduction R
@@ -33,7 +34,6 @@ open import Definition.Conversion.Weakening R
 open import Definition.Typed.EqualityRelation R
 open import Definition.Typed.Consequences.Syntactic R
 open import Definition.Typed.Consequences.Substitution R
-open import Definition.Typed.Consequences.Stability R
 open import Definition.Typed.Consequences.Injectivity R
 open import Definition.Typed.Consequences.Equality R
 open import Definition.Typed.Consequences.Reduction R

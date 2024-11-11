@@ -17,13 +17,13 @@ open import Definition.Typechecking R
 open import Definition.Typechecking.Soundness R
 open import Definition.Typed R
 open import Definition.Typed.Properties R
+open import Definition.Typed.Stability R
 import Definition.Typed.Weakening R as W
 open import Definition.Typed.Consequences.Inequality R
 open import Definition.Typed.Consequences.InverseUniv R
 open import Definition.Typed.Consequences.Inversion R
 open import Definition.Typed.Consequences.Reduction R
 open import Definition.Typed.Consequences.Substitution R
-open import Definition.Typed.Consequences.Stability R
 open import Definition.Typed.Consequences.Syntactic R
 open import Definition.Untyped M
 open import Definition.Untyped.Neutral M type-variant

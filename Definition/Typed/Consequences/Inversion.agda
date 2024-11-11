@@ -17,9 +17,9 @@ open import Definition.Untyped M
 open import Definition.Untyped.Neutral M type-variant
 open import Definition.Typed R
 open import Definition.Typed.Properties R
+open import Definition.Typed.Stability R
 
 open import Definition.Typed.Consequences.Injectivity R
-open import Definition.Typed.Consequences.Stability R
 open import Definition.Typed.Consequences.Syntactic R
 open import Definition.Typed.Consequences.Substitution R
 open import Definition.Typed.Consequences.Inequality R
