@@ -161,8 +161,7 @@ private opaque
             , prodⱼ
                 (Unitⱼ
                    (∙ (PE.subst (_⊢_ _) (wk≡subst _ _) $
-                       W.wk (W.step (W.step (W.step W.id))) (∙ ⊢Unit′)
-                         ⊢A))
+                       W.wk (W.stepʷ (W.step (W.step W.id)) ⊢Unit′) ⊢A))
                    ok₂)
                 (PE.subst (_⊢_∷_ _ _) (wk[]≡[] 3) (var₂ ⊢Unit′))
                 (var₀ ⊢Unit′) ok₁

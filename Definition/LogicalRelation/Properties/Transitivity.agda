@@ -21,7 +21,6 @@ open import Definition.Untyped.Neutral M type-variant
 open import Definition.Untyped.Properties M
 open import Definition.Typed R
 open import Definition.Typed.Properties R
-import Definition.Typed.Weakening R as Weak
 open import Definition.LogicalRelation R
 open import Definition.LogicalRelation.ShapeView R
 open import Definition.LogicalRelation.Irrelevance R
@@ -214,14 +213,12 @@ transEqT {n = n} {Γ = Γ} {l = l} {l′ = l′} {l″ = l″}
          (whrDet* (red D₂ , ⟦ W″ ⟧ₙ) (red D″ , ⟦ W′ ⟧ₙ)) of λ {
     (PE.refl , PE.refl , PE.refl) →
   B₌ F″ G″ D″ (≅-trans A≡B A≡B₁)
-    (λ ρ ⊢Δ → transEq ([F] ρ ⊢Δ) ([F]₁ ρ ⊢Δ) ([F]₂ ρ ⊢Δ)
-                ([F≡F′] ρ ⊢Δ) ([F≡F′]₁ ρ ⊢Δ))
-    (λ ρ ⊢Δ [a] →
-       let [a′] = convTerm₁ ([F] ρ ⊢Δ) ([F]₁ ρ ⊢Δ) ([F≡F′] ρ ⊢Δ) [a]
-           [a″] = convTerm₁ ([F]₁ ρ ⊢Δ) ([F]₂ ρ ⊢Δ) ([F≡F′]₁ ρ ⊢Δ)
-                    [a′]
-       in  transEq ([G] ρ ⊢Δ [a]) ([G]₁ ρ ⊢Δ [a′]) ([G]₂ ρ ⊢Δ [a″])
-                   ([G≡G′] ρ ⊢Δ [a]) ([G≡G′]₁ ρ ⊢Δ [a′])) }}
+    (λ ρ → transEq ([F] ρ) ([F]₁ ρ) ([F]₂ ρ) ([F≡F′] ρ) ([F≡F′]₁ ρ))
+    (λ ρ [a] →
+       let [a′] = convTerm₁ ([F] ρ) ([F]₁ ρ) ([F≡F′] ρ) [a]
+           [a″] = convTerm₁ ([F]₁ ρ) ([F]₂ ρ) ([F≡F′]₁ ρ) [a′]
+       in  transEq ([G] ρ [a]) ([G]₁ ρ [a′]) ([G]₂ ρ [a″])
+             ([G≡G′] ρ [a]) ([G≡G′]₁ ρ [a′])) }}
 transEqT (Uᵥ (Uᵣ l′ l< ⇒*U) (Uᵣ l′₁ l<₁ ⇒*U₁) (Uᵣ l′₂ l<₂ ⇒*U₂)) D D₁
   rewrite whrDet* (red ⇒*U₁ , Uₙ) (red D , Uₙ)  | whrDet* (red ⇒*U₂ , Uₙ) (red D₁ , Uₙ) =
     [ _⊢_:⇒*:_.⊢A D₁ , _⊢_:⇒*:_.⊢B D , _⊢_:⇒*:_.D D₁ ]
@@ -295,33 +292,33 @@ transEqTerm (Bᵣ′ BΠ! F G D ⊢F ⊢G A≡A [F] [G] G-ext _)
             rewrite whrDet*Term (redₜ d′ , functionWhnf funcG)
                             (redₜ d₁ , functionWhnf funcF₁) =
   Πₜ₌ f g₁ d d₁′ funcF funcG₁ (≅ₜ-trans f≡g f≡g₁) [f] [g]₁
-                (λ ρ ⊢Δ [a] → transEqTerm ([G] ρ ⊢Δ [a])
-                                ([f≡g] ρ ⊢Δ [a]) ([f≡g]₁ ρ ⊢Δ [a]))
+                (λ ρ [a] → transEqTerm ([G] ρ [a])
+                             ([f≡g] ρ [a]) ([f≡g]₁ ρ [a]))
 transEqTerm
   {n = n} {Γ = Γ} (Bᵣ′ (BΣ 𝕤 p′ q) F G D ⊢F ⊢G A≡A [F] [G] G-ext _)
   (Σₜ₌ p r d d′ pProd rProd p≅r [t] [u]
      ([fstp] , [fstr] , [fst≡] , [snd≡]))
   (Σₜ₌ p₁ r₁ d₁ d₁′ pProd₁ rProd₁ p≅r₁ [t]₁ [u]₁
      ([fstp]₁ , [fstr]₁ , [fst≡]₁ , [snd≡]₁)) =
-  let ⊢Γ = wf ⊢F
-      p₁≡r = whrDet*Term (redₜ d₁ , productWhnf pProd₁) (redₜ d′ , productWhnf rProd)
+  let p₁≡r = whrDet*Term (redₜ d₁ , productWhnf pProd₁)
+               (redₜ d′ , productWhnf rProd)
       p≅r₁ = ≅ₜ-trans p≅r
                (PE.subst
                   (λ (x : Term n) → Γ ⊢ x ≅ r₁ ∷ Σˢ p′ , q ▷ F ▹ G)
                   p₁≡r p≅r₁)
-      [F]′ = [F] Weak.id ⊢Γ
+      [F]′ = [F] _
       [fst≡]′ = transEqTerm [F]′ [fst≡]
         (PE.subst
            (λ (x : Term n) →
               Γ ⊩⟨ _ ⟩ fst _ x ≡ fst _ r₁ ∷ wk id F / [F]′)
            p₁≡r [fst≡]₁)
-      [Gfstp≡Gfstp₁] = G-ext Weak.id ⊢Γ [fstp] [fstp]₁
+      [Gfstp≡Gfstp₁] = G-ext _ [fstp] [fstp]₁
         (PE.subst
            (λ (x : Term n) →
               Γ ⊩⟨ _ ⟩ fst _ p ≡ fst _ x ∷ wk id F / [F]′)
            (PE.sym p₁≡r) [fst≡])
-      [Gfstp] = [G] Weak.id ⊢Γ [fstp]
-      [Gfstp₁] = [G] Weak.id ⊢Γ [fstp]₁
+      [Gfstp] = [G] _ [fstp]
+      [Gfstp₁] = [G] _ [fstp]₁
       [snd≡]₁′ = convEqTerm₂ [Gfstp] [Gfstp₁] [Gfstp≡Gfstp₁] [snd≡]₁
       [snd≡]′ = transEqTerm [Gfstp] [snd≡]
         (PE.subst
@@ -339,19 +336,18 @@ transEqTerm
   (Σₜ₌ p′ r′ d₁ d₁′ prodₙ prodₙ p′≅r′ [t]₁ [u]₁
      (PE.refl , PE.refl ,
       [p₁]′ , [r₁]′ , [p₂]′ , [r₂]′ , [p′₁≡r′₁] , [p′₂≡r′₂])) =
-  let ⊢Γ = wf ⊢F
-      p′≡r = whrDet*Term (redₜ d₁ , prodₙ) (redₜ d′ , prodₙ)
+  let p′≡r = whrDet*Term (redₜ d₁ , prodₙ) (redₜ d′ , prodₙ)
       _ , _ , p′₁≡r₁ , p′₂≡r₂ = prod-PE-injectivity p′≡r
       p≅r′ = ≅ₜ-trans p≅r
                 (PE.subst (λ x → Γ ⊢ x ≅ r′ ∷ Σʷ p″ , q ▷ F ▹ G)
                    p′≡r p′≅r′)
-      [F]′ = [F] Weak.id ⊢Γ
+      [F]′ = [F] _
       [p₁≡r′₁] = transEqTerm [F]′ [p₁≡r₁] (PE.subst (λ (x : Term n) → Γ ⊩⟨ _ ⟩ x ≡ _ ∷ wk id F / [F]′) p′₁≡r₁ [p′₁≡r′₁])
-      [Gp≡Gp₁] = G-ext Weak.id ⊢Γ [p₁] [p₁]′
+      [Gp≡Gp₁] = G-ext _ [p₁] [p₁]′
                        (PE.subst (λ (x : Term n) → Γ ⊩⟨ _ ⟩ _ ≡ x ∷ wk id F / [F]′)
                                  (PE.sym p′₁≡r₁) [p₁≡r₁])
-      [Gp] = [G] Weak.id ⊢Γ [p₁]
-      [Gp′] = [G] Weak.id ⊢Γ [p₁]′
+      [Gp] = [G] _ [p₁]
+      [Gp′] = [G] _ [p₁]′
       [r₂≡r′₂] = convEqTerm₂ [Gp] [Gp′] [Gp≡Gp₁]
                              (PE.subst (λ (x : Term n) → Γ ⊩⟨ _ ⟩ x ≡ _ ∷ wk (lift id) G [ _ ]₀ / [Gp′])
                                        p′₂≡r₂ [p′₂≡r′₂])

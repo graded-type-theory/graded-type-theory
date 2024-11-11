@@ -194,12 +194,12 @@ opaque
     case inversion-lam-Π ⊢lam of λ {
       (⊢t , PE.refl , ok) →
     case wfTerm ⊢t of λ {
-      ⊢ΓA@(∙ ⊢A) →
+      (∙ ⊢A) →
     PE.subst₂ (_⊢_⇒_∷_ _ _)
       (wkSingleSubstId _)
       (wkSingleSubstId _)
       (β-red-⇒
-         (wkTerm (lift (step id)) (∙ W.wk (step id) ⊢ΓA ⊢A) ⊢t)
+         (wkTerm (liftʷ (step id) (W.wk (stepʷ id ⊢A) ⊢A)) ⊢t)
          (var₀ ⊢A) ok) }}
 
 opaque

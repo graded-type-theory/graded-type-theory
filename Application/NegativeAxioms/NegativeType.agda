@@ -70,23 +70,23 @@ data NegativeType (Γ : Cxt m) : Ty m → Set a where
 
 -- Lemma: Negative types are closed under weakening.
 
-wkNeg : ρ ∷ Δ ⊇ Γ → ⊢ Δ → NegativeType Γ A → NegativeType Δ (U.wk ρ A)
+wkNeg : ρ ∷ʷ Δ ⊇ Γ → NegativeType Γ A → NegativeType Δ (U.wk ρ A)
 
-wkNeg w ⊢Δ empty
+wkNeg w empty
   = empty
 
-wkNeg w ⊢Δ (pi dA nB)
-  = pi dA' (wkNeg (lift w) (∙ dA') nB)
-    where dA' = T.wk w ⊢Δ dA
+wkNeg w (pi dA nB)
+  = pi dA' (wkNeg (liftʷʷ w dA') nB)
+    where dA' = T.wk w dA
 
-wkNeg w ⊢Δ (sigma dA nA nB)
-  = sigma dA' (wkNeg w ⊢Δ nA) (wkNeg (lift w) (∙ dA') nB)
-    where dA' = T.wk w ⊢Δ dA
+wkNeg w (sigma dA nA nB)
+  = sigma dA' (wkNeg w nA) (wkNeg (liftʷʷ w dA') nB)
+    where dA' = T.wk w dA
 
-wkNeg _ _ universe = universe
+wkNeg _ universe = universe
 
-wkNeg w ⊢Δ (conv n c)
-  = conv (wkNeg w ⊢Δ n) (wkEq w ⊢Δ c)
+wkNeg w (conv n c)
+  = conv (wkNeg w n) (wkEq w c)
 
 -- Lemma: Negative types are closed under parallel substitution.
 

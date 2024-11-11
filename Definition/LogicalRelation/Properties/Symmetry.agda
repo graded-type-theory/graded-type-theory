@@ -21,7 +21,7 @@ open import Definition.Untyped.Neutral M type-variant
 open import Definition.Untyped.Properties M
 open import Definition.Typed R
 open import Definition.Typed.Properties R
-import Definition.Typed.Weakening R as W
+open import Definition.Typed.Weakening R using (_∷ʷ_⊇_)
 open import Definition.LogicalRelation R
 open import Definition.LogicalRelation.ShapeView R
 open import Definition.LogicalRelation.Irrelevance R
@@ -102,31 +102,26 @@ symEqT
       F₁≡F′ , G₁≡G′ , _ = B-PE-injectivity W W ΠF₁G₁≡ΠF′G′
       [F₁≡F] :
         {ℓ : Nat} {Δ : Con Term ℓ} {ρ : Wk ℓ n}
-        ([ρ] : ρ W.∷ Δ ⊇ Γ) (⊢Δ : ⊢ Δ) →
-        Δ ⊩⟨ l′ ⟩ (wk ρ F₁) ≡ (wk ρ F) / [F]₁ [ρ] ⊢Δ
-      [F₁≡F] {_} {Δ} {ρ} [ρ] ⊢Δ =
+        ([ρ] : ρ ∷ʷ Δ ⊇ Γ) →
+        Δ ⊩⟨ l′ ⟩ (wk ρ F₁) ≡ (wk ρ F) / [F]₁ [ρ]
+      [F₁≡F] {_} {Δ} {ρ} [ρ] =
         let ρF′≡ρF₁ ρ = PE.cong (wk ρ) (PE.sym F₁≡F′)
-            [ρF′] {ρ} [ρ] ⊢Δ =
-              PE.subst (Δ ⊩⟨ l′ ⟩_ ∘→ wk ρ) F₁≡F′ ([F]₁ [ρ] ⊢Δ)
+            [ρF′] {ρ} [ρ] =
+              PE.subst (Δ ⊩⟨ l′ ⟩_ ∘→ wk ρ) F₁≡F′ ([F]₁ [ρ])
         in  irrelevanceEq′ {Γ = Δ} (ρF′≡ρF₁ ρ)
-                           ([ρF′] [ρ] ⊢Δ) ([F]₁ [ρ] ⊢Δ)
-                           (symEq ([F] [ρ] ⊢Δ) ([ρF′] [ρ] ⊢Δ)
-                                  ([F≡F′] [ρ] ⊢Δ))
+              ([ρF′] [ρ]) ([F]₁ [ρ]) (symEq ([F] [ρ]) ([ρF′] [ρ])
+              ([F≡F′] [ρ]))
   in
   B₌ _ _ D
     (≅-sym (PE.subst (Γ ⊢ ⟦ W ⟧ F ▹ G ≅_) (PE.sym ΠF₁G₁≡ΠF′G′) A≡B))
     [F₁≡F]
-    (λ {_} {ρ} {Δ} {a} [ρ] ⊢Δ [a] →
+    (λ {_} {ρ} {Δ} {a} [ρ] [a] →
        let ρG′a≡ρG₁′a = PE.cong (_[ a ]₀ ∘→ wk (lift ρ)) (PE.sym G₁≡G′)
            [ρG′a] = PE.subst (λ x → Δ ⊩⟨ l′ ⟩ wk (lift ρ) x [ a ]₀)
-                      G₁≡G′ ([G]₁ [ρ] ⊢Δ [a])
-           [a]₁ = convTerm₁
-                    ([F]₁ [ρ] ⊢Δ) ([F] [ρ] ⊢Δ) ([F₁≡F] [ρ] ⊢Δ) [a]
-       in  irrelevanceEq′ ρG′a≡ρG₁′a
-                          [ρG′a]
-                          ([G]₁ [ρ] ⊢Δ [a])
-                          (symEq ([G] [ρ] ⊢Δ [a]₁) [ρG′a]
-                                 ([G≡G′] [ρ] ⊢Δ [a]₁)))
+                      G₁≡G′ ([G]₁ [ρ] [a])
+           [a]₁ = convTerm₁ ([F]₁ [ρ]) ([F] [ρ]) ([F₁≡F] [ρ]) [a]
+       in  irrelevanceEq′ ρG′a≡ρG₁′a [ρG′a] ([G]₁ [ρ] [a])
+             (symEq ([G] [ρ] [a]₁) [ρG′a] ([G≡G′] [ρ] [a]₁)))
 symEqT (Uᵥ (Uᵣ l′ l< ⇒*U) (Uᵣ l′₁ l<₁ ⇒*U₁)) D with whrDet* (red D , Uₙ) (red ⇒*U₁ , Uₙ)
 symEqT (Uᵥ (Uᵣ l′ l< ⇒*U) (Uᵣ l′₁ l<₁ ⇒*U₁)) D | PE.refl = ⇒*U
 symEqT (Idᵥ ⊩A ⊩B@record{}) A≡B =
@@ -174,31 +169,25 @@ symEqTerm (ne′ _ D neK K≡K) (neₜ₌ k m d d′ nf) =
 symEqTerm (Bᵣ′ BΠ! F G D ⊢F ⊢G A≡A [F] [G] G-ext _)
           (Πₜ₌ f g d d′ funcF funcG f≡g [f] [g] [f≡g]) =
   Πₜ₌ g f d′ d funcG funcF (≅ₜ-sym f≡g) [g] [f]
-      (λ ρ ⊢Δ [a] → symEqTerm ([G] ρ ⊢Δ [a]) ([f≡g] ρ ⊢Δ [a]))
+      (λ ρ [a] → symEqTerm ([G] ρ [a]) ([f≡g] ρ [a]))
 symEqTerm (Bᵣ′ BΣˢ F G D ⊢F ⊢G A≡A [F] [G] G-ext _)
           (Σₜ₌ p r d d′ pProd rProd p≅r [t] [u] ([fstp] , [fstr] , [fst≡] , [snd≡])) =
-  let ⊢Γ = wf ⊢F
-      [Gfstp≡Gfstr] = G-ext W.id ⊢Γ [fstp] [fstr] [fst≡]
+  let [Gfstp≡Gfstr] = G-ext _ [fstp] [fstr] [fst≡]
   in  Σₜ₌ r p d′ d rProd pProd (≅ₜ-sym p≅r) [u] [t]
-          ([fstr] , [fstp] , (symEqTerm ([F] W.id ⊢Γ) [fst≡]) ,
-          (convEqTerm₁
-            ([G] W.id ⊢Γ [fstp]) ([G] W.id ⊢Γ [fstr])
-            [Gfstp≡Gfstr]
-            (symEqTerm ([G] W.id ⊢Γ [fstp]) [snd≡])))
+          ([fstr] , [fstp] , (symEqTerm ([F] _) [fst≡]) ,
+           convEqTerm₁ ([G] _ [fstp]) ([G] _ [fstr]) [Gfstp≡Gfstr]
+             (symEqTerm ([G] _ [fstp]) [snd≡]))
 symEqTerm
   (Bᵣ′ BΣʷ F G D ⊢F ⊢G A≡A [F] [G] G-ext _)
   (Σₜ₌ p r d d′ prodₙ prodₙ p≅r [t] [u]
      (PE.refl , PE.refl ,
       [p₁] , [r₁] , [p₂] , [r₂] , [fst≡] , [snd≡])) =
-  let ⊢Γ = wf ⊢F
-      [Gfstp≡Gfstr] = G-ext W.id ⊢Γ [p₁] [r₁] [fst≡]
+  let [Gfstp≡Gfstr] = G-ext _ [p₁] [r₁] [fst≡]
   in  Σₜ₌ r p d′ d prodₙ prodₙ (≅ₜ-sym p≅r) [u] [t]
         (PE.refl , PE.refl , [r₁] , [p₁] , [r₂] , [p₂] ,
-         symEqTerm ([F] W.id ⊢Γ) [fst≡] ,
-         convEqTerm₁
-           ([G] W.id ⊢Γ [p₁]) ([G] W.id ⊢Γ [r₁])
-           [Gfstp≡Gfstr]
-           (symEqTerm ([G] W.id ⊢Γ [p₁]) [snd≡]))
+         symEqTerm ([F] _) [fst≡] ,
+         convEqTerm₁ ([G] _ [p₁]) ([G] _ [r₁]) [Gfstp≡Gfstr]
+           (symEqTerm ([G] _ [p₁]) [snd≡]))
 symEqTerm (Bᵣ′ BΣʷ F G D ⊢F ⊢G A≡A [F] [G] G-ext _)
           (Σₜ₌ p r d d′ (ne x) (ne y) p≅r [t] [u] p~r) =
   Σₜ₌ r p d′ d (ne y) (ne x) (≅ₜ-sym p≅r) [u] [t] (~-sym p~r)

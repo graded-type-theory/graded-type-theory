@@ -54,14 +54,14 @@ data NegativeErasedContext : Ctx m → Conₘ m → Set a where
 lookupNegative :
   ⊢ Γ → NegativeErasedContext Γ γ → x ∷ A ∈ Γ → γ ⟨ x ⟩ ≢ 𝟘 →
   NegativeType Γ A
-lookupNegative ⊢Γ∙A (nΓγ ∙ nA) here _ =
-  wkNeg (step id) ⊢Γ∙A nA
-lookupNegative ⊢Γ∙A@(∙ Γ⊢A) (nΓγ ∙ nA) (there h) ≢𝟘 =
-  wkNeg (step id) ⊢Γ∙A (lookupNegative (wf Γ⊢A) nΓγ h ≢𝟘)
+lookupNegative (∙ ⊢A) (nΓγ ∙ nA) here _ =
+  wkNeg (stepʷ id ⊢A) nA
+lookupNegative (∙ ⊢A) (nΓγ ∙ nA) (there h) ≢𝟘 =
+  wkNeg (stepʷ id ⊢A) (lookupNegative (wf ⊢A) nΓγ h ≢𝟘)
 lookupNegative ⊢Γ∙A (nΓγ ∙𝟘) here ≢𝟘 =
   ⊥-elim (≢𝟘 PE.refl)
-lookupNegative ⊢Γ∙A@(∙ Γ⊢A) (nΓγ ∙𝟘) (there h) ≢𝟘 =
-  wkNeg (step id) ⊢Γ∙A (lookupNegative (wf Γ⊢A) nΓγ h ≢𝟘)
+lookupNegative (∙ ⊢A) (nΓγ ∙𝟘) (there h) ≢𝟘 =
+  wkNeg (stepʷ id ⊢A) (lookupNegative (wf ⊢A) nΓγ h ≢𝟘)
 
 erasedContext : NegativeErasedContext Γ 𝟘ᶜ
 erasedContext {Γ = ε} = ε

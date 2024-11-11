@@ -76,18 +76,18 @@ sourceRedSubstTerm
   t®v′ t⇒t′ with is-𝟘? p
 ... | yes PE.refl = t®v′ .proj₁ , λ {a = a} [a] →
   let t®v = t®v′ .proj₂ [a]
-      ⊢a = escapeTerm ([F] id ⊢Δ) [a]
+      ⊢a = escapeTerm ([F] (idʷ ⊢Δ)) [a]
       ⊢a′ = PE.subst (Δ ⊢ a ∷_) (UP.wk-id F) ⊢a
       t∘a⇒t′∘w′ = app-subst (conv t⇒t′ (subset* D)) ⊢a′
       t∘a⇒t′∘w = PE.subst (_⊢_⇒_∷_ Δ _ _) (PE.cong (U._[ a ]₀) (PE.sym (UP.wk-lift-id G))) t∘a⇒t′∘w′
-  in  sourceRedSubstTerm ([G] id ⊢Δ [a]) t®v t∘a⇒t′∘w
+  in  sourceRedSubstTerm ([G] (idʷ ⊢Δ) [a]) t®v t∘a⇒t′∘w
 ... | no p≢𝟘 = t®v′ .proj₁ , λ {a = a} [a] a®w →
   let t®v = t®v′ .proj₂ [a] a®w
-      ⊢a = escapeTerm ([F] id ⊢Δ) [a]
+      ⊢a = escapeTerm ([F] (idʷ ⊢Δ)) [a]
       ⊢a′ = PE.subst (Δ ⊢ a ∷_) (UP.wk-id F) ⊢a
       t∘a⇒t′∘w′ = app-subst (conv t⇒t′ (subset* D)) ⊢a′
       t∘a⇒t′∘w = PE.subst (Δ ⊢ _ ⇒ _ ∷_) (PE.cong (U._[ a ]₀) (PE.sym (UP.wk-lift-id G))) t∘a⇒t′∘w′
-  in  sourceRedSubstTerm ([G] id ⊢Δ [a]) t®v t∘a⇒t′∘w
+  in  sourceRedSubstTerm ([G] (idʷ ⊢Δ) [a]) t®v t∘a⇒t′∘w
 sourceRedSubstTerm
   (Bᵣ′ BΣ! F G ([ ⊢A , ⊢B , D ]) ⊢F ⊢G A≡A [F] [G] G-ext _)
   (t₁ , t₂ , t′⇒p , [t₁] , v₂ , t₂®v₂ , extra) t⇒t′ =
@@ -129,19 +129,19 @@ targetRedSubstTerm
   with is-𝟘? p | Σ.map idᶠ (T.trans v⇒v′) ∘→ v′⇒*lam
 ... | yes PE.refl | v⇒*lam = v⇒*lam , λ {a = a} [a] →
   let t®v = t®v′ [a]
-      [G[a]] = [G] id ⊢Δ [a]
+      [G[a]] = [G] (idʷ ⊢Δ) [a]
   in  targetRedSubstTerm [G[a]] t®v (app-𝟘′-subst v⇒v′)
 ... | no p≢𝟘 | v⇒*lam = v⇒*lam , λ {a = a} [a] a®w →
   let t®v = t®v′ [a] a®w
       v∘w⇒v′∘w′ = T.app-subst v⇒v′
-      [G[a]] = [G] id ⊢Δ [a]
+      [G[a]] = [G] (idʷ ⊢Δ) [a]
   in  targetRedSubstTerm [G[a]] t®v v∘w⇒v′∘w′
 targetRedSubstTerm {A = A} {t = t} {v = v}
   [Σ]@(Bᵣ′ (BΣ _ p _) F G ([ ⊢A , ⊢B , D ]) ⊢F ⊢G A≡A [F] [G] G-ext _)
   (t₁ , t₂ , t⇒t′ , [t₁] , v₂ , t₂®v₂ , extra) v⇒v′ =
     t₁ , t₂ , t⇒t′ , [t₁] , v₂ , t₂®v₂ , extra′
   where
-  extra′ = Σ-®-elim (λ _ → Σ-® _ F ([F] id ⊢Δ) t₁ v v₂ p) extra
+  extra′ = Σ-®-elim (λ _ → Σ-® _ F ([F] (idʷ ⊢Δ)) t₁ v v₂ p) extra
                     (λ v′⇒v₂         → Σ-®-intro-𝟘 (trans v⇒v′ v′⇒v₂))
                     (λ v₁ v′⇒p t₁®v₁ → Σ-®-intro-ω v₁ (trans v⇒v′ v′⇒p) t₁®v₁)
 targetRedSubstTerm (Idᵣ _) (rflᵣ t⇒*rfl ⇒*↯) v⇒v′ =
@@ -208,22 +208,22 @@ sourceRedSubstTerm′
   with is-𝟘? p
 ... | yes PE.refl = t®v′ .proj₁ , λ {a = a} [a] →
   let t®v = t®v′ .proj₂ [a]
-      ⊢a = escapeTerm ([F] id ⊢Δ) [a]
+      ⊢a = escapeTerm ([F] (idʷ ⊢Δ)) [a]
       ⊢a′ = PE.subst (Δ ⊢ a ∷_) (UP.wk-id F) ⊢a
       t∘a⇒t′∘a′ = app-subst (conv t⇒t′ (subset* (red D))) ⊢a′
       t∘a⇒t′∘a = PE.subst (_⊢_⇒_∷_ Δ _ _)
                           (PE.cong (U._[ a ]₀) (PE.sym (UP.wk-lift-id G)))
                           t∘a⇒t′∘a′
-  in  sourceRedSubstTerm′ ([G] id ⊢Δ [a]) t®v t∘a⇒t′∘a
+  in  sourceRedSubstTerm′ ([G] (idʷ ⊢Δ) [a]) t®v t∘a⇒t′∘a
 ... | no p≢𝟘 = t®v′ .proj₁ , λ {a = a} [a] a®w →
   let t®v = t®v′ .proj₂ [a] a®w
-      ⊢a = escapeTerm ([F] id ⊢Δ) [a]
+      ⊢a = escapeTerm ([F] (idʷ ⊢Δ)) [a]
       ⊢a′ = PE.subst (Δ ⊢ a ∷_) (UP.wk-id F) ⊢a
       t∘a⇒t′∘a′ = app-subst (conv t⇒t′ (subset* (red D))) ⊢a′
       t∘a⇒t′∘a = PE.subst (_⊢_⇒_∷_ Δ _ _)
                           (PE.cong (U._[ a ]₀) (PE.sym (UP.wk-lift-id G)))
                           t∘a⇒t′∘a′
-  in  sourceRedSubstTerm′ ([G] id ⊢Δ [a]) t®v t∘a⇒t′∘a
+  in  sourceRedSubstTerm′ ([G] (idʷ ⊢Δ) [a]) t®v t∘a⇒t′∘a
 sourceRedSubstTerm′
   (Bᵣ′ BΣ! F G D ⊢F ⊢G A≡A [F] [G] G-ext _)
   (t₁ , t₂ , t⇒p , [t₁] , v₂ , t₂®v₂ , extra) t⇒t′ =
@@ -306,16 +306,16 @@ targetRedSubstTerm′
   with is-𝟘? p
 ... | yes PE.refl = Π-lemma v⇒v′ ∘→ t®v′ .proj₁ , λ [a] →
   let t®v = t®v′ .proj₂ [a]
-  in  targetRedSubstTerm′ ([G] id ⊢Δ [a]) t®v (app-𝟘′-subst v⇒v′)
+  in  targetRedSubstTerm′ ([G] (idʷ ⊢Δ) [a]) t®v (app-𝟘′-subst v⇒v′)
 ... | no p≢𝟘 = Π-lemma v⇒v′ ∘→ t®v′ .proj₁ , λ [a] a®w →
   let t®v = t®v′ .proj₂ [a] a®w
       v∘w⇒v′∘w = T.app-subst v⇒v′
-  in  targetRedSubstTerm′ ([G] id ⊢Δ [a]) t®v v∘w⇒v′∘w
+  in  targetRedSubstTerm′ ([G] (idʷ ⊢Δ) [a]) t®v v∘w⇒v′∘w
 targetRedSubstTerm′
   {v′ = v′}
   (Bᵣ′ (BΣ _ p _) F G D ⊢F ⊢G A≡A [F] [G] G-ext _)
   (t₁ , t₂ , t⇒t′ , [t₁] , v₂ , t₂®v₂ , extra) v⇒v′ =
-  let [Gt₁] = [G] id ⊢Δ [t₁]
+  let [Gt₁] = [G] (idʷ ⊢Δ) [t₁]
   in  t₁ , t₂ , t⇒t′ , [t₁]
       , Σ-®-elim
          (λ _ → ∃ λ v₂ → (t₂ ®⟨ _ ⟩ v₂ ∷ U.wk (lift id) G U.[ t₁ ]₀ / [Gt₁])

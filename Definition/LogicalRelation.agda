@@ -358,17 +358,19 @@ module LogRel
         ⊢F : Γ ⊢ F
         ⊢G : Γ ∙ F ⊢ G
         A≡A : Γ ⊢ ⟦ W ⟧ F ▹ G ≅ ⟦ W ⟧ F ▹ G
-        [F] : ∀ {m} {ρ : Wk m ℓ} {Δ : Con Term m} → ρ ∷ Δ ⊇ Γ → ⊢ Δ → Δ ⊩ₗ U.wk ρ F
+        [F] : ∀ {m} {ρ : Wk m ℓ} {Δ : Con Term m} →
+              ρ ∷ʷ Δ ⊇ Γ → Δ ⊩ₗ U.wk ρ F
         [G] : ∀ {m} {ρ : Wk m ℓ} {Δ : Con Term m} {a : Term m}
-            → ([ρ] : ρ ∷ Δ ⊇ Γ) (⊢Δ : ⊢ Δ)
-            → Δ ⊩ₗ a ∷ U.wk ρ F / [F] [ρ] ⊢Δ
+            → ([ρ] : ρ ∷ʷ Δ ⊇ Γ)
+            → Δ ⊩ₗ a ∷ U.wk ρ F / [F] [ρ]
             → Δ ⊩ₗ U.wk (lift ρ) G [ a ]₀
         G-ext : ∀ {m} {ρ : Wk m ℓ} {Δ : Con Term m} {a b}
-              → ([ρ] : ρ ∷ Δ ⊇ Γ) (⊢Δ : ⊢ Δ)
-              → ([a] : Δ ⊩ₗ a ∷ U.wk ρ F / [F] [ρ] ⊢Δ)
-              → ([b] : Δ ⊩ₗ b ∷ U.wk ρ F / [F] [ρ] ⊢Δ)
-              → Δ ⊩ₗ a ≡ b ∷ U.wk ρ F / [F] [ρ] ⊢Δ
-              → Δ ⊩ₗ U.wk (lift ρ) G [ a ]₀ ≡ U.wk (lift ρ) G [ b ]₀ / [G] [ρ] ⊢Δ [a]
+              → ([ρ] : ρ ∷ʷ Δ ⊇ Γ)
+              → ([a] : Δ ⊩ₗ a ∷ U.wk ρ F / [F] [ρ])
+              → ([b] : Δ ⊩ₗ b ∷ U.wk ρ F / [F] [ρ])
+              → Δ ⊩ₗ a ≡ b ∷ U.wk ρ F / [F] [ρ]
+              → Δ ⊩ₗ U.wk (lift ρ) G [ a ]₀ ≡ U.wk (lift ρ) G [ b ]₀ /
+                  [G] [ρ] [a]
         ok : BindingType-allowed W
 
     -- B-type equality
@@ -384,12 +386,13 @@ module LogRel
         D′     : Γ ⊢ B :⇒*: ⟦ W ⟧ F′ ▹ G′
         A≡B    : Γ ⊢ ⟦ W ⟧ F ▹ G ≅ ⟦ W ⟧ F′ ▹ G′
         [F≡F′] : {m : Nat} {ρ : Wk m ℓ} {Δ : Con Term m}
-               → ([ρ] : ρ ∷ Δ ⊇ Γ) (⊢Δ : ⊢ Δ)
-               → Δ ⊩ₗ U.wk ρ F ≡ U.wk ρ F′ / [F] [ρ] ⊢Δ
+               → ([ρ] : ρ ∷ʷ Δ ⊇ Γ)
+               → Δ ⊩ₗ U.wk ρ F ≡ U.wk ρ F′ / [F] [ρ]
         [G≡G′] : ∀ {m} {ρ : Wk m ℓ} {Δ : Con Term m} {a}
-               → ([ρ] : ρ ∷ Δ ⊇ Γ) (⊢Δ : ⊢ Δ)
-               → ([a] : Δ ⊩ₗ a ∷ U.wk ρ F / [F] [ρ] ⊢Δ)
-               → Δ ⊩ₗ U.wk (lift ρ) G [ a ]₀ ≡ U.wk (lift ρ) G′ [ a ]₀ / [G] [ρ] ⊢Δ [a]
+               → ([ρ] : ρ ∷ʷ Δ ⊇ Γ)
+               → ([a] : Δ ⊩ₗ a ∷ U.wk ρ F / [F] [ρ])
+               → Δ ⊩ₗ U.wk (lift ρ) G [ a ]₀ ≡ U.wk (lift ρ) G′ [ a ]₀ /
+                   [G] [ρ] [a]
 
     -- Term reducibility of Π-type
     _⊩ₗΠ_∷_/_ : {ℓ : Nat} {p q : Mod} (Γ : Con Term ℓ) (t A : Term ℓ) ([A] : Γ ⊩ₗB⟨ BΠ p q ⟩ A) → Set a
@@ -398,14 +401,16 @@ module LogRel
             × Function f
             × Γ ⊢ f ≅ f ∷ Π p , q ▷ F ▹ G
             × (∀ {m} {ρ : Wk m ℓ} {Δ : Con Term m} {a b}
-              ([ρ] : ρ ∷ Δ ⊇ Γ) (⊢Δ : ⊢ Δ)
-              ([a] : Δ ⊩ₗ a ∷ U.wk ρ F / [F] [ρ] ⊢Δ)
-              ([b] : Δ ⊩ₗ b ∷ U.wk ρ F / [F] [ρ] ⊢Δ)
-              ([a≡b] : Δ ⊩ₗ a ≡ b ∷ U.wk ρ F / [F] [ρ] ⊢Δ)
-              → Δ ⊩ₗ U.wk ρ f ∘⟨ p ⟩ a ≡ U.wk ρ f ∘⟨ p ⟩ b ∷ U.wk (lift ρ) G [ a ]₀ / [G] [ρ] ⊢Δ [a])
-            × (∀ {m} {ρ : Wk m ℓ} {Δ : Con Term m} {a} → ([ρ] : ρ ∷ Δ ⊇ Γ) (⊢Δ : ⊢ Δ)
-              → ([a] : Δ ⊩ₗ a ∷ U.wk ρ F / [F] [ρ] ⊢Δ)
-              → Δ ⊩ₗ U.wk ρ f ∘⟨ p ⟩ a ∷ U.wk (lift ρ) G [ a ]₀ / [G] [ρ] ⊢Δ [a])
+              ([ρ] : ρ ∷ʷ Δ ⊇ Γ)
+              ([a] : Δ ⊩ₗ a ∷ U.wk ρ F / [F] [ρ])
+              ([b] : Δ ⊩ₗ b ∷ U.wk ρ F / [F] [ρ])
+              ([a≡b] : Δ ⊩ₗ a ≡ b ∷ U.wk ρ F / [F] [ρ])
+              → Δ ⊩ₗ U.wk ρ f ∘⟨ p ⟩ a ≡ U.wk ρ f ∘⟨ p ⟩ b ∷
+                  U.wk (lift ρ) G [ a ]₀ / [G] [ρ] [a])
+            × (∀ {m} {ρ : Wk m ℓ} {Δ : Con Term m} {a}
+               ([ρ] : ρ ∷ʷ Δ ⊇ Γ) ([a] : Δ ⊩ₗ a ∷ U.wk ρ F / [F] [ρ]) →
+               Δ ⊩ₗ U.wk ρ f ∘⟨ p ⟩ a ∷ U.wk (lift ρ) G [ a ]₀ /
+                 [G] [ρ] [a])
               {- NOTE(WN): Last 2 fields could be refactored to a single forall.
                            But touching this definition is painful, so only do it
                            if you have to change it anyway. -}
@@ -423,9 +428,11 @@ module LogRel
                × Γ ⊢ f ≅ g ∷ Π p , q ▷ F ▹ G
                × Γ ⊩ₗΠ t ∷ A / [A]
                × Γ ⊩ₗΠ u ∷ A / [A]
-               × (∀ {m} {ρ : Wk m ℓ} {Δ : Con Term m} {a} ([ρ] : ρ ∷ Δ ⊇ Γ) (⊢Δ : ⊢ Δ)
-                 ([a] : Δ ⊩ₗ a ∷ U.wk ρ F / [F] [ρ] ⊢Δ)
-                 → Δ ⊩ₗ U.wk ρ f ∘⟨ p ⟩ a ≡ U.wk ρ g ∘⟨ p ⟩ a ∷ U.wk (lift ρ) G [ a ]₀ / [G] [ρ] ⊢Δ [a])
+               × (∀ {m} {ρ : Wk m ℓ} {Δ : Con Term m} {a}
+                  ([ρ] : ρ ∷ʷ Δ ⊇ Γ)
+                  ([a] : Δ ⊩ₗ a ∷ U.wk ρ F / [F] [ρ]) →
+                  Δ ⊩ₗ U.wk ρ f ∘⟨ p ⟩ a ≡ U.wk ρ g ∘⟨ p ⟩ a ∷
+                    U.wk (lift ρ) G [ a ]₀ / [G] [ρ] [a])
     -- Issue: Same as above.
 
 
@@ -444,15 +451,15 @@ module LogRel
     Σ-prop : ∀ {A p q} (m : Strength) (t : Term ℓ) → (Γ : Con Term ℓ)
            → ([A] : Γ ⊩ₗB⟨ BΣ m p q ⟩ A) → (Product t) → Set a
     Σ-prop {p = p} 𝕤 t Γ (Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext _) _ =
-      Σ (Γ ⊩ₗ fst p t ∷ U.wk id F / [F] id (wf ⊢F)) λ [fst] →
+      Σ (Γ ⊩ₗ fst p t ∷ U.wk id F / [F] (idʷ (wf ⊢F))) λ [fst] →
       Γ ⊩ₗ snd p t ∷ U.wk (lift id) G [ fst p t ]₀ /
-        [G] id (wf ⊢F) [fst]
+        [G] (idʷ (wf ⊢F)) [fst]
     Σ-prop
       {p = p} 𝕨 t Γ (Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext _)
       (prodₙ {p = p′} {t = p₁} {u = p₂} {m = m}) =
            p PE.≡ p′ ×
-           Σ (Γ ⊩ₗ p₁ ∷ U.wk id F / [F] id (wf ⊢F)) λ [p₁]
-           → Γ ⊩ₗ p₂ ∷ U.wk (lift id) G [ p₁ ]₀ / [G] id (wf ⊢F) [p₁]
+           Σ (Γ ⊩ₗ p₁ ∷ U.wk id F / [F] (idʷ (wf ⊢F))) λ [p₁]
+           → Γ ⊩ₗ p₂ ∷ U.wk (lift id) G [ p₁ ]₀ / [G] (idʷ (wf ⊢F)) [p₁]
            × m PE.≡ 𝕨
     Σ-prop
       {p = p} {q = q}
@@ -479,22 +486,25 @@ module LogRel
       ∀ {A p q} (m : Strength) (t r : Term ℓ) (Γ : Con Term ℓ)
       ([A] : Γ ⊩ₗB⟨ BΣ m p q ⟩ A) → Product t → Product r → Set a
     [Σ]-prop {p = p} 𝕤 t r Γ (Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext _) _ _ =
-      Σ (Γ ⊩ₗ fst p t ∷ U.wk id F / [F] id (wf ⊢F)) λ [fstp]
-      → Γ ⊩ₗ fst p r ∷ U.wk id F / [F] id (wf ⊢F)
-      × Γ ⊩ₗ fst p t ≡ fst p r ∷ U.wk id F / [F] id (wf ⊢F)
+      Σ (Γ ⊩ₗ fst p t ∷ U.wk id F / [F] (idʷ (wf ⊢F))) λ [fstp]
+      → Γ ⊩ₗ fst p r ∷ U.wk id F / [F] (idʷ (wf ⊢F))
+      × Γ ⊩ₗ fst p t ≡ fst p r ∷ U.wk id F / [F] (idʷ (wf ⊢F))
       × Γ ⊩ₗ snd p t ≡ snd p r ∷ U.wk (lift id) G [ fst p t ]₀
-        / [G] id (wf ⊢F) [fstp]
+        / [G] (idʷ (wf ⊢F)) [fstp]
     [Σ]-prop
       {p = p} 𝕨 t r Γ (Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext _)
       (prodₙ {p = p′} {t = p₁} {u = p₂})
       (prodₙ {p = p″} {t = r₁} {u = r₂}) =
              p PE.≡ p′ × p PE.≡ p″ ×
-             Σ (Γ ⊩ₗ p₁ ∷ U.wk id F / [F] id (wf ⊢F)) λ [p₁] →
-             Σ (Γ ⊩ₗ r₁ ∷ U.wk id F / [F] id (wf ⊢F)) λ [r₁]
-             → (Γ ⊩ₗ p₂ ∷ U.wk (lift id) G [ p₁ ]₀ / [G] id (wf ⊢F) [p₁])
-             × (Γ ⊩ₗ r₂ ∷ U.wk (lift id) G [ r₁ ]₀ / [G] id (wf ⊢F) [r₁])
-             × (Γ ⊩ₗ p₁ ≡ r₁ ∷ U.wk id F / [F] id (wf ⊢F))
-             × (Γ ⊩ₗ p₂ ≡ r₂ ∷ U.wk (lift id) G [ p₁ ]₀ / [G] id (wf ⊢F) [p₁])
+             Σ (Γ ⊩ₗ p₁ ∷ U.wk id F / [F] (idʷ (wf ⊢F))) λ [p₁] →
+             Σ (Γ ⊩ₗ r₁ ∷ U.wk id F / [F] (idʷ (wf ⊢F))) λ [r₁]
+             → (Γ ⊩ₗ p₂ ∷ U.wk (lift id) G [ p₁ ]₀ /
+                  [G] (idʷ (wf ⊢F)) [p₁])
+             × (Γ ⊩ₗ r₂ ∷ U.wk (lift id) G [ r₁ ]₀ /
+                  [G] (idʷ (wf ⊢F)) [r₁])
+             × (Γ ⊩ₗ p₁ ≡ r₁ ∷ U.wk id F / [F] (idʷ (wf ⊢F)))
+             × (Γ ⊩ₗ p₂ ≡ r₂ ∷ U.wk (lift id) G [ p₁ ]₀ /
+                  [G] (idʷ (wf ⊢F)) [p₁])
     [Σ]-prop
       𝕨 t r Γ (Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext _)
       (prodₙ {t = p₁} {u = p₂}) (ne y) =

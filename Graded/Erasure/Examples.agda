@@ -112,8 +112,7 @@ private
   ΓU⊢id : ⊢ Γ → Γ ∙ U l ⊢ lam ω (var x0) ∷ Π ω , q ▷ var x0 ▹ var x1
   ΓU⊢id ε = U⊢id
   ΓU⊢id (∙ ⊢A) =
-    W.wkTerm (W.lift (W.step W.id))
-             (∙ Uⱼ (∙ ⊢A))
+    W.wkTerm (W.liftʷ (W.step W.id) (Uⱼ (∙ ⊢A)))
              (ΓU⊢id (wf ⊢A))
 
   U⊢ℕ : ε ∙ U l ⊢ ℕ
@@ -411,9 +410,6 @@ private module Vec-lemmas (⊢A : Γ ⊢ A ∷ U l) where
   Γℕ⊢U : Γ ∙ ℕ ⊢ U l
   Γℕ⊢U = Uⱼ ⊢Γℕ
 
-  ⊢ΓℕU : ⊢ Γ ∙ ℕ ∙ U l
-  ⊢ΓℕU = ∙ Γℕ⊢U
-
   wk2≡ :
     ∀ A →
     wk (step (step U.id)) A PE.≡
@@ -461,18 +457,16 @@ private module Vec-lemmas (⊢A : Γ ⊢ A ∷ U l) where
     wk1 (wk1 (wk1 A)) [ liftSubst (liftSubst (sgSubst t)) ] ∷ U l
   ΓℕU⊢A =
     PE.subst (_ ⊢_∷ _) (wk2≡ _) $
-    W.wkTerm (W.step (W.step W.id)) ⊢ΓℕU ⊢A
+    W.wkTerm (W.stepʷ (W.step W.id) Γℕ⊢U) ⊢A
 
   ⊢Vec-body₁′ : Γ ∙ U l ⊢ Vec-body₁ l ∷ Π ω , q ▷ ℕ ▹ U l
   ⊢Vec-body₁′ = W.wkTerm
-    (W.lift W.wk₀∷⊇)
-    (∙ Uⱼ ⊢Γ)
+    (W.liftʷ W.wk₀∷⊇ (Uⱼ ⊢Γ))
     ⊢Vec-body₁
 
   ⊢Vec-body₁″ : Γ ∙ A ∙ U l ⊢ Vec-body₁ l ∷ Π ω , q ▷ ℕ ▹ U l
   ⊢Vec-body₁″ = W.wkTerm
-    (W.lift (W.step W.wk₀∷⊇))
-    (∙ Uⱼ ⊢ΓA)
+    (W.liftʷ (W.step W.wk₀∷⊇) (Uⱼ ⊢ΓA))
     ⊢Vec-body₁
 
   ⊢Vec-body₂′ :
@@ -606,7 +600,7 @@ Non-zero∘zero⇒* :
   ⊢ Γ →
   Γ ⊢ wk wk₀ Non-zero ∘⟨ ω ⟩ zero ⇒* Empty ∷ U 0
 Non-zero∘zero⇒* ⊢Γ =
-  β-red (Uⱼ ⊢Γℕ) (W.wkTerm (W.lift W.wk₀∷⊇) ⊢Γℕ ⊢Non-zero-body)
+  β-red (Uⱼ ⊢Γℕ) (W.wkTerm (W.liftʷ W.wk₀∷⊇ (ℕⱼ ⊢Γ)) ⊢Non-zero-body)
     (zeroⱼ ⊢Γ) PE.refl Π-ω-ok ⇨
   (redMany $
    natrec-zero (Emptyⱼ ⊢Γ) (Unitⱼ (∙ Uⱼ ⊢Γℕ) Unit-ok))
@@ -619,7 +613,7 @@ Non-zero∘suc⇒* :
   Γ ⊢ t ∷ ℕ →
   Γ ⊢ wk wk₀ Non-zero ∘⟨ ω ⟩ suc t ⇒* Unit s 0 ∷ U 0
 Non-zero∘suc⇒* ⊢t =
-  β-red (Uⱼ ⊢Γℕ) (W.wkTerm (W.lift W.wk₀∷⊇) ⊢Γℕ ⊢Non-zero-body)
+  β-red (Uⱼ ⊢Γℕ) (W.wkTerm (W.liftʷ W.wk₀∷⊇ (ℕⱼ ⊢Γ)) ⊢Non-zero-body)
     (sucⱼ ⊢t) PE.refl Π-ω-ok ⇨
   (redMany $
    natrec-suc (Emptyⱼ ⊢Γ) (Unitⱼ (∙ Uⱼ ⊢Γℕ) Unit-ok) ⊢t)
@@ -765,7 +759,7 @@ opaque
   ⊢Vec-2-0 :
     ε ∙ U l ∙ ℕ ∙ ℕ ⊢ wk wk₀ (Vec l) ∘⟨ ω ⟩ var x2 ∘⟨ ω ⟩ var x0 ∷ U l
   ⊢Vec-2-0 =
-    (W.wkTerm (W.step (W.step (W.step W.id))) ⊢Uℕℕ ⊢Vec ∘ⱼ
+    (W.wkTerm (W.stepʷ (W.step (W.step W.id)) (ℕⱼ ⊢Uℕ)) ⊢Vec ∘ⱼ
      var ⊢Uℕℕ (there (there here))) ∘ⱼ
     var ⊢Uℕℕ here
 
@@ -776,7 +770,7 @@ opaque
   ⊢Non-zero-0 :
     ε ∙ U l ∙ ℕ ∙ ℕ ⊢ wk wk₀ Non-zero ∘⟨ ω ⟩ var x0 ∷ U 0
   ⊢Non-zero-0 =
-    W.wkTerm (W.step (W.step (W.step W.id))) ⊢Uℕℕ ⊢Non-zero ∘ⱼ
+    W.wkTerm (W.stepʷ (W.step (W.step W.id)) (ℕⱼ ⊢Uℕ)) ⊢Non-zero ∘ⱼ
     var ⊢Uℕℕ here
 
   ⊢Non-zero-1 :
@@ -847,15 +841,13 @@ opaque
   ⊢5 : Uℕℕ∙ΠΠ∙Vec∙Non-zero ⊢ var x5 ∷ U l
   ⊢5 = var₅ (univ ⊢Non-zero-1+2)
 
-  Uℕℕ∙ΠΠ∙Vec∙Non-zero∙5  = Uℕℕ∙ΠΠ∙Vec∙Non-zero ∙ var x5
-  ⊢Uℕℕ∙ΠΠ∙Vec∙Non-zero∙5 = ∙ univ ⊢5
+  Uℕℕ∙ΠΠ∙Vec∙Non-zero∙5 = Uℕℕ∙ΠΠ∙Vec∙Non-zero ∙ var x5
 
   ⊢Vec-6-4 :
     Uℕℕ∙ΠΠ∙Vec∙Non-zero∙5 ⊢
     wk wk₀ (Vec l) ∘⟨ ω ⟩ var x6 ∘⟨ ω ⟩ var x4 ∷ U l
   ⊢Vec-6-4 = W.wkTerm
-    (W.step (W.step (W.step (W.step W.id))))
-    ⊢Uℕℕ∙ΠΠ∙Vec∙Non-zero∙5
+    (W.stepʷ (W.step (W.step (W.step W.id))) (univ ⊢5))
     ⊢Vec-2-0
 
 -- A concrete vector which contains a single natural number.

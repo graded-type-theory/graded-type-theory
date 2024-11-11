@@ -645,35 +645,32 @@ module _ (ok : []-cong-allowed s) where
     lemma₆ A₁≡A₂ t₁≡t₂ =
       case syntacticEqTerm t₁≡t₂ of λ
         (⊢A₁ , ⊢t₁ , _) →
-      case W.wk (step (step id)) (∙ J-motive-context-type ⊢t₁)
-             ⊢A₁ of λ
+      case W.wk (stepʷ (step id) (J-motive-context-type ⊢t₁)) ⊢A₁ of λ
         ⊢A₁′ →
       Id-cong
         (ΠΣ-cong
-           (wkEq (step (step id)) (∙ J-motive-context-type ⊢t₁)
-              A₁≡A₂)
+           (wkEq (stepʷ (step id) (J-motive-context-type ⊢t₁)) A₁≡A₂)
            (Id-cong
-              (wkEq (lift (step (step id))) (∙ ⊢A₁′) (wkEq₁ ⊢A₁ A₁≡A₂))
-              (wkEqTerm (lift (step (step id))) (∙ ⊢A₁′)
+              (wkEq (liftʷ (step (step id)) ⊢A₁′) (wkEq₁ ⊢A₁ A₁≡A₂))
+              (wkEqTerm (liftʷ (step (step id)) ⊢A₁′)
                  (wkEqTerm₁ ⊢A₁ t₁≡t₂))
               (_⊢_≡_∷_.refl $
                PE.subst (_⊢_∷_ _ _) (wk1-wk≡lift-wk1 _ _) $
                var₀ ⊢A₁′))
            Σ-ok)
         (prod-cong
-           (W.wk (lift (step (step id))) (∙ ⊢A₁′)
+           (W.wk (liftʷ (step (step id)) ⊢A₁′)
               (J-motive-context-type ⊢t₁))
-           (wkEqTerm (step (step id)) (∙ J-motive-context-type ⊢t₁)
+           (wkEqTerm (stepʷ (step id) (J-motive-context-type ⊢t₁))
               t₁≡t₂)
            (_⊢_≡_∷_.refl $
             PE.subst (_⊢_∷_ _ _)
               (PE.cong₃ Id lemma₁ lemma₁ PE.refl) $
             rflⱼ $
-            wkTerm (step (step id)) (∙ J-motive-context-type ⊢t₁)
-              ⊢t₁)
+            wkTerm (stepʷ (step id) (J-motive-context-type ⊢t₁)) ⊢t₁)
            Σ-ok)
         (prod-cong
-           (W.wk (lift (step (step id))) (∙ ⊢A₁′)
+           (W.wk (liftʷ (step (step id)) ⊢A₁′)
               (J-motive-context-type ⊢t₁))
            (_⊢_≡_∷_.refl $
             PE.subst (_⊢_∷_ _ _) wk[]≡wk[]′ $
@@ -754,8 +751,8 @@ module _ (ok : []-cong-allowed s) where
         , PE.subst (_⊢_≡_∷_ _ _ _)
             (PE.cong₃ Id (lemma₄ A₁) (lemma₄ t₁) PE.refl)
             (snd⟨⟩-cong A₁≡A₂′
-               (Id-cong (wkEq (step (step id)) (∙ ⊢A₁′) A₁≡A₂)
-                  (wkEqTerm (step (step id)) (∙ ⊢A₁′) t₁≡t₂)
+               (Id-cong (wkEq (stepʷ (step id) ⊢A₁′) A₁≡A₂)
+                  (wkEqTerm (stepʷ (step id) ⊢A₁′) t₁≡t₂)
                   (refl (PE.subst (_⊢_∷_ _ _) wk[]≡wk[]′ $ var₀ ⊢A₁′))) $
              PE.subst (_⊢_≡_∷_ _ _ _)
                (PE.cong (Σ⟨_⟩_,_▷_▹_ s 𝟘 𝟘 (wk1 A₁)) $

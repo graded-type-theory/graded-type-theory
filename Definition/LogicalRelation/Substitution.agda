@@ -22,7 +22,7 @@ open import Definition.LogicalRelation.Properties R
 
 open import Definition.Typed R
 open import Definition.Typed.Properties R
-open import Definition.Typed.Weakening R as TW using (_∷_⊇_)
+open import Definition.Typed.Weakening R as TW using (_∷_⊇_; _∷ʷ_⊇_)
 
 open import Definition.Untyped M
 open import Definition.Untyped.Neutral M
@@ -921,21 +921,20 @@ opaque
   -- A lemma related to _•ₛ_.
 
   ⊩ˢ≡∷-•ₛ :
-    ⊢ Η →
-    ρ ∷ Η ⊇ Δ →
+    ρ ∷ʷ Η ⊇ Δ →
     Δ ⊩ˢ σ₁ ≡ σ₂ ∷ Γ →
     Η ⊩ˢ ρ •ₛ σ₁ ≡ ρ •ₛ σ₂ ∷ Γ
-  ⊩ˢ≡∷-•ₛ {Γ = ε} ⊢Η _ _ =
-    ⊩ˢ≡∷ε⇔ .proj₂ ⊢Η
-  ⊩ˢ≡∷-•ₛ {Γ = _ ∙ A} ⊢Η ρ⊇ σ₁≡σ₂ =
+  ⊩ˢ≡∷-•ₛ {Γ = ε} ρ⊇ _ =
+    ⊩ˢ≡∷ε⇔ .proj₂ (TW.wf-∷ʷ⊇ ρ⊇)
+  ⊩ˢ≡∷-•ₛ {Γ = _ ∙ A} ρ⊇ σ₁≡σ₂ =
     case ⊩ˢ≡∷∙⇔ .proj₁ σ₁≡σ₂ of λ
       ((_ , ⊩A , σ₁₀≡σ₂₀) , σ₁₊≡σ₂₊) →
     ⊩ˢ≡∷∙⇔ .proj₂
       ( ( _ , ⊩A
         , PE.subst (_⊩⟨_⟩_≡_∷_ _ _ _ _) (wk-subst A)
-            (wk-⊩≡∷ ρ⊇ ⊢Η σ₁₀≡σ₂₀)
+            (wk-⊩≡∷ ρ⊇ σ₁₀≡σ₂₀)
         )
-      , ⊩ˢ≡∷-•ₛ ⊢Η ρ⊇ σ₁₊≡σ₂₊
+      , ⊩ˢ≡∷-•ₛ ρ⊇ σ₁₊≡σ₂₊
       )
 
 opaque
@@ -943,12 +942,11 @@ opaque
   -- A lemma related to _•ₛ_.
 
   ⊩ˢ∷-•ₛ :
-    ⊢ Η →
-    ρ ∷ Η ⊇ Δ →
+    ρ ∷ʷ Η ⊇ Δ →
     Δ ⊩ˢ σ ∷ Γ →
     Η ⊩ˢ ρ •ₛ σ ∷ Γ
-  ⊩ˢ∷-•ₛ ⊢Η ρ⊇ =
-    ⊩ˢ∷⇔⊩ˢ≡∷ .proj₂ ∘→ ⊩ˢ≡∷-•ₛ ⊢Η ρ⊇ ∘→ ⊩ˢ∷⇔⊩ˢ≡∷ .proj₁
+  ⊩ˢ∷-•ₛ ρ⊇ =
+    ⊩ˢ∷⇔⊩ˢ≡∷ .proj₂ ∘→ ⊩ˢ≡∷-•ₛ ρ⊇ ∘→ ⊩ˢ∷⇔⊩ˢ≡∷ .proj₁
 
 opaque
 
@@ -990,7 +988,7 @@ opaque
     Δ ⊢ A →
     Δ ⊩ˢ σ₁ ≡ σ₂ ∷ Γ →
     Δ ∙ A ⊩ˢ wk1Subst σ₁ ≡ wk1Subst σ₂ ∷ Γ
-  ⊩ˢ≡∷-wk1Subst ⊢A = ⊩ˢ≡∷-•ₛ (∙ ⊢A) (TW.step TW.id)
+  ⊩ˢ≡∷-wk1Subst ⊢A = ⊩ˢ≡∷-•ₛ (TW.stepʷ TW.id ⊢A)
 
 opaque
 

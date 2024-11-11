@@ -147,10 +147,10 @@ opaque
                (PE.refl , ⊩u₁ , ⊩u₂ , PE.refl) →
              prodₙ
                (PE.subst (_⊩⟨_⟩_∷_ _ _ _) (wk-id _)
-                  (⊩wk-A _ _ , ⊩u₁))
+                  (⊩wk-A _ , ⊩u₁))
                (PE.subst (_⊩⟨_⟩_∷_ _ _ _)
                   (PE.cong _[ _ ]₀ $ wk-lift-id B)
-                  (⊩wk-B _ _ _ , ⊩u₂)) }
+                  (⊩wk-B _ _ , ⊩u₂)) }
            (ne u-ne , PE.refl) →
              ne u-ne rest) }
 
@@ -175,9 +175,9 @@ opaque
            (prodₙ ⊩u₁ ⊩u₂) →
                prodₙ
              , PE.refl
-             , ⊩∷→⊩∷/ (⊩wk-A _ _)
+             , ⊩∷→⊩∷/ (⊩wk-A _)
                  (PE.subst (_⊩⟨_⟩_∷_ _ _ _) (PE.sym $ wk-id _) ⊩u₁)
-             , ⊩∷→⊩∷/ (⊩wk-B _ _ _)
+             , ⊩∷→⊩∷/ (⊩wk-B _ _)
                  (PE.subst (_⊩⟨_⟩_∷_ _ _ _)
                     (PE.sym $ PE.cong _[ _ ]₀ $ wk-lift-id B) ⊩u₂)
              , PE.refl
@@ -292,13 +292,13 @@ opaque
                (prodₙ _ _) →
              prodₙ
                (PE.subst (_⊩⟨_⟩_≡_∷_ _ _ _ _) (wk-id _)
-                  (⊩wk-A _ _ , ⊩u₁₁ , ⊩u₂₁ , u₁₁≡u₂₁))
+                  (⊩wk-A _ , ⊩u₁₁ , ⊩u₂₁ , u₁₁≡u₂₁))
                (PE.subst (_⊩⟨_⟩_≡_∷_ _ _ _ _)
                   (PE.cong _[ _ ]₀ $ wk-lift-id B)
-                  ( ⊩wk-B _ _ _ , ⊩u₁₂
-                  , convTerm₁ (⊩wk-B _ _ _) (⊩wk-B _ _ _)
-                      (wk-B≡wk-B W.id (wf ⊢A) ⊩u₂₁ ⊩u₁₁ $
-                       symEqTerm (⊩wk-A _ _) u₁₁≡u₂₁)
+                  ( ⊩wk-B _ _ , ⊩u₁₂
+                  , convTerm₁ (⊩wk-B _ _) (⊩wk-B _ _)
+                      (wk-B≡wk-B (W.idʷ (wf ⊢A)) ⊩u₂₁ ⊩u₁₁ $
+                       symEqTerm (⊩wk-A _) u₁₁≡u₂₁)
                       ⊩u₂₂
                   , u₁₂≡u₂₂
                   )) }}}}})}) }
@@ -373,22 +373,22 @@ opaque
                case wf-⊩≡∷ u₁₂≡u₂₂ of λ
                  (⊩u₁₂ , ⊩u₂₂) →
                  prodₙ , prodₙ , PE.refl , PE.refl
-               , ⊩∷→⊩∷/ (⊩wk-A _ _)
+               , ⊩∷→⊩∷/ (⊩wk-A _)
                    (PE.subst (_⊩⟨_⟩_∷_ _ _ _) (PE.sym $ wk-id _) ⊩u₁₁)
-               , ⊩∷→⊩∷/ (⊩wk-A _ _)
+               , ⊩∷→⊩∷/ (⊩wk-A _)
                    (PE.subst (_⊩⟨_⟩_∷_ _ _ _) (PE.sym $ wk-id _) ⊩u₂₁)
-               , ⊩∷→⊩∷/ (⊩wk-B _ _ _)
+               , ⊩∷→⊩∷/ (⊩wk-B _ _)
                    (PE.subst (_⊩⟨_⟩_∷_ _ _ _)
                       (PE.sym $ PE.cong _[ _ ]₀ $ wk-lift-id B) ⊩u₁₂)
-               , ⊩∷→⊩∷/ (⊩wk-B _ _ _)
+               , ⊩∷→⊩∷/ (⊩wk-B _ _)
                    (PE.subst (_⊩⟨_⟩_∷_ _ _ _)
                       (PE.sym $ PE.cong _[ _ ]₀ $ wk-lift-id B) $
                     conv-⊩∷ (⊩ΠΣ≡ΠΣ→⊩≡∷→⊩[]₀≡[]₀ (refl-⊩≡ ⊩Σ′) u₁₁≡u₂₁)
                       ⊩u₂₂)
-               , ⊩≡∷→⊩≡∷/ (⊩wk-A _ _)
+               , ⊩≡∷→⊩≡∷/ (⊩wk-A _)
                    (PE.subst (_⊩⟨_⟩_≡_∷_ _ _ _ _) (PE.sym $ wk-id _)
                       u₁₁≡u₂₁)
-               , ⊩≡∷→⊩≡∷/ (⊩wk-B _ _ _)
+               , ⊩≡∷→⊩≡∷/ (⊩wk-B _ _)
                    (PE.subst (_⊩⟨_⟩_≡_∷_ _ _ _ _)
                       (PE.sym $ PE.cong _[ _ ]₀ $ wk-lift-id B) u₁₂≡u₂₂)
              (ne u₁-ne u₂-ne u₁~u₂) →

@@ -70,8 +70,8 @@ redSubst*
   D (Bᵣ′ W F G D′@([ _ , ⊢ΠFG , D″ ]) ⊢F ⊢G A≡A [F] [G] G-ext ok) =
   let ⊢A = redFirst* D
   in  (Bᵣ′ W F G [ ⊢A , ⊢ΠFG , D ⇨* D″ ] ⊢F ⊢G A≡A [F] [G] G-ext ok)
-  ,   (B₌ _ _ D′ A≡A (λ ρ ⊢Δ → reflEq ([F] ρ ⊢Δ))
-        (λ ρ ⊢Δ [a] → reflEq ([G] ρ ⊢Δ [a])))
+  ,   (B₌ _ _ D′ A≡A (λ ρ → reflEq ([F] ρ))
+        (λ ρ [a] → reflEq ([G] ρ [a])))
 redSubst* A⇒*B (Idᵣ ⊩B) =
   case redFirst* A⇒*B of λ {
     ⊢A →
@@ -153,8 +153,8 @@ redSubst*Term
       [d′] = [ conv (redFirst*Term t⇒u) A≡ΠFG , ⊢u , t⇒u′ ⇨∷* d ]
       [u′] = Πₜ f [d′] funcF f≡f [f] [f]₁
   in  [u′]
-  ,   Πₜ₌ f f [d′] [d] funcF funcF f≡f [u′] [u] λ [ρ] ⊢Δ [a] →
-        [f] [ρ] ⊢Δ [a] [a] (reflEqTerm ([F] [ρ] ⊢Δ) [a])
+  ,   Πₜ₌ f f [d′] [d] funcF funcF f≡f [u′] [u] λ [ρ] [a] →
+        [f] [ρ] [a] [a] (reflEqTerm ([F] [ρ]) [a])
 redSubst*Term
   {Γ = Γ} {A} {t} {u} {l}
   t⇒u (Bᵣ′ BΣˢ F G D ⊢F ⊢G A≡A [F] [G] G-ext _)
@@ -166,8 +166,8 @@ redSubst*Term
       [fstp] , [sndp] = pProp
       [u′] = Σₜ p [d′] p≅p pProd pProp
   in  [u′] , Σₜ₌ p p [d′] [d] pProd pProd p≅p [u′] [u]
-                 ([fstp] , [fstp] , reflEqTerm ([F] Wk.id (wf ⊢F)) [fstp] ,
-                   reflEqTerm ([G] Wk.id (wf ⊢F) [fstp]) [sndp])
+                 ([fstp] , [fstp] , reflEqTerm ([F] _) [fstp] ,
+                   reflEqTerm ([G] _ [fstp]) [sndp])
 redSubst*Term
   {Γ = Γ} {A} {t} {u} {l}
   t⇒u (Bᵣ′ BΣʷ F G D ⊢F ⊢G A≡A [F] [G] G-ext _)
@@ -176,8 +176,8 @@ redSubst*Term
       t⇒u′  = conv* t⇒u A≡ΣFG
       [d′] = [ conv (redFirst*Term t⇒u) A≡ΣFG , ⊢u , conv* t⇒u A≡ΣFG ⇨∷* d ]
       p′≡p″ , [p₁] , [p₂] , m≡Σʷ = pProp
-      [p₁≡p₁] = reflEqTerm ([F] Wk.id (wf ⊢F)) [p₁]
-      [p₂≡p₂] = reflEqTerm ([G] Wk.id (wf ⊢F) [p₁]) [p₂]
+      [p₁≡p₁] = reflEqTerm ([F] _) [p₁]
+      [p₂≡p₂] = reflEqTerm ([G] _ [p₁]) [p₂]
       [u′] = Σₜ p [d′] p≅p prodₙ pProp
   in  [u′] ,
       Σₜ₌ p p [d′] [d] prodₙ prodₙ p≅p [u′] [u]
@@ -263,8 +263,7 @@ opaque
     case whrDet:⇒*: ⟦ W ⟧ₙ A⇒*ΠΣ A⇒*B of λ
       B⇒*ΠΣ →
       Bᵣ′ _ _ _ B⇒*ΠΣ ⊢C ⊢D ΠΣ≡ΠΣ ⊩C ⊩D D≡D ok
-    , B₌ _ _ B⇒*ΠΣ ΠΣ≡ΠΣ (λ _ _ → reflEq (⊩C _ _))
-        (λ _ _ _ → reflEq (⊩D _ _ _))
+    , B₌ _ _ B⇒*ΠΣ ΠΣ≡ΠΣ (λ _ → reflEq (⊩C _)) (λ _ _ → reflEq (⊩D _ _))
   redSubst*′ A⇒*B (Idᵣ (Idᵣ Ty lhs rhs A⇒*Id ⊩Ty ⊩lhs ⊩rhs)) =
     case whrDet:⇒*: Idₙ A⇒*Id A⇒*B of λ
       B⇒*Id →
@@ -342,7 +341,7 @@ opaque
       (⊩u : _ ⊩⟨ _ ⟩ _ ∷ _ / ⊩A) →
       ⊩u
     , ( v , v , t⇒*v , u⇒*v , v-fun , v-fun , v≅v , ⊩t , ⊩u
-      , (λ _ _ _ → reflEqTerm (⊩D _ _ _) (⊩v∘ _ _ _))
+      , (λ _ _ → reflEqTerm (⊩D _ _) (⊩v∘ _ _))
       )
   redSubst*Term′
     t⇒*u ⊩A@(Bᵣ′ (BΣ s _ _) C D A⇒*Σ ⊢C ⊢D Σ≡Σ ⊩C ⊩D D≡D ok)
@@ -358,8 +357,8 @@ opaque
            (𝕤 , PE.refl) →
              case v-ok of λ
                (⊩fst , ⊩snd) →
-               ⊩fst , ⊩fst , reflEqTerm (⊩C _ _) ⊩fst
-             , reflEqTerm (⊩D _ _ _) ⊩snd
+               ⊩fst , ⊩fst , reflEqTerm (⊩C _) ⊩fst
+             , reflEqTerm (⊩D _ _) ⊩snd
            (𝕨 , PE.refl) →
              case PE.singleton v-prod of λ where
                (ne _  , PE.refl) → v-ok
@@ -367,8 +366,8 @@ opaque
                  case v-ok of λ
                    (eq , ⊩fst , ⊩snd , _) →
                    eq , eq , ⊩fst , ⊩fst , ⊩snd , ⊩snd
-                 , reflEqTerm (⊩C _ _) ⊩fst
-                 , reflEqTerm (⊩D _ _ _) ⊩snd)
+                 , reflEqTerm (⊩C _) ⊩fst
+                 , reflEqTerm (⊩D _ _) ⊩snd)
       )
   redSubst*Term′
     t⇒*u (Idᵣ (Idᵣ Ty lhs rhs A⇒*Id ⊩Ty ⊩lhs ⊩rhs))

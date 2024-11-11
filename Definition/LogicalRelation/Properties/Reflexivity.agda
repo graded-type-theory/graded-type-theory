@@ -18,7 +18,6 @@ open Type-restrictions R
 open import Definition.Untyped M hiding (K)
 open import Definition.Untyped.Neutral M type-variant
 open import Definition.Typed R
-open import Definition.Typed.Weakening R
 open import Definition.Typed.Properties R
 open import Definition.LogicalRelation R
 open import Definition.LogicalRelation.Properties.Kit R
@@ -82,8 +81,8 @@ reflEq (ne′ _ [ ⊢A , ⊢B , D ] neK K≡K) =
    ne₌ _ [ ⊢A , ⊢B , D ] neK K≡K
 reflEq (Bᵣ′ _ _ _ D _ _ A≡A [F] [G] _ _) =
    B₌ _ _ D A≡A
-      (λ ρ ⊢Δ → reflEq ([F] ρ ⊢Δ))
-      (λ ρ ⊢Δ [a] → reflEq ([G] ρ ⊢Δ [a]))
+      (λ ρ → reflEq ([F] ρ))
+      (λ ρ [a] → reflEq ([G] ρ [a]))
 reflEq (Idᵣ ⊩A) = record
   { ⇒*Id′             = ⇒*Id
   ; Ty≡Ty′            = reflEq ⊩Ty
@@ -115,19 +114,20 @@ reflEqTerm (ne′ _ D neK K≡K) (neₜ k d (neNfₜ neK₁ ⊢k k≡k)) =
 reflEqTerm
   (Bᵣ′ BΠ! _ _ _ _ _ _ [F] _ _ _) [t]@(Πₜ f d funcF f≡f [f] _) =
   Πₜ₌ f f d d funcF funcF f≡f [t] [t]
-      (λ ρ ⊢Δ [a] → [f] ρ ⊢Δ [a] [a] (reflEqTerm ([F] ρ ⊢Δ) [a]))
+      (λ ρ [a] → [f] ρ [a] [a] (reflEqTerm ([F] ρ) [a]))
 reflEqTerm
   (Bᵣ′ BΣˢ _ _ _ ⊢F _ _ [F] [G] _ _)
   [t]@(Σₜ p d p≅p prodP ([fstp] , [sndp])) =
   Σₜ₌ p p d d prodP prodP p≅p [t] [t]
-      ([fstp] , [fstp] , reflEqTerm ([F] id (wf ⊢F)) [fstp] , reflEqTerm ([G] id (wf ⊢F) [fstp]) [sndp])
+      ([fstp] , [fstp] , reflEqTerm ([F] _) [fstp] ,
+       reflEqTerm ([G] _ [fstp]) [sndp])
 reflEqTerm
   (Bᵣ′ BΣʷ _ _ _ ⊢F _ _ [F] [G] _ _)
   [t]@(Σₜ p d p≅p prodₙ (PE.refl , [p₁] , [p₂] , PE.refl)) =
   Σₜ₌ p p d d prodₙ prodₙ p≅p [t] [t]
       (PE.refl , PE.refl , [p₁] , [p₁] , [p₂] , [p₂] ,
-        reflEqTerm ([F] id (wf ⊢F)) [p₁] ,
-        reflEqTerm ([G] id (wf ⊢F) [p₁]) [p₂])
+        reflEqTerm ([F] _) [p₁] ,
+        reflEqTerm ([G] _ [p₁]) [p₂])
 reflEqTerm (Bᵣ′ BΣʷ _ _ _ _ _ _ _ _ _ _) [t]@(Σₜ p d p≅p (ne x) p~p) =
   Σₜ₌ p p d d (ne x) (ne x) p≅p [t] [t] p~p
 reflEqTerm (Idᵣ _) ⊩t =

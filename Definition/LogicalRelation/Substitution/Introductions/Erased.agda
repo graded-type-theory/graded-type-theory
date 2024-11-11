@@ -28,6 +28,7 @@ open import
   Definition.LogicalRelation.Substitution.Introductions.Sigma R
 open import Definition.LogicalRelation.Substitution.Introductions.Unit R
 open import Definition.Typed.Properties R
+open import Definition.Typed.Weakening R
 open import Definition.Untyped M
 open import Definition.Untyped.Properties M
 
@@ -50,9 +51,9 @@ opaque
     ⊩ΠΣ⇔ .proj₂
       ( Σ-ok
       , wf (escape-⊩ ⊩A)
-      , λ ρ⊇ ⊢Δ →
-            wk-⊩ ρ⊇ ⊢Δ ⊩A
-          , λ _ → refl-⊩≡ $ emb-⊩ 0≤ᵘ $ ⊩Unit ⊢Δ Unit-ok
+      , λ ρ⊇ →
+            wk-⊩ ρ⊇ ⊩A
+          , λ _ → refl-⊩≡ $ emb-⊩ 0≤ᵘ $ ⊩Unit (wf-∷ʷ⊇ ρ⊇) Unit-ok
       )
 
 opaque
@@ -69,9 +70,9 @@ opaque
       ( ⊩Erased ⊩A₁
       , ⊩Erased ⊩A₂
       , PE.refl , PE.refl , PE.refl
-      , λ ρ⊇ ⊢Δ →
-            wk-⊩≡ ρ⊇ ⊢Δ A₁≡A₂
-          , λ _ → refl-⊩≡ $ emb-⊩ 0≤ᵘ $ ⊩Unit ⊢Δ Unit-ok
+      , λ ρ⊇ →
+            wk-⊩≡ ρ⊇ A₁≡A₂
+          , λ _ → refl-⊩≡ $ emb-⊩ 0≤ᵘ $ ⊩Unit (wf-∷ʷ⊇ ρ⊇) Unit-ok
       )
 
 opaque

@@ -19,7 +19,7 @@ open import Definition.Untyped.Neutral M type-variant
 open import Definition.Untyped.Properties M
 open import Definition.Typed R
 open import Definition.Typed.Properties R
-open import Definition.Typed.Weakening R using (_∷_⊇_; wkEq)
+open import Definition.Typed.Weakening R using (_∷ʷ_⊇_; wkEq)
 open import Definition.Conversion R
 open import Definition.Conversion.Reduction R
 open import Definition.Conversion.Universe R
@@ -288,9 +288,9 @@ opaque
   in  ↑ x k~m
 
 ~-wk : ∀ {k l A} {ρ : Wk m n} {Γ Δ} →
-      ρ ∷ Δ ⊇ Γ →
-      ⊢ Δ → Γ ⊢ k ~ l ∷ A → Δ ⊢ wk ρ k ~ wk ρ l ∷ wk ρ A
-~-wk x x₁ (↑ x₂ x₃) = ↑ (wkEq x x₁ x₂) (wk~↑ x x₁ x₃)
+      ρ ∷ʷ Δ ⊇ Γ →
+      Γ ⊢ k ~ l ∷ A → Δ ⊢ wk ρ k ~ wk ρ l ∷ wk ρ A
+~-wk x (↑ x₂ x₃) = ↑ (wkEq x x₂) (wk~↑ x x₃)
 
 ~-conv : ∀ {k l A B} →
       Γ ⊢ k ~ l ∷ A → Γ ⊢ A ≡ B → Γ ⊢ k ~ l ∷ B

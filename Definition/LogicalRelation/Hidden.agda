@@ -25,7 +25,7 @@ import Definition.LogicalRelation.Weakening R as W
 
 open import Definition.Typed R
 open import Definition.Typed.Properties R
-open import Definition.Typed.Weakening R using (_∷_⊇_)
+open import Definition.Typed.Weakening R using (_∷ʷ_⊇_)
 
 open import Definition.Untyped M
 open import Definition.Untyped.Neutral M type-variant
@@ -311,7 +311,7 @@ opaque
 
   -- Weakening for _⊩⟨_⟩_.
 
-  wk-⊩ : ρ ∷ Δ ⊇ Γ → ⊢ Δ → Γ ⊩⟨ l ⟩ A → Δ ⊩⟨ l ⟩ wk ρ A
+  wk-⊩ : ρ ∷ʷ Δ ⊇ Γ → Γ ⊩⟨ l ⟩ A → Δ ⊩⟨ l ⟩ wk ρ A
   wk-⊩ = W.wk
 
 opaque
@@ -319,9 +319,9 @@ opaque
 
   -- Weakening for _⊩⟨_⟩_≡_.
 
-  wk-⊩≡ : ρ ∷ Δ ⊇ Γ → ⊢ Δ → Γ ⊩⟨ l ⟩ A ≡ B → Δ ⊩⟨ l ⟩ wk ρ A ≡ wk ρ B
-  wk-⊩≡ Δ⊇Γ ⊢Δ (⊩A , ⊩B , A≡B) =
-    W.wk Δ⊇Γ ⊢Δ ⊩A , W.wk Δ⊇Γ ⊢Δ ⊩B , W.wkEq Δ⊇Γ ⊢Δ ⊩A A≡B
+  wk-⊩≡ : ρ ∷ʷ Δ ⊇ Γ → Γ ⊩⟨ l ⟩ A ≡ B → Δ ⊩⟨ l ⟩ wk ρ A ≡ wk ρ B
+  wk-⊩≡ Δ⊇Γ (⊩A , ⊩B , A≡B) =
+    W.wk Δ⊇Γ ⊩A , W.wk Δ⊇Γ ⊩B , W.wkEq Δ⊇Γ ⊩A A≡B
 
 opaque
   unfolding _⊩⟨_⟩_≡_∷_
@@ -329,19 +329,18 @@ opaque
   -- Weakening for _⊩⟨_⟩_≡_∷_.
 
   wk-⊩≡∷ :
-    ρ ∷ Δ ⊇ Γ → ⊢ Δ → Γ ⊩⟨ l ⟩ t ≡ u ∷ A →
+    ρ ∷ʷ Δ ⊇ Γ → Γ ⊩⟨ l ⟩ t ≡ u ∷ A →
     Δ ⊩⟨ l ⟩ wk ρ t ≡ wk ρ u ∷ wk ρ A
-  wk-⊩≡∷ Δ⊇Γ ⊢Δ (⊩A , ⊩t , ⊩u , t≡u) =
-      W.wk Δ⊇Γ ⊢Δ ⊩A , W.wkTerm Δ⊇Γ ⊢Δ ⊩A ⊩t , W.wkTerm Δ⊇Γ ⊢Δ ⊩A ⊩u
-    , W.wkEqTerm Δ⊇Γ ⊢Δ ⊩A t≡u
+  wk-⊩≡∷ Δ⊇Γ (⊩A , ⊩t , ⊩u , t≡u) =
+      W.wk Δ⊇Γ ⊩A , W.wkTerm Δ⊇Γ ⊩A ⊩t , W.wkTerm Δ⊇Γ ⊩A ⊩u
+    , W.wkEqTerm Δ⊇Γ ⊩A t≡u
 
 opaque
 
   -- Weakening for _⊩⟨_⟩_∷_.
 
-  wk-⊩∷ : ρ ∷ Δ ⊇ Γ → ⊢ Δ → Γ ⊩⟨ l ⟩ t ∷ A → Δ ⊩⟨ l ⟩ wk ρ t ∷ wk ρ A
-  wk-⊩∷ Δ⊇Γ ⊢Δ =
-    ⊩∷⇔⊩≡∷ .proj₂ ∘→ wk-⊩≡∷ Δ⊇Γ ⊢Δ ∘→ ⊩∷⇔⊩≡∷ .proj₁
+  wk-⊩∷ : ρ ∷ʷ Δ ⊇ Γ → Γ ⊩⟨ l ⟩ t ∷ A → Δ ⊩⟨ l ⟩ wk ρ t ∷ wk ρ A
+  wk-⊩∷ Δ⊇Γ = ⊩∷⇔⊩≡∷ .proj₂ ∘→ wk-⊩≡∷ Δ⊇Γ ∘→ ⊩∷⇔⊩≡∷ .proj₁
 
 ------------------------------------------------------------------------
 -- Reduction

@@ -80,11 +80,10 @@ opaque
     lemma ⊢v =
       let ⊢A  = ⊢∙→⊢ (wf ⊢B)
           ⊢A′ = wk₁ ⊢A ⊢A
-          ρ   = lift (step id)
+          ρ   = liftʷ (step id) ⊢A′
       in
       PE.subst (_ ⊢ _ ≡ _ ∷_) (wkSingleSubstId _) $
-      β-red (W.wk ρ (∙ ⊢A′) ⊢B) (wkTerm ρ (∙ ⊢A′) ⊢v)
-        (var₀ ⊢A) PE.refl ok
+      β-red (W.wk ρ ⊢B) (wkTerm ρ ⊢v) (var₀ ⊢A) PE.refl ok
 
 ------------------------------------------------------------------------
 -- Well-formed substitutions
@@ -220,36 +219,34 @@ opaque
   -- A lemma related to _•ₛ_.
 
   ⊢ˢʷ∷-•ₛ :
-    ⊢ Η →
-    ρ ∷ Η ⊇ Δ →
+    ρ ∷ʷ Η ⊇ Δ →
     Δ ⊢ˢʷ σ ∷ Γ →
     Η ⊢ˢʷ ρ •ₛ σ ∷ Γ
-  ⊢ˢʷ∷-•ₛ {Γ = ε} ⊢Η _ _ =
-    ⊢ˢʷ∷ε⇔ .proj₂ ⊢Η
-  ⊢ˢʷ∷-•ₛ {Γ = _ ∙ A} ⊢Η ρ⊇ ⊢σ =
+  ⊢ˢʷ∷-•ₛ {Γ = ε} ρ⊇ _ =
+    ⊢ˢʷ∷ε⇔ .proj₂ (wf-∷ʷ⊇ ρ⊇)
+  ⊢ˢʷ∷-•ₛ {Γ = _ ∙ A} ρ⊇ ⊢σ =
     let ⊢σ₊ , ⊢σ₀ = ⊢ˢʷ∷∙⇔ .proj₁ ⊢σ in
     ⊢ˢʷ∷∙⇔ .proj₂
-      (⊢ˢʷ∷-•ₛ ⊢Η ρ⊇ ⊢σ₊ ,
-       PE.subst (_⊢_∷_ _ _) (wk-subst A) (wkTerm ρ⊇ ⊢Η ⊢σ₀))
+      (⊢ˢʷ∷-•ₛ ρ⊇ ⊢σ₊ ,
+       PE.subst (_⊢_∷_ _ _) (wk-subst A) (wkTerm ρ⊇ ⊢σ₀))
 
 opaque
 
   -- A lemma related to _•ₛ_.
 
   ⊢ˢʷ≡∷-•ₛ :
-    ⊢ Η →
-    ρ ∷ Η ⊇ Δ →
+    ρ ∷ʷ Η ⊇ Δ →
     Δ ⊢ˢʷ σ₁ ≡ σ₂ ∷ Γ →
     Η ⊢ˢʷ ρ •ₛ σ₁ ≡ ρ •ₛ σ₂ ∷ Γ
-  ⊢ˢʷ≡∷-•ₛ {Γ = ε} ⊢Η _ _ =
-    ⊢ˢʷ≡∷ε⇔ .proj₂ ⊢Η
-  ⊢ˢʷ≡∷-•ₛ {Γ = _ ∙ A} ⊢Η ρ⊇ σ₁≡σ₂ =
+  ⊢ˢʷ≡∷-•ₛ {Γ = ε} ρ⊇ _ =
+    ⊢ˢʷ≡∷ε⇔ .proj₂ (wf-∷ʷ⊇ ρ⊇)
+  ⊢ˢʷ≡∷-•ₛ {Γ = _ ∙ A} ρ⊇ σ₁≡σ₂ =
     let σ₁₊≡σ₂₊ , ⊢σ₁₀ , ⊢σ₂₀ , σ₁₀≡σ₂₀ = ⊢ˢʷ≡∷∙⇔ .proj₁ σ₁≡σ₂ in
     ⊢ˢʷ≡∷∙⇔ .proj₂
-      ( ⊢ˢʷ≡∷-•ₛ ⊢Η ρ⊇ σ₁₊≡σ₂₊
-      , PE.subst (_⊢_∷_ _ _)     (wk-subst A) (wkTerm   ρ⊇ ⊢Η ⊢σ₁₀)
-      , PE.subst (_⊢_∷_ _ _)     (wk-subst A) (wkTerm   ρ⊇ ⊢Η ⊢σ₂₀)
-      , PE.subst (_⊢_≡_∷_ _ _ _) (wk-subst A) (wkEqTerm ρ⊇ ⊢Η σ₁₀≡σ₂₀)
+      ( ⊢ˢʷ≡∷-•ₛ ρ⊇ σ₁₊≡σ₂₊
+      , PE.subst (_⊢_∷_ _ _)     (wk-subst A) (wkTerm   ρ⊇ ⊢σ₁₀)
+      , PE.subst (_⊢_∷_ _ _)     (wk-subst A) (wkTerm   ρ⊇ ⊢σ₂₀)
+      , PE.subst (_⊢_≡_∷_ _ _ _) (wk-subst A) (wkEqTerm ρ⊇ σ₁₀≡σ₂₀)
       )
 
 opaque
@@ -261,7 +258,7 @@ opaque
     Δ ⊢ˢʷ σ ∷ Γ →
     Δ ∙ A ⊢ˢʷ wk1Subst σ ∷ Γ
   ⊢ˢʷ∷-wk1Subst ⊢A =
-    ⊢ˢʷ∷-•ₛ (∙ ⊢A) (step id)
+    ⊢ˢʷ∷-•ₛ (stepʷ id ⊢A)
 
 opaque
 
@@ -272,7 +269,7 @@ opaque
     Δ ⊢ˢʷ σ₁ ≡ σ₂ ∷ Γ →
     Δ ∙ A ⊢ˢʷ wk1Subst σ₁ ≡ wk1Subst σ₂ ∷ Γ
   ⊢ˢʷ≡∷-wk1Subst ⊢A =
-    ⊢ˢʷ≡∷-•ₛ (∙ ⊢A) (step id)
+    ⊢ˢʷ≡∷-•ₛ (stepʷ id ⊢A)
 
 opaque
 

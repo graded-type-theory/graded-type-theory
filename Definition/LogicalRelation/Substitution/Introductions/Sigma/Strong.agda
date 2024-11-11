@@ -107,9 +107,9 @@ opaque
        Γ ⊩⟨ l ⟩ snd p u ∷ B [ fst p u ]₀) ∋
         u , t⇒*u , u-prod , u≅u
       , PE.subst (_⊩⟨_⟩_∷_ _ _ _) (wk-id _)
-          (⊩wk-A _ _ , ⊩fst-u)
+          (⊩wk-A _ , ⊩fst-u)
       , PE.subst (_⊩⟨_⟩_∷_ _ _ _) (PE.cong _[ _ ]₀ $ wk-lift-id B)
-          (⊩wk-B _ _ ⊩fst-u , ⊩snd-u) }
+          (⊩wk-B _ ⊩fst-u , ⊩snd-u) }
 
     lemma₂ :
       (⊩Σ : Γ ⊩⟨ l′ ⟩B⟨ BΣ 𝕤 p q ⟩ Σˢ p , q ▷ A ▹ B) →
@@ -130,9 +130,9 @@ opaque
         (PE.refl , PE.refl , _) →
       _ ⊩⟨ _ ⟩ _ ∷ _ / B-intr _ ⊩Σ ∋
         u , t⇒*u , u-prod , u≅u
-      , ⊩∷→⊩∷/ (⊩wk-A _ _)
+      , ⊩∷→⊩∷/ (⊩wk-A _)
           (PE.subst (_⊩⟨_⟩_∷_ _ _ _) (PE.sym $ wk-id _) ⊩fst-u)
-      , ⊩∷→⊩∷/ (⊩wk-B _ _ _)
+      , ⊩∷→⊩∷/ (⊩wk-B _ _)
           (PE.subst (_⊩⟨_⟩_∷_ _ _ _)
              (PE.sym $ PE.cong _[ _ ]₀ $ wk-lift-id B) ⊩snd-u) }
 
@@ -204,7 +204,7 @@ opaque
       case whrDet*Term (redₜ t₂⇒*u₂ , productWhnf u₂-prod)
              (redₜ t₂⇒*u₂′ , productWhnf u₂′-prod) of λ {
         PE.refl →
-      let ⊩B[fst-u₁] = ⊩wk-B _ _ ⊩fst-u₁ in
+      let ⊩B[fst-u₁] = ⊩wk-B _ ⊩fst-u₁ in
       (∃₂ λ u₁ u₂ →
        Γ ⊢ t₁ :⇒*: u₁ ∷ Σˢ p , q ▷ A ▹ B ×
        Γ ⊢ t₂ :⇒*: u₂ ∷ Σˢ p , q ▷ A ▹ B ×
@@ -215,7 +215,7 @@ opaque
        Γ ⊩⟨ l ⟩ snd p u₁ ≡ snd p u₂ ∷ B [ fst p u₁ ]₀) ∋
         u₁ , u₂ , t₁⇒*u₁ , t₂⇒*u₂ , u₁-prod , u₂-prod , u₁≅u₂
       , PE.subst (_⊩⟨_⟩_≡_∷_ _ _ _ _) (wk-id _)
-          (⊩wk-A _ _ , ⊩fst-u₁ , ⊩fst-u₂ , fst≡fst)
+          (⊩wk-A _ , ⊩fst-u₁ , ⊩fst-u₂ , fst≡fst)
       , PE.subst (_⊩⟨_⟩_≡_∷_ _ _ _ _) (PE.cong _[ _ ]₀ $ wk-lift-id B)
           ( ⊩B[fst-u₁]
           , ⊩∷→⊩∷/ ⊩B[fst-u₁]
@@ -224,8 +224,8 @@ opaque
           , ⊩∷→⊩∷/ ⊩B[fst-u₁]
               (conv-⊩∷
                  (sym-⊩≡
-                    ( ⊩B[fst-u₁] , ⊩wk-B _ _ ⊩fst-u₂
-                    , wk-B≡wk-B W.id (wf ⊢A) ⊩fst-u₁ ⊩fst-u₂ fst≡fst
+                    ( ⊩B[fst-u₁] , ⊩wk-B _ ⊩fst-u₂
+                    , wk-B≡wk-B (W.idʷ (wf ⊢A)) ⊩fst-u₁ ⊩fst-u₂ fst≡fst
                     )) $
                PE.subst (_⊩⟨_⟩_∷_ _ _ _)
                  (PE.sym $ PE.cong _[ _ ]₀ $ wk-lift-id B) ⊩snd-u₂)
@@ -260,7 +260,7 @@ opaque
       (u₁ , u₂ , t₁⇒*u₁ , t₂⇒*u₂ , u₁-prod , u₂-prod , u₁≅u₂ ,
        fst≡fst , snd≡snd) =
       let ⊩Σ′      = B-intr _ ⊩Σ
-          ⊩wk-id-A = ⊩wk-A W.id (wf ⊢A)
+          ⊩wk-id-A = ⊩wk-A (W.idʷ (wf ⊢A))
       in
       case B-PE-injectivity _ _ $ whnfRed* (red Σ⇒*Σ) ΠΣₙ of λ {
         (PE.refl , PE.refl , _) →
@@ -301,7 +301,7 @@ opaque
         ⊩t₁ , ⊩t₂
       , ( u₁ , u₂ , t₁⇒*u₁ , t₂⇒*u₂ , u₁≅u₂ , ⊩t₁ , ⊩t₂
         , u₁-prod , u₂-prod , ⊩fst-u₁′ , ⊩fst-u₂′ , fst≡fst′
-        , ⊩≡∷→⊩≡∷/ (⊩wk-B W.id (wf ⊢A) ⊩fst-u₁′)
+        , ⊩≡∷→⊩≡∷/ (⊩wk-B (W.idʷ (wf ⊢A)) ⊩fst-u₁′)
             (PE.subst (_⊩⟨_⟩_≡_∷_ _ _ _ _)
                (PE.sym $ PE.cong _[ _ ] $ wk-lift-id B) snd≡snd)
         ) }

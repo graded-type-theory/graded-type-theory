@@ -256,7 +256,7 @@ private
       wk-t₁≡wk-t₂ PE.refl ⊢Δ =
         PE.subst (_⊢_≡_∷_ _ _ _)
           (PE.sym $ PE.trans (Target-[₀⇑] 0) Target-wk[]′) $
-        wkEqTerm ⊇-drop ⊢Δ t₁≡t₂
+        wkEqTerm (ʷ⊇-drop ⊢Δ) t₁≡t₂
 
     opaque
       unfolding false
@@ -269,7 +269,7 @@ private
       wk-u₁≡wk-u₂ PE.refl ⊢Δ =
         PE.subst (_⊢_≡_∷_ _ _ _)
           (PE.sym $ PE.trans (Target-[₀⇑] 0) Target-wk[]′) $
-        wkEqTerm ⊇-drop ⊢Δ u₁≡u₂
+        wkEqTerm (ʷ⊇-drop ⊢Δ) u₁≡u₂
 
     opaque
 

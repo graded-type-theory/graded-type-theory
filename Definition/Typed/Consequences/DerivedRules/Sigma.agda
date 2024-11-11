@@ -826,7 +826,7 @@ private
     Γ ∙ (Σʷ p , q ▷ A₁ ▹ B₁) ⊢
       var x0 ≡
       var x0 ∷
-      wk1 (Σʷ p , q ▷ A₁ ▹ B₁)                                   →⟨ fstʷ-cong (wkEq (step id) ⊢ΓΣA₁B₁ A₁≡A₂) ⟩
+      wk1 (Σʷ p , q ▷ A₁ ▹ B₁)                                   →⟨ fstʷ-cong (wkEq (stepʷ id ⊢ΣA₁B₁) A₁≡A₂) ⟩
 
     Γ ∙ (Σʷ p , q ▷ A₁ ▹ B₁) ⊢
       fstʷ p (wk1 A₁) (var x0) ≡
@@ -841,7 +841,7 @@ private
     Γ ∙ (Σʷ p , q ▷ A₁ ▹ B₁) ⊢ˢ
       consSubst (wk1Subst idSubst) (fstʷ p (wk1 A₁) (var x0)) ≡
       consSubst (wk1Subst idSubst) (fstʷ p (wk1 A₂) (var x0)) ∷
-      Γ ∙ A₁                                                     →⟨ flip (substitutionEq B₁≡B₂) ⊢ΓΣA₁B₁ ⟩
+      Γ ∙ A₁                                                     →⟨ flip (substitutionEq B₁≡B₂) (∙ ⊢ΣA₁B₁) ⟩
 
     Γ ∙ (Σʷ p , q ▷ A₁ ▹ B₁) ⊢
       B₁ [ fstʷ p (wk1 A₁) (var x0) ]↑ ≡
@@ -850,7 +850,6 @@ private
     ⊢A₁     = syntacticEq A₁≡A₂ .proj₁
     ⊢B₁     = syntacticEq B₁≡B₂ .proj₁
     ⊢ΣA₁B₁  = ΠΣⱼ ⊢B₁ ok
-    ⊢ΓΣA₁B₁ = ∙ ⊢ΣA₁B₁
 
   ⊢[fstʷ-0]↑ :
     Γ ∙ A ⊢ B →
@@ -1057,11 +1056,10 @@ opaque
       U.wk (lift (step (step id))) B                                   ∎
     of λ {
       eq₂ →
-    case W.wk (lift (step (step id)))
-           (∙ W.wk (step (step id)) (∙ ⊢B) ⊢A)
+    case W.wk (liftʷ (step (step id)) (W.wk (stepʷ (step id) ⊢B) ⊢A))
            ⊢B of λ {
       ⊢B′ →
-    case W.wk (lift (step id)) (∙ wk₁ ⊢ΣAB ⊢A) ⊢B of λ {
+    case W.wk (liftʷ (step id) (wk₁ ⊢ΣAB ⊢A)) ⊢B of λ {
       ⊢B″ →
     case PE.subst (_⊢_∷_ _ _) (wk-comp _ _ _) $ var₁ ⊢B of λ {
       ⊢₁ →

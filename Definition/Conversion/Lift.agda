@@ -107,15 +107,13 @@ mutual
                            (soundness~↓ ([~] A (D₂ , ΠΣₙ) k~l))
         ⊢F , ⊢G = syntacticΠ ⊢ΠFG
         neT , neU = ne~↑ k~l
-        var0 = neuTerm ([F] (step id) (∙ ⊢F)) (var x0) (var₀ ⊢F)
-                 (refl (var₀ ⊢F))
-        0≡0 = lift~toConv↑′ ([F] (step id) (∙ ⊢F))
-                (var-refl (var₀ ⊢F) PE.refl)
+        step-id = stepʷ id ⊢F
+        var0 = neuTerm ([F] step-id) (var x0) (var₀ ⊢F) (refl (var₀ ⊢F))
+        0≡0 = lift~toConv↑′ ([F] step-id) (var-refl (var₀ ⊢F) PE.refl)
     in  η-eq ⊢t ⊢u (ne neT) (ne neU)
           (PE.subst (λ x → _ ⊢ _ [conv↑] _ ∷ x) (wkSingleSubstId _) $
-           lift~toConv↑′ ([G] (step id) (∙ ⊢F) var0) $
-           app-cong (wk~↓ (step id) (∙ ⊢F) ([~] A (D₂ , ΠΣₙ) k~l))
-             0≡0)
+           lift~toConv↑′ ([G] step-id var0) $
+           app-cong (wk~↓ step-id ([~] A (D₂ , ΠΣₙ) k~l)) 0≡0)
   lift~toConv↓′
     (Bᵣ′ BΣˢ F G D ⊢F ⊢G Σ≡Σ [F] [G] G-ext _) D₁
     ([~] A″ (D₂ , whnfA) t~u)
@@ -131,12 +129,12 @@ mutual
         wkId = wk-id F
         wkLiftId = PE.cong (λ x → x [ fst _ _ ]₀) (wk-lift-id G)
 
-        wk[F] = [F] id ⊢Γ
+        wk[F] = [F] (idʷ ⊢Γ)
         wk⊢fst = PE.subst (_⊢_∷_ _ _) (PE.sym wkId) (fstⱼ ⊢G ⊢t)
         wkfst≡ = PE.subst (_⊢_≡_∷_ _ _ _) (PE.sym wkId)
                    (fst-cong ⊢G (refl ⊢t))
         wk[fst] = neuTerm wk[F] (fstₙ neT) wk⊢fst wkfst≡
-        wk[Gfst] = [G] id ⊢Γ wk[fst]
+        wk[Gfst] = [G] (idʷ ⊢Γ) wk[fst]
 
         wkfst~ = PE.subst (λ x → _ ⊢ _ ~ _ ↑ x) (PE.sym wkId) (fst-cong t~u↓)
         wksnd~ = PE.subst (λ x → _ ⊢ _ ~ _ ↑ x) (PE.sym wkLiftId) (snd-cong t~u↓)

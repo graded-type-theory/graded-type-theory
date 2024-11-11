@@ -433,7 +433,7 @@ opaque
       , ⊢[]-cong
       )
     , λ _ _ A t ⊢A ⊢t →
-        wk wk₀ []-cong′ ∘⟨ 𝟘 ⟩ A ∘⟨ 𝟘 ⟩ t ∘⟨ 𝟘 ⟩ t ∘⟨ 𝟘 ⟩ rfl        ⇒*⟨ β-red-⇒₄ (W.wkTerm W.wk₀∷⊇ (wfTerm ⊢A) ⊢[]-cong) ⊢A ⊢t ⊢t (rflⱼ ⊢t) ⟩⊢
+        wk wk₀ []-cong′ ∘⟨ 𝟘 ⟩ A ∘⟨ 𝟘 ⟩ t ∘⟨ 𝟘 ⟩ t ∘⟨ 𝟘 ⟩ rfl        ⇒*⟨ β-red-⇒₄ (W.wkTerm (W.wk₀∷ʷ⊇ (wfTerm ⊢A)) ⊢[]-cong) ⊢A ⊢t ⊢t (rflⱼ ⊢t) ⟩⊢
 
         wk (liftn wk₀ 4)
           ([]-cong″ ok′ (var x3) (var x2) (var x1) (var x0))
@@ -703,7 +703,7 @@ opaque
       flip _∘ⱼ_ (var₁ ⊢Id) $
       flip _∘ⱼ_ (var₂ ⊢Id) $
       flip _∘ⱼ_ (var₃ ⊢Id) $
-      W.wkTerm W.wk₀∷⊇ (∙ ⊢Id) ⊢[]-cong′
+      W.wkTerm (W.wk₀∷ʷ⊇ (∙ ⊢Id)) ⊢[]-cong′
       where
       ⊢1 : ε ∙ U l ∙ var x0 ⊢ var x1
       ⊢1 = univ (var₁ (univ (var₀ (Uⱼ ε))))
@@ -734,7 +734,7 @@ opaque
           (lam ω $ lam ω $ lam ω $ lam 𝟘 $
            wk wk₀ []-cong′
              ∘⟨ 𝟘 ⟩ var x3 ∘⟨ 𝟘 ⟩ var x2 ∘⟨ 𝟘 ⟩ var x1 ∘⟨ 𝟘 ⟩ var x0)
-          ∘⟨ ω ⟩ A ∘⟨ ω ⟩ t ∘⟨ ω ⟩ t ∘⟨ 𝟘 ⟩ rfl                        ⇒*⟨ β-red-⇒₄ (W.wkTerm W.wk₀∷⊇ (wfTerm ⊢A) ⊢[]-cong″)
+          ∘⟨ ω ⟩ A ∘⟨ ω ⟩ t ∘⟨ ω ⟩ t ∘⟨ 𝟘 ⟩ rfl                        ⇒*⟨ β-red-⇒₄ (W.wkTerm (W.wk₀∷ʷ⊇ (wfTerm ⊢A)) ⊢[]-cong″)
                                                                              ⊢A ⊢t ⊢t (rflⱼ ⊢t) ⟩⊢
         (wk (liftn wk₀ 4) (wk wk₀ []-cong′)
            [ consSubst (consSubst (consSubst (sgSubst A) t) t) rfl ])
@@ -854,7 +854,7 @@ opaque
            flip _∘ⱼ_ ([]ⱼ Erased-ok $ var₁ ⊢Id) $
            flip _∘ⱼ_ ([]ⱼ Erased-ok $ var₂ ⊢Id) $
            flip _∘ⱼ_ (Erasedⱼ-U Erased-ok $ var₃ ⊢Id) $
-           W.wkTerm W.wk₀∷⊇ (wf ⊢Erased-Erased-3) ⊢[]-cong′) $
+           W.wkTerm (W.wk₀∷ʷ⊇ (wf ⊢Erased-Erased-3)) ⊢[]-cong′) $
         Id-cong (refl ⊢Erased-3) (lemma _ (var₂ ⊢Id))
           (lemma _ (var₁ ⊢Id))
 
@@ -1053,7 +1053,7 @@ opaque
                        (Erased (var x3)) [ var x0 ] (var x0)))
         ∘⟨ 𝟘 ⟩ A ∘⟨ 𝟘 ⟩ t ∘⟨ 𝟘 ⟩ t ∘⟨ 𝟘 ⟩ rfl ∷
         Id (Erased A) [ t ] ([ t ])                                    ⇒*⟨ β-red-⇒₄
-                                                                             (W.wkTerm W.wk₀∷⊇ (wfTerm ⊢A) $ has-[]-cong′ .proj₂ .proj₂)
+                                                                             (W.wkTerm (W.wk₀∷ʷ⊇ (wfTerm ⊢A)) $ has-[]-cong′ .proj₂ .proj₂)
                                                                              ⊢A ⊢t ⊢t (rflⱼ ⊢t) ⟩⊢∷
                                                                         ˘⟨ Id-cong (refl ⊢Erased-A) mapᴱ-lemma mapᴱ-lemma ⟩≡
       wk (liftn wk₀ 4)
@@ -1099,7 +1099,7 @@ opaque
                                                                                (PE.cong₂ (Π_,_▷_▹_ ω q₃) (wk1-sgSubst _ _) PE.refl) $
                                                                              flip _∘ⱼ_ ⊢[t] $
                                                                              flip _∘ⱼ_ ⊢Erased-A∷U $
-                                                                             W.wkTerm W.wk₀∷⊇ (wfTerm ⊢A) ⊢[]-cong′) $
+                                                                             W.wkTerm (W.wk₀∷ʷ⊇ (wfTerm ⊢A)) ⊢[]-cong′) $
                                                                           cong-≡ ⊢t ([]ⱼ Erased-ok (var₀ (univ ⊢A))) ⟩⊢
       cong 𝟘 (Erased (Erased A)) [ [ t ] ] [ [ t ] ] (Erased A)
         (mapᴱ (Erased (wk1 A)) (erased (wk2 A) (var x0)) (var x0))

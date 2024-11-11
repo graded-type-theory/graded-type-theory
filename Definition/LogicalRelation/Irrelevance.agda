@@ -21,7 +21,6 @@ open import Definition.Untyped M hiding (Wk; K)
 open import Definition.Untyped.Neutral M type-variant
 open import Definition.Untyped.Properties M
 open import Definition.Typed R
-import Definition.Typed.Weakening R as Wk
 open import Definition.Typed.Properties R
 open import Definition.LogicalRelation R
 open import Definition.LogicalRelation.Properties.Kit R
@@ -108,13 +107,13 @@ mutual
         F≡F₁ , G≡G₁ , _ = B-PE-injectivity W W ΠFG≡ΠF₁G₁
     in  B₌ F′ G′ D′
            (PE.subst (λ x → Γ ⊢ x ≅ ⟦ W ⟧ F′ ▹ G′) ΠFG≡ΠF₁G₁ A≡B)
-           (λ {_} {ρ} [ρ] ⊢Δ → irrelevanceEq′ (PE.cong (wk ρ) F≡F₁) ([F] [ρ] ⊢Δ)
-                                    ([F]₁ [ρ] ⊢Δ) ([F≡F′] [ρ] ⊢Δ))
-           (λ {_} {ρ} [ρ] ⊢Δ [a]₁ →
+           (λ {_} {ρ} [ρ] → irrelevanceEq′ (PE.cong (wk ρ) F≡F₁)
+                              ([F] [ρ]) ([F]₁ [ρ]) ([F≡F′] [ρ]))
+           (λ {_} {ρ} [ρ] [a]₁ →
               let [a] = irrelevanceTerm′ (PE.cong (wk ρ) (PE.sym F≡F₁))
-                                         ([F]₁ [ρ] ⊢Δ) ([F] [ρ] ⊢Δ) [a]₁
+                                         ([F]₁ [ρ]) ([F] [ρ]) [a]₁
               in  irrelevanceEq′ (PE.cong (λ y → wk (lift ρ) y [ _ ]) G≡G₁)
-                                 ([G] [ρ] ⊢Δ [a]) ([G]₁ [ρ] ⊢Δ [a]₁) ([G≡G′] [ρ] ⊢Δ [a]))
+                    ([G] [ρ] [a]) ([G]₁ [ρ] [a]₁) ([G≡G′] [ρ] [a]))
   irrelevanceEqT (Uᵥ (Uᵣ _ _ D1) (Uᵣ _ _ D2)) A≡B
     rewrite whrDet* (red D1 , Uₙ) (red D2 , Uₙ) = A≡B
   irrelevanceEqT (Idᵥ ⊩A@record{} ⊩A′) A≡B =
@@ -202,22 +201,22 @@ mutual
       (F≡F₁ , G≡G₁ , _) →
         Πₜ f (PE.subst (λ x → Γ ⊢ t :⇒*: f ∷ x) ΠFG≡ΠF₁G₁ d) funcF
            (PE.subst (λ x → Γ ⊢ f ≅ f ∷ x) ΠFG≡ΠF₁G₁ f≡f)
-           (λ {_} {ρ} {Δ} {a} {b} [ρ] ⊢Δ [a]₁ [b]₁ [a≡b]₁ →
+           (λ {_} {ρ} {Δ} {a} {b} [ρ] [a]₁ [b]₁ [a≡b]₁ →
              let [a] = irrelevanceTerm′ (PE.cong (wk ρ) (PE.sym F≡F₁))
-                                        ([F]₁ [ρ] ⊢Δ) ([F] [ρ] ⊢Δ) [a]₁
+                                        ([F]₁ [ρ]) ([F] [ρ]) [a]₁
                  [b] = irrelevanceTerm′ (PE.cong (wk ρ) (PE.sym F≡F₁))
-                                        ([F]₁ [ρ] ⊢Δ) ([F] [ρ] ⊢Δ) [b]₁
+                                        ([F]₁ [ρ]) ([F] [ρ]) [b]₁
                  [a≡b] = irrelevanceEqTerm′ (PE.cong (wk ρ) (PE.sym F≡F₁))
-                                            ([F]₁ [ρ] ⊢Δ) ([F] [ρ] ⊢Δ) [a≡b]₁
+                                            ([F]₁ [ρ]) ([F] [ρ]) [a≡b]₁
              in  irrelevanceEqTerm′ (PE.cong (λ G → wk (lift ρ) G [ _ ]) G≡G₁)
-                                    ([G] [ρ] ⊢Δ [a]) ([G]₁ [ρ] ⊢Δ [a]₁)
-                                    ([f] [ρ] ⊢Δ [a] [b] [a≡b]))
-           λ {_} {ρ} {Δ} {a} [ρ] ⊢Δ [a]₁ →
+                                    ([G] [ρ] [a]) ([G]₁ [ρ] [a]₁)
+                                    ([f] [ρ] [a] [b] [a≡b]))
+           λ {_} {ρ} {Δ} {a} [ρ] [a]₁ →
              let [a] = irrelevanceTerm′ (PE.cong (wk ρ) (PE.sym F≡F₁))
-                                        ([F]₁ [ρ] ⊢Δ) ([F] [ρ] ⊢Δ) [a]₁
+                                        ([F]₁ [ρ]) ([F] [ρ]) [a]₁
              in  irrelevanceTerm′ (PE.cong (λ G → wk (lift ρ) G [ _ ]) G≡G₁)
-                                  ([G] [ρ] ⊢Δ [a]) ([G]₁ [ρ] ⊢Δ [a]₁)
-                                  ([f]₁ [ρ] ⊢Δ [a])
+                                  ([G] [ρ] [a]) ([G]₁ [ρ] [a]₁)
+                                  ([f]₁ [ρ] [a])
   irrelevanceTermT
     {Γ = Γ} {t = t}
     (Bᵥ BΣˢ (Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext _)
@@ -225,10 +224,10 @@ mutual
     (Σₜ p d p≅p pProd ([fstt] , [sndt])) =
     let ΣFG≡ΣF₁G₁       = whrDet* (red D , ΠΣₙ) (red D₁ , ΠΣₙ)
         F≡F₁ , G≡G₁ , _ = B-PE-injectivity BΣ! BΣ! ΣFG≡ΣF₁G₁
-        [fstt]′ = irrelevanceTerm′ (PE.cong (wk id) F≡F₁) ([F] Wk.id (wf ⊢F))
-                                 ([F]₁ Wk.id (wf ⊢F₁)) [fstt]
+        [fstt]′ = irrelevanceTerm′ (PE.cong (wk id) F≡F₁) ([F] _)
+                                 ([F]₁ _) [fstt]
         [sndt]′ = irrelevanceTerm′ (PE.cong (λ x → wk (lift id) x [ _ ]) G≡G₁)
-                                 ([G] Wk.id (wf ⊢F) [fstt]) ([G]₁ Wk.id (wf ⊢F₁) [fstt]′) [sndt]
+                                 ([G] _ [fstt]) ([G]₁ _ [fstt]′) [sndt]
     in  Σₜ p (PE.subst (λ x → Γ ⊢ t :⇒*: p ∷ x) ΣFG≡ΣF₁G₁ d)
            (PE.subst (λ x →  Γ ⊢ p ≅ p ∷ x) ΣFG≡ΣF₁G₁ p≅p) pProd ([fstt]′ , [sndt]′)
   irrelevanceTermT
@@ -238,10 +237,10 @@ mutual
     (Σₜ p d p≅p prodₙ (PE.refl , [t₁] , [t₂] , PE.refl)) =
     let ΣFG≡ΣF₁G₁       = whrDet* (red D , ΠΣₙ) (red D₁ , ΠΣₙ)
         F≡F₁ , G≡G₁ , _ = B-PE-injectivity BΣ! BΣ! ΣFG≡ΣF₁G₁
-        [t₁]′ = irrelevanceTerm′ (PE.cong (wk id) F≡F₁) ([F] Wk.id (wf ⊢F))
-                                 ([F]₁ Wk.id (wf ⊢F₁)) [t₁]
+        [t₁]′ = irrelevanceTerm′ (PE.cong (wk id) F≡F₁) ([F] _) ([F]₁ _)
+                  [t₁]
         [t₂]′ = irrelevanceTerm′ (PE.cong (λ x → wk (lift id) x [ _ ]) G≡G₁)
-                                 ([G] Wk.id (wf ⊢F) [t₁]) ([G]₁ Wk.id (wf ⊢F₁) [t₁]′) [t₂]
+                                 ([G] _ [t₁]) ([G]₁ _ [t₁]′) [t₂]
     in  Σₜ p (PE.subst (λ x → Γ ⊢ t :⇒*: p ∷ x) ΣFG≡ΣF₁G₁ d)
           (PE.subst (λ x →  Γ ⊢ p ≅ p ∷ x) ΣFG≡ΣF₁G₁ p≅p) prodₙ
           (PE.refl , [t₁]′ , [t₂]′ , PE.refl)
@@ -323,10 +322,10 @@ mutual
            (whrDet* (red D , ΠΣₙ) (red D₁ , ΠΣₙ)) of λ where
       (PE.refl , PE.refl , _) →
         Πₜ₌ f g d d′ funcF funcG f≡g [f]′ [g]′
-        λ {_} {ρ} {Δ} {a} [ρ] ⊢Δ [a]₁ →
-          let [a] = irrelevanceTerm ([F]₁ [ρ] ⊢Δ) ([F] [ρ] ⊢Δ) [a]₁ in
-          irrelevanceEqTerm ([G] [ρ] ⊢Δ [a]) ([G]₁ [ρ] ⊢Δ [a]₁)
-            ([f≡g] [ρ] ⊢Δ [a])
+        λ {_} {ρ} {Δ} {a} [ρ] [a]₁ →
+          let [a] = irrelevanceTerm ([F]₁ [ρ]) ([F] [ρ]) [a]₁ in
+          irrelevanceEqTerm ([G] [ρ] [a]) ([G]₁ [ρ] [a]₁)
+            ([f≡g] [ρ] [a])
   irrelevanceEqTermT
     {Γ = Γ} {t = t} {u = u}
     (Bᵥ BΣˢ (Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext ok)
@@ -339,18 +338,14 @@ mutual
         [A]₁            = Bᵣ′ BΣ! F₁ G₁ D₁ ⊢F₁ ⊢G₁ A≡A₁ [F]₁ [G]₁ G-ext₁
                             ok₁
         [fstp]′ = irrelevanceTerm′ (PE.cong (wk id) F≡F₁)
-          ([F] Wk.id (wf ⊢F)) ([F]₁ Wk.id (wf ⊢F₁))
-          [fstp]
+                    ([F] _) ([F]₁ _) [fstp]
         [fstr]′ = irrelevanceTerm′ (PE.cong (wk id) F≡F₁)
-          ([F] Wk.id (wf ⊢F)) ([F]₁ Wk.id (wf ⊢F₁))
-          [fstr]
+                    ([F] _) ([F]₁ _) [fstr]
         [fst≡]′ = irrelevanceEqTerm′ (PE.cong (wk id) F≡F₁)
-          ([F] Wk.id (wf ⊢F)) ([F]₁ Wk.id (wf ⊢F₁))
-          [fst≡]
+                    ([F] _) ([F]₁ _) [fst≡]
         [snd≡]′ = irrelevanceEqTerm′
-          (PE.cong (λ x → wk (lift id) x [ fst _ p ]₀) G≡G₁)
-          ([G] Wk.id (wf ⊢F) [fstp]) ([G]₁ Wk.id (wf ⊢F₁) [fstp]′)
-          [snd≡]
+                    (PE.cong (λ x → wk (lift id) x [ fst _ p ]₀) G≡G₁)
+                    ([G] _ [fstp]) ([G]₁ _ [fstp]′) [snd≡]
     in  Σₜ₌ p r (PE.subst (λ x → Γ ⊢ t :⇒*: p ∷ x) ΣFG≡ΣF₁G₁ d)
             (PE.subst (λ x → Γ ⊢ u :⇒*: r ∷ x) ΣFG≡ΣF₁G₁ d′) pProd rProd
             (PE.subst (λ x → Γ ⊢ p ≅ r ∷ x) ΣFG≡ΣF₁G₁ p≅r)
@@ -369,23 +364,17 @@ mutual
         [A]₁            = Bᵣ′ BΣ! F₁ G₁ D₁ ⊢F₁ ⊢G₁ A≡A₁ [F]₁ [G]₁ G-ext₁
                             ok₁
         [p₁]′ = irrelevanceTerm′ (PE.cong (wk id) F≡F₁)
-          ([F] Wk.id (wf ⊢F)) ([F]₁ Wk.id (wf ⊢F₁))
-          [p₁]
+                  ([F] _) ([F]₁ _) [p₁]
         [r₁]′ = irrelevanceTerm′ (PE.cong (wk id) F≡F₁)
-          ([F] Wk.id (wf ⊢F)) ([F]₁ Wk.id (wf ⊢F₁))
-          [r₁]
+                  ([F] _) ([F]₁ _) [r₁]
         [p₂]′ = irrelevanceTerm′ (PE.cong (λ G → wk (lift id) G [ _ ]₀) G≡G₁)
-                                 ([G] Wk.id (wf ⊢F) [p₁])
-                                 ([G]₁ Wk.id (wf ⊢F₁) [p₁]′) [p₂]
+                  ([G] _ [p₁]) ([G]₁ _ [p₁]′) [p₂]
         [r₂]′ = irrelevanceTerm′ (PE.cong (λ G → wk (lift id) G [ _ ]₀) G≡G₁)
-                                 ([G] Wk.id (wf ⊢F) [r₁])
-                                 ([G]₁ Wk.id (wf ⊢F₁) [r₁]′) [r₂]
+                  ([G] _ [r₁]) ([G]₁ _ [r₁]′) [r₂]
         [fst≡]′ = irrelevanceEqTerm′ (PE.cong (wk id) F≡F₁)
-          ([F] Wk.id (wf ⊢F)) ([F]₁ Wk.id (wf ⊢F₁))
-          [fst≡]
+                    ([F] _) ([F]₁ _) [fst≡]
         [snd≡]′ = irrelevanceEqTerm′ (PE.cong (λ x → wk (lift id) x [ _ ]₀) G≡G₁)
-          ([G] Wk.id (wf ⊢F) [p₁]) ([G]₁ Wk.id (wf ⊢F₁) [p₁]′)
-          [snd≡]
+                    ([G] _ [p₁]) ([G]₁ _ [p₁]′) [snd≡]
     in  Σₜ₌ p r (PE.subst (λ x → Γ ⊢ t :⇒*: p ∷ x) ΣFG≡ΣF₁G₁ d)
             (PE.subst (λ x → Γ ⊢ u :⇒*: r ∷ x) ΣFG≡ΣF₁G₁ d′) prodₙ prodₙ
             (PE.subst (λ x → Γ ⊢ p ≅ r ∷ x) ΣFG≡ΣF₁G₁ p≅r)

@@ -95,18 +95,18 @@ opaque
 
   -- A well-formedness lemma for _•ₛ_.
 
-  wkSubst′ : ⊢ Η → ρ ∷ Η ⊇ Δ → Δ ⊢ˢ σ ∷ Γ → Η ⊢ˢ ρ •ₛ σ ∷ Γ
-  wkSubst′ _  _  id                    = id
-  wkSubst′ ⊢Η ρ⊇ (_,_ {A} ⊢tail ⊢head) =
-    wkSubst′ ⊢Η ρ⊇ ⊢tail ,
-    PE.subst (_⊢_∷_ _ _) (wk-subst A) (wkTerm ρ⊇ ⊢Η ⊢head)
+  wkSubst′ : ρ ∷ʷ Η ⊇ Δ → Δ ⊢ˢ σ ∷ Γ → Η ⊢ˢ ρ •ₛ σ ∷ Γ
+  wkSubst′ _  id                    = id
+  wkSubst′ ρ⊇ (_,_ {A} ⊢tail ⊢head) =
+    wkSubst′ ρ⊇ ⊢tail ,
+    PE.subst (_⊢_∷_ _ _) (wk-subst A) (wkTerm ρ⊇ ⊢head)
 
 opaque
 
   -- A well-formedness lemma for wk1Subst.
 
   wk1Subst′ : Δ ⊢ A → Δ ⊢ˢ σ ∷ Γ → Δ ∙ A ⊢ˢ wk1Subst σ ∷ Γ
-  wk1Subst′ ⊢A = wkSubst′ (∙ ⊢A) (step id)
+  wk1Subst′ ⊢A = wkSubst′ (stepʷ id ⊢A)
 
 opaque
 
@@ -129,7 +129,7 @@ opaque
     Δ ∙ A [ σ ] ⊢ˢ liftSubst σ ∷ Γ ∙ A
   liftSubst′ {A} ⊢Δ ⊢A ⊢σ =
     let ⊢A = substitution ⊢A ⊢σ ⊢Δ in
-    wkSubst′ (∙ ⊢A) (step id) ⊢σ ,
+    wkSubst′ (stepʷ id ⊢A) ⊢σ ,
     PE.subst (_⊢_∷_ _ _) (wk-subst A) (var₀ ⊢A)
 
 -- Well-formed identity substitution.
@@ -265,9 +265,8 @@ subst↑²Type-prod {Γ = Γ} {F = F} {G} {A} ⊢A ok =
   let ⊢ΓΣ = wf ⊢A
       ⊢Γ , ⊢Σ = splitCon ⊢ΓΣ
       ⊢F , ⊢G = syntacticΣ ⊢Σ
-      ⊢ΓFG = ∙ ⊢G
-      ⊢ρF = wk (step (step id)) ⊢ΓFG ⊢F
-      ⊢ρG = wk (lift (step (step id))) (∙ ⊢ρF) ⊢G
+      ⊢ρF = wk (stepʷ (step id) ⊢G) ⊢F
+      ⊢ρG = wk (liftʷ (step (step id)) ⊢ρF) ⊢G
       ⊢ρG′ = PE.subst₂ (λ x y → (Γ ∙ F ∙ G ∙ x) ⊢ y)
                        (wk≡subst (step (step id)) F)
                        (PE.trans (wk≡subst (lift (step (step id))) G)
@@ -287,7 +286,7 @@ subst↑²Type-prod {Γ = Γ} {F = F} {G} {A} ⊢A ok =
   in  substitution ⊢A
                    (wk1Subst′ ⊢G (wk1Subst′ ⊢F (idSubst′ ⊢Γ))
                    , prodⱼ ⊢ρG′ var1 var0 ok)
-                   ⊢ΓFG
+                   (∙ ⊢G)
   where
   splitCon : ∀ {Γ : Con Term n} {F} → ⊢ (Γ ∙ F) → ⊢ Γ × Γ ⊢ F
   splitCon (∙ x₁) = wf x₁ , x₁
@@ -322,9 +321,8 @@ subst↑²TypeEq-prod {Γ = Γ} {F = F} {G} {A} {B} A≡B ok =
       ⊢ΓΣ = wf ⊢A
       ⊢Γ , ⊢Σ = splitCon ⊢ΓΣ
       ⊢F , ⊢G = syntacticΣ ⊢Σ
-      ⊢ΓFG = ∙ ⊢G
-      ⊢ρF = wk (step (step id)) ⊢ΓFG ⊢F
-      ⊢ρG = wk (lift (step (step id))) (∙ ⊢ρF) ⊢G
+      ⊢ρF = wk (stepʷ (step id) ⊢G) ⊢F
+      ⊢ρG = wk (liftʷ (step (step id)) ⊢ρF) ⊢G
       ⊢ρG′ = PE.subst₂ (λ x y → (Γ ∙ F ∙ G ∙ x) ⊢ y)
                        (wk≡subst (step (step id)) F)
                        (PE.trans (wk≡subst (lift (step (step id))) G)
@@ -344,7 +342,7 @@ subst↑²TypeEq-prod {Γ = Γ} {F = F} {G} {A} {B} A≡B ok =
   in  substitutionEq A≡B
         (substRefl (wk1Subst′ ⊢G (wk1Subst′ ⊢F (idSubst′ ⊢Γ)) ,
          prodⱼ ⊢ρG′ var1 var0 ok))
-        ⊢ΓFG
+        (∙ ⊢G)
   where
   splitCon : ∀ {Γ : Con Term n} {F} → ⊢ (Γ ∙ F) → ⊢ Γ × Γ ⊢ F
   splitCon (∙ x₁) = wf x₁ , x₁

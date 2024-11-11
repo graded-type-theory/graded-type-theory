@@ -17,7 +17,7 @@ open Type-restrictions R
 open import Definition.Untyped M
 open import Definition.Untyped.Neutral M type-variant
 open import Definition.Typed R hiding (_,_)
-open import Definition.Typed.Weakening R using (_∷_⊇_)
+open import Definition.Typed.Weakening R using (_∷ʷ_⊇_)
 
 import Graded.Derived.Erased.Untyped 𝕄 as Erased
 
@@ -83,16 +83,13 @@ record Equality-relations
     ~-conv : Γ ⊢ t ~ u ∷ A → Γ ⊢ A ≡ B → Γ ⊢ t ~ u ∷ B
 
     -- Weakening
-    ≅-wk  : ρ ∷ Δ ⊇ Γ
-          → ⊢ Δ
+    ≅-wk  : ρ ∷ʷ Δ ⊇ Γ
           → Γ ⊢ A ≅ B
           → Δ ⊢ wk ρ A ≅ wk ρ B
-    ≅ₜ-wk : ρ ∷ Δ ⊇ Γ
-          → ⊢ Δ
+    ≅ₜ-wk : ρ ∷ʷ Δ ⊇ Γ
           → Γ ⊢ t ≅ u ∷ A
           → Δ ⊢ wk ρ t ≅ wk ρ u ∷ wk ρ A
-    ~-wk  : ρ ∷ Δ ⊇ Γ
-          → ⊢ Δ
+    ~-wk  : ρ ∷ʷ Δ ⊇ Γ
           → Γ ⊢ t ~ u ∷ A
           → Δ ⊢ wk ρ t ~ wk ρ u ∷ wk ρ A
 
