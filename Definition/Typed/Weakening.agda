@@ -19,8 +19,8 @@ open import Definition.Untyped M as U hiding (wk; wk′)
 open import Definition.Untyped.Neutral M type-variant
 open import Definition.Untyped.Properties M
 open import Definition.Typed R hiding (_,_)
+open import Definition.Typed.Inversion.Primitive R
 open import Definition.Typed.Properties.Admissible.Primitive R
-open import Definition.Typed.Properties.Inversion R
 open import Definition.Typed.Properties.Well-formed R
 open import Definition.Typed.Size R
 

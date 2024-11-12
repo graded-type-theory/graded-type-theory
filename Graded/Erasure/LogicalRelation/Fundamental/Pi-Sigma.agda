@@ -33,6 +33,7 @@ open import Definition.Typed.Consequences.DerivedRules TR
 open import Definition.Typed.Consequences.Inversion TR
 open import Definition.Typed.Consequences.Reduction TR
 open import Definition.Typed.Consequences.RedSteps TR
+open import Definition.Typed.Inversion TR
 open import Definition.Typed.Properties TR
 import Definition.Typed.Reasoning.Reduction TR as RR
 open import Definition.Typed.Substitution TR

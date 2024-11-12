@@ -35,8 +35,8 @@ open import Definition.Untyped.Inversion M
 open import Definition.Untyped.Properties M
 open import Definition.Typed TR
 open import Definition.Typed.Consequences.Canonicity TR
-open import Definition.Typed.Consequences.Inversion TR
 open import Definition.Typed.EqRelInstance TR
+open import Definition.Typed.Inversion TR
 open import Definition.LogicalRelation TR
 open import Definition.LogicalRelation.Fundamental.Reducibility TR
 open import Definition.LogicalRelation.Substitution.Introductions.Nat TR

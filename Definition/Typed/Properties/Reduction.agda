@@ -14,8 +14,8 @@ module Definition.Typed.Properties.Reduction
 open Type-restrictions R
 
 open import Definition.Typed R
+open import Definition.Typed.Inversion.Primitive R
 open import Definition.Typed.Properties.Admissible R
-open import Definition.Typed.Properties.Inversion R
 open import Definition.Typed.Properties.Well-formed R
 open import Definition.Typed.Reasoning.Term.Primitive R
 

@@ -20,11 +20,11 @@ open import Definition.Untyped M
 open import Definition.Untyped.Neutral M type-variant
 open import Definition.Untyped.Normal-form M type-variant
 open import Definition.Typed R
+open import Definition.Typed.Inversion R
 open import Definition.Typed.Properties R
 open import Definition.Typed.Syntactic R
 open import Definition.Typed.EqRelInstance R
 open import Definition.Typed.Consequences.Inequality R
-open import Definition.Typed.Consequences.Inversion R
 open import Definition.Typed.Consequences.Reduction R
 
 open import Definition.LogicalRelation R

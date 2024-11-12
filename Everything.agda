@@ -114,7 +114,7 @@ import Definition.Typed.Reasoning.Type
 import Definition.Typed.Reasoning.Term.Primitive
 import Definition.Typed.Properties.Admissible.Primitive
 import Definition.Typed.Properties.Well-formed
-import Definition.Typed.Properties.Inversion
+import Definition.Typed.Inversion.Primitive
 import Graded.Derived.Erased.Typed.Primitive
 import Definition.Typed.Weakening
 import Definition.Typed.Stability.Primitive
@@ -125,6 +125,7 @@ import Definition.Typed.Stability
 import Definition.Typed.Substitution
 import Definition.Typed.Properties.Reduction
 import Definition.Typed.Syntactic
+import Definition.Typed.Inversion
 import Definition.Typed.Properties
 import Definition.Typed.Reasoning.Term
 import Definition.Typed.RedSteps

@@ -16,8 +16,8 @@ module Definition.Typed.Substitution.Primitive
 open Type-restrictions R
 
 open import Definition.Typed R
+open import Definition.Typed.Inversion.Primitive R
 open import Definition.Typed.Properties.Admissible.Primitive R
-open import Definition.Typed.Properties.Inversion R
 open import Definition.Typed.Properties.Well-formed R
 open import Definition.Typed.Reasoning.Term.Primitive R
 open import Definition.Typed.Size R

@@ -16,7 +16,7 @@ open Type-restrictions R
 open import Definition.Untyped M
 
 open import Definition.Typed R
-open import Definition.Typed.Properties.Inversion R
+open import Definition.Typed.Inversion.Primitive R
 open import Definition.Typed.Well-formed R
 
 import Graded.Derived.Erased.Untyped 𝕄 as Erased
@@ -79,7 +79,7 @@ opaque
     Γ ∙ A ⊢ wk1 t ∘⟨ p ⟩ var x0 ≡ wk1 u ∘⟨ p ⟩ var x0 ∷ B →
     Γ ⊢ t ≡ u ∷ Π p , q ▷ A ▹ B
   η-eq′ ⊢t ⊢u t0≡u0 =
-    let _ , (⊢B , _) , ok = inversion-ΠΣ-⊢ (wf-⊢∷ ⊢t) in
+    let _ , ⊢B , ok = inversion-ΠΣ (wf-⊢∷ ⊢t) in
     η-eq ⊢B ⊢t ⊢u t0≡u0 ok
 
 opaque
@@ -93,5 +93,5 @@ opaque
     Γ ⊢ snd p t ≡ snd p u ∷ B [ fst p t ]₀ →
     Γ ⊢ t ≡ u ∷ Σˢ p , q ▷ A ▹ B
   Σ-η′ ⊢t ⊢u t₁≡u₁ t₂≡u₂ =
-    let _ , (⊢B , _) , ok = inversion-ΠΣ-⊢ (wf-⊢∷ ⊢t) in
+    let _ , ⊢B , ok = inversion-ΠΣ (wf-⊢∷ ⊢t) in
     Σ-η ⊢B ⊢t ⊢u t₁≡u₁ t₂≡u₂ ok

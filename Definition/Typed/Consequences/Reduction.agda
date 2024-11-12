@@ -21,7 +21,7 @@ open import Definition.Typed.EqRelInstance R
 open import Definition.Typed.Consequences.Equality R
 open import Definition.Typed.Consequences.Inequality R
 open import Definition.Typed.Consequences.Injectivity R
-open import Definition.Typed.Consequences.Inversion R
+open import Definition.Typed.Inversion R
 open import Definition.Typed.Reasoning.Type R
 open import Definition.Typed.RedSteps R
 open import Definition.Typed.Syntactic R

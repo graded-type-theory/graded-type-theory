@@ -29,6 +29,7 @@ open import Definition.LogicalRelation.Substitution TR
 open import Definition.LogicalRelation.Substitution.Introductions TR
 open import Definition.Typed TR
 open import Definition.Typed.Consequences.Inversion TR
+open import Definition.Typed.Inversion TR
 open import Definition.Typed.Properties TR
 open import Definition.Typed.RedSteps TR
 open import Definition.Typed.Syntactic TR

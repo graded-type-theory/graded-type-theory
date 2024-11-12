@@ -20,9 +20,9 @@ open import Definition.Conversion.Soundness R
 open import Definition.Conversion.Whnf R
 open import Definition.Typed R
 open import Definition.Typed.Consequences.DerivedRules R
-open import Definition.Typed.Consequences.Inversion R
 open import Definition.Typed.Consequences.NeTypeEq R
 open import Definition.Typed.Eta-long-normal-form R
+open import Definition.Typed.Inversion R
 open import Definition.Typed.Properties R
 open import Definition.Typed.Stability R
 open import Definition.Typed.Substitution R

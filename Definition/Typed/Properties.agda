@@ -19,7 +19,6 @@ open import Tools.Fin
 open import Tools.PropositionalEquality
 
 open import Definition.Typed.Properties.Admissible R public
-open import Definition.Typed.Properties.Inversion R public
 open import Definition.Typed.Properties.Reduction R public
 open import Definition.Typed.Properties.Well-formed R public
 

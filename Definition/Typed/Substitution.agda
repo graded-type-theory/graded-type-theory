@@ -16,8 +16,8 @@ open Type-restrictions R
 open import Definition.Untyped M hiding (wk)
 open import Definition.Untyped.Properties M
 open import Definition.Typed R
+open import Definition.Typed.Inversion.Primitive R
 open import Definition.Typed.Properties.Admissible R
-open import Definition.Typed.Properties.Inversion R
 open import Definition.Typed.Properties.Well-formed R
 import Definition.Typed.Substitution.Primitive R as P
 open import Definition.Typed.Weakening R
@@ -211,7 +211,7 @@ opaque
 
   substTypeΠ : Γ ⊢ Π p , q ▷ A ▹ B → Γ ⊢ t ∷ A → Γ ⊢ B [ t ]₀
   substTypeΠ ⊢ΠAB ⊢t =
-    let _ , (⊢B , _) , _ = inversion-ΠΣ-⊢ ⊢ΠAB in
+    let _ , ⊢B , _ = inversion-ΠΣ ⊢ΠAB in
     substType ⊢B ⊢t
 
 opaque
@@ -254,7 +254,7 @@ subst↑²Type-prod : ∀ {m F G A}
 subst↑²Type-prod {Γ = Γ} {F = F} {G} {A} ⊢A ok =
   let ⊢ΓΣ = wf ⊢A
       ⊢Γ , ⊢Σ = splitCon ⊢ΓΣ
-      (⊢F , _) , (⊢G , _) , _ = inversion-ΠΣ-⊢ ⊢Σ
+      ⊢F , ⊢G , _ = inversion-ΠΣ ⊢Σ
       ⊢ρF = wk (stepʷ (step id) ⊢G) ⊢F
       ⊢ρG = wk (liftʷ (step (step id)) ⊢ρF) ⊢G
       ⊢ρG′ = PE.subst₂ (λ x y → (Γ ∙ F ∙ G ∙ x) ⊢ y)
@@ -310,7 +310,7 @@ subst↑²TypeEq-prod {Γ = Γ} {F = F} {G} {A} {B} A≡B ok =
   let ⊢A , ⊢B = wf-⊢≡ A≡B
       ⊢ΓΣ = wf ⊢A
       ⊢Γ , ⊢Σ = splitCon ⊢ΓΣ
-      (⊢F , _) , (⊢G , _) , _ = inversion-ΠΣ-⊢ ⊢Σ
+      ⊢F , ⊢G , _ = inversion-ΠΣ ⊢Σ
       ⊢ρF = wk (stepʷ (step id) ⊢G) ⊢F
       ⊢ρG = wk (liftʷ (step (step id)) ⊢ρF) ⊢G
       ⊢ρG′ = PE.subst₂ (λ x y → (Γ ∙ F ∙ G ∙ x) ⊢ y)

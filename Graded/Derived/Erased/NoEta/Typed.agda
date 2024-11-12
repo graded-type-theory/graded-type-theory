@@ -16,9 +16,9 @@ open Modality 𝕄
 open Type-restrictions R
 
 open import Definition.Typed R
+open import Definition.Typed.Inversion R
 open import Definition.Typed.Properties R
 open import Definition.Typed.Syntactic R
-open import Definition.Typed.Consequences.Inversion R
 open import Definition.Typed.Consequences.DerivedRules.Sigma R
 
 open import Definition.Untyped M hiding (_[_])

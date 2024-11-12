@@ -13,7 +13,7 @@ module Definition.Typed.Syntactic
 
 open import Definition.Untyped M
 open import Definition.Typed R
-open import Definition.Typed.Properties.Inversion R
+open import Definition.Typed.Inversion.Primitive R
 open import Definition.Typed.Properties.Reduction R
 import Definition.Typed.Well-formed R as W
 

@@ -16,6 +16,7 @@ open Type-restrictions R
 open import Definition.Untyped M
 open import Definition.Untyped.Neutral M type-variant
 open import Definition.Typed R
+open import Definition.Typed.Inversion R
 open import Definition.Typed.Properties R
 open import Definition.Typed.RedSteps R
 import Definition.Typed.Reasoning.Term R as TmR
@@ -26,7 +27,6 @@ open import Definition.Conversion R
 open import Definition.Conversion.Whnf R
 open import Definition.Typed.Consequences.DerivedRules R
 open import Definition.Typed.Consequences.Injectivity R
-open import Definition.Typed.Consequences.Inversion R
 open import Definition.Typed.Consequences.Reduction R
 open import Definition.Typed.Consequences.NeTypeEq R
 

@@ -30,11 +30,11 @@ import Definition.LogicalRelation.Substitution
 import Definition.Typed
 import Definition.Typed.Consequences.DerivedRules
 import Definition.Typed.Consequences.DerivedRules.Sigma
-import Definition.Typed.Consequences.Inversion
 import Definition.Typed.Consequences.Reduction
 import Definition.Typed.Decidable
 import Definition.Typed.Decidable.Equality
 import Definition.Typed.Eta-long-normal-form
+import Definition.Typed.Inversion
 import Definition.Typed.Properties
 import Definition.Typed.Restrictions
 import Definition.Typed.Substitution
@@ -300,10 +300,8 @@ types = Definition.Typed.Restrictions.Type-restrictions
 --   certain type ("Unit" or "B_p^q C D"), then this type must be
 --   allowed:
 
-Unit-allowed =
-  Definition.Typed.Consequences.Inversion.⊢∷Unit→Unit-allowed
-ΠΣ-allowed =
-  Definition.Typed.Consequences.Inversion.⊢∷ΠΣ→ΠΣ-allowed
+Unit-allowed = Definition.Typed.Inversion.⊢∷Unit→Unit-allowed
+ΠΣ-allowed   = Definition.Typed.Inversion.⊢∷ΠΣ→ΠΣ-allowed
 
 -- * One can choose whether to allow the term prodrec_r,p^q (and one
 --   can choose to only allow this term for the mode 𝟘ᵐ):

@@ -23,6 +23,7 @@ open import Definition.Untyped.Neutral M type-variant
 open import Definition.Untyped.Properties M
 open import Definition.Untyped.Properties.Neutral M type-variant
 open import Definition.Typed R
+open import Definition.Typed.Inversion R
 open import Definition.Typed.Properties R
 open import Definition.Typed.Reasoning.Type R
 open import Definition.Typed.Stability R
@@ -37,7 +38,6 @@ open import Definition.Conversion.Stability R
 open import Definition.Conversion.Conversion R
 open import Definition.Typed.Consequences.DerivedRules.Identity R
 open import Definition.Typed.Consequences.Injectivity R
-open import Definition.Typed.Consequences.Inversion R
 open import Definition.Typed.Consequences.Reduction R
 open import Definition.Typed.Consequences.Equality R
 open import Definition.Typed.Consequences.NeTypeEq R

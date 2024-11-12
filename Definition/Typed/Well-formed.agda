@@ -14,8 +14,8 @@ module Definition.Typed.Well-formed
 open Type-restrictions R
 
 open import Definition.Typed R
+open import Definition.Typed.Inversion.Primitive R
 open import Definition.Typed.Properties.Admissible.Primitive R
-open import Definition.Typed.Properties.Inversion R
 open import Definition.Typed.Properties.Well-formed R
 open import Definition.Typed.Stability.Primitive R
 open import Definition.Typed.Substitution.Primitive R
@@ -67,7 +67,7 @@ opaque mutual
     (lamⱼ ⊢B _ ok) →
       ΠΣⱼ ⊢B ok
     (⊢t ∘ⱼ ⊢u) →
-      let _ , (⊢B , _) , _ = inversion-ΠΣ-⊢ (wf-⊢∷ ⊢t) in
+      let _ , ⊢B , _ = inversion-ΠΣ (wf-⊢∷ ⊢t) in
       subst-⊢ ⊢B (⊢ˢʷ∷-sgSubst ⊢u)
     (prodⱼ ⊢B _ _ ok) →
       ΠΣⱼ ⊢B ok
@@ -174,9 +174,9 @@ opaque mutual
            (reflConEq (wfTerm ⊢A₁) ∙⟨ univ ⊢A₂ ∣ univ A₁≡A₂ ⟩) ⊢B₂)
         ok
     (app-cong t₁≡t₂ u₁≡u₂) →
-      let ⊢Π , ⊢t₁ , ⊢t₂   = wf-⊢≡∷ t₁≡t₂
-          _ , ⊢u₁ , ⊢u₂    = wf-⊢≡∷ u₁≡u₂
-          _ , (⊢B , _) , _ = inversion-ΠΣ-⊢ ⊢Π
+      let ⊢Π , ⊢t₁ , ⊢t₂ = wf-⊢≡∷ t₁≡t₂
+          _ , ⊢u₁ , ⊢u₂  = wf-⊢≡∷ u₁≡u₂
+          _ , ⊢B , _     = inversion-ΠΣ ⊢Π
       in
       subst-⊢ ⊢B (⊢ˢʷ∷-sgSubst ⊢u₁) ,
       ⊢t₁ ∘ⱼ ⊢u₁ ,

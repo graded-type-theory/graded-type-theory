@@ -13,7 +13,7 @@ module Definition.Typed.Stability
 
 open import Definition.Typed R
 open import Definition.Typed.Properties.Admissible R
-open import Definition.Typed.Properties.Inversion R
+open import Definition.Typed.Inversion.Primitive R
 open import Definition.Typed.Properties.Well-formed R
 import Definition.Typed.Stability.Primitive R as S
 open import Definition.Typed.Substitution.Primitive R
