@@ -307,13 +307,13 @@ mutual
                    (sym′ (soundnessConv↑Term Δ⊢t′↑t))
     in  prod-cong Δ⊢G Δ⊢t′↑t (convConv↑Term Gt≡Gt′ Δ⊢u′↑u) ok
   symConv↓Term Γ≡Δ (η-eq x₁ x₂ y y₁ t<>u) =
-    let ⊢F , _ = syntacticΠ (syntacticTerm x₁)
+    let ⊢F , _ , _ = inversion-ΠΣ (syntacticTerm x₁)
     in  η-eq (stabilityTerm Γ≡Δ x₂) (stabilityTerm Γ≡Δ x₁)
              y₁ y (symConv↑Term (Γ≡Δ ∙ refl ⊢F) t<>u)
   symConv↓Term Γ≡Δ (Σ-η ⊢p ⊢r pProd rProd fstConv sndConv) =
     let Δ⊢p = stabilityTerm Γ≡Δ ⊢p
         Δ⊢r = stabilityTerm Γ≡Δ ⊢r
-        ⊢G = proj₂ (syntacticΣ (syntacticTerm ⊢p))
+        _ , ⊢G , _ = inversion-ΠΣ (syntacticTerm ⊢p)
         Δfst≡ = symConv↑Term Γ≡Δ fstConv
         Δsnd≡₁ = symConv↑Term Γ≡Δ sndConv
         ΔGfstt≡Gfstu = stabilityEq Γ≡Δ (substTypeEq (refl ⊢G)

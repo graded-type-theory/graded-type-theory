@@ -17,6 +17,7 @@ open import Definition.Untyped M as U hiding (wk)
 open import Definition.Untyped.Neutral M type-variant
 open import Definition.Untyped.Properties M
 open import Definition.Typed R
+open import Definition.Typed.Inversion R
 open import Definition.Typed.Properties R
 open import Definition.Typed.Syntactic R
 open import Definition.Typed.Weakening R
@@ -69,7 +70,7 @@ mutual
     (prodrec-cong {C = C} {E} {g} {h} {u} {v} x g~h x₁) =
     let ρg~ρh = wk~↓ [ρ] g~h
         ⊢ρΣ , _ , _ = syntacticEqTerm (soundness~↓ ρg~ρh)
-        _ , ⊢ρG = syntacticΣ ⊢ρΣ
+        _ , ⊢ρG , _ = inversion-ΠΣ ⊢ρΣ
         u↓v = PE.subst (λ x → _ ⊢ U.wk (liftn ρ 2) u [conv↑] U.wk (liftn ρ 2) v ∷ x)
                        (wk-β-prodrec ρ C)
                        (wkConv↑Term (liftʷ (lift (∷ʷ⊇→∷⊇ [ρ])) ⊢ρG) x₁)
@@ -205,7 +206,7 @@ mutual
              (wkConv↑Term ρ x₃))
           ok
   wkConv↓Term {ρ} {Δ} [ρ] (η-eq {F = F} {G = G} x₁ x₂ y y₁ t<>u) =
-    let ⊢F , _ = syntacticΠ (syntacticTerm x₁)
+    let ⊢F , _ = inversion-ΠΣ (syntacticTerm x₁)
         ⊢ρF = wk [ρ] ⊢F
     in
     η-eq (wkTerm [ρ] x₁) (wkTerm [ρ] x₂)

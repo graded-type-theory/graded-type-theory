@@ -18,6 +18,7 @@ open import Definition.Untyped M
 open import Definition.Untyped.Neutral M type-variant
 open import Definition.Untyped.Properties M
 open import Definition.Typed R
+open import Definition.Typed.Inversion R
 open import Definition.Typed.Syntactic R
 open import Definition.Typed.Weakening R
 open import Definition.Typed.Properties R
@@ -105,7 +106,7 @@ mutual
     rewrite PE.sym (whrDet* (red D , ΠΣₙ) (D₁ , whnfB)) =
     let ⊢ΠFG , ⊢t , ⊢u = syntacticEqTerm
                            (soundness~↓ ([~] A (D₂ , ΠΣₙ) k~l))
-        ⊢F , ⊢G = syntacticΠ ⊢ΠFG
+        ⊢F , ⊢G , _ = inversion-ΠΣ ⊢ΠFG
         neT , neU = ne~↑ k~l
         step-id = stepʷ id ⊢F
         var0 = neuTerm ([F] step-id) (var x0) (refl (var₀ ⊢F))
@@ -123,7 +124,7 @@ mutual
     let neT , neU = ne~↑ t~u
         t~u↓ = [~] A″ (D₂ , ΠΣₙ) t~u
         ⊢ΣFG , ⊢t , ⊢u = syntacticEqTerm (soundness~↓ t~u↓)
-        ⊢F , ⊢G = syntacticΣ ⊢ΣFG
+        ⊢F , ⊢G , _ = inversion-ΠΣ ⊢ΣFG
         ⊢Γ = wf ⊢F
 
         wkId = wk-id F

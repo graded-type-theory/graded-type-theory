@@ -13,7 +13,6 @@ module Definition.Typed.Syntactic
 
 open import Definition.Untyped M
 open import Definition.Typed R
-open import Definition.Typed.Inversion.Primitive R
 open import Definition.Typed.Properties.Reduction R
 import Definition.Typed.Well-formed R as W
 
@@ -31,8 +30,6 @@ open W public
 private variable
   Γ       : Con Term _
   A B t u : Term _
-  p q     : M
-  s       : Strength
 
 opaque
 
@@ -67,21 +64,3 @@ opaque
     case syntacticRedTerm t⇒*u of λ
       (_ , ⊢t , ⊢u) →
     [ ⊢t , ⊢u , t⇒*u ]
-
-opaque
-
-  -- Syntactic validity of Π-types.
-
-  syntacticΠ : Γ ⊢ Π p , q ▷ A ▹ B → Γ ⊢ A × Γ ∙ A ⊢ B
-  syntacticΠ ⊢ΠAB =
-    let (⊢A , _) , (⊢B , _) , _ = inversion-ΠΣ-⊢ ⊢ΠAB in
-    ⊢A , ⊢B
-
-opaque
-
-  -- Syntactic validity of Σ-types.
-
-  syntacticΣ : Γ ⊢ Σ⟨ s ⟩ p , q ▷ A ▹ B → Γ ⊢ A × Γ ∙ A ⊢ B
-  syntacticΣ ⊢ΣAB =
-    let (⊢A , _) , (⊢B , _) , _ = inversion-ΠΣ-⊢ ⊢ΣAB in
-    ⊢A , ⊢B

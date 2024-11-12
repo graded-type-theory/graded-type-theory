@@ -18,6 +18,7 @@ open import Definition.Untyped M
 open import Definition.Untyped.Neutral M type-variant
 open import Definition.Untyped.Properties M
 open import Definition.Typed R
+open import Definition.Typed.Inversion R
 open import Definition.Typed.Properties R
 open import Definition.Typed.Stability R
 open import Definition.Typed.Substitution R
@@ -126,7 +127,7 @@ record _⊢_~_∷_ (Γ : Con Term n) (k l A : Term n) : Set a where
       case Σ-injectivity ΣFG≡B′ of λ where
         (_ , G≡E , _ , _) →
           let p~r↓       = [~] _ (red D , whnfB′) p~r
-              _ , ⊢G     = syntacticΣ ⊢ΣFG
+              _ , ⊢G , _ = inversion-ΠΣ ⊢ΣFG
               _ , ⊢p , _ = syntacticEqTerm (soundness~↑ p~r)
               ⊢fst       = fstⱼ ⊢G (conv ⊢p (sym A≡B))
           in

@@ -73,7 +73,7 @@ mutual
     let ⊢A , ⊢t = soundness⇉ ⊢Γ t⇉A
         A≡ΠFG = subset* A⇒ΠFG
         _ , ⊢ΠFG = syntacticEq A≡ΠFG
-        ⊢F , ⊢G = syntacticΠ ⊢ΠFG
+        ⊢F , ⊢G , _ = inversion-ΠΣ ⊢ΠFG
         ⊢u = soundness⇇ u⇇F
         ⊢t′ = conv ⊢t A≡ΠFG
     in  substType ⊢G ⊢u , ⊢t′ ∘ⱼ ⊢u
@@ -81,13 +81,13 @@ mutual
     let ⊢A , ⊢t = soundness⇉ ⊢Γ t⇉A
         A≡ΣFG = subset* A⇒ΣFG
         _ , ⊢ΣFG = syntacticEq A≡ΣFG
-        ⊢F , ⊢G = syntacticΣ ⊢ΣFG
+        ⊢F , ⊢G , _ = inversion-ΠΣ ⊢ΣFG
     in  ⊢F , fstⱼ ⊢G (conv ⊢t A≡ΣFG)
   soundness⇉ ⊢Γ (sndᵢ t⇉A (A⇒ΣFG , _)) =
     let ⊢A , ⊢t = soundness⇉ ⊢Γ t⇉A
         A≡ΣFG = subset* A⇒ΣFG
         _ , ⊢ΣFG = syntacticEq A≡ΣFG
-        ⊢F , ⊢G = syntacticΣ ⊢ΣFG
+        ⊢F , ⊢G , _ = inversion-ΠΣ ⊢ΣFG
     in  substType ⊢G (fstⱼ ⊢G (conv ⊢t A≡ΣFG)) , sndⱼ ⊢G (conv ⊢t A≡ΣFG)
   soundness⇉ ⊢Γ (prodrecᵢ A⇇Type t⇉B (B⇒ΣFG , _) u⇇A₊) =
     let ⊢B , ⊢t = soundness⇉ ⊢Γ t⇉B

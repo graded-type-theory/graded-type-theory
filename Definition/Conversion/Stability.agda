@@ -13,6 +13,7 @@ module Definition.Conversion.Stability
 
 open import Definition.Untyped M
 open import Definition.Typed R
+open import Definition.Typed.Inversion R
 open import Definition.Typed.Properties R
 open import Definition.Typed.Stability R
 open import Definition.Typed.Syntactic R
@@ -52,7 +53,7 @@ mutual
                    (stability~↓ Γ≡Δ k~l)
   stability~↑ Γ≡Δ (prodrec-cong x x₁ x₂) =
     let ⊢Σ , _ = syntacticEqTerm (soundness~↓ x₁)
-        ⊢F , ⊢G = syntacticΣ ⊢Σ
+        ⊢F , ⊢G , _ = inversion-ΠΣ ⊢Σ
     in  prodrec-cong (stabilityConv↑ (Γ≡Δ ∙ refl ⊢Σ) x)
           (stability~↓ Γ≡Δ x₁)
           (stabilityConv↑Term (Γ≡Δ ∙ refl ⊢F ∙ refl ⊢G) x₂)
@@ -170,7 +171,7 @@ mutual
     prod-cong (stability (Γ≡Δ ∙ refl (⊢∙→⊢ (wf x₁))) x₁)
       (stabilityConv↑Term Γ≡Δ x₂) (stabilityConv↑Term Γ≡Δ x₃) ok
   stabilityConv↓Term Γ≡Δ (η-eq x x₁ y y₁ t<>u) =
-    let ⊢F , ⊢G = syntacticΠ (syntacticTerm x)
+    let ⊢F , ⊢G , _ = inversion-ΠΣ (syntacticTerm x)
     in  η-eq (stabilityTerm Γ≡Δ x) (stabilityTerm Γ≡Δ x₁)
              y y₁ (stabilityConv↑Term (Γ≡Δ ∙ (refl ⊢F)) t<>u)
   stabilityConv↓Term Γ≡Δ (Σ-η ⊢p ⊢r pProd rProd fstConv sndConv) =

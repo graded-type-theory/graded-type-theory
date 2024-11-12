@@ -51,12 +51,12 @@ mutual
   soundness~↑ (fst-cong x) =
     let p≡ = soundness~↓ x
         ⊢ΣFG = proj₁ (syntacticEqTerm p≡)
-        _ , ⊢G = syntacticΣ ⊢ΣFG
+        _ , ⊢G , _ = inversion-ΠΣ ⊢ΣFG
     in  fst-cong ⊢G p≡
   soundness~↑ (snd-cong x) =
     let p≡ = soundness~↓ x
         ⊢ΣFG = proj₁ (syntacticEqTerm p≡)
-        _ , ⊢G = syntacticΣ ⊢ΣFG
+        _ , ⊢G , _ = inversion-ΠΣ ⊢ΣFG
     in  snd-cong ⊢G p≡
   soundness~↑ (natrec-cong x₁ x₂ x₃ k~l) =
     let F≡G = soundnessConv↑ x₁ in
