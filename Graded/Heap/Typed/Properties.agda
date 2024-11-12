@@ -20,10 +20,10 @@ open import Definition.Untyped.Properties M
 open import Definition.Typed TR
 open import Definition.Typed.Properties TR
 open import Definition.Typed.Substitution TR
+open import Definition.Typed.Syntactic TR
 open import Definition.Typed.Consequences.DerivedRules TR
 open import Definition.Typed.Consequences.Inequality TR
 open import Definition.Typed.Consequences.Inversion TR
-open import Definition.Typed.Consequences.Syntactic TR
 
 open import Graded.Heap.Typed UR TR
 open import Graded.Heap.Typed.Inversion UR TR

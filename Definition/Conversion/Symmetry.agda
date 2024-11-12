@@ -19,13 +19,13 @@ open import Definition.Typed R
 open import Definition.Typed.Properties R
 open import Definition.Typed.Stability R
 open import Definition.Typed.Substitution R
+open import Definition.Typed.Syntactic R
 open import Definition.Typed.Weakening R as W hiding (wk)
 open import Definition.Conversion R
 open import Definition.Conversion.Soundness R
 open import Definition.Conversion.Conversion R
 open import Definition.Conversion.Whnf R
 open import Definition.Typed.Consequences.DerivedRules R
-open import Definition.Typed.Consequences.Syntactic R
 open import Definition.Typed.Consequences.Equality R
 open import Definition.Typed.Consequences.Reduction R
 open import Definition.Typed.Consequences.Injectivity R

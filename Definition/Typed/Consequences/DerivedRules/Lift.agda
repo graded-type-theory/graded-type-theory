@@ -20,10 +20,10 @@ open import Definition.Typed.Consequences.DerivedRules.Unit R
 open import Definition.Typed.Consequences.Injectivity R
 open import Definition.Typed.Consequences.InverseUniv R
 open import Definition.Typed.Consequences.Inversion R
-open import Definition.Typed.Consequences.Syntactic R
 open import Definition.Typed.Properties R
 open import Definition.Typed.Reasoning.Term R
 open import Definition.Typed.Substitution R
+open import Definition.Typed.Syntactic R
 import Definition.Typed.Weakening R as W
 
 open import Definition.Untyped M hiding (lift)

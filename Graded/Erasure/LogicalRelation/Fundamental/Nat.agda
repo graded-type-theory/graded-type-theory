@@ -30,10 +30,10 @@ open import Definition.Typed R
 open import Definition.Typed.Consequences.Inversion R
 import Definition.Typed.Consequences.RedSteps R as RS
 open import Definition.Typed.Consequences.Reduction R
-open import Definition.Typed.Consequences.Syntactic R
 open import Definition.Typed.Properties R
 import Definition.Typed.Reasoning.Reduction R as RR
 open import Definition.Typed.Substitution R
+open import Definition.Typed.Syntactic R
 
 open import Definition.Untyped M
 open import Definition.Untyped.Properties M

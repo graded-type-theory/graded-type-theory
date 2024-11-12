@@ -15,10 +15,10 @@ open import Definition.Untyped M
 open import Definition.Typed R
 open import Definition.Typed.Properties R
 open import Definition.Typed.Stability R
+open import Definition.Typed.Syntactic R
 import Definition.Typed.Weakening R as W
 open import Definition.Conversion R
 open import Definition.Conversion.Soundness R
-open import Definition.Typed.Consequences.Syntactic R
 
 open import Tools.Function
 open import Tools.Nat

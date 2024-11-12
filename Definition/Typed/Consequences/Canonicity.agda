@@ -20,8 +20,8 @@ open import Definition.Untyped.Properties M
 open import Definition.Typed R
 open import Definition.Typed.Consequences.Injectivity R
 open import Definition.Typed.Consequences.Inversion R
-open import Definition.Typed.Consequences.Syntactic R
 open import Definition.Typed.Properties R
+open import Definition.Typed.Syntactic R
 open import Definition.Typed.EqRelInstance R
 open import Definition.LogicalRelation R
 open import Definition.LogicalRelation.Properties R

@@ -32,11 +32,11 @@ open import Definition.Typed.Consequences.DerivedRules.Nat R
 open import Definition.Typed.Consequences.DerivedRules.Pi R
 open import Definition.Typed.Consequences.DerivedRules.Sigma R
 open import Definition.Typed.Consequences.DerivedRules.Unit R
-open import Definition.Typed.Consequences.Syntactic R
 open import Definition.Typed.Properties R
 import Definition.Typed.Reasoning.Term R as TmR
 import Definition.Typed.Reasoning.Type R as TyR
 open import Definition.Typed.Substitution R
+open import Definition.Typed.Syntactic R
 open import Definition.Typed.Weakening R
 
 open import Definition.Untyped.Bool 𝕄 as B

@@ -2068,9 +2068,9 @@ module _ (TR : Type-restrictions) where
   open Definition.Typed TR
 
   -- It is always the case that Γ ⊢ t ∷ A implies Γ ⊢ A (see
-  -- Definition.Typed.Consequences.Syntactic.syntacticTerm), but if
-  -- Γ ⊢ t ∷ A and γ ▸[ 𝟙ᵐ ] t always imply γ ▸[ 𝟙ᵐ ] A, then the
-  -- modality is trivial.
+  -- Definition.Typed.Syntactic.syntacticTerm), but if Γ ⊢ t ∷ A and
+  -- γ ▸[ 𝟙ᵐ ] t always imply γ ▸[ 𝟙ᵐ ] A, then the modality is
+  -- trivial.
 
   ▸-term→▸-type :
     (∀ {n} {Γ : Con Term n} {t A : Term n} {γ : Conₘ n} →

@@ -22,9 +22,9 @@ open Modality 𝕄
 
 open import Definition.Typed R
 open import Definition.Typed.Consequences.DerivedRules.Nat R
-open import Definition.Typed.Consequences.Syntactic R
 open import Definition.Typed.Properties R
 open import Definition.Typed.Reasoning.Type R
+open import Definition.Typed.Syntactic R
 
 open import Definition.Untyped M
 open import Definition.Untyped.Bool 𝕄

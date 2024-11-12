@@ -19,12 +19,12 @@ open import Definition.Untyped.Neutral M type-variant as U
 open import Definition.Typed R
 open import Definition.Typed.EqRelInstance R
 open import Definition.Typed.Properties R
+open import Definition.Typed.Syntactic R
 open import Definition.LogicalRelation R
 open import Definition.LogicalRelation.Hidden R
 open import Definition.LogicalRelation.Irrelevance R
 open import Definition.LogicalRelation.ShapeView R
 open import Definition.LogicalRelation.Fundamental.Reducibility R
-open import Definition.Typed.Consequences.Syntactic R
 
 open import Tools.Function
 open import Tools.Nat as Nat using (Nat)

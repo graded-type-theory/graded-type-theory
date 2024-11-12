@@ -29,9 +29,9 @@ open import Definition.LogicalRelation.Substitution TR
 open import Definition.LogicalRelation.Substitution.Introductions TR
 open import Definition.Typed TR
 open import Definition.Typed.Consequences.Inversion TR
-open import Definition.Typed.Consequences.Syntactic TR
 open import Definition.Typed.Properties TR
 open import Definition.Typed.RedSteps TR
+open import Definition.Typed.Syntactic TR
 import Definition.Typed.Weakening TR as W
 open import Definition.Untyped M
 open import Definition.Untyped.Neutral M type-variant

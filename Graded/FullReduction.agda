@@ -38,12 +38,12 @@ open import Definition.Typed.Eta-long-normal-form TR
 open import Definition.Typed.Properties TR
 open import Definition.Typed.Stability TR
 open import Definition.Typed.Substitution TR
+open import Definition.Typed.Syntactic TR
 open import Definition.Typed.Weakening TR
 open import Definition.Typed.Consequences.DerivedRules TR
 open import Definition.Typed.Consequences.InverseUniv TR
 open import Definition.Typed.Consequences.Inversion TR
 open import Definition.Typed.Consequences.NeTypeEq TR
-open import Definition.Typed.Consequences.Syntactic TR
 
 open import Definition.Conversion TR
 open import Definition.Conversion.Consequences.Completeness TR

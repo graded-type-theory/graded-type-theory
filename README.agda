@@ -32,13 +32,13 @@ import Definition.Typed.Consequences.DerivedRules
 import Definition.Typed.Consequences.DerivedRules.Sigma
 import Definition.Typed.Consequences.Inversion
 import Definition.Typed.Consequences.Reduction
-import Definition.Typed.Consequences.Syntactic
 import Definition.Typed.Decidable
 import Definition.Typed.Decidable.Equality
 import Definition.Typed.Eta-long-normal-form
 import Definition.Typed.Properties
 import Definition.Typed.Restrictions
 import Definition.Typed.Substitution
+import Definition.Typed.Syntactic
 import Definition.Typed.Weakening
 import Definition.Untyped
 import Definition.Untyped.Sigma
@@ -624,10 +624,8 @@ substitutionAdmissibleEqTerm =
 
 -- * Subject reduction.
 
-subjectReduction =
-  Definition.Typed.Consequences.Syntactic.syntacticRed
-subjectReductionTerm =
-  Definition.Typed.Consequences.Syntactic.syntacticRedTerm
+subjectReduction     = Definition.Typed.Syntactic.syntacticRed
+subjectReductionTerm = Definition.Typed.Syntactic.syntacticRedTerm
 
 -- * Normalization.
 

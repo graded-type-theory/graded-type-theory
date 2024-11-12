@@ -27,6 +27,7 @@ open import Definition.Typed.Properties R
 open import Definition.Typed.Reasoning.Type R
 open import Definition.Typed.Stability R
 open import Definition.Typed.Substitution R
+open import Definition.Typed.Syntactic R
 open import Definition.Conversion R
 open import Definition.Conversion.Inversion R
 open import Definition.Conversion.Whnf R
@@ -35,7 +36,6 @@ open import Definition.Conversion.Symmetry R
 open import Definition.Conversion.Stability R
 open import Definition.Conversion.Conversion R
 open import Definition.Typed.Consequences.DerivedRules.Identity R
-open import Definition.Typed.Consequences.Syntactic R
 open import Definition.Typed.Consequences.Injectivity R
 open import Definition.Typed.Consequences.Inversion R
 open import Definition.Typed.Consequences.Reduction R

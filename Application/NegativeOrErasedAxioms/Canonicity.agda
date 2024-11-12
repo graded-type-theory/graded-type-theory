@@ -51,10 +51,10 @@ open import Definition.Untyped.Normal-form M type-variant
 
 open import Definition.Typed.EqRelInstance TR
 open import Definition.Typed.Properties TR
+open import Definition.Typed.Syntactic TR
 open import Definition.Typed.Consequences.Inequality TR
 open import Definition.Typed.Consequences.Inversion TR
 open import Definition.Typed.Consequences.Reduction TR
-open import Definition.Typed.Consequences.Syntactic TR
 
 open import Definition.LogicalRelation TR
 open import Definition.LogicalRelation.Fundamental.Reducibility TR

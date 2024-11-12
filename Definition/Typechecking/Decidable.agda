@@ -25,12 +25,12 @@ open import Definition.Typed R
 open import Definition.Typed.Properties R
 open import Definition.Typed.Reasoning.Type R
 open import Definition.Typed.Substitution R
+open import Definition.Typed.Syntactic R
 open import Definition.Typed.Weakening R as W
 open import Definition.Typed.Consequences.Inequality R
 open import Definition.Typed.Consequences.Inversion R
 open import Definition.Typed.Consequences.NeTypeEq R
 open import Definition.Typed.Consequences.Reduction R
-open import Definition.Typed.Consequences.Syntactic R
 open import Definition.Typed.Decidable.Equality R _≟_
 open import Definition.Typed.Decidable.Reduction R _≟_
 open import Definition.Untyped M

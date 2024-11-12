@@ -22,9 +22,9 @@ open import Definition.Typed R
 open import Definition.Typed.Consequences.Inequality R
 open import Definition.Typed.Consequences.Injectivity R
 open import Definition.Typed.Consequences.Inversion R
-open import Definition.Typed.Consequences.Syntactic R
 open import Definition.Typed.Properties R
 open import Definition.Typed.Substitution R
+open import Definition.Typed.Syntactic R
 
 open import Definition.Untyped M hiding (_[_])
 open import Graded.Derived.Unrestricted.Eta.Untyped 𝕄

@@ -24,6 +24,7 @@ open import Definition.Typed.Properties R
 open import Definition.Typed.RedSteps R
 open import Definition.Typed.Stability R
 open import Definition.Typed.Substitution R
+open import Definition.Typed.Syntactic R
 open import Definition.Conversion R
 open import Definition.Conversion.Inversion R
 open import Definition.Conversion.Soundness R
@@ -31,7 +32,6 @@ open import Definition.Conversion.Stability R
 open import Definition.Conversion.Whnf R
 open import Definition.Conversion.Conversion R
 open import Definition.Typed.Consequences.DerivedRules R
-open import Definition.Typed.Consequences.Syntactic R
 open import Definition.Typed.Consequences.Injectivity R
 import Definition.Typed.Consequences.Inequality R as WF
 open import Definition.Typed.Consequences.Inversion R

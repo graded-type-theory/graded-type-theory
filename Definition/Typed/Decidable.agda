@@ -17,8 +17,8 @@ open Assumptions as
 
 open import Definition.Untyped M
 open import Definition.Typed R
-open import Definition.Typed.Consequences.Syntactic R
 open import Definition.Typed.Properties R
+open import Definition.Typed.Syntactic R
 open import Definition.Typechecking R
 open import Definition.Typechecking.Soundness R
 open import Definition.Typechecking.Completeness R

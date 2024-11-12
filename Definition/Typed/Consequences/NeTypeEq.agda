@@ -17,10 +17,10 @@ open import Definition.Untyped M
 open import Definition.Untyped.Neutral M type-variant
 open import Definition.Untyped.Properties M
 open import Definition.Typed R
-open import Definition.Typed.Consequences.Syntactic R
 open import Definition.Typed.Consequences.Injectivity R
 open import Definition.Typed.Properties R
 open import Definition.Typed.Substitution R
+open import Definition.Typed.Syntactic R
 
 open import Graded.Derived.Erased.Typed R
 

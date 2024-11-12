@@ -16,8 +16,8 @@ open import Definition.Untyped.Nat 𝕄
 open import Definition.Untyped.Properties M
 open import Definition.Typed R
 open import Definition.Typed.Properties R
-open import Definition.Typed.Consequences.Syntactic R
 open import Definition.Typed.Substitution R
+open import Definition.Typed.Syntactic R
 open import Definition.Typed.Weakening R
 
 open import Tools.Fin

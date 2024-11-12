@@ -124,6 +124,7 @@ import Definition.Typed.Properties.Admissible
 import Definition.Typed.Stability
 import Definition.Typed.Substitution
 import Definition.Typed.Properties.Reduction
+import Definition.Typed.Syntactic
 import Definition.Typed.Properties
 import Definition.Typed.Reasoning.Term
 import Definition.Typed.RedSteps
@@ -276,7 +277,6 @@ import Definition.LogicalRelation.Fundamental.Reducibility
 
 -- Some consequences of the fundamental lemma.
 import Definition.Typed.Consequences.Injectivity
-import Definition.Typed.Consequences.Syntactic
 import Definition.Typed.Consequences.Inequality
 import Definition.Typed.Consequences.Inversion
 import Definition.Typed.Consequences.Equality

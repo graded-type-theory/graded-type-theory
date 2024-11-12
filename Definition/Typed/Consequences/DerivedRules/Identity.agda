@@ -18,12 +18,12 @@ open import Definition.Untyped M as U
 open import Definition.Typed R
 open import Definition.Typed.Consequences.DerivedRules.Pi R
 open import Definition.Typed.Consequences.Inversion R
-open import Definition.Typed.Consequences.Syntactic R
 open import Definition.Typed.Properties R
 open import Definition.Typed.Reasoning.Term R
 import Definition.Typed.RedSteps R as R
 open import Definition.Typed.Stability R
 open import Definition.Typed.Substitution R
+open import Definition.Typed.Syntactic R
 open import Definition.Typed.Weakening R
 open import Definition.Untyped.Identity 𝕄
 open import Definition.Untyped.Properties M

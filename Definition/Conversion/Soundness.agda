@@ -21,13 +21,13 @@ open import Definition.Typed.RedSteps R
 import Definition.Typed.Reasoning.Term R as TmR
 import Definition.Typed.Reasoning.Type R as TyR
 open import Definition.Typed.Stability R
+open import Definition.Typed.Syntactic R
 open import Definition.Conversion R
 open import Definition.Conversion.Whnf R
 open import Definition.Typed.Consequences.DerivedRules R
 open import Definition.Typed.Consequences.Injectivity R
 open import Definition.Typed.Consequences.Inversion R
 open import Definition.Typed.Consequences.Reduction R
-open import Definition.Typed.Consequences.Syntactic R
 open import Definition.Typed.Consequences.NeTypeEq R
 
 open import Tools.Function

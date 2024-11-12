@@ -17,7 +17,7 @@ open Type-restrictions TR
 open import Definition.Untyped M hiding (wk)
 open import Definition.Untyped.Properties M
 open import Definition.Typed TR
-open import Definition.Typed.Consequences.Syntactic TR
+open import Definition.Typed.Syntactic TR
 open import Definition.Typed.Weakening TR
 open import Definition.Typed.Properties TR
 open import Definition.Untyped.Empty 𝕄

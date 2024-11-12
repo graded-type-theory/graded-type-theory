@@ -18,10 +18,10 @@ open import Definition.Typed R
 open import Definition.Typed.Consequences.InverseUniv R
 open import Definition.Typed.Consequences.Inversion R
 open import Definition.Typed.Consequences.Reduction R
-open import Definition.Typed.Consequences.Syntactic R
 open import Definition.Typed.Properties R
 open import Definition.Typed.RedSteps R
 open import Definition.Typed.Stability R
+open import Definition.Typed.Syntactic R
 
 open import Tools.Function
 open import Tools.Sum using (_⊎_; inj₁; inj₂)

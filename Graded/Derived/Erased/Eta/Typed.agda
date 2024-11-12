@@ -18,7 +18,7 @@ open Type-restrictions R
 
 open import Definition.Typed R
 open import Definition.Typed.Consequences.Inversion R
-open import Definition.Typed.Consequences.Syntactic R
+open import Definition.Typed.Syntactic R
 
 open import Definition.Untyped M hiding (_[_])
 

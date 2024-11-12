@@ -25,9 +25,9 @@ open import Definition.Typed.Consequences.Consistency TR
 open import Definition.Typed.Consequences.DerivedRules TR
 open import Definition.Typed.Consequences.Inversion TR
 open import Definition.Typed.Consequences.Reduction TR
-open import Definition.Typed.Consequences.Syntactic TR
 open import Definition.Typed.Properties TR
 open import Definition.Typed.Reasoning.Term TR
+open import Definition.Typed.Syntactic TR
 import Definition.Typed.Weakening TR as W
 open import Definition.Untyped M as U
 open import Definition.Untyped.Identity 𝕄

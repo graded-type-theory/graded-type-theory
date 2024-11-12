@@ -33,10 +33,10 @@ open import Definition.Typed.Consequences.DerivedRules TR
 open import Definition.Typed.Consequences.Inversion TR
 open import Definition.Typed.Consequences.Reduction TR
 open import Definition.Typed.Consequences.RedSteps TR
-open import Definition.Typed.Consequences.Syntactic TR
 open import Definition.Typed.Properties TR
 import Definition.Typed.Reasoning.Reduction TR as RR
 open import Definition.Typed.Substitution TR
+open import Definition.Typed.Syntactic TR
 
 open import Definition.Untyped M
 open import Definition.Untyped.Neutral M type-variant

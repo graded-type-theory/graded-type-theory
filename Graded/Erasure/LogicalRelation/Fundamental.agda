@@ -46,8 +46,8 @@ open import Graded.Usage.Properties 𝕄 UR
 open import Graded.Mode 𝕄
 
 open import Definition.Untyped.Properties M
-open import Definition.Typed.Consequences.Syntactic TR
 open import Definition.Typed.Properties TR
+open import Definition.Typed.Syntactic TR
 
 import Graded.Erasure.LogicalRelation
 open import Graded.Erasure.LogicalRelation.Assumptions TR
