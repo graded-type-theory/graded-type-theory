@@ -52,9 +52,9 @@ opaque
     lemma (ℕₜ v u⇒*v _ ⊩v) =
       Σ.map idᶠ (trans (subset*Term (redₜ u⇒*v)))
         (case ⊩v of λ where
-           (ne (neNfₜ u-ne _ _)) → ⊥-elim $ noClosedNe u-ne
-           zeroᵣ                 → 0 , refl (zeroⱼ ε)
-           (sucᵣ ⊩u)             → Σ.map 1+ suc-cong (lemma ⊩u))
+           (ne (neNfₜ u-ne _)) → ⊥-elim $ noClosedNe u-ne
+           zeroᵣ               → 0 , refl (zeroⱼ ε)
+           (sucᵣ ⊩u)           → Σ.map 1+ suc-cong (lemma ⊩u))
 
 opaque
 
@@ -63,7 +63,7 @@ opaque
   ¬Empty : ¬ ε ⊢ t ∷ Empty
   ¬Empty {t} =
     ε ⊢ t ∷ Empty      →⟨ ⊩∷Empty⇔ .proj₁ ∘→ proj₂ ∘→ reducible-⊩∷ ⟩
-    ε ⊩Empty t ∷Empty  →⟨ (λ { (Emptyₜ _ _ _ (ne (neNfₜ u-ne _ _))) →
+    ε ⊩Empty t ∷Empty  →⟨ (λ { (Emptyₜ _ _ _ (ne (neNfₜ u-ne _))) →
                                noClosedNe u-ne }) ⟩
     ⊥                  □
 

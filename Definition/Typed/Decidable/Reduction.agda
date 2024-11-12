@@ -89,7 +89,7 @@ private opaque
   isB′ (ne′ _ A⇒*B B-ne _) =
     no λ (_ , _ , _ , A⇒*W) →
     I.B≢ne _ B-ne (trans (sym (subset* A⇒*W)) (subset* (red A⇒*B)))
-  isB′ (Bᵣ′ _ _ _ A⇒*ΠΣ _ _ _ _ _ _ _) =
+  isB′ (Bᵣ′ _ _ _ A⇒*ΠΣ _ _ _ _ _) =
     yes (_ , _ , _ , red A⇒*ΠΣ)
   isB′ (Idᵣ ⊩A) =
     no λ (_ , _ , _ , A⇒*Id) →

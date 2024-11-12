@@ -316,7 +316,7 @@ module _
     in  suc v , sucₙ numV , ⇒ˢ*∷ℕ-trans (whred* (redₜ d)) (sucred* d′)
   canonicityRed′ _ _ (ℕₜ _ d _ zeroᵣ) =
     zero , zeroₙ , whred* (redₜ d)
-  canonicityRed′ γ▸t nΓγ (ℕₜ n d n≡n (ne (neNfₜ neK ⊢k k≡k))) =
+  canonicityRed′ γ▸t nΓγ (ℕₜ n d n≡n (ne (neNfₜ neK k≡k))) =
     let u , d′ , ¬neU =
           ¬NeutralNf (⊢t-redₜ d) γ▸t nΓγ
             (flip ¬negℕ $ refl (ℕⱼ $ wfTerm $ ⊢t-redₜ d))

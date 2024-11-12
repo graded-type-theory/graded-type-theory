@@ -95,7 +95,7 @@ opaque
       , emb-⊩∷ (≤ᵘ-step ≤ᵘ-refl) ⊩fst-u
       , emb-⊩∷ (≤ᵘ-step ≤ᵘ-refl) ⊩snd-u
     lemma₁
-      {l} ⊩Σ@(noemb (Bᵣ _ _ Σ⇒*Σ _ _ _ ⊩wk-A ⊩wk-B _ _))
+      {l} ⊩Σ@(noemb (Bᵣ _ _ Σ⇒*Σ _ ⊩wk-A ⊩wk-B _ _))
       (u , t⇒*u , u≅u , u-prod , ⊩fst-u , ⊩snd-u) =
       case B-PE-injectivity _ _ $ whnfRed* (red Σ⇒*Σ) ΠΣₙ of λ {
         (PE.refl , PE.refl , _) →
@@ -124,7 +124,7 @@ opaque
       irrelevanceTerm (B-intr _ ⊩Σ) (B-intr _ (emb 0<1 ⊩Σ)) $
       lemma₂ ⊩Σ rest
     lemma₂
-      ⊩Σ@(noemb (Bᵣ _ _ Σ⇒*Σ _ _ _ ⊩wk-A ⊩wk-B _ _))
+      ⊩Σ@(noemb (Bᵣ _ _ Σ⇒*Σ _ ⊩wk-A ⊩wk-B _ _))
       (u , t⇒*u , u≅u , u-prod , ⊩fst-u , ⊩snd-u) =
       case B-PE-injectivity _ _ $ whnfRed* (red Σ⇒*Σ) ΠΣₙ of λ {
         (PE.refl , PE.refl , _) →
@@ -188,7 +188,7 @@ opaque
       , emb-⊩≡∷ (≤ᵘ-step ≤ᵘ-refl) fst≡fst
       , emb-⊩≡∷ (≤ᵘ-step ≤ᵘ-refl) snd≡snd
     lemma₁
-      {l} ⊩Σ@(noemb (Bᵣ _ _ Σ⇒*Σ ⊢A _ _ ⊩wk-A ⊩wk-B wk-B≡wk-B _))
+      {l} ⊩Σ@(noemb (Bᵣ _ _ Σ⇒*Σ _ ⊩wk-A ⊩wk-B wk-B≡wk-B _))
       (u₁ , u₂ , t₁⇒*u₁ , t₂⇒*u₂ , u₁≅u₂ , ⊩t₁ , ⊩t₂ ,
        u₁-prod , u₂-prod , ⊩fst-u₁ , ⊩fst-u₂ , fst≡fst , snd≡snd) =
       let ⊩Σ′ = B-intr _ ⊩Σ in
@@ -225,7 +225,7 @@ opaque
               (conv-⊩∷
                  (sym-⊩≡
                     ( ⊩B[fst-u₁] , ⊩wk-B _ ⊩fst-u₂
-                    , wk-B≡wk-B (W.idʷ (wf ⊢A)) ⊩fst-u₁ ⊩fst-u₂ fst≡fst
+                    , wk-B≡wk-B _ ⊩fst-u₁ ⊩fst-u₂ fst≡fst
                     )) $
                PE.subst (_⊩⟨_⟩_∷_ _ _ _)
                  (PE.sym $ PE.cong _[ _ ]₀ $ wk-lift-id B) ⊩snd-u₂)
@@ -256,11 +256,11 @@ opaque
       , irrelevanceTerm ⊩Σ₁ ⊩Σ₂ ⊩t₂
       , irrelevanceEqTerm ⊩Σ₁ ⊩Σ₂ t₁≡t₂
     lemma₂
-      ⊩Σ@(noemb (Bᵣ _ _ Σ⇒*Σ ⊢A _ _ ⊩wk-A ⊩wk-B _ _))
+      ⊩Σ@(noemb (Bᵣ _ _ Σ⇒*Σ A≡A ⊩wk-A ⊩wk-B _ _))
       (u₁ , u₂ , t₁⇒*u₁ , t₂⇒*u₂ , u₁-prod , u₂-prod , u₁≅u₂ ,
        fst≡fst , snd≡snd) =
       let ⊩Σ′      = B-intr _ ⊩Σ
-          ⊩wk-id-A = ⊩wk-A (W.idʷ (wf ⊢A))
+          ⊩wk-id-A = ⊩wk-A (W.idʷ (wfEq (≅-eq A≡A)))
       in
       case B-PE-injectivity _ _ $ whnfRed* (red Σ⇒*Σ) ΠΣₙ of λ {
         (PE.refl , PE.refl , _) →
@@ -301,7 +301,7 @@ opaque
         ⊩t₁ , ⊩t₂
       , ( u₁ , u₂ , t₁⇒*u₁ , t₂⇒*u₂ , u₁≅u₂ , ⊩t₁ , ⊩t₂
         , u₁-prod , u₂-prod , ⊩fst-u₁′ , ⊩fst-u₂′ , fst≡fst′
-        , ⊩≡∷→⊩≡∷/ (⊩wk-B (W.idʷ (wf ⊢A)) ⊩fst-u₁′)
+        , ⊩≡∷→⊩≡∷/ (⊩wk-B _ ⊩fst-u₁′)
             (PE.subst (_⊩⟨_⟩_≡_∷_ _ _ _ _)
                (PE.sym $ PE.cong _[ _ ] $ wk-lift-id B) snd≡snd)
         ) }

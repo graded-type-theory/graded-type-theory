@@ -47,7 +47,7 @@ escape (ℕᵣ [ ⊢A , ⊢B , D ]) = ⊢A
 escape (Emptyᵣ [ ⊢A , ⊢B , D ]) = ⊢A
 escape (Unitᵣ (Unitₜ [ ⊢A , ⊢B , D ] _)) = ⊢A
 escape (ne′ _ [ ⊢A , ⊢B , D ] neK K≡K) = ⊢A
-escape (Bᵣ′ _ _ _ [ ⊢A , _ , _ ] _ _ _ _ _ _ _) = ⊢A
+escape (Bᵣ′ _ _ _ [ ⊢A , _ , _ ] _ _ _ _ _) = ⊢A
 escape (Idᵣ ⊩A) = ⊢A-red (_⊩ₗId_.⇒*Id ⊩A)
 escape (emb ≤ᵘ-refl A) = escape A
 escape (emb (≤ᵘ-step k) A) = escape (emb k A)
@@ -66,9 +66,9 @@ escapeTerm (Unitᵣ (Unitₜ D _)) (Unitₜ e [ ⊢t , ⊢u , d ] _ prop) =
   conv ⊢t (sym (subset* (red D)))
 escapeTerm (ne′ _ D neK K≡K) (neₜ k [ ⊢t , ⊢u , d ] nf) =
   conv ⊢t (sym (subset* (red D)))
-escapeTerm (Bᵣ′ BΠ! _ _ D _ _ _ _ _ _ _) (Πₜ _ [ ⊢t , _ , _ ] _ _ _ _) =
+escapeTerm (Bᵣ′ BΠ! _ _ D _ _ _ _ _) (Πₜ _ [ ⊢t , _ , _ ] _ _ _ _) =
   conv ⊢t (sym (subset* (red D)))
-escapeTerm (Bᵣ′ BΣ! _ _ D _ _ _ _ _ _ _) (Σₜ _ [ ⊢t , _ , _ ] _ _ _) =
+escapeTerm (Bᵣ′ BΣ! _ _ D _ _ _ _ _) (Σₜ _ [ ⊢t , _ , _ ] _ _ _) =
   conv ⊢t (sym (subset* (red D)))
 escapeTerm (Idᵣ ⊩A) (_ , t⇒*u , _) =
   conv (⊢t-redₜ t⇒*u) (sym (subset* (red (_⊩ₗId_.⇒*Id ⊩A))))
@@ -115,7 +115,7 @@ escapeEq (Unitᵣ (Unitₜ [ ⊢A , ⊢B , D ] ok)) D′ =
   ≅-red (D , Unitₙ) (D′ , Unitₙ) (≅-Unitrefl (wf ⊢A) ok)
 escapeEq (ne′ _ D neK K≡K) (ne₌ M D′ neM K≡M) =
   ≅-red (red D , ne neK) (red D′ , ne neM) K≡M
-escapeEq (Bᵣ′ W _ _ D _ _ _ _ _ _ _) (B₌ _ _ D′ A≡B _ _) =
+escapeEq (Bᵣ′ W _ _ D _ _ _ _ _) (B₌ _ _ D′ A≡B _ _) =
   ≅-red (red D , ⟦ W ⟧ₙ) (red D′ , ⟦ W ⟧ₙ) A≡B
 escapeEq (Idᵣ ⊩A) A≡B =
   ≅-red (red (_⊩ₗId_.⇒*Id ⊩A) , Idₙ) (red (_⊩ₗId_≡_/_.⇒*Id′ A≡B) , Idₙ)
@@ -145,11 +145,11 @@ escapeTermEq (ne′ _ D neK K≡K)
   ≅ₜ-red (red D , ne neK) (redₜ d , ne neT) (redₜ d′ , ne neU)
          (~-to-≅ₜ t≡u)
 escapeTermEq
-  (Bᵣ′ BΠ! _ _ D _ _ _ _ _ _ _) (Πₜ₌ _ _ d d′ funcF funcG f≡g _ _ _) =
+  (Bᵣ′ BΠ! _ _ D _ _ _ _ _) (Πₜ₌ _ _ d d′ funcF funcG f≡g _ _ _) =
   ≅ₜ-red (red D , ΠΣₙ) (redₜ d , functionWhnf funcF)
     (redₜ d′ , functionWhnf funcG) f≡g
 escapeTermEq
-  (Bᵣ′ BΣ! _ _ D _ _ _ _ _ _ _) (Σₜ₌ _ _ d d′ pProd rProd p≅r _ _ _) =
+  (Bᵣ′ BΣ! _ _ D _ _ _ _ _) (Σₜ₌ _ _ d d′ pProd rProd p≅r _ _ _) =
   ≅ₜ-red (red D , ΠΣₙ) (redₜ d , productWhnf pProd)
     (redₜ d′ , productWhnf rProd) p≅r
 escapeTermEq {Γ = Γ} (Idᵣ ⊩A) t≡u@(_ , _ , t⇒*t′ , u⇒*u′ , _) =
@@ -201,7 +201,7 @@ escapeTermEq (emb (≤ᵘ-step k) A) t≡u = escapeTermEq (emb k A) t≡u
     Γ ⊢ Unit! ↘ A  →⟨ whrDet* (id ⊢Unit , Unitₙ) ⟩
     Unit! PE.≡ A   →⟨ ⊥-elim ∘→ Unit≢ne neA ⟩
     Unit-allowed _  □
-  (Bᵣ′ b A B [ ⊢Unit , _ , D ] _ _ _ _ _ _ _) →
+  (Bᵣ′ b A B [ ⊢Unit , _ , D ] _ _ _ _ _) →
                             $⟨ D , ⟦ b ⟧ₙ ⟩
     Γ ⊢ Unit! ↘ ⟦ b ⟧ A ▹ B  →⟨ whrDet* (id ⊢Unit , Unitₙ) ⟩
     Unit! PE.≡ ⟦ b ⟧ A ▹ B   →⟨ ⊥-elim ∘→ Unit≢B b ⟩
@@ -232,11 +232,11 @@ escapeTermEq (emb (≤ᵘ-step k) A) t≡u = escapeTermEq (emb k A) t≡u
     ⊥-elim (Unit≢ΠΣ b (whrDet* (D , Unitₙ) (id ⊢ΠAB , ΠΣₙ)))
   (ne (ne _ [ ⊢ΠAB , _ , D ] neK _)) →
     ⊥-elim (ΠΣ≢ne b neK (whrDet* (id ⊢ΠAB , ΠΣₙ) (D , ne neK)))
-  (Bᵣ′ (BM BMΠ _ _) _ _ [ ⊢ΠAB , _ , D ] _ _ _ _ _ _ ok) →
+  (Bᵣ′ (BM BMΠ _ _) _ _ [ ⊢ΠAB , _ , D ] _ _ _ _ ok) →
     case whrDet* (id ⊢ΠAB , ΠΣₙ) (D , ΠΣₙ) of λ {
       PE.refl →
     ok }
-  (Bᵣ′ (BM (BMΣ _) _ _) _ _ [ ⊢ΠAB , _ , D ] _ _ _ _ _ _ ok) →
+  (Bᵣ′ (BM (BMΣ _) _ _) _ _ [ ⊢ΠAB , _ , D ] _ _ _ _ ok) →
     case whrDet* (id ⊢ΠAB , ΠΣₙ) (D , ΠΣₙ) of λ {
       PE.refl →
     ok }

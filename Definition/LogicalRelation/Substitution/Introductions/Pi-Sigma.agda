@@ -28,8 +28,10 @@ open import Definition.LogicalRelation.Substitution.Introductions.Var R
 import Definition.LogicalRelation.Weakening R as W
 
 open import Definition.Typed R
+open import Definition.Typed.Inversion R
 open import Definition.Typed.Properties R
 open import Definition.Typed.Weakening R as TW using (_∷ʷ_⊇_)
+open import Definition.Typed.Well-formed R
 
 open import Definition.Untyped M
 open import Definition.Untyped.Neutral M type-variant
@@ -89,7 +91,7 @@ opaque
          case escape $ wf-⊩≡ B≡B .proj₁ of λ
            ⊢B →
          Bᵣ (BM b p q)
-           (Bᵣ _ _ (idRed:*: (ΠΣⱼ ⊢B ok)) ⊢A ⊢B
+           (Bᵣ _ _ (idRed:*: (ΠΣⱼ ⊢B ok))
               (≅-ΠΣ-cong (escape-⊩≡ $ refl-⊩≡ ⊩A) (escape-⊩≡ B≡B) ok)
               (λ ρ⊇ → rest ρ⊇ .proj₁)
               (λ ρ⊇ ⊩t →
@@ -125,10 +127,10 @@ opaque
             (⊩A , B≡B) →
             emb p (PE.subst (λ k → LogRelKit._⊩_ k _ _) (kit≡kit′ p) ⊩A)
           , emb-⊩≡ (<ᵘ→≤ᵘ p) ∘→ B≡B ∘→ level-⊩≡∷ ⊩A
-    lemma (noemb (Bᵣ _ _ ⇒*ΠΣ ⊢A _ _ ⊩wk-A ⊩wk-B wk-B≡wk-B ok)) =
+    lemma (noemb (Bᵣ _ _ ⇒*ΠΣ _ ⊩wk-A ⊩wk-B wk-B≡wk-B ok)) =
       case B-PE-injectivity _ _ $ whnfRed* (red ⇒*ΠΣ) ΠΣₙ of λ {
         (PE.refl , PE.refl , _) →
-        ok , wf ⊢A
+        ok , wfEq (subset* (red ⇒*ΠΣ))
       , λ ρ⊇ →
           let ⊩wk-ρ-A = ⊩wk-A ρ⊇ in
             ⊩wk-ρ-A
@@ -210,7 +212,7 @@ opaque
         (irrelevanceEq (B-intr _ (emb l″<l′ ⊩ΠΣ₁)) (B-intr _ ⊩ΠΣ₁)
            ΠΣ≡ΠΣ)
     lemma₁
-      l′≤l (noemb (Bᵣ _ _ ⇒*ΠΣ ⊢A _ _ ⊩wk-A ⊩wk-B _ ok)) ⊩C
+      l′≤l (noemb (Bᵣ _ _ ⇒*ΠΣ _ ⊩wk-A ⊩wk-B _ ok)) ⊩C
       (B₌ _ _ ⇒*ΠΣ′ _ wk-A≡wk-A′ wk-B≡wk-B′) =
       case B-PE-injectivity _ _ $ whnfRed* (red ⇒*ΠΣ) ΠΣₙ of λ {
         (PE.refl , PE.refl , _) →
@@ -251,10 +253,11 @@ opaque
     lemma₂ (emb ≤ᵘ-refl     ⊩ΠΣ₁) = lemma₂ ⊩ΠΣ₁
     lemma₂ (emb (≤ᵘ-step p) ⊩ΠΣ₁) = lemma₂ (emb p ⊩ΠΣ₁)
     lemma₂
-      {B₁} {B₂} (noemb ⊩ΠΣ₁@(Bᵣ _ _ ⇒*ΠΣ₁ ⊢A₁ _ _ ⊩wk-A₁ ⊩wk-B₁ _ ok))
+      {B₁} {B₂} (noemb ⊩ΠΣ₁@(Bᵣ _ _ ⇒*ΠΣ₁ _ ⊩wk-A₁ ⊩wk-B₁ _ ok))
       C⇒* rest =
       case B-PE-injectivity _ _ $ whnfRed* (red ⇒*ΠΣ₁) ΠΣₙ of λ {
         (PE.refl , PE.refl , _) →
+      let ⊢A₁ , _ = inversion-ΠΣ (wf-⊢≡ (subset* (red ⇒*ΠΣ₁)) .proj₁) in
       case PE.subst₂ (_⊩⟨_⟩_≡_ _ _) (wk-id _) (wk-id _) $
            rest (TW.idʷ (wf ⊢A₁)) .proj₁ of λ
         A₁≡A₂ →

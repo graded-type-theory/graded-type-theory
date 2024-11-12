@@ -638,10 +638,10 @@ whnf≢ne {A} {t} {u} ¬-A-η t-whnf ¬-t-ne u-ne t≡u =
             not-ok ok
     (ne _) (neₜ₌ _ _ t⇒*v _ (neNfₜ₌ v-ne _ _)) →
       ¬t⇒*ne t⇒*v v-ne
-    (Bᵣ BΠ! (Bᵣ _ _ A⇒*Π _ _ _ _ _ _ _)) _ →
+    (Bᵣ BΠ! (Bᵣ _ _ A⇒*Π _ _ _ _ _)) _ →
       case A⇒*no-η A⇒*Π of λ where
         (U.neₙ ())
-    (Bᵣ BΣˢ (Bᵣ _ _ A⇒*Σ _ _ _ _ _ _ _)) _ →
+    (Bᵣ BΣˢ (Bᵣ _ _ A⇒*Σ _ _ _ _ _)) _ →
       case A⇒*no-η A⇒*Σ of λ where
         (U.neₙ ())
     (Bᵣ BΣʷ record{}) (_ , _ , _ , u⇒*w , _ , _ , _ , _ , U.prodₙ , _) →

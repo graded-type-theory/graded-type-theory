@@ -209,7 +209,7 @@ opaque
              unitrec l p q A (starʷ l) u [ σ ] ∷ A [ σ ⇑ ] [ starʷ l ]₀  ⇒⟨ unitrec-β ⊢A[σ⇑] ⊢u[σ] ok no-η ⟩∎∷
              u [ σ ]                                                     ∎)
 
-        (ne (neNfₜ t′-ne _ _)) →
+        (ne (neNfₜ t′-ne _)) →
           ⊥-elim $
           case is-𝟘? p of λ where
             (no p≢𝟘) →

@@ -985,7 +985,7 @@ opaque
          lemma ⊩A′ (irrelevanceTerm ⊩A (ne-intr ⊩A′) ⊩t))
     , (λ (≅A , u , t⇒*u , u-ne , u~u) →
            ⊩ne⇔ A-ne .proj₂ ≅A
-         , neₜ u t⇒*u (neNfₜ u-ne (⊢u-redₜ t⇒*u) u~u))
+         , neₜ u t⇒*u (neNfₜ u-ne u~u))
     where
     lemma :
       (⊩A : Γ ⊩⟨ l ⟩ne A) →
@@ -995,7 +995,7 @@ opaque
       lemma ⊩A ⊩t
     lemma (emb (≤ᵘ-step l<) ⊩A) ⊩t =
       lemma (emb l< ⊩A) ⊩t
-    lemma (noemb (ne _ A⇒*A′ _ _)) (neₜ u t⇒*u (neNfₜ u-ne _ u~u)) =
+    lemma (noemb (ne _ A⇒*A′ _ _)) (neₜ u t⇒*u (neNfₜ u-ne u~u)) =
       case whnfRed* (red A⇒*A′) (ne A-ne) of λ {
         PE.refl →
       u , t⇒*u , u-ne , u~u }

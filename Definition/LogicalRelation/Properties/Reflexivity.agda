@@ -42,18 +42,18 @@ reflNatural-prop (sucᵣ (ℕₜ n d t≡t prop)) =
   sucᵣ (ℕₜ₌ n n d d t≡t
             (reflNatural-prop prop))
 reflNatural-prop zeroᵣ = zeroᵣ
-reflNatural-prop (ne (neNfₜ neK ⊢k k≡k)) = ne (neNfₜ₌ neK neK k≡k)
+reflNatural-prop (ne (neNfₜ neK k≡k)) = ne (neNfₜ₌ neK neK k≡k)
 
 reflEmpty-prop : ∀ {n}
                  → Empty-prop Γ n
                  → [Empty]-prop Γ n n
-reflEmpty-prop (ne (neNfₜ neK ⊢k k≡k)) = ne (neNfₜ₌ neK neK k≡k)
+reflEmpty-prop (ne (neNfₜ neK k≡k)) = ne (neNfₜ₌ neK neK k≡k)
 
 reflUnitʷ-prop : ∀ {t}
                → Unit-prop Γ l 𝕨 t
                → [Unitʷ]-prop Γ l t t
 reflUnitʷ-prop starᵣ = starᵣ
-reflUnitʷ-prop (ne (neNfₜ neK ⊢k k≡k)) = ne (neNfₜ₌ neK neK k≡k)
+reflUnitʷ-prop (ne (neNfₜ neK k≡k)) = ne (neNfₜ₌ neK neK k≡k)
 
 
 -- Reflexivity of reducible types.
@@ -79,7 +79,7 @@ reflEq (Emptyᵣ D) = red D
 reflEq (Unitᵣ (Unitₜ D _)) = red D
 reflEq (ne′ _ [ ⊢A , ⊢B , D ] neK K≡K) =
    ne₌ _ [ ⊢A , ⊢B , D ] neK K≡K
-reflEq (Bᵣ′ _ _ _ D _ _ A≡A [F] [G] _ _) =
+reflEq (Bᵣ′ _ _ _ D A≡A [F] [G] _ _) =
    B₌ _ _ D A≡A
       (λ ρ → reflEq ([F] ρ))
       (λ ρ [a] → reflEq ([G] ρ [a]))
@@ -109,26 +109,26 @@ reflEqTerm (Unitᵣ {s} D) (Unitₜ n [ ⊢t , ⊢u , d ] t≡t prop) =
     (inj₂ (PE.refl , no-η)) →
       Unitₜ₌ʷ n n [ ⊢t , ⊢u , d ] [ ⊢t , ⊢u , d ] t≡t
         (reflUnitʷ-prop prop) no-η
-reflEqTerm (ne′ _ D neK K≡K) (neₜ k d (neNfₜ neK₁ ⊢k k≡k)) =
+reflEqTerm (ne′ _ D neK K≡K) (neₜ k d (neNfₜ neK₁ k≡k)) =
   neₜ₌ k k d d (neNfₜ₌ neK₁ neK₁ k≡k)
 reflEqTerm
-  (Bᵣ′ BΠ! _ _ _ _ _ _ [F] _ _ _) [t]@(Πₜ f d funcF f≡f [f] _) =
+  (Bᵣ′ BΠ! _ _ _ _ [F] _ _ _) [t]@(Πₜ f d funcF f≡f [f] _) =
   Πₜ₌ f f d d funcF funcF f≡f [t] [t]
       (λ ρ [a] → [f] ρ [a] [a] (reflEqTerm ([F] ρ) [a]))
 reflEqTerm
-  (Bᵣ′ BΣˢ _ _ _ ⊢F _ _ [F] [G] _ _)
+  (Bᵣ′ BΣˢ _ _ _ _ [F] [G] _ _)
   [t]@(Σₜ p d p≅p prodP ([fstp] , [sndp])) =
   Σₜ₌ p p d d prodP prodP p≅p [t] [t]
       ([fstp] , [fstp] , reflEqTerm ([F] _) [fstp] ,
        reflEqTerm ([G] _ [fstp]) [sndp])
 reflEqTerm
-  (Bᵣ′ BΣʷ _ _ _ ⊢F _ _ [F] [G] _ _)
+  (Bᵣ′ BΣʷ _ _ _ _ [F] [G] _ _)
   [t]@(Σₜ p d p≅p prodₙ (PE.refl , [p₁] , [p₂] , PE.refl)) =
   Σₜ₌ p p d d prodₙ prodₙ p≅p [t] [t]
       (PE.refl , PE.refl , [p₁] , [p₁] , [p₂] , [p₂] ,
         reflEqTerm ([F] _) [p₁] ,
         reflEqTerm ([G] _ [p₁]) [p₂])
-reflEqTerm (Bᵣ′ BΣʷ _ _ _ _ _ _ _ _ _ _) [t]@(Σₜ p d p≅p (ne x) p~p) =
+reflEqTerm (Bᵣ′ BΣʷ _ _ _ _ _ _ _ _) [t]@(Σₜ p d p≅p (ne x) p~p) =
   Σₜ₌ p p d d (ne x) (ne x) p≅p [t] [t] p~p
 reflEqTerm (Idᵣ _) ⊩t =
   ⊩Id≡∷ ⊩t ⊩t

@@ -66,8 +66,8 @@ irrelevanceTermSV
   t®v }
 irrelevanceTermSV
   [A] [A]′ t®v
-  (Bᵥ (BΠ p q) (Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext _)
-     (Bᵣ F₁ G₁ D₁ ⊢F₁ ⊢G₁ A≡A₁ [F]₁ [G]₁ G-ext₁ _))
+  (Bᵥ (BΠ p q) (Bᵣ F G D A≡A [F] [G] G-ext _)
+     (Bᵣ F₁ G₁ D₁ A≡A₁ [F]₁ [G]₁ G-ext₁ _))
        with B-PE-injectivity BΠ! BΠ! (whrDet* (red D , ΠΣₙ) (red D₁ , ΠΣₙ))
 ... | PE.refl , PE.refl , _
        with is-𝟘? p
@@ -85,8 +85,8 @@ irrelevanceTermSV
   in  irrelevanceTermSV ([G] (idʷ ⊢Δ) [a]) ([G]₁ (idʷ ⊢Δ) [a]′) t®v′ SV′
 irrelevanceTermSV {v = v}
   [A] [A]′ (t₁ , t₂ , t⇒t′ , [t₁] , v₂ , t₂®v₂ , extra)
-  (Bᵥ (BΣ _ p _) (Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext _)
-     (Bᵣ F₁ G₁ D₁ ⊢F₁ ⊢G₁ A≡A₁ [F]₁ [G]₁ G-ext₁ _))
+  (Bᵥ (BΣ _ p _) (Bᵣ F G D A≡A [F] [G] G-ext _)
+     (Bᵣ F₁ G₁ D₁ A≡A₁ [F]₁ [G]₁ G-ext₁ _))
   with B-PE-injectivity BΣ! BΣ! (whrDet* (red D , ΠΣₙ) (red D₁ , ΠΣₙ))
 ... | PE.refl , PE.refl , _ =
   let [F]′ = [F] (idʷ ⊢Δ)

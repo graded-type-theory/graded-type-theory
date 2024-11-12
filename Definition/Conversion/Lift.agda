@@ -102,7 +102,7 @@ mutual
         A≡H = subset* D₂
     in  ne-ins (conv ⊢t A≡H) (conv ⊢u A≡H) neH ([~] A (D₂ , ne neH) k~l)
   lift~toConv↓′
-    (Πᵣ′ F G D ⊢F ⊢G A≡A [F] [G] G-ext _) D₁ ([~] A (D₂ , whnfB) k~l)
+    (Πᵣ′ F G D A≡A [F] [G] G-ext _) D₁ ([~] A (D₂ , whnfB) k~l)
     rewrite PE.sym (whrDet* (red D , ΠΣₙ) (D₁ , whnfB)) =
     let ⊢ΠFG , ⊢t , ⊢u = syntacticEqTerm
                            (soundness~↓ ([~] A (D₂ , ΠΣₙ) k~l))
@@ -116,7 +116,7 @@ mutual
            lift~toConv↑′ ([G] step-id var0) $
            app-cong (wk~↓ step-id ([~] A (D₂ , ΠΣₙ) k~l)) 0≡0)
   lift~toConv↓′
-    (Bᵣ′ BΣˢ F G D ⊢F ⊢G Σ≡Σ [F] [G] G-ext _) D₁
+    (Bᵣ′ BΣˢ F G D Σ≡Σ [F] [G] G-ext _) D₁
     ([~] A″ (D₂ , whnfA) t~u)
     rewrite
       -- Σ F ▹ G ≡ A.
@@ -144,7 +144,7 @@ mutual
             (PE.subst (λ x → _ ⊢ _ [conv↑] _ ∷ x) wkLiftId
                       (lift~toConv↑′ wk[Gfst] wksnd~))
   lift~toConv↓′
-    (Bᵣ′ BΣʷ F G D ⊢F ⊢G Σ≡Σ [F] [G] G-ext _) D₁
+    (Bᵣ′ BΣʷ F G D Σ≡Σ [F] [G] G-ext _) D₁
     ([~] A″ (D₂ , whnfA) t~u)
     rewrite
       -- Σ F ▹ G ≡ A.

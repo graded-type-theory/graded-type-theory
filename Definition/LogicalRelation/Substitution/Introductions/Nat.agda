@@ -136,8 +136,8 @@ opaque
     Γ ⊩⟨ l ⟩ t ∷ ℕ      □⇔
     where
     lemma : Natural-prop Γ (suc t) → Γ ⊩ℕ t ∷ℕ
-    lemma (sucᵣ ⊩t)           = ⊩t
-    lemma (ne (neNfₜ () _ _))
+    lemma (sucᵣ ⊩t)         = ⊩t
+    lemma (ne (neNfₜ () _))
 
 opaque
   unfolding _⊩⟨_⟩_≡_

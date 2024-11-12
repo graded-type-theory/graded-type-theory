@@ -78,7 +78,6 @@ record _⊩neNf_∷_ (Γ : Con Term ℓ) (k A : Term ℓ) : Set a where
   constructor neNfₜ
   field
     neK  : Neutral k
-    ⊢k   : Γ ⊢ k ∷ A
     k≡k  : Γ ⊢~ k ∷ A
 
 -- Neutral term
@@ -355,8 +354,6 @@ module LogRel
         F : Term ℓ
         G : Term (1+ ℓ)
         D : Γ ⊢ A :⇒*: ⟦ W ⟧ F ▹ G
-        ⊢F : Γ ⊢ F
-        ⊢G : Γ ∙ F ⊢ G
         A≡A : Γ ⊢≅ ⟦ W ⟧ F ▹ G
         [F] : ∀ {m} {ρ : Wk m ℓ} {Δ : Con Term m} →
               ρ ∷ʷ Δ ⊇ Γ → Δ ⊩ₗ U.wk ρ F
@@ -396,7 +393,7 @@ module LogRel
 
     -- Term reducibility of Π-type
     _⊩ₗΠ_∷_/_ : {ℓ : Nat} {p q : Mod} (Γ : Con Term ℓ) (t A : Term ℓ) ([A] : Γ ⊩ₗB⟨ BΠ p q ⟩ A) → Set a
-    _⊩ₗΠ_∷_/_ {ℓ} {p} {q} Γ t A (Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext _) =
+    _⊩ₗΠ_∷_/_ {ℓ} {p} {q} Γ t A (Bᵣ F G D A≡A [F] [G] G-ext _) =
       ∃ λ f → Γ ⊢ t :⇒*: f ∷ Π p , q ▷ F ▹ G
             × Function f
             × Γ ⊢≅ f ∷ Π p , q ▷ F ▹ G
@@ -420,7 +417,7 @@ module LogRel
     -- Term equality of Π-type
     _⊩ₗΠ_≡_∷_/_ : {ℓ : Nat} {p q : Mod} (Γ : Con Term ℓ) (t u A : Term ℓ) ([A] : Γ ⊩ₗB⟨ BΠ p q ⟩ A) → Set a
     _⊩ₗΠ_≡_∷_/_
-      {ℓ} {p} {q} Γ t u A [A]@(Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext _) =
+      {ℓ} {p} {q} Γ t u A [A]@(Bᵣ F G D A≡A [F] [G] G-ext _) =
       ∃₂ λ f g → Γ ⊢ t :⇒*: f ∷ Π p , q ▷ F ▹ G
                × Γ ⊢ u :⇒*: g ∷ Π p , q ▷ F ▹ G
                × Function f
@@ -442,7 +439,7 @@ module LogRel
       ([A] : Γ ⊩ₗB⟨ BΣ m p q ⟩ A) → Set a
     _⊩ₗΣ_∷_/_
       {p = p} {q = q} {m = m} Γ t A
-      [A]@(Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext _) =
+      [A]@(Bᵣ F G D A≡A [F] [G] G-ext _) =
       ∃ λ u → Γ ⊢ t :⇒*: u ∷ Σ⟨ m ⟩ p , q ▷ F ▹ G
             × Γ ⊢≅ u ∷ Σ⟨ m ⟩ p , q ▷ F ▹ G
             × Σ (Product u) λ pProd
@@ -450,20 +447,21 @@ module LogRel
 
     Σ-prop : ∀ {A p q} (m : Strength) (t : Term ℓ) → (Γ : Con Term ℓ)
            → ([A] : Γ ⊩ₗB⟨ BΣ m p q ⟩ A) → (Product t) → Set a
-    Σ-prop {p = p} 𝕤 t Γ (Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext _) _ =
-      Σ (Γ ⊩ₗ fst p t ∷ U.wk id F / [F] (idʷ (wf ⊢F))) λ [fst] →
-      Γ ⊩ₗ snd p t ∷ U.wk (lift id) G [ fst p t ]₀ /
-        [G] (idʷ (wf ⊢F)) [fst]
+    Σ-prop {p = p} 𝕤 t Γ (Bᵣ F G D A≡A [F] [G] G-ext _) _ =
+      let id-Γ = idʷ (wfEq (≅-eq A≡A)) in
+      Σ (Γ ⊩ₗ fst p t ∷ U.wk id F / [F] id-Γ) λ [fst] →
+      Γ ⊩ₗ snd p t ∷ U.wk (lift id) G [ fst p t ]₀ / [G] id-Γ [fst]
     Σ-prop
-      {p = p} 𝕨 t Γ (Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext _)
+      {p = p} 𝕨 t Γ (Bᵣ F G D A≡A [F] [G] G-ext _)
       (prodₙ {p = p′} {t = p₁} {u = p₂} {m = m}) =
+           let id-Γ = idʷ (wfEq (≅-eq A≡A)) in
            p PE.≡ p′ ×
-           Σ (Γ ⊩ₗ p₁ ∷ U.wk id F / [F] (idʷ (wf ⊢F))) λ [p₁]
-           → Γ ⊩ₗ p₂ ∷ U.wk (lift id) G [ p₁ ]₀ / [G] (idʷ (wf ⊢F)) [p₁]
+           Σ (Γ ⊩ₗ p₁ ∷ U.wk id F / [F] id-Γ) λ [p₁]
+           → Γ ⊩ₗ p₂ ∷ U.wk (lift id) G [ p₁ ]₀ / [G] id-Γ [p₁]
            × m PE.≡ 𝕨
     Σ-prop
       {p = p} {q = q}
-      𝕨 t Γ (Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext _) (ne x) =
+      𝕨 t Γ (Bᵣ F G D A≡A [F] [G] G-ext _) (ne x) =
       Γ ⊢~ t ∷ Σʷ p , q ▷ F ▹ G
 
     -- Term equality of Σ-type
@@ -472,7 +470,7 @@ module LogRel
       ([A] : Γ ⊩ₗB⟨ BΣ m p q ⟩ A) → Set a
     _⊩ₗΣ_≡_∷_/_
       {p = p} {q = q} {m} Γ t u A
-      [A]@(Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext _) =
+      [A]@(Bᵣ F G D A≡A [F] [G] G-ext _) =
       ∃₂ λ t′ u′ → Γ ⊢ t :⇒*: t′ ∷ Σ⟨ m ⟩ p , q ▷ F ▹ G
                  × Γ ⊢ u :⇒*: u′ ∷ Σ⟨ m ⟩ p , q ▷ F ▹ G
                  × Γ ⊢ t′ ≅ u′ ∷ Σ⟨ m ⟩ p , q ▷ F ▹ G
@@ -485,37 +483,36 @@ module LogRel
     [Σ]-prop :
       ∀ {A p q} (m : Strength) (t r : Term ℓ) (Γ : Con Term ℓ)
       ([A] : Γ ⊩ₗB⟨ BΣ m p q ⟩ A) → Product t → Product r → Set a
-    [Σ]-prop {p = p} 𝕤 t r Γ (Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext _) _ _ =
-      Σ (Γ ⊩ₗ fst p t ∷ U.wk id F / [F] (idʷ (wf ⊢F))) λ [fstp]
-      → Γ ⊩ₗ fst p r ∷ U.wk id F / [F] (idʷ (wf ⊢F))
-      × Γ ⊩ₗ fst p t ≡ fst p r ∷ U.wk id F / [F] (idʷ (wf ⊢F))
+    [Σ]-prop {p = p} 𝕤 t r Γ (Bᵣ F G D A≡A [F] [G] G-ext _) _ _ =
+      let id-Γ = idʷ (wfEq (≅-eq A≡A)) in
+      Σ (Γ ⊩ₗ fst p t ∷ U.wk id F / [F] id-Γ) λ [fstp]
+      → Γ ⊩ₗ fst p r ∷ U.wk id F / [F] id-Γ
+      × Γ ⊩ₗ fst p t ≡ fst p r ∷ U.wk id F / [F] id-Γ
       × Γ ⊩ₗ snd p t ≡ snd p r ∷ U.wk (lift id) G [ fst p t ]₀
-        / [G] (idʷ (wf ⊢F)) [fstp]
+        / [G] id-Γ [fstp]
     [Σ]-prop
-      {p = p} 𝕨 t r Γ (Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext _)
+      {p = p} 𝕨 t r Γ (Bᵣ F G D A≡A [F] [G] G-ext _)
       (prodₙ {p = p′} {t = p₁} {u = p₂})
       (prodₙ {p = p″} {t = r₁} {u = r₂}) =
+             let id-Γ = idʷ (wfEq (≅-eq A≡A)) in
              p PE.≡ p′ × p PE.≡ p″ ×
-             Σ (Γ ⊩ₗ p₁ ∷ U.wk id F / [F] (idʷ (wf ⊢F))) λ [p₁] →
-             Σ (Γ ⊩ₗ r₁ ∷ U.wk id F / [F] (idʷ (wf ⊢F))) λ [r₁]
-             → (Γ ⊩ₗ p₂ ∷ U.wk (lift id) G [ p₁ ]₀ /
-                  [G] (idʷ (wf ⊢F)) [p₁])
-             × (Γ ⊩ₗ r₂ ∷ U.wk (lift id) G [ r₁ ]₀ /
-                  [G] (idʷ (wf ⊢F)) [r₁])
-             × (Γ ⊩ₗ p₁ ≡ r₁ ∷ U.wk id F / [F] (idʷ (wf ⊢F)))
-             × (Γ ⊩ₗ p₂ ≡ r₂ ∷ U.wk (lift id) G [ p₁ ]₀ /
-                  [G] (idʷ (wf ⊢F)) [p₁])
+             Σ (Γ ⊩ₗ p₁ ∷ U.wk id F / [F] id-Γ) λ [p₁] →
+             Σ (Γ ⊩ₗ r₁ ∷ U.wk id F / [F] id-Γ) λ [r₁]
+             → (Γ ⊩ₗ p₂ ∷ U.wk (lift id) G [ p₁ ]₀ / [G] id-Γ [p₁])
+             × (Γ ⊩ₗ r₂ ∷ U.wk (lift id) G [ r₁ ]₀ / [G] id-Γ [r₁])
+             × (Γ ⊩ₗ p₁ ≡ r₁ ∷ U.wk id F / [F] id-Γ)
+             × (Γ ⊩ₗ p₂ ≡ r₂ ∷ U.wk (lift id) G [ p₁ ]₀ / [G] id-Γ [p₁])
     [Σ]-prop
-      𝕨 t r Γ (Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext _)
+      𝕨 t r Γ (Bᵣ F G D A≡A [F] [G] G-ext _)
       (prodₙ {t = p₁} {u = p₂}) (ne y) =
       Lift a ⊥
     [Σ]-prop
-      𝕨 t r Γ (Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext ok)
+      𝕨 t r Γ (Bᵣ F G D A≡A [F] [G] G-ext ok)
       (ne x) (prodₙ {t = r₁} {u = r₂}) =
       Lift a ⊥
     [Σ]-prop
       {p = p} {q = q} 𝕨 t r Γ
-      (Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext _) (ne x) (ne y) =
+      (Bᵣ F G D A≡A [F] [G] G-ext _) (ne x) (ne y) =
         Γ ⊢ t ~ r ∷ Σʷ p , q ▷ F ▹ G
 
     -- Reducibility for identity types.
@@ -659,9 +656,9 @@ pattern Σₜ₌ p r d d′ pProd rProd p≅r [t] [u] prop = p , r , d , d′ , 
 
 pattern Uᵣ′ a b c = Uᵣ (Uᵣ a b c)
 pattern ne′ a b c d = ne (ne a b c d)
-pattern Bᵣ′ W a b c d e f g h i j = Bᵣ W (Bᵣ a b c d e f g h i j)
-pattern Πᵣ′ a b c d e f g h i j = Bᵣ′ BΠ! a b c d e f g h i j
-pattern 𝕨′ a b c d e f g h i j = Bᵣ′ BΣ! a b c d e f g h i j
+pattern Bᵣ′ W a b c d e f g h = Bᵣ W (Bᵣ a b c d e f g h)
+pattern Πᵣ′ a b c d e f g h = Bᵣ′ BΠ! a b c d e f g h
+pattern 𝕨′ a b c d e f g h = Bᵣ′ BΣ! a b c d e f g h
 
 mutual
 

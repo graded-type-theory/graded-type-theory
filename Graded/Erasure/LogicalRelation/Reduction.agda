@@ -72,7 +72,7 @@ sourceRedSubstTerm
   (Unitᵣ (Unitₜ [ _ , _ , D ] _)) (starᵣ t′⇒star v⇒star) t⇒t′ =
   starᵣ (conv t⇒t′ (subset* D) ⇨ t′⇒star) v⇒star
 sourceRedSubstTerm
-  (Bᵣ′ (BΠ p q) F G ([ ⊢A , ⊢B , D ]) ⊢F ⊢G A≡A [F] [G] G-ext _)
+  (Bᵣ′ (BΠ p q) F G ([ ⊢A , ⊢B , D ]) A≡A [F] [G] G-ext _)
   t®v′ t⇒t′ with is-𝟘? p
 ... | yes PE.refl = t®v′ .proj₁ , λ {a = a} [a] →
   let t®v = t®v′ .proj₂ [a]
@@ -89,7 +89,7 @@ sourceRedSubstTerm
       t∘a⇒t′∘w = PE.subst (Δ ⊢ _ ⇒ _ ∷_) (PE.cong (U._[ a ]₀) (PE.sym (UP.wk-lift-id G))) t∘a⇒t′∘w′
   in  sourceRedSubstTerm ([G] (idʷ ⊢Δ) [a]) t®v t∘a⇒t′∘w
 sourceRedSubstTerm
-  (Bᵣ′ BΣ! F G ([ ⊢A , ⊢B , D ]) ⊢F ⊢G A≡A [F] [G] G-ext _)
+  (Bᵣ′ BΣ! F G ([ ⊢A , ⊢B , D ]) A≡A [F] [G] G-ext _)
   (t₁ , t₂ , t′⇒p , [t₁] , v₂ , t₂®v₂ , extra) t⇒t′ =
   t₁ , t₂ , conv t⇒t′ (subset* D) ⇨ t′⇒p , [t₁] , v₂ , t₂®v₂ , extra
 sourceRedSubstTerm (Idᵣ ⊩A) (rflᵣ t′⇒*rfl ⇒*↯) t⇒t′ =
@@ -124,7 +124,7 @@ targetRedSubstTerm (ℕᵣ _) (sucᵣ t′⇒suc v′⇒suc num t®v) v⇒v′ =
   sucᵣ t′⇒suc (trans v⇒v′ v′⇒suc) num t®v
 targetRedSubstTerm (Unitᵣ x) (starᵣ x₁ v′⇒star) v⇒v′ = starᵣ x₁ (trans v⇒v′ v′⇒star)
 targetRedSubstTerm
-  (Bᵣ′ (BΠ p q) F G ([ ⊢A , ⊢B , D ]) ⊢F ⊢G A≡A [F] [G] G-ext _)
+  (Bᵣ′ (BΠ p q) F G ([ ⊢A , ⊢B , D ]) A≡A [F] [G] G-ext _)
   (v′⇒*lam , t®v′) v⇒v′
   with is-𝟘? p | Σ.map idᶠ (T.trans v⇒v′) ∘→ v′⇒*lam
 ... | yes PE.refl | v⇒*lam = v⇒*lam , λ {a = a} [a] →
@@ -137,7 +137,7 @@ targetRedSubstTerm
       [G[a]] = [G] (idʷ ⊢Δ) [a]
   in  targetRedSubstTerm [G[a]] t®v v∘w⇒v′∘w′
 targetRedSubstTerm {A = A} {t = t} {v = v}
-  [Σ]@(Bᵣ′ (BΣ _ p _) F G ([ ⊢A , ⊢B , D ]) ⊢F ⊢G A≡A [F] [G] G-ext _)
+  [Σ]@(Bᵣ′ (BΣ _ p _) F G ([ ⊢A , ⊢B , D ]) A≡A [F] [G] G-ext _)
   (t₁ , t₂ , t⇒t′ , [t₁] , v₂ , t₂®v₂ , extra) v⇒v′ =
     t₁ , t₂ , t⇒t′ , [t₁] , v₂ , t₂®v₂ , extra′
   where
@@ -204,7 +204,7 @@ sourceRedSubstTerm′ (Unitᵣ (Unitₜ x _)) (starᵣ t⇒star v⇒star) t⇒t�
   with whrDet↘Term (t⇒star , starₙ) (redMany (conv t⇒t′ (subset* (red x))))
 ... | t′⇒star = starᵣ t′⇒star v⇒star
 sourceRedSubstTerm′
-  (Bᵣ′ (BΠ p q) F G D ⊢F ⊢G A≡A [F] [G] G-ext _) t®v′ t⇒t′
+  (Bᵣ′ (BΠ p q) F G D A≡A [F] [G] G-ext _) t®v′ t⇒t′
   with is-𝟘? p
 ... | yes PE.refl = t®v′ .proj₁ , λ {a = a} [a] →
   let t®v = t®v′ .proj₂ [a]
@@ -225,7 +225,7 @@ sourceRedSubstTerm′
                           t∘a⇒t′∘a′
   in  sourceRedSubstTerm′ ([G] (idʷ ⊢Δ) [a]) t®v t∘a⇒t′∘a
 sourceRedSubstTerm′
-  (Bᵣ′ BΣ! F G D ⊢F ⊢G A≡A [F] [G] G-ext _)
+  (Bᵣ′ BΣ! F G D A≡A [F] [G] G-ext _)
   (t₁ , t₂ , t⇒p , [t₁] , v₂ , t₂®v₂ , extra) t⇒t′ =
   t₁ , t₂
      , whrDet↘Term (t⇒p , prodₙ) (redMany (conv t⇒t′ (subset* (red D))))
@@ -302,7 +302,7 @@ targetRedSubstTerm′ (Unitᵣ x) (starᵣ x₁ v⇒star) v⇒v′ with red*Det 
 ... | inj₁ x₂ rewrite star-noRed x₂ = starᵣ x₁ T.refl
 ... | inj₂ x₂ = starᵣ x₁ x₂
 targetRedSubstTerm′
-  (Bᵣ′ (BΠ p q) F G D ⊢F ⊢G A≡A [F] [G] G-ext _) t®v′ v⇒v′
+  (Bᵣ′ (BΠ p q) F G D A≡A [F] [G] G-ext _) t®v′ v⇒v′
   with is-𝟘? p
 ... | yes PE.refl = Π-lemma v⇒v′ ∘→ t®v′ .proj₁ , λ [a] →
   let t®v = t®v′ .proj₂ [a]
@@ -313,7 +313,7 @@ targetRedSubstTerm′
   in  targetRedSubstTerm′ ([G] (idʷ ⊢Δ) [a]) t®v v∘w⇒v′∘w
 targetRedSubstTerm′
   {v′ = v′}
-  (Bᵣ′ (BΣ _ p _) F G D ⊢F ⊢G A≡A [F] [G] G-ext _)
+  (Bᵣ′ (BΣ _ p _) F G D A≡A [F] [G] G-ext _)
   (t₁ , t₂ , t⇒t′ , [t₁] , v₂ , t₂®v₂ , extra) v⇒v′ =
   let [Gt₁] = [G] (idʷ ⊢Δ) [t₁]
   in  t₁ , t₂ , t⇒t′ , [t₁]

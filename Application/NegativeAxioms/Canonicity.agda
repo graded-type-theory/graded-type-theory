@@ -136,7 +136,7 @@ module Main {Γ : Con Term m} (nΓ : NegativeContext Γ)
     in  suc v , sucₙ numV , ⇒ˢ*∷ℕ-trans (whred* (redₜ d)) (sucred* d′)
   canonicityRed′ (ℕₜ _ d n≡n zeroᵣ) =
     zero , zeroₙ , whred* (redₜ d)
-  canonicityRed′ (ℕₜ n d n≡n (ne (neNfₜ neK ⊢k k≡k))) =
+  canonicityRed′ (ℕₜ n d n≡n (ne (neNfₜ neK k≡k))) =
     let u , d′ , ¬neU =
           ¬NeutralNf (⊢t-redₜ d)
             (flip ¬negℕ $ refl (ℕⱼ $ wfTerm $ ⊢t-redₜ d))

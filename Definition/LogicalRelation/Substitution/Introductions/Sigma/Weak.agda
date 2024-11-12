@@ -132,7 +132,7 @@ opaque
            (ne u-ne u~u) →
              ne u-ne u~u)
     lemma₁
-      {l} ⊩Σ@(noemb (Bᵣ _ _ Σ⇒*Σ _ _ _ ⊩wk-A ⊩wk-B _ _))
+      {l} ⊩Σ@(noemb (Bᵣ _ _ Σ⇒*Σ _ ⊩wk-A ⊩wk-B _ _))
       (u , t⇒*u , u≅u , u-prod , rest) =
       case B-PE-injectivity _ _ $ whnfRed* (red Σ⇒*Σ) ΠΣₙ of λ {
         (PE.refl , PE.refl , _) →
@@ -165,7 +165,7 @@ opaque
       irrelevanceTerm (B-intr _ ⊩Σ) (B-intr _ (emb 0<1 ⊩Σ)) $
       lemma₂ ⊩Σ rest
     lemma₂
-      ⊩Σ@(noemb (Bᵣ _ _ Σ⇒*Σ _ _ _ ⊩wk-A ⊩wk-B _ _))
+      ⊩Σ@(noemb (Bᵣ _ _ Σ⇒*Σ _ ⊩wk-A ⊩wk-B _ _))
       (u , t⇒*u , u≅u , u-val) =
       case B-PE-injectivity _ _ $ whnfRed* (red Σ⇒*Σ) ΠΣₙ of λ {
         (PE.refl , PE.refl , _) →
@@ -253,7 +253,7 @@ opaque
            (ne u₁-ne u₂-ne u₁~u₂) →
              ne u₁-ne u₂-ne u₁~u₂)
     lemma₁
-      ⊩Σ@(noemb (Bᵣ _ _ Σ⇒*Σ ⊢A _ _ ⊩wk-A ⊩wk-B wk-B≡wk-B _))
+      ⊩Σ@(noemb (Bᵣ _ _ Σ⇒*Σ _ ⊩wk-A ⊩wk-B wk-B≡wk-B _))
       (u₁ , u₂ , t₁⇒*u₁ , t₂⇒*u₂ , u₁≅u₂ , ⊩t₁ , ⊩t₂ ,
        u₁-prod , u₂-prod , rest) =
       let ⊩Σ′ = B-intr _ ⊩Σ in
@@ -297,7 +297,7 @@ opaque
                   (PE.cong _[ _ ]₀ $ wk-lift-id B)
                   ( ⊩wk-B _ _ , ⊩u₁₂
                   , convTerm₁ (⊩wk-B _ _) (⊩wk-B _ _)
-                      (wk-B≡wk-B (W.idʷ (wf ⊢A)) ⊩u₂₁ ⊩u₁₁ $
+                      (wk-B≡wk-B _ ⊩u₂₁ ⊩u₁₁ $
                        symEqTerm (⊩wk-A _) u₁₁≡u₂₁)
                       ⊩u₂₂
                   , u₁₂≡u₂₂
@@ -324,7 +324,7 @@ opaque
       , irrelevanceTerm ⊩Σ₁ ⊩Σ₂ ⊩t₂
       , irrelevanceEqTerm ⊩Σ₁ ⊩Σ₂ t₁≡t₂
     lemma₂
-      ⊩Σ@(noemb (Bᵣ _ _ Σ⇒*Σ _ _ _ ⊩wk-A ⊩wk-B _ _))
+      ⊩Σ@(noemb (Bᵣ _ _ Σ⇒*Σ _ ⊩wk-A ⊩wk-B _ _))
       (u₁ , u₂ , t₁⇒*u₁ , t₂⇒*u₂ , u₁≅u₂ , u₁≡u₂) =
       case B-PE-injectivity _ _ $ whnfRed* (red Σ⇒*Σ) ΠΣₙ of λ {
         (PE.refl , PE.refl , _) →

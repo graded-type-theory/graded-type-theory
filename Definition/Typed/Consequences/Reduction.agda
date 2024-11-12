@@ -64,7 +64,7 @@ opaque
   red-Empty : Γ ⊢ t ∷ Empty → ∃ λ u → Neutral u × Γ ⊢ t :⇒*: u ∷ Empty
   red-Empty ⊢t =
     case ⊩∷Empty⇔ .proj₁ $ proj₂ $ reducible-⊩∷ ⊢t of λ {
-      (Emptyₜ u t⇒*u _ (ne (neNfₜ u-ne _ _))) →
+      (Emptyₜ u t⇒*u _ (ne (neNfₜ u-ne _))) →
     u , u-ne , t⇒*u }
 
 opaque
@@ -77,8 +77,8 @@ opaque
       (_ , _ , Unitₜ u t⇒*u _ rest) →
       u
     , (case rest of λ where
-         starᵣ                 → starₙ
-         (ne (neNfₜ u-ne _ _)) → ne u-ne)
+         starᵣ               → starₙ
+         (ne (neNfₜ u-ne _)) → ne u-ne)
     , t⇒*u }
 
 opaque
@@ -92,9 +92,9 @@ opaque
       (ℕₜ u t⇒*u _ rest) →
       u
     , (case rest of λ where
-         zeroᵣ                 → zeroₙ
-         (sucᵣ _)              → sucₙ
-         (ne (neNfₜ u-ne _ _)) → ne u-ne)
+         zeroᵣ               → zeroₙ
+         (sucᵣ _)            → sucₙ
+         (ne (neNfₜ u-ne _)) → ne u-ne)
     , t⇒*u }
 
 opaque
@@ -150,8 +150,8 @@ whNorm′ (ℕᵣ D) = ℕ , ℕₙ , D
 whNorm′ (Emptyᵣ D) = Empty , Emptyₙ , D
 whNorm′ (Unitᵣ (Unitₜ D _)) = Unit! , Unitₙ , D
 whNorm′ (ne′ H D neH H≡H) = H , ne neH , D
-whNorm′ (Πᵣ′ F G D _ _ _ _ _ _ _) = Π _ , _ ▷ F ▹ G , ΠΣₙ , D
-whNorm′ (𝕨′ F G D _ _ _ _ _ _ _) = Σ _ , _ ▷ F ▹ G , ΠΣₙ , D
+whNorm′ (Πᵣ′ F G D _ _ _ _ _) = Π _ , _ ▷ F ▹ G , ΠΣₙ , D
+whNorm′ (𝕨′ F G D _ _ _ _ _) = Σ _ , _ ▷ F ▹ G , ΠΣₙ , D
 whNorm′ (Idᵣ ⊩Id) = _ , Idₙ , _⊩ₗId_.⇒*Id ⊩Id
 whNorm′ (emb ≤ᵘ-refl     ⊩A) = whNorm′ ⊩A
 whNorm′ (emb (≤ᵘ-step p) ⊩A) = whNorm′ (emb p ⊩A)
@@ -267,11 +267,11 @@ whNormTerm′ (Emptyᵣ x) (Emptyₜ n d n≡n prop) =
   in  n , ne emptyN , convRed:*: d (sym (subset* (red x)))
 whNormTerm′ (Unitᵣ (Unitₜ x _)) (Unitₜ n d n≡n prop) =
   n , unit prop , convRed:*: d (sym (subset* (red x)))
-whNormTerm′ (ne (ne H D neH H≡H)) (neₜ k d (neNfₜ neH₁ ⊢k k≡k)) =
+whNormTerm′ (ne (ne H D neH H≡H)) (neₜ k d (neNfₜ neH₁ k≡k)) =
   k , ne neH₁ , convRed:*: d (sym (subset* (red D)))
-whNormTerm′ (Πᵣ′ _ _ D _ _ _ _ _ _ _) (Πₜ f d funcF _ _ _) =
+whNormTerm′ (Πᵣ′ _ _ D _ _ _ _ _) (Πₜ f d funcF _ _ _) =
   f , functionWhnf funcF , convRed:*: d (sym (subset* (red D)))
-whNormTerm′ (𝕨′ _ _ D _ _ _ _ _ _ _) (Σₜ p d _ pProd _) =
+whNormTerm′ (𝕨′ _ _ D _ _ _ _ _) (Σₜ p d _ pProd _) =
   p , productWhnf pProd , convRed:*: d (sym (subset* (red D)))
 whNormTerm′ (Idᵣ ⊩Id) (a′ , a⇒*a′ , a′-id , _) =
     a′ , identityWhnf a′-id

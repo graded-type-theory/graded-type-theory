@@ -105,7 +105,7 @@ mutual
   t ®⟨ l ⟩ v ∷ A / ne′ _ D neK K≡K = Lift a ⊥
 
   -- Π:
-  t ®⟨ l ⟩ v ∷ A / Bᵣ′ (BΠ p q) F G D ⊢F ⊢G A≡A [F] [G] G-ext _ =
+  t ®⟨ l ⟩ v ∷ A / Bᵣ′ (BΠ p q) F G D A≡A [F] [G] G-ext _ =
     (str ≡ strict → ∃ λ v′ → v T.⇒* T.lam v′) ×
     (∀ {a} → ([a] : Δ ⊩⟨ l ⟩ a ∷ U.wk id F / [F] (idʷ ⊢Δ)) →
      Π-® l F G t a v ([F] (idʷ ⊢Δ)) ([G] (idʷ ⊢Δ) [a]) p (is-𝟘? p))
@@ -116,7 +116,7 @@ mutual
   -- t₂ is related to some v₂ and
   -- there is extra data depending on whether the first component
   -- is erased (see below).
-  t ®⟨ l ⟩ v ∷ A / Bᵣ′ (BΣ m p q) F G D ⊢F ⊢G A≡A [F] [G] G-ext _ =
+  t ®⟨ l ⟩ v ∷ A / Bᵣ′ (BΣ m p q) F G D A≡A [F] [G] G-ext _ =
     ∃₂ λ t₁ t₂ →
     Δ ⊢ t ⇒* U.prod m p t₁ t₂ ∷ Σ⟨ m ⟩ p , q ▷ F ▹ G ×
     Σ (Δ ⊩⟨ l ⟩ t₁ ∷ U.wk id F / [F] (idʷ ⊢Δ)) λ [t₁] →

@@ -54,16 +54,15 @@ mutual
       (_ , PE.refl) →
     ⊩t }
   convTermT₁ (ne (ne _ D neK K≡K) (ne K₁ D₁ neK₁ K≡K₁)) (ne₌ M D′ neM K≡M)
-             (neₜ k d (neNfₜ neK₂ ⊢k k≡k)) =
+             (neₜ k d (neNfₜ neK₂ k≡k)) =
     let K≡K₁ = PE.subst (λ x → _ ⊢ _ ≡ x)
                         (whrDet* (red D′ , ne neM) (red D₁ , ne neK₁))
                         (≅-eq K≡M)
-    in  neₜ k (convRed:*: d K≡K₁)
-            (neNfₜ neK₂ (conv ⊢k K≡K₁) (~-conv k≡k K≡K₁))
+    in  neₜ k (convRed:*: d K≡K₁) (neNfₜ neK₂ (~-conv k≡k K≡K₁))
   convTermT₁
     {Γ = Γ}
-    (Bᵥ (BΠ p q) (Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext _)
-       (Bᵣ F₁ G₁ D₁ ⊢F₁ ⊢G₁ A≡A₁ [F]₁ [G]₁ G-ext₁ _))
+    (Bᵥ (BΠ p q) (Bᵣ F G D A≡A [F] [G] G-ext _)
+       (Bᵣ F₁ G₁ D₁ A≡A₁ [F]₁ [G]₁ G-ext₁ _))
     (B₌ F′ G′ D′ A≡B [F≡F′] [G≡G′])
     (Πₜ f d funcF f≡f [f] [f]₁) =
     let ΠF₁G₁≡ΠF′G′       = whrDet* (red D₁ , ΠΣₙ) (red D′ , ΠΣₙ)
@@ -93,8 +92,8 @@ mutual
                    ([f]₁ [ρ] [a]₁))
   convTermT₁
     {Γ = Γ} {l = l} {l′ = l′}
-    (Bᵥ (BΣ 𝕤 p q) (Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext _)
-       (Bᵣ F₁ G₁ D₁ ⊢F₁ ⊢G₁ A≡A₁ [F]₁ [G]₁ G-ext₁ _))
+    (Bᵥ (BΣ 𝕤 p q) (Bᵣ F G D A≡A [F] [G] G-ext _)
+       (Bᵣ F₁ G₁ D₁ A≡A₁ [F]₁ [G]₁ G-ext₁ _))
     (B₌ F′ G′ D′ A≡B [F≡F′] [G≡G′])
     (Σₜ f d f≡f pProd ([f₁] , [f₂])) =
     let ΣF₁G₁≡ΣF′G′       = whrDet* (red D₁ , ΠΣₙ) (red D′ , ΠΣₙ)
@@ -115,8 +114,8 @@ mutual
     in  Σₜ f (convRed:*: d ΣFG≡ΣF₁G₁) (≅-conv f≡f ΣFG≡ΣF₁G₁) pProd ([f₁]₁ , [f₂]₁)
   convTermT₁
     {Γ = Γ} {l = l} {l′ = l′}
-    (Bᵥ (BΣ 𝕨 p q) (Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext _)
-       (Bᵣ F₁ G₁ D₁ ⊢F₁ ⊢G₁ A≡A₁ [F]₁ [G]₁ G-ext₁ _))
+    (Bᵥ (BΣ 𝕨 p q) (Bᵣ F G D A≡A [F] [G] G-ext _)
+       (Bᵣ F₁ G₁ D₁ A≡A₁ [F]₁ [G]₁ G-ext₁ _))
     (B₌ F′ G′ D′ A≡B [F≡F′] [G≡G′])
     (Σₜ f d f≡f prodₙ (PE.refl , [f₁] , [f₂] , PE.refl)) =
     let ΣF₁G₁≡ΣF′G′       = whrDet* (red D₁ , ΠΣₙ) (red D′ , ΠΣₙ)
@@ -137,8 +136,8 @@ mutual
           (PE.refl , [f₁]₁ , [f₂]₁ , PE.refl)
   convTermT₁
     {Γ = Γ} {l = l} {l′ = l′}
-    (Bᵥ (BΣ 𝕨 p q) (Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext _)
-       (Bᵣ F₁ G₁ D₁ ⊢F₁ ⊢G₁ A≡A₁ [F]₁ [G]₁ G-ext₁ _))
+    (Bᵥ (BΣ 𝕨 p q) (Bᵣ F G D A≡A [F] [G] G-ext _)
+       (Bᵣ F₁ G₁ D₁ A≡A₁ [F]₁ [G]₁ G-ext₁ _))
     (B₌ F′ G′ D′ A≡B [F≡F′] [G≡G′])
     (Σₜ f d f≡f (ne x) f~f) =
     let ΣF₁G₁≡ΣF′G′       = whrDet* (red D₁ , ΠΣₙ) (red D′ , ΠΣₙ)
@@ -186,16 +185,15 @@ mutual
       (_ , PE.refl) →
     ⊩t }
   convTermT₂ (ne (ne _ D neK K≡K) (ne K₁ D₁ neK₁ K≡K₁)) (ne₌ M D′ neM K≡M)
-             (neₜ k d (neNfₜ neK₂ ⊢k k≡k)) =
+             (neₜ k d (neNfₜ neK₂ k≡k)) =
     let K₁≡K = PE.subst (λ x → _ ⊢ x ≡ _)
                         (whrDet* (red D′ , ne neM) (red D₁ , ne neK₁))
                         (sym (≅-eq K≡M))
-    in  neₜ k (convRed:*: d K₁≡K)
-            (neNfₜ neK₂ (conv ⊢k K₁≡K) (~-conv k≡k K₁≡K))
+    in  neₜ k (convRed:*: d K₁≡K) (neNfₜ neK₂ (~-conv k≡k K₁≡K))
   convTermT₂
     {Γ = Γ}
-    (Bᵥ (BΠ p q) (Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext _)
-       (Bᵣ F₁ G₁ D₁ ⊢F₁ ⊢G₁ A≡A₁ [F]₁ [G]₁ G-ext₁ _))
+    (Bᵥ (BΠ p q) (Bᵣ F G D A≡A [F] [G] G-ext _)
+       (Bᵣ F₁ G₁ D₁ A≡A₁ [F]₁ [G]₁ G-ext₁ _))
     (B₌ F′ G′ D′ A≡B [F≡F′] [G≡G′])
     (Πₜ f d funcF f≡f [f] [f]₁) =
     let ΠF₁G₁≡ΠF′G′       = whrDet* (red D₁ , ΠΣₙ) (red D′ , ΠΣₙ)
@@ -225,8 +223,8 @@ mutual
                     ([f]₁ [ρ] [a]₁))
   convTermT₂
     {Γ = Γ} {l = l} {l′ = l′}
-    (Bᵥ (BΣ 𝕤 p q) (Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext _)
-       (Bᵣ F₁ G₁ D₁ ⊢F₁ ⊢G₁ A≡A₁ [F]₁ [G]₁ G-ext₁ _))
+    (Bᵥ (BΣ 𝕤 p q) (Bᵣ F G D A≡A [F] [G] G-ext _)
+       (Bᵣ F₁ G₁ D₁ A≡A₁ [F]₁ [G]₁ G-ext₁ _))
     (B₌ F′ G′ D′ A≡B [F≡F′] [G≡G′])
     (Σₜ f d f≡f pProd ([f₁]₁ , [f₂]₁)) =
     let ΣF₁G₁≡ΣF′G′       = whrDet* (red D₁ , ΠΣₙ) (red D′ , ΠΣₙ)
@@ -246,8 +244,8 @@ mutual
     in  Σₜ f (convRed:*: d (sym ΣFG≡ΣF₁G₁)) (≅-conv f≡f (sym ΣFG≡ΣF₁G₁)) pProd ([f₁] , [f₂])
   convTermT₂
     {Γ = Γ} {l = l} {l′ = l′}
-    (Bᵥ (BΣ 𝕨 p q) (Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext _)
-       (Bᵣ F₁ G₁ D₁ ⊢F₁ ⊢G₁ A≡A₁ [F]₁ [G]₁ G-ext₁ _))
+    (Bᵥ (BΣ 𝕨 p q) (Bᵣ F G D A≡A [F] [G] G-ext _)
+       (Bᵣ F₁ G₁ D₁ A≡A₁ [F]₁ [G]₁ G-ext₁ _))
     (B₌ F′ G′ D′ A≡B [F≡F′] [G≡G′])
     (Σₜ f d f≡f (prodₙ {t = f₁} {u = f₂})
        (PE.refl , [f₁]₁ , [f₂]₁ , PE.refl)) =
@@ -269,8 +267,8 @@ mutual
           (PE.refl , [f₁] , [f₂] , PE.refl)
   convTermT₂
     {Γ = Γ} {l = l} {l′ = l′}
-    (Bᵥ (BΣ 𝕨 p q) (Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext _)
-       (Bᵣ F₁ G₁ D₁ ⊢F₁ ⊢G₁ A≡A₁ [F]₁ [G]₁ G-ext₁ _))
+    (Bᵥ (BΣ 𝕨 p q) (Bᵣ F G D A≡A [F] [G] G-ext _)
+       (Bᵣ F₁ G₁ D₁ A≡A₁ [F]₁ [G]₁ G-ext₁ _))
     (B₌ F′ G′ D′ A≡B [F≡F′] [G≡G′])
     (Σₜ f d f≡f (ne x) f~f) =
     let ΣF₁G₁≡ΣF′G′       = whrDet* (red D₁ , ΠΣₙ) (red D′ , ΠΣₙ)
@@ -355,12 +353,12 @@ mutual
                  (neNfₜ₌ neK₂ neM₁ (~-conv k≡m K≡K₁))
   convEqTermT₁
     {Γ = Γ}
-    (Bᵥ (BΠ p q) (Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext ok)
-       (Bᵣ F₁ G₁ D₁ ⊢F₁ ⊢G₁ A≡A₁ [F]₁ [G]₁ G-ext₁ ok₁))
+    (Bᵥ (BΠ p q) (Bᵣ F G D A≡A [F] [G] G-ext ok)
+       (Bᵣ F₁ G₁ D₁ A≡A₁ [F]₁ [G]₁ G-ext₁ ok₁))
     (B₌ F′ G′ D′ A≡B [F≡F′] [G≡G′])
     (Πₜ₌ f g d d′ funcF funcG t≡u [t] [u] [t≡u]) =
-    let [A] = Bᵣ′ BΠ! F G D ⊢F ⊢G A≡A [F] [G] G-ext ok
-        [B] = Bᵣ′ BΠ! F₁ G₁ D₁ ⊢F₁ ⊢G₁ A≡A₁ [F]₁ [G]₁ G-ext₁ ok₁
+    let [A] = Bᵣ′ BΠ! F G D A≡A [F] [G] G-ext ok
+        [B] = Bᵣ′ BΠ! F₁ G₁ D₁ A≡A₁ [F]₁ [G]₁ G-ext₁ ok₁
         [A≡B] = B₌ F′ G′ D′ A≡B [F≡F′] [G≡G′]
         ΠF₁G₁≡ΠF′G′ = whrDet* (red D₁ , ΠΣₙ) (red D′ , ΠΣₙ)
         ΠFG≡ΠF₁G₁ = PE.subst (λ x → Γ ⊢ Π p , q ▷ F ▹ G ≡ x)
@@ -382,13 +380,13 @@ mutual
                      ([t≡u] [ρ] [a]₁))
   convEqTermT₁
     {Γ = Γ}
-    (Bᵥ (BΣ 𝕤 p′ q) (Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext ok)
-       (Bᵣ F₁ G₁ D₁ ⊢F₁ ⊢G₁ A≡A₁ [F]₁ [G]₁ G-ext₁ ok₁))
+    (Bᵥ (BΣ 𝕤 p′ q) (Bᵣ F G D A≡A [F] [G] G-ext ok)
+       (Bᵣ F₁ G₁ D₁ A≡A₁ [F]₁ [G]₁ G-ext₁ ok₁))
     (B₌ F′ G′ D′ A≡B [F≡F′] [G≡G′])
     (Σₜ₌ p r d d′ pProd rProd p≅r [t] [u]
        ([p₁] , [r₁] , [fst≡] , [snd≡])) =
-    let [A] = Bᵣ′ BΣ! F G D ⊢F ⊢G A≡A [F] [G] G-ext ok
-        [B] = Bᵣ′ BΣ! F₁ G₁ D₁ ⊢F₁ ⊢G₁ A≡A₁ [F]₁ [G]₁ G-ext₁ ok₁
+    let [A] = Bᵣ′ BΣ! F G D A≡A [F] [G] G-ext ok
+        [B] = Bᵣ′ BΣ! F₁ G₁ D₁ A≡A₁ [F]₁ [G]₁ G-ext₁ ok₁
         [A≡B] = B₌ F′ G′ D′ A≡B [F≡F′] [G≡G′]
         ΣF₁G₁≡ΣF′G′       = whrDet* (red D₁ , ΠΣₙ) (red D′ , ΠΣₙ)
         F₁≡F′ , G₁≡G′ , _ = B-PE-injectivity BΣ! BΣ! ΣF₁G₁≡ΣF′G′
@@ -411,14 +409,14 @@ mutual
             ([p₁]₁ , [r₁]₁ , [fst≡]₁ , [snd≡]₁)
   convEqTermT₁
     {Γ = Γ}
-    (Bᵥ (BΣ 𝕨 p′ q) (Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext ok)
-       (Bᵣ F₁ G₁ D₁ ⊢F₁ ⊢G₁ A≡A₁ [F]₁ [G]₁ G-ext₁ ok₁))
+    (Bᵥ (BΣ 𝕨 p′ q) (Bᵣ F G D A≡A [F] [G] G-ext ok)
+       (Bᵣ F₁ G₁ D₁ A≡A₁ [F]₁ [G]₁ G-ext₁ ok₁))
     (B₌ F′ G′ D′ A≡B [F≡F′] [G≡G′])
     (Σₜ₌ p r d d′ (prodₙ {t = p₁}) prodₙ p≅r [t] [u]
        (PE.refl , PE.refl ,
         [p₁] , [r₁] , [p₂] , [r₂] , [fst≡] , [snd≡])) =
-    let [A] = Bᵣ′ BΣ! F G D ⊢F ⊢G A≡A [F] [G] G-ext ok
-        [B] = Bᵣ′ BΣ! F₁ G₁ D₁ ⊢F₁ ⊢G₁ A≡A₁ [F]₁ [G]₁ G-ext₁ ok₁
+    let [A] = Bᵣ′ BΣ! F G D A≡A [F] [G] G-ext ok
+        [B] = Bᵣ′ BΣ! F₁ G₁ D₁ A≡A₁ [F]₁ [G]₁ G-ext₁ ok₁
         [A≡B] = B₌ F′ G′ D′ A≡B [F≡F′] [G≡G′]
         ΣF₁G₁≡ΣF′G′       = whrDet* (red D₁ , ΠΣₙ) (red D′ , ΠΣₙ)
         F₁≡F′ , G₁≡G′ , _ = B-PE-injectivity BΣ! BΣ! ΣF₁G₁≡ΣF′G′
@@ -454,12 +452,12 @@ mutual
              [p₁]₁ , [r₁]₁ , [p₂]₁ , [r₂]₁ , [fst≡]₁ , [snd≡]₁)
   convEqTermT₁
     {Γ = Γ}
-    (Bᵥ (BΣ 𝕨 p′ q) (Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext ok)
-       (Bᵣ F₁ G₁ D₁ ⊢F₁ ⊢G₁ A≡A₁ [F]₁ [G]₁ G-ext₁ ok₁))
+    (Bᵥ (BΣ 𝕨 p′ q) (Bᵣ F G D A≡A [F] [G] G-ext ok)
+       (Bᵣ F₁ G₁ D₁ A≡A₁ [F]₁ [G]₁ G-ext₁ ok₁))
     (B₌ F′ G′ D′ A≡B [F≡F′] [G≡G′])
     (Σₜ₌ p r d d′ (ne x) (ne y) p≅r [t] [u] p~r) =
-    let [A] = Bᵣ′ BΣ! F G D ⊢F ⊢G A≡A [F] [G] G-ext ok
-        [B] = Bᵣ′ BΣ! F₁ G₁ D₁ ⊢F₁ ⊢G₁ A≡A₁ [F]₁ [G]₁ G-ext₁ ok₁
+    let [A] = Bᵣ′ BΣ! F G D A≡A [F] [G] G-ext ok
+        [B] = Bᵣ′ BΣ! F₁ G₁ D₁ A≡A₁ [F]₁ [G]₁ G-ext₁ ok₁
         [A≡B] = B₌ F′ G′ D′ A≡B [F≡F′] [G≡G′]
         ΣF₁G₁≡ΣF′G′       = whrDet* (red D₁ , ΠΣₙ) (red D′ , ΠΣₙ)
         F₁≡F′ , G₁≡G′ , _ = B-PE-injectivity BΣ! BΣ! ΣF₁G₁≡ΣF′G′
@@ -522,12 +520,12 @@ mutual
                  (neNfₜ₌ neK₂ neM₁ (~-conv k≡m K₁≡K))
   convEqTermT₂
     {Γ = Γ}
-    (Bᵥ (BΠ p q) (Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext ok)
-       (Bᵣ F₁ G₁ D₁ ⊢F₁ ⊢G₁ A≡A₁ [F]₁ [G]₁ G-ext₁ ok₁))
+    (Bᵥ (BΠ p q) (Bᵣ F G D A≡A [F] [G] G-ext ok)
+       (Bᵣ F₁ G₁ D₁ A≡A₁ [F]₁ [G]₁ G-ext₁ ok₁))
     (B₌ F′ G′ D′ A≡B [F≡F′] [G≡G′])
     (Πₜ₌ f g d d′ funcF funcG t≡u [t] [u] [t≡u]) =
-    let [A] = Bᵣ′ BΠ! F G D ⊢F ⊢G A≡A [F] [G] G-ext ok
-        [B] = Bᵣ′ BΠ! F₁ G₁ D₁ ⊢F₁ ⊢G₁ A≡A₁ [F]₁ [G]₁ G-ext₁ ok₁
+    let [A] = Bᵣ′ BΠ! F G D A≡A [F] [G] G-ext ok
+        [B] = Bᵣ′ BΠ! F₁ G₁ D₁ A≡A₁ [F]₁ [G]₁ G-ext₁ ok₁
         [A≡B] = B₌ F′ G′ D′ A≡B [F≡F′] [G≡G′]
         ΠF₁G₁≡ΠF′G′ = whrDet* (red D₁ , ΠΣₙ) (red D′ , ΠΣₙ)
         ΠFG≡ΠF₁G₁ = PE.subst (λ x → Γ ⊢ Π p , q ▷ F ▹ G ≡ x)
@@ -549,13 +547,13 @@ mutual
                      ([t≡u] [ρ] [a]₁))
   convEqTermT₂
     {Γ = Γ}
-    (Bᵥ (BΣ 𝕤 p′ q) (Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext ok)
-       (Bᵣ F₁ G₁ D₁ ⊢F₁ ⊢G₁ A≡A₁ [F]₁ [G]₁ G-ext₁ ok₁))
+    (Bᵥ (BΣ 𝕤 p′ q) (Bᵣ F G D A≡A [F] [G] G-ext ok)
+       (Bᵣ F₁ G₁ D₁ A≡A₁ [F]₁ [G]₁ G-ext₁ ok₁))
     (B₌ F′ G′ D′ A≡B [F≡F′] [G≡G′])
     (Σₜ₌ p r d d′ pProd rProd t≡u [t] [u]
        ([p₁]₁ , [r₁]₁ , [fst≡]₁ , [snd≡]₁)) =
-    let [A] = Bᵣ′ BΣ! F G D ⊢F ⊢G A≡A [F] [G] G-ext ok
-        [B] = Bᵣ′ BΣ! F₁ G₁ D₁ ⊢F₁ ⊢G₁ A≡A₁ [F]₁ [G]₁ G-ext₁ ok₁
+    let [A] = Bᵣ′ BΣ! F G D A≡A [F] [G] G-ext ok
+        [B] = Bᵣ′ BΣ! F₁ G₁ D₁ A≡A₁ [F]₁ [G]₁ G-ext₁ ok₁
         [A≡B] = B₌ F′ G′ D′ A≡B [F≡F′] [G≡G′]
         ΣF₁G₁≡ΣF′G′       = whrDet* (red D₁ , ΠΣₙ) (red D′ , ΠΣₙ)
         F₁≡F′ , G₁≡G′ , _ = B-PE-injectivity BΣ! BΣ! ΣF₁G₁≡ΣF′G′
@@ -578,14 +576,14 @@ mutual
             ([p₁] , [r₁] , [fst≡] , [snd≡])
   convEqTermT₂
     {Γ = Γ}
-    (Bᵥ (BΣ 𝕨 p′ q) (Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext ok)
-       (Bᵣ F₁ G₁ D₁ ⊢F₁ ⊢G₁ A≡A₁ [F]₁ [G]₁ G-ext₁ ok₁))
+    (Bᵥ (BΣ 𝕨 p′ q) (Bᵣ F G D A≡A [F] [G] G-ext ok)
+       (Bᵣ F₁ G₁ D₁ A≡A₁ [F]₁ [G]₁ G-ext₁ ok₁))
     (B₌ F′ G′ D′ A≡B [F≡F′] [G≡G′])
     (Σₜ₌ p r d d′ (prodₙ {t = p₁}) prodₙ t≡u [t] [u]
        (PE.refl , PE.refl ,
         [p₁]₁ , [r₁]₁ , [p₂]₁ , [r₂]₁ , [fst≡]₁ , [snd≡]₁)) =
-    let [A] = Bᵣ′ BΣ! F G D ⊢F ⊢G A≡A [F] [G] G-ext ok
-        [B] = Bᵣ′ BΣ! F₁ G₁ D₁ ⊢F₁ ⊢G₁ A≡A₁ [F]₁ [G]₁ G-ext₁ ok₁
+    let [A] = Bᵣ′ BΣ! F G D A≡A [F] [G] G-ext ok
+        [B] = Bᵣ′ BΣ! F₁ G₁ D₁ A≡A₁ [F]₁ [G]₁ G-ext₁ ok₁
         [A≡B] = B₌ F′ G′ D′ A≡B [F≡F′] [G≡G′]
         ΣF₁G₁≡ΣF′G′       = whrDet* (red D₁ , ΠΣₙ) (red D′ , ΠΣₙ)
         F₁≡F′ , G₁≡G′ , _ = B-PE-injectivity BΣ! BΣ! ΣF₁G₁≡ΣF′G′
@@ -621,12 +619,12 @@ mutual
              [p₁] , [r₁] , [p₂] , [r₂] , [fst≡] , [snd≡])
   convEqTermT₂
     {Γ = Γ}
-    (Bᵥ (BΣ 𝕨 p′ q) (Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext ok)
-       (Bᵣ F₁ G₁ D₁ ⊢F₁ ⊢G₁ A≡A₁ [F]₁ [G]₁ G-ext₁ ok₁))
+    (Bᵥ (BΣ 𝕨 p′ q) (Bᵣ F G D A≡A [F] [G] G-ext ok)
+       (Bᵣ F₁ G₁ D₁ A≡A₁ [F]₁ [G]₁ G-ext₁ ok₁))
     (B₌ F′ G′ D′ A≡B [F≡F′] [G≡G′])
     (Σₜ₌ p r d d′ (ne x) (ne y) t≡u [t] [u] p~r₁) =
-    let [A] = Bᵣ′ BΣ! F G D ⊢F ⊢G A≡A [F] [G] G-ext ok
-        [B] = Bᵣ′ BΣ! F₁ G₁ D₁ ⊢F₁ ⊢G₁ A≡A₁ [F]₁ [G]₁ G-ext₁ ok₁
+    let [A] = Bᵣ′ BΣ! F G D A≡A [F] [G] G-ext ok
+        [B] = Bᵣ′ BΣ! F₁ G₁ D₁ A≡A₁ [F]₁ [G]₁ G-ext₁ ok₁
         [A≡B] = B₌ F′ G′ D′ A≡B [F≡F′] [G≡G′]
         ΣF₁G₁≡ΣF′G′       = whrDet* (red D₁ , ΠΣₙ) (red D′ , ΠΣₙ)
         F₁≡F′ , G₁≡G′ , _ = B-PE-injectivity BΣ! BΣ! ΣF₁G₁≡ΣF′G′

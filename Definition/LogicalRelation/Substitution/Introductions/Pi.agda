@@ -114,7 +114,7 @@ opaque
                 .proj₂ .proj₂ ρ⊇ .proj₁)
               v₁≡v₂
     lemma₁
-      {l} ⊩Π@(noemb (Bᵣ _ _ Π⇒*Π _ _ _ ⊩wk-A ⊩wk-B _ _))
+      {l} ⊩Π@(noemb (Bᵣ _ _ Π⇒*Π _ ⊩wk-A ⊩wk-B _ _))
       (u , t⇒*u , u-fun , u≅u , u∘≡u∘ , u∷) =
       case B-PE-injectivity _ _ $ whnfRed* (red Π⇒*Π) ΠΣₙ of λ {
         (PE.refl , PE.refl , _) →
@@ -160,7 +160,7 @@ opaque
       irrelevanceTerm (B-intr _ ⊩Π) (B-intr _ (emb l″<l′ ⊩Π)) $
       lemma₂ (≤ᵘ-trans (<ᵘ→≤ᵘ l″<l′) l′≤l) ⊩Π rest
     lemma₂
-      l′≤l ⊩Π@(noemb (Bᵣ _ _ Π⇒*Π _ _ _ ⊩wk-A ⊩wk-B _ _))
+      l′≤l ⊩Π@(noemb (Bᵣ _ _ Π⇒*Π _ ⊩wk-A ⊩wk-B _ _))
       (u , t⇒*u , u-fun , u≅u , rest) =
       case B-PE-injectivity _ _ $ whnfRed* (red Π⇒*Π) ΠΣₙ of λ {
         (PE.refl , PE.refl , _) →
@@ -249,7 +249,7 @@ opaque
             (⊩ΠΣ⇔ .proj₁ (B-intr _ (emb l< ⊩Π)) .proj₂ .proj₂ ρ⊇ .proj₁)
             v₁≡v₂
     lemma₁
-      {l} ⊩Π@(noemb (Bᵣ _ _ Π⇒*Π _ _ _ ⊩wk-A ⊩wk-B _ _))
+      {l} ⊩Π@(noemb (Bᵣ _ _ Π⇒*Π _ ⊩wk-A ⊩wk-B _ _))
       (u₁ , u₂ , t₁⇒*u₁ , t₂⇒*u₂ , u₁-fun , u₂-fun , u₁≅u₂ , ⊩t₁ , ⊩t₂ ,
        rest) =
       let ⊩Π′ = B-intr _ ⊩Π in
@@ -316,7 +316,7 @@ opaque
       , irrelevanceTerm ⊩Π₁ ⊩Π₂ ⊩t₂
       , irrelevanceEqTerm ⊩Π₁ ⊩Π₂ t₁≡t₂
     lemma₂
-      l′≤l ⊩Π@(noemb (Bᵣ _ _ Π⇒*Π _ _ _ ⊩wk-A ⊩wk-B _ _))
+      l′≤l ⊩Π@(noemb (Bᵣ _ _ Π⇒*Π _ ⊩wk-A ⊩wk-B _ _))
       (u₁ , u₂ , t₁⇒*u₁ , t₂⇒*u₂ , u₁-fun , u₂-fun , u₁≅u₂ , rest) =
       case B-PE-injectivity _ _ $ whnfRed* (red Π⇒*Π) ΠΣₙ of λ {
         (PE.refl , PE.refl , _) →

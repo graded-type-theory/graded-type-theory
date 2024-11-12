@@ -67,9 +67,9 @@ redSubst* D (ne′ _ [ ⊢B , ⊢K , D′ ] neK K≡K) =
   in  (ne′ _ [ ⊢A , ⊢K , D ⇨* D′ ] neK K≡K)
   ,   (ne₌ _ [ ⊢B , ⊢K , D′ ] neK K≡K)
 redSubst*
-  D (Bᵣ′ W F G D′@([ _ , ⊢ΠFG , D″ ]) ⊢F ⊢G A≡A [F] [G] G-ext ok) =
+  D (Bᵣ′ W F G D′@([ _ , ⊢ΠFG , D″ ]) A≡A [F] [G] G-ext ok) =
   let ⊢A = redFirst* D
-  in  (Bᵣ′ W F G [ ⊢A , ⊢ΠFG , D ⇨* D″ ] ⊢F ⊢G A≡A [F] [G] G-ext ok)
+  in  (Bᵣ′ W F G [ ⊢A , ⊢ΠFG , D ⇨* D″ ] A≡A [F] [G] G-ext ok)
   ,   (B₌ _ _ D′ A≡A (λ ρ → reflEq ([F] ρ))
         (λ ρ [a] → reflEq ([G] ρ [a])))
 redSubst* A⇒*B (Idᵣ ⊩B) =
@@ -139,14 +139,14 @@ redSubst*Term
          (inj₂ (PE.refl , no-η)) →
            Unitₜ₌ʷ n n d′ [ ⊢u , ⊢n , d ] n≡n (reflUnitʷ-prop prop)
              no-η)
-redSubst*Term t⇒u (ne′ _ D neK K≡K) (neₜ k [ ⊢t , ⊢u , d ] (neNfₜ neK₁ ⊢k k≡k)) =
+redSubst*Term t⇒u (ne′ _ D neK K≡K) (neₜ k [ ⊢t , ⊢u , d ] (neNfₜ neK₁ k≡k)) =
   let A≡K  = subset* (red D)
       [d]  = [ ⊢t , ⊢u , d ]
       [d′] = [ conv (redFirst*Term t⇒u) A≡K , ⊢u , conv* t⇒u A≡K ⇨∷* d ]
-  in  neₜ k [d′] (neNfₜ neK₁ ⊢k k≡k) , neₜ₌ k k [d′] [d] (neNfₜ₌ neK₁ neK₁ k≡k)
+  in  neₜ k [d′] (neNfₜ neK₁ k≡k) , neₜ₌ k k [d′] [d] (neNfₜ₌ neK₁ neK₁ k≡k)
 redSubst*Term
   {Γ = Γ} {A = A} {t} {u} {l}
-  t⇒u (Πᵣ′ F G D ⊢F ⊢G A≡A [F] [G] G-ext _)
+  t⇒u (Πᵣ′ F G D A≡A [F] [G] G-ext _)
   [u]@(Πₜ f [d]@([ ⊢t , ⊢u , d ]) funcF f≡f [f] [f]₁) =
   let A≡ΠFG = subset* (red D)
       t⇒u′  = conv* t⇒u A≡ΠFG
@@ -157,7 +157,7 @@ redSubst*Term
         [f] [ρ] [a] [a] (reflEqTerm ([F] [ρ]) [a])
 redSubst*Term
   {Γ = Γ} {A} {t} {u} {l}
-  t⇒u (Bᵣ′ BΣˢ F G D ⊢F ⊢G A≡A [F] [G] G-ext _)
+  t⇒u (Bᵣ′ BΣˢ F G D A≡A [F] [G] G-ext _)
   [u]@(Σₜ p [d]@([ ⊢t , ⊢u , d ]) p≅p pProd pProp) =
 
   let A≡ΣFG = subset* (red D)
@@ -170,7 +170,7 @@ redSubst*Term
                    reflEqTerm ([G] _ [fstp]) [sndp])
 redSubst*Term
   {Γ = Γ} {A} {t} {u} {l}
-  t⇒u (Bᵣ′ BΣʷ F G D ⊢F ⊢G A≡A [F] [G] G-ext _)
+  t⇒u (Bᵣ′ BΣʷ F G D A≡A [F] [G] G-ext _)
   [u]@(Σₜ p [d]@([ ⊢t , ⊢u , d ]) p≅p prodₙ pProp) =
   let A≡ΣFG = subset* (red D)
       t⇒u′  = conv* t⇒u A≡ΣFG
@@ -184,7 +184,7 @@ redSubst*Term
         (p′≡p″ , p′≡p″ , [p₁] , [p₁] , [p₂] , [p₂] , [p₁≡p₁] , [p₂≡p₂])
 redSubst*Term
   {Γ = Γ} {A} {t} {u} {l}
-  t⇒u (Bᵣ′ BΣʷ F G D ⊢F ⊢G A≡A [F] [G] G-ext _)
+  t⇒u (Bᵣ′ BΣʷ F G D A≡A [F] [G] G-ext _)
   [u]@(Σₜ p [d]@([ ⊢t , ⊢u , d ]) p≅p (ne x) p~p) =
   let A≡ΣFG = subset* (red D)
       t⇒u′  = conv* t⇒u A≡ΣFG
@@ -259,10 +259,10 @@ opaque
     case whrDet:⇒*: (ne C-ne) A⇒*C A⇒*B of λ
       B⇒*C →
     ne′ C B⇒*C C-ne C≅C , ne₌ C B⇒*C C-ne C≅C
-  redSubst*′ A⇒*B (Bᵣ′ W C D A⇒*ΠΣ ⊢C ⊢D ΠΣ≡ΠΣ ⊩C ⊩D D≡D ok) =
+  redSubst*′ A⇒*B (Bᵣ′ W C D A⇒*ΠΣ ΠΣ≡ΠΣ ⊩C ⊩D D≡D ok) =
     case whrDet:⇒*: ⟦ W ⟧ₙ A⇒*ΠΣ A⇒*B of λ
       B⇒*ΠΣ →
-      Bᵣ′ _ _ _ B⇒*ΠΣ ⊢C ⊢D ΠΣ≡ΠΣ ⊩C ⊩D D≡D ok
+      Bᵣ′ _ _ _ B⇒*ΠΣ ΠΣ≡ΠΣ ⊩C ⊩D D≡D ok
     , B₌ _ _ B⇒*ΠΣ ΠΣ≡ΠΣ (λ _ → reflEq (⊩C _)) (λ _ _ → reflEq (⊩D _ _))
   redSubst*′ A⇒*B (Idᵣ (Idᵣ Ty lhs rhs A⇒*Id ⊩Ty ⊩lhs ⊩rhs)) =
     case whrDet:⇒*: Idₙ A⇒*Id A⇒*B of λ
@@ -325,14 +325,14 @@ opaque
          (inj₂ (PE.refl , no-η)) →
            Unitₜ₌ʷ v v t⇒*v u⇒*v v≅v (reflUnitʷ-prop v-ok) no-η)
   redSubst*Term′
-    t⇒*u (ne′ B A⇒*B B-ne B≅B) (neₜ v t⇒*v v-ok@(neNfₜ v-ne _ v~v)) =
+    t⇒*u (ne′ B A⇒*B B-ne B≅B) (neₜ v t⇒*v v-ok@(neNfₜ v-ne v~v)) =
     case whrDet:⇒*:Term (ne v-ne) t⇒*v
            (convRed:*: t⇒*u (subset* (red A⇒*B))) of λ
       u⇒*v →
       neₜ v u⇒*v v-ok
     , neₜ₌ v v t⇒*v u⇒*v (neNfₜ₌ v-ne v-ne v~v)
   redSubst*Term′
-    t⇒*u ⊩A@(Bᵣ′ BΠ! C D A⇒*Π ⊢C ⊢D Π≡Π ⊩C ⊩D D≡D ok)
+    t⇒*u ⊩A@(Bᵣ′ BΠ! C D A⇒*Π Π≡Π ⊩C ⊩D D≡D ok)
     ⊩t@(v , t⇒*v , v-fun , v≅v , v∘≡v∘ , ⊩v∘) =
     case whrDet:⇒*:Term (functionWhnf v-fun) t⇒*v
            (convRed:*: t⇒*u (subset* (red A⇒*Π))) of λ
@@ -344,7 +344,7 @@ opaque
       , (λ _ _ → reflEqTerm (⊩D _ _) (⊩v∘ _ _))
       )
   redSubst*Term′
-    t⇒*u ⊩A@(Bᵣ′ (BΣ s _ _) C D A⇒*Σ ⊢C ⊢D Σ≡Σ ⊩C ⊩D D≡D ok)
+    t⇒*u ⊩A@(Bᵣ′ (BΣ s _ _) C D A⇒*Σ Σ≡Σ ⊩C ⊩D D≡D ok)
     ⊩t@(v , t⇒*v , v≅v , v-prod , v-ok) =
     case whrDet:⇒*:Term (productWhnf v-prod) t⇒*v
            (convRed:*: t⇒*u (subset* (red A⇒*Σ))) of λ
