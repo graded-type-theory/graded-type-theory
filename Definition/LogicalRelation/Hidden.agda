@@ -26,6 +26,7 @@ import Definition.LogicalRelation.Weakening R as W
 open import Definition.Typed R
 open import Definition.Typed.Properties R
 open import Definition.Typed.Weakening R using (_∷ʷ_⊇_)
+open import Definition.Typed.Well-formed R
 
 open import Definition.Untyped M
 open import Definition.Untyped.Neutral M type-variant
@@ -900,7 +901,6 @@ opaque
 
   neutral-⊩ :
     Neutral A →
-    Γ ⊢ A →
     Γ ⊢≅ A →
     Γ ⊩⟨ l ⟩ A
   neutral-⊩ = neu
@@ -913,11 +913,10 @@ opaque
   neutral-⊩∷ :
     Γ ⊩⟨ l ⟩ A →
     Neutral t →
-    Γ ⊢ t ∷ A →
     Γ ⊢~ t ∷ A →
     Γ ⊩⟨ l ⟩ t ∷ A
-  neutral-⊩∷ ⊩A t-ne ⊢t t~t =
-    ⊩A , neuTerm ⊩A t-ne ⊢t t~t
+  neutral-⊩∷ ⊩A t-ne t~t =
+    ⊩A , neuTerm ⊩A t-ne t~t
 
 opaque
   unfolding _⊩⟨_⟩_≡_
@@ -933,7 +932,7 @@ opaque
     Γ ⊢ A ≅ B →
     Γ ⊩⟨ l ⟩ A ≡ B
   neutral-⊩≡ ⊩A ⊩B A-ne B-ne A≅B =
-    ⊩A , ⊩B , neuEq ⊩A A-ne B-ne (escape ⊩B) A≅B
+    ⊩A , ⊩B , neuEq ⊩A A-ne B-ne A≅B
 
 opaque
   unfolding _⊩⟨_⟩_≡_∷_
@@ -945,15 +944,13 @@ opaque
     Γ ⊩⟨ l ⟩ A →
     Neutral t →
     Neutral u →
-    Γ ⊢ t ∷ A →
-    Γ ⊢ u ∷ A →
     Γ ⊢ t ~ u ∷ A →
     Γ ⊩⟨ l ⟩ t ≡ u ∷ A
-  neutral-⊩≡∷ ⊩A t-ne u-ne ⊢t ⊢u t~u =
+  neutral-⊩≡∷ ⊩A t-ne u-ne t~u =
       ⊩A
-    , neuTerm ⊩A t-ne ⊢t (~-trans t~u (~-sym t~u))
-    , neuTerm ⊩A u-ne ⊢u (~-trans (~-sym t~u) t~u)
-    , neuEqTerm ⊩A t-ne u-ne ⊢t ⊢u t~u
+    , neuTerm ⊩A t-ne (~-trans t~u (~-sym t~u))
+    , neuTerm ⊩A u-ne (~-trans (~-sym t~u) t~u)
+    , neuEqTerm ⊩A t-ne u-ne t~u
 
 opaque
 
@@ -961,32 +958,33 @@ opaque
 
   ⊩ne⇔ :
     Neutral A →
-    Γ ⊩⟨ l ⟩ A ⇔ ((Γ ⊢ A) × Γ ⊢≅ A)
+    Γ ⊩⟨ l ⟩ A ⇔ Γ ⊢≅ A
   ⊩ne⇔ A-ne =
       (λ ⊩A →
          case extractMaybeEmb (ne-elim A-ne ⊩A) of λ {
            (_ , ne B A⇒*B _ B≅B) →
          case whnfRed* (red A⇒*B) (ne A-ne) of λ {
            PE.refl →
-         ⊢A-red A⇒*B , B≅B }})
-    , (λ (⊢A , A≅A) → neu A-ne ⊢A A≅A)
+         B≅B }})
+    , (λ A≅A → neu A-ne A≅A)
 
 opaque
-  unfolding _⊩⟨_⟩_∷_ ⊩ne⇔
+  unfolding _⊩⟨_⟩_∷_ ⊩ne⇔ neu
 
   -- A characterisation lemma for _⊩⟨_⟩_∷_.
 
   ⊩∷ne⇔ :
     Neutral A →
     Γ ⊩⟨ l ⟩ t ∷ A ⇔
-    (Γ ⊩⟨ l ⟩ A × ∃ λ u → Γ ⊢ t :⇒*: u ∷ A × Neutral u × Γ ⊢~ u ∷ A)
+    (Γ ⊢≅ A × ∃ λ u → Γ ⊢ t :⇒*: u ∷ A × Neutral u × Γ ⊢~ u ∷ A)
   ⊩∷ne⇔ {A} A-ne =
       (λ (⊩A , ⊩t) →
          case ne-elim A-ne ⊩A of λ
            ⊩A′ →
-         ⊩A , lemma ⊩A′ (irrelevanceTerm ⊩A (ne-intr ⊩A′) ⊩t))
-    , (λ (⊩A , u , t⇒*u , u-ne , u~u) →
-           ⊩ne⇔ A-ne .proj₂ (⊩ne⇔ A-ne .proj₁ ⊩A)
+         ⊩ne⇔ A-ne .proj₁ ⊩A ,
+         lemma ⊩A′ (irrelevanceTerm ⊩A (ne-intr ⊩A′) ⊩t))
+    , (λ (≅A , u , t⇒*u , u-ne , u~u) →
+           ⊩ne⇔ A-ne .proj₂ ≅A
          , neₜ u t⇒*u (neNfₜ u-ne (⊢u-redₜ t⇒*u) u~u))
     where
     lemma :
@@ -1010,34 +1008,33 @@ opaque
   ⊩ne≡⇔ :
     Neutral A →
     Γ ⊩⟨ l ⟩ A ≡ B ⇔
-    (Γ ⊢ A × ∃ λ C → Neutral C × (Γ ⊢ C) × Γ ⊢ B ⇒* C × Γ ⊢ A ≅ C)
+    (∃ λ C → Neutral C × Γ ⊢ B ⇒* C × Γ ⊢ A ≅ C)
   ⊩ne≡⇔ {A} {B} A-ne =
       (λ (⊩A , ⊩B , A≡B) →
          case ne-elim A-ne ⊩A of λ
            ⊩A′ →
-           escape-⊩ ⊩A
-         , lemma ⊩A′ (irrelevanceEq ⊩A (ne-intr ⊩A′) A≡B))
-    , (λ (⊢A , C , C-ne , ⊢C , B⇒*C , A≅C) →
+         lemma ⊩A′ (irrelevanceEq ⊩A (ne-intr ⊩A′) A≡B))
+    , (λ (C , C-ne , B⇒*C , A≅C) →
          sym-⊩≡
            (B  ⇒*⟨ B⇒*C ⟩⊩
             C  ≡⟨ neutral-⊩≡
-                    (⊩ne⇔ C-ne .proj₂ (⊢C , ≅-trans (≅-sym A≅C) A≅C))
-                    (⊩ne⇔ A-ne .proj₂ (⊢A , ≅-trans A≅C (≅-sym A≅C)))
+                    (⊩ne⇔ C-ne .proj₂ (≅-trans (≅-sym A≅C) A≅C))
+                    (⊩ne⇔ A-ne .proj₂ (≅-trans A≅C (≅-sym A≅C)))
                     C-ne A-ne (≅-sym A≅C) ⟩⊩∎
             A  ∎))
     where
     lemma :
       (⊩A : Γ ⊩⟨ l ⟩ne A) →
       Γ ⊩⟨ l ⟩ A ≡ B / ne-intr ⊩A →
-      ∃ λ C → Neutral C × (Γ ⊢ C) × Γ ⊢ B ⇒* C × Γ ⊢ A ≅ C
+      ∃ λ C → Neutral C × Γ ⊢ B ⇒* C × Γ ⊢ A ≅ C
     lemma (emb ≤ᵘ-refl ⊩A) A≡B =
       lemma ⊩A A≡B
     lemma (emb (≤ᵘ-step l<) ⊩A) A≡B =
       lemma (emb l< ⊩A) A≡B
-    lemma (noemb (ne _ A⇒*A′ _ _)) (ne₌ C [ _ , ⊢C , B⇒*C ] C-ne A′≅C) =
+    lemma (noemb (ne _ A⇒*A′ _ _)) (ne₌ C [ _ , _ , B⇒*C ] C-ne A′≅C) =
       case whnfRed* (red A⇒*A′) (ne A-ne) of λ {
         PE.refl →
-      C , C-ne , ⊢C , B⇒*C , A′≅C }
+      C , C-ne , B⇒*C , A′≅C }
 
 opaque
 
@@ -1046,53 +1043,53 @@ opaque
   ⊩ne≡ne⇔ :
     Neutral A →
     Neutral B →
-    Γ ⊩⟨ l ⟩ A ≡ B ⇔ ((Γ ⊢ A) × (Γ ⊢ B) × Γ ⊢ A ≅ B)
+    Γ ⊩⟨ l ⟩ A ≡ B ⇔ Γ ⊢ A ≅ B
   ⊩ne≡ne⇔ {A} {B} {Γ} {l} A-ne B-ne =
-    Γ ⊩⟨ l ⟩ A ≡ B                                                  ⇔⟨ ⊩ne≡⇔ A-ne ⟩
-    (Γ ⊢ A × ∃ λ C → Neutral C × (Γ ⊢ C) × Γ ⊢ B ⇒* C × Γ ⊢ A ≅ C)  ⇔⟨ (Σ-cong-⇔ λ _ →
-                                                                          (λ (_ , _ , ⊢C , B⇒*C , A≅C) →
-                                                                             case whnfRed* B⇒*C (ne B-ne) of λ {
-                                                                               PE.refl →
-                                                                             ⊢C , A≅C })
-                                                                        , (λ (⊢B , A≅B) →
-                                                                             _ , B-ne , ⊢B , id ⊢B , A≅B)) ⟩
-    (Γ ⊢ A) × (Γ ⊢ B) × Γ ⊢ A ≅ B                                   □⇔
+    Γ ⊩⟨ l ⟩ A ≡ B                                ⇔⟨ ⊩ne≡⇔ A-ne ⟩
+    (∃ λ C → Neutral C × Γ ⊢ B ⇒* C × Γ ⊢ A ≅ C)  ⇔⟨ (λ (_ , _ , B⇒*C , A≅C) →
+                                                        case whnfRed* B⇒*C (ne B-ne) of λ {
+                                                          PE.refl →
+                                                        A≅C })
+                                                   , (λ A≅B → _ , B-ne , id (wf-⊢≡ (≅-eq A≅B) .proj₂) , A≅B)
+                                                   ⟩
+    Γ ⊢ A ≅ B                                     □⇔
 
 opaque
-  unfolding _⊩⟨_⟩_≡_∷_ ⊩ne⇔
+  unfolding _⊩⟨_⟩_≡_∷_ ⊩ne⇔ neu
 
   -- A characterisation lemma for _⊩⟨_⟩_≡_∷_.
 
   ⊩≡∷ne⇔ :
     Neutral A →
     Γ ⊩⟨ l ⟩ t₁ ≡ t₂ ∷ A ⇔
-    (Γ ⊩⟨ l ⟩ A ×
+    (Γ ⊢≅ A ×
      ∃₂ λ u₁ u₂ →
      Γ ⊢ t₁ :⇒*: u₁ ∷ A × Γ ⊢ t₂ :⇒*: u₂ ∷ A ×
      Γ ⊩neNf u₁ ≡ u₂ ∷ A)
-  ⊩≡∷ne⇔ {A} A-ne =
+  ⊩≡∷ne⇔ {A} {l} A-ne =
       (λ (⊩A , _ , _ , t₁≡t₂) →
          case ne-elim A-ne ⊩A of λ
            ⊩A′ →
-         ⊩A , lemma ⊩A′ (irrelevanceEqTerm ⊩A (ne-intr ⊩A′) t₁≡t₂))
-    , (λ (⊩A , u₁ , u₂ , t₁⇒*u₁ , t₂⇒*u₂ ,
+         ⊩ne⇔ A-ne .proj₁ ⊩A ,
+         lemma ⊩A′ (irrelevanceEqTerm ⊩A (ne-intr ⊩A′) t₁≡t₂))
+    , (λ (≅A , u₁ , u₂ , t₁⇒*u₁ , t₂⇒*u₂ ,
           u₁≡u₂@(neNfₜ₌ u₁-ne u₂-ne u₁~u₂)) →
-         let ⊩A′ = ⊩ne⇔ A-ne .proj₂ (⊩ne⇔ A-ne .proj₁ ⊩A) in
+         let ⊩A′ = ⊩ne⇔ A-ne .proj₂ ≅A in
            ⊩A′
-         , ⊩∷→⊩∷/ ⊩A′
+         , ⊩∷→⊩∷/ {l′ = l} ⊩A′
              (⊩∷ne⇔ A-ne .proj₂
-                ( ⊩A , u₁ , t₁⇒*u₁ , u₁-ne
+                ( ≅A , u₁ , t₁⇒*u₁ , u₁-ne
                 , ~-trans u₁~u₂ (~-sym u₁~u₂)
                 ))
-         , ⊩∷→⊩∷/ ⊩A′
+         , ⊩∷→⊩∷/ {l′ = l} ⊩A′
              (⊩∷ne⇔ A-ne .proj₂
-                ( ⊩A , u₂ , t₂⇒*u₂ , u₂-ne
+                ( ≅A , u₂ , t₂⇒*u₂ , u₂-ne
                 , ~-trans (~-sym u₁~u₂) u₁~u₂
                 ))
          , neₜ₌ u₁ u₂ t₁⇒*u₁ t₂⇒*u₂ u₁≡u₂)
     where
     lemma :
-      (⊩A : Γ ⊩⟨ l ⟩ne A) →
+      ∀ {l} (⊩A : Γ ⊩⟨ l ⟩ne A) →
       Γ ⊩⟨ l ⟩ t₁ ≡ t₂ ∷ A / ne-intr ⊩A →
       ∃₂ λ u₁ u₂ →
       Γ ⊢ t₁ :⇒*: u₁ ∷ A × Γ ⊢ t₂ :⇒*: u₂ ∷ A ×

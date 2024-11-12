@@ -84,7 +84,7 @@ opaque
          case PE.subst (λ B → _ ⊩⟨ _ ⟩ B ≡ B) (wkSingleSubstId _) $
               rest step-id .proj₂ $
               refl-⊩≡∷ $
-              neutral-⊩∷ (W.wk step-id ⊩A) (var _) ⊢x0 (~-var ⊢x0) of λ
+              neutral-⊩∷ (W.wk step-id ⊩A) (var _) (~-var ⊢x0) of λ
            B≡B →
          case escape $ wf-⊩≡ B≡B .proj₁ of λ
            ⊢B →
@@ -265,7 +265,7 @@ opaque
       case PE.subst₂ (_⊩⟨_⟩_≡_ _ _) {y = B₁} {v = B₂}
              (wkSingleSubstId _) (wkSingleSubstId _) $
            rest step-id .proj₂ $
-           neutral-⊩∷ (W.wk step-id (wf-⊩≡ A₁≡A₂ .proj₁)) (var _) ⊢x0
+           neutral-⊩∷ (W.wk step-id (wf-⊩≡ A₁≡A₂ .proj₁)) (var _)
              (~-var ⊢x0) of λ
         B₁≡B₂ →
       _ ⊩⟨ _ ⟩ _ ≡ _ / Bᵣ _ ⊩ΠΣ₁ ∋

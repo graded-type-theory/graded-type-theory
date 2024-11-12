@@ -580,10 +580,6 @@ opaque
       ΣAB[σ₁]≡ΣAB[σ₂] →
     case ⊩ΠΣ→ (wf-⊩≡ ΣAB[σ₁]≡ΣAB[σ₂] .proj₁) of λ
       (ok , _ , _) →
-    case escape-⊩ $ ⊩ᵛ→⊩ˢ∷→⊩[⇑] ⊩C₁ ⊩σ₁ of λ
-      ⊢C₁[σ₁⇑] →
-    case escape-⊩ $ ⊩ᵛ→⊩ˢ∷→⊩[⇑] ⊩C₂ ⊩σ₂ of λ
-      ⊢C₂[σ₂⇑] →
     case ⊩ᵛ≡∷⇔ .proj₁ t₁≡t₂ .proj₂ σ₁≡σ₂ of λ
       t₁[σ₁]≡t₂[σ₂] →
     case wf-⊩≡∷ t₁[σ₁]≡t₂[σ₂] of λ
@@ -643,15 +639,15 @@ opaque
                   ⊩v₂₂ of λ
              ⊩v₂₂ →
 
-           prodrec r p q (C₁ [ σ₁ ⇑ ]) (prodʷ p v₁₁ v₁₂) (u₁ [ σ₁ ⇑ ⇑ ])  ⇒⟨ prodrec-β ⊢C₁[σ₁⇑] (escape-⊩∷ ⊩v₁₁) (escape-⊩∷ ⊩v₁₂) ⊢u₁[σ₁⇑⇑]
-                                                                               PE.refl ok ⟩⊩∷
+           prodrec r p q (C₁ [ σ₁ ⇑ ]) (prodʷ p v₁₁ v₁₂) (u₁ [ σ₁ ⇑ ⇑ ])  ⇒⟨ prodrec-β (escape-⊩ $ ⊩ᵛ→⊩ˢ∷→⊩[⇑] ⊩C₁ ⊩σ₁) (escape-⊩∷ ⊩v₁₁)
+                                                                               (escape-⊩∷ ⊩v₁₂) ⊢u₁[σ₁⇑⇑] PE.refl ok ⟩⊩∷
            u₁ [ σ₁ ⇑ ⇑ ] [ v₁₁ , v₁₂ ]₁₀ ∷ C₁ [ σ₁ ⇑ ] [ v₁ ]₀            ≡⟨ level-⊩≡∷ ⊩C₁[σ₁⇑][v₁] $
                                                                              PE.subst (_⊩⟨_⟩_≡_∷_ _ _ _ _) ([1,0]↑²[⇑⇑][]₁₀≡[⇑][,]₀ C₁) $
                                                                              ⊩ᵛ≡∷→⊩ˢ≡∷→⊩≡∷→⊩≡∷→⊩[⇑⇑][]₁₀≡[⇑⇑][]₁₀∷
                                                                                u₁≡u₂ σ₁≡σ₂ v₁₁≡v₂₁ v₁₂≡v₂₂ ⟩⊩∷∷⇐*
                                                                            ⟨ C₁[σ₁⇑][v₁]≡C₂[σ₂⇑][v₂] ⟩⇒
-           u₂ [ σ₂ ⇑ ⇑ ] [ v₂₁ , v₂₂ ]₁₀ ∷ C₂ [ σ₂ ⇑ ] [ v₂ ]₀            ⇐⟨ prodrec-β ⊢C₂[σ₂⇑] (escape-⊩∷ ⊩v₂₁) (escape-⊩∷ ⊩v₂₂) ⊢u₂[σ₂⇑⇑]
-                                                                               PE.refl ok
+           u₂ [ σ₂ ⇑ ⇑ ] [ v₂₁ , v₂₂ ]₁₀ ∷ C₂ [ σ₂ ⇑ ] [ v₂ ]₀            ⇐⟨ prodrec-β (escape-⊩ $ ⊩ᵛ→⊩ˢ∷→⊩[⇑] ⊩C₂ ⊩σ₂) (escape-⊩∷ ⊩v₂₁)
+                                                                               (escape-⊩∷ ⊩v₂₂) ⊢u₂[σ₂⇑⇑] PE.refl ok
                                                                            , escape-⊩∷ $
                                                                              PE.subst (_⊩⟨_⟩_∷_ _ _ _) ([1,0]↑²[⇑⇑][]₁₀≡[⇑][,]₀ C₂) $
                                                                              ⊩ᵛ∷→⊩ˢ∷→⊩∷→⊩∷→⊩[⇑⇑][]₁₀∷ ⊩u₂ ⊩σ₂ ⊩v₂₁ ⊩v₂₂
@@ -659,11 +655,7 @@ opaque
            prodrec r p q (C₂ [ σ₂ ⇑ ]) (prodʷ p v₂₁ v₂₂) (u₂ [ σ₂ ⇑ ⇑ ])  ∎
 
          (ne v₁-ne v₂-ne v₁~v₂) →
-           neutral-⊩≡∷ ⊩C₁[σ₁⇑][v₁] (prodrecₙ v₁-ne) (prodrecₙ v₂-ne)
-             (prodrecⱼ ⊢C₁[σ₁⇑] (⊢u-redₜ t₁[σ₁]⇒*v₁) ⊢u₁[σ₁⇑⇑] ok)
-             (conv
-                (prodrecⱼ ⊢C₂[σ₂⇑] (⊢u-redₜ t₂[σ₂]⇒*v₂) ⊢u₂[σ₂⇑⇑] ok)
-                (sym C₁[σ₁⇑][v₁]≡C₂[σ₂⇑][v₂])) $
+           neutral-⊩≡∷ ⊩C₁[σ₁⇑][v₁] (prodrecₙ v₁-ne) (prodrecₙ v₂-ne) $
            ~-prodrec (escape-⊩≡ $ ⊩ᵛ≡→⊩ˢ≡∷→⊩[⇑]≡[⇑] C₁≡C₂ σ₁≡σ₂) v₁~v₂
              (escape-⊩≡∷ u₁[σ₁⇑⇑]≡u₂[σ₂⇑⇑]) ok)
     of λ

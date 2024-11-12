@@ -439,8 +439,7 @@ opaque
         unitrec l p q A₂ t₂ u₂ [ σ₂ ]                             ∎
 
       (_ , ok , _ , _ ,
-       Unitₜ₌ʷ t₁′ t₂′ t₁[σ₁]⇒*t₁′@([ _ , ⊢t₁′ , _ ])
-         t₂[σ₂]⇒*t₂′@([ _ , ⊢t₂′ , _ ]) _ rest no-η) →
+       Unitₜ₌ʷ t₁′ t₂′ t₁[σ₁]⇒*t₁′ t₂[σ₂]⇒*t₂′ _ rest no-η) →
         case PE.subst (_⊢_⇒*_∷_ _ _ _)
                (PE.sym $ singleSubstLift A₁ t₁) $
              unitrec-subst* {p = p} {q = q} ⊩A₁ ⊩σ₁ ⊩t₁[σ₁]
@@ -477,11 +476,6 @@ opaque
             unitrec l p q A₂ t₂        u₂ [ σ₂ ]                             ∎
 
           (ne (neNfₜ₌ t₁′-ne t₂′-ne t₁′~t₂′)) →
-            case ≅-eq $ escape-⊩≡ $
-                 ⊩ᵛ≡→⊩ˢ≡∷→⊩≡∷→⊩[⇑][]₀≡[⇑][]₀ A₁≡A₂ σ₁≡σ₂ $
-                 neutral-⊩≡∷ (⊩ᵛ→⊩ˢ∷→⊩[] ⊩Unit ⊩σ₁)
-                   t₁′-ne t₂′-ne ⊢t₁′ ⊢t₂′ t₁′~t₂′ of λ
-              ⊢A₁[σ₁⇑][t₁′]₀≡A₂[σ₂⇑][t₂′]₀ →
             Δ ⊩⟨ l′ ⟩
               unitrec l p q (A₁ [ σ₁ ⇑ ]) (t₁ [ σ₁ ]) (u₁ [ σ₁ ]) ≡
               unitrec l p q (A₂ [ σ₂ ⇑ ]) (t₂ [ σ₂ ]) (u₂ [ σ₂ ]) ∷
@@ -492,14 +486,14 @@ opaque
              unitrec l p q (A₁ [ σ₁ ⇑ ]) t₁′         (u₁ [ σ₁ ])
                ∷ A₁ [ σ₁ ⇑ ] [ t₁′ ]₀                             ≡⟨ neutral-⊩≡∷ (wf-⊩≡ A₁[t₁]₀[σ₁]≡A₁[σ₁⇑][t₁′]₀ .proj₂)
                                                                        (unitrecₙ no-η t₁′-ne) (unitrecₙ no-η t₂′-ne)
-                                                                       (unitrecⱼ ⊢A₁[σ₁⇑] ⊢t₁′ ⊢u₁[σ₁] ok)
-                                                                       (conv (unitrecⱼ ⊢A₂[σ₂⇑] ⊢t₂′ ⊢u₂[σ₂] ok)
-                                                                          (sym ⊢A₁[σ₁⇑][t₁′]₀≡A₂[σ₂⇑][t₂′]₀))
                                                                        (~-unitrec (escape-⊩≡ A₁[σ₁⇑]≡A₂[σ₂⇑]) t₁′~t₂′
                                                                           (PE.subst (_⊢_≅_∷_ _ _ _) (singleSubstLift A₁ _) $
                                                                            escape-⊩≡∷ (u₁≡u₂ σ₁≡σ₂))
                                                                           ok no-η) ⟩⊩∷∷⇐*
-                                                                    ⟨ ⊢A₁[σ₁⇑][t₁′]₀≡A₂[σ₂⇑][t₂′]₀ ⟩⇒
+                                                                    ⟨ ≅-eq $ escape-⊩≡ $
+                                                                      ⊩ᵛ≡→⊩ˢ≡∷→⊩≡∷→⊩[⇑][]₀≡[⇑][]₀ A₁≡A₂ σ₁≡σ₂ $
+                                                                      neutral-⊩≡∷ (⊩ᵛ→⊩ˢ∷→⊩[] ⊩Unit ⊩σ₁)
+                                                                        t₁′-ne t₂′-ne t₁′~t₂′ ⟩⇒
                ∷ A₂ [ σ₂ ⇑ ] [ t₂′ ]₀                              ˘⟨ ⊢A₂[t₂]₀[σ₂]≡A₂[σ₂⇑][t₂′]₀ ⟩⇒
 
              unitrec l p q (A₂ [ σ₂ ⇑ ]) t₂′         (u₂ [ σ₂ ])

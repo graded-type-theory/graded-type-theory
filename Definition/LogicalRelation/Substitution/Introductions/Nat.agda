@@ -484,10 +484,6 @@ private opaque
       v₁≡v₁′ →
     case ⊩∷-⇒* v₂⇒*v₂′ ⊩v₂ of λ
       v₂≡v₂′ →
-    case wf-⊩≡∷ v₁≡v₁′ .proj₂ of λ
-      ⊩v₁′ →
-    case wf-⊩≡∷ v₂≡v₂′ .proj₂ of λ
-      ⊩v₂′ →
     case
       v₁′  ≡˘⟨ v₁≡v₁′ ⟩⊩∷
       v₁   ≡⟨ v₁≡v₂ ⟩⊩∷
@@ -504,12 +500,14 @@ private opaque
     -- natrec to v₁′ and v₂′ are equal.
     case
       (λ (hyp : _ ⊩⟨ l ⟩ _ ≡ _ ∷ _) →
-         natrec p q r A₁ t₁ u₁ v₁ ∷ A₁ [ v₁ ]₀    ⇒*⟨ natrec-subst*′ A₁≡A₁ ⊢t₁ ⊢u₁ (redₜ v₁⇒*v₁′) ⊩v₁′ ⟩⊩∷∷
+         natrec p q r A₁ t₁ u₁ v₁ ∷ A₁ [ v₁ ]₀    ⇒*⟨ natrec-subst*′ A₁≡A₁ ⊢t₁ ⊢u₁ (redₜ v₁⇒*v₁′)
+                                                        (wf-⊩≡∷ v₁≡v₁′ .proj₂) ⟩⊩∷∷
                                                     ⟨ A₁≡A₁ v₁≡v₁′ ⟩⊩∷
          natrec p q r A₁ t₁ u₁ v₁′ ∷ A₁ [ v₁′ ]₀  ≡⟨ hyp ⟩⊩∷∷⇐*
                                                    ⟨ ⊢A₁[v₁′]≡A₂[v₂′] ⟩⇒
                                    ∷ A₂ [ v₂′ ]₀  ˘⟨ ≅-eq $ escape-⊩≡ $ A₂≡A₂ v₂≡v₂′ ⟩⇐
-         natrec p q r A₂ t₂ u₂ v₂′ ∷ A₂ [ v₂ ]₀   ⇐*⟨ natrec-subst*′ A₂≡A₂ ⊢t₂ ⊢u₂ (redₜ v₂⇒*v₂′) ⊩v₂′ ⟩∎∷
+         natrec p q r A₂ t₂ u₂ v₂′ ∷ A₂ [ v₂ ]₀   ⇐*⟨ natrec-subst*′ A₂≡A₂ ⊢t₂ ⊢u₂ (redₜ v₂⇒*v₂′)
+                                                        (wf-⊩≡∷ v₂≡v₂′ .proj₂) ⟩∎∷
          natrec p q r A₂ t₂ u₂ v₂                 ∎)
     of λ
       lemma →
@@ -521,10 +519,7 @@ private opaque
          -- to v₁′ and v₂′ are equal neutral terms.
          (ne (neNfₜ₌ v₁′-ne v₂′-ne v₁′~v₂′)) →
            neutral-⊩≡∷ (wf-⊩≡ A₁[v₁′]≡A₂[v₂′] .proj₁)
-             (natrecₙ v₁′-ne) (natrecₙ v₂′-ne)
-             (natrecⱼ ⊢t₁ ⊢u₁ (escape-⊩∷ ⊩v₁′))
-             (conv (natrecⱼ ⊢t₂ ⊢u₂ (escape-⊩∷ ⊩v₂′))
-                (sym ⊢A₁[v₁′]≡A₂[v₂′])) $
+             (natrecₙ v₁′-ne) (natrecₙ v₂′-ne) $
            ~-natrec A₁≅A₂ (escape-⊩≡∷ t₁≡t₂) u₁≅u₂ v₁′~v₂′
 
          -- If v₁′ and v₂′ are both zero, then one can conclude by

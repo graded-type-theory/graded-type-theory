@@ -22,6 +22,7 @@ open import Definition.Untyped.Properties M
 open import Definition.Typed R
 open import Definition.Typed.Properties R
 import Definition.Typed.Weakening R as Wk
+open import Definition.Typed.Well-formed R
 open import Definition.LogicalRelation R
 open import Definition.LogicalRelation.ShapeView R
 open import Definition.LogicalRelation.Irrelevance R
@@ -39,338 +40,287 @@ private
   variable
     m : Nat
     Γ : Con Term m
+    A B n n′ : Term _
+    l : Universe-level
 
--- Neutral reflexive types are reducible.
-neu : ∀ {l A} (neA : Neutral A)
-    → Γ ⊢ A
-    → Γ ⊢≅ A
-    → Γ ⊩⟨ l ⟩ A
-neu neA A A~A = ne′ _ (idRed:*: A) neA A~A
+opaque
 
-  -- Helper function for reducible neutral equality of a specific type of derivation.
-neuEq′ : ∀ {l A B} ([A] : Γ ⊩⟨ l ⟩ne A)
-         (neA : Neutral A)
-         (neB : Neutral B)
-       → Γ ⊢ B
-       → Γ ⊢ A ≅ B
-       → Γ ⊩⟨ l ⟩ A ≡ B / ne-intr [A]
-neuEq′ (noemb (ne _ [ ⊢A , ⊢B , D ] neK K≡K)) neA neB B A~B =
-  let A≡K = whnfRed* D (ne neA)
-  in  ne₌ _ (idRed:*: B) neB (PE.subst (λ x → _ ⊢ x ≅ _) A≡K A~B)
-neuEq′ (emb ≤ᵘ-refl x) neB A:≡:B = neuEq′ x neB A:≡:B
-neuEq′ (emb (≤ᵘ-step p) x) neB A:≡:B = neuEq′ (emb p x) neB A:≡:B
+  -- Neutral reflexive types are reducible.
 
--- Neutrally equal types are of reducible equality.
-neuEq : ∀ {l A B} ([A] : Γ ⊩⟨ l ⟩ A)
-        (neA : Neutral A)
-        (neB : Neutral B)
-      → Γ ⊢ B
-      → Γ ⊢ A ≅ B
-      → Γ ⊩⟨ l ⟩ A ≡ B / [A]
-neuEq [A] neA neB B A~B =
-  irrelevanceEq (ne-intr (ne-elim neA [A]))
-                [A]
-                (neuEq′ (ne-elim neA [A]) neA neB B A~B)
+  neu : Neutral A → Γ ⊢≅ A → Γ ⊩⟨ l ⟩ A
+  neu neA ≅A = ne′ _ (idRed:*: (wf-⊢≡ (≅-eq ≅A) .proj₁)) neA ≅A
 
-mutual
+opaque
+
+  -- Neutrally equal types are of reducible equality.
+
+  neuEq :
+    (⊩A : Γ ⊩⟨ l ⟩ A) → Neutral A → Neutral B → Γ ⊢ A ≅ B →
+    Γ ⊩⟨ l ⟩ A ≡ B / ⊩A
+  neuEq {Γ} {A} {B} [A] neA neB A~B =
+    irrelevanceEq (ne-intr (ne-elim neA [A])) [A]
+      (neuEq′ (ne-elim neA [A]))
+    where
+    neuEq′ :
+      (⊩A : Γ ⊩⟨ l ⟩ne A) →
+      Γ ⊩⟨ l ⟩ A ≡ B / ne-intr ⊩A
+    neuEq′ (noemb (ne _ [ ⊢A , ⊢B , D ] neK K≡K)) =
+      let A≡K = whnfRed* D (ne neA) in
+      ne₌ _ (idRed:*: (wf-⊢≡ (≅-eq A~B) .proj₂)) neB
+        (PE.subst (λ x → _ ⊢ x ≅ _) A≡K A~B)
+    neuEq′ (emb ≤ᵘ-refl x) = neuEq′ x
+    neuEq′ (emb (≤ᵘ-step p) x) = neuEq′ (emb p x)
+
+opaque mutual
 
   -- Neutral reflexive terms are reducible.
-  neuTerm : ∀ {l A n} ([A] : Γ ⊩⟨ l ⟩ A) (neN : Neutral n)
-          → Γ ⊢ n ∷ A
-          → Γ ⊢~ n ∷ A
-          → Γ ⊩⟨ l ⟩ n ∷ A / [A]
-  neuTerm (Uᵣ′ l ≤ᵘ-refl [ ⊢A , ⊢B , D ]) neN n n~n =
-    let A≡U  = subset* D
-        n≡n  = ~-to-≅ₜ (~-conv n~n A≡U)
-    in Uₜ _ (idRedTerm:*: (conv n A≡U)) (ne neN) n≡n
-      (neu neN (univ (conv n A≡U)) (~-to-≅ (~-conv n~n A≡U)))
-  neuTerm (Uᵣ′ _ (≤ᵘ-step p) A⇒*U) n-ne ⊢n n~n =
-    irrelevanceTerm (Uᵣ′ _ p A⇒*U) (Uᵣ′ _ (≤ᵘ-step p) A⇒*U)
-      (neuTerm (Uᵣ′ _ p A⇒*U) n-ne ⊢n n~n)
-  neuTerm (ℕᵣ [ ⊢A , ⊢B , D ]) neN n n~n =
-    let A≡ℕ  = subset* D
-        n~n′ = ~-conv n~n A≡ℕ
-        n≡n  = ~-to-≅ₜ n~n′
-    in  ℕₜ _ (idRedTerm:*: (conv n A≡ℕ)) n≡n (ne (neNfₜ neN (conv n A≡ℕ) n~n′))
-  neuTerm (Emptyᵣ [ ⊢A , ⊢B , D ]) neN n n~n =
-    let A≡Empty  = subset* D
-        n~n′ = ~-conv n~n A≡Empty
-        n≡n  = ~-to-≅ₜ n~n′
-    in  Emptyₜ _ (idRedTerm:*: (conv n A≡Empty)) n≡n (ne (neNfₜ neN (conv n A≡Empty) n~n′))
-  neuTerm (Unitᵣ (Unitₜ [ ⊢A , ⊢B , D ] _)) neN n n~n =
-    let A≡Unit  = subset* D
-        n~n′ = ~-conv n~n A≡Unit
-        n≡n′ = ~-to-≅ₜ n~n′
-    in  Unitₜ _ (idRedTerm:*: (conv n A≡Unit)) n≡n′
-              (ne (neNfₜ neN (conv n A≡Unit) n~n′))
-  neuTerm (ne′ _ [ ⊢A , ⊢B , D ] neK K≡K) neN n n~n =
-    let A≡K = subset* D
-    in  neₜ _ (idRedTerm:*: (conv n A≡K)) (neNfₜ neN (conv n A≡K)
-            (~-conv n~n A≡K))
-  neuTerm (Πᵣ′ F G D ⊢F ⊢G A≡A [F] [G] G-ext ok) neN n n~n =
-    let A≡ΠFG = subset* (red D)
-    in  Πₜ _ (idRedTerm:*: (conv n A≡ΠFG)) (ne neN) (~-to-≅ₜ (~-conv n~n A≡ΠFG))
-           (λ {_} {ρ} [ρ] [a] [b] [a≡b] →
-              let A≡ΠFG = subset* (red D)
-                  ρA≡ρΠFG = Wk.wkEq [ρ] (subset* (red D))
-                  G[a]≡G[b] = escapeEq ([G] [ρ] [b])
-                                (symEq ([G] [ρ] [a]) ([G] [ρ] [b])
-                                   (G-ext [ρ] [a] [b] [a≡b]))
-                  a = escapeTerm ([F] [ρ]) [a]
-                  b = escapeTerm ([F] [ρ]) [b]
-                  a≡b = escapeTermEq ([F] [ρ]) [a≡b]
-                  ⊢ρF = Wk.wk [ρ] ⊢F
-                  ⊢ρG = Wk.wk (Wk.liftʷʷ [ρ] ⊢ρF) ⊢G
-                  A≡ΠFG₁ = trans A≡ΠFG
-                             (ΠΣ-cong (refl ⊢F) (refl ⊢G) ok)
-                  ρA≡ρΠFG₁ = trans ρA≡ρΠFG
-                               (ΠΣ-cong (refl ⊢ρF) (refl ⊢ρG) ok)
-                  ρA≡ρΠFG₂ = trans ρA≡ρΠFG
-                               (ΠΣ-cong (refl ⊢ρF) (refl ⊢ρG) ok)
-                  ρn₁ = conv (Wk.wkTerm [ρ] n) ρA≡ρΠFG₁
-                  ρn₂ = conv (Wk.wkTerm [ρ] n) ρA≡ρΠFG₂
-                  neN∘a = ∘ₙ (wkNeutral ρ neN)
-                  neN∘b = ∘ₙ (wkNeutral ρ neN)
-              in  neuEqTerm ([G] [ρ] [a]) neN∘a neN∘b
-                            (ρn₁ ∘ⱼ a) (conv (ρn₂ ∘ⱼ b) (≅-eq G[a]≡G[b]))
-                            (~-app (~-wk [ρ] (~-conv n~n A≡ΠFG₁))
-                                   a≡b))
 
-           (λ {_} {ρ} [ρ] [a] →
-              let ρA≡ρΠFG = Wk.wkEq [ρ] (subset* (red D))
-                  a = escapeTerm ([F] [ρ]) [a]
-                  a≡a = escapeTermEq ([F] [ρ])
-                          (reflEqTerm ([F] [ρ]) [a])
-                  ⊢ρF = Wk.wk [ρ] ⊢F
-                  ⊢ρG = Wk.wk (Wk.liftʷʷ [ρ] ⊢ρF) ⊢G
-                  A≡ΠFG′ = trans A≡ΠFG
-                             (ΠΣ-cong (refl ⊢F) (refl ⊢G) ok)
-                  ρA≡ρΠFG′ = trans ρA≡ρΠFG
-                               (ΠΣ-cong (refl ⊢ρF) (refl ⊢ρG) ok)
-               in  neuTerm ([G] [ρ] [a]) (∘ₙ (wkNeutral ρ neN))
-                           (conv (Wk.wkTerm [ρ] n) ρA≡ρΠFG′ ∘ⱼ a)
-                           (~-app (~-wk [ρ] (~-conv n~n A≡ΠFG′)) a≡a))
-  neuTerm (Bᵣ′ (BΣ 𝕤 _ q) F G D ⊢F ⊢G A≡A [F] [G] G-ext _) neN ⊢n n~n =
-    let A≡ΣFG = subset* (red D)
-        ⊢n = conv ⊢n A≡ΣFG
-        n~n = ~-conv n~n A≡ΣFG
-
-        [F] = [F] _
-        [fst] = neuTerm [F] (fstₙ neN)
-                        (PE.subst
-                          (λ x → _ ⊢ fst _ _ ∷ x)
-                          (PE.sym (wk-id F))
-                          (fstⱼ ⊢G ⊢n))
-                        (PE.subst
-                          (λ x → _ ⊢ _ ~ _ ∷ x)
-                          (PE.sym (wk-id F))
-                          (~-fst ⊢G n~n))
-        [Gfst] = [G] _ [fst]
-        [snd] = neuTerm [Gfst] (sndₙ neN)
-                        (PE.subst
-                          (λ x → _ ⊢ snd _ _ ∷ x)
-                          (PE.cong (λ x → x [ fst _ _ ]₀)
-                             (PE.sym (wk-lift-id G)))
-                          (sndⱼ ⊢G ⊢n))
-                        (PE.subst
-                          (λ x → _ ⊢ _ ~ _ ∷ x)
-                          (PE.cong (λ x → x [ fst _ _ ]₀)
-                             (PE.sym (wk-lift-id G)))
-                          (~-snd ⊢G n~n))
-    in  Σₜ _ (idRedTerm:*: ⊢n) (~-to-≅ₜ n~n) (ne neN) ([fst] , [snd])
-  neuTerm (Bᵣ′ (BΣ 𝕨 _ q) F G D ⊢F ⊢G A≡A [F] [G] G-ext _) neN ⊢n n~n =
-    let A≡ΣFG = subset* (red D)
-        ⊢Γ = wf ⊢F
-        ⊢n = conv ⊢n A≡ΣFG
-        n~n = ~-conv n~n A≡ΣFG
-    in  Σₜ _ (idRedTerm:*: ⊢n) (~-to-≅ₜ n~n) (ne neN) n~n
-  neuTerm (Idᵣ ⊩A) n-n ⊢n n~n =
-    case subset* (red ⇒*Id) of λ {
-      A≡Id →
-      _
-    , idRedTerm:*: (conv ⊢n A≡Id)
-    , ne n-n
-    , ~-conv n~n A≡Id }
+  neuTerm :
+    (⊩A : Γ ⊩⟨ l ⟩ A) → Neutral n → Γ ⊢~ n ∷ A →
+    Γ ⊩⟨ l ⟩ n ∷ A / ⊩A
+  neuTerm {Γ} {A} {n} ⊩A n-ne ~n = neuTerm′ ⊩A
     where
-    open _⊩ₗId_ ⊩A
-  neuTerm (emb ≤ᵘ-refl x) neN n = neuTerm x neN n
-  neuTerm (emb (≤ᵘ-step l<) x) neN n = neuTerm (emb l< x) neN n
+    ⊢n : Γ ⊢ n ∷ A
+    ⊢n = wf-⊢≡∷ (≅ₜ-eq (~-to-≅ₜ ~n)) .proj₂ .proj₁
+
+    neuTerm′ : (⊩A : Γ ⊩⟨ l ⟩ A) → Γ ⊩⟨ l ⟩ n ∷ A / ⊩A
+    neuTerm′ (Uᵣ′ l ≤ᵘ-refl [ ⊢A , ⊢B , D ]) =
+      let A≡U  = subset* D
+          n≡n  = ~-to-≅ₜ (~-conv ~n A≡U)
+      in Uₜ _ (idRedTerm:*: (conv ⊢n A≡U)) (ne n-ne) n≡n
+        (neu n-ne (~-to-≅ (~-conv ~n A≡U)))
+    neuTerm′ (Uᵣ′ _ (≤ᵘ-step p) A⇒*U) =
+      irrelevanceTerm (Uᵣ′ _ p A⇒*U) (Uᵣ′ _ (≤ᵘ-step p) A⇒*U)
+        (neuTerm (Uᵣ′ _ p A⇒*U) n-ne ~n)
+    neuTerm′ (ℕᵣ [ ⊢A , ⊢B , D ]) =
+      let A≡ℕ  = subset* D
+          n~n′ = ~-conv ~n A≡ℕ
+          n≡n  = ~-to-≅ₜ n~n′
+      in
+      ℕₜ _ (idRedTerm:*: (conv ⊢n A≡ℕ)) n≡n
+        (ne (neNfₜ n-ne (conv ⊢n A≡ℕ) n~n′))
+    neuTerm′ (Emptyᵣ [ ⊢A , ⊢B , D ]) =
+      let A≡Empty  = subset* D
+          n~n′ = ~-conv ~n A≡Empty
+          n≡n  = ~-to-≅ₜ n~n′
+      in
+      Emptyₜ _ (idRedTerm:*: (conv ⊢n A≡Empty)) n≡n
+        (ne (neNfₜ n-ne (conv ⊢n A≡Empty) n~n′))
+    neuTerm′ (Unitᵣ (Unitₜ [ ⊢A , ⊢B , D ] _)) =
+      let A≡Unit  = subset* D
+          n~n′ = ~-conv ~n A≡Unit
+          n≡n′ = ~-to-≅ₜ n~n′
+      in
+      Unitₜ _ (idRedTerm:*: (conv ⊢n A≡Unit)) n≡n′
+        (ne (neNfₜ n-ne (conv ⊢n A≡Unit) n~n′))
+    neuTerm′ (ne′ _ [ ⊢A , ⊢B , D ] neK K≡K) =
+      let A≡K = subset* D in
+      neₜ _ (idRedTerm:*: (conv ⊢n A≡K))
+        (neNfₜ n-ne (conv ⊢n A≡K) (~-conv ~n A≡K))
+    neuTerm′ (Πᵣ′ F G D ⊢F ⊢G A≡A [F] [G] _ ok) =
+      let A≡ΠFG = subset* (red D) in
+      Πₜ _ (idRedTerm:*: (conv ⊢n A≡ΠFG)) (ne n-ne)
+        (~-to-≅ₜ (~-conv ~n A≡ΠFG))
+        (λ {_} {ρ = ρ} [ρ] [a] [b] [a≡b] →
+           let a≡b = escapeTermEq ([F] [ρ]) [a≡b]
+               A≡ΠFG₁ = trans A≡ΠFG
+                          (ΠΣ-cong (refl ⊢F) (refl ⊢G) ok)
+               neN∘a = ∘ₙ (wkNeutral ρ n-ne)
+               neN∘b = ∘ₙ (wkNeutral ρ n-ne)
+           in  neuEqTerm ([G] [ρ] [a]) neN∘a neN∘b
+                  (~-app (~-wk [ρ] (~-conv ~n A≡ΠFG₁)) a≡b))
+
+        (λ {_} {ρ = ρ} [ρ] [a] →
+           let a≡a = escapeTermEq ([F] [ρ])
+                       (reflEqTerm ([F] [ρ]) [a])
+               A≡ΠFG′ = trans A≡ΠFG
+                          (ΠΣ-cong (refl ⊢F) (refl ⊢G) ok)
+            in  neuTerm ([G] [ρ] [a]) (∘ₙ (wkNeutral ρ n-ne))
+                  (~-app (~-wk [ρ] (~-conv ~n A≡ΠFG′)) a≡a))
+    neuTerm′ (Bᵣ′ (BΣ 𝕤 _ q) F G D ⊢F ⊢G A≡A [F] [G] G-ext _) =
+      let A≡ΣFG = subset* (red D)
+          ⊢n = conv ⊢n A≡ΣFG
+          ~n = ~-conv ~n A≡ΣFG
+
+          [F] = [F] _
+          [fst] = neuTerm [F] (fstₙ n-ne)
+                    (PE.subst (_⊢_~_∷_ _ _ _) (PE.sym (wk-id F))
+                       (~-fst ⊢G ~n))
+          [Gfst] = [G] _ [fst]
+          [snd] = neuTerm [Gfst] (sndₙ n-ne)
+                    (PE.subst (_⊢_~_∷_ _ _ _)
+                       (PE.cong (λ x → x [ fst _ _ ]₀)
+                          (PE.sym (wk-lift-id G)))
+                       (~-snd ⊢G ~n))
+      in
+      Σₜ _ (idRedTerm:*: ⊢n) (~-to-≅ₜ ~n) (ne n-ne) ([fst] , [snd])
+    neuTerm′ (Bᵣ′ (BΣ 𝕨 _ q) F G D ⊢F ⊢G A≡A [F] [G] G-ext _) =
+      let A≡ΣFG = subset* (red D)
+          ⊢Γ = wf ⊢F
+          ⊢n = conv ⊢n A≡ΣFG
+          ~n = ~-conv ~n A≡ΣFG
+      in
+      Σₜ _ (idRedTerm:*: ⊢n) (~-to-≅ₜ ~n) (ne n-ne) ~n
+    neuTerm′ (Idᵣ ⊩A) =
+      case subset* (red ⇒*Id) of λ {
+        A≡Id →
+        _
+      , idRedTerm:*: (conv ⊢n A≡Id)
+      , ne n-ne
+      , ~-conv ~n A≡Id }
+      where
+      open _⊩ₗId_ ⊩A
+    neuTerm′ (emb ≤ᵘ-refl x) = neuTerm′ x
+    neuTerm′ (emb (≤ᵘ-step l<) x) = neuTerm′ (emb l< x)
 
   -- Neutrally equal terms are of reducible equality.
-  neuEqTerm : ∀ {l A n n′} ([A] : Γ ⊩⟨ l ⟩ A)
-              (neN : Neutral n) (neN′ : Neutral n′)
-            → Γ ⊢ n  ∷ A
-            → Γ ⊢ n′ ∷ A
-            → Γ ⊢ n ~ n′ ∷ A
-            → Γ ⊩⟨ l ⟩ n ≡ n′ ∷ A / [A]
-  neuEqTerm (Uᵣ′ l ≤ᵘ-refl [ ⊢A , ⊢B , D ]) neN neN′ n n′ n~n′ =
-    let A≡U = subset* D
-        n~n′₁ = ~-conv n~n′ A≡U
-        n≡n′ = ~-to-≅ₜ n~n′₁
-        nU = univ (conv n A≡U)
-        nU′ = univ (conv n′ A≡U)
-        wfn = neu neN nU (~-to-≅ (~-trans n~n′₁ (~-sym n~n′₁)))
-    in Uₜ₌ _ _ (idRedTerm:*: (conv n A≡U)) (idRedTerm:*: (conv n′ A≡U)) (ne neN) (ne neN′) n≡n′
-      wfn (neu neN′ nU′ (~-to-≅ (~-trans (~-sym n~n′₁) n~n′₁)))
-      (neuEq wfn neN neN′ nU′ (≅-univ n≡n′))
-  neuEqTerm (Uᵣ′ _ (≤ᵘ-step p) A⇒*U) n-ne n′-ne ⊢n ⊢n′ n~n′ =
-    irrelevanceEqTerm (Uᵣ′ _ p A⇒*U) (Uᵣ′ _ (≤ᵘ-step p) A⇒*U)
-      (neuEqTerm (Uᵣ′ _ p A⇒*U) n-ne n′-ne ⊢n ⊢n′ n~n′)
-  neuEqTerm (ℕᵣ [ ⊢A , ⊢B , D ]) neN neN′ n n′ n~n′ =
-    let A≡ℕ = subset* D
-        n~n′₁ = ~-conv n~n′ A≡ℕ
-        n≡n′ = ~-to-≅ₜ n~n′₁
-    in  ℕₜ₌ _ _ (idRedTerm:*: (conv n A≡ℕ)) (idRedTerm:*: (conv n′ A≡ℕ))
-            n≡n′ (ne (neNfₜ₌ neN neN′ n~n′₁))
-  neuEqTerm (Emptyᵣ [ ⊢A , ⊢B , D ]) neN neN′ n n′ n~n′ =
-    let A≡Empty = subset* D
-        n~n′₁ = ~-conv n~n′ A≡Empty
-        n≡n′ = ~-to-≅ₜ n~n′₁
-    in  Emptyₜ₌ _ _ (idRedTerm:*: (conv n A≡Empty)) (idRedTerm:*: (conv n′ A≡Empty))
-            n≡n′ (ne (neNfₜ₌ neN neN′ n~n′₁))
-  neuEqTerm (Unitᵣ {s} (Unitₜ [ ⊢A , ⊢B , D ] _)) neN neN′ n n′ n~n′ =
-    let A≡Unit = subset* D
-        n~n′₁ = ~-conv n~n′ A≡Unit
-        n≡n′ = ~-to-≅ₜ n~n′₁
-    in  case Unit-with-η? s of
-          ⊎.[ Unitₜ₌ˢ (conv n A≡Unit) (conv n′ A≡Unit)
-            , (λ where
-                 (PE.refl , no-η) →
-                   Unitₜ₌ʷ _ _ (idRedTerm:*: (conv n A≡Unit))
-                     (idRedTerm:*: (conv n′ A≡Unit)) n≡n′
-                     (ne (neNfₜ₌ neN neN′ n~n′₁)) no-η)
-            ]
-  neuEqTerm (ne (ne _ [ ⊢A , ⊢B , D ] neK K≡K)) neN neN′ n n′ n~n′ =
-    let A≡K = subset* D
-    in  neₜ₌ _ _ (idRedTerm:*: (conv n A≡K)) (idRedTerm:*: (conv n′ A≡K))
-             (neNfₜ₌ neN neN′ (~-conv n~n′ A≡K))
-  neuEqTerm
-    (Πᵣ′ F G [ ⊢A , ⊢B , D ] ⊢F ⊢G A≡A [F] [G] G-ext ok)
-    neN neN′ n n′ n~n′ =
-    let [ΠFG] = Πᵣ′ F G [ ⊢A , ⊢B , D ] ⊢F ⊢G A≡A [F] [G] G-ext ok
-        A≡ΠFG = subset* D
-        n~n′₁ = ~-conv n~n′ A≡ΠFG
-        n≡n′ = ~-to-≅ₜ n~n′₁
-        n~n = ~-trans n~n′ (~-sym n~n′)
-        n′~n′ = ~-trans (~-sym n~n′) n~n′
-    in  Πₜ₌ _ _ (idRedTerm:*: (conv n A≡ΠFG)) (idRedTerm:*: (conv n′ A≡ΠFG))
-            (ne neN) (ne neN′) n≡n′
-            (neuTerm [ΠFG] neN n n~n) (neuTerm [ΠFG] neN′ n′ n′~n′)
-            (λ {_} {ρ} [ρ] [a] →
-               let ρA≡ρΠFG = Wk.wkEq [ρ] A≡ΠFG
-                   ρn = Wk.wkTerm [ρ] n
-                   ρn′ = Wk.wkTerm [ρ] n′
-                   a = escapeTerm ([F] [ρ]) [a]
-                   a≡a = escapeTermEq ([F] [ρ])
-                           (reflEqTerm ([F] [ρ]) [a])
-                   neN∙a   = ∘ₙ (wkNeutral ρ neN)
-                   neN′∙a′ = ∘ₙ (wkNeutral ρ neN′)
-                   ⊢ρF = Wk.wk [ρ] ⊢F
-                   ⊢ρG = Wk.wk (Wk.liftʷʷ [ρ] ⊢ρF) ⊢G
-                   ρA≡ρΠp₁FG = trans ρA≡ρΠFG
-                                 (ΠΣ-cong (refl ⊢ρF) (refl ⊢ρG) ok)
-                   ρA≡ρΠp₂FG = trans ρA≡ρΠFG
-                                 (ΠΣ-cong (refl ⊢ρF) (refl ⊢ρG) ok)
-                   ΠpFG≡Πp₁FG = ΠΣ-cong (refl ⊢F) (refl ⊢G) ok
 
-               in  neuEqTerm ([G] [ρ] [a]) neN∙a neN′∙a′
-                     (conv ρn ρA≡ρΠp₁FG ∘ⱼ a)
-                     (conv ρn′ ρA≡ρΠp₂FG ∘ⱼ a)
-                     (~-app (~-wk [ρ] (~-conv n~n′₁ ΠpFG≡Πp₁FG)) a≡a))
-  neuEqTerm
-    [ΣFG]@(Bᵣ′ BΣˢ F G [ ⊢A , ⊢B , D ] ⊢F ⊢G A≡A [F] [G] G-ext _)
-    neN neN′ ⊢n ⊢n′ n~n′ =
-    let A≡ΣFG = subset* D
-        n~n = ~-trans n~n′ (~-sym n~n′)
-        n′~n′ = ~-trans (~-sym n~n′) n~n′
-        ⊢nΣ = conv ⊢n A≡ΣFG
-        ⊢n′Σ = conv ⊢n′ A≡ΣFG
-        n~n′Σ = ~-conv n~n′ A≡ΣFG
-        n~nΣ = ~-conv n~n A≡ΣFG
-        n′~n′Σ = ~-conv n′~n′ A≡ΣFG
-
-        [F] = [F] _
-        ⊢fstnΣ = (PE.subst
-                (λ x → _ ⊢ fst _ _ ∷ x)
-                (PE.sym (wk-id F))
-                (fstⱼ ⊢G ⊢nΣ))
-        ⊢fstn′Σ = (PE.subst
-                    (λ x → _ ⊢ fst _ _ ∷ x)
-                    (PE.sym (wk-id F))
-                    (fstⱼ ⊢G ⊢n′Σ))
-        [fstn] = neuTerm [F] (fstₙ neN)
-                         ⊢fstnΣ
-                         (PE.subst
-                           (λ x → _ ⊢ _ ~ _ ∷ x)
-                           (PE.sym (wk-id F))
-                           (~-fst ⊢G n~nΣ))
-        [fstn′] = neuTerm [F] (fstₙ neN′)
-                          ⊢fstn′Σ
-                          (PE.subst
-                            (λ x → _ ⊢ _ ~ _ ∷ x)
-                            (PE.sym (wk-id F))
-                            (~-fst ⊢G n′~n′Σ))
-        [fstn≡fstn′] = neuEqTerm [F] (fstₙ neN) (fstₙ neN′)
-                         ⊢fstnΣ
-                         ⊢fstn′Σ
-                         (PE.subst
-                           (λ x → _ ⊢ _ ~ _ ∷ x)
-                           (PE.sym (wk-id F))
-                           (~-fst ⊢G n~n′Σ))
-        [Gfstn] = [G] _ [fstn]
-        [Gfstn′] = PE.subst (λ x → _ ⊩⟨ _ ⟩ x [ fst _ _ ]₀)
-                     (wk-lift-id G) ([G] _ [fstn′])
-        [fstn′≡fstn] = symEqTerm [F] [fstn≡fstn′]
-        [Gfstn′≡Gfstn] = irrelevanceEq″
-          (PE.cong (λ x → x [ fst _ _ ]₀) (wk-lift-id G))
-          (PE.cong (λ x → x [ fst _ _ ]₀) (wk-lift-id G))
-          ([G] _ [fstn′]) [Gfstn′]
-          (G-ext _ [fstn′] [fstn] [fstn′≡fstn])
-        Gfstn′≡Gfstn = ≅-eq (escapeEq [Gfstn′] [Gfstn′≡Gfstn])
-        [sndn≡sndn′] = neuEqTerm [Gfstn] (sndₙ neN) (sndₙ neN′)
-          (PE.subst
-             (λ x → _ ⊢ snd _ _ ∷ x)
-             (PE.cong (λ x → x [ fst _ _ ]₀) (PE.sym (wk-lift-id G)))
-             (sndⱼ ⊢G ⊢nΣ))
-          (PE.subst
-             (λ x → _ ⊢ snd _ _ ∷ x)
-             (PE.cong (λ x → x [ fst _ _ ]₀) (PE.sym (wk-lift-id G)))
-             (conv (sndⱼ ⊢G ⊢n′Σ) Gfstn′≡Gfstn))
-          (PE.subst
-             (λ x → _ ⊢ _ ~ _ ∷ x)
-             (PE.cong (λ x → x [ fst _ _ ]₀) (PE.sym (wk-lift-id G)))
-             (~-snd ⊢G n~n′Σ))
-    in  Σₜ₌ _ _ (idRedTerm:*: ⊢nΣ) (idRedTerm:*: ⊢n′Σ)
-            (ne neN) (ne neN′) (~-to-≅ₜ n~n′Σ)
-            (neuTerm [ΣFG] neN ⊢n n~n) (neuTerm [ΣFG] neN′ ⊢n′ n′~n′)
-            ([fstn] , [fstn′] , [fstn≡fstn′] , [sndn≡sndn′])
-  neuEqTerm
-    [ΣFG]@(Bᵣ′ BΣʷ F G [ ⊢A , ⊢B , D ] ⊢F ⊢G A≡A [F] [G] G-ext _)
-    neN neN′ ⊢n ⊢n′ n~n′ =
-    let A≡ΣFG = subset* D
-        n~n = ~-trans n~n′ (~-sym n~n′)
-        n′~n′ = ~-trans (~-sym n~n′) n~n′
-        ⊢nΣ = conv ⊢n A≡ΣFG
-        ⊢n′Σ = conv ⊢n′ A≡ΣFG
-        n~n′Σ = ~-conv n~n′ A≡ΣFG
-        n~nΣ = ~-conv n~n A≡ΣFG
-        n′~n′Σ = ~-conv n′~n′ A≡ΣFG
-    in  Σₜ₌ _ _ (idRedTerm:*: ⊢nΣ) (idRedTerm:*: ⊢n′Σ)
-            (ne neN) (ne neN′) (~-to-≅ₜ n~n′Σ)
-            (neuTerm [ΣFG] neN ⊢n n~n) (neuTerm [ΣFG] neN′ ⊢n′ n′~n′)
-            n~n′Σ
-  neuEqTerm (Idᵣ ⊩A) n-n n′-n ⊢n ⊢n′ n~n′ =
-    case subset* (red ⇒*Id) of λ {
-      A≡Id →
-    case ~-trans n~n′ (~-sym n~n′) of λ {
-      n~n →
-    case ~-trans (~-sym n~n′) n~n′ of λ {
-      n′~n′ →
-    ⊩Id≡∷
-      (neuTerm (Idᵣ ⊩A) n-n ⊢n n~n)
-      (neuTerm (Idᵣ ⊩A) n′-n ⊢n′ n′~n′)
-      (~-conv n~n′ A≡Id) }}}
+  neuEqTerm :
+    (⊩A : Γ ⊩⟨ l ⟩ A) → Neutral n → Neutral n′ → Γ ⊢ n ~ n′ ∷ A →
+    Γ ⊩⟨ l ⟩ n ≡ n′ ∷ A / ⊩A
+  neuEqTerm {Γ} {A} {n} {n′} ⊩A n-ne n′-ne n~n′ = neuEqTerm′ ⊩A
     where
-    open _⊩ₗId_ ⊩A
-  neuEqTerm (emb ≤ᵘ-refl     ⊩A) = neuEqTerm ⊩A
-  neuEqTerm (emb (≤ᵘ-step p) ⊩A) = neuEqTerm (emb p ⊩A)
+    n≡n′ : Γ ⊢ n ≡ n′ ∷ A
+    n≡n′ = ≅ₜ-eq (~-to-≅ₜ n~n′)
+
+    ⊢n : Γ ⊢ n ∷ A
+    ⊢n = wf-⊢≡∷ n≡n′ .proj₂ .proj₁
+
+    ⊢n′ : Γ ⊢ n′ ∷ A
+    ⊢n′ = wf-⊢≡∷ n≡n′ .proj₂ .proj₂
+
+    neuEqTerm′ :
+      (⊩A : Γ ⊩⟨ l ⟩ A) →
+      Γ ⊩⟨ l ⟩ n ≡ n′ ∷ A / ⊩A
+    neuEqTerm′ (Uᵣ′ l ≤ᵘ-refl [ ⊢A , ⊢B , D ]) =
+      let A≡U = subset* D
+          n~n′₁ = ~-conv n~n′ A≡U
+          n≡n′ = ~-to-≅ₜ n~n′₁
+          wfn = neu n-ne (~-to-≅ (~-trans n~n′₁ (~-sym n~n′₁)))
+      in
+      Uₜ₌ _ _ (idRedTerm:*: (conv ⊢n A≡U)) (idRedTerm:*: (conv ⊢n′ A≡U))
+        (ne n-ne) (ne n′-ne) n≡n′ wfn
+        (neu n′-ne (~-to-≅ (~-trans (~-sym n~n′₁) n~n′₁)))
+        (neuEq wfn n-ne n′-ne (≅-univ n≡n′))
+    neuEqTerm′ (Uᵣ′ _ (≤ᵘ-step p) A⇒*U) =
+      irrelevanceEqTerm (Uᵣ′ _ p A⇒*U) (Uᵣ′ _ (≤ᵘ-step p) A⇒*U)
+        (neuEqTerm (Uᵣ′ _ p A⇒*U) n-ne n′-ne n~n′)
+    neuEqTerm′ (ℕᵣ [ ⊢A , ⊢B , D ]) =
+      let A≡ℕ = subset* D
+          n~n′₁ = ~-conv n~n′ A≡ℕ
+          n≡n′ = ~-to-≅ₜ n~n′₁
+      in
+      ℕₜ₌ _ _ (idRedTerm:*: (conv ⊢n A≡ℕ)) (idRedTerm:*: (conv ⊢n′ A≡ℕ))
+        n≡n′ (ne (neNfₜ₌ n-ne n′-ne n~n′₁))
+    neuEqTerm′ (Emptyᵣ [ ⊢A , ⊢B , D ]) =
+      let A≡Empty = subset* D
+          n~n′₁ = ~-conv n~n′ A≡Empty
+          n≡n′ = ~-to-≅ₜ n~n′₁
+      in
+      Emptyₜ₌ _ _ (idRedTerm:*: (conv ⊢n A≡Empty))
+        (idRedTerm:*: (conv ⊢n′ A≡Empty)) n≡n′
+        (ne (neNfₜ₌ n-ne n′-ne n~n′₁))
+    neuEqTerm′ (Unitᵣ {s} (Unitₜ [ ⊢A , ⊢B , D ] _)) =
+      let A≡Unit = subset* D
+          n~n′₁ = ~-conv n~n′ A≡Unit
+          n≡n′ = ~-to-≅ₜ n~n′₁
+      in
+      case Unit-with-η? s of
+        ⊎.[ Unitₜ₌ˢ (conv ⊢n A≡Unit) (conv ⊢n′ A≡Unit)
+          , (λ where
+               (PE.refl , no-η) →
+                 Unitₜ₌ʷ _ _ (idRedTerm:*: (conv ⊢n A≡Unit))
+                   (idRedTerm:*: (conv ⊢n′ A≡Unit)) n≡n′
+                   (ne (neNfₜ₌ n-ne n′-ne n~n′₁)) no-η)
+          ]
+    neuEqTerm′ (ne (ne _ [ ⊢A , ⊢B , D ] neK K≡K)) =
+      let A≡K = subset* D in
+      neₜ₌ _ _ (idRedTerm:*: (conv ⊢n A≡K))
+        (idRedTerm:*: (conv ⊢n′ A≡K))
+        (neNfₜ₌ n-ne n′-ne (~-conv n~n′ A≡K))
+    neuEqTerm′
+      (Πᵣ′ F G [ ⊢A , ⊢B , D ] ⊢F ⊢G A≡A [F] [G] G-ext ok) =
+      let [ΠFG] = Πᵣ′ F G [ ⊢A , ⊢B , D ] ⊢F ⊢G A≡A [F] [G] G-ext ok
+          A≡ΠFG = subset* D
+          n~n′₁ = ~-conv n~n′ A≡ΠFG
+          n≡n′ = ~-to-≅ₜ n~n′₁
+          n~n = ~-trans n~n′ (~-sym n~n′)
+          n′~n′ = ~-trans (~-sym n~n′) n~n′
+      in
+      Πₜ₌ _ _ (idRedTerm:*: (conv ⊢n A≡ΠFG))
+        (idRedTerm:*: (conv ⊢n′ A≡ΠFG))
+        (ne n-ne) (ne n′-ne) n≡n′
+        (neuTerm [ΠFG] n-ne n~n) (neuTerm [ΠFG] n′-ne n′~n′)
+        (λ {_} {ρ = ρ} [ρ] [a] →
+           let a≡a = escapeTermEq ([F] [ρ])
+                       (reflEqTerm ([F] [ρ]) [a])
+               neN∙a   = ∘ₙ (wkNeutral ρ n-ne)
+               neN′∙a′ = ∘ₙ (wkNeutral ρ n′-ne)
+               ΠpFG≡Πp₁FG = ΠΣ-cong (refl ⊢F) (refl ⊢G) ok
+
+           in
+           neuEqTerm ([G] [ρ] [a]) neN∙a neN′∙a′
+             (~-app (~-wk [ρ] (~-conv n~n′₁ ΠpFG≡Πp₁FG)) a≡a))
+    neuEqTerm′
+      [ΣFG]@(Bᵣ′ BΣˢ F G [ ⊢A , ⊢B , D ] ⊢F ⊢G A≡A [F] [G] G-ext _) =
+      let A≡ΣFG = subset* D
+          n~n = ~-trans n~n′ (~-sym n~n′)
+          n′~n′ = ~-trans (~-sym n~n′) n~n′
+          ⊢nΣ = conv ⊢n A≡ΣFG
+          ⊢n′Σ = conv ⊢n′ A≡ΣFG
+          n~n′Σ = ~-conv n~n′ A≡ΣFG
+          n~nΣ = ~-conv n~n A≡ΣFG
+          n′~n′Σ = ~-conv n′~n′ A≡ΣFG
+
+          [F] = [F] _
+          [fstn] = neuTerm [F] (fstₙ n-ne)
+                     (PE.subst (_⊢_~_∷_ _ _ _) (PE.sym (wk-id F))
+                        (~-fst ⊢G n~nΣ))
+          [fstn′] = neuTerm [F] (fstₙ n′-ne)
+                      (PE.subst (_⊢_~_∷_ _ _ _) (PE.sym (wk-id F))
+                         (~-fst ⊢G n′~n′Σ))
+          [fstn≡fstn′] = neuEqTerm [F] (fstₙ n-ne) (fstₙ n′-ne)
+                           (PE.subst
+                             (λ x → _ ⊢ _ ~ _ ∷ x)
+                             (PE.sym (wk-id F))
+                             (~-fst ⊢G n~n′Σ))
+          [Gfstn] = [G] _ [fstn]
+          [sndn≡sndn′] = neuEqTerm [Gfstn] (sndₙ n-ne) (sndₙ n′-ne)
+            (PE.subst
+               (λ x → _ ⊢ _ ~ _ ∷ x)
+               (PE.cong (λ x → x [ fst _ _ ]₀) (PE.sym (wk-lift-id G)))
+               (~-snd ⊢G n~n′Σ))
+      in
+      Σₜ₌ _ _ (idRedTerm:*: ⊢nΣ) (idRedTerm:*: ⊢n′Σ)
+        (ne n-ne) (ne n′-ne) (~-to-≅ₜ n~n′Σ)
+        (neuTerm [ΣFG] n-ne n~n) (neuTerm [ΣFG] n′-ne n′~n′)
+        ([fstn] , [fstn′] , [fstn≡fstn′] , [sndn≡sndn′])
+    neuEqTerm′
+      [ΣFG]@(Bᵣ′ BΣʷ F G [ ⊢A , ⊢B , D ] ⊢F ⊢G A≡A [F] [G] G-ext _) =
+      let A≡ΣFG = subset* D
+          n~n = ~-trans n~n′ (~-sym n~n′)
+          n′~n′ = ~-trans (~-sym n~n′) n~n′
+          ⊢nΣ = conv ⊢n A≡ΣFG
+          ⊢n′Σ = conv ⊢n′ A≡ΣFG
+          n~n′Σ = ~-conv n~n′ A≡ΣFG
+          n~nΣ = ~-conv n~n A≡ΣFG
+          n′~n′Σ = ~-conv n′~n′ A≡ΣFG
+      in
+      Σₜ₌ _ _ (idRedTerm:*: ⊢nΣ) (idRedTerm:*: ⊢n′Σ)
+        (ne n-ne) (ne n′-ne) (~-to-≅ₜ n~n′Σ)
+        (neuTerm [ΣFG] n-ne n~n) (neuTerm [ΣFG] n′-ne n′~n′) n~n′Σ
+    neuEqTerm′ (Idᵣ ⊩A) =
+      case subset* (red ⇒*Id) of λ
+        A≡Id →
+      case ~-trans n~n′ (~-sym n~n′) of λ
+        n~n →
+      case ~-trans (~-sym n~n′) n~n′ of λ
+        n′~n′ →
+      ⊩Id≡∷
+        (neuTerm (Idᵣ ⊩A) n-ne n~n)
+        (neuTerm (Idᵣ ⊩A) n′-ne n′~n′)
+        (~-conv n~n′ A≡Id)
+      where
+      open _⊩ₗId_ ⊩A
+    neuEqTerm′ (emb ≤ᵘ-refl     ⊩A) = neuEqTerm′ ⊩A
+    neuEqTerm′ (emb (≤ᵘ-step p) ⊩A) = neuEqTerm′ (emb p ⊩A)

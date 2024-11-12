@@ -100,7 +100,7 @@ opaque
   ne≡A : Neutral B → Γ ⊢ B ≡ A → Whnf A → Neutral A
   ne≡A {B} {Γ} {A} B-ne B≡A A-whnf =  $⟨ B≡A ⟩
     Γ ⊢ B ≡ A                         →⟨ reducible-⊩≡ ⟩
-    (∃ λ l → Γ ⊩⟨ l ⟩ B ≡ A)          →⟨ Σ.map idᶠ (Σ.map idᶠ (proj₁ ∘→ proj₂)) ∘→ proj₂ ∘→ ⊩ne≡⇔ B-ne .proj₁ ∘→ proj₂ ⟩
+    (∃ λ l → Γ ⊩⟨ l ⟩ B ≡ A)          →⟨ Σ.map idᶠ (Σ.map idᶠ proj₁) ∘→ ⊩ne≡⇔ B-ne .proj₁ ∘→ proj₂ ⟩
     (∃ λ C → Neutral C × Γ ⊢ A ⇒* C)  →⟨ (λ (_ , C-ne , A⇒*C) →
                                             PE.subst Neutral (PE.sym $ whnfRed* A⇒*C A-whnf) C-ne) ⟩
     Neutral A                         □
