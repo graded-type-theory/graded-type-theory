@@ -19,16 +19,15 @@ open Type-restrictions R
 open import Definition.Untyped M hiding (K)
 open import Definition.Untyped.Neutral M type-variant
 open import Definition.Typed R
+open import Definition.Typed.Inversion R
 open import Definition.Typed.Properties R
 open import Definition.LogicalRelation R
 open import Definition.LogicalRelation.Properties.Reflexivity R
 open import Definition.LogicalRelation.Properties.Whnf R
 
-open import Tools.Empty
 open import Tools.Function
 open import Tools.Nat
 open import Tools.Product
-import Tools.PropositionalEquality as PE
 
 private
   variable
@@ -174,74 +173,20 @@ escapeTermEq {Γ = Γ} (Idᵣ ⊩A) t≡u@(_ , _ , t⇒*t′ , u⇒*u′ , _) =
 escapeTermEq (emb ≤ᵘ-refl A) t≡u = escapeTermEq A t≡u
 escapeTermEq (emb (≤ᵘ-step k) A) t≡u = escapeTermEq (emb k A) t≡u
 
--- If a unit type is reducible, then that unit type is allowed.
+opaque
 
-⊩Unit→Unit-allowed :
-  Γ ⊩⟨ l′ ⟩ Unit s l → Unit-allowed s
-⊩Unit→Unit-allowed {Γ = Γ} = λ where
-  (Uᵣ′ l′ l< [ ⊢Unit , _ , D ]) →
-                  $⟨ D , Uₙ ⟩
-    Γ ⊢ Unit! ↘ (U l′)  →⟨ flip whrDet* (id ⊢Unit , Unitₙ) ⟩
-    (U l′) PE.≡ Unit!   →⟨ (case_of λ ()) ⟩
-    Unit-allowed _  □
-  (ℕᵣ [ ⊢Unit , _ , D ]) →
-                  $⟨ D , ℕₙ ⟩
-    Γ ⊢ Unit! ↘ ℕ  →⟨ flip whrDet* (id ⊢Unit , Unitₙ) ⟩
-    ℕ PE.≡ Unit!   →⟨ (case_of λ ()) ⟩
-    Unit-allowed _  □
-  (Emptyᵣ [ ⊢Unit , _ , D ]) →
-                      $⟨ D , Emptyₙ ⟩
-    Γ ⊢ Unit! ↘ Empty  →⟨ flip whrDet* (id ⊢Unit , Unitₙ) ⟩
-    Empty PE.≡ Unit!   →⟨ (case_of λ ()) ⟩
-    Unit-allowed _     □
-  (Unitᵣ (Unitₜ [ _ , _ , D ] ok)) → case whnfRed* D Unitₙ of λ where
-    PE.refl → ok
-  (ne (ne A [ ⊢Unit , _ , D ] neA _)) →
-                  $⟨ D , ne neA ⟩
-    Γ ⊢ Unit! ↘ A  →⟨ whrDet* (id ⊢Unit , Unitₙ) ⟩
-    Unit! PE.≡ A   →⟨ ⊥-elim ∘→ Unit≢ne neA ⟩
-    Unit-allowed _  □
-  (Bᵣ′ b A B [ ⊢Unit , _ , D ] _ _ _ _ _) →
-                            $⟨ D , ⟦ b ⟧ₙ ⟩
-    Γ ⊢ Unit! ↘ ⟦ b ⟧ A ▹ B  →⟨ whrDet* (id ⊢Unit , Unitₙ) ⟩
-    Unit! PE.≡ ⟦ b ⟧ A ▹ B   →⟨ ⊥-elim ∘→ Unit≢B b ⟩
-    Unit-allowed _           □
-  (Idᵣ ⊩A) →
-    let open _⊩ₗId_ ⊩A in
-                              $⟨ red ⇒*Id , Idₙ ⟩
-    Γ ⊢ Unit! ↘ Id Ty lhs rhs  →⟨ whrDet* (id (⊢A-red ⇒*Id) , Unitₙ) ⟩
-    Unit! PE.≡ Id Ty lhs rhs   →⟨ (λ ()) ⟩
-    Unit-allowed _             □
-  (emb ≤ᵘ-refl [Unit]) → ⊩Unit→Unit-allowed [Unit]
-  (emb (≤ᵘ-step k) [Unit]) →  ⊩Unit→Unit-allowed (emb k [Unit])
+  -- If a unit type is reducible, then that unit type is allowed.
 
--- If the type ΠΣ⟨ b ⟩ p , q ▷ A ▹ B is in the logical relation, then
--- it is allowed.
+  ⊩Unit→Unit-allowed :
+    Γ ⊩⟨ l′ ⟩ Unit s l → Unit-allowed s
+  ⊩Unit→Unit-allowed = inversion-Unit ∘→ escape
 
-⊩ΠΣ→ΠΣ-allowed :
-  Γ ⊩⟨ l ⟩ ΠΣ⟨ b ⟩ p , q ▷ A ▹ B →
-  ΠΣ-allowed b p q
-⊩ΠΣ→ΠΣ-allowed {b = b} = λ where
-  (Uᵣ′ l′ l< [ ⊢ΠAB , _ , D ]) →
-     ⊥-elim ( U≢ΠΣ b ( (whrDet* (D , Uₙ) (id ⊢ΠAB , ΠΣₙ))))
-  (ℕᵣ [ ⊢ΠAB , _ , D ]) →
-    ⊥-elim (ℕ≢ΠΣ b (whrDet* (D , ℕₙ) (id ⊢ΠAB , ΠΣₙ)))
-  (Emptyᵣ [ ⊢ΠAB , _ , D ]) →
-    ⊥-elim (Empty≢ΠΣ b (whrDet* (D , Emptyₙ) (id ⊢ΠAB , ΠΣₙ)))
-  (Unitᵣ (Unitₜ [ ⊢ΠAB , _ , D ] _)) →
-    ⊥-elim (Unit≢ΠΣ b (whrDet* (D , Unitₙ) (id ⊢ΠAB , ΠΣₙ)))
-  (ne (ne _ [ ⊢ΠAB , _ , D ] neK _)) →
-    ⊥-elim (ΠΣ≢ne b neK (whrDet* (id ⊢ΠAB , ΠΣₙ) (D , ne neK)))
-  (Bᵣ′ (BM BMΠ _ _) _ _ [ ⊢ΠAB , _ , D ] _ _ _ _ ok) →
-    case whrDet* (id ⊢ΠAB , ΠΣₙ) (D , ΠΣₙ) of λ {
-      PE.refl →
-    ok }
-  (Bᵣ′ (BM (BMΣ _) _ _) _ _ [ ⊢ΠAB , _ , D ] _ _ _ _ ok) →
-    case whrDet* (id ⊢ΠAB , ΠΣₙ) (D , ΠΣₙ) of λ {
-      PE.refl →
-    ok }
-  (Idᵣ ⊩A) →
-    let open _⊩ₗId_ ⊩A in
-    ⊥-elim (Id≢ΠΣ b (whrDet* (red ⇒*Id , Idₙ) (id (⊢A-red ⇒*Id) , ΠΣₙ)))
-  (emb ≤ᵘ-refl [ΠΣ]) →  ⊩ΠΣ→ΠΣ-allowed [ΠΣ]
-  (emb (≤ᵘ-step k) [ΠΣ]) →  ⊩ΠΣ→ΠΣ-allowed (emb k [ΠΣ])
+opaque
+
+  -- If the type ΠΣ⟨ b ⟩ p , q ▷ A ▹ B is in the logical relation, then
+  -- it is allowed.
+
+  ⊩ΠΣ→ΠΣ-allowed :
+    Γ ⊩⟨ l ⟩ ΠΣ⟨ b ⟩ p , q ▷ A ▹ B →
+    ΠΣ-allowed b p q
+  ⊩ΠΣ→ΠΣ-allowed = proj₂ ∘→ proj₂ ∘→ inversion-ΠΣ ∘→ escape
