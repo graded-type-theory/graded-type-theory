@@ -280,80 +280,28 @@ opaque
   -- If t reduces to u, then t is well-typed.
 
   redFirstTerm : Γ ⊢ t ⇒ u ∷ A → Γ ⊢ t ∷ A
-  redFirstTerm (conv t⇒u A≡B) = conv (redFirstTerm t⇒u) A≡B
-  redFirstTerm (app-subst t⇒u a) = redFirstTerm t⇒u ∘ⱼ a
-  redFirstTerm (β-red B t a PE.refl ok) =
-    conv (lamⱼ B t ok) (ΠΣ-cong (refl (⊢∙→⊢ (wf B))) (refl B) ok) ∘ⱼ a
-  redFirstTerm (natrec-subst z s n⇒n′) =
-    natrecⱼ z s (redFirstTerm n⇒n′)
-  redFirstTerm (natrec-zero z s) = natrecⱼ z s (zeroⱼ (wfTerm z))
-  redFirstTerm (natrec-suc z s n) = natrecⱼ z s (sucⱼ n)
-  redFirstTerm (emptyrec-subst A n⇒n′) = emptyrecⱼ A (redFirstTerm n⇒n′)
-  redFirstTerm (fst-subst G x) = fstⱼ G (redFirstTerm x)
-  redFirstTerm (snd-subst G x) = sndⱼ G (redFirstTerm x)
-  redFirstTerm (prodrec-subst A u t⇒t′ ok) =
-    prodrecⱼ A (redFirstTerm t⇒t′) u ok
-  redFirstTerm (prodrec-β A t t′ u PE.refl ok) =
-    let G = ⊢∙→⊢ (wfTerm u)
-        F = ⊢∙→⊢ (wf G)
-    in
-    prodrecⱼ A (conv (prodⱼ G t t′ ok) (ΠΣ-cong (refl F) (refl G) ok)) u
-      ok
-  redFirstTerm (Σ-β₁ G x x₁ PE.refl ok) =
-    fstⱼ G
-      (conv (prodⱼ G x x₁ ok)
-         (ΠΣ-cong (refl (⊢∙→⊢ (wf G))) (refl G) ok))
-  redFirstTerm (Σ-β₂ G x x₁ PE.refl ok) =
-    sndⱼ G
-      (conv (prodⱼ G x x₁ ok)
-         (ΠΣ-cong (refl (⊢∙→⊢ (wf G))) (refl G) ok))
-  redFirstTerm (J-subst ⊢t ⊢B ⊢u ⊢t′ v⇒v′) =
-    Jⱼ ⊢t ⊢B ⊢u ⊢t′ (redFirstTerm v⇒v′)
-  redFirstTerm (K-subst ⊢B ⊢u v⇒v′ ok) =
-    Kⱼ ⊢B ⊢u (redFirstTerm v⇒v′) ok
-  redFirstTerm ([]-cong-subst ⊢A ⊢t ⊢u v⇒v′ ok) =
-    []-congⱼ ⊢A ⊢t ⊢u (redFirstTerm v⇒v′) ok
-  redFirstTerm (J-β ⊢t ⊢t′ t≡t′ ⊢B B≡B ⊢u) =
-    conv (Jⱼ ⊢t ⊢B ⊢u ⊢t′
-            (conv (rflⱼ ⊢t)
-               (Id-cong (refl (⊢∙→⊢ (wf (⊢∙→⊢ (wf ⊢B))))) (refl ⊢t)
-                  t≡t′)))
-      (sym B≡B)
-  redFirstTerm (K-β ⊢B ⊢u ok) =
-    let _ , (⊢t , _) , _ = inversion-Id-⊢ (⊢∙→⊢ (wf ⊢B)) in
-    Kⱼ ⊢B ⊢u (rflⱼ ⊢t) ok
-  redFirstTerm ([]-cong-β ⊢A ⊢t ⊢t′ t≡t′ ok) =
-    []-congⱼ ⊢A ⊢t ⊢t′
-      (conv (rflⱼ ⊢t) (Id-cong (refl ⊢A) (refl ⊢t) t≡t′)) ok
-  redFirstTerm (unitrec-subst A u t⇒t′ ok _) =
-    unitrecⱼ A (redFirstTerm t⇒t′) u ok
-  redFirstTerm (unitrec-β A u ok _) =
-    unitrecⱼ A (starⱼ (wfTerm u) ok) u ok
-  redFirstTerm (unitrec-β-η A t u ok _) =
-    unitrecⱼ A t u ok
+  redFirstTerm = proj₁ ∘→ proj₂ ∘→ wf-⊢≡∷ ∘→ subsetTerm
 
 opaque
 
   -- If A reduces to B, then A is well-formed.
 
   redFirst : Γ ⊢ A ⇒ B → Γ ⊢ A
-  redFirst (univ A⇒B) = univ (redFirstTerm A⇒B)
+  redFirst = proj₁ ∘→ wf-⊢≡ ∘→ subset
 
 opaque
 
   -- If t reduces to u, then t is well-typed.
 
   redFirst*Term : Γ ⊢ t ⇒* u ∷ A → Γ ⊢ t ∷ A
-  redFirst*Term (id t)         = t
-  redFirst*Term (t⇒t′ ⇨ t′⇒*u) = redFirstTerm t⇒t′
+  redFirst*Term = proj₁ ∘→ proj₂ ∘→ wf-⊢≡∷ ∘→ subset*Term
 
 opaque
 
   -- If A reduces to B, then A is well-formed.
 
   redFirst* : Γ ⊢ A ⇒* B → Γ ⊢ A
-  redFirst* (id A)         = A
-  redFirst* (A⇒A′ ⇨ A′⇒*B) = redFirst A⇒A′
+  redFirst* = proj₁ ∘→ wf-⊢≡ ∘→ subset*
 
 opaque
 
