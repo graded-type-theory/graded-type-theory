@@ -21,7 +21,7 @@ open import Definition.Untyped.Neutral M type-variant
 open import Definition.Untyped.Properties M
 open import Definition.Typed R
 open import Definition.Typed.Properties R
-open import Definition.Typed.Reasoning.Reduction.Primitive R
+open import Definition.Typed.Reasoning.Reduction R
 open import Definition.Typed.RedSteps R
 open import Definition.LogicalRelation R
 open import Definition.LogicalRelation.Hidden R
@@ -351,9 +351,9 @@ private opaque
     case t₁⇒*t₂ of λ where
       (id ⊢t₁)         → id (unitrecⱼ ⊢A[σ⇑] ⊢t₁ ⊢u ok)
       (t₁⇒t₃ ⇨ t₃⇒*t₂) →
-        case redFirst*Term t₃⇒*t₂ of λ
-          ⊢t₃ →
-        case ⊩∷-⇒* [ redFirstTerm t₁⇒t₃ , ⊢t₃ , t₁⇒t₃ ⇨ id ⊢t₃ ]
+        case ⊩∷-⇒*
+               [ redFirstTerm t₁⇒t₃ , redFirst*Term t₃⇒*t₂ ,
+                 redMany t₁⇒t₃ ]
                ⊩t₁ of λ
           t₁≡t₃ →
         unitrec-subst ⊢A[σ⇑] ⊢u t₁⇒t₃ ok no-η ⇨
@@ -431,7 +431,6 @@ opaque
                                                                         ⊩ᵛ≡→⊩ˢ≡∷→⊩≡∷→⊩[⇑][]₀≡[⇑][]₀ (refl-⊩ᵛ≡ ⊩A₂) (refl-⊩ˢ≡∷ ⊩σ₂) $
                                                                         ⊩ᵛ≡∷⇔ .proj₁ (η-unitᵛ ⊩t₂ ⊩⋆ (inj₂ η)) .proj₂ $
                                                                         refl-⊩ˢ≡∷ ⊩σ₂)
-                                                                   , ⊢u₂[σ₂]
                                                                    ⟩∎∷
         unitrec l p q A₂ t₂ u₂ [ σ₂ ]                             ∎
 
@@ -467,7 +466,7 @@ opaque
             u₁ [ σ₁ ]                            ∷ A₁ [ starʷ l ]₀ [ σ₁ ]    ≡⟨ u₁≡u₂ σ₁≡σ₂ ⟩⊩∷∷⇐*
                                                                               ⟨ A₁[⋆]₀[σ₁]≡A₂[⋆]₀[σ₂] ⟩⇒
                                                  ∷ A₂ [ starʷ l ]₀ [ σ₂ ]     ⟨ singleSubstLift A₂ (starʷ _) ⟩⇐≡
-            u₂ [ σ₂ ]                            ∷ A₂ [ σ₂ ⇑ ] [ starʷ l ]₀  ⇐⟨ unitrec-β ⊢A₂[σ₂⇑] ⊢u₂[σ₂] ok no-η , ⊢u₂[σ₂] ⟩∷
+            u₂ [ σ₂ ]                            ∷ A₂ [ σ₂ ⇑ ] [ starʷ l ]₀  ⇐⟨ unitrec-β ⊢A₂[σ₂⇑] ⊢u₂[σ₂] ok no-η ⟩∷
                                                                              ˘⟨ ⊢A₂[t₂]₀[σ₂]≡A₂[σ₂⇑][t₂′]₀ ⟩⇒
             unitrec l p q A₂ (starʷ l) u₂ [ σ₂ ] ∷ A₂ [ t₂ ]₀ [ σ₂ ]         ⇐*⟨ unitrec⇒*₂ ⟩∎∷
             unitrec l p q A₂ t₂        u₂ [ σ₂ ]                             ∎

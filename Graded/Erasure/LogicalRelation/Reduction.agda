@@ -27,7 +27,6 @@ import Definition.LogicalRelation.Properties.Reduction R as R
 open import Definition.Untyped M as U
 open import Definition.Untyped.Neutral M type-variant
 open import Definition.Typed R
-open import Definition.Typed.Consequences.Reduction R
 open import Definition.Typed.Properties R
 open import Definition.Typed.RedSteps R as RS
 open import Definition.Typed.Syntactic R

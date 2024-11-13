@@ -18,6 +18,7 @@ open import Definition.Typed.Inversion.Primitive R
 open import Definition.Typed.Properties.Admissible R
 open import Definition.Typed.Properties.Well-formed R
 open import Definition.Typed.Reasoning.Term.Primitive R
+open import Definition.Typed.Well-formed R
 
 open import Definition.Untyped M
 open import Definition.Untyped.Neutral M type-variant
@@ -253,6 +254,26 @@ opaque
   subset* : Γ ⊢ A ⇒* B → Γ ⊢ A ≡ B
   subset* (id A) = refl A
   subset* (A⇒A′ ⇨ A′⇒*B) = trans (subset A⇒A′) (subset* A′⇒*B)
+
+opaque
+
+  -- If t reduces in one step to u, then t reduces in zero or more
+  -- steps to u.
+
+  redMany : Γ ⊢ t ⇒ u ∷ A → Γ ⊢ t ⇒* u ∷ A
+  redMany t⇒u =
+    let _ , _ , ⊢u = wf-⊢≡∷ (subsetTerm t⇒u) in
+    t⇒u ⇨ id ⊢u
+
+opaque
+
+  -- If A reduces in one step to B, then A reduces in zero or more
+  -- steps to B.
+
+  redMany-⊢ : Γ ⊢ A ⇒ B → Γ ⊢ A ⇒* B
+  redMany-⊢ A⇒B =
+    let _ , ⊢B = wf-⊢≡ (subset A⇒B) in
+    A⇒B ⇨ id ⊢B
 
 opaque
 

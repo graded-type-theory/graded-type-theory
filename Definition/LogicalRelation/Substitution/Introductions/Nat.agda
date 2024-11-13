@@ -28,7 +28,7 @@ open import Definition.LogicalRelation.Substitution.Introductions.Var R
 
 open import Definition.Typed R
 open import Definition.Typed.Properties R
-open import Definition.Typed.Reasoning.Reduction.Primitive R
+open import Definition.Typed.Reasoning.Reduction R
 
 open import Definition.Untyped M
 open import Definition.Untyped.Neutral M type-variant
@@ -529,7 +529,7 @@ private opaque
            natrec p q r A₁ t₁ u₁ zero  ⇒⟨ natrec-zero ⊢t₁ ⊢u₁ ⟩⊩∷
            t₁ ∷ A₁ [ zero ]₀           ≡⟨ t₁≡t₂ ⟩⊩∷∷⇐*
                                         ⟨ ⊢A₁[v₁′]≡A₂[v₂′] ⟩⇒
-           t₂ ∷ A₂ [ zero ]₀           ⇐⟨ natrec-zero ⊢t₂ ⊢u₂ , ⊢t₂ ⟩∎∷
+           t₂ ∷ A₂ [ zero ]₀           ⇐⟨ natrec-zero ⊢t₂ ⊢u₂ ⟩∎∷
            natrec p q r A₂ t₂ u₂ zero  ∎
 
          -- If v₁′ and v₂′ are applications of suc to equal terms,
@@ -546,18 +546,13 @@ private opaque
              v₁″≡v₂″ →
            case wf-⊩≡∷ v₁″≡v₂″ of λ
              (⊩v₁″ , ⊩v₂″) →
-           case u₁≡u₂ v₁″≡v₂″ $
-                ⊩natrec≡natrec′ A₁≅A₂ A₁≡A₁ A₂≡A₂ A₁≡A₂ ⊢t₁ ⊢t₂ t₁≡t₂
-                  ⊢u₁ ⊢u₂ u₁≅u₂ u₁≡u₂ ⊩ℕ-v₁″ ⊩ℕ-v₂″ ⊩ℕ-v₁″≡v₂″ of λ
-             u₁[v₁″,nr]≡u₂[v₂″,nr] →
 
            natrec p q r A₁ t₁ u₁ (suc v₁″)                             ⇒⟨ natrec-suc ⊢t₁ ⊢u₁ (escape-⊩∷ ⊩v₁″) ⟩⊩∷
-           u₁ [ v₁″ , natrec p q r A₁ t₁ u₁ v₁″ ]₁₀ ∷ A₁ [ suc v₁″ ]₀  ≡⟨ u₁[v₁″,nr]≡u₂[v₂″,nr] ⟩⊩∷∷⇐*
+           u₁ [ v₁″ , natrec p q r A₁ t₁ u₁ v₁″ ]₁₀ ∷ A₁ [ suc v₁″ ]₀  ≡⟨ u₁≡u₂ v₁″≡v₂″ $
+                                                                          ⊩natrec≡natrec′ A₁≅A₂ A₁≡A₁ A₂≡A₂ A₁≡A₂ ⊢t₁ ⊢t₂ t₁≡t₂
+                                                                            ⊢u₁ ⊢u₂ u₁≅u₂ u₁≡u₂ ⊩ℕ-v₁″ ⊩ℕ-v₂″ ⊩ℕ-v₁″≡v₂″ ⟩⊩∷∷⇐*
                                                                         ⟨ ⊢A₁[v₁′]≡A₂[v₂′] ⟩⇒
            u₂ [ v₂″ , natrec p q r A₂ t₂ u₂ v₂″ ]₁₀ ∷ A₂ [ suc v₂″ ]₀  ⇐⟨ natrec-suc ⊢t₂ ⊢u₂ (escape-⊩∷ ⊩v₂″)
-                                                                        , escape-⊩∷ $
-                                                                          conv-⊩∷ A₁[v₁′]≡A₂[v₂′] $
-                                                                          wf-⊩≡∷ u₁[v₁″,nr]≡u₂[v₂″,nr] .proj₂
                                                                         ⟩∎∷
            natrec p q r A₂ t₂ u₂ (suc v₂″)                             ∎ }}) }}
 

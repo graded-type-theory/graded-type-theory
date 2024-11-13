@@ -29,7 +29,7 @@ open import
 open import Definition.LogicalRelation.Substitution.Introductions.Var R
 open import Definition.Typed R
 open import Definition.Typed.Properties R
-open import Definition.Typed.Reasoning.Reduction.Primitive R
+open import Definition.Typed.Reasoning.Reduction R
 open import Definition.Typed.RedSteps R
 open import Definition.Untyped M as U hiding (_[_])
 open import Definition.Untyped.Neutral M type-variant
@@ -797,9 +797,7 @@ opaque
         []-cong s A₁ t₁ u₁ rfl              ⇒⟨ []-cong-β ⊢A₁ ⊢t₁ ⊢u₁ (≅ₜ-eq (escape-⊩≡∷ t₁≡u₁)) ok ⟩⊩∷
         rfl ∷ Id (Erased A₁) [ t₁ ] [ u₁ ]  ≡⟨ refl-⊩≡∷ (⊩rfl′ (⊩[]≡[] t₁≡u₁)) ⟩⊩∷∷⇐* (
                                              ⟨ ⊢Id≡Id ⟩⇒
-        rfl ∷ Id (Erased A₂) [ t₂ ] [ u₂ ]  ⇐⟨ []-cong-β ⊢A₂ ⊢t₂ ⊢u₂ (≅ₜ-eq (escape-⊩≡∷ t₂≡u₂)) ok
-                                             , escape-⊩∷ (⊩rfl′ (⊩[]≡[] t₂≡u₂))
-                                             ⟩∷
+        rfl ∷ Id (Erased A₂) [ t₂ ] [ u₂ ]  ⇐⟨ []-cong-β ⊢A₂ ⊢t₂ ⊢u₂ (≅ₜ-eq (escape-⊩≡∷ t₂≡u₂)) ok ⟩∷
         []-cong s A₂ t₂ u₂ rfl              ⇐*⟨ []-cong⇒*[]-cong₂ ⟩∎
         []-cong s A₂ t₂ u₂ v₂               ∎)
 
@@ -1080,7 +1078,7 @@ opaque
           (K p A₁ t₁ B₁ u₁ rfl U.[ σ₁ ]          ⇒⟨ K-β (escape $ ⊩ᵛ→⊩ˢ∷→⊩[⇑] ⊩B₁ ⊩σ₁) ⊢u₁[σ₁] ok ⟩⊩∷
            u₁ U.[ σ₁ ] ∷ B₁ U.[ σ₁ ⇑ ] [ rfl ]₀  ≡⟨ u₁[σ₁]≡u₂[σ₂] ⟩⊩∷∷⇐*
                                                   ⟨ ⊢B₁[σ₁⇑][v₁′]₀≡B₂[σ₂⇑][v₂′]₀ ⟩⇒
-           u₂ U.[ σ₂ ] ∷ B₂ U.[ σ₂ ⇑ ] [ rfl ]₀  ⇐⟨ K-β (escape $ ⊩ᵛ→⊩ˢ∷→⊩[⇑] ⊩B₂ ⊩σ₂) ⊢u₂[σ₂] ok , ⊢u₂[σ₂] ⟩∎∷
+           u₂ U.[ σ₂ ] ∷ B₂ U.[ σ₂ ⇑ ] [ rfl ]₀  ⇐⟨ K-β (escape $ ⊩ᵛ→⊩ˢ∷→⊩[⇑] ⊩B₂ ⊩σ₂) ⊢u₂[σ₂] ok ⟩∎∷
            K p A₂ t₂ B₂ u₂ rfl U.[ σ₂ ]          ∎)
 
       (ne v₁′-ne v₂′-ne v₁′~v₂′) →
@@ -1440,7 +1438,6 @@ opaque
                                                                            PE.subst (_⊩⟨_⟩_∷_ _ _ _) (Id[]≡Id-wk1-0-[⇑][]₀ A₂ t₂) $
                                                                            ⊩rfl ⊩t₂[σ₂]))
                                                                        ⊢u₂[σ₂]
-                                                                   , ⊢u₂[σ₂]
                                                                    ⟩∎∷
            J p q A₂ t₂ B₂ u₂ v₂ rfl U.[ σ₂ ]                      ∎)
 

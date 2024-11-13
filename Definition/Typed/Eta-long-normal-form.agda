@@ -23,7 +23,6 @@ open import Definition.Typed.Consequences.DerivedRules R
 open import Definition.Typed.Consequences.Inequality R
 open import Definition.Typed.Consequences.Injectivity R
 open import Definition.Typed.Consequences.NeTypeEq R
-open import Definition.Typed.Consequences.Reduction R
 open import Definition.Typed.Inversion R
 open import Definition.Typed.Properties R
 open import Definition.Typed.Stability R

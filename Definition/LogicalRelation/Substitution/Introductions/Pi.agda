@@ -28,7 +28,7 @@ open import Definition.LogicalRelation.Substitution.Introductions.Var R
 
 open import Definition.Typed R
 open import Definition.Typed.Properties R
-open import Definition.Typed.Reasoning.Reduction.Primitive R
+open import Definition.Typed.Reasoning.Reduction R
 open import Definition.Typed.Reasoning.Reduction.Well-typed R
 open import Definition.Typed.RedSteps R
 open import Definition.Typed.Weakening R as W using (_∷ʷ_⊇_)
@@ -442,10 +442,6 @@ opaque
            wk (lift ρ) (B [ σ₂ ⇑ ]) [ v₂ ]₀           ⇐⟨ β-red (W.wk (W.liftʷʷ ρ⊇ (⊢wk-ρ-A[σ₂])) (escape $ ⊩ᵛ→⊩ˢ∷→⊩[⇑] ⊩B ⊩σ₂))
                                                            (W.wkTerm (W.liftʷʷ ρ⊇ (⊢wk-ρ-A[σ₂])) (escape-⊩∷ $ ⊩ᵛ∷→⊩ˢ∷→⊩[⇑]∷ ⊩t₂ ⊩σ₂))
                                                            (escape-⊩∷ ⊩v₂) PE.refl ok
-                                                       , PE.subst₂ (_⊢_∷_ _) (PE.sym $ singleSubstWkComp _ _ t₂)
-                                                           (PE.sym $ singleSubstWkComp _ _ B) $
-                                                         escape-⊩∷ $
-                                                         wf-⊩≡∷ (⊩ᵛ∷⇔ .proj₁ ⊩t₂ .proj₂ (sym-⊩ˢ≡∷ ρ•ₛσ₁,v₁≡ρ•ₛσ₂,v₂)) .proj₁
                                                        ⟩∎∷
          lam p (wk (lift ρ) (t₂ [ σ₂ ⇑ ])) ∘⟨ p ⟩ v₂  ∎)
     of λ

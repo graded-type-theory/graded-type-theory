@@ -29,7 +29,7 @@ open import Definition.LogicalRelation.Substitution.Introductions.Var R
 
 open import Definition.Typed R
 open import Definition.Typed.Properties R
-open import Definition.Typed.Reasoning.Reduction.Primitive R
+open import Definition.Typed.Reasoning.Reduction R
 open import Definition.Typed.RedSteps R
 import Definition.Typed.Weakening R as W
 
@@ -544,9 +544,9 @@ private opaque
       (id ⊢t₁) →
         id (prodrecⱼ ⊢C[σ⇑] ⊢t₁ ⊢u ok)
       (_⇨_ {t′ = t₃} t₁⇒t₃ t₃⇒*t₂) →
-        case redFirst*Term t₃⇒*t₂ of λ
-          ⊢t₃ →
-        case ⊩∷-⇒* [ redFirstTerm t₁⇒t₃ , ⊢t₃ , t₁⇒t₃ ⇨ id ⊢t₃ ]
+        case ⊩∷-⇒*
+               [ redFirstTerm t₁⇒t₃ , redFirst*Term t₃⇒*t₂ ,
+                 redMany t₁⇒t₃ ]
                ⊩t₁ of λ
           t₁≡t₃ →
         prodrec r p q (C [ σ ⇑ ]) t₁ u ∷ C [ σ ⇑ ] [ t₁ ]₀  ⇒⟨ prodrec-subst ⊢C[σ⇑] ⊢u t₁⇒t₃ ok ⟩∷
@@ -648,9 +648,6 @@ opaque
                                                                            ⟨ C₁[σ₁⇑][v₁]≡C₂[σ₂⇑][v₂] ⟩⇒
            u₂ [ σ₂ ⇑ ⇑ ] [ v₂₁ , v₂₂ ]₁₀ ∷ C₂ [ σ₂ ⇑ ] [ v₂ ]₀            ⇐⟨ prodrec-β (escape-⊩ $ ⊩ᵛ→⊩ˢ∷→⊩[⇑] ⊩C₂ ⊩σ₂) (escape-⊩∷ ⊩v₂₁)
                                                                                (escape-⊩∷ ⊩v₂₂) ⊢u₂[σ₂⇑⇑] PE.refl ok
-                                                                           , escape-⊩∷ $
-                                                                             PE.subst (_⊩⟨_⟩_∷_ _ _ _) ([1,0]↑²[⇑⇑][]₁₀≡[⇑][,]₀ C₂) $
-                                                                             ⊩ᵛ∷→⊩ˢ∷→⊩∷→⊩∷→⊩[⇑⇑][]₁₀∷ ⊩u₂ ⊩σ₂ ⊩v₂₁ ⊩v₂₂
                                                                            ⟩∎∷
            prodrec r p q (C₂ [ σ₂ ⇑ ]) (prodʷ p v₂₁ v₂₂) (u₂ [ σ₂ ⇑ ⇑ ])  ∎
 

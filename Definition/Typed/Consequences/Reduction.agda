@@ -290,8 +290,3 @@ opaque
     case wf-⊩∷ ⊩t of λ
       ⊩A →
     whNormTerm′ ⊩A (⊩∷→⊩∷/ ⊩A ⊩t)
-
-redMany : ∀ {t u A} → Γ ⊢ t ⇒ u ∷ A → Γ ⊢ t ⇒* u ∷ A
-redMany d =
-  let _ , _ , ⊢u = syntacticEqTerm (subsetTerm d)
-  in  d ⇨ id ⊢u

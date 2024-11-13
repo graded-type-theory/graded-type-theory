@@ -16,7 +16,6 @@ open Type-restrictions TR
 open import Definition.Untyped M
 open import Definition.Typed TR
 open import Definition.Typed.Consequences.DerivedRules.Identity TR
-open import Definition.Typed.Consequences.Reduction TR
 open import Definition.Typed.Inversion TR
 open import Definition.Typed.Properties TR
 open import Definition.Typed.Reasoning.Term TR

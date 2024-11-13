@@ -50,7 +50,6 @@ open import Tools.Relation
 open import Tools.Sum as ⊎ using (_⊎_; inj₁; inj₂)
 
 open import Definition.Typed TR as DT hiding (id)
-open import Definition.Typed.Consequences.Reduction TR
 open import Definition.Typed.EqRelInstance TR
 open import Definition.Typed.Eta-long-normal-form TR
 open import Definition.Typed.Properties TR
@@ -217,8 +216,7 @@ id-ℕ-zero⇒*zero =
     (β-red (ΠΣⱼ (univ (var ⊢U0 (there here))) Π-ω-ok) U⊢id (ℕⱼ ε)
        PE.refl Π-𝟘-ok)
     (zeroⱼ ε) ⇨
-  (β-red (ℕⱼ ⊢ℕ) (var ⊢ℕ here) (zeroⱼ ε) PE.refl Π-ω-ok ⇨
-   DT.id (zeroⱼ ε))
+  redMany (β-red (ℕⱼ ⊢ℕ) (var ⊢ℕ here) (zeroⱼ ε) PE.refl Π-ω-ok)
 
 -- The erasure of id-ℕ-zero reduces to zero.
 
@@ -289,8 +287,7 @@ erase-non-strict-id₀-zero = PE.refl
 
 id₀-zero⇒*zero : ε ⊢ id₀-zero ⇒* zero ∷ ℕ
 id₀-zero⇒*zero =
-  β-red (ℕⱼ ⊢ℕ) (var ⊢ℕ here) (zeroⱼ ε) PE.refl Π-𝟘-ok ⇨
-  DT.id (zeroⱼ ε)
+  redMany (β-red (ℕⱼ ⊢ℕ) (var ⊢ℕ here) (zeroⱼ ε) PE.refl Π-𝟘-ok)
 
 -- The erasure of id₀-zero reduces to loop?.
 

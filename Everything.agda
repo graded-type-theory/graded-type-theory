@@ -129,7 +129,7 @@ import Definition.Typed.Inversion
 import Definition.Typed.Properties
 import Definition.Typed.Reasoning.Term
 import Definition.Typed.RedSteps
-import Definition.Typed.Reasoning.Reduction.Primitive
+import Definition.Typed.Reasoning.Reduction
 import Definition.Typed.Reasoning.Reduction.Well-typed
 import Definition.Typed.Reduction
 import Definition.Typed.EqualityRelation
@@ -283,7 +283,6 @@ import Definition.Typed.Consequences.Inversion
 import Definition.Typed.Consequences.Equality
 import Definition.Typed.Consequences.Canonicity
 import Definition.Typed.Consequences.Reduction
-import Definition.Typed.Reasoning.Reduction
 import Definition.Typed.Consequences.InverseUniv
 import Definition.Typed.Consequences.DerivedRules.Nat
 import Definition.Typed.Consequences.DerivedRules.Pi

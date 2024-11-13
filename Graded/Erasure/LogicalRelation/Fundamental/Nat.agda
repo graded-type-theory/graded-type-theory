@@ -28,7 +28,6 @@ open import Graded.Erasure.Target.Reasoning
 
 open import Definition.Typed R
 import Definition.Typed.Consequences.RedSteps R as RS
-open import Definition.Typed.Consequences.Reduction R
 open import Definition.Typed.Inversion R
 open import Definition.Typed.Properties R
 import Definition.Typed.Reasoning.Reduction R as RR

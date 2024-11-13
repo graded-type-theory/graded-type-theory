@@ -220,7 +220,7 @@ redSubst : ∀ {A B : Term n} {l}
          → Γ ⊩⟨ l ⟩ B
          → ∃ λ ([A] : Γ ⊩⟨ l ⟩ A)
          → Γ ⊩⟨ l ⟩ A ≡ B / [A]
-redSubst A⇒B [B] = redSubst* (A⇒B ⇨ id (escape [B])) [B]
+redSubst A⇒B [B] = redSubst* (redMany-⊢ A⇒B) [B]
 
 -- Weak head expansion of reducible terms with single reduction step.
 redSubstTerm : ∀ {A t u : Term n} {l}
@@ -229,7 +229,7 @@ redSubstTerm : ∀ {A t u : Term n} {l}
              → Γ ⊩⟨ l ⟩ u ∷ A / [A]
              → Γ ⊩⟨ l ⟩ t ∷ A / [A]
              × Γ ⊩⟨ l ⟩ t ≡ u ∷ A / [A]
-redSubstTerm t⇒u [A] [u] = redSubst*Term (t⇒u ⇨ id (escapeTerm [A] [u])) [A] [u]
+redSubstTerm t⇒u [A] [u] = redSubst*Term (redMany t⇒u) [A] [u]
 
 opaque
 

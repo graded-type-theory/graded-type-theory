@@ -16,7 +16,6 @@ open import Definition.Conversion.Consequences.Completeness R
 open import Definition.Untyped M
 open import Definition.Typed R
 open import Definition.Typed.Consequences.InverseUniv R
-open import Definition.Typed.Consequences.Reduction R
 open import Definition.Typed.Inversion R
 open import Definition.Typed.Properties R
 open import Definition.Typed.RedSteps R

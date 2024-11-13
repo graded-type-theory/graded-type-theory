@@ -27,7 +27,7 @@ open import
 
 open import Definition.Typed R
 open import Definition.Typed.Properties R
-open import Definition.Typed.Reasoning.Reduction.Primitive R
+open import Definition.Typed.Reasoning.Reduction R
 open import Definition.Typed.RedSteps R
 import Definition.Typed.Weakening R as W
 
@@ -608,7 +608,7 @@ opaque
     case
       fst p (prodˢ p t₁ u₁)  ⇒⟨ Σ-β₁ ⊢B ⊢t₁ ⊢u₁ PE.refl ok ⟩⊩∷
       t₁                     ≡⟨ level-⊩≡∷ ⊩A t₁≡t₂ ⟩⊩∷⇐*
-      t₂                     ⇐⟨ Σ-β₁ ⊢B ⊢t₂ ⊢u₂ PE.refl ok , ⊢t₂ ⟩∎
+      t₂                     ⇐⟨ Σ-β₁ ⊢B ⊢t₂ ⊢u₂ PE.refl ok ⟩∎
       fst p (prodˢ p t₂ u₂)  ∎
     of λ
       fst≡fst →
@@ -623,7 +623,6 @@ opaque
                                                                ≅-eq $ escape-⊩≡ $
                                                                ⊩ΠΣ≡ΠΣ→⊩≡∷→⊩[]₀≡[]₀ (refl-⊩≡ ⊩ΣAB) $
                                                                ⊩Σ-β₁ ok ⊢B ⊩t₂ ⊢u₂
-                                                             , ⊢u₂
                                                              ⟩∎∷
       snd p (prodˢ p t₂ u₂)                                 ∎
     of λ

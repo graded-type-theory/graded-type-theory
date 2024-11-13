@@ -432,7 +432,7 @@ opaque
 -- Equational reasoning combinators
 
 -- For more explanations of the combinators, see
--- Definition.Typed.Reasoning.Reduction.Primitive.
+-- Definition.Typed.Reasoning.Reduction.
 
 opaque
 
@@ -471,8 +471,7 @@ opaque
   syntax step-⊩≡⇒* A B≡C A⇒*B = A ⇒*⟨ A⇒*B ⟩⊩ B≡C
 
   step-⊩≡⇒ : ∀ A → Γ ⊩⟨ l ⟩ B ≡ C → Γ ⊢ A ⇒ B → Γ ⊩⟨ l ⟩ A ≡ C
-  step-⊩≡⇒ _ B≡C A⇒B =
-    step-⊩≡⇒* _ B≡C (A⇒B ⇨ id (escape (wf-⊩≡ B≡C .proj₁)))
+  step-⊩≡⇒ _ B≡C A⇒B = step-⊩≡⇒* _ B≡C (redMany-⊢ A⇒B)
 
   syntax step-⊩≡⇒ A B≡C A⇒B = A ⇒⟨ A⇒B ⟩⊩ B≡C
 
@@ -486,7 +485,7 @@ opaque
     ∀ A → Γ ⊩⟨ l ⟩ B ≡ C → Γ ⊢ B ⇒ A → Γ ⊢ A → Γ ⊩⟨ l ⟩ A ≡ C
   step-⊩≡⇐ _ B≡C B⇒A ⊢A =
     step-⊩≡⇐* _ B≡C
-      ([_,_,_] (escape (wf-⊩≡ B≡C .proj₁)) ⊢A (B⇒A ⇨ id ⊢A))
+      ([_,_,_] (escape (wf-⊩≡ B≡C .proj₁)) ⊢A (redMany-⊢ B⇒A))
 
   syntax step-⊩≡⇐ A B≡C B⇒A ⊢A = A ⇐⟨ B⇒A , ⊢A ⟩⊩ B≡C
 
@@ -576,8 +575,7 @@ opaque
 
   step-⊩≡∷⇒ :
     ∀ t → Γ ⊩⟨ l ⟩ u ≡ v ∷ A → Γ ⊢ t ⇒ u ∷ A → Γ ⊩⟨ l ⟩ t ≡ v ∷ A
-  step-⊩≡∷⇒ _ u≡v t⇒u =
-    step-⊩≡∷⇒* _ u≡v (t⇒u ⇨ id (escape-⊩∷ (wf-⊩≡∷ u≡v .proj₁)))
+  step-⊩≡∷⇒ _ u≡v t⇒u = step-⊩≡∷⇒* _ u≡v (redMany t⇒u)
 
   syntax step-⊩≡∷⇒ t u≡v t⇒u = t ⇒⟨ t⇒u ⟩⊩∷ u≡v
 
@@ -593,7 +591,7 @@ opaque
     Γ ⊩⟨ l ⟩ t ≡ v ∷ A
   step-⊩≡∷⇐ _ u≡v u⇒t ⊢t =
     step-⊩≡∷⇐* _ u≡v
-      ([_,_,_] (escape-⊩∷ (wf-⊩≡∷ u≡v .proj₁)) ⊢t (u⇒t ⇨ id ⊢t))
+      ([_,_,_] (escape-⊩∷ (wf-⊩≡∷ u≡v .proj₁)) ⊢t (redMany u⇒t))
 
   syntax step-⊩≡∷⇐ t u≡v u⇒t ⊢t = t ⇐⟨ u⇒t , ⊢t ⟩⊩∷ u≡v
 
