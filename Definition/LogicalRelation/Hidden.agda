@@ -25,6 +25,7 @@ import Definition.LogicalRelation.Weakening R as W
 
 open import Definition.Typed R
 open import Definition.Typed.Properties R
+open import Definition.Typed.Syntactic R
 open import Definition.Typed.Weakening R using (_∷ʷ_⊇_)
 open import Definition.Typed.Well-formed R
 
@@ -481,13 +482,10 @@ opaque
 
   syntax step-⊩≡⇐* A B≡C B⇒*A = A ⇐*⟨ B⇒*A ⟩⊩ B≡C
 
-  step-⊩≡⇐ :
-    ∀ A → Γ ⊩⟨ l ⟩ B ≡ C → Γ ⊢ B ⇒ A → Γ ⊢ A → Γ ⊩⟨ l ⟩ A ≡ C
-  step-⊩≡⇐ _ B≡C B⇒A ⊢A =
-    step-⊩≡⇐* _ B≡C
-      ([_,_,_] (escape (wf-⊩≡ B≡C .proj₁)) ⊢A (redMany-⊢ B⇒A))
+  step-⊩≡⇐ : ∀ A → Γ ⊩⟨ l ⟩ B ≡ C → Γ ⊢ B ⇒ A → Γ ⊩⟨ l ⟩ A ≡ C
+  step-⊩≡⇐ _ B≡C B⇒A = step-⊩≡⇐* _ B≡C (⇒*→:⇒*: (redMany-⊢ B⇒A))
 
-  syntax step-⊩≡⇐ A B≡C B⇒A ⊢A = A ⇐⟨ B⇒A , ⊢A ⟩⊩ B≡C
+  syntax step-⊩≡⇐ A B≡C B⇒A = A ⇐⟨ B⇒A ⟩⊩ B≡C
 
   _≡⟨⟩⊩_ : ∀ A → Γ ⊩⟨ l ⟩ A ≡ B → Γ ⊩⟨ l ⟩ A ≡ B
   _ ≡⟨⟩⊩ A≡B = A≡B
@@ -587,13 +585,11 @@ opaque
   syntax step-⊩≡∷⇐* t u≡v u⇒*t = t ⇐*⟨ u⇒*t ⟩⊩∷ u≡v
 
   step-⊩≡∷⇐ :
-    ∀ t → Γ ⊩⟨ l ⟩ u ≡ v ∷ A → Γ ⊢ u ⇒ t ∷ A → Γ ⊢ t ∷ A →
+    ∀ t → Γ ⊩⟨ l ⟩ u ≡ v ∷ A → Γ ⊢ u ⇒ t ∷ A →
     Γ ⊩⟨ l ⟩ t ≡ v ∷ A
-  step-⊩≡∷⇐ _ u≡v u⇒t ⊢t =
-    step-⊩≡∷⇐* _ u≡v
-      ([_,_,_] (escape-⊩∷ (wf-⊩≡∷ u≡v .proj₁)) ⊢t (redMany u⇒t))
+  step-⊩≡∷⇐ _ u≡v u⇒t = step-⊩≡∷⇐* _ u≡v (⇒*∷→:⇒*:∷ (redMany u⇒t))
 
-  syntax step-⊩≡∷⇐ t u≡v u⇒t ⊢t = t ⇐⟨ u⇒t , ⊢t ⟩⊩∷ u≡v
+  syntax step-⊩≡∷⇐ t u≡v u⇒t = t ⇐⟨ u⇒t ⟩⊩∷ u≡v
 
   _≡⟨⟩⊩∷_ : ∀ t → Γ ⊩⟨ l ⟩ t ≡ u ∷ A → Γ ⊩⟨ l ⟩ t ≡ u ∷ A
   _ ≡⟨⟩⊩∷ t≡u = t≡u
@@ -720,11 +716,10 @@ opaque
   syntax step-⊩≡∷∷⇐* t A u≡v u⇒*t = t ∷ A ⇐*⟨ u⇒*t ⟩⊩∷∷ u≡v
 
   step-⊩≡∷∷⇐ :
-    ∀ t A → Γ ⊩⟨ l ⟩ u ≡ v ∷ A → Γ ⊢ u ⇒ t ∷ A → Γ ⊢ t ∷ A →
-    Γ ⊩⟨ l ⟩ t ≡ v ∷ A
+    ∀ t A → Γ ⊩⟨ l ⟩ u ≡ v ∷ A → Γ ⊢ u ⇒ t ∷ A → Γ ⊩⟨ l ⟩ t ≡ v ∷ A
   step-⊩≡∷∷⇐ _ _ = step-⊩≡∷⇐ _
 
-  syntax step-⊩≡∷∷⇐ t A u≡v u⇒t ⊢t = t ∷ A ⇐⟨ u⇒t , ⊢t ⟩⊩∷∷ u≡v
+  syntax step-⊩≡∷∷⇐ t A u≡v u⇒t = t ∷ A ⇐⟨ u⇒t ⟩⊩∷∷ u≡v
 
   _∷_≡⟨⟩⊩∷∷_ : ∀ t A → Γ ⊩⟨ l ⟩ t ≡ u ∷ A → Γ ⊩⟨ l ⟩ t ≡ u ∷ A
   _ ∷ _ ≡⟨⟩⊩∷∷ t≡u = t≡u
