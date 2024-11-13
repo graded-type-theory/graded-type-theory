@@ -290,22 +290,6 @@ opaque
 
   -- Validity of one of the typing rules called univ.
 
-  ⊩ᵛ∷U→⊩ᵛ :
-    Γ ⊩ᵛ⟨ l ⟩ A ∷ U l′ →
-    Γ ⊩ᵛ⟨ l′ ⟩ A
-  ⊩ᵛ∷U→⊩ᵛ ⊩A∷U =
-    case ⊩ᵛ∷⇔ .proj₁ ⊩A∷U of λ
-      (⊩U , A≡A∷U) →
-    emb-⊩ᵛ ≤ᵘ-refl $
-    ⊩ᵛ⇔ .proj₂
-      ( wf-⊩ᵛ ⊩U
-      , proj₁ ∘→ proj₂ ∘→ ⊩≡∷U⇔ .proj₁ ∘→ A≡A∷U
-      )
-
-opaque
-
-  -- Validity of another of the typing rules called univ.
-
   ⊩ᵛ≡∷U→⊩ᵛ≡ :
     Γ ⊩ᵛ⟨ l ⟩ A ≡ B ∷ U l′ →
     Γ ⊩ᵛ⟨ l′ ⟩ A ≡ B
@@ -316,3 +300,12 @@ opaque
       ( wf-⊩ᵛ ⊩U
       , proj₁ ∘→ proj₂ ∘→ ⊩≡∷U⇔ .proj₁ ∘→ A≡B∷U
       )
+
+opaque
+
+  -- Validity of another of the typing rules called univ.
+
+  ⊩ᵛ∷U→⊩ᵛ :
+    Γ ⊩ᵛ⟨ l ⟩ A ∷ U l′ →
+    Γ ⊩ᵛ⟨ l′ ⟩ A
+  ⊩ᵛ∷U→⊩ᵛ = ⊩ᵛ⇔⊩ᵛ≡ .proj₂ ∘→ ⊩ᵛ≡∷U→⊩ᵛ≡ ∘→ ⊩ᵛ∷⇔⊩ᵛ≡∷ .proj₁
