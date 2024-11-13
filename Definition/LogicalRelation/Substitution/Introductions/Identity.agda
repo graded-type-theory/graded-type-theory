@@ -118,16 +118,13 @@ opaque
                                                            (l′<l , ⊩A , _) →
                                                            l′<l
                                                          , (level-⊩∷ ⊩A ⊩t , level-⊩∷ ⊩A ⊩u)
-                                                         , (Idⱼ (escape-⊩∷ ⊩A∷U) (escape-⊩∷ ⊩t) (escape-⊩∷ ⊩u)
                                                          , ≅ₜ-Id-cong (escape-⊩≡∷ (refl-⊩≡∷ ⊩A∷U))
-                                                             (escape-⊩≡∷ (refl-⊩≡∷ ⊩t)) (escape-⊩≡∷ (refl-⊩≡∷ ⊩u)) ))
+                                                             (escape-⊩≡∷ (refl-⊩≡∷ ⊩t)) (escape-⊩≡∷ (refl-⊩≡∷ ⊩u)))
                                                    ⟩
     l <ᵘ l′ × (Γ ⊩⟨ l ⟩ t ∷ A × Γ ⊩⟨ l ⟩ u ∷ A) ×
-    Γ ⊢ Id A t u ∷ U l ×
     Γ ⊢≅ Id A t u ∷ U l                            ⇔˘⟨ id⇔ ×-cong-⇔ ⊩Id⇔ ×-cong-⇔ id⇔ ⟩→
 
     l <ᵘ l′ × (Γ ⊩⟨ l ⟩ Id A t u) ×
-    Γ ⊢ Id A t u ∷ U l ×
     Γ ⊢≅ Id A t u ∷ U l                            ⇔˘⟨ Type→⊩∷U⇔ Idₙ ⟩→
 
     Γ ⊩⟨ l′ ⟩ Id A t u ∷ U l                       □
@@ -396,31 +393,19 @@ opaque
                                                                              u₁≅u₂ →
                                                                            case Σ.map escape-⊩∷ escape-⊩∷ $ wf-⊩≡∷ A₁≡A₂∷U of λ
                                                                              (⊢A₁∷U , ⊢A₂∷U) →
-                                                                           case Σ.map escape-⊩∷ escape-⊩∷ $ wf-⊩≡∷ t₁≡t₂ of λ
-                                                                             (⊢t₁ , ⊢t₂) →
-                                                                           case Σ.map escape-⊩∷ escape-⊩∷ $ wf-⊩≡∷ u₁≡u₂ of λ
-                                                                             (⊢u₁ , ⊢u₂) →
-                                                                           case univ (≅ₜ-eq A₁≅A₂∷U) of λ
-                                                                             ⊢A₁≡A₂ →
                                                                            case wf-⊩≡ A₁≡A₂ .proj₁ of λ
                                                                              ⊩A₁ →
                                                                              l′<l
                                                                            , (A₁≡A₂ , level-⊩≡∷ ⊩A₁ t₁≡t₂ , level-⊩≡∷ ⊩A₁ u₁≡u₂)
-                                                                           , Idⱼ ⊢A₁∷U ⊢t₁ ⊢u₁
-                                                                           , Idⱼ ⊢A₂∷U (conv ⊢t₂ ⊢A₁≡A₂) (conv ⊢u₂ ⊢A₁≡A₂)
                                                                            , ≅ₜ-Id-cong A₁≅A₂∷U t₁≅t₂ u₁≅u₂) ⟩
     l <ᵘ l′ ×
     ((Γ ⊩⟨ l ⟩ A₁ ≡ A₂) ×
      Γ ⊩⟨ l ⟩ t₁ ≡ t₂ ∷ A₁ ×
      Γ ⊩⟨ l ⟩ u₁ ≡ u₂ ∷ A₁) ×
-    Γ ⊢ Id A₁ t₁ u₁ ∷ U l ×
-    Γ ⊢ Id A₂ t₂ u₂ ∷ U l ×
     Γ ⊢ Id A₁ t₁ u₁ ≅ Id A₂ t₂ u₂ ∷ U l                              ⇔˘⟨ (Σ-cong-⇔ λ _ →
                                                                           ⊩Id≡Id⇔ ×-cong-⇔ id⇔) ⟩→
     l <ᵘ l′ ×
     (Γ ⊩⟨ l ⟩ Id A₁ t₁ u₁ ≡ Id A₂ t₂ u₂) ×
-    Γ ⊢ Id A₁ t₁ u₁ ∷ U l ×
-    Γ ⊢ Id A₂ t₂ u₂ ∷ U l ×
     Γ ⊢ Id A₁ t₁ u₁ ≅ Id A₂ t₂ u₂ ∷ U l                              ⇔˘⟨ Type→⊩≡∷U⇔ Idₙ Idₙ ⟩→
 
 

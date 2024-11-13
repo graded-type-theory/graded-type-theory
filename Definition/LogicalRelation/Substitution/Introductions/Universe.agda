@@ -18,6 +18,7 @@ open Type-restrictions R
 
 open import Definition.Typed R
 open import Definition.Typed.Properties R
+open import Definition.Typed.Well-formed R
 open import Definition.Untyped M
 open import Definition.Untyped.Neutral M type-variant
 open import Definition.LogicalRelation R
@@ -112,9 +113,7 @@ opaque
   Type→⊩∷U⇔ :
     Type A →
     Γ ⊩⟨ l ⟩ A ∷ U l′ ⇔
-    (l′ <ᵘ l × (Γ ⊩⟨ l′ ⟩ A) ×
-     Γ ⊢ A ∷ U l′ ×
-     Γ ⊢≅ A ∷ U l′)
+    (l′ <ᵘ l × (Γ ⊩⟨ l′ ⟩ A) × Γ ⊢≅ A ∷ U l′)
   Type→⊩∷U⇔ {A} {Γ} {l} {l′} A-type =
     Γ ⊩⟨ l ⟩ A ∷ U l′                                       ⇔⟨ ⊩∷U⇔ ⟩
 
@@ -126,12 +125,12 @@ opaque
                                                                ( (λ (_ , A⇒*B , _ , B≅B) →
                                                                    case whnfRed*Term (redₜ A⇒*B) (typeWhnf A-type) of λ {
                                                                      PE.refl →
-                                                                   ⊢t-redₜ A⇒*B , B≅B })
-                                                               , (λ (⊢A , A≅A) → _ , idRedTerm:*: ⊢A , A-type , A≅A)
+                                                                   B≅B })
+                                                               , (λ ≅A → _ , idRedTerm:*: (wf-⊢≡∷ (≅ₜ-eq ≅A) .proj₂ .proj₁) , A-type , ≅A)
                                                                )
                                                              ⟩
 
-    l′ <ᵘ l × (Γ ⊩⟨ l′ ⟩ A) × Γ ⊢ A ∷ U l′ × Γ ⊢≅ A ∷ U l′  □⇔
+    l′ <ᵘ l × (Γ ⊩⟨ l′ ⟩ A) × Γ ⊢≅ A ∷ U l′                 □⇔
 
 opaque
   unfolding _⊩⟨_⟩_≡_
@@ -224,10 +223,7 @@ opaque
     Type A →
     Type B →
     Γ ⊩⟨ l ⟩ A ≡ B ∷ U l′ ⇔
-    (l′ <ᵘ l × (Γ ⊩⟨ l′ ⟩ A ≡ B) ×
-     Γ ⊢ A ∷ U l′ ×
-     Γ ⊢ B ∷ U l′ ×
-     Γ ⊢ A ≅ B ∷ U l′)
+    (l′ <ᵘ l × (Γ ⊩⟨ l′ ⟩ A ≡ B) × Γ ⊢ A ≅ B ∷ U l′)
   Type→⊩≡∷U⇔ {A} {B} {Γ} {l} {l′} A-type B-type =
     Γ ⊩⟨ l ⟩ A ≡ B ∷ U l′          ⇔⟨ ⊩≡∷U⇔ ⟩
 
@@ -242,15 +238,14 @@ opaque
                                            PE.refl →
                                          case whnfRed*Term (redₜ DB) (typeWhnf B-type) of λ {
                                            PE.refl →
-                                         (l′<l , A≡B , ⊢t-redₜ DA , ⊢t-redₜ DB , A′≅B′)}})
-                                    , (λ (l′<l , A≡B , ⊢A , ⊢B , A≅B) →
+                                         (l′<l , A≡B , A′≅B′)}})
+                                    , (λ (l′<l , A≡B , A≅B) →
+                                         let _ , ⊢A , ⊢B = wf-⊢≡∷ (≅ₜ-eq A≅B) in
                                            l′<l , A≡B , _ , _
                                          , idRedTerm:*: ⊢A , idRedTerm:*: ⊢B
                                          , A-type , B-type , A≅B)
                                     ⟩
     l′ <ᵘ l × (Γ ⊩⟨ l′ ⟩ A ≡ B) ×
-    Γ ⊢ A ∷ U l′ ×
-    Γ ⊢ B ∷ U l′ ×
     Γ ⊢ A ≅ B ∷ U l′               □⇔
 
 ------------------------------------------------------------------------
@@ -280,16 +275,15 @@ opaque
     ⊩ᵛ∷⇔ .proj₂
       ( ⊩ᵛU ⊩Γ
       , λ {_} {Δ = Δ} {σ₁ = σ₁} {σ₂ = σ₂} →
-          Δ ⊩ˢ σ₁ ≡ σ₂ ∷ Γ                                         →⟨ proj₁ ∘→ escape-⊩ˢ≡∷ ⟩
+          Δ ⊩ˢ σ₁ ≡ σ₂ ∷ Γ                                        →⟨ proj₁ ∘→ escape-⊩ˢ≡∷ ⟩
 
-          ⊢ Δ                                                      →⟨ (λ ⊢Δ → ≤ᵘ-refl , ⊩U⇔ .proj₂ (≤ᵘ-refl , ⊢Δ) , Uⱼ ⊢Δ , ≅-Urefl ⊢Δ) ⟩
+          ⊢ Δ                                                     →⟨ (λ ⊢Δ → ≤ᵘ-refl , ⊩U⇔ .proj₂ (≤ᵘ-refl , ⊢Δ) , ≅-Urefl ⊢Δ) ⟩
 
-          1+ l <ᵘ 2+ l × (Δ ⊩⟨ 1+ l ⟩ U l) × Δ ⊢ U l ∷ U (1+ l) ×
-          Δ ⊢≅ U l ∷ U (1+ l)                                      →⟨ Type→⊩∷U⇔ Uₙ .proj₂ ⟩
+          1+ l <ᵘ 2+ l × (Δ ⊩⟨ 1+ l ⟩ U l) × Δ ⊢≅ U l ∷ U (1+ l)  →⟨ Type→⊩∷U⇔ Uₙ .proj₂ ⟩
 
-          Δ ⊩⟨ 2+ l ⟩ U l ∷ U (1+ l)                               →⟨ refl-⊩≡∷ ⟩
+          Δ ⊩⟨ 2+ l ⟩ U l ∷ U (1+ l)                              →⟨ refl-⊩≡∷ ⟩
 
-          Δ ⊩⟨ 2+ l ⟩ U l ≡ U l ∷ U (1+ l)                         □
+          Δ ⊩⟨ 2+ l ⟩ U l ≡ U l ∷ U (1+ l)                        □
       )
 
 opaque

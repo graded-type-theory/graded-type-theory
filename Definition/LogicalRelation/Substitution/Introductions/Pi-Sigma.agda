@@ -576,10 +576,6 @@ opaque
     case ⊩ᵛ∷→⊩ˢ∷→⊩[⇑]∷ (conv-∙-⊩ᵛ∷ A₁≡A₂ (wf-⊩ᵛ≡∷ B₁≡B₂∷U .proj₂)) $
          wf-⊩ˢ≡∷ σ₁≡σ₂ .proj₂ of λ
       ⊩B₂[σ₂] →
-    case escape-⊩∷ ⊩A₁[σ₁] of λ
-      ⊢A₁[σ₁] →
-    case escape-⊩∷ ⊩B₁[σ₁] of λ
-      ⊢B₁[σ₁] →
     Type→⊩≡∷U⇔ ΠΣₙ ΠΣₙ .proj₂
       ( PE.subst (_ <ᵘ_) ⊔ᵘ-idem
           (⊔ᵘ-mono (⊩∷U⇔ .proj₁ ⊩A₁[σ₁] .proj₁)
@@ -587,8 +583,6 @@ opaque
       , ⊩ᵛ≡⇔ .proj₁
           (ΠΣ-congᵛ ok (emb-⊩ᵛ≡ ≤ᵘ⊔ᵘʳ A₁≡A₂) (emb-⊩ᵛ≡ ≤ᵘ⊔ᵘˡ B₁≡B₂))
           .proj₂ σ₁≡σ₂
-      , ΠΣⱼ ⊢A₁[σ₁] ⊢B₁[σ₁] ok
-      , ΠΣⱼ (escape-⊩∷ ⊩A₂[σ₂]) (escape-⊩∷ ⊩B₂[σ₂]) ok
       , ≅ₜ-ΠΣ-cong (escape-⊩≡∷ A₁[σ₁]≡A₂[σ₂]∷U)
           (escape-⊩≡∷ B₁[σ₁⇑]≡B₂[σ₂⇑]∷U) ok
       )

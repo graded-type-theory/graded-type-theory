@@ -260,11 +260,8 @@ opaque
       , λ σ₁≡σ₂ →
           case escape-⊩ˢ≡∷ σ₁≡σ₂ of λ
             (⊢Δ , _) →
-          case Unitⱼ ⊢Δ ok of λ
-            ⊢Unit →
           Type→⊩≡∷U⇔ Unitₙ Unitₙ .proj₂
-            (≤ᵘ-refl , refl-⊩≡ (⊩Unit ⊢Δ ok) , ⊢Unit , ⊢Unit ,
-             ≅ₜ-Unitrefl ⊢Δ ok)
+            (≤ᵘ-refl , refl-⊩≡ (⊩Unit ⊢Δ ok) , ≅ₜ-Unitrefl ⊢Δ ok)
       )
 
 ------------------------------------------------------------------------

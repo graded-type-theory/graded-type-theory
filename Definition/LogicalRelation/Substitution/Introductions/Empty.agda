@@ -170,9 +170,6 @@ opaque
       , λ σ₁≡σ₂ →
           case escape-⊩ˢ≡∷ σ₁≡σ₂ of λ
             (⊢Δ , _) →
-          case Emptyⱼ ⊢Δ  of λ
-            ⊢Empty →
           Type→⊩≡∷U⇔ Emptyₙ Emptyₙ .proj₂
-            (≤ᵘ-refl , refl-⊩≡ (⊩Empty ⊢Δ) ,
-            ⊢Empty , ⊢Empty , ≅ₜ-Emptyrefl ⊢Δ)
+            (≤ᵘ-refl , refl-⊩≡ (⊩Empty ⊢Δ) , ≅ₜ-Emptyrefl ⊢Δ)
       )
