@@ -19,7 +19,7 @@ open import Definition.Typed R
 open import Definition.Typed.Properties R
 open import Definition.Typed.EqRelInstance R
 open import Definition.Typed.Consequences.Equality R
-open import Definition.Typed.Consequences.Inequality R
+open import Definition.Typed.Consequences.Inequality R as I
 open import Definition.Typed.Consequences.Injectivity R
 open import Definition.Typed.Inversion R
 open import Definition.Typed.Reasoning.Type R
@@ -41,8 +41,9 @@ private
   variable
     n : Nat
     Γ : Con Term n
-    A B t u v : Term _
+    A B C t u v : Term _
     p q : M
+    b : BinderMode
     m s : Strength
     l : Universe-level
 
@@ -174,66 +175,50 @@ opaque
     in
     PE.subst (_⊢_⇒*_ _ _) (U≡A U≡B B-whnf) A⇒*B
 
-ΠNorm : ∀ {A F G} → Γ ⊢ A → Γ ⊢ A ≡ Π p , q ▷ F ▹ G
-      → ∃₂ λ F′ G′ → Γ ⊢ A ⇒* Π p , q ▷ F′ ▹ G′ × Γ ⊢ F ≡ F′
-         × Γ ∙ F ⊢ G ≡ G′
-ΠNorm {A = A} ⊢A A≡ΠFG with whNorm ⊢A
-... | _ , Uₙ , D = ⊥-elim (U≢Π (trans (sym (subset* (red D))) A≡ΠFG))
-... | _ , ΠΣₙ {b = BMΠ} , D =
-  let Π≡Π′ = trans (sym A≡ΠFG) (subset* (red D))
-      F≡F′ , G≡G′ , p≡p′ , q≡q′ = injectivity Π≡Π′
-      D′ = PE.subst₂ (λ p q → _ ⊢ A ⇒* Π p , q ▷ _ ▹ _) (PE.sym p≡p′) (PE.sym q≡q′) (red D)
-  in  _ , _ , D′ , F≡F′ , G≡G′
-... | _ , ΠΣₙ {b = BMΣ s} , D = ⊥-elim (Π≢Σⱼ (trans (sym A≡ΠFG) (subset* (red D))))
-... | _ , ℕₙ , D = ⊥-elim (ℕ≢Π (trans (sym (subset* (red D))) A≡ΠFG))
-... | _ , Unitₙ , D = ⊥-elim (Unit≢Πⱼ (trans (sym (subset* (red D))) A≡ΠFG))
-... | _ , Emptyₙ , D = ⊥-elim (Empty≢Πⱼ (trans (sym (subset* (red D))) A≡ΠFG))
-... | _ , Idₙ , A⇒*Id =
-  ⊥-elim $ Id≢Π (trans (sym (subset* (red A⇒*Id))) A≡ΠFG)
-... | _ , lamₙ , [ ⊢A , univ ⊢B , A⇒B ] =
-  let _ , _ , _ , _ , _ , U≡Π , _ = inversion-lam ⊢B
-  in  ⊥-elim (U≢Π U≡Π)
-... | _ , zeroₙ , [ ⊢A , univ ⊢B , A⇒B ] = ⊥-elim (U≢ℕ (inversion-zero ⊢B))
-... | _ , sucₙ , [ ⊢A , univ ⊢B , A⇒B ] = ⊥-elim (U≢ℕ (proj₂ (inversion-suc ⊢B)))
-... | _ , starₙ , [ _ , univ ⊢B , _ ] =
-  ⊥-elim (U≢Unitⱼ (inversion-star ⊢B .proj₁))
-... | _ , prodₙ , [ _ , univ ⊢B , _ ] =
-  let _ , _ , _ , _ , _ , _ , _ , U≡Σ , _ = inversion-prod ⊢B
-  in  ⊥-elim (U≢Σ U≡Σ)
-... | _ , rflₙ , [ _ , univ ⊢rfl , _ ] =
-  ⊥-elim $ Id≢U $ sym (inversion-rfl ⊢rfl .proj₂ .proj₂ .proj₂ .proj₂)
-... | _ , ne x , D = ⊥-elim (Π≢ne x (trans (sym A≡ΠFG) (subset* (red D))))
+opaque
 
-ΣNorm : ∀ {A F G m} → Γ ⊢ A → Γ ⊢ A ≡ Σ⟨ m ⟩ p , q ▷ F ▹ G
-      → ∃₂ λ F′ G′ → Γ ⊢ A ⇒* Σ⟨ m ⟩ p , q ▷ F′ ▹ G′
-         × Γ ⊢ F ≡ F′ × Γ ∙ F ⊢ G ≡ G′
-ΣNorm {A = A} ⊢A A≡ΣFG with whNorm ⊢A
-... | _ , Uₙ , D = ⊥-elim (U≢Σ (trans (sym (subset* (red D))) A≡ΣFG))
-... | _ , (ΠΣₙ {b = BMΠ}) , D = ⊥-elim (Π≢Σⱼ (trans (sym (subset* (red D))) A≡ΣFG))
-... | _ , (ΠΣₙ {b = BMΣ m}) , D =
-  let Σ≡Σ′ = trans (sym A≡ΣFG) (subset* (red D))
-      F≡F′ , G≡G′ , p≡p′ , q≡q′ , m≡m′ = Σ-injectivity Σ≡Σ′
-      D′ = PE.subst₃ (λ m p q → _ ⊢ A ⇒* Σ⟨ m ⟩ p , q ▷ _ ▹ _)
-                     (PE.sym m≡m′) (PE.sym p≡p′) (PE.sym q≡q′) (red D)
-  in  _ , _ , D′ , F≡F′ , G≡G′
-... | _ , ℕₙ , D = ⊥-elim (ℕ≢Σ (trans (sym (subset* (red D))) A≡ΣFG))
-... | _ , Unitₙ , D = ⊥-elim (Unit≢Σⱼ (trans (sym (subset* (red D))) A≡ΣFG))
-... | _ , Emptyₙ , D = ⊥-elim (Empty≢Σⱼ (trans (sym (subset* (red D))) A≡ΣFG))
-... | _ , Idₙ , A⇒*Id =
-  ⊥-elim $ Id≢Σ (trans (sym (subset* (red A⇒*Id))) A≡ΣFG)
-... | _ , lamₙ , [ ⊢A , univ ⊢B , A⇒B ] =
-  let _ , _ , _ , _ , _ , U≡Π , _ = inversion-lam ⊢B
-  in  ⊥-elim (U≢Π U≡Π)
-... | _ , zeroₙ , [ ⊢A , univ ⊢B , A⇒B ] = ⊥-elim (U≢ℕ (inversion-zero ⊢B))
-... | _ , sucₙ , [ ⊢A , univ ⊢B , A⇒B ] = ⊥-elim (U≢ℕ (proj₂ (inversion-suc ⊢B)))
-... | _ , starₙ , [ _ , univ ⊢B , _ ] =
-  ⊥-elim (U≢Unitⱼ (inversion-star ⊢B .proj₁))
-... | _ , prodₙ , [ _ , univ ⊢B , _ ] =
-  let _ , _ , _ , _ , _ , _ , _ , U≡Σ , _ = inversion-prod ⊢B
-  in  ⊥-elim (U≢Σ U≡Σ)
-... | _ , rflₙ , [ _ , univ ⊢rfl , _ ] =
-  ⊥-elim $ Id≢U $ sym (inversion-rfl ⊢rfl .proj₂ .proj₂ .proj₂ .proj₂)
-... | _ , ne x , D = ⊥-elim (Σ≢ne x (trans (sym A≡ΣFG) (subset* (red D))))
+  -- If A is definitionally equal to ΠΣ⟨ b ⟩ p , q ▷ B ▹ C, then A
+  -- reduces to ΠΣ⟨ b ⟩ p , q ▷ B′ ▹ C′, where B′ and C′ satisfy
+  -- Γ ⊢ B ≡ B′ and Γ ∙ B ⊢ C ≡ C′.
+
+  ΠΣNorm :
+    Γ ⊢ A ≡ ΠΣ⟨ b ⟩ p , q ▷ B ▹ C →
+    ∃₂ λ B′ C′ →
+      Γ ⊢ A ⇒* ΠΣ⟨ b ⟩ p , q ▷ B′ ▹ C′ × Γ ⊢ B ≡ B′ × Γ ∙ B ⊢ C ≡ C′
+  ΠΣNorm {A} A≡ΠΣ with whNorm (syntacticEq A≡ΠΣ .proj₁)
+  … | _ , Uₙ , D =
+    ⊥-elim (U≢ΠΣⱼ (trans (sym (subset* (red D))) A≡ΠΣ))
+  … | _ , ΠΣₙ , D =
+    let B≡B′ , C≡C′ , p≡p′ , q≡q′ , b≡b′ =
+          ΠΣ-injectivity (trans (sym A≡ΠΣ) (subset* (red D)))
+        D′ = PE.subst₃ (λ b p q → _ ⊢ A ⇒* ΠΣ⟨ b ⟩ p , q ▷ _ ▹ _)
+               (PE.sym b≡b′) (PE.sym p≡p′) (PE.sym q≡q′) (red D)
+    in
+    _ , _ , D′ , B≡B′ , C≡C′
+  … | _ , ℕₙ , D =
+    ⊥-elim (ℕ≢ΠΣⱼ (trans (sym (subset* (red D))) A≡ΠΣ))
+  … | _ , Unitₙ , D =
+    ⊥-elim (Unit≢ΠΣⱼ (trans (sym (subset* (red D))) A≡ΠΣ))
+  … | _ , Emptyₙ , D =
+    ⊥-elim (Empty≢ΠΣⱼ (trans (sym (subset* (red D))) A≡ΠΣ))
+  … | _ , Idₙ , A⇒*Id =
+    ⊥-elim $ I.Id≢ΠΣ (trans (sym (subset* (red A⇒*Id))) A≡ΠΣ)
+  … | _ , lamₙ , [ _ , univ ⊢lam , _ ] =
+    let _ , _ , _ , _ , _ , U≡Π , _ = inversion-lam ⊢lam in
+    ⊥-elim (U≢ΠΣⱼ U≡Π)
+  … | _ , zeroₙ , [ _ , univ ⊢zero , _ ] =
+    ⊥-elim (U≢ℕ (inversion-zero ⊢zero))
+  … | _ , sucₙ , [ _ , univ ⊢suc , _ ] =
+    ⊥-elim (U≢ℕ (proj₂ (inversion-suc ⊢suc)))
+  … | _ , starₙ , [ _ , univ ⊢star , _ ] =
+    ⊥-elim (U≢Unitⱼ (inversion-star ⊢star .proj₁))
+  … | _ , prodₙ , [ _ , univ ⊢prod , _ ] =
+    let _ , _ , _ , _ , _ , _ , _ , U≡Σ , _ = inversion-prod ⊢prod in
+    ⊥-elim (U≢Σ U≡Σ)
+  … | _ , rflₙ , [ _ , univ ⊢rfl , _ ] =
+    ⊥-elim $ Id≢U $ sym (inversion-rfl ⊢rfl .proj₂ .proj₂ .proj₂ .proj₂)
+  … | _ , ne n , D =
+    ⊥-elim (I.ΠΣ≢ne n (trans (sym A≡ΠΣ) (subset* (red D))))
 
 opaque
 

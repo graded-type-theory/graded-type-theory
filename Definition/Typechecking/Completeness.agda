@@ -94,19 +94,19 @@ mutual
   completeness⇉ (∘ᵢ t u) ⊢tu =
     let F , G , q , ⊢t , ⊢u , A≡Gu = inversion-app ⊢tu
         B , t⇉B , ΠFG≡B = completeness⇉ t ⊢t
-        F′ , G′ , B⇒Π′ , F≡F′ , G≡G′ = ΠNorm (proj₁ (soundness⇉ (wfTerm ⊢t) t⇉B)) (sym ΠFG≡B)
+        F′ , G′ , B⇒Π′ , F≡F′ , G≡G′ = ΠΣNorm (sym ΠFG≡B)
         ⊢u′ = conv ⊢u F≡F′
         u⇇G = completeness⇇ u ⊢u′
     in  _ , appᵢ t⇉B (B⇒Π′ , ΠΣₙ) u⇇G , trans A≡Gu (substTypeEq G≡G′ (refl ⊢u))
   completeness⇉ (fstᵢ t) ⊢t =
     let F , G , q , ⊢F , ⊢G , ⊢t , A≡F = inversion-fst ⊢t
         B , t⇉B , ΣFG≡B = completeness⇉ t ⊢t
-        F′ , G′ , B⇒Σ′ , F≡F′ , G≡G′ = ΣNorm (proj₁ (soundness⇉ (wfTerm ⊢t) t⇉B)) (sym ΣFG≡B)
+        F′ , G′ , B⇒Σ′ , F≡F′ , G≡G′ = ΠΣNorm (sym ΣFG≡B)
     in  _ , fstᵢ t⇉B (B⇒Σ′ , ΠΣₙ) , trans A≡F F≡F′
   completeness⇉ (sndᵢ t) ⊢t =
     let F , G , q , _ , ⊢G , ⊢t , A≡Gt = inversion-snd ⊢t
         B , t⇉B , ΣFG≡B = completeness⇉ t ⊢t
-        F′ , G′ , B⇒Σ′ , F≡F′ , G≡G′ = ΣNorm (proj₁ (soundness⇉ (wfTerm ⊢t) t⇉B)) (sym ΣFG≡B)
+        F′ , G′ , B⇒Σ′ , F≡F′ , G≡G′ = ΠΣNorm (sym ΣFG≡B)
     in
     _ , sndᵢ t⇉B (B⇒Σ′ , ΠΣₙ) ,
     trans A≡Gt (substTypeEq G≡G′ (refl (fstⱼ ⊢G ⊢t)))
@@ -114,7 +114,7 @@ mutual
     let F , G , q , ⊢F , ⊢G , ⊢C , ⊢t , ⊢u , A≡Ct = inversion-prodrec ⊢t
         ok = ⊢∷ΠΣ→ΠΣ-allowed ⊢t
         B , t⇉B , ΣFG≡B = completeness⇉ t ⊢t
-        F′ , G′ , B⇒Σ′ , F≡F′ , G≡G′ = ΣNorm (proj₁ (soundness⇉ (wfTerm ⊢t) t⇉B)) (sym ΣFG≡B)
+        F′ , G′ , B⇒Σ′ , F≡F′ , G≡G′ = ΠΣNorm (sym ΣFG≡B)
         u⇇C₊ = completeness⇇ u (stabilityTerm ((reflConEq (wf ⊢F)) ∙ F≡F′ ∙ G≡G′) ⊢u)
         C⇇Type = completeness⇇Type C $
                  stability (reflConEq (wf ⊢F) ∙ ΠΣ-cong F≡F′ G≡G′ ok) ⊢C
@@ -193,14 +193,12 @@ mutual
   completeness⇇ : Checkable t → Γ ⊢ t ∷ A → Γ ⊢ t ⇇ A
   completeness⇇ (lamᶜ t) ⊢t =
     let F , G , q , ⊢F , ⊢t , A≡ΠFG , _ = inversion-lam ⊢t
-        ⊢A , _ = syntacticEq A≡ΠFG
-        F′ , G′ , A⇒ΠF′G′ , F≡F′ , G≡G′ = ΠNorm ⊢A A≡ΠFG
+        F′ , G′ , A⇒ΠF′G′ , F≡F′ , G≡G′ = ΠΣNorm A≡ΠFG
         t⇇G = completeness⇇ t (stabilityTerm (reflConEq (wf ⊢F) ∙ F≡F′) (conv ⊢t G≡G′))
     in  lamᶜ (A⇒ΠF′G′ , ΠΣₙ) t⇇G
   completeness⇇ (prodᶜ t u) ⊢t =
     let F , G , m , ⊢F , ⊢G , ⊢t , ⊢u , A≡ΣFG , _ = inversion-prod ⊢t
-        ⊢A , _ = syntacticEq A≡ΣFG
-        F′ , G′ , A⇒ΣF′G′ , F≡F′ , G≡G′ = ΣNorm ⊢A A≡ΣFG
+        F′ , G′ , A⇒ΣF′G′ , F≡F′ , G≡G′ = ΠΣNorm A≡ΣFG
         t⇇F = completeness⇇ t (conv ⊢t F≡F′)
         u⇇Gt = completeness⇇ u (conv ⊢u (substTypeEq G≡G′ (refl ⊢t)))
     in  prodᶜ (A⇒ΣF′G′ , ΠΣₙ) t⇇F u⇇Gt
