@@ -47,12 +47,8 @@ opaque
   ⊩Empty⇔ :
     Γ ⊩⟨ l ⟩ Empty ⇔ ⊢ Γ
   ⊩Empty⇔ =
-      (λ ⊩Empty → lemma (Empty-elim ⊩Empty))
+      wf ∘→ escape-⊩
     , (λ ⊢Γ → Emptyᵣ (idRed:*: (Emptyⱼ ⊢Γ)))
-    where
-    lemma : Γ ⊩⟨ l ⟩Empty Empty → ⊢ Γ
-    lemma (emb 0<1 ⊩Empty) = lemma ⊩Empty
-    lemma (noemb d) = wf (⊢A-red d)
 
 opaque
   unfolding _⊩⟨_⟩_∷_ ⊩Empty⇔
