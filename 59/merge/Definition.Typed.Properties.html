@@ -1,0 +1,41 @@
+<!DOCTYPE HTML>
+<html><head><meta charset="utf-8"><title>Definition.Typed.Properties</title><link rel="stylesheet" href="Agda.css"></head><body><pre class="Agda"><a id="1" class="Comment">------------------------------------------------------------------------</a>
+<a id="74" class="Comment">-- Properties of the typing and reduction relations</a>
+<a id="126" class="Comment">------------------------------------------------------------------------</a>
+
+<a id="200" class="Keyword">open</a> <a id="205" class="Keyword">import</a> <a id="212" href="Definition.Typed.Restrictions.html" class="Module">Definition.Typed.Restrictions</a>
+<a id="242" class="Keyword">open</a> <a id="247" class="Keyword">import</a> <a id="254" href="Graded.Modality.html" class="Module">Graded.Modality</a>
+
+<a id="271" class="Keyword">module</a> <a id="278" href="Definition.Typed.Properties.html" class="Module">Definition.Typed.Properties</a>
+  <a id="308" class="Symbol">{</a><a id="309" href="Definition.Typed.Properties.html#309" class="Bound">ℓ</a><a id="310" class="Symbol">}</a> <a id="312" class="Symbol">{</a><a id="313" href="Definition.Typed.Properties.html#313" class="Bound">M</a> <a id="315" class="Symbol">:</a> <a id="317" href="Agda.Primitive.html#388" class="Primitive">Set</a> <a id="321" href="Definition.Typed.Properties.html#309" class="Bound">ℓ</a><a id="322" class="Symbol">}</a>
+  <a id="326" class="Symbol">{</a><a id="327" href="Definition.Typed.Properties.html#327" class="Bound">𝕄</a> <a id="329" class="Symbol">:</a> <a id="331" href="Graded.Modality.html#8202" class="Record">Modality</a> <a id="340" href="Definition.Typed.Properties.html#313" class="Bound">M</a><a id="341" class="Symbol">}</a>
+  <a id="345" class="Symbol">(</a><a id="346" href="Definition.Typed.Properties.html#346" class="Bound">R</a> <a id="348" class="Symbol">:</a> <a id="350" href="Definition.Typed.Restrictions.html#752" class="Record">Type-restrictions</a> <a id="368" href="Definition.Typed.Properties.html#327" class="Bound">𝕄</a><a id="369" class="Symbol">)</a>
+  <a id="373" class="Keyword">where</a>
+
+<a id="380" class="Keyword">open</a> <a id="385" class="Keyword">import</a> <a id="392" href="Definition.Untyped.html" class="Module">Definition.Untyped</a> <a id="411" href="Definition.Typed.Properties.html#313" class="Bound">M</a>
+
+<a id="414" class="Keyword">open</a> <a id="419" class="Keyword">import</a> <a id="426" href="Definition.Typed.html" class="Module">Definition.Typed</a> <a id="443" href="Definition.Typed.Properties.html#346" class="Bound">R</a>
+
+<a id="446" class="Keyword">open</a> <a id="451" class="Keyword">import</a> <a id="458" href="Tools.Fin.html" class="Module">Tools.Fin</a>
+<a id="468" class="Keyword">open</a> <a id="473" class="Keyword">import</a> <a id="480" href="Tools.PropositionalEquality.html" class="Module">Tools.PropositionalEquality</a>
+
+<a id="509" class="Keyword">open</a> <a id="514" class="Keyword">import</a> <a id="521" href="Definition.Typed.Properties.Admissible.html" class="Module">Definition.Typed.Properties.Admissible</a> <a id="560" href="Definition.Typed.Properties.html#346" class="Bound">R</a> <a id="562" class="Keyword">public</a>
+<a id="569" class="Keyword">open</a> <a id="574" class="Keyword">import</a> <a id="581" href="Definition.Typed.Properties.Reduction.html" class="Module">Definition.Typed.Properties.Reduction</a> <a id="619" href="Definition.Typed.Properties.html#346" class="Bound">R</a> <a id="621" class="Keyword">public</a>
+<a id="628" class="Keyword">open</a> <a id="633" class="Keyword">import</a> <a id="640" href="Definition.Typed.Properties.Well-formed.html" class="Module">Definition.Typed.Properties.Well-formed</a> <a id="680" href="Definition.Typed.Properties.html#346" class="Bound">R</a> <a id="682" class="Keyword">public</a>
+
+<a id="690" class="Keyword">private</a> <a id="698" class="Keyword">variable</a>
+  <a id="709" href="Definition.Typed.Properties.html#709" class="Generalizable">x</a>   <a id="713" class="Symbol">:</a> <a id="715" href="Data.Fin.Base.html#1159" class="Datatype">Fin</a> <a id="719" class="Symbol">_</a>
+  <a id="723" href="Definition.Typed.Properties.html#723" class="Generalizable">Γ</a>   <a id="727" class="Symbol">:</a> <a id="729" href="Definition.Untyped.NotParametrised.html#882" class="Datatype">Con</a> <a id="733" href="Definition.Untyped.html#1160" class="Datatype">Term</a> <a id="738" class="Symbol">_</a>
+  <a id="742" href="Definition.Typed.Properties.html#742" class="Generalizable">A</a> <a id="744" href="Definition.Typed.Properties.html#744" class="Generalizable">B</a> <a id="746" class="Symbol">:</a> <a id="748" href="Definition.Untyped.html#1160" class="Datatype">Term</a> <a id="753" class="Symbol">_</a>
+
+<a id="756" class="Comment">------------------------------------------------------------------------</a>
+<a id="829" class="Comment">-- A lemma related to _∷_∈_</a>
+
+<a id="858" class="Keyword">opaque</a>
+
+  <a id="868" class="Comment">-- If x ∷ A ∈ Γ and x ∷ B ∈ Γ both hold, then A is equal to B.</a>
+
+  <a id="det∈"></a><a id="934" href="Definition.Typed.Properties.html#934" class="Function">det∈</a> <a id="939" class="Symbol">:</a> <a id="941" href="Definition.Typed.Properties.html#709" class="Generalizable">x</a> <a id="943" href="Definition.Typed.html#987" class="Datatype Operator">∷</a> <a id="945" href="Definition.Typed.Properties.html#742" class="Generalizable">A</a> <a id="947" href="Definition.Typed.html#987" class="Datatype Operator">∈</a> <a id="949" href="Definition.Typed.Properties.html#723" class="Generalizable">Γ</a> <a id="951" class="Symbol">→</a> <a id="953" href="Definition.Typed.Properties.html#709" class="Generalizable">x</a> <a id="955" href="Definition.Typed.html#987" class="Datatype Operator">∷</a> <a id="957" href="Definition.Typed.Properties.html#744" class="Generalizable">B</a> <a id="959" href="Definition.Typed.html#987" class="Datatype Operator">∈</a> <a id="961" href="Definition.Typed.Properties.html#723" class="Generalizable">Γ</a> <a id="963" class="Symbol">→</a> <a id="965" href="Definition.Typed.Properties.html#742" class="Generalizable">A</a> <a id="967" href="Agda.Builtin.Equality.html#150" class="Datatype Operator">≡</a> <a id="969" href="Definition.Typed.Properties.html#744" class="Generalizable">B</a>
+  <a id="973" href="Definition.Typed.Properties.html#934" class="Function">det∈</a> <a id="978" href="Definition.Typed.html#1053" class="InductiveConstructor">here</a>      <a id="988" href="Definition.Typed.html#1053" class="InductiveConstructor">here</a>      <a id="998" class="Symbol">=</a> <a id="1000" href="Agda.Builtin.Equality.html#207" class="InductiveConstructor">refl</a>
+  <a id="1007" href="Definition.Typed.Properties.html#934" class="Function">det∈</a> <a id="1012" class="Symbol">(</a><a id="1013" href="Definition.Typed.html#1098" class="InductiveConstructor">there</a> <a id="1019" href="Definition.Typed.Properties.html#1019" class="Bound">x</a><a id="1020" class="Symbol">)</a> <a id="1022" class="Symbol">(</a><a id="1023" href="Definition.Typed.html#1098" class="InductiveConstructor">there</a> <a id="1029" href="Definition.Typed.Properties.html#1029" class="Bound">y</a><a id="1030" class="Symbol">)</a> <a id="1032" class="Symbol">=</a> <a id="1034" href="Relation.Binary.PropositionalEquality.Core.html#1339" class="Function">cong</a> <a id="1039" href="Definition.Untyped.html#10817" class="Function">wk1</a> <a id="1043" class="Symbol">(</a><a id="1044" href="Definition.Typed.Properties.html#934" class="Function">det∈</a> <a id="1049" href="Definition.Typed.Properties.html#1019" class="Bound">x</a> <a id="1051" href="Definition.Typed.Properties.html#1029" class="Bound">y</a><a id="1052" class="Symbol">)</a>
+</pre></body></html>
