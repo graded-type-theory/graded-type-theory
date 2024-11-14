@@ -49,10 +49,10 @@ opaque
     case whNorm ⊢A of λ
       (B , B-whnf , A⇒*B) →
     case is-U B-whnf of λ where
-      (yes (l , PE.refl)) → yes (l , red A⇒*B)
+      (yes (l , PE.refl)) → yes (l , A⇒*B)
       (no not) →
         no λ (l , A⇒*U) →
-        not (_ , whrDet* (A⇒*U , Uₙ) (red A⇒*B , B-whnf))
+        not (_ , whrDet* (A⇒*U , Uₙ) (A⇒*B , B-whnf))
     where
     is-U : Whnf B → Dec (∃ λ l → U l PE.≡ B)
     is-U Uₙ        = yes (_ , PE.refl)
@@ -76,25 +76,25 @@ private opaque
   isB′ : ∀ {l} → Γ ⊩⟨ l ⟩ A → Dec (∃₃ λ W B C → Γ ⊢ A ⇒* ⟦ W ⟧ B ▹ C)
   isB′ (Uᵣ′ _ _ A⇒*U) =
     no λ (_ , _ , _ , A⇒*) →
-    I.U≢B _ (trans (sym (subset* (red A⇒*U))) (subset* A⇒*))
+    I.U≢B _ (trans (sym (subset* A⇒*U)) (subset* A⇒*))
   isB′ (ℕᵣ A⇒*ℕ) =
     no λ (_ , _ , _ , A⇒*W) →
-    I.ℕ≢B _ (trans (sym (subset* (red A⇒*ℕ))) (subset* A⇒*W))
+    I.ℕ≢B _ (trans (sym (subset* A⇒*ℕ)) (subset* A⇒*W))
   isB′ (Emptyᵣ A⇒*Empty) =
     no λ (_ , _ , _ , A⇒*W) →
-    Empty≢Bⱼ _ (trans (sym (subset* (red A⇒*Empty))) (subset* A⇒*W))
+    Empty≢Bⱼ _ (trans (sym (subset* A⇒*Empty)) (subset* A⇒*W))
   isB′ (Unitᵣ (Unitₜ A⇒*Unit _)) =
     no λ (_ , _ , _ , A⇒*W) →
-    Unit≢Bⱼ _ (trans (sym (subset* (red A⇒*Unit))) (subset* A⇒*W))
+    Unit≢Bⱼ _ (trans (sym (subset* A⇒*Unit)) (subset* A⇒*W))
   isB′ (ne′ _ A⇒*B B-ne _) =
     no λ (_ , _ , _ , A⇒*W) →
-    I.B≢ne _ B-ne (trans (sym (subset* A⇒*W)) (subset* (red A⇒*B)))
+    I.B≢ne _ B-ne (trans (sym (subset* A⇒*W)) (subset* A⇒*B))
   isB′ (Bᵣ′ _ _ _ A⇒*ΠΣ _ _ _ _ _) =
-    yes (_ , _ , _ , red A⇒*ΠΣ)
+    yes (_ , _ , _ , A⇒*ΠΣ)
   isB′ (Idᵣ ⊩A) =
     no λ (_ , _ , _ , A⇒*Id) →
     I.Id≢⟦⟧▷ $
-    trans (sym (subset* (red (_⊩ₗId_.⇒*Id ⊩A)))) (subset* A⇒*Id)
+    trans (sym (subset* (_⊩ₗId_.⇒*Id ⊩A))) (subset* A⇒*Id)
   isB′ (emb ≤ᵘ-refl     ⊩A) = isB′ ⊩A
   isB′ (emb (≤ᵘ-step p) ⊩A) = isB′ (emb p ⊩A)
 
@@ -180,28 +180,28 @@ opaque
     helper (Uᵣ ⊩U) =
       no λ (_ , _ , _ , A⇒*Id) →
         Id≢U $
-        trans (sym (subset* A⇒*Id)) (subset* (red (_⊩₁U_.⇒*U ⊩U)))
+        trans (sym (subset* A⇒*Id)) (subset* (_⊩₁U_.⇒*U ⊩U))
     helper (ℕᵣ A⇒*ℕ) =
       no λ (_ , _ , _ , A⇒*Id) →
-        Id≢ℕ (trans (sym (subset* A⇒*Id)) (subset* (red A⇒*ℕ)))
+        Id≢ℕ (trans (sym (subset* A⇒*Id)) (subset* A⇒*ℕ))
     helper (Emptyᵣ A⇒*Empty) =
       no λ (_ , _ , _ , A⇒*Id) →
-        Id≢Empty (trans (sym (subset* A⇒*Id)) (subset* (red A⇒*Empty)))
+        Id≢Empty (trans (sym (subset* A⇒*Id)) (subset* A⇒*Empty))
     helper (Unitᵣ ⊩Unit) =
       no λ (_ , _ , _ , A⇒*Id) →
         Id≢Unit $
         trans (sym (subset* A⇒*Id))
-          (subset* (red (_⊩Unit⟨_,_⟩_.⇒*-Unit ⊩Unit)))
+          (subset* (_⊩Unit⟨_,_⟩_.⇒*-Unit ⊩Unit))
     helper (ne ⊩A) =
       no λ (_ , _ , _ , A⇒*Id) →
-        I.Id≢ne neK $ trans (sym (subset* A⇒*Id)) (subset* (red D))
+        I.Id≢ne neK $ trans (sym (subset* A⇒*Id)) (subset* D)
       where
       open _⊩ne_ ⊩A
     helper (Bᵣ _ ⊩A) =
       no λ (_ , _ , _ , A⇒*Id) →
         I.Id≢⟦⟧▷ $
-        trans (sym (subset* A⇒*Id)) (subset* (red (_⊩ₗB⟨_⟩_.D ⊩A)))
-    helper (Idᵣ ⊩A) = yes (_ , _ , _ , red ⇒*Id)
+        trans (sym (subset* A⇒*Id)) (subset* (_⊩ₗB⟨_⟩_.D ⊩A))
+    helper (Idᵣ ⊩A) = yes (_ , _ , _ , ⇒*Id)
       where
       open _⊩ₗId_ ⊩A
     helper (emb ≤ᵘ-refl     ⊩A) = helper ⊩A

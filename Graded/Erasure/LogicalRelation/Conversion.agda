@@ -70,16 +70,16 @@ convTermʳ′
   {A} {B} {l} {l′}
   _ _ A≡B (Unitᵥ {s} (Unitₜ A⇒*Unit _) (Unitₜ B⇒*Unit _)) t®v =
   case Unit-injectivity
-         (Unit s l  ≡˘⟨ subset* (red A⇒*Unit) ⟩⊢
+         (Unit s l  ≡˘⟨ subset* A⇒*Unit ⟩⊢
           A         ≡⟨ A≡B ⟩⊢
-          B         ≡⟨ subset* (red B⇒*Unit) ⟩⊢∎
+          B         ≡⟨ subset* B⇒*Unit ⟩⊢∎
           Unit s l′ ∎) of λ {
     (_ , PE.refl) →
   t®v }
 convTermʳ′
   [A] [B] A≡B
-  (Bᵥ (BΠ p q) (Bᵣ F G [ _ , _ , A⇒Π ] A≡A [F] [G] G-ext _)
-     (Bᵣ F₁ G₁ [ _ , _ , B⇒Π₁ ] A≡A₁ [F]₁ [G]₁ G-ext₁ _))
+  (Bᵥ (BΠ p q) (Bᵣ F G A⇒Π A≡A [F] [G] G-ext _)
+     (Bᵣ F₁ G₁ B⇒Π₁ A≡A₁ [F]₁ [G]₁ G-ext₁ _))
   t®v
      with is-𝟘? p
 ... | yes PE.refl = t®v .proj₁ , λ [a]′ →
@@ -117,8 +117,8 @@ convTermʳ′
   in  convTermʳ′ ([G] (idʷ ⊢Δ) [a]) ([G]₁ (idʷ ⊢Δ) [a]′) G[a]≡G₁[a] SV′ t®v′
 convTermʳ′ {v = v}
   [A] [B] A≡B
-  (Bᵥ (BΣ _ p _) (Bᵣ F G [ _ , _ , A⇒Σ ] A≡A [F] [G] G-ext _)
-     (Bᵣ F₁ G₁ [ _ , _ , B⇒Σ₁ ] A≡A₁ [F]₁ [G]₁ G-ext₁ _))
+  (Bᵥ (BΣ _ p _) (Bᵣ F G A⇒Σ A≡A [F] [G] G-ext _)
+     (Bᵣ F₁ G₁ B⇒Σ₁ A≡A₁ [F]₁ [G]₁ G-ext₁ _))
   (t₁ , t₂ , t⇒t′ , [t₁] , v₂ , t₂®v₂ , extra) =
   let Σ≡Σ₁ = reduction′ (A⇒Σ , ΠΣₙ) (B⇒Σ₁ , ΠΣₙ) A≡B
       F≡F₁ , G≡G₁ , _ = Σ-injectivity Σ≡Σ₁
@@ -149,9 +149,9 @@ convTermʳ′ {v = v}
 convTermʳ′ {A} {B} _ _ A≡B (Idᵥ ⊩A ⊩B) (rflᵣ t⇒*rfl ⇒*↯) =
   rflᵣ
     (conv* t⇒*rfl
-       (Id (_⊩ₗId_.Ty ⊩A) (_⊩ₗId_.lhs ⊩A) (_⊩ₗId_.rhs ⊩A)  ≡˘⟨ subset* (red (_⊩ₗId_.⇒*Id ⊩A)) ⟩⊢
+       (Id (_⊩ₗId_.Ty ⊩A) (_⊩ₗId_.lhs ⊩A) (_⊩ₗId_.rhs ⊩A)  ≡˘⟨ subset* (_⊩ₗId_.⇒*Id ⊩A) ⟩⊢
         A                                                  ≡⟨ A≡B ⟩⊢
-        B                                                  ≡⟨ subset* (red (_⊩ₗId_.⇒*Id ⊩B)) ⟩⊢∎
+        B                                                  ≡⟨ subset* (_⊩ₗId_.⇒*Id ⊩B) ⟩⊢∎
         Id (_⊩ₗId_.Ty ⊩B) (_⊩ₗId_.lhs ⊩B) (_⊩ₗId_.rhs ⊩B)  ∎))
     ⇒*↯
 convTermʳ′ _ _ A≡B (embᵥ₁ ≤ᵘ-refl A≡B′) =

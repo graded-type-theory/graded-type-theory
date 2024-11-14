@@ -49,7 +49,7 @@ opaque
   U≡A : Γ ⊢ U l ≡ A → Whnf A → A PE.≡ U l
   U≡A {Γ} {l} {A} U≡A A-whnf =    $⟨ U≡A ⟩
     Γ ⊢ U l ≡ A                   →⟨ reducible-⊩≡ ⟩
-    (∃ λ l′ → Γ ⊩⟨ l′ ⟩ U l ≡ A)  →⟨ red ∘→ proj₂ ∘→ ⊩U≡⇔ .proj₁ ∘→ proj₂ ⟩
+    (∃ λ l′ → Γ ⊩⟨ l′ ⟩ U l ≡ A)  →⟨ proj₂ ∘→ ⊩U≡⇔ .proj₁ ∘→ proj₂ ⟩
     Γ ⊢ A ⇒* U l                  →⟨ flip whnfRed* A-whnf ⟩
     A PE.≡ U l                    □
 
@@ -113,11 +113,11 @@ opaque
   ΠΣ≡Whnf :
     Γ ⊢ ΠΣ⟨ b ⟩ p , q ▷ A ▹ B ≡ C → Whnf C →
     ∃₂ λ A′ B′ → C PE.≡ ΠΣ⟨ b ⟩ p , q ▷ A′ ▹ B′
-  ΠΣ≡Whnf {Γ} {b} {p} {q} {A} {B} {C} ΠΣ≡C C-whnf =    $⟨ ΠΣ≡C ⟩
-    Γ ⊢ ΠΣ⟨ b ⟩ p , q ▷ A ▹ B ≡ C                      →⟨ reducible-⊩≡ ⟩
-    (∃ λ l → Γ ⊩⟨ l ⟩ ΠΣ⟨ b ⟩ p , q ▷ A ▹ B ≡ C)       →⟨ Σ.map idᶠ (Σ.map idᶠ proj₁) ∘→ proj₂ ∘→ proj₂ ∘→ ⊩ΠΣ≡⇔ .proj₁ ∘→ proj₂ ⟩
-    (∃₂ λ A′ B′ → Γ ⊢ C :⇒*: ΠΣ⟨ b ⟩ p , q ▷ A′ ▹ B′)  →⟨ Σ.map idᶠ $ Σ.map idᶠ (flip whnfRed* C-whnf ∘→ red) ⟩
-    (∃₂ λ A′ B′ → C PE.≡ ΠΣ⟨ b ⟩ p , q ▷ A′ ▹ B′)      □
+  ΠΣ≡Whnf {Γ} {b} {p} {q} {A} {B} {C} ΠΣ≡C C-whnf =  $⟨ ΠΣ≡C ⟩
+    Γ ⊢ ΠΣ⟨ b ⟩ p , q ▷ A ▹ B ≡ C                    →⟨ reducible-⊩≡ ⟩
+    (∃ λ l → Γ ⊩⟨ l ⟩ ΠΣ⟨ b ⟩ p , q ▷ A ▹ B ≡ C)     →⟨ Σ.map idᶠ (Σ.map idᶠ proj₁) ∘→ proj₂ ∘→ proj₂ ∘→ ⊩ΠΣ≡⇔ .proj₁ ∘→ proj₂ ⟩
+    (∃₂ λ A′ B′ → Γ ⊢ C ⇒* ΠΣ⟨ b ⟩ p , q ▷ A′ ▹ B′)  →⟨ Σ.map idᶠ $ Σ.map idᶠ (flip whnfRed* C-whnf) ⟩
+    (∃₂ λ A′ B′ → C PE.≡ ΠΣ⟨ b ⟩ p , q ▷ A′ ▹ B′)    □
 
 opaque
 
@@ -148,11 +148,12 @@ opaque
   Id≡Whnf :
     Γ ⊢ Id A t u ≡ B → Whnf B →
     ∃₃ λ A′ t′ u′ → B PE.≡ Id A′ t′ u′
-  Id≡Whnf {Γ} {A} {t} {u} {B} Id≡B B-whnf =   $⟨ Id≡B ⟩
-    Γ ⊢ Id A t u ≡ B                          →⟨ reducible-⊩≡ ⟩
-    (∃ λ l → Γ ⊩⟨ l ⟩ Id A t u ≡ B)           →⟨ Σ.map idᶠ (Σ.map idᶠ (Σ.map idᶠ proj₁)) ∘→ proj₂ ∘→ ⊩Id≡⇔ .proj₁ ∘→ proj₂ ⟩
-    (∃₃ λ A′ t′ u′ → Γ ⊢ B :⇒*: Id A′ t′ u′)  →⟨ Σ.map idᶠ $ Σ.map idᶠ $ Σ.map idᶠ (flip whnfRed* B-whnf ∘→ red) ⟩
-    (∃₃ λ A′ t′ u′ → B PE.≡ Id A′ t′ u′)      □
+  Id≡Whnf {Γ} {A} {t} {u} {B} Id≡B B-whnf =
+                                            $⟨ Id≡B ⟩
+    Γ ⊢ Id A t u ≡ B                        →⟨ reducible-⊩≡ ⟩
+    (∃ λ l → Γ ⊩⟨ l ⟩ Id A t u ≡ B)         →⟨ Σ.map idᶠ (Σ.map idᶠ (Σ.map idᶠ proj₁)) ∘→ proj₂ ∘→ ⊩Id≡⇔ .proj₁ ∘→ proj₂ ⟩
+    (∃₃ λ A′ t′ u′ → Γ ⊢ B ⇒* Id A′ t′ u′)  →⟨ Σ.map idᶠ $ Σ.map idᶠ $ Σ.map idᶠ (flip whnfRed* B-whnf) ⟩
+    (∃₃ λ A′ t′ u′ → B PE.≡ Id A′ t′ u′)    □
 
 opaque
 
@@ -164,11 +165,11 @@ opaque
       (_ , _ , _ , _ , A≡Id) →
     case ⊩≡∷Id⇔ .proj₁ $ proj₂ $ reducible-⊩≡∷ $ conv t≡rfl A≡Id of λ
       (t′ , _ , t⇒*u , rfl⇒*v , _ , _ , u∼v) →
-    case whnfRed*Term (redₜ rfl⇒*v) rflₙ of λ {
+    case whnfRed*Term rfl⇒*v rflₙ of λ {
       PE.refl →
     case u∼v of λ where
       (rfl₌ _) →
-        conv* (redₜ t⇒*u) (sym A≡Id)
+        conv* t⇒*u (sym A≡Id)
       (ne _ () _) }
 
 opaque

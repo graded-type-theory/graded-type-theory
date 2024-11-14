@@ -515,30 +515,6 @@ _⊢_:≡:_ : (Γ : Con Term n) → Term n → Term n → Set ℓ
 _⊢_:≡:_∷_ : (Γ : Con Term n) → Term n → Term n → Term n → Set ℓ
 Γ ⊢ t :≡: u ∷ A = (Γ ⊢ t ∷ A) × (Γ ⊢ u ∷ A) × (Γ ⊢ t ≡ u ∷ A)
 
--- Type reduction closure with well-formed types
-record _⊢_:⇒*:_ (Γ : Con Term n) (A B : Term n) : Set ℓ where
-  no-eta-equality
-  pattern
-  constructor [_,_,_]
-  field
-    ⊢A : Γ ⊢ A
-    ⊢B : Γ ⊢ B
-    D  : Γ ⊢ A ⇒* B
-
-open _⊢_:⇒*:_ using () renaming (D to red; ⊢A to ⊢A-red; ⊢B to ⊢B-red) public
-
--- Term reduction closure with well-formed terms
-record _⊢_:⇒*:_∷_ (Γ : Con Term n) (t u A : Term n) : Set ℓ where
-  no-eta-equality
-  pattern
-  constructor [_,_,_]
-  field
-    ⊢t : Γ ⊢ t ∷ A
-    ⊢u : Γ ⊢ u ∷ A
-    d  : Γ ⊢ t ⇒* u ∷ A
-
-open _⊢_:⇒*:_∷_ using () renaming (d to redₜ; ⊢t to ⊢t-redₜ; ⊢u to ⊢u-redₜ) public
-
 -- Well-formed substitutions.
 data _⊢ˢ_∷_ {k} (Δ : Con Term k) :
        (σ : Subst k n) (Γ : Con Term n) → Set ℓ where

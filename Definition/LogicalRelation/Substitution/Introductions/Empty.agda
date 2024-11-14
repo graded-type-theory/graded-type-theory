@@ -48,7 +48,7 @@ opaque
     Γ ⊩⟨ l ⟩ Empty ⇔ ⊢ Γ
   ⊩Empty⇔ =
       wf ∘→ escape-⊩
-    , (λ ⊢Γ → Emptyᵣ (idRed:*: (Emptyⱼ ⊢Γ)))
+    , (λ ⊢Γ → Emptyᵣ (id (Emptyⱼ ⊢Γ)))
 
 opaque
   unfolding _⊩⟨_⟩_∷_ ⊩Empty⇔
@@ -62,7 +62,7 @@ opaque
          lemma (Empty-elim ⊩Empty′)
            (irrelevanceTerm ⊩Empty′ (Empty-intr (Empty-elim ⊩Empty′)) ⊩t))
     , (λ ⊩t@(Emptyₜ n d n≡n prop) →
-         ⊩Empty⇔ .proj₂ (wfTerm (⊢t-redₜ d)) , ⊩t)
+         ⊩Empty⇔ .proj₂ (wfEqTerm (subset*Term d)) , ⊩t)
     where
     lemma :
       (⊩Empty : Γ ⊩⟨ l ⟩Empty Empty) →
@@ -85,7 +85,7 @@ opaque
          lemma ⊩Empty′
            ((irrelevanceEq ⊩Empty) (Empty-intr ⊩Empty′) Empty≡A))
     , (λ Empty≡A →
-         case idRed:*: (Emptyⱼ (wfEq (subset* Empty≡A))) of λ
+         case id (Emptyⱼ (wfEq (subset* Empty≡A))) of λ
            Empty⇒*Empty →
          let ⊩Empty = Emptyᵣ Empty⇒*Empty in
            ⊩Empty
@@ -116,7 +116,7 @@ opaque
           (irrelevanceTerm ⊩Empty′ (Empty-intr (Empty-elim ⊩Empty′)) ⊩u)
           (irrelevanceEqTerm ⊩Empty′ (Empty-intr (Empty-elim ⊩Empty′)) t≡u))
     , λ (⊩t@(Emptyₜ _ d _ _) , ⊩u , t≡u) →
-        ⊩Empty⇔ .proj₂ (wfTerm (⊢t-redₜ d)) , ⊩t , ⊩u , t≡u
+        ⊩Empty⇔ .proj₂ (wfEqTerm (subset*Term d)) , ⊩t , ⊩u , t≡u
     where
     lemma :
       (⊩Empty : Γ ⊩⟨ l ⟩Empty Empty) →

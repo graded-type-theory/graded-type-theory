@@ -24,6 +24,7 @@ open import Definition.Typed.Stability R
 open import Definition.Typed.Substitution R
 open import Definition.Typed.Syntactic R
 open import Definition.Typed.Weakening R using (_∷ʷ_⊇_; wkEq)
+open import Definition.Typed.Well-formed R
 open import Definition.Conversion R
 open import Definition.Conversion.Reduction R
 open import Definition.Conversion.Universe R
@@ -87,7 +88,7 @@ record _⊢_~_∷_ (Γ : Con Term n) (k l A : Term n) : Set a where
 ~-app (↑ A≡B x) x₁ =
   let _ , ⊢B = syntacticEq A≡B
       B′ , whnfB′ , D = whNorm ⊢B
-      ΠFG≡B′ = trans A≡B (subset* (red D))
+      ΠFG≡B′ = trans A≡B (subset* D)
       _ , ⊢f , _ = syntacticEqTerm (soundnessConv↑Term x₁)
   in
   case Π≡A ΠFG≡B′ whnfB′ of λ {
@@ -97,7 +98,7 @@ record _⊢_~_∷_ (Γ : Con Term n) (k l A : Term n) : Set a where
   ↑ (substTypeEq G≡E (refl ⊢f))
     (app-cong
        (PE.subst (λ x → _ ⊢ _ ~ _ ↓ x) B≡ΠHE
-          ([~] _ (red D , whnfB′) x))
+          ([~] _ (D , whnfB′) x))
        (convConv↑Term F≡H x₁)) }}
 
 ~-fst :
@@ -107,12 +108,12 @@ record _⊢_~_∷_ (Γ : Con Term n) (k l A : Term n) : Set a where
 ~-fst (↑ A≡B p~r) =
   case syntacticEq A≡B of λ (_ , ⊢B) →
   case whNorm ⊢B of λ (B′ , whnfB′ , D) →
-  case trans A≡B (subset* (red D)) of λ ΣFG≡B′ →
+  case trans A≡B (subset* D) of λ ΣFG≡B′ →
   case Σ≡A ΣFG≡B′ whnfB′ of λ where
     (H , _ , PE.refl) →
       case Σ-injectivity ΣFG≡B′ of λ where
         (F≡H , _ , _ , _) →
-          ↑ F≡H (fst-cong ([~] _ (red D , whnfB′) p~r))
+          ↑ F≡H (fst-cong ([~] _ (D , whnfB′) p~r))
 
 ~-snd :
   ∀ {p r F G} →
@@ -121,12 +122,12 @@ record _⊢_~_∷_ (Γ : Con Term n) (k l A : Term n) : Set a where
 ~-snd (↑ A≡B p~r) =
   case syntacticEq A≡B of λ (⊢ΣFG , ⊢B) →
   case whNorm ⊢B of λ (B′ , whnfB′ , D) →
-  case trans A≡B (subset* (red D)) of λ ΣFG≡B′ →
+  case trans A≡B (subset* D) of λ ΣFG≡B′ →
   case Σ≡A ΣFG≡B′ whnfB′ of λ where
     (_ , E , PE.refl) →
       case Σ-injectivity ΣFG≡B′ of λ where
         (_ , G≡E , _ , _) →
-          let p~r↓       = [~] _ (red D , whnfB′) p~r
+          let p~r↓       = [~] _ (D , whnfB′) p~r
               _ , ⊢G , _ = inversion-ΠΣ ⊢ΣFG
               _ , ⊢p , _ = syntacticEqTerm (soundness~↑ p~r)
               ⊢fst       = fstⱼ ⊢G (conv ⊢p (sym A≡B))
@@ -142,10 +143,10 @@ record _⊢_~_∷_ (Γ : Con Term n) (k l A : Term n) : Set a where
 ~-natrec x x₁ x₂ (↑ A≡B x₄) =
   let _ , ⊢B = syntacticEq A≡B
       B′ , whnfB′ , D = whNorm ⊢B
-      ℕ≡B′ = trans A≡B (subset* (red D))
+      ℕ≡B′ = trans A≡B (subset* D)
       B≡ℕ = ℕ≡A ℕ≡B′ whnfB′
       k~l′ = PE.subst (λ x → _ ⊢ _ ~ _ ↓ x) B≡ℕ
-                      ([~] _ (red D , whnfB′) x₄)
+                      ([~] _ (D , whnfB′) x₄)
       ⊢F , _ = syntacticEq (soundnessConv↑ x)
       _ , ⊢n , _ = syntacticEqTerm (soundness~↓ k~l′)
   in  ↑ (refl (substType ⊢F ⊢n))
@@ -160,12 +161,12 @@ record _⊢_~_∷_ (Γ : Con Term n) (k l A : Term n) : Set a where
 ~-prodrec x₂ (↑ A≡B k~↑l) x₄ =
   case syntacticEq A≡B of λ (_ , ⊢B) →
   case whNorm ⊢B of λ (B′ , whnfB′ , D) →
-  case _⊢_≡_.trans A≡B (subset* (red D)) of λ Σ≡Σ′ →
-  case Σ≡A (trans A≡B (subset* (red D))) whnfB′ of λ where
+  case _⊢_≡_.trans A≡B (subset* D) of λ Σ≡Σ′ →
+  case Σ≡A (trans A≡B (subset* D)) whnfB′ of λ where
     (F′ , G′ , PE.refl) →
       case Σ-injectivity Σ≡Σ′ of λ where
         (F≡F′ , G≡G′ , _ , _ , _) →
-          let t~t′       = [~] _ (red D , whnfB′) k~↑l
+          let t~t′       = [~] _ (D , whnfB′) k~↑l
               ⊢Γ         = wf ⊢B
               ⊢Γ≡Γ       = reflConEq ⊢Γ
               ⊢A , _     = syntacticEq (soundnessConv↑ x₂)
@@ -182,10 +183,10 @@ record _⊢_~_∷_ (Γ : Con Term n) (k l A : Term n) : Set a where
 ~-emptyrec x (↑ A≡B x₄) =
   let _ , ⊢B = syntacticEq A≡B
       B′ , whnfB′ , D = whNorm ⊢B
-      Empty≡B′ = trans A≡B (subset* (red D))
+      Empty≡B′ = trans A≡B (subset* D)
       B≡Empty = Empty≡A Empty≡B′ whnfB′
       k~l′ = PE.subst (λ x → _ ⊢ _ ~ _ ↓ x) B≡Empty
-                      ([~] _ (red D , whnfB′) x₄)
+                      ([~] _ (D , whnfB′) x₄)
       ⊢F , _ = syntacticEq (soundnessConv↑ x)
       _ , ⊢n , _ = syntacticEqTerm (soundness~↓ k~l′)
   in  ↑ (refl ⊢F)
@@ -201,10 +202,10 @@ record _⊢_~_∷_ (Γ : Con Term n) (k l A : Term n) : Set a where
 ~-unitrec A<>A′ (↑ A≡B t~t′) u<>u′ ok no-η =
   let _ , ⊢B = syntacticEq A≡B
       B′ , whnfB′ , D = whNorm ⊢B
-      Unit≡B′ = trans A≡B (subset* (red D))
+      Unit≡B′ = trans A≡B (subset* D)
       B≡Unit = Unit≡A Unit≡B′ whnfB′
       t~t″ = PE.subst (λ x → _ ⊢ _ ~ _ ↓ x) B≡Unit
-                      ([~] _ (red D , whnfB′) t~t′)
+                      ([~] _ (D , whnfB′) t~t′)
       ⊢A , _ = syntacticEq (soundnessConv↑ A<>A′)
       _ , ⊢t , _ = syntacticEqTerm (soundness~↓ t~t″)
   in  ↑ (refl (substType ⊢A ⊢t))
@@ -341,12 +342,12 @@ private opaque
       λ [e] [e'] ok →
         let u , uWhnf , uRed = whNormTerm [e]
             u' , u'Whnf , u'Red = whNormTerm [e']
-            [u] = ⊢u-redₜ uRed
-            [u'] = ⊢u-redₜ u'Red
+            _ , _ , [u] = wf-⊢≡∷ (subset*Term uRed)
+            _ , _ , [u'] = wf-⊢≡∷ (subset*Term u'Red)
         in  [↑]ₜ Unit! u u'
-              (red (idRed:*: (syntacticTerm [e])) , Unitₙ)
-              (redₜ uRed , uWhnf)
-              (redₜ u'Red , u'Whnf)
+              (id (syntacticTerm [e]) , Unitₙ)
+              (uRed , uWhnf)
+              (u'Red , u'Whnf)
               (η-unit [u] [u'] uWhnf u'Whnf ok)
     .Equality-relations.≅-ΠΣ-cong →
       λ x₁ x₂ ok → liftConv (ΠΣ-cong x₁ x₂ ok)

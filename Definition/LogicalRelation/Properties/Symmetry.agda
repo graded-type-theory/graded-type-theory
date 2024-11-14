@@ -82,15 +82,15 @@ symEqTerm : ∀ {l A t u} ([A] : Γ ⊩⟨ l ⟩ A)
           → Γ ⊩⟨ l ⟩ t ≡ u ∷ A / [A]
           → Γ ⊩⟨ l ⟩ u ≡ t ∷ A / [A]
 
-symEqT (ℕᵥ D D′) A≡B = red D
-symEqT (Emptyᵥ D D′) A≡B = red D
+symEqT (ℕᵥ D D′) A≡B = D
+symEqT (Emptyᵥ D D′) A≡B = D
 symEqT (Unitᵥ (Unitₜ A⇒*Unit _) (Unitₜ B⇒*Unit₁ _)) B⇒*Unit₂ =
   case Unit-PE-injectivity $
-       whrDet* (red B⇒*Unit₁ , Unitₙ) (B⇒*Unit₂ , Unitₙ) of λ {
+       whrDet* (B⇒*Unit₁ , Unitₙ) (B⇒*Unit₂ , Unitₙ) of λ {
     (_ , PE.refl) →
-  red A⇒*Unit }
+  A⇒*Unit }
 symEqT (ne (ne _ D neK K≡K) (ne K₁ D₁ neK₁ K≡K₁)) (ne₌ M D′ neM K≡M)
-       rewrite whrDet* (red D′ , ne neM) (red D₁ , ne neK₁) =
+       rewrite whrDet* (D′ , ne neM) (D₁ , ne neK₁) =
   ne₌ _ D neK
       (≅-sym K≡M)
 symEqT
@@ -98,7 +98,7 @@ symEqT
   (Bᵥ W (Bᵣ F G D A≡A [F] [G] G-ext _)
      (Bᵣ F₁ G₁ D₁ A≡A₁ [F]₁ [G]₁ G-ext₁ _))
   (B₌ F′ G′ D′ A≡B [F≡F′] [G≡G′]) =
-  let ΠF₁G₁≡ΠF′G′       = whrDet* (red D₁ , ⟦ W ⟧ₙ) (red D′ , ⟦ W ⟧ₙ)
+  let ΠF₁G₁≡ΠF′G′       = whrDet* (D₁ , ⟦ W ⟧ₙ) (D′ , ⟦ W ⟧ₙ)
       F₁≡F′ , G₁≡G′ , _ = B-PE-injectivity W W ΠF₁G₁≡ΠF′G′
       [F₁≡F] :
         {ℓ : Nat} {Δ : Con Term ℓ} {ρ : Wk ℓ n}
@@ -122,14 +122,11 @@ symEqT
            [a]₁ = convTerm₁ ([F]₁ [ρ]) ([F] [ρ]) ([F₁≡F] [ρ]) [a]
        in  irrelevanceEq′ ρG′a≡ρG₁′a [ρG′a] ([G]₁ [ρ] [a])
              (symEq ([G] [ρ] [a]₁) [ρG′a] ([G≡G′] [ρ] [a]₁)))
-symEqT (Uᵥ (Uᵣ l′ l< ⇒*U) (Uᵣ l′₁ l<₁ ⇒*U₁)) D with whrDet* (red D , Uₙ) (red ⇒*U₁ , Uₙ)
+symEqT (Uᵥ (Uᵣ l′ l< ⇒*U) (Uᵣ l′₁ l<₁ ⇒*U₁)) D with whrDet* (D , Uₙ) (⇒*U₁ , Uₙ)
 symEqT (Uᵥ (Uᵣ l′ l< ⇒*U) (Uᵣ l′₁ l<₁ ⇒*U₁)) D | PE.refl = ⇒*U
 symEqT (Idᵥ ⊩A ⊩B@record{}) A≡B =
-  case
-    whrDet*
-      (red (_⊩ₗId_.⇒*Id ⊩B) , Idₙ)
-      (red (_⊩ₗId_≡_/_.⇒*Id′ A≡B) , Idₙ)
-  of λ {
+  case whrDet* (_⊩ₗId_.⇒*Id ⊩B , Idₙ)
+         (_⊩ₗId_≡_/_.⇒*Id′ A≡B , Idₙ) of λ {
     PE.refl →
   record
     { ⇒*Id′    = _⊩ₗId_.⇒*Id ⊩A

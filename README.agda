@@ -1198,11 +1198,6 @@ linear-or-affine =
 ------------------------------------------------------------------------
 -- A: A Logical Relation for Reducibility
 
--- Combined reduction and typing relations.
-
-_⊢_:⇒*:_∷_ = Definition.Typed._⊢_:⇒*:_∷_
-_⊢_:⇒*:_   = Definition.Typed._⊢_:⇒*:_
-
 -- The relation _:_⊇_.
 
 _∷_⊇_ = Definition.Typed.Weakening._∷_⊇_

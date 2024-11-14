@@ -130,7 +130,6 @@ import Definition.Typed.Properties
 import Definition.Typed.Reasoning.Term
 import Definition.Typed.RedSteps
 import Definition.Typed.Reasoning.Reduction
-import Definition.Typed.Reasoning.Reduction.Well-typed
 import Definition.Typed.Reduction
 import Definition.Typed.EqualityRelation
 import Definition.Typed.EqRelInstance

@@ -30,6 +30,7 @@ open import Definition.Typed.Properties TR
 open import Definition.Typed.Reasoning.Term TR
 open import Definition.Typed.Syntactic TR
 import Definition.Typed.Weakening TR as W
+open import Definition.Typed.Well-formed TR
 open import Definition.Untyped M as U
 open import Definition.Untyped.Identity 𝕄
 open import Definition.Untyped.Neutral M type-variant
@@ -543,12 +544,14 @@ opaque
     case red-Id ⊢t of λ where
       (_ , rflₙ , ⇒*rfl) →
         case var-only-equal-to-itself (neₙ (var _)) (ne (var _)) $
-             prod-cong⁻¹ (inversion-rfl-Id (⊢u-redₜ ⇒*rfl))
+             prod-cong⁻¹
+               (inversion-rfl-Id $
+                wf-⊢≡∷ (subset*Term ⇒*rfl) .proj₂ .proj₂)
                .proj₂ .proj₁ of λ ()
       (_ , ne u-ne , t⇒*u) →
         neutral-not-well-resourced nem (λ _ → inhabited-consistent ⊢σ)
-          u-ne (⊢u-redₜ t⇒*u)
-          (usagePres*Term Unitʷ-η→ ▸t (redₜ t⇒*u)) }
+          u-ne (wf-⊢≡∷ (subset*Term t⇒*u) .proj₂ .proj₂)
+          (usagePres*Term Unitʷ-η→ ▸t t⇒*u) }
     where
     A′ : Universe-level → Term 0
     A′ 0      = ℕ
@@ -582,13 +585,15 @@ opaque
            (_ , ne v-n , t⇒*v) →
              ⊥-elim $
              neutral-not-well-resourced nem
-               (λ _ → inhabited-consistent ⊢σ) v-n (⊢u-redₜ t⇒*v)
-               (usagePres*Term Unitʷ-η→ ▸t (redₜ t⇒*v))
+               (λ _ → inhabited-consistent ⊢σ) v-n
+               (wf-⊢≡∷ (subset*Term t⇒*v) .proj₂ .proj₂)
+               (usagePres*Term Unitʷ-η→ ▸t t⇒*v)
            (lam _ v , lamₙ , t⇒*lam) →
              case inv-usage-lam
-                    (usagePres*Term Unitʷ-η→ ▸t (redₜ t⇒*lam)) of λ {
+                    (usagePres*Term Unitʷ-η→ ▸t t⇒*lam) of λ {
                (invUsageLam ▸v 𝟘≤) →
-             case inversion-lam-Π (⊢u-redₜ t⇒*lam) of λ {
+             case inversion-lam-Π
+                    (wf-⊢≡∷ (subset*Term t⇒*lam) .proj₂ .proj₂) of λ {
                (⊢v , PE.refl , _) →
                _
              , sub ▸v (𝟘≤ ∙ ≤-reflexive (PE.sym (·-zeroʳ _)))

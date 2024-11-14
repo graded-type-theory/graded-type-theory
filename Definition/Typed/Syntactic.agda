@@ -40,27 +40,7 @@ opaque
 
 opaque
 
-  -- The relation _⊢_⇒*_ is contained in _⊢_:⇒*:_.
-
-  ⇒*→:⇒*: : Γ ⊢ A ⇒* B → Γ ⊢ A :⇒*: B
-  ⇒*→:⇒*: A⇒*B =
-    case syntacticRed A⇒*B of λ
-      (⊢A , ⊢B) →
-    [ ⊢A , ⊢B , A⇒*B ]
-
-opaque
-
   -- A well-formedness lemma for _⊢_⇒*_∷_.
 
   syntacticRedTerm : Γ ⊢ t ⇒* u ∷ A → (Γ ⊢ A) × Γ ⊢ t ∷ A × Γ ⊢ u ∷ A
   syntacticRedTerm = syntacticEqTerm ∘→ subset*Term
-
-opaque
-
-  -- The relation _⊢_⇒*_∷_ is contained in _⊢_:⇒*:_∷_.
-
-  ⇒*∷→:⇒*:∷ : Γ ⊢ t ⇒* u ∷ A → Γ ⊢ t :⇒*: u ∷ A
-  ⇒*∷→:⇒*:∷ t⇒*u =
-    case syntacticRedTerm t⇒*u of λ
-      (_ , ⊢t , ⊢u) →
-    [ ⊢t , ⊢u , t⇒*u ]

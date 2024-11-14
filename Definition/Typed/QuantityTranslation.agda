@@ -576,15 +576,3 @@ module _
   tr-⊢↘∷ :
     Γ T₁.⊢ t ↘ u ∷ A → tr-Con Γ T₂.⊢ tr-Term t ↘ tr-Term u ∷ tr-Term A
   tr-⊢↘∷ (t⇒*u , u) = tr-⊢⇒*∷ t⇒*u , tr-Whnf Unitʷ-η-reflected u
-
-  -- Preservation of _⊢_:⇒*:_.
-
-  tr-⊢:⇒*: : Γ T₁.⊢ A :⇒*: B → tr-Con Γ T₂.⊢ tr-Term A :⇒*: tr-Term B
-  tr-⊢:⇒*: [ A , B , A⇒*B ] = [ tr-⊢′ A , tr-⊢′ B , tr-⊢⇒* A⇒*B ]
-
-  -- Preservation of _⊢_:⇒*:_∷_.
-
-  tr-⊢:⇒*:∷ :
-    Γ T₁.⊢ t :⇒*: u ∷ A →
-    tr-Con Γ T₂.⊢ tr-Term t :⇒*: tr-Term u ∷ tr-Term A
-  tr-⊢:⇒*:∷ [ t , u , t⇒*u ] = [ tr-⊢∷ t , tr-⊢∷ u , tr-⊢⇒*∷ t⇒*u ]

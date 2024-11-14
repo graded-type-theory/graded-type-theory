@@ -23,6 +23,7 @@ import Definition.Typed.Reasoning.Term R as TmR
 import Definition.Typed.Reasoning.Type R as TyR
 open import Definition.Typed.Stability R
 open import Definition.Typed.Syntactic R
+open import Definition.Typed.Well-formed R
 open import Definition.Conversion R
 open import Definition.Conversion.Whnf R
 open import Definition.Typed.Consequences.DerivedRules R
@@ -261,8 +262,10 @@ mutual
     Γ ⊢ A ∷ U l₁ → Γ ⊢ B ∷ U l₂ → Γ ⊢ A [conv↑] B →
     Γ ⊢ A ≡ B ∷ U l₁ × l₁ PE.≡ l₂
   soundnessConv↑-U {A} {l₁} {B} {l₂} ⊢A ⊢B ([↑] A′ B′ A↘A′ B↘B′ A′≡B′) =
-    let A″ , A″-type , [ _ , ⊢A″ , A⇒*A″ ] = red-U ⊢A
-        B″ , B″-type , [ _ , ⊢B″ , B⇒*B″ ] = red-U ⊢B
+    let A″ , A″-type , A⇒*A″ = red-U ⊢A
+        B″ , B″-type , B⇒*B″ = red-U ⊢B
+        _ , _ , ⊢A″ = wf-⊢≡∷ (subset*Term A⇒*A″)
+        _ , _ , ⊢B″ = wf-⊢≡∷ (subset*Term B⇒*B″)
         A′≡A″ = whrDet* A↘A′ (univ* A⇒*A″ , typeWhnf A″-type)
         B′≡B″ = whrDet* B↘B′ (univ* B⇒*B″ , typeWhnf B″-type)
         A′≡B′ , l₁≡l₂ =

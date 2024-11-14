@@ -59,8 +59,8 @@ irrelevanceTermSV
   {l} {l′} {A}
   _ _ t®v (Unitᵥ {s} (Unitₜ A⇒*Unit₁ _) (Unitₜ A⇒*Unit₂ _)) =
   case Unit-injectivity
-         (Unit s l  ≡˘⟨ subset* (red A⇒*Unit₁) ⟩⊢
-          A         ≡⟨ subset* (red A⇒*Unit₂) ⟩⊢∎
+         (Unit s l  ≡˘⟨ subset* A⇒*Unit₁ ⟩⊢
+          A         ≡⟨ subset* A⇒*Unit₂ ⟩⊢∎
           Unit s l′ ∎) of λ {
     (_ , PE.refl) →
   t®v }
@@ -68,7 +68,7 @@ irrelevanceTermSV
   [A] [A]′ t®v
   (Bᵥ (BΠ p q) (Bᵣ F G D A≡A [F] [G] G-ext _)
      (Bᵣ F₁ G₁ D₁ A≡A₁ [F]₁ [G]₁ G-ext₁ _))
-       with B-PE-injectivity BΠ! BΠ! (whrDet* (red D , ΠΣₙ) (red D₁ , ΠΣₙ))
+       with B-PE-injectivity BΠ! BΠ! (whrDet* (D , ΠΣₙ) (D₁ , ΠΣₙ))
 ... | PE.refl , PE.refl , _
        with is-𝟘? p
 ... | (yes p≡𝟘) = t®v .proj₁ , λ [a]′ →
@@ -87,7 +87,7 @@ irrelevanceTermSV {v = v}
   [A] [A]′ (t₁ , t₂ , t⇒t′ , [t₁] , v₂ , t₂®v₂ , extra)
   (Bᵥ (BΣ _ p _) (Bᵣ F G D A≡A [F] [G] G-ext _)
      (Bᵣ F₁ G₁ D₁ A≡A₁ [F]₁ [G]₁ G-ext₁ _))
-  with B-PE-injectivity BΣ! BΣ! (whrDet* (red D , ΠΣₙ) (red D₁ , ΠΣₙ))
+  with B-PE-injectivity BΣ! BΣ! (whrDet* (D , ΠΣₙ) (D₁ , ΠΣₙ))
 ... | PE.refl , PE.refl , _ =
   let [F]′ = [F] (idʷ ⊢Δ)
       [F]₁′ = [F]₁ (idʷ ⊢Δ)
@@ -103,8 +103,7 @@ irrelevanceTermSV {v = v}
                    Σ-®-intro-ω v₁ v⇒p (irrelevanceTermSV [F]′ [F]₁′ t₁®v₁
                                (goodCasesRefl [F]′ [F]₁′)) p≢𝟘
 irrelevanceTermSV _ _ t®v (Idᵥ ⊩A@record{} ⊩B) =
-  case whrDet* (red (_⊩ₗId_.⇒*Id ⊩A) , Idₙ)
-         (red (_⊩ₗId_.⇒*Id ⊩B) , Idₙ) of λ {
+  case whrDet* (_⊩ₗId_.⇒*Id ⊩A , Idₙ) (_⊩ₗId_.⇒*Id ⊩B , Idₙ) of λ {
     PE.refl →
   t®v }
 irrelevanceTermSV _ _ t®v (embᵥ₁ ≤ᵘ-refl A≡B) =

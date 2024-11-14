@@ -50,7 +50,7 @@ opaque
     where
     lemma : ε ⊩ℕ u ∷ℕ → ∃ λ n → ε ⊢ u ≡ sucᵏ n ∷ ℕ
     lemma (ℕₜ v u⇒*v _ ⊩v) =
-      Σ.map idᶠ (trans (subset*Term (redₜ u⇒*v)))
+      Σ.map idᶠ (trans (subset*Term u⇒*v))
         (case ⊩v of λ where
            (ne (neNfₜ u-ne _)) → ⊥-elim $ noClosedNe u-ne
            zeroᵣ               → 0 , refl (zeroⱼ ε)
@@ -76,7 +76,7 @@ opaque
     case ⊩∷Id⇔ .proj₁ $ reducible-⊩∷ ⊢v .proj₂ of λ
       (_ , v⇒*w , _ , _ , rest) →
     case rest of λ where
-      (rflᵣ _)    → redₜ v⇒*w
+      (rflᵣ _)    → v⇒*w
       (ne w-ne _) → ⊥-elim $ noClosedNe w-ne
 
 opaque

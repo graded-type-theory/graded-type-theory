@@ -38,6 +38,7 @@ open import Definition.Typed.Properties TR
 import Definition.Typed.Reasoning.Reduction TR as RR
 open import Definition.Typed.Substitution TR
 open import Definition.Typed.Syntactic TR
+open import Definition.Typed.Well-formed TR
 
 open import Definition.Untyped M
 open import Definition.Untyped.Neutral M type-variant
@@ -768,7 +769,8 @@ opaque
             (_ , ne n , _) →
               ⊥-elim (noClosedNe n);
             (_ , prodₙ {t = t₁} {u = t₂} , t[σ]⇒*t₁,t₂) →
-          case inversion-prod-Σ $ ⊢u-redₜ t[σ]⇒*t₁,t₂ of λ {
+          case inversion-prod-Σ $
+               wf-⊢≡∷ (subset*Term t[σ]⇒*t₁,t₂) .proj₂ .proj₂ of λ {
             (_ , _ , PE.refl , PE.refl , _) →
           record
             { t₁            = t₁
@@ -777,7 +779,7 @@ opaque
             ; v₂            = loop str
             ; t₁®v₁         = ®∷◂𝟘 (·-zeroˡ _)
             ; t₂®v₂         = ®∷◂𝟘 PE.refl
-            ; t[σ]⇒*t₁,t₂   = redₜ t[σ]⇒*t₁,t₂
+            ; t[σ]⇒*t₁,t₂   = t[σ]⇒*t₁,t₂
             ; ⇒*u[σ′,v₁,v₂] =
                 erase str (prodrec 𝟘 p q′ C t u) T.[ σ′ ]               ≡⟨ PE.cong T._[ _ ] $ prodrec-𝟘 q′ C ⟩⇒
 

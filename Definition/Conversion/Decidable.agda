@@ -820,7 +820,7 @@ mutual
   dec~↓ ([~] _ _ k~l) ([~] _ _ k~l₁) | yes (B , k~l₂) =
     let ⊢B , _ , _ = syntacticEqTerm (soundness~↑ k~l₂)
         C , whnfC , D′ = whNorm ⊢B
-    in  yes (C , [~] B (red D′ , whnfC) k~l₂)
+    in  yes (C , [~] B (D′ , whnfC) k~l₂)
   dec~↓ ([~] _ _ k~l) ([~] _ _ k~l₁) | no ¬p =
     no (λ { (_ , [~] A₃ _ k~l₂) → ¬p (A₃ , k~l₂) })
 

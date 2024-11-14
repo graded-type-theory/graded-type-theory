@@ -124,7 +124,7 @@ opaque
     , (λ ())
 
 opaque
-  unfolding _®_∷_ ⊩Unit⇔ whrDet* idRed:*:
+  unfolding _®_∷_ ⊩Unit⇔ whrDet*
 
   -- A characterisation lemma for Unit.
 
@@ -172,7 +172,7 @@ opaque
          case irrelevanceTerm ⊩Id (Idᵣ ⊩Id′) t®v of λ {
            (rflᵣ t⇒* ⇒*↯) →
            escape-⊩ (wf-⊩∷ $ ⊩Id⇔ .proj₁ ⊩Id .proj₁)
-         , rflᵣ (conv* t⇒* (sym (subset* (red (_⊩ₗId_.⇒*Id ⊩Id′)))))
+         , rflᵣ (conv* t⇒* (sym (subset* (_⊩ₗId_.⇒*Id ⊩Id′))))
              ⇒*↯ })
     , (λ (⊢A , t®v) →
          case reducible-⊩ ⊢A of λ
@@ -210,7 +210,7 @@ opaque
            escape-⊩ ⊩Π , t®v .proj₁
          , λ t′ ⊢t′ →
              case B-PE-injectivity (BΠ _ _) (BΠ _ _)
-                    (whnfRed* (red (_⊩ₗB⟨_⟩_.D ⊩Π′)) ΠΣₙ) of λ {
+                    (whnfRed* (_⊩ₗB⟨_⟩_.D ⊩Π′) ΠΣₙ) of λ {
                (PE.refl , PE.refl , _) →
              case reducible-⊩∷ $
                   PE.subst (_⊢_∷_ _ _) (PE.sym $ wk-id _) ⊢t′ of λ
@@ -344,7 +344,7 @@ opaque
          case irrelevanceTerm ⊩Σ (Bᵣ _ ⊩Σ′) t®v of λ
            (t₁ , t₂ , t⇒ , ⊩t₁ , v₂ , t₂®v₂ , rest) →
          case B-PE-injectivity (BΣ _ _ _) (BΣ _ _ _)
-                (whnfRed* (red (_⊩ₗB⟨_⟩_.D ⊩Σ′)) ΠΣₙ) of λ {
+                (whnfRed* (_⊩ₗB⟨_⟩_.D ⊩Σ′) ΠΣₙ) of λ {
            (PE.refl , PE.refl , _) →
          let ⊩wk-A     = _⊩ₗB⟨_⟩_.[F] ⊩Σ′ (W.idʷ ⊢Δ)
              ⊩wk-B[t₁] = _⊩ₗB⟨_⟩_.[G] ⊩Σ′ (W.idʷ ⊢Δ) ⊩t₁

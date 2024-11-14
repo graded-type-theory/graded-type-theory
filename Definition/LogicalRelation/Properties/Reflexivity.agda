@@ -74,11 +74,10 @@ private
   reflEq-⊩< (≤ᵘ-step p) = reflEq-⊩< p
 
 reflEq (Uᵣ′ l′ l< ⊢Γ) = ⊢Γ
-reflEq (ℕᵣ D) = red D
-reflEq (Emptyᵣ D) = red D
-reflEq (Unitᵣ (Unitₜ D _)) = red D
-reflEq (ne′ _ [ ⊢A , ⊢B , D ] neK K≡K) =
-   ne₌ _ [ ⊢A , ⊢B , D ] neK K≡K
+reflEq (ℕᵣ D) = D
+reflEq (Emptyᵣ D) = D
+reflEq (Unitᵣ (Unitₜ D _)) = D
+reflEq (ne′ _ D neK K≡K) = ne₌ _ D neK K≡K
 reflEq (Bᵣ′ _ _ _ D A≡A [F] [G] _ _) =
    B₌ _ _ D A≡A
       (λ ρ → reflEq ([F] ρ))
@@ -97,18 +96,16 @@ reflEq (emb p [A]) = reflEq-⊩< p [A]
 
 reflEqTerm (Uᵣ′ _ p _) (Uₜ A d A-type A≅A ⊩A) =
   Uₜ₌ A A d d A-type A-type A≅A ⊩A ⊩A (reflEq-⊩< p ⊩A)
-reflEqTerm (ℕᵣ D) (ℕₜ n [ ⊢t , ⊢u , d ] t≡t prop) =
-  ℕₜ₌ n n [ ⊢t , ⊢u , d ] [ ⊢t , ⊢u , d ] t≡t
-      (reflNatural-prop prop)
-reflEqTerm (Emptyᵣ D) (Emptyₜ n [ ⊢t , ⊢u , d ] t≡t prop) =
-  Emptyₜ₌ n n [ ⊢t , ⊢u , d ] [ ⊢t , ⊢u , d ] t≡t
-    (reflEmpty-prop prop)
-reflEqTerm (Unitᵣ {s} D) (Unitₜ n [ ⊢t , ⊢u , d ] t≡t prop) =
+reflEqTerm (ℕᵣ D) (ℕₜ n d t≡t prop) =
+  ℕₜ₌ n n d d t≡t (reflNatural-prop prop)
+reflEqTerm (Emptyᵣ D) (Emptyₜ n d t≡t prop) =
+  Emptyₜ₌ n n d d t≡t (reflEmpty-prop prop)
+reflEqTerm (Unitᵣ {s} D) (Unitₜ n d t≡t prop) =
+  let ⊢t = redFirst*Term d in
   case Unit-with-η? s of λ where
     (inj₁ η)                → Unitₜ₌ˢ ⊢t ⊢t η
     (inj₂ (PE.refl , no-η)) →
-      Unitₜ₌ʷ n n [ ⊢t , ⊢u , d ] [ ⊢t , ⊢u , d ] t≡t
-        (reflUnitʷ-prop prop) no-η
+      Unitₜ₌ʷ n n d d t≡t (reflUnitʷ-prop prop) no-η
 reflEqTerm (ne′ _ D neK K≡K) (neₜ k d (neNfₜ neK₁ k≡k)) =
   neₜ₌ k k d d (neNfₜ₌ neK₁ neK₁ k≡k)
 reflEqTerm

@@ -48,14 +48,6 @@ id ⊢u ⇨∷* u⇒r = u⇒r
 
 opaque
 
-  -- A variant of _⇨∷*_ for _⊢_:⇒*:_∷_.
-
-  trans-:⇒*: : Γ ⊢ t :⇒*: u ∷ A → Γ ⊢ u :⇒*: v ∷ A → Γ ⊢ t :⇒*: v ∷ A
-  trans-:⇒*: [ ⊢t , _ , t⇒*u ] [ _ , ⊢v , u⇒*v ] =
-    [ ⊢t , ⊢v , t⇒*u ⇨∷* u⇒*v ]
-
-opaque
-
   -- A variant of _⇨*_ for _⊢_⇒*_ and _⊢_↘_.
 
   ⇒*→↘→↘ : Γ ⊢ A ⇒* B → Γ ⊢ B ↘ C → Γ ⊢ A ↘ C
@@ -73,10 +65,6 @@ conv* : Γ ⊢ t ⇒* u ∷ A → Γ ⊢ A ≡ B → Γ ⊢ t ⇒* u ∷ B
 conv* (id x) A≡B = id (conv x A≡B)
 conv* (x ⇨ d) A≡B = conv x A≡B ⇨ conv* d A≡B
 
--- Conversion of syntactic reduction closures.
-convRed:*: : ∀ {t u A B} → Γ ⊢ t :⇒*: u ∷ A → Γ ⊢ A ≡ B → Γ ⊢ t :⇒*: u ∷ B
-convRed:*: [ ⊢t , ⊢u , d ] A≡B = [ conv ⊢t  A≡B , conv ⊢u  A≡B , conv* d  A≡B ]
-
 opaque
 
   -- A variant of conv* for _⊢_↘_∷_.
@@ -88,13 +76,6 @@ opaque
 univ* : Γ ⊢ A ⇒* B ∷ U l → Γ ⊢ A ⇒* B
 univ* (id x) = id (univ x)
 univ* (x ⇨ A⇒B) = univ x ⇨ univ* A⇒B
-
-opaque
-
-  -- A variant of univ*.
-
-  univ:*: : Γ ⊢ A :⇒*: B ∷ U l → Γ ⊢ A :⇒*: B
-  univ:*: [ ⊢A , ⊢B , A⇒*B ] = [ univ ⊢A , univ ⊢B , univ* A⇒*B ]
 
 opaque
 
@@ -115,17 +96,6 @@ app-subst* : Γ ⊢ t ⇒* t′ ∷ Π p , q ▷ A ▹ B → Γ ⊢ a ∷ A
            → Γ ⊢ t ∘⟨ p ⟩ a ⇒* t′ ∘⟨ p ⟩ a ∷ B [ a ]₀
 app-subst* (id x) a₁ = id (x ∘ⱼ a₁)
 app-subst* (x ⇨ t⇒t′) a₁ = app-subst x a₁ ⇨ app-subst* t⇒t′ a₁
-
-opaque
-
-  -- A variant of app-subst*.
-
-  app-subst:*: :
-    Γ ⊢ t₁ :⇒*: t₂ ∷ Π p , q ▷ A ▹ B →
-    Γ ⊢ u ∷ A →
-    Γ ⊢ t₁ ∘⟨ p ⟩ u :⇒*: t₂ ∘⟨ p ⟩ u ∷ B [ u ]₀
-  app-subst:*: [ ⊢t₁ , ⊢t₂ , t₁⇒*t₂ ] ⊢u =
-    [ ⊢t₁ ∘ⱼ ⊢u , ⊢t₂ ∘ⱼ ⊢u , app-subst* t₁⇒*t₂ ⊢u ]
 
 -- First projection substitution of reduction closures
 fst-subst* : Γ ⊢ t ⇒* t′ ∷ Σˢ p , q ▷ A ▹ B
@@ -159,20 +129,3 @@ opaque
   (v₁⇒v₃ ⇨ v₃⇒*v₂) ok →
     []-cong-subst  ⊢A ⊢t ⊢u v₁⇒v₃  ok ⇨
     []-cong-subst* ⊢A ⊢t ⊢u v₃⇒*v₂ ok
-
--- A variant of []-cong-subst for _⊢_:⇒*:_∷_.
-
-[]-cong-subst:*: :
-  Γ ⊢ A →
-  Γ ⊢ t ∷ A →
-  Γ ⊢ u ∷ A →
-  Γ ⊢ v₁ :⇒*: v₂ ∷ Id A t u →
-  []-cong-allowed s →
-  let open Erased s in
-    Γ ⊢ []-cong s A t u v₁ :⇒*: []-cong s A t u v₂ ∷
-      Id (Erased A) ([ t ]) ([ u ])
-[]-cong-subst:*: ⊢A ⊢t ⊢u [ ⊢v₁ , ⊢v₂ , v₁⇒*v₂ ] ok = record
-  { ⊢t = []-congⱼ ⊢A ⊢t ⊢u ⊢v₁ ok
-  ; ⊢u = []-congⱼ ⊢A ⊢t ⊢u ⊢v₂ ok
-  ; d  = []-cong-subst* ⊢A ⊢t ⊢u v₁⇒*v₂ ok
-  }

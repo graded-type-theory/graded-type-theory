@@ -164,7 +164,7 @@ opaque
   ⊢▸-⇘ {s = ⟨ H , t , ρ , S ⟩} consistent nem ⊢s ▸s =
     let u , w , d = whNormTerm (⊢⦅⦆ {s = ⟨ H , t , ρ , S ⟩} ⊢s)
         _ , _ , H′ , t′ , ρ′ , d′ , _ , v =
-          whBisim {s = ⟨ H , t , ρ , S ⟩} consistent nem ⊢s ▸s (redₜ d , w)
+          whBisim {s = ⟨ H , t , ρ , S ⟩} consistent nem ⊢s ▸s (d , w)
     in  _ , _ , H′ , t′ , ρ′ , d′ , v
 
 opaque

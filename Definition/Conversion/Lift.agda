@@ -70,21 +70,21 @@ mutual
                 → Γ ⊢ t ~ u ↓ A
                 → Γ ⊢ t [conv↓] u ∷ A
   lift~toConv↓′ (Uᵣ′ _ _ A′⇒*U) A′⇒*A ([~] _ (B⇒*A , A-whnf) t~u)
-    rewrite PE.sym (whrDet* (red A′⇒*U , Uₙ) (A′⇒*A , A-whnf)) =
+    rewrite PE.sym (whrDet* (A′⇒*U , Uₙ) (A′⇒*A , A-whnf)) =
     let _ , ⊢t , ⊢u =
           syntacticEqTerm (conv (soundness~↑ t~u) (subset* B⇒*A))
     in
     univ ⊢t ⊢u (ne ([~] _ (B⇒*A , Uₙ) t~u))
   lift~toConv↓′ (ℕᵣ D) D₁ ([~] A (D₂ , whnfB) k~l)
-                rewrite PE.sym (whrDet* (red D , ℕₙ) (D₁ , whnfB)) =
+                rewrite PE.sym (whrDet* (D , ℕₙ) (D₁ , whnfB)) =
     ℕ-ins ([~] A (D₂ , ℕₙ) k~l)
   lift~toConv↓′ (Emptyᵣ D) D₁ ([~] A (D₂ , whnfB) k~l)
-                rewrite PE.sym (whrDet* (red D , Emptyₙ) (D₁ , whnfB)) =
+                rewrite PE.sym (whrDet* (D , Emptyₙ) (D₁ , whnfB)) =
     Empty-ins ([~] A (D₂ , Emptyₙ) k~l)
   lift~toConv↓′
     (Unitᵣ {s} (Unitₜ A′⇒*Unit _)) A′⇒*A
     t~u↓@([~] _ (B⇒*A , A-whnf) t~u↑) =
-    case whrDet* (red A′⇒*Unit , Unitₙ) (A′⇒*A , A-whnf) of λ {
+    case whrDet* (A′⇒*Unit , Unitₙ) (A′⇒*A , A-whnf) of λ {
       PE.refl →
     case Unit-with-η? s of λ where
       (inj₂ (PE.refl , no-η)) → Unitʷ-ins no-η t~u↓
@@ -97,13 +97,13 @@ mutual
           B≡Unit →
         η-unit (conv ⊢t B≡Unit) (conv ⊢u B≡Unit) (ne t-ne) (ne u-ne) η }
   lift~toConv↓′ (ne′ H D neH H≡H) D₁ ([~] A (D₂ , whnfB) k~l)
-                rewrite PE.sym (whrDet* (red D , ne neH) (D₁ , whnfB)) =
+                rewrite PE.sym (whrDet* (D , ne neH) (D₁ , whnfB)) =
     let _ , ⊢t , ⊢u = syntacticEqTerm (soundness~↑ k~l)
         A≡H = subset* D₂
     in  ne-ins (conv ⊢t A≡H) (conv ⊢u A≡H) neH ([~] A (D₂ , ne neH) k~l)
   lift~toConv↓′
     (Πᵣ′ F G D A≡A [F] [G] G-ext _) D₁ ([~] A (D₂ , whnfB) k~l)
-    rewrite PE.sym (whrDet* (red D , ΠΣₙ) (D₁ , whnfB)) =
+    rewrite PE.sym (whrDet* (D , ΠΣₙ) (D₁ , whnfB)) =
     let ⊢ΠFG , ⊢t , ⊢u = syntacticEqTerm
                            (soundness~↓ ([~] A (D₂ , ΠΣₙ) k~l))
         ⊢F , ⊢G , _ = inversion-ΠΣ ⊢ΠFG
@@ -120,7 +120,7 @@ mutual
     ([~] A″ (D₂ , whnfA) t~u)
     rewrite
       -- Σ F ▹ G ≡ A.
-      PE.sym (whrDet* (red D , ΠΣₙ) (D₁ , whnfA)) =
+      PE.sym (whrDet* (D , ΠΣₙ) (D₁ , whnfA)) =
     let neT , neU = ne~↑ t~u
         t~u↓ = [~] A″ (D₂ , ΠΣₙ) t~u
         ⊢ΣFG , ⊢t , ⊢u = syntacticEqTerm (soundness~↓ t~u↓)
@@ -148,12 +148,12 @@ mutual
     ([~] A″ (D₂ , whnfA) t~u)
     rewrite
       -- Σ F ▹ G ≡ A.
-      PE.sym (whrDet* (red D , ΠΣₙ) (D₁ , whnfA)) =
+      PE.sym (whrDet* (D , ΠΣₙ) (D₁ , whnfA)) =
     let t~u↓ = [~] A″ (D₂ , ΠΣₙ) t~u
         _ , ⊢t , ⊢u = syntacticEqTerm (soundness~↓ t~u↓)
     in  Σʷ-ins ⊢t ⊢u t~u↓
   lift~toConv↓′ (Idᵣ ⊩A′) A′⇒*A t~u@([~] _ (_ , A-whnf) _) =
-    case whrDet* (red (_⊩ₗId_.⇒*Id ⊩A′) , Idₙ) (A′⇒*A , A-whnf) of λ {
+    case whrDet* (_⊩ₗId_.⇒*Id ⊩A′ , Idₙ) (A′⇒*A , A-whnf) of λ {
       PE.refl →
     case syntacticEqTerm (soundness~↓ t~u) .proj₂ .proj₁ of λ {
       ⊢t →
@@ -168,11 +168,11 @@ mutual
                 → Γ ⊢ t [conv↑] u ∷ A
   lift~toConv↑′ [A] t~u =
     let B , whnfB , D = whNorm′ [A]
-        t~u↓ = [~] _ (red D , whnfB) t~u
+        t~u↓ = [~] _ (D , whnfB) t~u
         neT , neU = ne~↑ t~u
         _ , ⊢t , ⊢u = syntacticEqTerm (soundness~↓ t~u↓)
-    in  [↑]ₜ _ _ _ (red D , whnfB) (id ⊢t , ne neT) (id ⊢u , ne neU)
-          (lift~toConv↓′ [A] (red D) t~u↓)
+    in  [↑]ₜ _ _ _ (D , whnfB) (id ⊢t , ne neT) (id ⊢u , ne neU)
+          (lift~toConv↓′ [A] D t~u↓)
 
 -- Lifting of algorithmic equality of terms from neutrals to generic terms in WHNF.
 lift~toConv↓ : ∀ {t u A}

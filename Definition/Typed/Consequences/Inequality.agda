@@ -598,20 +598,20 @@ whnf≢ne {A} {t} {u} ¬-A-η t-whnf ¬-t-ne u-ne t≡u =
     ⊩A →
   lemma ⊩A (⊩≡∷→⊩≡∷/ ⊩A t≡u)
   where
-  A⇒*no-η : Γ ⊢ A :⇒*: B → No-η-equality B
-  A⇒*no-η [ _ , _ , A⇒*B ] =
+  A⇒*no-η : Γ ⊢ A ⇒* B → No-η-equality B
+  A⇒*no-η A⇒*B =
     case whnfRed* A⇒*B (U.No-η-equality→Whnf ¬-A-η) of λ {
       PE.refl →
     ¬-A-η }
 
-  ¬t⇒*ne : Γ ⊢ t :⇒*: v ∷ B → ¬ Neutral v
-  ¬t⇒*ne [ _ , _ , t⇒*v ] v-ne =
+  ¬t⇒*ne : Γ ⊢ t ⇒* v ∷ B → ¬ Neutral v
+  ¬t⇒*ne t⇒*v v-ne =
     case whnfRed*Term t⇒*v t-whnf of λ {
       PE.refl →
     ¬-t-ne v-ne }
 
-  u⇒*ne : Γ ⊢ u :⇒*: v ∷ B → Neutral v
-  u⇒*ne [ _ , _ , u⇒*v ] =
+  u⇒*ne : Γ ⊢ u ⇒* v ∷ B → Neutral v
+  u⇒*ne u⇒*v =
     case whnfRed*Term u⇒*v (U.ne u-ne) of λ {
       PE.refl →
     u-ne }

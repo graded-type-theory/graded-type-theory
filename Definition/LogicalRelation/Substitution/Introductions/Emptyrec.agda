@@ -65,9 +65,7 @@ opaque
     case ⊩ᵛ≡∷⇔ .proj₁ t₁≡t₂ .proj₂ of λ
       t₁≡t₂ →
     case ⊩≡∷Empty⇔ .proj₁ (t₁≡t₂ σ₁≡σ₂) of λ
-      (_ , _ ,
-       Emptyₜ₌ t₁′ t₂′ ([ _ , _ , t₁[σ₁]⇒*t₁′ ])
-         ([ _ , _ , t₂[σ₂]⇒*t₂′ ]) _ rest)  →
+      (_ , _ , Emptyₜ₌ t₁′ t₂′ t₁[σ₁]⇒*t₁′ t₂[σ₂]⇒*t₂′ _ rest)  →
     case A₁≡A₂ σ₁≡σ₂ of λ
       A₁[σ₁]≡A₂[σ₂] →
     case escape-⊩≡ A₁[σ₁]≡A₂[σ₂] of λ

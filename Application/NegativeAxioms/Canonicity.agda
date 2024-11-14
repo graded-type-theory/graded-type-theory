@@ -125,7 +125,8 @@ module Main {Γ : Con Term m} (nΓ : NegativeContext Γ)
              → ∃ λ u → Γ ⊢ t ↘ u ∷ A × (Neutral u → ⊥)
   ¬NeutralNf ⊢t ¬negA =
     let u , whnfU , d = whNormTerm ⊢t
-    in  u , (redₜ d , whnfU) , λ x → ¬negA (neNeg (⊢u-redₜ d) x)
+    in  u , (d , whnfU) ,
+        ¬negA ∘→ neNeg (syntacticEqTerm (subset*Term d) .proj₂ .proj₂)
 
   -- Canonicity theorem: Any well-typed term Γ ⊢ t ∷ ℕ
   -- reduces to a numeral under the ⇒ˢ* reduction.
@@ -133,15 +134,15 @@ module Main {Γ : Con Term m} (nΓ : NegativeContext Γ)
   canonicityRed′ : Γ ⊩ℕ t ∷ℕ → ∃ λ v → Numeral v × Γ ⊢ t ⇒ˢ* v ∷ℕ
   canonicityRed′ (ℕₜ _ d n≡n (sucᵣ x)) =
     let v , numV , d′ = canonicityRed′ x
-    in  suc v , sucₙ numV , ⇒ˢ*∷ℕ-trans (whred* (redₜ d)) (sucred* d′)
+    in  suc v , sucₙ numV , ⇒ˢ*∷ℕ-trans (whred* d) (sucred* d′)
   canonicityRed′ (ℕₜ _ d n≡n zeroᵣ) =
-    zero , zeroₙ , whred* (redₜ d)
+    zero , zeroₙ , whred* d
   canonicityRed′ (ℕₜ n d n≡n (ne (neNfₜ neK k≡k))) =
     let u , d′ , ¬neU =
-          ¬NeutralNf (⊢t-redₜ d)
-            (flip ¬negℕ $ refl (ℕⱼ $ wfTerm $ ⊢t-redₜ d))
+          ¬NeutralNf (redFirst*Term d)
+            (flip ¬negℕ $ refl (ℕⱼ $ wfTerm $ redFirst*Term d))
     in  ⊥-elim $ ¬neU $
-        PE.subst Neutral (whrDet*Term (redₜ d , ne neK) d′) neK
+        PE.subst Neutral (whrDet*Term (d , ne neK) d′) neK
 
   canonicityRed : Γ ⊢ t ∷ ℕ → ∃ λ u → Numeral u × Γ ⊢ t ⇒ˢ* u ∷ℕ
   canonicityRed = canonicityRed′ ∘→ ⊩∷ℕ⇔ .proj₁ ∘→ proj₂ ∘→ reducible-⊩∷

@@ -29,9 +29,9 @@ open import Definition.LogicalRelation.Substitution.Introductions.Var R
 open import Definition.Typed R
 open import Definition.Typed.Properties R
 open import Definition.Typed.Reasoning.Reduction R
-open import Definition.Typed.Reasoning.Reduction.Well-typed R
 open import Definition.Typed.RedSteps R
 open import Definition.Typed.Weakening R as W using (_∷ʷ_⊇_)
+open import Definition.Typed.Well-formed R
 
 open import Definition.Untyped M
 open import Definition.Untyped.Neutral M type-variant
@@ -66,7 +66,7 @@ opaque
     Γ ⊩⟨ l ⟩ t ∷ Π p , q ▷ A ▹ B ⇔
     (Γ ⊩⟨ l ⟩ Π p , q ▷ A ▹ B ×
      ∃ λ u →
-     Γ ⊢ t :⇒*: u ∷ Π p , q ▷ A ▹ B ×
+     Γ ⊢ t ⇒* u ∷ Π p , q ▷ A ▹ B ×
      Function u ×
      Γ ⊢≅ u ∷ Π p , q ▷ A ▹ B ×
      ∀ {m} {ρ : Wk m n} {Δ : Con Term m} {v₁ v₂} →
@@ -88,7 +88,7 @@ opaque
       (⊩Π : Γ ⊩⟨ l ⟩B⟨ BΠ p q ⟩ Π p , q ▷ A ▹ B) →
       Γ ⊩⟨ l ⟩ t ∷ Π p , q ▷ A ▹ B / B-intr (BΠ p q) ⊩Π →
       ∃ λ u →
-      Γ ⊢ t :⇒*: u ∷ Π p , q ▷ A ▹ B ×
+      Γ ⊢ t ⇒* u ∷ Π p , q ▷ A ▹ B ×
       Function u ×
       Γ ⊢≅ u ∷ Π p , q ▷ A ▹ B ×
       ∀ {m} {ρ : Wk m n} {Δ : Con Term m} {v₁ v₂} →
@@ -116,10 +116,10 @@ opaque
     lemma₁
       {l} ⊩Π@(noemb (Bᵣ _ _ Π⇒*Π _ ⊩wk-A ⊩wk-B _ _))
       (u , t⇒*u , u-fun , u≅u , u∘≡u∘ , u∷) =
-      case B-PE-injectivity _ _ $ whnfRed* (red Π⇒*Π) ΠΣₙ of λ {
+      case B-PE-injectivity _ _ $ whnfRed* Π⇒*Π ΠΣₙ of λ {
         (PE.refl , PE.refl , _) →
       (∃ λ u →
-       Γ ⊢ t :⇒*: u ∷ Π p , q ▷ A ▹ B ×
+       Γ ⊢ t ⇒* u ∷ Π p , q ▷ A ▹ B ×
        Function u ×
        Γ ⊢≅ u ∷ Π p , q ▷ A ▹ B ×
        ∀ {m} {ρ : Wk m n} {Δ : Con Term m} {v₁ v₂} →
@@ -147,7 +147,7 @@ opaque
       l′ ≤ᵘ l →
       (⊩Π : Γ ⊩⟨ l′ ⟩B⟨ BΠ p q ⟩ Π p , q ▷ A ▹ B) →
       (∃ λ u →
-       Γ ⊢ t :⇒*: u ∷ Π p , q ▷ A ▹ B ×
+       Γ ⊢ t ⇒* u ∷ Π p , q ▷ A ▹ B ×
        Function u ×
        Γ ⊢≅ u ∷ Π p , q ▷ A ▹ B ×
        ∀ {m} {ρ : Wk m n} {Δ : Con Term m} {v₁ v₂} →
@@ -162,7 +162,7 @@ opaque
     lemma₂
       l′≤l ⊩Π@(noemb (Bᵣ _ _ Π⇒*Π _ ⊩wk-A ⊩wk-B _ _))
       (u , t⇒*u , u-fun , u≅u , rest) =
-      case B-PE-injectivity _ _ $ whnfRed* (red Π⇒*Π) ΠΣₙ of λ {
+      case B-PE-injectivity _ _ $ whnfRed* Π⇒*Π ΠΣₙ of λ {
         (PE.refl , PE.refl , _) →
       _ ⊩⟨ _ ⟩ _ ∷ _ / B-intr _ ⊩Π ∋
         u , t⇒*u , u-fun , u≅u
@@ -196,8 +196,8 @@ opaque
     Γ ⊩⟨ l ⟩ t₁ ≡ t₂ ∷ Π p , q ▷ A ▹ B ⇔
     (Γ ⊩⟨ l ⟩ Π p , q ▷ A ▹ B ×
      ∃₂ λ u₁ u₂ →
-     Γ ⊢ t₁ :⇒*: u₁ ∷ Π p , q ▷ A ▹ B ×
-     Γ ⊢ t₂ :⇒*: u₂ ∷ Π p , q ▷ A ▹ B ×
+     Γ ⊢ t₁ ⇒* u₁ ∷ Π p , q ▷ A ▹ B ×
+     Γ ⊢ t₂ ⇒* u₂ ∷ Π p , q ▷ A ▹ B ×
      Function u₁ ×
      Function u₂ ×
      Γ ⊢ u₁ ≅ u₂ ∷ Π p , q ▷ A ▹ B ×
@@ -220,8 +220,8 @@ opaque
       (⊩Π : Γ ⊩⟨ l ⟩B⟨ BΠ p q ⟩ Π p , q ▷ A ▹ B) →
       Γ ⊩⟨ l ⟩ t₁ ≡ t₂ ∷ Π p , q ▷ A ▹ B / B-intr (BΠ p q) ⊩Π →
       ∃₂ λ u₁ u₂ →
-      Γ ⊢ t₁ :⇒*: u₁ ∷ Π p , q ▷ A ▹ B ×
-      Γ ⊢ t₂ :⇒*: u₂ ∷ Π p , q ▷ A ▹ B ×
+      Γ ⊢ t₁ ⇒* u₁ ∷ Π p , q ▷ A ▹ B ×
+      Γ ⊢ t₂ ⇒* u₂ ∷ Π p , q ▷ A ▹ B ×
       Function u₁ ×
       Function u₂ ×
       Γ ⊢ u₁ ≅ u₂ ∷ Π p , q ▷ A ▹ B ×
@@ -253,21 +253,21 @@ opaque
       (u₁ , u₂ , t₁⇒*u₁ , t₂⇒*u₂ , u₁-fun , u₂-fun , u₁≅u₂ , ⊩t₁ , ⊩t₂ ,
        rest) =
       let ⊩Π′ = B-intr _ ⊩Π in
-      case B-PE-injectivity _ _ $ whnfRed* (red Π⇒*Π) ΠΣₙ of λ {
+      case B-PE-injectivity _ _ $ whnfRed* Π⇒*Π ΠΣₙ of λ {
         (PE.refl , PE.refl , _) →
       case ⊩∷Π⇔ .proj₁ (⊩∷-intro ⊩Π′ ⊩t₁) of λ
         (_ , _ , t₁⇒*u₁′ , u₁′-fun , _ , rest₁) →
       case ⊩∷Π⇔ .proj₁ (⊩∷-intro ⊩Π′ ⊩t₂) of λ
         (_ , _ , t₂⇒*u₂′ , u₂′-fun , _ , rest₂) →
-      case whrDet*Term (redₜ t₁⇒*u₁ , functionWhnf u₁-fun)
-             (redₜ t₁⇒*u₁′ , functionWhnf u₁′-fun) of λ {
+      case whrDet*Term (t₁⇒*u₁ , functionWhnf u₁-fun)
+             (t₁⇒*u₁′ , functionWhnf u₁′-fun) of λ {
         PE.refl →
-      case whrDet*Term (redₜ t₂⇒*u₂ , functionWhnf u₂-fun)
-             (redₜ t₂⇒*u₂′ , functionWhnf u₂′-fun) of λ {
+      case whrDet*Term (t₂⇒*u₂ , functionWhnf u₂-fun)
+             (t₂⇒*u₂′ , functionWhnf u₂′-fun) of λ {
         PE.refl →
       (∃₂ λ u₁ u₂ →
-       Γ ⊢ t₁ :⇒*: u₁ ∷ Π p , q ▷ A ▹ B ×
-       Γ ⊢ t₂ :⇒*: u₂ ∷ Π p , q ▷ A ▹ B ×
+       Γ ⊢ t₁ ⇒* u₁ ∷ Π p , q ▷ A ▹ B ×
+       Γ ⊢ t₂ ⇒* u₂ ∷ Π p , q ▷ A ▹ B ×
        Function u₁ ×
        Function u₂ ×
        Γ ⊢ u₁ ≅ u₂ ∷ Π p , q ▷ A ▹ B ×
@@ -292,8 +292,8 @@ opaque
       l′ ≤ᵘ l →
       (⊩Π : Γ ⊩⟨ l′ ⟩B⟨ BΠ p q ⟩ Π p , q ▷ A ▹ B) →
       (∃₂ λ u₁ u₂ →
-       Γ ⊢ t₁ :⇒*: u₁ ∷ Π p , q ▷ A ▹ B ×
-       Γ ⊢ t₂ :⇒*: u₂ ∷ Π p , q ▷ A ▹ B ×
+       Γ ⊢ t₁ ⇒* u₁ ∷ Π p , q ▷ A ▹ B ×
+       Γ ⊢ t₂ ⇒* u₂ ∷ Π p , q ▷ A ▹ B ×
        Function u₁ ×
        Function u₂ ×
        Γ ⊢ u₁ ≅ u₂ ∷ Π p , q ▷ A ▹ B ×
@@ -318,7 +318,7 @@ opaque
     lemma₂
       l′≤l ⊩Π@(noemb (Bᵣ _ _ Π⇒*Π _ ⊩wk-A ⊩wk-B _ _))
       (u₁ , u₂ , t₁⇒*u₁ , t₂⇒*u₂ , u₁-fun , u₂-fun , u₁≅u₂ , rest) =
-      case B-PE-injectivity _ _ $ whnfRed* (red Π⇒*Π) ΠΣₙ of λ {
+      case B-PE-injectivity _ _ $ whnfRed* Π⇒*Π ΠΣₙ of λ {
         (PE.refl , PE.refl , _) →
       let ⊩Π′ = B-intr _ ⊩Π in
       case ⊩∷→⊩∷/ ⊩Π′ $
@@ -449,8 +449,8 @@ opaque
     ⊩≡∷Π⇔ .proj₂
       ( ⊩ᵛ→⊩ˢ∷→⊩[] (ΠΣᵛ ok ⊩A ⊩B) ⊩σ₁
       , _ , _
-      , idRedTerm:*: ⊢lam-t₁[σ₁]
-      , idRedTerm:*: ⊢lam-t₂[σ₂]
+      , id ⊢lam-t₁[σ₁]
+      , id ⊢lam-t₂[σ₂]
       , lamₙ , lamₙ
       , ≅-η-eq ⊢lam-t₁[σ₁] ⊢lam-t₂[σ₂] lamₙ lamₙ
           (escape-⊩≡∷ $
@@ -516,7 +516,7 @@ opaque
     case ⊩≡∷Π⇔ .proj₁ (t₁[]≡t₂[] σ₁≡σ₂) of λ
       (_ , t₁′ , t₂′ , t₁[σ₁]⇒*t₁′ , t₂[σ₂]⇒*t₂′ , _ , _ , _ , rest) →
                            ∷ B [ u₁ ]₀ [ σ₁ ]             ⟨ singleSubstLift B _ ⟩⊩∷∷≡
-    (t₁ ∘⟨ p ⟩ u₁) [ σ₁ ]  ∷ B [ σ₁ ⇑ ] [ u₁ [ σ₁ ] ]₀  ⇒*⟨ app-subst* (redₜ t₁[σ₁]⇒*t₁′) $
+    (t₁ ∘⟨ p ⟩ u₁) [ σ₁ ]  ∷ B [ σ₁ ⇑ ] [ u₁ [ σ₁ ] ]₀  ⇒*⟨ app-subst* t₁[σ₁]⇒*t₁′ $
                                                             escape-⊩∷ $ ⊩ᵛ∷→⊩ˢ∷→⊩[]∷ ⊩u₁ ⊩σ₁ ⟩⊩∷∷
     t₁′ ∘⟨ p ⟩ (u₁ [ σ₁ ])                              ≡⟨ PE.subst₃ (_⊩⟨_⟩_≡_∷_ _ _)
                                                              (PE.cong₃ _∘⟨_⟩_ (wk-id _) PE.refl PE.refl)
@@ -528,7 +528,7 @@ opaque
                                                           ⟨ ≅-eq $ escape-⊩≡ $
                                                             ⊩ᵛ≡→⊩ˢ≡∷→⊩≡∷→⊩[⇑][]₀≡[⇑][]₀
                                                               (refl-⊩ᵛ≡ ⊩B) (refl-⊩ˢ≡∷ ⊩σ₁) u₁[σ₁]≡u₂[σ₂] ⟩⇒
-    t₂′ ∘⟨ p ⟩ (u₂ [ σ₂ ]) ∷ B [ σ₁ ⇑ ] [ u₂ [ σ₂ ] ]₀  ⇐*⟨ app-subst* (redₜ t₂[σ₂]⇒*t₂′) $
+    t₂′ ∘⟨ p ⟩ (u₂ [ σ₂ ]) ∷ B [ σ₁ ⇑ ] [ u₂ [ σ₂ ] ]₀  ⇐*⟨ app-subst* t₂[σ₂]⇒*t₂′ $
                                                             escape-⊩∷ $
                                                             conv-⊩∷ (sym-⊩≡ $ ⊩ᵛ⇔ .proj₁ ⊩A .proj₂ σ₁≡σ₂) $
                                                             ⊩ᵛ∷→⊩ˢ∷→⊩[]∷ ⊩u₂ ⊩σ₂ ⟩∎∷
@@ -647,7 +647,7 @@ opaque
                       ) of λ
                  B[ρ•ₛσ,v₁]≡B[ρ•ₛσ,v₂] →
 
-               wk ρ u₁ ∘⟨ p ⟩ v₁ ∷ wk (lift ρ) (B [ σ ⇑ ]) [ v₁ ]₀  ⇐*⟨ app-subst:*: (W.wkRed:*:Term ρ⊇ t₁[σ]⇒*u₁) (escape-⊩∷ ⊩v₁) ⟩⊩∷∷
+               wk ρ u₁ ∘⟨ p ⟩ v₁ ∷ wk (lift ρ) (B [ σ ⇑ ]) [ v₁ ]₀  ⇐*⟨ app-subst* (W.wkRed*Term ρ⊇ t₁[σ]⇒*u₁) (escape-⊩∷ ⊩v₁) ⟩⊩∷∷
 
                wk ρ (t₁ [ σ ]) ∘⟨ p ⟩ v₁                            ≡⟨ wk-[]∘≡ t₁ ⟩⊩∷≡
                                                                      ⟨ singleSubstWkComp _ _ B ⟩⊩∷≡
@@ -655,13 +655,13 @@ opaque
                  B [ consSubst (ρ •ₛ σ) v₁ ]                        ≡⟨ level-⊩≡∷ (wf-⊩≡ B[ρ•ₛσ,v₁]≡B[ρ•ₛσ,v₂] .proj₁) $
                                                                        ⊩ᵛ≡∷→⊩ˢ≡∷→⊩≡∷→⊩[,]≡[,]∷ wk1-t₁∘0≡wk1-t₂∘0
                                                                          (⊩ˢ≡∷-•ₛ ρ⊇ (refl-⊩ˢ≡∷ ⊩σ))
-                                                                         (PE.subst (_⊩⟨_⟩_≡_∷_ _ _ _ _) (wk-subst A) v₁≡v₂) ⟩⊩∷∷:⇒*:
-                                                                     ⟨ ≅-eq $ escape-⊩≡ B[ρ•ₛσ,v₁]≡B[ρ•ₛσ,v₂] ⟩:⇒:
+                                                                         (PE.subst (_⊩⟨_⟩_≡_∷_ _ _ _ _) (wk-subst A) v₁≡v₂) ⟩⊩∷∷⇒*
+                                                                     ⟨ ≅-eq $ escape-⊩≡ B[ρ•ₛσ,v₁]≡B[ρ•ₛσ,v₂] ⟩⇒
                (wk1 t₂ ∘⟨ p ⟩ var x0) [ consSubst (ρ •ₛ σ) v₂ ] ∷
-                 B [ consSubst (ρ •ₛ σ) v₂ ]                        ≡˘⟨ wk-[]∘≡ t₂ ⟩:⇒:∷
-                                                                     ˘⟨ singleSubstWkComp _ _ B ⟩:⇒:≡
+                 B [ consSubst (ρ •ₛ σ) v₂ ]                        ≡˘⟨ wk-[]∘≡ t₂ ⟩⇒∷
+                                                                     ˘⟨ singleSubstWkComp _ _ B ⟩⇒≡
                wk ρ (t₂ [ σ ]) ∘⟨ p ⟩ v₂ ∷
-                 wk (lift ρ) (B [ σ ⇑ ]) [ v₂ ]₀                    :⇒*:⟨ app-subst:*: (W.wkRed:*:Term ρ⊇ t₂[σ]⇒*u₂) (escape-⊩∷ ⊩v₂) ⟩∎∷
+                 wk (lift ρ) (B [ σ ⇑ ]) [ v₂ ]₀                    ⇒*⟨ app-subst* (W.wkRed*Term ρ⊇ t₂[σ]⇒*u₂) (escape-⊩∷ ⊩v₂) ⟩∎∷
 
                wk ρ u₂ ∘⟨ p ⟩ v₂                                    ∎)
           of λ
@@ -669,7 +669,8 @@ opaque
           ⊩≡∷Π⇔ .proj₂
             ( ⊩ΠAB[σ]
             , u₁ , u₂ , t₁[σ]⇒*u₁ , t₂[σ]⇒*u₂ , u₁-fun , u₂-fun
-            , ≅-η-eq (⊢u-redₜ t₁[σ]⇒*u₁) (⊢u-redₜ t₂[σ]⇒*u₂)
+            , ≅-η-eq (wf-⊢≡∷ (subset*Term t₁[σ]⇒*u₁) .proj₂ .proj₂)
+                (wf-⊢≡∷ (subset*Term t₂[σ]⇒*u₂) .proj₂ .proj₂)
                 u₁-fun u₂-fun
                 (PE.subst (_⊢_≅_∷_ _ _ _) (idWkLiftSubstLemma _ B) $
                  escape-⊩≡∷ $

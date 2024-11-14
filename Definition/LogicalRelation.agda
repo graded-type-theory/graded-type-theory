@@ -54,7 +54,7 @@ record _⊩ne_ {ℓ : Nat} (Γ : Con Term ℓ) (A : Term ℓ) : Set a where
   constructor ne
   field
     K   : Term ℓ
-    D   : Γ ⊢ A :⇒*: K
+    D   : Γ ⊢ A ⇒* K
     neK : Neutral K
     K≡K : Γ ⊢≅ K
 
@@ -66,7 +66,7 @@ record _⊩ne_≡_/_ (Γ : Con Term ℓ) (A B : Term ℓ) ([A] : Γ ⊩ne A) : S
   open _⊩ne_ [A]
   field
     M   : Term ℓ
-    D′  : Γ ⊢ B :⇒*: M
+    D′  : Γ ⊢ B ⇒* M
     neM : Neutral M
     K≡M : Γ ⊢ K ≅ M
 
@@ -89,7 +89,7 @@ record _⊩ne_∷_/_ (Γ : Con Term ℓ) (t A : Term ℓ) ([A] : Γ ⊩ne A) : S
   open _⊩ne_ [A]
   field
     k   : Term ℓ
-    d   : Γ ⊢ t :⇒*: k ∷ K
+    d   : Γ ⊢ t ⇒* k ∷ K
     nf  : Γ ⊩neNf k ∷ K
 
 -- Neutral term equality in WHNF
@@ -111,15 +111,15 @@ record _⊩ne_≡_∷_/_ (Γ : Con Term ℓ) (t u A : Term ℓ) ([A] : Γ ⊩ne 
   open _⊩ne_ [A]
   field
     k m : Term ℓ
-    d   : Γ ⊢ t :⇒*: k ∷ K
-    d′  : Γ ⊢ u :⇒*: m ∷ K
+    d   : Γ ⊢ t ⇒* k ∷ K
+    d′  : Γ ⊢ u ⇒* m ∷ K
     nf  : Γ ⊩neNf k ≡ m ∷ K
 
 -- Reducibility of natural numbers:
 
 -- Natural number type
 _⊩ℕ_ : (Γ : Con Term ℓ) (A : Term ℓ) → Set a
-Γ ⊩ℕ A = Γ ⊢ A :⇒*: ℕ
+Γ ⊩ℕ A = Γ ⊢ A ⇒* ℕ
 
 -- Natural number type equality
 _⊩ℕ_≡_ : (Γ : Con Term ℓ) (A B : Term ℓ) → Set a
@@ -134,7 +134,7 @@ mutual
     constructor ℕₜ
     field
       n : Term ℓ
-      d : Γ ⊢ t :⇒*: n ∷ ℕ
+      d : Γ ⊢ t ⇒* n ∷ ℕ
       n≡n : Γ ⊢≅ n ∷ ℕ
       prop : Natural-prop Γ n
 
@@ -153,8 +153,8 @@ mutual
     constructor ℕₜ₌
     field
       k k′ : Term ℓ
-      d : Γ ⊢ t :⇒*: k  ∷ ℕ
-      d′ : Γ ⊢ u :⇒*: k′ ∷ ℕ
+      d : Γ ⊢ t ⇒* k  ∷ ℕ
+      d′ : Γ ⊢ u ⇒* k′ ∷ ℕ
       k≡k′ : Γ ⊢ k ≅ k′ ∷ ℕ
       prop : [Natural]-prop Γ k k′
 
@@ -168,7 +168,7 @@ mutual
 
 -- Empty type
 _⊩Empty_ : (Γ : Con Term ℓ) (A : Term ℓ) → Set a
-Γ ⊩Empty A = Γ ⊢ A :⇒*: Empty
+Γ ⊩Empty A = Γ ⊢ A ⇒* Empty
 
 -- Empty type equality
 _⊩Empty_≡_ : (Γ : Con Term ℓ) (A B : Term ℓ) → Set a
@@ -186,7 +186,7 @@ record _⊩Empty_∷Empty (Γ : Con Term ℓ) (t : Term ℓ) : Set a where
   constructor Emptyₜ
   field
     n : Term ℓ
-    d : Γ ⊢ t :⇒*: n ∷ Empty
+    d : Γ ⊢ t ⇒* n ∷ Empty
     n≡n : Γ ⊢≅ n ∷ Empty
     prop : Empty-prop Γ n
 
@@ -201,8 +201,8 @@ record _⊩Empty_≡_∷Empty (Γ : Con Term ℓ) (t u : Term ℓ) : Set a where
   constructor Emptyₜ₌
   field
     k k′ : Term ℓ
-    d : Γ ⊢ t :⇒*: k  ∷ Empty
-    d′ : Γ ⊢ u :⇒*: k′ ∷ Empty
+    d : Γ ⊢ t ⇒* k  ∷ Empty
+    d′ : Γ ⊢ u ⇒* k′ ∷ Empty
     k≡k′ : Γ ⊢ k ≅ k′ ∷ Empty
     prop : [Empty]-prop Γ k k′
 
@@ -216,7 +216,7 @@ record _⊩Unit⟨_,_⟩_
   pattern
   constructor Unitₜ
   field
-    ⇒*-Unit : Γ ⊢ A :⇒*: Unit s l
+    ⇒*-Unit : Γ ⊢ A ⇒* Unit s l
     ok      : Unit-allowed s
 
 -- Unit type equality
@@ -239,7 +239,7 @@ record _⊩Unit⟨_,_⟩_∷Unit
   constructor Unitₜ
   field
     n : Term ℓ
-    d : Γ ⊢ t :⇒*: n ∷ Unit s l
+    d : Γ ⊢ t ⇒* n ∷ Unit s l
     n≡n : Γ ⊢≅ n ∷ Unit s l
     prop : Unit-prop Γ l s n
 
@@ -259,8 +259,8 @@ data _⊩Unit⟨_,_⟩_≡_∷Unit
     Γ ⊩Unit⟨ l , s ⟩ t ≡ u ∷Unit
   Unitₜ₌ʷ :
     (k k′ : Term ℓ) →
-    Γ ⊢ t :⇒*: k  ∷ Unitʷ l →
-    Γ ⊢ u :⇒*: k′ ∷ Unitʷ l →
+    Γ ⊢ t ⇒* k  ∷ Unitʷ l →
+    Γ ⊢ u ⇒* k′ ∷ Unitʷ l →
     Γ ⊢ k ≅ k′ ∷ Unitʷ l →
     [Unitʷ]-prop Γ l k k′ →
     ¬ Unitʷ-η →
@@ -297,11 +297,11 @@ module LogRel
     field
       l′  : Universe-level
       l′< : l′ <ᵘ l
-      ⇒*U : Γ ⊢ A :⇒*: U l′
+      ⇒*U : Γ ⊢ A ⇒* U l′
 
   -- Universe type equality
   _⊩₁U≡_/_ : Con Term ℓ → Term ℓ → Universe-level → Set a
-  Γ ⊩₁U≡ B / l′ = Γ ⊢ B :⇒*: U l′
+  Γ ⊩₁U≡ B / l′ = Γ ⊢ B ⇒* U l′
 
 
   -- Universe term
@@ -314,7 +314,7 @@ module LogRel
     open LogRelKit (rec l<)
     field
       A     : Term ℓ
-      d     : Γ ⊢ t :⇒*: A ∷ U l′
+      d     : Γ ⊢ t ⇒* A ∷ U l′
       typeA : Type A
       A≡A   : Γ ⊢≅ A ∷ U l′
       [t]   : Γ ⊩ t
@@ -329,8 +329,8 @@ module LogRel
     open LogRelKit (rec l<)
     field
       A B   : Term ℓ
-      d     : Γ ⊢ t :⇒*: A ∷ U l′
-      d′    : Γ ⊢ u :⇒*: B ∷ U l′
+      d     : Γ ⊢ t ⇒* A ∷ U l′
+      d′    : Γ ⊢ u ⇒* B ∷ U l′
       typeA : Type A
       typeB : Type B
       A≡B   : Γ ⊢ A ≅ B ∷ U l′
@@ -353,7 +353,7 @@ module LogRel
       field
         F : Term ℓ
         G : Term (1+ ℓ)
-        D : Γ ⊢ A :⇒*: ⟦ W ⟧ F ▹ G
+        D : Γ ⊢ A ⇒* ⟦ W ⟧ F ▹ G
         A≡A : Γ ⊢≅ ⟦ W ⟧ F ▹ G
         [F] : ∀ {m} {ρ : Wk m ℓ} {Δ : Con Term m} →
               ρ ∷ʷ Δ ⊇ Γ → Δ ⊩ₗ U.wk ρ F
@@ -380,7 +380,7 @@ module LogRel
       field
         F′     : Term ℓ
         G′     : Term (1+ ℓ)
-        D′     : Γ ⊢ B :⇒*: ⟦ W ⟧ F′ ▹ G′
+        D′     : Γ ⊢ B ⇒* ⟦ W ⟧ F′ ▹ G′
         A≡B    : Γ ⊢ ⟦ W ⟧ F ▹ G ≅ ⟦ W ⟧ F′ ▹ G′
         [F≡F′] : {m : Nat} {ρ : Wk m ℓ} {Δ : Con Term m}
                → ([ρ] : ρ ∷ʷ Δ ⊇ Γ)
@@ -394,7 +394,7 @@ module LogRel
     -- Term reducibility of Π-type
     _⊩ₗΠ_∷_/_ : {ℓ : Nat} {p q : Mod} (Γ : Con Term ℓ) (t A : Term ℓ) ([A] : Γ ⊩ₗB⟨ BΠ p q ⟩ A) → Set a
     _⊩ₗΠ_∷_/_ {ℓ} {p} {q} Γ t A (Bᵣ F G D A≡A [F] [G] G-ext _) =
-      ∃ λ f → Γ ⊢ t :⇒*: f ∷ Π p , q ▷ F ▹ G
+      ∃ λ f → Γ ⊢ t ⇒* f ∷ Π p , q ▷ F ▹ G
             × Function f
             × Γ ⊢≅ f ∷ Π p , q ▷ F ▹ G
             × (∀ {m} {ρ : Wk m ℓ} {Δ : Con Term m} {a b}
@@ -418,8 +418,8 @@ module LogRel
     _⊩ₗΠ_≡_∷_/_ : {ℓ : Nat} {p q : Mod} (Γ : Con Term ℓ) (t u A : Term ℓ) ([A] : Γ ⊩ₗB⟨ BΠ p q ⟩ A) → Set a
     _⊩ₗΠ_≡_∷_/_
       {ℓ} {p} {q} Γ t u A [A]@(Bᵣ F G D A≡A [F] [G] G-ext _) =
-      ∃₂ λ f g → Γ ⊢ t :⇒*: f ∷ Π p , q ▷ F ▹ G
-               × Γ ⊢ u :⇒*: g ∷ Π p , q ▷ F ▹ G
+      ∃₂ λ f g → Γ ⊢ t ⇒* f ∷ Π p , q ▷ F ▹ G
+               × Γ ⊢ u ⇒* g ∷ Π p , q ▷ F ▹ G
                × Function f
                × Function g
                × Γ ⊢ f ≅ g ∷ Π p , q ▷ F ▹ G
@@ -440,7 +440,7 @@ module LogRel
     _⊩ₗΣ_∷_/_
       {p = p} {q = q} {m = m} Γ t A
       [A]@(Bᵣ F G D A≡A [F] [G] G-ext _) =
-      ∃ λ u → Γ ⊢ t :⇒*: u ∷ Σ⟨ m ⟩ p , q ▷ F ▹ G
+      ∃ λ u → Γ ⊢ t ⇒* u ∷ Σ⟨ m ⟩ p , q ▷ F ▹ G
             × Γ ⊢≅ u ∷ Σ⟨ m ⟩ p , q ▷ F ▹ G
             × Σ (Product u) λ pProd
             → Σ-prop m u Γ [A] pProd
@@ -471,8 +471,8 @@ module LogRel
     _⊩ₗΣ_≡_∷_/_
       {p = p} {q = q} {m} Γ t u A
       [A]@(Bᵣ F G D A≡A [F] [G] G-ext _) =
-      ∃₂ λ t′ u′ → Γ ⊢ t :⇒*: t′ ∷ Σ⟨ m ⟩ p , q ▷ F ▹ G
-                 × Γ ⊢ u :⇒*: u′ ∷ Σ⟨ m ⟩ p , q ▷ F ▹ G
+      ∃₂ λ t′ u′ → Γ ⊢ t ⇒* t′ ∷ Σ⟨ m ⟩ p , q ▷ F ▹ G
+                 × Γ ⊢ u ⇒* u′ ∷ Σ⟨ m ⟩ p , q ▷ F ▹ G
                  × Γ ⊢ t′ ≅ u′ ∷ Σ⟨ m ⟩ p , q ▷ F ▹ G
                  × Γ ⊩ₗΣ t ∷ A / [A]
                  × Γ ⊩ₗΣ u ∷ A / [A]
@@ -525,7 +525,7 @@ module LogRel
       constructor Idᵣ
       field
         Ty lhs rhs : Term ℓ
-        ⇒*Id       : Γ ⊢ A :⇒*: Id Ty lhs rhs
+        ⇒*Id       : Γ ⊢ A ⇒* Id Ty lhs rhs
         ⊩Ty        : Γ ⊩ₗ Ty
         ⊩lhs       : Γ ⊩ₗ lhs ∷ Ty / ⊩Ty
         ⊩rhs       : Γ ⊩ₗ rhs ∷ Ty / ⊩Ty
@@ -542,7 +542,7 @@ module LogRel
 
       field
         Ty′ lhs′ rhs′ : Term ℓ
-        ⇒*Id′         : Γ ⊢ B :⇒*: Id Ty′ lhs′ rhs′
+        ⇒*Id′         : Γ ⊢ B ⇒* Id Ty′ lhs′ rhs′
         Ty≡Ty′        : Γ ⊩ₗ Ty ≡ Ty′ / ⊩Ty
         lhs≡lhs′      : Γ ⊩ₗ lhs ≡ lhs′ ∷ Ty / ⊩Ty
         rhs≡rhs′      : Γ ⊩ₗ rhs ≡ rhs′ ∷ Ty / ⊩Ty
@@ -564,7 +564,7 @@ module LogRel
     _⊩ₗId_∷_/_ : (Γ : Con Term ℓ) (t A : Term ℓ) → Γ ⊩ₗId A → Set a
     Γ ⊩ₗId t ∷ A / ⊩A =
       ∃ λ u →
-      Γ ⊢ t :⇒*: u ∷ Id Ty lhs rhs ×
+      Γ ⊢ t ⇒* u ∷ Id Ty lhs rhs ×
       ∃ λ (u-id : Identity u) →
       case u-id of λ where
         (ne _) → Γ ⊢~ u ∷ Id Ty lhs rhs
@@ -576,8 +576,8 @@ module LogRel
     _⊩ₗId_≡_∷_/_ : (Γ : Con Term ℓ) (t u A : Term ℓ) → Γ ⊩ₗId A → Set a
     Γ ⊩ₗId t ≡ u ∷ A / ⊩A =
       ∃₂ λ t′ u′ →
-      Γ ⊢ t :⇒*: t′ ∷ Id Ty lhs rhs ×
-      Γ ⊢ u :⇒*: u′ ∷ Id Ty lhs rhs ×
+      Γ ⊢ t ⇒* t′ ∷ Id Ty lhs rhs ×
+      Γ ⊢ u ⇒* u′ ∷ Id Ty lhs rhs ×
       ∃ λ (t′-id : Identity t′) →
       ∃ λ (u′-id : Identity u′) →
       Identity-rec t′-id

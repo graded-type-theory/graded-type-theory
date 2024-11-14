@@ -527,14 +527,6 @@ opaque
 
 opaque
 
-  -- A variant of whrDet↘.
-
-  whrDet:⇒*: : Whnf B → Γ ⊢ A :⇒*: B → Γ ⊢ A :⇒*: C → Γ ⊢ C :⇒*: B
-  whrDet:⇒*: B-whnf [ _ , ⊢B , A⇒*B ] [ _ , ⊢C , A⇒*C ] =
-    [ ⊢C , ⊢B , whrDet↘ (A⇒*B , B-whnf) A⇒*C ]
-
-opaque
-
   -- If t reduces to the WHNF u, and t also reduces to v, then v
   -- reduces to u.
 
@@ -544,15 +536,6 @@ opaque
   whrDet↘Term (x ⇨ proj₁ , proj₂) (x₁ ⇨ d′) =
     whrDet↘Term
       (PE.subst (_ ⊢_↘ _ ∷ _) (whrDetTerm x x₁) (proj₁ , proj₂)) d′
-
-opaque
-
-  -- A variant of whrDet↘Term.
-
-  whrDet:⇒*:Term :
-    Whnf u → Γ ⊢ t :⇒*: u ∷ A → Γ ⊢ t :⇒*: v ∷ A → Γ ⊢ v :⇒*: u ∷ A
-  whrDet:⇒*:Term u-whnf [ _ , ⊢u , t⇒*u ] [ _ , ⊢v , t⇒*v ] =
-    [ ⊢v , ⊢u , whrDet↘Term (t⇒*u , u-whnf) t⇒*v ]
 
 opaque
 
@@ -603,18 +586,3 @@ opaque
     Γ ⊢ t ⇒* prodˢ p u v ∷ Σˢ p′ , q ▷ A ▹ B →
     t PE.≡ prodˢ p u v
   no-η-expansion-Σˢ = flip whnfRed*Term
-
-opaque
-
-  -- If A is well-formed, then A reduces to A (according to _⊢_:⇒*:_).
-
-  idRed:*: : Γ ⊢ A → Γ ⊢ A :⇒*: A
-  idRed:*: A = [ A , A , id A ]
-
-opaque
-
-  -- If t is well-typed, then t reduces to t (according to
-  -- _⊢_:⇒*:_∷_).
-
-  idRedTerm:*: : Γ ⊢ t ∷ A → Γ ⊢ t :⇒*: t ∷ A
-  idRedTerm:*: t = [ t , t , id t ]

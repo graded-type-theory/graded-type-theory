@@ -1041,14 +1041,6 @@ wkRed*Term :
 wkRed*Term ρ (id t)         = id (wkTerm ρ t)
 wkRed*Term ρ (t⇒t′ ⇨ t′⇒*u) = wkRedTerm ρ t⇒t′ ⇨ wkRed*Term ρ t′⇒*u
 
-wkRed:*: : ρ ∷ʷ Δ ⊇ Γ → Γ ⊢ A :⇒*: B → Δ ⊢ U.wk ρ A :⇒*: U.wk ρ B
-wkRed:*: ρ [ ⊢A , ⊢B , D ] = [ wk ρ ⊢A , wk ρ ⊢B , wkRed* ρ D ]
-
-wkRed:*:Term :
-  ρ ∷ʷ Δ ⊇ Γ → Γ ⊢ t :⇒*: u ∷ A → Δ ⊢ U.wk ρ t :⇒*: U.wk ρ u ∷ U.wk ρ A
-wkRed:*:Term ρ [ ⊢t , ⊢u , d ] =
-  [ wkTerm ρ ⊢t , wkTerm ρ ⊢u , wkRed*Term ρ d ]
-
 opaque
 
   -- Weakening for _⊢_↘_.

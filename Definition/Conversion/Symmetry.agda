@@ -221,9 +221,9 @@ mutual
     let B , A≡B , k~l′ = sym~↑ Γ≡Δ k~l
         _ , ⊢B = syntacticEq A≡B
         B′ , whnfB′ , D′ = whNorm ⊢B
-        A≡B′ = trans (sym (subset* D)) (trans A≡B (subset* (red D′)))
+        A≡B′ = trans (sym (subset* D)) (trans A≡B (subset* D′))
     in  B′ , whnfB′ , A≡B′ ,
-        [~] B (stabilityRed* Γ≡Δ (red D′) , whnfB′) k~l′
+        [~] B (stabilityRed* Γ≡Δ D′ , whnfB′) k~l′
 
   -- Symmetry of algorithmic equality of types.
   symConv↑ : ∀ {A B} → ⊢ Γ ≡ Δ → Γ ⊢ A [conv↑] B → Δ ⊢ B [conv↑] A
