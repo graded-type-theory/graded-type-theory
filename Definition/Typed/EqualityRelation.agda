@@ -25,6 +25,7 @@ open import Tools.Fin
 open import Tools.Function
 open import Tools.Level hiding (_⊔_)
 open import Tools.Nat
+open import Tools.Product
 open import Tools.Relation
 
 private
@@ -319,6 +320,33 @@ record Equality-relations
 
     ≅-Unitrefl : ⊢ Γ → Unit-allowed s → Γ ⊢≅ Unit s l
     ≅-Unitrefl ⊢Γ ok = ≅-univ (≅ₜ-Unitrefl ⊢Γ ok)
+
+  opaque
+
+    -- A well-formedness lemma for _⊢_≅_.
+
+    wf-⊢≅ : Γ ⊢ A ≅ B → Γ ⊢≅ A × Γ ⊢≅ B
+    wf-⊢≅ A≅B =
+      ≅-trans A≅B (≅-sym A≅B) ,
+      ≅-trans (≅-sym A≅B) A≅B
+
+  opaque
+
+    -- A well-formedness lemma for _⊢_≅_∷_.
+
+    wf-⊢≅∷ : Γ ⊢ t ≅ u ∷ A → Γ ⊢≅ t ∷ A × Γ ⊢≅ u ∷ A
+    wf-⊢≅∷ t≅u =
+      ≅ₜ-trans t≅u (≅ₜ-sym t≅u) ,
+      ≅ₜ-trans (≅ₜ-sym t≅u) t≅u
+
+  opaque
+
+    -- A well-formedness lemma for _⊢_~_∷_.
+
+    wf-⊢~∷ : Γ ⊢ t ~ u ∷ A → Γ ⊢~ t ∷ A × Γ ⊢~ u ∷ A
+    wf-⊢~∷ t~u =
+      ~-trans t~u (~-sym t~u) ,
+      ~-trans (~-sym t~u) t~u
 
 -- Values of type EqRelSet contain three relations that the logical
 -- relation in Definition.LogicalRelation can be instantiated with.

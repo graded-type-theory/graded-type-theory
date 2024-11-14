@@ -940,9 +940,10 @@ opaque
     Γ ⊢ t ~ u ∷ A →
     Γ ⊩⟨ l ⟩ t ≡ u ∷ A
   neutral-⊩≡∷ ⊩A t-ne u-ne t~u =
+    let ~t , ~u = wf-⊢~∷ t~u in
       ⊩A
-    , neuTerm ⊩A t-ne (~-trans t~u (~-sym t~u))
-    , neuTerm ⊩A u-ne (~-trans (~-sym t~u) t~u)
+    , neuTerm ⊩A t-ne ~t
+    , neuTerm ⊩A u-ne ~u
     , neuEqTerm ⊩A t-ne u-ne t~u
 
 opaque
@@ -1008,11 +1009,10 @@ opaque
            ⊩A′ →
          lemma ⊩A′ (irrelevanceEq ⊩A (ne-intr ⊩A′) A≡B))
     , (λ (C , C-ne , B⇒*C , A≅C) →
+         let ≅A , ≅C = wf-⊢≅ A≅C in
          sym-⊩≡
            (B  ⇒*⟨ B⇒*C ⟩⊩
-            C  ≡⟨ neutral-⊩≡
-                    (⊩ne⇔ C-ne .proj₂ (≅-trans (≅-sym A≅C) A≅C))
-                    (⊩ne⇔ A-ne .proj₂ (≅-trans A≅C (≅-sym A≅C)))
+            C  ≡⟨ neutral-⊩≡ (⊩ne⇔ C-ne .proj₂ ≅C) (⊩ne⇔ A-ne .proj₂ ≅A)
                     C-ne A-ne (≅-sym A≅C) ⟩⊩∎
             A  ∎))
     where
@@ -1067,18 +1067,14 @@ opaque
          lemma ⊩A′ (irrelevanceEqTerm ⊩A (ne-intr ⊩A′) t₁≡t₂))
     , (λ (≅A , u₁ , u₂ , t₁⇒*u₁ , t₂⇒*u₂ ,
           u₁≡u₂@(neNfₜ₌ u₁-ne u₂-ne u₁~u₂)) →
-         let ⊩A′ = ⊩ne⇔ A-ne .proj₂ ≅A in
+         let ⊩A′       = ⊩ne⇔ A-ne .proj₂ ≅A
+             ~u₁ , ~u₂ = wf-⊢~∷ u₁~u₂
+         in
            ⊩A′
          , ⊩∷→⊩∷/ {l′ = l} ⊩A′
-             (⊩∷ne⇔ A-ne .proj₂
-                ( ≅A , u₁ , t₁⇒*u₁ , u₁-ne
-                , ~-trans u₁~u₂ (~-sym u₁~u₂)
-                ))
+             (⊩∷ne⇔ A-ne .proj₂ (≅A , u₁ , t₁⇒*u₁ , u₁-ne , ~u₁))
          , ⊩∷→⊩∷/ {l′ = l} ⊩A′
-             (⊩∷ne⇔ A-ne .proj₂
-                ( ≅A , u₂ , t₂⇒*u₂ , u₂-ne
-                , ~-trans (~-sym u₁~u₂) u₁~u₂
-                ))
+             (⊩∷ne⇔ A-ne .proj₂ (≅A , u₂ , t₂⇒*u₂ , u₂-ne , ~u₂))
          , neₜ₌ u₁ u₂ t₁⇒*u₁ t₂⇒*u₂ u₁≡u₂)
     where
     lemma :

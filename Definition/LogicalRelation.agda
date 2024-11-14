@@ -813,6 +813,7 @@ data ⊩Id≡∷-view
       , (u′ , u⇒*u′ , u′-id , lhs≡rhs)
       , _
     (ne _ _ t′~u′) →
-        (t′ , t⇒*t′ , t′-id , ~-trans t′~u′ (~-sym t′~u′))
-      , (u′ , u⇒*u′ , u′-id , ~-trans (~-sym t′~u′) t′~u′)
+      let ~t′ , ~u′ = wf-⊢~∷ t′~u′ in
+        (t′ , t⇒*t′ , t′-id , ~t′)
+      , (u′ , u⇒*u′ , u′-id , ~u′)
       , t′~u′

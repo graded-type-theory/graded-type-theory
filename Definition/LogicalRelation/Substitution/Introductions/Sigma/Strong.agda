@@ -260,8 +260,9 @@ opaque
       ⊩Σ@(noemb (Bᵣ _ _ Σ⇒*Σ A≡A ⊩wk-A ⊩wk-B _ _))
       (u₁ , u₂ , t₁⇒*u₁ , t₂⇒*u₂ , u₁-prod , u₂-prod , u₁≅u₂ ,
        fst≡fst , snd≡snd) =
-      let ⊩Σ′      = B-intr _ ⊩Σ
-          ⊩wk-id-A = ⊩wk-A (W.idʷ (wfEq (≅-eq A≡A)))
+      let ⊩Σ′       = B-intr _ ⊩Σ
+          ⊩wk-id-A  = ⊩wk-A (W.idʷ (wfEq (≅-eq A≡A)))
+          ≅u₁ , ≅u₂ = wf-⊢≅∷ u₁≅u₂
       in
       case B-PE-injectivity _ _ $ whnfRed* Σ⇒*Σ ΠΣₙ of λ {
         (PE.refl , PE.refl , _) →
@@ -283,7 +284,7 @@ opaque
       case ⊩∷→⊩∷/ ⊩Σ′ $
            ⊩∷Σˢ⇔ .proj₂
              ( ⊩Σ′
-             , u₁ , t₁⇒*u₁ , u₁-prod , ≅ₜ-trans u₁≅u₂ (≅ₜ-sym u₁≅u₂)
+             , u₁ , t₁⇒*u₁ , u₁-prod , ≅u₁
              , ⊩fst-u₁
              , level-⊩∷ (⊩ΠΣ→⊩∷→⊩[]₀ ⊩Σ′ ⊩fst-u₁) ⊩snd-u₁
              ) of λ
@@ -291,7 +292,7 @@ opaque
       case ⊩∷→⊩∷/ ⊩Σ′ $
            ⊩∷Σˢ⇔ .proj₂
              ( ⊩Σ′
-             , u₂ , t₂⇒*u₂ , u₂-prod , ≅ₜ-trans (≅ₜ-sym u₁≅u₂) u₁≅u₂
+             , u₂ , t₂⇒*u₂ , u₂-prod , ≅u₂
              , ⊩fst-u₂
              , conv-⊩∷ (⊩ΠΣ≡ΠΣ→⊩≡∷→⊩[]₀≡[]₀ (refl-⊩≡ ⊩Σ′) fst≡fst)
                  ⊩snd-u₂

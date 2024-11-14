@@ -191,12 +191,12 @@ opaque mutual
     neuEqTerm′ (Uᵣ′ l ≤ᵘ-refl D) =
       let A≡U = subset* D
           n~n′₁ = ~-conv n~n′ A≡U
+          ≅n , ≅n′ = wf-⊢≅ (~-to-≅ n~n′₁)
           n≡n′ = ~-to-≅ₜ n~n′₁
-          wfn = neu n-ne (~-to-≅ (~-trans n~n′₁ (~-sym n~n′₁)))
+          wfn = neu n-ne ≅n
       in
       Uₜ₌ _ _ (id (conv ⊢n A≡U)) (id (conv ⊢n′ A≡U))
-        (ne n-ne) (ne n′-ne) n≡n′ wfn
-        (neu n′-ne (~-to-≅ (~-trans (~-sym n~n′₁) n~n′₁)))
+        (ne n-ne) (ne n′-ne) n≡n′ wfn (neu n′-ne ≅n′)
         (neuEq wfn n-ne n′-ne (≅-univ n≡n′))
     neuEqTerm′ (Uᵣ′ _ (≤ᵘ-step p) A⇒*U) =
       irrelevanceEqTerm (Uᵣ′ _ p A⇒*U) (Uᵣ′ _ (≤ᵘ-step p) A⇒*U)
@@ -239,8 +239,7 @@ opaque mutual
       let A≡ΠFG = subset* D
           n~n′₁ = ~-conv n~n′ A≡ΠFG
           n≡n′ = ~-to-≅ₜ n~n′₁
-          n~n = ~-trans n~n′ (~-sym n~n′)
-          n′~n′ = ~-trans (~-sym n~n′) n~n′
+          n~n , n′~n′ = wf-⊢~∷ n~n′
       in
       Πₜ₌ _ _ (id (conv ⊢n A≡ΠFG))
         (id (conv ⊢n′ A≡ΠFG))
@@ -258,8 +257,7 @@ opaque mutual
     neuEqTerm′
       [ΣFG]@(Bᵣ′ BΣˢ F G D A≡A [F] [G] G-ext _) =
       let A≡ΣFG = subset* D
-          n~n = ~-trans n~n′ (~-sym n~n′)
-          n′~n′ = ~-trans (~-sym n~n′) n~n′
+          n~n , n′~n′ = wf-⊢~∷ n~n′
           ⊢nΣ = conv ⊢n A≡ΣFG
           ⊢n′Σ = conv ⊢n′ A≡ΣFG
           n~n′Σ = ~-conv n~n′ A≡ΣFG
@@ -293,8 +291,7 @@ opaque mutual
     neuEqTerm′
       [ΣFG]@(Bᵣ′ BΣʷ F G D A≡A [F] [G] G-ext _) =
       let A≡ΣFG = subset* D
-          n~n = ~-trans n~n′ (~-sym n~n′)
-          n′~n′ = ~-trans (~-sym n~n′) n~n′
+          n~n , n′~n′ = wf-⊢~∷ n~n′
           ⊢nΣ = conv ⊢n A≡ΣFG
           ⊢n′Σ = conv ⊢n′ A≡ΣFG
           n~n′Σ = ~-conv n~n′ A≡ΣFG
@@ -307,10 +304,8 @@ opaque mutual
     neuEqTerm′ (Idᵣ ⊩A) =
       case subset* ⇒*Id of λ
         A≡Id →
-      case ~-trans n~n′ (~-sym n~n′) of λ
-        n~n →
-      case ~-trans (~-sym n~n′) n~n′ of λ
-        n′~n′ →
+      case wf-⊢~∷ n~n′ of λ
+        (n~n , n′~n′) →
       ⊩Id≡∷
         (neuTerm (Idᵣ ⊩A) n-ne n~n)
         (neuTerm (Idᵣ ⊩A) n′-ne n′~n′)

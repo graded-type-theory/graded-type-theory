@@ -318,13 +318,14 @@ opaque
     lemma₂
       l′≤l ⊩Π@(noemb (Bᵣ _ _ Π⇒*Π _ ⊩wk-A ⊩wk-B _ _))
       (u₁ , u₂ , t₁⇒*u₁ , t₂⇒*u₂ , u₁-fun , u₂-fun , u₁≅u₂ , rest) =
+      let ≅u₁ , ≅u₂ = wf-⊢≅∷ u₁≅u₂ in
       case B-PE-injectivity _ _ $ whnfRed* Π⇒*Π ΠΣₙ of λ {
         (PE.refl , PE.refl , _) →
       let ⊩Π′ = B-intr _ ⊩Π in
       case ⊩∷→⊩∷/ ⊩Π′ $
            ⊩∷Π⇔ .proj₂
              ( ⊩Π′
-             , u₁ , t₁⇒*u₁ , u₁-fun , ≅ₜ-trans u₁≅u₂ (≅ₜ-sym u₁≅u₂)
+             , u₁ , t₁⇒*u₁ , u₁-fun , ≅u₁
              , λ {_} {ρ = ρ} {_} {v₁ = v₁} {v₂ = v₂} ρ⊇ v₁≡v₂ →
                  case emb-⊩≡∷ l′≤l v₁≡v₂ of λ
                    v₁≡v₂′ →
@@ -339,7 +340,7 @@ opaque
       case ⊩∷→⊩∷/ ⊩Π′ $
            ⊩∷Π⇔ .proj₂
              ( ⊩Π′
-             , u₂ , t₂⇒*u₂ , u₂-fun , ≅ₜ-trans (≅ₜ-sym u₁≅u₂) u₁≅u₂
+             , u₂ , t₂⇒*u₂ , u₂-fun , ≅u₂
              , λ {_} {ρ = ρ} {_} {v₁ = v₁} {v₂ = v₂} ρ⊇ v₁≡v₂ →
                  case emb-⊩≡∷ l′≤l v₁≡v₂ of λ
                    v₁≡v₂′ →

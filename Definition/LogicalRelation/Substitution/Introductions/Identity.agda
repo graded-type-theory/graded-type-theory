@@ -447,8 +447,9 @@ opaque
            Idᵣ (Idᵣ _ _ _ Id⇒*Id ⊩A ⊩t (irrelevanceTerm ⊩A′ ⊩A ⊩u))
          , (case rest of λ where
               (ne v′-ne w′-ne v′~w′) →
-                  (v′ , v⇒*v′ , ne v′-ne , ~-trans v′~w′ (~-sym v′~w′))
-                , (w′ , w⇒*w′ , ne w′-ne , ~-trans (~-sym v′~w′) v′~w′)
+                let ~v′ , ~w′ = wf-⊢~∷ v′~w′ in
+                  (v′ , v⇒*v′ , ne v′-ne , ~v′)
+                , (w′ , w⇒*w′ , ne w′-ne , ~w′)
                 , ( v′ , w′ , v⇒*v′ , w⇒*w′
                   , ne v′-ne , ne w′-ne , v′~w′
                   )

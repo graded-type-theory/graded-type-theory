@@ -182,12 +182,13 @@ opaque
             (irrelevanceEqTerm ⊩U (U-intr (U-elim ⊩U)) A≡B))
     , (λ (l′<l , (⊩A , ⊩B , A≡B) , _ , _ ,
           A⇒*A′ , B⇒*B′ , A′-type , B′-type , A′≅B′) →
-         let ⊩A = ⊩<⇔⊩ l′<l .proj₂ ⊩A
-             ⊩B = ⊩<⇔⊩ l′<l .proj₂ ⊩B
+         let ⊩A        = ⊩<⇔⊩ l′<l .proj₂ ⊩A
+             ⊩B        = ⊩<⇔⊩ l′<l .proj₂ ⊩B
+             ≅A′ , ≅B′ = wf-⊢≅∷ A′≅B′
          in
            Uᵣ (Uᵣ _ l′<l (id (Uⱼ (wfEqTerm (subset*Term A⇒*A′)))))
-         , Uₜ _ A⇒*A′ A′-type (≅ₜ-trans A′≅B′ (≅ₜ-sym A′≅B′)) ⊩A
-         , Uₜ _ B⇒*B′ B′-type (≅ₜ-trans (≅ₜ-sym A′≅B′) A′≅B′) ⊩B
+         , Uₜ _ A⇒*A′ A′-type ≅A′ ⊩A
+         , Uₜ _ B⇒*B′ B′-type ≅B′ ⊩B
          , Uₜ₌ _ _ A⇒*A′ B⇒*B′ A′-type B′-type A′≅B′ ⊩A ⊩B
              (⊩<≡⇔⊩≡′ l′<l .proj₂ A≡B))
     where

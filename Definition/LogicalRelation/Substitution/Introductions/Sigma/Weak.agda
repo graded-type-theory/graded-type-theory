@@ -328,13 +328,15 @@ opaque
       (u₁ , u₂ , t₁⇒*u₁ , t₂⇒*u₂ , u₁≅u₂ , u₁≡u₂) =
       case B-PE-injectivity _ _ $ whnfRed* Σ⇒*Σ ΠΣₙ of λ {
         (PE.refl , PE.refl , _) →
-      let ⊩Σ′ = B-intr _ ⊩Σ in
+      let ⊩Σ′       = B-intr _ ⊩Σ
+          ≅u₁ , ≅u₂ = wf-⊢≅∷ u₁≅u₂
+      in
       case ⊩ΠΣ→ ⊩Σ′ of λ
         (_ , ⊩A , _) →
       case ⊩∷→⊩∷/ ⊩Σ′ $
            ⊩∷Σʷ⇔ .proj₂
              ( ⊩Σ′
-             , u₁ , t₁⇒*u₁ , ≅ₜ-trans u₁≅u₂ (≅ₜ-sym u₁≅u₂)
+             , u₁ , t₁⇒*u₁ , ≅u₁
              , (case u₁≡u₂ of λ where
                   (prodₙ u₁₁≡u₂₁ u₁₂≡u₂₂) →
                     case wf-⊩≡∷ u₁₁≡u₂₁ of λ
@@ -343,13 +345,13 @@ opaque
                       (level-⊩∷ (⊩ΠΣ→⊩∷→⊩[]₀ ⊩Σ′ ⊩u₁₁) $
                        wf-⊩≡∷ u₁₂≡u₂₂ .proj₁)
                   (ne u₁-ne _ u₁~u₂) →
-                    ne u₁-ne (~-trans u₁~u₂ (~-sym u₁~u₂)))
+                    ne u₁-ne (wf-⊢~∷ u₁~u₂ .proj₁))
              ) of λ
         ⊩t₁ →
       case ⊩∷→⊩∷/ ⊩Σ′ $
            ⊩∷Σʷ⇔ .proj₂
              ( ⊩Σ′
-             , u₂ , t₂⇒*u₂ , ≅ₜ-trans (≅ₜ-sym u₁≅u₂) u₁≅u₂
+             , u₂ , t₂⇒*u₂ , ≅u₂
              , (case u₁≡u₂ of λ where
                   (prodₙ u₁₁≡u₂₁ u₁₂≡u₂₂) →
                     case wf-⊩≡∷ u₁₁≡u₂₁ of λ
@@ -359,7 +361,7 @@ opaque
                          (⊩ΠΣ≡ΠΣ→⊩≡∷→⊩[]₀≡[]₀ (refl-⊩≡ ⊩Σ′) u₁₁≡u₂₁) $
                        wf-⊩≡∷ u₁₂≡u₂₂ .proj₂)
                   (ne _ u₂-ne u₁~u₂) →
-                    ne u₂-ne (~-trans (~-sym u₁~u₂) u₁~u₂))
+                    ne u₂-ne (wf-⊢~∷ u₁~u₂ .proj₂))
              ) of λ
         ⊩t₂ →
       _ ⊩⟨ _ ⟩ _ ∷ _ / ⊩Σ′ × _ ⊩⟨ _ ⟩ _ ∷ _ / ⊩Σ′ ×
