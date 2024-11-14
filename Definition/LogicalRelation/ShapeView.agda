@@ -49,6 +49,17 @@ data MaybeEmb
   noemb : ⊩⟨ l ⟩ → MaybeEmb l ⊩⟨_⟩
   emb   : l′ <ᵘ l → MaybeEmb l′ ⊩⟨_⟩ → MaybeEmb l ⊩⟨_⟩
 
+MaybeEmb-ind
+  : ∀ {ℓ′} {⊩⟨_⟩ : Universe-level → Set ℓ′} {P : ∀ {l} → MaybeEmb l ⊩⟨_⟩ → Set a}
+  → (∀ {l} ([A] : ⊩⟨ l ⟩) → P (noemb [A]))
+  → (∀ {l l′} (l′<l : l′ <ᵘ l) ([A] : MaybeEmb l′ ⊩⟨_⟩) → P [A] → P (emb l′<l [A]))
+  → ∀ {l} → ([A] : MaybeEmb l ⊩⟨_⟩) → P [A]
+MaybeEmb-ind {⊩⟨_⟩} {P} P0 P< = go _ where
+  go : ∀ l ([A] : MaybeEmb l ⊩⟨_⟩) → P [A]
+  go = <ᵘ-rec _ λ where
+    l rec (noemb [A]) → P0 [A]
+    l rec (emb l′<l [A]) → P< l′<l [A] (rec l′<l [A])
+
 -- Specific reducible types with possible embedding
 
 _⊩⟨_⟩Level_ : (Γ : Con Term n) (l : Universe-level) (A : Term n) → Set a

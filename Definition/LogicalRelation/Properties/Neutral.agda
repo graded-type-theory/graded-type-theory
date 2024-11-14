@@ -22,8 +22,8 @@ open import Definition.Untyped.Properties M
 open import Definition.Typed R
 open import Definition.Typed.Properties R
 import Definition.Typed.Weakening R as Wk
-open import Definition.LogicalRelation R
-open import Definition.LogicalRelation.ShapeView R
+open import Definition.LogicalRelation R {{eqrel}}
+open import Definition.LogicalRelation.ShapeView R {{eqrel}}
 open import Definition.LogicalRelation.Irrelevance R
 open import Definition.LogicalRelation.Properties.Reflexivity R
 open import Definition.LogicalRelation.Properties.Escape R
