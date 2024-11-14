@@ -598,14 +598,14 @@ opaque
   Id-congᵛ A₁≡A₂ t₁≡t₂ u₁≡u₂ =
     case ⊩ᵛ≡⇔″ .proj₁ A₁≡A₂ of λ
       (⊩A₁ , _ , A₁≡A₂) →
-    case ⊩ᵛ≡∷⇔ .proj₁ $ level-⊩ᵛ≡∷ ⊩A₁ t₁≡t₂ of λ
-      (_ , t₁≡t₂) →
-    case ⊩ᵛ≡∷⇔ .proj₁ $ level-⊩ᵛ≡∷ ⊩A₁ u₁≡u₂ of λ
-      (_ , u₁≡u₂) →
     ⊩ᵛ≡⇔ .proj₂
       ( wf-⊩ᵛ ⊩A₁
       , λ σ₁≡σ₂ →
-          ⊩Id≡Id⇔ .proj₂ (A₁≡A₂ σ₁≡σ₂ , t₁≡t₂ σ₁≡σ₂ , u₁≡u₂ σ₁≡σ₂)
+          ⊩Id≡Id⇔ .proj₂
+            ( A₁≡A₂ σ₁≡σ₂
+            , ⊩ᵛ≡∷→⊩ˢ≡∷→⊩[]≡[]∷ (level-⊩ᵛ≡∷ ⊩A₁ t₁≡t₂) σ₁≡σ₂
+            , ⊩ᵛ≡∷→⊩ˢ≡∷→⊩[]≡[]∷ (level-⊩ᵛ≡∷ ⊩A₁ u₁≡u₂) σ₁≡σ₂
+            )
       )
 
 opaque
@@ -635,8 +635,8 @@ opaque
     ⊩ᵛ≡∷⇔ .proj₂
       ( ⊩U
       , λ σ₁≡σ₂ →
-          →⊩Id≡Id∷U (A₁≡A₂∷U σ₁≡σ₂) (⊩ᵛ≡∷⇔ .proj₁ t₁≡t₂ .proj₂ σ₁≡σ₂)
-            (⊩ᵛ≡∷⇔ .proj₁ u₁≡u₂ .proj₂ σ₁≡σ₂)
+          →⊩Id≡Id∷U (A₁≡A₂∷U σ₁≡σ₂) (⊩ᵛ≡∷→⊩ˢ≡∷→⊩[]≡[]∷ t₁≡t₂ σ₁≡σ₂)
+            (⊩ᵛ≡∷→⊩ˢ≡∷→⊩[]≡[]∷ u₁≡u₂ σ₁≡σ₂)
       )
 
 opaque
@@ -849,10 +849,10 @@ opaque
              ([]-congᵛ′ u₁≡u₂))
           .proj₁
       , λ σ₁≡σ₂ →
-          ⊩[]-cong≡[]-cong ok (⊩ᵛ≡⇔ .proj₁ A₁≡A₂ .proj₂ σ₁≡σ₂)
-            (⊩ᵛ≡∷⇔ .proj₁ t₁≡t₂ .proj₂ σ₁≡σ₂)
-            (⊩ᵛ≡∷⇔ .proj₁ u₁≡u₂ .proj₂ σ₁≡σ₂)
-            (⊩ᵛ≡∷⇔ .proj₁ v₁≡v₂ .proj₂ σ₁≡σ₂)
+          ⊩[]-cong≡[]-cong ok (⊩ᵛ≡→⊩ˢ≡∷→⊩[]≡[] A₁≡A₂ σ₁≡σ₂)
+            (⊩ᵛ≡∷→⊩ˢ≡∷→⊩[]≡[]∷ t₁≡t₂ σ₁≡σ₂)
+            (⊩ᵛ≡∷→⊩ˢ≡∷→⊩[]≡[]∷ u₁≡u₂ σ₁≡σ₂)
+            (⊩ᵛ≡∷→⊩ˢ≡∷→⊩[]≡[]∷ v₁≡v₂ σ₁≡σ₂)
       )
     where
     open E ok
@@ -985,7 +985,7 @@ opaque
     -- Some definitions related to Id.
     case Id-congᵛ A₁≡A₂ t₁≡t₂ t₁≡t₂ of λ
       Id≡Id →
-    case ⊩ᵛ≡⇔ .proj₁ Id≡Id .proj₂ σ₁≡σ₂ of λ
+    case ⊩ᵛ≡→⊩ˢ≡∷→⊩[]≡[] Id≡Id σ₁≡σ₂ of λ
       Id[σ₁]≡Id[σ₂] →
     case ≅-eq $ escape-⊩≡ Id[σ₁]≡Id[σ₂] of λ
       ⊢Id[σ₁]≡Id[σ₂] →
@@ -1013,9 +1013,8 @@ opaque
          escape-⊩∷ $ ⊩ᵛ∷→⊩ˢ∷→⊩[]∷ ⊩u₂ ⊩σ₂ of λ
       ⊢u₂[σ₂] →
     case PE.subst (_⊩⟨_⟩_≡_∷_ _ _ _ _) (singleSubstLift B₁ _) $
-         ⊩ᵛ≡∷⇔ .proj₁
-           (level-⊩ᵛ≡∷ (⊩ᵛ→⊩ᵛ∷→⊩ᵛ[]₀ ⊩B₁ (rflᵛ ⊩t₁)) u₁≡u₂)
-           .proj₂ σ₁≡σ₂ of λ
+         ⊩ᵛ≡∷→⊩ˢ≡∷→⊩[]≡[]∷
+           (level-⊩ᵛ≡∷ (⊩ᵛ→⊩ᵛ∷→⊩ᵛ[]₀ ⊩B₁ (rflᵛ ⊩t₁)) u₁≡u₂) σ₁≡σ₂ of λ
       u₁[σ₁]≡u₂[σ₂] →
 
     -- Some definitions related to v₁ and v₂.
@@ -1023,7 +1022,7 @@ opaque
       (⊩v₁ , ⊩v₂) →
     case conv-⊩ᵛ∷ Id≡Id ⊩v₂ of λ
       ⊩v₂ →
-    case ⊩ᵛ≡∷⇔ .proj₁ v₁≡v₂ .proj₂ σ₁≡σ₂ of λ
+    case ⊩ᵛ≡∷→⊩ˢ≡∷→⊩[]≡[]∷ v₁≡v₂ σ₁≡σ₂ of λ
       v₁[σ₁]≡v₂[σ₂] →
     case ⊩≡∷Id⇔ .proj₁ v₁[σ₁]≡v₂[σ₂] of λ
       (v₁′ , v₂′ , v₁[σ₁]⇒*v₁′ , v₂[σ₂]⇒*v₂′ , _ , _ , rest) →
@@ -1090,8 +1089,8 @@ opaque
         neutral-⊩≡∷
           (wf-⊩≡ B₁[σ₁⇑][v₁′]₀≡B₂[σ₂⇑][v₂′]₀ .proj₁)
           (Kₙ v₁′-ne) (Kₙ v₂′-ne) $
-        ~-K (escape-⊩≡ $ ⊩ᵛ≡⇔ .proj₁ A₁≡A₂ .proj₂ σ₁≡σ₂)
-          (escape-⊩≡∷ $ ⊩ᵛ≡∷⇔ .proj₁ t₁≡t₂ .proj₂ σ₁≡σ₂)
+        ~-K (escape-⊩≡ $ ⊩ᵛ≡→⊩ˢ≡∷→⊩[]≡[] A₁≡A₂ σ₁≡σ₂)
+          (escape-⊩≡∷ $ ⊩ᵛ≡∷→⊩ˢ≡∷→⊩[]≡[]∷ t₁≡t₂ σ₁≡σ₂)
           (escape-⊩≡ $ ⊩ᵛ≡→⊩ˢ≡∷→⊩[⇑]≡[⇑] B₁≡B₂ σ₁≡σ₂)
           (escape-⊩≡∷ u₁[σ₁]≡u₂[σ₂]) v₁′~v₂′ ok
 
@@ -1275,11 +1274,11 @@ opaque
     -- Some definitions related to A₁ and A₂.
     case wf-⊩ᵛ≡ A₁≡A₂ of λ
       (⊩A₁ , _) →
-    case ⊩ᵛ≡⇔ .proj₁ A₁≡A₂ .proj₂ σ₁≡σ₂ of λ
+    case ⊩ᵛ≡→⊩ˢ≡∷→⊩[]≡[] A₁≡A₂ σ₁≡σ₂ of λ
       A₁[σ₁]≡A₂[σ₂] →
 
     -- Some definitions related to t₁ and t₂.
-    case ⊩ᵛ≡∷⇔ .proj₁ t₁≡t₂ .proj₂ σ₁≡σ₂ of λ
+    case ⊩ᵛ≡∷→⊩ˢ≡∷→⊩[]≡[]∷ t₁≡t₂ σ₁≡σ₂ of λ
       t₁[σ₁]≡t₂[σ₂] →
     case wf-⊩≡∷ t₁[σ₁]≡t₂[σ₂] of λ
       (⊩t₁[σ₁] , ⊩t₂[σ₂]) →
@@ -1297,7 +1296,7 @@ opaque
     -- Some definitions related to Id.
     case Id-congᵛ A₁≡A₂ t₁≡t₂ v₁≡v₂ of λ
       Id-v₁≡Id-v₂ →
-    case ⊩ᵛ≡⇔ .proj₁ Id-v₁≡Id-v₂ .proj₂ σ₁≡σ₂ of λ
+    case ⊩ᵛ≡→⊩ˢ≡∷→⊩[]≡[] Id-v₁≡Id-v₂ σ₁≡σ₂ of λ
       Id-v₁[σ₁]≡Id-v₂[σ₂] →
 
     -- Some definitions related to B₁ and B₂.
@@ -1319,7 +1318,7 @@ opaque
 
     -- Some definitions related to u₁ and u₂.
     case PE.subst (_⊩⟨_⟩_≡_∷_ _ _ _ _) ([,]-[]-commute B₁) $
-         ⊩ᵛ≡∷⇔ .proj₁ u₁≡u₂ .proj₂ σ₁≡σ₂ of λ
+         ⊩ᵛ≡∷→⊩ˢ≡∷→⊩[]≡[]∷ u₁≡u₂ σ₁≡σ₂ of λ
       u₁[σ₁]≡u₂[σ₂] →
     case escape-⊩∷ $ wf-⊩≡∷ u₁[σ₁]≡u₂[σ₂] .proj₁ of λ
       ⊢u₁[σ₁] →
@@ -1328,7 +1327,7 @@ opaque
       ⊢u₂[σ₂] →
 
     -- Some definitions related to v₁ and v₂.
-    case ⊩ᵛ≡∷⇔ .proj₁ v₁≡v₂ .proj₂ σ₁≡σ₂ of λ
+    case ⊩ᵛ≡∷→⊩ˢ≡∷→⊩[]≡[]∷ v₁≡v₂ σ₁≡σ₂ of λ
       v₁[σ₁]≡v₂[σ₂] →
     case wf-⊩≡∷ v₁[σ₁]≡v₂[σ₂] of λ
       (⊩v₁[σ₁] , ⊩v₂[σ₂]) →
@@ -1340,7 +1339,7 @@ opaque
       (⊩w₁ , ⊩w₂) →
     case conv-⊩ᵛ∷ Id-v₁≡Id-v₂ ⊩w₂ of λ
       ⊩w₂ →
-    case ⊩ᵛ≡∷⇔ .proj₁ w₁≡w₂ .proj₂ σ₁≡σ₂ of λ
+    case ⊩ᵛ≡∷→⊩ˢ≡∷→⊩[]≡[]∷ w₁≡w₂ σ₁≡σ₂ of λ
       w₁[σ₁]≡w₂[σ₂] →
     case ⊩≡∷Id⇔ .proj₁ w₁[σ₁]≡w₂[σ₂] of λ
       (w₁′ , w₂′ , w₁⇒*w₁′ , w₂⇒*w₂′ , _ , _ , rest) →

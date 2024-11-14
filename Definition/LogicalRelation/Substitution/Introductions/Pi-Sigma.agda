@@ -464,13 +464,13 @@ opaque
       , λ ρ⊇ →
             PE.subst₂ (_⊩⟨_⟩_≡_ _ _) (PE.sym $ wk-subst A₁)
               (PE.sym $ wk-subst A₂)
-              (⊩ᵛ≡⇔ .proj₁ A₁≡A₂ .proj₂ $
+              (⊩ᵛ≡→⊩ˢ≡∷→⊩[]≡[] A₁≡A₂ $
                ⊩ˢ≡∷-•ₛ ρ⊇ σ₁≡σ₂)
           , λ ⊩t →
               PE.subst₂ (_⊩⟨_⟩_≡_ _ _)
                 (PE.sym $ singleSubstWkComp _ _ B₁)
                 (PE.sym $ singleSubstWkComp _ _ B₂) $
-              ⊩ᵛ≡⇔ .proj₁ B₁≡B₂ .proj₂ $
+              ⊩ᵛ≡→⊩ˢ≡∷→⊩[]≡[] B₁≡B₂ $
               ⊩ˢ≡∷∙⇔ .proj₂
                 ( ( _ , ⊩A₁
                   , refl-⊩≡∷
@@ -565,7 +565,7 @@ opaque
       A₁≡A₂ →
     case ⊩ᵛ≡∷U→⊩ᵛ≡ B₁≡B₂∷U of λ
       B₁≡B₂ →
-    case ⊩ᵛ≡∷⇔ .proj₁ A₁≡A₂∷U .proj₂ σ₁≡σ₂ of λ
+    case ⊩ᵛ≡∷→⊩ˢ≡∷→⊩[]≡[]∷ A₁≡A₂∷U σ₁≡σ₂ of λ
       A₁[σ₁]≡A₂[σ₂]∷U →
     case ⊩ᵛ≡∷→⊩ˢ≡∷→⊩[⇑]≡[⇑]∷ B₁≡B₂∷U σ₁≡σ₂ of λ
       B₁[σ₁⇑]≡B₂[σ₂⇑]∷U →
@@ -580,9 +580,9 @@ opaque
       ( PE.subst (_ <ᵘ_) ⊔ᵘ-idem
           (⊔ᵘ-mono (⊩∷U⇔ .proj₁ ⊩A₁[σ₁] .proj₁)
              (⊩∷U⇔ .proj₁ ⊩B₁[σ₁] .proj₁))
-      , ⊩ᵛ≡⇔ .proj₁
+      , ⊩ᵛ≡→⊩ˢ≡∷→⊩[]≡[]
           (ΠΣ-congᵛ ok (emb-⊩ᵛ≡ ≤ᵘ⊔ᵘʳ A₁≡A₂) (emb-⊩ᵛ≡ ≤ᵘ⊔ᵘˡ B₁≡B₂))
-          .proj₂ σ₁≡σ₂
+          σ₁≡σ₂
       , ≅ₜ-ΠΣ-cong (escape-⊩≡∷ A₁[σ₁]≡A₂[σ₂]∷U)
           (escape-⊩≡∷ B₁[σ₁⇑]≡B₂[σ₂⇑]∷U) ok
       )

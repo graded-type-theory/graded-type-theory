@@ -416,7 +416,7 @@ opaque
          case wf-⊩≡∷ v₁≡v₂ of λ
            (⊩v₁ , ⊩v₂) →
          case conv-⊩∷
-                (wk-⊩≡ ρ⊇ $ ⊩ᵛ≡⇔ .proj₁ (refl-⊩ᵛ≡ ⊩A) .proj₂ σ₁≡σ₂)
+                (wk-⊩≡ ρ⊇ $ ⊩ᵛ≡→⊩ˢ≡∷→⊩[]≡[] (refl-⊩ᵛ≡ ⊩A) σ₁≡σ₂)
                 ⊩v₂ of λ
            ⊩v₂ →
          case ⊩ˢ≡∷∙⇔ {σ₁ = consSubst _ _} {σ₂ = consSubst _ _} .proj₂
@@ -433,9 +433,9 @@ opaque
            wk (lift ρ) (B [ σ₁ ⇑ ]) [ v₁ ]₀           ≡⟨ singleSubstWkComp _ _ t₁ ⟩⊩∷∷≡
                                                        ⟨ singleSubstWkComp _ _ B ⟩⊩∷≡
          t₁ [ consSubst (ρ •ₛ σ₁) v₁ ] ∷
-           B [ consSubst (ρ •ₛ σ₁) v₁ ]               ≡⟨ ⊩ᵛ≡∷⇔ .proj₁ t₁≡t₂ .proj₂ ρ•ₛσ₁,v₁≡ρ•ₛσ₂,v₂ ⟩⊩∷∷⇐*
+           B [ consSubst (ρ •ₛ σ₁) v₁ ]               ≡⟨ ⊩ᵛ≡∷→⊩ˢ≡∷→⊩[]≡[]∷ t₁≡t₂ ρ•ₛσ₁,v₁≡ρ•ₛσ₂,v₂ ⟩⊩∷∷⇐*
                                                        ⟨ ≅-eq $ escape-⊩≡ $
-                                                         ⊩ᵛ≡⇔ .proj₁ (refl-⊩ᵛ≡ ⊩B) .proj₂ ρ•ₛσ₁,v₁≡ρ•ₛσ₂,v₂ ⟩⇒
+                                                         ⊩ᵛ≡→⊩ˢ≡∷→⊩[]≡[] (refl-⊩ᵛ≡ ⊩B) ρ•ₛσ₁,v₁≡ρ•ₛσ₂,v₂ ⟩⇒
          t₂ [ consSubst (ρ •ₛ σ₂) v₂ ] ∷
            B [ consSubst (ρ •ₛ σ₂) v₂ ]               ≡˘⟨ singleSubstWkComp _ _ t₂ ⟩⇐∷
                                                        ˘⟨ singleSubstWkComp _ _ B ⟩⇒≡
@@ -510,7 +510,7 @@ opaque
       (⊩u₁ , ⊩u₂) →
     case wf-⊩ˢ≡∷ σ₁≡σ₂ of λ
       (⊩σ₁ , ⊩σ₂) →
-    case ⊩ᵛ≡∷⇔ .proj₁ u₁≡u₂ .proj₂ σ₁≡σ₂ of λ
+    case ⊩ᵛ≡∷→⊩ˢ≡∷→⊩[]≡[]∷ u₁≡u₂ σ₁≡σ₂ of λ
       u₁[σ₁]≡u₂[σ₂] →
     case ⊩ᵛΠΣ⇔ .proj₁ (wf-⊩ᵛ∷ ⊩t₁) of λ
       (_ , ⊩A , ⊩B) →

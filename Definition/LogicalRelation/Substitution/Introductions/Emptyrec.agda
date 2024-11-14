@@ -60,9 +60,9 @@ opaque
   ⊩emptyrec≡emptyrec
     {A₁} {A₂} {t₁} {t₂} {σ₁} {σ₂} {p}
     A₁≡A₂ t₁≡t₂ σ₁≡σ₂ =
-    case ⊩ᵛ≡⇔ .proj₁ A₁≡A₂ .proj₂ of λ
+    case ⊩ᵛ≡→⊩ˢ≡∷→⊩[]≡[] A₁≡A₂ of λ
       A₁≡A₂ →
-    case ⊩ᵛ≡∷⇔ .proj₁ t₁≡t₂ .proj₂ of λ
+    case ⊩ᵛ≡∷→⊩ˢ≡∷→⊩[]≡[]∷ t₁≡t₂ of λ
       t₁≡t₂ →
     case ⊩≡∷Empty⇔ .proj₁ (t₁≡t₂ σ₁≡σ₂) of λ
       (_ , _ , Emptyₜ₌ t₁′ t₂′ t₁[σ₁]⇒*t₁′ t₂[σ₂]⇒*t₂′ _ rest)  →

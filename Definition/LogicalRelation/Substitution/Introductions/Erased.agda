@@ -127,8 +127,8 @@ opaque
     Γ ⊩ᵛ⟨ l ⟩ [ t ] ≡ [ u ] ∷ Erased A
   []-congᵛ t≡u =
     case ⊩ᵛ≡∷⇔ .proj₁ t≡u of λ
-      (⊩A , t≡u) →
-    ⊩ᵛ≡∷⇔ .proj₂ (Erasedᵛ ⊩A , ⊩[]≡[] ∘→ t≡u)
+      (⊩A , _) →
+    ⊩ᵛ≡∷⇔ .proj₂ (Erasedᵛ ⊩A , ⊩[]≡[] ∘→ ⊩ᵛ≡∷→⊩ˢ≡∷→⊩[]≡[]∷ t≡u)
 
 opaque
 
