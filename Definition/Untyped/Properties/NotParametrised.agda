@@ -206,11 +206,6 @@ opaque
 
 opaque
 
-  <ᵘ-≤ᵘ-trans : l₁ <ᵘ l₂ → l₂ ≤ᵘ l₃ → l₁ <ᵘ l₃
-  <ᵘ-≤ᵘ-trans = {!   !}
-
-opaque
-
   -- The relation _<ᵘ_ is contained in _≤ᵘ_.
 
   <ᵘ→≤ᵘ : l₁ <ᵘ l₂ → l₁ ≤ᵘ l₂
@@ -256,42 +251,48 @@ module _ {ℓ} where
 ------------------------------------------------------------------------
 -- Properties related to _⊔ᵘ_
 
-{-
 opaque
 
   -- The level l₁ is bounded by the maximum of l₁ and l₂.
 
   ≤ᵘ⊔ᵘʳ : l₁ ≤ᵘ l₁ ⊔ᵘ l₂
-  ≤ᵘ⊔ᵘʳ = ≤′⊔ˡ
+  ≤ᵘ⊔ᵘʳ {0+ l₁} {0+ l₂} = ≤ᵘ-nat ≤′⊔ʳ
+  ≤ᵘ⊔ᵘʳ {0+ l₁} {(ω+0)} = ≤ᵘ-ω
+  ≤ᵘ⊔ᵘʳ {(ω+0)} = ≤ᵘ-ω
 
 opaque
 
   -- The level l₂ is bounded by the maximum of l₁ and l₂.
 
   ≤ᵘ⊔ᵘˡ : l₂ ≤ᵘ l₁ ⊔ᵘ l₂
-  ≤ᵘ⊔ᵘˡ = ≤′⊔ʳ
+  ≤ᵘ⊔ᵘˡ {0+ l₂} {0+ l₁} = ≤ᵘ-nat ≤′⊔ˡ
+  ≤ᵘ⊔ᵘˡ {(ω+0)} {0+ l₁} = ≤ᵘ-ω
+  ≤ᵘ⊔ᵘˡ {(l₂)} {(ω+0)} = ≤ᵘ-ω
 
 opaque
 
   -- The function _⊔ᵘ_ is monotone.
 
   ⊔ᵘ-mono : l₁ ≤ᵘ l₁′ → l₂ ≤ᵘ l₂′ → l₁ ⊔ᵘ l₂ ≤ᵘ l₁′ ⊔ᵘ l₂′
-  ⊔ᵘ-mono = flip ⊔-mono
+  ⊔ᵘ-mono (≤ᵘ-nat l₁≤) (≤ᵘ-nat l₂≤) = ≤ᵘ-nat (⊔-mono l₁≤ l₂≤)
+  ⊔ᵘ-mono (≤ᵘ-nat l₁≤) ≤ᵘ-ω = ≤ᵘ-ω
+  ⊔ᵘ-mono ≤ᵘ-ω l₂≤ = ≤ᵘ-ω
 
 opaque
 
   -- 0 is a left identity for _⊔ᵘ_.
 
-  ⊔ᵘ-identityˡ : 0 ⊔ᵘ l ≡ l
-  ⊔ᵘ-identityˡ = ⊔-identityʳ _
+  ⊔ᵘ-identityˡ : 0ᵘ ⊔ᵘ l ≡ l
+  ⊔ᵘ-identityˡ {0+ l} = refl
+  ⊔ᵘ-identityˡ {(ω+0)} = refl
 
 opaque
 
   -- The function _⊔ᵘ_ is idempotent.
 
   ⊔ᵘ-idem : l ⊔ᵘ l ≡ l
-  ⊔ᵘ-idem = ⊔-idem _
--}
+  ⊔ᵘ-idem {0+ l} = cong 0+_ (⊔-idem l)
+  ⊔ᵘ-idem {(ω+0)} = refl
 
 ------------------------------------------------------------------------
 -- Other properties

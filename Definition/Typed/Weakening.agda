@@ -112,7 +112,7 @@ mutual
          in ⊢ Δ → Γ ⊢ t ∷ A → Δ ⊢ ρt ∷ ρA
   wkTerm ρ ⊢Δ (zeroᵘⱼ ⊢Γ) = zeroᵘⱼ ⊢Δ
   wkTerm ρ ⊢Δ (sucᵘⱼ l) = sucᵘⱼ (wkTerm ρ ⊢Δ l)
-  wkTerm ρ ⊢Δ (⊔ᵘⱼ l₁ l₂) = ⊔ᵘⱼ (wkTerm ρ ⊢Δ l₁) (wkTerm ρ ⊢Δ l₂)
+  wkTerm ρ ⊢Δ (maxᵘⱼ l₁ l₂) = maxᵘⱼ (wkTerm ρ ⊢Δ l₁) (wkTerm ρ ⊢Δ l₂)
   wkTerm ρ ⊢Δ (Uⱼ l) = Uⱼ (wkTerm ρ ⊢Δ l)
   wkTerm ρ ⊢Δ (ℕⱼ ⊢Γ) = ℕⱼ ⊢Δ
   wkTerm ρ ⊢Δ (Emptyⱼ ⊢Γ) = Emptyⱼ ⊢Δ

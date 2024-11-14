@@ -65,19 +65,19 @@ subst-sucᵘ :
 subst-sucᵘ {t = var _} _ = inj₁ (_ , refl)
 subst-sucᵘ {t = sucᵘ _} refl = inj₂ (_ , refl , refl)
 
--- Inversion for _⊔ᵘ_.
+-- Inversion for _maxᵘ_.
 
-wk-⊔ᵘ :
-  wk ρ t ≡ u ⊔ᵘ v →
-  ∃₂ λ u′ v′ → t ≡ u′ ⊔ᵘ v′ × wk ρ u′ ≡ u × wk ρ v′ ≡ v
-wk-⊔ᵘ {t = _ ⊔ᵘ _} refl = _ , _ , refl , refl , refl
+wk-maxᵘ :
+  wk ρ t ≡ u maxᵘ v →
+  ∃₂ λ u′ v′ → t ≡ u′ maxᵘ v′ × wk ρ u′ ≡ u × wk ρ v′ ≡ v
+wk-maxᵘ {t = _ maxᵘ _} refl = _ , _ , refl , refl , refl
 
-subst-⊔ᵘ :
-  t [ σ ] ≡ u ⊔ᵘ v →
+subst-maxᵘ :
+  t [ σ ] ≡ u maxᵘ v →
   (∃ λ x → t ≡ var x) ⊎
-  ∃₂ λ u′ v′ → t ≡ u′ ⊔ᵘ v′ × u′ [ σ ] ≡ u × v′ [ σ ] ≡ v
-subst-⊔ᵘ {t = var _} _ = inj₁ (_ , refl)
-subst-⊔ᵘ {t = _ ⊔ᵘ _} refl = inj₂ (_ , _ , refl , refl , refl)
+  ∃₂ λ u′ v′ → t ≡ u′ maxᵘ v′ × u′ [ σ ] ≡ u × v′ [ σ ] ≡ v
+subst-maxᵘ {t = var _} _ = inj₁ (_ , refl)
+subst-maxᵘ {t = _ maxᵘ _} refl = inj₂ (_ , _ , refl , refl , refl)
 
 -- Inversion for U.
 

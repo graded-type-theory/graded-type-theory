@@ -82,7 +82,7 @@ data Whnf {n : Nat} : Term n → Set a where
   -- Introductions are whnfs.
   zeroᵘₙ : Whnf zeroᵘ
   sucᵘₙ : Whnf (sucᵘ t)
-  ⊔ᵘₙ   : Whnf (t ⊔ᵘ u)
+  maxᵘₙ : Whnf (t maxᵘ u)
   lamₙ  : Whnf (lam p t)
   zeroₙ : Whnf zero
   sucₙ  : Whnf (suc t)
@@ -382,7 +382,7 @@ wkWhnf ρ Unitₙ   = Unitₙ
 wkWhnf ρ Idₙ     = Idₙ
 wkWhnf ρ zeroᵘₙ  = zeroᵘₙ
 wkWhnf ρ sucᵘₙ   = sucᵘₙ
-wkWhnf ρ ⊔ᵘₙ     = ⊔ᵘₙ
+wkWhnf ρ maxᵘₙ   = maxᵘₙ
 wkWhnf ρ lamₙ    = lamₙ
 wkWhnf ρ prodₙ   = prodₙ
 wkWhnf ρ zeroₙ   = zeroₙ

@@ -50,7 +50,7 @@ Erased-cong ⊢A A≡B =
 -- An introduction rule for U.
 
 Erasedⱼ-U :
- Γ ⊢ A → Γ ⊢ A ∷ U l → Γ ⊢ Erased A ∷ U (l ⊔ᵘ zeroᵘ)
+ Γ ⊢ A → Γ ⊢ A ∷ U l → Γ ⊢ Erased A ∷ U (l maxᵘ zeroᵘ)
 Erasedⱼ-U ⊢A ⊢A∷U =
   ΠΣⱼ ⊢A∷U (Unitⱼ (zeroᵘⱼ (⊢→⊢∙ ⊢A)) Unit-ok) Σ-ok
 
@@ -59,7 +59,7 @@ Erasedⱼ-U ⊢A ⊢A∷U =
 Erased-cong-U :
   Γ ⊢ A →
   Γ ⊢ A ≡ B ∷ U l →
-  Γ ⊢ Erased A ≡ Erased B ∷ U (l ⊔ᵘ zeroᵘ)
+  Γ ⊢ Erased A ≡ Erased B ∷ U (l maxᵘ zeroᵘ)
 Erased-cong-U ⊢A A≡B =
   ΠΣ-cong ⊢A A≡B (refl (Unitⱼ (zeroᵘⱼ (⊢→⊢∙ ⊢A)) Unit-ok)) Σ-ok
 

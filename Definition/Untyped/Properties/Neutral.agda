@@ -167,10 +167,10 @@ opaque
       case subst-sucᵘ {t = t} ≡u of λ where
         (inj₁ (x , refl)) → ne (var _)
         (inj₂ (_ , refl , _)) → sucᵘₙ
-    lemma ≡u ⊔ᵘₙ =
-      case subst-⊔ᵘ {t = t} ≡u of λ where
+    lemma ≡u maxᵘₙ =
+      case subst-maxᵘ {t = t} ≡u of λ where
         (inj₁ (x , refl)) → ne (var _)
-        (inj₂ (_ , _ , refl , _)) → ⊔ᵘₙ
+        (inj₂ (_ , _ , refl , _)) → maxᵘₙ
     lemma ≡u Uₙ =
       case subst-U {t = t} ≡u of λ where
         (inj₁ (x , refl)) → ne (var x)

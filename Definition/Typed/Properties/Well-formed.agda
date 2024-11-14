@@ -29,7 +29,7 @@ private variable
 wfTerm : Γ ⊢ t ∷ A → ⊢ Γ
 wfTerm (zeroᵘⱼ ⊢Γ) = ⊢Γ
 wfTerm (sucᵘⱼ l) = wfTerm l
-wfTerm (⊔ᵘⱼ l₁ l₂) = wfTerm l₁
+wfTerm (maxᵘⱼ l₁ l₂) = wfTerm l₁
 wfTerm (Uⱼ l) = wfTerm l
 wfTerm (ℕⱼ ⊢Γ) = ⊢Γ
 wfTerm (Emptyⱼ ⊢Γ) = ⊢Γ

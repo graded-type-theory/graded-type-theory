@@ -125,18 +125,27 @@ data Universe-level : Set where
   0+_ : Nat → Universe-level
   ω+0 : Universe-level
 
+0ᵘ : Universe-level
+0ᵘ = 0+ 0
+
+1+ᵘ : Universe-level → Universe-level
+1+ᵘ (0+ n) = 0+ (1+ n)
+1+ᵘ ω+0 = ω+0
+
 -- The maximum of two universe levels.
 
--- infixl 6 _⊔ᵘ_
+infixl 6 _⊔ᵘ_
 
--- _⊔ᵘ_ : (_ _ : Universe-level) → Universe-level
--- _⊔ᵘ_ = flip Tools.Nat._⊔_
+_⊔ᵘ_ : (_ _ : Universe-level) → Universe-level
+(0+ m) ⊔ᵘ (0+ n) = 0+ (m Tools.Nat.⊔ n)
+(0+ m) ⊔ᵘ ω+0 = ω+0
+ω+0 ⊔ᵘ n = ω+0
 
 -- The definition above is set up so that l ⊔ᵘ 0 is definitionally
 -- equal to l, with the intention to make it a little easier to work
 -- with Erased.
 
--- _ : l ⊔ᵘ 0 ≡ l
+-- _ : ∀ {l} → l ⊔ᵘ 0ᵘ ≡ l
 -- _ = refl
 
 -- Ordering of universe levels.
@@ -145,13 +154,6 @@ infix 4 _≤ᵘ_
 
 -- _≤ᵘ_ : (_ _ : Universe-level) → Set
 -- i ≤ᵘ j = i ≤′ j
-
-0ᵘ : Universe-level
-0ᵘ = 0+ 0
-
-1+ᵘ : Universe-level → Universe-level
-1+ᵘ (0+ n) = 0+ (1+ n)
-1+ᵘ ω+0 = ω+0
 
 data _≤ᵘ_ : Universe-level → Universe-level → Set where
   ≤ᵘ-nat : ∀ {l l′} → l ≤′ l′ → 0+ l ≤ᵘ 0+ l′

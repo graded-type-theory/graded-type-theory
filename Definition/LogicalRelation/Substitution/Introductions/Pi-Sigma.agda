@@ -566,7 +566,7 @@ opaque
     Δ ⊩ˢ σ₁ ≡ σ₂ ∷ Γ →
     ∃ λ l →
     Δ ⊩⟨ l ⟩ (ΠΣ⟨ b ⟩ p , q ▷ A₁ ▹ B₁) [ σ₁ ] ≡
-      (ΠΣ⟨ b ⟩ p , q ▷ A₂ ▹ B₂) [ σ₂ ] ∷ U ((t [ σ₁ ]) ⊔ᵘ (u [ σ₁ ]))
+      (ΠΣ⟨ b ⟩ p , q ▷ A₂ ▹ B₂) [ σ₂ ] ∷ U ((t [ σ₁ ]) maxᵘ (u [ σ₁ ]))
   ⊩ΠΣ≡ΠΣ∷U {t} {u} {Δ} {σ₁} {σ₂} ok A₁≡A₂∷U B₁≡B₂∷U σ₁≡σ₂ =
     case ⊩ᵛ≡∷U→⊩ᵛ≡ A₁≡A₂∷U of λ
       A₁≡A₂ →
@@ -587,7 +587,7 @@ opaque
       ⊢A₁[σ₁] →
     case escape-⊩∷ ⊩B₁[σ₁] of λ
       ⊢B₁[σ₁] →
-    let ⊩t⊔u : Δ ⊩Level (t [ σ₁ ]) ⊔ᵘ (u [ σ₁ ]) ∷Level
+    let ⊩t⊔u : Δ ⊩Level (t [ σ₁ ]) maxᵘ (u [ σ₁ ]) ∷Level
         ⊩t⊔u = {!   !}
     in
     ω+0 ,
@@ -622,7 +622,7 @@ opaque
     Γ ⊩ᵛ A₁ ≡ A₂ ∷ U t →
     Γ ∙ A₁ ⊩ᵛ B₁ ≡ B₂ ∷ U (wk1 u) →
     Γ ⊩ᵛ ΠΣ⟨ b ⟩ p , q ▷ A₁ ▹ B₁ ≡
-      ΠΣ⟨ b ⟩ p , q ▷ A₂ ▹ B₂ ∷ U (t ⊔ᵘ u)
+      ΠΣ⟨ b ⟩ p , q ▷ A₂ ▹ B₂ ∷ U (t maxᵘ u)
   ΠΣ-congᵗᵛ ok A₁≡A₂ B₁≡B₂ =
     case wf-⊩ᵛ≡∷ A₁≡A₂ of λ
       (⊩A₁ , ⊩A₂) →
@@ -650,7 +650,7 @@ opaque
     ΠΣ-allowed b p q →
     Γ ⊩ᵛ A ∷ U t →
     Γ ∙ A ⊩ᵛ B ∷ U (wk1 u) →
-    Γ ⊩ᵛ ΠΣ⟨ b ⟩ p , q ▷ A ▹ B ∷ U (t ⊔ᵘ u)
+    Γ ⊩ᵛ ΠΣ⟨ b ⟩ p , q ▷ A ▹ B ∷ U (t maxᵘ u)
   ΠΣᵗᵛ ok ⊩A ⊩B =
     ⊩ᵛ∷⇔ .proj₂
       -- ( PE.subst (_ ⊩ᵛ⟨_⟩ _) ⊔ᵘ-idem

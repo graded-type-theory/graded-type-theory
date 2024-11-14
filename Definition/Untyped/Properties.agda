@@ -45,8 +45,8 @@ opaque
   toTerm∘fromTerm Level = refl
   toTerm∘fromTerm zeroᵘ = refl
   toTerm∘fromTerm (sucᵘ l) = cong sucᵘ (toTerm∘fromTerm l)
-  toTerm∘fromTerm (l₁ ⊔ᵘ l₂) =
-    cong₂ _⊔ᵘ_ (toTerm∘fromTerm l₁) (toTerm∘fromTerm l₂)
+  toTerm∘fromTerm (l₁ maxᵘ l₂) =
+    cong₂ _maxᵘ_ (toTerm∘fromTerm l₁) (toTerm∘fromTerm l₂)
   toTerm∘fromTerm (U l) = cong U (toTerm∘fromTerm l)
   toTerm∘fromTerm (ΠΣ⟨ b ⟩ p , q ▷ A ▹ B) =
     cong₂ (ΠΣ⟨ b ⟩ p , q ▷_▹_) (toTerm∘fromTerm A) (toTerm∘fromTerm B)
@@ -177,7 +177,7 @@ opaque
   wk≡wk′ Level = refl
   wk≡wk′ zeroᵘ = refl
   wk≡wk′ (sucᵘ l) = cong sucᵘ (wk≡wk′ l)
-  wk≡wk′ (l₁ ⊔ᵘ l₂) = cong₂ _⊔ᵘ_ (wk≡wk′ l₁) (wk≡wk′ l₂)
+  wk≡wk′ (l₁ maxᵘ l₂) = cong₂ _maxᵘ_ (wk≡wk′ l₁) (wk≡wk′ l₂)
   wk≡wk′ (U l) = cong U (wk≡wk′ l)
   wk≡wk′ (ΠΣ⟨ b ⟩ p , q ▷ t ▹ t₁) =
     cong₂ (ΠΣ⟨ b ⟩ p , q ▷_▹_) (wk≡wk′ t) (wk≡wk′ t₁)
@@ -349,8 +349,8 @@ opaque
   subst≡subst′ Level = refl
   subst≡subst′ zeroᵘ = refl
   subst≡subst′ (sucᵘ l) = cong sucᵘ (subst≡subst′ l)
-  subst≡subst′ (l₁ ⊔ᵘ l₂) =
-    cong₂ _⊔ᵘ_ (subst≡subst′ l₁) (subst≡subst′ l₂)
+  subst≡subst′ (l₁ maxᵘ l₂) =
+    cong₂ _maxᵘ_ (subst≡subst′ l₁) (subst≡subst′ l₂)
   subst≡subst′ (U l) = cong U (subst≡subst′ l)
   subst≡subst′ (ΠΣ⟨ b ⟩ p , q ▷ t ▹ t₁) =
     cong₂ (ΠΣ⟨ b ⟩ p , q ▷_▹_) (subst≡subst′ t) (subst≡subst′ t₁)
@@ -1951,7 +1951,7 @@ opaque
   isNumeral? Level = no (λ ())
   isNumeral? zeroᵘ = no (λ ())
   isNumeral? (sucᵘ _) = no (λ ())
-  isNumeral? (_ ⊔ᵘ _) = no (λ ())
+  isNumeral? (_ maxᵘ _) = no (λ ())
   isNumeral? (U n) = no (λ ())
   isNumeral? ℕ = no λ ()
   isNumeral? Empty = no λ ()

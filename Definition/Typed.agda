@@ -77,15 +77,15 @@ mutual
               → Γ ⊢ zeroᵘ ∷ Level
     sucᵘⱼ     : Γ ⊢ l ∷ Level
               → Γ ⊢ sucᵘ l ∷ Level
-    ⊔ᵘⱼ       : Γ ⊢ l₁ ∷ Level
+    maxᵘⱼ     : Γ ⊢ l₁ ∷ Level
               → Γ ⊢ l₂ ∷ Level
-              → Γ ⊢ l₁ ⊔ᵘ l₂ ∷ Level
+              → Γ ⊢ l₁ maxᵘ l₂ ∷ Level
     Uⱼ        : Γ ⊢ l ∷ Level
               → Γ ⊢ U l ∷ U (sucᵘ l)
     ΠΣⱼ       : Γ     ⊢ F ∷ U l₁
               → Γ ∙ F ⊢ G ∷ U (wk1 l₂)
               → ΠΣ-allowed b p q
-              → Γ     ⊢ ΠΣ⟨ b ⟩ p , q ▷ F ▹ G ∷ U (l₁ ⊔ᵘ l₂)
+              → Γ     ⊢ ΠΣ⟨ b ⟩ p , q ▷ F ▹ G ∷ U (l₁ maxᵘ l₂)
     ℕⱼ        : ⊢ Γ → Γ ⊢ ℕ ∷ U zeroᵘ
     Emptyⱼ    : ⊢ Γ → Γ ⊢ Empty ∷ U zeroᵘ
     Unitⱼ     : Γ ⊢ l ∷ Level → Unit-allowed k → Γ ⊢ Unit k l ∷ U l
@@ -215,15 +215,15 @@ mutual
     conv          : Γ ⊢ t ≡ u ∷ A
                   → Γ ⊢ A ≡ B
                   → Γ ⊢ t ≡ u ∷ B
-    -- ⊔ᵘ-zeroᵘ
+    -- maxᵘ-zeroᵘ
     --   : Γ ⊢ l ∷ Level
-    --   → Γ ⊢ zeroᵘ ⊔ᵘ l ≡ l ∷ Level
-    -- ⊔ᵘ-sucᵘ-zeroᵘ
+    --   → Γ ⊢ zeroᵘ maxᵘ l ≡ l ∷ Level
+    -- maxᵘ-sucᵘ-zeroᵘ
     --   : Γ ⊢ l level
-    --   → Γ ⊢ sucᵘ l ⊔ᵘ zeroᵘ ≡ sucᵘ l level
-    -- ⊔ᵘ-sucᵘ-sucᵘ
+    --   → Γ ⊢ sucᵘ l maxᵘ zeroᵘ ≡ sucᵘ l level
+    -- maxᵘ-sucᵘ-sucᵘ
     --   : Γ ⊢ l₁ level → Γ ⊢ l₂ level
-    --   → Γ ⊢ sucᵘ l₁ ⊔ᵘ suc l₂ ≡ sucᵘ (l₁ ⊔ᵘ l₂) level
+    --   → Γ ⊢ sucᵘ l₁ maxᵘ suc l₂ ≡ sucᵘ (l₁ maxᵘ l₂) level
     sucᵘ-cong     : ∀ {n}
                   → Γ ⊢ t ≡ n ∷ Level
                   → Γ ⊢ sucᵘ t ≡ sucᵘ n ∷ Level
@@ -234,7 +234,7 @@ mutual
                   → Γ ∙ F ⊢ G ≡ E ∷ U (wk1 l₂)
                   → ΠΣ-allowed b p q
                   → Γ     ⊢ ΠΣ⟨ b ⟩ p , q ▷ F ▹ G ≡
-                            ΠΣ⟨ b ⟩ p , q ▷ H ▹ E ∷ U (l₁ ⊔ᵘ l₂)
+                            ΠΣ⟨ b ⟩ p , q ▷ H ▹ E ∷ U (l₁ maxᵘ l₂)
     app-cong      : ∀ {b}
                   → Γ ⊢ f ≡ g ∷ Π p , q ▷ F ▹ G
                   → Γ ⊢ a ≡ b ∷ F
@@ -413,9 +413,9 @@ data _⊢_⇒_∷_ (Γ : Con Term n) : Term n → Term n → Term n → Set ℓ 
   conv           : Γ ⊢ t ⇒ u ∷ A
                  → Γ ⊢ A ≡ B
                  → Γ ⊢ t ⇒ u ∷ B
-  -- ⊔ᵘ-zeroᵘ : Γ ⊢ zeroᵘ ⊔ᵘ l ⇒ l ∷ Level
-  -- ⊔ᵘ-sucᵘ-zeroᵘ : Γ ⊢ sucᵘ l ⊔ᵘ zeroᵘ ⇒ sucᵘ l ∷ Level
-  -- ⊔ᵘ-sucᵘ-sucᵘ : Γ ⊢ sucᵘ l₁ ⊔ᵘ suc l₂ ⇒ sucᵘ (l₁ ⊔ᵘ l₂) ∷ Level
+  -- maxᵘ-zeroᵘ : Γ ⊢ zeroᵘ maxᵘ l ⇒ l ∷ Level
+  -- maxᵘ-sucᵘ-zeroᵘ : Γ ⊢ sucᵘ l maxᵘ zeroᵘ ⇒ sucᵘ l ∷ Level
+  -- maxᵘ-sucᵘ-sucᵘ : Γ ⊢ sucᵘ l₁ maxᵘ suc l₂ ⇒ sucᵘ (l₁ maxᵘ l₂) ∷ Level
   app-subst      : Γ ⊢ t ⇒ u ∷ Π p , q ▷ F ▹ G
                  → Γ ⊢ a ∷ F
                  → Γ ⊢ t ∘⟨ p ⟩ a ⇒ u ∘⟨ p ⟩ a ∷ G [ a ]₀
@@ -650,7 +650,7 @@ data _⊢ˢ_≡_∷_ {k} (Δ : Con Term k) :
      → Γ     ⊢ F ∷ U l₁
      → Γ ∙ F ⊢ G ∷ U (wk1 l₂)
      → BindingType-allowed W
-     → Γ     ⊢ ⟦ W ⟧ F ▹ G ∷ U (l₁ ⊔ᵘ l₂)
+     → Γ     ⊢ ⟦ W ⟧ F ▹ G ∷ U (l₁ maxᵘ l₂)
 ⟦ BΠ _ _   ⟧ⱼᵤ = ΠΣⱼ
 ⟦ BΣ _ _ _ ⟧ⱼᵤ = ΠΣⱼ
 

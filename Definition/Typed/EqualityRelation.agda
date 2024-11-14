@@ -155,7 +155,7 @@ record Equality-relations
               → Γ ∙ F ⊢ G ≅ E ∷ U (wk1 l₂)
               → ΠΣ-allowed bm p q
               → Γ ⊢ ΠΣ⟨ bm ⟩ p , q ▷ F ▹ G ≅ ΠΣ⟨ bm ⟩ p , q ▷ H ▹ E ∷
-                  U (l₁ ⊔ᵘ l₂)
+                  U (l₁ maxᵘ l₂)
 
     -- Zero reflexivity
     ≅ₜ-zerorefl : ⊢ Γ → Γ ⊢ zero ≅ zero ∷ ℕ

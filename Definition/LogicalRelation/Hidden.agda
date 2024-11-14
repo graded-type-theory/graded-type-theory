@@ -851,10 +851,10 @@ opaque
   trans′-⊩≡ :
     Γ ⊩⟨ l ⟩ A ≡ B →
     Γ ⊩⟨ l′ ⟩ B ≡ C →
-    Γ ⊩⟨ {!l Tools.Nat.⊔ l′!} ⟩ A ≡ C
+    Γ ⊩⟨ l ⊔ᵘ l′ ⟩ A ≡ C
   trans′-⊩≡ (⊩A , _ , A≡B) (⊩B , ⊩C , B≡C) =
-    let ⊩A′ = emb-⊩ {!Tools.Nat.≤′⊔ʳ!} ⊩A
-        ⊩C′ = emb-⊩ {!Tools.Nat.≤′⊔ˡ!} ⊩C
+    let ⊩A′ = emb-⊩ ≤ᵘ⊔ᵘʳ ⊩A
+        ⊩C′ = emb-⊩ ≤ᵘ⊔ᵘˡ ⊩C
     in ⊩A′ , ⊩C′ , transEq ⊩A′ ⊩B ⊩C′ (irrelevanceEq ⊩A ⊩A′ A≡B) B≡C
 
 ------------------------------------------------------------------------

@@ -32,7 +32,7 @@ infixl 30 _∘⟨_⟩_
 infixl 30 _∘_
 infix 30 ⟦_⟧_▹_
 infixl 30 _ₛ•ₛ_ _•ₛ_ _ₛ•_
-infixr 30 _⊔ᵘ_
+infixr 30 _maxᵘ_
 infix 25 _[_]
 infix 25 _[_]₀
 infix 25 _[_]↑
@@ -51,7 +51,7 @@ data Term (n : Nat) : Set a where
   Level : Term n
   zeroᵘ : Term n
   sucᵘ : Term n → Term n
-  _⊔ᵘ_ : Term n → Term n → Term n
+  _maxᵘ_ : Term n → Term n → Term n
   U : Term n → Term n
   ΠΣ⟨_⟩_,_▷_▹_ : (b : BinderMode) (p q : M) (A : Term n)
                (B : Term (1+ n)) → Term n
@@ -209,7 +209,7 @@ toTerm (gen Zeroᵘkind []) =
 toTerm (gen Sucᵘkind (l ∷ₜ [])) =
   sucᵘ (toTerm l)
 toTerm (gen Maxᵘkind (l₁ ∷ₜ l₂ ∷ₜ [])) =
-  toTerm l₁ ⊔ᵘ toTerm l₂
+  toTerm l₁ maxᵘ toTerm l₂
 toTerm (gen Ukind (l ∷ₜ [])) =
   U (toTerm l)
 toTerm (gen (Binderkind b p q) (A ∷ₜ B ∷ₜ [])) =
@@ -266,7 +266,7 @@ fromTerm zeroᵘ =
   gen Zeroᵘkind []
 fromTerm (sucᵘ l) =
   gen Sucᵘkind (fromTerm l ∷ₜ [])
-fromTerm (l₁ ⊔ᵘ l₂) =
+fromTerm (l₁ maxᵘ l₂) =
   gen Maxᵘkind (fromTerm l₁ ∷ₜ fromTerm l₂ ∷ₜ [])
 fromTerm (U l) =
   gen Ukind (fromTerm l ∷ₜ [])
@@ -333,7 +333,7 @@ wk ρ (var x) = var (wkVar ρ x)
 wk ρ Level = Level
 wk ρ zeroᵘ = zeroᵘ
 wk ρ (sucᵘ l) = sucᵘ (wk ρ l)
-wk ρ (l₁ ⊔ᵘ l₂) = wk ρ l₁ ⊔ᵘ wk ρ l₂
+wk ρ (l₁ maxᵘ l₂) = wk ρ l₁ maxᵘ wk ρ l₂
 wk ρ (U l) = U (wk ρ l)
 wk ρ (ΠΣ⟨ b ⟩ p , q ▷ A ▹ B) =
   ΠΣ⟨ b ⟩ p , q ▷ wk ρ A ▹ wk (lift ρ) B
@@ -508,7 +508,7 @@ var x [ σ ] = σ x
 Level [ σ ] = Level
 zeroᵘ [ σ ] = zeroᵘ
 sucᵘ l [ σ ] = sucᵘ (l [ σ ])
-l₁ ⊔ᵘ l₂ [ σ ] = (l₁ [ σ ]) ⊔ᵘ (l₂ [ σ ])
+l₁ maxᵘ l₂ [ σ ] = (l₁ [ σ ]) maxᵘ (l₂ [ σ ])
 U l [ σ ] = U (l [ σ ])
 ΠΣ⟨ b ⟩ p , q ▷ A ▹ B [ σ ] =
   ΠΣ⟨ b ⟩ p , q ▷ A [ σ ] ▹ (B [ σ ⇑ ])
