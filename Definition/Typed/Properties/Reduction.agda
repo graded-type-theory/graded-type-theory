@@ -170,7 +170,7 @@ private opaque
     inj₂ (PE.refl , PE.refl)
 
 ------------------------------------------------------------------------
--- Some lemmas related to the reduction relations
+-- The reduction relations are contained in the equality relations
 
 opaque
 
@@ -255,6 +255,10 @@ opaque
   subset* (id A) = refl A
   subset* (A⇒A′ ⇨ A′⇒*B) = trans (subset A⇒A′) (subset* A′⇒*B)
 
+------------------------------------------------------------------------
+-- The single-step reduction relations are contained in the multi-step
+-- relations
+
 opaque
 
   -- If t reduces in one step to u, then t reduces in zero or more
@@ -274,6 +278,9 @@ opaque
   redMany-⊢ A⇒B =
     let _ , ⊢B = wf-⊢≡ (subset A⇒B) in
     A⇒B ⇨ id ⊢B
+
+------------------------------------------------------------------------
+-- If something reduces, then it is well-formed/well-typed
 
 opaque
 
@@ -302,6 +309,9 @@ opaque
 
   redFirst* : Γ ⊢ A ⇒* B → Γ ⊢ A
   redFirst* = proj₁ ∘→ wf-⊢≡ ∘→ subset*
+
+------------------------------------------------------------------------
+-- Some lemmas related to neutral terms
 
 opaque
 
@@ -338,6 +348,9 @@ opaque
 
   neRed : Γ ⊢ A ⇒ B → ¬ Neutral A
   neRed (univ x) N = neRedTerm x N
+
+------------------------------------------------------------------------
+-- Some lemmas related to WHNFs
 
 opaque
 
@@ -393,6 +406,9 @@ opaque
   whnfRed* : Γ ⊢ A ⇒* B → Whnf A → A PE.≡ B
   whnfRed* (id x)  w = PE.refl
   whnfRed* (x ⇨ d) w = ⊥-elim (whnfRed x w)
+
+------------------------------------------------------------------------
+-- Reduction is deterministic
 
 opaque
 
@@ -564,6 +580,9 @@ opaque
     whrDet* (A′⇒*B , whnfB) (PE.subst (λ x → _ ⊢ x ↘ _)
                                        (whrDet A⇒A″ A⇒A′)
                                        (A″⇒*B′ , whnfB′))
+
+------------------------------------------------------------------------
+-- Reduction does not include η-expansion (for WHNFs)
 
 opaque
 
