@@ -48,11 +48,12 @@ Erased-cong :
 Erased-cong ⊢A A≡B =
   ΠΣ-cong A≡B (refl (Unitⱼ (∙ ⊢A) Unit-ok)) Σ-ok
 
--- An introduction rule for U.
+opaque
 
-Erasedⱼ-U :
- Γ ⊢ A → Γ ⊢ A ∷ U l → Γ ⊢ Erased A ∷ U l
-Erasedⱼ-U ⊢A ⊢A∷U = ΠΣⱼ ⊢A∷U (Unitⱼ (∙ ⊢A) Unit-ok) Σ-ok
+  -- An introduction rule for U.
+
+  Erasedⱼ-U : Γ ⊢ A ∷ U l → Γ ⊢ Erased A ∷ U l
+  Erasedⱼ-U ⊢A = ΠΣⱼ ⊢A (Unitⱼ (∙ univ ⊢A) Unit-ok) Σ-ok
 
 -- A corresponding congruence rule.
 

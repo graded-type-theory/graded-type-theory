@@ -88,9 +88,7 @@ module _ (Erased-ok : Erased-allowed s) where
   -- An introduction rule for U.
 
   Erasedⱼ-U : Γ ⊢ A ∷ U l → Γ ⊢ Erased A ∷ U l
-  Erasedⱼ-U ⊢A∷U = P′.Erasedⱼ-U ⊢A ⊢A∷U
-    where
-    ⊢A = univ ⊢A∷U
+  Erasedⱼ-U = P′.Erasedⱼ-U
 
   -- A corresponding congruence rule.
 
