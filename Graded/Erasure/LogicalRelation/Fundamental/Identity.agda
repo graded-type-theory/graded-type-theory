@@ -20,8 +20,8 @@ open Has-well-behaved-zero 𝟘-well-behaved
 open Type-restrictions R
 
 open import Definition.Typed R
+open import Definition.Typed.Consequences.Admissible R
 open import Definition.Typed.Consequences.Canonicity R
-open import Definition.Typed.Consequences.DerivedRules R
 open import Definition.Typed.Consequences.Inversion R
 import Definition.Typed.Consequences.RedSteps R as RS
 open import Definition.Typed.Properties R

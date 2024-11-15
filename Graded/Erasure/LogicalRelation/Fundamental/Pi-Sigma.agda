@@ -29,7 +29,7 @@ open import Definition.LogicalRelation.Substitution TR
 import Definition.LogicalRelation.Substitution.Introductions TR as I
 
 open import Definition.Typed TR
-open import Definition.Typed.Consequences.DerivedRules TR
+open import Definition.Typed.Consequences.Admissible TR
 open import Definition.Typed.Consequences.Inversion TR
 open import Definition.Typed.Consequences.Reduction TR
 open import Definition.Typed.Consequences.RedSteps TR

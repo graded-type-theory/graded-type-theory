@@ -8,7 +8,7 @@
 -- investigation was prompted by a question asked by an anonymous
 -- reviewer. See also Definition.Untyped.Sigma, which contains some
 -- basic definitions, and
--- Definition.Typed.Consequences.DerivedRules.Sigma, which contains
+-- Definition.Typed.Consequences.Admissible.Sigma, which contains
 -- properties related to typing. This module contains properties
 -- related to usage.
 

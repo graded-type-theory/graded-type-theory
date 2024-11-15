@@ -1,11 +1,11 @@
 ------------------------------------------------------------------------
--- Derived rules related to the empty type
+-- Admissible rules related to the empty type
 ------------------------------------------------------------------------
 
 open import Definition.Typed.Restrictions
 open import Graded.Modality
 
-module Definition.Typed.Consequences.DerivedRules.Empty
+module Definition.Typed.Consequences.Admissible.Empty
   {a} {M : Set a}
   {𝕄 : Modality M}
   (TR : Type-restrictions 𝕄)

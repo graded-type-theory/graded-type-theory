@@ -16,7 +16,7 @@ open Type-restrictions TR
 
 open import Definition.Untyped M
 open import Definition.Typed TR
-open import Definition.Typed.Consequences.DerivedRules TR
+open import Definition.Typed.Consequences.Admissible TR
 open import Definition.Typed.Properties TR
 open import Definition.Typed.Substitution TR
 import Graded.Derived.Erased.Untyped 𝕄 as E

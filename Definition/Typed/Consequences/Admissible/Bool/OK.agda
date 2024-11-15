@@ -6,7 +6,7 @@ open import Definition.Typed.Restrictions
 open import Graded.Modality
 import Graded.Modality.Dedicated-nr
 
-module Definition.Typed.Consequences.DerivedRules.Bool.OK
+module Definition.Typed.Consequences.Admissible.Bool.OK
   {a} {M : Set a}
   {𝕄 : Modality M}
   (open Graded.Modality.Dedicated-nr 𝕄)
@@ -21,7 +21,7 @@ module Definition.Typed.Consequences.DerivedRules.Bool.OK
 open Modality 𝕄
 
 open import Definition.Typed R
-open import Definition.Typed.Consequences.DerivedRules.Nat R
+open import Definition.Typed.Consequences.Admissible.Nat R
 open import Definition.Typed.Properties R
 open import Definition.Typed.Reasoning.Type R
 open import Definition.Typed.Syntactic R

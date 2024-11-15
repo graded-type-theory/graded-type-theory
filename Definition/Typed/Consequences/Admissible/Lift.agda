@@ -5,7 +5,7 @@
 open import Definition.Typed.Restrictions
 open import Graded.Modality
 
-module Definition.Typed.Consequences.DerivedRules.Lift
+module Definition.Typed.Consequences.Admissible.Lift
   {a} {M : Set a}
   {𝕄 : Modality M}
   (R : Type-restrictions 𝕄)
@@ -15,8 +15,8 @@ open Modality 𝕄
 open Type-restrictions R
 
 open import Definition.Typed R
-open import Definition.Typed.Consequences.DerivedRules.Sigma R
-open import Definition.Typed.Consequences.DerivedRules.Unit R
+open import Definition.Typed.Consequences.Admissible.Sigma R
+open import Definition.Typed.Consequences.Admissible.Unit R
 open import Definition.Typed.Consequences.Injectivity R
 open import Definition.Typed.Consequences.InverseUniv R
 open import Definition.Typed.Inversion R

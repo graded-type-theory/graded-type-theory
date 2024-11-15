@@ -7,7 +7,7 @@ import Definition.Untyped.Bool
 open import Graded.Modality
 import Graded.Modality.Dedicated-nr
 
-module Definition.Typed.Consequences.DerivedRules.Bool
+module Definition.Typed.Consequences.Admissible.Bool
   {a} {M : Set a}
   {𝕄 : Modality M}
   (open Definition.Untyped.Bool 𝕄)
@@ -24,13 +24,13 @@ module Definition.Typed.Consequences.DerivedRules.Bool
   where
 
 open import Definition.Typed R
-open import Definition.Typed.Consequences.DerivedRules.Bool.OK
+open import Definition.Typed.Consequences.Admissible.Bool.OK
   R Unitʷ-ok
-open import Definition.Typed.Consequences.DerivedRules.Empty R
-open import Definition.Typed.Consequences.DerivedRules.Nat R
-open import Definition.Typed.Consequences.DerivedRules.Pi R
-open import Definition.Typed.Consequences.DerivedRules.Sigma R
-open import Definition.Typed.Consequences.DerivedRules.Unit R
+open import Definition.Typed.Consequences.Admissible.Empty R
+open import Definition.Typed.Consequences.Admissible.Nat R
+open import Definition.Typed.Consequences.Admissible.Pi R
+open import Definition.Typed.Consequences.Admissible.Sigma R
+open import Definition.Typed.Consequences.Admissible.Unit R
 open import Definition.Typed.Properties R
 open import Definition.Typed.Reasoning.Reduction R
 open import Definition.Typed.Reasoning.Type R

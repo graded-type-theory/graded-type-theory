@@ -19,7 +19,7 @@ open import Definition.Conversion.Consequences.InverseUniv R
 open import Definition.Conversion.Soundness R
 open import Definition.Conversion.Whnf R
 open import Definition.Typed R
-open import Definition.Typed.Consequences.DerivedRules R
+open import Definition.Typed.Consequences.Admissible R
 open import Definition.Typed.Consequences.NeTypeEq R
 open import Definition.Typed.Eta-long-normal-form R
 open import Definition.Typed.Inversion R

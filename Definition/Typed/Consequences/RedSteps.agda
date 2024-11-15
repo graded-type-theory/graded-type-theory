@@ -16,13 +16,13 @@ open Type-restrictions R
 open import Definition.Untyped M
 open import Definition.Untyped.Properties M
 open import Definition.Typed R
+open import Definition.Typed.Consequences.Admissible R
 open import Definition.Typed.EqRelInstance R
 open import Definition.Typed.Inversion R
 open import Definition.Typed.Properties R
 open import Definition.Typed.RedSteps R
 open import Definition.Typed.Substitution R
 open import Definition.Typed.Syntactic R
-open import Definition.Typed.Consequences.DerivedRules R
 open import Definition.Typed.Reasoning.Reduction R
 open import Definition.LogicalRelation.Fundamental R
 open import Definition.LogicalRelation.Fundamental.Reducibility R

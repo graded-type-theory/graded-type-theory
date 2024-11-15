@@ -5,8 +5,8 @@
 -- This variant of the booleans uses erased "proofs".
 
 -- Typing rules for the term formers defined in this module can be
--- found in Definition.Typed.Consequences.DerivedRules.Bool.Erased,
--- and usage rules can be found in Graded.Derived.Bool.Erased.
+-- found in Definition.Typed.Consequences.Admissible.Bool.Erased, and
+-- usage rules can be found in Graded.Derived.Bool.Erased.
 
 import Graded.Modality
 import Graded.Modality.Dedicated-nr

@@ -1,11 +1,11 @@
 ------------------------------------------------------------------------
--- Derived rules related to Σ-types
+-- Admissible rules related to Σ-types
 ------------------------------------------------------------------------
 
 open import Definition.Typed.Restrictions
 open import Graded.Modality
 
-module Definition.Typed.Consequences.DerivedRules.Sigma
+module Definition.Typed.Consequences.Admissible.Sigma
   {a} {M : Set a}
   {𝕄 : Modality M}
   (R : Type-restrictions 𝕄)
@@ -15,7 +15,7 @@ open Modality 𝕄
 open Type-restrictions R
 
 open import Definition.Typed R
-open import Definition.Typed.Consequences.DerivedRules.Identity R
+open import Definition.Typed.Consequences.Admissible.Identity R
 open import Definition.Typed.Consequences.Inequality R
 open import Definition.Typed.Consequences.Injectivity R
 open import Definition.Typed.Consequences.Inversion R

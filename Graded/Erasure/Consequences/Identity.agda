@@ -20,7 +20,7 @@ open Type-restrictions TR
 open Usage-restrictions UR
 
 open import Definition.Typed TR
-open import Definition.Typed.Consequences.DerivedRules TR
+open import Definition.Typed.Consequences.Admissible TR
 open import Definition.Typed.Consequences.Inversion TR
 open import Definition.Typed.EqRelInstance TR
 open import Definition.Typed.Properties TR

@@ -41,7 +41,7 @@ open import Definition.Typed.Stability TR
 open import Definition.Typed.Substitution TR
 open import Definition.Typed.Syntactic TR
 open import Definition.Typed.Weakening TR
-open import Definition.Typed.Consequences.DerivedRules TR
+open import Definition.Typed.Consequences.Admissible TR
 open import Definition.Typed.Consequences.InverseUniv TR
 open import Definition.Typed.Consequences.NeTypeEq TR
 

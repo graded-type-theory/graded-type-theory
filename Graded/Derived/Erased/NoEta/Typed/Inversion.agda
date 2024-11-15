@@ -21,9 +21,9 @@ open import Definition.Typed.Inversion R
 open import Definition.Typed.Properties R
 open import Definition.Typed.Substitution R
 open import Definition.Typed.Syntactic R
+open import Definition.Typed.Consequences.Admissible.Sigma R
 open import Definition.Typed.Consequences.Inequality R
 open import Definition.Typed.Consequences.Injectivity R
-open import Definition.Typed.Consequences.DerivedRules.Sigma R
 
 open import Definition.Untyped M as U
 open import Definition.Untyped.Properties M

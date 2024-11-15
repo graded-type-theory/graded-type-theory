@@ -26,7 +26,7 @@ open import Definition.Conversion R
 open import Definition.Conversion.Soundness R
 open import Definition.Conversion.Conversion R
 open import Definition.Conversion.Whnf R
-open import Definition.Typed.Consequences.DerivedRules R
+open import Definition.Typed.Consequences.Admissible R
 open import Definition.Typed.Consequences.Equality R
 open import Definition.Typed.Consequences.Reduction R
 open import Definition.Typed.Consequences.Injectivity R

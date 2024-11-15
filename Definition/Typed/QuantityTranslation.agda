@@ -31,7 +31,7 @@ open import Tools.Reasoning.PropositionalEquality
 open import Tools.Sum using (inj₁; inj₂)
 
 open import Definition.Typed
-open import Definition.Typed.Consequences.DerivedRules R₂
+open import Definition.Typed.Consequences.Admissible R₂
 open import Definition.Typed.Properties R₂
 open import Definition.Untyped
 open import Definition.Untyped.QuantityTranslation tr tr-Σ

@@ -1,11 +1,11 @@
 ------------------------------------------------------------------------
--- Derived rules related to the identity type
+-- Admissible rules related to identity types
 ------------------------------------------------------------------------
 
 open import Definition.Typed.Restrictions
 open import Graded.Modality
 
-module Definition.Typed.Consequences.DerivedRules.Identity
+module Definition.Typed.Consequences.Admissible.Identity
   {a} {M : Set a}
   {𝕄 : Modality M}
   (R : Type-restrictions 𝕄)
@@ -16,7 +16,7 @@ open Type-restrictions R
 
 open import Definition.Untyped M as U
 open import Definition.Typed R
-open import Definition.Typed.Consequences.DerivedRules.Pi R
+open import Definition.Typed.Consequences.Admissible.Pi R
 open import Definition.Typed.Inversion R
 open import Definition.Typed.Properties R
 open import Definition.Typed.Reasoning.Term R

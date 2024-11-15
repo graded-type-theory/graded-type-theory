@@ -8,7 +8,7 @@ import Definition.Untyped.Bool.Erased
 open import Graded.Modality
 import Graded.Modality.Dedicated-nr
 
-module Definition.Typed.Consequences.DerivedRules.Bool.Erased
+module Definition.Typed.Consequences.Admissible.Bool.Erased
   {a} {M : Set a}
   (open Definition.Untyped M hiding (_[_]))
   {𝕄 : Modality M}
@@ -26,12 +26,12 @@ module Definition.Typed.Consequences.DerivedRules.Bool.Erased
   where
 
 open import Definition.Typed R
-import Definition.Typed.Consequences.DerivedRules.Bool.OK
-open import Definition.Typed.Consequences.DerivedRules.Empty R
-open import Definition.Typed.Consequences.DerivedRules.Nat R
-open import Definition.Typed.Consequences.DerivedRules.Pi R
-open import Definition.Typed.Consequences.DerivedRules.Sigma R
-open import Definition.Typed.Consequences.DerivedRules.Unit R
+import Definition.Typed.Consequences.Admissible.Bool.OK
+open import Definition.Typed.Consequences.Admissible.Empty R
+open import Definition.Typed.Consequences.Admissible.Nat R
+open import Definition.Typed.Consequences.Admissible.Pi R
+open import Definition.Typed.Consequences.Admissible.Sigma R
+open import Definition.Typed.Consequences.Admissible.Unit R
 open import Definition.Typed.Properties R
 import Definition.Typed.Reasoning.Term R as TmR
 import Definition.Typed.Reasoning.Type R as TyR
@@ -69,7 +69,7 @@ private opaque
   Unitʷ-ok : Unitʷ-allowed
   Unitʷ-ok = Erased-ok .proj₁
 
-open Definition.Typed.Consequences.DerivedRules.Bool.OK R Unitʷ-ok
+open Definition.Typed.Consequences.Admissible.Bool.OK R Unitʷ-ok
 
 private opaque
 

@@ -1,11 +1,11 @@
 ------------------------------------------------------------------------
--- Derived rules related to Π-types
+-- Admissible rules related to Π-types
 ------------------------------------------------------------------------
 
 open import Definition.Typed.Restrictions
 open import Graded.Modality
 
-module Definition.Typed.Consequences.DerivedRules.Pi
+module Definition.Typed.Consequences.Admissible.Pi
   {a} {M : Set a}
   {𝕄 : Modality M}
   (R : Type-restrictions 𝕄)

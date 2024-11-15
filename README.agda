@@ -28,8 +28,8 @@ import Definition.LogicalRelation.Fundamental
 import Definition.LogicalRelation.Fundamental.Reducibility
 import Definition.LogicalRelation.Substitution
 import Definition.Typed
-import Definition.Typed.Consequences.DerivedRules
-import Definition.Typed.Consequences.DerivedRules.Sigma
+import Definition.Typed.Consequences.Admissible
+import Definition.Typed.Consequences.Admissible.Sigma
 import Definition.Typed.Consequences.Reduction
 import Definition.Typed.Decidable
 import Definition.Typed.Decidable.Equality
@@ -572,7 +572,7 @@ wkEq = Definition.Typed.Weakening.wkEq
 
 prodrec-for-Σₚ              = Definition.Untyped.Sigma.prodrecˢ
 prodrec-for-Σₚ-type-correct =
-  Definition.Typed.Consequences.DerivedRules.Sigma.prodrecˢⱼ
+  Definition.Typed.Consequences.Admissible.Sigma.prodrecˢⱼ
 
 -- However, our definition does not in general satisfy the usage rule
 -- for prodrec.
@@ -587,7 +587,7 @@ snd-for-Σᵣ = Definition.Untyped.Sigma.Fstʷ-sndʷ.sndʷ
 -- However, η-equality does not hold in general for our definitions.
 
 no-η-equality-Σᵣ =
-  Definition.Typed.Consequences.DerivedRules.Sigma.¬-Σʷ-η-prodʷ-fstʷ-sndʷ
+  Definition.Typed.Consequences.Admissible.Sigma.¬-Σʷ-η-prodʷ-fstʷ-sndʷ
 
 -- Reduction relations
 

@@ -20,7 +20,7 @@ open import Definition.Typed.Properties R
 open import Definition.Typed.Substitution R
 open import Definition.Typed.Syntactic R
 import Definition.Typed.Weakening R as W
-open import Definition.Typed.Consequences.DerivedRules R
+open import Definition.Typed.Consequences.Admissible R
 open import Definition.Untyped M
 open import Definition.Untyped.Properties M
 

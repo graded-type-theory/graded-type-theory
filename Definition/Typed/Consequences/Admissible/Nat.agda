@@ -1,11 +1,11 @@
 ------------------------------------------------------------------------
--- Derived rules related to the natural number type
+-- Admissible rules related to the natural number type
 ------------------------------------------------------------------------
 
 open import Definition.Typed.Restrictions
 open import Graded.Modality
 
-module Definition.Typed.Consequences.DerivedRules.Nat
+module Definition.Typed.Consequences.Admissible.Nat
   {a} {M : Set a}
   {𝕄 : Modality M}
   (R : Type-restrictions 𝕄)

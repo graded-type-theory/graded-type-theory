@@ -18,9 +18,9 @@ open Modality 𝕄
 open Type-restrictions R
 
 open import Definition.Typed R
-open import Definition.Typed.Consequences.DerivedRules.Identity R
-open import Definition.Typed.Consequences.DerivedRules.Sigma R
-open import Definition.Typed.Consequences.DerivedRules.Unit R
+open import Definition.Typed.Consequences.Admissible.Identity R
+open import Definition.Typed.Consequences.Admissible.Sigma R
+open import Definition.Typed.Consequences.Admissible.Unit R
 open import Definition.Typed.Inversion R
 open import Definition.Typed.Properties R
 open import Definition.Typed.Reasoning.Reduction R

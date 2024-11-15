@@ -54,7 +54,7 @@ opaque
 
   -- Lambdas preserve definitional equality.
   --
-  -- See also Definition.Typed.Consequences.DerivedRules.Pi.lam-cong.
+  -- See also Definition.Typed.Consequences.Admissible.Pi.lam-cong.
 
   lam-cong :
     Γ ∙ A ⊢ B →
