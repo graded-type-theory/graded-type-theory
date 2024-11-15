@@ -31,7 +31,6 @@ open import Definition.Typed TR
 open import Definition.Typed.Consequences.Inversion TR
 open import Definition.Typed.Inversion TR
 open import Definition.Typed.Properties TR
-open import Definition.Typed.RedSteps TR
 open import Definition.Typed.Syntactic TR
 import Definition.Typed.Weakening TR as W
 open import Definition.Untyped M

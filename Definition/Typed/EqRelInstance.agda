@@ -15,7 +15,6 @@ module Definition.Typed.EqRelInstance
 open import Definition.Typed R
 open import Definition.Typed.Properties R
 open import Definition.Typed.Weakening R
-open import Definition.Typed.Reduction R
 open import Definition.Typed.EqualityRelation R
 
 open import Tools.Function

@@ -26,7 +26,6 @@ open import Definition.Typed.Properties R
 open import Definition.Typed.Reasoning.Reduction R
 import Definition.Typed.Reasoning.Term R as TermR
 import Definition.Typed.Reasoning.Type R as TypeR
-open import Definition.Typed.RedSteps R
 open import Definition.Typed.Substitution R
 open import Definition.Typed.Syntactic R
 open import Definition.Typed.Weakening R as W

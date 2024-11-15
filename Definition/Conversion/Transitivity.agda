@@ -22,7 +22,6 @@ open import Definition.Untyped.Properties.Neutral M type-variant
 open import Definition.Typed R
 open import Definition.Typed.Inversion R
 open import Definition.Typed.Properties R
-open import Definition.Typed.RedSteps R
 open import Definition.Typed.Stability R
 open import Definition.Typed.Substitution R
 open import Definition.Typed.Syntactic R

@@ -128,9 +128,7 @@ import Definition.Typed.Syntactic
 import Definition.Typed.Inversion
 import Definition.Typed.Properties
 import Definition.Typed.Reasoning.Term
-import Definition.Typed.RedSteps
 import Definition.Typed.Reasoning.Reduction
-import Definition.Typed.Reduction
 import Definition.Typed.EqualityRelation
 import Definition.Typed.EqRelInstance
 

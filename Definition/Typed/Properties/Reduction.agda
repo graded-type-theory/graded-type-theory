@@ -2,6 +2,8 @@
 -- Some lemmas related to the reduction relations
 ------------------------------------------------------------------------
 
+-- See also Definition.Typed.Consequences.RedSteps.
+
 open import Definition.Typed.Restrictions
 open import Graded.Modality
 
@@ -23,7 +25,8 @@ open import Definition.Typed.Well-formed R
 open import Definition.Untyped M
 open import Definition.Untyped.Neutral M type-variant
 
-import Graded.Derived.Erased.Typed.Primitive R as Erased
+import Graded.Derived.Erased.Untyped 𝕄 as Erased
+import Graded.Derived.Erased.Typed.Primitive R as ET
 
 open import Tools.Empty
 open import Tools.Function
@@ -33,11 +36,11 @@ open import Tools.Relation
 open import Tools.Sum using (_⊎_; inj₁; inj₂)
 
 private variable
-  Γ                         : Con Term _
-  A A′ B B′ C t t′ u u′ v w : Term _
-  s                         : Strength
-  p p′ q r                  : M
-  l                         : Universe-level
+  Γ                               : Con Term _
+  A A′ B B′ C t t′ u u′ v v₁ v₂ w : Term _
+  s                               : Strength
+  p p′ q r                        : M
+  l                               : Universe-level
 
 ------------------------------------------------------------------------
 -- Inversion lemmas related to _⊢_⇒_∷_
@@ -222,7 +225,7 @@ opaque
          (Id-cong (refl (Erasedⱼ ⊢A)) (refl ([]ⱼ ⊢A ⊢t))
             ([]-cong′ ⊢A t≡t′)))
     where
-    open Erased ([]-cong→Erased ok)
+    open ET ([]-cong→Erased ok)
   subsetTerm (unitrec-subst A u t⇒t′ ok no-η) =
     unitrec-cong (refl A) (subsetTerm t⇒t′) (refl u) ok no-η
   subsetTerm (unitrec-β A u ok₁ ok₂) = unitrec-β A u ok₁ ok₂
@@ -309,6 +312,55 @@ opaque
 
   redFirst* : Γ ⊢ A ⇒* B → Γ ⊢ A
   redFirst* = proj₁ ∘→ wf-⊢≡ ∘→ subset*
+
+------------------------------------------------------------------------
+-- Expansion and reduction lemmas
+
+opaque
+
+  -- An expansion lemma for ⊢_≡_.
+
+  reduction : Γ ⊢ A ↘ A′ → Γ ⊢ B ↘ B′ → Γ ⊢ A′ ≡ B′ → Γ ⊢ A ≡ B
+  reduction (D , _) (D′ , _) A′≡B′ =
+    trans (subset* D) (trans A′≡B′ (sym (subset* D′)))
+
+opaque
+
+  -- A reduction lemma for ⊢_≡_.
+
+  reduction′ : Γ ⊢ A ↘ A′ → Γ ⊢ B ↘ B′ → Γ ⊢ A ≡ B → Γ ⊢ A′ ≡ B′
+  reduction′ (D , _) (D′ , _) A≡B =
+    trans (sym (subset* D)) (trans A≡B (subset* D′))
+
+opaque
+
+  -- An expansion lemma for ⊢_≡_∷_.
+
+  reductionₜ :
+    Γ ⊢ A ↘ B →
+    Γ ⊢ t ↘ t′ ∷ B →
+    Γ ⊢ u ↘ u′ ∷ B →
+    Γ ⊢ t′ ≡ u′ ∷ B →
+    Γ ⊢ t ≡ u ∷ A
+  reductionₜ (D , _) (d , _) (d′ , _) t′≡u′ =
+    conv
+      (trans (subset*Term d)
+         (trans t′≡u′ (sym′ (subset*Term d′))))
+      (sym (subset* D))
+
+opaque
+
+  -- A reduction lemma for ⊢_≡_∷_.
+
+  reductionₜ′ :
+    Γ ⊢ A ↘ B →
+    Γ ⊢ t ↘ t′ ∷ B →
+    Γ ⊢ u ↘ u′ ∷ B →
+    Γ ⊢ t ≡ u ∷ A →
+    Γ ⊢ t′ ≡ u′ ∷ B
+  reductionₜ′ (D , _) (d , _) (d′ , _) t≡u =
+    trans (sym′ (subset*Term d))
+      (trans (conv t≡u (subset* D)) (subset*Term d′))
 
 ------------------------------------------------------------------------
 -- Some lemmas related to neutral terms
@@ -605,3 +657,135 @@ opaque
     Γ ⊢ t ⇒* prodˢ p u v ∷ Σˢ p′ , q ▷ A ▹ B →
     t PE.≡ prodˢ p u v
   no-η-expansion-Σˢ = flip whnfRed*Term
+
+------------------------------------------------------------------------
+-- Transitivity
+
+opaque
+
+  -- The relation Γ ⊢_⇒*_ is transitive.
+
+  _⇨*_ : Γ ⊢ A ⇒* B → Γ ⊢ B ⇒* C → Γ ⊢ A ⇒* C
+  id _          ⇨* B⇒C = B⇒C
+  (A⇒A′ ⇨ A′⇒B) ⇨* B⇒C = A⇒A′ ⇨ (A′⇒B ⇨* B⇒C)
+
+opaque
+
+  -- The relation Γ ⊢_⇒*_∷ A is transitive.
+
+  _⇨∷*_ : Γ ⊢ t ⇒* u ∷ A → Γ ⊢ u ⇒* v ∷ A → Γ ⊢ t ⇒* v ∷ A
+  id _          ⇨∷* u⇒v = u⇒v
+  (t⇒t′ ⇨ t′⇒u) ⇨∷* u⇒v = t⇒t′ ⇨ (t′⇒u ⇨∷* u⇒v)
+
+opaque
+
+  -- A variant of _⇨*_ for _⊢_⇒*_ and _⊢_↘_.
+
+  ⇒*→↘→↘ : Γ ⊢ A ⇒* B → Γ ⊢ B ↘ C → Γ ⊢ A ↘ C
+  ⇒*→↘→↘ A⇒*B (B⇒*C , C-whnf) = (A⇒*B ⇨* B⇒*C) , C-whnf
+
+opaque
+
+  -- A variant of _⇨∷*_ for _⊢_⇒*_∷_ and _⊢_↘_∷_.
+
+  ⇒*∷→↘∷→↘∷ : Γ ⊢ t ⇒* u ∷ A → Γ ⊢ u ↘ v ∷ A → Γ ⊢ t ↘ v ∷ A
+  ⇒*∷→↘∷→↘∷ t⇒*u (u⇒*v , v-whnf) = (t⇒*u ⇨∷* u⇒*v) , v-whnf
+
+------------------------------------------------------------------------
+-- Conversion
+
+opaque
+
+  -- Conversion for _⊢_⇒*_.
+
+  conv* : Γ ⊢ t ⇒* u ∷ A → Γ ⊢ A ≡ B → Γ ⊢ t ⇒* u ∷ B
+  conv* (id ⊢t)     A≡B = id (conv ⊢t A≡B)
+  conv* (t⇒u ⇨ u⇒v) A≡B = conv t⇒u A≡B ⇨ conv* u⇒v A≡B
+
+opaque
+
+  -- Conversion for _⊢_↘_∷_.
+
+  conv↘∷ : Γ ⊢ t ↘ u ∷ A → Γ ⊢ A ≡ B → Γ ⊢ t ↘ u ∷ B
+  conv↘∷ (t⇒*u , u-whnf) A≡B = conv* t⇒*u A≡B , u-whnf
+
+------------------------------------------------------------------------
+-- Some lemmas related to U
+
+opaque
+
+  -- A variant of univ for _⊢_⇒*_.
+
+  univ* : Γ ⊢ A ⇒* B ∷ U l → Γ ⊢ A ⇒* B
+  univ* (id ⊢A)     = id (univ ⊢A)
+  univ* (A⇒B ⇨ B⇒C) = univ A⇒B ⇨ univ* B⇒C
+
+opaque
+
+  -- If A reduces to B, then A reduces to B at type U l for some l.
+
+  inverseUnivRed : Γ ⊢ A ⇒ B → ∃ λ l → Γ ⊢ A ⇒ B ∷ U l
+  inverseUnivRed (univ A⇒B) = _ , A⇒B
+
+opaque
+
+  -- Γ ⊢ A ⇒ B is logically equivalent to ∃ λ l → Γ ⊢ A ⇒ B ∷ U l.
+
+  ⊢⇒⇔⊢⇒∷U : Γ ⊢ A ⇒ B ⇔ ∃ λ l → Γ ⊢ A ⇒ B ∷ U l
+  ⊢⇒⇔⊢⇒∷U = inverseUnivRed , univ ∘→ proj₂
+
+------------------------------------------------------------------------
+-- Variants of some "subst" rules
+
+opaque
+
+  -- A variant of app-subst for _⊢_⇒*_∷_.
+
+  app-subst* :
+    Γ ⊢ t ⇒* t′ ∷ Π p , q ▷ A ▹ B →
+    Γ ⊢ u ∷ A →
+    Γ ⊢ t ∘⟨ p ⟩ u ⇒* t′ ∘⟨ p ⟩ u ∷ B [ u ]₀
+  app-subst* (id ⊢t)        ⊢u = id (⊢t ∘ⱼ ⊢u)
+  app-subst* (t⇒t′ ⇨ t′⇒t″) ⊢u = app-subst t⇒t′ ⊢u ⇨ app-subst* t′⇒t″ ⊢u
+
+opaque
+
+  -- A variant of fst-subst for _⊢_⇒*_∷_.
+
+  fst-subst* :
+    Γ ⊢ t ⇒* t′ ∷ Σˢ p , q ▷ A ▹ B →
+    Γ ∙ A ⊢ B →
+    Γ ⊢ fst p t ⇒* fst p t′ ∷ A
+  fst-subst* (id ⊢t)        ⊢B = id (fstⱼ ⊢B ⊢t)
+  fst-subst* (t⇒t′ ⇨ t′⇒t″) ⊢B = fst-subst ⊢B t⇒t′ ⇨ fst-subst* t′⇒t″ ⊢B
+
+opaque
+
+  -- A variant of emptyrec-subst for _⊢_⇒*_∷_.
+
+  emptyrec-subst* :
+    Γ ⊢ t ⇒* t′ ∷ Empty →
+    Γ ⊢ A →
+    Γ ⊢ emptyrec p A t ⇒* emptyrec p A t′ ∷ A
+  emptyrec-subst* (id ⊢t)        ⊢A = id (emptyrecⱼ ⊢A ⊢t)
+  emptyrec-subst* (t⇒t′ ⇨ t′⇒t″) ⊢A =
+    emptyrec-subst ⊢A t⇒t′ ⇨ emptyrec-subst* t′⇒t″ ⊢A
+
+opaque
+
+  -- A variant of []-cong-subst for _⊢_⇒*_∷_.
+
+  []-cong-subst* :
+    Γ ⊢ A →
+    Γ ⊢ t ∷ A →
+    Γ ⊢ u ∷ A →
+    Γ ⊢ v₁ ⇒* v₂ ∷ Id A t u →
+    []-cong-allowed s →
+    let open Erased s in
+      Γ ⊢ []-cong s A t u v₁ ⇒* []-cong s A t u v₂ ∷
+        Id (Erased A) ([ t ]) ([ u ])
+  []-cong-subst* ⊢A ⊢t ⊢u = λ where
+    (id ⊢v₁)         ok → id ([]-congⱼ ⊢A ⊢t ⊢u ⊢v₁ ok)
+    (v₁⇒v₃ ⇨ v₃⇒*v₂) ok →
+      []-cong-subst  ⊢A ⊢t ⊢u v₁⇒v₃  ok ⇨
+      []-cong-subst* ⊢A ⊢t ⊢u v₃⇒*v₂ ok

@@ -16,7 +16,6 @@ open Type-restrictions R
 open import Definition.Untyped M
 open import Definition.Untyped.Neutral M type-variant
 open import Definition.Typed.Properties R
-open import Definition.Typed.RedSteps R
 open import Definition.Conversion R
 open import Definition.Conversion.Reduction R
 open import Definition.Conversion.Lift R

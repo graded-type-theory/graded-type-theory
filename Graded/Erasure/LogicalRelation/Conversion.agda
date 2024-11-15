@@ -34,8 +34,6 @@ open import Definition.Typed R
 open import Definition.Typed.Consequences.Injectivity R
 open import Definition.Typed.Properties R
 open import Definition.Typed.Reasoning.Type R
-open import Definition.Typed.Reduction R
-open import Definition.Typed.RedSteps R
 open import Definition.Typed.Substitution R
 open import Definition.Typed.Weakening R hiding (wk)
 

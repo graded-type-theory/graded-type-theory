@@ -30,7 +30,6 @@ open import Definition.LogicalRelation.Substitution.Introductions.Var R
 open import Definition.Typed R
 open import Definition.Typed.Properties R
 open import Definition.Typed.Reasoning.Reduction R
-open import Definition.Typed.RedSteps R
 open import Definition.Untyped M as U hiding (_[_])
 open import Definition.Untyped.Neutral M type-variant
 open import Definition.Untyped.Properties M

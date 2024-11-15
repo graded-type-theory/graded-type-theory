@@ -21,7 +21,6 @@ open import Definition.Untyped.Neutral M type-variant
 open import Definition.Typed R
 import Definition.Typed.Weakening R as T
 open import Definition.Typed.Properties R
-open import Definition.Typed.RedSteps R
 open import Definition.Typed.Reasoning.Reduction R
 open import Definition.LogicalRelation R
 open import Definition.LogicalRelation.Hidden R

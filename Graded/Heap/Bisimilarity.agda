@@ -42,8 +42,7 @@ open import Definition.Untyped.Neutral M type-variant
 open import Definition.Untyped.Properties.Neutral M type-variant
 
 open import Definition.Typed TR
-open import Definition.Typed.Properties TR
-open import Definition.Typed.RedSteps TR hiding (_⇨*_)
+open import Definition.Typed.Properties TR hiding (_⇨*_)
 
 open import Graded.Context 𝕄 hiding (_⟨_⟩)
 open import Graded.Mode 𝕄

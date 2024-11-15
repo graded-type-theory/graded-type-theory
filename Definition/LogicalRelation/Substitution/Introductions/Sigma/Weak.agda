@@ -30,7 +30,6 @@ open import Definition.LogicalRelation.Substitution.Introductions.Var R
 open import Definition.Typed R
 open import Definition.Typed.Properties R
 open import Definition.Typed.Reasoning.Reduction R
-open import Definition.Typed.RedSteps R
 import Definition.Typed.Weakening R as W
 
 open import Definition.Untyped M

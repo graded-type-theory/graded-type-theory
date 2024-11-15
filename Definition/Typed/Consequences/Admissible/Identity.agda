@@ -18,9 +18,8 @@ open import Definition.Untyped M as U
 open import Definition.Typed R
 open import Definition.Typed.Consequences.Admissible.Pi R
 open import Definition.Typed.Inversion R
-open import Definition.Typed.Properties R
+open import Definition.Typed.Properties R as P hiding ([]-cong-subst*)
 open import Definition.Typed.Reasoning.Term R
-import Definition.Typed.RedSteps R as R
 open import Definition.Typed.Stability R
 open import Definition.Typed.Substitution R
 open import Definition.Typed.Syntactic R
@@ -307,7 +306,7 @@ opaque
 
 opaque
 
-  -- A variant of Definition.Typed.RedSteps.[]-cong-subst*.
+  -- A variant of Definition.Typed.[]-cong-subst*.
 
   []-cong-subst* :
     Γ ⊢ v₁ ⇒* v₂ ∷ Id A t u →
@@ -318,7 +317,7 @@ opaque
   []-cong-subst* v₁⇒*v₂ =
     case inversion-Id (syntacticTerm (redFirst*Term v₁⇒*v₂)) of λ {
       (⊢A , ⊢t , ⊢u) →
-    R.[]-cong-subst* ⊢A ⊢t ⊢u v₁⇒*v₂ }
+    P.[]-cong-subst* ⊢A ⊢t ⊢u v₁⇒*v₂ }
 
 opaque
 

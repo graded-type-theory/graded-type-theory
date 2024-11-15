@@ -34,7 +34,7 @@ open import Definition.Untyped.Properties.Neutral M type-variant
 open import Definition.Typed TR
 open import Definition.Typed.Consequences.Canonicity TR
 open import Definition.Typed.Consequences.Reduction TR
-open import Definition.Typed.Properties TR
+open import Definition.Typed.Properties TR hiding (_⇨*_)
 
 open import Graded.Context 𝕄 hiding (_⟨_⟩)
 open import Graded.Usage 𝕄 UR

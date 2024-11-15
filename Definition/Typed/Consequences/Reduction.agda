@@ -23,7 +23,6 @@ open import Definition.Typed.Consequences.Inequality R as I
 open import Definition.Typed.Consequences.Injectivity R
 open import Definition.Typed.Inversion R
 open import Definition.Typed.Reasoning.Type R
-open import Definition.Typed.RedSteps R
 open import Definition.Typed.Syntactic R
 open import Definition.Typed.Well-formed R
 open import Definition.LogicalRelation R

@@ -29,7 +29,6 @@ open import Definition.LogicalRelation.Substitution.Introductions.Var R
 open import Definition.Typed R
 open import Definition.Typed.Properties R
 open import Definition.Typed.Reasoning.Reduction R
-open import Definition.Typed.RedSteps R
 open import Definition.Typed.Weakening R as W using (_∷ʷ_⊇_)
 open import Definition.Typed.Well-formed R
 

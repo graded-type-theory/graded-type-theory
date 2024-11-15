@@ -13,7 +13,6 @@ module Definition.Typed.Reasoning.Reduction
 
 open import Definition.Typed R
 open import Definition.Typed.Properties.Reduction R
-open import Definition.Typed.RedSteps R
 open import Definition.Untyped M
 
 open import Tools.Function
