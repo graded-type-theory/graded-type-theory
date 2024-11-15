@@ -5,7 +5,7 @@
 open import Definition.Typed.Restrictions
 open import Graded.Modality
 
-module Definition.Typed.Consequences.Admissible.Identity
+module Definition.Typed.Properties.Admissible.Identity
   {a} {M : Set a}
   {𝕄 : Modality M}
   (R : Type-restrictions 𝕄)
@@ -16,9 +16,12 @@ open Type-restrictions R
 
 open import Definition.Untyped M as U
 open import Definition.Typed R
-open import Definition.Typed.Consequences.Admissible.Pi R
 open import Definition.Typed.Inversion R
-open import Definition.Typed.Properties R as P hiding ([]-cong-subst*)
+open import Definition.Typed.Properties.Admissible.Equality R
+import Definition.Typed.Properties.Admissible.Identity.Primitive
+open import Definition.Typed.Properties.Admissible.Var R
+open import Definition.Typed.Properties.Reduction R
+open import Definition.Typed.Properties.Well-formed R
 open import Definition.Typed.Reasoning.Term R
 open import Definition.Typed.Stability R
 open import Definition.Typed.Substitution R
@@ -36,6 +39,8 @@ open import Tools.Nat using (Nat; 1+)
 open import Tools.Product
 import Tools.PropositionalEquality as PE
 open import Tools.Reasoning.PropositionalEquality
+
+open Definition.Typed.Properties.Admissible.Identity.Primitive R public
 
 private variable
   n                                               : Nat
@@ -306,18 +311,22 @@ opaque
 
 opaque
 
-  -- A variant of Definition.Typed.[]-cong-subst*.
+  -- A variant of []-cong-subst for _⊢_⇒*_∷_.
 
   []-cong-subst* :
+    let open Erased s in
     Γ ⊢ v₁ ⇒* v₂ ∷ Id A t u →
     []-cong-allowed s →
-    let open Erased s in
-      Γ ⊢ []-cong s A t u v₁ ⇒* []-cong s A t u v₂ ∷
-        Id (Erased A) ([ t ]) ([ u ])
-  []-cong-subst* v₁⇒*v₂ =
-    case inversion-Id (syntacticTerm (redFirst*Term v₁⇒*v₂)) of λ {
-      (⊢A , ⊢t , ⊢u) →
-    P.[]-cong-subst* ⊢A ⊢t ⊢u v₁⇒*v₂ }
+    Γ ⊢ []-cong s A t u v₁ ⇒* []-cong s A t u v₂ ∷
+      Id (Erased A) [ t ] ([ u ])
+  []-cong-subst* {s} v₁⇒*v₂ ok =
+    let ⊢A , ⊢t , ⊢u =
+          inversion-Id (syntacticTerm (redFirst*Term v₁⇒*v₂))
+    in
+    case v₁⇒*v₂ of λ where
+      (id ⊢v₁)         → id ([]-congⱼ ⊢A ⊢t ⊢u ⊢v₁ ok)
+      (v₁⇒v₃ ⇨ v₃⇒*v₂) →
+        []-cong-subst ⊢A ⊢t ⊢u v₁⇒v₃ ok ⇨ []-cong-subst* v₃⇒*v₂ ok
 
 opaque
 

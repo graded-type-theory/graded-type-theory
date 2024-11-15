@@ -7,10 +7,10 @@
 -- weak Σ-types can emulate strong Σ-types, and vice versa. This
 -- investigation was prompted by a question asked by an anonymous
 -- reviewer. See also Definition.Untyped.Sigma, which contains some
--- basic definitions, and
--- Definition.Typed.Consequences.Admissible.Sigma, which contains
--- properties related to typing. This module contains properties
--- related to usage.
+-- basic definitions, and Definition.Typed.Properties.Admissible.Sigma
+-- as well as Definition.Typed.Consequences.Admissible.Sigma, which
+-- contain properties related to typing. This module contains
+-- properties related to usage.
 
 open import Graded.Modality
 open import Graded.Usage.Restrictions

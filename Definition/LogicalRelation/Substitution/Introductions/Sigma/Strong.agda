@@ -324,9 +324,9 @@ opaque
       ⊢B →
     case ⊩≡∷Σˢ⇔ .proj₁ t₁≡t₂ of λ
       (_ , u₁ , u₂ , t₁⇒*u₁ , t₂⇒*u₂ , _ , _ , _ , fst-u₁≡fst-u₂ , _) →
-    fst p t₁  ⇒*⟨ fst-subst* t₁⇒*u₁ ⊢B ⟩⊩∷
+    fst p t₁  ⇒*⟨ fst-subst* t₁⇒*u₁ ⟩⊩∷
     fst p u₁  ≡⟨ fst-u₁≡fst-u₂ ⟩⊩∷⇐*
-    fst p u₂  ⇐*⟨ fst-subst* t₂⇒*u₂ ⊢B ⟩∎
+    fst p u₂  ⇐*⟨ fst-subst* t₂⇒*u₂ ⟩∎
     fst p t₂  ∎
 
 opaque

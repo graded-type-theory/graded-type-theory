@@ -5,7 +5,7 @@
 open import Definition.Typed.Restrictions
 open import Graded.Modality
 
-module Definition.Typed.Consequences.Admissible.Empty
+module Definition.Typed.Properties.Admissible.Empty
   {a} {M : Set a}
   {𝕄 : Modality M}
   (TR : Type-restrictions 𝕄)
@@ -19,7 +19,7 @@ open import Definition.Untyped.Properties M
 open import Definition.Typed TR
 open import Definition.Typed.Syntactic TR
 open import Definition.Typed.Weakening TR
-open import Definition.Typed.Properties TR
+open import Definition.Typed.Properties.Well-formed TR
 open import Definition.Untyped.Empty 𝕄
 
 open import Tools.Function

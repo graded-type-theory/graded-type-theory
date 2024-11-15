@@ -3,9 +3,9 @@
 ------------------------------------------------------------------------
 
 -- Typing rules for the term formers defined in this module can be
--- found in Definition.Typed.Consequences.Admissible.Bool.OK and
--- Definition.Typed.Consequences.Admissible.Bool, and usage rules can
--- be found in Graded.Derived.Bool.
+-- found in Definition.Typed.Properties.Admissible.Bool.OK and
+-- Definition.Typed.Properties.Admissible.Bool, and usage rules can be
+-- found in Graded.Derived.Bool.
 
 import Graded.Modality
 import Graded.Modality.Dedicated-nr

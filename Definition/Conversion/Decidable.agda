@@ -36,8 +36,6 @@ open import Definition.Conversion.Soundness R
 open import Definition.Conversion.Symmetry R
 open import Definition.Conversion.Stability R
 open import Definition.Conversion.Conversion R
-open import Definition.Typed.Consequences.Admissible.Identity R
-open import Definition.Typed.Consequences.Admissible.Nat R
 open import Definition.Typed.Consequences.Injectivity R
 open import Definition.Typed.Consequences.Reduction R
 open import Definition.Typed.Consequences.Equality R

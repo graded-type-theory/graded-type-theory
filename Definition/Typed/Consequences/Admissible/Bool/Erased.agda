@@ -26,13 +26,14 @@ module Definition.Typed.Consequences.Admissible.Bool.Erased
   where
 
 open import Definition.Typed R
-import Definition.Typed.Consequences.Admissible.Bool.OK
-open import Definition.Typed.Consequences.Admissible.Empty R
-open import Definition.Typed.Consequences.Admissible.Nat R
-open import Definition.Typed.Consequences.Admissible.Pi R
-open import Definition.Typed.Consequences.Admissible.Sigma R
-open import Definition.Typed.Consequences.Admissible.Unit R
-open import Definition.Typed.Properties R
+import Definition.Typed.Properties.Admissible.Bool.OK
+open import Definition.Typed.Properties.Admissible.Empty R
+open import Definition.Typed.Properties.Admissible.Nat R
+open import Definition.Typed.Properties.Admissible.Pi R
+open import Definition.Typed.Properties.Admissible.Sigma R
+open import Definition.Typed.Properties.Admissible.Unit R
+open import Definition.Typed.Properties.Admissible.Var R
+open import Definition.Typed.Properties.Well-formed R
 import Definition.Typed.Reasoning.Term R as TmR
 import Definition.Typed.Reasoning.Type R as TyR
 open import Definition.Typed.Substitution R
@@ -69,7 +70,7 @@ private opaque
   Unitʷ-ok : Unitʷ-allowed
   Unitʷ-ok = Erased-ok .proj₁
 
-open Definition.Typed.Consequences.Admissible.Bool.OK R Unitʷ-ok
+open Definition.Typed.Properties.Admissible.Bool.OK R Unitʷ-ok
 
 private opaque
 

@@ -780,10 +780,10 @@ opaque
       ⊢Id≡Id →
     case ⊩≡∷Id⇔ .proj₁ v₁≡v₂ of λ
       (v₁′ , v₂′ , v₁⇒*v₁′ , v₂⇒*v₂′ , ⊩t , ⊩u , rest) →
-    case []-cong-subst* ⊢A₁ ⊢t₁ ⊢u₁ v₁⇒*v₁′ ok of λ
+    case []-cong-subst* v₁⇒*v₁′ ok of λ
       []-cong⇒*[]-cong₁ →
-    case []-cong-subst* ⊢A₂ ⊢t₂ ⊢u₂
-           (conv* v₂⇒*v₂′ (Id-cong ⊢A₁≡A₂ ⊢t₁≡t₂ ⊢u₁≡u₂)) ok of λ
+    case []-cong-subst* (conv* v₂⇒*v₂′ (Id-cong ⊢A₁≡A₂ ⊢t₁≡t₂ ⊢u₁≡u₂))
+           ok of λ
       []-cong⇒*[]-cong₂ →
     case rest of λ where
       (rfl₌ t₁≡u₁) →

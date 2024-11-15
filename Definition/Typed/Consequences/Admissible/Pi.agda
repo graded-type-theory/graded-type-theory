@@ -19,7 +19,6 @@ open import Definition.Typed.Inversion R
 open import Definition.Typed.Properties R
 open import Definition.Typed.Reasoning.Reduction R
 open import Definition.Typed.Substitution R
-import Definition.Typed.Substitution.Primitive R as S
 open import Definition.Typed.Syntactic R
 open import Definition.Typed.Weakening R as W hiding (wk)
 
@@ -36,36 +35,6 @@ private variable
   Γ                                                   : Con _ _
   A B C D E t u u₁ u₂ u₃ u₄ v w                       : Term _
   p p′ p″ p₁ p₁′ p₂ p₂′ p₃ p₃′ p₄ p₄′ q q₁ q₂ q₃ q₄ r : M
-
-------------------------------------------------------------------------
--- Simple variants of typing/equality/reduction rules
-
-opaque
-
-  -- A variant of the reduction rule β-red.
-
-  β-red-⇒ :
-    Γ ∙ A ⊢ t ∷ B →
-    Γ ⊢ u ∷ A →
-    Π-allowed p q →
-    Γ ⊢ lam p t ∘⟨ p ⟩ u ⇒ t [ u ]₀ ∷ B [ u ]₀
-  β-red-⇒ ⊢t ⊢u =
-    β-red (syntacticTerm ⊢t) ⊢t ⊢u PE.refl
-
-opaque
-
-  -- A variant of the equality rule β-red.
-
-  β-red-≡ :
-    Γ ∙ A ⊢ t ∷ B →
-    Γ ⊢ u ∷ A →
-    Π-allowed p q →
-    Γ ⊢ lam p t ∘⟨ p ⟩ u ≡ t [ u ]₀ ∷ B [ u ]₀
-  β-red-≡ ⊢t ⊢u ok =
-    subsetTerm (β-red-⇒ ⊢t ⊢u ok)
-
-------------------------------------------------------------------------
--- Other derived rules
 
 opaque
 
@@ -170,18 +139,6 @@ opaque
     t [ liftSubst (consSubst (consSubst (sgSubst u₁) u₂) u₃) ] [ u₄ ]₀   ≡⟨ singleSubstComp _ _ t ⟩
 
     t [ consSubst (consSubst (consSubst (sgSubst u₁) u₂) u₃) u₄ ]        ∎ }
-
-opaque
-
-  -- Lambdas preserve definitional equality.
-
-  lam-cong :
-    Γ ∙ A ⊢ t ≡ u ∷ B →
-    Π-allowed p q →
-    Γ ⊢ lam p t ≡ lam p u ∷ Π p , q ▷ A ▹ B
-  lam-cong t≡u =
-    let ⊢B , ⊢t , ⊢u = syntacticEqTerm t≡u in
-    S.lam-cong ⊢B ⊢t ⊢u t≡u
 
 opaque
 

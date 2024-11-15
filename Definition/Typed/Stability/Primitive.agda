@@ -15,7 +15,7 @@ module Definition.Typed.Stability.Primitive
 
 open import Definition.Typed R
 open import Definition.Typed.Inversion.Primitive R
-open import Definition.Typed.Properties.Admissible.Primitive R
+open import Definition.Typed.Properties.Admissible.Var R
 open import Definition.Typed.Properties.Well-formed R
 open import Definition.Typed.Size R
 open import Definition.Typed.Weakening R

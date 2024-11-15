@@ -571,8 +571,7 @@ wkEq = Definition.Typed.Weakening.wkEq
 -- One can define something like prodrec for the strong Σ-types.
 
 prodrec-for-Σₚ              = Definition.Untyped.Sigma.prodrecˢ
-prodrec-for-Σₚ-type-correct =
-  Definition.Typed.Consequences.Admissible.Sigma.prodrecˢⱼ
+prodrec-for-Σₚ-type-correct = Definition.Typed.Properties.prodrecˢⱼ
 
 -- However, our definition does not in general satisfy the usage rule
 -- for prodrec.

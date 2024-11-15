@@ -530,7 +530,7 @@ opaque
                                                                          (⊢t₁ , ⊢t₂ , _) →
                                                                        ®∷-⇐*
                                                                          (let open RR in
-       fst p (t [ σ ])                                                      ⇒*⟨ fst-subst*′ t[σ]⇒*t₁,t₂ ⟩
+       fst p (t [ σ ])                                                      ⇒*⟨ fst-subst* t[σ]⇒*t₁,t₂ ⟩
        fst p (prodˢ p t₁ t₂)                                                ⇒⟨ Σ-β₁-⇒ (escape $ ⊩ᵛ→⊩ˢ∷→⊩[⇑] ⊩B ⊩σ) ⊢t₁ ⊢t₂ ok ⟩∎
        t₁                                                                   ∎)
                                                                          (let open Graded.Erasure.Target.Reasoning in
@@ -582,7 +582,7 @@ opaque
       snd p (t [ σ ])       ∷ B [ σ ⇑ ] [ fst p (t [ σ ]) ]₀                   ⇒*⟨ snd-subst* t[σ]⇒*t₁,t₂ ⟩∷
                                                                                  ⟨ ≅-eq $ escape-⊩≡ $
                                                                                    ⊩ᵛ≡→⊩ˢ≡∷→⊩≡∷→⊩[⇑][]₀≡[⇑][]₀ (refl-⊩ᵛ≡ ⊩B) (refl-⊩ˢ≡∷ ⊩σ) $
-                                                                                   reducible-⊩≡∷ (subset*Term $ fst-subst*′ t[σ]⇒*t₁,t₂) .proj₂ ⟩⇒
+                                                                                   reducible-⊩≡∷ (subset*Term $ fst-subst* t[σ]⇒*t₁,t₂) .proj₂ ⟩⇒
       snd p (prodˢ p t₁ t₂) ∷ B [ σ ⇑ ] [ fst p (prodˢ p t₁ t₂) ]₀             ⇒⟨ Σ-β₂-⇒ ⊢B[σ⇑] ⊢t₁ ⊢t₂ ok ⟩∎∷
       t₂                                                                       ∎)
                                                                             (let open Graded.Erasure.Target.Reasoning in
@@ -603,7 +603,7 @@ opaque
                                                                             (let open RR in
                                                                              ⊩ᵛ≡→⊩ˢ≡∷→⊩≡∷→⊩[⇑][]₀≡[⇑][]₀ (refl-⊩ᵛ≡ ⊩B) (refl-⊩ˢ≡∷ ⊩σ) $
                                                                              sym-⊩≡∷ $ proj₂ $ reducible-⊩≡∷ $ subset*Term (
-      fst p (t [ σ ])                                                          ⇒*⟨ fst-subst*′ t[σ]⇒*t₁,t₂ ⟩
+      fst p (t [ σ ])                                                          ⇒*⟨ fst-subst* t[σ]⇒*t₁,t₂ ⟩
       fst p (prodˢ p t₁ t₂)                                                    ⇒⟨ Σ-β₁-⇒ ⊢B[σ⇑] ⊢t₁ ⊢t₂ ok ⟩∎
       t₁                                                                       ∎))
                                                                             t₂®v₂) ⟩

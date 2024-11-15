@@ -3,7 +3,7 @@
 ------------------------------------------------------------------------
 
 -- Typing rules for the term former defined in this module can be
--- found in Definition.Typed.Consequences.Admissible.Nat, and a usage
+-- found in Definition.Typed.Properties.Admissible.Nat, and a usage
 -- rule can be found in Graded.Derived.Nat.
 
 open import Graded.Modality

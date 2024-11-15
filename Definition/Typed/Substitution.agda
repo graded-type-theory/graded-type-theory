@@ -17,7 +17,8 @@ open import Definition.Untyped M hiding (wk)
 open import Definition.Untyped.Properties M
 open import Definition.Typed R
 open import Definition.Typed.Inversion.Primitive R
-open import Definition.Typed.Properties.Admissible R
+open import Definition.Typed.Properties.Admissible.Identity.Primitive R
+open import Definition.Typed.Properties.Admissible.Var R
 open import Definition.Typed.Properties.Well-formed R
 import Definition.Typed.Substitution.Primitive R as P
 open import Definition.Typed.Weakening R

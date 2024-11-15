@@ -1,14 +1,11 @@
 ------------------------------------------------------------------------
--- Some admissible typing rules
+-- Some admissible typing rules related to variables
 ------------------------------------------------------------------------
-
--- This module is re-exported from
--- Definition.Typed.Properties.Admissible.
 
 open import Definition.Typed.Restrictions
 open import Graded.Modality
 
-module Definition.Typed.Properties.Admissible.Primitive
+module Definition.Typed.Properties.Admissible.Var
   {ℓ} {M : Set ℓ}
   {𝕄 : Modality M}
   (R : Type-restrictions 𝕄)

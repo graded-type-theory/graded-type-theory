@@ -3,7 +3,7 @@
 ------------------------------------------------------------------------
 
 -- Typing rules for the terms given in this module can be found in
--- Definition.Typed.Consequences.Admissible.Identity.
+-- Definition.Typed.Properties.Admissible.Identity.
 
 open import Graded.Modality
 

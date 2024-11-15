@@ -17,7 +17,7 @@ open Type-restrictions R
 
 open import Definition.Typed R
 open import Definition.Typed.Inversion.Primitive R
-open import Definition.Typed.Properties.Admissible R
+open import Definition.Typed.Properties.Admissible.Equality R
 open import Definition.Typed.Properties.Well-formed R
 open import Definition.Typed.Reasoning.Term.Primitive R
 open import Definition.Typed.Well-formed R
@@ -750,17 +750,6 @@ opaque
 
 opaque
 
-  -- A variant of fst-subst for _⊢_⇒*_∷_.
-
-  fst-subst* :
-    Γ ⊢ t ⇒* t′ ∷ Σˢ p , q ▷ A ▹ B →
-    Γ ∙ A ⊢ B →
-    Γ ⊢ fst p t ⇒* fst p t′ ∷ A
-  fst-subst* (id ⊢t)        ⊢B = id (fstⱼ ⊢B ⊢t)
-  fst-subst* (t⇒t′ ⇨ t′⇒t″) ⊢B = fst-subst ⊢B t⇒t′ ⇨ fst-subst* t′⇒t″ ⊢B
-
-opaque
-
   -- A variant of emptyrec-subst for _⊢_⇒*_∷_.
 
   emptyrec-subst* :
@@ -770,22 +759,3 @@ opaque
   emptyrec-subst* (id ⊢t)        ⊢A = id (emptyrecⱼ ⊢A ⊢t)
   emptyrec-subst* (t⇒t′ ⇨ t′⇒t″) ⊢A =
     emptyrec-subst ⊢A t⇒t′ ⇨ emptyrec-subst* t′⇒t″ ⊢A
-
-opaque
-
-  -- A variant of []-cong-subst for _⊢_⇒*_∷_.
-
-  []-cong-subst* :
-    Γ ⊢ A →
-    Γ ⊢ t ∷ A →
-    Γ ⊢ u ∷ A →
-    Γ ⊢ v₁ ⇒* v₂ ∷ Id A t u →
-    []-cong-allowed s →
-    let open Erased s in
-      Γ ⊢ []-cong s A t u v₁ ⇒* []-cong s A t u v₂ ∷
-        Id (Erased A) ([ t ]) ([ u ])
-  []-cong-subst* ⊢A ⊢t ⊢u = λ where
-    (id ⊢v₁)         ok → id ([]-congⱼ ⊢A ⊢t ⊢u ⊢v₁ ok)
-    (v₁⇒v₃ ⇨ v₃⇒*v₂) ok →
-      []-cong-subst  ⊢A ⊢t ⊢u v₁⇒v₃  ok ⇨
-      []-cong-subst* ⊢A ⊢t ⊢u v₃⇒*v₂ ok

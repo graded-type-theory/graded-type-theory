@@ -17,7 +17,7 @@ open Type-restrictions R
 
 open import Definition.Typed R
 open import Definition.Typed.Inversion.Primitive R
-open import Definition.Typed.Properties.Admissible.Primitive R
+open import Definition.Typed.Properties.Admissible.Var R
 open import Definition.Typed.Properties.Well-formed R
 open import Definition.Typed.Reasoning.Term.Primitive R
 open import Definition.Typed.Size R
@@ -54,7 +54,7 @@ opaque
 
   -- Lambdas preserve definitional equality.
   --
-  -- See also Definition.Typed.Consequences.Admissible.Pi.lam-cong.
+  -- See also Definition.Typed.Properties.Admissible.Pi.lam-cong.
 
   lam-cong :
     Γ ∙ A ⊢ B →

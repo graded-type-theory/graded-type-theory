@@ -5,7 +5,7 @@
 open import Definition.Typed.Restrictions
 open import Graded.Modality
 
-module Definition.Typed.Consequences.Admissible.Nat
+module Definition.Typed.Properties.Admissible.Nat
   {a} {M : Set a}
   {𝕄 : Modality M}
   (R : Type-restrictions 𝕄)
@@ -15,7 +15,9 @@ open import Definition.Untyped M
 open import Definition.Untyped.Nat 𝕄
 open import Definition.Untyped.Properties M
 open import Definition.Typed R
-open import Definition.Typed.Properties R
+open import Definition.Typed.Properties.Admissible.Var R
+open import Definition.Typed.Properties.Reduction R
+open import Definition.Typed.Properties.Well-formed R
 open import Definition.Typed.Substitution R
 open import Definition.Typed.Syntactic R
 open import Definition.Typed.Weakening R

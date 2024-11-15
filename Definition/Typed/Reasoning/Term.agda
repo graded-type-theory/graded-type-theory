@@ -12,7 +12,8 @@ module Definition.Typed.Reasoning.Term
   where
 
 open import Definition.Typed R
-open import Definition.Typed.Properties R
+open import Definition.Typed.Properties.Admissible.Equality R
+open import Definition.Typed.Properties.Reduction R
 open import Definition.Untyped M
 
 open import Tools.Function

@@ -5,7 +5,7 @@
 open import Definition.Typed.Restrictions
 open import Graded.Modality
 
-module Definition.Typed.Consequences.Admissible.Unit
+module Definition.Typed.Properties.Admissible.Unit
   {a} {M : Set a}
   {𝕄 : Modality M}
   (TR : Type-restrictions 𝕄)
@@ -15,9 +15,11 @@ open Type-restrictions TR
 
 open import Definition.Untyped M
 open import Definition.Typed TR
-open import Definition.Typed.Consequences.Admissible.Identity TR
 open import Definition.Typed.Inversion TR
-open import Definition.Typed.Properties TR
+open import Definition.Typed.Properties.Admissible.Identity.Primitive TR
+open import Definition.Typed.Properties.Admissible.Var TR
+open import Definition.Typed.Properties.Reduction TR
+open import Definition.Typed.Properties.Well-formed TR
 open import Definition.Typed.Reasoning.Term TR
 open import Definition.Typed.Substitution TR
 open import Definition.Typed.Syntactic TR

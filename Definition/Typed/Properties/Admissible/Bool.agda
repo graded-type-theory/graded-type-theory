@@ -7,7 +7,7 @@ import Definition.Untyped.Bool
 open import Graded.Modality
 import Graded.Modality.Dedicated-nr
 
-module Definition.Typed.Consequences.Admissible.Bool
+module Definition.Typed.Properties.Admissible.Bool
   {a} {M : Set a}
   {𝕄 : Modality M}
   (open Definition.Untyped.Bool 𝕄)
@@ -24,14 +24,16 @@ module Definition.Typed.Consequences.Admissible.Bool
   where
 
 open import Definition.Typed R
-open import Definition.Typed.Consequences.Admissible.Bool.OK
+open import Definition.Typed.Properties.Admissible.Bool.OK
   R Unitʷ-ok
-open import Definition.Typed.Consequences.Admissible.Empty R
-open import Definition.Typed.Consequences.Admissible.Nat R
-open import Definition.Typed.Consequences.Admissible.Pi R
-open import Definition.Typed.Consequences.Admissible.Sigma R
-open import Definition.Typed.Consequences.Admissible.Unit R
-open import Definition.Typed.Properties R
+open import Definition.Typed.Properties.Admissible.Empty R
+open import Definition.Typed.Properties.Admissible.Nat R
+open import Definition.Typed.Properties.Admissible.Pi R
+open import Definition.Typed.Properties.Admissible.Sigma R
+open import Definition.Typed.Properties.Admissible.Unit R
+open import Definition.Typed.Properties.Admissible.Var R
+open import Definition.Typed.Properties.Reduction R
+open import Definition.Typed.Properties.Well-formed R
 open import Definition.Typed.Reasoning.Reduction R
 open import Definition.Typed.Reasoning.Type R
 open import Definition.Typed.Substitution R
