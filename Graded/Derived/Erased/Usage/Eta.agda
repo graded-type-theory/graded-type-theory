@@ -5,7 +5,7 @@
 open import Graded.Modality
 open import Graded.Usage.Restrictions
 
-module Graded.Derived.Erased.Eta.Usage
+module Graded.Derived.Erased.Usage.Eta
   {a} {M : Set a}
   (𝕄 : Modality M)
   (R : Usage-restrictions 𝕄)

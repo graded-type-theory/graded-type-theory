@@ -180,8 +180,8 @@ import Graded.Derived.Nat
 import Graded.Derived.Lift
 import Graded.Derived.Empty
 import Graded.Derived.Bool
-import Graded.Derived.Erased.Eta.Usage
-import Graded.Derived.Erased.NoEta.Usage
+import Graded.Derived.Erased.Usage.Eta
+import Graded.Derived.Erased.Usage.No-eta
 import Graded.Derived.Erased.Usage
 import Graded.Derived.Bool.Erased
 import Graded.Derived.Unrestricted.Eta.Usage
