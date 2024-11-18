@@ -294,7 +294,6 @@ import Definition.Typed.Consequences.InverseUniv
 import Definition.Typed.Consequences.Admissible.Pi
 import Definition.Typed.Consequences.Admissible.Sigma
 import Definition.Typed.Consequences.Admissible.Lift
-import Graded.Derived.Erased.Eta.Typed.Primitive
 import Graded.Derived.Erased.Eta.Typed
 import Graded.Derived.Erased.NoEta.Typed
 import Graded.Derived.Erased.Typed.Inversion

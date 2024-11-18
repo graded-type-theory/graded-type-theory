@@ -17,65 +17,73 @@ open Modality 𝕄
 open Type-restrictions R
 
 open import Definition.Typed R
+open import Definition.Typed.Properties.Admissible.Sigma R
+open import Definition.Typed.Properties.Well-formed R
 open import Definition.Typed.Inversion R
-open import Definition.Typed.Syntactic R
+open import Definition.Typed.Well-formed R
 
 open import Definition.Untyped M hiding (_[_])
 open import Definition.Untyped.Erased 𝕄 𝕤 hiding (erased)
 open import Definition.Untyped.Erased.Eta 𝕄
 
-import Graded.Derived.Erased.Eta.Typed.Primitive R as P
+import Graded.Derived.Erased.Typed.Primitive R as ET
 
 open import Tools.Function
+import Tools.PropositionalEquality as PE
+open import Tools.Sum
 
 private variable
   Γ       : Con Term _
   A B t u : Term _
 
--- A β-rule for Erased.
+opaque
 
-Erased-β :
-  Erasedˢ-allowed →
-  Γ ⊢ t ∷ A →
-  Γ ⊢ erased [ t ] ≡ t ∷ A
-Erased-β ok ⊢t = P.Erased-β ok ⊢A ⊢t
-  where
-  ⊢A = syntacticTerm ⊢t
+  -- A β-rule for Erased.
 
--- An elimination rule for Erased.
+  Erased-β :
+    Erasedˢ-allowed →
+    Γ ⊢ t ∷ A →
+    Γ ⊢ erased [ t ] ≡ t ∷ A
+  Erased-β (Unit-ok , Σ-ok) ⊢t =
+    let ⊢A = wf-⊢∷ ⊢t in
+    Σ-β₁-≡ (Unitⱼ (∙ ⊢A) Unit-ok) ⊢t (starⱼ (wf ⊢A) Unit-ok) Σ-ok
 
-erasedⱼ : Γ ⊢ t ∷ Erased A → Γ ⊢ erased t ∷ A
-erasedⱼ ⊢t =
-  case inversion-ΠΣ (syntacticTerm ⊢t) of λ {
-    (⊢A , ⊢Unit , Σ-ok) →
-  P.erasedⱼ (inversion-Unit ⊢Unit , Σ-ok) ⊢A ⊢t }
+opaque
 
--- A corresponding congruence rule.
+  -- An elimination rule for Erased.
 
-erased-cong : Γ ⊢ t ≡ u ∷ Erased A → Γ ⊢ erased t ≡ erased u ∷ A
-erased-cong t≡u =
-  case inversion-ΠΣ (syntacticEqTerm t≡u .proj₁) of λ {
-    (⊢A , ⊢Unit , Σˢ-ok) →
-  P.erased-cong (inversion-Unit ⊢Unit , Σˢ-ok) ⊢A t≡u }
+  erasedⱼ : Γ ⊢ t ∷ Erased A → Γ ⊢ erased t ∷ A
+  erasedⱼ ⊢t = fstⱼ′ ⊢t
 
--- A definitional η-rule for Erased.
+opaque
 
-Erased-η-≡ :
-  Γ ⊢ t ∷ Erased A →
-  Γ ⊢ u ∷ Erased A →
-  Γ ⊢ erased t ≡ erased u ∷ A →
-  Γ ⊢ t ≡ u ∷ Erased A
-Erased-η-≡ ⊢t =
-  case inversion-ΠΣ (syntacticTerm ⊢t) of λ {
-    (⊢A , ⊢Unit , Σˢ-ok) →
-  P.Erased-η-≡ (inversion-Unit ⊢Unit , Σˢ-ok) ⊢A ⊢t }
+  -- A corresponding congruence rule.
 
--- An instance of the η-rule.
+  erased-cong : Γ ⊢ t ≡ u ∷ Erased A → Γ ⊢ erased t ≡ erased u ∷ A
+  erased-cong t≡u = fst-cong′ t≡u
 
-[erased] :
-  Γ ⊢ t ∷ Erased A →
-  Γ ⊢ [ erased t ] ≡ t ∷ Erased A
-[erased] ⊢t =
-  case inversion-ΠΣ (syntacticTerm ⊢t) of λ {
-    (⊢A , ⊢Unit , Σˢ-ok) →
-  P.[erased] (inversion-Unit ⊢Unit , Σˢ-ok) ⊢A ⊢t }
+opaque
+
+  -- A definitional η-rule for Erased.
+
+  Erased-η-≡ :
+    Γ ⊢ t ∷ Erased A →
+    Γ ⊢ u ∷ Erased A →
+    Γ ⊢ erased t ≡ erased u ∷ A →
+    Γ ⊢ t ≡ u ∷ Erased A
+  Erased-η-≡ ⊢t ⊢u t≡u =
+    Σ-η′ ⊢t ⊢u t≡u (η-unit (sndⱼ′ ⊢t) (sndⱼ′ ⊢u) (inj₁ PE.refl))
+
+opaque
+
+  -- An instance of the η-rule.
+
+  [erased] :
+    Γ ⊢ t ∷ Erased A →
+    Γ ⊢ [ erased t ] ≡ t ∷ Erased A
+  [erased] ⊢t =
+    let ⊢A , ⊢Unit , Σˢ-ok = inversion-ΠΣ (wf-⊢∷ ⊢t)
+        Erased-ok          = inversion-Unit ⊢Unit , Σˢ-ok
+    in
+    Erased-η-≡ (ET.[]ⱼ Erased-ok ⊢A (erasedⱼ ⊢t)) ⊢t $
+    Erased-β Erased-ok (erasedⱼ ⊢t)
