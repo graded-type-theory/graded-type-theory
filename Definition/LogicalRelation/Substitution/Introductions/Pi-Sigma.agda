@@ -615,7 +615,6 @@ opaque
       )
 
 opaque
-  unfolding _⊩ᵛ⟨_⟩_∷_
 
   -- Validity of Π and Σ, seen as term formers.
 
