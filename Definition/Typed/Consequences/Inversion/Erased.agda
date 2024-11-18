@@ -6,7 +6,7 @@ open import Definition.Typed.Restrictions
 import Graded.Modality
 open import Definition.Untyped.NotParametrised using (Strength)
 
-module Graded.Derived.Erased.Typed.Inversion
+module Definition.Typed.Consequences.Inversion.Erased
   {a} {M : Set a}
   (open Graded.Modality M)
   {𝕄 : Modality}
@@ -20,12 +20,11 @@ open Type-restrictions R
 open import Definition.Typed R
 open import Definition.Typed.Consequences.Inequality R
 open import Definition.Typed.Consequences.Injectivity R
-open import Definition.Typed.Inversion R
+open import Definition.Typed.Properties R
 open import Definition.Typed.Substitution R
 
-open import Definition.Untyped M as U
+open import Definition.Untyped M
 open import Definition.Untyped.Erased 𝕄 s
-open import Definition.Untyped.Properties M
 
 open import Tools.Empty
 open import Tools.Fin
@@ -35,57 +34,14 @@ import Tools.PropositionalEquality as PE
 open import Tools.Relation
 
 private variable
-  Γ     : Con Term _
-  A B t : Term _
-
-opaque
-
-  -- An inversion lemma for Erased.
-
-  inversion-Erased-∷ :
-    Γ ⊢ Erased A ∷ B →
-    ∃₂ λ l₁ l₂ → l₁ ≤ᵘ l₂ ×
-      Γ ⊢ A ∷ U l₁ × Erased-allowed s × Γ ⊢ B ≡ U l₂
-  inversion-Erased-∷ ⊢Erased =
-    case inversion-ΠΣ-U ⊢Erased of λ {
-      (_ , _ , ⊢A , ⊢Unit , B≡ , Σˢ-ok) →
-    _ , _ , ≤ᵘ⊔ᵘʳ , ⊢A , (inversion-Unit (univ ⊢Unit) , Σˢ-ok) , B≡ }
-
-opaque
-
-  -- Another inversion lemma for Erased.
-
-  inversion-Erased : Γ ⊢ Erased A → Γ ⊢ A × Erased-allowed s
-  inversion-Erased ⊢Erased =
-    case inversion-ΠΣ ⊢Erased of λ {
-      (⊢A , ⊢Unit , Σˢ-ok) →
-    ⊢A , inversion-Unit ⊢Unit , Σˢ-ok }
+  Γ   : Con Term _
+  A t : Term _
 
 opaque
 
   -- An inversion lemma for [_].
   --
-  -- TODO: Make it possible to replace the conclusion with
-  --
-  --   ∃ λ B → Γ ⊢ t ∷ B × Erased-allowed × Γ ⊢ A ≡ Erased B?
-
-  inversion-[] :
-    Γ ⊢ [ t ] ∷ A →
-    ∃₃ λ B q C →
-       Γ ⊢ t ∷ B ×
-       (Unit-allowed s × Σ-allowed s 𝟘 q) ×
-       Γ ⊢ A ≡ Σ⟨ s ⟩ 𝟘 , q ▷ B ▹ C ×
-       Γ ⊢ C U.[ t ]₀ ≡ Unit s 0
-  inversion-[] ⊢[] =
-    case inversion-prod ⊢[] of λ {
-      (B , C , q , ⊢B , _ , ⊢t , ⊢star , A≡ , Σˢ-ok) →
-    case inversion-star ⊢star of λ {
-      (≡Unit , Unit-ok) →
-    B , q , C , ⊢t , (Unit-ok , Σˢ-ok) , A≡ , ≡Unit }}
-
-opaque
-
-  -- Another inversion lemma for [_].
+  -- See also Definition.Typed.Inversion.inversion-[].
 
   inversion-[]′ :
     Γ ⊢ [ t ] ∷ Erased A →

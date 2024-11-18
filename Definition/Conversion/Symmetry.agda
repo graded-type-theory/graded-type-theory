@@ -32,8 +32,6 @@ open import Definition.Typed.Consequences.Reduction R
 open import Definition.Typed.Consequences.Injectivity R
 open import Definition.Typed.Consequences.NeTypeEq R
 
-open import Graded.Derived.Erased.Typed R
-
 open import Tools.Function
 open import Tools.Nat
 open import Tools.Product

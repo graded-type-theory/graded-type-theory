@@ -24,9 +24,10 @@ open import Definition.Typed TR
 open import Definition.Typed.Consequences.Admissible TR
 open import Definition.Typed.Consequences.Consistency TR
 open import Definition.Typed.Consequences.Inversion TR
+open import Definition.Typed.Consequences.Inversion.Erased TR
 open import Definition.Typed.Consequences.Reduction TR
 open import Definition.Typed.Inversion TR
-open import Definition.Typed.Properties TR
+open import Definition.Typed.Properties TR as P hiding ([]-cong′)
 open import Definition.Typed.Reasoning.Term TR
 open import Definition.Typed.Syntactic TR
 import Definition.Typed.Weakening TR as W
@@ -39,8 +40,6 @@ open import Definition.Untyped.Properties M
 
 open import Graded.Context 𝕄
 open import Graded.Context.Properties 𝕄
-open import Graded.Derived.Erased.Typed TR as ET hiding ([]-cong′)
-open import Graded.Derived.Erased.Typed.Inversion TR
 import Graded.Derived.Erased.Usage 𝕄 UR as ErasedU
 open import Graded.Derived.Identity UR
 open import Graded.Modality.Properties 𝕄
@@ -265,9 +264,9 @@ opaque
             (PE.sym $ wk1-sgSubst _ _)
             (PE.sym $ wk1-sgSubst _ _)
             (PE.sym $ wk1-sgSubst _ _) $
-          ET.[]-cong′ ok $ refl ⊢t)
+          P.[]-cong′ ok $ refl ⊢t)
          (PE.subst (_⊢_≡_∷_ _ _ _) (PE.sym $ wk1-sgSubst _ _) $
-          ET.[]-cong′ ok t≡t′))
+          P.[]-cong′ ok t≡t′))
 
 opaque
 
@@ -311,7 +310,7 @@ opaque
     PE.subst (_⊢_≡_∷_ _ _ _) Id-[]₀≡ $
     subst-cong A₁≡A₂
       (Id-cong (W.wkEq₁ ⊢A₁ (Erased-cong ok A₁≡A₂))
-         (ET.[]-cong′ ok (W.wkEqTerm₁ ⊢A₁ t₁≡t₂))
+         (P.[]-cong′ ok (W.wkEqTerm₁ ⊢A₁ t₁≡t₂))
          (refl ([]ⱼ ok (var₀ ⊢A₁))))
       t₁≡t₂ u₁≡u₂ v₁≡v₂
       (refl $
@@ -808,7 +807,7 @@ opaque
           (_ , ⊢Π , ok₃) →
         case inversion-ΠΣ ⊢Π of λ
           (_ , ⊢Id , ok₄) →
-        case inversion-Erased _ $ inversion-Id ⊢Id .proj₁ of λ
+        case inversion-Erased $ inversion-Id ⊢Id .proj₁ of λ
           (_ , Erased-ok) →
         case _⊢_.univ $ var₁ $ _⊢_.univ $ var₀ $ Uⱼ ε of λ
           ⊢1 →
@@ -839,7 +838,7 @@ opaque
 
              [ erased (var x4) (var x0) [ [ t ] ]₀ ]                     ≡⟨ PE.cong [_] erased-[] ⟩⊢≡
 
-             [ erased (var x3) ([ t ]) ]                                 ≡⟨ ET.[]-cong′ Erased-ok $
+             [ erased (var x3) ([ t ]) ]                                 ≡⟨ P.[]-cong′ Erased-ok $
                                                                             Erased-β Erased-ok ⊢t ⟩⊢∎
              [ t ]                                                       ∎)
         of λ
@@ -1121,7 +1120,7 @@ opaque
       where
       Erased-ok : Erased-allowed s
       Erased-ok =
-        proj₂ $ inversion-Erased _ $
+        proj₂ $ inversion-Erased $
         proj₁ $ inversion-Id $
         proj₁ $ proj₂ $ inversion-ΠΣ $
         proj₁ $ proj₂ $ inversion-ΠΣ $
@@ -1173,7 +1172,7 @@ opaque
                                                                      PE.trans erased-[] $
                                                                      PE.cong₂ erased (wk1-sgSubst _ _) PE.refl ⟩⊢≡
 
-        [ erased A ([ t ]) ]                                      ≡⟨ ET.[]-cong′ Erased-ok $
+        [ erased A ([ t ]) ]                                      ≡⟨ P.[]-cong′ Erased-ok $
                                                                      Erased-β Erased-ok ⊢t ⟩⊢∎
         [ t ]                                                     ∎
 

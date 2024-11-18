@@ -22,8 +22,6 @@ open import Definition.Typed.Properties R
 open import Definition.Typed.Substitution R
 open import Definition.Typed.Syntactic R
 
-open import Graded.Derived.Erased.Typed R
-
 open import Tools.Function
 open import Tools.Nat
 open import Tools.Product

@@ -30,7 +30,6 @@ import Definition.Untyped.Erased 𝕄 as Erased
 
 open import Graded.Context 𝕄
 open import Graded.Context.Properties 𝕄
-open import Graded.Derived.Erased.Typed TR
 open import Graded.Derived.Erased.Usage 𝕄 UR
 import Graded.Erasure.LogicalRelation as L
 open import Graded.Erasure.LogicalRelation.Assumptions TR

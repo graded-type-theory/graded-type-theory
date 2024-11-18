@@ -6,7 +6,7 @@ import Graded.Modality
 open import Definition.Typed.Restrictions
 open import Tools.Product
 
-module Graded.Derived.Erased.Eta.Typed
+module Definition.Typed.Properties.Admissible.Erased.Eta
   {a} {M : Set a}
   (open Graded.Modality M)
   {𝕄 : Modality}
@@ -17,6 +17,7 @@ open Modality 𝕄
 open Type-restrictions R
 
 open import Definition.Typed R
+import Definition.Typed.Properties.Admissible.Erased.Primitive R as ET
 open import Definition.Typed.Properties.Admissible.Sigma R
 open import Definition.Typed.Properties.Well-formed R
 open import Definition.Typed.Inversion R
@@ -25,8 +26,6 @@ open import Definition.Typed.Well-formed R
 open import Definition.Untyped M hiding (_[_])
 open import Definition.Untyped.Erased 𝕄 𝕤 hiding (erased)
 open import Definition.Untyped.Erased.Eta 𝕄
-
-import Graded.Derived.Erased.Typed.Primitive R as ET
 
 open import Tools.Function
 import Tools.PropositionalEquality as PE
@@ -87,3 +86,27 @@ opaque
     in
     Erased-η-≡ (ET.[]ⱼ Erased-ok ⊢A (erasedⱼ ⊢t)) ⊢t $
     Erased-β Erased-ok (erasedⱼ ⊢t)
+
+opaque
+
+  -- An inversion lemma for erased.
+  --
+  -- TODO: Make it possible to replace the conclusion with
+  --
+  --   Γ ⊢ t ∷ Erased A × Erased-allowed?
+  --
+  -- See also ¬-inversion-erased′ and ¬-inversion-erased in
+  -- Definition.Typed.Consequences.Inversion.Erased.Eta.
+
+  inversion-erased :
+    Γ ⊢ erased t ∷ A →
+    ∃₂ λ q B → Γ ⊢ t ∷ Σˢ 𝟘 , q ▷ A ▹ B × Σˢ-allowed 𝟘 q
+  inversion-erased ⊢erased =
+    case inversion-fst ⊢erased of λ {
+      (_ , C , q , _ , ⊢C , ⊢t , ≡B) →
+    case ⊢∷ΠΣ→ΠΣ-allowed ⊢t of λ {
+      Σˢ-ok →
+      q
+    , C
+    , conv ⊢t (ΠΣ-cong (_⊢_≡_.sym ≡B) (refl ⊢C) Σˢ-ok)
+    , Σˢ-ok }}

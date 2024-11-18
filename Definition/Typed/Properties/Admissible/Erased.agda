@@ -6,7 +6,7 @@ import Graded.Modality
 open import Definition.Typed.Restrictions
 import Definition.Untyped hiding (_[_])
 
-module Graded.Derived.Erased.Typed
+module Definition.Typed.Properties.Admissible.Erased
   {a} {M : Set a}
   (open Definition.Untyped M)
   (open Graded.Modality M)
@@ -19,7 +19,16 @@ open Type-restrictions R
 
 open import Definition.Typed R
 open import Definition.Typed.Inversion R
-open import Definition.Typed.Properties R
+open import Definition.Typed.Properties.Admissible.Equality R
+import Definition.Typed.Properties.Admissible.Erased.Eta R as Eta
+import Definition.Typed.Properties.Admissible.Erased.No-eta R as NoEta
+import Definition.Typed.Properties.Admissible.Erased.Primitive R as P
+open import Definition.Typed.Properties.Admissible.Identity R
+open import Definition.Typed.Properties.Admissible.Sigma R
+open import Definition.Typed.Properties.Admissible.Unit R
+open import Definition.Typed.Properties.Admissible.Var R
+open import Definition.Typed.Properties.Reduction R
+open import Definition.Typed.Properties.Well-formed R
 open import Definition.Typed.Reasoning.Reduction R
 import Definition.Typed.Reasoning.Term R as TermR
 import Definition.Typed.Reasoning.Type R as TypeR
@@ -33,11 +42,6 @@ open import Definition.Untyped.Identity 𝕄
 open import Definition.Untyped.Properties M
 open import Definition.Untyped.Sigma 𝕄
 open import Definition.Untyped.Unit 𝕄
-
-import Graded.Derived.Erased.Eta.Typed R as Eta
-import Graded.Derived.Erased.NoEta.Typed R as NoEta
-import Graded.Derived.Erased.Typed.Primitive R as P
-open import Graded.Derived.Erased.Typed.Inversion R
 
 open import Tools.Fin
 open import Tools.Function
@@ -149,6 +153,58 @@ module _ where
       (𝕤 , PE.refl) → Eta.erased-cong
       (𝕨 , PE.refl) → NoEta.erased-cong A≡B
 
+opaque
+
+  -- An inversion lemma for Erased.
+
+  inversion-Erased-∷ :
+    let open Erased s in
+    Γ ⊢ Erased A ∷ B →
+    ∃₂ λ l₁ l₂ → l₁ ≤ᵘ l₂ ×
+      Γ ⊢ A ∷ U l₁ × Erased-allowed s × Γ ⊢ B ≡ U l₂
+  inversion-Erased-∷ ⊢Erased =
+    case inversion-ΠΣ-U ⊢Erased of λ {
+      (_ , _ , ⊢A , ⊢Unit , B≡ , Σˢ-ok) →
+    _ , _ , ≤ᵘ⊔ᵘʳ , ⊢A , (inversion-Unit (univ ⊢Unit) , Σˢ-ok) , B≡ }
+
+opaque
+
+  -- Another inversion lemma for Erased.
+
+  inversion-Erased :
+    let open Erased s in
+    Γ ⊢ Erased A → Γ ⊢ A × Erased-allowed s
+  inversion-Erased ⊢Erased =
+    case inversion-ΠΣ ⊢Erased of λ {
+      (⊢A , ⊢Unit , Σˢ-ok) →
+    ⊢A , inversion-Unit ⊢Unit , Σˢ-ok }
+
+opaque
+
+  -- An inversion lemma for [_].
+  --
+  -- TODO: Make it possible to replace the conclusion with
+  --
+  --   ∃ λ B → Γ ⊢ t ∷ B × Erased-allowed × Γ ⊢ A ≡ Erased B?
+  --
+  -- See also inversion-[]′, ¬-inversion-[]′ and ¬-inversion-[] in
+  -- Definition.Typed.Consequences.Inversion.Erased.
+
+  inversion-[] :
+    let open Erased s in
+    Γ ⊢ [ t ] ∷ A →
+    ∃₃ λ B q C →
+       Γ ⊢ t ∷ B ×
+       (Unit-allowed s × Σ-allowed s 𝟘 q) ×
+       Γ ⊢ A ≡ Σ⟨ s ⟩ 𝟘 , q ▷ B ▹ C ×
+       Γ ⊢ C [ t ]₀ ≡ Unit s 0
+  inversion-[] ⊢[] =
+    case inversion-prod ⊢[] of λ {
+      (B , C , q , ⊢B , _ , ⊢t , ⊢star , A≡ , Σˢ-ok) →
+    case inversion-star ⊢star of λ {
+      (≡Unit , Unit-ok) →
+    B , q , C , ⊢t , (Unit-ok , Σˢ-ok) , A≡ , ≡Unit }}
+
 ------------------------------------------------------------------------
 -- Lemmas about erasedrec
 
@@ -165,7 +221,7 @@ private opaque
   erasedrec-lemma₁ B₁≡B₂ =
     case wfEq B₁≡B₂ of λ {
       (∙ ⊢Erased-A) →
-    case inversion-Erased _ ⊢Erased-A of λ
+    case inversion-Erased ⊢Erased-A of λ
       (⊢A , Unit-ok , Σ-ok) →
     case Unitⱼ (∙ ⊢A) Unit-ok of λ
       ⊢Unit₁ →
@@ -211,7 +267,7 @@ opaque
   erasedrec-cong {B₁} B₁≡B₂ t₁≡t₂ u₁≡u₂ =
     case wf $ syntacticEq B₁≡B₂ .proj₁ of λ {
       (∙ ⊢Erased-A) →
-    case inversion-Erased _ ⊢Erased-A of λ
+    case inversion-Erased ⊢Erased-A of λ
       (_ , Unit-ok , _) →
     prodrec⟨⟩-cong B₁≡B₂ u₁≡u₂ $
     PE.subst (_⊢_≡_∷_ _ _ _) ([][]↑-[₀⇑] 0 B₁) $
@@ -249,7 +305,7 @@ opaque
   erasedrec-β {s} {B} {t} {u} {p} ⊢B ⊢t ⊢u =
     case wf ⊢B of λ {
       (∙ ⊢Erased-A) →
-    case inversion-Erased _ ⊢Erased-A of λ
+    case inversion-Erased ⊢Erased-A of λ
       (⊢A , Unit-ok , Σ-ok) →
     let ⊢Γ = wf ⊢A in
     case Unitⱼ ⊢Γ Unit-ok of λ
@@ -306,7 +362,7 @@ opaque
   ⊢Erased-η {s} {A} ⊢t =
     case syntacticTerm ⊢t of λ
       ⊢Erased-A →
-    case inversion-Erased _ ⊢Erased-A of λ
+    case inversion-Erased ⊢Erased-A of λ
       (⊢A , Erased-ok) →
     PE.subst (_⊢_∷_ _ _)
       (PE.cong₃ Id
@@ -346,7 +402,7 @@ opaque
     Γ ⊢ u₁ ≡ u₂ ∷ Erased A₁ →
     Γ ⊢ mapᴱ A₁ t₁ u₁ ≡ mapᴱ A₂ t₂ u₂ ∷ Erased B
   mapᴱ-cong A₁≡A₂ t₁≡t₂ u₁≡u₂ =
-    case inversion-Erased _ $ syntacticEqTerm u₁≡u₂ .proj₁ of λ
+    case inversion-Erased $ syntacticEqTerm u₁≡u₂ .proj₁ of λ
       (_ , ok) →
     []-cong′ ok $
     PE.subst (_⊢_≡_∷_ _ _ _) (wk1-sgSubst _ _) $
@@ -363,7 +419,7 @@ opaque
     Γ ⊢ mapᴱ A t u ∷ Erased B
   ⊢mapᴱ ⊢t ⊢u =
     syntacticEqTerm
-      (mapᴱ-cong (refl (inversion-Erased _ (syntacticTerm ⊢u) .proj₁))
+      (mapᴱ-cong (refl (inversion-Erased (syntacticTerm ⊢u) .proj₁))
          (refl ⊢t) (refl ⊢u))
       .proj₂ .proj₁
 

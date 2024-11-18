@@ -18,6 +18,7 @@ open Type-restrictions R
 open import Definition.Typed R
 open import Definition.Typed.Inversion.Primitive R
 open import Definition.Typed.Properties.Admissible.Equality R
+import Definition.Typed.Properties.Admissible.Erased.Primitive R as EP
 open import Definition.Typed.Properties.Well-formed R
 open import Definition.Typed.Reasoning.Term.Primitive R
 open import Definition.Typed.Well-formed R
@@ -25,8 +26,6 @@ open import Definition.Typed.Well-formed R
 open import Definition.Untyped M
 import Definition.Untyped.Erased 𝕄 as Erased
 open import Definition.Untyped.Neutral M type-variant
-
-import Graded.Derived.Erased.Typed.Primitive R as ET
 
 open import Tools.Empty
 open import Tools.Function
@@ -225,7 +224,7 @@ opaque
          (Id-cong (refl (Erasedⱼ ⊢A)) (refl ([]ⱼ ⊢A ⊢t))
             ([]-cong′ ⊢A t≡t′)))
     where
-    open ET ([]-cong→Erased ok)
+    open EP ([]-cong→Erased ok)
   subsetTerm (unitrec-subst A u t⇒t′ ok no-η) =
     unitrec-cong (refl A) (subsetTerm t⇒t′) (refl u) ok no-η
   subsetTerm (unitrec-β A u ok₁ ok₂) = unitrec-β A u ok₁ ok₂

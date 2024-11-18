@@ -30,8 +30,6 @@ open import Definition.Typed.Syntactic R
 open import Definition.Untyped M
 open import Definition.Untyped.Neutral M type-variant
 
-open import Graded.Derived.Erased.Typed R
-
 open import Tools.Fin
 open import Tools.Function
 open import Tools.Product

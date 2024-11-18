@@ -115,7 +115,7 @@ import Definition.Typed.Reasoning.Term.Primitive
 import Definition.Typed.Properties.Admissible.Var
 import Definition.Typed.Properties.Well-formed
 import Definition.Typed.Inversion.Primitive
-import Graded.Derived.Erased.Typed.Primitive
+import Definition.Typed.Properties.Admissible.Erased.Primitive
 import Definition.Typed.Weakening
 import Definition.Typed.Stability.Primitive
 import Definition.Typed.Substitution.Primitive
@@ -135,6 +135,9 @@ import Definition.Typed.Properties.Admissible.Identity
 import Definition.Typed.Properties.Admissible.Nat
 import Definition.Typed.Properties.Admissible.Sigma
 import Definition.Typed.Properties.Admissible.Unit
+import Definition.Typed.Properties.Admissible.Erased.Eta
+import Definition.Typed.Properties.Admissible.Erased.No-eta
+import Definition.Typed.Properties.Admissible.Erased
 import Definition.Typed.Properties.Admissible.Lift
 import Definition.Typed.Properties.Admissible.Bool.OK
 import Definition.Typed.Properties.Admissible.Bool
@@ -294,12 +297,9 @@ import Definition.Typed.Consequences.InverseUniv
 import Definition.Typed.Consequences.Admissible.Pi
 import Definition.Typed.Consequences.Admissible.Sigma
 import Definition.Typed.Consequences.Admissible.Lift
-import Graded.Derived.Erased.Eta.Typed
-import Graded.Derived.Erased.NoEta.Typed
-import Graded.Derived.Erased.Typed.Inversion
-import Graded.Derived.Erased.Eta.Typed.Inversion
-import Graded.Derived.Erased.NoEta.Typed.Inversion
-import Graded.Derived.Erased.Typed
+import Definition.Typed.Consequences.Inversion.Erased
+import Definition.Typed.Consequences.Inversion.Erased.Eta
+import Definition.Typed.Consequences.Inversion.Erased.No-eta
 import Definition.Typed.Consequences.Admissible.Bool.Erased
 import Definition.Typed.Consequences.Admissible
 import Definition.Typed.Consequences.Consistency

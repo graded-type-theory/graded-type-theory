@@ -35,8 +35,6 @@ import Definition.Untyped.Erased
 open import Definition.Untyped.Neutral M type-variant
 open import Definition.Untyped.Properties M
 
-import Graded.Derived.Erased.Typed.Primitive R as ETP
-
 open import Tools.Fin using (x0)
 open import Tools.Function
 open import Tools.Nat using (Nat)
@@ -62,7 +60,6 @@ private
     open Definition.Untyped.Erased 𝕄 s public
     open Erased ([]-cong→Erased ok) public
       renaming ([]-congᵛ to []-congᵛ′)
-    open ETP    ([]-cong→Erased ok) public
 
 ------------------------------------------------------------------------
 -- Some characterisation lemmas
@@ -743,10 +740,6 @@ opaque
       A₁≅A₂ →
     case wf-⊩≡ A₁≡A₂ of λ
       (⊩A₁ , ⊩A₂) →
-    case escape ⊩A₁ of λ
-      ⊢A₁ →
-    case escape ⊩A₂ of λ
-      ⊢A₂ →
     case level-⊩≡∷ ⊩A₁ t₁≡t₂ of λ
       t₁≡t₂ →
     case escape-⊩≡∷ t₁≡t₂ of λ
@@ -775,8 +768,9 @@ opaque
       ⊢t₂ →
     case conv (escape-⊩∷ ⊩u₂) ⊢A₁≡A₂ of λ
       ⊢u₂ →
-    case Id-cong (Erased-cong ⊢A₁ ⊢A₁≡A₂) ([]-cong′ ⊢A₁ ⊢t₁≡t₂)
-           ([]-cong′ ⊢A₁ ⊢u₁≡u₂) of λ
+    case (let ok = []-cong→Erased ok in
+          Id-cong (Erased-cong ok ⊢A₁≡A₂) ([]-cong′ ok ⊢t₁≡t₂)
+            ([]-cong′ ok ⊢u₁≡u₂)) of λ
       ⊢Id≡Id →
     case ⊩≡∷Id⇔ .proj₁ v₁≡v₂ of λ
       (v₁′ , v₂′ , v₁⇒*v₁′ , v₂⇒*v₂′ , ⊩t , ⊩u , rest) →
@@ -794,10 +788,10 @@ opaque
              u₂  ∎ of λ
           t₂≡u₂ →
         []-cong s A₁ t₁ u₁ v₁               ⇒*⟨ []-cong⇒*[]-cong₁ ⟩⊩∷
-        []-cong s A₁ t₁ u₁ rfl              ⇒⟨ []-cong-β ⊢A₁ ⊢t₁ ⊢u₁ (≅ₜ-eq (escape-⊩≡∷ t₁≡u₁)) ok ⟩⊩∷
+        []-cong s A₁ t₁ u₁ rfl              ⇒⟨ []-cong-β (escape ⊩A₁) ⊢t₁ ⊢u₁ (≅ₜ-eq (escape-⊩≡∷ t₁≡u₁)) ok ⟩⊩∷
         rfl ∷ Id (Erased A₁) [ t₁ ] [ u₁ ]  ≡⟨ refl-⊩≡∷ (⊩rfl′ (⊩[]≡[] t₁≡u₁)) ⟩⊩∷∷⇐* (
                                              ⟨ ⊢Id≡Id ⟩⇒
-        rfl ∷ Id (Erased A₂) [ t₂ ] [ u₂ ]  ⇐⟨ []-cong-β ⊢A₂ ⊢t₂ ⊢u₂ (≅ₜ-eq (escape-⊩≡∷ t₂≡u₂)) ok ⟩∷
+        rfl ∷ Id (Erased A₂) [ t₂ ] [ u₂ ]  ⇐⟨ []-cong-β (escape ⊩A₂) ⊢t₂ ⊢u₂ (≅ₜ-eq (escape-⊩≡∷ t₂≡u₂)) ok ⟩∷
         []-cong s A₂ t₂ u₂ rfl              ⇐*⟨ []-cong⇒*[]-cong₂ ⟩∎
         []-cong s A₂ t₂ u₂ v₂               ∎)
 

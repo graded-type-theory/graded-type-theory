@@ -18,6 +18,7 @@ open import Definition.Untyped M as U
 open import Definition.Typed R
 open import Definition.Typed.Inversion R
 open import Definition.Typed.Properties.Admissible.Equality R
+import Definition.Typed.Properties.Admissible.Erased.Primitive R as EP
 import Definition.Typed.Properties.Admissible.Identity.Primitive
 open import Definition.Typed.Properties.Admissible.Var R
 open import Definition.Typed.Properties.Reduction R
@@ -30,8 +31,6 @@ open import Definition.Typed.Weakening R
 import Definition.Untyped.Erased 𝕄 as Erased
 open import Definition.Untyped.Identity 𝕄
 open import Definition.Untyped.Properties M
-
-import Graded.Derived.Erased.Typed.Primitive R as ET
 
 open import Tools.Fin
 open import Tools.Function
@@ -364,7 +363,7 @@ opaque
     trans []-cong-t≡[]-cong-t′ (conv []-cong-⇒
       (Id-cong (refl (Erasedⱼ ⊢A)) (refl ([]ⱼ ⊢A ⊢t)) ([]-cong′ ⊢A t≡t′))) }
     where
-    open ET ([]-cong→Erased ok)
+    open EP ([]-cong→Erased ok)
 
 ------------------------------------------------------------------------
 -- Lemmas related to subst

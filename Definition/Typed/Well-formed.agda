@@ -15,6 +15,8 @@ open Type-restrictions R
 
 open import Definition.Typed R
 open import Definition.Typed.Inversion.Primitive R
+import Definition.Typed.Properties.Admissible.Erased.Primitive R
+  as Erased
 open import Definition.Typed.Properties.Admissible.Var R
 open import Definition.Typed.Properties.Well-formed R
 open import Definition.Typed.Stability.Primitive R
@@ -23,8 +25,6 @@ open import Definition.Typed.Weakening R
 
 open import Definition.Untyped M
 open import Definition.Untyped.Properties M
-
-import Graded.Derived.Erased.Typed.Primitive R as Erased
 
 open import Tools.Fin
 open import Tools.Function

@@ -32,7 +32,6 @@ open import Definition.Typed.Consequences.Admissible TR
 open import Definition.Typed.Consequences.Inequality TR
 open import Definition.Typed.Consequences.Injectivity TR
 open import Definition.Typed.Consequences.Inversion TR
-import Graded.Derived.Erased.Typed TR as ET
 
 open import Graded.Heap.Reduction type-variant UR
 open import Graded.Heap.Reduction.Properties type-variant UR
@@ -362,7 +361,7 @@ opaque
       (ok , PE.refl , B≡) →
     let t≡u = inversion-rfl-Id ⊢rfl
         ⊢A , ⊢t , ⊢u = syntacticEqTerm t≡u
-    in  ⊢ₛ ⊢H (conv (rflⱼ′ (ET.[]-cong′ ([]-cong→Erased ok) t≡u)) (sym (B≡ ⊢t ⊢u)))
+    in  ⊢ₛ ⊢H (conv (rflⱼ′ ([]-cong′ ([]-cong→Erased ok) t≡u)) (sym (B≡ ⊢t ⊢u)))
            (⊢ˢ-convₜ ⊢S (conv ([]-cong-β-≡ t≡u ok) (sym (B≡ ⊢t ⊢u)))) }
 
 opaque

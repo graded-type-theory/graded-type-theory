@@ -1,12 +1,13 @@
 ------------------------------------------------------------------------
--- A variant of Graded.Derived.Erased.Typed with fewer dependencies
+-- A variant of Definition.Typed.Properties.Admissible.Erased with
+-- fewer dependencies
 ------------------------------------------------------------------------
 
 import Graded.Modality
 open import Definition.Typed.Restrictions
 open import Tools.Product
 
-module Graded.Derived.Erased.Typed.Primitive
+module Definition.Typed.Properties.Admissible.Erased.Primitive
   {a} {M : Set a}
   (open Graded.Modality M)
   {𝕄 : Modality}

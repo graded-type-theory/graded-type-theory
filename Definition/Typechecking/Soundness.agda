@@ -24,8 +24,6 @@ open import Definition.Typed.Consequences.Admissible R
 open import Definition.Untyped M
 open import Definition.Untyped.Properties M
 
-open import Graded.Derived.Erased.Typed R
-
 open import Tools.Function
 open import Tools.Nat
 open import Tools.Product

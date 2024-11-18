@@ -28,6 +28,7 @@ module Definition.Typed.Consequences.Admissible.Bool.Erased
 open import Definition.Typed R
 import Definition.Typed.Properties.Admissible.Bool.OK
 open import Definition.Typed.Properties.Admissible.Empty R
+open import Definition.Typed.Properties.Admissible.Erased R
 open import Definition.Typed.Properties.Admissible.Nat R
 open import Definition.Typed.Properties.Admissible.Pi R
 open import Definition.Typed.Properties.Admissible.Sigma R
@@ -46,8 +47,6 @@ open import Definition.Untyped.Empty 𝕄
 open import Definition.Untyped.Erased 𝕄 𝕨
 open import Definition.Untyped.Nat 𝕄
 open import Definition.Untyped.Properties M
-
-open import Graded.Derived.Erased.Typed R
 
 open import Tools.Fin
 open import Tools.Function

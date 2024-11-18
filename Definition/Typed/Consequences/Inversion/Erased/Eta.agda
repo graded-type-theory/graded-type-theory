@@ -6,7 +6,7 @@
 open import Definition.Typed.Restrictions
 import Graded.Modality
 
-module Graded.Derived.Erased.Eta.Typed.Inversion
+module Definition.Typed.Consequences.Inversion.Erased.Eta
   {a} {M : Set a}
   (open Graded.Modality M)
   {𝕄 : Modality}
@@ -32,32 +32,7 @@ open import Tools.Product
 import Tools.PropositionalEquality as PE
 open import Tools.Relation
 
-open import Graded.Derived.Erased.Typed.Inversion R 𝕤 public
-
-private variable
-  Γ     : Con Term _
-  A B t : Term _
-
-opaque
-
-  -- An inversion lemma for erased.
-  --
-  -- TODO: Make it possible to replace the conclusion with
-  --
-  --   Γ ⊢ t ∷ Erased A × Erased-allowed?
-
-  inversion-erased :
-    Γ ⊢ erased t ∷ A →
-    ∃₂ λ q B → Γ ⊢ t ∷ Σˢ 𝟘 , q ▷ A ▹ B × Σˢ-allowed 𝟘 q
-  inversion-erased ⊢erased =
-    case inversion-fst ⊢erased of λ {
-      (_ , C , q , _ , ⊢C , ⊢t , ≡B) →
-    case ⊢∷ΠΣ→ΠΣ-allowed ⊢t of λ {
-      Σˢ-ok →
-      q
-    , C
-    , conv ⊢t (ΠΣ-cong (_⊢_≡_.sym ≡B) (refl ⊢C) Σˢ-ok)
-    , Σˢ-ok }}
+open import Definition.Typed.Consequences.Inversion.Erased R 𝕤 public
 
 opaque
 

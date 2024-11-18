@@ -20,7 +20,6 @@ open import Definition.Typed TR
 open import Definition.Typed.Consequences.Admissible TR
 open import Definition.Typed.Properties TR
 open import Definition.Typed.Substitution TR
-open import Graded.Derived.Erased.Typed TR
 
 open import Graded.Heap.Typed UR TR
 open import Graded.Heap.Untyped type-variant UR

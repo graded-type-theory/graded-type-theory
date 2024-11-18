@@ -36,7 +36,6 @@ open import Definition.Typed.Substitution TR
 open import Definition.LogicalRelation TR
 
 open import Graded.Context 𝕄
-open import Graded.Derived.Erased.Typed TR
 open import Graded.Derived.Erased.Usage 𝕄 UR
 open import Graded.Usage 𝕄 UR
 open import Graded.Usage.Erased-matches

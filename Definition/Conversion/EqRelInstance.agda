@@ -41,8 +41,6 @@ open import Definition.Typed.Consequences.Injectivity R
 open import Definition.Typed.Consequences.Equality R
 open import Definition.Typed.Consequences.Reduction R
 
-open import Graded.Derived.Erased.Typed R
-
 open import Tools.Empty
 open import Tools.Fin
 open import Tools.Function
