@@ -27,7 +27,6 @@ import Graded.Erasure.Target.Properties as TP
 open import Graded.Erasure.Target.Reasoning
 
 open import Definition.Typed R
-import Definition.Typed.Consequences.RedSteps R as RS
 open import Definition.Typed.Inversion R
 open import Definition.Typed.Properties R
 import Definition.Typed.Reasoning.Reduction R as RR
@@ -166,7 +165,7 @@ opaque
         t ® t′ ∷ A [ zero ]₀                                           →⟨ ®∷-⇐* (redMany (natrec-zero ⊢t ⊢u))
                                                                             (T.trans T.natrec-zero T.refl) ⟩
         natrec p q r A t u zero ® T.natrec t′ u′ T.zero ∷ A [ zero ]₀  →⟨ conv-®∷ $ A≡A v⇒zero ⟩
-        natrec p q r A t u zero ® T.natrec t′ u′ T.zero ∷ A [ v ]₀     →⟨ ®∷-⇐* (RS.natrec-subst* ⊢A ⊢t ⊢u v⇒zero)
+        natrec p q r A t u zero ® T.natrec t′ u′ T.zero ∷ A [ v ]₀     →⟨ ®∷-⇐* (natrec-subst* ⊢t ⊢u v⇒zero)
                                                                             (TP.natrec-subst* v′⇒zero) ⟩
         natrec p q r A t u v ® T.natrec t′ u′ v′ ∷ A [ v ]₀            □
 
@@ -182,7 +181,7 @@ opaque
         natrec p q r A t u (suc w) ® T.natrec t′ u′ (T.suc w′) ∷
           A [ suc w ]₀                                            →⟨ conv-®∷ $ A≡A v⇒suc-w ⟩
         natrec p q r A t u (suc w) ® T.natrec t′ u′ (T.suc w′) ∷
-          A [ v ]₀                                                →⟨ ®∷-⇐* (RS.natrec-subst* ⊢A ⊢t ⊢u v⇒suc-w)
+          A [ v ]₀                                                →⟨ ®∷-⇐* (natrec-subst* ⊢t ⊢u v⇒suc-w)
                                                                        (TP.natrec-subst* v′⇒suc-w′) ⟩
         natrec p q r A t u v ® T.natrec t′ u′ v′ ∷ A [ v ]₀       □
 

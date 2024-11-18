@@ -388,49 +388,6 @@ opaque
 
 private opaque
 
-  -- A variant of natrec-subst for _⊢_⇒*_∷_.
-
-  natrec-subst*′ :
-    (∀ {v₁ v₂} →
-     Γ ⊩⟨ l′ ⟩ v₁ ≡ v₂ ∷ ℕ →
-     Γ ⊩⟨ l ⟩ A [ v₁ ]₀ ≡ A [ v₂ ]₀) →
-    Γ ⊢ t ∷ A [ zero ]₀ →
-    Γ ∙ ℕ ∙ A ⊢ u ∷ A [ suc (var x1) ]↑² →
-    Γ ⊢ v₁ ⇒* v₂ ∷ ℕ →
-    Γ ⊩⟨ l′ ⟩ v₂ ∷ ℕ →
-    Γ ⊢ natrec p q r A t u v₁ ⇒* natrec p q r A t u v₂ ∷ A [ v₁ ]₀
-  natrec-subst*′
-    {A} {t} {u} {v₁} {v₂} {p} {q} {r} A≡A ⊢t ⊢u v₁⇒*v₂ ⊩v₂ =
-    case v₁⇒*v₂ of λ where
-      (id ⊢v₁) →
-        id (natrecⱼ ⊢t ⊢u ⊢v₁)
-      (_⇨_ {t′ = v₃} v₁⇒v₃ v₃⇒*v₂) →
-        case
-          v₁  ⇒⟨ v₁⇒v₃ ⟩⊩∷
-          v₃  ∎⟨ wf-⊩≡∷ (⊩∷-⇐* v₃⇒*v₂ ⊩v₂) .proj₁ ⟩⊩∷
-        of λ
-          v₁≡v₃ →
-        natrec p q r A t u v₁ ∷ A [ v₁ ]₀  ⇒⟨ natrec-subst ⊢t ⊢u v₁⇒v₃ ⟩∷
-                                            ⟨ ≅-eq $ escape-⊩≡ $ A≡A v₁≡v₃ ⟩⇒
-        natrec p q r A t u v₃ ∷ A [ v₃ ]₀  ⇒*⟨ natrec-subst*′ A≡A ⊢t ⊢u v₃⇒*v₂ ⊩v₂ ⟩∎∷
-        natrec p q r A t u v₂              ∎
-
-opaque
-
-  -- A variant of natrec-subst for _⊢_⇒*_∷_.
-
-  natrec-subst* :
-    Γ ∙ ℕ ⊩ᵛ⟨ l ⟩ A →
-    Γ ⊢ t ∷ A [ zero ]₀ →
-    Γ ∙ ℕ ∙ A ⊢ u ∷ A [ suc (var x1) ]↑² →
-    Γ ⊢ v₁ ⇒* v₂ ∷ ℕ →
-    Γ ⊩⟨ l′ ⟩ v₂ ∷ ℕ →
-    Γ ⊢ natrec p q r A t u v₁ ⇒* natrec p q r A t u v₂ ∷ A [ v₁ ]₀
-  natrec-subst* ⊩A =
-    natrec-subst*′ (⊩ᵛ≡→⊩≡∷→⊩[]₀≡[]₀ (refl-⊩ᵛ≡ ⊩A))
-
-private opaque
-
   -- A lemma used to prove ⊩natrec≡natrec.
 
   ⊩natrec≡natrec′ :
@@ -503,14 +460,12 @@ private opaque
     -- natrec to v₁′ and v₂′ are equal.
     case
       (λ (hyp : _ ⊩⟨ l ⟩ _ ≡ _ ∷ _) →
-         natrec p q r A₁ t₁ u₁ v₁ ∷ A₁ [ v₁ ]₀    ⇒*⟨ natrec-subst*′ A₁≡A₁ ⊢t₁ ⊢u₁ v₁⇒*v₁′
-                                                        (wf-⊩≡∷ v₁≡v₁′ .proj₂) ⟩⊩∷∷
+         natrec p q r A₁ t₁ u₁ v₁ ∷ A₁ [ v₁ ]₀    ⇒*⟨ natrec-subst* ⊢t₁ ⊢u₁ v₁⇒*v₁′ ⟩⊩∷∷
                                                     ⟨ A₁≡A₁ v₁≡v₁′ ⟩⊩∷
          natrec p q r A₁ t₁ u₁ v₁′ ∷ A₁ [ v₁′ ]₀  ≡⟨ hyp ⟩⊩∷∷⇐*
                                                    ⟨ ⊢A₁[v₁′]≡A₂[v₂′] ⟩⇒
                                    ∷ A₂ [ v₂′ ]₀  ˘⟨ ≅-eq $ escape-⊩≡ $ A₂≡A₂ v₂≡v₂′ ⟩⇐
-         natrec p q r A₂ t₂ u₂ v₂′ ∷ A₂ [ v₂ ]₀   ⇐*⟨ natrec-subst*′ A₂≡A₂ ⊢t₂ ⊢u₂ v₂⇒*v₂′
-                                                        (wf-⊩≡∷ v₂≡v₂′ .proj₂) ⟩∎∷
+         natrec p q r A₂ t₂ u₂ v₂′ ∷ A₂ [ v₂ ]₀   ⇐*⟨ natrec-subst* ⊢t₂ ⊢u₂ v₂⇒*v₂′ ⟩∎∷
          natrec p q r A₂ t₂ u₂ v₂                 ∎)
     of λ
       lemma →

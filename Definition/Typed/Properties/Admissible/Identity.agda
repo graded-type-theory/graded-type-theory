@@ -23,11 +23,13 @@ import Definition.Typed.Properties.Admissible.Identity.Primitive
 open import Definition.Typed.Properties.Admissible.Var R
 open import Definition.Typed.Properties.Reduction R
 open import Definition.Typed.Properties.Well-formed R
+open import Definition.Typed.Reasoning.Reduction R
 open import Definition.Typed.Reasoning.Term R
 open import Definition.Typed.Stability R
 open import Definition.Typed.Substitution R
 open import Definition.Typed.Syntactic R
 open import Definition.Typed.Weakening R
+open import Definition.Typed.Well-formed R
 import Definition.Untyped.Erased 𝕄 as Erased
 open import Definition.Untyped.Identity 𝕄
 open import Definition.Untyped.Properties M
@@ -124,8 +126,6 @@ opaque
 opaque
 
   -- A variant of J-subst.
-  --
-  -- See also Definition.Typed.Consequences.RedSteps.J-subst*.
 
   J-subst′ :
     Γ ∙ A ∙ Id (wk1 A) (wk1 t) (var x0) ⊢ B →
@@ -136,6 +136,30 @@ opaque
     case inversion-Id (syntacticTerm (redFirstTerm w₁⇒w₂)) of λ {
       (_ , ⊢t , ⊢v) →
     J-subst ⊢t ⊢B ⊢u ⊢v w₁⇒w₂ }
+
+opaque
+
+  -- A variant of J-subst for _⊢_⇒*_∷_.
+
+  J-subst* :
+    Γ ∙ A ∙ Id (wk1 A) (wk1 t) (var x0) ⊢ B →
+    Γ ⊢ u ∷ B [ t , rfl ]₁₀ →
+    Γ ⊢ w₁ ⇒* w₂ ∷ Id A t v →
+    Γ ⊢ J p q A t B u v w₁ ⇒* J p q A t B u v w₂ ∷ B [ v , w₁ ]₁₀
+  J-subst* {A} {t} {B} {u} {w₁} {w₂} {v} {p} {q} ⊢B ⊢u = λ where
+    (id ⊢w₁)                     → id (Jⱼ′ ⊢B ⊢u ⊢w₁)
+    (_⇨_ {t′ = w₃} w₁⇒w₃ w₃⇒*w₂) →
+      let w₁≡w₃      = subsetTerm w₁⇒w₃
+          _ , _ , ⊢v = inversion-Id (wf-⊢≡∷ w₁≡w₃ .proj₁)
+      in
+      J p q A t B u v w₁ ∷ B [ v , w₁ ]₁₀  ⇒⟨ J-subst′ ⊢B ⊢u w₁⇒w₃ ⟩∷
+                                           ˘⟨ substTypeEq₂ (refl ⊢B) (refl ⊢v)
+                                                (PE.subst (_⊢_≡_∷_ _ _ _)
+                                                   (PE.sym $
+                                                    PE.cong₃ Id (wk1-sgSubst _ _) (wk1-sgSubst _ _) PE.refl) $
+                                                 sym′ w₁≡w₃) ⟩⇒
+      J p q A t B u v w₃ ∷ B [ v , w₃ ]₁₀  ⇒*⟨ J-subst* ⊢B ⊢u w₃⇒*w₂ ⟩∎∷
+      J p q A t B u v w₂                   ∎
 
 opaque
 
@@ -240,6 +264,25 @@ opaque
 
 ------------------------------------------------------------------------
 -- Lemmas related to K
+
+opaque
+
+  -- A variant of K-subst for _⊢_⇒*_∷_.
+
+  K-subst* :
+    Γ ∙ Id A t t ⊢ B →
+    Γ ⊢ u ∷ B [ rfl ]₀ →
+    Γ ⊢ v₁ ⇒* v₂ ∷ Id A t t →
+    K-allowed →
+    Γ ⊢ K p A t B u v₁ ⇒* K p A t B u v₂ ∷ B [ v₁ ]₀
+  K-subst* {A} {t} {B} {u} {v₁} {v₂} {p} ⊢B ⊢u v₁⇒*v₂ ok =
+    case v₁⇒*v₂ of λ where
+      (id ⊢v₁)                     → id (Kⱼ ⊢B ⊢u ⊢v₁ ok)
+      (_⇨_ {t′ = v₃} v₁⇒v₃ v₃⇒*v₂) →
+        K p A t B u v₁ ∷ B [ v₁ ]₀  ⇒⟨ K-subst ⊢B ⊢u v₁⇒v₃ ok ⟩∷
+                                    ˘⟨ substTypeEq (refl ⊢B) (sym′ (subsetTerm v₁⇒v₃)) ⟩⇒
+        K p A t B u v₃ ∷ B [ v₃ ]₀  ⇒*⟨ K-subst* ⊢B ⊢u v₃⇒*v₂ ok ⟩∎∷
+        K p A t B u v₂              ∎
 
 opaque
 

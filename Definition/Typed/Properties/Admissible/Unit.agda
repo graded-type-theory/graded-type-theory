@@ -16,6 +16,7 @@ open Type-restrictions TR
 open import Definition.Untyped M
 open import Definition.Typed TR
 open import Definition.Typed.Inversion TR
+open import Definition.Typed.Properties.Admissible.Equality TR
 open import Definition.Typed.Properties.Admissible.Identity.Primitive TR
 open import Definition.Typed.Properties.Admissible.Var TR
 open import Definition.Typed.Properties.Reduction TR
@@ -32,11 +33,11 @@ open import Tools.Relation
 open import Tools.Sum using (_⊎_; inj₁; inj₂)
 
 private variable
-  Γ                       : Con Term _
-  A A₁ A₂ t t₁ t₂ u u₁ u₂ : Term _
-  s                       : Strength
-  l                       : Universe-level
-  p q                     : M
+  Γ                          : Con Term _
+  A A₁ A₂ t t′ t₁ t₂ u u₁ u₂ : Term _
+  s                          : Strength
+  l                          : Universe-level
+  p q                        : M
 
 ------------------------------------------------------------------------
 -- A definitional η-rule
@@ -175,6 +176,24 @@ opaque
   unitrec-subst′ ⊢A ⊢u t₁⇒t₂ =
     unitrec-subst ⊢A ⊢u t₁⇒t₂ $
     inversion-Unit $ syntacticEqTerm (subsetTerm t₁⇒t₂) .proj₁
+
+opaque
+
+  -- A variant of unitrec-subst for _⊢_⇒*_∷_.
+
+  unitrec-subst* :
+    Γ ⊢ t ⇒* t′ ∷ Unitʷ l →
+    Γ ∙ Unitʷ l ⊢ A →
+    Γ ⊢ u ∷ A [ starʷ l ]₀ →
+    ¬ Unitʷ-η →
+    Γ ⊢ unitrec l p q A t u ⇒* unitrec l p q A t′ u ∷ A [ t ]₀
+  unitrec-subst* (id ⊢t) ⊢A ⊢u _ =
+    id (unitrecⱼ ⊢A ⊢t ⊢u (⊢∷Unit→Unit-allowed ⊢t))
+  unitrec-subst* (t⇒t′ ⇨ t′⇒*t″) ⊢A ⊢u not-ok =
+    let ok = ⊢∷Unit→Unit-allowed (redFirstTerm t⇒t′) in
+    unitrec-subst ⊢A ⊢u t⇒t′ ok not-ok ⇨
+    conv* (unitrec-subst* t′⇒*t″ ⊢A ⊢u not-ok)
+      (substTypeEq (refl ⊢A) (sym′ (subsetTerm t⇒t′)))
 
 ------------------------------------------------------------------------
 -- Lemmas related to unitrec⟨_⟩

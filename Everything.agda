@@ -303,7 +303,6 @@ import Definition.Typed.Consequences.Inversion.Erased.Eta
 import Definition.Typed.Consequences.Inversion.Erased.No-eta
 import Definition.Typed.Consequences.Admissible
 import Definition.Typed.Consequences.Consistency
-import Definition.Typed.Consequences.RedSteps
 import Graded.Derived.Unrestricted.Eta.Typed
 import Definition.Typed.Consequences.NeTypeEq
 

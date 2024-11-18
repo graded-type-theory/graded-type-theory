@@ -15,9 +15,11 @@ open import Definition.Untyped M
 open import Definition.Untyped.Nat 𝕄
 open import Definition.Untyped.Properties M
 open import Definition.Typed R
+open import Definition.Typed.Properties.Admissible.Equality R
 open import Definition.Typed.Properties.Admissible.Var R
 open import Definition.Typed.Properties.Reduction R
 open import Definition.Typed.Properties.Well-formed R
+open import Definition.Typed.Reasoning.Reduction R
 open import Definition.Typed.Substitution R
 open import Definition.Typed.Syntactic R
 open import Definition.Typed.Weakening R
@@ -50,6 +52,24 @@ opaque
   sucCong′ F≡G =
     let ⊢F , ⊢G = syntacticEq F≡G
     in subst↑²TypeEq F≡G (refl (sucⱼ (var (∙ ⊢G) (there here))))
+
+opaque
+
+  -- A variant of natrec-subst for _⊢_⇒*_∷_.
+
+  natrec-subst* :
+    Γ ⊢ t ∷ A [ zero ]₀ →
+    Γ ∙ ℕ ∙ A ⊢ u ∷ A [ suc (var x1) ]↑² →
+    Γ ⊢ v₁ ⇒* v₂ ∷ ℕ →
+    Γ ⊢ natrec p q r A t u v₁ ⇒* natrec p q r A t u v₂ ∷ A [ v₁ ]₀
+  natrec-subst* {t} {A} {u} {v₁} {v₂} {p} {q} {r} ⊢t ⊢u = λ where
+    (id ⊢v₁)                     → id (natrecⱼ ⊢t ⊢u ⊢v₁)
+    (_⇨_ {t′ = v₃} v₁⇒v₃ v₃⇒*v₂) →
+      natrec p q r A t u v₁ ∷ A [ v₁ ]₀  ⇒⟨ natrec-subst ⊢t ⊢u v₁⇒v₃ ⟩∷
+                                         ˘⟨ substTypeEq (refl (⊢∙→⊢ (wfTerm ⊢u)))
+                                              (sym′ (subsetTerm v₁⇒v₃)) ⟩⇒
+      natrec p q r A t u v₃ ∷ A [ v₃ ]₀  ⇒*⟨ natrec-subst* ⊢t ⊢u v₃⇒*v₂ ⟩∎∷
+      natrec p q r A t u v₂              ∎
 
 ------------------------------------------------------------------------
 -- Lemmas related to natcase

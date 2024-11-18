@@ -522,39 +522,6 @@ private opaque
     A [ σ ⇑ ] [ prodʷ p (var x1) (var x0) ]↑² [ t , u ]₁₀    ≡⟨ [1,0]↑²[,] (A [ _ ]) ⟩
     A [ σ ⇑ ] [ prodʷ p t u ]₀                               ∎
 
-private opaque
-
-  -- A variant of prodrec-subst for _⊢_⇒*_∷_.
-
-  prodrec-subst*′ :
-    Γ ∙ Σʷ p , q′ ▷ A ▹ B ⊩ᵛ⟨ l ⟩ C →
-    Δ ⊩ˢ σ ∷ Γ →
-    Δ ⊢ t₁ ⇒* t₂ ∷ (Σʷ p , q′ ▷ A ▹ B) [ σ ] →
-    Δ ⊩⟨ l′ ⟩ t₁ ∷ (Σʷ p , q′ ▷ A ▹ B) [ σ ] →
-    Δ ∙ A [ σ ] ∙ B [ σ ⇑ ] ⊢ u ∷
-      C [ σ ⇑ ] [ prodʷ p (var x1) (var x0) ]↑² →
-    Δ ⊢ prodrec r p q (C [ σ ⇑ ]) t₁ u ⇒*
-      prodrec r p q (C [ σ ⇑ ]) t₂ u ∷ C [ σ ⇑ ] [ t₁ ]₀
-  prodrec-subst*′
-    {p} {C} {σ} {t₁} {t₂} {u} {r} {q} ⊩C ⊩σ t₁⇒*t₂ ⊩t₁ ⊢u =
-    case ⊩ΠΣ→ $ wf-⊩∷ ⊩t₁ of λ
-      (ok , _) →
-    case escape-⊩ $ ⊩ᵛ→⊩ˢ∷→⊩[⇑] ⊩C ⊩σ of λ
-      ⊢C[σ⇑] →
-    case t₁⇒*t₂ of λ where
-      (id ⊢t₁) →
-        id (prodrecⱼ ⊢C[σ⇑] ⊢t₁ ⊢u ok)
-      (_⇨_ {t′ = t₃} t₁⇒t₃ t₃⇒*t₂) →
-        case ⊩∷-⇒* (redMany t₁⇒t₃) ⊩t₁ of λ
-          t₁≡t₃ →
-        prodrec r p q (C [ σ ⇑ ]) t₁ u ∷ C [ σ ⇑ ] [ t₁ ]₀  ⇒⟨ prodrec-subst ⊢C[σ⇑] ⊢u t₁⇒t₃ ok ⟩∷
-                                                             ⟨ ≅-eq $ escape-⊩≡ $
-                                                               ⊩ᵛ≡→⊩ˢ≡∷→⊩≡∷→⊩[⇑][]₀≡[⇑][]₀
-                                                                 (refl-⊩ᵛ≡ ⊩C) (refl-⊩ˢ≡∷ ⊩σ) t₁≡t₃ ⟩⇒
-        prodrec r p q (C [ σ ⇑ ]) t₃ u ∷ C [ σ ⇑ ] [ t₃ ]₀  ⇒*⟨ prodrec-subst*′ ⊩C ⊩σ t₃⇒*t₂ (wf-⊩≡∷ t₁≡t₃ .proj₂) ⊢u ⟩∎∷
-
-        prodrec r p q (C [ σ ⇑ ]) t₂ u                      ∎
-
 opaque
 
   -- Reducibility of equality between applications of prodrec.
@@ -573,6 +540,10 @@ opaque
       (⊩C₁ , ⊩C₂) →
     case wf-⊩ˢ≡∷ σ₁≡σ₂ of λ
       (⊩σ₁ , ⊩σ₂) →
+    case escape-⊩ $ ⊩ᵛ→⊩ˢ∷→⊩[⇑] ⊩C₁ ⊩σ₁ of λ
+      ⊢C₁[σ₁⇑] →
+    case escape-⊩ $ ⊩ᵛ→⊩ˢ∷→⊩[⇑] ⊩C₂ ⊩σ₂ of λ
+      ⊢C₂[σ₂⇑] →
     case ⊩ᵛ≡→⊩ˢ≡∷→⊩[]≡[] (refl-⊩ᵛ≡ $ wf-⊩ᵛ∷ $ wf-⊩ᵛ≡∷ t₁≡t₂ .proj₁)
            σ₁≡σ₂ of λ
       ΣAB[σ₁]≡ΣAB[σ₂] →
@@ -637,15 +608,15 @@ opaque
                   ⊩v₂₂ of λ
              ⊩v₂₂ →
 
-           prodrec r p q (C₁ [ σ₁ ⇑ ]) (prodʷ p v₁₁ v₁₂) (u₁ [ σ₁ ⇑ ⇑ ])  ⇒⟨ prodrec-β (escape-⊩ $ ⊩ᵛ→⊩ˢ∷→⊩[⇑] ⊩C₁ ⊩σ₁) (escape-⊩∷ ⊩v₁₁)
-                                                                               (escape-⊩∷ ⊩v₁₂) ⊢u₁[σ₁⇑⇑] PE.refl ok ⟩⊩∷
+           prodrec r p q (C₁ [ σ₁ ⇑ ]) (prodʷ p v₁₁ v₁₂) (u₁ [ σ₁ ⇑ ⇑ ])  ⇒⟨ prodrec-β ⊢C₁[σ₁⇑] (escape-⊩∷ ⊩v₁₁) (escape-⊩∷ ⊩v₁₂)
+                                                                               ⊢u₁[σ₁⇑⇑] PE.refl ok ⟩⊩∷
            u₁ [ σ₁ ⇑ ⇑ ] [ v₁₁ , v₁₂ ]₁₀ ∷ C₁ [ σ₁ ⇑ ] [ v₁ ]₀            ≡⟨ level-⊩≡∷ ⊩C₁[σ₁⇑][v₁] $
                                                                              PE.subst (_⊩⟨_⟩_≡_∷_ _ _ _ _) ([1,0]↑²[⇑⇑][]₁₀≡[⇑][,]₀ C₁) $
                                                                              ⊩ᵛ≡∷→⊩ˢ≡∷→⊩≡∷→⊩≡∷→⊩[⇑⇑][]₁₀≡[⇑⇑][]₁₀∷
                                                                                u₁≡u₂ σ₁≡σ₂ v₁₁≡v₂₁ v₁₂≡v₂₂ ⟩⊩∷∷⇐*
                                                                            ⟨ C₁[σ₁⇑][v₁]≡C₂[σ₂⇑][v₂] ⟩⇒
-           u₂ [ σ₂ ⇑ ⇑ ] [ v₂₁ , v₂₂ ]₁₀ ∷ C₂ [ σ₂ ⇑ ] [ v₂ ]₀            ⇐⟨ prodrec-β (escape-⊩ $ ⊩ᵛ→⊩ˢ∷→⊩[⇑] ⊩C₂ ⊩σ₂) (escape-⊩∷ ⊩v₂₁)
-                                                                               (escape-⊩∷ ⊩v₂₂) ⊢u₂[σ₂⇑⇑] PE.refl ok
+           u₂ [ σ₂ ⇑ ⇑ ] [ v₂₁ , v₂₂ ]₁₀ ∷ C₂ [ σ₂ ⇑ ] [ v₂ ]₀            ⇐⟨ prodrec-β ⊢C₂[σ₂⇑] (escape-⊩∷ ⊩v₂₁) (escape-⊩∷ ⊩v₂₂)
+                                                                               ⊢u₂[σ₂⇑⇑] PE.refl ok
                                                                            ⟩∎∷
            prodrec r p q (C₂ [ σ₂ ⇑ ]) (prodʷ p v₂₁ v₂₂) (u₂ [ σ₂ ⇑ ⇑ ])  ∎
 
@@ -657,7 +628,7 @@ opaque
       lemma →
                                   ∷ C₁ [ t₁ ]₀ [ σ₁ ]             ⟨ singleSubstLift C₁ _ ⟩⊩∷∷≡
 
-    prodrec r p q C₁ t₁ u₁ [ σ₁ ] ∷ C₁ [ σ₁ ⇑ ] [ t₁ [ σ₁ ] ]₀  ⇒*⟨ prodrec-subst*′ ⊩C₁ ⊩σ₁ t₁[σ₁]⇒*v₁ ⊩t₁[σ₁] ⊢u₁[σ₁⇑⇑] ⟩⊩∷∷
+    prodrec r p q C₁ t₁ u₁ [ σ₁ ] ∷ C₁ [ σ₁ ⇑ ] [ t₁ [ σ₁ ] ]₀  ⇒*⟨ prodrec-subst* ⊢C₁[σ₁⇑] t₁[σ₁]⇒*v₁ ⊢u₁[σ₁⇑⇑] ⟩⊩∷∷
 
     prodrec r p q (C₁ [ σ₁ ⇑ ]) v₁ (u₁ [ σ₁ ⇑ ⇑ ])              ≡⟨ conv-⊩≡∷
                                                                      (⊩ᵛ≡→⊩ˢ≡∷→⊩≡∷→⊩[⇑][]₀≡[⇑][]₀ (refl-⊩ᵛ≡ ⊩C₁)
@@ -666,7 +637,7 @@ opaque
                                                                  ⟨ ≅-eq $ escape-⊩≡ $
                                                                    ⊩ᵛ≡→⊩ˢ≡∷→⊩≡∷→⊩[⇑][]₀≡[⇑][]₀ C₁≡C₂ σ₁≡σ₂ t₁[σ₁]≡t₂[σ₂] ⟩⇒
     prodrec r p q (C₂ [ σ₂ ⇑ ]) v₂ (u₂ [ σ₂ ⇑ ⇑ ]) ∷
-      C₂ [ σ₂ ⇑ ] [ t₂ [ σ₂ ] ]₀                                ⇐*⟨ prodrec-subst*′ ⊩C₂ ⊩σ₂ t₂[σ₂]⇒*v₂ ⊩t₂[σ₂] $
+      C₂ [ σ₂ ⇑ ] [ t₂ [ σ₂ ] ]₀                                ⇐*⟨ prodrec-subst* ⊢C₂[σ₂⇑] t₂[σ₂]⇒*v₂ $
                                                                     PE.subst (_⊢_∷_ _ _) (subst-β-prodrec C₂ _) $
                                                                     escape-⊩∷ $ ⊩ᵛ∷→⊩ˢ∷→⊩[⇑⇑]∷ ⊩u₂ ⊩σ₂ ⟩∎∷
     prodrec r p q C₂ t₂ u₂ [ σ₂ ]                               ∎

@@ -22,6 +22,7 @@ open import Definition.Typed.Properties.Admissible.Identity R
 open import Definition.Typed.Properties.Admissible.Var R
 open import Definition.Typed.Properties.Reduction R
 open import Definition.Typed.Properties.Well-formed R
+open import Definition.Typed.Reasoning.Reduction R
 open import Definition.Typed.Reasoning.Term R
 open import Definition.Typed.Substitution R
 open import Definition.Typed.Weakening R as W hiding (wk)
@@ -142,6 +143,22 @@ opaque
 
 opaque
 
+  -- A variant of snd-subst for _⊢_⇒*_∷_.
+
+  snd-subst* :
+    Γ ⊢ t ⇒* u ∷ Σˢ p , q ▷ A ▹ B →
+    Γ ⊢ snd p t ⇒* snd p u ∷ B [ fst p t ]₀
+  snd-subst* t⇒*u =
+    let _ , ⊢B , _ = inversion-ΠΣ $ wf-⊢∷ $ redFirst*Term t⇒*u in
+    case t⇒*u of λ where
+      (id ⊢t)      → id (sndⱼ′ ⊢t)
+      (t⇒v ⇨ v⇨*u) →
+        snd-subst′ t⇒v ⇨
+        conv* (snd-subst* v⇨*u)
+          (substTypeEq (refl ⊢B) (sym′ (fst-cong′ (subsetTerm t⇒v))))
+
+opaque
+
   -- A variant of snd-cong.
 
   snd-cong′ :
@@ -163,6 +180,23 @@ opaque
   prodrec-subst′ ⊢C ⊢u t₁⇒t₂ =
     let _ , _ , ok = inversion-ΠΣ (wf-⊢∷ (redFirstTerm t₁⇒t₂)) in
     prodrec-subst ⊢C ⊢u t₁⇒t₂ ok
+
+opaque
+
+  -- A variant of prodrec-subst for _⊢_⇒*_∷_.
+
+  prodrec-subst* :
+    Γ ∙ Σʷ p , q ▷ A ▹ B ⊢ C →
+    Γ ⊢ t₁ ⇒* t₂ ∷ Σʷ p , q ▷ A ▹ B →
+    Γ ∙ A ∙ B ⊢ u ∷ C [ prodʷ p (var x1) (var x0) ]↑² →
+    Γ ⊢ prodrec r p q′ C t₁ u ⇒* prodrec r p q′ C t₂ u ∷ C [ t₁ ]₀
+  prodrec-subst* ⊢C t₁⇒*t₂ ⊢u =
+    case t₁⇒*t₂ of λ where
+      (id ⊢t₁)         → id (prodrecⱼ′ ⊢C ⊢t₁ ⊢u)
+      (t₁⇒t₃ ⇨ t₃⇒*t₂) →
+        prodrec-subst′ ⊢C ⊢u t₁⇒t₃ ⇨
+        conv* (prodrec-subst* ⊢C t₃⇒*t₂ ⊢u)
+          (substTypeEq (refl ⊢C) (sym′ (subsetTerm t₁⇒t₃)))
 
 opaque
 
@@ -273,6 +307,59 @@ opaque
     in
     Σ-η′ (prodⱼ ⊢B ⊢fst ⊢snd ok) ⊢t (Σ-β₁-≡ ⊢B ⊢fst ⊢snd ok)
       (Σ-β₂-≡ ⊢B ⊢fst ⊢snd ok)
+
+------------------------------------------------------------------------
+-- Some private definitions
+
+private opaque
+
+  -- A lemma that can be used to prove lemmas like snd-subst*.
+
+  subst→subst* :
+    ∀ t →
+    Γ ∙ A ⊢ B →
+    (∀ {u} →
+     Γ ⊢ u ∷ A →
+     Γ ⊢ t [ u ]₀ ∷ B [ u ]₀) →
+    (∀ {u₁ u₂} →
+     Γ ⊢ u₁ ⇒ u₂ ∷ A →
+     Γ ⊢ t [ u₁ ]₀ ⇒ t [ u₂ ]₀ ∷ B [ u₁ ]₀) →
+    Γ ⊢ u₁ ⇒* u₂ ∷ A →
+    Γ ⊢ t [ u₁ ]₀ ⇒* t [ u₂ ]₀ ∷ B [ u₁ ]₀
+  subst→subst* {B} {u₁} {u₂} t ⊢B ⊢t[] t[]⇒t[] = λ where
+    (id ⊢u)                      → id (⊢t[] ⊢u)
+    (_⇨_ {t′ = u₃} u₁⇒u₃ u₃⇒*u₂) →
+      t [ u₁ ]₀ ∷ B [ u₁ ]₀  ⇒⟨ t[]⇒t[] u₁⇒u₃ ⟩∷
+                              ⟨ substTypeEq (refl ⊢B) (subsetTerm u₁⇒u₃) ⟩⇒
+      t [ u₃ ]₀ ∷ B [ u₃ ]₀  ⇒*⟨ subst→subst* t ⊢B ⊢t[] t[]⇒t[] u₃⇒*u₂ ⟩∎∷
+      t [ u₂ ]₀              ∎
+
+private opaque
+
+  -- The lemma subst→subst* is private (and placed in this module
+  -- rather than, say, Definition.Typed.Properties.Reduction) because
+  -- it can be rather awkward to use: tastes may vary, but the
+  -- following proof is at least (at the time of writing) longer than
+  -- snd-subst*, even if one does not count the where clause.
+
+  snd-subst*′ :
+    Γ ⊢ t ⇒* u ∷ Σˢ p , q ▷ A ▹ B →
+    Γ ⊢ snd p t ⇒* snd p u ∷ B [ fst p t ]₀
+  snd-subst*′ {p} {B} t⇒*u =
+    case wf-⊢∷ $ redFirst*Term t⇒*u of λ
+      ⊢ΣAB →
+    case inversion-ΠΣ ⊢ΣAB of λ
+      (_ , ⊢B , _) →
+    PE.subst (_⊢_⇒*_∷_ _ _ _) ([]↑-[]₀ B) $
+    subst→subst* (snd p (var x0))
+      (subst↑Type ⊢B (fstⱼ′ (var₀ ⊢ΣAB)))
+      (λ ⊢u →
+         PE.subst (_⊢_∷_ _ _) (PE.sym $ []↑-[]₀ B) $
+         sndⱼ′ ⊢u)
+      (λ u₁⇒u₂ →
+         PE.subst (_⊢_⇒_∷_ _ _ _) (PE.sym $ []↑-[]₀ B) $
+         snd-subst′ u₁⇒u₂)
+      t⇒*u
 
 ------------------------------------------------------------------------
 -- An investigation of to what degree weak Σ-types can emulate strong

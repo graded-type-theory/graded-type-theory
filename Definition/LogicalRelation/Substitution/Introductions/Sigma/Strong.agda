@@ -358,35 +358,6 @@ opaque
 
 opaque
 
-  -- A variant of snd-subst for _⊢_⇒*_∷_.
-
-  snd-subst* :
-    Γ ⊢ t₁ ⇒* t₂ ∷ Σˢ p , q ▷ A ▹ B →
-    Γ ⊩⟨ l ⟩ t₂ ∷ Σˢ p , q ▷ A ▹ B →
-    Γ ⊢ snd p t₁ ⇒* snd p t₂ ∷ B [ fst p t₁ ]₀
-  snd-subst* {t₁} {t₂} {p} {B} t₁⇒*t₂ ⊩t₂ =
-    case wf-⊩∷ ⊩t₂ of λ
-      ⊩ΣAB →
-    case ⊩ΠΣ→ ⊩ΣAB of λ
-      (_ , _ , ⊩B) →
-    case escape-⊩ ⊩B of λ
-      ⊢B →
-    case t₁⇒*t₂ of λ where
-      (id ⊢t₁)                     → id (sndⱼ ⊢B ⊢t₁)
-      (_⇨_ {t′ = t₃} t₁⇒t₃ t₃⇒*t₂) →
-        case
-          t₁  ⇒⟨ t₁⇒t₃ ⟩⊩∷
-          t₃  ∎⟨ wf-⊩≡∷ (⊩∷-⇐* t₃⇒*t₂ ⊩t₂) .proj₁ ⟩⊩∷
-        of λ
-          t₁≡t₃ →
-        snd p t₁ ∷ B [ fst p t₁ ]₀  ⇒⟨ snd-subst ⊢B t₁⇒t₃ ⟩∷
-                                     ⟨ ≅-eq $ escape-⊩≡ $
-                                       ⊩ΠΣ≡ΠΣ→⊩≡∷→⊩[]₀≡[]₀ (refl-⊩≡ ⊩ΣAB) (⊩fst≡fst t₁≡t₃) ⟩⇒
-        snd p t₃ ∷ B [ fst p t₃ ]₀  ⇒*⟨ snd-subst* t₃⇒*t₂ ⊩t₂ ⟩∎∷
-        snd p t₂                    ∎
-
-opaque
-
   -- Reducibility of equality between applications of snd.
 
   ⊩snd≡snd :
@@ -401,7 +372,7 @@ opaque
       (_ , u₁ , u₂ , t₁⇒*u₁ , t₂⇒*u₂ , _ , _ , _ , _ , snd-u₁≡snd-u₂) →
     case ⊩∷-⇒* t₁⇒*u₁ ⊩t₁ of λ
       t₁≡u₁ →
-    snd p t₁                    ⇒*⟨ snd-subst* t₁⇒*u₁ (wf-⊩≡∷ t₁≡u₁ .proj₂) ⟩⊩∷
+    snd p t₁                    ⇒*⟨ snd-subst* t₁⇒*u₁ ⟩⊩∷
     snd p u₁ ∷ B [ fst p t₁ ]₀  ≡⟨ conv-⊩≡∷
                                      (⊩ΠΣ≡ΠΣ→⊩≡∷→⊩[]₀≡[]₀ (refl-⊩≡ ⊩ΣAB) $
                                       sym-⊩≡∷ $ ⊩fst≡fst t₁≡u₁)
@@ -409,7 +380,7 @@ opaque
                                  ⟨ ≅-eq $ escape-⊩≡ $
                                    ⊩ΠΣ≡ΠΣ→⊩≡∷→⊩[]₀≡[]₀ (refl-⊩≡ ⊩ΣAB) $
                                    ⊩fst≡fst t₁≡t₂ ⟩⇒
-    snd p u₂ ∷ B [ fst p t₂ ]₀  ⇐*⟨ snd-subst* t₂⇒*u₂ (wf-⊩≡∷ (⊩∷-⇒* t₂⇒*u₂ ⊩t₂) .proj₂) ⟩∎∷
+    snd p u₂ ∷ B [ fst p t₂ ]₀  ⇐*⟨ snd-subst* t₂⇒*u₂ ⟩∎∷
     snd p t₂                    ∎
 
 opaque

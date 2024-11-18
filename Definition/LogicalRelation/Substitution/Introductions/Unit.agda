@@ -330,36 +330,6 @@ opaque
 ------------------------------------------------------------------------
 -- The eliminator unitrec
 
-private opaque
-
-  -- A variant of unitrec-subst for _⊢_⇒*_∷_.
-
-  unitrec-subst* :
-    Γ ∙ Unitʷ l ⊩ᵛ⟨ l′ ⟩ A →
-    Δ ⊩ˢ σ ∷ Γ →
-    Δ ⊩⟨ l″ ⟩ t₁ ∷ Unitʷ l →
-    Δ ⊢ t₁ ⇒* t₂ ∷ Unitʷ l →
-    Δ ⊢ u ∷ A [ σ ⇑ ] [ starʷ l ]₀ →
-    ¬ Unitʷ-η →
-    Δ ⊢ unitrec l p q (A [ σ ⇑ ]) t₁ u ⇒*
-      unitrec l p q (A [ σ ⇑ ]) t₂ u ∷ A [ σ ⇑ ] [ t₁ ]₀
-  unitrec-subst* ⊩A ⊩σ ⊩t₁ t₁⇒*t₂ ⊢u no-η =
-    case ⊩ᵛUnit→Unit-allowed $ wf-∙-⊩ᵛ ⊩A .proj₂ of λ
-      ok →
-    case escape $ ⊩ᵛ→⊩ˢ∷→⊩[⇑] ⊩A ⊩σ of λ
-      ⊢A[σ⇑] →
-    case t₁⇒*t₂ of λ where
-      (id ⊢t₁)         → id (unitrecⱼ ⊢A[σ⇑] ⊢t₁ ⊢u ok)
-      (t₁⇒t₃ ⇨ t₃⇒*t₂) →
-        case ⊩∷-⇒* (redMany t₁⇒t₃) ⊩t₁ of λ
-          t₁≡t₃ →
-        unitrec-subst ⊢A[σ⇑] ⊢u t₁⇒t₃ ok no-η ⇨
-        conv*
-          (unitrec-subst* ⊩A ⊩σ (wf-⊩≡∷ t₁≡t₃ .proj₂) t₃⇒*t₂ ⊢u no-η)
-          (≅-eq $ escape-⊩≡ $
-           ⊩ᵛ≡→⊩ˢ≡∷→⊩≡∷→⊩[⇑][]₀≡[⇑][]₀ (refl-⊩ᵛ≡ ⊩A) (refl-⊩ˢ≡∷ ⊩σ)
-             (sym-⊩≡∷ t₁≡t₃))
-
 opaque
 
   -- Reducibility of equality between applications of unitrec.
@@ -435,13 +405,13 @@ opaque
        Unitₜ₌ʷ t₁′ t₂′ t₁[σ₁]⇒*t₁′ t₂[σ₂]⇒*t₂′ _ rest no-η) →
         case PE.subst (_⊢_⇒*_∷_ _ _ _)
                (PE.sym $ singleSubstLift A₁ t₁) $
-             unitrec-subst* {p = p} {q = q} ⊩A₁ ⊩σ₁ ⊩t₁[σ₁] t₁[σ₁]⇒*t₁′
-               ⊢u₁[σ₁] no-η of λ
+             unitrec-subst* {p = p} {q = q} t₁[σ₁]⇒*t₁′ ⊢A₁[σ₁⇑] ⊢u₁[σ₁]
+               no-η of λ
           unitrec⇒*₁ →
         case PE.subst (_⊢_⇒*_∷_ _ _ _)
                (PE.sym $ singleSubstLift A₂ t₂) $
-             unitrec-subst* {p = p} {q = q} ⊩A₂ ⊩σ₂ ⊩t₂[σ₂] t₂[σ₂]⇒*t₂′
-               ⊢u₂[σ₂] no-η of λ
+             unitrec-subst* {p = p} {q = q} t₂[σ₂]⇒*t₂′ ⊢A₂[σ₂⇑] ⊢u₂[σ₂]
+               no-η of λ
           unitrec⇒*₂ →
         case PE.subst₂ (_⊩⟨_⟩_≡_ _ _)
                (PE.sym $ singleSubstLift A₁ t₁) PE.refl $

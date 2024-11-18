@@ -2,8 +2,6 @@
 -- Some lemmas related to the reduction relations
 ------------------------------------------------------------------------
 
--- See also Definition.Typed.Consequences.RedSteps.
-
 open import Definition.Typed.Restrictions
 open import Graded.Modality
 
