@@ -105,30 +105,31 @@ opaque
 
   -- A characterisation lemma for _⊩⟨_⟩_≡_∷_.
 
-  ⊩≡∷Empty⇔ : Γ ⊩⟨ l ⟩ t ≡ u ∷ Empty ⇔
-    (Γ ⊩Empty t ∷Empty ×
-     Γ ⊩Empty u ∷Empty ×
-     Γ ⊩Empty t ≡ u ∷Empty)
+  ⊩≡∷Empty⇔ :
+    Γ ⊩⟨ l ⟩ t ≡ u ∷ Empty ⇔ Γ ⊩Empty t ≡ u ∷Empty
   ⊩≡∷Empty⇔ =
-      (λ (⊩Empty′ , ⊩t , ⊩u , t≡u) →
+      (λ (⊩Empty′ , _ , _ , t≡u) →
         lemma (Empty-elim ⊩Empty′)
-          (irrelevanceTerm ⊩Empty′ (Empty-intr (Empty-elim ⊩Empty′)) ⊩t)
-          (irrelevanceTerm ⊩Empty′ (Empty-intr (Empty-elim ⊩Empty′)) ⊩u)
-          (irrelevanceEqTerm ⊩Empty′ (Empty-intr (Empty-elim ⊩Empty′)) t≡u))
-    , λ (⊩t@(Emptyₜ _ d _ _) , ⊩u , t≡u) →
-        ⊩Empty⇔ .proj₂ (wfEqTerm (subset*Term d)) , ⊩t , ⊩u , t≡u
+          (irrelevanceEqTerm ⊩Empty′ (Empty-intr (Empty-elim ⊩Empty′))
+             t≡u))
+    , λ t≡u@(Emptyₜ₌ _ _ t⇒*t′ u⇒*u′ t′≅u′ prop) →
+        case prop of λ where
+          (ne (neNfₜ₌ t′-ne u′-ne t′~u′)) →
+            let ≅t′ , ≅u′ = wf-⊢≅∷ t′≅u′
+                ~t′ , ~u′ = wf-⊢~∷ t′~u′
+            in
+              ⊩Empty⇔ .proj₂ (wfEqTerm (subset*Term t⇒*t′))
+            , Emptyₜ _ t⇒*t′ ≅t′ (ne (neNfₜ t′-ne ~t′))
+            , Emptyₜ _ u⇒*u′ ≅u′ (ne (neNfₜ u′-ne ~u′))
+            , t≡u
     where
     lemma :
       (⊩Empty : Γ ⊩⟨ l ⟩Empty Empty) →
-      Γ ⊩⟨ l ⟩ t ∷ Empty / Empty-intr ⊩Empty →
-      Γ ⊩⟨ l ⟩ u ∷ Empty / Empty-intr ⊩Empty →
       Γ ⊩⟨ l ⟩ t ≡ u ∷ Empty / Empty-intr ⊩Empty →
-      Γ ⊩Empty t ∷Empty ×
-      Γ ⊩Empty u ∷Empty ×
       Γ ⊩Empty t ≡ u ∷Empty
     lemma (emb ≤ᵘ-refl     ⊩Empty′) = lemma ⊩Empty′
     lemma (emb (≤ᵘ-step s) ⊩Empty′) = lemma (emb s ⊩Empty′)
-    lemma (noemb _) ⊩t ⊩u t≡u       = ⊩t , ⊩u , t≡u
+    lemma (noemb _)                 = idᶠ
 
 ------------------------------------------------------------------------
 -- Empty
