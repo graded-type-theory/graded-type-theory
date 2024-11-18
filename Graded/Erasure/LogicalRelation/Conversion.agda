@@ -81,7 +81,7 @@ convTermʳ′
   t®v
      with is-𝟘? p
 ... | yes PE.refl = t®v .proj₁ , λ [a]′ →
-  let Π≡Π₁ = reduction′ (A⇒Π , ΠΣₙ) (B⇒Π₁ , ΠΣₙ) A≡B
+  let Π≡Π₁ = reduction′ A⇒Π B⇒Π₁ A≡B
       F≡F₁ , G≡G₁ , _ , _ = injectivity Π≡Π₁
       [F₁≡F] = ⊩≡→⊩≡/ ([F]₁ _) $
                PE.subst₂ (_⊩⟨_⟩_≡_ _ _) (PE.sym $ wk-id _)
@@ -96,7 +96,7 @@ convTermʳ′
       SV = goodCases ([G] (idʷ ⊢Δ) [a]) ([G]₁ (idʷ ⊢Δ) [a]′) [Ga≡G₁a]
   in  convTermʳ′ ([G] (idʷ ⊢Δ) [a]) ([G]₁ (idʷ ⊢Δ) [a]′) G[a]≡G₁[a] SV t®v′
 ... | no p≢𝟘 = t®v .proj₁ , λ [a]′ a®w′ →
-  let Π≡Π₁ = reduction′ (A⇒Π , ΠΣₙ) (B⇒Π₁ , ΠΣₙ) A≡B
+  let Π≡Π₁ = reduction′ A⇒Π B⇒Π₁ A≡B
       F≡F₁ , G≡G₁ , _ , _ = injectivity Π≡Π₁
       [F₁≡F] = ⊩≡→⊩≡/ ([F]₁ _) $
                PE.subst₂ (_⊩⟨_⟩_≡_ _ _) (PE.sym $ wk-id _)
@@ -118,7 +118,7 @@ convTermʳ′ {v = v}
   (Bᵥ (BΣ _ p _) (Bᵣ F G A⇒Σ A≡A [F] [G] G-ext _)
      (Bᵣ F₁ G₁ B⇒Σ₁ A≡A₁ [F]₁ [G]₁ G-ext₁ _))
   (t₁ , t₂ , t⇒t′ , [t₁] , v₂ , t₂®v₂ , extra) =
-  let Σ≡Σ₁ = reduction′ (A⇒Σ , ΠΣₙ) (B⇒Σ₁ , ΠΣₙ) A≡B
+  let Σ≡Σ₁ = reduction′ A⇒Σ B⇒Σ₁ A≡B
       F≡F₁ , G≡G₁ , _ = Σ-injectivity Σ≡Σ₁
       [F]′ = [F] (idʷ ⊢Δ)
       [F]₁′ = [F]₁ (idʷ ⊢Δ)

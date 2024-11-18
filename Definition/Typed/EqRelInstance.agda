@@ -18,6 +18,7 @@ open import Definition.Typed.Weakening R
 open import Definition.Typed.EqualityRelation R
 
 open import Tools.Function
+open import Tools.Product
 
 private opaque
 
@@ -40,8 +41,9 @@ private opaque
       .≅-wk         → wkEq
       .≅ₜ-wk        → wkEqTerm
       .~-wk         → wkEqTerm
-      .≅-red        → reduction
-      .≅ₜ-red       → reductionₜ
+      .≅-red        → λ (A⇒* , _) (B⇒* , _) → reduction A⇒* B⇒*
+      .≅ₜ-red       → λ (A⇒* , _) (t⇒* , _) (u⇒* , _) →
+                        reductionₜ A⇒* t⇒* u⇒*
       .≅-Urefl      → refl ∘ᶠ Uⱼ
       .≅ₜ-ℕrefl     → refl ∘ᶠ ℕⱼ
       .≅ₜ-Emptyrefl → refl ∘ᶠ Emptyⱼ

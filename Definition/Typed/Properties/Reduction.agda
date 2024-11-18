@@ -319,16 +319,16 @@ opaque
 
   -- An expansion lemma for ⊢_≡_.
 
-  reduction : Γ ⊢ A ↘ A′ → Γ ⊢ B ↘ B′ → Γ ⊢ A′ ≡ B′ → Γ ⊢ A ≡ B
-  reduction (D , _) (D′ , _) A′≡B′ =
+  reduction : Γ ⊢ A ⇒* A′ → Γ ⊢ B ⇒* B′ → Γ ⊢ A′ ≡ B′ → Γ ⊢ A ≡ B
+  reduction D D′ A′≡B′ =
     trans (subset* D) (trans A′≡B′ (sym (subset* D′)))
 
 opaque
 
   -- A reduction lemma for ⊢_≡_.
 
-  reduction′ : Γ ⊢ A ↘ A′ → Γ ⊢ B ↘ B′ → Γ ⊢ A ≡ B → Γ ⊢ A′ ≡ B′
-  reduction′ (D , _) (D′ , _) A≡B =
+  reduction′ : Γ ⊢ A ⇒* A′ → Γ ⊢ B ⇒* B′ → Γ ⊢ A ≡ B → Γ ⊢ A′ ≡ B′
+  reduction′ D D′ A≡B =
     trans (sym (subset* D)) (trans A≡B (subset* D′))
 
 opaque
@@ -336,12 +336,12 @@ opaque
   -- An expansion lemma for ⊢_≡_∷_.
 
   reductionₜ :
-    Γ ⊢ A ↘ B →
-    Γ ⊢ t ↘ t′ ∷ B →
-    Γ ⊢ u ↘ u′ ∷ B →
+    Γ ⊢ A ⇒* B →
+    Γ ⊢ t ⇒* t′ ∷ B →
+    Γ ⊢ u ⇒* u′ ∷ B →
     Γ ⊢ t′ ≡ u′ ∷ B →
     Γ ⊢ t ≡ u ∷ A
-  reductionₜ (D , _) (d , _) (d′ , _) t′≡u′ =
+  reductionₜ D d d′ t′≡u′ =
     conv
       (trans (subset*Term d)
          (trans t′≡u′ (sym′ (subset*Term d′))))
@@ -352,12 +352,12 @@ opaque
   -- A reduction lemma for ⊢_≡_∷_.
 
   reductionₜ′ :
-    Γ ⊢ A ↘ B →
-    Γ ⊢ t ↘ t′ ∷ B →
-    Γ ⊢ u ↘ u′ ∷ B →
+    Γ ⊢ A ⇒* B →
+    Γ ⊢ t ⇒* t′ ∷ B →
+    Γ ⊢ u ⇒* u′ ∷ B →
     Γ ⊢ t ≡ u ∷ A →
     Γ ⊢ t′ ≡ u′ ∷ B
-  reductionₜ′ (D , _) (d , _) (d′ , _) t≡u =
+  reductionₜ′ D d d′ t≡u =
     trans (sym′ (subset*Term d))
       (trans (conv t≡u (subset* D)) (subset*Term d′))
 
