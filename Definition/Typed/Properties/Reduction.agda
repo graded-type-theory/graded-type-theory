@@ -732,29 +732,3 @@ opaque
 
   ⊢⇒⇔⊢⇒∷U : Γ ⊢ A ⇒ B ⇔ ∃ λ l → Γ ⊢ A ⇒ B ∷ U l
   ⊢⇒⇔⊢⇒∷U = inverseUnivRed , univ ∘→ proj₂
-
-------------------------------------------------------------------------
--- Variants of some "subst" rules
-
-opaque
-
-  -- A variant of app-subst for _⊢_⇒*_∷_.
-
-  app-subst* :
-    Γ ⊢ t ⇒* t′ ∷ Π p , q ▷ A ▹ B →
-    Γ ⊢ u ∷ A →
-    Γ ⊢ t ∘⟨ p ⟩ u ⇒* t′ ∘⟨ p ⟩ u ∷ B [ u ]₀
-  app-subst* (id ⊢t)        ⊢u = id (⊢t ∘ⱼ ⊢u)
-  app-subst* (t⇒t′ ⇨ t′⇒t″) ⊢u = app-subst t⇒t′ ⊢u ⇨ app-subst* t′⇒t″ ⊢u
-
-opaque
-
-  -- A variant of emptyrec-subst for _⊢_⇒*_∷_.
-
-  emptyrec-subst* :
-    Γ ⊢ t ⇒* t′ ∷ Empty →
-    Γ ⊢ A →
-    Γ ⊢ emptyrec p A t ⇒* emptyrec p A t′ ∷ A
-  emptyrec-subst* (id ⊢t)        ⊢A = id (emptyrecⱼ ⊢A ⊢t)
-  emptyrec-subst* (t⇒t′ ⇨ t′⇒t″) ⊢A =
-    emptyrec-subst ⊢A t⇒t′ ⇨ emptyrec-subst* t′⇒t″ ⊢A

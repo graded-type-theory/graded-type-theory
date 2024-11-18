@@ -27,9 +27,21 @@ open import Tools.Product
 import Tools.PropositionalEquality as PE
 
 private variable
-  Γ               : Con Term _
-  A A₁ A₂ t t₁ t₂ : Term _
+  Γ                  : Con Term _
+  A A₁ A₂ t t′ t₁ t₂ : Term _
+  p                  : M
 
+opaque
+
+  -- A variant of emptyrec-subst for _⊢_⇒*_∷_.
+
+  emptyrec-subst* :
+    Γ ⊢ t ⇒* t′ ∷ Empty →
+    Γ ⊢ A →
+    Γ ⊢ emptyrec p A t ⇒* emptyrec p A t′ ∷ A
+  emptyrec-subst* (id ⊢t)        ⊢A = id (emptyrecⱼ ⊢A ⊢t)
+  emptyrec-subst* (t⇒t′ ⇨ t′⇒t″) ⊢A =
+    emptyrec-subst ⊢A t⇒t′ ⇨ emptyrec-subst* t′⇒t″ ⊢A
 
 opaque
   unfolding emptyrec-sink

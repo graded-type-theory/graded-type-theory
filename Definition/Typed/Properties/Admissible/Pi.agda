@@ -26,9 +26,9 @@ open import Tools.Product
 import Tools.PropositionalEquality as PE
 
 private variable
-  Γ       : Con Term _
-  A B t u : Term _
-  p q     : M
+  Γ          : Con Term _
+  A B t t′ u : Term _
+  p q        : M
 
 opaque
 
@@ -88,3 +88,14 @@ opaque
     Γ ⊢ lam p t ∘⟨ p ⟩ u ≡ t [ u ]₀ ∷ B [ u ]₀
   β-red-≡ ⊢t ⊢u ok =
     subsetTerm (β-red-⇒ ⊢t ⊢u ok)
+
+opaque
+
+  -- A variant of app-subst for _⊢_⇒*_∷_.
+
+  app-subst* :
+    Γ ⊢ t ⇒* t′ ∷ Π p , q ▷ A ▹ B →
+    Γ ⊢ u ∷ A →
+    Γ ⊢ t ∘⟨ p ⟩ u ⇒* t′ ∘⟨ p ⟩ u ∷ B [ u ]₀
+  app-subst* (id ⊢t)        ⊢u = id (⊢t ∘ⱼ ⊢u)
+  app-subst* (t⇒t′ ⇨ t′⇒t″) ⊢u = app-subst t⇒t′ ⊢u ⇨ app-subst* t′⇒t″ ⊢u
