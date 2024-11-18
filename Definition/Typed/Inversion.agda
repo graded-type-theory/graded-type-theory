@@ -16,7 +16,7 @@ open Type-restrictions R
 open import Definition.Typed R
 import Definition.Typed.Inversion.Primitive R as I
 open import Definition.Typed.Properties.Well-formed R
-open import Definition.Typed.Substitution R
+open import Definition.Typed.Substitution.Primitive R
 open import Definition.Typed.Syntactic R
 
 open import Definition.Untyped M

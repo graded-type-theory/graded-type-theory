@@ -99,7 +99,7 @@ opaque
       (⊢Δ , ⊢σ) →
     case
       (let open RR in
-       suc (t [ σ ])  ∎⟨ sucⱼ (substitutionTerm ⊢t ⊢σ ⊢Δ) ⟩⇒)
+       suc (t [ σ ])  ∎⟨ sucⱼ (subst-⊢∷ ⊢t ⊢σ) ⟩⇒)
     of λ
       suc-t[σ]⇒*suc-t[σ] →
 

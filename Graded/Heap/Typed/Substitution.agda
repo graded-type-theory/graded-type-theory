@@ -23,6 +23,8 @@ open import Definition.Typed.Substitution TR
 open import Graded.Heap.Typed UR TR
 open import Graded.Heap.Untyped type-variant UR
 
+open import Tools.Function
+open import Tools.Product
 import Tools.PropositionalEquality as PE
 
 private variable
@@ -41,16 +43,15 @@ opaque mutual
 
   -- A well-formed heap is a well-formed substitution
 
-  ⊢ʰ→⊢ˢ : Δ ⊢ʰ H ∷ Γ → Δ ⊢ˢ toSubstₕ H ∷ Γ
-  ⊢ʰ→⊢ˢ ε = id
-  ⊢ʰ→⊢ˢ (⊢H ∙ ⊢t) =
-    ⊢ʰ→⊢ˢ ⊢H , ⊢t
-  ⊢ʰ→⊢ˢ (_∙●_ {Δ} {H} {A} ⊢H ⊢A) =
-    let ⊢σ = ⊢ʰ→⊢ˢ ⊢H
-        ⊢Δ = wfHeap ⊢H
-        ⊢σA = substitution ⊢A ⊢σ ⊢Δ
+  ⊢ʰ→⊢ˢʷ : Δ ⊢ʰ H ∷ Γ → Δ ⊢ˢʷ toSubstₕ H ∷ Γ
+  ⊢ʰ→⊢ˢʷ ε = ⊢ˢʷ∷ε⇔ .proj₂ ε
+  ⊢ʰ→⊢ˢʷ (⊢H ∙ ⊢t) =
+    →⊢ˢʷ∷∙ (⊢ʰ→⊢ˢʷ ⊢H) ⊢t
+  ⊢ʰ→⊢ˢʷ (_∙●_ {Δ} {H} {A} ⊢H ⊢A) =
+    let ⊢σ = ⊢ʰ→⊢ˢʷ ⊢H
+        ⊢σA = subst-⊢ ⊢A ⊢σ
     in
-    wk1Subst′ ⊢σA ⊢σ ,
+    →⊢ˢʷ∷∙ (⊢ˢʷ∷-wk1Subst ⊢σA ⊢σ) $
     var (∙ ⊢σA)
       (PE.subst (y0 ∷_∈ Δ ∙ A [ H ]ₕ) (PE.sym (wk1Subst-wk1 A)) here)
 
@@ -60,8 +61,7 @@ opaque mutual
   wfHeap {Δ = ε} ε = ε
   wfHeap (⊢H ∙ ⊢t) = wfHeap ⊢H
   wfHeap (⊢H ∙● ⊢A) =
-    let ⊢Δ = wfHeap ⊢H in
-    ∙ substitution ⊢A (⊢ʰ→⊢ˢ ⊢H) ⊢Δ
+    ∙ subst-⊢ ⊢A (⊢ʰ→⊢ˢʷ ⊢H)
 
 opaque
 
@@ -70,7 +70,7 @@ opaque
 
   substHeap : Δ ⊢ʰ H ∷ Γ → Γ ⊢ A → Δ ⊢ A [ H ]ₕ
   substHeap ⊢H ⊢A =
-    substitution ⊢A (⊢ʰ→⊢ˢ ⊢H) (wfHeap ⊢H)
+    subst-⊢ ⊢A (⊢ʰ→⊢ˢʷ ⊢H)
 
 opaque
 
@@ -79,7 +79,7 @@ opaque
 
   substHeapTerm : Δ ⊢ʰ H ∷ Γ → Γ ⊢ t ∷ A → Δ ⊢ t [ H ]ₕ ∷ A [ H ]ₕ
   substHeapTerm ⊢H ⊢t =
-    substitutionTerm ⊢t (⊢ʰ→⊢ˢ ⊢H) (wfHeap ⊢H)
+    subst-⊢∷ ⊢t (⊢ʰ→⊢ˢʷ ⊢H)
 
 opaque
 
@@ -88,7 +88,7 @@ opaque
 
   substHeapEq : Δ ⊢ʰ H ∷ Γ → Γ ⊢ A ≡ B → Δ ⊢ A [ H ]ₕ ≡ B [ H ]ₕ
   substHeapEq ⊢H ⊢A≡B =
-    substitutionEq ⊢A≡B (substRefl (⊢ʰ→⊢ˢ ⊢H)) (wfHeap ⊢H)
+    subst-⊢≡ ⊢A≡B (refl-⊢ˢʷ≡∷ (⊢ʰ→⊢ˢʷ ⊢H))
 
 opaque
 
@@ -98,7 +98,7 @@ opaque
   substHeapEqTerm : Δ ⊢ʰ H ∷ Γ → Γ ⊢ t ≡ u ∷ A
                   → Δ ⊢ t [ H ]ₕ ≡ u [ H ]ₕ ∷ A [ H ]ₕ
   substHeapEqTerm ⊢H ⊢t≡u =
-    substitutionEqTerm ⊢t≡u (substRefl (⊢ʰ→⊢ˢ ⊢H)) (wfHeap ⊢H)
+    subst-⊢≡∷ ⊢t≡u (refl-⊢ˢʷ≡∷ (⊢ʰ→⊢ˢʷ ⊢H))
 
 opaque
 
@@ -107,4 +107,4 @@ opaque
   substHeapRedTerm : Δ ⊢ʰ H ∷ Γ → Γ ⊢ t ⇒ u ∷ A
                    → Δ ⊢ t [ H ]ₕ ⇒ u [ H ]ₕ ∷ A [ H ]ₕ
   substHeapRedTerm ⊢H d =
-    substitutionRedTerm d (⊢ʰ→⊢ˢ ⊢H) (wfHeap ⊢H)
+    subst-⊢⇒∷ d (⊢ʰ→⊢ˢʷ ⊢H)

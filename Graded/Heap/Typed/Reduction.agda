@@ -249,8 +249,8 @@ opaque
           wk (liftn ρ′ 2) u [ consSubst (consSubst (toSubstₕ H) (wk ρ t₁ [ H ]ₕ)) (wk ρ t₂ [ H ]ₕ) ]
             ≡˘⟨ PE.cong (λ x → wk (liftn ρ′ 2) u [ consSubst (toSubstₕ H₁) x ]) (step-consSubst t₂) ⟩
           wk (liftn ρ′ 2) u [ H₂ ]ₕ ∎
-        ⊢u′ = substitutionTerm {σ = consSubst (sgSubst (wk ρ t₁ [ H ]ₕ)) (wk ρ t₂ [ H ]ₕ)}
-                ⊢u (singleSubst ⊢t₁ , ⊢t₂) (wfTerm ⊢t₁)
+        ⊢u′ = subst-⊢∷ {σ = consSubst (sgSubst (wk ρ t₁ [ H ]ₕ)) (wk ρ t₂ [ H ]ₕ)}
+                ⊢u (→⊢ˢʷ∷∙ (⊢ˢʷ∷-sgSubst ⊢t₁) ⊢t₂)
         A₊≡ = begin
            wk (lift ρ′) A [ H ]⇑ₕ [ prodʷ p (var x1) (var x0) ]↑² [ wk ρ t₁ [ H ]ₕ , wk ρ t₂ [ H ]ₕ ]₁₀
              ≡˘⟨ substCompProdrec (wk (lift ρ′) A [ H ]⇑ₕ) _ _ idSubst ⟩

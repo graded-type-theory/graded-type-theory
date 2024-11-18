@@ -436,7 +436,7 @@ opaque
          prodⱼ (escape $ ⊩ᵛ→⊩ˢ∷→⊩[⇑] ⊩B ⊩σ)
            (escape-⊩∷ $ ⊩ᵛ∷→⊩ˢ∷→⊩[]∷ ⊩t ⊩σ)
            (PE.subst (_⊢_∷_ _ _) (singleSubstLift B _) $
-            substitutionTerm ⊢u (escape-⊩ˢ∷ ⊩σ .proj₂) ⊢Δ)
+            subst-⊢∷ ⊢u (escape-⊩ˢ∷ ⊩σ .proj₂))
            ok)
       , ®∷-⇒* u[σ′]⇒*v₂ u[σ]®
       , (λ p≡𝟘 →
@@ -764,8 +764,7 @@ opaque
         r≡𝟘-lemma PE.refl =
           case r≡𝟘→k≡0 PE.refl of λ {
             PE.refl →
-          case red-Σ $
-               substitutionTerm ⊢t (escape-⊩ˢ∷ ⊩σ .proj₂) ⊢Δ of λ {
+          case red-Σ (subst-⊢∷ ⊢t (escape-⊩ˢ∷ ⊩σ .proj₂)) of λ {
             (_ , ne n , _) →
               ⊥-elim (noClosedNe n);
             (_ , prodₙ {t = t₁} {u = t₂} , t[σ]⇒*t₁,t₂) →

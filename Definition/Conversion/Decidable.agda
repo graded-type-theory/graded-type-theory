@@ -229,8 +229,7 @@ private opaque
   dec~↑-prodrec-cong
     {p₁} {q₁} {A₁} {B₁} {p₂} {q₂} {A₂} {B₂}
     ⊢t₁ ⊢t₂ (yes (PE.refl , PE.refl , D , t₁~t₂)) dec₁ dec₃ =
-    let _ , _ , ok             = inversion-ΠΣ (syntacticTerm ⊢t₁)
-        D-whnf , t₁-ne , t₂-ne = ne~↓ t₁~t₂
+    let D-whnf , t₁-ne , t₂-ne = ne~↓ t₁~t₂
         _ , ⊢t₁′ , ⊢t₂′        = syntacticEqTerm (soundness~↓ t₁~t₂)
         Σ₁≡D                   = neTypeEq t₁-ne ⊢t₁ ⊢t₁′
         Σ₁≡Σ₂                  =
@@ -249,7 +248,7 @@ private opaque
             (symConEq ΓA₁B₁≡ΓA₂B₂)
              (_⊢_≡_.sym $
               stabilityEq ΓA₁B₁≡ΓA₂B₂ $
-              subst↑²TypeEq-prod (soundnessConv↑ C₁≡C₂) ok)) of λ where
+              subst↑²TypeEq-prod (soundnessConv↑ C₁≡C₂))) of λ where
       (yes (C₁≡C₂ , u₁≡u₂)) →
         yes $
         case ΠΣ≡Whnf Σ₁≡D D-whnf of λ {

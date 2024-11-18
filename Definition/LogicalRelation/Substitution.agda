@@ -22,6 +22,7 @@ open import Definition.LogicalRelation.Properties R
 
 open import Definition.Typed R
 open import Definition.Typed.Properties R
+open import Definition.Typed.Substitution R
 open import Definition.Typed.Weakening R as TW using (_∷_⊇_; _∷ʷ_⊇_)
 
 open import Definition.Untyped M
@@ -1215,11 +1216,11 @@ opaque
 
   -- An escape lemma for _⊩ˢ_∷_.
 
-  escape-⊩ˢ∷ : Δ ⊩ˢ σ ∷ Γ → ⊢ Δ × Δ ⊢ˢ σ ∷ Γ
+  escape-⊩ˢ∷ : Δ ⊩ˢ σ ∷ Γ → ⊢ Δ × Δ ⊢ˢʷ σ ∷ Γ
   escape-⊩ˢ∷ {Δ} {σ} {Γ = ε} =
-    Δ ⊩ˢ σ ∷ ε        ⇔⟨ ⊩ˢ∷ε⇔ ⟩→
-    ⊢ Δ               →⟨ _, id ⟩
-    ⊢ Δ × Δ ⊢ˢ σ ∷ ε  □
+    Δ ⊩ˢ σ ∷ ε         ⇔⟨ ⊩ˢ∷ε⇔ ⟩→
+    ⊢ Δ                →⟨ (λ ⊢Δ → ⊢Δ , ⊢ˢʷ∷ε⇔ .proj₂ ⊢Δ) ⟩
+    ⊢ Δ × Δ ⊢ˢʷ σ ∷ ε  □
   escape-⊩ˢ∷ {Δ} {σ} {Γ = Γ ∙ A} =
     Δ ⊩ˢ σ ∷ Γ ∙ A                                              ⇔⟨ ⊩ˢ∷∙⇔ ⟩→
 
@@ -1227,30 +1228,31 @@ opaque
     Δ ⊩ˢ tail σ ∷ Γ                                             →⟨ (λ ((_ , _ , ⊩σ₀) , ⊩σ₊) →
                                                                       escape-⊩∷ ⊩σ₀ , escape-⊩ˢ∷ ⊩σ₊) ⟩
 
-    Δ ⊢ head σ ∷ A [ tail σ ] × ⊢ Δ × Δ ⊢ˢ tail σ ∷ Γ           →⟨ (λ (⊢σ₀ , ⊢Δ , ⊢σ₊) → ⊢Δ , (⊢σ₊ , ⊢σ₀)) ⟩
+    Δ ⊢ head σ ∷ A [ tail σ ] × ⊢ Δ × Δ ⊢ˢʷ tail σ ∷ Γ          →⟨ (λ (⊢σ₀ , ⊢Δ , ⊢σ₊) → ⊢Δ , →⊢ˢʷ∷∙ ⊢σ₊ ⊢σ₀) ⟩
 
-    ⊢ Δ × Δ ⊢ˢ σ ∷ Γ ∙ A                                        □
+    ⊢ Δ × Δ ⊢ˢʷ σ ∷ Γ ∙ A                                       □
 
 opaque
 
   -- An escape lemma for _⊩ˢ_≡_∷_.
 
-  escape-⊩ˢ≡∷ : Δ ⊩ˢ σ₁ ≡ σ₂ ∷ Γ → ⊢ Δ × Δ ⊢ˢ σ₁ ≡ σ₂ ∷ Γ
+  escape-⊩ˢ≡∷ : Δ ⊩ˢ σ₁ ≡ σ₂ ∷ Γ → ⊢ Δ × Δ ⊢ˢʷ σ₁ ≡ σ₂ ∷ Γ
   escape-⊩ˢ≡∷ {Δ} {σ₁} {σ₂} {Γ = ε} =
-    Δ ⊩ˢ σ₁ ≡ σ₂ ∷ ε        ⇔⟨ ⊩ˢ≡∷ε⇔ ⟩→
-    ⊢ Δ                     →⟨ _, id ⟩
-    ⊢ Δ × Δ ⊢ˢ σ₁ ≡ σ₂ ∷ ε  □
+    Δ ⊩ˢ σ₁ ≡ σ₂ ∷ ε         ⇔⟨ ⊩ˢ≡∷ε⇔ ⟩→
+    ⊢ Δ                      →⟨ (λ ⊢Δ → ⊢Δ , ⊢ˢʷ≡∷ε⇔ .proj₂ ⊢Δ) ⟩
+    ⊢ Δ × Δ ⊢ˢʷ σ₁ ≡ σ₂ ∷ ε  □
   escape-⊩ˢ≡∷ {Δ} {σ₁} {σ₂} {Γ = Γ ∙ A} =
     Δ ⊩ˢ σ₁ ≡ σ₂ ∷ Γ ∙ A                                            ⇔⟨ ⊩ˢ≡∷∙⇔ ⟩→
 
     (∃ λ l →
      (Γ ⊩ᵛ⟨ l ⟩ A) × Δ ⊩⟨ l ⟩ head σ₁ ≡ head σ₂ ∷ A [ tail σ₁ ]) ×
-    Δ ⊩ˢ tail σ₁ ≡ tail σ₂ ∷ Γ                                      →⟨ (λ ((_ , _ , σ₁₀≡σ₂₀) , σ₁₊≡σ₂₊) →
-                                                                          ≅ₜ-eq (escape-⊩≡∷ σ₁₀≡σ₂₀) , escape-⊩ˢ≡∷ σ₁₊≡σ₂₊) ⟩
+    Δ ⊩ˢ tail σ₁ ≡ tail σ₂ ∷ Γ                                      →⟨ (λ ((_ , ⊩A , σ₁₀≡σ₂₀) , σ₁₊≡σ₂₊) →
+                                                                          escape-⊩ᵛ ⊩A , ≅ₜ-eq (escape-⊩≡∷ σ₁₀≡σ₂₀) , escape-⊩ˢ≡∷ σ₁₊≡σ₂₊) ⟩
+    (Γ ⊢ A) ×
     Δ ⊢ head σ₁ ≡ head σ₂ ∷ A [ tail σ₁ ] ×
-    ⊢ Δ × Δ ⊢ˢ tail σ₁ ≡ tail σ₂ ∷ Γ                                →⟨ (λ (σ₁₀≡σ₂₀ , ⊢Δ , σ₁₊≡σ₂₊) → ⊢Δ , (σ₁₊≡σ₂₊ , σ₁₀≡σ₂₀)) ⟩
+    ⊢ Δ × Δ ⊢ˢʷ tail σ₁ ≡ tail σ₂ ∷ Γ                               →⟨ (λ (⊢A , σ₁₀≡σ₂₀ , ⊢Δ , σ₁₊≡σ₂₊) → ⊢Δ , →⊢ˢʷ≡∷∙ ⊢A σ₁₊≡σ₂₊ σ₁₀≡σ₂₀) ⟩
 
-    ⊢ Δ × Δ ⊢ˢ σ₁ ≡ σ₂ ∷ Γ ∙ A                                      □
+    ⊢ Δ × Δ ⊢ˢʷ σ₁ ≡ σ₂ ∷ Γ ∙ A                                     □
 
 ------------------------------------------------------------------------
 -- Embedding

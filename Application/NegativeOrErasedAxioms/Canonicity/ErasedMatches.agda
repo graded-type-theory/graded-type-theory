@@ -113,7 +113,7 @@ module Counterexample
     , PE.refl
     , ε ∙𝟘
     , inhabited-consistent
-        (singleSubst (prodⱼ εℕ⊢ℕ (zeroⱼ ε) (zeroⱼ ε) _))
+        (⊢ˢʷ∷-sgSubst (prodⱼ εℕ⊢ℕ (zeroⱼ ε) (zeroⱼ ε) _))
     , (λ { (.zero , zeroₙ , t≡u) → lem (completeEqTerm t≡u)
          ; (.(suc _) , sucₙ numU , t≡u) → lem′ (completeEqTerm t≡u)
          })

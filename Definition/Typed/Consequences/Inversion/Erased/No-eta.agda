@@ -96,11 +96,13 @@ opaque
         λ ⊢zero″ →
       case substTypeEq G≡G′ (refl ⊢zero″)  of
         λ G₀≡G′₀ →
-      let ⊢σ : Γ′ ⊢ˢ consSubst (sgSubst zero) zero ∷ (Γ′ ∙ F ∙ G)
-          ⊢σ = (idSubst′ ε , PE.subst (Γ′ ⊢ zero ∷_) (PE.sym (subst-id F)) ⊢zero″)
-                , conv ⊢zero′ (sym G₀≡G′₀)
+      let ⊢σ : Γ′ ⊢ˢʷ consSubst (sgSubst zero) zero ∷ (Γ′ ∙ F ∙ G)
+          ⊢σ = →⊢ˢʷ∷∙
+                 (→⊢ˢʷ∷∙ (⊢ˢʷ∷-idSubst ε) $
+                  PE.subst (_⊢_∷_ _ _) (PE.sym (subst-id F)) ⊢zero″)
+                 (conv ⊢zero′ (sym G₀≡G′₀))
       in case PE.subst (_⊢_≡_ _ _) (wk1-tail G)
-               (substitutionEq Unit≡′ (substRefl ⊢σ) ε) of
+               (subst-⊢≡ Unit≡′ (refl-⊢ˢʷ≡∷ ⊢σ)) of
         λ Unit≡″ →
       l , sym (trans Unit≡″ (trans G₀≡G′₀ ≡ℕ′)) }
 

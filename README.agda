@@ -612,13 +612,13 @@ Theorem-4-4b = Definition.Typed.Properties.whrDet*
 --   proved using the logical relation.)
 
 substitutionAdmissible =
-  Definition.Typed.Substitution.substitution
+  Definition.Typed.Substitution.subst-⊢
 substitutionAdmissibleEq =
-  Definition.Typed.Substitution.substitutionEq
+  Definition.Typed.Substitution.subst-⊢≡
 substitutionAdmissibleTerm =
-  Definition.Typed.Substitution.substitutionTerm
+  Definition.Typed.Substitution.subst-⊢∷
 substitutionAdmissibleEqTerm =
-  Definition.Typed.Substitution.substitutionEqTerm
+  Definition.Typed.Substitution.subst-⊢≡∷
 
 -- * Subject reduction. (These properties are no longer proved using
 --   the logical relation.)

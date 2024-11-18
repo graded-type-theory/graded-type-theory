@@ -468,20 +468,18 @@ private module Vec-lemmas (⊢A : Γ ⊢ A ∷ U l) where
 
   ⊢Vec-body₂′ :
     Γ ∙ ℕ ⊢ Vec-body₂ l [ liftSubst (consSubst (toSubst wk₀) A) ] ∷ U l
-  ⊢Vec-body₂′ = substitutionTerm
+  ⊢Vec-body₂′ = subst-⊢∷
     {σ = liftSubst (consSubst (toSubst wk₀) A)}
     ⊢Vec-body₂
-    (liftSubst′ ⊢Γ U⊢ℕ (DT.id , ⊢A))
-    ⊢Γℕ
+    (⊢ˢʷ∷-⇑′ U⊢ℕ (→⊢ˢʷ∷∙ (⊢ˢʷ∷ε⇔ .proj₂ ⊢Γ) ⊢A))
 
   ⊢Vec-body₂″ :
     Γ ∙ A ∙ ℕ ⊢
     Vec-body₂ l [ liftSubst (consSubst (toSubst wk₀) (wk1 A)) ] ∷ U l
-  ⊢Vec-body₂″ = substitutionTerm
+  ⊢Vec-body₂″ = subst-⊢∷
     {σ = liftSubst (consSubst (toSubst wk₀) (wk1 A))}
     ⊢Vec-body₂
-    (liftSubst′ ⊢ΓA U⊢ℕ (DT.id , W.wkTerm₁ (univ ⊢A) ⊢A))
-    ⊢ΓAℕ
+    (⊢ˢʷ∷-⇑′ U⊢ℕ (→⊢ˢʷ∷∙ (⊢ˢʷ∷ε⇔ .proj₂ ⊢ΓA) (W.wkTerm₁ (univ ⊢A) ⊢A)))
 
 -- A computation rule for Vec.
 
@@ -775,15 +773,12 @@ opaque
     wk wk₀ Non-zero ∘⟨ ω ⟩ var x1 ∷ U 0
   ⊢Non-zero-1 = W.wkTerm₁ (univ ⊢Vec-2-0) ⊢Non-zero-0
 
-  ⊢Uℕ∙Vec = ∙ univ ⊢Vec-1-0
-
   ⊢Non-zero-zero :
     ε ∙ U l ∙ ℕ ∙ wk wk₀ (Vec l) ∘⟨ ω ⟩ var x1 ∘⟨ ω ⟩ zero ⊢
     wk wk₀ Non-zero ∘⟨ ω ⟩ zero ∷ U 0
-  ⊢Non-zero-zero = substitutionTerm
+  ⊢Non-zero-zero = subst-⊢∷
     ⊢Non-zero-1
-    (liftSubst′ ⊢Uℕ (univ ⊢Vec-2-0) (singleSubst (zeroⱼ ⊢Uℕ)))
-    ⊢Uℕ∙Vec
+    (⊢ˢʷ∷-⇑′ (univ ⊢Vec-2-0) (⊢ˢʷ∷-sgSubst (zeroⱼ ⊢Uℕ)))
 
   ⊢Uℕ∙Vec∙Non-zero  = ∙ univ ⊢Non-zero-zero
   ⊢Uℕℕ∙Vec∙Non-zero = ∙ univ ⊢Non-zero-1
@@ -812,26 +807,24 @@ opaque
     ε ∙ U l ∙ ℕ ∙ ℕ ∙
     Π ω , q ▷ wk wk₀ (Vec l) ∘⟨ ω ⟩ var x2 ∘⟨ ω ⟩ var x0 ▹
       Π 𝟘 , p ▷ wk wk₀ Non-zero ∘⟨ ω ⟩ var x1 ▹ var x4
-  ⊢Uℕℕ∙ΠΠ = ∙ univ Uℕℕ⊢ΠΠ∷U
 
   ⊢Vec-3-1+1 :
     Uℕℕ∙ΠΠ ⊢ wk wk₀ (Vec l) ∘⟨ ω ⟩ var x3 ∘⟨ ω ⟩ suc (var x1) ∷ U l
-  ⊢Vec-3-1+1 = substitutionTerm
+  ⊢Vec-3-1+1 = subst-⊢∷
     ⊢Vec-2-0
-    (wk1Subst′ (univ Uℕℕ⊢ΠΠ∷U) (singleSubst↑ (sucⱼ (var ⊢Uℕℕ here))))
-    ⊢Uℕℕ∙ΠΠ
+    (⊢ˢʷ∷-wk1Subst (univ Uℕℕ⊢ΠΠ∷U) $
+     ⊢ˢʷ∷-[][]↑ {k = 1} (sucⱼ (var ⊢Uℕℕ here)))
 
   Uℕℕ∙ΠΠ∙Vec =
     Uℕℕ∙ΠΠ ∙ wk wk₀ (Vec l) ∘⟨ ω ⟩ var x3 ∘⟨ ω ⟩ suc (var x1)
-  ⊢Uℕℕ∙ΠΠ∙Vec = ∙ univ ⊢Vec-3-1+1
 
   ⊢Non-zero-1+2 :
     Uℕℕ∙ΠΠ∙Vec ⊢ wk wk₀ Non-zero ∘⟨ ω ⟩ suc (var x2) ∷ U 0
-  ⊢Non-zero-1+2 = substitutionTerm
+  ⊢Non-zero-1+2 = subst-⊢∷
     ⊢Non-zero-0
-    (wk1Subst′ (univ ⊢Vec-3-1+1) $
-     wk1Subst′ (univ Uℕℕ⊢ΠΠ∷U) (singleSubst↑ (sucⱼ (var ⊢Uℕℕ here))))
-    ⊢Uℕℕ∙ΠΠ∙Vec
+    (⊢ˢʷ∷-wk1Subst (univ ⊢Vec-3-1+1) $
+     ⊢ˢʷ∷-wk1Subst (univ Uℕℕ⊢ΠΠ∷U) $
+     ⊢ˢʷ∷-[][]↑ {k = 1} (sucⱼ (var ⊢Uℕℕ here)))
 
   Uℕℕ∙ΠΠ∙Vec∙Non-zero = Uℕℕ∙ΠΠ∙Vec ∙ wk wk₀ Non-zero ∘⟨ ω ⟩ suc (var x2)
 

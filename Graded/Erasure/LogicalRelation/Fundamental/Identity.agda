@@ -157,7 +157,7 @@ opaque
     case escape $ ⊩ᵛ→⊩ˢ∷→⊩[⇑] ⊩B ⊩σ of λ
       ⊢B[σ⇑] →
     case PE.subst (_⊢_∷_ _ _) (singleSubstLift B _) $
-         substitutionTerm ⊢u (escape-⊩ˢ∷ ⊩σ .proj₂) ⊢Δ of λ
+         subst-⊢∷ ⊢u (escape-⊩ˢ∷ ⊩σ .proj₂) of λ
       ⊢u[σ] →
     case ⊩ᵛ∷→⊩ˢ∷→⊩[]∷ (fundamental-⊩ᵛ∷ ⊢v .proj₂) ⊩σ of λ
       ⊩v[σ] →
@@ -224,7 +224,7 @@ opaque
          escape $ ⊩ᵛ→⊩ˢ∷→⊩[⇑⇑] ⊩B ⊩σ of λ
       ⊢B[σ⇑⇑] →
     case PE.subst (_⊢_∷_ _ _) ([,]-[]-commute B) $
-         substitutionTerm ⊢u (escape-⊩ˢ∷ ⊩σ .proj₂) ⊢Δ of λ
+         subst-⊢∷ ⊢u (escape-⊩ˢ∷ ⊩σ .proj₂) of λ
       ⊢u[σ] →
     case ⊩ᵛ∷→⊩ˢ∷→⊩[]∷ (fundamental-⊩ᵛ∷ ⊢w .proj₂) ⊩σ of λ
       ⊩w[σ] →

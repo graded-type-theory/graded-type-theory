@@ -130,7 +130,7 @@ mutual
         prodrec r p q C′ u′ v′
       , (                                                       $⟨ v′-nf ⟩
          Γ ∙ A ∙ B ⊢nf v′ ∷ C [ prodʷ p (var x1) (var x0) ]↑²   →⟨ flip _⊢nf_∷_.convₙ $
-                                                                   subst↑²TypeEq-prod C≡C′ ok ⟩
+                                                                   subst↑²TypeEq-prod C≡C′ ⟩
          Γ ∙ A ∙ B ⊢nf v′ ∷ C′ [ prodʷ p (var x1) (var x0) ]↑²  →⟨ flip (prodrecₙ C′-nf u′-ne) ok ⟩
          Γ ⊢ne prodrec r p q C′ u′ v′ ∷ C′ [ u′ ]₀              →⟨ flip _⊢ne_∷_.convₙ $ _⊢_≡_.sym $
                                                                    substTypeEq C≡C′ u≡u′ ⟩

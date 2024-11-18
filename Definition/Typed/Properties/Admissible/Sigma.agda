@@ -24,7 +24,7 @@ open import Definition.Typed.Properties.Reduction R
 open import Definition.Typed.Properties.Well-formed R
 open import Definition.Typed.Reasoning.Reduction R
 open import Definition.Typed.Reasoning.Term R
-open import Definition.Typed.Substitution R
+open import Definition.Typed.Substitution.Primitive R
 open import Definition.Typed.Weakening R as W hiding (wk)
 open import Definition.Typed.Well-formed R
 
@@ -405,18 +405,14 @@ opaque
     Γ ⊢ t ∷ Σˢ p , q ▷ A ▹ B →
     Γ ∙ A ∙ B ⊢ u ∷ C [ prodˢ p (var x1) (var x0) ]↑² →
     Γ ⊢ prodrecˢ p t u ∷ C [ t ]₀
-  prodrecˢⱼ {Γ} {p} {q} {A} {B} {C} {t} {u} ⊢C ⊢t ⊢u =
-    let ⊢Γ = wfTerm ⊢t in                                        $⟨ fstⱼ′ ⊢t , sndⱼ′ ⊢t ⟩
+  prodrecˢⱼ {Γ} {p} {q} {A} {B} {C} {t} {u} ⊢C ⊢t ⊢u =           $⟨ fstⱼ′ ⊢t , sndⱼ′ ⊢t ⟩
 
     Γ ⊢ fst p t ∷ A ×
-    Γ ⊢ snd p t ∷ B [ fst p t ]₀                                 →⟨ (λ (hyp₁ , hyp₂) →
-                                                                       PE.subst (_ ⊢ _ ∷_) (PE.sym (subst-id _)) hyp₁ , hyp₂) ⟩
-    Γ ⊢ fst p t ∷ A [ idSubst ] ×
-    Γ ⊢ snd p t ∷ B [ fst p t ]₀                                 →⟨ (λ (hyp₁ , hyp₂) → (idSubst′ ⊢Γ , hyp₁) , hyp₂) ⟩
+    Γ ⊢ snd p t ∷ B [ fst p t ]₀                                 →⟨ (λ (hyp₁ , hyp₂) → →⊢ˢʷ∷∙ (⊢ˢʷ∷-sgSubst hyp₁) hyp₂) ⟩
 
-    Γ ⊢ˢ
+    Γ ⊢ˢʷ
       consSubst (consSubst idSubst (fst p t)) (snd p t) ∷
-      Γ ∙ A ∙ B                                                  →⟨ flip (substitutionTerm ⊢u) ⊢Γ ⟩
+      Γ ∙ A ∙ B                                                  →⟨ subst-⊢∷ ⊢u ⟩
 
     Γ ⊢
       prodrecˢ p t u ∷
@@ -436,23 +432,20 @@ opaque
     Σˢ-allowed p q′ →
     Γ ⊢ prodrecˢ p (prodˢ p t u) v ≡ v [ t , u ]₁₀ ∷ C [ prodˢ p t u ]₀
   prodrecˢ-β {Γ} {t} {A} {u} {B} {v} {p} C ⊢t ⊢u ⊢v ok =
-    let ⊢Γ = wfTerm ⊢t
-        ⊢B = ⊢∙→⊢ (wfTerm ⊢v)
-    in                                                                   $⟨ Σ-β₁-≡ ⊢B ⊢t ⊢u ok
+    let ⊢B = ⊢∙→⊢ (wfTerm ⊢v) in                                         $⟨ Σ-β₁-≡ ⊢B ⊢t ⊢u ok
                                                                           , Σ-β₂-≡ ⊢B ⊢t ⊢u ok
                                                                           ⟩
     Γ ⊢ fst p (prodˢ p t u) ≡ t ∷ A ×
     Γ ⊢ snd p (prodˢ p t u) ≡ u ∷ B [ fst p (prodˢ p t u) ]₀             →⟨ (λ (hyp₁ , hyp₂) →
-                                                                                 PE.subst (_ ⊢ _ ≡ _ ∷_) (PE.sym $ subst-id _) hyp₁
-                                                                               , conv hyp₂ (substTypeEq (refl ⊢B) hyp₁)) ⟩
-    Γ ⊢ fst p (prodˢ p t u) ≡ t ∷ A [ idSubst ] ×
+                                                                               hyp₁ , conv hyp₂ (substTypeEq (refl ⊢B) hyp₁)) ⟩
+    Γ ⊢ fst p (prodˢ p t u) ≡ t ∷ A ×
     Γ ⊢ snd p (prodˢ p t u) ≡ u ∷ B [ t ]₀                               →⟨ (λ (hyp₁ , hyp₂) →
-                                                                               (substRefl (idSubst′ ⊢Γ) , sym′ hyp₁) , sym′ hyp₂) ⟩
-    Γ ⊢ˢ
+                                                                               →⊢ˢʷ≡∷∙ ⊢B (⊢ˢʷ≡∷-sgSubst (sym′ hyp₁)) (sym′ hyp₂)) ⟩
+    Γ ⊢ˢʷ
       consSubst (consSubst idSubst t) u ≡
       consSubst (consSubst idSubst (fst p (prodˢ p t u)))
         (snd p (prodˢ p t u)) ∷
-      Γ ∙ A ∙ B                                                          →⟨ flip (substitutionEqTerm (refl ⊢v)) ⊢Γ ⟩
+      Γ ∙ A ∙ B                                                          →⟨ subst-⊢≡∷ (refl ⊢v) ⟩
 
     Γ ⊢
       v [ t , u ]₁₀ ≡
@@ -472,20 +465,17 @@ opaque
     Γ ⊢ prodrecˢ p t₁ u₁ ≡ prodrecˢ p t₂ u₂ ∷ C [ t₁ ]₀
   prodrecˢ-cong
     {Γ} {p} {q} {A} {B} {C} {t₁} {t₂} {u₁} {u₂} ⊢C t₁≡t₂ u₁≡u₂ =
-    let ⊢Γ          = wfEqTerm t₁≡t₂
-        _ , ⊢t₁ , _ = wf-⊢≡∷ t₁≡t₂
+    let ⊢Σ , ⊢t₁ , _ = wf-⊢≡∷ t₁≡t₂
+        _ , ⊢B , _   = inversion-ΠΣ ⊢Σ
     in                                                             $⟨ fst-cong′ t₁≡t₂ , snd-cong′ t₁≡t₂ ⟩
 
     Γ ⊢ fst p t₁ ≡ fst p t₂ ∷ A ×
-    Γ ⊢ snd p t₁ ≡ snd p t₂ ∷ B [ fst p t₁ ]₀                      →⟨ (λ (hyp₁ , hyp₂) →
-                                                                         PE.subst (_ ⊢ _ ≡ _ ∷_) (PE.sym (subst-id _)) hyp₁ , hyp₂) ⟩
-    Γ ⊢ fst p t₁ ≡ fst p t₂ ∷ A [ idSubst ] ×
-    Γ ⊢ snd p t₁ ≡ snd p t₂ ∷ B [ fst p t₁ ]₀                      →⟨ (λ (hyp₁ , hyp₂) → (substRefl (idSubst′ ⊢Γ) , hyp₁) , hyp₂) ⟩
+    Γ ⊢ snd p t₁ ≡ snd p t₂ ∷ B [ fst p t₁ ]₀                      →⟨ (λ (hyp₁ , hyp₂) → →⊢ˢʷ≡∷∙ ⊢B (⊢ˢʷ≡∷-sgSubst hyp₁) hyp₂) ⟩
 
-    Γ ⊢ˢ
+    Γ ⊢ˢʷ
       consSubst (consSubst idSubst (fst p t₁)) (snd p t₁) ≡
       consSubst (consSubst idSubst (fst p t₂)) (snd p t₂) ∷
-      Γ ∙ A ∙ B                                                    →⟨ flip (substitutionEqTerm u₁≡u₂) ⊢Γ ⟩
+      Γ ∙ A ∙ B                                                    →⟨ subst-⊢≡∷ u₁≡u₂ ⟩
 
     Γ ⊢
       prodrecˢ p t₁ u₁ ≡
@@ -562,20 +552,19 @@ private opaque
     (Γ ∙ A ∙ B ⊢ wk2 A ≡ wk2 A)                    →⟨ PE.subst₂ (_ ⊢_≡_) PE.refl (wk[]≡[] 2) ⟩
     (Γ ∙ A ∙ B ⊢ wk2 A ≡ A [ wkSubst 2 idSubst ])  □
 
-  ⊢ˢwk1Subst-idSubst :
+  ⊢ˢʷwk1Subst-idSubst :
     Γ ⊢ A →
-    Γ ∙ A ⊢ˢ wk1Subst idSubst ∷ Γ
-  ⊢ˢwk1Subst-idSubst {Γ} {A} ⊢A =  $⟨ idSubst′ (wf ⊢A) ⟩
-    Γ ⊢ˢ idSubst ∷ Γ               →⟨ wk1Subst′ ⊢A ⟩
-    Γ ∙ A ⊢ˢ wk1Subst idSubst ∷ Γ  □
+    Γ ∙ A ⊢ˢʷ wk1Subst idSubst ∷ Γ
+  ⊢ˢʷwk1Subst-idSubst {Γ} {A} ⊢A =  $⟨ ⊢ˢʷ∷-idSubst (wf ⊢A) ⟩
+    Γ ⊢ˢʷ idSubst ∷ Γ               →⟨ ⊢ˢʷ∷-wk1Subst ⊢A ⟩
+    Γ ∙ A ⊢ˢʷ wk1Subst idSubst ∷ Γ  □
 
-  ⊢ˢwkSubst-2-idSubst :
+  ⊢ˢʷwkSubst-2-idSubst :
     Γ ∙ A ⊢ B →
-    Γ ∙ A ∙ B ⊢ˢ wkSubst 2 idSubst ∷ Γ
-  ⊢ˢwkSubst-2-idSubst {Γ} {A} {B} ⊢B =
-                                        $⟨ ⊢ˢwk1Subst-idSubst (⊢∙→⊢ (wf ⊢B)) ⟩
-    Γ ∙ A ⊢ˢ wk1Subst idSubst ∷ Γ       →⟨ wk1Subst′ ⊢B ⟩
-    Γ ∙ A ∙ B ⊢ˢ wkSubst 2 idSubst ∷ Γ  □
+    Γ ∙ A ∙ B ⊢ˢʷ wkSubst 2 idSubst ∷ Γ
+  ⊢ˢʷwkSubst-2-idSubst {Γ} {A} {B} ⊢B =  $⟨ ⊢ˢʷwk1Subst-idSubst (⊢∙→⊢ (wf ⊢B)) ⟩
+    Γ ∙ A ⊢ˢʷ wk1Subst idSubst ∷ Γ       →⟨ ⊢ˢʷ∷-wk1Subst ⊢B ⟩
+    Γ ∙ A ∙ B ⊢ˢʷ wkSubst 2 idSubst ∷ Γ  □
 
 ------------------------------------------------------------------------
 -- Typing rules for fstʷ
@@ -707,8 +696,8 @@ private opaque
   ⊢≡[fstʷ] :
     Γ ⊢ t ∷ Σʷ p , q ▷ A ▹ B →
     Γ ⊢ B [ fstʷ p (wk1 A) (var x0) ]↑ [ t ]₀ ≡ B [ fstʷ p A t ]₀
-  ⊢≡[fstʷ] {Γ} {t} {p} {A} {B} ⊢t =                                  $⟨ substitution (inversion-ΠΣ (wf-⊢∷ ⊢t) .proj₂ .proj₁)
-                                                                          (singleSubst (fstʷⱼ ⊢t)) (wfTerm ⊢t) ⟩
+  ⊢≡[fstʷ] {Γ} {t} {p} {A} {B} ⊢t =                                  $⟨ subst-⊢ (inversion-ΠΣ (wf-⊢∷ ⊢t) .proj₂ .proj₁)
+                                                                          (⊢ˢʷ∷-sgSubst (fstʷⱼ ⊢t)) ⟩
     Γ ⊢ B [ fstʷ p A t ]₀                                            →⟨ refl ⟩
     (Γ ⊢ B [ fstʷ p A t ]₀ ≡ B [ fstʷ p A t ]₀)                      →⟨ PE.subst₂ (_ ⊢_≡_) ([fstʷ] B) PE.refl ⟩
     (Γ ⊢ B [ fstʷ p (wk1 A) (var x0) ]↑ [ t ]₀ ≡ B [ fstʷ p A t ]₀)  □
@@ -754,12 +743,12 @@ private opaque
     Γ ∙ A ∙ B ⊢
       wk1 B ≡
       B [ fstʷ p (wk1 A) (var x0) ]↑ [ prodʷ p (var x1) (var x0) ]↑²
-  ⊢≡[fstʷ-0]↑[1,0]↑² {Γ} {A} {B} {p} ⊢B ok =                          $⟨ substRefl (⊢ˢwkSubst-2-idSubst ⊢B) , lemma ⟩
-    Γ ∙ A ∙ B ⊢ˢ
+  ⊢≡[fstʷ-0]↑[1,0]↑² {Γ} {A} {B} {p} ⊢B ok =                          $⟨ →⊢ˢʷ≡∷∙ (⊢∙→⊢ (wf ⊢B)) (refl-⊢ˢʷ≡∷ (⊢ˢʷwkSubst-2-idSubst ⊢B)) lemma ⟩
+    Γ ∙ A ∙ B ⊢ˢʷ
       consSubst (wkSubst 2 idSubst) (var x1) ≡
       consSubst (wkSubst 2 idSubst)
         (fstʷ p (wk2 A) (prodʷ p (var x1) (var x0))) ∷
-      Γ ∙ A                                                           →⟨ flip (substitutionEq (refl ⊢B)) (∙ ⊢B) ⟩
+      Γ ∙ A                                                           →⟨ subst-⊢≡ (refl ⊢B) ⟩
 
     Γ ∙ A ∙ B ⊢
       B [ var x1 ]↑² ≡
@@ -821,12 +810,12 @@ private opaque
     Γ ∙ (Σʷ p , q ▷ A₁ ▹ B₁) ⊢
       fstʷ p (wk1 A₁) (var x0) ≡
       fstʷ p (wk1 A₂) (var x0) ∷
-      A₁ [ wk1Subst idSubst ]                                    →⟨ substRefl (⊢ˢwk1Subst-idSubst ⊢ΣA₁B₁) ,_ ⟩
-
-    Γ ∙ (Σʷ p , q ▷ A₁ ▹ B₁) ⊢ˢ
+      A₁ [ wk1Subst idSubst ]                                    →⟨ →⊢ˢʷ≡∷∙ (wf-⊢≡ A₁≡A₂ .proj₁)
+                                                                      (refl-⊢ˢʷ≡∷ (⊢ˢʷwk1Subst-idSubst ⊢ΣA₁B₁)) ⟩
+    Γ ∙ (Σʷ p , q ▷ A₁ ▹ B₁) ⊢ˢʷ
       consSubst (wk1Subst idSubst) (fstʷ p (wk1 A₁) (var x0)) ≡
       consSubst (wk1Subst idSubst) (fstʷ p (wk1 A₂) (var x0)) ∷
-      Γ ∙ A₁                                                     →⟨ flip (substitutionEq B₁≡B₂) (∙ ⊢ΣA₁B₁) ⟩
+      Γ ∙ A₁                                                     →⟨ subst-⊢≡ B₁≡B₂ ⟩
 
     Γ ∙ (Σʷ p , q ▷ A₁ ▹ B₁) ⊢
       B₁ [ fstʷ p (wk1 A₁) (var x0) ]↑ ≡
@@ -1264,14 +1253,15 @@ opaque
       C≡A →
     case PE.subst (_ ⊢_≡ _) (wk1-[][]↑ {t = A} 2) ≡wk2F of λ
       wk2A≡wk2F →
-    case PE.subst (_ ⊢ fstʷ p F t ∷_) (PE.sym (subst-id F)) (fstʷⱼ ⊢t) of λ
+    case fstʷⱼ ⊢t of λ
       ⊢t₁ →
     case sndʷⱼ ⊢t of λ
       ⊢t₂ →
-    case substRefl {σ = consSubst (sgSubst (fstʷ p F t)) (sndʷ p q F G t)}
-                   ((idSubst′ (wfTerm ⊢t₁) , ⊢t₁) , ⊢t₂) of λ
+    case refl-⊢ˢʷ≡∷
+           {σ = consSubst (sgSubst (fstʷ p F t)) (sndʷ p q F G t)}
+           (→⊢ˢʷ∷∙ (⊢ˢʷ∷-sgSubst ⊢t₁) ⊢t₂) of λ
       [σ] →
-    case substitutionEq wk2A≡wk2F [σ] (wfTerm ⊢t₁) of λ
+    case subst-⊢≡ wk2A≡wk2F [σ] of λ
       A≡F′ →
     case PE.subst₂ (_ ⊢_≡_)
                    (PE.trans (wk2-tail A) (subst-id A))

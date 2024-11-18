@@ -477,8 +477,7 @@ mutual
          dec⇇Type-with-cont (∙ ΠΣⱼ ⊢D ok) A λ ⊢A →
          dec⇇ u
            (subst↑²Type-prod
-              (PE.subst (λ b → _ ∙ ΠΣ⟨ b ⟩ _ , _ ▷ _ ▹ _ ⊢ _) b≡ ⊢A)
-              (PE.subst (λ b → ΠΣ-allowed b _ _) b≡ ok)))
+              (PE.subst (λ b → _ ∙ ΠΣ⟨ b ⟩ _ , _ ▷ _ ▹ _ ⊢ _) b≡ ⊢A)))
         of λ where
         (yes
            ((_ , t) , (_ , _ , _ , _ , _ , A↘) ,

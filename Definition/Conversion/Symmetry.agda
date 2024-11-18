@@ -102,7 +102,7 @@ mutual
             let g≡h = soundness~↓ g~h
                 C≡E = soundnessConv↑ C↑E
                 ⊢Σ , _ = syntacticEqTerm g≡h
-                ⊢F , ⊢G , ok = inversion-ΠΣ ⊢Σ
+                ⊢F , ⊢G , _ = inversion-ΠΣ ⊢Σ
                 E↑C = symConv↑ (Γ≡Δ ∙ ⊢Σ≡B) C↑E
                 v↑u = symConv↑Term (Γ≡Δ ∙ refl ⊢F ∙ refl ⊢G) u↑v
                 ⊢Γ , ⊢Δ , ⊢idsubst = contextConvSubst Γ≡Δ
@@ -110,8 +110,8 @@ mutual
                 ⊢G′ = stability (Γ≡Δ ∙ refl ⊢F) ⊢G
                 ⊢ρF = W.wk (stepʷ (step id) ⊢G′) ⊢F′
                 ⊢ρG = W.wk (liftʷ (step (step id)) ⊢ρF) ⊢G′
-                C₊≡E₊ = subst↑²TypeEq-prod (stabilityEq (Γ≡Δ ∙ refl ⊢Σ) C≡E)
-                          ok
+                C₊≡E₊ = subst↑²TypeEq-prod
+                          (stabilityEq (Γ≡Δ ∙ refl ⊢Σ) C≡E)
             in  _ , substTypeEq C≡E g≡h
               , prodrec-cong E↑C h~g
                   (convConv↑Term′ (reflConEq ⊢Δ ∙ ⊢F≡F′ ∙ ⊢G≡G′)

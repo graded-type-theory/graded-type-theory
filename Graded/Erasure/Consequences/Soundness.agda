@@ -260,7 +260,7 @@ soundness-ℕ-only-source-counterexample₁ :
   ¬ ∃ λ n → Δ ⊢ t ⇒ˢ* sucᵏ n ∷ℕ
 soundness-ℕ-only-source-counterexample₁ {p = p} P-ok Σʷ-ok =
     inhabited-consistent
-      (singleSubst (prodⱼ εℕ⊢ℕ (zeroⱼ ε) (zeroⱼ ε) Σʷ-ok))
+      (⊢ˢʷ∷-sgSubst (prodⱼ εℕ⊢ℕ (zeroⱼ ε) (zeroⱼ ε) Σʷ-ok))
   , ⊢prodrec
   , sub
       (prodrecₘ var
@@ -318,7 +318,7 @@ opaque
   soundness-ℕ-only-source-counterexample₂ {s = s} ok ok′ =
     case ∙ Idⱼ′ (zeroⱼ ε) (zeroⱼ ε) of λ {
       ⊢Id →
-      inhabited-consistent (singleSubst (rflⱼ (zeroⱼ ε)))
+      inhabited-consistent (⊢ˢʷ∷-sgSubst (rflⱼ (zeroⱼ ε)))
     , Jⱼ′ (ℕⱼ (J-motive-context ([]ⱼ ([]-cong→Erased ok) (zeroⱼ ⊢Id))))
         (zeroⱼ ⊢Id) ([]-congⱼ′ ok (var ⊢Id here))
     , sub
@@ -355,7 +355,7 @@ opaque
   soundness-ℕ-only-source-counterexample₃ ≡not-none =
     case ∙ Idⱼ′ (zeroⱼ ε) (zeroⱼ ε) of λ {
       ⊢Id →
-      inhabited-consistent (singleSubst (rflⱼ (zeroⱼ ε)))
+      inhabited-consistent (⊢ˢʷ∷-sgSubst (rflⱼ (zeroⱼ ε)))
     , Jⱼ′ (ℕⱼ (J-motive-context (zeroⱼ ⊢Id))) (zeroⱼ ⊢Id) (var ⊢Id here)
     , sub
         (J₀ₘ₁-generalised ≡not-none PE.refl PE.refl ℕₘ zeroₘ ℕₘ zeroₘ
@@ -391,7 +391,7 @@ opaque
   soundness-ℕ-only-source-counterexample₄ K-ok ≡not-none =
     case ∙ Idⱼ′ (zeroⱼ ε) (zeroⱼ ε) of λ {
       ⊢Id →
-      inhabited-consistent (singleSubst (rflⱼ (zeroⱼ ε)))
+      inhabited-consistent (⊢ˢʷ∷-sgSubst (rflⱼ (zeroⱼ ε)))
     , Kⱼ (ℕⱼ (K-motive-context (zeroⱼ ⊢Id))) (zeroⱼ ⊢Id) (var ⊢Id here)
         K-ok
     , sub
@@ -430,7 +430,7 @@ opaque
       ⊢Unit →
     case ∙ ⊢Unit of λ
       ⊢∙Unit →
-      inhabited-consistent (singleSubst (starⱼ ε Unit-ok))
+      inhabited-consistent (⊢ˢʷ∷-sgSubst (starⱼ ε Unit-ok))
     , unitrecⱼ (ℕⱼ (⊢∙Unit ∙[ flip Unitⱼ Unit-ok ])) (var₀ ⊢Unit)
         (zeroⱼ ⊢∙Unit) Unit-ok
     , sub

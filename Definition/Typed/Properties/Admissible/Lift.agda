@@ -21,7 +21,7 @@ open import Definition.Typed.Properties.Admissible.Var R
 open import Definition.Typed.Properties.Well-formed R
 open import Definition.Typed.Inversion R
 open import Definition.Typed.Reasoning.Term R
-open import Definition.Typed.Substitution R
+open import Definition.Typed.Substitution.Primitive R
 open import Definition.Typed.Syntactic R
 import Definition.Typed.Weakening R as W
 
@@ -134,19 +134,14 @@ private opaque
 
        B₁ [ prod s 𝟙 (var x1) (var x0) ]↑²    ∎) $
     unitrec⟨⟩-cong
-      (substitutionEq B₁≡B₂
-         (substRefl
-            ( wk1Subst′ ⊢Unit′
-                (wk1Subst′ ⊢Unit (wk1Subst′ ⊢A (idSubst′ ⊢Γ)))
-            , prodⱼ
-                (Unitⱼ
-                   (∙ (PE.subst (_⊢_ _) (wk≡subst _ _) $
-                       W.wk (W.stepʷ (W.step (W.step W.id)) ⊢Unit′) ⊢A))
-                   ok₂)
-                (PE.subst (_⊢_∷_ _ _) (wk[]≡[] 3) (var₂ ⊢Unit′))
-                (var₀ ⊢Unit′) ok₁
-            ))
-         (∙ ⊢Unit′))
+      (subst-⊢≡ B₁≡B₂ $ refl-⊢ˢʷ≡∷ $ ⊢ˢʷ∷-[][]↑ $
+       prodⱼ
+         (Unitⱼ
+            (∙ (PE.subst (_⊢_ _) (PE.sym wk[]≡wk[]′) $
+                W.wk (W.stepʷ (W.step (W.step W.id)) ⊢Unit′) ⊢A))
+            ok₂)
+         (var₂ ⊢Unit′)
+         (var₀ ⊢Unit′) ok₁)
       (refl (var₀ ⊢Unit)) $
     PE.subst (_⊢_≡_∷_ _ _ _)
       (wk1 (B₁ [ lift s l (var x0) ]↑)                                    ≡⟨⟩

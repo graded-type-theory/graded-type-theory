@@ -32,7 +32,7 @@ open import Definition.Typed.Properties.Well-formed R
 open import Definition.Typed.Reasoning.Reduction R
 import Definition.Typed.Reasoning.Term R as TermR
 import Definition.Typed.Reasoning.Type R as TypeR
-open import Definition.Typed.Substitution R
+open import Definition.Typed.Substitution.Primitive R
 open import Definition.Typed.Syntactic R
 open import Definition.Typed.Weakening R as W
 
@@ -223,18 +223,15 @@ private opaque
       (∙ ⊢Erased-A) →
     case inversion-Erased ⊢Erased-A of λ
       (⊢A , Unit-ok , Σ-ok) →
-    case Unitⱼ (∙ ⊢A) Unit-ok of λ
-      ⊢Unit₁ →
-    case Unitⱼ (∙ ⊢Unit₁) Unit-ok of λ
-      ⊢Unit₂ →
-    case wk1Subst′ ⊢Unit₂ $ wk1Subst′ ⊢Unit₁ $ wk1Subst′ ⊢A $
-         idSubst′ (wf ⊢A) of λ
+    case Unitⱼ (∙ Unitⱼ (∙ ⊢A) Unit-ok) Unit-ok of λ
+      ⊢Unit →
+    case ⊢ˢʷ∷-wkSubst (∙ ⊢Unit) (⊢ˢʷ∷-idSubst (wf ⊢A)) of λ
       ⊢wk3 →
     [][]↑-cong B₁≡B₂ $ _⊢_≡_∷_.refl $
     prodⱼ
-      (Unitⱼ (∙ substitution ⊢A ⊢wk3 (∙ ⊢Unit₂)) Unit-ok)
-      (PE.subst (_⊢_∷_ _ _) (wk[]≡[] 3) $ var₂ ⊢Unit₂)
-      (var₀ ⊢Unit₂) Σ-ok }
+      (Unitⱼ (∙ subst-⊢ ⊢A ⊢wk3) Unit-ok)
+      (PE.subst (_⊢_∷_ _ _) (wk[]≡[] 3) $ var₂ ⊢Unit)
+      (var₀ ⊢Unit) Σ-ok }
 
   erasedrec-lemma₂ :
     let open Erased s in
@@ -333,12 +330,8 @@ opaque
                                                                           unitrec⟨⟩-β-≡
                                                                             (λ _ →
                                                                                ⊢[][]↑ ⊢B $
-                                                                               prodⱼ
-                                                                                 (Unitⱼ
-                                                                                    (∙ (substitution ⊢A (wk1Subst′ ⊢Unit (idSubst′ ⊢Γ)) (∙ ⊢Unit)))
-                                                                                    Unit-ok)
-                                                                                 (PE.subst (_⊢_∷_ _ _) (wk≡subst _ _) $
-                                                                                  wkTerm₁ ⊢Unit ⊢u)
+                                                                               PE.subst (_⊢_∷_ _ _) (wk[]≡[] 1) $
+                                                                               prodⱼ (Unitⱼ (∙ (wk₁ ⊢Unit ⊢A)) Unit-ok) (wkTerm₁ ⊢Unit ⊢u)
                                                                                  (var₀ ⊢Unit) Σ-ok)
                                                                             (PE.subst (_⊢_∷_ _ _) (PE.trans ([]↑-[]₀ B) (PE.sym lemma)) $
                                                                              substTerm ⊢t ⊢u)) ⟩⊢∎
@@ -477,12 +470,8 @@ module _ (ok : []-cong-allowed s) where
         (∙ ⊢A) →
       case Erasedⱼ Erased-ok ⊢A of λ
         ⊢Erased-A →
-      substitution ⊢B
-        ( wk1Subst′ ⊢Erased-A (idSubst′ (wf ⊢A))
-        , PE.subst (_⊢_∷_ _ _) (wk≡subst _ _)
-            (erasedⱼ $ var₀ ⊢Erased-A)
-        )
-        (∙ ⊢Erased-A) }
+      subst-⊢ ⊢B $
+      ⊢ˢʷ∷-[][]↑ (erasedⱼ $ var₀ ⊢Erased-A) }
 
   ----------------------------------------------------------------------
   -- Lemmas related to substᵉ
@@ -584,19 +573,13 @@ module _ (ok : []-cong-allowed s) where
         (⊢A₁ , ⊢t₁ , _) →
       case syntacticEqTerm u₁≡u₂ of λ
         (_ , ⊢u₁ , _) →
-      case wf ⊢A₁ of λ
-        ⊢Γ →
       case Erasedⱼ Erased-ok ⊢A₁ of λ
         ⊢Erased-A₁ →
       conv
         (subst-cong (Erased-cong Erased-ok A₁≡A₂)
-           (substitutionEq B₁≡B₂
-              ( substRefl (wk1Subst′ ⊢Erased-A₁ (idSubst′ ⊢Γ))
-              , PE.subst (_⊢_≡_∷_ _ _ _) (wk≡subst _ _)
-                  (erased-cong (wkEq₁ ⊢Erased-A₁ A₁≡A₂)
-                     (refl $ var₀ ⊢Erased-A₁))
-              )
-              (∙ ⊢Erased-A₁))
+           (subst-⊢≡ B₁≡B₂ $ ⊢ˢʷ≡∷-[][]↑ $
+            erased-cong (wkEq₁ ⊢Erased-A₁ A₁≡A₂)
+              (refl $ var₀ ⊢Erased-A₁))
            ([]-cong′ Erased-ok t₁≡t₂)
            ([]-cong′ Erased-ok u₁≡u₂)
            ([]-cong-cong A₁≡A₂ t₁≡t₂ u₁≡u₂ v₁≡v₂ ok)
@@ -784,32 +767,27 @@ module _ (ok : []-cong-allowed s) where
     lemma₈ {A₁} {t₁} A₁≡A₂ B₁≡B₂ t₁≡t₂ =
       case syntacticEqTerm t₁≡t₂ of λ
         (⊢A₁ , ⊢t₁ , _) →
-      case wf ⊢A₁ of λ
-        ⊢Γ →
-      case ΠΣⱼ (Idⱼ′ (wkTerm₁ ⊢A₁ ⊢t₁) (var₀ ⊢A₁)) Σ-ok of λ
+      case Idⱼ′ (wkTerm₁ ⊢A₁ ⊢t₁) (var₀ ⊢A₁) of λ
+        ⊢Id →
+      case ΠΣⱼ ⊢Id Σ-ok of λ
         ⊢Singleton₁ →
       case wkEq₁ ⊢Singleton₁ A₁≡A₂ of λ
         A₁≡A₂′ →
       case syntacticEq A₁≡A₂′ of λ
         (⊢A₁′ , _) →
-      substitutionEq B₁≡B₂
-        ( ( substRefl (wk1Subst′ ⊢Singleton₁ (idSubst′ ⊢Γ))
-          , PE.subst (_⊢_≡_∷_ _ _ _) (wk1-tailId _)
-              (fst⟨⟩-cong A₁≡A₂′ $
-               refl (var₀ ⊢Singleton₁))
-          )
-        , PE.subst (_⊢_≡_∷_ _ _ _)
-            (PE.cong₃ Id (lemma₄ A₁) (lemma₄ t₁) PE.refl)
-            (snd⟨⟩-cong A₁≡A₂′
-               (Id-cong (wkEq (stepʷ (step id) ⊢A₁′) A₁≡A₂)
-                  (wkEqTerm (stepʷ (step id) ⊢A₁′) t₁≡t₂)
-                  (refl (PE.subst (_⊢_∷_ _ _) wk[]≡wk[]′ $ var₀ ⊢A₁′))) $
-             PE.subst (_⊢_≡_∷_ _ _ _)
-               (PE.cong (Σ⟨_⟩_,_▷_▹_ s 𝟘 𝟘 (wk1 A₁)) $
-                PE.cong₃ Id (lift-wk1 _ _) (lift-wk1 _ _) PE.refl) $
-             refl (var₀ ⊢Singleton₁))
-        )
-        (∙ ⊢Singleton₁)
+      subst-⊢≡ B₁≡B₂ $
+      →⊢ˢʷ≡∷∙ ⊢Id
+        (⊢ˢʷ≡∷-[][]↑ (fst⟨⟩-cong A₁≡A₂′ $ refl (var₀ ⊢Singleton₁)))
+        (PE.subst (_⊢_≡_∷_ _ _ _)
+           (PE.cong₃ Id (lemma₄ A₁) (lemma₄ t₁) PE.refl)
+           (snd⟨⟩-cong A₁≡A₂′
+              (Id-cong (wkEq (stepʷ (step id) ⊢A₁′) A₁≡A₂)
+                 (wkEqTerm (stepʷ (step id) ⊢A₁′) t₁≡t₂)
+                 (refl (PE.subst (_⊢_∷_ _ _) wk[]≡wk[]′ $ var₀ ⊢A₁′))) $
+            PE.subst (_⊢_≡_∷_ _ _ _)
+              (PE.cong (Σ⟨_⟩_,_▷_▹_ s 𝟘 𝟘 (wk1 A₁)) $
+               PE.cong₃ Id (lift-wk1 _ _) (lift-wk1 _ _) PE.refl) $
+            refl (var₀ ⊢Singleton₁)))
 
     lemma₈′ :
       Γ ∙ A ∙ Id (wk1 A) (wk1 t) (var x0) ⊢ B →

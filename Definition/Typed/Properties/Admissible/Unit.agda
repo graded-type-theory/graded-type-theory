@@ -22,7 +22,7 @@ open import Definition.Typed.Properties.Admissible.Var TR
 open import Definition.Typed.Properties.Reduction TR
 open import Definition.Typed.Properties.Well-formed TR
 open import Definition.Typed.Reasoning.Term TR
-open import Definition.Typed.Substitution TR
+open import Definition.Typed.Substitution.Primitive TR
 open import Definition.Typed.Syntactic TR
 open import Definition.Untyped.Unit 𝕄
 

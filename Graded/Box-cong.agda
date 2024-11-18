@@ -29,6 +29,7 @@ open import Definition.Typed.Consequences.Reduction TR
 open import Definition.Typed.Inversion TR
 open import Definition.Typed.Properties TR as P hiding ([]-cong′)
 open import Definition.Typed.Reasoning.Term TR
+open import Definition.Typed.Substitution TR
 open import Definition.Typed.Syntactic TR
 import Definition.Typed.Weakening TR as W
 open import Definition.Typed.Well-formed TR
@@ -535,7 +536,9 @@ opaque
     case lemma
            (lemma
               (lemma
-                 (lemma (idSubst , id , _ , ▸[]-cong , ⊢[]-cong) ⊢A)
+                 (lemma
+                    (idSubst , ⊢ˢʷ∷-idSubst ε , _ , ▸[]-cong , ⊢[]-cong)
+                    ⊢A)
                  ⊢t)
               ⊢t)
            (rflⱼ ⊢t) of λ {
@@ -572,14 +575,14 @@ opaque
 
     lemma :
       ((σ , _) :
-       ∃ λ σ → ε ⊢ˢ σ ∷ Γ ×
+       ∃ λ σ → ε ⊢ˢʷ σ ∷ Γ ×
        ∃ λ t → 𝟘ᶜ ▸[ 𝟙ᵐ ] t × Γ ⊢ t ∷ Π 𝟘 , p ▷ A ▹ B) →
       ε ⊢ u ∷ A [ σ ] →
-      (∃ λ σ → ε ⊢ˢ σ ∷ Γ ∙ A ×
+      (∃ λ σ → ε ⊢ˢʷ σ ∷ Γ ∙ A ×
        ∃ λ t → 𝟘ᶜ ▸[ 𝟙ᵐ ] t × Γ ∙ A ⊢ t ∷ B)
     lemma (_ , ⊢σ , _ , ▸t , ⊢t) ⊢u =
         consSubst _ _
-      , (⊢σ , ⊢u)
+      , →⊢ˢʷ∷∙ ⊢σ ⊢u
       , (case red-Π ⊢t of λ where
            (_ , ne v-n , t⇒*v) →
              ⊥-elim $

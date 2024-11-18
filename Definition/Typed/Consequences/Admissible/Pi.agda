@@ -71,8 +71,7 @@ opaque
     Γ ⊢ lam p₁ (lam p₂ t) ∘⟨ p₁′ ⟩ u ∘⟨ p₂′ ⟩ v ⇒* t [ u , v ]₁₀ ∷
       C [ u , v ]₁₀
   β-red-⇒₂ {p₁} {p₂} {t} {p₁′} {p₂′} {C} {u} {v} ⊢lam ⊢u ⊢v =
-    case substitutionTerm (inversion-lam-Π ⊢lam .proj₁)
-           (singleSubst ⊢u) (wfTerm ⊢u) of λ {
+    case subst-⊢∷ (inversion-lam-Π ⊢lam .proj₁) (⊢ˢʷ∷-sgSubst ⊢u) of λ {
       ⊢lam′ →                                         ⟨ PE.sym $ singleSubstComp _ _ C ⟩⇒≡
     lam p₁ (lam p₂ t) ∘⟨ p₁′ ⟩ u ∘⟨ p₂′ ⟩ v          ⇒⟨ app-subst (β-red-⇒₁ ⊢lam ⊢u) ⊢v ⟩
     lam p₂ (t [ liftSubst (sgSubst u) ]) ∘⟨ p₂′ ⟩ v  ⇒⟨ β-red-⇒₁ ⊢lam′ ⊢v ⟩∎≡
@@ -94,10 +93,10 @@ opaque
         D [ consSubst (consSubst (sgSubst u) v) w ]
   β-red-⇒₃
     {p₁} {p₂} {p₃} {t} {p₁′} {p₂′} {p₃′} {D} {u} {v} {w} ⊢lam ⊢u ⊢v ⊢w =
-    case substitutionTerm
+    case subst-⊢∷
            (inversion-lam-Π (inversion-lam-Π ⊢lam .proj₁) .proj₁)
-           (singleSubst ⊢u , ⊢v)
-           (wfTerm ⊢u) of λ {
+           (→⊢ˢʷ∷∙ (⊢ˢʷ∷-sgSubst ⊢u) ⊢v)
+           of λ {
       ⊢lam′ →                                                        ⟨ PE.sym $ singleSubstComp _ _ D ⟩⇒≡
     lam p₁ (lam p₂ (lam p₃ t)) ∘⟨ p₁′ ⟩ u ∘⟨ p₂′ ⟩ v ∘⟨ p₃′ ⟩ w    ⇒*⟨ app-subst* (β-red-⇒₂ ⊢lam ⊢u ⊢v) ⊢w ⟩
     lam p₃ (t [ liftSubst (consSubst (sgSubst u) v) ]) ∘⟨ p₃′ ⟩ w  ⇒⟨ β-red-⇒₁ ⊢lam′ ⊢w ⟩∎≡
@@ -123,12 +122,11 @@ opaque
   β-red-⇒₄
     {p₁} {p₂} {p₃} {p₄} {t} {p₁′} {p₂′} {p₃′} {p₄′} {E}
     {u₁} {u₂} {u₃} {u₄} ⊢lam ⊢u₁ ⊢u₂ ⊢u₃ ⊢u₄ =
-    case substitutionTerm
+    case subst-⊢∷
            (inversion-lam-Π
               (inversion-lam-Π (inversion-lam-Π ⊢lam .proj₁) .proj₁)
               .proj₁)
-           ((singleSubst ⊢u₁ , ⊢u₂) , ⊢u₃)
-           (wfTerm ⊢u₁) of λ {
+           (→⊢ˢʷ∷∙ (→⊢ˢʷ∷∙ (⊢ˢʷ∷-sgSubst ⊢u₁) ⊢u₂) ⊢u₃) of λ {
       ⊢lam′ →                                                              ⟨ PE.sym $ singleSubstComp _ _ E ⟩⇒≡
     lam p₁ (lam p₂ (lam p₃ (lam p₄ t)))
       ∘⟨ p₁′ ⟩ u₁ ∘⟨ p₂′ ⟩ u₂ ∘⟨ p₃′ ⟩ u₃ ∘⟨ p₄′ ⟩ u₄                    ⇒*⟨ app-subst* (β-red-⇒₃ ⊢lam ⊢u₁ ⊢u₂ ⊢u₃) ⊢u₄ ⟩

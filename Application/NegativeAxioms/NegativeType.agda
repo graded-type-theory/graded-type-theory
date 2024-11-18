@@ -90,26 +90,24 @@ wkNeg w (conv n c)
 
 -- Lemma: Negative types are closed under parallel substitution.
 
-subNeg : NegativeType Γ A → Δ ⊢ˢ σ ∷ Γ → ⊢ Δ → NegativeType Δ (A [ σ ])
+subNeg : NegativeType Γ A → Δ ⊢ˢʷ σ ∷ Γ → NegativeType Δ (A [ σ ])
 
-subNeg empty _ _ = empty
+subNeg empty _ = empty
 
-subNeg (pi ⊢A n) s ⊢Δ
-  = pi ⊢σA (subNeg n (liftSubst′ ⊢Δ ⊢A s) (∙ ⊢σA))
-    where ⊢σA = substitution ⊢A s ⊢Δ
+subNeg (pi ⊢A n) s
+  = pi (subst-⊢ ⊢A s) (subNeg n (⊢ˢʷ∷-⇑′ ⊢A s))
 
-subNeg (sigma ⊢A nA nB) s ⊢Δ
-  = sigma ⊢σA (subNeg nA s ⊢Δ) (subNeg nB (liftSubst′ ⊢Δ ⊢A s) (∙ ⊢σA))
-    where ⊢σA = substitution ⊢A s ⊢Δ
+subNeg (sigma ⊢A nA nB) s
+  = sigma (subst-⊢ ⊢A s) (subNeg nA s) (subNeg nB (⊢ˢʷ∷-⇑′ ⊢A s))
 
-subNeg universe _ _ = universe
+subNeg universe _ = universe
 
-subNeg (conv n c) s ⊢Δ = conv (subNeg n s ⊢Δ) (substitutionEq c (substRefl s) ⊢Δ)
+subNeg (conv n c) s = conv (subNeg n s) (subst-⊢≡ c (refl-⊢ˢʷ≡∷ s))
 
 -- Corollary: Negative types are closed under single substitution.
 
 subNeg1 : NegativeType (Γ ∙ A) B → Γ ⊢ t ∷ A → NegativeType Γ (B [ t ]₀)
-subNeg1 n ⊢t = subNeg n (singleSubst ⊢t) (wfTerm ⊢t)
+subNeg1 n ⊢t = subNeg n (⊢ˢʷ∷-sgSubst ⊢t)
 
 -- Lemma: The first component of a negative Σ-type is negative.
 
@@ -133,7 +131,7 @@ sndNeg :
 sndNeg empty          c = ⊥-elim (Empty≢Σⱼ c)
 sndNeg (pi _ _)       c = ⊥-elim (Π≢Σⱼ c)
 sndNeg (sigma _ _ nB) c ⊢t = let (cA , cB , _ , _) = Σ-injectivity c in
-    subNeg (conv nB cB) (singleSubst (conv ⊢t (sym cA))) (wfTerm ⊢t)
+    subNeg (conv nB cB) (⊢ˢʷ∷-sgSubst (conv ⊢t (sym cA)))
 sndNeg universe      c  = ⊥-elim (U≢ΠΣⱼ c)
 sndNeg (conv n c)    c' = sndNeg n (trans c c')
 
@@ -143,7 +141,7 @@ appNeg : NegativeType Γ C → Γ ⊢ C ≡ Π p , q ▷ A ▹ B → Γ ⊢ t �
 appNeg empty          c = ⊥-elim (Empty≢Πⱼ c)
 appNeg (sigma _ _ _)  c = ⊥-elim (Π≢Σⱼ (sym c))
 appNeg (pi _ nB) c ⊢t = let (cA , cB , _ , _) = injectivity c in
-  subNeg (conv nB cB) (singleSubst (conv ⊢t (sym cA))) (wfTerm ⊢t)
+  subNeg (conv nB cB) (⊢ˢʷ∷-sgSubst (conv ⊢t (sym cA)))
 appNeg universe      c  = ⊥-elim (U≢ΠΣⱼ c)
 appNeg (conv n c)    c' = appNeg n (trans c c')
 

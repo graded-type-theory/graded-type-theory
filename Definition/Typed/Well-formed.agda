@@ -20,7 +20,7 @@ import Definition.Typed.Properties.Admissible.Erased.Primitive R
 open import Definition.Typed.Properties.Admissible.Var R
 open import Definition.Typed.Properties.Well-formed R
 open import Definition.Typed.Stability.Primitive R
-open import Definition.Typed.Substitution.Primitive R
+open import Definition.Typed.Substitution.Primitive.Primitive R
 open import Definition.Typed.Weakening R
 
 open import Definition.Untyped M
@@ -450,68 +450,3 @@ opaque
         σ₁≡σ₂         = ⊢ˢʷ≡∷⇔ .proj₂ (wfTerm ⊢t₁ , ⊢σ₁ , ⊢σ₂ , σ₁≡σ₂)
     in
     (⊢σ₁ , ⊢t₁) , (⊢σ₂ , conv ⊢t₂ (subst-⊢≡ (refl ⊢A) σ₁≡σ₂))
-
-------------------------------------------------------------------------
--- Variants of some previously defined lemmas
-
-opaque
-
-  -- A variant of ⊢ˢʷ≡∷⇔.
-
-  ⊢ˢʷ≡∷⇔′ :
-    ⊢ Γ → Δ ⊢ˢʷ σ₁ ≡ σ₂ ∷ Γ ⇔ (⊢ Δ × Δ ⊢ˢ σ₁ ≡ σ₂ ∷ Γ)
-  ⊢ˢʷ≡∷⇔′ {Γ} {Δ} {σ₁} {σ₂} ⊢Γ =
-    Δ ⊢ˢʷ σ₁ ≡ σ₂ ∷ Γ                                   ⇔⟨ ⊢ˢʷ≡∷⇔ ⟩
-    ⊢ Δ × Δ ⊢ˢ σ₁ ∷ Γ × Δ ⊢ˢ σ₂ ∷ Γ × Δ ⊢ˢ σ₁ ≡ σ₂ ∷ Γ  ⇔⟨ (λ (⊢Δ , _ , _ , σ₁≡σ₂) → ⊢Δ , σ₁≡σ₂)
-                                                         , (λ (⊢Δ , σ₁≡σ₂) →
-                                                              let ⊢σ₁ , ⊢σ₂ = wf-⊢ˢ≡∷ ⊢Γ σ₁≡σ₂ in
-                                                              ⊢Δ , ⊢σ₁ , ⊢σ₂ , σ₁≡σ₂)
-                                                         ⟩
-    ⊢ Δ × Δ ⊢ˢ σ₁ ≡ σ₂ ∷ Γ                              □⇔
-
-opaque
-
-  -- A variant of ⊢ˢʷ≡∷∙⇔.
-
-  ⊢ˢʷ≡∷∙⇔′ :
-    Γ ⊢ A →
-    Δ ⊢ˢʷ σ₁ ≡ σ₂ ∷ Γ ∙ A ⇔
-    (Δ ⊢ˢʷ tail σ₁ ≡ tail σ₂ ∷ Γ ×
-     Δ ⊢ head σ₁ ≡ head σ₂ ∷ A [ tail σ₁ ])
-  ⊢ˢʷ≡∷∙⇔′ {Γ} {A} {Δ} {σ₁} {σ₂} ⊢A =
-    Δ ⊢ˢʷ σ₁ ≡ σ₂ ∷ Γ ∙ A                                                ⇔⟨ ⊢ˢʷ≡∷∙⇔ ⟩
-
-    Δ ⊢ˢʷ tail σ₁ ≡ tail σ₂ ∷ Γ ×
-    Δ ⊢ head σ₁ ∷ A [ tail σ₁ ] ×
-    Δ ⊢ head σ₂ ∷ A [ tail σ₂ ] ×
-    Δ ⊢ head σ₁ ≡ head σ₂ ∷ A [ tail σ₁ ]                                ⇔⟨ (λ (σ₁₊≡σ₂₊ , _ , _ , σ₁₀≡σ₂₀) →
-                                                                               σ₁₊≡σ₂₊ , σ₁₀≡σ₂₀)
-                                                                          , (λ (σ₁₊≡σ₂₊ , σ₁₀≡σ₂₀) →
-                                                                               let _ , ⊢σ₁₀ , ⊢σ₂₀ = wf-⊢≡∷ σ₁₀≡σ₂₀ in
-                                                                               σ₁₊≡σ₂₊ , ⊢σ₁₀ , conv ⊢σ₂₀ (subst-⊢≡ (refl ⊢A) σ₁₊≡σ₂₊) , σ₁₀≡σ₂₀)
-                                                                          ⟩
-
-    Δ ⊢ˢʷ tail σ₁ ≡ tail σ₂ ∷ Γ × Δ ⊢ head σ₁ ≡ head σ₂ ∷ A [ tail σ₁ ]  □⇔
-
-opaque
-
-  -- An introduction lemma for _⊢ˢʷ_≡_∷_.
-
-  →⊢ˢʷ≡∷∙ :
-    Γ ⊢ A →
-    Δ ⊢ˢʷ tail σ₁ ≡ tail σ₂ ∷ Γ →
-    Δ ⊢ head σ₁ ≡ head σ₂ ∷ A [ tail σ₁ ] →
-    Δ ⊢ˢʷ σ₁ ≡ σ₂ ∷ Γ ∙ A
-  →⊢ˢʷ≡∷∙ ⊢A σ₁₊≡σ₂₊ σ₁₀≡σ₂₀ =
-    ⊢ˢʷ≡∷∙⇔′ ⊢A .proj₂ (σ₁₊≡σ₂₊ , σ₁₀≡σ₂₀)
-
-opaque
-
-  -- A variant of ⊢ˢʷ≡∷-sgSubst.
-
-  ⊢ˢʷ≡∷-sgSubst′ :
-    Γ ⊢ t₁ ≡ t₂ ∷ A →
-    Γ ⊢ˢʷ sgSubst t₁ ≡ sgSubst t₂ ∷ Γ ∙ A
-  ⊢ˢʷ≡∷-sgSubst′ t₁≡t₂ =
-    let _ , ⊢t₁ , ⊢t₂ = wf-⊢≡∷ t₁≡t₂ in
-    ⊢ˢʷ≡∷-sgSubst ⊢t₁ ⊢t₂ t₁≡t₂

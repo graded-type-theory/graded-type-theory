@@ -21,6 +21,7 @@ open Usage-restrictions UR
 open import Definition.Untyped M
 open import Definition.Typed TR
 open import Definition.Typed.Consequences.Consistency TR
+open import Definition.Typed.Substitution TR
 
 open import Graded.Mode 𝕄
 open import Graded.Restrictions 𝕄
@@ -63,7 +64,7 @@ fundamental-assumptions⁻₀ : Fundamental-assumptions⁻ ε
 fundamental-assumptions⁻₀ = record
   { consistent                  = λ _ →
                                     inhabited-consistent
-                                      (_⊢ˢ_∷_.id {σ = idSubst})
+                                      (⊢ˢʷ∷-idSubst ε)
   ; closed-or-no-erased-matches = inj₂ refl
   }
 

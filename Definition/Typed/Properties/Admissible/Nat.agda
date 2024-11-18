@@ -20,7 +20,7 @@ open import Definition.Typed.Properties.Admissible.Var R
 open import Definition.Typed.Properties.Reduction R
 open import Definition.Typed.Properties.Well-formed R
 open import Definition.Typed.Reasoning.Reduction R
-open import Definition.Typed.Substitution R
+open import Definition.Typed.Substitution.Primitive R
 open import Definition.Typed.Syntactic R
 open import Definition.Typed.Weakening R
 

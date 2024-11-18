@@ -157,7 +157,7 @@ opaque
     ⊢Δ = ∙ Idⱼ′ (zeroⱼ ε) (zeroⱼ ε)
 
     consistent : Consistent Δ
-    consistent = inhabited-consistent (singleSubst (rflⱼ (zeroⱼ ε)))
+    consistent = inhabited-consistent (⊢ˢʷ∷-sgSubst (rflⱼ (zeroⱼ ε)))
 
     ⊢t : Δ ⊢ t ∷ A
     ⊢t = []-congⱼ′ ok (var ⊢Δ here)

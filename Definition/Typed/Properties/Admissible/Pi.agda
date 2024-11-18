@@ -18,7 +18,7 @@ open import Definition.Untyped M
 open import Definition.Typed R
 open import Definition.Typed.Inversion.Primitive R
 open import Definition.Typed.Properties.Reduction R
-import Definition.Typed.Substitution.Primitive R as S
+import Definition.Typed.Substitution.Primitive.Primitive R as S
 open import Definition.Typed.Well-formed R
 
 open import Tools.Fin

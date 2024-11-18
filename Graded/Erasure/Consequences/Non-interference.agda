@@ -30,7 +30,7 @@ open Fundamental-assumptions FA
 
 open import Definition.Typed TR
 open import Definition.Typed.Properties TR
-open import Definition.Typed.Substitution.Primitive TR
+open import Definition.Typed.Substitution TR
 open import Definition.LogicalRelation TR
 import Definition.LogicalRelation.Fundamental TR as F
 open import Definition.LogicalRelation.Substitution TR

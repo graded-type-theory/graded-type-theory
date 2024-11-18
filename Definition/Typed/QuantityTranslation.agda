@@ -33,7 +33,7 @@ open import Tools.Sum using (inj₁; inj₂)
 open import Definition.Typed
 open import Definition.Typed.Consequences.Admissible R₂
 open import Definition.Typed.Properties R₂
-import Definition.Typed.Substitution.Primitive
+import Definition.Typed.Substitution
 open import Definition.Untyped
 import Definition.Untyped.Erased
 open import Definition.Untyped.QuantityTranslation tr tr-Σ
@@ -45,8 +45,8 @@ private
   module R₂ = Type-restrictions R₂
   module T₁ = Definition.Typed R₁
   module T₂ = Definition.Typed R₂
-  module S₁ = Definition.Typed.Substitution.Primitive R₁
-  module S₂ = Definition.Typed.Substitution.Primitive R₂
+  module S₁ = Definition.Typed.Substitution R₁
+  module S₂ = Definition.Typed.Substitution R₂
   module U₁ = Definition.Untyped M₁
   module U₂ = Definition.Untyped M₂
 

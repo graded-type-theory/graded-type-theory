@@ -118,12 +118,12 @@ import Definition.Typed.Inversion.Primitive
 import Definition.Typed.Properties.Admissible.Erased.Primitive
 import Definition.Typed.Weakening
 import Definition.Typed.Stability.Primitive
-import Definition.Typed.Substitution.Primitive
+import Definition.Typed.Substitution.Primitive.Primitive
 import Definition.Typed.Well-formed
+import Definition.Typed.Substitution.Primitive
 import Definition.Typed.Properties.Admissible.Equality
 import Definition.Typed.Properties.Admissible.Identity.Primitive
 import Definition.Typed.Stability
-import Definition.Typed.Substitution
 import Definition.Typed.Properties.Reduction
 import Definition.Typed.Reasoning.Reduction
 import Definition.Typed.Reasoning.Term
@@ -142,6 +142,7 @@ import Definition.Typed.Properties.Admissible.Lift
 import Definition.Typed.Properties.Admissible.Bool.OK
 import Definition.Typed.Properties.Admissible.Bool
 import Definition.Typed.Properties.Admissible.Bool.Erased
+import Definition.Typed.Substitution
 import Definition.Typed.Properties
 import Definition.Typed.EqualityRelation
 import Definition.Typed.EqRelInstance

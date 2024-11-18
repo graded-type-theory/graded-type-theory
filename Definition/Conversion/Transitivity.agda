@@ -103,8 +103,7 @@ mutual
         u<>v′ = stabilityConv↑Term (Γ≡Γ ∙ F≡F′ ∙ G≡G′) u<>v
         _ , ⊢ΓFG , _ = contextConvSubst (Γ≡Γ ∙ F≡F′ ∙ G≡G′)
         A≡B = soundnessConv↑ A<>B
-        _ , _ , ok = inversion-ΠΣ (syntacticEq Σ≡Σ′ .proj₁)
-        A₊≡B₊ = subst↑²TypeEq-prod A≡B ok
+        A₊≡B₊ = subst↑²TypeEq-prod A≡B
         t<>v = transConv↑Term A₊≡B₊ t<>u u<>v′
         a≡b = soundness~↓ a~b
         Aa≡Bb = substTypeEq A≡B a≡b
