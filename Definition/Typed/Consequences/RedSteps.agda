@@ -88,8 +88,7 @@ private opaque
 
   -- The lemma subst→subst* is private because it can be rather
   -- awkward to use: tastes may vary, but the following proof is at
-  -- least (at the time of writing) longer than snd-subst*, even if
-  -- one does not count the where clause.
+  -- least (at the time of writing) longer than snd-subst*.
 
   snd-subst*′ :
     Γ ⊢ t ⇒* u ∷ Σˢ p , q ▷ A ▹ B →
@@ -99,19 +98,16 @@ private opaque
       ⊢ΣAB →
     case inversion-ΠΣ ⊢ΣAB of λ
       (_ , ⊢B , _) →
-    PE.subst (_⊢_⇒*_∷_ _ _ _) (lemma _) $
+    PE.subst (_⊢_⇒*_∷_ _ _ _) ([]↑-[]₀ B) $
     subst→subst* (snd p (var x0))
       (subst↑Type ⊢B (fstⱼ′ (var₀ ⊢ΣAB)))
       (λ ⊢u →
-         PE.subst (_⊢_∷_ _ _) (PE.sym $ lemma _) $
+         PE.subst (_⊢_∷_ _ _) (PE.sym $ []↑-[]₀ B) $
          sndⱼ′ ⊢u)
       (λ u₁⇒u₂ →
-         PE.subst (_⊢_⇒_∷_ _ _ _) (PE.sym $ lemma _) $
+         PE.subst (_⊢_⇒_∷_ _ _ _) (PE.sym $ []↑-[]₀ B) $
          snd-subst′ u₁⇒u₂)
       t⇒*u
-    where
-    lemma : ∀ t → B [ fst p (var x0) ]↑ [ t ]₀ PE.≡ B [ fst p t ]₀
-    lemma _ = []↑-[]₀ B
 
 opaque
 
