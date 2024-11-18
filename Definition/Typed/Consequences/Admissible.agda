@@ -13,7 +13,3 @@ module Definition.Typed.Consequences.Admissible
 
 open import Definition.Typed.Consequences.Admissible.Pi R public
 open import Definition.Typed.Consequences.Admissible.Sigma R public
-
-module Erased-Bool where
-  open import Definition.Typed.Consequences.Admissible.Bool.Erased R
-    public

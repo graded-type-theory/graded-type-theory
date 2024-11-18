@@ -8,7 +8,7 @@ import Definition.Untyped.Bool.Erased
 open import Graded.Modality
 import Graded.Modality.Dedicated-nr
 
-module Definition.Typed.Consequences.Admissible.Bool.Erased
+module Definition.Typed.Properties.Admissible.Bool.Erased
   {a} {M : Set a}
   (open Definition.Untyped M hiding (_[_]))
   {𝕄 : Modality M}

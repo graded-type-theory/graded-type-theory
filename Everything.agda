@@ -141,6 +141,7 @@ import Definition.Typed.Properties.Admissible.Erased
 import Definition.Typed.Properties.Admissible.Lift
 import Definition.Typed.Properties.Admissible.Bool.OK
 import Definition.Typed.Properties.Admissible.Bool
+import Definition.Typed.Properties.Admissible.Bool.Erased
 import Definition.Typed.Properties
 import Definition.Typed.EqualityRelation
 import Definition.Typed.EqRelInstance
@@ -300,7 +301,6 @@ import Definition.Typed.Consequences.Inversion.Lift
 import Definition.Typed.Consequences.Inversion.Erased
 import Definition.Typed.Consequences.Inversion.Erased.Eta
 import Definition.Typed.Consequences.Inversion.Erased.No-eta
-import Definition.Typed.Consequences.Admissible.Bool.Erased
 import Definition.Typed.Consequences.Admissible
 import Definition.Typed.Consequences.Consistency
 import Definition.Typed.Consequences.RedSteps
