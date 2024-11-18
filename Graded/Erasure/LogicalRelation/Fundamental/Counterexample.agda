@@ -23,13 +23,13 @@ open Type-restrictions TR
 open Usage-restrictions UR
 
 open import Graded.Context 𝕄
-import Graded.Derived.Erased.Untyped 𝕄 as Erased
 open import Graded.Modality.Properties 𝕄
 open import Graded.Usage 𝕄 UR
 open import Graded.Usage.Erased-matches
 open import Graded.Mode 𝕄
 
 open import Definition.Untyped M
+import Definition.Untyped.Erased 𝕄 as Erased
 open import Definition.Untyped.Neutral M type-variant
 open import Definition.Typed TR
 open import Definition.Typed.Consequences.Admissible TR

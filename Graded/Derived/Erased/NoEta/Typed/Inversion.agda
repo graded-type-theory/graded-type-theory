@@ -25,10 +25,10 @@ open import Definition.Typed.Consequences.Inequality R
 open import Definition.Typed.Consequences.Injectivity R
 
 open import Definition.Untyped M as U
+open import Definition.Untyped.Erased 𝕄 𝕨 hiding (erased)
+open import Definition.Untyped.Erased.No-eta 𝕄
 open import Definition.Untyped.Properties M
 open import Definition.Untyped.Sigma 𝕄
-open import Graded.Derived.Erased.NoEta.Untyped 𝕄
-open import Graded.Derived.Erased.Untyped 𝕄 𝕨 hiding (erased)
 
 open import Tools.Empty
 open import Tools.Function

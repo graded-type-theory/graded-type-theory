@@ -24,9 +24,8 @@ open import Definition.Typed.Inversion R
 open import Definition.Typed.Substitution R
 
 open import Definition.Untyped M as U
+open import Definition.Untyped.Erased 𝕄 s
 open import Definition.Untyped.Properties M
-
-open import Graded.Derived.Erased.Untyped 𝕄 s
 
 open import Tools.Empty
 open import Tools.Fin

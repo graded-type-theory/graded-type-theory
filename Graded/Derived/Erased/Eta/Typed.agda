@@ -21,10 +21,10 @@ open import Definition.Typed.Inversion R
 open import Definition.Typed.Syntactic R
 
 open import Definition.Untyped M hiding (_[_])
+open import Definition.Untyped.Erased 𝕄 𝕤 hiding (erased)
+open import Definition.Untyped.Erased.Eta 𝕄
 
 import Graded.Derived.Erased.Eta.Typed.Primitive R as P
-open import Graded.Derived.Erased.Eta.Untyped 𝕄
-open import Graded.Derived.Erased.Untyped 𝕄 𝕤 hiding (erased)
 
 open import Tools.Function
 

@@ -5,7 +5,7 @@
 open import Graded.Modality
 open import Definition.Untyped.NotParametrised
 
-module Graded.Derived.Erased.Untyped
+module Definition.Untyped.Erased
   {a} {M : Set a}
   (𝕄 : Modality M)
   (s : Strength)
@@ -14,13 +14,13 @@ module Graded.Derived.Erased.Untyped
 open Modality 𝕄
 
 open import Definition.Untyped M as U
+import Definition.Untyped.Erased.Eta 𝕄 as Eta
 open import Definition.Untyped.Identity 𝕄
 open import Definition.Untyped.Properties M
 open import Definition.Untyped.Sigma 𝕄
 open import Definition.Untyped.Unit 𝕄
 
-import Graded.Derived.Erased.Eta.Untyped 𝕄 as Eta
-import Graded.Derived.Erased.NoEta.Untyped 𝕄 as NoEta
+import Definition.Untyped.Erased.No-eta 𝕄 as NoEta
 
 open import Tools.Fin
 open import Tools.Function

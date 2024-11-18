@@ -15,11 +15,11 @@ module Graded.Heap.Typed.Inversion
 open Type-restrictions TR
 
 open import Definition.Untyped M
+import Definition.Untyped.Erased 𝕄 as E
 open import Definition.Typed TR
 open import Definition.Typed.Consequences.Admissible TR
 open import Definition.Typed.Properties TR
 open import Definition.Typed.Substitution TR
-import Graded.Derived.Erased.Untyped 𝕄 as E
 open import Graded.Derived.Erased.Typed TR
 
 open import Graded.Heap.Typed UR TR

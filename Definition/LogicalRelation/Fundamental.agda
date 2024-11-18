@@ -17,6 +17,7 @@ open EqRelSet {{...}}
 open Type-restrictions R
 
 open import Definition.Untyped M
+import Definition.Untyped.Erased 𝕄 as E
 open import Definition.Untyped.Properties M
 
 open import Definition.Typed R
@@ -27,8 +28,6 @@ open import Definition.LogicalRelation.Substitution R
 open import Definition.LogicalRelation.Substitution.Introductions R
 import Definition.LogicalRelation.Substitution.Introductions.Erased R
   as Erased
-
-import Graded.Derived.Erased.Untyped 𝕄 as E
 
 open import Tools.Function
 open import Tools.Product

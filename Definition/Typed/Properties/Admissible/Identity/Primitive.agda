@@ -14,12 +14,11 @@ module Definition.Typed.Properties.Admissible.Identity.Primitive
 open Type-restrictions R
 
 open import Definition.Untyped M
+import Definition.Untyped.Erased 𝕄 as Erased
 
 open import Definition.Typed R
 open import Definition.Typed.Inversion.Primitive R
 open import Definition.Typed.Well-formed R
-
-import Graded.Derived.Erased.Untyped 𝕄 as Erased
 
 open import Tools.Product
 

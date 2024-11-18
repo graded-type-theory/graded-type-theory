@@ -26,11 +26,11 @@ open import Definition.Typed.EqRelInstance TR
 open import Definition.Typed.Properties TR
 open import Definition.Typed.Syntactic TR
 open import Definition.Untyped M
+import Definition.Untyped.Erased 𝕄 as Erased
 
 open import Graded.Context 𝕄
 open import Graded.Context.Properties 𝕄
 open import Graded.Derived.Erased.Typed TR
-import Graded.Derived.Erased.Untyped 𝕄 as Erased
 open import Graded.Derived.Erased.Usage 𝕄 UR
 import Graded.Erasure.LogicalRelation as L
 open import Graded.Erasure.LogicalRelation.Assumptions TR

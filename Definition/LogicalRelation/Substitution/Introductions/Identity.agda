@@ -31,11 +31,11 @@ open import Definition.Typed R
 open import Definition.Typed.Properties R
 open import Definition.Typed.Reasoning.Reduction R
 open import Definition.Untyped M as U hiding (_[_])
+import Definition.Untyped.Erased
 open import Definition.Untyped.Neutral M type-variant
 open import Definition.Untyped.Properties M
 
 import Graded.Derived.Erased.Typed.Primitive R as ETP
-import Graded.Derived.Erased.Untyped
 
 open import Tools.Fin using (x0)
 open import Tools.Function
@@ -59,10 +59,10 @@ private
 
   module E {s} (ok : []-cong-allowed s) where
 
+    open Definition.Untyped.Erased 𝕄 s public
     open Erased ([]-cong→Erased ok) public
       renaming ([]-congᵛ to []-congᵛ′)
     open ETP    ([]-cong→Erased ok) public
-    open Graded.Derived.Erased.Untyped 𝕄 s public
 
 ------------------------------------------------------------------------
 -- Some characterisation lemmas

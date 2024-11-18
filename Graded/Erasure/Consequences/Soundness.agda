@@ -18,6 +18,7 @@ open Type-restrictions TR
 open Usage-restrictions UR
 
 open import Definition.Untyped M
+import Definition.Untyped.Erased 𝕄 as Erased
 open import Definition.Untyped.Identity 𝕄
 open import Definition.Untyped.Neutral M type-variant
 open import Definition.Untyped.Sigma 𝕄
@@ -36,7 +37,6 @@ open import Definition.LogicalRelation TR
 
 open import Graded.Context 𝕄
 open import Graded.Derived.Erased.Typed TR
-import Graded.Derived.Erased.Untyped 𝕄 as Erased
 open import Graded.Derived.Erased.Usage 𝕄 UR
 open import Graded.Usage 𝕄 UR
 open import Graded.Usage.Erased-matches

@@ -154,7 +154,7 @@ opaque
     PE.subst (λ x → _ ⨾ H′ ⊢ᵉ []-congₑ s A t u ρ ⟨ v ⟩∷ wk ρ (Id A t u) [ x ] ↝ wk ρ (Id (E.Erased A) E.[ t ] E.[ u ]) [ x ])
       (PE.sym (heapUpdateSubst d)) ([]-congₑ ok)
     where
-    import Graded.Derived.Erased.Untyped 𝕄 s as E
+    import Definition.Untyped.Erased 𝕄 s as E
   heapUpdate-⊢ᵉ (conv ⊢e x) d =
     conv (heapUpdate-⊢ᵉ ⊢e d) x
 

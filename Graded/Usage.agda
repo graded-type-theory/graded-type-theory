@@ -242,9 +242,9 @@ open import Graded.Modality.Dedicated-nr.Instance
 --   satisfies a usage rule that is similar to []-congₘ (see
 --   Graded.Box-cong.▸[]-cong-J).
 --
--- * Graded.Derived.Erased.Untyped.Jᵉ is a variant of J that is
---   defined using []-cong. If []-cong is allowed (which at the time
---   of writing implies that the modality is non-trivial, see
+-- * Definition.Untyped.Erased.Jᵉ is a variant of J that is defined
+--   using []-cong. If []-cong is allowed (which at the time of
+--   writing implies that the modality is non-trivial, see
 --   Definition.Typed.Restrictions.Type-restrictions.[]-cong→¬Trivial),
 --   then this term former satisfies typing rules that are similar to
 --   those for J (see Graded.Derived.Erased.Typed). Furthermore the

@@ -20,8 +20,7 @@ open import Definition.Typed.Substitution R
 open import Definition.Typed.Syntactic R
 
 open import Definition.Untyped M
-
-import Graded.Derived.Erased.Untyped 𝕄 as Erased
+import Definition.Untyped.Erased 𝕄 as Erased
 
 open import Tools.Fin
 open import Tools.Function

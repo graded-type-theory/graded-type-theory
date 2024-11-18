@@ -32,6 +32,7 @@ open import Definition.Typed.Syntactic TR
 import Definition.Typed.Weakening TR as W
 open import Definition.Typed.Well-formed TR
 open import Definition.Untyped M as U
+import Definition.Untyped.Erased 𝕄 as Erased
 open import Definition.Untyped.Identity 𝕄
 open import Definition.Untyped.Neutral M type-variant
 open import Definition.Untyped.Properties M
@@ -40,7 +41,6 @@ open import Graded.Context 𝕄
 open import Graded.Context.Properties 𝕄
 open import Graded.Derived.Erased.Typed TR as ET hiding ([]-cong′)
 open import Graded.Derived.Erased.Typed.Inversion TR
-import Graded.Derived.Erased.Untyped 𝕄 as Erased
 import Graded.Derived.Erased.Usage 𝕄 UR as ErasedU
 open import Graded.Derived.Identity UR
 open import Graded.Modality.Properties 𝕄

@@ -23,9 +23,9 @@ open import Definition.Typed.Reasoning.Term.Primitive R
 open import Definition.Typed.Well-formed R
 
 open import Definition.Untyped M
+import Definition.Untyped.Erased 𝕄 as Erased
 open import Definition.Untyped.Neutral M type-variant
 
-import Graded.Derived.Erased.Untyped 𝕄 as Erased
 import Graded.Derived.Erased.Typed.Primitive R as ET
 
 open import Tools.Empty

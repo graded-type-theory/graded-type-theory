@@ -15,9 +15,9 @@ module Graded.Heap.Typed.Weakening
 open Type-restrictions TR
 
 open import Definition.Untyped M
+import Definition.Untyped.Erased 𝕄 as Erased
 open import Definition.Untyped.Properties M
 open import Definition.Typed TR
-import Graded.Derived.Erased.Untyped 𝕄 as Erased
 
 open import Graded.Heap.Untyped type-variant UR
 open import Graded.Heap.Untyped.Properties type-variant UR

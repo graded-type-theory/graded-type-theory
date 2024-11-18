@@ -26,10 +26,10 @@ open import Definition.Untyped M hiding (_[_]′)
 open import Definition.Untyped.Bool 𝕄 as B
   using (OK; OKᵍ; boolrecᵍ-nc₁; boolrecᵍ-nc₂)
 open import Definition.Untyped.Empty 𝕄
+open import Definition.Untyped.Erased 𝕄 𝕨 as E hiding ([_])
 open import Definition.Untyped.Nat 𝕄
 open import Definition.Untyped.Properties M
 
-open import Graded.Derived.Erased.Untyped 𝕄 𝕨 as E hiding ([_])
 open import Graded.Modality.Dedicated-nr.Instance
 open import Graded.Modality.Nr-instances
 open import Graded.Modality.Properties 𝕄

@@ -34,13 +34,12 @@ open import Definition.Typed
 open import Definition.Typed.Consequences.Admissible R₂
 open import Definition.Typed.Properties R₂
 open import Definition.Untyped
+import Definition.Untyped.Erased
 open import Definition.Untyped.QuantityTranslation tr tr-Σ
 
-import Graded.Derived.Erased.Untyped
-
 private
-  module E₁ = Graded.Derived.Erased.Untyped 𝕄₁
-  module E₂ = Graded.Derived.Erased.Untyped 𝕄₂
+  module E₁ = Definition.Untyped.Erased 𝕄₁
+  module E₂ = Definition.Untyped.Erased 𝕄₂
   module R₁ = Type-restrictions R₁
   module R₂ = Type-restrictions R₂
   module T₁ = Definition.Typed R₁

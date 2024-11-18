@@ -30,9 +30,8 @@ open import Definition.LogicalRelation.Substitution.Introductions.Unit R
 open import Definition.Typed.Properties R
 open import Definition.Typed.Weakening R
 open import Definition.Untyped M
+open import Definition.Untyped.Erased 𝕄 s
 open import Definition.Untyped.Properties M
-
-open import Graded.Derived.Erased.Untyped 𝕄 s
 
 open import Tools.Function
 import Tools.PropositionalEquality as PE

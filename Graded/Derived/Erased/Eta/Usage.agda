@@ -21,7 +21,7 @@ open import Graded.Usage.Properties 𝕄 R
 open import Graded.Mode 𝕄
 
 open import Definition.Untyped M
-open import Graded.Derived.Erased.Eta.Untyped 𝕄
+open import Definition.Untyped.Erased.Eta 𝕄
 
 open import Tools.Bool
 open import Tools.Empty

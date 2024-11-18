@@ -28,6 +28,7 @@ open import Definition.Typed.Syntactic R
 open import Definition.Typed.Weakening R as W
 
 import Definition.Untyped M as U
+import Definition.Untyped.Erased 𝕄 as Erased
 open import Definition.Untyped.Identity 𝕄
 open import Definition.Untyped.Properties M
 open import Definition.Untyped.Sigma 𝕄
@@ -37,7 +38,6 @@ import Graded.Derived.Erased.Eta.Typed R as Eta
 import Graded.Derived.Erased.NoEta.Typed R as NoEta
 import Graded.Derived.Erased.Typed.Primitive R as P
 open import Graded.Derived.Erased.Typed.Inversion R
-import Graded.Derived.Erased.Untyped 𝕄 as Erased
 
 open import Tools.Fin
 open import Tools.Function

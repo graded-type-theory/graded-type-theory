@@ -28,12 +28,11 @@ open import Graded.Usage.Weakening 𝕄 R
 open import Graded.Mode 𝕄
 
 open import Definition.Untyped M
+open import Definition.Untyped.Erased 𝕄 s
 open import Definition.Untyped.Identity 𝕄
 open import Definition.Untyped.Properties M
 import Graded.Derived.Erased.Eta.Usage 𝕄 R as Eta
 import Graded.Derived.Erased.NoEta.Usage 𝕄 R as NoEta
-import Graded.Derived.Erased.Untyped
-open Graded.Derived.Erased.Untyped 𝕄 s
 open import Graded.Derived.Identity R
 open import Graded.Derived.Sigma 𝕄 R
 open import Graded.Derived.Unit R

@@ -95,9 +95,9 @@ import Definition.Untyped.Nat
 import Definition.Untyped.Lift
 import Definition.Untyped.Empty
 import Definition.Untyped.Bool
-import Graded.Derived.Erased.Eta.Untyped
-import Graded.Derived.Erased.NoEta.Untyped
-import Graded.Derived.Erased.Untyped
+import Definition.Untyped.Erased.Eta
+import Definition.Untyped.Erased.No-eta
+import Definition.Untyped.Erased
 import Definition.Untyped.Bool.Erased
 import Graded.Derived.Unrestricted.Eta.Untyped
 import Definition.Typed.Variant

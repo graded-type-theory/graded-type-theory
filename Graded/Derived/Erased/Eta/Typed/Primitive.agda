@@ -21,10 +21,10 @@ open import Definition.Typed R
 open import Definition.Typed.Properties R
 
 open import Definition.Untyped M hiding (_[_])
+open import Definition.Untyped.Erased 𝕄 𝕤 hiding (erased)
+open import Definition.Untyped.Erased.Eta 𝕄
 
-open import Graded.Derived.Erased.Eta.Untyped 𝕄
 open import Graded.Derived.Erased.Typed.Primitive R (Unit-ok , Σ-ok) public
-open import Graded.Derived.Erased.Untyped 𝕄 𝕤 hiding (erased)
 
 open import Tools.Function
 import Tools.PropositionalEquality as PE

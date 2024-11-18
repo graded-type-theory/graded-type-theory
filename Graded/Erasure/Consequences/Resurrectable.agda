@@ -28,13 +28,13 @@ open import Definition.Typed.Properties TR
 open import Definition.Typed.Reasoning.Term TR
 open import Definition.Typed.Syntactic TR
 open import Definition.Untyped M
+open import Definition.Untyped.Erased 𝕄 as Erased using (Erased)
 open import Definition.Untyped.Unit 𝕄
 
 open import Graded.Context 𝕄
 open import Graded.Context.Properties 𝕄
 open import Graded.Derived.Erased.Typed TR
 open import Graded.Derived.Erased.Usage 𝕄 UR
-open import Graded.Derived.Erased.Untyped 𝕄 as Erased using (Erased)
 open import Graded.Derived.Sigma 𝕄 UR
 open import Graded.Derived.Unit UR
 open import Graded.Erasure.Consequences.Identity TR UR

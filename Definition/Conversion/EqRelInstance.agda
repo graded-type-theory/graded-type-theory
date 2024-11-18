@@ -15,6 +15,7 @@ module Definition.Conversion.EqRelInstance
 open Type-restrictions R
 
 open import Definition.Untyped M
+import Definition.Untyped.Erased 𝕄 as Erased
 open import Definition.Untyped.Neutral M type-variant
 open import Definition.Untyped.Properties M
 open import Definition.Typed R
@@ -41,7 +42,6 @@ open import Definition.Typed.Consequences.Equality R
 open import Definition.Typed.Consequences.Reduction R
 
 open import Graded.Derived.Erased.Typed R
-import Graded.Derived.Erased.Untyped 𝕄 as Erased
 
 open import Tools.Empty
 open import Tools.Fin

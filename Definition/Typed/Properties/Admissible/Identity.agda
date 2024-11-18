@@ -27,10 +27,10 @@ open import Definition.Typed.Stability R
 open import Definition.Typed.Substitution R
 open import Definition.Typed.Syntactic R
 open import Definition.Typed.Weakening R
+import Definition.Untyped.Erased 𝕄 as Erased
 open import Definition.Untyped.Identity 𝕄
 open import Definition.Untyped.Properties M
 
-import Graded.Derived.Erased.Untyped 𝕄 as Erased
 import Graded.Derived.Erased.Typed.Primitive R as ET
 
 open import Tools.Fin

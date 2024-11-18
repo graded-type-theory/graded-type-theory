@@ -40,12 +40,12 @@ import Definition.LogicalRelation.Substitution.Introductions.Erased R
 open import Definition.LogicalRelation.Substitution.Introductions R
 
 open import Definition.Untyped M
+import Definition.Untyped.Erased 𝕄 as Erased
 open import Definition.Untyped.Properties M
 
 open import Graded.Context 𝕄
 open import Graded.Context.Properties.Has-well-behaved-zero 𝕄
 open import Graded.Erasure.Extraction 𝕄
-import Graded.Derived.Erased.Untyped 𝕄 as Erased
 open import Graded.Erasure.LogicalRelation as
 open import Graded.Erasure.LogicalRelation.Hidden as
 import Graded.Erasure.Target as T

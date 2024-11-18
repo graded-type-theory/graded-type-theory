@@ -23,7 +23,7 @@ open import Graded.Modality.Properties 𝕄
 open import Graded.Mode 𝕄
 
 open import Definition.Untyped M
-open import Graded.Derived.Erased.NoEta.Untyped 𝕄
+open import Definition.Untyped.Erased.No-eta 𝕄
 
 open import Graded.Derived.Sigma 𝕄 R
 

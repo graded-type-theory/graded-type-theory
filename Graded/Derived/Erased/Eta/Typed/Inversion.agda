@@ -23,8 +23,8 @@ open import Definition.Typed.Inversion R
 open import Definition.Typed.Substitution R
 
 open import Definition.Untyped M as U
-open import Graded.Derived.Erased.Eta.Untyped 𝕄
-open import Graded.Derived.Erased.Untyped 𝕄 𝕤 hiding (erased)
+open import Definition.Untyped.Erased 𝕄 𝕤 hiding (erased)
+open import Definition.Untyped.Erased.Eta 𝕄
 
 open import Tools.Empty
 open import Tools.Function

@@ -21,9 +21,8 @@ open import Definition.Typed.Properties R
 open import Definition.Typed.Syntactic R
 
 open import Definition.Untyped M hiding (_[_])
-
-open import Graded.Derived.Erased.NoEta.Untyped 𝕄
-open import Graded.Derived.Erased.Untyped 𝕄 𝕨 hiding (erased)
+open import Definition.Untyped.Erased 𝕄 𝕨 hiding (erased)
+open import Definition.Untyped.Erased.No-eta 𝕄
 
 open import Tools.Function
 open import Tools.Product
