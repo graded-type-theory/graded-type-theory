@@ -5,7 +5,7 @@
 open import Definition.Typed.Restrictions
 open import Graded.Modality
 
-module Definition.Typed.Consequences.Admissible.Lift
+module Definition.Typed.Consequences.Inversion.Lift
   {a} {M : Set a}
   {𝕄 : Modality M}
   (R : Type-restrictions 𝕄)

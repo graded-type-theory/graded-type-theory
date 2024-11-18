@@ -3,9 +3,8 @@
 ------------------------------------------------------------------------
 
 -- Typing rules for the term formers defined in this module can be
--- found in Definition.Typed.Properties.Admissible.Lift and
--- Definition.Typed.Consequences.Admissible.Lift, and usage rules can
--- be found in Graded.Derived.Lift.
+-- found in Definition.Typed.Properties.Admissible.Lift, and usage
+-- rules can be found in Graded.Derived.Lift.
 
 open import Graded.Modality
 

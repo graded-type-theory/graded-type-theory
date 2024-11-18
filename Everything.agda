@@ -296,7 +296,7 @@ import Definition.Typed.Consequences.Reduction
 import Definition.Typed.Consequences.InverseUniv
 import Definition.Typed.Consequences.Admissible.Pi
 import Definition.Typed.Consequences.Admissible.Sigma
-import Definition.Typed.Consequences.Admissible.Lift
+import Definition.Typed.Consequences.Inversion.Lift
 import Definition.Typed.Consequences.Inversion.Erased
 import Definition.Typed.Consequences.Inversion.Erased.Eta
 import Definition.Typed.Consequences.Inversion.Erased.No-eta
