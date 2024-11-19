@@ -100,18 +100,6 @@ private opaque
 
 opaque
 
-  -- Another well-formedness lemma for ⊢_≡_.
-
-  contextConvSubst : ⊢ Γ ≡ Δ → ⊢ Γ × ⊢ Δ × Δ ⊢ˢ idSubst ∷ Γ
-  contextConvSubst Γ≡Δ =
-    let ⊢Γ  = wf-⊢≡ˡ Γ≡Δ
-        Γ≡Δ = ⊢≡⇔⊢≡ .proj₁ Γ≡Δ
-    in
-    ⊢Γ , S.wf-⊢≡ʳ Γ≡Δ ,
-    S.stability-⊢ˢ∷ˡ Γ≡Δ (⊢ˢʷ∷⇔ .proj₁ (⊢ˢʷ∷-idSubst ⊢Γ) .proj₂)
-
-opaque
-
   -- Stability for _⊢_.
 
   stability : ⊢ Γ ≡ Δ → Γ ⊢ A → Δ ⊢ A
@@ -149,6 +137,27 @@ opaque
 
   -- Stability for _⊢ˢ_∷_.
 
+  stability-⊢ˢʷ∷ˡ : ⊢ Δ ≡ Η → Δ ⊢ˢʷ σ ∷ Γ → Η ⊢ˢʷ σ ∷ Γ
+  stability-⊢ˢʷ∷ˡ Δ≡Η =
+    ⊢ˢʷ∷⇔ .proj₂ ∘→
+    Σ.map (λ _ → S.wf-⊢≡ʳ (⊢≡⇔⊢≡ .proj₁ Δ≡Η)) (stability-⊢ˢ∷ˡ Δ≡Η) ∘→
+    ⊢ˢʷ∷⇔ .proj₁
+
+opaque
+
+  -- A well-formedness lemma for ⊢_≡_.
+
+  contextConvSubst : ⊢ Γ ≡ Δ → ⊢ Γ × ⊢ Δ × Δ ⊢ˢʷ idSubst ∷ Γ
+  contextConvSubst Γ≡Δ =
+    let ⊢Γ  = wf-⊢≡ˡ Γ≡Δ
+        ⊢id = stability-⊢ˢʷ∷ˡ Γ≡Δ (⊢ˢʷ∷-idSubst ⊢Γ)
+    in
+    ⊢Γ , wf-⊢ˢʷ∷ ⊢id , ⊢id
+
+opaque
+
+  -- Stability for _⊢ˢ_∷_.
+
   stability-⊢ˢ∷ʳ : ⊢ Γ ≡ Δ → Η ⊢ˢ σ ∷ Γ → Η ⊢ˢ σ ∷ Δ
   stability-⊢ˢ∷ʳ ε           ⊢σ        = ⊢σ
   stability-⊢ˢ∷ʳ (Γ≡Δ ∙ A≡B) (⊢σ , ⊢t) =
@@ -157,10 +166,32 @@ opaque
 
 opaque
 
+  -- Stability for _⊢ˢʷ_∷_.
+
+  stability-⊢ˢʷ∷ʳ : ⊢ Γ ≡ Δ → Η ⊢ˢʷ σ ∷ Γ → Η ⊢ˢʷ σ ∷ Δ
+  stability-⊢ˢʷ∷ʳ Γ≡Δ =
+    ⊢ˢʷ∷⇔ .proj₂ ∘→
+    Σ.map idᶠ (stability-⊢ˢ∷ʳ Γ≡Δ) ∘→
+    ⊢ˢʷ∷⇔ .proj₁
+
+opaque
+
   -- Stability for _⊢ˢ_≡_∷_.
 
   stability-⊢ˢ≡∷ˡ : ⊢ Δ ≡ Η → Δ ⊢ˢ σ₁ ≡ σ₂ ∷ Γ → Η ⊢ˢ σ₁ ≡ σ₂ ∷ Γ
   stability-⊢ˢ≡∷ˡ = S.stability-⊢ˢ≡∷ˡ ∘→ ⊢≡⇔⊢≡ .proj₁
+
+opaque
+
+  -- Stability for _⊢ˢʷ_≡_∷_.
+
+  stability-⊢ˢʷ≡∷ˡ : ⊢ Δ ≡ Η → Δ ⊢ˢʷ σ₁ ≡ σ₂ ∷ Γ → Η ⊢ˢʷ σ₁ ≡ σ₂ ∷ Γ
+  stability-⊢ˢʷ≡∷ˡ Δ≡Η =
+    ⊢ˢʷ≡∷⇔ .proj₂ ∘→
+    Σ.map (λ _ → contextConvSubst Δ≡Η .proj₂ .proj₁)
+      (Σ.map (stability-⊢ˢ∷ˡ Δ≡Η) $ Σ.map (stability-⊢ˢ∷ˡ Δ≡Η) $
+       stability-⊢ˢ≡∷ˡ Δ≡Η) ∘→
+    ⊢ˢʷ≡∷⇔ .proj₁
 
 opaque
 
@@ -174,6 +205,18 @@ opaque
     in
     stability-⊢ˢ≡∷ʳ Γ≡Δ σ₁≡σ₂ ,
     conv t₁≡t₂ (subst-⊢≡ A≡B (refl-⊢ˢʷ≡∷ ⊢σ₁))
+
+opaque
+
+  -- Stability for _⊢ˢʷ_≡_∷_.
+
+  stability-⊢ˢʷ≡∷ʳ : ⊢ Γ ≡ Δ → Η ⊢ˢʷ σ₁ ≡ σ₂ ∷ Γ → Η ⊢ˢʷ σ₁ ≡ σ₂ ∷ Δ
+  stability-⊢ˢʷ≡∷ʳ Γ≡Δ =
+    ⊢ˢʷ≡∷⇔ .proj₂ ∘→
+    Σ.map idᶠ
+      (Σ.map (stability-⊢ˢ∷ʳ Γ≡Δ) $ Σ.map (stability-⊢ˢ∷ʳ Γ≡Δ) $
+       stability-⊢ˢ≡∷ʳ Γ≡Δ) ∘→
+    ⊢ˢʷ≡∷⇔ .proj₁
 
 opaque
 
