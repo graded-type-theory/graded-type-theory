@@ -805,8 +805,7 @@ opaque
                                                                                (_⊢_∷_.conv ⊢[starʷ] $
                                                                                 PE.subst (_⊢_≡_ _ _) (PE.cong Erased $ PE.sym B.OK-[]) $
                                                                                 Erased-cong Erased-ok $ sym $ OK-1≡ ⊢Γ)
-                                                                               (syntacticEqTerm natcase-natcase-lemma .proj₂ .proj₁)
-                                                                               Σ-ok ⟩⊢
+                                                                               (syntacticEqTerm natcase-natcase-lemma .proj₂ .proj₁) ⟩⊢
     (natcase boolrecᵍ-nc₂ (Boolᵍ + p)
        (Π 𝟙 , p ▷ Erased (OK (var x0)) ▹ Target 4 A (var x1) (var x0))
        (lam 𝟙 $
@@ -1017,8 +1016,7 @@ opaque
                                                                                (_⊢_∷_.conv ⊢[starʷ] $
                                                                                 PE.subst (_⊢_≡_ _ _) (PE.cong Erased $ PE.sym B.OK-[]) $
                                                                                 Erased-cong Erased-ok $ sym $ OK-0≡ ⊢Γ)
-                                                                               (syntacticEqTerm natcase-natcase-lemma .proj₂ .proj₁)
-                                                                               Σ-ok ⟩⊢
+                                                                               (syntacticEqTerm natcase-natcase-lemma .proj₂ .proj₁) ⟩⊢
     (natcase boolrecᵍ-nc₂ (Boolᵍ + p)
        (Π 𝟙 , p ▷ Erased (OK (var x0)) ▹ Target 4 A (var x1) (var x0))
        (lam 𝟙 $

@@ -633,8 +633,7 @@ opaque
                                                                                (_⊢_∷_.conv (starⱼ ⊢Γ Unitʷ-ok) $
                                                                                 PE.subst (_⊢_≡_ _ _) (PE.sym OK-[]) $
                                                                                 sym $ OK-1≡ ⊢Γ)
-                                                                               (syntacticEqTerm natcase-natcase-lemma .proj₂ .proj₁)
-                                                                               Σ-ok ⟩
+                                                                               (syntacticEqTerm natcase-natcase-lemma .proj₂ .proj₁) ⟩
     (natcase boolrecᵍ-nc₂ (boolrecᵍ-nc₃ p)
        (Π boolrecᵍ-Π , p ▷ OK (var x0) ▹ Target 4 A (var x1) (var x0))
        (lam boolrecᵍ-Π $
@@ -798,8 +797,7 @@ opaque
                                                                                (_⊢_∷_.conv (starⱼ ⊢Γ Unitʷ-ok) $
                                                                                 PE.subst (_⊢_≡_ _ _) (PE.sym OK-[]) $
                                                                                 sym $ OK-0≡ ⊢Γ)
-                                                                               (syntacticEqTerm natcase-natcase-lemma .proj₂ .proj₁)
-                                                                               Σ-ok ⟩
+                                                                               (syntacticEqTerm natcase-natcase-lemma .proj₂ .proj₁) ⟩
     (natcase boolrecᵍ-nc₂ (boolrecᵍ-nc₃ p)
        (Π boolrecᵍ-Π , p ▷ OK (var x0) ▹ Target 4 A (var x1) (var x0))
        (lam boolrecᵍ-Π $

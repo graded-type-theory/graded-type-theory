@@ -57,10 +57,7 @@ opaque
       (A≡F , B≡G , _) →
     case conv ⊢t (sym A≡F) of λ
       ⊢t′ →
-    case ⊢∷ΠΣ→ΠΣ-allowed ⊢p of λ
-      ok →
-    prodrec-β-⇒ ⊢C ⊢t′
-      (conv ⊢u (substTypeEq (sym B≡G) (refl ⊢t′))) ⊢v ok
+    prodrec-β-⇒ ⊢C ⊢t′ (conv ⊢u (substTypeEq (sym B≡G) (refl ⊢t′))) ⊢v
 
 opaque
 

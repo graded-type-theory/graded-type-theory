@@ -674,20 +674,21 @@ opaque
 
     opaque
 
-      ⊢A,⊢B,ok : Γ ⊢ A × Γ ∙ A ⊢ B × Σʷ-allowed p q
-      ⊢A,⊢B,ok =
+      ⊢A,⊢B : Γ ⊢ A × Γ ∙ A ⊢ B
+      ⊢A,⊢B =
+        Σ.map idᶠ proj₁ $
         inversion-ΠΣ $ syntacticTerm $ escape-⊩ᵛ∷ $
         fundamental-⊩ᵛ∷ ⊢t .proj₂
 
     opaque
 
       ⊩A : ∃ λ l → Γ ⊩ᵛ⟨ l ⟩ A
-      ⊩A = fundamental-⊩ᵛ (⊢A,⊢B,ok .proj₁)
+      ⊩A = fundamental-⊩ᵛ (⊢A,⊢B .proj₁)
 
     opaque
 
       ⊩B : ∃ λ l → Γ ∙ A ⊩ᵛ⟨ l ⟩ B
-      ⊩B = fundamental-⊩ᵛ (⊢A,⊢B,ok .proj₂ .proj₁)
+      ⊩B = fundamental-⊩ᵛ (⊢A,⊢B .proj₂)
 
     -- Some assumptions that are used in the proof.
 
@@ -1036,7 +1037,7 @@ opaque
                                                                  ⟨ ≅-eq $ escape-⊩≡ C[σ⇑][t[σ]]≡C[σ⇑][t₁,t₂] ⟩⇒
           prodrec r p q′ (C [ σ ⇑ ]) (prodʷ p t₁ t₂)
             (u [ σ ⇑ ⇑ ]) ∷
-            C [ σ ⇑ ] [ prodʷ p t₁ t₂ ]₀                       ⇒⟨ prodrec-β-⇒ ⊢C[σ⇑] ⊢t₁ ⊢t₂ ⊢u[σ⇑⇑] (⊢A,⊢B,ok .proj₂ .proj₂) ⟩∎∷≡
+            C [ σ ⇑ ] [ prodʷ p t₁ t₂ ]₀                       ⇒⟨ prodrec-β-⇒ ⊢C[σ⇑] ⊢t₁ ⊢t₂ ⊢u[σ⇑⇑] ⟩∎∷≡
 
           u [ σ ⇑ ⇑ ] [ t₁ , t₂ ]₁₀                            ≡⟨ doubleSubstComp u _ _ _ ⟩
 

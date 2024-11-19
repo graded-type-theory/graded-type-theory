@@ -240,7 +240,7 @@ opaque
       (Γ , _ , _ , ⊢H , ⊢t , ⊢e , ⊢S) →
     case inversion-prodrecₑ ⊢e of λ {
       (F , G , _ , ⊢u , ⊢A , PE.refl , B≡A₊) →
-    let ⊢t₁ , ⊢t₂ , _ , _ , ok = inversion-prod-Σ ⊢t
+    let ⊢t₁ , ⊢t₂ , _ = inversion-prod-Σ ⊢t
         H₁ = H ∙ (∣ S ∣ · r · p , t₁ , ρ)
         H₂ = H₁ ∙ (∣ S ∣ · r , t₂ , step ρ)
         u≡u′ = begin
@@ -278,7 +278,7 @@ opaque
              wk id (prodrec r p q (wk (lift ρ′) A) (wk ρ (prodʷ p t₁ t₂)) (wk (liftn ρ′ 2) u)) [ H ]ₕ
                ≡⟨ PE.cong (_[ H ]ₕ) (wk-id (prodrec r p q (wk (lift ρ′) A) (wk ρ (prodʷ p t₁ t₂)) (wk (liftn ρ′ 2) u))) ⟩⊢≡
              prodrec r p q (wk (lift ρ′) A) (wk ρ (prodʷ p t₁ t₂)) (wk (liftn ρ′ 2) u) [ H ]ₕ
-               ≡⟨ prodrec-β-≡ ⊢A ⊢t₁ ⊢t₂ ⊢u ok ⟩⊢∎≡
+               ≡⟨ prodrec-β-≡ ⊢A ⊢t₁ ⊢t₂ ⊢u ⟩⊢∎≡
              (wk (liftn ρ′ 2) u) [ liftSubstn (toSubstₕ H) 2 ] [ wk ρ t₁ [ H ]ₕ , wk ρ t₂ [ H ]ₕ ]₁₀
                ≡⟨ u≡u′ ⟩
              wk (liftn ρ′ 2) u [ H₂ ]ₕ ∎)

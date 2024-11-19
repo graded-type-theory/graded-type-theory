@@ -318,7 +318,7 @@ opaque
                                                                               (var₀ $ Unitⱼ (wfTerm ⊢t) Unit-ok)
                                                                               (syntacticEqTerm (erasedrec-lemma₂ B Unit-ok (refl ⊢t))
                                                                                  .proj₂ .proj₁))
-                                                                           Σ-ok ⟩⊢
+                                                                           (λ _ → Σ-ok) ⟩⊢
     unitrec⟨ s ⟩ 0 𝟙 p (B [ 3 ][ prod s 𝟘 (var x2) (var x0) ]↑)
       (var x0) (wk1 t)
       [ u , star s 0 ]₁₀                                              ≡⟨ PE.trans unitrec⟨⟩-[] $

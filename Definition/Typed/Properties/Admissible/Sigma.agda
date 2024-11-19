@@ -272,10 +272,10 @@ opaque
     Γ ⊢ t ∷ A →
     Γ ⊢ u ∷ B [ t ]₀ →
     Γ ∙ A ∙ B ⊢ v ∷ C [ prodʷ p (var x1) (var x0) ]↑² →
-    Σʷ-allowed p q′ →
     Γ ⊢ prodrec r p q C (prodʷ p t u) v ⇒ v [ t , u ]₁₀ ∷
       C [ prodʷ p t u ]₀
-  prodrec-β-⇒ ⊢C ⊢t ⊢u ⊢v ok =
+  prodrec-β-⇒ ⊢C ⊢t ⊢u ⊢v =
+    let _ , _ , ok = inversion-ΠΣ (⊢∙→⊢ (wf ⊢C)) in
     prodrec-β ⊢C ⊢t ⊢u ⊢v PE.refl ok
 
 opaque
@@ -287,11 +287,10 @@ opaque
     Γ ⊢ t ∷ A →
     Γ ⊢ u ∷ B [ t ]₀ →
     Γ ∙ A ∙ B ⊢ v ∷ C [ prodʷ p (var x1) (var x0) ]↑² →
-    Σʷ-allowed p q′ →
     Γ ⊢ prodrec r p q C (prodʷ p t u) v ≡ v [ t , u ]₁₀ ∷
       C [ prodʷ p t u ]₀
-  prodrec-β-≡ ⊢C ⊢t ⊢u ⊢v ok =
-    subsetTerm (prodrec-β-⇒ ⊢C ⊢t ⊢u ⊢v ok)
+  prodrec-β-≡ ⊢C ⊢t ⊢u ⊢v =
+    subsetTerm (prodrec-β-⇒ ⊢C ⊢t ⊢u ⊢v)
 
 opaque
 
@@ -624,7 +623,7 @@ opaque
     Γ ⊢ fstʷ p A (prodʷ p t u) ⇒ t ∷ A
   fstʷ-β-⇒ {Γ} {A} {B} {t} {u} {p} {q} ⊢B ⊢t ⊢u ok =             $⟨ Σ⊢wk1 ⊢B ok , 1∷wk1[1,0] ⊢B ⟩
     (Γ ∙ (Σʷ p , q ▷ A ▹ B) ⊢ wk1 A) ×
-    Γ ∙ A ∙ B ⊢ var x1 ∷ wk1 A [ prodʷ p (var x1) (var x0) ]↑²   →⟨ (λ (hyp₁ , hyp₂) → prodrec-β-⇒ hyp₁ ⊢t ⊢u hyp₂ ok) ⟩
+    Γ ∙ A ∙ B ⊢ var x1 ∷ wk1 A [ prodʷ p (var x1) (var x0) ]↑²   →⟨ (λ (hyp₁ , hyp₂) → prodrec-β-⇒ hyp₁ ⊢t ⊢u hyp₂) ⟩
 
     Γ ⊢ fstʷ p A (prodʷ p t u) ⇒ t ∷ wk1 A [ prodʷ p t u ]₀      →⟨ flip conv (⊢wk1[]≡ (wf-⊢∷ ⊢t)) ⟩
 
@@ -1073,11 +1072,13 @@ opaque
     Γ ⊢ t ∷ A →
     Γ ⊢ u ∷ B [ t ]₀ →
     Γ ∙ A ∙ B ⊢ v ∷ C [ prod s p (var x1) (var x0) ]↑² →
-    Σ-allowed s p q′ →
+    (s PE.≡ 𝕤 → Σ-allowed s p q′) →
     Γ ⊢ prodrec⟨ s ⟩ r p q C (prod s p t u) v ≡ v [ t , u ]₁₀ ∷
       C [ prod s p t u ]₀
-  prodrec⟨⟩-β {s = 𝕨}     ⊢C = prodrec-β-≡ (⊢C PE.refl)
-  prodrec⟨⟩-β {s = 𝕤} {C} _  = prodrecˢ-β C
+  prodrec⟨⟩-β {s = 𝕨} ⊢C ⊢t ⊢u ⊢v _ =
+    prodrec-β-≡ (⊢C PE.refl) ⊢t ⊢u ⊢v
+  prodrec⟨⟩-β {s = 𝕤} {C} _  ⊢t ⊢u ⊢v ok =
+    prodrecˢ-β C ⊢t ⊢u ⊢v (ok PE.refl)
 
 opaque
   unfolding prodrec⟨_⟩

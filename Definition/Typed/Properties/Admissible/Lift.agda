@@ -220,7 +220,7 @@ opaque
                                                                                (syntacticEqTerm
                                                                                   (liftrec-lemma (refl ⊢B) (refl ⊢t))
                                                                                   .proj₂ .proj₁)
-                                                                               ok₁ ⟩⊢
+                                                                               (λ _ → ok₁) ⟩⊢
     unitrec⟨ s ⟩ l r q
       (B [ consSubst (wkSubst 3 idSubst) (prod s 𝟙 (var x2) (var x0)) ])
       (var x0) (wk1 t) [ u , star s l ]₁₀ ∷
