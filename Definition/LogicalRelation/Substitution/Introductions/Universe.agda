@@ -257,11 +257,11 @@ opaque
               ω+0 , (
               ⊩U≡⇔ .proj₂ $
                 ⊩t[σ₁]
-              , reflect-level<ω ⊩t[σ₁]
+              , <ᵘ-ω
               , t [ σ₂ ]
               , idRed:*: (Uⱼ (escapeLevel ⊩t[σ₂]))
               , ⊩t≡
-              , ⊩U⇔ .proj₂ (⊩t[σ₂] , reflect-level<ω ⊩t[σ₂]))
+              , ⊩U⇔ .proj₂ (⊩t[σ₂] , <ᵘ-ω))
       )
 
 opaque
@@ -292,14 +292,14 @@ opaque
               ω+0 , (
               Type→⊩≡∷U⇔ Uₙ Uₙ .proj₂ $
                 ⊩1+t[σ₁]
-              , reflect-level<ω ⊩1+t[σ₁]
+              , <ᵘ-ω
               , ⊩U≡⇔ .proj₂
                 ( ⊩t[σ₁]
-                , {!   !}
+                , reflect-level-suc ⊩t[σ₁]
                 , t [ σ₂ ]
                 , idRed:*: (Uⱼ (escapeLevel ⊩t[σ₂]))
                 , ⊩t≡
-                , ⊩U⇔ .proj₂ (⊩t[σ₂] , {!   !})
+                , ⊩U⇔ .proj₂ (⊩t[σ₂] , PE.subst (_<ᵘ _) {!   !} (reflect-level-suc ⊩t[σ₁]))
                 )
               , Uⱼ (escapeLevel ⊩t[σ₁])
               , conv (Uⱼ (escapeLevel ⊩t[σ₂])) (U-cong (sucᵘ-cong (sym (≅ₜ-eq (escapeLevelEq ⊩t≡)))))

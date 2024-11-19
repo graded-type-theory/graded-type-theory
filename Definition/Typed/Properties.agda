@@ -219,7 +219,7 @@ subsetTerm ([]-cong-β ⊢A ⊢t _ t≡t′ ok) =
   where
   open Erased ([]-cong→Erased ok)
 subsetTerm (unitrec-subst l A u t⇒t′ ok no-η) =
-  unitrec-cong l (refl A) (subsetTerm t⇒t′) (refl u) ok no-η
+  unitrec-cong (refl l) (refl A) (subsetTerm t⇒t′) (refl u) ok no-η
 subsetTerm (unitrec-β l A u ok₁ ok₂) = unitrec-β l A u ok₁ ok₂
 subsetTerm (unitrec-β-η l A t u ok₁ ok₂) =
  unitrec-β-η l A t u ok₁ ok₂

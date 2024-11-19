@@ -128,6 +128,9 @@ data Universe-level : Set where
 0ᵘ : Universe-level
 0ᵘ = 0+ 0
 
+1ᵘ : Universe-level
+1ᵘ = 0+ 1
+
 1+ᵘ : Universe-level → Universe-level
 1+ᵘ (0+ n) = 0+ (1+ n)
 1+ᵘ ω+0 = ω+0
@@ -180,3 +183,6 @@ infix 4 _<ᵘ_
 data _<ᵘ_ : Universe-level → Universe-level → Set where
   <ᵘ-nat : ∀ {l l′} → l <′ l′ → 0+ l <ᵘ 0+ l′
   <ᵘ-ω : ∀ {l} → 0+ l <ᵘ ω+0
+
+0ᵘ<ᵘ1ᵘ : 0ᵘ <ᵘ 1ᵘ
+0ᵘ<ᵘ1ᵘ = <ᵘ-nat ≤′-refl

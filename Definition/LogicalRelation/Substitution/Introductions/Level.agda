@@ -32,6 +32,7 @@ open import Definition.Untyped.Properties M
 
 open import Tools.Empty
 open import Tools.Function
+open import Tools.Nat using (≤′-refl)
 open import Tools.Product as Σ
 import Tools.PropositionalEquality as PE
 import Tools.Reasoning.PropositionalEquality
@@ -43,7 +44,7 @@ private variable
   l l′ l″ l‴                        : Universe-level
   p q r                             : M
 
-mutual
+-- mutual
   -- reflect-level-subst
   --   : ∀ {n m} {Γ : Con Term n} {Δ : Con Term m} {σ : Subst m n} {t : Term n}
   --   → (⊩t : Γ ⊩Level t ∷Level)
@@ -67,22 +68,22 @@ mutual
   --   → reflect-level-prop ⊩t ≤ᵘ reflect-level-prop ⊩t[σ]
   -- reflect-level-prop-subst ⊩t ⊩t[σ] = {!   !}
 
-  reflect-level<ω
-    : ∀ {n} {Γ : Con Term n} {t : Term n}
-    → (⊩t : Γ ⊩Level t ∷Level)
-    → reflect-level ⊩t <ᵘ ω+0
-  reflect-level<ω ⊩t = reflect-level-prop<ω (⊩t ._⊩Level_∷Level.prop)
+  -- reflect-level<ω
+  --   : ∀ {n} {Γ : Con Term n} {t : Term n}
+  --   → (⊩t : Γ ⊩Level t ∷Level)
+  --   → reflect-level ⊩t <ᵘ ω+0
+  -- reflect-level<ω ⊩t = reflect-level-prop<ω (⊩t ._⊩Level_∷Level.prop)
 
-  reflect-level-prop<ω
-    : ∀ {n} {Γ : Con Term n} {t : Term n}
-    → (⊩t : Level-prop Γ t)
-    → reflect-level-prop ⊩t <ᵘ ω+0
-  reflect-level-prop<ω zeroᵘᵣ = <ᵘ-ω
-  reflect-level-prop<ω (sucᵘᵣ x) = lemma (reflect-level<ω x)
-    where
-      lemma : ∀ {n} → n <ᵘ ω+0 → 1+ᵘ n <ᵘ ω+0
-      lemma <ᵘ-ω = <ᵘ-ω
-  reflect-level-prop<ω (ne x) = <ᵘ-ω
+  -- reflect-level-prop<ω
+  --   : ∀ {n} {Γ : Con Term n} {t : Term n}
+  --   → (⊩t : Level-prop Γ t)
+  --   → reflect-level-prop ⊩t <ᵘ ω+0
+  -- reflect-level-prop<ω zeroᵘᵣ = <ᵘ-ω
+  -- reflect-level-prop<ω (sucᵘᵣ x) = lemma (reflect-level<ω x)
+  --   where
+  --     lemma : ∀ {n} → n <ᵘ ω+0 → 1+ᵘ n <ᵘ ω+0
+  --     lemma <ᵘ-ω = <ᵘ-ω
+  -- reflect-level-prop<ω (ne x) = <ᵘ-ω
 
 ------------------------------------------------------------------------
 -- Characterisation lemmas
@@ -297,6 +298,9 @@ opaque
 
   ⊩Level-sucᵘ : Γ ⊩Level t ∷Level → Γ ⊩Level sucᵘ t ∷Level
   ⊩Level-sucᵘ ⊩t = Levelₜ _ (idRedTerm:*: (sucᵘⱼ (escapeLevel ⊩t))) (≅ₜ-sucᵘ-cong (escapeLevelEq (reflLevel ⊩t))) (sucᵘᵣ ⊩t)
+
+  reflect-level-suc : (⊩t : Γ ⊩Level t ∷Level) → reflect-level ⊩t <ᵘ reflect-level (⊩Level-sucᵘ ⊩t)
+  reflect-level-suc ⊩t = <ᵘ-nat ≤′-refl
 
 opaque
 

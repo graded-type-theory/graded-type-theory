@@ -32,6 +32,7 @@ open import Definition.LogicalRelation.Substitution.Introductions.Universe R {{e
 open import Tools.Function
 open import Tools.Nat using (Nat; 1+)
 open import Tools.Product
+import Tools.PropositionalEquality as PE
 
 private variable
   Γ Δ : Con Term _
@@ -166,7 +167,7 @@ opaque
 
   Emptyᵗᵛ : ⊩ᵛ Γ → Γ ⊩ᵛ Empty ∷ U zeroᵘ
   Emptyᵗᵛ ⊩Γ =
-    ⊩ᵛ∷-const-intro {l = 1+ᵘ 0ᵘ}
+    ⊩ᵛ∷-const-intro {l = 1ᵘ}
       ( ⊩ᵛU (zeroᵘᵛ ⊩Γ)
       , λ σ₁≡σ₂ →
           case escape-⊩ˢ≡∷ σ₁≡σ₂ of λ
@@ -174,6 +175,6 @@ opaque
           case Emptyⱼ ⊢Δ  of λ
             ⊢Empty →
           Type→⊩≡∷U⇔ Emptyₙ Emptyₙ .proj₂
-            (⊩Level-zeroᵘ ⊢Δ , {! ≤ᵘ-refl  !} , refl-⊩≡ (⊩Empty ⊢Δ) ,
+            (⊩Level-zeroᵘ ⊢Δ , PE.subst (_<ᵘ 1ᵘ) (PE.sym (reflect-level-zero ⊢Δ)) 0ᵘ<ᵘ1ᵘ , refl-⊩≡ (⊩Empty ⊢Δ) ,
             ⊢Empty , ⊢Empty , ≅ₜ-Emptyrefl ⊢Δ)
       )

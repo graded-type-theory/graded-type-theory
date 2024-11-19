@@ -164,13 +164,19 @@ mutual
     ne     : ∀ {k k′} → Γ ⊩neNf k ≡ k′ ∷ Level → [Level]-prop Γ k k′
 
 mutual
-  reflect-level : Γ ⊩Level t ∷Level → Universe-level
-  reflect-level [t] = reflect-level-prop ([t] ._⊩Level_∷Level.prop)
+  reflect-level′ : Γ ⊩Level t ∷Level → Nat
+  reflect-level′ [t] = reflect-level-prop′ ([t] ._⊩Level_∷Level.prop)
 
-  reflect-level-prop : Level-prop Γ t → Universe-level
-  reflect-level-prop zeroᵘᵣ = 0ᵘ
-  reflect-level-prop (sucᵘᵣ x) = 1+ᵘ (reflect-level x)
-  reflect-level-prop (ne x) = 0ᵘ
+  reflect-level-prop′ : Level-prop Γ t → Nat
+  reflect-level-prop′ zeroᵘᵣ = 0
+  reflect-level-prop′ (sucᵘᵣ x) = 1+ (reflect-level′ x)
+  reflect-level-prop′ (ne x) = 0
+
+reflect-level : Γ ⊩Level t ∷Level → Universe-level
+reflect-level ⊩t = 0+ (reflect-level′ ⊩t)
+
+reflect-level-prop : Level-prop Γ t → Universe-level
+reflect-level-prop ⊩t = 0+ (reflect-level-prop′ ⊩t)
 
 -- Reducibility of natural numbers:
 

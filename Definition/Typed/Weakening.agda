@@ -234,6 +234,7 @@ mutual
   wkEq ρ ⊢Δ (sym A≡B) = sym (wkEq ρ ⊢Δ A≡B)
   wkEq ρ ⊢Δ (trans A≡B B≡C) = trans (wkEq ρ ⊢Δ A≡B) (wkEq ρ ⊢Δ B≡C)
   wkEq ρ ⊢Δ (U-cong l₁≡l₂) = U-cong (wkEqTerm ρ ⊢Δ l₁≡l₂)
+  wkEq ρ ⊢Δ (Unit-cong l₁≡l₂ ok) = Unit-cong (wkEqTerm ρ ⊢Δ l₁≡l₂) ok
   wkEq ρ ⊢Δ (ΠΣ-cong F F≡H G≡E ok) =
     ΠΣ-cong ρF (wkEq ρ ⊢Δ F≡H) (wkEq (lift ρ) (⊢Δ ∙ ρF) G≡E) ok
     where
@@ -252,6 +253,7 @@ mutual
   wkEqTerm ρ ⊢Δ (conv t≡u A≡B) = conv (wkEqTerm ρ ⊢Δ t≡u) (wkEq ρ ⊢Δ A≡B)
   wkEqTerm ρ ⊢Δ (sucᵘ-cong m≡n) = sucᵘ-cong (wkEqTerm ρ ⊢Δ m≡n)
   wkEqTerm ρ ⊢Δ (U-cong l₁≡l₂) = U-cong (wkEqTerm ρ ⊢Δ l₁≡l₂)
+  wkEqTerm ρ ⊢Δ (Unit-cong l₁≡l₂ ok) = Unit-cong (wkEqTerm ρ ⊢Δ l₁≡l₂) ok
   wkEqTerm ρ ⊢Δ (ΠΣ-cong F F≡H G≡E ok) =
     let ρF = wk ρ ⊢Δ F
         ρG≡E = PE.subst (λ x → _ ⊢ _ ≡ _ ∷ U x) (PE.sym (wk1-wk≡lift-wk1 _ _)) $
@@ -407,9 +409,11 @@ mutual
                    (wkEqTerm [ρ] ⊢Δ e≡e'))
   wkEqTerm ρ ⊢Δ (η-unit e e' ok) =
     η-unit (wkTerm ρ ⊢Δ e) (wkTerm ρ ⊢Δ e') ok
-  wkEqTerm {ρ} [ρ] ⊢Δ (unitrec-cong {A} l A≡A′ t≡t′ u≡u′ ok no-η) =
-    let ρl = wkTerm [ρ] ⊢Δ l
-        ρA≡A′ = wkEq (lift [ρ]) (⊢Δ ∙ Unitⱼ ρl ok) A≡A′
+  wkEqTerm {ρ} [ρ] ⊢Δ (star-cong l≡l′ ok) =
+    star-cong (wkEqTerm [ρ] ⊢Δ l≡l′) ok
+  wkEqTerm {ρ} [ρ] ⊢Δ (unitrec-cong {A} l≡l′ A≡A′ t≡t′ u≡u′ ok no-η) =
+    let ρl = wkEqTerm [ρ] ⊢Δ l≡l′
+        ρA≡A′ = wkEq (lift [ρ]) {!   !} A≡A′
         ρt≡t′ = wkEqTerm [ρ] ⊢Δ t≡t′
         ρu≡u′ = wkEqTerm [ρ] ⊢Δ u≡u′
         ρu≡u″ = PE.subst (λ x → _ ⊢ _ ≡ _ ∷ x) (wk-β A) ρu≡u′

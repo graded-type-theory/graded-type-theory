@@ -32,7 +32,7 @@ private
     n : Nat
     Γ : Con Term _
     A A₁ A₂ A′ B B₁ B₂ C E F F′ G H : Term _
-    a f g l l₁ l₂ n′ s s′ t t₁ t₂ t′ u u₁ u₂ u′ v v₁ v₂ v′ w w₁ w₂ w′ z z′ :
+    a f g l l₁ l₂ l′ n′ s s′ t t₁ t₂ t′ u u₁ u₂ u′ v v₁ v₂ v′ w w₁ w₂ w′ z z′ :
       Term _
     σ σ′ : Subst _ _
     x : Fin _
@@ -197,6 +197,10 @@ mutual
            → Γ ∙ F ⊢ G ≡ E
            → ΠΣ-allowed b p q
            → Γ     ⊢ ΠΣ⟨ b ⟩ p , q ▷ F ▹ G ≡ ΠΣ⟨ b ⟩ p , q ▷ H ▹ E
+    Unit-cong
+           : Γ ⊢ l₁ ≡ l₂ ∷ Level
+           → Unit-allowed k
+           → Γ ⊢ Unit k l₁ ≡ Unit k l₂
     Id-cong
            : Γ ⊢ A₁ ≡ A₂
            → Γ ⊢ t₁ ≡ t₂ ∷ A₁
@@ -229,6 +233,9 @@ mutual
                   → Γ ⊢ sucᵘ t ≡ sucᵘ n ∷ Level
     U-cong        : Γ ⊢ l₁ ≡ l₂ ∷ Level
                   → Γ ⊢ U l₁ ≡ U l₂ ∷ U (sucᵘ l₁)
+    Unit-cong     : Γ ⊢ l₁ ≡ l₂ ∷ Level
+                  → Unit-allowed k
+                  → Γ ⊢ Unit k l₁ ≡ Unit k l₂ ∷ U l₁
     ΠΣ-cong       : Γ     ⊢ F
                   → Γ     ⊢ F ≡ H ∷ U l₁
                   → Γ ∙ F ⊢ G ≡ E ∷ U (wk1 l₂)
@@ -333,13 +340,16 @@ mutual
     emptyrec-cong : Γ ⊢ A ≡ B
                   → Γ ⊢ t ≡ u ∷ Empty
                   → Γ ⊢ emptyrec p A t ≡ emptyrec p B u ∷ A
-    unitrec-cong  : Γ ⊢ l ∷ Level
+    star-cong     : Γ ⊢ l ≡ l′ ∷ Level
+                  → Unit-allowed k
+                  → Γ ⊢ star k l ≡ star k l′ ∷ Unit k l
+    unitrec-cong  : Γ ⊢ l ≡ l′ ∷ Level
                   → Γ ∙ Unitʷ l ⊢ A ≡ A′
                   → Γ ⊢ t ≡ t′ ∷ Unitʷ l
                   → Γ ⊢ u ≡ u′ ∷ A [ starʷ l ]₀
                   → Unitʷ-allowed
                   → ¬ Unitʷ-η
-                  → Γ ⊢ unitrec p q l A t u ≡ unitrec p q l A′ t′ u′ ∷
+                  → Γ ⊢ unitrec p q l A t u ≡ unitrec p q l′ A′ t′ u′ ∷
                       A [ t ]₀
     unitrec-β     : Γ ⊢ l ∷ Level
                   → Γ ∙ Unitʷ l ⊢ A

@@ -79,6 +79,7 @@ wfEqTerm (conv t≡u A≡B) = wfEqTerm t≡u
 wfEqTerm (sucᵘ-cong n) = wfEqTerm n
 wfEqTerm (U-cong l₁≡l₂) = wfEqTerm l₁≡l₂
 wfEqTerm (ΠΣ-cong _ F≡H _ _) = wfEqTerm F≡H
+wfEqTerm (Unit-cong l₁≡l₂ _) = wfEqTerm l₁≡l₂
 wfEqTerm (app-cong f≡g a≡b) = wfEqTerm f≡g
 wfEqTerm (β-red _ _ _ a _ _) = wfTerm a
 wfEqTerm (η-eq F f g f0≡g0) = wfTerm f
@@ -103,7 +104,8 @@ wfEqTerm (K-cong _ _ t₁≡t₂ _ _ _ _) = wfEqTerm t₁≡t₂
 wfEqTerm (K-β ⊢t _ _ _) = wfTerm ⊢t
 wfEqTerm ([]-cong-cong _ t₁≡t₂ _ _ _) = wfEqTerm t₁≡t₂
 wfEqTerm ([]-cong-β ⊢t _ _) = wfTerm ⊢t
-wfEqTerm (unitrec-cong l _ _ _ _ _) = wfTerm l
+wfEqTerm (star-cong l≡l′ _) = wfEqTerm l≡l′
+wfEqTerm (unitrec-cong l≡l′ _ _ _ _ _) = wfEqTerm l≡l′
 wfEqTerm (unitrec-β l _ _ _ _) = wfTerm l
 wfEqTerm (unitrec-β-η l _ _ _ _ _) = wfTerm l
 
@@ -117,6 +119,7 @@ wfEq (sym A≡B) = wfEq A≡B
 wfEq (trans A≡B B≡C) = wfEq A≡B
 wfEq (U-cong l₁≡l₂) = wfEqTerm l₁≡l₂
 wfEq (ΠΣ-cong F _ _ _) = wf F
+wfEq (Unit-cong l₁≡l₂ _) = wfEqTerm l₁≡l₂
 wfEq (Id-cong A₁≡A₂ _ _) = wfEq A₁≡A₂
 
 opaque

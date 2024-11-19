@@ -604,7 +604,7 @@ opaque
       --     (escape-⊩≡∷ B₁[σ₁⇑]≡B₂[σ₂⇑]∷U) ok
       -- )
       ( ⊩t⊔u
-      , reflect-level<ω ⊩t⊔u
+      , <ᵘ-ω
       -- , ⊩ᵛ≡⇔ .proj₁ (ΠΣ-congᵛ ok (emb-⊩ᵛ≡ {!   !} A₁≡A₂) (emb-⊩ᵛ≡ {!   !} B₁≡B₂)) .proj₂ σ₁≡σ₂ .proj₂
       , {! ΠΣ-congᵛ ok A₁≡A₂ B₁≡B₂  !}
       , ΠΣⱼ ⊢A₁[σ₁] (PE.subst (λ x → _ ⊢ _ ∷ U x) (wk1-liftSubst u) ⊢B₁[σ₁]) ok
