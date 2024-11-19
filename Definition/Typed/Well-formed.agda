@@ -101,13 +101,11 @@ opaque mutual
       Idⱼ (wf-⊢∷ ⊢t) ⊢t ⊢t
     (Jⱼ _ ⊢B _ ⊢v ⊢w) →
       subst-⊢ ⊢B $
-      ⊢ˢʷ∷∙⇔ .proj₂
-        ( ⊢ˢʷ∷-sgSubst ⊢v
-        , PE.subst (_⊢_∷_ _ _)
-            (PE.sym $
-             PE.cong₃ Id (wk1-sgSubst _ _) (wk1-sgSubst _ _) PE.refl)
-            ⊢w
-        )
+      →⊢ˢʷ∷∙ (⊢ˢʷ∷-sgSubst ⊢v) $
+      PE.subst (_⊢_∷_ _ _)
+        (PE.sym $
+         PE.cong₃ Id (wk1-sgSubst _ _) (wk1-sgSubst _ _) PE.refl)
+        ⊢w
     (Kⱼ ⊢B _ ⊢v _) →
       subst-⊢ ⊢B (⊢ˢʷ∷-sgSubst ⊢v)
     ([]-congⱼ ⊢A ⊢t ⊢u _ ok) →
@@ -241,24 +239,22 @@ opaque mutual
            (conv ⊢u₂ $
             subst-⊢≡ C₁≡C₂ $
             refl-⊢ˢʷ≡∷ $
-            ⊢ˢʷ∷∙⇔ .proj₂
-              ( ⊢wk2-id
-              , prodⱼ
-                  (subst-⊢ ⊢B (⊢ˢʷ∷-⇑ (subst-⊢ ⊢A ⊢wk2-id) ⊢wk2-id))
-                  (PE.subst (_⊢_∷_ _ _) (wk[]≡[] 2) (var₁ ⊢B))
-                  (PE.subst (_⊢_∷_ _ _)
-                     (PE.trans (PE.sym [1]↑²) $
-                      PE.sym $ singleSubstComp _ _ B) $
-                   var₀ ⊢B)
-                  ok
-              ))
+            →⊢ˢʷ∷∙ ⊢wk2-id $
+            prodⱼ
+              (subst-⊢ ⊢B (⊢ˢʷ∷-⇑ (subst-⊢ ⊢A ⊢wk2-id) ⊢wk2-id))
+              (PE.subst (_⊢_∷_ _ _) (wk[]≡[] 2) (var₁ ⊢B))
+              (PE.subst (_⊢_∷_ _ _)
+                 (PE.trans (PE.sym [1]↑²) $
+                  PE.sym $ singleSubstComp _ _ B) $
+               var₀ ⊢B)
+              ok)
            ok)
         (sym (subst-⊢≡ C₁≡C₂ (⊢ˢʷ≡∷-sgSubst ⊢t₁ ⊢t₂ t₁≡t₂)))
     (prodrec-β {A = C} ⊢C ⊢t ⊢u ⊢v PE.refl ok) →
       subst-⊢ ⊢C (⊢ˢʷ∷-sgSubst (prodⱼ (⊢∙→⊢ (wfTerm ⊢v)) ⊢t ⊢u ok)) ,
       prodrecⱼ ⊢C (prodⱼ (⊢∙→⊢ (wfTerm ⊢v)) ⊢t ⊢u ok) ⊢v ok ,
       PE.subst (_⊢_∷_ _ _) ([1,0]↑²[,] C)
-        (subst-⊢∷ ⊢v (⊢ˢʷ∷∙⇔ .proj₂ (⊢ˢʷ∷-sgSubst ⊢t , ⊢u)))
+        (subst-⊢∷ ⊢v (→⊢ˢʷ∷∙ (⊢ˢʷ∷-sgSubst ⊢t) ⊢u))
     (emptyrec-cong A₁≡A₂ t₁≡t₂) →
       let ⊢A₁ , ⊢A₂     = wf-⊢≡ A₁≡A₂
           _ , ⊢t₁ , ⊢t₂ = wf-⊢≡∷ t₁≡t₂
@@ -307,11 +303,10 @@ opaque mutual
             subst-⊢≡ A₁≡A₂ (refl-⊢ˢʷ≡∷ (⊢ˢʷ∷-sgSubst (zeroⱼ ⊢Γ))))
            (stability-⊢∷ (reflConEq (∙ ℕⱼ ⊢Γ) ∙⟨ ⊢A₂ ∣ A₁≡A₂ ⟩) $
             conv ⊢u₂ $ subst-⊢≡ A₁≡A₂ $ refl-⊢ˢʷ≡∷ $
-            ⊢ˢʷ∷∙⇔ .proj₂
-              ( ⊢ˢʷ∷-wk1Subst ⊢A₁
-                  (⊢ˢʷ∷-wk1Subst (ℕⱼ ⊢Γ) (⊢ˢʷ∷-idSubst ⊢Γ))
-              , sucⱼ (var₁ ⊢A₁)
-              ))
+            →⊢ˢʷ∷∙
+              (⊢ˢʷ∷-wk1Subst ⊢A₁ $
+               ⊢ˢʷ∷-wk1Subst (ℕⱼ ⊢Γ) (⊢ˢʷ∷-idSubst ⊢Γ))
+              (sucⱼ (var₁ ⊢A₁)))
            ⊢v₂)
         (sym $ subst-⊢≡ A₁≡A₂ (⊢ˢʷ≡∷-sgSubst ⊢v₁ ⊢v₂ v₁≡v₂))
     (natrec-zero ⊢t ⊢u) →
@@ -320,8 +315,7 @@ opaque mutual
       subst-⊢ (⊢∙→⊢ (wfTerm ⊢u)) (⊢ˢʷ∷-sgSubst (sucⱼ ⊢v)) ,
       natrecⱼ ⊢t ⊢u (sucⱼ ⊢v) ,
       PE.subst (_⊢_∷_ _ _) (PE.sym $ substComp↑² A _)
-        (subst-⊢∷ ⊢u $
-         ⊢ˢʷ∷∙⇔ .proj₂ (⊢ˢʷ∷-sgSubst ⊢v , natrecⱼ ⊢t ⊢u ⊢v))
+        (subst-⊢∷ ⊢u (→⊢ˢʷ∷∙ (⊢ˢʷ∷-sgSubst ⊢v) (natrecⱼ ⊢t ⊢u ⊢v)))
     (Id-cong A₁≡A₂ t₁≡t₂ u₁≡u₂) →
       let _ , ⊢A₁ , ⊢A₂ = wf-⊢≡∷ A₁≡A₂
           _ , ⊢t₁ , ⊢t₂ = wf-⊢≡∷ t₁≡t₂
@@ -498,6 +492,18 @@ opaque
                                                                           ⟩
 
     Δ ⊢ˢʷ tail σ₁ ≡ tail σ₂ ∷ Γ × Δ ⊢ head σ₁ ≡ head σ₂ ∷ A [ tail σ₁ ]  □⇔
+
+opaque
+
+  -- An introduction lemma for _⊢ˢʷ_≡_∷_.
+
+  →⊢ˢʷ≡∷∙ :
+    Γ ⊢ A →
+    Δ ⊢ˢʷ tail σ₁ ≡ tail σ₂ ∷ Γ →
+    Δ ⊢ head σ₁ ≡ head σ₂ ∷ A [ tail σ₁ ] →
+    Δ ⊢ˢʷ σ₁ ≡ σ₂ ∷ Γ ∙ A
+  →⊢ˢʷ≡∷∙ ⊢A σ₁₊≡σ₂₊ σ₁₀≡σ₂₀ =
+    ⊢ˢʷ≡∷∙⇔′ ⊢A .proj₂ (σ₁₊≡σ₂₊ , σ₁₀≡σ₂₀)
 
 opaque
 

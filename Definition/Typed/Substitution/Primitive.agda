@@ -127,6 +127,15 @@ opaque
     (λ ((⊢Δ , ⊢σ₊) , ⊢σ₀) → ⊢Δ , (⊢σ₊ , ⊢σ₀))
 
 opaque
+
+  -- An introduction lemma for _⊢ˢʷ_∷_.
+
+  →⊢ˢʷ∷∙ :
+    Δ ⊢ˢʷ tail σ ∷ Γ → Δ ⊢ head σ ∷ A [ tail σ ] →
+    Δ ⊢ˢʷ σ ∷ Γ ∙ A
+  →⊢ˢʷ∷∙ ⊢σ₊ ⊢σ₀ = ⊢ˢʷ∷∙⇔ .proj₂ (⊢σ₊ , ⊢σ₀)
+
+opaque
   unfolding _⊢ˢʷ_∷_
 
   -- A well-formedness lemma for _⊢ˢʷ_∷_.
@@ -288,10 +297,8 @@ opaque
   ⊢ˢʷ∷-idSubst ε =
     ⊢ˢʷ∷ε⇔ .proj₂ ε
   ⊢ˢʷ∷-idSubst (∙ ⊢A) =
-    ⊢ˢʷ∷∙⇔ .proj₂
-      ( ⊢ˢʷ∷-wk1Subst ⊢A (⊢ˢʷ∷-idSubst (wf ⊢A))
-      , PE.subst (_⊢_∷_ _ _) (wk1-tailId _) (var₀ ⊢A)
-      )
+    →⊢ˢʷ∷∙ (⊢ˢʷ∷-wk1Subst ⊢A (⊢ˢʷ∷-idSubst (wf ⊢A)))
+      (PE.subst (_⊢_∷_ _ _) (wk1-tailId _) (var₀ ⊢A))
 
 opaque
 
@@ -992,7 +999,7 @@ private module Inhabited where
                                              ) ⟩⊢
             u [ σ₂ ]                    ≡⟨ _⊢_≡_∷_.sym
                                              (PE.subst (_⊢_ _) (PE.sym $ singleSubstComp _ _ A) $
-                                              subst-⊢ ⊢A (⊢ˢʷ∷∙⇔ .proj₂ (⊢σ₁ , ⊢t[σ₁]))) $
+                                              subst-⊢ ⊢A (→⊢ˢʷ∷∙ ⊢σ₁ ⊢t[σ₁])) $
                                            _⊢_≡_∷_.conv
                                              (unitrec-β-η (subst-⊢ ⊢A ⊢σ₂⇑) (subst-⊢∷ ⊢t ⊢σ₂)
                                                 (PE.subst (_⊢_∷_ _ _) (singleSubstLift A _) $
