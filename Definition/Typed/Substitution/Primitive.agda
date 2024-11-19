@@ -220,19 +220,11 @@ opaque
 
 opaque
 
-  -- A lemma related to _•ₛ_.
+  -- A lemma relating _⊢ˢʷ_∷_ and _⊢ˢʷ_≡_∷_.
 
-  ⊢ˢʷ∷-•ₛ :
-    ρ ∷ʷ Η ⊇ Δ →
-    Δ ⊢ˢʷ σ ∷ Γ →
-    Η ⊢ˢʷ ρ •ₛ σ ∷ Γ
-  ⊢ˢʷ∷-•ₛ {Γ = ε} ρ⊇ _ =
-    ⊢ˢʷ∷ε⇔ .proj₂ (wf-∷ʷ⊇ ρ⊇)
-  ⊢ˢʷ∷-•ₛ {Γ = _ ∙ A} ρ⊇ ⊢σ =
-    let ⊢σ₊ , ⊢σ₀ = ⊢ˢʷ∷∙⇔ .proj₁ ⊢σ in
-    ⊢ˢʷ∷∙⇔ .proj₂
-      (⊢ˢʷ∷-•ₛ ρ⊇ ⊢σ₊ ,
-       PE.subst (_⊢_∷_ _ _) (wk-subst A) (wkTerm ρ⊇ ⊢σ₀))
+  ⊢ˢʷ∷⇔⊢ˢʷ≡∷ :
+    Δ ⊢ˢʷ σ ∷ Γ ⇔ Δ ⊢ˢʷ σ ≡ σ ∷ Γ
+  ⊢ˢʷ∷⇔⊢ˢʷ≡∷ = refl-⊢ˢʷ≡∷ , proj₁ ∘→ proj₂ ∘→ wf-⊢ˢʷ≡∷
 
 opaque
 
@@ -252,6 +244,17 @@ opaque
       , PE.subst (_⊢_∷_ _ _)     (wk-subst A) (wkTerm   ρ⊇ ⊢σ₂₀)
       , PE.subst (_⊢_≡_∷_ _ _ _) (wk-subst A) (wkEqTerm ρ⊇ σ₁₀≡σ₂₀)
       )
+
+opaque
+
+  -- A lemma related to _•ₛ_.
+
+  ⊢ˢʷ∷-•ₛ :
+    ρ ∷ʷ Η ⊇ Δ →
+    Δ ⊢ˢʷ σ ∷ Γ →
+    Η ⊢ˢʷ ρ •ₛ σ ∷ Γ
+  ⊢ˢʷ∷-•ₛ ρ⊇ =
+    ⊢ˢʷ∷⇔⊢ˢʷ≡∷ .proj₂ ∘→ ⊢ˢʷ≡∷-•ₛ ρ⊇ ∘→ ⊢ˢʷ∷⇔⊢ˢʷ≡∷ .proj₁
 
 opaque
 
@@ -294,19 +297,6 @@ opaque
 
   -- A lemma related to sgSubst.
 
-  ⊢ˢʷ∷-sgSubst :
-    Γ ⊢ t ∷ A →
-    Γ ⊢ˢʷ sgSubst t ∷ Γ ∙ A
-  ⊢ˢʷ∷-sgSubst ⊢t =
-    ⊢ˢʷ∷∙⇔ .proj₂
-      ( ⊢ˢʷ∷-idSubst (wfTerm ⊢t)
-      , PE.subst (_⊢_∷_ _ _) (PE.sym $ subst-id _) ⊢t
-      )
-
-opaque
-
-  -- A lemma related to sgSubst.
-
   ⊢ˢʷ≡∷-sgSubst :
     Γ ⊢ t₁ ∷ A →
     Γ ⊢ t₂ ∷ A →
@@ -322,17 +312,13 @@ opaque
 
 opaque
 
-  -- A lemma related to _⇑.
+  -- A lemma related to sgSubst.
 
-  ⊢ˢʷ∷-⇑ :
-    Δ ⊢ A [ σ ] →
-    Δ ⊢ˢʷ σ ∷ Γ →
-    Δ ∙ A [ σ ] ⊢ˢʷ σ ⇑ ∷ Γ ∙ A
-  ⊢ˢʷ∷-⇑ {A} ⊢A[σ] ⊢σ =
-    ⊢ˢʷ∷∙⇔ .proj₂
-      (⊢ˢʷ∷-wk1Subst ⊢A[σ] ⊢σ ,
-       PE.subst (_⊢_∷_ _ _) (PE.sym $ wk1Subst-wk1 A)
-         (var₀ ⊢A[σ]))
+  ⊢ˢʷ∷-sgSubst :
+    Γ ⊢ t ∷ A →
+    Γ ⊢ˢʷ sgSubst t ∷ Γ ∙ A
+  ⊢ˢʷ∷-sgSubst ⊢t =
+    ⊢ˢʷ∷⇔⊢ˢʷ≡∷ .proj₂ (⊢ˢʷ≡∷-sgSubst ⊢t ⊢t (refl ⊢t))
 
 opaque
 
@@ -353,6 +339,18 @@ opaque
        PE.subst (_⊢_∷_ _ _) (PE.sym $ wk1Subst-wk1 A)
          (conv (var₀ ⊢A[σ₁]) (wkEq₁ ⊢A[σ₁] A[σ₁]≡A[σ₂])) ,
        refl ⊢0)
+
+opaque
+
+  -- A lemma related to _⇑.
+
+  ⊢ˢʷ∷-⇑ :
+    Δ ⊢ A [ σ ] →
+    Δ ⊢ˢʷ σ ∷ Γ →
+    Δ ∙ A [ σ ] ⊢ˢʷ σ ⇑ ∷ Γ ∙ A
+  ⊢ˢʷ∷-⇑ ⊢A[σ] =
+    ⊢ˢʷ∷⇔⊢ˢʷ≡∷ .proj₂ ∘→ ⊢ˢʷ≡∷-⇑ ⊢A[σ] (refl ⊢A[σ]) ∘→
+    ⊢ˢʷ∷⇔⊢ˢʷ≡∷ .proj₁
 
 ------------------------------------------------------------------------
 -- Substitution lemmas
