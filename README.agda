@@ -608,7 +608,8 @@ Theorem-4-4b = Definition.Typed.Properties.whrDet*
 -- Some properties that are proved via a reducibility logical
 -- relation:
 
--- * Admissibility of substitution.
+-- * Admissibility of substitution. (These properties are no longer
+--   proved using the logical relation.)
 
 substitutionAdmissible =
   Definition.Typed.Substitution.substitution
@@ -619,7 +620,8 @@ substitutionAdmissibleTerm =
 substitutionAdmissibleEqTerm =
   Definition.Typed.Substitution.substitutionEqTerm
 
--- * Subject reduction.
+-- * Subject reduction. (These properties are no longer proved using
+--   the logical relation.)
 
 subjectReduction     = Definition.Typed.Syntactic.syntacticRed
 subjectReductionTerm = Definition.Typed.Syntactic.syntacticRedTerm
