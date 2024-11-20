@@ -588,12 +588,6 @@ t [ s ]↑² = t [ consSubst (wk1Subst (wk1Subst idSubst)) s ]
 _[_][_]↑ : Term (1+ n) → ∀ k → Term (k + n) → Term (k + n)
 t [ k ][ u ]↑ = t [ consSubst (wkSubst k idSubst) u ]
 
-B-subst : (σ : Subst m n) (W : BindingType)
-          (F : Term n) (G : Term (1+ n))
-        → (⟦ W ⟧ F ▹ G) [ σ ] PE.≡ ⟦ W ⟧ F [ σ ] ▹ (G [ liftSubst σ ])
-B-subst σ (BΠ p q) F G = PE.refl
-B-subst σ (BΣ m p q) F G = PE.refl
-
 ------------------------------------------------------------------------
 -- Some inversion lemmas
 
