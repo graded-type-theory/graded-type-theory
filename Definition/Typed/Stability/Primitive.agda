@@ -578,21 +578,3 @@ opaque
   stability-⊢≡∷ : ⊢ Γ ≡ Δ → Γ ⊢ t ≡ u ∷ A → Δ ⊢ t ≡ u ∷ A
   stability-⊢≡∷ Γ≡Δ t≡u =
     P.stability-⊢≡∷ Inhabited.P-inhabited Γ≡Δ t≡u PE.refl
-
-opaque
-
-  -- Stability for _⊢ˢ_∷_.
-
-  stability-⊢ˢ∷ˡ : ⊢ Δ ≡ Η → Δ ⊢ˢ σ ∷ Γ → Η ⊢ˢ σ ∷ Γ
-  stability-⊢ˢ∷ˡ _   id        = id
-  stability-⊢ˢ∷ˡ Δ≡Η (⊢σ , ⊢t) =
-    stability-⊢ˢ∷ˡ Δ≡Η ⊢σ , stability-⊢∷ Δ≡Η ⊢t
-
-opaque
-
-  -- Stability for _⊢ˢ_≡_∷_.
-
-  stability-⊢ˢ≡∷ˡ : ⊢ Δ ≡ Η → Δ ⊢ˢ σ₁ ≡ σ₂ ∷ Γ → Η ⊢ˢ σ₁ ≡ σ₂ ∷ Γ
-  stability-⊢ˢ≡∷ˡ _   id              = id
-  stability-⊢ˢ≡∷ˡ Δ≡Η (σ₁≡σ₂ , t₁≡t₂) =
-    stability-⊢ˢ≡∷ˡ Δ≡Η σ₁≡σ₂ , stability-⊢≡∷ Δ≡Η t₁≡t₂

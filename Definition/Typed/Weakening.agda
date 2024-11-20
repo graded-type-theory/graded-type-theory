@@ -18,7 +18,7 @@ open Type-restrictions R
 open import Definition.Untyped M as U hiding (wk; wk′)
 open import Definition.Untyped.Neutral M type-variant
 open import Definition.Untyped.Properties M
-open import Definition.Typed R hiding (_,_)
+open import Definition.Typed R
 open import Definition.Typed.Inversion.Primitive R
 open import Definition.Typed.Properties.Admissible.Var R
 open import Definition.Typed.Properties.Well-formed R

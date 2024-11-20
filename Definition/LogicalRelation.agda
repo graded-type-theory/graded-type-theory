@@ -20,6 +20,12 @@ open import Definition.Untyped Mod as U hiding (K)
 open import Definition.Untyped.Neutral Mod type-variant
 open import Definition.Typed.Properties R
 open import Definition.Typed R
+-- The imported operator _,_ is not "supposed" to be used below, but
+-- "," is used in some pattern synonyms, and if this import statement
+-- is removed, then some code in
+-- Definition.LogicalRelation.Properties.Reduction fails to type-check
+-- (at the time of writing).
+open import Definition.Typed.Substitution R using (_,_)
 open import Definition.Typed.Weakening R
 
 open import Tools.Empty

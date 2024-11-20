@@ -30,6 +30,11 @@ import Definition.LogicalRelation.Weakening R as W
 open import Definition.Typed R
 open import Definition.Typed.Inversion R
 open import Definition.Typed.Properties R
+-- The imported operator _,_ is not "supposed" to be used below, but
+-- another operator with the same name is used, and if this import
+-- statement is removed, then some code below fails to type-check (at
+-- the time of writing).
+open import Definition.Typed.Substitution R using (_,_)
 open import Definition.Typed.Weakening R as TW using (_∷ʷ_⊇_)
 open import Definition.Typed.Well-formed R
 

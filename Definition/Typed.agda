@@ -19,7 +19,7 @@ open import Definition.Untyped.Neutral M type-variant
 
 open import Tools.Fin
 open import Tools.Nat
-open import Tools.Product hiding (_,_)
+open import Tools.Product
 import Tools.PropositionalEquality as PE
 open import Tools.Relation
 
@@ -505,25 +505,6 @@ _⊢_↘_ : (Γ : Con Term n) → Term n → Term n → Set ℓ
 -- Term reduction to whnf
 _⊢_↘_∷_ : (Γ : Con Term n) → Term n → Term n → Term n → Set ℓ
 Γ ⊢ t ↘ u ∷ A = Γ ⊢ t ⇒* u ∷ A × Whnf u
-
--- Well-formed substitutions.
-data _⊢ˢ_∷_ {k} (Δ : Con Term k) :
-       (σ : Subst k n) (Γ : Con Term n) → Set ℓ where
-  id  : Δ ⊢ˢ σ ∷ ε
-  _,_ : Δ ⊢ˢ tail σ ∷ Γ
-      → Δ ⊢  head σ ∷ A [ tail σ ]
-      → Δ ⊢ˢ σ      ∷ Γ ∙ A
-
--- Conversion of well-formed substitutions.
-data _⊢ˢ_≡_∷_ {k} (Δ : Con Term k) :
-       (σ σ′ : Subst k n) (Γ : Con Term n) → Set ℓ where
-  id  : Δ ⊢ˢ σ ≡ σ′ ∷ ε
-  _,_ : Δ ⊢ˢ tail σ ≡ tail σ′ ∷ Γ
-      → Δ ⊢  head σ ≡ head σ′ ∷ A [ tail σ ]
-      → Δ ⊢ˢ      σ ≡ σ′      ∷ Γ ∙ A
-
--- Note that we cannot use the well-formed substitutions.
--- For that, we need to prove the fundamental theorem for substitutions.
 
 ⟦_⟧ⱼ : (W : BindingType) → ∀ {F G}
      → Γ ∙ F ⊢ G

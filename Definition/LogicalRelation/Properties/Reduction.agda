@@ -20,6 +20,11 @@ open import Definition.Untyped M hiding (Wk; K)
 open import Definition.Untyped.Neutral M type-variant
 open import Definition.Typed R
 open import Definition.Typed.Properties R
+-- The imported operator _,_ is not "supposed" to be used below, but
+-- another operator with the same name is used, and if this import
+-- statement is removed, then some code below fails to type-check (at
+-- the time of writing).
+open import Definition.Typed.Substitution R using (_,_)
 import Definition.Typed.Weakening R as Wk
 open import Definition.Typed.Well-formed R
 open import Definition.LogicalRelation R

@@ -53,7 +53,7 @@ open import Definition.Typed TR as DT hiding (id)
 open import Definition.Typed.EqRelInstance TR
 open import Definition.Typed.Eta-long-normal-form TR
 open import Definition.Typed.Properties TR
-open import Definition.Typed.Substitution TR
+open import Definition.Typed.Substitution TR hiding (id)
 open import Definition.Typed.Syntactic TR
 import Definition.Typed.Weakening TR as W
 open import Definition.Untyped Erasure as U hiding (id; head)

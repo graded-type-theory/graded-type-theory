@@ -389,22 +389,21 @@ mutual
 
 -- Preservation of _⊢ˢ_∷_.
 
-tr-⊢ˢ∷ : Δ T₁.⊢ˢ σ ∷ Γ → tr-Con Δ T₂.⊢ˢ tr-Subst σ ∷ tr-Con Γ
-tr-⊢ˢ∷ id                           = id
-tr-⊢ˢ∷ (_,_ {A = A} ⊢ˢtail ⊢head) =
-    tr-⊢ˢ∷ ⊢ˢtail
-  , PE.subst (_ T₂.⊢ _ ∷_) (PE.sym (tr-Term-subst A)) (tr-⊢∷ ⊢head)
+tr-⊢ˢ∷ : Δ S₁.⊢ˢ σ ∷ Γ → tr-Con Δ S₂.⊢ˢ tr-Subst σ ∷ tr-Con Γ
+tr-⊢ˢ∷ S₁.id                     = S₂.id
+tr-⊢ˢ∷ (S₁._,_ {A} ⊢ˢtail ⊢head) =
+  tr-⊢ˢ∷ ⊢ˢtail S₂.,
+  PE.subst (T₂._⊢_∷_ _ _) (PE.sym (tr-Term-subst A)) (tr-⊢∷ ⊢head)
 
 -- Preservation of _⊢ˢ_≡_∷_.
 
 tr-⊢ˢ≡∷ :
-  Δ T₁.⊢ˢ σ ≡ σ′ ∷ Γ →
-  tr-Con Δ T₂.⊢ˢ tr-Subst σ ≡ tr-Subst σ′ ∷ tr-Con Γ
-tr-⊢ˢ≡∷ id                           = id
-tr-⊢ˢ≡∷ (_,_ {A = A} ⊢ˢtail≡ ⊢head≡) =
-    tr-⊢ˢ≡∷ ⊢ˢtail≡
-  , PE.subst (_ T₂.⊢ _ ≡ _ ∷_) (PE.sym (tr-Term-subst A))
-      (tr-⊢≡∷ ⊢head≡)
+  Δ S₁.⊢ˢ σ ≡ σ′ ∷ Γ →
+  tr-Con Δ S₂.⊢ˢ tr-Subst σ ≡ tr-Subst σ′ ∷ tr-Con Γ
+tr-⊢ˢ≡∷ S₁.id                       = S₂.id
+tr-⊢ˢ≡∷ (S₁._,_ {A} ⊢ˢtail≡ ⊢head≡) =
+  tr-⊢ˢ≡∷ ⊢ˢtail≡ S₂.,
+  PE.subst (T₂._⊢_≡_∷_ _ _ _) (PE.sym (tr-Term-subst A)) (tr-⊢≡∷ ⊢head≡)
 
 opaque
 

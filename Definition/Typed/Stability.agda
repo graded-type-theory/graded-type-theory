@@ -131,7 +131,9 @@ opaque
   -- Stability for _⊢ˢ_∷_.
 
   stability-⊢ˢ∷ˡ : ⊢ Δ ≡ Η → Δ ⊢ˢ σ ∷ Γ → Η ⊢ˢ σ ∷ Γ
-  stability-⊢ˢ∷ˡ = S.stability-⊢ˢ∷ˡ ∘→ ⊢≡⇔⊢≡ .proj₁
+  stability-⊢ˢ∷ˡ _   id        = id
+  stability-⊢ˢ∷ˡ Δ≡Η (⊢σ , ⊢t) =
+    stability-⊢ˢ∷ˡ Δ≡Η ⊢σ , stabilityTerm Δ≡Η ⊢t
 
 opaque
 
@@ -179,7 +181,9 @@ opaque
   -- Stability for _⊢ˢ_≡_∷_.
 
   stability-⊢ˢ≡∷ˡ : ⊢ Δ ≡ Η → Δ ⊢ˢ σ₁ ≡ σ₂ ∷ Γ → Η ⊢ˢ σ₁ ≡ σ₂ ∷ Γ
-  stability-⊢ˢ≡∷ˡ = S.stability-⊢ˢ≡∷ˡ ∘→ ⊢≡⇔⊢≡ .proj₁
+  stability-⊢ˢ≡∷ˡ _   id              = id
+  stability-⊢ˢ≡∷ˡ Δ≡Η (σ₁≡σ₂ , t₁≡t₂) =
+    stability-⊢ˢ≡∷ˡ Δ≡Η σ₁≡σ₂ , stabilityEqTerm Δ≡Η t₁≡t₂
 
 opaque
 

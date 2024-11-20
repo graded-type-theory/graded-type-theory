@@ -88,6 +88,14 @@ opaque
 ------------------------------------------------------------------------
 -- Well-formed substitutions
 
+-- Well-formed substitutions.
+
+data _⊢ˢ_∷_ (Δ : Con Term m) : Subst m n → Con Term n → Set a where
+  id  : Δ ⊢ˢ σ ∷ ε
+  _,_ : Δ ⊢ˢ tail σ ∷ Γ →
+        Δ ⊢  head σ ∷ A [ tail σ ] →
+        Δ ⊢ˢ σ      ∷ Γ ∙ A
+
 opaque
 
   infix 4 _⊢ˢʷ_∷_
@@ -145,6 +153,15 @@ opaque
 
 ------------------------------------------------------------------------
 -- Well-formed equality of substitutions
+
+-- Well-formed equality of substitutions.
+
+data _⊢ˢ_≡_∷_ (Δ : Con Term m) :
+       (_ _ : Subst m n) → Con Term n → Set a where
+  id  : Δ ⊢ˢ σ₁ ≡ σ₂ ∷ ε
+  _,_ : Δ ⊢ˢ tail σ₁ ≡ tail σ₂ ∷ Γ
+      → Δ ⊢  head σ₁ ≡ head σ₂ ∷ A [ tail σ₁ ]
+      → Δ ⊢ˢ σ₁      ≡ σ₂      ∷ Γ ∙ A
 
 opaque
 

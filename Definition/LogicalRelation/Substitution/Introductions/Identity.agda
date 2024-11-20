@@ -30,6 +30,11 @@ open import Definition.LogicalRelation.Substitution.Introductions.Var R
 open import Definition.Typed R
 open import Definition.Typed.Properties R
 open import Definition.Typed.Reasoning.Reduction R
+-- The imported operator _,_ is not "supposed" to be used below, but
+-- another operator with the same name is used, and if this import
+-- statement is removed, then some code below fails to type-check (at
+-- the time of writing).
+open import Definition.Typed.Substitution R using (_,_)
 open import Definition.Untyped M as U hiding (_[_])
 import Definition.Untyped.Erased
 open import Definition.Untyped.Neutral M type-variant
