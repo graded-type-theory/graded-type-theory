@@ -29,6 +29,9 @@ open import Definition.LogicalRelation.Substitution.Introductions.Var R
 open import Definition.Typed R
 open import Definition.Typed.Properties R
 open import Definition.Typed.Reasoning.Reduction R
+import Definition.Typed.Stability R as S
+open import Definition.Typed.Substitution R
+open import Definition.Typed.Well-formed R
 
 open import Definition.Untyped M
 open import Definition.Untyped.Neutral M type-variant
@@ -404,8 +407,6 @@ private opaque
     Γ ⊢ t₁ ∷ A₁ [ zero ]₀ →
     Γ ⊢ t₂ ∷ A₂ [ zero ]₀ →
     Γ ⊩⟨ l ⟩ t₁ ≡ t₂ ∷ A₁ [ zero ]₀ →
-    Γ ∙ ℕ ∙ A₁ ⊢ u₁ ∷ A₁ [ suc (var x1) ]↑² →
-    Γ ∙ ℕ ∙ A₂ ⊢ u₂ ∷ A₂ [ suc (var x1) ]↑² →
     Γ ∙ ℕ ∙ A₁ ⊢ u₁ ≅ u₂ ∷ A₁ [ suc (var x1) ]↑² →
     (∀ {v₁ v₂ w₁ w₂} →
      Γ ⊩⟨ l ⟩ v₁ ≡ v₂ ∷ ℕ →
@@ -418,10 +419,20 @@ private opaque
       natrec p q r A₂ t₂ u₂ v₂ ∷ A₁ [ v₁ ]₀
   ⊩natrec≡natrec′
     {A₁} {A₂} {l} {t₁} {t₂} {u₁} {u₂} {v₁} {v₂} {p} {q} {r}
-    A₁≅A₂ A₁≡A₁ A₂≡A₂ A₁≡A₂ ⊢t₁ ⊢t₂ t₁≡t₂ ⊢u₁ ⊢u₂ u₁≅u₂ u₁≡u₂
+    A₁≅A₂ A₁≡A₁ A₂≡A₂ A₁≡A₂ ⊢t₁ ⊢t₂ t₁≡t₂ u₁≅u₂ u₁≡u₂
     ⊩ℕ-v₁@(ℕₜ v₁′′ v₁⇒*v₁′′ _ v₁′′-prop)
     ⊩ℕ-v₂@(ℕₜ v₂′′ v₂⇒*v₂′′ _ v₂′′-prop)
     ⊩ℕ-v₁≡v₂@(ℕₜ₌ v₁′ v₂′ v₁⇒*v₁′ v₂⇒*v₂′ v₁′≅v₂′ v₁′∼v₂′) =
+    let ⊢A₁≡A₂        = ≅-eq A₁≅A₂
+        _ , ⊢u₁ , ⊢u₂ = wf-⊢≡∷ (≅ₜ-eq u₁≅u₂)
+        ⊢u₂           =
+          S.stabilityTerm
+            (S.reflConEq (wfEq ⊢A₁≡A₂) S.∙ ⊢A₁≡A₂)
+            (conv ⊢u₂ $
+             subst-⊢≡ ⊢A₁≡A₂ $ refl-⊢ˢʷ≡∷ $
+             ⊢ˢʷ∷-[][]↑ (sucⱼ (var₁ (wf-⊢≡ ⊢A₁≡A₂ .proj₁))))
+    in
+
     -- The terms v₁′ and v₁′′ are equal, as are the terms v₂′
     -- and v₂′′.
     case Σ.map naturalWhnf naturalWhnf $ split v₁′∼v₂′ of λ
@@ -508,7 +519,7 @@ private opaque
            natrec p q r A₁ t₁ u₁ (suc v₁″)                             ⇒⟨ natrec-suc ⊢t₁ ⊢u₁ (escape-⊩∷ ⊩v₁″) ⟩⊩∷
            u₁ [ v₁″ , natrec p q r A₁ t₁ u₁ v₁″ ]₁₀ ∷ A₁ [ suc v₁″ ]₀  ≡⟨ u₁≡u₂ v₁″≡v₂″ $
                                                                           ⊩natrec≡natrec′ A₁≅A₂ A₁≡A₁ A₂≡A₂ A₁≡A₂ ⊢t₁ ⊢t₂ t₁≡t₂
-                                                                            ⊢u₁ ⊢u₂ u₁≅u₂ u₁≡u₂ ⊩ℕ-v₁″ ⊩ℕ-v₂″ ⊩ℕ-v₁″≡v₂″ ⟩⊩∷∷⇐*
+                                                                            u₁≅u₂ u₁≡u₂ ⊩ℕ-v₁″ ⊩ℕ-v₂″ ⊩ℕ-v₁″≡v₂″ ⟩⊩∷∷⇐*
                                                                         ⟨ ⊢A₁[v₁′]≡A₂[v₂′] ⟩⇒
            u₂ [ v₂″ , natrec p q r A₂ t₂ u₂ v₂″ ]₁₀ ∷ A₂ [ suc v₂″ ]₀  ⇐⟨ natrec-suc ⊢t₂ ⊢u₂ (escape-⊩∷ ⊩v₂″)
                                                                         ⟩∎∷
@@ -536,14 +547,6 @@ opaque
             refl-⊩ᵛ≡∷ $ zeroᵛ {l = l} $ wf-⊩ᵛ (wf-⊩ᵛ∷ ⊩t₂))
            ⊩t₂ of λ
       ⊩t₂ →
-    case wf-⊩ᵛ≡∷ u₁≡u₂ of λ
-      (⊩u₁ , ⊩u₂) →
-    case conv-∙-⊩ᵛ∷ A₁≡A₂ $
-         conv-⊩ᵛ∷
-           (⊩ᵛ≡→⊩ᵛ∷→⊩ᵛ[]↑²≡[]↑² A₁≡A₂ $
-            sucᵛ (varᵛ (there here) (wf-⊩ᵛ (wf-⊩ᵛ∷ ⊩u₁)) .proj₂))
-         ⊩u₂ of λ
-      ⊩u₂ →
     case wf-⊩ˢ≡∷ σ₁≡σ₂ of λ
       (⊩σ₁ , ⊩σ₂) →
 
@@ -575,10 +578,8 @@ opaque
              refl-⊩≡∷ $ ⊩zero {l = l} $ escape-⊩ˢ∷ ⊩σ₁ .proj₁)
             .proj₁)
          t₁[σ₁]≡t₂[σ₂])
-      (escape-⊩∷ $ wf-⊩≡∷ u₁[σ₁⇑⇑]≡u₂[σ₂⇑⇑] .proj₁)
-      (PE.subst (_⊢_∷_ _ _) (natrecSucCase _ A₂) $
-       escape-⊩∷ $ ⊩ᵛ∷→⊩ˢ∷→⊩[⇑⇑]∷ ⊩u₂ ⊩σ₂)
-      (escape-⊩≡∷ u₁[σ₁⇑⇑]≡u₂[σ₂⇑⇑])
+      (PE.subst (_⊢_≅_∷_ _ _ _) (natrecSucCase _ A₁) $
+       escape-⊩≡∷ $ ⊩ᵛ≡∷→⊩ˢ≡∷→⊩[⇑⇑]≡[⇑⇑]∷ u₁≡u₂ σ₁≡σ₂)
       (λ {v₁ = v₁} {v₂ = _} {w₁ = w₁} v₁≡v₂ w₁≡w₂ →
          level-⊩≡∷
            (wf-⊩≡
