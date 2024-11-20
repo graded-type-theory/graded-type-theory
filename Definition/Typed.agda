@@ -506,21 +506,6 @@ _⊢_↘_ : (Γ : Con Term n) → Term n → Term n → Set ℓ
 _⊢_↘_∷_ : (Γ : Con Term n) → Term n → Term n → Term n → Set ℓ
 Γ ⊢ t ↘ u ∷ A = Γ ⊢ t ⇒* u ∷ A × Whnf u
 
-⟦_⟧ⱼ : (W : BindingType) → ∀ {F G}
-     → Γ ∙ F ⊢ G
-     → BindingType-allowed W
-     → Γ     ⊢ ⟦ W ⟧ F ▹ G
-⟦ BΠ _ _   ⟧ⱼ = ΠΣⱼ
-⟦ BΣ _ _ _ ⟧ⱼ = ΠΣⱼ
-
-⟦_⟧ⱼᵤ : (W : BindingType) → ∀ {F G}
-     → Γ     ⊢ F ∷ U l₁
-     → Γ ∙ F ⊢ G ∷ U l₂
-     → BindingType-allowed W
-     → Γ     ⊢ ⟦ W ⟧ F ▹ G ∷ U (l₁ ⊔ᵘ l₂)
-⟦ BΠ _ _   ⟧ⱼᵤ = ΠΣⱼ
-⟦ BΣ _ _ _ ⟧ⱼᵤ = ΠΣⱼ
-
 -- A context Γ is consistent if the empty type is not inhabited in Γ.
 
 Consistent : Con Term n → Set ℓ
