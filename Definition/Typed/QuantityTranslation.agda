@@ -387,17 +387,6 @@ mutual
     PE.subst (T₂._⊢_≡_∷_ _ _ _) (tr-Term-Id-Erased-[]-[] ok) $
     []-cong-β (tr-⊢∷ t) PE.refl ([]-cong-preserved ok)
 
--- Preservation of _⊢_:≡:_.
-
-tr-⊢:≡: : Γ T₁.⊢ A :≡: B → tr-Con Γ T₂.⊢ tr-Term A :≡: tr-Term B
-tr-⊢:≡: (A , B , A≡B) = tr-⊢′ A , tr-⊢′ B , tr-⊢≡ A≡B
-
--- Preservation of _⊢_:≡:_∷_.
-
-tr-⊢:≡:∷ :
-  Γ T₁.⊢ t :≡: u ∷ A → tr-Con Γ T₂.⊢ tr-Term t :≡: tr-Term u ∷ tr-Term A
-tr-⊢:≡:∷ (t , u , t≡u) = tr-⊢∷ t , tr-⊢∷ u , tr-⊢≡∷ t≡u
-
 -- Preservation of _⊢ˢ_∷_.
 
 tr-⊢ˢ∷ : Δ T₁.⊢ˢ σ ∷ Γ → tr-Con Δ T₂.⊢ˢ tr-Subst σ ∷ tr-Con Γ

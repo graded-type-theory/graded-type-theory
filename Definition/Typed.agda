@@ -506,14 +506,6 @@ _⊢_↘_ : (Γ : Con Term n) → Term n → Term n → Set ℓ
 _⊢_↘_∷_ : (Γ : Con Term n) → Term n → Term n → Term n → Set ℓ
 Γ ⊢ t ↘ u ∷ A = Γ ⊢ t ⇒* u ∷ A × Whnf u
 
--- Type equality with well-formed types
-_⊢_:≡:_ : (Γ : Con Term n) → Term n → Term n → Set ℓ
-Γ ⊢ A :≡: B = Γ ⊢ A × Γ ⊢ B × (Γ ⊢ A ≡ B)
-
--- Term equality with well-formed terms
-_⊢_:≡:_∷_ : (Γ : Con Term n) → Term n → Term n → Term n → Set ℓ
-Γ ⊢ t :≡: u ∷ A = (Γ ⊢ t ∷ A) × (Γ ⊢ u ∷ A) × (Γ ⊢ t ≡ u ∷ A)
-
 -- Well-formed substitutions.
 data _⊢ˢ_∷_ {k} (Δ : Con Term k) :
        (σ : Subst k n) (Γ : Con Term n) → Set ℓ where
