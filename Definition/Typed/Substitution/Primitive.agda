@@ -147,6 +147,28 @@ opaque
 
 opaque
 
+  -- A variant of ⊢ˢʷ≡∷-⇑.
+
+  ⊢ˢʷ≡∷-⇑[] :
+    ⊢ Γ →
+    Δ ⊢ˢʷ σ₁ ≡ σ₂ ∷ drop k Γ →
+    Δ ∙[ k ][ Γ ][ σ₁ ] ⊢ˢʷ σ₁ ⇑[ k ] ≡ σ₂ ⇑[ k ] ∷ Γ
+  ⊢ˢʷ≡∷-⇑[] {k = 0}    ⊢Γ     = idᶠ
+  ⊢ˢʷ≡∷-⇑[] {k = 1+ _} (∙ ⊢A) = ⊢ˢʷ≡∷-⇑′ ⊢A ∘→ ⊢ˢʷ≡∷-⇑[] (wf ⊢A)
+
+opaque
+
+  -- A variant of ⊢ˢʷ∷-⇑.
+
+  ⊢ˢʷ∷-⇑[] :
+    ⊢ Γ →
+    Δ ⊢ˢʷ σ ∷ drop k Γ →
+    Δ ∙[ k ][ Γ ][ σ ] ⊢ˢʷ σ ⇑[ k ] ∷ Γ
+  ⊢ˢʷ∷-⇑[] ⊢Γ =
+    ⊢ˢʷ∷⇔⊢ˢʷ≡∷ .proj₂ ∘→ ⊢ˢʷ≡∷-⇑[] ⊢Γ ∘→ ⊢ˢʷ∷⇔⊢ˢʷ≡∷ .proj₁
+
+opaque
+
   -- A lemma related to sgSubst.
   --
   -- See also Definition.Typed.Substitution.Primitive.⊢ˢʷ∷-sgSubst,
@@ -267,6 +289,42 @@ opaque
   substTypeΠ ⊢ΠAB ⊢t =
     let _ , ⊢B , _ = inversion-ΠΣ ⊢ΠAB in
     substType ⊢B ⊢t
+
+opaque
+
+  -- A substitution lemma related to _⇑[_].
+
+  subst-⊢-⇑ :
+    Γ ⊢ A → Δ ⊢ˢʷ σ ∷ drop k Γ → Δ ∙[ k ][ Γ ][ σ ] ⊢ A [ σ ⇑[ k ] ]
+  subst-⊢-⇑ ⊢A = subst-⊢ ⊢A ∘→ ⊢ˢʷ∷-⇑[] (wf ⊢A)
+
+opaque
+
+  -- A substitution lemma related to _⇑[_].
+
+  subst-⊢∷-⇑ :
+    Γ ⊢ t ∷ A → Δ ⊢ˢʷ σ ∷ drop k Γ →
+    Δ ∙[ k ][ Γ ][ σ ] ⊢ t [ σ ⇑[ k ] ] ∷ A [ σ ⇑[ k ] ]
+  subst-⊢∷-⇑ ⊢t = subst-⊢∷ ⊢t ∘→ ⊢ˢʷ∷-⇑[] (wfTerm ⊢t)
+
+opaque
+
+  -- A substitution lemma related to _⇑[_].
+
+  subst-⊢≡-⇑ :
+    Γ ⊢ A ≡ B → Δ ⊢ˢʷ σ₁ ≡ σ₂ ∷ drop k Γ →
+    Δ ∙[ k ][ Γ ][ σ₁ ] ⊢ A [ σ₁ ⇑[ k ] ] ≡ B [ σ₂ ⇑[ k ] ]
+  subst-⊢≡-⇑ A≡B = subst-⊢≡ A≡B ∘→ ⊢ˢʷ≡∷-⇑[] (wfEq A≡B)
+
+opaque
+
+  -- A substitution lemma related to _⇑[_].
+
+  subst-⊢≡∷-⇑ :
+    Γ ⊢ t ≡ u ∷ A → Δ ⊢ˢʷ σ₁ ≡ σ₂ ∷ drop k Γ →
+    Δ ∙[ k ][ Γ ][ σ₁ ] ⊢ t [ σ₁ ⇑[ k ] ] ≡ u [ σ₂ ⇑[ k ] ] ∷
+      A [ σ₁ ⇑[ k ] ]
+  subst-⊢≡∷-⇑ t≡u = subst-⊢≡∷ t≡u ∘→ ⊢ˢʷ≡∷-⇑[] (wfEqTerm t≡u)
 
 opaque
 

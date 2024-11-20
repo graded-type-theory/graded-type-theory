@@ -38,6 +38,7 @@ infix 25 _[_]↑
 infix 25 _[_,_]₁₀
 infix 25 _[_]↑²
 infix 25 _[_][_]↑
+infix 24 _∙[_][_][_]
 
 ------------------------------------------------------------------------
 -- The syntax
@@ -587,6 +588,14 @@ t [ s ]↑² = t [ consSubst (wk1Subst (wk1Subst idSubst)) s ]
 
 _[_][_]↑ : Term (1+ n) → ∀ k → Term (k + n) → Term (k + n)
 t [ k ][ u ]↑ = t [ consSubst (wkSubst k idSubst) u ]
+
+-- Δ ∙[ k ][ Γ ][ σ ] is Δ extended with the last k elements of Γ,
+-- modified using σ (suitably lifted).
+
+_∙[_][_][_] :
+  Con Term m → ∀ k → Con Term (k + n) → Subst m n → Con Term (k + m)
+Δ ∙[ 0    ][ _     ][ _ ] = Δ
+Δ ∙[ 1+ k ][ Γ ∙ A ][ σ ] = Δ ∙[ k ][ Γ ][ σ ] ∙ A [ σ ⇑[ k ] ]
 
 ------------------------------------------------------------------------
 -- Some inversion lemmas
