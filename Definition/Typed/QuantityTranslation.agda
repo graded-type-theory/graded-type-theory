@@ -25,7 +25,7 @@ open Are-preserving-type-restrictions pres
 
 open import Tools.Fin
 open import Tools.Function
-open import Tools.Product
+open import Tools.Product as Σ
 import Tools.PropositionalEquality as PE
 open import Tools.Reasoning.PropositionalEquality
 open import Tools.Sum using (inj₁; inj₂)
@@ -33,6 +33,7 @@ open import Tools.Sum using (inj₁; inj₂)
 open import Definition.Typed
 open import Definition.Typed.Consequences.Admissible R₂
 open import Definition.Typed.Properties R₂
+import Definition.Typed.Substitution.Primitive
 open import Definition.Untyped
 import Definition.Untyped.Erased
 open import Definition.Untyped.QuantityTranslation tr tr-Σ
@@ -44,6 +45,8 @@ private
   module R₂ = Type-restrictions R₂
   module T₁ = Definition.Typed R₁
   module T₂ = Definition.Typed R₂
+  module S₁ = Definition.Typed.Substitution.Primitive R₁
+  module S₂ = Definition.Typed.Substitution.Primitive R₂
   module U₁ = Definition.Untyped M₁
   module U₂ = Definition.Untyped M₂
 
@@ -413,6 +416,25 @@ tr-⊢ˢ≡∷ (_,_ {A = A} ⊢ˢtail≡ ⊢head≡) =
     tr-⊢ˢ≡∷ ⊢ˢtail≡
   , PE.subst (_ T₂.⊢ _ ≡ _ ∷_) (PE.sym (tr-Term-subst A))
       (tr-⊢≡∷ ⊢head≡)
+
+opaque
+
+  -- Preservation of _⊢ˢʷ_∷_.
+
+  tr-⊢ˢʷ∷ : Δ S₁.⊢ˢʷ σ ∷ Γ → tr-Con Δ S₂.⊢ˢʷ tr-Subst σ ∷ tr-Con Γ
+  tr-⊢ˢʷ∷ = S₂.⊢ˢʷ∷⇔ .proj₂ ∘→ Σ.map tr-⊢ tr-⊢ˢ∷ ∘→ S₁.⊢ˢʷ∷⇔ .proj₁
+
+opaque
+
+  -- Preservation of _⊢ˢʷ_≡_∷_.
+
+  tr-⊢ˢʷ≡∷ :
+    Δ S₁.⊢ˢʷ σ ≡ σ′ ∷ Γ →
+    tr-Con Δ S₂.⊢ˢʷ tr-Subst σ ≡ tr-Subst σ′ ∷ tr-Con Γ
+  tr-⊢ˢʷ≡∷ =
+    S₂.⊢ˢʷ≡∷⇔ .proj₂ ∘→
+    Σ.map tr-⊢ (Σ.map tr-⊢ˢ∷ (Σ.map tr-⊢ˢ∷ tr-⊢ˢ≡∷)) ∘→
+    S₁.⊢ˢʷ≡∷⇔ .proj₁
 
 -- The following results make use of another assumption.
 
