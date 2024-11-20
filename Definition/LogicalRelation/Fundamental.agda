@@ -22,6 +22,7 @@ open import Definition.Untyped.Properties M
 
 open import Definition.Typed R
 open import Definition.Typed.Properties R
+open import Definition.Typed.Substitution.Primitive R
 open import Definition.LogicalRelation R
 open import Definition.LogicalRelation.Properties R
 open import Definition.LogicalRelation.Substitution R
@@ -279,26 +280,28 @@ opaque
 
   -- Fundamental theorem for substitutions.
 
-  fundamental-⊩ˢ∷ : ⊢ Δ → ⊢ Γ → Δ ⊢ˢ σ ∷ Γ → Δ ⊩ˢ σ ∷ Γ
-  fundamental-⊩ˢ∷ ⊢Δ ε _ =
-    ⊩ˢ∷ε⇔ .proj₂ ⊢Δ
-  fundamental-⊩ˢ∷ ⊢Δ (∙ ⊢A) (⊢tail , ⊢head) =
+  fundamental-⊩ˢ∷ : ⊢ Γ → Δ ⊢ˢʷ σ ∷ Γ → Δ ⊩ˢ σ ∷ Γ
+  fundamental-⊩ˢ∷ ε ⊢σ =
+    ⊩ˢ∷ε⇔ .proj₂ (⊢ˢʷ∷ε⇔ .proj₁ ⊢σ)
+  fundamental-⊩ˢ∷ (∙ ⊢A) ⊢σ =
+    let ⊢σ₊ , ⊢σ₀ = ⊢ˢʷ∷∙⇔ .proj₁ ⊢σ in
     ⊩ˢ∷∙⇔′ .proj₂
       ( (_ , fundamental-⊩ᵛ ⊢A .proj₂)
-      , (_ , ⊩ᵛ∷→⊩∷ (fundamental-⊩ᵛ∷ ⊢head .proj₂))
-      , fundamental-⊩ˢ∷ ⊢Δ (wf ⊢A) ⊢tail
+      , (_ , ⊩ᵛ∷→⊩∷ (fundamental-⊩ᵛ∷ ⊢σ₀ .proj₂))
+      , fundamental-⊩ˢ∷ (wf ⊢A) ⊢σ₊
       )
 
 opaque
 
   -- Fundamental theorem for substitution equality.
 
-  fundamental-⊩ˢ≡∷ : ⊢ Δ → ⊢ Γ → Δ ⊢ˢ σ₁ ≡ σ₂ ∷ Γ → Δ ⊩ˢ σ₁ ≡ σ₂ ∷ Γ
-  fundamental-⊩ˢ≡∷ ⊢Δ ε _ =
-    ⊩ˢ≡∷ε⇔ .proj₂ ⊢Δ
-  fundamental-⊩ˢ≡∷ ⊢Δ (∙ ⊢A) (tail≡tail , head≡head) =
+  fundamental-⊩ˢ≡∷ : ⊢ Γ → Δ ⊢ˢʷ σ₁ ≡ σ₂ ∷ Γ → Δ ⊩ˢ σ₁ ≡ σ₂ ∷ Γ
+  fundamental-⊩ˢ≡∷ ε σ₁≡σ₂ =
+    ⊩ˢ≡∷ε⇔ .proj₂ (⊢ˢʷ≡∷ε⇔ .proj₁ σ₁≡σ₂)
+  fundamental-⊩ˢ≡∷ (∙ ⊢A) σ₁≡σ₂ =
+    let σ₁₊≡σ₂₊ , _ , _ , σ₁₀≡σ₂₀ = ⊢ˢʷ≡∷∙⇔ .proj₁ σ₁≡σ₂ in
     ⊩ˢ≡∷∙⇔′ .proj₂
       ( (_ , fundamental-⊩ᵛ ⊢A .proj₂)
-      , (_ , ⊩ᵛ≡∷→⊩≡∷ (fundamental-⊩ᵛ≡∷ head≡head .proj₂))
-      , fundamental-⊩ˢ≡∷ ⊢Δ (wf ⊢A) tail≡tail
+      , (_ , ⊩ᵛ≡∷→⊩≡∷ (fundamental-⊩ᵛ≡∷ σ₁₀≡σ₂₀ .proj₂))
+      , fundamental-⊩ˢ≡∷ (wf ⊢A) σ₁₊≡σ₂₊
       )
