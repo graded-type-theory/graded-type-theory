@@ -237,12 +237,11 @@ private opaque
           D                     ≡⟨ neTypeEq t₂-ne ⊢t₂′ ⊢t₂ ⟩⊢∎
           Σʷ p₂ , q₂ ▷ A₂ ▹ B₂  ∎
         A₁≡A₂ , B₁≡B₂ , p₁≡p₂ , _ = ΠΣ-injectivity Σ₁≡Σ₂
-        Γ≡Γ                       = reflConEq (wfTerm ⊢t₁)
-        ΓA₁B₁≡ΓA₂B₂               = Γ≡Γ ∙ A₁≡A₂ ⊢_≡_.∙ B₁≡B₂
+        ΓA₁B₁≡ΓA₂B₂               = refl-∙ A₁≡A₂ ⊢_≡_.∙ B₁≡B₂
     in
     case p₁≡p₂ of λ {
       PE.refl →
-    case (dec₁ (Γ≡Γ ∙ Σ₁≡Σ₂)
+    case (dec₁ (refl-∙ Σ₁≡Σ₂)
             ×-dec′ λ C₁≡C₂ →
           dec₃
             (symConEq ΓA₁B₁≡ΓA₂B₂)
@@ -255,8 +254,8 @@ private opaque
           (_ , _ , PE.refl) →
         let A₁≡ , B₁≡ , _ = ΠΣ-injectivity Σ₁≡D in
           _
-        , prodrec-cong (stabilityConv↑ (Γ≡Γ ∙ Σ₁≡D) C₁≡C₂) t₁~t₂
-            (stabilityConv↑Term (Γ≡Γ ∙ A₁≡ ∙ B₁≡) u₁≡u₂) }
+        , prodrec-cong (stabilityConv↑ (refl-∙ Σ₁≡D) C₁≡C₂) t₁~t₂
+            (stabilityConv↑Term (refl-∙ A₁≡ ∙ B₁≡) u₁≡u₂) }
       (no not-both-equal) →
         no λ (_ , pr~pr) →
         let _ , _ , _ , _ , _ , _ , _ , pr≡pr , C₁≡ , t₁~ , u₁≡ =
@@ -267,9 +266,9 @@ private opaque
               prodrec-PE-injectivity (PE.sym pr≡pr)
         in
         not-both-equal
-          ( stabilityConv↑ (Γ≡Γ ∙ neTypeEq t₁-ne (~↓→∷ t₁~) ⊢t₁)
+          ( stabilityConv↑ (refl-∙ (neTypeEq t₁-ne (~↓→∷ t₁~) ⊢t₁))
               (PE.subst (_⊢_[conv↑]_ _ _) ≡C₂ C₁≡)
-          , stabilityConv↑Term (Γ≡Γ ∙ ≡A₁ ∙ ≡B₁)
+          , stabilityConv↑Term (refl-∙ ≡A₁ ∙ ≡B₁)
               (PE.subst (flip (_⊢_[conv↑]_∷_ _ _) _) ≡u₂ u₁≡)
           ) }
   dec~↑-prodrec-cong _ _ (no not-all-equal) _ _ =
@@ -394,7 +393,7 @@ private opaque
     case
       (let A₁≡A₂     = soundnessConv↑ A₁≡A₂
            ⊢Γ        = wfTerm ⊢v₁
-           ΓℕA₁≡ΓℕA₂ = reflConEq (⊢Γ ∙[ ℕⱼ ]) ∙ sym A₁≡A₂
+           ΓℕA₁≡ΓℕA₂ = refl-∙ (sym A₁≡A₂)
        in
        dec₁ (substTypeEq A₁≡A₂ (refl (zeroⱼ ⊢Γ)))
          ×-dec
@@ -620,10 +619,7 @@ private opaque
       (Γ ⊢ ΠΣ⟨ b₁ ⟩ p₁ , q₁ ▷ A₁ ▹ B₁ [conv↓]
          ΠΣ⟨ b₂ ⟩ p₂ , q₂ ▷ A₂ ▹ B₂)
   decConv↓-ΠΣ ok (yes (PE.refl , PE.refl , PE.refl , A₁≡A₂)) dec =
-    case
-      (let A₁≡A₂ = soundnessConv↑ A₁≡A₂ in
-       dec (reflConEq (wfEq A₁≡A₂) ∙ A₁≡A₂))
-      of λ where
+    case dec (refl-∙ (soundnessConv↑ A₁≡A₂)) of λ where
       (yes B₁≡B₂) → yes (ΠΣ-cong A₁≡A₂ B₁≡B₂ ok)
       (no B₁≢B₂)  →
         no λ ΠΣ≡ΠΣ →

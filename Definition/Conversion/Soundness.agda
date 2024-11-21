@@ -201,9 +201,7 @@ mutual
         A₁≡B₁ , l₃≡l₅                  = soundnessConv↑-U ⊢A₁ ⊢B₁ A₁≡B₁
         A₂≡B₂ , l₄≡l₆                  =
           soundnessConv↑-U ⊢A₂
-            (stabilityTerm (reflConEq (wfTerm ⊢A₁) ∙ sym (univ A₁≡B₁))
-               ⊢B₂)
-            A₂≡B₂
+            (stabilityTerm (refl-∙ (sym (univ A₁≡B₁))) ⊢B₂) A₂≡B₂
     in
       conv (ΠΣ-cong A₁≡B₁ A₂≡B₂ ok) (sym U≡U₁)
     , U-injectivity

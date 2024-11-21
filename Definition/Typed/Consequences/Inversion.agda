@@ -53,8 +53,7 @@ opaque
       (_ , _ , _ , _ , ⊢t , Π≡Π , ok) →
     case ΠΣ-injectivity Π≡Π of λ {
       (A≡A′ , B≡B′ , PE.refl , PE.refl , _) →
-      conv (stabilityTerm (reflConEq (wfTerm ⊢lam) ∙ sym A≡A′) ⊢t)
-        (sym B≡B′)
+      conv (stabilityTerm (refl-∙ (sym A≡A′)) ⊢t) (sym B≡B′)
     , PE.refl
     , ok }}
 

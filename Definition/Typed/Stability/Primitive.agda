@@ -72,6 +72,13 @@ opaque
 
 opaque
 
+  -- A variant of _∙⟨_∣_⟩.
+
+  refl-∙⟨_∣_⟩ : Γ ⊢ B → Γ ⊢ A ≡ B → ⊢ Γ ∙ A ≡ Γ ∙ B
+  refl-∙⟨ ⊢B ∣ A≡B ⟩ = reflConEq (wf ⊢B) ∙⟨ ⊢B ∣ A≡B ⟩
+
+opaque
+
   -- Stability for _∷_∈_.
 
   stability-⊢∈ :

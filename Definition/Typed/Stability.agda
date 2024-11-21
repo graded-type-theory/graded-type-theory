@@ -90,6 +90,13 @@ opaque
   symConEq : ⊢ Γ ≡ Δ → ⊢ Δ ≡ Γ
   symConEq = ⊢≡⇔⊢≡ .proj₂ ∘→ symConEq′ ∘→ ⊢≡⇔⊢≡ .proj₁
 
+opaque
+
+  -- A variant of _∙_.
+
+  refl-∙ : Γ ⊢ A ≡ B → ⊢ Γ ∙ A ≡ Γ ∙ B
+  refl-∙ A≡B = reflConEq (wfEq A≡B) ∙ A≡B
+
 private opaque
 
   -- A well-formedness lemma for ⊢_≡_.

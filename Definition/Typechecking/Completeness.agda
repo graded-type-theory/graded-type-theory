@@ -111,13 +111,13 @@ mutual
     _ , sndᵢ t⇉B (B⇒Σ′ , ΠΣₙ) ,
     trans A≡Gt (substTypeEq G≡G′ (refl (fstⱼ ⊢G ⊢t)))
   completeness⇉ (prodrecᵢ C t u) ⊢t =
-    let F , G , q , ⊢F , ⊢G , ⊢C , ⊢t , ⊢u , A≡Ct = inversion-prodrec ⊢t
+    let F , G , q , _ , ⊢G , ⊢C , ⊢t , ⊢u , A≡Ct = inversion-prodrec ⊢t
         ok = ⊢∷ΠΣ→ΠΣ-allowed ⊢t
         B , t⇉B , ΣFG≡B = completeness⇉ t ⊢t
         F′ , G′ , B⇒Σ′ , F≡F′ , G≡G′ = ΠΣNorm (sym ΣFG≡B)
-        u⇇C₊ = completeness⇇ u (stabilityTerm ((reflConEq (wf ⊢F)) ∙ F≡F′ ∙ G≡G′) ⊢u)
+        u⇇C₊ = completeness⇇ u (stabilityTerm (refl-∙ F≡F′ ∙ G≡G′) ⊢u)
         C⇇Type = completeness⇇Type C $
-                 stability (reflConEq (wf ⊢F) ∙ ΠΣ-cong F≡F′ G≡G′ ok) ⊢C
+                 stability (refl-∙ (ΠΣ-cong F≡F′ G≡G′ ok)) ⊢C
     in  _ , prodrecᵢ C⇇Type t⇉B (B⇒Σ′ , ΠΣₙ) u⇇C₊ , A≡Ct
   completeness⇉ ℕᵢ ⊢t = _ , ℕᵢ , inversion-ℕ ⊢t
   completeness⇉ zeroᵢ ⊢t = _ , zeroᵢ , inversion-zero ⊢t
@@ -192,9 +192,10 @@ mutual
 
   completeness⇇ : Checkable t → Γ ⊢ t ∷ A → Γ ⊢ t ⇇ A
   completeness⇇ (lamᶜ t) ⊢t =
-    let F , G , q , ⊢F , ⊢t , A≡ΠFG , _ = inversion-lam ⊢t
+    let F , G , q , _ , ⊢t , A≡ΠFG , _ = inversion-lam ⊢t
         F′ , G′ , A⇒ΠF′G′ , F≡F′ , G≡G′ = ΠΣNorm A≡ΠFG
-        t⇇G = completeness⇇ t (stabilityTerm (reflConEq (wf ⊢F) ∙ F≡F′) (conv ⊢t G≡G′))
+        t⇇G = completeness⇇ t
+                (stabilityTerm (refl-∙ F≡F′) (conv ⊢t G≡G′))
     in  lamᶜ (A⇒ΠF′G′ , ΠΣₙ) t⇇G
   completeness⇇ (prodᶜ t u) ⊢t =
     let F , G , m , ⊢F , ⊢G , ⊢t , ⊢u , A≡ΣFG , _ = inversion-prod ⊢t

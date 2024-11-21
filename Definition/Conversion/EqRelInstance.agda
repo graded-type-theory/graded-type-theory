@@ -165,14 +165,12 @@ record _⊢_~_∷_ (Γ : Con Term n) (k l A : Term n) : Set a where
       case Σ-injectivity Σ≡Σ′ of λ where
         (F≡F′ , G≡G′ , _ , _ , _) →
           let t~t′       = [~] _ (D , whnfB′) k~↑l
-              ⊢Γ         = wf ⊢B
-              ⊢Γ≡Γ       = reflConEq ⊢Γ
               ⊢A , _     = syntacticEq (soundnessConv↑ x₂)
               _ , ⊢t , _ = syntacticEqTerm (soundness~↑ k~↑l)
           in
           ↑ (refl (substType ⊢A (conv ⊢t (sym A≡B))))
-            (prodrec-cong (stabilityConv↑ (⊢Γ≡Γ ∙ Σ≡Σ′) x₂)
-               t~t′ (stabilityConv↑Term (⊢Γ≡Γ ∙ F≡F′ ∙ G≡G′) x₄))
+            (prodrec-cong (stabilityConv↑ (refl-∙ Σ≡Σ′) x₂)
+               t~t′ (stabilityConv↑Term (refl-∙ F≡F′ ∙ G≡G′) x₄))
 
 ~-emptyrec : ∀ {n n′ F F′}
          → Γ ⊢ F [conv↑] F′ →
@@ -357,7 +355,7 @@ private opaque
             F<>H = univConv↑ x₁
             G<>E = univConv↑ x₂
             F≡H = soundnessConv↑ F<>H
-            E∷U′ = stabilityTerm (reflConEq ⊢Γ ∙ F≡H) E∷U
+            E∷U′ = stabilityTerm (refl-∙ F≡H) E∷U
         in
         liftConvTerm $
         univ (ΠΣⱼ F∷U G∷U ok) (ΠΣⱼ H∷U E∷U′ ok) (ΠΣ-cong F<>H G<>E ok)

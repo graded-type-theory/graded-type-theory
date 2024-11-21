@@ -426,8 +426,7 @@ private opaque
     let ⊢A₁≡A₂        = ≅-eq A₁≅A₂
         _ , ⊢u₁ , ⊢u₂ = wf-⊢≡∷ (≅ₜ-eq u₁≅u₂)
         ⊢u₂           =
-          S.stabilityTerm
-            (S.reflConEq (wfEq ⊢A₁≡A₂) S.∙ ⊢A₁≡A₂)
+          S.stabilityTerm (S.refl-∙ ⊢A₁≡A₂)
             (conv ⊢u₂ $
              subst-⊢≡ ⊢A₁≡A₂ $ refl-⊢ˢʷ≡∷ $
              ⊢ˢʷ∷-[][]↑ (sucⱼ (var₁ (wf-⊢≡ ⊢A₁≡A₂ .proj₁))))

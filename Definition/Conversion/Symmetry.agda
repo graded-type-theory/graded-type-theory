@@ -114,7 +114,7 @@ mutual
                           (stabilityEq (Γ≡Δ ∙ refl ⊢Σ) C≡E)
             in  _ , substTypeEq C≡E g≡h
               , prodrec-cong E↑C h~g
-                  (convConv↑Term′ (reflConEq ⊢Δ ∙ ⊢F≡F′ ∙ ⊢G≡G′)
+                  (convConv↑Term′ (refl-∙ ⊢F≡F′ ∙ ⊢G≡G′)
                      C₊≡E₊ v↑u)
   sym~↑ Γ≡Δ (emptyrec-cong x t~u) =
     let ⊢Γ , ⊢Δ , _ = contextConvSubst Γ≡Δ

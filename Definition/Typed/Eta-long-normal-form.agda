@@ -1123,9 +1123,7 @@ mutual
       PE.cong₂ ΠΣ⟨ _ ⟩ _ , _ ▷_▹_
         (normal-types-unique-[conv↑] ⊢A₁ ⊢B₁ A₁≡B₁)
         (normal-types-unique-[conv↑] ⊢A₂
-           (⊢nf-stable
-              (reflConEq (wf (⊢nf→⊢ ⊢A)) ∙ sym (soundnessConv↑ A₁≡B₁))
-              ⊢B₂)
+           (⊢nf-stable (refl-∙ (sym (soundnessConv↑ A₁≡B₁))) ⊢B₂)
            A₂≡B₂) }}
     (Id-cong C₁≡C₂ t₁≡t₂ u₁≡u₂) →
       case inversion-nf-Id ⊢A of λ {
@@ -1205,22 +1203,20 @@ mutual
         (C≡ , D≡ , _ , PE.refl , _) →
       case ΠΣ-injectivity (neTypeEq u-ne (⊢ne∷→⊢∷ ⊢u) ⊢u′) of λ {
         (E≡ , F≡ , _ , PE.refl , _) →
-      case reflConEq (wfTerm ⊢t′) of λ {
-        Γ≡Γ →
       case ⊢∷ΠΣ→ΠΣ-allowed (⊢ne∷→⊢∷ ⊢t) of λ {
         ok →
       case
         normal-types-unique-[conv↑]
-          (⊢nf-stable (Γ≡Γ ∙ ΠΣ-cong C≡ D≡ ok) ⊢A)
-          (⊢nf-stable (Γ≡Γ ∙ ΠΣ-cong E≡ F≡ ok) ⊢B)
+          (⊢nf-stable (refl-∙ (ΠΣ-cong C≡ D≡ ok)) ⊢A)
+          (⊢nf-stable (refl-∙ (ΠΣ-cong E≡ F≡ ok)) ⊢B)
           A≡B of λ {
         PE.refl →
       PE.cong₂ (prodrec _ _ _ _)
         (neutral-terms-unique-~↓ ⊢t ⊢u t≡u)
         (normal-terms-unique-[conv↑]∷
-           (⊢nf∷-stable (Γ≡Γ ∙ C≡ ∙ D≡) ⊢v′)
-           (⊢nf∷-stable (Γ≡Γ ∙ E≡ ∙ F≡) ⊢w)
-           v≡w) }}}}}}}}}}
+           (⊢nf∷-stable (refl-∙ C≡ ∙ D≡) ⊢v′)
+           (⊢nf∷-stable (refl-∙ E≡ ∙ F≡) ⊢w)
+           v≡w) }}}}}}}}}
     (emptyrec-cong A≡B u≡v) →
       case inversion-nf-ne-emptyrec ⊢u of λ {
         (⊢A , ⊢u , _) →
@@ -1380,8 +1376,8 @@ mutual
         (D≡ , E≡ , _ , _ , _) →
       PE.cong (lam _)
         (normal-terms-unique-[conv↑]∷′
-           (⊢nf∷-stable (reflConEq (wfEq B≡) ∙ B≡) (convₙ ⊢u C≡))
-           (⊢nf∷-stable (reflConEq (wfEq D≡) ∙ D≡) (convₙ ⊢v E≡))
+           (⊢nf∷-stable (refl-∙ B≡) (convₙ ⊢u C≡))
+           (⊢nf∷-stable (refl-∙ D≡) (convₙ ⊢v E≡))
            (redMany (wk1-lam∘0⇒ ⊢λu))
            (redMany (wk1-lam∘0⇒ ⊢λv))
            u∘0≡v∘0) }}}}}

@@ -104,7 +104,7 @@ mutual
         ⊢Γ →
         natrec p q r A′ t′ u′ v′
       , (                                             $⟨ u′-nf ⟩
-         Γ ∙ ℕ ∙ A ⊢nf u′ ∷ A [ suc (var x1) ]↑²      →⟨ ⊢nf∷-stable (reflConEq (∙ ℕⱼ ⊢Γ) ∙ A≡A′) ⟩
+         Γ ∙ ℕ ∙ A ⊢nf u′ ∷ A [ suc (var x1) ]↑²      →⟨ ⊢nf∷-stable (refl-∙ A≡A′) ⟩
          Γ ∙ ℕ ∙ A′ ⊢nf u′ ∷ A [ suc (var x1) ]↑²     →⟨ flip _⊢nf_∷_.convₙ $
                                                          subst↑²TypeEq A≡A′ (refl (sucⱼ (var₁ ⊢A′))) ⟩
          Γ ∙ ℕ ∙ A′ ⊢nf u′ ∷ A′ [ suc (var x1) ]↑²    →⟨ (λ hyp → natrecₙ
@@ -270,7 +270,7 @@ mutual
       case fullRedConv↑ B↑ of λ {
         (B′ , B′-nf , B≡B′) →
       ΠΣ⟨ _ ⟩ _ , _ ▷ A′ ▹ B′ ,
-      ΠΣₙ A′-nf (⊢nf-stable (reflConEq (wfEq A≡A′) ∙ A≡A′) B′-nf) ok ,
+      ΠΣₙ A′-nf (⊢nf-stable (refl-∙ A≡A′) B′-nf) ok ,
       ΠΣ-cong A≡A′ B≡B′ ok }}
     (Id-cong A₁≡A₂ t₁≡t₂ u₁≡u₂) →
       case fullRedConv↑ A₁≡A₂ of λ {

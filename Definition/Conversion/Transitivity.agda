@@ -84,8 +84,7 @@ mutual
         A<>C = transConv↑ A<>B B<>C
         a₀<>c₀ = transConv↑Term F[0]≡F₁[0] a₀<>b₀ b₀<>c₀
         aₛ<>cₛ = transConv↑Term F↑̂²≡F₁↑² aₛ<>bₛ
-                   (stabilityConv↑Term (reflConEq (∙ ℕⱼ ⊢Γ) ∙ sym A≡B)
-                      bₛ<>cₛ)
+                   (stabilityConv↑Term (refl-∙ (sym A≡B)) bₛ<>cₛ)
         t~v , _ = trans~↓ t~u u~v
     in  natrec-cong A<>C a₀<>c₀ aₛ<>cₛ t~v
     ,   substTypeEq A≡B (soundness~↓ t~u)
@@ -93,15 +92,14 @@ mutual
                   (prodrec-cong B<>C b~c u<>v) =
     let a~c , Σ≡Σ′ = trans~↓ a~b b~c
         ⊢Γ = wfEq Σ≡Σ′
-        Γ≡Γ = reflConEq ⊢Γ
         F≡F′ , G≡G′ , _ = Σ-injectivity (sym Σ≡Σ′)
         _ , ⊢F = syntacticEq F≡F′
         _ , ⊢G = syntacticEq G≡G′
-        ⊢G = stability (Γ≡Γ ∙ F≡F′) ⊢G
-        B<>C′ = stabilityConv↑ (Γ≡Γ ∙ sym Σ≡Σ′) B<>C
+        ⊢G = stability (refl-∙ F≡F′) ⊢G
+        B<>C′ = stabilityConv↑ (refl-∙ (sym Σ≡Σ′)) B<>C
         A<>C = transConv↑ A<>B B<>C′
-        u<>v′ = stabilityConv↑Term (Γ≡Γ ∙ F≡F′ ∙ G≡G′) u<>v
-        _ , ⊢ΓFG , _ = contextConvSubst (Γ≡Γ ∙ F≡F′ ∙ G≡G′)
+        u<>v′ = stabilityConv↑Term (refl-∙ F≡F′ ∙ G≡G′) u<>v
+        _ , ⊢ΓFG , _ = contextConvSubst (refl-∙ F≡F′ ∙ G≡G′)
         A≡B = soundnessConv↑ A<>B
         A₊≡B₊ = subst↑²TypeEq-prod A≡B
         t<>v = transConv↑Term A₊≡B₊ t<>u u<>v′
@@ -226,9 +224,7 @@ mutual
          (_ , _ , _ , _ , _ , _ , _ ,
           PE.refl , PE.refl , B₁≡C₁ , B₂≡C₂)) →
         ΠΣ-cong (transConv↑ A₁≡B₁ B₁≡C₁)
-          (let A₁≡B₁ = soundnessConv↑ A₁≡B₁ in
-           transConv↑′ (reflConEq (wfEq A₁≡B₁) ∙ A₁≡B₁) A₂≡B₂ B₂≡C₂)
-          ok
+          (transConv↑′ (refl-∙ (soundnessConv↑ A₁≡B₁)) A₂≡B₂ B₂≡C₂) ok
       (inj₂ (ΠΣ≢ΠΣ , _)) →
         ⊥-elim (ΠΣ≢ΠΣ (_ , _ , _ , _ , _ , PE.refl))
   transConv↓ Empty≡Empty@(Empty-refl _) Empty≡C =

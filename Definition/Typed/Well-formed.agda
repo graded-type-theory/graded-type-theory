@@ -134,7 +134,7 @@ opaque mutual
           ⊢A₂ , ⊢B₂ = wf-⊢≡ A₂≡B₂
       in
       ΠΣⱼ ⊢A₂ ok ,
-      ΠΣⱼ (stability-⊢ (reflConEq (wf ⊢B₁) ∙⟨ ⊢B₁ ∣ A₁≡B₁ ⟩) ⊢B₂) ok
+      ΠΣⱼ (stability-⊢ refl-∙⟨ ⊢B₁ ∣ A₁≡B₁ ⟩ ⊢B₂) ok
     (Id-cong A≡B t₁≡u₁ t₂≡u₂) →
       let ⊢A , ⊢B       = wf-⊢≡ A≡B
           _ , ⊢t₁ , ⊢u₁ = wf-⊢≡∷ t₁≡u₁
@@ -167,10 +167,7 @@ opaque mutual
       in
       Uⱼ (wfTerm ⊢A₁) ,
       ΠΣⱼ ⊢A₁ ⊢B₁ ok ,
-      ΠΣⱼ ⊢A₂
-        (stability-⊢∷
-           (reflConEq (wfTerm ⊢A₁) ∙⟨ univ ⊢A₂ ∣ univ A₁≡A₂ ⟩) ⊢B₂)
-        ok
+      ΠΣⱼ ⊢A₂ (stability-⊢∷ refl-∙⟨ univ ⊢A₂ ∣ univ A₁≡A₂ ⟩ ⊢B₂) ok
     (app-cong t₁≡t₂ u₁≡u₂) →
       let ⊢Π , ⊢t₁ , ⊢t₂ = wf-⊢≡∷ t₁≡t₂
           _ , ⊢u₁ , ⊢u₂  = wf-⊢≡∷ u₁≡u₂
@@ -301,7 +298,7 @@ opaque mutual
         (natrecⱼ
            (conv ⊢t₂ $
             subst-⊢≡ A₁≡A₂ (refl-⊢ˢʷ≡∷ (⊢ˢʷ∷-sgSubst (zeroⱼ ⊢Γ))))
-           (stability-⊢∷ (reflConEq (∙ ℕⱼ ⊢Γ) ∙⟨ ⊢A₂ ∣ A₁≡A₂ ⟩) $
+           (stability-⊢∷ refl-∙⟨ ⊢A₂ ∣ A₁≡A₂ ⟩ $
             conv ⊢u₂ $ subst-⊢≡ A₁≡A₂ $ refl-⊢ˢʷ≡∷ $
             →⊢ˢʷ∷∙
               (⊢ˢʷ∷-wk1Subst ⊢A₁ $
@@ -365,8 +362,7 @@ opaque mutual
       conv
         (Jⱼ ⊢t₂′
            (stability-⊢
-              (reflConEq (wfTerm ⊢t₁)
-                 ∙⟨ ⊢A₂ ∣ A₁≡A₂ ⟩
+              (refl-∙⟨ ⊢A₂ ∣ A₁≡A₂ ⟩
                  ∙⟨ Idⱼ (wk₁ ⊢A₂ ⊢A₂) (wkTerm₁ ⊢A₂ ⊢t₂′) (var₀ ⊢A₂)
                   ∣ Id-cong A₁≡A₂′ (wkEqTerm₁ ⊢A₂ t₁≡t₂)
                       (refl (conv (var₀ ⊢A₂) (sym A₁≡A₂′)))
@@ -404,9 +400,7 @@ opaque mutual
       subst-⊢ ⊢B₁ (⊢ˢʷ∷-sgSubst ⊢v₁) ,
       Kⱼ ⊢B₁ ⊢u₁ ⊢v₁ ok ,
       conv
-        (Kⱼ
-           (stability-⊢
-              (reflConEq (wf ⊢A₁) ∙⟨ Idⱼ ⊢A₂ ⊢t₂′ ⊢t₂′ ∣ Id≡Id ⟩) ⊢B₂)
+        (Kⱼ (stability-⊢ (refl-∙⟨ Idⱼ ⊢A₂ ⊢t₂′ ⊢t₂′ ∣ Id≡Id ⟩) ⊢B₂)
            (conv ⊢u₂ $
             subst-⊢≡ B₁≡B₂ (refl-⊢ˢʷ≡∷ (⊢ˢʷ∷-sgSubst (rflⱼ ⊢t₁))))
            (conv ⊢v₂ Id≡Id) ok)
