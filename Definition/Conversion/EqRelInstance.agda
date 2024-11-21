@@ -372,7 +372,7 @@ private opaque
     .Equality-relations.≅-η-eq →
       λ x₁ x₂ x₃ x₄ x₅ → liftConvTerm (η-eq x₁ x₂ x₃ x₄ x₅)
     .Equality-relations.≅-Σ-η →
-      λ _ x₂ x₃ x₄ x₅ x₆ x₇ → (liftConvTerm (Σ-η x₂ x₃ x₄ x₅ x₆ x₇))
+      λ x₂ x₃ x₄ x₅ x₆ x₇ → (liftConvTerm (Σ-η x₂ x₃ x₄ x₅ x₆ x₇))
     .Equality-relations.~-var → ~-var
     .Equality-relations.~-app → ~-app
     .Equality-relations.~-fst →

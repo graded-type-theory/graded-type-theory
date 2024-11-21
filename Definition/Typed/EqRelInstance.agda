@@ -55,7 +55,7 @@ private opaque
       .≅-suc-cong   → suc-cong
       .≅-prod-cong  → prod-cong
       .≅-η-eq       → λ ⊢t ⊢u _ _ t0≡u0 → η-eq′ ⊢t ⊢u t0≡u0
-      .≅-Σ-η        → λ _ ⊢t ⊢u _ _ fst≡ snd≡ → Σ-η′ ⊢t ⊢u fst≡ snd≡
+      .≅-Σ-η        → λ ⊢t ⊢u _ _ fst≡ snd≡ → Σ-η′ ⊢t ⊢u fst≡ snd≡
       .~-var        → refl
       .~-app        → app-cong
       .~-fst        → fst-cong

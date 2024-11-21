@@ -535,7 +535,7 @@ opaque
           ⊩≡∷Σˢ⇔ .proj₂
             ( ⊩ΣAB[σ]
             , u₁ , u₂ , t₁[σ]⇒*u₁ , t₂[σ]⇒*u₂ , u₁-prod , u₂-prod
-            , ≅-Σ-η (escape-⊩ $ ⊩ᵛ→⊩ˢ∷→⊩[⇑] ⊩B ⊩σ)
+            , ≅-Σ-η
                 (wf-⊢≡∷ (subset*Term t₁[σ]⇒*u₁) .proj₂ .proj₂)
                 (wf-⊢≡∷ (subset*Term t₂[σ]⇒*u₂) .proj₂ .proj₂)
                 u₁-prod u₂-prod
@@ -606,7 +606,7 @@ opaque
       , _ , _
       , id ⊢t₁,u₁ , id ⊢t₂,u₂
       , prodₙ , prodₙ
-      , ≅-Σ-η ⊢B ⊢t₁,u₁ ⊢t₂,u₂ prodₙ prodₙ
+      , ≅-Σ-η ⊢t₁,u₁ ⊢t₂,u₂ prodₙ prodₙ
           (escape-⊩≡∷ fst≡fst) (escape-⊩≡∷ snd≡snd)
       , fst≡fst , snd≡snd
       )

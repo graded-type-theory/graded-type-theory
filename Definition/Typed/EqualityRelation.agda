@@ -180,7 +180,6 @@ record Equality-relations
 
     -- η for product types
     ≅-Σ-η : ∀ {r s F G}
-          → Γ ∙ F ⊢ G
           → Γ ⊢ r ∷ Σˢ p , q ▷ F ▹ G
           → Γ ⊢ s ∷ Σˢ p , q ▷ F ▹ G
           → Product r
