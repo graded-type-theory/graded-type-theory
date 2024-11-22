@@ -16,6 +16,7 @@ open import Tools.PropositionalEquality
 
 private variable
   ℓ m n              : Nat
+  Γ                  : Con _ _
   ρ ρ′               : Wk _ _
   x y                : Fin _
   l l₁ l₁′ l₂ l₂′ l₃ : Universe-level
@@ -254,3 +255,11 @@ decBinderMode = λ where
     (yes refl) → yes refl
     (no s₁≢s₂)    → no λ where
       refl → s₁≢s₂ refl
+
+opaque
+
+  -- Empty-con is decidable.
+
+  Empty-con? : Dec (Empty-con Γ)
+  Empty-con? {Γ = ε}     = yes ε
+  Empty-con? {Γ = _ ∙ _} = no (λ ())

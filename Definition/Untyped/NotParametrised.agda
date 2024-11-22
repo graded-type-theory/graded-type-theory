@@ -30,6 +30,11 @@ data Con (A : Nat → Set a) : Nat → Set a where
   ε   :                             Con A 0        -- Empty context.
   _∙_ : {n : Nat} → Con A n → A n → Con A (1+ n)   -- Context extension.
 
+-- Empty-con Γ holds if Γ is empty.
+
+data Empty-con {P : Nat → Set a} : Con P n → Set a where
+  ε : Empty-con ε
+
 -- Representation of sub terms using a list of binding levels
 
 infixr 5 _∷ₜ_

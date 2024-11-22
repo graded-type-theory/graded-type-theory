@@ -43,7 +43,7 @@ record Fundamental-assumptions⁻ (Δ : Con Term k) : Set a where
     -- then the context is consistent.
     consistent : Emptyrec-allowed 𝟙ᵐ 𝟘 → Consistent Δ
     -- Erased matches are not allowed unless the context is empty.
-    closed-or-no-erased-matches : No-erased-matches TR UR ⊎ k ≡ 0
+    closed-or-no-erased-matches : No-erased-matches TR UR ⊎ Empty-con Δ
 
 -- The fundamental lemma is proved under the assumption that a given
 -- context Δ satisfies the following assumptions.
@@ -65,7 +65,7 @@ fundamental-assumptions⁻₀ = record
   { consistent                  = λ _ →
                                     inhabited-consistent
                                       (⊢ˢʷ∷-idSubst ε)
-  ; closed-or-no-erased-matches = inj₂ refl
+  ; closed-or-no-erased-matches = inj₂ ε
   }
 
 -- Fundamental-assumptions holds unconditionally for empty contexts.

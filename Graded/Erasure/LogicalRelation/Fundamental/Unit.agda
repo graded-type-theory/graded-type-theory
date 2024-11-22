@@ -102,7 +102,7 @@ opaque
     Γ ⊢ u ∷ A [ starʷ l ]₀ →
     γ ▸ Γ ⊩ʳ t ∷[ m ᵐ· p ] Unitʷ l →
     δ ▸ Γ ⊩ʳ u ∷[ m ] A [ starʷ l ]₀ →
-    (p PE.≡ 𝟘 → k PE.≡ 0 ⊎ Unitʷ-η) →
+    (p PE.≡ 𝟘 → Empty-con Δ ⊎ Unitʷ-η) →
     p ·ᶜ γ +ᶜ δ ▸ Γ ⊩ʳ unitrec l p q A t u ∷[ m ] A [ t ]₀
   unitrecʳ {m = 𝟘ᵐ} _ _ _ _ _ _ =
     ▸⊩ʳ∷[𝟘ᵐ]
@@ -217,5 +217,5 @@ opaque
               star≢ne t′-ne $
               whrDet*Term (t[σ]⇒⋆ , starₙ) (t[σ]⇒t′ , ne t′-ne) }
             (yes p≡𝟘) → case p≡𝟘→ p≡𝟘 of λ where
-              (inj₁ PE.refl) → noClosedNe t′-ne
-              (inj₂ η)       → no-η η }
+              (inj₁ ε) → noClosedNe t′-ne
+              (inj₂ η) → no-η η }
