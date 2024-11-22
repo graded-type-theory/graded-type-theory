@@ -24,7 +24,7 @@ open import Definition.Typed.Stability R
 open import Definition.Typed.Substitution R
 
 open import Definition.Typed.Consequences.Injectivity R
-open import Definition.Typed.Consequences.Inequality R
+open import Definition.Typed.Consequences.Inequality R as I
 
 open import Tools.Function
 open import Tools.Nat
@@ -112,19 +112,19 @@ whnfProduct x (ne pNe) = ne pNe
 whnfProduct ⊢∷Σ Uₙ = ⊥-elim (U≢ΠΣⱼ (sym (inversion-U ⊢∷Σ)))
 whnfProduct x ΠΣₙ =
   let _ , _ , _ , _ , Σ≡U , _ = inversion-ΠΣ-U x
-  in  ⊥-elim (U≢Σ (sym Σ≡U))
-whnfProduct x ℕₙ = ⊥-elim (U≢Σ (sym (inversion-ℕ x)))
-whnfProduct x Unitₙ = ⊥-elim (U≢Σ (sym (inversion-Unit-U x .proj₁)))
-whnfProduct x Emptyₙ = ⊥-elim (U≢Σ (sym (inversion-Empty x)))
+  in  ⊥-elim (U≢ΠΣⱼ (sym Σ≡U))
+whnfProduct x ℕₙ = ⊥-elim (U≢ΠΣⱼ (sym (inversion-ℕ x)))
+whnfProduct x Unitₙ = ⊥-elim (U≢ΠΣⱼ (sym (inversion-Unit-U x .proj₁)))
+whnfProduct x Emptyₙ = ⊥-elim (U≢ΠΣⱼ (sym (inversion-Empty x)))
 whnfProduct x lamₙ =
   let _ , _ , _ , _ , _ , Σ≡Π , _ = inversion-lam x
   in  ⊥-elim (Π≢Σⱼ (sym Σ≡Π))
-whnfProduct x zeroₙ = ⊥-elim (ℕ≢Σ (sym (inversion-zero x)))
+whnfProduct x zeroₙ = ⊥-elim (ℕ≢ΠΣⱼ (sym (inversion-zero x)))
 whnfProduct x sucₙ =
   let _ , A≡ℕ = inversion-suc x
-  in  ⊥-elim (ℕ≢Σ (sym A≡ℕ))
-whnfProduct x starₙ = ⊥-elim (Unit≢Σⱼ (sym (inversion-star x .proj₁)))
+  in  ⊥-elim (ℕ≢ΠΣⱼ (sym A≡ℕ))
+whnfProduct x starₙ = ⊥-elim (Unit≢ΠΣⱼ (sym (inversion-star x .proj₁)))
 whnfProduct ⊢∷Σ Idₙ =
-  ⊥-elim (U≢Σ (sym (inversion-Id-U ⊢∷Σ .proj₂ .proj₂ .proj₂ .proj₂)))
+  ⊥-elim (U≢ΠΣⱼ (sym (inversion-Id-U ⊢∷Σ .proj₂ .proj₂ .proj₂ .proj₂)))
 whnfProduct ⊢∷Σ rflₙ =
-  ⊥-elim (Id≢Σ (sym (inversion-rfl ⊢∷Σ .proj₂ .proj₂ .proj₂ .proj₂)))
+  ⊥-elim (I.Id≢ΠΣ (sym (inversion-rfl ⊢∷Σ .proj₂ .proj₂ .proj₂ .proj₂)))

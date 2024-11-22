@@ -120,7 +120,7 @@ fstNeg :
   Γ ⊢ C ≡ Σˢ p , q ▷ A ▹ B →
   𝟘 ≢ p →
   NegativeType Γ A
-fstNeg empty          c  _   = ⊥-elim (Empty≢Σⱼ c)
+fstNeg empty          c  _   = ⊥-elim (Empty≢ΠΣⱼ c)
 fstNeg (pi _ _)       c  _   = ⊥-elim (Π≢Σⱼ c)
 fstNeg (sigma-𝟘 _ _)  c  𝟘≢p = let _ , _ , 𝟘≡p , _ = Σ-injectivity c in
                                ⊥-elim (𝟘≢p 𝟘≡p)
@@ -136,7 +136,7 @@ sndNeg :
   Γ ⊢ C ≡ Σˢ p , q ▷ A ▹ B →
   Γ ⊢ t ∷ A →
   NegativeType Γ (B [ t ]₀)
-sndNeg empty          c    = ⊥-elim (Empty≢Σⱼ c)
+sndNeg empty          c    = ⊥-elim (Empty≢ΠΣⱼ c)
 sndNeg (pi _ _)       c    = ⊥-elim (Π≢Σⱼ c)
 sndNeg (sigma-𝟘 _ nB) c ⊢t =
   let (cA , cB , _ , _) = Σ-injectivity c in
@@ -154,7 +154,7 @@ appNeg :
   Γ ⊢ C ≡ Π p , q ▷ A ▹ B →
   Γ ⊢ t ∷ A →
   NegativeType Γ (B [ t ]₀)
-appNeg empty          c = ⊥-elim (Empty≢Πⱼ c)
+appNeg empty          c = ⊥-elim (Empty≢ΠΣⱼ c)
 appNeg (sigma-𝟘 _ _)  c = ⊥-elim (Π≢Σⱼ (sym c))
 appNeg (sigma _ _ _)  c = ⊥-elim (Π≢Σⱼ (sym c))
 appNeg (pi _ nB) c ⊢t =
@@ -167,16 +167,16 @@ appNeg (conv n c) c′ = appNeg n (trans c c′)
 
 ¬negℕ : NegativeType Γ C → Γ ⊢ C ≡ ℕ → ⊥
 ¬negℕ empty         c  = ℕ≢Emptyⱼ (sym c)
-¬negℕ (pi _ _)      c  = ℕ≢Π (sym c)
-¬negℕ (sigma-𝟘 _ _) c  = ℕ≢Σ (sym c)
-¬negℕ (sigma _ _ _) c  = ℕ≢Σ (sym c)
+¬negℕ (pi _ _)      c  = ℕ≢ΠΣⱼ (sym c)
+¬negℕ (sigma-𝟘 _ _) c  = ℕ≢ΠΣⱼ (sym c)
+¬negℕ (sigma _ _ _) c  = ℕ≢ΠΣⱼ (sym c)
 ¬negℕ universe      c  = U≢ℕ c
 ¬negℕ (conv n c)    c′ = ¬negℕ n (trans c c′)
 
 -- Σʷ-types are not negative.
 
 ¬negΣʷ : NegativeType Γ C → Γ ⊢ C ≡ Σʷ p , q ▷ A ▹ B → ⊥
-¬negΣʷ empty         c  = Empty≢Bⱼ BΣ! c
+¬negΣʷ empty         c  = Empty≢ΠΣⱼ c
 ¬negΣʷ (pi _ _)      c  = Π≢Σⱼ c
 ¬negΣʷ (sigma-𝟘 _ _) c  = Σˢ≢Σʷⱼ c
 ¬negΣʷ (sigma _ _ _) c  = Σˢ≢Σʷⱼ c
@@ -187,9 +187,9 @@ appNeg (conv n c) c′ = appNeg n (trans c c′)
 
 ¬negUnit : ∀ {s} → NegativeType Γ C → Γ ⊢ C ≡ Unit s l → ⊥
 ¬negUnit empty         c  = Empty≢Unitⱼ c
-¬negUnit (pi _ _)      c  = Unit≢Πⱼ (sym c)
-¬negUnit (sigma-𝟘 _ _) c  = Unit≢Σⱼ (sym c)
-¬negUnit (sigma _ _ _) c  = Unit≢Σⱼ (sym c)
+¬negUnit (pi _ _)      c  = Unit≢ΠΣⱼ (sym c)
+¬negUnit (sigma-𝟘 _ _) c  = Unit≢ΠΣⱼ (sym c)
+¬negUnit (sigma _ _ _) c  = Unit≢ΠΣⱼ (sym c)
 ¬negUnit universe      c  = U≢Unitⱼ c
 ¬negUnit (conv n c)    c′ = ¬negUnit n (trans c c′)
 

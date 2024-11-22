@@ -113,8 +113,8 @@ module Main {Γ : Con Term m} (nΓ : NegativeContext Γ)
   nfN (Idⱼ _ _ _) (Idₙ _ _ _) c = ⊥-elim (U≢ℕ c)
 
   -- * Canonical forms
-  nfN (lamⱼ _ _ _)    (lamₙ _)    c = ⊥-elim (ℕ≢Π (sym c))
-  nfN (prodⱼ _ _ _ _) (prodₙ _ _) c = ⊥-elim (ℕ≢Σ (sym c))
+  nfN (lamⱼ _ _ _)    (lamₙ _)    c = ⊥-elim (ℕ≢ΠΣⱼ (sym c))
+  nfN (prodⱼ _ _ _ _) (prodₙ _ _) c = ⊥-elim (ℕ≢ΠΣⱼ (sym c))
   nfN (starⱼ _ _)     starₙ       c = ⊥-elim (ℕ≢Unitⱼ (sym c))
   nfN (rflⱼ _)        rflₙ        c = ⊥-elim (Id≢ℕ c)
   -- q.e.d

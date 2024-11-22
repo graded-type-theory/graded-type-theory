@@ -73,38 +73,33 @@ private opaque
 
   -- A lemma used below.
 
-  isB′ : ∀ {l} → Γ ⊩⟨ l ⟩ A → Dec (∃₃ λ W B C → Γ ⊢ A ⇒* ⟦ W ⟧ B ▹ C)
-  isB′ (Uᵣ′ _ _ A⇒*U) =
-    no λ (_ , _ , _ , A⇒*) →
-    I.U≢B _ (trans (sym (subset* A⇒*U)) (subset* A⇒*))
-  isB′ (ℕᵣ A⇒*ℕ) =
-    no λ (_ , _ , _ , A⇒*W) →
-    I.ℕ≢B _ (trans (sym (subset* A⇒*ℕ)) (subset* A⇒*W))
-  isB′ (Emptyᵣ A⇒*Empty) =
-    no λ (_ , _ , _ , A⇒*W) →
-    Empty≢Bⱼ _ (trans (sym (subset* A⇒*Empty)) (subset* A⇒*W))
-  isB′ (Unitᵣ (Unitₜ A⇒*Unit _)) =
-    no λ (_ , _ , _ , A⇒*W) →
-    Unit≢Bⱼ _ (trans (sym (subset* A⇒*Unit)) (subset* A⇒*W))
-  isB′ (ne′ _ A⇒*B B-ne _) =
-    no λ (_ , _ , _ , A⇒*W) →
-    I.B≢ne _ B-ne (trans (sym (subset* A⇒*W)) (subset* A⇒*B))
-  isB′ (Bᵣ′ _ _ _ A⇒*ΠΣ _ _ _ _ _) =
-    yes (_ , _ , _ , A⇒*ΠΣ)
-  isB′ (Idᵣ ⊩A) =
-    no λ (_ , _ , _ , A⇒*Id) →
-    I.Id≢⟦⟧▷ $
+  isΠΣ′ :
+    Γ ⊩⟨ l ⟩ A → Dec (∃₅ λ b p q B C → Γ ⊢ A ⇒* ΠΣ⟨ b ⟩ p , q ▷ B ▹ C)
+  isΠΣ′ (Uᵣ′ _ _ A⇒*U) =
+    no λ (_ , _ , _ , _ , _ , A⇒*) →
+    I.U≢ΠΣⱼ (trans (sym (subset* A⇒*U)) (subset* A⇒*))
+  isΠΣ′ (ℕᵣ A⇒*ℕ) =
+    no λ (_ , _ , _ , _ , _ , A⇒*W) →
+    I.ℕ≢ΠΣⱼ (trans (sym (subset* A⇒*ℕ)) (subset* A⇒*W))
+  isΠΣ′ (Emptyᵣ A⇒*Empty) =
+    no λ (_ , _ , _ , _ , _ , A⇒*W) →
+    Empty≢ΠΣⱼ (trans (sym (subset* A⇒*Empty)) (subset* A⇒*W))
+  isΠΣ′ (Unitᵣ (Unitₜ A⇒*Unit _)) =
+    no λ (_ , _ , _ , _ , _ , A⇒*W) →
+    Unit≢ΠΣⱼ (trans (sym (subset* A⇒*Unit)) (subset* A⇒*W))
+  isΠΣ′ (ne′ _ A⇒*B B-ne _) =
+    no λ (_ , _ , _ , _ , _ , A⇒*W) →
+    I.ΠΣ≢ne B-ne (trans (sym (subset* A⇒*W)) (subset* A⇒*B))
+  isΠΣ′ (Πᵣ′ _ _ A⇒*ΠΣ _ _ _ _ _) =
+    yes (_ , _ , _ , _ , _ , A⇒*ΠΣ)
+  isΠΣ′ (𝕨′ _ _ A⇒*ΠΣ _ _ _ _ _) =
+    yes (_ , _ , _ , _ , _ , A⇒*ΠΣ)
+  isΠΣ′ (Idᵣ ⊩A) =
+    no λ (_ , _ , _ , _ , _ , A⇒*Id) →
+    I.Id≢ΠΣ $
     trans (sym (subset* (_⊩ₗId_.⇒*Id ⊩A))) (subset* A⇒*Id)
-  isB′ (emb ≤ᵘ-refl     ⊩A) = isB′ ⊩A
-  isB′ (emb (≤ᵘ-step p) ⊩A) = isB′ (emb p ⊩A)
-
-opaque
-
-  -- It is decidable whether a well-formed type reduces to (or does
-  -- not reduce to) either a Π-type or a Σ-type.
-
-  isB : Γ ⊢ A → Dec (∃₃ λ W B C → Γ ⊢ A ⇒* ⟦ W ⟧ B ▹ C)
-  isB ⊢A = isB′ (reducible-⊩ ⊢A .proj₂)
+  isΠΣ′ (emb ≤ᵘ-refl     ⊩A) = isΠΣ′ ⊩A
+  isΠΣ′ (emb (≤ᵘ-step p) ⊩A) = isΠΣ′ (emb p ⊩A)
 
 opaque
 
@@ -112,11 +107,7 @@ opaque
   -- not reduce to) either a Π-type or a Σ-type.
 
   isΠΣ : Γ ⊢ A → Dec (∃₅ λ b p q B C → Γ ⊢ A ⇒* ΠΣ⟨ b ⟩ p , q ▷ B ▹ C)
-  isΠΣ ⊢A =
-    Dec.map
-      (λ { (BM _ _ _ , _ , _ , A⇒*) → _ , _ , _ , _ , _ , A⇒* })
-      (λ (_ , _ , _ , _ , _ , A⇒*) → _ , _ , _ , A⇒*)
-      (isB ⊢A)
+  isΠΣ ⊢A = isΠΣ′ (reducible-⊩ ⊢A .proj₂)
 
 opaque
 
@@ -197,9 +188,9 @@ opaque
         I.Id≢ne neK $ trans (sym (subset* A⇒*Id)) (subset* D)
       where
       open _⊩ne_ ⊩A
-    helper (Bᵣ _ ⊩A) =
+    helper (Bᵣ (BM _ _ _) ⊩A) =
       no λ (_ , _ , _ , A⇒*Id) →
-        I.Id≢⟦⟧▷ $
+        I.Id≢ΠΣ $
         trans (sym (subset* A⇒*Id)) (subset* (_⊩ₗB⟨_⟩_.D ⊩A))
     helper (Idᵣ ⊩A) = yes (_ , _ , _ , ⇒*Id)
       where

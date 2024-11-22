@@ -38,13 +38,11 @@ private
   variable
     n : Nat
     Γ : Con Term n
-    A B C D F G H t u v : Term n
+    A B C D t u v : Term n
     p p′ q q′ : M
     b : BinderMode
-    b′ : BindingType
-    m : Strength
-    s s₁ s₂ : Strength
-    l l′ l₁ l₂ : Universe-level
+    s : Strength
+    l l₁ l₂ : Universe-level
 
 opaque
   unfolding _⊩⟨_⟩_≡_
@@ -55,495 +53,304 @@ opaque
     (B-intr : ∀ {l} → Γ ⊩′⟨ l ⟩B B → Γ ⊩⟨ l ⟩ B) →
     (∀ {l} → Γ ⊩⟨ l ⟩ A → ∃ λ l′ → Γ ⊩′⟨ l′ ⟩A A) →
     (∀ {l} → Γ ⊩⟨ l ⟩ B → ∃ λ l′ → Γ ⊩′⟨ l′ ⟩B B) →
-    (∀ {l₁ l₂} (⊩A : Γ ⊩′⟨ l₁ ⟩A A) (⊩B : Γ ⊩′⟨ l₂ ⟩B B) →
+    (∀ {l₁ l₂} {⊩A : Γ ⊩′⟨ l₁ ⟩A A} {⊩B : Γ ⊩′⟨ l₂ ⟩B B} →
      ¬ ShapeView Γ l₁ l₂ A B (A-intr ⊩A) (B-intr ⊩B)) →
     ¬ Γ ⊢ A ≡ B
-  A≢B {A} {B} _ _ A-intr B-intr A-elim B-elim A≢B′ A≡B
-    with reducible-⊩≡ A≡B
-  … | _ , ⊩A , ⊩B , A≡B =
-    let _ , ⊩A′ = A-elim ⊩A
-        _ , ⊩B′ = B-elim ⊩B
-        A≡B′    = irrelevanceEq ⊩A (A-intr ⊩A′) A≡B
-    in  A≢B′ ⊩A′ ⊩B′ (goodCases (A-intr ⊩A′) (B-intr ⊩B′) A≡B′)
-
-U≢ℕ′ :
-  (⊩U : Γ ⊩′⟨ l ⟩U A)
-  (⊩ℕ : Γ ⊩ℕ B) →
-  ShapeView Γ l l′ _ _ (Uᵣ ⊩U) (ℕᵣ ⊩ℕ) → ⊥
-U≢ℕ′ _ _ ()
-
-U≢ℕ-red : Γ ⊢ B ⇒* ℕ → Γ ⊢ U l ≡ B → ⊥
-U≢ℕ-red D =
-  A≢B _⊩′⟨_⟩U_ (λ Γ _ B → Γ ⊩ℕ B) Uᵣ ℕᵣ
-    (extractMaybeEmb ∘→ U-elim)
-    (extractMaybeEmb ∘→ ℕ-elim′ D)
-    U≢ℕ′
-
--- U and ℕ cannot be judgmentally equal.
-U≢ℕ : Γ ⊢ U l ≡ ℕ → ⊥
-U≢ℕ U≡ℕ =
-  let _ , ⊢ℕ = syntacticEq U≡ℕ
-  in  U≢ℕ-red (id ⊢ℕ) U≡ℕ
-
--- U and Empty
-U≢Empty′ :
-  (⊩U : Γ ⊩′⟨ l ⟩U A)
-  (⊩Empty : Γ ⊩Empty B) →
-  ShapeView Γ l l′ _ _ (Uᵣ ⊩U) (Emptyᵣ ⊩Empty) → ⊥
-U≢Empty′ _ _ ()
-
-U≢Empty-red : Γ ⊢ B ⇒* Empty → Γ ⊢ U l ≡ B → ⊥
-U≢Empty-red D =
-  A≢B _⊩′⟨_⟩U_ (λ Γ _ B → Γ ⊩Empty B) Uᵣ Emptyᵣ
-    (extractMaybeEmb ∘→ U-elim)
-    (extractMaybeEmb ∘→ Empty-elim′ D)
-    U≢Empty′
-
-U≢Emptyⱼ : Γ ⊢ U l ≡ Empty → ⊥
-U≢Emptyⱼ U≡Empty =
-  let _ , ⊢Empty = syntacticEq U≡Empty
-  in  U≢Empty-red (id ⊢Empty) U≡Empty
-
--- U and Unit
-U≢Unit′ :
-  (⊩U : Γ ⊩′⟨ l₁ ⟩U A)
-  (⊩Unit : Γ ⊩Unit⟨ l₂ , s ⟩ B) →
-  ShapeView Γ _ _ _ _ (Uᵣ ⊩U) (Unitᵣ ⊩Unit) → ⊥
-U≢Unit′ _ _ ()
-
-U≢Unit-red : Γ ⊢ B ⇒* Unit s l₁ → Γ ⊢ U l₂ ≡ B → ⊥
-U≢Unit-red D =
-  A≢B _⊩′⟨_⟩U_ _⊩Unit⟨_, _ ⟩_ Uᵣ Unitᵣ
-    (extractMaybeEmb ∘→ U-elim)
-    (extractMaybeEmb ∘→ Unit-elim′ D)
-    U≢Unit′
-
-U≢Unitⱼ : Γ ⊢ U l₁ ≡ Unit s l₂ → ⊥
-U≢Unitⱼ U≡Unit =
-  let _ , ⊢Unit = syntacticEq U≡Unit
-  in  U≢Unit-red (id ⊢Unit) U≡Unit
-
--- ℕ and Empty
-
-ℕ≢Empty′ : ∀ {B l l'}
-           ([ℕ] : Γ ⊩ℕ ℕ)
-           ([Empty] : Γ ⊩Empty B)
-           → ShapeView Γ l l' _ _ (ℕᵣ [ℕ]) (Emptyᵣ [Empty]) → ⊥
-ℕ≢Empty′ a b ()
-
-ℕ≢Empty-red : ∀ {B} → Γ ⊢ B ⇒* Empty → Γ ⊢ ℕ ≡ B → ⊥
-ℕ≢Empty-red D = A≢B (λ Γ l A → Γ ⊩ℕ A) (λ Γ l B → Γ ⊩Empty B) ℕᵣ Emptyᵣ
-                (λ x → extractMaybeEmb (ℕ-elim x))
-                (λ x → extractMaybeEmb (Empty-elim′ D x))
-                ℕ≢Empty′
-
-ℕ≢Emptyⱼ : Γ ⊢ ℕ ≡ Empty → ⊥
-ℕ≢Emptyⱼ ℕ≡Empty =
-  let _ , ⊢Empty = syntacticEq ℕ≡Empty
-  in  ℕ≢Empty-red (id ⊢Empty) ℕ≡Empty
-
--- ℕ and Unit
-
-ℕ≢Unit′ :
-  (⊩ℕ : Γ ⊩ℕ ℕ)
-  (⊩Unit : Γ ⊩Unit⟨ l₂ , s ⟩ B) →
-  ShapeView Γ l₁ _ _ _ (ℕᵣ ⊩ℕ) (Unitᵣ ⊩Unit) → ⊥
-ℕ≢Unit′ a b ()
-
-ℕ≢Unit-red : Γ ⊢ B ⇒* Unit s l → Γ ⊢ ℕ ≡ B → ⊥
-ℕ≢Unit-red D =
-  A≢B (λ Γ _ A → Γ ⊩ℕ A) _⊩Unit⟨_, _ ⟩_ ℕᵣ Unitᵣ
-    (extractMaybeEmb ∘→ ℕ-elim)
-    (extractMaybeEmb ∘→ Unit-elim′ D)
-    ℕ≢Unit′
-
-ℕ≢Unitⱼ : Γ ⊢ ℕ ≡ Unit s l → ⊥
-ℕ≢Unitⱼ ℕ≡Unit =
-  let _ , ⊢Unit = syntacticEq ℕ≡Unit
-  in  ℕ≢Unit-red (id ⊢Unit) ℕ≡Unit
-
--- Empty and Unit
-
-Empty≢Unit′ :
-  (⊩Empty : Γ ⊩Empty Empty)
-  (⊩Unit : Γ ⊩Unit⟨ l₂ , s ⟩ B) →
-  ShapeView Γ l₁ _ _ _ (Emptyᵣ ⊩Empty) (Unitᵣ ⊩Unit) → ⊥
-Empty≢Unit′ _ _ ()
-
-Empty≢Unit-red : Γ ⊢ B ⇒* Unit s l → Γ ⊢ Empty ≡ B → ⊥
-Empty≢Unit-red D =
-  A≢B (λ Γ _ A → Γ ⊩Empty A) _⊩Unit⟨_, _ ⟩_ Emptyᵣ Unitᵣ
-    (extractMaybeEmb ∘→ Empty-elim)
-    (extractMaybeEmb ∘→ Unit-elim′ D)
-    Empty≢Unit′
-
-Empty≢Unitⱼ : Γ ⊢ Empty ≡ Unit s l → ⊥
-Empty≢Unitⱼ Empty≡Unit =
-  let _ , ⊢Unit = syntacticEq Empty≡Unit
-  in  Empty≢Unit-red (id ⊢Unit) Empty≡Unit
-
--- Universe and binding types
-
-U≢B′ :
-  ∀ W
-  (⊩U : Γ ⊩′⟨ l ⟩U A)
-  (⊩W : Γ ⊩′⟨ l′ ⟩B⟨ W ⟩ B) →
-  ShapeView Γ l l′ _ _ (Uᵣ ⊩U) (Bᵣ W ⊩W) → ⊥
-U≢B′ _ _ _ ()
-
-U≢B-red : ∀ W → Γ ⊢ B ⇒* ⟦ W ⟧ C ▹ D → Γ ⊢ U l ≡ B → ⊥
-U≢B-red _ D =
-  A≢B _⊩′⟨_⟩U_ _⊩′⟨_⟩B⟨ _ ⟩_ Uᵣ (Bᵣ _)
-    (extractMaybeEmb ∘→ U-elim)
-    (extractMaybeEmb ∘→ B-elim′ _ D)
-    (U≢B′ _)
-
--- The type U l is not definitionally equal to any Π- or Σ-type.
-
-U≢B : ∀ W → Γ ⊢ U l ≡ ⟦ W ⟧ A ▹ B → ⊥
-U≢B _ U≡W =
-  let _ , ⊢W = syntacticEq U≡W in
-  U≢B-red _ (id ⊢W) U≡W
-
-U≢Π : Γ ⊢ U l ≡ Π p , q ▷ A ▹ B → ⊥
-U≢Π = U≢B _
-U≢Σ : Γ ⊢ U l ≡ Σ⟨ s ⟩ p , q ▷ A ▹ B → ⊥
-U≢Σ = U≢B _
-
-U≢ΠΣⱼ : Γ ⊢ U l ≡ ΠΣ⟨ b ⟩ p , q ▷ A ▹ B → ⊥
-U≢ΠΣⱼ {b = BMΠ}   = U≢Π
-U≢ΠΣⱼ {b = BMΣ _} = U≢Σ
-
-U≢ne′ :
-  (⊩U : Γ ⊩′⟨ l ⟩U A)
-  (⊩B : Γ ⊩ne B) →
-  ShapeView Γ l l′ _ _ (Uᵣ ⊩U) (ne ⊩B) → ⊥
-U≢ne′ _ _ ()
-
-U≢ne-red : Γ ⊢ B ⇒* C → Neutral C → Γ ⊢ U l ≡ B → ⊥
-U≢ne-red D C-ne =
-  A≢B _⊩′⟨_⟩U_ (λ Γ _ A → Γ ⊩ne A) Uᵣ ne
-    (extractMaybeEmb ∘→ U-elim)
-    (extractMaybeEmb ∘→ ne-elim′ D C-ne)
-    U≢ne′
-
--- U l is not definitionally equal to any neutral term.
-
-U≢ne : Neutral A → Γ ⊢ U l ≡ A → ⊥
-U≢ne A-ne U≡A =
-  let _ , ⊢A = syntacticEq U≡A in
-  U≢ne-red (id ⊢A) A-ne U≡A
-
-ℕ≢B′ : ∀ {A B l l′} W
-       ([ℕ] : Γ ⊩ℕ A)
-       ([W] : Γ ⊩′⟨ l′ ⟩B⟨ W ⟩ B)
-     → ShapeView Γ l l′ _ _ (ℕᵣ [ℕ]) (Bᵣ W [W]) → ⊥
-ℕ≢B′ W a b ()
-
-ℕ≢B-red : ∀ {A B F G} W → Γ ⊢ A ⇒* ℕ → Γ ⊢ B ⇒* ⟦ W ⟧ F ▹ G → Γ ⊢ A ≡ B → ⊥
-ℕ≢B-red W D D′ = A≢B (λ Γ l A → Γ ⊩ℕ A)
-                     (λ Γ l A → Γ ⊩′⟨ l ⟩B⟨ W ⟩ A) ℕᵣ (Bᵣ W)
-                     (λ x → extractMaybeEmb (ℕ-elim′ D x))
-                     (λ x → extractMaybeEmb (B-elim′ W D′ x))
-                     (ℕ≢B′ W)
-
--- ℕ and B F ▹ G for any F and G cannot be judgmentally equal.
-ℕ≢B : ∀ {F G} W → Γ ⊢ ℕ ≡ ⟦ W ⟧ F ▹ G → ⊥
-ℕ≢B W ℕ≡W =
-  let ⊢ℕ , ⊢W = syntacticEq ℕ≡W
-  in  ℕ≢B-red W (id ⊢ℕ) (id ⊢W) ℕ≡W
-
-ℕ≢Π : ∀ {Γ : Con Term n} {F G p q} → _
-ℕ≢Π {Γ = Γ} {F} {G} {p} {q} = ℕ≢B {Γ = Γ} {F} {G} (BΠ p q)
-ℕ≢Σ : ∀ {Γ : Con Term n} {F G p q m} → _
-ℕ≢Σ {Γ = Γ} {F} {G} {p} {q} {m} = ℕ≢B {Γ = Γ} {F} {G} (BΣ m p q)
-
-ℕ≢ΠΣⱼ : Γ ⊢ ℕ ≡ ΠΣ⟨ b ⟩ p , q ▷ F ▹ G → ⊥
-ℕ≢ΠΣⱼ {b = BMΠ}   = ℕ≢Π
-ℕ≢ΠΣⱼ {b = BMΣ _} = ℕ≢Σ
-
--- Empty and Π
-Empty≢B′ : ∀ {A B l l′} W
-       ([Empty] : Γ ⊩Empty A)
-       ([W] : Γ ⊩′⟨ l′ ⟩B⟨ W ⟩ B)
-     → ShapeView Γ l l′ _ _ (Emptyᵣ [Empty]) (Bᵣ W [W]) → ⊥
-Empty≢B′ W a b ()
-
-Empty≢B-red : ∀ {A B F G} W → Γ ⊢ A ⇒* Empty → Γ ⊢ B ⇒* ⟦ W ⟧ F ▹ G → Γ ⊢ A ≡ B → ⊥
-Empty≢B-red W D D′ = A≢B (λ Γ l A → Γ ⊩Empty A)
-                         (λ Γ l A → Γ ⊩′⟨ l ⟩B⟨ W ⟩ A) Emptyᵣ (Bᵣ W)
-                         (λ x → extractMaybeEmb (Empty-elim′ D x))
-                         (λ x → extractMaybeEmb (B-elim′ W D′ x))
-                         (Empty≢B′ W)
-
-Empty≢Bⱼ : ∀ {F G} W → Γ ⊢ Empty ≡ ⟦ W ⟧ F ▹ G → ⊥
-Empty≢Bⱼ W Empty≡W =
-  let ⊢Empty , ⊢W = syntacticEq Empty≡W
-  in  Empty≢B-red W (id ⊢Empty) (id ⊢W) Empty≡W
-
-Empty≢Πⱼ : ∀ {Γ : Con Term n} {F G p q} → _
-Empty≢Πⱼ {Γ = Γ} {F} {G} {p} {q} = Empty≢Bⱼ {Γ = Γ} {F} {G} (BΠ p q)
-Empty≢Σⱼ : ∀ {Γ : Con Term n} {F G p q m} → _
-Empty≢Σⱼ {Γ = Γ} {F} {G} {p} {q} {m} =
-  Empty≢Bⱼ {Γ = Γ} {F} {G} (BΣ m p q)
-
-Empty≢ΠΣⱼ : Γ ⊢ Empty ≡ ΠΣ⟨ b ⟩ p , q ▷ F ▹ G → ⊥
-Empty≢ΠΣⱼ {b = BMΠ}   = Empty≢Πⱼ
-Empty≢ΠΣⱼ {b = BMΣ _} = Empty≢Σⱼ
-
--- Unit and Π or Σ.
-Unit≢B′ :
-  (⊩Unit : Γ ⊩Unit⟨ l₁ , s ⟩ A)
-  (⊩B : Γ ⊩′⟨ l₂ ⟩B⟨ b′ ⟩ B) →
-  ShapeView Γ _ _ _ _ (Unitᵣ ⊩Unit) (Bᵣ _ ⊩B) → ⊥
-Unit≢B′ _ _ ()
-
-Unit≢B-red :
-  Γ ⊢ A ⇒* Unit s l → Γ ⊢ B ⇒* ⟦ b′ ⟧ C ▹ D → Γ ⊢ A ≡ B → ⊥
-Unit≢B-red D D′ =
-  A≢B _⊩Unit⟨_, _ ⟩_ _⊩′⟨_⟩B⟨ _ ⟩_ Unitᵣ (Bᵣ _)
-    (extractMaybeEmb ∘→ Unit-elim′ D)
-    (extractMaybeEmb ∘→ B-elim′ _ D′)
-    Unit≢B′
-
-Unit≢Bⱼ : ∀ W → Γ ⊢ Unit s l ≡ ⟦ W ⟧ B ▹ C → ⊥
-Unit≢Bⱼ _ Unit≡W =
-  let ⊢Unit , ⊢W = syntacticEq Unit≡W
-  in  Unit≢B-red (id ⊢Unit) (id ⊢W) Unit≡W
-
-Unit≢Πⱼ : Γ ⊢ Unit s l ≡ Π p , q ▷ B ▹ C → ⊥
-Unit≢Πⱼ = Unit≢Bⱼ _
-Unit≢Σⱼ : Γ ⊢ Unit s₁ l ≡ Σ⟨ s₂ ⟩ p , q ▷ B ▹ C → ⊥
-Unit≢Σⱼ = Unit≢Bⱼ _
-
-Unit≢ΠΣⱼ : Γ ⊢ Unit s l ≡ ΠΣ⟨ b ⟩ p , q ▷ B ▹ C → ⊥
-Unit≢ΠΣⱼ {b = BMΠ}   = Unit≢Πⱼ
-Unit≢ΠΣⱼ {b = BMΣ _} = Unit≢Σⱼ
-
-ℕ≢ne′ : ∀ {A K l l′}
-       ([ℕ] : Γ ⊩ℕ A)
-       ([K] : Γ ⊩ne K)
-     → ShapeView Γ l l′ _ _ (ℕᵣ [ℕ]) (ne [K]) → ⊥
-ℕ≢ne′ a b ()
-
-ℕ≢ne-red : ∀ {A B K} → Γ ⊢ A ⇒* ℕ → Γ ⊢ B ⇒* K → Neutral K → Γ ⊢ A ≡ B → ⊥
-ℕ≢ne-red D D′ neK = A≢B (λ Γ l A → Γ ⊩ℕ A) (λ Γ l B → Γ ⊩ne B) ℕᵣ ne
-                        (λ x → extractMaybeEmb (ℕ-elim′ D x))
-                        (λ x → extractMaybeEmb (ne-elim′ D′ neK x))
-                        ℕ≢ne′
-
--- ℕ and K for any neutral K cannot be judgmentally equal.
-ℕ≢ne : ∀ {K} → Neutral K → Γ ⊢ ℕ ≡ K → ⊥
-ℕ≢ne neK ℕ≡K =
-  let ⊢ℕ , ⊢K = syntacticEq ℕ≡K
-  in  ℕ≢ne-red (id ⊢ℕ) (id ⊢K) neK ℕ≡K
-
--- Empty and neutral
-Empty≢ne′ : ∀ {A K l l′}
-       ([Empty] : Γ ⊩Empty A)
-       ([K] : Γ ⊩ne K)
-     → ShapeView Γ l l′ _ _ (Emptyᵣ [Empty]) (ne [K]) → ⊥
-Empty≢ne′ a b ()
-
-Empty≢ne-red : ∀ {A B K} → Γ ⊢ A ⇒* Empty → Γ ⊢ B ⇒* K → Neutral K → Γ ⊢ A ≡ B → ⊥
-Empty≢ne-red D D′ neK = A≢B (λ Γ l A → Γ ⊩Empty A) (λ Γ l B → Γ ⊩ne B) Emptyᵣ ne
-                        (λ x → extractMaybeEmb (Empty-elim′ D x))
-                        (λ x → extractMaybeEmb (ne-elim′ D′ neK x))
-                        Empty≢ne′
-
-Empty≢neⱼ : ∀ {K} → Neutral K → Γ ⊢ Empty ≡ K → ⊥
-Empty≢neⱼ neK Empty≡K =
-  let ⊢Empty , ⊢K = syntacticEq Empty≡K
-  in  Empty≢ne-red (id ⊢Empty) (id ⊢K) neK Empty≡K
-
--- Unit and neutral
-Unit≢ne′ :
-  (⊩Unit : Γ ⊩Unit⟨ l₁ , s ⟩ A)
-  (⊩B : Γ ⊩ne B) →
-  ShapeView Γ _ l₂ _ _ (Unitᵣ ⊩Unit) (ne ⊩B) → ⊥
-Unit≢ne′ _ _ ()
-
-Unit≢ne-red : Γ ⊢ A ⇒* Unit s l → Γ ⊢ B ⇒* C → Neutral C → Γ ⊢ A ≡ B → ⊥
-Unit≢ne-red D D′ neC =
-  A≢B _⊩Unit⟨_, _ ⟩_ (λ Γ _ B → Γ ⊩ne B) Unitᵣ ne
-    (extractMaybeEmb ∘→ Unit-elim′ D)
-    (extractMaybeEmb ∘→ ne-elim′ D′ neC)
-    Unit≢ne′
-
-Unit≢neⱼ : Neutral B → Γ ⊢ Unit s l ≡ B → ⊥
-Unit≢neⱼ B-ne Unit≡B =
-  let ⊢Unit , ⊢B = syntacticEq Unit≡B
-  in  Unit≢ne-red (id ⊢Unit) (id ⊢B) B-ne Unit≡B
-
-B≢ne′ : ∀ {A K l l′} W
-       ([W] : Γ ⊩′⟨ l ⟩B⟨ W ⟩ A)
-       ([K] : Γ ⊩ne K)
-     → ShapeView Γ l l′ _ _ (Bᵣ W [W]) (ne [K]) → ⊥
-B≢ne′ W a b ()
-
-B≢ne-red : ∀ {A B F G K} W → Γ ⊢ A ⇒* ⟦ W ⟧ F ▹ G → Γ ⊢ B ⇒* K → Neutral K
-     → Γ ⊢ A ≡ B → ⊥
-B≢ne-red W D D′ neK = A≢B (λ Γ l A → Γ ⊩′⟨ l ⟩B⟨ W ⟩ A)
-                          (λ Γ l B → Γ ⊩ne B) (Bᵣ W) ne
-                          (λ x → extractMaybeEmb (B-elim′ W D x))
-                          (λ x → extractMaybeEmb (ne-elim′ D′ neK x))
-                          (B≢ne′ W)
-
--- ⟦ W ⟧ F ▹ G and K for any W, F, G and neutral K cannot be judgmentally equal.
-B≢ne : ∀ {F G K} W → Neutral K → Γ ⊢ ⟦ W ⟧ F ▹ G ≡ K → ⊥
-B≢ne W neK W≡K =
-  let ⊢W , ⊢K = syntacticEq W≡K
-  in  B≢ne-red W (id ⊢W) (id ⊢K) neK W≡K
-
-Π≢ne : ∀ {Γ : Con Term n} {F G H p q} → _
-Π≢ne {Γ = Γ} {F} {G} {H} {p} {q} = B≢ne {Γ = Γ} {F} {G} {H} (BΠ p q)
-Σ≢ne : ∀ {Γ : Con Term n} {F G H p q m} → _
-Σ≢ne {Γ = Γ} {F} {G} {H} {p} {q} {m} =
-  B≢ne {Γ = Γ} {F} {G} {H} (BΣ m p q)
-
-ΠΣ≢ne : Neutral H → Γ ⊢ ΠΣ⟨ b ⟩ p , q ▷ F ▹ G ≡ H → ⊥
-ΠΣ≢ne {b = BMΠ}   = B≢ne (BΠ _ _)
-ΠΣ≢ne {b = BMΣ _} = B≢ne (BΣ _ _ _)
-
--- Π and Σ
-Π≢Σ′ : ∀ {A B l l′ p q q′ m}
-       ([A] : Γ ⊩′⟨ l ⟩B⟨ BΠ p q ⟩ A)
-       ([B] : Γ ⊩′⟨ l′ ⟩B⟨ BΣ m p′ q′ ⟩ B)
-     → ShapeView Γ l l′ _ _ (Bᵣ (BΠ p q) [A]) (Bᵣ (BΣ m p′ q′) [B]) → ⊥
-Π≢Σ′ _ _ ()
-
-Π≢Σ-red : ∀ {A B F G H E m} → Γ ⊢ A ⇒* Π p , q ▷ F ▹ G
-         → Γ ⊢ B ⇒* Σ⟨ m ⟩ p′ , q′ ▷ H ▹ E → Γ ⊢ A ≡ B → ⊥
-Π≢Σ-red {p′ = p′} {q′ = q′} {m = m} D D′ = A≢B
-  (λ Γ l A → Γ ⊩′⟨ l ⟩B⟨ BΠ! ⟩ A)
-  (λ Γ l A → Γ ⊩′⟨ l ⟩B⟨ BΣ m p′ q′ ⟩ A) (Bᵣ BΠ!) (Bᵣ BΣ!)
-  (λ x → extractMaybeEmb (B-elim′ BΠ! D x))
-  (λ x → extractMaybeEmb (B-elim′ BΣ! D′ x))
-  Π≢Σ′
-
-Π≢Σⱼ : ∀ {F G H E m} → Γ ⊢ Π p , q ▷ F ▹ G ≡ Σ⟨ m ⟩ p′ , q′ ▷ H ▹ E → ⊥
-Π≢Σⱼ Π≡Σ =
-  let ⊢Π , ⊢Σ = syntacticEq Π≡Σ
-  in  Π≢Σ-red (id ⊢Π) (id ⊢Σ) Π≡Σ
-
-Σˢ≢Σʷ′ :
-  ∀ {A B l l′ q q′}
-  ([A] : Γ ⊩′⟨ l ⟩B⟨ BΣ 𝕤 p q ⟩ A)
-  ([B] : Γ ⊩′⟨ l′ ⟩B⟨ BΣ 𝕨 p′ q′ ⟩ B) →
-  ShapeView Γ l l′ _ _ (Bᵣ (BΣ 𝕤 p q) [A]) (Bᵣ (BΣ 𝕨 p′ q′) [B]) → ⊥
-Σˢ≢Σʷ′ _ _ ()
-
-Σˢ≢Σʷ-red : ∀ {A B F G H E} → Γ ⊢ A ⇒* Σˢ p , q ▷ F ▹ G
-          → Γ ⊢ B ⇒* Σʷ p′ , q′ ▷ H ▹ E → Γ ⊢ A ≡ B → ⊥
-Σˢ≢Σʷ-red D D′ = A≢B (λ Γ l A → Γ ⊩′⟨ l ⟩B⟨ BΣˢ ⟩ A)
-                     (λ Γ l B → Γ ⊩′⟨ l ⟩B⟨ BΣʷ ⟩ B)
-                     (Bᵣ BΣ!) (Bᵣ BΣ!)
-                     (λ x → extractMaybeEmb (B-elim′ BΣ! D x))
-                     (λ x → extractMaybeEmb (B-elim′ BΣ! D′ x))
-                     Σˢ≢Σʷ′
-
-Σˢ≢Σʷⱼ : ∀ {F G H E} → Γ ⊢ Σˢ p , q ▷ F ▹ G ≡ Σʷ p′ , q′ ▷ H ▹ E → ⊥
-Σˢ≢Σʷⱼ Σˢ≡Σʷ =
-  let ⊢Σˢ , ⊢Σʷ = syntacticEq Σˢ≡Σʷ
-  in  Σˢ≢Σʷ-red (id ⊢Σˢ) (id ⊢Σʷ) Σˢ≡Σʷ
-
--- Weak and strong unit types
-
-Unitʷ≢Unitˢ′ :
-  (⊩A : Γ ⊩Unit⟨ l₁ , 𝕨 ⟩ A)
-  (⊩B : Γ ⊩Unit⟨ l₂ , 𝕤 ⟩ B) →
-  ShapeView Γ _ _ _ _ (Unitᵣ ⊩A) (Unitᵣ ⊩B) → ⊥
-Unitʷ≢Unitˢ′ _ _ ()
-
-Unitʷ≢Unitˢ-red : Γ ⊢ A ⇒* Unitʷ l₁
-                → Γ ⊢ B ⇒* Unitˢ l₂
-                → Γ ⊢ A ≡ B → ⊥
-Unitʷ≢Unitˢ-red D D′ =
-  A≢B _⊩Unit⟨_, 𝕨 ⟩_ _⊩Unit⟨_, 𝕤 ⟩_ Unitᵣ Unitᵣ
-    (extractMaybeEmb ∘→ Unit-elim′ D)
-    (extractMaybeEmb ∘→ Unit-elim′ D′)
-    Unitʷ≢Unitˢ′
-
-Unitʷ≢Unitˢ : Γ ⊢ Unitʷ l₁ ≡ Unitˢ l₂ → ⊥
-Unitʷ≢Unitˢ Unitʷ≡Unitˢ =
-  let ⊢Unitʷ , ⊢Unitˢ = syntacticEq Unitʷ≡Unitˢ
-  in  Unitʷ≢Unitˢ-red (id ⊢Unitʷ) (id ⊢Unitˢ) Unitʷ≡Unitˢ
+  A≢B _ _ A-intr B-intr A-elim B-elim A≢B′ A≡B =
+    let _ , ⊩A , ⊩B , A≡B = reducible-⊩≡ A≡B
+        _ , ⊩A′           = A-elim ⊩A
+        _ , ⊩B′           = B-elim ⊩B
+        A≡B′              = irrelevanceEq ⊩A (A-intr ⊩A′) A≡B
+    in
+    A≢B′ (goodCases (A-intr ⊩A′) (B-intr ⊩B′) A≡B′)
+
+opaque
+
+  -- Applications of U are not definitionally equal to ℕ.
+
+  U≢ℕ : ¬ Γ ⊢ U l ≡ ℕ
+  U≢ℕ =
+    A≢B _⊩′⟨_⟩U_ (λ Γ _ A → Γ ⊩ℕ A) Uᵣ ℕᵣ
+      (extractMaybeEmb ∘→ U-elim)
+      (extractMaybeEmb ∘→ ℕ-elim)
+      (λ ())
+
+opaque
+
+  -- Applications of U are not definitionally equal to Empty.
+
+  U≢Emptyⱼ : ¬ Γ ⊢ U l ≡ Empty
+  U≢Emptyⱼ =
+    A≢B _⊩′⟨_⟩U_ (λ Γ _ A → Γ ⊩Empty A) Uᵣ Emptyᵣ
+      (extractMaybeEmb ∘→ U-elim)
+      (extractMaybeEmb ∘→ Empty-elim)
+      (λ ())
+
+opaque
+
+  -- Applications of U are not definitionally equal to applications of
+  -- Unit.
+
+  U≢Unitⱼ : ¬ Γ ⊢ U l₁ ≡ Unit s l₂
+  U≢Unitⱼ {s} =
+    A≢B _⊩′⟨_⟩U_ _⊩Unit⟨_, s ⟩_ Uᵣ Unitᵣ
+      (extractMaybeEmb ∘→ U-elim)
+      (extractMaybeEmb ∘→ Unit-elim)
+      (λ ())
+
+opaque
+
+  -- ℕ and Empty are not definitionally equal.
+
+  ℕ≢Emptyⱼ : ¬ Γ ⊢ ℕ ≡ Empty
+  ℕ≢Emptyⱼ =
+    A≢B (λ Γ _ A → Γ ⊩ℕ A) (λ Γ _ A → Γ ⊩Empty A) ℕᵣ Emptyᵣ
+      (extractMaybeEmb ∘→ ℕ-elim)
+      (extractMaybeEmb ∘→ Empty-elim)
+      (λ ())
+
+opaque
+
+  -- ℕ is not definitionally equal to applications of Unit.
+
+  ℕ≢Unitⱼ : ¬ Γ ⊢ ℕ ≡ Unit s l
+  ℕ≢Unitⱼ {s} =
+    A≢B (λ Γ _ A → Γ ⊩ℕ A) _⊩Unit⟨_, s ⟩_ ℕᵣ Unitᵣ
+      (extractMaybeEmb ∘→ ℕ-elim)
+      (extractMaybeEmb ∘→ Unit-elim)
+      (λ ())
+
+opaque
+
+  -- Empty is not definitionally equal to applications of Unit.
+
+  Empty≢Unitⱼ : ¬ Γ ⊢ Empty ≡ Unit s l
+  Empty≢Unitⱼ {s} =
+    A≢B (λ Γ _ A → Γ ⊩Empty A) _⊩Unit⟨_, s ⟩_ Emptyᵣ Unitᵣ
+      (extractMaybeEmb ∘→ Empty-elim)
+      (extractMaybeEmb ∘→ Unit-elim)
+      (λ ())
+
+opaque
+
+  -- Applications of U are not definitionally equal to applications of
+  -- ΠΣ⟨_⟩_,_▷_▹_.
+
+  U≢ΠΣⱼ : ¬ Γ ⊢ U l ≡ ΠΣ⟨ b ⟩ p , q ▷ A ▹ B
+  U≢ΠΣⱼ =
+    let b = _ in
+    A≢B _⊩′⟨_⟩U_ _⊩′⟨_⟩B⟨ b ⟩_ Uᵣ (Bᵣ _)
+      (extractMaybeEmb ∘→ U-elim)
+      (extractMaybeEmb ∘→ B-elim _)
+      (λ ())
+
+opaque
+
+  -- Applications of U are not definitionally equal to neutral terms.
+
+  U≢ne : Neutral A → ¬ Γ ⊢ U l ≡ A
+  U≢ne A-ne =
+    A≢B _⊩′⟨_⟩U_ (λ Γ _ A → Γ ⊩ne A) Uᵣ ne
+      (extractMaybeEmb ∘→ U-elim)
+      (extractMaybeEmb ∘→ ne-elim A-ne)
+      (λ ())
+
+opaque
+
+  -- ℕ is not definitionally equal to applications of ΠΣ⟨_⟩_,_▷_▹_.
+
+  ℕ≢ΠΣⱼ : ¬ Γ ⊢ ℕ ≡ ΠΣ⟨ b ⟩ p , q ▷ A ▹ B
+  ℕ≢ΠΣⱼ =
+    let b = _ in
+    A≢B (λ Γ _ A → Γ ⊩ℕ A) _⊩′⟨_⟩B⟨ b ⟩_ ℕᵣ (Bᵣ _)
+      (extractMaybeEmb ∘→ ℕ-elim)
+      (extractMaybeEmb ∘→ B-elim _)
+      (λ ())
+
+opaque
+
+  -- Empty is not definitionally equal to applications of
+  -- ΠΣ⟨_⟩_,_▷_▹_.
+
+  Empty≢ΠΣⱼ : ¬ Γ ⊢ Empty ≡ ΠΣ⟨ b ⟩ p , q ▷ A ▹ B
+  Empty≢ΠΣⱼ =
+    let b = _ in
+    A≢B (λ Γ _ A → Γ ⊩Empty A) _⊩′⟨_⟩B⟨ b ⟩_ Emptyᵣ (Bᵣ _)
+      (extractMaybeEmb ∘→ Empty-elim)
+      (extractMaybeEmb ∘→ B-elim _)
+      (λ ())
+
+opaque
+
+  -- Applications of Unit are not definitionally equal to applications
+  -- of ΠΣ⟨_⟩_,_▷_▹_.
+
+  Unit≢ΠΣⱼ : ¬ Γ ⊢ Unit s l ≡ ΠΣ⟨ b ⟩ p , q ▷ B ▹ C
+  Unit≢ΠΣⱼ {s} =
+    let b = _ in
+    A≢B _⊩Unit⟨_, s ⟩_ _⊩′⟨_⟩B⟨ b ⟩_ Unitᵣ (Bᵣ _)
+      (extractMaybeEmb ∘→ Unit-elim)
+      (extractMaybeEmb ∘→ B-elim _)
+      (λ ())
+
+opaque
+
+  -- ℕ is not definitionally equal to neutral terms.
+
+  ℕ≢ne : Neutral A → ¬ Γ ⊢ ℕ ≡ A
+  ℕ≢ne A-ne =
+    A≢B (λ Γ _ A → Γ ⊩ℕ A) (λ Γ _ A → Γ ⊩ne A) ℕᵣ ne
+      (extractMaybeEmb ∘→ ℕ-elim)
+      (extractMaybeEmb ∘→ ne-elim A-ne)
+      (λ ())
+
+opaque
+
+  -- Empty is not definitionally equal to neutral terms.
+
+  Empty≢neⱼ : Neutral A → ¬ Γ ⊢ Empty ≡ A
+  Empty≢neⱼ A-ne =
+    A≢B (λ Γ _ A → Γ ⊩Empty A) (λ Γ _ A → Γ ⊩ne A) Emptyᵣ ne
+      (extractMaybeEmb ∘→ Empty-elim)
+      (extractMaybeEmb ∘→ ne-elim A-ne)
+      (λ ())
+
+opaque
+
+  -- Applications of Unit are not definitionally equal to neutral
+  -- terms.
+
+  Unit≢neⱼ : Neutral A → ¬ Γ ⊢ Unit s l ≡ A
+  Unit≢neⱼ {s} A-ne =
+    A≢B _⊩Unit⟨_, s ⟩_ (λ Γ _ A → Γ ⊩ne A) Unitᵣ ne
+      (extractMaybeEmb ∘→ Unit-elim)
+      (extractMaybeEmb ∘→ ne-elim A-ne)
+      (λ ())
+
+opaque
+
+  -- Applications of ΠΣ⟨_⟩_,_▷_▹_ are not definitionally equal to
+  -- neutral terms.
+
+  ΠΣ≢ne : Neutral C → ¬ Γ ⊢ ΠΣ⟨ b ⟩ p , q ▷ A ▹ B ≡ C
+  ΠΣ≢ne C-ne =
+    let b = _ in
+    A≢B _⊩′⟨_⟩B⟨ b ⟩_ (λ Γ _ A → Γ ⊩ne A) (Bᵣ _) ne
+      (extractMaybeEmb ∘→ B-elim _)
+      (extractMaybeEmb ∘→ ne-elim C-ne)
+      (λ ())
+
+opaque
+
+  -- Applications of Π_,_▷_▹_ are not definitionally equal to
+  -- applications of Σ⟨_⟩_,_▷_▹_.
+
+  Π≢Σⱼ : ¬ Γ ⊢ Π p , q ▷ A ▹ B ≡ Σ⟨ s ⟩ p′ , q′ ▷ C ▹ D
+  Π≢Σⱼ =
+    let b₁ = _
+        b₂ = _
+    in
+    A≢B _⊩′⟨_⟩B⟨ b₁ ⟩_ _⊩′⟨_⟩B⟨ b₂ ⟩_ (Bᵣ _) (Bᵣ _)
+      (extractMaybeEmb ∘→ B-elim _)
+      (extractMaybeEmb ∘→ B-elim _)
+      (λ ())
+
+opaque
+
+  -- Applications of Σˢ_,_▷_▹_ are not definitionally equal to
+  -- applications of Σʷ_,_▷_▹_.
+
+  Σˢ≢Σʷⱼ : ¬ Γ ⊢ Σˢ p , q ▷ A ▹ B ≡ Σʷ p′ , q′ ▷ C ▹ D
+  Σˢ≢Σʷⱼ =
+    let b₁ = _
+        b₂ = _
+    in
+    A≢B _⊩′⟨_⟩B⟨ b₁ ⟩_ _⊩′⟨_⟩B⟨ b₂ ⟩_ (Bᵣ _) (Bᵣ _)
+      (extractMaybeEmb ∘→ B-elim _)
+      (extractMaybeEmb ∘→ B-elim _)
+      (λ ())
+
+opaque
+
+  -- Applications of Unitʷ are not definitionally equal to
+  -- applications of Unitˢ.
+
+  Unitʷ≢Unitˢ : ¬ Γ ⊢ Unitʷ l₁ ≡ Unitˢ l₂
+  Unitʷ≢Unitˢ =
+    A≢B _⊩Unit⟨_, 𝕨 ⟩_ _⊩Unit⟨_, 𝕤 ⟩_ Unitᵣ Unitᵣ
+      (extractMaybeEmb ∘→ Unit-elim)
+      (extractMaybeEmb ∘→ Unit-elim)
+      (λ ())
 
 opaque
 
   -- Applications of Id are not definitionally equal to neutral types.
 
-  Id≢ne : Neutral B → Γ ⊢ Id A t u ≡ B → ⊥
+  Id≢ne : Neutral B → ¬ Γ ⊢ Id A t u ≡ B
   Id≢ne B-ne =
     A≢B _⊩′⟨_⟩Id_ (λ Γ _ A → Γ ⊩ne A) Idᵣ ne
       (extractMaybeEmb ∘→ Id-elim)
       (extractMaybeEmb ∘→ ne-elim B-ne)
-      (λ _ _ ())
+      (λ ())
 
-  -- Applications of Id are not definitionally equal to U.
+opaque
 
-  Id≢U : Γ ⊢ Id A t u ≡ U l → ⊥
+  -- Applications of Id are not definitionally equal to applications
+  -- of U.
+
+  Id≢U : ¬ Γ ⊢ Id A t u ≡ U l
   Id≢U =
     A≢B _⊩′⟨_⟩Id_ _⊩′⟨_⟩U_ Idᵣ Uᵣ
       (extractMaybeEmb ∘→ Id-elim)
       (extractMaybeEmb ∘→ U-elim)
-      (λ _ _ ())
+      (λ ())
+
+opaque
 
   -- Applications of Id are not definitionally equal to ℕ.
 
-  Id≢ℕ : Γ ⊢ Id A t u ≡ ℕ → ⊥
+  Id≢ℕ : ¬ Γ ⊢ Id A t u ≡ ℕ
   Id≢ℕ =
     A≢B _⊩′⟨_⟩Id_ (λ Γ _ A → Γ ⊩ℕ A) Idᵣ ℕᵣ
       (extractMaybeEmb ∘→ Id-elim)
       (extractMaybeEmb ∘→ ℕ-elim)
-      (λ _ _ ())
+      (λ ())
 
-  -- Applications of Id are not definitionally equal to unit types.
+opaque
 
-  Id≢Unit : Γ ⊢ Id A t u ≡ Unit s l → ⊥
+  -- Applications of Id are not definitionally equal to applications
+  -- of Unit.
+
+  Id≢Unit : ¬ Γ ⊢ Id A t u ≡ Unit s l
   Id≢Unit {s} =
     A≢B _⊩′⟨_⟩Id_ _⊩Unit⟨_, s ⟩_ Idᵣ Unitᵣ
       (extractMaybeEmb ∘→ Id-elim)
       (extractMaybeEmb ∘→ Unit-elim)
-      (λ _ _ ())
+      (λ ())
+
+opaque
 
   -- Applications of Id are not definitionally equal to Empty.
 
-  Id≢Empty : Γ ⊢ Id A t u ≡ Empty → ⊥
+  Id≢Empty : ¬ Γ ⊢ Id A t u ≡ Empty
   Id≢Empty =
     A≢B _⊩′⟨_⟩Id_ (λ Γ _ A → Γ ⊩Empty A) Idᵣ Emptyᵣ
       (extractMaybeEmb ∘→ Id-elim)
       (extractMaybeEmb ∘→ Empty-elim)
-      (λ _ _ ())
+      (λ ())
 
-  -- Applications of Id are not definitionally equal to applications of
-  -- Π or Σ.
+opaque
 
-  Id≢⟦⟧▷ : Γ ⊢ Id A t u ≡ ⟦ b′ ⟧ B ▹ C → ⊥
-  Id≢⟦⟧▷ =
-    A≢B _⊩′⟨_⟩Id_ _⊩′⟨_⟩B⟨ _ ⟩_ Idᵣ (Bᵣ _)
+  -- Applications of Id are not definitionally equal to applications
+  -- of ΠΣ⟨_⟩_,_▷_▹_.
+
+  Id≢ΠΣ : ¬ Γ ⊢ Id A t u ≡ ΠΣ⟨ b ⟩ p , q ▷ B ▹ C
+  Id≢ΠΣ =
+    let b = _ in
+    A≢B _⊩′⟨_⟩Id_ _⊩′⟨_⟩B⟨ b ⟩_ Idᵣ (Bᵣ _)
       (extractMaybeEmb ∘→ Id-elim)
       (extractMaybeEmb ∘→ B-elim _)
-      (λ _ _ ())
-
-  -- Applications of Id are not definitionally equal to applications
-  -- of Π.
-
-  Id≢Π : Γ ⊢ Id A t u ≡ Π p , q ▷ B ▹ C → ⊥
-  Id≢Π = Id≢⟦⟧▷ {b′ = BΠ _ _}
-
-  -- Applications of Id are not definitionally equal to applications
-  -- of Σ.
-
-  Id≢Σ : Γ ⊢ Id A t u ≡ Σ⟨ m ⟩ p , q ▷ B ▹ C → ⊥
-  Id≢Σ = Id≢⟦⟧▷ {b′ = BΣ _ _ _}
-
-  -- Applications of Id are not definitionally equal to applications
-  -- of Π or Σ.
-
-  Id≢ΠΣ : Γ ⊢ Id A t u ≡ ΠΣ⟨ b ⟩ p , q ▷ B ▹ C → ⊥
-  Id≢ΠΣ {b = BMΠ}   = Id≢Π
-  Id≢ΠΣ {b = BMΣ _} = Id≢Σ
+      (λ ())
 
 -- If No-η-equality A holds, then A is not a Π-type.
 

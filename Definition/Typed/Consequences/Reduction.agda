@@ -207,7 +207,7 @@ opaque
     case wf-⊢≡ (subset* A⇒lam) of λ where
       (_ , univ ⊢lam) →
         let _ , _ , _ , _ , _ , U≡Π , _ = inversion-lam ⊢lam in
-        ⊥-elim (U≢Π U≡Π)
+        ⊥-elim (U≢ΠΣⱼ U≡Π)
   … | _ , zeroₙ , A⇒zero =
     case wf-⊢≡ (subset* A⇒zero) of λ where
       (_ , univ ⊢zero) →
@@ -224,7 +224,7 @@ opaque
     case wf-⊢≡ (subset* A⇒prod) of λ where
       (_ , univ ⊢prod) →
         let _ , _ , _ , _ , _ , _ , _ , U≡Σ , _ = inversion-prod ⊢prod in
-        ⊥-elim (U≢Σ U≡Σ)
+        ⊥-elim (U≢ΠΣⱼ U≡Σ)
   … | _ , rflₙ , A⇒rfl =
     case wf-⊢≡ (subset* A⇒rfl) of λ where
       (_ , univ ⊢rfl) →
