@@ -35,6 +35,7 @@ open import Tools.Unit
 open import Definition.Untyped M as U
 open import Definition.Typed TR
 open import Definition.Typed.Eta-long-normal-form TR
+open import Definition.Typed.InverseUniv TR
 open import Definition.Typed.Inversion TR
 open import Definition.Typed.Properties TR
 open import Definition.Typed.Stability TR
@@ -42,7 +43,6 @@ open import Definition.Typed.Substitution TR
 open import Definition.Typed.Syntactic TR
 open import Definition.Typed.Weakening TR
 open import Definition.Typed.Consequences.Admissible TR
-open import Definition.Typed.Consequences.InverseUniv TR
 open import Definition.Typed.Consequences.NeTypeEq TR
 
 open import Definition.Conversion TR

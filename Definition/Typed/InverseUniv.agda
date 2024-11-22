@@ -5,7 +5,7 @@
 open import Definition.Typed.Restrictions
 open import Graded.Modality
 
-module Definition.Typed.Consequences.InverseUniv
+module Definition.Typed.InverseUniv
   {a} {M : Set a}
   {𝕄 : Modality M}
   (R : Type-restrictions 𝕄)
@@ -13,7 +13,7 @@ module Definition.Typed.Consequences.InverseUniv
 
 open import Definition.Untyped M
 open import Definition.Typed R
-open import Definition.Typed.Properties R
+open import Definition.Typed.Properties.Well-formed R
 open import Definition.Typed.Syntactic R
 
 open import Tools.Function
@@ -22,9 +22,9 @@ open import Tools.Product
 
 private
   variable
-    n : Nat
-    Γ : Con Term n
-    A : Term n
+    n   : Nat
+    Γ   : Con Term n
+    A B : Term n
 
 opaque
 
@@ -49,3 +49,17 @@ opaque
 
   ⊢⇔⊢∷U : Γ ⊢ A ⇔ (∃ λ l → Γ ⊢ A ∷ U l)
   ⊢⇔⊢∷U = inverseUniv , univ ∘→ proj₂
+
+opaque
+
+  -- If A reduces to B, then A reduces to B at type U l for some l.
+
+  inverseUnivRed : Γ ⊢ A ⇒ B → ∃ λ l → Γ ⊢ A ⇒ B ∷ U l
+  inverseUnivRed (univ A⇒B) = _ , A⇒B
+
+opaque
+
+  -- Γ ⊢ A ⇒ B is logically equivalent to ∃ λ l → Γ ⊢ A ⇒ B ∷ U l.
+
+  ⊢⇒⇔⊢⇒∷U : Γ ⊢ A ⇒ B ⇔ ∃ λ l → Γ ⊢ A ⇒ B ∷ U l
+  ⊢⇒⇔⊢⇒∷U = inverseUnivRed , univ ∘→ proj₂

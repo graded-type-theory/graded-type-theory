@@ -130,6 +130,7 @@ import Definition.Typed.Reasoning.Term
 import Definition.Typed.Properties.Admissible.Pi
 import Definition.Typed.Syntactic
 import Definition.Typed.Inversion
+import Definition.Typed.InverseUniv
 import Definition.Typed.Properties.Admissible.Empty
 import Definition.Typed.Properties.Admissible.Identity
 import Definition.Typed.Properties.Admissible.Nat
@@ -295,7 +296,6 @@ import Definition.Typed.Consequences.Inversion
 import Definition.Typed.Consequences.Equality
 import Definition.Typed.Consequences.Canonicity
 import Definition.Typed.Consequences.Reduction
-import Definition.Typed.Consequences.InverseUniv
 import Definition.Typed.Consequences.Admissible.Pi
 import Definition.Typed.Consequences.Admissible.Sigma
 import Definition.Typed.Consequences.Inversion.Lift

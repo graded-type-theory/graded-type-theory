@@ -707,7 +707,7 @@ opaque
   conv↘∷ (t⇒*u , u-whnf) A≡B = conv* t⇒*u A≡B , u-whnf
 
 ------------------------------------------------------------------------
--- Some lemmas related to U
+-- A lemma related to U
 
 opaque
 
@@ -716,17 +716,3 @@ opaque
   univ* : Γ ⊢ A ⇒* B ∷ U l → Γ ⊢ A ⇒* B
   univ* (id ⊢A)     = id (univ ⊢A)
   univ* (A⇒B ⇨ B⇒C) = univ A⇒B ⇨ univ* B⇒C
-
-opaque
-
-  -- If A reduces to B, then A reduces to B at type U l for some l.
-
-  inverseUnivRed : Γ ⊢ A ⇒ B → ∃ λ l → Γ ⊢ A ⇒ B ∷ U l
-  inverseUnivRed (univ A⇒B) = _ , A⇒B
-
-opaque
-
-  -- Γ ⊢ A ⇒ B is logically equivalent to ∃ λ l → Γ ⊢ A ⇒ B ∷ U l.
-
-  ⊢⇒⇔⊢⇒∷U : Γ ⊢ A ⇒ B ⇔ ∃ λ l → Γ ⊢ A ⇒ B ∷ U l
-  ⊢⇒⇔⊢⇒∷U = inverseUnivRed , univ ∘→ proj₂
