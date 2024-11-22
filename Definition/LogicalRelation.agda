@@ -664,7 +664,7 @@ pattern Uᵣ′ a b c = Uᵣ (Uᵣ a b c)
 pattern ne′ a b c d = ne (ne a b c d)
 pattern Bᵣ′ W a b c d e f g h = Bᵣ W (Bᵣ a b c d e f g h)
 pattern Πᵣ′ a b c d e f g h = Bᵣ′ BΠ! a b c d e f g h
-pattern 𝕨′ a b c d e f g h = Bᵣ′ BΣ! a b c d e f g h
+pattern Σᵣ′ a b c d e f g h = Bᵣ′ BΣ! a b c d e f g h
 
 mutual
 

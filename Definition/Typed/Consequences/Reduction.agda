@@ -152,7 +152,7 @@ whNorm′ (Emptyᵣ D) = Empty , Emptyₙ , D
 whNorm′ (Unitᵣ (Unitₜ D _)) = Unit! , Unitₙ , D
 whNorm′ (ne′ H D neH H≡H) = H , ne neH , D
 whNorm′ (Πᵣ′ F G D _ _ _ _ _) = Π _ , _ ▷ F ▹ G , ΠΣₙ , D
-whNorm′ (𝕨′ F G D _ _ _ _ _) = Σ _ , _ ▷ F ▹ G , ΠΣₙ , D
+whNorm′ (Σᵣ′ F G D _ _ _ _ _) = Σ _ , _ ▷ F ▹ G , ΠΣₙ , D
 whNorm′ (Idᵣ ⊩Id) = _ , Idₙ , _⊩ₗId_.⇒*Id ⊩Id
 whNorm′ (emb ≤ᵘ-refl     ⊩A) = whNorm′ ⊩A
 whNorm′ (emb (≤ᵘ-step p) ⊩A) = whNorm′ (emb p ⊩A)
@@ -269,7 +269,7 @@ whNormTerm′ (ne (ne H D neH H≡H)) (neₜ k d (neNfₜ neH₁ k≡k)) =
   k , ne neH₁ , conv* d (sym (subset* D))
 whNormTerm′ (Πᵣ′ _ _ D _ _ _ _ _) (Πₜ f d funcF _ _ _) =
   f , functionWhnf funcF , conv* d (sym (subset* D))
-whNormTerm′ (𝕨′ _ _ D _ _ _ _ _) (Σₜ p d _ pProd _) =
+whNormTerm′ (Σᵣ′ _ _ D _ _ _ _ _) (Σₜ p d _ pProd _) =
   p , productWhnf pProd , conv* d (sym (subset* D))
 whNormTerm′ (Idᵣ ⊩Id) (a′ , a⇒*a′ , a′-id , _) =
     a′ , identityWhnf a′-id
