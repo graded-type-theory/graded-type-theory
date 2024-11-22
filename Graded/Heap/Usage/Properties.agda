@@ -40,7 +40,7 @@ open import Tools.Nat using (Nat; 1+)
 open import Tools.Product
 open import Tools.PropositionalEquality
 open import Tools.Relation
-open import Tools.Sum hiding (sym)
+open import Tools.Sum
 import Tools.Reasoning.PartialOrder as RPo
 import Tools.Reasoning.PropositionalEquality as RPe
 

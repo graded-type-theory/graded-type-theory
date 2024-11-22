@@ -37,7 +37,7 @@ open import Tools.Function
 open import Tools.Product
 open import Tools.PropositionalEquality
 open import Tools.Relation
-open import Tools.Sum hiding (id; sym)
+open import Tools.Sum
 import Tools.Reasoning.PartialOrder as RPo
 import Tools.Reasoning.PropositionalEquality as RPe
 import Tools.Reasoning.Equivalence as REq

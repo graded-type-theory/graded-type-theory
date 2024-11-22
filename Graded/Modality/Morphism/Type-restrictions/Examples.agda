@@ -91,7 +91,7 @@ opaque
       .Unit-reflected    → _
       .ΠΣ-reflected      → _
       .K-reflected       → lift ∘→ Lift.lower
-      .[]-cong-reflected → ⊎.sym ∘→ hyp ∘→ ⊎.sym
+      .[]-cong-reflected → ⊎.comm ∘→ hyp ∘→ ⊎.comm
     where
     open Are-reflecting-type-restrictions
 

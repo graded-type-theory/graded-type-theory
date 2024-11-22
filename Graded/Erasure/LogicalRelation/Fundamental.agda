@@ -9,7 +9,7 @@ import Definition.Typed
 open import Definition.Typed.Restrictions
 import Definition.Untyped
 open import Tools.Empty
-open import Tools.Sum hiding (id)
+open import Tools.Sum
 import Tools.PropositionalEquality as PE
 
 module Graded.Erasure.LogicalRelation.Fundamental

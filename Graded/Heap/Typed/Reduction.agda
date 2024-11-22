@@ -50,7 +50,7 @@ open import Tools.Nat renaming (_+_ to _+ⁿ_)
 open import Tools.Product
 import Tools.PropositionalEquality as PE
 open import Tools.Reasoning.PropositionalEquality
-open import Tools.Sum hiding (id; sym)
+open import Tools.Sum
 
 private variable
   n : Nat

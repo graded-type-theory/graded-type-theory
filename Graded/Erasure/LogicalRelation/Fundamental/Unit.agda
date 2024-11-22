@@ -57,7 +57,7 @@ open import Tools.Empty
 open import Tools.Function
 open import Tools.Nat
 open import Tools.Product
-open import Tools.Sum hiding (id; sym)
+open import Tools.Sum
 import Tools.PropositionalEquality as PE
 open import Tools.Relation
 

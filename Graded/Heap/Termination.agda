@@ -5,7 +5,7 @@
 open import Graded.Modality
 open import Graded.Usage.Restrictions
 open import Definition.Typed.Restrictions
-open import Tools.Sum hiding (sym; id)
+open import Tools.Sum
 import Graded.Heap.Bisimilarity
 
 module Graded.Heap.Termination

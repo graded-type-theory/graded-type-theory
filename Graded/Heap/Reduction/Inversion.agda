@@ -31,7 +31,7 @@ open import Tools.Nat
 open import Tools.Product
 open import Tools.PropositionalEquality
 open import Tools.Relation
-open import Tools.Sum hiding (id)
+open import Tools.Sum
 
 private variable
   m n m′ n′ n″ k : Nat

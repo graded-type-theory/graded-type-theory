@@ -194,7 +194,7 @@ A⇔B ⊎-cong-⇔ C⇔D =
 -- The operator _⊎_ is commutative up to _⇔_.
 
 ⊎-comm-⇔ : (A ⊎ B) ⇔ (B ⊎ A)
-⊎-comm-⇔ = ⊎.sym , ⊎.sym
+⊎-comm-⇔ = ⊎.comm , ⊎.comm
 
 -- The operator _⊎_ is associative up to _⇔_.
 
@@ -212,7 +212,7 @@ A⇔B ⊎-cong-⇔ C⇔D =
 -- The operator _⊎_ is idempotent up to _⇔_.
 
 ⊎-idem-⇔ : (A ⊎ A) ⇔ A
-⊎-idem-⇔ = (λ { (inj₁ x) → x; (inj₂ x) → x }) , inj₁
+⊎-idem-⇔ = ⊎.idem , inj₁
 
 -- The type ∀ x → P x ⇔ x ≡ y is logically equivalent to
 -- P y × ∀ x → P x → x ≡ y.

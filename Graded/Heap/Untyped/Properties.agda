@@ -23,7 +23,7 @@ open import Tools.PropositionalEquality
 open import Tools.Product
 open import Tools.Relation
 open import Tools.Reasoning.PropositionalEquality
-open import Tools.Sum hiding (id; sym)
+open import Tools.Sum
 
 open import Graded.Modality.Properties.Subtraction semiring-with-meet
 open import Graded.Usage.Erased-matches

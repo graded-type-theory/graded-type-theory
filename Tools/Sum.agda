@@ -8,12 +8,12 @@ open import Data.Sum.Base public using (_⊎_; inj₁; inj₂; map; [_,_])
 
 -- Idempotency.
 
-id : ∀ {a} {A : Set a} → A ⊎ A → A
-id (inj₁ x) = x
-id (inj₂ x) = x
+idem : ∀ {a} {A : Set a} → A ⊎ A → A
+idem (inj₁ x) = x
+idem (inj₂ x) = x
 
--- Symmetry.
+-- Commutativity.
 
-sym : ∀ {a b} {A : Set a} {B : Set b} → A ⊎ B → B ⊎ A
-sym (inj₁ x) = inj₂ x
-sym (inj₂ x) = inj₁ x
+comm : ∀ {a b} {A : Set a} {B : Set b} → A ⊎ B → B ⊎ A
+comm (inj₁ x) = inj₂ x
+comm (inj₂ x) = inj₁ x

@@ -24,7 +24,7 @@ open import Tools.Nat
 open import Tools.Product
 open import Tools.PropositionalEquality as PE
 open import Tools.Relation
-open import Tools.Sum hiding (id)
+open import Tools.Sum
 
 open import Graded.Heap.Reduction type-variant UR
 open import Graded.Heap.Reduction.Properties type-variant UR

@@ -21,7 +21,7 @@ open import Tools.Empty
 open import Tools.Function
 open import Tools.Product
 open import Tools.PropositionalEquality as PE
-open import Tools.Sum hiding (id)
+open import Tools.Sum
 
 open import Graded.Heap.Untyped type-variant UR
 open import Graded.Heap.Untyped.Properties type-variant UR

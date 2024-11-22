@@ -6,7 +6,7 @@ open import Graded.Modality
 open import Graded.Usage.Restrictions
 open import Definition.Typed.Restrictions
 import Graded.Heap.Bisimilarity
-open import Tools.Sum hiding (id; sym)
+open import Tools.Sum
 
 module Graded.Heap.Soundness
   {a} {M : Set a} {𝕄 : Modality M}

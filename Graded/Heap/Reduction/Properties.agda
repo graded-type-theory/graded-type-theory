@@ -25,7 +25,7 @@ open import Tools.Nat using (Nat; 1+; 2+; Nat-set)
 open import Tools.PropositionalEquality
 open import Tools.Product
 open import Tools.Relation
-open import Tools.Sum hiding (id; sym)
+open import Tools.Sum
 
 open import Definition.Untyped M
 open import Graded.Modality.Nr-instances

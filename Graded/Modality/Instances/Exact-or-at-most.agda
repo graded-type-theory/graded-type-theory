@@ -20,7 +20,7 @@ open import Tools.PropositionalEquality
 open import Tools.Relation
 import Tools.Reasoning.PropositionalEquality as RPe
 import Tools.Reasoning.PartialOrder as RPo
-open import Tools.Sum hiding (sym)
+open import Tools.Sum
 
 open import Definition.Untyped.NotParametrised
 open import Definition.Typed.Restrictions
