@@ -49,7 +49,7 @@ opaque
   inversion-[]′ ⊢[] =
     case inversion-[] ⊢[] of λ {
       (_ , _ , _ , ⊢t , Erased-ok , Erased-A≡ , _) →
-    case Σ-injectivity Erased-A≡ of λ {
+    case ΠΣ-injectivity Erased-A≡ of λ {
       (A≡ , _ , _ , PE.refl , _) →
     conv ⊢t (_⊢_≡_.sym A≡) , Erased-ok }}
 
@@ -99,7 +99,7 @@ opaque
     ℕ≡Unit =
       case inversion-[] ⊢[t′] of
         λ (_ , _ , _ , A′≡) →
-      case Σ-injectivity A′≡ of
+      case ΠΣ-injectivity A′≡ of
         λ (_ , ≡Unit , _ , _ , _) →
       trans
         (_⊢_≡_.sym $ _⊢_≡_.univ $

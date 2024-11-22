@@ -91,7 +91,7 @@ record _⊢_~_∷_ (Γ : Con Term n) (k l A : Term n) : Set a where
   in
   case Π≡A ΠFG≡B′ whnfB′ of λ {
     (H , E , B≡ΠHE) →
-  case injectivity (PE.subst (λ x → _ ⊢ _ ≡ x) B≡ΠHE ΠFG≡B′) of λ {
+  case ΠΣ-injectivity (PE.subst (λ x → _ ⊢ _ ≡ x) B≡ΠHE ΠFG≡B′) of λ {
     (F≡H , G≡E , _ , _) →
   ↑ (substTypeEq G≡E (refl ⊢f))
     (app-cong
@@ -109,7 +109,7 @@ record _⊢_~_∷_ (Γ : Con Term n) (k l A : Term n) : Set a where
   case trans A≡B (subset* D) of λ ΣFG≡B′ →
   case Σ≡A ΣFG≡B′ whnfB′ of λ where
     (H , _ , PE.refl) →
-      case Σ-injectivity ΣFG≡B′ of λ where
+      case ΠΣ-injectivity ΣFG≡B′ of λ where
         (F≡H , _ , _ , _) →
           ↑ F≡H (fst-cong ([~] _ (D , whnfB′) p~r))
 
@@ -123,7 +123,7 @@ record _⊢_~_∷_ (Γ : Con Term n) (k l A : Term n) : Set a where
   case trans A≡B (subset* D) of λ ΣFG≡B′ →
   case Σ≡A ΣFG≡B′ whnfB′ of λ where
     (_ , E , PE.refl) →
-      case Σ-injectivity ΣFG≡B′ of λ where
+      case ΠΣ-injectivity ΣFG≡B′ of λ where
         (_ , G≡E , _ , _) →
           let p~r↓       = [~] _ (D , whnfB′) p~r
               _ , ⊢G , _ = inversion-ΠΣ ⊢ΣFG
@@ -162,7 +162,7 @@ record _⊢_~_∷_ (Γ : Con Term n) (k l A : Term n) : Set a where
   case _⊢_≡_.trans A≡B (subset* D) of λ Σ≡Σ′ →
   case Σ≡A (trans A≡B (subset* D)) whnfB′ of λ where
     (F′ , G′ , PE.refl) →
-      case Σ-injectivity Σ≡Σ′ of λ where
+      case ΠΣ-injectivity Σ≡Σ′ of λ where
         (F≡F′ , G≡G′ , _ , _ , _) →
           let t~t′       = [~] _ (D , whnfB′) k~↑l
               ⊢A , _     = syntacticEq (soundnessConv↑ x₂)

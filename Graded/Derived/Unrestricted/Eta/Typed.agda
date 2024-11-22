@@ -189,7 +189,7 @@ inversion-[]′ : Γ ⊢ [ t ] ∷ Unrestricted A → Γ ⊢ t ∷ A
 inversion-[]′ ⊢[] =
   case inversion-[] ⊢[] of
     λ (_ , _ , _ , ⊢t , Unrestricted-A≡ , _) →
-  case Σ-injectivity Unrestricted-A≡ of
+  case ΠΣ-injectivity Unrestricted-A≡ of
     λ (A≡ , _) →
   conv ⊢t (_⊢_≡_.sym A≡)
 
@@ -230,7 +230,7 @@ inversion-[]′ ⊢[] =
   ℕ≡Unit =
     case inversion-[] ⊢[t′] of
       λ (_ , _ , _ , _ , A′≡) →
-    case Σ-injectivity A′≡ of
+    case ΠΣ-injectivity A′≡ of
       λ (_ , ≡Unit , _ , _ , _) →
       _
     , _⊢_≡_.trans
@@ -306,7 +306,7 @@ inversion-unbox ⊢unbox =
       λ (_ , _ , _ , _ , _ , ⊢t′ , Unit≡) →
     case inversion-prod ⊢t′ of
       λ (_ , _ , _ , _ , _ , ⊢zero , ⊢zero′ , Σ≡Σ , _) →
-    case Σ-injectivity Σ≡Σ of
+    case ΠΣ-injectivity Σ≡Σ of
       λ (F≡F′ , G≡G′ , _ , _ , _) →
     case inversion-zero ⊢zero of
       λ ≡ℕ →

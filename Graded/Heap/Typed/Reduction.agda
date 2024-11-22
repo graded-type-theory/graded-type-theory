@@ -534,7 +534,7 @@ opaque
     case inversion-fstₑ ⊢e of λ {
       (F′ , G′ , q′ , ⊢G′ , PE.refl , C≡F′) →
     let F , G , q , ⊢F , ⊢G , ⊢t₁ , ⊢t₂ , B≡Σ , ok = inversion-prod ⊢t
-        F≡F′ , _ = Σ-injectivity (sym B≡Σ)
+        F≡F′ , _ = ΠΣ-injectivity (sym B≡Σ)
     in  ⊢⦅⦆ˢ-subst ⊢S (conv (Σ-β₁-⇒ ⊢G ⊢t₁ ⊢t₂ ok) (trans F≡F′ (sym C≡F′))) }
   ⇒ᵥ→⇒ ⊢s prodˢₕ₂ =
     case ⊢ₛ-inv′ ⊢s of λ
@@ -542,7 +542,7 @@ opaque
     case inversion-sndₑ ⊢e of λ {
       (F′ , G′ , q′ , ⊢G′ , PE.refl , C≡G′₊) →
     let F , G , q , ⊢F , ⊢G , ⊢t₁ , ⊢t₂ , B≡Σ , ok = inversion-prod ⊢t
-        F≡F′ , G≡G′ , _ = Σ-injectivity (sym B≡Σ)
+        F≡F′ , G≡G′ , _ = ΠΣ-injectivity (sym B≡Σ)
         G₊≡G′₊ = substTypeEq G≡G′ (refl (conv (fstⱼ′ ⊢t) (sym F≡F′)))
     in  ⊢⦅⦆ˢ-subst ⊢S (conv (Σ-β₂-⇒ ⊢G ⊢t₁ ⊢t₂ ok) (trans G₊≡G′₊ (sym (C≡G′₊ ⊢t)))) }
   ⇒ᵥ→⇒ {(k)} {(_)} {(m)} ⊢s (prodʷₕ {H} {p} {t₁} {t₂} {ρ} {r} {q} {A} {u} {ρ′} {S}) =

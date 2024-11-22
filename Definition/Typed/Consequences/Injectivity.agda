@@ -68,31 +68,6 @@ opaque
 
 opaque
 
-  -- A kind of injectivity for Π.
-
-  injectivity :
-    Γ ⊢ Π p₁ , q₁ ▷ A₁ ▹ B₁ ≡ Π p₂ , q₂ ▷ A₂ ▹ B₂ →
-    Γ ⊢ A₁ ≡ A₂ × Γ ∙ A₁ ⊢ B₁ ≡ B₂ × p₁ PE.≡ p₂ × q₁ PE.≡ q₂
-  injectivity Π≡Π =
-    case ΠΣ-injectivity Π≡Π of λ
-      (A₁≡A₂ , B₁≡B₂ , p₁≡p₂ , q₁≡q₂ , _) →
-    A₁≡A₂ , B₁≡B₂ , p₁≡p₂ , q₁≡q₂
-
-opaque
-
-  -- A kind of injectivity for Σ.
-
-  Σ-injectivity :
-    Γ ⊢ Σ⟨ s₁ ⟩ p₁ , q₁ ▷ A₁ ▹ B₁ ≡ Σ⟨ s₂ ⟩ p₂ , q₂ ▷ A₂ ▹ B₂ →
-    Γ ⊢ A₁ ≡ A₂ × Γ ∙ A₁ ⊢ B₁ ≡ B₂ ×
-    p₁ PE.≡ p₂ × q₁ PE.≡ q₂ × s₁ PE.≡ s₂
-  Σ-injectivity Σ≡Σ =
-    case ΠΣ-injectivity Σ≡Σ of λ {
-      (A₁≡A₂ , B₁≡B₂ , p₁≡p₂ , q₁≡q₂ , PE.refl) →
-    A₁≡A₂ , B₁≡B₂ , p₁≡p₂ , q₁≡q₂ , PE.refl }
-
-opaque
-
   -- Injectivity of Id.
 
   Id-injectivity :

@@ -64,16 +64,16 @@ mutual
                          x₂)
   trans~↑ (app-cong t~u a<>b) (app-cong u~v b<>c) =
     let t~v , ΠFG≡ΠF′G′ = trans~↓ t~u u~v
-        F≡F₁ , G≡G₁ , p≡p₄ , _ = injectivity ΠFG≡ΠF′G′
+        F≡F₁ , G≡G₁ , p≡p₄ , _ = ΠΣ-injectivity ΠFG≡ΠF′G′
         a<>c = transConv↑Term F≡F₁ a<>b b<>c
     in  app-cong t~v a<>c , substTypeEq G≡G₁ (soundnessConv↑Term a<>b)
   trans~↑ (fst-cong t~u) (fst-cong u~v) =
     let t~v , ΣFG≡ΣF′G′ = trans~↓ t~u u~v
-        F≡F′ , _ , _ = Σ-injectivity ΣFG≡ΣF′G′
+        F≡F′ , _ , _ = ΠΣ-injectivity ΣFG≡ΣF′G′
     in  fst-cong t~v , F≡F′
   trans~↑ (snd-cong t~u) (snd-cong u~v) =
     let t~v , ΣFG≡ΣF′G′ = trans~↓ t~u u~v
-        F≡F′ , G≡G′ , _ = Σ-injectivity ΣFG≡ΣF′G′
+        F≡F′ , G≡G′ , _ = ΠΣ-injectivity ΣFG≡ΣF′G′
     in  snd-cong t~v , substTypeEq G≡G′ (soundness~↑ (fst-cong t~u))
   trans~↑ (natrec-cong A<>B a₀<>b₀ aₛ<>bₛ t~u)
           (natrec-cong B<>C b₀<>c₀ bₛ<>cₛ u~v) =
@@ -92,7 +92,7 @@ mutual
                   (prodrec-cong B<>C b~c u<>v) =
     let a~c , Σ≡Σ′ = trans~↓ a~b b~c
         ⊢Γ = wfEq Σ≡Σ′
-        F≡F′ , G≡G′ , _ = Σ-injectivity (sym Σ≡Σ′)
+        F≡F′ , G≡G′ , _ = ΠΣ-injectivity (sym Σ≡Σ′)
         _ , ⊢F = syntacticEq F≡F′
         _ , ⊢G = syntacticEq G≡G′
         ⊢G = stability (refl-∙ F≡F′) ⊢G

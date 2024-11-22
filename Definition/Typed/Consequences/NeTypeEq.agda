@@ -46,12 +46,12 @@ neTypeEq : ∀ {t A B} → Neutral t → Γ ⊢ t ∷ A → Γ ⊢ t ∷ B → �
 neTypeEq (var x) (var x₁ x₂) (var x₃ x₄) =
   varTypeEq (syntacticTerm (var x₃ x₂)) (syntacticTerm (var x₃ x₄)) x₂ x₄
 neTypeEq (∘ₙ neT) (t∷A ∘ⱼ t∷A₁) (t∷B ∘ⱼ t∷B₁) with neTypeEq neT t∷A t∷B
-... | q = let w = proj₁ (proj₂ (injectivity q))
+... | q = let w = proj₁ (proj₂ (ΠΣ-injectivity q))
           in  substTypeEq w (refl t∷A₁)
 neTypeEq (fstₙ neP) (fstⱼ _ ⊢t) (fstⱼ _ ⊢t′) with neTypeEq neP ⊢t ⊢t′
-... | q = proj₁ (Σ-injectivity q)
+... | q = proj₁ (ΠΣ-injectivity q)
 neTypeEq (sndₙ neP) (sndⱼ ⊢G ⊢t) (sndⱼ _ ⊢t′) with neTypeEq neP ⊢t ⊢t′
-... | q = let G≡G₁ = proj₁ (proj₂ (Σ-injectivity q))
+... | q = let G≡G₁ = proj₁ (proj₂ (ΠΣ-injectivity q))
               ⊢fst = fstⱼ ⊢G ⊢t
           in  substTypeEq G≡G₁ (refl ⊢fst)
 neTypeEq (natrecₙ _) ⊢t@(natrecⱼ _ _ _) (natrecⱼ _ _ _) =

@@ -59,7 +59,7 @@ mutual
       (B , whnfB , A≡B , u~t) →
     case Π≡A A≡B whnfB of λ {
       (F′ , G′ , ΠF′G′≡B) →
-    case injectivity (PE.subst (λ x → _ ⊢ _ ≡ x) ΠF′G′≡B A≡B) of λ {
+    case ΠΣ-injectivity (PE.subst (λ x → _ ⊢ _ ≡ x) ΠF′G′≡B A≡B) of λ {
       (F≡F′ , G≡G′ , _ , _) →
     _ , substTypeEq G≡G′ (soundnessConv↑Term x) ,
     app-cong (PE.subst (λ x → _ ⊢ _ ~ _ ↓ x) ΠF′G′≡B u~t)
@@ -68,14 +68,14 @@ mutual
     case sym~↓ Γ≡Δ p~r of λ (B , whnfB , A≡B , r~p) →
     case Σ≡A A≡B whnfB of λ where
       (F′ , G′ , PE.refl) →
-        case Σ-injectivity A≡B of λ where
+        case ΠΣ-injectivity A≡B of λ where
           (F≡ , G≡ , _ , _) →
             F′ , F≡ , fst-cong r~p
   sym~↑ Γ≡Δ (snd-cong p~r) =
     case sym~↓ Γ≡Δ p~r of λ (B , whnfB , A≡B , r~p) →
     case Σ≡A A≡B whnfB of λ where
       (F′ , G′ , PE.refl) →
-        case Σ-injectivity A≡B of λ where
+        case ΠΣ-injectivity A≡B of λ where
           (F≡ , G≡ , _ , _) →
             let fst≡ = soundness~↑ (fst-cong p~r) in
             _ , substTypeEq G≡ fst≡ , snd-cong r~p
@@ -97,7 +97,7 @@ mutual
     case sym~↓ Γ≡Δ g~h of λ (B , whnfB , ⊢Σ≡B , h~g) →
     case Σ≡A ⊢Σ≡B whnfB of λ where
       (F′ , G′ , PE.refl) →
-        case Σ-injectivity (stabilityEq Γ≡Δ ⊢Σ≡B) of λ where
+        case ΠΣ-injectivity (stabilityEq Γ≡Δ ⊢Σ≡B) of λ where
           (⊢F≡F′ , ⊢G≡G′ , _ , _ , _) →
             let g≡h = soundness~↓ g~h
                 C≡E = soundnessConv↑ C↑E

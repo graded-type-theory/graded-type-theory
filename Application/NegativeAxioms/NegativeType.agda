@@ -117,7 +117,7 @@ fstNeg :
   NegativeType Γ A
 fstNeg empty          c = ⊥-elim (Empty≢ΠΣⱼ c)
 fstNeg (pi _ _)       c = ⊥-elim (Π≢Σⱼ c)
-fstNeg (sigma _ nA _) c = conv nA (proj₁ (Σ-injectivity c))
+fstNeg (sigma _ nA _) c = conv nA (proj₁ (ΠΣ-injectivity c))
 fstNeg universe       c = ⊥-elim (U≢ΠΣⱼ c)
 fstNeg (conv n c)    c' = fstNeg n (trans c c')
 
@@ -130,7 +130,7 @@ sndNeg :
   NegativeType Γ (B [ t ]₀)
 sndNeg empty          c = ⊥-elim (Empty≢ΠΣⱼ c)
 sndNeg (pi _ _)       c = ⊥-elim (Π≢Σⱼ c)
-sndNeg (sigma _ _ nB) c ⊢t = let (cA , cB , _ , _) = Σ-injectivity c in
+sndNeg (sigma _ _ nB) c ⊢t = let (cA , cB , _ , _) = ΠΣ-injectivity c in
     subNeg (conv nB cB) (⊢ˢʷ∷-sgSubst (conv ⊢t (sym cA)))
 sndNeg universe      c  = ⊥-elim (U≢ΠΣⱼ c)
 sndNeg (conv n c)    c' = sndNeg n (trans c c')
@@ -140,7 +140,7 @@ sndNeg (conv n c)    c' = sndNeg n (trans c c')
 appNeg : NegativeType Γ C → Γ ⊢ C ≡ Π p , q ▷ A ▹ B → Γ ⊢ t ∷ A → NegativeType Γ (B [ t ]₀)
 appNeg empty          c = ⊥-elim (Empty≢ΠΣⱼ c)
 appNeg (sigma _ _ _)  c = ⊥-elim (Π≢Σⱼ (sym c))
-appNeg (pi _ nB) c ⊢t = let (cA , cB , _ , _) = injectivity c in
+appNeg (pi _ nB) c ⊢t = let (cA , cB , _ , _) = ΠΣ-injectivity c in
   subNeg (conv nB cB) (⊢ˢʷ∷-sgSubst (conv ⊢t (sym cA)))
 appNeg universe      c  = ⊥-elim (U≢ΠΣⱼ c)
 appNeg (conv n c)    c' = appNeg n (trans c c')

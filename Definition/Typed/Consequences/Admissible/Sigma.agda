@@ -53,7 +53,7 @@ opaque
   prodrec-β-⇒₁ ⊢C ⊢p ⊢v =
     case inversion-prod ⊢p of λ
       (F , G , q , _ , _ , ⊢t , ⊢u , Σ≡Σ′ , _) →
-    case Σ-injectivity Σ≡Σ′ of λ
+    case ΠΣ-injectivity Σ≡Σ′ of λ
       (A≡F , B≡G , _) →
     case conv ⊢t (sym A≡F) of λ
       ⊢t′ →

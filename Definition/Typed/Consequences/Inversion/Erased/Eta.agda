@@ -82,7 +82,7 @@ opaque
         λ (_ , _ , _ , _ , _ , ⊢t′ , Unit≡) →
       case inversion-prod ⊢t′ of
         λ (_ , _ , _ , _ , _ , ⊢zero , ⊢zero′ , Σ≡Σ , _) →
-      case Σ-injectivity Σ≡Σ of
+      case ΠΣ-injectivity Σ≡Σ of
         λ (F≡F′ , G≡G′ , _ , _ , _) →
       case inversion-zero ⊢zero of
         λ ≡ℕ →

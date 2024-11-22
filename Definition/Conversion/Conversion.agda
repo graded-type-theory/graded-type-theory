@@ -89,7 +89,7 @@ mutual
     suc-cong (stabilityConv↑Term Γ≡Δ x)
   convConv↓Term′ Γ≡Δ A≡B whnfB (prod-cong x₁ x₂ x₃ ok)
     with Σ≡A A≡B whnfB
-  ... | F′ , G′ , PE.refl with Σ-injectivity A≡B
+  ... | F′ , G′ , PE.refl with ΠΣ-injectivity A≡B
   ...   | F≡F′ , G≡G′ , _ , _ =
     let _ , ⊢G′ = syntacticEq G≡G′
         _ , ⊢t , _ = syntacticEqTerm (soundnessConv↑Term x₂)
@@ -98,7 +98,7 @@ mutual
           (convConv↑Term′ Γ≡Δ F≡F′ x₂) (convConv↑Term′ Γ≡Δ Gt≡G′t x₃) ok
   convConv↓Term′ Γ≡Δ A≡B whnfB (η-eq x₁ x₂ y y₁ x₃) with Π≡A A≡B whnfB
   convConv↓Term′ Γ≡Δ A≡B whnfB (η-eq x₁ x₂ y y₁ x₃) | _ , _ , PE.refl =
-    case injectivity A≡B of λ {
+    case ΠΣ-injectivity A≡B of λ {
       (F≡F′ , G≡G′ , _ , _) →
     η-eq (stabilityTerm Γ≡Δ (conv x₁ A≡B))
          (stabilityTerm Γ≡Δ (conv x₂ A≡B))
@@ -106,7 +106,7 @@ mutual
          (convConv↑Term′ (Γ≡Δ ∙ F≡F′) G≡G′ x₃) }
   convConv↓Term′ Γ≡Δ A≡B whnfB (Σ-η ⊢p ⊢r pProd rProd fstConv sndConv)
     with Σ≡A A≡B whnfB
-  ... | F , G , PE.refl with Σ-injectivity A≡B
+  ... | F , G , PE.refl with ΠΣ-injectivity A≡B
   ...   | F≡ , G≡ , _ , _ =
     let ⊢G = proj₁ (syntacticEq G≡)
         ⊢fst = fstⱼ ⊢G ⊢p
