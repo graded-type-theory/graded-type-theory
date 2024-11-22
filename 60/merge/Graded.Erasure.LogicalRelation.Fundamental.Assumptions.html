@@ -1,0 +1,79 @@
+<!DOCTYPE HTML>
+<html><head><meta charset="utf-8"><title>Graded.Erasure.LogicalRelation.Fundamental.Assumptions</title><link rel="stylesheet" href="Agda.css"></head><body><pre class="Agda"><a id="1" class="Comment">------------------------------------------------------------------------</a>
+<a id="74" class="Comment">-- Assumptions used to state some theorems in</a>
+<a id="120" class="Comment">-- Graded.Erasure.LogicalRelation.Fundamental elsewhere for consequences</a>
+<a id="193" class="Comment">-- of the fundamental lemma.</a>
+<a id="222" class="Comment">------------------------------------------------------------------------</a>
+
+<a id="296" class="Keyword">open</a> <a id="301" class="Keyword">import</a> <a id="308" href="Graded.Modality.html" class="Module">Graded.Modality</a>
+<a id="324" class="Keyword">open</a> <a id="329" class="Keyword">import</a> <a id="336" href="Graded.Usage.Restrictions.html" class="Module">Graded.Usage.Restrictions</a>
+<a id="362" class="Keyword">open</a> <a id="367" class="Keyword">import</a> <a id="374" href="Definition.Typed.Restrictions.html" class="Module">Definition.Typed.Restrictions</a>
+
+<a id="405" class="Keyword">module</a> <a id="412" href="Graded.Erasure.LogicalRelation.Fundamental.Assumptions.html" class="Module">Graded.Erasure.LogicalRelation.Fundamental.Assumptions</a>
+  <a id="469" class="Symbol">{</a><a id="470" href="Graded.Erasure.LogicalRelation.Fundamental.Assumptions.html#470" class="Bound">a</a><a id="471" class="Symbol">}</a> <a id="473" class="Symbol">{</a><a id="474" href="Graded.Erasure.LogicalRelation.Fundamental.Assumptions.html#474" class="Bound">M</a> <a id="476" class="Symbol">:</a> <a id="478" href="Agda.Primitive.html#388" class="Primitive">Set</a> <a id="482" href="Graded.Erasure.LogicalRelation.Fundamental.Assumptions.html#470" class="Bound">a</a><a id="483" class="Symbol">}</a>
+  <a id="487" class="Symbol">{</a><a id="488" href="Graded.Erasure.LogicalRelation.Fundamental.Assumptions.html#488" class="Bound">𝕄</a> <a id="490" class="Symbol">:</a> <a id="492" href="Graded.Modality.html#8202" class="Record">Modality</a> <a id="501" href="Graded.Erasure.LogicalRelation.Fundamental.Assumptions.html#474" class="Bound">M</a><a id="502" class="Symbol">}</a>
+  <a id="506" class="Symbol">(</a><a id="507" href="Graded.Erasure.LogicalRelation.Fundamental.Assumptions.html#507" class="Bound">TR</a> <a id="510" class="Symbol">:</a> <a id="512" href="Definition.Typed.Restrictions.html#752" class="Record">Type-restrictions</a> <a id="530" href="Graded.Erasure.LogicalRelation.Fundamental.Assumptions.html#488" class="Bound">𝕄</a><a id="531" class="Symbol">)</a>
+  <a id="535" class="Symbol">(</a><a id="536" href="Graded.Erasure.LogicalRelation.Fundamental.Assumptions.html#536" class="Bound">UR</a> <a id="539" class="Symbol">:</a> <a id="541" href="Graded.Usage.Restrictions.html#750" class="Record">Usage-restrictions</a> <a id="560" href="Graded.Erasure.LogicalRelation.Fundamental.Assumptions.html#488" class="Bound">𝕄</a><a id="561" class="Symbol">)</a>
+  <a id="565" class="Keyword">where</a>
+
+<a id="572" class="Keyword">open</a> <a id="577" href="Graded.Modality.html#8202" class="Module">Modality</a> <a id="586" href="Graded.Erasure.LogicalRelation.Fundamental.Assumptions.html#488" class="Bound">𝕄</a>
+<a id="588" class="Keyword">open</a> <a id="593" href="Graded.Usage.Restrictions.html#750" class="Module">Usage-restrictions</a> <a id="612" href="Graded.Erasure.LogicalRelation.Fundamental.Assumptions.html#536" class="Bound">UR</a>
+
+<a id="616" class="Keyword">open</a> <a id="621" class="Keyword">import</a> <a id="628" href="Definition.Untyped.html" class="Module">Definition.Untyped</a> <a id="647" href="Graded.Erasure.LogicalRelation.Fundamental.Assumptions.html#474" class="Bound">M</a>
+<a id="649" class="Keyword">open</a> <a id="654" class="Keyword">import</a> <a id="661" href="Definition.Typed.html" class="Module">Definition.Typed</a> <a id="678" href="Graded.Erasure.LogicalRelation.Fundamental.Assumptions.html#507" class="Bound">TR</a>
+<a id="681" class="Keyword">open</a> <a id="686" class="Keyword">import</a> <a id="693" href="Definition.Typed.Consequences.Consistency.html" class="Module">Definition.Typed.Consequences.Consistency</a> <a id="735" href="Graded.Erasure.LogicalRelation.Fundamental.Assumptions.html#507" class="Bound">TR</a>
+<a id="738" class="Keyword">open</a> <a id="743" class="Keyword">import</a> <a id="750" href="Definition.Typed.Substitution.html" class="Module">Definition.Typed.Substitution</a> <a id="780" href="Graded.Erasure.LogicalRelation.Fundamental.Assumptions.html#507" class="Bound">TR</a>
+
+<a id="784" class="Keyword">open</a> <a id="789" class="Keyword">import</a> <a id="796" href="Graded.Mode.html" class="Module">Graded.Mode</a> <a id="808" href="Graded.Erasure.LogicalRelation.Fundamental.Assumptions.html#488" class="Bound">𝕄</a>
+<a id="810" class="Keyword">open</a> <a id="815" class="Keyword">import</a> <a id="822" href="Graded.Restrictions.html" class="Module">Graded.Restrictions</a> <a id="842" href="Graded.Erasure.LogicalRelation.Fundamental.Assumptions.html#488" class="Bound">𝕄</a>
+
+<a id="845" class="Keyword">open</a> <a id="850" class="Keyword">import</a> <a id="857" href="Tools.Nat.html" class="Module">Tools.Nat</a>
+<a id="867" class="Keyword">open</a> <a id="872" class="Keyword">import</a> <a id="879" href="Tools.PropositionalEquality.html" class="Module">Tools.PropositionalEquality</a>
+<a id="907" class="Keyword">open</a> <a id="912" class="Keyword">import</a> <a id="919" href="Tools.Sum.html" class="Module">Tools.Sum</a>
+
+<a id="930" class="Keyword">private</a> <a id="938" class="Keyword">variable</a>
+  <a id="949" href="Graded.Erasure.LogicalRelation.Fundamental.Assumptions.html#949" class="Generalizable">k</a> <a id="951" class="Symbol">:</a> <a id="953" href="Agda.Builtin.Nat.html#203" class="Datatype">Nat</a>
+
+<a id="958" class="Comment">-- A cut-down variant of Fundamental-assumptions (which is defined</a>
+<a id="1025" class="Comment">-- below).</a>
+
+<a id="1037" class="Keyword">record</a> <a id="Fundamental-assumptions⁻"></a><a id="1044" href="Graded.Erasure.LogicalRelation.Fundamental.Assumptions.html#1044" class="Record">Fundamental-assumptions⁻</a> <a id="1069" class="Symbol">(</a><a id="1070" href="Graded.Erasure.LogicalRelation.Fundamental.Assumptions.html#1070" class="Bound">Δ</a> <a id="1072" class="Symbol">:</a> <a id="1074" href="Definition.Untyped.NotParametrised.html#882" class="Datatype">Con</a> <a id="1078" href="Definition.Untyped.html#1181" class="Datatype">Term</a> <a id="1083" href="Graded.Erasure.LogicalRelation.Fundamental.Assumptions.html#949" class="Generalizable">k</a><a id="1084" class="Symbol">)</a> <a id="1086" class="Symbol">:</a> <a id="1088" href="Agda.Primitive.html#388" class="Primitive">Set</a> <a id="1092" href="Graded.Erasure.LogicalRelation.Fundamental.Assumptions.html#470" class="Bound">a</a> <a id="1094" class="Keyword">where</a>
+  <a id="1102" class="Keyword">no-eta-equality</a>
+  <a id="1120" class="Keyword">field</a>
+    <a id="1130" class="Comment">-- If erased matches are allowed for emptyrec when the mode is 𝟙ᵐ,</a>
+    <a id="1201" class="Comment">-- then the context is consistent.</a>
+    <a id="Fundamental-assumptions⁻.consistent"></a><a id="1240" href="Graded.Erasure.LogicalRelation.Fundamental.Assumptions.html#1240" class="Field">consistent</a> <a id="1251" class="Symbol">:</a> <a id="1253" href="Graded.Usage.Restrictions.html#1638" class="Field">Emptyrec-allowed</a> <a id="1270" href="Graded.Mode.html#1117" class="InductiveConstructor">𝟙ᵐ</a> <a id="1273" href="Graded.Modality.html#926" class="Function">𝟘</a> <a id="1275" class="Symbol">→</a> <a id="1277" href="Definition.Typed.html#18831" class="Function">Consistent</a> <a id="1288" href="Graded.Erasure.LogicalRelation.Fundamental.Assumptions.html#1070" class="Bound">Δ</a>
+    <a id="1294" class="Comment">-- Erased matches are not allowed unless the context is empty.</a>
+    <a id="Fundamental-assumptions⁻.closed-or-no-erased-matches"></a><a id="1361" href="Graded.Erasure.LogicalRelation.Fundamental.Assumptions.html#1361" class="Field">closed-or-no-erased-matches</a> <a id="1389" class="Symbol">:</a> <a id="1391" href="Graded.Restrictions.html#11396" class="Function">No-erased-matches</a> <a id="1409" href="Graded.Erasure.LogicalRelation.Fundamental.Assumptions.html#507" class="Bound">TR</a> <a id="1412" href="Graded.Erasure.LogicalRelation.Fundamental.Assumptions.html#536" class="Bound">UR</a> <a id="1415" href="Data.Sum.Base.html#625" class="Datatype Operator">⊎</a> <a id="1417" href="Definition.Untyped.NotParametrised.html#1109" class="Datatype">Empty-con</a> <a id="1427" href="Graded.Erasure.LogicalRelation.Fundamental.Assumptions.html#1070" class="Bound">Δ</a>
+
+<a id="1430" class="Comment">-- The fundamental lemma is proved under the assumption that a given</a>
+<a id="1499" class="Comment">-- context Δ satisfies the following assumptions.</a>
+
+<a id="1550" class="Keyword">record</a> <a id="Fundamental-assumptions"></a><a id="1557" href="Graded.Erasure.LogicalRelation.Fundamental.Assumptions.html#1557" class="Record">Fundamental-assumptions</a> <a id="1581" class="Symbol">(</a><a id="1582" href="Graded.Erasure.LogicalRelation.Fundamental.Assumptions.html#1582" class="Bound">Δ</a> <a id="1584" class="Symbol">:</a> <a id="1586" href="Definition.Untyped.NotParametrised.html#882" class="Datatype">Con</a> <a id="1590" href="Definition.Untyped.html#1181" class="Datatype">Term</a> <a id="1595" href="Graded.Erasure.LogicalRelation.Fundamental.Assumptions.html#949" class="Generalizable">k</a><a id="1596" class="Symbol">)</a> <a id="1598" class="Symbol">:</a> <a id="1600" href="Agda.Primitive.html#388" class="Primitive">Set</a> <a id="1604" href="Graded.Erasure.LogicalRelation.Fundamental.Assumptions.html#470" class="Bound">a</a> <a id="1606" class="Keyword">where</a>
+  <a id="1614" class="Keyword">no-eta-equality</a>
+  <a id="1632" class="Keyword">field</a>
+    <a id="1642" class="Comment">-- The context is well-formed.</a>
+    <a id="Fundamental-assumptions.well-formed"></a><a id="1677" href="Graded.Erasure.LogicalRelation.Fundamental.Assumptions.html#1677" class="Field">well-formed</a> <a id="1689" class="Symbol">:</a> <a id="1691" href="Definition.Typed.html#1164" class="Datatype Operator">⊢</a> <a id="1693" href="Graded.Erasure.LogicalRelation.Fundamental.Assumptions.html#1582" class="Bound">Δ</a>
+    <a id="1699" class="Comment">-- Other assumptions.</a>
+    <a id="Fundamental-assumptions.other-assumptions"></a><a id="1725" href="Graded.Erasure.LogicalRelation.Fundamental.Assumptions.html#1725" class="Field">other-assumptions</a> <a id="1743" class="Symbol">:</a> <a id="1745" href="Graded.Erasure.LogicalRelation.Fundamental.Assumptions.html#1044" class="Record">Fundamental-assumptions⁻</a> <a id="1770" href="Graded.Erasure.LogicalRelation.Fundamental.Assumptions.html#1582" class="Bound">Δ</a>
+
+  <a id="1775" class="Keyword">open</a> <a id="1780" href="Graded.Erasure.LogicalRelation.Fundamental.Assumptions.html#1044" class="Module">Fundamental-assumptions⁻</a> <a id="1805" href="Graded.Erasure.LogicalRelation.Fundamental.Assumptions.html#1725" class="Field">other-assumptions</a> <a id="1823" class="Keyword">public</a>
+
+<a id="1831" class="Comment">-- Fundamental-assumptions⁻ holds unconditionally for empty contexts.</a>
+
+<a id="fundamental-assumptions⁻₀"></a><a id="1902" href="Graded.Erasure.LogicalRelation.Fundamental.Assumptions.html#1902" class="Function">fundamental-assumptions⁻₀</a> <a id="1928" class="Symbol">:</a> <a id="1930" href="Graded.Erasure.LogicalRelation.Fundamental.Assumptions.html#1044" class="Record">Fundamental-assumptions⁻</a> <a id="1955" class="InductiveConstructor">ε</a>
+<a id="1957" href="Graded.Erasure.LogicalRelation.Fundamental.Assumptions.html#1902" class="Function">fundamental-assumptions⁻₀</a> <a id="1983" class="Symbol">=</a> <a id="1985" class="Keyword">record</a>
+  <a id="1994" class="Symbol">{</a> <a id="1996" href="Graded.Erasure.LogicalRelation.Fundamental.Assumptions.html#1240" class="Field">consistent</a>                  <a id="2024" class="Symbol">=</a> <a id="2026" class="Symbol">λ</a> <a id="2028" href="Graded.Erasure.LogicalRelation.Fundamental.Assumptions.html#2028" class="Bound">_</a> <a id="2030" class="Symbol">→</a>
+                                    <a id="2068" href="Definition.Typed.Consequences.Consistency.html#1139" class="Function">inhabited-consistent</a>
+                                      <a id="2127" class="Symbol">(</a><a id="2128" href="Definition.Typed.Substitution.Primitive.Primitive.html#7983" class="Function">⊢ˢʷ∷-idSubst</a> <a id="2141" href="Definition.Typed.html#1198" class="InductiveConstructor">ε</a><a id="2142" class="Symbol">)</a>
+  <a id="2146" class="Symbol">;</a> <a id="2148" href="Graded.Erasure.LogicalRelation.Fundamental.Assumptions.html#1361" class="Field">closed-or-no-erased-matches</a> <a id="2176" class="Symbol">=</a> <a id="2178" href="Data.Sum.Base.html#700" class="InductiveConstructor">inj₂</a> <a id="2183" href="Definition.Untyped.NotParametrised.html#1163" class="InductiveConstructor">ε</a>
+  <a id="2187" class="Symbol">}</a>
+
+<a id="2190" class="Comment">-- Fundamental-assumptions holds unconditionally for empty contexts.</a>
+
+<a id="fundamental-assumptions₀"></a><a id="2260" href="Graded.Erasure.LogicalRelation.Fundamental.Assumptions.html#2260" class="Function">fundamental-assumptions₀</a> <a id="2285" class="Symbol">:</a> <a id="2287" href="Graded.Erasure.LogicalRelation.Fundamental.Assumptions.html#1557" class="Record">Fundamental-assumptions</a> <a id="2311" class="InductiveConstructor">ε</a>
+<a id="2313" href="Graded.Erasure.LogicalRelation.Fundamental.Assumptions.html#2260" class="Function">fundamental-assumptions₀</a> <a id="2338" class="Symbol">=</a> <a id="2340" class="Keyword">record</a>
+  <a id="2349" class="Symbol">{</a> <a id="2351" href="Graded.Erasure.LogicalRelation.Fundamental.Assumptions.html#1677" class="Field">well-formed</a>       <a id="2369" class="Symbol">=</a> <a id="2371" href="Definition.Typed.html#1198" class="InductiveConstructor">ε</a>
+  <a id="2375" class="Symbol">;</a> <a id="2377" href="Graded.Erasure.LogicalRelation.Fundamental.Assumptions.html#1725" class="Field">other-assumptions</a> <a id="2395" class="Symbol">=</a> <a id="2397" href="Graded.Erasure.LogicalRelation.Fundamental.Assumptions.html#1902" class="Function">fundamental-assumptions⁻₀</a>
+  <a id="2425" class="Symbol">}</a>
+</pre></body></html>
