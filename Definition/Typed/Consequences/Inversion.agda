@@ -103,28 +103,41 @@ opaque
       (_ , t≡v , u≡v) →
     trans t≡v (sym′ u≡v) }}
 
--- Inversion of products in WHNF.
-whnfProduct :
-  ∀ {p F G m} →
-  Γ ⊢ p ∷ Σ⟨ m ⟩ p′ , q ▷ F ▹ G → Whnf p → Product p
-whnfProduct x prodₙ = prodₙ
-whnfProduct x (ne pNe) = ne pNe
-whnfProduct ⊢∷Σ Uₙ = ⊥-elim (U≢ΠΣⱼ (sym (inversion-U ⊢∷Σ)))
-whnfProduct x ΠΣₙ =
-  let _ , _ , _ , _ , Σ≡U , _ = inversion-ΠΣ-U x
-  in  ⊥-elim (U≢ΠΣⱼ (sym Σ≡U))
-whnfProduct x ℕₙ = ⊥-elim (U≢ΠΣⱼ (sym (inversion-ℕ x)))
-whnfProduct x Unitₙ = ⊥-elim (U≢ΠΣⱼ (sym (inversion-Unit-U x .proj₁)))
-whnfProduct x Emptyₙ = ⊥-elim (U≢ΠΣⱼ (sym (inversion-Empty x)))
-whnfProduct x lamₙ =
-  let _ , _ , _ , _ , _ , Σ≡Π , _ = inversion-lam x
-  in  ⊥-elim (Π≢Σⱼ (sym Σ≡Π))
-whnfProduct x zeroₙ = ⊥-elim (ℕ≢ΠΣⱼ (sym (inversion-zero x)))
-whnfProduct x sucₙ =
-  let _ , A≡ℕ = inversion-suc x
-  in  ⊥-elim (ℕ≢ΠΣⱼ (sym A≡ℕ))
-whnfProduct x starₙ = ⊥-elim (Unit≢ΠΣⱼ (sym (inversion-star x .proj₁)))
-whnfProduct ⊢∷Σ Idₙ =
-  ⊥-elim (U≢ΠΣⱼ (sym (inversion-Id-U ⊢∷Σ .proj₂ .proj₂ .proj₂ .proj₂)))
-whnfProduct ⊢∷Σ rflₙ =
-  ⊥-elim (I.Id≢ΠΣ (sym (inversion-rfl ⊢∷Σ .proj₂ .proj₂ .proj₂ .proj₂)))
+opaque
+
+  -- Inversion of products in WHNF.
+
+  whnfProduct :
+    Γ ⊢ t ∷ Σ⟨ s ⟩ p , q ▷ A ▹ B → Whnf t → Product t
+  whnfProduct ⊢t = λ where
+    prodₙ →
+      prodₙ
+    (ne t-ne) →
+      ne t-ne
+    Uₙ →
+      ⊥-elim (U≢ΠΣⱼ (sym (inversion-U ⊢t)))
+    ΠΣₙ →
+      let _ , _ , _ , _ , Σ≡U , _ = inversion-ΠΣ-U ⊢t in
+      ⊥-elim (U≢ΠΣⱼ (sym Σ≡U))
+    ℕₙ →
+      ⊥-elim (U≢ΠΣⱼ (sym (inversion-ℕ ⊢t)))
+    Unitₙ →
+      ⊥-elim (U≢ΠΣⱼ (sym (inversion-Unit-U ⊢t .proj₁)))
+    Emptyₙ →
+      ⊥-elim (U≢ΠΣⱼ (sym (inversion-Empty ⊢t)))
+    lamₙ →
+      let _ , _ , _ , _ , _ , Σ≡Π , _ = inversion-lam ⊢t in
+      ⊥-elim (Π≢Σⱼ (sym Σ≡Π))
+    zeroₙ →
+      ⊥-elim (ℕ≢ΠΣⱼ (sym (inversion-zero ⊢t)))
+    sucₙ →
+      let _ , A≡ℕ = inversion-suc ⊢t in
+      ⊥-elim (ℕ≢ΠΣⱼ (sym A≡ℕ))
+    starₙ →
+      ⊥-elim (Unit≢ΠΣⱼ (sym (inversion-star ⊢t .proj₁)))
+    Idₙ →
+      let _ , _ , _ , _ , eq = inversion-Id-U ⊢t in
+      ⊥-elim (U≢ΠΣⱼ (sym eq))
+    rflₙ →
+      let _ , _ , _ , _ , eq = inversion-rfl ⊢t in
+      ⊥-elim (I.Id≢ΠΣ (sym eq))
