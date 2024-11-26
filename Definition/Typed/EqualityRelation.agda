@@ -364,62 +364,13 @@ record Equality-relations
       ~-trans t~u (~-sym t~u) ,
       ~-trans (~-sym t~u) t~u
 
-  -- Neutrals-included-or-empty Γ holds if Neutrals-included holds or
-  -- if Γ is empty.
-
-  data Neutrals-included-or-empty : Con Term n → Set ℓ where
-    included : ⦃ inc : Neutrals-included ⦄ →
-               Neutrals-included-or-empty Γ
-    ε        : Neutrals-included-or-empty ε
-
   opaque
 
-    -- Neutrals-included-or-empty is decidable.
+    -- A variant of possibly-nonempty.
 
-    Neutrals-included-or-empty? : Dec (Neutrals-included-or-empty Γ)
-    Neutrals-included-or-empty? {Γ} =
-      case Neutrals-included? of λ where
-        (yes inc)    → yes (included ⦃ inc = inc ⦄)
-        (no not-inc) → case PE.singleton Γ of λ where
-          (ε     , PE.refl) → yes ε
-          (_ ∙ _ , PE.refl) →
-            no (λ { (included ⦃ inc ⦄) → not-inc inc })
-
-  opaque
-
-    -- If the size of Γ is positive, then Neutrals-included-or-empty Γ
-    -- implies Neutrals-included.
-
-    1+→Neutrals-included :
-      {Γ : Con Term (1+ n)}
-      ⦃ inc : Neutrals-included-or-empty Γ ⦄ →
-      Neutrals-included
-    1+→Neutrals-included ⦃ inc = included ⦃ inc ⦄ ⦄ = inc
-
-  opaque
-
-    -- Neutrals-included-or-empty (Γ ∙ A) implies
-    -- Neutrals-included-or-empty Γ.
-
-    Neutrals-included-or-empty-∙→ :
-      ⦃ inc : Neutrals-included-or-empty (Γ ∙ A) ⦄ →
-      Neutrals-included-or-empty Γ
-    Neutrals-included-or-empty-∙→ =
-      included ⦃ inc = 1+→Neutrals-included ⦄
-
-  opaque
-
-    -- If Γ and t are both indexed by n, t is neutral, and
-    -- Neutrals-included-or-empty Γ holds, then Neutrals-included
-    -- holds.
-
-    Neutral→Neutrals-included :
-      {Γ : Con Term n} {t : Term n}
-      ⦃ inc : Neutrals-included-or-empty Γ ⦄ →
-      Neutral t → Neutrals-included
-    Neutral→Neutrals-included ⦃ inc = included ⦃ inc ⦄ ⦄ _    = inc
-    Neutral→Neutrals-included ⦃ inc = ε                ⦄ t-ne =
-      ⊥-elim (noClosedNe t-ne)
+    included :
+      ⦃ inc : Neutrals-included ⦄ → Neutrals-included or-empty Γ
+    included ⦃ inc ⦄ = possibly-nonempty ⦃ ok = inc ⦄
 
   opaque
 

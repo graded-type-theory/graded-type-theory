@@ -30,10 +30,21 @@ data Con (A : Nat → Set a) : Nat → Set a where
   ε   :                             Con A 0        -- Empty context.
   _∙_ : {n : Nat} → Con A n → A n → Con A (1+ n)   -- Context extension.
 
+private variable
+  Γ : Con _ _
+
 -- Empty-con Γ holds if Γ is empty.
 
 data Empty-con {P : Nat → Set a} : Con P n → Set a where
   ε : Empty-con ε
+
+-- A variant of Empty-con.
+
+infix 4 _or-empty_
+
+data _or-empty_ {P : Nat → Set a} (A : Set a) : Con P n → Set a where
+  possibly-nonempty : ⦃ ok : A ⦄ → A or-empty Γ
+  ε                 : A or-empty ε
 
 -- Representation of sub terms using a list of binding levels
 

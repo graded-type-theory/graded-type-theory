@@ -536,7 +536,7 @@ opaque
     Γ ∙ ℕ ∙ A₁ ⊢ u₁ ≡ u₂ ∷ A₁ [ suc (var x1) ]↑² →
     Γ ∙ ℕ ∙ A₁ ⊩ᵛ⟨ l″ ⟩ u₁ ≡ u₂ ∷ A₁ [ suc (var x1) ]↑² →
     Γ ⊩ᵛ⟨ l‴ ⟩ v₁ ≡ v₂ ∷ ℕ →
-    ⦃ inc : Neutrals-included-or-empty Δ ⦄ →
+    ⦃ inc : Neutrals-included or-empty Δ ⦄ →
     Δ ⊩ˢ σ₁ ≡ σ₂ ∷ Γ →
     Δ ⊩⟨ l ⟩ natrec p q r A₁ t₁ u₁ v₁ [ σ₁ ] ≡
       natrec p q r A₂ t₂ u₂ v₂ [ σ₂ ] ∷ A₁ [ v₁ ]₀ [ σ₁ ]

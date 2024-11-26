@@ -10,6 +10,7 @@ module Definition.Untyped.Properties.Neutral
   (type-variant : Type-variant)
   where
 
+open import Tools.Empty
 open import Tools.Fin
 open import Tools.Function
 open import Tools.Nat
@@ -23,6 +24,7 @@ open import Definition.Untyped.Inversion M
 open import Definition.Untyped.Neutral M type-variant
 
 private variable
+  P : Set _
   A B t u : Term _
   ρ : Wk _ _
   σ : Subst _ _
@@ -241,3 +243,16 @@ opaque
   Neutral→NeutralAt (Jₙ n) = _ , Jₙ (Neutral→NeutralAt n .proj₂)
   Neutral→NeutralAt (Kₙ n) = _ , Kₙ (Neutral→NeutralAt n .proj₂)
   Neutral→NeutralAt ([]-congₙ n) = _ , []-congₙ (Neutral→NeutralAt n .proj₂)
+
+opaque
+
+  -- If Γ and t are both indexed by n, t is neutral, and P or-empty Γ
+  -- holds, then P holds.
+
+  or-empty-Neutral→ :
+    {Γ : Con Term n} {t : Term n}
+    ⦃ ok : P or-empty Γ ⦄ →
+    Neutral t → P
+  or-empty-Neutral→ ⦃ ok = possibly-nonempty ⦃ ok ⦄ ⦄ _    = ok
+  or-empty-Neutral→ ⦃ ok = ε ⦄                        t-ne =
+    ⊥-elim (noClosedNe t-ne)

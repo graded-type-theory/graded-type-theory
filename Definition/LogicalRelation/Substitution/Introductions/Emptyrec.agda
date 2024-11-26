@@ -55,7 +55,7 @@ opaque
   ⊩emptyrec≡emptyrec :
     Γ ⊩ᵛ⟨ l ⟩ A₁ ≡ A₂ →
     Γ ⊩ᵛ⟨ l′ ⟩ t₁ ≡ t₂ ∷ Empty →
-    ⦃ inc : Neutrals-included-or-empty Δ ⦄ →
+    ⦃ inc : Neutrals-included or-empty Δ ⦄ →
     Δ ⊩ˢ σ₁ ≡ σ₂ ∷ Γ →
     Δ ⊩⟨ l ⟩ emptyrec p A₁ t₁ [ σ₁ ] ≡ emptyrec p A₂ t₂ [ σ₂ ] ∷ A₁ [ σ₁ ]
   ⊩emptyrec≡emptyrec

@@ -70,7 +70,7 @@ private
   module LR
     {Δ : Con Term k}
     (⊢Δ : ⊢ Δ)
-    ⦃ inc : Neutrals-included-or-empty Δ ⦄
+    ⦃ inc : Neutrals-included or-empty Δ ⦄
     (str : Strictness)
     where
 
@@ -103,7 +103,7 @@ negation-of-fundamental-lemma-with-erased-matches₁ :
   Σʷ-allowed p 𝟘 →
   ¬ (∀ {k} {Δ : Con Term k} (⊢Δ : ⊢ Δ) →
      Consistent Δ →
-     ⦃ inc : Neutrals-included-or-empty Δ ⦄ →
+     ⦃ inc : Neutrals-included or-empty Δ ⦄ →
      let open LR ⊢Δ str in
      ∀ {n} {Γ : Con Term n} {t A : Term n} {γ : Conₘ n} {m} →
      Γ ⊢ t ∷ A → γ ▸[ m ] t →
@@ -147,7 +147,7 @@ opaque
     []-cong-allowed-mode s 𝟙ᵐ →
     ¬ (∀ {k} {Δ : Con Term k} (⊢Δ : ⊢ Δ) →
        Consistent Δ →
-       ⦃ inc : Neutrals-included-or-empty Δ ⦄ →
+       ⦃ inc : Neutrals-included or-empty Δ ⦄ →
        let open LR ⊢Δ str in
        ∀ {n} {Γ : Con Term n} {t A : Term n} {γ : Conₘ n} {m} →
        Γ ⊢ t ∷ A → γ ▸[ m ] t →
@@ -197,7 +197,7 @@ opaque
     erased-matches-for-J 𝟙ᵐ ≡ not-none sem →
     ¬ (∀ {k} {Δ : Con Term k} (⊢Δ : ⊢ Δ) →
        Consistent Δ →
-       ⦃ inc : Neutrals-included-or-empty Δ ⦄ →
+       ⦃ inc : Neutrals-included or-empty Δ ⦄ →
        let open LR ⊢Δ str in
        ∀ {n} {Γ : Con Term n} {t A : Term n} {γ : Conₘ n} {m} →
        Γ ⊢ t ∷ A → γ ▸[ m ] t →
@@ -239,7 +239,7 @@ opaque
     erased-matches-for-K 𝟙ᵐ ≡ not-none sem →
     ¬ (∀ {k} {Δ : Con Term k} (⊢Δ : ⊢ Δ) →
        Consistent Δ →
-       ⦃ inc : Neutrals-included-or-empty Δ ⦄ →
+       ⦃ inc : Neutrals-included or-empty Δ ⦄ →
        let open LR ⊢Δ str in
        ∀ {n} {Γ : Con Term n} {t A : Term n} {γ : Conₘ n} {m} →
        Γ ⊢ t ∷ A → γ ▸[ m ] t →
@@ -284,7 +284,7 @@ opaque
     ¬ Unitʷ-η →
     ¬ (∀ {k} {Δ : Con Term k} (⊢Δ : ⊢ Δ) →
        Consistent Δ →
-       ⦃ inc : Neutrals-included-or-empty Δ ⦄ →
+       ⦃ inc : Neutrals-included or-empty Δ ⦄ →
        let open LR ⊢Δ str in
        ∀ {n} {Γ : Con Term n} {t A : Term n} {γ : Conₘ n} {m} →
        Γ ⊢ t ∷ A → γ ▸[ m ] t →
@@ -326,7 +326,7 @@ opaque
     ⦃ inc : Neutrals-included ⦄ →
     Emptyrec-allowed 𝟙ᵐ 𝟘 →
     ¬ (∀ {k} {Δ : Con Term k} (⊢Δ : ⊢ Δ) →
-       ⦃ inc : Neutrals-included-or-empty Δ ⦄ →
+       ⦃ inc : Neutrals-included or-empty Δ ⦄ →
        let open LR ⊢Δ str in
        ∀ {n} {Γ : Con Term n} {t A : Term n} {γ : Conₘ n} {m} →
        Γ ⊢ t ∷ A → γ ▸[ m ] t →

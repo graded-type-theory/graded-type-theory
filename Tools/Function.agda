@@ -15,7 +15,7 @@ open import Tools.Empty
 open import Tools.Level
 open import Tools.Product
 open import Tools.PropositionalEquality
-open import Tools.Relation
+open import Tools.Relation as Dec
 open import Tools.Sum as ⊎ using (_⊎_; inj₁; inj₂)
 
 private variable
@@ -230,6 +230,11 @@ A⇔B ⊎-cong-⇔ C⇔D =
 
 ⊎-idem-⇔ : (A ⊎ A) ⇔ A
 ⊎-idem-⇔ = ⊎.idem , inj₁
+
+-- If A and B are logically equivalent, then Dec A implies Dec B.
+
+Dec-map : A ⇔ B → Dec A → Dec B
+Dec-map A⇔B = Dec.map (A⇔B .proj₁) (A⇔B .proj₂)
 
 -- The type ∀ x → P x ⇔ x ≡ y is logically equivalent to
 -- P y × ∀ x → P x → x ≡ y.

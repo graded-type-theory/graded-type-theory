@@ -11,11 +11,16 @@ open import Definition.Untyped.NotParametrised
 open import Tools.Fin
 open import Tools.Function
 open import Tools.Nat
+open import Tools.Product
 open import Tools.Relation
 open import Tools.PropositionalEquality
+open import Tools.Sum as ⊎
 
 private variable
   ℓ m n              : Nat
+  A                  : Set _
+  P                  : Nat → Set _
+  B                  : A
   Γ                  : Con _ _
   ρ ρ′               : Wk _ _
   x y                : Fin _
@@ -236,6 +241,67 @@ opaque
   ⊔ᵘ-idem = ⊔-idem _
 
 ------------------------------------------------------------------------
+-- Properties related to Empty-con and _or-empty_
+
+opaque
+
+  -- Empty-con is decidable.
+
+  Empty-con? : Dec (Empty-con Γ)
+  Empty-con? {Γ = ε}     = yes ε
+  Empty-con? {Γ = _ ∙ _} = no (λ ())
+
+opaque
+
+  -- A characterisation lemma for _or-empty_.
+
+  or-empty⇔ : A or-empty Γ ⇔ (A ⊎ Empty-con Γ)
+  or-empty⇔ =
+      (λ where
+         (possibly-nonempty ⦃ ok ⦄) → inj₁ ok
+         ε                          → inj₂ ε)
+    , (λ where
+         (inj₁ x) → possibly-nonempty ⦃ ok = x ⦄
+         (inj₂ ε) → ε)
+
+opaque
+
+  -- If A is decided, then A or-empty_ is decidable.
+
+  infix 4 _or-empty?
+
+  _or-empty? : Dec A → Dec (A or-empty Γ)
+  A? or-empty? = Dec-map (sym⇔ or-empty⇔) (A? ⊎-dec Empty-con?)
+
+opaque
+
+  -- If the size of Γ is positive, then A or-empty Γ implies A.
+
+  or-empty-1+→ :
+    {Γ : Con P (1+ n)}
+    ⦃ ok : A or-empty Γ ⦄ →
+    A
+  or-empty-1+→ ⦃ ok = possibly-nonempty ⦃ ok ⦄ ⦄ = ok
+
+opaque
+
+  -- A or-empty Γ ∙ B implies A or-empty Γ.
+
+  or-empty-∙→ :
+    ⦃ ok : A or-empty Γ ∙ B ⦄ →
+    A or-empty Γ
+  or-empty-∙→ = possibly-nonempty ⦃ ok = or-empty-1+→ ⦄
+
+opaque
+
+  -- A map function for _or-empty_.
+
+  or-empty-map :
+    (A → B) → A or-empty Γ → B or-empty Γ
+  or-empty-map f =
+    or-empty⇔ .proj₂ ∘→ ⊎.map f idᶠ ∘→ or-empty⇔ .proj₁
+
+------------------------------------------------------------------------
 -- Other properties
 
 -- Decidability of Strength equality
@@ -255,11 +321,3 @@ decBinderMode = λ where
     (yes refl) → yes refl
     (no s₁≢s₂)    → no λ where
       refl → s₁≢s₂ refl
-
-opaque
-
-  -- Empty-con is decidable.
-
-  Empty-con? : Dec (Empty-con Γ)
-  Empty-con? {Γ = ε}     = yes ε
-  Empty-con? {Γ = _ ∙ _} = no (λ ())

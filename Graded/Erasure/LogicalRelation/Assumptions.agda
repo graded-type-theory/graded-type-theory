@@ -38,7 +38,7 @@ record Assumptions : Set (lsuc a) where
     ⊢Δ : ⊢ Δ
 
     -- Neutrals-included holds or Δ is empty.
-    ⦃ inc ⦄ : Neutrals-included-or-empty Δ
+    ⦃ inc ⦄ : Neutrals-included or-empty Δ
 
     -- Should applications be extracted to strict or non-strict
     -- applications?

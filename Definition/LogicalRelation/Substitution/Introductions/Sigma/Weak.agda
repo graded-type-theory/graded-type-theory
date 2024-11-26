@@ -447,7 +447,7 @@ private opaque
     Γ ∙ A ⊩ᵛ⟨ l ⟩ B →
     Γ ⊩ᵛ⟨ l ⟩ t₁ ≡ t₂ ∷ A →
     Γ ⊩ᵛ⟨ l′ ⟩ u₁ ≡ u₂ ∷ B [ t₁ ]₀ →
-    ⦃ inc : Neutrals-included-or-empty Δ ⦄ →
+    ⦃ inc : Neutrals-included or-empty Δ ⦄ →
     Δ ⊩ˢ σ₁ ≡ σ₂ ∷ Γ →
     Δ ⊩⟨ l ⟩ prodʷ p t₁ u₁ [ σ₁ ] ≡ prodʷ p t₂ u₂ [ σ₂ ] ∷
       (Σʷ p , q ▷ A ▹ B) [ σ₁ ]
@@ -521,7 +521,7 @@ opaque
     Γ ⊩ᵛ⟨ l′ ⟩ t₁ ≡ t₂ ∷ Σʷ p , q′ ▷ A ▹ B →
     Γ ∙ A ∙ B ⊢ u₁ ≡ u₂ ∷ C₁ [ prodʷ p (var x1) (var x0) ]↑² →
     Γ ∙ A ∙ B ⊩ᵛ⟨ l″ ⟩ u₁ ≡ u₂ ∷ C₁ [ prodʷ p (var x1) (var x0) ]↑² →
-    ⦃ inc : Neutrals-included-or-empty Δ ⦄ →
+    ⦃ inc : Neutrals-included or-empty Δ ⦄ →
     Δ ⊩ˢ σ₁ ≡ σ₂ ∷ Γ →
     Δ ⊩⟨ l ⟩ prodrec r p q C₁ t₁ u₁ [ σ₁ ] ≡
       prodrec r p q C₂ t₂ u₂ [ σ₂ ] ∷ C₁ [ t₁ ]₀ [ σ₁ ]
@@ -619,7 +619,7 @@ opaque
 
          (ne inc v₁-ne v₂-ne v₁~v₂) →
            let instance
-                 inc′ : Neutrals-included-or-empty Η
+                 inc′ : Neutrals-included or-empty Η
                  inc′ = included ⦃ inc = inc ⦄
            in
            neutral-⊩≡∷ inc ⊩C₁[σ₁⇑][v₁]

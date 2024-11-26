@@ -553,7 +553,7 @@ opaque
 
     ⊩ᵛ Γ ×
     (∀ {m Δ} {σ₁ σ₂ : Subst m _}
-       ⦃ inc : Neutrals-included-or-empty Δ ⦄ →
+       ⦃ inc : Neutrals-included or-empty Δ ⦄ →
      Δ ⊩ˢ σ₁ ≡ σ₂ ∷ Γ →
      Δ ⊩⟨ l ⟩ Id A t u U.[ σ₁ ] ≡ Id A t u U.[ σ₂ ])     ⇔⟨ id⇔
                                                               ×-cong-⇔
@@ -563,7 +563,7 @@ opaque
                                                              ⊩Id≡Id⇔) ⟩
     ⊩ᵛ Γ ×
     (∀ {m Δ} {σ₁ σ₂ : Subst m _} →
-       ⦃ inc : Neutrals-included-or-empty Δ ⦄ →
+       ⦃ inc : Neutrals-included or-empty Δ ⦄ →
      Δ ⊩ˢ σ₁ ≡ σ₂ ∷ Γ →
      (Δ ⊩⟨ l ⟩ A U.[ σ₁ ] ≡ A U.[ σ₂ ]) ×
      Δ ⊩⟨ l ⟩ t U.[ σ₁ ] ≡ t U.[ σ₂ ] ∷ A U.[ σ₁ ] ×
@@ -584,12 +584,12 @@ opaque
                                                           ⟩
     (Γ ⊩ᵛ⟨ l ⟩ A ×
      (∀ {m Δ} {σ₁ σ₂ : Subst m _}
-        ⦃ inc : Neutrals-included-or-empty Δ ⦄ →
+        ⦃ inc : Neutrals-included or-empty Δ ⦄ →
       Δ ⊩ˢ σ₁ ≡ σ₂ ∷ Γ →
       Δ ⊩⟨ l ⟩ t U.[ σ₁ ] ≡ t U.[ σ₂ ] ∷ A U.[ σ₁ ])) ×
     (Γ ⊩ᵛ⟨ l ⟩ A ×
      (∀ {m Δ} {σ₁ σ₂ : Subst m _}
-        ⦃ inc : Neutrals-included-or-empty Δ ⦄ →
+        ⦃ inc : Neutrals-included or-empty Δ ⦄ →
       Δ ⊩ˢ σ₁ ≡ σ₂ ∷ Γ →
       Δ ⊩⟨ l ⟩ u U.[ σ₁ ] ≡ u U.[ σ₂ ] ∷ A U.[ σ₁ ]))    ⇔˘⟨ ⊩ᵛ∷⇔ʰ ×-cong-⇔ ⊩ᵛ∷⇔ʰ ⟩
 
@@ -913,7 +913,7 @@ opaque
     Γ ∙ Id A₁ t₁ t₁ ⊩ᵛ⟨ l ⟩ B₁ ≡ B₂ →
     Γ ⊩ᵛ⟨ l‴ ⟩ u₁ ≡ u₂ ∷ B₁ [ rfl ]₀ →
     Γ ⊩ᵛ⟨ l⁗ ⟩ v₁ ≡ v₂ ∷ Id A₁ t₁ t₁ →
-    ⦃ inc : Neutrals-included-or-empty Δ ⦄ →
+    ⦃ inc : Neutrals-included or-empty Δ ⦄ →
     Δ ⊩ˢ σ₁ ≡ σ₂ ∷ Γ →
     Δ ⊩⟨ l ⟩ K p A₁ t₁ B₁ u₁ v₁ U.[ σ₁ ] ≡ K p A₂ t₂ B₂ u₂ v₂ U.[ σ₂ ] ∷
       B₁ [ v₁ ]₀ U.[ σ₁ ]
@@ -1140,7 +1140,7 @@ opaque
     Γ ⊩ᵛ⟨ l′₃ ⟩ u₁ ≡ u₂ ∷ B₁ [ t₁ , rfl ]₁₀ →
     Γ ⊩ᵛ⟨ l′₄ ⟩ v₁ ≡ v₂ ∷ A₁ →
     Γ ⊩ᵛ⟨ l′₅ ⟩ w₁ ≡ w₂ ∷ Id A₁ t₁ v₁ →
-    ⦃ inc : Neutrals-included-or-empty Δ ⦄ →
+    ⦃ inc : Neutrals-included or-empty Δ ⦄ →
     Δ ⊩ˢ σ₁ ≡ σ₂ ∷ Γ →
     Δ ⊩⟨ l ⟩ J p q A₁ t₁ B₁ u₁ v₁ w₁ U.[ σ₁ ] ≡
       J p q A₂ t₂ B₂ u₂ v₂ w₂ U.[ σ₂ ] ∷ B₁ [ v₁ , w₁ ]₁₀ U.[ σ₁ ]

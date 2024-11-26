@@ -215,7 +215,7 @@ opaque
   -- certain assumption).
 
   ⊩ᵛUnit→Unit-allowed :
-    ⦃ inc : Neutrals-included-or-empty Γ ⦄ →
+    ⦃ inc : Neutrals-included or-empty Γ ⦄ →
     Γ ⊩ᵛ⟨ l′ ⟩ Unit s l →
     Unit-allowed s
   ⊩ᵛUnit→Unit-allowed {Γ} {l′} {s} {l} =
@@ -347,7 +347,7 @@ opaque
     Γ ∙ Unitʷ l ⊩ᵛ⟨ l′ ⟩ A₁ ≡ A₂ →
     Γ ⊩ᵛ⟨ l″ ⟩ t₁ ≡ t₂ ∷ Unitʷ l →
     Γ ⊩ᵛ⟨ l‴ ⟩ u₁ ≡ u₂ ∷ A₁ [ starʷ l ]₀ →
-    ⦃ inc : Neutrals-included-or-empty Δ ⦄ →
+    ⦃ inc : Neutrals-included or-empty Δ ⦄ →
     Δ ⊩ˢ σ₁ ≡ σ₂ ∷ Γ →
     Δ ⊩⟨ l′ ⟩ unitrec l p q A₁ t₁ u₁ [ σ₁ ] ≡
       unitrec l p q A₂ t₂ u₂ [ σ₂ ] ∷ A₁ [ t₁ ]₀ [ σ₁ ]

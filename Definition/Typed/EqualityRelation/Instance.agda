@@ -26,5 +26,5 @@ instance
 
   included′ :
     ⦃ inc : Neutrals-included ⦄ →
-    Neutrals-included-or-empty Γ
+    Neutrals-included or-empty Γ
   included′ = included

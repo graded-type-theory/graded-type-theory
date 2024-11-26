@@ -82,7 +82,7 @@ opaque mutual
   infix 4 _⊩ˢ_≡_∷_
 
   _⊩ˢ_≡_∷_ : Con Term m → Subst m n → Subst m n → Con Term n → Set a
-  Δ ⊩ˢ _  ≡ _  ∷ ε     = ⦃ inc : Neutrals-included-or-empty Δ ⦄ → ⊢ Δ
+  Δ ⊩ˢ _  ≡ _  ∷ ε     = ⦃ inc : Neutrals-included or-empty Δ ⦄ → ⊢ Δ
   Δ ⊩ˢ σ₁ ≡ σ₂ ∷ Γ ∙ A =
     (∃ λ l →
      (Γ ⊩ᵛ⟨ l ⟩ A) ×
@@ -167,7 +167,7 @@ opaque
     Γ ⊩ᵛ⟨ l ⟩ A ⇔
     (⊩ᵛ Γ ×
      (∀ {m Δ} {σ₁ σ₂ : Subst m n}
-        ⦃ inc : Neutrals-included-or-empty Δ ⦄ →
+        ⦃ inc : Neutrals-included or-empty Δ ⦄ →
       Δ ⊩ˢ σ₁ ≡ σ₂ ∷ Γ → Δ H.⊩⟨ l ⟩ A [ σ₁ ] ≡ A [ σ₂ ]))
   ⊩ᵛ⇔ʰ {n} {Γ} {l} {A} =
     Γ ⊩ᵛ⟨ l ⟩ A                                          ⇔⟨ ⊩ᵛ⇔ ⟩
@@ -180,7 +180,7 @@ opaque
                                                              Π⦃⦄→⇔⦃⦄→Π ∘⇔ (Π-cong-⇔ λ _ → ⊩≡⇔)) ⟩
     ⊩ᵛ Γ ×
     (∀ {m Δ} {σ₁ σ₂ : Subst m n}
-       ⦃ inc : Neutrals-included-or-empty Δ ⦄ →
+       ⦃ inc : Neutrals-included or-empty Δ ⦄ →
      Δ ⊩ˢ σ₁ ≡ σ₂ ∷ Γ → Δ H.⊩⟨ l ⟩ A [ σ₁ ] ≡ A [ σ₂ ])  □⇔
 
 opaque
@@ -203,7 +203,7 @@ opaque
     Γ ⊩ᵛ⟨ l ⟩ A ≡ B ⇔
     (⊩ᵛ Γ ×
      (∀ {m Δ} {σ₁ σ₂ : Subst m n}
-      ⦃ inc : Neutrals-included-or-empty Δ ⦄ →
+      ⦃ inc : Neutrals-included or-empty Δ ⦄ →
       Δ ⊩ˢ σ₁ ≡ σ₂ ∷ Γ → Δ H.⊩⟨ l ⟩ A [ σ₁ ] ≡ B [ σ₂ ]))
   ⊩ᵛ≡⇔ʰ {n} {Γ} {l} {A} {B} =
     Γ ⊩ᵛ⟨ l ⟩ A ≡ B                                      ⇔⟨ ⊩ᵛ≡⇔ ⟩
@@ -216,7 +216,7 @@ opaque
                                                              Π⦃⦄→⇔⦃⦄→Π ∘⇔ (Π-cong-⇔ λ _ → ⊩≡⇔)) ⟩
     ⊩ᵛ Γ ×
     (∀ {m Δ} {σ₁ σ₂ : Subst m n}
-       ⦃ inc : Neutrals-included-or-empty Δ ⦄ →
+       ⦃ inc : Neutrals-included or-empty Δ ⦄ →
      Δ ⊩ˢ σ₁ ≡ σ₂ ∷ Γ → Δ H.⊩⟨ l ⟩ A [ σ₁ ] ≡ B [ σ₂ ])  □⇔
 
 opaque
@@ -248,7 +248,7 @@ opaque
     Γ ⊩ᵛ⟨ l ⟩ t ∷ A ⇔
     (Γ ⊩ᵛ⟨ l ⟩ A ×
      (∀ {m Δ} {σ₁ σ₂ : Subst m n}
-      ⦃ inc : Neutrals-included-or-empty Δ ⦄ →
+      ⦃ inc : Neutrals-included or-empty Δ ⦄ →
       Δ ⊩ˢ σ₁ ≡ σ₂ ∷ Γ →
       Δ H.⊩⟨ l ⟩ t [ σ₁ ] ≡ t [ σ₂ ] ∷ A [ σ₁ ]))
   ⊩ᵛ∷⇔ʰ {n} {Γ} {l} {t} {A} =
@@ -262,7 +262,7 @@ opaque
                                                                         Π⦃⦄→⇔⦃⦄→Π ∘⇔ (Π-cong-⇔ λ _ → ⊩≡∷⇔)) ⟩
     Γ ⊩ᵛ⟨ l ⟩ A ×
     (∀ {m Δ} {σ₁ σ₂ : Subst m n}
-       ⦃ inc : Neutrals-included-or-empty Δ ⦄ →
+       ⦃ inc : Neutrals-included or-empty Δ ⦄ →
      Δ ⊩ˢ σ₁ ≡ σ₂ ∷ Γ → Δ H.⊩⟨ l ⟩ t [ σ₁ ] ≡ t [ σ₂ ] ∷ A [ σ₁ ])  □⇔
 
 opaque
@@ -286,7 +286,7 @@ opaque
     Γ ⊩ᵛ⟨ l ⟩ t ≡ u ∷ A ⇔
     (Γ ⊩ᵛ⟨ l ⟩ A ×
      (∀ {m Δ} {σ₁ σ₂ : Subst m n}
-        ⦃ inc : Neutrals-included-or-empty Δ ⦄ →
+        ⦃ inc : Neutrals-included or-empty Δ ⦄ →
       Δ ⊩ˢ σ₁ ≡ σ₂ ∷ Γ →
       Δ H.⊩⟨ l ⟩ t [ σ₁ ] ≡ u [ σ₂ ] ∷ A [ σ₁ ]))
   ⊩ᵛ≡∷⇔ʰ {n} {Γ} {l} {t} {u} {A} =
@@ -300,7 +300,7 @@ opaque
                                                                         Π⦃⦄→⇔⦃⦄→Π ∘⇔ (Π-cong-⇔ λ _ → ⊩≡∷⇔)) ⟩
     Γ ⊩ᵛ⟨ l ⟩ A ×
     (∀ {m Δ} {σ₁ σ₂ : Subst m n}
-       ⦃ inc : Neutrals-included-or-empty Δ ⦄ →
+       ⦃ inc : Neutrals-included or-empty Δ ⦄ →
      Δ ⊩ˢ σ₁ ≡ σ₂ ∷ Γ → Δ H.⊩⟨ l ⟩ t [ σ₁ ] ≡ u [ σ₂ ] ∷ A [ σ₁ ])  □⇔
 
 opaque
@@ -310,7 +310,7 @@ opaque
 
   ⊩ˢ≡∷ε⇔ :
     Δ ⊩ˢ σ₁ ≡ σ₂ ∷ ε ⇔
-    (⦃ inc : Neutrals-included-or-empty Δ ⦄ → ⊢ Δ)
+    (⦃ inc : Neutrals-included or-empty Δ ⦄ → ⊢ Δ)
   ⊩ˢ≡∷ε⇔ = id⇔
 
 opaque
@@ -340,11 +340,11 @@ opaque
 
   ⊩ˢ∷ε⇔ :
     Δ ⊩ˢ σ ∷ ε ⇔
-    (⦃ inc : Neutrals-included-or-empty Δ ⦄ → ⊢ Δ)
+    (⦃ inc : Neutrals-included or-empty Δ ⦄ → ⊢ Δ)
   ⊩ˢ∷ε⇔ {Δ} {σ} =
     Δ ⊩ˢ σ ∷ ε                                      ⇔⟨ ⊩ˢ∷⇔⊩ˢ≡∷ ⟩
     Δ ⊩ˢ σ ≡ σ ∷ ε                                  ⇔⟨ ⊩ˢ≡∷ε⇔ ⟩
-    (⦃ inc : Neutrals-included-or-empty Δ ⦄ → ⊢ Δ)  □⇔
+    (⦃ inc : Neutrals-included or-empty Δ ⦄ → ⊢ Δ)  □⇔
 
 opaque
 
@@ -728,7 +728,7 @@ opaque
     (Γ ⊩ᵛ⟨ l ⟩ A ×
      Γ ⊩ᵛ⟨ l ⟩ B ×
      (∀ {m Δ} {σ : Subst m n}
-        ⦃ inc : Neutrals-included-or-empty Δ ⦄ →
+        ⦃ inc : Neutrals-included or-empty Δ ⦄ →
       Δ ⊩ˢ σ ∷ Γ →
       Δ H.⊩⟨ l ⟩ A [ σ ] ≡ B [ σ ]))
   ⊩ᵛ≡⇔′ʰ {n} {Γ} {l} {A} {B} =
@@ -745,7 +745,7 @@ opaque
     Γ ⊩ᵛ⟨ l ⟩ A ×
     Γ ⊩ᵛ⟨ l ⟩ B ×
     (∀ {m Δ} {σ : Subst m n}
-       ⦃ inc : Neutrals-included-or-empty Δ ⦄ →
+       ⦃ inc : Neutrals-included or-empty Δ ⦄ →
      Δ ⊩ˢ σ ∷ Γ →
      Δ H.⊩⟨ l ⟩ A [ σ ] ≡ B [ σ ])               □⇔
 
@@ -777,7 +777,7 @@ opaque
     (Γ ⊩ᵛ⟨ l ⟩ A ×
      Γ ⊩ᵛ⟨ l ⟩ B ×
      (∀ {m Δ} {σ₁ σ₂ : Subst m n}
-        ⦃ inc : Neutrals-included-or-empty Δ ⦄ →
+        ⦃ inc : Neutrals-included or-empty Δ ⦄ →
       Δ ⊩ˢ σ₁ ≡ σ₂ ∷ Γ →
       Δ H.⊩⟨ l ⟩ A [ σ₁ ] ≡ B [ σ₂ ]))
   ⊩ᵛ≡⇔″ʰ {n} {Γ} {l} {A} {B} =
@@ -794,7 +794,7 @@ opaque
     Γ ⊩ᵛ⟨ l ⟩ A ×
     Γ ⊩ᵛ⟨ l ⟩ B ×
     (∀ {m Δ} {σ₁ σ₂ : Subst m n}
-       ⦃ inc : Neutrals-included-or-empty Δ ⦄ →
+       ⦃ inc : Neutrals-included or-empty Δ ⦄ →
      Δ ⊩ˢ σ₁ ≡ σ₂ ∷ Γ →
      Δ H.⊩⟨ l ⟩ A [ σ₁ ] ≡ B [ σ₂ ])             □⇔
 
@@ -832,7 +832,7 @@ opaque
     (Γ ⊩ᵛ⟨ l ⟩ t ∷ A ×
      Γ ⊩ᵛ⟨ l ⟩ u ∷ A ×
      (∀ {m Δ} {σ : Subst m n}
-        ⦃ inc : Neutrals-included-or-empty Δ ⦄ →
+        ⦃ inc : Neutrals-included or-empty Δ ⦄ →
       Δ ⊩ˢ σ ∷ Γ →
       Δ H.⊩⟨ l ⟩ t [ σ ] ≡ u [ σ ] ∷ A [ σ ]))
   ⊩ᵛ≡∷⇔′ʰ {n} {Γ} {l} {t} {u} {A} =
@@ -849,7 +849,7 @@ opaque
     Γ ⊩ᵛ⟨ l ⟩ t ∷ A ×
     Γ ⊩ᵛ⟨ l ⟩ u ∷ A ×
     (∀ {m Δ} {σ : Subst m n}
-       ⦃ inc : Neutrals-included-or-empty Δ ⦄ →
+       ⦃ inc : Neutrals-included or-empty Δ ⦄ →
      Δ ⊩ˢ σ ∷ Γ →
      Δ H.⊩⟨ l ⟩ t [ σ ] ≡ u [ σ ] ∷ A [ σ ])     □⇔
 
@@ -881,7 +881,7 @@ opaque
     (Γ ⊩ᵛ⟨ l ⟩ t ∷ A ×
      Γ ⊩ᵛ⟨ l ⟩ u ∷ A ×
      (∀ {m Δ} {σ₁ σ₂ : Subst m n}
-        ⦃ inc : Neutrals-included-or-empty Δ ⦄ →
+        ⦃ inc : Neutrals-included or-empty Δ ⦄ →
       Δ ⊩ˢ σ₁ ≡ σ₂ ∷ Γ →
       Δ H.⊩⟨ l ⟩ t [ σ₁ ] ≡ u [ σ₂ ] ∷ A [ σ₁ ]))
   ⊩ᵛ≡∷⇔″ʰ {n} {Γ} {l} {t} {u} {A} =
@@ -898,7 +898,7 @@ opaque
     Γ ⊩ᵛ⟨ l ⟩ t ∷ A ×
     Γ ⊩ᵛ⟨ l ⟩ u ∷ A ×
     (∀ {m Δ} {σ₁ σ₂ : Subst m n}
-       ⦃ inc : Neutrals-included-or-empty Δ ⦄ →
+       ⦃ inc : Neutrals-included or-empty Δ ⦄ →
      Δ ⊩ˢ σ₁ ≡ σ₂ ∷ Γ →
      Δ H.⊩⟨ l ⟩ t [ σ₁ ] ≡ u [ σ₂ ] ∷ A [ σ₁ ])  □⇔
 
@@ -1112,7 +1112,7 @@ opaque
 
   ⊩ᵛ∷-⇐ :
     (∀ {m Δ} {σ : Subst m n}
-       ⦃ inc : Neutrals-included-or-empty Δ ⦄ →
+       ⦃ inc : Neutrals-included or-empty Δ ⦄ →
      Δ ⊩ˢ σ ∷ Γ →
      Δ ⊢ t [ σ ] ⇒ u [ σ ] ∷ A [ σ ]) →
     Γ ⊩ᵛ⟨ l ⟩ u ∷ A →
@@ -1163,7 +1163,7 @@ opaque
   -- A lemma related to _•ₛ_.
 
   ⊩ˢ≡∷-•ₛ :
-    (⦃ inc : Neutrals-included-or-empty Η ⦄ → ρ ∷ʷ Η ⊇ Δ) →
+    (⦃ inc : Neutrals-included or-empty Η ⦄ → ρ ∷ʷ Η ⊇ Δ) →
     Δ ⊩ˢ σ₁ ≡ σ₂ ∷ Γ →
     Η ⊩ˢ ρ •ₛ σ₁ ≡ ρ •ₛ σ₂ ∷ Γ
   ⊩ˢ≡∷-•ₛ {Γ = ε} ρ⊇ _ =
@@ -1185,7 +1185,7 @@ opaque
   -- A lemma related to _•ₛ_.
 
   ⊩ˢ∷-•ₛ :
-    (⦃ inc : Neutrals-included-or-empty Η ⦄ → ρ ∷ʷ Η ⊇ Δ) →
+    (⦃ inc : Neutrals-included or-empty Η ⦄ → ρ ∷ʷ Η ⊇ Δ) →
     Δ ⊩ˢ σ ∷ Γ →
     Η ⊩ˢ ρ •ₛ σ ∷ Γ
   ⊩ˢ∷-•ₛ ρ⊇ =
@@ -1232,7 +1232,7 @@ opaque
     Δ ⊩ˢ σ₁ ≡ σ₂ ∷ Γ →
     Δ ∙ A ⊩ˢ wk1Subst σ₁ ≡ wk1Subst σ₂ ∷ Γ
   ⊩ˢ≡∷-wk1Subst ⊢A =
-    ⊩ˢ≡∷-•ₛ $ TW.stepʷ TW.id $ ⊢A ⦃ inc = 1+→Neutrals-included ⦄
+    ⊩ˢ≡∷-•ₛ $ TW.stepʷ TW.id $ ⊢A ⦃ inc = or-empty-1+→ ⦄
 
 opaque
 
@@ -1266,7 +1266,7 @@ opaque
            neutral-⊩∷ (⊩ᵛ→⊩ˢ∷→⊩[] ⊩A $ wf-⊩ˢ≡∷ σ₁⇑₊≡σ₂⇑₊ .proj₁)
              (var _) $
            ~-var $
-           _⊢_∷_.var (∙ ⊢A[σ₁] ⦃ inc = 1+→Neutrals-included ⦄) $
+           _⊢_∷_.var (∙ ⊢A[σ₁] ⦃ inc = or-empty-1+→ ⦄) $
            PE.subst₂ (_∷_∈_ _) (PE.sym $ wk1Subst-wk1 A) PE.refl here)
         )
       , σ₁⇑₊≡σ₂⇑₊
@@ -1412,7 +1412,7 @@ opaque
   -- An escape lemma for _⊩ᵛ⟨_⟩_.
 
   escape-⊩ᵛ :
-    ⦃ inc : Neutrals-included-or-empty Γ ⦄ →
+    ⦃ inc : Neutrals-included or-empty Γ ⦄ →
     Γ ⊩ᵛ⟨ l ⟩ A → Γ ⊢ A
   escape-⊩ᵛ = escape-⊩ ∘→ ⊩ᵛ→⊩
 
@@ -1421,12 +1421,11 @@ opaque
   -- An escape lemma for ⊩ᵛ_.
 
   escape-⊩ᵛ′ :
-    ⦃ inc : Neutrals-included-or-empty Γ ⦄ →
+    ⦃ inc : Neutrals-included or-empty Γ ⦄ →
     ⊩ᵛ Γ → ⊢ Γ
   escape-⊩ᵛ′ {Γ = ε}     _  = ε
   escape-⊩ᵛ′ {Γ = _ ∙ _} ⊩Γ =
-    ∙ escape-⊩ᵛ ⦃ inc = Neutrals-included-or-empty-∙→ ⦄
-        (⊩ᵛ∙⇔ .proj₁ ⊩Γ .proj₂)
+    ∙ escape-⊩ᵛ ⦃ inc = or-empty-∙→ ⦄ (⊩ᵛ∙⇔ .proj₁ ⊩Γ .proj₂)
 
 opaque
   unfolding _⊩ᵛ⟨_⟩_≡_
@@ -1434,7 +1433,7 @@ opaque
   -- An escape lemma for _⊩ᵛ⟨_⟩_≡_.
 
   escape-⊩ᵛ≡ :
-    ⦃ inc : Neutrals-included-or-empty Γ ⦄ →
+    ⦃ inc : Neutrals-included or-empty Γ ⦄ →
     Γ ⊩ᵛ⟨ l ⟩ A ≡ B → Γ ⊢ A ≅ B
   escape-⊩ᵛ≡ = escape-⊩≡ ∘→ ⊩ᵛ≡→⊩≡
 
@@ -1443,7 +1442,7 @@ opaque
   -- An escape lemma for _⊩ᵛ⟨_⟩_∷_.
 
   escape-⊩ᵛ∷ :
-    ⦃ inc : Neutrals-included-or-empty Γ ⦄ →
+    ⦃ inc : Neutrals-included or-empty Γ ⦄ →
     Γ ⊩ᵛ⟨ l ⟩ t ∷ A → Γ ⊢ t ∷ A
   escape-⊩ᵛ∷ = escape-⊩∷ ∘→ ⊩ᵛ∷→⊩∷
 
@@ -1453,7 +1452,7 @@ opaque
   -- An escape lemma for _⊩ᵛ⟨_⟩_≡_∷_.
 
   escape-⊩ᵛ≡∷ :
-    ⦃ inc : Neutrals-included-or-empty Γ ⦄ →
+    ⦃ inc : Neutrals-included or-empty Γ ⦄ →
     Γ ⊩ᵛ⟨ l ⟩ t ≡ u ∷ A → Γ ⊢ t ≅ u ∷ A
   escape-⊩ᵛ≡∷ = escape-⊩≡∷ ∘→ ⊩ᵛ≡∷→⊩≡∷
 
@@ -1462,11 +1461,11 @@ opaque
   -- An escape lemma for _⊩ˢ_∷_.
 
   escape-⊩ˢ∷ :
-    ⦃ inc : Neutrals-included-or-empty Δ ⦄ →
+    ⦃ inc : Neutrals-included or-empty Δ ⦄ →
     Δ ⊩ˢ σ ∷ Γ → ⊢ Δ × Δ ⊢ˢʷ σ ∷ Γ
   escape-⊩ˢ∷ {Δ} {σ} {Γ = ε} =
     Δ ⊩ˢ σ ∷ ε                                      ⇔⟨ ⊩ˢ∷ε⇔ ⟩→
-    (⦃ inc : Neutrals-included-or-empty Δ ⦄ → ⊢ Δ)  →⟨ (λ hyp → hyp) ⟩
+    (⦃ inc : Neutrals-included or-empty Δ ⦄ → ⊢ Δ)  →⟨ (λ hyp → hyp) ⟩
     ⊢ Δ                                             →⟨ (λ ⊢Δ → ⊢Δ , ⊢ˢʷ∷ε⇔ .proj₂ ⊢Δ) ⟩
     ⊢ Δ × Δ ⊢ˢʷ σ ∷ ε                               □
   escape-⊩ˢ∷ {Δ} {σ} {Γ = Γ ∙ A} =
@@ -1485,11 +1484,11 @@ opaque
   -- An escape lemma for _⊩ˢ_≡_∷_.
 
   escape-⊩ˢ≡∷ :
-    ⦃ inc : Neutrals-included-or-empty Δ ⦄ →
+    ⦃ inc : Neutrals-included or-empty Δ ⦄ →
     Δ ⊩ˢ σ₁ ≡ σ₂ ∷ Γ → ⊢ Δ × Δ ⊢ˢʷ σ₁ ≡ σ₂ ∷ Γ
   escape-⊩ˢ≡∷ {Δ} {σ₁} {σ₂} {Γ = ε} =
     Δ ⊩ˢ σ₁ ≡ σ₂ ∷ ε                                ⇔⟨ ⊩ˢ≡∷ε⇔ ⟩→
-    (⦃ inc : Neutrals-included-or-empty Δ ⦄ → ⊢ Δ)  →⟨ (λ hyp → hyp) ⟩
+    (⦃ inc : Neutrals-included or-empty Δ ⦄ → ⊢ Δ)  →⟨ (λ hyp → hyp) ⟩
     ⊢ Δ                                             →⟨ (λ ⊢Δ → ⊢Δ , ⊢ˢʷ≡∷ε⇔ .proj₂ ⊢Δ) ⟩
     ⊢ Δ × Δ ⊢ˢʷ σ₁ ≡ σ₂ ∷ ε                         □
   escape-⊩ˢ≡∷ {Δ} {σ₁} {σ₂} {Γ = Γ ∙ A} =

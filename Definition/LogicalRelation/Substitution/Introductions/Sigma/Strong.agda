@@ -626,7 +626,7 @@ private opaque
     Γ ∙ A ⊩ᵛ⟨ l ⟩ B →
     Γ ⊩ᵛ⟨ l ⟩ t₁ ≡ t₂ ∷ A →
     Γ ⊩ᵛ⟨ l′ ⟩ u₁ ≡ u₂ ∷ B [ t₁ ]₀ →
-    ⦃ inc : Neutrals-included-or-empty Δ ⦄ →
+    ⦃ inc : Neutrals-included or-empty Δ ⦄ →
     Δ ⊩ˢ σ₁ ≡ σ₂ ∷ Γ →
     Δ ⊩⟨ l ⟩ prodˢ p t₁ u₁ [ σ₁ ] ≡ prodˢ p t₂ u₂ [ σ₂ ] ∷
       (Σˢ p , q ▷ A ▹ B) [ σ₁ ]

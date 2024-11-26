@@ -33,18 +33,18 @@ private variable
 -- A restricted variant of _∷ʷ_⊇_.
 
 data _∷ʷʳ_⊇_ : Wk m n → Con Term m → Con Term n → Set a where
-  included : ⦃ inc : Neutrals-included ⦄ → ρ ∷ʷ Δ ⊇ Γ → ρ ∷ʷʳ Δ ⊇ Γ
-  id       : ⊢ Γ → id ∷ʷʳ Γ ⊇ Γ
+  includedʷʳ : ⦃ inc : Neutrals-included ⦄ → ρ ∷ʷ Δ ⊇ Γ → ρ ∷ʷʳ Δ ⊇ Γ
+  id         : ⊢ Γ → id ∷ʷʳ Γ ⊇ Γ
 
 opaque
 
   -- Converts from _∷ʷ_⊇_ to _∷ʷʳ_⊇_.
 
   ∷ʷ⊇→∷ʷʳ⊇ :
-    ⦃ inc : Neutrals-included-or-empty Δ ⦄ →
+    ⦃ inc : Neutrals-included or-empty Δ ⦄ →
     ρ ∷ʷ Δ ⊇ Γ → ρ ∷ʷʳ Δ ⊇ Γ
-  ∷ʷ⊇→∷ʷʳ⊇ ⦃ inc = included ⦄ ρ⊇ = included ρ⊇
-  ∷ʷ⊇→∷ʷʳ⊇ ⦃ inc = ε        ⦄ ρ⊇ =
+  ∷ʷ⊇→∷ʷʳ⊇ ⦃ inc = possibly-nonempty ⦄ ρ⊇ = includedʷʳ ρ⊇
+  ∷ʷ⊇→∷ʷʳ⊇ ⦃ inc = ε                 ⦄ ρ⊇ =
     case W.∷ʷ⊇→∷⊇ ρ⊇ of λ where
       W.id → id ε
 
@@ -53,21 +53,21 @@ opaque
   -- Converts from _∷ʷʳ_⊇_ to _∷ʷ_⊇_.
 
   ∷ʷʳ⊇→∷ʷ⊇ : ρ ∷ʷʳ Δ ⊇ Γ → ρ ∷ʷ Δ ⊇ Γ
-  ∷ʷʳ⊇→∷ʷ⊇ (included ρ⊇) = ρ⊇
-  ∷ʷʳ⊇→∷ʷ⊇ (id ⊢Γ)       = W.idʷ ⊢Γ
+  ∷ʷʳ⊇→∷ʷ⊇ (includedʷʳ ρ⊇) = ρ⊇
+  ∷ʷʳ⊇→∷ʷ⊇ (id ⊢Γ)         = W.idʷ ⊢Γ
 
 opaque
 
   -- If there is a _∷ʷʳ_⊇_-weakening from Γ to Δ, then
-  -- Neutrals-included-or-empty Δ is logically equivalent to
-  -- Neutrals-included-or-empty Γ.
+  -- Neutrals-included or-empty Δ is logically equivalent to
+  -- Neutrals-included or-empty Γ.
 
   wk-Neutrals-included-or-empty :
     ρ ∷ʷʳ Δ ⊇ Γ →
-    Neutrals-included-or-empty Δ ⇔
-    Neutrals-included-or-empty Γ
-  wk-Neutrals-included-or-empty (id _)       = id⇔
-  wk-Neutrals-included-or-empty (included _) =
+    Neutrals-included or-empty Δ ⇔
+    Neutrals-included or-empty Γ
+  wk-Neutrals-included-or-empty (id _)         = id⇔
+  wk-Neutrals-included-or-empty (includedʷʳ _) =
     (λ _ → included) , (λ _ → included)
 
 opaque
@@ -76,8 +76,8 @@ opaque
 
   wk-Neutrals-included-or-empty→ :
     ρ ∷ʷʳ Δ ⊇ Γ →
-    ⦃ inc : Neutrals-included-or-empty Δ ⦄ →
-    Neutrals-included-or-empty Γ
+    ⦃ inc : Neutrals-included or-empty Δ ⦄ →
+    Neutrals-included or-empty Γ
   wk-Neutrals-included-or-empty→ ρ⊇ ⦃ inc ⦄ =
     wk-Neutrals-included-or-empty ρ⊇ .proj₁ inc
 
@@ -87,8 +87,8 @@ opaque
 
   wk-Neutrals-included-or-empty← :
     ρ ∷ʷʳ Δ ⊇ Γ →
-    ⦃ inc : Neutrals-included-or-empty Γ ⦄ →
-    Neutrals-included-or-empty Δ
+    ⦃ inc : Neutrals-included or-empty Γ ⦄ →
+    Neutrals-included or-empty Δ
   wk-Neutrals-included-or-empty← ρ⊇ ⦃ inc ⦄ =
     wk-Neutrals-included-or-empty ρ⊇ .proj₂ inc
 
@@ -97,13 +97,13 @@ opaque
   -- If ρ ∷ʷʳ Δ ⊇ Γ holds, then Δ is well-formed.
 
   wf-∷ʷʳ⊇ : ρ ∷ʷʳ Δ ⊇ Γ → ⊢ Δ
-  wf-∷ʷʳ⊇ (included ρ⊇) = W.wf-∷ʷ⊇ ρ⊇
-  wf-∷ʷʳ⊇ (id ⊢Γ)       = ⊢Γ
+  wf-∷ʷʳ⊇ (includedʷʳ ρ⊇) = W.wf-∷ʷ⊇ ρ⊇
+  wf-∷ʷʳ⊇ (id ⊢Γ)         = ⊢Γ
 
 opaque
 
   -- Composition.
 
   _•ₜʷʳ_ : ρ₁ ∷ʷʳ Η ⊇ Δ → ρ₂ ∷ʷʳ Δ ⊇ Γ → ρ₁ • ρ₂ ∷ʷʳ Η ⊇ Γ
-  id _         •ₜʷʳ ρ₂⊇ = ρ₂⊇
-  included ρ₁⊇ •ₜʷʳ ρ₂⊇ = included (ρ₁⊇ W.•ₜʷ ∷ʷʳ⊇→∷ʷ⊇ ρ₂⊇)
+  id _           •ₜʷʳ ρ₂⊇ = ρ₂⊇
+  includedʷʳ ρ₁⊇ •ₜʷʳ ρ₂⊇ = includedʷʳ (ρ₁⊇ W.•ₜʷ ∷ʷʳ⊇→∷ʷ⊇ ρ₂⊇)

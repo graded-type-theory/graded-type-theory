@@ -49,7 +49,7 @@ record Fundamental-assumptions⁻ (Δ : Con Term k) : Set a where
     closed-or-no-erased-matches : No-erased-matches TR UR ⊎ Empty-con Δ
     instance
       -- Neutrals-included holds or the context is empty.
-      ⦃ inc ⦄ : Neutrals-included-or-empty Δ
+      ⦃ inc ⦄ : Neutrals-included or-empty Δ
 
 -- The fundamental lemma is proved under the assumption that a given
 -- context Δ satisfies the following assumptions.

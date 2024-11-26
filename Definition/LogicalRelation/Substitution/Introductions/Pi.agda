@@ -377,7 +377,7 @@ opaque
     Γ ∙ A ⊢ t₁ ≡ t₂ ∷ B →
     Γ ⊩ᵛ⟨ l ⟩ A →
     Γ ∙ A ⊩ᵛ⟨ l ⟩ t₁ ≡ t₂ ∷ B →
-    ⦃ inc : Neutrals-included-or-empty Δ ⦄ →
+    ⦃ inc : Neutrals-included or-empty Δ ⦄ →
     Δ ⊩ˢ σ₁ ≡ σ₂ ∷ Γ →
     Δ ⊩⟨ l ⟩ lam p t₁ [ σ₁ ] ≡ lam p t₂ [ σ₂ ] ∷
       (Π p , q ▷ A ▹ B) [ σ₁ ]
@@ -466,7 +466,7 @@ opaque
       , lamₙ , lamₙ
       , with-inc-⊢≅∷ (subst-⊢≡∷ (lam-cong ⊢t₁≡t₂ ok) ⊢σ₁≡σ₂)
           (let instance
-                 inc : Neutrals-included-or-empty Η
+                 inc : Neutrals-included or-empty Η
                  inc = included
                step-id =
                  W.stepʷ W.id ⊢A[σ₁]
@@ -521,7 +521,7 @@ opaque
   ⊩∘≡∘ :
     Γ ⊩ᵛ⟨ l ⟩ t₁ ≡ t₂ ∷ Π p , q ▷ A ▹ B →
     Γ ⊩ᵛ⟨ l′ ⟩ u₁ ≡ u₂ ∷ A →
-    ⦃ inc : Neutrals-included-or-empty Δ ⦄ →
+    ⦃ inc : Neutrals-included or-empty Δ ⦄ →
     Δ ⊩ˢ σ₁ ≡ σ₂ ∷ Γ →
     Δ ⊩⟨ l ⟩ (t₁ ∘⟨ p ⟩ u₁) [ σ₁ ] ≡ (t₂ ∘⟨ p ⟩ u₂) [ σ₂ ] ∷
       B [ u₁ ]₀ [ σ₁ ]
@@ -710,7 +710,7 @@ opaque
                  t₂ [ σ ]  ⇒*⟨ t₂[σ]⇒*u₂ ⟩⊢∎
                  u₂        ∎)
                 (let instance
-                       inc : Neutrals-included-or-empty Η
+                       inc : Neutrals-included or-empty Η
                        inc = included
                      step-id =
                        ∷ʷ⊇→∷ʷʳ⊇ $ W.stepʷ W.id ⊢A[σ]

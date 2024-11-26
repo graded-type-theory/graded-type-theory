@@ -147,7 +147,7 @@ opaque
         ⊩A           = PE.subst (_⊩⟨_⟩_ _ _) (wk-id _) ⊩wk-id-A
     in
         ok , ⊩A
-      , (case hyp (included (TW.stepʷ TW.id (escape-⊩ ⊩A))) of λ
+      , (case hyp (includedʷʳ (TW.stepʷ TW.id (escape-⊩ ⊩A))) of λ
            (⊩wk₁-A , wk-lift-step-id-B[]₀≡wk-lift-step-id-B[]₀) →
          PE.subst (_⊩⟨_⟩_ _ _) (wkSingleSubstId _)
            (proj₁ $ wf-⊩≡ $
@@ -331,7 +331,7 @@ opaque
         (rest (id (wfEq (≅-eq ΠΣ≅ΠΣ))) .proj₁)
     , let wk₁-A₁≡wk₁-A₂ ,
             wk-lift-step-id-B₁[]₀≡wk-lift-step-id-B₂[]₀ =
-            rest (included (TW.stepʷ TW.id (escape ⊩A₁)))
+            rest (includedʷʳ (TW.stepʷ TW.id (escape ⊩A₁)))
       in
       PE.subst₂ (_⊩⟨_⟩_≡_ _ _) (wkSingleSubstId _) (wkSingleSubstId _)
         (wk-lift-step-id-B₁[]₀≡wk-lift-step-id-B₂[]₀ $
@@ -396,7 +396,7 @@ opaque
     Γ ⊢ ΠΣ⟨ b ⟩ p , q ▷ A ▹ B →
     Γ ⊩ᵛ⟨ l ⟩ A →
     Γ ∙ A ⊩ᵛ⟨ l ⟩ B →
-    ⦃ inc : Neutrals-included-or-empty Δ ⦄ →
+    ⦃ inc : Neutrals-included or-empty Δ ⦄ →
     Δ ⊩ˢ σ ∷ Γ →
     Δ ⊩⟨ l ⟩ (ΠΣ⟨ b ⟩ p , q ▷ A ▹ B) [ σ ]
   ⊩ΠΣ {A} {B} ⊢ΠΣ ⊩A ⊩B ⊩σ =
@@ -439,7 +439,7 @@ opaque
     Γ ⊢ ΠΣ⟨ b ⟩ p , q ▷ A₁ ▹ B₁ ≡ ΠΣ⟨ b ⟩ p , q ▷ A₂ ▹ B₂ →
     Γ ⊩ᵛ⟨ l ⟩ A₁ ≡ A₂ →
     Γ ∙ A₁ ⊩ᵛ⟨ l ⟩ B₁ ≡ B₂ →
-    ⦃ inc : Neutrals-included-or-empty Δ ⦄ →
+    ⦃ inc : Neutrals-included or-empty Δ ⦄ →
     Δ ⊩ˢ σ₁ ≡ σ₂ ∷ Γ →
     Δ ⊩⟨ l ⟩ (ΠΣ⟨ b ⟩ p , q ▷ A₁ ▹ B₁) [ σ₁ ] ≡
       (ΠΣ⟨ b ⟩ p , q ▷ A₂ ▹ B₂) [ σ₂ ]
@@ -524,7 +524,7 @@ opaque
 
   ⊩ᵛΠΣ→ :
     Γ ⊩ᵛ⟨ l ⟩ ΠΣ⟨ b ⟩ p , q ▷ A ▹ B →
-    (⦃ inc : Neutrals-included-or-empty Γ ⦄ → ΠΣ-allowed b p q) ×
+    (⦃ inc : Neutrals-included or-empty Γ ⦄ → ΠΣ-allowed b p q) ×
     Γ ⊩ᵛ⟨ l ⟩ A × Γ ∙ A ⊩ᵛ⟨ l ⟩ B
   ⊩ᵛΠΣ→ {B} ⊩ΠΣAB =
     case ⊩ᵛ⇔ʰ .proj₁ ⊩ΠΣAB of λ
@@ -580,7 +580,7 @@ opaque
       U (l₁ ⊔ᵘ l₂) →
     Γ ⊩ᵛ⟨ l₁′ ⟩ A₁ ≡ A₂ ∷ U l₁ →
     Γ ∙ A₁ ⊩ᵛ⟨ l₂′ ⟩ B₁ ≡ B₂ ∷ U l₂ →
-    ⦃ inc : Neutrals-included-or-empty Δ ⦄ →
+    ⦃ inc : Neutrals-included or-empty Δ ⦄ →
     Δ ⊩ˢ σ₁ ≡ σ₂ ∷ Γ →
     Δ ⊩⟨ 1+ (l₁ ⊔ᵘ l₂) ⟩ (ΠΣ⟨ b ⟩ p , q ▷ A₁ ▹ B₁) [ σ₁ ] ≡
       (ΠΣ⟨ b ⟩ p , q ▷ A₂ ▹ B₂) [ σ₂ ] ∷ U (l₁ ⊔ᵘ l₂)

@@ -87,7 +87,7 @@ private
 -- A lemma.
 
 module _
-  (⊢Δ : ⊢ Δ) ⦃ inc : Neutrals-included-or-empty Δ ⦄ {s : Strictness}
+  (⊢Δ : ⊢ Δ) ⦃ inc : Neutrals-included or-empty Δ ⦄ {s : Strictness}
   where
 
   open Graded.Erasure.LogicalRelation.Hidden
