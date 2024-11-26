@@ -38,7 +38,6 @@ open import Tools.Function
 open import Tools.Nat
 import Tools.PropositionalEquality as PE
 open import Tools.Product
-open import Tools.Sum
 
 
 -- Preliminaries
@@ -147,7 +146,7 @@ module Main {Γ : Con Term m} (nΓ : NegativeContext Γ)
 
   canonicityRed : Γ ⊢ t ∷ ℕ → ∃ λ u → Numeral u × Γ ⊢ t ⇒ˢ* u ∷ℕ
   canonicityRed =
-    canonicityRed′ ∘→ ⊩∷ℕ⇔ .proj₁ ∘→ proj₂ ∘→ reducible-⊩∷ (inj₁ _)
+    canonicityRed′ ∘→ ⊩∷ℕ⇔ .proj₁ ∘→ proj₂ ∘→ reducible-⊩∷
 
   -- Canonicity theorem: Any well-typed term Γ ⊢ t : ℕ is convertible to a numeral.
 

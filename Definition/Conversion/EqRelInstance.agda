@@ -37,6 +37,7 @@ open import Definition.Conversion.Symmetry R
 open import Definition.Conversion.Transitivity R
 open import Definition.Conversion.Weakening R
 open import Definition.Typed.EqualityRelation R
+import Definition.Typed.EqualityRelation.Instance
 open import Definition.Typed.Consequences.Injectivity R
 open import Definition.Typed.Consequences.Equality R
 open import Definition.Typed.Consequences.Reduction R
@@ -312,7 +313,7 @@ private opaque
   -- A lemma used below.
 
   equality-relations :
-    Equality-relations _⊢_[conv↑]_ _⊢_[conv↑]_∷_ _⊢_~_∷_ (Lift a ⊤)
+    Equality-relations _⊢_[conv↑]_ _⊢_[conv↑]_∷_ _⊢_~_∷_ (Lift _ ⊤)
   equality-relations = let open Lemmas in λ where
     .Equality-relations.Neutrals-included? →
       yes (lift tt)
@@ -427,7 +428,15 @@ instance
     .EqRelSet._⊢_≅_              → _⊢_[conv↑]_
     .EqRelSet._⊢_≅_∷_            → _⊢_[conv↑]_∷_
     .EqRelSet._⊢_~_∷_            → _⊢_~_∷_
-    .EqRelSet.Neutrals-included  → Lift a ⊤
+    .EqRelSet.Neutrals-included  → Lift _ ⊤
     .EqRelSet.equality-relations → equality-relations
 
 open EqRelSet eqRelInstance public hiding (_⊢_~_∷_)
+open Definition.Typed.EqualityRelation.Instance eqRelInstance public
+
+instance
+
+  -- A variant of lift tt that is an instance.
+
+  lift-tt : Lift a ⊤
+  lift-tt = lift tt

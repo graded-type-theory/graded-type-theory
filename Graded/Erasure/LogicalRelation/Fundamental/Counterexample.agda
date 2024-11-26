@@ -70,14 +70,14 @@ private
   module LR
     {Δ : Con Term k}
     (⊢Δ : ⊢ Δ)
-    (inc : Neutrals-included-or-empty Δ)
+    ⦃ inc : Neutrals-included-or-empty Δ ⦄
     (str : Strictness)
     where
 
     private
 
       as : Assumptions
-      as = record { ⊢Δ = ⊢Δ; inc = inc; str = str }
+      as = record { ⊢Δ = ⊢Δ; str = str }
 
     open Graded.Erasure.LogicalRelation as public
     open Graded.Erasure.LogicalRelation.Hidden as public
@@ -98,21 +98,21 @@ private
 -- negation of a variant of the statement of the fundamental lemma.
 
 negation-of-fundamental-lemma-with-erased-matches₁ :
+  ⦃ inc : Neutrals-included ⦄ →
   Prodrec-allowed 𝟙ᵐ 𝟘 p 𝟘 →
   Σʷ-allowed p 𝟘 →
-  Neutrals-included →
   ¬ (∀ {k} {Δ : Con Term k} (⊢Δ : ⊢ Δ) →
      Consistent Δ →
-     (inc : Neutrals-included-or-empty Δ) →
-     let open LR ⊢Δ inc str in
+     ⦃ inc : Neutrals-included-or-empty Δ ⦄ →
+     let open LR ⊢Δ str in
      ∀ {n} {Γ : Con Term n} {t A : Term n} {γ : Conₘ n} {m} →
      Γ ⊢ t ∷ A → γ ▸[ m ] t →
      γ ▸ Γ ⊩ʳ t ∷[ m ] A)
 negation-of-fundamental-lemma-with-erased-matches₁
-  {p} {str} P-ok Σʷ-ok inc hyp =
+  {p} {str} P-ok Σʷ-ok hyp =
   case soundness-ℕ-only-source-counterexample₁ P-ok Σʷ-ok of λ
     (consistent , ⊢t , ▸t , _) →
-  ¬t®t $ ▸⊩ʳ∷[𝟙ᵐ]→®∷ $ hyp ⊢Δ consistent (inj₁ inc) ⊢t ▸t
+  ¬t®t $ ▸⊩ʳ∷[𝟙ᵐ]→®∷ $ hyp ⊢Δ consistent ⦃ inc = included ⦄ ⊢t ▸t
   where
   Δ : Con Term 1
   Δ = ε ∙ (Σʷ p , 𝟘 ▷ ℕ ▹ ℕ)
@@ -126,7 +126,7 @@ negation-of-fundamental-lemma-with-erased-matches₁
   ⊢Δ : ⊢ Δ
   ⊢Δ = ∙ ΠΣⱼ (ℕⱼ (∙ ℕⱼ ε)) Σʷ-ok
 
-  open LR ⊢Δ (inj₁ inc) str
+  open LR ⊢Δ ⦃ inc = included ⦄ str
 
   ¬t®t : ¬ t ® erase str t ∷ A
   ¬t®t t®t = case ®∷ℕ⇔ .proj₁ t®t of λ where
@@ -142,19 +142,19 @@ opaque
   -- of the fundamental lemma.
 
   negation-of-fundamental-lemma-with-erased-matches₂ :
+    ⦃ inc : Neutrals-included ⦄ →
     []-cong-allowed s →
     []-cong-allowed-mode s 𝟙ᵐ →
-    Neutrals-included →
     ¬ (∀ {k} {Δ : Con Term k} (⊢Δ : ⊢ Δ) →
        Consistent Δ →
-       (inc : Neutrals-included-or-empty Δ) →
-       let open LR ⊢Δ inc str in
+       ⦃ inc : Neutrals-included-or-empty Δ ⦄ →
+       let open LR ⊢Δ str in
        ∀ {n} {Γ : Con Term n} {t A : Term n} {γ : Conₘ n} {m} →
        Γ ⊢ t ∷ A → γ ▸[ m ] t →
        γ ▸ Γ ⊩ʳ t ∷[ m ] A)
   negation-of-fundamental-lemma-with-erased-matches₂
-    {s} {str} ok ok′ inc hyp =
-    ¬t®t $ ▸⊩ʳ∷[𝟙ᵐ]→®∷ $ hyp ⊢Δ consistent (inj₁ inc) ⊢t ▸t
+    {s} {str} ok ok′ hyp =
+    ¬t®t $ ▸⊩ʳ∷[𝟙ᵐ]→®∷ $ hyp ⊢Δ consistent ⦃ inc = included ⦄ ⊢t ▸t
     where
     open Erased s
     Δ : Con Term 1
@@ -178,7 +178,7 @@ opaque
     ▸t : 𝟘ᶜ ▸[ 𝟙ᵐ ] t
     ▸t = []-congₘ ℕₘ zeroₘ zeroₘ var ok′
 
-    open LR ⊢Δ (inj₁ inc) str
+    open LR ⊢Δ ⦃ inc = included ⦄ str
 
     ¬t®t : ¬ t ® erase str t ∷ A
     ¬t®t t®t =
@@ -193,20 +193,20 @@ opaque
   -- variant of the statement of the fundamental lemma.
 
   negation-of-fundamental-lemma-with-erased-matches₃ :
+    ⦃ inc : Neutrals-included ⦄ →
     erased-matches-for-J 𝟙ᵐ ≡ not-none sem →
-    Neutrals-included →
     ¬ (∀ {k} {Δ : Con Term k} (⊢Δ : ⊢ Δ) →
        Consistent Δ →
-       (inc : Neutrals-included-or-empty Δ) →
-       let open LR ⊢Δ inc str in
+       ⦃ inc : Neutrals-included-or-empty Δ ⦄ →
+       let open LR ⊢Δ str in
        ∀ {n} {Γ : Con Term n} {t A : Term n} {γ : Conₘ n} {m} →
        Γ ⊢ t ∷ A → γ ▸[ m ] t →
        γ ▸ Γ ⊩ʳ t ∷[ m ] A)
   negation-of-fundamental-lemma-with-erased-matches₃
-    {str} ≡not-none inc hyp =
+    {str} ≡not-none hyp =
     case soundness-ℕ-only-source-counterexample₃ ≡not-none of λ
       (consistent , ⊢t , ▸t , _) →
-    ¬t®t $ ▸⊩ʳ∷[𝟙ᵐ]→®∷ $ hyp ⊢Δ consistent (inj₁ inc) ⊢t ▸t
+    ¬t®t $ ▸⊩ʳ∷[𝟙ᵐ]→®∷ $ hyp ⊢Δ consistent ⦃ inc = included ⦄ ⊢t ▸t
     where
     Δ : Con Term 1
     Δ = ε ∙ Id ℕ zero zero
@@ -220,7 +220,7 @@ opaque
     ⊢Δ : ⊢ Δ
     ⊢Δ = ∙ Idⱼ′ (zeroⱼ ε) (zeroⱼ ε)
 
-    open LR ⊢Δ (inj₁ inc) str
+    open LR ⊢Δ ⦃ inc = included ⦄ str
 
     ¬t®t : ¬ t ® erase str t ∷ A
     ¬t®t t®t = case ®∷ℕ⇔ .proj₁ t®t of λ where
@@ -234,21 +234,21 @@ opaque
   -- negation of a variant of the statement of the fundamental lemma.
 
   negation-of-fundamental-lemma-with-erased-matches₄ :
+    ⦃ inc : Neutrals-included ⦄ →
     K-allowed →
     erased-matches-for-K 𝟙ᵐ ≡ not-none sem →
-    Neutrals-included →
     ¬ (∀ {k} {Δ : Con Term k} (⊢Δ : ⊢ Δ) →
        Consistent Δ →
-       (inc : Neutrals-included-or-empty Δ) →
-       let open LR ⊢Δ inc str in
+       ⦃ inc : Neutrals-included-or-empty Δ ⦄ →
+       let open LR ⊢Δ str in
        ∀ {n} {Γ : Con Term n} {t A : Term n} {γ : Conₘ n} {m} →
        Γ ⊢ t ∷ A → γ ▸[ m ] t →
        γ ▸ Γ ⊩ʳ t ∷[ m ] A)
   negation-of-fundamental-lemma-with-erased-matches₄
-    {str} K-ok ≡not-none inc hyp =
+    {str} K-ok ≡not-none hyp =
     case soundness-ℕ-only-source-counterexample₄ K-ok ≡not-none of λ
       (consistent , ⊢t , ▸t , _) →
-    ¬t®t $ ▸⊩ʳ∷[𝟙ᵐ]→®∷ $ hyp ⊢Δ consistent (inj₁ inc) ⊢t ▸t
+    ¬t®t $ ▸⊩ʳ∷[𝟙ᵐ]→®∷ $ hyp ⊢Δ consistent ⦃ inc = included ⦄ ⊢t ▸t
     where
     Δ : Con Term 1
     Δ = ε ∙ Id ℕ zero zero
@@ -262,7 +262,7 @@ opaque
     ⊢Δ : ⊢ Δ
     ⊢Δ = ∙ Idⱼ′ (zeroⱼ ε) (zeroⱼ ε)
 
-    open LR ⊢Δ (inj₁ inc) str
+    open LR ⊢Δ ⦃ inc = included ⦄ str
 
     ¬t®t : ¬ t ® erase str t ∷ A
     ¬t®t t®t = case ®∷ℕ⇔ .proj₁ t®t of λ where
@@ -278,22 +278,22 @@ opaque
   -- variant of the statement of the fundamental lemma.
 
   negation-of-fundamental-lemma-with-erased-matches₅ :
+    ⦃ inc : Neutrals-included ⦄ →
     Unitʷ-allowed →
     Unitrec-allowed 𝟙ᵐ 𝟘 𝟘 →
     ¬ Unitʷ-η →
-    Neutrals-included →
     ¬ (∀ {k} {Δ : Con Term k} (⊢Δ : ⊢ Δ) →
        Consistent Δ →
-       (inc : Neutrals-included-or-empty Δ) →
-       let open LR ⊢Δ inc str in
+       ⦃ inc : Neutrals-included-or-empty Δ ⦄ →
+       let open LR ⊢Δ str in
        ∀ {n} {Γ : Con Term n} {t A : Term n} {γ : Conₘ n} {m} →
        Γ ⊢ t ∷ A → γ ▸[ m ] t →
        γ ▸ Γ ⊩ʳ t ∷[ m ] A)
   negation-of-fundamental-lemma-with-erased-matches₅
-    {str} Unit-ok ok no-η inc hyp =
+    {str} Unit-ok ok no-η hyp =
     case soundness-ℕ-only-source-counterexample₅ ok Unit-ok no-η of λ
       (consistent , ⊢t , ▸t , _) →
-    ¬t®t $ ▸⊩ʳ∷[𝟙ᵐ]→®∷ $ hyp ⊢Δ consistent (inj₁ inc) ⊢t ▸t
+    ¬t®t $ ▸⊩ʳ∷[𝟙ᵐ]→®∷ $ hyp ⊢Δ consistent ⦃ inc = included ⦄ ⊢t ▸t
     where
     Δ : Con Term 1
     Δ = ε ∙ Unitʷ 0
@@ -307,7 +307,7 @@ opaque
     ⊢Δ : ⊢ Δ
     ⊢Δ = ∙ Unitⱼ ε Unit-ok
 
-    open LR ⊢Δ (inj₁ inc) str
+    open LR ⊢Δ ⦃ inc = included ⦄ str
 
     ¬t®t : ¬ t ® erase str t ∷ A
     ¬t®t t®t = case ®∷ℕ⇔ .proj₁ t®t of λ where
@@ -323,18 +323,18 @@ opaque
   -- lemma.
 
   negation-of-fundamental-lemma-without-consistency₆ :
+    ⦃ inc : Neutrals-included ⦄ →
     Emptyrec-allowed 𝟙ᵐ 𝟘 →
-    Neutrals-included →
     ¬ (∀ {k} {Δ : Con Term k} (⊢Δ : ⊢ Δ) →
-       (inc : Neutrals-included-or-empty Δ) →
-       let open LR ⊢Δ inc str in
+       ⦃ inc : Neutrals-included-or-empty Δ ⦄ →
+       let open LR ⊢Δ str in
        ∀ {n} {Γ : Con Term n} {t A : Term n} {γ : Conₘ n} {m} →
        Γ ⊢ t ∷ A → γ ▸[ m ] t →
        γ ▸ Γ ⊩ʳ t ∷[ m ] A)
-  negation-of-fundamental-lemma-without-consistency₆ {str} ok inc hyp =
+  negation-of-fundamental-lemma-without-consistency₆ {str} ok hyp =
     case soundness-ℕ-counterexample₆ {str = str} ok of λ
       (⊢t , ▸t , _) →
-    ¬t®t $ ▸⊩ʳ∷[𝟙ᵐ]→®∷ $ hyp ⊢Δ (inj₁ inc) ⊢t ▸t
+    ¬t®t $ ▸⊩ʳ∷[𝟙ᵐ]→®∷ $ hyp ⊢Δ ⦃ inc = included ⦄ ⊢t ▸t
     where
     Δ : Con Term 1
     Δ = ε ∙ Empty
@@ -348,7 +348,7 @@ opaque
     ⊢Δ : ⊢ Δ
     ⊢Δ = ∙ Emptyⱼ ε
 
-    open LR ⊢Δ (inj₁ inc) str
+    open LR ⊢Δ ⦃ inc = included ⦄ str
 
     ¬t®t : ¬ t ® erase str t ∷ A
     ¬t®t t®t = case ®∷ℕ⇔ .proj₁ t®t of λ where

@@ -87,11 +87,11 @@ private
 -- A lemma.
 
 module _
-  (⊢Δ : ⊢ Δ) (inc : Neutrals-included-or-empty Δ) {s : Strictness}
+  (⊢Δ : ⊢ Δ) ⦃ inc : Neutrals-included-or-empty Δ ⦄ {s : Strictness}
   where
 
   open Graded.Erasure.LogicalRelation.Hidden
-         (record { ⊢Δ = ⊢Δ; inc = inc; str = s })
+         (record { ⊢Δ = ⊢Δ; str = s })
 
   opaque
 
@@ -172,7 +172,7 @@ module Fundamental
     fundamental (Unitⱼ _ _) _ =
       Unitʳ
     fundamental (var _ x∈Γ) ▸x =
-      fundamentalVar well-formed inc x∈Γ ▸x
+      fundamentalVar well-formed x∈Γ ▸x
     fundamental (lamⱼ _ ⊢t ok) ▸lam =
       case inv-usage-lam ▸lam of λ
         (invUsageLam ▸t γ≤δ) →

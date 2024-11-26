@@ -44,7 +44,6 @@ open import Tools.Function
 open import Tools.Product as Σ
 import Tools.PropositionalEquality as PE
 import Tools.Reasoning.PropositionalEquality
-open import Tools.Sum
 
 private variable
   Γ Δ                               : Con Term _
@@ -296,8 +295,8 @@ opaque
   ℕᵛ {Γ} {l} ⊩Γ =
     ⊩ᵛ⇔ʰ .proj₂
       ( ⊩Γ
-      , λ {_} {Δ = Δ} {σ₁ = σ₁} {σ₂ = σ₂} inc →
-          Δ ⊩ˢ σ₁ ≡ σ₂ ∷ Γ  →⟨ proj₁ ∘→ escape-⊩ˢ≡∷ inc ⟩
+      , λ {_} {Δ = Δ} {σ₁ = σ₁} {σ₂ = σ₂} →
+          Δ ⊩ˢ σ₁ ≡ σ₂ ∷ Γ  →⟨ proj₁ ∘→ escape-⊩ˢ≡∷ ⟩
           ⊢ Δ               →⟨ ℕⱼ ⟩
           (Δ ⊢ ℕ)           →⟨ id ⟩
           Δ ⊢ ℕ ⇒* ℕ        ⇔˘⟨ ⊩ℕ≡⇔ ⟩→
@@ -312,8 +311,8 @@ opaque
   ℕᵗᵛ {Γ} ⊩Γ =
     ⊩ᵛ∷⇔ʰ .proj₂
       ( ⊩ᵛU ⊩Γ
-      , λ {_} {Δ = Δ} {σ₁ = σ₁} {σ₂ = σ₂} inc →
-          Δ ⊩ˢ σ₁ ≡ σ₂ ∷ Γ      →⟨ proj₁ ∘→ escape-⊩ˢ≡∷ inc ⟩
+      , λ {_} {Δ = Δ} {σ₁ = σ₁} {σ₂ = σ₂} →
+          Δ ⊩ˢ σ₁ ≡ σ₂ ∷ Γ      →⟨ proj₁ ∘→ escape-⊩ˢ≡∷ ⟩
           ⊢ Δ                   ⇔˘⟨ ⊩ℕ≡ℕ∷U⇔ ⟩→
           Δ ⊩⟨ 1 ⟩ ℕ ≡ ℕ ∷ U 0  □
       )
@@ -340,8 +339,8 @@ opaque
   zeroᵛ {Γ} {l} ⊩Γ =
     ⊩ᵛ∷⇔ʰ .proj₂
       ( ℕᵛ ⊩Γ
-      , λ {_} {Δ = Δ} {σ₁ = σ₁} {σ₂ = σ₂} inc →
-          Δ ⊩ˢ σ₁ ≡ σ₂ ∷ Γ          →⟨ proj₁ ∘→ escape-⊩ˢ≡∷ inc ⟩
+      , λ {_} {Δ = Δ} {σ₁ = σ₁} {σ₂ = σ₂} →
+          Δ ⊩ˢ σ₁ ≡ σ₂ ∷ Γ          →⟨ proj₁ ∘→ escape-⊩ˢ≡∷ ⟩
           ⊢ Δ                       ⇔˘⟨ ⊩zero≡zero∷ℕ⇔ ⟩→
           Δ ⊩⟨ l ⟩ zero ≡ zero ∷ ℕ  □
       )
@@ -374,7 +373,7 @@ opaque
   suc-congᵛ t≡u =
     ⊩ᵛ≡∷⇔ʰ .proj₂
       ( ℕᵛ (wf-⊩ᵛ $ wf-⊩ᵛ∷ $ wf-⊩ᵛ≡∷ t≡u .proj₁)
-      , λ inc → ⊩suc≡suc ∘→ R.⊩≡∷→ inc ∘→ ⊩ᵛ≡∷→⊩ˢ≡∷→⊩[]≡[]∷ t≡u
+      , ⊩suc≡suc ∘→ R.⊩≡∷→ ∘→ ⊩ᵛ≡∷→⊩ˢ≡∷→⊩[]≡[]∷ t≡u
       )
 
 opaque
@@ -537,12 +536,12 @@ opaque
     Γ ∙ ℕ ∙ A₁ ⊢ u₁ ≡ u₂ ∷ A₁ [ suc (var x1) ]↑² →
     Γ ∙ ℕ ∙ A₁ ⊩ᵛ⟨ l″ ⟩ u₁ ≡ u₂ ∷ A₁ [ suc (var x1) ]↑² →
     Γ ⊩ᵛ⟨ l‴ ⟩ v₁ ≡ v₂ ∷ ℕ →
-    Neutrals-included-or-empty Δ →
+    ⦃ inc : Neutrals-included-or-empty Δ ⦄ →
     Δ ⊩ˢ σ₁ ≡ σ₂ ∷ Γ →
     Δ ⊩⟨ l ⟩ natrec p q r A₁ t₁ u₁ v₁ [ σ₁ ] ≡
       natrec p q r A₂ t₂ u₂ v₂ [ σ₂ ] ∷ A₁ [ v₁ ]₀ [ σ₁ ]
   ⊩natrec≡natrec
-    {A₁} {A₂} {l} {σ₁} ⊢A₁≡A₂ A₁≡A₂ t₁≡t₂ ⊢u₁≡u₂ u₁≡u₂ v₁≡v₂ inc σ₁≡σ₂ =
+    {A₁} {A₂} {l} {σ₁} ⊢A₁≡A₂ A₁≡A₂ t₁≡t₂ ⊢u₁≡u₂ u₁≡u₂ v₁≡v₂ σ₁≡σ₂ =
     case wf-⊩ᵛ≡ A₁≡A₂ of λ
       (⊩A₁ , ⊩A₂) →
     case wf-⊩ᵛ≡∷ t₁≡t₂ of λ
@@ -554,54 +553,52 @@ opaque
       ⊩t₂ →
     case wf-⊩ˢ≡∷ σ₁≡σ₂ of λ
       (⊩σ₁ , ⊩σ₂) →
-    case escape-⊩ˢ≡∷ inc σ₁≡σ₂ of λ
+    case escape-⊩ˢ≡∷ σ₁≡σ₂ of λ
       (_ , ⊢σ₁≡σ₂) →
     case PE.subst (_⊩⟨_⟩_≡_∷_ _ _ _ _) (singleSubstLift A₁ _) $
-         R.⊩≡∷→ inc $ ⊩ᵛ≡∷→⊩ˢ≡∷→⊩[]≡[]∷ t₁≡t₂ σ₁≡σ₂ of λ
+         R.⊩≡∷→ $ ⊩ᵛ≡∷→⊩ˢ≡∷→⊩[]≡[]∷ t₁≡t₂ σ₁≡σ₂ of λ
       t₁[σ₁]≡t₂[σ₂] →
-    case ⊩≡∷ℕ⇔ .proj₁ $ R.⊩≡∷→ inc $
+    case ⊩≡∷ℕ⇔ .proj₁ $ R.⊩≡∷→ $
          ⊩ᵛ≡∷→⊩ˢ≡∷→⊩[]≡[]∷ v₁≡v₂ σ₁≡σ₂ of λ
       (⊩ℕ-v₁ , ⊩ℕ-v₂ , ⊩ℕ-v₁≡v₂) →
     PE.subst (_⊩⟨_⟩_≡_∷_ _ _ _ _) (PE.sym $ singleSubstLift A₁ _) $
     ⊩natrec≡natrec′
-      (with-inc-⊢≅ (subst-⊢≡-⇑ ⊢A₁≡A₂ ⊢σ₁≡σ₂)
-         (λ inc →
-            R.escape-⊩≡ (inj₁ inc) (⊩ᵛ≡→⊩ˢ≡∷→⊩[⇑]≡[⇑] A₁≡A₂ σ₁≡σ₂)))
-      (R.⊩≡→ inc ∘→
+      (with-inc-⊢≅ (subst-⊢≡-⇑ ⊢A₁≡A₂ ⊢σ₁≡σ₂) $
+       R.escape-⊩≡ ⦃ inc = included ⦄ (⊩ᵛ≡→⊩ˢ≡∷→⊩[⇑]≡[⇑] A₁≡A₂ σ₁≡σ₂))
+      (R.⊩≡→ ∘→
        ⊩ᵛ≡→⊩ˢ≡∷→⊩≡∷→⊩[⇑][]₀≡[⇑][]₀ (refl-⊩ᵛ≡ ⊩A₁) (refl-⊩ˢ≡∷ ⊩σ₁) ∘→
        R.→⊩≡∷)
-      (R.⊩≡→ inc ∘→
+      (R.⊩≡→ ∘→
        ⊩ᵛ≡→⊩ˢ≡∷→⊩≡∷→⊩[⇑][]₀≡[⇑][]₀ (refl-⊩ᵛ≡ ⊩A₂) (refl-⊩ˢ≡∷ ⊩σ₂) ∘→
        R.→⊩≡∷)
-      (R.⊩≡→ inc ∘→ ⊩ᵛ≡→⊩ˢ≡∷→⊩≡∷→⊩[⇑][]₀≡[⇑][]₀ A₁≡A₂ σ₁≡σ₂ ∘→ R.→⊩≡∷)
+      (R.⊩≡→ ∘→ ⊩ᵛ≡→⊩ˢ≡∷→⊩≡∷→⊩[⇑][]₀≡[⇑][]₀ A₁≡A₂ σ₁≡σ₂ ∘→ R.→⊩≡∷)
       (escape-⊩∷ $ wf-⊩≡∷ t₁[σ₁]≡t₂[σ₂] .proj₁)
       (PE.subst (_⊢_∷_ _ _) (singleSubstLift A₂ _) $
-       R.escape-⊩∷ inc $ ⊩ᵛ∷→⊩ˢ∷→⊩[]∷ ⊩t₂ ⊩σ₂)
+       R.escape-⊩∷ $ ⊩ᵛ∷→⊩ˢ∷→⊩[]∷ ⊩t₂ ⊩σ₂)
       (level-⊩≡∷
          (wf-⊩≡
-            (R.⊩≡→ inc $
+            (R.⊩≡→ $
              ⊩ᵛ≡→⊩ˢ≡∷→⊩≡∷→⊩[⇑][]₀≡[⇑][]₀ A₁≡A₂ σ₁≡σ₂ $ R.→⊩≡∷ $
-             refl-⊩≡∷ $ ⊩zero {l = l} $ escape-⊩ˢ∷ inc ⊩σ₁ .proj₁)
+             refl-⊩≡∷ $ ⊩zero {l = l} $ escape-⊩ˢ∷ ⊩σ₁ .proj₁)
             .proj₁)
          t₁[σ₁]≡t₂[σ₂])
       (with-inc-⊢≅∷
          (PE.subst (_⊢_≡_∷_ _ _ _) ([][]↑-commutes A₁) $
           subst-⊢≡∷-⇑ ⊢u₁≡u₂ ⊢σ₁≡σ₂)
-         (λ inc →
-            PE.subst (_⊢_≅_∷_ _ _ _) (natrecSucCase _ A₁) $
-            R.escape-⊩≡∷ (inj₁ inc) $
-            ⊩ᵛ≡∷→⊩ˢ≡∷→⊩[⇑⇑]≡[⇑⇑]∷ u₁≡u₂ σ₁≡σ₂))
+         (PE.subst (_⊢_≅_∷_ _ _ _) (natrecSucCase _ A₁) $
+          R.escape-⊩≡∷ ⦃ inc = included ⦄ $
+          ⊩ᵛ≡∷→⊩ˢ≡∷→⊩[⇑⇑]≡[⇑⇑]∷ u₁≡u₂ σ₁≡σ₂))
       (λ {v₁ = v₁} {v₂ = _} {w₁ = w₁} v₁≡v₂ w₁≡w₂ →
          level-⊩≡∷
            (wf-⊩≡
-              (R.⊩≡→ inc $ ⊩ᵛ≡→⊩ˢ≡∷→⊩≡∷→⊩[⇑][]₀≡[⇑][]₀ A₁≡A₂ σ₁≡σ₂ $
+              (R.⊩≡→ $ ⊩ᵛ≡→⊩ˢ≡∷→⊩≡∷→⊩[⇑][]₀≡[⇑][]₀ A₁≡A₂ σ₁≡σ₂ $
                R.→⊩≡∷ $ ⊩suc≡suc v₁≡v₂)
               .proj₁) $
          PE.subst (_⊩⟨_⟩_≡_∷_ _ _ _ _)
            (A₁ [ suc (var x1) ]↑² [ σ₁ ⇑ ⇑ ] [ v₁ , w₁ ]₁₀  ≡⟨ PE.cong _[ _ , _ ]₁₀ $ natrecSucCase _ A₁ ⟩
             A₁ [ σ₁ ⇑ ] [ suc (var x1) ]↑² [ v₁ , w₁ ]₁₀    ≡˘⟨ substComp↑² (A₁ [ _ ]) _ ⟩
             A₁ [ σ₁ ⇑ ] [ suc v₁ ]₀                         ∎) $
-         R.⊩≡∷→ inc $
+         R.⊩≡∷→ $
          ⊩ᵛ≡∷→⊩ˢ≡∷→⊩≡∷→⊩≡∷→⊩[⇑⇑][]₁₀≡[⇑⇑][]₁₀∷ u₁≡u₂ σ₁≡σ₂
            (R.→⊩≡∷ v₁≡v₂) (R.→⊩≡∷ w₁≡w₂))
       ⊩ℕ-v₁ ⊩ℕ-v₂ ⊩ℕ-v₁≡v₂
@@ -653,13 +650,13 @@ opaque
     Γ ⊩ᵛ⟨ l ⟩ natrec p q r A t u zero ≡ t ∷ A [ zero ]₀
   natrec-zeroᵛ {A} ⊩t ⊢u =
     ⊩ᵛ∷-⇐
-      (λ inc ⊩σ →
+      (λ ⊩σ →
          PE.subst (_⊢_⇒_∷_ _ _ _) (PE.sym $ singleSubstLift A _) $
          natrec-zero
            (PE.subst (_⊢_∷_ _ _) (singleSubstLift A _) $
-            R.escape-⊩∷ inc $ ⊩ᵛ∷→⊩ˢ∷→⊩[]∷ ⊩t ⊩σ)
+            R.escape-⊩∷ $ ⊩ᵛ∷→⊩ˢ∷→⊩[]∷ ⊩t ⊩σ)
            (PE.subst (_⊢_∷_ _ _) (natrecSucCase _ A) $
-            subst-⊢∷-⇑ ⊢u (escape-⊩ˢ∷ inc ⊩σ .proj₂)))
+            subst-⊢∷-⇑ ⊢u (escape-⊩ˢ∷ ⊩σ .proj₂)))
       ⊩t
 
 opaque
@@ -676,14 +673,14 @@ opaque
       u [ v , natrec p q r A t u v ]₁₀ ∷ A [ suc v ]₀
   natrec-sucᵛ {A} {u} ⊩A ⊩t ⊢u ⊩u ⊩v =
     ⊩ᵛ∷-⇐
-      (λ inc ⊩σ →
+      (λ ⊩σ →
          PE.subst₂ (_⊢_⇒_∷_ _ _) (PE.sym $ [,]-[]-commute u)
            (PE.sym $ singleSubstLift A _) $
          natrec-suc
            (PE.subst (_⊢_∷_ _ _) (singleSubstLift A _) $
-            R.escape-⊩∷ inc $ ⊩ᵛ∷→⊩ˢ∷→⊩[]∷ ⊩t ⊩σ)
+            R.escape-⊩∷ $ ⊩ᵛ∷→⊩ˢ∷→⊩[]∷ ⊩t ⊩σ)
            (PE.subst (_⊢_∷_ _ _) (natrecSucCase _ A) $
-            subst-⊢∷-⇑ ⊢u (escape-⊩ˢ∷ inc ⊩σ .proj₂))
-           (R.escape-⊩∷ inc $ ⊩ᵛ∷→⊩ˢ∷→⊩[]∷ ⊩v ⊩σ))
+            subst-⊢∷-⇑ ⊢u (escape-⊩ˢ∷ ⊩σ .proj₂))
+           (R.escape-⊩∷ $ ⊩ᵛ∷→⊩ˢ∷→⊩[]∷ ⊩v ⊩σ))
       (PE.subst (_⊩ᵛ⟨_⟩_∷_ _ _ _) (PE.sym $ substComp↑² A _) $
        ⊩ᵛ∷→⊩ᵛ∷→⊩ᵛ∷→⊩ᵛ[]₁₀∷ ⊩u ⊩v (natrecᵛ ⊩A ⊩t ⊢u ⊩u ⊩v))

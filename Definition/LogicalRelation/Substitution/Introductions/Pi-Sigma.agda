@@ -46,7 +46,6 @@ open import Tools.Product as Σ
 import Tools.PropositionalEquality as PE
 import Tools.Reasoning.PropositionalEquality
 open import Tools.Relation
-open import Tools.Sum
 
 private variable
   n                         : Nat
@@ -140,7 +139,7 @@ opaque
   ⊩ΠΣ→ :
     Γ ⊩⟨ l ⟩ ΠΣ⟨ b ⟩ p , q ▷ A ▹ B →
     ΠΣ-allowed b p q ×
-    Γ ⊩⟨ l ⟩ A × (Neutrals-included → Γ ∙ A ⊩⟨ l ⟩ B)
+    Γ ⊩⟨ l ⟩ A × (⦃ inc : Neutrals-included ⦄ → Γ ∙ A ⊩⟨ l ⟩ B)
   ⊩ΠΣ→ ⊩ΠΣ =
     let ⊢A , _ , ok  = inversion-ΠΣ (escape-⊩ ⊩ΠΣ)
         _ , hyp      = ⊩ΠΣ⇔ .proj₁ ⊩ΠΣ
@@ -148,13 +147,12 @@ opaque
         ⊩A           = PE.subst (_⊩⟨_⟩_ _ _) (wk-id _) ⊩wk-id-A
     in
         ok , ⊩A
-      , λ inc →
-        case hyp (included inc (TW.stepʷ TW.id (escape-⊩ ⊩A))) of λ
-          (⊩wk₁-A , wk-lift-step-id-B[]₀≡wk-lift-step-id-B[]₀) →
-        PE.subst (_⊩⟨_⟩_ _ _) (wkSingleSubstId _)
-          (proj₁ $ wf-⊩≡ $
-           wk-lift-step-id-B[]₀≡wk-lift-step-id-B[]₀ $
-           refl-⊩≡∷ (⊩var inc here ⊩wk₁-A))
+      , (case hyp (included (TW.stepʷ TW.id (escape-⊩ ⊩A))) of λ
+           (⊩wk₁-A , wk-lift-step-id-B[]₀≡wk-lift-step-id-B[]₀) →
+         PE.subst (_⊩⟨_⟩_ _ _) (wkSingleSubstId _)
+           (proj₁ $ wf-⊩≡ $
+            wk-lift-step-id-B[]₀≡wk-lift-step-id-B[]₀ $
+            refl-⊩≡∷ (⊩var here ⊩wk₁-A)))
 
 opaque
   unfolding _⊩⟨_⟩_≡_ _⊩⟨_⟩_∷_ _⊩⟨_⟩_≡_∷_
@@ -321,7 +319,8 @@ opaque
   ⊩ΠΣ≡ΠΣ→ :
     Γ ⊩⟨ l ⟩ ΠΣ⟨ b₁ ⟩ p₁ , q₁ ▷ A₁ ▹ B₁ ≡ ΠΣ⟨ b₂ ⟩ p₂ , q₂ ▷ A₂ ▹ B₂ →
     ΠΣ-allowed b₁ p₁ q₁ × b₁ PE.≡ b₂ × p₁ PE.≡ p₂ × q₁ PE.≡ q₂ ×
-    Γ ⊩⟨ l ⟩ A₁ ≡ A₂ × (Neutrals-included → Γ ∙ A₁ ⊩⟨ l ⟩ B₁ ≡ B₂)
+    Γ ⊩⟨ l ⟩ A₁ ≡ A₂ ×
+    (⦃ inc : Neutrals-included ⦄ → Γ ∙ A₁ ⊩⟨ l ⟩ B₁ ≡ B₂)
   ⊩ΠΣ≡ΠΣ→ ΠΣ≡ΠΣ =
     let ⊩ΠΣ₁ , _ , ΠΣ≅ΠΣ , b₁≡b₂ , p₁≡p₂ , q₁≡q₂ , rest =
           ⊩ΠΣ≡ΠΣ⇔ .proj₁ ΠΣ≡ΠΣ
@@ -330,14 +329,13 @@ opaque
       ok , b₁≡b₂ , p₁≡p₂ , q₁≡q₂
     , PE.subst₂ (_⊩⟨_⟩_≡_ _ _) (wk-id _) (wk-id _)
         (rest (id (wfEq (≅-eq ΠΣ≅ΠΣ))) .proj₁)
-    , λ inc →
-        let wk₁-A₁≡wk₁-A₂ ,
-              wk-lift-step-id-B₁[]₀≡wk-lift-step-id-B₂[]₀ =
-              rest (included inc (TW.stepʷ TW.id (escape ⊩A₁)))
-        in
-        PE.subst₂ (_⊩⟨_⟩_≡_ _ _) (wkSingleSubstId _) (wkSingleSubstId _)
-          (wk-lift-step-id-B₁[]₀≡wk-lift-step-id-B₂[]₀ $
-           ⊩var inc here (wf-⊩≡ wk₁-A₁≡wk₁-A₂ .proj₁))
+    , let wk₁-A₁≡wk₁-A₂ ,
+            wk-lift-step-id-B₁[]₀≡wk-lift-step-id-B₂[]₀ =
+            rest (included (TW.stepʷ TW.id (escape ⊩A₁)))
+      in
+      PE.subst₂ (_⊩⟨_⟩_≡_ _ _) (wkSingleSubstId _) (wkSingleSubstId _)
+        (wk-lift-step-id-B₁[]₀≡wk-lift-step-id-B₂[]₀ $
+         ⊩var here (wf-⊩≡ wk₁-A₁≡wk₁-A₂ .proj₁))
 
 -- See also ⊩ᵛΠΣ→ and ⊩ᵛΠΣ⇔ below.
 
@@ -398,30 +396,30 @@ opaque
     Γ ⊢ ΠΣ⟨ b ⟩ p , q ▷ A ▹ B →
     Γ ⊩ᵛ⟨ l ⟩ A →
     Γ ∙ A ⊩ᵛ⟨ l ⟩ B →
-    Neutrals-included-or-empty Δ →
+    ⦃ inc : Neutrals-included-or-empty Δ ⦄ →
     Δ ⊩ˢ σ ∷ Γ →
     Δ ⊩⟨ l ⟩ (ΠΣ⟨ b ⟩ p , q ▷ A ▹ B) [ σ ]
-  ⊩ΠΣ {A} {B} ⊢ΠΣ ⊩A ⊩B inc ⊩σ =
+  ⊩ΠΣ {A} {B} ⊢ΠΣ ⊩A ⊩B ⊩σ =
     ⊩ΠΣ⇔ .proj₂
-      ( with-inc-⊢≅ (refl $ subst-⊢ ⊢ΠΣ (escape-⊩ˢ∷ inc ⊩σ .proj₂))
-          (λ inc →
-             ≅-ΠΣ-cong
-               (R.escape-⊩≡ (inj₁ inc) $
-                R.refl-⊩≡ $ ⊩ᵛ→⊩ˢ∷→⊩[] ⊩A ⊩σ)
-               (R.escape-⊩≡ (inj₁ inc) $
-                R.refl-⊩≡ (⊩ᵛ→⊩ˢ∷→⊩[] ⊩B (⊩ˢ∷-liftSubst ⊩A ⊩σ)))
-               (inversion-ΠΣ ⊢ΠΣ .proj₂ .proj₂))
+      ( with-inc-⊢≅ (refl $ subst-⊢ ⊢ΠΣ (escape-⊩ˢ∷ ⊩σ .proj₂))
+          (≅-ΠΣ-cong
+             (R.escape-⊩≡ $
+              R.refl-⊩≡ $ ⊩ᵛ→⊩ˢ∷→⊩[] ⊩A ⊩σ)
+             (R.escape-⊩≡ ⦃ inc = included ⦄ $
+              R.refl-⊩≡ (⊩ᵛ→⊩ˢ∷→⊩[] ⊩B (⊩ˢ∷-liftSubst ⊩A ⊩σ)))
+             (inversion-ΠΣ ⊢ΠΣ .proj₂ .proj₂))
       , λ ρ⊇ →
-          let inc = wk-Neutrals-included-or-empty ρ⊇ .proj₂ inc
-              ρ⊇  = λ _ → ∷ʷʳ⊇→∷ʷ⊇ ρ⊇
+          let instance
+                inc = wk-Neutrals-included-or-empty← ρ⊇
+              ρ⊇ = ∷ʷʳ⊇→∷ʷ⊇ ρ⊇
           in
             PE.subst (_⊩⟨_⟩_ _ _) (PE.sym $ wk-subst A)
-              (R.⊩→ inc $ ⊩ᵛ→⊩ˢ∷→⊩[] ⊩A $ ⊩ˢ∷-•ₛ ρ⊇ ⊩σ)
+              (R.⊩→ $ ⊩ᵛ→⊩ˢ∷→⊩[] ⊩A $ ⊩ˢ∷-•ₛ ρ⊇ ⊩σ)
           , λ t≡u →
               PE.subst₂ (_⊩⟨_⟩_≡_ _ _)
                 (PE.sym $ singleSubstWkComp _ _ B)
                 (PE.sym $ singleSubstWkComp _ _ B) $
-              R.⊩≡→ inc $
+              R.⊩≡→ $
               ⊩ᵛ⇔ .proj₁ ⊩B .proj₂ $
               ⊩ˢ≡∷∙⇔ .proj₂
                 ( ( _ , ⊩A
@@ -441,11 +439,11 @@ opaque
     Γ ⊢ ΠΣ⟨ b ⟩ p , q ▷ A₁ ▹ B₁ ≡ ΠΣ⟨ b ⟩ p , q ▷ A₂ ▹ B₂ →
     Γ ⊩ᵛ⟨ l ⟩ A₁ ≡ A₂ →
     Γ ∙ A₁ ⊩ᵛ⟨ l ⟩ B₁ ≡ B₂ →
-    Neutrals-included-or-empty Δ →
+    ⦃ inc : Neutrals-included-or-empty Δ ⦄ →
     Δ ⊩ˢ σ₁ ≡ σ₂ ∷ Γ →
     Δ ⊩⟨ l ⟩ (ΠΣ⟨ b ⟩ p , q ▷ A₁ ▹ B₁) [ σ₁ ] ≡
       (ΠΣ⟨ b ⟩ p , q ▷ A₂ ▹ B₂) [ σ₂ ]
-  ⊩ΠΣ≡ΠΣ {A₁} {B₁} {A₂} {B₂} ΠΣ≡ΠΣ A₁≡A₂ B₁≡B₂ inc σ₁≡σ₂ =
+  ⊩ΠΣ≡ΠΣ {A₁} {B₁} {A₂} {B₂} ΠΣ≡ΠΣ A₁≡A₂ B₁≡B₂ ⦃ inc ⦄ σ₁≡σ₂ =
     case wf-⊩ᵛ≡ A₁≡A₂ of λ
       (⊩A₁ , ⊩A₂) →
     case wf-⊩ᵛ≡ B₁≡B₂ of λ
@@ -457,30 +455,30 @@ opaque
     case wf-⊢≡ ΠΣ≡ΠΣ of λ
       (⊢ΠΣ₁ , ⊢ΠΣ₂) →
     ⊩ΠΣ≡ΠΣ⇔ .proj₂
-      ( ⊩ΠΣ ⊢ΠΣ₁ ⊩A₁ ⊩B₁ inc ⊩σ₁
-      , ⊩ΠΣ ⊢ΠΣ₂ ⊩A₂ ⊩B₂ inc ⊩σ₂
-      , with-inc-⊢≅ (subst-⊢≡ ΠΣ≡ΠΣ (escape-⊩ˢ≡∷ inc σ₁≡σ₂ .proj₂))
-          (λ inc →
-             ≅-ΠΣ-cong
-               (R.escape-⊩≡ (inj₁ inc) $
-                ⊩ᵛ≡→⊩ˢ≡∷→⊩[]≡[] A₁≡A₂ σ₁≡σ₂)
-               (R.escape-⊩≡ (inj₁ inc) $
-                ⊩ᵛ≡→⊩ˢ≡∷→⊩[]≡[] B₁≡B₂ $
-                ⊩ˢ≡∷-liftSubst ⊩A₁ σ₁≡σ₂)
-               (inversion-ΠΣ ⊢ΠΣ₁ .proj₂ .proj₂))
+      ( ⊩ΠΣ ⊢ΠΣ₁ ⊩A₁ ⊩B₁ ⊩σ₁
+      , ⊩ΠΣ ⊢ΠΣ₂ ⊩A₂ ⊩B₂ ⊩σ₂
+      , with-inc-⊢≅ (subst-⊢≡ ΠΣ≡ΠΣ (escape-⊩ˢ≡∷ σ₁≡σ₂ .proj₂))
+          (≅-ΠΣ-cong
+             (R.escape-⊩≡ $
+              ⊩ᵛ≡→⊩ˢ≡∷→⊩[]≡[] A₁≡A₂ σ₁≡σ₂)
+             (R.escape-⊩≡ ⦃ inc = included ⦄ $
+              ⊩ᵛ≡→⊩ˢ≡∷→⊩[]≡[] B₁≡B₂ $
+              ⊩ˢ≡∷-liftSubst ⊩A₁ σ₁≡σ₂)
+             (inversion-ΠΣ ⊢ΠΣ₁ .proj₂ .proj₂))
       , PE.refl , PE.refl , PE.refl
       , λ ρ⊇ →
-          let inc = wk-Neutrals-included-or-empty ρ⊇ .proj₂ inc
-              ρ⊇  = λ _ → ∷ʷʳ⊇→∷ʷ⊇ ρ⊇
+          let instance
+                inc = wk-Neutrals-included-or-empty← ρ⊇
+              ρ⊇ = ∷ʷʳ⊇→∷ʷ⊇ ρ⊇
           in
             PE.subst₂ (_⊩⟨_⟩_≡_ _ _)
               (PE.sym $ wk-subst A₁) (PE.sym $ wk-subst A₂)
-              (R.⊩≡→ inc $ ⊩ᵛ≡→⊩ˢ≡∷→⊩[]≡[] A₁≡A₂ $ ⊩ˢ≡∷-•ₛ ρ⊇ σ₁≡σ₂)
+              (R.⊩≡→ $ ⊩ᵛ≡→⊩ˢ≡∷→⊩[]≡[] A₁≡A₂ $ ⊩ˢ≡∷-•ₛ ρ⊇ σ₁≡σ₂)
           , λ ⊩t →
               PE.subst₂ (_⊩⟨_⟩_≡_ _ _)
                 (PE.sym $ singleSubstWkComp _ _ B₁)
                 (PE.sym $ singleSubstWkComp _ _ B₂) $
-              R.⊩≡→ inc $
+              R.⊩≡→ $
               ⊩ᵛ≡→⊩ˢ≡∷→⊩[]≡[] B₁≡B₂ $
               ⊩ˢ≡∷∙⇔ .proj₂
                 ( ( _ , ⊩A₁
@@ -526,28 +524,27 @@ opaque
 
   ⊩ᵛΠΣ→ :
     Γ ⊩ᵛ⟨ l ⟩ ΠΣ⟨ b ⟩ p , q ▷ A ▹ B →
-    (Neutrals-included-or-empty Γ → ΠΣ-allowed b p q) ×
+    (⦃ inc : Neutrals-included-or-empty Γ ⦄ → ΠΣ-allowed b p q) ×
     Γ ⊩ᵛ⟨ l ⟩ A × Γ ∙ A ⊩ᵛ⟨ l ⟩ B
   ⊩ᵛΠΣ→ {B} ⊩ΠΣAB =
     case ⊩ᵛ⇔ʰ .proj₁ ⊩ΠΣAB of λ
       (⊩Γ , ΠΣAB≡ΠΣAB) →
     case ⊩ᵛ⇔ʰ .proj₂
            ( ⊩Γ
-           , λ inc →
-               proj₁ ∘→ proj₂ ∘→ proj₂ ∘→ proj₂ ∘→ proj₂ ∘→
-               ⊩ΠΣ≡ΠΣ→ ∘→ ΠΣAB≡ΠΣAB inc
+           , proj₁ ∘→ proj₂ ∘→ proj₂ ∘→ proj₂ ∘→ proj₂ ∘→
+             ⊩ΠΣ≡ΠΣ→ ∘→ ΠΣAB≡ΠΣAB
            ) of λ
       ⊩A →
-      (λ inc → ⊩ΠΣ→ (R.⊩→ inc (⊩ᵛ→⊩ ⊩ΠΣAB)) .proj₁)
+      ⊩ΠΣ→ (R.⊩→ (⊩ᵛ→⊩ ⊩ΠΣAB)) .proj₁
     , ⊩A
     , ⊩ᵛ⇔ʰ .proj₂
         ( ⊩ᵛ-∙-intro ⊩A
-        , λ {_ _} {σ₁ = σ₁} {σ₂ = σ₂} inc σ₁≡σ₂ →
+        , λ {_ _} {σ₁ = σ₁} {σ₂ = σ₂} σ₁≡σ₂ →
             case ⊩ˢ≡∷∙⇔ .proj₁ σ₁≡σ₂ of λ
               ((_ , _ , head-σ₁≡head-σ₂) , tail-σ₁≡tail-σ₂) →
             B [ σ₁ ]                             ≡˘⟨ substVar-to-subst consSubst-η B ⟩⊩≡
             B [ consSubst (tail σ₁) (head σ₁) ]  ≡˘⟨ singleSubstComp _ _ B ⟩⊩≡
-            B [ tail σ₁ ⇑ ] [ head σ₁ ]₀         ≡⟨ ⊩ΠΣ≡ΠΣ→⊩≡∷→⊩[]₀≡[]₀ (ΠΣAB≡ΠΣAB inc tail-σ₁≡tail-σ₂) (R.⊩≡∷→ inc head-σ₁≡head-σ₂) ⟩⊩∎≡
+            B [ tail σ₁ ⇑ ] [ head σ₁ ]₀         ≡⟨ ⊩ΠΣ≡ΠΣ→⊩≡∷→⊩[]₀≡[]₀ (ΠΣAB≡ΠΣAB tail-σ₁≡tail-σ₂) (R.⊩≡∷→ head-σ₁≡head-σ₂) ⟩⊩∎≡
             B [ tail σ₂ ⇑ ] [ head σ₂ ]₀         ≡⟨ singleSubstComp _ _ B ⟩
             B [ consSubst (tail σ₂) (head σ₂) ]  ≡⟨ substVar-to-subst consSubst-η B ⟩
             B [ σ₂ ]                             ∎
@@ -560,13 +557,13 @@ opaque
   -- A characterisation lemma for _⊩ᵛ⟨_⟩_.
 
   ⊩ᵛΠΣ⇔ :
-    Neutrals-included →
+    ⦃ inc : Neutrals-included ⦄ →
     Γ ⊩ᵛ⟨ l ⟩ ΠΣ⟨ b ⟩ p , q ▷ A ▹ B ⇔
     (ΠΣ-allowed b p q × Γ ⊩ᵛ⟨ l ⟩ A × Γ ∙ A ⊩ᵛ⟨ l ⟩ B)
-  ⊩ᵛΠΣ⇔ {B} inc =
-      Σ.map (_$ inj₁ inc) idᶠ ∘→ ⊩ᵛΠΣ→
+  ⊩ᵛΠΣ⇔ {B} =
+      Σ.map (λ ok → ok ⦃ inc = included ⦄) idᶠ ∘→ ⊩ᵛΠΣ→
     , (λ (ok , ⊩A , ⊩B) →
-         ΠΣᵛ (ΠΣⱼ (escape-⊩ᵛ (inj₁ inc) ⊩B) ok) ⊩A ⊩B)
+         ΠΣᵛ (ΠΣⱼ (escape-⊩ᵛ ⦃ inc = included ⦄ ⊩B) ok) ⊩A ⊩B)
     where
     open Tools.Reasoning.PropositionalEquality
 
@@ -583,11 +580,11 @@ opaque
       U (l₁ ⊔ᵘ l₂) →
     Γ ⊩ᵛ⟨ l₁′ ⟩ A₁ ≡ A₂ ∷ U l₁ →
     Γ ∙ A₁ ⊩ᵛ⟨ l₂′ ⟩ B₁ ≡ B₂ ∷ U l₂ →
-    Neutrals-included-or-empty Δ →
+    ⦃ inc : Neutrals-included-or-empty Δ ⦄ →
     Δ ⊩ˢ σ₁ ≡ σ₂ ∷ Γ →
     Δ ⊩⟨ 1+ (l₁ ⊔ᵘ l₂) ⟩ (ΠΣ⟨ b ⟩ p , q ▷ A₁ ▹ B₁) [ σ₁ ] ≡
       (ΠΣ⟨ b ⟩ p , q ▷ A₂ ▹ B₂) [ σ₂ ] ∷ U (l₁ ⊔ᵘ l₂)
-  ⊩ΠΣ≡ΠΣ∷U ΠΣ≡ΠΣ A₁≡A₂∷U B₁≡B₂∷U inc σ₁≡σ₂ =
+  ⊩ΠΣ≡ΠΣ∷U ΠΣ≡ΠΣ A₁≡A₂∷U B₁≡B₂∷U σ₁≡σ₂ =
     case ⊩ᵛ≡∷U→⊩ᵛ≡ A₁≡A₂∷U of λ
       A₁≡A₂ →
     case ⊩ᵛ≡∷U→⊩ᵛ≡ B₁≡B₂∷U of λ
@@ -598,18 +595,17 @@ opaque
       B₁[σ₁⇑]≡B₂[σ₂⇑]∷U →
     Type→⊩≡∷U⇔ ΠΣₙ ΠΣₙ .proj₂
       ( ≤ᵘ-refl
-      , (R.⊩≡→ inc $
+      , (R.⊩≡→ $
          ⊩ᵛ≡→⊩ˢ≡∷→⊩[]≡[]
            (ΠΣ-congᵛ (univ ΠΣ≡ΠΣ) (emb-⊩ᵛ≡ ≤ᵘ⊔ᵘʳ A₁≡A₂)
               (emb-⊩ᵛ≡ ≤ᵘ⊔ᵘˡ B₁≡B₂))
            σ₁≡σ₂)
-      , with-inc-⊢≅∷ (subst-⊢≡∷ ΠΣ≡ΠΣ (escape-⊩ˢ≡∷ inc σ₁≡σ₂ .proj₂))
-          (λ inc →
-             let _ , _ , ok =
-                   inversion-ΠΣ (wf-⊢≡ (univ ΠΣ≡ΠΣ) .proj₁)
-             in
-             ≅ₜ-ΠΣ-cong (R.escape-⊩≡∷ (inj₁ inc) A₁[σ₁]≡A₂[σ₂]∷U)
-               (R.escape-⊩≡∷ (inj₁ inc) B₁[σ₁⇑]≡B₂[σ₂⇑]∷U) ok)
+      , with-inc-⊢≅∷ (subst-⊢≡∷ ΠΣ≡ΠΣ (escape-⊩ˢ≡∷ σ₁≡σ₂ .proj₂))
+          (let _ , _ , ok =
+                 inversion-ΠΣ (wf-⊢≡ (univ ΠΣ≡ΠΣ) .proj₁)
+           in
+           ≅ₜ-ΠΣ-cong (R.escape-⊩≡∷ A₁[σ₁]≡A₂[σ₂]∷U)
+             (R.escape-⊩≡∷ ⦃ inc = included ⦄ B₁[σ₁⇑]≡B₂[σ₂⇑]∷U) ok)
       )
 
 opaque

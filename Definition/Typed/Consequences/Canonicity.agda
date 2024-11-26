@@ -26,14 +26,14 @@ open import Definition.Typed.EqRelInstance R
 open import Definition.LogicalRelation R
 open import Definition.LogicalRelation.Properties R
 open import Definition.LogicalRelation.Substitution.Introductions R
-open import Definition.LogicalRelation.Fundamental.Reducibility R
+open import Definition.LogicalRelation.Fundamental.Reducibility
+  R ⦃ inc = ε ⦄
 
 open import Tools.Empty
 open import Tools.Function
 open import Tools.Nat
 open import Tools.Product as Σ
 open import Tools.Relation
-open import Tools.Sum
 
 private
   variable
@@ -45,7 +45,7 @@ opaque
 
   canonicity : ε ⊢ t ∷ ℕ → ∃ λ n → ε ⊢ t ≡ sucᵏ n ∷ ℕ
   canonicity {t} =
-    ε ⊢ t ∷ ℕ                     →⟨ ⊩∷ℕ⇔ .proj₁ ∘→ proj₂ ∘→ reducible-⊩∷ (inj₂ ε) ⟩
+    ε ⊢ t ∷ ℕ                     →⟨ ⊩∷ℕ⇔ .proj₁ ∘→ proj₂ ∘→ reducible-⊩∷ ⟩
     ε ⊩ℕ t ∷ℕ                     →⟨ lemma ⟩
     (∃ λ n → ε ⊢ t ≡ sucᵏ n ∷ ℕ)  □
     where
@@ -63,7 +63,7 @@ opaque
 
   ¬Empty : ¬ ε ⊢ t ∷ Empty
   ¬Empty {t} =
-    ε ⊢ t ∷ Empty      →⟨ ⊩∷Empty⇔ .proj₁ ∘→ proj₂ ∘→ reducible-⊩∷ (inj₂ ε) ⟩
+    ε ⊢ t ∷ Empty      →⟨ ⊩∷Empty⇔ .proj₁ ∘→ proj₂ ∘→ reducible-⊩∷ ⟩
     ε ⊩Empty t ∷Empty  →⟨ (λ { (Emptyₜ _ _ _ (ne (neNfₜ _ u-ne _))) →
                                noClosedNe u-ne }) ⟩
     ⊥                  □
@@ -74,7 +74,7 @@ opaque
 
   ε⊢⇒*rfl∷Id : ε ⊢ v ∷ Id A t u → ε ⊢ v ⇒* rfl ∷ Id A t u
   ε⊢⇒*rfl∷Id ⊢v =
-    case ⊩∷Id⇔ .proj₁ $ reducible-⊩∷ (inj₂ ε) ⊢v .proj₂ of λ
+    case ⊩∷Id⇔ .proj₁ $ reducible-⊩∷ ⊢v .proj₂ of λ
       (_ , v⇒*w , _ , _ , rest) →
     case rest of λ where
       (rflᵣ _)      → v⇒*w

@@ -47,11 +47,10 @@ open import Tools.Nat using (Nat; 1+)
 open import Tools.Product
 import Tools.PropositionalEquality as PE
 open import Tools.Reasoning.PropositionalEquality
-open import Tools.Sum
 
 private variable
   n                                             : Nat
-  Γ Δ                                           : Con Term _
+  Γ Δ Η                                         : Con Term _
   A B C C₁ C₂ t t₁ t₁₁ t₁₂ t₂ t₂₁ t₂₂ u u₁ u₂ v : Term _
   σ σ₁ σ₂                                       : Subst _ _
   p q q′ r                                      : M
@@ -448,19 +447,19 @@ private opaque
     Γ ∙ A ⊩ᵛ⟨ l ⟩ B →
     Γ ⊩ᵛ⟨ l ⟩ t₁ ≡ t₂ ∷ A →
     Γ ⊩ᵛ⟨ l′ ⟩ u₁ ≡ u₂ ∷ B [ t₁ ]₀ →
-    Neutrals-included-or-empty Δ →
+    ⦃ inc : Neutrals-included-or-empty Δ ⦄ →
     Δ ⊩ˢ σ₁ ≡ σ₂ ∷ Γ →
     Δ ⊩⟨ l ⟩ prodʷ p t₁ u₁ [ σ₁ ] ≡ prodʷ p t₂ u₂ [ σ₂ ] ∷
       (Σʷ p , q ▷ A ▹ B) [ σ₁ ]
-  ⊩prodʷ[]≡prodʷ[] {B} ok ⊢B ⊩B t₁≡t₂ u₁≡u₂ inc σ₁≡σ₂ =
+  ⊩prodʷ[]≡prodʷ[] {B} ok ⊢B ⊩B t₁≡t₂ u₁≡u₂ σ₁≡σ₂ =
     case wf-⊩ᵛ∷ $ wf-⊩ᵛ≡∷ t₁≡t₂ .proj₁ of λ
       ⊩A →
     case wf-⊩ˢ≡∷ σ₁≡σ₂ of λ
       (⊩σ₁ , _) →
-    ⊩prodʷ≡prodʷ (subst-⊢-⇑ ⊢B (escape-⊩ˢ∷ inc ⊩σ₁ .proj₂))
-      (⊩ΠΣ (ΠΣⱼ ⊢B ok) ⊩A ⊩B inc ⊩σ₁)
-      (R.⊩≡∷→ inc $ ⊩ᵛ≡∷→⊩ˢ≡∷→⊩[]≡[]∷ t₁≡t₂ σ₁≡σ₂)
-      (R.⊩≡∷→ inc $
+    ⊩prodʷ≡prodʷ (subst-⊢-⇑ ⊢B (escape-⊩ˢ∷ ⊩σ₁ .proj₂))
+      (⊩ΠΣ (ΠΣⱼ ⊢B ok) ⊩A ⊩B ⊩σ₁)
+      (R.⊩≡∷→ $ ⊩ᵛ≡∷→⊩ˢ≡∷→⊩[]≡[]∷ t₁≡t₂ σ₁≡σ₂)
+      (R.⊩≡∷→ $
        PE.subst (R._⊩⟨_⟩_≡_∷_ _ _ _ _) (singleSubstLift B _) $
        ⊩ᵛ≡∷→⊩ˢ≡∷→⊩[]≡[]∷ u₁≡u₂ σ₁≡σ₂)
 
@@ -522,26 +521,26 @@ opaque
     Γ ⊩ᵛ⟨ l′ ⟩ t₁ ≡ t₂ ∷ Σʷ p , q′ ▷ A ▹ B →
     Γ ∙ A ∙ B ⊢ u₁ ≡ u₂ ∷ C₁ [ prodʷ p (var x1) (var x0) ]↑² →
     Γ ∙ A ∙ B ⊩ᵛ⟨ l″ ⟩ u₁ ≡ u₂ ∷ C₁ [ prodʷ p (var x1) (var x0) ]↑² →
-    Neutrals-included-or-empty Δ →
+    ⦃ inc : Neutrals-included-or-empty Δ ⦄ →
     Δ ⊩ˢ σ₁ ≡ σ₂ ∷ Γ →
     Δ ⊩⟨ l ⟩ prodrec r p q C₁ t₁ u₁ [ σ₁ ] ≡
       prodrec r p q C₂ t₂ u₂ [ σ₂ ] ∷ C₁ [ t₁ ]₀ [ σ₁ ]
   ⊩prodrec≡prodrec
     {p} {q′} {A} {B} {C₁} {C₂} {l} {t₁} {t₂} {u₁} {u₂} {Δ} {σ₁} {σ₂} {r}
-    {q} ⊢C₁≡C₂ C₁≡C₂ t₁≡t₂ ⊢u₁≡u₂ u₁≡u₂ inc σ₁≡σ₂ =
+    {q} ⊢C₁≡C₂ C₁≡C₂ t₁≡t₂ ⊢u₁≡u₂ u₁≡u₂ σ₁≡σ₂ =
     case wf-⊢≡ ⊢C₁≡C₂ of λ
       (⊢C₁ , ⊢C₂) →
     case wf-⊩ᵛ≡ C₁≡C₂ of λ
       (⊩C₁ , _) →
     case wf-⊩ˢ≡∷ σ₁≡σ₂ of λ
       (⊩σ₁ , _) →
-    case wf-⊢ˢʷ≡∷ (escape-⊩ˢ≡∷ inc σ₁≡σ₂ .proj₂) of λ
+    case wf-⊢ˢʷ≡∷ (escape-⊩ˢ≡∷ σ₁≡σ₂ .proj₂) of λ
       (_ , ⊢σ₁ , ⊢σ₂) →
     case subst-⊢-⇑ ⊢C₁ ⊢σ₁ of λ
       ⊢C₁[σ₁⇑] →
     case subst-⊢-⇑ ⊢C₂ ⊢σ₂ of λ
       ⊢C₂[σ₂⇑] →
-    case R.⊩≡→ inc $
+    case R.⊩≡→ $
          ⊩ᵛ≡→⊩ˢ≡∷→⊩[]≡[] (refl-⊩ᵛ≡ $ wf-⊩ᵛ∷ $ wf-⊩ᵛ≡∷ t₁≡t₂ .proj₁)
            σ₁≡σ₂ of λ
       ΣAB[σ₁]≡ΣAB[σ₂] →
@@ -549,7 +548,7 @@ opaque
       (ok , _ , _) →
     case ⊩ᵛ≡∷→⊩ˢ≡∷→⊩[]≡[]∷ t₁≡t₂ σ₁≡σ₂ of λ
       t₁[σ₁]≡t₂[σ₂] →
-    case wf-⊩≡∷ $ R.⊩≡∷→ inc t₁[σ₁]≡t₂[σ₂] of λ
+    case wf-⊩≡∷ $ R.⊩≡∷→ t₁[σ₁]≡t₂[σ₂] of λ
       (⊩t₁[σ₁] , ⊩t₂[σ₂]) →
     case conv-⊩∷ ΣAB[σ₁]≡ΣAB[σ₂] ⊩t₂[σ₂] of λ
       ⊩t₂[σ₂] →
@@ -561,7 +560,7 @@ opaque
     case PE.subst (_⊢_∷_ _ _) (subst-β-prodrec C₂ _) $
          subst-⊢∷-⇑ (conv ⊢u₂ (subst↑²TypeEq-prod ⊢C₁≡C₂)) ⊢σ₂ of λ
       ⊢u₂[σ₂⇑⇑] →
-    case ⊩≡∷Σʷ⇔ .proj₁ $ R.⊩≡∷→ inc t₁[σ₁]≡t₂[σ₂] of λ
+    case ⊩≡∷Σʷ⇔ .proj₁ $ R.⊩≡∷→ t₁[σ₁]≡t₂[σ₂] of λ
       (_ , v₁ , v₂ , t₁[σ₁]⇒*v₁ , t₂[σ₂]⇒*v₂ , _ , v₁≡v₂∷Σʷ) →
     case conv* t₂[σ₂]⇒*v₂ $
          ≅-eq $ escape-⊩≡ ΣAB[σ₁]≡ΣAB[σ₂] of λ
@@ -572,13 +571,13 @@ opaque
       t₂[σ₂]≡v₂ →
     case
       v₁                                      ≡˘⟨ t₁[σ₁]≡v₁ ⟩⊩∷
-      t₁ [ σ₁ ] ∷ (Σʷ p , q′ ▷ A ▹ B) [ σ₁ ]  ≡⟨ R.⊩≡∷→ inc t₁[σ₁]≡t₂[σ₂] ⟩⊩∷∷
+      t₁ [ σ₁ ] ∷ (Σʷ p , q′ ▷ A ▹ B) [ σ₁ ]  ≡⟨ R.⊩≡∷→ t₁[σ₁]≡t₂[σ₂] ⟩⊩∷∷
                                                ⟨ ΣAB[σ₁]≡ΣAB[σ₂] ⟩⊩∷
       t₂ [ σ₂ ] ∷ (Σʷ p , q′ ▷ A ▹ B) [ σ₂ ]  ≡⟨ t₂[σ₂]≡v₂ ⟩⊩∷∎∷
       v₂                                      ∎
     of λ
       v₁≡v₂ →
-    case R.⊩≡→ inc $
+    case R.⊩≡→ $
          ⊩ᵛ≡→⊩ˢ≡∷→⊩≡∷→⊩[⇑][]₀≡[⇑][]₀ C₁≡C₂ σ₁≡σ₂ (R.→⊩≡∷ v₁≡v₂) of λ
       C₁[σ₁⇑][v₁]≡C₂[σ₂⇑][v₂] →
     case wf-⊩≡ C₁[σ₁⇑][v₁]≡C₂[σ₂⇑][v₂] of λ
@@ -609,7 +608,7 @@ opaque
                                                                                ⊢u₁[σ₁⇑⇑] PE.refl ok ⟩⊩∷
            u₁ [ σ₁ ⇑ ⇑ ] [ v₁₁ , v₁₂ ]₁₀ ∷ C₁ [ σ₁ ⇑ ] [ v₁ ]₀            ≡⟨ level-⊩≡∷ ⊩C₁[σ₁⇑][v₁] $
                                                                              PE.subst (_⊩⟨_⟩_≡_∷_ _ _ _ _) ([1,0]↑²[⇑⇑][]₁₀≡[⇑][,]₀ C₁) $
-                                                                             R.⊩≡∷→ inc $
+                                                                             R.⊩≡∷→ $
                                                                              ⊩ᵛ≡∷→⊩ˢ≡∷→⊩≡∷→⊩≡∷→⊩[⇑⇑][]₁₀≡[⇑⇑][]₁₀∷
                                                                                u₁≡u₂ σ₁≡σ₂ (R.→⊩≡∷ v₁₁≡v₂₁) (R.→⊩≡∷ v₁₂≡v₂₂) ⟩⊩∷∷⇐*
                                                                            ⟨ C₁[σ₁⇑][v₁]≡C₂[σ₂⇑][v₂] ⟩⇒
@@ -619,14 +618,18 @@ opaque
            prodrec r p q (C₂ [ σ₂ ⇑ ]) (prodʷ p v₂₁ v₂₂) (u₂ [ σ₂ ⇑ ⇑ ])  ∎
 
          (ne inc v₁-ne v₂-ne v₁~v₂) →
+           let instance
+                 inc′ : Neutrals-included-or-empty Η
+                 inc′ = included ⦃ inc = inc ⦄
+           in
            neutral-⊩≡∷ inc ⊩C₁[σ₁⇑][v₁]
              (prodrecₙ v₁-ne) (prodrecₙ v₂-ne) $
            ~-prodrec
-             (R.escape-⊩≡ (inj₁ inc) $
+             (R.escape-⊩≡ $
               ⊩ᵛ≡→⊩ˢ≡∷→⊩[⇑]≡[⇑] C₁≡C₂ σ₁≡σ₂)
              v₁~v₂
              (PE.subst (_⊢_≅_∷_ _ _ _) (subst-β-prodrec C₁ _) $
-              R.escape-⊩≡∷ (inj₁ inc) $
+              R.escape-⊩≡∷ $
               ⊩ᵛ≡∷→⊩ˢ≡∷→⊩[⇑⇑]≡[⇑⇑]∷ u₁≡u₂ σ₁≡σ₂) ok)
     of λ
       lemma →
@@ -635,11 +638,11 @@ opaque
     prodrec r p q C₁ t₁ u₁ [ σ₁ ] ∷ C₁ [ σ₁ ⇑ ] [ t₁ [ σ₁ ] ]₀  ⇒*⟨ prodrec-subst* ⊢C₁[σ₁⇑] t₁[σ₁]⇒*v₁ ⊢u₁[σ₁⇑⇑] ⟩⊩∷∷
 
     prodrec r p q (C₁ [ σ₁ ⇑ ]) v₁ (u₁ [ σ₁ ⇑ ⇑ ])              ≡⟨ conv-⊩≡∷
-                                                                     (R.⊩≡→ inc $
+                                                                     (R.⊩≡→ $
                                                                       ⊩ᵛ≡→⊩ˢ≡∷→⊩≡∷→⊩[⇑][]₀≡[⇑][]₀ (refl-⊩ᵛ≡ ⊩C₁)
                                                                         (refl-⊩ˢ≡∷ ⊩σ₁) (R.→⊩≡∷ $ sym-⊩≡∷ t₁[σ₁]≡v₁))
                                                                      lemma ⟩⊩∷⇐*
-                                                                 ⟨ ≅-eq $ R.escape-⊩≡ inc $
+                                                                 ⟨ ≅-eq $ R.escape-⊩≡ $
                                                                    ⊩ᵛ≡→⊩ˢ≡∷→⊩≡∷→⊩[⇑][]₀≡[⇑][]₀ C₁≡C₂ σ₁≡σ₂ t₁[σ₁]≡t₂[σ₂] ⟩⇒
     prodrec r p q (C₂ [ σ₂ ⇑ ]) v₂ (u₂ [ σ₂ ⇑ ⇑ ]) ∷
       C₂ [ σ₂ ⇑ ] [ t₂ [ σ₂ ] ]₀                                ⇐*⟨ prodrec-subst* ⊢C₂[σ₂⇑] t₂[σ₂]⇒*v₂ ⊢u₂[σ₂⇑⇑] ⟩∎∷
@@ -693,14 +696,14 @@ opaque
       C [ prodʷ p t u ]₀
   prodrec-βᵛ {B} {C} {v} ⊢C ⊩t ⊩u ⊢v ⊩v =
     ⊩ᵛ∷-⇐
-      (λ inc ⊩σ →
-         let _ , ⊢σ = escape-⊩ˢ∷ inc ⊩σ in
+      (λ ⊩σ →
+         let _ , ⊢σ = escape-⊩ˢ∷ ⊩σ in
          PE.subst₂ (_⊢_⇒_∷_ _ _) (PE.sym $ [,]-[]-commute v)
            (PE.sym $ singleSubstLift C _) $
          prodrec-β-⇒ (subst-⊢-⇑ ⊢C ⊢σ)
-           (R.escape-⊩∷ inc $ ⊩ᵛ∷→⊩ˢ∷→⊩[]∷ ⊩t ⊩σ)
+           (R.escape-⊩∷ $ ⊩ᵛ∷→⊩ˢ∷→⊩[]∷ ⊩t ⊩σ)
            (PE.subst (_⊢_∷_ _ _) (singleSubstLift B _) $
-            R.escape-⊩∷ inc $ ⊩ᵛ∷→⊩ˢ∷→⊩[]∷ ⊩u ⊩σ)
+            R.escape-⊩∷ $ ⊩ᵛ∷→⊩ˢ∷→⊩[]∷ ⊩u ⊩σ)
            (PE.subst (_⊢_∷_ _ _) (subst-β-prodrec C _) $
             subst-⊢∷-⇑ ⊢v ⊢σ))
       (PE.subst (_⊩ᵛ⟨_⟩_∷_ _ _ _) ([1,0]↑²[,] C) $

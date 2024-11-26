@@ -88,7 +88,6 @@ private
     Graded.Erasure.Consequences.Soundness.Soundness TR-η UR
       (record
          { consistent                  = consistent
-         ; inc                         = inj₁ _
          ; closed-or-no-erased-matches =
              inj₁ $
              Only-some-erased-matches→No-erased-matches

@@ -26,7 +26,6 @@ open import Tools.Function
 open import Tools.Nat
 open import Tools.Product
 open import Tools.Relation
-open import Tools.Sum
 
 private
   variable
@@ -49,7 +48,7 @@ opaque
 
   zero≢suc : ¬ Γ ⊢ zero ≡ suc t ∷ ℕ
   zero≢suc {Γ} {t} =
-    Γ ⊢ zero ≡ suc t ∷ ℕ                 →⟨ reducible-⊩≡∷ (inj₁ _) ⟩
+    Γ ⊢ zero ≡ suc t ∷ ℕ                 →⟨ reducible-⊩≡∷ ⟩
     (∃ λ l → Γ ⊩⟨ l ⟩ zero ≡ suc t ∷ ℕ)  →⟨ ⊩zero≡suc∷ℕ⇔ .proj₁ ∘→ proj₂ ⟩
     ⊥                                    □
 

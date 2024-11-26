@@ -82,7 +82,7 @@ opaque
     ▸⊩ʳ∷[𝟘ᵐ]
   emptyrecʳ {m = 𝟙ᵐ} {p} {Γ} {t} {γ} ok ⊢t ⊩ʳt =
     ▸⊩ʳ∷⇔ .proj₂ λ {σ = σ} {σ′ = σ′} ⊩σ σ®σ′ →
-    case ⊩∷Empty⇔ .proj₁ $ R.⊩∷→ inc $
+    case ⊩∷Empty⇔ .proj₁ $ R.⊩∷→ $
          ⊩ᵛ∷→⊩ˢ∷→⊩[]∷ (fundamental-⊩ᵛ∷ ⊢t .proj₂) ⊩σ of λ
       (Emptyₜ _ ⊢t[σ]⇒* _ _) →
     case is-𝟘? p of λ where

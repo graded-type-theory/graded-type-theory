@@ -16,6 +16,7 @@ open import Definition.Typed R
 open import Definition.Typed.Properties R
 open import Definition.Typed.Weakening R
 open import Definition.Typed.EqualityRelation R
+import Definition.Typed.EqualityRelation.Instance
 
 open import Tools.Function
 open import Tools.Level
@@ -28,7 +29,7 @@ private opaque
   -- A lemma used below.
 
   equality-relations :
-    Equality-relations _⊢_≡_ _⊢_≡_∷_ _⊢_≡_∷_ (Lift a ⊤)
+    Equality-relations _⊢_≡_ _⊢_≡_∷_ _⊢_≡_∷_ (Lift _ ⊤)
   equality-relations = λ where
       .Neutrals-included? →
         yes (lift tt)
@@ -92,7 +93,15 @@ instance
     .EqRelSet._⊢_≅_              → _⊢_≡_
     .EqRelSet._⊢_≅_∷_            → _⊢_≡_∷_
     .EqRelSet._⊢_~_∷_            → _⊢_≡_∷_
-    .EqRelSet.Neutrals-included  → Lift a ⊤
+    .EqRelSet.Neutrals-included  → Lift _ ⊤
     .EqRelSet.equality-relations → equality-relations
 
 open EqRelSet eqRelInstance public
+open Definition.Typed.EqualityRelation.Instance eqRelInstance public
+
+instance
+
+  -- A variant of lift tt that is an instance.
+
+  lift-tt : Lift a ⊤
+  lift-tt = lift tt

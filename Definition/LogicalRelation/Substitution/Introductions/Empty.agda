@@ -149,8 +149,8 @@ opaque
   Emptyᵛ {Γ} {l} ⊩Γ =
     ⊩ᵛ⇔ʰ .proj₂
       ( ⊩Γ
-      , λ {_} {Δ = Δ} {σ₁ = σ₁} {σ₂ = σ₂} inc →
-          Δ ⊩ˢ σ₁ ≡ σ₂ ∷ Γ        →⟨ proj₁ ∘→ escape-⊩ˢ≡∷ inc ⟩
+      , λ {_} {Δ = Δ} {σ₁ = σ₁} {σ₂ = σ₂} →
+          Δ ⊩ˢ σ₁ ≡ σ₂ ∷ Γ        →⟨ proj₁ ∘→ escape-⊩ˢ≡∷ ⟩
           ⊢ Δ                     ⇔˘⟨ ⊩Empty⇔ ⟩→
           (Δ ⊩⟨ l ⟩ Empty)        →⟨ refl-⊩≡ ⟩
           Δ ⊩⟨ l ⟩ Empty ≡ Empty  □
@@ -164,8 +164,8 @@ opaque
   Emptyᵗᵛ ⊩Γ =
     ⊩ᵛ∷⇔ʰ .proj₂
       ( ⊩ᵛU ⊩Γ
-      , λ inc σ₁≡σ₂ →
-          case escape-⊩ˢ≡∷ inc σ₁≡σ₂ of λ
+      , λ σ₁≡σ₂ →
+          case escape-⊩ˢ≡∷ σ₁≡σ₂ of λ
             (⊢Δ , _) →
           Type→⊩≡∷U⇔ Emptyₙ Emptyₙ .proj₂
             (≤ᵘ-refl , refl-⊩≡ (⊩Empty ⊢Δ) , ≅ₜ-Emptyrefl ⊢Δ)

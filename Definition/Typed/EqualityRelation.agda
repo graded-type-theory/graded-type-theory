@@ -29,7 +29,6 @@ open import Tools.Nat
 open import Tools.Product
 import Tools.PropositionalEquality as PE
 open import Tools.Relation
-open import Tools.Sum
 
 private
   variable
@@ -365,6 +364,63 @@ record Equality-relations
       ~-trans t~u (~-sym t~u) ,
       ~-trans (~-sym t~u) t~u
 
+  -- Neutrals-included-or-empty Γ holds if Neutrals-included holds or
+  -- if Γ is empty.
+
+  data Neutrals-included-or-empty : Con Term n → Set ℓ where
+    included : ⦃ inc : Neutrals-included ⦄ →
+               Neutrals-included-or-empty Γ
+    ε        : Neutrals-included-or-empty ε
+
+  opaque
+
+    -- Neutrals-included-or-empty is decidable.
+
+    Neutrals-included-or-empty? : Dec (Neutrals-included-or-empty Γ)
+    Neutrals-included-or-empty? {Γ} =
+      case Neutrals-included? of λ where
+        (yes inc)    → yes (included ⦃ inc = inc ⦄)
+        (no not-inc) → case PE.singleton Γ of λ where
+          (ε     , PE.refl) → yes ε
+          (_ ∙ _ , PE.refl) →
+            no (λ { (included ⦃ inc ⦄) → not-inc inc })
+
+  opaque
+
+    -- If the size of Γ is positive, then Neutrals-included-or-empty Γ
+    -- implies Neutrals-included.
+
+    1+→Neutrals-included :
+      {Γ : Con Term (1+ n)}
+      ⦃ inc : Neutrals-included-or-empty Γ ⦄ →
+      Neutrals-included
+    1+→Neutrals-included ⦃ inc = included ⦃ inc ⦄ ⦄ = inc
+
+  opaque
+
+    -- Neutrals-included-or-empty (Γ ∙ A) implies
+    -- Neutrals-included-or-empty Γ.
+
+    Neutrals-included-or-empty-∙→ :
+      ⦃ inc : Neutrals-included-or-empty (Γ ∙ A) ⦄ →
+      Neutrals-included-or-empty Γ
+    Neutrals-included-or-empty-∙→ =
+      included ⦃ inc = 1+→Neutrals-included ⦄
+
+  opaque
+
+    -- If Γ and t are both indexed by n, t is neutral, and
+    -- Neutrals-included-or-empty Γ holds, then Neutrals-included
+    -- holds.
+
+    Neutral→Neutrals-included :
+      {Γ : Con Term n} {t : Term n}
+      ⦃ inc : Neutrals-included-or-empty Γ ⦄ →
+      Neutral t → Neutrals-included
+    Neutral→Neutrals-included ⦃ inc = included ⦃ inc ⦄ ⦄ _    = inc
+    Neutral→Neutrals-included ⦃ inc = ε                ⦄ t-ne =
+      ⊥-elim (noClosedNe t-ne)
+
   opaque
 
     -- If Γ ⊢ A ≡ B holds, then one can assume Neutrals-included when
@@ -372,11 +428,11 @@ record Equality-relations
 
     with-inc-⊢≅ :
       Γ ⊢ A ≡ B →
-      (Neutrals-included → Γ ⊢ A ≅ B) →
+      (⦃ inc : Neutrals-included ⦄ → Γ ⊢ A ≅ B) →
       Γ ⊢ A ≅ B
     with-inc-⊢≅ A≡B A≅B =
       case Neutrals-included? of λ where
-        (yes inc) → A≅B inc
+        (yes inc) → A≅B ⦃ inc = inc ⦄
         (no ni)   → ⊢≡→⊢≅ ni A≡B
 
   opaque
@@ -386,60 +442,12 @@ record Equality-relations
 
     with-inc-⊢≅∷ :
       Γ ⊢ t ≡ u ∷ A →
-      (Neutrals-included → Γ ⊢ t ≅ u ∷ A) →
+      (⦃ inc : Neutrals-included ⦄ → Γ ⊢ t ≅ u ∷ A) →
       Γ ⊢ t ≅ u ∷ A
     with-inc-⊢≅∷ t≡u t≅u =
       case Neutrals-included? of λ where
-        (yes inc) → t≅u inc
+        (yes inc) → t≅u ⦃ inc = inc ⦄
         (no ni)   → ⊢≡∷→⊢≅∷ ni t≡u
-
-  -- Neutrals-included-or-empty Γ holds if Neutrals-included holds or
-  -- if Γ is empty.
-
-  Neutrals-included-or-empty : Con Term n → Set ℓ
-  Neutrals-included-or-empty Γ = Neutrals-included ⊎ Empty-con Γ
-
-  opaque
-
-    -- Neutrals-included-or-empty is decidable.
-
-    Neutrals-included-or-empty? : Dec (Neutrals-included-or-empty Γ)
-    Neutrals-included-or-empty? =
-      Neutrals-included? ⊎-dec Empty-con?
-
-  opaque
-
-    -- If the size of Γ is positive, then Neutrals-included-or-empty Γ
-    -- implies Neutrals-included.
-
-    1+→Neutrals-included :
-      {Γ : Con Term (1+ n)} →
-      Neutrals-included-or-empty Γ → Neutrals-included
-    1+→Neutrals-included (inj₁ inc) = inc
-    1+→Neutrals-included (inj₂ ())
-
-  opaque
-
-    -- Neutrals-included-or-empty (Γ ∙ A) implies
-    -- Neutrals-included-or-empty Γ.
-
-    Neutrals-included-or-empty-∙→ :
-      Neutrals-included-or-empty (Γ ∙ A) → Neutrals-included-or-empty Γ
-    Neutrals-included-or-empty-∙→ =
-      inj₁ ∘→ 1+→Neutrals-included
-
-  opaque
-
-    -- If Γ and t are both indexed by n, t is neutral, and
-    -- Neutrals-included-or-empty Γ holds, then Neutrals-included
-    -- holds.
-
-    Neutral→Neutrals-included :
-      {Γ : Con Term n} {t : Term n} →
-      Neutral t → Neutrals-included-or-empty Γ → Neutrals-included
-    Neutral→Neutrals-included _    (inj₁ inc) = inc
-    Neutral→Neutrals-included t-ne (inj₂ ε)   =
-      ⊥-elim (noClosedNe t-ne)
 
 -- Values of type EqRelSet contain three relations that the logical
 -- relation in Definition.LogicalRelation can be instantiated with.

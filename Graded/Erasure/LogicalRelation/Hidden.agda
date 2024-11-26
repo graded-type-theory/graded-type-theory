@@ -20,7 +20,7 @@ open Type-restrictions TR
 
 open import Definition.LogicalRelation TR as L
 open import Definition.LogicalRelation.Fundamental TR
-open import Definition.LogicalRelation.Fundamental.Reducibility TR inc
+open import Definition.LogicalRelation.Fundamental.Reducibility TR
 open import Definition.LogicalRelation.Hidden TR
 import Definition.LogicalRelation.Irrelevance TR as IR
 open import Definition.LogicalRelation.Properties TR
@@ -795,7 +795,7 @@ opaque
 
     (∀ {σ σ′} → Δ ⊩ˢ σ ∷ Γ → σ ® σ′ ∷[ m ] Γ ◂ γ →
      t [ σ ] ® erase str t T.[ σ′ ] ∷ A [ σ ] ◂ ⌜ m ⌝)  →⟨ (λ hyp ⊩σ σ®σ′ →
-                                                              conv-®∷◂ (⊩ᵛ≡⇔′ʰ .proj₁ A≡B .proj₂ .proj₂ inc ⊩σ) $
+                                                              conv-®∷◂ (⊩ᵛ≡⇔′ʰ .proj₁ A≡B .proj₂ .proj₂ ⊩σ) $
                                                               hyp ⊩σ σ®σ′) ⟩
     (∀ {σ σ′} → Δ ⊩ˢ σ ∷ Γ → σ ® σ′ ∷[ m ] Γ ◂ γ →
      t [ σ ] ® erase str t T.[ σ′ ] ∷ B [ σ ] ◂ ⌜ m ⌝)  ⇔˘⟨ ▸⊩ʳ∷⇔ ⟩→

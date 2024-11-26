@@ -43,11 +43,11 @@ opaque
   -- Reducibility for variables.
 
   ⊩var :
-    Neutrals-included →
+    ⦃ inc : Neutrals-included ⦄ →
     x ∷ A ∈ Γ →
     Γ ⊩⟨ l ⟩ A →
     Γ ⊩⟨ l ⟩ var x ∷ A
-  ⊩var inc x∈Γ ⊩A =
+  ⊩var ⦃ inc ⦄ x∈Γ ⊩A =
     case var (wf (escape-⊩ ⊩A)) x∈Γ of λ
       ⊢var →
     neutral-⊩∷ inc ⊩A (var _) (~-var ⊢var)

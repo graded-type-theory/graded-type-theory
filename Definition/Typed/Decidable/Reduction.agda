@@ -31,7 +31,6 @@ open import Tools.Function
 open import Tools.Nat
 open import Tools.Product
 import Tools.Relation as Dec
-open import Tools.Sum
 
 private
   variable
@@ -108,7 +107,7 @@ opaque
   -- not reduce to) either a Π-type or a Σ-type.
 
   isΠΣ : Γ ⊢ A → Dec (∃₅ λ b p q B C → Γ ⊢ A ⇒* ΠΣ⟨ b ⟩ p , q ▷ B ▹ C)
-  isΠΣ ⊢A = isΠΣ′ (reducible-⊩ (inj₁ _) ⊢A .proj₂)
+  isΠΣ ⊢A = isΠΣ′ (reducible-⊩ ⊢A .proj₂)
 
 opaque
 
@@ -166,7 +165,7 @@ opaque
   -- type.
 
   is-Id : Γ ⊢ A → Dec (∃₃ λ B t u → Γ ⊢ A ⇒* Id B t u)
-  is-Id = helper ∘→ proj₂ ∘→ reducible-⊩ (inj₁ _)
+  is-Id = helper ∘→ proj₂ ∘→ reducible-⊩
     where
     helper : Γ ⊩⟨ l ⟩ A → Dec (∃₃ λ B t u → Γ ⊢ A ⇒* Id B t u)
     helper (Uᵣ ⊩U) =

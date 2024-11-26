@@ -146,6 +146,7 @@ import Definition.Typed.Properties.Admissible.Bool.Erased
 import Definition.Typed.Substitution
 import Definition.Typed.Properties
 import Definition.Typed.EqualityRelation
+import Definition.Typed.EqualityRelation.Instance
 import Definition.Typed.EqRelInstance
 
 ------------------------------------------------------------------------

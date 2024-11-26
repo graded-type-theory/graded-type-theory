@@ -90,7 +90,7 @@ opaque
   Erased-congᵛ A₁≡A₂ =
     case ⊩ᵛ≡⇔ʰ .proj₁ A₁≡A₂ of λ
       (⊩Γ , A₁≡A₂) →
-    ⊩ᵛ≡⇔ʰ .proj₂ (⊩Γ , λ inc → ⊩Erased≡Erased ∘→ A₁≡A₂ inc)
+    ⊩ᵛ≡⇔ʰ .proj₂ (⊩Γ , ⊩Erased≡Erased ∘→ A₁≡A₂)
 
 opaque
 
@@ -137,7 +137,7 @@ opaque
       (⊩A , _) →
     ⊩ᵛ≡∷⇔ʰ .proj₂
       ( Erasedᵛ ⊩A
-      , λ inc → ⊩[]≡[] ∘→ R.⊩≡∷→ inc ∘→ ⊩ᵛ≡∷→⊩ˢ≡∷→⊩[]≡[]∷ t≡u
+      , ⊩[]≡[] ∘→ R.⊩≡∷→ ∘→ ⊩ᵛ≡∷→⊩ˢ≡∷→⊩[]≡[]∷ t≡u
       )
 
 opaque

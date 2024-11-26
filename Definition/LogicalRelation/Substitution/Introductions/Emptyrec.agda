@@ -32,7 +32,6 @@ open import Definition.LogicalRelation.Substitution.Introductions.Empty R
 
 open import Tools.Function
 open import Tools.Product
-open import Tools.Sum
 
 
 import Tools.PropositionalEquality as PE
@@ -56,31 +55,31 @@ opaque
   ⊩emptyrec≡emptyrec :
     Γ ⊩ᵛ⟨ l ⟩ A₁ ≡ A₂ →
     Γ ⊩ᵛ⟨ l′ ⟩ t₁ ≡ t₂ ∷ Empty →
-    Neutrals-included-or-empty Δ →
+    ⦃ inc : Neutrals-included-or-empty Δ ⦄ →
     Δ ⊩ˢ σ₁ ≡ σ₂ ∷ Γ →
     Δ ⊩⟨ l ⟩ emptyrec p A₁ t₁ [ σ₁ ] ≡ emptyrec p A₂ t₂ [ σ₂ ] ∷ A₁ [ σ₁ ]
   ⊩emptyrec≡emptyrec
-    {A₁} {A₂} {t₁} {t₂} {σ₁} {σ₂} {p} A₁≡A₂ t₁≡t₂ inc σ₁≡σ₂ =
+    {A₁} {A₂} {t₁} {t₂} {σ₁} {σ₂} {p} A₁≡A₂ t₁≡t₂ σ₁≡σ₂ =
     case ⊩ᵛ≡→⊩ˢ≡∷→⊩[]≡[] A₁≡A₂ of λ
       A₁≡A₂ →
     case ⊩ᵛ≡∷→⊩ˢ≡∷→⊩[]≡[]∷ t₁≡t₂ of λ
       t₁≡t₂ →
-    case ⊩≡∷Empty⇔ .proj₁ $ R.⊩≡∷→ inc $ t₁≡t₂ σ₁≡σ₂ of λ
+    case ⊩≡∷Empty⇔ .proj₁ $ R.⊩≡∷→ $ t₁≡t₂ σ₁≡σ₂ of λ
       (Emptyₜ₌ t₁′ t₂′ t₁[σ₁]⇒*t₁′ t₂[σ₂]⇒*t₂′ _ rest)  →
     case A₁≡A₂ σ₁≡σ₂ of λ
       A₁[σ₁]≡A₂[σ₂] →
-    case R.escape-⊩≡ inc A₁[σ₁]≡A₂[σ₂] of λ
+    case R.escape-⊩≡ A₁[σ₁]≡A₂[σ₂] of λ
       ⊢A₁[σ₁]≡A₂[σ₂] →
     case R.wf-⊩≡ A₁[σ₁]≡A₂[σ₂] of λ
       (⊩A₁[σ₁] , ⊩A₂[σ₂]) →
-    case R.escape-⊩ inc ⊩A₁[σ₁] of λ
+    case R.escape-⊩ ⊩A₁[σ₁] of λ
       ⊢A₁[σ₁] →
-    case R.escape-⊩ inc ⊩A₂[σ₂] of λ
+    case R.escape-⊩ ⊩A₂[σ₂] of λ
       ⊢A₂[σ₂] →
     case rest of λ where
       (ne (neNfₜ₌ inc t₁′-ne t₂′-ne t₁′~t₂′)) →
         emptyrec p (A₁ [ σ₁ ]) (t₁ [ σ₁ ]) ∷ A₁ [ σ₁ ] ⇒*⟨ emptyrec-subst* t₁[σ₁]⇒*t₁′ ⊢A₁[σ₁] ⟩⊩∷∷
-        emptyrec p (A₁ [ σ₁ ]) t₁′         ∷ A₁ [ σ₁ ] ≡⟨ neutral-⊩≡∷ inc (R.⊩→ (inj₁ inc) ⊩A₁[σ₁])
+        emptyrec p (A₁ [ σ₁ ]) t₁′         ∷ A₁ [ σ₁ ] ≡⟨ neutral-⊩≡∷ inc (R.⊩→ ⊩A₁[σ₁])
                                                              (emptyrecₙ t₁′-ne) (emptyrecₙ t₂′-ne)
                                                              (~-emptyrec ⊢A₁[σ₁]≡A₂[σ₂] t₁′~t₂′) ⟩⊩∷∷⇐*
                                                          ⟨ ≅-eq ⊢A₁[σ₁]≡A₂[σ₂] ⟩⇒

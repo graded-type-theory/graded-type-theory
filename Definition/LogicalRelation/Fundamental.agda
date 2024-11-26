@@ -297,7 +297,7 @@ opaque
 
   fundamental-⊩ˢ∷ : ⊢ Γ → Δ ⊢ˢʷ σ ∷ Γ → Δ ⊩ˢ σ ∷ Γ
   fundamental-⊩ˢ∷ ε ⊢σ =
-    ⊩ˢ∷ε⇔ .proj₂ (λ _ → ⊢ˢʷ∷ε⇔ .proj₁ ⊢σ)
+    ⊩ˢ∷ε⇔ .proj₂ (⊢ˢʷ∷ε⇔ .proj₁ ⊢σ)
   fundamental-⊩ˢ∷ (∙ ⊢A) ⊢σ =
     let ⊢σ₊ , ⊢σ₀ = ⊢ˢʷ∷∙⇔ .proj₁ ⊢σ in
     ⊩ˢ∷∙⇔′ .proj₂
@@ -312,7 +312,7 @@ opaque
 
   fundamental-⊩ˢ≡∷ : ⊢ Γ → Δ ⊢ˢʷ σ₁ ≡ σ₂ ∷ Γ → Δ ⊩ˢ σ₁ ≡ σ₂ ∷ Γ
   fundamental-⊩ˢ≡∷ ε σ₁≡σ₂ =
-    ⊩ˢ≡∷ε⇔ .proj₂ (λ _ → ⊢ˢʷ≡∷ε⇔ .proj₁ σ₁≡σ₂)
+    ⊩ˢ≡∷ε⇔ .proj₂ (⊢ˢʷ≡∷ε⇔ .proj₁ σ₁≡σ₂)
   fundamental-⊩ˢ≡∷ (∙ ⊢A) σ₁≡σ₂ =
     let σ₁₊≡σ₂₊ , _ , _ , σ₁₀≡σ₂₀ = ⊢ˢʷ≡∷∙⇔ .proj₁ σ₁≡σ₂ in
     ⊩ˢ≡∷∙⇔′ .proj₂

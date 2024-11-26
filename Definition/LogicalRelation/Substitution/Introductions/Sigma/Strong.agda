@@ -341,7 +341,7 @@ opaque
       (_ , ⊩A , _) →
     ⊩ᵛ≡∷⇔ʰ .proj₂
       ( ⊩A
-      , λ inc → ⊩fst≡fst ∘→ R.⊩≡∷→ inc ∘→ ⊩ᵛ≡∷→⊩ˢ≡∷→⊩[]≡[]∷ t₁≡t₂
+      , ⊩fst≡fst ∘→ R.⊩≡∷→ ∘→ ⊩ᵛ≡∷→⊩ˢ≡∷→⊩[]≡[]∷ t₁≡t₂
       )
 
 opaque
@@ -397,9 +397,8 @@ opaque
       (_ , _ , ⊩B) →
     ⊩ᵛ≡∷⇔ʰ .proj₂
       ( ⊩ᵛ→⊩ᵛ∷→⊩ᵛ[]₀ ⊩B (fstᵛ ⊩t₁)
-      , λ inc →
-          PE.subst (_⊩⟨_⟩_≡_∷_ _ _ _ _) (PE.sym $ singleSubstLift B _) ∘→
-          ⊩snd≡snd ∘→ R.⊩≡∷→ inc ∘→ ⊩ᵛ≡∷→⊩ˢ≡∷→⊩[]≡[]∷ t₁≡t₂
+      , PE.subst (_⊩⟨_⟩_≡_∷_ _ _ _ _) (PE.sym $ singleSubstLift B _) ∘→
+        ⊩snd≡snd ∘→ R.⊩≡∷→ ∘→ ⊩ᵛ≡∷→⊩ˢ≡∷→⊩[]≡[]∷ t₁≡t₂
       )
 
 opaque
@@ -446,10 +445,10 @@ opaque
     Γ ⊩ᵛ⟨ l ⟩ fst p (prodˢ p t u) ≡ t ∷ A
   Σ-β₁ᵛ {B} ok ⊢B ⊩t ⊢u =
     ⊩ᵛ∷-⇐
-      (λ inc ⊩σ →
-         let _ , ⊢σ = escape-⊩ˢ∷ inc ⊩σ in
+      (λ ⊩σ →
+         let _ , ⊢σ = escape-⊩ˢ∷ ⊩σ in
          Σ-β₁-⇒ (subst-⊢-⇑ ⊢B ⊢σ)
-           (R.escape-⊩∷ inc $ ⊩ᵛ∷→⊩ˢ∷→⊩[]∷ ⊩t ⊩σ)
+           (R.escape-⊩∷ $ ⊩ᵛ∷→⊩ˢ∷→⊩[]∷ ⊩t ⊩σ)
            (PE.subst (_⊢_∷_ _ _) (singleSubstLift B _) $
             subst-⊢∷-⇑ ⊢u ⊢σ)
            ok)
@@ -469,11 +468,11 @@ opaque
     Γ ⊩ᵛ⟨ l ⟩ snd p (prodˢ p t u) ≡ u ∷ B [ fst p (prodˢ p t u) ]₀
   Σ-β₂ᵛ {B} ok ⊢B ⊩B ⊩t ⊢u ⊩u =
     ⊩ᵛ∷-⇐
-      (λ inc ⊩σ →
-         let _ , ⊢σ = escape-⊩ˢ∷ inc ⊩σ in
+      (λ ⊩σ →
+         let _ , ⊢σ = escape-⊩ˢ∷ ⊩σ in
          PE.subst (_⊢_⇒_∷_ _ _ _) (PE.sym $ singleSubstLift B _) $
          Σ-β₂-⇒ (subst-⊢-⇑ ⊢B ⊢σ)
-           (R.escape-⊩∷ inc $ ⊩ᵛ∷→⊩ˢ∷→⊩[]∷ ⊩t ⊩σ)
+           (R.escape-⊩∷ $ ⊩ᵛ∷→⊩ˢ∷→⊩[]∷ ⊩t ⊩σ)
            (PE.subst (_⊢_∷_ _ _) (singleSubstLift B _) $
             subst-⊢∷-⇑ ⊢u ⊢σ)
            ok)
@@ -501,12 +500,12 @@ opaque
     ⊩ᵛ≡∷⇔′ʰ .proj₂
       ( ⊩t₁
       , level-⊩ᵛ∷ ⊩ΣAB ⊩t₂
-      , λ {_ _} {σ = σ} inc ⊩σ →
-          case R.⊩→ inc $ ⊩ᵛ→⊩ˢ∷→⊩[] ⊩A ⊩σ of λ
+      , λ {_ _} {σ = σ} ⊩σ →
+          case R.⊩→ $ ⊩ᵛ→⊩ˢ∷→⊩[] ⊩A ⊩σ of λ
             ⊩A[σ] →
-          case R.⊩∷→ inc $ ⊩ᵛ∷→⊩ˢ∷→⊩[]∷ ⊩t₁ ⊩σ of λ
+          case R.⊩∷→ $ ⊩ᵛ∷→⊩ˢ∷→⊩[]∷ ⊩t₁ ⊩σ of λ
             ⊩t₁[σ] →
-          case R.⊩∷→ inc $ ⊩ᵛ∷→⊩ˢ∷→⊩[]∷ ⊩t₂ ⊩σ of λ
+          case R.⊩∷→ $ ⊩ᵛ∷→⊩ˢ∷→⊩[]∷ ⊩t₂ ⊩σ of λ
             ⊩t₂[σ] →
           case ⊩∷Σˢ⇔ .proj₁ ⊩t₁[σ] of λ
             (⊩ΣAB[σ] , u₁ , t₁[σ]⇒*u₁ , u₁-prod , _) →
@@ -520,19 +519,19 @@ opaque
             fst-u₁≡fst-t₁[σ] →
           case
             fst p u₁        ≡⟨ fst-u₁≡fst-t₁[σ] ⟩⊩∷
-            fst p t₁ [ σ ]  ≡⟨ ⊩ᵛ≡∷⇔′ʰ .proj₁ fst-t₁≡fst-t₂ .proj₂ .proj₂ inc ⊩σ ⟩⊩∷
+            fst p t₁ [ σ ]  ≡⟨ ⊩ᵛ≡∷⇔′ʰ .proj₁ fst-t₁≡fst-t₂ .proj₂ .proj₂ ⊩σ ⟩⊩∷
             fst p t₂ [ σ ]  ≡⟨ level-⊩≡∷ ⊩A[σ] $ ⊩fst≡fst t₂[σ]≡u₂ ⟩⊩∷∎
             fst p u₂        ∎
           of λ
             fst-u₁≡fst-u₂ →
           case
             snd p u₁       ∷ B [ σ ⇑ ] [ fst p u₁ ]₀        ≡⟨ ⊩snd≡snd $ sym-⊩≡∷ t₁[σ]≡u₁ ⟩⊩∷∷
-                                                             ⟨ R.⊩≡→ inc $
+                                                             ⟨ R.⊩≡→ $
                                                                ⊩ᵛ≡→⊩ˢ≡∷→⊩≡∷→⊩[⇑][]₀≡[⇑][]₀ (refl-⊩ᵛ≡ ⊩B) (refl-⊩ˢ≡∷ ⊩σ)
                                                                  (R.→⊩≡∷ fst-u₁≡fst-t₁[σ]) ⟩⊩∷
             snd p t₁ [ σ ] ∷ B [ σ ⇑ ] [ fst p t₁ [ σ ] ]₀  ≡⟨ PE.subst (_⊩⟨_⟩_≡_∷_ _ _ _ _) (singleSubstLift B _) $
-                                                               ⊩ᵛ≡∷⇔′ʰ .proj₁ snd-t₁≡snd-t₂ .proj₂ .proj₂ inc ⊩σ ⟩⊩∷∷
-                                                             ⟨ R.⊩≡→ inc $
+                                                               ⊩ᵛ≡∷⇔′ʰ .proj₁ snd-t₁≡snd-t₂ .proj₂ .proj₂ ⊩σ ⟩⊩∷∷
+                                                             ⟨ R.⊩≡→ $
                                                                ⊩ᵛ≡→⊩ˢ≡∷→⊩≡∷→⊩[⇑][]₀≡[⇑][]₀ (refl-⊩ᵛ≡ ⊩B) (refl-⊩ˢ≡∷ ⊩σ) $
                                                                ⊩ᵛ≡∷⇔′ .proj₁ fst-t₁≡fst-t₂ .proj₂ .proj₂ ⊩σ ⟩⊩∷
             snd p t₂ [ σ ] ∷ B [ σ ⇑ ] [ fst p t₂ [ σ ] ]₀  ≡⟨ ⊩snd≡snd t₂[σ]≡u₂ ⟩⊩∷∎∷
@@ -627,20 +626,20 @@ private opaque
     Γ ∙ A ⊩ᵛ⟨ l ⟩ B →
     Γ ⊩ᵛ⟨ l ⟩ t₁ ≡ t₂ ∷ A →
     Γ ⊩ᵛ⟨ l′ ⟩ u₁ ≡ u₂ ∷ B [ t₁ ]₀ →
-    Neutrals-included-or-empty Δ →
+    ⦃ inc : Neutrals-included-or-empty Δ ⦄ →
     Δ ⊩ˢ σ₁ ≡ σ₂ ∷ Γ →
     Δ ⊩⟨ l ⟩ prodˢ p t₁ u₁ [ σ₁ ] ≡ prodˢ p t₂ u₂ [ σ₂ ] ∷
       (Σˢ p , q ▷ A ▹ B) [ σ₁ ]
-  ⊩prodˢ[]≡prodˢ[] {B} ok ⊢B ⊩B t₁≡t₂ u₁≡u₂ inc σ₁≡σ₂ =
+  ⊩prodˢ[]≡prodˢ[] {B} ok ⊢B ⊩B t₁≡t₂ u₁≡u₂ σ₁≡σ₂ =
     case wf-⊩ᵛ∷ $ wf-⊩ᵛ≡∷ t₁≡t₂ .proj₁ of λ
       ⊩A →
     case wf-⊩ˢ≡∷ σ₁≡σ₂ of λ
       (⊩σ₁ , _) →
-    ⊩prodˢ≡prodˢ (subst-⊢-⇑ ⊢B (escape-⊩ˢ∷ inc ⊩σ₁ .proj₂))
-      (⊩ΠΣ (ΠΣⱼ ⊢B ok) ⊩A ⊩B inc ⊩σ₁)
-      (R.⊩≡∷→ inc $ ⊩ᵛ≡∷→⊩ˢ≡∷→⊩[]≡[]∷ t₁≡t₂ σ₁≡σ₂)
+    ⊩prodˢ≡prodˢ (subst-⊢-⇑ ⊢B (escape-⊩ˢ∷ ⊩σ₁ .proj₂))
+      (⊩ΠΣ (ΠΣⱼ ⊢B ok) ⊩A ⊩B ⊩σ₁)
+      (R.⊩≡∷→ $ ⊩ᵛ≡∷→⊩ˢ≡∷→⊩[]≡[]∷ t₁≡t₂ σ₁≡σ₂)
       (PE.subst (_⊩⟨_⟩_≡_∷_ _ _ _ _) (singleSubstLift B _) $
-       R.⊩≡∷→ inc $ ⊩ᵛ≡∷→⊩ˢ≡∷→⊩[]≡[]∷ u₁≡u₂ σ₁≡σ₂)
+       R.⊩≡∷→ $ ⊩ᵛ≡∷→⊩ˢ≡∷→⊩[]≡[]∷ u₁≡u₂ σ₁≡σ₂)
 
 opaque
 

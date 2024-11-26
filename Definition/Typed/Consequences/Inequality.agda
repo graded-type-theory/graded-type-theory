@@ -57,7 +57,7 @@ opaque
      ¬ ShapeView Γ l₁ l₂ A B (A-intr ⊩A) (B-intr ⊩B)) →
     ¬ Γ ⊢ A ≡ B
   A≢B _ _ A-intr B-intr A-elim B-elim A≢B′ A≡B =
-    let _ , ⊩A , ⊩B , A≡B = reducible-⊩≡ (inj₁ _) A≡B
+    let _ , ⊩A , ⊩B , A≡B = reducible-⊩≡ A≡B
         _ , ⊩A′           = A-elim ⊩A
         _ , ⊩B′           = B-elim ⊩B
         A≡B′              = irrelevanceEq ⊩A (A-intr ⊩A′) A≡B
@@ -399,7 +399,7 @@ whnf≢ne :
   No-η-equality A → Whnf t → ¬ Neutral t → Neutral u →
   ¬ Γ ⊢ t ≡ u ∷ A
 whnf≢ne {A} {t} {u} ¬-A-η t-whnf ¬-t-ne u-ne t≡u =
-  case reducible-⊩≡∷ (inj₁ _) t≡u of λ
+  case reducible-⊩≡∷ t≡u of λ
     (_ , t≡u) →
   case wf-⊩∷ $ wf-⊩≡∷ t≡u .proj₁ of λ
     ⊩A →

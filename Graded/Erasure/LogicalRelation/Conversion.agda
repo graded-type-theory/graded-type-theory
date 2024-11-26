@@ -22,7 +22,7 @@ import Graded.Erasure.Target as T
 
 open import Definition.LogicalRelation R
 open import Definition.LogicalRelation.Hidden R
-open import Definition.LogicalRelation.Fundamental.Reducibility R inc
+open import Definition.LogicalRelation.Fundamental.Reducibility R
 open import Definition.LogicalRelation.ShapeView R
 open import Definition.LogicalRelation.Properties.Conversion R
 open import Definition.LogicalRelation.Properties.Escape R

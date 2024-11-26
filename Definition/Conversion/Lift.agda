@@ -110,7 +110,7 @@ mutual
         ⊢F , ⊢G , _ = inversion-ΠΣ ⊢ΠFG
         neT , neU = ne~↑ k~l
         step-id = stepʷ id ⊢F
-        step-idʳ = ∷ʷ⊇→∷ʷʳ⊇ (inj₁ _) step-id
+        step-idʳ = ∷ʷ⊇→∷ʷʳ⊇ step-id
         var0 = neuTerm _ ([F] step-idʳ) (var x0) (refl (var₀ ⊢F))
         0≡0 = lift~toConv↑′ ([F] step-idʳ) (var-refl (var₀ ⊢F) PE.refl)
     in  η-eq ⊢t ⊢u (ne neT) (ne neU)
@@ -182,7 +182,7 @@ lift~toConv↓ : ∀ {t u A}
              → Γ ⊢ t [conv↓] u ∷ A
 lift~toConv↓ ([~] A₁ D@(D′ , _) k~l) =
   lift~toConv↓′
-    (reducible-⊩ (inj₁ _) (syntacticRed D′ .proj₁) .proj₂) D′
+    (reducible-⊩ (syntacticRed D′ .proj₁) .proj₂) D′
     ([~] A₁ D k~l)
 
 -- Lifting of algorithmic equality of terms from neutrals to generic terms.
@@ -191,6 +191,5 @@ lift~toConv↑ : ∀ {t u A}
              → Γ ⊢ t [conv↑] u ∷ A
 lift~toConv↑ t~u =
   lift~toConv↑′
-    (reducible-⊩ (inj₁ _) (syntacticEqTerm (soundness~↑ t~u) .proj₁)
-       .proj₂)
+    (reducible-⊩ (syntacticEqTerm (soundness~↑ t~u) .proj₁) .proj₂)
     t~u

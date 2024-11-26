@@ -158,7 +158,7 @@ opaque
                ▸ ⟨ H , t , ρ , ε ⟩
   redNumeral {s} consistent nem ⊢s ▸s =
     redNumeral′ consistent nem
-      (⊩∷ℕ⇔ .proj₁ (reducible-⊩∷ (inj₁ _) (⊢⦅⦆ {s = s} ⊢s) .proj₂))
+      (⊩∷ℕ⇔ .proj₁ (reducible-⊩∷ (⊢⦅⦆ {s = s} ⊢s) .proj₂))
       PE.refl ⊢s ▸s
 
 opaque

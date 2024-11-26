@@ -162,13 +162,22 @@ implicit-Π-cong-⇔ eq =
     (λ f → eq _ .proj₁ f)
   , (λ f → eq _ .proj₂ f)
 
--- A kind of commutativity for Π.
+-- The instance argument variant of Π A preserves logical
+-- equivalences.
 
-Π-comm-⇔ :
+instance-Π-cong-⇔ :
+  (∀ ⦃ x ⦄ → P x ⇔ Q x) → (⦃ x : A ⦄ → P x) ⇔ (⦃ x : A ⦄ → Q x)
+instance-Π-cong-⇔ eq =
+    (λ f → eq .proj₁ f)
+  , (λ f → eq .proj₂ f)
+
+-- A kind of commutativity for two kinds of function spaces.
+
+Π⦃⦄→⇔⦃⦄→Π :
   ∀ {a b p} {A : Set a} {B : Set b} {P : A → B → Set p} →
-  ((x : A) (y : B) → P x y) ⇔
-  ((y : B) (x : A) → P x y)
-Π-comm-⇔ = flip , flip
+  ((x : A) ⦃ y : B ⦄ → P x y) ⇔
+  (⦃ y : B ⦄ (x : A) → P x y)
+Π⦃⦄→⇔⦃⦄→Π = (λ f x → f x) , (λ f x → f x)
 
 -- Σ A preserves logical equivalences.
 

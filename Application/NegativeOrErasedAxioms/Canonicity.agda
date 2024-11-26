@@ -332,7 +332,7 @@ module _
     ∃ λ u → Numeral u × Γ ⊢ t ⇒ˢ* u ∷ℕ
   canonicityRed ⊢t γ▸t nΓγ =
     canonicityRed′ γ▸t nΓγ $ ⊩∷ℕ⇔ .proj₁ $ proj₂ $
-    reducible-⊩∷ (inj₁ _) ⊢t
+    reducible-⊩∷ ⊢t
 
   -- A variant of the previous result for terms that are
   -- well-resourced with respect to 𝟘ᶜ.

@@ -36,7 +36,6 @@ open import Tools.Function
 open import Tools.Nat using (Nat)
 open import Tools.Product
 import Tools.PropositionalEquality as PE
-open import Tools.Sum
 
 private
   variable
@@ -55,7 +54,7 @@ opaque
 
   red-U : Γ ⊢ t ∷ U l → ∃ λ u → Type u × Γ ⊢ t ⇒* u ∷ U l
   red-U ⊢t =
-    case ⊩∷U⇔ .proj₁ $ proj₂ $ reducible-⊩∷ (inj₁ _) ⊢t of λ
+    case ⊩∷U⇔ .proj₁ $ proj₂ $ reducible-⊩∷ ⊢t of λ
       (_ , _ , u , t⇒*u , u-type , _) →
     u , u-type , t⇒*u
 
@@ -65,7 +64,7 @@ opaque
 
   red-Empty : Γ ⊢ t ∷ Empty → ∃ λ u → Neutral u × Γ ⊢ t ⇒* u ∷ Empty
   red-Empty ⊢t =
-    case ⊩∷Empty⇔ .proj₁ $ proj₂ $ reducible-⊩∷ (inj₁ _) ⊢t of λ {
+    case ⊩∷Empty⇔ .proj₁ $ proj₂ $ reducible-⊩∷ ⊢t of λ {
       (Emptyₜ u t⇒*u _ (ne (neNfₜ _ u-ne _))) →
     u , u-ne , t⇒*u }
 
@@ -75,7 +74,7 @@ opaque
 
   red-Unit : Γ ⊢ t ∷ Unit s l → ∃ λ u → Star u × Γ ⊢ t ⇒* u ∷ Unit s l
   red-Unit ⊢t =
-    case ⊩∷Unit⇔ .proj₁ $ proj₂ $ reducible-⊩∷ (inj₁ _) ⊢t of λ {
+    case ⊩∷Unit⇔ .proj₁ $ proj₂ $ reducible-⊩∷ ⊢t of λ {
       (_ , _ , Unitₜ u t⇒*u _ rest) →
       u
     , (case rest of λ where
@@ -90,7 +89,7 @@ opaque
 
   red-ℕ : Γ ⊢ t ∷ ℕ → ∃ λ u → Natural u × Γ ⊢ t ⇒* u ∷ ℕ
   red-ℕ ⊢t =
-    case ⊩∷ℕ⇔ .proj₁ $ proj₂ $ reducible-⊩∷ (inj₁ _) ⊢t of λ {
+    case ⊩∷ℕ⇔ .proj₁ $ proj₂ $ reducible-⊩∷ ⊢t of λ {
       (ℕₜ u t⇒*u _ rest) →
       u
     , (case rest of λ where
@@ -107,7 +106,7 @@ opaque
     Γ ⊢ t ∷ Π p , q ▷ A ▹ B →
     ∃ λ u → Function u × Γ ⊢ t ⇒* u ∷ Π p , q ▷ A ▹ B
   red-Π ⊢t =
-    case ⊩∷Π⇔ .proj₁ $ proj₂ $ reducible-⊩∷ (inj₁ _) ⊢t of λ
+    case ⊩∷Π⇔ .proj₁ $ proj₂ $ reducible-⊩∷ ⊢t of λ
       (_ , u , t⇒*u , u-fun , _) →
     u , u-fun , t⇒*u
 
@@ -119,11 +118,11 @@ opaque
     Γ ⊢ t ∷ Σ⟨ m ⟩ p , q ▷ A ▹ B →
     ∃ λ u → Product u × Γ ⊢ t ⇒* u ∷ Σ⟨ m ⟩ p , q ▷ A ▹ B
   red-Σ {m = 𝕤} ⊢t =
-    case ⊩∷Σˢ⇔ .proj₁ $ proj₂ $ reducible-⊩∷ (inj₁ _) ⊢t of λ
+    case ⊩∷Σˢ⇔ .proj₁ $ proj₂ $ reducible-⊩∷ ⊢t of λ
       (_ , u , t⇒*u , u-prod , _) →
     u , u-prod , t⇒*u
   red-Σ {m = 𝕨} ⊢t =
-    case ⊩∷Σʷ⇔ .proj₁ $ proj₂ $ reducible-⊩∷ (inj₁ _) ⊢t of λ
+    case ⊩∷Σʷ⇔ .proj₁ $ proj₂ $ reducible-⊩∷ ⊢t of λ
       (_ , u , t⇒*u , _ , rest) →
     u , ⊩∷Σʷ→Product rest , t⇒*u
 
@@ -136,7 +135,7 @@ opaque
     Γ ⊢ t ∷ Id A u v →
     ∃ λ w → Identity w × Γ ⊢ t ⇒* w ∷ Id A u v
   red-Id ⊢t =
-    case ⊩∷Id⇔ .proj₁ $ proj₂ $ reducible-⊩∷ (inj₁ _) ⊢t of λ
+    case ⊩∷Id⇔ .proj₁ $ proj₂ $ reducible-⊩∷ ⊢t of λ
       (w , t⇒*w , _ , _ , rest) →
       w
     , (case rest of λ where
@@ -160,7 +159,7 @@ whNorm′ (emb (≤ᵘ-step p) ⊩A) = whNorm′ (emb p ⊩A)
 
 -- Well-formed types can all be reduced to WHNF.
 whNorm : ∀ {A} → Γ ⊢ A → ∃ λ B → Whnf B × Γ ⊢ A ⇒* B
-whNorm A = whNorm′ (reducible-⊩ (inj₁ _) A .proj₂)
+whNorm A = whNorm′ (reducible-⊩ A .proj₂)
 
 opaque
 
@@ -284,7 +283,7 @@ opaque
 
   whNormTerm : Γ ⊢ t ∷ A → ∃ λ u → Whnf u × Γ ⊢ t ⇒* u ∷ A
   whNormTerm ⊢t =
-    case reducible-⊩∷ (inj₁ _) ⊢t of λ
+    case reducible-⊩∷ ⊢t of λ
       (_ , ⊩t) →
     case wf-⊩∷ ⊩t of λ
       ⊩A →
