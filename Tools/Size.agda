@@ -10,6 +10,7 @@ open import Induction.WellFounded
 import Relation.Binary.Construct.On as On
 
 open import Tools.Nat
+open import Tools.Product
 
 -- Sizes are simple trees.
 
@@ -131,6 +132,13 @@ opaque
 
 ------------------------------------------------------------------------
 -- More lemmas
+
+opaque
+
+  -- Every size is strictly smaller than some other size.
+
+  ∃-<ˢ : ∃ λ s₂ → s₁ <ˢ s₂
+  ∃-<ˢ {s₁} = node s₁ , ↙ ◻
 
 opaque
 
