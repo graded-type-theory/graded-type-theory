@@ -1,5 +1,6 @@
 ------------------------------------------------------------------------
--- Decidability of reducing to Π and Σ-types.
+-- Decidability of whether terms reduce to applications of specific
+-- type formers
 ------------------------------------------------------------------------
 
 open import Definition.Typed.Restrictions
