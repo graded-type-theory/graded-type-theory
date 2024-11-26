@@ -25,7 +25,6 @@ open import Definition.Typed.Syntactic R
 open import Definition.Typed.Well-formed R
 open import Definition.Conversion R
 open import Definition.Conversion.Whnf R
-open import Definition.Typed.Consequences.Admissible R
 open import Definition.Typed.Consequences.Injectivity R
 open import Definition.Typed.Consequences.Reduction R
 open import Definition.Typed.Consequences.NeTypeEq R

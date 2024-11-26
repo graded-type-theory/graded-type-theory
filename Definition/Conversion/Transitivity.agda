@@ -31,7 +31,6 @@ open import Definition.Conversion.Soundness R
 open import Definition.Conversion.Stability R
 open import Definition.Conversion.Whnf R
 open import Definition.Conversion.Conversion R
-open import Definition.Typed.Consequences.Admissible R
 open import Definition.Typed.Consequences.Injectivity R
 import Definition.Typed.Consequences.Inequality R as WF
 open import Definition.Typed.Consequences.NeTypeEq R
