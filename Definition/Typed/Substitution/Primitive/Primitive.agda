@@ -38,14 +38,14 @@ open import Tools.Size.Instances
 open import Tools.Sum using (inj₂)
 
 private variable
-  k m n                 : Nat
-  x                     : Fin _
-  Γ Δ Η                 : Con Term _
-  A A₁ A₂ B t t₁ t₂ u v : Term _
-  σ σ₁ σ₂ σ₃            : Subst _ _
-  ρ                     : Wk _ _
-  s s₂                  : Size
-  p q                   : M
+  k m n                      : Nat
+  x                          : Fin _
+  Γ Δ Η                      : Con Term _
+  A A₁ A₂ B t t₁ t₂ u v      : Term _
+  σ σ₁ σ₁₁ σ₁₂ σ₂ σ₂₁ σ₂₂ σ₃ : Subst _ _
+  ρ                          : Wk _ _
+  s s₂                       : Size
+  p q                        : M
 
 ------------------------------------------------------------------------
 -- An admissible equality rule
@@ -396,6 +396,63 @@ opaque
   ⊢ˢʷ∷-⇑ ⊢A[σ] =
     ⊢ˢʷ∷⇔⊢ˢʷ≡∷ .proj₂ ∘→ ⊢ˢʷ≡∷-⇑ ⊢A[σ] (refl ⊢A[σ]) ∘→
     ⊢ˢʷ∷⇔⊢ˢʷ≡∷ .proj₁
+
+opaque
+
+  -- A cast lemma for _⊢ˢʷ_≡_∷_.
+
+  cast-⊢ˢʷ≡∷ :
+    (∀ x → σ₁₁ x PE.≡ σ₂₁ x) →
+    (∀ x → σ₁₂ x PE.≡ σ₂₂ x) →
+    Δ ⊢ˢʷ σ₁₁ ≡ σ₁₂ ∷ Γ → Δ ⊢ˢʷ σ₂₁ ≡ σ₂₂ ∷ Γ
+  cast-⊢ˢʷ≡∷ {Γ = ε} _ _ σ₁₁≡σ₁₂ =
+    ⊢ˢʷ≡∷ε⇔ .proj₂ (⊢ˢʷ≡∷ε⇔ .proj₁ σ₁₁≡σ₁₂)
+  cast-⊢ˢʷ≡∷ {Γ = _ ∙ A} σ₁₁≡σ₂₁ σ₁₂≡σ₂₂ σ₁₁≡σ₁₂ =
+    let σ₁₁₊≡σ₁₂₊ , ⊢σ₁₁₀ , ⊢σ₁₂₀ , σ₁₁₀≡σ₁₂₀ =
+          ⊢ˢʷ≡∷∙⇔ .proj₁ σ₁₁≡σ₁₂
+        σ₁₁₊≡σ₂₁₊ = σ₁₁≡σ₂₁ ∘→ _+1
+        σ₁₂₊≡σ₂₂₊ = σ₁₂≡σ₂₂ ∘→ _+1
+        σ₂₁₊≡σ₂₂₊ = cast-⊢ˢʷ≡∷ σ₁₁₊≡σ₂₁₊ σ₁₂₊≡σ₂₂₊ σ₁₁₊≡σ₁₂₊
+    in
+    ⊢ˢʷ≡∷∙⇔ .proj₂
+      ( σ₂₁₊≡σ₂₂₊
+      , PE.subst₂ (_⊢_∷_ _) (σ₁₁≡σ₂₁ x0)
+          (substVar-to-subst σ₁₁₊≡σ₂₁₊ A) ⊢σ₁₁₀
+      , PE.subst₂ (_⊢_∷_ _) (σ₁₂≡σ₂₂ x0)
+          (substVar-to-subst σ₁₂₊≡σ₂₂₊ A) ⊢σ₁₂₀
+      , PE.subst₃ (_⊢_≡_∷_ _) (σ₁₁≡σ₂₁ x0) (σ₁₂≡σ₂₂ x0)
+          (substVar-to-subst σ₁₁₊≡σ₂₁₊ A) σ₁₁₀≡σ₁₂₀
+      )
+
+opaque
+
+  -- A cast lemma for _⊢ˢʷ_∷_.
+
+  cast-⊢ˢʷ∷ :
+    (∀ x → σ₁ x PE.≡ σ₂ x) →
+    Δ ⊢ˢʷ σ₁ ∷ Γ → Δ ⊢ˢʷ σ₂ ∷ Γ
+  cast-⊢ˢʷ∷ σ₁≡σ₂ =
+    ⊢ˢʷ∷⇔⊢ˢʷ≡∷ .proj₂ ∘→ cast-⊢ˢʷ≡∷ σ₁≡σ₂ σ₁≡σ₂ ∘→ ⊢ˢʷ∷⇔⊢ˢʷ≡∷ .proj₁
+
+opaque
+
+  -- If ρ is a well-formed weakening, then toSubst ρ is a well-formed
+  -- substitution.
+
+  ⊢ˢʷ-toSubst : ρ ∷ʷ Δ ⊇ Γ → Δ ⊢ˢʷ toSubst ρ ∷ Γ
+  ⊢ˢʷ-toSubst ρ⊇ = ⊢ˢʷ-toSubst′ (wf-∷ʷ⊇ ρ⊇) (∷ʷ⊇→∷⊇ ρ⊇)
+    where
+    ⊢ˢʷ-toSubst′ : ⊢ Δ → ρ ∷ Δ ⊇ Γ → Δ ⊢ˢʷ toSubst ρ ∷ Γ
+    ⊢ˢʷ-toSubst′ ⊢Δ id =
+      ⊢ˢʷ∷-idSubst ⊢Δ
+    ⊢ˢʷ-toSubst′ (∙ ⊢A) (step ρ⊇) =
+      ⊢ˢʷ∷-wk1Subst ⊢A (⊢ˢʷ-toSubst′ (wf ⊢A) ρ⊇)
+    ⊢ˢʷ-toSubst′ (∙ ⊢A) (lift ρ⊇) =
+      cast-⊢ˢʷ∷ (PE.sym ∘→ toSubst-liftn 1) $
+      PE.subst₃ _⊢ˢʷ_∷_
+        (PE.cong (_∙_ _) (PE.sym $ wk≡subst _ _)) PE.refl PE.refl $
+      ⊢ˢʷ∷-⇑ (PE.subst (_⊢_ _) (wk≡subst _ _) ⊢A) $
+      ⊢ˢʷ-toSubst′ (wf ⊢A) ρ⊇
 
 ------------------------------------------------------------------------
 -- Substitution lemmas
