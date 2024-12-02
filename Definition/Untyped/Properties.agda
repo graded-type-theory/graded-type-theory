@@ -2032,6 +2032,13 @@ B-PE-injectivity (BΣ p q s) (BΣ .p .q .s) PE.refl =
   p₁ PE.≡ p₂ × t₁ PE.≡ t₂ × u₁ PE.≡ u₂
 ∘-PE-injectivity PE.refl = PE.refl , PE.refl , PE.refl
 
+-- The constructor lam is injective.
+
+lam-PE-injectivity :
+  lam p₁ t₁ PE.≡ lam p₂ t₂ →
+  p₁ PE.≡ p₂ × t₁ PE.≡ t₂
+lam-PE-injectivity PE.refl = PE.refl , PE.refl
+
 -- The constructor prod is injective.
 
 prod-PE-injectivity :
