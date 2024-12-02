@@ -42,7 +42,7 @@ private variable
 ------------------------------------------------------------------------
 -- Inversion lemmas related to _⊢_⇒_∷_
 
-private opaque
+opaque
 
   -- An inversion lemma related to _∘⟨_⟩_.
 
