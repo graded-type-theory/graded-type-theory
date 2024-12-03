@@ -84,6 +84,7 @@ opaque
   stability-⊢∈ :
     ⊢ Γ ≡ Δ → x ∷ A ∈ Γ →
     ∃ λ B → Δ ⊢ A ≡ B × x ∷ B ∈ Δ
+  stability-⊢∈ ε                   ()
   stability-⊢∈ (Γ≡Δ ∙⟨ ⊢B ∣ A≡B ⟩) here =
     _ , wkEq₁ ⊢B A≡B , here
   stability-⊢∈ (Γ≡Δ ∙⟨ ⊢B ∣ _ ⟩) (there x∈) =

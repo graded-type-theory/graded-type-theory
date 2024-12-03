@@ -374,12 +374,56 @@ tr-Term-[]↑² {u = u} t =
 -- Inversion for var.
 
 tr-Term-var : tr-Term t ≡ var x → t ≡ var x
-tr-Term-var {t = var _} refl = refl
+tr-Term-var {t = var _}                 refl = refl
+tr-Term-var {t = U _}                   ()
+tr-Term-var {t = ΠΣ⟨ _ ⟩ _ , _ ▷ _ ▹ _} ()
+tr-Term-var {t = lam _ _}               ()
+tr-Term-var {t = _ ∘⟨ _ ⟩ _}            ()
+tr-Term-var {t = prod _ _ _ _}          ()
+tr-Term-var {t = fst _ _}               ()
+tr-Term-var {t = snd _ _}               ()
+tr-Term-var {t = prodrec _ _ _ _ _ _}   ()
+tr-Term-var {t = Empty}                 ()
+tr-Term-var {t = emptyrec _ _ _}        ()
+tr-Term-var {t = Unit _ _}              ()
+tr-Term-var {t = star _ _}              ()
+tr-Term-var {t = unitrec _ _ _ _ _ _}   ()
+tr-Term-var {t = ℕ}                     ()
+tr-Term-var {t = zero}                  ()
+tr-Term-var {t = suc _}                 ()
+tr-Term-var {t = natrec _ _ _ _ _ _ _}  ()
+tr-Term-var {t = Id _ _ _}              ()
+tr-Term-var {t = rfl}                   ()
+tr-Term-var {t = J _ _ _ _ _ _ _ _}     ()
+tr-Term-var {t = K _ _ _ _ _ _}         ()
+tr-Term-var {t = []-cong _ _ _ _ _}     ()
 
 -- Inversion for U.
 
 tr-Term-U : tr-Term t ≡ U l → t ≡ U l
-tr-Term-U {t = U _} refl = refl
+tr-Term-U {t = U _}                   refl = refl
+tr-Term-U {t = var _}                 ()
+tr-Term-U {t = ΠΣ⟨ _ ⟩ _ , _ ▷ _ ▹ _} ()
+tr-Term-U {t = lam _ _}               ()
+tr-Term-U {t = _ ∘⟨ _ ⟩ _}            ()
+tr-Term-U {t = prod _ _ _ _}          ()
+tr-Term-U {t = fst _ _}               ()
+tr-Term-U {t = snd _ _}               ()
+tr-Term-U {t = prodrec _ _ _ _ _ _}   ()
+tr-Term-U {t = Empty}                 ()
+tr-Term-U {t = emptyrec _ _ _}        ()
+tr-Term-U {t = Unit _ _}              ()
+tr-Term-U {t = star _ _}              ()
+tr-Term-U {t = unitrec _ _ _ _ _ _}   ()
+tr-Term-U {t = ℕ}                     ()
+tr-Term-U {t = zero}                  ()
+tr-Term-U {t = suc _}                 ()
+tr-Term-U {t = natrec _ _ _ _ _ _ _}  ()
+tr-Term-U {t = Id _ _ _}              ()
+tr-Term-U {t = rfl}                   ()
+tr-Term-U {t = J _ _ _ _ _ _ _ _}     ()
+tr-Term-U {t = K _ _ _ _ _ _}         ()
+tr-Term-U {t = []-cong _ _ _ _ _}     ()
 
 -- Inversion for ΠΣ⟨_⟩_,_▷_▹_.
 
@@ -391,13 +435,58 @@ tr-Term-ΠΣ :
      tr-Term A′ ≡ A × tr-Term B′ ≡ B
 tr-Term-ΠΣ {t = ΠΣ⟨ _ ⟩ _ , _ ▷ _ ▹ _} refl =
   _ # _ # _ # _ # refl # refl # refl # refl # refl
+tr-Term-ΠΣ {t = var _}                ()
+tr-Term-ΠΣ {t = U _}                  ()
+tr-Term-ΠΣ {t = lam _ _}              ()
+tr-Term-ΠΣ {t = _ ∘⟨ _ ⟩ _}           ()
+tr-Term-ΠΣ {t = prod _ _ _ _}         ()
+tr-Term-ΠΣ {t = fst _ _}              ()
+tr-Term-ΠΣ {t = snd _ _}              ()
+tr-Term-ΠΣ {t = prodrec _ _ _ _ _ _}  ()
+tr-Term-ΠΣ {t = Empty}                ()
+tr-Term-ΠΣ {t = emptyrec _ _ _}       ()
+tr-Term-ΠΣ {t = Unit _ _}             ()
+tr-Term-ΠΣ {t = star _ _}             ()
+tr-Term-ΠΣ {t = unitrec _ _ _ _ _ _}  ()
+tr-Term-ΠΣ {t = ℕ}                    ()
+tr-Term-ΠΣ {t = zero}                 ()
+tr-Term-ΠΣ {t = suc _}                ()
+tr-Term-ΠΣ {t = natrec _ _ _ _ _ _ _} ()
+tr-Term-ΠΣ {t = Id _ _ _}             ()
+tr-Term-ΠΣ {t = rfl}                  ()
+tr-Term-ΠΣ {t = J _ _ _ _ _ _ _ _}    ()
+tr-Term-ΠΣ {t = K _ _ _ _ _ _}        ()
+tr-Term-ΠΣ {t = []-cong _ _ _ _ _}    ()
 
 -- Inversion for lam.
 
 tr-Term-lam :
   tr-Term t ≡ lam p u →
   ∃₂ λ p′ u′ → t ≡ lam p′ u′ × tr p′ ≡ p × tr-Term u′ ≡ u
-tr-Term-lam {t = lam _ _} refl = _ # _ # refl # refl # refl
+tr-Term-lam {t = lam _ _} refl =
+  _ # _ # refl # refl # refl
+tr-Term-lam {t = var _}                 ()
+tr-Term-lam {t = U _}                   ()
+tr-Term-lam {t = ΠΣ⟨ _ ⟩ _ , _ ▷ _ ▹ _} ()
+tr-Term-lam {t = _ ∘⟨ _ ⟩ _}            ()
+tr-Term-lam {t = prod _ _ _ _}          ()
+tr-Term-lam {t = fst _ _}               ()
+tr-Term-lam {t = snd _ _}               ()
+tr-Term-lam {t = prodrec _ _ _ _ _ _}   ()
+tr-Term-lam {t = Empty}                 ()
+tr-Term-lam {t = emptyrec _ _ _}        ()
+tr-Term-lam {t = Unit _ _}              ()
+tr-Term-lam {t = star _ _}              ()
+tr-Term-lam {t = unitrec _ _ _ _ _ _}   ()
+tr-Term-lam {t = ℕ}                     ()
+tr-Term-lam {t = zero}                  ()
+tr-Term-lam {t = suc _}                 ()
+tr-Term-lam {t = natrec _ _ _ _ _ _ _}  ()
+tr-Term-lam {t = Id _ _ _}              ()
+tr-Term-lam {t = rfl}                   ()
+tr-Term-lam {t = J _ _ _ _ _ _ _ _}     ()
+tr-Term-lam {t = K _ _ _ _ _ _}         ()
+tr-Term-lam {t = []-cong _ _ _ _ _}     ()
 
 -- Inversion for _∘⟨_⟩_.
 
@@ -405,7 +494,30 @@ tr-Term-∘ :
   tr-Term t ≡ u ∘⟨ p ⟩ v →
   ∃₃ λ u′ p′ v′ →
      t ≡ u′ ∘⟨ p′ ⟩ v′ × tr-Term u′ ≡ u × tr p′ ≡ p × tr-Term v′ ≡ v
-tr-Term-∘ {t = _ ∘⟨ _ ⟩ _} refl = _ # _ # _ # refl # refl # refl # refl
+tr-Term-∘ {t = _ ∘⟨ _ ⟩ _} refl =
+  _ # _ # _ # refl # refl # refl # refl
+tr-Term-∘ {t = var _}                 ()
+tr-Term-∘ {t = U _}                   ()
+tr-Term-∘ {t = ΠΣ⟨ _ ⟩ _ , _ ▷ _ ▹ _} ()
+tr-Term-∘ {t = lam _ _}               ()
+tr-Term-∘ {t = prod _ _ _ _}          ()
+tr-Term-∘ {t = fst _ _}               ()
+tr-Term-∘ {t = snd _ _}               ()
+tr-Term-∘ {t = prodrec _ _ _ _ _ _}   ()
+tr-Term-∘ {t = Empty}                 ()
+tr-Term-∘ {t = emptyrec _ _ _}        ()
+tr-Term-∘ {t = Unit _ _}              ()
+tr-Term-∘ {t = star _ _}              ()
+tr-Term-∘ {t = unitrec _ _ _ _ _ _}   ()
+tr-Term-∘ {t = ℕ}                     ()
+tr-Term-∘ {t = zero}                  ()
+tr-Term-∘ {t = suc _}                 ()
+tr-Term-∘ {t = natrec _ _ _ _ _ _ _}  ()
+tr-Term-∘ {t = Id _ _ _}              ()
+tr-Term-∘ {t = rfl}                   ()
+tr-Term-∘ {t = J _ _ _ _ _ _ _ _}     ()
+tr-Term-∘ {t = K _ _ _ _ _ _}         ()
+tr-Term-∘ {t = []-cong _ _ _ _ _}     ()
 
 -- Inversion for prod.
 
@@ -416,20 +528,88 @@ tr-Term-prod :
      tr-BinderMode (BMΣ s) p′ ≡ p × tr-Term u′ ≡ u × tr-Term v′ ≡ v
 tr-Term-prod {t = prod _ _ _ _} refl =
   _ # _ # _ # refl # refl # refl # refl
+tr-Term-prod {t = var _}                 ()
+tr-Term-prod {t = U _}                   ()
+tr-Term-prod {t = ΠΣ⟨ _ ⟩ _ , _ ▷ _ ▹ _} ()
+tr-Term-prod {t = lam _ _}               ()
+tr-Term-prod {t = _ ∘⟨ _ ⟩ _}            ()
+tr-Term-prod {t = fst _ _}               ()
+tr-Term-prod {t = snd _ _}               ()
+tr-Term-prod {t = prodrec _ _ _ _ _ _}   ()
+tr-Term-prod {t = Empty}                 ()
+tr-Term-prod {t = emptyrec _ _ _}        ()
+tr-Term-prod {t = Unit _ _}              ()
+tr-Term-prod {t = star _ _}              ()
+tr-Term-prod {t = unitrec _ _ _ _ _ _}   ()
+tr-Term-prod {t = ℕ}                     ()
+tr-Term-prod {t = zero}                  ()
+tr-Term-prod {t = suc _}                 ()
+tr-Term-prod {t = natrec _ _ _ _ _ _ _}  ()
+tr-Term-prod {t = Id _ _ _}              ()
+tr-Term-prod {t = rfl}                   ()
+tr-Term-prod {t = J _ _ _ _ _ _ _ _}     ()
+tr-Term-prod {t = K _ _ _ _ _ _}         ()
+tr-Term-prod {t = []-cong _ _ _ _ _}     ()
 
 -- Inversion for fst.
 
 tr-Term-fst :
   tr-Term t ≡ fst p u →
   ∃₂ λ p′ u′ → t ≡ fst p′ u′ × tr-Σ p′ ≡ p × tr-Term u′ ≡ u
-tr-Term-fst {t = fst _ _} refl = _ # _ # refl # refl # refl
+tr-Term-fst {t = fst _ _} refl =
+  _ # _ # refl # refl # refl
+tr-Term-fst {t = var _}                 ()
+tr-Term-fst {t = U _}                   ()
+tr-Term-fst {t = ΠΣ⟨ _ ⟩ _ , _ ▷ _ ▹ _} ()
+tr-Term-fst {t = lam _ _}               ()
+tr-Term-fst {t = _ ∘⟨ _ ⟩ _}            ()
+tr-Term-fst {t = prod _ _ _ _}          ()
+tr-Term-fst {t = snd _ _}               ()
+tr-Term-fst {t = prodrec _ _ _ _ _ _}   ()
+tr-Term-fst {t = Empty}                 ()
+tr-Term-fst {t = emptyrec _ _ _}        ()
+tr-Term-fst {t = Unit _ _}              ()
+tr-Term-fst {t = star _ _}              ()
+tr-Term-fst {t = unitrec _ _ _ _ _ _}   ()
+tr-Term-fst {t = ℕ}                     ()
+tr-Term-fst {t = zero}                  ()
+tr-Term-fst {t = suc _}                 ()
+tr-Term-fst {t = natrec _ _ _ _ _ _ _}  ()
+tr-Term-fst {t = Id _ _ _}              ()
+tr-Term-fst {t = rfl}                   ()
+tr-Term-fst {t = J _ _ _ _ _ _ _ _}     ()
+tr-Term-fst {t = K _ _ _ _ _ _}         ()
+tr-Term-fst {t = []-cong _ _ _ _ _}     ()
 
 -- Inversion for snd.
 
 tr-Term-snd :
   tr-Term t ≡ snd p u →
   ∃₂ λ p′ u′ → t ≡ snd p′ u′ × tr-Σ p′ ≡ p × tr-Term u′ ≡ u
-tr-Term-snd {t = snd _ _} refl = _ # _ # refl # refl # refl
+tr-Term-snd {t = snd _ _} refl =
+  _ # _ # refl # refl # refl
+tr-Term-snd {t = var _}                 ()
+tr-Term-snd {t = U _}                   ()
+tr-Term-snd {t = ΠΣ⟨ _ ⟩ _ , _ ▷ _ ▹ _} ()
+tr-Term-snd {t = lam _ _}               ()
+tr-Term-snd {t = _ ∘⟨ _ ⟩ _}            ()
+tr-Term-snd {t = prod _ _ _ _}          ()
+tr-Term-snd {t = fst _ _}               ()
+tr-Term-snd {t = prodrec _ _ _ _ _ _}   ()
+tr-Term-snd {t = Empty}                 ()
+tr-Term-snd {t = emptyrec _ _ _}        ()
+tr-Term-snd {t = Unit _ _}              ()
+tr-Term-snd {t = star _ _}              ()
+tr-Term-snd {t = unitrec _ _ _ _ _ _}   ()
+tr-Term-snd {t = ℕ}                     ()
+tr-Term-snd {t = zero}                  ()
+tr-Term-snd {t = suc _}                 ()
+tr-Term-snd {t = natrec _ _ _ _ _ _ _}  ()
+tr-Term-snd {t = Id _ _ _}              ()
+tr-Term-snd {t = rfl}                   ()
+tr-Term-snd {t = J _ _ _ _ _ _ _ _}     ()
+tr-Term-snd {t = K _ _ _ _ _ _}         ()
+tr-Term-snd {t = []-cong _ _ _ _ _}     ()
 
 -- Inversion for prodrec.
 
@@ -440,16 +620,82 @@ tr-Term-prodrec :
      tr q′ ≡ q × tr-Term A′ ≡ A × tr-Term u′ ≡ u × tr-Term v′ ≡ v
 tr-Term-prodrec {t = prodrec _ _ _ _ _ _} refl =
   _ # _ # _ # _ # _ # _ # refl # refl # refl # refl # refl # refl # refl
+tr-Term-prodrec {t = var _}                 ()
+tr-Term-prodrec {t = U _}                   ()
+tr-Term-prodrec {t = ΠΣ⟨ _ ⟩ _ , _ ▷ _ ▹ _} ()
+tr-Term-prodrec {t = lam _ _}               ()
+tr-Term-prodrec {t = _ ∘⟨ _ ⟩ _}            ()
+tr-Term-prodrec {t = prod _ _ _ _}          ()
+tr-Term-prodrec {t = fst _ _}               ()
+tr-Term-prodrec {t = snd _ _}               ()
+tr-Term-prodrec {t = Empty}                 ()
+tr-Term-prodrec {t = emptyrec _ _ _}        ()
+tr-Term-prodrec {t = Unit _ _}              ()
+tr-Term-prodrec {t = star _ _}              ()
+tr-Term-prodrec {t = unitrec _ _ _ _ _ _}   ()
+tr-Term-prodrec {t = ℕ}                     ()
+tr-Term-prodrec {t = zero}                  ()
+tr-Term-prodrec {t = suc _}                 ()
+tr-Term-prodrec {t = natrec _ _ _ _ _ _ _}  ()
+tr-Term-prodrec {t = Id _ _ _}              ()
+tr-Term-prodrec {t = rfl}                   ()
+tr-Term-prodrec {t = J _ _ _ _ _ _ _ _}     ()
+tr-Term-prodrec {t = K _ _ _ _ _ _}         ()
+tr-Term-prodrec {t = []-cong _ _ _ _ _}     ()
 
 -- Inversion for Unit.
 
 tr-Term-Unit : tr-Term t ≡ Unit s l → t ≡ Unit s l
-tr-Term-Unit {t = Unit!} refl = refl
+tr-Term-Unit {t = Unit!}                 refl = refl
+tr-Term-Unit {t = var _}                 ()
+tr-Term-Unit {t = U _}                   ()
+tr-Term-Unit {t = ΠΣ⟨ _ ⟩ _ , _ ▷ _ ▹ _} ()
+tr-Term-Unit {t = lam _ _}               ()
+tr-Term-Unit {t = _ ∘⟨ _ ⟩ _}            ()
+tr-Term-Unit {t = prod _ _ _ _}          ()
+tr-Term-Unit {t = fst _ _}               ()
+tr-Term-Unit {t = snd _ _}               ()
+tr-Term-Unit {t = prodrec _ _ _ _ _ _}   ()
+tr-Term-Unit {t = Empty}                 ()
+tr-Term-Unit {t = emptyrec _ _ _}        ()
+tr-Term-Unit {t = star _ _}              ()
+tr-Term-Unit {t = unitrec _ _ _ _ _ _}   ()
+tr-Term-Unit {t = ℕ}                     ()
+tr-Term-Unit {t = zero}                  ()
+tr-Term-Unit {t = suc _}                 ()
+tr-Term-Unit {t = natrec _ _ _ _ _ _ _}  ()
+tr-Term-Unit {t = Id _ _ _}              ()
+tr-Term-Unit {t = rfl}                   ()
+tr-Term-Unit {t = J _ _ _ _ _ _ _ _}     ()
+tr-Term-Unit {t = K _ _ _ _ _ _}         ()
+tr-Term-Unit {t = []-cong _ _ _ _ _}     ()
 
 -- Inversion for star.
 
 tr-Term-star : tr-Term t ≡ star s l → t ≡ star s l
-tr-Term-star {t = star!} refl = refl
+tr-Term-star {t = star!}                 refl = refl
+tr-Term-star {t = var _}                 ()
+tr-Term-star {t = U _}                   ()
+tr-Term-star {t = ΠΣ⟨ _ ⟩ _ , _ ▷ _ ▹ _} ()
+tr-Term-star {t = lam _ _}               ()
+tr-Term-star {t = _ ∘⟨ _ ⟩ _}            ()
+tr-Term-star {t = prod _ _ _ _}          ()
+tr-Term-star {t = fst _ _}               ()
+tr-Term-star {t = snd _ _}               ()
+tr-Term-star {t = prodrec _ _ _ _ _ _}   ()
+tr-Term-star {t = Empty}                 ()
+tr-Term-star {t = emptyrec _ _ _}        ()
+tr-Term-star {t = Unit _ _}              ()
+tr-Term-star {t = unitrec _ _ _ _ _ _}   ()
+tr-Term-star {t = ℕ}                     ()
+tr-Term-star {t = zero}                  ()
+tr-Term-star {t = suc _}                 ()
+tr-Term-star {t = natrec _ _ _ _ _ _ _}  ()
+tr-Term-star {t = Id _ _ _}              ()
+tr-Term-star {t = rfl}                   ()
+tr-Term-star {t = J _ _ _ _ _ _ _ _}     ()
+tr-Term-star {t = K _ _ _ _ _ _}         ()
+tr-Term-star {t = []-cong _ _ _ _ _}     ()
 
 -- Inversion for unitrec.
 
@@ -460,11 +706,55 @@ tr-Term-unitrec :
      tr-Term A′ ≡ A × tr-Term u′ ≡ u × tr-Term v′ ≡ v
 tr-Term-unitrec {t = unitrec _ _ _ _ _ _} refl =
   _ # _ # _ # _ # _ # refl # refl # refl # refl # refl # refl
+tr-Term-unitrec {t = var _}                 ()
+tr-Term-unitrec {t = U _}                   ()
+tr-Term-unitrec {t = ΠΣ⟨ _ ⟩ _ , _ ▷ _ ▹ _} ()
+tr-Term-unitrec {t = lam _ _}               ()
+tr-Term-unitrec {t = _ ∘⟨ _ ⟩ _}            ()
+tr-Term-unitrec {t = prod _ _ _ _}          ()
+tr-Term-unitrec {t = fst _ _}               ()
+tr-Term-unitrec {t = snd _ _}               ()
+tr-Term-unitrec {t = prodrec _ _ _ _ _ _}   ()
+tr-Term-unitrec {t = Empty}                 ()
+tr-Term-unitrec {t = emptyrec _ _ _}        ()
+tr-Term-unitrec {t = Unit _ _}              ()
+tr-Term-unitrec {t = star _ _}              ()
+tr-Term-unitrec {t = ℕ}                     ()
+tr-Term-unitrec {t = zero}                  ()
+tr-Term-unitrec {t = suc _}                 ()
+tr-Term-unitrec {t = natrec _ _ _ _ _ _ _}  ()
+tr-Term-unitrec {t = Id _ _ _}              ()
+tr-Term-unitrec {t = rfl}                   ()
+tr-Term-unitrec {t = J _ _ _ _ _ _ _ _}     ()
+tr-Term-unitrec {t = K _ _ _ _ _ _}         ()
+tr-Term-unitrec {t = []-cong _ _ _ _ _}     ()
 
 -- Inversion for Empty.
 
 tr-Term-Empty : tr-Term t ≡ Empty → t ≡ Empty
-tr-Term-Empty {t = Empty} refl = refl
+tr-Term-Empty {t = Empty}                 refl = refl
+tr-Term-Empty {t = var _}                 ()
+tr-Term-Empty {t = U _}                   ()
+tr-Term-Empty {t = ΠΣ⟨ _ ⟩ _ , _ ▷ _ ▹ _} ()
+tr-Term-Empty {t = lam _ _}               ()
+tr-Term-Empty {t = _ ∘⟨ _ ⟩ _}            ()
+tr-Term-Empty {t = prod _ _ _ _}          ()
+tr-Term-Empty {t = fst _ _}               ()
+tr-Term-Empty {t = snd _ _}               ()
+tr-Term-Empty {t = prodrec _ _ _ _ _ _}   ()
+tr-Term-Empty {t = emptyrec _ _ _}        ()
+tr-Term-Empty {t = Unit _ _}              ()
+tr-Term-Empty {t = star _ _}              ()
+tr-Term-Empty {t = unitrec _ _ _ _ _ _}   ()
+tr-Term-Empty {t = ℕ}                     ()
+tr-Term-Empty {t = zero}                  ()
+tr-Term-Empty {t = suc _}                 ()
+tr-Term-Empty {t = natrec _ _ _ _ _ _ _}  ()
+tr-Term-Empty {t = Id _ _ _}              ()
+tr-Term-Empty {t = rfl}                   ()
+tr-Term-Empty {t = J _ _ _ _ _ _ _ _}     ()
+tr-Term-Empty {t = K _ _ _ _ _ _}         ()
+tr-Term-Empty {t = []-cong _ _ _ _ _}     ()
 
 -- Inversion for emptyrec.
 
@@ -474,23 +764,111 @@ tr-Term-emptyrec :
      t ≡ emptyrec p′ A′ u′ × tr p′ ≡ p × tr-Term A′ ≡ A × tr-Term u′ ≡ u
 tr-Term-emptyrec {t = emptyrec _ _ _} refl =
   _ # _ # _ # refl # refl # refl # refl
+tr-Term-emptyrec {t = var _}                 ()
+tr-Term-emptyrec {t = U _}                   ()
+tr-Term-emptyrec {t = ΠΣ⟨ _ ⟩ _ , _ ▷ _ ▹ _} ()
+tr-Term-emptyrec {t = lam _ _}               ()
+tr-Term-emptyrec {t = _ ∘⟨ _ ⟩ _}            ()
+tr-Term-emptyrec {t = prod _ _ _ _}          ()
+tr-Term-emptyrec {t = fst _ _}               ()
+tr-Term-emptyrec {t = snd _ _}               ()
+tr-Term-emptyrec {t = prodrec _ _ _ _ _ _}   ()
+tr-Term-emptyrec {t = Empty}                 ()
+tr-Term-emptyrec {t = Unit _ _}              ()
+tr-Term-emptyrec {t = star _ _}              ()
+tr-Term-emptyrec {t = unitrec _ _ _ _ _ _}   ()
+tr-Term-emptyrec {t = ℕ}                     ()
+tr-Term-emptyrec {t = zero}                  ()
+tr-Term-emptyrec {t = suc _}                 ()
+tr-Term-emptyrec {t = natrec _ _ _ _ _ _ _}  ()
+tr-Term-emptyrec {t = Id _ _ _}              ()
+tr-Term-emptyrec {t = rfl}                   ()
+tr-Term-emptyrec {t = J _ _ _ _ _ _ _ _}     ()
+tr-Term-emptyrec {t = K _ _ _ _ _ _}         ()
+tr-Term-emptyrec {t = []-cong _ _ _ _ _}     ()
 
 -- Inversion for ℕ.
 
 tr-Term-ℕ : tr-Term t ≡ ℕ → t ≡ ℕ
-tr-Term-ℕ {t = ℕ} refl = refl
+tr-Term-ℕ {t = ℕ}                     refl = refl
+tr-Term-ℕ {t = var _}                 ()
+tr-Term-ℕ {t = U _}                   ()
+tr-Term-ℕ {t = ΠΣ⟨ _ ⟩ _ , _ ▷ _ ▹ _} ()
+tr-Term-ℕ {t = lam _ _}               ()
+tr-Term-ℕ {t = _ ∘⟨ _ ⟩ _}            ()
+tr-Term-ℕ {t = prod _ _ _ _}          ()
+tr-Term-ℕ {t = fst _ _}               ()
+tr-Term-ℕ {t = snd _ _}               ()
+tr-Term-ℕ {t = prodrec _ _ _ _ _ _}   ()
+tr-Term-ℕ {t = Empty}                 ()
+tr-Term-ℕ {t = emptyrec _ _ _}        ()
+tr-Term-ℕ {t = Unit _ _}              ()
+tr-Term-ℕ {t = star _ _}              ()
+tr-Term-ℕ {t = unitrec _ _ _ _ _ _}   ()
+tr-Term-ℕ {t = zero}                  ()
+tr-Term-ℕ {t = suc _}                 ()
+tr-Term-ℕ {t = natrec _ _ _ _ _ _ _}  ()
+tr-Term-ℕ {t = Id _ _ _}              ()
+tr-Term-ℕ {t = rfl}                   ()
+tr-Term-ℕ {t = J _ _ _ _ _ _ _ _}     ()
+tr-Term-ℕ {t = K _ _ _ _ _ _}         ()
+tr-Term-ℕ {t = []-cong _ _ _ _ _}     ()
 
 -- Inversion for zero.
 
 tr-Term-zero : tr-Term t ≡ zero → t ≡ zero
-tr-Term-zero {t = zero} refl = refl
+tr-Term-zero {t = zero}                  refl = refl
+tr-Term-zero {t = var _}                 ()
+tr-Term-zero {t = U _}                   ()
+tr-Term-zero {t = ΠΣ⟨ _ ⟩ _ , _ ▷ _ ▹ _} ()
+tr-Term-zero {t = lam _ _}               ()
+tr-Term-zero {t = _ ∘⟨ _ ⟩ _}            ()
+tr-Term-zero {t = prod _ _ _ _}          ()
+tr-Term-zero {t = fst _ _}               ()
+tr-Term-zero {t = snd _ _}               ()
+tr-Term-zero {t = prodrec _ _ _ _ _ _}   ()
+tr-Term-zero {t = Empty}                 ()
+tr-Term-zero {t = emptyrec _ _ _}        ()
+tr-Term-zero {t = Unit _ _}              ()
+tr-Term-zero {t = star _ _}              ()
+tr-Term-zero {t = unitrec _ _ _ _ _ _}   ()
+tr-Term-zero {t = ℕ}                     ()
+tr-Term-zero {t = suc _}                 ()
+tr-Term-zero {t = natrec _ _ _ _ _ _ _}  ()
+tr-Term-zero {t = Id _ _ _}              ()
+tr-Term-zero {t = rfl}                   ()
+tr-Term-zero {t = J _ _ _ _ _ _ _ _}     ()
+tr-Term-zero {t = K _ _ _ _ _ _}         ()
+tr-Term-zero {t = []-cong _ _ _ _ _}     ()
 
 -- Inversion for suc.
 
 tr-Term-suc :
   tr-Term t ≡ suc u →
   ∃ λ u′ → t ≡ suc u′ × tr-Term u′ ≡ u
-tr-Term-suc {t = suc _} refl = _ # refl # refl
+tr-Term-suc {t = suc _}                 refl = _ # refl # refl
+tr-Term-suc {t = var _}                 ()
+tr-Term-suc {t = U _}                   ()
+tr-Term-suc {t = ΠΣ⟨ _ ⟩ _ , _ ▷ _ ▹ _} ()
+tr-Term-suc {t = lam _ _}               ()
+tr-Term-suc {t = _ ∘⟨ _ ⟩ _}            ()
+tr-Term-suc {t = prod _ _ _ _}          ()
+tr-Term-suc {t = fst _ _}               ()
+tr-Term-suc {t = snd _ _}               ()
+tr-Term-suc {t = prodrec _ _ _ _ _ _}   ()
+tr-Term-suc {t = Empty}                 ()
+tr-Term-suc {t = emptyrec _ _ _}        ()
+tr-Term-suc {t = Unit _ _}              ()
+tr-Term-suc {t = star _ _}              ()
+tr-Term-suc {t = unitrec _ _ _ _ _ _}   ()
+tr-Term-suc {t = ℕ}                     ()
+tr-Term-suc {t = zero}                  ()
+tr-Term-suc {t = natrec _ _ _ _ _ _ _}  ()
+tr-Term-suc {t = Id _ _ _}              ()
+tr-Term-suc {t = rfl}                   ()
+tr-Term-suc {t = J _ _ _ _ _ _ _ _}     ()
+tr-Term-suc {t = K _ _ _ _ _ _}         ()
+tr-Term-suc {t = []-cong _ _ _ _ _}     ()
 
 -- Inversion for natrec.
 
@@ -503,6 +881,28 @@ tr-Term-natrec :
 tr-Term-natrec {t = natrec _ _ _ _ _ _ _} refl =
   _ # _ # _ # _ # _ # _ # _ #
     refl # refl # refl # refl # refl # refl # refl # refl
+tr-Term-natrec {t = var _}                 ()
+tr-Term-natrec {t = U _}                   ()
+tr-Term-natrec {t = ΠΣ⟨ _ ⟩ _ , _ ▷ _ ▹ _} ()
+tr-Term-natrec {t = lam _ _}               ()
+tr-Term-natrec {t = _ ∘⟨ _ ⟩ _}            ()
+tr-Term-natrec {t = prod _ _ _ _}          ()
+tr-Term-natrec {t = fst _ _}               ()
+tr-Term-natrec {t = snd _ _}               ()
+tr-Term-natrec {t = prodrec _ _ _ _ _ _}   ()
+tr-Term-natrec {t = Empty}                 ()
+tr-Term-natrec {t = emptyrec _ _ _}        ()
+tr-Term-natrec {t = Unit _ _}              ()
+tr-Term-natrec {t = star _ _}              ()
+tr-Term-natrec {t = unitrec _ _ _ _ _ _}   ()
+tr-Term-natrec {t = ℕ}                     ()
+tr-Term-natrec {t = zero}                  ()
+tr-Term-natrec {t = suc _}                 ()
+tr-Term-natrec {t = Id _ _ _}              ()
+tr-Term-natrec {t = rfl}                   ()
+tr-Term-natrec {t = J _ _ _ _ _ _ _ _}     ()
+tr-Term-natrec {t = K _ _ _ _ _ _}         ()
+tr-Term-natrec {t = []-cong _ _ _ _ _}     ()
 
 -- Inversion for Id.
 
@@ -511,12 +911,57 @@ tr-Term-Id :
   ∃₃ λ A′ t′ u′ →
      v ≡ Id A′ t′ u′ ×
      tr-Term A′ ≡ A × tr-Term t′ ≡ t × tr-Term u′ ≡ u
-tr-Term-Id {v = Id _ _ _} refl = _ # _ # _ # refl # refl # refl # refl
+tr-Term-Id {v = Id _ _ _} refl =
+  _ # _ # _ # refl # refl # refl # refl
+tr-Term-Id {v = var _}                 ()
+tr-Term-Id {v = U _}                   ()
+tr-Term-Id {v = ΠΣ⟨ _ ⟩ _ , _ ▷ _ ▹ _} ()
+tr-Term-Id {v = lam _ _}               ()
+tr-Term-Id {v = _ ∘⟨ _ ⟩ _}            ()
+tr-Term-Id {v = prod _ _ _ _}          ()
+tr-Term-Id {v = fst _ _}               ()
+tr-Term-Id {v = snd _ _}               ()
+tr-Term-Id {v = prodrec _ _ _ _ _ _}   ()
+tr-Term-Id {v = Empty}                 ()
+tr-Term-Id {v = emptyrec _ _ _}        ()
+tr-Term-Id {v = Unit _ _}              ()
+tr-Term-Id {v = star _ _}              ()
+tr-Term-Id {v = unitrec _ _ _ _ _ _}   ()
+tr-Term-Id {v = ℕ}                     ()
+tr-Term-Id {v = zero}                  ()
+tr-Term-Id {v = suc _}                 ()
+tr-Term-Id {v = natrec _ _ _ _ _ _ _}  ()
+tr-Term-Id {v = rfl}                   ()
+tr-Term-Id {v = J _ _ _ _ _ _ _ _}     ()
+tr-Term-Id {v = K _ _ _ _ _ _}         ()
+tr-Term-Id {v = []-cong _ _ _ _ _}     ()
 
 -- Inversion for rfl.
 
 tr-Term-rfl : tr-Term t ≡ rfl → t ≡ rfl
-tr-Term-rfl {t = rfl} refl = refl
+tr-Term-rfl {t = rfl}                   refl = refl
+tr-Term-rfl {t = var _}                 ()
+tr-Term-rfl {t = U _}                   ()
+tr-Term-rfl {t = ΠΣ⟨ _ ⟩ _ , _ ▷ _ ▹ _} ()
+tr-Term-rfl {t = lam _ _}               ()
+tr-Term-rfl {t = _ ∘⟨ _ ⟩ _}            ()
+tr-Term-rfl {t = prod _ _ _ _}          ()
+tr-Term-rfl {t = fst _ _}               ()
+tr-Term-rfl {t = snd _ _}               ()
+tr-Term-rfl {t = prodrec _ _ _ _ _ _}   ()
+tr-Term-rfl {t = Empty}                 ()
+tr-Term-rfl {t = emptyrec _ _ _}        ()
+tr-Term-rfl {t = Unit _ _}              ()
+tr-Term-rfl {t = star _ _}              ()
+tr-Term-rfl {t = unitrec _ _ _ _ _ _}   ()
+tr-Term-rfl {t = ℕ}                     ()
+tr-Term-rfl {t = zero}                  ()
+tr-Term-rfl {t = suc _}                 ()
+tr-Term-rfl {t = natrec _ _ _ _ _ _ _}  ()
+tr-Term-rfl {t = Id _ _ _}              ()
+tr-Term-rfl {t = J _ _ _ _ _ _ _ _}     ()
+tr-Term-rfl {t = K _ _ _ _ _ _}         ()
+tr-Term-rfl {t = []-cong _ _ _ _ _}     ()
 
 -- Inversion for J.
 
@@ -529,6 +974,28 @@ tr-Term-J :
 tr-Term-J {j = J _ _ _ _ _ _ _ _} refl =
   _ # _ # _ # _ # _ # _ # _ # _ #
     refl # refl # refl # refl # refl # refl # refl # refl # refl
+tr-Term-J {j = var _}                 ()
+tr-Term-J {j = U _}                   ()
+tr-Term-J {j = ΠΣ⟨ _ ⟩ _ , _ ▷ _ ▹ _} ()
+tr-Term-J {j = lam _ _}               ()
+tr-Term-J {j = _ ∘⟨ _ ⟩ _}            ()
+tr-Term-J {j = prod _ _ _ _}          ()
+tr-Term-J {j = fst _ _}               ()
+tr-Term-J {j = snd _ _}               ()
+tr-Term-J {j = prodrec _ _ _ _ _ _}   ()
+tr-Term-J {j = Empty}                 ()
+tr-Term-J {j = emptyrec _ _ _}        ()
+tr-Term-J {j = Unit _ _}              ()
+tr-Term-J {j = star _ _}              ()
+tr-Term-J {j = unitrec _ _ _ _ _ _}   ()
+tr-Term-J {j = ℕ}                     ()
+tr-Term-J {j = zero}                  ()
+tr-Term-J {j = suc _}                 ()
+tr-Term-J {j = natrec _ _ _ _ _ _ _}  ()
+tr-Term-J {j = Id _ _ _}              ()
+tr-Term-J {j = rfl}                   ()
+tr-Term-J {j = K _ _ _ _ _ _}         ()
+tr-Term-J {j = []-cong _ _ _ _ _}     ()
 
 -- Inversion for K.
 
@@ -540,6 +1007,28 @@ tr-Term-K :
      tr-Term u′ ≡ u × tr-Term v′ ≡ v
 tr-Term-K {w = K _ _ _ _ _ _} refl =
   _ # _ # _ # _ # _ # _ # refl # refl # refl # refl # refl # refl # refl
+tr-Term-K {w = var _}                 ()
+tr-Term-K {w = U _}                   ()
+tr-Term-K {w = ΠΣ⟨ _ ⟩ _ , _ ▷ _ ▹ _} ()
+tr-Term-K {w = lam _ _}               ()
+tr-Term-K {w = _ ∘⟨ _ ⟩ _}            ()
+tr-Term-K {w = prod _ _ _ _}          ()
+tr-Term-K {w = fst _ _}               ()
+tr-Term-K {w = snd _ _}               ()
+tr-Term-K {w = prodrec _ _ _ _ _ _}   ()
+tr-Term-K {w = Empty}                 ()
+tr-Term-K {w = emptyrec _ _ _}        ()
+tr-Term-K {w = Unit _ _}              ()
+tr-Term-K {w = star _ _}              ()
+tr-Term-K {w = unitrec _ _ _ _ _ _}   ()
+tr-Term-K {w = ℕ}                     ()
+tr-Term-K {w = zero}                  ()
+tr-Term-K {w = suc _}                 ()
+tr-Term-K {w = natrec _ _ _ _ _ _ _}  ()
+tr-Term-K {w = Id _ _ _}              ()
+tr-Term-K {w = rfl}                   ()
+tr-Term-K {w = J _ _ _ _ _ _ _ _}     ()
+tr-Term-K {w = []-cong _ _ _ _ _}     ()
 
 -- Inversion for []-cong.
 
@@ -550,6 +1039,28 @@ tr-Term-[]-cong :
      tr-Term A′ ≡ A × tr-Term t′ ≡ t × tr-Term u′ ≡ u × tr-Term v′ ≡ v
 tr-Term-[]-cong {w = []-cong _ _ _ _ _} refl =
   _ # _ # _ # _ # refl # refl # refl # refl # refl
+tr-Term-[]-cong {w = var _}                 ()
+tr-Term-[]-cong {w = U _}                   ()
+tr-Term-[]-cong {w = ΠΣ⟨ _ ⟩ _ , _ ▷ _ ▹ _} ()
+tr-Term-[]-cong {w = lam _ _}               ()
+tr-Term-[]-cong {w = _ ∘⟨ _ ⟩ _}            ()
+tr-Term-[]-cong {w = prod _ _ _ _}          ()
+tr-Term-[]-cong {w = fst _ _}               ()
+tr-Term-[]-cong {w = snd _ _}               ()
+tr-Term-[]-cong {w = prodrec _ _ _ _ _ _}   ()
+tr-Term-[]-cong {w = Empty}                 ()
+tr-Term-[]-cong {w = emptyrec _ _ _}        ()
+tr-Term-[]-cong {w = Unit _ _}              ()
+tr-Term-[]-cong {w = star _ _}              ()
+tr-Term-[]-cong {w = unitrec _ _ _ _ _ _}   ()
+tr-Term-[]-cong {w = ℕ}                     ()
+tr-Term-[]-cong {w = zero}                  ()
+tr-Term-[]-cong {w = suc _}                 ()
+tr-Term-[]-cong {w = natrec _ _ _ _ _ _ _}  ()
+tr-Term-[]-cong {w = Id _ _ _}              ()
+tr-Term-[]-cong {w = rfl}                   ()
+tr-Term-[]-cong {w = J _ _ _ _ _ _ _ _}     ()
+tr-Term-[]-cong {w = K _ _ _ _ _ _}         ()
 
 mutual
 
@@ -560,6 +1071,8 @@ mutual
     tr-Term′ t ≡ U₂.wk′ ρ u →
     ∃ λ t′ → tr-Term′ t′ ≡ u × t ≡ U₁.wk′ ρ t′
   tr-Term′-wk′⁻¹ {t = var _}   {u = var x}   refl = var x # refl # refl
+  tr-Term′-wk′⁻¹ {t = var _}   {u = gen _ _} ()
+  tr-Term′-wk′⁻¹ {t = gen _ _} {u = var _}   ()
   tr-Term′-wk′⁻¹ {t = gen k _} {u = gen _ _} eq   =
     case U₂.gen-cong⁻¹ eq of λ where
       (refl # refl # eq) →
@@ -694,6 +1207,60 @@ module Injective
     with tr p in tr-p≡
   tr-Kind-injective refl | _ =
     cong Kkind (tr-injective tr-p≡)
+  tr-Kind-injective {k₁ = Ukind _}        {k₂ = Emptykind}      ()
+  tr-Kind-injective {k₁ = Ukind _}        {k₂ = Unitkind _ _}   ()
+  tr-Kind-injective {k₁ = Ukind _}        {k₂ = Starkind _ _}   ()
+  tr-Kind-injective {k₁ = Ukind _}        {k₂ = Natkind}        ()
+  tr-Kind-injective {k₁ = Ukind _}        {k₂ = Zerokind}       ()
+  tr-Kind-injective {k₁ = Ukind _}        {k₂ = Reflkind}       ()
+  tr-Kind-injective {k₁ = Appkind _}      {k₂ = Prodkind _ _}   ()
+  tr-Kind-injective {k₁ = Appkind _}      {k₂ = Emptyreckind _} ()
+  tr-Kind-injective {k₁ = Prodkind _ _}   {k₂ = Appkind _}      ()
+  tr-Kind-injective {k₁ = Prodkind _ _}   {k₂ = Emptyreckind _} ()
+  tr-Kind-injective {k₁ = Fstkind _}      {k₂ = Sndkind _}      ()
+  tr-Kind-injective {k₁ = Fstkind _}      {k₂ = Suckind}        ()
+  tr-Kind-injective {k₁ = Sndkind _}      {k₂ = Fstkind _}      ()
+  tr-Kind-injective {k₁ = Sndkind _}      {k₂ = Suckind}        ()
+  tr-Kind-injective {k₁ = Emptykind}      {k₂ = Ukind _}        ()
+  tr-Kind-injective {k₁ = Emptykind}      {k₂ = Unitkind _ _}   ()
+  tr-Kind-injective {k₁ = Emptykind}      {k₂ = Starkind _ _}   ()
+  tr-Kind-injective {k₁ = Emptykind}      {k₂ = Natkind}        ()
+  tr-Kind-injective {k₁ = Emptykind}      {k₂ = Zerokind}       ()
+  tr-Kind-injective {k₁ = Emptykind}      {k₂ = Reflkind}       ()
+  tr-Kind-injective {k₁ = Emptyreckind _} {k₂ = Appkind _}      ()
+  tr-Kind-injective {k₁ = Emptyreckind _} {k₂ = Prodkind _ _}   ()
+  tr-Kind-injective {k₁ = Unitkind _ _}   {k₂ = Ukind _}        ()
+  tr-Kind-injective {k₁ = Unitkind _ _}   {k₂ = Emptykind}      ()
+  tr-Kind-injective {k₁ = Unitkind _ _}   {k₂ = Starkind _ _}   ()
+  tr-Kind-injective {k₁ = Unitkind _ _}   {k₂ = Natkind}        ()
+  tr-Kind-injective {k₁ = Unitkind _ _}   {k₂ = Zerokind}       ()
+  tr-Kind-injective {k₁ = Unitkind _ _}   {k₂ = Reflkind}       ()
+  tr-Kind-injective {k₁ = Starkind _ _}   {k₂ = Ukind _}        ()
+  tr-Kind-injective {k₁ = Starkind _ _}   {k₂ = Emptykind}      ()
+  tr-Kind-injective {k₁ = Starkind _ _}   {k₂ = Unitkind _ _}   ()
+  tr-Kind-injective {k₁ = Starkind _ _}   {k₂ = Natkind}        ()
+  tr-Kind-injective {k₁ = Starkind _ _}   {k₂ = Zerokind}       ()
+  tr-Kind-injective {k₁ = Starkind _ _}   {k₂ = Reflkind}       ()
+  tr-Kind-injective {k₁ = Natkind}        {k₂ = Ukind _}        ()
+  tr-Kind-injective {k₁ = Natkind}        {k₂ = Emptykind}      ()
+  tr-Kind-injective {k₁ = Natkind}        {k₂ = Unitkind _ _}   ()
+  tr-Kind-injective {k₁ = Natkind}        {k₂ = Starkind _ _}   ()
+  tr-Kind-injective {k₁ = Natkind}        {k₂ = Zerokind}       ()
+  tr-Kind-injective {k₁ = Natkind}        {k₂ = Reflkind}       ()
+  tr-Kind-injective {k₁ = Zerokind}       {k₂ = Ukind _}        ()
+  tr-Kind-injective {k₁ = Zerokind}       {k₂ = Emptykind}      ()
+  tr-Kind-injective {k₁ = Zerokind}       {k₂ = Unitkind _ _}   ()
+  tr-Kind-injective {k₁ = Zerokind}       {k₂ = Starkind _ _}   ()
+  tr-Kind-injective {k₁ = Zerokind}       {k₂ = Natkind}        ()
+  tr-Kind-injective {k₁ = Zerokind}       {k₂ = Reflkind}       ()
+  tr-Kind-injective {k₁ = Suckind}        {k₂ = Fstkind _}      ()
+  tr-Kind-injective {k₁ = Suckind}        {k₂ = Sndkind _}      ()
+  tr-Kind-injective {k₁ = Reflkind}       {k₂ = Ukind _}        ()
+  tr-Kind-injective {k₁ = Reflkind}       {k₂ = Emptykind}      ()
+  tr-Kind-injective {k₁ = Reflkind}       {k₂ = Unitkind _ _}   ()
+  tr-Kind-injective {k₁ = Reflkind}       {k₂ = Starkind _ _}   ()
+  tr-Kind-injective {k₁ = Reflkind}       {k₂ = Natkind}        ()
+  tr-Kind-injective {k₁ = Reflkind}       {k₂ = Zerokind}       ()
 
   mutual
 
@@ -701,6 +1268,8 @@ module Injective
 
     tr-Term′-injective : {t u : U₁.Term′ n} → tr-Term′ t ≡ tr-Term′ u → t ≡ u
     tr-Term′-injective {t = var _}   {u = var _}   refl = refl
+    tr-Term′-injective {t = var _}   {u = gen _ _} ()
+    tr-Term′-injective {t = gen _ _} {u = var _}   ()
     tr-Term′-injective {t = gen _ _} {u = gen _ _} eq   =
       case U₂.gen-cong⁻¹ eq of λ where
         (refl # eq₁ # eq₂) →
@@ -752,6 +1321,7 @@ module Injective
         (refl # refl # eq) →
           case tr-Term-substGen⁻¹ eq of λ where
             (us′ # refl # refl) → gen k us′ # refl # refl
+    tr-Term′-subst′⁻¹ {t = var _} {u = gen _ _} ()
 
     -- Inversion for substGen.
 

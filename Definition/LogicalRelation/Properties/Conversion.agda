@@ -29,6 +29,7 @@ open import Definition.LogicalRelation.ShapeView R
 open import Definition.LogicalRelation.Irrelevance R
 
 open import Tools.Function
+open import Tools.Level
 open import Tools.Nat hiding (_<_)
 open import Tools.Product
 import Tools.PropositionalEquality as PE
@@ -471,6 +472,10 @@ mutual
             (ne x) (ne y) (≅-conv p≅r ΣFG≡ΣF₁G₁)
             (convTerm₁ [A] [B] [A≡B] [t]) (convTerm₁ [A] [B] [A≡B] [u])
             (inc , p~r₁)
+  convEqTermT₁
+    (Bᵥ BΣʷ record{} _) _ (Σₜ₌ _ _ _ _ prodₙ (ne _) _ _ _ (lift ()))
+  convEqTermT₁
+    (Bᵥ BΣʷ record{} _) _ (Σₜ₌ _ _ _ _ (ne _) prodₙ _ _ _ (lift ()))
   convEqTermT₁ (Uᵥ (Uᵣ l1 l<1 D1) (Uᵣ l2 l<2 D2)) D eq with whrDet* (D2 , Uₙ) (D , Uₙ)
   convEqTermT₁
     (Uᵥ (Uᵣ _ l<1 _) (Uᵣ _ l<2 _)) _
@@ -639,6 +644,10 @@ mutual
             (ne x) (ne y) (≅-conv t≡u (sym ΣFG≡ΣF₁G₁))
             (convTerm₂ [A] [B] [A≡B] [t]) (convTerm₂ [A] [B] [A≡B] [u])
             (inc , p~r)
+  convEqTermT₂
+    (Bᵥ BΣʷ _ record{}) _ (Σₜ₌ _ _ _ _ prodₙ (ne _) _ _ _ (lift ()))
+  convEqTermT₂
+    (Bᵥ BΣʷ _ record{}) _ (Σₜ₌ _ _ _ _ (ne _) prodₙ _ _ _ (lift ()))
   convEqTermT₂ (Uᵥ (Uᵣ l1 l<1 D1) (Uᵣ l2 l<2 D2)) D eq with whrDet* (D2 , Uₙ) (D , Uₙ)
   convEqTermT₂
     (Uᵥ (Uᵣ _ l<1 _) (Uᵣ _ l<2 _)) D

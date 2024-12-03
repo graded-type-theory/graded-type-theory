@@ -348,6 +348,7 @@ opaque
   -- matching type containing emptyrec 𝟘
 
   ⊢ˢemptyrec₀∉S : Consistent Δ → Δ ⨾ H ⊢ S ⟨ t ⟩∷ A ↝ B → Δ ⊢ t [ H ]ₕ ∷ A → emptyrec₀∈ S → ⊥
+  ⊢ˢemptyrec₀∉S _          ε        _  ()
   ⊢ˢemptyrec₀∉S consistent (⊢e ∙ _) ⊢t here =
     case inversion-emptyrecₑ ⊢e of λ {
       (_ , PE.refl , _) →

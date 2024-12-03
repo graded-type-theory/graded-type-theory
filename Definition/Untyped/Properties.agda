@@ -2020,9 +2020,7 @@ var-PE-injectivity PE.refl = PE.refl
 B-PE-injectivity :
   ∀ W₁ W₂ → ⟦ W₁ ⟧ A₁ ▹ B₁ PE.≡ ⟦ W₂ ⟧ A₂ ▹ B₂ →
   A₁ PE.≡ A₂ × B₁ PE.≡ B₂ × W₁ PE.≡ W₂
-B-PE-injectivity (BΠ p q) (BΠ .p .q) PE.refl =
-  PE.refl , PE.refl , PE.refl
-B-PE-injectivity (BΣ p q s) (BΣ .p .q .s) PE.refl =
+B-PE-injectivity (BM _ _ _) (BM _ _ _) PE.refl =
   PE.refl , PE.refl , PE.refl
 
 -- The constructor _∘⟨_⟩_ is injective.

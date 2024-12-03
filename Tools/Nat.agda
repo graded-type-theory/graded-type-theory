@@ -70,6 +70,8 @@ private variable
 
 Nat-set : Is-set Nat
 Nat-set {x = zero}  {y = zero}  {x = refl} {y = refl} = refl
+Nat-set {x = zero}  {y = suc _} {x = ()}
+Nat-set {x = suc _} {y = zero}  {x = ()}
 Nat-set {x = suc m} {y = suc n} {x = p}    {y = q}    =
                                                    $⟨ Nat-set {x = m} {y = n} ⟩
   cong pred p ≡ cong pred q                        →⟨ cong (cong suc) ⟩
@@ -136,6 +138,7 @@ Nat-set {x = suc m} {y = suc n} {x = p}    {y = q}    =
 -- If m * n ≡ 1+ o, then 0 < m and 0 < n.
 
 *≡1+→0< : m * n ≡ 1+ o → 0 < m × 0 < n
+*≡1+→0< {m = 0}                       = λ ()
 *≡1+→0< {m = 1+ _} {n = 1+ _}         = λ _ → s≤s z≤n , s≤s z≤n
 *≡1+→0< {m = 1+ m} {n = 0}    {o = o} =
   m * 0 ≡ 1+ o      →⟨ trans (sym (*-zeroʳ m)) ⟩
@@ -361,8 +364,9 @@ opaque
   -- If m < n then n == m ≡ false
 
   <⇒¬== : m < n → (n == m) ≡ false
-  <⇒¬== {(zero)} {1+ n} m<n = refl
-  <⇒¬== {1+ m} {1+ n} (s≤s m<n) = <⇒¬== m<n
+  <⇒¬==            {n = 0}    ()
+  <⇒¬== {m = 0}    {n = 1+ _} m<n       = refl
+  <⇒¬== {m = 1+ _} {n = 1+ _} (s≤s m<n) = <⇒¬== m<n
 
 opaque
 

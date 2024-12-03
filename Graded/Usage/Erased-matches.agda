@@ -56,10 +56,16 @@ opaque
   -- The relation _≤ᵉᵐ_ is transitive.
 
   ≤ᵉᵐ-transitive : em₁ ≤ᵉᵐ em₂ → em₂ ≤ᵉᵐ em₃ → em₁ ≤ᵉᵐ em₃
-  ≤ᵉᵐ-transitive {em₁ = none}                           = _
-  ≤ᵉᵐ-transitive {em₁ = some} {em₂ = some} {em₃ = some} = _
-  ≤ᵉᵐ-transitive {em₁ = some}              {em₃ = all}  = _
-  ≤ᵉᵐ-transitive {em₁ = all}  {em₂ = all}  {em₃ = all}  = _
+  ≤ᵉᵐ-transitive {em₁ = none}                                 = _
+  ≤ᵉᵐ-transitive {em₁ = some} {em₂ = some} {em₃ = some}       = _
+  ≤ᵉᵐ-transitive {em₁ = some}              {em₃ = all}        = _
+  ≤ᵉᵐ-transitive {em₁ = all}  {em₂ = all}  {em₃ = all}        = _
+  ≤ᵉᵐ-transitive {em₁ = some} {em₂ = none}              ()
+  ≤ᵉᵐ-transitive {em₁ = all}  {em₂ = none}              ()
+  ≤ᵉᵐ-transitive {em₁ = all}  {em₂ = some}              ()
+  ≤ᵉᵐ-transitive              {em₂ = some} {em₃ = none} _  ()
+  ≤ᵉᵐ-transitive              {em₂ = all}  {em₃ = none} _  ()
+  ≤ᵉᵐ-transitive              {em₂ = all}  {em₃ = some} _  ()
 
 opaque
 
@@ -85,8 +91,11 @@ opaque
   -- also the least element.
 
   ≤ᵉᵐ→≡none→≡none : em₁ ≤ᵉᵐ em₂ → em₂ ≡ none → em₁ ≡ none
-  ≤ᵉᵐ→≡none→≡none {em₁ = none} {em₂ = none} _ _ = refl
-  ≤ᵉᵐ→≡none→≡none {em₁ = all}  {em₂ = none} ()
+  ≤ᵉᵐ→≡none→≡none {em₁ = none}       {em₂ = none}       _  _  = refl
+  ≤ᵉᵐ→≡none→≡none {em₁ = none}       {em₂ = not-none _} _  ()
+  ≤ᵉᵐ→≡none→≡none {em₁ = some}       {em₂ = none}       ()
+  ≤ᵉᵐ→≡none→≡none {em₁ = all}        {em₂ = none}       ()
+  ≤ᵉᵐ→≡none→≡none {em₁ = not-none _} {em₂ = not-none _} _  ()
 
 opaque
 
@@ -94,7 +103,12 @@ opaque
 
   ≤ᵉᵐ→≡some→≡not-none :
     em₁ ≤ᵉᵐ em₂ → em₁ ≡ some → ∃ λ sem → em₂ ≡ not-none sem
-  ≤ᵉᵐ→≡some→≡not-none {em₁ = some} {em₂ = not-none _} _ _ = _ , refl
+  ≤ᵉᵐ→≡some→≡not-none {em₁ = some} {em₂ = not-none _} _  _  = _ , refl
+  ≤ᵉᵐ→≡some→≡not-none {em₁ = none} {em₂ = none}       _  ()
+  ≤ᵉᵐ→≡some→≡not-none {em₁ = none} {em₂ = not-none _} _  ()
+  ≤ᵉᵐ→≡some→≡not-none {em₁ = some} {em₂ = none}       ()
+  ≤ᵉᵐ→≡some→≡not-none {em₁ = all}  {em₂ = none}       ()
+  ≤ᵉᵐ→≡some→≡not-none {em₁ = all}  {em₂ = not-none _} _  ()
 
 opaque
 
@@ -102,4 +116,10 @@ opaque
   -- is also the largest element.
 
   ≤ᵉᵐ→≡all→≡all : em₁ ≤ᵉᵐ em₂ → em₁ ≡ all → em₂ ≡ all
-  ≤ᵉᵐ→≡all→≡all {em₁ = all} {em₂ = all} _ _ = refl
+  ≤ᵉᵐ→≡all→≡all {em₁ = all}  {em₂ = all}        _  _  = refl
+  ≤ᵉᵐ→≡all→≡all {em₁ = none} {em₂ = none}       _  ()
+  ≤ᵉᵐ→≡all→≡all {em₁ = none} {em₂ = not-none _} _  ()
+  ≤ᵉᵐ→≡all→≡all {em₁ = some} {em₂ = none}       ()
+  ≤ᵉᵐ→≡all→≡all {em₁ = some} {em₂ = not-none _} _  ()
+  ≤ᵉᵐ→≡all→≡all {em₁ = all}  {em₂ = none}       ()
+  ≤ᵉᵐ→≡all→≡all {em₁ = all}  {em₂ = some}       ()

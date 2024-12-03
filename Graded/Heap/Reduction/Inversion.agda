@@ -54,6 +54,7 @@ opaque
     State.stack s ≡ S ×
     H ⊢ wkVar ρ x ↦[ ∣ S ∣ ] State.head s , State.env s ⨾ State.heap s
   ⇾ₑ-inv-var (var x) = refl , x
+  ⇾ₑ-inv-var (⇒ₑ ())
 
 opaque
 
@@ -64,6 +65,7 @@ opaque
     State.heap s ≡ H × State.stack s ≡ S ×
     H ⊢ wkVar ρ x ↦ (State.head s , State.env s)
   ⇢ₑ-inv-var (var x) = refl , refl , x
+  ⇢ₑ-inv-var (⇒ₑ ())
 
 opaque
 
@@ -205,9 +207,10 @@ opaque
     Σ (m ≡ m′) λ m≡ → Σ (n ≡ n′) λ n≡ →
       subst₂ (State _) m≡ n≡ s ≡ ⟨ H , t , ρ , S ⟩
   ⇒ᵥ-inv-prodˢ-fstₑ d =
-    case ⇒ᵥ-inv-prodˢ d of λ {
+    case ⇒ᵥ-inv-prodˢ d of λ where
       (_ , refl , refl , inj₁ (refl , refl)) →
-    refl , refl , refl }
+        refl , refl , refl
+      (_ , _ , _ , inj₂ (() , _))
 
 opaque
 
@@ -219,9 +222,10 @@ opaque
       Σ (m ≡ m′) λ m≡ → Σ (n ≡ n′) λ n≡ →
         subst₂ (State _) m≡ n≡ s ≡ ⟨ H , u , ρ , S ⟩
   ⇒ᵥ-inv-prodˢ-sndₑ d =
-    case ⇒ᵥ-inv-prodˢ d of λ {
+    case ⇒ᵥ-inv-prodˢ d of λ where
+      (_ , _    , _    , inj₁ (() , _))
       (_ , refl , refl , inj₂ (refl , refl)) →
-    refl , refl , refl }
+        refl , refl , refl
 
 opaque
 

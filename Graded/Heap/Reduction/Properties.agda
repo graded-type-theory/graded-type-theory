@@ -103,7 +103,8 @@ opaque
     case lookup-det x x′ of λ {
       (refl , refl , refl , refl) →
     refl , refl }}
-  ⇾ₑ-det (⇒ₑ d) (⇒ₑ d′) = refl , ⇒ₑ-det d d′
+  ⇾ₑ-det (⇒ₑ d)  (⇒ₑ d′) = refl , ⇒ₑ-det d d′
+  ⇾ₑ-det (var _) (⇒ₑ ())
 
   ⇢ₑ-det :
     {s′ : State k m n} {s″ : State k m n′} →
@@ -115,7 +116,8 @@ opaque
     case lookup-det′ x x′ of λ {
       (refl , refl , refl) →
     refl , refl }}
-  ⇢ₑ-det (⇒ₑ d) (⇒ₑ d′) = refl , ⇒ₑ-det d d′
+  ⇢ₑ-det (⇒ₑ d)  (⇒ₑ d′) = refl , ⇒ₑ-det d d′
+  ⇢ₑ-det (var _) (⇒ₑ ())
 opaque
 
   -- The reduction relation for values is deterministic
@@ -169,7 +171,8 @@ opaque
 opaque
 
   not-⇒ᵥ-and-⇾ₑ : s ⇒ᵥ s′ → s ⇾ₑ s″ → ⊥
-  not-⇒ᵥ-and-⇾ₑ d (⇒ₑ d′) = not-⇒ᵥ-and-⇒ₑ d d′
+  not-⇒ᵥ-and-⇾ₑ d  (⇒ₑ d′) = not-⇒ᵥ-and-⇒ₑ d d′
+  not-⇒ᵥ-and-⇾ₑ () (var _)
 
 opaque
 
@@ -435,6 +438,7 @@ opaque
             → wkVar ρ x ≡ wkVar ρ′ x′
             → ⟨ H , var x′ , ρ′ , S ⟩ ⇢ₑ s
   var-env-⇢ₑ (var d) eq = var (subst (_ ⊢_↦ _) eq d)
+  var-env-⇢ₑ (⇒ₑ ())
 
 opaque
 
@@ -447,6 +451,7 @@ opaque
              → ⟨ H , var x′ , ρ′ , S ⟩ ⇢ₑ* ⟨ H′ , t , ρ″ , S′ ⟩
              ⊎ Σ (n′ ≡ n) λ n′≡n → ⟨ H , var x , ρ , S ⟩ ≡ subst (State _ _) n′≡n ⟨ H′ , t , ρ″ , S′ ⟩
   var-env-⇢ₑ* id eq (var x) = inj₂ (refl , refl)
+  var-env-⇢ₑ* id _ (val ())
   var-env-⇢ₑ* (x ⇨ d) eq n = inj₁ (var-env-⇢ₑ x eq ⇨ d)
 
 opaque
@@ -819,6 +824,7 @@ opaque
 
   Value-⇾→⇒ᵥ : Value t → ⟨ H , t , ρ , S ⟩ ⇾ s′ → ⟨ H , t , ρ , S ⟩ ⇒ᵥ s′
   Value-⇾→⇒ᵥ v (⇾ₑ′ d) = ⊥-elim (Value-¬⇒ₑ v d)
+  Value-⇾→⇒ᵥ () (⇾ₑ (var _))
   Value-⇾→⇒ᵥ _ (⇒ᵥ d) = d
 
 opaque
@@ -827,3 +833,4 @@ opaque
   Normal-⇾→⇒ᵥ (val v) d = Value-⇾→⇒ᵥ v d
   Normal-⇾→⇒ᵥ (var x) (⇾ₑ d) =
     ⊥-elim (¬↦∧↦● (↦[]→↦ (⇾ₑ-inv-var d .proj₂)) x)
+  Normal-⇾→⇒ᵥ (var _) (⇒ᵥ ())

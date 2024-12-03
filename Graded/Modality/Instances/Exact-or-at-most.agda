@@ -214,9 +214,10 @@ opaque
   ≈/≤1+-≤-inv {b} {m} {b′} {k} x = lemma₁ b b′ x , lemma₂ m k x
     where
     lemma₁ : ∀ b b′ → ≈/≤1+ b m ≤ ≈/≤1+ b′ k → b B.≤ᵇ b′
-    lemma₁ false false _ = B.b≤b
-    lemma₁ false true _ = B.f≤t
-    lemma₁ true true _ = B.b≤b
+    lemma₁ false false _  = B.b≤b
+    lemma₁ false true  _  = B.f≤t
+    lemma₁ true  true  _  = B.b≤b
+    lemma₁ true  false ()
     lemma₂ : ∀ m k → ≈/≤1+ b m ≤ ≈/≤1+ b′ k → k N.≤ m
     lemma₂ m 0 x = N.z≤n
     lemma₂ m (1+ k) x =
@@ -616,16 +617,27 @@ opaque instance
     }
     where
     zero-product : ∀ {p q} → p · q ≡ 𝟘 → p ≡ 𝟘 ⊎ q ≡ 𝟘
-    zero-product {(𝟘)} _ = inj₁ refl
-    zero-product {≈/≤1+ b m} {(𝟘)} _ = inj₂ refl
-    zero-product {(∞)} {(𝟘)} _ = inj₂ refl
+    zero-product {p = 𝟘}                         _  = inj₁ refl
+    zero-product {p = ≈/≤1+ _ _} {q = 𝟘}         _  = inj₂ refl
+    zero-product {p = ∞}         {q = 𝟘}         _  = inj₂ refl
+    zero-product {p = ≈/≤1+ _ _} {q = ≈/≤1+ _ _} ()
+    zero-product {p = ≈/≤1+ _ _} {q = ∞}         ()
+    zero-product {p = ∞}         {q = ≈/≤1+ _ _} ()
+    zero-product {p = ∞}         {q = ∞}         ()
     +-positiveˡ : ∀ {p q} → p + q ≡ 𝟘 → p ≡ 𝟘
-    +-positiveˡ {(𝟘)} e = refl
-    +-positiveˡ {≈/≤1+ b m} {(𝟘)} ()
-    +-positiveˡ {≈/≤1+ b m} {≈/≤1+ b₁ m₁} ()
+    +-positiveˡ {p = 𝟘}                         _  = refl
+    +-positiveˡ {p = ≈/≤1+ _ _} {q = 𝟘}         ()
+    +-positiveˡ {p = ≈/≤1+ _ _} {q = ≈/≤1+ _ _} ()
+    +-positiveˡ {p = ≈/≤1+ _ _} {q = ∞}         ()
+    +-positiveˡ {p = ∞}                         ()
     ∧-positiveˡ : ∀ {p q} → p ∧ q ≡ 𝟘 → p ≡ 𝟘
-    ∧-positiveˡ {(𝟘)} {(𝟘)} refl = refl
-    ∧-positiveˡ {≈/≤1+ b m} {(𝟘)} ()
+    ∧-positiveˡ {p = 𝟘}         {q = 𝟘}         refl = refl
+    ∧-positiveˡ {p = 𝟘}         {q = ≈/≤1+ _ _} ()
+    ∧-positiveˡ {p = 𝟘}         {q = ∞}         ()
+    ∧-positiveˡ {p = ≈/≤1+ _ _} {q = 𝟘}         ()
+    ∧-positiveˡ {p = ≈/≤1+ _ _} {q = ≈/≤1+ _ _} ()
+    ∧-positiveˡ {p = ≈/≤1+ _ _} {q = ∞}         ()
+    ∧-positiveˡ {p = ∞}                         ()
 
 open Semiring-with-meet exact-or-at-most-semiring-with-meet
   hiding (_+_; _·_; _∧_; 𝟘; 𝟙; _≤_)
@@ -688,19 +700,19 @@ opaque
     (≈/≤1+ b 0) nr₃≡𝟘 →
       case +-positive {p = ≈/≤1+ b 0 · z} nr₃≡𝟘 of λ
         (qz≡𝟘 , ∞s≡𝟘) →
-      case zero-product qz≡𝟘 of λ {
-        (inj₂ z≡𝟘) →
-      case zero-product ∞s≡𝟘 of λ {
-        (inj₂ s≡𝟘) →
-      z≡𝟘 , s≡𝟘}}
+      case zero-product qz≡𝟘 of λ where
+        (inj₁ ())
+        (inj₂ z≡𝟘) → case zero-product ∞s≡𝟘 of λ where
+          (inj₁ ())
+          (inj₂ s≡𝟘) → z≡𝟘 , s≡𝟘
     (≈/≤1+ b (1+ m)) nr₃≡𝟘 → lemma nr₃≡𝟘
     ∞ nr₃≡𝟘 → lemma nr₃≡𝟘
       where
       lemma : ∞ · (z + s) ≡ 𝟘 → z ≡ 𝟘 × s ≡ 𝟘
       lemma ≡𝟘 =
-        case zero-product ≡𝟘 of λ {
-          (inj₂ z+s≡𝟘) →
-        +-positive z+s≡𝟘 }
+        case zero-product ≡𝟘 of λ where
+          (inj₁ ())
+          (inj₂ z+s≡𝟘) → +-positive z+s≡𝟘
 
 opaque
 
@@ -965,7 +977,12 @@ opaque
     ; s₀ = 𝟘
     ; n₀ = 𝟙
     ; nr₁≢nr₂ = λ ()
-    ; nr≰ = λ { (≈1+ 0) _ () ; (≈1+ (1+ m)) () _}
+    ; nr≰ = λ where
+        (≈1+ 0)      _  ()
+        (≈1+ (1+ _)) () _
+        𝟘            _  ()
+        (≤1+ _)      _  ()
+        ∞            _  ()
     }
     where
     nr₂ : Op₂ Exact-or-at-most
@@ -1062,8 +1079,8 @@ opaque
     p (≈/≤1+ b (1+ m)) (≈/≤1+ b₁ m₁) s n → (lemma ∘→ ≤-reflexive ∘→ nr′p2+r≡∞) λ ()
       where
       q≤p+rq→q≡∞ : q ≢ 𝟘 → q ≤ p + (≈/≤1+ b (1+ m)) · q → q ≡ ∞
-      q≤p+rq→q≡∞ {(𝟘)} q≢𝟘 _ = ⊥-elim (q≢𝟘 refl)
-      q≤p+rq→q≡∞ {≈/≤1+ _ k} {(𝟘)} {m} _ q≤ =
+      q≤p+rq→q≡∞ {q = 𝟘} q≢𝟘 _ = ⊥-elim (q≢𝟘 refl)
+      q≤p+rq→q≡∞ {q = ≈/≤1+ _ k} {p = 𝟘} {m} _ q≤ =
         case ≈/≤1+-≤-inv q≤ of λ
           (_ , ≤k) →
         ⊥-elim (N.m+1+n≰m k (begin
@@ -1074,7 +1091,7 @@ opaque
           k                           ∎))
         where
         open N.≤-Reasoning
-      q≤p+rq→q≡∞ {≈/≤1+ _ k} {≈/≤1+ _ n} {m} _ q≤ =
+      q≤p+rq→q≡∞ {q = ≈/≤1+ _ k} {p = ≈/≤1+ _ n} {m} _ q≤ =
         case ≈/≤1+-≤-inv q≤ of λ
           (_ , ≤k) →
         ⊥-elim (N.m+1+n≰m k (begin
@@ -1087,11 +1104,15 @@ opaque
           k ∎))
         where
         open N.≤-Reasoning
-      q≤p+rq→q≡∞ {(∞)} q≢𝟘 q≤ = refl
+      q≤p+rq→q≡∞ {q = ∞} q≢𝟘 q≤ = refl
+      q≤p+rq→q≡∞ {q = ≈/≤1+ _ _} {p = ∞} _ ()
       x≤y+x→x≡∞ : ∀ {x y} → y ≢ 𝟘 → x ≤ y + x → x ≡ ∞
-      x≤y+x→x≡∞ {(∞)} _ _ = refl
+      x≤y+x→x≡∞ {x = 𝟘} {y = ∞} _ ()
+      x≤y+x→x≡∞ {x = 𝟘} {y = ≈/≤1+ _ _} _ ()
+      x≤y+x→x≡∞ {x = ≈/≤1+ _ _} {y = ∞} _ ()
+      x≤y+x→x≡∞ {x = ∞} _ _ = refl
       x≤y+x→x≡∞ {y = 𝟘} y≢𝟘 _ = ⊥-elim (y≢𝟘 refl)
-      x≤y+x→x≡∞ {≈/≤1+ b m} {≈/≤1+ b₁ n} _ x≤ =
+      x≤y+x→x≡∞ {x = ≈/≤1+ b m} {y = ≈/≤1+ b₁ n} _ x≤ =
         case ≈/≤1+-≤-inv x≤ of λ
           (_ , ≤m) →
         ⊥-elim (N.m+1+n≰m m (N.≤-trans (N.≤-reflexive (N.+-comm m (1+ n))) ≤m))
@@ -1198,11 +1219,13 @@ opaque
             𝕤 → ⊥
             𝕨 → []-congʷ-allowed × ¬ Unitʷ-η
         ; []-cong→Erased = λ where
+            {s = 𝕤} ()
             {s = 𝕨} (ok , no-η) →
               case []-cong→Erased ok of λ
                 (ok₁ , ok₂) →
               (ok₁ , no-η) , ok₂ , λ ()
         ; []-cong→¬Trivial = λ where
+            {s = 𝕤} ()
             {s = 𝕨} (ok , no-η) → []-cong→¬Trivial ok
         }
     , proj₂
@@ -1249,6 +1272,7 @@ opaque
          (inj₂ ()))
     , λ _ _ Σ-ok → case ≡𝟙⊎𝟙≤𝟘 Σ-ok of λ where
         (inj₁ p≡𝟙) → p≡𝟙
+        (inj₂ ())
     where
     open Full-reduction-assumptions as
 
@@ -1277,6 +1301,7 @@ opaque
   -- Subtraction of ≈/≤1+ b m by ≈/≤1+ b′ k is only defined if k ≤ m and b ≤ b′
 
   ≈/≤m-≈/≤n≤-inv : ≈/≤1+ b m - ≈/≤1+ b′ k ≤ r → k N.≤ m × b B.≤ᵇ b′
+  ≈/≤m-≈/≤n≤-inv                  {r = ∞} ()
   ≈/≤m-≈/≤n≤-inv {b} {m} {b′} {k} {r = 𝟘} m-n≤r =
     case ≈/≤1+-injective m-n≤r of λ
       (b≡ , m≡m⊔k) →
@@ -1351,7 +1376,8 @@ opaque
              → ≈/≤1+ b m - ≈/≤1+ b′ k ≡ ≈/≤1+ (b B.∧ b′) (m N.∸ 1+ k)
   ≈/≤m-≈/≤n≡ {k} {m} {b} {b′} k<m b≤b′ =
     ≈/≤m-≈/≤n≤ k<m b≤b′ , λ where
-      𝟘 x →
+      ∞ ()
+      𝟘 x  →
         case ≈/≤1+-injective x of λ
           (b≡ , _) →
         cong (λ b → ≈/≤1+ b _) $ begin
@@ -1412,8 +1438,9 @@ opaque
   ≈/≤m-≈/≤m≡𝟘 : b B.≤ᵇ b′ → ≈/≤1+ b m - ≈/≤1+ b′ m ≡ 𝟘
   ≈/≤m-≈/≤m≡𝟘 {m} b≤b′ =
     ≈/≤m-≈/≤m≤𝟘 b≤b′ , λ where
-      𝟘 _ → refl
-      (≈/≤1+ b″ n) x →
+      ∞            ()
+      𝟘            _  → refl
+      (≈/≤1+ b″ n) x  →
         case ≈/≤1+-injective x of λ
           (_ , m≡) →
         case N.m⊔n≡m⇒n≤m (sym m≡) of λ
@@ -1486,13 +1513,15 @@ opaque
   -≡↔-≡′ p q r = left p q r , right
     where
     lemma₁ : b B.≤ᵇ b′ → ≈/≤1+ b m - ≈/≤1+ b′ m ≡′ 𝟘
-    lemma₁ {(false)} {(false)} B.b≤b = ≤1+m-≤1+m≡′𝟘
-    lemma₁ {(false)} {(true)} B.f≤t = ≤1+m-≈1+m≡′𝟘
-    lemma₁ {(true)} {(true)} B.b≤b = ≈1+m-≈1+m≡′𝟘
+    lemma₁ {b = false} {b′ = false} B.b≤b = ≤1+m-≤1+m≡′𝟘
+    lemma₁ {b = false} {b′ = true}  B.f≤t = ≤1+m-≈1+m≡′𝟘
+    lemma₁ {b = true}  {b′ = true}  B.b≤b = ≈1+m-≈1+m≡′𝟘
+    lemma₁ {b = true}  {b′ = false} ()
     lemma₂ : b B.≤ᵇ b′ → k N.< m → ≈/≤1+ b m - ≈/≤1+ b′ k ≡′ ≈/≤1+ (b B.∧ b′) (m N.∸ 1+ k)
-    lemma₂ {(false)} {(false)} B.b≤b n<m = ≤1+m-≤1+n≡′≤1+m∸n n<m
-    lemma₂ {(false)} {(true)} B.f≤t n<m = ≤1+m-≈1+n≡′≤1+m∸n n<m
-    lemma₂ {(true)} {(true)} B.b≤b n<m = ≈1+m-≈1+n≡′≈1+m∸n n<m
+    lemma₂ {b = false} {b′ = false} B.b≤b n<m = ≤1+m-≤1+n≡′≤1+m∸n n<m
+    lemma₂ {b = false} {b′ = true}  B.f≤t n<m = ≤1+m-≈1+n≡′≤1+m∸n n<m
+    lemma₂ {b = true}  {b′ = true}  B.b≤b n<m = ≈1+m-≈1+n≡′≈1+m∸n n<m
+    lemma₂ {b = true}  {b′ = false} ()
     left : ∀ p q r → p - q ≡ r → p - q ≡′ r
     left ∞ q r p-q≡r =
       case -≡-functional {q = q} p-q≡r (∞-p≡∞ refl q) of λ {

@@ -55,12 +55,14 @@ tailₘ (γ ∙ p) = γ
 -- Update the value of an element in a context
 
 _,_≔_ : (γ : Conₘ n) (x : Fin n) (p : M) → Conₘ n
+ε , ()           ≔ _
 (γ ∙ q) , x0     ≔ p = γ ∙ p
 (γ ∙ q) , (x +1) ≔ p = (γ , x ≔ p) ∙ q
 
 -- Look up an element in a context
 
 _⟨_⟩ : (γ : Conₘ n) → (x : Fin n) → M
+ε       ⟨ () ⟩
 (γ ∙ p) ⟨ x0 ⟩   = p
 (γ ∙ p) ⟨ x +1 ⟩ = γ ⟨ x ⟩
 

@@ -37,7 +37,8 @@ module ≤ᵇ-Reasoning = Tools.Reasoning.PartialOrder
 -- The function T is pointwise propositional.
 
 T-propositional : Is-proposition (T b)
-T-propositional {b = true} = refl
+T-propositional {b = true}           = refl
+T-propositional {b = false} {x = ()}
 
 -- T (not b) is logically equivalent to ¬ T b.
 
@@ -84,13 +85,15 @@ opaque
 -- If x ∨ y is false, then x is false.
 
 ∨-positiveˡ : x ∨ y ≡ false → x ≡ false
-∨-positiveˡ {x = false} _ = refl
+∨-positiveˡ {x = false} _  = refl
+∨-positiveˡ {x = true}  ()
 
 -- If x ∧ y is false, then x is false or y is false.
 
 ∧-zero-product : x ∧ y ≡ false → x ≡ false ⊎ y ≡ false
-∧-zero-product {x = false} _ = inj₁ refl
-∧-zero-product {y = false} _ = inj₂ refl
+∧-zero-product {x = false}             _  = inj₁ refl
+∧-zero-product             {y = false} _  = inj₂ refl
+∧-zero-product {x = true}  {y = true}  ()
 
 -- One cannot have T b and T (not b)
 

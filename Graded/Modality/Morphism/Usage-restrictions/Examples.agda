@@ -25,16 +25,16 @@ open import Graded.Modality.Morphism.Usage-restrictions
 open import Graded.Modality.Instances.Affine
   using (affineModality)
 open import Graded.Modality.Instances.Erasure
-  using (𝟘)
+  using (𝟘; ω)
 open import Graded.Modality.Instances.Erasure.Modality
   using (ErasureModality)
 open import Graded.Modality.Instances.Linear-or-affine
-  using (𝟘; linear-or-affine)
+  using (𝟘; 𝟙; ≤𝟙; ≤ω; linear-or-affine)
 open import Graded.Modality.Instances.Linearity
   using (linearityModality)
 open import Graded.Modality.Instances.Unit using (UnitModality)
 open import Graded.Modality.Instances.Zero-one-many
-  using (𝟘; zero-one-many-modality)
+  using (𝟘; 𝟙; ω; zero-one-many-modality)
 open import Graded.Modality.Variant
 open import Graded.Mode
 open import Graded.Restrictions
@@ -383,6 +383,7 @@ private opaque
   not-all-for-𝟙ᵐ-≤ᵉᵐ _  _  hyp 𝟘ᵐ = hyp
   not-all-for-𝟙ᵐ-≤ᵉᵐ f₁ f₂ hyp 𝟙ᵐ with f₁ 𝟙ᵐ | f₂ 𝟙ᵐ
   … | none | _    = _
+  … | some | none = ⊥-elim hyp
   … | some | some = _
   … | some | all  = _
   … | all  | none = ⊥-elim hyp
@@ -584,7 +585,8 @@ opaque
       (λ _ → inj₁
          ( (λ ())
          , (λ where
-              {p = 𝟘} _ → refl)
+              {p = 𝟘} _  → refl
+              {p = ω} ())
          ))
 
 opaque
@@ -605,7 +607,8 @@ opaque
       (λ _ →
            (λ ())
          , (λ where
-              {p = 𝟘} _ → refl))
+              {p = 𝟘} _  → refl
+              {p = ω} ()))
 
 opaque
 
@@ -625,7 +628,9 @@ opaque
       (λ _ → inj₁
          ( (λ ())
          , (λ where
-              {p = 𝟘} _ → refl)
+              {p = 𝟘} _  → refl
+              {p = 𝟙} ()
+              {p = ω} ())
          ))
 
 opaque
@@ -646,7 +651,9 @@ opaque
       (λ _ →
            (λ ())
          , (λ where
-              {p = 𝟘} _ → refl))
+              {p = 𝟘} _  → refl
+              {p = 𝟙} ()
+              {p = ω} ()))
 
 opaque
 
@@ -666,7 +673,9 @@ opaque
       (λ _ → inj₁
          ( (λ ())
          , (λ where
-              {p = 𝟘} _ → refl)
+              {p = 𝟘} _  → refl
+              {p = 𝟙} ()
+              {p = ω} ())
          ))
 
 opaque
@@ -687,7 +696,9 @@ opaque
       (λ _ →
            (λ ())
          , (λ where
-              {p = 𝟘} _ → refl))
+              {p = 𝟘} _  → refl
+              {p = 𝟙} ()
+              {p = ω} ()))
 
 opaque
 
@@ -707,7 +718,10 @@ opaque
       (λ _ → inj₁
          ( (λ ())
          , (λ where
-              {p = 𝟘} _ → refl)
+              {p = 𝟘}  _  → refl
+              {p = 𝟙}  ()
+              {p = ≤𝟙} ()
+              {p = ≤ω} ())
          ))
 
 opaque
@@ -728,7 +742,10 @@ opaque
       (λ _ →
            (λ ())
          , (λ where
-              {p = 𝟘} _ → refl))
+              {p = 𝟘}  _  → refl
+              {p = 𝟙}  ()
+              {p = ≤𝟙} ()
+              {p = ≤ω} ()))
 
 opaque
 
@@ -748,7 +765,9 @@ opaque
       (λ _ → inj₁
          ( (λ ())
          , (λ where
-              {p = 𝟘} _ → refl)
+              {p = 𝟘} _  → refl
+              {p = 𝟙} ()
+              {p = ω} ())
          ))
 
 opaque
@@ -769,7 +788,9 @@ opaque
       (λ _ →
            (λ ())
          , (λ where
-              {p = 𝟘} _ → refl))
+              {p = 𝟘} _  → refl
+              {p = 𝟙} ()
+              {p = ω} ()))
 
 opaque
 
@@ -789,7 +810,10 @@ opaque
       (λ _ → inj₁
          ( (λ ())
          , (λ where
-              {p = 𝟘} _ → refl)
+              {p = 𝟘}  _  → refl
+              {p = 𝟙}  ()
+              {p = ≤𝟙} ()
+              {p = ≤ω} ())
          ))
 
 opaque
@@ -810,7 +834,10 @@ opaque
       (λ _ →
            (λ ())
          , (λ where
-              {p = 𝟘} _ → refl))
+              {p = 𝟘}  _  → refl
+              {p = 𝟙}  ()
+              {p = ≤𝟙} ()
+              {p = ≤ω} ()))
 
 opaque
 
@@ -830,7 +857,9 @@ opaque
       (λ _ → inj₁
          ( (λ ())
          , (λ where
-              {p = 𝟘} _ → refl)
+              {p = 𝟘} _  → refl
+              {p = 𝟙} ()
+              {p = ω} ())
          ))
 
 opaque
@@ -851,7 +880,9 @@ opaque
       (λ _ →
            (λ ())
          , (λ where
-              {p = 𝟘} _ → refl))
+              {p = 𝟘} _  → refl
+              {p = 𝟙} ()
+              {p = ω} ()))
 
 opaque
 
@@ -871,7 +902,9 @@ opaque
       (λ _ → inj₁
          ( (λ ())
          , (λ where
-              {p = 𝟘} _ → refl)
+              {p = 𝟘} _  → refl
+              {p = 𝟙} ()
+              {p = ω} ())
          ))
 
 opaque
@@ -892,7 +925,9 @@ opaque
       (λ _ →
            (λ ())
          , (λ where
-              {p = 𝟘} _ → refl))
+              {p = 𝟘} _  → refl
+              {p = 𝟙} ()
+              {p = ω} ()))
 
 ------------------------------------------------------------------------
 -- Some lemmas related to no-erased-matches-UR and concrete
@@ -977,7 +1012,8 @@ erasure→zero-one-many-preserves-no-erased-matches-UR =
     (λ _ → inj₁
        ( (λ ())
        , (λ where
-            {p = 𝟘} _ → refl)
+            {p = 𝟘} _  → refl
+            {p = ω} ())
        ))
 
 -- If the functions erasure→zero-one-many and tr reflect certain usage
@@ -997,7 +1033,8 @@ erasure→zero-one-many-reflects-no-erased-matches-UR =
     (λ _ →
          (λ ())
        , (λ where
-            {p = 𝟘} _ → refl))
+            {p = 𝟘} _  → refl
+            {p = ω} ()))
 
 -- If the functions zero-one-many→erasure and tr preserve certain
 -- usage restrictions, then they also do this for certain usage
@@ -1017,7 +1054,9 @@ zero-one-many→erasure-preserves-no-erased-matches-UR =
     (λ _ → inj₁
        ( (λ ())
        , (λ where
-            {p = 𝟘} _ → refl)
+            {p = 𝟘} _  → refl
+            {p = 𝟙} ()
+            {p = ω} ())
        ))
 
 -- If the functions zero-one-many→erasure and tr reflect certain usage
@@ -1037,7 +1076,9 @@ zero-one-many→erasure-reflects-no-erased-matches-UR =
     (λ _ →
          (λ ())
        , (λ where
-            {p = 𝟘} _ → refl))
+            {p = 𝟘} _  → refl
+            {p = 𝟙} ()
+            {p = ω} ()))
 
 -- If the functions linearity→linear-or-affine and tr preserve certain
 -- usage restrictions, then they also do this for certain usage
@@ -1058,7 +1099,9 @@ linearity→linear-or-affine-preserves-no-erased-matches-UR =
     (λ _ → inj₁
        ( (λ ())
        , (λ where
-            {p = 𝟘} _ → refl)
+            {p = 𝟘} _  → refl
+            {p = 𝟙} ()
+            {p = ω} ())
        ))
 
 -- If the functions linearity→linear-or-affine and tr reflect certain
@@ -1080,7 +1123,9 @@ linearity→linear-or-affine-reflects-no-erased-matches-UR =
     (λ _ →
          (λ ())
        , (λ where
-            {p = 𝟘} _ → refl))
+            {p = 𝟘} _  → refl
+            {p = 𝟙} ()
+            {p = ω} ()))
 
 -- If the functions linear-or-affine→linearity and tr preserve certain
 -- usage restrictions, then they also do this for certain usage
@@ -1101,7 +1146,10 @@ linear-or-affine→linearity-preserves-no-erased-matches-UR =
     (λ _ → inj₁
        ( (λ ())
        , (λ where
-            {p = 𝟘} _ → refl)
+            {p = 𝟘}  _  → refl
+            {p = 𝟙}  ()
+            {p = ≤𝟙} ()
+            {p = ≤ω} ())
        ))
 
 -- If the functions linear-or-affine→linearity and tr reflect certain
@@ -1123,7 +1171,10 @@ linear-or-affine→linearity-reflects-no-erased-matches-UR =
     (λ _ →
          (λ ())
        , (λ where
-            {p = 𝟘} _ → refl))
+            {p = 𝟘}  _  → refl
+            {p = 𝟙}  ()
+            {p = ≤𝟙} ()
+            {p = ≤ω} ()))
 
 -- If the functions affine→linear-or-affine and tr preserve certain
 -- usage restrictions, then they also do this for certain usage
@@ -1143,7 +1194,9 @@ affine→linear-or-affine-preserves-no-erased-matches-UR =
     (λ _ → inj₁
        ( (λ ())
        , (λ where
-            {p = 𝟘} _ → refl)
+            {p = 𝟘} _  → refl
+            {p = 𝟙} ()
+            {p = ω} ())
        ))
 
 -- If the functions affine→linear-or-affine and tr reflect certain
@@ -1164,7 +1217,9 @@ affine→linear-or-affine-reflects-no-erased-matches-UR =
     (λ _ →
          (λ ())
        , (λ where
-            {p = 𝟘} _ → refl))
+            {p = 𝟘} _  → refl
+            {p = 𝟙} ()
+            {p = ω} ()))
 
 -- If the functions linear-or-affine→affine and tr preserve certain
 -- usage restrictions, then they also do this for certain usage
@@ -1184,7 +1239,10 @@ linear-or-affine→affine-preserves-no-erased-matches-UR =
     (λ _ → inj₁
        ( (λ ())
        , (λ where
-            {p = 𝟘} _ → refl)
+            {p = 𝟘}  _  → refl
+            {p = 𝟙}  ()
+            {p = ≤𝟙} ()
+            {p = ≤ω} ())
        ))
 
 -- If the functions linear-or-affine→affine and tr reflect certain
@@ -1205,7 +1263,10 @@ linear-or-affine→affine-reflects-no-erased-matches-UR =
     (λ _ →
          (λ ())
        , (λ where
-            {p = 𝟘} _ → refl))
+            {p = 𝟘}  _  → refl
+            {p = 𝟙}  ()
+            {p = ≤𝟙} ()
+            {p = ≤ω} ()))
 
 -- If the functions affine→linearity and tr preserve certain usage
 -- restrictions, then they also do this for certain usage restrictions
@@ -1224,7 +1285,9 @@ affine→linearity-preserves-no-erased-matches-UR =
     (λ _ → inj₁
        ( (λ ())
        , (λ where
-            {p = 𝟘} _ → refl)
+            {p = 𝟘} _  → refl
+            {p = 𝟙} ()
+            {p = ω} ())
        ))
 
 -- If the functions affine→linearity and tr reflect certain usage
@@ -1244,7 +1307,9 @@ affine→linearity-reflects-no-erased-matches-UR =
     (λ _ →
          (λ ())
        , (λ where
-            {p = 𝟘} _ → refl))
+            {p = 𝟘} _  → refl
+            {p = 𝟙} ()
+            {p = ω} ()))
 
 -- If the functions linearity→affine and tr preserve certain usage
 -- restrictions, then they also do this for certain usage restrictions
@@ -1263,7 +1328,9 @@ linearity→affine-preserves-no-erased-matches-UR =
     (λ _ → inj₁
        ( (λ ())
        , (λ where
-            {p = 𝟘} _ → refl)
+            {p = 𝟘} _  → refl
+            {p = 𝟙} ()
+            {p = ω} ())
        ))
 
 -- If the functions linearity→affine and tr reflect certain usage
@@ -1283,4 +1350,6 @@ linearity→affine-reflects-no-erased-matches-UR =
     (λ _ →
          (λ ())
        , (λ where
-            {p = 𝟘} _ → refl))
+            {p = 𝟘} _  → refl
+            {p = 𝟙} ()
+            {p = ω} ()))

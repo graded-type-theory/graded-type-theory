@@ -34,7 +34,7 @@ open import Tools.Level
 open import Tools.Nat hiding (_<_)
 open import Tools.Product
 import Tools.PropositionalEquality as PE
-open import Tools.Sum using (inj₂)
+open import Tools.Sum
 
 private
   variable
@@ -124,6 +124,8 @@ transEqTermUnit (Unitₜ₌ˢ _ _ (inj₂ ok)) (Unitₜ₌ʷ _ _ _ _ _ _ not-ok)
   ⊥-elim (not-ok ok)
 transEqTermUnit (Unitₜ₌ʷ _ _ _ _ _ _ not-ok) (Unitₜ₌ˢ _ _ (inj₂ ok)) =
   ⊥-elim (not-ok ok)
+transEqTermUnit (Unitₜ₌ˢ _ _ (inj₁ ())) (Unitₜ₌ʷ _ _ _ _ _ _ _)
+transEqTermUnit (Unitₜ₌ʷ _ _ _ _ _ _ _) (Unitₜ₌ˢ _ _ (inj₁ ()))
 
 
 -- Helper function for transitivity of type equality using shape views.

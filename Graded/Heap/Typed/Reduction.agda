@@ -171,6 +171,7 @@ opaque
   -- Heap typing is preserved by heap lookups/updates
 
   heapUpdate-⊢ʰ : Δ ⊢ʰ H ∷ Γ → H ⊢ y ↦[ q ] c ⨾ H′ → Δ ⊢ʰ H′ ∷ Γ
+  heapUpdate-⊢ʰ ε         ()
   heapUpdate-⊢ʰ (⊢H ∙ ⊢t) (here _) = ⊢H ∙ ⊢t
   heapUpdate-⊢ʰ {c = u , _} (_∙_ {ρ} {t} {A = A} ⊢H ⊢t) (there d) =
     case heapUpdate-⊢ʰ ⊢H d of λ

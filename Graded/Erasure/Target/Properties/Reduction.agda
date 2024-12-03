@@ -68,6 +68,7 @@ opaque
   Value→¬⇒ zero ()
   Value→¬⇒ suc  ()
   Value→¬⇒ star ()
+  Value→¬⇒ ↯    ()
 
 opaque
 
@@ -78,35 +79,49 @@ opaque
     (app-subst p) → λ where
       (app-subst q)       → PE.cong (_∘⟨ _ ⟩ _) $ redDet _ p q
       (app-subst-arg v _) → ⊥-elim $ Value→¬⇒ v p
+      (β-red _)           → case p of λ ()
     (app-subst-arg v p) → λ where
       (app-subst q)       → ⊥-elim $ Value→¬⇒ v q
       (app-subst-arg _ q) → PE.cong (_ ∘⟨ _ ⟩_) $ redDet _ p q
       (β-red v)           → ⊥-elim $ Value→¬⇒ v p
     (β-red v) → λ where
+      (app-subst ())
       (app-subst-arg _ q) → ⊥-elim $ Value→¬⇒ v q
       (β-red _)           → PE.refl
     (fst-subst p) → λ where
       (fst-subst q) → PE.cong fst $ redDet _ p q
+      Σ-β₁          → case p of λ ()
     (snd-subst p) → λ where
       (snd-subst q) → PE.cong snd $ redDet _ p q
+      Σ-β₂          → case p of λ ()
     Σ-β₁ → λ where
-      Σ-β₁ → PE.refl
+      (fst-subst ())
+      Σ-β₁           → PE.refl
     Σ-β₂ → λ where
-      Σ-β₂ → PE.refl
+      (snd-subst ())
+      Σ-β₂           → PE.refl
     (prodrec-subst p) → λ where
       (prodrec-subst q) → PE.cong (flip prodrec _) $ redDet _ p q
+      prodrec-β         → case p of λ ()
     prodrec-β → λ where
-      prodrec-β → PE.refl
+      (prodrec-subst ())
+      prodrec-β          → PE.refl
     (natrec-subst p) → λ where
       (natrec-subst q) → PE.cong (natrec _ _) $ redDet _ p q
+      natrec-zero      → case p of λ ()
+      natrec-suc       → case p of λ ()
     natrec-zero → λ where
-      natrec-zero → PE.refl
+      (natrec-subst ())
+      natrec-zero       → PE.refl
     natrec-suc → λ where
-      natrec-suc → PE.refl
+      (natrec-subst ())
+      natrec-suc        → PE.refl
     (unitrec-subst p) → λ where
       (unitrec-subst q) → PE.cong (flip unitrec _) $ redDet _ p q
+      unitrec-β         → case p of λ ()
     unitrec-β → λ where
-      unitrec-β → PE.refl
+      (unitrec-subst ())
+      unitrec-β          → PE.refl
 
 -- Reduction closure is deterministic
 -- (there is only one reduction path)
@@ -122,30 +137,36 @@ red*Det {u = u} (trans x u⇒t) (trans x₁ u⇒t′)
 -- Non-reducible terms
 
 ↯-noRed : ↯ ⇒* t → t PE.≡ ↯
-↯-noRed refl = PE.refl
+↯-noRed refl         = PE.refl
+↯-noRed (trans () _)
 
 zero-noRed : zero ⇒* t → t PE.≡ zero
-zero-noRed refl = PE.refl
+zero-noRed refl         = PE.refl
+zero-noRed (trans () _)
 
 suc-noRed : suc t ⇒* t′ → t′ PE.≡ suc t
-suc-noRed refl = PE.refl
+suc-noRed refl         = PE.refl
+suc-noRed (trans () _)
 
 prod-noRed : prod t t′ ⇒* u → u PE.≡ prod t t′
-prod-noRed refl = PE.refl
+prod-noRed refl         = PE.refl
+prod-noRed (trans () _)
 
 star-noRed : star ⇒* t → t PE.≡ star
-star-noRed refl = PE.refl
+star-noRed refl         = PE.refl
+star-noRed (trans () _)
 
 opaque
 
   Value→⇒*→≡ : Value t → t ⇒* u → u PE.≡ t
   Value→⇒*→≡ = λ where
-    lam  refl → PE.refl
-    prod refl → PE.refl
-    zero refl → PE.refl
-    suc  refl → PE.refl
-    star refl → PE.refl
-    ↯    refl → PE.refl
+    lam  refl          → PE.refl
+    prod refl          → PE.refl
+    zero refl          → PE.refl
+    suc  refl          → PE.refl
+    star refl          → PE.refl
+    ↯    refl          → PE.refl
+    t-v  (trans t⇒u _) → ⊥-elim $ Value→¬⇒ t-v t⇒u
 
 opaque
 

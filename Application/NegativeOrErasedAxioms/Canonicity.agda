@@ -238,6 +238,18 @@ neNeg ([]-congⱼ _ _ _ _ ok) ([]-congₙ _) _ =
   ⊥-elim (no-erased-matches non-trivial .proj₂ .proj₂ .proj₁ ok)
 neNeg (conv d c) n γ▸u nΓγ =
   conv (neNeg d n γ▸u nΓγ) c
+neNeg (Uⱼ _)          ()
+neNeg (ΠΣⱼ _ _ _)     ()
+neNeg (lamⱼ _ _ _)    ()
+neNeg (prodⱼ _ _ _ _) ()
+neNeg (Emptyⱼ _)      ()
+neNeg (Unitⱼ _ _)     ()
+neNeg (starⱼ _ _)     ()
+neNeg (ℕⱼ _)          ()
+neNeg (zeroⱼ _)       ()
+neNeg (sucⱼ _)        ()
+neNeg (Idⱼ _ _ _)     ()
+neNeg (rflⱼ _)        ()
 
 -- Lemma: A normal form which has the type ℕ in a negative/erased
 -- context, and which is well-resourced (with respect to the mode 𝟙ᵐ),

@@ -27,6 +27,7 @@ open import Definition.LogicalRelation.Properties.Kit R
 open import Definition.LogicalRelation.ShapeView R
 
 open import Tools.Function
+open import Tools.Level
 open import Tools.Nat hiding (_<_)
 open import Tools.Product
 import Tools.PropositionalEquality as PE
@@ -394,6 +395,10 @@ mutual
             (PE.subst (λ x → Γ ⊢ p ≅ r ∷ x) ΣFG≡ΣF₁G₁ p≅r)
             (irrelevanceTerm [A] [A]₁ [t]) (irrelevanceTerm [A] [A]₁ [u])
             (inc , p~r′)
+  irrelevanceEqTermT
+    (Bᵥ BΣʷ record{} _) (Σₜ₌ _ _ _ _ prodₙ (ne _) _ _ _ (lift ()))
+  irrelevanceEqTermT
+    (Bᵥ BΣʷ record{} _) (Σₜ₌ _ _ _ _ (ne _) prodₙ _ _ _ (lift ()))
   irrelevanceEqTermT (Uᵥ (Uᵣ _ l<1 ⇒*U1) (Uᵣ _ l<2 ⇒*U2))
     (Uₜ₌ A B d d′ typeA typeB A≡B [t] [u] [t≡u])
     with whrDet* (⇒*U1 , Uₙ) (⇒*U2 ,  Uₙ)

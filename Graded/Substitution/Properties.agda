@@ -500,7 +500,8 @@ wf-tailSubstₘ Ψ▶σ x =
     mo₁ ≡ 𝟙ᵐ →
     ⌜ mo₁ ⌝ ·ᶜ (𝟘ᶜ , x ≔ 𝟙) <* Ψ ▸[ mo₁ ] t →
     (𝟘ᶜ , x ≔ ⌜ mo₂ ⌝) <* Ψ ▸[ mo₂ ] t
-  lemma 𝟙ᵐ 𝟘ᵐ x _ ▸t = sub (▸-𝟘 ▸t)
+  lemma 𝟘ᵐ _  _ ()
+  lemma 𝟙ᵐ 𝟘ᵐ x _  ▸t = sub (▸-𝟘 ▸t)
     (begin
        (𝟘ᶜ , x ≔ 𝟘) <* Ψ  ≡⟨ cong (_<* Ψ) 𝟘ᶜ,≔𝟘 ⟩
        𝟘ᶜ <* Ψ            ≈⟨ <*-zeroˡ Ψ ⟩
@@ -541,7 +542,8 @@ wf-tailSubstₘ Ψ▶σ x =
   ⌜ ⌞ γ <* Ψ ⌟ᶜ y ⌝ ·ᶜ δ ▸[ ⌞ γ <* Ψ ⌟ᶜ y ] t →
   ⌜ ⌞ (𝟘ᶜ , x ≔ γ ⟨ x ⟩) <* Ψ ⌟ᶜ y ⌝ ·ᶜ δ
     ▸[ ⌞ (𝟘ᶜ , x ≔ γ ⟨ x ⟩) <* Ψ ⌟ᶜ y ] t
-▸-⌞<*⌟ {γ = γ ∙ p} {y = y} {δ = δ} {t = t} {x = x0} (Ψ ⊙ η) ▸₁ = ▸₄
+▸-⌞<*⌟ {γ = ε}                 {x = ()}
+▸-⌞<*⌟ {γ = γ ∙ p} {y} {δ} {t} {x = x0} (Ψ ⊙ η) ▸₁ = ▸₄
   where
   ▸₂ :
     ⌜ ⌞ (p ·ᶜ η) ⟨ y ⟩ + (γ <* Ψ) ⟨ y ⟩ ⌟ ⌝ ·ᶜ δ
@@ -1575,7 +1577,8 @@ subst-calc-correct′ :
   ⦃ has-nr : Dedicated-nr ⦄ →
   (Ψ : Substₘ m n) →
   Ψ ▶[ mos ] σ → ∥ σ ∥ mos ▶[ mos ] σ
-subst-calc-correct′ {mos = mos} {σ = σ} (Ψ ⊙ γ) Ψ▶σ x0 = sub
+subst-calc-correct′           []      _   ()
+subst-calc-correct′ {mos} {σ} (Ψ ⊙ γ) Ψ▶σ x0 = sub
   (usage-inf (Ψ▶σ x0))
   (begin
      ⌜ headᵐ mos ⌝ ·ᶜ ⌈ head σ ⌉ (headᵐ mos) +ᶜ

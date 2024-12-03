@@ -3,8 +3,6 @@
 -- assumptions)
 ------------------------------------------------------------------------
 
-{-# OPTIONS --no-infer-absurd-clauses #-}
-
 open import Definition.Typechecking.Decidable.Assumptions
 open import Definition.Typed.Restrictions
 open import Graded.Modality

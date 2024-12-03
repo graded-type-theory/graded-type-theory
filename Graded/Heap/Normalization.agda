@@ -43,6 +43,8 @@ opaque mutual
   normalize-var : (H : Heap k m) (x : Fin m)
                 → ∃₄ λ n t (ρ′ : Wk m n) S → Normal ⟨ H , t , ρ′ , S ⟩
                   × ⟨ H , var x , id , ε ⟩ ⇢ₑ* ⟨ H , t , ρ′ , S ⟩
+  normalize-var ε ()
+
   normalize-var (H ∙ (p , t , ρ)) y0 =
     case normalize H t ρ ε of λ
       (_ , t′ , ρ′ , S , n , d) →
@@ -60,9 +62,9 @@ opaque mutual
       (inj₂ (refl , s≡s′)) →
         case State-injectivity s≡s′ of λ {
           (_ , refl , refl , _) →
-        case n′ of λ {
-          (var ¬d) →
-        _ , var (y +1) , id , ε , var ¬d , id }}
+        case n′ of λ where
+          (var ¬d) → _ , var (y +1) , id , ε , var ¬d , id
+          (val ()) }
 
 
   normalize-var (H ∙●) y0 =
@@ -79,9 +81,9 @@ opaque mutual
       (inj₂ (refl , s≡s′)) →
         case State-injectivity s≡s′ of λ {
           (_ , refl , refl , _) →
-        case n′ of λ {
-          (var d) →
-        _ , var (y +1) , id , ε , var d , id }}
+        case n′ of λ where
+          (var d)  → _ , var (y +1) , id , ε , var d , id
+          (val ()) }
 
   -- Normalization of states
 
@@ -98,9 +100,9 @@ opaque mutual
       (inj₂ (refl , s≡s′)) →
         case State-injectivity s≡s′ of λ {
           (_ , refl , refl , refl) →
-        case n of λ {
-          (var ¬d) →
-        _ , var x , ρ , S , var ¬d , id }}
+        case n of λ where
+          (var ¬d) → _ , var x , ρ , S , var ¬d , id
+          (val ()) }
   normalize H (lam p t) ρ S =
     _ , lam p t , ρ , S , val lamᵥ , id
   normalize H (t ∘⟨ p ⟩ u) ρ S =

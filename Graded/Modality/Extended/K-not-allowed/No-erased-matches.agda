@@ -182,9 +182,11 @@ opaque
     , refl
     , refl
     , (λ where
-         {m = 𝟙ᵐ} → ⊥-elim ∘→ (_$ refl))
+         {m = 𝟙ᵐ}       → ⊥-elim ∘→ (_$ refl)
+         {m = 𝟘ᵐ[ () ]})
     , (λ where
-         {m = 𝟙ᵐ} → ⊥-elim ∘→ (_$ refl))
+         {m = 𝟙ᵐ}       → ⊥-elim ∘→ (_$ refl)
+         {m = 𝟘ᵐ[ () ]})
     , (λ ())
     , (_$ refl) ∘→ proj₂
     , (_ , (λ ()))
@@ -229,14 +231,16 @@ opaque
              (λ (_ , r≢𝟘) → inj₂ (inj₁ (r≢𝟘 (λ ()) refl)))
            , (λ where
                 (inj₁ 𝟙ᵐ≢𝟙ᵐ)      → ⊥-elim $ 𝟙ᵐ≢𝟙ᵐ refl
-                (inj₂ (inj₁ r≢𝟘)) → _ , (λ _ _ → r≢𝟘)))
+                (inj₂ (inj₁ r≢𝟘)) → _ , (λ _ _ → r≢𝟘)
+                (inj₂ (inj₂ ()))))
     , (λ where
          {m = 𝟘ᵐ} → (λ _ → inj₁ (λ ())) , (λ _ → _ , (λ _ ()))
          {m = 𝟙ᵐ} →
              (λ (_ , r≢𝟘) → inj₂ (inj₁ (r≢𝟘 (λ ()) refl)))
            , (λ where
                 (inj₁ 𝟙ᵐ≢𝟙ᵐ)      → ⊥-elim $ 𝟙ᵐ≢𝟙ᵐ refl
-                (inj₂ (inj₁ r≢𝟘)) → _ , (λ _ _ → r≢𝟘)))
+                (inj₂ (inj₁ r≢𝟘)) → _ , (λ _ _ → r≢𝟘)
+                (inj₂ (inj₂ ()))))
     , _
     , (λ ())
     , (λ ())
@@ -300,14 +304,16 @@ opaque
              (λ (_ , r≢𝟘) → inj₂ (inj₁ (r≢𝟘 (λ ()) refl)))
            , (λ where
                 (inj₁ 𝟙ᵐ≢𝟙ᵐ)      → ⊥-elim $ 𝟙ᵐ≢𝟙ᵐ refl
-                (inj₂ (inj₁ r≢𝟘)) → _ , (λ _ _ → r≢𝟘)))
+                (inj₂ (inj₁ r≢𝟘)) → _ , (λ _ _ → r≢𝟘)
+                (inj₂ (inj₂ ()))))
     , (λ where
          {m = 𝟘ᵐ} → (λ _ → inj₁ (λ ())) , (λ _ → _ , (λ _ ()))
          {m = 𝟙ᵐ} →
              (λ (_ , r≢𝟘) → inj₂ (inj₁ (r≢𝟘 (λ ()) refl)))
            , (λ where
                 (inj₁ 𝟙ᵐ≢𝟙ᵐ)      → ⊥-elim $ 𝟙ᵐ≢𝟙ᵐ refl
-                (inj₂ (inj₁ r≢𝟘)) → _ , (λ _ _ → r≢𝟘)))
+                (inj₂ (inj₁ r≢𝟘)) → _ , (λ _ _ → r≢𝟘)
+                (inj₂ (inj₂ ()))))
     , _
     , (λ ())
     , (λ ())
@@ -375,14 +381,16 @@ opaque
              (λ (_ , r≢𝟘) → inj₂ (inj₁ (r≢𝟘 (λ ()) refl)))
            , (λ where
                 (inj₁ 𝟙ᵐ≢𝟙ᵐ)      → ⊥-elim $ 𝟙ᵐ≢𝟙ᵐ refl
-                (inj₂ (inj₁ r≢𝟘)) → _ , (λ _ _ → r≢𝟘)))
+                (inj₂ (inj₁ r≢𝟘)) → _ , (λ _ _ → r≢𝟘)
+                (inj₂ (inj₂ ()))))
     , (λ where
          {m = 𝟘ᵐ} → (λ _ → inj₁ (λ ())) , (λ _ → _ , (λ _ ()))
          {m = 𝟙ᵐ} →
              (λ (_ , r≢𝟘) → inj₂ (inj₁ (r≢𝟘 (λ ()) refl)))
            , (λ where
                 (inj₁ 𝟙ᵐ≢𝟙ᵐ)      → ⊥-elim $ 𝟙ᵐ≢𝟙ᵐ refl
-                (inj₂ (inj₁ r≢𝟘)) → _ , (λ _ _ → r≢𝟘)))
+                (inj₂ (inj₁ r≢𝟘)) → _ , (λ _ _ → r≢𝟘)
+                (inj₂ (inj₂ ()))))
     , _
     , (λ ())
     , (λ ())
@@ -451,14 +459,16 @@ opaque
              (λ (_ , r≢𝟘) → inj₂ (inj₁ (r≢𝟘 (λ ()) refl)))
            , (λ where
                 (inj₁ 𝟙ᵐ≢𝟙ᵐ)      → ⊥-elim $ 𝟙ᵐ≢𝟙ᵐ refl
-                (inj₂ (inj₁ r≢𝟘)) → _ , (λ _ _ → r≢𝟘)))
+                (inj₂ (inj₁ r≢𝟘)) → _ , (λ _ _ → r≢𝟘)
+                (inj₂ (inj₂ ()))))
     , (λ where
          {m = 𝟘ᵐ} → (λ _ → inj₁ (λ ())) , (λ _ → _ , (λ _ ()))
          {m = 𝟙ᵐ} →
              (λ (_ , r≢𝟘) → inj₂ (inj₁ (r≢𝟘 (λ ()) refl)))
            , (λ where
                 (inj₁ 𝟙ᵐ≢𝟙ᵐ)      → ⊥-elim $ 𝟙ᵐ≢𝟙ᵐ refl
-                (inj₂ (inj₁ r≢𝟘)) → _ , (λ _ _ → r≢𝟘)))
+                (inj₂ (inj₁ r≢𝟘)) → _ , (λ _ _ → r≢𝟘)
+                (inj₂ (inj₂ ()))))
     , _
     , (λ ())
     , (λ ())
@@ -616,7 +626,12 @@ Erasure⇨Affine-types = λ where
       Are-preserving-usage-restrictions E₁.UR E₂.UR tr tr
     are-preserving-usage-restrictions =
       Are-preserving-usage-restrictions-no-erased-matches-UR
-        (λ _ → inj₁ ((λ ()) , (λ { {p = E.𝟘} refl → refl })))
+        (λ _ →
+           inj₁ ( (λ ())
+                , (λ where
+                     {p = E.𝟘} refl → refl
+                     {p = E.ω} ())
+                ))
         are-preserving-type-restrictions $
       Are-preserving-usage-restrictions-no-usage-restrictions _
 
@@ -689,7 +704,12 @@ Erasure⇨Linearity = λ where
       Are-preserving-usage-restrictions E₁.UR E₂.UR tr tr
     are-preserving-usage-restrictions =
       Are-preserving-usage-restrictions-no-erased-matches-UR
-        (λ _ → inj₁ ((λ ()) , (λ { {p = E.𝟘} refl → refl })))
+        (λ _ →
+           inj₁ ( (λ ())
+                , (λ where
+                     {p = E.𝟘} refl → refl
+                     {p = E.ω} ())
+                ))
         are-preserving-type-restrictions $
       Are-preserving-usage-restrictions-no-usage-restrictions _
 
@@ -763,7 +783,13 @@ Affine-types⇨Linear-or-affine-types = λ where
       Are-preserving-usage-restrictions E₁.UR E₂.UR tr tr
     are-preserving-usage-restrictions =
       Are-preserving-usage-restrictions-no-erased-matches-UR
-        (λ _ → inj₁ ((λ ()) , (λ { {p = A.𝟘} refl → refl })))
+        (λ _ →
+           inj₁ ( (λ ())
+                , (λ where
+                     {p = A.𝟘} refl → refl
+                     {p = A.𝟙} ()
+                     {p = A.ω} ())
+                ))
         are-preserving-type-restrictions $
       Are-preserving-usage-restrictions-no-usage-restrictions _
 
@@ -837,7 +863,13 @@ Linearity⇨Linear-or-affine-types = λ where
       Are-preserving-usage-restrictions E₁.UR E₂.UR tr tr
     are-preserving-usage-restrictions =
       Are-preserving-usage-restrictions-no-erased-matches-UR
-        (λ _ → inj₁ ((λ ()) , (λ { {p = L.𝟘} refl → refl })))
+        (λ _ →
+           inj₁ ( (λ ())
+                , (λ where
+                     {p = L.𝟘} refl → refl
+                     {p = L.𝟙} ()
+                     {p = L.ω} ())
+                ))
         are-preserving-type-restrictions $
       Are-preserving-usage-restrictions-no-usage-restrictions _
 

@@ -166,6 +166,8 @@ unit⇨erasure {v₁-ok = v₁-ok} s⇔s = λ where
     .tr-≤-no-nr _ _ _ _ _  → _ , _ , _ , _ , refl , refl , refl , refl
                            , refl , (λ _ → refl) , refl , refl
     .tr-morphism           → λ where
+      .Is-morphism.first-trivial-if-second-trivial
+        ()
       .𝟘ᵐ-in-second-if-in-first             → ⊥-elim ∘→ v₁-ok
       .𝟘ᵐ-in-first-if-in-second _           → inj₂ refl
       .𝟘-well-behaved-in-first-if-in-second → λ _ → inj₂ refl
@@ -218,6 +220,8 @@ erasure⇨zero-one-many {v₁ = v₁@record{}} {v₂} {𝟙≤𝟘 = 𝟙≤𝟘
     .Is-order-embedding.tr-order-reflecting →
       tr-order-reflecting _ _
     .Is-order-embedding.tr-morphism → λ where
+      .Is-morphism.first-trivial-if-second-trivial
+        ()
       .Is-morphism.tr-𝟘-≤                    → refl
       .Is-morphism.trivial-⊎-tr-≡-𝟘-⇔        → inj₂ ( tr-≡-𝟘 _
                                                     , λ { refl → refl }
@@ -234,6 +238,7 @@ erasure⇨zero-one-many {v₁ = v₁@record{}} {v₂} {𝟙≤𝟘 = 𝟙≤𝟘
       .Is-morphism.𝟘ᵐ-in-second-if-in-first  → idᶠ
       .Is-morphism.𝟘ᵐ-in-first-if-in-second  → λ where
         (inj₁ ok) → inj₁ ok
+        (inj₂ ())
       .Is-morphism.𝟘-well-behaved-in-first-if-in-second _ →
         inj₁ E.erasure-has-well-behaved-zero
   where
@@ -246,7 +251,8 @@ erasure⇨zero-one-many {v₁ = v₁@record{}} {v₂} {𝟙≤𝟘 = 𝟙≤𝟘
   tr⁻¹ = zero-one-many→erasure
 
   tr-≡-𝟘 : ∀ p → tr′ {𝟙≤𝟘 = 𝟙≤𝟘} p ≡ 𝟘 → p ≡ 𝟘
-  tr-≡-𝟘 𝟘 _ = refl
+  tr-≡-𝟘 𝟘 _  = refl
+  tr-≡-𝟘 ω ()
 
   tr-≤-𝟙 : ∀ p → tr′ p 𝟘𝟙ω.≤ 𝟙 → p E.≤ ω
   tr-≤-𝟙 𝟘 𝟘≡𝟘∧𝟙 = ⊥-elim (𝟘𝟙ω.𝟘∧𝟙≢𝟘 (sym 𝟘≡𝟘∧𝟙))
@@ -349,9 +355,10 @@ erasure⇨zero-one-many {v₁ = v₁@record{}} {v₂} {𝟙≤𝟘 = 𝟙≤𝟘
       true  ω ω ω ω ω → refl
 
   tr-order-reflecting : ∀ p q → tr′ p 𝟘𝟙ω.≤ tr′ q → p E.≤ q
-  tr-order-reflecting 𝟘 𝟘 _ = refl
-  tr-order-reflecting ω 𝟘 _ = refl
-  tr-order-reflecting ω ω _ = refl
+  tr-order-reflecting 𝟘 𝟘 _  = refl
+  tr-order-reflecting ω 𝟘 _  = refl
+  tr-order-reflecting ω ω _  = refl
+  tr-order-reflecting 𝟘 ω ()
 
   tr-≤-+ :
     ∀ p q r →
@@ -361,14 +368,22 @@ erasure⇨zero-one-many {v₁ = v₁@record{}} {v₂} {𝟙≤𝟘 = 𝟙≤𝟘
   tr-≤-+ 𝟘 𝟘 𝟙 𝟘≡𝟘∧𝟙 = ⊥-elim (𝟘𝟙ω.𝟘∧𝟙≢𝟘 (sym 𝟘≡𝟘∧𝟙))
   tr-≤-+ 𝟘 𝟙 𝟘 𝟘≡𝟘∧𝟙 = ⊥-elim (𝟘𝟙ω.𝟘∧𝟙≢𝟘 (sym 𝟘≡𝟘∧𝟙))
   tr-≤-+ ω _ _ _     = ω , ω , refl , refl , refl
+  tr-≤-+ 𝟘 𝟘 ω ()
+  tr-≤-+ 𝟘 𝟙 𝟙 ()
+  tr-≤-+ 𝟘 𝟙 ω ()
+  tr-≤-+ 𝟘 ω 𝟘 ()
+  tr-≤-+ 𝟘 ω 𝟙 ()
+  tr-≤-+ 𝟘 ω ω ()
 
   tr-≤-· :
     ∀ p q r →
     tr′ p 𝟘𝟙ω.≤ tr′ q 𝟘𝟙ω.· r →
     ∃ λ r′ → tr′ r′ 𝟘𝟙ω.≤ r × p E.≤ q E.· r′
-  tr-≤-· 𝟘 𝟘 _ _ = ω , refl , refl
-  tr-≤-· 𝟘 ω 𝟘 _ = 𝟘 , refl , refl
-  tr-≤-· ω _ _ _ = ω , refl , refl
+  tr-≤-· 𝟘 𝟘 _ _  = ω , refl , refl
+  tr-≤-· 𝟘 ω 𝟘 _  = 𝟘 , refl , refl
+  tr-≤-· ω _ _ _  = ω , refl , refl
+  tr-≤-· 𝟘 ω 𝟙 ()
+  tr-≤-· 𝟘 ω ω ()
 
   tr-≤-∧ :
     ∀ p q r →
@@ -379,6 +394,11 @@ erasure⇨zero-one-many {v₁ = v₁@record{}} {v₂} {𝟙≤𝟘 = 𝟙≤𝟘
   tr-≤-∧ 𝟘 𝟙 𝟘 𝟘≤𝟘∧𝟙 = ⊥-elim (𝟘𝟙ω.𝟘≰𝟘∧𝟙 𝟘≤𝟘∧𝟙)
   tr-≤-∧ 𝟘 𝟙 𝟙 𝟘≡𝟘∧𝟙 = ⊥-elim (𝟘𝟙ω.𝟘∧𝟙≢𝟘 (sym 𝟘≡𝟘∧𝟙))
   tr-≤-∧ ω _ _ _     = ω , ω , refl , refl , refl
+  tr-≤-∧ 𝟘 𝟘 ω ()
+  tr-≤-∧ 𝟘 𝟙 ω ()
+  tr-≤-∧ 𝟘 ω 𝟘 ()
+  tr-≤-∧ 𝟘 ω 𝟙 ()
+  tr-≤-∧ 𝟘 ω ω ()
 
   tr-≤-nr :
     ∀ q p r z₁ s₁ n₁ →
@@ -402,110 +422,139 @@ erasure⇨zero-one-many {v₁ = v₁@record{}} {v₂} {𝟙≤𝟘 = 𝟙≤𝟘
       _     𝟘 ω 𝟘 𝟘 𝟘 𝟘 _  → 𝟘 , 𝟘 , 𝟘 , refl , refl , refl , refl
       _     𝟘 ω ω 𝟘 𝟘 𝟘 _  → 𝟘 , 𝟘 , 𝟘 , refl , refl , refl , refl
       _     ω _ _ _ _ _ _  → ω , ω , ω , refl , refl , refl , refl
+      true  𝟘 𝟘 𝟘 𝟘 𝟘 𝟙 ()
       false 𝟘 𝟘 𝟘 𝟘 𝟘 𝟙 ()
+      true  𝟘 𝟘 𝟘 𝟘 𝟘 ω ()
       false 𝟘 𝟘 𝟘 𝟘 𝟘 ω ()
+      true  𝟘 𝟘 𝟘 𝟘 𝟙 𝟘 ()
       false 𝟘 𝟘 𝟘 𝟘 𝟙 𝟘 ()
+      true  𝟘 𝟘 𝟘 𝟘 𝟙 𝟙 ()
       false 𝟘 𝟘 𝟘 𝟘 𝟙 𝟙 ()
+      true  𝟘 𝟘 𝟘 𝟘 𝟙 ω ()
       false 𝟘 𝟘 𝟘 𝟘 𝟙 ω ()
+      true  𝟘 𝟘 𝟘 𝟘 ω 𝟘 ()
       false 𝟘 𝟘 𝟘 𝟘 ω 𝟘 ()
+      true  𝟘 𝟘 𝟘 𝟘 ω 𝟙 ()
       false 𝟘 𝟘 𝟘 𝟘 ω 𝟙 ()
+      true  𝟘 𝟘 𝟘 𝟘 ω ω ()
       false 𝟘 𝟘 𝟘 𝟘 ω ω ()
+      true  𝟘 𝟘 𝟘 𝟙 𝟘 𝟘 ()
       false 𝟘 𝟘 𝟘 𝟙 𝟘 𝟘 ()
+      true  𝟘 𝟘 𝟘 𝟙 𝟘 𝟙 ()
       false 𝟘 𝟘 𝟘 𝟙 𝟘 𝟙 ()
+      true  𝟘 𝟘 𝟘 𝟙 𝟘 ω ()
       false 𝟘 𝟘 𝟘 𝟙 𝟘 ω ()
+      true  𝟘 𝟘 𝟘 𝟙 𝟙 𝟘 ()
       false 𝟘 𝟘 𝟘 𝟙 𝟙 𝟘 ()
+      true  𝟘 𝟘 𝟘 𝟙 𝟙 𝟙 ()
       false 𝟘 𝟘 𝟘 𝟙 𝟙 𝟙 ()
+      true  𝟘 𝟘 𝟘 𝟙 𝟙 ω ()
       false 𝟘 𝟘 𝟘 𝟙 𝟙 ω ()
+      true  𝟘 𝟘 𝟘 𝟙 ω 𝟘 ()
       false 𝟘 𝟘 𝟘 𝟙 ω 𝟘 ()
+      true  𝟘 𝟘 𝟘 𝟙 ω 𝟙 ()
       false 𝟘 𝟘 𝟘 𝟙 ω 𝟙 ()
+      true  𝟘 𝟘 𝟘 𝟙 ω ω ()
       false 𝟘 𝟘 𝟘 𝟙 ω ω ()
+      true  𝟘 𝟘 𝟘 ω 𝟘 𝟘 ()
       false 𝟘 𝟘 𝟘 ω 𝟘 𝟘 ()
+      true  𝟘 𝟘 𝟘 ω 𝟘 𝟙 ()
       false 𝟘 𝟘 𝟘 ω 𝟘 𝟙 ()
+      true  𝟘 𝟘 𝟘 ω 𝟘 ω ()
       false 𝟘 𝟘 𝟘 ω 𝟘 ω ()
+      true  𝟘 𝟘 𝟘 ω 𝟙 𝟘 ()
       false 𝟘 𝟘 𝟘 ω 𝟙 𝟘 ()
+      true  𝟘 𝟘 𝟘 ω 𝟙 𝟙 ()
       false 𝟘 𝟘 𝟘 ω 𝟙 𝟙 ()
+      true  𝟘 𝟘 𝟘 ω 𝟙 ω ()
       false 𝟘 𝟘 𝟘 ω 𝟙 ω ()
+      true  𝟘 𝟘 𝟘 ω ω 𝟘 ()
       false 𝟘 𝟘 𝟘 ω ω 𝟘 ()
+      true  𝟘 𝟘 𝟘 ω ω 𝟙 ()
       false 𝟘 𝟘 𝟘 ω ω 𝟙 ()
+      true  𝟘 𝟘 𝟘 ω ω ω ()
       false 𝟘 𝟘 𝟘 ω ω ω ()
-      false 𝟘 𝟘 ω 𝟘 𝟘 𝟙 ()
-      false 𝟘 𝟘 ω 𝟘 𝟘 ω ()
-      false 𝟘 𝟘 ω 𝟘 𝟙 𝟘 ()
-      false 𝟘 𝟘 ω 𝟘 𝟙 𝟙 ()
-      false 𝟘 𝟘 ω 𝟘 𝟙 ω ()
-      false 𝟘 𝟘 ω 𝟘 ω 𝟘 ()
-      false 𝟘 𝟘 ω 𝟘 ω 𝟙 ()
-      false 𝟘 𝟘 ω 𝟘 ω ω ()
-      false 𝟘 𝟘 ω 𝟙 𝟘 𝟘 ()
-      false 𝟘 𝟘 ω 𝟙 𝟘 𝟙 ()
-      false 𝟘 𝟘 ω 𝟙 𝟘 ω ()
-      false 𝟘 𝟘 ω 𝟙 𝟙 𝟘 ()
-      false 𝟘 𝟘 ω 𝟙 𝟙 𝟙 ()
-      false 𝟘 𝟘 ω 𝟙 𝟙 ω ()
-      false 𝟘 𝟘 ω 𝟙 ω 𝟘 ()
-      false 𝟘 𝟘 ω 𝟙 ω 𝟙 ()
-      false 𝟘 𝟘 ω 𝟙 ω ω ()
-      false 𝟘 𝟘 ω ω 𝟘 𝟘 ()
-      false 𝟘 𝟘 ω ω 𝟘 𝟙 ()
-      false 𝟘 𝟘 ω ω 𝟘 ω ()
-      false 𝟘 𝟘 ω ω 𝟙 𝟘 ()
-      false 𝟘 𝟘 ω ω 𝟙 𝟙 ()
-      false 𝟘 𝟘 ω ω 𝟙 ω ()
-      false 𝟘 𝟘 ω ω ω 𝟘 ()
-      false 𝟘 𝟘 ω ω ω 𝟙 ()
-      false 𝟘 𝟘 ω ω ω ω ()
-      false 𝟘 ω 𝟘 𝟘 𝟘 𝟙 ()
-      false 𝟘 ω 𝟘 𝟘 𝟘 ω ()
+      _     𝟘 𝟘 ω 𝟘 𝟘 𝟙 ()
+      _     𝟘 𝟘 ω 𝟘 𝟘 ω ()
+      _     𝟘 𝟘 ω 𝟘 𝟙 𝟘 ()
+      _     𝟘 𝟘 ω 𝟘 𝟙 𝟙 ()
+      _     𝟘 𝟘 ω 𝟘 𝟙 ω ()
+      _     𝟘 𝟘 ω 𝟘 ω 𝟘 ()
+      _     𝟘 𝟘 ω 𝟘 ω 𝟙 ()
+      _     𝟘 𝟘 ω 𝟘 ω ω ()
+      _     𝟘 𝟘 ω 𝟙 𝟘 𝟘 ()
+      _     𝟘 𝟘 ω 𝟙 𝟘 𝟙 ()
+      _     𝟘 𝟘 ω 𝟙 𝟘 ω ()
+      _     𝟘 𝟘 ω 𝟙 𝟙 𝟘 ()
+      _     𝟘 𝟘 ω 𝟙 𝟙 𝟙 ()
+      _     𝟘 𝟘 ω 𝟙 𝟙 ω ()
+      _     𝟘 𝟘 ω 𝟙 ω 𝟘 ()
+      _     𝟘 𝟘 ω 𝟙 ω 𝟙 ()
+      _     𝟘 𝟘 ω 𝟙 ω ω ()
+      _     𝟘 𝟘 ω ω 𝟘 𝟘 ()
+      _     𝟘 𝟘 ω ω 𝟘 𝟙 ()
+      _     𝟘 𝟘 ω ω 𝟘 ω ()
+      _     𝟘 𝟘 ω ω 𝟙 𝟘 ()
+      _     𝟘 𝟘 ω ω 𝟙 𝟙 ()
+      _     𝟘 𝟘 ω ω 𝟙 ω ()
+      _     𝟘 𝟘 ω ω ω 𝟘 ()
+      _     𝟘 𝟘 ω ω ω 𝟙 ()
+      _     𝟘 𝟘 ω ω ω ω ()
+      _     𝟘 ω 𝟘 𝟘 𝟘 𝟙 ()
+      _     𝟘 ω 𝟘 𝟘 𝟘 ω ()
+      true  𝟘 ω 𝟘 𝟘 𝟙 𝟘 ()
       false 𝟘 ω 𝟘 𝟘 𝟙 𝟘 ()
-      false 𝟘 ω 𝟘 𝟘 𝟙 𝟙 ()
-      false 𝟘 ω 𝟘 𝟘 𝟙 ω ()
-      false 𝟘 ω 𝟘 𝟘 ω 𝟘 ()
-      false 𝟘 ω 𝟘 𝟘 ω 𝟙 ()
-      false 𝟘 ω 𝟘 𝟘 ω ω ()
+      _     𝟘 ω 𝟘 𝟘 𝟙 𝟙 ()
+      _     𝟘 ω 𝟘 𝟘 𝟙 ω ()
+      _     𝟘 ω 𝟘 𝟘 ω 𝟘 ()
+      _     𝟘 ω 𝟘 𝟘 ω 𝟙 ()
+      _     𝟘 ω 𝟘 𝟘 ω ω ()
+      true  𝟘 ω 𝟘 𝟙 𝟘 𝟘 ()
       false 𝟘 ω 𝟘 𝟙 𝟘 𝟘 ()
-      false 𝟘 ω 𝟘 𝟙 𝟘 𝟙 ()
-      false 𝟘 ω 𝟘 𝟙 𝟘 ω ()
+      _     𝟘 ω 𝟘 𝟙 𝟘 𝟙 ()
+      _     𝟘 ω 𝟘 𝟙 𝟘 ω ()
+      true  𝟘 ω 𝟘 𝟙 𝟙 𝟘 ()
       false 𝟘 ω 𝟘 𝟙 𝟙 𝟘 ()
-      false 𝟘 ω 𝟘 𝟙 𝟙 𝟙 ()
-      false 𝟘 ω 𝟘 𝟙 𝟙 ω ()
-      false 𝟘 ω 𝟘 𝟙 ω 𝟘 ()
-      false 𝟘 ω 𝟘 𝟙 ω 𝟙 ()
-      false 𝟘 ω 𝟘 𝟙 ω ω ()
-      false 𝟘 ω 𝟘 ω 𝟘 𝟘 ()
-      false 𝟘 ω 𝟘 ω 𝟘 𝟙 ()
-      false 𝟘 ω 𝟘 ω 𝟘 ω ()
-      false 𝟘 ω 𝟘 ω 𝟙 𝟘 ()
-      false 𝟘 ω 𝟘 ω 𝟙 𝟙 ()
-      false 𝟘 ω 𝟘 ω 𝟙 ω ()
-      false 𝟘 ω 𝟘 ω ω 𝟘 ()
-      false 𝟘 ω 𝟘 ω ω 𝟙 ()
-      false 𝟘 ω 𝟘 ω ω ω ()
-      false 𝟘 ω ω 𝟘 𝟘 𝟙 ()
-      false 𝟘 ω ω 𝟘 𝟘 ω ()
-      false 𝟘 ω ω 𝟘 𝟙 𝟘 ()
-      false 𝟘 ω ω 𝟘 𝟙 𝟙 ()
-      false 𝟘 ω ω 𝟘 𝟙 ω ()
-      false 𝟘 ω ω 𝟘 ω 𝟘 ()
-      false 𝟘 ω ω 𝟘 ω 𝟙 ()
-      false 𝟘 ω ω 𝟘 ω ω ()
-      false 𝟘 ω ω 𝟙 𝟘 𝟘 ()
-      false 𝟘 ω ω 𝟙 𝟘 𝟙 ()
-      false 𝟘 ω ω 𝟙 𝟘 ω ()
-      false 𝟘 ω ω 𝟙 𝟙 𝟘 ()
-      false 𝟘 ω ω 𝟙 𝟙 𝟙 ()
-      false 𝟘 ω ω 𝟙 𝟙 ω ()
-      false 𝟘 ω ω 𝟙 ω 𝟘 ()
-      false 𝟘 ω ω 𝟙 ω 𝟙 ()
-      false 𝟘 ω ω 𝟙 ω ω ()
-      false 𝟘 ω ω ω 𝟘 𝟘 ()
-      false 𝟘 ω ω ω 𝟘 𝟙 ()
-      false 𝟘 ω ω ω 𝟘 ω ()
-      false 𝟘 ω ω ω 𝟙 𝟘 ()
-      false 𝟘 ω ω ω 𝟙 𝟙 ()
-      false 𝟘 ω ω ω 𝟙 ω ()
-      false 𝟘 ω ω ω ω 𝟘 ()
-      false 𝟘 ω ω ω ω 𝟙 ()
-      false 𝟘 ω ω ω ω ω ()
+      _     𝟘 ω 𝟘 𝟙 𝟙 𝟙 ()
+      _     𝟘 ω 𝟘 𝟙 𝟙 ω ()
+      _     𝟘 ω 𝟘 𝟙 ω 𝟘 ()
+      _     𝟘 ω 𝟘 𝟙 ω 𝟙 ()
+      _     𝟘 ω 𝟘 𝟙 ω ω ()
+      _     𝟘 ω 𝟘 ω 𝟘 𝟘 ()
+      _     𝟘 ω 𝟘 ω 𝟘 𝟙 ()
+      _     𝟘 ω 𝟘 ω 𝟘 ω ()
+      _     𝟘 ω 𝟘 ω 𝟙 𝟘 ()
+      _     𝟘 ω 𝟘 ω 𝟙 𝟙 ()
+      _     𝟘 ω 𝟘 ω 𝟙 ω ()
+      _     𝟘 ω 𝟘 ω ω 𝟘 ()
+      _     𝟘 ω 𝟘 ω ω 𝟙 ()
+      _     𝟘 ω 𝟘 ω ω ω ()
+      _     𝟘 ω ω 𝟘 𝟘 𝟙 ()
+      _     𝟘 ω ω 𝟘 𝟘 ω ()
+      _     𝟘 ω ω 𝟘 𝟙 𝟘 ()
+      _     𝟘 ω ω 𝟘 𝟙 𝟙 ()
+      _     𝟘 ω ω 𝟘 𝟙 ω ()
+      _     𝟘 ω ω 𝟘 ω 𝟘 ()
+      _     𝟘 ω ω 𝟘 ω 𝟙 ()
+      _     𝟘 ω ω 𝟘 ω ω ()
+      _     𝟘 ω ω 𝟙 𝟘 𝟘 ()
+      _     𝟘 ω ω 𝟙 𝟘 𝟙 ()
+      _     𝟘 ω ω 𝟙 𝟘 ω ()
+      _     𝟘 ω ω 𝟙 𝟙 𝟘 ()
+      _     𝟘 ω ω 𝟙 𝟙 𝟙 ()
+      _     𝟘 ω ω 𝟙 𝟙 ω ()
+      _     𝟘 ω ω 𝟙 ω 𝟘 ()
+      _     𝟘 ω ω 𝟙 ω 𝟙 ()
+      _     𝟘 ω ω 𝟙 ω ω ()
+      _     𝟘 ω ω ω 𝟘 𝟘 ()
+      _     𝟘 ω ω ω 𝟘 𝟙 ()
+      _     𝟘 ω ω ω 𝟘 ω ()
+      _     𝟘 ω ω ω 𝟙 𝟘 ()
+      _     𝟘 ω ω ω 𝟙 𝟙 ()
+      _     𝟘 ω ω ω 𝟙 ω ()
+      _     𝟘 ω ω ω ω 𝟘 ()
+      _     𝟘 ω ω ω ω 𝟙 ()
+      _     𝟘 ω ω ω ω ω ()
 
   tr⁻¹-monotone : ∀ p q → p 𝟘𝟙ω.≤ q → tr⁻¹ p E.≤ tr⁻¹ q
   tr⁻¹-monotone = λ where
@@ -516,6 +565,8 @@ erasure⇨zero-one-many {v₁ = v₁@record{}} {v₂} {𝟙≤𝟘 = 𝟙≤𝟘
     ω 𝟘 _     → refl
     ω 𝟙 _     → refl
     ω ω _     → refl
+    𝟘 ω ()
+    𝟙 ω ()
 
   tr-tr⁻¹≤ : ∀ p → tr′ (tr⁻¹ p) 𝟘𝟙ω.≤ p
   tr-tr⁻¹≤ = λ where
@@ -530,6 +581,7 @@ erasure⇨zero-one-many {v₁ = v₁@record{}} {v₂} {𝟙≤𝟘 = 𝟙≤𝟘
     ω 𝟘 _     → refl
     ω 𝟙 _     → refl
     ω ω _     → refl
+    𝟘 ω ()
 
   tr⁻¹-𝟘∧𝟙 : tr⁻¹ 𝟘𝟙ω.𝟘∧𝟙 ≡ ω
   tr⁻¹-𝟘∧𝟙 = 𝟘𝟙ω.𝟘∧𝟙-elim
@@ -621,6 +673,8 @@ zero-one-many⇨erasure :
   Dedicated-nr 𝕄₁ ⇔ Dedicated-nr 𝕄₂ →
   Is-morphism 𝕄₁ 𝕄₂ zero-one-many→erasure
 zero-one-many⇨erasure {v₂ = v₂@record{}} {𝟙≤𝟘 = 𝟙≤𝟘} refl s⇔s = λ where
+    .Is-morphism.first-trivial-if-second-trivial
+      ()
     .Is-morphism.tr-𝟘-≤                    → refl
     .Is-morphism.trivial-⊎-tr-≡-𝟘-⇔        → inj₂ ( tr-≡-𝟘 _
                                                   , λ { refl → refl }
@@ -637,6 +691,7 @@ zero-one-many⇨erasure {v₂ = v₂@record{}} {𝟙≤𝟘 = 𝟙≤𝟘} refl 
     .Is-morphism.𝟘ᵐ-in-second-if-in-first  → idᶠ
     .Is-morphism.𝟘ᵐ-in-first-if-in-second  → λ where
       (inj₁ ok) → inj₁ ok
+      (inj₂ ())
     .Is-morphism.𝟘-well-behaved-in-first-if-in-second _ →
       inj₁ 𝟘𝟙ω.zero-one-many-has-well-behaved-zero
   where
@@ -655,7 +710,9 @@ zero-one-many⇨erasure {v₂ = v₂@record{}} {𝟙≤𝟘 = 𝟙≤𝟘} refl 
   tr-ω[𝟘∧𝟙] = cong tr′ (𝟘𝟙ω.ω·≢𝟘 𝟘𝟙ω.𝟘∧𝟙≢𝟘)
 
   tr-≡-𝟘 : ∀ p → tr′ p ≡ 𝟘 → p ≡ 𝟘
-  tr-≡-𝟘 𝟘 _ = refl
+  tr-≡-𝟘 𝟘 _  = refl
+  tr-≡-𝟘 𝟙 ()
+  tr-≡-𝟘 ω ()
 
   tr-+ : ∀ p q → tr′ (p 𝟘𝟙ω.+ q) ≡ tr′ p E.+ tr′ q
   tr-+ 𝟘 𝟘 = refl
@@ -1290,6 +1347,8 @@ linearity⇨linear-or-affine {v₁ = v₁@record{}} {v₂} refl s⇔s = λ where
     .Is-order-embedding.tr-≤-no-nr {s = s}  → tr-≤-no-nr s
     .Is-order-embedding.tr-order-reflecting → tr-order-reflecting _ _
     .Is-order-embedding.tr-morphism         → λ where
+      .Is-morphism.first-trivial-if-second-trivial
+        ()
       .Is-morphism.tr-𝟘-≤                    → refl
       .Is-morphism.trivial-⊎-tr-≡-𝟘-⇔        → inj₂ ( tr-≡-𝟘 _
                                                     , λ { refl → refl }
@@ -1305,6 +1364,7 @@ linearity⇨linear-or-affine {v₁ = v₁@record{}} {v₂} refl s⇔s = λ where
       .Is-morphism.𝟘ᵐ-in-second-if-in-first  → idᶠ
       .Is-morphism.𝟘ᵐ-in-first-if-in-second  → λ where
         (inj₁ ok) → inj₁ ok
+        (inj₂ ())
       .Is-morphism.𝟘-well-behaved-in-first-if-in-second _ →
         inj₁ (L.linearity-has-well-behaved-zero v₂)
   where
@@ -1315,11 +1375,14 @@ linearity⇨linear-or-affine {v₁ = v₁@record{}} {v₂} refl s⇔s = λ where
   tr⁻¹ = linear-or-affine→linearity
 
   tr-≡-𝟘 : ∀ p → tr′ p ≡ 𝟘 → p ≡ 𝟘
-  tr-≡-𝟘 𝟘 _ = refl
+  tr-≡-𝟘 𝟘 _  = refl
+  tr-≡-𝟘 𝟙 ()
+  tr-≡-𝟘 ω ()
 
   tr-≤-𝟙 : ∀ p → tr′ p LA.≤ 𝟙 → p L.≤ 𝟙
-  tr-≤-𝟙 𝟙 _ = refl
-  tr-≤-𝟙 ω _ = refl
+  tr-≤-𝟙 𝟙 _  = refl
+  tr-≤-𝟙 ω _  = refl
+  tr-≤-𝟙 𝟘 ()
 
   tr-+ : ∀ p q → tr′ (p L.+ q) ≡ tr′ p LA.+ tr′ q
   tr-+ 𝟘 𝟘 = refl
@@ -1604,11 +1667,15 @@ linearity⇨linear-or-affine {v₁ = v₁@record{}} {v₂} refl s⇔s = λ where
     ω ω ω ω ω → refl
 
   tr-order-reflecting : ∀ p q → tr′ p LA.≤ tr′ q → p L.≤ q
-  tr-order-reflecting 𝟘 𝟘 _ = refl
-  tr-order-reflecting 𝟙 𝟙 _ = refl
-  tr-order-reflecting ω 𝟘 _ = refl
-  tr-order-reflecting ω 𝟙 _ = refl
-  tr-order-reflecting ω ω _ = refl
+  tr-order-reflecting 𝟘 𝟘 _  = refl
+  tr-order-reflecting 𝟙 𝟙 _  = refl
+  tr-order-reflecting ω 𝟘 _  = refl
+  tr-order-reflecting ω 𝟙 _  = refl
+  tr-order-reflecting ω ω _  = refl
+  tr-order-reflecting 𝟘 𝟙 ()
+  tr-order-reflecting 𝟘 ω ()
+  tr-order-reflecting 𝟙 𝟘 ()
+  tr-order-reflecting 𝟙 ω ()
 
   tr-≤-+ :
     ∀ p q r →
@@ -1618,9 +1685,33 @@ linearity⇨linear-or-affine {v₁ = v₁@record{}} {v₂} refl s⇔s = λ where
   tr-≤-+ 𝟙 𝟘  𝟙  _  = 𝟘 , 𝟙 , refl , refl , refl
   tr-≤-+ 𝟙 𝟙  𝟘  _  = 𝟙 , 𝟘 , refl , refl , refl
   tr-≤-+ ω _  _  _  = ω , ω , refl , refl , refl
+  tr-≤-+ 𝟘 𝟘  𝟙  ()
+  tr-≤-+ 𝟘 𝟘  ≤𝟙 ()
+  tr-≤-+ 𝟘 𝟘  ≤ω ()
+  tr-≤-+ 𝟘 𝟙  𝟘  ()
   tr-≤-+ 𝟘 𝟙  𝟙  ()
+  tr-≤-+ 𝟘 𝟙  ≤𝟙 ()
+  tr-≤-+ 𝟘 𝟙  ≤ω ()
+  tr-≤-+ 𝟘 ≤𝟙 𝟘  ()
   tr-≤-+ 𝟘 ≤𝟙 𝟙  ()
+  tr-≤-+ 𝟘 ≤𝟙 ≤𝟙 ()
+  tr-≤-+ 𝟘 ≤𝟙 ≤ω ()
+  tr-≤-+ 𝟘 ≤ω 𝟘  ()
   tr-≤-+ 𝟘 ≤ω 𝟙  ()
+  tr-≤-+ 𝟘 ≤ω ≤𝟙 ()
+  tr-≤-+ 𝟘 ≤ω ≤ω ()
+  tr-≤-+ 𝟙 𝟘  𝟘  ()
+  tr-≤-+ 𝟙 𝟘  ≤𝟙 ()
+  tr-≤-+ 𝟙 𝟘  ≤ω ()
+  tr-≤-+ 𝟙 𝟙  𝟙  ()
+  tr-≤-+ 𝟙 𝟙  ≤𝟙 ()
+  tr-≤-+ 𝟙 𝟙  ≤ω ()
+  tr-≤-+ 𝟙 ≤𝟙 𝟘  ()
+  tr-≤-+ 𝟙 ≤𝟙 𝟙  ()
+  tr-≤-+ 𝟙 ≤𝟙 ≤𝟙 ()
+  tr-≤-+ 𝟙 ≤𝟙 ≤ω ()
+  tr-≤-+ 𝟙 ≤ω 𝟘  ()
+  tr-≤-+ 𝟙 ≤ω 𝟙  ()
   tr-≤-+ 𝟙 ≤ω ≤𝟙 ()
   tr-≤-+ 𝟙 ≤ω ≤ω ()
 
@@ -1628,15 +1719,31 @@ linearity⇨linear-or-affine {v₁ = v₁@record{}} {v₂} refl s⇔s = λ where
     ∀ p q r →
     tr′ p LA.≤ tr′ q LA.· r →
     ∃ λ r′ → tr′ r′ LA.≤ r × p L.≤ q L.· r′
-  tr-≤-· 𝟘 𝟘 𝟘  _   = ω , refl , refl
-  tr-≤-· 𝟘 𝟘 𝟙  _   = ω , refl , refl
-  tr-≤-· 𝟘 𝟘 ≤𝟙 _   = ω , refl , refl
-  tr-≤-· 𝟘 𝟘 ≤ω _   = ω , refl , refl
-  tr-≤-· 𝟘 𝟙 𝟘  _   = 𝟘 , refl , refl
-  tr-≤-· 𝟘 ω 𝟘  _   = 𝟘 , refl , refl
-  tr-≤-· 𝟙 𝟙 𝟙  _   = 𝟙 , refl , refl
-  tr-≤-· ω _ _  _   = ω , refl , refl
-  tr-≤-· 𝟙 ω  ≤ω ()
+  tr-≤-· 𝟘 𝟘 𝟘  _  = ω , refl , refl
+  tr-≤-· 𝟘 𝟘 𝟙  _  = ω , refl , refl
+  tr-≤-· 𝟘 𝟘 ≤𝟙 _  = ω , refl , refl
+  tr-≤-· 𝟘 𝟘 ≤ω _  = ω , refl , refl
+  tr-≤-· 𝟘 𝟙 𝟘  _  = 𝟘 , refl , refl
+  tr-≤-· 𝟘 ω 𝟘  _  = 𝟘 , refl , refl
+  tr-≤-· 𝟙 𝟙 𝟙  _  = 𝟙 , refl , refl
+  tr-≤-· ω _ _  _  = ω , refl , refl
+  tr-≤-· 𝟘 𝟙 𝟙  ()
+  tr-≤-· 𝟘 𝟙 ≤𝟙 ()
+  tr-≤-· 𝟘 𝟙 ≤ω ()
+  tr-≤-· 𝟘 ω 𝟙  ()
+  tr-≤-· 𝟘 ω ≤𝟙 ()
+  tr-≤-· 𝟘 ω ≤ω ()
+  tr-≤-· 𝟙 𝟘 𝟘  ()
+  tr-≤-· 𝟙 𝟘 𝟙  ()
+  tr-≤-· 𝟙 𝟘 ≤𝟙 ()
+  tr-≤-· 𝟙 𝟘 ≤ω ()
+  tr-≤-· 𝟙 𝟙 𝟘  ()
+  tr-≤-· 𝟙 𝟙 ≤𝟙 ()
+  tr-≤-· 𝟙 𝟙 ≤ω ()
+  tr-≤-· 𝟙 ω 𝟘  ()
+  tr-≤-· 𝟙 ω 𝟙  ()
+  tr-≤-· 𝟙 ω ≤𝟙 ()
+  tr-≤-· 𝟙 ω ≤ω ()
 
   tr-≤-∧ :
     ∀ p q r →
@@ -1645,11 +1752,36 @@ linearity⇨linear-or-affine {v₁ = v₁@record{}} {v₂} refl s⇔s = λ where
   tr-≤-∧ 𝟘 𝟘  𝟘  _  = 𝟘 , 𝟘 , refl , refl , refl
   tr-≤-∧ 𝟙 𝟙  𝟙  _  = 𝟙 , 𝟙 , refl , refl , refl
   tr-≤-∧ ω _  _  _  = ω , ω , refl , refl , refl
+  tr-≤-∧ 𝟘 𝟘  𝟙  ()
+  tr-≤-∧ 𝟘 𝟘  ≤𝟙 ()
+  tr-≤-∧ 𝟘 𝟘  ≤ω ()
+  tr-≤-∧ 𝟘 𝟙  𝟘  ()
   tr-≤-∧ 𝟘 𝟙  𝟙  ()
+  tr-≤-∧ 𝟘 𝟙  ≤𝟙 ()
+  tr-≤-∧ 𝟘 𝟙  ≤ω ()
+  tr-≤-∧ 𝟘 ≤𝟙 𝟘  ()
   tr-≤-∧ 𝟘 ≤𝟙 𝟙  ()
+  tr-≤-∧ 𝟘 ≤𝟙 ≤𝟙 ()
+  tr-≤-∧ 𝟘 ≤𝟙 ≤ω ()
+  tr-≤-∧ 𝟘 ≤ω 𝟘  ()
+  tr-≤-∧ 𝟘 ≤ω 𝟙  ()
+  tr-≤-∧ 𝟘 ≤ω ≤𝟙 ()
+  tr-≤-∧ 𝟘 ≤ω ≤ω ()
+  tr-≤-∧ 𝟙 𝟘  𝟘  ()
+  tr-≤-∧ 𝟙 𝟘  𝟙  ()
+  tr-≤-∧ 𝟙 𝟘  ≤𝟙 ()
+  tr-≤-∧ 𝟙 𝟘  ≤ω ()
+  tr-≤-∧ 𝟙 𝟙  𝟘  ()
+  tr-≤-∧ 𝟙 𝟙  ≤𝟙 ()
+  tr-≤-∧ 𝟙 𝟙  ≤ω ()
+  tr-≤-∧ 𝟙 ≤𝟙 𝟘  ()
+  tr-≤-∧ 𝟙 ≤𝟙 𝟙  ()
+  tr-≤-∧ 𝟙 ≤𝟙 ≤𝟙 ()
+  tr-≤-∧ 𝟙 ≤𝟙 ≤ω ()
+  tr-≤-∧ 𝟙 ≤ω 𝟘  ()
+  tr-≤-∧ 𝟙 ≤ω 𝟙  ()
   tr-≤-∧ 𝟙 ≤ω ≤𝟙 ()
   tr-≤-∧ 𝟙 ≤ω ≤ω ()
-  tr-≤-∧ 𝟙 ≤ω 𝟘  ()
 
   tr-≤-nr :
     ∀ q p r z₁ s₁ n₁ →
@@ -2820,6 +2952,13 @@ linearity⇨linear-or-affine {v₁ = v₁@record{}} {v₂} refl s⇔s = λ where
     ≤𝟙 𝟙  refl → refl
     ≤𝟙 ≤𝟙 refl → refl
     ≤ω _  _    → refl
+    𝟘  𝟙  ()
+    𝟘  ≤𝟙 ()
+    𝟘  ≤ω ()
+    𝟙  𝟘  ()
+    𝟙  ≤𝟙 ()
+    𝟙  ≤ω ()
+    ≤𝟙 ≤ω ()
 
   tr-tr⁻¹≤ : ∀ p → tr′ (tr⁻¹ p) LA.≤ p
   tr-tr⁻¹≤ = λ where
@@ -2830,9 +2969,15 @@ linearity⇨linear-or-affine {v₁ = v₁@record{}} {v₂} refl s⇔s = λ where
 
   tr≤→≤tr⁻¹ : ∀ p q → tr′ p LA.≤ q → p L.≤ tr⁻¹ q
   tr≤→≤tr⁻¹ = λ where
-    𝟘 𝟘 refl → refl
-    𝟙 𝟙 refl → refl
-    ω _ _    → refl
+    𝟘 𝟘  refl → refl
+    𝟙 𝟙  refl → refl
+    ω _  _    → refl
+    𝟘 𝟙  ()
+    𝟘 ≤𝟙 ()
+    𝟘 ≤ω ()
+    𝟙 𝟘  ()
+    𝟙 ≤𝟙 ()
+    𝟙 ≤ω ()
 
   tr⁻¹-∧ : ∀ p q → tr⁻¹ (p LA.∧ q) ≡ tr⁻¹ p L.∧ tr⁻¹ q
   tr⁻¹-∧ = λ where
@@ -2934,6 +3079,8 @@ linear-or-affine⇨linearity :
   Dedicated-nr 𝕄₁ ⇔ Dedicated-nr 𝕄₂ →
   Is-morphism 𝕄₁ 𝕄₂ linear-or-affine→linearity
 linear-or-affine⇨linearity {v₂ = v₂@record{}} refl s⇔s = λ where
+    .Is-morphism.first-trivial-if-second-trivial
+      ()
     .Is-morphism.tr-𝟘-≤                    → refl
     .Is-morphism.trivial-⊎-tr-≡-𝟘-⇔        → inj₂ ( tr-≡-𝟘 _
                                                   , λ { refl → refl }
@@ -2950,6 +3097,7 @@ linear-or-affine⇨linearity {v₂ = v₂@record{}} refl s⇔s = λ where
     .Is-morphism.𝟘ᵐ-in-second-if-in-first  → idᶠ
     .Is-morphism.𝟘ᵐ-in-first-if-in-second  → λ where
       (inj₁ ok) → inj₁ ok
+      (inj₂ ())
     .Is-morphism.𝟘-well-behaved-in-first-if-in-second _ →
       inj₁ LA.linear-or-affine-has-well-behaved-zero
   where
@@ -2958,7 +3106,10 @@ linear-or-affine⇨linearity {v₂ = v₂@record{}} refl s⇔s = λ where
   tr′ = linear-or-affine→linearity
 
   tr-≡-𝟘 : ∀ p → tr′ p ≡ 𝟘 → p ≡ 𝟘
-  tr-≡-𝟘 𝟘 _ = refl
+  tr-≡-𝟘 𝟘  _  = refl
+  tr-≡-𝟘 𝟙  ()
+  tr-≡-𝟘 ≤𝟙 ()
+  tr-≡-𝟘 ≤ω ()
 
   tr-+ : ∀ p q → tr′ (p LA.+ q) ≡ tr′ p L.+ tr′ q
   tr-+ 𝟘  𝟘  = refl
@@ -4076,6 +4227,8 @@ affine⇨linear-or-affine {v₁ = v₁@record{}} {v₂} refl s⇔s = λ where
     .Is-order-embedding.tr-≤-no-nr {s = s}  → tr-≤-no-nr s
     .Is-order-embedding.tr-order-reflecting → tr-order-reflecting _ _
     .Is-order-embedding.tr-morphism         → λ where
+      .Is-morphism.first-trivial-if-second-trivial
+        ()
       .Is-morphism.tr-𝟘-≤                    → refl
       .Is-morphism.trivial-⊎-tr-≡-𝟘-⇔        → inj₂ ( tr-≡-𝟘 _
                                                     , λ { refl → refl }
@@ -4092,6 +4245,7 @@ affine⇨linear-or-affine {v₁ = v₁@record{}} {v₂} refl s⇔s = λ where
       .Is-morphism.𝟘ᵐ-in-second-if-in-first  → idᶠ
       .Is-morphism.𝟘ᵐ-in-first-if-in-second  → λ where
         (inj₁ ok) → inj₁ ok
+        (inj₂ ())
       .Is-morphism.𝟘-well-behaved-in-first-if-in-second _ →
         inj₁ (A.affine-has-well-behaved-zero v₁)
   where
@@ -4102,11 +4256,14 @@ affine⇨linear-or-affine {v₁ = v₁@record{}} {v₂} refl s⇔s = λ where
   tr⁻¹ = linear-or-affine→affine
 
   tr-≡-𝟘 : ∀ p → tr′ p ≡ 𝟘 → p ≡ 𝟘
-  tr-≡-𝟘 𝟘 _ = refl
+  tr-≡-𝟘 𝟘 _  = refl
+  tr-≡-𝟘 𝟙 ()
+  tr-≡-𝟘 ω ()
 
   tr-≤-𝟙 : ∀ p → tr′ p LA.≤ 𝟙 → p A.≤ 𝟙
-  tr-≤-𝟙 𝟙 _ = refl
-  tr-≤-𝟙 ω _ = refl
+  tr-≤-𝟙 𝟙 _  = refl
+  tr-≤-𝟙 ω _  = refl
+  tr-≤-𝟙 𝟘 ()
 
   tr-+ : ∀ p q → tr′ (p A.+ q) ≡ tr′ p LA.+ tr′ q
   tr-+ 𝟘 𝟘 = refl
@@ -4391,12 +4548,15 @@ affine⇨linear-or-affine {v₁ = v₁@record{}} {v₂} refl s⇔s = λ where
     ω ω ω ω ω → refl
 
   tr-order-reflecting : ∀ p q → tr′ p LA.≤ tr′ q → p A.≤ q
-  tr-order-reflecting 𝟘 𝟘 _ = refl
-  tr-order-reflecting 𝟙 𝟘 _ = refl
-  tr-order-reflecting 𝟙 𝟙 _ = refl
-  tr-order-reflecting ω 𝟘 _ = refl
-  tr-order-reflecting ω 𝟙 _ = refl
-  tr-order-reflecting ω ω _ = refl
+  tr-order-reflecting 𝟘 𝟘 _  = refl
+  tr-order-reflecting 𝟙 𝟘 _  = refl
+  tr-order-reflecting 𝟙 𝟙 _  = refl
+  tr-order-reflecting ω 𝟘 _  = refl
+  tr-order-reflecting ω 𝟙 _  = refl
+  tr-order-reflecting ω ω _  = refl
+  tr-order-reflecting 𝟘 𝟙 ()
+  tr-order-reflecting 𝟘 ω ()
+  tr-order-reflecting 𝟙 ω ()
 
   tr-≤-+ :
     ∀ p q r →
@@ -4409,30 +4569,62 @@ affine⇨linear-or-affine {v₁ = v₁@record{}} {v₂} refl s⇔s = λ where
   tr-≤-+ 𝟙 𝟙  𝟘  _  = 𝟙 , 𝟘 , refl , refl , refl
   tr-≤-+ 𝟙 ≤𝟙 𝟘  _  = 𝟙 , 𝟘 , refl , refl , refl
   tr-≤-+ ω _  _  _  = ω , ω , refl , refl , refl
+  tr-≤-+ 𝟘 𝟘  𝟙  ()
+  tr-≤-+ 𝟘 𝟘  ≤𝟙 ()
+  tr-≤-+ 𝟘 𝟘  ≤ω ()
+  tr-≤-+ 𝟘 𝟙  𝟘  ()
   tr-≤-+ 𝟘 𝟙  𝟙  ()
+  tr-≤-+ 𝟘 𝟙  ≤𝟙 ()
+  tr-≤-+ 𝟘 𝟙  ≤ω ()
+  tr-≤-+ 𝟘 ≤𝟙 𝟘  ()
   tr-≤-+ 𝟘 ≤𝟙 𝟙  ()
+  tr-≤-+ 𝟘 ≤𝟙 ≤𝟙 ()
+  tr-≤-+ 𝟘 ≤𝟙 ≤ω ()
+  tr-≤-+ 𝟘 ≤ω 𝟘  ()
   tr-≤-+ 𝟘 ≤ω 𝟙  ()
+  tr-≤-+ 𝟘 ≤ω ≤𝟙 ()
+  tr-≤-+ 𝟘 ≤ω ≤ω ()
+  tr-≤-+ 𝟙 𝟘  ≤ω ()
+  tr-≤-+ 𝟙 𝟙  𝟙  ()
+  tr-≤-+ 𝟙 𝟙  ≤𝟙 ()
+  tr-≤-+ 𝟙 𝟙  ≤ω ()
+  tr-≤-+ 𝟙 ≤𝟙 𝟙  ()
+  tr-≤-+ 𝟙 ≤𝟙 ≤𝟙 ()
+  tr-≤-+ 𝟙 ≤𝟙 ≤ω ()
+  tr-≤-+ 𝟙 ≤ω 𝟘  ()
+  tr-≤-+ 𝟙 ≤ω 𝟙  ()
+  tr-≤-+ 𝟙 ≤ω ≤𝟙 ()
   tr-≤-+ 𝟙 ≤ω ≤ω ()
 
   tr-≤-· :
     ∀ p q r →
     tr′ p LA.≤ tr′ q LA.· r →
     ∃ λ r′ → tr′ r′ LA.≤ r × p A.≤ q A.· r′
-  tr-≤-· 𝟘 𝟘 𝟘  _ = ω , refl , refl
-  tr-≤-· 𝟘 𝟘 𝟙  _ = ω , refl , refl
-  tr-≤-· 𝟘 𝟘 ≤𝟙 _ = ω , refl , refl
-  tr-≤-· 𝟘 𝟘 ≤ω _ = ω , refl , refl
-  tr-≤-· 𝟘 𝟙 𝟘  _ = 𝟘 , refl , refl
-  tr-≤-· 𝟘 ω 𝟘  _ = 𝟘 , refl , refl
-  tr-≤-· 𝟙 𝟘 𝟘  _ = ω , refl , refl
-  tr-≤-· 𝟙 𝟘 𝟙  _ = ω , refl , refl
-  tr-≤-· 𝟙 𝟘 ≤𝟙 _ = ω , refl , refl
-  tr-≤-· 𝟙 𝟘 ≤ω _ = ω , refl , refl
-  tr-≤-· 𝟙 𝟙 𝟘  _ = 𝟙 , refl , refl
-  tr-≤-· 𝟙 𝟙 𝟙  _ = 𝟙 , refl , refl
-  tr-≤-· 𝟙 𝟙 ≤𝟙 _ = 𝟙 , refl , refl
-  tr-≤-· 𝟙 ω 𝟘  _ = 𝟘 , refl , refl
-  tr-≤-· ω _ _  _ = ω , refl , refl
+  tr-≤-· 𝟘 𝟘 𝟘  _  = ω , refl , refl
+  tr-≤-· 𝟘 𝟘 𝟙  _  = ω , refl , refl
+  tr-≤-· 𝟘 𝟘 ≤𝟙 _  = ω , refl , refl
+  tr-≤-· 𝟘 𝟘 ≤ω _  = ω , refl , refl
+  tr-≤-· 𝟘 𝟙 𝟘  _  = 𝟘 , refl , refl
+  tr-≤-· 𝟘 ω 𝟘  _  = 𝟘 , refl , refl
+  tr-≤-· 𝟙 𝟘 𝟘  _  = ω , refl , refl
+  tr-≤-· 𝟙 𝟘 𝟙  _  = ω , refl , refl
+  tr-≤-· 𝟙 𝟘 ≤𝟙 _  = ω , refl , refl
+  tr-≤-· 𝟙 𝟘 ≤ω _  = ω , refl , refl
+  tr-≤-· 𝟙 𝟙 𝟘  _  = 𝟙 , refl , refl
+  tr-≤-· 𝟙 𝟙 𝟙  _  = 𝟙 , refl , refl
+  tr-≤-· 𝟙 𝟙 ≤𝟙 _  = 𝟙 , refl , refl
+  tr-≤-· 𝟙 ω 𝟘  _  = 𝟘 , refl , refl
+  tr-≤-· ω _ _  _  = ω , refl , refl
+  tr-≤-· 𝟘 𝟙 𝟙  ()
+  tr-≤-· 𝟘 𝟙 ≤𝟙 ()
+  tr-≤-· 𝟘 𝟙 ≤ω ()
+  tr-≤-· 𝟘 ω 𝟙  ()
+  tr-≤-· 𝟘 ω ≤𝟙 ()
+  tr-≤-· 𝟘 ω ≤ω ()
+  tr-≤-· 𝟙 𝟙 ≤ω ()
+  tr-≤-· 𝟙 ω 𝟙  ()
+  tr-≤-· 𝟙 ω ≤𝟙 ()
+  tr-≤-· 𝟙 ω ≤ω ()
 
   tr-≤-∧ :
     ∀ p q r →
@@ -4449,8 +4641,28 @@ affine⇨linear-or-affine {v₁ = v₁@record{}} {v₂} refl s⇔s = λ where
   tr-≤-∧ 𝟙 ≤𝟙 𝟙  _  = 𝟙 , 𝟙 , refl , refl , refl
   tr-≤-∧ 𝟙 ≤𝟙 ≤𝟙 _  = 𝟙 , 𝟙 , refl , refl , refl
   tr-≤-∧ ω _  _  _  = ω , ω , refl , refl , refl
+  tr-≤-∧ 𝟘 𝟘  𝟙  ()
+  tr-≤-∧ 𝟘 𝟘  ≤𝟙 ()
+  tr-≤-∧ 𝟘 𝟘  ≤ω ()
+  tr-≤-∧ 𝟘 𝟙  𝟘  ()
   tr-≤-∧ 𝟘 𝟙  𝟙  ()
+  tr-≤-∧ 𝟘 𝟙  ≤𝟙 ()
+  tr-≤-∧ 𝟘 𝟙  ≤ω ()
+  tr-≤-∧ 𝟘 ≤𝟙 𝟘  ()
   tr-≤-∧ 𝟘 ≤𝟙 𝟙  ()
+  tr-≤-∧ 𝟘 ≤𝟙 ≤𝟙 ()
+  tr-≤-∧ 𝟘 ≤𝟙 ≤ω ()
+  tr-≤-∧ 𝟘 ≤ω 𝟘  ()
+  tr-≤-∧ 𝟘 ≤ω 𝟙  ()
+  tr-≤-∧ 𝟘 ≤ω ≤𝟙 ()
+  tr-≤-∧ 𝟘 ≤ω ≤ω ()
+  tr-≤-∧ 𝟙 𝟘  ≤ω ()
+  tr-≤-∧ 𝟙 𝟙  ≤ω ()
+  tr-≤-∧ 𝟙 ≤𝟙 ≤ω ()
+  tr-≤-∧ 𝟙 ≤ω 𝟘  ()
+  tr-≤-∧ 𝟙 ≤ω 𝟙  ()
+  tr-≤-∧ 𝟙 ≤ω ≤𝟙 ()
+  tr-≤-∧ 𝟙 ≤ω ≤ω ()
 
   tr-≤-nr :
     ∀ q p r z₁ s₁ n₁ →
@@ -5621,6 +5833,13 @@ affine⇨linear-or-affine {v₁ = v₁@record{}} {v₂} refl s⇔s = λ where
     ≤𝟙 𝟙  refl → refl
     ≤𝟙 ≤𝟙 refl → refl
     ≤ω _  _    → refl
+    𝟘  𝟙  ()
+    𝟘  ≤𝟙 ()
+    𝟘  ≤ω ()
+    𝟙  𝟘  ()
+    𝟙  ≤𝟙 ()
+    𝟙  ≤ω ()
+    ≤𝟙 ≤ω ()
 
   tr-tr⁻¹≤ : ∀ p → tr′ (tr⁻¹ p) LA.≤ p
   tr-tr⁻¹≤ = λ where
@@ -5636,6 +5855,10 @@ affine⇨linear-or-affine {v₁ = v₁@record{}} {v₂} refl s⇔s = λ where
     𝟙 𝟙  refl → refl
     𝟙 ≤𝟙 refl → refl
     ω _  _    → refl
+    𝟘 𝟙  ()
+    𝟘 ≤𝟙 ()
+    𝟘 ≤ω ()
+    𝟙 ≤ω ()
 
   tr⁻¹-∧ : ∀ p q → tr⁻¹ (p LA.∧ q) ≡ tr⁻¹ p A.∧ tr⁻¹ q
   tr⁻¹-∧ = λ where
@@ -5737,6 +5960,8 @@ linear-or-affine⇨affine :
   Dedicated-nr 𝕄₁ ⇔ Dedicated-nr 𝕄₂ →
   Is-morphism 𝕄₁ 𝕄₂ linear-or-affine→affine
 linear-or-affine⇨affine {v₂ = v₂@record{}} refl s⇔s = λ where
+    .Is-morphism.first-trivial-if-second-trivial
+      ()
     .Is-morphism.tr-𝟘-≤                    → refl
     .Is-morphism.trivial-⊎-tr-≡-𝟘-⇔        → inj₂ ( tr-≡-𝟘 _
                                                   , λ { refl → refl }
@@ -5753,6 +5978,7 @@ linear-or-affine⇨affine {v₂ = v₂@record{}} refl s⇔s = λ where
     .Is-morphism.𝟘ᵐ-in-second-if-in-first  → idᶠ
     .Is-morphism.𝟘ᵐ-in-first-if-in-second  → λ where
       (inj₁ ok) → inj₁ ok
+      (inj₂ ())
     .Is-morphism.𝟘-well-behaved-in-first-if-in-second _ →
       inj₁ LA.linear-or-affine-has-well-behaved-zero
   where
@@ -5761,7 +5987,10 @@ linear-or-affine⇨affine {v₂ = v₂@record{}} refl s⇔s = λ where
   tr′ = linear-or-affine→affine
 
   tr-≡-𝟘 : ∀ p → tr′ p ≡ 𝟘 → p ≡ 𝟘
-  tr-≡-𝟘 𝟘 _ = refl
+  tr-≡-𝟘 𝟘  _  = refl
+  tr-≡-𝟘 𝟙  ()
+  tr-≡-𝟘 ≤𝟙 ()
+  tr-≡-𝟘 ≤ω ()
 
   tr-+ : ∀ p q → tr′ (p LA.+ q) ≡ tr′ p A.+ tr′ q
   tr-+ 𝟘  𝟘  = refl
@@ -6867,6 +7096,8 @@ affine⇨linearity :
   Dedicated-nr 𝕄₁ ⇔ Dedicated-nr 𝕄₂ →
   Is-morphism 𝕄₁ 𝕄₂ affine→linearity
 affine⇨linearity {v₁ = v₁@record{}} {v₂} refl s⇔s = λ where
+    .Is-morphism.first-trivial-if-second-trivial
+      ()
     .Is-morphism.tr-𝟘-≤                    → refl
     .Is-morphism.trivial-⊎-tr-≡-𝟘-⇔        → inj₂ ( tr-≡-𝟘 _
                                                   , λ { refl → refl }
@@ -6883,6 +7114,7 @@ affine⇨linearity {v₁ = v₁@record{}} {v₂} refl s⇔s = λ where
     .Is-morphism.𝟘ᵐ-in-second-if-in-first  → idᶠ
     .Is-morphism.𝟘ᵐ-in-first-if-in-second  → λ where
       (inj₁ ok) → inj₁ ok
+      (inj₂ ())
     .Is-morphism.𝟘-well-behaved-in-first-if-in-second _ →
       inj₁ (A.affine-has-well-behaved-zero v₁)
   where
@@ -6891,7 +7123,9 @@ affine⇨linearity {v₁ = v₁@record{}} {v₂} refl s⇔s = λ where
   tr′ = affine→linearity
 
   tr-≡-𝟘 : ∀ p → tr′ p ≡ 𝟘 → p ≡ 𝟘
-  tr-≡-𝟘 𝟘 _ = refl
+  tr-≡-𝟘 𝟘 _  = refl
+  tr-≡-𝟘 𝟙 ()
+  tr-≡-𝟘 ω ()
 
   tr-+ : ∀ p q → tr′ (p A.+ q) ≡ tr′ p L.+ tr′ q
   tr-+ 𝟘 𝟘 = refl
@@ -7195,6 +7429,8 @@ linearity⇨affine :
   Dedicated-nr 𝕄₁ ⇔ Dedicated-nr 𝕄₂ →
   Is-morphism 𝕄₁ 𝕄₂ linearity→affine
 linearity⇨affine {v₁ = v₁@record{}} {v₂} refl s⇔s = λ where
+    .Is-morphism.first-trivial-if-second-trivial
+      ()
     .Is-morphism.tr-𝟘-≤                    → refl
     .Is-morphism.trivial-⊎-tr-≡-𝟘-⇔        → inj₂ ( tr-≡-𝟘 _
                                                   , λ { refl → refl }
@@ -7210,6 +7446,7 @@ linearity⇨affine {v₁ = v₁@record{}} {v₂} refl s⇔s = λ where
     .Is-morphism.𝟘ᵐ-in-second-if-in-first  → idᶠ
     .Is-morphism.𝟘ᵐ-in-first-if-in-second  → λ where
       (inj₁ ok) → inj₁ ok
+      (inj₂ ())
     .Is-morphism.𝟘-well-behaved-in-first-if-in-second _ →
       inj₁ (L.linearity-has-well-behaved-zero v₁)
   where
@@ -7218,7 +7455,9 @@ linearity⇨affine {v₁ = v₁@record{}} {v₂} refl s⇔s = λ where
   tr′ = linearity→affine
 
   tr-≡-𝟘 : ∀ p → tr′ p ≡ 𝟘 → p ≡ 𝟘
-  tr-≡-𝟘 𝟘 _ = refl
+  tr-≡-𝟘 𝟘 _  = refl
+  tr-≡-𝟘 𝟙 ()
+  tr-≡-𝟘 ω ()
 
   tr-+ : ∀ p q → tr′ (p L.+ q) ≡ tr′ p A.+ tr′ q
   tr-+ 𝟘 𝟘 = refl
@@ -7537,9 +7776,11 @@ erasure⇨zero-one-many-Σ {𝟙≤𝟘 = 𝟙≤𝟘} ok₂₁ = record
     ; tr-Σ-𝟘-≡ =
         λ _ → refl
     ; tr-Σ-≡-𝟘-→ = λ where
-        {p = 𝟘} ok₂ _ → ok₂₁ ok₂ , refl
+        {p = 𝟘} ok₂ _  → ok₂₁ ok₂ , refl
+        {p = ω} _   ()
     ; tr-Σ-≤-𝟙 = λ where
-        {p = ω} _ → refl
+        {p = ω} _  → refl
+        {p = 𝟘} ()
     ; tr-·-tr-Σ-≤ = λ where
         {p = 𝟘} {q = _} → refl
         {p = ω} {q = 𝟘} → refl
@@ -7549,6 +7790,7 @@ erasure⇨zero-one-many-Σ {𝟙≤𝟘 = 𝟙≤𝟘} ok₂₁ = record
       {p = 𝟘} {q = 𝟘}         _     → ω , refl , refl
       {p = 𝟘} {q = ω} {r = 𝟘} _     → 𝟘 , refl , refl
       {p = 𝟘} {q = ω} {r = 𝟙} 𝟘≡𝟘∧𝟙 → ⊥-elim (𝟘𝟙ω.𝟘∧𝟙≢𝟘 (sym 𝟘≡𝟘∧𝟙))
+      {p = 𝟘} {q = ω} {r = ω} ()
       {p = ω}                 _     → ω , refl , refl
   }
   where
@@ -7604,10 +7846,13 @@ affine⇨linear-or-affine-Σ ok₂₁ = record
     ; tr-Σ-𝟘-≡ =
         λ _ → refl
     ; tr-Σ-≡-𝟘-→ = λ where
-        {p = 𝟘} ok₂ _ → ok₂₁ ok₂ , refl
+        {p = 𝟘} ok₂ _  → ok₂₁ ok₂ , refl
+        {p = 𝟙} _   ()
+        {p = ω} _   ()
     ; tr-Σ-≤-𝟙 = λ where
-        {p = 𝟙} _ → refl
-        {p = ω} _ → refl
+        {p = 𝟙} _  → refl
+        {p = ω} _  → refl
+        {p = 𝟘} ()
     ; tr-·-tr-Σ-≤ = λ where
         {p = 𝟘} {q = _} → refl
         {p = 𝟙} {q = 𝟘} → refl
@@ -7618,15 +7863,25 @@ affine⇨linear-or-affine-Σ ok₂₁ = record
         {p = ω} {q = ω} → refl
     }
   ; tr-≤-tr-Σ-→ = λ where
-      {p = 𝟘} {q = 𝟘}          _ → ω , refl , refl
-      {p = 𝟘} {q = 𝟙} {r = 𝟘}  _ → 𝟘 , refl , refl
-      {p = 𝟘} {q = ω} {r = 𝟘}  _ → 𝟘 , refl , refl
-      {p = 𝟙} {q = 𝟘}          _ → ω , refl , refl
-      {p = 𝟙} {q = 𝟙} {r = 𝟘}  _ → 𝟙 , refl , refl
-      {p = 𝟙} {q = 𝟙} {r = 𝟙}  _ → 𝟙 , refl , refl
-      {p = 𝟙} {q = 𝟙} {r = ≤𝟙} _ → 𝟙 , refl , refl
-      {p = 𝟙} {q = ω} {r = 𝟘}  _ → 𝟘 , refl , refl
-      {p = ω}                  _ → ω , refl , refl
+      {p = 𝟘} {q = 𝟘}          _  → ω , refl , refl
+      {p = 𝟘} {q = 𝟙} {r = 𝟘}  _  → 𝟘 , refl , refl
+      {p = 𝟘} {q = ω} {r = 𝟘}  _  → 𝟘 , refl , refl
+      {p = 𝟙} {q = 𝟘}          _  → ω , refl , refl
+      {p = 𝟙} {q = 𝟙} {r = 𝟘}  _  → 𝟙 , refl , refl
+      {p = 𝟙} {q = 𝟙} {r = 𝟙}  _  → 𝟙 , refl , refl
+      {p = 𝟙} {q = 𝟙} {r = ≤𝟙} _  → 𝟙 , refl , refl
+      {p = 𝟙} {q = ω} {r = 𝟘}  _  → 𝟘 , refl , refl
+      {p = ω}                  _  → ω , refl , refl
+      {p = 𝟘} {q = 𝟙} {r = 𝟙}  ()
+      {p = 𝟘} {q = 𝟙} {r = ≤𝟙} ()
+      {p = 𝟘} {q = 𝟙} {r = ≤ω} ()
+      {p = 𝟘} {q = ω} {r = 𝟙}  ()
+      {p = 𝟘} {q = ω} {r = ≤𝟙} ()
+      {p = 𝟘} {q = ω} {r = ≤ω} ()
+      {p = 𝟙} {q = 𝟙} {r = ≤ω} ()
+      {p = 𝟙} {q = ω} {r = 𝟙}  ()
+      {p = 𝟙} {q = ω} {r = ≤𝟙} ()
+      {p = 𝟙} {q = ω} {r = ≤ω} ()
   }
 
 -- The function affine→linear-or-affine-Σ is not monotone with respect
@@ -7687,10 +7942,13 @@ affine⇨linearity-Σ ok₂₁ = record
   ; tr-Σ-𝟘-≡ =
       λ _ → refl
   ; tr-Σ-≡-𝟘-→ = λ where
-      {p = 𝟘} ok₂ _ → ok₂₁ ok₂ , refl
+      {p = 𝟘} ok₂ _  → ok₂₁ ok₂ , refl
+      {p = 𝟙} _   ()
+      {p = ω} _   ()
   ; tr-Σ-≤-𝟙 = λ where
-      {p = 𝟙} _ → refl
-      {p = ω} _ → refl
+      {p = 𝟙} _  → refl
+      {p = ω} _  → refl
+      {p = 𝟘} ()
   ; tr-·-tr-Σ-≤ = λ where
       {p = 𝟘} {q = _} → refl
       {p = 𝟙} {q = 𝟘} → refl

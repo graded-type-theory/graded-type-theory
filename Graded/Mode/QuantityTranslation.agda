@@ -96,6 +96,9 @@ module Is-morphism
       ⊥-elim $ not-ok (𝟘ᵐ-in-second-if-in-first ok)
     … | .𝟘ᵐ | 𝟘ᵐ ⦃ ok ⦄ p≡𝟘 refl | .𝟙ᵐ | 𝟙ᵐ tr-p≢𝟘 refl =
       ⊥-elim $ tr-p≢𝟘 $ tr-≡-𝟘-⇔ (MP₁.𝟘ᵐ.non-trivial ok) .proj₂ p≡𝟘
+    … | _ | _ | 𝟙ᵐ | 𝟘ᵐ _ ()
+    … | _ | _ | 𝟘ᵐ | 𝟘ᵐ-not-allowed _ ()
+    … | _ | _ | 𝟘ᵐ | 𝟙ᵐ _ ()
 
   opaque
 
@@ -118,6 +121,9 @@ module Is-morphism
     … | .𝟘ᵐ | 𝟘ᵐ ⦃ ok ⦄ p≡𝟘 refl | .𝟙ᵐ | 𝟙ᵐ tr-p≢𝟘 refl =
       ⊥-elim $ tr-p≢𝟘 $ subst (λ p → tr-Σ p ≡ _) (PE.sym p≡𝟘) $
       ΣM.tr-Σ-𝟘-≡ (MP₁.𝟘ᵐ.non-trivial ok)
+    … | _ | _ | 𝟙ᵐ | 𝟘ᵐ _ ()
+    … | _ | _ | 𝟘ᵐ | 𝟘ᵐ-not-allowed _ ()
+    … | _ | _ | 𝟘ᵐ | 𝟙ᵐ _ ()
 
   opaque
 
@@ -284,8 +290,10 @@ module Is-morphism
   -- Translation is injective
 
   tr-Mode-injective : ∀ {m m′} → tr-Mode m ≡ tr-Mode m′ → m ≡ m′
-  tr-Mode-injective {m = 𝟘ᵐ} {m′ = 𝟘ᵐ} _ = 𝟘ᵐ-cong 𝕄₁
-  tr-Mode-injective {m = 𝟙ᵐ} {m′ = 𝟙ᵐ} _ = refl
+  tr-Mode-injective {m = 𝟘ᵐ} {m′ = 𝟘ᵐ} _  = 𝟘ᵐ-cong 𝕄₁
+  tr-Mode-injective {m = 𝟙ᵐ} {m′ = 𝟙ᵐ} _  = refl
+  tr-Mode-injective {m = 𝟘ᵐ} {m′ = 𝟙ᵐ} ()
+  tr-Mode-injective {m = 𝟙ᵐ} {m′ = 𝟘ᵐ} ()
 
 ------------------------------------------------------------------------
 -- Definitions that are made under the assumptions that tr is an order
@@ -319,7 +327,8 @@ module Is-order-embedding
   tr-Mode-≡-ᵐ· :
     m Mo₂.ᵐ· tr-Σ p ≡ tr-Mode m′ →
     ∃ λ m″ → tr-Mode m″ ≡ m × m″ Mo₁.ᵐ· p ≡ m′
-  tr-Mode-≡-ᵐ· {m = 𝟘ᵐ} {m′ = 𝟘ᵐ} _ =
+  tr-Mode-≡-ᵐ· {m = 𝟘ᵐ} {m′ = 𝟙ᵐ} ()
+  tr-Mode-≡-ᵐ· {m = 𝟘ᵐ} {m′ = 𝟘ᵐ} _  =
     𝟘ᵐ , Mo₂.𝟘ᵐ-cong , refl
   tr-Mode-≡-ᵐ· {m = 𝟙ᵐ} {p = p} {m′ = 𝟘ᵐ[ ok ]} ⌞tr-p⌟≡𝟘 =
       𝟙ᵐ

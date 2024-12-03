@@ -48,6 +48,7 @@ private
 -- If γ ≤ᶜ δ then γ⟨x⟩ ≤ δ⟨x⟩
 
 lookup-monotone : (x : Fin n) → γ ≤ᶜ δ → (γ ⟨ x ⟩) ≤ (δ ⟨ x ⟩)
+lookup-monotone {γ = ε}             ()
 lookup-monotone {γ = γ ∙ p} {δ ∙ q} x0     (γ≤δ ∙ p≤q) = p≤q
 lookup-monotone {γ = γ ∙ p} {δ ∙ q} (x +1) (γ≤δ ∙ p≤q) = lookup-monotone x γ≤δ
 
@@ -62,6 +63,7 @@ lookup-cong γ≈ᶜδ = ≤-antisym
 -- (γ +ᶜ δ)⟨x⟩ ≡ γ⟨x⟩ + δ⟨x⟩
 
 lookup-distrib-+ᶜ : (γ δ : Conₘ n) (x : Fin n) → (γ +ᶜ δ) ⟨ x ⟩ ≡ γ ⟨ x ⟩ + δ ⟨ x ⟩
+lookup-distrib-+ᶜ ε       _       ()
 lookup-distrib-+ᶜ (γ ∙ p) (δ ∙ q) x0     = PE.refl
 lookup-distrib-+ᶜ (γ ∙ p) (δ ∙ q) (x +1) = lookup-distrib-+ᶜ γ δ x
 
@@ -69,6 +71,7 @@ lookup-distrib-+ᶜ (γ ∙ p) (δ ∙ q) (x +1) = lookup-distrib-+ᶜ γ δ x
 -- (p ·ᶜ γ)⟨x⟩ ≡ p · γ⟨x⟩
 
 lookup-distrib-·ᶜ : (γ : Conₘ n) (p : M) (x : Fin n) → (p ·ᶜ γ) ⟨ x ⟩ ≡ p · γ ⟨ x ⟩
+lookup-distrib-·ᶜ ε       _ ()
 lookup-distrib-·ᶜ (γ ∙ q) p x0     = PE.refl
 lookup-distrib-·ᶜ (γ ∙ q) p (x +1) = lookup-distrib-·ᶜ γ p x
 
@@ -77,6 +80,7 @@ lookup-distrib-·ᶜ (γ ∙ q) p (x +1) = lookup-distrib-·ᶜ γ p x
 
 lookup-distrib-∧ᶜ : (γ δ : Conₘ n) (x : Fin n)
                   → (γ ∧ᶜ δ) ⟨ x ⟩ ≡ (γ ⟨ x ⟩) ∧ (δ ⟨ x ⟩)
+lookup-distrib-∧ᶜ ε       _       ()
 lookup-distrib-∧ᶜ (γ ∙ p) (δ ∙ q) x0     = PE.refl
 lookup-distrib-∧ᶜ (γ ∙ p) (δ ∙ q) (x +1) = lookup-distrib-∧ᶜ γ δ x
 
@@ -87,6 +91,7 @@ lookup-distrib-⊛ᶜ :
   ⦃ has-star : Has-star semiring-with-meet ⦄ →
   (γ δ : Conₘ n) (r : M) (x : Fin n) →
   (γ ⊛ᶜ δ ▷ r) ⟨ x ⟩ ≡ (γ ⟨ x ⟩) ⊛ (δ ⟨ x ⟩) ▷ r
+lookup-distrib-⊛ᶜ ε       _       _ ()
 lookup-distrib-⊛ᶜ (γ ∙ p) (δ ∙ q) r x0     = PE.refl
 lookup-distrib-⊛ᶜ (γ ∙ p) (δ ∙ q) r (x +1) = lookup-distrib-⊛ᶜ γ δ r x
 
@@ -94,6 +99,7 @@ lookup-distrib-⊛ᶜ (γ ∙ p) (δ ∙ q) r (x +1) = lookup-distrib-⊛ᶜ γ 
 -- (γ , x ≔ p) ⟨ x ⟩ ≡ p
 
 update-lookup : (γ : Conₘ n) (x : Fin n) → (γ , x ≔ p) ⟨ x ⟩ ≡ p
+update-lookup ε       ()
 update-lookup (_ ∙ _) x0     = PE.refl
 update-lookup (γ ∙ _) (x +1) = update-lookup γ x
 

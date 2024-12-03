@@ -68,6 +68,7 @@ opaque
       (no-type-restrictions 𝕄₂ b₁ b₂)
       tr tr-Σ
   Are-preserving-type-restrictions-no-type-restrictions hyp = λ where
+      .Unitʷ-η-preserved ()
       .Unit-preserved                → _
       .ΠΣ-preserved                  → _
       .K-preserved                   → lift ∘→ Lift.lower
@@ -89,6 +90,7 @@ opaque
       (no-type-restrictions 𝕄₂ b₁ b₂)
       tr tr-Σ
   Are-reflecting-type-restrictions-no-type-restrictions hyp = λ where
+      .Unitʷ-η-reflected ()
       .Unit-reflected                → _
       .ΠΣ-reflected                  → _
       .K-reflected                   → lift ∘→ Lift.lower
@@ -1305,7 +1307,9 @@ opaque
       erasure→zero-one-many erasure→zero-one-many-Σ
   erasure→zero-one-many-Σ-reflects-strong-types-restricted =
     Are-reflecting-type-restrictions-strong-types-restricted
-      (λ { {p = ω} refl → refl })
+      (λ where
+         {p = ω} refl → refl
+         {p = 𝟘} ())
       (λ ())
 
 opaque
@@ -1377,7 +1381,10 @@ opaque
       linearity→linear-or-affine linearity→linear-or-affine
   linearity→linear-or-affine-reflects-strong-types-restricted =
     Are-reflecting-type-restrictions-strong-types-restricted
-      (λ { {p = 𝟙} refl → refl })
+      (λ where
+         {p = 𝟙} refl → refl
+         {p = 𝟘} ()
+         {p = ω} ())
       (λ ())
 
 opaque
@@ -1411,7 +1418,11 @@ opaque
       linear-or-affine→linearity linear-or-affine→linearity
   linear-or-affine→linearity-reflects-strong-types-restricted =
     Are-reflecting-type-restrictions-strong-types-restricted
-      (λ { {p = 𝟙} refl → refl })
+      (λ where
+         {p = 𝟙}  refl → refl
+         {p = 𝟘}  ()
+         {p = ≤𝟙} ()
+         {p = ≤ω} ())
       (λ ())
 
 opaque
@@ -1490,7 +1501,10 @@ opaque
       affine→linear-or-affine affine→linear-or-affine-Σ
   affine→linear-or-affine-Σ-reflects-strong-types-restricted =
     Are-reflecting-type-restrictions-strong-types-restricted
-      (λ { {p = 𝟙} refl → refl })
+      (λ where
+         {p = 𝟙} refl → refl
+         {p = 𝟘} ()
+         {p = ω} ())
       (λ ())
 
 opaque
@@ -1605,7 +1619,10 @@ opaque
       affine→linearity affine→linearity-Σ
   affine→linearity-Σ-reflects-strong-types-restricted =
     Are-reflecting-type-restrictions-strong-types-restricted
-      (λ { {p = 𝟙} refl → refl })
+      (λ where
+         {p = 𝟙} refl → refl
+         {p = 𝟘} ()
+         {p = ω} ())
       (λ ())
 
 opaque
@@ -1639,5 +1656,8 @@ opaque
       linearity→affine linearity→affine
   linearity→affine-reflects-strong-types-restricted =
     Are-reflecting-type-restrictions-strong-types-restricted
-      (λ { {p = 𝟙} refl → refl })
+      (λ where
+         {p = 𝟙} refl → refl
+         {p = 𝟘} ()
+         {p = ω} ())
       (λ ())

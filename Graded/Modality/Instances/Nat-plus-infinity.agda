@@ -176,16 +176,18 @@ opaque
   ≤ᵗ-intro {m} {n} x ≤ᵗ = lemma total x
     where
     lemma : ∀ b → T b → m ≡ (if b then m ∧ᶠ n else (m ∧ᵗ n))
-    lemma true _ = ≤ᵗ
+    lemma true  _  = ≤ᵗ
+    lemma false ()
 
 opaque
 
   -- The "flat" order relation is a subset of the "total" order
 
   ≤ᶠ→≤ᵗ : m ≤ᶠ n → m ≤ᵗ n
-  ≤ᶠ→≤ᵗ {(∞)} {n} ≤ᶠ = refl
-  ≤ᶠ→≤ᵗ {(⌞ m ⌟)} {(⌞ n ⌟)} ≤ᶠ with m N.≟ n
-  ≤ᶠ→≤ᵗ ≤ᶠ | yes refl = cong ⌞_⌟ (sym (N.⊔-idem _))
+  ≤ᶠ→≤ᵗ {m = ∞}                 _  = refl
+  ≤ᶠ→≤ᵗ {m = ⌞ _ ⌟} {n = ∞}     ()
+  ≤ᶠ→≤ᵗ {m = ⌞ m ⌟} {n = ⌞ n ⌟} _  with m N.≟ n
+  ≤ᶠ→≤ᵗ _  | yes refl = cong ⌞_⌟ (sym (N.⊔-idem _))
   ≤ᶠ→≤ᵗ () | no _
 
 opaque
@@ -378,6 +380,8 @@ opaque
 
 ℕ⊎∞-set : Is-set ℕ⊎∞
 ℕ⊎∞-set {x = ∞}     {y = ∞}     {x = refl} {y = refl} = refl
+ℕ⊎∞-set {x = ∞}     {y = ⌞ _ ⌟} {x = ()}
+ℕ⊎∞-set {x = ⌞ _ ⌟} {y = ∞}     {x = ()}
 ℕ⊎∞-set {x = ⌞ m ⌟} {y = ⌞ n ⌟} {x = p}    {y = q}    =
                                                          $⟨ N.Nat-set ⟩
   ⌞⌟-injective p ≡ ⌞⌟-injective q                        →⟨ cong (cong ⌞_⌟) ⟩
@@ -723,20 +727,32 @@ instance
   ℕ⊎∞-has-well-behaved-zero = record
     { non-trivial  = λ ()
     ; zero-product = λ where
-        {p = ⌞ 0 ⌟} {q = ⌞ _ ⌟} _ → inj₁ refl
-        {p = ⌞ 0 ⌟} {q = ∞}     _ → inj₁ refl
-        {p = ⌞ _ ⌟} {q = ⌞ 0 ⌟} _ → inj₂ refl
-        {p = ∞}     {q = ⌞ 0 ⌟} _ → inj₂ refl
+        {p = ⌞ 0 ⌟}    {q = ⌞ _ ⌟}    _  → inj₁ refl
+        {p = ⌞ 0 ⌟}    {q = ∞}        _  → inj₁ refl
+        {p = ⌞ _ ⌟}    {q = ⌞ 0 ⌟}    _  → inj₂ refl
+        {p = ∞}        {q = ⌞ 0 ⌟}    _  → inj₂ refl
+        {p = ⌞ 1+ _ ⌟} {q = ⌞ 1+ _ ⌟} ()
+        {p = ⌞ 1+ _ ⌟} {q = ∞}        ()
+        {p = ∞}        {q = ⌞ 1+ _ ⌟} ()
+        {p = ∞}        {q = ∞}        ()
     ; +-positiveˡ  = λ where
-        {p = ⌞ 0 ⌟} {q = ⌞ _ ⌟} _ → refl
+        {p = ⌞ 0 ⌟} {q = ⌞ _ ⌟}    _  → refl
+        {p = ⌞ 1+ _ ⌟} {q = ⌞ _ ⌟} ()
+        {p = ⌞ _ ⌟} {q = ∞}        ()
+        {p = ∞}                    ()
     ; ∧-positiveˡ  = ∧-intro (λ _∧₁_ → {p q : ℕ⊎∞} → (p ∧₁ q) ≡ ⌞ 0 ⌟ → p ≡ ⌞ 0 ⌟)
       (λ where
-        {p = ⌞ 0 ⌟}    {q = ⌞ _ ⌟} _ → refl
-        {p = ⌞ 1+ _ ⌟} {q = ⌞ 0 ⌟} ())
+        {p = ⌞ 0 ⌟}    {q = ⌞ _ ⌟}    _  → refl
+        {p = ⌞ 1+ _ ⌟} {q = ⌞ 0 ⌟}    ()
+        {p = ⌞ 1+ _ ⌟} {q = ⌞ 1+ _ ⌟} ()
+        {p = ⌞ _ ⌟}    {q = ∞}        ()
+        {p = ∞}                       ())
       (λ where
-        {p = ⌞ 0 ⌟}    {q = ⌞ _ ⌟}    _ → refl
-        {p = ⌞ 1+ _ ⌟} {q = ⌞ 0 ⌟}   ()
-        {p = ⌞ 1+ m ⌟} {q = ⌞ 1+ n ⌟} x → ⊥-elim (lemma m n x))
+        {p = ⌞ 0 ⌟}    {q = ⌞ _ ⌟}    _  → refl
+        {p = ⌞ 1+ _ ⌟} {q = ⌞ 0 ⌟}    ()
+        {p = ⌞ 1+ m ⌟} {q = ⌞ 1+ n ⌟} x  → ⊥-elim (lemma m n x)
+        {p = ⌞ _ ⌟}    {q = ∞}        ()
+        {p = ∞}                       ())
     }
    where
    lemma : ∀ m n → ⌞ 1+ m ⌟ ∧ᵗ ⌞ 1+ n ⌟ ≢ ⌞ 0 ⌟
@@ -809,7 +825,11 @@ opaque
     where
     lemma : total ≡ true → (m n : ℕ⊎∞) → m D./ n ≡ m / n
     lemma refl ∞     ∞        = refl , λ _ _ → refl
-    lemma refl ⌞ _ ⌟ ∞        = ≤0 _ , λ { ⌞ 0 ⌟ _ → refl }
+    lemma refl ⌞ _ ⌟ ∞        = ≤0 _ ,
+                                λ where
+                                  ⌞ 0    ⌟ _  → refl
+                                  ⌞ 1+ _ ⌟ ()
+                                  ∞        ()
     lemma refl _     ⌞ 0 ⌟    = ≤0 _ , λ _ _ → refl
     lemma refl ∞     ⌞ 1+ _ ⌟ = refl , λ _ _ → refl
     lemma refl ⌞ m ⌟ ⌞ 1+ n ⌟ =
@@ -819,6 +839,7 @@ opaque
            ⌞ 1+ n N.* (m N./ 1+ n) ⌟  ≡˘⟨ ⌞⌟·⌞⌟≡⌞*⌟ ⟩
            ⌞ 1+ n ⌟ · ⌞ m N./ 1+ n ⌟  ∎)
       , λ where
+          ∞     → λ ()
           ⌞ o ⌟ →
             ⌞ m ⌟ ≤ ⌞ 1+ n ⌟ · ⌞ o ⌟  ≡⟨ cong (_ ≤_) ⌞⌟·⌞⌟≡⌞*⌟ ⟩→
             ⌞ m ⌟ ≤ ⌞ 1+ n N.* o ⌟    →⟨ ⌞⌟-antitone⁻¹ ⟩
@@ -1339,9 +1360,10 @@ opaque
       ⊥-elim (N.m+1+n≰m x (N.≤-trans (N.≤-reflexive (N.+-comm x (1+ y))) (⌞⌟-antitone⁻¹ x≤y+x)))
     x≤y+x→x≡∞ {⌞ x ⌟} {(∞)} _ x≤∞ = ⊥-elim (≰∞ x≤∞)
     ≢𝟘+ : ∀ {x y} → x ≢ 𝟘 → x + y ≢ 𝟘
-    ≢𝟘+ {⌞ 0 ⌟} {(y)} x≢𝟘 x+y≡𝟘 = x≢𝟘 refl
-    ≢𝟘+ {⌞ 1+ x ⌟} {⌞ x₁ ⌟} x≢𝟘 ()
-    ≢𝟘+ {⌞ 1+ x ⌟} {(∞)} x≢𝟘 ()
+    ≢𝟘+ {x = ⌞ 0 ⌟}                x≢𝟘 _  = x≢𝟘 refl
+    ≢𝟘+ {x = ⌞ 1+ _ ⌟} {y = ⌞ _ ⌟} _   ()
+    ≢𝟘+ {x = ⌞ 1+ _ ⌟} {y = ∞}     _   ()
+    ≢𝟘+ {x = ∞}                    _   ()
     +≢𝟘 : ∀ {x y} → y ≢ 𝟘 → x + y ≢ 𝟘
     +≢𝟘 y≢𝟘 x+y≡𝟘 = ≢𝟘+ y≢𝟘 (trans (+-comm _ _) x+y≡𝟘)
     nr₂p𝟘≤p : ∀ {p} → nr₂′ p 𝟘 ≤ p
@@ -1385,7 +1407,8 @@ opaque
     open Has-factoring-nr ⦃ has-nr ⦄ has-factoring-nr
     lemma : ∀ b → b ≡ total → T b →
             ∀ p r z s n → Has-nr.nr has-nr p r z s n ≤ nr p r z s n
-    lemma true refl _ =
+    lemma false _    ()
+    lemma true  refl _  =
       nr-greatest-factoring has-nr has-factoring-nr
         (≢𝟘→≤ᵗ𝟙 nr₂≢𝟘) (≢𝟘→≤ᵗ𝟙 nr₂≢𝟘)
 
@@ -1575,10 +1598,17 @@ opaque
 
     lemma : ∀ b → b ≡ total → ⌞ m ⌟ - ⌞ n ⌟ ≡ ⌞ m N.∸ n ⌟
     lemma false refl with m N.≟ m N.∸ n N.+ n
-    … | yes _ = refl , λ { ⌞ k ⌟ x → lemma₃ k x}
+    … | yes _ =
+      refl ,
+      λ where
+        ⌞ k ⌟ x  → lemma₃ k x
+        ∞     ()
     … | no m≢m-n+n = ⊥-elim (m≢m-n+n (sym (N.m∸n+n≡m n≤m)))
     lemma true refl =
-      cong ⌞_⌟ (lemma₁ m n n≤m) , λ { ⌞ k ⌟ x → cong ⌞_⌟ (lemma₂ m n k (⌞⌟-injective x))}
+      cong ⌞_⌟ (lemma₁ m n n≤m) ,
+      λ where
+        ⌞ k ⌟ x  → cong ⌞_⌟ (lemma₂ m n k (⌞⌟-injective x))
+        ∞     ()
 
 opaque
 

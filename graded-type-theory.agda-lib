@@ -5,4 +5,5 @@ flags:
   --without-K
   --safe
   --hidden-argument-puns
+  --no-infer-absurd-clauses
   -WnoUnsupportedIndexedMatch

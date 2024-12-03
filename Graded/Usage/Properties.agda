@@ -86,6 +86,7 @@ var-usage-lookup (there x) = var-usage-lookup x
   to (there q) = to q
 
   from : γ ⟨ x ⟩ ≡ p → x ◂ p ∈ γ
+  from {γ = ε}     {x = ()}
   from {γ = _ ∙ _} {x = x0}   refl = here
   from {γ = _ ∙ _} {x = _ +1} eq   = there (from eq)
 

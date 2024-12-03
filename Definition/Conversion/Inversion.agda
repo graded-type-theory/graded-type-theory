@@ -6,8 +6,6 @@
 -- something can be easily recreated using the soundness lemmas, then
 -- it is at least sometimes omitted.
 
-{-# OPTIONS --no-infer-absurd-clauses #-}
-
 open import Definition.Typed.Restrictions
 open import Graded.Modality
 

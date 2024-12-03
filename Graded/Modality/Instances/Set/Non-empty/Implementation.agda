@@ -396,8 +396,11 @@ xs + ys = set
 
     (∃₂ λ m₁ m₂ → m₁ ℕ.+ m₂ ≡ 0 × m₁ ∈ xs × m₂ ∈ ys) ×
     (∀ n → (∃₂ λ m₁ m₂ → m₁ ℕ.+ m₂ ≡ n × m₁ ∈ xs × m₂ ∈ ys) →
-     n ≡ 0)                                                     →⟨ Σ.map (λ { (0 , .0 , refl , 0∈xs , 0∈ys) → 0∈xs , 0∈ys }) idᶠ ⟩
-
+     n ≡ 0)                                                     →⟨ Σ.map
+                                                                     (λ { (0    , .0 , refl , 0∈xs , 0∈ys) → 0∈xs , 0∈ys
+                                                                        ; (1+ _ , _  , ()   , _)
+                                                                        })
+                                                                     idᶠ ⟩
     (0 ∈ xs × 0 ∈ ys) ×
     (∀ n → (∃₂ λ m₁ m₂ → m₁ ℕ.+ m₂ ≡ n × m₁ ∈ xs × m₂ ∈ ys) →
      n ≡ 0)                                                     □
@@ -465,7 +468,8 @@ private module Multiplication (xs ys : Set-ℕ) where
                                                             (0 , _ , _ , ∈xs , ∈ys) →
                                                               _ , inj₁ (∈xs , ∈ys)
                                                             (1+ _ , 0 , _ , ∈xs , ∈ys) →
-                                                              _ , inj₂ (∈xs , ∈ys))
+                                                              _ , inj₂ (∈xs , ∈ys)
+                                                            (1+ _ , 1+ _ , () , _))
                                                        ⟩
     (∃₂ λ m₁ m₂ → m₁ ℕ.* m₂ ≡ 0 × m₁ ∈ xs × m₂ ∈ ys)  □⇔
     where

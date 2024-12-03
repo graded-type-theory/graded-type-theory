@@ -773,3 +773,4 @@ module hasX (R : Usage-restrictions) where
 
   erased-hasX _ starʷₘ     ()
   erased-hasX _ (starˢₘ _) ()
+  erased-hasX _ zeroₘ      ()

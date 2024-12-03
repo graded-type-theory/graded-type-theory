@@ -181,9 +181,11 @@ opaque
     , refl
     , refl
     , (λ where
-         {m = 𝟙ᵐ} → ⊥-elim ∘→ (_$ refl))
+         {m = 𝟙ᵐ}       → ⊥-elim ∘→ (_$ refl)
+         {m = 𝟘ᵐ[ () ]})
     , (λ where
-         {m = 𝟙ᵐ} → ⊥-elim ∘→ (_$ refl))
+         {m = 𝟙ᵐ}       → ⊥-elim ∘→ (_$ refl)
+         {m = 𝟘ᵐ[ () ]})
     , (λ ())
     , (_$ refl) ∘→ proj₂
     , (_ , (λ ()))
@@ -228,7 +230,8 @@ opaque
              (λ (_ , r≢𝟘) → inj₂ (inj₁ (r≢𝟘 (λ ()) refl)))
            , (λ where
                 (inj₁ 𝟙ᵐ≢𝟙ᵐ)      → ⊥-elim $ 𝟙ᵐ≢𝟙ᵐ refl
-                (inj₂ (inj₁ r≢𝟘)) → _ , (λ _ _ → r≢𝟘)))
+                (inj₂ (inj₁ r≢𝟘)) → _ , (λ _ _ → r≢𝟘)
+                (inj₂ (inj₂ ()))))
     , _
     , _
     , (λ ())
@@ -293,7 +296,8 @@ opaque
              (λ (_ , r≢𝟘) → inj₂ (inj₁ (r≢𝟘 (λ ()) refl)))
            , (λ where
                 (inj₁ 𝟙ᵐ≢𝟙ᵐ)      → ⊥-elim $ 𝟙ᵐ≢𝟙ᵐ refl
-                (inj₂ (inj₁ r≢𝟘)) → _ , (λ _ _ → r≢𝟘)))
+                (inj₂ (inj₁ r≢𝟘)) → _ , (λ _ _ → r≢𝟘)
+                (inj₂ (inj₂ ()))))
     , _
     , _
     , (λ ())
@@ -362,7 +366,8 @@ opaque
              (λ (_ , r≢𝟘) → inj₂ (inj₁ (r≢𝟘 (λ ()) refl)))
            , (λ where
                 (inj₁ 𝟙ᵐ≢𝟙ᵐ)      → ⊥-elim $ 𝟙ᵐ≢𝟙ᵐ refl
-                (inj₂ (inj₁ r≢𝟘)) → _ , (λ _ _ → r≢𝟘)))
+                (inj₂ (inj₁ r≢𝟘)) → _ , (λ _ _ → r≢𝟘)
+                (inj₂ (inj₂ ()))))
     , _
     , _
     , (λ ())
@@ -432,7 +437,8 @@ opaque
              (λ (_ , r≢𝟘) → inj₂ (inj₁ (r≢𝟘 (λ ()) refl)))
            , (λ where
                 (inj₁ 𝟙ᵐ≢𝟙ᵐ)      → ⊥-elim $ 𝟙ᵐ≢𝟙ᵐ refl
-                (inj₂ (inj₁ r≢𝟘)) → _ , (λ _ _ → r≢𝟘)))
+                (inj₂ (inj₁ r≢𝟘)) → _ , (λ _ _ → r≢𝟘)
+                (inj₂ (inj₂ ()))))
     , _
     , _
     , (λ ())
@@ -591,7 +597,12 @@ Erasure⇨Affine-types = λ where
       Are-preserving-usage-restrictions E₁.UR E₂.UR tr tr
     are-preserving-usage-restrictions =
       Are-preserving-usage-restrictions-only-some-erased-matches
-        (λ _ → inj₁ ((λ ()) , (λ { {p = E.𝟘} refl → refl }))) $
+        (λ _ →
+           inj₁ ( (λ ())
+                , (λ where
+                     {p = E.𝟘} refl → refl
+                     {p = E.ω} ())
+                )) $
       Are-preserving-usage-restrictions-no-usage-restrictions _
 
     are-reflecting-usage-restrictions :
@@ -662,7 +673,12 @@ Erasure⇨Linearity = λ where
       Are-preserving-usage-restrictions E₁.UR E₂.UR tr tr
     are-preserving-usage-restrictions =
       Are-preserving-usage-restrictions-only-some-erased-matches
-        (λ _ → inj₁ ((λ ()) , (λ { {p = E.𝟘} refl → refl }))) $
+        (λ _ →
+           inj₁ ( (λ ())
+                , (λ where
+                     {p = E.𝟘} refl → refl
+                     {p = E.ω} ())
+                )) $
       Are-preserving-usage-restrictions-no-usage-restrictions _
 
     are-reflecting-usage-restrictions :
@@ -734,7 +750,13 @@ Affine-types⇨Linear-or-affine-types = λ where
       Are-preserving-usage-restrictions E₁.UR E₂.UR tr tr
     are-preserving-usage-restrictions =
       Are-preserving-usage-restrictions-only-some-erased-matches
-        (λ _ → inj₁ ((λ ()) , (λ { {p = A.𝟘} refl → refl }))) $
+        (λ _ →
+           inj₁ ( (λ ())
+                , (λ where
+                     {p = A.𝟘} refl → refl
+                     {p = A.𝟙} ()
+                     {p = A.ω} ())
+                )) $
       Are-preserving-usage-restrictions-no-usage-restrictions _
 
     are-reflecting-usage-restrictions :
@@ -806,7 +828,13 @@ Linearity⇨Linear-or-affine-types = λ where
       Are-preserving-usage-restrictions E₁.UR E₂.UR tr tr
     are-preserving-usage-restrictions =
       Are-preserving-usage-restrictions-only-some-erased-matches
-        (λ _ → inj₁ ((λ ()) , (λ { {p = L.𝟘} refl → refl }))) $
+        (λ _ →
+           inj₁ ( (λ ())
+                , (λ where
+                     {p = L.𝟘} refl → refl
+                     {p = L.𝟙} ()
+                     {p = L.ω} ())
+                )) $
       Are-preserving-usage-restrictions-no-usage-restrictions _
 
     are-reflecting-usage-restrictions :

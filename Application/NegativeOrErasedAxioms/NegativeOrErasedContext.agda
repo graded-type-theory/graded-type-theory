@@ -54,6 +54,7 @@ data NegativeErasedContext : Ctx m → Conₘ m → Set a where
 lookupNegative :
   ⊢ Γ → NegativeErasedContext Γ γ → x ∷ A ∈ Γ → γ ⟨ x ⟩ ≢ 𝟘 →
   NegativeType Γ A
+lookupNegative ε      _          ()
 lookupNegative (∙ ⊢A) (nΓγ ∙ nA) here _ =
   wkNeg (stepʷ id ⊢A) nA
 lookupNegative (∙ ⊢A) (nΓγ ∙ nA) (there h) ≢𝟘 =

@@ -85,7 +85,20 @@ module Main {Γ : Con Term m} (nΓ : NegativeContext Γ)
     ⊥-elim (¬negId (neNeg ⊢v v-ne) (refl (syntacticTerm ⊢v)))
   neNeg ([]-congⱼ _ ⊢t ⊢u ⊢v _) ([]-congₙ v-ne) =
     ⊥-elim (¬negId (neNeg ⊢v v-ne) (refl (Idⱼ′ ⊢t ⊢u)))
-  neNeg (conv d c          ) n          = conv (neNeg d n) c
+  neNeg (conv d c) n =
+    conv (neNeg d n) c
+  neNeg (Uⱼ _)          ()
+  neNeg (ΠΣⱼ _ _ _)     ()
+  neNeg (lamⱼ _ _ _)    ()
+  neNeg (prodⱼ _ _ _ _) ()
+  neNeg (Emptyⱼ _)      ()
+  neNeg (Unitⱼ _ _)     ()
+  neNeg (starⱼ _ _)     ()
+  neNeg (ℕⱼ _)          ()
+  neNeg (zeroⱼ _)       ()
+  neNeg (sucⱼ _)        ()
+  neNeg (Idⱼ _ _ _)     ()
+  neNeg (rflⱼ _)        ()
 
   -- Lemma: A normal form of type ℕ is a numeral in a consistent
   -- negative context (given a certain assumption).

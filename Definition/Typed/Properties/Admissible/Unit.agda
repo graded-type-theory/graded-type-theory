@@ -250,6 +250,7 @@ opaque
     s PE.≡ 𝕤 ⊎ ¬ Unitʷ-η →
     Γ ⊢ unitrec⟨ s ⟩ l p q A t₁ u ⇒* unitrec⟨ s ⟩ l p q A t₂ u ∷
       A [ t₁ ]₀
+  unitrec⟨⟩-subst {s = 𝕨} _  _  _     (inj₁ ())
   unitrec⟨⟩-subst {s = 𝕨} ⊢A ⊢u t₁⇒t₂ (inj₂ not-ok) =
     redMany $
     unitrec-subst ⊢A ⊢u t₁⇒t₂

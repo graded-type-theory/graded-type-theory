@@ -190,6 +190,7 @@ opaque
   -- Lookup will either yield an entry or a dummy entry
 
   ↦⊎↦● : ∀ y → (∃₂ λ n (c : Entry _ n) → H ⊢ y ↦ c) ⊎ H ⊢ y ↦●
+  ↦⊎↦● {H = ε} ()
   ↦⊎↦● {H = H ∙ c} y0 = inj₁ (_ , _ , here)
   ↦⊎↦● {H = H ∙●} y0 = inj₂ here
   ↦⊎↦● {H = H ∙ c} (y +1) =
@@ -498,6 +499,7 @@ opaque
           → e ≤ᵉᵐ some
           → (e ≡ some → ¬ (p ≡ 𝟘 × q ≡ 𝟘))
           → ∣∣ᵉ-J e p q ≡ ω
+  ∣∣ᵉ-J-ω {e = all} ()
   ∣∣ᵉ-J-ω {e = none} _ _ = refl
   ∣∣ᵉ-J-ω {p} {q} {e = some} _ P
     with is-𝟘? p
@@ -535,6 +537,7 @@ opaque
           → e ≤ᵉᵐ some
           → (e ≡ some → p ≢ 𝟘)
           → ∣∣ᵉ-K e p ≡ ω
+  ∣∣ᵉ-K-ω {e = all} ()
   ∣∣ᵉ-K-ω {e = none} _ _ = refl
   ∣∣ᵉ-K-ω {p} {e = some} _ p≢𝟘
     with is-𝟘? p
@@ -641,9 +644,11 @@ opaque
   -- Injectivity of the stack sucₛ k
 
   sucₛ-injective : sucₛ {m} n ≡ sucₛ n′ → n ≡ n′
-  sucₛ-injective {n = 0} {(0)} _ = refl
-  sucₛ-injective {n = 1+ n} {1+ n′} x =
+  sucₛ-injective {n = 0}    {n′ = 0}    _ = refl
+  sucₛ-injective {n = 1+ _} {n′ = 1+ _} x =
     cong 1+ (sucₛ-injective (stack-injective x .proj₂))
+  sucₛ-injective {n = 0}    {n′ = 1+ _} ()
+  sucₛ-injective {n = 1+ _} {n′ = 0}    ()
 
 ------------------------------------------------------------------------
 -- Properties of heap equality
@@ -680,6 +685,7 @@ opaque
   -- Heap lookup without update behaves the same on equal heaps
 
   ~ʰ-lookup : H ~ʰ H′ → H ⊢ y ↦ c → H′ ⊢ y ↦ c
+  ~ʰ-lookup ε ()
   ~ʰ-lookup (H~H′ ∙ _) here = here
   ~ʰ-lookup (H~H′ ∙ _) (there d) = there (~ʰ-lookup H~H′ d)
   ~ʰ-lookup (H~H′ ∙●) (there● d) = there● (~ʰ-lookup H~H′ d)
@@ -689,6 +695,7 @@ opaque
   -- Heap lookup to ● behaves the same on equal heaps
 
   ~ʰ-lookup● : H ~ʰ H′ → H ⊢ y ↦● → H′ ⊢ y ↦●
+  ~ʰ-lookup● ε ()
   ~ʰ-lookup● (H~H′ ∙●) here = here
   ~ʰ-lookup● (H~H′ ∙ _) (there d) = there (~ʰ-lookup● H~H′ d)
   ~ʰ-lookup● (H~H′ ∙●) (there● d) = there● (~ʰ-lookup● H~H′ d)
@@ -796,6 +803,7 @@ opaque
 
   toWkₕ-toSubstₕ-var : (H : Heap k m) (x : Fin k)
         → toSubstₕ H (wkVar (toWkₕ H) x) ≡ idSubst x
+  toWkₕ-toSubstₕ-var ε ()
   toWkₕ-toSubstₕ-var (H ∙ c) x = toWkₕ-toSubstₕ-var H x
   toWkₕ-toSubstₕ-var (H ∙●) x0 = refl
   toWkₕ-toSubstₕ-var (H ∙●) (x +1) = cong wk1 (toWkₕ-toSubstₕ-var H x)

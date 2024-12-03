@@ -143,7 +143,8 @@ _ ∧ _ = ω
 𝟘∧𝟙≡𝟙 = lemma _
   where
   lemma : ∀ b → T b → (if b then 𝟙 else ω) ≡ 𝟙
-  lemma true _ = refl
+  lemma true  _  = refl
+  lemma false ()
 
 -- If 𝟘∧𝟙 ≡ 𝟙, then 𝟙≤𝟘 is true.
 
@@ -151,7 +152,8 @@ _ ∧ _ = ω
 𝟘∧𝟙≡𝟙→𝟙≤𝟘 = lemma _
   where
   lemma : ∀ b → (if b then 𝟙 else ω) ≡ 𝟙 → T b
-  lemma true _ = _
+  lemma true  _  = _
+  lemma false ()
 
 -- If 𝟙≤𝟘 is false, then 𝟘∧𝟙 ≡ ω.
 
@@ -235,6 +237,10 @@ _ ∧ _ = ω
 ∧≡𝟙 {p = 𝟘} {q = 𝟙} eq = inj₁ (refl , refl , 𝟘∧𝟙≡𝟙→𝟙≤𝟘 eq)
 ∧≡𝟙 {p = 𝟙} {q = 𝟘} eq = inj₂ (inj₁ (refl , refl , 𝟘∧𝟙≡𝟙→𝟙≤𝟘 eq))
 ∧≡𝟙 {p = 𝟙} {q = 𝟙} _  = inj₂ (inj₂ (refl , refl))
+∧≡𝟙 {p = 𝟘} {q = 𝟘} ()
+∧≡𝟙 {p = 𝟘} {q = ω} ()
+∧≡𝟙 {p = 𝟙} {q = ω} ()
+∧≡𝟙 {p = ω}         ()
 
 opaque
 
@@ -293,6 +299,7 @@ p ≤ q = p ≡ p ∧ q
 -- 𝟘 is maximal.
 
 𝟘-maximal : 𝟘 ≤ p → p ≡ 𝟘
+𝟘-maximal {p = ω} ()
 𝟘-maximal {p = 𝟘} refl = refl
 𝟘-maximal {p = 𝟙}      = 𝟘∧𝟙-elim
   (λ q → 𝟘 ≡ q → 𝟙 ≡ 𝟘)
@@ -316,6 +323,7 @@ p ≤ q = p ≡ p ∧ q
 -- If 𝟙≤𝟘 is false, then 𝟙 is maximal.
 
 𝟙-maximal : ¬ T 𝟙≤𝟘 → 𝟙 ≤ p → p ≡ 𝟙
+𝟙-maximal {p = ω} _   ()
 𝟙-maximal {p = 𝟙} _   refl = refl
 𝟙-maximal {p = 𝟘} 𝟙≰𝟘 𝟙≤𝟘  = ⊥-elim (
   case
@@ -379,6 +387,11 @@ _ + _ = ω
 +≡𝟙 : p + q ≡ 𝟙 → p ≡ 𝟙 × q ≡ 𝟘 ⊎ p ≡ 𝟘 × q ≡ 𝟙
 +≡𝟙 {p = 𝟘} {q = 𝟙} refl = inj₂ (refl , refl)
 +≡𝟙 {p = 𝟙} {q = 𝟘} refl = inj₁ (refl , refl)
++≡𝟙 {p = 𝟘} {q = 𝟘} ()
++≡𝟙 {p = 𝟘} {q = ω} ()
++≡𝟙 {p = 𝟙} {q = 𝟙} ()
++≡𝟙 {p = 𝟙} {q = ω} ()
++≡𝟙 {p = ω}         ()
 
 -- The value ω is a right zero for _+_.
 
@@ -693,12 +706,20 @@ instance
   zero-one-many-has-well-behaved-zero = record
     { non-trivial = λ ()
     ; zero-product =  λ where
-        {p = 𝟘} _ → inj₁ refl
-        {q = 𝟘} _ → inj₂ refl
+        {p = 𝟘}         _  → inj₁ refl
+        {q = 𝟘}         _  → inj₂ refl
+        {p = 𝟙} {q = 𝟙} ()
+        {p = 𝟙} {q = ω} ()
+        {p = ω} {q = 𝟙} ()
+        {p = ω} {q = ω} ()
     ; +-positiveˡ =  λ where
         {p = 𝟘} {q = 𝟘} _  → refl
         {p = 𝟘} {q = 𝟙} ()
         {p = 𝟘} {q = ω} ()
+        {p = 𝟙} {q = 𝟘} ()
+        {p = 𝟙} {q = 𝟙} ()
+        {p = 𝟙} {q = ω} ()
+        {p = ω}         ()
     ; ∧-positiveˡ = λ where
         {p = 𝟘} {q = 𝟘} _     → refl
         {p = 𝟘} {q = 𝟙} _     → refl
@@ -708,6 +729,10 @@ instance
               𝟙  ≡⟨ 𝟘-maximal (sym 𝟘∧𝟙≡𝟘) ⟩
               𝟘  ∎
             of λ ())
+        {p = 𝟘} {q = ω} ()
+        {p = 𝟙} {q = 𝟙} ()
+        {p = 𝟙} {q = ω} ()
+        {p = ω}         ()
     }
     where open Tools.Reasoning.PropositionalEquality
 
@@ -1559,6 +1584,11 @@ nr-𝟘 p r =
   lemma₁ : Nr p r z s n result → result ≡ 𝟘 → z ≡ 𝟘 × s ≡ 𝟘 × n ≡ 𝟘
   lemma₁ (nr≡𝟘 _)         refl = refl , refl , refl
   lemma₁ (nr≡𝟙∧𝟘 _ 𝟘≡𝟘∧𝟙) refl = ⊥-elim (𝟘∧𝟙≢𝟘 (sym 𝟘≡𝟘∧𝟙))
+  lemma₁ (nr≡𝟙₁ ())       refl
+  lemma₁ (nr≡𝟙₂ ())       refl
+  lemma₁ nr≡𝟙₃            ()
+  lemma₁ nr≡𝟙₄            ()
+  lemma₁ (nr≡ω _ ())      refl
 
   lemma₂ : ∀ p r → nr p r 𝟘 𝟘 𝟘 ≡ 𝟘
   lemma₂ = λ where
@@ -1965,7 +1995,12 @@ opaque
   -- Subtraction of 𝟙 by 𝟙 is 𝟘
 
   𝟙-𝟙≡𝟘 : 𝟙 - 𝟙 ≡ 𝟘
-  𝟙-𝟙≡𝟘 = p-p≤𝟘 , λ { 𝟘 _ → refl}
+  𝟙-𝟙≡𝟘 =
+    p-p≤𝟘 ,
+    λ where
+      𝟘 _  → refl
+      𝟙 ()
+      ω ()
 
 opaque
 

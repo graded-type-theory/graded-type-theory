@@ -528,6 +528,7 @@ whnf≢ne {Γ} {A} {t} {u} ¬-A-η t-whnf ¬-t-ne u-ne t≡u =
             U.star≢ne (u⇒*ne d′) PE.refl
           (Unitₜ₌ʷ _ _ d _ _ (ne (neNfₜ₌ _ neK _ _)) _) →
             ¬t⇒*ne d neK
+          (Unitₜ₌ˢ _ _ (inj₁ ()))
           (Unitₜ₌ˢ _ _ (inj₂ ok)) →
             not-ok ok
     (ne _) (neₜ₌ _ _ t⇒*v _ (neNfₜ₌ _ v-ne _ _)) →

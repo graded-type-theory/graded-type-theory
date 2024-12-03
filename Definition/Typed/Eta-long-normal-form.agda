@@ -1024,6 +1024,7 @@ opaque
       ⊢nf∷Π→Neutral→⊥′ ⊢t (trans B≡A A≡Σ) t-ne
     (neₙ A-no-η _) A≡Π _ →
       No-η-equality→≢Π A-no-η A≡Π
+    (Uₙ _)          _ ()
     (ΠΣₙ _ _ _)     _ ()
     (lamₙ _ _)      _ ()
     (prodₙ _ _ _ _) _ ()
@@ -1052,6 +1053,7 @@ opaque
       ⊢nf∷Σˢ→Neutral→⊥′ ⊢t (trans B≡A A≡Σ) t-ne
     (neₙ A-no-η _) A≡Σ _ →
       No-η-equality→≢Σˢ A-no-η A≡Σ
+    (Uₙ _)          _ ()
     (ΠΣₙ _ _ _)     _ ()
     (lamₙ _ _)      _ ()
     (prodₙ _ _ _ _) _ ()

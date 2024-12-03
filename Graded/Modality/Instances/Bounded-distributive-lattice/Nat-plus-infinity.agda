@@ -273,10 +273,14 @@ has-well-behaved-zero = record
   ; +-positiveˡ  = Z.∧-positiveˡ
   ; ∧-positiveˡ  = Z.∧-positiveˡ
   ; zero-product = λ where
-      {p = ⌞ 0 ⌟} {q = ⌞ _ ⌟} _ → inj₁ refl
-      {p = ⌞ 0 ⌟} {q = ∞}     _ → inj₁ refl
-      {p = ⌞ _ ⌟} {q = ⌞ 0 ⌟} _ → inj₂ refl
-      {p = ∞}     {q = ⌞ 0 ⌟} _ → inj₂ refl
+      {p = ⌞ 0 ⌟}    {q = ⌞ _ ⌟}    _  → inj₁ refl
+      {p = ⌞ 0 ⌟}    {q = ∞}        _  → inj₁ refl
+      {p = ⌞ _ ⌟}    {q = ⌞ 0 ⌟}    _  → inj₂ refl
+      {p = ∞}        {q = ⌞ 0 ⌟}    _  → inj₂ refl
+      {p = ⌞ 1+ _ ⌟} {q = ⌞ 1+ _ ⌟} ()
+      {p = ⌞ 1+ _ ⌟} {q = ∞}        ()
+      {p = ∞}        {q = ⌞ 1+ _ ⌟} ()
+      {p = ∞}        {q = ∞}        ()
   }
   where
   module Z = Has-well-behaved-zero ℕ⊎∞.ℕ⊎∞-has-well-behaved-zero

@@ -35,6 +35,7 @@ private
     t A : Term n
 
 soundness⇉-var : ∀ {x} →  ⊢ Γ → x ∷ A ∈ Γ → (Γ ⊢ A) × (Γ ⊢ var x ∷ A)
+soundness⇉-var ε      ()
 soundness⇉-var (∙ ⊢A) here =
   W.wk₁ ⊢A ⊢A , var₀ ⊢A
 soundness⇉-var (∙ ⊢B) (there x) =

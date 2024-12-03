@@ -288,6 +288,7 @@ prod-cong⁻¹ :
 prod-cong⁻¹ (prod-cong G t u ok) =
   PE.refl , PE.refl , G , t , u , ok
 prod-cong⁻¹ (Σʷ-ins _ _ ([~] _ _ ()))
+prod-cong⁻¹ (ne-ins _ _ () _)
 
 -- An inversion lemma for J-cong.
 

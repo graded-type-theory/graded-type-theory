@@ -124,7 +124,9 @@ module Counterexample
     , (λ { (.zero , zeroₙ , t≡u) → lem (completeEqTerm t≡u)
          ; (.(suc _) , sucₙ numU , t≡u) → lem′ (completeEqTerm t≡u)
          })
-    , (λ { (u , numU , (whred x ⇨ˢ d)) → neRedTerm x (prodrecₙ (var x0))})
+    , (λ where
+         (u , numU , whred x ⇨ˢ d) → neRedTerm x (prodrecₙ (var x0))
+         (_ , ()   , id _))
     , (_ , (id ⊢prodrec , ne neutral) , neutral)
     where
     open E

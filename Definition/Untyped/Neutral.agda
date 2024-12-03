@@ -52,6 +52,7 @@ data Neutral : Term n → Set a where
 -- There are no closed neutral terms
 
 noClosedNe : {t : Term 0} → Neutral t → ⊥
+noClosedNe (var ())
 noClosedNe (∘ₙ net) = noClosedNe net
 noClosedNe (fstₙ net) = noClosedNe net
 noClosedNe (sndₙ net) = noClosedNe net

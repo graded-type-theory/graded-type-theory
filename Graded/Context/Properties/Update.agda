@@ -36,6 +36,7 @@ private
 -- (γ , x ≔ (γ ⟨ x ⟩)) ≡ γ
 
 update-self : (γ : Conₘ n) (x : Fin n) → (γ , x ≔ (γ ⟨ x ⟩)) ≡ γ
+update-self ε       ()
 update-self (γ ∙ p) x0     = PE.refl
 update-self (γ ∙ p) (x +1) = cong (_∙ _) (update-self γ x)
 
@@ -63,6 +64,7 @@ update-self (γ ∙ p) (x +1) = cong (_∙ _) (update-self γ x)
 -- effect.
 
 update-twice : (γ , x ≔ p) , x ≔ q ≡ γ , x ≔ q
+update-twice {γ = ε}     {x = ()}
 update-twice {γ = _ ∙ _} {x = x0}   = PE.refl
 update-twice {γ = _ ∙ _} {x = x +1} = cong (_∙ _) update-twice
 
@@ -70,6 +72,7 @@ update-twice {γ = _ ∙ _} {x = x +1} = cong (_∙ _) update-twice
 -- If γ ≤ᶜ δ then (γ , x ≔ p) ≤ᶜ (δ , x ≔ p)
 
 update-monotoneˡ : (x : Fin n) → γ ≤ᶜ δ → (γ , x ≔ p) ≤ᶜ (δ , x ≔ p)
+update-monotoneˡ {γ = ε}             ()
 update-monotoneˡ {γ = γ ∙ p} {δ ∙ q} x0 (γ≤δ ∙ _)        = γ≤δ ∙ ≤-refl
 update-monotoneˡ {γ = γ ∙ p} {δ ∙ q} (_+1 x) (γ≤δ ∙ p≤q) = (update-monotoneˡ x γ≤δ) ∙ p≤q
 
@@ -77,6 +80,7 @@ update-monotoneˡ {γ = γ ∙ p} {δ ∙ q} (_+1 x) (γ≤δ ∙ p≤q) = (upda
 -- If p ≤ q then( γ , x ≔ p) ≤ᶜ (γ , x ≔ q)
 
 update-monotoneʳ : (x : Fin n) → p ≤ q → (γ , x ≔ p) ≤ᶜ (γ , x ≔ q)
+update-monotoneʳ {γ = ε}     ()
 update-monotoneʳ {γ = γ ∙ p} x0 p≤q     = ≤ᶜ-refl ∙ p≤q
 update-monotoneʳ {γ = γ ∙ p} (x +1) p≤q = (update-monotoneʳ x p≤q) ∙ ≤-refl
 
@@ -117,6 +121,7 @@ update-cong γ≈ᶜδ p≡q =
 
 update-distrib-+ᶜ : (γ δ : Conₘ n) (p q : M) (x : Fin n)
                   → (γ +ᶜ δ) , x ≔ (p + q) ≡ (γ , x ≔ p) +ᶜ (δ , x ≔ q)
+update-distrib-+ᶜ ε        _        _ _ ()
 update-distrib-+ᶜ (γ ∙ p′) (δ ∙ q′) p q x0     = PE.refl
 update-distrib-+ᶜ (γ ∙ p′) (δ ∙ q′) p q (x +1) = cong (_∙ _) (update-distrib-+ᶜ γ δ p q x)
 
@@ -125,6 +130,7 @@ update-distrib-+ᶜ (γ ∙ p′) (δ ∙ q′) p q (x +1) = cong (_∙ _) (upda
 
 update-distrib-·ᶜ : (γ : Conₘ n) (p q : M) (x : Fin n)
                   → (p ·ᶜ γ) , x ≔ (p · q) ≡ p ·ᶜ (γ , x ≔ q)
+update-distrib-·ᶜ ε       _ _ ()
 update-distrib-·ᶜ (γ ∙ r) p q x0     = PE.refl
 update-distrib-·ᶜ (γ ∙ r) p q (x +1) = cong (_∙ _) (update-distrib-·ᶜ γ p q x)
 
@@ -133,6 +139,7 @@ update-distrib-·ᶜ (γ ∙ r) p q (x +1) = cong (_∙ _) (update-distrib-·ᶜ
 
 update-distrib-∧ᶜ : (γ δ : Conₘ n) (p q : M) (x : Fin n)
                   → (γ ∧ᶜ δ) , x ≔ (p ∧ q) ≡ (γ , x ≔ p) ∧ᶜ (δ , x ≔ q)
+update-distrib-∧ᶜ ε        _        _ _ ()
 update-distrib-∧ᶜ (γ ∙ p′) (δ ∙ q′) p q x0 = PE.refl
 update-distrib-∧ᶜ (γ ∙ p′) (δ ∙ q′) p q (x +1) = cong (_∙ _) (update-distrib-∧ᶜ γ δ p q x)
 
@@ -143,6 +150,7 @@ update-distrib-⊛ᶜ :
   ⦃ has-star : Has-star semiring-with-meet ⦄ →
   (γ δ : Conₘ n) (r p q : M) (x : Fin n) →
   γ ⊛ᶜ δ ▷ r , x ≔ (p ⊛ q ▷ r) ≡ (γ , x ≔ p) ⊛ᶜ (δ , x ≔ q) ▷ r
+update-distrib-⊛ᶜ ε       _       _ _ _ ()
 update-distrib-⊛ᶜ (γ ∙ _) (δ ∙ _) r p q x0 = PE.refl
 update-distrib-⊛ᶜ (γ ∙ _) (δ ∙ _) r p q (x +1) =
   cong (_∙ _) (update-distrib-⊛ᶜ γ δ r p q x)

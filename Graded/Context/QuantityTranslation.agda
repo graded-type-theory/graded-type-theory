@@ -65,6 +65,7 @@ tr-≈ᶜ (γ ∙ p) = tr-≈ᶜ γ ∙ cong tr p
 -- Translation commutes with _,_≔_.
 
 tr-,≔ : tr-Conₘ (γ C₁., x ≔ p) ≡ tr-Conₘ γ C₂., x ≔ tr p
+tr-,≔ {γ = ε}     {x = ()}
 tr-,≔ {γ = _ ∙ _} {x = x0}   = refl
 tr-,≔ {γ = _ ∙ _} {x = _ +1} = cong (_∙ _) tr-,≔
 

@@ -699,8 +699,9 @@ record Is-non-empty-interval (S : Set a) : Set (lsuc (lsuc a)) where
         0 ∈ xs + ys                                     ⇔⟨ ∈+⇔′ ⟩→
 
         (∃₂ λ l m → l N.+ m N.≤ 0 × l ∈ xs × m ∈ ys) ×
-        (∃₂ λ l m → 0 N.≤ l N.+ m × l ∈ xs × m ∈ ys)    →⟨ (λ { ((0 , .0 , N.z≤n , hyp) , _) → hyp }) ⟩
-
+        (∃₂ λ l m → 0 N.≤ l N.+ m × l ∈ xs × m ∈ ys)    →⟨ (λ { ((0      , .0 , N.z≤n , hyp) , _) → hyp
+                                                              ; ((N.1+ _ , _  , ()    , _)   , _)
+                                                              }) ⟩
         0 ∈ xs × 0 ∈ ys                                 □
 
       +-positiveˡ : xs + ys ≡ 𝟘 → xs ≡ 𝟘

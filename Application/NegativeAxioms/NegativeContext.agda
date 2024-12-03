@@ -40,6 +40,7 @@ data NegativeContext : Ctx m → Set a where
 -- Lemma: Any entry in negative context is a negative type (needs weakening).
 
 lookupNegative : ⊢ Γ → NegativeContext Γ → (x ∷ A ∈ Γ) → NegativeType Γ A
+lookupNegative ε      _         ()
 lookupNegative (∙ ⊢A) (nΓ ∙ nA) here
   = wkNeg (stepʷ id ⊢A) nA
 lookupNegative (∙ ⊢A) (nΓ ∙ nA) (there h)

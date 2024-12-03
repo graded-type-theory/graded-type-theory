@@ -3,8 +3,6 @@
 -- reflection)
 ------------------------------------------------------------------------
 
-{-# OPTIONS --no-infer-absurd-clauses #-}
-
 open import Definition.Typed.Restrictions
 open import Graded.Modality
 import Tools.PropositionalEquality as PE

@@ -58,9 +58,11 @@ f-f⁻¹ = proj₂ (proj₂ (proj₂ fin))
 -- ⋀ is decreasing (i.e. smaller than all its arguments)
 
 ⋀-decr : (f : Fin (1+ n) → M) → (x : Fin (1+ n)) → ⋀ f ≤ f x
-⋀-decr {0} f x0 = ≤-refl
-⋀-decr {1+ n} f x0 = ∧-decreasingˡ _ _
-⋀-decr {1+ n} f (_+1 x) = ≤-trans (∧-decreasingʳ _ _) (⋀-decr (λ x → f (x +1)) x)
+⋀-decr {n = 0}    _ (() +1)
+⋀-decr {n = 0}    _ x0      = ≤-refl
+⋀-decr {n = 1+ _} _ x0      = ∧-decreasingˡ _ _
+⋀-decr {n = 1+ _} f (x +1)  =
+  ≤-trans (∧-decreasingʳ _ _) (⋀-decr (λ x → f (x +1)) x)
 
 -- ∞ is the least element
 
