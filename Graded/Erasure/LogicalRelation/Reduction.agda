@@ -52,60 +52,50 @@ private
     v v′ : T.Term n
     Γ : U.Con U.Term n
 
--- Logical relation for erasure is preserved under a single reduction backwards on the source language term
--- If t′ ® v ∷ A and Δ ⊢ t ⇒ t′ ∷ A then t ® v ∷ A
---
--- Proof by induction on t′ ® v ∷ A
+-- The logical relation for erasure is preserved by backward
+-- "reduction" for the source term.
 
 sourceRedSubstTerm : ∀ {l} ([A] : Δ ⊩⟨ l ⟩ A) → t′ ®⟨ l ⟩ v ∷ A / [A]
-                   → Δ ⊢ t ⇒ t′ ∷ A → t ®⟨ l ⟩ v ∷ A / [A]
+                   → t ⇛ t′ ∷ A → t ®⟨ l ⟩ v ∷ A / [A]
 sourceRedSubstTerm (Uᵣ _) (Uᵣ ⇒*↯) _ =
   Uᵣ ⇒*↯
 sourceRedSubstTerm (ℕᵣ D) (zeroᵣ t′⇒zero v⇒v′) t⇒t′ =
-  zeroᵣ ((conv t⇒t′ (subset* D)) ⇨ t′⇒zero) v⇒v′
+  zeroᵣ (trans-⇛ (conv-⇛ t⇒t′ (subset* D)) t′⇒zero) v⇒v′
 sourceRedSubstTerm (ℕᵣ ⇒*ℕ) (sucᵣ t′⇒suc v⇒v′ num t®v) t⇒t′ =
-  sucᵣ (conv t⇒t′ (subset* ⇒*ℕ) ⇨ t′⇒suc) v⇒v′ num t®v
+  sucᵣ (trans-⇛ (conv-⇛ t⇒t′ (subset* ⇒*ℕ)) t′⇒suc) v⇒v′ num t®v
 sourceRedSubstTerm (Unitᵣ (Unitₜ D _)) (starᵣ t′⇒star v⇒star) t⇒t′ =
-  starᵣ (conv t⇒t′ (subset* D) ⇨ t′⇒star) v⇒star
+  starᵣ (trans-⇛ (conv-⇛ t⇒t′ (subset* D)) t′⇒star) v⇒star
 sourceRedSubstTerm (Bᵣ′ (BΠ p q) F G D A≡A [F] [G] G-ext _) t®v′ t⇒t′
   with is-𝟘? p
 ... | yes PE.refl = t®v′ .proj₁ , λ {a = a} [a] →
   let t®v = t®v′ .proj₂ [a]
       ⊢a = escapeTerm ([F] (id ⊢Δ)) [a]
       ⊢a′ = PE.subst (Δ ⊢ a ∷_) (UP.wk-id F) ⊢a
-      t∘a⇒t′∘w′ = app-subst (conv t⇒t′ (subset* D)) ⊢a′
-      t∘a⇒t′∘w = PE.subst (_⊢_⇒_∷_ Δ _ _) (PE.cong (U._[ a ]₀) (PE.sym (UP.wk-lift-id G))) t∘a⇒t′∘w′
+      t∘a⇒t′∘w′ = app-⇛ (conv-⇛ t⇒t′ (subset* D)) ⊢a′
+      t∘a⇒t′∘w = PE.subst (_⇛_∷_ _ _)
+                   (PE.cong (U._[ a ]₀) (PE.sym (UP.wk-lift-id G)))
+                   t∘a⇒t′∘w′
   in  sourceRedSubstTerm ([G] (id ⊢Δ) [a]) t®v t∘a⇒t′∘w
 ... | no p≢𝟘 = t®v′ .proj₁ , λ {a = a} [a] a®w →
   let t®v = t®v′ .proj₂ [a] a®w
       ⊢a = escapeTerm ([F] (id ⊢Δ)) [a]
       ⊢a′ = PE.subst (Δ ⊢ a ∷_) (UP.wk-id F) ⊢a
-      t∘a⇒t′∘w′ = app-subst (conv t⇒t′ (subset* D)) ⊢a′
-      t∘a⇒t′∘w = PE.subst (Δ ⊢ _ ⇒ _ ∷_) (PE.cong (U._[ a ]₀) (PE.sym (UP.wk-lift-id G))) t∘a⇒t′∘w′
+      t∘a⇒t′∘w′ = app-⇛ (conv-⇛ t⇒t′ (subset* D)) ⊢a′
+      t∘a⇒t′∘w = PE.subst (_⇛_∷_ _ _)
+                   (PE.cong (U._[ a ]₀) (PE.sym (UP.wk-lift-id G)))
+                   t∘a⇒t′∘w′
   in  sourceRedSubstTerm ([G] (id ⊢Δ) [a]) t®v t∘a⇒t′∘w
 sourceRedSubstTerm
   (Bᵣ′ BΣ! F G D A≡A [F] [G] G-ext _)
   (t₁ , t₂ , t′⇒p , [t₁] , v₂ , t₂®v₂ , extra) t⇒t′ =
-  t₁ , t₂ , conv t⇒t′ (subset* D) ⇨ t′⇒p , [t₁] , v₂ , t₂®v₂ , extra
+  t₁ , t₂ , trans-⇛ (conv-⇛ t⇒t′ (subset* D)) t′⇒p , [t₁] , v₂ , t₂®v₂ ,
+  extra
 sourceRedSubstTerm (Idᵣ ⊩A) (rflᵣ t′⇒*rfl ⇒*↯) t⇒t′ =
-  rflᵣ (conv t⇒t′ (subset* (_⊩ₗId_.⇒*Id ⊩A)) ⇨ t′⇒*rfl) ⇒*↯
+  rflᵣ (trans-⇛ (conv-⇛ t⇒t′ (subset* (_⊩ₗId_.⇒*Id ⊩A))) t′⇒*rfl) ⇒*↯
 sourceRedSubstTerm (emb ≤ᵘ-refl     ⊩A) = sourceRedSubstTerm ⊩A
 sourceRedSubstTerm (emb (≤ᵘ-step p) ⊩A) = sourceRedSubstTerm (emb p ⊩A)
 sourceRedSubstTerm (ne record{}) ()
 sourceRedSubstTerm (Emptyᵣ _)    ()
-
-
--- Logical relation for erasure is preserved under reduction closure backwards on the source language term
--- If t′ ® v ∷ A and Δ ⊢ t ⇒* t′ ∷ A then t ® v ∷ A
---
--- Proof by induction on t′ ® v ∷ A
-
-sourceRedSubstTerm* : ∀ {l} ([A] : Δ ⊩⟨ l ⟩ A) → t′ ®⟨ l ⟩ v ∷ A / [A]
-                    → Δ ⊢ t ⇒* t′ ∷ A → t ®⟨ l ⟩ v ∷ A / [A]
-sourceRedSubstTerm* [A] t′®v (id x) = t′®v
-sourceRedSubstTerm* [A] t′®v (x ⇨ t⇒t′) =
-  sourceRedSubstTerm [A] (sourceRedSubstTerm* [A] t′®v t⇒t′) x
-
 
 -- Logical relation for erasure is preserved under a single reduction backwards on the target language term
 -- If t ® v′ ∷ A and v ⇒ v′ then t ® v ∷ A
@@ -160,44 +150,41 @@ targetRedSubstTerm* [A] t®v′ (trans x v⇒v′) =
   targetRedSubstTerm [A] (targetRedSubstTerm* [A] t®v′ v⇒v′) x
 
 
--- Logical relation for erasure is preserved under reduction backwards
--- If t′ ® v′ ∷ A and Δ ⊢ t ⇒ t′ ∷ A and v ⇒ v′ then t ® v ∷ A
---
--- Proof by induction on t′ ® v′ ∷ A
+-- The logical relation for erasure is preserved by backward
+-- "reduction" for the source term and backward reduction for the
+-- target term.
 
 redSubstTerm : ∀ {l} ([A] : Δ ⊩⟨ l ⟩ A) → t′ ®⟨ l ⟩ v′ ∷ A / [A]
-             → Δ ⊢ t ⇒ t′ ∷ A → v T.⇒ v′ → t ®⟨ l ⟩ v ∷ A / [A]
+             → t ⇛ t′ ∷ A → v T.⇒ v′ → t ®⟨ l ⟩ v ∷ A / [A]
 redSubstTerm [A] t′®v′ t⇒t′ v⇒v′ =
   targetRedSubstTerm [A] (sourceRedSubstTerm [A] t′®v′ t⇒t′) v⇒v′
 
 
--- Logical relation for erasure is preserved under reduction closure backwards
--- If t′ ® v′ ∷ A and Δ ⊢ t ⇒* t′ ∷ A and v ⇒* v′ then t ® v ∷ A
---
--- Proof by induction on t′ ® v′ ∷ A
+-- The logical relation for erasure is preserved by backward
+-- "reduction" for the source term and backward reduction for the
+-- target term.
 
 redSubstTerm* : ∀ {l} ([A] : Δ ⊩⟨ l ⟩ A) → t′ ®⟨ l ⟩ v′ ∷ A / [A]
-              → Δ ⊢ t ⇒* t′ ∷ A → v T.⇒* v′ → t ®⟨ l ⟩ v ∷ A / [A]
-redSubstTerm* [A] t′®v′ t⇒t′ v⇒v′ = targetRedSubstTerm* [A] (sourceRedSubstTerm* [A] t′®v′ t⇒t′) v⇒v′
+              → t ⇛ t′ ∷ A → v T.⇒* v′ → t ®⟨ l ⟩ v ∷ A / [A]
+redSubstTerm* [A] t′®v′ t⇒t′ v⇒v′ =
+  targetRedSubstTerm* [A] (sourceRedSubstTerm [A] t′®v′ t⇒t′) v⇒v′
 
 
--- Logical relation for erasure is preserved under one reduction step on the source language term
--- If t ® v ∷ A and Δ ⊢ t ⇒ t′ ∷ A  then t′ ® v ∷ A
---
--- Proof by induction on t ® v ∷ A
+-- The logical relation for erasure is preserved by "reduction" for
+-- the source term.
 
 sourceRedSubstTerm′ : ∀ {l} ([A] : Δ ⊩⟨ l ⟩ A) → t ®⟨ l ⟩ v ∷ A / [A]
-                    → Δ ⊢ t ⇒ t′ ∷ A → t′ ®⟨ l ⟩ v ∷ A / [A]
+                    → t ⇛ t′ ∷ A → t′ ®⟨ l ⟩ v ∷ A / [A]
 sourceRedSubstTerm′ (Uᵣ _) (Uᵣ ⇒*↯) _ =
   Uᵣ ⇒*↯
 sourceRedSubstTerm′ (ℕᵣ D) (zeroᵣ t⇒zero v⇒zero) t⇒t′
-  with whrDet↘Term (t⇒zero , zeroₙ) (conv* (redMany t⇒t′) (subset* D))
+  with whnf-⇛ t⇒zero zeroₙ (conv-⇛ t⇒t′ (subset* D))
 ... | t′⇒zero = zeroᵣ t′⇒zero v⇒zero
 sourceRedSubstTerm′ (ℕᵣ D) (sucᵣ t⇒suc v⇒suc num t®v) t⇒t′
-  with whrDet↘Term (t⇒suc , sucₙ) (conv* (redMany t⇒t′) (subset* D))
+  with whnf-⇛ t⇒suc sucₙ (conv-⇛ t⇒t′ (subset* D))
 ... | t′⇒suc = sucᵣ t′⇒suc v⇒suc num t®v
 sourceRedSubstTerm′ (Unitᵣ (Unitₜ x _)) (starᵣ t⇒star v⇒star) t⇒t′
-  with whrDet↘Term (t⇒star , starₙ) (redMany (conv t⇒t′ (subset* x)))
+  with whnf-⇛ t⇒star starₙ (conv-⇛ t⇒t′ (subset* x))
 ... | t′⇒star = starᵣ t′⇒star v⇒star
 sourceRedSubstTerm′
   (Bᵣ′ (BΠ p q) F G D A≡A [F] [G] G-ext _) t®v′ t⇒t′
@@ -206,8 +193,8 @@ sourceRedSubstTerm′
   let t®v = t®v′ .proj₂ [a]
       ⊢a = escapeTerm ([F] (id ⊢Δ)) [a]
       ⊢a′ = PE.subst (Δ ⊢ a ∷_) (UP.wk-id F) ⊢a
-      t∘a⇒t′∘a′ = app-subst (conv t⇒t′ (subset* D)) ⊢a′
-      t∘a⇒t′∘a = PE.subst (_⊢_⇒_∷_ Δ _ _)
+      t∘a⇒t′∘a′ = app-⇛ (conv-⇛ t⇒t′ (subset* D)) ⊢a′
+      t∘a⇒t′∘a = PE.subst (_⇛_∷_ _ _)
                           (PE.cong (U._[ a ]₀) (PE.sym (UP.wk-lift-id G)))
                           t∘a⇒t′∘a′
   in  sourceRedSubstTerm′ ([G] (id ⊢Δ) [a]) t®v t∘a⇒t′∘a
@@ -215,8 +202,8 @@ sourceRedSubstTerm′
   let t®v = t®v′ .proj₂ [a] a®w
       ⊢a = escapeTerm ([F] (id ⊢Δ)) [a]
       ⊢a′ = PE.subst (Δ ⊢ a ∷_) (UP.wk-id F) ⊢a
-      t∘a⇒t′∘a′ = app-subst (conv t⇒t′ (subset* D)) ⊢a′
-      t∘a⇒t′∘a = PE.subst (_⊢_⇒_∷_ Δ _ _)
+      t∘a⇒t′∘a′ = app-⇛ (conv-⇛ t⇒t′ (subset* D)) ⊢a′
+      t∘a⇒t′∘a = PE.subst (_⇛_∷_ _ _)
                           (PE.cong (U._[ a ]₀) (PE.sym (UP.wk-lift-id G)))
                           t∘a⇒t′∘a′
   in  sourceRedSubstTerm′ ([G] (id ⊢Δ) [a]) t®v t∘a⇒t′∘a
@@ -224,30 +211,16 @@ sourceRedSubstTerm′
   (Bᵣ′ BΣ! F G D A≡A [F] [G] G-ext _)
   (t₁ , t₂ , t⇒p , [t₁] , v₂ , t₂®v₂ , extra) t⇒t′ =
   t₁ , t₂
-     , whrDet↘Term (t⇒p , prodₙ) (redMany (conv t⇒t′ (subset* D)))
+     , whnf-⇛ t⇒p prodₙ (conv-⇛ t⇒t′ (subset* D))
      , [t₁] , v₂ , t₂®v₂ , extra
 sourceRedSubstTerm′ (Idᵣ ⊩A) (rflᵣ t⇒*rfl ⇒*↯) t⇒t′ =
-  rflᵣ
-    (whrDet↘Term (t⇒*rfl , rflₙ) $
-     redMany (conv t⇒t′ (subset* (_⊩ₗId_.⇒*Id ⊩A))))
-    ⇒*↯
+  rflᵣ (whnf-⇛ t⇒*rfl rflₙ (conv-⇛ t⇒t′ (subset* (_⊩ₗId_.⇒*Id ⊩A)))) ⇒*↯
 sourceRedSubstTerm′ (emb ≤ᵘ-refl     ⊩A) = sourceRedSubstTerm′ ⊩A
 sourceRedSubstTerm′ (emb (≤ᵘ-step p) ⊩A) =
   sourceRedSubstTerm′ (emb p ⊩A)
 sourceRedSubstTerm′ (ne record{}) ()
 sourceRedSubstTerm′ (Emptyᵣ _)    ()
 
-
--- Logical relation for erasure is preserved under reduction closure on the source language term
--- If t ® v ∷ A and Δ ⊢ t ⇒* t′ ∷ A  then t′ ® v ∷ A
---
--- Proof by induction on t ® v ∷ A
-
-sourceRedSubstTerm*′ : ∀ {l} ([A] : Δ ⊩⟨ l ⟩ A) → t ®⟨ l ⟩ v ∷ A / [A]
-                     → Δ ⊢ t ⇒* t′ ∷ A → t′ ®⟨ l ⟩ v ∷ A / [A]
-sourceRedSubstTerm*′ [A] t®v (id x) = t®v
-sourceRedSubstTerm*′ [A] t®v (x ⇨ t⇒t′) =
-  sourceRedSubstTerm*′ [A] (sourceRedSubstTerm′ [A] t®v x) t⇒t′
 
 private opaque
 
@@ -340,22 +313,18 @@ targetRedSubstTerm*′ [A] t®v refl = t®v
 targetRedSubstTerm*′ [A] t®v (trans x v⇒v′) =
   targetRedSubstTerm*′ [A] (targetRedSubstTerm′ [A] t®v x) v⇒v′
 
--- Logical relation for erasure is preserved under reduction
--- If t ® v ∷ A and Δ ⊢ t ⇒ t′ ∷ A and v ⇒ v′ then t′ ® v′ ∷ A
---
--- Proof by induction on t ® v ∷ A
+-- The logical relation for erasure is preserved by "reduction" for
+-- the source term and reduction for the target term.
 
 redSubstTerm′ : ∀ {l} ([A] : Δ ⊩⟨ l ⟩ A) → t ®⟨ l ⟩ v ∷ A / [A]
-              → Δ ⊢ t ⇒ t′ ∷ A → v T.⇒ v′ → t′ ®⟨ l ⟩ v′ ∷ A / [A]
+              → t ⇛ t′ ∷ A → v T.⇒ v′ → t′ ®⟨ l ⟩ v′ ∷ A / [A]
 redSubstTerm′ [A] t®v t⇒t′ v⇒v′ =
   targetRedSubstTerm′ [A] (sourceRedSubstTerm′ [A] t®v t⇒t′) v⇒v′
 
--- Logical relation for erasure is preserved under reduction closure
--- If t ® v ∷ A and Δ ⊢ t ⇒* t′ ∷ A and v ⇒* v′ then t′ ® v′ ∷ A
---
--- Proof by induction on t ® v ∷ A
+-- The logical relation for erasure is preserved by "reduction" for
+-- the source term and reduction for the target term.
 
 redSubstTerm*′ : ∀ {l} ([A] : Δ ⊩⟨ l ⟩ A) → t ®⟨ l ⟩ v ∷ A / [A]
-               → Δ ⊢ t ⇒* t′ ∷ A → v T.⇒* v′ → t′ ®⟨ l ⟩ v′ ∷ A / [A]
+               → t ⇛ t′ ∷ A → v T.⇒* v′ → t′ ®⟨ l ⟩ v′ ∷ A / [A]
 redSubstTerm*′ [A] t®v t⇒t′ v⇒v′ =
-  targetRedSubstTerm*′ [A] (sourceRedSubstTerm*′ [A] t®v t⇒t′) v⇒v′
+  targetRedSubstTerm*′ [A] (sourceRedSubstTerm′ [A] t®v t⇒t′) v⇒v′

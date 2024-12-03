@@ -22,6 +22,8 @@ open import Graded.Modality.Properties.Has-well-behaved-zero
   semiring-with-meet
 
 open import Graded.Erasure.LogicalRelation as
+open import Graded.Erasure.LogicalRelation.Assumptions.Reasoning
+  is-reduction-relation
 open import Graded.Erasure.LogicalRelation.Hidden as
 
 open import Graded.Erasure.Extraction 𝕄
@@ -36,8 +38,9 @@ open import Definition.Untyped.Neutral M type-variant
 open import Definition.Untyped.Properties M
 
 open import Definition.Typed R
+open import Definition.Typed.Consequences.Inequality R
 open import Definition.Typed.Properties R
-import Definition.Typed.Reasoning.Reduction R as RR
+open import Definition.Typed.Reasoning.Term R
 open import Definition.Typed.Substitution R
 
 open import Definition.LogicalRelation R
@@ -90,7 +93,7 @@ opaque
     γ ▸ Γ ⊩ʳ star s l ∷[ m ] Unit s l
   starʳ ok =
     ▸⊩ʳ∷⇔ .proj₂ λ _ _ →
-    ®∷→®∷◂ (®∷Unit⇔ .proj₂ (starᵣ (id (starⱼ ⊢Δ ok)) T.refl))
+    ®∷→®∷◂ (®∷Unit⇔ .proj₂ (starᵣ (⇒*→⇛ (id (starⱼ ⊢Δ ok))) T.refl))
 
 opaque
 
@@ -159,7 +162,7 @@ opaque
     case
       (λ l′
          (t[σ]≡⋆ : Δ ⊩⟨ l′ ⟩ t [ σ ] ≡ starʷ l ∷ Unitʷ l)
-         unitrec⇒u[σ] →                                                   $⟨ σ®σ′ ⟩
+         unitrec⇛u[σ] →                                                   $⟨ σ®σ′ ⟩
 
          σ ® σ′ ∷[ 𝟙ᵐ ] Γ ◂ p ·ᶜ γ +ᶜ δ                                   →⟨ subsumption-®∷[]◂ (λ _ → proj₂ ∘→ +ᶜ-positive-⟨⟩ (_ ·ᶜ γ)) ⟩
 
@@ -169,7 +172,7 @@ opaque
                                                                              ⊩ᵛ≡→⊩≡∷→⊩ˢ≡∷→⊩[]₀[]≡[]₀[] (refl-⊩ᵛ≡ ⊩A)
                                                                                (R.→⊩≡∷ $ sym-⊩≡∷ t[σ]≡⋆) (refl-⊩ˢ≡∷ ⊩σ) ⟩
 
-         u [ σ ] ® erase str u T.[ σ′ ] ∷ A [ t ]₀ [ σ ] ◂ 𝟙              →⟨ ®∷◂-⇐* unitrec⇒u[σ] unitrec⇒u[σ′] ⟩
+         u [ σ ] ® erase str u T.[ σ′ ] ∷ A [ t ]₀ [ σ ] ◂ 𝟙              →⟨ ®∷◂-⇐* unitrec⇛u[σ] unitrec⇒u[σ′] ⟩
 
          unitrec l p q A t u [ σ ] ®
            erase str (unitrec l p q A t u) T.[ σ′ ] ∷ A [ t ]₀ [ σ ] ◂ 𝟙  □)
@@ -187,27 +190,26 @@ opaque
       ⊢u[σ] →
 
     case ⊩∷Unit⇔ .proj₁ ⊩t[σ] of λ {
-      (_ , ok , Unitₜ _ (t[σ]⇒t′ , _) prop) →
+      (_ , ok , Unitₜ t′ (t[σ]⇒t′ , _) prop) →
 
-    let open RR in
     case prop of λ where
       (Unitₜˢ η) →
         unitrec® _
           (⊩ᵛ≡∷⇔′ʰ .proj₁
              (η-unitᵛ ⊩t (starᵛ (wf-⊩ᵛ (wf-⊩ᵛ∷ ⊩t)) ok) η)
              .proj₂ .proj₂ ⊩σ)
-          (                          ∷ A [ t ]₀ [ σ ]           ⟨ singleSubstLift A _ ⟩⇒≡
+          (                          ∷ A [ t ]₀ [ σ ]           ⟨ singleSubstLift A _ ⟩⇛≡
            unitrec l p q A t u [ σ ] ∷ A [ σ ⇑ ] [ t [ σ ] ]₀  ⇒⟨ unitrec-β-η ⊢A[σ⇑] (escape-⊩∷ ⊩t[σ]) ⊢u[σ] ok
-                                                                    (Unit-with-η-𝕨→Unitʷ-η η) ⟩∎∷
+                                                                    (Unit-with-η-𝕨→Unitʷ-η η) ⟩∎⇛∷
            u [ σ ]                                             ∎)
 
       (Unitₜʷ rest no-η) → case rest of λ where
         starᵣ →
           unitrec® _ (⊩∷-⇐* t[σ]⇒t′ (⊩star ⊢Δ ok))
-            (                                  ∷ A [ t ]₀ [ σ ]            ⟨ singleSubstLift A _ ⟩⇒≡
-             unitrec l p q A t         u [ σ ] ∷ A [ σ ⇑ ] [ t [ σ ] ]₀  ⇒*⟨ unitrec-subst* t[σ]⇒t′ ⊢A[σ⇑] ⊢u[σ] no-η ⟩∷
-                                                                           ⟨ substTypeEq (refl ⊢A[σ⇑]) (subset*Term t[σ]⇒t′) ⟩⇒
-             unitrec l p q A (starʷ l) u [ σ ] ∷ A [ σ ⇑ ] [ starʷ l ]₀  ⇒⟨ unitrec-β ⊢A[σ⇑] ⊢u[σ] ok no-η ⟩∎∷
+            (                                  ∷ A [ t ]₀ [ σ ]            ⟨ singleSubstLift A _ ⟩⇛≡
+             unitrec l p q A t         u [ σ ] ∷ A [ σ ⇑ ] [ t [ σ ] ]₀  ⇒*⟨ unitrec-subst* t[σ]⇒t′ ⊢A[σ⇑] ⊢u[σ] no-η ⟩⇛∷
+                                                                           ⟨ substTypeEq (refl ⊢A[σ⇑]) (subset*Term t[σ]⇒t′) ⟩⇛
+             unitrec l p q A (starʷ l) u [ σ ] ∷ A [ σ ⇑ ] [ starʷ l ]₀  ⇒⟨ unitrec-β ⊢A[σ⇑] ⊢u[σ] ok no-η ⟩∎⇛∷
              u [ σ ]                                                     ∎)
 
         (ne (neNfₜ _ t′-ne _)) →
@@ -215,9 +217,11 @@ opaque
           case is-𝟘? p of λ where
             (no p≢𝟘) →
               case p≢𝟘→t[σ]®t[σ′] p≢𝟘 of λ {
-                (starᵣ t[σ]⇒⋆ _) →
-              star≢ne t′-ne $
-              whrDet*Term (t[σ]⇒⋆ , starₙ) (t[σ]⇒t′ , ne t′-ne) }
+                (starᵣ t[σ]⇛⋆ _) →
+              starʷ≢ne no-η t′-ne
+                (starʷ l  ≡˘⟨ ⇛→⊢≡ t[σ]⇛⋆ ⟩⊢
+                 t [ σ ]  ⇒*⟨ t[σ]⇒t′ ⟩⊢∎
+                 t′       ∎) }
             (yes p≡𝟘) → case p≡𝟘→ p≡𝟘 of λ where
               (inj₁ ε) → noClosedNe t′-ne
               (inj₂ η) → no-η η }

@@ -99,7 +99,12 @@ module _
     private
 
       as : Assumptions
-      as = record { ⊢Δ = well-formed; inc = inc; str = str }
+      as = record
+        { ⊢Δ                    = well-formed
+        ; inc                   = inc
+        ; str                   = str
+        ; is-reduction-relation = ⇒*-is-reduction-relation
+        }
 
     open Graded.Erasure.LogicalRelation as
     open Graded.Erasure.LogicalRelation.Fundamental.Fundamental TR UR FA
@@ -173,9 +178,10 @@ module _
 
       as : Assumptions
       as = record
-        { ⊢Δ  = ⊢Δ
-        ; inc = Fundamental-assumptions.inc FA
-        ; str = str
+        { ⊢Δ                    = ⊢Δ
+        ; inc                   = Fundamental-assumptions.inc FA
+        ; str                   = str
+        ; is-reduction-relation = ⇒*-is-reduction-relation
         }
 
       open Soundness′ FA public

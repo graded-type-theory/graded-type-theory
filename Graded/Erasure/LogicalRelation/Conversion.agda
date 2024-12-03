@@ -143,7 +143,7 @@ convTermʳ′ {v = v}
       [Gt₁] = [G] (id ⊢Δ) [t₁]
       [Gt₁]₁ = [G]₁ (id ⊢Δ) [t₁]′
       [Gt₁≡G₁t₁] = ⊩≡→⊩≡/ [Gt₁] (reducible-⊩≡ G[t₁]≡G₁[t₁] .proj₂)
-      t⇒t″ = conv* t⇒t′ Σ≡Σ₁
+      t⇒t″ = conv-⇛ t⇒t′ Σ≡Σ₁
       SV₂ = goodCases [Gt₁] [Gt₁]₁ [Gt₁≡G₁t₁]
       t₂®v₂′ = convTermʳ′ [Gt₁] [Gt₁]₁ G[t₁]≡G₁[t₁] SV₂ t₂®v₂
       SV₁ = goodCases [F]′ [F]₁′ [F≡F₁]
@@ -156,7 +156,7 @@ convTermʳ′ {v = v}
   in  t₁ , t₂ , t⇒t″ , [t₁]′ , v₂ , t₂®v₂′ , extra′
 convTermʳ′ {A} {B} _ _ A≡B (Idᵥ ⊩A ⊩B) (rflᵣ t⇒*rfl ⇒*↯) =
   rflᵣ
-    (conv* t⇒*rfl
+    (conv-⇛ t⇒*rfl
        (Id (_⊩ₗId_.Ty ⊩A) (_⊩ₗId_.lhs ⊩A) (_⊩ₗId_.rhs ⊩A)  ≡˘⟨ subset* (_⊩ₗId_.⇒*Id ⊩A) ⟩⊢
         A                                                  ≡⟨ A≡B ⟩⊢
         B                                                  ≡⟨ subset* (_⊩ₗId_.⇒*Id ⊩B) ⟩⊢∎

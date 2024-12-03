@@ -31,7 +31,7 @@ open import Definition.Typed TR
 open import Definition.Typed.Consequences.Inversion TR
 open import Definition.Typed.Inversion TR
 open import Definition.Typed.Properties TR
-open import Definition.Typed.Syntactic TR
+open import Definition.Typed.Well-formed TR
 open import Definition.Untyped M
 open import Definition.Untyped.Neutral M type-variant
 open import Definition.Untyped.Properties M
@@ -139,7 +139,7 @@ opaque
              , ⊢Δ
              , (case t®v of λ {
                   (starᵣ t⇒* _) →
-                inversion-Unit (syntacticRedTerm t⇒* .proj₁) })
+                inversion-Unit (wf-⊢∷ (wf-⇛ t⇒* .proj₁)) })
              )
          , t®v)
 
@@ -170,7 +170,7 @@ opaque
          case irrelevanceTerm ⊩Id (Idᵣ ⊩Id′) t®v of λ {
            (rflᵣ t⇒* ⇒*↯) →
            escape-⊩ (wf-⊩∷ $ ⊩Id⇔ .proj₁ ⊩Id .proj₁)
-         , rflᵣ (conv* t⇒* (sym (subset* (_⊩ₗId_.⇒*Id ⊩Id′))))
+         , rflᵣ (conv-⇛ t⇒* (sym (subset* (_⊩ₗId_.⇒*Id ⊩Id′))))
              ⇒*↯ })
     , (λ (⊢A , t®v) →
          case reducible-⊩ ⊢A of λ
@@ -179,7 +179,7 @@ opaque
          , ⊩Id⇔ .proj₂
              (case t®v of λ {
                 (rflᵣ t⇒* _) →
-              case inversion-Id (syntacticRedTerm t⇒* .proj₁) of λ
+              case inversion-Id (wf-⊢∷ (wf-⇛ t⇒* .proj₁)) of λ
                 (_ , ⊢t₁ , ⊢t₂) →
                 level-⊩∷ ⊩A (reducible-⊩∷ ⊢t₁ .proj₂)
               , level-⊩∷ ⊩A (reducible-⊩∷ ⊢t₂ .proj₂) })
@@ -331,7 +331,7 @@ opaque
     t ® v ∷ Σ⟨ s ⟩ p , q ▷ A ▹ B ⇔
     (Δ ⊢ Σ⟨ s ⟩ p , q ▷ A ▹ B ×
      ∃₃ λ t₁ t₂ v₂ →
-     Δ ⊢ t ⇒* prod s p t₁ t₂ ∷ Σ⟨ s ⟩ p , q ▷ A ▹ B ×
+     t ⇛ prod s p t₁ t₂ ∷ Σ⟨ s ⟩ p , q ▷ A ▹ B ×
      t₂ ® v₂ ∷ B [ t₁ ]₀ ×
      (p PE.≡ 𝟘 → v T.⇒* v₂) ×
      (p ≢ 𝟘 → ∃ λ v₁ → v T.⇒* T.prod v₁ v₂ × t₁ ® v₁ ∷ A))
@@ -354,7 +354,7 @@ opaque
            ⊩B[t₁] →
          (Δ ⊢ Σ⟨ s ⟩ p , q ▷ A ▹ B ×
           ∃₃ λ t₁ t₂ v₂ →
-          Δ ⊢ t ⇒* prod s p t₁ t₂ ∷ Σ⟨ s ⟩ p , q ▷ A ▹ B ×
+          t ⇛ prod s p t₁ t₂ ∷ Σ⟨ s ⟩ p , q ▷ A ▹ B ×
           t₂ ® v₂ ∷ B [ t₁ ]₀ ×
           (p PE.≡ 𝟘 → v T.⇒* v₂) ×
           (p ≢ 𝟘 → ∃ λ v₁ → v T.⇒* T.prod v₁ v₂ × t₁ ® v₁ ∷ A)) ∋
@@ -374,8 +374,7 @@ opaque
          case ⊩ΠΣ⇔ .proj₁ (reducible-⊩ ⊢Σ .proj₂) of λ
            ⊩Σ′@(_ , rest) →
          let ⊩wk-A , wk-B≡wk-B = rest (id ⊢Δ) in
-         case inversion-prod-Σ $
-              syntacticEqTerm (subset*Term t⇒*prod) .proj₂ .proj₂ of λ
+         case inversion-prod-Σ (wf-⇛ t⇒*prod .proj₂) of λ
            (⊢t₁ , _) →
          case reducible-⊩∷ ⊢t₁ of λ
            (_ , ⊩A , ⊩t₁) →
@@ -403,7 +402,7 @@ opaque
     t ® v ∷ Σ⟨ s ⟩ p , q ▷ A ▹ B ⇔
     (Δ ⊢ Σ⟨ s ⟩ p , q ▷ A ▹ B ×
      ∃₄ λ t₁ t₂ v₁ v₂ →
-     Δ ⊢ t ⇒* prod s p t₁ t₂ ∷ Σ⟨ s ⟩ p , q ▷ A ▹ B ×
+     t ⇛ prod s p t₁ t₂ ∷ Σ⟨ s ⟩ p , q ▷ A ▹ B ×
      v T.⇒* T.prod v₁ v₂ ×
      t₁ ® v₁ ∷ A ×
      t₂ ® v₂ ∷ B [ t₁ ]₀)
@@ -412,7 +411,7 @@ opaque
 
     (Δ ⊢ Σ⟨ s ⟩ p , q ▷ A ▹ B ×
      ∃₃ λ t₁ t₂ v₂ →
-     Δ ⊢ t ⇒* prod s p t₁ t₂ ∷ Σ⟨ s ⟩ p , q ▷ A ▹ B ×
+     t ⇛ prod s p t₁ t₂ ∷ Σ⟨ s ⟩ p , q ▷ A ▹ B ×
      t₂ ® v₂ ∷ B [ t₁ ]₀ ×
      (p PE.≡ 𝟘 → v T.⇒* v₂) ×
      (p ≢ 𝟘 → ∃ λ v₁ → v T.⇒* T.prod v₁ v₂ × t₁ ® v₁ ∷ A))  ⇔⟨ (Σ-cong-⇔ λ _ → Σ-cong-⇔ λ _ → Σ-cong-⇔ λ _ →
@@ -424,7 +423,7 @@ opaque
                                                                      v₂ , t⇒* , t₂®v₂ , ⊥-elim ∘→ p≢𝟘 , λ _ → v₁ , v⇒* , t₁®v₁)) ⟩
     (Δ ⊢ Σ⟨ s ⟩ p , q ▷ A ▹ B ×
      ∃₄ λ t₁ t₂ v₁ v₂ →
-     Δ ⊢ t ⇒* prod s p t₁ t₂ ∷ Σ⟨ s ⟩ p , q ▷ A ▹ B ×
+     t ⇛ prod s p t₁ t₂ ∷ Σ⟨ s ⟩ p , q ▷ A ▹ B ×
      v T.⇒* T.prod v₁ v₂ ×
      t₁ ® v₁ ∷ A ×
      t₂ ® v₂ ∷ B [ t₁ ]₀)                                   □⇔
@@ -437,7 +436,7 @@ opaque
     t ® v ∷ Σ⟨ s ⟩ 𝟘 , q ▷ A ▹ B ⇔
     (Δ ⊢ Σ⟨ s ⟩ 𝟘 , q ▷ A ▹ B ×
      ∃₃ λ t₁ t₂ v′ →
-     Δ ⊢ t ⇒* prod s 𝟘 t₁ t₂ ∷ Σ⟨ s ⟩ 𝟘 , q ▷ A ▹ B ×
+     t ⇛ prod s 𝟘 t₁ t₂ ∷ Σ⟨ s ⟩ 𝟘 , q ▷ A ▹ B ×
      v T.⇒* v′ ×
      t₂ ® v′ ∷ B [ t₁ ]₀)
   ®∷Σ₀⇔ {t} {v} {s} {q} {A} {B} =
@@ -445,7 +444,7 @@ opaque
 
     (Δ ⊢ Σ⟨ s ⟩ 𝟘 , q ▷ A ▹ B ×
      ∃₃ λ t₁ t₂ v₂ →
-     Δ ⊢ t ⇒* prod s 𝟘 t₁ t₂ ∷ Σ⟨ s ⟩ 𝟘 , q ▷ A ▹ B ×
+     t ⇛ prod s 𝟘 t₁ t₂ ∷ Σ⟨ s ⟩ 𝟘 , q ▷ A ▹ B ×
      t₂ ® v₂ ∷ B [ t₁ ]₀ ×
      (𝟘 PE.≡ 𝟘 → v T.⇒* v₂) ×
      (𝟘 ≢ 𝟘 → ∃ λ v₁ → v T.⇒* T.prod v₁ v₂ × t₁ ® v₁ ∷ A))  ⇔⟨ (Σ-cong-⇔ λ _ → Σ-cong-⇔ λ _ → Σ-cong-⇔ λ _ → Σ-cong-⇔ λ _ → Σ-cong-⇔ λ _ →
@@ -453,7 +452,7 @@ opaque
                                                                 , (λ (v⇒* , t₂®v₂) → t₂®v₂ , (λ _ → v⇒*) , ⊥-elim ∘→ (_$ PE.refl))) ⟩
     (Δ ⊢ Σ⟨ s ⟩ 𝟘 , q ▷ A ▹ B ×
      ∃₃ λ t₁ t₂ v′ →
-     Δ ⊢ t ⇒* prod s 𝟘 t₁ t₂ ∷ Σ⟨ s ⟩ 𝟘 , q ▷ A ▹ B ×
+     t ⇛ prod s 𝟘 t₁ t₂ ∷ Σ⟨ s ⟩ 𝟘 , q ▷ A ▹ B ×
      v T.⇒* v′ ×
      t₂ ® v′ ∷ B [ t₁ ]₀)                                   □⇔
 
@@ -822,7 +821,7 @@ opaque
   -- Closure under expansion for _®_∷_.
 
   ®∷-⇐* :
-    Δ ⊢ t ⇒* t′ ∷ A →
+    t ⇛ t′ ∷ A →
     v T.⇒* v′ →
     t′ ® v′ ∷ A →
     t ® v ∷ A
@@ -835,7 +834,7 @@ opaque
   -- Closure under expansion for _®_∷_◂_.
 
   ®∷◂-⇐* :
-    Δ ⊢ t ⇒* t′ ∷ A →
+    t ⇛ t′ ∷ A →
     v T.⇒* v′ →
     t′ ® v′ ∷ A ◂ p →
     t ® v ∷ A ◂ p

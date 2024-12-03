@@ -22,7 +22,7 @@ open import Definition.LogicalRelation R
 open import Definition.LogicalRelation.Weakening.Restricted R
 open import Definition.Typed R
 
-open import Graded.Erasure.Target as T hiding (_⇒*_)
+open import Graded.Erasure.Target as T
 open import Graded.Erasure.Extraction 𝕄
 
 open import Tools.Empty
@@ -52,16 +52,16 @@ private
 -- function.)
 
 data _®_∷U (t : U.Term k) (v : T.Term k) : Set a where
-  Uᵣ : (str ≡ strict → v T.⇒* ↯) → t ® v ∷U
+  Uᵣ : (str ≡ strict → v ⇒* ↯) → t ® v ∷U
 
 -- Terms of type ℕ are related if both reduce to zero or if both
 -- reduce to the successors of related terms (in the strict setting
 -- the target term's reduct has to be a numeral).
 
 data _®_∷ℕ (t : U.Term k) (v : T.Term k) : Set a where
-  zeroᵣ : Δ ⊢ t ⇒* U.zero ∷ ℕ → v T.⇒* T.zero →
+  zeroᵣ : t ⇛ U.zero ∷ ℕ → v ⇒* T.zero →
           t ® v ∷ℕ
-  sucᵣ  : Δ ⊢ t ⇒* U.suc t′ ∷ ℕ → v T.⇒* T.suc v′ → Numeral⟨ str ⟩ v′ →
+  sucᵣ  : t ⇛ U.suc t′ ∷ ℕ → v ⇒* T.suc v′ → Numeral⟨ str ⟩ v′ →
           t′ ® v′ ∷ℕ → t ® v ∷ℕ
 
 -- Terms of type Empty are not related to anything.
@@ -74,7 +74,7 @@ data _®_∷Empty (t : U.Term k) (v : T.Term k) : Set a where
 data _®_∷Unit⟨_,_⟩
   (t : U.Term k) (v : T.Term k) (s : Strength) (l : Universe-level) :
   Set a where
-  starᵣ : Δ ⊢ t ⇒* U.star s l ∷ Unit s l → v T.⇒* T.star →
+  starᵣ : t ⇛ U.star s l ∷ Unit s l → v ⇒* T.star →
           t ® v ∷Unit⟨ s , l ⟩
 
 -- Equality proofs are related in the non-strict setting if the source
@@ -84,7 +84,7 @@ data _®_∷Unit⟨_,_⟩
 data _®_∷Id⟨_⟩⟨_⟩⟨_⟩
        (t : U.Term k) (v : T.Term k) (Ty lhs rhs : U.Term k) :
        Set a where
-  rflᵣ : Δ ⊢ t ⇒* U.rfl ∷ Id Ty lhs rhs → (str ≡ strict → v T.⇒* ↯) →
+  rflᵣ : t ⇛ U.rfl ∷ Id Ty lhs rhs → (str ≡ strict → v ⇒* ↯) →
          t ® v ∷Id⟨ Ty ⟩⟨ lhs ⟩⟨ rhs ⟩
 
 mutual
@@ -102,7 +102,7 @@ mutual
 
   -- Π:
   t ®⟨ l ⟩ v ∷ A / Bᵣ′ (BΠ p q) F G D A≡A [F] [G] G-ext _ =
-    (str ≡ strict → ∃ λ v′ → v T.⇒* T.lam v′) ×
+    (str ≡ strict → ∃ λ v′ → v ⇒* T.lam v′) ×
     (∀ {a} → ([a] : Δ ⊩⟨ l ⟩ a ∷ U.wk id F / [F] (id ⊢Δ)) →
      Π-® l F G t a v ([F] (id ⊢Δ)) ([G] (id ⊢Δ) [a]) p (is-𝟘? p))
 
@@ -114,7 +114,7 @@ mutual
   -- is erased (see below).
   t ®⟨ l ⟩ v ∷ A / Bᵣ′ (BΣ m p q) F G D A≡A [F] [G] G-ext _ =
     ∃₂ λ t₁ t₂ →
-    Δ ⊢ t ⇒* U.prod m p t₁ t₂ ∷ Σ⟨ m ⟩ p , q ▷ F ▹ G ×
+    t ⇛ U.prod m p t₁ t₂ ∷ Σ⟨ m ⟩ p , q ▷ F ▹ G ×
     Σ (Δ ⊩⟨ l ⟩ t₁ ∷ U.wk id F / [F] (id ⊢Δ)) λ [t₁] →
     ∃ λ v₂ →
     t₂ ®⟨ l ⟩ v₂ ∷ U.wk (lift id) G U.[ t₁ ]₀ / [G] (id ⊢Δ) [t₁] ×
@@ -162,10 +162,10 @@ mutual
   Σ-® l F [F] t₁ v v₂ p = case is-𝟘? p of λ where
     -- Erased Σ:
     -- v reduces to v₂
-    (yes p≡𝟘) → Lift a (v T.⇒* v₂)
+    (yes p≡𝟘) → Lift a (v ⇒* v₂)
     -- There is a term v₁ such that v reduces to (v₁, v₂)
     -- and t₁ is related to v₁.
-    (no p≢𝟘) → ∃ λ v₁ → (v T.⇒* T.prod v₁ v₂)
+    (no p≢𝟘) → ∃ λ v₁ → (v ⇒* T.prod v₁ v₂)
                       × (t₁ ®⟨ l ⟩ v₁ ∷ U.wk id F / [F])
 
 ------------------------------------------------------------------------
@@ -204,7 +204,7 @@ opaque
 -- Helper introduction and elimination lemmata for Σ-®
 
 Σ-®-intro-𝟘 : ∀ {l F [F] t₁ v v₂ p}
-            → v T.⇒* v₂ → p PE.≡ 𝟘
+            → v ⇒* v₂ → p PE.≡ 𝟘
             → Σ-® l F [F] t₁ v v₂ p
 Σ-®-intro-𝟘 {p = p} v⇒v₂ p≡𝟘 with is-𝟘? p
 ... | yes _ = lift v⇒v₂
@@ -212,7 +212,7 @@ opaque
 
 Σ-®-intro-ω : ∀ {l F [F] t₁ v v₂ p}
             → (v₁ : T.Term k)
-            → v T.⇒* T.prod v₁ v₂
+            → v ⇒* T.prod v₁ v₂
             → t₁ ®⟨ l ⟩ v₁ ∷ U.wk id F / [F]
             → p PE.≢ 𝟘
             → Σ-® l F [F] t₁ v v₂ p
@@ -223,8 +223,9 @@ opaque
 Σ-®-elim : ∀ {b l F [F] t₁ v v₂ p}
          → (P : (p : M) → Set b)
          → Σ-® l F [F] t₁ v v₂ p
-         → (v T.⇒* v₂ → p PE.≡ 𝟘 → P p)
-         → ((v₁ : T.Term k) → v T.⇒* T.prod v₁ v₂ → t₁ ®⟨ l ⟩ v₁ ∷ U.wk id F / [F] → p PE.≢ 𝟘 → P p)
+         → (v ⇒* v₂ → p PE.≡ 𝟘 → P p)
+         → ((v₁ : T.Term k) → v ⇒* T.prod v₁ v₂ →
+            t₁ ®⟨ l ⟩ v₁ ∷ U.wk id F / [F] → p PE.≢ 𝟘 → P p)
          → P p
 Σ-®-elim {p = p} P extra f g with is-𝟘? p
 Σ-®-elim {p = p} P (lift v⇒v₂) f g | yes p≡𝟘 = f v⇒v₂ p≡𝟘
@@ -237,9 +238,9 @@ opaque
   Σ-®-𝟘 :
     {⊩A : Δ ⊩⟨ l ⟩ U.wk id A} →
     Σ-® l A ⊩A t₁ v v₂ 𝟘 →
-    v T.⇒* v₂
+    v ⇒* v₂
   Σ-®-𝟘 x =
-    Σ-®-elim (λ _ → _ T.⇒* _) x (λ v⇒ _ → v⇒)
+    Σ-®-elim (λ _ → _ ⇒* _) x (λ v⇒ _ → v⇒)
       (λ _ _ _ 𝟘≢𝟘 → ⊥-elim $ 𝟘≢𝟘 PE.refl)
 
 opaque
@@ -250,7 +251,7 @@ opaque
     {⊩A : Δ ⊩⟨ l ⟩ U.wk id A} →
     p PE.≢ 𝟘 →
     Σ-® l A ⊩A t₁ v v₂ p →
-    ∃ λ v₁ → v T.⇒* T.prod v₁ v₂ × t₁ ®⟨ l ⟩ v₁ ∷ U.wk id A / ⊩A
+    ∃ λ v₁ → v ⇒* T.prod v₁ v₂ × t₁ ®⟨ l ⟩ v₁ ∷ U.wk id A / ⊩A
   Σ-®-ω p≢𝟘 x =
     Σ-®-elim _ x (λ _ p≡𝟘 → ⊥-elim $ p≢𝟘 p≡𝟘)
       (λ _ v⇒ t₁®v₁ _ → _ , v⇒ , t₁®v₁)

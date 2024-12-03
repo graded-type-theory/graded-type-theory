@@ -65,12 +65,18 @@ private
     (⊢Δ : ⊢ Δ)
     ⦃ inc : Neutrals-included or-empty Δ ⦄
     (str : Strictness)
+    {_⇛_∷_}
+    (is-reduction-relation : Is-reduction-relation Δ _⇛_∷_)
     where
 
     private
 
       as : Assumptions
-      as = record { ⊢Δ = ⊢Δ; str = str }
+      as = record
+        { ⊢Δ                    = ⊢Δ
+        ; str                   = str
+        ; is-reduction-relation = is-reduction-relation
+        }
 
     open Graded.Erasure.LogicalRelation as public
     open Graded.Erasure.LogicalRelation.Hidden as public
@@ -96,8 +102,10 @@ negation-of-fundamental-lemma-with-erased-matches₁ :
   Σʷ-allowed p 𝟘 →
   ¬ (∀ {k} {Δ : Con Term k} (⊢Δ : ⊢ Δ) →
      Consistent Δ →
-     ⦃ inc : Neutrals-included or-empty Δ ⦄ →
-     let open LR ⊢Δ str in
+     ∀ ⦃ inc : Neutrals-included or-empty Δ ⦄
+       {_⇛_∷_}
+       ⦃ is-reduction-relation : Is-reduction-relation Δ _⇛_∷_ ⦄ →
+     let open LR ⊢Δ str is-reduction-relation in
      ∀ {n} {Γ : Con Term n} {t A : Term n} {γ : Conₘ n} {m} →
      Γ ⊢ t ∷ A → γ ▸[ m ] t →
      γ ▸ Γ ⊩ʳ t ∷[ m ] A)
@@ -119,7 +127,7 @@ negation-of-fundamental-lemma-with-erased-matches₁
   ⊢Δ : ⊢ Δ
   ⊢Δ = ∙ ΠΣⱼ (ℕⱼ (∙ ℕⱼ ε)) Σʷ-ok
 
-  open LR ⊢Δ ⦃ inc = included ⦄ str
+  open LR ⊢Δ ⦃ inc = included ⦄ str ⇒*-is-reduction-relation
 
   ¬t®t : ¬ t ® erase str t ∷ A
   ¬t®t t®t = case ®∷ℕ⇔ .proj₁ t®t of λ where
@@ -140,8 +148,10 @@ opaque
     []-cong-allowed-mode s 𝟙ᵐ →
     ¬ (∀ {k} {Δ : Con Term k} (⊢Δ : ⊢ Δ) →
        Consistent Δ →
-       ⦃ inc : Neutrals-included or-empty Δ ⦄ →
-       let open LR ⊢Δ str in
+       ∀ ⦃ inc : Neutrals-included or-empty Δ ⦄
+         {_⇛_∷_}
+         ⦃ is-reduction-relation : Is-reduction-relation Δ _⇛_∷_ ⦄ →
+       let open LR ⊢Δ str is-reduction-relation in
        ∀ {n} {Γ : Con Term n} {t A : Term n} {γ : Conₘ n} {m} →
        Γ ⊢ t ∷ A → γ ▸[ m ] t →
        γ ▸ Γ ⊩ʳ t ∷[ m ] A)
@@ -171,7 +181,7 @@ opaque
     ▸t : 𝟘ᶜ ▸[ 𝟙ᵐ ] t
     ▸t = []-congₘ ℕₘ zeroₘ zeroₘ var ok′
 
-    open LR ⊢Δ ⦃ inc = included ⦄ str
+    open LR ⊢Δ ⦃ inc = included ⦄ str ⇒*-is-reduction-relation
 
     ¬t®t : ¬ t ® erase str t ∷ A
     ¬t®t t®t =
@@ -190,8 +200,10 @@ opaque
     erased-matches-for-J 𝟙ᵐ ≡ not-none sem →
     ¬ (∀ {k} {Δ : Con Term k} (⊢Δ : ⊢ Δ) →
        Consistent Δ →
-       ⦃ inc : Neutrals-included or-empty Δ ⦄ →
-       let open LR ⊢Δ str in
+       ∀ ⦃ inc : Neutrals-included or-empty Δ ⦄
+         {_⇛_∷_}
+         ⦃ is-reduction-relation : Is-reduction-relation Δ _⇛_∷_ ⦄ →
+       let open LR ⊢Δ str is-reduction-relation in
        ∀ {n} {Γ : Con Term n} {t A : Term n} {γ : Conₘ n} {m} →
        Γ ⊢ t ∷ A → γ ▸[ m ] t →
        γ ▸ Γ ⊩ʳ t ∷[ m ] A)
@@ -213,7 +225,7 @@ opaque
     ⊢Δ : ⊢ Δ
     ⊢Δ = ∙ Idⱼ′ (zeroⱼ ε) (zeroⱼ ε)
 
-    open LR ⊢Δ ⦃ inc = included ⦄ str
+    open LR ⊢Δ ⦃ inc = included ⦄ str ⇒*-is-reduction-relation
 
     ¬t®t : ¬ t ® erase str t ∷ A
     ¬t®t t®t = case ®∷ℕ⇔ .proj₁ t®t of λ where
@@ -232,8 +244,10 @@ opaque
     erased-matches-for-K 𝟙ᵐ ≡ not-none sem →
     ¬ (∀ {k} {Δ : Con Term k} (⊢Δ : ⊢ Δ) →
        Consistent Δ →
-       ⦃ inc : Neutrals-included or-empty Δ ⦄ →
-       let open LR ⊢Δ str in
+       ∀ ⦃ inc : Neutrals-included or-empty Δ ⦄
+         {_⇛_∷_}
+         ⦃ is-reduction-relation : Is-reduction-relation Δ _⇛_∷_ ⦄ →
+       let open LR ⊢Δ str is-reduction-relation in
        ∀ {n} {Γ : Con Term n} {t A : Term n} {γ : Conₘ n} {m} →
        Γ ⊢ t ∷ A → γ ▸[ m ] t →
        γ ▸ Γ ⊩ʳ t ∷[ m ] A)
@@ -255,7 +269,7 @@ opaque
     ⊢Δ : ⊢ Δ
     ⊢Δ = ∙ Idⱼ′ (zeroⱼ ε) (zeroⱼ ε)
 
-    open LR ⊢Δ ⦃ inc = included ⦄ str
+    open LR ⊢Δ ⦃ inc = included ⦄ str ⇒*-is-reduction-relation
 
     ¬t®t : ¬ t ® erase str t ∷ A
     ¬t®t t®t = case ®∷ℕ⇔ .proj₁ t®t of λ where
@@ -277,8 +291,10 @@ opaque
     ¬ Unitʷ-η →
     ¬ (∀ {k} {Δ : Con Term k} (⊢Δ : ⊢ Δ) →
        Consistent Δ →
-       ⦃ inc : Neutrals-included or-empty Δ ⦄ →
-       let open LR ⊢Δ str in
+       ∀ ⦃ inc : Neutrals-included or-empty Δ ⦄
+         {_⇛_∷_}
+         ⦃ is-reduction-relation : Is-reduction-relation Δ _⇛_∷_ ⦄ →
+       let open LR ⊢Δ str is-reduction-relation in
        ∀ {n} {Γ : Con Term n} {t A : Term n} {γ : Conₘ n} {m} →
        Γ ⊢ t ∷ A → γ ▸[ m ] t →
        γ ▸ Γ ⊩ʳ t ∷[ m ] A)
@@ -300,7 +316,7 @@ opaque
     ⊢Δ : ⊢ Δ
     ⊢Δ = ∙ Unitⱼ ε Unit-ok
 
-    open LR ⊢Δ ⦃ inc = included ⦄ str
+    open LR ⊢Δ ⦃ inc = included ⦄ str ⇒*-is-reduction-relation
 
     ¬t®t : ¬ t ® erase str t ∷ A
     ¬t®t t®t = case ®∷ℕ⇔ .proj₁ t®t of λ where
@@ -319,8 +335,10 @@ opaque
     ⦃ inc : Neutrals-included ⦄ →
     Emptyrec-allowed 𝟙ᵐ 𝟘 →
     ¬ (∀ {k} {Δ : Con Term k} (⊢Δ : ⊢ Δ) →
-       ⦃ inc : Neutrals-included or-empty Δ ⦄ →
-       let open LR ⊢Δ str in
+       ∀ ⦃ inc : Neutrals-included or-empty Δ ⦄
+         {_⇛_∷_}
+         ⦃ is-reduction-relation : Is-reduction-relation Δ _⇛_∷_ ⦄ →
+       let open LR ⊢Δ str is-reduction-relation in
        ∀ {n} {Γ : Con Term n} {t A : Term n} {γ : Conₘ n} {m} →
        Γ ⊢ t ∷ A → γ ▸[ m ] t →
        γ ▸ Γ ⊩ʳ t ∷[ m ] A)
@@ -341,7 +359,7 @@ opaque
     ⊢Δ : ⊢ Δ
     ⊢Δ = ∙ Emptyⱼ ε
 
-    open LR ⊢Δ ⦃ inc = included ⦄ str
+    open LR ⊢Δ ⦃ inc = included ⦄ str ⇒*-is-reduction-relation
 
     ¬t®t : ¬ t ® erase str t ∷ A
     ¬t®t t®t = case ®∷ℕ⇔ .proj₁ t®t of λ where

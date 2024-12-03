@@ -33,7 +33,6 @@ open import Definition.Typed.Consequences.Inversion TR
 open import Definition.Typed.Consequences.Reduction TR
 open import Definition.Typed.Inversion TR
 open import Definition.Typed.Properties TR
-import Definition.Typed.Reasoning.Reduction TR as RR
 open import Definition.Typed.Substitution TR
 open import Definition.Typed.Syntactic TR
 open import Definition.Typed.Well-formed TR
@@ -47,6 +46,8 @@ open import Graded.Context.Properties 𝕄
 
 open import Graded.Erasure.Extraction 𝕄
 open import Graded.Erasure.Extraction.Properties 𝕄
+open import Graded.Erasure.LogicalRelation.Assumptions.Reasoning
+  is-reduction-relation
 open import Graded.Erasure.LogicalRelation as
 open import Graded.Erasure.LogicalRelation.Hidden as
 open import Graded.Erasure.LogicalRelation.Value as
@@ -173,7 +174,7 @@ opaque
                                                                         (PE.sym $ singleSubstComp _ _ B) ⟩→
                  t [ σ ⇑ ] [ t′ ]₀ ®
                    erase str t T.[ σ′ T.⇑ ] T.[ loop? str ]₀ ∷
-                   B [ σ ⇑ ] [ t′ ]₀                               →⟨ ®∷-⇐* lam-t[σ]∘t′⇒* lam-⌜t⌝[σ′]∘₀⇒* ⟩
+                   B [ σ ⇑ ] [ t′ ]₀                               →⟨ ®∷-⇐* (⇒*→⇛ lam-t[σ]∘t′⇒*) lam-⌜t⌝[σ′]∘₀⇒* ⟩
 
                  (lam 𝟘 t [ σ ]) ∘⟨ 𝟘 ⟩ t′ ®
                    app-𝟘 str (erase str (lam 𝟘 t) T.[ σ′ ]) ∷
@@ -220,7 +221,7 @@ opaque
                                                                         (PE.sym $ singleSubstComp _ _ B) ⟩→
                t [ σ ⇑ ] [ t′ ]₀ ®
                  erase str t T.[ σ′ T.⇑ ] T.[ v″ ]₀ ∷
-                 B [ σ ⇑ ] [ t′ ]₀                                 →⟨ ®∷-⇐* lam-t[σ]∘t′⇒* lam-⌜t⌝[σ′]∘v′⇒* ⟩
+                 B [ σ ⇑ ] [ t′ ]₀                                 →⟨ ®∷-⇐* (⇒*→⇛ lam-t[σ]∘t′⇒*) lam-⌜t⌝[σ′]∘v′⇒* ⟩
 
                (lam p t [ σ ]) ∘⟨ p ⟩ t′ ®
                  (T.lam (erase str t) T.[ σ′ ]) T.∘⟨ str ⟩ v′ ∷
@@ -439,7 +440,7 @@ opaque
              (I.ΠΣᵛ (ΠΣⱼ ⊢B ok) (emb-⊩ᵛ ≤ᵘ⊔ᵘʳ ⊩A) (emb-⊩ᵛ ≤ᵘ⊔ᵘˡ ⊩B))
              ⊩σ)
       , t [ σ ] , u [ σ ] , v₂
-      , (_⊢_⇒*_∷_.id $
+      , (⇒*→⇛ $ _⊢_⇒*_∷_.id $
          prodⱼ (subst-⊢-⇑ ⊢B ⊢σ) (subst-⊢∷ ⊢t ⊢σ)
            (PE.subst (_⊢_∷_ _ _) (singleSubstLift B _) $
             subst-⊢∷ ⊢u ⊢σ)
@@ -525,18 +526,17 @@ opaque
     (t [ σ ] ® erase str t T.[ σ′ ] ∷ (Σˢ p , q ▷ A ▹ B) [ σ ])  →⟨ proj₂ ∘→ ®∷Σω⇔ p≢𝟘 .proj₁ ⟩
 
     (∃₄ λ t₁ t₂ v₁ v₂ →
-     Δ ⊢ t [ σ ] ⇒* prodˢ p t₁ t₂ ∷ (Σˢ p , q ▷ A ▹ B) [ σ ] ×
+     t [ σ ] ⇛ prodˢ p t₁ t₂ ∷ (Σˢ p , q ▷ A ▹ B) [ σ ] ×
      erase str t T.[ σ′ ] T.⇒* T.prod v₁ v₂ ×
      t₁ ® v₁ ∷ A [ σ ] ×
      t₂ ® v₂ ∷ B [ σ ⇑ ] [ t₁ ]₀)                                →⟨ (λ (t₁ , t₂ , v₁ , v₂ ,
-                                                                        t[σ]⇒*t₁,t₂ , t[σ′]⇒*v₂,v₂ , t₁®v₁ , _) →
-                                                                       case inversion-prod-Σ $
-                                                                            syntacticRedTerm t[σ]⇒*t₁,t₂ .proj₂ .proj₂ of λ
+                                                                        t[σ]⇛t₁,t₂ , t[σ′]⇒*v₂,v₂ , t₁®v₁ , _) →
+                                                                       case inversion-prod-Σ $ wf-⇛ t[σ]⇛t₁,t₂ .proj₂ of λ
                                                                          (⊢t₁ , ⊢t₂ , _) →
                                                                        ®∷-⇐*
-                                                                         (let open RR in
-       fst p (t [ σ ])                                                      ⇒*⟨ fst-subst* t[σ]⇒*t₁,t₂ ⟩
-       fst p (prodˢ p t₁ t₂)                                                ⇒⟨ Σ-β₁-⇒ (subst-⊢-⇑ ⊢B (escape-⊩ˢ∷ ⊩σ .proj₂)) ⊢t₁ ⊢t₂ ok ⟩∎
+                                                                         (
+       fst p (t [ σ ])                                                      ⇛⟨ fst-⇛ t[σ]⇛t₁,t₂ ⟩
+       fst p (prodˢ p t₁ t₂)                                                ⇒⟨ Σ-β₁-⇒ (subst-⊢-⇑ ⊢B (escape-⊩ˢ∷ ⊩σ .proj₂)) ⊢t₁ ⊢t₂ ok ⟩∎⇛
        t₁                                                                   ∎)
                                                                          (let open Graded.Erasure.Target.Reasoning in
        T.fst (erase str t T.[ σ′ ])                                         ⇒*⟨ TP.fst-subst* t[σ′]⇒*v₂,v₂ ⟩
@@ -575,21 +575,20 @@ opaque
     (t [ σ ] ® erase str t T.[ σ′ ] ∷ (Σˢ p , q ▷ A ▹ B) [ σ ])     →⟨ proj₂ ∘→ ®∷Σ⇔ .proj₁ ⟩
 
     (∃₃ λ t₁ t₂ v₂ →
-     Δ ⊢ t [ σ ] ⇒* prodˢ p t₁ t₂ ∷ (Σˢ p , q ▷ A ▹ B) [ σ ] ×
+     t [ σ ] ⇛ prodˢ p t₁ t₂ ∷ (Σˢ p , q ▷ A ▹ B) [ σ ] ×
      t₂ ® v₂ ∷ B [ σ ⇑ ] [ t₁ ]₀ ×
      (p PE.≡ 𝟘 → erase str t T.[ σ′ ] T.⇒* v₂) ×
      (p PE.≢ 𝟘 →
       ∃ λ v₁ → erase str t T.[ σ′ ] T.⇒* T.prod v₁ v₂ ×
-      t₁ ® v₁ ∷ A [ σ ]))                                           →⟨ (λ (t₁ , t₂ , v₂ , t[σ]⇒*t₁,t₂ , t₂®v₂ , 𝟘-hyp , ≢𝟘-hyp) →
-                                                                          case inversion-prod-Σ $
-                                                                               syntacticRedTerm t[σ]⇒*t₁,t₂ .proj₂ .proj₂ of λ
+      t₁ ® v₁ ∷ A [ σ ]))                                           →⟨ (λ (t₁ , t₂ , v₂ , t[σ]⇛t₁,t₂ , t₂®v₂ , 𝟘-hyp , ≢𝟘-hyp) →
+                                                                          case inversion-prod-Σ $ wf-⇛ t[σ]⇛t₁,t₂ .proj₂ of λ
                                                                             (⊢t₁ , ⊢t₂ , _) →
                                                                           ®∷-⇐*
-                                                                            (let open RR in
-      snd p (t [ σ ])       ∷ B [ σ ⇑ ] [ fst p (t [ σ ]) ]₀                   ⇒*⟨ snd-subst* t[σ]⇒*t₁,t₂ ⟩∷
-                                                                                 ⟨ subst-⊢≡ (refl ⊢B[σ⇑]) $
-                                                                                   ⊢ˢʷ≡∷-sgSubst (subset*Term $ fst-subst* t[σ]⇒*t₁,t₂) ⟩⇒
-      snd p (prodˢ p t₁ t₂) ∷ B [ σ ⇑ ] [ fst p (prodˢ p t₁ t₂) ]₀             ⇒⟨ Σ-β₂-⇒ ⊢B[σ⇑] ⊢t₁ ⊢t₂ ok ⟩∎∷
+                                                                            (
+      snd p (t [ σ ])       ∷ B [ σ ⇑ ] [ fst p (t [ σ ]) ]₀                   ⇛⟨ snd-⇛ t[σ]⇛t₁,t₂ ⟩∷
+                                                                                ⟨ subst-⊢≡ (refl ⊢B[σ⇑]) $
+                                                                                  ⊢ˢʷ≡∷-sgSubst (⇛→⊢≡ (fst-⇛ t[σ]⇛t₁,t₂)) ⟩⇛
+      snd p (prodˢ p t₁ t₂) ∷ B [ σ ⇑ ] [ fst p (prodˢ p t₁ t₂) ]₀             ⇒⟨ Σ-β₂-⇒ ⊢B[σ⇑] ⊢t₁ ⊢t₂ ok ⟩∎⇛∷
       t₂                                                                       ∎)
                                                                             (let open Graded.Erasure.Target.Reasoning in
                                                                              case is-𝟘? p of λ {
@@ -606,12 +605,11 @@ opaque
       erase str t T.[ σ′ ]                                                       ⇒*⟨ 𝟘-hyp PE.refl ⟩
       v₂                                                                         ∎⇒ }) $
                                                                           conv-®∷
-                                                                            (let open RR in
-                                                                             R.⊩≡→ $
+                                                                            (R.⊩≡→ $
                                                                              ⊩ᵛ≡→⊩ˢ≡∷→⊩≡∷→⊩[⇑][]₀≡[⇑][]₀ (refl-⊩ᵛ≡ ⊩B) (refl-⊩ˢ≡∷ ⊩σ) $
-                                                                             R.sym-⊩≡∷ $ proj₂ $ reducible-⊩≡∷ $ subset*Term (
-      fst p (t [ σ ])                                                          ⇒*⟨ fst-subst* t[σ]⇒*t₁,t₂ ⟩
-      fst p (prodˢ p t₁ t₂)                                                    ⇒⟨ Σ-β₁-⇒ ⊢B[σ⇑] ⊢t₁ ⊢t₂ ok ⟩∎
+                                                                             R.sym-⊩≡∷ $ proj₂ $ reducible-⊩≡∷ $ ⇛→⊢≡ (
+      fst p (t [ σ ])                                                          ⇛⟨ fst-⇛ t[σ]⇛t₁,t₂ ⟩
+      fst p (prodˢ p t₁ t₂)                                                    ⇒⟨ Σ-β₁-⇒ ⊢B[σ⇑] ⊢t₁ ⊢t₂ ok ⟩∎⇛
       t₁                                                                       ∎))
                                                                             t₂®v₂) ⟩
     (snd p t [ σ ] ® erase str (snd p t) T.[ σ′ ] ∷
@@ -668,7 +666,7 @@ opaque
 
     (u [ consSubst (consSubst σ t₁) t₂ ] ®
        erase str u T.[ T.consSubst (T.consSubst σ′ v₁) v₂ ] ∷
-       C [ σ ⇑ ] [ t [ σ ] ]₀)                                 →⟨ ®∷-⇐* ⇒*u[σ,t₁,t₂] ⇒*u[σ′,v₁,v₂] ⟩
+       C [ σ ⇑ ] [ t [ σ ] ]₀)                                 →⟨ ®∷-⇐* ⇛u[σ,t₁,t₂] ⇒*u[σ′,v₁,v₂] ⟩
 
     (prodrec r p q′ C t u [ σ ] ®
        erase str (prodrec r p q′ C t u) T.[ σ′ ] ∷
@@ -707,7 +705,7 @@ opaque
         v₁ v₂         : T.Term k
         t₁®v₁         : t₁ ® v₁ ∷ A [ σ ] ◂ r · p
         t₂®v₂         : t₂ ® v₂ ∷ B [ σ ⇑ ] [ t₁ ]₀ ◂ r
-        t[σ]⇒*t₁,t₂   : Δ ⊢ t [ σ ] ⇒* prodʷ p t₁ t₂ ∷
+        t[σ]⇛t₁,t₂    : t [ σ ] ⇛ prodʷ p t₁ t₂ ∷
                           (Σʷ p , q ▷ A ▹ B) [ σ ]
         ⇒*u[σ′,v₁,v₂] : erase str (prodrec r p q′ C t u) T.[ σ′ ] T.⇒*
                           erase str u
@@ -719,7 +717,7 @@ opaque
         ⊢t₁,⊢t₂ =
           Σ.map idᶠ proj₁ $
           inversion-prod-Σ $
-          syntacticEqTerm (subset*Term t[σ]⇒*t₁,t₂) .proj₂ .proj₂
+          wf-⇛ t[σ]⇛t₁,t₂ .proj₂
 
       opaque
 
@@ -790,7 +788,7 @@ opaque
             ; v₂            = loop str
             ; t₁®v₁         = ®∷◂𝟘 (·-zeroˡ _)
             ; t₂®v₂         = ®∷◂𝟘 PE.refl
-            ; t[σ]⇒*t₁,t₂   = t[σ]⇒*t₁,t₂
+            ; t[σ]⇛t₁,t₂    = ⇒*→⇛ t[σ]⇒*t₁,t₂
             ; ⇒*u[σ′,v₁,v₂] =
                 erase str (prodrec 𝟘 p q′ C t u) T.[ σ′ ]               ≡⟨ PE.cong T._[ _ ] $ prodrec-𝟘 q′ C ⟩⇒
 
@@ -810,7 +808,7 @@ opaque
         -- If r is non-zero, then the assumption related to t implies
         -- that there are terms t₁, t₂ and v₂ such that
         --
-        -- * t [ σ ] reduces to the pair prodʷ p t₁ t₂,
+        -- * t [ σ ] "reduces" to the pair prodʷ p t₁ t₂,
         -- * t₂ is related to v₂,
         -- * if p is 𝟘, then erase str t T.[ σ′ ] reduces to v₂, and
         -- * if p is non-zero, then there is a term v₁ such that
@@ -820,8 +818,7 @@ opaque
         r≢𝟘-lemma :
           r PE.≢ 𝟘 →
           ∃₃ λ t₁ t₂ v₂ →
-          Δ ⊢ t [ σ ] ⇒* prodʷ p t₁ t₂ ∷
-            (Σʷ p , q ▷ A ▹ B) [ σ ] ×
+          t [ σ ] ⇛ prodʷ p t₁ t₂ ∷ (Σʷ p , q ▷ A ▹ B) [ σ ] ×
           t₂ ® v₂ ∷ B [ σ ⇑ ] [ t₁ ]₀ ×
           (p PE.≡ 𝟘 → erase str t T.[ σ′ ] T.⇒* v₂) ×
           (p PE.≢ 𝟘 →
@@ -844,8 +841,7 @@ opaque
           t [ σ ] ® erase str t T.[ σ′ ] ∷ (Σʷ p , q ▷ A ▹ B) [ σ ]  →⟨ proj₂ ∘→ ®∷Σ⇔ .proj₁ ⟩
 
           (∃₃ λ t₁ t₂ v₂ →
-           Δ ⊢ t [ σ ] ⇒* prodʷ p t₁ t₂ ∷
-             (Σʷ p , q ▷ A ▹ B) [ σ ] ×
+           t [ σ ] ⇛ prodʷ p t₁ t₂ ∷ (Σʷ p , q ▷ A ▹ B) [ σ ] ×
            t₂ ® v₂ ∷ B [ σ ⇑ ] [ t₁ ]₀ ×
            (p PE.≡ 𝟘 → erase str t T.[ σ′ ] T.⇒* v₂) ×
            (p PE.≢ 𝟘 →
@@ -876,7 +872,7 @@ opaque
         -- The Prodrec-assumptions hold for σ and σ′ when r is
         -- non-zero and p is 𝟘:
         --
-        -- * In this case t [ σ ] reduces to a pair prodʷ p t₁ t₂
+        -- * In this case t [ σ ] "reduces" to a pair prodʷ p t₁ t₂
         --   such that t₂ is related to v₂, where
         --   erase str t T.[ σ′ ] T.⇒* v₂.
         -- * Furthermore, because p is 𝟘, t₁ is related to anything.
@@ -889,11 +885,10 @@ opaque
         r≢𝟘-p≡𝟘-lemma : r PE.≢ 𝟘 → p PE.≡ 𝟘 → Prodrec-assumptions σ σ′
         r≢𝟘-p≡𝟘-lemma r≢𝟘 PE.refl =
           case r≢𝟘-lemma r≢𝟘 of λ
-            (t₁ , t₂ , v₂ , t[σ]⇒*t₁,t₂ , t₂®v₂ , hyp , _) →
+            (t₁ , t₂ , v₂ , t[σ]⇛t₁,t₂ , t₂®v₂ , hyp , _) →
           case hyp PE.refl of λ
             t[σ′]⇒*v₂ →
-          case inversion-prod-Σ $
-               syntacticRedTerm t[σ]⇒*t₁,t₂ .proj₂ .proj₂ of λ
+          case inversion-prod-Σ $ wf-⇛ t[σ]⇛t₁,t₂ .proj₂ of λ
             (_ , ⊢t₂ , _) →
           case PE.singleton str of λ where
             (T.non-strict , PE.refl) → record
@@ -902,8 +897,8 @@ opaque
               ; v₁            = loop str
               ; v₂            = erase str t T.[ σ′ ]
               ; t₁®v₁         = ®∷◂𝟘 (·-zeroʳ _)
-              ; t₂®v₂         = ®∷→®∷◂ (®∷-⇐* (id ⊢t₂) t[σ′]⇒*v₂ t₂®v₂)
-              ; t[σ]⇒*t₁,t₂   = t[σ]⇒*t₁,t₂
+              ; t₂®v₂         = ®∷→®∷◂ (®∷-⇐* (⇒*→⇛ (id ⊢t₂)) t[σ′]⇒*v₂ t₂®v₂)
+              ; t[σ]⇛t₁,t₂    = t[σ]⇛t₁,t₂
               ; ⇒*u[σ′,v₁,v₂] =
                   erase str (prodrec r 𝟘 q′ C t u) T.[ σ′ ]      ≡⟨ PE.cong T._[ _ ] $ prodrec-≢𝟘-𝟘 q′ C r≢𝟘 ⟩⇒
 
@@ -929,7 +924,7 @@ opaque
               ; v₂            = v₂′
               ; t₁®v₁         = ®∷◂𝟘 (·-zeroʳ _)
               ; t₂®v₂         = ®∷→®∷◂ (®∷-⇒* v₂⇒*v₂′ t₂®v₂)
-              ; t[σ]⇒*t₁,t₂   = t[σ]⇒*t₁,t₂
+              ; t[σ]⇛t₁,t₂    = t[σ]⇛t₁,t₂
               ; ⇒*u[σ′,v₁,v₂] =
                   erase str (prodrec r 𝟘 q′ C t u) T.[ σ′ ]            ≡⟨ PE.cong T._[ _ ] $ prodrec-≢𝟘-𝟘 q′ C r≢𝟘 ⟩⇒
 
@@ -961,7 +956,7 @@ opaque
       private opaque
 
         -- The Prodrec-assumptions hold for σ and σ′ when both r and p
-        -- are non-zero: in this case t [ σ ] reduces to a pair
+        -- are non-zero: in this case t [ σ ] "reduces" to a pair
         -- prodʷ p t₁ t₂ such that t₁ is related to v₁ and t₂ is
         -- related to v₂, where
         -- erase str t T.[ σ′ ] T.⇒* T.prod v₁ v₂.
@@ -969,7 +964,7 @@ opaque
         r≢𝟘-p≢𝟘-lemma : r PE.≢ 𝟘 → p PE.≢ 𝟘 → Prodrec-assumptions σ σ′
         r≢𝟘-p≢𝟘-lemma r≢𝟘 p≢𝟘 =
           case r≢𝟘-lemma r≢𝟘 of λ
-            (t₁ , t₂ , v₂ , t[σ]⇒*t₁,t₂ , t₂®v₂ , _ , hyp) →
+            (t₁ , t₂ , v₂ , t[σ]⇛t₁,t₂ , t₂®v₂ , _ , hyp) →
           case hyp p≢𝟘 of λ
             (v₁ , t[σ′]⇒*v₁,v₂ , t₁®v₁) → record
               { t₁            = t₁
@@ -978,7 +973,7 @@ opaque
               ; v₂            = v₂
               ; t₁®v₁         = ®∷→®∷◂ t₁®v₁
               ; t₂®v₂         = ®∷→®∷◂ t₂®v₂
-              ; t[σ]⇒*t₁,t₂   = t[σ]⇒*t₁,t₂
+              ; t[σ]⇛t₁,t₂    = t[σ]⇛t₁,t₂
               ; ⇒*u[σ′,v₁,v₂] =
                   erase str (prodrec r p q′ C t u) T.[ σ′ ]             ≡⟨ PE.cong T._[ _ ] $ prodrec-≢𝟘-≢𝟘 q′ C r≢𝟘 p≢𝟘 ⟩⇒
 
@@ -1036,26 +1031,24 @@ opaque
           R.⊩≡→ $
           ⊩ᵛ≡→⊩ˢ≡∷→⊩≡∷→⊩[⇑][]₀≡[⇑][]₀ (refl-⊩ᵛ≡ ⊩C)
             (refl-⊩ˢ≡∷ ⊩σ)
-            (reducible-⊩≡∷ (subset*Term t[σ]⇒*t₁,t₂) .proj₂)
+            (reducible-⊩≡∷ (⇛→⊢≡ t[σ]⇛t₁,t₂) .proj₂)
 
       opaque
 
-        ⇒*u[σ,t₁,t₂] :
-          Δ ⊢ prodrec r p q′ C t u [ σ ] ⇒*
+        ⇛u[σ,t₁,t₂] :
+          prodrec r p q′ C t u [ σ ] ⇛
             u [ consSubst (consSubst σ t₁) t₂ ] ∷
             C [ σ ⇑ ] [ t [ σ ] ]₀
-        ⇒*u[σ,t₁,t₂] =
-          prodrec r p q′ C t u [ σ ] ∷ C [ σ ⇑ ] [ t [ σ ] ]₀  ⇒*⟨ prodrec-subst* ⊢C[σ⇑] t[σ]⇒*t₁,t₂ ⊢u[σ⇑⇑] ⟩∷
-                                                                 ⟨ ≅-eq $ escape-⊩≡ C[σ⇑][t[σ]]≡C[σ⇑][t₁,t₂] ⟩⇒
+        ⇛u[σ,t₁,t₂] =
+          prodrec r p q′ C t u [ σ ] ∷ C [ σ ⇑ ] [ t [ σ ] ]₀  ⇛⟨ prodrec-⇛ ⊢C[σ⇑] t[σ]⇛t₁,t₂ ⊢u[σ⇑⇑] ⟩∷
+                                                                ⟨ ≅-eq $ escape-⊩≡ C[σ⇑][t[σ]]≡C[σ⇑][t₁,t₂] ⟩⇛
           prodrec r p q′ (C [ σ ⇑ ]) (prodʷ p t₁ t₂)
             (u [ σ ⇑ ⇑ ]) ∷
-            C [ σ ⇑ ] [ prodʷ p t₁ t₂ ]₀                       ⇒⟨ prodrec-β-⇒ ⊢C[σ⇑] ⊢t₁ ⊢t₂ ⊢u[σ⇑⇑] ⟩∎∷≡
+            C [ σ ⇑ ] [ prodʷ p t₁ t₂ ]₀                       ⇒⟨ prodrec-β-⇒ ⊢C[σ⇑] ⊢t₁ ⊢t₂ ⊢u[σ⇑⇑] ⟩∎⇛∷≡
 
           u [ σ ⇑ ⇑ ] [ t₁ , t₂ ]₁₀                            ≡⟨ doubleSubstComp u _ _ _ ⟩
 
           u [ consSubst (consSubst σ t₁) t₂ ]                  ∎
-          where
-          open RR
 
       opaque
 

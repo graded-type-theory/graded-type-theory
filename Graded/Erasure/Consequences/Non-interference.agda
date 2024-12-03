@@ -46,9 +46,10 @@ private
 
   as : Assumptions
   as = record
-    { ⊢Δ  = well-formed
-    ; inc = Fundamental-assumptions.inc FA
-    ; str = str
+    { ⊢Δ                    = well-formed
+    ; inc                   = Fundamental-assumptions.inc FA
+    ; str                   = str
+    ; is-reduction-relation = ⇒*-is-reduction-relation
     }
 
 open import Graded.Erasure.LogicalRelation as

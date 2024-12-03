@@ -64,7 +64,7 @@ import Tools.PropositionalEquality as PE
 
 private
   variable
-     l n : Nat
+     k l n : Nat
      Γ Δ : Con Term n
      t u A B : Term n
      γ δ : Conₘ n
@@ -75,11 +75,19 @@ private
 -- A lemma.
 
 module _
-  (⊢Δ : ⊢ Δ) ⦃ inc : Neutrals-included or-empty Δ ⦄ {s : Strictness}
+  (⊢Δ : ⊢ Δ)
+  ⦃ inc : Neutrals-included or-empty Δ ⦄
+  {s : Strictness}
+  {_⇛_∷_}
+  ⦃ is-reduction-relation : Is-reduction-relation Δ _⇛_∷_ ⦄
   where
 
   open Graded.Erasure.LogicalRelation.Hidden
-         (record { ⊢Δ = ⊢Δ; str = s })
+         (record
+            { ⊢Δ                    = ⊢Δ
+            ; str                   = s
+            ; is-reduction-relation = is-reduction-relation
+            })
 
   opaque
 
@@ -115,6 +123,8 @@ module _
 module Fundamental
   (FA : Fundamental-assumptions Δ)
   {s : Strictness}
+  {_⇛_∷_}
+  ⦃ is-reduction-relation : Is-reduction-relation Δ _⇛_∷_ ⦄
   where
 
   open Fundamental-assumptions FA
@@ -122,7 +132,12 @@ module Fundamental
   private
 
     as : Assumptions
-    as = record { ⊢Δ = well-formed; inc = inc; str = s }
+    as = record
+      { ⊢Δ                    = well-formed
+      ; inc                   = inc
+      ; str                   = s
+      ; is-reduction-relation = is-reduction-relation
+      }
 
   open Graded.Erasure.LogicalRelation.Fundamental.Empty UR as consistent
   open Graded.Erasure.LogicalRelation.Fundamental.Identity as

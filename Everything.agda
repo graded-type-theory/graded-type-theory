@@ -411,6 +411,7 @@ import Graded.Erasure.Extraction.Non-terminating
 
 -- The logical relation for erasure.
 import Graded.Erasure.LogicalRelation.Assumptions
+import Graded.Erasure.LogicalRelation.Assumptions.Reasoning
 import Graded.Erasure.LogicalRelation
 import Graded.Erasure.LogicalRelation.Conversion
 import Graded.Erasure.LogicalRelation.Irrelevance

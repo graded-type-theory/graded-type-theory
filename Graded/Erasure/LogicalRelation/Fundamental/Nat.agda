@@ -81,7 +81,7 @@ opaque
   zeroʳ =
     ▸⊩ʳ∷⇔ .proj₂ λ _ _ →
     ®∷→®∷◂ $ ®∷ℕ⇔ .proj₂ $
-    zeroᵣ (id (zeroⱼ ⊢Δ)) T.refl
+    zeroᵣ (⇒*→⇛ (id (zeroⱼ ⊢Δ))) T.refl
 
 opaque
 
@@ -112,11 +112,11 @@ opaque
     ®∷→®∷◂ $ ®∷ℕ⇔ .proj₂ $
     case PE.singleton str of λ where
       (T.non-strict , PE.refl) →
-        sucᵣ suc-t[σ]⇒*suc-t[σ] T.refl _ t[σ]®t[σ′]
+        sucᵣ (⇒*→⇛ suc-t[σ]⇒*suc-t[σ]) T.refl _ t[σ]®t[σ′]
       (T.strict , PE.refl) →
         case reduces-to-numeral PE.refl t[σ]®t[σ′] of λ
           (v′ , v′-num , erase-t[σ′]⇒*v′) →
-        sucᵣ suc-t[σ]⇒*suc-t[σ]
+        sucᵣ (⇒*→⇛ suc-t[σ]⇒*suc-t[σ])
           (T.lam (T.suc (T.var x0)) T.∘⟨ T.strict ⟩
            erase T.strict t T.[ σ′ ]                    ⇒*⟨ TP.app-subst*-arg T.lam erase-t[σ′]⇒*v′ ⟩
 
@@ -135,8 +135,8 @@ private opaque
   -- If t ® t′ ∷ℕ holds, then t is well-typed.
 
   ®∷ℕ→⊢∷ℕ : t ® t′ ∷ℕ → Δ ⊢ t ∷ ℕ
-  ®∷ℕ→⊢∷ℕ (zeroᵣ t⇒* _)    = syntacticRedTerm t⇒* .proj₂ .proj₁
-  ®∷ℕ→⊢∷ℕ (sucᵣ t⇒* _ _ _) = syntacticRedTerm t⇒* .proj₂ .proj₁
+  ®∷ℕ→⊢∷ℕ (zeroᵣ t⇒* _)    = wf-⇛ t⇒* .proj₁
+  ®∷ℕ→⊢∷ℕ (sucᵣ t⇒* _ _ _) = wf-⇛ t⇒* .proj₁
 
 opaque
 
@@ -144,7 +144,7 @@ opaque
 
   natrecʳ′ :
     (∀ {v₁ v₂} →
-     Δ ⊢ v₁ ⇒* v₂ ∷ ℕ →
+     v₁ ⇛ v₂ ∷ ℕ →
      Δ ⊩⟨ l ⟩ A [ v₂ ]₀ ≡ A [ v₁ ]₀) →
     Δ ∙ ℕ ⊢ A →
     Δ ⊢ t ∷ A [ zero ]₀ →
@@ -160,27 +160,27 @@ opaque
   natrecʳ′
     {A} {t} {u} {t′} {u′} {v} {v′} {p} {q} {r}
     A≡A ⊢A ⊢t ⊢u t®t′ u®u′ = λ where
-      (zeroᵣ v⇒zero v′⇒zero) →                                         $⟨ t®t′ ⟩
-        t ® t′ ∷ A [ zero ]₀                                           →⟨ ®∷-⇐* (redMany (natrec-zero ⊢t ⊢u))
+      (zeroᵣ v⇛zero v′⇒zero) →                                         $⟨ t®t′ ⟩
+        t ® t′ ∷ A [ zero ]₀                                           →⟨ ®∷-⇐* (⇒*→⇛ (redMany (natrec-zero ⊢t ⊢u)))
                                                                             (T.trans T.natrec-zero T.refl) ⟩
-        natrec p q r A t u zero ® T.natrec t′ u′ T.zero ∷ A [ zero ]₀  →⟨ conv-®∷ $ A≡A v⇒zero ⟩
-        natrec p q r A t u zero ® T.natrec t′ u′ T.zero ∷ A [ v ]₀     →⟨ ®∷-⇐* (natrec-subst* ⊢t ⊢u v⇒zero)
+        natrec p q r A t u zero ® T.natrec t′ u′ T.zero ∷ A [ zero ]₀  →⟨ conv-®∷ $ A≡A v⇛zero ⟩
+        natrec p q r A t u zero ® T.natrec t′ u′ T.zero ∷ A [ v ]₀     →⟨ ®∷-⇐* (natrec-⇛ ⊢t ⊢u v⇛zero)
                                                                             (TP.natrec-subst* v′⇒zero) ⟩
         natrec p q r A t u v ® T.natrec t′ u′ v′ ∷ A [ v ]₀            □
 
-      (sucᵣ {t′ = w} {v′ = w′} v⇒suc-w v′⇒suc-w′ _ w®w′) →        $⟨ natrecʳ′ A≡A ⊢A ⊢t ⊢u t®t′ u®u′ w®w′ ⟩
+      (sucᵣ {t′ = w} {v′ = w′} v⇛suc-w v′⇒suc-w′ _ w®w′) →        $⟨ natrecʳ′ A≡A ⊢A ⊢t ⊢u t®t′ u®u′ w®w′ ⟩
 
         natrec p q r A t u w ® T.natrec t′ u′ w′ ∷ A [ w ]₀       →⟨ u®u′ w®w′ $
                                                                      natrecⱼ ⊢t ⊢u (®∷ℕ→⊢∷ℕ w®w′) ⟩
         u [ w , natrec p q r A t u w ]₁₀ ®
           u′ T.[ w′ , T.natrec t′ u′ w′ ]₁₀ ∷ A [ suc w ]₀        →⟨ ®∷-⇐*
-                                                                       (redMany $ natrec-suc ⊢t ⊢u $
-                                                                        inversion-suc (syntacticRedTerm v⇒suc-w .proj₂ .proj₂) .proj₁)
+                                                                       (⇒*→⇛ $ redMany $ natrec-suc ⊢t ⊢u $
+                                                                        inversion-suc (wf-⇛ v⇛suc-w .proj₂) .proj₁)
                                                                        (T.trans T.natrec-suc T.refl) ⟩
         natrec p q r A t u (suc w) ® T.natrec t′ u′ (T.suc w′) ∷
-          A [ suc w ]₀                                            →⟨ conv-®∷ $ A≡A v⇒suc-w ⟩
+          A [ suc w ]₀                                            →⟨ conv-®∷ $ A≡A v⇛suc-w ⟩
         natrec p q r A t u (suc w) ® T.natrec t′ u′ (T.suc w′) ∷
-          A [ v ]₀                                                →⟨ ®∷-⇐* (natrec-subst* ⊢t ⊢u v⇒suc-w)
+          A [ v ]₀                                                →⟨ ®∷-⇐* (natrec-⇛ ⊢t ⊢u v⇛suc-w)
                                                                        (TP.natrec-subst* v′⇒suc-w′) ⟩
         natrec p q r A t u v ® T.natrec t′ u′ v′ ∷ A [ v ]₀       □
 
@@ -274,7 +274,7 @@ opaque
     v [ σ ] ® erase str v T.[ σ′ ] ∷ℕ                              →⟨ natrecʳ′
                                                                         (R.⊩≡→ ∘→
                                                                          ⊩ᵛ≡→⊩ˢ≡∷→⊩≡∷→⊩[⇑][]₀≡[⇑][]₀ (refl-⊩ᵛ≡ ⊩A) (refl-⊩ˢ≡∷ ⊩σ) ∘→
-                                                                         R.sym-⊩≡∷ ∘→ proj₂ ∘→ reducible-⊩≡∷ ∘→ subset*Term)
+                                                                         R.sym-⊩≡∷ ∘→ proj₂ ∘→ reducible-⊩≡∷ ∘→ ⇛→⊢≡)
                                                                         (subst-⊢-⇑ ⊢A ⊢σ)
                                                                         (PE.subst (_⊢_∷_ _ _) (singleSubstLift A _) $
                                                                          R.escape-⊩∷ $ ⊩ᵛ∷→⊩ˢ∷→⊩[]∷ (fundamental-⊩ᵛ∷ ⊢t .proj₂) ⊩σ)
