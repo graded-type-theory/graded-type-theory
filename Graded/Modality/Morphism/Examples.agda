@@ -245,7 +245,7 @@ erasure⇨zero-one-many {v₁ = v₁@record{}} {v₂} {𝟙≤𝟘 = 𝟙≤𝟘
   tr′  = erasure→zero-one-many
   tr⁻¹ = zero-one-many→erasure
 
-  tr-≡-𝟘 : ∀ p → tr′ p ≡ 𝟘 → p ≡ 𝟘
+  tr-≡-𝟘 : ∀ p → tr′ {𝟙≤𝟘 = 𝟙≤𝟘} p ≡ 𝟘 → p ≡ 𝟘
   tr-≡-𝟘 𝟘 _ = refl
 
   tr-≤-𝟙 : ∀ p → tr′ p 𝟘𝟙ω.≤ 𝟙 → p E.≤ ω
