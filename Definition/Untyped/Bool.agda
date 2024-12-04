@@ -3,9 +3,9 @@
 ------------------------------------------------------------------------
 
 -- Typing rules for the term formers defined in this module can be
--- found in Definition.Typed.Consequences.DerivedRules.Bool.OK and
--- Definition.Typed.Consequences.DerivedRules.Bool, and usage rules
--- can be found in Graded.Derived.Bool.
+-- found in Definition.Typed.Properties.Admissible.Bool.OK and
+-- Definition.Typed.Properties.Admissible.Bool, and usage rules can be
+-- found in Graded.Derived.Bool.
 
 import Graded.Modality
 import Graded.Modality.Dedicated-nr
@@ -140,10 +140,10 @@ opaque
 
 opaque
 
-  -- A grade that is used in the implementation of boolrec.
+  -- A function that is used in the implementation of boolrec.
 
-  boolrecᵍ-nc₃ : M
-  boolrecᵍ-nc₃ = ⌜ ⌞ boolrecᵍ-Π ⌟ ⌝ · Boolᵍ
+  boolrecᵍ-nc₃ : M → M
+  boolrecᵍ-nc₃ p = ⌜ ⌞ boolrecᵍ-Π ⌟ ⌝ · Boolᵍ + p · ω
 
 opaque
 
@@ -313,29 +313,29 @@ opaque
 
   OK : Term n → Term n
   OK t =
-    natcase OKᵍ 𝟘 (U 0) (Unitʷ 0)
-      (natcase 𝟘 𝟘 (U 0) (Unitʷ 0) Empty (var x0)) t
+    natcase OKᵍ 𝟘 (U zeroᵘ) (Unitʷ zeroᵘ)
+      (natcase 𝟘 𝟘 (U zeroᵘ) (Unitʷ zeroᵘ) Empty (var x0)) t
 
 opaque
 
   -- A type of booleans.
 
   Bool : Term n
-  Bool = Σʷ 𝟙 , Boolᵍ ▷ ℕ ▹ OK (var x0)
+  Bool = Σʷ ω , Boolᵍ ▷ ℕ ▹ OK (var x0)
 
 opaque
 
   -- The constructor true.
 
   true : Term n
-  true = prodʷ 𝟙 (suc zero) (starʷ 0)
+  true = prodʷ ω (suc zero) (starʷ zeroᵘ)
 
 opaque
 
   -- The constructor false.
 
   false : Term n
-  false = prodʷ 𝟙 zero (starʷ 0)
+  false = prodʷ ω zero (starʷ zeroᵘ)
 
 opaque
 
@@ -343,7 +343,7 @@ opaque
 
   Target :
     ∀ k → Term (1+ n) → Term (k N.+ n) → Term (k N.+ n) → Term (k N.+ n)
-  Target k A t u = A [ k ][ prodʷ 𝟙 t u ]↑
+  Target k A t u = A [ k ][ prodʷ ω t u ]↑
 
 opaque
 
@@ -351,17 +351,17 @@ opaque
 
   boolrec : M → Term (1+ n) → Term n → Term n → Term n → Term n
   boolrec p A t u v =
-    prodrec boolrecᵍ-pr 𝟙 p A v
-      (natcase boolrecᵍ-nc₂ (boolrecᵍ-nc₃ + p)
+    prodrec boolrecᵍ-pr ω p A v
+      (natcase boolrecᵍ-nc₂ (boolrecᵍ-nc₃ p)
          (Π boolrecᵍ-Π , p ▷ OK (var x0) ▹ Target 4 A (var x1) (var x0))
          (lam boolrecᵍ-Π $
-          unitrec 0 boolrecᵍ-Π p (Target 4 A zero (var x0))
+          unitrec boolrecᵍ-Π p zeroᵘ (Target 4 A zero (var x0))
             (var x0) (wk[ 3 ]′ u))
-         (natcase boolrecᵍ-nc₁ (boolrecᵍ-nc₃ + p)
+         (natcase boolrecᵍ-nc₁ (boolrecᵍ-nc₃ p)
             (Π boolrecᵍ-Π , p ▷ OK (suc (var x0)) ▹
              Target 5 A (suc (var x1)) (var x0))
             (lam boolrecᵍ-Π $
-             unitrec 0 boolrecᵍ-Π p
+             unitrec boolrecᵍ-Π p zeroᵘ
                (Target 5 A (suc zero) (var x0)) (var x0) (wk[ 4 ]′ t))
             (lam boolrecᵍ-Π $
              emptyrec-sink (Target 5 A (suc (suc (var x1))) (var x0))
@@ -378,7 +378,7 @@ opaque
 
   -- An unfolding lemma for Target.
 
-  Target≡ : Target k A t u ≡ A [ k ][ prodʷ 𝟙 t u ]↑
+  Target≡ : Target k A t u ≡ A [ k ][ prodʷ ω t u ]↑
   Target≡ = refl
 
 ------------------------------------------------------------------------
@@ -401,9 +401,9 @@ opaque
 
   Bool-[] : Bool [ σ ] ≡ Bool
   Bool-[] {σ} =
-    (Σʷ 𝟙 , Boolᵍ ▷ ℕ ▹ OK (var x0)) [ σ ]    ≡⟨⟩
-    Σʷ 𝟙 , Boolᵍ ▷ ℕ ▹ (OK (var x0) [ σ ⇑ ])  ≡⟨ cong (Σ⟨_⟩_,_▷_▹_ _ _ _ _) OK-[] ⟩
-    Σʷ 𝟙 , Boolᵍ ▷ ℕ ▹ OK (var x0)            ∎
+    (Σʷ ω , Boolᵍ ▷ ℕ ▹ OK (var x0)) [ σ ]    ≡⟨⟩
+    Σʷ ω , Boolᵍ ▷ ℕ ▹ (OK (var x0) [ σ ⇑ ])  ≡⟨ cong (Σ⟨_⟩_,_▷_▹_ _ _ _ _) OK-[] ⟩
+    Σʷ ω , Boolᵍ ▷ ℕ ▹ OK (var x0)            ∎
 
 opaque
   unfolding true
@@ -505,17 +505,17 @@ opaque
     boolrec p A t u v [ σ ] ≡
     boolrec p (A [ σ ⇑ ]) (t [ σ ]) (u [ σ ]) (v [ σ ])
   boolrec-[] {p} {A} {t} {u} {v} {σ} =
-    prodrec boolrecᵍ-pr 𝟙 p A v
-      (natcase boolrecᵍ-nc₂ (boolrecᵍ-nc₃ + p)
+    prodrec boolrecᵍ-pr ω p A v
+      (natcase boolrecᵍ-nc₂ (boolrecᵍ-nc₃ p)
          (Π boolrecᵍ-Π , p ▷ OK (var x0) ▹ Target 4 A (var x1) (var x0))
          (lam boolrecᵍ-Π $
-          unitrec 0 boolrecᵍ-Π p (Target 4 A zero (var x0))
+          unitrec boolrecᵍ-Π p zeroᵘ (Target 4 A zero (var x0))
             (var x0) (wk[ 3 ]′ u))
-         (natcase boolrecᵍ-nc₁ (boolrecᵍ-nc₃ + p)
+         (natcase boolrecᵍ-nc₁ (boolrecᵍ-nc₃ p)
             (Π boolrecᵍ-Π , p ▷ OK (suc (var x0)) ▹
              Target 5 A (suc (var x1)) (var x0))
             (lam boolrecᵍ-Π $
-             unitrec 0 boolrecᵍ-Π p
+             unitrec boolrecᵍ-Π p zeroᵘ
                (Target 5 A (suc zero) (var x0)) (var x0) (wk[ 4 ]′ t))
             (lam boolrecᵍ-Π $
              emptyrec-sink (Target 5 A (suc (suc (var x1))) (var x0))
@@ -536,19 +536,19 @@ opaque
                                                                                   (cong (lam _) emptyrec-sink-[])
                                                                                   refl)
                                                                                refl ⟩
-    prodrec boolrecᵍ-pr 𝟙 p (A [ σ ⇑ ]) (v [ σ ])
-      (natcase boolrecᵍ-nc₂ (boolrecᵍ-nc₃ + p)
+    prodrec boolrecᵍ-pr ω p (A [ σ ⇑ ]) (v [ σ ])
+      (natcase boolrecᵍ-nc₂ (boolrecᵍ-nc₃ p)
          (Π boolrecᵍ-Π , p ▷ OK (var x0) ▹
           (Target 4 A (var x1) (var x0) [ σ ⇑[ 4 ] ]))
          (lam boolrecᵍ-Π $
-          unitrec 0 boolrecᵍ-Π p
+          unitrec boolrecᵍ-Π p zeroᵘ
             (Target 4 A zero (var x0) [ σ ⇑[ 4 ] ]) (var x0)
             (wk[ 3 ]′ u [ σ ⇑[ 3 ] ]))
-         (natcase boolrecᵍ-nc₁ (boolrecᵍ-nc₃ + p)
+         (natcase boolrecᵍ-nc₁ (boolrecᵍ-nc₃ p)
             (Π boolrecᵍ-Π , p ▷ OK (suc (var x0)) ▹
              (Target 5 A (suc (var x1)) (var x0) [ σ ⇑[ 5 ] ]))
             (lam boolrecᵍ-Π $
-             unitrec 0 boolrecᵍ-Π p
+             unitrec boolrecᵍ-Π p zeroᵘ
                (Target 5 A (suc zero) (var x0) [ σ ⇑[ 5 ] ]) (var x0)
                (wk[ 4 ]′ t [ σ ⇑[ 4 ] ]))
             (lam boolrecᵍ-Π $
@@ -573,19 +573,19 @@ opaque
                                                                                    cong₂ emptyrec-sink Target-[⇑] refl)
                                                                                   refl)
                                                                                refl ⟩
-    prodrec boolrecᵍ-pr 𝟙 p (A [ σ ⇑ ]) (v [ σ ])
-      (natcase boolrecᵍ-nc₂ (boolrecᵍ-nc₃ + p)
+    prodrec boolrecᵍ-pr ω p (A [ σ ⇑ ]) (v [ σ ])
+      (natcase boolrecᵍ-nc₂ (boolrecᵍ-nc₃ p)
          (Π boolrecᵍ-Π , p ▷ OK (var x0) ▹
           Target 4 (A [ σ ⇑ ]) (var x1) (var x0))
          (lam boolrecᵍ-Π $
-          unitrec 0 boolrecᵍ-Π p
+          unitrec boolrecᵍ-Π p zeroᵘ
             (Target 4 (A [ σ ⇑ ]) zero (var x0)) (var x0)
             (wk[ 3 ]′ (u [ σ ])))
-         (natcase boolrecᵍ-nc₁ (boolrecᵍ-nc₃ + p)
+         (natcase boolrecᵍ-nc₁ (boolrecᵍ-nc₃ p)
             (Π boolrecᵍ-Π , p ▷ OK (suc (var x0)) ▹
              Target 5 (A [ σ ⇑ ]) (suc (var x1)) (var x0))
             (lam boolrecᵍ-Π $
-             unitrec 0 boolrecᵍ-Π p
+             unitrec boolrecᵍ-Π p zeroᵘ
                (Target 5 (A [ σ ⇑ ]) (suc zero) (var x0)) (var x0)
                (wk[ 4 ]′ (t [ σ ])))
             (lam boolrecᵍ-Π $
@@ -664,11 +664,11 @@ opaque
 
   Target-wk[]′ :
     Target k A (wk[ k ]′ t) (wk[ k ]′ u) ≡
-    wk[ k ]′ (A [ prodʷ 𝟙 t u ]₀)
+    wk[ k ]′ (A [ prodʷ ω t u ]₀)
   Target-wk[]′ {k} {A} {t} {u} =
-    A [ k ][ prodʷ 𝟙 (wk[ k ]′ t) (wk[ k ]′ u) ]↑  ≡⟨⟩
-    A [ k ][ wk[ k ]′ (prodʷ 𝟙 t u) ]↑             ≡⟨ [][wk[]′]↑ A ⟩
-    wk[ k ]′ (A [ prodʷ 𝟙 t u ]₀)                  ∎
+    A [ k ][ prodʷ ω (wk[ k ]′ t) (wk[ k ]′ u) ]↑  ≡⟨⟩
+    A [ k ][ wk[ k ]′ (prodʷ ω t u) ]↑             ≡⟨ [][wk[]′]↑ A ⟩
+    wk[ k ]′ (A [ prodʷ ω t u ]₀)                  ∎
 
 opaque
 

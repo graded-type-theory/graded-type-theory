@@ -16,12 +16,10 @@ open import Definition.Conversion.Consequences.Completeness R
 open import Definition.Untyped M
 open import Definition.Typed R
 open import Definition.Typed.Consequences.InverseUniv R
-open import Definition.Typed.Consequences.Inversion R
-open import Definition.Typed.Consequences.Reduction R
-open import Definition.Typed.Consequences.Stability R
-open import Definition.Typed.Consequences.Syntactic R
+open import Definition.Typed.Inversion R
 open import Definition.Typed.Properties R
-open import Definition.Typed.RedSteps R
+open import Definition.Typed.Stability R
+open import Definition.Typed.Syntactic R
 
 open import Tools.Function
 open import Tools.Sum using (_⊎_; inj₁; inj₂)
@@ -65,9 +63,9 @@ opaque
   inverseUnivEq′ (inj₂ ⊢A) (refl _) =
     refl ⊢A
   inverseUnivEq′ (inj₁ ⊢A) (sym B≡A) =
-    sym (inverseUnivEq′ (inj₂ ⊢A) B≡A)
+    sym′ (inverseUnivEq′ (inj₂ ⊢A) B≡A)
   inverseUnivEq′ (inj₂ ⊢B) (sym B≡A) =
-    sym (inverseUnivEq′ (inj₁ ⊢B) B≡A)
+    sym′ (inverseUnivEq′ (inj₁ ⊢B) B≡A)
   inverseUnivEq′ (inj₁ ⊢A) (trans A≡C C≡B) =
     case inverseUnivEq′ (inj₁ ⊢A) A≡C of λ
       A≡C →
@@ -80,21 +78,21 @@ opaque
     case syntacticEqTerm C≡B of λ
       (_ , ⊢C , _) →
     trans (inverseUnivEq′ (inj₂ ⊢C) A≡C) C≡B
-  inverseUnivEq′ (inj₁ ⊢ΠΣ) (ΠΣ-cong ⊢A₁ A₁≡A₂ B₁≡B₂ ok) =
+  inverseUnivEq′ (inj₁ ⊢ΠΣ) (ΠΣ-cong A₁≡A₂ B₁≡B₂ ok) =
     case inversion-ΠΣ-U ⊢ΠΣ of λ
       (_ , _ , ⊢A₁∷U , ⊢B₁∷U , U≡U , _) →
     conv
-      (ΠΣ-cong ⊢A₁ (inverseUnivEq′ (inj₁ ⊢A₁∷U) A₁≡A₂)
+      (ΠΣ-cong (inverseUnivEq′ (inj₁ ⊢A₁∷U) A₁≡A₂)
          (inverseUnivEq′ (inj₁ ⊢B₁∷U) B₁≡B₂) ok)
       (sym U≡U)
-  inverseUnivEq′ (inj₂ ⊢ΠΣ) (ΠΣ-cong ⊢A₁ A₁≡A₂ B₁≡B₂ ok) =
+  inverseUnivEq′ (inj₂ ⊢ΠΣ) (ΠΣ-cong A₁≡A₂ B₁≡B₂ ok) =
     case inversion-ΠΣ-U ⊢ΠΣ of λ
       (_ , _ , ⊢A₂∷U , ⊢B₂∷U , U≡U , _) →
     conv
-      (ΠΣ-cong ⊢A₁ (inverseUnivEq′ (inj₂ ⊢A₂∷U) A₁≡A₂)
+      (ΠΣ-cong (inverseUnivEq′ (inj₂ ⊢A₂∷U) A₁≡A₂)
          (inverseUnivEq′
             (inj₂ $
-             stabilityTerm (reflConEq (wf ⊢A₁) ∙ sym A₁≡A₂) ⊢B₂∷U)
+             stabilityTerm (reflConEq (wfEq A₁≡A₂) ∙ sym A₁≡A₂) ⊢B₂∷U)
             B₁≡B₂)
          ok)
       (sym U≡U)

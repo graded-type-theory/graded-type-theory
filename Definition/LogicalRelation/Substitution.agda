@@ -22,7 +22,7 @@ open import Definition.LogicalRelation.Properties R
 
 open import Definition.Typed R
 open import Definition.Typed.Properties R
-open import Definition.Typed.Weakening R as TW using (_∷_⊇_)
+open import Definition.Typed.Weakening R as TW using (_∷_⊇_; _∷ʷ_⊇_)
 
 open import Definition.Untyped M
 open import Definition.Untyped.Neutral M
@@ -330,7 +330,21 @@ opaque
 
 opaque
 
+<<<<<<< HEAD
   -- A substitution lemma for _⊩ᵛ_ and _⊩⟨_⟩_.
+=======
+  -- A substitution lemma for _⊩ᵛ⟨_⟩_≡_ and _⊩⟨_⟩_≡_.
+
+  ⊩ᵛ≡→⊩ˢ≡∷→⊩[]≡[] :
+    Γ ⊩ᵛ⟨ l ⟩ A ≡ B →
+    Δ ⊩ˢ σ₁ ≡ σ₂ ∷ Γ →
+    Δ ⊩⟨ l ⟩ A [ σ₁ ] ≡ B [ σ₂ ]
+  ⊩ᵛ≡→⊩ˢ≡∷→⊩[]≡[] A≡B = ⊩ᵛ≡⇔ .proj₁ A≡B .proj₂
+
+opaque
+
+  -- A substitution lemma for _⊩ᵛ⟨_⟩_ and _⊩⟨_⟩_.
+>>>>>>> master
 
   ⊩ᵛ→⊩ˢ∷→⊩[] :
     Γ ⊩ᵛ A →
@@ -341,7 +355,21 @@ opaque
 
 opaque
 
+<<<<<<< HEAD
   -- A substitution lemma for _⊩ᵛ_∷_ and _⊩⟨_⟩_∷_.
+=======
+  -- A substitution lemma for _⊩ᵛ⟨_⟩_≡_∷_ and _⊩⟨_⟩_≡_∷_.
+
+  ⊩ᵛ≡∷→⊩ˢ≡∷→⊩[]≡[]∷ :
+    Γ ⊩ᵛ⟨ l ⟩ t ≡ u ∷ A →
+    Δ ⊩ˢ σ₁ ≡ σ₂ ∷ Γ →
+    Δ ⊩⟨ l ⟩ t [ σ₁ ] ≡ u [ σ₂ ] ∷ A [ σ₁ ]
+  ⊩ᵛ≡∷→⊩ˢ≡∷→⊩[]≡[]∷ t≡u = ⊩ᵛ≡∷⇔ .proj₁ t≡u .proj₂
+
+opaque
+
+  -- A substitution lemma for _⊩ᵛ⟨_⟩_∷_ and _⊩⟨_⟩_∷_.
+>>>>>>> master
 
   ⊩ᵛ∷→⊩ˢ∷→⊩[]∷ :
     Γ ⊩ᵛ t ∷ A →
@@ -491,10 +519,23 @@ opaque
   -- Changing type levels for _⊩ᵛ_≡_∷_.
 
   level-⊩ᵛ≡∷ :
+<<<<<<< HEAD
     Γ ⊩ᵛ A →
     Γ ⊩ᵛ t ≡ u ∷ A →
     Γ ⊩ᵛ t ≡ u ∷ A
   level-⊩ᵛ≡∷ ⊩A t≡u = t≡u
+=======
+    Γ ⊩ᵛ⟨ l ⟩ A →
+    Γ ⊩ᵛ⟨ l′ ⟩ t ≡ u ∷ A →
+    Γ ⊩ᵛ⟨ l ⟩ t ≡ u ∷ A
+  level-⊩ᵛ≡∷ ⊩A t≡u =
+    ⊩ᵛ≡∷⇔ .proj₂
+      ( ⊩A
+      , λ σ₁≡σ₂ →
+          level-⊩≡∷ (⊩ᵛ→⊩ˢ∷→⊩[] ⊩A $ wf-⊩ˢ≡∷ σ₁≡σ₂ .proj₁) $
+          ⊩ᵛ≡∷→⊩ˢ≡∷→⊩[]≡[]∷ t≡u σ₁≡σ₂
+      )
+>>>>>>> master
 
 opaque
 
@@ -521,14 +562,19 @@ opaque
   trans-⊩ᵛ≡ {A} {B} {C} A≡B B≡C =
     case ⊩ᵛ≡⇔ .proj₁ A≡B of λ
       (⊩Γ , A≡B) →
-    case ⊩ᵛ≡⇔ .proj₁ B≡C of λ
-      (_ , B≡C) →
     ⊩ᵛ≡⇔ .proj₂
       ( ⊩Γ
+<<<<<<< HEAD
       , λ {_ _} {σ₁ = σ₁} {σ₂ = σ₂} σ₁≡σ₂ → _ ,
         trans′-⊩≡
           (A≡B (refl-⊩ˢ≡∷ (wf-⊩ˢ≡∷ σ₁≡σ₂ .proj₁)) .proj₂)
           (B≡C σ₁≡σ₂ .proj₂)
+=======
+      , λ {_ _} {σ₁ = σ₁} {σ₂ = σ₂} σ₁≡σ₂ →
+          A [ σ₁ ]  ≡⟨ A≡B $ refl-⊩ˢ≡∷ (wf-⊩ˢ≡∷ σ₁≡σ₂ .proj₁) ⟩⊩
+          B [ σ₁ ]  ≡⟨ ⊩ᵛ≡→⊩ˢ≡∷→⊩[]≡[] B≡C σ₁≡σ₂ ⟩⊩∎
+          C [ σ₂ ]  ∎
+>>>>>>> master
       )
 
 opaque
@@ -542,14 +588,20 @@ opaque
   trans-⊩ᵛ≡∷ {t} {u} {v} t≡u u≡v =
     case ⊩ᵛ≡∷⇔ .proj₁ u≡v of λ
       (⊩A , u≡v) →
-    case ⊩ᵛ≡∷⇔ .proj₁ $ level-⊩ᵛ≡∷ ⊩A t≡u of λ
-      (_ , t≡u) →
     ⊩ᵛ≡∷⇔ .proj₂
       ( ⊩A
+<<<<<<< HEAD
       , λ {_ _} {σ₁ = σ₁} {σ₂ = σ₂} σ₁≡σ₂ → _ , (
           t [ σ₁ ]  ≡⟨ t≡u (refl-⊩ˢ≡∷ (wf-⊩ˢ≡∷ σ₁≡σ₂ .proj₁)) .proj₂ ⟩⊩∷
           u [ σ₁ ]  ≡⟨ u≡v σ₁≡σ₂ .proj₂ ⟩⊩∷∎
           v [ σ₂ ]  ∎)
+=======
+      , λ {_ _} {σ₁ = σ₁} {σ₂ = σ₂} σ₁≡σ₂ →
+          t [ σ₁ ]  ≡⟨ ⊩ᵛ≡∷→⊩ˢ≡∷→⊩[]≡[]∷ (level-⊩ᵛ≡∷ ⊩A t≡u) $
+                       refl-⊩ˢ≡∷ (wf-⊩ˢ≡∷ σ₁≡σ₂ .proj₁) ⟩⊩∷
+          u [ σ₁ ]  ≡⟨ u≡v σ₁≡σ₂ ⟩⊩∷∎
+          v [ σ₂ ]  ∎
+>>>>>>> master
       )
 
 ------------------------------------------------------------------------
@@ -591,7 +643,7 @@ opaque
       (λ A≡B →
          case wf-⊩ᵛ≡ A≡B of λ
            (⊩A , ⊩B) →
-         ⊩A , ⊩B , λ {_ _ _} → ⊩ᵛ≡⇔ .proj₁ A≡B .proj₂ ∘→ refl-⊩ˢ≡∷)
+         ⊩A , ⊩B , λ {_ _ _} → ⊩ᵛ≡→⊩ˢ≡∷→⊩[]≡[] A≡B ∘→ refl-⊩ˢ≡∷)
     , (λ (⊩A , _ , A≡B) →
          ⊩ᵛ≡⇔ .proj₂
            ( wf-⊩ᵛ ⊩A
@@ -615,7 +667,7 @@ opaque
       (λ A≡B →
          case wf-⊩ᵛ≡ A≡B of λ
            (⊩A , ⊩B) →
-         ⊩A , ⊩B , λ {_ _ _ _} → ⊩ᵛ≡⇔ .proj₁ A≡B .proj₂)
+         ⊩A , ⊩B , λ {_ _ _ _} → ⊩ᵛ≡→⊩ˢ≡∷→⊩[]≡[] A≡B)
     , (λ (⊩A , _ , A≡B) →
          ⊩ᵛ≡⇔ .proj₂ (wf-⊩ᵛ ⊩A , A≡B))
 
@@ -634,7 +686,7 @@ opaque
       (λ t≡u →
          case wf-⊩ᵛ≡∷ t≡u of λ
            (⊩t , ⊩u) →
-         ⊩t , ⊩u , λ {_ _ _} → ⊩ᵛ≡∷⇔ .proj₁ t≡u .proj₂ ∘→ refl-⊩ˢ≡∷)
+         ⊩t , ⊩u , λ {_ _ _} → ⊩ᵛ≡∷→⊩ˢ≡∷→⊩[]≡[]∷ t≡u ∘→ refl-⊩ˢ≡∷)
     , (λ (_ , ⊩u , t≡u) →
          ⊩ᵛ≡∷⇔ .proj₂
            ( wf-⊩ᵛ∷ ⊩u
@@ -659,7 +711,7 @@ opaque
       (λ t≡u →
          case wf-⊩ᵛ≡∷ t≡u of λ
            (⊩t , ⊩u) →
-         ⊩t , ⊩u , λ {_ _ _ _} → ⊩ᵛ≡∷⇔ .proj₁ t≡u .proj₂)
+         ⊩t , ⊩u , λ {_ _ _ _} → ⊩ᵛ≡∷→⊩ˢ≡∷→⊩[]≡[]∷ t≡u)
     , (λ (⊩t , _ , t≡u) →
          ⊩ᵛ≡∷⇔ .proj₂ (wf-⊩ᵛ∷ ⊩t , t≡u))
 
@@ -832,9 +884,15 @@ opaque
       (_ , ⊩B , A≡B) →
     ⊩ᵛ≡∷⇔ .proj₂
       ( ⊩B
+<<<<<<< HEAD
       , λ σ₁≡σ₂ → _ , (
           conv-⊩≡∷ (A≡B (wf-⊩ˢ≡∷ σ₁≡σ₂ .proj₁) .proj₂) $
           ⊩ᵛ≡∷⇔ .proj₁ t≡u .proj₂ σ₁≡σ₂ .proj₂)
+=======
+      , λ σ₁≡σ₂ →
+          conv-⊩≡∷ (A≡B $ wf-⊩ˢ≡∷ σ₁≡σ₂ .proj₁) $
+          ⊩ᵛ≡∷→⊩ˢ≡∷→⊩[]≡[]∷ t≡u σ₁≡σ₂
+>>>>>>> master
       )
 
 opaque
@@ -885,11 +943,17 @@ opaque
       , λ {_ _} {σ₁ = σ₁} {σ₂ = σ₂} σ₁≡σ₂ →
           case wf-⊩ˢ≡∷ σ₁≡σ₂ of λ
             (⊩σ₁ , _) →
+<<<<<<< HEAD
           case ⊩ᵛ∷→⊩ˢ∷→⊩[]∷ ⊩u ⊩σ₁ .proj₂ of λ
             ⊩u[σ₁] → _ , (
           t [ σ₁ ]  ≡⟨ ⊩∷-⇐* (t⇒u ⊩σ₁ ⇨ id (escape-⊩∷ ⊩u[σ₁])) ⊩u[σ₁] ⟩⊩∷
           u [ σ₁ ]  ≡⟨ u≡u σ₁≡σ₂ .proj₂ ⟩⊩∷∎
           u [ σ₂ ]  ∎)
+=======
+          t [ σ₁ ]  ≡⟨ ⊩∷-⇐* (redMany (t⇒u ⊩σ₁)) (⊩ᵛ∷→⊩ˢ∷→⊩[]∷ ⊩u ⊩σ₁) ⟩⊩∷
+          u [ σ₁ ]  ≡⟨ u≡u σ₁≡σ₂ ⟩⊩∷∎
+          u [ σ₂ ]  ∎
+>>>>>>> master
       )
 
 ------------------------------------------------------------------------
@@ -922,21 +986,20 @@ opaque
   -- A lemma related to _•ₛ_.
 
   ⊩ˢ≡∷-•ₛ :
-    ⊢ Η →
-    ρ ∷ Η ⊇ Δ →
+    ρ ∷ʷ Η ⊇ Δ →
     Δ ⊩ˢ σ₁ ≡ σ₂ ∷ Γ →
     Η ⊩ˢ ρ •ₛ σ₁ ≡ ρ •ₛ σ₂ ∷ Γ
-  ⊩ˢ≡∷-•ₛ {Γ = ε} ⊢Η _ _ =
-    ⊩ˢ≡∷ε⇔ .proj₂ ⊢Η
-  ⊩ˢ≡∷-•ₛ {Γ = _ ∙ A} ⊢Η ρ⊇ σ₁≡σ₂ =
+  ⊩ˢ≡∷-•ₛ {Γ = ε} ρ⊇ _ =
+    ⊩ˢ≡∷ε⇔ .proj₂ (TW.wf-∷ʷ⊇ ρ⊇)
+  ⊩ˢ≡∷-•ₛ {Γ = _ ∙ A} ρ⊇ σ₁≡σ₂ =
     case ⊩ˢ≡∷∙⇔ .proj₁ σ₁≡σ₂ of λ
       ((_ , ⊩A , σ₁₀≡σ₂₀) , σ₁₊≡σ₂₊) →
     ⊩ˢ≡∷∙⇔ .proj₂
       ( ( _ , ⊩A
         , PE.subst (_⊩⟨_⟩_≡_∷_ _ _ _ _) (wk-subst A)
-            (wk-⊩≡∷ ρ⊇ ⊢Η σ₁₀≡σ₂₀)
+            (wk-⊩≡∷ ρ⊇ σ₁₀≡σ₂₀)
         )
-      , ⊩ˢ≡∷-•ₛ ⊢Η ρ⊇ σ₁₊≡σ₂₊
+      , ⊩ˢ≡∷-•ₛ ρ⊇ σ₁₊≡σ₂₊
       )
 
 opaque
@@ -944,12 +1007,11 @@ opaque
   -- A lemma related to _•ₛ_.
 
   ⊩ˢ∷-•ₛ :
-    ⊢ Η →
-    ρ ∷ Η ⊇ Δ →
+    ρ ∷ʷ Η ⊇ Δ →
     Δ ⊩ˢ σ ∷ Γ →
     Η ⊩ˢ ρ •ₛ σ ∷ Γ
-  ⊩ˢ∷-•ₛ ⊢Η ρ⊇ =
-    ⊩ˢ∷⇔⊩ˢ≡∷ .proj₂ ∘→ ⊩ˢ≡∷-•ₛ ⊢Η ρ⊇ ∘→ ⊩ˢ∷⇔⊩ˢ≡∷ .proj₁
+  ⊩ˢ∷-•ₛ ρ⊇ =
+    ⊩ˢ∷⇔⊩ˢ≡∷ .proj₂ ∘→ ⊩ˢ≡∷-•ₛ ρ⊇ ∘→ ⊩ˢ∷⇔⊩ˢ≡∷ .proj₁
 
 opaque
 
@@ -991,7 +1053,7 @@ opaque
     Δ ⊢ A →
     Δ ⊩ˢ σ₁ ≡ σ₂ ∷ Γ →
     Δ ∙ A ⊩ˢ wk1Subst σ₁ ≡ wk1Subst σ₂ ∷ Γ
-  ⊩ˢ≡∷-wk1Subst ⊢A = ⊩ˢ≡∷-•ₛ (⊢→⊢∙ ⊢A) (TW.step TW.id)
+  ⊩ˢ≡∷-wk1Subst ⊢A = ⊩ˢ≡∷-•ₛ (TW.stepʷ TW.id ⊢A)
 
 opaque
 
@@ -1017,14 +1079,19 @@ opaque
       ⊢A[σ₁] →
     case ⊩ˢ≡∷-wk1Subst ⊢A[σ₁] σ₁≡σ₂ of λ
       σ₁⇑₊≡σ₂⇑₊ →
-    case var (⊢→⊢∙ ⊢A[σ₁])
+    case var (∙ ⊢A[σ₁])
            (PE.subst₂ (_∷_∈_ _) (PE.sym $ wk1Subst-wk1 A) PE.refl
               here) of λ
       ⊢0 →
     ⊩ˢ≡∷∙⇔ .proj₂
       ( ( _ , ⊩A
+<<<<<<< HEAD
         , neutral-⊩≡∷ (⊩ᵛ→⊩ˢ∷→⊩[] ⊩A (wf-⊩ˢ≡∷ σ₁⇑₊≡σ₂⇑₊ .proj₁) .proj₂)
             (var _) (var _) ⊢0 ⊢0 (~-var ⊢0)
+=======
+        , neutral-⊩≡∷ (⊩ᵛ→⊩ˢ∷→⊩[] ⊩A $ wf-⊩ˢ≡∷ σ₁⇑₊≡σ₂⇑₊ .proj₁)
+            (var _) (var _) (~-var ⊢0)
+>>>>>>> master
         )
       , σ₁⇑₊≡σ₂⇑₊
       )
@@ -1176,7 +1243,11 @@ opaque
 
   escape-⊩ᵛ′ : ⊩ᵛ Γ → ⊢ Γ
   escape-⊩ᵛ′ {Γ = ε}     = λ _ → ε
+<<<<<<< HEAD
   escape-⊩ᵛ′ {Γ = _ ∙ _} = ⊢→⊢∙ ∘→ escape-⊩ᵛ ∘→ ⊩ᵛ∙⇔ .proj₁
+=======
+  escape-⊩ᵛ′ {Γ = _ ∙ _} = ∙_ ∘→ escape-⊩ᵛ ∘→ proj₂ ∘→ ⊩ᵛ∙⇔ .proj₁
+>>>>>>> master
 
 opaque
 
@@ -1343,8 +1414,13 @@ opaque
       , λ {_ _} {σ₁ = σ₁} {σ₂ = σ₂} σ₁≡σ₂ → _ , (
           wk ρ t [ σ₁ ] ∷ wk ρ A [ σ₁ ]  ≡⟨ subst-wk t ⟩⊩∷∷≡
                                           ⟨ subst-wk A ⟩⊩∷≡
+<<<<<<< HEAD
           t [ σ₁ ₛ• ρ ] ∷ A [ σ₁ ₛ• ρ ]  ≡⟨ ⊩ᵛ≡∷⇔ .proj₁ t≡u .proj₂ (
                                             ⊩ˢ≡∷-ₛ• ρ⊇ (wf-⊩ᵛ ⊩A) σ₁≡σ₂) .proj₂ ⟩⊩∷∎∷≡
+=======
+          t [ σ₁ ₛ• ρ ] ∷ A [ σ₁ ₛ• ρ ]  ≡⟨ ⊩ᵛ≡∷→⊩ˢ≡∷→⊩[]≡[]∷ t≡u $
+                                            ⊩ˢ≡∷-ₛ• ρ⊇ (wf-⊩ᵛ ⊩A) σ₁≡σ₂ ⟩⊩∷∎∷≡
+>>>>>>> master
           u [ σ₂ ₛ• ρ ]                  ≡˘⟨ subst-wk u ⟩
           wk ρ u [ σ₂ ]                  ∎)
       )
@@ -1395,9 +1471,14 @@ opaque
       , λ σ₁≡σ₂ →
           _ , (
           PE.subst₂ (_⊩⟨_⟩_≡_ _ _) (substConsId B) (substConsId C) $
+<<<<<<< HEAD
           proj₂ $
           ⊩ᵛ≡⇔ .proj₁ B≡C .proj₂ $
           ⊩ˢ≡∷∙⇔ .proj₂ ((_ , ⊩A , t≡u σ₁≡σ₂ .proj₂) , σ₁≡σ₂))
+=======
+          ⊩ᵛ≡→⊩ˢ≡∷→⊩[]≡[] B≡C $
+          ⊩ˢ≡∷∙⇔ .proj₂ ((_ , ⊩A , t≡u σ₁≡σ₂) , σ₁≡σ₂)
+>>>>>>> master
       )
 
 opaque
@@ -1464,11 +1545,19 @@ opaque
             ( ⊩B
             , ( _
               , PE.subst (_⊩⟨_⟩_≡_∷_ _ _ _ _) (PE.sym $ substConsId B)
+<<<<<<< HEAD
                   (⊩ᵛ≡∷⇔ .proj₁ u₁≡u₂ .proj₂ σ₁≡σ₂ .proj₂)
               )
             , ⊩ˢ≡∷∙⇔′ .proj₂
                 ( ⊩A
                 , (_ , ⊩ᵛ≡∷⇔ .proj₁ t₁≡t₂ .proj₂ σ₁≡σ₂ .proj₂)
+=======
+                  (⊩ᵛ≡∷→⊩ˢ≡∷→⊩[]≡[]∷ u₁≡u₂ σ₁≡σ₂)
+              )
+            , ⊩ˢ≡∷∙⇔′ .proj₂
+                ( (_ , ⊩A)
+                , (_ , ⊩ᵛ≡∷→⊩ˢ≡∷→⊩[]≡[]∷ t₁≡t₂ σ₁≡σ₂)
+>>>>>>> master
                 , σ₁≡σ₂
                 )
             ))
@@ -1508,18 +1597,30 @@ opaque
       , λ σ₁≡σ₂ → _ , (
           PE.subst₃ (_⊩⟨_⟩_≡_∷_ _ _) (PE.sym $ [,]-[]-fusion t₁)
             (PE.sym $ [,]-[]-fusion t₂) (PE.sym $ [,]-[]-fusion C) $
+<<<<<<< HEAD
           proj₂ $
           ⊩ᵛ≡∷⇔ .proj₁ t₁≡t₂ .proj₂ $
+=======
+          ⊩ᵛ≡∷→⊩ˢ≡∷→⊩[]≡[]∷ t₁≡t₂ $
+>>>>>>> master
           ⊩ˢ≡∷∙⇔′ .proj₂
             ( ⊩B
             , ( _
               , (PE.subst (_⊩⟨_⟩_≡_∷_ _ _ _ _)
                    (PE.sym $ substConsId B) $
+<<<<<<< HEAD
                  ⊩ᵛ≡∷⇔ .proj₁ v₁≡v₂ .proj₂ σ₁≡σ₂ .proj₂)
               )
             , ⊩ˢ≡∷∙⇔′ .proj₂
                 ( wf-∙-⊩ᵛ ⊩B
                 , (_ , ⊩ᵛ≡∷⇔ .proj₁ u₁≡u₂ .proj₂ σ₁≡σ₂ .proj₂)
+=======
+                 ⊩ᵛ≡∷→⊩ˢ≡∷→⊩[]≡[]∷ v₁≡v₂ σ₁≡σ₂)
+              )
+            , ⊩ˢ≡∷∙⇔′ .proj₂
+                ( wf-∙-⊩ᵛ ⊩B
+                , (_ , ⊩ᵛ≡∷→⊩ˢ≡∷→⊩[]≡[]∷ u₁≡u₂ σ₁≡σ₂)
+>>>>>>> master
                 , σ₁≡σ₂
                 )
             ))
@@ -1594,8 +1695,12 @@ opaque
       , λ σ₁≡σ₂ → _ , (
           PE.subst₃ (_⊩⟨_⟩_≡_∷_ _ _) (substComp↑² t _) (substComp↑² u _)
             (substComp↑² D _) $
+<<<<<<< HEAD
           proj₂ $
           ⊩ᵛ≡∷⇔ .proj₁ t≡u .proj₂ $
+=======
+          ⊩ᵛ≡∷→⊩ˢ≡∷→⊩[]≡[]∷ t≡u $
+>>>>>>> master
           ⊩ˢ≡∷∙⇔′ .proj₂
             ( wf-∙-⊩ᵛ ⊩D
             , ( _
@@ -1627,9 +1732,15 @@ opaque
     ∃ λ l → Γ ⊩⟨ l ⟩ B [ t ]₀ ≡ C [ u ]₀
   ⊩ᵛ≡→⊩≡∷→⊩[]₀≡[]₀ B≡C t≡u =
     case wf-∙-⊩ᵛ (wf-⊩ᵛ≡ B≡C .proj₁) of λ
+<<<<<<< HEAD
       ⊩A →
     ⊩ᵛ≡⇔ .proj₁ B≡C .proj₂ $
     ⊩ˢ≡∷-sgSubst ⊩A (level-⊩≡∷ (⊩ᵛ→⊩ ⊩A .proj₂) t≡u)
+=======
+      (_ , ⊩A) →
+    ⊩ᵛ≡→⊩ˢ≡∷→⊩[]≡[] B≡C $
+    ⊩ˢ≡∷-sgSubst ⊩A (level-⊩≡∷ (⊩ᵛ→⊩ ⊩A) t≡u)
+>>>>>>> master
 
 opaque
 
@@ -1652,9 +1763,15 @@ opaque
     ∃ λ l → Γ ⊩⟨ l ⟩ t [ v ]₀ ≡ u [ w ]₀ ∷ B [ v ]₀
   ⊩ᵛ≡∷→⊩≡∷→⊩[]₀≡[]₀∷ t≡u v≡w =
     case wf-∙-⊩ᵛ (wf-⊩ᵛ∷ (wf-⊩ᵛ≡∷ t≡u .proj₁)) of λ
+<<<<<<< HEAD
       ⊩A →
     ⊩ᵛ≡∷⇔ .proj₁ t≡u .proj₂ $
     ⊩ˢ≡∷-sgSubst ⊩A (level-⊩≡∷ (⊩ᵛ→⊩ ⊩A .proj₂) v≡w)
+=======
+      (_ , ⊩A) →
+    ⊩ᵛ≡∷→⊩ˢ≡∷→⊩[]≡[]∷ t≡u $
+    ⊩ˢ≡∷-sgSubst ⊩A (level-⊩≡∷ (⊩ᵛ→⊩ ⊩A) v≡w)
+>>>>>>> master
 
 opaque
 
@@ -1677,7 +1794,7 @@ opaque
     Δ ⊩⟨ l′ ⟩ t₁ ≡ t₂ ∷ A [ σ₁ ] →
     ∃ λ l → Δ ⊩⟨ l ⟩ B₁ [ consSubst σ₁ t₁ ] ≡ B₂ [ consSubst σ₂ t₂ ]
   ⊩ᵛ≡→⊩ˢ≡∷→⊩≡∷→⊩[,]≡[,] B₁≡B₂ σ₁≡σ₂ t₁≡t₂ =
-    ⊩ᵛ≡⇔ .proj₁ B₁≡B₂ .proj₂ $
+    ⊩ᵛ≡→⊩ˢ≡∷→⊩[]≡[] B₁≡B₂ $
     ⊩ˢ≡∷∙⇔′ .proj₂ (wf-∙-⊩ᵛ (wf-⊩ᵛ≡ B₁≡B₂ .proj₁) , (_ , t₁≡t₂) , σ₁≡σ₂)
 
 opaque
@@ -1704,7 +1821,7 @@ opaque
     ∃ λ l → Δ ⊩⟨ l ⟩ t₁ [ consSubst σ₁ u₁ ] ≡ t₂ [ consSubst σ₂ u₂ ] ∷
       B [ consSubst σ₁ u₁ ]
   ⊩ᵛ≡∷→⊩ˢ≡∷→⊩≡∷→⊩[,]≡[,]∷ t₁≡t₂ σ₁≡σ₂ u₁≡u₂ =
-    ⊩ᵛ≡∷⇔ .proj₁ t₁≡t₂ .proj₂ $
+    ⊩ᵛ≡∷→⊩ˢ≡∷→⊩[]≡[]∷ t₁≡t₂ $
     ⊩ˢ≡∷∙⇔′ .proj₂
       (wf-∙-⊩ᵛ (wf-⊩ᵛ∷ $ wf-⊩ᵛ≡∷ t₁≡t₂ .proj₁) , (_ , u₁≡u₂) , σ₁≡σ₂)
 
@@ -1730,8 +1847,13 @@ opaque
     Δ ⊩ˢ σ₁ ≡ σ₂ ∷ Γ →
     ∃ λ l → Δ ∙ A [ σ₁ ] ⊩⟨ l ⟩ B₁ [ σ₁ ⇑ ] ≡ B₂ [ σ₂ ⇑ ]
   ⊩ᵛ≡→⊩ˢ≡∷→⊩[⇑]≡[⇑] B₁≡B₂ σ₁≡σ₂ =
+<<<<<<< HEAD
     ⊩ᵛ≡⇔ .proj₁ B₁≡B₂ .proj₂ $
     ⊩ˢ≡∷-liftSubst (wf-∙-⊩ᵛ (wf-⊩ᵛ≡ B₁≡B₂ .proj₁)) σ₁≡σ₂
+=======
+    ⊩ᵛ≡→⊩ˢ≡∷→⊩[]≡[] B₁≡B₂ $
+    ⊩ˢ≡∷-liftSubst (wf-∙-⊩ᵛ (wf-⊩ᵛ≡ B₁≡B₂ .proj₁) .proj₂) σ₁≡σ₂
+>>>>>>> master
 
 opaque
 
@@ -1753,8 +1875,13 @@ opaque
     Δ ⊩ˢ σ₁ ≡ σ₂ ∷ Γ →
     ∃ λ l → Δ ∙ A [ σ₁ ] ⊩⟨ l ⟩ t₁ [ σ₁ ⇑ ] ≡ t₂ [ σ₂ ⇑ ] ∷ B [ σ₁ ⇑ ]
   ⊩ᵛ≡∷→⊩ˢ≡∷→⊩[⇑]≡[⇑]∷ t₁≡t₂ σ₁≡σ₂ =
+<<<<<<< HEAD
     ⊩ᵛ≡∷⇔ .proj₁ t₁≡t₂ .proj₂ $
     ⊩ˢ≡∷-liftSubst (wf-∙-⊩ᵛ (wf-⊩ᵛ∷ (wf-⊩ᵛ≡∷ t₁≡t₂ .proj₁)))
+=======
+    ⊩ᵛ≡∷→⊩ˢ≡∷→⊩[]≡[]∷ t₁≡t₂ $
+    ⊩ˢ≡∷-liftSubst (wf-∙-⊩ᵛ (wf-⊩ᵛ∷ (wf-⊩ᵛ≡∷ t₁≡t₂ .proj₁)) .proj₂)
+>>>>>>> master
       σ₁≡σ₂
 
 opaque
@@ -1778,9 +1905,15 @@ opaque
     ∃ λ l → Δ ∙ A [ σ₁ ] ∙ B [ σ₁ ⇑ ] ⊩⟨ l ⟩ C₁ [ σ₁ ⇑ ⇑ ] ≡ C₂ [ σ₂ ⇑ ⇑ ]
   ⊩ᵛ≡→⊩ˢ≡∷→⊩[⇑⇑]≡[⇑⇑] C₁≡C₂ σ₁≡σ₂ =
     case wf-∙-⊩ᵛ (wf-⊩ᵛ≡ C₁≡C₂ .proj₁) of λ
+<<<<<<< HEAD
       ⊩B →
     ⊩ᵛ≡⇔ .proj₁ C₁≡C₂ .proj₂ $
     ⊩ˢ≡∷-liftSubst ⊩B $ ⊩ˢ≡∷-liftSubst (wf-∙-⊩ᵛ ⊩B) σ₁≡σ₂
+=======
+      (_ , ⊩B) →
+    ⊩ᵛ≡→⊩ˢ≡∷→⊩[]≡[] C₁≡C₂ $
+    ⊩ˢ≡∷-liftSubst ⊩B $ ⊩ˢ≡∷-liftSubst (wf-∙-⊩ᵛ ⊩B .proj₂) σ₁≡σ₂
+>>>>>>> master
 
 opaque
 
@@ -1804,9 +1937,15 @@ opaque
       C [ σ₁ ⇑ ⇑ ]
   ⊩ᵛ≡∷→⊩ˢ≡∷→⊩[⇑⇑]≡[⇑⇑]∷ t₁≡t₂ σ₁≡σ₂ =
     case wf-∙-⊩ᵛ (wf-⊩ᵛ∷ (wf-⊩ᵛ≡∷ t₁≡t₂ .proj₁)) of λ
+<<<<<<< HEAD
       ⊩B →
     ⊩ᵛ≡∷⇔ .proj₁ t₁≡t₂ .proj₂ $
     ⊩ˢ≡∷-liftSubst ⊩B $ ⊩ˢ≡∷-liftSubst (wf-∙-⊩ᵛ ⊩B) σ₁≡σ₂
+=======
+      (_ , ⊩B) →
+    ⊩ᵛ≡∷→⊩ˢ≡∷→⊩[]≡[]∷ t₁≡t₂ $
+    ⊩ˢ≡∷-liftSubst ⊩B $ ⊩ˢ≡∷-liftSubst (wf-∙-⊩ᵛ ⊩B .proj₂) σ₁≡σ₂
+>>>>>>> master
 
 opaque
 
@@ -1992,8 +2131,13 @@ opaque
     Σ.map idᶠ (PE.subst₃ (_⊩⟨_⟩_≡_∷_ _ _)
       (PE.sym $ doubleSubstComp t₁ _ _ _)
       (PE.sym $ doubleSubstComp t₂ _ _ _)
+<<<<<<< HEAD
       (PE.sym $ doubleSubstComp C _ _ _)) $
     ⊩ᵛ≡∷⇔ .proj₁ t₁≡t₂ .proj₂ $
+=======
+      (PE.sym $ doubleSubstComp C _ _ _) $
+    ⊩ᵛ≡∷→⊩ˢ≡∷→⊩[]≡[]∷ t₁≡t₂ $
+>>>>>>> master
     ⊩ˢ≡∷∙⇔′ .proj₂
       ( ⊩B
       , ( _

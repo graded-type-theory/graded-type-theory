@@ -59,41 +59,41 @@ irrelevanceTermSV
   {l} {l′} {A}
   _ _ t®v (Unitᵥ {s} (Unitₜ A⇒*Unit₁ _) (Unitₜ A⇒*Unit₂ _)) =
   case Unit-injectivity
-         (Unit s l  ≡˘⟨ subset* (red A⇒*Unit₁) ⟩⊢
-          A         ≡⟨ subset* (red A⇒*Unit₂) ⟩⊢∎
+         (Unit s l  ≡˘⟨ subset* A⇒*Unit₁ ⟩⊢
+          A         ≡⟨ subset* A⇒*Unit₂ ⟩⊢∎
           Unit s l′ ∎) of λ {
     (_ , PE.refl) →
   t®v }
 irrelevanceTermSV
   [A] [A]′ t®v
-  (Bᵥ (BΠ p q) (Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext _)
-     (Bᵣ F₁ G₁ D₁ ⊢F₁ ⊢G₁ A≡A₁ [F]₁ [G]₁ G-ext₁ _))
-       with B-PE-injectivity BΠ! BΠ! (whrDet* (red D , ΠΣₙ) (red D₁ , ΠΣₙ))
+  (Bᵥ (BΠ p q) (Bᵣ F G D A≡A [F] [G] G-ext _)
+     (Bᵣ F₁ G₁ D₁ A≡A₁ [F]₁ [G]₁ G-ext₁ _))
+       with B-PE-injectivity BΠ! BΠ! (whrDet* (D , ΠΣₙ) (D₁ , ΠΣₙ))
 ... | PE.refl , PE.refl , _
        with is-𝟘? p
 ... | (yes p≡𝟘) = t®v .proj₁ , λ [a]′ →
-  let [a] = I.irrelevanceTerm ([F]₁ id ⊢Δ) ([F] id ⊢Δ) [a]′
+  let [a] = I.irrelevanceTerm ([F]₁ (idʷ ⊢Δ)) ([F] (idʷ ⊢Δ)) [a]′
       t®v′ = t®v .proj₂ [a]
-      SV′ = goodCasesRefl ([G] id ⊢Δ [a]) ([G]₁ id ⊢Δ [a]′)
-  in  irrelevanceTermSV ([G] id ⊢Δ [a]) ([G]₁ id ⊢Δ [a]′) t®v′ SV′
+      SV′ = goodCasesRefl ([G] (idʷ ⊢Δ) [a]) ([G]₁ (idʷ ⊢Δ) [a]′)
+  in  irrelevanceTermSV ([G] (idʷ ⊢Δ) [a]) ([G]₁ (idʷ ⊢Δ) [a]′) t®v′ SV′
 ... | (no p≢𝟘) = t®v .proj₁ , λ [a]′ a®w′ →
-  let [a] = I.irrelevanceTerm ([F]₁ id ⊢Δ) ([F] id ⊢Δ) [a]′
-      SV = goodCasesRefl ([F]₁ id ⊢Δ) ([F] id ⊢Δ)
-      a®w = irrelevanceTermSV ([F]₁ id ⊢Δ) ([F] id ⊢Δ) a®w′ SV
+  let [a] = I.irrelevanceTerm ([F]₁ (idʷ ⊢Δ)) ([F] (idʷ ⊢Δ)) [a]′
+      SV = goodCasesRefl ([F]₁ (idʷ ⊢Δ)) ([F] (idʷ ⊢Δ))
+      a®w = irrelevanceTermSV ([F]₁ (idʷ ⊢Δ)) ([F] (idʷ ⊢Δ)) a®w′ SV
       t®v′ = t®v .proj₂ [a] a®w
-      SV′ = goodCasesRefl ([G] id ⊢Δ [a]) ([G]₁ id ⊢Δ [a]′)
-  in  irrelevanceTermSV ([G] id ⊢Δ [a]) ([G]₁ id ⊢Δ [a]′) t®v′ SV′
+      SV′ = goodCasesRefl ([G] (idʷ ⊢Δ) [a]) ([G]₁ (idʷ ⊢Δ) [a]′)
+  in  irrelevanceTermSV ([G] (idʷ ⊢Δ) [a]) ([G]₁ (idʷ ⊢Δ) [a]′) t®v′ SV′
 irrelevanceTermSV {v = v}
   [A] [A]′ (t₁ , t₂ , t⇒t′ , [t₁] , v₂ , t₂®v₂ , extra)
-  (Bᵥ (BΣ _ p _) (Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext _)
-     (Bᵣ F₁ G₁ D₁ ⊢F₁ ⊢G₁ A≡A₁ [F]₁ [G]₁ G-ext₁ _))
-  with B-PE-injectivity BΣ! BΣ! (whrDet* (red D , ΠΣₙ) (red D₁ , ΠΣₙ))
+  (Bᵥ (BΣ _ p _) (Bᵣ F G D A≡A [F] [G] G-ext _)
+     (Bᵣ F₁ G₁ D₁ A≡A₁ [F]₁ [G]₁ G-ext₁ _))
+  with B-PE-injectivity BΣ! BΣ! (whrDet* (D , ΠΣₙ) (D₁ , ΠΣₙ))
 ... | PE.refl , PE.refl , _ =
-  let [F]′ = [F] id ⊢Δ
-      [F]₁′ = [F]₁ id ⊢Δ
+  let [F]′ = [F] (idʷ ⊢Δ)
+      [F]₁′ = [F]₁ (idʷ ⊢Δ)
       [t₁]′ = I.irrelevanceTerm [F]′ [F]₁′ [t₁]
-      [Gt₁] = [G] id ⊢Δ [t₁]
-      [Gt₁]₁ = [G]₁ id ⊢Δ [t₁]′
+      [Gt₁] = [G] (idʷ ⊢Δ) [t₁]
+      [Gt₁]₁ = [G]₁ (idʷ ⊢Δ) [t₁]′
       t₂®v₂′ = irrelevanceTermSV [Gt₁] [Gt₁]₁ t₂®v₂
                  (goodCasesRefl [Gt₁] [Gt₁]₁)
   in  t₁ , t₂ , t⇒t′ , [t₁]′ , v₂ , t₂®v₂′
@@ -103,8 +103,7 @@ irrelevanceTermSV {v = v}
                    Σ-®-intro-ω v₁ v⇒p (irrelevanceTermSV [F]′ [F]₁′ t₁®v₁
                                (goodCasesRefl [F]′ [F]₁′)) p≢𝟘
 irrelevanceTermSV _ _ t®v (Idᵥ ⊩A@record{} ⊩B) =
-  case whrDet* (red (_⊩ₗId_.⇒*Id ⊩A) , Idₙ)
-         (red (_⊩ₗId_.⇒*Id ⊩B) , Idₙ) of λ {
+  case whrDet* (_⊩ₗId_.⇒*Id ⊩A , Idₙ) (_⊩ₗId_.⇒*Id ⊩B , Idₙ) of λ {
     PE.refl →
   t®v }
 irrelevanceTermSV _ _ t®v (embᵥ₁ ≤ᵘ-refl A≡B) =

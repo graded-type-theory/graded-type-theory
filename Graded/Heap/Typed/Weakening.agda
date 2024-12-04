@@ -5,25 +5,23 @@
 open import Graded.Modality
 open import Graded.Usage.Restrictions
 open import Definition.Typed.Restrictions
-open import Tools.Bool
 
 module Graded.Heap.Typed.Weakening
   {a} {M : Set a} {𝕄 : Modality M}
   (UR : Usage-restrictions 𝕄)
   (TR : Type-restrictions 𝕄)
-  (ℕ-fullred : Bool)
   where
 
 open Type-restrictions TR
 
 open import Definition.Untyped M
+import Definition.Untyped.Erased 𝕄 as Erased
 open import Definition.Untyped.Properties M
 open import Definition.Typed TR
-import Graded.Derived.Erased.Untyped 𝕄 as Erased
 
 open import Graded.Heap.Untyped type-variant UR
 open import Graded.Heap.Untyped.Properties type-variant UR
-open import Graded.Heap.Typed UR TR ℕ-fullred
+open import Graded.Heap.Typed UR TR
 
 open import Tools.Fin
 open import Tools.Function
@@ -74,12 +72,12 @@ opaque
       ⊢u′ →
     subst (Δ ⨾ H ⊢ᵉ ∘ₑ p u (ρ • ρ′) ⟨ wk ρ t ⟩∷ _ ↝_)
       (cong (B [_]₀) (PE.sym u≡u′)) (∘ₑ ⊢u′ ⊢B)
-  wk-⊢ᵉ ρ (fstₑ ⊢A ⊢B) =
-    fstₑ ⊢A ⊢B
-  wk-⊢ᵉ {ρ} {H} {Δ} {t} [ρ] (sndₑ {A} {B} {p} {q} ⊢A ⊢B) =
+  wk-⊢ᵉ ρ (fstₑ ⊢B) =
+    fstₑ ⊢B
+  wk-⊢ᵉ {ρ} {H} {Δ} {t} [ρ] (sndₑ {A} {B} {p} {q} ⊢B) =
     subst (λ x → Δ ⨾ H ⊢ᵉ wkᵉ ρ (sndₑ p) ⟨ wk ρ t ⟩∷ Σˢ p , q ▷ A ▹ B ↝ B [ x ]₀)
       (PE.sym (wk-[]ₕ [ρ] (fst p t)))
-      (sndₑ ⊢A ⊢B)
+      (sndₑ ⊢B)
   wk-⊢ᵉ {ρ} {H} {H′} {Δ} {t} [ρ] (prodrecₑ {ρ = ρ′} {u} {A} {p} {r} {q} ⊢u ⊢A) =
     case wk-liftₕ 1 [ρ] A of λ
       A≡A′ →
@@ -91,7 +89,7 @@ opaque
       ⊢A′ →
     subst (Δ ⨾ H ⊢ᵉ prodrecₑ r p q A u (ρ • ρ′) ⟨ wk ρ t ⟩∷ _ ↝_)
       (PE.sym (cong₂ _[_]₀ A≡A′ (wk-[]ₕ [ρ] t))) (prodrecₑ ⊢u′ ⊢A′)
-  wk-⊢ᵉ {ρ} {H} {H′} {t} [ρ] (natrecₑ {z} {A} {s} ⊢z ⊢s ⊢A) =
+  wk-⊢ᵉ {ρ} {H} {H′} {t} [ρ] (natrecₑ {z} {A} {s} ⊢z ⊢s) =
     case wk-liftₕ 0 [ρ] z of λ
       z≡z′ →
     case wk-liftₕ 2 [ρ] s of λ
@@ -102,11 +100,9 @@ opaque
       ⊢z′ →
     case subst₂ (λ x y → _ ∙ ℕ ∙ x ⊢ y ∷ x [ suc (var x1) ]↑²) A≡A′ s≡s′ ⊢s of λ
       ⊢s′ →
-    case subst (λ x → _ ∙ ℕ ⊢ x) A≡A′ ⊢A of λ
-      ⊢A′ →
     subst₂ (λ x y → _ ⨾ H ⊢ᵉ _ ⟨ _ ⟩∷ ℕ ↝ x [ y ]₀)
       (PE.sym A≡A′) (PE.sym (wk-[]ₕ [ρ] t))
-      (natrecₑ ⊢z′ ⊢s′ ⊢A′)
+      (natrecₑ ⊢z′ ⊢s′)
   wk-⊢ᵉ {ρ} {H} {H′} {t} [ρ] (unitrecₑ {u} {A} ⊢u ⊢A no-η) =
     case wk-liftₕ 1 [ρ] A of λ
       A≡A′ →
@@ -166,7 +162,6 @@ opaque
       (PE.sym (wk-liftₕ 0 [ρ] (Id (Erased A) ([ t ]) ([ u ])))) ([]-congₑ ok)
     where
     open Erased s
-  wk-⊢ᵉ ρ sucₑ = sucₑ
   wk-⊢ᵉ ρ (conv ⊢e x) =
     conv (wk-⊢ᵉ ρ ⊢e) x
 

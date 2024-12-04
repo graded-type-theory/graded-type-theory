@@ -58,12 +58,11 @@ opaque
       (Idᵣ _)           (rflᵣ _ v⇒*↯)       → _ , T.↯    , v⇒*↯ refl
       (Bᵣ BΠ! record{}) (u⇒*lam , _)        → _ , T.lam  ,
                                               u⇒*lam refl .proj₂
-      (Bᵣ′ BΣ! _ _ _ _ _ _ _ ⊩B _ _)
-        (_ , _ , _ , _ , _ , t₂®v₂ , more) →
+      (Bᵣ′ BΣ! _ _ _ _ _ ⊩B _ _) (_ , _ , _ , _ , _ , t₂®v₂ , more) →
         Σ-®-elim _ more
           (λ u⇒*v₂ _ →
              Σ.map idᶠ (Σ.map idᶠ (red*concat u⇒*v₂)) $
-             helper (⊩B _ _ _) t₂®v₂)
+             helper (⊩B _ _) t₂®v₂)
           (λ _ u⇒*prod _ _ → _ , T.prod , u⇒*prod)
       (emb ≤ᵘ-refl     ⊩A) → helper ⊩A
       (emb (≤ᵘ-step p) ⊩A) → helper (emb p ⊩A)

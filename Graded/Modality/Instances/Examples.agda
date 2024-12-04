@@ -23,6 +23,7 @@ open import Tools.Function
 import Tools.Reasoning.PartialOrder
 
 open import Definition.Typed R
+open import Definition.Typed.Properties R
 open import Definition.Untyped M
 
 private
@@ -30,16 +31,16 @@ private
   -- Some lemmas used below.
 
   ⊢ℕ : ⊢ ε ∙ ℕ
-  ⊢ℕ  = ε ∙ ℕⱼ ε
+  ⊢ℕ  = ∙ ℕⱼ ε
 
   ⊢ℕℕ : ⊢ ε ∙ ℕ ∙ ℕ
-  ⊢ℕℕ = ⊢ℕ ∙ ℕⱼ ⊢ℕ
+  ⊢ℕℕ = ∙ ℕⱼ ⊢ℕ
 
   ⊢ℕℕℕ : ⊢ ε ∙ ℕ ∙ ℕ ∙ ℕ
-  ⊢ℕℕℕ = ⊢ℕℕ ∙ ℕⱼ ⊢ℕℕ
+  ⊢ℕℕℕ = ∙ ℕⱼ ⊢ℕℕ
 
   ⊢ℕℕℕℕ : ⊢ ε ∙ ℕ ∙ ℕ ∙ ℕ ∙ ℕ
-  ⊢ℕℕℕℕ = ⊢ℕℕℕ ∙ ℕⱼ ⊢ℕℕℕ
+  ⊢ℕℕℕℕ = ∙ ℕⱼ ⊢ℕℕℕ
 
 -- A program that takes a natural number and adds it to itself:
 -- λ n. n + n. This program should presumably not be seen as linear,
@@ -60,8 +61,8 @@ double = lam 𝟙 (natrec 𝟘 𝟘 𝟙 ℕ (var x0) (suc (var x0)) (var x0))
 
 ⊢double : ε ⊢ double ∷ Π 𝟙 , 𝟘 ▷ ℕ ▹ ℕ
 ⊢double =
-  flip (lamⱼ (ℕⱼ ε)) Π-𝟙-𝟘 $
-  natrecⱼ (ℕⱼ ⊢ℕℕ) (var ⊢ℕ here)
+  lamⱼ′ Π-𝟙-𝟘 $
+  natrecⱼ (var ⊢ℕ here)
     (sucⱼ (var ⊢ℕℕℕ here))
     (var ⊢ℕ here)
 
@@ -81,8 +82,8 @@ plus = lam 𝟙 $ lam 𝟙 $ natrec 𝟘 𝟘 𝟙 ℕ (var x0) (suc (var x0)) (
 
 ⊢plus : ε ⊢ plus ∷ Π 𝟙 , 𝟘 ▷ ℕ ▹ Π 𝟙 , 𝟘 ▷ ℕ ▹ ℕ
 ⊢plus =
-  flip (lamⱼ (ℕⱼ ε)) Π-𝟙-𝟘 $
-  flip (lamⱼ (ℕⱼ ⊢ℕ)) Π-𝟙-𝟘 $
-  natrecⱼ (ℕⱼ ⊢ℕℕℕ) (var ⊢ℕℕ here)
+  lamⱼ′ Π-𝟙-𝟘 $
+  lamⱼ′ Π-𝟙-𝟘 $
+  natrecⱼ (var ⊢ℕℕ here)
     (sucⱼ (var ⊢ℕℕℕℕ here))
     (var ⊢ℕℕ (there here))

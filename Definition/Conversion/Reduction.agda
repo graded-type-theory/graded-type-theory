@@ -14,7 +14,6 @@ module Definition.Conversion.Reduction
 open import Definition.Untyped M
 open import Definition.Typed R
 open import Definition.Typed.Properties R
-open import Definition.Typed.RedSteps R
 open import Definition.Conversion R
 
 open import Tools.Nat

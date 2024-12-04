@@ -20,12 +20,12 @@ open import Definition.Untyped M
 open import Definition.Untyped.Neutral M type-variant
 open import Definition.Untyped.Normal-form M type-variant
 open import Definition.Typed R
+open import Definition.Typed.Inversion R
 open import Definition.Typed.Properties R
+open import Definition.Typed.Syntactic R
 open import Definition.Typed.EqRelInstance R
 open import Definition.Typed.Consequences.Inequality R
-open import Definition.Typed.Consequences.Inversion R
 open import Definition.Typed.Consequences.Reduction R
-open import Definition.Typed.Consequences.Syntactic R
 
 open import Definition.LogicalRelation R
 open import Definition.LogicalRelation.Fundamental.Reducibility R
@@ -61,28 +61,27 @@ module Main {Γ : Con Term m} (nΓ : NegativeContext Γ)
   neNeg (var ⊢Γ h          ) (var x      ) = lookupNegative ⊢Γ nΓ h
   neNeg (d ∘ⱼ ⊢t           ) (∘ₙ n       ) =
     appNeg (neNeg d n) (refl (syntacticTerm d)) ⊢t
-  neNeg (fstⱼ ⊢A A⊢B d     ) (fstₙ n     ) =
-    fstNeg (neNeg d n) (refl (ΠΣⱼ ⊢A A⊢B (⊢∷ΠΣ→ΠΣ-allowed d)))
-  neNeg (sndⱼ ⊢A A⊢B d     ) (sndₙ n     ) =
-    sndNeg (neNeg d n) (refl (ΠΣⱼ ⊢A A⊢B (⊢∷ΠΣ→ΠΣ-allowed d)))
-      (fstⱼ ⊢A A⊢B d)
-  neNeg (natrecⱼ _ _ _ d   ) (natrecₙ n  ) =
+  neNeg (fstⱼ A⊢B d) (fstₙ n) =
+    fstNeg (neNeg d n) (refl (ΠΣⱼ A⊢B (⊢∷ΠΣ→ΠΣ-allowed d)))
+  neNeg (sndⱼ A⊢B d) (sndₙ n) =
+    sndNeg (neNeg d n) (refl (ΠΣⱼ A⊢B (⊢∷ΠΣ→ΠΣ-allowed d))) (fstⱼ A⊢B d)
+  neNeg (natrecⱼ _ _ d) (natrecₙ n) =
     let ⊢ℕ = refl (ℕⱼ (wfTerm d))
     in  ⊥-elim (¬negℕ (neNeg d n) ⊢ℕ)
-  neNeg (prodrecⱼ ⊢A A⊢B _ d _ ok) (prodrecₙ n) =
-    let ⊢Σ = refl (ΠΣⱼ ⊢A A⊢B ok)
+  neNeg (prodrecⱼ ⊢A d _ ok) (prodrecₙ n) =
+    let ⊢Σ = refl (⊢∙→⊢ (wf ⊢A))
     in  ⊥-elim (¬negΣʷ (neNeg d n) ⊢Σ)
   neNeg (emptyrecⱼ _ d     ) (emptyrecₙ n) =
     ⊥-elim (consistent _ d)
   neNeg (unitrecⱼ _ d _ ok) (unitrecₙ _ n) =
     let ⊢Unit = refl (Unitⱼ (wfTerm d) ok)
     in  ⊥-elim (¬negUnit (neNeg d n) ⊢Unit)
-  neNeg (Jⱼ _ ⊢t _ _ ⊢v ⊢w) (Jₙ w-ne) =
-    ⊥-elim (¬negId (neNeg ⊢w w-ne) (refl (Idⱼ ⊢t ⊢v)))
-  neNeg (Kⱼ ⊢t _ _ ⊢v _) (Kₙ v-ne) =
-    ⊥-elim (¬negId (neNeg ⊢v v-ne) (refl (Idⱼ ⊢t ⊢t)))
-  neNeg ([]-congⱼ ⊢t ⊢u ⊢v _) ([]-congₙ v-ne) =
-    ⊥-elim (¬negId (neNeg ⊢v v-ne) (refl (Idⱼ ⊢t ⊢u)))
+  neNeg (Jⱼ ⊢t _ _ ⊢v ⊢w) (Jₙ w-ne) =
+    ⊥-elim (¬negId (neNeg ⊢w w-ne) (refl (Idⱼ′ ⊢t ⊢v)))
+  neNeg (Kⱼ _ _ ⊢v _) (Kₙ v-ne) =
+    ⊥-elim (¬negId (neNeg ⊢v v-ne) (refl (syntacticTerm ⊢v)))
+  neNeg ([]-congⱼ _ ⊢t ⊢u ⊢v _) ([]-congₙ v-ne) =
+    ⊥-elim (¬negId (neNeg ⊢v v-ne) (refl (Idⱼ′ ⊢t ⊢u)))
   neNeg (conv d c          ) n          = conv (neNeg d n) c
 
   -- Lemma: A normal form of type ℕ is a numeral in a consistent negative context.
@@ -114,10 +113,10 @@ module Main {Γ : Con Term m} (nΓ : NegativeContext Γ)
   nfN (Idⱼ _ _ _) (Idₙ _ _ _) c = ⊥-elim (U≢ℕ c)
 
   -- * Canonical forms
-  nfN (lamⱼ _ _ _)      (lamₙ _)    c = ⊥-elim (ℕ≢Π (sym c))
-  nfN (prodⱼ _ _ _ _ _) (prodₙ _ _) c = ⊥-elim (ℕ≢Σ (sym c))
-  nfN (starⱼ _ _)       starₙ       c = ⊥-elim (ℕ≢Unitⱼ (sym c))
-  nfN (rflⱼ _)          rflₙ        c = ⊥-elim (Id≢ℕ c)
+  nfN (lamⱼ _ _ _)    (lamₙ _)    c = ⊥-elim (ℕ≢Π (sym c))
+  nfN (prodⱼ _ _ _ _) (prodₙ _ _) c = ⊥-elim (ℕ≢Σ (sym c))
+  nfN (starⱼ _ _)     starₙ       c = ⊥-elim (ℕ≢Unitⱼ (sym c))
+  nfN (rflⱼ _)        rflₙ        c = ⊥-elim (Id≢ℕ c)
   -- q.e.d
 
    -- Terms of non-negative types reduce to non-neutrals
@@ -126,7 +125,8 @@ module Main {Γ : Con Term m} (nΓ : NegativeContext Γ)
              → ∃ λ u → Γ ⊢ t ↘ u ∷ A × (Neutral u → ⊥)
   ¬NeutralNf ⊢t ¬negA =
     let u , whnfU , d = whNormTerm ⊢t
-    in  u , (redₜ d , whnfU) , λ x → ¬negA (neNeg (⊢u-redₜ d) x)
+    in  u , (d , whnfU) ,
+        ¬negA ∘→ neNeg (syntacticEqTerm (subset*Term d) .proj₂ .proj₂)
 
   -- Canonicity theorem: Any well-typed term Γ ⊢ t ∷ ℕ
   -- reduces to a numeral under the ⇒ˢ* reduction.
@@ -134,15 +134,15 @@ module Main {Γ : Con Term m} (nΓ : NegativeContext Γ)
   canonicityRed′ : Γ ⊩ℕ t ∷ℕ → ∃ λ v → Numeral v × Γ ⊢ t ⇒ˢ* v ∷ℕ
   canonicityRed′ (ℕₜ _ d n≡n (sucᵣ x)) =
     let v , numV , d′ = canonicityRed′ x
-    in  suc v , sucₙ numV , ⇒ˢ*∷ℕ-trans (whred* (redₜ d)) (sucred* d′)
+    in  suc v , sucₙ numV , ⇒ˢ*∷ℕ-trans (whred* d) (sucred* d′)
   canonicityRed′ (ℕₜ _ d n≡n zeroᵣ) =
-    zero , zeroₙ , whred* (redₜ d)
-  canonicityRed′ (ℕₜ n d n≡n (ne (neNfₜ neK ⊢k k≡k))) =
+    zero , zeroₙ , whred* d
+  canonicityRed′ (ℕₜ n d n≡n (ne (neNfₜ neK k≡k))) =
     let u , d′ , ¬neU =
-          ¬NeutralNf (⊢t-redₜ d)
-            (flip ¬negℕ $ refl (ℕⱼ $ wfTerm $ ⊢t-redₜ d))
+          ¬NeutralNf (redFirst*Term d)
+            (flip ¬negℕ $ refl (ℕⱼ $ wfTerm $ redFirst*Term d))
     in  ⊥-elim $ ¬neU $
-        PE.subst Neutral (whrDet*Term (redₜ d , ne neK) d′) neK
+        PE.subst Neutral (whrDet*Term (d , ne neK) d′) neK
 
   canonicityRed : Γ ⊢ t ∷ ℕ → ∃ λ u → Numeral u × Γ ⊢ t ⇒ˢ* u ∷ℕ
   canonicityRed = canonicityRed′ ∘→ ⊩∷ℕ⇔ .proj₁ ∘→ proj₂ ∘→ reducible-⊩∷

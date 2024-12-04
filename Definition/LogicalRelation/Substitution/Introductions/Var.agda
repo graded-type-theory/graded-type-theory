@@ -48,7 +48,7 @@ opaque
   ⊩var x∈Γ ⊩A =
     case var (wf (escape-⊩ ⊩A)) x∈Γ of λ
       ⊢var →
-    neutral-⊩∷ ⊩A (var _) ⊢var (~-var ⊢var)
+    neutral-⊩∷ ⊩A (var _) (~-var ⊢var)
 
 opaque
 

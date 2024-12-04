@@ -16,23 +16,21 @@ open Type-restrictions R
 open import Definition.Untyped M
 open import Definition.Untyped.Neutral M type-variant
 open import Definition.Typed R
+open import Definition.Typed.Inversion R
 open import Definition.Typed.Properties R
+open import Definition.Typed.Stability R
+open import Definition.Typed.Substitution R
+open import Definition.Typed.Syntactic R
 open import Definition.Typed.Weakening R as W hiding (wk)
 open import Definition.Conversion R
 open import Definition.Conversion.Soundness R
 open import Definition.Conversion.Conversion R
 open import Definition.Conversion.Whnf R
-open import Definition.Typed.Consequences.DerivedRules R
-open import Definition.Typed.Consequences.Syntactic R
+open import Definition.Typed.Consequences.Admissible R
 open import Definition.Typed.Consequences.Equality R
 open import Definition.Typed.Consequences.Reduction R
 open import Definition.Typed.Consequences.Injectivity R
-open import Definition.Typed.Consequences.Inversion R
 open import Definition.Typed.Consequences.NeTypeEq R
-open import Definition.Typed.Consequences.Substitution R
-open import Definition.Typed.Consequences.Stability R
-
-open import Graded.Derived.Erased.Typed R
 
 open import Tools.Function
 open import Tools.Nat
@@ -110,10 +108,8 @@ mutual
                 ⊢Γ , ⊢Δ , ⊢idsubst = contextConvSubst Γ≡Δ
                 ⊢F′ = stability Γ≡Δ ⊢F
                 ⊢G′ = stability (Γ≡Δ ∙ refl ⊢F) ⊢G
-                ⊢ΔF = ⊢Δ ∙ ⊢F′
-                ⊢ΔFG = ⊢ΔF ∙ ⊢G′
-                ⊢ρF = W.wk (step (step id)) ⊢ΔFG ⊢F′
-                ⊢ρG = W.wk (lift (step (step id))) (⊢ΔFG ∙ ⊢ρF) ⊢G′
+                ⊢ρF = W.wk (stepʷ (step id) ⊢G′) ⊢F′
+                ⊢ρG = W.wk (liftʷ (step (step id)) ⊢ρF) ⊢G′
                 C₊≡E₊ = subst↑²TypeEq-prod (stabilityEq (Γ≡Δ ∙ refl ⊢Σ) C≡E)
                           ok
             in  _ , substTypeEq C≡E g≡h
@@ -223,9 +219,9 @@ mutual
     let B , A≡B , k~l′ = sym~↑ Γ≡Δ k~l
         _ , ⊢B = syntacticEq A≡B
         B′ , whnfB′ , D′ = whNorm ⊢B
-        A≡B′ = trans (sym (subset* D)) (trans A≡B (subset* (red D′)))
+        A≡B′ = trans (sym (subset* D)) (trans A≡B (subset* D′))
     in  B′ , whnfB′ , A≡B′ ,
-        [~] B (stabilityRed* Γ≡Δ (red D′) , whnfB′) k~l′
+        [~] B (stabilityRed* Γ≡Δ D′ , whnfB′) k~l′
 
   -- Symmetry of algorithmic equality of types.
   symConv↑ : ∀ {A B} → ⊢ Γ ≡ Δ → Γ ⊢ A [conv↑] B → Δ ⊢ B [conv↑] A
@@ -305,16 +301,17 @@ mutual
     let Δ⊢G = stability (Γ≡Δ ∙ refl (⊢∙→⊢ (wf x₁))) x₁
         Δ⊢t′↑t = symConv↑Term Γ≡Δ x₂
         Δ⊢u′↑u = symConv↑Term Γ≡Δ x₃
-        Gt≡Gt′ = substTypeEq (refl Δ⊢G) (sym (soundnessConv↑Term Δ⊢t′↑t))
+        Gt≡Gt′ = substTypeEq (refl Δ⊢G)
+                   (sym′ (soundnessConv↑Term Δ⊢t′↑t))
     in  prod-cong Δ⊢G Δ⊢t′↑t (convConv↑Term Gt≡Gt′ Δ⊢u′↑u) ok
   symConv↓Term Γ≡Δ (η-eq x₁ x₂ y y₁ t<>u) =
-    let ⊢F , _ = syntacticΠ (syntacticTerm x₁)
+    let ⊢F , _ , _ = inversion-ΠΣ (syntacticTerm x₁)
     in  η-eq (stabilityTerm Γ≡Δ x₂) (stabilityTerm Γ≡Δ x₁)
              y₁ y (symConv↑Term (Γ≡Δ ∙ refl ⊢F) t<>u)
   symConv↓Term Γ≡Δ (Σ-η ⊢p ⊢r pProd rProd fstConv sndConv) =
     let Δ⊢p = stabilityTerm Γ≡Δ ⊢p
         Δ⊢r = stabilityTerm Γ≡Δ ⊢r
-        ⊢G = proj₂ (syntacticΣ (syntacticTerm ⊢p))
+        _ , ⊢G , _ = inversion-ΠΣ (syntacticTerm ⊢p)
         Δfst≡ = symConv↑Term Γ≡Δ fstConv
         Δsnd≡₁ = symConv↑Term Γ≡Δ sndConv
         ΔGfstt≡Gfstu = stabilityEq Γ≡Δ (substTypeEq (refl ⊢G)

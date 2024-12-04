@@ -19,7 +19,7 @@ open Type-restrictions TR
 open Usage-restrictions UR
 
 open import Definition.Typed TR
-open import Definition.Typed.Consequences.Inversion TR
+open import Definition.Typed.Inversion TR
 open import Definition.Untyped M
 open import Definition.Untyped.Neutral M type-variant
 

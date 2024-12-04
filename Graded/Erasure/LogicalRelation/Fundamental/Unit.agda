@@ -38,8 +38,7 @@ open import Definition.Untyped.Properties M
 open import Definition.Typed R
 open import Definition.Typed.Properties R
 import Definition.Typed.Reasoning.Reduction R as RR
-open import Definition.Typed.Consequences.RedSteps R
-open import Definition.Typed.Consequences.Substitution R
+open import Definition.Typed.Substitution R
 
 open import Definition.LogicalRelation R
 open import Definition.LogicalRelation.Fundamental R
@@ -186,7 +185,7 @@ opaque
       ⊢u[σ] →
 
     case ⊩∷Unit⇔ .proj₁ ⊩t[σ] of λ {
-      (_ , ok , Unitₜ _ [ _ , ⊢t′ , t[σ]⇒t′ ] _ rest) →
+      (_ , ok , Unitₜ _ t[σ]⇒t′ _ rest) →
 
     let open RR in
     case Unit-with-η? 𝕨 of λ where
@@ -202,14 +201,14 @@ opaque
 
       (inj₂ (_ , no-η)) → case rest of λ where
         starᵣ →
-          unitrec® _ (⊩∷-⇐* t[σ]⇒t′ (reducible-⊩∷ ⊢t′ .proj₂))
+          unitrec® _ (⊩∷-⇐* t[σ]⇒t′ (⊩star ⊢Δ ok))
             (                                  ∷ A [ t ]₀ [ σ ]            ⟨ singleSubstLift A _ ⟩⇒≡
              unitrec l p q A t         u [ σ ] ∷ A [ σ ⇑ ] [ t [ σ ] ]₀  ⇒*⟨ unitrec-subst* t[σ]⇒t′ ⊢A[σ⇑] ⊢u[σ] no-η ⟩∷
                                                                            ⟨ substTypeEq (refl ⊢A[σ⇑]) (subset*Term t[σ]⇒t′) ⟩⇒
              unitrec l p q A (starʷ l) u [ σ ] ∷ A [ σ ⇑ ] [ starʷ l ]₀  ⇒⟨ unitrec-β ⊢A[σ⇑] ⊢u[σ] ok no-η ⟩∎∷
              u [ σ ]                                                     ∎)
 
-        (ne (neNfₜ t′-ne _ _)) →
+        (ne (neNfₜ t′-ne _)) →
           ⊥-elim $
           case is-𝟘? p of λ where
             (no p≢𝟘) →

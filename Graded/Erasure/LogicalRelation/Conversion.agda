@@ -32,11 +32,9 @@ open import Definition.Untyped.Properties M
 
 open import Definition.Typed R
 open import Definition.Typed.Consequences.Injectivity R
-open import Definition.Typed.Consequences.Substitution R
 open import Definition.Typed.Properties R
 open import Definition.Typed.Reasoning.Type R
-open import Definition.Typed.Reduction R
-open import Definition.Typed.RedSteps R
+open import Definition.Typed.Substitution R
 open import Definition.Typed.Weakening R hiding (wk)
 
 open import Tools.Function
@@ -70,68 +68,70 @@ convTermʳ′
   {A} {B} {l} {l′}
   _ _ A≡B (Unitᵥ {s} (Unitₜ A⇒*Unit _) (Unitₜ B⇒*Unit _)) t®v =
   case Unit-injectivity
-         (Unit s l  ≡˘⟨ subset* (red A⇒*Unit) ⟩⊢
+         (Unit s l  ≡˘⟨ subset* A⇒*Unit ⟩⊢
           A         ≡⟨ A≡B ⟩⊢
-          B         ≡⟨ subset* (red B⇒*Unit) ⟩⊢∎
+          B         ≡⟨ subset* B⇒*Unit ⟩⊢∎
           Unit s l′ ∎) of λ {
     (_ , PE.refl) →
   t®v }
 convTermʳ′
   [A] [B] A≡B
-  (Bᵥ (BΠ p q) (Bᵣ F G [ _ , _ , A⇒Π ] ⊢F ⊢G A≡A [F] [G] G-ext _)
-     (Bᵣ F₁ G₁ [ _ , _ , B⇒Π₁ ] ⊢F₁ ⊢G₁ A≡A₁ [F]₁ [G]₁ G-ext₁ _))
+  (Bᵥ (BΠ p q) (Bᵣ F G A⇒Π A≡A [F] [G] G-ext _)
+     (Bᵣ F₁ G₁ B⇒Π₁ A≡A₁ [F]₁ [G]₁ G-ext₁ _))
   t®v
      with is-𝟘? p
 ... | yes PE.refl = t®v .proj₁ , λ [a]′ →
-  let Π≡Π₁ = reduction′ (A⇒Π , ΠΣₙ) (B⇒Π₁ , ΠΣₙ) A≡B
+  let Π≡Π₁ = reduction′ A⇒Π B⇒Π₁ A≡B
       F≡F₁ , G≡G₁ , _ , _ = injectivity Π≡Π₁
-      [F₁≡F] = ⊩≡→⊩≡/ ([F]₁ _ _) $
+      [F₁≡F] = ⊩≡→⊩≡/ ([F]₁ _) $
                PE.subst₂ (_⊩⟨_⟩_≡_ _ _) (PE.sym $ wk-id _)
                  (PE.sym $ wk-id _) $
                reducible-⊩≡ (sym F≡F₁) .proj₂
-      [a] = convTerm₁ ([F]₁ id ⊢Δ) ([F] id ⊢Δ) [F₁≡F] [a]′
-      G≡G₁′ = wkEq (lift id) (⊢Δ ∙ escape ([F] id ⊢Δ)) G≡G₁
-      G[a]≡G₁[a] = substTypeEq G≡G₁′ (refl (escapeTerm ([F] id ⊢Δ) [a]))
-      [Ga≡G₁a] = ⊩≡→⊩≡/ ([G] _ _ _) (reducible-⊩≡ G[a]≡G₁[a] .proj₂)
+      [a] = convTerm₁ ([F]₁ (idʷ ⊢Δ)) ([F] (idʷ ⊢Δ)) [F₁≡F] [a]′
+      G≡G₁′ = wkEq (liftʷ id (escape ([F] (idʷ ⊢Δ)))) G≡G₁
+      G[a]≡G₁[a] = substTypeEq G≡G₁′
+                     (refl (escapeTerm ([F] (idʷ ⊢Δ)) [a]))
+      [Ga≡G₁a] = ⊩≡→⊩≡/ ([G] _ _) (reducible-⊩≡ G[a]≡G₁[a] .proj₂)
       t®v′ = t®v .proj₂ [a]
-      SV = goodCases ([G] id ⊢Δ [a]) ([G]₁ id ⊢Δ [a]′) [Ga≡G₁a]
-  in  convTermʳ′ ([G] id ⊢Δ [a]) ([G]₁ id ⊢Δ [a]′) G[a]≡G₁[a] SV t®v′
+      SV = goodCases ([G] (idʷ ⊢Δ) [a]) ([G]₁ (idʷ ⊢Δ) [a]′) [Ga≡G₁a]
+  in  convTermʳ′ ([G] (idʷ ⊢Δ) [a]) ([G]₁ (idʷ ⊢Δ) [a]′) G[a]≡G₁[a] SV t®v′
 ... | no p≢𝟘 = t®v .proj₁ , λ [a]′ a®w′ →
-  let Π≡Π₁ = reduction′ (A⇒Π , ΠΣₙ) (B⇒Π₁ , ΠΣₙ) A≡B
+  let Π≡Π₁ = reduction′ A⇒Π B⇒Π₁ A≡B
       F≡F₁ , G≡G₁ , _ , _ = injectivity Π≡Π₁
-      [F₁≡F] = ⊩≡→⊩≡/ ([F]₁ _ _) $
+      [F₁≡F] = ⊩≡→⊩≡/ ([F]₁ _) $
                PE.subst₂ (_⊩⟨_⟩_≡_ _ _) (PE.sym $ wk-id _)
                  (PE.sym $ wk-id _) $
                reducible-⊩≡ (sym F≡F₁) .proj₂
-      [a] = convTerm₁ ([F]₁ id ⊢Δ) ([F] id ⊢Δ) [F₁≡F] [a]′
-      G≡G₁′ = wkEq (lift id) (⊢Δ ∙ escape ([F] id ⊢Δ)) G≡G₁
-      G[a]≡G₁[a] = substTypeEq G≡G₁′ (refl (escapeTerm ([F] id ⊢Δ) [a]))
-      [Ga≡G₁a] = ⊩≡→⊩≡/ ([G] _ _ _) (reducible-⊩≡ G[a]≡G₁[a] .proj₂)
-      SV = goodCases ([F]₁ id ⊢Δ) ([F] id ⊢Δ) [F₁≡F]
+      [a] = convTerm₁ ([F]₁ (idʷ ⊢Δ)) ([F] (idʷ ⊢Δ)) [F₁≡F] [a]′
+      G≡G₁′ = wkEq (liftʷ id (escape ([F] (idʷ ⊢Δ)))) G≡G₁
+      G[a]≡G₁[a] = substTypeEq G≡G₁′
+                     (refl (escapeTerm ([F] (idʷ ⊢Δ)) [a]))
+      [Ga≡G₁a] = ⊩≡→⊩≡/ ([G] _ _) (reducible-⊩≡ G[a]≡G₁[a] .proj₂)
+      SV = goodCases ([F]₁ (idʷ ⊢Δ)) ([F] (idʷ ⊢Δ)) [F₁≡F]
       F₁≡F = PE.subst₂ (Δ ⊢_≡_) (PE.sym (wk-id F₁)) (PE.sym (wk-id F)) (sym F≡F₁)
-      a®w = convTermʳ′ ([F]₁ id ⊢Δ) ([F] id ⊢Δ) F₁≡F SV a®w′
+      a®w = convTermʳ′ ([F]₁ (idʷ ⊢Δ)) ([F] (idʷ ⊢Δ)) F₁≡F SV a®w′
       t®v′ = t®v .proj₂ [a] a®w
-      SV′ = goodCases ([G] id ⊢Δ [a]) ([G]₁ id ⊢Δ [a]′) [Ga≡G₁a]
-  in  convTermʳ′ ([G] id ⊢Δ [a]) ([G]₁ id ⊢Δ [a]′) G[a]≡G₁[a] SV′ t®v′
+      SV′ = goodCases ([G] (idʷ ⊢Δ) [a]) ([G]₁ (idʷ ⊢Δ) [a]′) [Ga≡G₁a]
+  in  convTermʳ′ ([G] (idʷ ⊢Δ) [a]) ([G]₁ (idʷ ⊢Δ) [a]′) G[a]≡G₁[a] SV′ t®v′
 convTermʳ′ {v = v}
   [A] [B] A≡B
-  (Bᵥ (BΣ _ p _) (Bᵣ F G [ _ , _ , A⇒Σ ] ⊢F ⊢G A≡A [F] [G] G-ext _)
-     (Bᵣ F₁ G₁ [ _ , _ , B⇒Σ₁ ] ⊢F₁ ⊢G₁ A≡A₁ [F]₁ [G]₁ G-ext₁ _))
+  (Bᵥ (BΣ _ p _) (Bᵣ F G A⇒Σ A≡A [F] [G] G-ext _)
+     (Bᵣ F₁ G₁ B⇒Σ₁ A≡A₁ [F]₁ [G]₁ G-ext₁ _))
   (t₁ , t₂ , t⇒t′ , [t₁] , v₂ , t₂®v₂ , extra) =
-  let Σ≡Σ₁ = reduction′ (A⇒Σ , ΠΣₙ) (B⇒Σ₁ , ΠΣₙ) A≡B
+  let Σ≡Σ₁ = reduction′ A⇒Σ B⇒Σ₁ A≡B
       F≡F₁ , G≡G₁ , _ = Σ-injectivity Σ≡Σ₁
-      [F]′ = [F] id ⊢Δ
-      [F]₁′ = [F]₁ id ⊢Δ
+      [F]′ = [F] (idʷ ⊢Δ)
+      [F]₁′ = [F]₁ (idʷ ⊢Δ)
       [F≡F₁] = ⊩≡→⊩≡/ [F]′ $
                PE.subst₂ (_⊩⟨_⟩_≡_ _ _) (PE.sym $ wk-id _)
                  (PE.sym $ wk-id _) $
                reducible-⊩≡ F≡F₁ .proj₂
       F≡F₁′ = PE.subst₂ (Δ ⊢_≡_) (PE.sym (wk-id F)) (PE.sym (wk-id F₁)) F≡F₁
       [t₁]′ = convTerm₁ [F]′ [F]₁′ [F≡F₁] [t₁]
-      G≡G₁′ = wkEq (lift id) (⊢Δ ∙ escape [F]′) G≡G₁
+      G≡G₁′ = wkEq (liftʷ id (escape [F]′)) G≡G₁
       G[t₁]≡G₁[t₁] = substTypeEq G≡G₁′ (refl (escapeTerm [F]′ [t₁]))
-      [Gt₁] = [G] id ⊢Δ [t₁]
-      [Gt₁]₁ = [G]₁ id ⊢Δ [t₁]′
+      [Gt₁] = [G] (idʷ ⊢Δ) [t₁]
+      [Gt₁]₁ = [G]₁ (idʷ ⊢Δ) [t₁]′
       [Gt₁≡G₁t₁] = ⊩≡→⊩≡/ [Gt₁] (reducible-⊩≡ G[t₁]≡G₁[t₁] .proj₂)
       t⇒t″ = conv* t⇒t′ Σ≡Σ₁
       SV₂ = goodCases [Gt₁] [Gt₁]₁ [Gt₁≡G₁t₁]
@@ -147,9 +147,9 @@ convTermʳ′ {v = v}
 convTermʳ′ {A} {B} _ _ A≡B (Idᵥ ⊩A ⊩B) (rflᵣ t⇒*rfl ⇒*↯) =
   rflᵣ
     (conv* t⇒*rfl
-       (Id (_⊩ₗId_.Ty ⊩A) (_⊩ₗId_.lhs ⊩A) (_⊩ₗId_.rhs ⊩A)  ≡˘⟨ subset* (red (_⊩ₗId_.⇒*Id ⊩A)) ⟩⊢
+       (Id (_⊩ₗId_.Ty ⊩A) (_⊩ₗId_.lhs ⊩A) (_⊩ₗId_.rhs ⊩A)  ≡˘⟨ subset* (_⊩ₗId_.⇒*Id ⊩A) ⟩⊢
         A                                                  ≡⟨ A≡B ⟩⊢
-        B                                                  ≡⟨ subset* (red (_⊩ₗId_.⇒*Id ⊩B)) ⟩⊢∎
+        B                                                  ≡⟨ subset* (_⊩ₗId_.⇒*Id ⊩B) ⟩⊢∎
         Id (_⊩ₗId_.Ty ⊩B) (_⊩ₗId_.lhs ⊩B) (_⊩ₗId_.rhs ⊩B)  ∎))
     ⇒*↯
 convTermʳ′ _ _ A≡B (embᵥ₁ ≤ᵘ-refl A≡B′) =

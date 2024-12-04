@@ -21,8 +21,7 @@ open import Definition.Untyped.Neutral M type-variant
 open import Definition.Typed R
 import Definition.Typed.Weakening R as T
 open import Definition.Typed.Properties R
-open import Definition.Typed.RedSteps R
-open import Definition.Typed.Reasoning.Reduction.Primitive R
+open import Definition.Typed.Reasoning.Reduction R
 open import Definition.LogicalRelation R
 open import Definition.LogicalRelation.Hidden R
 open import Definition.LogicalRelation.Irrelevance R
@@ -60,14 +59,12 @@ opaque
   ⊩emptyrec≡emptyrec
     {A₁} {A₂} {t₁} {t₂} {σ₁} {σ₂} {p}
     A₁≡A₂ t₁≡t₂ σ₁≡σ₂ =
-    case ⊩ᵛ≡⇔ .proj₁ A₁≡A₂ .proj₂ of λ
+    case ⊩ᵛ≡→⊩ˢ≡∷→⊩[]≡[] A₁≡A₂ of λ
       A₁≡A₂ →
-    case ⊩ᵛ≡∷⇔ .proj₁ t₁≡t₂ .proj₂ of λ
+    case ⊩ᵛ≡∷→⊩ˢ≡∷→⊩[]≡[]∷ t₁≡t₂ of λ
       t₁≡t₂ →
     case ⊩≡∷Empty⇔ .proj₁ (t₁≡t₂ σ₁≡σ₂) of λ
-      (_ , _ ,
-       Emptyₜ₌ t₁′ t₂′ ([ _ , ⊢t₁′ , t₁[σ₁]⇒*t₁′ ])
-         ([ _ , ⊢t₂′ , t₂[σ₂]⇒*t₂′ ]) _ rest)  →
+      (Emptyₜ₌ t₁′ t₂′ t₁[σ₁]⇒*t₁′ t₂[σ₂]⇒*t₂′ _ rest)  →
     case A₁≡A₂ σ₁≡σ₂ of λ
       A₁[σ₁]≡A₂[σ₂] →
     case escape-⊩≡ A₁[σ₁]≡A₂[σ₂] of λ
@@ -83,9 +80,6 @@ opaque
         emptyrec p (A₁ [ σ₁ ]) (t₁ [ σ₁ ]) ∷ A₁ [ σ₁ ] ⇒*⟨ emptyrec-subst* t₁[σ₁]⇒*t₁′ ⊢A₁[σ₁] ⟩⊩∷∷
         emptyrec p (A₁ [ σ₁ ]) t₁′         ∷ A₁ [ σ₁ ] ≡⟨ neutral-⊩≡∷ ⊩A₁[σ₁]
                                                              (emptyrecₙ t₁′-ne) (emptyrecₙ t₂′-ne)
-                                                             (emptyrecⱼ ⊢A₁[σ₁] ⊢t₁′)
-                                                             (conv (emptyrecⱼ ⊢A₂[σ₂] ⊢t₂′)
-                                                                (sym (≅-eq ⊢A₁[σ₁]≡A₂[σ₂])))
                                                              (~-emptyrec ⊢A₁[σ₁]≡A₂[σ₂] t₁′~t₂′) ⟩⊩∷∷⇐*
                                                          ⟨ ≅-eq ⊢A₁[σ₁]≡A₂[σ₂] ⟩⇒
         emptyrec p (A₂ [ σ₂ ]) t₂′         ∷ A₂ [ σ₂ ] ⇐*⟨ emptyrec-subst* t₂[σ₂]⇒*t₂′ ⊢A₂[σ₂] ⟩∎∷

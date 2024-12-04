@@ -20,24 +20,21 @@ open import Definition.Untyped.Neutral M type-variant
 open import Definition.Untyped.Properties M
 open import Definition.Untyped.Properties.Neutral M type-variant
 open import Definition.Typed R
+open import Definition.Typed.Inversion R
 open import Definition.Typed.Properties R
-open import Definition.Typed.RedSteps R
+open import Definition.Typed.Stability R
+open import Definition.Typed.Substitution R
+open import Definition.Typed.Syntactic R
 open import Definition.Conversion R
 open import Definition.Conversion.Inversion R
 open import Definition.Conversion.Soundness R
 open import Definition.Conversion.Stability R
 open import Definition.Conversion.Whnf R
 open import Definition.Conversion.Conversion R
-open import Definition.Typed.Consequences.DerivedRules R
-open import Definition.Typed.Consequences.Syntactic R
+open import Definition.Typed.Consequences.Admissible R
 open import Definition.Typed.Consequences.Injectivity R
 import Definition.Typed.Consequences.Inequality R as WF
-open import Definition.Typed.Consequences.Inversion R
-open import Definition.Typed.Consequences.Substitution R
-open import Definition.Typed.Consequences.Stability R
 open import Definition.Typed.Consequences.NeTypeEq R
-
-open import Graded.Derived.Erased.Typed R
 
 open import Tools.Function
 open import Tools.Nat
@@ -87,7 +84,8 @@ mutual
         A<>C = transConv↑ A<>B B<>C
         a₀<>c₀ = transConv↑Term F[0]≡F₁[0] a₀<>b₀ b₀<>c₀
         aₛ<>cₛ = transConv↑Term F↑̂²≡F₁↑² aₛ<>bₛ
-                                (stabilityConv↑Term ((reflConEq (⊢Γ ∙ (ℕⱼ ⊢Γ))) ∙ sym A≡B) bₛ<>cₛ)
+                   (stabilityConv↑Term (reflConEq (∙ ℕⱼ ⊢Γ) ∙ sym A≡B)
+                      bₛ<>cₛ)
         t~v , _ = trans~↓ t~u u~v
     in  natrec-cong A<>C a₀<>c₀ aₛ<>cₛ t~v
     ,   substTypeEq A≡B (soundness~↓ t~u)

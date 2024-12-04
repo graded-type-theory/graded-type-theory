@@ -50,11 +50,11 @@ open import Definition.Untyped.Neutral M type-variant
 open import Definition.Untyped.Normal-form M type-variant
 
 open import Definition.Typed.EqRelInstance TR
+open import Definition.Typed.Inversion TR
 open import Definition.Typed.Properties TR
+open import Definition.Typed.Syntactic TR
 open import Definition.Typed.Consequences.Inequality TR
-open import Definition.Typed.Consequences.Inversion TR
 open import Definition.Typed.Consequences.Reduction TR
-open import Definition.Typed.Consequences.Syntactic TR
 
 open import Definition.LogicalRelation TR
 open import Definition.LogicalRelation.Fundamental.Reducibility TR
@@ -113,10 +113,10 @@ neNeg {γ = γ}
   NegativeErasedContext Γ δ              →⟨ neNeg ⊢t t-ne δ▸t ⟩
   NegativeType Γ (Π p , q ▷ A ▹ B)       →⟨ (λ hyp → appNeg hyp (refl (syntacticTerm ⊢t)) ⊢u) ⟩
   NegativeType Γ (B [ u ]₀)              □ }
-neNeg (fstⱼ ⊢A A⊢B d) (fstₙ {p = p} n) γ▸u nΓγ =
+neNeg (fstⱼ A⊢B d) (fstₙ {p = p} n) γ▸u nΓγ =
   let invUsageFst m 𝟙ᵐ≡mᵐ·p δ▸t γ≤δ ok = inv-usage-fst γ▸u
   in  fstNeg (neNeg d n (sub δ▸t γ≤δ) nΓγ)
-             (refl (ΠΣⱼ ⊢A A⊢B (⊢∷ΠΣ→ΠΣ-allowed d)))
+             (refl (ΠΣⱼ A⊢B (⊢∷ΠΣ→ΠΣ-allowed d)))
              (𝟘≢p m 𝟙ᵐ≡mᵐ·p (ok PE.refl))
   where
   𝟘≢p :
@@ -126,13 +126,12 @@ neNeg (fstⱼ ⊢A A⊢B d) (fstₙ {p = p} n) γ▸u nΓγ =
     𝟘 ≢ p
   𝟘≢p 𝟘ᵐ ()
   𝟘≢p 𝟙ᵐ _  𝟘≤𝟙 PE.refl = 𝟘≰𝟙 𝟘≤𝟙
-neNeg (sndⱼ ⊢A A⊢B d) (sndₙ n) γ▸u nΓγ =
+neNeg (sndⱼ A⊢B d) (sndₙ n) γ▸u nΓγ =
   let invUsageSnd δ▸t γ≤δ = inv-usage-snd γ▸u
   in  sndNeg (neNeg d n (sub δ▸t γ≤δ) nΓγ)
-             (refl (ΠΣⱼ ⊢A A⊢B (⊢∷ΠΣ→ΠΣ-allowed d)))
-             (fstⱼ ⊢A A⊢B d)
-neNeg {γ = γ}
-  (natrecⱼ {A = A} {n = n} _ _ _ ⊢n) (natrecₙ n-ne) γ▸natrec =
+             (refl (ΠΣⱼ A⊢B (⊢∷ΠΣ→ΠΣ-allowed d)))
+             (fstⱼ A⊢B d)
+neNeg {γ} (natrecⱼ {A} {n} _ _ ⊢n) (natrecₙ n-ne) γ▸natrec =
   case inv-usage-natrec γ▸natrec of λ {
     (invUsageNatrec {δ = δ} {θ = θ} {χ = χ} _ _ θ▸n _ γ≤χ extra) →
   NegativeErasedContext Γ γ            →⟨ NegativeErasedContext-upwards-closed γ≤χ ⟩
@@ -150,8 +149,7 @@ neNeg {γ = γ}
   NegativeType Γ (A [ n ]₀)            □ }
 neNeg
   {γ = γ}
-  (prodrecⱼ {F = B} {G = C} {p = p} {q′ = q} {A = A} {t = t} {r = r}
-     ⊢B ⊢C _ ⊢t _ ok₁)
+  (prodrecⱼ {p} {q′ = q} {F = B} {G = C} {A} {t} {r} _ ⊢t ⊢u ok₁)
   (prodrecₙ t-ne)
   γ▸prodrec =
   case inv-usage-prodrec γ▸prodrec of λ {
@@ -166,7 +164,7 @@ neNeg
                                                   }) ∘→
                                                ·ᶜ-zero-product-⟨⟩ δ) ⟩
   NegativeErasedContext Γ δ              →⟨ neNeg ⊢t t-ne (▸-cong (≢𝟘→⌞⌟≡𝟙ᵐ r≢𝟘) δ▸t) ⟩
-  NegativeType Γ (Σʷ p , q ▷ B ▹ C)      →⟨ flip ¬negΣʷ (refl (ΠΣⱼ ⊢B ⊢C ok₁)) ⟩
+  NegativeType Γ (Σʷ p , q ▷ B ▹ C)      →⟨ flip ¬negΣʷ (refl (ΠΣⱼ (⊢∙→⊢ (wfTerm ⊢u)) ok₁)) ⟩
   ⊥                                      →⟨ ⊥-elim ⟩
   NegativeType Γ (A [ t ]₀)              □ }}
 neNeg (emptyrecⱼ _ d) (emptyrecₙ _) _ _ =
@@ -188,7 +186,7 @@ neNeg
   NegativeType Γ (Unitʷ l)                →⟨ flip ¬negUnit (refl (Unitⱼ (wfTerm d) ok)) ⟩
   ⊥                                       →⟨ ⊥-elim ⟩
   NegativeType Γ (A [ t ]₀)               □ }
-neNeg {γ} (Jⱼ {A} {t} {B} {v} {w} _ ⊢t _ _ ⊢v ⊢w) (Jₙ w-ne) ▸J =
+neNeg {γ} (Jⱼ {t} {A} {B} {v} {w} ⊢t _ _ ⊢v ⊢w) (Jₙ w-ne) ▸J =
   case inv-usage-J ▸J of λ where
     (invUsageJ {γ₂} {γ₃} {γ₄} {γ₅} {γ₆} _ _ _ _ _ _ _ ▸w γ≤) →
       NegativeErasedContext Γ γ                                    →⟨ NegativeErasedContext-upwards-closed γ≤ ⟩
@@ -199,7 +197,7 @@ neNeg {γ} (Jⱼ {A} {t} {B} {v} {w} _ ⊢t _ _ ⊢v ⊢w) (Jₙ w-ne) ▸J =
                                                                       ω·ᶜ+ᶜ≤ω·ᶜʳ ⟩
       NegativeErasedContext Γ (ω ·ᶜ γ₆)                            →⟨ NegativeErasedContext-upwards-closed ω·ᶜ-decreasing ⟩
       NegativeErasedContext Γ γ₆                                   →⟨ neNeg ⊢w w-ne ▸w ⟩
-      NegativeType Γ (Id A t v)                                    →⟨ flip ¬negId (refl (Idⱼ ⊢t ⊢v)) ⟩
+      NegativeType Γ (Id A t v)                                    →⟨ flip ¬negId (refl (Idⱼ′ ⊢t ⊢v)) ⟩
       ⊥                                                            →⟨ ⊥-elim ⟩
       NegativeType Γ (B [ v , w ]₁₀)                               □
     (invUsageJ₀₁ em _ _ _ _ _ _ _ _ _) →
@@ -212,7 +210,7 @@ neNeg {γ} (Jⱼ {A} {t} {B} {v} {w} _ ⊢t _ _ ⊢v ⊢w) (Jₙ w-ne) ▸J =
         PE.trans (PE.sym em)
           (no-erased-matches non-trivial .proj₂ .proj₂ .proj₂ .proj₁)
         of λ ()
-neNeg {γ} (Kⱼ {t} {A} {B} {v} ⊢t _ _ ⊢v ok) (Kₙ v-ne) ▸K =
+neNeg {γ} (Kⱼ {A} {t} {B} {v} _ _ ⊢v ok) (Kₙ v-ne) ▸K =
   case inv-usage-K ▸K of λ where
     (invUsageK {γ₂} {γ₃} {γ₄} {γ₅} _ _ _ _ _ _ ▸v γ≤) →
       NegativeErasedContext Γ γ                              →⟨ NegativeErasedContext-upwards-closed γ≤ ⟩
@@ -222,7 +220,7 @@ neNeg {γ} (Kⱼ {t} {A} {B} {v} ⊢t _ _ ⊢v ok) (Kₙ v-ne) ▸K =
                                                                 ω·ᶜ+ᶜ≤ω·ᶜʳ ⟩
       NegativeErasedContext Γ (ω ·ᶜ γ₅)                      →⟨ NegativeErasedContext-upwards-closed ω·ᶜ-decreasing ⟩
       NegativeErasedContext Γ γ₅                             →⟨ neNeg ⊢v v-ne ▸v ⟩
-      NegativeType Γ (Id A t t)                              →⟨ flip ¬negId (refl (Idⱼ ⊢t ⊢t)) ⟩
+      NegativeType Γ (Id A t t)                              →⟨ flip ¬negId (refl (syntacticTerm ⊢v)) ⟩
       ⊥                                                      →⟨ ⊥-elim ⟩
       NegativeType Γ (B [ v ]₀)                              □
     (invUsageK₀₁ em _ _ _ _ _ _ _) →
@@ -235,7 +233,7 @@ neNeg {γ} (Kⱼ {t} {A} {B} {v} ⊢t _ _ ⊢v ok) (Kₙ v-ne) ▸K =
         PE.trans (PE.sym em)
           (no-erased-matches non-trivial .proj₂ .proj₂ .proj₂ .proj₂)
       of λ ()
-neNeg ([]-congⱼ _ _ _ ok) ([]-congₙ _) _ =
+neNeg ([]-congⱼ _ _ _ _ ok) ([]-congₙ _) _ =
   ⊥-elim (no-erased-matches non-trivial .proj₂ .proj₂ .proj₁ ok)
 neNeg (conv d c) n γ▸u nΓγ =
   conv (neNeg d n γ▸u nΓγ) c
@@ -276,10 +274,10 @@ nfN (Unitⱼ _ _) _ _ Unitₙ       c = ⊥-elim (U≢ℕ c)
 nfN (Idⱼ _ _ _) _ _ (Idₙ _ _ _) c = ⊥-elim (U≢ℕ c)
 
 -- * Canonical forms
-nfN (lamⱼ _ _ _)      _ _ (lamₙ _)    c = ⊥-elim (ℕ≢Π (sym c))
-nfN (prodⱼ _ _ _ _ _) _ _ (prodₙ _ _) c = ⊥-elim (ℕ≢Σ (sym c))
-nfN (starⱼ _ _)       _ _ starₙ       c = ⊥-elim (ℕ≢Unitⱼ (sym c))
-nfN (rflⱼ _)          _ _ rflₙ        c = ⊥-elim (Id≢ℕ c)
+nfN (lamⱼ _ _ _)    _ _ (lamₙ _)    c = ⊥-elim (ℕ≢Π (sym c))
+nfN (prodⱼ _ _ _ _) _ _ (prodₙ _ _) c = ⊥-elim (ℕ≢Σ (sym c))
+nfN (starⱼ _ _)     _ _ starₙ       c = ⊥-elim (ℕ≢Unitⱼ (sym c))
+nfN (rflⱼ _)        _ _ rflₙ        c = ⊥-elim (Id≢ℕ c)
 -- q.e.d
 
 -- The following results are proved under the assumption that, if weak
@@ -301,8 +299,12 @@ module _
     ∃ λ u → Γ ⊢ t ↘ u ∷ A × (Neutral u → ⊥)
   ¬NeutralNf ⊢t γ▸t nΓγ ¬negA =
     let u , whnfU , d = whNormTerm ⊢t
-        γ▸u = usagePres*Term Unitʷ-η→ γ▸t (redₜ d)
-    in  u , (redₜ d , whnfU) , λ x → ¬negA (neNeg (⊢u-redₜ d) x γ▸u nΓγ)
+        γ▸u = usagePres*Term Unitʷ-η→ γ▸t d
+    in  u , (d , whnfU) ,
+        λ x →
+          ¬negA $
+          neNeg (syntacticEqTerm (subset*Term d) .proj₂ .proj₂)
+            x γ▸u nΓγ
 
   -- Canonicity theorem: A term that has the type ℕ in a
   -- negative/erased context, and that is well-resourced (with respect
@@ -313,17 +315,17 @@ module _
     ∃ λ v → Numeral v × Γ ⊢ t ⇒ˢ* v ∷ℕ
   canonicityRed′ γ▸t nΓγ (ℕₜ _ d n≡n (sucᵣ x)) =
     let invUsageSuc δ▸n γ≤δ =
-          inv-usage-suc (usagePres*Term Unitʷ-η→ γ▸t (redₜ d))
+          inv-usage-suc (usagePres*Term Unitʷ-η→ γ▸t d)
         v , numV , d′ = canonicityRed′ (sub δ▸n γ≤δ) nΓγ x
-    in  suc v , sucₙ numV , ⇒ˢ*∷ℕ-trans (whred* (redₜ d)) (sucred* d′)
+    in  suc v , sucₙ numV , ⇒ˢ*∷ℕ-trans (whred* d) (sucred* d′)
   canonicityRed′ _ _ (ℕₜ _ d _ zeroᵣ) =
-    zero , zeroₙ , whred* (redₜ d)
-  canonicityRed′ γ▸t nΓγ (ℕₜ n d n≡n (ne (neNfₜ neK ⊢k k≡k))) =
+    zero , zeroₙ , whred* d
+  canonicityRed′ γ▸t nΓγ (ℕₜ n d n≡n (ne (neNfₜ neK k≡k))) =
     let u , d′ , ¬neU =
-          ¬NeutralNf (⊢t-redₜ d) γ▸t nΓγ
-            (flip ¬negℕ $ refl (ℕⱼ $ wfTerm $ ⊢t-redₜ d))
+          ¬NeutralNf (redFirst*Term d) γ▸t nΓγ
+            (flip ¬negℕ $ refl (ℕⱼ $ wfTerm $ redFirst*Term d))
     in  ⊥-elim $ ¬neU $
-        PE.subst Neutral (whrDet*Term (redₜ d , ne neK) d′) neK
+        PE.subst Neutral (whrDet*Term (d , ne neK) d′) neK
 
   canonicityRed :
     Γ ⊢ t ∷ ℕ → γ ▸[ 𝟙ᵐ ] t → NegativeErasedContext Γ γ →

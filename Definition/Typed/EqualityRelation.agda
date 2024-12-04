@@ -15,16 +15,16 @@ module Definition.Typed.EqualityRelation
 open Type-restrictions R
 
 open import Definition.Untyped M
+import Definition.Untyped.Erased 𝕄 as Erased
 open import Definition.Untyped.Neutral M type-variant
 open import Definition.Typed R hiding (_,_)
-open import Definition.Typed.Weakening R using (_∷_⊇_)
-
-import Graded.Derived.Erased.Untyped 𝕄 as Erased
+open import Definition.Typed.Weakening R using (_∷ʷ_⊇_)
 
 open import Tools.Fin
 open import Tools.Function
 open import Tools.Level hiding (Level; _⊔_)
 open import Tools.Nat
+open import Tools.Product
 open import Tools.Relation
 
 private
@@ -53,6 +53,22 @@ record Equality-relations
   (_⊢_~_∷_ : ∀ {n} → Con Term n → (t u A : Term n) → Set ℓ) :
   Set ℓ where
   no-eta-equality
+
+  -- A variant of _⊢_≅_.
+
+  _⊢≅_ : Con Term n → Term n → Set ℓ
+  Γ ⊢≅ A = Γ ⊢ A ≅ A
+
+  -- A variant of _⊢_≅_∷_.
+
+  _⊢≅_∷_ : Con Term n → Term n → Term n → Set ℓ
+  Γ ⊢≅ t ∷ A = Γ ⊢ t ≅ t ∷ A
+
+  -- A variant of _⊢_~_∷_.
+
+  _⊢~_∷_ : Con Term n → Term n → Term n → Set ℓ
+  Γ ⊢~ t ∷ A = Γ ⊢ t ~ t ∷ A
+
   field
     -- Generic equality compatibility
     ~-to-≅ₜ : Γ ⊢ t ~ u ∷ A
@@ -83,16 +99,13 @@ record Equality-relations
     ~-conv : Γ ⊢ t ~ u ∷ A → Γ ⊢ A ≡ B → Γ ⊢ t ~ u ∷ B
 
     -- Weakening
-    ≅-wk  : ρ ∷ Δ ⊇ Γ
-          → ⊢ Δ
+    ≅-wk  : ρ ∷ʷ Δ ⊇ Γ
           → Γ ⊢ A ≅ B
           → Δ ⊢ wk ρ A ≅ wk ρ B
-    ≅ₜ-wk : ρ ∷ Δ ⊇ Γ
-          → ⊢ Δ
+    ≅ₜ-wk : ρ ∷ʷ Δ ⊇ Γ
           → Γ ⊢ t ≅ u ∷ A
           → Δ ⊢ wk ρ t ≅ wk ρ u ∷ wk ρ A
-    ~-wk  : ρ ∷ Δ ⊇ Γ
-          → ⊢ Δ
+    ~-wk  : ρ ∷ʷ Δ ⊇ Γ
           → Γ ⊢ t ~ u ∷ A
           → Δ ⊢ wk ρ t ~ wk ρ u ∷ wk ρ A
 
@@ -118,20 +131,20 @@ record Equality-relations
     ≅ₜ-sucᵘ-cong : ∀ {m n} → Γ ⊢ m ≅ n ∷ Level → Γ ⊢ sucᵘ m ≅ sucᵘ n ∷ Level
 
     -- Universe type reflexivity
-    ≅-Urefl   : Γ ⊢ l ∷ Level → Γ ⊢ U l ≅ U l ∷ U (sucᵘ l)
+    ≅-Urefl   : Γ ⊢ l ∷ Level → Γ ⊢≅ U l ∷ U (sucᵘ l)
 
     -- Universe congruence
     ≅-U-cong : Γ ⊢ l ≅ k ∷ Level → Γ ⊢ U l ≅ U k
     ≅ₜ-U-cong : Γ ⊢ l ≅ k ∷ Level → Γ ⊢ U l ≅ U k ∷ U (sucᵘ l)
 
     -- Natural number type reflexivity
-    ≅ₜ-ℕrefl : ⊢ Γ → Γ ⊢ ℕ ≅ ℕ ∷ U zeroᵘ
+    ≅ₜ-ℕrefl : ⊢ Γ → Γ ⊢≅ ℕ ∷ U zeroᵘ
 
     -- Empty type reflexivity
-    ≅ₜ-Emptyrefl : ⊢ Γ → Γ ⊢ Empty ≅ Empty ∷ U zeroᵘ
+    ≅ₜ-Emptyrefl : ⊢ Γ → Γ ⊢≅ Empty ∷ U zeroᵘ
 
     -- Unit type reflexivity
-    ≅ₜ-Unitrefl : Γ ⊢ l ∷ Level → Unit-allowed s → Γ ⊢ Unit s l ≅ Unit s l ∷ U l
+    ≅ₜ-Unitrefl : Γ ⊢ l ∷ Level → Unit-allowed s → Γ ⊢≅ Unit s l ∷ U l
 
     -- Unit η-equality
     ≅ₜ-η-unit : Γ ⊢ e ∷ Unit s l
@@ -142,7 +155,6 @@ record Equality-relations
     -- Π- and Σ-congruence
 
     ≅-ΠΣ-cong : ∀ {F G H E}
-              → Γ ⊢ F
               → Γ ⊢ F ≅ H
               → Γ ∙ F ⊢ G ≅ E
               → ΠΣ-allowed bm p q
@@ -150,7 +162,6 @@ record Equality-relations
 
     ≅ₜ-ΠΣ-cong
               : ∀ {F G H E}
-              → Γ ⊢ F
               → Γ ⊢ F ≅ H ∷ U l₁
               → Γ ∙ F ⊢ G ≅ E ∷ U (wk1 l₂)
               → ΠΣ-allowed bm p q
@@ -158,14 +169,13 @@ record Equality-relations
                   U (l₁ maxᵘ l₂)
 
     -- Zero reflexivity
-    ≅ₜ-zerorefl : ⊢ Γ → Γ ⊢ zero ≅ zero ∷ ℕ
+    ≅ₜ-zerorefl : ⊢ Γ → Γ ⊢≅ zero ∷ ℕ
 
     -- Successor congruence
     ≅-suc-cong : ∀ {m n} → Γ ⊢ m ≅ n ∷ ℕ → Γ ⊢ suc m ≅ suc n ∷ ℕ
 
     -- Product congruence
     ≅-prod-cong : ∀ {F G t t′ u u′}
-                → Γ ⊢ F
                 → Γ ∙ F ⊢ G
                 → Γ ⊢ t ≅ t′ ∷ F
                 → Γ ⊢ u ≅ u′ ∷ G [ t ]₀
@@ -174,7 +184,6 @@ record Equality-relations
 
     -- η-equality
     ≅-η-eq : ∀ {f g F G}
-           → Γ ⊢ F
            → Γ ⊢ f ∷ Π p , q ▷ F ▹ G
            → Γ ⊢ g ∷ Π p , q ▷ F ▹ G
            → Function f
@@ -184,7 +193,6 @@ record Equality-relations
 
     -- η for product types
     ≅-Σ-η : ∀ {r s F G}
-          → Γ ⊢ F
           → Γ ∙ F ⊢ G
           → Γ ⊢ r ∷ Σˢ p , q ▷ F ▹ G
           → Γ ⊢ s ∷ Σˢ p , q ▷ F ▹ G
@@ -195,7 +203,7 @@ record Equality-relations
           → Γ ⊢ r ≅ s ∷ Σˢ p , q ▷ F ▹ G
 
     -- Variable reflexivity
-    ~-var : ∀ {x A} → Γ ⊢ var x ∷ A → Γ ⊢ var x ~ var x ∷ A
+    ~-var : ∀ {x A} → Γ ⊢ var x ∷ A → Γ ⊢~ var x ∷ A
 
     -- Application congruence
     ~-app : ∀ {a b f g F G}
@@ -205,20 +213,17 @@ record Equality-relations
 
     -- Product projections congruence
     ~-fst : ∀ {r s F G}
-          → Γ ⊢ F
           → Γ ∙ F ⊢ G
           → Γ ⊢ r ~ s ∷ Σˢ p , q ▷ F ▹ G
           → Γ ⊢ fst p r ~ fst p s ∷ F
 
     ~-snd : ∀ {r s F G}
-          → Γ ⊢ F
           → Γ ∙ F ⊢ G
           → Γ ⊢ r ~ s ∷ Σˢ p , q ▷ F ▹ G
           → Γ ⊢ snd p r ~ snd p s ∷ G [ fst p r ]₀
 
     -- Natural recursion congruence
     ~-natrec : ∀ {z z′ s s′ n n′ F F′}
-             → Γ ∙ ℕ     ⊢ F
              → Γ ∙ ℕ     ⊢ F ≅ F′
              → Γ         ⊢ z ≅ z′ ∷ F [ zero ]₀
              → Γ ∙ ℕ ∙ F ⊢ s ≅ s′ ∷ F [ suc (var x1) ]↑²
@@ -227,8 +232,6 @@ record Equality-relations
 
     -- Product recursion congruence
     ~-prodrec : ∀ {F G A A′ t t′ u u′}
-             → Γ                      ⊢ F
-             → Γ ∙ F                  ⊢ G
              → Γ ∙ (Σʷ p , q ▷ F ▹ G) ⊢ A ≅ A′
              → Γ                      ⊢ t ~ t′ ∷ Σʷ p , q ▷ F ▹ G
              → Γ ∙ F ∙ G              ⊢ u ≅ u′ ∷ A [ prodʷ p (var x1) (var x0) ]↑²
@@ -254,7 +257,7 @@ record Equality-relations
 
     -- Star reflexivity
     ≅ₜ-starrefl :
-      Γ ⊢ l ∷ Level → Unit-allowed s → Γ ⊢ star s l ≅ star s l ∷ Unit s l
+      Γ ⊢ l ∷ Level → Unit-allowed s → Γ ⊢≅ star s l ∷ Unit s l
 
     -- Id preserves "equality".
     ≅-Id-cong
@@ -269,12 +272,11 @@ record Equality-relations
       → Γ ⊢ Id A₁ t₁ u₁ ≅ Id A₂ t₂ u₂ ∷ U l
 
     -- Reflexivity for rfl.
-    ≅ₜ-rflrefl : Γ ⊢ t ∷ A → Γ ⊢ rfl ≅ rfl ∷ Id A t t
+    ≅ₜ-rflrefl : Γ ⊢ t ∷ A → Γ ⊢≅ rfl ∷ Id A t t
 
     -- J preserves the _⊢_~_ relation (in a certain way).
     ~-J
-      : Γ ⊢ A₁
-      → Γ ⊢ A₁ ≅ A₂
+      : Γ ⊢ A₁ ≅ A₂
       → Γ ⊢ t₁ ∷ A₁
       → Γ ⊢ t₁ ≅ t₂ ∷ A₁
       → Γ ∙ A₁ ∙ Id (wk1 A₁) (wk1 t₁) (var x0) ⊢ B₁ ≅ B₂
@@ -287,7 +289,6 @@ record Equality-relations
     -- K preserves the _⊢_~_ relation (in a certain way).
     ~-K
       : Γ ⊢ A₁ ≅ A₂
-      → Γ ⊢ t₁ ∷ A₁
       → Γ ⊢ t₁ ≅ t₂ ∷ A₁
       → Γ ∙ Id A₁ t₁ t₁ ⊢ B₁ ≅ B₂
       → Γ ⊢ u₁ ≅ u₂ ∷ B₁ [ rfl ]₀
@@ -316,22 +317,49 @@ record Equality-relations
 
     -- A variant of ≅ₜ-ℕrefl.
 
-    ≅-ℕrefl : ⊢ Γ → Γ ⊢ ℕ ≅ ℕ
+    ≅-ℕrefl : ⊢ Γ → Γ ⊢≅ ℕ
     ≅-ℕrefl = ≅-univ ∘→ ≅ₜ-ℕrefl
 
   opaque
 
     -- A variant of ≅ₜ-Emptyrefl.
 
-    ≅-Emptyrefl : ⊢ Γ → Γ ⊢ Empty ≅ Empty
+    ≅-Emptyrefl : ⊢ Γ → Γ ⊢≅ Empty
     ≅-Emptyrefl = ≅-univ ∘→ ≅ₜ-Emptyrefl
 
   opaque
 
     -- A variant of ≅ₜ-Unitrefl.
 
-    ≅-Unitrefl : Γ ⊢ l ∷ Level → Unit-allowed s → Γ ⊢ Unit s l ≅ Unit s l
+    ≅-Unitrefl : Γ ⊢ l ∷ Level → Unit-allowed s → Γ ⊢≅ Unit s l
     ≅-Unitrefl l ok = ≅-univ (≅ₜ-Unitrefl l ok)
+
+  opaque
+
+    -- A well-formedness lemma for _⊢_≅_.
+
+    wf-⊢≅ : Γ ⊢ A ≅ B → Γ ⊢≅ A × Γ ⊢≅ B
+    wf-⊢≅ A≅B =
+      ≅-trans A≅B (≅-sym A≅B) ,
+      ≅-trans (≅-sym A≅B) A≅B
+
+  opaque
+
+    -- A well-formedness lemma for _⊢_≅_∷_.
+
+    wf-⊢≅∷ : Γ ⊢ t ≅ u ∷ A → Γ ⊢≅ t ∷ A × Γ ⊢≅ u ∷ A
+    wf-⊢≅∷ t≅u =
+      ≅ₜ-trans t≅u (≅ₜ-sym t≅u) ,
+      ≅ₜ-trans (≅ₜ-sym t≅u) t≅u
+
+  opaque
+
+    -- A well-formedness lemma for _⊢_~_∷_.
+
+    wf-⊢~∷ : Γ ⊢ t ~ u ∷ A → Γ ⊢~ t ∷ A × Γ ⊢~ u ∷ A
+    wf-⊢~∷ t~u =
+      ~-trans t~u (~-sym t~u) ,
+      ~-trans (~-sym t~u) t~u
 
 -- Values of type EqRelSet contain three relations that the logical
 -- relation in Definition.LogicalRelation can be instantiated with.

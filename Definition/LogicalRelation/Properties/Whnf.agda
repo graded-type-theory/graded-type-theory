@@ -50,9 +50,9 @@ opaque
   -- kind of WHNF).
 
   natural : Natural-prop Γ t → Natural t
-  natural (sucᵣ _)              = sucₙ
-  natural zeroᵣ                 = zeroₙ
-  natural (ne (neNfₜ t-ne _ _)) = ne t-ne
+  natural (sucᵣ _)            = sucₙ
+  natural zeroᵣ               = zeroₙ
+  natural (ne (neNfₜ t-ne _)) = ne t-ne
 
 opaque
 
@@ -69,7 +69,7 @@ opaque
   -- kind of WHNF).
 
   empty : Empty-prop Γ t → Neutral t
-  empty (ne (neNfₜ t-ne _ _)) = t-ne
+  empty (ne (neNfₜ t-ne _)) = t-ne
 
 opaque
 
@@ -82,9 +82,15 @@ opaque
 
   -- If t satisfies Unit-prop Γ l s, then t is a WHNF.
 
+<<<<<<< HEAD
   unit : ∀ {A [A]} → Unit-prop Γ l s A [A] t → Whnf t
   unit starᵣ                 = starₙ
   unit (ne (neNfₜ t-ne _ _)) = ne t-ne
+=======
+  unit : Unit-prop Γ l s t → Whnf t
+  unit starᵣ               = starₙ
+  unit (ne (neNfₜ t-ne _)) = ne t-ne
+>>>>>>> master
 
 opaque
 

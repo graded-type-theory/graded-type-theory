@@ -28,10 +28,10 @@ open import
   Definition.LogicalRelation.Substitution.Introductions.Sigma R
 open import Definition.LogicalRelation.Substitution.Introductions.Unit R
 open import Definition.Typed.Properties R
+open import Definition.Typed.Weakening R
 open import Definition.Untyped M
+open import Definition.Untyped.Erased 𝕄 s
 open import Definition.Untyped.Properties M
-
-open import Graded.Derived.Erased.Untyped 𝕄 s
 
 open import Tools.Function
 import Tools.PropositionalEquality as PE
@@ -50,9 +50,9 @@ opaque
     ⊩ΠΣ⇔ .proj₂
       ( Σ-ok
       , wf (escape-⊩ ⊩A)
-      , λ ρ⊇ ⊢Δ →
-            wk-⊩ ρ⊇ ⊢Δ ⊩A
-          , λ _ → refl-⊩≡ $ emb-⊩ 0≤ᵘ $ ⊩Unit ⊢Δ Unit-ok
+      , λ ρ⊇ →
+            wk-⊩ ρ⊇ ⊩A
+          , λ _ → refl-⊩≡ $ emb-⊩ 0≤ᵘ $ ⊩Unit (wf-∷ʷ⊇ ρ⊇) Unit-ok
       )
 
 opaque
@@ -69,9 +69,9 @@ opaque
       ( ⊩Erased ⊩A₁
       , ⊩Erased ⊩A₂
       , PE.refl , PE.refl , PE.refl
-      , λ ρ⊇ ⊢Δ →
-            wk-⊩≡ ρ⊇ ⊢Δ A₁≡A₂
-          , λ _ → refl-⊩≡ $ emb-⊩ 0≤ᵘ $ ⊩Unit ⊢Δ Unit-ok
+      , λ ρ⊇ →
+            wk-⊩≡ ρ⊇ A₁≡A₂
+          , λ _ → refl-⊩≡ $ emb-⊩ 0≤ᵘ $ ⊩Unit (wf-∷ʷ⊇ ρ⊇) Unit-ok
       )
 
 opaque
@@ -126,8 +126,8 @@ opaque
     Γ ⊩ᵛ⟨ l ⟩ [ t ] ≡ [ u ] ∷ Erased A
   []-congᵛ t≡u =
     case ⊩ᵛ≡∷⇔ .proj₁ t≡u of λ
-      (⊩A , t≡u) →
-    ⊩ᵛ≡∷⇔ .proj₂ (Erasedᵛ ⊩A , ⊩[]≡[] ∘→ t≡u)
+      (⊩A , _) →
+    ⊩ᵛ≡∷⇔ .proj₂ (Erasedᵛ ⊩A , ⊩[]≡[] ∘→ ⊩ᵛ≡∷→⊩ˢ≡∷→⊩[]≡[]∷ t≡u)
 
 opaque
 

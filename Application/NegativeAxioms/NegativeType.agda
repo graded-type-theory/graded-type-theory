@@ -15,10 +15,10 @@ open import Definition.Untyped M as U
 
 open import Definition.Typed R
 open import Definition.Typed.Properties R
+open import Definition.Typed.Substitution R
 open import Definition.Typed.Weakening R as T
 open import Definition.Typed.Consequences.Inequality R as I
 open import Definition.Typed.Consequences.Injectivity R
-open import Definition.Typed.Consequences.Substitution R
 
 open import Tools.Empty
 open import Tools.Function
@@ -70,23 +70,23 @@ data NegativeType (Γ : Cxt m) : Ty m → Set a where
 
 -- Lemma: Negative types are closed under weakening.
 
-wkNeg : ρ ∷ Δ ⊇ Γ → ⊢ Δ → NegativeType Γ A → NegativeType Δ (U.wk ρ A)
+wkNeg : ρ ∷ʷ Δ ⊇ Γ → NegativeType Γ A → NegativeType Δ (U.wk ρ A)
 
-wkNeg w ⊢Δ empty
+wkNeg w empty
   = empty
 
-wkNeg w ⊢Δ (pi dA nB)
-  = pi dA' (wkNeg (lift w) (⊢Δ ∙ dA') nB)
-    where dA' = T.wk w ⊢Δ dA
+wkNeg w (pi dA nB)
+  = pi dA' (wkNeg (liftʷʷ w dA') nB)
+    where dA' = T.wk w dA
 
-wkNeg w ⊢Δ (sigma dA nA nB)
-  = sigma dA' (wkNeg w ⊢Δ nA) (wkNeg (lift w) (⊢Δ ∙ dA') nB)
-    where dA' = T.wk w ⊢Δ dA
+wkNeg w (sigma dA nA nB)
+  = sigma dA' (wkNeg w nA) (wkNeg (liftʷʷ w dA') nB)
+    where dA' = T.wk w dA
 
-wkNeg _ _ universe = universe
+wkNeg _ universe = universe
 
-wkNeg w ⊢Δ (conv n c)
-  = conv (wkNeg w ⊢Δ n) (wkEq w ⊢Δ c)
+wkNeg w (conv n c)
+  = conv (wkNeg w n) (wkEq w c)
 
 -- Lemma: Negative types are closed under parallel substitution.
 
@@ -95,11 +95,11 @@ subNeg : NegativeType Γ A → Δ ⊢ˢ σ ∷ Γ → ⊢ Δ → NegativeType Δ
 subNeg empty _ _ = empty
 
 subNeg (pi ⊢A n) s ⊢Δ
-  = pi ⊢σA (subNeg n (liftSubst′ ⊢Δ ⊢A s) (⊢Δ ∙ ⊢σA))
+  = pi ⊢σA (subNeg n (liftSubst′ ⊢Δ ⊢A s) (∙ ⊢σA))
     where ⊢σA = substitution ⊢A s ⊢Δ
 
 subNeg (sigma ⊢A nA nB) s ⊢Δ
-  = sigma ⊢σA (subNeg nA s ⊢Δ) (subNeg nB (liftSubst′ ⊢Δ ⊢A s) (⊢Δ ∙ ⊢σA))
+  = sigma ⊢σA (subNeg nA s ⊢Δ) (subNeg nB (liftSubst′ ⊢Δ ⊢A s) (∙ ⊢σA))
     where ⊢σA = substitution ⊢A s ⊢Δ
 
 subNeg universe _ _ = universe

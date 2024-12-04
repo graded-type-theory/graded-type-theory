@@ -22,9 +22,9 @@ import Definition.Conversion.Consequences.Completeness
 import Definition.Typed
 import Definition.Typed.Consequences.Canonicity
 import Definition.Typed.Consequences.Consistency
-import Definition.Typed.Consequences.Substitution
 import Definition.Typed.Properties
 open import Definition.Typed.Restrictions
+import Definition.Typed.Substitution
 import Definition.Untyped
 import Definition.Untyped.Neutral
 
@@ -75,8 +75,8 @@ module Counterexample
   open Definition.Typed TR
   open Definition.Typed.Consequences.Canonicity TR
   open Definition.Typed.Consequences.Consistency TR
-  open Definition.Typed.Consequences.Substitution TR
   open Definition.Typed.Properties TR
+  open Definition.Typed.Substitution TR
   open Definition.Untyped Erasure
   open Definition.Untyped.Neutral Erasure type-variant
 
@@ -113,7 +113,7 @@ module Counterexample
     , PE.refl
     , ε ∙𝟘
     , inhabited-consistent
-        (singleSubst (prodⱼ ε⊢ℕ εℕ⊢ℕ (zeroⱼ ε) (zeroⱼ ε) _))
+        (singleSubst (prodⱼ εℕ⊢ℕ (zeroⱼ ε) (zeroⱼ ε) _))
     , (λ { (.zero , zeroₙ , t≡u) → lem (completeEqTerm t≡u)
          ; (.(suc _) , sucₙ numU , t≡u) → lem′ (completeEqTerm t≡u)
          })
@@ -152,21 +152,17 @@ module Counterexample
          (ℕ-ins ([~] _ _ ()))
          (ne-ins _ _ _ ([~] _ _ ())) }}}
 
-    ε⊢ℕ = ℕⱼ ε
-    ⊢εℕ = ε ∙ ε⊢ℕ
+    ⊢εℕ = ∙ ℕⱼ ε
     εℕ⊢ℕ = ℕⱼ ⊢εℕ
-    ε⊢Σ = ΠΣⱼ ε⊢ℕ εℕ⊢ℕ _
-    ⊢εΣ = ε ∙ ε⊢Σ
-    εΣ⊢ℕ = ℕⱼ ⊢εΣ
-    ⊢εΣℕ = ⊢εΣ ∙ εΣ⊢ℕ
+    ε⊢Σ = ΠΣⱼ εℕ⊢ℕ _
+    ⊢εΣ = ∙ ε⊢Σ
+    ⊢εΣℕ = ∙ ℕⱼ ⊢εΣ
     εΣℕ⊢ℕ = ℕⱼ ⊢εΣℕ
-    εΣ⊢Σ = ΠΣⱼ εΣ⊢ℕ εΣℕ⊢ℕ _
-    ⊢εΣΣ = ⊢εΣ ∙ εΣ⊢Σ
+    εΣ⊢Σ = ΠΣⱼ εΣℕ⊢ℕ _
+    ⊢εΣΣ = ∙ εΣ⊢Σ
     εΣΣ⊢ℕ = ℕⱼ ⊢εΣΣ
-    ⊢εΣℕℕ = ⊢εΣℕ ∙ εΣℕ⊢ℕ
-    ⊢prodrec =
-      prodrecⱼ {r = 𝟘} εΣ⊢ℕ εΣℕ⊢ℕ εΣΣ⊢ℕ (var₀ ε⊢Σ) (zeroⱼ ⊢εΣℕℕ)
-        _
+    ⊢εΣℕℕ = ∙ εΣℕ⊢ℕ
+    ⊢prodrec = prodrecⱼ {r = 𝟘} εΣΣ⊢ℕ (var₀ ε⊢Σ) (zeroⱼ ⊢εΣℕℕ) _
     neutral = prodrecₙ (var _)
 
 -- If one drops the assumption about erased matches from the statement

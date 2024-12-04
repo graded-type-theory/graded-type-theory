@@ -5,13 +5,11 @@
 open import Graded.Modality
 open import Graded.Usage.Restrictions
 open import Definition.Typed.Variant
-open import Tools.Bool
 
 module Graded.Heap.Usage.Weakening
   {a} {M : Set a} {𝕄 : Modality M}
   (type-variant : Type-variant)
   (UR : Usage-restrictions 𝕄)
-  (erased-heap : Bool)
   (open Modality 𝕄)
   ⦃ _ : Has-nr M semiring-with-meet ⦄
   ⦃ _ : Has-factoring-nr M semiring-with-meet ⦄
@@ -30,7 +28,7 @@ open import Graded.Mode 𝕄
 
 open import Graded.Heap.Untyped type-variant UR
 open import Graded.Heap.Untyped.Properties type-variant UR
-open import Graded.Heap.Usage type-variant UR erased-heap
+open import Graded.Heap.Usage type-variant UR
 
 
 private variable
@@ -78,8 +76,6 @@ opaque
     subst (_▸ᵉ[ _ ] _) (wk-•ᶜ ρ ρ′) (Kₑ ▸u)
   wk-▸ᵉ ρ ([]-congₑ ok) =
     subst (_▸ᵉ[ _ ] _) (sym (wk-𝟘ᶜ ρ)) ([]-congₑ ok)
-  wk-▸ᵉ ρ sucₑ =
-    subst (_▸ᵉ[ _ ] _) (sym (wk-𝟘ᶜ ρ)) sucₑ
 
 opaque
 

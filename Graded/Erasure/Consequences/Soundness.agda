@@ -18,25 +18,24 @@ open Type-restrictions TR
 open Usage-restrictions UR
 
 open import Definition.Untyped M
+import Definition.Untyped.Erased 𝕄 as Erased
 open import Definition.Untyped.Identity 𝕄
 open import Definition.Untyped.Neutral M type-variant
 open import Definition.Untyped.Sigma 𝕄
 open import Definition.Untyped.Unit 𝕄
 
 open import Definition.Typed TR
+open import Definition.Typed.Consequences.Admissible TR
 open import Definition.Typed.Consequences.Consistency TR
-open import Definition.Typed.Consequences.DerivedRules TR
-open import Definition.Typed.Consequences.Inversion TR
-open import Definition.Typed.Consequences.Substitution TR
 import Definition.Typed.Consequences.Canonicity TR as TC
 open import Definition.Typed.EqualityRelation
+open import Definition.Typed.Inversion TR
 open import Definition.Typed.Properties TR
 open import Definition.Typed.Reasoning.Term TR
+open import Definition.Typed.Substitution TR
 open import Definition.LogicalRelation TR
 
 open import Graded.Context 𝕄
-open import Graded.Derived.Erased.Typed TR
-import Graded.Derived.Erased.Untyped 𝕄 as Erased
 open import Graded.Derived.Erased.Usage 𝕄 UR
 open import Graded.Usage 𝕄 UR
 open import Graded.Usage.Erased-matches
@@ -261,7 +260,7 @@ soundness-ℕ-only-source-counterexample₁ :
   ¬ ∃ λ n → Δ ⊢ t ⇒ˢ* sucᵏ n ∷ℕ
 soundness-ℕ-only-source-counterexample₁ {p = p} P-ok Σʷ-ok =
     inhabited-consistent
-      (singleSubst (prodⱼ ε⊢ℕ εℕ⊢ℕ (zeroⱼ ε) (zeroⱼ ε) Σʷ-ok))
+      (singleSubst (prodⱼ εℕ⊢ℕ (zeroⱼ ε) (zeroⱼ ε) Σʷ-ok))
   , ⊢prodrec
   , sub
       (prodrecₘ var
@@ -284,19 +283,17 @@ soundness-ℕ-only-source-counterexample₁ {p = p} P-ok Σʷ-ok =
       (1+ _ , whred d ⇨ˢ _) → whnfRedTerm d (ne (prodrecₙ (var _)))
   where
   ε⊢ℕ = ℕⱼ ε
-  ⊢εℕ = ε ∙ ε⊢ℕ
+  ⊢εℕ = ∙ ε⊢ℕ
   εℕ⊢ℕ = ℕⱼ ⊢εℕ
-  ε⊢Σ = ΠΣⱼ ε⊢ℕ εℕ⊢ℕ Σʷ-ok
-  ⊢εΣ = ε ∙ ε⊢Σ
-  εΣ⊢ℕ = ℕⱼ ⊢εΣ
-  ⊢εΣℕ = ⊢εΣ ∙ εΣ⊢ℕ
+  ε⊢Σ = ΠΣⱼ εℕ⊢ℕ Σʷ-ok
+  ⊢εΣ = ∙ ε⊢Σ
+  ⊢εΣℕ = ∙ ℕⱼ ⊢εΣ
   εΣℕ⊢ℕ = ℕⱼ ⊢εΣℕ
-  εΣ⊢Σ = ΠΣⱼ εΣ⊢ℕ εΣℕ⊢ℕ Σʷ-ok
-  ⊢εΣΣ = ⊢εΣ ∙ εΣ⊢Σ
+  εΣ⊢Σ = ΠΣⱼ εΣℕ⊢ℕ Σʷ-ok
+  ⊢εΣΣ = ∙ εΣ⊢Σ
   εΣΣ⊢ℕ = ℕⱼ ⊢εΣΣ
-  ⊢εΣℕℕ = ⊢εΣℕ ∙ εΣℕ⊢ℕ
-  ⊢prodrec =
-    prodrecⱼ {r = 𝟘} εΣ⊢ℕ εΣℕ⊢ℕ εΣΣ⊢ℕ (var₀ ε⊢Σ) (zeroⱼ ⊢εΣℕℕ) Σʷ-ok
+  ⊢εΣℕℕ = ∙ εΣℕ⊢ℕ
+  ⊢prodrec = prodrecⱼ {r = 𝟘} εΣΣ⊢ℕ (var₀ ε⊢Σ) (zeroⱼ ⊢εΣℕℕ) Σʷ-ok
 
 opaque
 
@@ -319,7 +316,7 @@ opaque
     𝟘ᶜ ▸[ 𝟙ᵐ ] t ×
     ¬ ∃ λ n → Δ ⊢ t ⇒ˢ* sucᵏ n ∷ℕ
   soundness-ℕ-only-source-counterexample₂ {s = s} ok ok′ =
-    case ε ∙ Idⱼ (zeroⱼ ε) (zeroⱼ ε) of λ {
+    case ∙ Idⱼ′ (zeroⱼ ε) (zeroⱼ ε) of λ {
       ⊢Id →
       inhabited-consistent (singleSubst (rflⱼ (zeroⱼ ε)))
     , Jⱼ′ (ℕⱼ (J-motive-context ([]ⱼ ([]-cong→Erased ok) (zeroⱼ ⊢Id))))
@@ -356,7 +353,7 @@ opaque
     𝟘ᶜ ▸[ 𝟙ᵐ ] t ×
     ¬ ∃ λ n → Δ ⊢ t ⇒ˢ* sucᵏ n ∷ℕ
   soundness-ℕ-only-source-counterexample₃ ≡not-none =
-    case ε ∙ Idⱼ (zeroⱼ ε) (zeroⱼ ε) of λ {
+    case ∙ Idⱼ′ (zeroⱼ ε) (zeroⱼ ε) of λ {
       ⊢Id →
       inhabited-consistent (singleSubst (rflⱼ (zeroⱼ ε)))
     , Jⱼ′ (ℕⱼ (J-motive-context (zeroⱼ ⊢Id))) (zeroⱼ ⊢Id) (var ⊢Id here)
@@ -392,10 +389,10 @@ opaque
     𝟘ᶜ ▸[ 𝟙ᵐ ] t ×
     ¬ ∃ λ n → Δ ⊢ t ⇒ˢ* sucᵏ n ∷ℕ
   soundness-ℕ-only-source-counterexample₄ K-ok ≡not-none =
-    case ε ∙ Idⱼ (zeroⱼ ε) (zeroⱼ ε) of λ {
+    case ∙ Idⱼ′ (zeroⱼ ε) (zeroⱼ ε) of λ {
       ⊢Id →
       inhabited-consistent (singleSubst (rflⱼ (zeroⱼ ε)))
-    , Kⱼ′ (ℕⱼ (K-motive-context (zeroⱼ ⊢Id))) (zeroⱼ ⊢Id) (var ⊢Id here)
+    , Kⱼ (ℕⱼ (K-motive-context (zeroⱼ ⊢Id))) (zeroⱼ ⊢Id) (var ⊢Id here)
         K-ok
     , sub
         (K₀ₘ₁-generalised ≡not-none PE.refl ℕₘ zeroₘ ℕₘ zeroₘ var)
@@ -431,7 +428,7 @@ opaque
   soundness-ℕ-only-source-counterexample₅ unitrec-ok Unit-ok no-η =
     case Unitⱼ ε Unit-ok of λ
       ⊢Unit →
-    case ε ∙ ⊢Unit of λ
+    case ∙ ⊢Unit of λ
       ⊢∙Unit →
       inhabited-consistent (singleSubst (starⱼ ε Unit-ok))
     , unitrecⱼ (ℕⱼ (⊢∙Unit ∙[ flip Unitⱼ Unit-ok ])) (var₀ ⊢Unit)
@@ -515,7 +512,7 @@ soundness-ℕ-only-target-not-counterexample₁ {p} ok
 ... | yes _ =
     0
   , subst ω ℕ² (Id ℕ pr zero) 0,0 (var x0) η rfl
-  , ⊢subst (Idⱼ ⊢pr (zeroⱼ (ε ∙[ ⊢ℕ² ] ∙[ ⊢ℕ² ])))
+  , ⊢subst (Idⱼ′ ⊢pr (zeroⱼ (ε ∙[ ⊢ℕ² ] ∙[ ⊢ℕ² ])))
       (⊢Σʷ-η-prodʷ-fstʷ-sndʷ (var₀ (⊢ℕ² ε)))
       (rflⱼ′
          (prodrec 𝟘 p 𝟘 ℕ 0,0 zero  ≡⟨ prodrec-β-≡ (ℕⱼ (ε ∙[ ⊢ℕ² ] ∙[ ⊢ℕ² ]))
@@ -540,7 +537,7 @@ soundness-ℕ-only-target-not-counterexample₁ {p} ok
   η = Σʷ-η-prodʷ-fstʷ-sndʷ _ _ _ _ (var x0)
 
   ⊢ℕ² : ⊢ Γ → Γ ⊢ ℕ²
-  ⊢ℕ² ⊢Γ = ΠΣⱼ′ (ℕⱼ (⊢Γ ∙[ ℕⱼ ])) ok
+  ⊢ℕ² ⊢Γ = ΠΣⱼ (ℕⱼ (⊢Γ ∙[ ℕⱼ ])) ok
 
   ⊢pr : Δ′ ∙ ℕ² ⊢ pr ∷ ℕ
   ⊢pr =
@@ -566,7 +563,7 @@ opaque
             zero)
         rfl zero (var x0)
     , Jⱼ′
-        (Idⱼ
+        (Idⱼ′
            (Jⱼ′ (ℕⱼ (J-motive-context ([]ⱼ Erased-ok ⊢zero))) ⊢zero
               ([]-congⱼ′ ok
                  (var₀ (J-motive-context-type (zeroⱼ ⊢Δ)))))
@@ -593,10 +590,10 @@ opaque
     Δ′ = ε ∙ Id ℕ zero zero
 
     ⊢0≡0 : ε ⊢ Id ℕ zero zero
-    ⊢0≡0 = Idⱼ (zeroⱼ ε) (zeroⱼ ε)
+    ⊢0≡0 = Idⱼ′ (zeroⱼ ε) (zeroⱼ ε)
 
     ⊢Δ : ⊢ Δ′
-    ⊢Δ = ε ∙ ⊢0≡0
+    ⊢Δ = ∙ ⊢0≡0
 
     ⊢ℕ : Δ′ ∙ Erased ℕ ∙ Id (Erased ℕ) Er.[ zero ] (var x0) ⊢ ℕ
     ⊢ℕ = ℕⱼ (J-motive-context ([]ⱼ Erased-ok (zeroⱼ ⊢Δ)))
@@ -616,7 +613,7 @@ opaque
         (Id ℕ (J 𝟘 𝟘 ℕ zero ℕ zero (var x1) (var x0)) zero)
         rfl zero (var x0)
     , Jⱼ′
-        (Idⱼ
+        (Idⱼ′
            (Jⱼ′ (ℕⱼ (J-motive-context ⊢zero)) ⊢zero
               (var₀ (J-motive-context-type (zeroⱼ ⊢Δ))))
            ⊢zero)
@@ -630,10 +627,10 @@ opaque
     Δ′ = ε ∙ Id ℕ zero zero
 
     ⊢0≡0 : ε ⊢ Id ℕ zero zero
-    ⊢0≡0 = Idⱼ (zeroⱼ ε) (zeroⱼ ε)
+    ⊢0≡0 = Idⱼ′ (zeroⱼ ε) (zeroⱼ ε)
 
     ⊢Δ : ⊢ Δ′
-    ⊢Δ = ε ∙ ⊢0≡0
+    ⊢Δ = ∙ ⊢0≡0
 
     ⊢ℕ : Δ′ ∙ ℕ ∙ Id ℕ zero (var x0) ⊢ ℕ
     ⊢ℕ = ℕⱼ (J-motive-context (zeroⱼ ⊢Δ))
@@ -653,13 +650,13 @@ opaque
     , K 𝟘 ℕ zero
         (Id ℕ (K 𝟘 ℕ zero ℕ zero (var x0)) zero)
         rfl (var x0)
-    , Kⱼ′
-        (Idⱼ
-           (Kⱼ′ (ℕⱼ (K-motive-context ⊢zero)) ⊢zero
+    , Kⱼ
+        (Idⱼ′
+           (Kⱼ (ℕⱼ (K-motive-context ⊢zero)) ⊢zero
               (var₀ (K-motive-context-type (zeroⱼ ⊢Δ))) ok)
            ⊢zero)
         (rflⱼ′
-           (K 𝟘 ℕ zero ℕ zero rfl  ≡⟨ K-β-≡ ⊢ℕ (zeroⱼ ⊢Δ) ok ⟩⊢∎
+           (K 𝟘 ℕ zero ℕ zero rfl  ≡⟨ K-β ⊢ℕ (zeroⱼ ⊢Δ) ok ⟩⊢∎
             zero                   ∎))
         (var₀ ⊢0≡0)
         ok
@@ -669,10 +666,10 @@ opaque
     Δ′ = ε ∙ Id ℕ zero zero
 
     ⊢0≡0 : ε ⊢ Id ℕ zero zero
-    ⊢0≡0 = Idⱼ (zeroⱼ ε) (zeroⱼ ε)
+    ⊢0≡0 = Idⱼ′ (zeroⱼ ε) (zeroⱼ ε)
 
     ⊢Δ : ⊢ Δ′
-    ⊢Δ = ε ∙ ⊢0≡0
+    ⊢Δ = ∙ ⊢0≡0
 
     ⊢ℕ : Δ′ ∙ Id ℕ zero zero ⊢ ℕ
     ⊢ℕ = ℕⱼ (K-motive-context (zeroⱼ ⊢Δ))
@@ -694,7 +691,7 @@ opaque
     , subst ω (Unitʷ 0) (Id ℕ (unitrec 0 𝟘 𝟘 ℕ (var x0) zero) zero)
         (starʷ 0) (var x0) (Unit-η 𝕨 0 ω (var x0)) rfl
     , ⊢subst
-        (Idⱼ
+        (Idⱼ′
            (unitrecⱼ (ℕⱼ (ε ∙[ ⊢Unitʷ ] ∙[ ⊢Unitʷ ] ∙[ ⊢Unitʷ ]))
               (var₀ (⊢Unitʷ (ε ∙[ ⊢Unitʷ ])))
               (zeroⱼ (ε ∙[ ⊢Unitʷ ] ∙[ ⊢Unitʷ ])) Unit-ok)

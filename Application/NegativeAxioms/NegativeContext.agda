@@ -13,6 +13,7 @@ module Application.NegativeAxioms.NegativeContext
 
 open import Definition.Untyped M
 open import Definition.Typed R
+open import Definition.Typed.Properties R
 open import Definition.Typed.Weakening R
 open import Application.NegativeAxioms.NegativeType R
 
@@ -39,7 +40,7 @@ data NegativeContext : Ctx m → Set a where
 -- Lemma: Any entry in negative context is a negative type (needs weakening).
 
 lookupNegative : ⊢ Γ → NegativeContext Γ → (x ∷ A ∈ Γ) → NegativeType Γ A
-lookupNegative ⊢Γ∙A            (nΓ ∙ nA) here
-  = wkNeg (step id) ⊢Γ∙A nA
-lookupNegative ⊢Γ∙A@(⊢Γ ∙ Γ⊢A) (nΓ ∙ nA) (there h)
-  = wkNeg (step id) ⊢Γ∙A (lookupNegative ⊢Γ nΓ h)
+lookupNegative (∙ ⊢A) (nΓ ∙ nA) here
+  = wkNeg (stepʷ id ⊢A) nA
+lookupNegative (∙ ⊢A) (nΓ ∙ nA) (there h)
+  = wkNeg (stepʷ id ⊢A) (lookupNegative (wf ⊢A) nΓ h)

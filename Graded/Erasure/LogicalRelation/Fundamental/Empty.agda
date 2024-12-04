@@ -33,6 +33,7 @@ open import Definition.LogicalRelation R
 open import Definition.LogicalRelation.Fundamental R
 open import Definition.LogicalRelation.Substitution R
 open import Definition.LogicalRelation.Substitution.Introductions.Empty R
+open import Definition.Typed.Properties R
 open import Definition.Untyped M
 
 open import Graded.Context 𝕄
@@ -82,9 +83,9 @@ opaque
     ▸⊩ʳ∷⇔ .proj₂ λ {σ = σ} {σ′ = σ′} ⊩σ σ®σ′ →
     case ⊩∷Empty⇔ .proj₁ $
          ⊩ᵛ∷→⊩ˢ∷→⊩[]∷ (fundamental-⊩ᵛ∷ ⊢t .proj₂) ⊩σ of λ
-      (Emptyₜ _ [ ⊢t[σ] , _ , _ ] _ _) →
+      (Emptyₜ _ ⊢t[σ]⇒* _ _) →
     case is-𝟘? p of λ where
-      (yes refl) → ⊥-elim (consistent ok _ ⊢t[σ])
+      (yes refl) → ⊥-elim (consistent ok _ (redFirst*Term ⊢t[σ]⇒*))
       (no p≢𝟘)   →
         case PE.sym (≢𝟘→⌞⌟≡𝟙ᵐ p≢𝟘) of λ
           𝟙ᵐ≡⌞p⌟ →

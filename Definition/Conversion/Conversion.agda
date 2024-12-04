@@ -16,14 +16,13 @@ open Type-restrictions R
 open import Definition.Untyped M
 open import Definition.Untyped.Neutral M type-variant
 open import Definition.Typed R
-open import Definition.Typed.RedSteps R
 open import Definition.Typed.Properties R
+open import Definition.Typed.Stability R
+open import Definition.Typed.Substitution R
+open import Definition.Typed.Syntactic R
 open import Definition.Conversion R
 open import Definition.Conversion.Soundness R
 open import Definition.Conversion.Stability R
-open import Definition.Typed.Consequences.Syntactic R
-open import Definition.Typed.Consequences.Substitution R
-open import Definition.Typed.Consequences.Stability R
 open import Definition.Typed.Consequences.Injectivity R
 open import Definition.Typed.Consequences.Equality R
 open import Definition.Typed.Consequences.Reduction R
@@ -49,8 +48,8 @@ mutual
   convConv↑Term′ Γ≡Δ A≡B ([↑]ₜ B₁ t′ u′ (D , _) d d′ t<>u) =
     let _ , ⊢B = syntacticEq A≡B
         B′ , whnfB′ , D′ = whNorm ⊢B
-        B₁≡B′ = trans (sym (subset* D)) (trans A≡B (subset* (red D′)))
-    in  [↑]ₜ B′ t′ u′ (stabilityRed↘ Γ≡Δ (red D′ , whnfB′))
+        B₁≡B′ = trans (sym (subset* D)) (trans A≡B (subset* D′))
+    in  [↑]ₜ B′ t′ u′ (stabilityRed↘ Γ≡Δ (D′ , whnfB′))
              (stabilityRed↘Term Γ≡Δ (conv↘∷ d B₁≡B′))
              (stabilityRed↘Term Γ≡Δ (conv↘∷ d′ B₁≡B′))
              (convConv↓Term′ Γ≡Δ B₁≡B′ whnfB′ t<>u)
@@ -109,9 +108,8 @@ mutual
     with Σ≡A A≡B whnfB
   ... | F , G , PE.refl with Σ-injectivity A≡B
   ...   | F≡ , G≡ , _ , _ =
-    let ⊢F = proj₁ (syntacticEq F≡)
-        ⊢G = proj₁ (syntacticEq G≡)
-        ⊢fst = fstⱼ ⊢F ⊢G ⊢p
+    let ⊢G = proj₁ (syntacticEq G≡)
+        ⊢fst = fstⱼ ⊢G ⊢p
     in  Σ-η (stabilityTerm Γ≡Δ (conv ⊢p A≡B))
             (stabilityTerm Γ≡Δ (conv ⊢r A≡B))
             pProd
@@ -135,7 +133,7 @@ mutual
       (A≡A′ , t≡t′ , u≡u′) →
     rfl-refl
       (stabilityEqTerm Γ≡Δ $
-       conv (trans (sym t≡t′) (trans t≡u u≡u′)) A≡A′) }}
+       conv (trans (sym′ t≡t′) (trans t≡u u≡u′)) A≡A′) }}
 
 -- Conversion of algorithmic equality with the same context.
 convConv↑Term :

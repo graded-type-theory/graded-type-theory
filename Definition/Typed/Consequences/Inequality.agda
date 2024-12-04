@@ -19,12 +19,12 @@ open import Definition.Untyped.Neutral M type-variant as U
 open import Definition.Typed R
 open import Definition.Typed.EqRelInstance R
 open import Definition.Typed.Properties R
+open import Definition.Typed.Syntactic R
 open import Definition.LogicalRelation R
 open import Definition.LogicalRelation.Hidden R
 open import Definition.LogicalRelation.Irrelevance R
 open import Definition.LogicalRelation.ShapeView R
 open import Definition.LogicalRelation.Fundamental.Reducibility R
-open import Definition.Typed.Consequences.Syntactic R
 
 open import Tools.Function
 open import Tools.Nat as Nat using (Nat)
@@ -598,20 +598,20 @@ whnf≢ne {A} {t} {u} ¬-A-η t-whnf ¬-t-ne u-ne t≡u =
     ⊩A →
   lemma ⊩A (⊩≡∷→⊩≡∷/ ⊩A t≡u)
   where
-  A⇒*no-η : Γ ⊢ A :⇒*: B → No-η-equality B
-  A⇒*no-η [ _ , _ , A⇒*B ] =
+  A⇒*no-η : Γ ⊢ A ⇒* B → No-η-equality B
+  A⇒*no-η A⇒*B =
     case whnfRed* A⇒*B (U.No-η-equality→Whnf ¬-A-η) of λ {
       PE.refl →
     ¬-A-η }
 
-  ¬t⇒*ne : Γ ⊢ t :⇒*: v ∷ B → ¬ Neutral v
-  ¬t⇒*ne [ _ , _ , t⇒*v ] v-ne =
+  ¬t⇒*ne : Γ ⊢ t ⇒* v ∷ B → ¬ Neutral v
+  ¬t⇒*ne t⇒*v v-ne =
     case whnfRed*Term t⇒*v t-whnf of λ {
       PE.refl →
     ¬-t-ne v-ne }
 
-  u⇒*ne : Γ ⊢ u :⇒*: v ∷ B → Neutral v
-  u⇒*ne [ _ , _ , u⇒*v ] =
+  u⇒*ne : Γ ⊢ u ⇒* v ∷ B → Neutral v
+  u⇒*ne u⇒*v =
     case whnfRed*Term u⇒*v (U.ne u-ne) of λ {
       PE.refl →
     u-ne }
@@ -638,10 +638,10 @@ whnf≢ne {A} {t} {u} ¬-A-η t-whnf ¬-t-ne u-ne t≡u =
             not-ok ok
     (ne _) (neₜ₌ _ _ t⇒*v _ (neNfₜ₌ v-ne _ _)) →
       ¬t⇒*ne t⇒*v v-ne
-    (Bᵣ BΠ! (Bᵣ _ _ A⇒*Π _ _ _ _ _ _ _)) _ →
+    (Bᵣ BΠ! (Bᵣ _ _ A⇒*Π _ _ _ _ _)) _ →
       case A⇒*no-η A⇒*Π of λ where
         (U.neₙ ())
-    (Bᵣ BΣˢ (Bᵣ _ _ A⇒*Σ _ _ _ _ _ _ _)) _ →
+    (Bᵣ BΣˢ (Bᵣ _ _ A⇒*Σ _ _ _ _ _)) _ →
       case A⇒*no-η A⇒*Σ of λ where
         (U.neₙ ())
     (Bᵣ BΣʷ record{}) (_ , _ , _ , u⇒*w , _ , _ , _ , _ , U.prodₙ , _) →

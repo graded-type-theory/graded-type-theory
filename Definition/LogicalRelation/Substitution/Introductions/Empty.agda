@@ -49,12 +49,8 @@ opaque
   ⊩Empty⇔ :
     Γ ⊩⟨ l ⟩ Empty ⇔ ⊢ Γ
   ⊩Empty⇔ =
-      (λ ⊩Empty → lemma (Empty-elim ⊩Empty))
-    , (λ ⊢Γ → Emptyᵣ (idRed:*: (Emptyⱼ ⊢Γ)))
-    where
-    lemma : Γ ⊩⟨ l ⟩Empty Empty → ⊢ Γ
-    lemma (emb 0<1 ⊩Empty) = lemma ⊩Empty
-    lemma (noemb d) = wf (⊢A-red d)
+      wf ∘→ escape-⊩
+    , (λ ⊢Γ → Emptyᵣ (id (Emptyⱼ ⊢Γ)))
 
 opaque
   unfolding _⊩⟨_⟩_∷_ ⊩Empty⇔
@@ -68,7 +64,7 @@ opaque
          lemma (Empty-elim ⊩Empty′)
            (irrelevanceTerm ⊩Empty′ (Empty-intr (Empty-elim ⊩Empty′)) ⊩t))
     , (λ ⊩t@(Emptyₜ n d n≡n prop) →
-         ⊩Empty⇔ .proj₂ (wfTerm (⊢t-redₜ d)) , ⊩t)
+         ⊩Empty⇔ .proj₂ (wfEqTerm (subset*Term d)) , ⊩t)
     where
     lemma :
       (⊩Empty : Γ ⊩⟨ l ⟩Empty Empty) →
@@ -91,7 +87,7 @@ opaque
          lemma ⊩Empty′
            ((irrelevanceEq ⊩Empty) (Empty-intr ⊩Empty′) Empty≡A))
     , (λ Empty≡A →
-         case idRed:*: (Emptyⱼ (wfEq (subset* Empty≡A))) of λ
+         case id (Emptyⱼ (wfEq (subset* Empty≡A))) of λ
            Empty⇒*Empty →
          let ⊩Empty = Emptyᵣ Empty⇒*Empty in
            ⊩Empty
@@ -111,30 +107,37 @@ opaque
 
   -- A characterisation lemma for _⊩⟨_⟩_≡_∷_.
 
-  ⊩≡∷Empty⇔ : Γ ⊩⟨ l ⟩ t ≡ u ∷ Empty ⇔
-    (Γ ⊩Empty t ∷Empty ×
-     Γ ⊩Empty u ∷Empty ×
-     Γ ⊩Empty t ≡ u ∷Empty)
+  ⊩≡∷Empty⇔ :
+    Γ ⊩⟨ l ⟩ t ≡ u ∷ Empty ⇔ Γ ⊩Empty t ≡ u ∷Empty
   ⊩≡∷Empty⇔ =
-      (λ (⊩Empty′ , ⊩t , ⊩u , t≡u) →
+      (λ (⊩Empty′ , _ , _ , t≡u) →
         lemma (Empty-elim ⊩Empty′)
-          (irrelevanceTerm ⊩Empty′ (Empty-intr (Empty-elim ⊩Empty′)) ⊩t)
-          (irrelevanceTerm ⊩Empty′ (Empty-intr (Empty-elim ⊩Empty′)) ⊩u)
-          (irrelevanceEqTerm ⊩Empty′ (Empty-intr (Empty-elim ⊩Empty′)) t≡u))
-    , λ (⊩t@(Emptyₜ _ d _ _) , ⊩u , t≡u) →
-        ⊩Empty⇔ .proj₂ (wfTerm (⊢t-redₜ d)) , ⊩t , ⊩u , t≡u
+          (irrelevanceEqTerm ⊩Empty′ (Empty-intr (Empty-elim ⊩Empty′))
+             t≡u))
+    , λ t≡u@(Emptyₜ₌ _ _ t⇒*t′ u⇒*u′ t′≅u′ prop) →
+        case prop of λ where
+          (ne (neNfₜ₌ t′-ne u′-ne t′~u′)) →
+            let ≅t′ , ≅u′ = wf-⊢≅∷ t′≅u′
+                ~t′ , ~u′ = wf-⊢~∷ t′~u′
+            in
+              ⊩Empty⇔ .proj₂ (wfEqTerm (subset*Term t⇒*t′))
+            , Emptyₜ _ t⇒*t′ ≅t′ (ne (neNfₜ t′-ne ~t′))
+            , Emptyₜ _ u⇒*u′ ≅u′ (ne (neNfₜ u′-ne ~u′))
+            , t≡u
     where
     lemma :
       (⊩Empty : Γ ⊩⟨ l ⟩Empty Empty) →
-      Γ ⊩⟨ l ⟩ t ∷ Empty / Empty-intr ⊩Empty →
-      Γ ⊩⟨ l ⟩ u ∷ Empty / Empty-intr ⊩Empty →
       Γ ⊩⟨ l ⟩ t ≡ u ∷ Empty / Empty-intr ⊩Empty →
-      Γ ⊩Empty t ∷Empty ×
-      Γ ⊩Empty u ∷Empty ×
       Γ ⊩Empty t ≡ u ∷Empty
+<<<<<<< HEAD
     lemma (emb p     ⊩Empty′) = {!   !}
     -- lemma (emb (≤ᵘ-step s) ⊩Empty′) = lemma (emb s ⊩Empty′)
     lemma (noemb _) ⊩t ⊩u t≡u       = ⊩t , ⊩u , t≡u
+=======
+    lemma (emb ≤ᵘ-refl     ⊩Empty′) = lemma ⊩Empty′
+    lemma (emb (≤ᵘ-step s) ⊩Empty′) = lemma (emb s ⊩Empty′)
+    lemma (noemb _)                 = idᶠ
+>>>>>>> master
 
 ------------------------------------------------------------------------
 -- Empty
@@ -172,9 +175,11 @@ opaque
       , λ σ₁≡σ₂ →
           case escape-⊩ˢ≡∷ σ₁≡σ₂ of λ
             (⊢Δ , _) →
-          case Emptyⱼ ⊢Δ  of λ
-            ⊢Empty →
           Type→⊩≡∷U⇔ Emptyₙ Emptyₙ .proj₂
+<<<<<<< HEAD
             (⊩Level-zeroᵘ ⊢Δ , PE.subst (_<ᵘ 1ᵘ) (PE.sym (reflect-level-zero ⊢Δ)) 0ᵘ<ᵘ1ᵘ , refl-⊩≡ (⊩Empty ⊢Δ) ,
             ⊢Empty , ⊢Empty , ≅ₜ-Emptyrefl ⊢Δ)
+=======
+            (≤ᵘ-refl , refl-⊩≡ (⊩Empty ⊢Δ) , ≅ₜ-Emptyrefl ⊢Δ)
+>>>>>>> master
       )

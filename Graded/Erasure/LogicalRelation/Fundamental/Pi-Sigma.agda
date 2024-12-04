@@ -29,14 +29,15 @@ open import Definition.LogicalRelation.Substitution TR
 import Definition.LogicalRelation.Substitution.Introductions TR as I
 
 open import Definition.Typed TR
-open import Definition.Typed.Consequences.DerivedRules TR
+open import Definition.Typed.Consequences.Admissible TR
 open import Definition.Typed.Consequences.Inversion TR
 open import Definition.Typed.Consequences.Reduction TR
-open import Definition.Typed.Consequences.RedSteps TR
-open import Definition.Typed.Consequences.Substitution TR
-open import Definition.Typed.Consequences.Syntactic TR
+open import Definition.Typed.Inversion TR
 open import Definition.Typed.Properties TR
 import Definition.Typed.Reasoning.Reduction TR as RR
+open import Definition.Typed.Substitution TR
+open import Definition.Typed.Syntactic TR
+open import Definition.Typed.Well-formed TR
 
 open import Definition.Untyped M
 open import Definition.Untyped.Neutral M type-variant
@@ -432,7 +433,7 @@ opaque
           (⊩ᵛ→⊩ˢ∷→⊩[] (I.ΠΣᵛ ok (emb-⊩ᵛ ≤ᵘ⊔ᵘʳ ⊩A) (emb-⊩ᵛ ≤ᵘ⊔ᵘˡ ⊩B)) ⊩σ)
       , t [ σ ] , u [ σ ] , v₂
       , (_⊢_⇒*_∷_.id $
-         ⊢prod (escape $ ⊩ᵛ→⊩ˢ∷→⊩[⇑] ⊩B ⊩σ)
+         prodⱼ (escape $ ⊩ᵛ→⊩ˢ∷→⊩[⇑] ⊩B ⊩σ)
            (escape-⊩∷ $ ⊩ᵛ∷→⊩ˢ∷→⊩[]∷ ⊩t ⊩σ)
            (PE.subst (_⊢_∷_ _ _) (singleSubstLift B _) $
             substitutionTerm ⊢u (escape-⊩ˢ∷ ⊩σ .proj₂) ⊢Δ)
@@ -528,7 +529,7 @@ opaque
                                                                          (⊢t₁ , ⊢t₂ , _) →
                                                                        ®∷-⇐*
                                                                          (let open RR in
-       fst p (t [ σ ])                                                      ⇒*⟨ fst-subst*′ t[σ]⇒*t₁,t₂ ⟩
+       fst p (t [ σ ])                                                      ⇒*⟨ fst-subst* t[σ]⇒*t₁,t₂ ⟩
        fst p (prodˢ p t₁ t₂)                                                ⇒⟨ Σ-β₁-⇒ (escape $ ⊩ᵛ→⊩ˢ∷→⊩[⇑] ⊩B ⊩σ) ⊢t₁ ⊢t₂ ok ⟩∎
        t₁                                                                   ∎)
                                                                          (let open Graded.Erasure.Target.Reasoning in
@@ -580,7 +581,7 @@ opaque
       snd p (t [ σ ])       ∷ B [ σ ⇑ ] [ fst p (t [ σ ]) ]₀                   ⇒*⟨ snd-subst* t[σ]⇒*t₁,t₂ ⟩∷
                                                                                  ⟨ ≅-eq $ escape-⊩≡ $
                                                                                    ⊩ᵛ≡→⊩ˢ≡∷→⊩≡∷→⊩[⇑][]₀≡[⇑][]₀ (refl-⊩ᵛ≡ ⊩B) (refl-⊩ˢ≡∷ ⊩σ) $
-                                                                                   reducible-⊩≡∷ (subset*Term $ fst-subst*′ t[σ]⇒*t₁,t₂) .proj₂ ⟩⇒
+                                                                                   reducible-⊩≡∷ (subset*Term $ fst-subst* t[σ]⇒*t₁,t₂) .proj₂ ⟩⇒
       snd p (prodˢ p t₁ t₂) ∷ B [ σ ⇑ ] [ fst p (prodˢ p t₁ t₂) ]₀             ⇒⟨ Σ-β₂-⇒ ⊢B[σ⇑] ⊢t₁ ⊢t₂ ok ⟩∎∷
       t₂                                                                       ∎)
                                                                             (let open Graded.Erasure.Target.Reasoning in
@@ -601,7 +602,7 @@ opaque
                                                                             (let open RR in
                                                                              ⊩ᵛ≡→⊩ˢ≡∷→⊩≡∷→⊩[⇑][]₀≡[⇑][]₀ (refl-⊩ᵛ≡ ⊩B) (refl-⊩ˢ≡∷ ⊩σ) $
                                                                              sym-⊩≡∷ $ proj₂ $ reducible-⊩≡∷ $ subset*Term (
-      fst p (t [ σ ])                                                          ⇒*⟨ fst-subst*′ t[σ]⇒*t₁,t₂ ⟩
+      fst p (t [ σ ])                                                          ⇒*⟨ fst-subst* t[σ]⇒*t₁,t₂ ⟩
       fst p (prodˢ p t₁ t₂)                                                    ⇒⟨ Σ-β₁-⇒ ⊢B[σ⇑] ⊢t₁ ⊢t₂ ok ⟩∎
       t₁                                                                       ∎))
                                                                             t₂®v₂) ⟩
@@ -767,7 +768,8 @@ opaque
             (_ , ne n , _) →
               ⊥-elim (noClosedNe n);
             (_ , prodₙ {t = t₁} {u = t₂} , t[σ]⇒*t₁,t₂) →
-          case inversion-prod-Σ $ ⊢u-redₜ t[σ]⇒*t₁,t₂ of λ {
+          case inversion-prod-Σ $
+               wf-⊢≡∷ (subset*Term t[σ]⇒*t₁,t₂) .proj₂ .proj₂ of λ {
             (_ , _ , PE.refl , PE.refl , _) →
           record
             { t₁            = t₁
@@ -776,7 +778,7 @@ opaque
             ; v₂            = loop str
             ; t₁®v₁         = ®∷◂𝟘 (·-zeroˡ _)
             ; t₂®v₂         = ®∷◂𝟘 PE.refl
-            ; t[σ]⇒*t₁,t₂   = redₜ t[σ]⇒*t₁,t₂
+            ; t[σ]⇒*t₁,t₂   = t[σ]⇒*t₁,t₂
             ; ⇒*u[σ′,v₁,v₂] =
                 erase str (prodrec 𝟘 p q′ C t u) T.[ σ′ ]               ≡⟨ PE.cong T._[ _ ] $ prodrec-𝟘 q′ C ⟩⇒
 

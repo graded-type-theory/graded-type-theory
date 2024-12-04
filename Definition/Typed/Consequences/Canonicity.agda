@@ -20,8 +20,8 @@ open import Definition.Untyped.Properties M
 open import Definition.Typed R
 open import Definition.Typed.Consequences.Injectivity R
 open import Definition.Typed.Consequences.Inversion R
-open import Definition.Typed.Consequences.Syntactic R
 open import Definition.Typed.Properties R
+open import Definition.Typed.Syntactic R
 open import Definition.Typed.EqRelInstance R
 open import Definition.LogicalRelation R
 open import Definition.LogicalRelation.Properties R
@@ -50,11 +50,11 @@ opaque
     where
     lemma : ε ⊩ℕ u ∷ℕ → ∃ λ n → ε ⊢ u ≡ sucᵏ n ∷ ℕ
     lemma (ℕₜ v u⇒*v _ ⊩v) =
-      Σ.map idᶠ (trans (subset*Term (redₜ u⇒*v)))
+      Σ.map idᶠ (trans (subset*Term u⇒*v))
         (case ⊩v of λ where
-           (ne (neNfₜ u-ne _ _)) → ⊥-elim $ noClosedNe u-ne
-           zeroᵣ                 → 0 , refl (zeroⱼ ε)
-           (sucᵣ ⊩u)             → Σ.map 1+ suc-cong (lemma ⊩u))
+           (ne (neNfₜ u-ne _)) → ⊥-elim $ noClosedNe u-ne
+           zeroᵣ               → 0 , refl (zeroⱼ ε)
+           (sucᵣ ⊩u)           → Σ.map 1+ suc-cong (lemma ⊩u))
 
 opaque
 
@@ -63,7 +63,7 @@ opaque
   ¬Empty : ¬ ε ⊢ t ∷ Empty
   ¬Empty {t} =
     ε ⊢ t ∷ Empty      →⟨ ⊩∷Empty⇔ .proj₁ ∘→ proj₂ ∘→ reducible-⊩∷ ⟩
-    ε ⊩Empty t ∷Empty  →⟨ (λ { (Emptyₜ _ _ _ (ne (neNfₜ u-ne _ _))) →
+    ε ⊩Empty t ∷Empty  →⟨ (λ { (Emptyₜ _ _ _ (ne (neNfₜ u-ne _))) →
                                noClosedNe u-ne }) ⟩
     ⊥                  □
 
@@ -76,7 +76,7 @@ opaque
     case ⊩∷Id⇔ .proj₁ $ reducible-⊩∷ ⊢v .proj₂ of λ
       (_ , v⇒*w , _ , _ , rest) →
     case rest of λ where
-      (rflᵣ _)    → redₜ v⇒*w
+      (rflᵣ _)    → v⇒*w
       (ne w-ne _) → ⊥-elim $ noClosedNe w-ne
 
 opaque

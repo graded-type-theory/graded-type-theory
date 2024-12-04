@@ -19,12 +19,17 @@ module Definition.Conversion.Decidable
 open Type-restrictions R
 
 open import Definition.Untyped M
+import Definition.Untyped.Erased 𝕄 as Erased
 open import Definition.Untyped.Neutral M type-variant
 open import Definition.Untyped.Properties M
 open import Definition.Untyped.Properties.Neutral M type-variant
 open import Definition.Typed R
+open import Definition.Typed.Inversion R
 open import Definition.Typed.Properties R
 open import Definition.Typed.Reasoning.Type R
+open import Definition.Typed.Stability R
+open import Definition.Typed.Substitution R
+open import Definition.Typed.Syntactic R
 open import Definition.Conversion R
 open import Definition.Conversion.Inversion R
 open import Definition.Conversion.Whnf R
@@ -32,18 +37,10 @@ open import Definition.Conversion.Soundness R
 open import Definition.Conversion.Symmetry R
 open import Definition.Conversion.Stability R
 open import Definition.Conversion.Conversion R
-open import Definition.Typed.Consequences.DerivedRules.Identity R
-open import Definition.Typed.Consequences.Syntactic R
-open import Definition.Typed.Consequences.Substitution R
-open import Definition.Typed.Consequences.Stability R
 open import Definition.Typed.Consequences.Injectivity R
-open import Definition.Typed.Consequences.Inversion R
 open import Definition.Typed.Consequences.Reduction R
 open import Definition.Typed.Consequences.Equality R
 open import Definition.Typed.Consequences.NeTypeEq R
-open import Definition.Typed.Consequences.DerivedRules.Nat R
-
-import Graded.Derived.Erased.Untyped 𝕄 as Erased
 
 open import Tools.Fin
 open import Tools.Function
@@ -337,7 +334,7 @@ private opaque
   dec~↑-unitrec-cong
     no-η ⊢t₁ (yes (PE.refl , PE.refl , PE.refl , _ , t₁~t₂)) dec₁ dec₂ =
     case
-      (dec₁ (reflConEq (⊢→⊢∙ (syntacticTerm ⊢t₁))) ×-dec′ λ A₁≡A₂ →
+      (dec₁ (reflConEq (∙ syntacticTerm ⊢t₁)) ×-dec′ λ A₁≡A₂ →
        dec₂
          (substTypeEq (soundnessConv↑ A₁≡A₂) $
           _⊢_≡_∷_.refl $
@@ -820,7 +817,7 @@ mutual
   dec~↓ ([~] _ _ k~l) ([~] _ _ k~l₁) | yes (B , k~l₂) =
     let ⊢B , _ , _ = syntacticEqTerm (soundness~↑ k~l₂)
         C , whnfC , D′ = whNorm ⊢B
-    in  yes (C , [~] B (red D′ , whnfC) k~l₂)
+    in  yes (C , [~] B (D′ , whnfC) k~l₂)
   dec~↓ ([~] _ _ k~l) ([~] _ _ k~l₁) | no ¬p =
     no (λ { (_ , [~] A₃ _ k~l₂) → ¬p (A₃ , k~l₂) })
 

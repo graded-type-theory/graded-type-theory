@@ -5,8 +5,9 @@
 -- These definitions are part of an investigation of to what degree
 -- weak Σ-types can emulate strong Σ-types, and vice versa. This
 -- investigation was prompted by a question asked by an anonymous
--- reviewer. See also Definition.Typed.Consequences.DerivedRules.Sigma
--- and Graded.Derived.Sigma.
+-- reviewer. See also Definition.Typed.Properties.Admissible.Sigma,
+-- Definition.Typed.Consequences.Admissible.Sigma, and
+-- Graded.Derived.Sigma.
 
 open import Graded.Modality
 
@@ -159,3 +160,27 @@ opaque
     snd⟨ s ⟩ p q (A [ σ ]) (B [ liftSubst σ ]) (t [ σ ])
   snd⟨⟩-[] {s = 𝕤}         = refl
   snd⟨⟩-[] {s = 𝕨} {B} {t} = sndʷ-[] B t
+
+opaque
+
+  -- A witness for a propositional η-rule.
+
+  Σʷ-η-prodʷ-fstʷ-sndʷ :
+    M → M → Term n → Term (1+ n) → Term n → Term n
+  Σʷ-η-prodʷ-fstʷ-sndʷ p q A B t =
+    prodrec 𝟘 p 𝟙
+      (Id (wk1 (Σʷ p , q ▷ A ▹ B))
+         (prodʷ p (fstʷ p (wk1 A) (var x0))
+            (sndʷ p q (wk1 A) (wk (lift (step id)) B) (var x0)))
+         (var x0))
+      t
+      rfl
+
+opaque
+
+  -- A witness for a propositional η-rule.
+
+  Σ⟨_⟩-η-prod-fst-snd :
+    Strength → M → M → Term n → Term (1+ n) → Term n → Term n
+  Σ⟨ 𝕤 ⟩-η-prod-fst-snd = λ _ _ _ _ _ → rfl
+  Σ⟨ 𝕨 ⟩-η-prod-fst-snd = Σʷ-η-prodʷ-fstʷ-sndʷ

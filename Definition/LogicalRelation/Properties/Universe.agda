@@ -42,10 +42,17 @@ private opaque
   -- A lemma used below.
 
   univEq′ :
+<<<<<<< HEAD
     (⊩U : Γ ⊩⟨ l ⟩U U t) → Γ ⊩⟨ l ⟩ A ∷ U t / U-intr ⊩U → ∃ λ l′ → Γ ⊩⟨ l′ ⟩ A
   univEq′ (noemb (Uᵣ k [k] k< [ _ , _ , id _ ])) (Uₜ _ _ _ _ ⊩A) =
     _ , ⊩<⇔⊩ k< .proj₁ ⊩A
   univEq′ (noemb (Uᵣ _ _ _ [ _ , _ , U⇒ ⇨ _ ])) _ =
+=======
+    (⊩U : Γ ⊩⟨ l ⟩U U l′) → Γ ⊩⟨ l ⟩ A ∷ U l′ / U-intr ⊩U → Γ ⊩⟨ l′ ⟩ A
+  univEq′ (noemb (Uᵣ _ l< (id _))) (Uₜ _ _ _ _ ⊩A) =
+    ⊩<⇔⊩ l< .proj₁ ⊩A
+  univEq′ (noemb (Uᵣ _ _ (U⇒ ⇨ _))) _ =
+>>>>>>> master
     ⊥-elim (whnfRed U⇒ Uₙ)
   univEq′ (emb p     ⊩U) ⊩A = {!univEq′ ⊩U ⊩A!}
 

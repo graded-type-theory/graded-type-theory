@@ -105,10 +105,10 @@ mutual
   t ®⟨ l ⟩ v ∷ A / ne′ _ D neK K≡K = Lift a ⊥
 
   -- Π:
-  t ®⟨ l ⟩ v ∷ A / Bᵣ′ (BΠ p q) F G D ⊢F ⊢G A≡A [F] [G] G-ext _ =
+  t ®⟨ l ⟩ v ∷ A / Bᵣ′ (BΠ p q) F G D A≡A [F] [G] G-ext _ =
     (str ≡ strict → ∃ λ v′ → v T.⇒* T.lam v′) ×
-    (∀ {a} → ([a] : Δ ⊩⟨ l ⟩ a ∷ U.wk id F / [F] id ⊢Δ) →
-     Π-® l F G t a v ([F] id ⊢Δ) ([G] id ⊢Δ [a]) p (is-𝟘? p))
+    (∀ {a} → ([a] : Δ ⊩⟨ l ⟩ a ∷ U.wk id F / [F] (idʷ ⊢Δ)) →
+     Π-® l F G t a v ([F] (idʷ ⊢Δ)) ([G] (idʷ ⊢Δ) [a]) p (is-𝟘? p))
 
   -- Σ:
   -- t and v are related if:
@@ -116,13 +116,13 @@ mutual
   -- t₂ is related to some v₂ and
   -- there is extra data depending on whether the first component
   -- is erased (see below).
-  t ®⟨ l ⟩ v ∷ A / Bᵣ′ (BΣ m p q) F G D ⊢F ⊢G A≡A [F] [G] G-ext _ =
+  t ®⟨ l ⟩ v ∷ A / Bᵣ′ (BΣ m p q) F G D A≡A [F] [G] G-ext _ =
     ∃₂ λ t₁ t₂ →
     Δ ⊢ t ⇒* U.prod m p t₁ t₂ ∷ Σ⟨ m ⟩ p , q ▷ F ▹ G ×
-    Σ (Δ ⊩⟨ l ⟩ t₁ ∷ U.wk id F / [F] id ⊢Δ) λ [t₁] →
+    Σ (Δ ⊩⟨ l ⟩ t₁ ∷ U.wk id F / [F] (idʷ ⊢Δ)) λ [t₁] →
     ∃ λ v₂ →
-    t₂ ®⟨ l ⟩ v₂ ∷ U.wk (lift id) G U.[ t₁ ]₀ / [G] id ⊢Δ [t₁] ×
-    Σ-® l F ([F] id ⊢Δ) t₁ v v₂ p
+    t₂ ®⟨ l ⟩ v₂ ∷ U.wk (lift id) G U.[ t₁ ]₀ / [G] (idʷ ⊢Δ) [t₁] ×
+    Σ-® l F ([F] (idʷ ⊢Δ)) t₁ v v₂ p
 
   -- Identity types.
   t ®⟨ _ ⟩ v ∷ A / Idᵣ ⊩A = t ® v ∷Id⟨ Ty ⟩⟨ lhs ⟩⟨ rhs ⟩

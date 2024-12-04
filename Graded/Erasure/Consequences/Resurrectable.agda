@@ -19,22 +19,21 @@ open Type-restrictions TR
 open Usage-restrictions UR
 
 open import Definition.Typed TR
+open import Definition.Typed.Consequences.Admissible TR
 open import Definition.Typed.Consequences.Canonicity TR
 open import Definition.Typed.Consequences.Consistency TR
-open import Definition.Typed.Consequences.DerivedRules TR
 open import Definition.Typed.Consequences.Inversion TR
-open import Definition.Typed.Consequences.Syntactic TR
 open import Definition.Typed.EqRelInstance TR
 open import Definition.Typed.Properties TR
 open import Definition.Typed.Reasoning.Term TR
+open import Definition.Typed.Syntactic TR
 open import Definition.Untyped M
+open import Definition.Untyped.Erased 𝕄 as Erased using (Erased)
 open import Definition.Untyped.Unit 𝕄
 
 open import Graded.Context 𝕄
 open import Graded.Context.Properties 𝕄
-open import Graded.Derived.Erased.Typed TR
 open import Graded.Derived.Erased.Usage 𝕄 UR
-open import Graded.Derived.Erased.Untyped 𝕄 as Erased using (Erased)
 open import Graded.Derived.Sigma 𝕄 UR
 open import Graded.Derived.Unit UR
 open import Graded.Erasure.Consequences.Identity TR UR
@@ -135,9 +134,9 @@ opaque
             𝟘 ·ᶜ (𝟘ᶜ , x0 ≔ ⌜ ⌞ 𝟘 ⌟ ⌝)  ∎))
     , (lamⱼ′ ok₁ $
        emptyrecⱼ
-         (ΠΣⱼ′
+         (ΠΣⱼ
             (Erasedⱼ Erased-ok $
-             Idⱼ (var₀ (Emptyⱼ (⊢Γ ∙[ Emptyⱼ ])))
+             Idⱼ′ (var₀ (Emptyⱼ (⊢Γ ∙[ Emptyⱼ ])))
                (var₁ (Emptyⱼ (⊢Γ ∙[ Emptyⱼ ]))))
             ok₂)
          (var₀ (Emptyⱼ ⊢Γ)))
@@ -174,8 +173,8 @@ opaque
             𝟘ᶜ ∧ᶜ 𝟘ᶜ       ≈˘⟨ ∧ᶜ-congʳ $ ·ᶜ-zeroʳ _ ⟩
             𝟙 ·ᶜ 𝟘ᶜ ∧ᶜ 𝟘ᶜ  ∎))
     , (lamⱼ′ ok₁ $
-       ⊢prod
-         (Erasedⱼ Erased-ok (Idⱼ (var₀ ⊢Unit₂) (var₁ ⊢Unit₂)))
+       prodⱼ
+         (Erasedⱼ Erased-ok (Idⱼ′ (var₀ ⊢Unit₂) (var₁ ⊢Unit₂)))
          (starⱼ ⊢Γ∙Unit Unit-ok)
          ([]ⱼ Erased-ok (⊢Unit-η (var₀ ⊢Unit₁)))
          ok₂)
@@ -187,7 +186,7 @@ opaque
     ⊢Unit₁ = Unitⱼ ⊢Γ Unit-ok
 
     ⊢Γ∙Unit : ⊢ Γ ∙ Unit s₂ l
-    ⊢Γ∙Unit = wf ⊢Unit₁ ∙ ⊢Unit₁
+    ⊢Γ∙Unit = ∙ ⊢Unit₁
 
     ⊢Unit₂ : Γ ∙ Unit s₂ l ⊢ Unit s₂ l
     ⊢Unit₂ = Unitⱼ ⊢Γ∙Unit Unit-ok

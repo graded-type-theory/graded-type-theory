@@ -3,6 +3,6 @@ depend: standard-library
 include: .
 flags:
   --without-K
-  --safe
+  --allow-unsolved-metas
   --hidden-argument-puns
   -WnoUnsupportedIndexedMatch

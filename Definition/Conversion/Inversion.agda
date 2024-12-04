@@ -24,10 +24,9 @@ open import Definition.Conversion.Whnf R
 
 open import Definition.Typed R
 open import Definition.Untyped M
+import Definition.Untyped.Erased 𝕄 as Erased
 open import Definition.Untyped.Neutral M type-variant
 open import Definition.Untyped.Properties.Neutral M type-variant
-
-import Graded.Derived.Erased.Untyped 𝕄 as Erased
 
 open import Tools.Empty
 open import Tools.Function

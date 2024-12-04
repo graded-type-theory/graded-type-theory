@@ -5,27 +5,26 @@
 open import Graded.Modality
 open import Graded.Usage.Restrictions
 open import Definition.Typed.Restrictions
-open import Tools.Bool
 
 module Graded.Heap.Typed.Inversion
   {a} {M : Set a} {𝕄 : Modality M}
   (UR : Usage-restrictions 𝕄)
   (TR : Type-restrictions 𝕄)
-  (ℕ-fullred : Bool)
   where
 
 open Type-restrictions TR
 
 open import Definition.Untyped M
+import Definition.Untyped.Erased 𝕄 as E
 open import Definition.Typed TR
-open import Definition.Typed.Consequences.DerivedRules TR
-open import Definition.Typed.Consequences.Substitution TR
-import Graded.Derived.Erased.Untyped 𝕄 as E
-open import Graded.Derived.Erased.Typed TR
+open import Definition.Typed.Consequences.Admissible TR
+open import Definition.Typed.Properties TR
+open import Definition.Typed.Substitution TR
 
-open import Graded.Heap.Typed UR TR ℕ-fullred
+open import Graded.Heap.Typed UR TR
 open import Graded.Heap.Untyped type-variant UR
 
+open import Tools.Empty
 open import Tools.Fin
 open import Tools.Function
 open import Tools.Product
@@ -63,31 +62,31 @@ opaque
 
   -- Inversion of fst
 
-  inversion-fstₑ : Δ ⨾ H ⊢ᵉ fstₑ p ⟨ t ⟩∷ A ↝ B
-                 → ∃₃ λ F G q → (Δ ⊢ F) × (Δ ∙ F ⊢ G)
-                   × A PE.≡ Σˢ p , q ▷ F ▹ G × Δ ⊢ B ≡ F
-  inversion-fstₑ (fstₑ ⊢A ⊢B) =
-    _ , _ , _ , ⊢A , ⊢B , PE.refl , refl ⊢A
+  inversion-fstₑ :
+    Δ ⨾ H ⊢ᵉ fstₑ p ⟨ t ⟩∷ A ↝ B →
+    ∃₃ λ F G q → (Δ ∙ F ⊢ G) × A PE.≡ Σˢ p , q ▷ F ▹ G × Δ ⊢ B ≡ F
+  inversion-fstₑ (fstₑ ⊢B) =
+    _ , _ , _ , ⊢B , PE.refl , refl (⊢∙→⊢ (wf ⊢B))
   inversion-fstₑ (conv ⊢e B≡B′) =
     case inversion-fstₑ ⊢e of λ
-      (F , G , q , ⊢F , ⊢G , A≡Σ , B′≡) →
-    _ , _ , _ , ⊢F , ⊢G , A≡Σ , trans (sym B≡B′) B′≡
+      (F , G , q , ⊢G , A≡Σ , B′≡) →
+    _ , _ , _ , ⊢G , A≡Σ , trans (sym B≡B′) B′≡
 
 opaque
 
   -- Inversion of snd
 
-  inversion-sndₑ : Δ ⨾ H ⊢ᵉ sndₑ p ⟨ t ⟩∷ A ↝ B
-                 → ∃₃ λ F G q → (Δ ⊢ F) × (Δ ∙ F ⊢ G)
-                   × A PE.≡ Σˢ p , q ▷ F ▹ G
-                   × (Δ ⊢ t [ H ]ₕ ∷ A → Δ ⊢ B ≡ G [ fst p t [ H ]ₕ ]₀)
-  inversion-sndₑ (sndₑ ⊢A ⊢B) =
-    _ , _ , _ , ⊢A , ⊢B , PE.refl
+  inversion-sndₑ :
+    Δ ⨾ H ⊢ᵉ sndₑ p ⟨ t ⟩∷ A ↝ B →
+    ∃₃ λ F G q → (Δ ∙ F ⊢ G) × A PE.≡ Σˢ p , q ▷ F ▹ G ×
+      (Δ ⊢ t [ H ]ₕ ∷ A → Δ ⊢ B ≡ G [ fst p t [ H ]ₕ ]₀)
+  inversion-sndₑ (sndₑ ⊢B) =
+    _ , _ , _ , ⊢B , PE.refl
       , λ ⊢t → refl (substType ⊢B (fstⱼ′ ⊢t))
   inversion-sndₑ (conv ⊢e B≡B′) =
     case inversion-sndₑ ⊢e of λ
-      (F , G , q , ⊢F , ⊢G , A≡Σ , B≡Gt) →
-    _ , _ , _ , ⊢F , ⊢G , A≡Σ
+      (F , G , q , ⊢G , A≡Σ , B≡Gt) →
+    _ , _ , _ , ⊢G , A≡Σ
       , λ ⊢t → trans (sym B≡B′) (B≡Gt ⊢t)
 
 opaque
@@ -116,15 +115,14 @@ opaque
   inversion-natrecₑ : Δ ⨾ H ⊢ᵉ natrecₑ p q r A z s ρ ⟨ t ⟩∷ B ↝ C
                     → Δ ⊢ wk ρ z [ H ]ₕ ∷ wk (lift ρ) A [ H ]⇑ₕ [ zero ]₀
                     × Δ ∙ ℕ ∙ wk (lift ρ) A [ H ]⇑ₕ ⊢ wk (liftn ρ 2) s [ H ]⇑²ₕ ∷ wk (lift ρ) A [ H ]⇑ₕ [ suc (var x1) ]↑²
-                    × Δ ∙ ℕ ⊢ wk (lift ρ) A [ H ]⇑ₕ
                     × B PE.≡ ℕ
                     × (Δ ⊢ t [ H ]ₕ ∷ ℕ → Δ ⊢ C ≡ wk (lift ρ) A [ H ]⇑ₕ [ t [ H ]ₕ ]₀)
-  inversion-natrecₑ (natrecₑ ⊢z ⊢s ⊢A) =
-    ⊢z , ⊢s , ⊢A , PE.refl , λ ⊢t → refl (substType ⊢A ⊢t)
+  inversion-natrecₑ (natrecₑ ⊢z ⊢s) =
+    ⊢z , ⊢s , PE.refl , λ ⊢t → refl (substType (⊢∙→⊢ (wfTerm ⊢s)) ⊢t)
   inversion-natrecₑ (conv ⊢e ≡C) =
     case inversion-natrecₑ ⊢e of λ
-      (⊢z , ⊢s , ⊢A , B≡ , C′≡) →
-    ⊢z , ⊢s , ⊢A , B≡ , λ ⊢t → trans (sym ≡C) (C′≡ ⊢t)
+      (⊢z , ⊢s , B≡ , C′≡) →
+    ⊢z , ⊢s , B≡ , λ ⊢t → trans (sym ≡C) (C′≡ ⊢t)
 
 opaque
 
@@ -206,9 +204,8 @@ opaque
                         Δ ⊢ wk ρ u [ H ]ₕ ∷ wk ρ A [ H ]ₕ →
                         Δ ⊢ C ≡ (wk ρ (Id (Erased A) ([ t ]) ([ u ])) [ H ]ₕ))
   inversion-[]-congₑ ([]-congₑ ok) =
-    ok , PE.refl
-       , λ ⊢t ⊢u → refl (Idⱼ ([]ⱼ ([]-cong→Erased ok) ⊢t)
-                             ([]ⱼ ([]-cong→Erased ok) ⊢u))
+    let E-ok = []-cong→Erased ok in
+    ok , PE.refl , λ ⊢t ⊢u → refl (Idⱼ′ ([]ⱼ E-ok ⊢t) ([]ⱼ E-ok ⊢u))
   inversion-[]-congₑ (conv ⊢e ≡C) =
     case inversion-[]-congₑ ⊢e of λ
       (ok , B≡ , C′≡) →
@@ -218,11 +215,42 @@ opaque
 
   -- Inversion of suc
 
-  inversion-sucₑ : Δ ⨾ H ⊢ᵉ sucₑ ⟨ t ⟩∷ A ↝ B
-                 → T ℕ-fullred × A PE.≡ ℕ × (⊢ Δ → Δ ⊢ B ≡ ℕ)
-  inversion-sucₑ (sucₑ ⦃ (x) ⦄) =
-    x , PE.refl , λ ⊢Δ → refl (ℕⱼ ⊢Δ)
-  inversion-sucₑ (conv ⊢e ≡B) =
-    case inversion-sucₑ ⊢e of λ
-      (x , A≡ , B′≡) →
-    x , A≡ , λ ⊢Δ → trans (sym ≡B) (B′≡ ⊢Δ)
+  inversion-sucₑ : Δ ⨾ H ⊢ᵉ sucₑ ⟨ t ⟩∷ A ↝ B → ⊥
+  inversion-sucₑ (conv ⊢e _) = inversion-sucₑ ⊢e
+
+opaque
+
+  -- Inversion of stack typing
+
+  ⊢ˢ-inv :
+    Δ ⨾ H ⊢ e ∙ S ⟨ t ⟩∷ A ↝ B →
+    ∃ λ C → Δ ⨾ H ⊢ᵉ e ⟨ t ⟩∷ A ↝ C ×
+    (Δ ⨾ H ⊢ S ⟨ ⦅ e ⦆ᵉ t ⟩∷ C ↝ B)
+  ⊢ˢ-inv (⊢e ∙ ⊢S) = _ , ⊢e , ⊢S
+
+opaque
+
+  -- Inversion of state typing
+
+  ⊢ₛ-inv :
+    Δ ⊢ₛ ⟨ H , t , ρ , S ⟩ ∷ A →
+    ∃₂ λ Γ B → Δ ⊢ʰ H ∷ Γ ×
+    Δ ⊢ wk ρ t [ H ]ₕ ∷ B ×
+    Δ ⨾ H ⊢ S ⟨ wk ρ t ⟩∷ B ↝ A
+  ⊢ₛ-inv (⊢ₛ ⊢H ⊢t ⊢S) =
+    _ , _ , ⊢H , ⊢t , ⊢S
+
+opaque
+
+  -- Inversion of state typing with a non-empty stack.
+
+  ⊢ₛ-inv′ :
+    Δ ⊢ₛ ⟨ H , t , ρ , e ∙ S ⟩ ∷ A →
+    ∃₃ λ Γ B C → Δ ⊢ʰ H ∷ Γ ×
+    Δ ⊢ wk ρ t [ H ]ₕ ∷ B ×
+    Δ ⨾ H ⊢ᵉ e ⟨ wk ρ t ⟩∷ B ↝ C ×
+    Δ ⨾ H ⊢ S ⟨ ⦅ e ⦆ᵉ (wk ρ t) ⟩∷ C ↝ A
+  ⊢ₛ-inv′ ⊢s =
+    let _ , _ , ⊢H , ⊢t , ⊢eS = ⊢ₛ-inv ⊢s
+        _ , ⊢e , ⊢S = ⊢ˢ-inv ⊢eS
+    in  _ , _ , _ , (⊢H , ⊢t , ⊢e , ⊢S)

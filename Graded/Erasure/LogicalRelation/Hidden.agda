@@ -29,9 +29,9 @@ open import Definition.LogicalRelation.Substitution TR
 open import Definition.LogicalRelation.Substitution.Introductions TR
 open import Definition.Typed TR
 open import Definition.Typed.Consequences.Inversion TR
-open import Definition.Typed.Consequences.Syntactic TR
+open import Definition.Typed.Inversion TR
 open import Definition.Typed.Properties TR
-open import Definition.Typed.RedSteps TR
+open import Definition.Typed.Syntactic TR
 import Definition.Typed.Weakening TR as W
 open import Definition.Untyped M
 open import Definition.Untyped.Neutral M type-variant
@@ -123,7 +123,7 @@ opaque
     , (λ ())
 
 opaque
-  unfolding _®_∷_ ⊩Unit⇔
+  unfolding _®_∷_ ⊩Unit⇔ whrDet*
 
   -- A characterisation lemma for Unit.
 
@@ -171,7 +171,7 @@ opaque
          case irrelevanceTerm ⊩Id (Idᵣ ⊩Id′) t®v of λ {
            (rflᵣ t⇒* ⇒*↯) →
            escape-⊩ (wf-⊩∷ $ ⊩Id⇔ .proj₁ ⊩Id .proj₁)
-         , rflᵣ (conv* t⇒* (sym (subset* (red (_⊩ₗId_.⇒*Id ⊩Id′)))))
+         , rflᵣ (conv* t⇒* (sym (subset* (_⊩ₗId_.⇒*Id ⊩Id′))))
              ⇒*↯ })
     , (λ (⊢A , t®v) →
          case reducible-⊩ ⊢A of λ
@@ -209,31 +209,31 @@ opaque
            escape-⊩ ⊩Π , t®v .proj₁
          , λ t′ ⊢t′ →
              case B-PE-injectivity (BΠ _ _) (BΠ _ _)
-                    (whnfRed* (red (_⊩ₗB⟨_⟩_.D ⊩Π′)) ΠΣₙ) of λ {
+                    (whnfRed* (_⊩ₗB⟨_⟩_.D ⊩Π′) ΠΣₙ) of λ {
                (PE.refl , PE.refl , _) →
              case reducible-⊩∷ $
                   PE.subst (_⊢_∷_ _ _) (PE.sym $ wk-id _) ⊢t′ of λ
                (_ , ⊩A , ⊩t′) →
-             case IR.irrelevanceTerm ⊩A (_⊩ₗB⟨_⟩_.[F] ⊩Π′ W.id ⊢Δ)
+             case IR.irrelevanceTerm ⊩A (_⊩ₗB⟨_⟩_.[F] ⊩Π′ (W.idʷ ⊢Δ))
                     ⊩t′ of λ
                ⊩t′ →
              case PE.subst (_⊩⟨_⟩_ _ _)
                     (PE.cong _[ _ ]₀ $ wk-lift-id B) $
-                  _⊩ₗB⟨_⟩_.[G] ⊩Π′ W.id ⊢Δ ⊩t′ of λ
+                  _⊩ₗB⟨_⟩_.[G] ⊩Π′ (W.idʷ ⊢Δ) ⊩t′ of λ
                ⊩B[t′] →
                (λ { PE.refl →
                     _ , ⊩B[t′]
                   , irrelevanceTerm′ (PE.cong _[ t′ ]₀ $ wk-lift-id B)
-                      (_⊩ₗB⟨_⟩_.[G] ⊩Π′ W.id ⊢Δ ⊩t′) ⊩B[t′]
+                      (_⊩ₗB⟨_⟩_.[G] ⊩Π′ (W.idʷ ⊢Δ) ⊩t′) ⊩B[t′]
                       (Π-®-𝟘 (is-𝟘? 𝟘) (t®v .proj₂ ⊩t′)) })
              , (λ p≢𝟘 _ t′®v′ →
                     _ , ⊩B[t′]
                   , irrelevanceTerm′ (PE.cong _[ t′ ]₀ $ wk-lift-id B)
-                      (_⊩ₗB⟨_⟩_.[G] ⊩Π′ W.id ⊢Δ ⊩t′) ⊩B[t′]
+                      (_⊩ₗB⟨_⟩_.[G] ⊩Π′ (W.idʷ ⊢Δ) ⊩t′) ⊩B[t′]
                       (Π-®-ω p≢𝟘 (is-𝟘? p) (t®v .proj₂ ⊩t′)
                          (irrelevanceTerm′ (PE.sym $ wk-id _)
                             (t′®v′ .proj₂ .proj₁)
-                            (_⊩ₗB⟨_⟩_.[F] ⊩Π′ W.id ⊢Δ) $
+                            (_⊩ₗB⟨_⟩_.[F] ⊩Π′ (W.idʷ ⊢Δ)) $
                           t′®v′ .proj₂ .proj₂))) }})
     , (λ (⊢Π , v⇒*lam , t®v) →
            _
@@ -343,10 +343,10 @@ opaque
          case irrelevanceTerm ⊩Σ (Bᵣ _ ⊩Σ′) t®v of λ
            (t₁ , t₂ , t⇒ , ⊩t₁ , v₂ , t₂®v₂ , rest) →
          case B-PE-injectivity (BΣ _ _ _) (BΣ _ _ _)
-                (whnfRed* (red (_⊩ₗB⟨_⟩_.D ⊩Σ′)) ΠΣₙ) of λ {
+                (whnfRed* (_⊩ₗB⟨_⟩_.D ⊩Σ′) ΠΣₙ) of λ {
            (PE.refl , PE.refl , _) →
-         let ⊩wk-A     = _⊩ₗB⟨_⟩_.[F] ⊩Σ′ W.id ⊢Δ
-             ⊩wk-B[t₁] = _⊩ₗB⟨_⟩_.[G] ⊩Σ′ W.id ⊢Δ ⊩t₁
+         let ⊩wk-A     = _⊩ₗB⟨_⟩_.[F] ⊩Σ′ (W.idʷ ⊢Δ)
+             ⊩wk-B[t₁] = _⊩ₗB⟨_⟩_.[G] ⊩Σ′ (W.idʷ ⊢Δ) ⊩t₁
          in
          case PE.subst (_⊩⟨_⟩_ _ _) (wk-id _) ⊩wk-A of λ
            ⊩A →
@@ -374,7 +374,7 @@ opaque
     , (λ (⊢Σ , _ , _ , v₂ , t⇒*prod , (_ , ⊩B , t₂®v₂) , hyp₁ , hyp₂) →
          case ⊩ΠΣ⇔ .proj₁ (reducible-⊩ ⊢Σ .proj₂) of λ
            ⊩Σ′@(_ , _ , rest) →
-         let ⊩wk-A , wk-B≡wk-B = rest W.id ⊢Δ in
+         let ⊩wk-A , wk-B≡wk-B = rest (W.idʷ ⊢Δ) in
          case inversion-prod-Σ $
               syntacticEqTerm (subset*Term t⇒*prod) .proj₂ .proj₂ of λ
            (⊢t₁ , _) →

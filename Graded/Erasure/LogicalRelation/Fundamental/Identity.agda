@@ -20,14 +20,13 @@ open Has-well-behaved-zero 𝟘-well-behaved
 open Type-restrictions R
 
 open import Definition.Typed R
+open import Definition.Typed.Consequences.Admissible R
 open import Definition.Typed.Consequences.Canonicity R
-open import Definition.Typed.Consequences.DerivedRules R
 open import Definition.Typed.Consequences.Inversion R
-import Definition.Typed.Consequences.RedSteps R as RS
-open import Definition.Typed.Consequences.Substitution R
-open import Definition.Typed.Consequences.Syntactic R
 open import Definition.Typed.Properties R
 open import Definition.Typed.Reasoning.Reduction R
+open import Definition.Typed.Substitution R
+open import Definition.Typed.Syntactic R
 
 open import Definition.LogicalRelation R
 open import Definition.LogicalRelation.Fundamental R
@@ -40,12 +39,12 @@ import Definition.LogicalRelation.Substitution.Introductions.Erased R
 open import Definition.LogicalRelation.Substitution.Introductions R
 
 open import Definition.Untyped M
+import Definition.Untyped.Erased 𝕄 as Erased
 open import Definition.Untyped.Properties M
 
 open import Graded.Context 𝕄
 open import Graded.Context.Properties.Has-well-behaved-zero 𝕄
 open import Graded.Erasure.Extraction 𝕄
-import Graded.Derived.Erased.Untyped 𝕄 as Erased
 open import Graded.Erasure.LogicalRelation as
 open import Graded.Erasure.LogicalRelation.Hidden as
 import Graded.Erasure.Target as T
@@ -185,9 +184,9 @@ opaque
     of λ
       v[σ]⇒rfl →
     case                  ∷ B [ v ]₀ [ σ ]            ⟨ singleSubstLift B _ ⟩⇒≡
-      K p A t B u v [ σ ] ∷ B [ σ ⇑ ] [ v [ σ ] ]₀  ⇒*⟨ RS.K-subst* ⊢B[σ⇑] ⊢u[σ] v[σ]⇒rfl ok ⟩∷
+      K p A t B u v [ σ ] ∷ B [ σ ⇑ ] [ v [ σ ] ]₀  ⇒*⟨ K-subst* ⊢B[σ⇑] ⊢u[σ] v[σ]⇒rfl ok ⟩∷
                                                       ⟨ substTypeEq (refl ⊢B[σ⇑]) (subset*Term v[σ]⇒rfl) ⟩⇒
-      K p A t B u rfl [ σ ] ∷ B [ σ ⇑ ] [ rfl ]₀    ⇒⟨ K-β-⇒ ⊢B[σ⇑] ⊢u[σ] ok ⟩∎∷
+      K p A t B u rfl [ σ ] ∷ B [ σ ⇑ ] [ rfl ]₀    ⇒⟨ K-β ⊢B[σ⇑] ⊢u[σ] ok ⟩∎∷
       u [ σ ]                                       ∎
     of λ
       K⇒u[σ] →                                                       $⟨ σ®σ′ ⟩
@@ -195,8 +194,7 @@ opaque
     σ ® σ′ ∷[ 𝟙ᵐ ] Γ ◂ δ                                             →⟨ ▸⊩ʳ∷⇔ .proj₁ ⊩ʳu ⊩σ ⟩
     u [ σ ] ® erase str u T.[ σ′ ] ∷ B [ rfl ]₀ [ σ ] ◂ 𝟙            →⟨ conv-®∷◂ $
                                                                         ⊩ᵛ≡→⊩≡∷→⊩ˢ≡∷→⊩[]₀[]≡[]₀[] (refl-⊩ᵛ≡ ⊩B)
-                                                                          (sym-⊩≡∷ $
-                                                                           ⊩∷-⇒* (⇒*∷→:⇒*:∷ v[σ]⇒rfl) ⊩v[σ])
+                                                                          (sym-⊩≡∷ $ ⊩∷-⇒* v[σ]⇒rfl ⊩v[σ])
                                                                           (refl-⊩ˢ≡∷ ⊩σ) ⟩
     u [ σ ] ® erase str u T.[ σ′ ] ∷ B [ v ]₀ [ σ ] ◂ 𝟙              →⟨ ®∷◂-⇐* K⇒u[σ] T.refl ⟩
     K p A t B u v [ σ ] ® erase str u T.[ σ′ ] ∷ B [ v ]₀ [ σ ] ◂ 𝟙  □
@@ -257,8 +255,8 @@ opaque
               .proj₂ .proj₂) of λ
       t[σ]≡v[σ] →
     case                      ∷ B [ v , w ]₁₀ [ σ ]                    ⟨ [,]-[]-commute B ⟩⇒≡
-      J p q A t B u v w [ σ ] ∷ B [ σ ⇑ ⇑ ] [ v [ σ ] , w [ σ ] ]₁₀  ⇒*⟨ RS.J-subst* ⊢B[σ⇑⇑] ⊢u[σ] w[σ]⇒rfl ⟩∷
-                                                                       ⟨ substTypeEq₂ (refl ⊢B[σ⇑⇑]) (sym t[σ]≡v[σ]) $
+      J p q A t B u v w [ σ ] ∷ B [ σ ⇑ ⇑ ] [ v [ σ ] , w [ σ ] ]₁₀  ⇒*⟨ J-subst* ⊢B[σ⇑⇑] ⊢u[σ] w[σ]⇒rfl ⟩∷
+                                                                       ⟨ substTypeEq₂ (refl ⊢B[σ⇑⇑]) (sym′ t[σ]≡v[σ]) $
                                                                          PE.subst (_⊢_≡_∷_ _ _ _) ≡Id-wk1-wk1-0[]₀ $
                                                                          subset*Term w[σ]⇒rfl ⟩⇒
       J p q A t B u v rfl [ σ ] ∷ B [ σ ⇑ ⇑ ] [ t [ σ ] , rfl ]₁₀    ⇒⟨ J-β-⇒ t[σ]≡v[σ] ⊢B[σ⇑⇑] ⊢u[σ] ⟩∎∷
@@ -276,7 +274,7 @@ opaque
                                                                      (sym-⊩≡∷ $ reducible-⊩≡∷ t[σ]≡v[σ] .proj₂)
                                                                      (PE.subst (_⊩⟨_⟩_≡_∷_ _ _ _ _)
                                                                         (PE.cong₂ _[_] (≡Id-wk1-wk1-0[]₀ {A = A} {t = t}) PE.refl) $
-                                                                      ⊩∷-⇒* (⇒*∷→:⇒*:∷ w[σ]⇒rfl) ⊩w[σ])
+                                                                      ⊩∷-⇒* w[σ]⇒rfl ⊩w[σ])
                                                                      (refl-⊩ˢ≡∷ ⊩σ) ⟩
 
     u [ σ ] ® erase str u T.[ σ′ ] ∷ B [ v , w ]₁₀ [ σ ] ◂ 𝟙    →⟨ ®∷◂-⇐* J⇒u[σ] T.refl ⟩

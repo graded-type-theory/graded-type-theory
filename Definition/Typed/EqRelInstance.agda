@@ -13,11 +13,12 @@ module Definition.Typed.EqRelInstance
   where
 
 open import Definition.Typed R
+open import Definition.Typed.Properties R
 open import Definition.Typed.Weakening R
-open import Definition.Typed.Reduction R
 open import Definition.Typed.EqualityRelation R
 
 open import Tools.Function
+open import Tools.Product
 
 private opaque
 
@@ -30,8 +31,8 @@ private opaque
       .≅ₜ-eq        → idᶠ
       .≅-univ       → univ
       .≅-sym        → sym
-      .≅ₜ-sym       → sym
-      .~-sym        → sym
+      .≅ₜ-sym       → sym′
+      .~-sym        → sym′
       .≅-trans      → trans
       .≅ₜ-trans     → trans
       .~-trans      → trans
@@ -40,8 +41,9 @@ private opaque
       .≅-wk         → wkEq
       .≅ₜ-wk        → wkEqTerm
       .~-wk         → wkEqTerm
-      .≅-red        → reduction
-      .≅ₜ-red       → reductionₜ
+      .≅-red        → λ (A⇒* , _) (B⇒* , _) → reduction A⇒* B⇒*
+      .≅ₜ-red       → λ (A⇒* , _) (t⇒* , _) (u⇒* , _) →
+                        reductionₜ A⇒* t⇒* u⇒*
       .≅-Levelrefl  → refl ∘ᶠ Levelⱼ
       .≅ₜ-zeroᵘrefl → refl ∘ᶠ zeroᵘⱼ
       .≅ₜ-sucᵘ-cong → sucᵘ-cong
@@ -57,9 +59,8 @@ private opaque
       .≅ₜ-zerorefl  → refl ∘ᶠ zeroⱼ
       .≅-suc-cong   → suc-cong
       .≅-prod-cong  → prod-cong
-      .≅-η-eq       → λ ⊢A ⊢t ⊢u _ _ t0≡u0 → η-eq ⊢A ⊢t ⊢u t0≡u0
-      .≅-Σ-η        → λ ⊢A ⊢B ⊢t ⊢u _ _ fst≡ snd≡ →
-                        Σ-η ⊢A ⊢B ⊢t ⊢u fst≡ snd≡
+      .≅-η-eq       → λ ⊢t ⊢u _ _ t0≡u0 → η-eq′ ⊢t ⊢u t0≡u0
+      .≅-Σ-η        → λ _ ⊢t ⊢u _ _ fst≡ snd≡ → Σ-η′ ⊢t ⊢u fst≡ snd≡
       .~-var        → refl
       .~-app        → app-cong
       .~-fst        → fst-cong

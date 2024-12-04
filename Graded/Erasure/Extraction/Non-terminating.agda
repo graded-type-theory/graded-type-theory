@@ -43,7 +43,7 @@ open Type-restrictions TR
 open Usage-restrictions UR
 
 open import Definition.Typed TR
-open import Definition.Typed.Consequences.DerivedRules TR
+open import Definition.Typed.Consequences.Admissible TR
 open import Definition.Typed.Properties TR
 open import Definition.Untyped M
 open import Definition.Untyped.Identity 𝕄
@@ -145,7 +145,7 @@ opaque
     Γ ⊢ u ∷ A →
     Γ ⊢ cast t A B u ∷ B
   ⊢cast ⊢t ⊢A ⊢B =
-    ⊢subst (univ $ var₀ $ Uⱼ (wfTerm ⊢t)) (emptyrecⱼ (Idⱼ ⊢A ⊢B) ⊢t)
+    ⊢subst (univ $ var₀ $ Uⱼ (wfTerm ⊢t)) (emptyrecⱼ (Idⱼ′ ⊢A ⊢B) ⊢t)
 
 opaque
   unfolding cast
@@ -421,7 +421,7 @@ opaque
     ⊢ Γ →
     Γ ⊢ loops q ∷ ℕ
   ⊢loops 𝟘-ok ω-ok ω+ω-ok ⊢Γ =
-    lamⱼ′ ω-ok (zeroⱼ (⊢Γ ∙ ΠΣⱼ′ Empty⊢ℕ 𝟘-ok)) ∘ⱼ
+    lamⱼ′ ω-ok (zeroⱼ (∙ ΠΣⱼ Empty⊢ℕ 𝟘-ok)) ∘ⱼ
     ⊢extracts-to-loop 𝟘-ok ω-ok ω+ω-ok ⊢Γ
     where
     open Lemmas ⊢Γ

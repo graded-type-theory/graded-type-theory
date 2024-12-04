@@ -28,17 +28,17 @@ import Definition.LogicalRelation.Fundamental
 import Definition.LogicalRelation.Fundamental.Reducibility
 import Definition.LogicalRelation.Substitution
 import Definition.Typed
-import Definition.Typed.Consequences.DerivedRules
-import Definition.Typed.Consequences.DerivedRules.Sigma
-import Definition.Typed.Consequences.Inversion
+import Definition.Typed.Consequences.Admissible
+import Definition.Typed.Consequences.Admissible.Sigma
 import Definition.Typed.Consequences.Reduction
-import Definition.Typed.Consequences.Substitution
-import Definition.Typed.Consequences.Syntactic
 import Definition.Typed.Decidable
 import Definition.Typed.Decidable.Equality
 import Definition.Typed.Eta-long-normal-form
+import Definition.Typed.Inversion
 import Definition.Typed.Properties
 import Definition.Typed.Restrictions
+import Definition.Typed.Substitution
+import Definition.Typed.Syntactic
 import Definition.Typed.Weakening
 import Definition.Untyped
 import Definition.Untyped.Sigma
@@ -139,6 +139,9 @@ import Graded.Usage.Restrictions.Satisfied
 --
 -- * The logical relations for reducibility and erasure have been
 --   changed.
+--
+-- * Some "superfluous" assumptions have been removed from the typing
+--   and definitional equality relations.
 
 -- Another notable change is related to the natrec-star operators. The
 -- paper does not focus on linearity, but some modalities for linear
@@ -297,10 +300,8 @@ types = Definition.Typed.Restrictions.Type-restrictions
 --   certain type ("Unit" or "B_p^q C D"), then this type must be
 --   allowed:
 
-Unit-allowed =
-  Definition.Typed.Consequences.Inversion.⊢∷Unit→Unit-allowed
-ΠΣ-allowed =
-  Definition.Typed.Consequences.Inversion.⊢∷ΠΣ→ΠΣ-allowed
+Unit-allowed = Definition.Typed.Inversion.⊢∷Unit→Unit-allowed
+ΠΣ-allowed   = Definition.Typed.Inversion.⊢∷ΠΣ→ΠΣ-allowed
 
 -- * One can choose whether to allow the term prodrec_r,p^q (and one
 --   can choose to only allow this term for the mode 𝟘ᵐ):
@@ -567,16 +568,10 @@ Con = Definition.Untyped.Con
 
 wkEq = Definition.Typed.Weakening.wkEq
 
--- A derived congruence rule for Π- and Σ-types with fewer
--- assumptions.
-
-ΠΣ-cong′ = Definition.Typed.Consequences.DerivedRules.ΠΣ-cong′
-
 -- One can define something like prodrec for the strong Σ-types.
 
 prodrec-for-Σₚ              = Definition.Untyped.Sigma.prodrecˢ
-prodrec-for-Σₚ-type-correct =
-  Definition.Typed.Consequences.DerivedRules.Sigma.prodrecˢⱼ
+prodrec-for-Σₚ-type-correct = Definition.Typed.Properties.prodrecˢⱼ
 
 -- However, our definition does not in general satisfy the usage rule
 -- for prodrec.
@@ -591,7 +586,7 @@ snd-for-Σᵣ = Definition.Untyped.Sigma.Fstʷ-sndʷ.sndʷ
 -- However, η-equality does not hold in general for our definitions.
 
 no-η-equality-Σᵣ =
-  Definition.Typed.Consequences.DerivedRules.Sigma.¬-Σʷ-η-prodʷ-fstʷ-sndʷ
+  Definition.Typed.Consequences.Admissible.Sigma.¬-Σʷ-η-prodʷ-fstʷ-sndʷ
 
 -- Reduction relations
 
@@ -616,20 +611,18 @@ Theorem-4-4b = Definition.Typed.Properties.whrDet*
 -- * Admissibility of substitution.
 
 substitutionAdmissible =
-  Definition.Typed.Consequences.Substitution.substitution
+  Definition.Typed.Substitution.substitution
 substitutionAdmissibleEq =
-  Definition.Typed.Consequences.Substitution.substitutionEq
+  Definition.Typed.Substitution.substitutionEq
 substitutionAdmissibleTerm =
-  Definition.Typed.Consequences.Substitution.substitutionTerm
+  Definition.Typed.Substitution.substitutionTerm
 substitutionAdmissibleEqTerm =
-  Definition.Typed.Consequences.Substitution.substitutionEqTerm
+  Definition.Typed.Substitution.substitutionEqTerm
 
 -- * Subject reduction.
 
-subjectReduction =
-  Definition.Typed.Consequences.Syntactic.syntacticRed
-subjectReductionTerm =
-  Definition.Typed.Consequences.Syntactic.syntacticRedTerm
+subjectReduction     = Definition.Typed.Syntactic.syntacticRed
+subjectReductionTerm = Definition.Typed.Syntactic.syntacticRedTerm
 
 -- * Normalization.
 
@@ -1203,11 +1196,6 @@ linear-or-affine =
 
 ------------------------------------------------------------------------
 -- A: A Logical Relation for Reducibility
-
--- Combined reduction and typing relations.
-
-_⊢_:⇒*:_∷_ = Definition.Typed._⊢_:⇒*:_∷_
-_⊢_:⇒*:_   = Definition.Typed._⊢_:⇒*:_
 
 -- The relation _:_⊇_.
 

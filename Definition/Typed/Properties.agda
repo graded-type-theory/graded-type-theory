@@ -11,164 +11,12 @@ module Definition.Typed.Properties
   (R : Type-restrictions 𝕄)
   where
 
-open Type-restrictions R
-
-open import Definition.Typed.Properties.Well-formed R public
-
 open import Definition.Untyped M
-open import Definition.Untyped.Neutral M type-variant
+
 open import Definition.Typed R
 
-import Graded.Derived.Erased.Typed.Primitive R as Erased
-
-open import Tools.Empty using (⊥; ⊥-elim)
 open import Tools.Fin
-open import Tools.Function
-open import Tools.Nat
-open import Tools.Product
-import Tools.PropositionalEquality as PE
-open import Tools.Relation
-open import Tools.Sum using (_⊎_; inj₁; inj₂)
-
-private
-  variable
-    n : Nat
-    Γ : Con Term n
-    A A′ B B′ C D E F U′ : Term n
-    a b l l₁ l₂ t t′ u u′ v w : Term n
-    p p′ q r : M
-    s : Strength
-
-
-------------------------------------------------------------------------
--- Inversion lemmas related to _⊢_⇒_∷_
-
-private opaque
-
-  -- An inversion lemma related to _∘⟨_⟩_.
-
-  inv-⇒-∘ :
-    Γ ⊢ t ∘⟨ p ⟩ u ⇒ v ∷ A →
-    (∃₂ λ t′ B → Γ ⊢ t ⇒ t′ ∷ B × v PE.≡ t′ ∘⟨ p ⟩ u) ⊎
-    (∃ λ t′ → t PE.≡ lam p t′ × v PE.≡ t′ [ u ]₀)
-  inv-⇒-∘ (conv d _)                = inv-⇒-∘ d
-  inv-⇒-∘ (app-subst d _)           = inj₁ (_ , _ , d , PE.refl)
-  inv-⇒-∘ (β-red _ _ _ _ PE.refl _) = inj₂ (_ , PE.refl , PE.refl)
-
-  -- An inversion lemma related to fst.
-
-  inv-⇒-fst :
-    Γ ⊢ fst p t ⇒ u ∷ A →
-    (∃₂ λ t′ B → Γ ⊢ t ⇒ t′ ∷ B × u PE.≡ fst p t′) ⊎
-    (∃₂ λ t′ t″ → t PE.≡ prodˢ p t′ t″ × u PE.≡ t′)
-  inv-⇒-fst (conv d _)               = inv-⇒-fst d
-  inv-⇒-fst (fst-subst _ _ d)        = inj₁ (_ , _ , d , PE.refl)
-  inv-⇒-fst (Σ-β₁ _ _ _ _ PE.refl _) = inj₂ (_ , _ , PE.refl , PE.refl)
-
-  -- An inversion lemma related to snd.
-
-  inv-⇒-snd :
-    Γ ⊢ snd p t ⇒ u ∷ A →
-    (∃₂ λ t′ B → Γ ⊢ t ⇒ t′ ∷ B × u PE.≡ snd p t′) ⊎
-    (∃₂ λ t′ t″ → t PE.≡ prodˢ p t′ t″ × u PE.≡ t″)
-  inv-⇒-snd (conv d _)               = inv-⇒-snd d
-  inv-⇒-snd (snd-subst _ _ d)        = inj₁ (_ , _ , d , PE.refl)
-  inv-⇒-snd (Σ-β₂ _ _ _ _ PE.refl _) = inj₂ (_ , _ , PE.refl , PE.refl)
-
-  -- An inversion lemma related to prodrec.
-
-  inv-⇒-prodrec :
-    Γ ⊢ prodrec r p q A t u ⇒ v ∷ B →
-    (∃₂ λ t′ C → Γ ⊢ t ⇒ t′ ∷ C × v PE.≡ prodrec r p q A t′ u) ⊎
-    (∃₂ λ t′ t″ → t PE.≡ prodʷ p t′ t″ × v PE.≡ u [ t′ , t″ ]₁₀)
-  inv-⇒-prodrec (conv d _) =
-    inv-⇒-prodrec d
-  inv-⇒-prodrec (prodrec-subst _ _ _ _ d _) =
-    inj₁ (_ , _ , d , PE.refl)
-  inv-⇒-prodrec (prodrec-β _ _ _ _ _ _ PE.refl _) =
-    inj₂ (_ , _ , PE.refl , PE.refl)
-
-  -- An inversion lemma related to natrec.
-
-  inv-⇒-natrec :
-    Γ ⊢ natrec p q r A t u v ⇒ w ∷ B →
-    (∃₂ λ v′ C → Γ ⊢ v ⇒ v′ ∷ C × w PE.≡ natrec p q r A t u v′) ⊎
-    v PE.≡ zero × w PE.≡ t ⊎
-    (∃ λ v′ → v PE.≡ suc v′ × w PE.≡ u [ v′ , natrec p q r A t u v′ ]₁₀)
-  inv-⇒-natrec (conv d _) =
-    inv-⇒-natrec d
-  inv-⇒-natrec (natrec-subst _ _ _ d) =
-    inj₁ (_ , _ , d , PE.refl)
-  inv-⇒-natrec (natrec-zero _ _ _) =
-    inj₂ (inj₁ (PE.refl , PE.refl))
-  inv-⇒-natrec (natrec-suc _ _ _ _) =
-    inj₂ (inj₂ (_ , PE.refl , PE.refl))
-
-  -- An inversion lemma related to emptyrec.
-
-  inv-⇒-emptyrec :
-    Γ ⊢ emptyrec p A t ⇒ u ∷ B →
-    (∃₂ λ t′ C → Γ ⊢ t ⇒ t′ ∷ C × u PE.≡ emptyrec p A t′)
-  inv-⇒-emptyrec (conv d _) =
-    inv-⇒-emptyrec d
-  inv-⇒-emptyrec (emptyrec-subst _ d) =
-    _ , _ , d , PE.refl
-
-  -- An inversion lemma related to unitrec.
-
-  inv-⇒-unitrec :
-    Γ ⊢ unitrec p q l A t u ⇒ v ∷ B →
-    (∃₂ λ t′ C → Γ ⊢ t ⇒ t′ ∷ C × v PE.≡ unitrec p q l A t′ u ×
-     ¬ Unitʷ-η) ⊎
-    t PE.≡ starʷ l × v PE.≡ u × ¬ Unitʷ-η ⊎
-    v PE.≡ u × Unitʷ-η
-  inv-⇒-unitrec (conv d _) =
-    inv-⇒-unitrec d
-  inv-⇒-unitrec (unitrec-subst _ _ _ d _ no-η) =
-    inj₁ (_ , _ , d , PE.refl , no-η)
-  inv-⇒-unitrec (unitrec-β _ _ _ _ no-η) =
-    inj₂ (inj₁ (PE.refl , PE.refl , no-η))
-  inv-⇒-unitrec (unitrec-β-η _ _ _ _ _ η) =
-    inj₂ (inj₂ (PE.refl , η))
-
-  -- An inversion lemma related to J.
-
-  inv-⇒-J :
-    Γ ⊢ J p q A t B u v w ⇒ t′ ∷ C →
-    (∃₂ λ w′ D → Γ ⊢ w ⇒ w′ ∷ D × t′ PE.≡ J p q A t B u v w′) ⊎
-    w PE.≡ rfl × t′ PE.≡ u
-  inv-⇒-J (conv d _) =
-    inv-⇒-J d
-  inv-⇒-J (J-subst _ _ _ _ _ d) =
-    inj₁ (_ , _ , d , PE.refl)
-  inv-⇒-J (J-β _ _ _ _ _ _ _) =
-    inj₂ (PE.refl , PE.refl)
-
-  -- An inversion lemma related to K.
-
-  inv-⇒-K :
-    Γ ⊢ K p A t B u v ⇒ w ∷ C →
-    (∃₂ λ v′ D → Γ ⊢ v ⇒ v′ ∷ D × w PE.≡ K p A t B u v′) ⊎
-    v PE.≡ rfl × w PE.≡ u
-  inv-⇒-K (conv d _) =
-    inv-⇒-K d
-  inv-⇒-K (K-subst _ _ _ _ d _) =
-    inj₁ (_ , _ , d , PE.refl)
-  inv-⇒-K (K-β _ _ _ _) =
-    inj₂ (PE.refl , PE.refl)
-
-  -- An inversion lemma related to []-cong.
-
-  inv-⇒-[]-cong :
-    Γ ⊢ []-cong s A t u v ⇒ w ∷ C →
-    (∃₂ λ v′ D → Γ ⊢ v ⇒ v′ ∷ D × w PE.≡ []-cong s A t u v′) ⊎
-    v PE.≡ rfl × w PE.≡ rfl
-  inv-⇒-[]-cong (conv d _) =
-    inv-⇒-[]-cong d
-  inv-⇒-[]-cong ([]-cong-subst _ _ _ d _) =
-    inj₁ (_ , _ , d , PE.refl)
-  inv-⇒-[]-cong ([]-cong-β _ _ _ _ _) =
-    inj₂ (PE.refl , PE.refl)
+{-
 
 ------------------------------------------------------------------------
 -- Some lemmas related to the reduction relations
@@ -559,63 +407,36 @@ idRed:*: A = [ A , A , id A ]
 
 idRedTerm:*: : Γ ⊢ t ∷ A → Γ ⊢ t :⇒*: t ∷ A
 idRedTerm:*: t = [ t , t , id t ]
+-}
+
+open import Tools.PropositionalEquality
+
+open import Definition.Typed.Properties.Admissible.Bool R public
+open import Definition.Typed.Properties.Admissible.Empty R public
+open import Definition.Typed.Properties.Admissible.Equality R public
+open import Definition.Typed.Properties.Admissible.Erased R public
+open import Definition.Typed.Properties.Admissible.Identity R public
+open import Definition.Typed.Properties.Admissible.Lift R public
+open import Definition.Typed.Properties.Admissible.Nat R public
+open import Definition.Typed.Properties.Admissible.Pi R public
+open import Definition.Typed.Properties.Admissible.Sigma R public
+open import Definition.Typed.Properties.Admissible.Unit R public
+open import Definition.Typed.Properties.Admissible.Var R public
+open import Definition.Typed.Properties.Reduction R public
+open import Definition.Typed.Properties.Well-formed R public
+
+private variable
+  x   : Fin _
+  Γ   : Con Term _
+  A B : Term _
 
 ------------------------------------------------------------------------
 -- A lemma related to _∷_∈_
 
-det∈ : ∀ {x} {A B : Term n} → x ∷ A ∈ Γ → x ∷ B ∈ Γ → A PE.≡ B
-det∈ here here = PE.refl
-det∈ (there x) (there y) = PE.cong wk1 (det∈ x y)
-
-------------------------------------------------------------------------
--- Some derived typing rules
-
 opaque
 
-  -- A typing rule for variable 0.
+  -- If x ∷ A ∈ Γ and x ∷ B ∈ Γ both hold, then A is equal to B.
 
-  var₀ : Γ ⊢ A → Γ ∙ A ⊢ var x0 ∷ wk1 A
-  var₀ ⊢A = var (wf ⊢A ∙ ⊢A) here
-
-opaque
-
-  -- A typing rule for variable 1.
-
-  var₁ : Γ ∙ A ⊢ B → Γ ∙ A ∙ B ⊢ var x1 ∷ wk1 (wk1 A)
-  var₁ ⊢B = var (wf ⊢B ∙ ⊢B) (there here)
-
-opaque
-
-  -- A typing rule for variable 2.
-
-  var₂ : Γ ∙ A ∙ B ⊢ C → Γ ∙ A ∙ B ∙ C ⊢ var x2 ∷ wk1 (wk1 (wk1 A))
-  var₂ ⊢C = var (wf ⊢C ∙ ⊢C) (there (there here))
-
-opaque
-
-  -- A typing rule for variable 3.
-
-  var₃ :
-    Γ ∙ A ∙ B ∙ C ⊢ D →
-    Γ ∙ A ∙ B ∙ C ∙ D ⊢ var x3 ∷ wk1 (wk1 (wk1 (wk1 A)))
-  var₃ ⊢D = var (wf ⊢D ∙ ⊢D) (there (there (there here)))
-
-opaque
-
-  -- A typing rule for variable 4.
-
-  var₄ :
-    Γ ∙ A ∙ B ∙ C ∙ D ⊢ E →
-    Γ ∙ A ∙ B ∙ C ∙ D ∙ E ⊢ var x4 ∷ wk1 (wk1 (wk1 (wk1 (wk1 A))))
-  var₄ ⊢E = var (wf ⊢E ∙ ⊢E) (there (there (there (there here))))
-
-opaque
-
-  -- A typing rule for variable 5.
-
-  var₅ :
-    Γ ∙ A ∙ B ∙ C ∙ D ∙ E ⊢ F →
-    Γ ∙ A ∙ B ∙ C ∙ D ∙ E ∙ F ⊢ var x5 ∷
-      wk1 (wk1 (wk1 (wk1 (wk1 (wk1 A)))))
-  var₅ ⊢F =
-    var (wf ⊢F ∙ ⊢F) (there (there (there (there (there here)))))
+  det∈ : x ∷ A ∈ Γ → x ∷ B ∈ Γ → A ≡ B
+  det∈ here      here      = refl
+  det∈ (there x) (there y) = cong wk1 (det∈ x y)

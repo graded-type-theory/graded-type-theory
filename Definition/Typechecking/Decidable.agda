@@ -22,16 +22,15 @@ open import Definition.Typechecking R
 open import Definition.Typechecking.Soundness R
 open import Definition.Typechecking.Deterministic R
 open import Definition.Typed R
+open import Definition.Typed.Inversion R
 open import Definition.Typed.Properties R
 open import Definition.Typed.Reasoning.Type R
+open import Definition.Typed.Substitution R
+open import Definition.Typed.Syntactic R
 open import Definition.Typed.Weakening R as W
-open import Definition.Typed.Consequences.DerivedRules R
 open import Definition.Typed.Consequences.Inequality R
-open import Definition.Typed.Consequences.Inversion R
 open import Definition.Typed.Consequences.NeTypeEq R
 open import Definition.Typed.Consequences.Reduction R
-open import Definition.Typed.Consequences.Syntactic R
-open import Definition.Typed.Consequences.Substitution R
 open import Definition.Typed.Decidable.Equality R _≟_
 open import Definition.Typed.Decidable.Reduction R _≟_
 open import Definition.Untyped M
@@ -475,7 +474,7 @@ mutual
          isΠΣ-with-cont ⊢B λ {b = b} {p = p′} _ ⊢D ok _ →
          decBinderMode b (BMΣ 𝕨) ×-dec′ λ b≡ →
          p ≟ p′ ×-dec
-         dec⇇Type-with-cont (⊢→⊢∙ (ΠΣⱼ′ ⊢D ok)) A λ ⊢A →
+         dec⇇Type-with-cont (∙ ΠΣⱼ ⊢D ok) A λ ⊢A →
          dec⇇ u
            (subst↑²Type-prod
               (PE.subst (λ b → _ ∙ ΠΣ⟨ b ⟩ _ , _ ▷ _ ▹ _ ⊢ _) b≡ ⊢A)
@@ -508,7 +507,7 @@ mutual
       case
         (Unit-allowed? 𝕨 ×-dec′ λ ok →
          let ⊢Unit = Unitⱼ ⊢Γ ok in
-         dec⇇Type-with-cont (⊢→⊢∙ ⊢Unit) A λ ⊢A →
+         dec⇇Type-with-cont (∙ ⊢Unit) A λ ⊢A →
          dec⇇ t ⊢Unit ×-dec
          dec⇇ u (substType ⊢A (starⱼ ⊢Γ ok)))
         of λ where
@@ -525,14 +524,13 @@ mutual
       case
         (dec⇇Type-with-cont ⊢Γ A λ ⊢A →
          dec⇇-with-cont t ⊢A λ ⊢t →
-         dec⇇Type-with-cont
-           (⊢→⊢∙ (Idⱼ (wkTerm₁ ⊢A ⊢t) (var₀ ⊢A))) B λ ⊢B →
+         dec⇇Type-with-cont (∙ Idⱼ′ (wkTerm₁ ⊢A ⊢t) (var₀ ⊢A)) B λ ⊢B →
          dec⇇ u
            (substType₂ ⊢B ⊢t $
             PE.subst (_⊢_∷_ _ _) ≡Id-wk1-wk1-0[]₀ $
             rflⱼ ⊢t) ×-dec
          dec⇇-with-cont v ⊢A λ ⊢v →
-         dec⇇ w (Idⱼ ⊢t ⊢v))
+         dec⇇ w (Idⱼ′ ⊢t ⊢v))
         of λ where
         (yes (A , t , B , u , v , w)) → yes (_ , Jᵢ A t B u v w)
         (no not)                      →
@@ -547,9 +545,9 @@ mutual
         (K-allowed? ×-dec′ λ ok →
          dec⇇Type-with-cont ⊢Γ A λ ⊢A →
          dec⇇-with-cont t ⊢A λ ⊢t →
-         dec⇇Type-with-cont (⊢→⊢∙ (Idⱼ ⊢t ⊢t)) B λ ⊢B →
+         dec⇇Type-with-cont (∙ Idⱼ′ ⊢t ⊢t) B λ ⊢B →
          dec⇇ u (substType ⊢B (rflⱼ ⊢t)) ×-dec
-         dec⇇ v (Idⱼ ⊢t ⊢t))
+         dec⇇ v (Idⱼ′ ⊢t ⊢t))
         of λ where
         (yes (ok , A , t , B , u , v)) → yes (_ , Kᵢ A t B u v ok)
         (no not)                       →
@@ -563,7 +561,7 @@ mutual
     case
       (ΠΣ-allowed? b p q ×-dec
        dec⇉Type-with-cont ⊢Γ A λ ⊢A →
-       dec⇉Type (⊢→⊢∙ ⊢A) B)
+       dec⇉Type (∙ ⊢A) B)
       of λ where
       (yes (ok , A , B)) → yes (ΠΣᶜ A B ok)
       (no not)           → no λ where
@@ -717,7 +715,7 @@ mutual
     case
       (ΠΣ-allowed? b p q ×-dec
        dec⇇Type-with-cont ⊢Γ A λ ⊢A →
-       dec⇇Type (⊢→⊢∙ ⊢A) B)
+       dec⇇Type (∙ ⊢A) B)
       of λ where
       (yes (ok , A , B)) → yes (ΠΣᶜ A B ok)
       (no not)           → no λ where
@@ -751,7 +749,7 @@ mutual
        dec⇉-with-cont ⊢Γ A λ ⊢C₁ ⊢A →
        ↘U? ⊢C₁ ×-dec′ λ (_ , C₁⇒*U , _) →
        let ⊢A = univ (conv ⊢A (subset* C₁⇒*U)) in
-       dec⇉-with-cont (⊢→⊢∙ ⊢A) B λ ⊢C₂ _ →
+       dec⇉-with-cont (∙ ⊢A) B λ ⊢C₂ _ →
        ↘U? ⊢C₂)
       of λ where
       (yes (ok , (_ , A) , (_ , ↘U₁) , (_ , B) , (_ , ↘U₂))) →
@@ -802,7 +800,7 @@ mutual
        dec⇇Type-with-cont ⊢Γ A λ ⊢A →
        dec⇇-with-cont t ⊢A λ ⊢t →
        dec⇇-with-cont u ⊢A λ ⊢u →
-       dec⇇ v (Idⱼ ⊢t ⊢u))
+       dec⇇ v (Idⱼ′ ⊢t ⊢u))
       of λ where
       (yes (ok , A , t , u , v)) → yes (_ , []-congᵢ A t u v ok)
       (no not)                   →

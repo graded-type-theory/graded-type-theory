@@ -5,13 +5,11 @@
 open import Graded.Modality
 open import Graded.Usage.Restrictions
 open import Definition.Typed.Variant
-open import Tools.Bool
 
 module Graded.Heap.Usage
   {a} {M : Set a} {𝕄 : Modality M}
   (type-variant : Type-variant)
   (UR : Usage-restrictions 𝕄)
-  (erased-heap : Bool)
   (open Modality 𝕄)
   ⦃ _ : Has-nr M semiring-with-meet ⦄
   ⦃ _ : Has-factoring-nr M semiring-with-meet ⦄
@@ -71,8 +69,7 @@ data _▸ʰ_ : (γ : Conₘ n) (H : Heap k n) → Set a where
   _∙_ : (γ +ᶜ p ·ᶜ wkConₘ ρ δ) ▸ʰ H
       → δ ⨾ p ▸ᶜ (q , t , ρ)
       → γ ∙ p ▸ʰ H ∙ (q , t , ρ)
-  _∙● : ⦃ T erased-heap ⦄
-      → γ ▸ʰ H → γ ∙ 𝟘 ▸ʰ H ∙●
+  _∙● : γ ▸ʰ H → γ ∙ 𝟘 ▸ʰ H ∙●
 
 ------------------------------------------------------------------------
 -- Usage of eliminators and stacks
@@ -94,7 +91,6 @@ data _▸ᵉ[_]_ {n : Nat} : (γ : Conₘ n) (m : Mode) (e : Elim n) → Set a w
   Jₑ : γ ▸[ m ] u → wkConₘ ρ γ ▸ᵉ[ m ] Jₑ p q A t B u v ρ
   Kₑ : γ ▸[ m ] u → wkConₘ ρ γ ▸ᵉ[ m ] Kₑ p A t B u ρ
   []-congₑ : []-cong-allowed-mode s′ m → 𝟘ᶜ ▸ᵉ[ m ] []-congₑ s′ A t u ρ
-  sucₑ : 𝟘ᶜ ▸ᵉ[ m ] sucₑ
 
 -- Usage of stacks.
 
@@ -105,6 +101,7 @@ data _▸ˢ_ {n : Nat} : (γ : Conₘ n) (S : Stack n) → Set a where
 ------------------------------------------------------------------------
 -- Usage of evaluation states.
 
-_⨾_⨾_▸_ : (γ : Conₘ n) (δ : Conₘ ℓ) (η : Conₘ n) (s : State k n ℓ) → Set a
-γ ⨾ δ ⨾ η ▸ ⟨ H , t , ρ , S ⟩ =
-  γ ▸ʰ H × δ ▸[ ⌞ ∣ S ∣ ⌟ ] t × η ▸ˢ S × γ ≤ᶜ ∣ S ∣ ·ᶜ wkConₘ ρ δ +ᶜ η
+data ▸_ {k n ℓ} : (s : State k n ℓ) → Set a where
+  ▸ₛ : γ ▸ʰ H → δ ▸[ ⌞ ∣ S ∣ ⌟ ] t → η ▸ˢ S →
+      γ ≤ᶜ ∣ S ∣ ·ᶜ wkConₘ ρ δ +ᶜ η →
+      ▸ ⟨ H , t , ρ , S ⟩

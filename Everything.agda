@@ -23,6 +23,8 @@ import Tools.Reasoning.PropositionalEquality
 
 import Tools.Bool
 import Tools.Nat
+import Tools.Size
+import Tools.Size.Instances
 import Tools.Fin
 import Tools.List
 import Tools.Algebra
@@ -93,9 +95,9 @@ import Definition.Untyped.Nat
 import Definition.Untyped.Lift
 import Definition.Untyped.Empty
 import Definition.Untyped.Bool
-import Graded.Derived.Erased.Eta.Untyped
-import Graded.Derived.Erased.NoEta.Untyped
-import Graded.Derived.Erased.Untyped
+import Definition.Untyped.Erased.Eta
+import Definition.Untyped.Erased.No-eta
+import Definition.Untyped.Erased
 import Definition.Untyped.Bool.Erased
 import Graded.Derived.Unrestricted.Eta.Untyped
 import Definition.Typed.Variant
@@ -107,16 +109,40 @@ import Definition.Untyped.Properties.Neutral
 
 import Definition.Typed.Restrictions
 import Definition.Typed
+import Definition.Typed.Size
 import Definition.Typed.Reasoning.Type
+import Definition.Typed.Reasoning.Term.Primitive
+import Definition.Typed.Properties.Admissible.Var
 import Definition.Typed.Properties.Well-formed
-import Graded.Derived.Erased.Typed.Primitive
-import Definition.Typed.Properties
-import Definition.Typed.Reasoning.Term
-import Definition.Typed.RedSteps
-import Definition.Typed.Reasoning.Reduction.Primitive
-import Definition.Typed.Reasoning.Reduction.Well-typed
+import Definition.Typed.Inversion.Primitive
+import Definition.Typed.Properties.Admissible.Erased.Primitive
 import Definition.Typed.Weakening
-import Definition.Typed.Reduction
+import Definition.Typed.Stability.Primitive
+import Definition.Typed.Substitution.Primitive
+import Definition.Typed.Well-formed
+import Definition.Typed.Properties.Admissible.Equality
+import Definition.Typed.Properties.Admissible.Identity.Primitive
+import Definition.Typed.Stability
+import Definition.Typed.Substitution
+import Definition.Typed.Properties.Reduction
+import Definition.Typed.Reasoning.Reduction
+import Definition.Typed.Reasoning.Term
+import Definition.Typed.Properties.Admissible.Pi
+import Definition.Typed.Syntactic
+import Definition.Typed.Inversion
+import Definition.Typed.Properties.Admissible.Empty
+import Definition.Typed.Properties.Admissible.Identity
+import Definition.Typed.Properties.Admissible.Nat
+import Definition.Typed.Properties.Admissible.Sigma
+import Definition.Typed.Properties.Admissible.Unit
+import Definition.Typed.Properties.Admissible.Erased.Eta
+import Definition.Typed.Properties.Admissible.Erased.No-eta
+import Definition.Typed.Properties.Admissible.Erased
+import Definition.Typed.Properties.Admissible.Lift
+import Definition.Typed.Properties.Admissible.Bool.OK
+import Definition.Typed.Properties.Admissible.Bool
+import Definition.Typed.Properties.Admissible.Bool.Erased
+import Definition.Typed.Properties
 import Definition.Typed.EqualityRelation
 import Definition.Typed.EqRelInstance
 
@@ -155,8 +181,8 @@ import Graded.Derived.Nat
 import Graded.Derived.Lift
 import Graded.Derived.Empty
 import Graded.Derived.Bool
-import Graded.Derived.Erased.Eta.Usage
-import Graded.Derived.Erased.NoEta.Usage
+import Graded.Derived.Erased.Usage.Eta
+import Graded.Derived.Erased.Usage.No-eta
 import Graded.Derived.Erased.Usage
 import Graded.Derived.Bool.Erased
 import Graded.Derived.Unrestricted.Eta.Usage
@@ -263,37 +289,20 @@ import Definition.LogicalRelation.Fundamental.Reducibility
 
 -- Some consequences of the fundamental lemma.
 import Definition.Typed.Consequences.Injectivity
-import Definition.Typed.Consequences.Syntactic
 import Definition.Typed.Consequences.Inequality
-import Definition.Typed.Consequences.Substitution
-import Definition.Typed.Consequences.Stability
 import Definition.Typed.Consequences.Inversion
 import Definition.Typed.Consequences.Equality
 import Definition.Typed.Consequences.Canonicity
 import Definition.Typed.Consequences.Reduction
-import Definition.Typed.Reasoning.Reduction
 import Definition.Typed.Consequences.InverseUniv
-import Definition.Typed.Consequences.DerivedRules.Nat
-import Definition.Typed.Consequences.DerivedRules.Pi-Sigma
-import Definition.Typed.Consequences.DerivedRules.Pi
-import Definition.Typed.Consequences.DerivedRules.Identity
-import Definition.Typed.Consequences.DerivedRules.Sigma
-import Definition.Typed.Consequences.DerivedRules.Unit
-import Definition.Typed.Consequences.DerivedRules.Lift
-import Definition.Typed.Consequences.DerivedRules.Empty
-import Definition.Typed.Consequences.DerivedRules.Bool.OK
-import Definition.Typed.Consequences.DerivedRules.Bool
-import Definition.Typed.Consequences.DerivedRules.Bool.Erased
-import Definition.Typed.Consequences.DerivedRules
+import Definition.Typed.Consequences.Admissible.Pi
+import Definition.Typed.Consequences.Admissible.Sigma
+import Definition.Typed.Consequences.Inversion.Lift
+import Definition.Typed.Consequences.Inversion.Erased
+import Definition.Typed.Consequences.Inversion.Erased.Eta
+import Definition.Typed.Consequences.Inversion.Erased.No-eta
+import Definition.Typed.Consequences.Admissible
 import Definition.Typed.Consequences.Consistency
-import Definition.Typed.Consequences.RedSteps
-import Graded.Derived.Erased.Eta.Typed.Primitive
-import Graded.Derived.Erased.Eta.Typed
-import Graded.Derived.Erased.NoEta.Typed
-import Graded.Derived.Erased.Typed.Inversion
-import Graded.Derived.Erased.Eta.Typed.Inversion
-import Graded.Derived.Erased.NoEta.Typed.Inversion
-import Graded.Derived.Erased.Typed
 import Graded.Derived.Unrestricted.Eta.Typed
 import Definition.Typed.Consequences.NeTypeEq
 
@@ -437,7 +446,6 @@ import Graded.Box-cong
 -- The abstract machine
 import Graded.Heap.Untyped
 import Graded.Heap.Untyped.Properties
-import Graded.Heap.Options
 import Graded.Heap.Reduction
 import Graded.Heap.Reduction.Inversion
 import Graded.Heap.Reduction.Properties
@@ -452,6 +460,7 @@ import Graded.Heap.Typed.Reduction
 
 -- Usage for the abstract machine
 import Graded.Heap.Usage
+import Graded.Heap.Usage.Inversion
 import Graded.Heap.Usage.Weakening
 import Graded.Heap.Usage.Properties
 import Graded.Heap.Usage.Reduction

@@ -27,13 +27,11 @@ import Graded.Erasure.Target.Properties as TP
 open import Graded.Erasure.Target.Reasoning
 
 open import Definition.Typed R
-open import Definition.Typed.Consequences.Inversion R
-import Definition.Typed.Consequences.RedSteps R as RS
-open import Definition.Typed.Consequences.Reduction R
-open import Definition.Typed.Consequences.Substitution R
-open import Definition.Typed.Consequences.Syntactic R
+open import Definition.Typed.Inversion R
 open import Definition.Typed.Properties R
 import Definition.Typed.Reasoning.Reduction R as RR
+open import Definition.Typed.Substitution R
+open import Definition.Typed.Syntactic R
 
 open import Definition.Untyped M
 open import Definition.Untyped.Properties M
@@ -164,26 +162,26 @@ opaque
     {A} {t} {u} {t′} {u′} {v} {v′} {p} {q} {r}
     A≡A ⊢A ⊢t ⊢u t®t′ u®u′ = λ where
       (zeroᵣ v⇒zero v′⇒zero) →                                         $⟨ t®t′ ⟩
-        t ® t′ ∷ A [ zero ]₀                                           →⟨ ®∷-⇐* (redMany (natrec-zero ⊢A ⊢t ⊢u))
+        t ® t′ ∷ A [ zero ]₀                                           →⟨ ®∷-⇐* (redMany (natrec-zero ⊢t ⊢u))
                                                                             (T.trans T.natrec-zero T.refl) ⟩
         natrec p q r A t u zero ® T.natrec t′ u′ T.zero ∷ A [ zero ]₀  →⟨ conv-®∷ $ A≡A v⇒zero ⟩
-        natrec p q r A t u zero ® T.natrec t′ u′ T.zero ∷ A [ v ]₀     →⟨ ®∷-⇐* (RS.natrec-subst* ⊢A ⊢t ⊢u v⇒zero)
+        natrec p q r A t u zero ® T.natrec t′ u′ T.zero ∷ A [ v ]₀     →⟨ ®∷-⇐* (natrec-subst* ⊢t ⊢u v⇒zero)
                                                                             (TP.natrec-subst* v′⇒zero) ⟩
         natrec p q r A t u v ® T.natrec t′ u′ v′ ∷ A [ v ]₀            □
 
       (sucᵣ {t′ = w} {v′ = w′} v⇒suc-w v′⇒suc-w′ _ w®w′) →        $⟨ natrecʳ′ A≡A ⊢A ⊢t ⊢u t®t′ u®u′ w®w′ ⟩
 
         natrec p q r A t u w ® T.natrec t′ u′ w′ ∷ A [ w ]₀       →⟨ u®u′ w®w′ $
-                                                                     natrecⱼ ⊢A ⊢t ⊢u (®∷ℕ→⊢∷ℕ w®w′) ⟩
+                                                                     natrecⱼ ⊢t ⊢u (®∷ℕ→⊢∷ℕ w®w′) ⟩
         u [ w , natrec p q r A t u w ]₁₀ ®
           u′ T.[ w′ , T.natrec t′ u′ w′ ]₁₀ ∷ A [ suc w ]₀        →⟨ ®∷-⇐*
-                                                                       (redMany $ natrec-suc ⊢A ⊢t ⊢u $
+                                                                       (redMany $ natrec-suc ⊢t ⊢u $
                                                                         inversion-suc (syntacticRedTerm v⇒suc-w .proj₂ .proj₂) .proj₁)
                                                                        (T.trans T.natrec-suc T.refl) ⟩
         natrec p q r A t u (suc w) ® T.natrec t′ u′ (T.suc w′) ∷
           A [ suc w ]₀                                            →⟨ conv-®∷ $ A≡A v⇒suc-w ⟩
         natrec p q r A t u (suc w) ® T.natrec t′ u′ (T.suc w′) ∷
-          A [ v ]₀                                                →⟨ ®∷-⇐* (RS.natrec-subst* ⊢A ⊢t ⊢u v⇒suc-w)
+          A [ v ]₀                                                →⟨ ®∷-⇐* (natrec-subst* ⊢t ⊢u v⇒suc-w)
                                                                        (TP.natrec-subst* v′⇒suc-w′) ⟩
         natrec p q r A t u v ® T.natrec t′ u′ v′ ∷ A [ v ]₀       □
 
@@ -209,7 +207,7 @@ opaque
     ⊢t ⊢u ⊢v ⊩ʳt ⊩ʳu ⊩ʳv ≡𝟘→≡𝟘 =
     ▸⊩ʳ∷⇔ .proj₂ λ {σ = σ} {σ′ = σ′} ⊩σ σ®σ′ →
     case wfTerm ⊢u of λ {
-      (_ ∙ ⊢A) →
+      (∙ ⊢A) →
     case fundamental-⊩ᵛ ⊢A of λ
       (_ , ⊩A) →
     case                                                      $⟨ σ®σ′ ⟩

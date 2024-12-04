@@ -19,18 +19,16 @@ open import Definition.Conversion.Consequences.InverseUniv R
 open import Definition.Conversion.Soundness R
 open import Definition.Conversion.Whnf R
 open import Definition.Typed R
-open import Definition.Typed.Consequences.DerivedRules R
-open import Definition.Typed.Consequences.Inversion R
+open import Definition.Typed.Consequences.Admissible R
 open import Definition.Typed.Consequences.NeTypeEq R
-open import Definition.Typed.Consequences.Stability R
-open import Definition.Typed.Consequences.Substitution R
-open import Definition.Typed.Consequences.Syntactic R
 open import Definition.Typed.Eta-long-normal-form R
+open import Definition.Typed.Inversion R
 open import Definition.Typed.Properties R
+open import Definition.Typed.Stability R
+open import Definition.Typed.Substitution R
+open import Definition.Typed.Syntactic R
 open import Definition.Untyped M
 open import Definition.Untyped.Neutral M type-variant
-
-open import Graded.Derived.Erased.Typed R
 
 open import Tools.Fin
 open import Tools.Function
@@ -69,28 +67,28 @@ mutual
         t′ ∘ u′
       , (                           $⟨ ∘ₙ t′-ne u′-nf ⟩
          Γ ⊢ne t′ ∘ u′ ∷ B [ u′ ]₀  →⟨ flip convₙ $
-                                      substTypeEq (refl ⊢B) (sym u≡u′) ⟩
+                                       substTypeEq (refl ⊢B) (sym′ u≡u′) ⟩
          Γ ⊢ne t′ ∘ u′ ∷ B [ u ]₀   □)
       , app-cong t≡t′ u≡u′ }}}
     (fst-cong {p = p} t~) →
       case fullRedNe~↓ t~ of λ {
         (t′ , t′-ne , t≡t′) →
       case inversion-ΠΣ (syntacticEqTerm t≡t′ .proj₁) of λ {
-        (⊢A , ⊢B , _) →
+        (_ , ⊢B , _) →
         fst p t′
-      , fstₙ ⊢A ⊢B t′-ne
-      , fst-cong ⊢A ⊢B t≡t′ }}
+      , fstₙ ⊢B t′-ne
+      , fst-cong ⊢B t≡t′ }}
     (snd-cong {t₁ = t} {p} {B} t~) →
       case fullRedNe~↓ t~ of λ {
         (t′ , t′-ne , t≡t′) →
       case inversion-ΠΣ (syntacticEqTerm t≡t′ .proj₁) of λ {
-        (⊢A , ⊢B , _) →
+        (_ , ⊢B , _) →
         snd p t′
-      , (                                  $⟨ sndₙ ⊢A ⊢B t′-ne ⟩
+      , (                                  $⟨ sndₙ ⊢B t′-ne ⟩
          Γ ⊢ne snd p t′ ∷ B [ fst p t′ ]₀  →⟨ flip _⊢ne_∷_.convₙ $
-                                             substTypeEq (refl ⊢B) (fst-cong ⊢A ⊢B (sym t≡t′)) ⟩
+                                              substTypeEq (refl ⊢B) (fst-cong ⊢B (sym′ t≡t′)) ⟩
          Γ ⊢ne snd p t′ ∷ B [ fst p t ]₀   □)
-      , snd-cong ⊢A ⊢B t≡t′ }}
+      , snd-cong ⊢B t≡t′ }}
     (natrec-cong {A₁ = A} {v₁ = v} {p} {q} {r} A↑ t↑ u↑ v~) →
       case fullRedConv↑ A↑ of λ {
         (A′ , A′-nf , A≡A′) →
@@ -101,12 +99,12 @@ mutual
       case fullRedNe~↓ v~ of λ {
         (v′ , v′-ne , v≡v′) →
       case syntacticEq A≡A′ of λ {
-        (⊢A , ⊢A′) →
+        (_ , ⊢A′) →
       case wfEqTerm v≡v′ of λ {
         ⊢Γ →
         natrec p q r A′ t′ u′ v′
       , (                                             $⟨ u′-nf ⟩
-         Γ ∙ ℕ ∙ A ⊢nf u′ ∷ A [ suc (var x1) ]↑²      →⟨ ⊢nf∷-stable (reflConEq (⊢Γ ∙ ℕⱼ ⊢Γ) ∙ A≡A′) ⟩
+         Γ ∙ ℕ ∙ A ⊢nf u′ ∷ A [ suc (var x1) ]↑²      →⟨ ⊢nf∷-stable (reflConEq (∙ ℕⱼ ⊢Γ) ∙ A≡A′) ⟩
          Γ ∙ ℕ ∙ A′ ⊢nf u′ ∷ A [ suc (var x1) ]↑²     →⟨ flip _⊢nf_∷_.convₙ $
                                                          subst↑²TypeEq A≡A′ (refl (sucⱼ (var₁ ⊢A′))) ⟩
          Γ ∙ ℕ ∙ A′ ⊢nf u′ ∷ A′ [ suc (var x1) ]↑²    →⟨ (λ hyp → natrecₙ
@@ -117,7 +115,7 @@ mutual
          Γ ⊢ne natrec p q r A′ t′ u′ v′ ∷ A′ [ v′ ]₀  →⟨ flip _⊢ne_∷_.convₙ $ _⊢_≡_.sym $
                                                          substTypeEq A≡A′ v≡v′ ⟩
          Γ ⊢ne natrec p q r A′ t′ u′ v′ ∷ A [ v ]₀    □)
-      , natrec-cong ⊢A A≡A′ t≡t′ u≡u′ v≡v′ }}}}}}
+      , natrec-cong A≡A′ t≡t′ u≡u′ v≡v′ }}}}}}
     (prodrec-cong
        {p = p} {F = A} {G = B} {C = C} {g = u} {r = r} {q′ = q}
        C↑ u~ v↑) →
@@ -128,16 +126,16 @@ mutual
       case fullRedTermConv↑ v↑ of λ {
         (v′ , v′-nf , v≡v′) →
       case inversion-ΠΣ (syntacticEqTerm u≡u′ .proj₁) of λ {
-        (⊢A , ⊢B , ok) →
+        (_ , _ , ok) →
         prodrec r p q C′ u′ v′
       , (                                                       $⟨ v′-nf ⟩
          Γ ∙ A ∙ B ⊢nf v′ ∷ C [ prodʷ p (var x1) (var x0) ]↑²   →⟨ flip _⊢nf_∷_.convₙ $
                                                                    subst↑²TypeEq-prod C≡C′ ok ⟩
-         Γ ∙ A ∙ B ⊢nf v′ ∷ C′ [ prodʷ p (var x1) (var x0) ]↑²  →⟨ flip (prodrecₙ ⊢A ⊢B C′-nf u′-ne) ok ⟩
+         Γ ∙ A ∙ B ⊢nf v′ ∷ C′ [ prodʷ p (var x1) (var x0) ]↑²  →⟨ flip (prodrecₙ C′-nf u′-ne) ok ⟩
          Γ ⊢ne prodrec r p q C′ u′ v′ ∷ C′ [ u′ ]₀              →⟨ flip _⊢ne_∷_.convₙ $ _⊢_≡_.sym $
                                                                    substTypeEq C≡C′ u≡u′ ⟩
          Γ ⊢ne prodrec r p q C′ u′ v′ ∷ C [ u ]₀                □)
-      , prodrec-cong ⊢A ⊢B C≡C′ u≡u′ v≡v′ ok }}}}
+      , prodrec-cong C≡C′ u≡u′ v≡v′ ok }}}}
     (emptyrec-cong {A₁ = A} {p} A↑ t~) →
       case fullRedConv↑ A↑ of λ {
         (A′ , A′-nf , A≡A′) →
@@ -213,7 +211,7 @@ mutual
                 (trans C≡Id-t₁-t₁ (Id-cong A₁≡A₁′ t₁≡t₁′ t₁≡t₁′)))
              ok)
           (sym (substTypeEq B₁≡B₁′ v₁≡v₁′))
-      , K-cong′ A₁≡A₁′ t₁≡t₁′ B₁≡B₁′ u₁≡u₁′ v₁≡v₁′ ok }}}}}}
+      , K-cong A₁≡A₁′ t₁≡t₁′ B₁≡B₁′ u₁≡u₁′ v₁≡v₁′ ok }}}}}}
     ([]-cong-cong A₁≡A₂ t₁≡t₂ u₁≡u₂ v₁~v₂ B≡Id-t₁-u₁ ok) →
       case fullRedConv↑ A₁≡A₂ of λ {
         (A₁′ , ⊢A₁′ , A₁≡A₁′) →
@@ -273,7 +271,7 @@ mutual
         (B′ , B′-nf , B≡B′) →
       ΠΣ⟨ _ ⟩ _ , _ ▷ A′ ▹ B′ ,
       ΠΣₙ A′-nf (⊢nf-stable (reflConEq (wfEq A≡A′) ∙ A≡A′) B′-nf) ok ,
-      ΠΣ-cong′ A≡A′ B≡B′ ok }}
+      ΠΣ-cong A≡A′ B≡B′ ok }}
     (Id-cong A₁≡A₂ t₁≡t₂ u₁≡u₂) →
       case fullRedConv↑ A₁≡A₂ of λ {
         (A₁′ , ⊢A₁′ , A₁≡A₁′) →
@@ -362,28 +360,26 @@ mutual
         (t′ , t′-nf , t≡t′) →
       case fullRedTermConv↑ u↑ of λ {
         (u′ , u′-nf , u≡u′) →
-      case syntacticEqTerm t≡t′ of λ
-        (⊢A , _) →
         prod! t′ u′
       , (                                      $⟨ u′-nf ⟩
          Γ ⊢nf u′ ∷ B [ t ]₀                   →⟨ flip _⊢nf_∷_.convₙ $
                                                   substTypeEq (refl ⊢B) t≡t′ ⟩
-         Γ ⊢nf u′ ∷ B [ t′ ]₀                  →⟨ flip (_⊢nf_∷_.prodₙ ⊢A ⊢B t′-nf) ok ⟩
+         Γ ⊢nf u′ ∷ B [ t′ ]₀                  →⟨ flip (_⊢nf_∷_.prodₙ ⊢B t′-nf) ok ⟩
          Γ ⊢nf prod! t′ u′ ∷ Σʷ p , q ▷ A ▹ B  □)
-      , prod-cong ⊢A ⊢B t≡t′ u≡u′ ok }}
+      , prod-cong ⊢B t≡t′ u≡u′ ok }}
     (η-eq {p = p} {q = q} {f = t} {F = A} {G = B} ⊢t _ _ _ t0≡u0) →
       case fullRedTermConv↑ t0≡u0 of λ {
         (u , u-nf , t0≡u) →
       case ⊢∷ΠΣ→ΠΣ-allowed ⊢t of λ {
         ok →
         lam p u
-      , lamₙ (inversion-ΠΣ (syntacticTerm ⊢t) .proj₁) u-nf ok
-      , (                                                       $⟨ sym (Π-η ⊢t) ⟩
+      , lamₙ u-nf ok
+      , (                                                       $⟨ sym′ (Π-η ⊢t) ⟩
          Γ ⊢ t ≡ lam p (wk1 t ∘⟨ p ⟩ var x0) ∷ Π p , q ▷ A ▹ B  →⟨ flip _⊢_≡_∷_.trans (lam-cong t0≡u ok) ⟩
          Γ ⊢ t ≡ lam p u ∷ Π p , q ▷ A ▹ B                      □) }}
     (Σ-η {p} {q} {A} {B} ⊢t _ _ _ fst-t↑ snd-t↑) →
       case inversion-ΠΣ (syntacticTerm ⊢t) of λ {
-        (⊢A , ⊢B , ok) →
+        (_ , ⊢B , ok) →
       case fullRedTermConv↑ fst-t↑ of λ {
         (u₁ , u₁-nf , fst-t≡u₁) →
       case fullRedTermConv↑ snd-t↑ of λ {
@@ -392,11 +388,11 @@ mutual
       , (                                        $⟨ u₂-nf ⟩
          Γ ⊢nf u₂ ∷ B [ fst p t ]₀               →⟨ flip _⊢nf_∷_.convₙ $
                                                     substTypeEq (refl ⊢B) fst-t≡u₁ ⟩
-         Γ ⊢nf u₂ ∷ B [ u₁ ]₀                    →⟨ flip (prodₙ ⊢A ⊢B u₁-nf) ok ⟩
+         Γ ⊢nf u₂ ∷ B [ u₁ ]₀                    →⟨ flip (prodₙ ⊢B u₁-nf) ok ⟩
          Γ ⊢nf prodˢ p u₁ u₂ ∷ Σˢ p , q ▷ A ▹ B  □)
-      , (                                                        $⟨ sym (Σ-η-prod-fst-snd ⊢t) ⟩
+      , (                                                        $⟨ sym′ (Σ-η-prod-fst-snd ⊢t) ⟩
          Γ ⊢ t ≡ prodˢ p (fst p t) (snd p t) ∷ Σˢ p , q ▷ A ▹ B  →⟨ flip _⊢_≡_∷_.trans $
-                                                                    prod-cong ⊢A ⊢B fst-t≡u₁ snd-t≡u₂ ok ⟩
+                                                                    prod-cong ⊢B fst-t≡u₁ snd-t≡u₂ ok ⟩
          Γ ⊢ t ≡ prodˢ p u₁ u₂ ∷ Σˢ p , q ▷ A ▹ B                □) }}}
     (η-unit ⊢t _ _ _ ok) →
       case wfTerm ⊢t of λ {

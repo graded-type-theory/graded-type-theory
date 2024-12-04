@@ -14,9 +14,8 @@ module Definition.Typed
 open Type-restrictions R
 
 open import Definition.Untyped M
+import Definition.Untyped.Erased 𝕄 as Erased
 open import Definition.Untyped.Neutral M type-variant
-
-import Graded.Derived.Erased.Untyped 𝕄 as Erased
 
 open import Tools.Fin
 open import Tools.Nat
@@ -25,7 +24,7 @@ import Tools.PropositionalEquality as PE
 open import Tools.Relation
 
 
-infixl 24 _∙_
+infix 24 ∙_
 
 private
   variable
@@ -48,10 +47,8 @@ data _∷_∈_ : (x : Fin n) (A : Term n) (Γ : Con Term n) → Set ℓ where
 mutual
   -- Well-formed context
   data ⊢_ : Con Term n → Set ℓ where
-    ε   : ⊢ ε
-    _∙_ : ⊢ Γ
-        → Γ ⊢ A
-        → ⊢ Γ ∙ A
+    ε  : ⊢ ε
+    ∙_ : Γ ⊢ A → ⊢ Γ ∙ A
 
   -- Well-formed type
   data _⊢_ (Γ : Con Term n) : Term n → Set ℓ where
@@ -61,11 +58,11 @@ mutual
     ℕⱼ     : ⊢ Γ → Γ ⊢ ℕ
     Emptyⱼ : ⊢ Γ → Γ ⊢ Empty
     Unitⱼ  : Γ ⊢ l ∷ Level → Unit-allowed k → Γ ⊢ Unit k l
-    ΠΣⱼ    : Γ     ⊢ F
-           → Γ ∙ F ⊢ G
+    ΠΣⱼ    : Γ ∙ F ⊢ G
            → ΠΣ-allowed b p q
            → Γ     ⊢ ΠΣ⟨ b ⟩ p , q ▷ F ▹ G
-    Idⱼ    : Γ ⊢ t ∷ A
+    Idⱼ    : Γ ⊢ A
+           → Γ ⊢ t ∷ A
            → Γ ⊢ u ∷ A
            → Γ ⊢ Id A t u
     univ   : Γ ⊢ A ∷ U l
@@ -82,7 +79,9 @@ mutual
               → Γ ⊢ l₁ maxᵘ l₂ ∷ Level
     Uⱼ        : Γ ⊢ l ∷ Level
               → Γ ⊢ U l ∷ U (sucᵘ l)
-    ΠΣⱼ       : Γ     ⊢ F ∷ U l₁
+    ΠΣⱼ       : Γ ⊢ l₁ ∷ Level
+              → Γ ⊢ l₂ ∷ Level
+              → Γ     ⊢ F ∷ U l₁
               → Γ ∙ F ⊢ G ∷ U (wk1 l₂)
               → ΠΣ-allowed b p q
               → Γ     ⊢ ΠΣ⟨ b ⟩ p , q ▷ F ▹ G ∷ U (l₁ maxᵘ l₂)
@@ -98,7 +97,7 @@ mutual
               → x ∷ A ∈ Γ
               → Γ ⊢ var x ∷ A
 
-    lamⱼ      : Γ     ⊢ F
+    lamⱼ      : Γ ∙ F ⊢ G
               → Γ ∙ F ⊢ t ∷ G
               → Π-allowed p q
               → Γ     ⊢ lam p t ∷ Π p , q ▷ F ▹ G
@@ -106,23 +105,18 @@ mutual
               → Γ ⊢ u ∷ F
               → Γ ⊢ t ∘⟨ p ⟩ u ∷ G [ u ]₀
 
-    prodⱼ     : Γ ⊢ F
-              → Γ ∙ F ⊢ G
+    prodⱼ     : Γ ∙ F ⊢ G
               → Γ ⊢ t ∷ F
               → Γ ⊢ u ∷ G [ t ]₀
               → Σ-allowed k p q
               → Γ ⊢ prod k p t u ∷ Σ⟨ k ⟩ p , q ▷ F ▹ G
-    fstⱼ      : Γ ⊢ F
-              → Γ ∙ F ⊢ G
+    fstⱼ      : Γ ∙ F ⊢ G
               → Γ ⊢ t ∷ Σˢ p , q ▷ F ▹ G
               → Γ ⊢ fst p t ∷ F
-    sndⱼ      : Γ ⊢ F
-              → Γ ∙ F ⊢ G
+    sndⱼ      : Γ ∙ F ⊢ G
               → Γ ⊢ t ∷ Σˢ p , q ▷ F ▹ G
               → Γ ⊢ snd p t ∷ G [ fst p t ]₀
-    prodrecⱼ  : Γ ⊢ F
-              → Γ ∙ F ⊢ G
-              → Γ ∙ (Σʷ p , q′ ▷ F ▹ G) ⊢ A
+    prodrecⱼ  : Γ ∙ (Σʷ p , q′ ▷ F ▹ G) ⊢ A
               → Γ ⊢ t ∷ Σʷ p , q′ ▷ F ▹ G
               → Γ ∙ F ∙ G ⊢ u ∷ A [ prodʷ p (var x1) (var x0) ]↑²
               → Σʷ-allowed p q′
@@ -133,7 +127,6 @@ mutual
               → Γ ⊢     n ∷ ℕ
               → Γ ⊢ suc n ∷ ℕ
     natrecⱼ   : ∀ {n}
-              → Γ ∙ ℕ     ⊢ A
               → Γ         ⊢ z ∷ A [ zero ]₀
               → Γ ∙ ℕ ∙ A ⊢ s ∷ A [ suc (var x1) ]↑²
               → Γ         ⊢ n ∷ ℕ
@@ -151,26 +144,26 @@ mutual
               → Unitʷ-allowed
               → Γ ⊢ unitrec p q l A t u ∷ A [ t ]₀
 
-    Idⱼ       : Γ ⊢ A ∷ U l
+    Idⱼ       : Γ ⊢ l ∷ Level
+              → Γ ⊢ A ∷ U l
               → Γ ⊢ t ∷ A
               → Γ ⊢ u ∷ A
               → Γ ⊢ Id A t u ∷ U l
     rflⱼ      : Γ ⊢ t ∷ A
               → Γ ⊢ rfl ∷ Id A t t
-    Jⱼ        : Γ ⊢ A
-              → Γ ⊢ t ∷ A
+    Jⱼ        : Γ ⊢ t ∷ A
               → Γ ∙ A ∙ Id (wk1 A) (wk1 t) (var x0) ⊢ B
               → Γ ⊢ u ∷ B [ t , rfl ]₁₀
               → Γ ⊢ v ∷ A
               → Γ ⊢ w ∷ Id A t v
               → Γ ⊢ J p q A t B u v w ∷ B [ v , w ]₁₀
-    Kⱼ        : Γ ⊢ t ∷ A
-              → Γ ∙ Id A t t ⊢ B
+    Kⱼ        : Γ ∙ Id A t t ⊢ B
               → Γ ⊢ u ∷ B [ rfl ]₀
               → Γ ⊢ v ∷ Id A t t
               → K-allowed
               → Γ ⊢ K p A t B u v ∷ B [ v ]₀
-    []-congⱼ  : Γ ⊢ t ∷ A
+    []-congⱼ  : Γ ⊢ A
+              → Γ ⊢ t ∷ A
               → Γ ⊢ u ∷ A
               → Γ ⊢ v ∷ Id A t u
               → []-cong-allowed k
@@ -192,8 +185,7 @@ mutual
     U-cong : Γ ⊢ l₁ ≡ l₂ ∷ Level
            → Γ ⊢ U l₁ ≡ U l₂
     ΠΣ-cong
-           : Γ     ⊢ F
-           → Γ     ⊢ F ≡ H
+           : Γ     ⊢ F ≡ H
            → Γ ∙ F ⊢ G ≡ E
            → ΠΣ-allowed b p q
            → Γ     ⊢ ΠΣ⟨ b ⟩ p , q ▷ F ▹ G ≡ ΠΣ⟨ b ⟩ p , q ▷ H ▹ E
@@ -211,7 +203,8 @@ mutual
   data _⊢_≡_∷_ (Γ : Con Term n) : Term n → Term n → Term n → Set ℓ where
     refl          : Γ ⊢ t ∷ A
                   → Γ ⊢ t ≡ t ∷ A
-    sym           : Γ ⊢ t ≡ u ∷ A
+    sym           : Γ ⊢ A
+                  → Γ ⊢ t ≡ u ∷ A
                   → Γ ⊢ u ≡ t ∷ A
     trans         : Γ ⊢ t ≡ u ∷ A
                   → Γ ⊢ u ≡ v ∷ A
@@ -228,16 +221,19 @@ mutual
     -- maxᵘ-sucᵘ-sucᵘ
     --   : Γ ⊢ l₁ level → Γ ⊢ l₂ level
     --   → Γ ⊢ sucᵘ l₁ maxᵘ suc l₂ ≡ sucᵘ (l₁ maxᵘ l₂) level
-    sucᵘ-cong     : ∀ {n}
-                  → Γ ⊢ t ≡ n ∷ Level
-                  → Γ ⊢ sucᵘ t ≡ sucᵘ n ∷ Level
+    sucᵘ-cong     : ∀ {t t'}
+                  → Γ ⊢ t ≡ t' ∷ Level
+                  → Γ ⊢ sucᵘ t ≡ sucᵘ t' ∷ Level
+    maxᵘ-cong     : ∀ {t t' u u'}
+                  → Γ ⊢ t ≡ t' ∷ Level
+                  → Γ ⊢ u ≡ u' ∷ Level
+                  → Γ ⊢ t maxᵘ u ≡ t' maxᵘ u' ∷ Level
     U-cong        : Γ ⊢ l₁ ≡ l₂ ∷ Level
                   → Γ ⊢ U l₁ ≡ U l₂ ∷ U (sucᵘ l₁)
     Unit-cong     : Γ ⊢ l₁ ≡ l₂ ∷ Level
                   → Unit-allowed k
                   → Γ ⊢ Unit k l₁ ≡ Unit k l₂ ∷ U l₁
-    ΠΣ-cong       : Γ     ⊢ F
-                  → Γ     ⊢ F ≡ H ∷ U l₁
+    ΠΣ-cong       : Γ     ⊢ F ≡ H ∷ U l₁
                   → Γ ∙ F ⊢ G ≡ E ∷ U (wk1 l₂)
                   → ΠΣ-allowed b p q
                   → Γ     ⊢ ΠΣ⟨ b ⟩ p , q ▷ F ▹ G ≡
@@ -246,66 +242,57 @@ mutual
                   → Γ ⊢ f ≡ g ∷ Π p , q ▷ F ▹ G
                   → Γ ⊢ a ≡ b ∷ F
                   → Γ ⊢ f ∘⟨ p ⟩ a ≡ g ∘⟨ p ⟩ b ∷ G [ a ]₀
-    β-red         : Γ     ⊢ F
-                  → Γ ∙ F ⊢ G
+    β-red         : Γ ∙ F ⊢ G
                   → Γ ∙ F ⊢ t ∷ G
                   → Γ     ⊢ a ∷ F
                   → p PE.≡ p′
                   → -- Note that q can be chosen arbitrarily.
                     Π-allowed p q
                   → Γ     ⊢ lam p t ∘⟨ p′ ⟩ a ≡ t [ a ]₀ ∷ G [ a ]₀
-    η-eq          : Γ     ⊢ F
+    η-eq          : Γ ∙ F ⊢ G
                   → Γ     ⊢ f ∷ Π p , q ▷ F ▹ G
                   → Γ     ⊢ g ∷ Π p , q ▷ F ▹ G
                   → Γ ∙ F ⊢ wk1 f ∘⟨ p ⟩ var x0 ≡ wk1 g ∘⟨ p ⟩ var x0 ∷ G
+                  → Π-allowed p q
                   → Γ     ⊢ f ≡ g ∷ Π p , q ▷ F ▹ G
-    fst-cong      : Γ ⊢ F
-                  → Γ ∙ F ⊢ G
+    fst-cong      : Γ ∙ F ⊢ G
                   → Γ ⊢ t ≡ t′ ∷ Σˢ p , q ▷ F ▹ G
                   → Γ ⊢ fst p t ≡ fst p t′ ∷ F
-    snd-cong      : Γ ⊢ F
-                  → Γ ∙ F ⊢ G
+    snd-cong      : Γ ∙ F ⊢ G
                   → Γ ⊢ t ≡ u ∷ Σˢ p , q ▷ F ▹ G
                   → Γ ⊢ snd p t ≡ snd p u ∷ G [ fst p t ]₀
-    Σ-β₁          : Γ ⊢ F
-                  → Γ ∙ F ⊢ G
+    Σ-β₁          : Γ ∙ F ⊢ G
                   → Γ ⊢ t ∷ F
                   → Γ ⊢ u ∷ G [ t ]₀
                   → p PE.≡ p′
                   → -- Note that q can be chosen arbitrarily.
                     Σˢ-allowed p q
                   → Γ ⊢ fst p (prodˢ p′ t u) ≡ t ∷ F
-    Σ-β₂          : Γ ⊢ F
-                  → Γ ∙ F ⊢ G
+    Σ-β₂          : Γ ∙ F ⊢ G
                   → Γ ⊢ t ∷ F
                   → Γ ⊢ u ∷ G [ t ]₀
                   → p PE.≡ p′
                   → -- Note that q can be chosen arbitrarily.
                     Σˢ-allowed p q
                   → Γ ⊢ snd p (prodˢ p′ t u) ≡ u ∷ G [ fst p (prodˢ p′ t u) ]₀
-    Σ-η           : Γ ⊢ F
-                  → Γ ∙ F ⊢ G
+    Σ-η           : Γ ∙ F ⊢ G
                   → Γ ⊢ t ∷ Σˢ p , q ▷ F ▹ G
                   → Γ ⊢ u ∷ Σˢ p , q ▷ F ▹ G
                   → Γ ⊢ fst p t ≡ fst p u ∷ F
                   → Γ ⊢ snd p t ≡ snd p u ∷ G [ fst p t ]₀
+                  → Σˢ-allowed p q
                   → Γ ⊢ t ≡ u ∷ Σˢ p , q ▷ F ▹ G
-    prod-cong     : Γ ⊢ F
-                  → Γ ∙ F ⊢ G
+    prod-cong     : Γ ∙ F ⊢ G
                   → Γ ⊢ t ≡ t′ ∷ F
                   → Γ ⊢ u ≡ u′ ∷ G [ t ]₀
                   → Σ-allowed k p q
                   → Γ ⊢ prod k p t u ≡ prod k p t′ u′ ∷ Σ⟨ k ⟩ p , q ▷ F ▹ G
-    prodrec-cong  : Γ ⊢ F
-                  → Γ ∙ F ⊢ G
-                  → Γ ∙ (Σʷ p , q′ ▷ F ▹ G) ⊢ A ≡ A′
+    prodrec-cong  : Γ ∙ Σʷ p , q′ ▷ F ▹ G ⊢ A ≡ A′
                   → Γ ⊢ t ≡ t′ ∷ Σʷ p , q′ ▷ F ▹ G
                   → Γ ∙ F ∙ G ⊢ u ≡ u′ ∷ A [ prodʷ p (var x1) (var x0) ]↑²
                   → Σʷ-allowed p q′
                   → Γ ⊢ prodrec r p q A t u ≡ prodrec r p q A′ t′ u′ ∷ A [ t ]₀
-    prodrec-β     : Γ ⊢ F
-                  → Γ ∙ F ⊢ G
-                  → Γ ∙ (Σʷ p , q′ ▷ F ▹ G) ⊢ A
+    prodrec-β     : Γ ∙ Σʷ p , q′ ▷ F ▹ G ⊢ A
                   → Γ ⊢ t ∷ F
                   → Γ ⊢ t′ ∷ G [ t ]₀
                   → Γ ∙ F ∙ G ⊢ u ∷ A [ prodʷ p (var x1) (var x0) ]↑²
@@ -317,7 +304,6 @@ mutual
                   → Γ ⊢ t ≡ n ∷ ℕ
                   → Γ ⊢ suc t ≡ suc n ∷ ℕ
     natrec-cong   : ∀ {n}
-                  → Γ ∙ ℕ     ⊢ A
                   → Γ ∙ ℕ     ⊢ A ≡ A′
                   → Γ         ⊢ z ≡ z′ ∷ A [ zero ]₀
                   → Γ ∙ ℕ ∙ A ⊢ s ≡ s′ ∷ A [ suc (var x1) ]↑²
@@ -325,12 +311,10 @@ mutual
                   → Γ         ⊢ natrec p q r A z s n ≡
                                 natrec p q r A′ z′ s′ n′ ∷
                                 A [ n ]₀
-    natrec-zero   : Γ ∙ ℕ     ⊢ A
-                  → Γ         ⊢ z ∷ A [ zero ]₀
+    natrec-zero   : Γ         ⊢ z ∷ A [ zero ]₀
                   → Γ ∙ ℕ ∙ A ⊢ s ∷ A [ suc (var x1) ]↑²
                   → Γ         ⊢ natrec p q r A z s zero ≡ z ∷ A [ zero ]₀
     natrec-suc    : ∀ {n}
-                  → Γ ∙ ℕ     ⊢ A
                   → Γ         ⊢ z ∷ A [ zero ]₀
                   → Γ ∙ ℕ ∙ A ⊢ s ∷ A [ suc (var x1) ]↑²
                   → Γ         ⊢ n ∷ ℕ
@@ -372,8 +356,7 @@ mutual
                   → Γ ⊢ t₁ ≡ t₂ ∷ A₁
                   → Γ ⊢ u₁ ≡ u₂ ∷ A₁
                   → Γ ⊢ Id A₁ t₁ u₁ ≡ Id A₂ t₂ u₂ ∷ U l
-    J-cong        : Γ ⊢ A₁
-                  → Γ ⊢ A₁ ≡ A₂
+    J-cong        : Γ ⊢ A₁ ≡ A₂
                   → Γ ⊢ t₁ ∷ A₁
                   → Γ ⊢ t₁ ≡ t₂ ∷ A₁
                   → Γ ∙ A₁ ∙ Id (wk1 A₁) (wk1 t₁) (var x0) ⊢ B₁ ≡ B₂
@@ -383,7 +366,6 @@ mutual
                   → Γ ⊢ J p q A₁ t₁ B₁ u₁ v₁ w₁ ≡
                         J p q A₂ t₂ B₂ u₂ v₂ w₂ ∷ B₁ [ v₁ , w₁ ]₁₀
     K-cong        : Γ ⊢ A₁ ≡ A₂
-                  → Γ ⊢ t₁ ∷ A₁
                   → Γ ⊢ t₁ ≡ t₂ ∷ A₁
                   → Γ ∙ Id A₁ t₁ t₁ ⊢ B₁ ≡ B₂
                   → Γ ⊢ u₁ ≡ u₂ ∷ B₁ [ rfl ]₀
@@ -399,14 +381,12 @@ mutual
                   → let open Erased k in
                     Γ ⊢ []-cong k A₁ t₁ u₁ v₁ ≡ []-cong k A₂ t₂ u₂ v₂ ∷
                       Id (Erased A₁) ([ t₁ ]) ([ u₁ ])
-    J-β           : Γ ⊢ A
-                  → Γ ⊢ t ∷ A
+    J-β           : Γ ⊢ t ∷ A
                   → Γ ∙ A ∙ Id (wk1 A) (wk1 t) (var x0) ⊢ B
                   → Γ ⊢ u ∷ B [ t , rfl ]₁₀
                   → t PE.≡ t′
                   → Γ ⊢ J p q A t B u t′ rfl ≡ u ∷ B [ t , rfl ]₁₀
-    K-β           : Γ ⊢ t ∷ A
-                  → Γ ∙ Id A t t ⊢ B
+    K-β           : Γ ∙ Id A t t ⊢ B
                   → Γ ⊢ u ∷ B [ rfl ]₀
                   → K-allowed
                   → Γ ⊢ K p A t B u rfl ≡ u ∷ B [ rfl ]₀
@@ -429,48 +409,39 @@ data _⊢_⇒_∷_ (Γ : Con Term n) : Term n → Term n → Term n → Set ℓ 
   app-subst      : Γ ⊢ t ⇒ u ∷ Π p , q ▷ F ▹ G
                  → Γ ⊢ a ∷ F
                  → Γ ⊢ t ∘⟨ p ⟩ a ⇒ u ∘⟨ p ⟩ a ∷ G [ a ]₀
-  β-red          : Γ     ⊢ F
-                 → Γ ∙ F ⊢ G
+  β-red          : Γ ∙ F ⊢ G
                  → Γ ∙ F ⊢ t ∷ G
                  → Γ     ⊢ a ∷ F
                  → p PE.≡ p′
                  → -- Note that q can be chosen arbitrarily.
                    Π-allowed p q
                  → Γ     ⊢ lam p t ∘⟨ p′ ⟩ a ⇒ t [ a ]₀ ∷ G [ a ]₀
-  fst-subst      : Γ ⊢ F
-                 → Γ ∙ F ⊢ G
+  fst-subst      : Γ ∙ F ⊢ G
                  → Γ ⊢ t ⇒ u ∷ Σˢ p , q ▷ F ▹ G
                  → Γ ⊢ fst p t ⇒ fst p u ∷ F
-  snd-subst      : Γ ⊢ F
-                 → Γ ∙ F ⊢ G
+  snd-subst      : Γ ∙ F ⊢ G
                  → Γ ⊢ t ⇒ u ∷ Σˢ p , q ▷ F ▹ G
                  → Γ ⊢ snd p t ⇒ snd p u ∷ G [ fst p t ]₀
-  Σ-β₁           : Γ ⊢ F
-                 → Γ ∙ F ⊢ G
+  Σ-β₁           : Γ ∙ F ⊢ G
                  → Γ ⊢ t ∷ F
                  → Γ ⊢ u ∷ G [ t ]₀
                  → p PE.≡ p′
                  → -- Note that q can be chosen arbitrarily.
                    Σˢ-allowed p q
                  → Γ ⊢ fst p (prodˢ p′ t u) ⇒ t ∷ F
-  Σ-β₂           : Γ ⊢ F
-                 → Γ ∙ F ⊢ G
+  Σ-β₂           : Γ ∙ F ⊢ G
                  → Γ ⊢ t ∷ F
                  → Γ ⊢ u ∷ G [ t ]₀
                  → p PE.≡ p′
                  → -- Note that q can be chosen arbitrarily.
                    Σˢ-allowed p q
                  → Γ ⊢ snd p (prodˢ p′ t u) ⇒ u ∷ G [ fst p (prodˢ p′ t u) ]₀
-  prodrec-subst  : Γ ⊢ F
-                 → Γ ∙ F ⊢ G
-                 → Γ ∙ (Σʷ p , q′ ▷ F ▹ G) ⊢ A
+  prodrec-subst  : Γ ∙ Σʷ p , q′ ▷ F ▹ G ⊢ A
                  → Γ ∙ F ∙ G ⊢ u ∷ A [ prodʷ p (var x1) (var x0) ]↑²
                  → Γ ⊢ t ⇒ t′ ∷ Σʷ p , q′ ▷ F ▹ G
                  → Σʷ-allowed p q′
                  → Γ ⊢ prodrec r p q A t u ⇒ prodrec r p q A t′ u ∷ A [ t ]₀
-  prodrec-β      : Γ ⊢ F
-                 → Γ ∙ F ⊢ G
-                 → Γ ∙ (Σʷ p , q′ ▷ F ▹ G) ⊢ A
+  prodrec-β      : Γ ∙ Σʷ p , q′ ▷ F ▹ G ⊢ A
                  → Γ ⊢ t ∷ F
                  → Γ ⊢ t′ ∷ G [ t ]₀
                  → Γ ∙ F ∙ G ⊢ u ∷ A [ prodʷ p (var x1) (var x0) ]↑²
@@ -479,19 +450,16 @@ data _⊢_⇒_∷_ (Γ : Con Term n) : Term n → Term n → Term n → Set ℓ 
                  → Γ ⊢ prodrec r p q A (prodʷ p′ t t′) u ⇒
                        u [ t , t′ ]₁₀ ∷ A [ prodʷ p′ t t′ ]₀
   natrec-subst   : ∀ {n}
-                 → Γ ∙ ℕ     ⊢ A
                  → Γ         ⊢ z ∷ A [ zero ]₀
                  → Γ ∙ ℕ ∙ A ⊢ s ∷ A [ suc (var x1) ]↑²
                  → Γ         ⊢ n ⇒ n′ ∷ ℕ
                  → Γ         ⊢ natrec p q r A z s n ⇒
                                natrec p q r A z s n′ ∷
                                A [ n ]₀
-  natrec-zero    : Γ ∙ ℕ     ⊢ A
-                 → Γ         ⊢ z ∷ A [ zero ]₀
+  natrec-zero    : Γ         ⊢ z ∷ A [ zero ]₀
                  → Γ ∙ ℕ ∙ A ⊢ s ∷ A [ suc (var x1) ]↑²
                  → Γ         ⊢ natrec p q r A z s zero ⇒ z ∷ A [ zero ]₀
   natrec-suc     : ∀ {n}
-                 → Γ ∙ ℕ     ⊢ A
                  → Γ         ⊢ z ∷ A [ zero ]₀
                  → Γ ∙ ℕ ∙ A ⊢ s ∷ A [ suc (var x1) ]↑²
                  → Γ         ⊢ n ∷ ℕ
@@ -523,17 +491,14 @@ data _⊢_⇒_∷_ (Γ : Con Term n) : Term n → Term n → Term n → Set ℓ 
                 → Unitʷ-allowed
                 → Unitʷ-η
                 → Γ ⊢ unitrec p q l A t u ⇒ u ∷ A [ t ]₀
-  J-subst        : Γ ⊢ A
-                 → Γ ⊢ t ∷ A
+  J-subst        : Γ ⊢ t ∷ A
                  → Γ ∙ A ∙ Id (wk1 A) (wk1 t) (var x0) ⊢ B
                  → Γ ⊢ u ∷ B [ t , rfl ]₁₀
                  → Γ ⊢ v ∷ A
                  → Γ ⊢ w₁ ⇒ w₂ ∷ Id A t v
                  → Γ ⊢ J p q A t B u v w₁ ⇒ J p q A t B u v w₂ ∷
                      B [ v , w₁ ]₁₀
-  K-subst        : Γ ⊢ A
-                 → Γ ⊢ t ∷ A
-                 → Γ ∙ Id A t t ⊢ B
+  K-subst        : Γ ∙ Id A t t ⊢ B
                  → Γ ⊢ u ∷ B [ rfl ]₀
                  → Γ ⊢ v₁ ⇒ v₂ ∷ Id A t t
                  → K-allowed
@@ -546,16 +511,14 @@ data _⊢_⇒_∷_ (Γ : Con Term n) : Term n → Term n → Term n → Set ℓ 
                  → let open Erased k in
                    Γ ⊢ []-cong k A t u v₁ ⇒ []-cong k A t u v₂ ∷
                      Id (Erased A) ([ t ]) ([ u ])
-  J-β            : Γ ⊢ A
-                 → Γ ⊢ t ∷ A
+  J-β            : Γ ⊢ t ∷ A
                  → Γ ⊢ t′ ∷ A
                  → Γ ⊢ t ≡ t′ ∷ A
                  → Γ ∙ A ∙ Id (wk1 A) (wk1 t) (var x0) ⊢ B
                  → Γ ⊢ B [ t , rfl ]₁₀ ≡ B [ t′ , rfl ]₁₀
                  → Γ ⊢ u ∷ B [ t , rfl ]₁₀
                  → Γ ⊢ J p q A t B u t′ rfl ⇒ u ∷ B [ t , rfl ]₁₀
-  K-β            : Γ ⊢ t ∷ A
-                 → Γ ∙ Id A t t ⊢ B
+  K-β            : Γ ∙ Id A t t ⊢ B
                  → Γ ⊢ u ∷ B [ rfl ]₀
                  → K-allowed
                  → Γ ⊢ K p A t B u rfl ⇒ u ∷ B [ rfl ]₀
@@ -605,30 +568,6 @@ _⊢_:≡:_ : (Γ : Con Term n) → Term n → Term n → Set ℓ
 _⊢_:≡:_∷_ : (Γ : Con Term n) → Term n → Term n → Term n → Set ℓ
 Γ ⊢ t :≡: u ∷ A = (Γ ⊢ t ∷ A) × (Γ ⊢ u ∷ A) × (Γ ⊢ t ≡ u ∷ A)
 
--- Type reduction closure with well-formed types
-record _⊢_:⇒*:_ (Γ : Con Term n) (A B : Term n) : Set ℓ where
-  no-eta-equality
-  pattern
-  constructor [_,_,_]
-  field
-    ⊢A : Γ ⊢ A
-    ⊢B : Γ ⊢ B
-    D  : Γ ⊢ A ⇒* B
-
-open _⊢_:⇒*:_ using () renaming (D to red; ⊢A to ⊢A-red; ⊢B to ⊢B-red) public
-
--- Term reduction closure with well-formed terms
-record _⊢_:⇒*:_∷_ (Γ : Con Term n) (t u A : Term n) : Set ℓ where
-  no-eta-equality
-  pattern
-  constructor [_,_,_]
-  field
-    ⊢t : Γ ⊢ t ∷ A
-    ⊢u : Γ ⊢ u ∷ A
-    d  : Γ ⊢ t ⇒* u ∷ A
-
-open _⊢_:⇒*:_∷_ using () renaming (d to redₜ; ⊢t to ⊢t-redₜ; ⊢u to ⊢u-redₜ) public
-
 -- Well-formed substitutions.
 data _⊢ˢ_∷_ {k} (Δ : Con Term k) :
        (σ : Subst k n) (Γ : Con Term n) → Set ℓ where
@@ -649,7 +588,6 @@ data _⊢ˢ_≡_∷_ {k} (Δ : Con Term k) :
 -- For that, we need to prove the fundamental theorem for substitutions.
 
 ⟦_⟧ⱼ : (W : BindingType) → ∀ {F G}
-     → Γ     ⊢ F
      → Γ ∙ F ⊢ G
      → BindingType-allowed W
      → Γ     ⊢ ⟦ W ⟧ F ▹ G
@@ -657,6 +595,8 @@ data _⊢ˢ_≡_∷_ {k} (Δ : Con Term k) :
 ⟦ BΣ _ _ _ ⟧ⱼ = ΠΣⱼ
 
 ⟦_⟧ⱼᵤ : (W : BindingType) → ∀ {F G}
+     → Γ ⊢ l₁ ∷ Level
+     → Γ ⊢ l₂ ∷ Level
      → Γ     ⊢ F ∷ U l₁
      → Γ ∙ F ⊢ G ∷ U (wk1 l₂)
      → BindingType-allowed W

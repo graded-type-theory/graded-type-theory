@@ -170,9 +170,6 @@ data _≤ᵘ_ : Universe-level → Universe-level → Set where
 ≤ᵘ-refl {0+ n} = ≤ᵘ-nat ≤′-refl
 ≤ᵘ-refl {(ω+0)} = ≤ᵘ-ω
 
-≤ᵘ-step : ∀ {l l′} → l ≤ᵘ l′ → l ≤ᵘ 1+ᵘ l′
-≤ᵘ-step p = {!   !}
-
 -- Strict ordering of universe levels.
 
 infix 4 _<ᵘ_
