@@ -1,0 +1,104 @@
+<!DOCTYPE HTML>
+<html><head><meta charset="utf-8"><title>Graded.Modality.Dedicated-nr</title><link rel="stylesheet" href="Agda.css"></head><body><pre class="Agda"><a id="1" class="Comment">------------------------------------------------------------------------</a>
+<a id="74" class="Comment">-- The types Dedicated-nr and No-dedicated-nr</a>
+<a id="120" class="Comment">------------------------------------------------------------------------</a>
+
+<a id="194" class="Keyword">import</a> <a id="201" href="Graded.Modality.html" class="Module">Graded.Modality</a>
+
+<a id="218" class="Keyword">module</a> <a id="225" href="Graded.Modality.Dedicated-nr.html" class="Module">Graded.Modality.Dedicated-nr</a>
+  <a id="256" class="Symbol">{</a><a id="257" href="Graded.Modality.Dedicated-nr.html#257" class="Bound">a</a><a id="258" class="Symbol">}</a> <a id="260" class="Symbol">{</a><a id="261" href="Graded.Modality.Dedicated-nr.html#261" class="Bound">M</a> <a id="263" class="Symbol">:</a> <a id="265" href="Agda.Primitive.html#388" class="Primitive">Set</a> <a id="269" href="Graded.Modality.Dedicated-nr.html#257" class="Bound">a</a><a id="270" class="Symbol">}</a>
+  <a id="274" class="Symbol">(</a><a id="275" class="Keyword">open</a> <a id="280" href="Graded.Modality.html" class="Module">Graded.Modality</a> <a id="296" href="Graded.Modality.Dedicated-nr.html#261" class="Bound">M</a><a id="297" class="Symbol">)</a>
+  <a id="301" class="Symbol">(</a><a id="302" href="Graded.Modality.Dedicated-nr.html#302" class="Bound">𝕄</a> <a id="304" class="Symbol">:</a> <a id="306" href="Graded.Modality.html#8202" class="Record">Modality</a><a id="314" class="Symbol">)</a>
+  <a id="318" class="Keyword">where</a>
+
+<a id="325" class="Keyword">open</a> <a id="330" href="Graded.Modality.html#8202" class="Module">Modality</a> <a id="339" href="Graded.Modality.Dedicated-nr.html#302" class="Bound">𝕄</a>
+
+<a id="342" class="Keyword">open</a> <a id="347" class="Keyword">import</a> <a id="354" href="Tools.Bool.html" class="Module">Tools.Bool</a>
+<a id="365" class="Keyword">open</a> <a id="370" class="Keyword">import</a> <a id="377" href="Tools.Empty.html" class="Module">Tools.Empty</a>
+<a id="389" class="Keyword">open</a> <a id="394" class="Keyword">import</a> <a id="401" href="Tools.Function.html" class="Module">Tools.Function</a>
+<a id="416" class="Keyword">open</a> <a id="421" class="Keyword">import</a> <a id="428" href="Tools.Product.html" class="Module">Tools.Product</a>
+<a id="442" class="Keyword">open</a> <a id="447" class="Keyword">import</a> <a id="454" href="Tools.PropositionalEquality.html" class="Module">Tools.PropositionalEquality</a>
+<a id="482" class="Keyword">open</a> <a id="487" class="Keyword">import</a> <a id="494" href="Tools.Relation.html" class="Module">Tools.Relation</a>
+
+<a id="510" class="Keyword">private</a> <a id="518" class="Keyword">variable</a>
+  <a id="529" href="Graded.Modality.Dedicated-nr.html#529" class="Generalizable">A</a> <a id="531" class="Symbol">:</a> <a id="533" href="Agda.Primitive.html#388" class="Primitive">Set</a> <a id="537" class="Symbol">_</a>
+
+<a id="540" class="Comment">------------------------------------------------------------------------</a>
+<a id="613" class="Comment">-- Dedicated-nr</a>
+
+<a id="630" class="Comment">-- A wrapper type, intended to be used in the types of instance</a>
+<a id="694" class="Comment">-- arguments.</a>
+
+<a id="709" class="Keyword">record</a> <a id="Dedicated-nr"></a><a id="716" href="Graded.Modality.Dedicated-nr.html#716" class="Record">Dedicated-nr</a> <a id="729" class="Symbol">:</a> <a id="731" href="Agda.Primitive.html#388" class="Primitive">Set</a> <a id="735" href="Graded.Modality.Dedicated-nr.html#257" class="Bound">a</a> <a id="737" class="Keyword">where</a>
+  <a id="745" class="Keyword">no-eta-equality</a>
+  <a id="763" class="Keyword">pattern</a>
+  <a id="773" class="Keyword">constructor</a> <a id="dedicated-nr"></a><a id="785" href="Graded.Modality.Dedicated-nr.html#785" class="InductiveConstructor">dedicated-nr</a>
+  <a id="800" class="Keyword">field</a>
+    <a id="Dedicated-nr.nr"></a><a id="810" href="Graded.Modality.Dedicated-nr.html#810" class="Field">nr</a> <a id="813" class="Symbol">:</a> <a id="815" href="Data.Bool.Base.html#1348" class="Function">T</a> <a id="817" href="Graded.Modality.Variant.html#888" class="Function">nr-available</a>
+
+<a id="831" class="Comment">-- This wrapper type is propositional.</a>
+
+<a id="Dedicated-nr-propositional"></a><a id="871" href="Graded.Modality.Dedicated-nr.html#871" class="Function">Dedicated-nr-propositional</a> <a id="898" class="Symbol">:</a> <a id="900" class="Symbol">(</a><a id="901" href="Graded.Modality.Dedicated-nr.html#901" class="Bound">p</a> <a id="903" href="Graded.Modality.Dedicated-nr.html#903" class="Bound">q</a> <a id="905" class="Symbol">:</a> <a id="907" href="Graded.Modality.Dedicated-nr.html#716" class="Record">Dedicated-nr</a><a id="919" class="Symbol">)</a> <a id="921" class="Symbol">→</a> <a id="923" href="Graded.Modality.Dedicated-nr.html#901" class="Bound">p</a> <a id="925" href="Agda.Builtin.Equality.html#150" class="Datatype Operator">≡</a> <a id="927" href="Graded.Modality.Dedicated-nr.html#903" class="Bound">q</a>
+<a id="929" href="Graded.Modality.Dedicated-nr.html#871" class="Function">Dedicated-nr-propositional</a> <a id="956" class="Symbol">(</a><a id="957" href="Graded.Modality.Dedicated-nr.html#785" class="InductiveConstructor">dedicated-nr</a> <a id="970" class="Symbol">_)</a> <a id="973" class="Symbol">(</a><a id="974" href="Graded.Modality.Dedicated-nr.html#785" class="InductiveConstructor">dedicated-nr</a> <a id="987" class="Symbol">_)</a> <a id="990" class="Symbol">=</a>
+  <a id="994" href="Relation.Binary.PropositionalEquality.Core.html#1339" class="Function">cong</a> <a id="999" href="Graded.Modality.Dedicated-nr.html#785" class="InductiveConstructor">dedicated-nr</a> <a id="1012" href="Tools.Bool.html#1097" class="Function">T-propositional</a>
+
+<a id="1029" class="Keyword">opaque</a>
+
+  <a id="1039" class="Comment">-- A characterisation lemma for Dedicated-nr.</a>
+
+  <a id="Dedicated-nr⇔"></a><a id="1088" href="Graded.Modality.Dedicated-nr.html#1088" class="Function">Dedicated-nr⇔</a> <a id="1102" class="Symbol">:</a> <a id="1104" href="Graded.Modality.Dedicated-nr.html#716" class="Record">Dedicated-nr</a> <a id="1117" href="Tools.Function.html#1253" class="Function Operator">⇔</a> <a id="1119" href="Data.Bool.Base.html#1348" class="Function">T</a> <a id="1121" href="Graded.Modality.Variant.html#888" class="Function">nr-available</a>
+  <a id="1136" href="Graded.Modality.Dedicated-nr.html#1088" class="Function">Dedicated-nr⇔</a> <a id="1150" class="Symbol">=</a> <a id="1152" href="Graded.Modality.Dedicated-nr.html#810" class="Field">Dedicated-nr.nr</a> <a id="1168" href="Agda.Builtin.Sigma.html#235" class="InductiveConstructor Operator">,</a> <a id="1170" href="Graded.Modality.Dedicated-nr.html#785" class="InductiveConstructor">dedicated-nr</a>
+
+<a id="1184" class="Comment">------------------------------------------------------------------------</a>
+<a id="1257" class="Comment">-- No-dedicated-nr</a>
+
+<a id="1277" class="Comment">-- A wrapper type, intended to be used in the types of instance</a>
+<a id="1341" class="Comment">-- arguments.</a>
+
+<a id="1356" class="Keyword">record</a> <a id="No-dedicated-nr"></a><a id="1363" href="Graded.Modality.Dedicated-nr.html#1363" class="Record">No-dedicated-nr</a> <a id="1379" class="Symbol">:</a> <a id="1381" href="Agda.Primitive.html#388" class="Primitive">Set</a> <a id="1385" href="Graded.Modality.Dedicated-nr.html#257" class="Bound">a</a> <a id="1387" class="Keyword">where</a>
+  <a id="1395" class="Keyword">no-eta-equality</a>
+  <a id="1413" class="Keyword">pattern</a>
+  <a id="1423" class="Keyword">constructor</a> <a id="no-dedicated-nr"></a><a id="1435" href="Graded.Modality.Dedicated-nr.html#1435" class="InductiveConstructor">no-dedicated-nr</a>
+  <a id="1453" class="Keyword">field</a>
+    <a id="No-dedicated-nr.no-nr′"></a><a id="1463" href="Graded.Modality.Dedicated-nr.html#1463" class="Field">no-nr′</a> <a id="1470" class="Symbol">:</a> <a id="1472" href="Data.Bool.Base.html#1348" class="Function">T</a> <a id="1474" class="Symbol">(</a><a id="1475" href="Data.Bool.Base.html#941" class="Function">not</a> <a id="1479" href="Graded.Modality.Variant.html#888" class="Function">nr-available</a><a id="1491" class="Symbol">)</a>
+
+  <a id="1496" class="Comment">-- A dedicated nr function is not available.</a>
+
+  <a id="No-dedicated-nr.no-nr"></a><a id="1544" href="Graded.Modality.Dedicated-nr.html#1544" class="Function">no-nr</a> <a id="1550" class="Symbol">:</a> <a id="1552" href="Relation.Nullary.Negation.Core.html#658" class="Function Operator">¬</a> <a id="1554" href="Data.Bool.Base.html#1348" class="Function">T</a> <a id="1556" href="Graded.Modality.Variant.html#888" class="Function">nr-available</a>
+  <a id="1571" href="Graded.Modality.Dedicated-nr.html#1544" class="Function">no-nr</a> <a id="1577" class="Symbol">=</a> <a id="1579" href="Tools.Bool.html#1266" class="Function">T-not⇔¬-T</a> <a id="1589" class="Symbol">.</a><a id="1590" href="Data.Product.Base.html#636" class="Field">proj₁</a> <a id="1596" href="Graded.Modality.Dedicated-nr.html#1463" class="Field">no-nr′</a>
+
+<a id="1604" class="Comment">-- This wrapper type is propositional.</a>
+
+<a id="No-dedicated-nr-propositional"></a><a id="1644" href="Graded.Modality.Dedicated-nr.html#1644" class="Function">No-dedicated-nr-propositional</a> <a id="1674" class="Symbol">:</a> <a id="1676" class="Symbol">(</a><a id="1677" href="Graded.Modality.Dedicated-nr.html#1677" class="Bound">p</a> <a id="1679" href="Graded.Modality.Dedicated-nr.html#1679" class="Bound">q</a> <a id="1681" class="Symbol">:</a> <a id="1683" href="Graded.Modality.Dedicated-nr.html#1363" class="Record">No-dedicated-nr</a><a id="1698" class="Symbol">)</a> <a id="1700" class="Symbol">→</a> <a id="1702" href="Graded.Modality.Dedicated-nr.html#1677" class="Bound">p</a> <a id="1704" href="Agda.Builtin.Equality.html#150" class="Datatype Operator">≡</a> <a id="1706" href="Graded.Modality.Dedicated-nr.html#1679" class="Bound">q</a>
+<a id="1708" href="Graded.Modality.Dedicated-nr.html#1644" class="Function">No-dedicated-nr-propositional</a> <a id="1738" class="Symbol">(</a><a id="1739" href="Graded.Modality.Dedicated-nr.html#1435" class="InductiveConstructor">no-dedicated-nr</a> <a id="1755" class="Symbol">_)</a> <a id="1758" class="Symbol">(</a><a id="1759" href="Graded.Modality.Dedicated-nr.html#1435" class="InductiveConstructor">no-dedicated-nr</a> <a id="1775" class="Symbol">_)</a> <a id="1778" class="Symbol">=</a>
+  <a id="1782" href="Relation.Binary.PropositionalEquality.Core.html#1339" class="Function">cong</a> <a id="1787" href="Graded.Modality.Dedicated-nr.html#1435" class="InductiveConstructor">no-dedicated-nr</a> <a id="1803" href="Tools.Bool.html#1097" class="Function">T-propositional</a>
+
+<a id="1820" class="Comment">------------------------------------------------------------------------</a>
+<a id="1893" class="Comment">-- Some lemmas related to both Dedicated-nr and No-dedicated-nr</a>
+
+<a id="1958" class="Comment">-- One cannot both have and not have a dedicated nr function.</a>
+
+<a id="not-nr-and-no-nr"></a><a id="2021" href="Graded.Modality.Dedicated-nr.html#2021" class="Function">not-nr-and-no-nr</a> <a id="2038" class="Symbol">:</a>
+  <a id="2042" class="Symbol">⦃</a> <a id="2044" href="Graded.Modality.Dedicated-nr.html#2044" class="Bound">nr</a> <a id="2047" class="Symbol">:</a> <a id="2049" href="Graded.Modality.Dedicated-nr.html#716" class="Record">Dedicated-nr</a> <a id="2062" class="Symbol">⦄</a> <a id="2064" class="Symbol">⦃</a> <a id="2066" href="Graded.Modality.Dedicated-nr.html#2066" class="Bound">no-nr</a> <a id="2072" class="Symbol">:</a> <a id="2074" href="Graded.Modality.Dedicated-nr.html#1363" class="Record">No-dedicated-nr</a> <a id="2090" class="Symbol">⦄</a> <a id="2092" class="Symbol">→</a> <a id="2094" href="Data.Empty.html#914" class="Function">⊥</a>
+<a id="2096" href="Graded.Modality.Dedicated-nr.html#2021" class="Function">not-nr-and-no-nr</a> <a id="2113" class="Symbol">⦃</a> <a id="2115" class="Argument">nr</a> <a id="2118" class="Symbol">=</a> <a id="2120" href="Graded.Modality.Dedicated-nr.html#785" class="InductiveConstructor">dedicated-nr</a> <a id="2133" href="Graded.Modality.Dedicated-nr.html#2133" class="Bound">n</a> <a id="2135" class="Symbol">⦄</a> <a id="2137" class="Symbol">⦃</a> <a id="2139" class="Argument">no-nr</a> <a id="2145" class="Symbol">=</a> <a id="2147" href="Graded.Modality.Dedicated-nr.html#1435" class="InductiveConstructor">no-dedicated-nr</a> <a id="2163" href="Graded.Modality.Dedicated-nr.html#2163" class="Bound">nn</a> <a id="2166" class="Symbol">⦄</a>
+  <a id="2170" class="Keyword">with</a> <a id="2175" href="Graded.Modality.Variant.html#888" class="Function">nr-available</a>
+<a id="2188" class="Symbol">…</a> <a id="2190" class="Symbol">|</a> <a id="2192" href="Agda.Builtin.Bool.html#198" class="InductiveConstructor">true</a>  <a id="2198" class="Symbol">=</a> <a id="2200" class="Bound">nn</a>
+<a id="2203" class="Symbol">…</a> <a id="2205" class="Symbol">|</a> <a id="2207" href="Agda.Builtin.Bool.html#192" class="InductiveConstructor">false</a> <a id="2213" class="Symbol">=</a> <a id="2215" class="Bound">n</a>
+
+<a id="2218" class="Comment">-- The property of either having or not having a dedicated nr</a>
+<a id="2280" class="Comment">-- function.</a>
+
+<a id="2294" class="Keyword">data</a> <a id="Dedicated-nr?"></a><a id="2299" href="Graded.Modality.Dedicated-nr.html#2299" class="Datatype">Dedicated-nr?</a> <a id="2313" class="Symbol">:</a> <a id="2315" href="Agda.Primitive.html#388" class="Primitive">Set</a> <a id="2319" href="Graded.Modality.Dedicated-nr.html#257" class="Bound">a</a> <a id="2321" class="Keyword">where</a>
+  <a id="Dedicated-nr?.does-have-nr"></a><a id="2329" href="Graded.Modality.Dedicated-nr.html#2329" class="InductiveConstructor">does-have-nr</a>     <a id="2346" class="Symbol">:</a> <a id="2348" class="Symbol">⦃</a> <a id="2350" href="Graded.Modality.Dedicated-nr.html#2350" class="Bound">has-nr</a> <a id="2357" class="Symbol">:</a> <a id="2359" href="Graded.Modality.Dedicated-nr.html#716" class="Record">Dedicated-nr</a> <a id="2372" class="Symbol">⦄</a> <a id="2374" class="Symbol">→</a> <a id="2376" href="Graded.Modality.Dedicated-nr.html#2299" class="Datatype">Dedicated-nr?</a>
+  <a id="Dedicated-nr?.does-not-have-nr"></a><a id="2392" href="Graded.Modality.Dedicated-nr.html#2392" class="InductiveConstructor">does-not-have-nr</a> <a id="2409" class="Symbol">:</a> <a id="2411" class="Symbol">⦃</a> <a id="2413" href="Graded.Modality.Dedicated-nr.html#2413" class="Bound">no-nr</a> <a id="2419" class="Symbol">:</a> <a id="2421" href="Graded.Modality.Dedicated-nr.html#1363" class="Record">No-dedicated-nr</a> <a id="2437" class="Symbol">⦄</a> <a id="2439" class="Symbol">→</a> <a id="2441" href="Graded.Modality.Dedicated-nr.html#2299" class="Datatype">Dedicated-nr?</a>
+
+<a id="2456" class="Comment">-- One either has or does not have a dedicated nr function.</a>
+
+<a id="dedicated-nr?"></a><a id="2517" href="Graded.Modality.Dedicated-nr.html#2517" class="Function">dedicated-nr?</a> <a id="2531" class="Symbol">:</a> <a id="2533" href="Graded.Modality.Dedicated-nr.html#2299" class="Datatype">Dedicated-nr?</a>
+<a id="2547" href="Graded.Modality.Dedicated-nr.html#2517" class="Function">dedicated-nr?</a> <a id="2561" class="Keyword">with</a> <a id="2566" href="Graded.Modality.Variant.html#888" class="Function">nr-available</a> <a id="2579" class="Keyword">in</a> <a id="2582" class="Argument">eq</a>
+<a id="2585" href="Graded.Modality.Dedicated-nr.html#2517" class="Function">…</a> <a id="2587" class="Symbol">|</a> <a id="2589" href="Agda.Builtin.Bool.html#192" class="InductiveConstructor">false</a> <a id="2595" class="Symbol">=</a>
+  <a id="2599" href="Graded.Modality.Dedicated-nr.html#2392" class="InductiveConstructor">does-not-have-nr</a>
+    <a id="2620" class="Symbol">⦃</a> <a id="2622" class="Argument">no-nr</a> <a id="2628" class="Symbol">=</a> <a id="2630" href="Graded.Modality.Dedicated-nr.html#1435" class="InductiveConstructor">no-dedicated-nr</a> <a id="2646" class="Symbol">(</a><a id="2647" href="Relation.Binary.PropositionalEquality.Core.html#1989" class="Function">subst</a> <a id="2653" class="Symbol">(</a><a id="2654" href="Data.Bool.Base.html#1348" class="Function">T</a> <a id="2656" href="Function.Base.html#1115" class="Function Operator">∘→</a> <a id="2659" href="Data.Bool.Base.html#941" class="Function">not</a><a id="2662" class="Symbol">)</a> <a id="2664" class="Symbol">(</a><a id="2665" href="Relation.Binary.PropositionalEquality.Core.html#1893" class="Function">sym</a> <a id="2669" href="Graded.Modality.Dedicated-nr.html#2582" class="Bound">eq</a><a id="2671" class="Symbol">)</a> <a id="2673" class="Symbol">_)</a> <a id="2676" class="Symbol">⦄</a>
+<a id="2678" href="Graded.Modality.Dedicated-nr.html#2517" class="Function">…</a> <a id="2680" class="Symbol">|</a> <a id="2682" href="Agda.Builtin.Bool.html#198" class="InductiveConstructor">true</a>  <a id="2688" class="Symbol">=</a>
+  <a id="2692" href="Graded.Modality.Dedicated-nr.html#2329" class="InductiveConstructor">does-have-nr</a> <a id="2705" class="Symbol">⦃</a> <a id="2707" class="Argument">has-nr</a> <a id="2714" class="Symbol">=</a> <a id="2716" href="Graded.Modality.Dedicated-nr.html#785" class="InductiveConstructor">dedicated-nr</a> <a id="2729" class="Symbol">(</a><a id="2730" href="Relation.Binary.PropositionalEquality.Core.html#1989" class="Function">subst</a> <a id="2736" href="Data.Bool.Base.html#1348" class="Function">T</a> <a id="2738" class="Symbol">(</a><a id="2739" href="Relation.Binary.PropositionalEquality.Core.html#1893" class="Function">sym</a> <a id="2743" href="Graded.Modality.Dedicated-nr.html#2582" class="Bound">eq</a><a id="2745" class="Symbol">)</a> <a id="2747" class="Symbol">_)</a> <a id="2750" class="Symbol">⦄</a>
+</pre></body></html>
