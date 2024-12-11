@@ -52,17 +52,21 @@ opaque
   -- An introduction rule for U.
 
   Erasedⱼ-U :
-    Γ ⊢ A → Γ ⊢ A ∷ U l → Γ ⊢ Erased A ∷ U l
-  Erasedⱼ-U ⊢A ⊢A∷U = conv (ΠΣⱼ {!   !} (zeroᵘⱼ (wf ⊢A)) ⊢A∷U (Unitⱼ (zeroᵘⱼ (∙ ⊢A)) Unit-ok) Σ-ok) {!   !}
+    Γ ⊢ l ∷ Level →
+    Γ ⊢ A →
+    Γ ⊢ A ∷ U l →
+    Γ ⊢ Erased A ∷ U l
+  Erasedⱼ-U ⊢l ⊢A ⊢A∷U = conv (ΠΣⱼ ⊢l (zeroᵘⱼ (wf ⊢A)) ⊢A∷U (Unitⱼ (zeroᵘⱼ (∙ ⊢A)) Unit-ok) Σ-ok) {!   !}
 
 -- A corresponding congruence rule.
 
 Erased-cong-U :
+  Γ ⊢ l ∷ Level →
   Γ ⊢ A →
   Γ ⊢ A ≡ B ∷ U l →
   Γ ⊢ Erased A ≡ Erased B ∷ U l
-Erased-cong-U ⊢A A≡B =
-  conv (ΠΣ-cong A≡B (refl (Unitⱼ (zeroᵘⱼ (∙ ⊢A)) Unit-ok)) Σ-ok) {!   !}
+Erased-cong-U ⊢l ⊢A A≡B =
+  conv (ΠΣ-cong ⊢l (zeroᵘⱼ (wf ⊢A)) A≡B (refl (Unitⱼ (zeroᵘⱼ (∙ ⊢A)) Unit-ok)) Σ-ok) {!   !}
 
 -- An introduction rule for Erased.
 

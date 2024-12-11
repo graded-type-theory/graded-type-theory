@@ -34,10 +34,9 @@ open import Tools.Sum using (_⊎_; inj₁; inj₂)
 
 private variable
   Γ                               : Con Term _
-  A A′ B B′ C t t′ u u′ v v₁ v₂ w : Term _
+  A A′ B B′ C l t t′ u u′ v v₁ v₂ w : Term _
   s                               : Strength
   p p′ q r                        : M
-  l                               : Universe-level
 
 ------------------------------------------------------------------------
 -- Inversion lemmas related to _⊢_⇒_∷_
@@ -116,8 +115,8 @@ private opaque
   -- An inversion lemma related to unitrec.
 
   inv-⇒-unitrec :
-    Γ ⊢ unitrec l p q A t u ⇒ v ∷ B →
-    (∃₂ λ t′ C → Γ ⊢ t ⇒ t′ ∷ C × v PE.≡ unitrec l p q A t′ u ×
+    Γ ⊢ unitrec p q l A t u ⇒ v ∷ B →
+    (∃₂ λ t′ C → Γ ⊢ t ⇒ t′ ∷ C × v PE.≡ unitrec p q l A t′ u ×
      ¬ Unitʷ-η) ⊎
     t PE.≡ starʷ l × v PE.≡ u × ¬ Unitʷ-η ⊎
     v PE.≡ u × Unitʷ-η

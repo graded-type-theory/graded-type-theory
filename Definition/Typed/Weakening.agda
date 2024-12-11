@@ -331,9 +331,9 @@ private module Inhabited where
           maxᵘⱼ (wkTerm ρ⊇ ⊢Δ ⊢t) (wkTerm ρ⊇ ⊢Δ ⊢u)
         (Uⱼ l) PE.refl →
           Uⱼ (wkTerm ρ⊇ ⊢Δ l)
-        (ΠΣⱼ ⊢A ⊢B ok) PE.refl →
+        (ΠΣⱼ l₁ l₂ ⊢A ⊢B ok) PE.refl →
           let ⊢A′ = wkTerm ρ⊇ ⊢Δ ⊢A in
-          ΠΣⱼ ⊢A′ (PE.subst (λ x → _ ⊢ _ ∷ U x) {! easy  !} (wkTerm (lift ρ⊇) (∙ univ ⊢A′) ⊢B)) ok
+          ΠΣⱼ (wkTerm ρ⊇ ⊢Δ l₁) (wkTerm ρ⊇ ⊢Δ l₂) ⊢A′ (PE.subst (λ x → _ ⊢ _ ∷ U x) {! easy  !} (wkTerm (lift ρ⊇) (∙ univ ⊢A′) ⊢B)) ok
         (lamⱼ ⊢B ⊢t ok) PE.refl →
           let _ , (⊢A , A<) = ∙⊢∷→⊢-<ˢ ⊢t
               ⊢A′           = wk ρ⊇ ⊢Δ ⊢A ⦃ lt = <ˢ-trans A< ! ⦄
@@ -516,11 +516,11 @@ private module Inhabited where
           maxᵘ-cong (wkEqTerm ρ⊇ ⊢Δ t₁≡t₂) (wkEqTerm ρ⊇ ⊢Δ u₁≡u₂)
         (U-cong l₁≡l₂) PE.refl →
           U-cong (wkEqTerm ρ⊇ ⊢Δ l₁≡l₂)
-        (ΠΣ-cong A₁≡A₂ B₁≡B₂ ok) PE.refl →
+        (ΠΣ-cong ⊢l₁ ⊢l₂ A₁≡A₂ B₁≡B₂ ok) PE.refl →
           let _ , (⊢A₁ , A₁<) = ∙⊢≡∷→⊢-<ˢ B₁≡B₂
               ⊢A₁′            = wk ρ⊇ ⊢Δ ⊢A₁ ⦃ lt = <ˢ-trans A₁< ! ⦄
           in
-          ΠΣ-cong (wkEqTerm ρ⊇ ⊢Δ A₁≡A₂)
+          ΠΣ-cong (wkTerm ρ⊇ ⊢Δ ⊢l₁) (wkTerm ρ⊇ ⊢Δ ⊢l₂) (wkEqTerm ρ⊇ ⊢Δ A₁≡A₂)
             (PE.subst (λ x → _ ⊢ _ ≡ _ ∷ U x) {! easy  !} (wkEqTerm (lift ρ⊇) (∙ ⊢A₁′) B₁≡B₂)) ok
         (app-cong {G = B} t₁≡t₂ u₁≡u₂) PE.refl →
           PE.subst (_⊢_≡_∷_ _ _ _) (PE.sym $ wk-β B) $
@@ -625,11 +625,13 @@ private module Inhabited where
           Unit-cong (wkEqTerm ρ⊇ ⊢Δ l₁≡l₂) ok
         (star-cong l₁≡l₂ ok) PE.refl →
           star-cong (wkEqTerm ρ⊇ ⊢Δ l₁≡l₂) ok
-        (unitrec-cong {A = A₁} l₁≡l₂ A₁≡A₂ t₁≡t₂ u₁≡u₂ ok no-η) PE.refl →
+        (unitrec-cong {A = A₁} ⊢l₁ l₁≡l₂ A₁≡A₂ t₁≡t₂ u₁≡u₂ ok no-η) PE.refl →
+          let ⊢l₁′ = wkTerm ρ⊇ ⊢Δ ⊢l₁ in
           PE.subst (_⊢_≡_∷_ _ _ _) (PE.sym $ wk-β A₁) $
           unitrec-cong
+            ⊢l₁′
             (wkEqTerm ρ⊇ ⊢Δ l₁≡l₂)
-            (wkEq (lift ρ⊇) (∙ Unitⱼ {! needs an extra ⊢l argument to unitrec-cong? !} ok) A₁≡A₂)
+            (wkEq (lift ρ⊇) (∙ Unitⱼ ⊢l₁′ ok) A₁≡A₂)
             (wkEqTerm ρ⊇ ⊢Δ t₁≡t₂)
             (PE.subst (_⊢_≡_∷_ _ _ _) (wk-β A₁) $
              wkEqTerm ρ⊇ ⊢Δ u₁≡u₂)
@@ -647,8 +649,8 @@ private module Inhabited where
             (PE.subst (_⊢_∷_ _ _) (wk-β A) $
              wkTerm ρ⊇ ⊢Δ ⊢u)
             ok η
-        (η-unit ⊢t₁ ⊢t₂ η) PE.refl →
-          η-unit (wkTerm ρ⊇ ⊢Δ ⊢t₁) (wkTerm ρ⊇ ⊢Δ ⊢t₂) η
+        (η-unit ⊢l ⊢t₁ ⊢t₂ ok η) PE.refl →
+          η-unit (wkTerm ρ⊇ ⊢Δ ⊢l) (wkTerm ρ⊇ ⊢Δ ⊢t₁) (wkTerm ρ⊇ ⊢Δ ⊢t₂) ok η
         (suc-cong t₁≡t₂) PE.refl →
           suc-cong (wkEqTerm ρ⊇ ⊢Δ t₁≡t₂)
         (natrec-cong {A = A₁} A₁≡A₂ t₁≡t₂ u₁≡u₂ v₁≡v₂) PE.refl →
