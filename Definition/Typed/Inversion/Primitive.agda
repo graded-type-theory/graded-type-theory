@@ -156,7 +156,7 @@ opaque
     (∃ λ (⊢A : Γ ⊢ A ∷ B) → size-⊢∷ ⊢A <ˢ size-⊢∷ ⊢Id) ×
     (∃ λ (⊢t : Γ ⊢ t ∷ A) → size-⊢∷ ⊢t <ˢ size-⊢∷ ⊢Id) ×
     (∃ λ (⊢u : Γ ⊢ u ∷ A) → size-⊢∷ ⊢u <ˢ size-⊢∷ ⊢Id)
-  inversion-Id-⊢∷ (Idⱼ ⊢A ⊢t ⊢u) = (⊢A , !) , (⊢t , !) , (⊢u , !)
+  inversion-Id-⊢∷ (Idⱼ ⊢l ⊢A ⊢t ⊢u) = (⊢A , !) , (⊢t , !) , (⊢u , !)
   inversion-Id-⊢∷ (conv ⊢Id ≡U)  =
     let (⊢A , A<) , (⊢t , t<) , (⊢u , u<) = inversion-Id-⊢∷ ⊢Id in
     (conv ⊢A ≡U , A< ↙⊕ ◻) , (⊢t , ↙ <ˢ→≤ˢ t<) , (⊢u , ↙ <ˢ→≤ˢ u<)
@@ -169,7 +169,7 @@ opaque
     Γ ⊢ Id A t u ∷ B →
     ∃ λ l → Γ ⊢ A ∷ U l × Γ ⊢ t ∷ A × Γ ⊢ u ∷ A × Γ ⊢ B ≡ U l
   inversion-Id-U = λ where
-    (Idⱼ ⊢A ⊢t ⊢u) → _ , ⊢A , ⊢t , ⊢u , {!   !}
+    (Idⱼ ⊢l ⊢A ⊢t ⊢u) → _ , ⊢A , ⊢t , ⊢u , refl (Uⱼ ⊢l)
     (conv ⊢Id C≡B) →
       case inversion-Id-U ⊢Id of λ {
         (_ , ⊢A , ⊢t , ⊢u , C≡U) →
@@ -231,8 +231,8 @@ opaque
     (∃ λ (⊢B : Γ ∙ A ⊢ B ∷ U (wk1 l₂)) → size-⊢∷ ⊢B <ˢ size-⊢∷ ⊢ΠΣ) ×
     Γ ⊢ C ≡ U (l₁ maxᵘ l₂) ×
     ΠΣ-allowed b p q
-  inversion-ΠΣ-⊢∷ (ΠΣⱼ ⊢A ⊢B ok) =
-    _ , _ , (⊢A , !) , (⊢B , !) , refl (Uⱼ {!   !}) , ok
+  inversion-ΠΣ-⊢∷ (ΠΣⱼ ⊢l₁ ⊢l₂ ⊢A ⊢B ok) =
+    _ , _ , (⊢A , !) , (⊢B , !) , refl (Uⱼ (maxᵘⱼ ⊢l₁ ⊢l₂)) , ok
   inversion-ΠΣ-⊢∷ (conv ⊢ΠΣ eq₁) =
     let _ , _ , (⊢A , A<) , (⊢B , B<) , eq₂ , ok =
           inversion-ΠΣ-⊢∷ ⊢ΠΣ
