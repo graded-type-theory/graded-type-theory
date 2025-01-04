@@ -122,11 +122,11 @@ private opaque
     v PE.≡ u × Unitʷ-η
   inv-⇒-unitrec (conv d _) =
     inv-⇒-unitrec d
-  inv-⇒-unitrec (unitrec-subst _ _ d _ no-η) =
+  inv-⇒-unitrec (unitrec-subst _ _ _ d _ no-η) =
     inj₁ (_ , _ , d , PE.refl , no-η)
-  inv-⇒-unitrec (unitrec-β _ _ _ no-η) =
+  inv-⇒-unitrec (unitrec-β _ _ _ _ no-η) =
     inj₂ (inj₁ (PE.refl , PE.refl , no-η))
-  inv-⇒-unitrec (unitrec-β-η _ _ _ _ η) =
+  inv-⇒-unitrec (unitrec-β-η _ _ _ _ _ η) =
     inj₂ (inj₂ (PE.refl , η))
 
   -- An inversion lemma related to J.
@@ -222,11 +222,11 @@ opaque
             ([]-cong′ ⊢A t≡t′)))
     where
     open EP ([]-cong→Erased ok)
-  subsetTerm (unitrec-subst A u t⇒t′ ok no-η) =
-    unitrec-cong (refl A) (subsetTerm t⇒t′) (refl u) ok no-η
-  subsetTerm (unitrec-β A u ok₁ ok₂) = unitrec-β A u ok₁ ok₂
-  subsetTerm (unitrec-β-η A t u ok₁ ok₂) =
-   unitrec-β-η A t u ok₁ ok₂
+  subsetTerm (unitrec-subst ⊢l A u t⇒t′ ok no-η) =
+    unitrec-cong ⊢l (refl ⊢l) (refl A) (subsetTerm t⇒t′) (refl u) ok no-η
+  subsetTerm (unitrec-β ⊢l A u ok₁ ok₂) = unitrec-β ⊢l A u ok₁ ok₂
+  subsetTerm (unitrec-β-η ⊢l A t u ok₁ ok₂) =
+   unitrec-β-η ⊢l A t u ok₁ ok₂
 
 opaque
 
@@ -386,9 +386,9 @@ opaque
     (J-β _ _ _ _ _ _)         → (λ ()) ∘→ inv-ne-J
     (K-β _ _ _)               → (λ ()) ∘→ inv-ne-K
     ([]-cong-β _ _ _ _ _)     → (λ ()) ∘→ inv-ne-[]-cong
-    (unitrec-subst _ _ d _ _) → neRedTerm d ∘→ proj₂ ∘→ inv-ne-unitrec
-    (unitrec-β _ _ _ _)       → (λ ()) ∘→ proj₂ ∘→ inv-ne-unitrec
-    (unitrec-β-η _ _ _ _ ok)  → (_$ ok) ∘→ proj₁ ∘→ inv-ne-unitrec
+    (unitrec-subst _ _ _ d _ _) → neRedTerm d ∘→ proj₂ ∘→ inv-ne-unitrec
+    (unitrec-β _ _ _ _ _)       → (λ ()) ∘→ proj₂ ∘→ inv-ne-unitrec
+    (unitrec-β-η _ _ _ _ _ ok)  → (_$ ok) ∘→ proj₁ ∘→ inv-ne-unitrec
 
 opaque
 
@@ -425,10 +425,10 @@ opaque
     (J-β _ _ _ _ _ _)         → (λ ()) ∘→ inv-whnf-J
     (K-β _ _ _)               → (λ ()) ∘→ inv-whnf-K
     ([]-cong-β _ _ _ _ _)     → (λ ()) ∘→ inv-whnf-[]-cong
-    (unitrec-subst _ _ d _ _) → neRedTerm d ∘→ proj₂ ∘→
+    (unitrec-subst _ _ _ d _ _) → neRedTerm d ∘→ proj₂ ∘→
                                 inv-whnf-unitrec
-    (unitrec-β _ _ _ _)       → (λ ()) ∘→ proj₂ ∘→ inv-whnf-unitrec
-    (unitrec-β-η _ _ _ _ ok)  → (_$ ok) ∘→ proj₁ ∘→ inv-whnf-unitrec
+    (unitrec-β _ _ _ _ _)       → (λ ()) ∘→ proj₂ ∘→ inv-whnf-unitrec
+    (unitrec-β-η _ _ _ _ _ ok)  → (_$ ok) ∘→ proj₁ ∘→ inv-whnf-unitrec
 
 opaque
 
@@ -526,18 +526,18 @@ opaque
       case inv-⇒-emptyrec d′ of λ where
         (_ , _ , d′ , PE.refl) →
           PE.cong (emptyrec _ _) (whrDetTerm d d′)
-    (unitrec-subst _ _ d _ no-η) d′ →
+    (unitrec-subst _ _ _ d _ no-η) d′ →
       case inv-⇒-unitrec d′ of λ where
         (inj₁ (_ , _ , d′ , PE.refl , _)) →
           PE.cong (λ t → unitrec _ _ _ _ t _) (whrDetTerm d d′)
         (inj₂ (inj₁ (PE.refl , _))) → ⊥-elim (whnfRedTerm d starₙ)
         (inj₂ (inj₂ (_ , η)))       → ⊥-elim (no-η η)
-    (unitrec-β _ _ _ no-η) d′ →
+    (unitrec-β _ _ _ _ no-η) d′ →
       case inv-⇒-unitrec d′ of λ where
         (inj₁ (_ , _ , d′ , _))         → ⊥-elim (whnfRedTerm d′ starₙ)
         (inj₂ (inj₁ (_ , PE.refl , _))) → PE.refl
         (inj₂ (inj₂ (_ , η)))           → ⊥-elim (no-η η)
-    (unitrec-β-η _ _ _ _ η) d′ →
+    (unitrec-β-η _ _ _ _ _ η) d′ →
       case inv-⇒-unitrec d′ of λ where
         (inj₁ (_ , _ , _ , _ , no-η)) → ⊥-elim (no-η η)
         (inj₂ (inj₁ (_ , _ , no-η)))  → ⊥-elim (no-η η)

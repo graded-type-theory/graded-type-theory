@@ -544,30 +544,36 @@ opaque
         (substitutionTerm x₃ ⊢σ ⊢Δ))
   substitutionRedTerm (emptyrec-subst x d) ⊢σ ⊢Δ =
     emptyrec-subst (substitution x ⊢σ ⊢Δ) (substitutionRedTerm d ⊢σ ⊢Δ)
-  substitutionRedTerm {σ} (unitrec-subst {A = A} {u} {t} x x₁ d x₂ x₃) ⊢σ ⊢Δ =
+  substitutionRedTerm {σ} (unitrec-subst {A = A} {u} {t} ⊢l x x₁ d x₂ x₃) ⊢σ ⊢Δ =
+    let ⊢l[σ] = substitutionTerm ⊢l ⊢σ ⊢Δ in
     PE.subst (_⊢_⇒_∷_ _ _ _)
       (PE.sym (singleSubstLift A t))
       (unitrec-subst
-        (substitution x (liftSubst′ ⊢Δ (Unitⱼ (wfTerm x₁) x₂) ⊢σ)
-           (∙ Unitⱼ ⊢Δ x₂))
+        ⊢l[σ]
+        (substitution x (liftSubst′ ⊢Δ (Unitⱼ ⊢l x₂) ⊢σ)
+           (∙ Unitⱼ ⊢l[σ] x₂))
         (PE.subst (_ ⊢ _ ∷_) (singleSubstLift A _) $
          substitutionTerm x₁ ⊢σ ⊢Δ)
         (substitutionRedTerm d ⊢σ ⊢Δ) x₂ x₃)
-  substitutionRedTerm {σ} (unitrec-β {A = A} {u} x x₁ x₂ x₃) ⊢σ ⊢Δ =
+  substitutionRedTerm {σ} (unitrec-β {A = A} {u} ⊢l x x₁ x₂ x₃) ⊢σ ⊢Δ =
+    let ⊢l[σ] = substitutionTerm ⊢l ⊢σ ⊢Δ in
     PE.subst (_⊢_⇒_∷_ _ _ _)
       (PE.sym (singleSubstLift A _))
       (unitrec-β
-        (substitution x (liftSubst′ ⊢Δ (Unitⱼ (wfTerm x₁) x₂) ⊢σ)
-           (∙ Unitⱼ ⊢Δ x₂))
+        ⊢l[σ]
+        (substitution x (liftSubst′ ⊢Δ (Unitⱼ ⊢l x₂) ⊢σ)
+           (∙ Unitⱼ ⊢l[σ] x₂))
         (PE.subst (_ ⊢ _ ∷_) (singleSubstLift A _) $
          substitutionTerm x₁ ⊢σ ⊢Δ)
         x₂ x₃)
-  substitutionRedTerm {σ} (unitrec-β-η {A} {t} {u} x x₁ x₂ x₃ x₄) ⊢σ ⊢Δ =
+  substitutionRedTerm {σ} (unitrec-β-η {A} {t} {u} ⊢l x x₁ x₂ x₃ x₄) ⊢σ ⊢Δ =
+    let ⊢l[σ] = substitutionTerm ⊢l ⊢σ ⊢Δ in
     PE.subst (_⊢_⇒_∷_ _ _ _)
       (PE.sym (singleSubstLift A t))
       (unitrec-β-η
-        (substitution x (liftSubst′ ⊢Δ (Unitⱼ (wfTerm x₁) x₃) ⊢σ)
-           (∙ Unitⱼ ⊢Δ x₃))
+        ⊢l[σ]
+        (substitution x (liftSubst′ ⊢Δ (Unitⱼ ⊢l x₃) ⊢σ)
+           (∙ Unitⱼ ⊢l[σ] x₃))
         (substitutionTerm x₁ ⊢σ ⊢Δ)
         (PE.subst (_ ⊢ _ ∷_) (singleSubstLift A _) $
          substitutionTerm x₂ ⊢σ ⊢Δ)

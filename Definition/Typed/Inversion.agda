@@ -31,9 +31,8 @@ open I public
 private variable
   x             : Fin _
   Γ             : Con Term _
-  A B C t u v w : Term _
+  A B C l t u v w : Term _
   b             : BinderMode
-  l             : Universe-level
   s             : Strength
   p q q′ r      : M
 
@@ -69,12 +68,12 @@ opaque
   -- Inversion for unitrec.
 
   inversion-unitrec :
-    Γ ⊢ unitrec l p q A t u ∷ B →
+    Γ ⊢ unitrec p q l A t u ∷ B →
     (Γ ∙ Unitʷ l ⊢ A) ×
     Γ ⊢ t ∷ Unitʷ l ×
     Γ ⊢ u ∷ A [ starʷ l ]₀ ×
     Γ ⊢ B ≡ A [ t ]₀
-  inversion-unitrec (unitrecⱼ ⊢A ⊢t ⊢u _) =
+  inversion-unitrec (unitrecⱼ ⊢l ⊢A ⊢t ⊢u _) =
     ⊢A , ⊢t , ⊢u , refl (substType ⊢A ⊢t)
   inversion-unitrec (conv ⊢ur eq) =
     let a , b , c , d = inversion-unitrec ⊢ur

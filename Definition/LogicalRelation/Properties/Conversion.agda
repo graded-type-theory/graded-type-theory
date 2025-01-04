@@ -21,13 +21,8 @@ open import Definition.Untyped.Neutral M type-variant
 open import Definition.Untyped.Properties M
 open import Definition.Typed R
 open import Definition.Typed.Properties R
-<<<<<<< HEAD
-import Definition.Typed.Weakening R as Wk
-open import Definition.LogicalRelation R {{eqrel}}
-=======
 open import Definition.Typed.Well-formed R
-open import Definition.LogicalRelation R
->>>>>>> master
+open import Definition.LogicalRelation R {{eqrel}}
 open import Definition.LogicalRelation.Properties.Escape R
 open import Definition.LogicalRelation.Properties.Kit R
 open import Definition.LogicalRelation.ShapeView R
@@ -152,23 +147,20 @@ mutual
         ΣFG≡ΣF₁G₁ =
           PE.subst (λ x → Γ ⊢ Σʷ p , q ▷ F ▹ G ≡ x) (PE.sym ΣF₁G₁≡ΣF′G′)
             (≅-eq A≡B)
-<<<<<<< HEAD
-    in  Σₜ f (convRed:*: d ΣFG≡ΣF₁G₁) (≅-conv f≡f ΣFG≡ΣF₁G₁)
+    in  Σₜ f (conv* d ΣFG≡ΣF₁G₁) (≅-conv f≡f ΣFG≡ΣF₁G₁)
            (ne x) (~-conv f~f ΣFG≡ΣF₁G₁)
-  convTermT₁ (Uᵥ (Uᵣ k [k] k< D1) (Uᵣ k′ [k′] k′< D2)) (U₌ _ D _) (Uₜ A d typeA A≡A [t]) with whrDet* (red D2 , Uₙ) (red D , Uₙ)
+  convTermT₁ (Uᵥ (Uᵣ k [k] k< D1) (Uᵣ k′ [k′] k′< D2)) (U₌ _ D _) (Uₜ A d typeA A≡A [t]) with whrDet* (D2 , Uₙ) (D , Uₙ)
   ... | PE.refl =
-    Uₜ A {!  (convRed:*: d (refl (_⊢_:⇒*:_.⊢B D))) !} typeA {! A≡A  !} {!   !}
-    -- Uₜ A (convRed:*: d (refl (_⊢_:⇒*:_.⊢B D))) typeA A≡A
+    Uₜ A {!  (conv* d (refl (_⊢_:⇒*:_.⊢B D))) !} typeA {! A≡A  !} {!   !}
+    -- Uₜ A (conv* d (refl (_⊢_:⇒*:_.⊢B D))) typeA A≡A
     -- (irrelevance-⊩< (reflect-level-cong [k] [k′] PE.refl) k< k′< [t])
-=======
-    in  Σₜ f (conv* d ΣFG≡ΣF₁G₁) (≅-conv f≡f ΣFG≡ΣF₁G₁) (ne x)
-          (~-conv f~f ΣFG≡ΣF₁G₁)
-  convTermT₁ (Uᵥ (Uᵣ l1 l<1 D1) (Uᵣ l2 l<2 D2)) D (Uₜ A d typeA A≡A [t]) with whrDet* (D2 , Uₙ) (D , Uₙ)
-  convTermT₁ (Uᵥ (Uᵣ l1 l<1 D1) (Uᵣ l2 l<2 D2)) D (Uₜ A d typeA A≡A [t])
-        | PE.refl =
-    Uₜ A (conv* d (refl (wf-⊢≡∷ (≅ₜ-eq A≡A) .proj₁))) typeA A≡A
-      (irrelevance-⊩< l<1 l<2 [t])
->>>>>>> master
+  --   in  Σₜ f (conv* d ΣFG≡ΣF₁G₁) (≅-conv f≡f ΣFG≡ΣF₁G₁) (ne x)
+  --         (~-conv f~f ΣFG≡ΣF₁G₁)
+  -- convTermT₁ (Uᵥ (Uᵣ l1 l<1 D1) (Uᵣ l2 l<2 D2)) D (Uₜ A d typeA A≡A [t]) with whrDet* (D2 , Uₙ) (D , Uₙ)
+  -- convTermT₁ (Uᵥ (Uᵣ l1 l<1 D1) (Uᵣ l2 l<2 D2)) D (Uₜ A d typeA A≡A [t])
+  --       | PE.refl =
+  --   Uₜ A (conv* d (refl (wf-⊢≡∷ (≅ₜ-eq A≡A) .proj₁))) typeA A≡A
+  --     (irrelevance-⊩< l<1 l<2 [t])
   convTermT₁ (Idᵥ ⊩A ⊩B@record{}) A≡B ⊩t@(_ , t⇒*u , _) =
     case whrDet* (_⊩ₗId_.⇒*Id ⊩B , Idₙ) (⇒*Id′ , Idₙ) of λ {
       PE.refl →
@@ -184,8 +176,8 @@ mutual
                (lhs≡rhs→lhs′≡rhs′ lhs≡rhs)) }}
     where
     open _⊩ₗId_≡_/_ A≡B
-  convTermT₁ (embᵥ₁ p     A≡B) = {!convTermT₁          A≡B!}
-  convTermT₁ (embᵥ₂ p     A≡B) = {!convTermT₁          A≡B!}
+  convTermT₁ (embᵥ₁ p     A≡B) = {!convTermT₁          A≡B !}
+  convTermT₁ (embᵥ₂ p     A≡B) = {!convTermT₁          A≡B !}
 
   -- Helper function for conversion of terms converting from right to left.
   convTermT₂ : ∀ {l l′ A B t} {[A] : Γ ⊩⟨ l ⟩ A} {[B] : Γ ⊩⟨ l′ ⟩ B}
@@ -296,19 +288,16 @@ mutual
             (≅-eq A≡B)
     in  Σₜ f (conv* d (sym ΣFG≡ΣF₁G₁)) (≅-conv f≡f (sym ΣFG≡ΣF₁G₁))
            (ne x) (~-conv f~f (sym ΣFG≡ΣF₁G₁))
-<<<<<<< HEAD
-  convTermT₂ (Uᵥ (Uᵣ k [k] k< D1) (Uᵣ k′ [k′] k′< D2)) (U₌ _ D _) (Uₜ A d typeA A≡A [t]) with whrDet* (red D2 , Uₙ) (red D , Uₙ)
+  convTermT₂ (Uᵥ (Uᵣ k [k] k< D1) (Uᵣ k′ [k′] k′< D2)) (U₌ _ D _) (Uₜ A d typeA A≡A [t]) with whrDet* (D2 , Uₙ) (D , Uₙ)
   ... | PE.refl =
     {!   !}
     -- Uₜ A (convRed:*: d (refl (_⊢_:⇒*:_.⊢B D))) typeA A≡A
     --   (irrelevance-⊩< (reflect-level-cong [k′] [k] PE.refl) k′< k< [t])
-=======
-  convTermT₂ (Uᵥ (Uᵣ l1 l<1 D1) (Uᵣ l2 l<2 D2)) D (Uₜ A d typeA A≡A [t]) with whrDet* (D2 , Uₙ) (D , Uₙ)
-  convTermT₂ (Uᵥ (Uᵣ l1 l<1 D1) (Uᵣ l2 l<2 D2)) D (Uₜ A d typeA A≡A [t])
-        | PE.refl =
-    Uₜ A (conv* d (refl (wf-⊢≡∷ (≅ₜ-eq A≡A) .proj₁))) typeA A≡A
-      (irrelevance-⊩< l<2 l<1 [t])
->>>>>>> master
+  -- convTermT₂ (Uᵥ (Uᵣ l1 l<1 D1) (Uᵣ l2 l<2 D2)) D (Uₜ A d typeA A≡A [t]) with whrDet* (D2 , Uₙ) (D , Uₙ)
+  -- convTermT₂ (Uᵥ (Uᵣ l1 l<1 D1) (Uᵣ l2 l<2 D2)) D (Uₜ A d typeA A≡A [t])
+  --       | PE.refl =
+  --   Uₜ A (conv* d (refl (wf-⊢≡∷ (≅ₜ-eq A≡A) .proj₁))) typeA A≡A
+  --     (irrelevance-⊩< l<2 l<1 [t])
   convTermT₂ (Idᵥ ⊩A ⊩B@record{}) A≡B ⊩t@(_ , t⇒*u , _) =
     case whrDet* (_⊩ₗId_.⇒*Id ⊩B , Idₙ) (⇒*Id′ , Idₙ) of λ {
       PE.refl →
@@ -325,8 +314,8 @@ mutual
                   lhs≡rhs)) }}
     where
     open _⊩ₗId_≡_/_ A≡B
-  convTermT₂ (embᵥ₁ p     A≡B) = {!convTermT₂          A≡B!}
-  convTermT₂ (embᵥ₂ p     A≡B) = {!convTermT₂          A≡B!}
+  convTermT₂ (embᵥ₁ p     A≡B) = {!convTermT₂          A≡B !}
+  convTermT₂ (embᵥ₂ p     A≡B) = {!convTermT₂          A≡B !}
 
   -- Conversion of terms converting from left to right.
   convTerm₁ : ∀ {A B t l l′} ([A] : Γ ⊩⟨ l ⟩ A) ([B] : Γ ⊩⟨ l′ ⟩ B)
@@ -497,14 +486,10 @@ mutual
             (ne x) (ne y) (≅-conv p≅r ΣFG≡ΣF₁G₁)
             (convTerm₁ [A] [B] [A≡B] [t]) (convTerm₁ [A] [B] [A≡B] [u])
             p~r₁
-<<<<<<< HEAD
-=======
-  convEqTermT₁ (Uᵥ (Uᵣ l1 l<1 D1) (Uᵣ l2 l<2 D2)) D eq with whrDet* (D2 , Uₙ) (D , Uₙ)
->>>>>>> master
   convEqTermT₁
     (Uᵥ (Uᵣ k [k] k< D1) (Uᵣ k′ [k′] k′< D2)) (U₌ _ D _)
     (Uₜ₌ A B d d′ typeA typeB A≡B _ [u] [t≡u])
-    with whrDet* (red D2 , Uₙ) (red D , Uₙ)
+    with whrDet* (D2 , Uₙ) (D , Uₙ)
   ... | PE.refl =
     -- Uₜ₌ A B d d′ typeA typeB A≡B _
     --   (irrelevance-⊩< (reflect-level-cong [k] [k′] PE.refl) k< k′< [u])
@@ -528,8 +513,8 @@ mutual
                (lhs≡rhs→lhs′≡rhs′ lhs≡rhs)) }}
     where
     open _⊩ₗId_≡_/_ A≡B
-  convEqTermT₁ (embᵥ₁ p     A≡B) = {!convEqTermT₁          A≡B!}
-  convEqTermT₁ (embᵥ₂ p     A≡B) = {!convEqTermT₁          A≡B!}
+  convEqTermT₁ (embᵥ₁ p     A≡B) = {!convEqTermT₁          A≡B !}
+  convEqTermT₁ (embᵥ₂ p     A≡B) = {!convEqTermT₁          A≡B  !}
 
   -- Helper function for conversion of term equality converting from right to left.
   convEqTermT₂ : ∀ {l l′ A B t u} {[A] : Γ ⊩⟨ l ⟩ A} {[B] : Γ ⊩⟨ l′ ⟩ B}
@@ -673,14 +658,10 @@ mutual
             (ne x) (ne y) (≅-conv t≡u (sym ΣFG≡ΣF₁G₁))
             (convTerm₂ [A] [B] [A≡B] [t]) (convTerm₂ [A] [B] [A≡B] [u])
             p~r
-<<<<<<< HEAD
-=======
-  convEqTermT₂ (Uᵥ (Uᵣ l1 l<1 D1) (Uᵣ l2 l<2 D2)) D eq with whrDet* (D2 , Uₙ) (D , Uₙ)
->>>>>>> master
   convEqTermT₂
     (Uᵥ (Uᵣ k [k] k< D1) (Uᵣ k′ [k′] k′< D2)) (U₌ _ D _)
     (Uₜ₌ A B d d′ typeA typeB A≡B _ [u] [t≡u])
-    with whrDet* (red D2 , Uₙ) (red D , Uₙ)
+    with whrDet* (D2 , Uₙ) (D , Uₙ)
   ... | PE.refl =
     -- Uₜ₌ A B d d′ typeA typeB A≡B _
     --   (irrelevance-⊩< (reflect-level-cong [k′] [k] PE.refl) k′< k< [u])
@@ -705,8 +686,8 @@ mutual
                   lhs≡rhs)) }}
     where
     open _⊩ₗId_≡_/_ A≡B
-  convEqTermT₂ (embᵥ₁ p     A≡B) = {!convEqTermT₂          A≡B!}
-  convEqTermT₂ (embᵥ₂ p     A≡B) = {!convEqTermT₂          A≡B!}
+  convEqTermT₂ (embᵥ₁ p     A≡B) = {!convEqTermT₂          A≡B  !}
+  convEqTermT₂ (embᵥ₂ p     A≡B) = {!convEqTermT₂          A≡B  !}
 
   -- Conversion of term equality converting from left to right.
   convEqTerm₁ : ∀ {l l′ A B t u} ([A] : Γ ⊩⟨ l ⟩ A) ([B] : Γ ⊩⟨ l′ ⟩ B)

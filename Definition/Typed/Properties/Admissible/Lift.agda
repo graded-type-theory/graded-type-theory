@@ -39,9 +39,8 @@ open import Tools.Reasoning.PropositionalEquality
 
 private variable
   Γ                         : Con Term _
-  A B B₁ B₂ t t₁ t₂ u u₁ u₂ : Term _
+  A B B₁ B₂ l l₁ l₂ t t₁ t₂ u u₁ u₂ : Term _
   s                         : Strength
-  l l₁ l₂                   : Universe-level
   q r                       : M
 
 ------------------------------------------------------------------------
@@ -52,6 +51,7 @@ private variable
 Lift-allowed : Strength → Set a
 Lift-allowed s = Σ-allowed s 𝟙 𝟘 × Unit-allowed s
 
+{-
 opaque
   unfolding Lift
 
@@ -302,3 +302,4 @@ opaque
       wk1 t [ u , star s l ]₁₀  ≡⟨ step-consSubst t ⟩
       wk id t [ u ]₀            ≡⟨ PE.cong _[ _ ]₀ $ wk-id t ⟩
       t [ u ]₀                  ∎
+-}

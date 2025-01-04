@@ -121,7 +121,7 @@ record _⊩ne_≡_∷_/_ (Γ : Con Term ℓ) (t u A : Term ℓ) ([A] : Γ ⊩ne 
 
 -- Level type
 _⊩Level_ : (Γ : Con Term ℓ) (A : Term ℓ) → Set a
-Γ ⊩Level A = Γ ⊢ A :⇒*: Level
+Γ ⊩Level A = Γ ⊢ A ⇒* Level
 
 -- Level type equality
 _⊩Level_≡_ : (Γ : Con Term ℓ) (A B : Term ℓ) → Set a
@@ -134,8 +134,8 @@ mutual
     constructor Levelₜ
     field
       m : Term ℓ
-      d : Γ ⊢ t :⇒*: m ∷ Level
-      m≡m : Γ ⊢ m ≅ m ∷ Level
+      d : Γ ⊢ t ⇒* m ∷ Level
+      m≡m : Γ ⊢≅ m ∷ Level
       prop : Level-prop Γ m
 
   -- WHNF property of level terms
@@ -151,8 +151,8 @@ mutual
     constructor Levelₜ₌
     field
       k k′ : Term ℓ
-      d : Γ ⊢ t :⇒*: k ∷ Level
-      d′ : Γ ⊢ u :⇒*: k′ ∷ Level
+      d : Γ ⊢ t ⇒* k ∷ Level
+      d′ : Γ ⊢ u ⇒* k′ ∷ Level
       k≡k′ : Γ ⊢ k ≅ k′ ∷ Level
       prop : [Level]-prop Γ k k′
 
@@ -278,14 +278,10 @@ record _⊩Unit⟨_,_⟩_
   pattern
   constructor Unitₜ
   field
-<<<<<<< HEAD
     k : Term ℓ
     [k] : Γ ⊩Level k ∷Level
     k≡  : reflect-level [k] PE.≡ l
-    ⇒*-Unit : Γ ⊢ A :⇒*: Unit s k
-=======
-    ⇒*-Unit : Γ ⊢ A ⇒* Unit s l
->>>>>>> master
+    ⇒*-Unit : Γ ⊢ A ⇒* Unit s k
     ok      : Unit-allowed s
 
 -- Unit type equality
@@ -312,15 +308,9 @@ record _⊩Unit⟨_,_⟩_∷_/_
   open _⊩Unit⟨_,_⟩_ [A]
   field
     n : Term ℓ
-<<<<<<< HEAD
-    d : Γ ⊢ t :⇒*: n ∷ Unit s k
-    n≡n : Γ ⊢ n ≅ n ∷ Unit s k
+    d : Γ ⊢ t ⇒* n ∷ Unit s k
+    n≡n : Γ ⊢≅ n ∷ Unit s k
     prop : Unit-prop Γ l s A [A] n
-=======
-    d : Γ ⊢ t ⇒* n ∷ Unit s l
-    n≡n : Γ ⊢≅ n ∷ Unit s l
-    prop : Unit-prop Γ l s n
->>>>>>> master
 
 -- Unit term equality
 
@@ -338,20 +328,12 @@ data _⊩Unit⟨_,_⟩_≡_∷_/_
     Unit-with-η s →
     Γ ⊩Unit⟨ l , s ⟩ t ≡ u ∷ A / [A]
   Unitₜ₌ʷ :
-<<<<<<< HEAD
     ∀ {A} {[A]} (open _⊩Unit⟨_,_⟩_ [A]) →
     (t′ u′ : Term ℓ) →
-    Γ ⊢ t :⇒*: t′  ∷ Unitʷ k →
-    Γ ⊢ u :⇒*: u′ ∷ Unitʷ k →
+    Γ ⊢ t ⇒* t′  ∷ Unitʷ k →
+    Γ ⊢ u ⇒* u′ ∷ Unitʷ k →
     Γ ⊢ t′ ≅ u′ ∷ Unitʷ k →
     [Unitʷ]-prop Γ l A [A] t′ u′ →
-=======
-    (k k′ : Term ℓ) →
-    Γ ⊢ t ⇒* k  ∷ Unitʷ l →
-    Γ ⊢ u ⇒* k′ ∷ Unitʷ l →
-    Γ ⊢ k ≅ k′ ∷ Unitʷ l →
-    [Unitʷ]-prop Γ l k k′ →
->>>>>>> master
     ¬ Unitʷ-η →
     Γ ⊩Unit⟨ l , 𝕨 ⟩ t ≡ u ∷ A / [A]
 
@@ -383,11 +365,10 @@ module LogRel
     pattern
     constructor Uᵣ
     field
-<<<<<<< HEAD
       k   : Term ℓ
       [k] : Γ ⊩Level k ∷Level
       k< : reflect-level [k] <ᵘ l
-      ⇒*U : Γ ⊢ A :⇒*: U k
+      ⇒*U : Γ ⊢ A ⇒* U k
 
   -- Universe type equality
   record _⊩₁U≡_/_ (Γ : Con Term ℓ) (B : Term ℓ) (k : Term ℓ) : Set a where
@@ -396,17 +377,8 @@ module LogRel
     constructor U₌
     field
       k′ : Term ℓ
-      ⇒*U′ : Γ ⊢ B :⇒*: U k′
+      ⇒*U′ : Γ ⊢ B ⇒* U k′
       k≡k′ : Γ ⊩Level k ≡ k′ ∷Level
-=======
-      l′  : Universe-level
-      l′< : l′ <ᵘ l
-      ⇒*U : Γ ⊢ A ⇒* U l′
-
-  -- Universe type equality
-  _⊩₁U≡_/_ : Con Term ℓ → Term ℓ → Universe-level → Set a
-  Γ ⊩₁U≡ B / l′ = Γ ⊢ B ⇒* U l′
->>>>>>> master
 
 
   -- Universe term
@@ -420,15 +392,9 @@ module LogRel
     open LogRelKit (rec k<)
     field
       A     : Term ℓ
-<<<<<<< HEAD
-      d     : Γ ⊢ t :⇒*: A ∷ U k
+      d     : Γ ⊢ t ⇒* A ∷ U k
       typeA : Type A
-      A≡A   : Γ ⊢ A ≅ A ∷ U k
-=======
-      d     : Γ ⊢ t ⇒* A ∷ U l′
-      typeA : Type A
-      A≡A   : Γ ⊢≅ A ∷ U l′
->>>>>>> master
+      A≡A   : Γ ⊢≅ A ∷ U k
       [t]   : Γ ⊩ t
 
   -- Universe term equality
@@ -442,13 +408,8 @@ module LogRel
     open LogRelKit (rec k<)
     field
       A B   : Term ℓ
-<<<<<<< HEAD
-      d     : Γ ⊢ t :⇒*: A ∷ U k
-      d′    : Γ ⊢ u :⇒*: B ∷ U k
-=======
-      d     : Γ ⊢ t ⇒* A ∷ U l′
-      d′    : Γ ⊢ u ⇒* B ∷ U l′
->>>>>>> master
+      d     : Γ ⊢ t ⇒* A ∷ U k
+      d′    : Γ ⊢ u ⇒* B ∷ U k
       typeA : Type A
       typeB : Type B
       A≡B   : Γ ⊢ A ≅ B ∷ U k

@@ -70,29 +70,19 @@ opaque
 
   -- A characterisation lemma for _⊩⟨_⟩_∷_.
 
-  ⊩ℕ∷U⇔ : Γ ⊩⟨ 1 ⟩ ℕ ∷ U zeroᵘ ⇔ ⊢ Γ
+  ⊩ℕ∷U⇔ : Γ ⊩⟨ 1ᵘ ⟩ ℕ ∷ U zeroᵘ ⇔ ⊢ Γ
   ⊩ℕ∷U⇔ =
       (λ ⊩ℕ →
          case ⊩∷U⇔ .proj₁ ⊩ℕ of λ
-<<<<<<< HEAD
            (_ , _ , _ , _ , ℕ⇒* , _) →
-         wfTerm (⊢t-redₜ ℕ⇒*))
-    , (λ ⊢Γ →
-         ⊩∷U⇔ .proj₂
-          ( ⊩Level-zeroᵘ ⊢Γ
-          , ≤ᵘ-refl
-          , ⊩ℕ⇔ .proj₂ ⊢Γ
-          , (_ , idRedTerm:*: (ℕⱼ ⊢Γ) , ℕₙ , ≅ₜ-ℕrefl ⊢Γ)
-          ))
-=======
-           (_ , _ , _ , ℕ⇒* , _) →
          wfEqTerm (subset*Term ℕ⇒*))
     , (λ ⊢Γ →
          ⊩∷U⇔ .proj₂
-           ( ≤ᵘ-refl , ⊩ℕ⇔ .proj₂ ⊢Γ
-           , (_ , id (ℕⱼ ⊢Γ) , ℕₙ , ≅ₜ-ℕrefl ⊢Γ)
-           ))
->>>>>>> master
+          ( ⊩Level-zeroᵘ ⊢Γ
+          , 0ᵘ<ᵘ1ᵘ
+          , ⊩ℕ⇔ .proj₂ ⊢Γ
+          , _ , id (ℕⱼ ⊢Γ) , ℕₙ , ≅ₜ-ℕrefl ⊢Γ
+          ))
 
 opaque
   unfolding _⊩⟨_⟩_∷_
@@ -112,8 +102,7 @@ opaque
       Γ ⊩⟨ l ⟩ t ∷ A / ℕ-intr ⊩A →
       Γ ⊩ℕ t ∷ℕ
     lemma (noemb _)    ⊩t = ⊩t
-    lemma (emb ≤ᵘ-refl ⊩A) ⊩t = lemma ⊩A ⊩t
-    lemma (emb (≤ᵘ-step s) ⊩A) ⊩t = lemma (emb s ⊩A) ⊩t
+    lemma (emb p ⊩A) ⊩t = {!   !}
 
 opaque
 
@@ -177,32 +166,26 @@ opaque
       Γ ⊩⟨ l ⟩ A ≡ B / ℕ-intr ⊩A →
       Γ ⊩ℕ A ≡ B
     lemma (noemb _)    A≡B = A≡B
-    lemma (emb ≤ᵘ-refl ⊩A) A≡B = lemma ⊩A A≡B
-    lemma (emb (≤ᵘ-step s) ⊩A) A≡B = lemma (emb s ⊩A) A≡B
+    lemma (emb p ⊩A) A≡B = {!   !}
 
 opaque
   unfolding ⊩zeroᵘ
 
   -- A characterisation lemma for _⊩⟨_⟩_≡_∷_.
 
-  ⊩ℕ≡ℕ∷U⇔ : Γ ⊩⟨ 1 ⟩ ℕ ≡ ℕ ∷ U zeroᵘ ⇔ ⊢ Γ
+  ⊩ℕ≡ℕ∷U⇔ : Γ ⊩⟨ 1ᵘ ⟩ ℕ ≡ ℕ ∷ U zeroᵘ ⇔ ⊢ Γ
   ⊩ℕ≡ℕ∷U⇔ =
       (λ ℕ≡ℕ →
          case ⊩≡∷U⇔ .proj₁ ℕ≡ℕ of λ
-<<<<<<< HEAD
            (_ , _ , _ , _ , _ , ℕ⇒* , _) →
-         wfTerm (⊢t-redₜ ℕ⇒*))
-=======
-           (_ , _ , _ , _ , ℕ⇒* , _) →
          wfEqTerm (subset*Term ℕ⇒*))
->>>>>>> master
     , (λ ⊢Γ →
          case id (ℕⱼ ⊢Γ) of λ
            ℕ⇒*ℕ →
          ⊩≡∷U⇔ .proj₂
            ( ⊩Level-zeroᵘ ⊢Γ
-           , ≤ᵘ-refl , ⊩ℕ≡⇔ .proj₂ (id (ℕⱼ ⊢Γ))
-           , (_ , _ , ℕ⇒*ℕ , ℕ⇒*ℕ , ℕₙ , ℕₙ , ≅ₜ-ℕrefl ⊢Γ)))
+           , 0ᵘ<ᵘ1ᵘ , ⊩ℕ≡⇔ .proj₂ (id (ℕⱼ ⊢Γ))
+           , _ , _ , ℕ⇒*ℕ , ℕ⇒*ℕ , ℕₙ , ℕₙ , ≅ₜ-ℕrefl ⊢Γ))
 
 opaque
   unfolding _⊩⟨_⟩_≡_∷_
@@ -229,8 +212,7 @@ opaque
       Γ ⊩⟨ l ⟩ t ≡ u ∷ A / ℕ-intr ⊩A →
       Γ ⊩ℕ t ∷ℕ × Γ ⊩ℕ u ∷ℕ × Γ ⊩ℕ t ≡ u ∷ℕ
     lemma (noemb _)    ⊩t ⊩u t≡u = ⊩t , ⊩u , t≡u
-    lemma (emb ≤ᵘ-refl ⊩A) ⊩t ⊩u t≡u = lemma ⊩A ⊩t ⊩u t≡u
-    lemma (emb (≤ᵘ-step s) ⊩A) ⊩t ⊩u t≡u = lemma (emb s ⊩A) ⊩t ⊩u t≡u
+    lemma (emb p ⊩A) ⊩t ⊩u t≡u = {!   !}
 
 opaque
 
@@ -316,7 +298,7 @@ opaque
           ⊢ Δ               →⟨ ℕⱼ ⟩
           (Δ ⊢ ℕ)           →⟨ id ⟩
           Δ ⊢ ℕ ⇒* ℕ        ⇔˘⟨ ⊩ℕ≡⇔ ⟩→
-          Δ ⊩⟨ 0 ⟩ ℕ ≡ ℕ    □
+          Δ ⊩⟨ 0ᵘ ⟩ ℕ ≡ ℕ    □
       )
 
 opaque
@@ -333,7 +315,7 @@ opaque
       , λ {_} {Δ = Δ} {σ₁ = σ₁} {σ₂ = σ₂} →
           Δ ⊩ˢ σ₁ ≡ σ₂ ∷ Γ    →⟨ proj₁ ∘→ escape-⊩ˢ≡∷ ⟩
           ⊢ Δ                 ⇔˘⟨ ⊩ℕ≡ℕ∷U⇔ ⟩→
-          Δ ⊩⟨ 1 ⟩ ℕ ≡ ℕ ∷ U zeroᵘ  □
+          Δ ⊩⟨ 1ᵘ ⟩ ℕ ≡ ℕ ∷ U zeroᵘ  □
       )
 
 ------------------------------------------------------------------------
@@ -361,7 +343,7 @@ opaque
       , λ {_} {Δ = Δ} {σ₁ = σ₁} {σ₂ = σ₂} →
           Δ ⊩ˢ σ₁ ≡ σ₂ ∷ Γ          →⟨ proj₁ ∘→ escape-⊩ˢ≡∷ ⟩
           ⊢ Δ                       ⇔˘⟨ ⊩zero≡zero∷ℕ⇔ ⟩→
-          Δ ⊩⟨ 0 ⟩ zero ≡ zero ∷ ℕ  □
+          Δ ⊩⟨ 0ᵘ ⟩ zero ≡ zero ∷ ℕ  □
       )
 
 opaque
@@ -392,11 +374,7 @@ opaque
   suc-congᵛ t≡u =
     ⊩ᵛ≡∷⇔ .proj₂
       ( ℕᵛ (wf-⊩ᵛ $ wf-⊩ᵛ∷ $ wf-⊩ᵛ≡∷ t≡u .proj₁)
-<<<<<<< HEAD
       , Σ.map idᶠ ⊩suc≡suc ∘→ ⊩ᵛ≡∷⇔ .proj₁ t≡u .proj₂
-=======
-      , ⊩suc≡suc ∘→ ⊩ᵛ≡∷→⊩ˢ≡∷→⊩[]≡[]∷ t≡u
->>>>>>> master
       )
 
 opaque
@@ -415,53 +393,6 @@ opaque
 
 private opaque
 
-<<<<<<< HEAD
-  -- A variant of natrec-subst for _⊢_⇒*_∷_.
-
-  natrec-subst*′ :
-    Γ ∙ ℕ ⊢ A →
-    (∀ {v₁ v₂} →
-     Γ ⊩⟨ l′ ⟩ v₁ ≡ v₂ ∷ ℕ →
-     Γ ⊩⟨ l ⟩ A [ v₁ ]₀ ≡ A [ v₂ ]₀) →
-    Γ ⊢ t ∷ A [ zero ]₀ →
-    Γ ∙ ℕ ∙ A ⊢ u ∷ A [ suc (var x1) ]↑² →
-    Γ ⊢ v₁ ⇒* v₂ ∷ ℕ →
-    Γ ⊩⟨ l′ ⟩ v₂ ∷ ℕ →
-    Γ ⊢ natrec p q r A t u v₁ ⇒* natrec p q r A t u v₂ ∷ A [ v₁ ]₀
-  natrec-subst*′
-    {A} {t} {u} {v₁} {v₂} {p} {q} {r} ⊢A A≡A ⊢t ⊢u v₁⇒*v₂ ⊩v₂ =
-    case v₁⇒*v₂ of λ where
-      (id ⊢v₁) →
-        id (natrecⱼ ⊢A ⊢t ⊢u ⊢v₁)
-      (_⇨_ {t′ = v₃} v₁⇒v₃ v₃⇒*v₂) →
-        case
-          v₁  ⇒⟨ v₁⇒v₃ ⟩⊩∷
-          v₃  ∎⟨ wf-⊩≡∷ (⊩∷-⇐* v₃⇒*v₂ ⊩v₂) .proj₁ ⟩⊩∷
-        of λ
-          v₁≡v₃ →
-        natrec p q r A t u v₁ ∷ A [ v₁ ]₀  ⇒⟨ natrec-subst ⊢A ⊢t ⊢u v₁⇒v₃ ⟩∷
-                                            ⟨ ≅-eq $ escape-⊩≡ $ A≡A v₁≡v₃ ⟩⇒
-        natrec p q r A t u v₃ ∷ A [ v₃ ]₀  ⇒*⟨ natrec-subst*′ ⊢A A≡A ⊢t ⊢u v₃⇒*v₂ ⊩v₂ ⟩∎∷
-        natrec p q r A t u v₂              ∎
-
-opaque
-
-  -- A variant of natrec-subst for _⊢_⇒*_∷_.
-
-  natrec-subst* :
-    Γ ∙ ℕ ⊩ᵛ A →
-    Γ ⊢ t ∷ A [ zero ]₀ →
-    Γ ∙ ℕ ∙ A ⊢ u ∷ A [ suc (var x1) ]↑² →
-    Γ ⊢ v₁ ⇒* v₂ ∷ ℕ →
-    Γ ⊩⟨ l′ ⟩ v₂ ∷ ℕ →
-    Γ ⊢ natrec p q r A t u v₁ ⇒* natrec p q r A t u v₂ ∷ A [ v₁ ]₀
-  natrec-subst* ⊩A =
-    natrec-subst*′ (escape-⊩ᵛ ⊩A) {!proj₂ ∘→ ⊩ᵛ≡→⊩≡∷→⊩[]₀≡[]₀ (refl-⊩ᵛ≡ ⊩A)!}
-
-private opaque
-
-=======
->>>>>>> master
   -- A lemma used to prove ⊩natrec≡natrec.
 
   ⊩natrec≡natrec′ :
@@ -615,7 +546,7 @@ opaque
     case conv-∙-⊩ᵛ∷ A₁≡A₂ $
          conv-⊩ᵛ∷
            (⊩ᵛ≡→⊩ᵛ∷→⊩ᵛ[]↑²≡[]↑² A₁≡A₂ $
-            sucᵛ {!varᵛ (there here) (wf-⊩ᵛ (wf-⊩ᵛ∷ ⊩u₁)) .proj₂!})
+            sucᵛ {!varᵛ (there here) (wf-⊩ᵛ (wf-⊩ᵛ∷ ⊩u₁)) .proj₂ !})
          ⊩u₂ of λ
       ⊩u₂ →
     case wf-⊩ˢ≡∷ σ₁≡σ₂ of λ
@@ -624,93 +555,48 @@ opaque
     case ⊩ᵛ≡→⊩ˢ≡∷→⊩[⇑]≡[⇑] A₁≡A₂ σ₁≡σ₂ .proj₂ of λ
       A₁[σ₁⇑]≡A₂[σ₂⇑] →
     case PE.subst (_⊩⟨_⟩_≡_∷_ _ _ _ _) (singleSubstLift A₁ _) $
-<<<<<<< HEAD
          ⊩ᵛ≡∷⇔ .proj₁ t₁≡t₂ .proj₂ σ₁≡σ₂ .proj₂ of λ
-=======
-         ⊩ᵛ≡∷→⊩ˢ≡∷→⊩[]≡[]∷ t₁≡t₂ σ₁≡σ₂ of λ
->>>>>>> master
       t₁[σ₁]≡t₂[σ₂] →
     case PE.subst (_⊩⟨_⟩_≡_∷_ _ _ _ _) (natrecSucCase _ A₁) $
          ⊩ᵛ≡∷→⊩ˢ≡∷→⊩[⇑⇑]≡[⇑⇑]∷ u₁≡u₂ σ₁≡σ₂ .proj₂ of λ
       u₁[σ₁⇑⇑]≡u₂[σ₂⇑⇑] →
 
     case ⊩≡∷ℕ⇔ .proj₁ $
-<<<<<<< HEAD
          ⊩ᵛ≡∷⇔ .proj₁ v₁≡v₂ .proj₂ σ₁≡σ₂ .proj₂ of λ
       (⊩ℕ-v₁ , ⊩ℕ-v₂ , ⊩ℕ-v₁≡v₂) →
 
     {!   !}
     -- PE.subst (_⊩⟨_⟩_≡_∷_ _ _ _ _) (PE.sym $ singleSubstLift A₁ _) $
     -- ⊩natrec≡natrec′
-    --   (escape $ wf-⊩≡ A₁[σ₁⇑]≡A₂[σ₂⇑] .proj₁)
-    --   (escape $ ⊩ᵛ→⊩ˢ∷→⊩[⇑] ⊩A₂ ⊩σ₂ .proj₂)
     --   (escape-⊩≡ A₁[σ₁⇑]≡A₂[σ₂⇑])
-    --   {!⊩ᵛ≡→⊩ˢ≡∷→⊩≡∷→⊩[⇑][]₀≡[⇑][]₀ (refl-⊩ᵛ≡ ⊩A₁) (refl-⊩ˢ≡∷ ⊩σ₁)!}
-    --   {!⊩ᵛ≡→⊩ˢ≡∷→⊩≡∷→⊩[⇑][]₀≡[⇑][]₀ (refl-⊩ᵛ≡ ⊩A₂) (refl-⊩ˢ≡∷ ⊩σ₂)!}
-    --   {!⊩ᵛ≡→⊩ˢ≡∷→⊩≡∷→⊩[⇑][]₀≡[⇑][]₀ A₁≡A₂ σ₁≡σ₂!}
+    --   (⊩ᵛ≡→⊩ˢ≡∷→⊩≡∷→⊩[⇑][]₀≡[⇑][]₀ (refl-⊩ᵛ≡ ⊩A₁) (refl-⊩ˢ≡∷ ⊩σ₁))
+    --   (⊩ᵛ≡→⊩ˢ≡∷→⊩≡∷→⊩[⇑][]₀≡[⇑][]₀ (refl-⊩ᵛ≡ ⊩A₂) (refl-⊩ˢ≡∷ ⊩σ₂))
+    --   (⊩ᵛ≡→⊩ˢ≡∷→⊩≡∷→⊩[⇑][]₀≡[⇑][]₀ A₁≡A₂ σ₁≡σ₂)
     --   (escape-⊩∷ $ wf-⊩≡∷ t₁[σ₁]≡t₂[σ₂] .proj₁)
     --   (PE.subst (_⊢_∷_ _ _) (singleSubstLift A₂ _) $
-    --    escape-⊩∷ $ ⊩ᵛ∷→⊩ˢ∷→⊩[]∷ ⊩t₂ ⊩σ₂ .proj₂)
+    --    escape-⊩∷ $ ⊩ᵛ∷→⊩ˢ∷→⊩[]∷ ⊩t₂ ⊩σ₂)
     --   (level-⊩≡∷
     --      (wf-⊩≡
-    --         (proj₂ $ ⊩ᵛ≡→⊩ˢ≡∷→⊩≡∷→⊩[⇑][]₀≡[⇑][]₀ A₁≡A₂ σ₁≡σ₂ $
-    --          refl-⊩≡∷ $ ⊩zero $ escape-⊩ˢ∷ ⊩σ₁ .proj₁)
+    --         (⊩ᵛ≡→⊩ˢ≡∷→⊩≡∷→⊩[⇑][]₀≡[⇑][]₀ A₁≡A₂ σ₁≡σ₂ $
+    --          refl-⊩≡∷ $ ⊩zero {l = l} $ escape-⊩ˢ∷ ⊩σ₁ .proj₁)
     --         .proj₁)
     --      t₁[σ₁]≡t₂[σ₂])
     --   (escape-⊩∷ $ wf-⊩≡∷ u₁[σ₁⇑⇑]≡u₂[σ₂⇑⇑] .proj₁)
     --   (PE.subst (_⊢_∷_ _ _) (natrecSucCase _ A₂) $
-    --    escape-⊩∷ $ ⊩ᵛ∷→⊩ˢ∷→⊩[⇑⇑]∷ ⊩u₂ ⊩σ₂ .proj₂)
+    --    escape-⊩∷ $ ⊩ᵛ∷→⊩ˢ∷→⊩[⇑⇑]∷ ⊩u₂ ⊩σ₂)
     --   (escape-⊩≡∷ u₁[σ₁⇑⇑]≡u₂[σ₂⇑⇑])
     --   (λ {v₁ = v₁} {v₂ = _} {w₁ = w₁} v₁≡v₂ w₁≡w₂ →
-    --     --  level-⊩≡∷
-    --     --    (wf-⊩≡
-    --     --       (proj₂ $ ⊩ᵛ≡→⊩ˢ≡∷→⊩≡∷→⊩[⇑][]₀≡[⇑][]₀ A₁≡A₂ σ₁≡σ₂ $
-    --     --        ⊩suc≡suc v₁≡v₂)
-    --     --       .proj₁) $
-    --     --  PE.subst (_⊩⟨_⟩_≡_∷_ _ _ _ _)
-    --     --    (A₁ [ suc (var x1) ]↑² [ σ₁ ⇑ ⇑ ] [ v₁ , w₁ ]₁₀  ≡⟨ PE.cong _[ _ , _ ]₁₀ $ natrecSucCase _ A₁ ⟩
-    --     --     A₁ [ σ₁ ⇑ ] [ suc (var x1) ]↑² [ v₁ , w₁ ]₁₀    ≡˘⟨ substComp↑² (A₁ [ _ ]) _ ⟩
-    --     --     A₁ [ σ₁ ⇑ ] [ suc v₁ ]₀                         ∎) $
-    --     --  ⊩ᵛ≡∷→⊩ˢ≡∷→⊩≡∷→⊩≡∷→⊩[⇑⇑][]₁₀≡[⇑⇑][]₁₀∷ u₁≡u₂ σ₁≡σ₂ v₁≡v₂ w₁≡w₂ .proj₂
-    --     ?
-    --      )
+    --      level-⊩≡∷
+    --        (wf-⊩≡
+    --           (⊩ᵛ≡→⊩ˢ≡∷→⊩≡∷→⊩[⇑][]₀≡[⇑][]₀ A₁≡A₂ σ₁≡σ₂ $
+    --            ⊩suc≡suc v₁≡v₂)
+    --           .proj₁) $
+    --      PE.subst (_⊩⟨_⟩_≡_∷_ _ _ _ _)
+    --        (A₁ [ suc (var x1) ]↑² [ σ₁ ⇑ ⇑ ] [ v₁ , w₁ ]₁₀  ≡⟨ PE.cong _[ _ , _ ]₁₀ $ natrecSucCase _ A₁ ⟩
+    --         A₁ [ σ₁ ⇑ ] [ suc (var x1) ]↑² [ v₁ , w₁ ]₁₀    ≡˘⟨ substComp↑² (A₁ [ _ ]) _ ⟩
+    --         A₁ [ σ₁ ⇑ ] [ suc v₁ ]₀                         ∎) $
+    --      ⊩ᵛ≡∷→⊩ˢ≡∷→⊩≡∷→⊩≡∷→⊩[⇑⇑][]₁₀≡[⇑⇑][]₁₀∷ u₁≡u₂ σ₁≡σ₂ v₁≡v₂ w₁≡w₂)
     --   ⊩ℕ-v₁ ⊩ℕ-v₂ ⊩ℕ-v₁≡v₂
-=======
-         ⊩ᵛ≡∷→⊩ˢ≡∷→⊩[]≡[]∷ v₁≡v₂ σ₁≡σ₂ of λ
-      (⊩ℕ-v₁ , ⊩ℕ-v₂ , ⊩ℕ-v₁≡v₂) →
-
-    PE.subst (_⊩⟨_⟩_≡_∷_ _ _ _ _) (PE.sym $ singleSubstLift A₁ _) $
-    ⊩natrec≡natrec′
-      (escape-⊩≡ A₁[σ₁⇑]≡A₂[σ₂⇑])
-      (⊩ᵛ≡→⊩ˢ≡∷→⊩≡∷→⊩[⇑][]₀≡[⇑][]₀ (refl-⊩ᵛ≡ ⊩A₁) (refl-⊩ˢ≡∷ ⊩σ₁))
-      (⊩ᵛ≡→⊩ˢ≡∷→⊩≡∷→⊩[⇑][]₀≡[⇑][]₀ (refl-⊩ᵛ≡ ⊩A₂) (refl-⊩ˢ≡∷ ⊩σ₂))
-      (⊩ᵛ≡→⊩ˢ≡∷→⊩≡∷→⊩[⇑][]₀≡[⇑][]₀ A₁≡A₂ σ₁≡σ₂)
-      (escape-⊩∷ $ wf-⊩≡∷ t₁[σ₁]≡t₂[σ₂] .proj₁)
-      (PE.subst (_⊢_∷_ _ _) (singleSubstLift A₂ _) $
-       escape-⊩∷ $ ⊩ᵛ∷→⊩ˢ∷→⊩[]∷ ⊩t₂ ⊩σ₂)
-      (level-⊩≡∷
-         (wf-⊩≡
-            (⊩ᵛ≡→⊩ˢ≡∷→⊩≡∷→⊩[⇑][]₀≡[⇑][]₀ A₁≡A₂ σ₁≡σ₂ $
-             refl-⊩≡∷ $ ⊩zero {l = l} $ escape-⊩ˢ∷ ⊩σ₁ .proj₁)
-            .proj₁)
-         t₁[σ₁]≡t₂[σ₂])
-      (escape-⊩∷ $ wf-⊩≡∷ u₁[σ₁⇑⇑]≡u₂[σ₂⇑⇑] .proj₁)
-      (PE.subst (_⊢_∷_ _ _) (natrecSucCase _ A₂) $
-       escape-⊩∷ $ ⊩ᵛ∷→⊩ˢ∷→⊩[⇑⇑]∷ ⊩u₂ ⊩σ₂)
-      (escape-⊩≡∷ u₁[σ₁⇑⇑]≡u₂[σ₂⇑⇑])
-      (λ {v₁ = v₁} {v₂ = _} {w₁ = w₁} v₁≡v₂ w₁≡w₂ →
-         level-⊩≡∷
-           (wf-⊩≡
-              (⊩ᵛ≡→⊩ˢ≡∷→⊩≡∷→⊩[⇑][]₀≡[⇑][]₀ A₁≡A₂ σ₁≡σ₂ $
-               ⊩suc≡suc v₁≡v₂)
-              .proj₁) $
-         PE.subst (_⊩⟨_⟩_≡_∷_ _ _ _ _)
-           (A₁ [ suc (var x1) ]↑² [ σ₁ ⇑ ⇑ ] [ v₁ , w₁ ]₁₀  ≡⟨ PE.cong _[ _ , _ ]₁₀ $ natrecSucCase _ A₁ ⟩
-            A₁ [ σ₁ ⇑ ] [ suc (var x1) ]↑² [ v₁ , w₁ ]₁₀    ≡˘⟨ substComp↑² (A₁ [ _ ]) _ ⟩
-            A₁ [ σ₁ ⇑ ] [ suc v₁ ]₀                         ∎) $
-         ⊩ᵛ≡∷→⊩ˢ≡∷→⊩≡∷→⊩≡∷→⊩[⇑⇑][]₁₀≡[⇑⇑][]₁₀∷ u₁≡u₂ σ₁≡σ₂ v₁≡v₂ w₁≡w₂)
-      ⊩ℕ-v₁ ⊩ℕ-v₂ ⊩ℕ-v₁≡v₂
->>>>>>> master
     where
     open Tools.Reasoning.PropositionalEquality
 
@@ -751,26 +637,14 @@ opaque
   -- Validity of the equality rule called natrec-zero.
 
   natrec-zeroᵛ :
-<<<<<<< HEAD
-    Γ ∙ ℕ ⊩ᵛ A →
     Γ ⊩ᵛ t ∷ A [ zero ]₀ →
     Γ ∙ ℕ ∙ A ⊩ᵛ u ∷ A [ suc (var x1) ]↑² →
     Γ ⊩ᵛ natrec p q r A t u zero ≡ t ∷ A [ zero ]₀
-  natrec-zeroᵛ {A} ⊩A ⊩t ⊩u =
-=======
-    Γ ⊩ᵛ⟨ l ⟩ t ∷ A [ zero ]₀ →
-    Γ ∙ ℕ ∙ A ⊩ᵛ⟨ l′ ⟩ u ∷ A [ suc (var x1) ]↑² →
-    Γ ⊩ᵛ⟨ l ⟩ natrec p q r A t u zero ≡ t ∷ A [ zero ]₀
   natrec-zeroᵛ {A} ⊩t ⊩u =
->>>>>>> master
     ⊩ᵛ∷-⇐
       (λ ⊩σ →
          PE.subst (_⊢_⇒_∷_ _ _ _) (PE.sym $ singleSubstLift A _) $
          natrec-zero
-<<<<<<< HEAD
-           (escape $ ⊩ᵛ→⊩ˢ∷→⊩[⇑] ⊩A ⊩σ .proj₂)
-=======
->>>>>>> master
            (PE.subst (_⊢_∷_ _ _) (singleSubstLift A _) $
             escape-⊩∷ $ ⊩ᵛ∷→⊩ˢ∷→⊩[]∷ ⊩t ⊩σ .proj₂)
            (PE.subst (_⊢_∷_ _ _) (natrecSucCase _ A) $
@@ -794,10 +668,6 @@ opaque
          PE.subst₂ (_⊢_⇒_∷_ _ _) (PE.sym $ [,]-[]-commute u)
            (PE.sym $ singleSubstLift A _) $
          natrec-suc
-<<<<<<< HEAD
-           (escape $ ⊩ᵛ→⊩ˢ∷→⊩[⇑] ⊩A ⊩σ .proj₂)
-=======
->>>>>>> master
            (PE.subst (_⊢_∷_ _ _) (singleSubstLift A _) $
             escape-⊩∷ $ ⊩ᵛ∷→⊩ˢ∷→⊩[]∷ ⊩t ⊩σ .proj₂)
            (PE.subst (_⊢_∷_ _ _) (natrecSucCase _ A) $

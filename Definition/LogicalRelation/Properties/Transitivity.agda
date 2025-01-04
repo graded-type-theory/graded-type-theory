@@ -21,22 +21,12 @@ open import Definition.Untyped.Neutral M type-variant
 open import Definition.Untyped.Properties M
 open import Definition.Typed R
 open import Definition.Typed.Properties R
-<<<<<<< HEAD
-import Definition.Typed.Weakening R as Weak
 open import Definition.LogicalRelation R {{eqrel}}
 open import Definition.LogicalRelation.ShapeView R {{eqrel}}
 open import Definition.LogicalRelation.Irrelevance R {{eqrel}}
 open import Definition.LogicalRelation.Properties.Conversion R {{eqrel}}
 open import Definition.LogicalRelation.Properties.Symmetry R {{eqrel}}
 open import Definition.LogicalRelation.Properties.Whnf R {{eqrel}}
-=======
-open import Definition.LogicalRelation R
-open import Definition.LogicalRelation.ShapeView R
-open import Definition.LogicalRelation.Irrelevance R
-open import Definition.LogicalRelation.Properties.Conversion R
-open import Definition.LogicalRelation.Properties.Symmetry R
-open import Definition.LogicalRelation.Properties.Whnf R
->>>>>>> master
 
 open import Tools.Empty
 open import Tools.Function
@@ -66,7 +56,7 @@ mutual
                → Γ ⊩Level n′ ≡ n″ ∷Level
                → Γ ⊩Level n  ≡ n″ ∷Level
   transEqTermLevel (Levelₜ₌ k _ d d′ t≡u prop) (Levelₜ₌ _ k″ d₁ d″ t≡u₁ prop₁)
-    with whrDet*Term (redₜ d₁ , proj₁ (lsplit prop₁)) (redₜ d′ , proj₂ (lsplit prop))
+    with whrDet*Term (d₁ , proj₁ (lsplit prop₁)) (d′ , proj₂ (lsplit prop))
   ... | PE.refl = Levelₜ₌ k k″ d d″ (≅ₜ-trans t≡u t≡u₁) (transLevel-prop prop prop₁)
 
   transLevel-prop : ∀ {k k′ k″}
@@ -246,30 +236,16 @@ transEqT {n = n} {Γ = Γ} {l = l} {l′ = l′} {l″ = l″}
          (whrDet* (D₂ , ⟦ W″ ⟧ₙ) (D″ , ⟦ W′ ⟧ₙ)) of λ {
     (PE.refl , PE.refl , PE.refl) →
   B₌ F″ G″ D″ (≅-trans A≡B A≡B₁)
-<<<<<<< HEAD
-    (λ ρ ⊢Δ → transEq ([F] ρ ⊢Δ) ([F]₁ ρ ⊢Δ) ([F]₂ ρ ⊢Δ)
-                ([F≡F′] ρ ⊢Δ) ([F≡F′]₁ ρ ⊢Δ))
-    (λ ρ ⊢Δ [a] →
-       let [a′] = convTerm₁ ([F] ρ ⊢Δ) ([F]₁ ρ ⊢Δ) ([F≡F′] ρ ⊢Δ) [a]
-           [a″] = convTerm₁ ([F]₁ ρ ⊢Δ) ([F]₂ ρ ⊢Δ) ([F≡F′]₁ ρ ⊢Δ)
-                    [a′]
-       in  transEq ([G] ρ ⊢Δ [a]) ([G]₁ ρ ⊢Δ [a′]) ([G]₂ ρ ⊢Δ [a″])
-                   ([G≡G′] ρ ⊢Δ [a]) ([G≡G′]₁ ρ ⊢Δ [a′])) }}
-transEqT (Uᵥ (Uᵣ l′ [l′] l< ⇒*U) (Uᵣ l′₁ [l′₁] l<₁ ⇒*U₁) (Uᵣ l′₂ [l′₂] l<₂ ⇒*U₂)) (U₌ k D l′≡k) (U₌ k′ D₁ k≡k′)
-  with whrDet* (red ⇒*U₁ , Uₙ) (red D , Uₙ)  | whrDet* (red ⇒*U₂ , Uₙ) (red D₁ , Uₙ)
-... | PE.refl | PE.refl =
-    U₌ k′ D₁ (transEqTermLevel l′≡k k≡k′)
-=======
     (λ ρ → transEq ([F] ρ) ([F]₁ ρ) ([F]₂ ρ) ([F≡F′] ρ) ([F≡F′]₁ ρ))
     (λ ρ [a] →
        let [a′] = convTerm₁ ([F] ρ) ([F]₁ ρ) ([F≡F′] ρ) [a]
            [a″] = convTerm₁ ([F]₁ ρ) ([F]₂ ρ) ([F≡F′]₁ ρ) [a′]
        in  transEq ([G] ρ [a]) ([G]₁ ρ [a′]) ([G]₂ ρ [a″])
              ([G≡G′] ρ [a]) ([G≡G′]₁ ρ [a′])) }}
-transEqT (Uᵥ (Uᵣ l′ l< ⇒*U) (Uᵣ l′₁ l<₁ ⇒*U₁) (Uᵣ l′₂ l<₂ ⇒*U₂)) D D₁
-  rewrite whrDet* (⇒*U₁ , Uₙ) (D , Uₙ)  | whrDet* (⇒*U₂ , Uₙ) (D₁ , Uₙ) =
-  D₁
->>>>>>> master
+transEqT (Uᵥ (Uᵣ l′ [l′] l< ⇒*U) (Uᵣ l′₁ [l′₁] l<₁ ⇒*U₁) (Uᵣ l′₂ [l′₂] l<₂ ⇒*U₂)) (U₌ k D l′≡k) (U₌ k′ D₁ k≡k′)
+  with whrDet* (⇒*U₁ , Uₙ) (D , Uₙ)  | whrDet* (⇒*U₂ , Uₙ) (D₁ , Uₙ)
+... | PE.refl | PE.refl =
+    U₌ k′ D₁ (transEqTermLevel l′≡k k≡k′)
 transEqT (Idᵥ ⊩A ⊩B@record{} ⊩C@record{}) A≡B B≡C =
   case whrDet* (_⊩ₗId_.⇒*Id ⊩B , Idₙ)
          (_⊩ₗId_≡_/_.⇒*Id′ A≡B , Idₙ) of λ {
@@ -301,11 +277,10 @@ transEqT (Idᵥ ⊩A ⊩B@record{} ⊩C@record{}) A≡B B≡C =
        (_⊩ₗId_.⊩Ty ⊩B)
        (_⊩ₗId_≡_/_.Ty≡Ty′ A≡B)
        (_⊩ₗId_≡_/_.rhs≡rhs′ B≡C)) }}
-transEqT (embᵥ₁ p     A≡B≡C) = {!transEqT          A≡B≡C!}
-transEqT (embᵥ₂ p     A≡B≡C) = {!transEqT          A≡B≡C!}
-transEqT (embᵥ₃ p     A≡B≡C) = {!transEqT          A≡B≡C!}
+transEqT (embᵥ₁ p     A≡B≡C) = {!transEqT          A≡B≡C !}
+transEqT (embᵥ₂ p     A≡B≡C) = {!transEqT          A≡B≡C !}
+transEqT (embᵥ₃ p     A≡B≡C) = {!transEqT          A≡B≡C !}
 
-<<<<<<< HEAD
 transEqTerm (Levelᵣ D) B≡C C≡D = transEqTermLevel B≡C C≡D
 transEqTerm (Uᵣ′ k [k] p A⇒*U) B≡C C≡D = {!   !}
 -- transEqTerm (Uᵣ′ k [k] (≤ᵘ-step p) A⇒*U) B≡C C≡D =
@@ -319,19 +294,6 @@ transEqTerm (Uᵣ′ k [k] p A⇒*U) B≡C C≡D = {!   !}
 --                 case whrDet*Term (redₜ d₁ , typeWhnf typeA₁) (redₜ d′ , typeWhnf typeB) of λ where
 --                 PE.refl →
 --                     Uₜ₌ A B₁ d  d₁′ typeA typeB₁ (≅ₜ-trans t≡u t≡u₁) [t] [u]₁ (transEq [t] [t]₁ [u]₁ [t≡u] [t≡u]₁)
-=======
-transEqTerm (Uᵣ′ _ (≤ᵘ-step p) A⇒*U) B≡C C≡D =
-  irrelevanceEqTerm (Uᵣ′ _ p A⇒*U) (Uᵣ′ _ (≤ᵘ-step p) A⇒*U)
-    (transEqTerm (Uᵣ′ _ p A⇒*U)
-       (irrelevanceEqTerm (Uᵣ′ _ (≤ᵘ-step p) A⇒*U) (Uᵣ′ _ p A⇒*U) B≡C)
-       (irrelevanceEqTerm (Uᵣ′ _ (≤ᵘ-step p) A⇒*U) (Uᵣ′ _ p A⇒*U) C≡D))
-transEqTerm (Uᵣ′ l′ ≤ᵘ-refl D)
-            (Uₜ₌ A B d d′ typeA typeB t≡u [t] [u] [t≡u])
-            (Uₜ₌ A₁ B₁ d₁ d₁′ typeA₁ typeB₁ t≡u₁ [t]₁ [u]₁ [t≡u]₁) =
-                case whrDet*Term (d₁ , typeWhnf typeA₁) (d′ , typeWhnf typeB) of λ where
-                PE.refl →
-                    Uₜ₌ A B₁ d  d₁′ typeA typeB₁ (≅ₜ-trans t≡u t≡u₁) [t] [u]₁ (transEq [t] [t]₁ [u]₁ [t≡u] [t≡u]₁)
->>>>>>> master
 transEqTerm (ℕᵣ D) [t≡u] [u≡v] = transEqTermℕ [t≡u] [u≡v]
 transEqTerm (Emptyᵣ D) [t≡u] [u≡v] = transEqTermEmpty [t≡u] [u≡v]
 transEqTerm (Unitᵣ D) [t≡u] [u≡v] = transEqTermUnit [t≡u] [u≡v]
@@ -466,11 +428,5 @@ transEqTerm
          (rfl₌ _)      → _
          (ne u″-n _ _) →
            ⊥-elim $ rfl≢ne u″-n $
-<<<<<<< HEAD
-           whrDet*Term (redₜ u⇒*u′ , rflₙ) (redₜ u⇒*u″ , ne u″-n)) }
-transEqTerm (emb p     ⊩A) = {!transEqTerm ⊩A!}
-=======
            whrDet*Term (u⇒*u′ , rflₙ) (u⇒*u″ , ne u″-n)) }
-transEqTerm (emb ≤ᵘ-refl     ⊩A) = transEqTerm ⊩A
-transEqTerm (emb (≤ᵘ-step p) ⊩A) = transEqTerm (emb p ⊩A)
->>>>>>> master
+transEqTerm (emb p     ⊩A) = {!transEqTerm ⊩A !}

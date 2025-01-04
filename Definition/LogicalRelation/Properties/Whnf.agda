@@ -37,7 +37,7 @@ opaque
   level : Level-prop Γ t → Whnf t
   level zeroᵘᵣ = zeroᵘₙ
   level (sucᵘᵣ x) = sucᵘₙ
-  level (ne (neNfₜ t-ne _ _)) = ne t-ne
+  level (ne (neNfₜ t-ne _)) = ne t-ne
 
   lsplit : [Level]-prop Γ t u → Whnf t × Whnf u
   lsplit zeroᵘᵣ = zeroᵘₙ , zeroᵘₙ
@@ -82,15 +82,9 @@ opaque
 
   -- If t satisfies Unit-prop Γ l s, then t is a WHNF.
 
-<<<<<<< HEAD
   unit : ∀ {A [A]} → Unit-prop Γ l s A [A] t → Whnf t
-  unit starᵣ                 = starₙ
-  unit (ne (neNfₜ t-ne _ _)) = ne t-ne
-=======
-  unit : Unit-prop Γ l s t → Whnf t
   unit starᵣ               = starₙ
   unit (ne (neNfₜ t-ne _)) = ne t-ne
->>>>>>> master
 
 opaque
 

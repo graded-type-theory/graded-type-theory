@@ -129,15 +129,8 @@ opaque
       (⊩Empty : Γ ⊩⟨ l ⟩Empty Empty) →
       Γ ⊩⟨ l ⟩ t ≡ u ∷ Empty / Empty-intr ⊩Empty →
       Γ ⊩Empty t ≡ u ∷Empty
-<<<<<<< HEAD
-    lemma (emb p     ⊩Empty′) = {!   !}
-    -- lemma (emb (≤ᵘ-step s) ⊩Empty′) = lemma (emb s ⊩Empty′)
-    lemma (noemb _) ⊩t ⊩u t≡u       = ⊩t , ⊩u , t≡u
-=======
-    lemma (emb ≤ᵘ-refl     ⊩Empty′) = lemma ⊩Empty′
-    lemma (emb (≤ᵘ-step s) ⊩Empty′) = lemma (emb s ⊩Empty′)
-    lemma (noemb _)                 = idᶠ
->>>>>>> master
+    lemma (emb p ⊩Empty′) = {!   !}
+    lemma (noemb _) = idᶠ
 
 ------------------------------------------------------------------------
 -- Empty
@@ -176,10 +169,5 @@ opaque
           case escape-⊩ˢ≡∷ σ₁≡σ₂ of λ
             (⊢Δ , _) →
           Type→⊩≡∷U⇔ Emptyₙ Emptyₙ .proj₂
-<<<<<<< HEAD
-            (⊩Level-zeroᵘ ⊢Δ , PE.subst (_<ᵘ 1ᵘ) (PE.sym (reflect-level-zero ⊢Δ)) 0ᵘ<ᵘ1ᵘ , refl-⊩≡ (⊩Empty ⊢Δ) ,
-            ⊢Empty , ⊢Empty , ≅ₜ-Emptyrefl ⊢Δ)
-=======
-            (≤ᵘ-refl , refl-⊩≡ (⊩Empty ⊢Δ) , ≅ₜ-Emptyrefl ⊢Δ)
->>>>>>> master
+            (⊩Level-zeroᵘ ⊢Δ , PE.subst (_<ᵘ 1ᵘ) (PE.sym (reflect-level-zero ⊢Δ)) 0ᵘ<ᵘ1ᵘ , refl-⊩≡ (⊩Empty ⊢Δ) , ≅ₜ-Emptyrefl ⊢Δ)
       )

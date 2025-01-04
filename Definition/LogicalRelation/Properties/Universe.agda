@@ -42,19 +42,12 @@ private opaque
   -- A lemma used below.
 
   univEq′ :
-<<<<<<< HEAD
     (⊩U : Γ ⊩⟨ l ⟩U U t) → Γ ⊩⟨ l ⟩ A ∷ U t / U-intr ⊩U → ∃ λ l′ → Γ ⊩⟨ l′ ⟩ A
-  univEq′ (noemb (Uᵣ k [k] k< [ _ , _ , id _ ])) (Uₜ _ _ _ _ ⊩A) =
+  univEq′ (noemb (Uᵣ k [k] k< (id _))) (Uₜ _ _ _ _ ⊩A) =
     _ , ⊩<⇔⊩ k< .proj₁ ⊩A
-  univEq′ (noemb (Uᵣ _ _ _ [ _ , _ , U⇒ ⇨ _ ])) _ =
-=======
-    (⊩U : Γ ⊩⟨ l ⟩U U l′) → Γ ⊩⟨ l ⟩ A ∷ U l′ / U-intr ⊩U → Γ ⊩⟨ l′ ⟩ A
-  univEq′ (noemb (Uᵣ _ l< (id _))) (Uₜ _ _ _ _ ⊩A) =
-    ⊩<⇔⊩ l< .proj₁ ⊩A
-  univEq′ (noemb (Uᵣ _ _ (U⇒ ⇨ _))) _ =
->>>>>>> master
+  univEq′ (noemb (Uᵣ _ _ _ (U⇒ ⇨ _))) _ =
     ⊥-elim (whnfRed U⇒ Uₙ)
-  univEq′ (emb p     ⊩U) ⊩A = {!univEq′ ⊩U ⊩A!}
+  univEq′ (emb p     ⊩U) ⊩A = {!univEq′ ⊩U ⊩A !}
 
 -- Reducible terms of type U are reducible types.
 univEq :
@@ -80,7 +73,7 @@ private opaque
   --   (Uₜ₌ _ _ A⇒*A′ B⇒*B′ A′-type B′-type A′≅B′ _ ⊩B A≡B) =
   --   univEqEq′ (noemb (Uᵣ k [k] p ⇒*U)) ⊩A
   --     (Uₜ₌ _ _ A⇒*A′ B⇒*B′ A′-type B′-type A′≅B′ _ ⊩B A≡B)
-  univEqEq′ (emb p     ⊩U) = {!univEqEq′ ⊩U!}
+  univEqEq′ (emb p     ⊩U) = {!univEqEq′ ⊩U !}
 
 -- Reducible term equality of type U is reducible type equality.
 univEqEq :

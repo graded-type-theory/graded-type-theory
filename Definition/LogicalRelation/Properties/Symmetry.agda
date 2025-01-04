@@ -96,16 +96,10 @@ symEqTerm : ∀ {l A t u} ([A] : Γ ⊩⟨ l ⟩ A)
           → Γ ⊩⟨ l ⟩ t ≡ u ∷ A / [A]
           → Γ ⊩⟨ l ⟩ u ≡ t ∷ A / [A]
 
-<<<<<<< HEAD
-symEqT (Levelᵥ D D′) A≡B = red D
-symEqT (ℕᵥ D D′) A≡B = red D
-symEqT (Emptyᵥ D D′) A≡B = red D
-symEqT (Unitᵥ (Unitₜ k [k] k< A⇒*Unit _) (Unitₜ k′ [k′] k′< B⇒*Unit₁ _)) B⇒*Unit₂ =
-=======
+symEqT (Levelᵥ D D′) A≡B = D
 symEqT (ℕᵥ D D′) A≡B = D
 symEqT (Emptyᵥ D D′) A≡B = D
-symEqT (Unitᵥ (Unitₜ A⇒*Unit _) (Unitₜ B⇒*Unit₁ _)) B⇒*Unit₂ =
->>>>>>> master
+symEqT (Unitᵥ (Unitₜ k [k] k< A⇒*Unit _) (Unitₜ k′ [k′] k′< B⇒*Unit₁ _)) B⇒*Unit₂ =
   case Unit-PE-injectivity $
        whrDet* (B⇒*Unit₁ , Unitₙ) (B⇒*Unit₂ , Unitₙ) of λ {
     (_ , PE.refl) →
@@ -139,25 +133,16 @@ symEqT
     (λ {_} {ρ} {Δ} {a} [ρ] [a] →
        let ρG′a≡ρG₁′a = PE.cong (_[ a ]₀ ∘→ wk (lift ρ)) (PE.sym G₁≡G′)
            [ρG′a] = PE.subst (λ x → Δ ⊩⟨ l′ ⟩ wk (lift ρ) x [ a ]₀)
-<<<<<<< HEAD
-                      G₁≡G′ ([G]₁ [ρ] ⊢Δ [a])
+                      G₁≡G′ ([G]₁ [ρ] [a])
            [a]₁ = convTerm₁
-                    ([F]₁ [ρ] ⊢Δ) ([F] [ρ] ⊢Δ) ([F₁≡F] [ρ] ⊢Δ) [a]
+                    ([F]₁ [ρ]) ([F] [ρ]) ([F₁≡F] [ρ]) [a]
        in  irrelevanceEq′ ρG′a≡ρG₁′a
                           [ρG′a]
-                          ([G]₁ [ρ] ⊢Δ [a])
-                          (symEq ([G] [ρ] ⊢Δ [a]₁) [ρG′a]
-                                 ([G≡G′] [ρ] ⊢Δ [a]₁)))
-symEqT (Uᵥ (Uᵣ l′ [l′] l< ⇒*U) (Uᵣ l′₁ [l′₁] l<₁ ⇒*U₁)) (U₌ k D l′≡k) with whrDet* (red D , Uₙ) (red ⇒*U₁ , Uₙ)
+                          ([G]₁ [ρ] [a])
+                          (symEq ([G] [ρ] [a]₁) [ρG′a]
+                                 ([G≡G′] [ρ] [a]₁)))
+symEqT (Uᵥ (Uᵣ l′ [l′] l< ⇒*U) (Uᵣ l′₁ [l′₁] l<₁ ⇒*U₁)) (U₌ k D l′≡k) with whrDet* (D , Uₙ) (⇒*U₁ , Uₙ)
 ... | PE.refl = U₌ l′ ⇒*U (symLevel l′≡k)
-=======
-                      G₁≡G′ ([G]₁ [ρ] [a])
-           [a]₁ = convTerm₁ ([F]₁ [ρ]) ([F] [ρ]) ([F₁≡F] [ρ]) [a]
-       in  irrelevanceEq′ ρG′a≡ρG₁′a [ρG′a] ([G]₁ [ρ] [a])
-             (symEq ([G] [ρ] [a]₁) [ρG′a] ([G≡G′] [ρ] [a]₁)))
-symEqT (Uᵥ (Uᵣ l′ l< ⇒*U) (Uᵣ l′₁ l<₁ ⇒*U₁)) D with whrDet* (D , Uₙ) (⇒*U₁ , Uₙ)
-symEqT (Uᵥ (Uᵣ l′ l< ⇒*U) (Uᵣ l′₁ l<₁ ⇒*U₁)) D | PE.refl = ⇒*U
->>>>>>> master
 symEqT (Idᵥ ⊩A ⊩B@record{}) A≡B =
   case whrDet* (_⊩ₗId_.⇒*Id ⊩B , Idₙ)
          (_⊩ₗId_≡_/_.⇒*Id′ A≡B , Idₙ) of λ {
@@ -182,8 +167,8 @@ symEqT (Idᵥ ⊩A ⊩B@record{}) A≡B =
     } }
   where
   open _⊩ₗId_≡_/_ A≡B
-symEqT (embᵥ₁ p     A≡B) = {!symEqT          A≡B!}
-symEqT (embᵥ₂ p     A≡B) = {!symEqT          A≡B!}
+symEqT (embᵥ₁ p     A≡B) = {!symEqT          A≡B !}
+symEqT (embᵥ₂ p     A≡B) = {!symEqT          A≡B !}
 
 symEqTerm (Levelᵣ D) (Levelₜ₌ k k′ d d′ k≡k′ prop) =
   Levelₜ₌ k′ k d′ d (≅ₜ-sym k≡k′) (symLevel-prop prop)
@@ -232,7 +217,7 @@ symEqTerm (Idᵣ ⊩A) t≡u =
     (case ⊩Id≡∷-view-inhabited ⊩A t≡u of λ where
        (ne _ _ t′~u′) → ~-sym t′~u′
        (rfl₌ _)       → _)
-symEqTerm (emb p ⊩A)     = {!symEqTerm ⊩A!}
+symEqTerm (emb p ⊩A)     = {!symEqTerm ⊩A !}
 symEqTerm
   (Uᵣ′ _ _ p _) (Uₜ₌ A B d d′ typeA typeB A≡B [t] [u] [t≡u]) = {!   !}
 -- symEqTerm

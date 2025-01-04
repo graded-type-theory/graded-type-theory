@@ -54,10 +54,9 @@ open import Tools.Relation
 private variable
   n                                                    : Nat
   Γ                                                    : Con Term _
-  A A₁ A₂ B B₁ B₂ C t t′ t₁ t₂ u u₁ u₂ v v₁ v₂ w w₁ w₂ : Term _
+  A A₁ A₂ B B₁ B₂ C l t t′ t₁ t₂ u u₁ u₂ v v₁ v₂ w w₁ w₂ : Term _
   σ                                                    : Subst _ _
   s                                                    : Strength
-  l                                                    : Universe-level
   p                                                    : M
 
 ------------------------------------------------------------------------
@@ -89,14 +88,14 @@ module _ (Erased-ok : Erased-allowed s) where
   -- An introduction rule for U.
 
   Erasedⱼ-U : Γ ⊢ A ∷ U l → Γ ⊢ Erased A ∷ U l
-  Erasedⱼ-U = P′.Erasedⱼ-U
+  Erasedⱼ-U = {!   !} -- P′.Erasedⱼ-U
 
   -- A corresponding congruence rule.
 
   Erased-cong-U :
     Γ ⊢ A ≡ B ∷ U l →
     Γ ⊢ Erased A ≡ Erased B ∷ U l
-  Erased-cong-U A≡B = P′.Erased-cong-U ⊢A A≡B
+  Erased-cong-U A≡B = {!   !} -- P′.Erased-cong-U ⊢A A≡B
     where
     ⊢A = univ (syntacticEqTerm A≡B .proj₂ .proj₁)
 
@@ -153,6 +152,7 @@ module _ where
       (𝕤 , PE.refl) → Eta.erased-cong
       (𝕨 , PE.refl) → NoEta.erased-cong A≡B
 
+{-
 opaque
 
   -- An inversion lemma for Erased.
@@ -1096,3 +1096,4 @@ module _ (ok : []-cong-allowed s) where
 
       ¬lhs⇒rhs : ¬ Γ′ ⊢ lhs ⇒ rhs ∷ C
       ¬lhs⇒rhs (conv lhs⇒rhs _) = ¬lhs⇒rhs lhs⇒rhs
+-}

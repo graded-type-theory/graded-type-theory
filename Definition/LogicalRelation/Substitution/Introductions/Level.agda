@@ -99,7 +99,7 @@ opaque
          lemma _ (Level-elim ⊩Level)
            ((irrelevanceEq ⊩Level) (Level-intr (Level-elim ⊩Level)) Level≡A))
     , (λ Level≡A →
-         case idRed:*: (Levelⱼ (wfEq (subset* Level≡A))) of λ
+         case id (Levelⱼ (wfEq (subset* Level≡A))) of λ
            Level⇒*Level →
          let ⊩Level = Levelᵣ Level⇒*Level in
            ⊩Level
@@ -125,7 +125,7 @@ opaque
          lemma _ (Level-elim ⊩Level)
            ((irrelevanceTerm ⊩Level) (Level-intr (Level-elim ⊩Level)) ⊩t))
     , (λ ⊩t →
-         Levelᵣ (idRed:*: (Levelⱼ (wfTerm (⊢t-redₜ (_⊩Level_∷Level.d ⊩t))))) , ⊩t)
+         Levelᵣ (id (Levelⱼ (wfEqTerm (subset*Term (⊩t ._⊩Level_∷Level.d))))) , ⊩t)
     where
     lemma :
       ∀ l → (⊩A : Γ ⊩⟨ l ⟩Level A) →
@@ -150,7 +150,7 @@ opaque
            ((irrelevanceTerm ⊩Level) (Level-intr (Level-elim ⊩Level)) ⊩u)
            ((irrelevanceEqTerm ⊩Level) (Level-intr (Level-elim ⊩Level)) t≡u))
     , (λ (⊩t , ⊩u , t≡u) →
-         Levelᵣ (idRed:*: (Levelⱼ (wfTerm (⊢t-redₜ (_⊩Level_≡_∷Level.d t≡u)))))
+         Levelᵣ (id (Levelⱼ (wfEqTerm (subset*Term (t≡u ._⊩Level_≡_∷Level.d)))))
        , ⊩t , ⊩u , t≡u)
     where
     lemma :
@@ -172,7 +172,7 @@ opaque
       wfTerm ∘→ escape-⊩∷
     , (λ ⊢Γ →
          ⊩∷Level⇔ .proj₂ $
-         Levelₜ _ (idRedTerm:*: (zeroᵘⱼ ⊢Γ)) (≅ₜ-zeroᵘrefl ⊢Γ) zeroᵘᵣ)
+         Levelₜ _ (id (zeroᵘⱼ ⊢Γ)) (≅ₜ-zeroᵘrefl ⊢Γ) zeroᵘᵣ)
 
 opaque
 
@@ -194,12 +194,14 @@ opaque
   ⊩sucᵘ∷Level⇔ {Γ} {l} {t} =
     Γ ⊩⟨ l ⟩ sucᵘ t ∷ Level  ⇔⟨ ⊩∷Level⇔ ⟩
     Γ ⊩Level sucᵘ t ∷Level       ⇔⟨ (λ { (Levelₜ _ sucᵘ-t⇒*u _ u-ok) →
-                                case whnfRed*Term (redₜ sucᵘ-t⇒*u) sucᵘₙ of λ {
+                                case whnfRed*Term sucᵘ-t⇒*u sucᵘₙ of λ {
                                   PE.refl →
                                 lemma u-ok }})
-                         , (λ ⊩t@(Levelₜ _ [ ⊢t , _ , t⇒*u ] u≅u u-ok) →
-                              let t↘u = t⇒*u , level u-ok in
-                              Levelₜ _ (idRedTerm:*: (sucᵘⱼ ⊢t))
+                         , (λ ⊩t@(Levelₜ _ t⇒*u u≅u u-ok) →
+                              let t↘u = t⇒*u , level u-ok
+                                  ⊢t = redFirst*Term t⇒*u
+                              in
+                              Levelₜ _ (id (sucᵘⱼ ⊢t))
                                 (≅ₜ-sucᵘ-cong $
                                  ≅ₜ-red (id (Levelⱼ (wfTerm ⊢t)) , Levelₙ) t↘u t↘u u≅u)
                                 (sucᵘᵣ ⊩t))
@@ -209,7 +211,7 @@ opaque
     where
     lemma : Level-prop Γ (sucᵘ t) → Γ ⊩Level t ∷Level
     lemma (sucᵘᵣ ⊩t)           = ⊩t
-    lemma (ne (neNfₜ () _ _))
+    lemma (ne (neNfₜ () _))
 
 opaque
 
@@ -234,17 +236,20 @@ opaque
 
     lemma₁ : Γ ⊩Level sucᵘ t ≡ sucᵘ u ∷Level → Γ ⊩Level t ≡ u ∷Level
     lemma₁ (Levelₜ₌ _ _ sucᵘ-t⇒*t′ sucᵘ-u⇒*u′ _ t′≡u′) =
-      case whnfRed*Term (redₜ sucᵘ-t⇒*t′) sucᵘₙ of λ {
+      case whnfRed*Term sucᵘ-t⇒*t′ sucᵘₙ of λ {
         PE.refl →
-      case whnfRed*Term (redₜ sucᵘ-u⇒*u′) sucᵘₙ of λ {
+      case whnfRed*Term sucᵘ-u⇒*u′ sucᵘₙ of λ {
         PE.refl →
       lemma₀ t′≡u′}}
 
     lemma₂ : Γ ⊩Level t ≡ u ∷Level → Γ ⊩Level sucᵘ t ≡ sucᵘ u ∷Level
     lemma₂
-      t≡u@(Levelₜ₌ _ _ [ ⊢t , _ , t⇒*t′ ] [ ⊢u , _ , u⇒*u′ ] t′≅u′ t′≡u′) =
-      let t′-ok , u′-ok = lsplit t′≡u′ in
-      Levelₜ₌ _ _ (idRedTerm:*: (sucᵘⱼ ⊢t)) (idRedTerm:*: (sucᵘⱼ ⊢u))
+      t≡u@(Levelₜ₌ _ _ t⇒*t′ u⇒*u′ t′≅u′ t′≡u′) =
+      let t′-ok , u′-ok = lsplit t′≡u′
+          ⊢t = redFirst*Term t⇒*t′
+          ⊢u = redFirst*Term u⇒*u′
+      in
+      Levelₜ₌ _ _ (id (sucᵘⱼ ⊢t)) (id (sucᵘⱼ ⊢u))
         (≅ₜ-sucᵘ-cong $
          ≅ₜ-red (id (Levelⱼ (wfTerm ⊢t)) , Levelₙ) (t⇒*t′ , t′-ok)
            (u⇒*u′ , u′-ok) t′≅u′)
@@ -273,7 +278,7 @@ opaque
 opaque
 
   ⊩Level-zeroᵘ : ⊢ Γ → Γ ⊩Level zeroᵘ ∷Level
-  ⊩Level-zeroᵘ ⊢Γ = Levelₜ zeroᵘ (idRedTerm:*: (zeroᵘⱼ ⊢Γ)) (≅ₜ-zeroᵘrefl ⊢Γ) zeroᵘᵣ
+  ⊩Level-zeroᵘ ⊢Γ = Levelₜ zeroᵘ (id (zeroᵘⱼ ⊢Γ)) (≅ₜ-zeroᵘrefl ⊢Γ) zeroᵘᵣ
 
   reflect-level-zero : (⊢Γ : ⊢ Γ) → reflect-level (⊩Level-zeroᵘ ⊢Γ) PE.≡ 0ᵘ
   reflect-level-zero ⊢Γ = PE.refl
@@ -297,7 +302,7 @@ opaque
 opaque
 
   ⊩Level-sucᵘ : Γ ⊩Level t ∷Level → Γ ⊩Level sucᵘ t ∷Level
-  ⊩Level-sucᵘ ⊩t = Levelₜ _ (idRedTerm:*: (sucᵘⱼ (escapeLevel ⊩t))) (≅ₜ-sucᵘ-cong (escapeLevelEq (reflLevel ⊩t))) (sucᵘᵣ ⊩t)
+  ⊩Level-sucᵘ ⊩t = Levelₜ _ (id (sucᵘⱼ (escapeLevel ⊩t))) (≅ₜ-sucᵘ-cong (escapeLevelEq (reflLevel ⊩t))) (sucᵘᵣ ⊩t)
 
   reflect-level-suc : (⊩t : Γ ⊩Level t ∷Level) → reflect-level ⊩t <ᵘ reflect-level (⊩Level-sucᵘ ⊩t)
   reflect-level-suc ⊩t = <ᵘ-nat ≤′-refl

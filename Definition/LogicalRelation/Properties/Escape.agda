@@ -43,64 +43,33 @@ private
 escapeLevel
   : Γ ⊩Level t ∷Level
   → Γ ⊢ t ∷ Level
-escapeLevel (Levelₜ k [ ⊢t , ⊢u , d ] k≡k prop) = ⊢t
+escapeLevel (Levelₜ k D k≡k prop) = redFirst*Term D
 
 -- Reducible types are well-formed.
 escape : ∀ {l A} → Γ ⊩⟨ l ⟩ A → Γ ⊢ A
-<<<<<<< HEAD
-escape (Levelᵣ [ ⊢A , _ , _ ]) = ⊢A
-escape (Uᵣ′ _ _ _ [ ⊢A , ⊢B , D ]) = ⊢A
-escape (ℕᵣ [ ⊢A , ⊢B , D ]) = ⊢A
-escape (Emptyᵣ [ ⊢A , ⊢B , D ]) = ⊢A
-escape (Unitᵣ (Unitₜ _ _ _ [ ⊢A , ⊢B , D ] _)) = ⊢A
-escape (ne′ _ [ ⊢A , ⊢B , D ] neK K≡K) = ⊢A
-escape (Bᵣ′ _ _ _ [ ⊢A , _ , _ ] _ _ _ _ _ _ _) = ⊢A
-escape (Idᵣ ⊩A) = ⊢A-red (_⊩ₗId_.⇒*Id ⊩A)
-escape (emb p A) = {!   !}
-=======
-escape (Uᵣ′ _ _ D) = redFirst* D
+escape (Levelᵣ D) = redFirst* D
+escape (Uᵣ′ _ _ _ D) = redFirst* D
 escape (ℕᵣ D) = redFirst* D
 escape (Emptyᵣ D) = redFirst* D
-escape (Unitᵣ (Unitₜ D _)) = redFirst* D
+escape (Unitᵣ (Unitₜ _ _ _ D _)) = redFirst* D
 escape (ne′ _ D _ _) = redFirst* D
 escape (Bᵣ′ _ _ _ D _ _ _ _ _) = redFirst* D
 escape (Idᵣ ⊩A) = redFirst* (_⊩ₗId_.⇒*Id ⊩A)
-escape (emb ≤ᵘ-refl A) = escape A
-escape (emb (≤ᵘ-step k) A) = escape (emb k A)
->>>>>>> master
+escape (emb p A) = {!   !}
 
 -- Reducible terms are well-formed.
 escapeTerm : ∀ {l A t} → ([A] : Γ ⊩⟨ l ⟩ A)
               → Γ ⊩⟨ l ⟩ t ∷ A / [A]
               → Γ ⊢ t ∷ A
-<<<<<<< HEAD
-escapeTerm (Levelᵣ D) (Levelₜ m [ ⊢t , ⊢u , d ] m≡m prop) =
-  conv ⊢t (sym (subset* (red D)))
-escapeTerm (Uᵣ′ _ _ _ ⊢Γ) (Uₜ A [ ⊢t , ⊢u , d ] typeA A≡A [A]) =
-  conv ⊢t (sym ( subset* (red  ⊢Γ)))
-escapeTerm (ℕᵣ D) (ℕₜ n [ ⊢t , ⊢u , d ] t≡t prop) =
-  conv ⊢t (sym (subset* (red D)))
-escapeTerm (Emptyᵣ D) (Emptyₜ e [ ⊢t , ⊢u , d ] t≡t prop) =
-  conv ⊢t (sym (subset* (red D)))
-escapeTerm (Unitᵣ (Unitₜ _ _ _ D _)) (Unitₜ e [ ⊢t , ⊢u , d ] _ prop) =
-  conv ⊢t (sym (subset* (red D)))
-escapeTerm (ne′ _ D neK K≡K) (neₜ k [ ⊢t , ⊢u , d ] nf) =
-  conv ⊢t (sym (subset* (red D)))
-escapeTerm (Bᵣ′ BΠ! _ _ D _ _ _ _ _ _ _) (Πₜ _ [ ⊢t , _ , _ ] _ _ _ _) =
-  conv ⊢t (sym (subset* (red D)))
-escapeTerm (Bᵣ′ BΣ! _ _ D _ _ _ _ _ _ _) (Σₜ _ [ ⊢t , _ , _ ] _ _ _) =
-  conv ⊢t (sym (subset* (red D)))
-escapeTerm (Idᵣ ⊩A) (_ , t⇒*u , _) =
-  conv (⊢t-redₜ t⇒*u) (sym (subset* (red (_⊩ₗId_.⇒*Id ⊩A))))
-escapeTerm (emb p A) t = {!   !}
-=======
-escapeTerm (Uᵣ′ _ _ D) (Uₜ _ d _ _ _) =
+escapeTerm (Levelᵣ D) (Levelₜ _ d _ _) =
+  conv (redFirst*Term d) (sym (subset* D))
+escapeTerm (Uᵣ′ _ _ _ D) (Uₜ _ d _ _ _) =
   conv (redFirst*Term d) (sym (subset* D))
 escapeTerm (ℕᵣ D) (ℕₜ _ d _ _) =
   conv (redFirst*Term d) (sym (subset* D))
 escapeTerm (Emptyᵣ D) (Emptyₜ _ d _ _) =
   conv (redFirst*Term d) (sym (subset* D))
-escapeTerm (Unitᵣ (Unitₜ D _)) (Unitₜ _ d _ _) =
+escapeTerm (Unitᵣ (Unitₜ _ _ _ D _)) (Unitₜ _ d _ _) =
   conv (redFirst*Term d) (sym (subset* D))
 escapeTerm (ne′ _ D _ _) (neₜ _ d _) =
   conv (redFirst*Term d) (sym (subset* D))
@@ -110,9 +79,7 @@ escapeTerm (Bᵣ′ BΣ! _ _ D _ _ _ _ _) (Σₜ _ d _ _ _) =
   conv (redFirst*Term d) (sym (subset* D))
 escapeTerm (Idᵣ ⊩A) (_ , d , _) =
   conv (redFirst*Term d) (sym (subset* (_⊩ₗId_.⇒*Id ⊩A)))
-escapeTerm (emb ≤ᵘ-refl A) t = escapeTerm A t
-escapeTerm (emb (≤ᵘ-step k) A) t = escapeTerm (emb k A) t
->>>>>>> master
+escapeTerm (emb p A) t = {!   !}
 
 -- Reducible type equality is contained in the equality relation.
 escapeEq :
@@ -144,82 +111,50 @@ Id≅Id {⊩A = ⊩A} A≡B =
   open _⊩ₗId_ ⊩A
   open _⊩ₗId_≡_/_ A≡B
 
-<<<<<<< HEAD
 escapeLevelEq
   : Γ ⊩Level t ≡ u ∷Level
   → Γ ⊢ t ≅ u ∷ Level
 escapeLevelEq (Levelₜ₌ k k′ d d′ k≡k′ prop) =
   let lk , lk′ = lsplit prop
-  in ≅ₜ-red (id (Levelⱼ (wfTerm (⊢t-redₜ d))) , Levelₙ) (redₜ d , lk) (redₜ d′ , lk′) k≡k′
+  in ≅ₜ-red (id (Levelⱼ (wfTerm (redFirst*Term d))) , Levelₙ) (d , lk) (d′ , lk′) k≡k′
 
-escapeEq (Levelᵣ [ ⊢A , ⊢B , D ]) D′ =
-  ≅-red (D , Levelₙ) (D′ , Levelₙ) (≅-Levelrefl (wf ⊢A))
-escapeEq (Uᵣ′ _ _ _ [ ⊢A , ⊢B , D ]) (U₌ k′ [ ⊢A₁ , ⊢B₁ , D₁ ] k≡k′) =
+escapeEq (Levelᵣ D) D′ =
+  ≅-red (D , Levelₙ) (D′ , Levelₙ) (≅-Levelrefl (wf (redFirst* D)))
+escapeEq (Uᵣ′ _ _ _ D) (U₌ k′ D₁ k≡k′) =
   ≅-red (D , Uₙ) (D₁ , Uₙ) (≅-univ (≅ₜ-U-cong (escapeLevelEq k≡k′)))
-escapeEq (ℕᵣ [ ⊢A , ⊢B , D ]) D′ =
-  ≅-red (D , ℕₙ) (D′ , ℕₙ) (≅-ℕrefl (wf ⊢A))
-escapeEq (Emptyᵣ [ ⊢A , ⊢B , D ]) D′ =
-  ≅-red (D , Emptyₙ) (D′ , Emptyₙ) (≅-Emptyrefl (wf ⊢A))
-escapeEq (Unitᵣ (Unitₜ _ (Levelₜ m [ ⊢l′ , _ , _ ] _ _) _ [ ⊢A , ⊢B , D ] ok)) D′ =
-  ≅-red (D , Unitₙ) (D′ , Unitₙ) (≅-Unitrefl ⊢l′ ok)
-escapeEq (ne′ _ D neK K≡K) (ne₌ M D′ neM K≡M) =
-  ≅-red (red D , ne neK) (red D′ , ne neM) K≡M
-escapeEq (Bᵣ′ W _ _ D _ _ _ _ _ _ _) (B₌ _ _ D′ A≡B _ _) =
-  ≅-red (red D , ⟦ W ⟧ₙ) (red D′ , ⟦ W ⟧ₙ) A≡B
-escapeEq (Idᵣ ⊩A) A≡B =
-  ≅-red (red (_⊩ₗId_.⇒*Id ⊩A) , Idₙ) (red (_⊩ₗId_≡_/_.⇒*Id′ A≡B) , Idₙ)
-    (Id≅Id A≡B)
-escapeEq (emb p A) A≡B = escapeEq {!   !} {!   !}
-
-escapeTermEq (Levelᵣ [ ⊢A , ⊢B , D ]) (Levelₜ₌ k k′ d d′ k≡k′ prop) =
-  let lk , lk′ = lsplit prop
-  in ≅ₜ-red (D , Levelₙ) (redₜ d , lk) (redₜ d′ , lk′) k≡k′
-escapeTermEq (Uᵣ′ _ _ _ [ ⊢A , ⊢B , D ]) (Uₜ₌ A B d d′ typeA typeB A≡B [A] [B] [A≡B]) =
-  ≅ₜ-red (D , Uₙ) (redₜ d , typeWhnf typeA) (redₜ d′ , typeWhnf typeB)  A≡B
-escapeTermEq (ℕᵣ D) (ℕₜ₌ k k′ d d′ k≡k′ prop) =
-=======
-escapeEq (Uᵣ′ _ _ D) D₁ =
-  ≅-red (D , Uₙ)  (D₁ , Uₙ) (≅-univ (≅-Urefl (wfEq (subset* D))))
 escapeEq (ℕᵣ D) D′ =
-  ≅-red (D , ℕₙ) (D′ , ℕₙ) (≅-ℕrefl (wfEq (subset* D)))
+  ≅-red (D , ℕₙ) (D′ , ℕₙ) (≅-ℕrefl (wf (redFirst* D)))
 escapeEq (Emptyᵣ D) D′ =
-  ≅-red (D , Emptyₙ) (D′ , Emptyₙ) (≅-Emptyrefl (wfEq (subset* D)))
-escapeEq (Unitᵣ (Unitₜ D ok)) D′ =
-  ≅-red (D , Unitₙ) (D′ , Unitₙ) (≅-Unitrefl (wfEq (subset* D)) ok)
-escapeEq (ne′ _ D neK _) (ne₌ _ D′ neM K≡M) =
+  ≅-red (D , Emptyₙ) (D′ , Emptyₙ) (≅-Emptyrefl (wf (redFirst* D)))
+escapeEq (Unitᵣ (Unitₜ _ (Levelₜ m d _ _) _ D ok)) D′ =
+  ≅-red (D , Unitₙ) (D′ , Unitₙ) (≅-Unitrefl (redFirst*Term d) ok)
+escapeEq (ne′ _ D neK K≡K) (ne₌ M D′ neM K≡M) =
   ≅-red (D , ne neK) (D′ , ne neM) K≡M
 escapeEq (Bᵣ′ W _ _ D _ _ _ _ _) (B₌ _ _ D′ A≡B _ _) =
   ≅-red (D , ⟦ W ⟧ₙ) (D′ , ⟦ W ⟧ₙ) A≡B
 escapeEq (Idᵣ ⊩A) A≡B =
-  ≅-red (_⊩ₗId_.⇒*Id ⊩A , Idₙ) (_⊩ₗId_≡_/_.⇒*Id′ A≡B , Idₙ) (Id≅Id A≡B)
-escapeEq (emb ≤ᵘ-refl A) A≡B = escapeEq A A≡B
-escapeEq (emb (≤ᵘ-step k) A) A≡B = escapeEq (emb k A) A≡B
+  ≅-red (_⊩ₗId_.⇒*Id ⊩A , Idₙ) (_⊩ₗId_≡_/_.⇒*Id′ A≡B , Idₙ)
+    (Id≅Id A≡B)
+escapeEq (emb p A) A≡B = {!   !}
 
-escapeTermEq (Uᵣ′ _ _ D) (Uₜ₌ _ _ d d′ typeA typeB A≡B _ _ _) =
+escapeTermEq (Levelᵣ D) (Levelₜ₌ k k′ d d′ k≡k′ prop) =
+  let lk , lk′ = lsplit prop
+  in ≅ₜ-red (D , Levelₙ) (d , lk) (d′ , lk′) k≡k′
+escapeTermEq (Uᵣ′ _ _ _ D) (Uₜ₌ A B d d′ typeA typeB A≡B [A] [B] [A≡B]) =
   ≅ₜ-red (D , Uₙ) (d , typeWhnf typeA) (d′ , typeWhnf typeB)  A≡B
-escapeTermEq (ℕᵣ D) (ℕₜ₌ _ _ d d′ k≡k′ prop) =
->>>>>>> master
+escapeTermEq (ℕᵣ D) (ℕₜ₌ k k′ d d′ k≡k′ prop) =
   let natK , natK′ = split prop
   in  ≅ₜ-red (D , ℕₙ) (d , naturalWhnf natK)
         (d′ , naturalWhnf natK′) k≡k′
 escapeTermEq (Emptyᵣ D) (Emptyₜ₌ k k′ d d′ k≡k′ prop) =
   let natK , natK′ = esplit prop
-<<<<<<< HEAD
-  in  ≅ₜ-red (red D , Emptyₙ) (redₜ d , ne natK) (redₜ d′ , ne natK′)
+  in  ≅ₜ-red (D , Emptyₙ) (d , ne natK) (d′ , ne natK′)
         k≡k′
 escapeTermEq (Unitᵣ (Unitₜ _ _ _ D _)) (Unitₜ₌ˢ ⊢t ⊢u ok) =
   let t≅u = ≅ₜ-η-unit ⊢t ⊢u ok
-      A≡Unit = subset* (red D)
+      A≡Unit = subset* D
   in ≅-conv t≅u (sym A≡Unit)
 escapeTermEq (Unitᵣ (Unitₜ _ _ _ D _)) (Unitₜ₌ʷ _ _ d d′ k≡k′ prop _) =
-=======
-  in  ≅ₜ-red (D , Emptyₙ) (d , ne natK) (d′ , ne natK′) k≡k′
-escapeTermEq (Unitᵣ (Unitₜ D _)) (Unitₜ₌ˢ ⊢t ⊢u ok) =
-  let t≅u = ≅ₜ-η-unit ⊢t ⊢u ok
-      A≡Unit = subset* D
-  in  ≅-conv t≅u (sym A≡Unit)
-escapeTermEq (Unitᵣ (Unitₜ D _)) (Unitₜ₌ʷ _ _ d d′ k≡k′ prop _) =
->>>>>>> master
   let whK , whK′ = usplit prop
   in  ≅ₜ-red (D , Unitₙ) (d , whK) (d′ , whK′) k≡k′
 escapeTermEq (ne′ _ D neK K≡K)
@@ -254,87 +189,12 @@ escapeTermEq (emb p A) t≡u = {!   !}
 
 opaque
 
-<<<<<<< HEAD
-⊩Unit→Unit-allowed :
-  Γ ⊩⟨ l′ ⟩ Unit s t → Unit-allowed s
-⊩Unit→Unit-allowed {Γ = Γ} = λ where
-  (Levelᵣ [ ⊢Unit , _ , D ]) →
-                      $⟨ D , Levelₙ ⟩
-    Γ ⊢ Unit! ↘ Level →⟨ flip whrDet* (id ⊢Unit , Unitₙ) ⟩
-    Level PE.≡ Unit!  →⟨ ((case_of λ ())) ⟩
-    Unit-allowed _    □
-  (Uᵣ′ k _ _ [ ⊢Unit , _ , D ]) →
-                  $⟨ D , Uₙ ⟩
-    Γ ⊢ Unit! ↘ U k  →⟨ flip whrDet* (id ⊢Unit , Unitₙ) ⟩
-    U k PE.≡ Unit!   →⟨ (case_of λ ()) ⟩
-    Unit-allowed _  □
-  (ℕᵣ [ ⊢Unit , _ , D ]) →
-                  $⟨ D , ℕₙ ⟩
-    Γ ⊢ Unit! ↘ ℕ  →⟨ flip whrDet* (id ⊢Unit , Unitₙ) ⟩
-    ℕ PE.≡ Unit!   →⟨ (case_of λ ()) ⟩
-    Unit-allowed _  □
-  (Emptyᵣ [ ⊢Unit , _ , D ]) →
-                      $⟨ D , Emptyₙ ⟩
-    Γ ⊢ Unit! ↘ Empty  →⟨ flip whrDet* (id ⊢Unit , Unitₙ) ⟩
-    Empty PE.≡ Unit!   →⟨ (case_of λ ()) ⟩
-    Unit-allowed _     □
-  (Unitᵣ (Unitₜ _ _ _ [ _ , _ , D ] ok)) → case whnfRed* D Unitₙ of λ where
-    PE.refl → ok
-  (ne (ne A [ ⊢Unit , _ , D ] neA _)) →
-                  $⟨ D , ne neA ⟩
-    Γ ⊢ Unit! ↘ A  →⟨ whrDet* (id ⊢Unit , Unitₙ) ⟩
-    Unit! PE.≡ A   →⟨ ⊥-elim ∘→ Unit≢ne neA ⟩
-    Unit-allowed _  □
-  (Bᵣ′ b A B [ ⊢Unit , _ , D ] _ _ _ _ _ _ _) →
-                            $⟨ D , ⟦ b ⟧ₙ ⟩
-    Γ ⊢ Unit! ↘ ⟦ b ⟧ A ▹ B  →⟨ whrDet* (id ⊢Unit , Unitₙ) ⟩
-    Unit! PE.≡ ⟦ b ⟧ A ▹ B   →⟨ ⊥-elim ∘→ Unit≢B b ⟩
-    Unit-allowed _           □
-  (Idᵣ ⊩A) →
-    let open _⊩ₗId_ ⊩A in
-                              $⟨ red ⇒*Id , Idₙ ⟩
-    Γ ⊢ Unit! ↘ Id Ty lhs rhs  →⟨ whrDet* (id (⊢A-red ⇒*Id) , Unitₙ) ⟩
-    Unit! PE.≡ Id Ty lhs rhs   →⟨ (λ ()) ⟩
-    Unit-allowed _             □
-  (emb p [Unit]) → {!⊩Unit→Unit-allowed [Unit]!}
-=======
   -- If a unit type is reducible, then that unit type is allowed.
->>>>>>> master
 
   ⊩Unit→Unit-allowed :
-    Γ ⊩⟨ l′ ⟩ Unit s l → Unit-allowed s
+    Γ ⊩⟨ l′ ⟩ Unit s t → Unit-allowed s
   ⊩Unit→Unit-allowed = inversion-Unit ∘→ escape
 
-<<<<<<< HEAD
-⊩ΠΣ→ΠΣ-allowed :
-  Γ ⊩⟨ l ⟩ ΠΣ⟨ b ⟩ p , q ▷ A ▹ B →
-  ΠΣ-allowed b p q
-⊩ΠΣ→ΠΣ-allowed {b = b} = λ where
-  (Levelᵣ [ ⊢ΠAB , _ , D ]) →
-    ⊥-elim (Level≢ΠΣ b (whrDet* (D , Levelₙ) (id ⊢ΠAB , ΠΣₙ)))
-  (Uᵣ′ _ _ _ [ ⊢ΠAB , _ , D ]) →
-     ⊥-elim ( U≢ΠΣ b ( (whrDet* (D , Uₙ) (id ⊢ΠAB , ΠΣₙ))))
-  (ℕᵣ [ ⊢ΠAB , _ , D ]) →
-    ⊥-elim (ℕ≢ΠΣ b (whrDet* (D , ℕₙ) (id ⊢ΠAB , ΠΣₙ)))
-  (Emptyᵣ [ ⊢ΠAB , _ , D ]) →
-    ⊥-elim (Empty≢ΠΣ b (whrDet* (D , Emptyₙ) (id ⊢ΠAB , ΠΣₙ)))
-  (Unitᵣ (Unitₜ _ _ _ [ ⊢ΠAB , _ , D ] _)) →
-    ⊥-elim (Unit≢ΠΣ b (whrDet* (D , Unitₙ) (id ⊢ΠAB , ΠΣₙ)))
-  (ne (ne _ [ ⊢ΠAB , _ , D ] neK _)) →
-    ⊥-elim (ΠΣ≢ne b neK (whrDet* (id ⊢ΠAB , ΠΣₙ) (D , ne neK)))
-  (Bᵣ′ (BM BMΠ _ _) _ _ [ ⊢ΠAB , _ , D ] _ _ _ _ _ _ ok) →
-    case whrDet* (id ⊢ΠAB , ΠΣₙ) (D , ΠΣₙ) of λ {
-      PE.refl →
-    ok }
-  (Bᵣ′ (BM (BMΣ _) _ _) _ _ [ ⊢ΠAB , _ , D ] _ _ _ _ _ _ ok) →
-    case whrDet* (id ⊢ΠAB , ΠΣₙ) (D , ΠΣₙ) of λ {
-      PE.refl →
-    ok }
-  (Idᵣ ⊩A) →
-    let open _⊩ₗId_ ⊩A in
-    ⊥-elim (Id≢ΠΣ b (whrDet* (red ⇒*Id , Idₙ) (id (⊢A-red ⇒*Id) , ΠΣₙ)))
-  (emb p [ΠΣ]) → {!⊩ΠΣ→ΠΣ-allowed [ΠΣ]!}
-=======
 opaque
 
   -- If the type ΠΣ⟨ b ⟩ p , q ▷ A ▹ B is in the logical relation, then
@@ -344,4 +204,3 @@ opaque
     Γ ⊩⟨ l ⟩ ΠΣ⟨ b ⟩ p , q ▷ A ▹ B →
     ΠΣ-allowed b p q
   ⊩ΠΣ→ΠΣ-allowed = proj₂ ∘→ proj₂ ∘→ inversion-ΠΣ ∘→ escape
->>>>>>> master
