@@ -1,0 +1,167 @@
+<!DOCTYPE HTML>
+<html><head><meta charset="utf-8"><title>Graded.Usage.Restrictions.Natrec</title><link rel="stylesheet" href="Agda.css"></head><body><pre class="Agda"><a id="1" class="Comment">------------------------------------------------------------------------</a>
+<a id="74" class="Comment">-- Definitions related to usage restrictions controling which usage</a>
+<a id="142" class="Comment">-- rule for natrec should be used.</a>
+<a id="177" class="Comment">------------------------------------------------------------------------</a>
+
+<a id="251" class="Keyword">import</a> <a id="258" href="Graded.Modality.html" class="Module">Graded.Modality</a>
+
+<a id="275" class="Keyword">module</a> <a id="282" href="Graded.Usage.Restrictions.Natrec.html" class="Module">Graded.Usage.Restrictions.Natrec</a>
+  <a id="317" class="Symbol">{</a><a id="318" href="Graded.Usage.Restrictions.Natrec.html#318" class="Bound">a</a><a id="319" class="Symbol">}</a> <a id="321" class="Symbol">{</a><a id="322" href="Graded.Usage.Restrictions.Natrec.html#322" class="Bound">M</a> <a id="324" class="Symbol">:</a> <a id="326" href="Agda.Primitive.html#388" class="Primitive">Set</a> <a id="330" href="Graded.Usage.Restrictions.Natrec.html#318" class="Bound">a</a><a id="331" class="Symbol">}</a>
+  <a id="335" class="Symbol">(</a><a id="336" class="Keyword">open</a> <a id="341" href="Graded.Modality.html" class="Module">Graded.Modality</a> <a id="357" href="Graded.Usage.Restrictions.Natrec.html#322" class="Bound">M</a><a id="358" class="Symbol">)</a>
+  <a id="362" class="Symbol">(</a><a id="363" href="Graded.Usage.Restrictions.Natrec.html#363" class="Bound">𝕄</a> <a id="365" class="Symbol">:</a> <a id="367" href="Graded.Modality.html#9432" class="Record">Modality</a><a id="375" class="Symbol">)</a>
+  <a id="379" class="Keyword">where</a>
+
+<a id="386" class="Comment">-- open import Graded.Mode 𝕄</a>
+<a id="415" class="Comment">-- open import Graded.Usage.Erased-matches</a>
+<a id="458" class="Comment">-- open import Definition.Untyped.NotParametrised</a>
+
+<a id="509" class="Comment">-- open import Tools.Bool</a>
+<a id="535" class="Keyword">open</a> <a id="540" class="Keyword">import</a> <a id="547" href="Tools.Empty.html" class="Module">Tools.Empty</a>
+<a id="559" class="Comment">-- open import Tools.Function</a>
+<a id="589" class="Comment">-- open import Tools.Level</a>
+<a id="616" class="Keyword">open</a> <a id="621" class="Keyword">import</a> <a id="628" href="Tools.PropositionalEquality.html" class="Module">Tools.PropositionalEquality</a>
+<a id="656" class="Keyword">open</a> <a id="661" class="Keyword">import</a> <a id="668" href="Tools.Product.html" class="Module">Tools.Product</a>
+<a id="682" class="Comment">-- open import Tools.Relation</a>
+<a id="712" class="Comment">-- open import Tools.Sum hiding (sym)</a>
+
+
+<a id="752" class="Keyword">open</a> <a id="757" href="Graded.Modality.html#9432" class="Module">Modality</a> <a id="766" href="Graded.Usage.Restrictions.Natrec.html#363" class="Bound">𝕄</a>
+
+<a id="769" class="Keyword">private</a> <a id="777" class="Keyword">variable</a>
+  <a id="788" href="Graded.Usage.Restrictions.Natrec.html#788" class="Generalizable">p</a> <a id="790" href="Graded.Usage.Restrictions.Natrec.html#790" class="Generalizable">p′</a> <a id="793" href="Graded.Usage.Restrictions.Natrec.html#793" class="Generalizable">q</a> <a id="795" href="Graded.Usage.Restrictions.Natrec.html#795" class="Generalizable">r</a> <a id="797" href="Graded.Usage.Restrictions.Natrec.html#797" class="Generalizable">z₁</a> <a id="800" href="Graded.Usage.Restrictions.Natrec.html#800" class="Generalizable">z₂</a> <a id="803" href="Graded.Usage.Restrictions.Natrec.html#803" class="Generalizable">s₁</a> <a id="806" href="Graded.Usage.Restrictions.Natrec.html#806" class="Generalizable">s₂</a> <a id="809" class="Symbol">:</a> <a id="811" href="Graded.Usage.Restrictions.Natrec.html#322" class="Bound">M</a>
+
+<a id="814" class="Comment">-- The type Natrec-mode corresponds to the different (mutually exclusive)</a>
+<a id="888" class="Comment">-- usage rules for natrec.</a>
+<a id="915" class="Comment">--</a>
+<a id="918" class="Comment">-- * Nr        : For modalities with an nr function, computing the usage</a>
+<a id="991" class="Comment">--               count.</a>
+<a id="1015" class="Comment">-- * No-nr     : A usage rule that can be used for any modality.</a>
+<a id="1080" class="Comment">-- * No-nr-glb : A usage rule that does not require an nr function but</a>
+<a id="1151" class="Comment">--               instead that the modality satisfies certain properties</a>
+<a id="1223" class="Comment">--               about greatest lower bounds.</a>
+
+<a id="1270" class="Keyword">data</a> <a id="Natrec-mode"></a><a id="1275" href="Graded.Usage.Restrictions.Natrec.html#1275" class="Datatype">Natrec-mode</a> <a id="1287" class="Symbol">:</a> <a id="1289" href="Agda.Primitive.html#388" class="Primitive">Set</a> <a id="1293" href="Graded.Usage.Restrictions.Natrec.html#318" class="Bound">a</a> <a id="1295" class="Keyword">where</a>
+  <a id="Natrec-mode.Nr"></a><a id="1303" href="Graded.Usage.Restrictions.Natrec.html#1303" class="InductiveConstructor">Nr</a>        <a id="1313" class="Symbol">:</a> <a id="1315" class="Symbol">⦃</a> <a id="1317" href="Graded.Modality.html#5443" class="Record">Has-nr</a> <a id="1324" href="Graded.Modality.html#9573" class="Field">semiring-with-meet</a> <a id="1343" class="Symbol">⦄</a> <a id="1345" class="Symbol">→</a> <a id="1347" href="Graded.Usage.Restrictions.Natrec.html#1275" class="Datatype">Natrec-mode</a>
+  <a id="Natrec-mode.No-nr"></a><a id="1361" href="Graded.Usage.Restrictions.Natrec.html#1361" class="InductiveConstructor">No-nr</a>     <a id="1371" class="Symbol">:</a> <a id="1373" href="Graded.Usage.Restrictions.Natrec.html#1275" class="Datatype">Natrec-mode</a>
+  <a id="Natrec-mode.No-nr-glb"></a><a id="1387" href="Graded.Usage.Restrictions.Natrec.html#1387" class="InductiveConstructor">No-nr-glb</a> <a id="1397" class="Symbol">:</a> <a id="1399" class="Symbol">⦃</a> <a id="1401" href="Graded.Modality.html#7538" class="Record">Supports-GLB-for-natrec</a> <a id="1425" href="Graded.Modality.html#9573" class="Field">semiring-with-meet</a> <a id="1444" class="Symbol">⦄</a> <a id="1446" class="Symbol">→</a> <a id="1448" href="Graded.Usage.Restrictions.Natrec.html#1275" class="Datatype">Natrec-mode</a>
+
+<a id="1461" class="Keyword">private</a> <a id="1469" class="Keyword">variable</a>
+  <a id="1480" href="Graded.Usage.Restrictions.Natrec.html#1480" class="Generalizable">nm</a> <a id="1483" class="Symbol">:</a> <a id="1485" href="Graded.Usage.Restrictions.Natrec.html#1275" class="Datatype">Natrec-mode</a>
+
+<a id="1498" class="Comment">-- Predicates on Natrec-mode corresponding to each of the three usage rules.</a>
+
+<a id="1576" class="Keyword">data</a> <a id="Natrec-mode-has-nr"></a><a id="1581" href="Graded.Usage.Restrictions.Natrec.html#1581" class="Datatype">Natrec-mode-has-nr</a> <a id="1600" class="Symbol">:</a> <a id="1602" href="Graded.Usage.Restrictions.Natrec.html#1275" class="Datatype">Natrec-mode</a> <a id="1614" class="Symbol">→</a> <a id="1616" href="Agda.Primitive.html#388" class="Primitive">Set</a> <a id="1620" href="Graded.Usage.Restrictions.Natrec.html#318" class="Bound">a</a> <a id="1622" class="Keyword">where</a>
+  <a id="Natrec-mode-has-nr.Nr"></a><a id="1630" href="Graded.Usage.Restrictions.Natrec.html#1630" class="InductiveConstructor">Nr</a> <a id="1633" class="Symbol">:</a>
+    <a id="1639" class="Symbol">⦃</a> <a id="1641" href="Graded.Usage.Restrictions.Natrec.html#1641" class="Bound">has-nr</a> <a id="1648" class="Symbol">:</a> <a id="1650" href="Graded.Modality.html#5443" class="Record">Has-nr</a> <a id="1657" href="Graded.Modality.html#9573" class="Field">semiring-with-meet</a> <a id="1676" class="Symbol">⦄</a> <a id="1678" class="Symbol">→</a>
+    <a id="1684" href="Graded.Usage.Restrictions.Natrec.html#1581" class="Datatype">Natrec-mode-has-nr</a> <a id="1703" href="Graded.Usage.Restrictions.Natrec.html#1303" class="InductiveConstructor">Nr</a>
+
+<a id="1707" class="Keyword">data</a> <a id="Natrec-mode-no-nr"></a><a id="1712" href="Graded.Usage.Restrictions.Natrec.html#1712" class="Datatype">Natrec-mode-no-nr</a> <a id="1730" class="Symbol">:</a> <a id="1732" href="Graded.Usage.Restrictions.Natrec.html#1275" class="Datatype">Natrec-mode</a> <a id="1744" class="Symbol">→</a> <a id="1746" href="Agda.Primitive.html#388" class="Primitive">Set</a> <a id="1750" href="Graded.Usage.Restrictions.Natrec.html#318" class="Bound">a</a> <a id="1752" class="Keyword">where</a>
+  <a id="Natrec-mode-no-nr.No-nr"></a><a id="1760" href="Graded.Usage.Restrictions.Natrec.html#1760" class="InductiveConstructor">No-nr</a> <a id="1766" class="Symbol">:</a> <a id="1768" href="Graded.Usage.Restrictions.Natrec.html#1712" class="Datatype">Natrec-mode-no-nr</a> <a id="1786" href="Graded.Usage.Restrictions.Natrec.html#1361" class="InductiveConstructor">No-nr</a>
+
+<a id="1793" class="Keyword">data</a> <a id="Natrec-mode-no-nr-glb"></a><a id="1798" href="Graded.Usage.Restrictions.Natrec.html#1798" class="Datatype">Natrec-mode-no-nr-glb</a> <a id="1820" class="Symbol">:</a> <a id="1822" href="Graded.Usage.Restrictions.Natrec.html#1275" class="Datatype">Natrec-mode</a> <a id="1834" class="Symbol">→</a> <a id="1836" href="Agda.Primitive.html#388" class="Primitive">Set</a> <a id="1840" href="Graded.Usage.Restrictions.Natrec.html#318" class="Bound">a</a> <a id="1842" class="Keyword">where</a>
+  <a id="Natrec-mode-no-nr-glb.No-nr-glb"></a><a id="1850" href="Graded.Usage.Restrictions.Natrec.html#1850" class="InductiveConstructor">No-nr-glb</a> <a id="1860" class="Symbol">:</a>
+    <a id="1866" class="Symbol">⦃</a> <a id="1868" href="Graded.Usage.Restrictions.Natrec.html#1868" class="Bound">ok</a> <a id="1871" class="Symbol">:</a> <a id="1873" href="Graded.Modality.html#7538" class="Record">Supports-GLB-for-natrec</a> <a id="1897" href="Graded.Modality.html#9573" class="Field">semiring-with-meet</a> <a id="1916" class="Symbol">⦄</a> <a id="1918" class="Symbol">→</a>
+    <a id="1924" href="Graded.Usage.Restrictions.Natrec.html#1798" class="Datatype">Natrec-mode-no-nr-glb</a> <a id="1946" href="Graded.Usage.Restrictions.Natrec.html#1387" class="InductiveConstructor">No-nr-glb</a>
+
+<a id="1957" class="Keyword">instance</a>
+
+  <a id="Nr-has-nr"></a><a id="1969" href="Graded.Usage.Restrictions.Natrec.html#1969" class="Function">Nr-has-nr</a> <a id="1979" class="Symbol">:</a>
+    <a id="1985" class="Symbol">⦃</a> <a id="1987" href="Graded.Usage.Restrictions.Natrec.html#1987" class="Bound">has-nr</a> <a id="1994" class="Symbol">:</a> <a id="1996" href="Graded.Modality.html#5443" class="Record">Has-nr</a> <a id="2003" href="Graded.Modality.html#9573" class="Field">semiring-with-meet</a> <a id="2022" class="Symbol">⦄</a> <a id="2024" class="Symbol">→</a>
+    <a id="2030" href="Graded.Usage.Restrictions.Natrec.html#1581" class="Datatype">Natrec-mode-has-nr</a> <a id="2049" class="InductiveConstructor">Nr</a>
+  <a id="2054" href="Graded.Usage.Restrictions.Natrec.html#1969" class="Function">Nr-has-nr</a> <a id="2064" class="Symbol">=</a> <a id="2066" href="Graded.Usage.Restrictions.Natrec.html#1630" class="InductiveConstructor">Nr</a>
+
+  <a id="No-nr-no-nr"></a><a id="2072" href="Graded.Usage.Restrictions.Natrec.html#2072" class="Function">No-nr-no-nr</a> <a id="2084" class="Symbol">:</a>
+    <a id="2090" href="Graded.Usage.Restrictions.Natrec.html#1712" class="Datatype">Natrec-mode-no-nr</a> <a id="2108" class="InductiveConstructor">No-nr</a>
+  <a id="2116" href="Graded.Usage.Restrictions.Natrec.html#2072" class="Function">No-nr-no-nr</a> <a id="2128" class="Symbol">=</a> <a id="2130" href="Graded.Usage.Restrictions.Natrec.html#1760" class="InductiveConstructor">No-nr</a>
+
+  <a id="No-nr-glb-no-nr-glb"></a><a id="2139" href="Graded.Usage.Restrictions.Natrec.html#2139" class="Function">No-nr-glb-no-nr-glb</a> <a id="2159" class="Symbol">:</a>
+   <a id="2164" class="Symbol">⦃</a> <a id="2166" href="Graded.Usage.Restrictions.Natrec.html#2166" class="Bound">ok</a> <a id="2169" class="Symbol">:</a> <a id="2171" href="Graded.Modality.html#7538" class="Record">Supports-GLB-for-natrec</a> <a id="2195" href="Graded.Modality.html#9573" class="Field">semiring-with-meet</a> <a id="2214" class="Symbol">⦄</a> <a id="2216" class="Symbol">→</a>
+   <a id="2221" href="Graded.Usage.Restrictions.Natrec.html#1798" class="Datatype">Natrec-mode-no-nr-glb</a> <a id="2243" class="InductiveConstructor">No-nr-glb</a>
+  <a id="2255" href="Graded.Usage.Restrictions.Natrec.html#2139" class="Function">No-nr-glb-no-nr-glb</a> <a id="2275" class="Symbol">=</a> <a id="2277" href="Graded.Usage.Restrictions.Natrec.html#1850" class="InductiveConstructor">No-nr-glb</a>
+
+<a id="2288" class="Comment">-- If a natrec-mode corresponds to the usage rule using an nr function</a>
+<a id="2359" class="Comment">-- then the modality has an nr function.</a>
+
+<a id="Natrec-mode-Has-nr"></a><a id="2401" href="Graded.Usage.Restrictions.Natrec.html#2401" class="Function">Natrec-mode-Has-nr</a> <a id="2420" class="Symbol">:</a>
+  <a id="2424" href="Graded.Usage.Restrictions.Natrec.html#1581" class="Datatype">Natrec-mode-has-nr</a> <a id="2443" href="Graded.Usage.Restrictions.Natrec.html#1480" class="Generalizable">nm</a> <a id="2446" class="Symbol">→</a>
+  <a id="2450" href="Graded.Modality.html#5443" class="Record">Has-nr</a> <a id="2457" href="Graded.Modality.html#9573" class="Field">semiring-with-meet</a>
+<a id="2476" href="Graded.Usage.Restrictions.Natrec.html#2401" class="Function">Natrec-mode-Has-nr</a> <a id="2495" class="Symbol">(</a><a id="2496" href="Graded.Usage.Restrictions.Natrec.html#1630" class="InductiveConstructor">Nr</a> <a id="2499" class="Symbol">⦃</a> <a id="2501" href="Graded.Usage.Restrictions.Natrec.html#2501" class="Bound">has-nr</a> <a id="2508" class="Symbol">⦄)</a> <a id="2511" class="Symbol">=</a> <a id="2513" href="Graded.Usage.Restrictions.Natrec.html#2501" class="Bound">has-nr</a>
+
+
+<a id="2522" class="Comment">-- If a natrec-mode corresponds to the usage rule using greatest lower</a>
+<a id="2593" class="Comment">-- bounds then the modality satisfies the necessary properties.</a>
+
+<a id="Natrec-mode-Supports-factoring"></a><a id="2658" href="Graded.Usage.Restrictions.Natrec.html#2658" class="Function">Natrec-mode-Supports-factoring</a> <a id="2689" class="Symbol">:</a>
+  <a id="2693" href="Graded.Usage.Restrictions.Natrec.html#1798" class="Datatype">Natrec-mode-no-nr-glb</a> <a id="2715" href="Graded.Usage.Restrictions.Natrec.html#1480" class="Generalizable">nm</a> <a id="2718" class="Symbol">→</a>
+  <a id="2722" href="Graded.Modality.html#7538" class="Record">Supports-GLB-for-natrec</a> <a id="2746" href="Graded.Modality.html#9573" class="Field">semiring-with-meet</a>
+<a id="2765" href="Graded.Usage.Restrictions.Natrec.html#2658" class="Function">Natrec-mode-Supports-factoring</a> <a id="2796" class="Symbol">(</a><a id="2797" href="Graded.Usage.Restrictions.Natrec.html#1850" class="InductiveConstructor">No-nr-glb</a> <a id="2807" class="Symbol">⦃</a> <a id="2809" href="Graded.Usage.Restrictions.Natrec.html#2809" class="Bound">ok</a> <a id="2812" class="Symbol">⦄)</a> <a id="2815" class="Symbol">=</a> <a id="2817" href="Graded.Usage.Restrictions.Natrec.html#2809" class="Bound">ok</a>
+
+<a id="2821" class="Keyword">opaque</a>
+
+  <a id="2831" class="Comment">-- The predicate Natrec-mode-has-nr is propositional</a>
+
+  <a id="Nr-available-propositional"></a><a id="2887" href="Graded.Usage.Restrictions.Natrec.html#2887" class="Function">Nr-available-propositional</a> <a id="2914" class="Symbol">:</a>
+    <a id="2920" class="Symbol">(</a><a id="2921" href="Graded.Usage.Restrictions.Natrec.html#2921" class="Bound">x</a> <a id="2923" href="Graded.Usage.Restrictions.Natrec.html#2923" class="Bound">y</a> <a id="2925" class="Symbol">:</a> <a id="2927" href="Graded.Usage.Restrictions.Natrec.html#1581" class="Datatype">Natrec-mode-has-nr</a> <a id="2946" href="Graded.Usage.Restrictions.Natrec.html#1480" class="Generalizable">nm</a><a id="2948" class="Symbol">)</a> <a id="2950" class="Symbol">→</a> <a id="2952" href="Graded.Usage.Restrictions.Natrec.html#2921" class="Bound">x</a> <a id="2954" href="Agda.Builtin.Equality.html#150" class="Datatype Operator">≡</a> <a id="2956" href="Graded.Usage.Restrictions.Natrec.html#2923" class="Bound">y</a>
+  <a id="2960" href="Graded.Usage.Restrictions.Natrec.html#2887" class="Function">Nr-available-propositional</a> <a id="2987" href="Graded.Usage.Restrictions.Natrec.html#1630" class="InductiveConstructor">Nr</a> <a id="2990" href="Graded.Usage.Restrictions.Natrec.html#1630" class="InductiveConstructor">Nr</a> <a id="2993" class="Symbol">=</a> <a id="2995" href="Agda.Builtin.Equality.html#207" class="InductiveConstructor">refl</a>
+
+<a id="3001" class="Comment">-- The different usage rules for natrec are mutually exclusive:</a>
+
+<a id="3066" class="Keyword">opaque</a>
+
+  <a id="¬[Nr∧No-nr]"></a><a id="3076" href="Graded.Usage.Restrictions.Natrec.html#3076" class="Function">¬[Nr∧No-nr]</a> <a id="3088" class="Symbol">:</a>
+    <a id="3094" href="Graded.Usage.Restrictions.Natrec.html#1581" class="Datatype">Natrec-mode-has-nr</a> <a id="3113" href="Graded.Usage.Restrictions.Natrec.html#1480" class="Generalizable">nm</a> <a id="3116" class="Symbol">→</a>
+    <a id="3122" href="Graded.Usage.Restrictions.Natrec.html#1712" class="Datatype">Natrec-mode-no-nr</a> <a id="3140" href="Graded.Usage.Restrictions.Natrec.html#1480" class="Generalizable">nm</a> <a id="3143" class="Symbol">→</a>
+    <a id="3149" href="Data.Empty.html#914" class="Function">⊥</a>
+  <a id="3153" href="Graded.Usage.Restrictions.Natrec.html#3076" class="Function">¬[Nr∧No-nr]</a> <a id="3165" href="Graded.Usage.Restrictions.Natrec.html#1630" class="InductiveConstructor">Nr</a> <a id="3168" class="Symbol">()</a>
+
+<a id="3172" class="Keyword">opaque</a>
+
+  <a id="¬[Nr∧No-nr-glb]"></a><a id="3182" href="Graded.Usage.Restrictions.Natrec.html#3182" class="Function">¬[Nr∧No-nr-glb]</a> <a id="3198" class="Symbol">:</a>
+    <a id="3204" href="Graded.Usage.Restrictions.Natrec.html#1581" class="Datatype">Natrec-mode-has-nr</a> <a id="3223" href="Graded.Usage.Restrictions.Natrec.html#1480" class="Generalizable">nm</a> <a id="3226" class="Symbol">→</a>
+    <a id="3232" href="Graded.Usage.Restrictions.Natrec.html#1798" class="Datatype">Natrec-mode-no-nr-glb</a> <a id="3254" href="Graded.Usage.Restrictions.Natrec.html#1480" class="Generalizable">nm</a> <a id="3257" class="Symbol">→</a>
+    <a id="3263" href="Data.Empty.html#914" class="Function">⊥</a>
+  <a id="3267" href="Graded.Usage.Restrictions.Natrec.html#3182" class="Function">¬[Nr∧No-nr-glb]</a> <a id="3283" href="Graded.Usage.Restrictions.Natrec.html#1630" class="InductiveConstructor">Nr</a> <a id="3286" class="Symbol">()</a>
+
+<a id="3290" class="Keyword">opaque</a>
+
+  <a id="¬[No-nr∧No-nr-glb]"></a><a id="3300" href="Graded.Usage.Restrictions.Natrec.html#3300" class="Function">¬[No-nr∧No-nr-glb]</a> <a id="3319" class="Symbol">:</a>
+      <a id="3327" href="Graded.Usage.Restrictions.Natrec.html#1712" class="Datatype">Natrec-mode-no-nr</a> <a id="3345" href="Graded.Usage.Restrictions.Natrec.html#1480" class="Generalizable">nm</a> <a id="3348" class="Symbol">→</a>
+      <a id="3356" href="Graded.Usage.Restrictions.Natrec.html#1798" class="Datatype">Natrec-mode-no-nr-glb</a> <a id="3378" href="Graded.Usage.Restrictions.Natrec.html#1480" class="Generalizable">nm</a> <a id="3381" class="Symbol">→</a>
+      <a id="3389" href="Data.Empty.html#914" class="Function">⊥</a>
+  <a id="3393" href="Graded.Usage.Restrictions.Natrec.html#3300" class="Function">¬[No-nr∧No-nr-glb]</a> <a id="3412" href="Graded.Usage.Restrictions.Natrec.html#1760" class="InductiveConstructor">No-nr</a> <a id="3418" class="Symbol">()</a>
+
+<a id="3422" class="Comment">--   Nr-available : Set a</a>
+<a id="3448" class="Comment">--   Nr-available = Natrec-mode-has-nr natrec-mode</a>
+
+<a id="3500" class="Comment">--   Nr-not-available₁ : Set a</a>
+<a id="3531" class="Comment">--   Nr-not-available₁ = Natrec-mode-no-nr₁ natrec-mode</a>
+
+<a id="3588" class="Comment">--   Nr-not-available₂ : Set a</a>
+<a id="3619" class="Comment">--   Nr-not-available₂ = Natrec-mode-no-nr₂ natrec-mode</a>
+
+<a id="3676" class="Comment">--   opaque</a>
+
+<a id="3689" class="Comment">--     Nr-available-propositional :</a>
+<a id="3725" class="Comment">--       (x y : Nr-available) → x ≡ y</a>
+<a id="3763" class="Comment">--     Nr-available-propositional = lemma</a>
+<a id="3805" class="Comment">--       where</a>
+<a id="3820" class="Comment">--       lemma : (x y : Natrec-mode-has-nr nm) → x ≡ y</a>
+<a id="3875" class="Comment">--       lemma Nr Nr = refl</a>
+
+
+<a id="3905" class="Keyword">data</a> <a id="Natrec-mode?"></a><a id="3910" href="Graded.Usage.Restrictions.Natrec.html#3910" class="Datatype">Natrec-mode?</a> <a id="3923" class="Symbol">(</a><a id="3924" href="Graded.Usage.Restrictions.Natrec.html#3924" class="Bound">nm</a> <a id="3927" class="Symbol">:</a> <a id="3929" href="Graded.Usage.Restrictions.Natrec.html#1275" class="Datatype">Natrec-mode</a><a id="3940" class="Symbol">)</a> <a id="3942" class="Symbol">:</a> <a id="3944" href="Agda.Primitive.html#388" class="Primitive">Set</a> <a id="3948" href="Graded.Usage.Restrictions.Natrec.html#318" class="Bound">a</a> <a id="3950" class="Keyword">where</a>
+  <a id="Natrec-mode?.does-have-nr"></a><a id="3958" href="Graded.Usage.Restrictions.Natrec.html#3958" class="InductiveConstructor">does-have-nr</a> <a id="3971" class="Symbol">:</a>
+    <a id="3977" class="Symbol">⦃</a> <a id="3979" href="Graded.Usage.Restrictions.Natrec.html#3979" class="Bound">has-nr</a> <a id="3986" class="Symbol">:</a> <a id="3988" href="Graded.Usage.Restrictions.Natrec.html#1581" class="Datatype">Natrec-mode-has-nr</a> <a id="4007" href="Graded.Usage.Restrictions.Natrec.html#3924" class="Bound">nm</a> <a id="4010" class="Symbol">⦄</a> <a id="4012" class="Symbol">→</a> <a id="4014" href="Graded.Usage.Restrictions.Natrec.html#3910" class="Datatype">Natrec-mode?</a> <a id="4027" href="Graded.Usage.Restrictions.Natrec.html#3924" class="Bound">nm</a>
+  <a id="Natrec-mode?.does-not-have-nr"></a><a id="4032" href="Graded.Usage.Restrictions.Natrec.html#4032" class="InductiveConstructor">does-not-have-nr</a> <a id="4049" class="Symbol">:</a>
+    <a id="4055" class="Symbol">⦃</a> <a id="4057" href="Graded.Usage.Restrictions.Natrec.html#4057" class="Bound">no-nr</a> <a id="4063" class="Symbol">:</a> <a id="4065" href="Graded.Usage.Restrictions.Natrec.html#1712" class="Datatype">Natrec-mode-no-nr</a> <a id="4083" href="Graded.Usage.Restrictions.Natrec.html#3924" class="Bound">nm</a> <a id="4086" class="Symbol">⦄</a> <a id="4088" class="Symbol">→</a> <a id="4090" href="Graded.Usage.Restrictions.Natrec.html#3910" class="Datatype">Natrec-mode?</a> <a id="4103" href="Graded.Usage.Restrictions.Natrec.html#3924" class="Bound">nm</a>
+  <a id="Natrec-mode?.does-not-have-nr-glb"></a><a id="4108" href="Graded.Usage.Restrictions.Natrec.html#4108" class="InductiveConstructor">does-not-have-nr-glb</a> <a id="4129" class="Symbol">:</a>
+    <a id="4135" class="Symbol">⦃</a> <a id="4137" href="Graded.Usage.Restrictions.Natrec.html#4137" class="Bound">no-nr</a> <a id="4143" class="Symbol">:</a> <a id="4145" href="Graded.Usage.Restrictions.Natrec.html#1798" class="Datatype">Natrec-mode-no-nr-glb</a> <a id="4167" href="Graded.Usage.Restrictions.Natrec.html#3924" class="Bound">nm</a> <a id="4170" class="Symbol">⦄</a> <a id="4172" class="Symbol">→</a> <a id="4174" href="Graded.Usage.Restrictions.Natrec.html#3910" class="Datatype">Natrec-mode?</a> <a id="4187" href="Graded.Usage.Restrictions.Natrec.html#3924" class="Bound">nm</a>
+
+<a id="4191" class="Keyword">opaque</a>
+
+  <a id="natrec-mode?"></a><a id="4201" href="Graded.Usage.Restrictions.Natrec.html#4201" class="Function">natrec-mode?</a> <a id="4214" class="Symbol">:</a> <a id="4216" class="Symbol">∀</a> <a id="4218" href="Graded.Usage.Restrictions.Natrec.html#4218" class="Bound">nm</a> <a id="4221" class="Symbol">→</a> <a id="4223" href="Graded.Usage.Restrictions.Natrec.html#3910" class="Datatype">Natrec-mode?</a> <a id="4236" href="Graded.Usage.Restrictions.Natrec.html#4218" class="Bound">nm</a>
+  <a id="4241" href="Graded.Usage.Restrictions.Natrec.html#4201" class="Function">natrec-mode?</a> <a id="4254" href="Graded.Usage.Restrictions.Natrec.html#1303" class="InductiveConstructor">Nr</a> <a id="4257" class="Symbol">=</a> <a id="4259" href="Graded.Usage.Restrictions.Natrec.html#3958" class="InductiveConstructor">does-have-nr</a> <a id="4272" class="Symbol">⦃</a> <a id="4274" href="Graded.Usage.Restrictions.Natrec.html#1630" class="InductiveConstructor">Nr</a> <a id="4277" class="Symbol">⦄</a>
+  <a id="4281" href="Graded.Usage.Restrictions.Natrec.html#4201" class="Function">natrec-mode?</a> <a id="4294" href="Graded.Usage.Restrictions.Natrec.html#1361" class="InductiveConstructor">No-nr</a> <a id="4300" class="Symbol">=</a> <a id="4302" href="Graded.Usage.Restrictions.Natrec.html#4032" class="InductiveConstructor">does-not-have-nr</a> <a id="4319" class="Symbol">⦃</a> <a id="4321" href="Graded.Usage.Restrictions.Natrec.html#1760" class="InductiveConstructor">No-nr</a> <a id="4327" class="Symbol">⦄</a>
+  <a id="4331" href="Graded.Usage.Restrictions.Natrec.html#4201" class="Function">natrec-mode?</a> <a id="4344" href="Graded.Usage.Restrictions.Natrec.html#1387" class="InductiveConstructor">No-nr-glb</a> <a id="4354" class="Symbol">=</a> <a id="4356" href="Graded.Usage.Restrictions.Natrec.html#4108" class="InductiveConstructor">does-not-have-nr-glb</a> <a id="4377" class="Symbol">⦃</a> <a id="4379" href="Graded.Usage.Restrictions.Natrec.html#1850" class="InductiveConstructor">No-nr-glb</a> <a id="4389" class="Symbol">⦄</a>
+</pre></body></html>
