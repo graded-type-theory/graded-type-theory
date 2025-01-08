@@ -61,7 +61,6 @@ import Graded.Erasure.Target
 import Graded.FullReduction
 import Graded.Heap.Soundness
 import Graded.Modality
-import Graded.Modality.Dedicated-nr
 import Graded.Modality.Instances.Affine
 import Graded.Modality.Instances.Affine.Bad
 import Graded.Modality.Instances.Affine.Bad.No-dedicated-nr
@@ -185,10 +184,10 @@ usage-relation = Graded.Usage._▸[_]_
 Has-nr          = Graded.Modality.Has-nr
 Has-star→Has-nr = Graded.Modality.Properties.Star.has-nr
 
--- The definition of a modality has been changed to refer to nr
--- functions instead of natrec-star operators.
-
-has-nr = Graded.Modality.Modality.has-nr
+-- The definition of a modality has been changed to no longer refer
+-- to natrec-star operators or nr functions. Instead, the usage
+-- relation is parameterized in a way that makes the usage rule described
+-- above available only if an nr function is provided for the modality.
 
 -- For the modalities discussed above custom nr functions have been
 -- defined (there is one parametrised definition for the linear types
@@ -271,6 +270,10 @@ plus-not-ok₄ =
 -- still not be well-resourced, and the doubling function would still
 -- be well-resourced for the affine types modality.
 
+-- An additional usage rule for natrec has been added which does not
+-- require the modality having an nr function. This rule has been shown
+-- to work with the abstract machine mentioned above.
+
 ------------------------------------------------------------------------
 -- Differences between the paper and the code
 ------------------------------------------------------------------------
@@ -280,19 +283,9 @@ plus-not-ok₄ =
 -- whether certain features should be included or not (in addition to
 -- the possibility to choose what modality to use):
 
--- * One can have a theory with a single mode, or two modes, and there
---   can be a (dedicated) nr function, or the alternative usage rule
---   for natrec from Section 7.1.4 can be used.
---
---   Two mutually exclusive types, Dedicated-nr and No-dedicated-nr,
---   are used to control which usage rules are available for natrec.
---   If Dedicated-nr is inhabited, then the rule with the nr function
---   is used, and if No-dedicated-nr is inhabited, then the other rule
---   is used.
+-- * One can have a theory with a single mode, or two modes.
 
 Modality-variant  = Graded.Modality.Variant.Modality-variant
-Dedicated-star    = Graded.Modality.Dedicated-nr.Dedicated-nr
-No-dedicated-star = Graded.Modality.Dedicated-nr.No-dedicated-nr
 
 -- * One can choose whether to allow strong unit types. Furthermore
 --   one can choose whether to allow binders of the form B_p^q, where
@@ -322,6 +315,25 @@ prodrec-allowed = Graded.Usage.Inversion.inv-usage-prodrec
 --   Σ-types:
 
 no-erased-matches = Graded.Restrictions.no-erased-matches-UR
+
+-- * One can choose which usage rule to use for natrec, either
+--   using the one defined using an nr function, the alternative
+--   usage rule from Section 7.1.4 or an additional rule added
+--   to the formalization after the paper was published.
+--
+--   Three mutually exclusive types, Nr-available, Nr-not-available
+--   and Nr-not-available-GLB are used to control which usage rules are
+--   available for natrec. If Nr-available is inhabited then the rule
+--   with the nr function is used, if Nr-not-available is inhabited
+--   then the rule from Section 7.1.4 is used, and if
+--   Nr-not-available-GLB is inhabited, then the additional rule is used.
+
+Nr-available =
+  Graded.Usage.Restrictions.Usage-restrictions.Nr-available
+Nr-not-available =
+  Graded.Usage.Restrictions.Usage-restrictions.Nr-not-available
+Nr-not-available-GLB =
+  Graded.Usage.Restrictions.Usage-restrictions.Nr-not-available-GLB
 
 -- Note that some results have only been proved for certain variants
 -- of the theory.
@@ -418,13 +430,19 @@ unitModality = Graded.Modality.Instances.Unit.UnitModality
 erasureModality =
   Graded.Modality.Instances.Erasure.Modality.ErasureModality
 
--- An "affine types" modality, along with the variant with a custom nr
+-- An "affine types" modality, along with an nr function equivalent
+-- to the ⊛-operator mentioned in the paper and another, custom, nr
 -- function.
 
-affineModality  = Graded.Modality.Instances.Affine.bad-affine-modality
-affineModality′ = Graded.Modality.Instances.Affine.affineModality
+affineModality =
+  Graded.Modality.Instances.Affine.affineModality
+affine-⊛ =
+  Graded.Modality.Instances.Affine.zero-one-many-greatest-star-nr
+affine-nr =
+  Graded.Modality.Instances.Affine.zero-one-many-has-nr
 
--- A "linear types" modality, along with the variant with a custom nr
+-- A "linear types" modality, along with an nr function equivalent
+-- to the ⊛-operator mentioned in the paper and another, custom, nr
 -- function.
 --
 -- The module has a parameter of type Modality-variant which is
@@ -432,9 +450,11 @@ affineModality′ = Graded.Modality.Instances.Affine.affineModality
 -- then a "linear types" modality of the given kind can be defined.
 
 linearityModality =
-  Graded.Modality.Instances.Linearity.bad-linearity-modality
-linearityModality′ =
   Graded.Modality.Instances.Linearity.linearityModality
+linearity-⊛ =
+  Graded.Modality.Instances.Linearity.zero-one-many-greatest-star-nr
+linearity-nr =
+  Graded.Modality.Instances.Linearity.zero-one-many-has-nr
 
 -- The natrec-star operators of the "affine types" and "linear types"
 -- modalities return results that are as large as possible (given the
@@ -443,8 +463,9 @@ linearityModality′ =
 
 ⊛-greatest₁ = Graded.Modality.Instances.Zero-one-many.⊛-greatest
 
--- A "linear or affine types" modality, along with the variant with a
--- custom nr function.
+-- A "linear or affine types" modality, along with an nr function
+-- equivalent to the ⊛-operator mentioned in the paper and another,
+-- custom, nr function.
 --
 -- The definition takes an argument of type Modality-variant which is
 -- required to satisfy a certain property. If this property holds,
@@ -456,9 +477,11 @@ linearityModality′ =
 -- for affine usage.
 
 linearOrAffineModality =
-  Graded.Modality.Instances.Linear-or-affine.bad-linear-or-affine
-linearOrAffineModality′ =
   Graded.Modality.Instances.Linear-or-affine.linear-or-affine
+linearOrAffineModality-⊛ =
+  Graded.Modality.Instances.Linear-or-affine.bad-linear-or-affine-has-nr
+linearOrAffineModality-nr =
+  Graded.Modality.Instances.Linear-or-affine.linear-or-affine-has-nr
 
 -- The natrec-star operator of the "linear or affine types" modality
 -- returns results that are as large as possible (given the

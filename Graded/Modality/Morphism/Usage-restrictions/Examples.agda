@@ -19,6 +19,7 @@ open import Tools.Sum using (_⊎_; inj₁; inj₂)
 open import Definition.Typed.Restrictions
 
 open import Graded.Modality
+open import Graded.Modality.Morphism
 open import Graded.Modality.Morphism.Examples
 open import Graded.Modality.Morphism.Type-restrictions
 open import Graded.Modality.Morphism.Usage-restrictions
@@ -40,6 +41,9 @@ open import Graded.Mode
 open import Graded.Restrictions
 open import Graded.Usage.Erased-matches
 open import Graded.Usage.Restrictions
+open import Graded.Usage.Restrictions.Natrec
+
+open Usage-restrictions
 
 private variable
   b₁ b₂ 𝟙≤𝟘 ok : Bool
@@ -51,6 +55,7 @@ private variable
   m₁ m₂        : Mode _
   tr tr-Σ      : M₁ → M₂
   v₁-ok v₂-ok  : A
+  nm₁ nm₂      : Natrec-mode _
 
 ------------------------------------------------------------------------
 -- Preserving/reflecting no usage restrictions
@@ -63,11 +68,13 @@ opaque
 
   Common-properties-no-usage-restrictions :
     (T (Modality.𝟘ᵐ-allowed 𝕄₁) → T (Modality.𝟘ᵐ-allowed 𝕄₂)) →
+    nm₁ ≈ⁿᵐ nm₂ →
     Common-properties
-      (no-usage-restrictions 𝕄₁ b₁ b₂)
-      (no-usage-restrictions 𝕄₂ b₁ b₂)
-  Common-properties-no-usage-restrictions hyp = λ where
+      (no-usage-restrictions 𝕄₁ nm₁ b₁ b₂)
+      (no-usage-restrictions 𝕄₂ nm₂ b₁ b₂)
+  Common-properties-no-usage-restrictions hyp nm₁≈nm₂ = λ where
       .𝟘ᵐ-preserved                   → hyp
+      .natrec-mode-preserved          → nm₁≈nm₂
       .starˢ-sink-preserved           → refl
       .Id-erased-preserved            → lift ∘→ Lift.lower
                                       , lift ∘→ Lift.lower
@@ -79,17 +86,33 @@ opaque
 opaque
 
   -- The functions tr and tr-Σ preserve certain usage restrictions
-  -- obtained from no-usage-restrictions, given that a certain
-  -- assumption holds.
+  -- obtained from no-usage-restrictions, given that certain
+  -- assumptions hold.
 
   Are-preserving-usage-restrictions-no-usage-restrictions :
     (T (Modality.𝟘ᵐ-allowed 𝕄₁) → T (Modality.𝟘ᵐ-allowed 𝕄₂)) →
+    nm₁ ≈ⁿᵐ nm₂ →
+    (⦃ has-nr₁ : Natrec-mode-has-nr _ nm₁ ⦄ →
+     ⦃ has-nr₂ : Natrec-mode-has-nr _ nm₂ ⦄ →
+     Is-nr-preserving-morphism 𝕄₁ 𝕄₂
+       ⦃ Natrec-mode-Has-nr _ has-nr₁ ⦄
+       ⦃ Natrec-mode-Has-nr _ has-nr₂ ⦄ tr) →
+    (⦃ no-nr₁ : Natrec-mode-no-nr _ nm₁ ⦄ →
+     ⦃ no-nr₂ : Natrec-mode-no-nr _ nm₂ ⦄ →
+     Is-no-nr-preserving-morphism 𝕄₁ 𝕄₂ tr) →
+    (⦃ no-nr₁ : Natrec-mode-no-nr-glb _ nm₁ ⦄ →
+     ⦃ no-nr₂ : Natrec-mode-no-nr-glb _ nm₂ ⦄ →
+     Is-no-nr-glb-preserving-morphism 𝕄₁ 𝕄₂ tr) →
     Are-preserving-usage-restrictions
-      (no-usage-restrictions 𝕄₁ b₁ b₂)
-      (no-usage-restrictions 𝕄₂ b₁ b₂)
+      (no-usage-restrictions 𝕄₁ nm₁ b₁ b₂)
+      (no-usage-restrictions 𝕄₂ nm₂ b₁ b₂)
       tr tr-Σ
-  Are-preserving-usage-restrictions-no-usage-restrictions hyp = λ where
-      .common-properties  → Common-properties-no-usage-restrictions hyp
+  Are-preserving-usage-restrictions-no-usage-restrictions
+    hyp₁ nm₁≈nm₂ hyp₂ hyp₃ hyp₄ = λ where
+      .common-properties  → Common-properties-no-usage-restrictions hyp₁ nm₁≈nm₂
+      .nr-preserving → hyp₂
+      .no-nr-preserving → hyp₃
+      .no-nr-glb-preserving → hyp₄
       .Prodrec-preserved  → _
       .Unitrec-preserved  → _
       .Emptyrec-preserved → _
@@ -109,15 +132,31 @@ opaque
     in
     (T M₁.𝟘ᵐ-allowed → T M₂.𝟘ᵐ-allowed) →
     (T M₂.𝟘ᵐ-allowed ⊎ M₂.Trivial → T M₁.𝟘ᵐ-allowed ⊎ M₁.Trivial) →
+    nm₁ ≈ⁿᵐ nm₂ →
+    (⦃ has-nr₁ : Natrec-mode-has-nr _ nm₁ ⦄ →
+     ⦃ has-nr₂ : Natrec-mode-has-nr _ nm₂ ⦄ →
+     Is-nr-reflecting-morphism 𝕄₁ 𝕄₂
+       ⦃ Natrec-mode-Has-nr _ has-nr₁ ⦄
+       ⦃ Natrec-mode-Has-nr _ has-nr₂ ⦄ tr) →
+    (⦃ no-nr₁ : Natrec-mode-no-nr _ nm₁ ⦄ →
+     ⦃ no-nr₂ : Natrec-mode-no-nr _ nm₂ ⦄ →
+     Is-no-nr-reflecting-morphism 𝕄₁ 𝕄₂ tr) →
+    (⦃ no-nr₁ : Natrec-mode-no-nr-glb _ nm₁ ⦄ →
+     ⦃ no-nr₂ : Natrec-mode-no-nr-glb _ nm₂ ⦄ →
+     Is-no-nr-glb-reflecting-morphism 𝕄₁ 𝕄₂ tr) →
     Are-reflecting-usage-restrictions
-      (no-usage-restrictions 𝕄₁ b₁ b₂)
-      (no-usage-restrictions 𝕄₂ b₁ b₂)
+      (no-usage-restrictions 𝕄₁ nm₁ b₁ b₂)
+      (no-usage-restrictions 𝕄₂ nm₂ b₁ b₂)
       tr tr-Σ
-  Are-reflecting-usage-restrictions-no-usage-restrictions hyp₁ hyp₂ =
+  Are-reflecting-usage-restrictions-no-usage-restrictions
+    hyp₁ hyp₂ nm₁≈nm₂ hyp₃ hyp₄ hyp₅ =
     λ where
       .common-properties →
-        Common-properties-no-usage-restrictions hyp₁
+        Common-properties-no-usage-restrictions hyp₁ nm₁≈nm₂
       .𝟘ᵐ-reflected                   → hyp₂
+      .nr-reflected                   → hyp₃
+      .no-nr-reflected                → hyp₄
+      .no-nr-glb-reflected            → hyp₅
       .Prodrec-reflected              → _
       .Unitrec-reflected              → _
       .Emptyrec-reflected             → _
@@ -142,6 +181,7 @@ opaque
       (only-some-erased-matches 𝕄₂ R₂)
   Common-properties-only-some-erased-matches cp = record
     { 𝟘ᵐ-preserved                   = 𝟘ᵐ-preserved
+    ; natrec-mode-preserved          = natrec-mode-preserved
     ; starˢ-sink-preserved           = starˢ-sink-preserved
     ; Id-erased-preserved            = Id-erased-preserved
     ; erased-matches-for-J-preserved = λ where
@@ -158,8 +198,8 @@ opaque
 
   -- If the functions tr and tr-Σ preserve certain usage restrictions,
   -- then they also do this for certain usage restrictions obtained
-  -- using only-some-erased-matches, given that a certain assumption
-  -- holds.
+  -- using only-some-erased-matches, given that certain assumptions
+  -- hold.
 
   Are-preserving-usage-restrictions-only-some-erased-matches :
     (¬ Modality.Trivial 𝕄₂ →
@@ -175,6 +215,9 @@ opaque
     {𝕄₂} {𝕄₁} {tr} hyp r = record
     { common-properties =
         Common-properties-only-some-erased-matches common-properties
+    ; nr-preserving = nr-preserving
+    ; no-nr-preserving = no-nr-preserving
+    ; no-nr-glb-preserving = no-nr-glb-preserving
     ; Prodrec-preserved = λ {_ _} {r = r} m₁≈m₂ (p , ≢𝟘) →
           Prodrec-preserved m₁≈m₂ p
         , (λ 𝟙≢𝟘 ≡𝟙ᵐ → case hyp 𝟙≢𝟘 of λ where
@@ -219,6 +262,9 @@ opaque
         Common-properties-only-some-erased-matches common-properties
     ; 𝟘ᵐ-reflected =
         𝟘ᵐ-reflected
+    ; nr-reflected = nr-reflected
+    ; no-nr-reflected = no-nr-reflected
+    ; no-nr-glb-reflected = no-nr-glb-reflected
     ; Prodrec-reflected = λ {_ _} {r = r} m₁≲m₂ (prodrec-ok , tr-r≢𝟘) →
           Prodrec-reflected m₁≲m₂ prodrec-ok
         , (λ non-trivial₁ m₁≡𝟙ᵐ →
@@ -258,6 +304,7 @@ Common-properties-no-erased-matches-UR :
     (no-erased-matches-UR 𝕄₂ TR₂ R₂)
 Common-properties-no-erased-matches-UR _ _ cp = record
   { 𝟘ᵐ-preserved                   = 𝟘ᵐ-preserved
+  ; natrec-mode-preserved          = natrec-mode-preserved
   ; starˢ-sink-preserved           = starˢ-sink-preserved
   ; Id-erased-preserved            = Id-erased-preserved
   ; erased-matches-for-J-preserved = erased-matches-for-J-preserved
@@ -287,6 +334,9 @@ Are-preserving-usage-restrictions-no-erased-matches-UR
   { common-properties =
       Common-properties-no-erased-matches-UR TR₁ TR₂
         UP.common-properties
+  ; nr-preserving = UP.nr-preserving
+  ; no-nr-preserving = UP.no-nr-preserving
+  ; no-nr-glb-preserving = UP.no-nr-glb-preserving
   ; Prodrec-preserved =
       Are-preserving-usage-restrictions.Prodrec-preserved
         (Are-preserving-usage-restrictions-only-some-erased-matches
@@ -337,6 +387,9 @@ Are-reflecting-usage-restrictions-no-erased-matches-UR
         (Are-reflecting-usage-restrictions.common-properties up)
   ; 𝟘ᵐ-reflected =
       UR.𝟘ᵐ-reflected
+  ; nr-reflected = UR.nr-reflected
+  ; no-nr-reflected = UR.no-nr-reflected
+  ; no-nr-glb-reflected = UR.no-nr-glb-reflected
   ; Prodrec-reflected =
       UR.Prodrec-reflected
   ; Unitrec-reflected = λ {_ _} {p = p} m₁≲m₂ (unitrec-ok , tr-p≢𝟘) →
@@ -363,7 +416,7 @@ Are-reflecting-usage-restrictions-no-erased-matches-UR
   module UR =
     Are-reflecting-usage-restrictions
       (Are-reflecting-usage-restrictions-only-some-erased-matches
-         hyp up)
+        hyp up)
   module TR  = Are-reflecting-type-restrictions tp
   module M₁  = Modality 𝕄₁
   module M₂  = Modality 𝕄₂
@@ -403,6 +456,7 @@ opaque
   Common-properties-not-all-erased-matches-JK
     {R₁} {R₂} cp = record
     { 𝟘ᵐ-preserved                   = 𝟘ᵐ-preserved
+    ; natrec-mode-preserved          = natrec-mode-preserved
     ; starˢ-sink-preserved           = starˢ-sink-preserved
     ; Id-erased-preserved            = Id-erased-preserved
     ; erased-matches-for-J-preserved = λ where
@@ -427,7 +481,7 @@ opaque
 
   -- If the functions tr and tr-Σ preserve certain usage restrictions,
   -- then they also do this for certain usage restrictions obtained
-  -- using not-all-erased-matches-JK.
+  -- using not-all-erased-matches-JK given certain assumptions.
 
   Are-preserving-usage-restrictions-not-all-erased-matches-JK :
     Are-preserving-usage-restrictions R₁ R₂ tr tr-Σ →
@@ -439,6 +493,9 @@ opaque
     r = record
     { common-properties =
         Common-properties-not-all-erased-matches-JK common-properties
+    ; nr-preserving = nr-preserving
+    ; no-nr-preserving = no-nr-preserving
+    ; no-nr-glb-preserving = no-nr-glb-preserving
     ; Prodrec-preserved =
         Prodrec-preserved
     ; Unitrec-preserved =
@@ -469,6 +526,9 @@ opaque
         Common-properties-not-all-erased-matches-JK common-properties
     ; 𝟘ᵐ-reflected =
         𝟘ᵐ-reflected
+    ; nr-reflected = nr-reflected
+    ; no-nr-reflected = no-nr-reflected
+    ; no-nr-glb-reflected = no-nr-glb-reflected
     ; Prodrec-reflected =
         Prodrec-reflected
     ; Unitrec-reflected =
@@ -559,10 +619,10 @@ opaque
     let 𝕄₂ = UnitModality v₂ v₂-ok in
     ¬ Are-reflecting-usage-restrictions
         (only-some-erased-matches (ErasureModality v₁) R)
-        (only-some-erased-matches 𝕄₂ (no-usage-restrictions 𝕄₂ b₁ b₂))
+        (only-some-erased-matches 𝕄₂ (no-usage-restrictions 𝕄₂ nm₁ b₁ b₂))
         erasure→unit tr
   ¬-erasure→unit-reflects-only-some-erased-matches _ r =
-    Prodrec-reflected {p = 𝟘} {q = 𝟘} [ 𝟙ᵐ ] (_ , λ tt≢tt _ → tt≢tt)
+    Prodrec-reflected {p = 𝟘} {q = 𝟘} [ 𝟙ᵐ ] (_ , (λ tt≢tt _ → tt≢tt))
       .proj₂ (λ ()) refl refl
     where
     open Are-reflecting-usage-restrictions r
@@ -986,7 +1046,7 @@ erasure→unit-preserves-no-erased-matches-UR =
   let 𝕄₂ = UnitModality v₂ v₂-ok in
   ¬ Are-reflecting-usage-restrictions
       (no-erased-matches-UR (ErasureModality v₁) TR₁ R)
-      (no-erased-matches-UR 𝕄₂ TR₂ (no-usage-restrictions 𝕄₂ b₁ b₂))
+      (no-erased-matches-UR 𝕄₂ TR₂ (no-usage-restrictions 𝕄₂ nm₂ b₁ b₂))
       erasure→unit tr
 ¬-erasure→unit-reflects-no-erased-matches-UR _ _ _ r =
   Prodrec-reflected {p = 𝟘} {q = 𝟘} [ 𝟙ᵐ ] (_ , λ tt≢tt _ → tt≢tt)

@@ -26,13 +26,13 @@ open import Definition.Untyped.Neutral M type-variant
 open import Graded.Context 𝕄
 open import Graded.Context.Properties 𝕄
 open import Graded.Erasure.Consequences.Soundness TR UR
-open import Graded.Modality.Dedicated-nr.Instance
 open import Graded.Modality.Properties 𝕄
 open import Graded.Mode 𝕄
 open import Graded.Restrictions 𝕄
 open import Graded.Usage 𝕄 UR
 open import Graded.Usage.Erased-matches
 open import Graded.Usage.Properties 𝕄 UR
+open import Graded.Usage.Restrictions.Instance UR
 
 open import Tools.Bool using (T)
 open import Tools.Empty
@@ -111,6 +111,13 @@ opaque
         χ ≈ᶜ 𝟘ᶜ  →⟨ ≤ᶜ→≈ᶜ𝟘ᶜ→≈ᶜ𝟘ᶜ χ≤η ⟩
         η ≈ᶜ 𝟘ᶜ  →⟨ helper v-n ⊢v ▸v ⟩
         ⊥        □ }
+      (natrecₙ v-n) ⊢nr (natrec-no-nr-glbₘ {γ} {δ} {p} {r} {η} {χ} {x} _ _ ▸v  _ x-glb χ-glb) xη+χ≈𝟘 →
+        case ·ᶜ-zero-product (+ᶜ-positive xη+χ≈𝟘 .proj₁) of λ where
+          (inj₁ PE.refl) →
+            𝟘≰𝟙 (x-glb .proj₁ 0)
+          (inj₂ η≈𝟘) →
+            let _ , _ , _ , ⊢v , _ = inversion-natrec ⊢nr
+            in  helper v-n ⊢v ▸v η≈𝟘
       (emptyrecₙ t-n) ⊢er (emptyrecₘ {γ} {p} γ▸t _ allowed) →
         case inversion-emptyrec ⊢er of λ
           (_ , ⊢t , _) →

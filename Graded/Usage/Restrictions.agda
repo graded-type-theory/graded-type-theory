@@ -12,6 +12,7 @@ module Graded.Usage.Restrictions
 
 open import Graded.Mode 𝕄
 open import Graded.Usage.Erased-matches
+open import Graded.Usage.Restrictions.Natrec 𝕄
 open import Definition.Untyped.NotParametrised
 
 open import Tools.Bool
@@ -22,9 +23,11 @@ open import Tools.Relation
 open import Tools.Sum
 open import Tools.Empty
 
+open Modality 𝕄
+
 private variable
-  p q r  : M
-  m m′   : Mode
+  p q r : M
+  m m′  : Mode
   s : Strength
   ⦃ ok ⦄ : T _
 
@@ -33,6 +36,9 @@ private variable
 record Usage-restrictions : Set (lsuc a) where
   no-eta-equality
   field
+    -- Which usage rule for natrec should be used.
+    natrec-mode : Natrec-mode
+
     -- The prodrec constructor's quantities have to satisfy this
     -- predicate (for the current mode).
     Prodrec-allowed : Mode → (r p q : M) → Set a
@@ -96,6 +102,18 @@ record Usage-restrictions : Set (lsuc a) where
     -- Graded.Usage.Properties.K₀ₘ₁-generalised.)
     erased-matches-for-K-≤ᵉᵐ :
       erased-matches-for-K 𝟙ᵐ ≤ᵉᵐ erased-matches-for-K 𝟘ᵐ[ ok ]
+
+  -- Three mutually exclusive types which corresponding to each of the
+  -- three poossibilities for natrec-mode
+
+  Nr-available : Set a
+  Nr-available = Natrec-mode-has-nr natrec-mode
+
+  Nr-not-available : Set a
+  Nr-not-available = Natrec-mode-no-nr natrec-mode
+
+  Nr-not-available-GLB : Set a
+  Nr-not-available-GLB = Natrec-mode-no-nr-glb natrec-mode
 
   private opaque
 

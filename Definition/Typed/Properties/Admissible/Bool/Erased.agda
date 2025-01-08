@@ -6,19 +6,17 @@ open import Definition.Typed.Restrictions
 import Definition.Untyped
 import Definition.Untyped.Bool.Erased
 open import Graded.Modality
-import Graded.Modality.Dedicated-nr
 
 module Definition.Typed.Properties.Admissible.Bool.Erased
   {a} {M : Set a}
   (open Definition.Untyped M hiding (_[_]))
   {𝕄 : Modality M}
   (open Definition.Untyped.Bool.Erased 𝕄)
-  (open Graded.Modality.Dedicated-nr 𝕄)
   (open Modality 𝕄)
   (R : Type-restrictions 𝕄)
   (open Type-restrictions R)
   -- It is assumed that there is a dedicated nr function.
-  ⦃ has-nr : Dedicated-nr ⦄
+  ⦃ has-nr : Has-nr M semiring-with-meet ⦄
   -- It is assumed that certain Σ-types are allowed.
   (Σ-ok : Σʷ-allowed 𝟙 Boolᵍ)
   -- It is assumed that Erased is allowed for the strength 𝕨.

@@ -6,17 +6,20 @@
 open import Graded.Modality
 open import Graded.Usage.Restrictions
 open import Definition.Typed.Restrictions
+open import Graded.Usage.Restrictions.Natrec
 
 module Graded.Heap.Typed.Reduction
   {a} {M : Set a} {𝕄 : Modality M}
   (UR : Usage-restrictions 𝕄)
   (TR : Type-restrictions 𝕄)
-  (open Modality 𝕄)
-  ⦃ _ : Has-nr M semiring-with-meet ⦄
-  ⦃ _ : Has-factoring-nr M semiring-with-meet ⦄
+  (open Usage-restrictions UR)
+  (factoring-nr :
+    ⦃ has-nr : Nr-available ⦄ →
+    Is-factoring-nr M (Natrec-mode-Has-nr 𝕄 has-nr))
   where
 
 open Type-restrictions TR
+open Modality 𝕄
 
 open import Definition.Untyped M
 open import Definition.Untyped.Properties M
@@ -33,14 +36,14 @@ open import Definition.Typed.Consequences.Inequality TR
 open import Definition.Typed.Consequences.Injectivity TR
 open import Definition.Typed.Consequences.Inversion TR
 
-open import Graded.Heap.Reduction type-variant UR
-open import Graded.Heap.Reduction.Properties type-variant UR
-open import Graded.Heap.Typed UR TR
-open import Graded.Heap.Typed.Inversion UR TR
-open import Graded.Heap.Typed.Properties UR TR
-open import Graded.Heap.Typed.Weakening UR TR
-open import Graded.Heap.Untyped type-variant UR
-open import Graded.Heap.Untyped.Properties type-variant UR
+open import Graded.Heap.Reduction type-variant UR factoring-nr
+open import Graded.Heap.Reduction.Properties type-variant UR factoring-nr
+open import Graded.Heap.Typed UR TR factoring-nr
+open import Graded.Heap.Typed.Inversion UR TR factoring-nr
+open import Graded.Heap.Typed.Properties UR TR factoring-nr
+open import Graded.Heap.Typed.Weakening UR TR factoring-nr
+open import Graded.Heap.Untyped type-variant UR factoring-nr
+open import Graded.Heap.Untyped.Properties type-variant UR factoring-nr
 
 open import Tools.Bool
 open import Tools.Empty
@@ -51,6 +54,7 @@ open import Tools.Product
 import Tools.PropositionalEquality as PE
 open import Tools.Reasoning.PropositionalEquality
 open import Tools.Sum
+open import Tools.Relation
 
 private variable
   n : Nat
@@ -392,10 +396,6 @@ opaque
     let _ , _ , ⊢H , ⊢t , ⊢S = ⊢ₛ-inv ⊢s
         _ , _ , _ , _ , _ , ⊢B , ⊢t , ⊢u , A≡Bt = inversion-prodrec ⊢t
     in  ⊢ₛ ⊢H ⊢t (conv (prodrecₑ ⊢u ⊢B) (sym A≡Bt) ∙ ⊢S)
-  ⊢ₛ-⇒ₑ ⊢s natrecₕ =
-    let _ , _ , ⊢H , ⊢t , ⊢S = ⊢ₛ-inv ⊢s
-        _ , ⊢z , ⊢s , ⊢n , C≡ = inversion-natrec ⊢t
-    in  ⊢ₛ ⊢H ⊢n (conv (natrecₑ ⊢z ⊢s) (sym C≡) ∙ ⊢S)
   ⊢ₛ-⇒ₑ ⊢s (unitrecₕ no-η) =
     let _ , _ , ⊢H , ⊢t , ⊢S = ⊢ₛ-inv ⊢s
         ⊢A , ⊢t , ⊢u , B≡At = inversion-unitrec ⊢t
@@ -432,6 +432,10 @@ opaque
            (PE.subst (_ ⊢_∷ A) (PE.trans (heapSubstVar d) (PE.cong (wk _ t [_]) H≡H′)) ⊢t)
            (heapUpdate-⊢ˢ (⊢ˢ-convₜ ⊢S x[H]≡t[H]) d)
   ⊢ₛ-⇾ₑ ⊢s (⇒ₑ d) = ⊢ₛ-⇒ₑ ⊢s d
+  ⊢ₛ-⇾ₑ ⊢s (natrecₕ ok) =
+    let _ , _ , ⊢H , ⊢t , ⊢S = ⊢ₛ-inv ⊢s
+        _ , ⊢z , ⊢s , ⊢n , C≡ = inversion-natrec ⊢t
+    in  ⊢ₛ ⊢H ⊢n (conv (natrecₑ ⊢z ⊢s) (sym C≡) ∙ ⊢S)
 
 opaque
 
@@ -443,6 +447,10 @@ opaque
     in  ⊢ₛ ⊢H (PE.subst (_ ⊢_∷ A) (heapSubstVar′ d) ⊢t)
            (⊢ˢ-convₜ ⊢S (PE.subst (_ ⊢ _ ≡_∷ A) (heapSubstVar′ d) (refl ⊢t)))
   ⊢ₛ-⇢ₑ ⊢s (⇒ₑ d) = ⊢ₛ-⇒ₑ ⊢s d
+  ⊢ₛ-⇢ₑ ⊢s natrecₕ =
+    let _ , _ , ⊢H , ⊢t , ⊢S = ⊢ₛ-inv ⊢s
+        _ , ⊢z , ⊢s , ⊢n , C≡ = inversion-natrec ⊢t
+    in  ⊢ₛ ⊢H ⊢n (conv (natrecₑ ⊢z ⊢s) (sym C≡) ∙ ⊢S)
 
 opaque
 
@@ -590,35 +598,35 @@ opaque
     case inversion-natrecₑ ⊢e of λ {
         (⊢z , ⊢s , PE.refl , B≡) →
     ⊢⦅⦆ˢ-subst ⊢S (conv (natrec-zero ⊢z ⊢s) (sym (B≡ ⊢t))) }
-  ⇒ᵥ→⇒ {(k)} {(_)} {(m)} ⊢s (sucₕ {H} {t} {ρ} {p} {q} {r} {(n)} {A} {z} {s} {ρ′} {S}) =
+  ⇒ᵥ→⇒ {(k)} {(_)} {(m)} ⊢s (sucₕ {H} {t} {ρ} {p} {q} {r} {q′} {(n)} {A} {z} {s} {ρ′} {S}) =
     case ⊢ₛ-inv′ ⊢s of λ
       (_ , _ , _ , ⊢H , ⊢t , ⊢e , ⊢S) →
     case inversion-natrecₑ ⊢e of λ {
       (⊢z , ⊢s , PE.refl , B≡) →
-    let β-⇒ = PE.subst (_ ⊢ nr (wk ρ (suc t)) [ H ]ₕ ⇒_∷ _)
+    let β-⇒ = PE.subst (_ ⊢ nr″ (wk ρ (suc t)) [ H ]ₕ ⇒_∷ _)
                 (PE.sym ([,]-[]-commute (wk (liftn ρ′ 2) s)))
                 (natrec-suc ⊢z ⊢s (inversion-suc ⊢t .proj₁))
-    in  PE.subst (_ ⊢ ⦅ S ⦆ˢ nr (wk ρ (suc t)) [ H ]ₕ ⇒_∷ _) lemma
+    in  PE.subst (_ ⊢ ⦅ S ⦆ˢ nr″ (wk ρ (suc t)) [ H ]ₕ ⇒_∷ _) lemma
           (⊢⦅⦆ˢ-subst ⊢S (conv β-⇒ (sym (B≡ ⊢t))))}
     where
-    nr : Term m → Term m
-    nr = natrec p q r (wk (lift ρ′) A) (wk ρ′ z) (wk (liftn ρ′ 2) s)
+    nr″ : Term m → Term m
+    nr″ = natrec p q r (wk (lift ρ′) A) (wk ρ′ z) (wk (liftn ρ′ 2) s)
     nr′ : Term (1+ n)
     nr′ = natrec p q r (wk (lift (step id)) A) (wk1 z) (wk (liftn (step id) 2) s) (var x0)
     H₂ : Heap k (2+ m)
     H₂ = H ∙ (p + r , t , ρ) ∙ (r , nr′ , lift ρ′)
-    lemma′ : nr (wk ρ t) [ H ]ₕ PE.≡ wk (lift ρ′) nr′ [ H ∙ (p + r , t , ρ) ]ₕ
+    lemma′ : nr″ (wk ρ t) [ H ]ₕ PE.≡ wk (lift ρ′) nr′ [ H ∙ (p + r , t , ρ) ]ₕ
     lemma′ = begin
-      nr (wk ρ t) [ H ]ₕ ≡⟨ lift-step-natrec A z s _ ⟩
+      nr″ (wk ρ t) [ H ]ₕ ≡⟨ lift-step-natrec A z s _ ⟩
       wk (lift ρ′) nr′ [ H ∙ (p + r , t , ρ) ]ₕ ∎
-    lemma : ⦅ S ⦆ˢ ((wk (liftn ρ′ 2) s) [ wk ρ t , nr (wk ρ t) ]₁₀) [ H ]ₕ
+    lemma : ⦅ S ⦆ˢ ((wk (liftn ρ′ 2) s) [ wk ρ t , nr″ (wk ρ t) ]₁₀) [ H ]ₕ
           PE.≡ ⦅ wk2ˢ S ⦆ˢ (wk (liftn ρ′ 2) s) [ H₂ ]ₕ
     lemma = begin
-      ⦅ S ⦆ˢ ((wk (liftn ρ′ 2) s) [ wk ρ t , nr (wk ρ t) ]₁₀) [ H ]ₕ
+      ⦅ S ⦆ˢ ((wk (liftn ρ′ 2) s) [ wk ρ t , nr″ (wk ρ t) ]₁₀) [ H ]ₕ
         ≡⟨ PE.cong (_[ H ]ₕ) (⦅⦆ˢ-[,] S) ⟩
-      ⦅ wk2ˢ S ⦆ˢ (wk (liftn ρ′ 2) s) [ wk ρ t , nr (wk ρ t) ]₁₀ [ H ]ₕ
+      ⦅ wk2ˢ S ⦆ˢ (wk (liftn ρ′ 2) s) [ wk ρ t , nr″ (wk ρ t) ]₁₀ [ H ]ₕ
             ≡⟨ [,]-[]-fusion (⦅ wk2ˢ S ⦆ˢ (wk (liftn ρ′ 2) s)) ⟩
-      ⦅ wk2ˢ S ⦆ˢ (wk (liftn ρ′ 2) s) [ consSubst (consSubst (toSubstₕ H) (wk ρ t [ H ]ₕ)) (nr (wk ρ t) [ H ]ₕ) ]
+      ⦅ wk2ˢ S ⦆ˢ (wk (liftn ρ′ 2) s) [ consSubst (consSubst (toSubstₕ H) (wk ρ t [ H ]ₕ)) (nr″ (wk ρ t) [ H ]ₕ) ]
         ≡⟨ PE.cong (λ x → ⦅ wk2ˢ S ⦆ˢ (wk (liftn ρ′ 2) s) [ consSubst (consSubst (toSubstₕ H) (wk ρ t [ H ]ₕ)) x ]) lemma′ ⟩
       ⦅ wk2ˢ S ⦆ˢ (wk (liftn ρ′ 2) s) [ H₂ ]ₕ ∎
   ⇒ᵥ→⇒ ⊢s starʷₕ =
@@ -653,6 +661,7 @@ opaque
     let t≡u = inversion-rfl-Id ⊢rfl
         _ , ⊢t , ⊢u = syntacticEqTerm t≡u
     in  ⊢⦅⦆ˢ-subst ⊢S (conv ([]-cong-β-⇒ t≡u ok) (sym (B′≡ ⊢t ⊢u))) }
+
 opaque
 
   -- Reduction of values preserves definitional equality
@@ -1065,36 +1074,46 @@ opaque
     let _ , _ , _ , d = ⊢Value-⇒ᵥ ⊢s v
     in  ⇒ᵥ→Matching d
 
-opaque
+module _ (¬Nr-not-available : ¬ Nr-not-available) where
 
-  -- For well-typed states there are two reasons a state can be Final:
-  -- 1. It has a variable in head position but lookup does not succeed
-  -- 2. It has a value in head position and the stack is empty.
+  opaque
 
-  ⊢Final-reasons :
-    ⦃ ok : No-equality-reflection or-empty Δ ⦄ →
-    Δ ⊢ₛ ⟨ H , t , ρ , S ⟩ ∷ A →
-    Final ⟨ H , t , ρ , S ⟩ →
-    (∃ λ x → t PE.≡ var x ×
-       (∀ {n H′} {c : Entry _ n} → H ⊢ wkVar ρ x ↦[ ∣ S ∣ ] c ⨾ H′ → ⊥)) ⊎
-    Value t × S PE.≡ ε
-  ⊢Final-reasons ⊢s f =
-    case Final-reasons _ f of λ where
-      (inj₁ x) → inj₁ x
-      (inj₂ (inj₂ x)) → inj₂ x
-      (inj₂ (inj₁ (_ , _ , PE.refl , v , ¬m))) →
-        ⊥-elim (¬m (⊢Matching ⊢s v))
+    -- For well-typed states there are three reasons a state can be Final:
+    -- 1. It has a variable in head position but lookup does not succeed
+    -- 2. The head is natrec p q r A z s n, the usage restrictions indicate that
+    --    the usage rule for natrec is the one based on greatest lower bounds and
+    --    there is no greatest lower bound to nrᵢ r 𝟙 p.
+    -- 3. It has a value in head position and the stack is empty.
 
-opaque
+    ⊢Final-reasons :
+      ⦃ ok : No-equality-reflection or-empty Δ ⦄ →
+      Δ ⊢ₛ ⟨ H , t , ρ , S ⟩ ∷ A →
+      Final ⟨ H , t , ρ , S ⟩ →
+      (∃ λ x → t PE.≡ var x ×
+         (∀ {n H′} {c : Entry _ n} → H ⊢ wkVar ρ x ↦[ ∣ S ∣ ] c ⨾ H′ → ⊥)) ⊎
+      (∃₇ λ p q r A z s n → t PE.≡ natrec p q r A z s n × Nr-not-available-GLB ×
+          ¬ ∃ λ q′ → Greatest-lower-bound q′ (nrᵢ r 𝟙 p)) ⊎
+      Value t × S PE.≡ ε
+    ⊢Final-reasons ⊢s f =
+      case Final-reasons ¬Nr-not-available _ f of λ where
+        (inj₁ x) → inj₁ x
+        (inj₂ (inj₁ x)) → inj₂ (inj₁ x)
+        (inj₂ (inj₂ (inj₂ y))) → inj₂ (inj₂ y)
+        (inj₂ (inj₂ (inj₁ (_ , _ , PE.refl , v , ¬m)))) →
+          ⊥-elim (¬m (⊢Matching ⊢s v))
 
-  -- A variant of the above property.
+  opaque
 
-  ⊢⇘-reasons :
-    ⦃ ok : No-equality-reflection or-empty Δ ⦄ →
-    Δ ⊢ₛ s ∷ A →
-    s ⇘ ⟨ H , t , ρ , S ⟩ →
-    (∃ λ x → t PE.≡ var x ×
-       (∀ {n H′} {c : Entry _ n} → H ⊢ wkVar ρ x ↦[ ∣ S ∣ ] c ⨾ H′ → ⊥)) ⊎
-    Value t × S PE.≡ ε
-  ⊢⇘-reasons ⊢s (d , f) =
-    ⊢Final-reasons (⊢ₛ-⇾* ⊢s d) f
+    -- A variant of the above property.
+
+    ⊢⇘-reasons :
+      ⦃ ok : No-equality-reflection or-empty Δ ⦄ →
+      Δ ⊢ₛ s ∷ A →
+      s ⇘ ⟨ H , t , ρ , S ⟩ →
+      (∃ λ x → t PE.≡ var x ×
+         (∀ {n H′} {c : Entry _ n} → H ⊢ wkVar ρ x ↦[ ∣ S ∣ ] c ⨾ H′ → ⊥)) ⊎
+      (∃₇ λ p q r A z s n → t PE.≡ natrec p q r A z s n × Nr-not-available-GLB ×
+          ¬ ∃ λ q′ → Greatest-lower-bound q′ (nrᵢ r 𝟙 p)) ⊎
+      Value t × S PE.≡ ε
+    ⊢⇘-reasons ⊢s (d , f) =
+      ⊢Final-reasons (⊢ₛ-⇾* ⊢s d) f

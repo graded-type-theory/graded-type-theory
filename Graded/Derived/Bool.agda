@@ -3,34 +3,32 @@
 ------------------------------------------------------------------------
 
 import Graded.Modality
-import Graded.Modality.Dedicated-nr
 open import Graded.Usage.Restrictions
 
 module Graded.Derived.Bool
   {a} {M : Set a}
   (open Graded.Modality M)
   {𝕄 : Modality}
-  (open Graded.Modality.Dedicated-nr 𝕄)
   (R : Usage-restrictions 𝕄)
+  (open Usage-restrictions R)
   -- It is assumed that there is a dedicated nr function.
-  ⦃ has-nr : Dedicated-nr ⦄
+  ⦃ has-nr : Nr-available ⦄
   where
 
 open Modality 𝕄
-open Usage-restrictions R
 
 open import Graded.Context 𝕄
 open import Graded.Context.Properties 𝕄
 open import Graded.Context.Weakening 𝕄
 open import Graded.Derived.Empty R
 open import Graded.Derived.Nat 𝕄 R
-open import Graded.Modality.Dedicated-nr.Instance
 open import Graded.Modality.Nr-instances
 open import Graded.Modality.Properties 𝕄
 open import Graded.Mode 𝕄
 open import Graded.Substitution.Properties 𝕄 R
 open import Graded.Usage 𝕄 R
 open import Graded.Usage.Properties 𝕄 R
+open import Graded.Usage.Restrictions.Instance R
 open import Graded.Usage.Weakening 𝕄 R
 
 open import Definition.Untyped M

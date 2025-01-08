@@ -13,6 +13,7 @@ module Graded.Context.Properties.Update
 open import Graded.Context 𝕄
 open import Graded.Context.Properties.Equivalence 𝕄
 open import Graded.Context.Properties.Lookup 𝕄
+open import Graded.Context.Properties.Natrec 𝕄
 open import Graded.Context.Properties.PartialOrder 𝕄
 open import Graded.Modality.Nr-instances
 open import Graded.Modality.Properties 𝕄
@@ -27,8 +28,8 @@ open Modality 𝕄
 
 private
   variable
-    n : Nat
-    p q : M
+    n i : Nat
+    p q r : M
     γ δ : Conₘ n
     x : Fin n
 
@@ -155,6 +156,17 @@ update-distrib-⊛ᶜ (γ ∙ _) (δ ∙ _) r p q x0 = PE.refl
 update-distrib-⊛ᶜ (γ ∙ _) (δ ∙ _) r p q (x +1) =
   cong (_∙ _) (update-distrib-⊛ᶜ γ δ r p q x)
 
+opaque
+
+  -- Context update distributes over nrᵢᶜ
+
+  update-distrib-nrᵢᶜ :
+    ∀ x → nrᵢᶜ r γ δ i , x ≔ nrᵢ r p q i ≈ᶜ nrᵢᶜ r (γ , x ≔ p) (δ , x ≔ q) i
+  update-distrib-nrᵢᶜ {γ = ε} {(ε)} ()
+  update-distrib-nrᵢᶜ {γ = _ ∙ _} {_ ∙ _} x0 = ≈ᶜ-refl
+  update-distrib-nrᵢᶜ {γ = _ ∙ _} {(_ ∙ _)} (x +1) =
+    update-distrib-nrᵢᶜ x ∙ refl
+
 -- Updating the head of a context leaves the tail untouched
 -- γ , x0 ≔ p ≡ tailₘ γ ∙ p
 
@@ -167,3 +179,18 @@ update-head (γ ∙ q) p = PE.refl
 update-step : (γ : Conₘ (1+ n)) (p : M) (x : Fin n)
             → γ , (x +1) ≔ p ≡ (tailₘ γ , x ≔ p) ∙ headₘ γ
 update-step (γ ∙ q) p x = PE.refl
+
+opaque
+
+  -- Looking up x0 is the same as headₘ.
+
+  headₘ-⟨⟩ : (γ : Conₘ (1+ n)) → γ ⟨ x0 ⟩ ≡ headₘ γ
+  headₘ-⟨⟩ (γ ∙ p) = refl
+
+opaque
+
+  -- Looking up x +1 in γ is the same as looking up
+  -- x in tailₘ γ.
+
+  tailₘ-⟨⟩ : (γ : Conₘ (1+ n)) → γ ⟨ x +1 ⟩ ≡ tailₘ γ ⟨ x ⟩
+  tailₘ-⟨⟩ (γ ∙ p) = refl

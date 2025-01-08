@@ -244,6 +244,15 @@ opaque
   ≢𝟘→≤ᵗ𝟙 {⌞ 1+ m ⌟} m≢𝟘 rewrite N.⊔-identityʳ m = refl
   ≢𝟘→≤ᵗ𝟙 {(∞)} m≢𝟘 = refl
 
+opaque
+
+  -- In the flat order, ⌞ m ⌟ ≤ ⌞ n ⌟ only if m ≡ n.
+
+  ⌞⌟≤ᶠ⌞⌟ : ∀ {m n} → ⌞ m ⌟ ≤ᶠ ⌞ n ⌟ → m ≡ n
+  ⌞⌟≤ᶠ⌞⌟ {m} {n} m≤n with m N.≟ n
+  ⌞⌟≤ᶠ⌞⌟ _ | yes m≡n = m≡n
+  ⌞⌟≤ᶠ⌞⌟ () | no m≢n
+
 -- Multiplication is commutative.
 
 ·-comm : Commutative _·_
@@ -315,6 +324,33 @@ opaque
 
   +-decreasingˡ : T total → m + n ≤ m
   +-decreasingˡ x = ≤ᵗ-intro x +-decreasingˡₐ
+
+opaque
+
+  -- Multiplication by ∞ is decreasing
+
+  ∞·-decreasing : ∞ · m ≤ m
+  ∞·-decreasing {⌞ 0 ⌟} = lemma _
+    where
+    lemma : ∀ b → m ≡ (if b then m else m)
+    lemma false = refl
+    lemma true = refl
+  ∞·-decreasing {⌞ 1+ x ⌟} = ∞≤ (⌞ 1+ x ⌟)
+  ∞·-decreasing {(∞)} = ∞≤ ∞
+
+opaque
+
+  -- Multiplication by non-zero grades is decreasing in the "total" order
+
+  ·-decreasingˡₐ : n ≢ ⌞ 0 ⌟ → m · n ≤ᵗ m
+  ·-decreasingˡₐ {⌞ 0 ⌟} {(m)} n≢𝟘 = ⊥-elim (n≢𝟘 refl)
+  ·-decreasingˡₐ {⌞ 1+ n ⌟} {⌞ 0 ⌟} n≢𝟘 = refl
+  ·-decreasingˡₐ {⌞ 1+ n ⌟} {⌞ 1+ m ⌟} n≢𝟘 =
+    ⌞⌟-antitoneₐ (N.m≤m*n (1+ m) (1+ n))
+  ·-decreasingˡₐ {⌞ 1+ x ⌟} {(∞)} n≢𝟘 = refl
+  ·-decreasingˡₐ {(∞)} {⌞ 0 ⌟} n≢𝟘 = refl
+  ·-decreasingˡₐ {(∞)} {⌞ 1+ m ⌟} n≢𝟘 = refl
+  ·-decreasingˡₐ {(∞)} {(∞)} n≢𝟘 = refl
 
 -- One of the two characteristic properties of the star operator of a
 -- star semiring.
@@ -998,6 +1034,46 @@ opaque
 
 opaque
 
+  nr₃-𝟘 : ∀ r → nr₃ r ⌞ 0 ⌟ ⌞ 0 ⌟ ≡ ⌞ 0 ⌟
+  nr₃-𝟘 ⌞ 0 ⌟ =
+    Semiring-with-meet.∧-idem ℕ⊎∞-semiring-with-meet ⌞ 0 ⌟
+  nr₃-𝟘 ⌞ 1+ 0 ⌟ = refl
+  nr₃-𝟘 ⌞ 2+ x ⌟ = refl
+  nr₃-𝟘 ∞ = refl
+
+opaque
+
+  nr₃-+ : ∀ r → nr₃ r z₁ s₁ + nr₃ r z₂ s₂ ≤ nr₃ r (z₁ + z₂) (s₁ + s₂)
+  nr₃-+ {z₁} {s₁} {z₂} {s₂} = λ where
+    ⌞ 0 ⌟ → +-sub-interchangeable-∧ z₁ s₁ z₂ s₂
+    ⌞ 1+ 0 ⌟ → begin
+      (z₁ + ∞ · s₁) + z₂ + ∞ · s₂ ≡⟨ +-assoc _ _ _ ⟩
+      z₁ + ∞ · s₁ + z₂ + ∞ · s₂   ≡˘⟨ +-congˡ (+-assoc _ _ _) ⟩
+      z₁ + (∞ · s₁ + z₂) + ∞ · s₂ ≡⟨ +-congˡ (+-congʳ (+-comm _ _)) ⟩
+      z₁ + (z₂ + ∞ · s₁) + ∞ · s₂ ≡⟨ +-congˡ (+-assoc _ _ _) ⟩
+      z₁ + z₂ + ∞ · s₁ + ∞ · s₂   ≡˘⟨ +-assoc _ _ _ ⟩
+      (z₁ + z₂) + ∞ · s₁ + ∞ · s₂ ≡˘⟨ +-congˡ (·-distribˡ-+ _ _ _) ⟩
+      (z₁ + z₂) + ∞ · (s₁ + s₂)   ∎
+    ⌞ 2+ r ⌟ → lemma
+    ∞ → lemma
+     where
+     open Graded.Modality.Properties.PartialOrder ℕ⊎∞-semiring-with-meet
+     open Graded.Modality.Properties.Addition ℕ⊎∞-semiring-with-meet
+     open Semiring-with-meet ℕ⊎∞-semiring-with-meet
+       hiding (_≤_; _·_; _+_)
+     open Tools.Reasoning.PartialOrder ≤-poset
+     lemma : ∞ · (z₁ + s₁) + ∞ · (z₂ + s₂) ≤ ∞ · ((z₁ + z₂) + (s₁ + s₂))
+     lemma = begin
+       ∞ · (z₁ + s₁) + ∞ · (z₂ + s₂) ≡˘⟨ ·-distribˡ-+ _ _ _ ⟩
+       ∞ · ((z₁ + s₁) + (z₂ + s₂))   ≡⟨ ·-congˡ (+-assoc _ _ _) ⟩
+       ∞ · (z₁ + s₁ + z₂ + s₂)       ≡˘⟨ ·-congˡ (+-congˡ (+-assoc _ _ _)) ⟩
+       ∞ · (z₁ + (s₁ + z₂) + s₂)     ≡⟨ ·-congˡ (+-congˡ (+-congʳ (+-comm _ _))) ⟩
+       ∞ · (z₁ + (z₂ + s₁) + s₂)     ≡⟨ ·-congˡ (+-congˡ (+-assoc _ _ _)) ⟩
+       ∞ · (z₁ + z₂ + s₁ + s₂)       ≡˘⟨ ·-congˡ (+-assoc _ _ _) ⟩
+       ∞ · ((z₁ + z₂) + (s₁ + s₂))   ∎
+
+opaque
+
   -- Given a function nr₂, satisfying some properties, one can construct
   -- an nr function from nr₃.
 
@@ -1062,32 +1138,11 @@ opaque
       nr₂ p r · n₁ + (nr₂ p r · n₂ + nr₃ r z₁ s₁) + nr₃ r z₂ s₂   ≡⟨ +-congˡ (+-assoc _ _ _) ⟩
       nr₂ p r · n₁ + nr₂ p r · n₂ + nr₃ r z₁ s₁ + nr₃ r z₂ s₂     ≡˘⟨ +-assoc _ _ _ ⟩
       (nr₂ p r · n₁ + nr₂ p r · n₂) + nr₃ r z₁ s₁ + nr₃ r z₂ s₂   ≡˘⟨ +-congʳ (·-distribˡ-+ _ _ _) ⟩
-      nr₂ p r · (n₁ + n₂) + nr₃ r z₁ s₁ + nr₃ r z₂ s₂             ≤⟨ +-monotoneʳ (lemma r) ⟩
+      nr₂ p r · (n₁ + n₂) + nr₃ r z₁ s₁ + nr₃ r z₂ s₂             ≤⟨ +-monotoneʳ (nr₃-+ r) ⟩
       nr₂ p r · (n₁ + n₂) + nr₃ r (z₁ + z₂) (s₁ + s₂)             ≡⟨⟩
       nr p r (z₁ + z₂) (s₁ + s₂) (n₁ + n₂)                        ∎
       where
       open Tools.Reasoning.PartialOrder ≤-poset
-      lemma′ : ∞ · (z₁ + s₁) + ∞ · (z₂ + s₂) ≤ ∞ · ((z₁ + z₂) + (s₁ + s₂))
-      lemma′ = begin
-        ∞ · (z₁ + s₁) + ∞ · (z₂ + s₂) ≡˘⟨ ·-distribˡ-+ _ _ _ ⟩
-        ∞ · ((z₁ + s₁) + (z₂ + s₂))   ≡⟨ ·-congˡ (+-assoc _ _ _) ⟩
-        ∞ · (z₁ + s₁ + z₂ + s₂)       ≡˘⟨ ·-congˡ (+-congˡ (+-assoc _ _ _)) ⟩
-        ∞ · (z₁ + (s₁ + z₂) + s₂)     ≡⟨ ·-congˡ (+-congˡ (+-congʳ (+-comm _ _))) ⟩
-        ∞ · (z₁ + (z₂ + s₁) + s₂)     ≡⟨ ·-congˡ (+-congˡ (+-assoc _ _ _)) ⟩
-        ∞ · (z₁ + z₂ + s₁ + s₂)       ≡˘⟨ ·-congˡ (+-assoc _ _ _) ⟩
-        ∞ · ((z₁ + z₂) + (s₁ + s₂))   ∎
-      lemma : ∀ r → nr₃ r z₁ s₁ + nr₃ r z₂ s₂ ≤ nr₃ r (z₁ + z₂) (s₁ + s₂)
-      lemma ⌞ 0 ⌟ = +-sub-interchangeable-∧ z₁ s₁ z₂ s₂
-      lemma ⌞ 1 ⌟ = begin
-        (z₁ + ∞ · s₁) + z₂ + ∞ · s₂ ≡⟨ +-assoc _ _ _ ⟩
-        z₁ + ∞ · s₁ + z₂ + ∞ · s₂   ≡˘⟨ +-congˡ (+-assoc _ _ _) ⟩
-        z₁ + (∞ · s₁ + z₂) + ∞ · s₂ ≡⟨ +-congˡ (+-congʳ (+-comm _ _)) ⟩
-        z₁ + (z₂ + ∞ · s₁) + ∞ · s₂ ≡⟨ +-congˡ (+-assoc _ _ _) ⟩
-        z₁ + z₂ + ∞ · s₁ + ∞ · s₂   ≡˘⟨ +-assoc _ _ _ ⟩
-        (z₁ + z₂) + ∞ · s₁ + ∞ · s₂ ≡˘⟨ +-congˡ (·-distribˡ-+ _ _ _) ⟩
-        (z₁ + z₂) + ∞ · (s₁ + s₂)   ∎
-      lemma ⌞ 2+ _ ⌟ = lemma′
-      lemma ∞        = lemma′
 
     nr-positive : ∀ {p r z s n} → nr p r z s n ≡ 𝟘 → z ≡ 𝟘 × s ≡ 𝟘 × n ≡ 𝟘
     nr-positive {r = r} nr≡𝟘 =
@@ -1152,9 +1207,11 @@ opaque
   -- Given a function nr₂, satisfying some properties, the nr function given by
   -- nr₂→has-nr is factoring.
 
-  nr₂→has-factoring-nr : (nr₂ : Op₂ ℕ⊎∞) → (nr₂≢𝟘 : ∀ {p r} → nr₂ p r ≢ ⌞ 0 ⌟)
-                       → (nr₂≤ : ∀ {p r} → nr₂ p r ≤ p + r · nr₂ p r)
-                       → Has-factoring-nr ℕ⊎∞-semiring-with-meet ⦃ nr₂→has-nr nr₂ nr₂≢𝟘 nr₂≤ ⦄
+  nr₂→has-factoring-nr :
+    (nr₂ : Op₂ ℕ⊎∞) →
+    (nr₂≢𝟘 : ∀ {p r} → nr₂ p r ≢ ⌞ 0 ⌟) →
+    (nr₂≤ : ∀ {p r} → nr₂ p r ≤ p + r · nr₂ p r) →
+    Is-factoring-nr (nr₂→has-nr nr₂ nr₂≢𝟘 nr₂≤)
   nr₂→has-factoring-nr nr₂ nr₂≢𝟘 nr₂≤ = record
     { nr₂ = nr₂
     ; nr₂≢𝟘 = nr₂≢𝟘
@@ -1185,7 +1242,7 @@ instance
 
   -- The Has-nr instance above has a factoring nr function
 
-  ℕ⊎∞-has-factoring-nr : Has-factoring-nr ℕ⊎∞-semiring-with-meet
+  ℕ⊎∞-has-factoring-nr : Is-factoring-nr ℕ⊎∞-has-nr
   ℕ⊎∞-has-factoring-nr =
     nr₂→has-factoring-nr (λ p r → nr₃ r ⌞ 1 ⌟ p)
      (λ {_} {r} nr₃≡𝟘 → case nr₃-positive r nr₃≡𝟘 of λ ())
@@ -1257,11 +1314,11 @@ opaque
 
   nr-greatest-factoring :
     (has-nr : Has-nr ℕ⊎∞-semiring-with-meet)
-    (has-factoring-nr : Has-factoring-nr ℕ⊎∞-semiring-with-meet ⦃ has-nr ⦄)
-    (nr₂p𝟘≤𝟙 : ∀ {p} → Has-factoring-nr.nr₂ ⦃ has-nr ⦄ has-factoring-nr p ⌞ 0 ⌟ ≤ ⌞ 1 ⌟)
-    (nr₂𝟘𝟙≤𝟙 : Has-factoring-nr.nr₂ ⦃ has-nr ⦄ has-factoring-nr ⌞ 0 ⌟ ⌞ 1 ⌟ ≤ ⌞ 1 ⌟) →
+    (is-factoring-nr : Is-factoring-nr has-nr)
+    (nr₂p𝟘≤𝟙 : ∀ {p} → Is-factoring-nr.nr₂ is-factoring-nr p ⌞ 0 ⌟ ≤ ⌞ 1 ⌟)
+    (nr₂𝟘𝟙≤𝟙 : Is-factoring-nr.nr₂ is-factoring-nr ⌞ 0 ⌟ ⌞ 1 ⌟ ≤ ⌞ 1 ⌟) →
     ∀ p r z s n → Has-nr.nr has-nr p r z s n ≤ nr p r z s n
-  nr-greatest-factoring has-nr has-factoring-nr nr₂p𝟘≤𝟙 nr₂𝟘𝟙≤𝟙 = λ where
+  nr-greatest-factoring has-nr is-factoring-nr nr₂p𝟘≤𝟙 nr₂𝟘𝟙≤𝟙 = λ where
       p r ∞ s n → lemma $ begin
         nr′ p r ∞ s n                ≡⟨ nr-factoring ⟩
         nr₂′ p r · n + nr′ p r ∞ s 𝟘 ≤⟨ +-monotoneʳ (nr-zero ≤-refl) ⟩
@@ -1324,7 +1381,7 @@ opaque
     𝟙 = ⌞ 1 ⌟
     open Has-nr has-nr
       renaming (nr to nr′; nr-positive to nr′-positive)
-    open Has-factoring-nr ⦃ has-nr ⦄ has-factoring-nr
+    open Is-factoring-nr is-factoring-nr
       renaming (nr₂ to nr₂′)
     open Graded.Modality.Properties.Addition ℕ⊎∞-semiring-with-meet
     open Graded.Modality.Properties.Meet ℕ⊎∞-semiring-with-meet
@@ -1400,16 +1457,16 @@ opaque
   nr-greatest-factoringₐ :
     T total →
     (has-nr : Has-nr ℕ⊎∞-semiring-with-meet)
-    (has-factoring-nr : Has-factoring-nr ℕ⊎∞-semiring-with-meet ⦃ has-nr ⦄) →
+    (has-factoring-nr : Is-factoring-nr has-nr) →
     ∀ p r z s n → Has-nr.nr has-nr p r z s n ≤ nr p r z s n
-  nr-greatest-factoringₐ x has-nr has-factoring-nr = lemma _ refl x
+  nr-greatest-factoringₐ x has-nr is-factoring-nr = lemma _ refl x
     where
-    open Has-factoring-nr ⦃ has-nr ⦄ has-factoring-nr
+    open Is-factoring-nr is-factoring-nr
     lemma : ∀ b → b ≡ total → T b →
             ∀ p r z s n → Has-nr.nr has-nr p r z s n ≤ nr p r z s n
     lemma false _    ()
-    lemma true  refl _  =
-      nr-greatest-factoring has-nr has-factoring-nr
+    lemma true refl _ =
+      nr-greatest-factoring has-nr is-factoring-nr
         (≢𝟘→≤ᵗ𝟙 nr₂≢𝟘) (≢𝟘→≤ᵗ𝟙 nr₂≢𝟘)
 
 -- A modality (of any kind) for ℕ⊎∞ defined using the nr function
@@ -1419,7 +1476,6 @@ opaque
   { variant = variant
   ; semiring-with-meet = ℕ⊎∞-semiring-with-meet
   ; 𝟘-well-behaved = λ _ → ℕ⊎∞-has-well-behaved-zero
-  ; has-nr = λ _ → ℕ⊎∞-has-nr
   }
 
 ------------------------------------------------------------------------
@@ -1587,7 +1643,7 @@ opaque
     lemma₂ 0 (1+ n) 0 x = refl
     lemma₂ 0 (1+ n) (1+ k) ()
     lemma₂ (1+ m) (1+ n) k x rewrite N.+-suc k n =
-      lemma₂ m n k (N.+1-injective x)
+      lemma₂ m n k (N.1+-injective x)
 
     lemma₃ : ∀ k → ⌞ m ⌟ ≤ᶠ ⌞ k N.+ n ⌟ → ⌞ m N.∸ n ⌟ ≤ᶠ ⌞ k ⌟
     lemma₃ k m≤ with m N.∸ n N.≟ k
@@ -1655,3 +1711,329 @@ opaque
     right : p - q ≡′ r → p - q ≡ r
     right ∞-p≡′∞ = ∞-p≡∞ (λ {q} → ∞≤ q) q
     right (m-n≡′m∸n n≤m) = m-n≡ _ _ n≤m
+
+------------------------------------------------------------------------
+-- Greatest-lower-bounds
+
+open Semiring-with-meet ℕ⊎∞-semiring-with-meet
+  hiding (_+_; _·_; _≤_; _∧_)
+open import Graded.Modality.Properties.Greatest-lower-bound ℕ⊎∞-semiring-with-meet
+open import Graded.Modality.Properties.Meet ℕ⊎∞-semiring-with-meet
+open import Graded.Modality.Properties.Multiplication ℕ⊎∞-semiring-with-meet
+open import Graded.Modality.Properties.Addition ℕ⊎∞-semiring-with-meet
+open import Graded.Modality.Properties.PartialOrder ℕ⊎∞-semiring-with-meet
+open import Graded.Modality.Properties.Has-well-behaved-zero ℕ⊎∞-semiring-with-meet
+
+opaque
+
+  -- An "inversion" property for sequences where ∞ is the greatest lower bound.
+
+  ∞-GLB-inv : (n : Nat) (pᵢ : Sequence ℕ⊎∞) → Greatest-lower-bound ∞ pᵢ →
+              (∀ i → ⌞ n ⌟ ≤ pᵢ i) → ⊥
+  ∞-GLB-inv n pᵢ ∞-GLB n≤ = ≰∞ (∞-GLB .proj₂ ⌞ n ⌟ n≤)
+
+opaque
+
+  -- An "inversion" property for sequences where ⌞ 1+ p ⌟ is the greatest lower bound.
+
+  1+-GLB-inv :
+    ∀ {p} →
+    (pᵢ : Sequence ℕ⊎∞) → Greatest-lower-bound ⌞ 1+ p ⌟ pᵢ →
+    ((∀ i → pᵢ i ≡ 𝟘) → ⊥) × (∀ i → pᵢ i ≢ ∞)
+  1+-GLB-inv pᵢ 1+p-GLB =
+    (λ pᵢ≡𝟘 → case 𝟘≮ (1+p-GLB .proj₂ 𝟘 λ i → ≤-reflexive (sym (pᵢ≡𝟘 i))) of λ ()) ,
+    (λ i pᵢ≡∞ → ≰∞ (≤-trans (1+p-GLB .proj₁ i) (≤-reflexive pᵢ≡∞)))
+
+opaque
+
+  -- An "inversion" property for sequences where ⌞ p ⌟ is the greatest lower bound.
+
+  ⌞⌟-GLB-inv :
+    ∀ {p} →
+    (pᵢ : Sequence ℕ⊎∞) → Greatest-lower-bound ⌞ p ⌟ pᵢ →
+    ∀ i → ∃ λ q → pᵢ i ≡ ⌞ q ⌟
+  ⌞⌟-GLB-inv pᵢ glb i = lemma (pᵢ i) refl
+    where
+    lemma : ∀ r → r ≡ pᵢ i → ∃ λ q → r ≡ ⌞ q ⌟
+    lemma ⌞ x ⌟ eq = x , refl
+    lemma ∞ eq = ⊥-elim (≰∞ (≤-trans (glb .proj₁ i) (≤-reflexive (sym eq))))
+
+opaque
+
+  -- A variant of the above
+
+  ⌞⌟-GLB-inv′ :
+    ∀ {p} → T total →
+    (pᵢ : Sequence ℕ⊎∞) → Greatest-lower-bound ⌞ p ⌟ pᵢ →
+    Σ (Sequence Nat) λ nᵢ → (∀ i → ⌞ nᵢ i ⌟ ≡ pᵢ i) ×
+    (∀ i → nᵢ i N.≤ p) ×
+    (∀ m → (∀ i → nᵢ i N.≤ m) → p N.≤ m)
+  ⌞⌟-GLB-inv′ {p} x pᵢ p-GLB =
+    let nᵢ = λ i → ⌞⌟-GLB-inv pᵢ p-GLB i .proj₁
+        nᵢ≡ = λ i → sym (⌞⌟-GLB-inv pᵢ p-GLB i .proj₂)
+    in  nᵢ , nᵢ≡
+           , (λ i → ⌞⌟-antitone⁻¹ (≤-trans (p-GLB .proj₁ i)
+                (≤-reflexive (sym (nᵢ≡ i)))))
+           , λ m m≤ → ⌞⌟-antitone⁻¹ (p-GLB .proj₂ ⌞ m ⌟ λ i →
+               ≤-trans (⌞⌟-antitone x (m≤ i)) (≤-reflexive (nᵢ≡ i)))
+
+private
+
+  opaque
+
+    nrᵢ+-∞-GLB : ∀ {r z s} i →
+      nrᵢ r z s i ≡ ∞ →
+      Greatest-lower-bound ∞ (nrᵢ r z s)
+    nrᵢ+-∞-GLB {r} {z} {s} i nrᵢ≡∞ =
+      (λ i → ∞≤ (nrᵢ r z s i)) , λ q q≤ → ≤-trans (q≤ i) (≤-reflexive nrᵢ≡∞)
+
+  opaque
+
+    1+n≤ : ∀ {n} m → n ≢ 0 → 1+ n N.≤ n N.+ (n N.+ m N.* n)
+    1+n≤ {n} m n≢0 = begin
+      1 N.+ n               ≤⟨ N.+-mono-≤ (N.1≤n n≢0) N.≤-refl ⟩
+      n N.+ n               ≡˘⟨ N.+-identityʳ _ ⟩
+      n N.+ n N.+ 0         ≤⟨ N.+-mono-≤ N.≤-refl N.z≤n ⟩
+      n N.+ n N.+ m N.* n   ≡⟨ N.+-assoc n n (m N.* n) ⟩
+      n N.+ (n N.+ m N.* n) ∎
+      where
+      open N.≤-Reasoning
+
+opaque
+
+  -- The greatest lower bound of nrᵢ r z s is given by nr₃ r z s
+
+  nr₃-GLB : ∀ r z s → Greatest-lower-bound (nr₃ r z s) (nrᵢ r z s)
+  nr₃-GLB r ⌞ 0 ⌟ ⌞ 0 ⌟ =
+    GLB-cong (sym (nr₃-𝟘 r)) (λ i → sym (nrᵢ-𝟘 i)) GLB-const′
+  nr₃-GLB ⌞ 0 ⌟ z s = nrᵢ-𝟘-GLB
+  nr₃-GLB ⌞ 1+ 0 ⌟ z ⌞ 0 ⌟ =
+    GLB-cong (sym (+-identityʳ z)) lemma GLB-const′
+    where
+    lemma : ∀ i → z ≡ nrᵢ ⌞ 1 ⌟ z ⌞ 0 ⌟ i
+    lemma 0 = refl
+    lemma (1+ i) = sym (trans (+-identityˡ _) (trans (·-identityˡ _) (sym (lemma i))))
+  nr₃-GLB ⌞ 1+ 0 ⌟ ∞ s =
+    nrᵢ+-∞-GLB 0 refl
+  nr₃-GLB ⌞ 1+ 0 ⌟ z ∞ =
+    GLB-congʳ (+-comm ∞ z) (nrᵢ+-∞-GLB {r = ⌞ 1 ⌟} {s = ∞} 1 refl)
+  nr₃-GLB ⌞ 1+ 0 ⌟ ⌞ z ⌟ ⌞ 1+ s ⌟ =
+    (λ i → ≤-refl) ,
+    (λ { ⌞ q ⌟ q≤ →
+           let n , n≡ , <n = lemma q
+               q≤n = ≤-trans (q≤ (1+ q)) (≤-reflexive (sym n≡))
+           in  ⊥-elim (N.n≮n n (N.≤-<-trans (⌞⌟-antitone⁻¹ q≤n) <n))
+       ; ∞ q≤ → ≤-refl})
+    where
+    open N.≤-Reasoning
+    lemma : ∀ i → ∃ λ n → ⌞ n ⌟ ≡ nrᵢ ⌞ 1 ⌟ ⌞ z ⌟ ⌞ 1+ s ⌟ (1+ i) × i N.< n
+    lemma 0 = _ , sym (+-congˡ (·-identityˡ _)) , N.s≤s N.z≤n
+    lemma (1+ i) =
+      let n , n≡ , i<n = lemma i
+      in  _ , sym (trans (+-congˡ (·-congˡ (sym n≡)))
+                (+-congˡ (·-identityˡ _)))
+            , (begin
+                2+ i         ≤⟨ N.s≤s i<n ⟩
+                1+ n         ≤⟨ N.m≤n+m (1+ n) s ⟩
+                s N.+ 1+ n   ≡⟨ N.+-suc s n ⟩
+                1+ (s N.+ n) ∎)
+  nr₃-GLB ⌞ 2+ r ⌟ z ∞ =
+    GLB-congʳ (sym (·-congˡ (+-comm z ∞)))
+      (nrᵢ+-∞-GLB {r = ⌞ 2+ r ⌟} {s = ∞} 1 refl)
+  nr₃-GLB ⌞ 2+ r ⌟ ∞ s =
+    nrᵢ+-∞-GLB 0 refl
+  nr₃-GLB ⌞ 2+ r ⌟ ⌞ z ⌟ ⌞ 1+ s ⌟ =
+    GLB-congʳ (sym (·-congˡ (+-comm ⌞ z ⌟ ⌞ 1+ s ⌟)))
+      ((λ i → ≤-refl) ,
+      (λ { ⌞ q ⌟ q≤ →
+           let n , n≡ , <n = lemma q
+               q≤n = ≤-trans (q≤ (1+ q)) (≤-reflexive (sym n≡))
+           in  ⊥-elim (N.n≮n n (N.≤-<-trans (⌞⌟-antitone⁻¹ q≤n) <n))
+         ; ∞ q≤ → ≤-refl}))
+    where
+    open N.≤-Reasoning
+    lemma : ∀ i → ∃ λ n → ⌞ n ⌟ ≡ nrᵢ ⌞ 2+ r ⌟ ⌞ z ⌟ ⌞ 1+ s ⌟ (1+ i) × i N.< n
+    lemma 0 = _ , sym (+-congˡ ⌞⌟·⌞⌟≡⌞*⌟) , N.s≤s N.z≤n
+    lemma (1+ i) =
+      let n , n≡ , i<n = lemma i
+      in  _ , sym (trans (+-congˡ (·-congˡ (sym n≡))) (+-congˡ ⌞⌟·⌞⌟≡⌞*⌟))
+            , (begin
+                2+ i                               ≤⟨ N.s≤s i<n ⟩
+                1+ n                               ≤⟨ 1+n≤ r (N.m<n⇒n≢0 i<n) ⟩
+                n N.+ (n N.+ r N.* n)              ≤⟨ N.m≤m+n _ (1+ s) ⟩
+                n N.+ (n N.+ r N.* n) N.+ 1+ s     ≡⟨ N.+-comm _ (1+ s) ⟩
+                1+ (s N.+ (n N.+ (n N.+ r N.* n))) ∎)
+  nr₃-GLB ⌞ 2+ r ⌟ ⌞ 1+ z ⌟ ⌞ Nat.zero ⌟ =
+    (λ i → ≤-refl) ,
+    λ { ⌞ q ⌟ q≤ →
+        let n , n≡ , <n = lemma q
+            q≤n = ≤-trans (q≤ (1+ q)) (≤-reflexive (sym n≡))
+        in  ⊥-elim (N.n≮n n (N.≤-<-trans (⌞⌟-antitone⁻¹ q≤n) <n))
+      ; ∞ q≤ → ≤-refl}
+    where
+    open N.≤-Reasoning
+    lemma : ∀ i → ∃ λ n → ⌞ n ⌟ ≡ nrᵢ ⌞ 2+ r ⌟ ⌞ 1+ z ⌟ 𝟘 (1+ i) × i N.< n
+    lemma 0 = _ , refl , N.s≤s N.z≤n
+    lemma (1+ i) =
+      let n , n≡ , i<n = lemma i
+      in  _ , sym (trans (+-identityˡ _) (trans (·-congˡ (sym n≡)) ⌞⌟·⌞⌟≡⌞*⌟))
+            , (begin
+                2+ i                  ≤⟨ N.s≤s i<n ⟩
+                1+ n                  ≤⟨ 1+n≤ r (N.m<n⇒n≢0 i<n) ⟩
+                n N.+ (n N.+ r N.* n) ∎)
+  nr₃-GLB ∞ ⌞ 0 ⌟ ⌞ 1+ s ⌟ =
+    nrᵢ+-∞-GLB 2 refl
+  nr₃-GLB ∞ ⌞ 0 ⌟ ∞ =
+    nrᵢ+-∞-GLB {r = ∞} {s = ∞} 1 refl
+  nr₃-GLB ∞ ⌞ 1+ z ⌟ s =
+    GLB-congʳ (sym (·-distribˡ-+ _ _ _))
+      (nrᵢ+-∞-GLB 1 (+-comm s ∞))
+  nr₃-GLB ∞ ∞ s =
+    nrᵢ+-∞-GLB 0 refl
+
+
+opaque
+
+  -- The modality supports the usage rule for natrec using
+  -- greatest lower bounds.
+
+  ℕ⊎∞-supports-glb-for-natrec :
+    Supports-GLB-for-natrec ℕ⊎∞-semiring-with-meet
+  ℕ⊎∞-supports-glb-for-natrec = record
+    { +-GLBˡ = +-GLBˡ
+    ; ·-GLBˡ = ·-GLBˡ
+    ; ·-GLBʳ = ·-GLBʳ
+    ; +nrᵢ-GLB = +nrᵢ-GLB
+    }
+    where
+    ·-GLBˡ : {p q : ℕ⊎∞} {pᵢ : Sequence ℕ⊎∞} →
+            Greatest-lower-bound p pᵢ →
+            Greatest-lower-bound (q · p) (λ i → q · pᵢ i)
+    ·-GLBˡ {p} {q} {pᵢ} p-glb =
+      (λ i → ·-monotoneʳ (p-glb .proj₁ i)) , lemma p q p-glb
+      where
+      lemma″ : ∀ {q r} p → ⌞ r ⌟ ≤ᶠ ⌞ 1+ q ⌟ · p → p ≡ ⌞ r N./ 1+ q ⌟
+      lemma″ ∞ ()
+      lemma″ {q} {r} ⌞ p ⌟ r≤ = cong ⌞_⌟ $ begin
+        p                   ≡˘⟨ N.m*n/n≡m p (1+ q) ⟩
+        p N.* 1+ q N./ 1+ q ≡⟨ cong (N._/ 1+ q) (N.*-comm p (1+ q)) ⟩
+        1+ q N.* p N./ 1+ q ≡˘⟨ cong (N._/ 1+ q) (⌞⌟≤ᶠ⌞⌟ (subst (⌞ r ⌟ ≤ᶠ_)
+                                  (⌞⌟·⌞⌟≡⌞*⌟ {1+ q} {p}) r≤)) ⟩
+        r N./ 1+ q          ∎
+        where
+        open Tools.Reasoning.PropositionalEquality
+      open Tools.Reasoning.PartialOrder ≤-poset
+      lemma′ : ∀ {q r} p b → b ≡ total → Greatest-lower-bound p pᵢ →
+               (∀ i → ⌞ r ⌟ ≤ ⌞ 1+ q ⌟ · pᵢ i) →
+               ⌞ r ⌟ ≤ ⌞ 1+ q ⌟ · p
+      lemma′ ⌞ 0 ⌟ _ _ p-glb r≤ =
+        ≤-trans (r≤ 0) (≤-reflexive (·-congˡ (𝟘-GLB-inv p-glb 0)))
+      lemma′ {q} {r} ⌞ 1+ p ⌟ false refl p-glb r≤ =
+        let r≡ = λ i → lemma″ (pᵢ i) (r≤ i)
+        in  begin
+          ⌞ r ⌟               ≤⟨ r≤ 0 ⟩
+          ⌞ 1+ q ⌟ · pᵢ 0     ≤⟨ ·-monotoneʳ (p-glb .proj₂ (pᵢ 0) (λ i →
+                                   ≤-reflexive (trans (r≡ 0) (sym (r≡ i))))) ⟩
+          ⌞ 1+ q ⌟ · ⌞ 1+ p ⌟ ∎
+      lemma′ {q} {r} ⌞ 1+ p ⌟ true refl p-glb r≤ =
+        let nᵢ , nᵢ≡ , nᵢ≤ , p≤ = ⌞⌟-GLB-inv′ _ pᵢ p-glb
+        in  ⌞⌟-antitoneₐ $ N.*-LUB {k = 1+ q} nᵢ nᵢ≤ p≤ .proj₂ r λ i →
+              ⌞⌟-antitone⁻¹ $ begin
+                ⌞ r ⌟               ≤⟨ r≤ i ⟩
+                ⌞ 1+ q ⌟ · pᵢ i     ≡˘⟨ ·-congˡ (nᵢ≡ i) ⟩
+                ⌞ 1+ q ⌟ · ⌞ nᵢ i ⌟ ≡⟨ ⌞⌟·⌞⌟≡⌞*⌟ ⟩
+                ⌞ 1+ q N.* nᵢ i ⌟   ∎
+      lemma′ ∞ false refl p-glb r≤ =
+        ⊥-elim (∞-GLB-inv _ pᵢ p-glb (λ i →
+          ≤-reflexive (sym (lemma″ (pᵢ i) (r≤ i)))))
+      lemma′ ∞ true refl p-glb r≤ =
+        ⊥-elim (∞-GLB-inv _ pᵢ p-glb (λ i →
+          ≤-trans (r≤ i) (≤-trans (≤-reflexive (·-comm _ _))
+            (·-decreasingˡₐ (λ ())))))
+      lemma : ∀ p q → Greatest-lower-bound p pᵢ →
+              ∀ r → (∀ i → r ≤ q · pᵢ i) → r ≤ q · p
+      lemma p q p-glb ∞ r≤ = ∞≤ (q · p)
+      lemma ⌞ 0 ⌟ q p-glb ⌞ r ⌟ r≤ =
+        ≤-trans (r≤ 0) (≤-reflexive (·-congˡ (𝟘-GLB-inv p-glb 0)))
+      lemma p ⌞ 0 ⌟ p-glb ⌞ r ⌟ r≤ = r≤ 0
+      lemma ⌞ 1+ p ⌟ ∞ p-glb ⌞ r ⌟ r≤ =
+        ⊥-elim (1+-GLB-inv pᵢ p-glb .proj₁ λ i → r≤∞p→p≡𝟘 _ (r≤ i))
+        where
+        r≤∞p→p≡𝟘 : ∀ p → ⌞ r ⌟ ≤ ∞ · p → p ≡ 𝟘
+        r≤∞p→p≡𝟘 ⌞ 0 ⌟ r≤ = refl
+        r≤∞p→p≡𝟘 ⌞ 1+ x ⌟ r≤ = ⊥-elim (≰∞ r≤)
+        r≤∞p→p≡𝟘 ∞ r≤ = ⊥-elim (≰∞ r≤)
+      lemma p ⌞ 1+ q ⌟ p-glb ⌞ r ⌟ r≤ = lemma′ p _ refl p-glb r≤
+      lemma ∞ ∞ p-glb ⌞ r ⌟ r≤ =
+        ⊥-elim (∞-GLB-inv r pᵢ p-glb (λ i →
+          ≤-trans (r≤ i) ∞·-decreasing))
+
+    ·-GLBʳ : {p q : ℕ⊎∞} {pᵢ : Sequence ℕ⊎∞} →
+            Greatest-lower-bound p pᵢ →
+            Greatest-lower-bound (p · q) (λ i → pᵢ i · q)
+    ·-GLBʳ {p} {q} {pᵢ} p-glb =
+      GLB-cong (·-comm q p) (λ i → ·-comm q (pᵢ i)) (·-GLBˡ p-glb)
+
+    +-GLBˡ : {p q : ℕ⊎∞} {pᵢ : Sequence ℕ⊎∞} →
+            Greatest-lower-bound p pᵢ →
+            Greatest-lower-bound (q + p) (λ i → q + pᵢ i)
+    +-GLBˡ {p} {q} {pᵢ} p-glb =
+      (λ i → +-monotoneʳ (p-glb .proj₁ i)) , lemma p q p-glb
+      where
+      lemma″ : ∀ {q r} p → ⌞ r ⌟ ≤ᶠ ⌞ q ⌟ + p → p ≡ ⌞ r N.∸ q ⌟
+      lemma″ ∞ ()
+      lemma″ {q} {r} ⌞ p ⌟ r≤ = cong ⌞_⌟ $ begin
+        p             ≡˘⟨ N.m+n∸n≡m p q ⟩
+        p N.+ q N.∸ q ≡⟨ cong (N._∸ q) (N.+-comm p q) ⟩
+        q N.+ p N.∸ q ≡˘⟨ cong (N._∸ q) (⌞⌟≤ᶠ⌞⌟ r≤) ⟩
+        r N.∸ q       ∎
+        where
+        open Tools.Reasoning.PropositionalEquality
+      lemma′ : ∀ {q r} p b → b ≡ total → Greatest-lower-bound p pᵢ →
+               (∀ i → ⌞ r ⌟ ≤ ⌞ q ⌟ + pᵢ i) →
+               ⌞ r ⌟ ≤ ⌞ q ⌟ + p
+      lemma′ {q} {r} ⌞ p ⌟ false refl p-glb r≤ =
+        let r≡ = λ i → lemma″ (pᵢ i) (r≤ i)
+        in  begin
+          ⌞ r ⌟          ≤⟨ r≤ 0 ⟩
+          ⌞ q ⌟ + pᵢ 0   ≤⟨ +-monotoneʳ (p-glb .proj₂ (pᵢ 0) (λ i →
+                             ≤-reflexive (trans (r≡ 0) (sym (r≡ i))))) ⟩
+          ⌞ q ⌟ + ⌞ p ⌟  ∎
+        where
+        open Tools.Reasoning.PartialOrder ≤-poset
+      lemma′ {q} {r} ⌞ p ⌟ true refl p-glb r≤ =
+        let nᵢ , nᵢ≡ , nᵢ≤ , p≤ = ⌞⌟-GLB-inv′ _ pᵢ p-glb
+        in  ⌞⌟-antitoneₐ $ N.+-LUB nᵢ nᵢ≤ p≤ .proj₂ _ λ i →
+              ⌞⌟-antitone⁻¹ $ begin
+                ⌞ r ⌟             ≤⟨ r≤ i ⟩
+                ⌞ q ⌟ + pᵢ i      ≡˘⟨ +-congˡ (nᵢ≡ i) ⟩
+                ⌞ q ⌟ + ⌞ nᵢ i ⌟  ∎
+        where
+        open Tools.Reasoning.PartialOrder ≤-poset
+      lemma′ ∞ false refl p-glb r≤ =
+        ⊥-elim (∞-GLB-inv _ pᵢ p-glb λ i →
+          ≤-reflexive (sym (lemma″ (pᵢ i) (r≤ i))))
+      lemma′ ∞ true refl p-glb r≤ =
+        ⊥-elim (∞-GLB-inv _ pᵢ p-glb λ i →
+          ≤-trans (r≤ i) (≤-trans (≤-reflexive (+-comm _ _))
+            +-decreasingˡₐ))
+      lemma : ∀ p q → Greatest-lower-bound p pᵢ →
+              ∀ r → (∀ i → r ≤ q + pᵢ i) → r ≤ q + p
+      lemma p ∞ p-glb r r≤ = r≤ 0
+      lemma p q p-glb ∞ r≤ = ∞≤ (q + p)
+      lemma p ⌞ q ⌟ p-glb ⌞ r ⌟ r≤ = lemma′ p total refl p-glb r≤
+
+    +nrᵢ-GLB : ∀ {p q r z z′ s s′} →
+      Greatest-lower-bound p (nrᵢ r z s) →
+      Greatest-lower-bound q (nrᵢ r z′ s′) →
+      ∃ λ x → Greatest-lower-bound x (nrᵢ r (z + z′) (s + s′)) × p + q ≤ x
+    +nrᵢ-GLB {p} {q} {r} {z} {z′} {s} {s′} p-glb q-glb =
+        nr₃ r (z + z′) (s + s′)
+      , nr₃-GLB r (z + z′) (s + s′)
+      , (begin
+          p + q                   ≡⟨ +-cong (GLB-unique p-glb (nr₃-GLB r z s))
+                                      (GLB-unique q-glb (nr₃-GLB r z′ s′)) ⟩
+          nr₃ r z s + nr₃ r z′ s′ ≤⟨ nr₃-+ r ⟩
+          nr₃ r (z + z′) (s + s′) ∎)
+      where
+      open Tools.Reasoning.PartialOrder ≤-poset

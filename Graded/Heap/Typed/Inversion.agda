@@ -5,11 +5,16 @@
 open import Graded.Modality
 open import Graded.Usage.Restrictions
 open import Definition.Typed.Restrictions
+open import Graded.Usage.Restrictions.Natrec
 
 module Graded.Heap.Typed.Inversion
   {a} {M : Set a} {𝕄 : Modality M}
   (UR : Usage-restrictions 𝕄)
   (TR : Type-restrictions 𝕄)
+  (open Usage-restrictions UR)
+  (factoring-nr :
+    ⦃ has-nr : Nr-available ⦄ →
+    Is-factoring-nr M (Natrec-mode-Has-nr 𝕄 has-nr))
   where
 
 open Type-restrictions TR
@@ -21,8 +26,8 @@ open import Definition.Typed.Consequences.Admissible TR
 open import Definition.Typed.Properties TR
 open import Definition.Typed.Substitution TR
 
-open import Graded.Heap.Typed UR TR
-open import Graded.Heap.Untyped type-variant UR
+open import Graded.Heap.Typed UR TR factoring-nr
+open import Graded.Heap.Untyped type-variant UR factoring-nr
 
 open import Tools.Empty
 open import Tools.Fin
@@ -35,7 +40,7 @@ private variable
   H : Heap _ _
   Δ : Con Term _
   t u v w z s A B C D F G : Term _
-  p q r : M
+  p q q′ r : M
   ρ : Wk _ _
   S : Stack _
   e : Elim _
@@ -112,7 +117,7 @@ opaque
 
   -- Inversion of natrec
 
-  inversion-natrecₑ : Δ ⨾ H ⊢ᵉ natrecₑ p q r A z s ρ ⟨ t ⟩∷ B ↝ C
+  inversion-natrecₑ : Δ ⨾ H ⊢ᵉ natrecₑ p q r q′ A z s ρ ⟨ t ⟩∷ B ↝ C
                     → Δ ⊢ wk ρ z [ H ]ₕ ∷ wk (lift ρ) A [ H ]⇑ₕ [ zero ]₀
                     × Δ ∙ ℕ ∙ wk (lift ρ) A [ H ]⇑ₕ ⊢ wk (liftn ρ 2) s [ H ]⇑²ₕ ∷ wk (lift ρ) A [ H ]⇑ₕ [ suc (var x1) ]↑²
                     × B PE.≡ ℕ

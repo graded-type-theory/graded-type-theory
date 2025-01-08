@@ -9,4 +9,4 @@ open import Graded.Modality M
 
 open Has-nr ⦃ … ⦄ public
 open Has-star ⦃ … ⦄ public
-open Has-factoring-nr ⦃ … ⦄ public
+open Is-factoring-nr ⦃ … ⦄ public

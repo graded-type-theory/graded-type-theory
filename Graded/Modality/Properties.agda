@@ -17,6 +17,8 @@ open import Graded.Modality.Properties.Division semiring-with-meet
   public
 open import Graded.Modality.Properties.Equivalence semiring-with-meet
   public
+open import Graded.Modality.Properties.Greatest-lower-bound semiring-with-meet
+  public
 open import
   Graded.Modality.Properties.Has-well-behaved-zero semiring-with-meet as H
   public

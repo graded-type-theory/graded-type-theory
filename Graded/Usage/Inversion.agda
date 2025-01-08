@@ -19,8 +19,9 @@ open import Graded.Context 𝕄
 open import Graded.Context.Properties 𝕄
 open import Graded.Usage 𝕄 R
 open import Graded.Usage.Erased-matches
-open import Graded.Modality.Dedicated-nr 𝕄
-open import Graded.Modality.Dedicated-nr.Instance
+open import Graded.Usage.Restrictions.Instance R
+open import Graded.Usage.Restrictions.Natrec 𝕄
+open import Graded.Modality.Properties 𝕄
 open import Graded.Mode 𝕄
 open import Definition.Untyped M hiding (_∙_)
 
@@ -308,10 +309,10 @@ opaque
 
 data InvUsageNatrec′ (p r : M) (γ δ η : Conₘ n) : Conₘ n → Set a where
   invUsageNatrecNr :
-    ⦃ has-nr : Dedicated-nr ⦄ →
+    ⦃ has-nr : Nr-available ⦄ →
     InvUsageNatrec′ p r γ δ η (nrᶜ p r γ δ η)
   invUsageNatrecNoNr :
-    ⦃ no-nr : No-dedicated-nr ⦄ →
+    ⦃ no-nr : Nr-not-available ⦄ →
     χ ≤ᶜ γ →
     (T 𝟘ᵐ-allowed →
      χ ≤ᶜ δ) →
@@ -319,6 +320,12 @@ data InvUsageNatrec′ (p r : M) (γ δ η : Conₘ n) : Conₘ n → Set a wher
      χ ≤ᶜ η) →
     χ ≤ᶜ δ +ᶜ p ·ᶜ η +ᶜ r ·ᶜ χ →
     InvUsageNatrec′ p r γ δ η χ
+  invUsageNatrecNoNrGLB :
+    ∀ {x} →
+    ⦃ no-nr : Nr-not-available-GLB ⦄ →
+    Greatest-lower-bound x (nrᵢ r 𝟙 p) →
+    Greatest-lower-boundᶜ χ (nrᵢᶜ r γ δ) →
+    InvUsageNatrec′ p r γ δ η (x ·ᶜ η +ᶜ χ)
 
 data InvUsageNatrec
        (γ : Conₘ k) (m : Mode) (p q r : M) (A : Term (1+ k))
@@ -343,6 +350,9 @@ inv-usage-natrec (natrecₘ δ▸z δ▸s η▸n θ▸A) =
 inv-usage-natrec (natrec-no-nrₘ ▸z ▸s ▸n ▸A χ≤₁ χ≤₂ χ≤₃ χ≤₄) =
   invUsageNatrec ▸z ▸s ▸n ▸A ≤ᶜ-refl
     (invUsageNatrecNoNr χ≤₁ χ≤₂ χ≤₃ χ≤₄)
+inv-usage-natrec (natrec-no-nr-glbₘ ▸z ▸s ▸n ▸A x≤ χ≤) =
+  invUsageNatrec ▸z ▸s ▸n ▸A ≤ᶜ-refl
+    (invUsageNatrecNoNrGLB x≤ χ≤)
 inv-usage-natrec (sub γ▸natrec γ≤γ′) with inv-usage-natrec γ▸natrec
 ... | invUsageNatrec δ▸z η▸s θ▸n φ▸A γ′≤γ″ extra =
   invUsageNatrec δ▸z η▸s θ▸n φ▸A (≤ᶜ-trans γ≤γ′ γ′≤γ″) extra
@@ -353,7 +363,7 @@ opaque
 
   inv-usage-natrec-has-nr :
     {s : Term _} {n : Term _}
-    ⦃ has-nr : Dedicated-nr ⦄ →
+    ⦃ has-nr : Nr-available ⦄ →
     γ ▸[ m ] natrec p q r G z s n →
     ∃₄ λ δ η θ φ → δ ▸[ m ] z ×
     η ∙ ⌜ m ⌝ · p ∙ ⌜ m ⌝ · r ▸[ m ] s ×
@@ -362,10 +372,57 @@ opaque
   inv-usage-natrec-has-nr ⦃ has-nr ⦄ ▸nr =
     case inv-usage-natrec ▸nr of λ where
       (invUsageNatrec ▸z ▸s ▸n ▸A γ≤ (invUsageNatrecNr ⦃ (has-nr′) ⦄)) →
-        case Dedicated-nr-propositional has-nr has-nr′ of λ where
+        case Nr-available-propositional has-nr has-nr′ of λ where
           refl → _ , _ , _ , _ , ▸z , ▸s , ▸n , ▸A , γ≤
-      (invUsageNatrec ▸z ▸s ▸n ▸A γ≤ (invUsageNatrecNoNr x x₁ x₂ x₃)) →
-        ⊥-elim not-nr-and-no-nr
+      (invUsageNatrec ▸z ▸s ▸n ▸A γ≤ (invUsageNatrecNoNr ⦃ (no-nr) ⦄ x x₁ x₂ x₃)) →
+        ⊥-elim (¬[Nr∧No-nr] has-nr no-nr)
+      (invUsageNatrec ▸z ▸s ▸n ▸A γ≤ (invUsageNatrecNoNrGLB ⦃ (no-nr) ⦄ x x₁)) →
+        ⊥-elim (¬[Nr∧No-nr-glb] has-nr no-nr)
+
+opaque
+
+  -- An inversion lemma for natrec with Nr-not-available
+
+  inv-usage-natrec-no-nr :
+    {s : Term _} {n : Term _}
+    ⦃ no-nr : Nr-not-available ⦄ →
+    γ ▸[ m ] natrec p q r G z s n →
+    ∃₅ λ δ η θ φ χ → δ ▸[ m ] z ×
+    η ∙ ⌜ m ⌝ · p ∙ ⌜ m ⌝ · r ▸[ m ] s ×
+    θ ▸[ m ] n × φ ∙ ⌜ 𝟘ᵐ? ⌝ · q ▸[ 𝟘ᵐ? ] G ×
+    γ ≤ᶜ χ × χ ≤ᶜ δ × (T 𝟘ᵐ-allowed → χ ≤ᶜ η) ×
+    (⦃ _ : Has-well-behaved-zero semiring-with-meet ⦄ → χ ≤ᶜ θ) × χ ≤ᶜ η +ᶜ p ·ᶜ θ +ᶜ r ·ᶜ χ
+  inv-usage-natrec-no-nr ⦃ no-nr ⦄ ▸nr =
+    case inv-usage-natrec ▸nr of λ where
+      (invUsageNatrec ▸z ▸s ▸n ▸A γ≤ (invUsageNatrecNr ⦃ (has-nr) ⦄)) →
+        ⊥-elim (¬[Nr∧No-nr] has-nr no-nr)
+      (invUsageNatrec ▸z ▸s ▸n ▸A γ≤ (invUsageNatrecNoNr χ≤δ χ≤η χ≤θ fix)) →
+        _ , _ , _ , _ , _ , ▸z , ▸s , ▸n , ▸A , γ≤ , χ≤δ , χ≤η , (λ ⦃ x ⦄ → χ≤θ) , fix
+      (invUsageNatrec ▸z ▸s ▸n ▸A γ≤ (invUsageNatrecNoNrGLB ⦃ (no-nr′) ⦄ x x₁)) →
+        ⊥-elim (¬[No-nr∧No-nr-glb] no-nr no-nr′)
+
+opaque
+
+  -- An inversion lemma for natrec with Nr-not-available-GLB
+
+  inv-usage-natrec-no-nr-glb :
+    ⦃ no-nr : Nr-not-available-GLB ⦄ →
+    {s : Term _} {n : Term _} →
+    γ ▸[ m ] natrec p q r G z s n →
+    ∃₆ λ δ η θ φ x χ → δ ▸[ m ] z ×
+    η ∙ ⌜ m ⌝ · p ∙ ⌜ m ⌝ · r ▸[ m ] s ×
+    θ ▸[ m ] n × φ ∙ ⌜ 𝟘ᵐ? ⌝ · q ▸[ 𝟘ᵐ? ] G ×
+    γ ≤ᶜ x ·ᶜ θ +ᶜ χ ×
+    Greatest-lower-bound x (nrᵢ r 𝟙 p) ×
+    Greatest-lower-boundᶜ χ (nrᵢᶜ r δ η)
+  inv-usage-natrec-no-nr-glb ⦃ no-nr ⦄ ▸nr =
+    case inv-usage-natrec ▸nr of λ where
+      (invUsageNatrec ▸z ▸s ▸n ▸A γ≤ (invUsageNatrecNr ⦃ (has-nr) ⦄)) →
+        ⊥-elim (¬[Nr∧No-nr-glb] has-nr no-nr)
+      (invUsageNatrec ▸z ▸s ▸n ▸A γ≤ (invUsageNatrecNoNr ⦃ (no-nr′) ⦄ χ≤δ χ≤η χ≤θ fix)) →
+        ⊥-elim (¬[No-nr∧No-nr-glb] no-nr′ no-nr)
+      (invUsageNatrec ▸z ▸s ▸n ▸A γ≤ (invUsageNatrecNoNrGLB x≤ χ≤)) →
+        _ , _ , _ , _ , _ , _ , ▸z , ▸s , ▸n , ▸A , γ≤ , x≤ , χ≤
 
 record InvUsageEmptyrec
          {n} (γ : Conₘ n) (m : Mode) (p : M) (A t : Term n) :

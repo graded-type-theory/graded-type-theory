@@ -7,17 +7,21 @@ open import Graded.Usage.Restrictions
 open import Definition.Typed.Restrictions
 open import Tools.Sum
 import Graded.Heap.Bisimilarity
+open import Graded.Usage.Restrictions.Natrec
 
 module Graded.Heap.Termination
   {a} {M : Set a} {𝕄 : Modality M}
   (UR : Usage-restrictions 𝕄)
   (TR : Type-restrictions 𝕄)
-  (open Graded.Heap.Bisimilarity UR TR)
-  (open Type-restrictions TR)
+  (open Usage-restrictions UR)
+  (factoring-nr :
+    ⦃ has-nr : Nr-available ⦄ →
+    Is-factoring-nr M (Natrec-mode-Has-nr 𝕄 has-nr))
+  (open Graded.Heap.Bisimilarity UR TR factoring-nr)
   (As : Assumptions)
   where
 
-open Usage-restrictions UR
+open Type-restrictions TR
 open Assumptions As
 open Modality 𝕄
 
@@ -41,17 +45,17 @@ open import Graded.Usage 𝕄 UR
 open import Graded.Mode 𝕄
 open import Graded.Restrictions 𝕄
 
-open import Graded.Heap.Normalization type-variant UR
-open import Graded.Heap.Untyped type-variant UR
-open import Graded.Heap.Untyped.Properties type-variant UR
-open import Graded.Heap.Typed UR TR
-open import Graded.Heap.Typed.Properties UR TR
-open import Graded.Heap.Typed.Reduction UR TR
-open import Graded.Heap.Usage type-variant UR
-open import Graded.Heap.Usage.Properties type-variant UR
-open import Graded.Heap.Usage.Reduction type-variant UR Unitʷ-η→
-open import Graded.Heap.Reduction type-variant UR
-open import Graded.Heap.Reduction.Properties type-variant UR
+open import Graded.Heap.Normalization type-variant UR factoring-nr
+open import Graded.Heap.Untyped type-variant UR factoring-nr
+open import Graded.Heap.Untyped.Properties type-variant UR factoring-nr
+open import Graded.Heap.Typed UR TR factoring-nr
+open import Graded.Heap.Typed.Properties UR TR factoring-nr
+open import Graded.Heap.Typed.Reduction UR TR factoring-nr
+open import Graded.Heap.Usage type-variant UR factoring-nr
+open import Graded.Heap.Usage.Properties type-variant UR factoring-nr
+open import Graded.Heap.Usage.Reduction type-variant UR factoring-nr Unitʷ-η→ ¬Nr-not-available₁
+open import Graded.Heap.Reduction type-variant UR factoring-nr
+open import Graded.Heap.Reduction.Properties type-variant UR factoring-nr
 
 private variable
   t t′ u A B : Term _
@@ -74,7 +78,7 @@ opaque
     (k ≢ 0 → No-erased-matches′ type-variant UR) →
     Δ ⊢ₛ ⟨ H , t , ρ , S ⟩ ∷ A →
     ▸ ⟨ H , t , ρ , S ⟩ →
-    Final (⟨_,_,_,_⟩ H t ρ S) →
+    Final ⟨ H , t , ρ , S ⟩ →
     Value t × S ≡ ε
   ⊢▸Final-reasons consistent nem ⊢s ▸s f =
     case ▸Final-reasons′ subtraction-ok nem ▸s f of λ where

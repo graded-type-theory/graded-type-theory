@@ -37,12 +37,12 @@ import Definition.LogicalRelation.Fundamental TR as F
 
 open import Graded.Context 𝕄
 open import Graded.Context.Properties 𝕄
-open import Graded.Modality.Dedicated-nr.Instance
 open import Graded.Modality.Nr-instances
 open import Graded.Modality.Properties 𝕄
 open import Graded.Usage 𝕄 UR
 open import Graded.Usage.Inversion 𝕄 UR
 open import Graded.Usage.Properties 𝕄 UR
+open import Graded.Usage.Restrictions.Instance UR
 open import Graded.Mode 𝕄
 
 open import Definition.Untyped.Properties M
@@ -234,7 +234,21 @@ module Fundamental
                                                                        ≤ᶜ→⟨⟩≡𝟘→⟨⟩≡𝟘 χ≤δ hyp
                                                                      , ≤ᶜ→⟨⟩≡𝟘→⟨⟩≡𝟘 χ≤θ hyp
                                                                      , ⟨⟩≡𝟘→⟨⟩≡𝟘-fixpoint fix hyp) ⟩
-             δ ⟨ x ⟩ PE.≡ 𝟘 × θ ⟨ x ⟩ PE.≡ 𝟘 × η ⟨ x ⟩ PE.≡ 𝟘  □) }
+             δ ⟨ x ⟩ PE.≡ 𝟘 × θ ⟨ x ⟩ PE.≡ 𝟘 × η ⟨ x ⟩ PE.≡ 𝟘  □
+           (invUsageNatrecNoNrGLB {χ} {x = q′} q′-glb χ-glb) q′θ+χ≡𝟘 →
+             let q′θ≡𝟘 , χ≡𝟘 = +-positive (PE.trans (PE.sym (lookup-distrib-+ᶜ (q′ ·ᶜ θ) χ x)) q′θ+χ≡𝟘)
+                 δ≡𝟘 = 𝟘≮ (≤-trans (≤-reflexive (PE.sym χ≡𝟘))
+                          (≤-trans (lookup-monotone x (χ-glb .proj₁ 0))
+                          (≤-reflexive (lookup-cong {δ = δ} {x = x} (nrᵢᶜ-zero {r = r} {δ = η})))))
+                 θ≡𝟘 : θ ⟨ x ⟩ PE.≡ 𝟘
+                 θ≡𝟘 = case zero-product (PE.trans (PE.sym (lookup-distrib-·ᶜ θ q′ x)) q′θ≡𝟘) of λ where
+                          (inj₁ PE.refl) → ⊥-elim (𝟘≰𝟙 (q′-glb .proj₁ 0))
+                          (inj₂ θ≡𝟘) → θ≡𝟘
+                 η≡𝟘 = +-positiveˡ (𝟘≮ (≤-trans (≤-reflexive (PE.sym χ≡𝟘))
+                          (≤-trans (lookup-monotone x (χ-glb .proj₁ 1))
+                          (≤-reflexive (PE.trans (lookup-cong {x = x} (nrᵢᶜ-suc {r = r} {γ = δ} {η} {0}))
+                            (lookup-distrib-+ᶜ η (r ·ᶜ nrᵢᶜ r δ η 0) x))))))
+             in  δ≡𝟘 , θ≡𝟘 , η≡𝟘)}
     fundamental (emptyrecⱼ _ ⊢t) ▸t =
       case inv-usage-emptyrec ▸t of λ
         (invUsageEmptyrec ▸t _ ok γ≤pδ) →

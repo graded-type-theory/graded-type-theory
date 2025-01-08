@@ -18,17 +18,17 @@ open import Tools.Nat
 open import Tools.Product
 open import Tools.PropositionalEquality
 import Tools.Reasoning.PartialOrder
+import Tools.Reasoning.Equivalence
 open import Tools.Relation
 open import Tools.Sum
 
 open import Graded.Context using (Conₘ; ε; _∙_)
 import Graded.Context.Properties
-open import Graded.Modality.Dedicated-nr
-open import Graded.Modality.Dedicated-nr.Instance
 open import Graded.Modality.Morphism as M
   using (Is-morphism; Is-order-embedding; Is-Σ-order-embedding)
   hiding (module Is-morphism; module Is-order-embedding;
           module Is-Σ-order-embedding)
+import Graded.Modality.Properties
 
 private
   module C₁  = Graded.Context 𝕄₁
@@ -37,9 +37,11 @@ private
   module CP₂ = Graded.Context.Properties 𝕄₂
   module M₁  = Modality 𝕄₁
   module M₂  = Modality 𝕄₂
+  module MP₁ = Graded.Modality.Properties 𝕄₁
+  module MP₂ = Graded.Modality.Properties 𝕄₂
 
 private variable
-  n                            : Nat
+  n i                          : Nat
   x                            : Fin _
   γ γ₁ δ δ₁ δ₂ δ₃ δ₄ δ₅ η η₁ θ : Conₘ _ _
   p q r                        : M₁
@@ -142,15 +144,163 @@ module Is-morphism (m : Is-morphism 𝕄₁ 𝕄₂ tr) where
   tr-Conₘ-∧ᶜ {γ = ε}     {δ = ε}     = ε
   tr-Conₘ-∧ᶜ {γ = _ ∙ _} {δ = _ ∙ _} = tr-Conₘ-∧ᶜ ∙ tr-∧
 
-  -- Translation commutes with nrᶜ up to _≤ᶜ_.
+  opaque
 
-  tr-Conₘ-nrᶜ :
-    ⦃ has-nr₁ : Dedicated-nr 𝕄₁ ⦄
-    ⦃ has-nr₂ : Dedicated-nr 𝕄₂ ⦄ →
-    tr-Conₘ (C₁.nrᶜ p r γ δ η) ≤ᶜ
-    C₂.nrᶜ (tr p) (tr r) (tr-Conₘ γ) (tr-Conₘ δ) (tr-Conₘ η)
-  tr-Conₘ-nrᶜ {γ = ε}     {δ = ε}     {η = ε}     = ε
-  tr-Conₘ-nrᶜ {γ = _ ∙ _} {δ = _ ∙ _} {η = _ ∙ _} = tr-Conₘ-nrᶜ ∙ tr-nr
+    -- Translation commutes with nrᵢᶜ.
+
+    tr-Conₘ-nrᵢᶜ : tr-Conₘ (CP₁.nrᵢᶜ r γ δ i) ≈ᶜ CP₂.nrᵢᶜ (tr r) (tr-Conₘ γ) (tr-Conₘ δ) i
+    tr-Conₘ-nrᵢᶜ {γ = ε} {(ε)} = ε
+    tr-Conₘ-nrᵢᶜ {γ = _ ∙ _} {_ ∙ _} {i} = tr-Conₘ-nrᵢᶜ ∙ tr-nrᵢ i
+
+
+module Is-nr-preserving-morphism
+  ⦃ has-nr₁ : Has-nr M₁ M₁.semiring-with-meet ⦄
+  ⦃ has-nr₂ : Has-nr M₂ M₂.semiring-with-meet ⦄
+  (m : M.Is-nr-preserving-morphism 𝕄₁ 𝕄₂ tr) where
+
+  open M.Is-nr-preserving-morphism m
+  open C₂ using (_≤ᶜ_)
+
+  opaque
+
+    -- Translation commutes with nrᶜ up to _≤ᶜ_.
+
+    tr-Conₘ-nrᶜ :
+      tr-Conₘ (C₁.nrᶜ p r γ δ η) ≤ᶜ
+      C₂.nrᶜ (tr p) (tr r) (tr-Conₘ γ) (tr-Conₘ δ) (tr-Conₘ η)
+    tr-Conₘ-nrᶜ {γ = ε}     {δ = ε}     {η = ε}     = ε
+    tr-Conₘ-nrᶜ {γ = _ ∙ _} {δ = _ ∙ _} {η = _ ∙ _} = tr-Conₘ-nrᶜ ∙ tr-nr
+
+module Is-no-nr-glb-preserving-morphism
+  (m : M.Is-no-nr-glb-preserving-morphism 𝕄₁ 𝕄₂ tr) where
+
+  open M.Is-no-nr-glb-preserving-morphism m
+
+  opaque
+
+    tr-Conₘ-nrᵢᶜ-GLBᶜ :
+      C₁.Greatest-lower-boundᶜ γ (CP₁.nrᵢᶜ r δ η) →
+      ∃ λ γ′ → C₂.Greatest-lower-boundᶜ γ′ (CP₂.nrᵢᶜ (tr r) (tr-Conₘ δ) (tr-Conₘ η))
+    tr-Conₘ-nrᵢᶜ-GLBᶜ {γ = ε} {δ = ε} {(ε)} γ-glb =
+      ε , CP₂.ε-GLB
+    tr-Conₘ-nrᵢᶜ-GLBᶜ {γ = γ ∙ p} {δ = δ ∙ p₁} {η ∙ p₂} γp-glb =
+      let γ-glb , p-glb = CP₁.GLBᶜ-pointwise γp-glb
+          γ′ , γ′-glb = tr-Conₘ-nrᵢᶜ-GLBᶜ γ-glb
+          p′ , p′-glb = tr-nrᵢ-GLB p-glb
+      in  γ′ ∙ p′ , CP₂.GLBᶜ-pointwise′ γ′-glb p′-glb
+
+module Is-nr-reflecting-morphism
+  ⦃ has-nr₁ : Has-nr M₁ M₁.semiring-with-meet ⦄
+  ⦃ has-nr₂ : Has-nr M₂ M₂.semiring-with-meet ⦄
+  (m : M.Is-nr-reflecting-morphism 𝕄₁ 𝕄₂ tr) where
+
+  open M.Is-nr-reflecting-morphism m
+
+  -- A variant of tr-≤-nr for usage contexts.
+
+  tr-Conₘ-≤ᶜ-nrᶜ :
+    tr-Conₘ θ C₂.≤ᶜ C₂.nrᶜ (tr p) (tr r) γ₁ δ₁ η₁ →
+    ∃₃ λ γ₂ δ₂ η₂ →
+       tr-Conₘ γ₂ C₂.≤ᶜ γ₁ × tr-Conₘ δ₂ C₂.≤ᶜ δ₁ × tr-Conₘ η₂ C₂.≤ᶜ η₁ ×
+       θ C₁.≤ᶜ C₁.nrᶜ p r γ₂ δ₂ η₂
+  tr-Conₘ-≤ᶜ-nrᶜ {θ = ε} {γ₁ = ε} {δ₁ = ε} {η₁ = ε} _ =
+    ε , ε , ε , ε , ε , ε , ε
+  tr-Conₘ-≤ᶜ-nrᶜ
+    {θ = _ ∙ _} {γ₁ = _ ∙ _} {δ₁ = _ ∙ _} {η₁ = _ ∙ _} (hyp₁ ∙ hyp₂) =
+    case tr-Conₘ-≤ᶜ-nrᶜ hyp₁ of λ (_ , _ , _ , ≤γ₁ , ≤δ₁ , ≤η₁ , θ≤) →
+    case tr-≤-nr hyp₂ of λ (_ , _ , _ , ≤z₁ , ≤s₁ , ≤n₁ , q≤) →
+    _ , _ , _ , ≤γ₁ ∙ ≤z₁ , ≤δ₁ ∙ ≤s₁ , ≤η₁ ∙ ≤n₁ , θ≤ ∙ q≤
+
+module Is-no-nr-reflecting-morphism
+  (m : M.Is-no-nr-reflecting-morphism 𝕄₁ 𝕄₂ tr) where
+
+  open M.Is-no-nr-reflecting-morphism m
+
+  opaque
+
+    -- A variant of tr-≤-no-nr for usage contexts.
+
+    tr-≤ᶜ-no-nr :
+      tr-Conₘ γ C₂.≤ᶜ δ₁ →
+      δ₁ C₂.≤ᶜ δ₂ →
+      (T M₂.𝟘ᵐ-allowed →
+       δ₁ C₂.≤ᶜ δ₃) →
+      (⦃ 𝟘-well-behaved :
+           Has-well-behaved-zero M₂ M₂.semiring-with-meet ⦄ →
+       δ₁ C₂.≤ᶜ δ₄) →
+      δ₁ C₂.≤ᶜ δ₃ C₂.+ᶜ tr p C₂.·ᶜ δ₄ C₂.+ᶜ tr q C₂.·ᶜ δ₁ →
+      ∃₄ λ δ₁′ δ₂′ δ₃′ δ₄′ →
+         tr-Conₘ δ₂′ C₂.≤ᶜ δ₂ ×
+         tr-Conₘ δ₃′ C₂.≤ᶜ δ₃ ×
+         tr-Conₘ δ₄′ C₂.≤ᶜ δ₄ ×
+         γ C₁.≤ᶜ δ₁′ ×
+         δ₁′ C₁.≤ᶜ δ₂′ ×
+         (T M₁.𝟘ᵐ-allowed →
+          δ₁′ C₁.≤ᶜ δ₃′) ×
+         (⦃ 𝟘-well-behaved :
+              Has-well-behaved-zero M₁ M₁.semiring-with-meet ⦄ →
+          δ₁′ C₁.≤ᶜ δ₄′) ×
+         δ₁′ C₁.≤ᶜ δ₃′ C₁.+ᶜ p C₁.·ᶜ δ₄′ C₁.+ᶜ q C₁.·ᶜ δ₁′
+    tr-≤ᶜ-no-nr {γ = ε} {δ₁ = ε} {δ₂ = ε} {δ₃ = ε} {δ₄ = ε} _ _ _ _ _ =
+      _ , _ , _ , _ , ε , ε , ε , ε , ε , (λ _ → ε) , ε , ε
+    tr-≤ᶜ-no-nr
+      {γ = _ ∙ _} {δ₁ = _ ∙ _} {δ₂ = _ ∙ _} {δ₃ = _ ∙ _} {δ₄ = _ ∙ _}
+      (hyp₁₁ ∙ hyp₁₂) (hyp₂₁ ∙ hyp₂₂) hyp₃ hyp₄ (hyp₅₁ ∙ hyp₅₂) =
+      case tr-≤ᶜ-no-nr
+             hyp₁₁ hyp₂₁
+             (λ ok → case hyp₃ ok of λ {
+                (le ∙ _) → le })
+             (case hyp₄ of λ {
+                (le ∙ _) → le })
+             hyp₅₁ of λ {
+        (_ , _ , _ , _ ,
+         le₁₁ , le₂₁ , le₃₁ , le₄₁ , le₅₁ , le₆₁ , le₇₁ , le₈₁) →
+      case tr-≤-no-nr
+             hyp₁₂ hyp₂₂
+             (λ ok → case hyp₃ ok of λ {
+                (_ ∙ le) → le })
+             (case hyp₄ of λ {
+                (_ ∙ le) → le })
+             hyp₅₂ of λ {
+        (_ , _ , _ , _ ,
+         le₁₂ , le₂₂ , le₃₂ , le₄₂ , le₅₂ , le₆₂ , le₇₂ , le₈₂) →
+        _ , _ , _ , _
+      , le₁₁ ∙ le₁₂ , le₂₁ ∙ le₂₂ , le₃₁ ∙ le₃₂ , le₄₁ ∙ le₄₂
+      , le₅₁ ∙ le₅₂
+      , (λ ok → le₆₁ ok ∙ le₆₂ ok)
+      , (λ ⦃ _ ⦄ → le₇₁ ∙ le₇₂)
+      , le₈₁ ∙ le₈₂ }}
+
+module Is-no-nr-glb-reflecting-morphism
+  (m : M.Is-no-nr-glb-reflecting-morphism 𝕄₁ 𝕄₂ tr) where
+
+  open M.Is-no-nr-glb-reflecting-morphism m
+
+  opaque
+
+    -- A variant of tr-≤-no-nr for usage contexts.
+
+    tr-Conₘ-≤ᶜ-no-nr :
+      ∀ {θ η χ x} →
+      tr-Conₘ θ C₂.≤ᶜ x C₂.·ᶜ η C₂.+ᶜ χ →
+      M₂.Greatest-lower-bound x (M₂.nrᵢ (tr r) M₂.𝟙 (tr p)) →
+      C₂.Greatest-lower-boundᶜ χ (CP₂.nrᵢᶜ (tr r) γ δ) →
+      ∃₅ λ γ′ δ′ η′ x′ χ′ → tr-Conₘ γ′ C₂.≤ᶜ γ × tr-Conₘ δ′ C₂.≤ᶜ δ × tr-Conₘ η′ C₂.≤ᶜ η ×
+         M₁.Greatest-lower-bound x′ (M₁.nrᵢ r M₁.𝟙 p) ×
+         C₁.Greatest-lower-boundᶜ χ′ (CP₁.nrᵢᶜ r γ′ δ′) ×
+         θ C₁.≤ᶜ x′ C₁.·ᶜ η′ C₁.+ᶜ χ′
+    tr-Conₘ-≤ᶜ-no-nr {γ = ε} {(ε)} {(ε)} {(ε)} {(ε)} θ≤ x-glb χ-glb =
+      _ , _ , _ , _ , _ , ε , ε , ε , tr-nrᵢ-glb x-glb .proj₂ , CP₁.ε-GLB , ε
+    tr-Conₘ-≤ᶜ-no-nr {γ = γ ∙ p} {δ ∙ p₁} {θ ∙ r} {η ∙ p₂} {χ ∙ q} (θ≤ ∙ r≤) x-glb χq-glb =
+      let χ-glb , q-glb = CP₂.GLBᶜ-pointwise χq-glb
+          _ , _ , _ , x′ , _ , ≤γ , ≤δ , ≤η
+            , x′-glb , χ′-glb , θ≤′ = tr-Conₘ-≤ᶜ-no-nr θ≤ x-glb χ-glb
+          _ , _ , _ , x″ , _ , ≤p , ≤p₁ , ≤p₂
+            , x″-glb , q′-glb , r≤′ = tr-≤-no-nr r≤ x-glb q-glb
+      in  _ , _ , _ , _ , _ , ≤γ ∙ ≤p , ≤δ ∙ ≤p₁ , ≤η ∙ ≤p₂ , x′-glb
+            , CP₁.GLBᶜ-pointwise′ χ′-glb q′-glb
+            , θ≤′ ∙ MP₁.≤-trans r≤′ (MP₁.≤-reflexive
+                    (M₁.+-congʳ (M₁.·-congʳ (MP₁.GLB-unique x″-glb x′-glb))))
 
 ------------------------------------------------------------------------
 -- Lemmas that hold if there is a function that is an order embedding
@@ -310,74 +460,3 @@ module Is-order-embedding (m : Is-order-embedding 𝕄₁ 𝕄₂ tr) where
     case tr-Conₘ-≤ᶜ-∧ᶜ hyp₁ of λ (_ , _ , ≤δ , ≤η , γ≤) →
     case tr-≤-∧ hyp₂ of λ (_ , _ , ≤q , ≤r , p≤) →
     _ , _ , ≤δ ∙ ≤q , ≤η ∙ ≤r , γ≤ ∙ p≤
-
-  -- A variant of tr-≤-nr for usage contexts.
-
-  tr-Conₘ-≤ᶜ-nrᶜ :
-    ⦃ has-nr₁ : Dedicated-nr 𝕄₁ ⦄
-    ⦃ has-nr₂ : Dedicated-nr 𝕄₂ ⦄ →
-    tr-Conₘ θ C₂.≤ᶜ C₂.nrᶜ (tr p) (tr r) γ₁ δ₁ η₁ →
-    ∃₃ λ γ₂ δ₂ η₂ →
-       tr-Conₘ γ₂ C₂.≤ᶜ γ₁ × tr-Conₘ δ₂ C₂.≤ᶜ δ₁ × tr-Conₘ η₂ C₂.≤ᶜ η₁ ×
-       θ C₁.≤ᶜ C₁.nrᶜ p r γ₂ δ₂ η₂
-  tr-Conₘ-≤ᶜ-nrᶜ {θ = ε} {γ₁ = ε} {δ₁ = ε} {η₁ = ε} _ =
-    ε , ε , ε , ε , ε , ε , ε
-  tr-Conₘ-≤ᶜ-nrᶜ
-    {θ = _ ∙ _} {γ₁ = _ ∙ _} {δ₁ = _ ∙ _} {η₁ = _ ∙ _} (hyp₁ ∙ hyp₂) =
-    case tr-Conₘ-≤ᶜ-nrᶜ hyp₁ of λ (_ , _ , _ , ≤γ₁ , ≤δ₁ , ≤η₁ , θ≤) →
-    case tr-≤-nr hyp₂ of λ (_ , _ , _ , ≤z₁ , ≤s₁ , ≤n₁ , q≤) →
-    _ , _ , _ , ≤γ₁ ∙ ≤z₁ , ≤δ₁ ∙ ≤s₁ , ≤η₁ ∙ ≤n₁ , θ≤ ∙ q≤
-
-  -- A variant of tr-≤-no-nr for usage contexts.
-
-  tr-≤ᶜ-no-nr :
-    ⦃ no-nr : No-dedicated-nr 𝕄₁ ⦄ →
-    tr-Conₘ γ C₂.≤ᶜ δ₁ →
-    δ₁ C₂.≤ᶜ δ₂ →
-    (T M₂.𝟘ᵐ-allowed →
-     δ₁ C₂.≤ᶜ δ₃) →
-    (⦃ 𝟘-well-behaved :
-         Has-well-behaved-zero M₂ M₂.semiring-with-meet ⦄ →
-     δ₁ C₂.≤ᶜ δ₄) →
-    δ₁ C₂.≤ᶜ δ₃ C₂.+ᶜ tr p C₂.·ᶜ δ₄ C₂.+ᶜ tr q C₂.·ᶜ δ₁ →
-    ∃₄ λ δ₁′ δ₂′ δ₃′ δ₄′ →
-       tr-Conₘ δ₂′ C₂.≤ᶜ δ₂ ×
-       tr-Conₘ δ₃′ C₂.≤ᶜ δ₃ ×
-       tr-Conₘ δ₄′ C₂.≤ᶜ δ₄ ×
-       γ C₁.≤ᶜ δ₁′ ×
-       δ₁′ C₁.≤ᶜ δ₂′ ×
-       (T M₁.𝟘ᵐ-allowed →
-        δ₁′ C₁.≤ᶜ δ₃′) ×
-       (⦃ 𝟘-well-behaved :
-            Has-well-behaved-zero M₁ M₁.semiring-with-meet ⦄ →
-        δ₁′ C₁.≤ᶜ δ₄′) ×
-       δ₁′ C₁.≤ᶜ δ₃′ C₁.+ᶜ p C₁.·ᶜ δ₄′ C₁.+ᶜ q C₁.·ᶜ δ₁′
-  tr-≤ᶜ-no-nr {γ = ε} {δ₁ = ε} {δ₂ = ε} {δ₃ = ε} {δ₄ = ε} _ _ _ _ _ =
-    _ , _ , _ , _ , ε , ε , ε , ε , ε , (λ _ → ε) , ε , ε
-  tr-≤ᶜ-no-nr
-    {γ = _ ∙ _} {δ₁ = _ ∙ _} {δ₂ = _ ∙ _} {δ₃ = _ ∙ _} {δ₄ = _ ∙ _}
-    (hyp₁₁ ∙ hyp₁₂) (hyp₂₁ ∙ hyp₂₂) hyp₃ hyp₄ (hyp₅₁ ∙ hyp₅₂) =
-    case tr-≤ᶜ-no-nr
-           hyp₁₁ hyp₂₁
-           (λ ok → case hyp₃ ok of λ {
-              (le ∙ _) → le })
-           (case hyp₄ of λ {
-              (le ∙ _) → le })
-           hyp₅₁ of λ {
-      (_ , _ , _ , _ ,
-       le₁₁ , le₂₁ , le₃₁ , le₄₁ , le₅₁ , le₆₁ , le₇₁ , le₈₁) →
-    case tr-≤-no-nr
-           hyp₁₂ hyp₂₂
-           (λ ok → case hyp₃ ok of λ {
-              (_ ∙ le) → le })
-           (case hyp₄ of λ {
-              (_ ∙ le) → le })
-           hyp₅₂ of λ {
-      (_ , _ , _ , _ ,
-       le₁₂ , le₂₂ , le₃₂ , le₄₂ , le₅₂ , le₆₂ , le₇₂ , le₈₂) →
-      _ , _ , _ , _
-    , le₁₁ ∙ le₁₂ , le₂₁ ∙ le₂₂ , le₃₁ ∙ le₃₂ , le₄₁ ∙ le₄₂
-    , le₅₁ ∙ le₅₂
-    , (λ ok → le₆₁ ok ∙ le₆₂ ok)
-    , (λ ⦃ _ ⦄ → le₇₁ ∙ le₇₂)
-    , le₈₁ ∙ le₈₂ }}

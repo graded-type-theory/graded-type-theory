@@ -9,6 +9,8 @@ module Graded.Modality {a} (M : Set a) where
 
 open import Tools.Algebra M
 open import Tools.Bool using (Bool; T)
+open import Tools.Function
+open import Tools.Nat using (Nat; 1+)
 open import Tools.Product
 open import Tools.PropositionalEquality
 open import Tools.Reasoning.PropositionalEquality
@@ -17,7 +19,8 @@ open import Tools.Sum
 open import Graded.Modality.Variant a
 
 private variable
-  n n₁ n₂ p q r z z₁ s s₁ s₂ z₂ : M
+  n n₁ n₂ p p′ q r z z₁ s s₁ s₂ z₂ : M
+  pᵢ : Sequence M
 
 -- Semiring with meet
 record Semiring-with-meet : Set a where
@@ -79,6 +82,19 @@ record Semiring-with-meet : Set a where
 
   Least-such-that : (M → Set a) → M → Set a
   Least-such-that P p = P p × (∀ q → P q → p ≤ q)
+
+  Greatest-such-that : ∀ {ℓ} → (M → Set ℓ) → M → Set (a ⊔ ℓ)
+  Greatest-such-that P p = P p × (∀ q → P q → q ≤ p)
+
+  Greatest-lower-bound : M → Sequence M → Set a
+  Greatest-lower-bound p pᵢ = Greatest-such-that (λ r → ∀ i → r ≤ pᵢ i) p
+
+  -- A (family of) sequence(s) used to define one of the
+  -- usage rules for natrec
+
+  nrᵢ : (r z s : M) → Sequence M
+  nrᵢ r z s 0 = z
+  nrᵢ r z s (1+ i) = s + r · nrᵢ r z s i
 
   ·-distribˡ-∧ : _·_ DistributesOverˡ _∧_
   ·-distribˡ-∧ = proj₁ ·-distrib-∧
@@ -225,12 +241,11 @@ record Has-nr (𝕄 : Semiring-with-meet) : Set a where
 
 -- The property of having an nr function that factors in a certain way
 
-record Has-factoring-nr (𝕄 : Semiring-with-meet) ⦃ has-nr : Has-nr 𝕄 ⦄ : Set a where
+record Is-factoring-nr {𝕄 : Semiring-with-meet} (has-nr : Has-nr 𝕄)  : Set a where
   no-eta-equality
   pattern
 
   open Semiring-with-meet 𝕄
-
   open Has-nr has-nr
 
   field
@@ -238,6 +253,32 @@ record Has-factoring-nr (𝕄 : Semiring-with-meet) ⦃ has-nr : Has-nr 𝕄 ⦄
 
     nr₂≢𝟘 : {p r : M} → nr₂ p r ≢ 𝟘
     nr-factoring : {p r z s n : M} → nr p r z s n ≡ nr₂ p r · n + nr p r z s 𝟘
+
+-- A bundling of properties that the modality is required to satisfy
+-- when a certain usage rule for natrec is used.
+
+record Supports-GLB-for-natrec (𝕄 : Semiring-with-meet) : Set a where
+  no-eta-equality
+
+  open Semiring-with-meet 𝕄
+
+  field
+    +-GLBˡ :
+      Greatest-lower-bound p pᵢ →
+      Greatest-lower-bound (q + p) (λ i → q + pᵢ i)
+
+    ·-GLBˡ :
+      Greatest-lower-bound p pᵢ →
+      Greatest-lower-bound (q · p) (λ i → q · pᵢ i)
+
+    ·-GLBʳ :
+      Greatest-lower-bound p pᵢ →
+      Greatest-lower-bound (p · q) (λ i → pᵢ i · q)
+
+    +nrᵢ-GLB :
+      Greatest-lower-bound p (nrᵢ r z₁ s₁) →
+      Greatest-lower-bound p′ (nrᵢ r z₂ s₂) →
+      ∃ λ q → Greatest-lower-bound q (nrᵢ r (z₁ + z₂) (s₁ + s₂)) × p + p′ ≤ q
 
 
 -- The property of having a natrec-star operator.
@@ -291,7 +332,3 @@ record Modality : Set (lsuc a) where
   field
     -- If the mode 𝟘ᵐ is allowed, then the zero is well-behaved
     𝟘-well-behaved : T 𝟘ᵐ-allowed → Has-well-behaved-zero semiring-with-meet
-
-    -- If the modality is supposed to come with a dedicated nr
-    -- function, then such a function is available.
-    has-nr : Nr-available → Has-nr semiring-with-meet

@@ -16,7 +16,6 @@ open Usage-restrictions R
 
 open import Graded.Context 𝕄
 open import Graded.Context.Properties 𝕄
-open import Graded.Modality.Dedicated-nr 𝕄
 open import Graded.Modality.Properties 𝕄 hiding (has-nr)
 
 open import Tools.Nat using (Nat)
@@ -49,7 +48,7 @@ record Assumptions : Set a where
 
     instance
       -- A dedicated nr function is assumed to exist.
-      ⦃ has-nr ⦄ : Dedicated-nr
+      ⦃ has-nr ⦄ : Nr-available
 
     -- Either strong unit types are not allowed to be used as sinks,
     -- or 𝟘 is a greatest grade.

@@ -214,6 +214,20 @@ opaque
     Has-nr.Linearity-like-nr-for-𝟙 unit-has-nr
   nr-linearity-like-for-𝟙 = refl
 
+opaque
+
+  -- The modality supports the usage rule for natrec using
+  -- greatest lower bounds.
+
+  unit-supports-glb-for-nr :
+    Supports-GLB-for-natrec unit-semiring-with-meet
+  unit-supports-glb-for-nr = record
+    { +-GLBˡ = λ _ → (λ _ → refl) , λ _ _ → refl
+    ; ·-GLBˡ = λ _ → (λ _ → refl) , λ _ _ → refl
+    ; ·-GLBʳ = λ _ → (λ _ → refl) , λ _ _ → refl
+    ; +nrᵢ-GLB = λ _ _ → _ , ((λ _ → refl) , (λ _ _ → refl)) , refl
+    }
+
 -- A trivial modality (without 𝟘ᵐ).
 
 UnitModality :
@@ -225,7 +239,6 @@ UnitModality variant not-ok = record
   { variant            = variant
   ; semiring-with-meet = unit-semiring-with-meet
   ; 𝟘-well-behaved     = ⊥-elim ∘→ not-ok
-  ; has-nr             = λ _ → unit-has-nr
   }
 
 -- The full reduction assumptions hold for any instance of

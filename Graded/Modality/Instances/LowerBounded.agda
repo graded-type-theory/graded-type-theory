@@ -144,5 +144,4 @@ isModality variant 𝟘-well-behaved = record
   { variant            = variant
   ; semiring-with-meet = 𝕄
   ; 𝟘-well-behaved     = 𝟘-well-behaved
-  ; has-nr             = λ _ → has-nr
   }

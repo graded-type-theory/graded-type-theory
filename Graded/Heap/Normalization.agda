@@ -5,17 +5,20 @@
 open import Graded.Modality
 open import Graded.Usage.Restrictions
 open import Definition.Typed.Variant
+open import Graded.Usage.Restrictions.Natrec
 
 module Graded.Heap.Normalization
   {a} {M : Set a} {𝕄 : Modality M}
   (type-variant : Type-variant)
   (UR : Usage-restrictions 𝕄)
-  (open Modality 𝕄)
-  ⦃ _ : Has-nr M semiring-with-meet ⦄
-  ⦃ _ : Has-factoring-nr M semiring-with-meet ⦄
+  (open Usage-restrictions UR)
+  (factoring-nr :
+    ⦃ has-nr : Nr-available ⦄ →
+    Is-factoring-nr M (Natrec-mode-Has-nr 𝕄 has-nr))
   where
 
 open Type-variant type-variant
+open Modality 𝕄
 
 open import Tools.Bool
 open import Tools.Fin
@@ -26,10 +29,10 @@ open import Tools.PropositionalEquality as PE
 open import Tools.Relation
 open import Tools.Sum
 
-open import Graded.Heap.Reduction type-variant UR
-open import Graded.Heap.Reduction.Properties type-variant UR
-open import Graded.Heap.Untyped type-variant UR
-open import Graded.Heap.Untyped.Properties type-variant UR
+open import Graded.Heap.Reduction type-variant UR factoring-nr
+open import Graded.Heap.Reduction.Properties type-variant UR factoring-nr
+open import Graded.Heap.Untyped type-variant UR factoring-nr
+open import Graded.Heap.Untyped.Properties type-variant UR factoring-nr
 
 open import Definition.Untyped M hiding (head)
 
@@ -138,9 +141,9 @@ opaque mutual
   normalize H (suc t) ρ S =
     _ , suc t , ρ , S , val sucᵥ , id
   normalize H (natrec p q r A z s n) ρ S =
-    case normalize H n ρ (natrecₑ p q r A z s ρ ∙ S) of λ
+    case normalize H n ρ (natrecₑ p q r 𝟘 A z s ρ ∙ S) of λ
       (_ , _ , _ , _ , n , d) →
-    _ , _ , _ , _ , n , ⇒ₑ natrecₕ ⇨ d
+    _ , _ , _ , _ , n , natrecₕ ⇨ d
   normalize H (emptyrec p A t) ρ S =
     case normalize H t ρ (emptyrecₑ p A ρ ∙ S) of λ
       (_ , _ , _ , _ , n , d) →

@@ -79,6 +79,7 @@ open import Graded.Modality.Instances.Erasure.Properties variant
 open import Graded.Usage EM UR
 open import Graded.Usage.Inversion EM UR
 open import Graded.Usage.Properties EM UR
+open import Graded.Usage.Restrictions.Natrec EM
 open import Graded.Usage.Weakening EM UR
 
 private variable
@@ -364,6 +365,17 @@ Vec l = lam ω (Vec-body₁ l)
     , ≤ᶜ-refl
     , ≤ᶜ-refl
     )
+    (let x , x-glb = Erasure-nrᵢ-glb ω ω 𝟘
+         χ , χ-glb = ∃nrᵢ-GLB→∃nrᵢᶜ-GLB (Erasure-nrᵢ-glb _) 𝟘ᶜ _
+         open Tools.Reasoning.PartialOrder ≤ᶜ-poset
+    in  x , χ , x-glb , χ-glb , (begin
+      ε ∙ ω ∙ ω ≡⟨⟩
+      ω ·ᶜ (ε ∙ ω ∙ ω) +ᶜ (ε ∙ headₘ (tailₘ χ) ∙ headₘ χ)               ≈˘⟨ +ᶜ-congʳ (·ᶜ-congʳ (least-elem′ x (x-glb .proj₁ 0))) ⟩
+      x ·ᶜ (ε ∙ ω ∙ ω) +ᶜ (ε ∙ headₘ (tailₘ χ) ∙ headₘ χ)               ≈⟨ +ᶜ-congˡ {δ = _ ∙ headₘ (tailₘ χ) ∙ headₘ χ} (ε≈ᶜ ∙ PE.refl ∙ PE.refl) ⟩
+      x ·ᶜ (ε ∙ ω ∙ ω) +ᶜ (tailₘ (tailₘ χ) ∙ headₘ (tailₘ χ) ∙ headₘ χ) ≡⟨ PE.cong (x ·ᶜ (ε ∙ ω ∙ ω) +ᶜ_) (PE.cong (_∙ headₘ χ)
+                                                                             (headₘ-tailₘ-correct (tailₘ χ))) ⟩
+      x ·ᶜ (ε ∙ ω ∙ ω) +ᶜ (tailₘ χ ∙ headₘ χ)                           ≡⟨ PE.cong (x ·ᶜ (ε ∙ ω ∙ ω) +ᶜ_) (headₘ-tailₘ-correct χ) ⟩
+      x ·ᶜ (ε ∙ ω ∙ ω) +ᶜ χ       ∎))
 
 private
 
@@ -575,6 +587,9 @@ Non-zero = lam ω Non-zero-body
     , ≤ᶜ-refl
     , ≤ᶜ-refl
     )
+    (let x , x-glb = Erasure-nrᵢ-glb 𝟘 ω 𝟘
+         χ-glb = GLBᶜ-const (λ i → nrᵢᶜ-𝟘ᶜ {i = i})
+    in  _ , _ , x-glb , χ-glb , ε ∙ PE.refl)
 
 private
 
@@ -700,12 +715,16 @@ opaque
 
        ε ∙ ⌜ (𝟘ᵐ? ᵐ· ω) ᵐ· ω ⌝ + 𝟘 + ⌜ 𝟘ᵐ? ⌝ ∙ 𝟘 ∙
          ⌜ (𝟘ᵐ? ᵐ· ω) ᵐ· ω ⌝ + ⌜ (𝟘ᵐ? ᵐ· 𝟘) ᵐ· ω ⌝              ∎)
-    ≤ᶜ-refl
+    (λ ⦃ has-nr ⦄ → ε ∙ ≤-reflexive (PE.sym (nr-𝟘 ⦃ Natrec-mode-Has-nr has-nr ⦄ {p = 𝟘} {r = 𝟘})) ∙ PE.refl)
     ( ≤ᶜ-refl
     , (λ _ → ≤ᶜ-refl)
     , ≤ᶜ-refl
     , ≤ᶜ-refl
     )
+    (let x , x-glb = Erasure-nrᵢ-glb 𝟘 ω 𝟘
+         χ-glb = GLBᶜ-const (λ i → nrᵢᶜ-𝟘ᶜ {i = i})
+    in  _ , _ , x-glb , χ-glb
+          , ε ∙ PE.sym (PE.trans (EM.+-identityʳ _) (EM.·-zeroʳ _)) ∙ PE.refl)
   where
   lemma : ⌜ 𝟘ᵐ? ⌝ · ω PE.≡ ⌜ (𝟘ᵐ? ᵐ· ω) ᵐ· ω ⌝ + ⌜ (𝟘ᵐ? ᵐ· 𝟘) ᵐ· ω ⌝
   lemma = 𝟘ᵐ?-elim

@@ -8,7 +8,6 @@ open import Tools.Level
 
 open import Definition.Typed.Restrictions
 
-import Graded.Modality.Dedicated-nr
 import Graded.Modality.Instances.Linearity
 open import Graded.Modality.Variant lzero
 open import Graded.Usage.Restrictions
@@ -17,14 +16,14 @@ module Graded.Modality.Instances.Linearity.Bad.No-dedicated-nr
   -- The modality variant.
   (variant : Modality-variant)
   (open Graded.Modality.Instances.Linearity variant)
-  (open Graded.Modality.Dedicated-nr linearityModality)
   (TR : Type-restrictions linearityModality)
   (open Type-restrictions TR)
   (UR : Usage-restrictions linearityModality)
+  (open Usage-restrictions UR)
   -- It is assumed that "Π 𝟙 , 𝟘" is allowed.
   (Π-𝟙-𝟘 : Π-allowed 𝟙 𝟘)
   -- There is no dedicated nr function.
-  ⦃ no-nr : No-dedicated-nr ⦄
+  ⦃ no-nr : Nr-not-available ⦄
   where
 
 open Modality-variant variant
@@ -67,11 +66,9 @@ private
      λ ▸λ+ ok →
        case inv-usage-lam ▸λ+ of λ {
          (invUsageLam ▸+ _) →
-       case inv-usage-natrec ▸+ of λ {
-         (invUsageNatrec _ _ _ _ _ invUsageNatrecNr) →
-            ⊥-elim not-nr-and-no-nr;
-         (invUsageNatrec {η = _ ∙ q} {χ = _ ∙ p}
-            _ ▸suc _ _ (_ ∙ 𝟙≤p) (invUsageNatrecNoNr _ p≤q _ _)) →
+       case inv-usage-natrec-no-nr ▸+ of λ {
+         (_ , _ ∙ q , _ , _ , _ ∙ p , _ , ▸suc , _
+            , _ , (_ ∙ 𝟙≤p) , _ , p≤q , _ , _) →
        case p≤q ok of λ {
          (_ ∙ p≤q) →
        case inv-usage-suc ▸suc of λ {
@@ -96,12 +93,9 @@ private
     (invUsageLam {δ = _ ∙ ω} _  (_ ∙ ()));
     (invUsageLam {δ = _ ∙ 𝟘} _  (_ ∙ ()));
     (invUsageLam {δ = _ ∙ 𝟙} ▸+ _) →
-  case inv-usage-natrec ▸+ of λ {
-    (invUsageNatrec _ _ _ _ _ invUsageNatrecNr) →
-       ⊥-elim not-nr-and-no-nr;
-    (invUsageNatrec {δ = _ ∙ p ∙ _} {χ = _ ∙ s ∙ _}
-       ▸x0 _ _ _ (_ ∙ 𝟙≤s ∙ _)
-       (invUsageNatrecNoNr (_ ∙ s≤p ∙ _) _ _ _)) →
+  case inv-usage-natrec-no-nr ▸+ of λ {
+    (_ ∙ p ∙ _ , _ , _ , _ , _ ∙ s ∙ _ , ▸x0 , _ , _
+               , _ , (_ ∙ 𝟙≤s ∙ _) , (_ ∙ s≤p ∙ _) , _) →
   case inv-usage-var ▸x0 of λ {
     (_ ∙ p≤𝟘 ∙ _) →
   case begin

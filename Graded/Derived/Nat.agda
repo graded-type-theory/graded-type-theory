@@ -12,13 +12,13 @@ module Graded.Derived.Nat
   where
 
 open Modality 𝕄
+open Usage-restrictions R
 
 open import Graded.Context 𝕄
 open import Graded.Context.Properties 𝕄
-open import Graded.Modality.Dedicated-nr 𝕄
-open import Graded.Modality.Dedicated-nr.Instance
 open import Graded.Mode 𝕄
 open import Graded.Usage 𝕄 R
+open import Graded.Usage.Restrictions.Instance R
 open import Graded.Usage.Weakening 𝕄 R
 
 open import Definition.Untyped M
@@ -38,7 +38,7 @@ opaque
   -- A usage lemma for natcase.
 
   ▸natcase :
-    ⦃ has-nr : Dedicated-nr ⦄ →
+    ⦃ has-nr : Nr-available ⦄ →
     γ ▸[ m ] t →
     δ ∙ ⌜ m ⌝ · p ▸[ m ] u →
     η ▸[ m ] v →
@@ -59,7 +59,7 @@ opaque
   -- A usage lemma for strict-const.
 
   ▸strict-const :
-    ⦃ has-nr : Dedicated-nr ⦄ →
+    ⦃ has-nr : Nr-available ⦄ →
     γ ▸[ 𝟘ᵐ? ] A →
     δ ▸[ m ] t →
     η ▸[ m ] u →

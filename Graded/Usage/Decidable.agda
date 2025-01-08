@@ -14,12 +14,11 @@ module Graded.Usage.Decidable
   where
 
 open Assumptions as
-open Modality 𝕄 hiding (has-nr)
+open Modality 𝕄
 open Usage-restrictions R
 
 open import Graded.Context 𝕄
 open import Graded.Context.Properties 𝕄
-open import Graded.Modality.Dedicated-nr.Instance
 open import Graded.Usage 𝕄 R
 open import Graded.Usage.Erased-matches
 open import Graded.Usage.Inversion 𝕄 R

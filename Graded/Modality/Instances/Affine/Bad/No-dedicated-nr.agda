@@ -7,7 +7,6 @@ open import Tools.Level
 
 open import Definition.Typed.Restrictions
 
-import Graded.Modality.Dedicated-nr
 import Graded.Modality.Instances.Affine
 open import Graded.Modality.Variant lzero
 open import Graded.Usage.Restrictions
@@ -16,14 +15,14 @@ module Graded.Modality.Instances.Affine.Bad.No-dedicated-nr
   -- The modality variant.
   (variant : Modality-variant)
   (open Graded.Modality.Instances.Affine variant)
-  (open Graded.Modality.Dedicated-nr affineModality)
   (TR : Type-restrictions affineModality)
   (open Type-restrictions TR)
   (UR : Usage-restrictions affineModality)
+  (open Usage-restrictions UR)
   -- It is assumed that "Π 𝟙 , 𝟘" is allowed.
   (Π-𝟙-𝟘 : Π-allowed 𝟙 𝟘)
   -- There is no dedicated nr function.
-  ⦃ no-nr : No-dedicated-nr ⦄
+  ⦃ no-nr : Nr-not-available ⦄
   where
 
 open import Tools.Function

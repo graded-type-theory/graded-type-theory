@@ -13,6 +13,7 @@ module Graded.Substitution
   where
 
 open Modality 𝕄
+open Usage-restrictions R
 
 open import Definition.Untyped M
   using (Subst ; tail ; head ; Wk ; id ; step ; lift)
@@ -85,7 +86,7 @@ _▶[_]_ {n = n} Ψ γ σ =
 -- Substitution matrix inference (for modalities with nr functions).
 
 ∥_∥ :
-  ⦃ has-nr : Has-nr semiring-with-meet ⦄ →
+  ⦃ has-nr : Nr-available ⦄ →
   Subst m n → Mode-vector n → Substₘ m n
 ∥_∥ {n = 0}    _ _  = []
 ∥_∥ {n = 1+ n} σ ms = ∥ tail σ ∥ (tailᵐ ms) ⊙ ⌈ head σ ⌉ (headᵐ ms)

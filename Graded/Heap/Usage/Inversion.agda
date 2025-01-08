@@ -5,28 +5,32 @@
 open import Graded.Modality
 open import Graded.Usage.Restrictions
 open import Definition.Typed.Variant
+open import Graded.Usage.Restrictions.Natrec
 
 module Graded.Heap.Usage.Inversion
   {a} {M : Set a} {𝕄 : Modality M}
   (type-variant : Type-variant)
   (UR : Usage-restrictions 𝕄)
-  (open Modality 𝕄)
-  ⦃ _ : Has-nr M semiring-with-meet ⦄
-  ⦃ _ : Has-factoring-nr M semiring-with-meet ⦄
+  (open Usage-restrictions UR)
+  (factoring-nr :
+    ⦃ has-nr : Nr-available ⦄ →
+    Is-factoring-nr M (Natrec-mode-Has-nr 𝕄 has-nr))
   where
 
 open import Definition.Untyped M
 
 open import Graded.Mode 𝕄
+open import Graded.Modality.Nr-instances
 open import Graded.Modality.Properties 𝕄
 open import Graded.Usage 𝕄 UR
 open import Graded.Usage.Inversion 𝕄 UR
 open import Graded.Context 𝕄
 open import Graded.Context.Properties 𝕄
 open import Graded.Context.Weakening 𝕄
+open import Graded.Usage.Restrictions.Instance UR
 
-open import Graded.Heap.Untyped type-variant UR
-open import Graded.Heap.Usage type-variant UR
+open import Graded.Heap.Untyped type-variant UR factoring-nr
+open import Graded.Heap.Usage type-variant UR factoring-nr
 
 open import Tools.Empty
 open import Tools.Fin
@@ -35,7 +39,7 @@ open import Tools.PropositionalEquality
 open import Tools.Relation
 import Tools.Reasoning.PartialOrder as RPo
 
-open Usage-restrictions UR
+open Modality 𝕄
 open Type-variant type-variant
 
 private variable
@@ -44,8 +48,8 @@ private variable
   ρ : Wk _ _
   e : Elim _
   S : Stack _
-  γ η : Conₘ _
-  p q r : M
+  γ η χ : Conₘ _
+  p q q′ r : M
   m : Mode
   x : Fin _
   str : Strength
@@ -171,16 +175,31 @@ opaque
   ▸-inv-prodrecₑ (prodrecₑ ▸u ok) =
     _ , ▸u , ok , ≈ᶜ-refl
 
+-- "Extra data" for inversion of natrec
+
+data InvUsageNatrecₑ {m n} (p r q : M) (δ η : Conₘ n) (ρ : Wk m n) : Conₘ m → Set a where
+  invUsageNatrecNr :
+    ⦃ has-nr : Nr-available ⦄ →
+    q ≡ nr₂ p r →
+    InvUsageNatrecₑ p r q δ η ρ (wkConₘ ρ (nrᶜ p r δ η 𝟘ᶜ))
+  invUsageNatrecNoNr :
+    ⦃ no-nr : Nr-not-available-GLB ⦄ →
+    Greatest-lower-bound q (nrᵢ r 𝟙 p) →
+    Greatest-lower-boundᶜ χ (nrᵢᶜ r δ η) →
+    InvUsageNatrecₑ p r q δ η ρ (wkConₘ ρ χ)
+
 opaque
 
   -- Inversion of natrec
 
   ▸-inv-natrecₑ :
-    γ ▸ᵉ[ m ] natrecₑ p q r A z s ρ →
+    γ ▸ᵉ[ m ] natrecₑ p q r q′ A z s ρ →
     ∃₃ λ δ η θ → δ ▸[ m ] z × η ∙ ⌜ m ⌝ · p ∙ ⌜ m ⌝ · r ▸[ m ] s ×
-    θ ∙ ⌜ 𝟘ᵐ? ⌝ · q ▸[ 𝟘ᵐ? ] A × γ ≈ᶜ wkConₘ ρ (nrᶜ p r δ η 𝟘ᶜ)
-  ▸-inv-natrecₑ (natrecₑ ▸z ▸s ▸A) =
-    _ , _ , _ , ▸z , ▸s , ▸A , ≈ᶜ-refl
+    θ ∙ ⌜ 𝟘ᵐ? ⌝ · q ▸[ 𝟘ᵐ? ] A × InvUsageNatrecₑ p r q′ δ η ρ γ
+  ▸-inv-natrecₑ (natrecₑ ▸z ▸s ▸A ≡nr₂) =
+    _ , _ , _ , ▸z , ▸s , ▸A , invUsageNatrecNr ≡nr₂
+  ▸-inv-natrecₑ (natrec-no-nrₑ ▸z ▸s ▸A x-glb χ-glb) =
+    _ , _ , _ , ▸z , ▸s , ▸A , invUsageNatrecNoNr x-glb χ-glb
 
 opaque
 

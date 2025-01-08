@@ -81,3 +81,10 @@ module ≈ᶜ-reasoning {n : Nat} =
       (no γ≉ᶜδ)  → no λ where
                      (γ≈ᶜδ ∙ _) → γ≉ᶜδ γ≈ᶜδ
       (yes γ≈ᶜδ) → yes (γ≈ᶜδ ∙ p≡q)
+
+opaque
+
+  -- All empty contexts are equal to ε.
+
+  ε≈ᶜ : ε ≈ᶜ γ
+  ε≈ᶜ {γ = ε} = ε

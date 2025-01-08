@@ -221,7 +221,11 @@ module _ (as : Full-reduction-assumptions) where
             sub (natrec-no-nrₘ (fullRedTermConv↑ t↑ ▸t)
                    (fullRedTermConv↑ u↑ ▸u) (fullRedNe~↓ v~ ▸v)
                    (fullRedConv↑ A↑ ▸A) χ≤δ χ≤η χ≤θ fix)
-              γ≤ }
+              γ≤
+          (invUsageNatrecNoNrGLB x-glb χ-glb) →
+            sub (natrec-no-nr-glbₘ (fullRedTermConv↑ t↑ ▸t)
+                  (fullRedTermConv↑ u↑ ▸u) (fullRedNe~↓ v~ ▸v)
+                  (fullRedConv↑ A↑ ▸A) x-glb χ-glb) γ≤}
       (prodrec-cong C↑ u~ v↑) ▸prodrec →
         case inv-usage-prodrec ▸prodrec of λ {
           (invUsageProdrec ▸u ▸v ▸C ok₁ γ≤) →
