@@ -57,6 +57,31 @@ private variable
 
 opaque
 
+  -- Inversion of heaps with a "normal" entry on top
+
+  ▸ʰ∙-inv :
+    γ ∙ q ▸ʰ H ∙ (p , t , ρ) →
+    ∃₂ λ δ η → δ ▸[ ⌞ p ⌟ ] t × η ▸ʰ H × p ≤ q × η ≤ᶜ γ +ᶜ p ·ᶜ wkConₘ ρ δ
+  ▸ʰ∙-inv (▸H ∙ ▸t) = _ , _ , ▸t , ▸H , ≤-refl , ≤ᶜ-refl
+  ▸ʰ∙-inv (sub {γ = _ ∙ _} ▸H (≤γ ∙ ≤q)) =
+    let _ , _ , ▸t , ▸H , p≤ , η≤ = ▸ʰ∙-inv ▸H
+    in  _ , _ , ▸t , ▸H
+          , ≤-trans p≤ ≤q
+          , ≤ᶜ-trans η≤ (+ᶜ-monotoneˡ ≤γ)
+
+opaque
+
+  -- An inversion lemma for ▸ʰ with a dummy entry.
+
+  ▸ʰ●-inv : γ ∙ p ▸ʰ H ∙● → ∃ λ δ → 𝟘 ≤ p × δ ▸ʰ H × δ ≤ᶜ γ
+  ▸ʰ●-inv (▸H ∙●) = _ , ≤-refl , ▸H , ≤ᶜ-refl
+  ▸ʰ●-inv (sub ▸H (≤γ ∙ ≤p)) =
+    let _ , 𝟘≤ , ▸H , δ≤ = ▸ʰ●-inv ▸H
+    in  _ , ≤-trans 𝟘≤ ≤p , ▸H
+          , ≤ᶜ-trans δ≤ ≤γ
+
+opaque
+
   -- Inversion of non-empty stacks
 
   ▸ˢ-∙-inv :

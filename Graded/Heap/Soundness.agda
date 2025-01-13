@@ -199,7 +199,7 @@ opaque
           (PE.trans (PE.cong (λ x → wk ρ x [ H ]ₕ) ≡sucᵏ)
             (PE.trans (PE.cong (_[ H ]ₕ) (wk-sucᵏ k)) (subst-sucᵏ k)))
           s≡
-      , 𝟘▸H→H≤𝟘 (subₕ ▸H $ begin
+      , 𝟘▸H→H≤𝟘 (sub ▸H $ begin
           γ                      ≤⟨ γ≤ ⟩
           𝟙 ·ᶜ wkConₘ ρ δ +ᶜ η   ≈⟨ +ᶜ-congˡ (▸ˢ-ε-inv ▸ε) ⟩
           𝟙 ·ᶜ wkConₘ ρ δ +ᶜ 𝟘ᶜ  ≈⟨ +ᶜ-identityʳ _ ⟩
