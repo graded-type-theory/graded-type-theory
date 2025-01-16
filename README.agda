@@ -426,10 +426,6 @@ affineModality′ = Graded.Modality.Instances.Affine.affineModality
 
 -- A "linear types" modality, along with the variant with a custom nr
 -- function.
---
--- The module has a parameter of type Modality-variant which is
--- required to satisfy a certain property. If this property holds,
--- then a "linear types" modality of the given kind can be defined.
 
 linearityModality =
   Graded.Modality.Instances.Linearity.bad-linearity-modality
@@ -445,11 +441,6 @@ linearityModality′ =
 
 -- A "linear or affine types" modality, along with the variant with a
 -- custom nr function.
---
--- The definition takes an argument of type Modality-variant which is
--- required to satisfy a certain property. If this property holds,
--- then a "linear or affine types" modality of the given kind can be
--- defined.
 --
 -- Note that the names of two of the grades differ from those used in
 -- the paper. The formalization uses ≤ω for unrestricted usage and ≤𝟙
