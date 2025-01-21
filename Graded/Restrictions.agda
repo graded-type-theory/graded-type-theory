@@ -189,8 +189,8 @@ TR with-η-for-Unitʷ = record TR
 -- Functions that construct Usage-restrictions
 
 -- No restrictions for prodrec, unitrec or emptyrec, all erased
--- matches are allowed for J and K, the natrec mode can be anyting,
--- Id-erased is inhabited if the, first boolean is true, and starˢ
+-- matches are allowed for J and K, the natrec mode can be anything,
+-- Id-erased is inhabited if the first boolean is true, and starˢ
 -- is treated as a sink if the second boolean is true.
 
 no-usage-restrictions : Natrec-mode → Bool → Bool → Usage-restrictions

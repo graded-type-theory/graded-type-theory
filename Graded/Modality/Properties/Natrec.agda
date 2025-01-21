@@ -55,6 +55,8 @@ module _
   open Is-factoring-nr is-factoring-nr
   open Has-nr has-nr
 
+  -- An inequality for nr₂
+
   nr₂≤ : nr₂ p r ≤ p + r · nr₂ p r
   nr₂≤ {p} {r} = begin
     nr₂ p r                              ≡˘⟨ ·-identityʳ _ ⟩
@@ -157,6 +159,8 @@ opaque
     open Supports-GLB-for-natrec ok
 
 opaque
+
+  -- nrᵢ distributes over addition in a certain sense.
 
   nrᵢ-+ : ∀ i → nrᵢ r (p + p′) (q + q′) i ≡ nrᵢ r p q i + nrᵢ r p′ q′ i
   nrᵢ-+ 0 = refl

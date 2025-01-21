@@ -14,7 +14,7 @@ module Definition.Untyped.Bool.Erased
   {a} {M : Set a}
   (open Graded.Modality M)
   (𝕄 : Modality)
-  -- It is assumed that there is a dedicated nr function.
+  -- It is assumed that the modality has an nr function.
   ⦃ has-nr : Has-nr (Modality.semiring-with-meet 𝕄) ⦄
   where
 
@@ -165,7 +165,7 @@ opaque
 opaque
   unfolding Boolᵍ B.Boolᵍ
 
-  -- If 𝟘ᵐ is not allowed and the dedicated nr function satisfies
+  -- If 𝟘ᵐ is not allowed and the nr function satisfies
   -- Linearity-like-nr-for-𝟘, then Boolᵍ is equal to 𝟘 ∧ 𝟙.
 
   Boolᵍ≡𝟘∧𝟙 :
@@ -182,7 +182,7 @@ opaque
 opaque
   unfolding boolrecᵍ-pr
 
-  -- If the dedicated nr function satisfies Linearity-like-nr-for-𝟘
+  -- If the nr function satisfies Linearity-like-nr-for-𝟘
   -- and Linearity-like-nr-for-𝟙, then boolrecᵍ-pr is equal to 𝟙.
 
   boolrecᵍ-pr≡ :

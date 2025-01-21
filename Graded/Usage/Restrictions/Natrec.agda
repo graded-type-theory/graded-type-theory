@@ -148,6 +148,9 @@ opaque
 --       lemma : (x y : Natrec-mode-has-nr nm) → x ≡ y
 --       lemma Nr Nr = refl
 
+-- Natrec-mode? allows case splitting on the possible usage
+-- rules for natrec in a way that brings the corresponding
+-- instance argument into scope.
 
 data Natrec-mode? (nm : Natrec-mode) : Set a where
   does-have-nr :
@@ -158,6 +161,9 @@ data Natrec-mode? (nm : Natrec-mode) : Set a where
     ⦃ no-nr : Natrec-mode-no-nr-glb nm ⦄ → Natrec-mode? nm
 
 opaque
+
+  -- Every Natrec-mode has a corresponding inhabitant of
+  -- Natrec-mode?
 
   natrec-mode? : ∀ nm → Natrec-mode? nm
   natrec-mode? Nr = does-have-nr ⦃ Nr ⦄

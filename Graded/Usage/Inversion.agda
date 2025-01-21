@@ -359,7 +359,7 @@ inv-usage-natrec (sub γ▸natrec γ≤γ′) with inv-usage-natrec γ▸natrec
 
 opaque
 
-  -- An inversion lemma for natrec with a dedicated nr function
+  -- An inversion lemma for natrec with Nr-available
 
   inv-usage-natrec-has-nr :
     {s : Term _} {n : Term _}

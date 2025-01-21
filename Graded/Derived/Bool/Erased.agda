@@ -11,7 +11,7 @@ module Graded.Derived.Bool.Erased
   {𝕄 : Modality}
   (R : Usage-restrictions 𝕄)
   (open Usage-restrictions R)
-  -- It is assumed that there is a dedicated nr function.
+  -- It is assumed that the modality has an nr function.
   ⦃ has-nr : Nr-available ⦄
   where
 
@@ -391,7 +391,7 @@ opaque
 
 opaque
 
-  -- A variant of ▸boolrec that can be used if the dedicated nr
+  -- A variant of ▸boolrec that can be used if the nr
   -- function satisfies Linearity-like-nr-for-𝟘 and
   -- Linearity-like-nr-for-𝟙.
   --

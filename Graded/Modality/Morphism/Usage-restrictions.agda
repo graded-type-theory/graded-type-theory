@@ -319,6 +319,9 @@ record Common-properties
 
   opaque
 
+    -- If Nr-available holds in the source usage restrictions then it
+    -- also holds in the target usage restrictions.
+
     nr-in-second-if-in-first :
       ⦃ has-nr : R₁.Nr-available ⦄ →
       R₂.Nr-available
@@ -326,6 +329,9 @@ record Common-properties
       Natrec-mode-has-nr-≈ⁿᵐ natrec-mode-preserved has-nr
 
   opaque
+
+    -- If Nr-not-available holds in the source usage restrictions then it
+    -- also holds in the target usage restrictions.
 
     no-nr-in-second-if-in-first :
       ⦃ no-nr : R₁.Nr-not-available ⦄ →
@@ -335,6 +341,9 @@ record Common-properties
 
   opaque
 
+    -- If Nr-not-available-GLB holds in the source usage restrictions
+    -- then it also holds in the target usage restrictions.
+
     no-nr-glb-in-second-if-in-first :
       ⦃ no-nr : R₁.Nr-not-available-GLB ⦄ →
       R₂.Nr-not-available-GLB
@@ -342,6 +351,9 @@ record Common-properties
       Natrec-mode-no-nr-glb-≈ⁿᵐ natrec-mode-preserved no-nr
 
   opaque
+
+    -- If Nr-available holds in the target usage restrictions then it
+    -- also holds in the source usage restrictions.
 
     nr-in-first-if-in-second :
       ⦃ has-nr : R₂.Nr-available ⦄ →
@@ -351,6 +363,9 @@ record Common-properties
 
   opaque
 
+    -- If Nr-not-available holds in the target usage restrictions then it
+    -- also holds in the source usage restrictions.
+
     no-nr-in-first-if-in-second :
       ⦃ no-nr : R₂.Nr-not-available ⦄ →
       R₁.Nr-not-available
@@ -358,6 +373,9 @@ record Common-properties
       Natrec-mode-no-nr-≈ⁿᵐ (≈ⁿᵐ-sym natrec-mode-preserved) no-nr
 
   opaque
+
+    -- If Nr-not-available-GLB holds in the target usage restrictions
+    -- then it also holds in the source usage restrictions.
 
     no-nr-glb-in-first-if-in-second :
       ⦃ no-nr : R₂.Nr-not-available-GLB ⦄ →
@@ -433,6 +451,11 @@ record Are-preserving-usage-restrictions
   open Common-properties common-properties
 
   field
+
+    -- The function tr is assumed to satisfy some properties depending
+    -- on the chosen Natrec-mode. Note that by common-properties, both
+    -- the source and target usage restrictions have the same
+    -- Natrec-mode.
 
     nr-preserving :
       ⦃ has-nr₁ : R₁.Nr-available ⦄ →
@@ -584,6 +607,11 @@ record Are-reflecting-usage-restrictions
     -- for 𝕄₁ or 𝕄₁ is trivial.
     𝟘ᵐ-reflected :
       T M₂.𝟘ᵐ-allowed ⊎ M₂.Trivial → T M₁.𝟘ᵐ-allowed ⊎ M₁.Trivial
+
+    -- The function tr is assumed to satisfy some properties depending
+    -- on the chosen Natrec-mode. Note that by common-properties, both
+    -- the source and target usage restrictions have the same
+    -- Natrec-mode.
 
     nr-reflected :
       ⦃ has-nr₁ : R₁.Nr-available ⦄ →

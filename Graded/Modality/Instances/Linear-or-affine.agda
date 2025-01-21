@@ -1568,9 +1568,7 @@ opaque
   -- examples that illustrate in what sense this nr function is not very
   -- good. The nr function below does not suffer from
   -- these problems (see
-  -- Graded.Modality.Instances.Linear-or-affine.Good), but note that, at
-  -- the time of writing, this formalisation does not contain any solid
-  -- evidence showing that linear-or-affine is "correct".
+  -- Graded.Modality.Instances.Linear-or-affine.Good).
 
   bad-linear-or-affine-has-nr : Has-nr linear-or-affine-semiring-with-meet
   bad-linear-or-affine-has-nr =

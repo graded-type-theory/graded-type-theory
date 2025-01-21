@@ -103,8 +103,8 @@ record Usage-restrictions : Set (lsuc a) where
     erased-matches-for-K-≤ᵉᵐ :
       erased-matches-for-K 𝟙ᵐ ≤ᵉᵐ erased-matches-for-K 𝟘ᵐ[ ok ]
 
-  -- Three mutually exclusive types which corresponding to each of the
-  -- three poossibilities for natrec-mode
+  -- Three mutually exclusive types which correspond to each of the
+  -- three possibilities for natrec-mode
 
   Nr-available : Set a
   Nr-available = Natrec-mode-has-nr natrec-mode

@@ -129,8 +129,14 @@ _⊛ᶜ_▷_ :
 𝟙ᶜ {n = 0}    = ε
 𝟙ᶜ {n = 1+ n} = 𝟙ᶜ ∙ 𝟙
 
+-- Greatest-such-thatᶜ P γ means that γ is the greatest context which
+-- satisfies P.
+
 Greatest-such-thatᶜ : ∀ {ℓ} → (Conₘ n → Set ℓ) → Conₘ n → Set (a ⊔ ℓ)
 Greatest-such-thatᶜ P γ = P γ × (∀ δ → P δ → δ ≤ᶜ γ)
+
+-- Greatest-lower-boundᶜ γ γᵢ means that γ is the greatest context which
+-- is lower than all contexts of the sequence γᵢ.
 
 Greatest-lower-boundᶜ : Conₘ n → Sequence (Conₘ n) → Set a
 Greatest-lower-boundᶜ γ γᵢ = Greatest-such-thatᶜ (λ δ → ∀ i → δ ≤ᶜ γᵢ i) γ

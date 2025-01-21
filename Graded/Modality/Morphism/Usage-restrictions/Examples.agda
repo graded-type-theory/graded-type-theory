@@ -95,8 +95,8 @@ opaque
     (⦃ has-nr₁ : Natrec-mode-has-nr _ nm₁ ⦄ →
      ⦃ has-nr₂ : Natrec-mode-has-nr _ nm₂ ⦄ →
      Is-nr-preserving-morphism 𝕄₁ 𝕄₂
-       ⦃ Natrec-mode-Has-nr _ has-nr₁ ⦄
-       ⦃ Natrec-mode-Has-nr _ has-nr₂ ⦄ tr) →
+       ⦃ has-nr₁ = Natrec-mode-Has-nr _ has-nr₁ ⦄
+       ⦃ has-nr₂ = Natrec-mode-Has-nr _ has-nr₂ ⦄ tr) →
     (⦃ no-nr₁ : Natrec-mode-no-nr _ nm₁ ⦄ →
      ⦃ no-nr₂ : Natrec-mode-no-nr _ nm₂ ⦄ →
      Is-no-nr-preserving-morphism 𝕄₁ 𝕄₂ tr) →
@@ -136,8 +136,8 @@ opaque
     (⦃ has-nr₁ : Natrec-mode-has-nr _ nm₁ ⦄ →
      ⦃ has-nr₂ : Natrec-mode-has-nr _ nm₂ ⦄ →
      Is-nr-reflecting-morphism 𝕄₁ 𝕄₂
-       ⦃ Natrec-mode-Has-nr _ has-nr₁ ⦄
-       ⦃ Natrec-mode-Has-nr _ has-nr₂ ⦄ tr) →
+       ⦃ has-nr₁ = Natrec-mode-Has-nr _ has-nr₁ ⦄
+       ⦃ has-nr₂ = Natrec-mode-Has-nr _ has-nr₂ ⦄ tr) →
     (⦃ no-nr₁ : Natrec-mode-no-nr _ nm₁ ⦄ →
      ⦃ no-nr₂ : Natrec-mode-no-nr _ nm₂ ⦄ →
      Is-no-nr-reflecting-morphism 𝕄₁ 𝕄₂ tr) →
@@ -481,7 +481,7 @@ opaque
 
   -- If the functions tr and tr-Σ preserve certain usage restrictions,
   -- then they also do this for certain usage restrictions obtained
-  -- using not-all-erased-matches-JK given certain assumptions.
+  -- using not-all-erased-matches-JK.
 
   Are-preserving-usage-restrictions-not-all-erased-matches-JK :
     Are-preserving-usage-restrictions R₁ R₂ tr tr-Σ →

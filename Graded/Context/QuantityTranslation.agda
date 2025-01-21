@@ -178,6 +178,8 @@ module Is-no-nr-glb-preserving-morphism
 
   opaque
 
+    -- Translation preserves greatest lower bounds in a certain sense.
+
     tr-Conₘ-nrᵢᶜ-GLBᶜ :
       C₁.Greatest-lower-boundᶜ γ (CP₁.nrᵢᶜ r δ η) →
       ∃ λ γ′ → C₂.Greatest-lower-boundᶜ γ′ (CP₂.nrᵢᶜ (tr r) (tr-Conₘ δ) (tr-Conₘ η))

@@ -1439,7 +1439,7 @@ affine→linearity-Σ-not-monotone mono =
     (ω , _  , ())
 
 ------------------------------------------------------------------------
--- nr-preserving, no-nr₁-preserving and no-nr₂-preserving morphisms
+-- nr-preserving, no-nr-preserving and no-nr-glb-preserving morphisms
 
 opaque
 
@@ -5667,7 +5667,7 @@ opaque
     open Is-no-nr-glb-preserving-morphism
 
 ------------------------------------------------------------------------
--- nr-reflecting, no-nr₁-reflecting and no-nr₂-reflecting morphisms
+-- nr-reflecting, no-nr-reflecting and no-nr-reflecting morphisms
 
 opaque
 

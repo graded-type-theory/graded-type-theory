@@ -83,8 +83,14 @@ record Semiring-with-meet : Set a where
   Least-such-that : (M → Set a) → M → Set a
   Least-such-that P p = P p × (∀ q → P q → p ≤ q)
 
+  -- Greatest-such-that P p means that p is the greatest value which
+  -- satisfies P.
+
   Greatest-such-that : ∀ {ℓ} → (M → Set ℓ) → M → Set (a ⊔ ℓ)
   Greatest-such-that P p = P p × (∀ q → P q → q ≤ p)
+
+  -- Greatest-lower-bound p pᵢ means that p is the greatest value which
+  -- is lower than all grades of the sequence pᵢ.
 
   Greatest-lower-bound : M → Sequence M → Set a
   Greatest-lower-bound p pᵢ = Greatest-such-that (λ r → ∀ i → r ≤ pᵢ i) p

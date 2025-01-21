@@ -45,9 +45,9 @@ private variable
   rs : Type-restrictions
   us : Usage-restrictions
 
--- The nr function zero-one-many-has-nr is
+-- The nr function zero-one-many-has-nr.nr is
 -- incomparable to (neither bounded from below nor from above by) the
--- nr function zero-one-many-greatest-star-nr.
+-- nr function zero-one-many-greatest-star-nr.nr
 
 incomparable :
  let nr₁ = zero-one-many-has-nr .Has-nr.nr

@@ -1034,6 +1034,8 @@ opaque
 
 opaque
 
+  -- nr₃ r ⌞ 0 ⌟ ⌞ 0 ⌟ is equal to ⌞ 0 ⌟ for all r.
+
   nr₃-𝟘 : ∀ r → nr₃ r ⌞ 0 ⌟ ⌞ 0 ⌟ ≡ ⌞ 0 ⌟
   nr₃-𝟘 ⌞ 0 ⌟ =
     Semiring-with-meet.∧-idem ℕ⊎∞-semiring-with-meet ⌞ 0 ⌟
@@ -1042,6 +1044,8 @@ opaque
   nr₃-𝟘 ∞ = refl
 
 opaque
+
+  -- A sub-distributivity property for nr₃ over _+_.
 
   nr₃-+ : ∀ r → nr₃ r z₁ s₁ + nr₃ r z₂ s₂ ≤ nr₃ r (z₁ + z₂) (s₁ + s₂)
   nr₃-+ {z₁} {s₁} {z₂} {s₂} = λ where

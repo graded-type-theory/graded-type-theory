@@ -185,9 +185,9 @@ Has-nr          = Graded.Modality.Has-nr
 Has-star→Has-nr = Graded.Modality.Properties.Star.has-nr
 
 -- The definition of a modality has been changed to no longer refer
--- to natrec-star operators or nr functions. Instead, the usage
--- relation is parameterized in a way that makes the usage rule described
--- above available only if an nr function is provided for the modality.
+-- to natrec-star operators. Instead, the usage relation is parameterized
+-- in a way that makes the usage rule described above available only if
+-- an nr function is provided for the modality.
 
 -- For the modalities discussed above custom nr functions have been
 -- defined (there is one parametrised definition for the linear types
@@ -217,11 +217,30 @@ double-not-ok₃ =
 plus-ok₁ = Graded.Modality.Instances.Linearity.Good.▸plus
 plus-ok₂ = Graded.Modality.Instances.Linear-or-affine.Good.▸plus
 
--- Additionally, some evidence that there modalities are "correct" is
--- available in the form of a resource aware abstract machine that ensures
--- that variables are used as many times as specified.
+-- Additionally, some evidence that these modalities are "correct" is
+-- available in the form of a resource aware abstract machine that
+-- ensures that variables are used as many times as specified.
 
 abstract-machine-soundness = Graded.Heap.Soundness.soundness
+
+-- The machine is shown to work for modalities with nr functions
+-- satisfying certain properties.
+
+Is-factoring-nr = Graded.Modality.Is-factoring-nr
+
+-- The nr functions provided above for the linearity, affine types, and
+-- the linear or affine types modality satisfy these properties.
+
+zero-one-many-factoring-nr =
+  Graded.Modality.Instances.Zero-one-many.zero-one-many-has-factoring-nr
+linear-or-affine-factoring-nr =
+  Graded.Modality.Instances.Linear-or-affine.linear-or-affine-has-factoring-nr
+
+-- It is also shown to work for modalities without nr functions with a
+-- different usage rule for natrec that was added after the paper was
+-- published assuming that the modality satisfies certain conditions.
+
+Supports-GLB-for-natrec = Graded.Modality.Supports-GLB-for-natrec
 
 -- Section 7.1.4 in the paper briefly discusses an alternative usage
 -- rule for natrec. This rule has been changed:
@@ -270,10 +289,6 @@ plus-not-ok₄ =
 -- still not be well-resourced, and the doubling function would still
 -- be well-resourced for the affine types modality.
 
--- An additional usage rule for natrec has been added which does not
--- require the modality having an nr function. This rule has been shown
--- to work with the abstract machine mentioned above.
-
 ------------------------------------------------------------------------
 -- Differences between the paper and the code
 ------------------------------------------------------------------------
@@ -317,23 +332,20 @@ prodrec-allowed = Graded.Usage.Inversion.inv-usage-prodrec
 no-erased-matches = Graded.Restrictions.no-erased-matches-UR
 
 -- * One can choose which usage rule to use for natrec, either
---   using the one defined using an nr function, the alternative
---   usage rule from Section 7.1.4 or an additional rule added
---   to the formalization after the paper was published.
+--   using the one defined using natrec-star, or the alternative
+--   usage rule from Section 7.1.4 (as mentioned above, a third usage
+--   rule has been added since the paper was published).
 --
---   Three mutually exclusive types, Nr-available, Nr-not-available
---   and Nr-not-available-GLB are used to control which usage rules are
---   available for natrec. If Nr-available is inhabited then the rule
---   with the nr function is used, if Nr-not-available is inhabited
---   then the rule from Section 7.1.4 is used, and if
---   Nr-not-available-GLB is inhabited, then the additional rule is used.
+--   Mutually exclusive types, Nr-available, Nr-not-available
+--   are used to control which usage rules are available for natrec.
+--   If Nr-available is inhabited then the rule with the nr function is
+--   used and if Nr-not-available is inhabited then the rule from
+--   Section 7.1.4 is used.
 
 Nr-available =
   Graded.Usage.Restrictions.Usage-restrictions.Nr-available
 Nr-not-available =
   Graded.Usage.Restrictions.Usage-restrictions.Nr-not-available
-Nr-not-available-GLB =
-  Graded.Usage.Restrictions.Usage-restrictions.Nr-not-available-GLB
 
 -- Note that some results have only been proved for certain variants
 -- of the theory.

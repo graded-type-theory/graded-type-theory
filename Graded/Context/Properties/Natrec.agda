@@ -161,7 +161,9 @@ module _  ⦃ has-nr : Has-nr semiring-with-meet ⦄ where
     nrᶜ-linearity-like-for-𝟙 {γ = _ ∙ _} {δ = _ ∙ _} {η = _ ∙ _} hyp =
       nrᶜ-linearity-like-for-𝟙 hyp ∙ hyp
 
-module _ ⦃ has-nr : Has-nr semiring-with-meet ⦄ ⦃ _ : Is-factoring-nr has-nr ⦄ where
+module _
+  ⦃ has-nr : Has-nr semiring-with-meet ⦄
+  ⦃ is-factoring-nr : Is-factoring-nr has-nr ⦄ where
 
   opaque
 

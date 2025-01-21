@@ -280,6 +280,8 @@ wkConₘ⁻¹-nrᶜ {γ = _ ∙ _} {δ = _ ∙ _} {η = _ ∙ _} (step ρ) =
 wkConₘ⁻¹-nrᶜ {γ = _ ∙ _} {δ = _ ∙ _} {η = _ ∙ _} (lift ρ) =
   wkConₘ⁻¹-nrᶜ ρ ∙ refl
 
+-- The function wkConₘ⁻¹ ρ commutes with nrᵢᶜ r.
+
 wkConₘ⁻¹-nrᵢᶜ :
   ∀ i (ρ : Wk m n) →
   wkConₘ⁻¹ ρ (nrᵢᶜ r γ δ i) ≈ᶜ nrᵢᶜ r (wkConₘ⁻¹ ρ γ) (wkConₘ⁻¹ ρ δ) i

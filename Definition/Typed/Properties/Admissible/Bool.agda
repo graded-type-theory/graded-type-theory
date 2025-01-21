@@ -13,7 +13,7 @@ module Definition.Typed.Properties.Admissible.Bool
   (open Modality 𝕄)
   (R : Type-restrictions 𝕄)
   (open Type-restrictions R)
-  -- It is assumed that there is a dedicated nr function.
+  -- It is assumed that the modality has an nr function.
   ⦃ has-nr : Has-nr M semiring-with-meet ⦄
   -- It is assumed that certain Σ-types are allowed.
   (Σ-ok : Σʷ-allowed ω Boolᵍ)

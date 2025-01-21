@@ -13,7 +13,7 @@ module Definition.Untyped.Bool
   {a} {M : Set a}
   (open Graded.Modality M)
   (𝕄 : Modality)
-  -- It is assumed that there is a dedicated nr function.
+  -- It is assumed that the modality has an nr function.
   ⦃ has-nr : Has-nr (Modality.semiring-with-meet 𝕄) ⦄
   where
 
@@ -155,7 +155,7 @@ opaque
 opaque
   unfolding OKᵍ
 
-  -- If the dedicated nr function satisfies Linearity-like-nr-for-𝟘,
+  -- If the nr function satisfies Linearity-like-nr-for-𝟘,
   -- then OKᵍ is equal to 𝟘 ∧ 𝟙.
 
   OKᵍ≡ :
@@ -175,7 +175,7 @@ opaque
 opaque
   unfolding Boolᵍ
 
-  -- If the dedicated nr function satisfies Linearity-like-nr-for-𝟘,
+  -- If the nr function satisfies Linearity-like-nr-for-𝟘,
   -- then Boolᵍ is equal to 𝟘 ∧ 𝟙.
 
   Boolᵍ≡ :
@@ -198,7 +198,7 @@ opaque
 opaque
   unfolding boolrecᵍ-Π
 
-  -- If the dedicated nr function satisfies Linearity-like-nr-for-𝟙,
+  -- If the nr function satisfies Linearity-like-nr-for-𝟙,
   -- then boolrecᵍ-Π is equal to 𝟙.
 
   boolrecᵍ-Π≡ :
@@ -216,7 +216,7 @@ opaque
 opaque
   unfolding boolrecᵍ-nc₁
 
-  -- If the dedicated nr function satisfies Linearity-like-nr-for-𝟙,
+  -- If the nr function satisfies Linearity-like-nr-for-𝟙,
   -- then boolrecᵍ-nc₁ is equal to 𝟙.
 
   boolrecᵍ-nc₁≡ :
@@ -250,7 +250,7 @@ opaque
 opaque
   unfolding boolrecᵍ-nc₂
 
-  -- If the dedicated nr function satisfies Linearity-like-nr-for-𝟘
+  -- If the nr function satisfies Linearity-like-nr-for-𝟘
   -- and Linearity-like-nr-for-𝟙, then boolrecᵍ-nc₂ is equal to 𝟙.
 
   boolrecᵍ-nc₂≡ :
@@ -268,7 +268,7 @@ opaque
 opaque
   unfolding boolrecᵍ-pr
 
-  -- If the dedicated nr function satisfies Linearity-like-nr-for-𝟘
+  -- If the nr function satisfies Linearity-like-nr-for-𝟘
   -- and Linearity-like-nr-for-𝟙, then boolrecᵍ-pr is equal to 𝟙.
 
   boolrecᵍ-pr≡ :
