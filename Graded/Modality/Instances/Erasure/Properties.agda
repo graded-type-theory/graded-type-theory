@@ -39,7 +39,7 @@ open import Tools.Bool hiding (_∧_)
 open import Tools.Empty
 open import Tools.Fin
 open import Tools.Function
-open import Tools.Nat using (Nat; 1+)
+open import Tools.Nat using (Nat; 1+; Sequence)
 open import Tools.Product as Σ
 open import Tools.PropositionalEquality as PE using (_≡_; _≢_)
 open import Tools.Relation

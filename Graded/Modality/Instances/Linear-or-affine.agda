@@ -12,7 +12,7 @@ open import Tools.Bool using (T)
 open import Tools.Empty
 open import Tools.Function
 open import Tools.Level
-open import Tools.Nat using (1+)
+open import Tools.Nat using (1+; Sequence)
 open import Tools.Product
 open import Tools.PropositionalEquality as PE
 import Tools.Reasoning.PartialOrder

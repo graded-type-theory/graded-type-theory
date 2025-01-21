@@ -16,7 +16,7 @@ open import Tools.Algebra M
 open import Tools.Empty
 open import Tools.Fin
 open import Tools.Function
-open import Tools.Nat using (Nat; 1+)
+open import Tools.Nat using (Nat; 1+; Sequence)
 open import Tools.Product
 open import Tools.PropositionalEquality
 import Tools.Reasoning.Equivalence

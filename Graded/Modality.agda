@@ -9,8 +9,7 @@ module Graded.Modality {a} (M : Set a) where
 
 open import Tools.Algebra M
 open import Tools.Bool using (Bool; T)
-open import Tools.Function
-open import Tools.Nat using (Nat; 1+)
+open import Tools.Nat using (Nat; 1+; Sequence)
 open import Tools.Product
 open import Tools.PropositionalEquality
 open import Tools.Reasoning.PropositionalEquality

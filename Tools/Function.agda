@@ -301,8 +301,3 @@ Is-proposition-Dec = λ where
   _  _    {x = no x}  {y = yes y} → ⊥-elim (x y)
   fe _    {x = no x}  {y = no y}  →
     cong no (Is-proposition-Π fe λ _ → ⊥-propositional)
-
--- Infinite sequences of elements of a given type
-
-Sequence : (A : Set a) → Set a
-Sequence A = Nat → A

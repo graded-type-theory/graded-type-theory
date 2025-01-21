@@ -377,6 +377,11 @@ opaque
   <⇒==∸ {(zero)} k<m k<n = refl
   <⇒==∸ {1+ k} (s≤s k<m) (s≤s k<n) = <⇒==∸ k<m k<n
 
+-- Infinite sequences of elements of a given type as functions from Nat
+
+Sequence : (A : Set a) → Set a
+Sequence A = Nat → A
+
 opaque
 
   -- Multiplication respects greatest lower bounds of sequences

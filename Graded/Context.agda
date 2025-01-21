@@ -15,9 +15,8 @@ open Modality 𝕄
 open import Graded.Modality.Nr-instances
 
 open import Tools.Fin
-open import Tools.Function
 open import Tools.Level
-open import Tools.Nat using (Nat; 1+)
+open import Tools.Nat using (Nat; 1+; Sequence)
 open import Tools.Product
 open import Tools.PropositionalEquality
 

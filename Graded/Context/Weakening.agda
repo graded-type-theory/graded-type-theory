@@ -17,12 +17,11 @@ open import Graded.Context.Properties 𝕄
 open import Graded.Modality.Nr-instances
 open import Graded.Modality.Properties 𝕄
 
-
 open import Definition.Untyped.NotParametrised
 
 open import Tools.Fin
 open import Tools.Function
-open import Tools.Nat using (Nat)
+open import Tools.Nat using (Nat; Sequence)
 open import Tools.Product
 open import Tools.PropositionalEquality as PE
 open import Tools.Sum

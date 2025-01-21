@@ -12,7 +12,7 @@ import Tools.Algebra
 open import Tools.Empty
 open import Tools.Function
 open import Tools.Level
-open import Tools.Nat as N using (Nat; 1+; 2+)
+open import Tools.Nat as N using (Nat; 1+; 2+; Sequence)
 open import Tools.Product as Σ
 open import Tools.PropositionalEquality as PE
 import Tools.Reasoning.PartialOrder
