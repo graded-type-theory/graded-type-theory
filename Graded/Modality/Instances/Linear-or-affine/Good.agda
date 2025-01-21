@@ -44,10 +44,8 @@ private
   UR′ = nr-available-UR linear-or-affine-has-nr UR
   open Usage-restrictions UR′
   instance
-    has-nr : Has-nr M.semiring-with-meet
-    has-nr = linear-or-affine-has-nr
-    nr-avail : Nr-available
-    nr-avail = Natrec-mode-has-nr.Nr
+    has-nr : Nr-available
+    has-nr = Natrec-mode-has-nr.Nr ⦃ linear-or-affine-has-nr ⦄
 
 open import Graded.Context linear-or-affine′
 open import Graded.Context.Properties linear-or-affine′

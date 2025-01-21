@@ -32,10 +32,8 @@ private
   UR′ = nr-available-UR zero-one-many-greatest-star-nr UR
   open Usage-restrictions UR′
   instance
-    has-nr : Has-nr M.semiring-with-meet
-    has-nr = zero-one-many-greatest-star-nr
-    nr-avail : Nr-available
-    nr-avail = Natrec-mode-has-nr.Nr
+    has-nr : Nr-available
+    has-nr = Natrec-mode-has-nr.Nr ⦃ zero-one-many-greatest-star-nr ⦄
 
 open import Tools.Function
 import Tools.Reasoning.PartialOrder

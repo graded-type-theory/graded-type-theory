@@ -11,19 +11,9 @@ module Graded.Usage.Restrictions.Natrec
   (𝕄 : Modality)
   where
 
--- open import Graded.Mode 𝕄
--- open import Graded.Usage.Erased-matches
--- open import Definition.Untyped.NotParametrised
-
--- open import Tools.Bool
 open import Tools.Empty
--- open import Tools.Function
--- open import Tools.Level
 open import Tools.PropositionalEquality
 open import Tools.Product
--- open import Tools.Relation
--- open import Tools.Sum hiding (sym)
-
 
 open Modality 𝕄
 
@@ -63,22 +53,6 @@ data Natrec-mode-no-nr-glb : Natrec-mode → Set a where
     ⦃ ok : Supports-GLB-for-natrec semiring-with-meet ⦄ →
     Natrec-mode-no-nr-glb No-nr-glb
 
-instance
-
-  Nr-has-nr :
-    ⦃ has-nr : Has-nr semiring-with-meet ⦄ →
-    Natrec-mode-has-nr Nr
-  Nr-has-nr = Nr
-
-  No-nr-no-nr :
-    Natrec-mode-no-nr No-nr
-  No-nr-no-nr = No-nr
-
-  No-nr-glb-no-nr-glb :
-   ⦃ ok : Supports-GLB-for-natrec semiring-with-meet ⦄ →
-   Natrec-mode-no-nr-glb No-nr-glb
-  No-nr-glb-no-nr-glb = No-nr-glb
-
 -- If a natrec-mode corresponds to the usage rule using an nr function
 -- then the modality has an nr function.
 
@@ -86,7 +60,6 @@ Natrec-mode-Has-nr :
   Natrec-mode-has-nr nm →
   Has-nr semiring-with-meet
 Natrec-mode-Has-nr (Nr ⦃ has-nr ⦄) = has-nr
-
 
 -- If a natrec-mode corresponds to the usage rule using greatest lower
 -- bounds then the modality satisfies the necessary properties.
@@ -129,24 +102,6 @@ opaque
       Natrec-mode-no-nr-glb nm →
       ⊥
   ¬[No-nr∧No-nr-glb] No-nr ()
-
---   Nr-available : Set a
---   Nr-available = Natrec-mode-has-nr natrec-mode
-
---   Nr-not-available₁ : Set a
---   Nr-not-available₁ = Natrec-mode-no-nr₁ natrec-mode
-
---   Nr-not-available₂ : Set a
---   Nr-not-available₂ = Natrec-mode-no-nr₂ natrec-mode
-
---   opaque
-
---     Nr-available-propositional :
---       (x y : Nr-available) → x ≡ y
---     Nr-available-propositional = lemma
---       where
---       lemma : (x y : Natrec-mode-has-nr nm) → x ≡ y
---       lemma Nr Nr = refl
 
 -- Natrec-mode? allows case splitting on the possible usage
 -- rules for natrec in a way that brings the corresponding

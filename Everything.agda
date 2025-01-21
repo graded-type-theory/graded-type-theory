@@ -153,6 +153,7 @@ import Definition.Typed.EqRelInstance
 
 import Graded.Usage.Erased-matches
 import Graded.Usage.Restrictions.Natrec
+import Graded.Usage.Restrictions.Natrec.Instance
 import Graded.Usage.Restrictions
 import Graded.Usage.Restrictions.Instance
 import Graded.Usage

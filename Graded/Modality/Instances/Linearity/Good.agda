@@ -32,10 +32,8 @@ private
   UR′ = nr-available-UR zero-one-many-has-nr UR
   open Usage-restrictions UR′
   instance
-    has-nr : Has-nr M.semiring-with-meet
-    has-nr = zero-one-many-has-nr
-    nr-avail : Nr-available
-    nr-avail = Natrec-mode-has-nr.Nr
+    has-nr : Nr-available
+    has-nr = Natrec-mode-has-nr.Nr ⦃ zero-one-many-has-nr ⦄
 
 open import Tools.Empty
 open import Tools.Function
