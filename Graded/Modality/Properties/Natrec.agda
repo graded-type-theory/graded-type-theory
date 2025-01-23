@@ -185,3 +185,24 @@ opaque
     q · p′ + r · nrᵢ r (p · p′) (q · p′) i ∎
     where
     open RPe
+
+opaque
+
+  -- The sequence nrᵢ 𝟙 z 𝟘 is constantly equal to z
+
+  nrᵢ-const : ∀ i → nrᵢ 𝟙 z 𝟘 i ≡ z
+  nrᵢ-const 0 = refl
+  nrᵢ-const {z} (1+ i) = begin
+    𝟘 + 𝟙 · nrᵢ 𝟙 z 𝟘 i ≡⟨ +-identityˡ _ ⟩
+    𝟙 · nrᵢ 𝟙 z 𝟘 i     ≡⟨ ·-identityˡ _ ⟩
+    nrᵢ 𝟙 z 𝟘 i         ≡⟨ nrᵢ-const i ⟩
+    z                    ∎
+    where
+    open RPe
+
+opaque
+
+  -- The greatest lower bound of the sequence nrᵢ 𝟙 z 𝟘 is z
+
+  nrᵢ-const-GLB : Greatest-lower-bound z (nrᵢ 𝟙 z 𝟘)
+  nrᵢ-const-GLB = GLB-const (λ i → trans (nrᵢ-const i) (sym (nrᵢ-const 0)))
