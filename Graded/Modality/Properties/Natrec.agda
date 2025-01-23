@@ -12,6 +12,7 @@ open Semiring-with-meet 𝕄
 
 open import Graded.Modality.Properties.Addition 𝕄
 open import Graded.Modality.Properties.Greatest-lower-bound 𝕄
+open import Graded.Modality.Properties.Has-well-behaved-zero 𝕄
 open import Graded.Modality.Properties.Meet 𝕄
 open import Graded.Modality.Properties.Multiplication 𝕄
 open import Graded.Modality.Properties.PartialOrder 𝕄
@@ -21,11 +22,12 @@ open import Tools.Function
 open import Tools.Nat using (Nat; 1+)
 open import Tools.Product
 open import Tools.PropositionalEquality
+open import Tools.Sum
 import Tools.Reasoning.PartialOrder ≤-poset as RPo
 import Tools.Reasoning.PropositionalEquality as RPe
 
 private variable
-  p p′ q q′ r r′ z s : M
+  p p′ q q′ r r′ z z′ s s′ n n′ : M
 
 ------------------------------------------------------------------------
 -- Properties of nr functions
@@ -206,3 +208,186 @@ opaque
 
   nrᵢ-const-GLB : Greatest-lower-bound z (nrᵢ 𝟙 z 𝟘)
   nrᵢ-const-GLB = GLB-const (λ i → trans (nrᵢ-const i) (sym (nrᵢ-const 0)))
+
+------------------------------------------------------------------------
+-- Relating nr functions and greatest lower bounds of nrᵢ sequences
+
+opaque
+
+  -- If the modality has an nr function it computes a lower
+  -- bound for nrᵢ sequences.
+
+  nr→nrᵢ-LB :
+    (has-nr : Has-nr _ 𝕄) →
+    let open Has-nr has-nr in
+    ∀ i → nr 𝟘 r z s 𝟘 ≤ nrᵢ r z s i
+  nr→nrᵢ-LB has-nr = lemma
+    where
+    open Has-nr has-nr
+    open RPo
+    lemma : ∀ i → nr 𝟘 r z s 𝟘 ≤ nrᵢ r z s i
+    lemma 0 = nr-zero ≤-refl
+    lemma {r} {z} {s} (1+ i) = begin
+      nr 𝟘 r z s 𝟘 ≤⟨ nr-suc ⟩
+      s + 𝟘 · 𝟘 + r · nr 𝟘 r z s 𝟘 ≡⟨ +-congˡ (+-congʳ (·-zeroˡ _)) ⟩
+      s + 𝟘 + r · nr 𝟘 r z s 𝟘     ≡⟨ +-congˡ (+-identityˡ _) ⟩
+      s + r · nr 𝟘 r z s 𝟘         ≤⟨ +-monotoneʳ (·-monotoneʳ (lemma i)) ⟩
+      s + r · nrᵢ r z s i          ≡⟨⟩
+      nrᵢ r z s (1+ i)             ∎
+
+-- When all nrᵢ sequences has greater lower bounds an nr function can
+-- be defined.
+
+module _
+  ⦃ ok : Supports-GLB-for-natrec _ 𝕄 ⦄
+  (has-glb : ∀ r z s → ∃ λ p → Greatest-lower-bound p (nrᵢ r z s))
+  where
+
+  private
+
+    -- The nr function
+
+    nr₃ : M → M → M → M
+    nr₃ r z s = has-glb r z s .proj₁
+
+    nr₂ : M → M → M
+    nr₂ p r = nr₃ r 𝟙 p
+
+    nr : M → M → M → M → M → M
+    nr p r z s n = nr₂ p r · n + nr₃ r z s
+
+    opaque
+
+      -- nr₂ p r is not equal to 𝟘 if the modality has a
+      -- well-behaved zero.
+
+      nr₂≢𝟘 : ⦃ 𝟘-well-behaved : Has-well-behaved-zero M 𝕄 ⦄ →
+              nr₂ p r ≢ 𝟘
+      nr₂≢𝟘 {p} {r} nr₂≡𝟘 =
+        𝟘≰𝟙 (≤-trans (≤-reflexive (sym nr₂≡𝟘))
+          (has-glb r 𝟙 p .proj₂ .proj₁ 0))
+
+  opaque
+
+    -- If a greatest lower bound exists for all nrᵢ sequences,
+    -- the modality supports GLB for natrec and has a well-behaved zero
+    -- a factoring nr function can be defined for the modality.
+
+    nrᵢ-GLB→nr : Has-nr M 𝕄
+    nrᵢ-GLB→nr = record
+      { nr = nr
+      ; nr-monotone = λ z≤z′ s≤s′ n≤n′ →
+          +-monotone (·-monotoneʳ n≤n′) (nr₃-monotone z≤z′ s≤s′)
+      ; nr-· = nr-·
+      ; nr-+ = nr-+
+      ; nr-positive = nr-positive
+      ; nr-zero = nr-zero
+      ; nr-suc = nr-suc
+      }
+      where
+      open Supports-GLB-for-natrec ok
+      open RPo
+      nr₃-monotone : z ≤ z′ → s ≤ s′ → nr₃ r z s ≤ nr₃ r z′ s′
+      nr₃-monotone {z} {z′} {s} {s′} {r} z≤z′ s≤s′ =
+        has-glb r z′ s′ .proj₂ .proj₂ _ (λ i →
+          ≤-trans (has-glb r z s .proj₂ .proj₁ i)
+            (nrᵢ-monotone i z≤z′ s≤s′))
+      nr₃-· : nr₃ r z s · q ≡ nr₃ r (z · q) (s · q)
+      nr₃-· {r} {z} {s} {q} =
+        let p , nr-GLB = has-glb r z s
+            p′ , nrq-GLB′ = has-glb r (z · q) (s · q)
+            nrq-GLB = ·-GLBʳ {q = q} nr-GLB
+        in  GLB-unique (GLB-congˡ ·-distribʳ-nrᵢ nrq-GLB) nrq-GLB′
+      nr-· : nr p r z s n · q ≤ nr p r (z · q) (s · q) (n · q)
+      nr-· {p} {r} {z} {s} {n} {q} = begin
+        nr p r z s n · q                          ≡⟨⟩
+        (nr₂ p r · n + nr₃ r z s) · q             ≡⟨ ·-distribʳ-+ _ _ _ ⟩
+        (nr₂ p r · n) · q + nr₃ r z s · q         ≡⟨ +-cong (·-assoc _ _ _) nr₃-· ⟩
+        nr₂ p r · (n · q) + nr₃ r (z · q) (s · q) ≡⟨⟩
+        nr p r (z · q) (s · q) (n · q)            ∎
+      nr₃-+ : nr₃ r z s + nr₃ r z′ s′ ≤ nr₃ r (z + z′) (s + s′)
+      nr₃-+ {r} {z} {s} {z′} {s′} =
+        let p , nr-GLB = has-glb r z s
+            p′ , nr′-GLB = has-glb r z′ s′
+            q , nr+-GLB = has-glb r (z + z′) (s + s′)
+            q′ , nr+-GLB′ , p+p′≤q′ = +nrᵢ-GLB nr-GLB nr′-GLB
+        in  ≤-trans p+p′≤q′ (≤-reflexive (GLB-unique nr+-GLB′ nr+-GLB))
+      nr-+ : nr p r z s n + nr p r z′ s′ n′ ≤ nr p r (z + z′) (s + s′) (n + n′)
+      nr-+ {p} {r} {z} {s} {n} {z′} {s′} {n′} = begin
+        nr p r z s n + nr p r z′ s′ n′ ≡⟨⟩
+        (nr₂ p r · n + nr₃ r z s) + nr₂ p r · n′ + nr₃ r z′ s′ ≡⟨ +-sub-interchangeable-+ _ _ _ _ ⟩
+        (nr₂ p r · n + nr₂ p r · n′) + nr₃ r z s + nr₃ r z′ s′ ≡˘⟨ +-congʳ (·-distribˡ-+ _ _ _) ⟩
+        nr₂ p r · (n + n′) + nr₃ r z s + nr₃ r z′ s′           ≤⟨ +-monotoneʳ nr₃-+ ⟩
+        nr₂ p r · (n + n′) + nr₃ r (z + z′) (s + s′)           ≡⟨⟩
+        nr p r (z + z′) (s + s′) (n + n′)                      ∎
+      nr₃-positive :
+        ⦃ 𝟘-well-behaved : Has-well-behaved-zero M 𝕄 ⦄ →
+        nr₃ r z s ≡ 𝟘 → z ≡ 𝟘 × s ≡ 𝟘
+      nr₃-positive {r} {z} {s} nr₃≡𝟘 =
+        let q , q≤ , _ = has-glb r z s
+            z≡𝟘 = 𝟘≮ (≤-trans (≤-reflexive (sym nr₃≡𝟘)) (q≤ 0))
+            s≡𝟘 = 𝟘≮ $ begin
+                   𝟘           ≡˘⟨ nr₃≡𝟘 ⟩
+                   q           ≤⟨ q≤ 1 ⟩
+                   nrᵢ r z s 1 ≡⟨⟩
+                   s + r · z   ≡⟨ +-congˡ (·-congˡ z≡𝟘) ⟩
+                   s + r · 𝟘   ≡⟨ +-congˡ (·-zeroʳ _) ⟩
+                   s + 𝟘       ≡⟨ +-identityʳ _ ⟩
+                   s ∎
+        in  z≡𝟘 , s≡𝟘
+      nr-positive :
+        ⦃ 𝟘-well-behaved : Has-well-behaved-zero M 𝕄 ⦄ →
+        nr p r z s n ≡ 𝟘 → z ≡ 𝟘 × s ≡ 𝟘 × n ≡ 𝟘
+      nr-positive nr≡𝟘 =
+        let nr₂·n≡𝟘 , nr₃≡𝟘 = +-positive nr≡𝟘
+            z≡𝟘 , s≡𝟘 = nr₃-positive nr₃≡𝟘
+            n≡𝟘 = case zero-product nr₂·n≡𝟘 of λ where
+                    (inj₁ nr₂≡𝟘) → ⊥-elim (nr₂≢𝟘 nr₂≡𝟘)
+                    (inj₂ n≡𝟘) → n≡𝟘
+        in  z≡𝟘 , s≡𝟘 , n≡𝟘
+      nr-zero : n ≤ 𝟘 → nr p r z s n ≤ z
+      nr-zero {n} {p} {r} {z} {s} n≤𝟘 = begin
+        nr p r z s n            ≡⟨⟩
+        nr₂ p r · n + nr₃ r z s ≤⟨ +-monotoneˡ (·-monotoneʳ n≤𝟘) ⟩
+        nr₂ p r · 𝟘 + nr₃ r z s ≡⟨ +-congʳ (·-zeroʳ _) ⟩
+        𝟘 + nr₃ r z s           ≡⟨ +-identityˡ _ ⟩
+        nr₃ r z s               ≤⟨ has-glb r z s .proj₂ .proj₁ 0 ⟩
+        z                       ∎
+      nr-suc : nr p r z s n ≤ s + p · n + r · nr p r z s n
+      nr-suc {p} {r} {z} {s} {n} =
+        let q , q-glb = has-glb r z s
+            q′ , q′-glb = has-glb r 𝟙 p
+        in  begin
+          nr p r z s n                         ≡⟨⟩
+          q′ · n + q                           ≤⟨ +-monotone (·-monotoneˡ (nrᵢ-GLB-≤ q′-glb)) (nrᵢ-GLB-≤ q-glb) ⟩
+          (p + r · q′) · n + (s + r · q)       ≡⟨ +-congʳ (·-distribʳ-+ _ _ _) ⟩
+          (p · n + (r · q′) · n) + (s + r · q) ≡⟨ +-sub-interchangeable-+ _ _ _ _ ⟩
+          (p · n + s) + (r · q′) · n + r · q   ≡⟨ +-cong (+-comm _ _) (+-congʳ (·-assoc _ _ _)) ⟩
+          (s + p · n) + r · q′ · n + r · q     ≡˘⟨ +-congˡ (·-distribˡ-+ _ _ _) ⟩
+          (s + p · n) + r · (q′ · n + q)       ≡⟨ +-assoc _ _ _ ⟩
+          s + p · n + r · (q′ · n + q)         ≡⟨⟩
+          s + p · n + r · nr p r z s n         ∎
+
+  opaque
+    unfolding nrᵢ-GLB→nr
+
+    -- If the modality additionally has a well-behaved zero, then the
+    -- nr function given by nrᵢ-GLB→nr is factoring
+
+    nrᵢ-GLB→nr-factoring :
+      ⦃ 𝟘-well-behaved : Has-well-behaved-zero M 𝕄 ⦄ →
+      Is-factoring-nr M nrᵢ-GLB→nr
+    nrᵢ-GLB→nr-factoring = record
+      { nr₂ = nr₂
+      ; nr₂≢𝟘 = nr₂≢𝟘
+      ; nr-factoring = nr-factoring
+      }
+      where
+      open RPe
+      nr-factoring : nr p r z s n ≡ nr₂ p r · n + nr p r z s 𝟘
+      nr-factoring {p} {r} {z} {s} {n} = begin
+        nr p r z s n                            ≡⟨⟩
+        nr₂ p r · n + nr₃ r z s                 ≡˘⟨ +-congˡ (+-identityˡ _) ⟩
+        nr₂ p r · n + (𝟘 + nr₃ r z s)           ≡˘⟨ +-congˡ (+-congʳ (·-zeroʳ _)) ⟩
+        nr₂ p r · n + (nr₂ p r · 𝟘 + nr₃ r z s) ≡⟨⟩
+        nr₂ p r · n + nr p r z s 𝟘              ∎
