@@ -60,6 +60,7 @@ private
     ok : T b
     x : Fin n
     sem : Some-erased-matches
+    nm : Natrec-mode
 
 ------------------------------------------------------------------------
 -- Lemmas related to _◂_∈_
@@ -1679,7 +1680,7 @@ opaque
 -- The context ⌈ t ⌉ 𝟘ᵐ[ ok ] is equivalent to 𝟘ᶜ.
 
 ⌈⌉-𝟘ᵐ :
-  ⦃ has-nr : Nr-available ⦄ →
+  ⦃ ok′ : Natrec-mode-supports-usage-inference natrec-mode ⦄ →
   (t : Term n) → ⌈ t ⌉ 𝟘ᵐ[ ok ] ≈ᶜ 𝟘ᶜ
 ⌈⌉-𝟘ᵐ (var x) = begin
   𝟘ᶜ , x ≔ 𝟘  ≡⟨ 𝟘ᶜ,≔𝟘 ⟩
@@ -1741,16 +1742,33 @@ opaque
   ≈ᶜ-refl
 ⌈⌉-𝟘ᵐ (suc t) =
   ⌈⌉-𝟘ᵐ t
-⌈⌉-𝟘ᵐ {ok} (natrec p _ r A z s n) = begin
-    nrᶜ p r (⌈ z ⌉ 𝟘ᵐ[ ok ]) (tailₘ (tailₘ (⌈ s ⌉ 𝟘ᵐ[ ok ])))
-      (⌈ n ⌉ 𝟘ᵐ[ ok ])                                         ≈⟨ nrᶜ-cong (⌈⌉-𝟘ᵐ z) (tailₘ-cong (tailₘ-cong (⌈⌉-𝟘ᵐ s))) (⌈⌉-𝟘ᵐ n) ⟩
-
-    nrᶜ p r 𝟘ᶜ 𝟘ᶜ 𝟘ᶜ                                           ≈⟨ nrᶜ-𝟘ᶜ ⟩
-
-    𝟘ᶜ                                                         ∎
+⌈⌉-𝟘ᵐ {ok} (natrec p _ r A z s n) =
+  lemma (⌈⌉-𝟘ᵐ z) (tailₘ-cong (tailₘ-cong (⌈⌉-𝟘ᵐ s))) (⌈⌉-𝟘ᵐ n)
   where
   open Tools.Reasoning.Equivalence Conₘ-setoid
-  open import Graded.Usage.Restrictions.Instance R
+  lemma :
+    ⦃ ok′ : Natrec-mode-supports-usage-inference nm ⦄ →
+    ⌈ z ⌉ 𝟘ᵐ[ ok ] ≈ᶜ 𝟘ᶜ → tailₘ (tailₘ (⌈ s ⌉ 𝟘ᵐ[ ok ])) ≈ᶜ 𝟘ᶜ → ⌈ n ⌉ 𝟘ᵐ[ ok ] ≈ᶜ 𝟘ᶜ →
+    ⌈⌉-natrec ⦃ ok = ok′ ⦄ p r (⌈ z ⌉ 𝟘ᵐ[ ok ]) (tailₘ (tailₘ (⌈ s ⌉ 𝟘ᵐ[ ok ]))) (⌈ n ⌉ 𝟘ᵐ[ ok ]) ≈ᶜ 𝟘ᶜ
+  lemma ⦃ (Nr) ⦄ ⌈z⌉≈𝟘 ⌈s⌉≈𝟘 ⌈n⌉≈𝟘 = begin
+     nrᶜ p r (⌈ z ⌉ 𝟘ᵐ[ ok ]) (tailₘ (tailₘ (⌈ s ⌉ 𝟘ᵐ[ ok ])))
+      (⌈ n ⌉ 𝟘ᵐ[ ok ])                                         ≈⟨ nrᶜ-cong ⌈z⌉≈𝟘 ⌈s⌉≈𝟘 ⌈n⌉≈𝟘 ⟩
+
+     nrᶜ p r 𝟘ᶜ 𝟘ᶜ 𝟘ᶜ                                           ≈⟨ nrᶜ-𝟘ᶜ ⟩
+
+     𝟘ᶜ                                                         ∎
+  lemma ⦃ No-nr-glb has-GLB ⦄ ⌈z⌉≈𝟘 ⌈s⌉≈𝟘 ⌈n⌉≈𝟘 =
+    let x , _ = has-GLB r 𝟙 p
+        χ , χ-GLB = nrᵢᶜ-has-GLBᶜ has-GLB r (⌈ z ⌉ 𝟘ᵐ[ ok ]) (tailₘ (tailₘ (⌈ s ⌉ 𝟘ᵐ[ ok ])))
+        χ≈𝟘 = GLBᶜ-unique
+          (GLBᶜ-congˡ (λ i → ≈ᶜ-trans (nrᵢᶜ-cong ⌈z⌉≈𝟘 ⌈s⌉≈𝟘) nrᵢᶜ-𝟘ᶜ) χ-GLB)
+          (GLBᶜ-const (λ _ → ≈ᶜ-refl))
+    in  begin
+      x ·ᶜ ⌈ n ⌉ 𝟘ᵐ[ ok ] +ᶜ χ ≈⟨ +ᶜ-congʳ (·ᶜ-congˡ ⌈n⌉≈𝟘) ⟩
+      x ·ᶜ 𝟘ᶜ +ᶜ χ             ≈⟨ +ᶜ-congʳ (·ᶜ-zeroʳ _) ⟩
+      𝟘ᶜ +ᶜ χ                  ≈⟨ +ᶜ-identityˡ _ ⟩
+      χ                        ≈⟨ χ≈𝟘 ⟩
+      𝟘ᶜ ∎
 ⌈⌉-𝟘ᵐ Unit! =
   ≈ᶜ-refl
 ⌈⌉-𝟘ᵐ star! = ≈ᶜ-refl
@@ -1821,7 +1839,7 @@ opaque
 -- multiplied by ⌜ m ⌝.
 
 ·-⌈⌉ :
-  ⦃ has-nr : Nr-available ⦄ →
+  ⦃ ok : Natrec-mode-supports-usage-inference natrec-mode ⦄ →
   (t : Term n) → ⌜ m ⌝ ·ᶜ ⌈ t ⌉ m ≈ᶜ ⌈ t ⌉ m
 ·-⌈⌉ {m = 𝟘ᵐ} t = begin
   𝟘 ·ᶜ ⌈ t ⌉ 𝟘ᵐ  ≈⟨ ·ᶜ-zeroˡ _ ⟩
@@ -1840,10 +1858,10 @@ opaque
 -- be used as sinks, or if 𝟘 is a greatest grade.
 
 usage-upper-bound :
-  ⦃ has-nr : Nr-available ⦄ →
+  ⦃ ok : Natrec-mode-supports-usage-inference natrec-mode ⦄ →
   ¬ Starˢ-sink ⊎ (∀ {p} → p ≤ 𝟘) →
   γ ▸[ m ] t → γ ≤ᶜ ⌈ t ⌉ m
-usage-upper-bound ⦃ has-nr ⦄ ok = usage-upper-bound′
+usage-upper-bound ⦃ ok ⦄ ok′ = usage-upper-bound′
   where
   usage-upper-bound′ : γ ▸[ m ] t → γ ≤ᶜ ⌈ t ⌉ m
   usage-upper-bound′ Uₘ     = ≤ᶜ-refl
@@ -1881,32 +1899,51 @@ usage-upper-bound ⦃ has-nr ⦄ ok = usage-upper-bound′
   usage-upper-bound′ zeroₘ    = ≤ᶜ-refl
   usage-upper-bound′ (sucₘ t) = usage-upper-bound′ t
 
-  usage-upper-bound′
-    (natrecₘ {z = z} {s = s} {n = n} ⦃ has-nr = has-nr′ ⦄ γ▸z δ▸s η▸n θ▸A) =
-    case Nr-available-propositional has-nr has-nr′ of λ {
-      refl →
-    case usage-upper-bound′ γ▸z of λ {
-      γ≤γ′ →
-    case usage-upper-bound′ δ▸s of λ {
-      δ≤δ′ →
-    case usage-upper-bound′ η▸n of λ {
-      η≤η′ →
-    nrᶜ-monotone γ≤γ′ (tailₘ-monotone (tailₘ-monotone δ≤δ′)) η≤η′ }}}}
+  usage-upper-bound′ {m}
+    (natrecₘ {γ} {z} {δ} {p} {r} {η} {q} {A} {s} {n} ⦃ has-nr ⦄ γ▸z δ▸s η▸n θ▸A) =
+    lemma has-nr ok
     where
-    open import Graded.Usage.Restrictions.Instance R
+    lemma :
+      (has-nr : Natrec-mode-has-nr nm)
+      (ok : Natrec-mode-supports-usage-inference nm) →
+      nrᶜ ⦃ Natrec-mode-Has-nr has-nr ⦄ p r γ δ η ≤ᶜ ⌈⌉-natrec ⦃ ok ⦄ p r (⌈ z ⌉ m) (tailₘ (tailₘ (⌈ s ⌉ m))) (⌈ n ⌉ m)
+    lemma Nr Nr =
+      let γ≤γ′ = usage-upper-bound′ γ▸z
+          δ≤δ′ = usage-upper-bound′ δ▸s
+          η≤η′ = usage-upper-bound′ η▸n
+      in  nrᶜ-monotone γ≤γ′ (tailₘ-monotone (tailₘ-monotone δ≤δ′)) η≤η′
 
   usage-upper-bound′ (natrec-no-nrₘ ⦃ no-nr ⦄ _ _ _ _ _ _ _ _) =
-    ⊥-elim (¬[Nr∧No-nr] has-nr no-nr)
+    ⊥-elim (lemma no-nr ok)
+    where
+    lemma :
+      Natrec-mode-no-nr nm → Natrec-mode-supports-usage-inference nm → ⊥
+    lemma No-nr ()
 
-  usage-upper-bound′ (natrec-no-nr-glbₘ ⦃ no-nr ⦄ ▸z ▸s ▸n ▸A x≤ χ≤) =
-    ⊥-elim (¬[Nr∧No-nr-glb] has-nr no-nr)
+  usage-upper-bound′ {m} (natrec-no-nr-glbₘ {γ} {z} {δ} {p} {r} {η} {q} {A} {χ} {n} {s} {x} ⦃ no-nr ⦄ ▸z ▸s ▸n ▸A x-GLB χ-GLB) =
+    lemma no-nr ok
+    where
+    lemma :
+      Natrec-mode-no-nr-glb nm →
+      (ok : Natrec-mode-supports-usage-inference nm) →
+      x ·ᶜ η +ᶜ χ ≤ᶜ ⌈⌉-natrec ⦃ ok ⦄ p r (⌈ z ⌉ m) (tailₘ (tailₘ (⌈ s ⌉ m))) (⌈ n ⌉ m)
+    lemma No-nr-glb (No-nr-glb has-GLB) =
+      let x′ , x′-GLB = has-GLB r 𝟙 p
+          χ′ , χ′-GLB = nrᵢᶜ-has-GLBᶜ has-GLB r (⌈ z ⌉ m) (tailₘ (tailₘ (⌈ s ⌉ m)))
+          γ≤γ′ = usage-upper-bound′ ▸z
+          δ≤δ′ = usage-upper-bound′ ▸s
+          η≤η′ = usage-upper-bound′ ▸n
+      in  +ᶜ-monotone
+            (·ᶜ-monotone η≤η′ (≤-reflexive (GLB-unique x-GLB x′-GLB)))
+            (GLBᶜ-monotone (λ i → nrᵢᶜ-monotone γ≤γ′ (tailₘ-monotone (tailₘ-monotone δ≤δ′)))
+              χ-GLB χ′-GLB)
 
   usage-upper-bound′ (emptyrecₘ e A _) =
     ·ᶜ-monotoneʳ (usage-upper-bound′ e)
 
   usage-upper-bound′ starʷₘ = ≤ᶜ-refl
   usage-upper-bound′ {m} (starˢₘ {γ} {l} hyp) =
-    case ok of λ where
+    case ok′ of λ where
       (inj₁ no-sink) → begin
         ⌜ m ⌝ ·ᶜ γ   ≈˘⟨ ·ᶜ-congˡ (hyp no-sink) ⟩
         ⌜ m ⌝ ·ᶜ 𝟘ᶜ  ≈⟨ ·ᶜ-zeroʳ _ ⟩
@@ -2021,7 +2058,7 @@ usage-upper-bound ⦃ has-nr ⦄ ok = usage-upper-bound′
 -- (if there is a dedicated nr functions).
 
 usage-inf :
-  ⦃ has-nr : Nr-available ⦄ →
+  ⦃ ok : Natrec-mode-supports-usage-inference natrec-mode ⦄ →
   γ ▸[ m ] t → ⌈ t ⌉ m ▸[ m ] t
 usage-inf Uₘ = Uₘ
 usage-inf ℕₘ = ℕₘ
@@ -2045,17 +2082,40 @@ usage-inf {m = m} (prodrecₘ {r = r} {δ = δ} {p = p} {u = u} γ▸t δ▸u η
            ok
 usage-inf zeroₘ = zeroₘ
 usage-inf (sucₘ γ▸t) = sucₘ (usage-inf γ▸t)
-usage-inf ⦃ has-nr = nr₁ ⦄
-  (natrecₘ ⦃ has-nr = nr₂ ⦄ γ▸z δ▸s η▸n θ▸A) =
-    case Nr-available-propositional nr₁ nr₂ of λ where
-      refl →
-        natrecₘ (usage-inf γ▸z)
+usage-inf ⦃ ok ⦄
+  (natrecₘ {γ} {z} {δ} {p} {r} {η} {q} {A} {s} {n} ⦃ has-nr ⦄ γ▸z δ▸s η▸n θ▸A) =
+    sub (natrecₘ (usage-inf γ▸z)
           (Conₘ-interchange₂ (usage-inf δ▸s) δ▸s)
-          (usage-inf η▸n) θ▸A
-usage-inf ⦃ has-nr ⦄ (natrec-no-nrₘ ⦃ no-nr ⦄ _ _ _ _ _ _ _ _) =
-  ⊥-elim (¬[Nr∧No-nr] has-nr no-nr)
-usage-inf ⦃ has-nr ⦄ (natrec-no-nr-glbₘ ⦃ no-nr ⦄ _ _ _ _ _ _) =
-  ⊥-elim (¬[Nr∧No-nr-glb] has-nr no-nr)
+          (usage-inf η▸n) θ▸A)
+        (lemma has-nr ok)
+  where
+  lemma :
+    (has-nr : Natrec-mode-has-nr nm)
+    (ok : Natrec-mode-supports-usage-inference nm) →
+    ⌈⌉-natrec ⦃ ok ⦄ p r (⌈ z ⌉ m) (tailₘ (tailₘ (⌈ s ⌉ m))) (⌈ n ⌉ m) ≤ᶜ
+    nrᶜ ⦃ Natrec-mode-Has-nr has-nr ⦄ p r (⌈ z ⌉ m) (tailₘ (tailₘ (⌈ s ⌉ m))) (⌈ n ⌉ m)
+  lemma (Nr ⦃ has-nr ⦄) Nr = ≤ᶜ-refl
+usage-inf ⦃ ok ⦄ (natrec-no-nrₘ ⦃ no-nr ⦄ _ _ _ _ _ _ _ _) =
+  ⊥-elim (lemma no-nr ok)
+  where
+  lemma :
+    Natrec-mode-no-nr nm → Natrec-mode-supports-usage-inference nm → ⊥
+  lemma No-nr ()
+usage-inf {m} ⦃ ok ⦄ (natrec-no-nr-glbₘ {γ} {z} {δ} {p} {r} {η} {q} {A} {χ} {n} {s} {x} ⦃ no-nr ⦄ γ▸z δ▸s η▸n θ▸A x-GLB χ-GLB) =
+  let χ′ , χ′-GLB , le = lemma no-nr ok
+  in  sub (natrec-no-nr-glbₘ (usage-inf γ▸z)
+            (Conₘ-interchange₂ (usage-inf δ▸s) δ▸s)
+            (usage-inf η▸n) θ▸A x-GLB χ′-GLB) le
+  where
+  lemma :
+    Natrec-mode-no-nr-glb nm →
+    (ok : Natrec-mode-supports-usage-inference nm) →
+    ∃ λ χ → Greatest-lower-boundᶜ χ (nrᵢᶜ r (⌈ z ⌉ m) (tailₘ (tailₘ (⌈ s ⌉ m)))) ×
+    ⌈⌉-natrec ⦃ ok ⦄ p r (⌈ z ⌉ m) (tailₘ (tailₘ (⌈ s ⌉ m))) (⌈ n ⌉ m) ≤ᶜ x ·ᶜ ⌈ n ⌉ m +ᶜ χ
+  lemma No-nr-glb (No-nr-glb has-GLB) =
+    let χ , χ-GLB = nrᵢᶜ-has-GLBᶜ has-GLB r (⌈ z ⌉ m) (tailₘ (tailₘ (⌈ s ⌉ m)))
+    in  χ , χ-GLB
+          , +ᶜ-monotoneˡ (·ᶜ-monotoneˡ (≤-reflexive (GLB-unique (has-GLB r 𝟙 p .proj₂) x-GLB)))
 usage-inf (emptyrecₘ γ▸t δ▸A ok) = emptyrecₘ (usage-inf γ▸t) δ▸A ok
 usage-inf starʷₘ = starʷₘ
 usage-inf (starˢₘ prop) = starₘ

@@ -25,6 +25,7 @@ open import Graded.Usage 𝕄 R
 open import Graded.Usage.Erased-matches
 open import Graded.Usage.Properties 𝕄 R
 import Graded.Usage.Restrictions.Instance
+open import Graded.Usage.Restrictions.Natrec 𝕄
 open import Graded.Usage.Weakening 𝕄 R
 open import Graded.Mode 𝕄
 open import Definition.Untyped M
@@ -1590,7 +1591,7 @@ opaque
 -- x-th row of ∥ σ ∥ mos is equivalent to ⌈ σ x ⌉ (mos x).
 
 substₘ-calc-row :
-  ⦃ has-nr : Nr-available ⦄ →
+  ⦃ ok : Natrec-mode-supports-usage-inference natrec-mode ⦄ →
   (σ : Subst m n) (x : Fin n) →
   (𝟘ᶜ , x ≔ 𝟙) <* ∥ σ ∥ mos ≈ᶜ ⌈ σ x ⌉ (mos x)
 substₘ-calc-row {mos = mos} σ x0 = begin
@@ -1612,7 +1613,7 @@ substₘ-calc-row {mos = mos} σ (x +1) = begin
 -- potentially different values of p: 𝟙 and ⌜ mos x ⌝.
 
 ∥∥-*>-𝟘ᶜ,≔𝟙 :
-  ⦃ has-nr : Nr-available ⦄ →
+  ⦃ ok : Natrec-mode-supports-usage-inference natrec-mode ⦄ →
   (σ : Subst m n) →
   (𝟘ᶜ , x ≔ 𝟙) <* ∥ σ ∥ mos ≈ᶜ (𝟘ᶜ , x ≔ ⌜ mos x ⌝) <* ∥ σ ∥ mos
 ∥∥-*>-𝟘ᶜ,≔𝟙 {x = x} {mos = mos} σ = begin
@@ -1629,7 +1630,7 @@ substₘ-calc-row {mos = mos} σ (x +1) = begin
 -- dedicated nr function.
 
 substₘ-calc-correct :
-  ⦃ has-nr : Nr-available ⦄ →
+  ⦃ ok : Natrec-mode-supports-usage-inference natrec-mode ⦄ →
   (σ : Subst m n) →
   (∀ x → ∃ λ γ → γ ▸[ mos x ] σ x) → ∥ σ ∥ mos ▶[ mos ] σ
 substₘ-calc-correct {mos = mos} σ prop x with prop x
@@ -1648,7 +1649,7 @@ substₘ-calc-correct {mos = mos} σ prop x with prop x
 -- a dedicated nr function.
 
 subst-calc-correct′ :
-  ⦃ has-nr : Nr-available ⦄ →
+  ⦃ ok : Natrec-mode-supports-usage-inference natrec-mode ⦄ →
   (Ψ : Substₘ m n) →
   Ψ ▶[ mos ] σ → ∥ σ ∥ mos ▶[ mos ] σ
 subst-calc-correct′           []      _   ()
@@ -1676,7 +1677,7 @@ subst-calc-correct′ (Ψ ⊙ γ) Ψ▶σ (x +1) =
 -- substituted term.
 
 substₘ-calc-upper-bound :
-  ⦃ has-nr : Nr-available ⦄ →
+  ⦃ ok : Natrec-mode-supports-usage-inference natrec-mode ⦄ →
   ¬ Starˢ-sink ⊎ (∀ {p} → p ≤ 𝟘) →
   {γ : Conₘ m} (σ : Subst m n) (x : Fin n) →
   γ ▸[ mos x ] σ x → γ ≤ᶜ  (𝟘ᶜ , x ≔ 𝟙) <* ∥ σ ∥ mos

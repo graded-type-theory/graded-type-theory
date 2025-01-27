@@ -145,7 +145,7 @@ private
       UD.Assumptions (UR′ {𝕄 = 𝕄} has-nr)
     Assumptions-UR′ {has-nr} =
       Assumptions-not-all-erased-matches-JK _ ∘→
-      Assumptions-no-usage-restrictions _ ⦃ has-nr ⦄
+      Assumptions-no-usage-restrictions _ ⦃ Nr ⦃ has-nr ⦄ ⦄
 
 -- A trivial modality.
 

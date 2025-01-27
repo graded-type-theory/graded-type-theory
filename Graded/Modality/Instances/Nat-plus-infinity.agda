@@ -1895,6 +1895,12 @@ opaque
   nr₃-GLB ∞ ∞ s =
     nrᵢ+-∞-GLB 0 refl
 
+opaque
+
+  -- The sequence nrᵢ r z s has a greatest lower bound
+
+  nrᵢ-GLB : ∀ r z s → ∃ λ p → Greatest-lower-bound p (nrᵢ r z s)
+  nrᵢ-GLB r z s = _ , nr₃-GLB r z s
 
 opaque
 

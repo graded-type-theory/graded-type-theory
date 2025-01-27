@@ -90,6 +90,20 @@ opaque
 
 opaque
 
+  -- If pᵢ ≤ qᵢ (pointwise) then the greatest lower bound of pᵢ is
+  -- lower than the greatest lower bound of qᵢ (if they exist)
+
+  GLB-monotone :
+    (∀ i → pᵢ i ≤ qᵢ i) →
+    Greatest-lower-bound p pᵢ →
+    Greatest-lower-bound q qᵢ →
+    p ≤ q
+  GLB-monotone pᵢ≤qᵢ p-GLB q-GLB =
+    q-GLB .proj₂ _ (λ i → ≤-trans (p-GLB .proj₁ i) (pᵢ≤qᵢ i))
+
+
+opaque
+
   -- If 𝟘 is the greatest lower bounds of a sequence then the sequence is
   -- constantly 𝟘 (if the modality has a well-behaved zero).
 

@@ -127,7 +127,7 @@ private
       Decidable (_≡_ {A = M}) →
       UD.Assumptions (UR′ {𝕄 = 𝕄} has-nr)
     Assumptions-UR′ {has-nr} =
-      Assumptions-no-usage-restrictions _ ⦃ has-nr ⦄
+      Assumptions-no-usage-restrictions _ ⦃ Nr ⦃ has-nr ⦄ ⦄
 
 -- A trivial modality.
 

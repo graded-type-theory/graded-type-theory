@@ -4787,6 +4787,17 @@ opaque
 
 opaque
 
+  -- The sequence nrᵢ r z s has a greatest lower bound
+
+  nrᵢ-GLB :
+    let 𝕄 = linear-or-affine-semiring-with-meet in
+    ∀ r z s → ∃ λ p →
+      Semiring-with-meet.Greatest-lower-bound
+        𝕄 p (Semiring-with-meet.nrᵢ 𝕄 r z s)
+  nrᵢ-GLB r z s = _ , nr-nrᵢ-GLB r
+
+opaque
+
   -- The modality supports the usage rule for natrec using
   -- greatest lower bounds.
 

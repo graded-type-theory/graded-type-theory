@@ -183,6 +183,15 @@ nrᵢᶜ r (γ ∙ p) (δ ∙ q) i =
 
 opaque
 
+  -- Congruence for nrᵢᶜ
+
+  nrᵢᶜ-cong : γ₁ ≈ᶜ γ₂ → δ₁ ≈ᶜ δ₂ → nrᵢᶜ r γ₁ δ₁ i ≈ᶜ nrᵢᶜ r γ₂ δ₂ i
+  nrᵢᶜ-cong ε ε = ε
+  nrᵢᶜ-cong (γ≈γ′ ∙ refl) (δ≈δ′ ∙ refl) =
+    nrᵢᶜ-cong γ≈γ′ δ≈δ′ ∙ refl
+
+opaque
+
   -- The sequence nrᵢᶜ r 𝟘ᶜ 𝟘ᶜ is constantly 𝟘ᶜ.
 
   nrᵢᶜ-𝟘ᶜ : ∀ {n i} → nrᵢᶜ {n} r 𝟘ᶜ 𝟘ᶜ i ≈ᶜ 𝟘ᶜ

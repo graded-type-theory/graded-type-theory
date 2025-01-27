@@ -53,6 +53,17 @@ data Natrec-mode-no-nr-glb : Natrec-mode → Set a where
     ⦃ ok : Supports-GLB-for-natrec semiring-with-meet ⦄ →
     Natrec-mode-no-nr-glb No-nr-glb
 
+-- Does the natrec mode support usage inference?
+
+data Natrec-mode-supports-usage-inference : Natrec-mode → Set a where
+  Nr :
+    ⦃ has-nr : Has-nr semiring-with-meet ⦄ →
+    Natrec-mode-supports-usage-inference Nr
+  No-nr-glb :
+    ⦃ ok : Supports-GLB-for-natrec semiring-with-meet ⦄ →
+    (∀ r z s → ∃ λ p → Greatest-lower-bound p (nrᵢ r z s)) →
+    Natrec-mode-supports-usage-inference No-nr-glb
+
 -- If a natrec-mode corresponds to the usage rule using an nr function
 -- then the modality has an nr function.
 

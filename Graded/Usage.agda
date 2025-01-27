@@ -48,6 +48,7 @@ private
     b : BinderMode
     s : Strength
     em : Erased-matches
+    nm : Natrec-mode
 
 -- A view used in the implementation of ⌈_⌉.
 
@@ -80,13 +81,24 @@ opaque
   K-view : ∀ p m → ⌈⌉-view (p ≡ 𝟘) (erased-matches-for-K m)
   K-view p _ = ⌈⌉-view-inhabited (is-𝟘? p) _
 
+-- Modality context inference for natrec.
+
+⌈⌉-natrec :
+  ⦃ ok : Natrec-mode-supports-usage-inference nm ⦄ →
+  (p r : M) (γ δ η : Conₘ n) → Conₘ n
+⌈⌉-natrec ⦃ ok = Nr ⦃ (has-nr) ⦄ ⦄ p r γ δ η = nrᶜ ⦃ has-nr ⦄ p r γ δ η
+⌈⌉-natrec ⦃ ok = No-nr-glb has-GLB ⦄ p r γ δ η =
+  let x , _ = has-GLB r 𝟙 p
+      χ , _ = nrᵢᶜ-has-GLBᶜ has-GLB r γ δ
+  in  x ·ᶜ η +ᶜ χ
+
 -- Modality context inference (for modalities with nr functions).
 
 infix 50 ⌈_⌉
 
 mutual
   ⌈_⌉ :
-    ⦃ has-nr : Nr-available ⦄ →
+    ⦃ ok : Natrec-mode-supports-usage-inference natrec-mode ⦄ →
     Term n → Mode → Conₘ n
   ⌈ var x ⌉ m = 𝟘ᶜ , x ≔ ⌜ m ⌝
   ⌈ U _ ⌉ _ = 𝟘ᶜ
@@ -103,7 +115,7 @@ mutual
   ⌈ zero ⌉ _ = 𝟘ᶜ
   ⌈ suc t ⌉ m = ⌈ t ⌉ m
   ⌈ natrec p _ r _ z s n ⌉ m =
-    nrᶜ p r (⌈ z ⌉ m) (tailₘ (tailₘ (⌈ s ⌉ m))) (⌈ n ⌉ m)
+    ⌈⌉-natrec p r (⌈ z ⌉ m) (tailₘ (tailₘ (⌈ s ⌉ m))) (⌈ n ⌉ m)
   ⌈ Unit! ⌉ _ = 𝟘ᶜ
   ⌈ star! ⌉ _ = 𝟘ᶜ
   ⌈ unitrec _ p q A t u ⌉ m = p ·ᶜ ⌈ t ⌉ (m ᵐ· p) +ᶜ ⌈ u ⌉ m

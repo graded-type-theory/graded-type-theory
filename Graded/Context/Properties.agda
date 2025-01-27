@@ -19,6 +19,7 @@ open import Tools.Function
 open import Tools.Nat using (Nat; 1+; Sequence)
 open import Tools.Product
 open import Tools.PropositionalEquality
+open import Tools.Relation
 import Tools.Reasoning.Equivalence
 
 open import Graded.Context.Properties.Addition 𝕄 public
@@ -320,6 +321,32 @@ opaque
     Greatest-lower-boundᶜ γ δᵢ
   GLBᶜ-congˡ = GLBᶜ-cong ≈ᶜ-refl
 
+
+opaque
+
+  -- The greatest lower bound, if it exists, is unique
+
+  GLBᶜ-unique :
+    Greatest-lower-boundᶜ γ γᵢ →
+    Greatest-lower-boundᶜ δ γᵢ →
+    γ ≈ᶜ δ
+  GLBᶜ-unique γ-GLB δ-GLB =
+    ≤ᶜ-antisym (δ-GLB .proj₂ _ (γ-GLB .proj₁))
+      (γ-GLB .proj₂ _ (δ-GLB .proj₁))
+
+opaque
+
+  -- If γᵢ ≤ᶜ δᵢ (pointwise) then the greatest lower bound of γᵢ is
+  -- lower than the greatest lower bound of δᵢ (if they exist)
+
+  GLBᶜ-monotone :
+    (∀ i → γᵢ i ≤ᶜ δᵢ i) →
+    Greatest-lower-boundᶜ γ γᵢ →
+    Greatest-lower-boundᶜ δ δᵢ →
+    γ ≤ᶜ δ
+  GLBᶜ-monotone γᵢ≤δᵢ γ-GLB δ-GLB =
+    δ-GLB .proj₂ _ (λ i → ≤ᶜ-trans (γ-GLB .proj₁ i) (γᵢ≤δᵢ i))
+
 opaque
 
   -- Greatest lower bounds of constant sequences
@@ -493,6 +520,45 @@ opaque
           (GLB-congˡ
             (λ i → sym (cong headₘ (update-step (γᵢ i) _ x)))
             p-glb)
+
+opaque
+
+  -- If greatest lower bounds of nrᵢ sequences are decidable then so are
+  -- nrᵢᶜ sequences.
+
+  nrᵢᶜ-GLBᶜ? :
+    (∀ r p q → Dec (∃ λ x → Greatest-lower-bound x (nrᵢ r p q))) →
+    ∀ r (γ δ : Conₘ n) → Dec (∃ λ η → Greatest-lower-boundᶜ η (nrᵢᶜ r γ δ))
+  nrᵢᶜ-GLBᶜ? _ r ε ε = yes (ε , ε-GLB)
+  nrᵢᶜ-GLBᶜ? GLB? r (γ ∙ p) (δ ∙ q) =
+    lemma (GLB? r p q) (nrᵢᶜ-GLBᶜ? GLB? r γ δ)
+    where
+    lemma :
+      Dec (∃ λ x → Greatest-lower-bound x (nrᵢ r p q)) →
+      Dec (∃ λ χ → Greatest-lower-boundᶜ χ (nrᵢᶜ r γ δ)) →
+      Dec (∃ λ η → Greatest-lower-boundᶜ η (nrᵢᶜ r (γ ∙ p) (δ ∙ q)))
+    lemma (no ¬glb) _ =
+      no (λ (η , η-GLB) →
+        ¬glb (headₘ η , GLBᶜ-pointwise η-GLB .proj₂))
+    lemma (yes _) (no ¬glb) =
+      no (λ (η , η-GLB) →
+        ¬glb (tailₘ η , GLBᶜ-pointwise η-GLB .proj₁))
+    lemma (yes (x , x-glb)) (yes (η , η-glb)) =
+      yes (η ∙ x , GLBᶜ-pointwise′ η-glb x-glb)
+
+opaque
+
+  -- If all nrᵢ sequences have a greatest lower bound then so does all
+  -- nrᵢᶜ sequences.
+
+  nrᵢᶜ-has-GLBᶜ :
+    (∀ r p q → ∃ λ x → Greatest-lower-bound x (nrᵢ r p q)) →
+    ∀ r (γ δ : Conₘ n) → ∃ λ η → Greatest-lower-boundᶜ η (nrᵢᶜ r γ δ)
+  nrᵢᶜ-has-GLBᶜ nrᵢ-has-GLB r ε ε = ε , ε-GLB
+  nrᵢᶜ-has-GLBᶜ nrᵢ-has-GLB r (γ ∙ p) (δ ∙ q) =
+    let x , x-glb = nrᵢ-has-GLB r p q
+        χ , χ-glb = nrᵢᶜ-has-GLBᶜ nrᵢ-has-GLB r γ δ
+    in  χ ∙ x , GLBᶜ-pointwise′ χ-glb x-glb
 
 -- Lifting the properties of Supports-GLB-for-natrec to contexts
 

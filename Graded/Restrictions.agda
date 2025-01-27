@@ -42,6 +42,7 @@ private variable
   b  : Bool
   ok : T _
   s  : Strength
+  nm : Natrec-mode
 
 ------------------------------------------------------------------------
 -- Functions that construct Type-restrictions
@@ -569,14 +570,14 @@ opaque
 
 opaque
 
-  -- If grade equality is decidable and the modality comes with a
-  -- dedicated nr function, then UD.Assumptions holds for
-  -- no-usage-restrictions Nr b false.
+  -- If grade equality is decidable and the modality supports usage
+  -- inference for a given natrec-mode nm, UD.Assumptions holds for
+  -- no-usage-restrictions nm b false.
 
   Assumptions-no-usage-restrictions :
-    ⦃ has-nr : Has-nr semiring-with-meet ⦄ →
+    ⦃ ok : Natrec-mode-supports-usage-inference nm ⦄ →
     Decidable (_≡_ {A = M}) →
-    UD.Assumptions (no-usage-restrictions Nr b false)
+    UD.Assumptions (no-usage-restrictions nm b false)
   Assumptions-no-usage-restrictions dec = λ where
       ._≟_                       → dec
       .Prodrec-allowed? _ _ _ _  → yes _
