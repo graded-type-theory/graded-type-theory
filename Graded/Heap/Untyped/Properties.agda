@@ -931,25 +931,29 @@ opaque
 
 opaque
 
-  Ok-natrec-multiplicity-det :
-    Ok-natrec-multiplicity q p r →
-    Ok-natrec-multiplicity q′ p r →
+  -- The relation Ok-natrec-multiplicity p r is functional
+
+  Ok-natrec-multiplicity-functional :
+    Ok-natrec-multiplicity p r q →
+    Ok-natrec-multiplicity p r q′ →
     q ≡ q′
-  Ok-natrec-multiplicity-det (has-nr ⦃ (a) ⦄ x) (has-nr ⦃ (b) ⦄ x₁) =
+  Ok-natrec-multiplicity-functional (has-nr ⦃ (a) ⦄ x) (has-nr ⦃ (b) ⦄ x₁) =
     case Nr-available-propositional _ a b of λ where
       refl → trans x (sym x₁)
-  Ok-natrec-multiplicity-det (no-nr x) (no-nr x₁) =
+  Ok-natrec-multiplicity-functional (no-nr x) (no-nr x₁) =
     GLB-unique x x₁
-  Ok-natrec-multiplicity-det (has-nr ⦃ (a) ⦄ x) (no-nr ⦃ (b) ⦄ x₁) =
+  Ok-natrec-multiplicity-functional (has-nr ⦃ (a) ⦄ x) (no-nr ⦃ (b) ⦄ x₁) =
     ⊥-elim (¬[Nr∧No-nr-glb] _ a b)
-  Ok-natrec-multiplicity-det (no-nr ⦃ (a) ⦄ x) (has-nr ⦃ (b) ⦄ x₁) =
+  Ok-natrec-multiplicity-functional (no-nr ⦃ (a) ⦄ x) (has-nr ⦃ (b) ⦄ x₁) =
     ⊥-elim (¬[Nr∧No-nr-glb] _ b a)
 
 opaque
 
+  -- An inversion lemma for Ok-natrec-multiplicity
+
   Ok-natrec-multiplicity-nr-inv :
     ⦃ has-nr : Nr-available ⦄ →
-    Ok-natrec-multiplicity q p r →
+    Ok-natrec-multiplicity p r q →
     q ≡ nr₂ p r
   Ok-natrec-multiplicity-nr-inv ⦃ (x) ⦄ (has-nr ⦃ (y) ⦄ z) =
     case Nr-available-propositional _ x y of λ where
@@ -959,9 +963,11 @@ opaque
 
 opaque
 
+  -- An inversion lemma for Ok-natrec-multiplicity
+
   Ok-natrec-multiplicity-no-nr-inv :
     ⦃ no-nr : Nr-not-available-GLB ⦄ →
-    Ok-natrec-multiplicity q p r →
+    Ok-natrec-multiplicity p r q →
     Greatest-lower-bound q (nrᵢ r 𝟙 p)
   Ok-natrec-multiplicity-no-nr-inv ⦃ (x) ⦄ (has-nr ⦃ (y) ⦄ _) =
     ⊥-elim (¬[Nr∧No-nr-glb] _ y x)

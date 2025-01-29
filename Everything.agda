@@ -478,6 +478,9 @@ import Graded.Heap.Usage.Properties
 import Graded.Heap.Usage.Inversion
 import Graded.Heap.Usage.Reduction
 
+-- Assumptions used to prove some properties of the abstract machine
+import Graded.Heap.Assumptions
+
 -- Other properties of the abstract machine
 import Graded.Heap.Normalization
 import Graded.Heap.Bisimilarity

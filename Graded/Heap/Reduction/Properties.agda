@@ -112,7 +112,7 @@ opaque
   ⇾ₑ-det d (natrecₕ ok) =
     case ⇾ₑ-inv-natrec d of λ {
       (refl , _ , refl , ok′) →
-    case Ok-natrec-multiplicity-det ok ok′ of λ {
+    case Ok-natrec-multiplicity-functional ok ok′ of λ {
       refl →
     refl , refl}}
   ⇾ₑ-det (var x₁) (⇒ₑ ())

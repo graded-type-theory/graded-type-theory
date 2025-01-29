@@ -332,7 +332,7 @@ opaque
   ▸natrec→Ok-nr :
     ¬ Nr-not-available →
     γ ▸[ m ] natrec p q r A z s t →
-    ∃ λ q′ → Ok-natrec-multiplicity q′ p r
+    ∃ λ q′ → Ok-natrec-multiplicity p r q′
   ▸natrec→Ok-nr {p} {r} not-ok ▸nr =
     case inv-usage-natrec ▸nr of λ where
       (invUsageNatrec _ _ _ _ _ invUsageNatrecNr) →

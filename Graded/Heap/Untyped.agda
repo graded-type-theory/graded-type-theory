@@ -13,7 +13,10 @@ module Graded.Heap.Untyped
   (type-variant : Type-variant)
   (UR : Usage-restrictions 𝕄)
   (open Usage-restrictions UR)
-  -- If the usage rules use an nr function it must be factoring
+  -- If the usage rules use an nr function is assumed to be factoring
+  -- This is used to get the quantity representing the uses of the
+  -- natural number argument, i.e. how many copies of it that should
+  -- be placed on the heap.
   (factoring-nr :
     ⦃ has-nr : Nr-available ⦄ →
     Is-factoring-nr M (Natrec-mode-Has-nr 𝕄 has-nr))
@@ -114,14 +117,14 @@ private variable
 -- A predicate on grades indicating whether the grades on
 -- natrecₑ are "compatible" for the chosen natrec-mode.
 
-data Ok-natrec-multiplicity (q p r : M) : Set a where
+data Ok-natrec-multiplicity (p r q : M) : Set a where
   has-nr :
     ⦃ has-nr : Nr-available ⦄ →
-    q ≡ nr₂ p r → Ok-natrec-multiplicity q p r
+    q ≡ nr₂ p r → Ok-natrec-multiplicity p r q
   no-nr :
     ⦃ no-nr : Nr-not-available-GLB ⦄ →
     Greatest-lower-bound q (nrᵢ r 𝟙 p) →
-    Ok-natrec-multiplicity q p r
+    Ok-natrec-multiplicity p r q
 
 -- Weakening of eliminators
 

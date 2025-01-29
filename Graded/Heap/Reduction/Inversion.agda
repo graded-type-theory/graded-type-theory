@@ -116,7 +116,7 @@ opaque
     ⟨ H , natrec p q r A u v t , ρ , S ⟩ ⇾ₑ s →
     Σ (n′ ≡ n) λ n′≡n → ∃ λ q′ →
       subst (State _ _) n′≡n s ≡ ⟨ H , t , ρ , natrecₑ p q r q′ A u v ρ ∙ S ⟩ ×
-      Ok-natrec-multiplicity q′ p r
+      Ok-natrec-multiplicity p r q′
   ⇾ₑ-inv-natrec (natrecₕ ok) = refl , _ , refl , ok
   ⇾ₑ-inv-natrec (⇒ₑ ())
 

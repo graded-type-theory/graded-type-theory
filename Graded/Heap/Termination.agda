@@ -6,24 +6,20 @@ open import Graded.Modality
 open import Graded.Usage.Restrictions
 open import Definition.Typed.Restrictions
 open import Tools.Sum
-import Graded.Heap.Bisimilarity
+open import Graded.Heap.Assumptions
 open import Graded.Usage.Restrictions.Natrec
 
 module Graded.Heap.Termination
   {a} {M : Set a} {𝕄 : Modality M}
   (UR : Usage-restrictions 𝕄)
   (TR : Type-restrictions 𝕄)
-  (open Usage-restrictions UR)
-  (factoring-nr :
-    ⦃ has-nr : Nr-available ⦄ →
-    Is-factoring-nr M (Natrec-mode-Has-nr 𝕄 has-nr))
-  (open Graded.Heap.Bisimilarity UR TR factoring-nr)
-  (As : Assumptions)
+  (As : Assumptions UR TR)
   where
 
-open Type-restrictions TR
 open Assumptions As
 open Modality 𝕄
+open Type-restrictions TR
+open Usage-restrictions UR
 
 open import Tools.Empty
 open import Tools.Function
@@ -45,6 +41,7 @@ open import Graded.Usage 𝕄 UR
 open import Graded.Mode 𝕄
 open import Graded.Restrictions 𝕄
 
+open import Graded.Heap.Bisimilarity UR TR
 open import Graded.Heap.Normalization type-variant UR factoring-nr
 open import Graded.Heap.Untyped type-variant UR factoring-nr
 open import Graded.Heap.Untyped.Properties type-variant UR factoring-nr
@@ -53,7 +50,7 @@ open import Graded.Heap.Typed.Properties UR TR factoring-nr
 open import Graded.Heap.Typed.Reduction UR TR factoring-nr
 open import Graded.Heap.Usage type-variant UR factoring-nr
 open import Graded.Heap.Usage.Properties type-variant UR factoring-nr
-open import Graded.Heap.Usage.Reduction type-variant UR factoring-nr Unitʷ-η→ ¬Nr-not-available₁
+open import Graded.Heap.Usage.Reduction type-variant UR factoring-nr Unitʷ-η→ ¬Nr-not-available
 open import Graded.Heap.Reduction type-variant UR factoring-nr
 open import Graded.Heap.Reduction.Properties type-variant UR factoring-nr
 

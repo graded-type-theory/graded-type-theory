@@ -695,7 +695,7 @@ opaque
           (𝟘ᶜ +ᶜ η) +ᶜ ∣ S ∣ ·ᶜ wkConₘ ρ′ δ′                                                                         ≈⟨ +ᶜ-congʳ (+ᶜ-identityˡ η) ⟩
           η +ᶜ ∣ S ∣ ·ᶜ wkConₘ ρ′ δ′                                                                                 ≈⟨ +ᶜ-comm η _ ⟩
           ∣ S ∣ ·ᶜ wkConₘ ρ′ δ′ +ᶜ η                                                                                 ∎
-  ▸-⇾ₑ ▸s (natrecₕ {q′} {p} {r} {H} {z} {s} {ρ} {S} ok) =
+  ▸-⇾ₑ ▸s (natrecₕ {p} {r} {q′} {H} {z} {s} {ρ} {S} ok) =
     let γ , δ , η , ▸H , ▸t , ▸S , γ≤ = ▸ₛ-inv ▸s
         δ′ , η′ , ▸n , ▸e , δ≤ = lemma (inv-usage-natrec ▸t) ok
     in  ▸ₛ ▸H ▸n (▸e ∙ ▸S) $ begin
@@ -708,7 +708,7 @@ opaque
     where
     open ≤ᶜ-reasoning
     lemma : InvUsageNatrec γ ⌞ p′ ⌟ p q r A z s t →
-            Ok-natrec-multiplicity q′ p r →
+            Ok-natrec-multiplicity p r q′ →
             ∃₂ λ δ η → δ ▸[ ⌞ p′ · q′ ⌟ ] t ×
               (η ▸ᵉ[ ⌞ p′ ⌟ ] natrecₑ p q r q′ A z s ρ ) ×
               wkConₘ ρ γ ≤ᶜ q′ ·ᶜ wkConₘ ρ δ +ᶜ η

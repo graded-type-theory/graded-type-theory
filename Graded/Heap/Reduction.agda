@@ -89,7 +89,7 @@ infix 30 ⇒ₑ_
 data _⇾ₑ_ {k m n} : State k m n → State k m n′ → Set a where
   var : H ⊢ wkVar ρ x ↦[ ∣ S ∣ ] (t , ρ′) ⨾ H′ →
         ⟨ H , var x , ρ , S ⟩ ⇾ₑ ⟨ H′ , t , ρ′ , S ⟩
-  natrecₕ : Ok-natrec-multiplicity q′ p r →
+  natrecₕ : Ok-natrec-multiplicity p r q′ →
             ⟨ H , natrec p q r A z s t , ρ , S ⟩ ⇾ₑ
             ⟨ H , t , ρ , natrecₑ p q r q′ A z s ρ ∙ S ⟩
   ⇒ₑ_ : s₁ ⇒ₑ s₂ → s₁ ⇾ₑ s₂

@@ -12,14 +12,11 @@ module Graded.Heap.Bisimilarity
   {a} {M : Set a} {𝕄 : Modality M}
   (UR : Usage-restrictions 𝕄)
   (TR : Type-restrictions 𝕄)
-  (open Usage-restrictions UR)
-  (factoring-nr :
-    ⦃ has-nr : Nr-available ⦄ →
-    Is-factoring-nr M (Natrec-mode-Has-nr 𝕄 has-nr))
   where
 
-open Type-restrictions TR
 open Modality 𝕄
+open Type-restrictions TR
+open Usage-restrictions UR
 
 open import Tools.Empty
 open import Tools.Function
@@ -28,19 +25,7 @@ open import Tools.PropositionalEquality as PE
 open import Tools.Sum
 open import Tools.Relation
 
-open import Graded.Heap.Untyped type-variant UR factoring-nr
-open import Graded.Heap.Untyped.Properties type-variant UR factoring-nr
-open import Graded.Heap.Usage type-variant UR factoring-nr
-open import Graded.Heap.Usage.Inversion type-variant UR factoring-nr
-open import Graded.Heap.Usage.Properties type-variant UR factoring-nr
-import Graded.Heap.Usage.Reduction type-variant UR factoring-nr as U-red
-open import Graded.Heap.Normalization type-variant UR factoring-nr
-open import Graded.Heap.Reduction type-variant UR factoring-nr
-open import Graded.Heap.Reduction.Properties type-variant UR factoring-nr
-open import Graded.Heap.Typed UR TR factoring-nr
-open import Graded.Heap.Typed.Inversion UR TR factoring-nr
-open import Graded.Heap.Typed.Properties UR TR factoring-nr
-open import Graded.Heap.Typed.Reduction UR TR factoring-nr
+open import Graded.Heap.Assumptions UR TR
 
 open import Definition.Untyped M
 open import Definition.Untyped.Inversion M
@@ -55,65 +40,86 @@ open import Graded.Mode 𝕄
 open import Graded.Modality.Properties.Subtraction semiring-with-meet
 
 private variable
-  s s′ : State _ _ _
-  H H′ H″ : Heap _ _
   t t′ u u′ v w A B : Term _
   ρ ρ′ : Wk _ _
-  S S′ S″ : Stack _
   γ δ η : Conₘ _
   Γ Δ : Con Term _
   l : Universe-level
   p q : M
 
--- Assumptions that are used to prove some bisimilarity properties
--- as well as some properties elsewhere that follow from them
+private
+  module Imports
+    (factoring-nr :
+      ⦃ has-nr : Nr-available ⦄ →
+      Is-factoring-nr M (Natrec-mode-Has-nr 𝕄 has-nr))
+    where
+    open import Graded.Heap.Untyped              type-variant UR factoring-nr public
+    open import Graded.Heap.Untyped.Properties   type-variant UR factoring-nr public
+    open import Graded.Heap.Usage                type-variant UR factoring-nr public
+    open import Graded.Heap.Usage.Inversion      type-variant UR factoring-nr public
+    open import Graded.Heap.Usage.Properties     type-variant UR factoring-nr public
+    open import Graded.Heap.Normalization        type-variant UR factoring-nr public
+    open import Graded.Heap.Reduction            type-variant UR factoring-nr public
+    open import Graded.Heap.Reduction.Properties type-variant UR factoring-nr public
+    open import Graded.Heap.Typed                          UR TR factoring-nr public
+    open import Graded.Heap.Typed.Inversion                UR TR factoring-nr public
+    open import Graded.Heap.Typed.Properties               UR TR factoring-nr public
+    open import Graded.Heap.Typed.Reduction                UR TR factoring-nr public
 
-record Assumptions : Set a where
-  field
-    subtraction-ok : Supports-subtraction
-    Unitʷ-η→ : ∀ {p q} → Unitʷ-η → Unitrec-allowed 𝟙ᵐ p q → p ≤ 𝟘
-    ¬Nr-not-available₁ : ¬ Nr-not-available
-    instance
-      has-well-behaved-zero : Has-well-behaved-zero M semiring-with-meet
-
+    variable
+      s s′ : State _ _ _
+      H H′ H″ : Heap _ _
+      S S′ S″ : Stack _
 
 ------------------------------------------------------------------------
 -- Bisimilarity between the tracking and non-tracking semantics.
 
-opaque
+-- These first direction is proven under the assumption that the nr
+-- function is factoring (if it is used for usage).
 
-  ⇾ₑ→⇢ₑ : s ⇾ₑ ⟨ H , t , ρ , S ⟩
-        → ∃₂ λ H′ S′ → s ⇢ₑ ⟨ H′ , t , ρ , S′ ⟩ × H ~ʰ H′ × S ~ˢ S′
-  ⇾ₑ→⇢ₑ (var d) = _ , _ , var (↦[]→↦ d) , ~ʰ-sym (update-~ʰ d) , ~ˢ-refl
-  ⇾ₑ→⇢ₑ (⇒ₑ d) = _ , _ , ⇒ₑ d , ~ʰ-refl , ~ˢ-refl
-  ⇾ₑ→⇢ₑ (natrecₕ ok) = _ , _ , natrecₕ , ~ʰ-refl , ~ᵉ-natrec ∙ ~ˢ-refl
+module _
+  (factoring-nr :
+    ⦃ has-nr : Nr-available ⦄ →
+    Is-factoring-nr M (Natrec-mode-Has-nr 𝕄 has-nr))
+  where
 
-opaque
+  open Imports factoring-nr
 
-  ⇾→⇢ : s ⇾ ⟨ H , t , ρ , S ⟩
-      → ∃₂ λ H′ S′ → s ⇢ ⟨ H′ , t , ρ , S′ ⟩ × H ~ʰ H′ × S ~ˢ S′
-  ⇾→⇢ (⇾ₑ d) =
-    let _ , _ , d′ , H~H′ , S~S′ = ⇾ₑ→⇢ₑ d
-    in  _ , _ , ⇢ₑ d′ , H~H′ , S~S′
-  ⇾→⇢ (⇒ᵥ d) = _ , _ , ⇒ᵥ d , ~ʰ-refl , ~ˢ-refl
+  opaque
 
-opaque
+    ⇾ₑ→⇢ₑ : s ⇾ₑ ⟨ H , t , ρ , S ⟩
+          → ∃₂ λ H′ S′ → s ⇢ₑ ⟨ H′ , t , ρ , S′ ⟩ × H ~ʰ H′ × S ~ˢ S′
+    ⇾ₑ→⇢ₑ (var d) = _ , _ , var (↦[]→↦ d) , ~ʰ-sym (update-~ʰ d) , ~ˢ-refl
+    ⇾ₑ→⇢ₑ (⇒ₑ d) = _ , _ , ⇒ₑ d , ~ʰ-refl , ~ˢ-refl
+    ⇾ₑ→⇢ₑ (natrecₕ ok) = _ , _ , natrecₕ , ~ʰ-refl , ~ᵉ-natrec ∙ ~ˢ-refl
 
-  ⇾*→⇢* : s ⇾* ⟨ H , t , ρ , S ⟩
-        → ∃₂ λ H′ S′ → s ⇢* ⟨ H′ , t , ρ , S′ ⟩ × H ~ʰ H′ × S ~ˢ S′
-  ⇾*→⇢* id = _ , _ , id , ~ʰ-refl , ~ˢ-refl
-  ⇾*→⇢* (_⇨_ {s₂ = record{}} x d) =
-    let _ , _ , x′ , H~H′ , S~S′ = ⇾→⇢ x
-        _ , _ , d′ , H~H″ , S~S″ = ⇾*→⇢* d
-        _ , _ , d″ , H~H‴ , S~S‴ = ~ʰ-~ˢ-⇢* d′ H~H′ S~S′
-    in  _ , _ , x′ ⇨ d″ , ~ʰ-trans H~H″ H~H‴ , ~ˢ-trans S~S″ S~S‴
+  opaque
+
+    ⇾→⇢ : s ⇾ ⟨ H , t , ρ , S ⟩
+        → ∃₂ λ H′ S′ → s ⇢ ⟨ H′ , t , ρ , S′ ⟩ × H ~ʰ H′ × S ~ˢ S′
+    ⇾→⇢ (⇾ₑ d) =
+      let _ , _ , d′ , H~H′ , S~S′ = ⇾ₑ→⇢ₑ d
+      in  _ , _ , ⇢ₑ d′ , H~H′ , S~S′
+    ⇾→⇢ (⇒ᵥ d) = _ , _ , ⇒ᵥ d , ~ʰ-refl , ~ˢ-refl
+
+  opaque
+
+    ⇾*→⇢* : s ⇾* ⟨ H , t , ρ , S ⟩
+          → ∃₂ λ H′ S′ → s ⇢* ⟨ H′ , t , ρ , S′ ⟩ × H ~ʰ H′ × S ~ˢ S′
+    ⇾*→⇢* id = _ , _ , id , ~ʰ-refl , ~ˢ-refl
+    ⇾*→⇢* (_⇨_ {s₂ = record{}} x d) =
+      let _ , _ , x′ , H~H′ , S~S′ = ⇾→⇢ x
+          _ , _ , d′ , H~H″ , S~S″ = ⇾*→⇢* d
+          _ , _ , d″ , H~H‴ , S~S‴ = ~ʰ-~ˢ-⇢* d′ H~H′ S~S′
+      in  _ , _ , x′ ⇨ d″ , ~ʰ-trans H~H″ H~H‴ , ~ˢ-trans S~S″ S~S‴
 
 -- The other direction is proven under some additional assumptions
 
 module _ (As : Assumptions) where
 
   open Assumptions As
-  open U-red Unitʷ-η→ ¬Nr-not-available₁
+  open Imports factoring-nr
+  open import Graded.Heap.Usage.Reduction type-variant UR factoring-nr Unitʷ-η→ ¬Nr-not-available
 
   opaque
 
@@ -129,7 +135,7 @@ module _ (As : Assumptions) where
       in  _ , _ , ⇒ₑ d′ , H′~H‴ , S′~S‴
     ⇢ₑ→⇾ₑ H~H″ S~S″ ▸s natrecₕ =
       let _ , _ , _ , _ , ▸natrec , _ = ▸ₛ-inv ▸s
-      in  _ , _ , natrecₕ (▸natrec→Ok-nr ¬Nr-not-available₁ ▸natrec .proj₂)
+      in  _ , _ , natrecₕ (▸natrec→Ok-nr ¬Nr-not-available ▸natrec .proj₂)
             , H~H″ , (~ᵉ-natrec ∙ S~S″)
 
   opaque
@@ -186,10 +192,18 @@ module _ (As : Assumptions) where
 -- Bisimilarity between the weak head call-by-name reduction and
 -- the abstract machine (with tracking).
 
--- Most properties are proven only under the assumption that equality
--- reflection is not allowed or the context is empty).
+-- Most properties are proven under the assumptions that the nr
+-- function is factoring (if it is used for usage) and that equality
+-- reflection is not allowed or the context is empty.
 
-module _ ⦃ ok : No-equality-reflection or-empty Δ ⦄ where
+module _
+  (factoring-nr :
+    ⦃ has-nr : Nr-available ⦄ →
+    Is-factoring-nr M (Natrec-mode-Has-nr 𝕄 has-nr))
+  ⦃ ok : No-equality-reflection or-empty Δ ⦄
+  where
+
+  open Imports factoring-nr
 
   opaque
 
@@ -242,7 +256,8 @@ module _ ⦃ ok : No-equality-reflection or-empty Δ ⦄ where
 module _ (As : Assumptions) where
 
   open Assumptions As
-  open U-red Unitʷ-η→ ¬Nr-not-available₁
+  open Imports factoring-nr
+  open import Graded.Heap.Usage.Reduction type-variant UR factoring-nr Unitʷ-η→ ¬Nr-not-available
 
   opaque
 
@@ -256,7 +271,7 @@ module _ (As : Assumptions) where
       let _ , s′ , n , d′ = ▸normalize As s ▸s
           d″ = PE.subst (_ ⊢_⇒ _ ∷ _) (⇾ₑ*-⦅⦆-≡ d′) d
           ⊢s′ = ⊢ₛ-⇾ₑ* ⊢s d′
-          _ , _ , s″ , d‴ , u≡ = ⊢⇒→⇒ᵥ d″ n ⊢s′
+          _ , _ , s″ , d‴ , u≡ = ⊢⇒→⇒ᵥ factoring-nr d″ n ⊢s′
       in  _ , _ , s″ , ⇾ₑ* d′ ⇨* ⇒ᵥ d‴ ⇨ id , u≡
 
   opaque
