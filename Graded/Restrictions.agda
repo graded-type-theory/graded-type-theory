@@ -306,6 +306,14 @@ nr-available-UR :
 nr-available-UR has-nr UR =
   record UR { natrec-mode = Nr ⦃ has-nr ⦄ }
 
+-- The function updates the usage restrictions to use the usage rule
+-- natrec-no-nr-glbₘ for natrec, assuming that the rule is supported.
+
+nr-not-available-glb-UR :
+  Supports-GLB-for-natrec semiring-with-meet → Usage-restrictions → Usage-restrictions
+nr-not-available-glb-UR ok UR =
+  record UR { natrec-mode = No-nr-glb ⦃ ok ⦄ }
+
 ------------------------------------------------------------------------
 -- Only-some-erased-matches
 
