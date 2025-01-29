@@ -162,7 +162,7 @@ Trivial = λ where
     .FA  → U.full-reduction-assumptions (λ ())
     .TA  → Assumptions-TR′ U._≟_
     .UA  → Assumptions-UR′ U._≟_
-    .NR  → U.unit-has-nr
+    .NR  → Nr ⦃ U.unit-has-nr ⦄
     .NO-NR-GLB → U.unit-supports-glb-for-nr
     .NR₀ → U.nr-linearity-like-for-𝟘
     .NR₁ → U.nr-linearity-like-for-𝟙
@@ -212,7 +212,7 @@ Erasure = λ where
     .FA      → EP.full-reduction-assumptions _ _
     .TA      → Assumptions-TR′ E._≟_
     .UA      → Assumptions-UR′ E._≟_
-    .NR      → EM.erasure-has-nr
+    .NR      → Nr ⦃ EM.erasure-has-nr ⦄
     .NO-NR-GLB → EP.Erasure-supports-factoring-nr-rule var
     .NR₀ {z} → EP.nr-linearity-like-for-𝟘 var {z = z}
     .NR₁ {z} → EP.nr-linearity-like-for-𝟙 var {z = z}
@@ -278,7 +278,7 @@ Affine-types = λ where
     .FA          → FA′
     .TA          → Assumptions-TR′ A._≟_
     .UA          → Assumptions-UR′ A._≟_
-    .NR          → A.zero-one-many-has-nr
+    .NR          → Nr ⦃ A.zero-one-many-has-nr ⦄
     .NO-NR-GLB   → A.zero-one-many-supports-glb-for-natrec
     .NR₀ {p}     → A.nr-linearity-like-for-𝟘 {p = p}
     .NR₁ {p} {z} → A.nr-linearity-like-for-𝟙 {p = p} {z = z}
@@ -353,7 +353,7 @@ Linearity = λ where
     .FA          → FA′
     .TA          → Assumptions-TR′ L._≟_
     .UA          → Assumptions-UR′ L._≟_
-    .NR          → L.zero-one-many-has-nr
+    .NR          → Nr ⦃ L.zero-one-many-has-nr ⦄
     .NO-NR-GLB   → L.zero-one-many-supports-glb-for-natrec
     .NR₀ {p}     → L.nr-linearity-like-for-𝟘 {p = p}
     .NR₁ {p} {z} → L.nr-linearity-like-for-𝟙 {p = p} {z = z}
@@ -432,7 +432,7 @@ Linear-or-affine-types = λ where
     .FA          → FA′
     .TA          → Assumptions-TR′ LA._≟_
     .UA          → Assumptions-UR′ LA._≟_
-    .NR          → LA.linear-or-affine-has-nr
+    .NR          → Nr ⦃ LA.linear-or-affine-has-nr ⦄
     .NO-NR-GLB   → LA.linear-or-affine-supports-glb-for-natrec
     .NR₀ {p}     → LA.nr-linearity-like-for-𝟘 {p = p}
     .NR₁ {p} {s} → LA.nr-linearity-like-for-𝟙 {p = p} {s = s}

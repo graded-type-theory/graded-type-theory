@@ -18,6 +18,7 @@ open import Graded.Modality.Morphism.Type-restrictions
 open import Graded.Modality.Morphism.Usage-restrictions
 import Graded.Usage.Decidable.Assumptions as UD
 open import Graded.Usage.Restrictions
+open import Graded.Usage.Restrictions.Natrec
 
 private variable
   a₁ a₂ : Level
@@ -54,14 +55,14 @@ record Extended-modality a : Set (lsuc a) where
     -- decidable hold for UR.
     UA : UD.Assumptions UR
 
-    -- The modality comes with a dedicated nr function.
-    NR : Has-nr _ semiring-with-meet
+    -- The modality supports nr functions.
+    NR : Usage-restrictions.Nr-available UR
 
     -- The modality supports the additional properties required
     -- when the natrec-mode is chosen to be No-nr-glb.
     NO-NR-GLB : Supports-GLB-for-natrec _ semiring-with-meet
 
-  open Has-nr NR public
+  open Has-nr (Natrec-mode-Has-nr 𝕄 NR) public
 
   field
     -- The dedicated nr function satisfies Linearity-like-nr-for-𝟘.
