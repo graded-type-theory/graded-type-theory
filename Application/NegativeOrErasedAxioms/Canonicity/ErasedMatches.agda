@@ -45,7 +45,6 @@ import Graded.Modality.Instances.Erasure.Modality as EM
 
 module Counterexample
   (variant : Modality-variant)
-  (nm : Natrec-mode (EM.ErasureModality variant))
   where
 
   open Graded.Modality Erasure
@@ -66,7 +65,7 @@ module Counterexample
     TR = no-type-restrictions true false
 
     UR : Usage-restrictions 𝕄
-    UR = no-usage-restrictions nm true true
+    UR = no-usage-restrictions Nr true true
 
   open Type-restrictions TR
 
@@ -181,7 +180,6 @@ module Counterexample
 -- the lemma cannot be proved (assuming that Agda is consistent).
 
 not-canonicityEq :
-  (nm : Natrec-mode (EM.ErasureModality (𝟘ᵐ-allowed-if true))) →
   (∀ {a} {M : Set a} →
    let open Graded.Modality M
        open Definition.Untyped M
@@ -210,7 +208,7 @@ not-canonicityEq :
    ∀ {t γ} → Γ ⊢ t ∷ ℕ → γ ▸[ 𝟙ᵐ ] t → NegativeErasedContext Γ γ →
    ∃ λ u → Numeral u × Γ ⊢ t ≡ u ∷ ℕ) →
   ⊥
-not-canonicityEq nm hyp =
-  case Counterexample.cEx (𝟘ᵐ-allowed-if true) nm of λ {
+not-canonicityEq hyp =
+  case Counterexample.cEx (𝟘ᵐ-allowed-if true) of λ {
     (_ , _ , _ , _ , ⊢t , ▸t , _ , nec , con , not-numeral , _) →
   not-numeral (hyp _ _ con (λ ()) ⊢t ▸t nec) }
