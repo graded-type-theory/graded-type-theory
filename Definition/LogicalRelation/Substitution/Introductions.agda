@@ -2,7 +2,6 @@
 -- Validity lemmata.
 ------------------------------------------------------------------------
 
-open import Definition.Typed.EqualityRelation
 open import Definition.Typed.Restrictions
 open import Graded.Modality
 

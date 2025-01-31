@@ -21,7 +21,6 @@ open import Graded.Usage 𝕄 R
 open import Graded.Usage.Erased-matches
 open import Graded.Usage.Restrictions.Instance R
 open import Graded.Usage.Restrictions.Natrec 𝕄
-open import Graded.Modality.Properties 𝕄
 open import Graded.Mode 𝕄
 open import Definition.Untyped M hiding (_∙_)
 
@@ -32,7 +31,6 @@ open import Tools.Nat using (Nat; 1+; 2+)
 open import Tools.Product
 open import Tools.PropositionalEquality as PE
 open import Tools.Relation
-open import Tools.Sum
 
 private
   variable

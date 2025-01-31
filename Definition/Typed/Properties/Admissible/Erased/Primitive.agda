@@ -25,7 +25,6 @@ open import Definition.Typed.Properties.Well-formed R
 open import Definition.Untyped M hiding (_[_])
 open import Definition.Untyped.Erased 𝕄 s
 
-open import Tools.Function
 open import Tools.Nat
 import Tools.PropositionalEquality as PE
 

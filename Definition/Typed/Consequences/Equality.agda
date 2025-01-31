@@ -14,9 +14,7 @@ module Definition.Typed.Consequences.Equality
 open Type-restrictions R
 
 open import Definition.Untyped M
-open import Definition.Untyped.Lift 𝕄
 open import Definition.Untyped.Neutral M type-variant
-open import Definition.Untyped.Properties M
 open import Definition.Typed R
 open import Definition.Typed.Properties R
 open import Definition.Typed.EqRelInstance R

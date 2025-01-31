@@ -8,8 +8,6 @@ open import Definition.Typed.EqualityRelation
 import Definition.Typed
 open import Definition.Typed.Restrictions
 import Definition.Untyped
-open import Tools.Empty
-open import Tools.Sum
 import Tools.PropositionalEquality as PE
 
 module Graded.Erasure.LogicalRelation.Fundamental
@@ -26,11 +24,7 @@ open Definition.Untyped M
 open Definition.Typed TR
 open EqRelSet {{...}}
 
-open import Definition.LogicalRelation TR
-open import Definition.LogicalRelation.Hidden TR
 import Definition.LogicalRelation.Properties TR as LP
-open import Definition.LogicalRelation.Substitution TR
-open import Definition.LogicalRelation.Substitution.Introductions.Nat TR
 import Definition.LogicalRelation.Substitution.Introductions.Var TR as V
 
 import Definition.LogicalRelation.Fundamental TR as F
@@ -41,13 +35,8 @@ open import Graded.Modality.Nr-instances
 open import Graded.Modality.Properties 𝕄
 open import Graded.Usage 𝕄 UR
 open import Graded.Usage.Inversion 𝕄 UR
-open import Graded.Usage.Properties 𝕄 UR
 open import Graded.Usage.Restrictions.Instance UR
 open import Graded.Mode 𝕄
-
-open import Definition.Untyped.Properties M
-open import Definition.Typed.Properties TR
-open import Definition.Typed.Syntactic TR
 
 import Graded.Erasure.LogicalRelation
 open import Graded.Erasure.LogicalRelation.Assumptions TR
@@ -70,8 +59,7 @@ open import Tools.Fin
 open import Tools.Function
 open import Tools.Nat using (Nat)
 open import Tools.Product as Σ
-import Tools.PropositionalEquality as PE
-open import Tools.Relation
+open import Tools.Sum
 import Tools.PropositionalEquality as PE
 
 private

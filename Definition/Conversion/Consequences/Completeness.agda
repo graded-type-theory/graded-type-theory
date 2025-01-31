@@ -19,7 +19,6 @@ open import Definition.Typed R
 open import Definition.Conversion R
 
 open import Definition.Conversion.EqRelInstance R
-open import Definition.LogicalRelation R
 open import Definition.LogicalRelation.Hidden R
 open import Definition.LogicalRelation.Fundamental.Reducibility R
 

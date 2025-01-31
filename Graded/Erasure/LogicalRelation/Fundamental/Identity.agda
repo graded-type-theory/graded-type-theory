@@ -20,7 +20,6 @@ open Has-well-behaved-zero 𝟘-well-behaved
 open Type-restrictions R
 
 open import Definition.Typed R
-open import Definition.Typed.Consequences.Admissible R
 open import Definition.Typed.Consequences.Canonicity R
 open import Definition.Typed.Consequences.Inversion R
 open import Definition.Typed.Properties R
@@ -28,13 +27,11 @@ open import Definition.Typed.Reasoning.Reduction R
 open import Definition.Typed.Substitution R
 open import Definition.Typed.Syntactic R
 
-open import Definition.LogicalRelation R
 open import Definition.LogicalRelation.Fundamental R
 open import
   Definition.LogicalRelation.Fundamental.Reducibility.Restricted R
 open import Definition.LogicalRelation.Hidden R
 import Definition.LogicalRelation.Hidden.Restricted R as R
-open import Definition.LogicalRelation.Properties R
 open import Definition.LogicalRelation.Substitution R
 import Definition.LogicalRelation.Substitution.Introductions.Erased R
   as IE

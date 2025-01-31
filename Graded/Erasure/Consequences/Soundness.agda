@@ -25,15 +25,12 @@ open import Definition.Untyped.Sigma 𝕄
 open import Definition.Untyped.Unit 𝕄
 
 open import Definition.Typed TR
-open import Definition.Typed.Consequences.Admissible TR
 open import Definition.Typed.Consequences.Consistency TR
 import Definition.Typed.Consequences.Canonicity TR as TC
 open import Definition.Typed.EqualityRelation
-open import Definition.Typed.Inversion TR
 open import Definition.Typed.Properties TR
 open import Definition.Typed.Reasoning.Term TR
 open import Definition.Typed.Substitution TR
-open import Definition.LogicalRelation TR
 
 open import Graded.Context 𝕄
 open import Graded.Derived.Erased.Usage 𝕄 UR
@@ -41,7 +38,6 @@ open import Graded.Usage 𝕄 UR
 open import Graded.Usage.Erased-matches
 open import Graded.Usage.Properties 𝕄 UR
 open import Graded.Context.Properties 𝕄
-open import Graded.Modality.Properties 𝕄
 open import Graded.Mode 𝕄
 
 open import Graded.Erasure.Target as T
@@ -67,7 +63,6 @@ open import Tools.Product
 import Tools.Reasoning.PartialOrder
 open import Tools.Relation
 open import Tools.PropositionalEquality as PE using (_≡_; _≢_)
-open import Tools.Sum
 
 private
   variable

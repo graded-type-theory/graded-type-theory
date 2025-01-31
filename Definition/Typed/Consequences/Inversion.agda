@@ -22,7 +22,6 @@ open import Definition.Typed.EqRelInstance R
 open import Definition.Typed.Inversion R
 open import Definition.Typed.Properties R
 open import Definition.Typed.Stability R
-open import Definition.Typed.Substitution R
 
 open import Definition.Typed.Consequences.Injectivity R
 open import Definition.Typed.Consequences.Inequality R as I

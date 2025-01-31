@@ -3,7 +3,6 @@
 ------------------------------------------------------------------------
 
 open import Graded.Modality
-open import Definition.Untyped.NotParametrised
 
 module Graded.Derived.Unrestricted.Eta.Untyped
   {a} {M : Set a}

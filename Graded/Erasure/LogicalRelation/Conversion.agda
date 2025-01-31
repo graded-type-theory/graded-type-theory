@@ -28,22 +28,18 @@ open import Definition.LogicalRelation.Properties.Conversion R
 open import Definition.LogicalRelation.Properties.Escape R
 open import Definition.LogicalRelation.Weakening.Restricted R
 open import Definition.Untyped M
-open import Definition.Untyped.Neutral M type-variant
 open import Definition.Untyped.Properties M
 
 open import Definition.Typed R
 open import Definition.Typed.Consequences.Injectivity R
 open import Definition.Typed.Properties R
 open import Definition.Typed.Reasoning.Type R
-open import Definition.Typed.Substitution R
-open import Definition.Typed.Weakening R hiding (wk)
 
 open import Tools.Function
 open import Tools.Nat
 open import Tools.Product
 import Tools.PropositionalEquality as PE
 open import Tools.Relation
-open import Tools.Unit
 
 private
   variable

@@ -47,7 +47,6 @@ private
 
 open import Graded.Context linear-or-affine′
 open import Graded.Context.Properties linear-or-affine′
-open import Graded.Modality Linear-or-affine
 open import Graded.Modality.Instances.Examples TR Π-𝟙-𝟘
 open import Graded.Modality.Properties linear-or-affine′
 open import Graded.Mode linear-or-affine′

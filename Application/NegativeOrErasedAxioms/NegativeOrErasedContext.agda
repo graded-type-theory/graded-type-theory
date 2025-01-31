@@ -21,7 +21,6 @@ open import Graded.Context 𝕄
 open import Graded.Modality.Properties 𝕄
 open import Application.NegativeOrErasedAxioms.NegativeOrErasedType R
 
-open import Tools.Bool
 open import Tools.Empty
 open import Tools.Fin
 open import Tools.Function

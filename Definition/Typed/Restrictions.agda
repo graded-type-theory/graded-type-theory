@@ -21,7 +21,6 @@ open import Tools.Product
 open import Tools.Relation
 open import Tools.PropositionalEquality
 open import Tools.Sum
-open import Tools.Unit
 
 private variable
   Γ : Con Term _

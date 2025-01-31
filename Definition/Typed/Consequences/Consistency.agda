@@ -19,7 +19,6 @@ open import Definition.Typed.Consequences.Canonicity R
 open import Definition.Typed.EqRelInstance R
 open import Definition.Typed.Properties R
 open import Definition.Typed.Substitution R
-open import Definition.LogicalRelation R
 open import Definition.LogicalRelation.Hidden R
 open import Definition.LogicalRelation.Substitution.Introductions R
 open import Definition.LogicalRelation.Fundamental.Reducibility R

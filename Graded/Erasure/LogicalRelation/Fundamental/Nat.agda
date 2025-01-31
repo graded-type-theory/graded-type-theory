@@ -36,15 +36,12 @@ open import Definition.Typed.Syntactic R
 open import Definition.Untyped M
 open import Definition.Untyped.Properties M
 
-open import Definition.LogicalRelation R
 open import Definition.LogicalRelation.Fundamental R
 open import
   Definition.LogicalRelation.Fundamental.Reducibility.Restricted R
 open import Definition.LogicalRelation.Hidden R
 import Definition.LogicalRelation.Hidden.Restricted R as R
-open import Definition.LogicalRelation.Properties R
 open import Definition.LogicalRelation.Substitution R
-open import Definition.LogicalRelation.Substitution.Introductions.Nat R
 
 open import Graded.Context 𝕄
 open import Graded.Mode 𝕄

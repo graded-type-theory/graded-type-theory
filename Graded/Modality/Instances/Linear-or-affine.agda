@@ -8,7 +8,6 @@
 module Graded.Modality.Instances.Linear-or-affine where
 
 import Tools.Algebra
-open import Tools.Bool using (T)
 open import Tools.Empty
 open import Tools.Function
 open import Tools.Level
@@ -19,7 +18,6 @@ import Tools.Reasoning.PartialOrder
 import Tools.Reasoning.PropositionalEquality
 open import Tools.Relation
 open import Tools.Sum using (_⊎_; inj₁; inj₂)
-open import Tools.Unit
 
 import Graded.Modality
 open import Graded.FullReduction.Assumptions

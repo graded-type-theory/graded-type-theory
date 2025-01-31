@@ -19,11 +19,8 @@ open Modality 𝕄
 open import Definition.Untyped M as U hiding (_∘_; K)
 
 open import Definition.LogicalRelation R
-open import Definition.LogicalRelation.Substitution R
 open import Definition.LogicalRelation.Weakening.Restricted R
 open import Definition.Typed R
-open import Graded.Context 𝕄
-open import Graded.Mode 𝕄
 
 open import Graded.Erasure.Target as T hiding (_⇒*_)
 open import Graded.Erasure.Extraction 𝕄
@@ -35,7 +32,6 @@ open import Tools.Nat
 open import Tools.Product
 open import Tools.PropositionalEquality as PE using (_≡_)
 open import Tools.Relation
-open import Tools.Unit
 
 
 private

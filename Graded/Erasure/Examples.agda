@@ -50,7 +50,6 @@ open import Tools.Relation
 open import Tools.Sum as ⊎ using (_⊎_; inj₁; inj₂)
 
 open import Definition.Typed TR as DT hiding (id)
-open import Definition.Typed.EqRelInstance TR
 open import Definition.Typed.Eta-long-normal-form TR
 open import Definition.Typed.Properties TR
 open import Definition.Typed.Substitution TR hiding (id)
@@ -69,7 +68,6 @@ private
 open import Graded.Context EM
 open import Graded.Erasure.Consequences.Soundness TR UR
 open import Graded.Erasure.Extraction EM
-open import Graded.Erasure.Extraction.Properties EM
 import Graded.Erasure.SucRed TR as S
 open import Graded.Erasure.Target as T
   using (Strictness; strict; non-strict)

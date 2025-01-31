@@ -2,7 +2,6 @@
 -- Properties of the linearity modality
 ------------------------------------------------------------------------
 
-open import Tools.Bool
 open import Tools.Level
 
 open import Graded.Usage.Restrictions

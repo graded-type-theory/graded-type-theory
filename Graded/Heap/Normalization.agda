@@ -20,7 +20,6 @@ module Graded.Heap.Normalization
 open Type-variant type-variant
 open Modality 𝕄
 
-open import Tools.Bool
 open import Tools.Fin
 open import Tools.Function
 open import Tools.Nat

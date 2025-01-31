@@ -51,10 +51,8 @@ open import Tools.Function
 open import Tools.Level
 open import Tools.Nat
 open import Tools.Product
-open import Tools.Function
 import Tools.PropositionalEquality as PE
 open import Tools.Relation
-open import Tools.Sum using (inj₁; inj₂)
 open import Tools.Unit
 
 private

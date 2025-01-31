@@ -17,7 +17,6 @@ module Definition.Conversion.FullReduction
 open import Definition.Conversion R
 open import Definition.Conversion.Consequences.Completeness R
 open import Definition.Conversion.Consequences.InverseUniv R
-open import Definition.Conversion.Soundness R
 open import Definition.Conversion.Whnf R
 open import Definition.Typed R
 open import Definition.Typed.Consequences.Admissible R
@@ -37,8 +36,6 @@ open import Tools.Fin
 open import Tools.Function
 open import Tools.Product
 import Tools.PropositionalEquality as PE
-open import Tools.Relation
-open import Tools.Sum using (_⊎_; inj₁; inj₂)
 
 private variable
   Γ    : Con Term _

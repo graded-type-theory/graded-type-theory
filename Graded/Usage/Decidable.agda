@@ -27,7 +27,6 @@ open import Graded.Usage.Restrictions.Natrec 𝕄
 open import Graded.Mode 𝕄 hiding (_≟_)
 open import Definition.Untyped M
 
-open import Tools.Bool using (T; true; false)
 open import Tools.Empty
 open import Tools.Function
 open import Tools.Level

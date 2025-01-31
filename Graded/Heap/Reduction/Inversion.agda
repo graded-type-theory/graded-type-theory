@@ -25,8 +25,6 @@ open import Definition.Untyped M
 open import Graded.Heap.Untyped type-variant UR factoring-nr
 open import Graded.Heap.Reduction type-variant UR factoring-nr
 
-open import Graded.Modality.Nr-instances
-
 open import Tools.Empty
 open import Tools.Fin
 open import Tools.Function

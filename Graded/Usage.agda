@@ -17,8 +17,6 @@ open Usage-restrictions R
 
 open import Graded.Context 𝕄
 open import Graded.Context.Properties 𝕄
-open import Graded.Modality.Properties 𝕄
-open import Graded.Modality.Variant a
 open import Graded.Mode 𝕄
 open import Graded.Usage.Erased-matches
 open import Graded.Usage.Restrictions.Instance R
@@ -32,7 +30,6 @@ open import Tools.Nat using (Nat; 1+)
 open import Tools.Product
 open import Tools.PropositionalEquality
 open import Tools.Relation
-open import Tools.Sum using (_⊎_)
 
 infix 10 _▸[_]_
 

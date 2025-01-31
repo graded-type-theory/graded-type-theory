@@ -20,7 +20,6 @@ open import Graded.Modality.Properties 𝕄 hiding (has-nr)
 open import Graded.Usage.Restrictions.Natrec 𝕄
 
 open import Tools.Nat using (Nat)
-open import Tools.Product
 open import Tools.PropositionalEquality
 open import Tools.Relation
 open import Tools.Sum

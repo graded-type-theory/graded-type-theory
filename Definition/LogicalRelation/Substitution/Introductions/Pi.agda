@@ -29,7 +29,6 @@ open import Definition.LogicalRelation.Substitution.Introductions.Var R
 open import Definition.LogicalRelation.Weakening.Restricted R
 
 open import Definition.Typed R
-open import Definition.Typed.Inversion R
 open import Definition.Typed.Properties R
 open import Definition.Typed.Reasoning.Reduction R
 open import Definition.Typed.Reasoning.Term R

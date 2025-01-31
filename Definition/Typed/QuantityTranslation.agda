@@ -27,11 +27,9 @@ open import Tools.Fin
 open import Tools.Function
 open import Tools.Product as Σ
 import Tools.PropositionalEquality as PE
-open import Tools.Reasoning.PropositionalEquality
 open import Tools.Sum using (inj₁; inj₂)
 
 open import Definition.Typed
-open import Definition.Typed.Consequences.Admissible R₂
 open import Definition.Typed.Properties R₂
 import Definition.Typed.Substitution
 open import Definition.Untyped

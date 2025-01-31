@@ -4,7 +4,6 @@
 
 open import Graded.Modality
 open import Graded.Usage.Restrictions
-open import Definition.Untyped.NotParametrised
 
 module Graded.Derived.Unrestricted.Eta.Usage
   {a} {M : Set a}

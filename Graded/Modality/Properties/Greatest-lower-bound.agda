@@ -12,7 +12,6 @@ open Semiring-with-meet 𝕄
 open import Graded.Modality.Properties.PartialOrder 𝕄
 open import Graded.Modality.Properties.Has-well-behaved-zero 𝕄
 
-open import Tools.Algebra M
 open import Tools.Empty
 open import Tools.Nat using (Sequence)
 open import Tools.Product

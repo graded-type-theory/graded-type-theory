@@ -14,7 +14,6 @@ open Modality 𝕄
 open import Definition.Untyped M
 open import Definition.Untyped.Sigma 𝕄
 
-open import Tools.Fin
 open import Tools.Nat
 open import Tools.PropositionalEquality
 

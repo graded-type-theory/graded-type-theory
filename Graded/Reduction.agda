@@ -29,7 +29,6 @@ open import Graded.Usage.Restrictions.Instance UR
 open import Graded.Usage.Restrictions.Satisfied 𝕄 UR
 open import Graded.Mode 𝕄
 open import Definition.Typed TR
-open import Definition.Typed.Consequences.Admissible TR
 open import Definition.Typed.Eta-long-normal-form TR
 open import Definition.Typed.Properties TR
 open import Definition.Untyped M

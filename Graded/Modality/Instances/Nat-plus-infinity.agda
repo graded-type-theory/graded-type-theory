@@ -1722,7 +1722,6 @@ opaque
 open Semiring-with-meet ℕ⊎∞-semiring-with-meet
   hiding (_+_; _·_; _≤_; _∧_)
 open import Graded.Modality.Properties.Greatest-lower-bound ℕ⊎∞-semiring-with-meet
-open import Graded.Modality.Properties.Meet ℕ⊎∞-semiring-with-meet
 open import Graded.Modality.Properties.Multiplication ℕ⊎∞-semiring-with-meet
 open import Graded.Modality.Properties.Addition ℕ⊎∞-semiring-with-meet
 open import Graded.Modality.Properties.PartialOrder ℕ⊎∞-semiring-with-meet

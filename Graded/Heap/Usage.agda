@@ -32,7 +32,6 @@ open import Graded.Context 𝕄
 open import Graded.Context.Properties 𝕄
 open import Graded.Context.Weakening 𝕄
 open import Graded.Modality.Nr-instances
-open import Graded.Modality.Properties 𝕄
 open import Graded.Mode 𝕄
 open import Graded.Usage 𝕄 UR
 open import Graded.Usage.Restrictions.Instance UR

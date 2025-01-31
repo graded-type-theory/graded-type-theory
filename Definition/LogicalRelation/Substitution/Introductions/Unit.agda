@@ -28,7 +28,6 @@ open import Definition.Typed.Well-formed R
 open import Definition.LogicalRelation R
 open import Definition.LogicalRelation.Hidden R
 import Definition.LogicalRelation.Hidden.Restricted R as R
-open import Definition.LogicalRelation.Properties R
 open import Definition.LogicalRelation.ShapeView R
 open import Definition.LogicalRelation.Substitution R
 open import Definition.LogicalRelation.Substitution.Introductions.Universe R

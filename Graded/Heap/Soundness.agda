@@ -4,7 +4,6 @@
 
 open import Graded.Modality
 open import Graded.Usage.Restrictions
-open import Graded.Usage.Restrictions.Natrec
 open import Graded.Heap.Assumptions
 open import Definition.Typed.Restrictions
 open import Tools.Sum
@@ -49,7 +48,6 @@ open import Graded.Restrictions 𝕄
 open import Graded.Usage 𝕄 UR
 open import Graded.Usage.Inversion 𝕄 UR
 
-open import Graded.Heap.Bisimilarity UR TR
 open import Graded.Heap.Untyped type-variant UR factoring-nr
 open import Graded.Heap.Untyped.Properties type-variant UR factoring-nr
 open import Graded.Heap.Usage type-variant UR factoring-nr

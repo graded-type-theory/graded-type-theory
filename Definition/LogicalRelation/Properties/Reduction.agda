@@ -32,7 +32,6 @@ open import Definition.LogicalRelation.Irrelevance R
 open import Definition.LogicalRelation.Properties.Kit R
 open import Definition.LogicalRelation.Properties.Reflexivity R
 open import Definition.LogicalRelation.Properties.Universe R
-open import Definition.LogicalRelation.Properties.Escape R
 open import Definition.LogicalRelation.Properties.Transitivity R
 open import Definition.LogicalRelation.Properties.Whnf R
 

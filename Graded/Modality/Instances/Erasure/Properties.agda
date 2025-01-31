@@ -25,9 +25,7 @@ open import Graded.FullReduction.Assumptions
 open import Graded.Modality.Properties (ErasureModality variant) as P
   public
 
-open import Graded.Usage (ErasureModality variant)
 open import Graded.Usage.Restrictions (ErasureModality variant)
-open import Graded.Usage.Inversion (ErasureModality variant)
 open import Graded.Mode (ErasureModality variant)
 
 open import Definition.Typed.Restrictions (ErasureModality variant)
@@ -46,7 +44,6 @@ open import Tools.Relation
 import Tools.Reasoning.PartialOrder
 import Tools.Reasoning.PropositionalEquality
 open import Tools.Sum
-open import Tools.Unit
 
 private
   module EM = Modality (ErasureModality variant)

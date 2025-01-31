@@ -31,7 +31,6 @@ open import Tools.Product
 open import Tools.PropositionalEquality
 open import Tools.Relation
 open import Tools.Sum
-open import Tools.Unit
 
 private variable
   p  : Affine

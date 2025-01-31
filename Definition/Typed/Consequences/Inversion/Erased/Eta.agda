@@ -20,7 +20,6 @@ open import Definition.Typed R
 open import Definition.Typed.Consequences.Inequality R
 open import Definition.Typed.Consequences.Injectivity R
 open import Definition.Typed.Inversion R
-open import Definition.Typed.Substitution R
 
 open import Definition.Untyped M as U
 open import Definition.Untyped.Erased 𝕄 𝕤 hiding (erased)

@@ -29,7 +29,6 @@ open import Definition.LogicalRelation.Substitution R
 open import Definition.LogicalRelation.Substitution.Introductions.Universe R
 
 open import Tools.Function
-open import Tools.Nat using (Nat; 1+)
 open import Tools.Product
 
 private variable

@@ -17,11 +17,9 @@ open import Graded.Modality.Properties.Meet 𝕄
 open import Graded.Modality.Properties.PartialOrder 𝕄
 
 open import Tools.Empty
-open import Tools.Fin
 open import Tools.Function
 open import Tools.Product
 open import Tools.PropositionalEquality
-open import Tools.Relation
 
 private variable
   p p′ q q′ r r′ ∞ : M

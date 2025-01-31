@@ -18,7 +18,6 @@ open Type-restrictions R
 
 import Definition.LogicalRelation.Hidden R as H
 open import Definition.LogicalRelation.Hidden.Restricted R
-open import Definition.LogicalRelation.Properties R
 
 open import Definition.Typed R
 open import Definition.Typed.Properties R

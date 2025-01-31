@@ -34,7 +34,6 @@ open import Graded.Usage.Erased-matches
 open import Graded.Usage.Properties 𝕄 UR
 open import Graded.Usage.Restrictions.Instance UR
 
-open import Tools.Bool using (T)
 open import Tools.Empty
 open import Tools.Function
 open import Tools.Product

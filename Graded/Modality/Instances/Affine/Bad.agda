@@ -40,7 +40,6 @@ import Tools.Reasoning.PartialOrder
 
 open import Graded.Context affineModality
 open import Graded.Context.Properties affineModality
-open import Graded.Modality Affine
 open import Graded.Modality.Instances.Examples TR Π-𝟙-𝟘
 open import Graded.Mode affineModality
 open import Graded.Usage affineModality UR′

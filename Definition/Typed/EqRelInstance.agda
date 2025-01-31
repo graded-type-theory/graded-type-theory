@@ -21,10 +21,7 @@ open import Definition.Typed.EqualityRelation R
 import Definition.Typed.EqualityRelation.Instance
 
 open import Tools.Function
-open import Tools.Level
 open import Tools.Product
-open import Tools.Relation
-open import Tools.Unit
 
 private opaque
 

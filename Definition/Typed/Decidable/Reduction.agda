@@ -29,7 +29,6 @@ open import Definition.Typed.Consequences.Inequality R as I
 open import Definition.Typed.Consequences.Reduction R
 open import Definition.LogicalRelation R
 open import Definition.LogicalRelation.Fundamental.Reducibility R
-open import Definition.LogicalRelation.Properties R
 
 open import Tools.Function
 open import Tools.Product

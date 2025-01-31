@@ -47,7 +47,6 @@ open import Tools.Nat using (Nat)
 open import Tools.Product as Σ
 import Tools.PropositionalEquality as PE
 import Tools.Reasoning.PropositionalEquality
-open import Tools.Relation
 
 private variable
   Γ Δ                                             : Con Term _

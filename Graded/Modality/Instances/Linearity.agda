@@ -31,7 +31,6 @@ open import Tools.Function
 open import Tools.Product
 open import Tools.PropositionalEquality
 open import Tools.Relation
-open import Tools.Unit
 
 -- A "linear types" modality.
 

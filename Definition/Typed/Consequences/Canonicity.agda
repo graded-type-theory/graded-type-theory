@@ -15,7 +15,6 @@ open Type-restrictions R
 
 open import Definition.Untyped M
 open import Definition.Untyped.Neutral M type-variant
-open import Definition.Untyped.Properties M
 
 open import Definition.Typed R
 open import Definition.Typed.Consequences.Inversion R
@@ -23,7 +22,6 @@ open import Definition.Typed.Properties R
 open import Definition.Typed.Syntactic R
 open import Definition.Typed.EqRelInstance R
 open import Definition.LogicalRelation R
-open import Definition.LogicalRelation.Properties R
 open import Definition.LogicalRelation.Substitution.Introductions R
 open import Definition.LogicalRelation.Fundamental.Reducibility
   R ⦃ inc = ε ⦄

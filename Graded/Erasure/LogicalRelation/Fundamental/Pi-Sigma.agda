@@ -20,18 +20,15 @@ module Graded.Erasure.LogicalRelation.Fundamental.Pi-Sigma
 open Assumptions as
 open Type-restrictions TR
 
-open import Definition.LogicalRelation TR
 open import Definition.LogicalRelation.Fundamental TR
 open import
   Definition.LogicalRelation.Fundamental.Reducibility.Restricted TR
 open import Definition.LogicalRelation.Hidden TR
 import Definition.LogicalRelation.Hidden.Restricted TR as R
-open import Definition.LogicalRelation.Properties TR
 open import Definition.LogicalRelation.Substitution TR
 import Definition.LogicalRelation.Substitution.Introductions TR as I
 
 open import Definition.Typed TR
-open import Definition.Typed.Consequences.Admissible TR
 open import Definition.Typed.Consequences.Inversion TR
 open import Definition.Typed.Consequences.Reduction TR
 open import Definition.Typed.Inversion TR

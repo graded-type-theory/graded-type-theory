@@ -22,7 +22,6 @@ open Type-restrictions TR
 open import Definition.Untyped M
 open import Definition.Untyped.Properties M
 open import Definition.Typed TR
-open import Definition.Typed.Properties TR
 open import Definition.Typed.Substitution TR
 
 open import Graded.Heap.Typed UR TR factoring-nr

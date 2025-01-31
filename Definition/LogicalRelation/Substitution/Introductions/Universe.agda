@@ -18,7 +18,6 @@ open Type-restrictions R
 
 open import Definition.Typed R
 open import Definition.Typed.Properties R
-open import Definition.Typed.Substitution.Primitive R
 open import Definition.Typed.Well-formed R
 open import Definition.Untyped M
 open import Definition.Untyped.Neutral M type-variant
@@ -32,7 +31,6 @@ open import Definition.LogicalRelation.Substitution R
 open import Tools.Function
 open import Tools.Nat using (Nat; 1+; 2+)
 open import Tools.Product as Σ
-open import Tools.Empty
 import Tools.PropositionalEquality as PE
 
 private
