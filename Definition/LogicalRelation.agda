@@ -27,7 +27,6 @@ open import Definition.Typed R
 -- Definition.LogicalRelation.Properties.Reduction fails to type-check
 -- (at the time of writing).
 open import Definition.Typed.Substitution R using (_,_)
-open import Definition.Typed.Weakening R
 
 open import Tools.Empty
 open import Tools.Function

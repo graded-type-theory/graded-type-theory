@@ -87,7 +87,7 @@ opaque
               ∣ S ∣ ·ᶜ wkConₘ ρ δ′ +ᶜ η +ᶜ ∣ S ∣ ·ᶜ p ·ᶜ wkConₘ ρ′ θ′    ≈˘⟨ +ᶜ-assoc _ _ _ ⟩
               (∣ S ∣ ·ᶜ wkConₘ ρ δ′ +ᶜ η) +ᶜ ∣ S ∣ ·ᶜ p ·ᶜ wkConₘ ρ′ θ′  ≈˘⟨ +ᶜ-congˡ (·ᶜ-assoc _ _ _) ⟩
               (∣ S ∣ ·ᶜ wkConₘ ρ δ′ +ᶜ η) +ᶜ (∣ S ∣ · p) ·ᶜ wkConₘ ρ′ θ′ ∎
-    in  ▸ₛ (subₕ ▸H γ≤ ∙ ▸ᶜᵖ (▸-cong ⌞⌟ᵐ· ▸u))
+    in  ▸ₛ (sub ▸H γ≤ ∙ ▸-cong ⌞⌟ᵐ· ▸u)
            (▸-cong (⌞⌟-cong (trans (·-identityʳ _) (wk-∣S∣ (step id) S))) ▸t)
            (wk-▸ˢ (step id) ▸S) $ begin
              ∣ S ∣ ·ᶜ wkConₘ ρ δ′ +ᶜ η ∙ ∣ S ∣ · p                                   ≈˘⟨ ≈ᶜ-refl ∙ ·-congʳ ·⌜⌞⌟⌝ ⟩
@@ -169,7 +169,7 @@ opaque
         θ′ , ▸u , ok , θ≈ = ▸-inv-prodrecₑ ▸e
         invUsageProdʷ {δ = δ′} {η = η′} ▸t₁ ▸t₂ δ≤ = inv-usage-prodʷ ▸t
         γ≤′ : γ ≤ᶜ ((η +ᶜ ∣ S ∣ ·ᶜ wkConₘ ρ′ θ′) +ᶜ (∣ S ∣ · r) ·ᶜ wkConₘ ρ η′) +ᶜ
-                   (∣ S ∣ · r · p + (∣ S ∣ · r) · 𝟘) ·ᶜ wkConₘ ρ δ′
+                   (∣ S ∣ · r · p) ·ᶜ wkConₘ ρ δ′
         γ≤′ = begin
           γ                                                                                                                ≤⟨ γ≤ ⟩
           (∣ S ∣ · r) ·ᶜ wkConₘ ρ δ +ᶜ η +ᶜ ∣ S ∣ ·ᶜ θ                                                                     ≈⟨ +ᶜ-congˡ (+ᶜ-congˡ (·ᶜ-congˡ θ≈)) ⟩
@@ -182,14 +182,11 @@ opaque
           ((∣ S ∣ · r · p) ·ᶜ wkConₘ ρ δ′ +ᶜ (∣ S ∣ · r) ·ᶜ wkConₘ ρ η′) +ᶜ η +ᶜ ∣ S ∣ ·ᶜ wkConₘ ρ′ θ′                     ≈⟨ +ᶜ-comm _ _ ⟩
           (η +ᶜ ∣ S ∣ ·ᶜ wkConₘ ρ′ θ′) +ᶜ (∣ S ∣ · r · p) ·ᶜ wkConₘ ρ δ′ +ᶜ (∣ S ∣ · r) ·ᶜ wkConₘ ρ η′                     ≈⟨ +ᶜ-congˡ (+ᶜ-comm _ _) ⟩
           (η +ᶜ ∣ S ∣ ·ᶜ wkConₘ ρ′ θ′) +ᶜ (∣ S ∣ · r) ·ᶜ wkConₘ ρ η′ +ᶜ (∣ S ∣ · r · p) ·ᶜ wkConₘ ρ δ′                     ≈˘⟨ +ᶜ-assoc _ _ _ ⟩
-          ((η +ᶜ ∣ S ∣ ·ᶜ wkConₘ ρ′ θ′) +ᶜ (∣ S ∣ · r) ·ᶜ wkConₘ ρ η′) +ᶜ (∣ S ∣ · r · p) ·ᶜ wkConₘ ρ δ′                   ≈˘⟨ +ᶜ-congˡ (·ᶜ-congʳ (+-identityʳ _)) ⟩
-          ((η +ᶜ ∣ S ∣ ·ᶜ wkConₘ ρ′ θ′) +ᶜ (∣ S ∣ · r) ·ᶜ wkConₘ ρ η′) +ᶜ (∣ S ∣ · r · p + 𝟘) ·ᶜ wkConₘ ρ δ′               ≈˘⟨ +ᶜ-congˡ (·ᶜ-congʳ (+-congˡ (·-zeroʳ _))) ⟩
-          ((η +ᶜ ∣ S ∣ ·ᶜ wkConₘ ρ′ θ′) +ᶜ (∣ S ∣ · r) ·ᶜ wkConₘ ρ η′) +ᶜ (∣ S ∣ · r · p + (∣ S ∣ · r) · 𝟘) ·ᶜ wkConₘ ρ δ′ ∎
-        ▸ᶜt₁ = subst₂ (λ x y → (δ′ ⨾ x ▸ᶜ (y , _)))
-                (trans (·-assoc _ _ _) (sym (trans (+-congˡ (·-zeroʳ _)) (+-identityʳ _))))
-                (·-assoc _ _ _) (▸ᶜᵖ (▸-cong ⌞⌟ᵐ· ▸t₁))
-
-    in  ▸ₛ (subₕ ▸H γ≤′ ∙ ▸ᶜt₁ ∙ ▸ᶜᵖ ▸t₂)
+          ((η +ᶜ ∣ S ∣ ·ᶜ wkConₘ ρ′ θ′) +ᶜ (∣ S ∣ · r) ·ᶜ wkConₘ ρ η′) +ᶜ (∣ S ∣ · r · p) ·ᶜ wkConₘ ρ δ′                   ∎
+        ▸t₁′ = ▸-cong (trans ⌞⌟ᵐ· (⌞⌟-cong (·-assoc _ _ _))) ▸t₁
+    in  ▸ₛ (sub (sub ▸H γ≤′ ∙ ▸t₁′)
+             (≤ᶜ-refl ∙ ≤-reflexive (sym (trans (+-congˡ (·-zeroʳ _))
+                                            (+-identityʳ _)))) ∙ ▸t₂)
            (▸-cong (⌞⌟-cong (wk-∣S∣ (step (step id)) S)) ▸u)
            (wk-▸ˢ (step (step id)) ▸S)
            (lemma₁ ∙ lemma₂ ∙ lemma₂)
@@ -233,47 +230,42 @@ opaque
     let γ , δ , η , θ′ , ▸H , ▸t , ▸S , ▸e , γ≤ = ▸ₛ-∙-inv ▸s
         γ′ , δ′ , η′ , ▸z , ▸s , ▸A , extra = ▸-inv-natrecₑ ▸e
         invUsageSuc {δ = θ} ▸t δ≤ = inv-usage-suc ▸t
-        χ , χ▸nr , ρ′χ≈θ′ = ▸nr ▸z ▸s ▸A extra
+        χ , x , χ▸nr , rρ′χ≈rθ′ , rx≡rq′ = ▸nr′ ▸z ▸s ▸A extra
         q′≤ , θ′≤ = InvUsageNatrecₑ-≤ extra
-    in case ▸ᶜᵖʳ χ▸nr of λ {
-         (χ′ ∙ x , ▸ᶜnr , rχ≈rχ′ ∙ rq′S≡rx) →
-       let ∣S∣q′≤ = let open RPo ≤-poset in begin
-             ∣ S ∣ · q′                  ≤⟨ ·-monotoneʳ q′≤ ⟩
-             ∣ S ∣ · (p + r · q′)        ≡⟨ ·-distribˡ-+ _ _ _ ⟩
-             ∣ S ∣ · p + ∣ S ∣ · r · q′  ≡⟨ +-congˡ (lemma₁ rq′S≡rx) ⟩
-             ∣ S ∣ · p + ∣ S ∣ · r · x   ≡˘⟨ +-congˡ (·-assoc _ _ _) ⟩
-             ∣ S ∣ · p + (∣ S ∣ · r) · x ∎
-           γ≤′ = let open ≤ᶜ-reasoning in begin
-             γ                                                                                            ≤⟨ γ≤ ⟩
-             (∣ S ∣ · q′) ·ᶜ wkConₘ ρ δ +ᶜ η +ᶜ ∣ S ∣ ·ᶜ θ′                                               ≤⟨ +ᶜ-monotoneˡ (·ᶜ-monotoneʳ (wk-≤ᶜ ρ δ≤)) ⟩
-             (∣ S ∣ · q′) ·ᶜ wkConₘ ρ θ +ᶜ η +ᶜ ∣ S ∣ ·ᶜ θ′                                               ≈⟨ +ᶜ-comm _ _ ⟩
-             (η +ᶜ ∣ S ∣ ·ᶜ θ′) +ᶜ (∣ S ∣ · q′) ·ᶜ wkConₘ ρ θ                                             ≤⟨ +ᶜ-monotoneˡ (+ᶜ-monotoneʳ (·ᶜ-monotoneʳ θ′≤)) ⟩
-             (η +ᶜ ∣ S ∣ ·ᶜ (wkConₘ ρ′ δ′ +ᶜ r ·ᶜ θ′)) +ᶜ (∣ S ∣ · q′) ·ᶜ wkConₘ ρ θ                      ≈⟨ +ᶜ-congʳ (+ᶜ-congˡ (·ᶜ-distribˡ-+ᶜ _ _ _)) ⟩
-             (η +ᶜ ∣ S ∣ ·ᶜ wkConₘ ρ′ δ′ +ᶜ ∣ S ∣ ·ᶜ r ·ᶜ θ′) +ᶜ (∣ S ∣ · q′) ·ᶜ wkConₘ ρ θ               ≈˘⟨ +ᶜ-congʳ (+ᶜ-assoc _ _ _) ⟩
-             ((η +ᶜ ∣ S ∣ ·ᶜ wkConₘ ρ′ δ′) +ᶜ ∣ S ∣ ·ᶜ r ·ᶜ θ′) +ᶜ (∣ S ∣ · q′) ·ᶜ wkConₘ ρ θ             ≈˘⟨ +ᶜ-congʳ (+ᶜ-cong (+ᶜ-comm _ _)
-                                                                                                            (·ᶜ-congˡ (·ᶜ-congˡ ρ′χ≈θ′))) ⟩
-             ((∣ S ∣ ·ᶜ wkConₘ ρ′ δ′ +ᶜ η) +ᶜ ∣ S ∣ ·ᶜ r ·ᶜ wkConₘ ρ′ χ) +ᶜ (∣ S ∣ · q′) ·ᶜ wkConₘ ρ θ    ≈˘⟨ +ᶜ-congʳ (+ᶜ-congˡ (·ᶜ-congˡ (wk-·ᶜ ρ′))) ⟩
-             ((∣ S ∣ ·ᶜ wkConₘ ρ′ δ′ +ᶜ η) +ᶜ ∣ S ∣ ·ᶜ wkConₘ ρ′ (r ·ᶜ χ)) +ᶜ (∣ S ∣ · q′) ·ᶜ wkConₘ ρ θ  ≈⟨ +ᶜ-congʳ (+ᶜ-congˡ (·ᶜ-congˡ (wk-≈ᶜ ρ′ rχ≈rχ′))) ⟩
-             ((∣ S ∣ ·ᶜ wkConₘ ρ′ δ′ +ᶜ η) +ᶜ ∣ S ∣ ·ᶜ wkConₘ ρ′ (r ·ᶜ χ′)) +ᶜ (∣ S ∣ · q′) ·ᶜ wkConₘ ρ θ ≈⟨ +ᶜ-congʳ (+ᶜ-congˡ (·ᶜ-congˡ (wk-·ᶜ ρ′))) ⟩
-             ((∣ S ∣ ·ᶜ wkConₘ ρ′ δ′ +ᶜ η) +ᶜ ∣ S ∣ ·ᶜ r ·ᶜ wkConₘ ρ′ χ′) +ᶜ (∣ S ∣ · q′) ·ᶜ wkConₘ ρ θ   ≈˘⟨ +ᶜ-congʳ (+ᶜ-congˡ (·ᶜ-assoc _ _ _)) ⟩
-             ((∣ S ∣ ·ᶜ wkConₘ ρ′ δ′ +ᶜ η) +ᶜ (∣ S ∣ · r) ·ᶜ wkConₘ ρ′ χ′) +ᶜ (∣ S ∣ · q′) ·ᶜ wkConₘ ρ θ  ≤⟨ +ᶜ-monotoneʳ (·ᶜ-monotoneˡ ∣S∣q′≤) ⟩
-             ((∣ S ∣ ·ᶜ wkConₘ ρ′ δ′ +ᶜ η) +ᶜ (∣ S ∣ · r) ·ᶜ wkConₘ ρ′ χ′) +ᶜ
-                                              (∣ S ∣ · p + (∣ S ∣ · r) · x) ·ᶜ wkConₘ ρ θ                 ∎
-       in  ▸ₛ (subₕ ▸H γ≤′ ∙ ▸ᶜ ▸t ∣S∣q′≤ ∙ ▸ᶜnr)
-              (▸-cong (⌞⌟-cong (wk-∣S∣ _ S)) ▸s)
-              (wk-▸ˢ (step (step id)) ▸S)
-              (≤ᶜ-reflexive
-                (+ᶜ-congʳ (·ᶜ-congʳ (wk-∣S∣ _ S)) ∙
-                 lemma₂ p ∙ lemma₂ r))}
+        γ≤′ = let open ≤ᶜ-reasoning in begin
+          γ                                                 ≤⟨ γ≤ ⟩
+          (∣ S ∣ · q′) ·ᶜ wkConₘ ρ δ +ᶜ η +ᶜ ∣ S ∣ ·ᶜ θ′    ≤⟨ +ᶜ-monotoneˡ (·ᶜ-monotoneʳ (wk-≤ᶜ ρ δ≤)) ⟩
+          (∣ S ∣ · q′) ·ᶜ wkConₘ ρ θ +ᶜ η +ᶜ ∣ S ∣ ·ᶜ θ′    ≈⟨ +ᶜ-comm _ _ ⟩
+          (η +ᶜ ∣ S ∣ ·ᶜ θ′) +ᶜ (∣ S ∣ · q′) ·ᶜ wkConₘ ρ θ  ∎
+        η+∣S∣θ′≤ = let open ≤ᶜ-reasoning in begin
+          η +ᶜ ∣ S ∣ ·ᶜ θ′                                                ≤⟨ +ᶜ-monotoneʳ (·ᶜ-monotoneʳ θ′≤) ⟩
+          η +ᶜ ∣ S ∣ ·ᶜ (wkConₘ ρ′ δ′ +ᶜ r ·ᶜ θ′)                         ≈⟨ +ᶜ-congˡ (·ᶜ-distribˡ-+ᶜ _ _ _) ⟩
+          η +ᶜ ∣ S ∣ ·ᶜ wkConₘ ρ′ δ′ +ᶜ ∣ S ∣ ·ᶜ r ·ᶜ θ′                  ≈˘⟨ +ᶜ-assoc _ _ _ ⟩
+          (η +ᶜ ∣ S ∣ ·ᶜ wkConₘ ρ′ δ′) +ᶜ ∣ S ∣ ·ᶜ r ·ᶜ θ′                ≈˘⟨ +ᶜ-congˡ (·ᶜ-congˡ rρ′χ≈rθ′) ⟩
+          (η +ᶜ ∣ S ∣ ·ᶜ wkConₘ ρ′ δ′) +ᶜ ∣ S ∣ ·ᶜ r ·ᶜ wkConₘ ρ′ χ       ≈˘⟨ +ᶜ-cong (+ᶜ-comm _ _) (·ᶜ-assoc _ _ _) ⟩
+          (∣ S ∣ ·ᶜ wkConₘ ρ′ δ′ +ᶜ η) +ᶜ (∣ S ∣ · r) ·ᶜ wkConₘ ρ′ χ      ≈⟨ +ᶜ-congʳ (+ᶜ-congʳ (·ᶜ-congʳ (wk-∣S∣ _ S))) ⟩
+          (∣ wk2ˢ S ∣ ·ᶜ wkConₘ ρ′ δ′ +ᶜ η) +ᶜ (∣ S ∣ · r) ·ᶜ wkConₘ ρ′ χ ∎
+        ∣S∣q′≤ = let open RPo ≤-poset in begin
+          ∣ S ∣ · q′                                   ≤⟨ ·-monotoneʳ q′≤ ⟩
+          ∣ S ∣ · (p + r · q′)                         ≈⟨ ·-distribˡ-+ _ _ _ ⟩
+          ∣ S ∣ · p + ∣ S ∣ · r · q′                   ≈⟨ +-congˡ (lemma₁ ∣ S ∣) ⟩
+          ∣ S ∣ · p + ∣ S ∣ · (r · q′) · ⌜ ⌞ ∣ S ∣ ⌟ ⌝ ≈⟨ +-congˡ (·-congˡ (·-assoc _ _ _)) ⟩
+          ∣ S ∣ · p + ∣ S ∣ · r · q′ · ⌜ ⌞ ∣ S ∣ ⌟ ⌝   ≈˘⟨ +-congˡ (·-congˡ rx≡rq′) ⟩
+          ∣ S ∣ · p + ∣ S ∣ · r · x                    ≈˘⟨ +-congˡ (·-assoc _ _ _) ⟩
+          ∣ S ∣ · p + (∣ S ∣ · r) · x                  ∎
+    in ▸ₛ (sub (sub ▸H γ≤′ ∙ ▸t) (η+∣S∣θ′≤ ∙ ∣S∣q′≤) ∙ ▸-cong ⌞⌟ᵐ· χ▸nr)
+          (▸-cong (⌞⌟-cong (wk-∣S∣ _ S)) ▸s)
+          (wk-▸ˢ (step (step id)) ▸S)
+          (≤ᶜ-refl ∙ ≤-reflexive (lemma₂ p) ∙ ≤-reflexive (lemma₂ r))
     where
-    lemma₁ : ∀ {p q q′ r} → p · q · ⌜ ⌞ r ⌟ ⌝ ≡ p · q′ → r · p · q ≡ r · p · q′
-    lemma₁ {p} {q} {q′} {r} eq = case is-𝟘? r of λ where
+    lemma₁ : ∀ {q} p → p · q ≡ p · q · ⌜ ⌞ p ⌟ ⌝
+    lemma₁ {q} p = case is-𝟘? p of λ where
       (yes refl) → trans (·-zeroˡ _) (sym (·-zeroˡ _))
-      (no r≢𝟘) → ·-congˡ $ begin
-        p · q             ≡˘⟨ ·-congˡ (·-identityʳ _) ⟩
-        p · q · 𝟙         ≡˘⟨ ·-congˡ (·-congˡ (cong ⌜_⌝ (≢𝟘→⌞⌟≡𝟙ᵐ r≢𝟘))) ⟩
-        p · q · ⌜ ⌞ r ⌟ ⌝ ≡⟨ eq ⟩
-        p · q′            ∎
+      (no p≢𝟘) → begin
+        p · q               ≡˘⟨ ·-identityʳ _ ⟩
+        (p · q) · 𝟙         ≡˘⟨ ·-congˡ (cong ⌜_⌝ (≢𝟘→⌞⌟≡𝟙ᵐ p≢𝟘)) ⟩
+        (p · q) · ⌜ ⌞ p ⌟ ⌝ ≡⟨ ·-assoc _ _ _ ⟩
+        p · q · ⌜ ⌞ p ⌟ ⌝   ∎
         where
         open RPe
     lemma₂ : ∀ p → ∣ S ∣ · p ≡ ∣ wk2ˢ S ∣ · ⌜ ⌞ ∣ S ∣ ⌟ ⌝ · p + 𝟘
@@ -286,7 +278,7 @@ opaque
       where
       open RPe
     ▸nr : γ ▸[ m ] z → δ ∙ ⌜ m ⌝ · p ∙ ⌜ m ⌝ · r ▸[ m ] s →
-          η ∙ ⌜ 𝟘ᵐ? ⌝ · q ▸[ 𝟘ᵐ? ] A → InvUsageNatrecₑ p r q′ γ δ ρ′ θ →
+           η ∙ ⌜ 𝟘ᵐ? ⌝ · q ▸[ 𝟘ᵐ? ] A → InvUsageNatrecₑ p r q′ γ δ ρ′ θ →
           ∃ λ χ → χ ∙ q′ · ⌜ m ⌝ ▸[ m ] natrec p q r (wk (lift (step id)) A) (wk (step id) z) (wk (liftn (step id) 2) s) (var x0) × wkConₘ ρ′ χ ≈ᶜ θ
     ▸nr ▸z ▸s ▸A (invUsageNatrecNr q′≡nr₂) =
       _ , sub (natrecₘ (wkUsage (step id) ▸z)
@@ -305,6 +297,24 @@ opaque
               (≤ᶜ-reflexive (≈ᶜ-sym (≈ᶜ-trans (+ᶜ-congʳ (·ᶜ-zeroʳ _)) (+ᶜ-identityˡ _)) ∙
                 (sym (+-identityʳ _))))
         , ≈ᶜ-refl
+    ▸nr′ : γ ▸[ m ] z → δ ∙ ⌜ m ⌝ · p ∙ ⌜ m ⌝ · r ▸[ m ] s →
+           η ∙ ⌜ 𝟘ᵐ? ⌝ · q ▸[ 𝟘ᵐ? ] A → InvUsageNatrecₑ p r q′ γ δ ρ′ θ →
+           ∃₂ λ χ x →
+             χ ∙ x ▸[ m ᵐ· r ] natrec p q r (wk (lift (step id)) A) (wk (step id) z) (wk (liftn (step id) 2) s) (var x0) ×
+             r ·ᶜ wkConₘ ρ′ χ ≈ᶜ r ·ᶜ θ ×
+             r · x ≡ r · q′ · ⌜ m ⌝
+    ▸nr′ {m} ▸z ▸s ▸A extra =
+      let _ , ▸nr , ρ′χ≈θ = ▸nr ▸z ▸s ▸A extra
+      in case is-𝟘? r of λ where
+        (no r≢𝟘) →
+          _ , _ , ▸-cong (sym (≢𝟘→ᵐ·≡ r≢𝟘)) ▸nr
+            , ·ᶜ-congˡ ρ′χ≈θ , refl
+        (yes refl) →
+          case ▸-𝟘ᵐ? ▸nr of λ where
+            (_ ∙ _ , ▸⁰nr) →
+              _ , _ , ▸-cong (sym (ᵐ·-zeroʳ m)) ▸⁰nr
+                , ≈ᶜ-trans (·ᶜ-zeroˡ _) (≈ᶜ-sym (·ᶜ-zeroˡ _))
+                , trans (·-zeroˡ _) (sym (·-zeroˡ _))
 
   ▸-⇒ᵥ ▸s (starʷₕ {ρ} {p} {ρ′} {S}) =
     let γ , δ , η , θ , ▸H , ▸t , ▸S , ▸e , γ≤ = ▸ₛ-∙-inv ▸s

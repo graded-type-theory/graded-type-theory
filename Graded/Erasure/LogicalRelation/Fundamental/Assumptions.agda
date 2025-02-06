@@ -30,7 +30,6 @@ open import Graded.Mode 𝕄
 open import Graded.Restrictions 𝕄
 
 open import Tools.Nat
-open import Tools.PropositionalEquality
 open import Tools.Sum
 
 private variable

@@ -6,10 +6,8 @@
 module Definition.Untyped.Properties {a} (M : Set a) where
 
 open import Definition.Untyped M
-open import Definition.Untyped.Inversion M
 open import Definition.Untyped.Properties.NotParametrised public
 
-open import Tools.Empty
 open import Tools.Fin
 open import Tools.Function
 open import Tools.Nat
@@ -17,7 +15,6 @@ open import Tools.Relation
 open import Tools.Product
 open import Tools.PropositionalEquality as PE
 open import Tools.Reasoning.PropositionalEquality
-open import Tools.Sum
 
 private
   variable

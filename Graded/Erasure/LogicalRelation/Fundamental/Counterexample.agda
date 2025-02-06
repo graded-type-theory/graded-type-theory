@@ -24,7 +24,6 @@ open Type-restrictions TR
 open Usage-restrictions UR
 
 open import Graded.Context 𝕄
-open import Graded.Modality.Properties 𝕄
 open import Graded.Usage 𝕄 UR
 open import Graded.Usage.Erased-matches
 open import Graded.Mode 𝕄
@@ -33,12 +32,9 @@ open import Definition.Untyped M
 import Definition.Untyped.Erased 𝕄 as Erased
 open import Definition.Untyped.Neutral M type-variant
 open import Definition.Typed TR
-open import Definition.Typed.Consequences.Admissible TR
 open import Definition.Typed.Consequences.Consistency TR
 open import Definition.Typed.Properties TR
 open import Definition.Typed.Substitution TR
-open import Definition.LogicalRelation TR
-open import Definition.LogicalRelation.Substitution TR
 
 open import Graded.Erasure.Consequences.Soundness TR UR
 open import Graded.Erasure.Extraction 𝕄
@@ -47,15 +43,12 @@ import Graded.Erasure.LogicalRelation
 import Graded.Erasure.LogicalRelation.Hidden
 open import Graded.Erasure.Target using (Strictness)
 
-open import Tools.Bool using (T)
-open import Tools.Empty
 open import Tools.Fin
 open import Tools.Function
 open import Tools.Nat using (Nat)
 open import Tools.Product
 open import Tools.PropositionalEquality using (_≡_; _≢_)
 open import Tools.Relation
-open import Tools.Sum
 
 private variable
   k   : Nat

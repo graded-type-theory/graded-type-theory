@@ -4,7 +4,6 @@
 
 open import Graded.Modality
 open import Graded.Usage.Restrictions
-open import Graded.Usage.Restrictions.Natrec
 open import Graded.Heap.Assumptions
 open import Definition.Typed.Restrictions
 open import Tools.Sum
@@ -49,7 +48,6 @@ open import Graded.Restrictions 𝕄
 open import Graded.Usage 𝕄 UR
 open import Graded.Usage.Inversion 𝕄 UR
 
-open import Graded.Heap.Bisimilarity UR TR
 open import Graded.Heap.Untyped type-variant UR factoring-nr
 open import Graded.Heap.Untyped.Properties type-variant UR factoring-nr
 open import Graded.Heap.Usage type-variant UR factoring-nr
@@ -199,7 +197,7 @@ opaque
           (PE.trans (PE.cong (λ x → wk ρ x [ H ]ₕ) ≡sucᵏ)
             (PE.trans (PE.cong (_[ H ]ₕ) (wk-sucᵏ k)) (subst-sucᵏ k)))
           s≡
-      , 𝟘▸H→H≤𝟘 (subₕ ▸H $ begin
+      , 𝟘▸H→H≤𝟘 (sub ▸H $ begin
           γ                      ≤⟨ γ≤ ⟩
           𝟙 ·ᶜ wkConₘ ρ δ +ᶜ η   ≈⟨ +ᶜ-congˡ (▸ˢ-ε-inv ▸ε) ⟩
           𝟙 ·ᶜ wkConₘ ρ δ +ᶜ 𝟘ᶜ  ≈⟨ +ᶜ-identityʳ _ ⟩

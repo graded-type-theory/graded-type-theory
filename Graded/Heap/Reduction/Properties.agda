@@ -21,7 +21,6 @@ module Graded.Heap.Reduction.Properties
 open Type-variant type-variant
 open Modality 𝕄
 
-open import Tools.Bool
 open import Tools.Empty
 open import Tools.Fin
 open import Tools.Function
@@ -31,7 +30,6 @@ open import Tools.Product
 open import Tools.Sum
 
 open import Definition.Untyped M
-open import Graded.Modality.Nr-instances
 
 open import Graded.Heap.Untyped type-variant UR factoring-nr
 open import Graded.Heap.Untyped.Properties type-variant UR factoring-nr

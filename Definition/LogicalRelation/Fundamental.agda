@@ -23,17 +23,12 @@ open import Definition.Untyped.Properties M
 open import Definition.Typed R
 open import Definition.Typed.Properties R
 open import Definition.Typed.Substitution R
-open import Definition.LogicalRelation R
-open import Definition.LogicalRelation.Properties R
 open import Definition.LogicalRelation.Substitution R
 open import Definition.LogicalRelation.Substitution.Introductions R
 import Definition.LogicalRelation.Substitution.Introductions.Erased R
   as Erased
 
-open import Tools.Function
 open import Tools.Product
-open import Tools.Unit
-open import Tools.Sum
 open import Tools.Nat using (Nat)
 import Tools.PropositionalEquality as PE
 

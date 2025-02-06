@@ -23,7 +23,6 @@ open import Tools.Function
 open import Tools.Product
 open import Tools.PropositionalEquality as PE
 open import Tools.Sum
-open import Tools.Relation
 
 open import Graded.Heap.Assumptions UR TR
 
@@ -36,8 +35,6 @@ open import Definition.Typed TR
 open import Definition.Typed.Properties TR hiding (_⇨*_)
 
 open import Graded.Context 𝕄 hiding (_⟨_⟩)
-open import Graded.Mode 𝕄
-open import Graded.Modality.Properties.Subtraction semiring-with-meet
 
 private variable
   t t′ u u′ v w A B : Term _

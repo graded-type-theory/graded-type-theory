@@ -12,19 +12,15 @@ module Definition.Typed.Substitution
   where
 
 open import Definition.Typed R
-open import Definition.Typed.Inversion R
 open import Definition.Typed.Properties.Admissible.Identity R
 open import Definition.Typed.Properties.Admissible.Pi R
 open import Definition.Typed.Properties.Admissible.Sigma R
-open import Definition.Typed.Properties.Well-formed R
 import Definition.Typed.Substitution.Primitive R as P
-open import Definition.Typed.Well-formed R
 
 open import Definition.Untyped M
 open import Definition.Untyped.Properties M
 
 open import Tools.Function
-open import Tools.Product
 import Tools.PropositionalEquality as PE
 
 open P public

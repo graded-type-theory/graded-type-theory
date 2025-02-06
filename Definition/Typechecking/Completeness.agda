@@ -15,7 +15,6 @@ module Definition.Typechecking.Completeness
   where
 
 open import Definition.Typechecking R
-open import Definition.Typechecking.Soundness R
 open import Definition.Typed R
 open import Definition.Typed.EqRelInstance R
 open import Definition.Typed.EqualityRelation.Instance R
@@ -24,7 +23,6 @@ open import Definition.Typed.Inversion R
 open import Definition.Typed.Properties R
 open import Definition.Typed.Stability R
 open import Definition.Typed.Substitution R
-open import Definition.Typed.Syntactic R
 import Definition.Typed.Weakening R as W
 open import Definition.Typed.Consequences.Inequality R
 open import Definition.Typed.Consequences.Reduction R

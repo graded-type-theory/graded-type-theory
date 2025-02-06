@@ -25,7 +25,6 @@ open import Tools.Product
 open import Tools.Relation
 
 open import Definition.Untyped M
-open import Graded.Modality.Nr-instances
 open import Graded.Heap.Untyped type-variant UR factoring-nr
 
 open Type-variant type-variant

@@ -26,7 +26,6 @@ open import Definition.Typed.Weakening R
 
 open import Tools.Fin
 open import Tools.Function
-open import Tools.Nat
 open import Tools.Product
 import Tools.PropositionalEquality as PE
 

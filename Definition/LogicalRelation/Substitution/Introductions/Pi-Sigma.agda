@@ -45,7 +45,6 @@ open import Tools.Nat using (Nat; 1+)
 open import Tools.Product as Σ
 import Tools.PropositionalEquality as PE
 import Tools.Reasoning.PropositionalEquality
-open import Tools.Relation
 
 private variable
   n                         : Nat

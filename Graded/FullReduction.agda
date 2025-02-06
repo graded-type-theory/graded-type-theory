@@ -22,7 +22,6 @@ open import Tools.Bool
 open import Tools.Empty
 open import Tools.Fin
 open import Tools.Function
-open import Tools.Level
 open import Tools.Nat using (Nat)
 open import Tools.Product
 import Tools.PropositionalEquality as PE
@@ -30,26 +29,17 @@ import Tools.Reasoning.PartialOrder
 import Tools.Reasoning.PropositionalEquality
 open import Tools.Relation
 open import Tools.Sum using (_⊎_; inj₁; inj₂)
-open import Tools.Unit
 
 open import Definition.Untyped M as U
 open import Definition.Typed TR
 open import Definition.Typed.Eta-long-normal-form TR
-open import Definition.Typed.InverseUniv TR
 open import Definition.Typed.Inversion TR
 open import Definition.Typed.Properties TR
-open import Definition.Typed.Stability TR
-open import Definition.Typed.Substitution TR
 open import Definition.Typed.Syntactic TR
-open import Definition.Typed.Weakening TR
-open import Definition.Typed.Consequences.Admissible TR
-open import Definition.Typed.Consequences.NeTypeEq TR
 
 open import Definition.Conversion TR
 open import Definition.Conversion.Consequences.Completeness TR
 import Definition.Conversion.FullReduction TR as FR
-open import Definition.Conversion.Soundness TR
-open import Definition.Conversion.Whnf TR
 
 open import Graded.Context 𝕄
 open import Graded.Context.Properties 𝕄

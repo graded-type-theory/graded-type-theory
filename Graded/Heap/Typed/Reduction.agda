@@ -29,8 +29,6 @@ open import Definition.Typed.Properties TR
 open import Definition.Typed.Reasoning.Term TR
 open import Definition.Typed.Substitution TR
 open import Definition.Typed.Syntactic TR
-open import Definition.Typed.Weakening TR using (id; step; _∷_⊇_)
-import Definition.Typed.Weakening TR as W
 open import Definition.Typed.Consequences.Admissible TR
 open import Definition.Typed.Consequences.Inequality TR
 open import Definition.Typed.Consequences.Injectivity TR
@@ -45,7 +43,6 @@ open import Graded.Heap.Typed.Weakening UR TR factoring-nr
 open import Graded.Heap.Untyped type-variant UR factoring-nr
 open import Graded.Heap.Untyped.Properties type-variant UR factoring-nr
 
-open import Tools.Bool
 open import Tools.Empty
 open import Tools.Fin
 open import Tools.Function

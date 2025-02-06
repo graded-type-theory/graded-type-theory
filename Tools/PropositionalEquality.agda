@@ -9,7 +9,6 @@ module Tools.PropositionalEquality where
 
 open import Tools.Level
 open import Tools.Product
-open import Tools.Relation
 
 import Relation.Binary.PropositionalEquality as Eq
 open Eq using

@@ -27,7 +27,6 @@ open import Definition.Typed.Inversion TR
 open import Definition.Typed.Properties TR
 open import Definition.Typed.Substitution TR
 open import Definition.Typed.Syntactic TR
-open import Definition.Typed.Consequences.Admissible TR
 open import Definition.Typed.Consequences.Inequality TR
 
 open import Graded.Heap.Typed UR TR factoring-nr

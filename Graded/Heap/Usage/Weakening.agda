@@ -18,7 +18,6 @@ module Graded.Heap.Usage.Weakening
   where
 
 open import Tools.Nat
-open import Tools.Product
 open import Tools.PropositionalEquality
 import Tools.Reasoning.Equivalence
 

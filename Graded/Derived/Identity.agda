@@ -2,7 +2,6 @@
 -- Properties related to usage and Id
 ------------------------------------------------------------------------
 
-open import Definition.Typed.Restrictions
 open import Graded.Modality
 open import Graded.Usage.Restrictions
 
@@ -28,7 +27,6 @@ open import Graded.Usage.Weakening 𝕄 UR
 open import Definition.Untyped M
 open import Definition.Untyped.Identity 𝕄
 
-open import Tools.Bool
 open import Tools.Function
 open import Tools.Product
 open import Tools.PropositionalEquality as PE using (_≡_)

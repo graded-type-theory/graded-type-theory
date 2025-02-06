@@ -7,7 +7,6 @@ open import Graded.Usage.Restrictions
 open import Definition.Typed.Restrictions
 open import Tools.Sum
 open import Graded.Heap.Assumptions
-open import Graded.Usage.Restrictions.Natrec
 
 module Graded.Heap.Termination
   {a} {M : Set a} {𝕄 : Modality M}
@@ -29,8 +28,6 @@ open import Tools.PropositionalEquality as PE hiding (sym)
 
 open import Definition.Untyped M
 open import Definition.Untyped.Neutral M type-variant
-open import Definition.Untyped.Properties M
-open import Definition.Untyped.Properties.Neutral M type-variant
 open import Definition.Typed TR
 open import Definition.Typed.Consequences.Canonicity TR
 open import Definition.Typed.Consequences.Reduction TR
@@ -42,7 +39,6 @@ open import Graded.Mode 𝕄
 open import Graded.Restrictions 𝕄
 
 open import Graded.Heap.Bisimilarity UR TR
-open import Graded.Heap.Normalization type-variant UR factoring-nr
 open import Graded.Heap.Untyped type-variant UR factoring-nr
 open import Graded.Heap.Untyped.Properties type-variant UR factoring-nr
 open import Graded.Heap.Typed UR TR factoring-nr

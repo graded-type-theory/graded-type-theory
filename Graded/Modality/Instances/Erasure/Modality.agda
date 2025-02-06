@@ -7,7 +7,6 @@ module Graded.Modality.Instances.Erasure.Modality where
 open import Tools.Level
 open import Tools.Product
 open import Tools.PropositionalEquality
-open import Tools.Relation
 open import Tools.Sum
 
 open import Graded.Modality.Instances.Erasure

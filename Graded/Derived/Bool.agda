@@ -34,14 +34,11 @@ open import Graded.Usage.Weakening 𝕄 R
 open import Definition.Untyped M
 open import Definition.Untyped.Bool 𝕄
 
-open import Tools.Bool using (T)
 open import Tools.Fin
 open import Tools.Function
 open import Tools.Nat using (Nat; 1+; 2+)
-open import Tools.Product
 import Tools.PropositionalEquality as PE
 import Tools.Reasoning.PartialOrder
-open import Tools.Relation
 
 private variable
   k n             : Nat

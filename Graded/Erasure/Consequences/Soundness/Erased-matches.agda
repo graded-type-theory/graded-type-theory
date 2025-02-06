@@ -11,7 +11,6 @@ open import Graded.Modality
 import Graded.Mode
 import Graded.Restrictions
 open import Graded.Usage.Restrictions
-open import Tools.Bool
 open import Tools.Nat
 
 module Graded.Erasure.Consequences.Soundness.Erased-matches
@@ -46,7 +45,6 @@ module Graded.Erasure.Consequences.Soundness.Erased-matches
   where
 
 import Definition.Typed.QuantityTranslation as QT
-open import Definition.Untyped.QuantityTranslation
 open import Definition.Untyped.QuantityTranslation.Identity M
 
 open import Graded.Context 𝕄
@@ -80,8 +78,6 @@ open Definition.Typed TR
 open Graded.Erasure.SucRed TR
 
 -- The modules T-η and SR-η use TR-η.
-
-open import Definition.Typed.EqRelInstance TR-η
 
 private
   module T-η         = Definition.Typed TR-η

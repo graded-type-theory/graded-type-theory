@@ -24,7 +24,6 @@ open import Definition.LogicalRelation.ShapeView R
 open import Definition.LogicalRelation.Weakening.Restricted R
 import Definition.LogicalRelation.Irrelevance R as I
 
-open import Definition.Typed R
 open import Definition.Typed.Consequences.Injectivity R
 open import Definition.Typed.Properties R
 open import Definition.Typed.Reasoning.Type R
@@ -38,7 +37,6 @@ open import Tools.Nat
 open import Tools.Product
 import Tools.PropositionalEquality as PE
 open import Tools.Relation
-open import Tools.Unit
 
 private
   variable

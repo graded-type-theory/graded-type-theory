@@ -16,7 +16,6 @@ open import Tools.PropositionalEquality
 import Tools.Reasoning.PropositionalEquality
 open import Tools.Relation
 open import Tools.Sum as ⊎
-open import Tools.Unit
 
 open import Graded.Modality
 open import Graded.Modality.Instances.Affine

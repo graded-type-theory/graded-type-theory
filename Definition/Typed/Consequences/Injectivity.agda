@@ -19,9 +19,7 @@ open import Definition.Untyped.Neutral M type-variant
 
 open import Definition.Typed R
 open import Definition.Typed.Properties R
-open import Definition.Typed.Weakening R
 open import Definition.Typed.EqRelInstance R
-open import Definition.LogicalRelation R
 open import Definition.LogicalRelation.Hidden R
 open import Definition.LogicalRelation.Fundamental.Reducibility R
 open import Definition.LogicalRelation.Substitution.Introductions R

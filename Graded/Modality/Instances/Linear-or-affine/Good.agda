@@ -20,7 +20,6 @@ module Graded.Modality.Instances.Linear-or-affine.Good
   (Π-𝟙-𝟘 : Π-allowed 𝟙 𝟘)
   where
 
-open import Tools.Empty
 open import Tools.Function
 import Tools.Reasoning.PartialOrder
 open import Tools.Product

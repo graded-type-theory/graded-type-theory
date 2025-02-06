@@ -43,7 +43,6 @@ open Type-restrictions TR
 open Usage-restrictions UR
 
 open import Definition.Typed TR
-open import Definition.Typed.Consequences.Admissible TR
 open import Definition.Typed.Properties TR
 open import Definition.Untyped M
 open import Definition.Untyped.Identity 𝕄
@@ -70,7 +69,6 @@ open import Tools.Product
 open import Tools.PropositionalEquality as PE using (_≡_; _≢_)
 import Tools.Reasoning.PropositionalEquality
 open import Tools.Relation
-open import Tools.Sum
 
 private variable
   b           : Bool

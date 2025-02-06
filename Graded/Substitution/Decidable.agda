@@ -23,7 +23,6 @@ open import Graded.Context 𝕄
 open import Graded.Substitution 𝕄 R
 open import Graded.Substitution.Properties 𝕄 R
 open import Graded.Context.Properties 𝕄
-open import Graded.Modality.Properties 𝕄
 open import Graded.Usage 𝕄 R
 open import Graded.Usage.Decidable as
 open import Graded.Usage.Properties 𝕄 R

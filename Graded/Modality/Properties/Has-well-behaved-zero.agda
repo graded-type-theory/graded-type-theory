@@ -26,7 +26,6 @@ open import Tools.Function
 open import Tools.Product
 import Tools.Reasoning.PartialOrder
 import Tools.Reasoning.PropositionalEquality
-open import Tools.Relation
 
 private
   variable

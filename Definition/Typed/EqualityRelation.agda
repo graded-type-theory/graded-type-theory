@@ -17,11 +17,9 @@ open Type-restrictions R
 open import Definition.Untyped M
 import Definition.Untyped.Erased 𝕄 as Erased
 open import Definition.Untyped.Neutral M type-variant
-open import Definition.Untyped.Properties M
 open import Definition.Typed R
 open import Definition.Typed.Weakening R using (_∷ʷ_⊇_)
 
-open import Tools.Empty
 open import Tools.Fin
 open import Tools.Function
 open import Tools.Level hiding (_⊔_)

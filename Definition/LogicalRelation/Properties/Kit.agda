@@ -17,21 +17,13 @@ open EqRelSet {{...}}
 open Type-restrictions R
 
 open import Definition.Untyped Mod as U hiding (K)
-open import Definition.Untyped.Neutral Mod type-variant
 open import Definition.Untyped.Properties Mod
-open import Definition.Typed.Properties R
-open import Definition.Typed R
-open import Definition.Typed.Weakening R
 open import Definition.LogicalRelation R
 
-open import Tools.Empty
 open import Tools.Function
-open import Tools.Level
 open import Tools.Nat
 open import Tools.Product
 import Tools.PropositionalEquality as PE
-open import Tools.Relation
-open import Tools.Unit
 
 private variable
   l l₁ l₂ n : Nat

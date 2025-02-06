@@ -21,14 +21,12 @@ open import Definition.Typed R
 open import Definition.Typed.Properties R
 open import Definition.LogicalRelation R
 open import Definition.LogicalRelation.ShapeView R
-open import Definition.LogicalRelation.Properties.Escape R
 open import Definition.LogicalRelation.Properties.Kit R
 open import Definition.LogicalRelation.Irrelevance R
 
 open import Tools.Nat hiding (_<_; _≤_)
 open import Tools.Product
 open import Tools.Empty
-open import Tools.Function
 
 private
   variable

@@ -22,7 +22,6 @@ open import Graded.Substitution 𝕄 R
 open import Graded.Modality.Nr-instances
 open import Graded.Modality.Properties 𝕄
 open import Graded.Usage 𝕄 R
-open import Graded.Usage.Erased-matches
 open import Graded.Usage.Properties 𝕄 R
 import Graded.Usage.Restrictions.Instance
 open import Graded.Usage.Restrictions.Natrec 𝕄

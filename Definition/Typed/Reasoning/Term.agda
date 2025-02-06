@@ -16,7 +16,6 @@ open import Definition.Typed.Properties.Admissible.Equality R
 open import Definition.Typed.Properties.Reduction R
 open import Definition.Untyped M
 
-open import Tools.Function
 import Tools.PropositionalEquality as PE
 
 open import Definition.Typed.Reasoning.Term.Primitive R public

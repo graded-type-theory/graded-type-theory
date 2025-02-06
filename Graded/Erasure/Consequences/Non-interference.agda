@@ -31,7 +31,6 @@ open Fundamental-assumptions FA
 open import Definition.Typed TR
 open import Definition.Typed.Properties TR
 open import Definition.Typed.Substitution TR
-open import Definition.LogicalRelation TR
 import Definition.LogicalRelation.Fundamental TR as F
 open import Definition.LogicalRelation.Substitution TR
 
@@ -59,7 +58,6 @@ open import Graded.Erasure.LogicalRelation.Fundamental TR UR
 open Fundamental FA
 
 open import Tools.Function
-open import Tools.Product
 
 private variable
   Γ : Con Term _

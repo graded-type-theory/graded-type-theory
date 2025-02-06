@@ -18,15 +18,12 @@ open Type-restrictions R
 
 open import Definition.Untyped M as U hiding (wk)
 open import Definition.Untyped.Neutral M type-variant
-open import Definition.Typed R
 import Definition.Typed.Weakening R as T
 open import Definition.Typed.Properties R
 open import Definition.Typed.Reasoning.Reduction R
 open import Definition.LogicalRelation R
 open import Definition.LogicalRelation.Hidden R
 import Definition.LogicalRelation.Hidden.Restricted R as R
-open import Definition.LogicalRelation.Irrelevance R
-open import Definition.LogicalRelation.Properties R
 open import Definition.LogicalRelation.Substitution R
 open import Definition.LogicalRelation.Substitution.Introductions.Empty R
 

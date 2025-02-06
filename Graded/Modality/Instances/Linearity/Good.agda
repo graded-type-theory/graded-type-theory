@@ -35,7 +35,6 @@ private
     has-nr : Nr-available
     has-nr = Natrec-mode-has-nr.Nr ⦃ zero-one-many-has-nr ⦄
 
-open import Tools.Empty
 open import Tools.Function
 import Tools.Reasoning.PartialOrder
 open import Tools.Product

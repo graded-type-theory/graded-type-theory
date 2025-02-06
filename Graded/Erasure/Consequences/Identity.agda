@@ -37,7 +37,6 @@ open import Graded.Erasure.LogicalRelation.Fundamental TR UR
 open import Graded.Erasure.LogicalRelation.Fundamental.Assumptions TR UR
 import Graded.Erasure.LogicalRelation.Hidden as H
 import Graded.Erasure.Target as T
-open import Graded.Modality.Properties 𝕄
 open import Graded.Mode 𝕄
 open import Graded.Usage 𝕄 UR
 open import Graded.Usage.Properties 𝕄 UR

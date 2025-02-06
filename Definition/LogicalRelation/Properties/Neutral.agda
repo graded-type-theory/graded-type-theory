@@ -29,7 +29,6 @@ open import Definition.LogicalRelation.ShapeView R
 open import Definition.LogicalRelation.Irrelevance R
 open import Definition.LogicalRelation.Properties.Reflexivity R
 open import Definition.LogicalRelation.Properties.Escape R
-open import Definition.LogicalRelation.Properties.Symmetry R
 open import Definition.LogicalRelation.Weakening.Restricted R
 
 open import Tools.Function

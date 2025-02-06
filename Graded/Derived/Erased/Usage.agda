@@ -29,7 +29,6 @@ open import Graded.Mode 𝕄
 
 open import Definition.Untyped M
 open import Definition.Untyped.Erased 𝕄 s
-open import Definition.Untyped.Identity 𝕄
 open import Definition.Untyped.Properties M
 import Graded.Derived.Erased.Usage.Eta 𝕄 R as Eta
 import Graded.Derived.Erased.Usage.No-eta 𝕄 R as NoEta

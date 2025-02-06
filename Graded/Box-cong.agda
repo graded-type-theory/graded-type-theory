@@ -24,7 +24,6 @@ open import Definition.Typed TR
 open import Definition.Typed.Consequences.Admissible TR
 open import Definition.Typed.Consequences.Consistency TR
 open import Definition.Typed.Consequences.Inversion TR
-open import Definition.Typed.Consequences.Inversion.Erased TR
 open import Definition.Typed.Consequences.Reduction TR
 open import Definition.Typed.EqRelInstance TR
 open import Definition.Typed.Inversion TR
