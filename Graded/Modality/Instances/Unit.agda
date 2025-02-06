@@ -19,6 +19,7 @@ open import Tools.Algebra ⊤
 
 open import Graded.Modality ⊤ public
 import Graded.Modality.Properties.Star as Star
+open import Graded.Modality.Properties.Subtraction
 open import Graded.Modality.Variant lzero
 open import Graded.FullReduction.Assumptions
 open import Graded.Usage.Restrictions
@@ -254,3 +255,10 @@ full-reduction-assumptions _ = record
   { sink⊎𝟙≤𝟘 = λ _ _ → inj₂ refl
   ; ≡𝟙⊎𝟙≤𝟘   = λ _ → inj₁ refl
   }
+
+opaque
+
+  -- The modality supports subtraction
+
+  unit-supports-subtraction : Supports-subtraction unit-semiring-with-meet
+  unit-supports-subtraction _ = _ , refl , λ _ _ → refl

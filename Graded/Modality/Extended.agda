@@ -16,6 +16,7 @@ open import Graded.Modality
 open import Graded.Modality.Morphism
 open import Graded.Modality.Morphism.Type-restrictions
 open import Graded.Modality.Morphism.Usage-restrictions
+open import Graded.Modality.Properties.Subtraction
 import Graded.Usage.Decidable.Assumptions as UD
 open import Graded.Usage.Restrictions
 open import Graded.Usage.Restrictions.Natrec
@@ -70,6 +71,9 @@ record Extended-modality a : Set (lsuc a) where
 
     -- The dedicated nr function satisfies Linearity-like-nr-for-𝟙.
     NR₁ : Linearity-like-nr-for-𝟙
+
+    -- The modality supports subtraction
+    SUB : Supports-subtraction semiring-with-meet
 
   open Type-restrictions TR public
   open Usage-restrictions UR public

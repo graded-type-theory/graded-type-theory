@@ -144,6 +144,7 @@ Trivial = λ where
     .NO-NR-GLB → U.unit-supports-glb-for-nr
     .NR₀ → U.nr-linearity-like-for-𝟘
     .NR₁ → U.nr-linearity-like-for-𝟙
+    .SUB → U.unit-supports-subtraction
   where
   open Extended-modality
 
@@ -185,6 +186,7 @@ Erasure = λ where
     .NO-NR-GLB → EP.Erasure-supports-factoring-nr-rule var
     .NR₀ {z} → EP.nr-linearity-like-for-𝟘 var {z = z}
     .NR₁ {z} → EP.nr-linearity-like-for-𝟙 var {z = z}
+    .SUB     → EP.supports-subtraction var
   where
   open Extended-modality
   var = 𝟘ᵐ-allowed-if true
@@ -227,6 +229,7 @@ Affine-types = λ where
     .NO-NR-GLB   → A.zero-one-many-supports-glb-for-natrec
     .NR₀ {p}     → A.nr-linearity-like-for-𝟘 {p = p}
     .NR₁ {p} {z} → A.nr-linearity-like-for-𝟙 {p = p} {z = z}
+    .SUB         → A.supports-subtraction
   where
   open Extended-modality
 
@@ -280,6 +283,7 @@ Linearity = λ where
     .NO-NR-GLB   → L.zero-one-many-supports-glb-for-natrec
     .NR₀ {p}     → L.nr-linearity-like-for-𝟘 {p = p}
     .NR₁ {p} {z} → L.nr-linearity-like-for-𝟙 {p = p} {z = z}
+    .SUB         → L.supports-subtraction
   where
   open Extended-modality
 
@@ -337,6 +341,8 @@ Linear-or-affine-types = λ where
     .NO-NR-GLB   → LA.linear-or-affine-supports-glb-for-natrec
     .NR₀ {p}     → LA.nr-linearity-like-for-𝟘 {p = p}
     .NR₁ {p} {s} → LA.nr-linearity-like-for-𝟙 {p = p} {s = s}
+    .SUB {r}     → LA.supports-subtraction {r = r}
+    -- λ {p} → LA.supports-subtraction {p}
   where
   open Extended-modality
 
