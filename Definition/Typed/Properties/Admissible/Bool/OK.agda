@@ -4,21 +4,18 @@
 
 open import Definition.Typed.Restrictions
 open import Graded.Modality
-import Graded.Modality.Dedicated-nr
 
 module Definition.Typed.Properties.Admissible.Bool.OK
   {a} {M : Set a}
   {𝕄 : Modality M}
-  (open Graded.Modality.Dedicated-nr 𝕄)
   (R : Type-restrictions 𝕄)
+  (open Modality 𝕄)
   (open Type-restrictions R)
-  -- It is assumed that there is a dedicated nr function.
-  ⦃ has-nr : Dedicated-nr ⦄
+  -- It is assumed that the modality has an nr function.
+  ⦃ has-nr : Has-nr M semiring-with-meet ⦄
   -- It is assumed that weak unit types are allowed.
   (Unitʷ-ok : Unitʷ-allowed)
   where
-
-open Modality 𝕄
 
 open import Definition.Typed R
 open import Definition.Typed.Properties.Admissible.Nat R

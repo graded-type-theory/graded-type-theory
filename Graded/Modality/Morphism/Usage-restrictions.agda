@@ -15,9 +15,12 @@ open import Tools.Sum
 
 open import Graded.Modality
 import Graded.Modality.Properties
+open import Graded.Modality.Morphism
 open import Graded.Mode
 open import Graded.Usage.Erased-matches
 open import Graded.Usage.Restrictions
+open import Graded.Usage.Restrictions.Natrec
+open import Graded.Usage.Restrictions.Instance as RI
 
 open import Definition.Untyped.NotParametrised
 
@@ -32,6 +35,7 @@ private variable
   m₁ m₂ m₃                 : Mode _
   s                        : Strength
   ⦃ ok₁ ok₂ ⦄              : T _
+  nm nm₁ nm₂ nm₃           : Natrec-mode _
 
 ------------------------------------------------------------------------
 -- The relations _≈ᵐ_ and _≳ᵐ_
@@ -187,6 +191,86 @@ private opaque
         hyp₂ [ 𝟙ᵐ ] ∘→ hyp₁ (𝟙ᵐ≳𝟘ᵐ trivial₂)
 
 ------------------------------------------------------------------------
+-- The relation _≈ⁿᵐ_
+
+-- The natrec-modes from two possibly different modalities are
+-- equivalent if they are the same (with arbitrary proofs).
+
+infix 4 _≈ⁿᵐ_
+
+data _≈ⁿᵐ_
+       {M₁ : Set a₁} {M₂ : Set a₂}
+       {𝕄₁ : Modality M₁} {𝕄₂ : Modality M₂} :
+       Natrec-mode 𝕄₁ → Natrec-mode 𝕄₂ → Set (a₁ ⊔ a₂) where
+  Nr :
+    ⦃ has-nr₁ : Has-nr M₁ (Modality.semiring-with-meet 𝕄₁) ⦄ →
+    ⦃ has-nr₂ : Has-nr M₂ (Modality.semiring-with-meet 𝕄₂) ⦄ →
+    Nr ≈ⁿᵐ Nr
+  No-nr :
+    No-nr ≈ⁿᵐ No-nr
+  No-nr-glb :
+    ⦃ ok₁ : Supports-GLB-for-natrec M₁ (Modality.semiring-with-meet 𝕄₁) ⦄ →
+    ⦃ ok₂ : Supports-GLB-for-natrec M₂ (Modality.semiring-with-meet 𝕄₂) ⦄ →
+    No-nr-glb ≈ⁿᵐ No-nr-glb
+
+opaque
+
+  -- The relation _≈ⁿᵐ_ is reflexive.
+
+  ≈ⁿᵐ-refl : nm ≈ⁿᵐ nm
+  ≈ⁿᵐ-refl {nm = Nr} = Nr
+  ≈ⁿᵐ-refl {nm = No-nr} = No-nr
+  ≈ⁿᵐ-refl {nm = No-nr-glb} = No-nr-glb
+
+opaque
+
+  -- The relation _≈ⁿᵐ_ is symmetric.
+
+  ≈ⁿᵐ-sym : nm₁ ≈ⁿᵐ nm₂ → nm₂ ≈ⁿᵐ nm₁
+  ≈ⁿᵐ-sym Nr = Nr
+  ≈ⁿᵐ-sym No-nr = No-nr
+  ≈ⁿᵐ-sym No-nr-glb = No-nr-glb
+
+opaque
+
+  -- The relation _≈ⁿᵐ_ is transitive.
+
+  ≈ⁿᵐ-trans : nm₁ ≈ⁿᵐ nm₂ → nm₂ ≈ⁿᵐ nm₃ → nm₁ ≈ⁿᵐ nm₃
+  ≈ⁿᵐ-trans Nr Nr = Nr
+  ≈ⁿᵐ-trans No-nr No-nr = No-nr
+  ≈ⁿᵐ-trans No-nr-glb No-nr-glb = No-nr-glb
+
+opaque
+
+  -- The predicate Natrec-mode-has-nr is preserved by _≈ⁿᵐ_
+
+   Natrec-mode-has-nr-≈ⁿᵐ :
+     nm₁ ≈ⁿᵐ nm₂ → Natrec-mode-has-nr _ nm₁ → Natrec-mode-has-nr _ nm₂
+   Natrec-mode-has-nr-≈ⁿᵐ Nr _ = Nr
+   Natrec-mode-has-nr-≈ⁿᵐ No-nr ()
+   Natrec-mode-has-nr-≈ⁿᵐ No-nr-glb ()
+
+opaque
+
+  -- The predicate Natrec-mode-no-nr₁ is preserved by _≈ⁿᵐ_
+
+   Natrec-mode-no-nr-≈ⁿᵐ :
+     nm₁ ≈ⁿᵐ nm₂ → Natrec-mode-no-nr _ nm₁ → Natrec-mode-no-nr _ nm₂
+   Natrec-mode-no-nr-≈ⁿᵐ No-nr _ = No-nr
+   Natrec-mode-no-nr-≈ⁿᵐ Nr ()
+   Natrec-mode-no-nr-≈ⁿᵐ No-nr-glb ()
+
+opaque
+
+  -- The predicate Natrec-mode-no-nr₂ is preserved by _≈ⁿᵐ_
+
+   Natrec-mode-no-nr-glb-≈ⁿᵐ :
+     nm₁ ≈ⁿᵐ nm₂ → Natrec-mode-no-nr-glb _ nm₁ → Natrec-mode-no-nr-glb _ nm₂
+   Natrec-mode-no-nr-glb-≈ⁿᵐ No-nr-glb _ = No-nr-glb
+   Natrec-mode-no-nr-glb-≈ⁿᵐ Nr ()
+   Natrec-mode-no-nr-glb-≈ⁿᵐ No-nr ()
+
+------------------------------------------------------------------------
 -- Common-properties
 
 -- Properties common to Are-preserving-usage-restrictions and
@@ -212,6 +296,9 @@ record Common-properties
     -- of Is-morphism.
     𝟘ᵐ-preserved : T M₁.𝟘ᵐ-allowed → T M₂.𝟘ᵐ-allowed
 
+    -- The natrec-mode is preserved
+    natrec-mode-preserved : R₁.natrec-mode ≈ⁿᵐ R₂.natrec-mode
+
     -- The property that strong unit types act as sinks is preserved.
     starˢ-sink-preserved : R₁.starˢ-sink ≡ R₂.starˢ-sink
 
@@ -230,6 +317,72 @@ record Common-properties
       m₁ ≈ᵐ m₂ →
       R₁.erased-matches-for-K m₁ ≤ᵉᵐ R₂.erased-matches-for-K m₂
 
+  opaque
+
+    -- If Nr-available holds in the source usage restrictions then it
+    -- also holds in the target usage restrictions.
+
+    nr-in-second-if-in-first :
+      ⦃ has-nr : R₁.Nr-available ⦄ →
+      R₂.Nr-available
+    nr-in-second-if-in-first ⦃ has-nr ⦄ =
+      Natrec-mode-has-nr-≈ⁿᵐ natrec-mode-preserved has-nr
+
+  opaque
+
+    -- If Nr-not-available holds in the source usage restrictions then it
+    -- also holds in the target usage restrictions.
+
+    no-nr-in-second-if-in-first :
+      ⦃ no-nr : R₁.Nr-not-available ⦄ →
+      R₂.Nr-not-available
+    no-nr-in-second-if-in-first ⦃ no-nr ⦄ =
+      Natrec-mode-no-nr-≈ⁿᵐ natrec-mode-preserved no-nr
+
+  opaque
+
+    -- If Nr-not-available-GLB holds in the source usage restrictions
+    -- then it also holds in the target usage restrictions.
+
+    no-nr-glb-in-second-if-in-first :
+      ⦃ no-nr : R₁.Nr-not-available-GLB ⦄ →
+      R₂.Nr-not-available-GLB
+    no-nr-glb-in-second-if-in-first ⦃ no-nr ⦄ =
+      Natrec-mode-no-nr-glb-≈ⁿᵐ natrec-mode-preserved no-nr
+
+  opaque
+
+    -- If Nr-available holds in the target usage restrictions then it
+    -- also holds in the source usage restrictions.
+
+    nr-in-first-if-in-second :
+      ⦃ has-nr : R₂.Nr-available ⦄ →
+      R₁.Nr-available
+    nr-in-first-if-in-second ⦃ has-nr ⦄ =
+      Natrec-mode-has-nr-≈ⁿᵐ (≈ⁿᵐ-sym natrec-mode-preserved) has-nr
+
+  opaque
+
+    -- If Nr-not-available holds in the target usage restrictions then it
+    -- also holds in the source usage restrictions.
+
+    no-nr-in-first-if-in-second :
+      ⦃ no-nr : R₂.Nr-not-available ⦄ →
+      R₁.Nr-not-available
+    no-nr-in-first-if-in-second ⦃ no-nr ⦄ =
+      Natrec-mode-no-nr-≈ⁿᵐ (≈ⁿᵐ-sym natrec-mode-preserved) no-nr
+
+  opaque
+
+    -- If Nr-not-available-GLB holds in the target usage restrictions
+    -- then it also holds in the source usage restrictions.
+
+    no-nr-glb-in-first-if-in-second :
+      ⦃ no-nr : R₂.Nr-not-available-GLB ⦄ →
+      R₁.Nr-not-available-GLB
+    no-nr-glb-in-first-if-in-second ⦃ no-nr ⦄ =
+      Natrec-mode-no-nr-glb-≈ⁿᵐ (≈ⁿᵐ-sym natrec-mode-preserved) no-nr
+
 opaque
 
   -- The relation Common-properties is reflexive.
@@ -237,6 +390,7 @@ opaque
   Common-properties-reflexive : Common-properties R R
   Common-properties-reflexive = λ where
       .𝟘ᵐ-preserved                   → idᶠ
+      .natrec-mode-preserved          → ≈ⁿᵐ-refl
       .starˢ-sink-preserved           → refl
       .Id-erased-preserved            → id⇔
       .erased-matches-for-J-preserved → ≈ᵐ→≤ᵉᵐ₁
@@ -254,6 +408,8 @@ opaque
   Common-properties-transitive cp₁ cp₂ = λ where
       .𝟘ᵐ-preserved →
         CP₂.𝟘ᵐ-preserved ∘→ CP₁.𝟘ᵐ-preserved
+      .natrec-mode-preserved →
+        ≈ⁿᵐ-trans CP₁.natrec-mode-preserved CP₂.natrec-mode-preserved
       .starˢ-sink-preserved →
         trans CP₁.starˢ-sink-preserved CP₂.starˢ-sink-preserved
       .Id-erased-preserved →
@@ -285,9 +441,36 @@ record Are-preserving-usage-restrictions
     module R₁ = Usage-restrictions R₁
     module R₂ = Usage-restrictions R₂
 
+  open RI R₁
+  open RI R₂
+
   field
     -- Common properties.
     common-properties : Common-properties R₁ R₂
+
+  open Common-properties common-properties
+
+  field
+
+    -- The function tr is assumed to satisfy some properties depending
+    -- on the chosen Natrec-mode. Note that by common-properties, both
+    -- the source and target usage restrictions have the same
+    -- Natrec-mode.
+
+    nr-preserving :
+      ⦃ has-nr₁ : R₁.Nr-available ⦄ →
+      ⦃ has-nr₂ : R₂.Nr-available ⦄ →
+      Is-nr-preserving-morphism 𝕄₁ 𝕄₂ tr
+
+    no-nr-preserving :
+      ⦃ no-nr₁ : R₁.Nr-not-available ⦄ →
+      ⦃ no-nr₂ : R₂.Nr-not-available ⦄ →
+      Is-no-nr-preserving-morphism 𝕄₁ 𝕄₂ tr
+
+    no-nr-glb-preserving :
+      ⦃ no-nr₁ : R₁.Nr-not-available-GLB ⦄ →
+      ⦃ no-nr₂ : R₂.Nr-not-available-GLB ⦄ →
+      Is-no-nr-glb-preserving-morphism 𝕄₁ 𝕄₂ tr
 
     -- The functions tr and tr-Σ preserve the Prodrec-allowed
     -- property in a certain way.
@@ -325,14 +508,21 @@ opaque
 
   Are-preserving-usage-restrictions-id :
     Are-preserving-usage-restrictions R R idᶠ idᶠ
-  Are-preserving-usage-restrictions-id = λ where
+  Are-preserving-usage-restrictions-id {R} = λ where
       .common-properties  → Common-properties-reflexive
-      .Prodrec-preserved  → ≈ᵐ→→₁
-      .Unitrec-preserved  → ≈ᵐ→→₁
-      .Emptyrec-preserved → ≈ᵐ→→₁
-      .[]-cong-preserved  → ≈ᵐ→→₁
+      .nr-preserving ⦃ has-nr₁ ⦄ ⦃ has-nr₂ ⦄ →
+        case Nr-available-propositional _ has-nr₁ has-nr₂ of λ where
+          refl → Is-nr-preserving-morphism-id
+      .no-nr-preserving      → Is-no-nr-preserving-morphism-id
+      .no-nr-glb-preserving  → Is-no-nr-glb-preserving-morphism-id
+      .Prodrec-preserved     → ≈ᵐ→→₁
+      .Unitrec-preserved     → ≈ᵐ→→₁
+      .Emptyrec-preserved    → ≈ᵐ→→₁
+      .[]-cong-preserved     → ≈ᵐ→→₁
     where
     open Are-preserving-usage-restrictions
+    open Usage-restrictions R
+    open RI R
 
 opaque
 
@@ -340,14 +530,35 @@ opaque
   -- certain sense).
 
   Are-preserving-usage-restrictions-∘ :
+    {R₁ : Usage-restrictions 𝕄₁} →
+    {R₂ : Usage-restrictions 𝕄₂} →
+    {R₃ : Usage-restrictions 𝕄₃} →
+    Is-morphism 𝕄₂ 𝕄₃ tr₁ →
+    Is-morphism 𝕄₁ 𝕄₂ tr₂ →
     Are-preserving-usage-restrictions R₂ R₃ tr₁ tr-Σ₁ →
     Are-preserving-usage-restrictions R₁ R₂ tr₂ tr-Σ₂ →
     Are-preserving-usage-restrictions
       R₁ R₃ (tr₁ ∘→ tr₂) (tr-Σ₁ ∘→ tr-Σ₂)
-  Are-preserving-usage-restrictions-∘ m₁ m₂ = λ where
+  Are-preserving-usage-restrictions-∘ {R₁} {R₂} {R₃} m₁ m₂ u₁ u₂ = λ where
       .common-properties →
         Common-properties-transitive P₂.common-properties
           P₁.common-properties
+      .nr-preserving →
+        let has-nr = P₂.nr-in-second-if-in-first
+        in  Is-nr-preserving-morphism-∘
+              ⦃ has-nr₂ = RI.Nr-available-Has-nr R₂ ⦃ has-nr ⦄ ⦄
+              m₁ (P₁.nr-preserving ⦃ has-nr ⦄)
+              (P₂.nr-preserving ⦃ has-nr₂ = has-nr ⦄)
+      .no-nr-preserving →
+        let no-nr = P₂.no-nr-in-second-if-in-first
+        in  Is-no-nr-preserving-morphism-∘
+              m₂ (P₁.no-nr-preserving ⦃ no-nr ⦄ )
+              (P₂.no-nr-preserving ⦃ no-nr₂ = no-nr ⦄)
+      .no-nr-glb-preserving →
+        let no-nr = P₂.no-nr-glb-in-second-if-in-first
+        in  Is-no-nr-glb-preserving-morphism-∘
+              (P₁.no-nr-glb-preserving ⦃ no-nr ⦄)
+              (P₂.no-nr-glb-preserving ⦃ no-nr₂ = no-nr ⦄)
       .Prodrec-preserved →
         ≈ᵐ→→₂ P₂.𝟘ᵐ-preserved P₂.Prodrec-preserved P₁.Prodrec-preserved
       .Unitrec-preserved →
@@ -360,8 +571,12 @@ opaque
           P₁.[]-cong-preserved
     where
     open Are-preserving-usage-restrictions
-    module P₁ = Are-preserving-usage-restrictions m₁
-    module P₂ = Are-preserving-usage-restrictions m₂
+    open RI R₁
+    open RI R₂
+    open RI R₃
+    module P₁ = Are-preserving-usage-restrictions u₁
+    module P₂ = Are-preserving-usage-restrictions u₂
+    open P₁
 
 ------------------------------------------------------------------------
 -- Are-reflecting-usage-restrictions
@@ -381,6 +596,9 @@ record Are-reflecting-usage-restrictions
     module R₁ = Usage-restrictions R₁
     module R₂ = Usage-restrictions R₂
 
+  open RI R₁
+  open RI R₂
+
   field
     -- Common properties.
     common-properties : Common-properties R₁ R₂
@@ -389,6 +607,26 @@ record Are-reflecting-usage-restrictions
     -- for 𝕄₁ or 𝕄₁ is trivial.
     𝟘ᵐ-reflected :
       T M₂.𝟘ᵐ-allowed ⊎ M₂.Trivial → T M₁.𝟘ᵐ-allowed ⊎ M₁.Trivial
+
+    -- The function tr is assumed to satisfy some properties depending
+    -- on the chosen Natrec-mode. Note that by common-properties, both
+    -- the source and target usage restrictions have the same
+    -- Natrec-mode.
+
+    nr-reflected :
+      ⦃ has-nr₁ : R₁.Nr-available ⦄ →
+      ⦃ has-nr₂ : R₂.Nr-available ⦄ →
+      Is-nr-reflecting-morphism 𝕄₁ 𝕄₂ tr
+
+    no-nr-reflected :
+      ⦃ no-nr₁ : R₁.Nr-not-available ⦄ →
+      ⦃ no-nr₂ : R₂.Nr-not-available ⦄ →
+      Is-no-nr-reflecting-morphism 𝕄₁ 𝕄₂ tr
+
+    no-nr-glb-reflected :
+      ⦃ no-nr₁ : R₁.Nr-not-available-GLB ⦄ →
+      ⦃ no-nr₂ : R₂.Nr-not-available-GLB ⦄ →
+      Is-no-nr-glb-reflecting-morphism 𝕄₁ 𝕄₂ tr
 
     -- The functions tr and tr-Σ reflect the Prodrec-allowed property
     -- in a certain way.
@@ -439,9 +677,14 @@ opaque
 
   Are-reflecting-usage-restrictions-id :
     Are-reflecting-usage-restrictions R R idᶠ idᶠ
-  Are-reflecting-usage-restrictions-id = λ where
+  Are-reflecting-usage-restrictions-id {R} = λ where
       .common-properties              → Common-properties-reflexive
       .𝟘ᵐ-reflected                   → idᶠ
+      .nr-reflected ⦃ has-nr₁ ⦄ ⦃ has-nr₂ ⦄ →
+        case Nr-available-propositional _ has-nr₁ has-nr₂ of λ where
+          refl → Is-nr-reflecting-morphism-id
+      .no-nr-reflected                → Is-no-nr-reflecting-morphism-id
+      .no-nr-glb-reflected            → Is-no-nr-glb-reflecting-morphism-id
       .Prodrec-reflected              → ≳ᵐ→←₁
       .Unitrec-reflected              → ≳ᵐ→←₁
       .Emptyrec-reflected             → ≳ᵐ→←₁
@@ -450,6 +693,8 @@ opaque
       .erased-matches-for-K-reflected → ≈ᵐ→≤ᵉᵐ₁ ∘→ ≈ᵐ-symmetric
     where
     open Are-reflecting-usage-restrictions
+    open RI R
+    open Usage-restrictions R
 
 opaque
 
@@ -457,16 +702,36 @@ opaque
   -- certain sense).
 
   Are-reflecting-usage-restrictions-∘ :
+    {R₁ : Usage-restrictions 𝕄₁} →
+    {R₂ : Usage-restrictions 𝕄₂} →
+    {R₃ : Usage-restrictions 𝕄₃} →
+    Is-morphism 𝕄₂ 𝕄₃ tr₁ →
     Are-reflecting-usage-restrictions R₂ R₃ tr₁ tr-Σ₁ →
     Are-reflecting-usage-restrictions R₁ R₂ tr₂ tr-Σ₂ →
     Are-reflecting-usage-restrictions
       R₁ R₃ (tr₁ ∘→ tr₂) (tr-Σ₁ ∘→ tr-Σ₂)
-  Are-reflecting-usage-restrictions-∘ m₁ m₂ = λ where
+  Are-reflecting-usage-restrictions-∘ {R₁} {R₂} {R₃} m m₁ m₂ = λ where
       .common-properties →
         Common-properties-transitive R₂.common-properties
           R₁.common-properties
       .𝟘ᵐ-reflected →
         R₂.𝟘ᵐ-reflected ∘→ R₁.𝟘ᵐ-reflected
+      .nr-reflected →
+        let has-nr = R₂.nr-in-second-if-in-first
+        in  Is-nr-reflecting-morphism-∘
+              ⦃ has-nr₂ = RI.Nr-available-Has-nr R₂ ⦃ has-nr ⦄ ⦄
+              m (R₁.nr-reflected ⦃ has-nr ⦄)
+              (R₂.nr-reflected ⦃ has-nr₂ = has-nr ⦄)
+      .no-nr-reflected →
+        let no-nr = R₂.no-nr-in-second-if-in-first
+        in  Is-no-nr-reflecting-morphism-∘
+              m (R₁.no-nr-reflected ⦃ no-nr ⦄)
+              (R₂.no-nr-reflected ⦃ no-nr₂ = no-nr ⦄)
+      .no-nr-glb-reflected →
+        let no-nr = R₂.no-nr-glb-in-second-if-in-first
+        in  Is-no-nr-glb-reflecting-morphism-∘
+              m (R₁.no-nr-glb-reflected ⦃ no-nr ⦄)
+              (R₂.no-nr-glb-reflected ⦃ no-nr₂ = no-nr ⦄)
       .Prodrec-reflected →
         ≳ᵐ→←₂ R₂.𝟘ᵐ-preserved R₁.𝟘ᵐ-reflected R₁.Prodrec-reflected
           R₂.Prodrec-reflected
@@ -489,3 +754,6 @@ opaque
     open Are-reflecting-usage-restrictions
     module R₁ = Are-reflecting-usage-restrictions m₁
     module R₂ = Are-reflecting-usage-restrictions m₂
+    open RI R₁
+    open RI R₂
+    open RI R₃

@@ -5,15 +5,17 @@
 open import Graded.Modality
 open import Graded.Usage.Restrictions
 open import Definition.Typed.Variant
+open import Graded.Usage.Restrictions.Natrec
 
 module Graded.Heap.Reduction
   {a} {M : Set a}
   {𝕄 : Modality M}
   (type-variant : Type-variant)
   (UR : Usage-restrictions 𝕄)
-  (open Modality 𝕄)
-  ⦃ _ : Has-nr M semiring-with-meet ⦄
-  ⦃ _ : Has-factoring-nr M semiring-with-meet ⦄
+  (open Usage-restrictions UR)
+  (factoring-nr :
+    ⦃ has-nr : Nr-available ⦄ →
+    Is-factoring-nr M (Natrec-mode-Has-nr 𝕄 has-nr))
   where
 
 open import Tools.Empty
@@ -24,9 +26,10 @@ open import Tools.Relation
 
 open import Definition.Untyped M
 open import Graded.Modality.Nr-instances
-open import Graded.Heap.Untyped type-variant UR
+open import Graded.Heap.Untyped type-variant UR factoring-nr
 
 open Type-variant type-variant
+open Modality 𝕄
 
 private variable
   m m′ n n′ k ℓ : Nat
@@ -35,7 +38,7 @@ private variable
   t t′ u v w z s A B t₁ t₂ : Term _
   x : Fin _
   S S′ : Stack _
-  p q r : M
+  p q q′ r : M
   str : Strength
   l : Universe-level
   s₁ s₂ s₃ : State _ _ _
@@ -65,8 +68,6 @@ data _⇒ₑ_ {k m n} : State k m n → State k m n → Set a where
   sndₕ : ⟨ H , snd p t , ρ , S ⟩ ⇒ₑ ⟨ H , t , ρ , sndₑ p ∙ S ⟩
   prodrecₕ : ⟨ H , prodrec r p q A t u , ρ , S ⟩ ⇒ₑ
              ⟨ H , t , ρ , prodrecₑ r p q A u ρ ∙ S ⟩
-  natrecₕ : ⟨ H , natrec p q r A z s t , ρ , S ⟩ ⇒ₑ
-            ⟨ H , t , ρ , natrecₑ p q r A z s ρ ∙ S ⟩
   unitrecₕ : ¬ Unitʷ-η →
              ⟨ H , unitrec l p q A t u , ρ , S ⟩ ⇒ₑ
              ⟨ H , t , ρ , unitrecₑ l p q A u ρ ∙ S ⟩
@@ -88,6 +89,9 @@ infix 30 ⇒ₑ_
 data _⇾ₑ_ {k m n} : State k m n → State k m n′ → Set a where
   var : H ⊢ wkVar ρ x ↦[ ∣ S ∣ ] (t , ρ′) ⨾ H′ →
         ⟨ H , var x , ρ , S ⟩ ⇾ₑ ⟨ H′ , t , ρ′ , S ⟩
+  natrecₕ : Ok-natrec-multiplicity p r q′ →
+            ⟨ H , natrec p q r A z s t , ρ , S ⟩ ⇾ₑ
+            ⟨ H , t , ρ , natrecₑ p q r q′ A z s ρ ∙ S ⟩
   ⇒ₑ_ : s₁ ⇒ₑ s₂ → s₁ ⇾ₑ s₂
 
 -- Reflexive, transistive closure of _⇾ₑ_.
@@ -108,6 +112,8 @@ infix 28 _⇢ₑ_
 data _⇢ₑ_ {k m n} : State k m n → State k m n′ → Set a where
   var : H ⊢ wkVar ρ x ↦ (t , ρ′) →
         ⟨ H , var x , ρ , S ⟩ ⇢ₑ ⟨ H , t , ρ′ , S ⟩
+  natrecₕ : ⟨ H , natrec p q r A z s t , ρ , S ⟩ ⇢ₑ
+            ⟨ H , t , ρ , natrecₑ p q r 𝟘 A z s ρ ∙ S ⟩
   ⇒ₑ_ : s₁ ⇒ₑ s₂ → s₁ ⇢ₑ s₂
 
 -- Reflexive, transistive closure of _⇢ₑ*_
@@ -134,10 +140,10 @@ data _⇒ᵥ_ {k m n} : State k m n → State k m′ n′ → Set a where
   prodʷₕ : ⟨ H , prodʷ p t₁ t₂ , ρ , prodrecₑ r p q A u ρ′ ∙ S ⟩ ⇒ᵥ
            ⟨ H ∙ (∣ S ∣ · r · p , t₁ , ρ) ∙ (∣ S ∣ · r , t₂ , step ρ)
               , u             , liftn ρ′ 2 , wk2ˢ S ⟩
-  zeroₕ : ⟨ H , zero , ρ  , natrecₑ p q r A z s ρ′ ∙ S ⟩ ⇒ᵥ
+  zeroₕ : ⟨ H , zero , ρ  , natrecₑ p q r q′ A z s ρ′ ∙ S ⟩ ⇒ᵥ
           ⟨ H , z    , ρ′ , S                          ⟩
-  sucₕ : ⟨ H , suc t , ρ , natrecₑ p q r A z s ρ′ ∙ S ⟩ ⇒ᵥ
-         ⟨ H ∙ (∣ S ∣ · nr₂ p r , t , ρ)
+  sucₕ : ⟨ H , suc t , ρ , natrecₑ p q r q′ A z s ρ′ ∙ S ⟩ ⇒ᵥ
+         ⟨ H ∙ (∣ S ∣ · q′ , t , ρ)
              ∙ (∣ S ∣ · r , natrec p q r (wk (lift (step id)) A) (wk1 z)
                               (wk (liftn (step id) 2) s) (var x0)
                           , lift ρ′)

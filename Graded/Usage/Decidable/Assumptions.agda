@@ -16,8 +16,8 @@ open Usage-restrictions R
 
 open import Graded.Context 𝕄
 open import Graded.Context.Properties 𝕄
-open import Graded.Modality.Dedicated-nr 𝕄
 open import Graded.Modality.Properties 𝕄 hiding (has-nr)
+open import Graded.Usage.Restrictions.Natrec 𝕄
 
 open import Tools.Nat using (Nat)
 open import Tools.Product
@@ -48,8 +48,8 @@ record Assumptions : Set a where
     []-cong-allowed-mode? : ∀ s m → Dec ([]-cong-allowed-mode s m)
 
     instance
-      -- A dedicated nr function is assumed to exist.
-      ⦃ has-nr ⦄ : Dedicated-nr
+      -- The inference function is supported
+      ⦃ inference-ok ⦄ : Natrec-mode-supports-usage-inference natrec-mode
 
     -- Either strong unit types are not allowed to be used as sinks,
     -- or 𝟘 is a greatest grade.

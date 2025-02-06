@@ -664,8 +664,6 @@ L≤M≤H variant = record
   { variant            = variant
   ; semiring-with-meet = L≤M≤H-semiring-with-meet
   ; 𝟘-well-behaved     = λ _ → L≤M≤H-has-well-behaved-zero
-  ; has-nr             = λ _ →
-                           Star.has-nr _ ⦃ has-star = L≤M≤H-has-star ⦄
   }
 
 ------------------------------------------------------------------------

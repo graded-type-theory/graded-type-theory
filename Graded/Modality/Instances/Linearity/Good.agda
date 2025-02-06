@@ -6,7 +6,6 @@ open import Tools.Level
 
 open import Definition.Typed.Restrictions
 
-import Graded.Modality.Dedicated-nr
 import Graded.Modality.Instances.Linearity
 open import Graded.Modality.Variant lzero
 open import Graded.Usage.Restrictions
@@ -15,32 +14,40 @@ module Graded.Modality.Instances.Linearity.Good
   -- The modality variant.
   (variant : Modality-variant)
   (open Graded.Modality.Instances.Linearity variant)
-  (open Graded.Modality.Dedicated-nr linearityModality)
   (TR : Type-restrictions linearityModality)
   (open Type-restrictions TR)
   (UR : Usage-restrictions linearityModality)
   -- It is assumed that "Π 𝟙 , 𝟘" is allowed.
   (Π-𝟙-𝟘 : Π-allowed 𝟙 𝟘)
-  -- There is a dedicated nr function.
-  ⦃ has-nr : Dedicated-nr ⦄
   where
+
+open import Graded.Restrictions linearityModality
+open import Graded.Usage.Restrictions.Natrec linearityModality
+open import Graded.Modality Linearity
+
+private
+  module M = Modality linearityModality
+
+  -- The "good" nr function is used
+  UR′ = nr-available-UR zero-one-many-has-nr UR
+  open Usage-restrictions UR′
+  instance
+    has-nr : Nr-available
+    has-nr = Natrec-mode-has-nr.Nr ⦃ zero-one-many-has-nr ⦄
 
 open import Tools.Empty
 open import Tools.Function
 import Tools.Reasoning.PartialOrder
+open import Tools.Product
 open import Tools.Relation
 
 open import Graded.Context linearityModality
 open import Graded.Context.Properties linearityModality
-open import Graded.Modality Linearity
 open import Graded.Modality.Instances.Examples TR Π-𝟙-𝟘
-open import Graded.Modality.Properties linearityModality
+open import Graded.Modality.Properties linearityModality hiding (has-nr)
 open import Graded.Mode linearityModality
-open import Graded.Usage linearityModality UR
-open import Graded.Usage.Inversion linearityModality UR
-
-private
-  module M = Modality linearityModality
+open import Graded.Usage linearityModality UR′
+open import Graded.Usage.Inversion linearityModality UR′
 
 -- The term double is not well-resourced.
 
@@ -48,11 +55,9 @@ private
 ¬▸double ▸λ+ =
   case inv-usage-lam ▸λ+ of λ {
     (invUsageLam {δ = ε} ▸+ ε) →
-  case inv-usage-natrec ▸+ of λ {
-    (invUsageNatrec _ _ _ _ _ (invUsageNatrecNoNr _ _ _ _)) →
-       ⊥-elim not-nr-and-no-nr;
-    (invUsageNatrec {δ = _ ∙ p} {η = _ ∙ q} {θ = _ ∙ r}
-       ▸x0₁ _ ▸x0₂ _ (_ ∙ 𝟙≤nr) invUsageNatrecNr) →
+  case inv-usage-natrec-has-nr ▸+ of λ {
+    (_ ∙ p , _ ∙ q , _ ∙ r , _ ∙ _
+           , ▸x0₁ , _ , ▸x0₂ , _ , (_ ∙ 𝟙≤nr)) →
   case inv-usage-var ▸x0₁ of λ {
     (_ ∙ p≤𝟙) →
   case inv-usage-var ▸x0₂ of λ {

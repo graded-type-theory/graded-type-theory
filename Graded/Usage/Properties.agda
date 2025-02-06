@@ -20,7 +20,7 @@ open import Graded.Context.Properties 𝕄
 open import Graded.Usage 𝕄 R
 open import Graded.Usage.Inversion 𝕄 R
 open import Graded.Usage.Erased-matches
-open import Graded.Modality.Dedicated-nr 𝕄
+open import Graded.Usage.Restrictions.Natrec 𝕄
 open import Graded.Modality.Nr-instances
 open import Graded.Modality.Properties 𝕄
 open import Graded.Mode 𝕄
@@ -60,6 +60,7 @@ private
     ok : T b
     x : Fin n
     sem : Some-erased-matches
+    nm : Natrec-mode
 
 ------------------------------------------------------------------------
 -- Lemmas related to _◂_∈_
@@ -326,7 +327,7 @@ opaque
        𝟘ᶜ                ≈˘⟨ nrᶜ-𝟘ᶜ ⟩
        nrᶜ p r 𝟘ᶜ 𝟘ᶜ 𝟘ᶜ  ∎)
     where
-    open import Graded.Modality.Dedicated-nr.Instance
+    open import Graded.Usage.Restrictions.Instance R
     open CR
   ▸-𝟘 (natrec-no-nrₘ {p} {r} γ▸z δ▸s η▸n θ▸A χ≤γ χ≤δ χ≤η fix) =
     natrec-no-nrₘ (▸-𝟘 γ▸z)
@@ -343,6 +344,19 @@ opaque
          𝟘ᶜ +ᶜ 𝟘ᶜ                  ≈˘⟨ +ᶜ-cong (·ᶜ-zeroʳ _) (·ᶜ-zeroʳ _) ⟩
          p ·ᶜ 𝟘ᶜ +ᶜ r ·ᶜ 𝟘ᶜ        ≈˘⟨ +ᶜ-identityˡ _ ⟩
          𝟘ᶜ +ᶜ p ·ᶜ 𝟘ᶜ +ᶜ r ·ᶜ 𝟘ᶜ  ∎)
+    where
+    open CR
+  ▸-𝟘 (natrec-no-nr-glbₘ {p} {r} {x} ▸z ▸s ▸n ▸A x≤ χ≤) = sub
+    (natrec-no-nr-glbₘ (▸-𝟘 ▸z)
+       (sub (▸-𝟘 ▸s) $ begin
+          𝟘ᶜ ∙ 𝟘 · p ∙ 𝟘 · r  ≈⟨ ≈ᶜ-refl ∙ ·-zeroˡ _ ∙ ·-zeroˡ _ ⟩
+          𝟘ᶜ                  ∎)
+       (▸-𝟘 ▸n)
+       ▸A x≤ (GLBᶜ-const (λ _ → nrᵢᶜ-𝟘ᶜ)))
+    (begin
+      𝟘ᶜ            ≈˘⟨ +ᶜ-identityˡ _ ⟩
+      𝟘ᶜ +ᶜ 𝟘ᶜ      ≈˘⟨ +ᶜ-congʳ (·ᶜ-zeroʳ _) ⟩
+      x ·ᶜ 𝟘ᶜ +ᶜ 𝟘ᶜ ∎)
     where
     open CR
   ▸-𝟘 (emptyrecₘ {p} e A ok) = sub
@@ -570,13 +584,23 @@ opaque
   nrᶜ p r 𝟘ᶜ 𝟘ᶜ 𝟘ᶜ  ≈⟨ nrᶜ-𝟘ᶜ ⟩
   𝟘ᶜ                ∎
   where
-  open import Graded.Modality.Dedicated-nr.Instance
+  open import Graded.Usage.Restrictions.Instance R
   open Tools.Reasoning.PartialOrder ≤ᶜ-poset
 ▸-𝟘ᵐ
   (natrec-no-nrₘ {γ = γ} {χ = χ} γ▸ _ _ _ χ≤γ _ _ _) = begin
   χ   ≤⟨ χ≤γ ⟩
   γ   ≤⟨ ▸-𝟘ᵐ γ▸ ⟩
   𝟘ᶜ  ∎
+  where
+  open Tools.Reasoning.PartialOrder ≤ᶜ-poset
+▸-𝟘ᵐ (natrec-no-nr-glbₘ {γ} {δ} {p} {r} {η} {χ} {x} γ▸ δ▸ η▸ _ x≤ χ≤) = begin
+  x ·ᶜ η +ᶜ χ             ≤⟨ +ᶜ-monotone (·ᶜ-monotoneʳ (▸-𝟘ᵐ η▸)) (χ≤ .proj₁ 0) ⟩
+  x ·ᶜ 𝟘ᶜ +ᶜ nrᵢᶜ r γ δ 0 ≈⟨ +ᶜ-congʳ (·ᶜ-zeroʳ _) ⟩
+  𝟘ᶜ +ᶜ nrᵢᶜ r γ δ 0      ≈⟨ +ᶜ-identityˡ _ ⟩
+  nrᵢᶜ r γ δ 0            ≤⟨ nrᵢᶜ-monotone {r = r} {i = 0} (▸-𝟘ᵐ γ▸)
+                              (tailₘ-monotone (tailₘ-monotone (▸-𝟘ᵐ δ▸))) ⟩
+  nrᵢᶜ r 𝟘ᶜ 𝟘ᶜ 0          ≈⟨ nrᵢᶜ-𝟘ᶜ {r = r} ⟩
+  𝟘ᶜ                      ∎
   where
   open Tools.Reasoning.PartialOrder ≤ᶜ-poset
 ▸-𝟘ᵐ (emptyrecₘ {γ = γ} {p = p} γ▸ _ _) = begin
@@ -1106,78 +1130,88 @@ opaque
   Conₘ-interchange
     {δ = θ}
     (natrecₘ {γ} {δ} {p} {r} {η} ⦃ has-nr = nr₁ ⦄ ▸z ▸s ▸n ▸A) ▸nr x =
-    case inv-usage-natrec ▸nr of λ {
-      (invUsageNatrec
-         {δ = γ′} {η = δ′} {θ = η′} ▸z′ ▸s′ ▸n′ _ θ≤ more) →
-    case more of λ where
-      (invUsageNatrecNoNr _ _ _ _) →
-        ⊥-elim not-nr-and-no-nr
-      (invUsageNatrecNr ⦃ has-nr = nr₂ ⦄) →
-        case Dedicated-nr-propositional nr₁ nr₂ of λ {
-          refl → sub
-        (natrecₘ (Conₘ-interchange ▸z ▸z′ x)
-           (Conₘ-interchange ▸s ▸s′ (x +2)) (Conₘ-interchange ▸n ▸n′ x)
-           ▸A)
-        (begin
-           nrᶜ p r γ δ η , x ≔ θ ⟨ x ⟩                                  ≤⟨ update-monotoneʳ _ $ lookup-monotone _ θ≤ ⟩
+    let γ′ , δ′ , η′ , _ , ▸z′ , ▸s′ , ▸n′ , _ , θ≤ = inv-usage-natrec-has-nr ▸nr
+    in  sub (natrecₘ (Conₘ-interchange ▸z ▸z′ x)
+              (Conₘ-interchange ▸s ▸s′ (x +2))
+              (Conₘ-interchange ▸n ▸n′ x) ▸A)
+            (begin
+               nrᶜ p r γ δ η , x ≔ θ ⟨ x ⟩                                  ≤⟨ update-monotoneʳ _ $ lookup-monotone _ θ≤ ⟩
 
-           nrᶜ p r γ δ η , x ≔ nrᶜ p r γ′ δ′ η′ ⟨ x ⟩                   ≡⟨ cong (_ , _ ≔_) $ nrᶜ-⟨⟩ γ′ ⟩
+               nrᶜ p r γ δ η , x ≔ nrᶜ p r γ′ δ′ η′ ⟨ x ⟩                   ≡⟨ cong (_ , _ ≔_) $ nrᶜ-⟨⟩ γ′ ⟩
 
-           nrᶜ p r γ δ η , x ≔ nr p r (γ′ ⟨ x ⟩) (δ′ ⟨ x ⟩) (η′ ⟨ x ⟩)  ≡˘⟨ ≈ᶜ→≡ nrᶜ-,≔ ⟩
+               nrᶜ p r γ δ η , x ≔ nr p r (γ′ ⟨ x ⟩) (δ′ ⟨ x ⟩) (η′ ⟨ x ⟩)  ≡˘⟨ ≈ᶜ→≡ nrᶜ-,≔ ⟩
 
-           nrᶜ p r (γ , x ≔ γ′ ⟨ x ⟩) (δ , x ≔ δ′ ⟨ x ⟩)
-             (η , x ≔ η′ ⟨ x ⟩)                                         ∎) }}
+               nrᶜ p r (γ , x ≔ γ′ ⟨ x ⟩) (δ , x ≔ δ′ ⟨ x ⟩)
+                (η , x ≔ η′ ⟨ x ⟩)                                         ∎)
     where
     open CR
-    open import Graded.Modality.Dedicated-nr.Instance
+    open import Graded.Usage.Restrictions.Instance R
 
   Conₘ-interchange
     {δ = θ}
-    (natrec-no-nrₘ {γ} {δ} {p} {r} {η} {χ} ⦃ no-nr = ¬nr ⦄
+    (natrec-no-nrₘ {γ} {δ} {p} {r} {η} {χ}
        ▸z ▸s ▸n ▸A χ≤γ χ≤δ χ≤η fix)
     ▸nr x =
-    case inv-usage-natrec ▸nr of λ {
-      (invUsageNatrec
-         {δ = γ′} {η = δ′} {θ = η′} {χ = χ′} ▸z′ ▸s′ ▸n′ _ θ≤χ′ more) →
-    case more of λ where
-      invUsageNatrecNr →
-        ⊥-elim not-nr-and-no-nr
-      (invUsageNatrecNoNr χ′≤γ′ χ′≤δ′ χ′≤η′ fix′) → sub
-        (natrec-no-nrₘ ⦃ no-nr = ¬nr ⦄ (Conₘ-interchange ▸z ▸z′ x)
-           (Conₘ-interchange ▸s ▸s′ (x +2)) (Conₘ-interchange ▸n ▸n′ x)
-           ▸A
-           (begin
-              χ , x ≔ χ′ ⟨ x ⟩  ≤⟨ update-monotone _ χ≤γ $ lookup-monotone _ χ′≤γ′ ⟩
-              γ , x ≔ γ′ ⟨ x ⟩  ∎)
-           (λ ok → begin
-              χ , x ≔ χ′ ⟨ x ⟩  ≤⟨ update-monotone _ (χ≤δ ok) (lookup-monotone _ (χ′≤δ′ ok)) ⟩
-              δ , x ≔ δ′ ⟨ x ⟩  ∎)
-           (begin
-              χ , x ≔ χ′ ⟨ x ⟩  ≤⟨ update-monotone _ χ≤η (lookup-monotone _ χ′≤η′) ⟩
-              η , x ≔ η′ ⟨ x ⟩  ∎)
-           (begin
-              χ , x ≔ χ′ ⟨ x ⟩                                    ≤⟨ update-monotone _ fix (lookup-monotone _ fix′) ⟩
+    let γ′ , δ′ , η′ , _ , χ′ , ▸z′ , ▸s′ , ▸n′ , _
+           , θ≤χ′ , χ′≤γ′ , χ′≤δ′ , χ′≤η′ , fix′ = inv-usage-natrec-no-nr ▸nr
+    in  sub (natrec-no-nrₘ (Conₘ-interchange ▸z ▸z′ x)
+               (Conₘ-interchange ▸s ▸s′ (x +2))
+               (Conₘ-interchange ▸n ▸n′ x) ▸A
+               (begin
+                  χ , x ≔ χ′ ⟨ x ⟩  ≤⟨ update-monotone _ χ≤γ $ lookup-monotone _ χ′≤γ′ ⟩
+                  γ , x ≔ γ′ ⟨ x ⟩  ∎)
+               (λ ok → begin
+                  χ , x ≔ χ′ ⟨ x ⟩  ≤⟨ update-monotone _ (χ≤δ ok) (lookup-monotone _ (χ′≤δ′ ok)) ⟩
+                  δ , x ≔ δ′ ⟨ x ⟩  ∎)
+               (begin
+                  χ , x ≔ χ′ ⟨ x ⟩  ≤⟨ update-monotone _ χ≤η (lookup-monotone _ χ′≤η′) ⟩
+                  η , x ≔ η′ ⟨ x ⟩  ∎)
+               (begin
+                  χ , x ≔ χ′ ⟨ x ⟩                                    ≤⟨ update-monotone _ fix (lookup-monotone _ fix′) ⟩
 
-              δ +ᶜ p ·ᶜ η +ᶜ r ·ᶜ χ ,
-              x ≔ (δ′ +ᶜ p ·ᶜ η′ +ᶜ r ·ᶜ χ′) ⟨ x ⟩                ≈⟨ update-congʳ $
-                                                                     trans (lookup-distrib-+ᶜ δ′ _ _) $
-                                                                     cong (_ +_) $
-                                                                     trans (lookup-distrib-+ᶜ (_ ·ᶜ η′) _ _) $
-                                                                     cong₂ _+_
-                                                                       (lookup-distrib-·ᶜ η′ _ _)
-                                                                       (lookup-distrib-·ᶜ χ′ _ _) ⟩
-              δ +ᶜ p ·ᶜ η +ᶜ r ·ᶜ χ ,
-              x ≔ δ′ ⟨ x ⟩ + p · η′ ⟨ x ⟩ + r · χ′ ⟨ x ⟩          ≡⟨ trans (update-distrib-+ᶜ _ _ _ _ _) $
-                                                                     cong (_ +ᶜ_) $
-                                                                     trans (update-distrib-+ᶜ _ _ _ _ _) $
-                                                                     cong₂ _+ᶜ_
-                                                                       (update-distrib-·ᶜ _ _ _ _)
-                                                                       (update-distrib-·ᶜ _ _ _ _) ⟩
-              (δ , x ≔ δ′ ⟨ x ⟩) +ᶜ
-              p ·ᶜ (η , x ≔ η′ ⟨ x ⟩) +ᶜ r ·ᶜ (χ , x ≔ χ′ ⟨ x ⟩)  ∎))
-        (begin
-           χ , x ≔ θ ⟨ x ⟩   ≤⟨ update-monotoneʳ _ $ lookup-monotone _ θ≤χ′ ⟩
-           χ , x ≔ χ′ ⟨ x ⟩  ∎) }
+                  δ +ᶜ p ·ᶜ η +ᶜ r ·ᶜ χ ,
+                  x ≔ (δ′ +ᶜ p ·ᶜ η′ +ᶜ r ·ᶜ χ′) ⟨ x ⟩                ≈⟨ update-congʳ $
+                                                                         trans (lookup-distrib-+ᶜ δ′ _ _) $
+                                                                         cong (δ′ ⟨ x ⟩ +_) $
+                                                                         trans (lookup-distrib-+ᶜ (_ ·ᶜ η′) _ _) $
+                                                                         cong₂ _+_
+                                                                           (lookup-distrib-·ᶜ η′ _ _)
+                                                                           (lookup-distrib-·ᶜ χ′ _ _) ⟩
+                  δ +ᶜ p ·ᶜ η +ᶜ r ·ᶜ χ ,
+                  x ≔ δ′ ⟨ x ⟩ + p · η′ ⟨ x ⟩ + r · χ′ ⟨ x ⟩          ≡⟨ trans (update-distrib-+ᶜ _ _ _ _ _) $
+                                                                         cong (_ +ᶜ_) $
+                                                                         trans (update-distrib-+ᶜ _ _ _ _ _) $
+                                                                         cong₂ _+ᶜ_
+                                                                           (update-distrib-·ᶜ _ _ _ _)
+                                                                           (update-distrib-·ᶜ _ _ _ _) ⟩
+                  (δ , x ≔ δ′ ⟨ x ⟩) +ᶜ
+                  p ·ᶜ (η , x ≔ η′ ⟨ x ⟩) +ᶜ r ·ᶜ (χ , x ≔ χ′ ⟨ x ⟩)  ∎))
+            (begin
+              χ , x ≔ θ ⟨ x ⟩   ≤⟨ update-monotoneʳ _ $ lookup-monotone _ θ≤χ′ ⟩
+              χ , x ≔ χ′ ⟨ x ⟩  ∎)
+    where
+    open CR
+
+  Conₘ-interchange {δ = θ}
+    (natrec-no-nr-glbₘ {η} {χ} {x = y} ▸z ▸s ▸n ▸A x-glb χ-glb) ▸nr x =
+    let γ′ , δ′ , θ′ , _ , y′ , χ′
+          , ▸z′ , ▸s′ , ▸n′ , ▸A′
+          , θ≤ , x-glb′ , χ-glb′ = inv-usage-natrec-no-nr-glb ▸nr
+    in  sub (natrec-no-nr-glbₘ (Conₘ-interchange ▸z ▸z′ x)
+          (Conₘ-interchange ▸s ▸s′ (x +2))
+          (Conₘ-interchange ▸n ▸n′ x) ▸A
+          x-glb′
+          (GLBᶜ-congˡ
+            (λ i → ≈ᶜ-trans (update-congʳ (lookup-distrib-nrᵢᶜ _ γ′ δ′ x))
+                    (update-distrib-nrᵢᶜ x))
+            (Conₘ-interchange-GLBᶜ χ-glb χ-glb′ x))) $ begin
+           y ·ᶜ η +ᶜ χ , x ≔ θ ⟨ x ⟩ ≤⟨ update-monotoneʳ x (lookup-monotone x θ≤) ⟩
+           y ·ᶜ η +ᶜ χ , x ≔ (y′ ·ᶜ θ′ +ᶜ χ′) ⟨ x ⟩              ≈⟨ update-congˡ (+ᶜ-congʳ (·ᶜ-congʳ (GLB-unique x-glb x-glb′))) ⟩
+           y′ ·ᶜ η +ᶜ χ , x ≔ (y′ ·ᶜ θ′ +ᶜ χ′) ⟨ x ⟩             ≈⟨ update-congʳ (lookup-distrib-+ᶜ (y′ ·ᶜ θ′) χ′ x) ⟩
+           y′ ·ᶜ η +ᶜ χ , x ≔ ((y′ ·ᶜ θ′) ⟨ x ⟩ + χ′ ⟨ x ⟩)       ≡⟨ update-distrib-+ᶜ _ _ _ _ x ⟩
+           (y′ ·ᶜ η , x ≔ (y′ ·ᶜ θ′) ⟨ x ⟩) +ᶜ (χ , x ≔ χ′ ⟨ x ⟩) ≈⟨ +ᶜ-congʳ (update-congʳ (lookup-distrib-·ᶜ θ′ _ x)) ⟩
+           (y′ ·ᶜ η , x ≔ y′ · θ′ ⟨ x ⟩) +ᶜ (χ , x ≔ χ′ ⟨ x ⟩)    ≡⟨ cong (_+ᶜ _) (update-distrib-·ᶜ _ _ _ x) ⟩
+           y′ ·ᶜ (η , x ≔ θ′ ⟨ x ⟩) +ᶜ (χ , x ≔ χ′ ⟨ x ⟩)         ∎
     where
     open CR
 
@@ -1347,15 +1381,17 @@ opaque
 
 -- Some variants of Conₘ-interchange
 
-Conₘ-interchange₁ : γ ▸[ m ] t → δ ▸[ m ] t
-                  → tailₘ γ ∙ δ ⟨ x0 ⟩ ▸[ m ] t
+Conₘ-interchange₁ :
+  γ ▸[ m ] t → δ ▸[ m ] t →
+  tailₘ γ ∙ δ ⟨ x0 ⟩ ▸[ m ] t
 Conₘ-interchange₁ {γ = γ} {m} {t} {δ} γ▸t δ▸t =
   subst (_▸[ m ] t) (update-head γ (δ ⟨ x0 ⟩))
         (Conₘ-interchange γ▸t δ▸t x0)
 
 
-Conₘ-interchange₂ : γ ▸[ m ] t → δ ▸[ m ] t
-                  → tailₘ (tailₘ γ) ∙ δ ⟨ x1 ⟩ ∙ δ ⟨ x0 ⟩ ▸[ m ] t
+Conₘ-interchange₂ :
+  γ ▸[ m ] t → δ ▸[ m ] t →
+  tailₘ (tailₘ γ) ∙ δ ⟨ x1 ⟩ ∙ δ ⟨ x0 ⟩ ▸[ m ] t
 Conₘ-interchange₂ {γ = γ} {m} {t} {δ} γ▸t δ▸t =
   subst (_▸[ m ] t) eq
         (Conₘ-interchange (Conₘ-interchange γ▸t δ▸t x1) δ▸t x0)
@@ -1375,33 +1411,40 @@ Conₘ-interchange₂ {γ = γ} {m} {t} {δ} γ▸t δ▸t =
 
 module _ where
 
-  open import Graded.Modality.Dedicated-nr.Instance
+  open import Graded.Usage.Restrictions.Instance R
 
-  -- A variant of natrecₘ and natrec-no-nrₘ.
+  -- A variant of natrecₘ, natrec-no-nrₘ and natrec-no-nr-glbₘ.
 
   natrec-nr-or-no-nrₘ :
     γ ▸[ m ] t →
     δ ∙ ⌜ m ⌝ · p ∙ ⌜ m ⌝ · r ▸[ m ] u →
     η ▸[ m ] v →
     θ ∙ ⌜ 𝟘ᵐ? ⌝ · q ▸[ 𝟘ᵐ? ] A →
-    (⦃ has-nr : Dedicated-nr ⦄ →
+    (⦃ has-nr : Nr-available ⦄ →
      χ ≤ᶜ nrᶜ p r γ δ η) →
-    (⦃ no-nr : No-dedicated-nr ⦄ →
+    (⦃ no-nr : Nr-not-available ⦄ →
      χ ≤ᶜ γ ×
      (T 𝟘ᵐ-allowed →
       χ ≤ᶜ δ) ×
      (⦃ 𝟘-well-behaved : Has-well-behaved-zero semiring-with-meet ⦄ →
       χ ≤ᶜ η) ×
      χ ≤ᶜ δ +ᶜ p ·ᶜ η +ᶜ r ·ᶜ χ) →
+    (⦃ no-nr : Nr-not-available-GLB ⦄ →
+      ∃₂ λ x θ →
+      Greatest-lower-bound x (nrᵢ r 𝟙 p) ×
+      Greatest-lower-boundᶜ θ (nrᵢᶜ r γ δ) ×
+      χ ≤ᶜ x ·ᶜ η +ᶜ θ) →
     χ ▸[ m ] natrec p q r A t u v
-  natrec-nr-or-no-nrₘ ▸t ▸u ▸v ▸A hyp₁ hyp₂ =
-    case dedicated-nr? of λ where
+  natrec-nr-or-no-nrₘ ▸t ▸u ▸v ▸A hyp₁ hyp₂ hyp₃ =
+    case natrec-mode? natrec-mode of λ where
       does-have-nr →
         sub (natrecₘ ▸t ▸u ▸v ▸A) hyp₁
       does-not-have-nr →
-        case hyp₂ of λ {
-          (χ≤γ , χ≤δ , χ≤η , fix) →
-        natrec-no-nrₘ ▸t ▸u ▸v ▸A χ≤γ χ≤δ χ≤η fix }
+        let χ≤γ , χ≤δ , χ≤η , fix = hyp₂
+        in  natrec-no-nrₘ ▸t ▸u ▸v ▸A χ≤γ χ≤δ χ≤η fix
+      does-not-have-nr-glb →
+        let _ , _ , x-glb , θ-glb , χ≤ = hyp₃
+        in  sub (natrec-no-nr-glbₘ ▸t ▸u ▸v ▸A x-glb θ-glb) χ≤
 
 opaque
 
@@ -1637,7 +1680,7 @@ opaque
 -- The context ⌈ t ⌉ 𝟘ᵐ[ ok ] is equivalent to 𝟘ᶜ.
 
 ⌈⌉-𝟘ᵐ :
-  ⦃ has-nr : Has-nr semiring-with-meet ⦄ →
+  ⦃ ok′ : Natrec-mode-supports-usage-inference natrec-mode ⦄ →
   (t : Term n) → ⌈ t ⌉ 𝟘ᵐ[ ok ] ≈ᶜ 𝟘ᶜ
 ⌈⌉-𝟘ᵐ (var x) = begin
   𝟘ᶜ , x ≔ 𝟘  ≡⟨ 𝟘ᶜ,≔𝟘 ⟩
@@ -1699,15 +1742,33 @@ opaque
   ≈ᶜ-refl
 ⌈⌉-𝟘ᵐ (suc t) =
   ⌈⌉-𝟘ᵐ t
-⌈⌉-𝟘ᵐ {ok = ok} (natrec p _ r A z s n) = begin
-  nrᶜ p r (⌈ z ⌉ 𝟘ᵐ[ ok ]) (tailₘ (tailₘ (⌈ s ⌉ 𝟘ᵐ[ ok ])))
-    (⌈ n ⌉ 𝟘ᵐ[ ok ])                                         ≈⟨ nrᶜ-cong (⌈⌉-𝟘ᵐ z) (tailₘ-cong (tailₘ-cong (⌈⌉-𝟘ᵐ s))) (⌈⌉-𝟘ᵐ n) ⟩
-
-  nrᶜ p r 𝟘ᶜ 𝟘ᶜ 𝟘ᶜ                                           ≈⟨ nrᶜ-𝟘ᶜ ⟩
-
-  𝟘ᶜ                                                         ∎
+⌈⌉-𝟘ᵐ {ok} (natrec p _ r A z s n) =
+  lemma (⌈⌉-𝟘ᵐ z) (tailₘ-cong (tailₘ-cong (⌈⌉-𝟘ᵐ s))) (⌈⌉-𝟘ᵐ n)
   where
   open Tools.Reasoning.Equivalence Conₘ-setoid
+  lemma :
+    ⦃ ok′ : Natrec-mode-supports-usage-inference nm ⦄ →
+    ⌈ z ⌉ 𝟘ᵐ[ ok ] ≈ᶜ 𝟘ᶜ → tailₘ (tailₘ (⌈ s ⌉ 𝟘ᵐ[ ok ])) ≈ᶜ 𝟘ᶜ → ⌈ n ⌉ 𝟘ᵐ[ ok ] ≈ᶜ 𝟘ᶜ →
+    ⌈⌉-natrec ⦃ ok = ok′ ⦄ p r (⌈ z ⌉ 𝟘ᵐ[ ok ]) (tailₘ (tailₘ (⌈ s ⌉ 𝟘ᵐ[ ok ]))) (⌈ n ⌉ 𝟘ᵐ[ ok ]) ≈ᶜ 𝟘ᶜ
+  lemma ⦃ (Nr) ⦄ ⌈z⌉≈𝟘 ⌈s⌉≈𝟘 ⌈n⌉≈𝟘 = begin
+     nrᶜ p r (⌈ z ⌉ 𝟘ᵐ[ ok ]) (tailₘ (tailₘ (⌈ s ⌉ 𝟘ᵐ[ ok ])))
+      (⌈ n ⌉ 𝟘ᵐ[ ok ])                                         ≈⟨ nrᶜ-cong ⌈z⌉≈𝟘 ⌈s⌉≈𝟘 ⌈n⌉≈𝟘 ⟩
+
+     nrᶜ p r 𝟘ᶜ 𝟘ᶜ 𝟘ᶜ                                           ≈⟨ nrᶜ-𝟘ᶜ ⟩
+
+     𝟘ᶜ                                                         ∎
+  lemma ⦃ No-nr-glb has-GLB ⦄ ⌈z⌉≈𝟘 ⌈s⌉≈𝟘 ⌈n⌉≈𝟘 =
+    let x , _ = has-GLB r 𝟙 p
+        χ , χ-GLB = nrᵢᶜ-has-GLBᶜ has-GLB r (⌈ z ⌉ 𝟘ᵐ[ ok ]) (tailₘ (tailₘ (⌈ s ⌉ 𝟘ᵐ[ ok ])))
+        χ≈𝟘 = GLBᶜ-unique
+          (GLBᶜ-congˡ (λ i → ≈ᶜ-trans (nrᵢᶜ-cong ⌈z⌉≈𝟘 ⌈s⌉≈𝟘) nrᵢᶜ-𝟘ᶜ) χ-GLB)
+          (GLBᶜ-const (λ _ → ≈ᶜ-refl))
+    in  begin
+      x ·ᶜ ⌈ n ⌉ 𝟘ᵐ[ ok ] +ᶜ χ ≈⟨ +ᶜ-congʳ (·ᶜ-congˡ ⌈n⌉≈𝟘) ⟩
+      x ·ᶜ 𝟘ᶜ +ᶜ χ             ≈⟨ +ᶜ-congʳ (·ᶜ-zeroʳ _) ⟩
+      𝟘ᶜ +ᶜ χ                  ≈⟨ +ᶜ-identityˡ _ ⟩
+      χ                        ≈⟨ χ≈𝟘 ⟩
+      𝟘ᶜ ∎
 ⌈⌉-𝟘ᵐ Unit! =
   ≈ᶜ-refl
 ⌈⌉-𝟘ᵐ star! = ≈ᶜ-refl
@@ -1778,7 +1839,7 @@ opaque
 -- multiplied by ⌜ m ⌝.
 
 ·-⌈⌉ :
-  ⦃ has-nr : Has-nr semiring-with-meet ⦄ →
+  ⦃ ok : Natrec-mode-supports-usage-inference natrec-mode ⦄ →
   (t : Term n) → ⌜ m ⌝ ·ᶜ ⌈ t ⌉ m ≈ᶜ ⌈ t ⌉ m
 ·-⌈⌉ {m = 𝟘ᵐ} t = begin
   𝟘 ·ᶜ ⌈ t ⌉ 𝟘ᵐ  ≈⟨ ·ᶜ-zeroˡ _ ⟩
@@ -1792,17 +1853,15 @@ opaque
   where
   open Tools.Reasoning.Equivalence Conₘ-setoid
 
-open import Graded.Modality.Dedicated-nr.Instance
-
 -- For dedicated nr functions the function ⌈_⌉ provides upper bounds
 -- for valid modality contexts if strong unit types are not allowed to
 -- be used as sinks, or if 𝟘 is a greatest grade.
 
 usage-upper-bound :
-  ⦃ has-nr : Dedicated-nr ⦄ →
+  ⦃ ok : Natrec-mode-supports-usage-inference natrec-mode ⦄ →
   ¬ Starˢ-sink ⊎ (∀ {p} → p ≤ 𝟘) →
   γ ▸[ m ] t → γ ≤ᶜ ⌈ t ⌉ m
-usage-upper-bound ⦃ has-nr = nr₁ ⦄ ok = usage-upper-bound′
+usage-upper-bound ⦃ ok ⦄ ok′ = usage-upper-bound′
   where
   usage-upper-bound′ : γ ▸[ m ] t → γ ≤ᶜ ⌈ t ⌉ m
   usage-upper-bound′ Uₘ     = ≤ᶜ-refl
@@ -1840,27 +1899,51 @@ usage-upper-bound ⦃ has-nr = nr₁ ⦄ ok = usage-upper-bound′
   usage-upper-bound′ zeroₘ    = ≤ᶜ-refl
   usage-upper-bound′ (sucₘ t) = usage-upper-bound′ t
 
-  usage-upper-bound′
-    (natrecₘ {z = z} {s = s} {n = n} ⦃ has-nr = nr₂ ⦄ γ▸z δ▸s η▸n θ▸A) =
-    case Dedicated-nr-propositional nr₁ nr₂ of λ {
-      refl →
-    case usage-upper-bound′ γ▸z of λ {
-      γ≤γ′ →
-    case usage-upper-bound′ δ▸s of λ {
-      δ≤δ′ →
-    case usage-upper-bound′ η▸n of λ {
-      η≤η′ →
-    nrᶜ-monotone γ≤γ′ (tailₘ-monotone (tailₘ-monotone δ≤δ′)) η≤η′ }}}}
+  usage-upper-bound′ {m}
+    (natrecₘ {γ} {z} {δ} {p} {r} {η} {q} {A} {s} {n} ⦃ has-nr ⦄ γ▸z δ▸s η▸n θ▸A) =
+    lemma has-nr ok
+    where
+    lemma :
+      (has-nr : Natrec-mode-has-nr nm)
+      (ok : Natrec-mode-supports-usage-inference nm) →
+      nrᶜ ⦃ Natrec-mode-Has-nr has-nr ⦄ p r γ δ η ≤ᶜ ⌈⌉-natrec ⦃ ok ⦄ p r (⌈ z ⌉ m) (tailₘ (tailₘ (⌈ s ⌉ m))) (⌈ n ⌉ m)
+    lemma Nr Nr =
+      let γ≤γ′ = usage-upper-bound′ γ▸z
+          δ≤δ′ = usage-upper-bound′ δ▸s
+          η≤η′ = usage-upper-bound′ η▸n
+      in  nrᶜ-monotone γ≤γ′ (tailₘ-monotone (tailₘ-monotone δ≤δ′)) η≤η′
 
-  usage-upper-bound′ (natrec-no-nrₘ _ _ _ _ _ _ _ _) =
-    ⊥-elim not-nr-and-no-nr
+  usage-upper-bound′ (natrec-no-nrₘ ⦃ no-nr ⦄ _ _ _ _ _ _ _ _) =
+    ⊥-elim (lemma no-nr ok)
+    where
+    lemma :
+      Natrec-mode-no-nr nm → Natrec-mode-supports-usage-inference nm → ⊥
+    lemma No-nr ()
+
+  usage-upper-bound′ {m} (natrec-no-nr-glbₘ {γ} {z} {δ} {p} {r} {η} {q} {A} {χ} {n} {s} {x} ⦃ no-nr ⦄ ▸z ▸s ▸n ▸A x-GLB χ-GLB) =
+    lemma no-nr ok
+    where
+    lemma :
+      Natrec-mode-no-nr-glb nm →
+      (ok : Natrec-mode-supports-usage-inference nm) →
+      x ·ᶜ η +ᶜ χ ≤ᶜ ⌈⌉-natrec ⦃ ok ⦄ p r (⌈ z ⌉ m) (tailₘ (tailₘ (⌈ s ⌉ m))) (⌈ n ⌉ m)
+    lemma No-nr-glb (No-nr-glb has-GLB) =
+      let x′ , x′-GLB = has-GLB r 𝟙 p
+          χ′ , χ′-GLB = nrᵢᶜ-has-GLBᶜ has-GLB r (⌈ z ⌉ m) (tailₘ (tailₘ (⌈ s ⌉ m)))
+          γ≤γ′ = usage-upper-bound′ ▸z
+          δ≤δ′ = usage-upper-bound′ ▸s
+          η≤η′ = usage-upper-bound′ ▸n
+      in  +ᶜ-monotone
+            (·ᶜ-monotone η≤η′ (≤-reflexive (GLB-unique x-GLB x′-GLB)))
+            (GLBᶜ-monotone (λ i → nrᵢᶜ-monotone γ≤γ′ (tailₘ-monotone (tailₘ-monotone δ≤δ′)))
+              χ-GLB χ′-GLB)
 
   usage-upper-bound′ (emptyrecₘ e A _) =
     ·ᶜ-monotoneʳ (usage-upper-bound′ e)
 
   usage-upper-bound′ starʷₘ = ≤ᶜ-refl
   usage-upper-bound′ {m} (starˢₘ {γ} {l} hyp) =
-    case ok of λ where
+    case ok′ of λ where
       (inj₁ no-sink) → begin
         ⌜ m ⌝ ·ᶜ γ   ≈˘⟨ ·ᶜ-congˡ (hyp no-sink) ⟩
         ⌜ m ⌝ ·ᶜ 𝟘ᶜ  ≈⟨ ·ᶜ-zeroʳ _ ⟩
@@ -1975,7 +2058,7 @@ usage-upper-bound ⦃ has-nr = nr₁ ⦄ ok = usage-upper-bound′
 -- (if there is a dedicated nr functions).
 
 usage-inf :
-  ⦃ has-nr : Dedicated-nr ⦄ →
+  ⦃ ok : Natrec-mode-supports-usage-inference natrec-mode ⦄ →
   γ ▸[ m ] t → ⌈ t ⌉ m ▸[ m ] t
 usage-inf Uₘ = Uₘ
 usage-inf ℕₘ = ℕₘ
@@ -1999,17 +2082,40 @@ usage-inf {m = m} (prodrecₘ {r = r} {δ = δ} {p = p} {u = u} γ▸t δ▸u η
            ok
 usage-inf zeroₘ = zeroₘ
 usage-inf (sucₘ γ▸t) = sucₘ (usage-inf γ▸t)
-usage-inf {m = m}
-  ⦃ has-nr = nr₁ ⦄
-  (natrecₘ {p = p} {r = r} {s = s} ⦃ has-nr = nr₂ ⦄ γ▸z δ▸s η▸n θ▸A) =
-  case Dedicated-nr-propositional nr₁ nr₂ of λ {
-    refl →
-  natrecₘ (usage-inf γ▸z)
+usage-inf ⦃ ok ⦄
+  (natrecₘ {γ} {z} {δ} {p} {r} {η} {q} {A} {s} {n} ⦃ has-nr ⦄ γ▸z δ▸s η▸n θ▸A) =
+    sub (natrecₘ (usage-inf γ▸z)
           (Conₘ-interchange₂ (usage-inf δ▸s) δ▸s)
-          (usage-inf η▸n)
-          θ▸A }
-usage-inf (natrec-no-nrₘ _ _ _ _ _ _ _ _) =
-  ⊥-elim not-nr-and-no-nr
+          (usage-inf η▸n) θ▸A)
+        (lemma has-nr ok)
+  where
+  lemma :
+    (has-nr : Natrec-mode-has-nr nm)
+    (ok : Natrec-mode-supports-usage-inference nm) →
+    ⌈⌉-natrec ⦃ ok ⦄ p r (⌈ z ⌉ m) (tailₘ (tailₘ (⌈ s ⌉ m))) (⌈ n ⌉ m) ≤ᶜ
+    nrᶜ ⦃ Natrec-mode-Has-nr has-nr ⦄ p r (⌈ z ⌉ m) (tailₘ (tailₘ (⌈ s ⌉ m))) (⌈ n ⌉ m)
+  lemma (Nr ⦃ has-nr ⦄) Nr = ≤ᶜ-refl
+usage-inf ⦃ ok ⦄ (natrec-no-nrₘ ⦃ no-nr ⦄ _ _ _ _ _ _ _ _) =
+  ⊥-elim (lemma no-nr ok)
+  where
+  lemma :
+    Natrec-mode-no-nr nm → Natrec-mode-supports-usage-inference nm → ⊥
+  lemma No-nr ()
+usage-inf {m} ⦃ ok ⦄ (natrec-no-nr-glbₘ {γ} {z} {δ} {p} {r} {η} {q} {A} {χ} {n} {s} {x} ⦃ no-nr ⦄ γ▸z δ▸s η▸n θ▸A x-GLB χ-GLB) =
+  let χ′ , χ′-GLB , le = lemma no-nr ok
+  in  sub (natrec-no-nr-glbₘ (usage-inf γ▸z)
+            (Conₘ-interchange₂ (usage-inf δ▸s) δ▸s)
+            (usage-inf η▸n) θ▸A x-GLB χ′-GLB) le
+  where
+  lemma :
+    Natrec-mode-no-nr-glb nm →
+    (ok : Natrec-mode-supports-usage-inference nm) →
+    ∃ λ χ → Greatest-lower-boundᶜ χ (nrᵢᶜ r (⌈ z ⌉ m) (tailₘ (tailₘ (⌈ s ⌉ m)))) ×
+    ⌈⌉-natrec ⦃ ok ⦄ p r (⌈ z ⌉ m) (tailₘ (tailₘ (⌈ s ⌉ m))) (⌈ n ⌉ m) ≤ᶜ x ·ᶜ ⌈ n ⌉ m +ᶜ χ
+  lemma No-nr-glb (No-nr-glb has-GLB) =
+    let χ , χ-GLB = nrᵢᶜ-has-GLBᶜ has-GLB r (⌈ z ⌉ m) (tailₘ (tailₘ (⌈ s ⌉ m)))
+    in  χ , χ-GLB
+          , +ᶜ-monotoneˡ (·ᶜ-monotoneˡ (≤-reflexive (GLB-unique (has-GLB r 𝟙 p .proj₂) x-GLB)))
 usage-inf (emptyrecₘ γ▸t δ▸A ok) = emptyrecₘ (usage-inf γ▸t) δ▸A ok
 usage-inf starʷₘ = starʷₘ
 usage-inf (starˢₘ prop) = starₘ

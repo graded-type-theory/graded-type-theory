@@ -9,15 +9,13 @@
 -- usage rules can be found in Graded.Derived.Bool.Erased.
 
 import Graded.Modality
-import Graded.Modality.Dedicated-nr
 
 module Definition.Untyped.Bool.Erased
   {a} {M : Set a}
   (open Graded.Modality M)
   (𝕄 : Modality)
-  (open Graded.Modality.Dedicated-nr 𝕄)
-  -- It is assumed that there is a dedicated nr function.
-  ⦃ has-nr : Dedicated-nr ⦄
+  -- It is assumed that the modality has an nr function.
+  ⦃ has-nr : Has-nr (Modality.semiring-with-meet 𝕄) ⦄
   where
 
 open Modality 𝕄
@@ -30,9 +28,8 @@ open import Definition.Untyped.Erased 𝕄 𝕨 as E hiding ([_])
 open import Definition.Untyped.Nat 𝕄
 open import Definition.Untyped.Properties M
 
-open import Graded.Modality.Dedicated-nr.Instance
 open import Graded.Modality.Nr-instances
-open import Graded.Modality.Properties 𝕄
+open import Graded.Modality.Properties 𝕄 hiding (has-nr)
 open import Graded.Mode 𝕄
 
 open import Tools.Bool using (T)
@@ -168,12 +165,12 @@ opaque
 opaque
   unfolding Boolᵍ B.Boolᵍ
 
-  -- If 𝟘ᵐ is not allowed and the dedicated nr function satisfies
+  -- If 𝟘ᵐ is not allowed and the nr function satisfies
   -- Linearity-like-nr-for-𝟘, then Boolᵍ is equal to 𝟘 ∧ 𝟙.
 
   Boolᵍ≡𝟘∧𝟙 :
     ¬ T 𝟘ᵐ-allowed →
-    Has-nr.Linearity-like-nr-for-𝟘 has-dedicated-nr →
+    Has-nr.Linearity-like-nr-for-𝟘 has-nr →
     Boolᵍ ≡ 𝟘 ∧ 𝟙
   Boolᵍ≡𝟘∧𝟙 not-ok hyp =
     nr OKᵍ 𝟘 𝟘 𝟘 ⌜ 𝟘ᵐ? ⌝  ≡⟨ cong (nr _ _ _ _) $ ⌜𝟘ᵐ?⌝≡𝟙 not-ok ⟩
@@ -185,12 +182,12 @@ opaque
 opaque
   unfolding boolrecᵍ-pr
 
-  -- If the dedicated nr function satisfies Linearity-like-nr-for-𝟘
+  -- If the nr function satisfies Linearity-like-nr-for-𝟘
   -- and Linearity-like-nr-for-𝟙, then boolrecᵍ-pr is equal to 𝟙.
 
   boolrecᵍ-pr≡ :
-    Has-nr.Linearity-like-nr-for-𝟘 has-dedicated-nr →
-    Has-nr.Linearity-like-nr-for-𝟙 has-dedicated-nr →
+    Has-nr.Linearity-like-nr-for-𝟘 has-nr →
+    Has-nr.Linearity-like-nr-for-𝟙 has-nr →
     boolrecᵍ-pr ≡ 𝟙
   boolrecᵍ-pr≡ hyp₁ hyp₂ =
     nr boolrecᵍ-nc₂ 𝟘 𝟘 𝟘 𝟙 ∧ 𝟙        ≡⟨ cong (flip _∧_ _) $ cong (λ p → nr p _ _ _ _) $

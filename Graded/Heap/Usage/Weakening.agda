@@ -5,14 +5,16 @@
 open import Graded.Modality
 open import Graded.Usage.Restrictions
 open import Definition.Typed.Variant
+open import Graded.Usage.Restrictions.Natrec
 
 module Graded.Heap.Usage.Weakening
   {a} {M : Set a} {𝕄 : Modality M}
   (type-variant : Type-variant)
   (UR : Usage-restrictions 𝕄)
-  (open Modality 𝕄)
-  ⦃ _ : Has-nr M semiring-with-meet ⦄
-  ⦃ _ : Has-factoring-nr M semiring-with-meet ⦄
+  (open Usage-restrictions UR)
+  (factoring-nr :
+    ⦃ has-nr : Nr-available ⦄ →
+    Is-factoring-nr M (Natrec-mode-Has-nr 𝕄 has-nr))
   where
 
 open import Tools.Nat
@@ -26,9 +28,9 @@ open import Graded.Context.Properties 𝕄
 open import Graded.Context.Weakening 𝕄
 open import Graded.Mode 𝕄
 
-open import Graded.Heap.Untyped type-variant UR
-open import Graded.Heap.Untyped.Properties type-variant UR
-open import Graded.Heap.Usage type-variant UR
+open import Graded.Heap.Untyped type-variant UR factoring-nr
+open import Graded.Heap.Untyped.Properties type-variant UR factoring-nr
+open import Graded.Heap.Usage type-variant UR factoring-nr
 
 
 private variable
@@ -64,8 +66,10 @@ opaque
     subst (_▸ᵉ[ _ ] _) (sym (wk-𝟘ᶜ ρ)) sndₑ
   wk-▸ᵉ ρ (prodrecₑ {ρ = ρ′} ▸u ok) =
     subst (_▸ᵉ[ _ ] _) (wk-•ᶜ ρ ρ′) (prodrecₑ ▸u ok)
-  wk-▸ᵉ ρ (natrecₑ {ρ = ρ′} ▸z ▸s ▸A) =
-    subst (_▸ᵉ[ _ ] _) (wk-•ᶜ ρ ρ′) (natrecₑ ▸z ▸s ▸A)
+  wk-▸ᵉ ρ (natrecₑ {ρ = ρ′} ▸z ▸s ▸A ≡nr₂) =
+    subst (_▸ᵉ[ _ ] _) (wk-•ᶜ ρ ρ′) (natrecₑ ▸z ▸s ▸A ≡nr₂)
+  wk-▸ᵉ ρ (natrec-no-nrₑ {ρ = ρ′} ▸z ▸s ▸A q-glb χ-glb) =
+    subst (_▸ᵉ[ _ ] _) (wk-•ᶜ ρ ρ′) (natrec-no-nrₑ ▸z ▸s ▸A q-glb χ-glb)
   wk-▸ᵉ ρ (unitrecₑ {ρ = ρ′} ▸u ok no-η) =
     subst (_▸ᵉ[ _ ] _) (wk-•ᶜ ρ ρ′) (unitrecₑ ▸u ok no-η)
   wk-▸ᵉ ρ (emptyrecₑ ok) =

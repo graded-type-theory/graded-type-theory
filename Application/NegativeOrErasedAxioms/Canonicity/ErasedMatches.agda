@@ -38,6 +38,7 @@ import Graded.Mode
 import Graded.Restrictions
 import Graded.Usage
 open import Graded.Usage.Restrictions
+open import Graded.Usage.Restrictions.Natrec
 
 open import Graded.Modality.Instances.Erasure as E using (Erasure)
 import Graded.Modality.Instances.Erasure.Modality as EM
@@ -64,7 +65,7 @@ module Counterexample
     TR = no-type-restrictions true false
 
     UR : Usage-restrictions 𝕄
-    UR = no-usage-restrictions true true
+    UR = no-usage-restrictions Nr true true
 
   open Type-restrictions TR
 
@@ -208,6 +209,6 @@ not-canonicityEq :
    ∃ λ u → Numeral u × Γ ⊢ t ≡ u ∷ ℕ) →
   ⊥
 not-canonicityEq hyp =
-  case Counterexample.cEx (nr-available-and-𝟘ᵐ-allowed-if true) of λ {
+  case Counterexample.cEx (𝟘ᵐ-allowed-if true) of λ {
     (_ , _ , _ , _ , ⊢t , ▸t , _ , nec , con , not-numeral , _) →
   not-numeral (hyp _ _ con (λ ()) ⊢t ▸t nec) }

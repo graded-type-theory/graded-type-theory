@@ -13,12 +13,14 @@ module Graded.Substitution
   where
 
 open Modality 𝕄
+open Usage-restrictions R
 
 open import Definition.Untyped M
   using (Subst ; tail ; head ; Wk ; id ; step ; lift)
 open import Graded.Context 𝕄
 open import Graded.Context.Weakening 𝕄
 open import Graded.Usage 𝕄 R
+open import Graded.Usage.Restrictions.Natrec 𝕄
 open import Graded.Mode 𝕄
 
 open import Tools.Fin
@@ -85,7 +87,7 @@ _▶[_]_ {n = n} Ψ γ σ =
 -- Substitution matrix inference (for modalities with nr functions).
 
 ∥_∥ :
-  ⦃ has-nr : Has-nr semiring-with-meet ⦄ →
+  ⦃ ok : Natrec-mode-supports-usage-inference natrec-mode ⦄ →
   Subst m n → Mode-vector n → Substₘ m n
 ∥_∥ {n = 0}    _ _  = []
 ∥_∥ {n = 1+ n} σ ms = ∥ tail σ ∥ (tailᵐ ms) ⊙ ⌈ head σ ⌉ (headᵐ ms)

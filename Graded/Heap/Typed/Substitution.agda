@@ -5,11 +5,16 @@
 open import Graded.Modality
 open import Graded.Usage.Restrictions
 open import Definition.Typed.Restrictions
+open import Graded.Usage.Restrictions.Natrec
 
 module Graded.Heap.Typed.Substitution
   {a} {M : Set a} {𝕄 : Modality M}
   (UR : Usage-restrictions 𝕄)
   (TR : Type-restrictions 𝕄)
+  (open Usage-restrictions UR)
+  (factoring-nr :
+    ⦃ has-nr : Nr-available ⦄ →
+    Is-factoring-nr M (Natrec-mode-Has-nr 𝕄 has-nr))
   where
 
 open Type-restrictions TR
@@ -20,8 +25,8 @@ open import Definition.Typed TR
 open import Definition.Typed.Properties TR
 open import Definition.Typed.Substitution TR
 
-open import Graded.Heap.Typed UR TR
-open import Graded.Heap.Untyped type-variant UR
+open import Graded.Heap.Typed UR TR factoring-nr
+open import Graded.Heap.Untyped type-variant UR factoring-nr
 
 open import Tools.Function
 open import Tools.Product

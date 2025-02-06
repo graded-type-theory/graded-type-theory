@@ -12,6 +12,7 @@ open import Tools.Bool using (T)
 open import Tools.Empty
 open import Tools.Function
 open import Tools.Level
+open import Tools.Nat using (1+; Sequence)
 open import Tools.Product
 open import Tools.PropositionalEquality as PE
 import Tools.Reasoning.PartialOrder
@@ -23,6 +24,7 @@ open import Tools.Unit
 import Graded.Modality
 open import Graded.FullReduction.Assumptions
 import Graded.Modality.Properties.Addition as Addition
+import Graded.Modality.Properties.Greatest-lower-bound as GLB
 import Graded.Modality.Properties.Meet as Meet
 import Graded.Modality.Properties.Multiplication as Multiplication
 import Graded.Modality.Properties.Natrec as Natrec
@@ -1545,28 +1547,32 @@ linear-or-affine-has-star = record
 ------------------------------------------------------------------------
 -- A modality
 
--- A (not very good) "linear or affine types" modality.
---
--- See Graded.Modality.Instances.Linear-or-affine.Bad for some
--- examples that illustrate in what sense this modality is not very
--- good. The modality linear-or-affine below does not suffer from
--- these problems (see
--- Graded.Modality.Instances.Linear-or-affine.Good), but note that, at
--- the time of writing, this formalisation does not contain any solid
--- evidence showing that linear-or-affine is "correct".
+-- A modality for Linear-or-affine.
 
-bad-linear-or-affine : Modality-variant → Modality
-bad-linear-or-affine variant = record
+linear-or-affine : Modality-variant → Modality
+linear-or-affine variant = record
   { variant            = variant
   ; semiring-with-meet = linear-or-affine-semiring-with-meet
   ; 𝟘-well-behaved     = λ _ → linear-or-affine-has-well-behaved-zero
-  ; has-nr             = λ _ →
-                           Star.has-nr _
-                             ⦃ has-star = linear-or-affine-has-star ⦄
   }
 
 ------------------------------------------------------------------------
--- A variant of the modality with a custom nr function
+-- Custom nr functions for the Modality
+
+opaque
+
+  -- A (not very good) nr function based on the natrec-star operator
+  -- defined above.
+
+  -- See Graded.Modality.Instances.Linear-or-affine.Bad for some
+  -- examples that illustrate in what sense this nr function is not very
+  -- good. The nr function below does not suffer from
+  -- these problems (see
+  -- Graded.Modality.Instances.Linear-or-affine.Good).
+
+  bad-linear-or-affine-has-nr : Has-nr linear-or-affine-semiring-with-meet
+  bad-linear-or-affine-has-nr =
+    Star.has-nr _ ⦃ linear-or-affine-has-star ⦄
 
 -- An nr function for Linear-or-affine.
 --
@@ -4111,7 +4117,7 @@ opaque
   -- The nr-function defined above is factoring
 
   linear-or-affine-has-factoring-nr :
-    Has-factoring-nr linear-or-affine-semiring-with-meet ⦃ linear-or-affine-has-nr ⦄
+    Is-factoring-nr linear-or-affine-has-nr
   linear-or-affine-has-factoring-nr = record
     { nr₂ = nr₂
     ; nr₂≢𝟘 = λ {p} {r} → 𝟙∧p≢𝟘 (r + p)
@@ -4178,10 +4184,10 @@ opaque
   -- of any other factoring nr function for linear-or-affine-semiring-with-meet.
 
   nr-greatest-factoring :
-    ⦃ has-nr : Has-nr linear-or-affine-semiring-with-meet ⦄
-    (has-factoring-nr : Has-factoring-nr linear-or-affine-semiring-with-meet) →
+    (has-nr : Has-nr linear-or-affine-semiring-with-meet)
+    (is-factoring-nr : Is-factoring-nr has-nr) →
     ∀ p r z s n → Has-nr.nr has-nr p r z s n ≤ nr p r z s n
-  nr-greatest-factoring ⦃ has-nr ⦄ has-factoring-nr = λ where
+  nr-greatest-factoring has-nr is-factoring-nr = λ where
       p r ≤ω s n → lemma $ begin
         nr′ p r ≤ω s n                ≡⟨ nr-factoring ⟩
         nr₂′ p r · n + nr′ p r ≤ω s 𝟘 ≤⟨ +-monotoneʳ {r = nr₂′ p r · n} (nr-zero refl) ⟩
@@ -4299,8 +4305,8 @@ opaque
         (≤𝟙 + p) · 𝟘 + ≤𝟙 · z    ≡⟨⟩
         nr p ≤𝟙 z 𝟘 𝟘            ∎
     where
+    open Is-factoring-nr is-factoring-nr renaming (nr₂ to nr₂′)
     open Has-nr has-nr renaming (nr to nr′; nr-positive to nr′-positive)
-    open Has-factoring-nr has-factoring-nr renaming (nr₂ to nr₂′)
     open Addition linear-or-affine-semiring-with-meet
     open Meet linear-or-affine-semiring-with-meet
     open Multiplication linear-or-affine-semiring-with-meet
@@ -4379,16 +4385,6 @@ opaque
   nr-linearity-like-for-𝟙 :
     Has-nr.Linearity-like-nr-for-𝟙 linear-or-affine-has-nr
   nr-linearity-like-for-𝟙 = refl
-
--- A modality defined using linear-or-affine-has-nr.
-
-linear-or-affine : Modality-variant → Modality
-linear-or-affine variant = record
-  { variant            = variant
-  ; semiring-with-meet = linear-or-affine-semiring-with-meet
-  ; 𝟘-well-behaved     = λ _ → linear-or-affine-has-well-behaved-zero
-  ; has-nr             = λ _ → linear-or-affine-has-nr
-  }
 
 ------------------------------------------------------------------------
 -- Instances of Full-reduction-assumptions
@@ -4691,3 +4687,357 @@ opaque
     right 𝟙-𝟙≡′𝟘 = 𝟙-𝟙≡𝟘
     right ≤𝟙-≤𝟙≡′𝟘 = ≤𝟙-≤𝟙≡𝟘
     right ≤𝟙-𝟙≡′𝟘 = ≤𝟙-𝟙≡𝟘
+
+
+------------------------------------------------------------------------
+-- Properties of greatest lower bounds
+
+opaque
+
+  -- nr 𝟘 r z s 𝟘 is the greatest lower bound of nrᵢ r z s.
+
+  nr-nrᵢ-GLB :
+    let 𝕄 = linear-or-affine-semiring-with-meet in
+      ∀ r → Semiring-with-meet.Greatest-lower-bound
+              𝕄 (nr 𝟘 r z s 𝟘) (Semiring-with-meet.nrᵢ 𝕄 r z s)
+  nr-nrᵢ-GLB = λ where
+      𝟘 → GLB-congʳ (sym (trans (∧-congʳ (+-congʳ (·-zeroʳ (𝟙 ∧ 𝟘))))
+            (∧-comm _ _))) nrᵢ-𝟘-GLB
+      𝟙 → lemma-𝟙 _ _
+      ≤𝟙 → lemma-≤𝟙 _ _
+      ≤ω → lemma-ω _ _
+    where
+    open Semiring-with-meet linear-or-affine-semiring-with-meet
+      hiding (𝟘; 𝟙; ω; _∧_; _·_; _+_)
+    open GLB linear-or-affine-semiring-with-meet
+    open Natrec linear-or-affine-semiring-with-meet
+    open PartialOrder linear-or-affine-semiring-with-meet
+    lemma′ : ∀ {z} i → nrᵢ 𝟙 z 𝟘 i ≡ z
+    lemma′ 0 = refl
+    lemma′ (1+ i) = trans (·-identityˡ _) (lemma′ i)
+    lemma : ∀ {r z s} i →
+      nrᵢ r z s i ≡ ≤ω → Greatest-lower-bound ≤ω (nrᵢ r z s)
+    lemma {r} {z} {s} i nrᵢ≡ω =
+      (λ i → ≤ω≤ (nrᵢ r z s i)) , λ q q≤ → ≤-trans (q≤ i) (≤-reflexive nrᵢ≡ω)
+    lemma-𝟙 : ∀ z s → Greatest-lower-bound (≤ω · s + z) (nrᵢ 𝟙 z s)
+    lemma-𝟙 𝟘 𝟘 = GLB-nrᵢ-𝟘
+    lemma-𝟙 𝟘 𝟙 = lemma 2 refl
+    lemma-𝟙 𝟘 ≤𝟙 = lemma 2 refl
+    lemma-𝟙 𝟘 ≤ω = lemma 1 refl
+    lemma-𝟙 𝟙 𝟘 = GLB-const lemma′
+    lemma-𝟙 𝟙 𝟙 = lemma 1 refl
+    lemma-𝟙 𝟙 ≤𝟙 = lemma 1 refl
+    lemma-𝟙 𝟙 ≤ω = lemma 1 refl
+    lemma-𝟙 ≤𝟙 𝟘 = GLB-const lemma′
+    lemma-𝟙 ≤𝟙 𝟙 = lemma 1 refl
+    lemma-𝟙 ≤𝟙 ≤𝟙 = lemma 1 refl
+    lemma-𝟙 ≤𝟙 ≤ω = lemma 1 refl
+    lemma-𝟙 ≤ω 𝟘 = lemma 0 refl
+    lemma-𝟙 ≤ω 𝟙 = lemma 0 refl
+    lemma-𝟙 ≤ω ≤𝟙 = lemma 0 refl
+    lemma-𝟙 ≤ω ≤ω = lemma 0 refl
+    lemma-≤𝟙 : ∀ z s → Greatest-lower-bound (≤ω · s + ≤𝟙 · z) (nrᵢ ≤𝟙 z s)
+    lemma-≤𝟙 𝟘 𝟘 = GLB-nrᵢ-𝟘
+    lemma-≤𝟙 𝟘 𝟙 = lemma 2 refl
+    lemma-≤𝟙 𝟘 ≤𝟙 = lemma 2 refl
+    lemma-≤𝟙 𝟘 ≤ω = lemma 1 refl
+    lemma-≤𝟙 𝟙 𝟘 =
+      (λ { 0 → refl
+         ; (1+ i) → ≤-reflexive (lem i)}) ,
+      λ { 𝟘 q≤ → case q≤ 0 of λ ()
+        ; 𝟙 q≤ → case q≤ 1 of λ ()
+        ; ≤𝟙 q≤ → refl
+        ; ≤ω q≤ → refl}
+      where
+      lem : ∀ i → ≤𝟙 ≡ nrᵢ ≤𝟙 𝟙 𝟘 (1+ i)
+      lem 0 = refl
+      lem (1+ i) = ·-congˡ {x = ≤𝟙} (lem i)
+    lemma-≤𝟙 𝟙 𝟙 = lemma 1 refl
+    lemma-≤𝟙 𝟙 ≤𝟙 = lemma 1 refl
+    lemma-≤𝟙 𝟙 ≤ω = lemma 1 refl
+    lemma-≤𝟙 ≤𝟙 𝟘 = GLB-const lem
+      where
+      lem : ∀ i → nrᵢ ≤𝟙 ≤𝟙 𝟘 i ≡ ≤𝟙
+      lem 0 = refl
+      lem (1+ i) = ·-congˡ {x = ≤𝟙} (lem i)
+    lemma-≤𝟙 ≤𝟙 𝟙 = lemma 1 refl
+    lemma-≤𝟙 ≤𝟙 ≤𝟙 = lemma 1 refl
+    lemma-≤𝟙 ≤𝟙 ≤ω = lemma 1 refl
+    lemma-≤𝟙 ≤ω 𝟘 = lemma 0 refl
+    lemma-≤𝟙 ≤ω 𝟙 = lemma 0 refl
+    lemma-≤𝟙 ≤ω ≤𝟙 = lemma 0 refl
+    lemma-≤𝟙 ≤ω ≤ω = lemma 0 refl
+    lemma-ω : ∀ z s → Greatest-lower-bound (≤ω · (s + z)) (nrᵢ ≤ω z s)
+    lemma-ω 𝟘 𝟘 = GLB-nrᵢ-𝟘
+    lemma-ω 𝟙 𝟘 = lemma 1 refl
+    lemma-ω ≤𝟙 𝟘 = lemma 1 refl
+    lemma-ω ≤ω 𝟘 = lemma 0 refl
+    lemma-ω 𝟘 𝟙 = lemma 2 refl
+    lemma-ω 𝟙 𝟙 = lemma 1 refl
+    lemma-ω ≤𝟙 𝟙 = lemma 1 refl
+    lemma-ω ≤ω 𝟙 = lemma 0 refl
+    lemma-ω 𝟘 ≤𝟙 = lemma 2 refl
+    lemma-ω 𝟙 ≤𝟙 = lemma 1 refl
+    lemma-ω ≤𝟙 ≤𝟙 = lemma 1 refl
+    lemma-ω ≤ω ≤𝟙 = lemma 0 refl
+    lemma-ω 𝟘 ≤ω = lemma 1 refl
+    lemma-ω 𝟙 ≤ω = lemma 1 refl
+    lemma-ω ≤𝟙 ≤ω = lemma 1 refl
+    lemma-ω ≤ω ≤ω = lemma 0 refl
+
+opaque
+
+  -- The sequence nrᵢ r z s has a greatest lower bound
+
+  nrᵢ-GLB :
+    let 𝕄 = linear-or-affine-semiring-with-meet in
+    ∀ r z s → ∃ λ p →
+      Semiring-with-meet.Greatest-lower-bound
+        𝕄 p (Semiring-with-meet.nrᵢ 𝕄 r z s)
+  nrᵢ-GLB r z s = _ , nr-nrᵢ-GLB r
+
+opaque
+
+  -- The modality supports the usage rule for natrec using
+  -- greatest lower bounds.
+
+  linear-or-affine-supports-glb-for-natrec :
+    Supports-GLB-for-natrec linear-or-affine-semiring-with-meet
+  linear-or-affine-supports-glb-for-natrec = record
+    { +-GLBˡ = λ {_} {_} {q} → +-GLBˡ {q = q}
+    ; ·-GLBˡ = λ {_} {_} {q} → ·-GLBˡ {q = q}
+    ; ·-GLBʳ = ·-GLBʳ
+    ; +nrᵢ-GLB = +nrᵢ-GLB
+    }
+    where
+    open Semiring-with-meet linear-or-affine-semiring-with-meet
+      hiding (𝟘; 𝟙; ω; _+_; _·_; _∧_; _≤_)
+    open GLB linear-or-affine-semiring-with-meet
+    open Multiplication linear-or-affine-semiring-with-meet
+    open PartialOrder linear-or-affine-semiring-with-meet
+
+    ·-GLBˡ :
+      {pᵢ : Sequence Linear-or-affine} →
+      Greatest-lower-bound p pᵢ →
+      Greatest-lower-bound (q · p) (λ i → q · pᵢ i)
+    ·-GLBˡ {q = 𝟘} p-glb = GLB-const′
+    ·-GLBˡ {q = 𝟙} p-glb =
+      GLB-cong (sym (·-identityˡ _))
+        (λ _ → sym (·-identityˡ _))
+        p-glb
+    ·-GLBˡ {q = ≤𝟙} {pᵢ} p-glb = lemma _ p-glb
+      where
+      lemma′ : 𝟘 ≤ ≤𝟙 · p → p ≡ 𝟘
+      lemma′ {(𝟘)} _ = refl
+      lemma′ {(𝟙)} ()
+      lemma′ {(≤𝟙)} ()
+      lemma′ {(≤ω)} ()
+      lemma″ : ∀ p → 𝟙 ≤ ≤𝟙 · p → ⊥
+      lemma″ 𝟘 ()
+      lemma″ 𝟙 ()
+      lemma″ ≤𝟙 ()
+      lemma″ ≤ω ()
+      lemma‴ : ≤𝟙 ≤ ≤𝟙 · p → ≤𝟙 ≤ p
+      lemma‴ {(𝟘)} _ = refl
+      lemma‴ {(𝟙)} _ = refl
+      lemma‴ {(≤𝟙)} _ = refl
+      lemma‴ {(≤ω)} ()
+      lemma⁗ : Greatest-lower-bound ≤ω pᵢ → (∀ i → ≤𝟙 ≤ pᵢ i) → ⊥
+      lemma⁗ ω-glb ≤pᵢ = case ω-glb .proj₂ ≤𝟙 ≤pᵢ of λ ()
+      lemma :
+        ∀ p → Greatest-lower-bound p pᵢ →
+        Greatest-lower-bound (≤𝟙 · p) (λ i → ≤𝟙 · pᵢ i)
+      lemma 𝟘 p-glb =
+        GLB-const (λ i → ·-congˡ {x = ≤𝟙} (𝟘-GLB-inv p-glb i))
+      lemma 𝟙 p-glb =
+          (λ i → ·-monotoneʳ {r = ≤𝟙} (p-glb .proj₁ i))
+        , λ { 𝟘 q≤ → ⊥-elim (≢p-GLB-inv (λ ()) p-glb (lemma′ ∘→ q≤))
+            ; 𝟙 q≤ → ⊥-elim (lemma″ (pᵢ 0) (q≤ 0))
+            ; ≤𝟙 q≤ → refl
+            ; ≤ω q≤ → refl}
+      lemma ≤𝟙 p-glb =
+          (λ i → ·-monotoneʳ {r = ≤𝟙} (p-glb .proj₁ i))
+        , λ { 𝟘 q≤ → ⊥-elim (≢p-GLB-inv (λ ()) p-glb (lemma′ ∘→ q≤))
+            ; 𝟙 q≤ → ⊥-elim (lemma″ (pᵢ 0) (q≤ 0))
+            ; ≤𝟙 q≤ → refl
+            ; ≤ω q≤ → refl}
+      lemma ≤ω p-glb =
+          (λ _ → refl)
+        , λ { 𝟘 q≤ → ⊥-elim (≢p-GLB-inv (λ ()) p-glb (lemma′ ∘→ q≤))
+            ; 𝟙 q≤ → ⊥-elim (lemma″ (pᵢ 0) (q≤ 0))
+            ; ≤𝟙 q≤ → ⊥-elim (lemma⁗ p-glb (λ i → lemma‴ (q≤ i)))
+            ; ≤ω q≤ → refl}
+    ·-GLBˡ {q = ≤ω} {pᵢ} p-glb = lemma _ p-glb
+      where
+      lemma′ : 𝟘 ≤ ≤ω · p → p ≡ 𝟘
+      lemma′ {(𝟘)} _ = refl
+      lemma′ {(𝟙)} ()
+      lemma′ {(≤𝟙)} ()
+      lemma′ {(≤ω)} ()
+      lemma″ : ∀ p → 𝟙 ≤ ≤ω · p → ⊥
+      lemma″ 𝟘 ()
+      lemma″ 𝟙 ()
+      lemma″ ≤𝟙 ()
+      lemma″ ≤ω ()
+      lemma‴ : ≤𝟙 ≤ ≤ω · p → p ≡ 𝟘
+      lemma‴ {(𝟘)} _ = refl
+      lemma‴ {(𝟙)} ()
+      lemma‴ {(≤𝟙)} ()
+      lemma‴ {(≤ω)} ()
+      lemma :
+        ∀ p → Greatest-lower-bound p pᵢ →
+        Greatest-lower-bound (≤ω · p) (λ i → ≤ω · pᵢ i)
+      lemma 𝟘 p-glb =
+        GLB-const (λ i → ·-congˡ {x = ≤ω} (𝟘-GLB-inv p-glb i))
+      lemma 𝟙 p-glb =
+          (λ _ → refl)
+        , λ { 𝟘 q≤ → ⊥-elim (≢p-GLB-inv (λ ()) p-glb (lemma′ ∘→ q≤))
+            ; 𝟙 q≤ → ⊥-elim (lemma″ (pᵢ 0) (q≤ 0))
+            ; ≤𝟙 q≤ → ⊥-elim (≢p-GLB-inv (λ ()) p-glb (lemma‴ ∘→ q≤))
+            ; ≤ω q≤ → refl}
+      lemma ≤𝟙 p-glb =
+          (λ _ → refl)
+        , λ { 𝟘 q≤ → ⊥-elim (≢p-GLB-inv (λ ()) p-glb (lemma′ ∘→ q≤))
+            ; 𝟙 q≤ → ⊥-elim (lemma″ (pᵢ 0) (q≤ 0))
+            ; ≤𝟙 q≤ → ⊥-elim (≢p-GLB-inv (λ ()) p-glb (lemma‴ ∘→ q≤))
+            ; ≤ω q≤ → refl}
+      lemma ≤ω p-glb =
+          (λ _ → refl)
+        , λ { 𝟘 q≤ → ⊥-elim (≢p-GLB-inv (λ ()) p-glb (lemma′ ∘→ q≤))
+            ; 𝟙 q≤ → ⊥-elim (lemma″ (pᵢ 0) (q≤ 0))
+            ; ≤𝟙 q≤ → ⊥-elim (≢p-GLB-inv (λ ()) p-glb (lemma‴ ∘→ q≤))
+            ; ≤ω q≤ → refl}
+
+    ·-GLBʳ :
+      {pᵢ : Sequence Linear-or-affine} →
+      Greatest-lower-bound p pᵢ →
+      Greatest-lower-bound (p · q) (λ i → pᵢ i · q)
+    ·-GLBʳ {p} {q} {pᵢ} p-glb =
+      GLB-cong (·-comm q p) (λ i → ·-comm q (pᵢ i)) (·-GLBˡ {q = q} p-glb)
+
+    +-GLBˡ :
+      {pᵢ : Sequence Linear-or-affine} →
+      Greatest-lower-bound p pᵢ →
+      Greatest-lower-bound (q + p) (λ i → q + pᵢ i)
+    +-GLBˡ {q = 𝟘} p-glb = p-glb
+    +-GLBˡ {q = 𝟙} {pᵢ} p-glb = lemma _ p-glb
+      where
+      lemma′ : ∀ p q → q ≢ ≤ω → q ≤ 𝟙 + p → p ≡ 𝟘
+      lemma′ 𝟘 𝟘 _ _ = refl
+      lemma′ 𝟘 𝟙 _ _ = refl
+      lemma′ 𝟘 ≤𝟙 _ _ = refl
+      lemma′ p ≤ω q≢ω _ = ⊥-elim (q≢ω refl)
+      lemma′ 𝟙 𝟘 q≢ω ()
+      lemma′ 𝟙 𝟙 q≢ω ()
+      lemma′ 𝟙 ≤𝟙 q≢ω ()
+      lemma′ ≤𝟙 𝟘 q≢ω ()
+      lemma′ ≤𝟙 𝟙 q≢ω ()
+      lemma′ ≤𝟙 ≤𝟙 q≢ω ()
+      lemma′ ≤ω 𝟘 q≢ω ()
+      lemma′ ≤ω 𝟙 q≢ω ()
+      lemma′ ≤ω ≤𝟙 q≢ω ()
+      lemma :
+        ∀ p → Greatest-lower-bound p pᵢ →
+        Greatest-lower-bound (𝟙 + p) (λ i → 𝟙 + pᵢ i)
+      lemma 𝟘 p-glb =
+        GLB-const (λ i → +-congˡ {x = 𝟙} (𝟘-GLB-inv p-glb i))
+      lemma 𝟙 p-glb =
+          (λ _ → refl)
+        , λ { 𝟘 q≤ → ⊥-elim (≢p-GLB-inv (λ ()) p-glb (lemma′ _ _ (λ ()) ∘→ q≤))
+            ; 𝟙 q≤ → ⊥-elim (≢p-GLB-inv (λ ()) p-glb (lemma′ _ _ (λ ()) ∘→ q≤))
+            ; ≤𝟙 q≤ → ⊥-elim (≢p-GLB-inv (λ ()) p-glb (lemma′ _ _ (λ ()) ∘→ q≤))
+            ; ≤ω q≤ → refl}
+      lemma ≤𝟙 p-glb =
+          (λ _ → refl)
+        , λ { 𝟘 q≤ → ⊥-elim (≢p-GLB-inv (λ ()) p-glb (lemma′ _ _ (λ ()) ∘→ q≤))
+            ; 𝟙 q≤ → ⊥-elim (≢p-GLB-inv (λ ()) p-glb (lemma′ _ _ (λ ()) ∘→ q≤))
+            ; ≤𝟙 q≤ → ⊥-elim (≢p-GLB-inv (λ ()) p-glb (lemma′ _ _ (λ ()) ∘→ q≤))
+            ; ≤ω q≤ → refl}
+      lemma ≤ω p-glb =
+          (λ _ → refl)
+        , λ { 𝟘 q≤ → ⊥-elim (≢p-GLB-inv (λ ()) p-glb (lemma′ _ _ (λ ()) ∘→ q≤))
+            ; 𝟙 q≤ → ⊥-elim (≢p-GLB-inv (λ ()) p-glb (lemma′ _ _ (λ ()) ∘→ q≤))
+            ; ≤𝟙 q≤ → ⊥-elim (≢p-GLB-inv (λ ()) p-glb (lemma′ _ _ (λ ()) ∘→ q≤))
+            ; ≤ω q≤ → refl}
+    +-GLBˡ {q = ≤𝟙} {pᵢ} p-glb = lemma _ p-glb
+      where
+      lemma :
+        ∀ p → Greatest-lower-bound p pᵢ →
+        Greatest-lower-bound (≤𝟙 + p) (λ i → ≤𝟙 + pᵢ i)
+      lemma′ : ∀ p q → q ≢ ≤ω → q ≤ ≤𝟙 + p → p ≡ 𝟘
+      lemma′ 𝟘 _ _ _ = refl
+      lemma′ _ ≤ω q≢ω _ = ⊥-elim (q≢ω refl)
+      lemma′ 𝟙 𝟘 _ ()
+      lemma′ 𝟙 𝟙 _ ()
+      lemma′ 𝟙 ≤𝟙 _ ()
+      lemma′ ≤𝟙 𝟘 _ ()
+      lemma′ ≤𝟙 𝟙 _ ()
+      lemma′ ≤𝟙 ≤𝟙 _ ()
+      lemma′ ≤ω 𝟘 _ ()
+      lemma′ ≤ω 𝟙 _ ()
+      lemma′ ≤ω ≤𝟙 _ ()
+      lemma 𝟘 p-glb =
+        GLB-const (λ i → +-congˡ {x = ≤𝟙} (𝟘-GLB-inv p-glb i))
+      lemma 𝟙 p-glb =
+          (λ _ → refl)
+        , (λ { 𝟘 q≤ → ⊥-elim (≢p-GLB-inv (λ ()) p-glb (lemma′ _ _ (λ ()) ∘→ q≤))
+             ; 𝟙 q≤ → ⊥-elim (≢p-GLB-inv (λ ()) p-glb (lemma′ _ _ (λ ()) ∘→ q≤))
+             ; ≤𝟙 q≤ → ⊥-elim (≢p-GLB-inv (λ ()) p-glb (lemma′ _ _ (λ ()) ∘→ q≤))
+             ; ≤ω q≤ → refl})
+      lemma ≤𝟙 p-glb =
+          (λ _ → refl)
+        , λ { 𝟘 q≤ → ⊥-elim (≢p-GLB-inv (λ ()) p-glb (lemma′ _ _ (λ ()) ∘→ q≤))
+            ; 𝟙 q≤ → ⊥-elim (≢p-GLB-inv (λ ()) p-glb (lemma′ _ _ (λ ()) ∘→ q≤))
+            ; ≤𝟙 q≤ → ⊥-elim (≢p-GLB-inv (λ ()) p-glb (lemma′ _ _ (λ ()) ∘→ q≤))
+            ; ≤ω q≤ → refl}
+      lemma ≤ω p-glb =
+          (λ _ → refl)
+        , λ { 𝟘 q≤ → ⊥-elim (≢p-GLB-inv (λ ()) p-glb (lemma′ _ _ (λ ()) ∘→ q≤))
+            ; 𝟙 q≤ → ⊥-elim (≢p-GLB-inv (λ ()) p-glb (lemma′ _ _ (λ ()) ∘→ q≤))
+            ; ≤𝟙 q≤ → ⊥-elim (≢p-GLB-inv (λ ()) p-glb (lemma′ _ _ (λ ()) ∘→ q≤))
+            ; ≤ω q≤ → refl}
+    +-GLBˡ {q = ≤ω} {pᵢ} p-glb = lemma _ p-glb
+      where
+      lemma′ : ∀ p q → q ≢ ≤ω → q ≤ ≤ω + p → ⊥
+      lemma′ p 𝟘 q≢ω x rewrite ≤ω+ p = case x of λ ()
+      lemma′ p 𝟙 q≢ω x rewrite ≤ω+ p = case x of λ ()
+      lemma′ p ≤𝟙 q≢ω x rewrite ≤ω+ p = case x of λ ()
+      lemma′ p ≤ω q≢ω _ = q≢ω refl
+      lemma :
+        ∀ p → Greatest-lower-bound p pᵢ →
+        Greatest-lower-bound (≤ω + p) (λ i → ≤ω + pᵢ i)
+      lemma 𝟘 p-glb =
+        GLB-const (λ i → +-congˡ {x = ≤ω} (𝟘-GLB-inv p-glb i))
+      lemma 𝟙 p-glb =
+          (λ _ → refl)
+        , λ { 𝟘 q≤ → ⊥-elim (lemma′ (pᵢ 0) _ (λ ()) (q≤ 0))
+            ; 𝟙 q≤ → ⊥-elim (lemma′ (pᵢ 0) _ (λ ()) (q≤ 0))
+            ; ≤𝟙 q≤ → ⊥-elim (lemma′ (pᵢ 0) _ (λ ()) (q≤ 0))
+            ; ≤ω q≤ → refl}
+      lemma ≤𝟙 p-glb =
+          (λ _ → refl)
+        , λ { 𝟘 q≤ → ⊥-elim (lemma′ (pᵢ 0) _ (λ ()) (q≤ 0))
+            ; 𝟙 q≤ → ⊥-elim (lemma′ (pᵢ 0) _ (λ ()) (q≤ 0))
+            ; ≤𝟙 q≤ → ⊥-elim (lemma′ (pᵢ 0) _ (λ ()) (q≤ 0))
+            ; ≤ω q≤ → refl}
+      lemma ≤ω p-glb =
+          (λ _ → refl)
+        , λ { 𝟘 q≤ → ⊥-elim (lemma′ (pᵢ 0) _ (λ ()) (q≤ 0))
+            ; 𝟙 q≤ → ⊥-elim (lemma′ (pᵢ 0) _ (λ ()) (q≤ 0))
+            ; ≤𝟙 q≤ → ⊥-elim (lemma′ (pᵢ 0) _ (λ ()) (q≤ 0))
+            ; ≤ω q≤ → refl}
+
+    open Tools.Reasoning.PartialOrder ≤-poset
+
+    +nrᵢ-GLB :
+      ∀ {p₁ p₂} →
+      Greatest-lower-bound p₁ (nrᵢ r z₁ s₁) →
+      Greatest-lower-bound p₂ (nrᵢ r z₂ s₂) →
+      ∃ λ q → Greatest-lower-bound q (nrᵢ r (z₁ + z₂) (s₁ + s₂)) ×
+          p₁ + p₂ ≤ q
+    +nrᵢ-GLB {r} {z₁} {s₁} {z₂} {s₂} {p₁} {p₂} p₁-glb p₂-glb =
+      _ , nr-nrᵢ-GLB r , (begin
+        p₁ + p₂                         ≡⟨ +-cong (GLB-unique p₁-glb (nr-nrᵢ-GLB r))
+                                           (GLB-unique p₂-glb (nr-nrᵢ-GLB r)) ⟩
+        nr 𝟘 r z₁ s₁ 𝟘 + nr 𝟘 r z₂ s₂ 𝟘 ≤⟨ Has-nr.nr-+ linear-or-affine-has-nr {𝟘} {r} ⟩
+        nr 𝟘 r (z₁ + z₂) (s₁ + s₂) 𝟘    ∎)

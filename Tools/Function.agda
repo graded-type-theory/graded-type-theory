@@ -11,6 +11,8 @@ open import Function.Base
 open import Relation.Nullary.Decidable public
   using (_→-dec_)
 
+open import Agda.Builtin.Nat
+
 open import Tools.Empty
 open import Tools.Level
 open import Tools.Product

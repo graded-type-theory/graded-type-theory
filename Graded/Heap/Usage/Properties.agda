@@ -5,17 +5,19 @@
 open import Graded.Modality
 open import Graded.Usage.Restrictions
 open import Definition.Typed.Variant
+open import Graded.Usage.Restrictions.Natrec
 
 module Graded.Heap.Usage.Properties
   {a} {M : Set a} {𝕄 : Modality M}
   (type-variant : Type-variant)
   (UR : Usage-restrictions 𝕄)
-  (open Modality 𝕄)
-  ⦃ _ : Has-nr M semiring-with-meet ⦄
-  ⦃ _ : Has-factoring-nr M semiring-with-meet ⦄
+  (open Usage-restrictions UR)
+  (factoring-nr :
+    ⦃ has-nr : Nr-available ⦄ →
+    Is-factoring-nr M (Natrec-mode-Has-nr 𝕄 has-nr))
   where
 
-open Usage-restrictions UR
+open Modality 𝕄
 
 open import Definition.Untyped M
 open import Graded.Context 𝕄
@@ -26,12 +28,13 @@ open import Graded.Modality.Properties 𝕄
 open import Graded.Mode 𝕄
 open import Graded.Restrictions 𝕄
 open import Graded.Usage 𝕄 UR
+open import Graded.Usage.Restrictions.Instance UR
 open import Graded.Usage.Inversion 𝕄 UR
 open import Graded.Usage.Properties 𝕄 UR
 
-open import Graded.Heap.Untyped type-variant UR
-open import Graded.Heap.Usage type-variant UR
-open import Graded.Heap.Usage.Inversion type-variant UR
+open import Graded.Heap.Untyped type-variant UR factoring-nr
+open import Graded.Heap.Usage type-variant UR factoring-nr
+open import Graded.Heap.Usage.Inversion type-variant UR factoring-nr
 
 open import Tools.Empty
 open import Tools.Fin
@@ -53,7 +56,7 @@ private variable
   H H′ : Heap _ _
   x : Fin _
   y : Ptr _
-  t : Term _
+  A z s t : Term _
   ρ ρ′ : Wk _ _
   S : Stack _
   e : Elim _
@@ -321,6 +324,45 @@ opaque
       , subst (_▸ʰ H′) ((cong ((γ , y ≔ r) +ᶜ q ·ᶜ wkConₘ ρ′ δ ∙_)
           (sym (trans (+-identityˡ _) (·-zeroʳ _))))) (▸H′ ∙●)
 
+opaque
+
+  -- For well-resourced natrec terms, there is a valid
+  -- choice for the multiplicity.
+
+  ▸natrec→Ok-nr :
+    ¬ Nr-not-available →
+    γ ▸[ m ] natrec p q r A z s t →
+    ∃ λ q′ → Ok-natrec-multiplicity p r q′
+  ▸natrec→Ok-nr {p} {r} not-ok ▸nr =
+    case inv-usage-natrec ▸nr of λ where
+      (invUsageNatrec _ _ _ _ _ invUsageNatrecNr) →
+        nr₂ p r , Ok-natrec-multiplicity.has-nr refl
+      (invUsageNatrec _ _ _ _ _ (invUsageNatrecNoNr ⦃ (x) ⦄ _ _ _ _)) →
+        ⊥-elim (not-ok x)
+      (invUsageNatrec _ _ _ _ _ (invUsageNatrecNoNrGLB x-glb _)) →
+        _ , no-nr x-glb
+
+opaque
+
+  -- An invariant of InvUsageNatrecₑ
+
+  InvUsageNatrecₑ-≤ : InvUsageNatrecₑ p r q γ δ ρ η → q ≤ p + r · q × η ≤ᶜ wkConₘ ρ δ +ᶜ r ·ᶜ η
+  InvUsageNatrecₑ-≤ {p} {r} {q} {γ} {δ} {ρ} = λ where
+    (invUsageNatrecNr refl) → nr₂≤  , (begin
+      wkConₘ ρ (nrᶜ p r γ δ 𝟘ᶜ)                      ≤⟨ wk-≤ᶜ ρ nrᶜ-suc ⟩
+      wkConₘ ρ (δ +ᶜ p ·ᶜ 𝟘ᶜ +ᶜ r ·ᶜ nrᶜ p r γ δ 𝟘ᶜ) ≈⟨ wk-≈ᶜ ρ (+ᶜ-congˡ (+ᶜ-congʳ (·ᶜ-zeroʳ _))) ⟩
+      wkConₘ ρ (δ +ᶜ 𝟘ᶜ +ᶜ r ·ᶜ nrᶜ p r γ δ 𝟘ᶜ)      ≈⟨ wk-≈ᶜ ρ (+ᶜ-congˡ (+ᶜ-identityˡ _)) ⟩
+      wkConₘ ρ (δ +ᶜ r ·ᶜ nrᶜ p r γ δ 𝟘ᶜ)            ≈⟨ wk-+ᶜ ρ ⟩
+      wkConₘ ρ δ +ᶜ wkConₘ ρ (r ·ᶜ nrᶜ p r γ δ 𝟘ᶜ)   ≈⟨ +ᶜ-congˡ (wk-·ᶜ ρ) ⟩
+      wkConₘ ρ δ +ᶜ r ·ᶜ wkConₘ ρ (nrᶜ p r γ δ 𝟘ᶜ)   ∎)
+    (invUsageNatrecNoNr {χ} x-glb χ-glb) → nrᵢ-GLB-≤ x-glb , (begin
+      wkConₘ ρ χ                      ≤⟨ wk-≤ᶜ ρ (nrᵢᶜ-GLBᶜ-≤ᶜ χ-glb) ⟩
+      wkConₘ ρ (δ +ᶜ r ·ᶜ χ)          ≈⟨ wk-+ᶜ ρ ⟩
+      wkConₘ ρ δ +ᶜ wkConₘ ρ (r ·ᶜ χ) ≈⟨ +ᶜ-congˡ (wk-·ᶜ ρ) ⟩
+      wkConₘ ρ δ +ᶜ r ·ᶜ wkConₘ ρ χ   ∎)
+      where
+      open ≤ᶜ-reasoning
+
 -- Some properties proven under some assumptions about erased matches
 
 module _ (nem : No-erased-matches′ type-variant UR) where
@@ -336,7 +378,10 @@ module _ (nem : No-erased-matches′ type-variant UR) where
     ▸∣e∣≢𝟘 (fstₑ x) = inj₁ non-trivial
     ▸∣e∣≢𝟘 sndₑ = inj₁ non-trivial
     ▸∣e∣≢𝟘 (prodrecₑ x ok) = inj₁ (nem non-trivial .proj₁ ok)
-    ▸∣e∣≢𝟘 (natrecₑ x x₁ x₂) = inj₁ nr₂≢𝟘
+    ▸∣e∣≢𝟘 (natrecₑ _ _ _ ≡nr₂) =
+      inj₁ (λ ≡𝟘 → nr₂≢𝟘 (trans (sym ≡nr₂) ≡𝟘))
+    ▸∣e∣≢𝟘 (natrec-no-nrₑ _ _ _ q-glb _) =
+      inj₁ λ ≡𝟘 → 𝟘≰𝟙 (≤-trans (≤-reflexive (sym ≡𝟘)) (q-glb .proj₁ 0))
     ▸∣e∣≢𝟘 (unitrecₑ x ok no-η) = inj₁ (no-η ∘→ nem non-trivial .proj₂ .proj₁ ok)
     ▸∣e∣≢𝟘 (emptyrecₑ {p} ok) =
       case is-𝟘? p of λ where

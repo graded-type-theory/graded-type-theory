@@ -164,7 +164,6 @@ isModality variant 𝟘-well-behaved = record
   { variant            = variant
   ; semiring-with-meet = 𝕄
   ; 𝟘-well-behaved     = 𝟘-well-behaved
-  ; has-nr             = λ _ → Star.has-nr ⦃ has-star = has-star ⦄
   }
 
 -- For an instance with a least element the solution given by _⊛_▷_ is

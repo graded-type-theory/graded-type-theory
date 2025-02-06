@@ -14,6 +14,7 @@ open Modality 𝕄
 
 open import Graded.Context 𝕄
 open import Graded.Context.Properties.Equivalence 𝕄
+open import Graded.Context.Properties.Natrec 𝕄
 open import Graded.Context.Properties.PartialOrder 𝕄
 open import Graded.Modality.Nr-instances
 open import Graded.Modality.Properties.PartialOrder semiring-with-meet
@@ -26,7 +27,7 @@ open import Tools.PropositionalEquality as PE
 
 private
   variable
-    n : Nat
+    n i : Nat
     x : Fin n
     p r : M
     γ δ : Conₘ n
@@ -94,6 +95,17 @@ lookup-distrib-⊛ᶜ :
 lookup-distrib-⊛ᶜ ε       _       _ ()
 lookup-distrib-⊛ᶜ (γ ∙ p) (δ ∙ q) r x0     = PE.refl
 lookup-distrib-⊛ᶜ (γ ∙ p) (δ ∙ q) r (x +1) = lookup-distrib-⊛ᶜ γ δ r x
+
+opaque
+
+  -- Context lookup distributes over nrᵢᶜ
+
+  lookup-distrib-nrᵢᶜ :
+    ∀ r (γ δ : Conₘ n) x → (nrᵢᶜ r γ δ i) ⟨ x ⟩ ≡ nrᵢ r (γ ⟨ x ⟩) (δ ⟨ x ⟩) i
+  lookup-distrib-nrᵢᶜ r ε ε ()
+  lookup-distrib-nrᵢᶜ r (_ ∙ _) (_ ∙ _) x0 = refl
+  lookup-distrib-nrᵢᶜ r (γ ∙ _) (δ ∙ _) (x +1) =
+    lookup-distrib-nrᵢᶜ r γ δ x
 
 -- Lookup is consistent with context updates
 -- (γ , x ≔ p) ⟨ x ⟩ ≡ p

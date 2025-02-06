@@ -4,22 +4,22 @@
 
 open import Graded.Modality
 open import Graded.Usage.Restrictions
+open import Graded.Usage.Restrictions.Natrec
+open import Graded.Heap.Assumptions
 open import Definition.Typed.Restrictions
-import Graded.Heap.Bisimilarity
 open import Tools.Sum
 
 module Graded.Heap.Soundness
   {a} {M : Set a} {𝕄 : Modality M}
-  {UR : Usage-restrictions 𝕄}
+  (UR : Usage-restrictions 𝕄)
   (TR : Type-restrictions 𝕄)
-  (open Graded.Heap.Bisimilarity UR TR)
-  (open Type-restrictions TR)
-  (As : Assumptions)
+  (As : Assumptions UR TR)
   where
 
-open Usage-restrictions UR
-open Modality 𝕄
 open Assumptions As
+open Modality 𝕄
+open Type-restrictions TR
+open Usage-restrictions UR
 
 open import Tools.Empty
 open import Tools.Function
@@ -49,19 +49,20 @@ open import Graded.Restrictions 𝕄
 open import Graded.Usage 𝕄 UR
 open import Graded.Usage.Inversion 𝕄 UR
 
-open import Graded.Heap.Untyped type-variant UR
-open import Graded.Heap.Untyped.Properties type-variant UR
-open import Graded.Heap.Usage type-variant UR
-open import Graded.Heap.Usage.Inversion type-variant UR
-open import Graded.Heap.Usage.Properties type-variant UR
-open import Graded.Heap.Usage.Reduction type-variant UR Unitʷ-η→
+open import Graded.Heap.Bisimilarity UR TR
+open import Graded.Heap.Untyped type-variant UR factoring-nr
+open import Graded.Heap.Untyped.Properties type-variant UR factoring-nr
+open import Graded.Heap.Usage type-variant UR factoring-nr
+open import Graded.Heap.Usage.Inversion type-variant UR factoring-nr
+open import Graded.Heap.Usage.Properties type-variant UR factoring-nr
+open import Graded.Heap.Usage.Reduction type-variant UR factoring-nr Unitʷ-η→ ¬Nr-not-available
 open import Graded.Heap.Termination UR TR As
-open import Graded.Heap.Typed UR TR
-open import Graded.Heap.Typed.Inversion UR TR
-open import Graded.Heap.Typed.Reduction UR TR
-open import Graded.Heap.Typed.Properties UR TR
-open import Graded.Heap.Reduction type-variant UR
-open import Graded.Heap.Reduction.Properties type-variant UR
+open import Graded.Heap.Typed UR TR factoring-nr
+open import Graded.Heap.Typed.Inversion UR TR factoring-nr
+open import Graded.Heap.Typed.Reduction UR TR factoring-nr
+open import Graded.Heap.Typed.Properties UR TR factoring-nr
+open import Graded.Heap.Reduction type-variant UR factoring-nr
+open import Graded.Heap.Reduction.Properties type-variant UR factoring-nr
 
 private variable
   k : Nat
@@ -185,7 +186,6 @@ opaque
     case redNumeral consistent nem (⊢initial ⊢t) ▸s of λ
       (_ , _ , H , ρ , t , d , num , s≡ , ▸s′) →
     case ▸ₛ-inv ▸s′ of λ
-    -- case ▸-↠* ▸s d of λ {
       (γ , δ , η , ▸H , ▸n , ▸ε , γ≤) →
     case Numeral→sucᵏ num of λ
       (k , ≡sucᵏ) →

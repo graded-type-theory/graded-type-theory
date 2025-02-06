@@ -8,15 +8,13 @@
 -- found in Graded.Derived.Bool.
 
 import Graded.Modality
-import Graded.Modality.Dedicated-nr
 
 module Definition.Untyped.Bool
   {a} {M : Set a}
   (open Graded.Modality M)
   (𝕄 : Modality)
-  (open Graded.Modality.Dedicated-nr 𝕄)
-  -- It is assumed that there is a dedicated nr function.
-  ⦃ has-nr : Dedicated-nr ⦄
+  -- It is assumed that the modality has an nr function.
+  ⦃ has-nr : Has-nr (Modality.semiring-with-meet 𝕄) ⦄
   where
 
 private
@@ -27,9 +25,8 @@ open import Definition.Untyped.Empty 𝕄
 open import Definition.Untyped.Nat 𝕄
 open import Definition.Untyped.Properties M
 
-open import Graded.Modality.Dedicated-nr.Instance
 open import Graded.Modality.Nr-instances
-open import Graded.Modality.Properties 𝕄
+open import Graded.Modality.Properties 𝕄 hiding (has-nr)
 open import Graded.Mode 𝕄
 
 open import Tools.Empty
@@ -158,11 +155,11 @@ opaque
 opaque
   unfolding OKᵍ
 
-  -- If the dedicated nr function satisfies Linearity-like-nr-for-𝟘,
+  -- If the nr function satisfies Linearity-like-nr-for-𝟘,
   -- then OKᵍ is equal to 𝟘 ∧ 𝟙.
 
   OKᵍ≡ :
-    Has-nr.Linearity-like-nr-for-𝟘 has-dedicated-nr →
+    Has-nr.Linearity-like-nr-for-𝟘 has-nr →
     OKᵍ ≡ 𝟘 ∧ 𝟙
   OKᵍ≡ hyp =
     nr 𝟘 𝟘 𝟘 𝟘 𝟙                 ≡⟨ hyp ⟩
@@ -178,11 +175,11 @@ opaque
 opaque
   unfolding Boolᵍ
 
-  -- If the dedicated nr function satisfies Linearity-like-nr-for-𝟘,
+  -- If the nr function satisfies Linearity-like-nr-for-𝟘,
   -- then Boolᵍ is equal to 𝟘 ∧ 𝟙.
 
   Boolᵍ≡ :
-    Has-nr.Linearity-like-nr-for-𝟘 has-dedicated-nr →
+    Has-nr.Linearity-like-nr-for-𝟘 has-nr →
     Boolᵍ ≡ 𝟘 ∧ 𝟙
   Boolᵍ≡ hyp =
     nr OKᵍ 𝟘 𝟘 𝟘 𝟙                 ≡⟨ hyp ⟩
@@ -201,11 +198,11 @@ opaque
 opaque
   unfolding boolrecᵍ-Π
 
-  -- If the dedicated nr function satisfies Linearity-like-nr-for-𝟙,
+  -- If the nr function satisfies Linearity-like-nr-for-𝟙,
   -- then boolrecᵍ-Π is equal to 𝟙.
 
   boolrecᵍ-Π≡ :
-    Has-nr.Linearity-like-nr-for-𝟙 has-dedicated-nr →
+    Has-nr.Linearity-like-nr-for-𝟙 has-nr →
     boolrecᵍ-Π ≡ 𝟙
   boolrecᵍ-Π≡ hyp =
     nr 𝟘 𝟙 𝟙 𝟘 𝟘             ≡⟨ hyp ⟩
@@ -219,11 +216,11 @@ opaque
 opaque
   unfolding boolrecᵍ-nc₁
 
-  -- If the dedicated nr function satisfies Linearity-like-nr-for-𝟙,
+  -- If the nr function satisfies Linearity-like-nr-for-𝟙,
   -- then boolrecᵍ-nc₁ is equal to 𝟙.
 
   boolrecᵍ-nc₁≡ :
-    Has-nr.Linearity-like-nr-for-𝟙 has-dedicated-nr →
+    Has-nr.Linearity-like-nr-for-𝟙 has-nr →
     boolrecᵍ-nc₁ ≡ 𝟙
   boolrecᵍ-nc₁≡ hyp =
     nr 𝟘 𝟙 𝟘 𝟘 𝟙             ≡⟨ hyp ⟩
@@ -253,12 +250,12 @@ opaque
 opaque
   unfolding boolrecᵍ-nc₂
 
-  -- If the dedicated nr function satisfies Linearity-like-nr-for-𝟘
+  -- If the nr function satisfies Linearity-like-nr-for-𝟘
   -- and Linearity-like-nr-for-𝟙, then boolrecᵍ-nc₂ is equal to 𝟙.
 
   boolrecᵍ-nc₂≡ :
-    Has-nr.Linearity-like-nr-for-𝟘 has-dedicated-nr →
-    Has-nr.Linearity-like-nr-for-𝟙 has-dedicated-nr →
+    Has-nr.Linearity-like-nr-for-𝟘 has-nr →
+    Has-nr.Linearity-like-nr-for-𝟙 has-nr →
     boolrecᵍ-nc₂ ≡ 𝟙
   boolrecᵍ-nc₂≡ hyp₁ hyp₂ =
     nr boolrecᵍ-nc₁ 𝟘 𝟘 𝟘 𝟙      ≡⟨ cong (λ p → nr p _ _ _ _) $ boolrecᵍ-nc₁≡ hyp₂ ⟩
@@ -271,12 +268,12 @@ opaque
 opaque
   unfolding boolrecᵍ-pr
 
-  -- If the dedicated nr function satisfies Linearity-like-nr-for-𝟘
+  -- If the nr function satisfies Linearity-like-nr-for-𝟘
   -- and Linearity-like-nr-for-𝟙, then boolrecᵍ-pr is equal to 𝟙.
 
   boolrecᵍ-pr≡ :
-    Has-nr.Linearity-like-nr-for-𝟘 has-dedicated-nr →
-    Has-nr.Linearity-like-nr-for-𝟙 has-dedicated-nr →
+    Has-nr.Linearity-like-nr-for-𝟘 has-nr →
+    Has-nr.Linearity-like-nr-for-𝟙 has-nr →
     boolrecᵍ-pr ≡ 𝟙
   boolrecᵍ-pr≡ hyp₁ hyp₂ =
     nr boolrecᵍ-nc₂ 𝟘 𝟘 𝟘 𝟙 ∧ boolrecᵍ-Π  ≡⟨ cong₂ _∧_

@@ -39,7 +39,7 @@ open import Tools.Bool hiding (_∧_)
 open import Tools.Empty
 open import Tools.Fin
 open import Tools.Function
-open import Tools.Nat using (Nat)
+open import Tools.Nat using (Nat; 1+; Sequence)
 open import Tools.Product as Σ
 open import Tools.PropositionalEquality as PE using (_≡_; _≢_)
 open import Tools.Relation
@@ -58,7 +58,7 @@ private
     γ δ : Conₘ n
     t u a : Term n
     x : Fin n
-    p r s z : Erasure
+    p q r s z z′ s′ : Erasure
     mo : Mode
     rs : Type-restrictions
     us : Usage-restrictions
@@ -81,6 +81,14 @@ private
 +ᶜ-idem : (γ : Conₘ n) → γ +ᶜ γ PE.≡ γ
 +ᶜ-idem ε = PE.refl
 +ᶜ-idem (γ ∙ p) = PE.cong₂ _∙_ (+ᶜ-idem γ) (+-Idempotent p)
+
+opaque
+
+  ·-comm : Commutative _·_
+  ·-comm 𝟘 𝟘 = PE.refl
+  ·-comm 𝟘 ω = PE.refl
+  ·-comm ω 𝟘 = PE.refl
+  ·-comm ω ω = PE.refl
 
 -- ⊛ᵣ is a decreasing function on its first argument
 -- p ⊛ q ▷ r ≤ p
@@ -483,3 +491,87 @@ opaque
     right : p - q ≡′ r → p - q ≡ r
     right ω-p≡′ω = ω-p≡ω q
     right p-𝟘≡′p = p-𝟘≡p
+
+opaque
+
+  -- The sequence nrᵢ r z s has a greatest lowest bound.
+
+  Erasure-nrᵢ-glb :
+    ∀ r z s → ∃ λ x →
+      Semiring-with-meet.Greatest-lower-bound
+        erasure-semiring-with-meet x
+         (Semiring-with-meet.nrᵢ erasure-semiring-with-meet r z s)
+  Erasure-nrᵢ-glb r 𝟘 𝟘 =
+    𝟘 , ≤-reflexive ∘→ PE.sym ∘→ nrᵢ-𝟘
+      , λ { 𝟘 q≤ → ≤-refl ; ω q≤ → least-elem 𝟘}
+  Erasure-nrᵢ-glb _ ω _ =
+    ω , (λ _ → PE.refl) , λ { 𝟘 𝟘≤ → 𝟘≤ 0 ; ω _ → ≤-refl}
+  Erasure-nrᵢ-glb _ _ ω =
+    ω , (λ _ → PE.refl) , λ { 𝟘 𝟘≤ → 𝟘≤ 1 ; ω _ → ≤-refl}
+
+opaque instance
+
+  -- The modality supports the usage rule for natrec
+  -- with greatest lower bounds
+
+  Erasure-supports-factoring-nr-rule :
+    Supports-GLB-for-natrec erasure-semiring-with-meet
+  Erasure-supports-factoring-nr-rule = record
+    { +-GLBˡ = +-GLBˡ′
+    ; ·-GLBˡ = ·-GLBˡ′
+    ; ·-GLBʳ = ·-GLBʳ′
+    ; +nrᵢ-GLB = λ {_} {r} {_} {s} {_} {_} {s′} x x₁ →
+        nrᵢ+-GLB {r = r} {s = s} {s′ = s′} x x₁
+    }
+    where
+    open Semiring-with-meet erasure-semiring-with-meet
+      hiding (_+_; _·_; _≤_; 𝟘; ω)
+
+    +-GLBˡ′ : {p q : Erasure} {pᵢ : Sequence Erasure} →
+            Greatest-lower-bound p pᵢ →
+            Greatest-lower-bound (q + p) (λ i → q + pᵢ i)
+    +-GLBˡ′ {q = 𝟘} p-glb = p-glb
+    +-GLBˡ′ {q = ω} p-glb = GLB-const′
+
+    ·-GLBˡ′ : {p q : Erasure} {pᵢ : Sequence Erasure} →
+            Greatest-lower-bound p pᵢ →
+            Greatest-lower-bound (q · p) (λ i → q · pᵢ i)
+    ·-GLBˡ′ {q = 𝟘} p-glb = GLB-const′
+    ·-GLBˡ′ {q = ω} p-glb = p-glb
+
+    ·-GLBʳ′ :
+      {p q : Erasure} {pᵢ : Sequence Erasure} →
+      Greatest-lower-bound p pᵢ →
+      Greatest-lower-bound (p · q) (λ i → pᵢ i · q)
+    ·-GLBʳ′ {p} {q} {pᵢ} p-glb =
+      GLB-cong (·-comm q p) (λ i → ·-comm q (pᵢ i)) (·-GLBˡ′ p-glb)
+
+    nrᵢ+-ω-GLB : ∀ {r z s} i →
+      nrᵢ r z s i ≡ ω →
+      Greatest-lower-bound ω (nrᵢ r z s)
+    nrᵢ+-ω-GLB {r} {z} {s} i nrᵢ≡ω =
+        (λ i → least-elem (nrᵢ r z s i))
+      , λ q q≤ → ≤-trans (q≤ i) (≤-reflexive nrᵢ≡ω)
+
+    nrᵢ+-GLB :
+      Greatest-lower-bound p (nrᵢ r z s) →
+      Greatest-lower-bound q (nrᵢ r z′ s′) →
+      ∃ λ x → Greatest-lower-bound x (nrᵢ r (z + z′) (s + s′)) × p + q ≤ x
+    nrᵢ+-GLB {z = 𝟘} {s = 𝟘} {z′ = 𝟘} {s′ = 𝟘} p-glb q-glb =
+      let p≡𝟘 = GLB-unique p-glb (GLB-const nrᵢ-𝟘)
+          q≡𝟘 = GLB-unique q-glb (GLB-const nrᵢ-𝟘)
+      in  𝟘 , GLB-const nrᵢ-𝟘 , ≤-reflexive (+-cong p≡𝟘 q≡𝟘)
+    nrᵢ+-GLB {r} {z = 𝟘} {s = 𝟘} {z′ = 𝟘} {s′ = ω} p-glb q-glb =
+      ω , nrᵢ+-ω-GLB {r = r} {s = ω} 1 PE.refl
+        , ≤-trans (+-monotoneʳ (q-glb .proj₁ 1))
+            (≤-reflexive (+-comm _ ω))
+    nrᵢ+-GLB {r} {z = 𝟘} {s = ω} {z′ = 𝟘} {s′} p-glb q-glb =
+      ω , nrᵢ+-ω-GLB {r = r} {s = ω} 1 PE.refl
+        , +-monotoneˡ (p-glb .proj₁ 1)
+    nrᵢ+-GLB {r} {z = 𝟘} {s} {z′ = ω} {s′} p-glb q-glb =
+      ω , nrᵢ+-ω-GLB {r = r} {s = s + s′} 0 PE.refl
+        , ≤-trans (+-monotoneʳ (q-glb .proj₁ 0))
+            (≤-reflexive (+-comm _ ω))
+    nrᵢ+-GLB {r} {z = ω} {s} {s′} p-glb q-glb =
+      ω , nrᵢ+-ω-GLB {r = r} {s = s + s′} 0 PE.refl
+        , +-monotoneˡ (p-glb .proj₁ 0)

@@ -17,12 +17,11 @@ open import Graded.Context.Properties 𝕄
 open import Graded.Modality.Nr-instances
 open import Graded.Modality.Properties 𝕄
 
-
 open import Definition.Untyped.NotParametrised
 
 open import Tools.Fin
 open import Tools.Function
-open import Tools.Nat using (Nat)
+open import Tools.Nat using (Nat; Sequence)
 open import Tools.Product
 open import Tools.PropositionalEquality as PE
 open import Tools.Sum
@@ -108,6 +107,20 @@ wk-≈ᶜ id γ≈δ = γ≈δ
 wk-≈ᶜ (step ρ) γ≈δ = wk-≈ᶜ ρ γ≈δ ∙ refl
 wk-≈ᶜ (lift ρ) (γ≈δ ∙ p≈q) = wk-≈ᶜ ρ γ≈δ ∙ p≈q
 
+opaque
+
+  -- The function wkConₘ ρ commutes with nrᵢᶜ r.
+
+  wk-nrᵢᶜ :
+    ∀ i
+    (ρ : Wk m n) →
+    wkConₘ ρ (nrᵢᶜ r γ δ i) ≈ᶜ nrᵢᶜ r (wkConₘ ρ γ) (wkConₘ ρ δ) i
+  wk-nrᵢᶜ _ id = ≈ᶜ-refl
+  wk-nrᵢᶜ i (step ρ) =
+    wk-nrᵢᶜ i ρ ∙ PE.sym (nrᵢ-𝟘 i)
+  wk-nrᵢᶜ {γ = _ ∙ _} {δ = _ ∙ _} i (lift ρ) =
+    wk-nrᵢᶜ i ρ ∙ refl
+
 -- Weakening of modality contexts is monotone
 -- If γ ≤ᶜ δ then wkConₘ ρ γ ≤ᶜ wkConₘ ρ δ
 
@@ -141,6 +154,41 @@ wk-•ᶜ (step ρ) ρ′ = cong (_∙ 𝟘) (wk-•ᶜ ρ ρ′)
 wk-•ᶜ (lift ρ) id = refl
 wk-•ᶜ (lift ρ) (step ρ′) = cong (_∙ 𝟘) (wk-•ᶜ ρ ρ′)
 wk-•ᶜ {γ = γ ∙ p} (lift ρ) (lift ρ′) = cong (_∙ p) (wk-•ᶜ ρ ρ′)
+
+opaque
+
+  -- Weakening of greatest lower bounds
+
+  wk-GLBᶜ : ∀ {δ : Sequence (Conₘ n)}
+          → (ρ : Wk m n)
+          → Greatest-lower-boundᶜ γ (λ i → δ i)
+          → Greatest-lower-boundᶜ (wkConₘ ρ γ) (λ i → wkConₘ ρ (δ i))
+  wk-GLBᶜ id γ≤ = γ≤
+  wk-GLBᶜ (step ρ) γ≤ =
+    let γ≤′ , γ-glb = wk-GLBᶜ ρ γ≤
+    in  (λ i → γ≤′ i ∙ ≤-refl) ,
+        λ { (η ∙ q) η≤ → γ-glb η (λ i → tailₘ-monotone (η≤ i)) ∙ headₘ-monotone (η≤ 0) }
+  wk-GLBᶜ {γ = γ ∙ p} {δ} (lift ρ) γ≤ =
+    let γₜ-glb , γₕ-glb = GLBᶜ-pointwise γ≤
+        γ≤′ , γ-glb = wk-GLBᶜ ρ γₜ-glb
+    in  (λ i → begin
+          wkConₘ ρ γ ∙ p ≤⟨ wk-≤ᶜ ρ (γₜ-glb .proj₁ i) ∙ γₕ-glb .proj₁ i ⟩
+          wkConₘ (lift ρ) (tailₘ (δ i) ∙ headₘ (δ i)) ≡⟨ cong (wkConₘ (lift ρ)) (headₘ-tailₘ-correct (δ i)) ⟩
+          wkConₘ (lift ρ) (δ i) ∎)
+      , λ η η≤ →
+          let η≤′ : ∀ i → η ≤ᶜ wkConₘ ρ (tailₘ (δ i)) ∙ headₘ (δ i)
+              η≤′ i = begin
+                η                                           ≤⟨ η≤ i ⟩
+                wkConₘ (lift ρ) (δ i)                       ≡˘⟨ cong (wkConₘ (lift ρ)) (headₘ-tailₘ-correct (δ i)) ⟩
+                wkConₘ (lift ρ) (tailₘ (δ i) ∙ headₘ (δ i)) ≡⟨⟩
+                wkConₘ ρ (tailₘ (δ i)) ∙ headₘ (δ i)        ∎
+          in begin
+            η                 ≡˘⟨ headₘ-tailₘ-correct η ⟩
+            tailₘ η ∙ headₘ η ≤⟨ γ-glb (tailₘ η) (tailₘ-monotone ∘→ η≤′) ∙
+                                γₕ-glb .proj₂ (headₘ η) (headₘ-monotone ∘→ η≤′) ⟩
+            wkConₘ ρ γ ∙ p ∎
+    where
+    open ≤ᶜ-reasoning
 
 ------------------------------------------------------------------------
 -- The function wkConₘ⁻¹
@@ -231,6 +279,18 @@ wkConₘ⁻¹-nrᶜ {γ = _ ∙ _} {δ = _ ∙ _} {η = _ ∙ _} (step ρ) =
 wkConₘ⁻¹-nrᶜ {γ = _ ∙ _} {δ = _ ∙ _} {η = _ ∙ _} (lift ρ) =
   wkConₘ⁻¹-nrᶜ ρ ∙ refl
 
+-- The function wkConₘ⁻¹ ρ commutes with nrᵢᶜ r.
+
+wkConₘ⁻¹-nrᵢᶜ :
+  ∀ i (ρ : Wk m n) →
+  wkConₘ⁻¹ ρ (nrᵢᶜ r γ δ i) ≈ᶜ nrᵢᶜ r (wkConₘ⁻¹ ρ γ) (wkConₘ⁻¹ ρ δ) i
+wkConₘ⁻¹-nrᵢᶜ _ id =
+  ≈ᶜ-refl
+wkConₘ⁻¹-nrᵢᶜ {γ = _ ∙ _} {δ = _ ∙ _} i (step ρ) =
+  wkConₘ⁻¹-nrᵢᶜ i ρ
+wkConₘ⁻¹-nrᵢᶜ {γ = _ ∙ _} {δ = _ ∙ _} i (lift ρ) =
+  wkConₘ⁻¹-nrᵢᶜ i ρ ∙ refl
+
 -- The function wkConₘ⁻¹ ρ "commutes" in a certain sense with _,_≔_.
 
 wkConₘ⁻¹-,≔ :
@@ -239,6 +299,53 @@ wkConₘ⁻¹-,≔                        id       = ≈ᶜ-refl
 wkConₘ⁻¹-,≔ {γ = _ ∙ _}            (step ρ) = wkConₘ⁻¹-,≔ ρ
 wkConₘ⁻¹-,≔ {γ = _ ∙ _} {x = x0}   (lift ρ) = ≈ᶜ-refl
 wkConₘ⁻¹-,≔ {γ = _ ∙ _} {x = _ +1} (lift ρ) = wkConₘ⁻¹-,≔ ρ ∙ refl
+
+opaque
+
+  -- Inversion of weakening of greatest lower bounds
+
+  wkConₘ⁻¹-GLBᶜ : ∀ {δ : Sequence (Conₘ m)}
+                → (ρ : Wk m n)
+                → Greatest-lower-boundᶜ γ (λ i → δ i)
+                → Greatest-lower-boundᶜ (wkConₘ⁻¹ ρ γ) (λ i → wkConₘ⁻¹ ρ (δ i))
+  wkConₘ⁻¹-GLBᶜ id γ≤ = γ≤
+  wkConₘ⁻¹-GLBᶜ {γ = γ ∙ p} {δ} (step ρ) γ≤ =
+    let γₜ-glb , γₕ-glb = GLBᶜ-pointwise γ≤
+        γ≤′ , γ-glb = wkConₘ⁻¹-GLBᶜ ρ γₜ-glb
+    in  (λ i → begin
+           wkConₘ⁻¹ ρ γ                                  ≤⟨ γ≤′ i ⟩
+           wkConₘ⁻¹ ρ (tailₘ (δ i))                      ≡⟨⟩
+           wkConₘ⁻¹ (step ρ) (tailₘ (δ i) ∙ headₘ (δ i)) ≡⟨ cong (wkConₘ⁻¹ (step ρ)) (headₘ-tailₘ-correct (δ i)) ⟩
+           wkConₘ⁻¹ (step ρ) (δ i)                       ∎) ,
+        λ η η≤ → γ-glb η λ i → begin
+            η                                             ≤⟨ η≤ i ⟩
+            wkConₘ⁻¹ (step ρ) (δ i)                       ≡˘⟨ cong (wkConₘ⁻¹ (step ρ)) (headₘ-tailₘ-correct (δ i)) ⟩
+            wkConₘ⁻¹ (step ρ) (tailₘ (δ i) ∙ headₘ (δ i)) ≡⟨⟩
+            wkConₘ⁻¹ ρ (tailₘ (δ i))                      ∎
+    where
+    open ≤ᶜ-reasoning
+  wkConₘ⁻¹-GLBᶜ {γ = γ ∙ p} {δ} (lift ρ) γ≤ =
+   let γₜ-glb , γₕ-glb = GLBᶜ-pointwise γ≤
+       γ≤′ , γ-glb = wkConₘ⁻¹-GLBᶜ ρ γₜ-glb
+   in  (λ i → begin
+          wkConₘ⁻¹ ρ γ ∙ p                              ≤⟨ γ≤′ i ∙ γₕ-glb .proj₁ i ⟩
+          wkConₘ⁻¹ ρ (tailₘ (δ i)) ∙ headₘ (δ i)        ≡⟨⟩
+          wkConₘ⁻¹ (lift ρ) (tailₘ (δ i) ∙ headₘ (δ i)) ≡⟨ cong (wkConₘ⁻¹ (lift ρ)) (headₘ-tailₘ-correct (δ i)) ⟩
+          wkConₘ⁻¹ (lift ρ) (δ i)                       ∎) ,
+       λ η η≤ →
+         let η≤′ : ∀ i → η ≤ᶜ wkConₘ⁻¹ ρ (tailₘ (δ i)) ∙ headₘ (δ i)
+             η≤′ i = begin
+               η                                             ≤⟨ η≤ i ⟩
+               wkConₘ⁻¹ (lift ρ) (δ i)                       ≡˘⟨ cong (wkConₘ⁻¹ (lift ρ)) (headₘ-tailₘ-correct (δ i)) ⟩
+               wkConₘ⁻¹ (lift ρ) (tailₘ (δ i) ∙ headₘ (δ i)) ≡⟨⟩
+               wkConₘ⁻¹ ρ (tailₘ (δ i)) ∙ headₘ (δ i)        ∎
+         in  begin
+           η                 ≡˘⟨ headₘ-tailₘ-correct η ⟩
+           tailₘ η ∙ headₘ η ≤⟨ γ-glb (tailₘ η) (tailₘ-monotone ∘→ η≤′) ∙
+                               γₕ-glb .proj₂ (headₘ η) (headₘ-monotone ∘→ η≤′) ⟩
+           wkConₘ⁻¹ ρ γ ∙ p  ∎
+   where
+   open ≤ᶜ-reasoning
 
 ------------------------------------------------------------------------
 -- Inversion properties for wkConₘ

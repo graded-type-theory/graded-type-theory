@@ -1,19 +1,24 @@
 ------------------------------------------------------------------------
--- Properties of heap states.
+-- Properties of machine states.
 ------------------------------------------------------------------------
 
 open import Graded.Modality
 open import Graded.Usage.Restrictions
 open import Definition.Typed.Variant
+open import Graded.Usage.Restrictions.Natrec
 
 module Graded.Heap.Untyped.Properties
   {a} {M : Set a} {𝕄 : Modality M}
   (type-variant : Type-variant)
   (UR : Usage-restrictions 𝕄)
+  (open Usage-restrictions UR)
+  (factoring-nr :
+    ⦃ has-nr : Nr-available ⦄ →
+    Is-factoring-nr M (Natrec-mode-Has-nr 𝕄 has-nr))
   where
 
-open Modality 𝕄
 open Type-variant type-variant
+open Modality 𝕄
 
 open import Tools.Empty
 open import Tools.Fin
@@ -25,14 +30,15 @@ open import Tools.Relation
 open import Tools.Reasoning.PropositionalEquality
 open import Tools.Sum
 
-open import Graded.Modality.Properties.Subtraction semiring-with-meet
+open import Graded.Modality.Nr-instances
+open import Graded.Modality.Properties 𝕄
 open import Graded.Usage.Erased-matches
 
 open import Definition.Untyped M
 open import Definition.Untyped.Neutral M type-variant
 open import Definition.Untyped.Properties M
 
-open import Graded.Heap.Untyped type-variant UR
+open import Graded.Heap.Untyped type-variant UR factoring-nr
 
 private variable
   k n n′ n″ m m′ m″ : Nat
@@ -40,13 +46,13 @@ private variable
   H H′ H″ : Heap _ _
   ρ ρ′ ρ″ : Wk _ _
   S S′ S″ : Stack _
-  p p′ q r r′ : M
+  p p′ q q′ r r′ : M
   y y′ : Ptr _
   x : Fin _
   c c′ : Entry _ _
   Γ : Con Term _
-  e e′ : Elim _
-  s : State _ _ _
+  e e′ e″ : Elim _
+  s s′ : State _ _ _
   σ : Subst _ _
 
 ------------------------------------------------------------------------
@@ -56,8 +62,10 @@ opaque
 
   -- Injectivity of states
 
-  State-injectivity : ⟨ H , t , ρ , S ⟩ ≡ ⟨ H′ , t′ , ρ′ , S′ ⟩
-                    → H ≡ H′ × t ≡ t′ × ρ ≡ ρ′ × S ≡ S′
+  State-injectivity :
+    {H : Heap _ _} →
+    ⟨ H , t , ρ , S ⟩ ≡ ⟨ H′ , t′ , ρ′ , S′ ⟩ →
+    H ≡ H′ × t ≡ t′ × ρ ≡ ρ′ × S ≡ S′
   State-injectivity refl = refl , refl , refl , refl
 
 ------------------------------------------------------------------------
@@ -284,7 +292,7 @@ opaque
     cong₂ (λ u A → prodrec r p q A _ u)
       (lifts-step-sgSubst 2 u)
       (lifts-step-sgSubst 1 A)
-  ⦅⦆ᵉ-sgSubst {u} (natrecₑ p q r A z s ρ) =
+  ⦅⦆ᵉ-sgSubst {u} (natrecₑ p q r q′ A z s ρ) =
     cong₃ (λ A z s → natrec p q r A z s _)
       (lifts-step-sgSubst 1 A)
       (lifts-step-sgSubst 0 z)
@@ -338,7 +346,7 @@ opaque
     cong₂ (λ x y → prodrec r p q x _ y)
       (lifts-step-[,] 1 A)
       (lifts-step-[,] 2 u)
-  ⦅⦆ᵉ-[,] (natrecₑ p q r A z s ρ) =
+  ⦅⦆ᵉ-[,] (natrecₑ p q r q′ A z s ρ) =
     cong₃ (λ A z s → natrec p q r A z s _)
       (lifts-step-[,] 1 A)
       (lifts-step-[,] 0 z)
@@ -389,7 +397,7 @@ opaque
     cong₂ (λ A u → prodrec r p q A _ u)
       (wk-comp (lift ρ) (lift ρ′) A)
       (wk-comp (liftn ρ 2) (liftn ρ′ 2) u)
-  wk-⦅⦆ᵉ {ρ} (natrecₑ p q r A z s ρ′) =
+  wk-⦅⦆ᵉ {ρ} (natrecₑ p q r q′ A z s ρ′) =
     cong₃ (λ A z s → natrec p q r A z s _)
       (wk-comp (lift ρ) (lift ρ′) A)
       (wk-comp ρ ρ′ z)
@@ -429,7 +437,7 @@ opaque
     cong (snd _) t≡u
   ⦅⦆ᵉ-cong (prodrecₑ r p q A u ρ) t≡u =
     cong (λ t → prodrec _ _ _ _ t _) t≡u
-  ⦅⦆ᵉ-cong (natrecₑ p q r A z s ρ) t≡u =
+  ⦅⦆ᵉ-cong (natrecₑ p q r q′ A z s ρ) t≡u =
     cong (λ t → natrec _ _ _ _ _ _ t) t≡u
   ⦅⦆ᵉ-cong (unitrecₑ _ p q A u ρ) t≡u =
     cong (λ t → unitrec _ _ _ _ t _) t≡u
@@ -465,14 +473,12 @@ opaque
 
   -- Multiplicity of weakened eliminators
 
-  wk-∣e∣ : ⦃ _ : Has-nr M semiring-with-meet ⦄
-         → ⦃ _ : Has-factoring-nr M semiring-with-meet ⦄
-         → (ρ : Wk k n) (e : Elim n) → ∣ e ∣ᵉ ≡ ∣ wkᵉ ρ e ∣ᵉ
+  wk-∣e∣ : (ρ : Wk k n) (e : Elim n) → ∣ e ∣ᵉ ≡ ∣ wkᵉ ρ e ∣ᵉ
   wk-∣e∣ ρ (∘ₑ p u ρ′) = refl
   wk-∣e∣ ρ (fstₑ x) = refl
   wk-∣e∣ ρ (sndₑ x) = refl
   wk-∣e∣ ρ (prodrecₑ r p q A u ρ′) = refl
-  wk-∣e∣ ρ (natrecₑ p q r A z s ρ′) = refl
+  wk-∣e∣ ρ (natrecₑ p q r q′ A z s ρ′) = refl
   wk-∣e∣ ρ (unitrecₑ _ p q A u ρ′) = refl
   wk-∣e∣ ρ (emptyrecₑ p A ρ′) = refl
   wk-∣e∣ ρ (Jₑ p q A t B u v ρ′) = refl
@@ -484,9 +490,7 @@ opaque
 
   -- Multiplicity of weakened stacks
 
-  wk-∣S∣ : ⦃ _ : Has-nr M semiring-with-meet ⦄
-         → ⦃ _ : Has-factoring-nr M semiring-with-meet ⦄
-         → (ρ : Wk k n) (S : Stack n) → ∣ S ∣ ≡ ∣ wkˢ ρ S ∣
+  wk-∣S∣ : (ρ : Wk k n) (S : Stack n) → ∣ S ∣ ≡ ∣ wkˢ ρ S ∣
   wk-∣S∣ ρ ε = refl
   wk-∣S∣ ρ (e ∙ S) = cong₂ _·_ (wk-∣S∣ ρ S) (wk-∣e∣ ρ e)
 
@@ -566,9 +570,7 @@ opaque
 
   -- Multiplicity of the stack sucₛ k
 
-  ∣sucₛ∣≡𝟙 : ⦃ _ : Has-nr M semiring-with-meet ⦄
-           → ⦃ _ : Has-factoring-nr M semiring-with-meet ⦄
-           → ∀ k → ∣ sucₛ {m} k ∣ ≡ 𝟙
+  ∣sucₛ∣≡𝟙 : ∀ k → ∣ sucₛ {m} k ∣ ≡ 𝟙
   ∣sucₛ∣≡𝟙 0 = refl
   ∣sucₛ∣≡𝟙 (1+ k) = trans (·-identityʳ _) (∣sucₛ∣≡𝟙 k)
 
@@ -576,9 +578,7 @@ opaque
 
   -- Multiplicity of the stack S ++ sucₛ k
 
-  ∣S++sucₛ∣≡∣S∣ : ⦃ _ : Has-nr M semiring-with-meet ⦄
-                → ⦃ _ : Has-factoring-nr M semiring-with-meet ⦄
-                → (S : Stack m) → ∣ S ++ sucₛ k ∣ ≡ ∣ S ∣
+  ∣S++sucₛ∣≡∣S∣ : (S : Stack m) → ∣ S ++ sucₛ k ∣ ≡ ∣ S ∣
   ∣S++sucₛ∣≡∣S∣ {k} ε = ∣sucₛ∣≡𝟙 k
   ∣S++sucₛ∣≡∣S∣ (e ∙ S) = ·-congʳ (∣S++sucₛ∣≡∣S∣ S)
 
@@ -623,7 +623,7 @@ opaque
   ⦅⦆ᵉ-neutral (fstₑ x) (fstₙ n) = n
   ⦅⦆ᵉ-neutral (sndₑ x) (sndₙ n) = n
   ⦅⦆ᵉ-neutral (prodrecₑ r p q A u ρ) (prodrecₙ n) = n
-  ⦅⦆ᵉ-neutral (natrecₑ p q r A z s ρ) (natrecₙ n) = n
+  ⦅⦆ᵉ-neutral (natrecₑ p q r q′ A z s ρ) (natrecₙ n) = n
   ⦅⦆ᵉ-neutral (unitrecₑ l p q A u ρ) (unitrecₙ x n) = n
   ⦅⦆ᵉ-neutral (emptyrecₑ p A ρ) (emptyrecₙ n) = n
   ⦅⦆ᵉ-neutral (Jₑ p q A t B u v ρ) (Jₙ n) = n
@@ -723,6 +723,60 @@ opaque
   update-~ʰ (there● d) = update-~ʰ d ∙●
 
 ------------------------------------------------------------------------
+-- Properties of stack equality
+
+opaque
+
+  -- Stack equality is reflective
+
+  ~ˢ-refl : S ~ˢ S
+  ~ˢ-refl {S = ε} = ε
+  ~ˢ-refl {S = e ∙ S} = ~ᵉ-refl ∙ ~ˢ-refl
+
+opaque
+
+  -- Eliminator equality is symmetric
+
+  ~ᵉ-sym : e ~ᵉ e′ → e′ ~ᵉ e
+  ~ᵉ-sym ~ᵉ-refl = ~ᵉ-refl
+  ~ᵉ-sym ~ᵉ-natrec = ~ᵉ-natrec
+
+opaque
+
+  -- Stack equality is symmetric
+
+  ~ˢ-sym : S ~ˢ S′ → S′ ~ˢ S
+  ~ˢ-sym ε = ε
+  ~ˢ-sym (e~e′ ∙ S~S′) = ~ᵉ-sym e~e′ ∙ ~ˢ-sym S~S′
+
+opaque
+
+  -- Eliminator equality is transitive
+
+  ~ᵉ-trans : e ~ᵉ e′ → e′ ~ᵉ e″ → e ~ᵉ e″
+  ~ᵉ-trans ~ᵉ-refl e′~e″ = e′~e″
+  ~ᵉ-trans e~e′ ~ᵉ-refl = e~e′
+  ~ᵉ-trans ~ᵉ-natrec ~ᵉ-natrec = ~ᵉ-natrec
+
+opaque
+
+  -- Stack equality is transitive
+
+  ~ˢ-trans : S ~ˢ S′ → S′ ~ˢ S″ → S ~ˢ S″
+  ~ˢ-trans ε ε = ε
+  ~ˢ-trans (e~e′ ∙ S~S′) (e′~e″ ∙ S′~S″) =
+    ~ᵉ-trans e~e′ e′~e″ ∙ ~ˢ-trans S~S′ S′~S″
+
+opaque
+
+  -- Weakening of stack equality
+
+  wk-~ˢ : S ~ˢ S′ → wkˢ ρ S ~ˢ wkˢ ρ S′
+  wk-~ˢ ε = ε
+  wk-~ˢ (~ᵉ-refl ∙ S~S′) = ~ᵉ-refl ∙ wk-~ˢ S~S′
+  wk-~ˢ (~ᵉ-natrec ∙ S~S′) = ~ᵉ-natrec ∙ wk-~ˢ S~S′
+
+------------------------------------------------------------------------
 -- Properties of states in normal form
 
 opaque
@@ -747,10 +801,10 @@ opaque
 
 opaque
 
-  -- The heap of a normal state can be replaced by an equal heap to give
-  -- a normal state.
+  -- The heap of a normal state can be replaced by an equal heap and the
+  -- stack can be replaced with any stack to give a normal state.
 
-  ~ʰ-Normal : H ~ʰ H′ → Normal ⟨ H , t , ρ , S ⟩ → Normal ⟨ H′ , t , ρ , S ⟩
+  ~ʰ-Normal : H ~ʰ H′ → Normal ⟨ H , t , ρ , S ⟩ → Normal ⟨ H′ , t , ρ , S′ ⟩
   ~ʰ-Normal H~H′ (val x) = val x
   ~ʰ-Normal H~H′ (var x) = var (~ʰ-lookup● H~H′ x)
 
@@ -874,3 +928,47 @@ opaque
 
   ⦅initial⦆≡ : ⦅ initial t ⦆ ≡ t
   ⦅initial⦆≡ = trans (erasedHeap-subst (wk id _)) (wk-id _)
+
+opaque
+
+  -- The relation Ok-natrec-multiplicity p r is functional
+
+  Ok-natrec-multiplicity-functional :
+    Ok-natrec-multiplicity p r q →
+    Ok-natrec-multiplicity p r q′ →
+    q ≡ q′
+  Ok-natrec-multiplicity-functional (has-nr ⦃ (a) ⦄ x) (has-nr ⦃ (b) ⦄ x₁) =
+    case Nr-available-propositional _ a b of λ where
+      refl → trans x (sym x₁)
+  Ok-natrec-multiplicity-functional (no-nr x) (no-nr x₁) =
+    GLB-unique x x₁
+  Ok-natrec-multiplicity-functional (has-nr ⦃ (a) ⦄ x) (no-nr ⦃ (b) ⦄ x₁) =
+    ⊥-elim (¬[Nr∧No-nr-glb] _ a b)
+  Ok-natrec-multiplicity-functional (no-nr ⦃ (a) ⦄ x) (has-nr ⦃ (b) ⦄ x₁) =
+    ⊥-elim (¬[Nr∧No-nr-glb] _ b a)
+
+opaque
+
+  -- An inversion lemma for Ok-natrec-multiplicity
+
+  Ok-natrec-multiplicity-nr-inv :
+    ⦃ has-nr : Nr-available ⦄ →
+    Ok-natrec-multiplicity p r q →
+    q ≡ nr₂ p r
+  Ok-natrec-multiplicity-nr-inv ⦃ (x) ⦄ (has-nr ⦃ (y) ⦄ z) =
+    case Nr-available-propositional _ x y of λ where
+      refl → z
+  Ok-natrec-multiplicity-nr-inv ⦃ (x) ⦄ (no-nr ⦃ (y) ⦄ _) =
+    ⊥-elim (¬[Nr∧No-nr-glb] _ x y)
+
+opaque
+
+  -- An inversion lemma for Ok-natrec-multiplicity
+
+  Ok-natrec-multiplicity-no-nr-inv :
+    ⦃ no-nr : Nr-not-available-GLB ⦄ →
+    Ok-natrec-multiplicity p r q →
+    Greatest-lower-bound q (nrᵢ r 𝟙 p)
+  Ok-natrec-multiplicity-no-nr-inv ⦃ (x) ⦄ (has-nr ⦃ (y) ⦄ _) =
+    ⊥-elim (¬[Nr∧No-nr-glb] _ y x)
+  Ok-natrec-multiplicity-no-nr-inv (no-nr x) = x

@@ -6,7 +6,6 @@ open import Tools.Level
 
 open import Definition.Typed.Restrictions
 
-import Graded.Modality.Dedicated-nr
 import Graded.Modality.Instances.Linearity
 open import Graded.Modality.Variant lzero
 open import Graded.Usage.Restrictions
@@ -15,15 +14,26 @@ module Graded.Modality.Instances.Linearity.Bad
   -- The modality variant.
   (variant : Modality-variant)
   (open Graded.Modality.Instances.Linearity variant)
-  (open Graded.Modality.Dedicated-nr bad-linearity-modality)
-  (TR : Type-restrictions bad-linearity-modality)
+  (TR : Type-restrictions linearityModality)
   (open Type-restrictions TR)
-  (UR : Usage-restrictions bad-linearity-modality)
+  (UR : Usage-restrictions linearityModality)
   -- It is assumed that "Π 𝟙 , 𝟘" is allowed.
   (Π-𝟙-𝟘 : Π-allowed 𝟙 𝟘)
-  -- There is a dedicated nr function.
-  ⦃ has-nr : Dedicated-nr ⦄
   where
+
+open import Graded.Restrictions linearityModality
+open import Graded.Usage.Restrictions.Natrec linearityModality
+open import Graded.Modality Linearity
+
+private
+  module M = Modality linearityModality
+
+  -- The "bad" nr function is used
+  UR′ = nr-available-UR zero-one-many-greatest-star-nr UR
+  open Usage-restrictions UR′
+  instance
+    has-nr : Nr-available
+    has-nr = Natrec-mode-has-nr.Nr ⦃ zero-one-many-greatest-star-nr ⦄
 
 open import Tools.Empty
 open import Tools.Function
@@ -32,17 +42,13 @@ import Tools.Reasoning.PartialOrder
 open import Tools.Relation
 open import Tools.Sum
 
-open import Graded.Context bad-linearity-modality
-open import Graded.Context.Properties bad-linearity-modality
-open import Graded.Modality Linearity
+open import Graded.Context linearityModality
+open import Graded.Context.Properties linearityModality
 open import Graded.Modality.Instances.Examples TR Π-𝟙-𝟘
-open import Graded.Modality.Properties bad-linearity-modality
-open import Graded.Mode bad-linearity-modality
-open import Graded.Usage bad-linearity-modality UR
-open import Graded.Usage.Inversion bad-linearity-modality UR
-
-private
-  module M = Modality bad-linearity-modality
+open import Graded.Modality.Properties linearityModality
+open import Graded.Mode linearityModality
+open import Graded.Usage linearityModality UR′
+open import Graded.Usage.Inversion linearityModality UR′
 
 -- The term double is well-resourced (even though it can be given a
 -- linear type).
@@ -67,11 +73,9 @@ private
     (invUsageLam {δ = _ ∙ ω} _  (_ ∙ ()));
     (invUsageLam {δ = _ ∙ 𝟘} _  (_ ∙ ()));
     (invUsageLam {δ = _ ∙ 𝟙} ▸+ _) →
-  case inv-usage-natrec ▸+ of λ {
-    (invUsageNatrec _ _ _ _ _ (invUsageNatrecNoNr _ _ _ _)) →
-       ⊥-elim not-nr-and-no-nr;
-    (invUsageNatrec {δ = _ ∙ p ∙ _} {η = _ ∙ _ ∙ _} {θ = _ ∙ q ∙ _}
-       ▸x0 _ _ _ (_ ∙ 𝟙≤nr ∙ _) invUsageNatrecNr) →
+  case inv-usage-natrec-has-nr ▸+ of λ {
+    (_ ∙ p ∙ _ , _ ∙ _ ∙ _ , _ ∙ q ∙ _ , _
+               , ▸x0 , _ , _ , _ , _ ∙ 𝟙≤nr ∙ _) →
   case inv-usage-var ▸x0 of λ {
     (_ ∙ p≤𝟘 ∙ _) →
   case +≡𝟙 (𝟙-maximal idᶠ 𝟙≤nr) of λ {

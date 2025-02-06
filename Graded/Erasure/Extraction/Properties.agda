@@ -12,7 +12,6 @@ module Graded.Erasure.Extraction.Properties
 
 open Modality 𝕄
 
-open import Graded.Modality.Dedicated-nr.Instance
 open import Graded.Modality.Nr-instances
 open import Graded.Modality.Properties 𝕄
 
@@ -543,6 +542,8 @@ module hasX (R : Usage-restrictions) where
   open MUP R
   open MUP𝟘 R
 
+  open import Graded.Usage.Restrictions.Instance R
+
   -- If the modality's zero is well-behaved, then erased variables do
   -- not occur after extraction.
 
@@ -711,6 +712,9 @@ module hasX (R : Usage-restrictions) where
   erased-hasX
     erased (natrec-no-nrₘ γ▸z _ _ _ χ≤γ _ _ _) (natrecₓᶻ hasX) =
     erased-hasX erased (sub γ▸z χ≤γ) hasX
+  erased-hasX erased (natrec-no-nr-glbₘ ▸z _ _ _ _ χ-glb) (natrecₓᶻ hasX) =
+    erased-hasX (x◂𝟘∈γ+δʳ refl erased)
+      (sub ▸z (≤ᶜ-trans (χ-glb .proj₁ 0) (≤ᶜ-reflexive nrᵢᶜ-zero))) hasX
   erased-hasX erased (natrecₘ _ δ▸s _ _) (natrecₓˢ hasX) =
     erased-hasX (there (there (◂𝟘∈nrᶜ₂ refl erased))) δ▸s hasX
   erased-hasX erased
@@ -719,12 +723,21 @@ module hasX (R : Usage-restrictions) where
     erased-hasX
       (there $ there $ x◂𝟘∈γ+δˡ refl $ x◂𝟘∈γ≤δ erased fix)
       δ▸s hasX
+  erased-hasX erased (natrec-no-nr-glbₘ _ ▸s _ _ _ χ-glb) (natrecₓˢ hasX) =
+    erased-hasX (there $ there $ x◂𝟘∈γ+δˡ refl $
+                   x◂𝟘∈γ≤δ (x◂𝟘∈γ+δʳ refl erased)
+                   (≤ᶜ-trans (χ-glb .proj₁ 1) (≤ᶜ-reflexive nrᵢᶜ-suc)))
+      ▸s hasX
   erased-hasX erased (natrecₘ _ _ η▸n _) (natrecₓⁿ hasX) =
     erased-hasX (◂𝟘∈nrᶜ₃ refl erased) η▸n hasX
   erased-hasX erased
     (natrec-no-nrₘ _ _ η▸n _ _ _ χ≤η _)
     (natrecₓⁿ hasX) =
     erased-hasX (x◂𝟘∈γ≤δ erased χ≤η) η▸n hasX
+  erased-hasX erased (natrec-no-nr-glbₘ _ _ ▸n _ x-glb _) (natrecₓⁿ hasX) =
+    erased-hasX (x◂𝟘∈pγ refl (λ {refl → 𝟘≰𝟙 (x-glb .proj₁ 0)})
+                        (x◂𝟘∈γ+δˡ refl erased))
+                ▸n hasX
 
   erased-hasX erased (Jₘ _ _ _ _ _ ▸u _ _) hasX =
     erased-hasX

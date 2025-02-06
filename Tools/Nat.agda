@@ -15,7 +15,7 @@ open Data.Nat.Base public
   using (_≤_; _<_; pred; _⊔_; _⊓_; >-nonZero; nonZero; _∸_)
 open _≤_ public
 open import Data.Nat.DivMod
-open Data.Nat.DivMod using (_/_; m/n*n≤m) public
+open Data.Nat.DivMod using (_/_; m/n*n≤m; m*n/n≡m) public
 open import Data.Nat.Properties
 open import Data.Nat using (_<′_; ≤′-refl; ≤′-step; _≤′_) public
 open Data.Nat.Properties
@@ -23,16 +23,17 @@ open Data.Nat.Properties
          +-identityʳ; +-assoc; +-comm; +-0-isCommutativeMonoid; +-suc;
          +-cancelˡ-≡;
          *-identityˡ; *-identityʳ; *-assoc; *-comm; *-zeroʳ; *-cancelˡ-≡;
-         *-suc; *-1-isCommutativeMonoid;
+         *-suc; *-1-isCommutativeMonoid; +-*-isSemiring; ⊔-isSemilattice;
          m*n≡0⇒m≡0∨n≡0;
          ⊔-identityʳ; ⊔-assoc; ⊔-comm; ⊔-idem; m≥n⇒m⊔n≡m; m⊔n≡m⇒n≤m;
          ⊓-assoc; ⊓-comm;
          +-distribˡ-⊔; +-distribʳ-⊔; ∸-distribʳ-⊔;
-         *-distribˡ-+; *-distribʳ-+; *-distribˡ-⊔;
+         *-distribˡ-+; *-distribʳ-+; *-distribˡ-⊔; *-distribʳ-⊔;
          ⊓-distribʳ-⊔; ⊔-distribʳ-⊓;
          ⊔-absorbs-⊓; ⊓-absorbs-⊔;
          ≤-refl; ≤-reflexive; ≤-trans; ≤-antisym; module ≤-Reasoning;
-         n≮n; ≤∧≢⇒<;
+         ≤-<-trans;
+         n≮n; ≤∧≢⇒<; m<n⇒n≢0;
          ≤⇒pred≤;
          +-mono-≤; m≤m+n; m≤n+m; m+n≤o⇒n≤o; 0<1+n; n≤1+n;
          *-mono-≤; m≤m*n; m≤n*m; m+1+n≰m;
@@ -40,7 +41,7 @@ open Data.Nat.Properties
          m<n⊓o⇒m<n; m<n⊓o⇒m<o; ⊓-pres-m<;
          m⊓n≤m⊔n; m+n∸n≡m; m∸n+n≡m; ⊔-mono-<;
          <⇒<′; <′⇒<; ≤′⇒≤; ≤′-trans)
-  renaming (suc-injective to +1-injective;
+  renaming (suc-injective to 1+-injective;
             s≤′s to 1+≤′1+)
   public
 open import Data.Nat.Show using (show) public
@@ -375,3 +376,72 @@ opaque
   <⇒==∸ : k ≤ m → k ≤ n → (m == n) ≡ (m ∸ k == n ∸ k)
   <⇒==∸ {(zero)} k<m k<n = refl
   <⇒==∸ {1+ k} (s≤s k<m) (s≤s k<n) = <⇒==∸ k<m k<n
+
+-- Infinite sequences of elements of a given type as functions from Nat
+
+Sequence : (A : Set a) → Set a
+Sequence A = Nat → A
+
+opaque
+
+  -- Multiplication respects greatest lower bounds of sequences
+  -- of natural numbers
+
+  *-LUB :
+    (nᵢ : Sequence Nat) →
+    (∀ i → nᵢ i ≤ n) →
+    (∀ m → (∀ i → nᵢ i ≤ m) → n ≤ m) →
+    (∀ i → k * nᵢ i ≤ k * n) ×
+    (∀ m → (∀ i → k * nᵢ i ≤ m) → k * n ≤ m)
+  *-LUB {n} {k = 0} nᵢ ≤n n-lub =
+    (λ _ → ≤-refl) , (λ _ _ → z≤n)
+  *-LUB {n} {k = 1+ k} nᵢ ≤n n-lub =
+    (λ i → *-monoʳ-≤ (1+ k) (≤n i)) ,
+    λ m ≤m →
+      let nᵢ≤ : ∀ i → nᵢ i ≤ m / (1+ k)
+          nᵢ≤ i = begin
+            nᵢ i                   ≡˘⟨ m*n/n≡m (nᵢ i) (1+ k) ⟩
+            nᵢ i * (1+ k) / (1+ k) ≡⟨ /-congˡ (*-comm (nᵢ i) (1+ k)) ⟩
+            (1+ k) * nᵢ i / (1+ k) ≤⟨ /-monoˡ-≤ (1+ k) (≤m i) ⟩
+            m / 1+ k ∎
+      in  begin
+            (1+ k) * n            ≤⟨ *-monoʳ-≤ (1+ k) (n-lub _ nᵢ≤) ⟩
+            (1+ k) * (m / 1+ k)   ≡⟨ *-comm (1+ k) (m / 1+ k) ⟩
+            (m / (1+ k)) * (1+ k) ≤⟨ m/n*n≤m m (1+ k) ⟩
+            m ∎
+    where
+    open ≤-Reasoning
+
+opaque
+
+  -- Addition respects greatest lower bounds of sequences
+  -- of natural numbers
+
+  +-LUB :
+    (nᵢ : Sequence Nat) →
+    (∀ i → nᵢ i ≤ n) →
+    (∀ m → (∀ i → nᵢ i ≤ m) → n ≤ m) →
+    (∀ i → k + nᵢ i ≤ k + n) ×
+    (∀ m → (∀ i → k + nᵢ i ≤ m) → k + n ≤ m)
+  +-LUB {n} {k} nᵢ ≤n n-lub =
+    (λ i → +-monoʳ-≤ k (≤n i)) ,
+    λ m ≤m →
+      let nᵢ≤ : ∀ i → nᵢ i ≤ m ∸ k
+          nᵢ≤ i = begin
+            nᵢ i         ≡˘⟨ m+n∸m≡n k (nᵢ i) ⟩
+            k + nᵢ i ∸ k ≤⟨ ∸-monoˡ-≤ k (≤m i) ⟩
+            m ∸ k        ∎
+      in  begin
+            k + n       ≤⟨ +-monoʳ-≤ k (n-lub _ nᵢ≤) ⟩
+            k + (m ∸ k) ≡⟨ m+[n∸m]≡n (m+n≤o⇒m≤o k (≤m 0)) ⟩
+            m           ∎
+    where
+    open ≤-Reasoning
+
+opaque
+
+  -- Non-zero numbers are at least 1
+
+  1≤n : n ≢ 0 → 1 ≤ n
+  1≤n {(zero)} n≢0 = ⊥-elim (n≢0 refl)
+  1≤n {1+ n} n≢0 = s≤s z≤n

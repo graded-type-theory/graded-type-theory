@@ -14,16 +14,16 @@ module Graded.Usage.Decidable
   where
 
 open Assumptions as
-open Modality 𝕄 hiding (has-nr)
+open Modality 𝕄
 open Usage-restrictions R
 
 open import Graded.Context 𝕄
 open import Graded.Context.Properties 𝕄
-open import Graded.Modality.Dedicated-nr.Instance
 open import Graded.Usage 𝕄 R
 open import Graded.Usage.Erased-matches
 open import Graded.Usage.Inversion 𝕄 R
 open import Graded.Usage.Properties 𝕄 R
+open import Graded.Usage.Restrictions.Natrec 𝕄
 open import Graded.Mode 𝕄 hiding (_≟_)
 open import Definition.Untyped M
 
@@ -246,8 +246,10 @@ infix 10 ⌈⌉▸[_]?_
             tailₘ (⌈ A ⌉ 𝟘ᵐ?) ∙ ⌜ 𝟘ᵐ? ⌝ · q        ≤⟨ ≤ᶜ-refl ∙ q≤ ⟩
             tailₘ (⌈ A ⌉ 𝟘ᵐ?) ∙ headₘ (⌈ A ⌉ 𝟘ᵐ?)  ≡⟨ headₘ-tailₘ-correct _ ⟩
             ⌈ A ⌉ 𝟘ᵐ?                              ∎
-      in
-      inj₁ (natrecₘ ▸t (sub ▸u lemma₁) ▸v (sub ▸A lemma₂))
+      in  inj₁ (natrec-nr-or-no-nrₘ ▸t (sub ▸u lemma₁) ▸v (sub ▸A lemma₂)
+            (λ ⦃ has-nr ⦄ → lemma-nr has-nr inference-ok)
+            (λ ⦃ no-nr ⦄ → ⊥-elim (lemma-no-nr no-nr inference-ok))
+            λ ⦃ no-nr ⦄ → lemma-no-nr-glb no-nr inference-ok)
     (inj₂ problem) → inj₂ λ _ ▸nr →
       case inv-usage-natrec ▸nr of λ {
         (invUsageNatrec ▸t ▸u ▸v ▸A _ _) →
@@ -259,6 +261,23 @@ infix 10 ⌈⌉▸[_]?_
         ) }
   where
   open ≤ᶜ-reasoning
+  lemma-nr :
+    ∀ {nm} → (has-nr : Natrec-mode-has-nr nm) (ok : Natrec-mode-supports-usage-inference nm) →
+    ⌈⌉-natrec ⦃ ok = ok ⦄ p r (⌈ t ⌉ m) (tailₘ (tailₘ (⌈ u ⌉ m))) (⌈ v ⌉ m) ≤ᶜ
+    nrᶜ ⦃ has-nr = Natrec-mode-Has-nr has-nr ⦄ p r (⌈ t ⌉ m) (tailₘ (tailₘ (⌈ u ⌉ m))) (⌈ v ⌉ m)
+  lemma-nr Nr Nr = ≤ᶜ-refl
+  lemma-no-nr :
+    ∀ {nm} → Natrec-mode-no-nr nm → Natrec-mode-supports-usage-inference nm → ⊥
+  lemma-no-nr No-nr ()
+  lemma-no-nr-glb :
+    ∀ {nm} → Natrec-mode-no-nr-glb nm → (ok : Natrec-mode-supports-usage-inference nm) →
+    ∃₂ λ x χ → Greatest-lower-bound x (nrᵢ r 𝟙 p) ×
+    Greatest-lower-boundᶜ χ (nrᵢᶜ r (⌈ t ⌉ m) (tailₘ (tailₘ (⌈ u ⌉ m)))) ×
+    ⌈⌉-natrec ⦃ ok = ok ⦄ p r (⌈ t ⌉ m) (tailₘ (tailₘ (⌈ u ⌉ m))) (⌈ v ⌉ m) ≤ᶜ x ·ᶜ ⌈ v ⌉ m +ᶜ χ
+  lemma-no-nr-glb No-nr-glb (No-nr-glb has-GLB) =
+    let x , x-glb = has-GLB r 𝟙 p
+        χ , χ-glb = nrᵢᶜ-has-GLBᶜ has-GLB r (⌈ t ⌉ m) (tailₘ (tailₘ (⌈ u ⌉ m)))
+    in  x , χ , x-glb , χ-glb , ≤ᶜ-refl
 
 ⌈⌉▸[ m ]? Id A t u with Id-erased?
 … | yes erased =

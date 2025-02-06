@@ -17,15 +17,18 @@ open Usage-restrictions R
 
 open import Graded.Context 𝕄
 open import Graded.Context.Properties 𝕄
-open import Graded.Modality.Dedicated-nr 𝕄
+open import Graded.Modality.Properties 𝕄
+open import Graded.Modality.Variant a
 open import Graded.Mode 𝕄
 open import Graded.Usage.Erased-matches
-open import Definition.Untyped M hiding (_∙_)
+open import Graded.Usage.Restrictions.Instance R
+open import Graded.Usage.Restrictions.Natrec 𝕄
+open import Definition.Untyped M
 
 open import Tools.Bool using (T; true; false)
 open import Tools.Fin
 open import Tools.Function
-open import Tools.Nat using (Nat)
+open import Tools.Nat using (Nat; 1+)
 open import Tools.Product
 open import Tools.PropositionalEquality
 open import Tools.Relation
@@ -45,6 +48,7 @@ private
     b : BinderMode
     s : Strength
     em : Erased-matches
+    nm : Natrec-mode
 
 -- A view used in the implementation of ⌈_⌉.
 
@@ -77,13 +81,24 @@ opaque
   K-view : ∀ p m → ⌈⌉-view (p ≡ 𝟘) (erased-matches-for-K m)
   K-view p _ = ⌈⌉-view-inhabited (is-𝟘? p) _
 
+-- Modality context inference for natrec.
+
+⌈⌉-natrec :
+  ⦃ ok : Natrec-mode-supports-usage-inference nm ⦄ →
+  (p r : M) (γ δ η : Conₘ n) → Conₘ n
+⌈⌉-natrec ⦃ ok = Nr ⦃ (has-nr) ⦄ ⦄ p r γ δ η = nrᶜ ⦃ has-nr ⦄ p r γ δ η
+⌈⌉-natrec ⦃ ok = No-nr-glb has-GLB ⦄ p r γ δ η =
+  let x , _ = has-GLB r 𝟙 p
+      χ , _ = nrᵢᶜ-has-GLBᶜ has-GLB r γ δ
+  in  x ·ᶜ η +ᶜ χ
+
 -- Modality context inference (for modalities with nr functions).
 
 infix 50 ⌈_⌉
 
 mutual
   ⌈_⌉ :
-    ⦃ has-nr : Has-nr semiring-with-meet ⦄ →
+    ⦃ ok : Natrec-mode-supports-usage-inference natrec-mode ⦄ →
     Term n → Mode → Conₘ n
   ⌈ var x ⌉ m = 𝟘ᶜ , x ≔ ⌜ m ⌝
   ⌈ U _ ⌉ _ = 𝟘ᶜ
@@ -100,7 +115,7 @@ mutual
   ⌈ zero ⌉ _ = 𝟘ᶜ
   ⌈ suc t ⌉ m = ⌈ t ⌉ m
   ⌈ natrec p _ r _ z s n ⌉ m =
-    nrᶜ p r (⌈ z ⌉ m) (tailₘ (tailₘ (⌈ s ⌉ m))) (⌈ n ⌉ m)
+    ⌈⌉-natrec p r (⌈ z ⌉ m) (tailₘ (tailₘ (⌈ s ⌉ m))) (⌈ n ⌉ m)
   ⌈ Unit! ⌉ _ = 𝟘ᶜ
   ⌈ star! ⌉ _ = 𝟘ᶜ
   ⌈ unitrec _ p q A t u ⌉ m = p ·ᶜ ⌈ t ⌉ (m ᵐ· p) +ᶜ ⌈ u ⌉ m
@@ -128,8 +143,6 @@ mutual
 data _◂_∈_  : (x : Fin n) (p : M) (γ : Conₘ n) → Set a where
   here  :                       x0 ◂ p ∈ γ ∙ p
   there : (h : x ◂ p ∈ γ) → (x +1) ◂ p ∈ γ ∙ q
-
-open import Graded.Modality.Dedicated-nr.Instance
 
 -- Well-usage relation for terms.
 --
@@ -304,7 +317,7 @@ data _▸[_]_ {n : Nat} : (γ : Conₘ n) → Mode → Term n → Set a where
 
   -- A usage rule for natrec which applies if a dedicated nr function
   -- ("natrec usage function") is available.
-  natrecₘ   : ∀ {s n} ⦃ has-nr : Dedicated-nr ⦄
+  natrecₘ   : ∀ {s n} ⦃ has-nr : Nr-available ⦄
             → γ ▸[ m ] z
             → δ ∙ ⌜ m ⌝ · p ∙ ⌜ m ⌝ · r ▸[ m ] s
             → η ▸[ m ] n
@@ -339,7 +352,7 @@ data _▸[_]_ {n : Nat} : (γ : Conₘ n) → Mode → Term n → Set a where
   -- Graded.Modality.Instances.Linear-or-affine.Bad.No-dedicated-nr
   -- for some examples.
   natrec-no-nrₘ :
-            ∀ {n s} ⦃ no-nr : No-dedicated-nr ⦄
+            ∀ {n s} ⦃ no-nr : Nr-not-available ⦄
             → γ ▸[ m ] z
             → δ ∙ ⌜ m ⌝ · p ∙ ⌜ m ⌝ · r ▸[ m ] s
             → η ▸[ m ] n
@@ -352,6 +365,41 @@ data _▸[_]_ {n : Nat} : (γ : Conₘ n) → Mode → Term n → Set a where
                χ ≤ᶜ η)
             → χ ≤ᶜ δ +ᶜ p ·ᶜ η +ᶜ r ·ᶜ χ
             → χ ▸[ m ] natrec p q r A z s n
+
+  -- Another usage rule for natrec which applies if a dedicated nr function
+  -- is not available.
+  --
+  -- The usage count of natrec is assumed to consist of one part representing
+  -- the usage contributions of the natural number and one part representing
+  -- the usage contributions of the zero and successor cases.
+  --
+  -- The contribution of the natural number argument is given by the greatest
+  -- lower bound of the sequence nrᵢ r 𝟙 p. The elements of the sequence
+  -- represents the usage count of the natural number for a given number of
+  -- unfoldings.
+  -- When the natural number argument is zero the natural number argument is used
+  -- once (for matching). This is represented by nr₀ r 𝟙 p ≡ 𝟙. When the natural
+  -- number argument is suc n, the argument is used p times (by the successor case)
+  -- plus an additional number of times in the recursive call. Assuming a
+  -- suitable substitution lemma, the total usage counts become p + r · nrᵢ r 𝟙 p
+  -- where nrᵢ r 𝟙 p is the usage count of the recursive call (being unfolded
+  -- one time less). The greatest lower bound of all these usage counts is
+  -- then compatible with all possible unfoldings (via subsumption)
+  --
+  -- The contribution of the zero and successor cases is similarly given by
+  -- the greatest lower bound of the sequence nrᵢᶜ r γ δ. As before, each
+  -- element of the sequence corresponds to the total usage count for a given
+  -- number of unfoldings.
+
+  natrec-no-nr-glbₘ :
+           ∀ {n s x} ⦃ no-nr : Nr-not-available-GLB ⦄
+           → γ ▸[ m ] z
+           → δ ∙ ⌜ m ⌝ · p ∙ ⌜ m ⌝ · r ▸[ m ] s
+           → η ▸[ m ] n
+           → θ ∙ ⌜ 𝟘ᵐ? ⌝ · q ▸[ 𝟘ᵐ? ] A
+           → Greatest-lower-bound x (nrᵢ r 𝟙 p)
+           → Greatest-lower-boundᶜ χ (nrᵢᶜ r γ δ)
+           → x ·ᶜ η +ᶜ χ ▸[ m ] natrec p q r A z s n
 
   emptyrecₘ : γ ▸[ m ᵐ· p ] t
             → δ ▸[ 𝟘ᵐ? ] A

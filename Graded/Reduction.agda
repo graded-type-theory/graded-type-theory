@@ -25,6 +25,7 @@ open import Graded.Substitution.Properties 𝕄 UR
 open import Graded.Usage 𝕄 UR
 open import Graded.Usage.Inversion 𝕄 UR
 open import Graded.Usage.Properties 𝕄 UR
+open import Graded.Usage.Restrictions.Instance UR
 open import Graded.Usage.Restrictions.Satisfied 𝕄 UR
 open import Graded.Mode 𝕄
 open import Definition.Typed TR
@@ -39,7 +40,7 @@ open import Tools.Bool using (T; true; false)
 open import Tools.Empty
 open import Tools.Fin
 open import Tools.Function
-open import Tools.Nat using (Nat)
+open import Tools.Nat using (Nat; 1+)
 open import Tools.Product
 open import Tools.PropositionalEquality as PE using (_≢_)
 import Tools.Reasoning.PartialOrder
@@ -213,7 +214,9 @@ module _
         sub
           (natrec-no-nrₘ δ▸z η▸s (usagePresTerm θ▸n t⇒u)
              φ▸A χ≤γ χ≤δ χ≤η fix)
-          γ≤ }
+          γ≤
+      (invUsageNatrecNoNrGLB x≤ χ≤) →
+        sub (natrec-no-nr-glbₘ δ▸z η▸s (usagePresTerm θ▸n t⇒u) φ▸A x≤ χ≤) γ≤ }
 
   usagePresTerm {γ} ▸natrec (natrec-zero {p} {r} _ _) =
     case inv-usage-natrec ▸natrec of λ {
@@ -229,9 +232,17 @@ module _
         sub ▸z $ begin
           γ  ≤⟨ γ≤ ⟩
           χ  ≤⟨ χ≤δ ⟩
-          δ  ∎ }
+          δ  ∎
+      (invUsageNatrecNoNrGLB {χ = χ′} {x} x≤ χ≤) →
+        sub ▸z $ begin
+          γ  ≤⟨ γ≤ ⟩
+          x ·ᶜ θ +ᶜ χ′   ≤⟨ +ᶜ-monotoneˡ (·ᶜ-monotoneʳ (inv-usage-zero ▸zero)) ⟩
+          x ·ᶜ 𝟘ᶜ +ᶜ χ′  ≈⟨ +ᶜ-congʳ (·ᶜ-zeroʳ _) ⟩
+          𝟘ᶜ +ᶜ χ′       ≈⟨ +ᶜ-identityˡ _ ⟩
+          χ′             ≤⟨ χ≤ .proj₁ 0 ⟩
+          nrᵢᶜ r δ η 0   ≈⟨ nrᵢᶜ-zero ⟩
+          δ              ∎}
     where
-    open import Graded.Modality.Dedicated-nr.Instance
     open import Tools.Reasoning.PartialOrder ≤ᶜ-poset
 
   usagePresTerm {γ} ▸natrec (natrec-suc {p} {r} _ _ _) =
@@ -257,9 +268,28 @@ module _
           χ                       ≤⟨ fix ⟩
           η +ᶜ p ·ᶜ θ +ᶜ r ·ᶜ χ   ≤⟨ +ᶜ-monotoneʳ (+ᶜ-monotoneˡ (·ᶜ-monotoneʳ θ≤θ′)) ⟩
           η +ᶜ p ·ᶜ θ′ +ᶜ r ·ᶜ χ  ≈⟨ +ᶜ-congˡ (+ᶜ-comm _ _) ⟩
-          η +ᶜ r ·ᶜ χ +ᶜ p ·ᶜ θ′  ∎ }}
+          η +ᶜ r ·ᶜ χ +ᶜ p ·ᶜ θ′  ∎
+      (invUsageNatrecNoNrGLB {χ} {x} x≤ χ≤) →
+        let _ , ≤p+rx = +-GLBˡ {q = p} (·-GLBˡ {q = r} x≤)
+            _ , ≤η+rχ = +ᶜ-GLBᶜˡ {δ = η} (·ᶜ-GLBᶜˡ {p = r} χ≤)
+            x≤p+rx = ≤p+rx x λ i → x≤ .proj₁ (1+ i)
+            χ≤η+rχ = ≤η+rχ χ λ i → ≤ᶜ-trans (χ≤ .proj₁ (1+ i)) (≤ᶜ-reflexive nrᵢᶜ-suc)
+        in  sub (doubleSubstₘ-lemma₃ ▸s
+              (natrec-no-nr-glbₘ ▸z ▸s (sub ▸n θ≤θ′) ▸A x≤ χ≤)
+              ▸n) $ begin
+          γ                                         ≤⟨ γ≤ ⟩
+          x ·ᶜ θ +ᶜ χ                               ≤⟨ +ᶜ-monotone (·ᶜ-monotoneˡ x≤p+rx) χ≤η+rχ ⟩
+          (p + r · x) ·ᶜ θ +ᶜ (η +ᶜ r ·ᶜ χ)         ≈⟨ +ᶜ-congʳ (·ᶜ-distribʳ-+ᶜ _ _ _) ⟩
+          (p ·ᶜ θ +ᶜ (r · x) ·ᶜ θ) +ᶜ (η +ᶜ r ·ᶜ χ) ≈⟨ +ᶜ-comm _ _ ⟩
+          (η +ᶜ r ·ᶜ χ) +ᶜ (p ·ᶜ θ +ᶜ (r · x) ·ᶜ θ) ≈⟨ +ᶜ-congˡ (+ᶜ-comm _ _) ⟩
+          (η +ᶜ r ·ᶜ χ) +ᶜ ((r · x) ·ᶜ θ +ᶜ p ·ᶜ θ) ≈⟨ +ᶜ-assoc _ _ _ ⟩
+          η +ᶜ r ·ᶜ χ +ᶜ ((r · x) ·ᶜ θ +ᶜ p ·ᶜ θ)   ≈˘⟨ +ᶜ-congˡ (+ᶜ-assoc _ _ _) ⟩
+          η +ᶜ (r ·ᶜ χ +ᶜ (r · x) ·ᶜ θ) +ᶜ p ·ᶜ θ   ≈⟨ +ᶜ-congˡ (+ᶜ-congʳ (+ᶜ-congˡ (·ᶜ-assoc _ _ _))) ⟩
+          η +ᶜ (r ·ᶜ χ +ᶜ r ·ᶜ x ·ᶜ θ) +ᶜ p ·ᶜ θ    ≈˘⟨ +ᶜ-congˡ (+ᶜ-congʳ (·ᶜ-distribˡ-+ᶜ _ _ _)) ⟩
+          η +ᶜ r ·ᶜ (χ +ᶜ x ·ᶜ θ) +ᶜ p ·ᶜ θ         ≈⟨ +ᶜ-congˡ (+ᶜ-congʳ (·ᶜ-congˡ (+ᶜ-comm _ _))) ⟩
+          η +ᶜ r ·ᶜ (x ·ᶜ θ +ᶜ χ) +ᶜ p ·ᶜ θ         ≤⟨ +ᶜ-monotoneʳ (+ᶜ-monotoneʳ (·ᶜ-monotoneʳ θ≤θ′)) ⟩
+          η +ᶜ r ·ᶜ (x ·ᶜ θ +ᶜ χ) +ᶜ p ·ᶜ θ′        ∎}}
     where
-    open import Graded.Modality.Dedicated-nr.Instance
     open import Tools.Reasoning.PartialOrder ≤ᶜ-poset
 
   usagePresTerm γ▸prodrec (prodrec-subst x₂ x₃ x₄ _) =
