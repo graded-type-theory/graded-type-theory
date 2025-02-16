@@ -99,7 +99,7 @@ data Elim (m : Nat) : Set a where
   sndₑ      : M → Elim m
   prodrecₑ  : (r p q : M) (A : Term (1+ n)) (u : Term (2+ n))
               (ρ : Wk m n) → Elim m
-  natrecₑ   : (p q r q′ : M) (A : Term (1+ n)) (z : Term n)
+  natrecₑ   : (p q r : M) (A : Term (1+ n)) (z : Term n)
               (s : Term (2+ n)) (ρ : Wk m n) → Elim m
   unitrecₑ  : (l : Universe-level) (p q : M) (A : Term (1+ n))
               (u : Term n) (ρ : Wk m n) → Elim m
@@ -114,25 +114,13 @@ data Elim (m : Nat) : Set a where
 private variable
   e e′ : Elim _
 
--- A predicate on grades indicating whether the grades on
--- natrecₑ are "compatible" for the chosen natrec-mode.
-
-data Ok-natrec-multiplicity (p r q : M) : Set a where
-  has-nr :
-    ⦃ has-nr : Nr-available ⦄ →
-    q ≡ nr₂ p r → Ok-natrec-multiplicity p r q
-  no-nr :
-    ⦃ no-nr : Nr-not-available-GLB ⦄ →
-    Greatest-lower-bound q (nrᵢ r 𝟙 p) →
-    Ok-natrec-multiplicity p r q
-
 -- Weakening of eliminators
 
 wkᵉ : Wk m′ m → Elim m → Elim m′
 wkᵉ ρ (∘ₑ p u ρ′) = ∘ₑ p u (ρ • ρ′)
 wkᵉ ρ (fstₑ p) = fstₑ p
 wkᵉ ρ (sndₑ p) = sndₑ p
-wkᵉ ρ (natrecₑ p q r x A z s ρ′) = natrecₑ p q r x A z s (ρ • ρ′)
+wkᵉ ρ (natrecₑ p q r A z s ρ′) = natrecₑ p q r A z s (ρ • ρ′)
 wkᵉ ρ (prodrecₑ r p q A u ρ′) = prodrecₑ r p q A u (ρ • ρ′)
 wkᵉ ρ (unitrecₑ l p q A u ρ′) = unitrecₑ l p q A u (ρ • ρ′)
 wkᵉ ρ (emptyrecₑ p A ρ′) = emptyrecₑ p A (ρ • ρ′)
@@ -147,56 +135,60 @@ wk1ᵉ = wkᵉ (step id)
 wk2ᵉ : Elim m → Elim (2+ m)
 wk2ᵉ = wkᵉ (step (step id))
 
+-- The multiplicity of the natrecₑ eliminator
+
+data ∣natrec_,_∣≡_ : M → M → M → Set a where
+  has-nrₑ :
+    ⦃ has-nr : Nr-available ⦄ →
+     ∣natrec p , r ∣≡ nr₂ p r
+  no-nrₑ :
+    ⦃ no-nr : Nr-not-available-GLB ⦄ →
+    Greatest-lower-bound q (nrᵢ r 𝟙 p) →
+    ∣natrec p , r ∣≡ q
+
 -- The multiplicity of the Jₑ eliminator, depending on which
 -- erased matches are used.
 
-∣∣ᵉ-J : Erased-matches → (p q : M) → M
-∣∣ᵉ-J none _ _ = ω
-∣∣ᵉ-J all  _ _ = 𝟘
-∣∣ᵉ-J some p q =
-  case is-𝟘? p of λ where
-    (no _) → ω
-    (yes _) → case is-𝟘? q of λ where
-      (no _) → ω
-      (yes _) → 𝟘
+data ∣J_,_,_∣≡_ : Erased-matches → M → M → M → Set a where
+  J-all   : ∣J all  , p , q ∣≡ 𝟘
+  J-some₀ : p ≡ 𝟘 → q ≡ 𝟘 →
+            ∣J some , p , q ∣≡ 𝟘
+  J-some  : ¬ (p ≡ 𝟘 × q ≡ 𝟘) →
+            ∣J some , p , q ∣≡ ω
+  J-none  : ∣J none , p , q ∣≡ ω
 
 -- The multiplicity of the Kₑ eliminator, depending on which
 -- erased matches are used.
 
-∣∣ᵉ-K : Erased-matches → (p : M) → M
-∣∣ᵉ-K none _ = ω
-∣∣ᵉ-K all  _ = 𝟘
-∣∣ᵉ-K some p =
-  case is-𝟘? p of λ where
-    (no _) → ω
-    (yes _) → 𝟘
+data ∣K_,_∣≡_ : Erased-matches → M → M → Set a where
+  K-all   : ∣K all  , p ∣≡ 𝟘
+  K-some₀ : p ≡ 𝟘 →
+            ∣K some , p ∣≡ 𝟘
+  K-some  : p ≢ 𝟘 →
+            ∣K some , p ∣≡ ω
+  K-none  : ∣K none , p ∣≡ ω
 
 -- Multiplicity of an eliminator, representing how many copies need to
 -- be evaluated.
 
-∣_∣ᵉ : Elim m → M
-∣ ∘ₑ _ _ _ ∣ᵉ = 𝟙
-∣ fstₑ _ ∣ᵉ = 𝟙
-∣ sndₑ _ ∣ᵉ = 𝟙
-∣ prodrecₑ r _ _ _ _ _ ∣ᵉ = r
-∣ natrecₑ _ _ _ q′ _ _ _ _ ∣ᵉ = q′
-∣ unitrecₑ _ p _ _ _ _ ∣ᵉ = p
-∣ emptyrecₑ p _ _ ∣ᵉ = p
-∣ Jₑ p q _ _ _ _ _ _ ∣ᵉ = ∣∣ᵉ-J (erased-matches-for-J 𝟙ᵐ) p q
-∣ Kₑ p _ _ _ _ _ ∣ᵉ = ∣∣ᵉ-K (erased-matches-for-K 𝟙ᵐ) p
-∣ []-congₑ _ _ _ _ _ ∣ᵉ = 𝟘
-∣ sucₑ ∣ᵉ = 𝟙
-
--- An equality relation for eliminators.
--- Eliminators are equal if they are (syntactically) the same up to
--- the multiplicity of natrec, i.e. if they are representations of the
--- same syntactic term.
-
-infix 5 _~ᵉ_
-
-data _~ᵉ_ {m} : (e e′ : Elim m) → Set a where
-  ~ᵉ-refl : e ~ᵉ e
-  ~ᵉ-natrec : natrecₑ p q r q′ A t u ρ ~ᵉ natrecₑ p q r q″ A t u ρ
+data ∣_∣ᵉ≡_ {m} : Elim m → M → Set a where
+  ∘ₑ : ∣ ∘ₑ p u ρ ∣ᵉ≡ 𝟙
+  fstₑ : ∣ fstₑ p ∣ᵉ≡ 𝟙
+  sndₑ : ∣ sndₑ p ∣ᵉ≡ 𝟙
+  prodrecₑ : ∣ prodrecₑ r p q A u ρ ∣ᵉ≡ r
+  natrecₑ :
+    ∣natrec p , r ∣≡ q′ →
+    ∣ natrecₑ p q r A u v ρ ∣ᵉ≡ q′
+  unitrecₑ : ∣ unitrecₑ l p q A u ρ ∣ᵉ≡ p
+  emptyrecₑ : ∣ emptyrecₑ p A ρ ∣ᵉ≡ p
+  Jₑ :
+    ∣J erased-matches-for-J 𝟙ᵐ , p , q ∣≡ r →
+    ∣ Jₑ p q A t B u v ρ ∣ᵉ≡ r
+  Kₑ :
+    ∣K erased-matches-for-K 𝟙ᵐ , p ∣≡ r →
+    ∣ Kₑ p A t B u ρ ∣ᵉ≡ r
+  []-congₑ : ∣ []-congₑ s A t u ρ ∣ᵉ≡ 𝟘
+  sucₑ : ∣ sucₑ ∣ᵉ≡ 𝟙
 
 -- Evaluation stacks, indexed by the size of the heap
 
@@ -204,15 +196,15 @@ data Stack (m : Nat) : Set a where
   ε : Stack m
   _∙_ : (e : Elim m) → (S : Stack m) → Stack m
 
+private variable
+  S S′ : Stack _
+
 -- Multiplicity of a stack, representing how many copies are currently
 -- being evaluated.
 
-∣_∣ : Stack m → M
-∣ ε ∣ = 𝟙
-∣ e ∙ S ∣ = ∣ S ∣ · ∣ e ∣ᵉ
-
-private variable
-  S S′ : Stack _
+data ∣_∣≡_ {m} : Stack m → M → Set a where
+  ε   : ∣ ε ∣≡ 𝟙
+  _∙_ : ∣ e ∣ᵉ≡ q → ∣ S ∣≡ p → ∣ e ∙ S ∣≡ p · q
 
 -- Weakening of stacks
 
@@ -240,20 +232,15 @@ sucₛ (1+ n) = sucₑ ∙ sucₛ n
 
 -- A utility predicate: stacks containing erased emptyrec
 
-data emptyrec₀∈_ : (S : Stack m) → Set a where
+data emptyrec₀∈_ {m} : (S : Stack m) → Set a where
   here : emptyrec₀∈ (emptyrecₑ 𝟘 A ρ ∙ S)
   there : emptyrec₀∈ S → emptyrec₀∈ (e ∙ S)
 
--- An equality relation for stacks.
--- Stacks are equal if all eliminators are pairwise equal up to the
--- multiplicity of natrec i.e. if they are representations of the same
--- syntactic term.
+-- A similar predicate for stacks containing natrec (with given grades)
 
-infix 5 _~ˢ_
-
-data _~ˢ_ {m} : (S S′ : Stack m) → Set a where
-  ε : ε ~ˢ ε
-  _∙_ : e ~ᵉ e′ → S ~ˢ S′ → e ∙ S ~ˢ e′ ∙ S′
+data natrec_,_∈ {m} (p r : M) : (S : Stack m) → Set a where
+  here : natrec p , r ∈ (natrecₑ p q r A u v ρ ∙ S)
+  there : natrec p , r ∈ S → natrec p , r ∈ (e ∙ S)
 
 ------------------------------------------------------------------------
 -- Heaps
@@ -394,7 +381,7 @@ infixr 29 ⦅_⦆ᵉ_
 ⦅ sndₑ p ⦆ᵉ t = snd p t
 ⦅ prodrecₑ r p q A u ρ ⦆ᵉ t =
   prodrec r p q (wk (lift ρ) A) t (wk (liftn ρ 2) u)
-⦅ natrecₑ p q r _ A z s ρ ⦆ᵉ t =
+⦅ natrecₑ p q r A z s ρ ⦆ᵉ t =
   natrec p q r (wk (lift ρ) A) (wk ρ z) (wk (liftn ρ 2) s) t
 ⦅ unitrecₑ l p q A u ρ ⦆ᵉ t =
   unitrec l p q (wk (lift ρ) A) t (wk ρ u)
@@ -473,8 +460,8 @@ data Matching {m n} : Term n → Stack m → Set a where
   fstₑ : Matching (prodˢ p t u) (fstₑ p ∙ S)
   sndₑ : Matching (prodˢ p t u) (sndₑ p ∙ S)
   prodrecₑ : Matching (prodʷ p t u) (prodrecₑ r p q A v ρ ∙ S)
-  natrecₑ₀ : Matching zero (natrecₑ p q r q′ A t u ρ ∙ S)
-  natrecₑ₊ : Matching (suc v) (natrecₑ p q r q′ A t u ρ ∙ S)
+  natrecₑ₀ : Matching zero (natrecₑ p q r A t u ρ ∙ S)
+  natrecₑ₊ : Matching (suc v) (natrecₑ p q r A t u ρ ∙ S)
   unitrecₑ : Matching (starʷ l) (unitrecₑ l p q A u ρ ∙ S)
   unitrec-η : Unitʷ-η → Matching (unitrec l p q A t u) S
   Jₑ : Matching rfl (Jₑ p q A t B u v ρ ∙ S)

@@ -33,6 +33,7 @@ open import Graded.Usage.Inversion 𝕄 UR
 open import Graded.Usage.Properties 𝕄 UR
 
 open import Graded.Heap.Untyped type-variant UR factoring-nr
+open import Graded.Heap.Untyped.Properties type-variant UR factoring-nr
 open import Graded.Heap.Usage type-variant UR factoring-nr
 open import Graded.Heap.Usage.Inversion type-variant UR factoring-nr
 
@@ -77,7 +78,7 @@ opaque
 
   ▸initial : 𝟘ᶜ {n} ▸ t → ▸ initial t
   ▸initial ▸t =
-    ▸ₛ ▸erasedHeap (▸-cong (sym ⌞𝟙⌟) ▸t) ε
+    ▸ₛ ε ▸erasedHeap (▸-cong (sym ⌞𝟙⌟) ▸t) ε
       (≤ᶜ-reflexive (≈ᶜ-sym (≈ᶜ-trans (+ᶜ-identityʳ _) (·ᶜ-zeroʳ _))))
 
 opaque
@@ -249,42 +250,49 @@ opaque
 
 opaque
 
-  -- For well-resourced natrec terms, there is a valid
-  -- choice for the multiplicity.
-
-  ▸natrec→Ok-nr :
-    ¬ Nr-not-available →
-    γ ▸[ m ] natrec p q r A z s t →
-    ∃ λ q′ → Ok-natrec-multiplicity p r q′
-  ▸natrec→Ok-nr {p} {r} not-ok ▸nr =
-    case inv-usage-natrec ▸nr of λ where
-      (invUsageNatrec _ _ _ _ _ invUsageNatrecNr) →
-        nr₂ p r , Ok-natrec-multiplicity.has-nr refl
-      (invUsageNatrec _ _ _ _ _ (invUsageNatrecNoNr ⦃ (x) ⦄ _ _ _ _)) →
-        ⊥-elim (not-ok x)
-      (invUsageNatrec _ _ _ _ _ (invUsageNatrecNoNrGLB x-glb _)) →
-        _ , no-nr x-glb
-
-opaque
-
   -- An invariant of InvUsageNatrecₑ
 
-  InvUsageNatrecₑ-≤ : InvUsageNatrecₑ p r q γ δ ρ η → q ≤ p + r · q × η ≤ᶜ wkConₘ ρ δ +ᶜ r ·ᶜ η
-  InvUsageNatrecₑ-≤ {p} {r} {q} {γ} {δ} {ρ} = λ where
-    (invUsageNatrecNr refl) → nr₂≤  , (begin
+  InvUsageNatrecₑ-≤ : InvUsageNatrecₑ p r γ δ ρ η → η ≤ᶜ wkConₘ ρ δ +ᶜ r ·ᶜ η
+  InvUsageNatrecₑ-≤ {p} {r} {γ} {δ} {ρ} = λ where
+    invUsageNatrecNr → begin
       wkConₘ ρ (nrᶜ p r γ δ 𝟘ᶜ)                      ≤⟨ wk-≤ᶜ ρ nrᶜ-suc ⟩
       wkConₘ ρ (δ +ᶜ p ·ᶜ 𝟘ᶜ +ᶜ r ·ᶜ nrᶜ p r γ δ 𝟘ᶜ) ≈⟨ wk-≈ᶜ ρ (+ᶜ-congˡ (+ᶜ-congʳ (·ᶜ-zeroʳ _))) ⟩
       wkConₘ ρ (δ +ᶜ 𝟘ᶜ +ᶜ r ·ᶜ nrᶜ p r γ δ 𝟘ᶜ)      ≈⟨ wk-≈ᶜ ρ (+ᶜ-congˡ (+ᶜ-identityˡ _)) ⟩
       wkConₘ ρ (δ +ᶜ r ·ᶜ nrᶜ p r γ δ 𝟘ᶜ)            ≈⟨ wk-+ᶜ ρ ⟩
       wkConₘ ρ δ +ᶜ wkConₘ ρ (r ·ᶜ nrᶜ p r γ δ 𝟘ᶜ)   ≈⟨ +ᶜ-congˡ (wk-·ᶜ ρ) ⟩
-      wkConₘ ρ δ +ᶜ r ·ᶜ wkConₘ ρ (nrᶜ p r γ δ 𝟘ᶜ)   ∎)
-    (invUsageNatrecNoNr {χ} x-glb χ-glb) → nrᵢ-GLB-≤ x-glb , (begin
+      wkConₘ ρ δ +ᶜ r ·ᶜ wkConₘ ρ (nrᶜ p r γ δ 𝟘ᶜ)   ∎
+    (invUsageNatrecNoNr {χ} x-glb χ-glb) → begin
       wkConₘ ρ χ                      ≤⟨ wk-≤ᶜ ρ (nrᵢᶜ-GLBᶜ-≤ᶜ χ-glb) ⟩
       wkConₘ ρ (δ +ᶜ r ·ᶜ χ)          ≈⟨ wk-+ᶜ ρ ⟩
       wkConₘ ρ δ +ᶜ wkConₘ ρ (r ·ᶜ χ) ≈⟨ +ᶜ-congˡ (wk-·ᶜ ρ) ⟩
-      wkConₘ ρ δ +ᶜ r ·ᶜ wkConₘ ρ χ   ∎)
+      wkConₘ ρ δ +ᶜ r ·ᶜ wkConₘ ρ χ   ∎
       where
       open ≤ᶜ-reasoning
+
+opaque
+
+  -- Well-resourced eliminators have a multiplicity
+
+  ▸∣∣ᵉ≡ : γ ▸ᵉ[ m ] e → ∃ (∣ e ∣ᵉ≡_)
+  ▸∣∣ᵉ≡ (∘ₑ _) = _ , ∘ₑ
+  ▸∣∣ᵉ≡ (fstₑ _) = _ , fstₑ
+  ▸∣∣ᵉ≡ sndₑ = _ , sndₑ
+  ▸∣∣ᵉ≡ (prodrecₑ _ _) = _ , prodrecₑ
+  ▸∣∣ᵉ≡ (natrecₑ _ _ _) = _ , natrecₑ has-nrₑ
+  ▸∣∣ᵉ≡ (natrec-no-nrₑ _ _ _ x-glb _) = _ , natrecₑ (no-nrₑ x-glb)
+  ▸∣∣ᵉ≡ (unitrecₑ x x₁ x₂) = _ , unitrecₑ
+  ▸∣∣ᵉ≡ (emptyrecₑ x) = _ , emptyrecₑ
+  ▸∣∣ᵉ≡ (Jₑ x) = _ , Jₑ (∣J∣≡ .proj₂)
+  ▸∣∣ᵉ≡ (Kₑ x) = _ , Kₑ (∣K∣≡ .proj₂)
+  ▸∣∣ᵉ≡ ([]-congₑ x) = _ , []-congₑ
+
+opaque
+
+  -- Well-resourced stacks have a multiplicity
+
+  ▸∣∣≡ : γ ▸ˢ S → ∃ (∣ S ∣≡_)
+  ▸∣∣≡ ε = _ , ε
+  ▸∣∣≡ (▸ˢ∙ ∣S∣≡ ▸e _) = _ , ▸∣∣ᵉ≡ ▸e .proj₂ ∙ ∣S∣≡
 
 -- Some properties proven under some assumptions about erased matches
 
@@ -293,45 +301,69 @@ module _ (nem : No-erased-matches′ type-variant UR) where
   opaque
 
     -- The multiplicity of a well-resourced eliminator is not zero
+    -- unless it is an erased emptyrec
 
-    ▸∣e∣≢𝟘 : ⦃ Has-well-behaved-zero M semiring-with-meet ⦄
-           → γ ▸ᵉ[ 𝟙ᵐ ] e → ∣ e ∣ᵉ ≢ 𝟘 ⊎
-             ∃₃ λ n (A : Term n) ρ → e ≡ emptyrecₑ 𝟘 A ρ × Emptyrec-allowed 𝟙ᵐ 𝟘
-    ▸∣e∣≢𝟘 (∘ₑ x) = inj₁ non-trivial
-    ▸∣e∣≢𝟘 (fstₑ x) = inj₁ non-trivial
-    ▸∣e∣≢𝟘 sndₑ = inj₁ non-trivial
-    ▸∣e∣≢𝟘 (prodrecₑ x ok) = inj₁ (nem non-trivial .proj₁ ok)
-    ▸∣e∣≢𝟘 (natrecₑ _ _ _ ≡nr₂) =
-      inj₁ (λ ≡𝟘 → nr₂≢𝟘 (trans (sym ≡nr₂) ≡𝟘))
-    ▸∣e∣≢𝟘 (natrec-no-nrₑ _ _ _ q-glb _) =
-      inj₁ λ ≡𝟘 → 𝟘≰𝟙 (≤-trans (≤-reflexive (sym ≡𝟘)) (q-glb .proj₁ 0))
-    ▸∣e∣≢𝟘 (unitrecₑ x ok no-η) = inj₁ (no-η ∘→ nem non-trivial .proj₂ .proj₁ ok)
-    ▸∣e∣≢𝟘 (emptyrecₑ {p} ok) =
-      case is-𝟘? p of λ where
-        (yes refl) → inj₂ (_ , _ , _ , refl , ok)
-        (no p≢𝟘) → inj₁ p≢𝟘
-    ▸∣e∣≢𝟘 (Jₑ x) rewrite nem non-trivial .proj₂ .proj₂ .proj₂ .proj₁ = inj₁ ω≢𝟘
-    ▸∣e∣≢𝟘 (Kₑ x) rewrite nem non-trivial .proj₂ .proj₂ .proj₂ .proj₂ = inj₁ ω≢𝟘
-    ▸∣e∣≢𝟘 ([]-congₑ ok) = inj₁ λ _ → nem non-trivial .proj₂ .proj₂ .proj₁ ok
+    ▸∣e∣≢𝟘 :
+      ⦃ Has-well-behaved-zero M semiring-with-meet ⦄ →
+      γ ▸ᵉ[ 𝟙ᵐ ] e →
+      ¬ ∣ e ∣ᵉ≡ 𝟘 ⊎
+      ∃₃ λ n (A : Term n) ρ → e ≡ emptyrecₑ 𝟘 A ρ × Emptyrec-allowed 𝟙ᵐ 𝟘
+    ▸∣e∣≢𝟘 (∘ₑ _) = inj₁ λ ∣e∣≡𝟘 → non-trivial (∣∣ᵉ-functional ∘ₑ ∣e∣≡𝟘)
+    ▸∣e∣≢𝟘 = λ where
+        (∘ₑ _) → inj₁ (lemma non-trivial ∘ₑ)
+        (fstₑ _) → inj₁ (lemma non-trivial fstₑ)
+        sndₑ → inj₁ (lemma non-trivial sndₑ)
+        (prodrecₑ _ ok) →
+          inj₁ (lemma (nem non-trivial .proj₁ ok) prodrecₑ)
+        (natrecₑ _ _ _) →
+          inj₁ (lemma nr₂≢𝟘 (natrecₑ has-nrₑ))
+        (natrec-no-nrₑ _ _ _ x-glb _) →
+          inj₁ λ ∣nr∣≡ →
+            𝟘≰𝟙 (≤-trans (≤-reflexive (∣∣ᵉ-functional ∣nr∣≡
+                                        (natrecₑ (no-nrₑ x-glb))))
+                  (x-glb .proj₁ 0))
+        (unitrecₑ _ ok no-η) →
+          inj₁ (lemma (no-η ∘→ nem non-trivial .proj₂ .proj₁ ok) unitrecₑ)
+        (emptyrecₑ {p} ok) →
+          case is-𝟘? p of λ where
+            (yes refl) → inj₂ (_ , _ , _ , refl , ok)
+            (no p≢𝟘) → inj₁ (lemma p≢𝟘 emptyrecₑ)
+        (Jₑ _) →
+          inj₁ (lemma ω≢𝟘
+            (Jₑ (subst (∣J_, _ , _ ∣≡ _)
+                  (sym (nem non-trivial .proj₂ .proj₂ .proj₂ .proj₁))
+                  J-none)))
+        (Kₑ _) →
+          inj₁ (lemma ω≢𝟘
+            (Kₑ (subst (∣K_, _ ∣≡ _)
+                  (sym (nem non-trivial .proj₂ .proj₂ .proj₂ .proj₂))
+                  K-none)))
+        ([]-congₑ ok) →
+          inj₁ λ _ → nem non-trivial .proj₂ .proj₂ .proj₁ ok
+      where
+      lemma :  p ≢ r → ∣ e ∣ᵉ≡ p → ∣ e ∣ᵉ≡ r → ⊥
+      lemma p≢r ≡p ≡r = p≢r (∣∣ᵉ-functional ≡p ≡r)
 
   opaque
 
     -- The multiplicity of a well-resourced stack is either not zero
-    -- or contains a non-erased application of emptyrec
+    -- or contains an erased application of emptyrec
 
     ▸∣S∣≢𝟘 : ⦃ Has-well-behaved-zero M semiring-with-meet ⦄
-           → γ ▸ˢ S → ∣ S ∣ ≢ 𝟘 ⊎ (emptyrec₀∈ S × Emptyrec-allowed 𝟙ᵐ 𝟘)
-    ▸∣S∣≢𝟘 ε = inj₁ non-trivial
-    ▸∣S∣≢𝟘 (▸e ∙ ▸S) =
+           → γ ▸ˢ S → ¬ ∣ S ∣≡ 𝟘 ⊎ (emptyrec₀∈ S × Emptyrec-allowed 𝟙ᵐ 𝟘)
+    ▸∣S∣≢𝟘 ε = inj₁ λ ≡𝟘 → non-trivial (∣∣-functional ε ≡𝟘)
+    ▸∣S∣≢𝟘 (▸ˢ∙ ∣S∣≡ ▸e ▸S) =
       case ▸∣S∣≢𝟘 ▸S of λ where
         (inj₂ (x , ok)) → inj₂ (there x , ok)
         (inj₁ ∣S∣≢𝟘) →
-          case ▸∣e∣≢𝟘 (subst (_ ▸ᵉ[_] _) (≢𝟘→⌞⌟≡𝟙ᵐ ∣S∣≢𝟘) ▸e) of λ where
+          case ▸∣e∣≢𝟘 (subst (_ ▸ᵉ[_] _)
+                        (≢𝟘→⌞⌟≡𝟙ᵐ (λ {refl → ∣S∣≢𝟘 ∣S∣≡})) ▸e) of λ where
             (inj₂ (_ , _ , _ , refl , ok)) → inj₂ (here , ok)
-            (inj₁ ∣e∣≢𝟘) → inj₁ λ ∣eS∣≡𝟘 →
-              case zero-product ∣eS∣≡𝟘 of λ where
-                (inj₁ ∣S∣≡𝟘) → ∣S∣≢𝟘 ∣S∣≡𝟘
-                (inj₂ ∣e∣≡𝟘) → ∣e∣≢𝟘 ∣e∣≡𝟘
+            (inj₁ ∣e∣≢𝟘) → inj₁ λ ∣eS∣≡ →
+              let q , r , ∣e∣≡q , ∣S∣≡r , 𝟘≡rq = ∣∣∙-inv ∣eS∣≡
+              in  case zero-product (sym 𝟘≡rq) of λ where
+                    (inj₁ r≡𝟘) → ∣S∣≢𝟘 (subst (∣ _ ∣≡_) r≡𝟘 ∣S∣≡r)
+                    (inj₂ q≡𝟘) → ∣e∣≢𝟘 (subst (∣ _ ∣ᵉ≡_) q≡𝟘 ∣e∣≡q)
 
 -- Some properties proven under the assumption that the modality
 -- supports subtraction.
@@ -374,12 +406,18 @@ module _ ⦃ _ : Has-well-behaved-zero M semiring-with-meet ⦄
     -- A variant of the above property with usage of states
 
     ▸↦→↦[] : {H : Heap k _}
+          → ∣ S ∣≡ p
           → H ⊢ wkVar ρ x ↦ c′
           → ▸ ⟨ H , var x , ρ , S ⟩
-          → ∃ λ H′ → H ⊢ wkVar ρ x ↦[ ∣ S ∣ ] c′ ⨾ H′
-    ▸↦→↦[] {ρ} {x} {S} d ▸s =
-      let _ , _ , ▸H , _ , γ⟨x⟩≤ = ▸ₛ-var-inv′ ▸s
-      in  ↦→↦[] d ▸H (≤-trans γ⟨x⟩≤ (≤-reflexive (+-comm _ _)))
+          → ∃ λ H′ → H ⊢ wkVar ρ x ↦[ p ] c′ ⨾ H′
+    ▸↦→↦[] {p} {ρ} {x} ∣S∣≡p d ▸s =
+      let q , γ , δ , ∣S∣≡q , ▸H , _ , γ⟨x⟩≤ = ▸ₛ-var-inv′ ▸s
+          open RPo ≤-poset
+      in  ↦→↦[] d ▸H $ begin
+        γ ⟨ wkVar ρ x ⟩     ≤⟨ γ⟨x⟩≤ ⟩
+        q + δ ⟨ wkVar ρ x ⟩ ≈⟨ +-comm _ _ ⟩
+        δ ⟨ wkVar ρ x ⟩ + q ≈⟨ +-congˡ (∣∣-functional ∣S∣≡q ∣S∣≡p) ⟩
+        δ ⟨ wkVar ρ x ⟩ + p ∎
 
   opaque
 
@@ -408,7 +446,9 @@ module _ ⦃ _ : Has-well-behaved-zero M semiring-with-meet ⦄
     -- corresponding dummy entry in the heap, the stack multiplicity and usage
     -- context of the stack are both 𝟘.
 
-    ▸s● : H ⊢ wkVar ρ x ↦● → ▸ ⟨ H , var x , ρ , S ⟩ → ∣ S ∣ ≡ 𝟘
+    ▸s● : H ⊢ wkVar ρ x ↦● → ▸ ⟨ H , var x , ρ , S ⟩ → ∣ S ∣≡ 𝟘
     ▸s● d ▸s =
-      let _ , _ , ▸H , ▸S , γ⟨x⟩≤ = ▸ₛ-var-inv′ ▸s
-      in  +-positiveˡ (𝟘≮ (≤-trans (≤-reflexive (sym (▸H● d ▸H))) γ⟨x⟩≤))
+      let _ , _ , _ , ∣S∣≡ , ▸H , ▸S , γ⟨x⟩≤ = ▸ₛ-var-inv′ ▸s
+      in  subst (∣ _ ∣≡_)
+            (+-positiveˡ (𝟘≮ (≤-trans (≤-reflexive (sym (▸H● d ▸H))) γ⟨x⟩≤)))
+            ∣S∣≡

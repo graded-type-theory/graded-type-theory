@@ -45,8 +45,10 @@ open import Graded.Heap.Typed UR TR factoring-nr
 open import Graded.Heap.Typed.Properties UR TR factoring-nr
 open import Graded.Heap.Typed.Reduction UR TR factoring-nr
 open import Graded.Heap.Usage type-variant UR factoring-nr
+open import Graded.Heap.Usage.Inversion type-variant UR factoring-nr
 open import Graded.Heap.Usage.Properties type-variant UR factoring-nr
-open import Graded.Heap.Usage.Reduction type-variant UR factoring-nr Unitʷ-η→ ¬Nr-not-available
+open import Graded.Heap.Usage.Reduction
+  type-variant UR factoring-nr Unitʷ-η→ ¬Nr-not-available
 open import Graded.Heap.Reduction type-variant UR factoring-nr
 open import Graded.Heap.Reduction.Properties type-variant UR factoring-nr
 
@@ -64,6 +66,9 @@ private variable
 
 opaque
 
+  -- Well-typed and well-resourced states that do not reduce have a
+  -- value in head position and an empty stack.
+
   ⊢▸Final-reasons :
     {Δ : Con Term k}
     ⦃ ok : No-equality-reflection or-empty Δ ⦄ →
@@ -74,11 +79,12 @@ opaque
     Final ⟨ H , t , ρ , S ⟩ →
     Value t × S ≡ ε
   ⊢▸Final-reasons consistent nem ⊢s ▸s f =
+    let _ , _ , _ , _ , ∣S∣≡ , _ = ▸ₛ-inv ▸s in
     case ▸Final-reasons′ subtraction-ok nem ▸s f of λ where
       (inj₁ (_ , _  , _ , er∈S , ok)) →
         ⊥-elim (⊢emptyrec₀∉S (consistent ok) ⊢s er∈S)
       (inj₂ (inj₁ (_ , _ , refl , v , ¬m))) →
-        ⊥-elim (¬m (⊢Matching ⊢s v))
+        ⊥-elim (¬m (⊢Matching ∣S∣≡ ⊢s v))
       (inj₂ (inj₂ x)) → x
 
 opaque

@@ -116,7 +116,7 @@ opaque
 
   -- Inversion of natrec
 
-  inversion-natrecₑ : Δ ⨾ H ⊢ᵉ natrecₑ p q r q′ A z s ρ ⟨ t ⟩∷ B ↝ C
+  inversion-natrecₑ : Δ ⨾ H ⊢ᵉ natrecₑ p q r A z s ρ ⟨ t ⟩∷ B ↝ C
                     → Δ ⊢ wk ρ z [ H ]ₕ ∷ wk (lift ρ) A [ H ]⇑ₕ [ zero ]₀
                     × Δ ∙ ℕ ∙ wk (lift ρ) A [ H ]⇑ₕ ⊢ wk (liftn ρ 2) s [ H ]⇑²ₕ ∷ wk (lift ρ) A [ H ]⇑ₕ [ suc (var x1) ]↑²
                     × B PE.≡ ℕ

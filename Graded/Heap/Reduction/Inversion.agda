@@ -52,9 +52,9 @@ opaque
 
   ⇾ₑ-inv-var :
     ⟨ H , var x , ρ , S ⟩ ⇾ₑ s →
-    State.stack s ≡ S ×
-    H ⊢ wkVar ρ x ↦[ ∣ S ∣ ] State.head s , State.env s ⨾ State.heap s
-  ⇾ₑ-inv-var (var x) = refl , x
+    ∃ λ p → ∣ S ∣≡ p × State.stack s ≡ S ×
+    H ⊢ wkVar ρ x ↦[ p ] State.head s , State.env s ⨾ State.heap s
+  ⇾ₑ-inv-var (var x y) = _ , x , refl , y
   ⇾ₑ-inv-var (⇒ₑ ())
 
 opaque
@@ -108,28 +108,10 @@ opaque
 
   -- Inversion of natrec
 
-  ⇾ₑ-inv-natrec :
-    {t : Term n}
-    {s : State _ _ n′} →
-    ⟨ H , natrec p q r A u v t , ρ , S ⟩ ⇾ₑ s →
-    Σ (n′ ≡ n) λ n′≡n → ∃ λ q′ →
-      subst (State _ _) n′≡n s ≡ ⟨ H , t , ρ , natrecₑ p q r q′ A u v ρ ∙ S ⟩ ×
-      Ok-natrec-multiplicity p r q′
-  ⇾ₑ-inv-natrec (natrecₕ ok) = refl , _ , refl , ok
-  ⇾ₑ-inv-natrec (⇒ₑ ())
-
-opaque
-
-  -- Inversion of natrec
-
-  ⇢ₑ-inv-natrec :
-    {t : Term n}
-    {s : State _ _ n′} →
-    ⟨ H , natrec p q r A u v t , ρ , S ⟩ ⇢ₑ s →
-    Σ (n′ ≡ n) λ n′≡n →
-      subst (State _ _) n′≡n s ≡ ⟨ H , t , ρ , natrecₑ p q r 𝟘 A u v ρ ∙ S ⟩
-  ⇢ₑ-inv-natrec natrecₕ = refl , refl
-  ⇢ₑ-inv-natrec (⇒ₑ ())
+  ⇒ₑ-inv-natrec :
+    ⟨ H , natrec p q r A u v t , ρ , S ⟩ ⇒ₑ s →
+    s ≡ ⟨ H , t , ρ , natrecₑ p q r A u v ρ ∙ S ⟩
+  ⇒ₑ-inv-natrec natrecₕ = refl
 
 opaque
 
@@ -182,11 +164,11 @@ opaque
   ⇒ᵥ-inv-lam :
     {H : Heap k m′} {t : Term (1+ n′)} {s : State _ m n} →
     ⟨ H , lam p t , ρ , S ⟩ ⇒ᵥ s →
-    ∃₄ λ k u (ρ′ : Wk _ k) S′ → S ≡ ∘ₑ p u ρ′ ∙ S′ ×
+    ∃₅ λ k q u (ρ′ : Wk _ k) S′ → ∣ S′ ∣≡ q × S ≡ ∘ₑ p u ρ′ ∙ S′ ×
        Σ (m ≡ 1+ m′) λ m≡ → Σ (n ≡ 1+ n′) λ n≡ →
          subst₂ (State _) m≡ n≡ s ≡
-           ⟨ H ∙ (∣ S′ ∣ · p , u , ρ′) , t , lift ρ , wk1ˢ S′ ⟩
-  ⇒ᵥ-inv-lam lamₕ = _ , _ , _ , _ , refl , refl , refl , refl
+           ⟨ H ∙ (q · p , u , ρ′) , t , lift ρ , wk1ˢ S′ ⟩
+  ⇒ᵥ-inv-lam (lamₕ x) = _ , _ , _ , _ , _ , x , refl , refl , refl , refl
 
 opaque
 
@@ -195,13 +177,14 @@ opaque
   ⇒ᵥ-inv-lam-∘ₑ :
     {H : Heap k m′} {t : Term (1+ n′)} {s : State _ m n} →
     ⟨ H , lam p t , ρ , ∘ₑ q u ρ′ ∙ S ⟩ ⇒ᵥ s →
+    ∃ λ q → ∣ S ∣≡ q ×
     Σ (m ≡ 1+ m′) λ m≡ → Σ (n ≡ 1+ n′) λ n≡ →
       subst₂ (State _) m≡ n≡ s ≡
-        ⟨ H ∙ (∣ S ∣ · p , u , ρ′) , t , lift ρ , wk1ˢ S ⟩
+        ⟨ H ∙ (q · p , u , ρ′) , t , lift ρ , wk1ˢ S ⟩
   ⇒ᵥ-inv-lam-∘ₑ d =
     case ⇒ᵥ-inv-lam d of λ {
-      (_ , _ , _ , _ , refl , refl , refl , refl) →
-    refl , refl , refl }
+      (_ , _ , _ , _ , _ , ∣S∣≡ , refl , refl , refl , refl) →
+    _ , ∣S∣≡ , refl , refl , refl }
 
 opaque
 
@@ -253,13 +236,13 @@ opaque
   ⇒ᵥ-inv-prodʷ :
     {H : Heap k m′} {t u : Term n′} {s : State _ m n} →
     ⟨ H , prodʷ p t u , ρ , S ⟩ ⇒ᵥ s →
-    ∃₇ λ k r q A v (ρ′ : Wk _ k) S′ → S ≡ prodrecₑ r p q A v ρ′ ∙ S′ ×
+    ∃₈ λ k r q q′ A v (ρ′ : Wk _ k) S′ → ∣ S′ ∣≡ q′ × S ≡ prodrecₑ r p q A v ρ′ ∙ S′ ×
     Σ (m ≡ 2+ m′) λ m≡ → Σ (n ≡ 2+ k) λ n≡ →
       subst₂ (State _) m≡ n≡ s ≡
-        ⟨ H ∙ (∣ S′ ∣ · r · p , t , ρ) ∙ (∣ S′ ∣ · r , u , step ρ) , v
+        ⟨ H ∙ (q′ · r · p , t , ρ) ∙ (q′ · r , u , step ρ) , v
            , liftn ρ′ 2 , wk2ˢ S′ ⟩
-  ⇒ᵥ-inv-prodʷ prodʷₕ =
-    _ , _ , _ , _ , _ , _ , _ , refl , refl , refl , refl
+  ⇒ᵥ-inv-prodʷ (prodʷₕ x) =
+    _ , _ , _ , _ , _ , _ , _ , _ , x , refl , refl , refl , refl
 
 opaque
 
@@ -268,14 +251,15 @@ opaque
   ⇒ᵥ-inv-prodʷ-prodrecₑ :
     {H : Heap k m′} {v : Term (2+ n″)} {s : State _ m n} →
     ⟨ H , prodʷ p t u , ρ , prodrecₑ r p′ q A v ρ′ ∙ S ⟩ ⇒ᵥ s →
+    ∃ λ q′ → ∣ S ∣≡ q′ ×
     Σ (m ≡ 2+ m′) λ m≡ → Σ (n ≡ 2+ n″) λ n≡ →
       subst₂ (State _) m≡ n≡ s ≡
-        ⟨ H ∙ (∣ S ∣ · r · p , t , ρ) ∙ (∣ S ∣ · r , u , step ρ) , v
+        ⟨ H ∙ (q′ · r · p , t , ρ) ∙ (q′ · r , u , step ρ) , v
            , liftn ρ′ 2 , wk2ˢ S ⟩
   ⇒ᵥ-inv-prodʷ-prodrecₑ d =
     case ⇒ᵥ-inv-prodʷ d of λ {
-      (_ , _ , _  , _ , _ , _ , _ , refl , refl , refl , refl) →
-    refl , refl , refl}
+      (_ , _ , _  , _ , _ , _ , _ , _ , ∣S∣≡ , refl , refl , refl , refl) →
+    _ , ∣S∣≡ , refl , refl , refl}
 
 opaque
 
@@ -284,12 +268,12 @@ opaque
   ⇒ᵥ-inv-zero :
     {H : Heap k m′} {s : State _ m n} →
     ⟨ H , zero , ρ , S ⟩ ⇒ᵥ s →
-    ∃₁₀ λ n′ p q r q′ A u v (ρ′ : Wk _ n′) S′ →
-       S ≡ natrecₑ p q r q′ A u v ρ′ ∙ S′ ×
+    ∃₉ λ n′ p q r A u v (ρ′ : Wk _ n′) S′ →
+       S ≡ natrecₑ p q r A u v ρ′ ∙ S′ ×
        Σ (m ≡ m′) λ m≡ → Σ (n ≡ n′) λ n≡ →
          subst₂ (State _) m≡ n≡ s ≡ ⟨ H , u , ρ′ , S′ ⟩
   ⇒ᵥ-inv-zero zeroₕ =
-    _ , _ , _ , _ , _ , _ , _ , _ , _ , _ , refl , refl , refl , refl
+    _ , _ , _ , _ , _ , _ , _ , _ , _ , refl , refl , refl , refl
 
 opaque
 
@@ -297,12 +281,12 @@ opaque
 
   ⇒ᵥ-inv-zero-natrecₑ :
     {H : Heap k m′} {u : Term n′} {s : State _ m n} →
-    ⟨ H , zero , ρ , natrecₑ p q r q′ A u v ρ′ ∙ S ⟩ ⇒ᵥ s →
+    ⟨ H , zero , ρ , natrecₑ p q r A u v ρ′ ∙ S ⟩ ⇒ᵥ s →
     Σ (m ≡ m′) λ m≡ → Σ (n ≡ n′) λ n≡ →
       subst₂ (State _) m≡ n≡ s ≡ ⟨ H , u , ρ′ , S ⟩
   ⇒ᵥ-inv-zero-natrecₑ d =
     case ⇒ᵥ-inv-zero d of λ {
-      (_ , _ , _ , _ , _ , _ , _ , _ , _ , _
+      (_ , _ , _ , _ , _ , _ , _ , _ , _
          , refl , refl , refl , refl) →
     refl , refl , refl }
 
@@ -313,17 +297,18 @@ opaque
   ⇒ᵥ-inv-suc :
     {H : Heap k m′} {t : Term n′} {s : State _ m n} →
     ⟨ H , suc t , ρ , S ⟩ ⇒ᵥ s →
-    ∃₁₀ λ n′ p q r q′ A u v (ρ′ : Wk _ n′) S′ →
-       S ≡ natrecₑ p q r q′ A u v ρ′ ∙ S′ ×
+    ∃₁₁ λ n′ p q r q′ p′ A u v (ρ′ : Wk _ n′) S′ →
+       ∣ S′ ∣≡ q′ × ∣natrec p , r ∣≡ p′ ×
+       S ≡ natrecₑ p q r A u v ρ′ ∙ S′ ×
        Σ (m ≡ 2+ m′) λ m≡ → Σ (n ≡ 2+ n′) λ n≡ →
          subst₂ (State _) m≡ n≡ s ≡
-           ⟨ H ∙ (∣ S′ ∣ · q′ , t , ρ)
-              ∙ (∣ S′ ∣ · r , natrec p q r (wk (lift (step id)) A)
+           ⟨ H ∙ (q′ · p′ , t , ρ)
+              ∙ (q′ · r , natrec p q r (wk (lift (step id)) A)
                               (wk1 u) (wk (liftn (step id) 2) v) (var x0)
                             , lift ρ′)
               , v , liftn ρ′ 2  , wk2ˢ S′ ⟩
-  ⇒ᵥ-inv-suc sucₕ =
-    _ , _ , _ , _ , _ , _ , _ , _ , _ , _ , refl , refl , refl , refl
+  ⇒ᵥ-inv-suc (sucₕ ∣S∣≡ ∣nr∣≡) =
+    _ , _ , _ , _ , _ , _ , _ , _ , _ , _ , _ , ∣S∣≡ , ∣nr∣≡ , refl , refl , refl , refl
 
 opaque
 
@@ -331,19 +316,20 @@ opaque
 
   ⇒ᵥ-inv-suc-natrecₑ :
     {H : Heap k m′} {u : Term n′} {s : State _ m n} →
-    ⟨ H , suc t , ρ , natrecₑ p q r q′ A u v ρ′ ∙ S ⟩ ⇒ᵥ s →
+    ⟨ H , suc t , ρ , natrecₑ p q r A u v ρ′ ∙ S ⟩ ⇒ᵥ s →
+    ∃₂ λ q′ p′ → ∣ S ∣≡ q′ × ∣natrec p , r ∣≡ p′ ×
     Σ (m ≡ 2+ m′) λ m≡ → Σ (n ≡ 2+ n′) λ n≡ →
       subst₂ (State _) m≡ n≡ s ≡
-        ⟨ H ∙ (∣ S ∣ · q′ , t , ρ)
-            ∙ (∣ S ∣ · r , natrec p q r (wk (lift (step id)) A) (wk1 u)
+        ⟨ H ∙ (q′ · p′ , t , ρ)
+            ∙ (q′ · r , natrec p q r (wk (lift (step id)) A) (wk1 u)
                              (wk (liftn (step id) 2) v) (var x0)
                          , lift ρ′)
             , v , liftn ρ′ 2  , wk2ˢ S ⟩
   ⇒ᵥ-inv-suc-natrecₑ d =
     case ⇒ᵥ-inv-suc d of λ {
-      (_ , _ , _ , _ , _ , _ , _ , _ , _ , _
-         , refl , refl , refl , refl) →
-    refl , refl , refl}
+      (_ , _ , _ , _ , _ , _ , _ , _ , _ , _ , _
+         , ∣S∣≡ , ∣nr∣≡ , refl , refl , refl , refl) →
+    _ , _ , ∣S∣≡ , ∣nr∣≡ , refl , refl , refl}
 
 opaque
 

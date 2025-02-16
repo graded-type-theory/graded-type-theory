@@ -65,10 +65,10 @@ opaque
     subst (_▸ᵉ[ _ ] _) (sym (wk-𝟘ᶜ ρ)) sndₑ
   wk-▸ᵉ ρ (prodrecₑ {ρ = ρ′} ▸u ok) =
     subst (_▸ᵉ[ _ ] _) (wk-•ᶜ ρ ρ′) (prodrecₑ ▸u ok)
-  wk-▸ᵉ ρ (natrecₑ {ρ = ρ′} ▸z ▸s ▸A ≡nr₂) =
-    subst (_▸ᵉ[ _ ] _) (wk-•ᶜ ρ ρ′) (natrecₑ ▸z ▸s ▸A ≡nr₂)
-  wk-▸ᵉ ρ (natrec-no-nrₑ {ρ = ρ′} ▸z ▸s ▸A q-glb χ-glb) =
-    subst (_▸ᵉ[ _ ] _) (wk-•ᶜ ρ ρ′) (natrec-no-nrₑ ▸z ▸s ▸A q-glb χ-glb)
+  wk-▸ᵉ ρ (natrecₑ {ρ = ρ′} ▸z ▸s ▸A) =
+    subst (_▸ᵉ[ _ ] _) (wk-•ᶜ ρ ρ′) (natrecₑ ▸z ▸s ▸A)
+  wk-▸ᵉ ρ (natrec-no-nrₑ {ρ = ρ′} ▸z ▸s ▸A x-glb χ-glb) =
+    subst (_▸ᵉ[ _ ] _) (wk-•ᶜ ρ ρ′) (natrec-no-nrₑ ▸z ▸s ▸A x-glb χ-glb)
   wk-▸ᵉ ρ (unitrecₑ {ρ = ρ′} ▸u ok no-η) =
     subst (_▸ᵉ[ _ ] _) (wk-•ᶜ ρ ρ′) (unitrecₑ ▸u ok no-η)
   wk-▸ᵉ ρ (emptyrecₑ ok) =
@@ -86,14 +86,13 @@ opaque
 
   wk-▸ˢ : (ρ : Wk k n) → γ ▸ˢ S → wkConₘ ρ γ ▸ˢ wkˢ ρ S
   wk-▸ˢ ρ ε = subst (_▸ˢ ε) (sym (wk-𝟘ᶜ ρ)) ε
-  wk-▸ˢ {S = e ∙ S} ρ (▸e ∙ ▸S) =
+  wk-▸ˢ {S = e ∙ S} ρ (▸ˢ∙ ∣S∣≡ ▸e ▸S) =
     subst (_▸ˢ _) (≈ᶜ→≡ lemma)
-      (subst (_ ▸ᵉ[_] _) (⌞⌟-cong (wk-∣S∣ ρ S)) (wk-▸ᵉ ρ ▸e) ∙ wk-▸ˢ ρ ▸S)
+      (▸ˢ∙ (wk-∣∣ ∣S∣≡) (wk-▸ᵉ ρ ▸e) (wk-▸ˢ ρ ▸S))
     where
     open Tools.Reasoning.Equivalence Conₘ-setoid
-    lemma : wkConₘ ρ γ +ᶜ ∣ wkˢ ρ S ∣ ·ᶜ wkConₘ ρ δ ≈ᶜ wkConₘ ρ (γ +ᶜ ∣ S ∣ ·ᶜ δ)
-    lemma {γ} {δ} = begin
-      wkConₘ ρ γ +ᶜ ∣ wkˢ ρ S ∣ ·ᶜ wkConₘ ρ δ ≡˘⟨ cong (λ x → _ +ᶜ x ·ᶜ _) (wk-∣S∣ ρ S) ⟩
-      wkConₘ ρ γ +ᶜ ∣ S ∣ ·ᶜ wkConₘ ρ δ      ≈˘⟨ +ᶜ-congˡ (wk-·ᶜ ρ) ⟩
-      wkConₘ ρ γ +ᶜ wkConₘ ρ (∣ S ∣ ·ᶜ δ)    ≈˘⟨ wk-+ᶜ ρ ⟩
-      wkConₘ ρ (γ +ᶜ ∣ S ∣ ·ᶜ δ)             ∎
+    lemma : wkConₘ ρ γ +ᶜ p ·ᶜ wkConₘ ρ δ ≈ᶜ wkConₘ ρ (γ +ᶜ p ·ᶜ δ)
+    lemma {γ} {p} {δ} = begin
+      wkConₘ ρ γ +ᶜ p ·ᶜ wkConₘ ρ δ      ≈˘⟨ +ᶜ-congˡ (wk-·ᶜ ρ) ⟩
+      wkConₘ ρ γ +ᶜ wkConₘ ρ (p ·ᶜ δ)    ≈˘⟨ wk-+ᶜ ρ ⟩
+      wkConₘ ρ (γ +ᶜ p ·ᶜ δ)             ∎

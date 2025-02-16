@@ -33,6 +33,7 @@ open import Tools.Sum
 open import Graded.Modality.Nr-instances
 open import Graded.Modality.Properties 𝕄
 open import Graded.Usage.Erased-matches
+open import Graded.Usage.Restrictions.Instance UR
 
 open import Definition.Untyped M
 open import Definition.Untyped.Neutral M type-variant
@@ -54,6 +55,7 @@ private variable
   e e′ e″ : Elim _
   s s′ : State _ _ _
   σ : Subst _ _
+  em : Erased-matches
 
 ------------------------------------------------------------------------
 -- Properties of states
@@ -221,7 +223,8 @@ opaque
 
 opaque
 
-  -- If a heap does not contain erased entries then lookup to ● will always fail.
+  -- If a heap does not contain erased entries then lookup to ● will
+  -- always fail.
 
   ¬erased-heap→¬↦● : {H : Heap k _} → H ⊢ y ↦● → k ≡ 0 → ⊥
   ¬erased-heap→¬↦● here ()
@@ -292,7 +295,7 @@ opaque
     cong₂ (λ u A → prodrec r p q A _ u)
       (lifts-step-sgSubst 2 u)
       (lifts-step-sgSubst 1 A)
-  ⦅⦆ᵉ-sgSubst {u} (natrecₑ p q r q′ A z s ρ) =
+  ⦅⦆ᵉ-sgSubst {u} (natrecₑ p q r A z s ρ) =
     cong₃ (λ A z s → natrec p q r A z s _)
       (lifts-step-sgSubst 1 A)
       (lifts-step-sgSubst 0 z)
@@ -346,7 +349,7 @@ opaque
     cong₂ (λ x y → prodrec r p q x _ y)
       (lifts-step-[,] 1 A)
       (lifts-step-[,] 2 u)
-  ⦅⦆ᵉ-[,] (natrecₑ p q r q′ A z s ρ) =
+  ⦅⦆ᵉ-[,] (natrecₑ p q r A z s ρ) =
     cong₃ (λ A z s → natrec p q r A z s _)
       (lifts-step-[,] 1 A)
       (lifts-step-[,] 0 z)
@@ -397,7 +400,7 @@ opaque
     cong₂ (λ A u → prodrec r p q A _ u)
       (wk-comp (lift ρ) (lift ρ′) A)
       (wk-comp (liftn ρ 2) (liftn ρ′ 2) u)
-  wk-⦅⦆ᵉ {ρ} (natrecₑ p q r q′ A z s ρ′) =
+  wk-⦅⦆ᵉ {ρ} (natrecₑ p q r A z s ρ′) =
     cong₃ (λ A z s → natrec p q r A z s _)
       (wk-comp (lift ρ) (lift ρ′) A)
       (wk-comp ρ ρ′ z)
@@ -437,7 +440,7 @@ opaque
     cong (snd _) t≡u
   ⦅⦆ᵉ-cong (prodrecₑ r p q A u ρ) t≡u =
     cong (λ t → prodrec _ _ _ _ t _) t≡u
-  ⦅⦆ᵉ-cong (natrecₑ p q r q′ A z s ρ) t≡u =
+  ⦅⦆ᵉ-cong (natrecₑ p q r A z s ρ) t≡u =
     cong (λ t → natrec _ _ _ _ _ _ t) t≡u
   ⦅⦆ᵉ-cong (unitrecₑ _ p q A u ρ) t≡u =
     cong (λ t → unitrec _ _ _ _ t _) t≡u
@@ -471,116 +474,219 @@ opaque
 
 opaque
 
-  -- Multiplicity of weakened eliminators
+  -- An inversion lemma for multiplicity of non-empty stacks
 
-  wk-∣e∣ : (ρ : Wk k n) (e : Elim n) → ∣ e ∣ᵉ ≡ ∣ wkᵉ ρ e ∣ᵉ
-  wk-∣e∣ ρ (∘ₑ p u ρ′) = refl
-  wk-∣e∣ ρ (fstₑ x) = refl
-  wk-∣e∣ ρ (sndₑ x) = refl
-  wk-∣e∣ ρ (prodrecₑ r p q A u ρ′) = refl
-  wk-∣e∣ ρ (natrecₑ p q r q′ A z s ρ′) = refl
-  wk-∣e∣ ρ (unitrecₑ _ p q A u ρ′) = refl
-  wk-∣e∣ ρ (emptyrecₑ p A ρ′) = refl
-  wk-∣e∣ ρ (Jₑ p q A t B u v ρ′) = refl
-  wk-∣e∣ ρ (Kₑ p A t B u ρ′) = refl
-  wk-∣e∣ ρ ([]-congₑ s A t u ρ′) = refl
-  wk-∣e∣ ρ sucₑ = refl
+  ∣∣∙-inv : ∣ e ∙ S ∣≡ p → ∃₂ λ q r → ∣ e ∣ᵉ≡ q × ∣ S ∣≡ r × p ≡ r · q
+  ∣∣∙-inv (e ∙ S) = _ , _ , e , S , refl
 
 opaque
 
-  -- Multiplicity of weakened stacks
+  -- Eliminator weakening preserves multiplicity
 
-  wk-∣S∣ : (ρ : Wk k n) (S : Stack n) → ∣ S ∣ ≡ ∣ wkˢ ρ S ∣
-  wk-∣S∣ ρ ε = refl
-  wk-∣S∣ ρ (e ∙ S) = cong₂ _·_ (wk-∣S∣ ρ S) (wk-∣e∣ ρ e)
-
-opaque
-
-  -- A lemma about the multiplicity of the J-eliminator for
-  -- some erased matches
-
-  ∣∣ᵉ-J-ω : ∀ {e}
-          → e ≤ᵉᵐ some
-          → (e ≡ some → ¬ (p ≡ 𝟘 × q ≡ 𝟘))
-          → ∣∣ᵉ-J e p q ≡ ω
-  ∣∣ᵉ-J-ω {e = all} ()
-  ∣∣ᵉ-J-ω {e = none} _ _ = refl
-  ∣∣ᵉ-J-ω {p} {q} {e = some} _ P
-    with is-𝟘? p
-  … | no _ = refl
-  … | yes p≡𝟘 with is-𝟘? q
-  … | no _ = refl
-  … | yes q≡𝟘 = ⊥-elim (P refl (p≡𝟘 , q≡𝟘))
+  wk-∣∣ᵉ : ∣ e ∣ᵉ≡ p → ∣ wkᵉ ρ e ∣ᵉ≡ p
+  wk-∣∣ᵉ ∘ₑ = ∘ₑ
+  wk-∣∣ᵉ fstₑ = fstₑ
+  wk-∣∣ᵉ sndₑ = sndₑ
+  wk-∣∣ᵉ (natrecₑ x) = natrecₑ x
+  wk-∣∣ᵉ prodrecₑ = prodrecₑ
+  wk-∣∣ᵉ unitrecₑ = unitrecₑ
+  wk-∣∣ᵉ emptyrecₑ = emptyrecₑ
+  wk-∣∣ᵉ (Jₑ x) = Jₑ x
+  wk-∣∣ᵉ (Kₑ x) = Kₑ x
+  wk-∣∣ᵉ []-congₑ = []-congₑ
+  wk-∣∣ᵉ sucₑ = sucₑ
 
 opaque
 
-  -- A lemma about the multiplicity of the J-eliminator for
-  -- some erased matches
+  -- Stack weakening preserves multiplicity
 
-  ∣∣ᵉ-J-some₀₀ : ∀ {e} → e ≡ some → ∣∣ᵉ-J e 𝟘 𝟘 ≡ 𝟘
-  ∣∣ᵉ-J-some₀₀ refl with is-𝟘? 𝟘
-  … | no 𝟘≢𝟘 = ⊥-elim (𝟘≢𝟘 refl)
-  … | yes _ with is-𝟘? 𝟘
-  … | no 𝟘≢𝟘 = ⊥-elim (𝟘≢𝟘 refl)
-  … | yes _ = refl
+  wk-∣∣ : ∣ S ∣≡ p → ∣ wkˢ ρ S ∣≡ p
+  wk-∣∣ ε = ε
+  wk-∣∣ (e ∙ S) = wk-∣∣ᵉ e ∙ wk-∣∣ S
 
 opaque
 
-  -- A lemma about the multiplicity of the J-eliminator for
-  -- some erased matches
+  -- The multiplicity relation for natrecₑ is functional
 
-  ∣∣ᵉ-J-all : ∀ {e} → e ≡ all → ∣∣ᵉ-J e p q ≡ 𝟘
-  ∣∣ᵉ-J-all refl = refl
-
-opaque
-
-  -- A lemma about the multiplicity of the K-eliminator for
-  -- some erased matches
-
-  ∣∣ᵉ-K-ω : ∀ {e}
-          → e ≤ᵉᵐ some
-          → (e ≡ some → p ≢ 𝟘)
-          → ∣∣ᵉ-K e p ≡ ω
-  ∣∣ᵉ-K-ω {e = all} ()
-  ∣∣ᵉ-K-ω {e = none} _ _ = refl
-  ∣∣ᵉ-K-ω {p} {e = some} _ p≢𝟘
-    with is-𝟘? p
-  … | no _ = refl
-  … | yes p≡𝟘 = ⊥-elim (p≢𝟘 refl p≡𝟘)
+  ∣natrec∣ᵉ-functional :
+    ∣natrec p , r ∣≡ q → ∣natrec p , r ∣≡ q′ → q ≡ q′
+  ∣natrec∣ᵉ-functional
+    (has-nrₑ ⦃ has-nr ⦄) (has-nrₑ ⦃ has-nr = has-nr′ ⦄) =
+    case Nr-available-propositional _ has-nr has-nr′ of λ where
+      refl → refl
+  ∣natrec∣ᵉ-functional (has-nrₑ ⦃ has-nr ⦄) (no-nrₑ ⦃ no-nr ⦄ x) =
+    ⊥-elim (¬[Nr∧No-nr-glb] _ has-nr no-nr)
+  ∣natrec∣ᵉ-functional (no-nrₑ ⦃ no-nr ⦄ x) (has-nrₑ ⦃ has-nr ⦄) =
+    ⊥-elim (¬[Nr∧No-nr-glb] _ has-nr no-nr)
+  ∣natrec∣ᵉ-functional (no-nrₑ x) (no-nrₑ y) =
+    GLB-unique x y
 
 opaque
 
-  -- A lemma about the multiplicity of the K-eliminator for
-  -- some erased matches
+  -- The multiplicity relation for Jₑ is functional
 
-  ∣∣ᵉ-K-some₀ : ∀ {e} → e ≡ some → ∣∣ᵉ-K e 𝟘 ≡ 𝟘
-  ∣∣ᵉ-K-some₀ refl with is-𝟘? 𝟘
-  … | no 𝟘≢𝟘 = ⊥-elim (𝟘≢𝟘 refl)
-  … | yes _ = refl
-
-opaque
-
-  -- A lemma about the multiplicity of the K-eliminator for
-  -- some erased matches
-
-  ∣∣ᵉ-K-all : ∀ {e} → e ≡ all → ∣∣ᵉ-K e p ≡ 𝟘
-  ∣∣ᵉ-K-all refl = refl
+  ∣J∣ᵉ-functional : ∣J em , p , q ∣≡ r → ∣J em , p , q ∣≡ r′ → r ≡ r′
+  ∣J∣ᵉ-functional J-all J-all = refl
+  ∣J∣ᵉ-functional (J-some₀ _ _) (J-some₀ _ _) = refl
+  ∣J∣ᵉ-functional (J-some₀ p≡𝟘 q≡𝟘) (J-some false) =
+    ⊥-elim (false (p≡𝟘 , q≡𝟘))
+  ∣J∣ᵉ-functional (J-some false) (J-some₀ p≡𝟘 q≡𝟘) =
+    ⊥-elim (false (p≡𝟘 , q≡𝟘))
+  ∣J∣ᵉ-functional (J-some _) (J-some _) = refl
+  ∣J∣ᵉ-functional J-none J-none = refl
 
 opaque
 
-  -- Multiplicity of the stack sucₛ k
+  -- The multiplicity relation for Kₑ is functional
 
-  ∣sucₛ∣≡𝟙 : ∀ k → ∣ sucₛ {m} k ∣ ≡ 𝟙
-  ∣sucₛ∣≡𝟙 0 = refl
-  ∣sucₛ∣≡𝟙 (1+ k) = trans (·-identityʳ _) (∣sucₛ∣≡𝟙 k)
+  ∣K∣ᵉ-functional : ∣K em , p ∣≡ r → ∣K em , p ∣≡ r′ → r ≡ r′
+  ∣K∣ᵉ-functional K-all K-all = refl
+  ∣K∣ᵉ-functional (K-some₀ _) (K-some₀ _) = refl
+  ∣K∣ᵉ-functional (K-some₀ p≡𝟘) (K-some p≢𝟘) =
+    ⊥-elim (p≢𝟘 p≡𝟘)
+  ∣K∣ᵉ-functional (K-some p≢𝟘) (K-some₀ p≡𝟘) =
+    ⊥-elim (p≢𝟘 p≡𝟘)
+  ∣K∣ᵉ-functional (K-some _) (K-some _) = refl
+  ∣K∣ᵉ-functional K-none K-none = refl
 
 opaque
 
-  -- Multiplicity of the stack S ++ sucₛ k
+  -- The multiplicity relation for eliminators is functional
 
-  ∣S++sucₛ∣≡∣S∣ : (S : Stack m) → ∣ S ++ sucₛ k ∣ ≡ ∣ S ∣
-  ∣S++sucₛ∣≡∣S∣ {k} ε = ∣sucₛ∣≡𝟙 k
-  ∣S++sucₛ∣≡∣S∣ (e ∙ S) = ·-congʳ (∣S++sucₛ∣≡∣S∣ S)
+  ∣∣ᵉ-functional : ∣ e ∣ᵉ≡ p → ∣ e ∣ᵉ≡ q → p ≡ q
+  ∣∣ᵉ-functional ∘ₑ ∘ₑ = refl
+  ∣∣ᵉ-functional fstₑ fstₑ = refl
+  ∣∣ᵉ-functional sndₑ sndₑ = refl
+  ∣∣ᵉ-functional prodrecₑ prodrecₑ = refl
+  ∣∣ᵉ-functional (natrecₑ x) (natrecₑ y) =
+    ∣natrec∣ᵉ-functional x y
+  ∣∣ᵉ-functional unitrecₑ unitrecₑ = refl
+  ∣∣ᵉ-functional emptyrecₑ emptyrecₑ = refl
+  ∣∣ᵉ-functional (Jₑ x) (Jₑ y) = ∣J∣ᵉ-functional x y
+  ∣∣ᵉ-functional (Kₑ x) (Kₑ y) = ∣K∣ᵉ-functional x y
+  ∣∣ᵉ-functional []-congₑ []-congₑ = refl
+  ∣∣ᵉ-functional sucₑ sucₑ = refl
+
+opaque
+
+  -- The multiplicity relation for stacks is functional
+
+  ∣∣-functional : ∣ S ∣≡ p → ∣ S ∣≡ q → p ≡ q
+  ∣∣-functional ε ε = refl
+  ∣∣-functional (e ∙ S) (e′ ∙ S′) =
+    ·-cong (∣∣-functional S S′) (∣∣ᵉ-functional e e′)
+
+opaque
+
+  -- The multiplicity for natrecₑ always exists if e is not natrecₑ when
+  -- the usage rule with greatest lower bounds is used.
+
+  ∣nr∣≡ : ⦃ has-nr : Nr-available ⦄ → ∃ λ q → ∣natrec p , r ∣≡ q
+  ∣nr∣≡ = _ , has-nrₑ
+
+opaque
+
+  -- The multiplicity relation for Jₑ always inhabited
+
+  ∣J∣≡ : ∃ λ r → ∣J em , p , q ∣≡ r
+  ∣J∣≡ {em = none} = _ , J-none
+  ∣J∣≡ {em = all} = _ , J-all
+  ∣J∣≡ {em = some} {p} {q} =
+    case is-𝟘? p of λ where
+      (yes p≡𝟘) →
+        case is-𝟘? q of λ where
+          (yes q≡𝟘) → _ , J-some₀ p≡𝟘 q≡𝟘
+          (no q≢𝟘) → _ , J-some λ (_ , q≡𝟘) → q≢𝟘 q≡𝟘
+      (no p≢𝟘) → _ , J-some (λ (p≡𝟘 , _) → p≢𝟘 p≡𝟘)
+
+opaque
+
+  -- The multiplicity relation for Kₑ always inhabited
+
+  ∣K∣≡ : ∃ λ r → ∣K em , p ∣≡ r
+  ∣K∣≡ {em = none} = _ , K-none
+  ∣K∣≡ {em = all} = _ , K-all
+  ∣K∣≡ {em = some} {p} =
+    case is-𝟘? p of λ where
+      (yes p≡𝟘) → _ , K-some₀ p≡𝟘
+      (no p≢𝟘) → _ , K-some p≢𝟘
+
+opaque
+
+  -- The multiplicity for an eliminator e always exists if when e is
+  -- natrecₑ then the usage rule for natrec using an nr function is used.
+
+  ∣∣ᵉ≡ :
+    (∀ {n p q r A u v ρ} → e ≡ natrecₑ {n = n} p q r A u v ρ → Nr-available) →
+    ∃ ∣ e ∣ᵉ≡_
+  ∣∣ᵉ≡ {e = ∘ₑ p u ρ} _ = 𝟙 , ∘ₑ
+  ∣∣ᵉ≡ {e = fstₑ x} _ = 𝟙 , fstₑ
+  ∣∣ᵉ≡ {e = sndₑ x} _ = 𝟙 , sndₑ
+  ∣∣ᵉ≡ {e = prodrecₑ r p q A u ρ} _ = r , prodrecₑ
+  ∣∣ᵉ≡ {e = natrecₑ p q r A z s ρ} has-nr =
+    _ , natrecₑ (∣nr∣≡ ⦃ has-nr refl ⦄ .proj₂)
+  ∣∣ᵉ≡ {e = unitrecₑ l p q A u ρ} _ = p , unitrecₑ
+  ∣∣ᵉ≡ {e = emptyrecₑ p A ρ} _ = p , emptyrecₑ
+  ∣∣ᵉ≡ {e = Jₑ p q A t B u v ρ} _ = _ , Jₑ (∣J∣≡ .proj₂)
+  ∣∣ᵉ≡ {e = Kₑ p A t B u ρ} _ = _ , Kₑ (∣K∣≡ .proj₂)
+  ∣∣ᵉ≡ {e = []-congₑ s A t u ρ} _ = 𝟘 , []-congₑ
+  ∣∣ᵉ≡ {e = sucₑ} _ = 𝟙 , sucₑ
+
+opaque
+
+  -- The multiplicity relation for stacks is always inhabited is whenever
+  -- the stack contains natrecₑ the usage rule for natrec using nr
+  -- functions is used.
+
+  ∣∣≡ : (∀ {p r} → natrec p , r ∈ S → Nr-available) → ∃ ∣ S ∣≡_
+  ∣∣≡ {S = ε} _ = 𝟙 , ε
+  ∣∣≡ {S = e ∙ S} has-nr =
+    let _ , ∣S∣≡ = ∣∣≡ (has-nr ∘→ there)
+        _ , ∣e∣≡ = ∣∣ᵉ≡ λ { refl → has-nr here}
+    in  _ , ∣e∣≡ ∙ ∣S∣≡
+
+opaque
+
+  -- An inequality satisfied by the multiplicity of natrecₑ
+
+  ∣natrec∣≤ : ∣natrec p , r ∣≡ q → q ≤ p + r · q
+  ∣natrec∣≤ has-nrₑ = nr₂≤
+  ∣natrec∣≤ (no-nrₑ x) = nrᵢ-GLB-≤ x
+
+opaque
+
+  -- Under some conditions, the multiplicity of Jₑ is ω
+
+  ∣J∣≡ω :
+    em ≤ᵉᵐ some → (em ≡ some → ¬ (p ≡ 𝟘 × q ≡ 𝟘)) →
+    ∣J em , p , q ∣≡ ω
+  ∣J∣≡ω {(none)} _ _ = J-none
+  ∣J∣≡ω {(all)} () _
+  ∣J∣≡ω {(some)} _ ≢𝟘 = J-some (≢𝟘 refl)
+
+opaque
+
+  -- Under some conditions, the multiplicity of Kₑ is ω
+
+  ∣K∣≡ω :
+    em ≤ᵉᵐ some → (em ≡ some → p ≢ 𝟘) →
+    ∣K em , p ∣≡ ω
+  ∣K∣≡ω {(none)} _ _ = K-none
+  ∣K∣≡ω {(all)} () _
+  ∣K∣≡ω {(some)} _ ≢𝟘 = K-some (≢𝟘 refl)
+
+opaque
+
+  ∣sucₛ∣≡𝟙 : ∀ k → ∣ sucₛ {m} k ∣≡ 𝟙
+  ∣sucₛ∣≡𝟙 0 = ε
+  ∣sucₛ∣≡𝟙 (1+ k) =
+    subst (∣ _ ∙ sucₛ k ∣≡_) (·-identityʳ 𝟙) (sucₑ ∙ ∣sucₛ∣≡𝟙 k)
+
+opaque
+
+  ∣S++sucₛ∣≡∣S∣ : ∣ S ∣≡ p → ∣ S ++ sucₛ k ∣≡ p
+  ∣S++sucₛ∣≡∣S∣ ε = ∣sucₛ∣≡𝟙 _
+  ∣S++sucₛ∣≡∣S∣ (e ∙ S) = e ∙ ∣S++sucₛ∣≡∣S∣ S
 
 opaque
 
@@ -623,7 +729,7 @@ opaque
   ⦅⦆ᵉ-neutral (fstₑ x) (fstₙ n) = n
   ⦅⦆ᵉ-neutral (sndₑ x) (sndₙ n) = n
   ⦅⦆ᵉ-neutral (prodrecₑ r p q A u ρ) (prodrecₙ n) = n
-  ⦅⦆ᵉ-neutral (natrecₑ p q r q′ A z s ρ) (natrecₙ n) = n
+  ⦅⦆ᵉ-neutral (natrecₑ p q r A z s ρ) (natrecₙ n) = n
   ⦅⦆ᵉ-neutral (unitrecₑ l p q A u ρ) (unitrecₙ x n) = n
   ⦅⦆ᵉ-neutral (emptyrecₑ p A ρ) (emptyrecₙ n) = n
   ⦅⦆ᵉ-neutral (Jₑ p q A t B u v ρ) (Jₙ n) = n
@@ -721,60 +827,6 @@ opaque
   update-~ʰ (here _) = ~ʰ-refl ∙ _
   update-~ʰ (there d) = update-~ʰ d ∙ _
   update-~ʰ (there● d) = update-~ʰ d ∙●
-
-------------------------------------------------------------------------
--- Properties of stack equality
-
-opaque
-
-  -- Stack equality is reflective
-
-  ~ˢ-refl : S ~ˢ S
-  ~ˢ-refl {S = ε} = ε
-  ~ˢ-refl {S = e ∙ S} = ~ᵉ-refl ∙ ~ˢ-refl
-
-opaque
-
-  -- Eliminator equality is symmetric
-
-  ~ᵉ-sym : e ~ᵉ e′ → e′ ~ᵉ e
-  ~ᵉ-sym ~ᵉ-refl = ~ᵉ-refl
-  ~ᵉ-sym ~ᵉ-natrec = ~ᵉ-natrec
-
-opaque
-
-  -- Stack equality is symmetric
-
-  ~ˢ-sym : S ~ˢ S′ → S′ ~ˢ S
-  ~ˢ-sym ε = ε
-  ~ˢ-sym (e~e′ ∙ S~S′) = ~ᵉ-sym e~e′ ∙ ~ˢ-sym S~S′
-
-opaque
-
-  -- Eliminator equality is transitive
-
-  ~ᵉ-trans : e ~ᵉ e′ → e′ ~ᵉ e″ → e ~ᵉ e″
-  ~ᵉ-trans ~ᵉ-refl e′~e″ = e′~e″
-  ~ᵉ-trans e~e′ ~ᵉ-refl = e~e′
-  ~ᵉ-trans ~ᵉ-natrec ~ᵉ-natrec = ~ᵉ-natrec
-
-opaque
-
-  -- Stack equality is transitive
-
-  ~ˢ-trans : S ~ˢ S′ → S′ ~ˢ S″ → S ~ˢ S″
-  ~ˢ-trans ε ε = ε
-  ~ˢ-trans (e~e′ ∙ S~S′) (e′~e″ ∙ S′~S″) =
-    ~ᵉ-trans e~e′ e′~e″ ∙ ~ˢ-trans S~S′ S′~S″
-
-opaque
-
-  -- Weakening of stack equality
-
-  wk-~ˢ : S ~ˢ S′ → wkˢ ρ S ~ˢ wkˢ ρ S′
-  wk-~ˢ ε = ε
-  wk-~ˢ (~ᵉ-refl ∙ S~S′) = ~ᵉ-refl ∙ wk-~ˢ S~S′
-  wk-~ˢ (~ᵉ-natrec ∙ S~S′) = ~ᵉ-natrec ∙ wk-~ˢ S~S′
 
 ------------------------------------------------------------------------
 -- Properties of states in normal form
@@ -928,47 +980,3 @@ opaque
 
   ⦅initial⦆≡ : ⦅ initial t ⦆ ≡ t
   ⦅initial⦆≡ = trans (erasedHeap-subst (wk id _)) (wk-id _)
-
-opaque
-
-  -- The relation Ok-natrec-multiplicity p r is functional
-
-  Ok-natrec-multiplicity-functional :
-    Ok-natrec-multiplicity p r q →
-    Ok-natrec-multiplicity p r q′ →
-    q ≡ q′
-  Ok-natrec-multiplicity-functional (has-nr ⦃ (a) ⦄ x) (has-nr ⦃ (b) ⦄ x₁) =
-    case Nr-available-propositional _ a b of λ where
-      refl → trans x (sym x₁)
-  Ok-natrec-multiplicity-functional (no-nr x) (no-nr x₁) =
-    GLB-unique x x₁
-  Ok-natrec-multiplicity-functional (has-nr ⦃ (a) ⦄ x) (no-nr ⦃ (b) ⦄ x₁) =
-    ⊥-elim (¬[Nr∧No-nr-glb] _ a b)
-  Ok-natrec-multiplicity-functional (no-nr ⦃ (a) ⦄ x) (has-nr ⦃ (b) ⦄ x₁) =
-    ⊥-elim (¬[Nr∧No-nr-glb] _ b a)
-
-opaque
-
-  -- An inversion lemma for Ok-natrec-multiplicity
-
-  Ok-natrec-multiplicity-nr-inv :
-    ⦃ has-nr : Nr-available ⦄ →
-    Ok-natrec-multiplicity p r q →
-    q ≡ nr₂ p r
-  Ok-natrec-multiplicity-nr-inv ⦃ (x) ⦄ (has-nr ⦃ (y) ⦄ z) =
-    case Nr-available-propositional _ x y of λ where
-      refl → z
-  Ok-natrec-multiplicity-nr-inv ⦃ (x) ⦄ (no-nr ⦃ (y) ⦄ _) =
-    ⊥-elim (¬[Nr∧No-nr-glb] _ x y)
-
-opaque
-
-  -- An inversion lemma for Ok-natrec-multiplicity
-
-  Ok-natrec-multiplicity-no-nr-inv :
-    ⦃ no-nr : Nr-not-available-GLB ⦄ →
-    Ok-natrec-multiplicity p r q →
-    Greatest-lower-bound q (nrᵢ r 𝟙 p)
-  Ok-natrec-multiplicity-no-nr-inv ⦃ (x) ⦄ (has-nr ⦃ (y) ⦄ _) =
-    ⊥-elim (¬[Nr∧No-nr-glb] _ y x)
-  Ok-natrec-multiplicity-no-nr-inv (no-nr x) = x

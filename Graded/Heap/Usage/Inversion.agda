@@ -24,12 +24,14 @@ open import Graded.Modality.Nr-instances
 open import Graded.Modality.Properties 𝕄
 open import Graded.Usage 𝕄 UR
 open import Graded.Usage.Inversion 𝕄 UR
+open import Graded.Usage.Properties 𝕄 UR
 open import Graded.Context 𝕄
 open import Graded.Context.Properties 𝕄
 open import Graded.Context.Weakening 𝕄
 open import Graded.Usage.Restrictions.Instance UR
 
 open import Graded.Heap.Untyped type-variant UR factoring-nr
+open import Graded.Heap.Untyped.Properties type-variant UR factoring-nr
 open import Graded.Heap.Usage type-variant UR factoring-nr
 
 open import Tools.Empty
@@ -86,8 +88,8 @@ opaque
 
   ▸ˢ-∙-inv :
     η ▸ˢ e ∙ S →
-    ∃₂ λ δ γ → δ ▸ᵉ[ ⌞ ∣ S ∣ ⌟ ] e × γ ▸ˢ S × η ≈ᶜ γ +ᶜ ∣ S ∣ ·ᶜ δ
-  ▸ˢ-∙-inv (▸e ∙ ▸S) = _ , _ , ▸e , ▸S , ≈ᶜ-refl
+    ∃₃ λ p δ γ → ∣ S ∣≡ p × δ ▸ᵉ[ ⌞ p ⌟ ] e × γ ▸ˢ S × η ≈ᶜ γ +ᶜ p ·ᶜ δ
+  ▸ˢ-∙-inv (▸ˢ∙ ∣S∣≡ ▸e ▸S) = _ , _ , _ , ∣S∣≡ , ▸e , ▸S , ≈ᶜ-refl
 
 opaque
 
@@ -102,11 +104,12 @@ opaque
 
   ▸ₛ-inv :
     ▸ ⟨ H , t , ρ , S ⟩ →
-    ∃₃ λ γ δ η →
-    γ ▸ʰ H × δ ▸[ ⌞ ∣ S ∣ ⌟ ] t ×
-    η ▸ˢ S × γ ≤ᶜ ∣ S ∣ ·ᶜ wkConₘ ρ δ +ᶜ η
-  ▸ₛ-inv (▸ₛ ▸H ▸t ▸S γ≤) =
-    _ , _ , _ , ▸H , ▸t , ▸S , γ≤
+    ∃₄ λ p γ δ η →
+    ∣ S ∣≡ p ×
+    γ ▸ʰ H × δ ▸[ ⌞ p ⌟ ] t ×
+    η ▸ˢ S × γ ≤ᶜ p ·ᶜ wkConₘ ρ δ +ᶜ η
+  ▸ₛ-inv (▸ₛ ∣S∣≡ ▸H ▸t ▸S γ≤) =
+    _ , _ , _ , _ , ∣S∣≡ , ▸H , ▸t , ▸S , γ≤
 
 opaque
 
@@ -114,15 +117,25 @@ opaque
 
   ▸ₛ-∙-inv :
     ▸ ⟨ H , t , ρ , e ∙ S ⟩ →
-    ∃₄ λ γ δ η θ →
-    γ ▸ʰ H × δ ▸[ ⌞ ∣ e ∙ S ∣ ⌟ ] t ×
-    η ▸ˢ S × θ ▸ᵉ[ ⌞ ∣ S ∣ ⌟ ] e ×
-    γ ≤ᶜ ∣ e ∙ S ∣ ·ᶜ wkConₘ ρ δ +ᶜ η +ᶜ ∣ S ∣ ·ᶜ θ
-  ▸ₛ-∙-inv ▸s =
-    let _ , _ , _ , ▸H , ▸t , ▸eS , γ≤ = ▸ₛ-inv ▸s
-        _ , _ , ▸e , ▸S , η≈ = ▸ˢ-∙-inv ▸eS
-    in  _ , _ , _ , _ , ▸H , ▸t , ▸S , ▸e
-          , ≤ᶜ-trans γ≤ (≤ᶜ-reflexive (+ᶜ-congˡ η≈))
+    ∃₆ λ p q γ δ η θ →
+    ∣ S ∣≡ p × ∣ e ∣ᵉ≡ q ×
+    γ ▸ʰ H × δ ▸[ ⌞ p · q ⌟ ] t ×
+    η ▸ˢ S × θ ▸ᵉ[ ⌞ p ⌟ ] e ×
+    γ ≤ᶜ (p · q) ·ᶜ wkConₘ ρ δ +ᶜ η +ᶜ p ·ᶜ θ
+  ▸ₛ-∙-inv {ρ} ▸s =
+    let p , γ , δ , η , ∣eS∣≡ , ▸H , ▸t , ▸eS , γ≤ = ▸ₛ-inv ▸s
+        q , δ′ , η′ , ∣S∣≡ , ▸e , ▸S , η≈ = ▸ˢ-∙-inv ▸eS
+        r , q′ , ∣e∣≡ , ∣S∣≡′ , p≡ = ∣∣∙-inv ∣eS∣≡
+        q′≡q = ∣∣-functional ∣S∣≡′ ∣S∣≡
+    in  _ , _ , _ , _ , _ , _
+          , ∣S∣≡ , ∣e∣≡ , ▸H , ▸-cong (⌞⌟-cong (trans p≡ (·-congʳ q′≡q))) ▸t , ▸S , ▸e
+          , (begin
+            γ                                           ≤⟨ γ≤ ⟩
+            p ·ᶜ wkConₘ ρ δ +ᶜ η                        ≈⟨ +ᶜ-cong (·ᶜ-congʳ p≡) η≈ ⟩
+            (q′ · r) ·ᶜ wkConₘ ρ δ +ᶜ (η′ +ᶜ q ·ᶜ δ′)   ≈⟨ +ᶜ-congʳ (·ᶜ-congʳ (·-congʳ q′≡q)) ⟩
+            (q · r) ·ᶜ wkConₘ ρ δ +ᶜ η′ +ᶜ q ·ᶜ δ′ ∎)
+    where
+    open ≤ᶜ-reasoning
 
 opaque
 
@@ -130,19 +143,19 @@ opaque
 
   ▸ₛ-var-inv :
     ▸ ⟨ H , var x , ρ , S ⟩ →
-    ∃₂ λ γ η → γ ▸ʰ H × η ▸ˢ S ×
-    γ ≤ᶜ (𝟘ᶜ , wkVar ρ x ≔ ∣ S ∣) +ᶜ η
+    ∃₃ λ p γ η → ∣ S ∣≡ p × γ ▸ʰ H × η ▸ˢ S ×
+    γ ≤ᶜ (𝟘ᶜ , wkVar ρ x ≔ p) +ᶜ η
   ▸ₛ-var-inv {x} {ρ} {S} ▸s =
-    let γ , δ , η , ▸H , ▸x , ▸S , γ≤ = ▸ₛ-inv ▸s
-    in  γ , η , ▸H , ▸S , (begin
-    γ                                                        ≤⟨ γ≤ ⟩
-    ∣ S ∣ ·ᶜ wkConₘ ρ δ +ᶜ η                                 ≤⟨ +ᶜ-monotoneˡ (·ᶜ-monotoneʳ (wk-≤ᶜ ρ (inv-usage-var ▸x))) ⟩
-    ∣ S ∣ ·ᶜ wkConₘ ρ (𝟘ᶜ , x ≔ ⌜ ⌞ ∣ S ∣ ⌟ ⌝) +ᶜ η          ≡⟨ cong (λ y → ∣ S ∣ ·ᶜ y +ᶜ η) (wk-,≔ ρ) ⟩
-    ∣ S ∣ ·ᶜ (wkConₘ ρ 𝟘ᶜ , wkVar ρ x ≔ ⌜ ⌞ ∣ S ∣ ⌟ ⌝) +ᶜ η  ≡⟨ cong (λ y → ∣ S ∣ ·ᶜ (y , wkVar ρ x ≔ ⌜ ⌞ ∣ S ∣ ⌟ ⌝) +ᶜ η) (wk-𝟘ᶜ ρ) ⟩
-    ∣ S ∣ ·ᶜ (𝟘ᶜ , wkVar ρ x ≔ ⌜ ⌞ ∣ S ∣ ⌟ ⌝) +ᶜ η           ≡˘⟨ cong (_+ᶜ η) (update-distrib-·ᶜ _ _ _ _) ⟩
-    (∣ S ∣ ·ᶜ 𝟘ᶜ , wkVar ρ x ≔ ∣ S ∣ · ⌜ ⌞ ∣ S ∣ ⌟ ⌝) +ᶜ η   ≈⟨ +ᶜ-congʳ (update-congˡ (·ᶜ-zeroʳ _)) ⟩
-    (𝟘ᶜ , wkVar ρ x ≔ ∣ S ∣ · ⌜ ⌞ ∣ S ∣ ⌟ ⌝) +ᶜ η            ≡⟨ cong (λ y → (𝟘ᶜ , wkVar ρ x ≔ y) +ᶜ η) ·⌜⌞⌟⌝ ⟩
-    (𝟘ᶜ , wkVar ρ x ≔ ∣ S ∣) +ᶜ η                            ∎)
+    let p , γ , δ , η , ∣S∣≡ , ▸H , ▸x , ▸S , γ≤ = ▸ₛ-inv ▸s
+    in  p , γ , η , ∣S∣≡ , ▸H , ▸S , (begin
+    γ                                                ≤⟨ γ≤ ⟩
+    p ·ᶜ wkConₘ ρ δ +ᶜ η                             ≤⟨ +ᶜ-monotoneˡ (·ᶜ-monotoneʳ (wk-≤ᶜ ρ (inv-usage-var ▸x))) ⟩
+    p ·ᶜ wkConₘ ρ (𝟘ᶜ , x ≔ ⌜ ⌞ p ⌟ ⌝) +ᶜ η          ≡⟨ cong (λ y → p ·ᶜ y +ᶜ η) (wk-,≔ ρ) ⟩
+    p ·ᶜ (wkConₘ ρ 𝟘ᶜ , wkVar ρ x ≔ ⌜ ⌞ p ⌟ ⌝) +ᶜ η  ≡⟨ cong (λ y → p ·ᶜ (y , wkVar ρ x ≔ ⌜ ⌞ p ⌟ ⌝) +ᶜ η) (wk-𝟘ᶜ ρ) ⟩
+    p ·ᶜ (𝟘ᶜ , wkVar ρ x ≔ ⌜ ⌞ p ⌟ ⌝) +ᶜ η           ≡˘⟨ cong (_+ᶜ η) (update-distrib-·ᶜ _ _ _ _) ⟩
+    (p ·ᶜ 𝟘ᶜ , wkVar ρ x ≔ p · ⌜ ⌞ p ⌟ ⌝) +ᶜ η       ≈⟨ +ᶜ-congʳ (update-congˡ (·ᶜ-zeroʳ _)) ⟩
+    (𝟘ᶜ , wkVar ρ x ≔ p · ⌜ ⌞ p ⌟ ⌝) +ᶜ η            ≡⟨ cong (λ y → (𝟘ᶜ , wkVar ρ x ≔ y) +ᶜ η) ·⌜⌞⌟⌝ ⟩
+    (𝟘ᶜ , wkVar ρ x ≔ p) +ᶜ η                        ∎)
     where
     open ≤ᶜ-reasoning
 
@@ -152,15 +165,15 @@ opaque
 
   ▸ₛ-var-inv′ :
     ▸ ⟨ H , var x , ρ , S ⟩ →
-    ∃₂ λ γ η → γ ▸ʰ H × η ▸ˢ S ×
-    γ ⟨ wkVar ρ x ⟩ ≤ ∣ S ∣ + η ⟨ wkVar ρ x ⟩
+    ∃₃ λ p γ η → ∣ S ∣≡ p × γ ▸ʰ H × η ▸ˢ S ×
+    γ ⟨ wkVar ρ x ⟩ ≤ p + η ⟨ wkVar ρ x ⟩
   ▸ₛ-var-inv′ {x} {ρ} {S} ▸s =
-    let γ , η , ▸H , ▸S , γ≤ = ▸ₛ-var-inv ▸s
-    in  γ , η , ▸H , ▸S , (begin
-    γ ⟨ wkVar ρ x ⟩                                         ≤⟨ lookup-monotone (wkVar ρ x) γ≤ ⟩
-    ((𝟘ᶜ , wkVar ρ x ≔ ∣ S ∣) +ᶜ η) ⟨ wkVar ρ x ⟩           ≡⟨ lookup-distrib-+ᶜ (𝟘ᶜ , wkVar ρ x ≔ ∣ S ∣) η (wkVar ρ x) ⟩
-    (𝟘ᶜ , wkVar ρ x ≔ ∣ S ∣) ⟨ wkVar ρ x ⟩ + η ⟨ wkVar ρ x ⟩ ≡⟨ +-congʳ (update-lookup 𝟘ᶜ (wkVar ρ x)) ⟩
-    ∣ S ∣ + η ⟨ wkVar ρ x ⟩                                 ∎)
+    let p , γ , η , ∣S∣≡ , ▸H , ▸S , γ≤ = ▸ₛ-var-inv ▸s
+    in  p , γ , η , ∣S∣≡ , ▸H , ▸S , (begin
+    γ ⟨ wkVar ρ x ⟩                                     ≤⟨ lookup-monotone (wkVar ρ x) γ≤ ⟩
+    ((𝟘ᶜ , wkVar ρ x ≔ p) +ᶜ η) ⟨ wkVar ρ x ⟩           ≡⟨ lookup-distrib-+ᶜ (𝟘ᶜ , wkVar ρ x ≔ p) η (wkVar ρ x) ⟩
+    (𝟘ᶜ , wkVar ρ x ≔ p) ⟨ wkVar ρ x ⟩ + η ⟨ wkVar ρ x ⟩ ≡⟨ +-congʳ (update-lookup 𝟘ᶜ (wkVar ρ x)) ⟩
+    p + η ⟨ wkVar ρ x ⟩                                 ∎)
     where
     open RPo ≤-poset
 
@@ -202,27 +215,26 @@ opaque
 
 -- "Extra data" for inversion of natrec
 
-data InvUsageNatrecₑ {m n} (p r q : M) (δ η : Conₘ n) (ρ : Wk m n) : Conₘ m → Set a where
+data InvUsageNatrecₑ {m n} (p r : M) (δ η : Conₘ n) (ρ : Wk m n) : Conₘ m → Set a where
   invUsageNatrecNr :
     ⦃ has-nr : Nr-available ⦄ →
-    q ≡ nr₂ p r →
-    InvUsageNatrecₑ p r q δ η ρ (wkConₘ ρ (nrᶜ p r δ η 𝟘ᶜ))
+    InvUsageNatrecₑ p r δ η ρ (wkConₘ ρ (nrᶜ p r δ η 𝟘ᶜ))
   invUsageNatrecNoNr :
     ⦃ no-nr : Nr-not-available-GLB ⦄ →
     Greatest-lower-bound q (nrᵢ r 𝟙 p) →
     Greatest-lower-boundᶜ χ (nrᵢᶜ r δ η) →
-    InvUsageNatrecₑ p r q δ η ρ (wkConₘ ρ χ)
+    InvUsageNatrecₑ p r δ η ρ (wkConₘ ρ χ)
 
 opaque
 
   -- Inversion of natrec
 
   ▸-inv-natrecₑ :
-    γ ▸ᵉ[ m ] natrecₑ p q r q′ A z s ρ →
+    γ ▸ᵉ[ m ] natrecₑ p q r A z s ρ →
     ∃₃ λ δ η θ → δ ▸[ m ] z × η ∙ ⌜ m ⌝ · p ∙ ⌜ m ⌝ · r ▸[ m ] s ×
-    θ ∙ ⌜ 𝟘ᵐ? ⌝ · q ▸[ 𝟘ᵐ? ] A × InvUsageNatrecₑ p r q′ δ η ρ γ
-  ▸-inv-natrecₑ (natrecₑ ▸z ▸s ▸A ≡nr₂) =
-    _ , _ , _ , ▸z , ▸s , ▸A , invUsageNatrecNr ≡nr₂
+    θ ∙ ⌜ 𝟘ᵐ? ⌝ · q ▸[ 𝟘ᵐ? ] A × InvUsageNatrecₑ p r δ η ρ γ
+  ▸-inv-natrecₑ (natrecₑ ▸z ▸s ▸A) =
+    _ , _ , _ , ▸z , ▸s , ▸A , invUsageNatrecNr
   ▸-inv-natrecₑ (natrec-no-nrₑ ▸z ▸s ▸A x-glb χ-glb) =
     _ , _ , _ , ▸z , ▸s , ▸A , invUsageNatrecNoNr x-glb χ-glb
 

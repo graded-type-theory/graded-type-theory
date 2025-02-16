@@ -83,14 +83,13 @@ data _▸ᵉ[_]_ {n : Nat} : (γ : Conₘ n) (m : Mode) (e : Elim n) → Set a w
   natrecₑ : ⦃ has-nr : Nr-available ⦄
           → γ ▸[ m ] z → δ ∙ ⌜ m ⌝ · p ∙ ⌜ m ⌝ · r ▸[ m ] s
           → θ ∙ (⌜ 𝟘ᵐ? ⌝ · q) ▸[ 𝟘ᵐ? ] A
-          → q′ ≡ nr₂ p r
-          → wkConₘ ρ (nrᶜ p r γ δ 𝟘ᶜ) ▸ᵉ[ m ] natrecₑ p q r q′ A z s ρ
+          → wkConₘ ρ (nrᶜ p r γ δ 𝟘ᶜ) ▸ᵉ[ m ] natrecₑ p q r A z s ρ
   natrec-no-nrₑ : ⦃ no-nr : Nr-not-available-GLB ⦄
                 → γ ▸[ m ] z → δ ∙ ⌜ m ⌝ · p ∙ ⌜ m ⌝ · r ▸[ m ] s
                 → θ ∙ (⌜ 𝟘ᵐ? ⌝ · q) ▸[ 𝟘ᵐ? ] A
                 → Greatest-lower-bound q′ (nrᵢ r 𝟙 p)
                 → Greatest-lower-boundᶜ χ (nrᵢᶜ r γ δ)
-                → wkConₘ ρ χ ▸ᵉ[ m ] natrecₑ p q r q′ A z s ρ
+                → wkConₘ ρ χ ▸ᵉ[ m ] natrecₑ p q r A z s ρ
   unitrecₑ : γ ▸[ m ] u → Unitrec-allowed m p q → ¬ Unitʷ-η
            → wkConₘ ρ γ ▸ᵉ[ m ] unitrecₑ l p q A u ρ
   emptyrecₑ : Emptyrec-allowed m p → 𝟘ᶜ ▸ᵉ[ m ] emptyrecₑ p A ρ
@@ -102,12 +101,12 @@ data _▸ᵉ[_]_ {n : Nat} : (γ : Conₘ n) (m : Mode) (e : Elim n) → Set a w
 
 data _▸ˢ_ {n : Nat} : (γ : Conₘ n) (S : Stack n) → Set a where
   ε : 𝟘ᶜ ▸ˢ ε
-  _∙_ : δ ▸ᵉ[ ⌞ ∣ S ∣ ⌟ ] e → γ ▸ˢ S → γ +ᶜ ∣ S ∣ ·ᶜ δ ▸ˢ e ∙ S
+  ▸ˢ∙ : ∣ S ∣≡ p → δ ▸ᵉ[ ⌞ p ⌟ ] e → γ ▸ˢ S → γ +ᶜ p ·ᶜ δ ▸ˢ e ∙ S
 
 ------------------------------------------------------------------------
 -- Usage of evaluation states.
 
 data ▸_ {k n ℓ} : (s : State k n ℓ) → Set a where
-  ▸ₛ : γ ▸ʰ H → δ ▸[ ⌞ ∣ S ∣ ⌟ ] t → η ▸ˢ S →
-      γ ≤ᶜ ∣ S ∣ ·ᶜ wkConₘ ρ δ +ᶜ η →
+  ▸ₛ : ∣ S ∣≡ p → γ ▸ʰ H → δ ▸[ ⌞ p ⌟ ] t → η ▸ˢ S →
+      γ ≤ᶜ p ·ᶜ wkConₘ ρ δ +ᶜ η →
       ▸ ⟨ H , t , ρ , S ⟩

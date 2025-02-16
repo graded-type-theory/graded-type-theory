@@ -37,7 +37,7 @@ private variable
   t t′ u v w z s A B t₁ t₂ : Term _
   x : Fin _
   S S′ : Stack _
-  p q q′ r : M
+  p p′ q q′ r : M
   str : Strength
   l : Universe-level
   s₁ s₂ s₃ : State _ _ _
@@ -67,6 +67,8 @@ data _⇒ₑ_ {k m n} : State k m n → State k m n → Set a where
   sndₕ : ⟨ H , snd p t , ρ , S ⟩ ⇒ₑ ⟨ H , t , ρ , sndₑ p ∙ S ⟩
   prodrecₕ : ⟨ H , prodrec r p q A t u , ρ , S ⟩ ⇒ₑ
              ⟨ H , t , ρ , prodrecₑ r p q A u ρ ∙ S ⟩
+  natrecₕ : ⟨ H , natrec p q r A z s t , ρ , S ⟩ ⇒ₑ
+            ⟨ H , t , ρ , natrecₑ p q r A z s ρ ∙ S ⟩
   unitrecₕ : ¬ Unitʷ-η →
              ⟨ H , unitrec l p q A t u , ρ , S ⟩ ⇒ₑ
              ⟨ H , t , ρ , unitrecₑ l p q A u ρ ∙ S ⟩
@@ -86,11 +88,9 @@ infix 28 _⇾ₑ_
 infix 30 ⇒ₑ_
 
 data _⇾ₑ_ {k m n} : State k m n → State k m n′ → Set a where
-  var : H ⊢ wkVar ρ x ↦[ ∣ S ∣ ] (t , ρ′) ⨾ H′ →
+  var : ∣ S ∣≡ p →
+        H ⊢ wkVar ρ x ↦[ p ] (t , ρ′) ⨾ H′ →
         ⟨ H , var x , ρ , S ⟩ ⇾ₑ ⟨ H′ , t , ρ′ , S ⟩
-  natrecₕ : Ok-natrec-multiplicity p r q′ →
-            ⟨ H , natrec p q r A z s t , ρ , S ⟩ ⇾ₑ
-            ⟨ H , t , ρ , natrecₑ p q r q′ A z s ρ ∙ S ⟩
   ⇒ₑ_ : s₁ ⇒ₑ s₂ → s₁ ⇾ₑ s₂
 
 -- Reflexive, transistive closure of _⇾ₑ_.
@@ -111,8 +111,6 @@ infix 28 _⇢ₑ_
 data _⇢ₑ_ {k m n} : State k m n → State k m n′ → Set a where
   var : H ⊢ wkVar ρ x ↦ (t , ρ′) →
         ⟨ H , var x , ρ , S ⟩ ⇢ₑ ⟨ H , t , ρ′ , S ⟩
-  natrecₕ : ⟨ H , natrec p q r A z s t , ρ , S ⟩ ⇢ₑ
-            ⟨ H , t , ρ , natrecₑ p q r 𝟘 A z s ρ ∙ S ⟩
   ⇒ₑ_ : s₁ ⇒ₑ s₂ → s₁ ⇢ₑ s₂
 
 -- Reflexive, transistive closure of _⇢ₑ*_
@@ -130,20 +128,27 @@ data _⇢ₑ*_ (s : State k m n) : (s′ : State k m n′) → Set a where
 infix 28 _⇒ᵥ_
 
 data _⇒ᵥ_ {k m n} : State k m n → State k m′ n′ → Set a where
-  lamₕ : ⟨ H , lam p t , ρ , ∘ₑ p u ρ′ ∙ S ⟩ ⇒ᵥ
-         ⟨ H ∙ (∣ S ∣ · p , u , ρ′) , t , lift ρ , wk1ˢ S ⟩
+  lamₕ : ∣ S ∣≡ q
+       → ⟨ H , lam p t , ρ , ∘ₑ p u ρ′ ∙ S ⟩ ⇒ᵥ
+         ⟨ H ∙ (q · p , u , ρ′) , t , lift ρ , wk1ˢ S ⟩
   prodˢₕ₁ : ⟨ H , prodˢ p t₁ t₂ , ρ , fstₑ p ∙ S ⟩ ⇒ᵥ
             ⟨ H , t₁           , ρ , S          ⟩
   prodˢₕ₂ : ⟨ H , prodˢ p t₁ t₂ , ρ , sndₑ p ∙ S ⟩
           ⇒ᵥ ⟨ H , t₂           , ρ , S          ⟩
-  prodʷₕ : ⟨ H , prodʷ p t₁ t₂ , ρ , prodrecₑ r p q A u ρ′ ∙ S ⟩ ⇒ᵥ
-           ⟨ H ∙ (∣ S ∣ · r · p , t₁ , ρ) ∙ (∣ S ∣ · r , t₂ , step ρ)
+  prodʷₕ : ∣ S ∣≡ q′
+         → ⟨ H , prodʷ p t₁ t₂ , ρ , prodrecₑ r p q A u ρ′ ∙ S ⟩ ⇒ᵥ
+           ⟨ H ∙ (q′ · r · p , t₁ , ρ) ∙ (q′ · r , t₂ , step ρ)
               , u             , liftn ρ′ 2 , wk2ˢ S ⟩
-  zeroₕ : ⟨ H , zero , ρ  , natrecₑ p q r q′ A z s ρ′ ∙ S ⟩ ⇒ᵥ
+  zeroₕ : ⟨ H , zero , ρ  , natrecₑ p q r A z s ρ′ ∙ S ⟩ ⇒ᵥ
           ⟨ H , z    , ρ′ , S                          ⟩
-  sucₕ : ⟨ H , suc t , ρ , natrecₑ p q r q′ A z s ρ′ ∙ S ⟩ ⇒ᵥ
-         ⟨ H ∙ (∣ S ∣ · q′ , t , ρ)
-             ∙ (∣ S ∣ · r , natrec p q r (wk (lift (step id)) A) (wk1 z)
+
+  sucₕ : -- p′ is the multiplicity of the natrec eliminator
+         -- on top of the stack and q′ is the multiplicity of
+         -- the rest of the stack.
+         ∣ S ∣≡ q′ → ∣natrec p , r ∣≡ p′ →
+         ⟨ H , suc t , ρ , natrecₑ p q r A z s ρ′ ∙ S ⟩ ⇒ᵥ
+         ⟨ H ∙ (q′ · p′ , t , ρ)
+             ∙ (q′ · r , natrec p q r (wk (lift (step id)) A) (wk1 z)
                               (wk (liftn (step id) 2) s) (var x0)
                           , lift ρ′)
              , s , liftn ρ′ 2 , wk2ˢ S ⟩

@@ -140,9 +140,9 @@ opaque mutual
   normalize H (suc t) ρ S =
     _ , suc t , ρ , S , val sucᵥ , id
   normalize H (natrec p q r A z s n) ρ S =
-    case normalize H n ρ (natrecₑ p q r 𝟘 A z s ρ ∙ S) of λ
+    case normalize H n ρ (natrecₑ p q r A z s ρ ∙ S) of λ
       (_ , _ , _ , _ , n , d) →
-    _ , _ , _ , _ , n , natrecₕ ⇨ d
+    _ , _ , _ , _ , n , ⇒ₑ natrecₕ ⇨ d
   normalize H (emptyrec p A t) ρ S =
     case normalize H t ρ (emptyrecₑ p A ρ ∙ S) of λ
       (_ , _ , _ , _ , n , d) →

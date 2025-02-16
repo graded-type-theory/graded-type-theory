@@ -53,7 +53,8 @@ open import Graded.Heap.Untyped.Properties type-variant UR factoring-nr
 open import Graded.Heap.Usage type-variant UR factoring-nr
 open import Graded.Heap.Usage.Inversion type-variant UR factoring-nr
 open import Graded.Heap.Usage.Properties type-variant UR factoring-nr
-open import Graded.Heap.Usage.Reduction type-variant UR factoring-nr Unitʷ-η→ ¬Nr-not-available
+open import Graded.Heap.Usage.Reduction
+  type-variant UR factoring-nr Unitʷ-η→ ¬Nr-not-available
 open import Graded.Heap.Termination UR TR As
 open import Graded.Heap.Typed UR TR factoring-nr
 open import Graded.Heap.Typed.Inversion UR TR factoring-nr
@@ -108,21 +109,21 @@ opaque
     case inversion-suc ⊢t of λ
       (⊢n″ , ≡ℕ) →
     case ▸ₛ-inv (▸-⇾* ▸s d′) of λ
-      (_ , _ , _ , ▸H , ▸t , ▸ε , γ≤) →
+      (_ , _ , _ , _ , ∣ε∣≡ , ▸H , ▸t , ▸ε , γ≤) →
     case inv-usage-suc ▸t of λ
       (invUsageSuc ▸n″ δ≤)  →
     case redNumeral′ {s = ⟨ H , n″ , ρ , ε ⟩} consistent nem x
           (PE.sym (PE.trans (PE.cong (_[ H ]ₕ) ≡n′) ≡n))
           (⊢ₛ ⊢H ⊢n″ ε)
-          (▸ₛ ▸H ▸n″ ▸ε (≤ᶜ-trans γ≤ (+ᶜ-monotoneˡ (·ᶜ-monotoneʳ (wk-≤ᶜ ρ δ≤))))) of λ
+          (▸ₛ ∣ε∣≡ ▸H ▸n″ ▸ε (≤ᶜ-trans γ≤ (+ᶜ-monotoneˡ (·ᶜ-monotoneʳ (wk-≤ᶜ ρ δ≤))))) of λ
       (_ , _ , H′ , ρ′ , t′ , d₀ , n , s′≡ , ▸s′) →
     case ▸ₛ-inv ▸s′ of λ
-      (_ , _ , _ , ▸H , ▸t , ▸S , γ≤) →
+      (_ , _ , _ , _ , ∣ε∣≡ , ▸H , ▸t , ▸S , γ≤) →
     _ , _ , _ , _ , _
       , ↠*-concat (⇾*→↠* d′)
           (⇒ₙ sucₕ ¬num ⇨ ↠*-concat (++sucₛ-↠* d₀) (⇒ₙ (numₕ n) ⇨ id))
       , sucₙ n , trans s≡ (suc-cong s′≡)
-      , ▸ₛ ▸H (sucₘ ▸t) ▸S γ≤ }}}
+      , ▸ₛ ∣ε∣≡ ▸H (sucₘ ▸t) ▸S γ≤ }}}
 
   redNumeral′ consistent nem (ℕₜ _ d n≡n zeroᵣ) PE.refl ⊢s ▸s =
     case whBisim consistent nem ⊢s ▸s (d , zeroₙ) of λ
@@ -184,7 +185,7 @@ opaque
     case redNumeral consistent nem (⊢initial ⊢t) ▸s of λ
       (_ , _ , H , ρ , t , d , num , s≡ , ▸s′) →
     case ▸ₛ-inv ▸s′ of λ
-      (γ , δ , η , ▸H , ▸n , ▸ε , γ≤) →
+      (p , γ , δ , η , ∣ε∣≡ , ▸H , ▸n , ▸ε , γ≤) →
     case Numeral→sucᵏ num of λ
       (k , ≡sucᵏ) →
     case PE.subst (λ x → _ ↠* ⟨ _ , x , _ , _ ⟩) ≡sucᵏ d of λ
@@ -199,7 +200,8 @@ opaque
           s≡
       , 𝟘▸H→H≤𝟘 (sub ▸H $ begin
           γ                      ≤⟨ γ≤ ⟩
-          𝟙 ·ᶜ wkConₘ ρ δ +ᶜ η   ≈⟨ +ᶜ-congˡ (▸ˢ-ε-inv ▸ε) ⟩
+          p ·ᶜ wkConₘ ρ δ +ᶜ η   ≈⟨ +ᶜ-cong (·ᶜ-congʳ (∣∣-functional ∣ε∣≡ ε))
+                                           (▸ˢ-ε-inv ▸ε) ⟩
           𝟙 ·ᶜ wkConₘ ρ δ +ᶜ 𝟘ᶜ  ≈⟨ +ᶜ-identityʳ _ ⟩
           𝟙 ·ᶜ wkConₘ ρ δ        ≈⟨ ·ᶜ-identityˡ _ ⟩
           wkConₘ ρ δ             ≤⟨ wk-≤ᶜ ρ (inv-usage-numeral ▸n num) ⟩

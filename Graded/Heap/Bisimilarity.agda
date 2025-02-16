@@ -85,30 +85,29 @@ module _
   opaque
 
     ⇾ₑ→⇢ₑ : s ⇾ₑ ⟨ H , t , ρ , S ⟩
-          → ∃₂ λ H′ S′ → s ⇢ₑ ⟨ H′ , t , ρ , S′ ⟩ × H ~ʰ H′ × S ~ˢ S′
-    ⇾ₑ→⇢ₑ (var d) = _ , _ , var (↦[]→↦ d) , ~ʰ-sym (update-~ʰ d) , ~ˢ-refl
-    ⇾ₑ→⇢ₑ (⇒ₑ d) = _ , _ , ⇒ₑ d , ~ʰ-refl , ~ˢ-refl
-    ⇾ₑ→⇢ₑ (natrecₕ ok) = _ , _ , natrecₕ , ~ʰ-refl , ~ᵉ-natrec ∙ ~ˢ-refl
+          → ∃ λ H′ → s ⇢ₑ ⟨ H′ , t , ρ , S ⟩ × H ~ʰ H′
+    ⇾ₑ→⇢ₑ (var _ d) = _ , var (↦[]→↦ d) , ~ʰ-sym (update-~ʰ d)
+    ⇾ₑ→⇢ₑ (⇒ₑ d) = _ , ⇒ₑ d , ~ʰ-refl
 
   opaque
 
     ⇾→⇢ : s ⇾ ⟨ H , t , ρ , S ⟩
-        → ∃₂ λ H′ S′ → s ⇢ ⟨ H′ , t , ρ , S′ ⟩ × H ~ʰ H′ × S ~ˢ S′
+        → ∃ λ H′ → s ⇢ ⟨ H′ , t , ρ , S ⟩ × H ~ʰ H′
     ⇾→⇢ (⇾ₑ d) =
-      let _ , _ , d′ , H~H′ , S~S′ = ⇾ₑ→⇢ₑ d
-      in  _ , _ , ⇢ₑ d′ , H~H′ , S~S′
-    ⇾→⇢ (⇒ᵥ d) = _ , _ , ⇒ᵥ d , ~ʰ-refl , ~ˢ-refl
+      let _ , d′ , H~H′ = ⇾ₑ→⇢ₑ d
+      in  _ , ⇢ₑ d′ , H~H′
+    ⇾→⇢ (⇒ᵥ d) = _ , ⇒ᵥ d , ~ʰ-refl
 
   opaque
 
     ⇾*→⇢* : s ⇾* ⟨ H , t , ρ , S ⟩
-          → ∃₂ λ H′ S′ → s ⇢* ⟨ H′ , t , ρ , S′ ⟩ × H ~ʰ H′ × S ~ˢ S′
-    ⇾*→⇢* id = _ , _ , id , ~ʰ-refl , ~ˢ-refl
+          → ∃ λ H′ → s ⇢* ⟨ H′ , t , ρ , S ⟩ × H ~ʰ H′
+    ⇾*→⇢* id = _ , id , ~ʰ-refl
     ⇾*→⇢* (_⇨_ {s₂ = record{}} x d) =
-      let _ , _ , x′ , H~H′ , S~S′ = ⇾→⇢ x
-          _ , _ , d′ , H~H″ , S~S″ = ⇾*→⇢* d
-          _ , _ , d″ , H~H‴ , S~S‴ = ~ʰ-~ˢ-⇢* d′ H~H′ S~S′
-      in  _ , _ , x′ ⇨ d″ , ~ʰ-trans H~H″ H~H‴ , ~ˢ-trans S~S″ S~S‴
+      let _ , x′ , H~H′ = ⇾→⇢ x
+          _ , d′ , H~H″ = ⇾*→⇢* d
+          _ , d″ , H~H‴ = ~ʰ-⇢* d′ H~H′
+      in  _ , x′ ⇨ d″ , ~ʰ-trans H~H″ H~H‴
 
 -- The other direction is proven under some additional assumptions
 
@@ -116,73 +115,72 @@ module _ (As : Assumptions) where
 
   open Assumptions As
   open Imports factoring-nr
-  open import Graded.Heap.Usage.Reduction type-variant UR factoring-nr Unitʷ-η→ ¬Nr-not-available
+  open import Graded.Heap.Usage.Reduction
+    type-variant UR factoring-nr Unitʷ-η→ ¬Nr-not-available
 
   opaque
 
-    ⇢ₑ→⇾ₑ : H ~ʰ H″ → S ~ˢ S″
-          → ▸ ⟨ H″ , t , ρ , S″ ⟩
-          → ⟨ H , t , ρ , S ⟩ ⇢ₑ ⟨ H′ , t′ , ρ′ , S′ ⟩
-          → ∃₂ λ H‴ S‴ → ⟨ H″ , t , ρ , S″ ⟩ ⇾ₑ ⟨ H‴ , t′ , ρ′ , S‴ ⟩ × H′ ~ʰ H‴ × S′ ~ˢ S‴
-    ⇢ₑ→⇾ₑ H~H″ S~S″ ▸s (var d) =
-      let H , d′ = ▸↦→↦[] subtraction-ok (~ʰ-lookup H~H″ d) ▸s
-      in  _ , _ , var d′ , ~ʰ-trans H~H″ (update-~ʰ d′) , S~S″
-    ⇢ₑ→⇾ₑ H~H″ S~S″ _ (⇒ₑ d) =
-      let _ , _ , d′ , H′~H‴ , S′~S‴ = ~ʰ-~ˢ-⇒ₑ d H~H″ S~S″
-      in  _ , _ , ⇒ₑ d′ , H′~H‴ , S′~S‴
-    ⇢ₑ→⇾ₑ H~H″ S~S″ ▸s natrecₕ =
-      let _ , _ , _ , _ , ▸natrec , _ = ▸ₛ-inv ▸s
-      in  _ , _ , natrecₕ (▸natrec→Ok-nr ¬Nr-not-available ▸natrec .proj₂)
-            , H~H″ , (~ᵉ-natrec ∙ S~S″)
+    ⇢ₑ→⇾ₑ :
+      H ~ʰ H″ → ▸ ⟨ H″ , t , ρ , S ⟩ →
+      ⟨ H , t , ρ , S ⟩ ⇢ₑ ⟨ H′ , t′ , ρ′ , S′ ⟩ →
+      ∃ λ H‴ → ⟨ H″ , t , ρ , S ⟩ ⇾ₑ ⟨ H‴ , t′ , ρ′ , S′ ⟩ × H′ ~ʰ H‴
+    ⇢ₑ→⇾ₑ H~H″ ▸s (var d) =
+      let _ , _ , _ , _ , ∣S∣≡ , _ = ▸ₛ-inv ▸s
+          H , d′ = ▸↦→↦[] subtraction-ok ∣S∣≡ (~ʰ-lookup H~H″ d) ▸s
+      in  _ , var ∣S∣≡ d′ , ~ʰ-trans H~H″ (update-~ʰ d′)
+    ⇢ₑ→⇾ₑ H~H″ _ (⇒ₑ d) =
+      let _ , d′ , H′~H‴ = ~ʰ-⇒ₑ d H~H″
+      in  _ , ⇒ₑ d′ , H′~H‴
 
   opaque
 
-    ⇢ₑ*→⇾ₑ* : H ~ʰ H″ → S ~ˢ S″
-            → ▸ ⟨ H″ , t , ρ , S″ ⟩
-            → ⟨ H , t , ρ , S ⟩ ⇢ₑ* ⟨ H′ , t′ , ρ′ , S′ ⟩
-            → ∃₂ λ H‴ S‴ → ⟨ H″ , t , ρ , S″ ⟩ ⇾ₑ* ⟨ H‴ , t′ , ρ′ , S‴ ⟩ × H′ ~ʰ H‴ × S′ ~ˢ S‴
-    ⇢ₑ*→⇾ₑ* H~H″ S~S″ ▸s id = _ , _ , id , H~H″ , S~S″
-    ⇢ₑ*→⇾ₑ* H~H″ S~S″ ▸s (_⇨_ {s′ = record{}} x d) =
-      let _ , _ , x′ , H~H′ , S~S′ = ⇢ₑ→⇾ₑ H~H″ S~S″ ▸s x
+    ⇢ₑ*→⇾ₑ* :
+      H ~ʰ H″ → ▸ ⟨ H″ , t , ρ , S ⟩ →
+      ⟨ H , t , ρ , S ⟩ ⇢ₑ* ⟨ H′ , t′ , ρ′ , S′ ⟩ →
+      ∃ λ H‴ → ⟨ H″ , t , ρ , S ⟩ ⇾ₑ* ⟨ H‴ , t′ , ρ′ , S′ ⟩ × H′ ~ʰ H‴
+    ⇢ₑ*→⇾ₑ* H~H″ ▸s id = _ , id , H~H″
+    ⇢ₑ*→⇾ₑ* H~H″ ▸s (_⇨_ {s′ = record{}} x d) =
+      let _ , x′ , H~H′ = ⇢ₑ→⇾ₑ H~H″ ▸s x
           ▸s′ = ▸-⇾ₑ ▸s x′
-          _ , _ , d′ , H~H‴ , S~S‴ = ⇢ₑ*→⇾ₑ* H~H′ S~S′ ▸s′ d
-      in  _ , _ , x′ ⇨ d′ , H~H‴ , S~S‴
+          _ , d′ , H~H‴ = ⇢ₑ*→⇾ₑ* H~H′ ▸s′ d
+      in  _ , x′ ⇨ d′ , H~H‴
 
   opaque
 
-    ⇢→⇾ : H ~ʰ H″ → S ~ˢ S″
-        → ▸ ⟨ H″ , t , ρ , S″ ⟩
-        → ⟨ H , t , ρ , S ⟩ ⇢ ⟨ H′ , t′ , ρ′ , S′ ⟩
-        → ∃₂ λ H‴ S‴ → ⟨ H″ , t , ρ , S″ ⟩ ⇾ ⟨ H‴ , t′ , ρ′ , S‴ ⟩ × H′ ~ʰ H‴ × S′ ~ˢ S‴
-    ⇢→⇾ H~H″ S~S″ ▸s (⇢ₑ d) =
-      let _ , _ , d′ , H~H′ , S~S′ = ⇢ₑ→⇾ₑ H~H″ S~S″ ▸s d
-      in  _ , _ , ⇾ₑ d′ , H~H′ , S~S′
-    ⇢→⇾ H~H″ S~S″ ▸s (⇒ᵥ d) =
-      let _ , _ , d′ , H~H′ , S~S′ = ~ʰ-~ˢ-⇒ᵥ d H~H″ S~S″
-      in  _ , _ , ⇒ᵥ d′ , H~H′ , S~S′
+    ⇢→⇾ :
+      H ~ʰ H″ → ▸ ⟨ H″ , t , ρ , S ⟩ →
+      ⟨ H , t , ρ , S ⟩ ⇢ ⟨ H′ , t′ , ρ′ , S′ ⟩ →
+      ∃ λ H‴ → ⟨ H″ , t , ρ , S ⟩ ⇾ ⟨ H‴ , t′ , ρ′ , S′ ⟩ × H′ ~ʰ H‴
+    ⇢→⇾ H~H″ ▸s (⇢ₑ d) =
+      let _ , d′ , H~H′ = ⇢ₑ→⇾ₑ H~H″ ▸s d
+      in  _ , ⇾ₑ d′ , H~H′
+    ⇢→⇾ H~H″ ▸s (⇒ᵥ d) =
+      let _ , d′ , H~H′ = ~ʰ-⇒ᵥ d H~H″
+      in  _ , ⇒ᵥ d′ , H~H′
 
   opaque
 
-    ⇢*→⇾* : H ~ʰ H″ → S ~ˢ S″
-          → ▸ ⟨ H″ , t , ρ , S″ ⟩
-          → ⟨ H , t , ρ , S ⟩ ⇢* ⟨ H′ , t′ , ρ′ , S′ ⟩
-          → ∃₂ λ H‴ S‴ → ⟨ H″ , t , ρ , S″ ⟩ ⇾* ⟨ H‴ , t′ , ρ′ , S‴ ⟩ × H′ ~ʰ H‴ × S′ ~ˢ S‴
-    ⇢*→⇾* H~H″ S~S″ ▸s id =
-      _ , _ , id , H~H″ , S~S″
-    ⇢*→⇾* H~H″ S~S″ ▸s (_⇨_ {s₂ = record{}} x d) =
-      let _ , _ , x′ , H~H′ , S~S′ = ⇢→⇾ H~H″ S~S″ ▸s x
-          _ , _ , d′ , H~H‴ , S~S‴  = ⇢*→⇾* H~H′ S~S′ (▸-⇾ ▸s x′) d
-      in  _ , _ , x′ ⇨ d′ , H~H‴ , S~S‴
+    ⇢*→⇾* :
+      H ~ʰ H″ → ▸ ⟨ H″ , t , ρ , S ⟩ →
+      ⟨ H , t , ρ , S ⟩ ⇢* ⟨ H′ , t′ , ρ′ , S′ ⟩ →
+      ∃ λ H‴ → ⟨ H″ , t , ρ , S ⟩ ⇾* ⟨ H‴ , t′ , ρ′ , S′ ⟩ × H′ ~ʰ H‴
+    ⇢*→⇾* H~H″ ▸s id =
+      _ , id , H~H″
+    ⇢*→⇾* H~H″ ▸s (_⇨_ {s₂ = record{}} x d) =
+      let _ , x′ , H~H′ = ⇢→⇾ H~H″ ▸s x
+          _ , d′ , H~H‴ = ⇢*→⇾* H~H′ (▸-⇾ ▸s x′) d
+      in  _ , x′ ⇨ d′ , H~H‴
 
   opaque
 
     -- Normalization for the tracking semantics
 
-    ▸normalize : ∀ {k m n} (s : State k m n) → ▸ s
-               → ∃₂ λ n′ (s′ : State _ _ n′) → Normal s′ × s ⇾ₑ* s′
+    ▸normalize :
+      ∀ {k m n} (s : State k m n) → ▸ s →
+      ∃₂ λ n′ (s′ : State _ _ n′) → Normal s′ × s ⇾ₑ* s′
     ▸normalize s@record{} ▸s with normalizeₛ s
     … | _ , record{} , n , d =
-      let _ , _ , d′ , H~H′ , _ = ⇢ₑ*→⇾ₑ* ~ʰ-refl ~ˢ-refl ▸s d
+      let _ , d′ , H~H′ = ⇢ₑ*→⇾ₑ* ~ʰ-refl ▸s d
       in  _ , _ , ~ʰ-Normal H~H′ n , d′
 
 ------------------------------------------------------------------------
@@ -222,8 +220,9 @@ module _
     ⊢⇒→⇒ᵥ : Δ ⊢ ⦅ s ⦆ ⇒ u ∷ A
           → Normal s
           → Δ ⊢ₛ s ∷ B
+          → ∣ State.stack s ∣≡ p
           → ∃₃ λ m n (s′ : State _ m n) → s ⇒ᵥ s′ × u PE.≡ ⦅ s′ ⦆
-    ⊢⇒→⇒ᵥ {s = ⟨ H , t , ρ , ε ⟩} d (val x) ⊢s =
+    ⊢⇒→⇒ᵥ {s = ⟨ H , t , ρ , ε ⟩} d (val x) ⊢s _ =
       case Value→Whnf (substValue (toSubstₕ H) (wkValue ρ x)) of λ where
           (inj₁ w) → ⊥-elim (whnfRedTerm d w)
           (inj₂ (_ , _ , _ , _ , _ , _ , ≡ur , η)) →
@@ -239,11 +238,11 @@ module _
         lemma η (unitrec-subst _ _ _ _ no-η) = ⊥-elim (no-η η)
         lemma η (unitrec-β _ _ _ no-η) = ⊥-elim (no-η η)
         lemma η (unitrec-β-η _ _ _ _ _) = refl
-    ⊢⇒→⇒ᵥ {s = ⟨ H , t , ρ , e ∙ S ⟩} d (val v) ⊢s =
-      case ⊢Value-⇒ᵥ ⊢s v of λ
+    ⊢⇒→⇒ᵥ {s = ⟨ H , t , ρ , e ∙ S ⟩} d (val v) ⊢s ∣S∣≡ =
+      case ⊢Value-⇒ᵥ ∣S∣≡ ⊢s v of λ
         (_ , _ , _ , d′) →
       _ , _ , _ , d′ , whrDetTerm d (⇒ᵥ→⇒ ⊢s d′)
-    ⊢⇒→⇒ᵥ d (var d′) ⊢s =
+    ⊢⇒→⇒ᵥ d (var d′) ⊢s - =
       let _ , _ , _ , _ , ⊢S = ⊢ₛ-inv ⊢s
       in  ⊥-elim (neRedTerm d (NeutralAt→Neutral
             (toSubstₕ-NeutralAt d′ (⊢⦅⦆ˢ-NeutralAt ⊢S var))))
@@ -254,7 +253,8 @@ module _ (As : Assumptions) where
 
   open Assumptions As
   open Imports factoring-nr
-  open import Graded.Heap.Usage.Reduction type-variant UR factoring-nr Unitʷ-η→ ¬Nr-not-available
+  open import Graded.Heap.Usage.Reduction
+    type-variant UR factoring-nr Unitʷ-η→ ¬Nr-not-available
 
   opaque
 
@@ -264,12 +264,19 @@ module _ (As : Assumptions) where
       Δ ⊢ₛ s ∷ B →
       ▸ s →
       ∃₃ λ m n (s′ : State _ m n) → s ⇾* s′ × u PE.≡ ⦅ s′ ⦆
-    ⊢⇒→⇾* {s} d ⊢s ▸s =
-      let _ , s′ , n , d′ = ▸normalize As s ▸s
-          d″ = PE.subst (_ ⊢_⇒ _ ∷ _) (⇾ₑ*-⦅⦆-≡ d′) d
-          ⊢s′ = ⊢ₛ-⇾ₑ* ⊢s d′
-          _ , _ , s″ , d‴ , u≡ = ⊢⇒→⇒ᵥ factoring-nr d″ n ⊢s′
-      in  _ , _ , s″ , ⇾ₑ* d′ ⇨* ⇒ᵥ d‴ ⇨ id , u≡
+    ⊢⇒→⇾* {s} {u} d ⊢s ▸s =
+      let _ , _ , n , d′ = ▸normalize As s ▸s
+      in  lemma n d′
+      where
+      lemma :
+        Normal s′ → s ⇾ₑ* s′ →
+        ∃₃ λ m n (s′ : State _ m n) → s ⇾* s′ × u PE.≡ ⦅ s′ ⦆
+      lemma {s′ = record{}} n d′ =
+        let d″ = PE.subst (_ ⊢_⇒ _ ∷ _) (⇾ₑ*-⦅⦆-≡ d′) d
+            ⊢s′ = ⊢ₛ-⇾ₑ* ⊢s d′
+            _ , _ , _ , _ , ∣S∣≡ , _ = ▸ₛ-inv (▸-⇾ₑ* ▸s d′)
+            _ , _ , s″ , d‴ , u≡ = ⊢⇒→⇒ᵥ factoring-nr d″ n ⊢s′ ∣S∣≡
+        in  _ , _ , s″ , ⇾ₑ* d′ ⇨* ⇒ᵥ d‴ ⇨ id , u≡
 
   opaque
 
