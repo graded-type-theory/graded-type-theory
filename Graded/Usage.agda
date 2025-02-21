@@ -266,16 +266,39 @@ data _◂_∈_  : (x : Fin n) (p : M) (γ : Conₘ n) → Set a where
 -- mirror the rules for J, but if the K rule is available, then it
 -- might be a better idea to use the "all" rules.
 data _▸[_]_ {n : Nat} : (γ : Conₘ n) → Mode → Term n → Set a where
+  sub       : γ ▸[ m ] t
+            → δ ≤ᶜ γ
+            → δ ▸[ m ] t
+
+  var       : (𝟘ᶜ , x ≔ ⌜ m ⌝) ▸[ m ] var x
+
   Uₘ        : 𝟘ᶜ ▸[ m ] U l
-  ℕₘ        : 𝟘ᶜ ▸[ m ] ℕ
+
   Emptyₘ    : 𝟘ᶜ ▸[ m ] Empty
+
+  emptyrecₘ : γ ▸[ m ᵐ· p ] t
+            → δ ▸[ 𝟘ᵐ? ] A
+            → Emptyrec-allowed m p
+            → p ·ᶜ γ ▸[ m ] emptyrec p A t
+
   Unitₘ     : 𝟘ᶜ ▸[ m ] Unit s l
+
+  -- If strong unit types are not allowed to be used as sinks, then γ
+  -- must be 𝟘ᶜ.
+  starˢₘ    : (¬ Starˢ-sink → 𝟘ᶜ ≈ᶜ γ)
+            → ⌜ m ⌝ ·ᶜ γ ▸[ m ] starˢ l
+
+  starʷₘ    : 𝟘ᶜ ▸[ m ] starʷ l
+
+  unitrecₘ : γ ▸[ m ᵐ· p ] t
+           → δ ▸[ m ] u
+           → η ∙ ⌜ 𝟘ᵐ? ⌝ · q ▸[ 𝟘ᵐ? ] A
+           → Unitrec-allowed m p q
+           → p ·ᶜ γ +ᶜ δ ▸[ m ] unitrec l p q A t u
 
   ΠΣₘ       : γ ▸[ m ᵐ· p ] F
             → δ ∙ ⌜ m ⌝ · q ▸[ m ] G
             → γ +ᶜ δ ▸[ m ] ΠΣ⟨ b ⟩ p , q ▷ F ▹ G
-
-  var       : (𝟘ᶜ , x ≔ ⌜ m ⌝) ▸[ m ] var x
 
   lamₘ      : γ ∙ ⌜ m ⌝ · p ▸[ m ] t
             → γ ▸[ m ] lam p t
@@ -283,10 +306,6 @@ data _▸[_]_ {n : Nat} : (γ : Conₘ n) → Mode → Term n → Set a where
   _∘ₘ_      : γ ▸[ m ] t
             → δ ▸[ m ᵐ· p ] u
             → γ +ᶜ p ·ᶜ δ ▸[ m ] t ∘⟨ p ⟩ u
-
-  prodʷₘ    : γ ▸[ m ᵐ· p ] t
-            → δ ▸[ m ] u
-            → p ·ᶜ γ +ᶜ δ ▸[ m ] prodʷ p t u
 
   prodˢₘ   : γ ▸[ m ᵐ· p ] t
            → δ ▸[ m ] u
@@ -302,13 +321,20 @@ data _▸[_]_ {n : Nat} : (γ : Conₘ n) → Mode → Term n → Set a where
   sndₘ      : γ ▸[ m ] t
             → γ ▸[ m ] snd p t
 
+  prodʷₘ    : γ ▸[ m ᵐ· p ] t
+            → δ ▸[ m ] u
+            → p ·ᶜ γ +ᶜ δ ▸[ m ] prodʷ p t u
+
   prodrecₘ  : γ ▸[ m ᵐ· r ] t
             → δ ∙ ⌜ m ⌝ · r · p ∙ ⌜ m ⌝ · r ▸[ m ] u
             → η ∙ ⌜ 𝟘ᵐ? ⌝ · q ▸[ 𝟘ᵐ? ] A
             → Prodrec-allowed m r p q
             → r ·ᶜ γ +ᶜ δ ▸[ m ] prodrec r p q A t u
 
+  ℕₘ        : 𝟘ᶜ ▸[ m ] ℕ
+
   zeroₘ     : 𝟘ᶜ ▸[ m ] zero
+
   sucₘ      : γ ▸[ m ] t
             → γ ▸[ m ] suc t
 
@@ -398,35 +424,20 @@ data _▸[_]_ {n : Nat} : (γ : Conₘ n) → Mode → Term n → Set a where
            → Greatest-lower-boundᶜ χ (nrᵢᶜ r γ δ)
            → x ·ᶜ η +ᶜ χ ▸[ m ] natrec p q r A z s n
 
-  emptyrecₘ : γ ▸[ m ᵐ· p ] t
-            → δ ▸[ 𝟘ᵐ? ] A
-            → Emptyrec-allowed m p
-            → p ·ᶜ γ ▸[ m ] emptyrec p A t
-
-  starʷₘ    : 𝟘ᶜ ▸[ m ] starʷ l
-
-  -- If strong unit types are not allowed to be used as sinks, then γ
-  -- must be 𝟘ᶜ.
-  starˢₘ    : (¬ Starˢ-sink → 𝟘ᶜ ≈ᶜ γ)
-            → ⌜ m ⌝ ·ᶜ γ ▸[ m ] starˢ l
-
-  unitrecₘ : γ ▸[ m ᵐ· p ] t
-           → δ ▸[ m ] u
-           → η ∙ ⌜ 𝟘ᵐ? ⌝ · q ▸[ 𝟘ᵐ? ] A
-           → Unitrec-allowed m p q
-           → p ·ᶜ γ +ᶜ δ ▸[ m ] unitrec l p q A t u
-
   Idₘ       : ¬ Id-erased
             → γ ▸[ 𝟘ᵐ? ] A
             → δ ▸[ m ] t
             → η ▸[ m ] u
             → δ +ᶜ η ▸[ m ] Id A t u
+
   Id₀ₘ      : Id-erased
             → γ ▸[ 𝟘ᵐ? ] A
             → δ ▸[ 𝟘ᵐ? ] t
             → η ▸[ 𝟘ᵐ? ] u
             → 𝟘ᶜ ▸[ m ] Id A t u
+
   rflₘ      : 𝟘ᶜ ▸[ m ] rfl
+
   Jₘ        : erased-matches-for-J m ≤ᵉᵐ some
             → (erased-matches-for-J m ≡ some → ¬ (p ≡ 𝟘 × q ≡ 𝟘))
             → γ₁ ▸[ 𝟘ᵐ? ] A
@@ -436,6 +447,7 @@ data _▸[_]_ {n : Nat} : (γ : Conₘ n) → Mode → Term n → Set a where
             → γ₅ ▸[ m ] v
             → γ₆ ▸[ m ] w
             → ω ·ᶜ (γ₂ +ᶜ γ₃ +ᶜ γ₄ +ᶜ γ₅ +ᶜ γ₆) ▸[ m ] J p q A t B u v w
+
   J₀ₘ₁      : erased-matches-for-J m ≡ some
             → p ≡ 𝟘
             → q ≡ 𝟘
@@ -446,6 +458,7 @@ data _▸[_]_ {n : Nat} : (γ : Conₘ n) → Mode → Term n → Set a where
             → γ₅ ▸[ 𝟘ᵐ? ] v
             → γ₆ ▸[ 𝟘ᵐ? ] w
             → ω ·ᶜ (γ₃ +ᶜ γ₄) ▸[ m ] J p q A t B u v w
+
   J₀ₘ₂      : erased-matches-for-J m ≡ all
             → γ₁ ▸[ 𝟘ᵐ? ] A
             → γ₂ ▸[ 𝟘ᵐ? ] t
@@ -454,6 +467,7 @@ data _▸[_]_ {n : Nat} : (γ : Conₘ n) → Mode → Term n → Set a where
             → γ₅ ▸[ 𝟘ᵐ? ] v
             → γ₆ ▸[ 𝟘ᵐ? ] w
             → γ₄ ▸[ m ] J p q A t B u v w
+
   Kₘ        : erased-matches-for-K m ≤ᵉᵐ some
             → (erased-matches-for-K m ≡ some → p ≢ 𝟘)
             → γ₁ ▸[ 𝟘ᵐ? ] A
@@ -462,6 +476,7 @@ data _▸[_]_ {n : Nat} : (γ : Conₘ n) → Mode → Term n → Set a where
             → γ₄ ▸[ m ] u
             → γ₅ ▸[ m ] v
             → ω ·ᶜ (γ₂ +ᶜ γ₃ +ᶜ γ₄ +ᶜ γ₅) ▸[ m ] K p A t B u v
+
   K₀ₘ₁      : erased-matches-for-K m ≡ some
             → p ≡ 𝟘
             → γ₁ ▸[ 𝟘ᵐ? ] A
@@ -470,6 +485,7 @@ data _▸[_]_ {n : Nat} : (γ : Conₘ n) → Mode → Term n → Set a where
             → γ₄ ▸[ m ] u
             → γ₅ ▸[ 𝟘ᵐ? ] v
             → ω ·ᶜ (γ₃ +ᶜ γ₄) ▸[ m ] K p A t B u v
+
   K₀ₘ₂      : erased-matches-for-K m ≡ all
             → γ₁ ▸[ 𝟘ᵐ? ] A
             → γ₂ ▸[ 𝟘ᵐ? ] t
@@ -477,16 +493,13 @@ data _▸[_]_ {n : Nat} : (γ : Conₘ n) → Mode → Term n → Set a where
             → γ₄ ▸[ m ] u
             → γ₅ ▸[ 𝟘ᵐ? ] v
             → γ₄ ▸[ m ] K p A t B u v
+
   []-congₘ  : γ₁ ▸[ 𝟘ᵐ? ] A
             → γ₂ ▸[ 𝟘ᵐ? ] t
             → γ₃ ▸[ 𝟘ᵐ? ] u
             → γ₄ ▸[ 𝟘ᵐ? ] v
             → []-cong-allowed-mode s m
             → 𝟘ᶜ ▸[ m ] []-cong s A t u v
-
-  sub       : γ ▸[ m ] t
-            → δ ≤ᶜ γ
-            → δ ▸[ m ] t
 
 -- Usage with implicit mode 𝟙ᵐ
 

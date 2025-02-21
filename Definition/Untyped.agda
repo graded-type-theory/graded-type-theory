@@ -49,6 +49,12 @@ infix 24 _∙[_][_][_]
 data Term (n : Nat) : Set a where
   var : (x : Fin n) → Term n
   U : Universe-level → Term n
+  Empty : Term n
+  emptyrec : (p : M) (A t : Term n) → Term n
+  Unit : Strength → Universe-level → Term n
+  star : Strength → Universe-level → Term n
+  unitrec : Universe-level → (p q : M) (A : Term (1+ n))
+            (t u : Term n) → Term n
   ΠΣ⟨_⟩_,_▷_▹_ : (b : BinderMode) (p q : M) (A : Term n)
                (B : Term (1+ n)) → Term n
   lam : (p : M) (t : Term (1+ n)) → Term n
@@ -63,12 +69,6 @@ data Term (n : Nat) : Set a where
   suc : (t : Term n) → Term n
   natrec : (p q r : M) (A : Term (1+ n)) (z : Term n)
            (s : Term (2+ n)) (t : Term n) → Term n
-  Unit : Strength → Universe-level → Term n
-  star : Strength → Universe-level → Term n
-  unitrec : Universe-level → (p q : M) (A : Term (1+ n))
-            (t u : Term n) → Term n
-  Empty : Term n
-  emptyrec : (p : M) (A t : Term n) → Term n
   Id : (A t u : Term n) → Term n
   rfl : Term n
   J : (p q : M) (A t : Term n) (B : Term (2+ n)) (u v w : Term n) →
@@ -143,6 +143,13 @@ sucᵏ (1+ n) = suc (sucᵏ n)
 data Kind : (ns : List Nat) → Set a where
   Ukind : Universe-level → Kind []
 
+  Emptykind    : Kind []
+  Emptyreckind : (p : M) → Kind (0 ∷ 0 ∷ [])
+
+  Unitkind : Strength → Universe-level → Kind []
+  Starkind : Strength → Universe-level → Kind []
+  Unitreckind : Universe-level → (p q : M) → Kind (1 ∷ 0 ∷ 0 ∷ [])
+
   Binderkind : (b : BinderMode) (p q : M) → Kind (0 ∷ 1 ∷ [])
 
   Lamkind : (p : M)   → Kind (1 ∷ [])
@@ -157,13 +164,6 @@ data Kind : (ns : List Nat) → Set a where
   Zerokind   : Kind []
   Suckind    : Kind (0 ∷ [])
   Natreckind : (p q r : M) → Kind (1 ∷ 0 ∷ 2 ∷ 0 ∷ [])
-
-  Unitkind : Strength → Universe-level → Kind []
-  Starkind : Strength → Universe-level → Kind []
-  Unitreckind : Universe-level → (p q : M) → Kind (1 ∷ 0 ∷ 0 ∷ [])
-
-  Emptykind    : Kind []
-  Emptyreckind : (p : M) → Kind (0 ∷ 0 ∷ [])
 
   Idkind      : Kind (0 ∷ 0 ∷ 0 ∷ [])
   Reflkind    : Kind []
