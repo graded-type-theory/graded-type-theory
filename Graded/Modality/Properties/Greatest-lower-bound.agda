@@ -12,6 +12,7 @@ open Semiring-with-meet 𝕄
 open import Graded.Modality.Properties.PartialOrder 𝕄
 open import Graded.Modality.Properties.Has-well-behaved-zero 𝕄
 
+open import Tools.Algebra M
 open import Tools.Empty
 open import Tools.Nat using (Sequence)
 open import Tools.Product
@@ -121,3 +122,18 @@ opaque
   ≢p-GLB-inv p≢q p-glb pᵢ≡q =
     p≢q (≤-antisym (≤-trans (p-glb .proj₁ 0) (≤-reflexive (pᵢ≡q 0)))
           (p-glb .proj₂ _ (λ i → ≤-reflexive (sym (pᵢ≡q i)))))
+
+opaque
+
+  -- If multiplication is commutative and greatest lower bounds are
+  -- preserved by multiplication from the left they are preserved also
+  -- by multiplication from the right
+
+  comm∧·-GLBˡ⇒·-GLBʳ :
+    Commutative _·_ →
+    (∀ {p pᵢ q} → Greatest-lower-bound p pᵢ →
+       Greatest-lower-bound (q · p) (λ i → q · pᵢ i)) →
+    Greatest-lower-bound p pᵢ →
+    Greatest-lower-bound (p · q) (λ i → pᵢ i · q)
+  comm∧·-GLBˡ⇒·-GLBʳ ·-comm ·-GLBˡ p-GLB =
+    GLB-cong (·-comm _ _) (λ i → ·-comm _ _) (·-GLBˡ p-GLB)

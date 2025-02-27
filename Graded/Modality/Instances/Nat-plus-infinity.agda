@@ -1911,7 +1911,7 @@ opaque
   ℕ⊎∞-supports-glb-for-natrec = record
     { +-GLBˡ = +-GLBˡ
     ; ·-GLBˡ = ·-GLBˡ
-    ; ·-GLBʳ = ·-GLBʳ
+    ; ·-GLBʳ = comm∧·-GLBˡ⇒·-GLBʳ ·-comm ·-GLBˡ
     ; +nrᵢ-GLB = +nrᵢ-GLB
     }
     where
@@ -1976,12 +1976,6 @@ opaque
       lemma ∞ ∞ p-glb ⌞ r ⌟ r≤ =
         ⊥-elim (∞-GLB-inv r pᵢ p-glb (λ i →
           ≤-trans (r≤ i) ∞·-decreasing))
-
-    ·-GLBʳ : {p q : ℕ⊎∞} {pᵢ : Sequence ℕ⊎∞} →
-            Greatest-lower-bound p pᵢ →
-            Greatest-lower-bound (p · q) (λ i → pᵢ i · q)
-    ·-GLBʳ {p} {q} {pᵢ} p-glb =
-      GLB-cong (·-comm q p) (λ i → ·-comm q (pᵢ i)) (·-GLBˡ p-glb)
 
     +-GLBˡ : {p q : ℕ⊎∞} {pᵢ : Sequence ℕ⊎∞} →
             Greatest-lower-bound p pᵢ →

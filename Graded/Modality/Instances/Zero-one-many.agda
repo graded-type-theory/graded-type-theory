@@ -2161,7 +2161,7 @@ opaque
   zero-one-many-supports-glb-for-natrec = record
     { +-GLBˡ = +-GLBˡ
     ; ·-GLBˡ = ·-GLBˡ
-    ; ·-GLBʳ = ·-GLBʳ
+    ; ·-GLBʳ = comm∧·-GLBˡ⇒·-GLBʳ ·-comm ·-GLBˡ
     ; +nrᵢ-GLB = +nrᵢ-GLB
     }
     where
@@ -2202,13 +2202,6 @@ opaque
         , λ { 𝟘 q≤ → ⊥-elim (≢p-GLB-inv (λ ()) p-glb (lemma′ ∘→ q≤))
             ; 𝟙 q≤ → ⊥-elim (≢p-GLB-inv (λ ()) p-glb (lemma″ ∘→ q≤))
             ; ω q≤ → refl}
-
-    ·-GLBʳ :
-      {pᵢ : Sequence Zero-one-many} →
-      Greatest-lower-bound p pᵢ →
-      Greatest-lower-bound (p · q) (λ i → pᵢ i · q)
-    ·-GLBʳ {p} {q} {pᵢ} p-glb =
-      GLB-cong (·-comm q p) (λ i → ·-comm q (pᵢ i)) (·-GLBˡ p-glb)
 
     +-GLBˡ :
       {pᵢ : Sequence Zero-one-many} →

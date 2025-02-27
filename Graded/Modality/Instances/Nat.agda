@@ -378,8 +378,8 @@ opaque
   Nat-supports-glb-for-natrec = record
     { +-GLBˡ = +-GLBˡ
     ; ·-GLBˡ = λ {_} {_} {q} → ·-GLBˡ {q = q}
-    ; ·-GLBʳ = ·-GLBʳ
-    ; +nrᵢ-GLB = +nrᵢ-GLB --+nrᵢ-GLB
+    ; ·-GLBʳ = comm∧·-GLBˡ⇒·-GLBʳ N.*-comm (λ {_} {_} {q} → ·-GLBˡ {q = q})
+    ; +nrᵢ-GLB = +nrᵢ-GLB
     }
     where
     +-GLBˡ :
@@ -396,12 +396,6 @@ opaque
       let pᵢ≤p , p-lub = N.*-LUB {k = q} pᵢ (≤⇔≥ .proj₁ ∘→ p≤pᵢ)
                            λ r pᵢ≤r → ≤⇔≥ .proj₁ (p-glb r (≤⇔≥ .proj₂ ∘→ pᵢ≤r))
       in  ≤⇔≥ .proj₂ ∘→ pᵢ≤p , λ r r≤pᵢ → ≤⇔≥ .proj₂ (p-lub r (≤⇔≥ .proj₁ ∘→ r≤pᵢ))
-    ·-GLBʳ :
-      Greatest-lower-bound p pᵢ →
-      Greatest-lower-bound (p · q) (λ i → pᵢ i · q)
-    ·-GLBʳ {p} {pᵢ} {q} p-glb =
-      GLB-cong (N.*-comm q p) (λ i → N.*-comm q (pᵢ i))
-        (·-GLBˡ {q = q} p-glb)
     open RPo ≤-poset
     +-nrᵢ-GLB′ :
       Greatest-lower-bound p (nrᵢ 0 z₁ s₁) →
