@@ -221,7 +221,6 @@ data InvUsageNatrecₑ {m n} (p r : M) (δ η : Conₘ n) (ρ : Wk m n) : Conₘ
     InvUsageNatrecₑ p r δ η ρ (wkConₘ ρ (nrᶜ p r δ η 𝟘ᶜ))
   invUsageNatrecNoNr :
     ⦃ no-nr : Nr-not-available-GLB ⦄ →
-    Greatest-lower-bound q (nrᵢ r 𝟙 p) →
     Greatest-lower-boundᶜ χ (nrᵢᶜ r δ η) →
     InvUsageNatrecₑ p r δ η ρ (wkConₘ ρ χ)
 
@@ -235,8 +234,8 @@ opaque
     θ ∙ ⌜ 𝟘ᵐ? ⌝ · q ▸[ 𝟘ᵐ? ] A × InvUsageNatrecₑ p r δ η ρ γ
   ▸-inv-natrecₑ (natrecₑ ▸z ▸s ▸A) =
     _ , _ , _ , ▸z , ▸s , ▸A , invUsageNatrecNr
-  ▸-inv-natrecₑ (natrec-no-nrₑ ▸z ▸s ▸A x-glb χ-glb) =
-    _ , _ , _ , ▸z , ▸s , ▸A , invUsageNatrecNoNr x-glb χ-glb
+  ▸-inv-natrecₑ (natrec-no-nrₑ ▸z ▸s ▸A χ-glb) =
+    _ , _ , _ , ▸z , ▸s , ▸A , invUsageNatrecNoNr χ-glb
 
 opaque
 

@@ -67,8 +67,8 @@ opaque
     subst (_▸ᵉ[ _ ] _) (wk-•ᶜ ρ ρ′) (prodrecₑ ▸u ok)
   wk-▸ᵉ ρ (natrecₑ {ρ = ρ′} ▸z ▸s ▸A) =
     subst (_▸ᵉ[ _ ] _) (wk-•ᶜ ρ ρ′) (natrecₑ ▸z ▸s ▸A)
-  wk-▸ᵉ ρ (natrec-no-nrₑ {ρ = ρ′} ▸z ▸s ▸A x-glb χ-glb) =
-    subst (_▸ᵉ[ _ ] _) (wk-•ᶜ ρ ρ′) (natrec-no-nrₑ ▸z ▸s ▸A x-glb χ-glb)
+  wk-▸ᵉ ρ (natrec-no-nrₑ {ρ = ρ′} ▸z ▸s ▸A χ-glb) =
+    subst (_▸ᵉ[ _ ] _) (wk-•ᶜ ρ ρ′) (natrec-no-nrₑ ▸z ▸s ▸A χ-glb)
   wk-▸ᵉ ρ (unitrecₑ {ρ = ρ′} ▸u ok no-η) =
     subst (_▸ᵉ[ _ ] _) (wk-•ᶜ ρ ρ′) (unitrecₑ ▸u ok no-η)
   wk-▸ᵉ ρ (emptyrecₑ ok) =

@@ -261,38 +261,13 @@ opaque
       wkConₘ ρ (δ +ᶜ r ·ᶜ nrᶜ p r γ δ 𝟘ᶜ)            ≈⟨ wk-+ᶜ ρ ⟩
       wkConₘ ρ δ +ᶜ wkConₘ ρ (r ·ᶜ nrᶜ p r γ δ 𝟘ᶜ)   ≈⟨ +ᶜ-congˡ (wk-·ᶜ ρ) ⟩
       wkConₘ ρ δ +ᶜ r ·ᶜ wkConₘ ρ (nrᶜ p r γ δ 𝟘ᶜ)   ∎
-    (invUsageNatrecNoNr {χ} x-glb χ-glb) → begin
+    (invUsageNatrecNoNr {χ} χ-glb) → begin
       wkConₘ ρ χ                      ≤⟨ wk-≤ᶜ ρ (nrᵢᶜ-GLBᶜ-≤ᶜ χ-glb) ⟩
       wkConₘ ρ (δ +ᶜ r ·ᶜ χ)          ≈⟨ wk-+ᶜ ρ ⟩
       wkConₘ ρ δ +ᶜ wkConₘ ρ (r ·ᶜ χ) ≈⟨ +ᶜ-congˡ (wk-·ᶜ ρ) ⟩
       wkConₘ ρ δ +ᶜ r ·ᶜ wkConₘ ρ χ   ∎
       where
       open ≤ᶜ-reasoning
-
-opaque
-
-  -- Well-resourced eliminators have a multiplicity
-
-  ▸∣∣ᵉ≡ : γ ▸ᵉ[ m ] e → ∃ (∣ e ∣ᵉ≡_)
-  ▸∣∣ᵉ≡ (∘ₑ _) = _ , ∘ₑ
-  ▸∣∣ᵉ≡ (fstₑ _) = _ , fstₑ
-  ▸∣∣ᵉ≡ sndₑ = _ , sndₑ
-  ▸∣∣ᵉ≡ (prodrecₑ _ _) = _ , prodrecₑ
-  ▸∣∣ᵉ≡ (natrecₑ _ _ _) = _ , natrecₑ has-nrₑ
-  ▸∣∣ᵉ≡ (natrec-no-nrₑ _ _ _ x-glb _) = _ , natrecₑ (no-nrₑ x-glb)
-  ▸∣∣ᵉ≡ (unitrecₑ x x₁ x₂) = _ , unitrecₑ
-  ▸∣∣ᵉ≡ (emptyrecₑ x) = _ , emptyrecₑ
-  ▸∣∣ᵉ≡ (Jₑ x) = _ , Jₑ (∣J∣≡ .proj₂)
-  ▸∣∣ᵉ≡ (Kₑ x) = _ , Kₑ (∣K∣≡ .proj₂)
-  ▸∣∣ᵉ≡ ([]-congₑ x) = _ , []-congₑ
-
-opaque
-
-  -- Well-resourced stacks have a multiplicity
-
-  ▸∣∣≡ : γ ▸ˢ S → ∃ (∣ S ∣≡_)
-  ▸∣∣≡ ε = _ , ε
-  ▸∣∣≡ (▸ˢ∙ ∣S∣≡ ▸e _) = _ , ▸∣∣ᵉ≡ ▸e .proj₂ ∙ ∣S∣≡
 
 -- Some properties proven under some assumptions about erased matches
 
@@ -317,11 +292,8 @@ module _ (nem : No-erased-matches′ type-variant UR) where
           inj₁ (lemma (nem non-trivial .proj₁ ok) prodrecₑ)
         (natrecₑ _ _ _) →
           inj₁ (lemma nr₂≢𝟘 (natrecₑ has-nrₑ))
-        (natrec-no-nrₑ _ _ _ x-glb _) →
-          inj₁ λ ∣nr∣≡ →
-            𝟘≰𝟙 (≤-trans (≤-reflexive (∣∣ᵉ-functional ∣nr∣≡
-                                        (natrecₑ (no-nrₑ x-glb))))
-                  (x-glb .proj₁ 0))
+        (natrec-no-nrₑ _ _ _ _) →
+          inj₁ λ { (natrecₑ x) → lemma-nr x refl}
         (unitrecₑ _ ok no-η) →
           inj₁ (lemma (no-η ∘→ nem non-trivial .proj₂ .proj₁ ok) unitrecₑ)
         (emptyrecₑ {p} ok) →
@@ -343,6 +315,9 @@ module _ (nem : No-erased-matches′ type-variant UR) where
       where
       lemma :  p ≢ r → ∣ e ∣ᵉ≡ p → ∣ e ∣ᵉ≡ r → ⊥
       lemma p≢r ≡p ≡r = p≢r (∣∣ᵉ-functional ≡p ≡r)
+      lemma-nr : ∣natrec p , r ∣≡ q → q ≢ 𝟘
+      lemma-nr has-nrₑ nr₂≡𝟘 = nr₂≢𝟘 nr₂≡𝟘
+      lemma-nr (no-nrₑ x) refl = 𝟘≰𝟙 (x .proj₁ 0)
 
   opaque
 

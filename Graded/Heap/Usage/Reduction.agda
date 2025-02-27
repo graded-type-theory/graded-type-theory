@@ -234,7 +234,7 @@ opaque
     open ≤ᶜ-reasoning
     lemma : InvUsageNatrecₑ p r γ δ ρ′ θ → θ ≤ᶜ wkConₘ ρ′ γ
     lemma invUsageNatrecNr = wk-≤ᶜ ρ′ (nrᶜ-zero ≤ᶜ-refl)
-    lemma (invUsageNatrecNoNr _ (χ≤ , _)) =
+    lemma (invUsageNatrecNoNr (χ≤ , _)) =
       wk-≤ᶜ ρ′ (≤ᶜ-trans (χ≤ 0) (≤ᶜ-reflexive nrᵢᶜ-zero))
 
   ▸-⇒ᵥ ▸s (sucₕ {q′} {p} {r} {p′} {ρ} {q} {A} {z} {s} {ρ′} ∣S∣≡′ ∣nr∣≡) =
@@ -312,9 +312,9 @@ opaque
               (≤ᶜ-refl ∙ ≤-reflexive (sym (trans nr-factoring
                            (trans (+-congˡ nr-𝟘) (+-identityʳ _)))))
         , ≈ᶜ-refl }
-    ▸nr ▸z ▸s ▸A (invUsageNatrecNoNr ⦃ no-nr ⦄ _ _) (has-nrₑ ⦃ has-nr ⦄) =
+    ▸nr ▸z ▸s ▸A (invUsageNatrecNoNr ⦃ no-nr ⦄ _) (has-nrₑ ⦃ has-nr ⦄) =
       ⊥-elim (¬[Nr∧No-nr-glb] _ has-nr no-nr)
-    ▸nr ▸z ▸s ▸A (invUsageNatrecNoNr ⦃ no-nr ⦄ _ χ-GLB) (no-nrₑ p′-GLB) =
+    ▸nr ▸z ▸s ▸A (invUsageNatrecNoNr ⦃ no-nr ⦄ χ-GLB) (no-nrₑ p′-GLB) =
       _ , sub (natrec-no-nr-glbₘ ⦃ no-nr = no-nr ⦄ (wkUsage (step id) ▸z)
                 (wkUsage (liftn (step id) 2) ▸s) var
                 (wkUsage (lift (step id)) ▸A) p′-GLB
@@ -534,7 +534,7 @@ opaque
       _ , _ , _
         , no-nrₑ x-glb
         , ▸-cong (sym (≢𝟘→⌞·⌟≡ʳ (λ {refl → 𝟘≰𝟙 (x-glb .proj₁ 0)}))) ▸n
-        , natrec-no-nrₑ ▸z ▸s ▸A x-glb χ-glb
+        , natrec-no-nrₑ ▸z ▸s ▸A χ-glb
         , (begin
           wkConₘ ρ γ                      ≤⟨ wk-≤ᶜ ρ γ≤ ⟩
           wkConₘ ρ (x ·ᶜ θ +ᶜ χ)          ≈⟨ wk-+ᶜ ρ ⟩
@@ -848,7 +848,7 @@ opaque
               (inj₁ (_ , _ , d)) →
                 case ▸↦→↦[] ok ∣S∣≡ d ▸s of λ
                   (_ , d′) →
-                ⊥-elim (¬d ∣S∣≡ d′) --(¬d d′)
+                ⊥-elim (¬d ∣S∣≡ d′)
               (inj₂ d) →
                 inj₁ (_ , refl , d , ▸s● ok d ▸s)
 

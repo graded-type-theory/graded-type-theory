@@ -87,7 +87,6 @@ data _▸ᵉ[_]_ {n : Nat} : (γ : Conₘ n) (m : Mode) (e : Elim n) → Set a w
   natrec-no-nrₑ : ⦃ no-nr : Nr-not-available-GLB ⦄
                 → γ ▸[ m ] z → δ ∙ ⌜ m ⌝ · p ∙ ⌜ m ⌝ · r ▸[ m ] s
                 → θ ∙ (⌜ 𝟘ᵐ? ⌝ · q) ▸[ 𝟘ᵐ? ] A
-                → Greatest-lower-bound q′ (nrᵢ r 𝟙 p)
                 → Greatest-lower-boundᶜ χ (nrᵢᶜ r γ δ)
                 → wkConₘ ρ χ ▸ᵉ[ m ] natrecₑ p q r A z s ρ
   unitrecₑ : γ ▸[ m ] u → Unitrec-allowed m p q → ¬ Unitʷ-η
