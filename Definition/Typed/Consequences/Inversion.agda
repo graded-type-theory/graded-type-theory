@@ -92,6 +92,22 @@ opaque
 
 opaque
 
+  -- Inversion for an application to a lambda
+
+  inversion-lam-app :
+    ⦃ ok : No-equality-reflection or-empty Γ ⦄ →
+    Γ ⊢ lam p t ∘⟨ q ⟩ u ∷ A →
+    ∃₄ λ B C D r → Γ ∙ B ⊢ t ∷ D ×
+    Γ ⊢ u ∷ B × Γ ⊢ A ≡ C [ u ]₀ ×
+    (∀ {v w} → Γ ⊢ v ≡ w ∷ B → Γ ⊢ D [ v ]₀ ≡ C [ w ]₀) ×
+    q PE.≡ p × Π-allowed q r
+  inversion-lam-app ⊢λtu =
+    let B , C , r , ⊢λt , ⊢u , ⊢A≡ = inversion-app ⊢λtu
+        D , ⊢t , ⊢D[]≡C[] , q≡p , ok = inversion-lam-Π ⊢λt
+    in  B , C , D , r , ⊢t , ⊢u , ⊢A≡ , ⊢D[]≡C[] , q≡p , ok
+
+opaque
+
   -- A variant of inversion-prod.
 
   inversion-prod-Σ :
