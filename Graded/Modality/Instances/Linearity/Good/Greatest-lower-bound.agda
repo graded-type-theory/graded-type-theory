@@ -50,6 +50,14 @@ open import Graded.Mode linearityModality
 open import Graded.Usage linearityModality UR′
 open import Graded.Usage.Inversion linearityModality UR′
 
+open import Definition.Untyped Linearity
+
+private variable
+  γ δ η : Conₘ _
+  t u : Term _
+  m : Mode
+  p : Linearity
+
 private
 
   opaque
@@ -112,3 +120,34 @@ opaque
       (GLBᶜ-pointwise′ (GLBᶜ-pointwise′ ε-GLB GLB-nrᵢ-𝟘) 𝟙-GLB)
     where
     open Tools.Reasoning.PartialOrder ≤ᶜ-poset
+
+opaque
+
+  -- A usage rule for plus′
+
+  ▸plus′ :
+    γ ▸[ m ] t → δ ▸[ m ] u →
+    M.Greatest-lower-bound p (M.nrᵢ 𝟙 𝟙 𝟘) →
+    Greatest-lower-boundᶜ η (nrᵢᶜ 𝟙 γ 𝟘ᶜ) →
+    p ·ᶜ δ +ᶜ η ▸[ m ] plus′ t u
+  ▸plus′ ▸t ▸u p-glb η-glb =
+    natrec-no-nr-glbₘ {θ = 𝟘ᶜ} ▸t (sucₘ (sub var (≤ᶜ-refl ∙ ≤-reflexive (M.·-zeroʳ _) ∙ ≤-reflexive (M.·-identityʳ _)))) ▸u
+      (sub ℕₘ (≤ᶜ-refl ∙ ≤-reflexive (M.·-zeroʳ _))) p-glb η-glb
+
+opaque
+
+  -- A simplified usage rule for plus′
+
+  ▸plus″ :
+    γ ▸[ m ] t → δ ▸[ m ] u →
+    γ +ᶜ δ ▸[ m ] plus′ t u
+  ▸plus″ ▸t ▸u =
+    sub (▸plus′ ▸t ▸u 𝟙-GLB γ-GLB)
+      (≤ᶜ-reflexive (≈ᶜ-trans (+ᶜ-comm _ _) (+ᶜ-congʳ (≈ᶜ-sym (·ᶜ-identityˡ _)))))
+    where
+    lemma : ∀ i → γ ≈ᶜ nrᵢᶜ 𝟙 γ 𝟘ᶜ i
+    lemma 0 = ≈ᶜ-sym nrᵢᶜ-zero
+    lemma (1+ i) = ≈ᶜ-sym (≈ᶜ-trans nrᵢᶜ-suc (≈ᶜ-trans (+ᶜ-identityˡ _)
+                     (≈ᶜ-trans (·ᶜ-identityˡ _) (≈ᶜ-sym (lemma i)))))
+    γ-GLB : Greatest-lower-boundᶜ γ (nrᵢᶜ 𝟙 γ 𝟘ᶜ)
+    γ-GLB = GLBᶜ-congˡ lemma (GLBᶜ-const (λ i → ≈ᶜ-refl))
