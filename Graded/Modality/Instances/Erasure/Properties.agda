@@ -516,7 +516,7 @@ opaque instance
   Erasure-supports-factoring-nr-rule = record
     { +-GLBˡ = +-GLBˡ′
     ; ·-GLBˡ = ·-GLBˡ′
-    ; ·-GLBʳ = ·-GLBʳ′
+    ; ·-GLBʳ = comm∧·-GLBˡ⇒·-GLBʳ ·-comm ·-GLBˡ′
     ; +nrᵢ-GLB = λ {_} {r} {_} {s} {_} {_} {s′} x x₁ →
         nrᵢ+-GLB {r = r} {s = s} {s′ = s′} x x₁
     }
@@ -535,13 +535,6 @@ opaque instance
             Greatest-lower-bound (q · p) (λ i → q · pᵢ i)
     ·-GLBˡ′ {q = 𝟘} p-glb = GLB-const′
     ·-GLBˡ′ {q = ω} p-glb = p-glb
-
-    ·-GLBʳ′ :
-      {p q : Erasure} {pᵢ : Sequence Erasure} →
-      Greatest-lower-bound p pᵢ →
-      Greatest-lower-bound (p · q) (λ i → pᵢ i · q)
-    ·-GLBʳ′ {p} {q} {pᵢ} p-glb =
-      GLB-cong (·-comm q p) (λ i → ·-comm q (pᵢ i)) (·-GLBˡ′ p-glb)
 
     nrᵢ+-ω-GLB : ∀ {r z s} i →
       nrᵢ r z s i ≡ ω →

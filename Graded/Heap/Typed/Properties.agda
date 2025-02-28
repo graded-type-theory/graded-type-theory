@@ -18,6 +18,7 @@ module Graded.Heap.Typed.Properties
   where
 
 open Type-restrictions TR
+open Modality 𝕄
 
 open import Definition.Untyped M
 open import Definition.Untyped.Neutral M type-variant
@@ -37,7 +38,7 @@ open import Graded.Heap.Untyped.Properties type-variant UR factoring-nr
 open import Tools.Empty
 open import Tools.Fin
 open import Tools.Function
-open import Tools.Nat using (1+)
+open import Tools.Nat using (Nat; 1+)
 open import Tools.Product
 open import Tools.Relation
 import Tools.PropositionalEquality as PE
@@ -52,6 +53,7 @@ private variable
   s : State _ _ _
   x : Fin _
   ρ : Wk _ _
+  n : Nat
 
 opaque
 
@@ -351,7 +353,8 @@ opaque
   -- In a constistent context, there is no well-typed stack and head of
   -- matching type containing emptyrec 𝟘
 
-  ⊢ˢemptyrec₀∉S : Consistent Δ → Δ ⨾ H ⊢ S ⟨ t ⟩∷ A ↝ B → Δ ⊢ t [ H ]ₕ ∷ A → emptyrec₀∈ S → ⊥
+  ⊢ˢemptyrec₀∉S :
+    Consistent Δ → Δ ⨾ H ⊢ S ⟨ t ⟩∷ A ↝ B → Δ ⊢ t [ H ]ₕ ∷ A → emptyrec 𝟘 ∈ S → ⊥
   ⊢ˢemptyrec₀∉S _          ε        _  ()
   ⊢ˢemptyrec₀∉S consistent (⊢e ∙ _) ⊢t here =
     case inversion-emptyrecₑ ⊢e of λ {
@@ -364,7 +367,7 @@ opaque
 
   -- A version of the property above for well-typed states
 
-  ⊢emptyrec₀∉S : Consistent Δ → Δ ⊢ₛ ⟨ H , t , ρ , S ⟩ ∷ A → emptyrec₀∈ S → ⊥
+  ⊢emptyrec₀∉S : Consistent Δ → Δ ⊢ₛ ⟨ H , t , ρ , S ⟩ ∷ A → emptyrec 𝟘 ∈ S → ⊥
   ⊢emptyrec₀∉S consistent (⊢ₛ _ ⊢t ⊢S) x = ⊢ˢemptyrec₀∉S consistent ⊢S ⊢t x
 
 opaque

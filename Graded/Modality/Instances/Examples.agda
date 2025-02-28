@@ -20,11 +20,15 @@ module Graded.Modality.Instances.Examples
 
 open import Tools.Fin
 open import Tools.Function
+open import Tools.Nat
 import Tools.Reasoning.PartialOrder
 
 open import Definition.Typed R
 open import Definition.Typed.Properties R
 open import Definition.Untyped M
+
+private variable
+  n : Nat
 
 private
 
@@ -66,12 +70,17 @@ double = lam 𝟙 (natrec 𝟘 𝟘 𝟙 ℕ (var x0) (suc (var x0)) (var x0))
     (sucⱼ (var ⊢ℕℕℕ here))
     (var ⊢ℕ here)
 
+-- A term used to define plus
+
+plus′ : (t u : Term n) → Term n
+plus′ t u = natrec 𝟘 𝟘 𝟙 ℕ t (suc (var x0)) u
+
 -- A program that takes two natural numbers and adds them:
 -- λ m n. m + n. It might make sense to see this program as linear in
 -- both arguments.
 
 plus : Term 0
-plus = lam 𝟙 $ lam 𝟙 $ natrec 𝟘 𝟘 𝟙 ℕ (var x0) (suc (var x0)) (var x1)
+plus = lam 𝟙 $ lam 𝟙 $ plus′ (var x0) (var x1)
 
 -- The term plus is well-typed.
 --

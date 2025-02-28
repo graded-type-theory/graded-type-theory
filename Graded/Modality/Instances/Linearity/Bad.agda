@@ -35,11 +35,17 @@ private
     has-nr : Nr-available
     has-nr = Natrec-mode-has-nr.Nr ⦃ zero-one-many-greatest-star-nr ⦄
 
+open import Tools.Fin
 open import Tools.Function
+open import Tools.Nat using (Nat)
 open import Tools.Product
+open import Tools.PropositionalEquality
 import Tools.Reasoning.PartialOrder
+import Tools.Reasoning.PropositionalEquality
 open import Tools.Relation
 open import Tools.Sum
+
+open import Definition.Untyped Linearity
 
 open import Graded.Context linearityModality
 open import Graded.Context.Properties linearityModality
@@ -48,6 +54,12 @@ open import Graded.Modality.Properties linearityModality
 open import Graded.Mode linearityModality
 open import Graded.Usage linearityModality UR′
 open import Graded.Usage.Inversion linearityModality UR′
+
+private variable
+  γ δ : Conₘ _
+  t u : Term _
+  m : Mode
+  n : Nat
 
 -- The term double is well-resourced (even though it can be given a
 -- linear type).
@@ -61,6 +73,44 @@ open import Graded.Usage.Inversion linearityModality UR′
     𝟘ᶜ                ∎
   where
   open Tools.Reasoning.PartialOrder ≤ᶜ-poset
+
+opaque
+
+  -- A usage rule for plus′
+
+  ▸plus′ : γ ▸[ m ] t → δ ▸[ m ] u → γ ∧ᶜ δ ▸[ m ] plus′ t u
+  ▸plus′ ▸t ▸u =
+    sub (natrecₘ {δ = 𝟘ᶜ} {θ = 𝟘ᶜ} ▸t (sucₘ (sub var (≤ᶜ-refl ∙ ≤-reflexive (M.·-zeroʳ _) ∙ ≤-reflexive (M.·-identityʳ _))))
+          ▸u (sub ℕₘ (≤ᶜ-refl ∙ ≤-reflexive (M.·-zeroʳ _))))
+        (lemma _ _)
+    where
+    open Tools.Reasoning.PropositionalEquality
+    lemma′ : ∀ p q → Has-nr.nr zero-one-many-greatest-star-nr 𝟘 𝟙 p 𝟘 q ≡ p ∧ q
+    lemma′ p q = begin
+      (p ∧ q) ⊛ 𝟘 + 𝟘 · q ▷ 𝟙 ≡⟨⟩
+      p ∧ q + ω · (𝟘 + 𝟘 · q) ≡⟨⟩
+      p ∧ q + ω · (𝟘 · q)     ≡⟨⟩
+      p ∧ q + ω · 𝟘           ≡⟨⟩
+      p ∧ q + 𝟘               ≡⟨ M.+-identityʳ _ ⟩
+      p ∧ q ∎
+    lemma : (γ δ : Conₘ n) → γ ∧ᶜ δ ≤ᶜ nrᶜ ⦃ zero-one-many-greatest-star-nr ⦄ 𝟘 𝟙 γ 𝟘ᶜ δ
+    lemma ε ε = ε
+    lemma (γ ∙ p) (δ ∙ q) =
+      lemma γ δ ∙ ≤-reflexive (sym (lemma′ p q))
+
+opaque
+
+  -- Usage for plus′ applied to two different variables
+
+  ▸plus′-x₀-x₁ : ε ∙ ω ∙ ω ▸[ 𝟙ᵐ ] plus′ (var x0) (var x1)
+  ▸plus′-x₀-x₁ = ▸plus′ var var
+
+opaque
+
+  -- Usage for plus′ applied to the same variable twice
+
+  ▸plus′-x₀-x₀ : ε ∙ 𝟙 ▸[ 𝟙ᵐ ] plus′ (var x0) (var x0)
+  ▸plus′-x₀-x₀ = ▸plus′ var var
 
 -- The term plus is not well-resourced.
 

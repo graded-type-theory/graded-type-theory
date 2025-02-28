@@ -35,6 +35,7 @@ open import Graded.Heap.Untyped type-variant UR factoring-nr
 open import Graded.Heap.Untyped.Properties type-variant UR factoring-nr
 open import Graded.Heap.Reduction type-variant UR factoring-nr
 open import Graded.Heap.Reduction.Inversion type-variant UR factoring-nr
+open import Graded.Modality.Properties.Subtraction semiring-with-meet
 
 private variable
   m n m′ n′ m″ n″ k : Nat
@@ -85,6 +86,7 @@ opaque
   ⇒ₑ-det d fstₕ = ⇒ₑ-inv-fst d
   ⇒ₑ-det d sndₕ = ⇒ₑ-inv-snd d
   ⇒ₑ-det d prodrecₕ = ⇒ₑ-inv-prodrec d
+  ⇒ₑ-det d natrecₕ = ⇒ₑ-inv-natrec d
   ⇒ₑ-det d (unitrecₕ x) = ⇒ₑ-inv-unitrec d .proj₁
   ⇒ₑ-det d emptyrecₕ = ⇒ₑ-inv-emptyrec d
   ⇒ₑ-det d Jₕ = ⇒ₑ-inv-J d
@@ -99,22 +101,17 @@ opaque
     {s′ : State k m n} {s″ : State k m n′} →
     s ⇾ₑ s′ → s ⇾ₑ s″ →
     Σ (n ≡ n′) λ n≡n′ → subst (State k m) n≡n′ s′ ≡ s″
-  ⇾ₑ-det {s′ = record{}} d (var x′) =
+  ⇾ₑ-det {s′ = record{}} d (var ∣S∣≡ x′) =
     case ⇾ₑ-inv-var d of λ {
-      (refl , x) →
+      (_ , ∣S∣≡′ , refl , x) →
+    case ∣∣-functional ∣S∣≡ ∣S∣≡′ of λ {
+      refl →
     case lookup-det x x′ of λ {
       (refl , refl , refl , refl) →
-    refl , refl }}
+    refl , refl }}}
   ⇾ₑ-det (⇒ₑ d) (⇒ₑ d′) =
     refl , ⇒ₑ-det d d′
-  ⇾ₑ-det d (natrecₕ ok) =
-    case ⇾ₑ-inv-natrec d of λ {
-      (refl , _ , refl , ok′) →
-    case Ok-natrec-multiplicity-functional ok ok′ of λ {
-      refl →
-    refl , refl}}
-  ⇾ₑ-det (var x₁) (⇒ₑ ())
-  ⇾ₑ-det (natrecₕ x₁) (⇒ₑ ())
+  ⇾ₑ-det (var _ _) (⇒ₑ ())
 
 opaque
 
@@ -131,9 +128,7 @@ opaque
       (refl , refl , refl) →
     refl , refl }}
   ⇢ₑ-det (⇒ₑ d) (⇒ₑ d′) = refl , ⇒ₑ-det d d′
-  ⇢ₑ-det d natrecₕ = ⇢ₑ-inv-natrec d
   ⇢ₑ-det (var _) (⇒ₑ ())
-  ⇢ₑ-det natrecₕ (⇒ₑ ())
 
 opaque
 
@@ -143,12 +138,24 @@ opaque
          → (d : s ⇒ᵥ s′) (d′ : s ⇒ᵥ s″)
          → Σ (m ≡ m′) λ m≡m′ → Σ (n ≡ n′) λ n≡n′ →
             subst₂ (State k) m≡m′ n≡n′ s′ ≡ s″
-  ⇒ᵥ-det d lamₕ = ⇒ᵥ-inv-lam-∘ₑ d
+  ⇒ᵥ-det d (lamₕ ∣S∣≡) =
+    let _ , ∣S∣≡′ , rest = ⇒ᵥ-inv-lam-∘ₑ d
+    in  case ∣∣-functional ∣S∣≡ ∣S∣≡′ of λ where
+          refl → rest
   ⇒ᵥ-det d prodˢₕ₁ = ⇒ᵥ-inv-prodˢ-fstₑ d
   ⇒ᵥ-det d prodˢₕ₂ = ⇒ᵥ-inv-prodˢ-sndₑ d
-  ⇒ᵥ-det d prodʷₕ = ⇒ᵥ-inv-prodʷ-prodrecₑ d
+  ⇒ᵥ-det d (prodʷₕ ∣S∣≡) =
+    let _ , ∣S∣≡′ , rest = ⇒ᵥ-inv-prodʷ-prodrecₑ d
+    in  case ∣∣-functional ∣S∣≡ ∣S∣≡′ of λ where
+          refl → rest
   ⇒ᵥ-det d zeroₕ = ⇒ᵥ-inv-zero-natrecₑ d
-  ⇒ᵥ-det d sucₕ = ⇒ᵥ-inv-suc-natrecₑ d
+  ⇒ᵥ-det d (sucₕ ∣S∣≡ ∣nr∣≡) =
+    let _ , _ , ∣S∣≡′ , ∣nr∣≡′ , rest = ⇒ᵥ-inv-suc-natrecₑ d
+    in  case ∣∣-functional ∣S∣≡ ∣S∣≡′ of λ {
+          refl →
+        case ∣natrec∣ᵉ-functional ∣nr∣≡ ∣nr∣≡′ of λ {
+          refl →
+        rest }}
   ⇒ᵥ-det d starʷₕ = ⇒ᵥ-inv-starʷ-unitrecₑ d .proj₂
   ⇒ᵥ-det d (unitrec-ηₕ x) = ⇒ᵥ-inv-unitrec-η d .proj₂
   ⇒ᵥ-det d rflₕⱼ = ⇒ᵥ-inv-rfl-Jₑ d
@@ -172,32 +179,29 @@ opaque
   -- A state cannot reduce in both ⇒ᵥ and ⇒ₙ
 
   not-⇒ᵥ-and-⇒ₑ : s ⇒ᵥ s′ → s ⇒ₑ s″ → ⊥
-  not-⇒ᵥ-and-⇒ₑ lamₕ d = ⇒ₑ-inv-lam d
+  not-⇒ᵥ-and-⇒ₑ (lamₕ _) d = ⇒ₑ-inv-lam d
   not-⇒ᵥ-and-⇒ₑ prodˢₕ₁ d = ⇒ₑ-inv-prod d
   not-⇒ᵥ-and-⇒ₑ prodˢₕ₂ d = ⇒ₑ-inv-prod d
-  not-⇒ᵥ-and-⇒ₑ prodʷₕ d = ⇒ₑ-inv-prod d
+  not-⇒ᵥ-and-⇒ₑ (prodʷₕ _) d = ⇒ₑ-inv-prod d
   not-⇒ᵥ-and-⇒ₑ zeroₕ d = ⇒ₑ-inv-zero d
-  not-⇒ᵥ-and-⇒ₑ sucₕ d = ⇒ₑ-inv-suc d
+  not-⇒ᵥ-and-⇒ₑ (sucₕ _ _) d = ⇒ₑ-inv-suc d
   not-⇒ᵥ-and-⇒ₑ starʷₕ d = ⇒ₑ-inv-star d
   not-⇒ᵥ-and-⇒ₑ (unitrec-ηₕ η) d = ⇒ₑ-inv-unitrec-η η d
   not-⇒ᵥ-and-⇒ₑ rflₕⱼ d = ⇒ₑ-inv-rfl d
   not-⇒ᵥ-and-⇒ₑ rflₕₖ d = ⇒ₑ-inv-rfl d
   not-⇒ᵥ-and-⇒ₑ rflₕₑ d = ⇒ₑ-inv-rfl d
 
-
 opaque
 
   not-⇒ᵥ-and-⇾ₑ : s ⇒ᵥ s′ → s ⇾ₑ s″ → ⊥
   not-⇒ᵥ-and-⇾ₑ d  (⇒ₑ d′) = not-⇒ᵥ-and-⇒ₑ d d′
-  not-⇒ᵥ-and-⇾ₑ () (var _)
-  not-⇒ᵥ-and-⇾ₑ () (natrecₕ _)
+  not-⇒ᵥ-and-⇾ₑ () (var _ _)
 
 opaque
 
   not-⇒ᵥ-and-⇢ₑ : s ⇒ᵥ s′ → s ⇢ₑ s″ → ⊥
   not-⇒ᵥ-and-⇢ₑ d (var x) = ⇒ᵥ-inv-var d
   not-⇒ᵥ-and-⇢ₑ d (⇒ₑ d′) = not-⇒ᵥ-and-⇒ₑ d d′
-  not-⇒ᵥ-and-⇢ₑ () natrecₕ
 
 opaque
 
@@ -206,16 +210,16 @@ opaque
   not-⇒ₙ-and-⇒ᵥ : s ⇒ₙ s′ → s ⇒ᵥ s″ → ⊥
   not-⇒ₙ-and-⇒ᵥ (sucₕ {ℓ = 0} x) d =
     case ⇒ᵥ-inv-suc d of λ {
-      (_ , _ , _ , _ , _ , _ , _ , _ , _ , _ , () , _)}
+      (_ , _ , _ , _ , _ , _ , _ , _ , _ , _ , _ , _ , _ , () , _)}
   not-⇒ₙ-and-⇒ᵥ (sucₕ {ℓ = 1+ ℓ} x) d =
     case ⇒ᵥ-inv-suc d of λ {
-      (_ , _ , _ , _ , _ , _ , _ , _ , _ , _ , () , _)}
+      (_ , _ , _ , _ , _ , _ , _ , _ , _ , _ , _ , _ , _ , () , _)}
   not-⇒ₙ-and-⇒ᵥ (numₕ zeroₙ) d =
     case ⇒ᵥ-inv-zero d of λ {
-      (_ , _ , _ , _ , _ , _ , _ , _ , _ , _ , () , _)}
+      (_ , _ , _ , _ , _ , _ , _ , _ , _ , () , _)}
   not-⇒ₙ-and-⇒ᵥ (numₕ (sucₙ x)) d =
     case ⇒ᵥ-inv-suc d of λ {
-      (_ , _ , _ , _ , _ , _ , _ , _ , _ , _ , () , _)}
+      (_ , _ , _ , _ , _ , _ , _ , _ , _ , _ , _ , _ , _ , () , _)}
 
 opaque
 
@@ -231,9 +235,8 @@ opaque
   -- A state cannot reduce in both ⇒ₙ and ⇾ₑ
 
   not-⇒ₙ-and-⇾ₑ : s ⇒ₙ s′ → s ⇾ₑ s″ → ⊥
-  not-⇒ₙ-and-⇾ₑ d (var _) = ⇒ₙ-inv-var d
+  not-⇒ₙ-and-⇾ₑ d (var _ _) = ⇒ₙ-inv-var d
   not-⇒ₙ-and-⇾ₑ d (⇒ₑ d′) = not-⇒ₙ-and-⇒ₑ d d′
-  not-⇒ₙ-and-⇾ₑ d (natrecₕ _) = ⇒ₙ-inv-natrec d
 
 opaque
 
@@ -255,8 +258,7 @@ opaque
 
 opaque
 
-  -- The non-trackigng small-step heap semantics is deterministic up to
-  -- state equality
+  -- The non-trackigng small-step heap semantics is deterministic.
 
   ⇢-det : {s′ : State k m n} {s″ : State k m′ n′}
         → (d : s ⇢ s′) (d′ : s ⇢ s″)
@@ -272,8 +274,7 @@ opaque
 
 opaque
 
-  -- The fully evaluating small-step heap semantics is deterministic
-  -- up to state equality.
+  -- The fully evaluating small-step heap semantics is deterministic.
 
   ↠-det : {s′ : State k m n} {s″ : State k m′ n′}
         → (d : s ↠ s′) (d′ : s ↠ s″)
@@ -300,15 +301,35 @@ opaque
 
 opaque
 
-  -- The normalising reduction preserves equality
-  -- in a certain way
+  -- The reflexive, transitive closure of the fully evaluating
+  -- heap semantics is deterministic.
+
+  ↠*-det : {s′ : State k m n} {s″ : State k m′ n′}
+         → (d : s ↠* s′) (d′ : s ↠* s″)
+         → (∀ {m n} (s‴ : State k m n) → ¬ s′ ↠ s‴)
+         → (∀ {m n} (s‴ : State k m n) → ¬ s″ ↠ s‴)
+         → Σ (m ≡ m′) λ m≡m′ →
+           Σ (n ≡ n′) λ n≡n′ →
+             subst₂ (State k) m≡m′ n≡n′ s′ ≡ s″
+  ↠*-det id id ¬d ¬d′ = refl , refl , refl
+  ↠*-det id (x ⇨ d′) ¬d ¬d′ = ⊥-elim (¬d _ x)
+  ↠*-det (x ⇨ d) id ¬d ¬d′ = ⊥-elim (¬d′ _ x)
+  ↠*-det (x ⇨ d) (x′ ⇨ d′) ¬d ¬d′ =
+    case ↠-det x x′ of λ where
+      (refl , refl , refl) →
+        ↠*-det d d′ ¬d ¬d′
+
+opaque
+
+  -- The normalising reduction preserves equality in a certain way
 
   ⇒ₑ-⦅⦆-≡ : s ⇒ₑ s′ → ⦅ s ⦆ ≡ ⦅ s′ ⦆
   ⇒ₑ-⦅⦆-≡ appₕ = refl
   ⇒ₑ-⦅⦆-≡ fstₕ = refl
   ⇒ₑ-⦅⦆-≡ sndₕ = refl
   ⇒ₑ-⦅⦆-≡ prodrecₕ = refl
-  ⇒ₑ-⦅⦆-≡ (unitrecₕ x) = refl
+  ⇒ₑ-⦅⦆-≡ natrecₕ = refl
+  ⇒ₑ-⦅⦆-≡ (unitrecₕ _) = refl
   ⇒ₑ-⦅⦆-≡ emptyrecₕ = refl
   ⇒ₑ-⦅⦆-≡ Jₕ = refl
   ⇒ₑ-⦅⦆-≡ Kₕ = refl
@@ -316,20 +337,17 @@ opaque
 
 opaque
 
-  -- The normalising reduction preserves equality
-  -- in a certain way
+  -- The normalising reduction preserves equality in a certain way
 
   ⇾ₑ-⦅⦆-≡ : s ⇾ₑ s′ → ⦅ s ⦆ ≡ ⦅ s′ ⦆
-  ⇾ₑ-⦅⦆-≡ {s = ⟨ _ , _ , _ , S ⟩} (var d) =
+  ⇾ₑ-⦅⦆-≡ {s = ⟨ _ , _ , _ , S ⟩} (var _ d) =
     trans (⦅⦆ˢ-cong S (heapSubstVar d))
       (cong (λ x → ⦅ S ⦆ˢ _ [ x ]) (heapUpdateSubst d))
   ⇾ₑ-⦅⦆-≡ (⇒ₑ d) = ⇒ₑ-⦅⦆-≡ d
-  ⇾ₑ-⦅⦆-≡ (natrecₕ ok) = refl
 
 opaque
 
-  -- The normalising reduction preserves equality
-  -- in a certain way
+  -- The normalising reduction preserves equality in a certain way
 
   ⇾ₑ*-⦅⦆-≡ : s ⇾ₑ* s′ → ⦅ s ⦆ ≡ ⦅ s′ ⦆
   ⇾ₑ*-⦅⦆-≡ id = refl
@@ -337,18 +355,16 @@ opaque
 
 opaque
 
-  -- The normalising reduction preserves equality
-  -- in a certain way
+  -- The normalising reduction preserves equality in a certain way
 
   ⇢ₑ-⦅⦆-≡ : s ⇢ₑ s′ → ⦅ s ⦆ ≡ ⦅ s′ ⦆
   ⇢ₑ-⦅⦆-≡ {s = ⟨ _ , _ , _ , S ⟩} (var d) = ⦅⦆ˢ-cong S (heapSubstVar′ d)
   ⇢ₑ-⦅⦆-≡ (⇒ₑ d) = ⇒ₑ-⦅⦆-≡ d
-  ⇢ₑ-⦅⦆-≡ natrecₕ = refl
 
 opaque
 
-  -- The reduction evaluating numerals preserves equality
-  -- in a certain way
+  -- The reduction evaluating numerals preserves equality in a certain
+  -- way
 
   ⇒ₙ-⦅⦆-≡ : s ⇒ₙ s′ → ⦅ s ⦆ ≡ ⦅ s′ ⦆
   ⇒ₙ-⦅⦆-≡ (sucₕ x) = refl
@@ -364,6 +380,7 @@ opaque
   wk1-⇒ₑ fstₕ = fstₕ
   wk1-⇒ₑ sndₕ = sndₕ
   wk1-⇒ₑ prodrecₕ = prodrecₕ
+  wk1-⇒ₑ natrecₕ = natrecₕ
   wk1-⇒ₑ (unitrecₕ x) = unitrecₕ x
   wk1-⇒ₑ emptyrecₕ = emptyrecₕ
   wk1-⇒ₑ Jₕ = Jₕ
@@ -376,10 +393,9 @@ opaque
 
   wk1-⇾ₑ : ⟨ H , t , ρ , S ⟩ ⇾ₑ ⟨ H′ , t′ , ρ′ , S′ ⟩
          → ⟨ H ∙ c , t , step ρ , wk1ˢ S ⟩ ⇾ₑ ⟨ H′ ∙ c , t′ , step ρ′ , wk1ˢ S′ ⟩
-  wk1-⇾ₑ {S} (var d) =
-    var (subst (_ ⊢ _ ↦[_] _ ⨾ _) (wk-∣S∣ (step id) S) (there d))
+  wk1-⇾ₑ {S} (var ∣S∣≡ d) =
+    var (wk-∣∣ ∣S∣≡) (there d)
   wk1-⇾ₑ (⇒ₑ d) = ⇒ₑ (wk1-⇒ₑ d)
-  wk1-⇾ₑ (natrecₕ ok) = natrecₕ ok
 
 opaque
 
@@ -389,8 +405,6 @@ opaque
          → ⟨ H ∙ c , t , step ρ , wk1ˢ S ⟩ ⇢ₑ ⟨ H′ ∙ c , t′ , step ρ′ , wk1ˢ S′ ⟩
   wk1-⇢ₑ (var d) = var (there d)
   wk1-⇢ₑ (⇒ₑ d) = ⇒ₑ (wk1-⇒ₑ d)
-  wk1-⇢ₑ natrecₕ = natrecₕ
-
 
 opaque
 
@@ -411,6 +425,7 @@ opaque
   wk1●-⇒ₑ fstₕ = fstₕ
   wk1●-⇒ₑ sndₕ = sndₕ
   wk1●-⇒ₑ prodrecₕ = prodrecₕ
+  wk1●-⇒ₑ natrecₕ = natrecₕ
   wk1●-⇒ₑ (unitrecₕ x) = unitrecₕ x
   wk1●-⇒ₑ emptyrecₕ = emptyrecₕ
   wk1●-⇒ₑ Jₕ = Jₕ
@@ -423,10 +438,9 @@ opaque
 
   wk1●-⇾ₑ : ⟨ H , t , ρ , S ⟩ ⇾ₑ ⟨ H′ , t′ , ρ′ , S′ ⟩
           → ⟨ H ∙● , t , step ρ , wk1ˢ S ⟩ ⇾ₑ ⟨ H′ ∙● , t′ , step ρ′ , wk1ˢ S′ ⟩
-  wk1●-⇾ₑ {S} (var d) =
-    var (subst (_ ⊢ _ ↦[_] _ ⨾ _) (wk-∣S∣ (step id) S) (there● d))
+  wk1●-⇾ₑ {S} (var ∣S∣≡ d) =
+    var (wk-∣∣ ∣S∣≡) (there● d)
   wk1●-⇾ₑ (⇒ₑ d) = ⇒ₑ wk1●-⇒ₑ d
-  wk1●-⇾ₑ (natrecₕ ok) = natrecₕ ok
 
 opaque
 
@@ -436,7 +450,6 @@ opaque
            → ⟨ H ∙● , t , step ρ , wk1ˢ S ⟩ ⇢ₑ ⟨ H′ ∙● , t′ , step ρ′ , wk1ˢ S′ ⟩
   wk1●-⇢ₑ (var d) = var (there● d)
   wk1●-⇢ₑ (⇒ₑ d) = ⇒ₑ (wk1●-⇒ₑ d)
-  wk1●-⇢ₑ natrecₕ = natrecₕ
 
 opaque
 
@@ -481,6 +494,7 @@ opaque
   ++-⇒ₑ S₀ fstₕ = fstₕ
   ++-⇒ₑ S₀ sndₕ = sndₕ
   ++-⇒ₑ S₀ prodrecₕ = prodrecₕ
+  ++-⇒ₑ S₀ natrecₕ = natrecₕ
   ++-⇒ₑ S₀ (unitrecₕ x) = unitrecₕ x
   ++-⇒ₑ S₀ emptyrecₕ = emptyrecₕ
   ++-⇒ₑ S₀ Jₕ = Jₕ
@@ -495,7 +509,6 @@ opaque
         → ⟨ H , t , ρ , S ++ S₀ ⟩ ⇢ₑ ⟨ H′ , t′ , ρ′ , S′ ++ S₀ ⟩
   ++-⇢ₑ S₀ (var d) = var d
   ++-⇢ₑ S₀ (⇒ₑ d) = ⇒ₑ (++-⇒ₑ S₀ d)
-  ++-⇢ₑ S₀ natrecₕ = natrecₕ
 
 opaque
 
@@ -512,10 +525,9 @@ opaque
 
   ++sucₛ-⇾ₑ : (d : ⟨ H , t , ρ , S ⟩ ⇾ₑ ⟨ H′ , t′ , ρ′ , S′ ⟩)
             → ⟨ H , t , ρ , S ++ sucₛ k ⟩ ⇾ₑ ⟨ H′ , t′ , ρ′ , S′ ++ sucₛ k ⟩
-  ++sucₛ-⇾ₑ {S} (var x) =
-    var (subst (_ ⊢ _ ↦[_] _ ⨾ _) (sym (∣S++sucₛ∣≡∣S∣ S)) x)
+  ++sucₛ-⇾ₑ {S} (var ∣S∣≡ d) =
+    var (∣S++sucₛ∣≡∣S∣ ∣S∣≡) d
   ++sucₛ-⇾ₑ (⇒ₑ x) = ⇒ₑ (++-⇒ₑ _ x)
-  ++sucₛ-⇾ₑ (natrecₕ ok) = natrecₕ ok
 
 opaque
 
@@ -523,27 +535,27 @@ opaque
 
   ++sucₛ-⇒ᵥ : (d : ⟨ H , t , ρ , S ⟩ ⇒ᵥ ⟨ H′ , t′ , ρ′ , S′ ⟩)
             → ⟨ H , t , ρ , S ++ sucₛ k ⟩ ⇒ᵥ ⟨ H′ , t′ , ρ′ , S′ ++ sucₛ k ⟩
-  ++sucₛ-⇒ᵥ {k} (lamₕ {H} {p} {t} {ρ} {u} {ρ′} {S}) =
-    subst₂
-      (λ x y →
+  ++sucₛ-⇒ᵥ {k} (lamₕ {S} {H} {p} {t} {ρ} {u} {ρ′} ∣S∣≡) =
+    subst
+      (λ x →
          ⟨ H , lam p t , ρ , (∘ₑ p u ρ′ ∙ S) ++ sucₛ k ⟩ ⇒ᵥ
-         ⟨ H ∙ (x · p , u , ρ′) , t , lift ρ , y ⟩)
-      (∣S++sucₛ∣≡∣S∣ S) (wk-++sucₛ (step id) S) lamₕ
+         ⟨ H ∙ (_ · p , u , ρ′) , t , lift ρ , x ⟩)
+         (wk-++sucₛ (step id) S) (lamₕ (∣S++sucₛ∣≡∣S∣ ∣S∣≡))
   ++sucₛ-⇒ᵥ prodˢₕ₁ = prodˢₕ₁
   ++sucₛ-⇒ᵥ prodˢₕ₂ = prodˢₕ₂
-  ++sucₛ-⇒ᵥ {k} (prodʷₕ {H} {p} {t₁} {t₂} {ρ} {r} {q} {A} {u} {ρ′} {S}) =
-    subst₂
-      (λ x y →
+  ++sucₛ-⇒ᵥ {k} (prodʷₕ {S} {H} {p} {t₁} {t₂} {ρ} {r} {q} {A} {u} {ρ′} ∣S∣≡) =
+    subst
+      (λ x →
          ⟨ H , prodʷ p t₁ t₂ , ρ , (prodrecₑ r p q A u ρ′ ∙ S) ++ sucₛ k ⟩ ⇒ᵥ
-         ⟨ H ∙ (x · r · p , t₁ , ρ) ∙ (x · r , t₂ , step ρ) , u , liftn ρ′ 2 , y ⟩)
-      (∣S++sucₛ∣≡∣S∣ S) (wk-++sucₛ (step (step id)) S) prodʷₕ
+         ⟨ H ∙ (_ · r · p , t₁ , ρ) ∙ (_ · r , t₂ , step ρ) , u , liftn ρ′ 2 , x ⟩)
+      (wk-++sucₛ (step (step id)) S) (prodʷₕ (∣S++sucₛ∣≡∣S∣ ∣S∣≡ ))
   ++sucₛ-⇒ᵥ zeroₕ = zeroₕ
-  ++sucₛ-⇒ᵥ {k} (sucₕ {H} {t} {ρ} {p} {q} {r} {A} {z} {s} {ρ′} {S}) =
-    subst₂
-      (λ x y →
-        ⟨ H , suc t , ρ , natrecₑ p q r _ A z s ρ′ ∙ S ++ sucₛ k ⟩ ⇒ᵥ
-        ⟨ H ∙ (x · _ , t , ρ) ∙ (x · r , _ , lift ρ′) , s , liftn ρ′ 2 , y ⟩)
-      (∣S++sucₛ∣≡∣S∣ S) (wk-++sucₛ (step (step id)) S) sucₕ
+  ++sucₛ-⇒ᵥ {k} (sucₕ {S} {r} {H} {t} {ρ} {A} {z} {s} {ρ′} ∣S∣≡ ∣nr∣≡) =
+    subst
+      (λ x →
+        ⟨ H , suc t , ρ , natrecₑ _ _ r A z s ρ′ ∙ S ++ sucₛ k ⟩ ⇒ᵥ
+        ⟨ H ∙ (_ · _ , t , ρ) ∙ (_ · r , _ , lift ρ′) , s , liftn ρ′ 2 , x ⟩)
+      (wk-++sucₛ (step (step id)) S) (sucₕ (∣S++sucₛ∣≡∣S∣ ∣S∣≡) ∣nr∣≡)
   ++sucₛ-⇒ᵥ starʷₕ = starʷₕ
   ++sucₛ-⇒ᵥ (unitrec-ηₕ η) = unitrec-ηₕ η
   ++sucₛ-⇒ᵥ rflₕⱼ = rflₕⱼ
@@ -586,6 +598,7 @@ opaque
   ⇒ₑ-Heap≡ fstₕ = refl
   ⇒ₑ-Heap≡ sndₕ = refl
   ⇒ₑ-Heap≡ prodrecₕ = refl
+  ⇒ₑ-Heap≡ natrecₕ = refl
   ⇒ₑ-Heap≡ (unitrecₕ x) = refl
   ⇒ₑ-Heap≡ emptyrecₕ = refl
   ⇒ₑ-Heap≡ Jₕ = refl
@@ -599,7 +612,6 @@ opaque
   ⇢ₑ-Heap≡ : ⟨ H , t , ρ , S ⟩ ⇢ₑ ⟨ H′ , t′ , ρ′ , S′ ⟩ → H ≡ H′
   ⇢ₑ-Heap≡ (var d) = refl
   ⇢ₑ-Heap≡ (⇒ₑ d) = ⇒ₑ-Heap≡ d
-  ⇢ₑ-Heap≡ natrecₕ = refl
 
 opaque
 
@@ -611,111 +623,92 @@ opaque
 
 opaque
 
-  -- The non resource tracking reduction behaves the same on equal heaps
-  -- and stacks
+  -- The reduction for eliminators behaves the same on equal heaps
 
-  ~ʰ-~ˢ-⇒ₑ :  ⟨ H , t , ρ , S ⟩ ⇒ₑ ⟨ H′ , t′ , ρ′ , S′ ⟩ → H ~ʰ H″ → S ~ˢ S″
-          → ∃₂ λ H‴ S‴ → ⟨ H″ , t , ρ , S″ ⟩ ⇒ₑ ⟨ H‴ , t′ , ρ′ , S‴ ⟩ ×
-                 H′ ~ʰ H‴ × S′ ~ˢ S‴
-  ~ʰ-~ˢ-⇒ₑ appₕ H~H″ S~S″ =
-    _ , _ , appₕ , H~H″ , ~ᵉ-refl ∙ S~S″
-  ~ʰ-~ˢ-⇒ₑ fstₕ H~H″ S~S″ =
-    _ , _ , fstₕ , H~H″ , ~ᵉ-refl ∙ S~S″
-  ~ʰ-~ˢ-⇒ₑ sndₕ H~H″ S~S″ =
-    _ , _ , sndₕ , H~H″ , ~ᵉ-refl ∙ S~S″
-  ~ʰ-~ˢ-⇒ₑ prodrecₕ H~H″ S~S″ =
-    _ , _ , prodrecₕ , H~H″ , ~ᵉ-refl ∙ S~S″
-  ~ʰ-~ˢ-⇒ₑ (unitrecₕ x) H~H″ S~S″ =
-    _ , _ , unitrecₕ x , H~H″ , ~ᵉ-refl ∙ S~S″
-  ~ʰ-~ˢ-⇒ₑ emptyrecₕ H~H″ S~S″ =
-    _ , _ , emptyrecₕ , H~H″ , ~ᵉ-refl ∙ S~S″
-  ~ʰ-~ˢ-⇒ₑ Jₕ H~H″ S~S″ =
-    _ , _ , Jₕ , H~H″ , ~ᵉ-refl ∙ S~S″
-  ~ʰ-~ˢ-⇒ₑ Kₕ H~H″ S~S″ =
-    _ , _ , Kₕ , H~H″ , ~ᵉ-refl ∙ S~S″
-  ~ʰ-~ˢ-⇒ₑ []-congₕ H~H″ S~S″ =
-    _ , _ , []-congₕ , H~H″ , ~ᵉ-refl ∙ S~S″
+  ~ʰ-⇒ₑ :
+    ⟨ H , t , ρ , S ⟩ ⇒ₑ ⟨ H′ , t′ , ρ′ , S′ ⟩ → H ~ʰ H″ →
+    ∃ λ H‴ → ⟨ H″ , t , ρ , S ⟩ ⇒ₑ ⟨ H‴ , t′ , ρ′ , S′ ⟩ × H′ ~ʰ H‴
+  ~ʰ-⇒ₑ appₕ H~H″ =
+    _ , appₕ , H~H″
+  ~ʰ-⇒ₑ fstₕ H~H″ =
+    _ , fstₕ , H~H″
+  ~ʰ-⇒ₑ sndₕ H~H″ =
+    _ , sndₕ , H~H″
+  ~ʰ-⇒ₑ prodrecₕ H~H″ =
+    _ , prodrecₕ , H~H″
+  ~ʰ-⇒ₑ natrecₕ H~H″ =
+    _ , natrecₕ , H~H″
+  ~ʰ-⇒ₑ (unitrecₕ x) H~H″ =
+    _ , unitrecₕ x , H~H″
+  ~ʰ-⇒ₑ emptyrecₕ H~H″ =
+    _ , emptyrecₕ , H~H″
+  ~ʰ-⇒ₑ Jₕ H~H″ =
+    _ , Jₕ , H~H″
+  ~ʰ-⇒ₑ Kₕ H~H″ =
+    _ , Kₕ , H~H″
+  ~ʰ-⇒ₑ []-congₕ H~H″ =
+    _ , []-congₕ , H~H″
+
+opaque
+
+  -- The non resource tracking reduction for eliminators behaves the
+  -- same on equal heaps
+
+  ~ʰ-⇢ₑ :
+    ⟨ H , t , ρ , S ⟩ ⇢ₑ ⟨ H′ , t′ , ρ′ , S′ ⟩ → H ~ʰ H″ →
+    ∃ λ H‴ → ⟨ H″ , t , ρ , S ⟩ ⇢ₑ ⟨ H‴ , t′ , ρ′ , S′ ⟩ × H′ ~ʰ H‴
+  ~ʰ-⇢ₑ (var d) H~H″ =
+    _ ,  var (~ʰ-lookup H~H″ d) , H~H″
+  ~ʰ-⇢ₑ (⇒ₑ d) H~H″ =
+    let _ , d′ , H~H′ = ~ʰ-⇒ₑ d H~H″
+    in  _ , ⇒ₑ d′ , H~H′
+
+opaque
+
+  -- The reduction for values behaves the same on equal heaps
+
+  ~ʰ-⇒ᵥ :
+    ⟨ H , t , ρ , S ⟩ ⇒ᵥ ⟨ H′ , t′ , ρ′ , S′ ⟩ → H ~ʰ H″ →
+    ∃ λ H‴ → ⟨ H″ , t , ρ , S ⟩ ⇒ᵥ ⟨ H‴ , t′ , ρ′ , S′ ⟩ × H′ ~ʰ H‴
+  ~ʰ-⇒ᵥ (lamₕ ∣S∣≡) H~H″ = _ , lamₕ ∣S∣≡ , H~H″ ∙ _
+  ~ʰ-⇒ᵥ prodˢₕ₁ H~H″ = _ , prodˢₕ₁ , H~H″
+  ~ʰ-⇒ᵥ prodˢₕ₂ H~H″ = _ , prodˢₕ₂ , H~H″
+  ~ʰ-⇒ᵥ (prodʷₕ ∣S∣≡) H~H″ = _ , prodʷₕ ∣S∣≡ , H~H″ ∙ _ ∙ _
+  ~ʰ-⇒ᵥ zeroₕ H~H″ = _ , zeroₕ , H~H″
+  ~ʰ-⇒ᵥ (sucₕ ∣S∣≡ ∣nr∣≡) H~H″ = _ , sucₕ ∣S∣≡ ∣nr∣≡ , H~H″ ∙ _ ∙ _
+  ~ʰ-⇒ᵥ starʷₕ H~H″ = _ , starʷₕ , H~H″
+  ~ʰ-⇒ᵥ (unitrec-ηₕ x) H~H″ = _ , unitrec-ηₕ x , H~H″
+  ~ʰ-⇒ᵥ rflₕⱼ H~H″ = _ , rflₕⱼ , H~H″
+  ~ʰ-⇒ᵥ rflₕₖ H~H″ = _ , rflₕₖ , H~H″
+  ~ʰ-⇒ᵥ rflₕₑ H~H″ = _ , rflₕₑ , H~H″
 
 opaque
 
   -- The non resource tracking reduction behaves the same on equal heaps
-  -- and stacks
 
-  ~ʰ-~ˢ-⇢ₑ :  ⟨ H , t , ρ , S ⟩ ⇢ₑ ⟨ H′ , t′ , ρ′ , S′ ⟩ → H ~ʰ H″ → S ~ˢ S″
-          → ∃₂ λ H‴ S‴ → ⟨ H″ , t , ρ , S″ ⟩ ⇢ₑ ⟨ H‴ , t′ , ρ′ , S‴ ⟩ ×
-                 H′ ~ʰ H‴ × S′ ~ˢ S‴
-  ~ʰ-~ˢ-⇢ₑ (var d) H~H″ S~S″ =
-    _ , _ ,  var (~ʰ-lookup H~H″ d) , H~H″ , S~S″
-  ~ʰ-~ˢ-⇢ₑ natrecₕ H~H″ S~S″ =
-    _ , _ , natrecₕ , H~H″ , ~ᵉ-refl ∙ S~S″
-  ~ʰ-~ˢ-⇢ₑ (⇒ₑ d) H~H″ S~S″ =
-    let _ , _ , d′ , H~H′ , S~S′ = ~ʰ-~ˢ-⇒ₑ d H~H″ S~S″
-    in  _ , _ , ⇒ₑ d′ , H~H′ , S~S′
+  ~ʰ-⇢ :
+    ⟨ H , t , ρ , S ⟩ ⇢ ⟨ H′ , t′ , ρ′ , S′ ⟩ → H ~ʰ H″ →
+    ∃ λ H‴ → ⟨ H″ , t , ρ , S ⟩ ⇢ ⟨ H‴ , t′ , ρ′ , S′ ⟩ × H′ ~ʰ H‴
+  ~ʰ-⇢ (⇢ₑ d) H~H″ =
+    let _ , d′ , H~H′ = ~ʰ-⇢ₑ d H~H″
+    in  _ , ⇢ₑ d′ , H~H′
+  ~ʰ-⇢ (⇒ᵥ d) H~H″ =
+    let _ , d′ , H~H′ = ~ʰ-⇒ᵥ d H~H″
+    in  _ , ⇒ᵥ d′ , H~H′
 
 opaque
 
   -- The non resource tracking reduction behaves the same on equal heaps
-  -- and stacks
 
-  ~ʰ-~ˢ-⇒ᵥ : ⟨ H , t , ρ , S ⟩ ⇒ᵥ ⟨ H′ , t′ , ρ′ , S′ ⟩ → H ~ʰ H″ → S ~ˢ S″
-          → ∃₂ λ H‴ S‴ → ⟨ H″ , t , ρ , S″ ⟩ ⇒ᵥ ⟨ H‴ , t′ , ρ′ , S‴ ⟩ ×
-                 H′ ~ʰ H‴ × S′ ~ˢ S‴
-  ~ʰ-~ˢ-⇒ᵥ lamₕ H~H″ (~ᵉ-refl ∙ S~S″) =
-    _ , _ , lamₕ , H~H″ ∙ _ , wk-~ˢ S~S″
-  ~ʰ-~ˢ-⇒ᵥ prodˢₕ₁ H~H″ (~ᵉ-refl ∙ S~S″) =
-    _ , _ , prodˢₕ₁ , H~H″ , S~S″
-  ~ʰ-~ˢ-⇒ᵥ prodˢₕ₂ H~H″ (~ᵉ-refl ∙ S~S″) =
-    _ , _ , prodˢₕ₂ , H~H″ , S~S″
-  ~ʰ-~ˢ-⇒ᵥ prodʷₕ H~H″ (~ᵉ-refl ∙ S~S″) =
-    _ , _ , prodʷₕ , H~H″ ∙ _ ∙ _ , wk-~ˢ S~S″
-  ~ʰ-~ˢ-⇒ᵥ zeroₕ H~H″ (~ᵉ-refl ∙ S~S″) =
-    _ , _ , zeroₕ , H~H″ , S~S″
-  ~ʰ-~ˢ-⇒ᵥ zeroₕ H~H″ (~ᵉ-natrec ∙ S~S″) =
-    _ , _ , zeroₕ , H~H″ , S~S″
-  ~ʰ-~ˢ-⇒ᵥ sucₕ H~H″ (~ᵉ-refl ∙ S~S″) =
-    _ , _ , sucₕ , H~H″ ∙ _ ∙ _ , wk-~ˢ S~S″
-  ~ʰ-~ˢ-⇒ᵥ sucₕ H~H″ (~ᵉ-natrec ∙ S~S″) =
-    _ , _ , sucₕ , H~H″ ∙ _ ∙ _ , wk-~ˢ S~S″
-  ~ʰ-~ˢ-⇒ᵥ starʷₕ H~H″ (~ᵉ-refl ∙ S~S″) =
-    _ , _ , starʷₕ , H~H″ , S~S″
-  ~ʰ-~ˢ-⇒ᵥ (unitrec-ηₕ x) H~H″ S~S″ =
-    _ , _ , unitrec-ηₕ x , H~H″ , S~S″
-  ~ʰ-~ˢ-⇒ᵥ rflₕⱼ H~H″ (~ᵉ-refl ∙ S~S″) =
-    _ , _ , rflₕⱼ , H~H″ , S~S″
-  ~ʰ-~ˢ-⇒ᵥ rflₕₖ H~H″ (~ᵉ-refl ∙ S~S″) =
-    _ , _ , rflₕₖ , H~H″ , S~S″
-  ~ʰ-~ˢ-⇒ᵥ rflₕₑ H~H″ (~ᵉ-refl ∙ S~S″) =
-    _ , _ , rflₕₑ , H~H″ , S~S″
-
-opaque
-
-  -- The non resource tracking reduction behaves the same on equal heaps
-  -- and stacks
-
-  ~ʰ-~ˢ-⇢ :  ⟨ H , t , ρ , S ⟩ ⇢ ⟨ H′ , t′ , ρ′ , S′ ⟩ → H ~ʰ H″ → S ~ˢ S″
-          → ∃₂ λ H‴ S‴ → ⟨ H″ , t , ρ , S″ ⟩ ⇢ ⟨ H‴ , t′ , ρ′ , S‴ ⟩ ×
-                 H′ ~ʰ H‴ × S′ ~ˢ S‴
-  ~ʰ-~ˢ-⇢ (⇢ₑ d) H~H″ S~S″ =
-    let _ , _ , d′ , H~H′ , S~S′ = ~ʰ-~ˢ-⇢ₑ d H~H″ S~S″
-    in  _ , _ , ⇢ₑ d′ , H~H′ , S~S′
-  ~ʰ-~ˢ-⇢ (⇒ᵥ d) H~H″ S~S″ =
-    let _ , _ , d′ , H~H′ , S~S′ = ~ʰ-~ˢ-⇒ᵥ d H~H″ S~S″
-    in  _ , _ , ⇒ᵥ d′ , H~H′ , S~S′
-
-opaque
-
-  -- The non resource tracking reduction behaves the same on equal heaps
-  -- and stacks
-
-  ~ʰ-~ˢ-⇢* :  ⟨ H , t , ρ , S ⟩ ⇢* ⟨ H′ , t′ , ρ′ , S′ ⟩ → H ~ʰ H″ → S ~ˢ S″
-           → ∃₂ λ H‴ S‴ → ⟨ H″ , t , ρ , S″ ⟩ ⇢* ⟨ H‴ , t′ , ρ′ , S‴ ⟩ ×
-                  H′ ~ʰ H‴ × S′ ~ˢ S‴
-  ~ʰ-~ˢ-⇢* id H~H″ S~S″ =
-    _ , _ , id , H~H″ , S~S″
-  ~ʰ-~ˢ-⇢* (_⇨_ {s₂ = record{}} x d) H~H″ S~S″ =
-    let _ , _ , x′ , H~H′ , S~S′ = ~ʰ-~ˢ-⇢ x H~H″ S~S″
-        _ , _ , d′ , H~H‴ , S~S‴ = ~ʰ-~ˢ-⇢* d H~H′ S~S′
-    in  _ , _ , x′ ⇨ d′ , H~H‴ , S~S‴
+  ~ʰ-⇢* :
+    ⟨ H , t , ρ , S ⟩ ⇢* ⟨ H′ , t′ , ρ′ , S′ ⟩ → H ~ʰ H″ →
+    ∃ λ H‴ → ⟨ H″ , t , ρ , S ⟩ ⇢* ⟨ H‴ , t′ , ρ′ , S′ ⟩ × H′ ~ʰ H‴
+  ~ʰ-⇢* id H~H″ =
+    _ , id , H~H″
+  ~ʰ-⇢* (_⇨_ {s₂ = record{}} x d) H~H″ =
+    let _ , x′ , H~H′ = ~ʰ-⇢ x H~H″
+        _ , d′ , H~H‴ = ~ʰ-⇢* d H~H′
+    in  _ , x′ ⇨ d′ , H~H‴
 
 opaque
 
@@ -735,121 +728,150 @@ opaque
 
 opaque
 
-  Matching→⇒ᵥ :
-    Matching t S →
-    ∃₃ λ m n (s : State _ m n) → ⟨ H , t , ρ , S ⟩ ⇒ᵥ s
-  Matching→⇒ᵥ ∘ₑ = _ , _ , _ , lamₕ
-  Matching→⇒ᵥ fstₑ = _ , _ , _ , prodˢₕ₁
-  Matching→⇒ᵥ sndₑ = _ , _ , _ , prodˢₕ₂
-  Matching→⇒ᵥ prodrecₑ = _ , _ , _ , prodʷₕ
-  Matching→⇒ᵥ natrecₑ₀ = _ , _ , _ , zeroₕ
-  Matching→⇒ᵥ natrecₑ₊ = _ , _ , _ , sucₕ
-  Matching→⇒ᵥ unitrecₑ = _ , _ , _ , starʷₕ
-  Matching→⇒ᵥ (unitrec-η η) = _ , _ , _ , unitrec-ηₕ η
-  Matching→⇒ᵥ Jₑ = _ , _ , _ , rflₕⱼ
-  Matching→⇒ᵥ Kₑ = _ , _ , _ , rflₕₖ
-  Matching→⇒ᵥ []-congₑ = _ , _ , _ , rflₕₑ
+  -- If subtraction of the grade correspoding to a heap entry cannot
+  -- by subtracted by the current stack multiplicity then states with
+  -- a variable in head position "pointing" to that entry do not reduce.
+
+  var-noRed :
+    H ⟨ wkVar ρ x ⟩ʰ ≡ p → ∣ S ∣≡ q →
+    (∀ {r} → p - q ≡ r → ⊥) →
+    ⟨ H , var x , ρ , S ⟩ ⇾ ⟨ H′ , t , ρ′ , S′ ⟩ → ⊥
+  var-noRed H⟨⟩≡ ∣S∣≡ p-q≢r (⇾ₑ d) =
+    let q′ , ∣S∣≡′ , _ , d′ = ⇾ₑ-inv-var d
+    in  -≢-no-lookup
+          (subst₂ (λ p q → ∀ {r} → p - q ≡ r → ⊥)
+            (sym H⟨⟩≡) (∣∣-functional ∣S∣≡ ∣S∣≡′) p-q≢r) d′
+  var-noRed _ _ _ (⇒ᵥ d) = ⊥-elim (⇒ᵥ-inv-var d)
 
 opaque
+
+  -- States with a matching head and stack reduce
+
+  Matching→⇒ᵥ :
+    Matching t S →
+    ∣ S ∣≡ p →
+    ∃₃ λ m n (s : State _ m n) → ⟨ H , t , ρ , S ⟩ ⇒ᵥ s
+  Matching→⇒ᵥ ∘ₑ (_ ∙ ok) = _ , _ , _ , lamₕ ok
+  Matching→⇒ᵥ fstₑ _ = _ , _ , _ , prodˢₕ₁
+  Matching→⇒ᵥ sndₑ _ = _ , _ , _ , prodˢₕ₂
+  Matching→⇒ᵥ prodrecₑ (_ ∙ ok) = _ , _ , _ , prodʷₕ ok
+  Matching→⇒ᵥ natrecₑ₀ _ = _ , _ , _ , zeroₕ
+  Matching→⇒ᵥ natrecₑ₊ (natrecₑ ok ∙ ok′) = _ , _ , _ , sucₕ ok′ ok
+  Matching→⇒ᵥ unitrecₑ _ = _ , _ , _ , starʷₕ
+  Matching→⇒ᵥ (unitrec-η η) _ = _ , _ , _ , unitrec-ηₕ η
+  Matching→⇒ᵥ Jₑ _ = _ , _ , _ , rflₕⱼ
+  Matching→⇒ᵥ Kₑ _ = _ , _ , _ , rflₕₖ
+  Matching→⇒ᵥ []-congₑ _ = _ , _ , _ , rflₕₑ
+
+opaque
+
+  -- States reducing with the reduction for values have a matching
+  -- head and stack
 
   ⇒ᵥ→Matching :
     ⟨ H , t , ρ , S ⟩ ⇒ᵥ s →
     Matching t S
-  ⇒ᵥ→Matching lamₕ = ∘ₑ
+  ⇒ᵥ→Matching (lamₕ _) = ∘ₑ
   ⇒ᵥ→Matching prodˢₕ₁ = fstₑ
   ⇒ᵥ→Matching prodˢₕ₂ = sndₑ
-  ⇒ᵥ→Matching prodʷₕ = prodrecₑ
+  ⇒ᵥ→Matching (prodʷₕ _) = prodrecₑ
   ⇒ᵥ→Matching zeroₕ = natrecₑ₀
-  ⇒ᵥ→Matching sucₕ = natrecₑ₊
+  ⇒ᵥ→Matching (sucₕ _ _) = natrecₑ₊
   ⇒ᵥ→Matching starʷₕ = unitrecₑ
   ⇒ᵥ→Matching (unitrec-ηₕ η) = unitrec-η η
   ⇒ᵥ→Matching rflₕⱼ = Jₑ
   ⇒ᵥ→Matching rflₕₖ = Kₑ
   ⇒ᵥ→Matching rflₕₑ = []-congₑ
 
-module _ (¬Nr-not-available : ¬ Nr-not-available) where
+opaque
 
-  opaque
+  -- A variant of the previous property
 
-    -- A kind of inversion lemma for Final
-    -- There are four different reasons a state can be Final:
-    -- 1. It has a variable in head position but lookup does not succeed.
-    -- 2. The head is natrec p q r A z s n, the usage restrictions indicate that
-    --    the usage rule for natrec is the one based on greatest lower bounds and
-    --    there is no greatest lower bound to nrᵢ r 𝟙 p.
-    -- 3. It has a value in head position, the stack is not empty and the
-    --    top of the stack does not match the head.
-    -- 4. It has a value in head position and the stack is empty.
+  ¬Matching→¬⇒̬ :
+    ¬ Matching t S
+    → ⟨ H , t , ρ , S ⟩ ⇒ᵥ s → ⊥
+  ¬Matching→¬⇒̬ ¬m d = ¬m (⇒ᵥ→Matching d)
 
+opaque
 
-    Final-reasons :
+  -- A kind of inversion lemma for Final
+  -- There are three different reasons a state can be Final:
+  -- 1. It has a variable in head position but lookup does not succeed
+  --    (for the number of copies matching the current stack
+  --    multiplicity).
+  -- 2. It has a value in head position, the stack is not empty and it
+  --    is not the case that the head matches the stack and that the
+  --    stack multiplicity does not exist.
+  -- 3. It has a value in head position and the stack is empty.
+
+  Final-reasons :
       ∀ t → Final ⟨ H , t , ρ , S ⟩ →
       (∃ λ x → t ≡ var x ×
-         (∀ {n H′} {c : Entry _ n} → H ⊢ wkVar ρ x ↦[ ∣ S ∣ ] c ⨾ H′ → ⊥)) ⊎
-      (∃₇ λ p q r A z s n → t ≡ natrec p q r A z s n × Nr-not-available-GLB ×
-            ¬ ∃ λ q′ → Greatest-lower-bound q′ (nrᵢ r 𝟙 p)) ⊎
-      (∃₂ λ e S′ → S ≡ e ∙ S′ × Value t × (Matching t S → ⊥)) ⊎
+         (∀ {p n H′} {c : Entry _ n} → ∣ S ∣≡ p → H ⊢ wkVar ρ x ↦[ p ] c ⨾ H′ → ⊥)) ⊎
+      (∃₂ λ e S′ → S ≡ e ∙ S′ × Value t × ¬ (Matching t S × ∃ ∣ S ∣≡_)) ⊎
       Value t × S ≡ ε
 
-    Final-reasons = λ where
-      (var x) ¬d → inj₁ (_ , refl , λ d → ¬d (⇾ₑ (var d)))
-      (U x) ¬d → inj₂ (inj₂ (lemma Uᵥ ¬d))
-      (ΠΣ⟨ b ⟩ p , q ▷ t ▹ t₁) ¬d → inj₂ (inj₂ (lemma ΠΣᵥ ¬d))
-      (lam p t) ¬d → inj₂ (inj₂ (lemma lamᵥ ¬d))
+  Final-reasons = λ where
+      (var x) ¬d → inj₁ (_ , refl , λ x y → ¬d (⇾ₑ (var x y)))
+      (U x) ¬d → inj₂ (lemma Uᵥ ¬d)
+      (ΠΣ⟨ b ⟩ p , q ▷ t ▹ t₁) ¬d → inj₂ (lemma ΠΣᵥ ¬d)
+      (lam p t) ¬d → inj₂ (lemma lamᵥ ¬d)
       (t ∘⟨ p ⟩ t₁) ¬d → ⊥-elim (¬d (⇾ₑ′ appₕ))
-      (prod x p t t₁) ¬d → inj₂ (inj₂ (lemma prodᵥ ¬d))
+      (prod x p t t₁) ¬d → inj₂ (lemma prodᵥ ¬d)
       (fst p t) ¬d → ⊥-elim (¬d (⇾ₑ′ fstₕ))
       (snd p t) ¬d → ⊥-elim (¬d (⇾ₑ′ sndₕ))
       (prodrec r p q t t₁ t₂) ¬d → ⊥-elim (¬d (⇾ₑ′ prodrecₕ))
-      ℕ ¬d → inj₂ (inj₂ (lemma ℕᵥ ¬d))
-      zero ¬d → inj₂ (inj₂ (lemma zeroᵥ ¬d))
-      (suc t) ¬d → inj₂ (inj₂ (lemma sucᵥ ¬d))
-      (natrec p q r t t₁ t₂ t₃) ¬d →
-        inj₂ (inj₁ (_ , _ , _ , _ , _ , _ , _
-                      , refl , lemma″ (natrec-mode? _ natrec-mode) ¬d))
-      (Unit x x₁) ¬d → inj₂ (inj₂ (lemma Unitᵥ ¬d))
-      (star x x₁) ¬d → inj₂ (inj₂ (lemma starᵥ ¬d))
+      ℕ ¬d → inj₂ (lemma ℕᵥ ¬d)
+      zero ¬d → inj₂ (lemma zeroᵥ ¬d)
+      (suc t) ¬d → inj₂ (lemma sucᵥ ¬d)
+      (natrec p q r t t₁ t₂ t₃) ¬d → ⊥-elim (¬d (⇾ₑ′ natrecₕ))
+      (Unit x x₁) ¬d → inj₂ (lemma Unitᵥ ¬d)
+      (star x x₁) ¬d → inj₂ (lemma starᵥ ¬d)
       (unitrec x p q t t₁ t₂) ¬d →
         case Unitʷ-η? of λ where
-          (yes η) → inj₂ (inj₂ (lemma (unitrec-ηᵥ η) ¬d))
+          (yes η) → inj₂ (lemma (unitrec-ηᵥ η) ¬d)
           (no no-η) → ⊥-elim (¬d (⇾ₑ′ (unitrecₕ no-η)))
-      Empty ¬d → inj₂ (inj₂ (lemma Emptyᵥ ¬d))
+      Empty ¬d → inj₂ (lemma Emptyᵥ ¬d)
       (emptyrec p t t₁) ¬d → ⊥-elim (¬d (⇾ₑ′ emptyrecₕ))
-      (Id t t₁ t₂) ¬d → inj₂ (inj₂ (lemma Idᵥ ¬d))
-      rfl ¬d → inj₂ (inj₂ (lemma rflᵥ ¬d))
+      (Id t t₁ t₂) ¬d → inj₂ (lemma Idᵥ ¬d)
+      rfl ¬d → inj₂ (lemma rflᵥ ¬d)
       (J p q t t₁ t₂ t₃ t₄ t₅) ¬d → ⊥-elim (¬d (⇾ₑ′ Jₕ))
       (K p t t₁ t₂ t₃ t₄) ¬d → ⊥-elim (¬d (⇾ₑ′ Kₕ))
       ([]-cong x t t₁ t₂ t₃) ¬d → ⊥-elim (¬d (⇾ₑ′ []-congₕ))
         where
-        lemma″ : ∀ {z s n} → Natrec-mode? _ natrec-mode →
-                 Final ⟨ H , natrec p q r A z s n , ρ , S ⟩ →
-                 Nr-not-available-GLB × ¬ ∃ λ q′ → Greatest-lower-bound q′ (nrᵢ r 𝟙 p)
-        lemma″ does-have-nr ¬d =
-          ⊥-elim (¬d (⇾ₑ natrecₕ (has-nr refl)))
-        lemma″ (does-not-have-nr ⦃ (x) ⦄) ¬d =
-          ⊥-elim (¬Nr-not-available x)
-        lemma″ (does-not-have-nr-glb ⦃ (x) ⦄) ¬d =
-          x , λ (q , q-glb) → ¬d (⇾ₑ (natrecₕ (no-nr q-glb)))
-        lemma′ : Value t → Final ⟨ H , t , ρ , e ∙ S ⟩ → Matching t (e ∙ S) → ⊥
-        lemma′ lamᵥ ¬d ∘ₑ = ¬d (⇒ᵥ lamₕ)
-        lemma′ zeroᵥ ¬d natrecₑ₀ = ¬d (⇒ᵥ zeroₕ)
-        lemma′ sucᵥ ¬d natrecₑ₊ = ¬d (⇒ᵥ sucₕ)
-        lemma′ starᵥ ¬d unitrecₑ = ¬d (⇒ᵥ starʷₕ)
-        lemma′ prodᵥ ¬d fstₑ = ¬d (⇒ᵥ prodˢₕ₁)
-        lemma′ prodᵥ ¬d sndₑ = ¬d (⇒ᵥ prodˢₕ₂)
-        lemma′ prodᵥ ¬d prodrecₑ = ¬d (⇒ᵥ prodʷₕ)
-        lemma′ rflᵥ ¬d Jₑ = ¬d (⇒ᵥ rflₕⱼ)
-        lemma′ rflᵥ ¬d Kₑ = ¬d (⇒ᵥ rflₕₖ)
-        lemma′ rflᵥ ¬d []-congₑ = ¬d (⇒ᵥ rflₕₑ)
-        lemma′ Uᵥ ¬d ()
-        lemma′ ΠΣᵥ ¬d ()
-        lemma′ ℕᵥ ¬d ()
-        lemma′ Unitᵥ ¬d ()
-        lemma′ Emptyᵥ ¬d ()
-        lemma′ Idᵥ ¬d ()
-        lemma′ (unitrec-ηᵥ x) ¬d t = ¬d (⇒ᵥ (unitrec-ηₕ x))
+        lemma′ :
+          Value t → Final ⟨ H , t , ρ , e ∙ S ⟩ →
+          ¬ (Matching t (e ∙ S) × ∃ ∣ e ∙ S ∣≡_)
+        lemma′ lamᵥ ¬d (∘ₑ , _ , _ ∙ ∣S∣≡) =
+          ¬d (⇒ᵥ lamₕ ∣S∣≡)
+        lemma′ zeroᵥ ¬d (natrecₑ₀ , _ , _) =
+          ¬d (⇒ᵥ zeroₕ)
+        lemma′ sucᵥ ¬d (natrecₑ₊ , _ , natrecₑ ∣nr∣≡ ∙ ∣S∣≡) =
+          ¬d (⇒ᵥ sucₕ ∣S∣≡ ∣nr∣≡)
+        lemma′ starᵥ ¬d (unitrecₑ , _ , _) =
+          ¬d (⇒ᵥ starʷₕ)
+        lemma′ prodᵥ ¬d (prodrecₑ , _ , _ ∙ ∣S∣≡) =
+          ¬d (⇒ᵥ prodʷₕ ∣S∣≡)
+        lemma′ prodᵥ ¬d (fstₑ , _ , _) =
+          ¬d (⇒ᵥ prodˢₕ₁)
+        lemma′ prodᵥ ¬d (sndₑ , _ , _) =
+          ¬d (⇒ᵥ prodˢₕ₂)
+        lemma′ rflᵥ ¬d (Jₑ , _ , _) =
+          ¬d (⇒ᵥ rflₕⱼ)
+        lemma′ rflᵥ ¬d (Kₑ , _ , _) =
+          ¬d (⇒ᵥ rflₕₖ)
+        lemma′ rflᵥ ¬d ([]-congₑ , _ , _) =
+          ¬d (⇒ᵥ rflₕₑ)
+        lemma′ Uᵥ ¬d (() , _ , _)
+        lemma′ ΠΣᵥ ¬d (() , _ , _)
+        lemma′ ℕᵥ ¬d (() , _ , _)
+        lemma′ Unitᵥ ¬d (() , _ , _)
+        lemma′ Emptyᵥ ¬d (() , _ , _)
+        lemma′ Idᵥ ¬d (() , _ , _)
+        lemma′ (unitrec-ηᵥ x) ¬d _ =
+          ¬d (⇒ᵥ unitrec-ηₕ x)
         lemma : ∀ {S : Stack m} → Value t → Final ⟨ H , t , ρ , S ⟩ →
-                (∃₂ λ e S′ → S ≡ e ∙ S′ × Value t × (Matching t S → ⊥)) ⊎
+                (∃₂ λ e S′ → S ≡ e ∙ S′ × Value t × ¬ (Matching t S × ∃ ∣ S ∣≡_)) ⊎
                 Value t × S ≡ ε
         lemma {S = ε} v _ = inj₂ (v , refl)
         lemma {S = e ∙ S} v ¬d = inj₁ (_ , _ , refl , v , lemma′ v ¬d)
@@ -861,12 +883,61 @@ module _ (¬Nr-not-available : ¬ Nr-not-available) where
     ⇘-reasons :
       s ⇘ ⟨ H , t , ρ , S ⟩ →
       (∃ λ x → t ≡ var x ×
-         (∀ {n H′} {c : Entry _ n} → H ⊢ wkVar ρ x ↦[ ∣ S ∣ ] c ⨾ H′ → ⊥)) ⊎
-      (∃₇ λ p q r A z s n → t ≡ natrec p q r A z s n × Nr-not-available-GLB ×
-            ¬ ∃ λ q′ → Greatest-lower-bound q′ (nrᵢ r 𝟙 p)) ⊎
-      (∃₂ λ e S′ → S ≡ e ∙ S′ × Value t × (Matching t S → ⊥)) ⊎
+         (∀ {p n H′} {c : Entry _ n} → ∣ S ∣≡ p → H ⊢ wkVar ρ x ↦[ p ] c ⨾ H′ → ⊥)) ⊎
+      (∃₂ λ e S′ → S ≡ e ∙ S′ × Value t × ¬ (Matching t S × (∃ ∣ S ∣≡_))) ⊎
       Value t × S ≡ ε
     ⇘-reasons (d , ¬d) = Final-reasons _ ¬d
+
+opaque
+
+  -- A kind of inversion lemma for Final when having natrec tokens on
+  -- the stack implies that the usage rule for natrec with an nr function
+  -- is used.
+  --
+  -- In this case there are three different reasons a state can be Final:
+  -- 1. It has a variable in head position but lookup does not succeed
+  --    (for the number of copies matching the current stack
+  --    multiplicity).
+  -- 2. It has a value in head position, the stack is not empty and the
+  --    head does not match the stack.
+  -- 3. It has a value in head position and the stack is empty.
+
+  nr∉-Final-reasons :
+      ∀ t → (∀ {p r} → natrec p , r ∈ S → Nr-available) →
+      Final ⟨ H , t , ρ , S ⟩ →
+      (∃ λ x → t ≡ var x ×
+         (∀ {p n H′} {c : Entry _ n} → ∣ S ∣≡ p → H ⊢ wkVar ρ x ↦[ p ] c ⨾ H′ → ⊥)) ⊎
+      (∃₂ λ e S′ → S ≡ e ∙ S′ × Value t × ¬ Matching t S) ⊎
+      Value t × S ≡ ε
+  nr∉-Final-reasons t has-nr ¬d =
+    case Final-reasons t ¬d of λ where
+      (inj₁ x) → inj₁ x
+      (inj₂ (inj₁ (e , S′ , S≡ , v , prop))) →
+        inj₂ (inj₁ (e , S′ , S≡ , v , λ m → prop (m , ∣∣≡ has-nr)))
+      (inj₂ (inj₂ x)) → inj₂ (inj₂ x)
+
+opaque
+
+  -- A variant of the above where the stack is assumed to not contain
+  -- any natrecₑ tokens.
+  --
+  -- In this case there are three different reasons a state can be Final:
+  -- 1. It has a variable in head position but lookup does not succeed
+  --    (for the number of copies matching the current stack
+  --    multiplicity).
+  -- 2. It has a value in head position, the stack is not empty and the
+  --    head does not match the stack.
+  -- 3. It has a value in head position and the stack is empty.
+
+  nr∉-Final-reasons′ :
+      ∀ t → (∀ {p r} → natrec p , r ∈ S → ⊥) →
+      Final ⟨ H , t , ρ , S ⟩ →
+      (∃ λ x → t ≡ var x ×
+         (∀ {p n H′} {c : Entry _ n} → ∣ S ∣≡ p → H ⊢ wkVar ρ x ↦[ p ] c ⨾ H′ → ⊥)) ⊎
+      (∃₂ λ e S′ → S ≡ e ∙ S′ × Value t × ¬ Matching t S) ⊎
+      Value t × S ≡ ε
+  nr∉-Final-reasons′ t nr∉ ¬d =
+    nr∉-Final-reasons t (⊥-elim ∘→ nr∉) ¬d
 
 opaque
 
@@ -877,6 +948,7 @@ opaque
   Value-¬⇒ₑ () fstₕ
   Value-¬⇒ₑ () sndₕ
   Value-¬⇒ₑ () prodrecₕ
+  Value-¬⇒ₑ () natrecₕ
   Value-¬⇒ₑ (unitrec-ηᵥ η) (unitrecₕ no-η) = no-η η
   Value-¬⇒ₑ () emptyrecₕ
   Value-¬⇒ₑ () Jₕ
@@ -889,9 +961,8 @@ opaque
 
   Value-⇾→⇒ᵥ : Value t → ⟨ H , t , ρ , S ⟩ ⇾ s′ → ⟨ H , t , ρ , S ⟩ ⇒ᵥ s′
   Value-⇾→⇒ᵥ v (⇾ₑ′ d) = ⊥-elim (Value-¬⇒ₑ v d)
-  Value-⇾→⇒ᵥ () (⇾ₑ (var _))
+  Value-⇾→⇒ᵥ () (⇾ₑ (var _ _))
   Value-⇾→⇒ᵥ _ (⇒ᵥ d) = d
-  Value-⇾→⇒ᵥ () (⇾ₑ natrecₕ x)
 
 opaque
 
@@ -900,5 +971,6 @@ opaque
   Normal-⇾→⇒ᵥ : Normal s → s ⇾ s′ → s ⇒ᵥ s′
   Normal-⇾→⇒ᵥ (val v) d = Value-⇾→⇒ᵥ v d
   Normal-⇾→⇒ᵥ (var x) (⇾ₑ d) =
-    ⊥-elim (¬↦∧↦● (↦[]→↦ (⇾ₑ-inv-var d .proj₂)) x)
+    let _ , _ , _ , d′ = ⇾ₑ-inv-var d
+    in  ⊥-elim (¬↦∧↦● (↦[]→↦ d′) x)
   Normal-⇾→⇒ᵥ (var _) (⇒ᵥ ())

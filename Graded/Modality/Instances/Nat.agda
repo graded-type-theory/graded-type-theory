@@ -368,6 +368,16 @@ opaque
         (inj₂ (inj₂ ())))
 
 opaque
+
+  -- There are values for r, z and s such that nrᵢ r z s does not have a
+  -- greatest lower bound.
+
+  ¬nrᵢ-GLB : ∃₃ λ r z s → ¬ (∃ λ p → Greatest-lower-bound p (nrᵢ r z s))
+  ¬nrᵢ-GLB = 1 , 1 , 1 , λ (_ , glb) →
+    case nrᵢ-GLB-inv 1 1 1 glb of λ
+      { (inj₁ ()) ; (inj₂ (inj₁ ())) ; (inj₂ (inj₂ ()))}
+
+opaque
   unfolding Nat-semiring-with-meet
 
   -- The modality supports the usage rule for natrec using
@@ -378,8 +388,8 @@ opaque
   Nat-supports-glb-for-natrec = record
     { +-GLBˡ = +-GLBˡ
     ; ·-GLBˡ = λ {_} {_} {q} → ·-GLBˡ {q = q}
-    ; ·-GLBʳ = ·-GLBʳ
-    ; +nrᵢ-GLB = +nrᵢ-GLB --+nrᵢ-GLB
+    ; ·-GLBʳ = comm∧·-GLBˡ⇒·-GLBʳ N.*-comm (λ {_} {_} {q} → ·-GLBˡ {q = q})
+    ; +nrᵢ-GLB = +nrᵢ-GLB
     }
     where
     +-GLBˡ :
@@ -396,12 +406,6 @@ opaque
       let pᵢ≤p , p-lub = N.*-LUB {k = q} pᵢ (≤⇔≥ .proj₁ ∘→ p≤pᵢ)
                            λ r pᵢ≤r → ≤⇔≥ .proj₁ (p-glb r (≤⇔≥ .proj₂ ∘→ pᵢ≤r))
       in  ≤⇔≥ .proj₂ ∘→ pᵢ≤p , λ r r≤pᵢ → ≤⇔≥ .proj₂ (p-lub r (≤⇔≥ .proj₁ ∘→ r≤pᵢ))
-    ·-GLBʳ :
-      Greatest-lower-bound p pᵢ →
-      Greatest-lower-bound (p · q) (λ i → pᵢ i · q)
-    ·-GLBʳ {p} {pᵢ} {q} p-glb =
-      GLB-cong (N.*-comm q p) (λ i → N.*-comm q (pᵢ i))
-        (·-GLBˡ {q = q} p-glb)
     open RPo ≤-poset
     +-nrᵢ-GLB′ :
       Greatest-lower-bound p (nrᵢ 0 z₁ s₁) →

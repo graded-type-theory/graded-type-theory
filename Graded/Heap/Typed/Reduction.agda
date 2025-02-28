@@ -23,6 +23,7 @@ open Modality 𝕄
 
 open import Definition.Untyped M
 open import Definition.Untyped.Properties M
+import Definition.Untyped.Neutral M type-variant as WHNF
 open import Definition.Typed TR as T
 open import Definition.Typed.Inversion TR
 open import Definition.Typed.Properties TR
@@ -201,7 +202,7 @@ opaque
   ⊢ₛ-⇒ᵥ :
     ⦃ ok : No-equality-reflection or-empty Δ ⦄ →
     Δ ⊢ₛ s ∷ A → s ⇒ᵥ s′ → Δ ⊢ₛ s′ ∷ A
-  ⊢ₛ-⇒ᵥ ⊢s (lamₕ {H} {p} {t} {ρ} {u} {ρ′}) =
+  ⊢ₛ-⇒ᵥ ⊢s (lamₕ {H} {p} {t} {ρ} {u} {ρ′} _) =
     case ⊢ₛ-inv′ ⊢s of λ
       (Γ , _ , _ , ⊢H , ⊢λt , ⊢e , ⊢S) →
     case inversion-∘ₑ ⊢e of λ {
@@ -242,14 +243,14 @@ opaque
     in  ⊢ₛ ⊢H (conv ⊢t₂ (sym (trans (B≡G₊ ⊢t) (substTypeEq (refl ⊢G) fstt≡t₁))))
            (⊢ˢ-convₜ ⊢S (conv (Σ-β₂-≡ ⊢G ⊢t₁ ⊢t₂ ok) (sym (B≡G₊ ⊢t)))) }
 
-  ⊢ₛ-⇒ᵥ ⊢s (prodʷₕ {H} {p} {t₁} {t₂} {ρ} {r} {q} {A} {u} {ρ′} {S}) =
+  ⊢ₛ-⇒ᵥ ⊢s (prodʷₕ {S} {q′} {H} {p} {t₁} {t₂} {ρ} {r} {q} {A} {u} {ρ′} _) =
     case ⊢ₛ-inv′ ⊢s of λ
       (Γ , _ , _ , ⊢H , ⊢t , ⊢e , ⊢S) →
     case inversion-prodrecₑ ⊢e of λ {
       (F , G , _ , ⊢u , ⊢A , PE.refl , B≡A₊) →
     let ⊢t₁ , ⊢t₂ , _ = inversion-prod-Σ ⊢t
-        H₁ = H ∙ (∣ S ∣ · r · p , t₁ , ρ)
-        H₂ = H₁ ∙ (∣ S ∣ · r , t₂ , step ρ)
+        H₁ = H ∙ (q′ · r · p , t₁ , ρ)
+        H₂ = H₁ ∙ (q′ · r , t₂ , step ρ)
         u≡u′ = begin
           (wk (liftn ρ′ 2) u) [ liftSubstn (toSubstₕ H) 2 ] [ wk ρ t₁ [ H ]ₕ , wk ρ t₂ [ H ]ₕ ]₁₀
             ≡⟨ doubleSubstComp (wk (liftn ρ′ 2) u) _ _ _ ⟩
@@ -299,7 +300,7 @@ opaque
     ⊢ₛ ⊢H (conv ⊢z (sym (B≡ ⊢t)))
        (⊢ˢ-convₜ ⊢S (conv (natrec-zero ⊢z ⊢s) (sym (B≡ ⊢t)))) }
 
-  ⊢ₛ-⇒ᵥ {Δ} ⊢s (sucₕ {H} {t} {ρ} {p} {q} {r} {(n)} {A} {z} {s} {ρ′}) =
+  ⊢ₛ-⇒ᵥ {Δ} ⊢s (sucₕ {p} {r} {H} {t} {ρ} {q} {(n)} {A} {z} {s} {ρ′} _ _) =
     case ⊢ₛ-inv′ ⊢s of λ
       (Γ , _ , _ , ⊢H , ⊢t , ⊢e , ⊢S) →
     case inversion-natrecₑ ⊢e of λ {
@@ -393,6 +394,10 @@ opaque
     let _ , _ , ⊢H , ⊢t , ⊢S = ⊢ₛ-inv ⊢s
         _ , _ , _ , _ , _ , ⊢B , ⊢t , ⊢u , A≡Bt = inversion-prodrec ⊢t
     in  ⊢ₛ ⊢H ⊢t (conv (prodrecₑ ⊢u ⊢B) (sym A≡Bt) ∙ ⊢S)
+  ⊢ₛ-⇒ₑ ⊢s natrecₕ =
+    let _ , _ , ⊢H , ⊢t , ⊢S = ⊢ₛ-inv ⊢s
+        _ , ⊢z , ⊢s , ⊢n , C≡ = inversion-natrec ⊢t
+    in  ⊢ₛ ⊢H ⊢n (conv (natrecₑ ⊢z ⊢s) (sym C≡) ∙ ⊢S)
   ⊢ₛ-⇒ₑ ⊢s (unitrecₕ no-η) =
     let _ , _ , ⊢H , ⊢t , ⊢S = ⊢ₛ-inv ⊢s
         ⊢A , ⊢t , ⊢u , B≡At = inversion-unitrec ⊢t
@@ -420,7 +425,7 @@ opaque
   -- Type preservation for _⇾ₑ_
 
   ⊢ₛ-⇾ₑ : Δ ⊢ₛ s ∷ A → s ⇾ₑ s′ → Δ ⊢ₛ s′ ∷ A
-  ⊢ₛ-⇾ₑ ⊢s (var {t} d) =
+  ⊢ₛ-⇾ₑ ⊢s (var {t} _ d) =
     let _ , A , ⊢H , ⊢t , ⊢S = ⊢ₛ-inv ⊢s
         ⊢H′ = heapUpdate-⊢ʰ ⊢H d
         H≡H′ = heapUpdateSubst d
@@ -429,10 +434,6 @@ opaque
            (PE.subst (_ ⊢_∷ A) (PE.trans (heapSubstVar d) (PE.cong (wk _ t [_]) H≡H′)) ⊢t)
            (heapUpdate-⊢ˢ (⊢ˢ-convₜ ⊢S x[H]≡t[H]) d)
   ⊢ₛ-⇾ₑ ⊢s (⇒ₑ d) = ⊢ₛ-⇒ₑ ⊢s d
-  ⊢ₛ-⇾ₑ ⊢s (natrecₕ ok) =
-    let _ , _ , ⊢H , ⊢t , ⊢S = ⊢ₛ-inv ⊢s
-        _ , ⊢z , ⊢s , ⊢n , C≡ = inversion-natrec ⊢t
-    in  ⊢ₛ ⊢H ⊢n (conv (natrecₑ ⊢z ⊢s) (sym C≡) ∙ ⊢S)
 
 opaque
 
@@ -444,10 +445,6 @@ opaque
     in  ⊢ₛ ⊢H (PE.subst (_ ⊢_∷ A) (heapSubstVar′ d) ⊢t)
            (⊢ˢ-convₜ ⊢S (PE.subst (_ ⊢ _ ≡_∷ A) (heapSubstVar′ d) (refl ⊢t)))
   ⊢ₛ-⇢ₑ ⊢s (⇒ₑ d) = ⊢ₛ-⇒ₑ ⊢s d
-  ⊢ₛ-⇢ₑ ⊢s natrecₕ =
-    let _ , _ , ⊢H , ⊢t , ⊢S = ⊢ₛ-inv ⊢s
-        _ , ⊢z , ⊢s , ⊢n , C≡ = inversion-natrec ⊢t
-    in  ⊢ₛ ⊢H ⊢n (conv (natrecₑ ⊢z ⊢s) (sym C≡) ∙ ⊢S)
 
 opaque
 
@@ -527,7 +524,7 @@ opaque
   ⇒ᵥ→⇒ :
     ⦃ ok : No-equality-reflection or-empty Δ ⦄ →
     Δ ⊢ₛ s ∷ A → s ⇒ᵥ s′ → Δ ⊢ ⦅ s ⦆ ⇒ ⦅ s′ ⦆ ∷ A
-  ⇒ᵥ→⇒ {A} ⊢s (lamₕ {H} {p} {t} {ρ} {u} {ρ′} {S}) =
+  ⇒ᵥ→⇒ {A} ⊢s (lamₕ {S} {H} {p} {t} {ρ} {u} {ρ′} _) =
     case ⊢ₛ-inv′ ⊢s of λ
       (_ , _ , _ , ⊢H , ⊢t , ⊢e , ⊢S) →
     case inversion-∘ₑ ⊢e of λ {
@@ -566,7 +563,7 @@ opaque
         F≡F′ , G≡G′ , _ = ΠΣ-injectivity (sym B≡Σ)
         G₊≡G′₊ = G≡G′ (refl (conv (fstⱼ′ ⊢t) (sym F≡F′)))
     in  ⊢⦅⦆ˢ-subst ⊢S (conv (Σ-β₂-⇒ ⊢G ⊢t₁ ⊢t₂ ok) (trans G₊≡G′₊ (sym (C≡G′₊ ⊢t)))) }
-  ⇒ᵥ→⇒ {(k)} {(_)} {(m)} ⊢s (prodʷₕ {H} {p} {t₁} {t₂} {ρ} {r} {q} {A} {u} {ρ′} {S}) =
+  ⇒ᵥ→⇒ {(k)} {(_)} {(m)} ⊢s (prodʷₕ {S} {q′} {H} {p} {t₁} {t₂} {ρ} {r} {q} {A} {u} {ρ′} _) =
     case ⊢ₛ-inv′ ⊢s of λ
       (_ , _ , _ , ⊢H , ⊢t , ⊢e , ⊢S) →
     case inversion-prodrecₑ ⊢e of λ {
@@ -578,7 +575,7 @@ opaque
           lemma (⊢⦅⦆ˢ-subst ⊢S (conv β-⇒ (sym (C≡ ⊢t)))) }
     where
     H₂ : Heap k (2+ m)
-    H₂ = H ∙ (∣ S ∣ · r · p , t₁ , ρ) ∙ (∣ S ∣ · r , t₂ , step ρ)
+    H₂ = H ∙ (q′ · r · p , t₁ , ρ) ∙ (q′ · r , t₂ , step ρ)
     lemma : ⦅ S ⦆ˢ ((wk (liftn ρ′ 2) u) [ wk ρ t₁ , wk ρ t₂ ]₁₀) [ H ]ₕ
           PE.≡ ⦅ wk2ˢ S ⦆ˢ (wk (liftn ρ′ 2) u) [ H₂ ]ₕ
     lemma = begin
@@ -595,7 +592,7 @@ opaque
     case inversion-natrecₑ ⊢e of λ {
         (⊢z , ⊢s , PE.refl , B≡) →
     ⊢⦅⦆ˢ-subst ⊢S (conv (natrec-zero ⊢z ⊢s) (sym (B≡ ⊢t))) }
-  ⇒ᵥ→⇒ {(k)} {(_)} {(m)} ⊢s (sucₕ {H} {t} {ρ} {p} {q} {r} {q′} {(n)} {A} {z} {s} {ρ′} {S}) =
+  ⇒ᵥ→⇒ {(k)} {(_)} {(m)} ⊢s (sucₕ {S} {p} {r} {H} {t} {ρ} {q} {(n)} {A} {z} {s} {ρ′} _ _) =
     case ⊢ₛ-inv′ ⊢s of λ
       (_ , _ , _ , ⊢H , ⊢t , ⊢e , ⊢S) →
     case inversion-natrecₑ ⊢e of λ {
@@ -659,6 +656,25 @@ opaque
         _ , ⊢t , ⊢u = syntacticEqTerm t≡u
     in  ⊢⦅⦆ˢ-subst ⊢S (conv ([]-cong-β-⇒ t≡u ok) (sym (B′≡ ⊢t ⊢u))) }
 
+
+opaque
+
+  -- For states with sucₑ on the stack, the previous property does not
+  -- hold, i.e. there is a counterexample. (Assuming a certain Π-type
+  -- is allowed).
+
+  ¬sucₑ-⇒ᵥ→⇒ :
+    Π-allowed 𝟙 q →
+    ∃₇ λ m n m′ n′ (s : State 0 m n) (s′ : State 0 m′ n′) A →
+    s ⇒ᵥ s′ × ε ⊢ ⦅ s ⦆ ∷ A × ¬ (ε ⊢ ⦅ s ⦆ ⇒ ⦅ s′ ⦆ ∷ A)
+  ¬sucₑ-⇒ᵥ→⇒ ok =
+    _ , _ , _ , _
+      , ⟨ ε , lam 𝟙 (var x0) , id , ∘ₑ 𝟙 zero id ∙ (sucₑ ∙ ε) ⟩
+      , _
+      , ℕ , lamₕ (sucₑ ∙ ε)
+      , sucⱼ ((lamⱼ (ℕⱼ (∙ ℕⱼ ε)) (var (∙ ℕⱼ ε) here) ok) ∘ⱼ (zeroⱼ ε))
+      , λ d → whnfRedTerm d WHNF.sucₙ
+
 opaque
 
   -- Reduction of values preserves definitional equality
@@ -716,401 +732,407 @@ opaque
 
 opaque
 
-  -- Values in non-empty stacks always reduce
+  -- Values in non-empty stacks always reduce (assuming that the stack
+  -- multiplicity exists).
 
   ⊢ˢValue-⇒ᵥ :
     ⦃ ok : No-equality-reflection or-empty Δ ⦄ →
+    ∣ e ∙ S ∣≡ p →
     Δ ⨾ H ⊢ᵉ e ⟨ wk ρ t ⟩∷ A ↝ B → Δ ⊢ wk ρ t [ H ]ₕ ∷ A → Value t →
     ∃₃ λ m n (s : State _ m n) → ⟨ H , t , ρ , e ∙ S ⟩ ⇒ᵥ s
   -- Ok cases:
-  ⊢ˢValue-⇒ᵥ (conv ⊢e x) ⊢t v =
-    ⊢ˢValue-⇒ᵥ ⊢e ⊢t v
-  ⊢ˢValue-⇒ᵥ ⊢e ⊢t (unitrec-ηᵥ η) =
+  ⊢ˢValue-⇒ᵥ ∣S∣≡ (conv ⊢e x) ⊢t v =
+    ⊢ˢValue-⇒ᵥ ∣S∣≡ ⊢e ⊢t v
+  ⊢ˢValue-⇒ᵥ _ ⊢e ⊢t (unitrec-ηᵥ η) =
     _ , _ , _ , unitrec-ηₕ η
-  ⊢ˢValue-⇒ᵥ (∘ₑ x x₁) ⊢t lamᵥ =
+  ⊢ˢValue-⇒ᵥ (_ ∙ ∣S∣≡) (∘ₑ x x₁) ⊢t lamᵥ =
     case inversion-lam-Π ⊢t of λ {
       (_ , _ , _ , PE.refl , _) →
-    _ , _ , _ , lamₕ}
-  ⊢ˢValue-⇒ᵥ (fstₑ _) ⊢t prodᵥ =
+    _ , _ , _ , lamₕ ∣S∣≡}
+  ⊢ˢValue-⇒ᵥ _ (fstₑ _) ⊢t prodᵥ =
     case inversion-prod-Σ ⊢t of λ {
       (_ , _ , PE.refl , PE.refl , _) →
     _ , _ , _ , prodˢₕ₁}
-  ⊢ˢValue-⇒ᵥ (sndₑ _) ⊢t prodᵥ =
+  ⊢ˢValue-⇒ᵥ _ (sndₑ _) ⊢t prodᵥ =
     case inversion-prod-Σ ⊢t of λ {
       (_ , _ , PE.refl , PE.refl , _) →
     _ , _ , _ , prodˢₕ₂}
-  ⊢ˢValue-⇒ᵥ (prodrecₑ x x₁) ⊢t prodᵥ =
+  ⊢ˢValue-⇒ᵥ (_ ∙ ∣S∣≡) (prodrecₑ x x₁) ⊢t prodᵥ =
     case inversion-prod-Σ ⊢t of λ {
       (_ , _ , PE.refl , PE.refl , _) →
-    _ , _ , _ , prodʷₕ}
-  ⊢ˢValue-⇒ᵥ (natrecₑ _ _) ⊢t zeroᵥ =
+    _ , _ , _ , prodʷₕ ∣S∣≡}
+  ⊢ˢValue-⇒ᵥ _ (natrecₑ _ _) ⊢t zeroᵥ =
     _ , _ , _ , zeroₕ
-  ⊢ˢValue-⇒ᵥ (natrecₑ _ _) ⊢t sucᵥ =
-        _ , _ , _ , sucₕ
-  ⊢ˢValue-⇒ᵥ (unitrecₑ x x₁ x₂) ⊢t starᵥ =
+  ⊢ˢValue-⇒ᵥ (natrecₑ ∣nr∣≡ ∙ ∣S∣≡) (natrecₑ _ _) ⊢t sucᵥ =
+        _ , _ , _ , sucₕ ∣S∣≡ ∣nr∣≡
+  ⊢ˢValue-⇒ᵥ _ (unitrecₑ x x₁ x₂) ⊢t starᵥ =
     case inversion-star-Unit ⊢t of λ {
       (PE.refl , PE.refl , _) →
     _ , _ , _ , starʷₕ }
-  ⊢ˢValue-⇒ᵥ (Jₑ x x₁) ⊢t rflᵥ =
+  ⊢ˢValue-⇒ᵥ _ (Jₑ x x₁) ⊢t rflᵥ =
     _ , _ , _ , rflₕⱼ
-  ⊢ˢValue-⇒ᵥ (Kₑ x x₁ x₂) ⊢t rflᵥ =
+  ⊢ˢValue-⇒ᵥ _ (Kₑ x x₁ x₂) ⊢t rflᵥ =
     _ , _ , _ , rflₕₖ
-  ⊢ˢValue-⇒ᵥ ([]-congₑ x) ⊢t rflᵥ =
+  ⊢ˢValue-⇒ᵥ _ ([]-congₑ x) ⊢t rflᵥ =
     _ , _ , _ , rflₕₑ
 
   -- Impossible cases:
-  ⊢ˢValue-⇒ᵥ (fstₑ _) ⊢t lamᵥ =
+  ⊢ˢValue-⇒ᵥ _ (fstₑ _) ⊢t lamᵥ =
     case inversion-lam ⊢t of λ
       (_ , _ , _ , _ , _ , Σ≡Π , _) →
     ⊥-elim (Π≢Σⱼ (sym Σ≡Π))
-  ⊢ˢValue-⇒ᵥ (sndₑ _) ⊢t lamᵥ =
+  ⊢ˢValue-⇒ᵥ _ (sndₑ _) ⊢t lamᵥ =
     case inversion-lam ⊢t of λ
       (_ , _ , _ , _ , _ , Σ≡Π , _) →
     ⊥-elim (Π≢Σⱼ (sym Σ≡Π))
-  ⊢ˢValue-⇒ᵥ (prodrecₑ x x₁) ⊢t lamᵥ =
+  ⊢ˢValue-⇒ᵥ _ (prodrecₑ x x₁) ⊢t lamᵥ =
     case inversion-lam ⊢t of λ
       (_ , _ , _ , _ , _ , Σ≡Π , _) →
     ⊥-elim (Π≢Σⱼ (sym Σ≡Π))
-  ⊢ˢValue-⇒ᵥ (natrecₑ _ _) ⊢t lamᵥ =
+  ⊢ˢValue-⇒ᵥ _ (natrecₑ _ _) ⊢t lamᵥ =
     case inversion-lam ⊢t of λ
       (_ , _ , _ , _ , _ , ℕ≡Π , _) →
     ⊥-elim (ℕ≢ΠΣⱼ ℕ≡Π)
-  ⊢ˢValue-⇒ᵥ (unitrecₑ x x₁ x₂) ⊢t lamᵥ =
+  ⊢ˢValue-⇒ᵥ _ (unitrecₑ x x₁ x₂) ⊢t lamᵥ =
     case inversion-lam ⊢t of λ
       (_ , _ , _ , _ , _ , Unit≡Π , _) →
     ⊥-elim (Unit≢ΠΣⱼ Unit≡Π)
-  ⊢ˢValue-⇒ᵥ (emptyrecₑ x) ⊢t lamᵥ =
+  ⊢ˢValue-⇒ᵥ _ (emptyrecₑ x) ⊢t lamᵥ =
     case inversion-lam ⊢t of λ
       (_ , _ , _ , _ , _ , Empty≡Π , _) →
     ⊥-elim (Empty≢ΠΣⱼ Empty≡Π)
-  ⊢ˢValue-⇒ᵥ (Jₑ x x₁) ⊢t lamᵥ =
+  ⊢ˢValue-⇒ᵥ _ (Jₑ x x₁) ⊢t lamᵥ =
     case inversion-lam ⊢t of λ
       (_ , _ , _ , _ , _ , Id≡Π , _) →
     ⊥-elim (Id≢ΠΣ Id≡Π)
-  ⊢ˢValue-⇒ᵥ (Kₑ x x₁ x₂) ⊢t lamᵥ =
+  ⊢ˢValue-⇒ᵥ _ (Kₑ x x₁ x₂) ⊢t lamᵥ =
     case inversion-lam ⊢t of λ
       (_ , _ , _ , _ , _ , Id≡Π , _) →
     ⊥-elim (Id≢ΠΣ Id≡Π)
-  ⊢ˢValue-⇒ᵥ ([]-congₑ x) ⊢t lamᵥ =
+  ⊢ˢValue-⇒ᵥ _ ([]-congₑ x) ⊢t lamᵥ =
     case inversion-lam ⊢t of λ
       (_ , _ , _ , _ , _ , Id≡Π , _) →
     ⊥-elim (Id≢ΠΣ Id≡Π)
-  ⊢ˢValue-⇒ᵥ (∘ₑ x x₁) ⊢t zeroᵥ =
+  ⊢ˢValue-⇒ᵥ _ (∘ₑ x x₁) ⊢t zeroᵥ =
     ⊥-elim (ℕ≢ΠΣⱼ (sym (inversion-zero ⊢t)))
-  ⊢ˢValue-⇒ᵥ (fstₑ _) ⊢t zeroᵥ =
+  ⊢ˢValue-⇒ᵥ _ (fstₑ _) ⊢t zeroᵥ =
     ⊥-elim (ℕ≢ΠΣⱼ (sym (inversion-zero ⊢t)))
-  ⊢ˢValue-⇒ᵥ (sndₑ _) ⊢t zeroᵥ =
+  ⊢ˢValue-⇒ᵥ _ (sndₑ _) ⊢t zeroᵥ =
     ⊥-elim (ℕ≢ΠΣⱼ (sym (inversion-zero ⊢t)))
-  ⊢ˢValue-⇒ᵥ (prodrecₑ x x₁) ⊢t zeroᵥ =
+  ⊢ˢValue-⇒ᵥ _ (prodrecₑ x x₁) ⊢t zeroᵥ =
     ⊥-elim (ℕ≢ΠΣⱼ (sym (inversion-zero ⊢t)))
-  ⊢ˢValue-⇒ᵥ (unitrecₑ x x₁ x₂) ⊢t zeroᵥ =
+  ⊢ˢValue-⇒ᵥ _ (unitrecₑ x x₁ x₂) ⊢t zeroᵥ =
     ⊥-elim (ℕ≢Unitⱼ (sym (inversion-zero ⊢t)))
-  ⊢ˢValue-⇒ᵥ (emptyrecₑ x) ⊢t zeroᵥ =
+  ⊢ˢValue-⇒ᵥ _ (emptyrecₑ x) ⊢t zeroᵥ =
     ⊥-elim (ℕ≢Emptyⱼ (sym (inversion-zero ⊢t)))
-  ⊢ˢValue-⇒ᵥ (Jₑ x x₁) ⊢t zeroᵥ =
+  ⊢ˢValue-⇒ᵥ _ (Jₑ x x₁) ⊢t zeroᵥ =
     ⊥-elim (Id≢ℕ (inversion-zero ⊢t))
-  ⊢ˢValue-⇒ᵥ (Kₑ x x₁ x₂) ⊢t zeroᵥ =
+  ⊢ˢValue-⇒ᵥ _ (Kₑ x x₁ x₂) ⊢t zeroᵥ =
     ⊥-elim (Id≢ℕ (inversion-zero ⊢t))
-  ⊢ˢValue-⇒ᵥ ([]-congₑ x) ⊢t zeroᵥ =
+  ⊢ˢValue-⇒ᵥ _ ([]-congₑ x) ⊢t zeroᵥ =
     ⊥-elim (Id≢ℕ (inversion-zero ⊢t))
-  ⊢ˢValue-⇒ᵥ (∘ₑ x x₁) ⊢t sucᵥ =
+  ⊢ˢValue-⇒ᵥ _ (∘ₑ x x₁) ⊢t sucᵥ =
     ⊥-elim (ℕ≢ΠΣⱼ (sym (inversion-suc ⊢t .proj₂)))
-  ⊢ˢValue-⇒ᵥ (fstₑ _) ⊢t sucᵥ =
+  ⊢ˢValue-⇒ᵥ _ (fstₑ _) ⊢t sucᵥ =
     (⊥-elim (ℕ≢ΠΣⱼ (sym (inversion-suc ⊢t .proj₂))))
-  ⊢ˢValue-⇒ᵥ (sndₑ _) ⊢t sucᵥ =
+  ⊢ˢValue-⇒ᵥ _ (sndₑ _) ⊢t sucᵥ =
     ⊥-elim (ℕ≢ΠΣⱼ (sym (inversion-suc ⊢t .proj₂)))
-  ⊢ˢValue-⇒ᵥ (prodrecₑ x x₁) ⊢t sucᵥ =
+  ⊢ˢValue-⇒ᵥ _ (prodrecₑ x x₁) ⊢t sucᵥ =
     ⊥-elim (ℕ≢ΠΣⱼ (sym (inversion-suc ⊢t .proj₂)))
-  ⊢ˢValue-⇒ᵥ (unitrecₑ x x₁ x₂) ⊢t sucᵥ =
+  ⊢ˢValue-⇒ᵥ _ (unitrecₑ x x₁ x₂) ⊢t sucᵥ =
     ⊥-elim (ℕ≢Unitⱼ (sym (inversion-suc ⊢t .proj₂)))
-  ⊢ˢValue-⇒ᵥ (emptyrecₑ x) ⊢t sucᵥ =
+  ⊢ˢValue-⇒ᵥ _ (emptyrecₑ x) ⊢t sucᵥ =
     ⊥-elim (ℕ≢Emptyⱼ (sym (inversion-suc ⊢t .proj₂)))
-  ⊢ˢValue-⇒ᵥ (Jₑ x x₁) ⊢t sucᵥ =
+  ⊢ˢValue-⇒ᵥ _ (Jₑ x x₁) ⊢t sucᵥ =
     ⊥-elim (Id≢ℕ (inversion-suc ⊢t .proj₂))
-  ⊢ˢValue-⇒ᵥ (Kₑ x x₁ x₂) ⊢t sucᵥ =
+  ⊢ˢValue-⇒ᵥ _ (Kₑ x x₁ x₂) ⊢t sucᵥ =
     ⊥-elim (Id≢ℕ (inversion-suc ⊢t .proj₂))
-  ⊢ˢValue-⇒ᵥ ([]-congₑ x) ⊢t sucᵥ =
+  ⊢ˢValue-⇒ᵥ _ ([]-congₑ x) ⊢t sucᵥ =
     ⊥-elim (Id≢ℕ (inversion-suc ⊢t .proj₂))
-  ⊢ˢValue-⇒ᵥ (∘ₑ x x₁) ⊢t starᵥ =
+  ⊢ˢValue-⇒ᵥ _ (∘ₑ x x₁) ⊢t starᵥ =
     ⊥-elim (Unit≢ΠΣⱼ (sym (inversion-star ⊢t .proj₁)))
-  ⊢ˢValue-⇒ᵥ (fstₑ _) ⊢t starᵥ =
+  ⊢ˢValue-⇒ᵥ _ (fstₑ _) ⊢t starᵥ =
     ⊥-elim (Unit≢ΠΣⱼ (sym (inversion-star ⊢t .proj₁)))
-  ⊢ˢValue-⇒ᵥ (sndₑ _) ⊢t starᵥ =
+  ⊢ˢValue-⇒ᵥ _ (sndₑ _) ⊢t starᵥ =
     ⊥-elim (Unit≢ΠΣⱼ (sym (inversion-star ⊢t .proj₁)))
-  ⊢ˢValue-⇒ᵥ (prodrecₑ x x₁) ⊢t starᵥ =
+  ⊢ˢValue-⇒ᵥ _ (prodrecₑ x x₁) ⊢t starᵥ =
     ⊥-elim (Unit≢ΠΣⱼ (sym (inversion-star ⊢t .proj₁)))
-  ⊢ˢValue-⇒ᵥ (natrecₑ _ _) ⊢t starᵥ =
+  ⊢ˢValue-⇒ᵥ _ (natrecₑ _ _) ⊢t starᵥ =
     ⊥-elim (ℕ≢Unitⱼ (inversion-star ⊢t .proj₁))
-  ⊢ˢValue-⇒ᵥ (emptyrecₑ x) ⊢t starᵥ =
+  ⊢ˢValue-⇒ᵥ _ (emptyrecₑ x) ⊢t starᵥ =
     ⊥-elim (Empty≢Unitⱼ (inversion-star ⊢t .proj₁))
-  ⊢ˢValue-⇒ᵥ (Jₑ x x₁) ⊢t starᵥ =
+  ⊢ˢValue-⇒ᵥ _ (Jₑ x x₁) ⊢t starᵥ =
     ⊥-elim (Id≢Unit (inversion-star ⊢t .proj₁))
-  ⊢ˢValue-⇒ᵥ (Kₑ x x₁ x₂) ⊢t starᵥ =
+  ⊢ˢValue-⇒ᵥ _ (Kₑ x x₁ x₂) ⊢t starᵥ =
     ⊥-elim (Id≢Unit (inversion-star ⊢t .proj₁))
-  ⊢ˢValue-⇒ᵥ ([]-congₑ x) ⊢t starᵥ =
+  ⊢ˢValue-⇒ᵥ _ ([]-congₑ x) ⊢t starᵥ =
     ⊥-elim (Id≢Unit (inversion-star ⊢t .proj₁))
-  ⊢ˢValue-⇒ᵥ (∘ₑ x x₁) ⊢t prodᵥ =
+  ⊢ˢValue-⇒ᵥ _ (∘ₑ x x₁) ⊢t prodᵥ =
     case inversion-prod ⊢t of λ
       (_ , _ , _ , _ , _ , _ , _ , Π≡Σ , _) →
     ⊥-elim (Π≢Σⱼ Π≡Σ)
-  ⊢ˢValue-⇒ᵥ (natrecₑ _ _) ⊢t prodᵥ =
+  ⊢ˢValue-⇒ᵥ _ (natrecₑ _ _) ⊢t prodᵥ =
     case inversion-prod ⊢t of λ
       (_ , _ , _ , _ , _ , _ , _ , ℕ≡Σ , _) →
     ⊥-elim (ℕ≢ΠΣⱼ ℕ≡Σ)
-  ⊢ˢValue-⇒ᵥ (unitrecₑ x x₁ x₂) ⊢t prodᵥ =
+  ⊢ˢValue-⇒ᵥ _ (unitrecₑ x x₁ x₂) ⊢t prodᵥ =
     case inversion-prod ⊢t of λ
       (_ , _ , _ , _ , _ , _ , _ , Unit≡Σ , _) →
     ⊥-elim (Unit≢ΠΣⱼ Unit≡Σ)
-  ⊢ˢValue-⇒ᵥ (emptyrecₑ x) ⊢t prodᵥ =
+  ⊢ˢValue-⇒ᵥ _ (emptyrecₑ x) ⊢t prodᵥ =
     case inversion-prod ⊢t of λ
       (_ , _ , _ , _ , _ , _ , _ , Empty≡Σ , _) →
     ⊥-elim (Empty≢ΠΣⱼ Empty≡Σ)
-  ⊢ˢValue-⇒ᵥ (Jₑ x x₁) ⊢t prodᵥ =
+  ⊢ˢValue-⇒ᵥ _ (Jₑ x x₁) ⊢t prodᵥ =
     case inversion-prod ⊢t of λ
       (_ , _ , _ , _ , _ , _ , _ , Id≡Σ , _) →
     ⊥-elim (Id≢ΠΣ Id≡Σ)
-  ⊢ˢValue-⇒ᵥ (Kₑ x x₁ x₂) ⊢t prodᵥ =
+  ⊢ˢValue-⇒ᵥ _ (Kₑ x x₁ x₂) ⊢t prodᵥ =
     case inversion-prod ⊢t of λ
       (_ , _ , _ , _ , _ , _ , _ , Id≡Σ , _) →
     ⊥-elim (Id≢ΠΣ Id≡Σ)
-  ⊢ˢValue-⇒ᵥ ([]-congₑ x) ⊢t prodᵥ =
+  ⊢ˢValue-⇒ᵥ _ ([]-congₑ x) ⊢t prodᵥ =
     case inversion-prod ⊢t of λ
       (_ , _ , _ , _ , _ , _ , _ , Id≡Σ , _) →
     ⊥-elim (Id≢ΠΣ Id≡Σ)
-  ⊢ˢValue-⇒ᵥ (∘ₑ x x₁) ⊢t rflᵥ =
+  ⊢ˢValue-⇒ᵥ _ (∘ₑ x x₁) ⊢t rflᵥ =
     case inversion-rfl ⊢t of λ
       (_ , _ , _ , _ , Π≡Id) →
     ⊥-elim (Id≢ΠΣ (sym Π≡Id))
-  ⊢ˢValue-⇒ᵥ (fstₑ _) ⊢t rflᵥ =
+  ⊢ˢValue-⇒ᵥ _ (fstₑ _) ⊢t rflᵥ =
     case inversion-rfl ⊢t of λ
       (_ , _ , _ , _ , Σ≡Id) →
     ⊥-elim (Id≢ΠΣ (sym Σ≡Id))
-  ⊢ˢValue-⇒ᵥ (sndₑ _) ⊢t rflᵥ =
+  ⊢ˢValue-⇒ᵥ _ (sndₑ _) ⊢t rflᵥ =
     case inversion-rfl ⊢t of λ
       (_ , _ , _ , _ , Σ≡Id) →
     ⊥-elim (Id≢ΠΣ (sym Σ≡Id))
-  ⊢ˢValue-⇒ᵥ (prodrecₑ x x₁) ⊢t rflᵥ =
+  ⊢ˢValue-⇒ᵥ _ (prodrecₑ x x₁) ⊢t rflᵥ =
     case inversion-rfl ⊢t of λ
       (_ , _ , _ , _ , Σ≡Id) →
     ⊥-elim (Id≢ΠΣ (sym Σ≡Id))
-  ⊢ˢValue-⇒ᵥ (natrecₑ _ _) ⊢t rflᵥ =
+  ⊢ˢValue-⇒ᵥ _ (natrecₑ _ _) ⊢t rflᵥ =
     case inversion-rfl ⊢t of λ
       (_ , _ , _ , _ , ℕ≡Id) →
     ⊥-elim (Id≢ℕ (sym ℕ≡Id))
-  ⊢ˢValue-⇒ᵥ (unitrecₑ x x₁ x₂) ⊢t rflᵥ =
+  ⊢ˢValue-⇒ᵥ _ (unitrecₑ x x₁ x₂) ⊢t rflᵥ =
     case inversion-rfl ⊢t of λ
       (_ , _ , _ , _ , Unit≡Id) →
     ⊥-elim (Id≢Unit (sym Unit≡Id))
-  ⊢ˢValue-⇒ᵥ (emptyrecₑ x) ⊢t rflᵥ =
+  ⊢ˢValue-⇒ᵥ _ (emptyrecₑ x) ⊢t rflᵥ =
     case inversion-rfl ⊢t of λ
       (_ , _ , _ , _ , Empty≡Id) →
     ⊥-elim (Id≢Empty (sym Empty≡Id))
-  ⊢ˢValue-⇒ᵥ ⊢e ⊢t Uᵥ =
+  ⊢ˢValue-⇒ᵥ _ ⊢e ⊢t Uᵥ =
     ⊥-elim (hole-type-not-U ⊢e (inversion-U ⊢t))
-  ⊢ˢValue-⇒ᵥ (∘ₑ x x₁) ⊢t ΠΣᵥ =
+  ⊢ˢValue-⇒ᵥ _ (∘ₑ x x₁) ⊢t ΠΣᵥ =
     case inversion-ΠΣ-U ⊢t of λ
       (_ , _ , _ , _ , Π≡U , _) →
     ⊥-elim (U≢ΠΣⱼ (sym Π≡U))
-  ⊢ˢValue-⇒ᵥ (fstₑ _) ⊢t ΠΣᵥ =
+  ⊢ˢValue-⇒ᵥ _ (fstₑ _) ⊢t ΠΣᵥ =
     case inversion-ΠΣ-U ⊢t of λ
       (_ , _ , _ , _ , Σ≡U , _) →
     ⊥-elim (U≢ΠΣⱼ (sym Σ≡U))
-  ⊢ˢValue-⇒ᵥ (sndₑ _) ⊢t ΠΣᵥ =
+  ⊢ˢValue-⇒ᵥ _ (sndₑ _) ⊢t ΠΣᵥ =
     case inversion-ΠΣ-U ⊢t of λ
       (_ , _ , _ , _ , Σ≡U , _) →
     ⊥-elim (U≢ΠΣⱼ (sym Σ≡U))
-  ⊢ˢValue-⇒ᵥ (prodrecₑ x x₁) ⊢t ΠΣᵥ =
+  ⊢ˢValue-⇒ᵥ _ (prodrecₑ x x₁) ⊢t ΠΣᵥ =
     case inversion-ΠΣ-U ⊢t of λ
       (_ , _ , _ , _ , Σ≡U , _) →
     ⊥-elim (U≢ΠΣⱼ (sym Σ≡U))
-  ⊢ˢValue-⇒ᵥ (natrecₑ _ _) ⊢t ΠΣᵥ =
+  ⊢ˢValue-⇒ᵥ _ (natrecₑ _ _) ⊢t ΠΣᵥ =
     case inversion-ΠΣ-U ⊢t of λ
       (_ , _ , _ , _ , ℕ≡U , _) →
     ⊥-elim (U≢ℕ (sym ℕ≡U))
-  ⊢ˢValue-⇒ᵥ (unitrecₑ x x₁ x₂) ⊢t ΠΣᵥ =
+  ⊢ˢValue-⇒ᵥ _ (unitrecₑ x x₁ x₂) ⊢t ΠΣᵥ =
     case inversion-ΠΣ-U ⊢t of λ
       (_ , _ , _ , _ , Unit≡U , _) →
     ⊥-elim (U≢Unitⱼ (sym Unit≡U))
-  ⊢ˢValue-⇒ᵥ (emptyrecₑ x) ⊢t ΠΣᵥ =
+  ⊢ˢValue-⇒ᵥ _ (emptyrecₑ x) ⊢t ΠΣᵥ =
     case inversion-ΠΣ-U ⊢t of λ
       (_ , _ , _ , _ , Empty≡U , _) →
     ⊥-elim (U≢Emptyⱼ (sym Empty≡U))
-  ⊢ˢValue-⇒ᵥ (Jₑ x x₁) ⊢t ΠΣᵥ =
+  ⊢ˢValue-⇒ᵥ _ (Jₑ x x₁) ⊢t ΠΣᵥ =
     case inversion-ΠΣ-U ⊢t of λ
       (_ , _ , _ , _ , Id≡U , _) →
     ⊥-elim (Id≢U Id≡U)
-  ⊢ˢValue-⇒ᵥ (Kₑ x x₁ x₂) ⊢t ΠΣᵥ =
+  ⊢ˢValue-⇒ᵥ _ (Kₑ x x₁ x₂) ⊢t ΠΣᵥ =
     case inversion-ΠΣ-U ⊢t of λ
       (_ , _ , _ , _ , Id≡U , _) →
     ⊥-elim (Id≢U Id≡U)
-  ⊢ˢValue-⇒ᵥ ([]-congₑ x) ⊢t ΠΣᵥ =
+  ⊢ˢValue-⇒ᵥ _ ([]-congₑ x) ⊢t ΠΣᵥ =
     case inversion-ΠΣ-U ⊢t of λ
       (_ , _ , _ , _ , Id≡U , _) →
     ⊥-elim (Id≢U Id≡U)
-  ⊢ˢValue-⇒ᵥ (∘ₑ x x₁) ⊢t ℕᵥ =
+  ⊢ˢValue-⇒ᵥ _ (∘ₑ x x₁) ⊢t ℕᵥ =
     ⊥-elim (U≢ΠΣⱼ (sym (inversion-ℕ ⊢t)))
-  ⊢ˢValue-⇒ᵥ (fstₑ _) ⊢t ℕᵥ =
+  ⊢ˢValue-⇒ᵥ _ (fstₑ _) ⊢t ℕᵥ =
     ⊥-elim (U≢ΠΣⱼ (sym (inversion-ℕ ⊢t)))
-  ⊢ˢValue-⇒ᵥ (sndₑ _) ⊢t ℕᵥ =
+  ⊢ˢValue-⇒ᵥ _ (sndₑ _) ⊢t ℕᵥ =
     ⊥-elim (U≢ΠΣⱼ (sym (inversion-ℕ ⊢t)))
-  ⊢ˢValue-⇒ᵥ (prodrecₑ x x₁) ⊢t ℕᵥ =
+  ⊢ˢValue-⇒ᵥ _ (prodrecₑ x x₁) ⊢t ℕᵥ =
     ⊥-elim (U≢ΠΣⱼ (sym (inversion-ℕ ⊢t)))
-  ⊢ˢValue-⇒ᵥ (natrecₑ _ _) ⊢t ℕᵥ =
+  ⊢ˢValue-⇒ᵥ _ (natrecₑ _ _) ⊢t ℕᵥ =
     ⊥-elim (U≢ℕ (sym (inversion-ℕ ⊢t)))
-  ⊢ˢValue-⇒ᵥ (unitrecₑ x x₁ x₂) ⊢t ℕᵥ =
+  ⊢ˢValue-⇒ᵥ _ (unitrecₑ x x₁ x₂) ⊢t ℕᵥ =
     ⊥-elim (U≢Unitⱼ (sym (inversion-ℕ ⊢t)))
-  ⊢ˢValue-⇒ᵥ (emptyrecₑ x) ⊢t ℕᵥ =
+  ⊢ˢValue-⇒ᵥ _ (emptyrecₑ x) ⊢t ℕᵥ =
     ⊥-elim (U≢Emptyⱼ (sym (inversion-ℕ ⊢t)))
-  ⊢ˢValue-⇒ᵥ (Jₑ x x₁) ⊢t ℕᵥ =
+  ⊢ˢValue-⇒ᵥ _ (Jₑ x x₁) ⊢t ℕᵥ =
     ⊥-elim (Id≢U (inversion-ℕ ⊢t))
-  ⊢ˢValue-⇒ᵥ (Kₑ x x₁ x₂) ⊢t ℕᵥ =
+  ⊢ˢValue-⇒ᵥ _ (Kₑ x x₁ x₂) ⊢t ℕᵥ =
     ⊥-elim (Id≢U (inversion-ℕ ⊢t))
-  ⊢ˢValue-⇒ᵥ ([]-congₑ x) ⊢t ℕᵥ =
+  ⊢ˢValue-⇒ᵥ _ ([]-congₑ x) ⊢t ℕᵥ =
     ⊥-elim (Id≢U (inversion-ℕ ⊢t))
-  ⊢ˢValue-⇒ᵥ (∘ₑ x x₁) ⊢t Unitᵥ =
+  ⊢ˢValue-⇒ᵥ _ (∘ₑ x x₁) ⊢t Unitᵥ =
     ⊥-elim (U≢ΠΣⱼ (sym (inversion-Unit-U ⊢t .proj₁)))
-  ⊢ˢValue-⇒ᵥ (fstₑ _) ⊢t Unitᵥ =
+  ⊢ˢValue-⇒ᵥ _ (fstₑ _) ⊢t Unitᵥ =
     ⊥-elim (U≢ΠΣⱼ (sym (inversion-Unit-U ⊢t .proj₁)))
-  ⊢ˢValue-⇒ᵥ (sndₑ _) ⊢t Unitᵥ =
+  ⊢ˢValue-⇒ᵥ _ (sndₑ _) ⊢t Unitᵥ =
     ⊥-elim (U≢ΠΣⱼ (sym (inversion-Unit-U ⊢t .proj₁)))
-  ⊢ˢValue-⇒ᵥ (prodrecₑ x x₁) ⊢t Unitᵥ =
+  ⊢ˢValue-⇒ᵥ _ (prodrecₑ x x₁) ⊢t Unitᵥ =
     ⊥-elim (U≢ΠΣⱼ (sym (inversion-Unit-U ⊢t .proj₁)))
-  ⊢ˢValue-⇒ᵥ (natrecₑ _ _) ⊢t Unitᵥ =
+  ⊢ˢValue-⇒ᵥ _ (natrecₑ _ _) ⊢t Unitᵥ =
     ⊥-elim (U≢ℕ (sym (inversion-Unit-U ⊢t .proj₁)))
-  ⊢ˢValue-⇒ᵥ (unitrecₑ x x₁ x₂) ⊢t Unitᵥ =
+  ⊢ˢValue-⇒ᵥ _ (unitrecₑ x x₁ x₂) ⊢t Unitᵥ =
     ⊥-elim (U≢Unitⱼ (sym (inversion-Unit-U ⊢t .proj₁)))
-  ⊢ˢValue-⇒ᵥ (emptyrecₑ x) ⊢t Unitᵥ =
+  ⊢ˢValue-⇒ᵥ _ (emptyrecₑ x) ⊢t Unitᵥ =
     ⊥-elim (U≢Emptyⱼ (sym (inversion-Unit-U ⊢t .proj₁)))
-  ⊢ˢValue-⇒ᵥ (Jₑ x x₁) ⊢t Unitᵥ =
+  ⊢ˢValue-⇒ᵥ _ (Jₑ x x₁) ⊢t Unitᵥ =
     ⊥-elim (Id≢U (inversion-Unit-U ⊢t .proj₁))
-  ⊢ˢValue-⇒ᵥ (Kₑ x x₁ x₂) ⊢t Unitᵥ =
+  ⊢ˢValue-⇒ᵥ _ (Kₑ x x₁ x₂) ⊢t Unitᵥ =
     ⊥-elim (Id≢U (inversion-Unit-U ⊢t .proj₁))
-  ⊢ˢValue-⇒ᵥ ([]-congₑ x) ⊢t Unitᵥ =
+  ⊢ˢValue-⇒ᵥ _ ([]-congₑ x) ⊢t Unitᵥ =
     ⊥-elim (Id≢U (inversion-Unit-U ⊢t .proj₁))
-  ⊢ˢValue-⇒ᵥ (∘ₑ x x₁) ⊢t Emptyᵥ =
+  ⊢ˢValue-⇒ᵥ _ (∘ₑ x x₁) ⊢t Emptyᵥ =
     ⊥-elim (U≢ΠΣⱼ (sym (inversion-Empty ⊢t)))
-  ⊢ˢValue-⇒ᵥ (fstₑ _) ⊢t Emptyᵥ =
+  ⊢ˢValue-⇒ᵥ _ (fstₑ _) ⊢t Emptyᵥ =
     ⊥-elim (U≢ΠΣⱼ (sym (inversion-Empty ⊢t)))
-  ⊢ˢValue-⇒ᵥ (sndₑ _) ⊢t Emptyᵥ =
+  ⊢ˢValue-⇒ᵥ _ (sndₑ _) ⊢t Emptyᵥ =
     ⊥-elim (U≢ΠΣⱼ (sym (inversion-Empty ⊢t)))
-  ⊢ˢValue-⇒ᵥ (prodrecₑ x x₁) ⊢t Emptyᵥ =
+  ⊢ˢValue-⇒ᵥ _ (prodrecₑ x x₁) ⊢t Emptyᵥ =
     ⊥-elim (U≢ΠΣⱼ (sym (inversion-Empty ⊢t)))
-  ⊢ˢValue-⇒ᵥ (natrecₑ _ _) ⊢t Emptyᵥ =
+  ⊢ˢValue-⇒ᵥ _ (natrecₑ _ _) ⊢t Emptyᵥ =
     ⊥-elim (U≢ℕ (sym (inversion-Empty ⊢t)))
-  ⊢ˢValue-⇒ᵥ (unitrecₑ x x₁ x₂) ⊢t Emptyᵥ =
+  ⊢ˢValue-⇒ᵥ _ (unitrecₑ x x₁ x₂) ⊢t Emptyᵥ =
     ⊥-elim (U≢Unitⱼ (sym (inversion-Empty ⊢t)))
-  ⊢ˢValue-⇒ᵥ (emptyrecₑ x) ⊢t Emptyᵥ =
+  ⊢ˢValue-⇒ᵥ _ (emptyrecₑ x) ⊢t Emptyᵥ =
     ⊥-elim (U≢Emptyⱼ (sym (inversion-Empty ⊢t)))
-  ⊢ˢValue-⇒ᵥ (Jₑ x x₁) ⊢t Emptyᵥ =
+  ⊢ˢValue-⇒ᵥ _ (Jₑ x x₁) ⊢t Emptyᵥ =
     ⊥-elim (Id≢U (inversion-Empty ⊢t))
-  ⊢ˢValue-⇒ᵥ (Kₑ x x₁ x₂) ⊢t Emptyᵥ =
+  ⊢ˢValue-⇒ᵥ _ (Kₑ x x₁ x₂) ⊢t Emptyᵥ =
     ⊥-elim (Id≢U (inversion-Empty ⊢t))
-  ⊢ˢValue-⇒ᵥ ([]-congₑ x) ⊢t Emptyᵥ =
+  ⊢ˢValue-⇒ᵥ _ ([]-congₑ x) ⊢t Emptyᵥ =
     ⊥-elim (Id≢U (inversion-Empty ⊢t))
-  ⊢ˢValue-⇒ᵥ (∘ₑ x x₁) ⊢t Idᵥ =
+  ⊢ˢValue-⇒ᵥ _ (∘ₑ x x₁) ⊢t Idᵥ =
     case inversion-Id-U ⊢t of λ
       (_ , _ , _ , _ , Π≡U) →
     ⊥-elim (U≢ΠΣⱼ (sym Π≡U))
-  ⊢ˢValue-⇒ᵥ (fstₑ _) ⊢t Idᵥ =
+  ⊢ˢValue-⇒ᵥ _ (fstₑ _) ⊢t Idᵥ =
     case inversion-Id-U ⊢t of λ
       (_ , _ , _ , _ , Σ≡U) →
     ⊥-elim (U≢ΠΣⱼ (sym Σ≡U))
-  ⊢ˢValue-⇒ᵥ (sndₑ _) ⊢t Idᵥ =
+  ⊢ˢValue-⇒ᵥ _ (sndₑ _) ⊢t Idᵥ =
     case inversion-Id-U ⊢t of λ
       (_ , _ , _ , _ , Σ≡U) →
     ⊥-elim (U≢ΠΣⱼ (sym Σ≡U))
-  ⊢ˢValue-⇒ᵥ (prodrecₑ x x₁) ⊢t Idᵥ =
+  ⊢ˢValue-⇒ᵥ _ (prodrecₑ x x₁) ⊢t Idᵥ =
     case inversion-Id-U ⊢t of λ
       (_ , _ , _ , _ , Σ≡U) →
     ⊥-elim (U≢ΠΣⱼ (sym Σ≡U))
-  ⊢ˢValue-⇒ᵥ (natrecₑ _ _) ⊢t Idᵥ =
+  ⊢ˢValue-⇒ᵥ _ (natrecₑ _ _) ⊢t Idᵥ =
     case inversion-Id-U ⊢t of λ
       (_ , _ , _ , _ , ℕ≡U) →
     ⊥-elim (U≢ℕ (sym ℕ≡U))
-  ⊢ˢValue-⇒ᵥ (unitrecₑ x x₁ x₂) ⊢t Idᵥ =
+  ⊢ˢValue-⇒ᵥ _ (unitrecₑ x x₁ x₂) ⊢t Idᵥ =
     case inversion-Id-U ⊢t of λ
       (_ , _ , _ , _ , Unit≡U) →
     ⊥-elim (U≢Unitⱼ (sym Unit≡U))
-  ⊢ˢValue-⇒ᵥ (emptyrecₑ x) ⊢t Idᵥ =
+  ⊢ˢValue-⇒ᵥ _ (emptyrecₑ x) ⊢t Idᵥ =
     case inversion-Id-U ⊢t of λ
       (_ , _ , _ , _ , Empty≡U) →
     ⊥-elim (U≢Emptyⱼ (sym Empty≡U))
-  ⊢ˢValue-⇒ᵥ (Jₑ x x₁) ⊢t Idᵥ =
+  ⊢ˢValue-⇒ᵥ _ (Jₑ x x₁) ⊢t Idᵥ =
     case inversion-Id-U ⊢t of λ
       (_ , _ , _ , _ , Id≡U) →
     ⊥-elim (Id≢U Id≡U)
-  ⊢ˢValue-⇒ᵥ (Kₑ x x₁ x₂) ⊢t Idᵥ =
+  ⊢ˢValue-⇒ᵥ _ (Kₑ x x₁ x₂) ⊢t Idᵥ =
     case inversion-Id-U ⊢t of λ
       (_ , _ , _ , _ , Id≡U) →
     ⊥-elim (Id≢U Id≡U)
-  ⊢ˢValue-⇒ᵥ ([]-congₑ x) ⊢t Idᵥ =
+  ⊢ˢValue-⇒ᵥ _ ([]-congₑ x) ⊢t Idᵥ =
     case inversion-Id-U ⊢t of λ
       (_ , _ , _ , _ , Id≡U) →
     ⊥-elim (Id≢U Id≡U)
 
 opaque
 
-  -- Values in non-empty stacks always reduce
+  -- Values in non-empty stacks always reduce (assuming that the stack
+  -- multiplicity exists)
 
   ⊢Value-⇒ᵥ :
     ⦃ ok : No-equality-reflection or-empty Δ ⦄ →
+    ∣ e ∙ S ∣≡ p →
     Δ ⊢ₛ ⟨ H , t , ρ , e ∙ S ⟩ ∷ A → Value t →
     ∃₃ λ m n (s : State _ m n) → ⟨ H , t , ρ , e ∙ S ⟩ ⇒ᵥ s
-  ⊢Value-⇒ᵥ ⊢s v =
+  ⊢Value-⇒ᵥ ∣S∣≡ ⊢s v =
     let _ , _ , _ , _ , ⊢t , ⊢e , _ = ⊢ₛ-inv′ ⊢s
-    in  ⊢ˢValue-⇒ᵥ ⊢e ⊢t v
+    in  ⊢ˢValue-⇒ᵥ ∣S∣≡ ⊢e ⊢t v
 
 opaque
 
+  -- Well-typed states with values in head position and a non-empty
+  -- stack have a matching head and stack (assuming that the stack
+  -- multiplicity exists)
+
   ⊢Matching :
     ⦃ ok : No-equality-reflection or-empty Δ ⦄ →
+    ∣ e ∙ S ∣≡ p →
     Δ ⊢ₛ ⟨ H , t , ρ , e ∙ S ⟩ ∷ A →
     Value t →
     Matching t (e ∙ S)
-  ⊢Matching ⊢s v =
-    let _ , _ , _ , d = ⊢Value-⇒ᵥ ⊢s v
+  ⊢Matching ∣S∣≡ ⊢s v =
+    let _ , _ , _ , d = ⊢Value-⇒ᵥ ∣S∣≡ ⊢s v
     in  ⇒ᵥ→Matching d
 
-module _ (¬Nr-not-available : ¬ Nr-not-available) where
+opaque
 
-  opaque
+  -- For well-typed states there are three reasons a state can be Final:
+  -- 1. It has a variable in head position but lookup does not succeed
+  --    (for the number of copies matching the current stack
+  --    multiplicity).
+  -- 2. It has a value in head position, the stack is non-empty and the
+  --    stack multiplicity does not exist.
+  -- 3. It has a value in head position and the stack is empty.
 
-    -- For well-typed states there are three reasons a state can be Final:
-    -- 1. It has a variable in head position but lookup does not succeed
-    -- 2. The head is natrec p q r A z s n, the usage restrictions indicate that
-    --    the usage rule for natrec is the one based on greatest lower bounds and
-    --    there is no greatest lower bound to nrᵢ r 𝟙 p.
-    -- 3. It has a value in head position and the stack is empty.
+  ⊢Final-reasons :
+    ⦃ ok : No-equality-reflection or-empty Δ ⦄ →
+    Δ ⊢ₛ ⟨ H , t , ρ , S ⟩ ∷ A →
+    Final ⟨ H , t , ρ , S ⟩ →
+    (∃ λ x → t PE.≡ var x ×
+         (∀ {p n H′} {c : Entry _ n} → ∣ S ∣≡ p → H ⊢ wkVar ρ x ↦[ p ] c ⨾ H′ → ⊥)) ⊎
+    (∃₂ λ e S′ → S PE.≡ e ∙ S′ × Value t × ¬ (∃ ∣ S ∣≡_)) ⊎
+    Value t × S PE.≡ ε
+  ⊢Final-reasons ⊢s f =
+    case Final-reasons _ f of λ where
+      (inj₁ x) → inj₁ x
+      (inj₂ (inj₁ (_ , _ , PE.refl , v , prop))) →
+        inj₂ (inj₁ (_ , _ , PE.refl , v , λ (p , ∣S∣≡p) →
+          prop (⊢Matching ∣S∣≡p ⊢s v , (_ , ∣S∣≡p))))
+      (inj₂ (inj₂ x)) → inj₂ (inj₂ x)
 
-    ⊢Final-reasons :
-      ⦃ ok : No-equality-reflection or-empty Δ ⦄ →
-      Δ ⊢ₛ ⟨ H , t , ρ , S ⟩ ∷ A →
-      Final ⟨ H , t , ρ , S ⟩ →
-      (∃ λ x → t PE.≡ var x ×
-         (∀ {n H′} {c : Entry _ n} → H ⊢ wkVar ρ x ↦[ ∣ S ∣ ] c ⨾ H′ → ⊥)) ⊎
-      (∃₇ λ p q r A z s n → t PE.≡ natrec p q r A z s n × Nr-not-available-GLB ×
-          ¬ ∃ λ q′ → Greatest-lower-bound q′ (nrᵢ r 𝟙 p)) ⊎
-      Value t × S PE.≡ ε
-    ⊢Final-reasons ⊢s f =
-      case Final-reasons ¬Nr-not-available _ f of λ where
-        (inj₁ x) → inj₁ x
-        (inj₂ (inj₁ x)) → inj₂ (inj₁ x)
-        (inj₂ (inj₂ (inj₂ y))) → inj₂ (inj₂ y)
-        (inj₂ (inj₂ (inj₁ (_ , _ , PE.refl , v , ¬m)))) →
-          ⊥-elim (¬m (⊢Matching ⊢s v))
+opaque
 
-  opaque
+  -- A variant of the above property.
 
-    -- A variant of the above property.
-
-    ⊢⇘-reasons :
-      ⦃ ok : No-equality-reflection or-empty Δ ⦄ →
-      Δ ⊢ₛ s ∷ A →
-      s ⇘ ⟨ H , t , ρ , S ⟩ →
-      (∃ λ x → t PE.≡ var x ×
-         (∀ {n H′} {c : Entry _ n} → H ⊢ wkVar ρ x ↦[ ∣ S ∣ ] c ⨾ H′ → ⊥)) ⊎
-      (∃₇ λ p q r A z s n → t PE.≡ natrec p q r A z s n × Nr-not-available-GLB ×
-          ¬ ∃ λ q′ → Greatest-lower-bound q′ (nrᵢ r 𝟙 p)) ⊎
-      Value t × S PE.≡ ε
-    ⊢⇘-reasons ⊢s (d , f) =
-      ⊢Final-reasons (⊢ₛ-⇾* ⊢s d) f
+  ⊢⇘-reasons :
+    ⦃ ok : No-equality-reflection or-empty Δ ⦄ →
+    Δ ⊢ₛ s ∷ A →
+    s ⇘ ⟨ H , t , ρ , S ⟩ →
+    (∃ λ x → t PE.≡ var x ×
+         (∀ {p n H′} {c : Entry _ n} → ∣ S ∣≡ p → H ⊢ wkVar ρ x ↦[ p ] c ⨾ H′ → ⊥)) ⊎
+    (∃₂ λ e S′ → S PE.≡ e ∙ S′ × Value t × ¬ (∃ ∣ S ∣≡_)) ⊎
+    Value t × S PE.≡ ε
+  ⊢⇘-reasons ⊢s (d , f) =
+    ⊢Final-reasons (⊢ₛ-⇾* ⊢s d) f

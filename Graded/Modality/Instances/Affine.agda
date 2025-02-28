@@ -27,6 +27,7 @@ open import Definition.Untyped
 
 open import Tools.Empty
 open import Tools.Function
+open import Tools.Nat using (Sequence)
 open import Tools.Product
 open import Tools.PropositionalEquality
 open import Tools.Relation
@@ -34,6 +35,7 @@ open import Tools.Sum
 
 private variable
   p  : Affine
+  pᵢ : Sequence Affine
 
 -- An "affine types" modality.
 
@@ -384,3 +386,84 @@ full-reduction-assumptions-suitable as =
       (inj₂ (() , _))
   where
   open Full-reduction-assumptions as
+
+opaque
+
+  -- If 𝟙 is the greatest lower bounds of a sequence then all its entries
+  -- are either 𝟘 or 𝟙
+
+  𝟙-GLB-inv :
+    Semiring-with-meet.Greatest-lower-bound zero-one-many-semiring-with-meet 𝟙 pᵢ →
+    ∀ i → pᵢ i ≡ 𝟙 ⊎ pᵢ i ≡ 𝟘
+  𝟙-GLB-inv 𝟙-glb i = lemma _ (𝟙-glb .proj₁ i)
+    where
+    lemma : ∀ p → 𝟙 ≤ p → p ≡ 𝟙 ⊎ p ≡ 𝟘
+    lemma 𝟘 _ = inj₂ refl
+    lemma 𝟙 _ = inj₁ refl
+    lemma ω ()
+
+opaque
+
+  -- If the greatest lower bound of nrᵢ r z s is 𝟘 then z = s 𝟘.
+
+  nrᵢ-GLB-𝟘-inv :
+   let 𝕄 = zero-one-many-semiring-with-meet in
+    ∀ r z s →
+    Semiring-with-meet.Greatest-lower-bound 𝕄 𝟘 (Semiring-with-meet.nrᵢ 𝕄 r z s) →
+    z ≡ 𝟘 × s ≡ 𝟘
+  nrᵢ-GLB-𝟘-inv r 𝟘 𝟘 (𝟘≤ , _) = refl , refl
+  nrᵢ-GLB-𝟘-inv 𝟘 𝟘 𝟙 (𝟘≤ , _) = case 𝟘≤ 1 of λ ()
+  nrᵢ-GLB-𝟘-inv 𝟙 𝟘 𝟙 (𝟘≤ , _) = case 𝟘≤ 1 of λ ()
+  nrᵢ-GLB-𝟘-inv ω 𝟘 𝟙 (𝟘≤ , _) = case 𝟘≤ 1 of λ ()
+  nrᵢ-GLB-𝟘-inv r 𝟘 ω (𝟘≤ , _) = case 𝟘≤ 1 of λ ()
+  nrᵢ-GLB-𝟘-inv r 𝟙 s (𝟘≤ , _) = case 𝟘≤ 0 of λ ()
+  nrᵢ-GLB-𝟘-inv r ω s (𝟘≤ , _) = case 𝟘≤ 0 of λ ()
+
+opaque
+
+  -- If the greatest lower bound of nrᵢ r z s is 𝟙 then either
+  -- r=𝟙, z=𝟙, s≡𝟘
+  -- r≡𝟘, z≡𝟙, s≡𝟙
+  -- r≡𝟘, z≡𝟘, s≡𝟙
+  -- r≡𝟘, z≡𝟙, s≡𝟘
+
+  nrᵢ-GLB-𝟙-inv :
+   let 𝕄 = zero-one-many-semiring-with-meet in
+    ∀ r z s →
+    Semiring-with-meet.Greatest-lower-bound 𝕄 𝟙 (Semiring-with-meet.nrᵢ 𝕄 r z s) →
+    r ≡ 𝟙 × z ≡ 𝟙 × s ≡ 𝟘 ⊎ r ≡ 𝟘 × z ≡ 𝟙 × s ≡ 𝟙 ⊎
+    r ≡ 𝟘 × z ≡ 𝟘 × s ≡ 𝟙 ⊎ r ≡ 𝟘 × z ≡ 𝟙 × s ≡ 𝟘
+  nrᵢ-GLB-𝟙-inv 𝟘 𝟘 𝟘 (𝟙≤ , glb) = case glb 𝟘 (λ i → ≤-reflexive (sym (nrᵢ-𝟘 i))) of λ ()
+  nrᵢ-GLB-𝟙-inv 𝟙 𝟘 𝟘 (𝟙≤ , glb) = case glb 𝟘 (λ i → ≤-reflexive (sym (nrᵢ-𝟘 i))) of λ ()
+  nrᵢ-GLB-𝟙-inv ω 𝟘 𝟘 (𝟙≤ , glb) = case glb 𝟘 (λ i → ≤-reflexive (sym (nrᵢ-𝟘 i))) of λ ()
+  nrᵢ-GLB-𝟙-inv 𝟘 𝟘 𝟙 (𝟙≤ , _) = inj₂ (inj₂ (inj₁ (refl , refl , refl)))
+  nrᵢ-GLB-𝟙-inv 𝟙 𝟘 𝟙 (𝟙≤ , _) = case 𝟙≤ 2 of λ ()
+  nrᵢ-GLB-𝟙-inv ω 𝟘 𝟙 (𝟙≤ , _) = case 𝟙≤ 2 of λ ()
+  nrᵢ-GLB-𝟙-inv r 𝟘 ω (𝟙≤ , _) = case 𝟙≤ 1 of λ ()
+  nrᵢ-GLB-𝟙-inv 𝟘 𝟙 𝟘 (𝟙≤ , _) = inj₂ (inj₂ (inj₂ (refl , refl , refl)))
+  nrᵢ-GLB-𝟙-inv 𝟙 𝟙 𝟘 (𝟙≤ , _) = inj₁ (refl , refl , refl)
+  nrᵢ-GLB-𝟙-inv ω 𝟙 𝟘 (𝟙≤ , _) = case 𝟙≤ 1 of λ ()
+  nrᵢ-GLB-𝟙-inv 𝟘 𝟙 𝟙 (𝟙≤ , _) = inj₂ (inj₁ (refl , refl , refl))
+  nrᵢ-GLB-𝟙-inv 𝟙 𝟙 𝟙 (𝟙≤ , _) = case 𝟙≤ 1 of λ ()
+  nrᵢ-GLB-𝟙-inv ω 𝟙 𝟙 (𝟙≤ , _) = case 𝟙≤ 1 of λ ()
+  nrᵢ-GLB-𝟙-inv r 𝟙 ω (𝟙≤ , _) = case 𝟙≤ 1 of λ ()
+  nrᵢ-GLB-𝟙-inv r ω s (𝟙≤ , _) = case 𝟙≤ 0 of λ ()
+
+opaque
+
+  -- The greatest lower bound of nrᵢ r 𝟙 p is 𝟙 only if
+  -- p ≡ 𝟘 and r ≡ 𝟙 or
+  -- p ≡ 𝟙 and r ≡ 𝟘 or
+  -- p ≡ 𝟘 and r ≡ 𝟘
+
+  nrᵢ-r𝟙p-GLB-𝟙-inv :
+    let 𝕄 = zero-one-many-semiring-with-meet in
+      ∀ p r →
+    Semiring-with-meet.Greatest-lower-bound 𝕄 𝟙 (Semiring-with-meet.nrᵢ 𝕄 r 𝟙 p) →
+    p ≡ 𝟘 × r ≡ 𝟙 ⊎ p ≡ 𝟙 × r ≡ 𝟘 ⊎ p ≡ 𝟘 × r ≡ 𝟘
+  nrᵢ-r𝟙p-GLB-𝟙-inv p r glb =
+    case nrᵢ-GLB-𝟙-inv r 𝟙 p glb of λ where
+      (inj₁ (r≡𝟙 , _ , p≡𝟘)) → inj₁ (p≡𝟘 , r≡𝟙)
+      (inj₂ (inj₁ (r≡𝟘 , _ , p≡𝟙))) → inj₂ (inj₁ (p≡𝟙 , r≡𝟘))
+      (inj₂ (inj₂ (inj₁ (_ , () , _))))
+      (inj₂ (inj₂ (inj₂ (r≡𝟘 , _ , p≡𝟘)))) → inj₂ (inj₂ (p≡𝟘 , r≡𝟘))

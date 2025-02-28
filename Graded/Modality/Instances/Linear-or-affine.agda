@@ -4804,7 +4804,7 @@ opaque
   linear-or-affine-supports-glb-for-natrec = record
     { +-GLBˡ = λ {_} {_} {q} → +-GLBˡ {q = q}
     ; ·-GLBˡ = λ {_} {_} {q} → ·-GLBˡ {q = q}
-    ; ·-GLBʳ = ·-GLBʳ
+    ; ·-GLBʳ = comm∧·-GLBˡ⇒·-GLBʳ ·-comm (λ {_} {_} {q} → ·-GLBˡ {q = q})
     ; +nrᵢ-GLB = +nrᵢ-GLB
     }
     where
@@ -4905,13 +4905,6 @@ opaque
             ; 𝟙 q≤ → ⊥-elim (lemma″ (pᵢ 0) (q≤ 0))
             ; ≤𝟙 q≤ → ⊥-elim (≢p-GLB-inv (λ ()) p-glb (lemma‴ ∘→ q≤))
             ; ≤ω q≤ → refl}
-
-    ·-GLBʳ :
-      {pᵢ : Sequence Linear-or-affine} →
-      Greatest-lower-bound p pᵢ →
-      Greatest-lower-bound (p · q) (λ i → pᵢ i · q)
-    ·-GLBʳ {p} {q} {pᵢ} p-glb =
-      GLB-cong (·-comm q p) (λ i → ·-comm q (pᵢ i)) (·-GLBˡ {q = q} p-glb)
 
     +-GLBˡ :
       {pᵢ : Sequence Linear-or-affine} →

@@ -152,6 +152,14 @@ opaque
 
   -- A property of greatest lower bounds of nrᵢ sequences
 
+  nrᵢ-GLB-≤₀ :
+    Greatest-lower-bound p (nrᵢ r z s) → p ≤ z
+  nrᵢ-GLB-≤₀ p-glb = p-glb .proj₁ 0
+
+opaque
+
+  -- A property of greatest lower bounds of nrᵢ sequences
+
   nrᵢ-GLB-≤ :
     ⦃ ok : Supports-GLB-for-natrec _ 𝕄 ⦄ →
     Greatest-lower-bound p (nrᵢ r z s) → p ≤ s + r · p

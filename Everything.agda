@@ -489,6 +489,10 @@ import Graded.Heap.Termination
 -- Resource correctness of the abstract machine
 import Graded.Heap.Soundness
 
+-- Examples related to the abstract machine
+import Graded.Heap.Examples
+import Graded.Heap.Examples.Linearity
+
 ------------------------------------------------------------------------
 -- Some applications
 

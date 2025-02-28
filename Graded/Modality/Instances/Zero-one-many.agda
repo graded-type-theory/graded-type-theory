@@ -2142,6 +2142,55 @@ opaque
 
 opaque
 
+  -- The greatest lower bound for certain nrᵢ sequences
+
+  nrᵢ-𝟘-GLB :
+    let 𝕄 = zero-one-many-semiring-with-meet in
+    ∀ p q → Semiring-with-meet.Greatest-lower-bound
+            𝕄 (p ∧ q) (Semiring-with-meet.nrᵢ 𝕄 𝟘 p q)
+  nrᵢ-𝟘-GLB p q =
+    GLB.GLB-congʳ zero-one-many-semiring-with-meet lemma (nr-nrᵢ-GLB {z = p} {s = q} 𝟘)
+    where
+    open Tools.Reasoning.PropositionalEquality
+    open Semiring-with-meet zero-one-many-semiring-with-meet
+      hiding (𝟘; _·_; _+_; _∧_)
+    lemma : (𝟘∧𝟙 · 𝟘 + q) ∧ p ≡ p ∧ q
+    lemma = begin
+      (𝟘∧𝟙 · 𝟘 + q) ∧ p ≡⟨ ∧-congʳ (+-congʳ (·-zeroʳ 𝟘∧𝟙)) ⟩
+      (𝟘 + q) ∧ p       ≡⟨ ∧-congʳ (+-identityˡ q) ⟩
+      q ∧ p             ≡⟨ ∧-comm q p ⟩
+      p ∧ q             ∎
+
+opaque
+
+  -- The greatest lower bound for certain nrᵢ sequences
+
+  nrᵢ-𝟙-GLB :
+    let 𝕄 = zero-one-many-semiring-with-meet in
+    ∀ p q → Semiring-with-meet.Greatest-lower-bound
+            𝕄 (p + ω · q) (Semiring-with-meet.nrᵢ 𝕄 𝟙 p q)
+  nrᵢ-𝟙-GLB p q =
+    GLB.GLB-congʳ zero-one-many-semiring-with-meet (+-comm (ω · q) p) (nr-nrᵢ-GLB {z = p} {s = q} 𝟙)
+    where
+    open Semiring-with-meet zero-one-many-semiring-with-meet
+      hiding (𝟙; ω; _·_; _+_)
+
+opaque
+
+  -- The greatest lower bound for certain nrᵢ sequences
+
+  nrᵢ-ω-GLB :
+    let 𝕄 = zero-one-many-semiring-with-meet in
+    ∀ p q → Semiring-with-meet.Greatest-lower-bound
+            𝕄 (ω · (p + q)) (Semiring-with-meet.nrᵢ 𝕄 ω p q)
+  nrᵢ-ω-GLB p q =
+    GLB.GLB-congʳ zero-one-many-semiring-with-meet (·-congˡ (+-comm q p)) (nr-nrᵢ-GLB {z = p} {s = q} ω)
+    where
+    open Semiring-with-meet zero-one-many-semiring-with-meet
+      hiding (ω; _·_; _+_)
+
+opaque
+
   -- The sequence nrᵢ r z s has a greatest lower bound
 
   nrᵢ-GLB :
@@ -2161,7 +2210,7 @@ opaque
   zero-one-many-supports-glb-for-natrec = record
     { +-GLBˡ = +-GLBˡ
     ; ·-GLBˡ = ·-GLBˡ
-    ; ·-GLBʳ = ·-GLBʳ
+    ; ·-GLBʳ = comm∧·-GLBˡ⇒·-GLBʳ ·-comm ·-GLBˡ
     ; +nrᵢ-GLB = +nrᵢ-GLB
     }
     where
@@ -2202,13 +2251,6 @@ opaque
         , λ { 𝟘 q≤ → ⊥-elim (≢p-GLB-inv (λ ()) p-glb (lemma′ ∘→ q≤))
             ; 𝟙 q≤ → ⊥-elim (≢p-GLB-inv (λ ()) p-glb (lemma″ ∘→ q≤))
             ; ω q≤ → refl}
-
-    ·-GLBʳ :
-      {pᵢ : Sequence Zero-one-many} →
-      Greatest-lower-bound p pᵢ →
-      Greatest-lower-bound (p · q) (λ i → pᵢ i · q)
-    ·-GLBʳ {p} {q} {pᵢ} p-glb =
-      GLB-cong (·-comm q p) (λ i → ·-comm q (pᵢ i)) (·-GLBˡ p-glb)
 
     +-GLBˡ :
       {pᵢ : Sequence Zero-one-many} →
