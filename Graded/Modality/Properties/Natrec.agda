@@ -217,6 +217,17 @@ opaque
   nrᵢ-const-GLB : Greatest-lower-bound z (nrᵢ 𝟙 z 𝟘)
   nrᵢ-const-GLB = GLB-const (λ i → trans (nrᵢ-const i) (sym (nrᵢ-const 0)))
 
+opaque
+
+  -- The greatest lower bound of nrᵢ r 𝟙 p is not 𝟘.
+  -- That is, the natural number argument is never erased for the
+  -- usage rule using greatest lower bounds.
+
+  nrᵢ-natrec-not-erased :
+    ⦃ 𝟘-well-behaved : Has-well-behaved-zero M 𝕄 ⦄ →
+    Greatest-lower-bound q (nrᵢ r 𝟙 p) → q ≢ 𝟘
+  nrᵢ-natrec-not-erased (q≤ , _) refl = 𝟘≰𝟙 (q≤ 0)
+
 ------------------------------------------------------------------------
 -- Relating nr functions and greatest lower bounds of nrᵢ sequences
 
