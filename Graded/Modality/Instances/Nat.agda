@@ -368,6 +368,16 @@ opaque
         (inj₂ (inj₂ ())))
 
 opaque
+
+  -- There are values for r, z and s such that nrᵢ r z s does not have a
+  -- greatest lower bound.
+
+  ¬nrᵢ-GLB : ∃₃ λ r z s → ¬ (∃ λ p → Greatest-lower-bound p (nrᵢ r z s))
+  ¬nrᵢ-GLB = 1 , 1 , 1 , λ (_ , glb) →
+    case nrᵢ-GLB-inv 1 1 1 glb of λ
+      { (inj₁ ()) ; (inj₂ (inj₁ ())) ; (inj₂ (inj₂ ()))}
+
+opaque
   unfolding Nat-semiring-with-meet
 
   -- The modality supports the usage rule for natrec using

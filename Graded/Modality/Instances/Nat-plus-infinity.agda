@@ -796,6 +796,17 @@ instance
    lemma m .m () | yes refl
    lemma m n () | no _
 
+opaque
+
+  -- A modality for ℕ⊎∞ (for any Modality-variant)
+
+  ℕ⊎∞-Modality : Modality-variant → Modality
+  ℕ⊎∞-Modality v = record
+    { variant = v
+    ; semiring-with-meet = ℕ⊎∞-semiring-with-meet
+    ; 𝟘-well-behaved = λ _ → ℕ⊎∞-has-well-behaved-zero
+    }
+
 private
   module BS =
     BoundedStar
