@@ -35,6 +35,7 @@ open import Graded.Heap.Untyped type-variant UR factoring-nr
 open import Graded.Heap.Untyped.Properties type-variant UR factoring-nr
 open import Graded.Heap.Reduction type-variant UR factoring-nr
 open import Graded.Heap.Reduction.Inversion type-variant UR factoring-nr
+open import Graded.Modality.Properties.Subtraction semiring-with-meet
 
 private variable
   m n m′ n′ m″ n″ k : Nat
@@ -297,6 +298,26 @@ opaque
     ⊥-elim (not-⇒ₙ-and-⇾ₑ d d′)
   ↠-det (⇒ₙ d) (⇒ᵥ d′) =
     ⊥-elim (not-⇒ₙ-and-⇒ᵥ d d′)
+
+opaque
+
+  -- The reflexive, transitive closure of the fully evaluating
+  -- heap semantics is deterministic.
+
+  ↠*-det : {s′ : State k m n} {s″ : State k m′ n′}
+         → (d : s ↠* s′) (d′ : s ↠* s″)
+         → (∀ {m n} (s‴ : State k m n) → ¬ s′ ↠ s‴)
+         → (∀ {m n} (s‴ : State k m n) → ¬ s″ ↠ s‴)
+         → Σ (m ≡ m′) λ m≡m′ →
+           Σ (n ≡ n′) λ n≡n′ →
+             subst₂ (State k) m≡m′ n≡n′ s′ ≡ s″
+  ↠*-det id id ¬d ¬d′ = refl , refl , refl
+  ↠*-det id (x ⇨ d′) ¬d ¬d′ = ⊥-elim (¬d _ x)
+  ↠*-det (x ⇨ d) id ¬d ¬d′ = ⊥-elim (¬d′ _ x)
+  ↠*-det (x ⇨ d) (x′ ⇨ d′) ¬d ¬d′ =
+    case ↠-det x x′ of λ where
+      (refl , refl , refl) →
+        ↠*-det d d′ ¬d ¬d′
 
 opaque
 
@@ -707,6 +728,23 @@ opaque
 
 opaque
 
+  -- If subtraction of the grade correspoding to a heap entry cannot
+  -- by subtracted by the current stack multiplicity then states with
+  -- a variable in head position "pointing" to that entry do not reduce.
+
+  var-noRed :
+    H ⟨ wkVar ρ x ⟩ʰ ≡ p → ∣ S ∣≡ q →
+    (∀ {r} → p - q ≡ r → ⊥) →
+    ⟨ H , var x , ρ , S ⟩ ⇾ ⟨ H′ , t , ρ′ , S′ ⟩ → ⊥
+  var-noRed H⟨⟩≡ ∣S∣≡ p-q≢r (⇾ₑ d) =
+    let q′ , ∣S∣≡′ , _ , d′ = ⇾ₑ-inv-var d
+    in  -≢-no-lookup
+          (subst₂ (λ p q → ∀ {r} → p - q ≡ r → ⊥)
+            (sym H⟨⟩≡) (∣∣-functional ∣S∣≡ ∣S∣≡′) p-q≢r) d′
+  var-noRed _ _ _ (⇒ᵥ d) = ⊥-elim (⇒ᵥ-inv-var d)
+
+opaque
+
   -- States with a matching head and stack reduce
 
   Matching→⇒ᵥ :
@@ -744,6 +782,15 @@ opaque
   ⇒ᵥ→Matching rflₕⱼ = Jₑ
   ⇒ᵥ→Matching rflₕₖ = Kₑ
   ⇒ᵥ→Matching rflₕₑ = []-congₑ
+
+opaque
+
+  -- A variant of the previous property
+
+  ¬Matching→¬⇒̬ :
+    ¬ Matching t S
+    → ⟨ H , t , ρ , S ⟩ ⇒ᵥ s → ⊥
+  ¬Matching→¬⇒̬ ¬m d = ¬m (⇒ᵥ→Matching d)
 
 opaque
 
@@ -844,7 +891,7 @@ opaque
 opaque
 
   -- A kind of inversion lemma for Final when having natrec tokens on
-  -- the stack implies that the usage rule for antrec with an nr function
+  -- the stack implies that the usage rule for natrec with an nr function
   -- is used.
   --
   -- In this case there are three different reasons a state can be Final:
@@ -868,6 +915,29 @@ opaque
       (inj₂ (inj₁ (e , S′ , S≡ , v , prop))) →
         inj₂ (inj₁ (e , S′ , S≡ , v , λ m → prop (m , ∣∣≡ has-nr)))
       (inj₂ (inj₂ x)) → inj₂ (inj₂ x)
+
+opaque
+
+  -- A variant of the above where the stack is assumed to not contain
+  -- any natrecₑ tokens.
+  --
+  -- In this case there are three different reasons a state can be Final:
+  -- 1. It has a variable in head position but lookup does not succeed
+  --    (for the number of copies matching the current stack
+  --    multiplicity).
+  -- 2. It has a value in head position, the stack is not empty and the
+  --    head does not match the stack.
+  -- 3. It has a value in head position and the stack is empty.
+
+  nr∉-Final-reasons′ :
+      ∀ t → (∀ {p r} → natrec p , r ∈ S → ⊥) →
+      Final ⟨ H , t , ρ , S ⟩ →
+      (∃ λ x → t ≡ var x ×
+         (∀ {p n H′} {c : Entry _ n} → ∣ S ∣≡ p → H ⊢ wkVar ρ x ↦[ p ] c ⨾ H′ → ⊥)) ⊎
+      (∃₂ λ e S′ → S ≡ e ∙ S′ × Value t × ¬ Matching t S) ⊎
+      Value t × S ≡ ε
+  nr∉-Final-reasons′ t nr∉ ¬d =
+    nr∉-Final-reasons t (⊥-elim ∘→ nr∉) ¬d
 
 opaque
 

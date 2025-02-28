@@ -872,7 +872,7 @@ opaque
     (k ≢ 0 → No-erased-matches′ type-variant UR) →
     ▸ ⟨ H , t , ρ , S ⟩ →
     Final (⟨_,_,_,_⟩ H t ρ S) →
-    (∃ λ x → t ≡ var x × H ⊢ wkVar ρ x ↦● × emptyrec₀∈ S × Emptyrec-allowed 𝟙ᵐ 𝟘) ⊎
+    (∃ λ x → t ≡ var x × H ⊢ wkVar ρ x ↦● × emptyrec 𝟘 ∈ S × Emptyrec-allowed 𝟙ᵐ 𝟘) ⊎
     (∃₂ λ e S′ → S ≡ e ∙ S′ × Value t × (Matching t S → ⊥)) ⊎
     Value t × S ≡ ε
   ▸Final-reasons′ {ρ} ok nem ▸s f =

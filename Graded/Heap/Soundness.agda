@@ -21,6 +21,7 @@ open Type-restrictions TR
 open Usage-restrictions UR
 
 open import Tools.Empty
+open import Tools.Fin
 open import Tools.Function
 open import Tools.Nat
 open import Tools.Product
@@ -73,6 +74,51 @@ private variable
   ρ : Wk _ _
   S : Stack _
   m : Mode
+  x : Fin _
+  p : M
+
+opaque
+
+  -- Heap lookups always succeed for well-resourced and well-typed
+  -- states (given some assumptions)
+
+  lookup-succeeds :
+    {Δ : Con Term k}
+    ⦃ ok : No-equality-reflection or-empty Δ ⦄ →
+    (Emptyrec-allowed 𝟙ᵐ 𝟘 → Consistent Δ) →
+    (k PE.≢ 0 → No-erased-matches′ type-variant UR) →
+    ∣ S ∣≡ p →
+    ▸ ⟨ H , var x , ρ , S ⟩ → Δ ⊢ₛ ⟨ H , var x , ρ , S ⟩ ∷ A →
+    ∃₃ λ n H′ (c′ : Entry _ n) → H ⊢ wkVar ρ x ↦[ p ] c′ ⨾ H′
+  lookup-succeeds {k = 0} consistent nem ∣S∣≡ ▸s ⊢s =
+    ▸↦[]-closed subtraction-ok ∣S∣≡ ▸s
+  lookup-succeeds {k = 1+ _} {H} {x} {ρ} consistent nem ∣S∣≡ ▸s ⊢s =
+    let _ , _ , _ , _ , _ , _ , _ , ▸S , _ = ▸ₛ-inv ▸s in
+    case ↦⊎↦● {H = H} (wkVar ρ x) of λ where
+      (inj₁ (_ , _ , d)) →
+        let H′ , d = ▸↦→↦[] subtraction-ok ∣S∣≡ d ▸s
+        in  _ , _ , _ , d
+      (inj₂ d) →
+        case ▸∣S∣≢𝟘 (nem (λ ())) ▸S of λ where
+          (inj₁ ∣S∣≢𝟘) → ⊥-elim (∣S∣≢𝟘 (▸s● subtraction-ok d ▸s))
+          (inj₂ (er∈ , ok)) →
+            ⊥-elim (⊢emptyrec₀∉S (consistent ok) ⊢s er∈)
+
+opaque
+
+  -- Heap lookups always succeed for well-resourced and well-typed
+  -- states (given some assumptions)
+
+  lookup-succeeds′ :
+    {Δ : Con Term k}
+    ⦃ ok : No-equality-reflection or-empty Δ ⦄ →
+    Consistent Δ →
+    No-erased-matches′ type-variant UR →
+    ∣ S ∣≡ p →
+    ▸ ⟨ H , var x , ρ , S ⟩ → Δ ⊢ₛ ⟨ H , var x , ρ , S ⟩ ∷ A →
+    ∃₃ λ n H′ (c′ : Entry _ n) → H ⊢ wkVar ρ x ↦[ p ] c′ ⨾ H′
+  lookup-succeeds′ consistent nem =
+    lookup-succeeds (λ _ → consistent) (λ _ → nem)
 
 opaque
 
@@ -165,6 +211,19 @@ opaque
 
 opaque
 
+  -- All closed, well-resourced, well-typed states of type ℕ reduce to numerals
+
+  redNumeral-closed :
+    ε ⊢ₛ s ∷ ℕ → ▸ s →
+    ∃₅ λ m n H (ρ : Wk m n) t → s ↠* ⟨ H , t , ρ , ε ⟩ ×
+    Numeral t × ε ⊢ ⦅ s ⦆ ≡ wk ρ t [ H ]ₕ ∷ ℕ ×
+    ▸ ⟨ H , t , ρ , ε ⟩
+  redNumeral-closed =
+    redNumeral ⦃ ε ⦄ (λ _ _ → ¬Empty)
+      (λ 0≡0 → ⊥-elim (0≡0 PE.refl))
+
+opaque
+
   -- Given some assumptions, all well-typed and erased terms of type ℕ reduce to some
   -- numeral and the resulting heap has all grades less than or equal to 𝟘.
 
@@ -241,3 +300,34 @@ opaque
                    (Δ ⊢ t ≡ sucᵏ k ∷ ℕ) ×
                    H ≤ʰ 𝟘
   soundness-open consistent erased = soundness consistent λ _ → erased
+
+opaque
+
+  -- A version of soundness-open
+
+  soundness-open-consistent :
+    ⦃ No-equality-reflection or-empty Δ ⦄ →
+    Consistent Δ →
+    No-erased-matches′ type-variant UR →
+    Δ ⊢ t ∷ ℕ → 𝟘ᶜ ▸ t →
+    ∃₅ λ m n H k (ρ : Wk m n) →
+    initial t ↠* ⟨ H , sucᵏ k , ρ , ε ⟩ ×
+    (Δ ⊢ t ≡ sucᵏ k ∷ ℕ) ×
+    H ≤ʰ 𝟘
+  soundness-open-consistent consistent = soundness-open (λ _ → consistent)
+
+opaque
+
+  -- A version of soundness-open
+
+  soundness-open-¬emptyrec₀ :
+    ⦃ No-equality-reflection or-empty Δ ⦄ →
+    ¬ Emptyrec-allowed 𝟙ᵐ 𝟘 →
+    No-erased-matches′ type-variant UR →
+    Δ ⊢ t ∷ ℕ → 𝟘ᶜ ▸ t →
+    ∃₅ λ m n H k (ρ : Wk m n) →
+    initial t ↠* ⟨ H , sucᵏ k , ρ , ε ⟩ ×
+    (Δ ⊢ t ≡ sucᵏ k ∷ ℕ) ×
+    H ≤ʰ 𝟘
+  soundness-open-¬emptyrec₀ ¬ok =
+    soundness-open (⊥-elim ∘→ ¬ok)

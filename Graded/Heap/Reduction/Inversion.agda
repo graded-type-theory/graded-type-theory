@@ -21,6 +21,7 @@ open Type-variant type-variant
 open Modality 𝕄
 
 open import Definition.Untyped M
+open import Definition.Untyped.Properties M
 
 open import Graded.Heap.Untyped type-variant UR factoring-nr
 open import Graded.Heap.Reduction type-variant UR factoring-nr
@@ -529,3 +530,17 @@ opaque
 
   ⇒ₙ-inv-natrec : ⟨ H , natrec p q r A t u v , ρ , S ⟩ ⇒ₙ s → ⊥
   ⇒ₙ-inv-natrec (numₕ ())
+
+opaque
+
+  -- Inversion of sucᵏ
+
+  ↠-inv-sucᵏ : ⟨ H , sucᵏ k , ρ , ε ⟩ ↠ s → ⊥
+  ↠-inv-sucᵏ {k = 0} (⇾ₑ′ x) = ⇒ₑ-inv-zero x
+  ↠-inv-sucᵏ {k = 1+ k} (⇾ₑ′ x) = ⇒ₑ-inv-suc x
+  ↠-inv-sucᵏ {k = 0} (⇒ᵥ ())
+  ↠-inv-sucᵏ {k = 1+ k} (⇒ᵥ ())
+  ↠-inv-sucᵏ {k = 0} (⇒ₙ ())
+  ↠-inv-sucᵏ {k = 1+ k} (⇒ₙ x) =
+    case ⇒ₙ-inv-num (sucᵏ-Numeral _) x of λ where
+      (_ , () , _)

@@ -23,6 +23,7 @@ open Modality 𝕄
 
 open import Definition.Untyped M
 open import Definition.Untyped.Properties M
+import Definition.Untyped.Neutral M type-variant as WHNF
 open import Definition.Typed TR as T
 open import Definition.Typed.Inversion TR
 open import Definition.Typed.Properties TR
@@ -654,6 +655,25 @@ opaque
     let t≡u = inversion-rfl-Id ⊢rfl
         _ , ⊢t , ⊢u = syntacticEqTerm t≡u
     in  ⊢⦅⦆ˢ-subst ⊢S (conv ([]-cong-β-⇒ t≡u ok) (sym (B′≡ ⊢t ⊢u))) }
+
+
+opaque
+
+  -- For states with sucₑ on the stack, the previous property does not
+  -- hold, i.e. there is a counterexample. (Assuming a certain Π-type
+  -- is allowed).
+
+  ¬sucₑ-⇒ᵥ→⇒ :
+    Π-allowed 𝟙 q →
+    ∃₇ λ m n m′ n′ (s : State 0 m n) (s′ : State 0 m′ n′) A →
+    s ⇒ᵥ s′ × ε ⊢ ⦅ s ⦆ ∷ A × ¬ (ε ⊢ ⦅ s ⦆ ⇒ ⦅ s′ ⦆ ∷ A)
+  ¬sucₑ-⇒ᵥ→⇒ ok =
+    _ , _ , _ , _
+      , ⟨ ε , lam 𝟙 (var x0) , id , ∘ₑ 𝟙 zero id ∙ (sucₑ ∙ ε) ⟩
+      , _
+      , ℕ , lamₕ (sucₑ ∙ ε)
+      , sucⱼ ((lamⱼ (ℕⱼ (∙ ℕⱼ ε)) (var (∙ ℕⱼ ε) here) ok) ∘ⱼ (zeroⱼ ε))
+      , λ d → whnfRedTerm d WHNF.sucₙ
 
 opaque
 

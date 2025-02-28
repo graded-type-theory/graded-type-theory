@@ -279,6 +279,21 @@ opaque
       (trans (sym (wk1-liftSubst (wk ρ t)))
         (cong (_[ H ]⇑ₕ) (wk1-wk ρ t)))
 
+opaque
+
+  -- If subtraction of the grade correspoding to a heap entry cannot
+  -- by subtracted by q then lookup of q copies fails.
+
+  -≢-no-lookup :
+    (∀ {r} → H ⟨ y ⟩ʰ - q ≡ r → ⊥) →
+    H ⊢ y ↦[ q ] c ⨾ H′ → ⊥
+  -≢-no-lookup p-q≢r (here p-q≡r) =
+    p-q≢r p-q≡r
+  -≢-no-lookup p-q≢r (there d) =
+    -≢-no-lookup p-q≢r d
+  -≢-no-lookup p-q≢r (there● d) =
+    -≢-no-lookup p-q≢r d
+
 ------------------------------------------------------------------------
 -- Properties of stacks and eliminators
 
@@ -647,6 +662,14 @@ opaque
 
 opaque
 
+  -- A variant of the above for it assumed that the stack does not
+  -- contain any occurences of natrecₑ.
+
+  nr∉-∣∣≡ : (∀ {p r} → ¬ natrec p , r ∈ S) → ∃ ∣ S ∣≡_
+  nr∉-∣∣≡ nr∉ = ∣∣≡ (λ nr∈ → ⊥-elim (nr∉ nr∈))
+
+opaque
+
   -- An inequality satisfied by the multiplicity of natrecₑ
 
   ∣natrec∣≤ : ∣natrec p , r ∣≡ q → q ≤ p + r · q
@@ -687,6 +710,133 @@ opaque
   ∣S++sucₛ∣≡∣S∣ : ∣ S ∣≡ p → ∣ S ++ sucₛ k ∣≡ p
   ∣S++sucₛ∣≡∣S∣ ε = ∣sucₛ∣≡𝟙 _
   ∣S++sucₛ∣≡∣S∣ (e ∙ S) = e ∙ ∣S++sucₛ∣≡∣S∣ S
+
+opaque
+
+  -- If an erased prodrec token is on the stack then the stack
+  -- multiplicity is zero (if it exists).
+
+  pr₀∈→∣S∣≡𝟘 : ∣ S ∣≡ q → prodrec 𝟘 , p ∈ S → q ≡ 𝟘
+  pr₀∈→∣S∣≡𝟘 ε ()
+  pr₀∈→∣S∣≡𝟘 (prodrecₑ ∙ ∣S∣≡) here = ·-zeroʳ _
+  pr₀∈→∣S∣≡𝟘 (_ ∙ ∣S∣≡) (there x) =
+    trans (·-congʳ (pr₀∈→∣S∣≡𝟘 ∣S∣≡ x)) (·-zeroˡ _)
+
+opaque
+
+  -- If an erased unitrec token is on the stack then the stack
+  -- multiplicity is zero (if it exists).
+
+  ur₀∈→∣S∣≡𝟘 : ∣ S ∣≡ q → unitrec 𝟘 ∈ S → q ≡ 𝟘
+  ur₀∈→∣S∣≡𝟘 ε ()
+  ur₀∈→∣S∣≡𝟘 (unitrecₑ ∙ ∣S∣≡) here = ·-zeroʳ _
+  ur₀∈→∣S∣≡𝟘 (_ ∙ ∣S∣≡) (there x) =
+    trans (·-congʳ (ur₀∈→∣S∣≡𝟘 ∣S∣≡ x)) (·-zeroˡ _)
+
+opaque
+
+  -- If an erased emptyrec token is on the stack then the stack
+  -- multiplicity is zero (if it exists).
+
+  er₀∈→∣S∣≡𝟘 : ∣ S ∣≡ q → emptyrec 𝟘 ∈ S → q ≡ 𝟘
+  er₀∈→∣S∣≡𝟘 ε ()
+  er₀∈→∣S∣≡𝟘 (emptyrecₑ ∙ ∣S∣≡) here = ·-zeroʳ _
+  er₀∈→∣S∣≡𝟘 (_ ∙ ∣S∣≡) (there x) =
+    trans (·-congʳ (er₀∈→∣S∣≡𝟘 ∣S∣≡ x)) (·-zeroˡ _)
+
+opaque
+
+  -- Under some conditions, the stack multiplicity is 𝟘 (if it exists).
+
+  ∣∣≡𝟘 :
+    ∣ S ∣≡ q → prodrec 𝟘 , p ∈ S ⊎ (unitrec 𝟘 ∈ S) ⊎ (emptyrec 𝟘 ∈ S) →
+    q ≡ 𝟘
+  ∣∣≡𝟘 ∣S∣≡ (inj₁ pr₀∈) = pr₀∈→∣S∣≡𝟘 ∣S∣≡ pr₀∈
+  ∣∣≡𝟘 ∣S∣≡ (inj₂ (inj₁ ur₀∈)) = ur₀∈→∣S∣≡𝟘 ∣S∣≡ ur₀∈
+  ∣∣≡𝟘 ∣S∣≡ (inj₂ (inj₂ er₀∈)) = er₀∈→∣S∣≡𝟘 ∣S∣≡ er₀∈
+
+opaque
+
+  -- Under some conditions, the stack multiplicity is 𝟘.
+
+  nr∉→∣∣≡𝟘 :
+    (∀ {p r} → natrec p , r ∈ S → ⊥) →
+    prodrec 𝟘 , p ∈ S ⊎ (unitrec 𝟘 ∈ S) ⊎ (emptyrec 𝟘 ∈ S) → ∣ S ∣≡ 𝟘
+  nr∉→∣∣≡𝟘 nr∉ assumption =
+    let _ , ∣S∣≡ = nr∉-∣∣≡ nr∉
+    in  subst (∣ _ ∣≡_) (∣∣≡𝟘 ∣S∣≡ assumption) ∣S∣≡
+
+opaque
+
+  -- The multiplicity of natrecₑ is not 𝟘.
+
+  ∣nr∣≢𝟘 :
+   ⦃ Has-well-behaved-zero _ semiring-with-meet ⦄ →
+   ∣natrec p , r ∣≡ q → q ≢ 𝟘
+  ∣nr∣≢𝟘 has-nrₑ = nr₂≢𝟘
+  ∣nr∣≢𝟘 (no-nrₑ x) refl = 𝟘≰𝟙 (x .proj₁ 0)
+
+opaque
+
+  -- If the stack multiplicity is 𝟘 then the stack contains an erased
+  -- prodrec, unitrec or emptyrec or J, K or []-cong.
+
+  ∣∣≡𝟘→erased-match :
+    ⦃ Has-well-behaved-zero _ semiring-with-meet ⦄ →
+    ∣ S ∣≡ 𝟘 →
+    (∃ λ p → prodrec 𝟘 , p ∈ S) ⊎ (unitrec 𝟘 ∈ S) ⊎ (emptyrec 𝟘 ∈ S) ⊎
+    (∃₂ λ p q → J p , q ∈ S) ⊎ (∃ λ p → K p ∈ S) ⊎ ([]-cong∈ S)
+  ∣∣≡𝟘→erased-match = lemma refl
+    where
+    there′ :
+      (∃ λ p → prodrec 𝟘 , p ∈ S) ⊎ (unitrec 𝟘 ∈ S) ⊎ (emptyrec 𝟘 ∈ S) ⊎
+      (∃₂ λ p q → J p , q ∈ S) ⊎ (∃ λ p → K p ∈ S) ⊎ ([]-cong∈ S) →
+      (∃ λ p → prodrec 𝟘 , p ∈ (e ∙ S)) ⊎ (unitrec 𝟘 ∈ e ∙ S) ⊎ (emptyrec 𝟘 ∈ e ∙ S) ⊎
+      (∃₂ λ p q → J p , q ∈ e ∙ S) ⊎ (∃ λ p → K p ∈ e ∙ S) ⊎ ([]-cong∈ e ∙ S)
+    there′ (inj₁ (_ , x)) = inj₁ (_ , there x)
+    there′ (inj₂ (inj₁ x)) = inj₂ (inj₁ (there x))
+    there′ (inj₂ (inj₂ (inj₁ x))) = inj₂ (inj₂ (inj₁ (there x)))
+    there′ (inj₂ (inj₂ (inj₂ (inj₁ (_ , _ , x))))) = inj₂ (inj₂ (inj₂ (inj₁ (_ , _ , there x))))
+    there′ (inj₂ (inj₂ (inj₂ (inj₂ (inj₁ (_ , x)))))) = inj₂ (inj₂ (inj₂ (inj₂ (inj₁ (_ , there x)))))
+    there′ (inj₂ (inj₂ (inj₂ (inj₂ (inj₂ x))))) = inj₂ (inj₂ (inj₂ (inj₂ (inj₂ (there x)))))
+    here′ :
+      q ≡ 𝟘 → ∣ e ∣ᵉ≡ q →
+      (∃ λ p → prodrec 𝟘 , p ∈ (e ∙ S)) ⊎ (unitrec 𝟘 ∈ e ∙ S) ⊎ (emptyrec 𝟘 ∈ e ∙ S) ⊎
+      (∃₂ λ p q → J p , q ∈ e ∙ S) ⊎ (∃ λ p → K p ∈ e ∙ S) ⊎ ([]-cong∈ e ∙ S)
+    here′ q≡ ∘ₑ = ⊥-elim (non-trivial q≡)
+    here′ q≡ fstₑ = ⊥-elim (non-trivial q≡)
+    here′ q≡ sndₑ = ⊥-elim (non-trivial q≡)
+    here′ refl prodrecₑ = inj₁ (_ , here)
+    here′ q≡ (natrecₑ x) = ⊥-elim (∣nr∣≢𝟘 x q≡)
+    here′ refl unitrecₑ = inj₂ (inj₁ here)
+    here′ refl emptyrecₑ = inj₂ (inj₂ (inj₁ here))
+    here′ q≡ (Jₑ x) = inj₂ (inj₂ (inj₂ (inj₁ (_ , _ , here))))
+    here′ q≡ (Kₑ x) = inj₂ (inj₂ (inj₂ (inj₂ (inj₁ (_ , here)))))
+    here′ q≡ []-congₑ = inj₂ (inj₂ (inj₂ (inj₂ (inj₂ here))))
+    here′ q≡ sucₑ = ⊥-elim (non-trivial q≡)
+    lemma :
+      q ≡ 𝟘 → ∣ S ∣≡ q →
+      (∃ λ p → prodrec 𝟘 , p ∈ S) ⊎ (unitrec 𝟘 ∈ S) ⊎ (emptyrec 𝟘 ∈ S) ⊎
+      (∃₂ λ p q → J p , q ∈ S) ⊎ (∃ λ p → K p ∈ S) ⊎ ([]-cong∈ S)
+    lemma q≡ ε = ⊥-elim (non-trivial q≡)
+    lemma q≡ (∣e∣≡ ∙ ∣S∣≡) =
+      case zero-product q≡ of λ where
+        (inj₁ x) → there′ (lemma x ∣S∣≡)
+        (inj₂ x) → here′ x ∣e∣≡
+
+opaque
+
+  -- If a certain greatest lower bound does not exist then the stack
+  -- multiplicity does not necessarily exist.
+
+  ∣∣≢ :
+    ⦃ no-nr : Nr-not-available-GLB ⦄ →
+    ¬ (∃ λ q → Greatest-lower-bound q (nrᵢ r 𝟙 p)) →
+    ∃ λ (S : Stack m) → ∀ q → ∣ S ∣≡ q → ⊥
+  ∣∣≢ {r} {p} ⦃ no-nr ⦄ ¬glb =
+    (natrecₑ p 𝟘 r ℕ zero zero id ∙ ε) ,
+    λ { _ (natrecₑ (has-nrₑ ⦃ has-nr ⦄) ∙ _) → ¬[Nr∧No-nr-glb] _ has-nr no-nr
+      ; _ (natrecₑ (no-nrₑ x) ∙ _) → ¬glb (_ , x)}
 
 opaque
 

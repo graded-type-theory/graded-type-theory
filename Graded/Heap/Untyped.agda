@@ -230,17 +230,54 @@ sucₛ : Nat → Stack m
 sucₛ 0 = ε
 sucₛ (1+ n) = sucₑ ∙ sucₛ n
 
--- A utility predicate: stacks containing erased emptyrec
+-- A predicate for stacks containing natrec (with given grades)
 
-data emptyrec₀∈_ {m} : (S : Stack m) → Set a where
-  here : emptyrec₀∈ (emptyrecₑ 𝟘 A ρ ∙ S)
-  there : emptyrec₀∈ S → emptyrec₀∈ (e ∙ S)
+data prodrec_,_∈ {m} (r p : M) : (S : Stack m) → Set a where
+  here  : prodrec r , p ∈ (prodrecₑ r p q A u ρ ∙ S)
+  there : prodrec r , p ∈ S → prodrec r , p ∈ (e ∙ S)
 
--- A similar predicate for stacks containing natrec (with given grades)
+-- A predicate for stacks containing natrec (with given grades)
 
 data natrec_,_∈ {m} (p r : M) : (S : Stack m) → Set a where
-  here : natrec p , r ∈ (natrecₑ p q r A u v ρ ∙ S)
+  here  : natrec p , r ∈ (natrecₑ p q r A u v ρ ∙ S)
   there : natrec p , r ∈ S → natrec p , r ∈ (e ∙ S)
+
+-- A predicate for stacks containing unitrecₑ (with a given grade)
+
+data unitrec_∈_ {m} (p : M) : (S : Stack m) → Set a where
+  here  : unitrec p ∈ (unitrecₑ n p q A u ρ ∙ S)
+  there : unitrec p ∈ S → unitrec p ∈ (e ∙ S)
+
+-- A predicate for stacks containing emptyrecₑ (with a given grade)
+
+data emptyrec_∈_ {m} (p : M) : (S : Stack m) → Set a where
+  here : emptyrec p ∈ (emptyrecₑ p A ρ ∙ S)
+  there : emptyrec p ∈ S → emptyrec p ∈ (e ∙ S)
+
+-- A predicate for stacks containing Jₑ (with given grades)
+
+data J_,_∈_ {m} (p q : M) : (S : Stack m) → Set a where
+  here : J p , q ∈ (Jₑ p q A t B u v ρ ∙ S)
+  there : J p , q ∈ S → J p , q ∈ (e ∙ S)
+
+-- A predicate for stacks containing Kₑ (with a given grade)
+
+data K_∈_ {m} (p : M) : (S : Stack m) → Set a where
+  here : K p ∈ (Kₑ p A t B u ρ ∙ S)
+  there : K p ∈ S → K p ∈ (e ∙ S)
+
+-- A predicate for stacks containing []-congₑ
+
+data []-cong∈_ {m} : (S : Stack m) → Set a where
+  here : []-cong∈ ([]-congₑ s A t u ρ ∙ S)
+  there : []-cong∈ S → []-cong∈ (e ∙ S)
+
+-- A predicate for stacks containing []-congₑ
+
+data suc∈_ {m} : (S : Stack m) → Set a where
+  here : suc∈ (sucₑ ∙ S)
+  there : suc∈ S → suc∈ (e ∙ S)
+
 
 ------------------------------------------------------------------------
 -- Heaps
@@ -320,6 +357,15 @@ data _∷_⊇ʰ_ : (ρ : Wk m n) (H : Heap k m) (H′ : Heap k n) → Set a wher
   id : id ∷ H ⊇ʰ H
   step : ρ ∷ H ⊇ʰ H′ → step ρ ∷ H ∙ c′ ⊇ʰ H′
   lift : ρ ∷ H ⊇ʰ H′ → lift ρ ∷ H ∙ (p , wkᵉⁿ ρ c) ⊇ʰ H′ ∙ (p , c)
+
+-- Lookup the grade of the entry of a given pointer
+
+_⟨_⟩ʰ : Heap k m → Ptr m → M
+ε ⟨ () ⟩ʰ
+(H ∙ (p , _)) ⟨ y0 ⟩ʰ = p
+(H ∙ c) ⟨ y +1 ⟩ʰ = H ⟨ y ⟩ʰ
+(H ∙●) ⟨ y0 ⟩ʰ = 𝟘
+(H ∙●) ⟨ y +1 ⟩ʰ = H ⟨ y ⟩ʰ
 
 -- Heaps as substitutions
 

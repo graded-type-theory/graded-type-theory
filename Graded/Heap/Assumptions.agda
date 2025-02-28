@@ -6,7 +6,6 @@
 open import Graded.Modality
 open import Graded.Usage.Restrictions
 open import Definition.Typed.Restrictions
--- open import Graded.Usage.Restrictions.Natrec
 
 module Graded.Heap.Assumptions
   {a} {M : Set a} {𝕄 : Modality M}

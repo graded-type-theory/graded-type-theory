@@ -325,7 +325,7 @@ module _ (nem : No-erased-matches′ type-variant UR) where
     -- or contains an erased application of emptyrec
 
     ▸∣S∣≢𝟘 : ⦃ Has-well-behaved-zero M semiring-with-meet ⦄
-           → γ ▸ˢ S → ¬ ∣ S ∣≡ 𝟘 ⊎ (emptyrec₀∈ S × Emptyrec-allowed 𝟙ᵐ 𝟘)
+           → γ ▸ˢ S → ¬ ∣ S ∣≡ 𝟘 ⊎ (emptyrec 𝟘 ∈ S × Emptyrec-allowed 𝟙ᵐ 𝟘)
     ▸∣S∣≢𝟘 ε = inj₁ λ ≡𝟘 → non-trivial (∣∣-functional ε ≡𝟘)
     ▸∣S∣≢𝟘 (▸ˢ∙ ∣S∣≡ ▸e ▸S) =
       case ▸∣S∣≢𝟘 ▸S of λ where
@@ -393,6 +393,19 @@ module _ ⦃ _ : Has-well-behaved-zero M semiring-with-meet ⦄
         q + δ ⟨ wkVar ρ x ⟩ ≈⟨ +-comm _ _ ⟩
         δ ⟨ wkVar ρ x ⟩ + q ≈⟨ +-congˡ (∣∣-functional ∣S∣≡q ∣S∣≡p) ⟩
         δ ⟨ wkVar ρ x ⟩ + p ∎
+
+  opaque
+
+    -- A variant of the above property for closed states
+
+    ▸↦[]-closed :
+      {H : Heap 0 _} →
+      ∣ S ∣≡ p → ▸ ⟨ H , var x , ρ , S ⟩ →
+      ∃₃ λ n H′ (c′ : Entry _ n) → H ⊢ wkVar ρ x ↦[ p ] c′ ⨾ H′
+    ▸↦[]-closed {x} {ρ} ∣S∣≡ ▸s =
+      let _ , _ , d′ = ¬erased-heap→↦ refl (wkVar ρ x)
+          _ , d = ▸↦→↦[] ∣S∣≡ d′ ▸s
+      in  _ , _ , _ , d
 
   opaque
 
