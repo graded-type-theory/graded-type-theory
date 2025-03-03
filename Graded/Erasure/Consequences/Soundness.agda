@@ -496,9 +496,9 @@ Run-time-canonicity-for str Δ t =
   ∃₂ λ n u → Δ ⊢ u ∷ Id ℕ t (sucᵏ n) × erase str t ⇒ˢ⟨ str ⟩* T.sucᵏ n
 
 -- Above some counterexamples to variants of soundness-ℕ-only-source
--- are presented. Those counterexamples are (at the time of writing)
--- not counterexamples to "run-time canonicity holds for well-typed,
--- well-resourced terms of type ℕ in consistent contexts".
+-- are presented. Some of those counterexamples are (at the time of
+-- writing) not counterexamples to "run-time canonicity holds for
+-- well-typed, well-resourced terms of type ℕ in consistent contexts".
 
 soundness-ℕ-only-target-not-counterexample₁ :
   Σʷ-allowed p 𝟘 →
