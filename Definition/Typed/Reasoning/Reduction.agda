@@ -337,17 +337,17 @@ syntax finally-⇐∷ u A t t⇒u = u ∷ A ⇐⟨ t⇒u ⟩∎∷ t ∎
 -- reasoning steps with a propositional equality, without the use of
 -- _∷_∎⟨_⟩⇒.
 
-finally-⇐*∷≡ : ∀ v A → u PE.≡ t → Γ ⊢ v ⇒* u ∷ A → Γ ⊢ v ⇒* t ∷ A
-finally-⇐*∷≡ _ _ PE.refl v⇒u = v⇒u
+finally-⇐*∷≡ : ∀ v A → u PE.≡ t → Γ ⊢ u ⇒* v ∷ A → Γ ⊢ t ⇒* v ∷ A
+finally-⇐*∷≡ _ _ PE.refl u⇒v = u⇒v
 
-syntax finally-⇐*∷≡ v A u≡t v⇒u = v ∷ A ⇐*⟨ v⇒u ⟩∎∷≡ u≡t
+syntax finally-⇐*∷≡ v A u≡t u⇒v = v ∷ A ⇐*⟨ u⇒v ⟩∎∷≡ u≡t
 
 -- A variant of finally-⇐*∷≡.
 
-finally-⇐∷≡ : ∀ v A → u PE.≡ t → Γ ⊢ v ⇒ u ∷ A → Γ ⊢ v ⇒* t ∷ A
+finally-⇐∷≡ : ∀ v A → u PE.≡ t → Γ ⊢ u ⇒ v ∷ A → Γ ⊢ t ⇒* v ∷ A
 finally-⇐∷≡ _ _ PE.refl = finally-⇐ _ _
 
-syntax finally-⇐∷≡ v A u≡t v⇒u = v ∷ A ⇐⟨ v⇒u ⟩∎∷≡ u≡t
+syntax finally-⇐∷≡ v A u≡t u⇒v = v ∷ A ⇐⟨ u⇒v ⟩∎∷≡ u≡t
 
 ------------------------------------------------------------------------
 -- A combinator for left-to-right or right-to-left reductions with
