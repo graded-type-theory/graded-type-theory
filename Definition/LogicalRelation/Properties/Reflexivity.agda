@@ -121,7 +121,8 @@ reflEqTerm
   (Bᵣ′ BΣʷ _ _ _ _ [F] [G] _ _)
   [t]@(Σₜ p d p≅p prodₙ (PE.refl , [p₁] , [p₂] , PE.refl)) =
   Σₜ₌ p p d d prodₙ prodₙ p≅p [t] [t]
-      (PE.refl , PE.refl , [p₁] , [p₁] , [p₂] , [p₂] ,
+      (PE.refl , PE.refl , PE.refl , PE.refl ,
+       [p₁] , [p₁] , [p₂] , [p₂] ,
         reflEqTerm ([F] _) [p₁] ,
         reflEqTerm ([G] _ [p₁]) [p₂])
 reflEqTerm (Bᵣ′ BΣʷ _ _ _ _ _ _ _ _) [t]@(Σₜ p d p≅p (ne x) p~p) =

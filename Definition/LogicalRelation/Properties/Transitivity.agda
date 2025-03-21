@@ -327,10 +327,10 @@ transEqTerm
   {n = n} {Γ = Γ}
   (Bᵣ′ (BΣ 𝕨 p″ q) F G D A≡A [F] [G] G-ext _)
   (Σₜ₌ p r d d′ prodₙ prodₙ p≅r [t] [u]
-     (PE.refl , PE.refl ,
+     (PE.refl , PE.refl , PE.refl , PE.refl ,
       [p₁] , [r₁] , [p₂] , [r₂] , [p₁≡r₁] , [p₂≡r₂]))
   (Σₜ₌ p′ r′ d₁ d₁′ prodₙ prodₙ p′≅r′ [t]₁ [u]₁
-     (PE.refl , PE.refl ,
+     (PE.refl , PE.refl , PE.refl , PE.refl ,
       [p₁]′ , [r₁]′ , [p₂]′ , [r₂]′ , [p′₁≡r′₁] , [p′₂≡r′₂])) =
   let p′≡r = whrDet*Term (d₁ , prodₙ) (d′ , prodₙ)
       _ , _ , p′₁≡r₁ , p′₂≡r₂ = prod-PE-injectivity p′≡r
@@ -349,7 +349,7 @@ transEqTerm
                                        p′₂≡r₂ [p′₂≡r′₂])
       [p₂≡r′₂] = transEqTerm [Gp] [p₂≡r₂] [r₂≡r′₂]
   in  Σₜ₌ p r′ d d₁′ prodₙ prodₙ p≅r′ [t] [u]₁
-        (PE.refl , PE.refl ,
+        (PE.refl , PE.refl , PE.refl , PE.refl ,
          [p₁] , [r₁]′ , [p₂] , [r₂]′ , [p₁≡r′₁] , [p₂≡r′₂])
 transEqTerm
   {n = n} {Γ = Γ} (Bᵣ′ (BΣ 𝕨 p′ q) F G D A≡A [F] [G] G-ext _)

@@ -260,9 +260,8 @@ opaque
              ne inc u₁-ne u₂-ne u₁~u₂)
     lemma₁
       ⊩Σ@(noemb (Bᵣ _ _ Σ⇒*Σ _ ⊩wk-A ⊩wk-B wk-B≡wk-B _))
-      (u₁ , u₂ , t₁⇒*u₁ , t₂⇒*u₂ , u₁≅u₂ , ⊩t₁ , ⊩t₂ ,
+      (u₁ , u₂ , t₁⇒*u₁ , t₂⇒*u₂ , u₁≅u₂ , _ , _ ,
        u₁-prod , u₂-prod , rest) =
-      let ⊩Σ′ = B-intr _ ⊩Σ in
       case B-PE-injectivity _ _ $ whnfRed* Σ⇒*Σ ΠΣₙ of λ {
         (PE.refl , PE.refl , _) →
         u₁ , u₂ , t₁⇒*u₁ , t₂⇒*u₂ , u₁≅u₂
@@ -278,26 +277,9 @@ opaque
              case PE.singleton u₂-prod of λ {
                (ne _  , PE.refl) → ⊥-elim (Lift.lower rest);
                (prodₙ , PE.refl) →
-             (case rest of λ {
-               (_ , _ , ⊩u₁₁ , ⊩u₂₁ , ⊩u₁₂ , ⊩u₂₂ , u₁₁≡u₂₁ , u₁₂≡u₂₂) →
-             case ⊩∷Σʷ⇔ .proj₁ (⊩∷-intro ⊩Σ′ ⊩t₁) of λ
-               (_ , _ , t₁⇒*u₁′ , _ , ⊩u₁′) →
-             case ⊩∷Σʷ⇔ .proj₁ (⊩∷-intro ⊩Σ′ ⊩t₂) of λ
-               (_ , _ , t₂⇒*u₂′ , _ , ⊩u₂′) →
-             case whrDet*Term
-                    (t₁⇒*u₁′ , productWhnf (⊩∷Σʷ→Product ⊩u₁′))
-                    (t₁⇒*u₁ , prodₙ) of λ {
-               PE.refl →
-             case whrDet*Term
-                    (t₂⇒*u₂′ , productWhnf (⊩∷Σʷ→Product ⊩u₂′))
-                    (t₂⇒*u₂ , prodₙ) of λ {
-               PE.refl →
-             case ⊩u₁′ of λ {
-               (ne _ () _);
-               (prodₙ _ _) →
-             case ⊩u₂′ of λ {
-               (ne _ () _);
-               (prodₙ _ _) →
+             case rest of λ {
+               (PE.refl , PE.refl , PE.refl , PE.refl ,
+                ⊩u₁₁ , ⊩u₂₁ , ⊩u₁₂ , ⊩u₂₂ , u₁₁≡u₂₁ , u₁₂≡u₂₂) →
              prodₙ
                (PE.subst (_⊩⟨_⟩_≡_∷_ _ _ _ _) (wk-id _)
                   (⊩wk-A _ , ⊩u₁₁ , ⊩u₂₁ , u₁₁≡u₂₁))
@@ -309,7 +291,7 @@ opaque
                        symEqTerm (⊩wk-A _) u₁₁≡u₂₁)
                       ⊩u₂₂
                   , u₁₂≡u₂₂
-                  )) }}}}})}) }
+                  )) }}) }
 
     lemma₂ :
       (⊩Σ : Γ ⊩⟨ l′ ⟩B⟨ BΣ 𝕨 p q ⟩ Σʷ p , q ▷ A ▹ B) →
@@ -382,7 +364,7 @@ opaque
                  (⊩u₁₁ , ⊩u₂₁) →
                case wf-⊩≡∷ u₁₂≡u₂₂ of λ
                  (⊩u₁₂ , ⊩u₂₂) →
-                 prodₙ , prodₙ , PE.refl , PE.refl
+                 prodₙ , prodₙ , PE.refl , PE.refl , PE.refl , PE.refl
                , ⊩∷→⊩∷/ (⊩wk-A _)
                    (PE.subst (_⊩⟨_⟩_∷_ _ _ _) (PE.sym $ wk-id _) ⊩u₁₁)
                , ⊩∷→⊩∷/ (⊩wk-A _)

@@ -417,7 +417,7 @@ mutual
        (Bᵣ F₁ G₁ D₁ A≡A₁ [F]₁ [G]₁ G-ext₁ ok₁))
     (B₌ F′ G′ D′ A≡B [F≡F′] [G≡G′])
     (Σₜ₌ p r d d′ (prodₙ {t = p₁}) prodₙ p≅r [t] [u]
-       (PE.refl , PE.refl ,
+       (PE.refl , PE.refl , PE.refl , PE.refl ,
         [p₁] , [r₁] , [p₂] , [r₂] , [fst≡] , [snd≡])) =
     let [A] = Bᵣ′ BΣ! F G D A≡A [F] [G] G-ext ok
         [B] = Bᵣ′ BΣ! F₁ G₁ D₁ A≡A₁ [F]₁ [G]₁ G-ext₁ ok₁
@@ -452,7 +452,7 @@ mutual
     in  Σₜ₌ p r (conv* d ΣFG≡ΣF₁G₁) (conv* d′ ΣFG≡ΣF₁G₁)
             prodₙ prodₙ (≅-conv p≅r ΣFG≡ΣF₁G₁)
             (convTerm₁ [A] [B] [A≡B] [t]) (convTerm₁ [A] [B] [A≡B] [u])
-            (PE.refl , PE.refl ,
+            (PE.refl , PE.refl , PE.refl , PE.refl ,
              [p₁]₁ , [r₁]₁ , [p₂]₁ , [r₂]₁ , [fst≡]₁ , [snd≡]₁)
   convEqTermT₁
     {Γ = Γ}
@@ -589,7 +589,7 @@ mutual
        (Bᵣ F₁ G₁ D₁ A≡A₁ [F]₁ [G]₁ G-ext₁ ok₁))
     (B₌ F′ G′ D′ A≡B [F≡F′] [G≡G′])
     (Σₜ₌ p r d d′ (prodₙ {t = p₁}) prodₙ t≡u [t] [u]
-       (PE.refl , PE.refl ,
+       (PE.refl , PE.refl , PE.refl , PE.refl ,
         [p₁]₁ , [r₁]₁ , [p₂]₁ , [r₂]₁ , [fst≡]₁ , [snd≡]₁)) =
     let [A] = Bᵣ′ BΣ! F G D A≡A [F] [G] G-ext ok
         [B] = Bᵣ′ BΣ! F₁ G₁ D₁ A≡A₁ [F]₁ [G]₁ G-ext₁ ok₁
@@ -624,7 +624,7 @@ mutual
     in  Σₜ₌ p r (conv* d (sym ΣFG≡ΣF₁G₁)) (conv* d′ (sym ΣFG≡ΣF₁G₁))
             prodₙ prodₙ (≅-conv t≡u (sym ΣFG≡ΣF₁G₁))
             (convTerm₂ [A] [B] [A≡B] [t]) (convTerm₂ [A] [B] [A≡B] [u])
-            (PE.refl , PE.refl ,
+            (PE.refl , PE.refl , PE.refl , PE.refl ,
              [p₁] , [r₁] , [p₂] , [r₂] , [fst≡] , [snd≡])
   convEqTermT₂
     {Γ = Γ}

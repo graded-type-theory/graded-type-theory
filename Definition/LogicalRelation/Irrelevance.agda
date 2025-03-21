@@ -354,7 +354,7 @@ mutual
     (Bᵥ BΣʷ (Bᵣ F G D A≡A [F] [G] G-ext ok)
        (Bᵣ F₁ G₁ D₁ A≡A₁ [F]₁ [G]₁ G-ext₁ ok₁))
     (Σₜ₌ p r d d′ prodₙ prodₙ p≅r [t] [u]
-       (PE.refl , PE.refl ,
+       (PE.refl , PE.refl , PE.refl , PE.refl ,
         [p₁] , [r₁] , [p₂] , [r₂] , [fst≡] , [snd≡])) =
     let ΣFG≡ΣF₁G₁       = whrDet* (D , ΠΣₙ) (D₁ , ΠΣₙ)
         F≡F₁ , G≡G₁ , _ = B-PE-injectivity BΣ! BΣ! ΣFG≡ΣF₁G₁
@@ -377,7 +377,7 @@ mutual
             (PE.subst (λ x → Γ ⊢ u ⇒* r ∷ x) ΣFG≡ΣF₁G₁ d′) prodₙ prodₙ
             (PE.subst (λ x → Γ ⊢ p ≅ r ∷ x) ΣFG≡ΣF₁G₁ p≅r)
             (irrelevanceTerm [A] [A]₁ [t]) (irrelevanceTerm [A] [A]₁ [u])
-            (PE.refl , PE.refl ,
+            (PE.refl , PE.refl , PE.refl , PE.refl ,
              [p₁]′ , [r₁]′ , [p₂]′ , [r₂]′ , [fst≡]′ ,  [snd≡]′)
   irrelevanceEqTermT
     {Γ = Γ} {t = t} {u = u}

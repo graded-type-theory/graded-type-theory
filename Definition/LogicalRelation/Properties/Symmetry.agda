@@ -176,11 +176,12 @@ symEqTerm (Bᵣ′ BΣˢ F G D A≡A [F] [G] G-ext _)
 symEqTerm
   (Bᵣ′ BΣʷ F G D A≡A [F] [G] G-ext _)
   (Σₜ₌ p r d d′ prodₙ prodₙ p≅r [t] [u]
-     (PE.refl , PE.refl ,
+     (PE.refl , PE.refl , PE.refl , PE.refl ,
       [p₁] , [r₁] , [p₂] , [r₂] , [fst≡] , [snd≡])) =
   let [Gfstp≡Gfstr] = G-ext _ [p₁] [r₁] [fst≡]
   in  Σₜ₌ r p d′ d prodₙ prodₙ (≅ₜ-sym p≅r) [u] [t]
-        (PE.refl , PE.refl , [r₁] , [p₁] , [r₂] , [p₂] ,
+        (PE.refl , PE.refl , PE.refl , PE.refl ,
+         [r₁] , [p₁] , [r₂] , [p₂] ,
          symEqTerm ([F] _) [fst≡] ,
          convEqTerm₁ ([G] _ [p₁]) ([G] _ [r₁]) [Gfstp≡Gfstr]
            (symEqTerm ([G] _ [p₁]) [snd≡]))

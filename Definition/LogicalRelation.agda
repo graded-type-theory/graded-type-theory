@@ -503,9 +503,10 @@ module LogRel
         / [G] id-Γ [fstp]
     [Σ]-prop
       {p = p} 𝕨 t r Γ (Bᵣ F G D A≡A [F] [G] G-ext _)
-      (prodₙ {p = p′} {t = p₁} {u = p₂})
-      (prodₙ {p = p″} {t = r₁} {u = r₂}) =
+      (prodₙ {p = p′} {t = p₁} {u = p₂} {m = m′})
+      (prodₙ {p = p″} {t = r₁} {u = r₂} {m = m″}) =
              let id-Γ = id (wfEq (≅-eq A≡A)) in
+             m′ PE.≡ 𝕨 × m″ PE.≡ 𝕨 ×
              p PE.≡ p′ × p PE.≡ p″ ×
              Σ (Γ ⊩ₗ p₁ ∷ U.wk id F / [F] id-Γ) λ [p₁] →
              Σ (Γ ⊩ₗ r₁ ∷ U.wk id F / [F] id-Γ) λ [r₁]

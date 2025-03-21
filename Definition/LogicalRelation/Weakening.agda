@@ -497,7 +497,7 @@ wkEqTerm {ρ} [ρ] (Πᵣ′ F G D A≡A [F] [G] G-ext ok)
                                     ([f≡g] _ [a]′))
 wkEqTerm {ρ} [ρ] [A]@(Bᵣ′ BΣʷ F G D A≡A [F] [G] G-ext ok)
          (Σₜ₌ p r d d′ (prodₙ {t = p₁}) prodₙ p≅r [t] [u]
-            (PE.refl , PE.refl ,
+            (PE.refl , PE.refl , PE.refl , PE.refl ,
              [p₁] , [r₁] , [p₂] , [r₂] , [fst≡] , [snd≡])) =
   let [ρ]′ = ∷ʷʳ⊇→∷ʷ⊇ [ρ]
       [A] = Σᵣ′ F G D A≡A [F] [G] G-ext ok
@@ -556,7 +556,7 @@ wkEqTerm {ρ} [ρ] [A]@(Bᵣ′ BΣʷ F G D A≡A [F] [G] G-ext ok)
           (wkRed*Term [ρ]′ d) (wkRed*Term [ρ]′ d′)
           (wkProduct ρ prodₙ) (wkProduct ρ prodₙ)
           (≅ₜ-wk [ρ]′ p≅r) (wkTerm [ρ] [A] [t]) (wkTerm [ρ] [A] [u])
-          (PE.refl , PE.refl ,
+          (PE.refl , PE.refl , PE.refl , PE.refl ,
            irrelevanceTerm [ρF]
               (irrelevance′ (PE.sym (wk-comp id ρ F)) _) [ρp₁]′ ,
            irrelevanceTerm [ρF]

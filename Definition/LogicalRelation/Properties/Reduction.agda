@@ -157,7 +157,8 @@ redSubst*Term
       [u′] = Σₜ p d′ p≅p prodₙ pProp
   in  [u′] ,
       Σₜ₌ p p d′ d prodₙ prodₙ p≅p [u′] [u]
-        (p′≡p″ , p′≡p″ , [p₁] , [p₁] , [p₂] , [p₂] , [p₁≡p₁] , [p₂≡p₂])
+        (m≡Σʷ , m≡Σʷ , p′≡p″ , p′≡p″ ,
+         [p₁] , [p₁] , [p₂] , [p₂] , [p₁≡p₁] , [p₂≡p₂])
 redSubst*Term
   {Γ = Γ} {A} {t} {u} {l}
   t⇒u (Bᵣ′ BΣʷ F G D A≡A [F] [G] G-ext _) [u]@(Σₜ p d p≅p (ne x) p~p) =
@@ -333,8 +334,8 @@ opaque
                (ne _  , PE.refl) → v-ok
                (prodₙ , PE.refl) →
                  case v-ok of λ
-                   (eq , ⊩fst , ⊩snd , _) →
-                   eq , eq , ⊩fst , ⊩fst , ⊩snd , ⊩snd
+                   (eq , ⊩fst , ⊩snd , eq′) →
+                   eq′ , eq′ , eq , eq , ⊩fst , ⊩fst , ⊩snd , ⊩snd
                  , reflEqTerm (⊩C _) ⊩fst
                  , reflEqTerm (⊩D _ _) ⊩snd)
       )
