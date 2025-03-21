@@ -34,6 +34,7 @@ open import Definition.LogicalRelation.Properties.Reflexivity R
 open import Definition.LogicalRelation.Properties.Universe R
 open import Definition.LogicalRelation.Properties.Transitivity R
 open import Definition.LogicalRelation.Properties.Whnf R
+open import Definition.LogicalRelation.Unary R
 
 open import Tools.Function
 open import Tools.Nat hiding (_<_)
@@ -86,102 +87,79 @@ redSubst* A⇒*B (emb (≤ᵘ-step p) ⊩B) =
     emb-<-⊩ ≤ᵘ-refl ⊩A
   , irrelevanceEq ⊩A (emb-<-⊩ ≤ᵘ-refl ⊩A) A≡B
 
--- Weak head expansion of reducible terms.
-redSubst*Term : ∀ {A : Term n} {t u l}
-              → Γ ⊢ t ⇒* u ∷ A
-              → ([A] : Γ ⊩⟨ l ⟩ A)
-              → Γ ⊩⟨ l ⟩ u ∷ A / [A]
-              → Γ ⊩⟨ l ⟩ t ∷ A / [A]
-              × Γ ⊩⟨ l ⟩ t ≡ u ∷ A / [A]
-redSubst*Term t⇒u (Uᵣ′ l ≤ᵘ-refl D) (Uₜ A d typeA A≡A [u]) =
-  let A≡K  = subset* D
-      d′ = conv* t⇒u A≡K ⇨∷* d
-      q = redSubst* (univ* (conv* t⇒u A≡K))
-            (univEq (Uᵣ′ l ≤ᵘ-refl (id (wf-⊢≡ (subset* D) .proj₂)))
-               (Uₜ A d typeA A≡A [u]))
-  in Uₜ A d′ typeA A≡A (proj₁ q) ,
-  Uₜ₌ A A d′ d typeA typeA A≡A (proj₁ q) [u] (proj₂ q)
-redSubst*Term t⇒u ⊩U@(Uᵣ′ l (≤ᵘ-step l<) D) (Uₜ A D′ typeA A≡A [u]) =
-  let Un = Uᵣ′ l l< D
-      y , eq = redSubst*Term t⇒u Un (Uₜ A D′ typeA A≡A [u])
-      y′ = irrelevanceTerm Un ⊩U y
-  in y′ , irrelevanceEqTerm Un ⊩U eq
-redSubst*Term t⇒u (ℕᵣ D) (ℕₜ n d n≡n prop) =
-  let t⇒u′ = conv* t⇒u (subset* D)
-  in  ℕₜ n (t⇒u′ ⇨∷* d) n≡n prop
-  ,   ℕₜ₌ n n (t⇒u′ ⇨∷* d) d n≡n (reflNatural-prop prop)
-redSubst*Term t⇒u (Emptyᵣ D) (Emptyₜ n d n≡n prop) =
-  let t⇒u′ = conv* t⇒u (subset* D)
-  in  Emptyₜ n (t⇒u′ ⇨∷* d) n≡n prop
-  ,   Emptyₜ₌ n n (t⇒u′ ⇨∷* d) d n≡n (reflEmpty-prop prop)
-redSubst*Term t⇒u (Unitᵣ {s} (Unitₜ D _)) (Unitₜ n d n≡n prop) =
-  let t⇒u         = conv* t⇒u (subset* D)
-      _ , ⊢t , ⊢u = wf-⊢≡∷ (subset*Term t⇒u)
-      d′          = t⇒u ⇨∷* d
-  in  Unitₜ n d′ n≡n prop
-  ,   (case Unit-with-η? s of λ where
-         (inj₁ η)                → Unitₜ₌ˢ ⊢t ⊢u η
-         (inj₂ (PE.refl , no-η)) →
-           Unitₜ₌ʷ n n d′ d n≡n (reflUnitʷ-prop prop) no-η)
-redSubst*Term t⇒u (ne′ _ _ D neK K≡K) (neₜ k d (neNfₜ inc neK₁ k≡k)) =
-  let A≡K = subset* D
-      d′  = conv* t⇒u A≡K ⇨∷* d
-  in
-    neₜ k d′ (neNfₜ inc neK₁ k≡k)
-  , neₜ₌ k k d′ d (neNfₜ₌ inc neK₁ neK₁ k≡k)
-redSubst*Term
-  {Γ = Γ} {A = A} {t} {u} {l}
-  t⇒u (Πᵣ′ F G D A≡A [F] [G] G-ext _) [u]@(Πₜ f d funcF f≡f [f] [f]₁) =
-  let d′   = conv* t⇒u (subset* D) ⇨∷* d
-      [u′] = Πₜ f d′ funcF f≡f [f] [f]₁
-  in  [u′]
-  ,   Πₜ₌ f f d′ d funcF funcF f≡f [u′] [u] λ [ρ] [a] →
-        [f] [ρ] [a] [a] (reflEqTerm ([F] [ρ]) [a])
-redSubst*Term
-  {Γ = Γ} {A} {t} {u} {l}
-  t⇒u (Bᵣ′ BΣˢ F G D A≡A [F] [G] G-ext _) [u]@(Σₜ p d p≅p pProd pProp) =
+opaque
 
-  let d′ = conv* t⇒u (subset* D) ⇨∷* d
-      [fstp] , [sndp] = pProp
-      [u′] = Σₜ p d′ p≅p pProd pProp
-  in  [u′] , Σₜ₌ p p d′ d pProd pProd p≅p [u′] [u]
-                 ([fstp] , [fstp] , reflEqTerm ([F] _) [fstp] ,
-                   reflEqTerm ([G] _ [fstp]) [sndp])
-redSubst*Term
-  {Γ = Γ} {A} {t} {u} {l}
-  t⇒u (Bᵣ′ BΣʷ F G D A≡A [F] [G] G-ext _) [u]@(Σₜ p d p≅p prodₙ pProp) =
-  let d′ = conv* t⇒u (subset* D) ⇨∷* d
-      p′≡p″ , [p₁] , [p₂] , m≡Σʷ = pProp
-      [p₁≡p₁] = reflEqTerm ([F] _) [p₁]
-      [p₂≡p₂] = reflEqTerm ([G] _ [p₁]) [p₂]
-      [u′] = Σₜ p d′ p≅p prodₙ pProp
-  in  [u′] ,
-      Σₜ₌ p p d′ d prodₙ prodₙ p≅p [u′] [u]
-        (m≡Σʷ , m≡Σʷ , p′≡p″ , p′≡p″ ,
-         [p₁] , [p₁] , [p₂] , [p₂] , [p₁≡p₁] , [p₂≡p₂])
-redSubst*Term
-  {Γ = Γ} {A} {t} {u} {l}
-  t⇒u (Bᵣ′ BΣʷ F G D A≡A [F] [G] G-ext _) [u]@(Σₜ p d p≅p (ne x) p~p) =
-  let d′   = conv* t⇒u (subset* D) ⇨∷* d
-      [u′] = Σₜ p d′ p≅p (ne x) p~p
-  in  [u′] , Σₜ₌ p p d′ d (ne x) (ne x) p≅p [u′] [u] p~p
-redSubst*Term
-  {Γ = Γ} {A = A} {t = t} {l = l} t⇒*u (Idᵣ ⊩A) ⊩u@(u′ , u⇒*u′ , rest) =
-  let ⊩t : Γ ⊩⟨ l ⟩ t ∷ A / Idᵣ ⊩A
-      ⊩t =
-          u′
-        , conv* t⇒*u (subset* ⇒*Id) ⇨∷* u⇒*u′
-        , rest
-  in
-    ⊩t
-  , ⊩Id≡∷ ⊩t ⊩u
-      (case ⊩Id∷-view-inhabited ⊩u of λ where
-         (ne inc _ u′~u′) → inc , u′~u′
-         (rflᵣ _)         → _)
-  where
-  open _⊩ₗId_ ⊩A
-redSubst*Term t⇒u (emb ≤ᵘ-refl     ⊩A) = redSubst*Term t⇒u ⊩A
-redSubst*Term t⇒u (emb (≤ᵘ-step p) ⊩A) = redSubst*Term t⇒u (emb p ⊩A)
+  -- Weak head expansion of reducible terms.
+  redSubst*Term : ∀ {A : Term n} {t u l}
+                → Γ ⊢ t ⇒* u ∷ A
+                → ([A] : Γ ⊩⟨ l ⟩ A)
+                → Γ ⊩⟨ l ⟩ u ∷ A / [A]
+                → Γ ⊩⟨ l ⟩ t ≡ u ∷ A / [A]
+  redSubst*Term t⇒u (Uᵣ′ l ≤ᵘ-refl D) ⊩u =
+    let Uₜ A d typeA A≡A [u] = ⊩U∷U⇔⊩U≡∷U .proj₂ ⊩u
+        A≡K = subset* D
+        d′ = conv* t⇒u A≡K ⇨∷* d
+        q = redSubst* (univ* (conv* t⇒u A≡K))
+              (univEq (Uᵣ′ l ≤ᵘ-refl (id (wf-⊢≡ (subset* D) .proj₂)))
+                 (⊩U∷U⇔⊩U≡∷U .proj₁ (Uₜ A d typeA A≡A [u])))
+    in
+    Uₜ₌ A A d′ d typeA typeA A≡A (proj₁ q) [u] (proj₂ q)
+  redSubst*Term t⇒u ⊩U@(Uᵣ′ l (≤ᵘ-step l<) D) ⊩u =
+    let Uₜ A D′ typeA A≡A [u] = ⊩U∷U⇔⊩U≡∷U .proj₂ ⊩u
+        Un = Uᵣ′ l l< D
+        eq = redSubst*Term t⇒u Un
+               (⊩U∷U⇔⊩U≡∷U .proj₁ (Uₜ A D′ typeA A≡A [u]))
+    in
+    irrelevanceEqTerm Un ⊩U eq
+  redSubst*Term t⇒u (ℕᵣ D) ⊩u =
+    let ℕₜ n d n≡n prop = ⊩ℕ∷ℕ⇔⊩ℕ≡∷ℕ .proj₂ ⊩u
+        t⇒u′ = conv* t⇒u (subset* D)
+    in
+    ℕₜ₌ n n (t⇒u′ ⇨∷* d) d n≡n (Natural-prop⇔[Natural]-prop .proj₁ prop)
+  redSubst*Term t⇒u (Emptyᵣ D) ⊩u =
+    let Emptyₜ n d n≡n prop = ⊩Empty∷Empty⇔⊩Empty≡∷Empty .proj₂ ⊩u
+        t⇒u′ = conv* t⇒u (subset* D)
+    in
+    Emptyₜ₌ n n (t⇒u′ ⇨∷* d) d n≡n (Empty-prop⇔[Empty]-prop .proj₁ prop)
+  redSubst*Term t⇒u (Unitᵣ (Unitₜ D _)) ⊩u =
+    case ⊩Unit∷Unit⇔⊩Unit≡∷Unit .proj₂ ⊩u of λ
+      (Unitₜ v u↘v prop) →
+    Unitₜ₌ v v (⇒*∷→↘∷→↘∷ (conv* t⇒u (subset* D)) u↘v) u↘v
+      (Unit-prop⇔[Unit]-prop .proj₁ prop)
+  redSubst*Term t⇒u (ne′ _ _ D neK K≡K) ⊩u =
+    let neₜ k d (neNfₜ inc neK₁ k≡k) = ⊩ne∷⇔⊩ne≡∷ .proj₂ ⊩u
+        A≡K = subset* D
+        d′  = conv* t⇒u A≡K ⇨∷* d
+    in
+    neₜ₌ k k d′ d (neNfₜ₌ inc neK₁ neK₁ k≡k)
+  redSubst*Term t⇒u (Bᵣ BΠ! ⊩A@(Bᵣ F G D A≡A [F] [G] G-ext _)) [u] =
+    let Πₜ f d funcF f≡f [f] = ⊩Π∷⇔⊩Π≡∷ ⊩A .proj₂ [u]
+        d′   = conv* t⇒u (subset* D) ⇨∷* d
+    in
+    Πₜ₌ f f d′ d funcF funcF f≡f
+      (λ [ρ] [a] → [f] [ρ] (reflEqTerm ([F] [ρ]) [a]))
+  redSubst*Term t⇒u (Bᵣ BΣˢ ⊩A@(Bᵣ F G D A≡A [F] [G] G-ext _)) [u] =
+    let Σₜ p d pProd p≅p pProp = ⊩Σ∷⇔⊩Σ≡∷ ⊩A .proj₂ [u]
+        d′ = conv* t⇒u (subset* D) ⇨∷* d
+    in
+    Σₜ₌ p p d′ d pProd pProd p≅p (Σ-prop⇔[Σ]-prop .proj₁ pProp)
+  redSubst*Term t⇒u (Bᵣ BΣʷ ⊩A@(Bᵣ F G D A≡A [F] [G] G-ext _)) [u] =
+    case ⊩Σ∷⇔⊩Σ≡∷ ⊩A .proj₂ [u] of λ where
+      (Σₜ p d prodₙ p≅p pProp) →
+        let d′ = conv* t⇒u (subset* D) ⇨∷* d in
+        Σₜ₌ p p d′ d prodₙ prodₙ p≅p (Σ-prop⇔[Σ]-prop .proj₁ pProp)
+      (Σₜ p d (ne x) p≅p pProp) →
+        let d′ = conv* t⇒u (subset* D) ⇨∷* d
+        in
+        Σₜ₌ p p d′ d (ne x) (ne x) p≅p (Σ-prop⇔[Σ]-prop .proj₁ pProp)
+  redSubst*Term {Γ} {A} {t} {l} t⇒*u (Idᵣ ⊩A) ⊩u =
+    let Idₜ u′ u⇒*u′ u′-id prop = ⊩Id∷⇔⊩Id≡∷ ⊩A .proj₂ ⊩u in
+    _ , _ , conv* t⇒*u (subset* ⇒*Id) ⇨∷* u⇒*u′ , u⇒*u′ , u′-id ,
+    u′-id , ⊩Id∷-view⇔ .proj₁ prop
+    where
+    open _⊩ₗId_ ⊩A
+  redSubst*Term t⇒u (emb ≤ᵘ-refl     ⊩A) = redSubst*Term t⇒u ⊩A
+  redSubst*Term t⇒u (emb (≤ᵘ-step p) ⊩A) = redSubst*Term t⇒u (emb p ⊩A)
 
 -- Weak head expansion of reducible types with single reduction step.
 redSubst : ∀ {A B : Term n} {l}
@@ -196,8 +174,7 @@ redSubstTerm : ∀ {A t u : Term n} {l}
              → Γ ⊢ t ⇒ u ∷ A
              → ([A] : Γ ⊩⟨ l ⟩ A)
              → Γ ⊩⟨ l ⟩ u ∷ A / [A]
-             → Γ ⊩⟨ l ⟩ t ∷ A / [A]
-             × Γ ⊩⟨ l ⟩ t ≡ u ∷ A / [A]
+             → Γ ⊩⟨ l ⟩ t ≡ u ∷ A / [A]
 redSubstTerm t⇒u [A] [u] = redSubst*Term (redMany t⇒u) [A] [u]
 
 opaque
@@ -251,106 +228,68 @@ opaque
 
 opaque
 
-  -- If t is reducible and reduces to u, then u is reducible and equal
+  -- If t is reducible and reduces to u, then u is "reducibly equal"
   -- to t.
 
   redSubst*Term′ :
     Γ ⊢ t ⇒* u ∷ A → (⊩A : Γ ⊩⟨ l ⟩ A) → Γ ⊩⟨ l ⟩ t ∷ A / ⊩A →
-    Γ ⊩⟨ l ⟩ u ∷ A / ⊩A × Γ ⊩⟨ l ⟩ t ≡ u ∷ A / ⊩A
-  redSubst*Term′ t⇒*u ⊩U@(Uᵣ′ l ≤ᵘ-refl D) (Uₜ A t⇒*A A-type A≅A ⊩t) =
+    Γ ⊩⟨ l ⟩ t ≡ u ∷ A / ⊩A
+  redSubst*Term′ t⇒*u ⊩U@(Uᵣ′ l ≤ᵘ-refl D) ⊩t =
+    let Uₜ A t⇒*A A-type A≅A ⊩t = ⊩U∷U⇔⊩U≡∷U .proj₂ ⊩t in
     case whrDet↘Term (t⇒*A , typeWhnf A-type)
            (conv* t⇒*u (subset* D)) of λ
       u⇒*A →
       case redSubst*′ (univ* (conv* t⇒*u (subset* D))) ⊩t of λ
         (⊩u , t≡u) →
-      Uₜ A u⇒*A A-type A≅A ⊩u
-    , Uₜ₌ A A t⇒*A u⇒*A A-type A-type A≅A ⊩t ⊩u t≡u
-  redSubst*Term′
-    t⇒*u ⊩U@(Uᵣ′ l (≤ᵘ-step l<) D) (Uₜ A t⇒*A A-type A≅A ⊩t) =
-    case redSubst*Term′ t⇒*u (Uᵣ′ l l< D) (Uₜ A t⇒*A A-type A≅A ⊩t) of λ
-      (⊩u , t≡u) → (irrelevanceTerm (Uᵣ′ l l< D) ⊩U ⊩u)
-        , irrelevanceEqTerm (Uᵣ′ l l< D) ⊩U t≡u
-  redSubst*Term′ t⇒*u (ℕᵣ A⇒*ℕ) (ℕₜ v t⇒*v v≅v v-ok) =
+    Uₜ₌ A A t⇒*A u⇒*A A-type A-type A≅A ⊩t ⊩u t≡u
+  redSubst*Term′ t⇒*u ⊩U@(Uᵣ′ l (≤ᵘ-step l<) D) ⊩t =
+    let Uₜ A t⇒*A A-type A≅A ⊩t = ⊩U∷U⇔⊩U≡∷U .proj₂ ⊩t in
+    irrelevanceEqTerm (Uᵣ′ l l< D) ⊩U
+      (redSubst*Term′ t⇒*u (Uᵣ′ l l< D)
+         (⊩U∷U⇔⊩U≡∷U .proj₁ (Uₜ A t⇒*A A-type A≅A ⊩t)))
+  redSubst*Term′ t⇒*u (ℕᵣ A⇒*ℕ) ⊩t =
+    let ℕₜ v t⇒*v v≅v v-ok = ⊩ℕ∷ℕ⇔⊩ℕ≡∷ℕ .proj₂ ⊩t in
     case whrDet↘Term (t⇒*v , naturalWhnf (natural v-ok))
            (conv* t⇒*u (subset* A⇒*ℕ)) of λ
       u⇒*v →
-      ℕₜ v u⇒*v v≅v v-ok
-    , ℕₜ₌ v v t⇒*v u⇒*v v≅v (reflNatural-prop v-ok)
-  redSubst*Term′ t⇒*u (Emptyᵣ A⇒*Empty) (Emptyₜ v t⇒*v v≅v v-ok) =
+    ℕₜ₌ v v t⇒*v u⇒*v v≅v (Natural-prop⇔[Natural]-prop .proj₁ v-ok)
+  redSubst*Term′ t⇒*u (Emptyᵣ A⇒*Empty) ⊩t =
+    let Emptyₜ v t⇒*v v≅v v-ok = ⊩Empty∷Empty⇔⊩Empty≡∷Empty .proj₂ ⊩t in
     case whrDet↘Term (t⇒*v , ne (empty v-ok))
            (conv* t⇒*u (subset* A⇒*Empty)) of λ
       u⇒*v →
-      Emptyₜ v u⇒*v v≅v v-ok
-    , Emptyₜ₌ v v t⇒*v u⇒*v v≅v (reflEmpty-prop v-ok)
-  redSubst*Term′
-    t⇒*u (Unitᵣ {s} (Unitₜ A⇒*Unit _)) (Unitₜ v t⇒*v v≅v v-ok) =
-    let t⇒*u        = conv* t⇒*u (subset* A⇒*Unit)
-        u⇒*v        = whrDet↘Term (t⇒*v , unit v-ok) t⇒*u
-        _ , ⊢t , ⊢u = wf-⊢≡∷ (subset*Term t⇒*u)
+    Emptyₜ₌ v v t⇒*v u⇒*v v≅v (Empty-prop⇔[Empty]-prop .proj₁ v-ok)
+  redSubst*Term′ t⇒*u (Unitᵣ (Unitₜ A⇒*Unit _)) ⊩t =
+    case ⊩Unit∷Unit⇔⊩Unit≡∷Unit .proj₂ ⊩t of λ
+      (Unitₜ v t↘v@(_ , v-whnf) prop) →
+    Unitₜ₌ v v t↘v
+      (whrDet↘Term t↘v (conv* t⇒*u (subset* A⇒*Unit)) , v-whnf)
+      (Unit-prop⇔[Unit]-prop .proj₁ prop)
+  redSubst*Term′ t⇒*u (ne′ _ B A⇒*B B-ne B≅B) ⊩t =
+    let neₜ v t⇒*v prop@(neNfₜ _ v-ne _) = ⊩ne∷⇔⊩ne≡∷ .proj₂ ⊩t
+        u⇒*v = whrDet↘Term (t⇒*v , ne v-ne) (conv* t⇒*u (subset* A⇒*B))
     in
-      Unitₜ v u⇒*v v≅v v-ok
-    , (case Unit-with-η? s of λ where
-         (inj₁ η)                → Unitₜ₌ˢ ⊢t ⊢u η
-         (inj₂ (PE.refl , no-η)) →
-           Unitₜ₌ʷ v v t⇒*v u⇒*v v≅v (reflUnitʷ-prop v-ok) no-η)
+    neₜ₌ v v t⇒*v u⇒*v (⊩neNf∷⇔⊩neNf≡∷ .proj₁ prop)
+  redSubst*Term′ t⇒*u (Bᵣ BΠ! ⊩A@(Bᵣ C D A⇒*Π Π≡Π ⊩C ⊩D D≡D ok)) ⊩t =
+    let Πₜ v t⇒*v v-fun ≅v ⊩v = ⊩Π∷⇔⊩Π≡∷ ⊩A .proj₂ ⊩t
+        u⇒*v = whrDet↘Term (t⇒*v , functionWhnf v-fun)
+                 (conv* t⇒*u (subset* A⇒*Π))
+    in
+    v , v , t⇒*v , u⇒*v , v-fun , v-fun , ≅v , ⊩v
   redSubst*Term′
-    t⇒*u (ne′ _ B A⇒*B B-ne B≅B)
-      (neₜ v t⇒*v v-ok@(neNfₜ inc v-ne v~v)) =
-    case whrDet↘Term (t⇒*v , ne v-ne)
-           (conv* t⇒*u (subset* A⇒*B)) of λ
-      u⇒*v →
-      neₜ v u⇒*v v-ok
-    , neₜ₌ v v t⇒*v u⇒*v (neNfₜ₌ inc v-ne v-ne v~v)
-  redSubst*Term′
-    t⇒*u ⊩A@(Bᵣ′ BΠ! C D A⇒*Π Π≡Π ⊩C ⊩D D≡D ok)
-    ⊩t@(v , t⇒*v , v-fun , v≅v , v∘≡v∘ , ⊩v∘) =
-    case whrDet↘Term (t⇒*v , functionWhnf v-fun)
-           (conv* t⇒*u (subset* A⇒*Π)) of λ
-      u⇒*v →
-    case v , u⇒*v , v-fun , v≅v , v∘≡v∘ , ⊩v∘ of λ
-      (⊩u : _ ⊩⟨ _ ⟩ _ ∷ _ / ⊩A) →
-      ⊩u
-    , ( v , v , t⇒*v , u⇒*v , v-fun , v-fun , v≅v , ⊩t , ⊩u
-      , (λ _ _ → reflEqTerm (⊩D _ _) (⊩v∘ _ _))
-      )
-  redSubst*Term′
-    t⇒*u ⊩A@(Bᵣ′ (BΣ s _ _) C D A⇒*Σ Σ≡Σ ⊩C ⊩D D≡D ok)
-    ⊩t@(v , t⇒*v , v≅v , v-prod , v-ok) =
-    case whrDet↘Term (t⇒*v , productWhnf v-prod)
-           (conv* t⇒*u (subset* A⇒*Σ)) of λ
-      u⇒*v →
-    case v , u⇒*v , v≅v , v-prod , v-ok of λ
-      (⊩u : _ ⊩⟨ _ ⟩ _ ∷ _ / ⊩A) →
-      ⊩u
-    , ( v , v , t⇒*v , u⇒*v , v≅v , ⊩t , ⊩u , v-prod , v-prod
-      , (case PE.singleton s of λ where
-           (𝕤 , PE.refl) →
-             case v-ok of λ
-               (⊩fst , ⊩snd) →
-               ⊩fst , ⊩fst , reflEqTerm (⊩C _) ⊩fst
-             , reflEqTerm (⊩D _ _) ⊩snd
-           (𝕨 , PE.refl) →
-             case PE.singleton v-prod of λ where
-               (ne _  , PE.refl) → v-ok
-               (prodₙ , PE.refl) →
-                 case v-ok of λ
-                   (eq , ⊩fst , ⊩snd , eq′) →
-                   eq′ , eq′ , eq , eq , ⊩fst , ⊩fst , ⊩snd , ⊩snd
-                 , reflEqTerm (⊩C _) ⊩fst
-                 , reflEqTerm (⊩D _ _) ⊩snd)
-      )
-  redSubst*Term′
-    t⇒*u (Idᵣ (Idᵣ Ty lhs rhs A⇒*Id ⊩Ty ⊩lhs ⊩rhs))
-    (v , t⇒*v , v-id , v-ok) =
-    case whrDet↘Term (t⇒*v , identityWhnf v-id)
-           (conv* t⇒*u (subset* A⇒*Id)) of λ
-      u⇒*v →
-      (v , u⇒*v , v-id , v-ok)
-    , ( v , v , t⇒*v , u⇒*v , v-id , v-id
-      , (case PE.singleton v-id of λ where
-           (rflₙ , PE.refl) → v-ok
-           (ne _ , PE.refl) → v-ok)
-      )
+    t⇒*u (Bᵣ (BΣ s _ _) ⊩A@(Bᵣ C D A⇒*Σ Σ≡Σ ⊩C ⊩D D≡D ok)) ⊩t =
+    let Σₜ v t⇒*v v-prod ≅v prop = ⊩Σ∷⇔⊩Σ≡∷ ⊩A .proj₂ ⊩t
+        u⇒*v = whrDet↘Term (t⇒*v , productWhnf v-prod)
+                 (conv* t⇒*u (subset* A⇒*Σ))
+    in
+    v , v , t⇒*v , u⇒*v , ≅v , v-prod , v-prod ,
+    Σ-prop⇔[Σ]-prop .proj₁ prop
+  redSubst*Term′ t⇒*u (Idᵣ ⊩A@(Idᵣ Ty lhs rhs A⇒*Id ⊩Ty ⊩lhs ⊩rhs)) ⊩t =
+    let Idₜ v t⇒*v v-id prop = ⊩Id∷⇔⊩Id≡∷ ⊩A .proj₂ ⊩t
+        u⇒*v = whrDet↘Term (t⇒*v , identityWhnf v-id)
+                 (conv* t⇒*u (subset* A⇒*Id))
+    in
+    v , v , t⇒*v , u⇒*v , v-id , v-id , ⊩Id∷-view⇔ .proj₁ prop
   redSubst*Term′ t⇒*u (emb ≤ᵘ-refl ⊩A)     = redSubst*Term′ t⇒*u ⊩A
   redSubst*Term′ t⇒*u (emb (≤ᵘ-step p) ⊩A) =
     redSubst*Term′ t⇒*u (emb p ⊩A)

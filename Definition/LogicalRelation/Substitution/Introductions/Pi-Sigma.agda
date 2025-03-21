@@ -59,7 +59,7 @@ private variable
 -- Some characterisation lemmas
 
 opaque
-  unfolding _⊩⟨_⟩_≡_ _⊩⟨_⟩_∷_ _⊩⟨_⟩_≡_∷_
+  unfolding _⊩⟨_⟩_≡_ _⊩⟨_⟩_∷_ _⊩⟨_⟩_≡_∷_ wf-⊩≡∷
 
   -- A characterisation lemma for _⊩⟨_⟩_.
 
@@ -87,13 +87,13 @@ opaque
                    (rest ρ⊇ .proj₂ $
                     refl-⊩≡∷ (rest _ .proj₁ , ⊩t))
                    .proj₁)
-              (λ ρ⊇ ⊩t ⊩u t≡u →
+              (λ ρ⊇ ⊩t _ t≡u →
                  ⊩≡→⊩≡/
                    (wf-⊩≡
                       (rest ρ⊇ .proj₂ $
                        refl-⊩≡∷ (rest _ .proj₁ , ⊩t))
                       .proj₁) $
-                 rest ρ⊇ .proj₂ (rest _ .proj₁ , ⊩t , ⊩u , t≡u))
+                 rest ρ⊇ .proj₂ (rest _ .proj₁ , t≡u))
               ok))
     where
     lemma :
@@ -121,11 +121,11 @@ opaque
       , λ ρ⊇ →
           let ⊩wk-ρ-A = ⊩wk-A ρ⊇ in
             ⊩wk-ρ-A
-          , λ (⊩wk-ρ-A′ , ⊩t , ⊩u , t≡u) →
-              case irrelevanceTerm ⊩wk-ρ-A′ ⊩wk-ρ-A ⊩t of λ
-                ⊩t →
-              case irrelevanceTerm ⊩wk-ρ-A′ ⊩wk-ρ-A ⊩u of λ
-                ⊩u →
+          , λ t≡u′@(⊩wk-ρ-A′ , t≡u) →
+              let (_ , ⊩t) , (_ , ⊩u) = wf-⊩≡∷ t≡u′
+                  ⊩t = irrelevanceTerm ⊩wk-ρ-A′ ⊩wk-ρ-A ⊩t
+                  ⊩u = irrelevanceTerm ⊩wk-ρ-A′ ⊩wk-ρ-A ⊩u
+              in
                 ⊩wk-B ρ⊇ ⊩t
               , ⊩wk-B ρ⊇ ⊩u
               , wk-B≡wk-B ρ⊇ ⊩t ⊩u

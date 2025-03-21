@@ -21,6 +21,7 @@ open import Definition.Untyped.Neutral M type-variant
 open import Definition.Typed R
 open import Definition.Typed.Inversion R
 open import Definition.Typed.Properties R
+open import Definition.Typed.Well-formed R
 open import Definition.LogicalRelation R
 open import Definition.LogicalRelation.Properties.Reflexivity R
 open import Definition.LogicalRelation.Properties.Whnf R
@@ -51,29 +52,6 @@ escape (Idᵣ ⊩A) = redFirst* (_⊩ₗId_.⇒*Id ⊩A)
 escape (emb ≤ᵘ-refl A) = escape A
 escape (emb (≤ᵘ-step k) A) = escape (emb k A)
 
--- Reducible terms are well-formed.
-escapeTerm : ∀ {l A t} → ([A] : Γ ⊩⟨ l ⟩ A)
-              → Γ ⊩⟨ l ⟩ t ∷ A / [A]
-              → Γ ⊢ t ∷ A
-escapeTerm (Uᵣ′ _ _ D) (Uₜ _ d _ _ _) =
-  conv (redFirst*Term d) (sym (subset* D))
-escapeTerm (ℕᵣ D) (ℕₜ _ d _ _) =
-  conv (redFirst*Term d) (sym (subset* D))
-escapeTerm (Emptyᵣ D) (Emptyₜ _ d _ _) =
-  conv (redFirst*Term d) (sym (subset* D))
-escapeTerm (Unitᵣ (Unitₜ D _)) (Unitₜ _ d _ _) =
-  conv (redFirst*Term d) (sym (subset* D))
-escapeTerm (ne′ _ _ D _ _) (neₜ _ d _) =
-  conv (redFirst*Term d) (sym (subset* D))
-escapeTerm (Bᵣ′ BΠ! _ _ D _ _ _ _ _) (Πₜ _ d _ _ _ _) =
-  conv (redFirst*Term d) (sym (subset* D))
-escapeTerm (Bᵣ′ BΣ! _ _ D _ _ _ _ _) (Σₜ _ d _ _ _) =
-  conv (redFirst*Term d) (sym (subset* D))
-escapeTerm (Idᵣ ⊩A) (_ , d , _) =
-  conv (redFirst*Term d) (sym (subset* (_⊩ₗId_.⇒*Id ⊩A)))
-escapeTerm (emb ≤ᵘ-refl A) t = escapeTerm A t
-escapeTerm (emb (≤ᵘ-step k) A) t = escapeTerm (emb k A) t
-
 -- Reducible type equality is contained in the equality relation.
 escapeEq :
   (⊩A : Γ ⊩⟨ l ⟩ A) →
@@ -85,6 +63,12 @@ escapeTermEq :
   (⊩A : Γ ⊩⟨ l ⟩ A) →
   Γ ⊩⟨ l ⟩ t ≡ u ∷ A / ⊩A →
   Γ ⊢ t ≅ u ∷ A
+
+-- Reducible terms are well-formed.
+escapeTerm : ∀ {l A t} → ([A] : Γ ⊩⟨ l ⟩ A)
+              → Γ ⊩⟨ l ⟩ t ∷ A / [A]
+              → Γ ⊢ t ∷ A
+escapeTerm ⊩A ⊩t = wf-⊢≡∷ (≅ₜ-eq (escapeTermEq ⊩A ⊩t)) .proj₂ .proj₁
 
 -- If there is a well-formed equality between two identity types,
 -- then the corresponding reduced identity types are equal.
@@ -130,21 +114,24 @@ escapeTermEq (ℕᵣ D) (ℕₜ₌ _ _ d d′ k≡k′ prop) =
 escapeTermEq (Emptyᵣ D) (Emptyₜ₌ k k′ d d′ k≡k′ prop) =
   let natK , natK′ = esplit prop
   in  ≅ₜ-red (D , Emptyₙ) (d , ne natK) (d′ , ne natK′) k≡k′
-escapeTermEq (Unitᵣ (Unitₜ D _)) (Unitₜ₌ˢ ⊢t ⊢u ok) =
-  let t≅u = ≅ₜ-η-unit ⊢t ⊢u ok
-      A≡Unit = subset* D
-  in  ≅-conv t≅u (sym A≡Unit)
-escapeTermEq (Unitᵣ (Unitₜ D _)) (Unitₜ₌ʷ _ _ d d′ k≡k′ prop _) =
-  let whK , whK′ = usplit prop
-  in  ≅ₜ-red (D , Unitₙ) (d , whK) (d′ , whK′) k≡k′
+escapeTermEq (Unitᵣ (Unitₜ D ok)) (Unitₜ₌ _ _ d d′ prop) =
+  let _ , _ , ⊢t′ = wf-⊢≡∷ (subset*Term (d .proj₁))
+      _ , _ , ⊢u′ = wf-⊢≡∷ (subset*Term (d′ .proj₁))
+  in
+  ≅ₜ-red (D , Unitₙ) d d′
+    (case prop of λ where
+       (Unitₜ₌ˢ η)                           → ≅ₜ-η-unit ⊢t′ ⊢u′ η
+       (Unitₜ₌ʷ starᵣ _)                     → ≅ₜ-starrefl (wfTerm ⊢t′)
+                                                 ok
+       (Unitₜ₌ʷ (ne (neNfₜ₌ _ _ _ t′~u′)) _) → ~-to-≅ₜ t′~u′)
 escapeTermEq (ne′ _ _ D neK _) (neₜ₌ _ _ d d′ (neNfₜ₌ _ neT neU t≡u)) =
   ≅ₜ-red (D , ne neK) (d , ne neT) (d′ , ne neU) (~-to-≅ₜ t≡u)
 escapeTermEq
-  (Bᵣ′ BΠ! _ _ D _ _ _ _ _) (Πₜ₌ _ _ d d′ funcF funcG f≡g _ _ _) =
+  (Bᵣ′ BΠ! _ _ D _ _ _ _ _) (Πₜ₌ _ _ d d′ funcF funcG f≡g _) =
   ≅ₜ-red (D , ΠΣₙ) (d , functionWhnf funcF) (d′ , functionWhnf funcG)
     f≡g
 escapeTermEq
-  (Bᵣ′ BΣ! _ _ D _ _ _ _ _) (Σₜ₌ _ _ d d′ pProd rProd p≅r _ _ _) =
+  (Bᵣ′ BΣ! _ _ D _ _ _ _ _) (Σₜ₌ _ _ d d′ pProd rProd p≅r _) =
   ≅ₜ-red (D , ΠΣₙ) (d , productWhnf pProd) (d′ , productWhnf rProd) p≅r
 escapeTermEq {Γ = Γ} (Idᵣ ⊩A) t≡u@(_ , _ , t⇒*t′ , u⇒*u′ , _) =
   case ⊩Id≡∷-view-inhabited ⊩A t≡u of λ where

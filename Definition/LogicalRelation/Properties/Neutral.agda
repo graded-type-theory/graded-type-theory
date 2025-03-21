@@ -29,13 +29,14 @@ open import Definition.LogicalRelation.ShapeView R
 open import Definition.LogicalRelation.Irrelevance R
 open import Definition.LogicalRelation.Properties.Reflexivity R
 open import Definition.LogicalRelation.Properties.Escape R
+open import Definition.LogicalRelation.Unary R
 open import Definition.LogicalRelation.Weakening.Restricted R
 
 open import Tools.Function
 open import Tools.Nat hiding (_<_)
 open import Tools.Product
 import Tools.PropositionalEquality as PE
-import Tools.Sum as ⊎
+open import Tools.Sum
 
 private
   variable
@@ -73,7 +74,9 @@ opaque
     neuEq′ (emb ≤ᵘ-refl x) = neuEq′ x
     neuEq′ (emb (≤ᵘ-step p) x) = neuEq′ (emb p x)
 
-opaque mutual
+opaque
+ unfolding ⊩Id∷⇔⊩Id≡∷
+ mutual
 
   -- Neutral reflexive terms are reducible (if Neutrals-included
   -- holds).
@@ -90,8 +93,10 @@ opaque mutual
     neuTerm′ (Uᵣ′ l ≤ᵘ-refl D) =
       let A≡U  = subset* D
           n≡n  = ~-to-≅ₜ (~-conv ~n A≡U)
-      in Uₜ _ (id (conv ⊢n A≡U)) (ne n-ne) n≡n
-        (neu inc n-ne (~-to-≅ (~-conv ~n A≡U)))
+      in
+      ⊩U∷U⇔⊩U≡∷U .proj₁
+        (Uₜ _ (id (conv ⊢n A≡U)) (ne n-ne) n≡n
+           (neu inc n-ne (~-to-≅ (~-conv ~n A≡U))))
     neuTerm′ (Uᵣ′ _ (≤ᵘ-step p) A⇒*U) =
       irrelevanceTerm (Uᵣ′ _ p A⇒*U) (Uᵣ′ _ (≤ᵘ-step p) A⇒*U)
         (neuTerm inc (Uᵣ′ _ p A⇒*U) n-ne ~n)
@@ -100,42 +105,37 @@ opaque mutual
           n~n′ = ~-conv ~n A≡ℕ
           n≡n  = ~-to-≅ₜ n~n′
       in
-      ℕₜ _ (id (conv ⊢n A≡ℕ)) n≡n (ne (neNfₜ inc n-ne n~n′))
+      ⊩ℕ∷ℕ⇔⊩ℕ≡∷ℕ .proj₁
+        (ℕₜ _ (id (conv ⊢n A≡ℕ)) n≡n (ne (neNfₜ inc n-ne n~n′)))
     neuTerm′ (Emptyᵣ D) =
       let A≡Empty  = subset* D
           n~n′ = ~-conv ~n A≡Empty
           n≡n  = ~-to-≅ₜ n~n′
       in
-      Emptyₜ _ (id (conv ⊢n A≡Empty)) n≡n
-        (ne (neNfₜ inc n-ne n~n′))
+      ⊩Empty∷Empty⇔⊩Empty≡∷Empty .proj₁
+        (Emptyₜ _ (id (conv ⊢n A≡Empty)) n≡n (ne (neNfₜ inc n-ne n~n′)))
     neuTerm′ (Unitᵣ (Unitₜ D _)) =
       let A≡Unit  = subset* D
           n~n′ = ~-conv ~n A≡Unit
-          n≡n′ = ~-to-≅ₜ n~n′
       in
-      Unitₜ _ (id (conv ⊢n A≡Unit)) n≡n′
-        (ne (neNfₜ inc n-ne n~n′))
+      ⊩Unit∷Unit⇔⊩Unit≡∷Unit .proj₁
+        (Unitₜ _ (id (conv ⊢n A≡Unit) , ne n-ne)
+           (Unit-prop′→Unit-prop (ne (neNfₜ inc n-ne n~n′))))
     neuTerm′ (ne′ _ _ D neK K≡K) =
       let A≡K = subset* D in
-      neₜ _ (id (conv ⊢n A≡K))
-        (neNfₜ inc n-ne (~-conv ~n A≡K))
-    neuTerm′ (Πᵣ′ F G D A≡A [F] [G] _ ok) =
+      ⊩ne∷⇔⊩ne≡∷ .proj₁
+        (neₜ _ (id (conv ⊢n A≡K)) (neNfₜ inc n-ne (~-conv ~n A≡K)))
+    neuTerm′ (Bᵣ BΠ! ⊩A@(Bᵣ F G D A≡A [F] [G] _ ok)) =
       let A≡ΠFG = subset* D in
-      Πₜ _ (id (conv ⊢n A≡ΠFG)) (ne n-ne)
-        (~-to-≅ₜ (~-conv ~n A≡ΠFG))
-        (λ {_} {ρ = ρ} [ρ] [a] [b] [a≡b] →
-           let a≡b = escapeTermEq ([F] [ρ]) [a≡b]
-               neN∘a = ∘ₙ (wkNeutral ρ n-ne)
-               neN∘b = ∘ₙ (wkNeutral ρ n-ne)
-           in  neuEqTerm inc ([G] [ρ] [a]) neN∘a neN∘b
-                  (~-app (~-wk (∷ʷʳ⊇→∷ʷ⊇ [ρ]) (~-conv ~n A≡ΠFG)) a≡b))
-
-        (λ {_} {ρ = ρ} [ρ] [a] →
-           let a≡a = escapeTermEq ([F] [ρ])
-                       (reflEqTerm ([F] [ρ]) [a])
-            in  neuTerm inc ([G] [ρ] [a]) (∘ₙ (wkNeutral ρ n-ne))
-                  (~-app (~-wk (∷ʷʳ⊇→∷ʷ⊇ [ρ]) (~-conv ~n A≡ΠFG)) a≡a))
-    neuTerm′ (Bᵣ′ (BΣ 𝕤 _ q) F G D A≡A [F] [G] G-ext _) =
+      ⊩Π∷⇔⊩Π≡∷ ⊩A .proj₁
+        (Πₜ _ (id (conv ⊢n A≡ΠFG)) (ne n-ne)
+           (~-to-≅ₜ (~-conv ~n A≡ΠFG))
+           (λ {_} {ρ = ρ} [ρ] ⊩v ⊩w v≡w →
+              neuEqTerm inc ([G] [ρ] ⊩v) (∘ₙ (wkNeutral ρ n-ne))
+                (∘ₙ (wkNeutral ρ n-ne))
+                (~-app (~-wk (∷ʷʳ⊇→∷ʷ⊇ [ρ]) (~-conv ~n A≡ΠFG))
+                   (escapeTermEq ([F] [ρ]) v≡w))))
+    neuTerm′ (Bᵣ (BΣ 𝕤 _ q) ⊩A@(Bᵣ F G D A≡A [F] [G] G-ext _)) =
       let A≡ΣFG = subset* D
           ⊢n = conv ⊢n A≡ΣFG
           ~n = ~-conv ~n A≡ΣFG
@@ -152,22 +152,21 @@ opaque mutual
                           (PE.sym (wk-lift-id G)))
                        (~-snd ⊢G ~n))
       in
-      Σₜ _ (id ⊢n) (~-to-≅ₜ ~n) (ne n-ne) ([fst] , [snd])
-    neuTerm′ (Bᵣ′ (BΣ 𝕨 _ q) F G D A≡A [F] [G] G-ext _) =
+      ⊩Σ∷⇔⊩Σ≡∷ ⊩A .proj₁
+        (Σₜ _ (id ⊢n) (ne n-ne) (~-to-≅ₜ ~n) (𝕤 _ [fst] [snd]))
+    neuTerm′ (Bᵣ (BΣ 𝕨 _ q) ⊩A@(Bᵣ F G D A≡A [F] [G] G-ext _)) =
       let A≡ΣFG = subset* D
           ⊢Γ = wfEq A≡ΣFG
           ⊢n = conv ⊢n A≡ΣFG
           ~n = ~-conv ~n A≡ΣFG
       in
-      Σₜ _ (id ⊢n) (~-to-≅ₜ ~n) (ne n-ne) (inc , ~n)
+      ⊩Σ∷⇔⊩Σ≡∷ ⊩A .proj₁
+        (Σₜ _ (id ⊢n) (ne n-ne) (~-to-≅ₜ ~n) (𝕨-ne inc _ ~n))
     neuTerm′ (Idᵣ ⊩A) =
-      case subset* ⇒*Id of λ {
-        A≡Id →
-        _
-      , id (conv ⊢n A≡Id)
-      , ne n-ne
-      , inc
-      , ~-conv ~n A≡Id }
+      let A≡Id = subset* ⇒*Id in
+      ⊩Id∷⇔⊩Id≡∷ ⊩A .proj₁
+        (Idₜ _ (id (conv ⊢n A≡Id)) (ne n-ne)
+           (ne inc n-ne (~-conv ~n A≡Id)))
       where
       open _⊩ₗId_ ⊩A
     neuTerm′ (emb ≤ᵘ-refl x) = neuTerm′ x
@@ -227,43 +226,35 @@ opaque mutual
     neuEqTerm′ (Unitᵣ {s} (Unitₜ D _)) =
       let A≡Unit = subset* D
           n~n′₁ = ~-conv n~n′ A≡Unit
-          n≡n′ = ~-to-≅ₜ n~n′₁
       in
-      case Unit-with-η? s of
-        ⊎.[ Unitₜ₌ˢ (conv ⊢n A≡Unit) (conv ⊢n′ A≡Unit)
-          , (λ where
-               (PE.refl , no-η) →
-                 Unitₜ₌ʷ _ _ (id (conv ⊢n A≡Unit))
-                   (id (conv ⊢n′ A≡Unit)) n≡n′
-                   (ne (neNfₜ₌ inc n-ne n′-ne n~n′₁)) no-η)
-          ]
+      Unitₜ₌ _ _ (id (conv ⊢n A≡Unit) , ne n-ne)
+        (id (conv ⊢n′ A≡Unit) , ne n′-ne)
+        (case Unit-with-η? s of λ where
+           (inj₁ η)                → Unitₜ₌ˢ η
+           (inj₂ (PE.refl , no-η)) →
+             Unitₜ₌ʷ (ne (neNfₜ₌ inc n-ne n′-ne n~n′₁)) no-η)
     neuEqTerm′ (ne (ne _ _ D neK K≡K)) =
       let A≡K = subset* D in
       neₜ₌ _ _ (id (conv ⊢n A≡K))
         (id (conv ⊢n′ A≡K))
         (neNfₜ₌ inc n-ne n′-ne (~-conv n~n′ A≡K))
-    neuEqTerm′
-      [ΠFG]@(Πᵣ′ F G D A≡A [F] [G] G-ext ok) =
+    neuEqTerm′ (Πᵣ′ F G D A≡A [F] [G] G-ext ok) =
       let A≡ΠFG = subset* D
           n~n′₁ = ~-conv n~n′ A≡ΠFG
           n≡n′ = ~-to-≅ₜ n~n′₁
-          n~n , n′~n′ = wf-⊢~∷ n~n′
       in
       Πₜ₌ _ _ (id (conv ⊢n A≡ΠFG))
         (id (conv ⊢n′ A≡ΠFG))
         (ne n-ne) (ne n′-ne) n≡n′
-        (neuTerm inc [ΠFG] n-ne n~n) (neuTerm inc [ΠFG] n′-ne n′~n′)
-        (λ {_} {ρ = ρ} [ρ] [a] →
-           let a≡a = escapeTermEq ([F] [ρ])
-                       (reflEqTerm ([F] [ρ]) [a])
+        (λ {_} {ρ = ρ} [ρ] ⊩v ⊩w v≡w →
+           let v≅w     = escapeTermEq ([F] [ρ]) v≡w
                neN∙a   = ∘ₙ (wkNeutral ρ n-ne)
                neN′∙a′ = ∘ₙ (wkNeutral ρ n′-ne)
 
            in
-           neuEqTerm inc ([G] [ρ] [a]) neN∙a neN′∙a′
-             (~-app (~-wk (∷ʷʳ⊇→∷ʷ⊇ [ρ]) n~n′₁) a≡a))
-    neuEqTerm′
-      [ΣFG]@(Bᵣ′ BΣˢ F G D A≡A [F] [G] G-ext _) =
+           neuEqTerm inc ([G] [ρ] ⊩v) neN∙a neN′∙a′
+             (~-app (~-wk (∷ʷʳ⊇→∷ʷ⊇ [ρ]) n~n′₁) v≅w))
+    neuEqTerm′ (Bᵣ′ BΣˢ F G D A≡A [F] [G] G-ext _) =
       let A≡ΣFG = subset* D
           n~n , n′~n′ = wf-⊢~∷ n~n′
           ⊢nΣ = conv ⊢n A≡ΣFG
@@ -294,29 +285,24 @@ opaque mutual
       in
       Σₜ₌ _ _ (id ⊢nΣ) (id ⊢n′Σ)
         (ne n-ne) (ne n′-ne) (~-to-≅ₜ n~n′Σ)
-        (neuTerm inc [ΣFG] n-ne n~n) (neuTerm inc [ΣFG] n′-ne n′~n′)
         ([fstn] , [fstn′] , [fstn≡fstn′] , [sndn≡sndn′])
-    neuEqTerm′
-      [ΣFG]@(Bᵣ′ BΣʷ F G D A≡A [F] [G] G-ext _) =
+    neuEqTerm′ (Bᵣ′ BΣʷ F G D A≡A [F] [G] G-ext _) =
       let A≡ΣFG = subset* D
-          n~n , n′~n′ = wf-⊢~∷ n~n′
           ⊢nΣ = conv ⊢n A≡ΣFG
           ⊢n′Σ = conv ⊢n′ A≡ΣFG
           n~n′Σ = ~-conv n~n′ A≡ΣFG
       in
-      Σₜ₌ _ _ (id ⊢nΣ) (id ⊢n′Σ)
-        (ne n-ne) (ne n′-ne) (~-to-≅ₜ n~n′Σ)
-        (neuTerm inc [ΣFG] n-ne n~n) (neuTerm inc [ΣFG] n′-ne n′~n′)
+      Σₜ₌ _ _ (id ⊢nΣ) (id ⊢n′Σ) (ne n-ne) (ne n′-ne) (~-to-≅ₜ n~n′Σ)
         (inc , n~n′Σ)
     neuEqTerm′ (Idᵣ ⊩A) =
       case subset* ⇒*Id of λ
         A≡Id →
       case wf-⊢~∷ n~n′ of λ
         (n~n , n′~n′) →
-      ⊩Id≡∷
-        (neuTerm inc (Idᵣ ⊩A) n-ne n~n)
-        (neuTerm inc (Idᵣ ⊩A) n′-ne n′~n′)
-        (inc , ~-conv n~n′ A≡Id)
+      (⊩Id≡∷ ⊩A
+         (neuTerm inc (Idᵣ ⊩A) n-ne n~n)
+         (neuTerm inc (Idᵣ ⊩A) n′-ne n′~n′)
+         (inc , ~-conv n~n′ A≡Id))
       where
       open _⊩ₗId_ ⊩A
     neuEqTerm′ (emb ≤ᵘ-refl     ⊩A) = neuEqTerm′ ⊩A

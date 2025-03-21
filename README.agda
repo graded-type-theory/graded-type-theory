@@ -141,7 +141,8 @@ import Graded.Usage.Restrictions.Satisfied
 --   modalities.
 --
 -- * The logical relations for reducibility and erasure have been
---   changed.
+--   changed. For instance, unary reducibility for terms is now
+--   defined in terms of binary reducibility.
 --
 -- * Some "superfluous" assumptions have been removed from the typing
 --   and definitional equality relations.
@@ -1246,12 +1247,6 @@ _⊩⟨_⟩_ = Definition.LogicalRelation._⊩⟨_⟩_
 -- within brackets.
 
 _⊩⟨_⟩_∷_/_ = Definition.LogicalRelation._⊩⟨_⟩_∷_/_
-
--- Reducibility of natural numbers.
---
--- In the paper ℕ is written as a subscript.
-
-_⊩ℕ_ = Definition.LogicalRelation._⊩ℕ_∷ℕ
 
 -- Definition A.3: Equality of reducible types.
 --

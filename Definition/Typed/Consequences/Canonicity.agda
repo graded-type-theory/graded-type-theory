@@ -25,6 +25,7 @@ open import Definition.LogicalRelation R
 open import Definition.LogicalRelation.Substitution.Introductions R
 open import Definition.LogicalRelation.Fundamental.Reducibility
   R ⦃ inc = ε ⦄
+open import Definition.LogicalRelation.Unary R
 
 open import Tools.Empty
 open import Tools.Function

@@ -78,29 +78,6 @@ record _⊩ne_≡_/_ (Γ : Con Term ℓ) (A B : Term ℓ) ([A] : Γ ⊩ne A) : S
     neM               : Neutral M
     K≡M               : Γ ⊢ K ≅ M
 
--- Neutral term in WHNF
-record _⊩neNf_∷_ (Γ : Con Term ℓ) (k A : Term ℓ) : Set a where
-  inductive
-  no-eta-equality
-  pattern
-  constructor neNfₜ
-  field
-    neutrals-included : Neutrals-included
-    neK               : Neutral k
-    k≡k               : Γ ⊢~ k ∷ A
-
--- Neutral term
-record _⊩ne_∷_/_ (Γ : Con Term ℓ) (t A : Term ℓ) ([A] : Γ ⊩ne A) : Set a where
-  inductive
-  no-eta-equality
-  pattern
-  constructor neₜ
-  open _⊩ne_ [A]
-  field
-    k   : Term ℓ
-    d   : Γ ⊢ t ⇒* k ∷ K
-    nf  : Γ ⊩neNf k ∷ K
-
 -- Neutral term equality in WHNF
 record _⊩neNf_≡_∷_ (Γ : Con Term ℓ) (k m A : Term ℓ) : Set a where
   inductive
@@ -136,25 +113,6 @@ _⊩ℕ_≡_ : (Γ : Con Term ℓ) (A B : Term ℓ) → Set a
 Γ ⊩ℕ A ≡ B = Γ ⊢ B ⇒* ℕ
 
 mutual
-  -- Natural number term
-  record _⊩ℕ_∷ℕ (Γ : Con Term ℓ) (t : Term ℓ) : Set a where
-    inductive
-    no-eta-equality
-    pattern
-    constructor ℕₜ
-    field
-      n : Term ℓ
-      d : Γ ⊢ t ⇒* n ∷ ℕ
-      n≡n : Γ ⊢≅ n ∷ ℕ
-      prop : Natural-prop Γ n
-
-  -- WHNF property of natural number terms
-  data Natural-prop (Γ : Con Term ℓ) : (n : Term ℓ) → Set a where
-    sucᵣ  : ∀ {n} → Γ ⊩ℕ n ∷ℕ → Natural-prop Γ (suc n)
-    zeroᵣ : Natural-prop Γ zero
-    ne    : ∀ {n} → Γ ⊩neNf n ∷ ℕ → Natural-prop Γ n
-
-mutual
   -- Natural number term equality
   record _⊩ℕ_≡_∷ℕ (Γ : Con Term ℓ) (t u : Term ℓ) : Set a where
     inductive
@@ -183,22 +141,6 @@ _⊩Empty_ : (Γ : Con Term ℓ) (A : Term ℓ) → Set a
 -- Empty type equality
 _⊩Empty_≡_ : (Γ : Con Term ℓ) (A B : Term ℓ) → Set a
 Γ ⊩Empty A ≡ B = Γ ⊢ B ⇒* Empty
-
--- WHNF property of absurd terms
-data Empty-prop (Γ : Con Term ℓ) : (n : Term ℓ) → Set a where
-  ne    : ∀ {n} → Γ ⊩neNf n ∷ Empty → Empty-prop Γ n
-
--- Empty term
-record _⊩Empty_∷Empty (Γ : Con Term ℓ) (t : Term ℓ) : Set a where
-  inductive
-  no-eta-equality
-  pattern
-  constructor Emptyₜ
-  field
-    n : Term ℓ
-    d : Γ ⊢ t ⇒* n ∷ Empty
-    n≡n : Γ ⊢≅ n ∷ Empty
-    prop : Empty-prop Γ n
 
 data [Empty]-prop (Γ : Con Term ℓ) : (n n′ : Term ℓ) → Set a where
   ne    : ∀ {n n′} → Γ ⊩neNf n ≡ n′ ∷ Empty → [Empty]-prop Γ n n′
@@ -234,47 +176,33 @@ _⊩Unit⟨_,_⟩_≡_ :
   Con Term ℓ → Universe-level → Strength → (_ _ : Term ℓ) → Set a
 Γ ⊩Unit⟨ l , s ⟩ A ≡ B = Γ ⊢ B ⇒* Unit s l
 
-data Unit-prop
-  (Γ : Con Term ℓ) (l : Universe-level) (s : Strength) :
-  Term ℓ → Set a where
-  starᵣ : Unit-prop Γ l s (star s l)
-  ne : ∀ {n} → Γ ⊩neNf n ∷ Unit s l → Unit-prop Γ l s n
-
-record _⊩Unit⟨_,_⟩_∷Unit
-  (Γ : Con Term ℓ) (l : Universe-level) (s : Strength) (t : Term ℓ) :
-  Set a where
-  inductive
-  no-eta-equality
-  pattern
-  constructor Unitₜ
-  field
-    n : Term ℓ
-    d : Γ ⊢ t ⇒* n ∷ Unit s l
-    n≡n : Γ ⊢≅ n ∷ Unit s l
-    prop : Unit-prop Γ l s n
-
 -- Unit term equality
 
 data [Unitʷ]-prop
-  (Γ : Con Term ℓ) (l : Universe-level) : (_ _ : Term ℓ) → Set a where
+       (Γ : Con Term ℓ) (l : Universe-level) :
+       Term ℓ → Term ℓ → Set a where
   starᵣ : [Unitʷ]-prop Γ l (starʷ l) (starʷ l)
-  ne : ∀ {n n′} → Γ ⊩neNf n ≡ n′ ∷ Unitʷ l → [Unitʷ]-prop Γ l n n′
+  ne    : Γ ⊩neNf t ≡ u ∷ Unitʷ l → [Unitʷ]-prop Γ l t u
 
-data _⊩Unit⟨_,_⟩_≡_∷Unit
-  (Γ : Con Term ℓ) (l : Universe-level) : Strength → (_ _ : Term ℓ) → Set a where
-  Unitₜ₌ˢ :
-    Γ ⊢ t ∷ Unit s l →
-    Γ ⊢ u ∷ Unit s l →
-    Unit-with-η s →
-    Γ ⊩Unit⟨ l , s ⟩ t ≡ u ∷Unit
-  Unitₜ₌ʷ :
-    (k k′ : Term ℓ) →
-    Γ ⊢ t ⇒* k  ∷ Unitʷ l →
-    Γ ⊢ u ⇒* k′ ∷ Unitʷ l →
-    Γ ⊢ k ≅ k′ ∷ Unitʷ l →
-    [Unitʷ]-prop Γ l k k′ →
-    ¬ Unitʷ-η →
-    Γ ⊩Unit⟨ l , 𝕨 ⟩ t ≡ u ∷Unit
+data [Unit]-prop
+       (Γ : Con Term ℓ) (l : Universe-level) :
+       Strength → Term ℓ → Term ℓ → Set a where
+  Unitₜ₌ʷ : [Unitʷ]-prop Γ l t u → ¬ Unitʷ-η → [Unit]-prop Γ l 𝕨 t u
+  Unitₜ₌ˢ : Unit-with-η s → [Unit]-prop Γ l s t u
+
+record _⊩Unit⟨_,_⟩_≡_∷Unit
+         (Γ : Con Term ℓ) (l : Universe-level) (s : Strength)
+         (t₁ t₂ : Term ℓ) :
+         Set a where
+  inductive
+  no-eta-equality
+  pattern
+  constructor Unitₜ₌
+  field
+    u₁ u₂ : Term ℓ
+    ↘u₁   : Γ ⊢ t₁ ↘ u₁ ∷ Unit s l
+    ↘u₂   : Γ ⊢ t₂ ↘ u₂ ∷ Unit s l
+    prop  : [Unit]-prop Γ l s u₁ u₂
 
 
 -- Logical relation
@@ -290,8 +218,13 @@ record LogRelKit : Set (lsuc a) where
 
     _⊩_ : (Γ : Con Term ℓ) → Term ℓ → Set a
     _⊩_≡_/_ : (Γ : Con Term ℓ) (A B : Term ℓ) → Γ ⊩ A → Set a
-    _⊩_∷_/_ : (Γ : Con Term ℓ) (t A : Term ℓ) → Γ ⊩ A → Set a
     _⊩_≡_∷_/_ : (Γ : Con Term ℓ) (t u A : Term ℓ) → Γ ⊩ A → Set a
+
+  -- Unary reducibility for terms is defined in terms of binary
+  -- reducibility for terms.
+
+  _⊩_∷_/_ : (Γ : Con Term ℓ) (t A : Term ℓ) → Γ ⊩ A → Set a
+  Γ ⊩ t ∷ A / ⊩A = Γ ⊩ t ≡ t ∷ A / ⊩A
 
 module LogRel
   (l : Universe-level) (rec : ∀ {l′} → l′ <ᵘ l → LogRelKit)
@@ -312,22 +245,6 @@ module LogRel
   -- Universe type equality
   _⊩₁U≡_/_ : Con Term ℓ → Term ℓ → Universe-level → Set a
   Γ ⊩₁U≡ B / l′ = Γ ⊢ B ⇒* U l′
-
-
-  -- Universe term
-  record _⊩₁U_∷U/_
-           {l′} (Γ : Con Term ℓ) (t : Term ℓ) (l< : l′ <ᵘ l) :
-           Set a where
-    no-eta-equality
-    pattern
-    constructor Uₜ
-    open LogRelKit (rec l<)
-    field
-      A     : Term ℓ
-      d     : Γ ⊢ t ⇒* A ∷ U l′
-      typeA : Type A
-      A≡A   : Γ ⊢≅ A ∷ U l′
-      [t]   : Γ ⊩ t
 
   -- Universe term equality
   record _⊩₁U_≡_∷U/_
@@ -401,29 +318,6 @@ module LogRel
                → Δ ⊩ₗ U.wk (lift ρ) G [ a ]₀ ≡ U.wk (lift ρ) G′ [ a ]₀ /
                    [G] [ρ] [a]
 
-    -- Term reducibility of Π-type
-    _⊩ₗΠ_∷_/_ : {ℓ : Nat} {p q : Mod} (Γ : Con Term ℓ) (t A : Term ℓ) ([A] : Γ ⊩ₗB⟨ BΠ p q ⟩ A) → Set a
-    _⊩ₗΠ_∷_/_ {ℓ} {p} {q} Γ t A (Bᵣ F G D A≡A [F] [G] G-ext _) =
-      ∃ λ f → Γ ⊢ t ⇒* f ∷ Π p , q ▷ F ▹ G
-            × Function f
-            × Γ ⊢≅ f ∷ Π p , q ▷ F ▹ G
-            × (∀ {m} {ρ : Wk m ℓ} {Δ : Con Term m} {a b}
-              ([ρ] : ρ ∷ʷʳ Δ ⊇ Γ)
-              ([a] : Δ ⊩ₗ a ∷ U.wk ρ F / [F] [ρ])
-              ([b] : Δ ⊩ₗ b ∷ U.wk ρ F / [F] [ρ])
-              ([a≡b] : Δ ⊩ₗ a ≡ b ∷ U.wk ρ F / [F] [ρ])
-              → Δ ⊩ₗ U.wk ρ f ∘⟨ p ⟩ a ≡ U.wk ρ f ∘⟨ p ⟩ b ∷
-                  U.wk (lift ρ) G [ a ]₀ / [G] [ρ] [a])
-            × (∀ {m} {ρ : Wk m ℓ} {Δ : Con Term m} {a}
-               ([ρ] : ρ ∷ʷʳ Δ ⊇ Γ) ([a] : Δ ⊩ₗ a ∷ U.wk ρ F / [F] [ρ]) →
-               Δ ⊩ₗ U.wk ρ f ∘⟨ p ⟩ a ∷ U.wk (lift ρ) G [ a ]₀ /
-                 [G] [ρ] [a])
-              {- NOTE(WN): Last 2 fields could be refactored to a single forall.
-                           But touching this definition is painful, so only do it
-                           if you have to change it anyway. -}
-    -- Issue: Agda complains about record use not being strictly positive.
-    --        Therefore we have to use ×
-
     -- Term equality of Π-type
     _⊩ₗΠ_≡_∷_/_ : {ℓ : Nat} {p q : Mod} (Γ : Con Term ℓ) (t u A : Term ℓ) ([A] : Γ ⊩ₗB⟨ BΠ p q ⟩ A) → Set a
     _⊩ₗΠ_≡_∷_/_
@@ -433,47 +327,15 @@ module LogRel
                × Function f
                × Function g
                × Γ ⊢ f ≅ g ∷ Π p , q ▷ F ▹ G
-               × Γ ⊩ₗΠ t ∷ A / [A]
-               × Γ ⊩ₗΠ u ∷ A / [A]
-               × (∀ {m} {ρ : Wk m ℓ} {Δ : Con Term m} {a}
+               × (∀ {m} {ρ : Wk m ℓ} {Δ : Con Term m} {v w}
                   ([ρ] : ρ ∷ʷʳ Δ ⊇ Γ)
-                  ([a] : Δ ⊩ₗ a ∷ U.wk ρ F / [F] [ρ]) →
-                  Δ ⊩ₗ U.wk ρ f ∘⟨ p ⟩ a ≡ U.wk ρ g ∘⟨ p ⟩ a ∷
-                    U.wk (lift ρ) G [ a ]₀ / [G] [ρ] [a])
-    -- Issue: Same as above.
-
-
-    -- Term reducibility of Σ-type
-    _⊩ₗΣ_∷_/_ :
-      {p q : Mod} {m : Strength} (Γ : Con Term ℓ) (t A : Term ℓ)
-      ([A] : Γ ⊩ₗB⟨ BΣ m p q ⟩ A) → Set a
-    _⊩ₗΣ_∷_/_
-      {p = p} {q = q} {m = m} Γ t A
-      [A]@(Bᵣ F G D A≡A [F] [G] G-ext _) =
-      ∃ λ u → Γ ⊢ t ⇒* u ∷ Σ⟨ m ⟩ p , q ▷ F ▹ G
-            × Γ ⊢≅ u ∷ Σ⟨ m ⟩ p , q ▷ F ▹ G
-            × Σ (Product u) λ pProd
-            → Σ-prop m u Γ [A] pProd
-
-    Σ-prop : ∀ {A p q} (m : Strength) (t : Term ℓ) → (Γ : Con Term ℓ)
-           → ([A] : Γ ⊩ₗB⟨ BΣ m p q ⟩ A) → (Product t) → Set a
-    Σ-prop {p = p} 𝕤 t Γ (Bᵣ F G D A≡A [F] [G] G-ext _) _ =
-      let id-Γ = id (wfEq (≅-eq A≡A)) in
-      Σ (Γ ⊩ₗ fst p t ∷ U.wk id F / [F] id-Γ) λ [fst] →
-      Γ ⊩ₗ snd p t ∷ U.wk (lift id) G [ fst p t ]₀ / [G] id-Γ [fst]
-    Σ-prop
-      {p = p} 𝕨 t Γ (Bᵣ F G D A≡A [F] [G] G-ext _)
-      (prodₙ {p = p′} {t = p₁} {u = p₂} {m = m}) =
-           let id-Γ = id (wfEq (≅-eq A≡A)) in
-           p PE.≡ p′ ×
-           Σ (Γ ⊩ₗ p₁ ∷ U.wk id F / [F] id-Γ) λ [p₁]
-           → Γ ⊩ₗ p₂ ∷ U.wk (lift id) G [ p₁ ]₀ / [G] id-Γ [p₁]
-           × m PE.≡ 𝕨
-    Σ-prop
-      {p = p} {q = q}
-      𝕨 t Γ (Bᵣ F G D A≡A [F] [G] G-ext _) (ne x) =
-      Neutrals-included ×
-      Γ ⊢~ t ∷ Σʷ p , q ▷ F ▹ G
+                  (⊩v : Δ ⊩ₗ v ∷ U.wk ρ F / [F] [ρ]) →
+                  Δ ⊩ₗ w ∷ U.wk ρ F / [F] [ρ] →
+                  Δ ⊩ₗ v ≡ w ∷ U.wk ρ F / [F] [ρ] →
+                  Δ ⊩ₗ U.wk ρ f ∘⟨ p ⟩ v ≡ U.wk ρ g ∘⟨ p ⟩ w ∷
+                    U.wk (lift ρ) G [ v ]₀ / [G] [ρ] ⊩v)
+    -- This type is not defined as a record type, because then Agda's
+    -- positivity checker would complain.
 
     -- Term equality of Σ-type
     _⊩ₗΣ_≡_∷_/_ :
@@ -485,8 +347,6 @@ module LogRel
       ∃₂ λ t′ u′ → Γ ⊢ t ⇒* t′ ∷ Σ⟨ m ⟩ p , q ▷ F ▹ G
                  × Γ ⊢ u ⇒* u′ ∷ Σ⟨ m ⟩ p , q ▷ F ▹ G
                  × Γ ⊢ t′ ≅ u′ ∷ Σ⟨ m ⟩ p , q ▷ F ▹ G
-                 × Γ ⊩ₗΣ t ∷ A / [A]
-                 × Γ ⊩ₗΣ u ∷ A / [A]
                  × Σ (Product t′) λ pProd
                  → Σ (Product u′) λ rProd
                  → [Σ]-prop m t′ u′ Γ [A] pProd rProd
@@ -510,9 +370,7 @@ module LogRel
              p PE.≡ p′ × p PE.≡ p″ ×
              Σ (Γ ⊩ₗ p₁ ∷ U.wk id F / [F] id-Γ) λ [p₁] →
              Σ (Γ ⊩ₗ r₁ ∷ U.wk id F / [F] id-Γ) λ [r₁]
-             → (Γ ⊩ₗ p₂ ∷ U.wk (lift id) G [ p₁ ]₀ / [G] id-Γ [p₁])
-             × (Γ ⊩ₗ r₂ ∷ U.wk (lift id) G [ r₁ ]₀ / [G] id-Γ [r₁])
-             × (Γ ⊩ₗ p₁ ≡ r₁ ∷ U.wk id F / [F] id-Γ)
+             → (Γ ⊩ₗ p₁ ≡ r₁ ∷ U.wk id F / [F] id-Γ)
              × (Γ ⊩ₗ p₂ ≡ r₂ ∷ U.wk (lift id) G [ p₁ ]₀ / [G] id-Γ [p₁])
     [Σ]-prop
       𝕨 t r Γ (Bᵣ F G D A≡A [F] [G] G-ext _)
@@ -573,19 +431,6 @@ module LogRel
         lhs′≡rhs′→lhs≡rhs : Γ ⊩ₗ lhs′ ≡ rhs′ ∷ Ty / ⊩Ty →
                             Γ ⊩ₗ lhs  ≡ rhs  ∷ Ty / ⊩Ty
 
-    -- Well-formed identity terms.
-    _⊩ₗId_∷_/_ : (Γ : Con Term ℓ) (t A : Term ℓ) → Γ ⊩ₗId A → Set a
-    Γ ⊩ₗId t ∷ A / ⊩A =
-      ∃ λ u →
-      Γ ⊢ t ⇒* u ∷ Id Ty lhs rhs ×
-      ∃ λ (u-id : Identity u) →
-      case u-id of λ where
-        (ne _) → Neutrals-included ×
-                 Γ ⊢~ u ∷ Id Ty lhs rhs
-        rflₙ   → Γ ⊩ₗ lhs ≡ rhs ∷ Ty / ⊩Ty
-      where
-      open _⊩ₗId_ ⊩A
-
     -- Well-formed identity term equality.
     _⊩ₗId_≡_∷_/_ : (Γ : Con Term ℓ) (t u A : Term ℓ) → Γ ⊩ₗId A → Set a
     Γ ⊩ₗId t ≡ u ∷ A / ⊩A =
@@ -629,16 +474,7 @@ module LogRel
       where open LogRelKit (rec l<)
 
     _⊩ₗ_∷_/_ : (Γ : Con Term ℓ) (t A : Term ℓ) → Γ ⊩ₗ A → Set a
-    Γ ⊩ₗ t ∷ A / Uᵣ p = Γ ⊩₁U t ∷U/ _⊩₁U_.l′< p
-    Γ ⊩ₗ t ∷ A / ℕᵣ D = Γ ⊩ℕ t ∷ℕ
-    Γ ⊩ₗ t ∷ A / Emptyᵣ D = Γ ⊩Empty t ∷Empty
-    Γ ⊩ₗ t ∷ A / Unitᵣ {s = s} D = Γ ⊩Unit⟨ l , s ⟩ t ∷Unit
-    Γ ⊩ₗ t ∷ A / ne neA = Γ ⊩ne t ∷ A / neA
-    Γ ⊩ₗ t ∷ A / Bᵣ BΠ! ΠA  = Γ ⊩ₗΠ t ∷ A / ΠA
-    Γ ⊩ₗ t ∷ A / Bᵣ BΣ! ΣA  = Γ ⊩ₗΣ t ∷ A / ΣA
-    Γ ⊩ₗ t ∷ A / Idᵣ ⊩A = Γ ⊩ₗId t ∷ A / ⊩A
-    Γ ⊩ₗ t ∷ A / emb l< [A] = Γ ⊩ t ∷ A / [A]
-      where open LogRelKit (rec l<)
+    Γ ⊩ₗ t ∷ A / ⊩A = Γ ⊩ₗ t ≡ t ∷ A / ⊩A
 
     _⊩ₗ_≡_∷_/_ : (Γ : Con Term ℓ) (t u A : Term ℓ) → Γ ⊩ₗ A → Set a
     Γ ⊩ₗ t ≡ u ∷ A / Uᵣ ⊩A = Γ ⊩₁U t ≡ u ∷U/ _⊩₁U_.l′< ⊩A
@@ -654,20 +490,18 @@ module LogRel
 
     kit : LogRelKit
     kit = Kit _⊩₁U_ _⊩ₗB⟨_⟩_ _⊩ₗId_
-              _⊩ₗ_ _⊩ₗ_≡_/_ _⊩ₗ_∷_/_ _⊩ₗ_≡_∷_/_
+              _⊩ₗ_ _⊩ₗ_≡_/_ _⊩ₗ_≡_∷_/_
 
 open LogRel public
   using
-    (Uᵣ; ℕᵣ; Emptyᵣ; Unitᵣ; ne; Bᵣ; B₌; Idᵣ; Id₌; emb; Uₜ; Uₜ₌;
-     module _⊩₁U_; module _⊩₁U_∷U/_; module _⊩₁U_≡_∷U/_;
+    (Uᵣ; ℕᵣ; Emptyᵣ; Unitᵣ; ne; Bᵣ; B₌; Idᵣ; Id₌; emb; Uₜ₌;
+     module _⊩₁U_; module _⊩₁U_≡_∷U/_;
      module _⊩ₗB⟨_⟩_; module _⊩ₗB⟨_⟩_≡_/_;
      module _⊩ₗId_; module _⊩ₗId_≡_/_)
 
 -- Patterns for the non-records of Π
-pattern Πₜ f d funcF f≡f [f] [f]₁ = f , d , funcF , f≡f , [f] , [f]₁
-pattern Πₜ₌ f g d d′ funcF funcG f≡g [f] [g] [f≡g] = f , g , d , d′ , funcF , funcG , f≡g , [f] , [g] , [f≡g]
-pattern Σₜ p d p≡p pProd prop =  p , d , p≡p , pProd , prop
-pattern Σₜ₌ p r d d′ pProd rProd p≅r [t] [u] prop = p , r , d , d′ , p≅r , [t] , [u] , pProd , rProd , prop
+pattern Πₜ₌ f g d d′ funcF funcG f≡g [f≡g] = f , g , d , d′ , funcF , funcG , f≡g , [f≡g]
+pattern Σₜ₌ p r d d′ pProd rProd p≅r prop = p , r , d , d′ , p≅r , pProd , rProd , prop
 
 pattern Uᵣ′ a b c = Uᵣ (Uᵣ a b c)
 pattern ne′ a b c d e = ne (ne a b c d e)
@@ -745,12 +579,15 @@ data ⊩Id∷-view
 -- The view is inhabited for well-formed identity terms.
 
 ⊩Id∷-view-inhabited :
-  ∀ {A} {⊩A : Γ ⊩′⟨ l ⟩Id A}
-  ((u , _ , u-id , _) : Γ ⊩⟨ l ⟩ t ∷ A / Idᵣ ⊩A) →
+  ∀ {A} (⊩A : Γ ⊩′⟨ l ⟩Id A)
+  ((u , _ , _ , _ , u-id , _) : Γ ⊩⟨ l ⟩ t ∷ A / Idᵣ ⊩A) →
   ⊩Id∷-view ⊩A u u-id
-⊩Id∷-view-inhabited = λ where
-  (_ , _ , rflₙ , lhs≡rhs)     → rflᵣ lhs≡rhs
-  (_ , _ , ne u-n , inc , u~u) → ne inc u-n u~u
+⊩Id∷-view-inhabited _ = λ where
+  (_ , _ , _ , _ , rflₙ , rflₙ , lhs≡rhs)     → rflᵣ lhs≡rhs
+  (_ , _ , _ , _ , ne u-n , ne _ , inc , u~v) →
+    ne inc u-n (~-trans u~v (~-sym u~v))
+  (_ , _ , _ , _ , rflₙ , ne _ , ())
+  (_ , _ , _ , _ , ne _ , rflₙ , ())
 
 -- A view of parts of _⊩ₗId_≡_∷_/_.
 
@@ -785,10 +622,10 @@ data ⊩Id≡∷-view
 -- A kind of constructor for _⊩ₗId_≡_∷_/_.
 
 ⊩Id≡∷ :
-  ∀ {A} {Γ : Con Term ℓ} {⊩A : Γ ⊩′⟨ l ⟩Id A} →
+  ∀ {A} {Γ : Con Term ℓ} (⊩A : Γ ⊩′⟨ l ⟩Id A) →
   let open _⊩ₗId_ ⊩A in
-  ((t′ , _ , t′-id , _) : Γ ⊩⟨ l ⟩ t ∷ A / Idᵣ ⊩A)
-  ((u′ , _ , u′-id , _) : Γ ⊩⟨ l ⟩ u ∷ A / Idᵣ ⊩A) →
+  ((t′ , _ , _ , _ , t′-id , _) : Γ ⊩⟨ l ⟩ t ∷ A / Idᵣ ⊩A)
+  ((u′ , _ , _ , _ , u′-id , _) : Γ ⊩⟨ l ⟩ u ∷ A / Idᵣ ⊩A) →
   Identity-rec t′-id
     (Identity-rec u′-id
        (Lift _ ⊤)
@@ -798,13 +635,14 @@ data ⊩Id≡∷-view
        (Neutrals-included ×
         Γ ⊢ t′ ~ u′ ∷ Id Ty lhs rhs)) →
   Γ ⊩⟨ l ⟩ t ≡ u ∷ A / Idᵣ ⊩A
-⊩Id≡∷ ⊩t@(t′ , t⇒*t′ , t′-id , _) ⊩u@(u′ , u⇒*u′ , u′-id , _) rest =
+⊩Id≡∷ ⊩A ⊩t@(t′ , _ , t⇒*t′ , _ , t′-id , _)
+  ⊩u@(u′ , _ , u⇒*u′ , _ , u′-id , _) rest =
     t′ , u′ , t⇒*t′ , u⇒*u′ , t′-id , u′-id
-  , (case ⊩Id∷-view-inhabited ⊩t of λ where
-       (rflᵣ lhs≡rhs) → case ⊩Id∷-view-inhabited ⊩u of λ where
+  , (case ⊩Id∷-view-inhabited ⊩A ⊩t of λ where
+       (rflᵣ lhs≡rhs) → case ⊩Id∷-view-inhabited ⊩A ⊩u of λ where
          (rflᵣ _)   → lhs≡rhs
          (ne _ _ _) → case rest of λ ()
-       (ne _ _ _) → case ⊩Id∷-view-inhabited ⊩u of λ where
+       (ne _ _ _) → case ⊩Id∷-view-inhabited ⊩A ⊩u of λ where
          (rflᵣ _)   → case rest of λ ()
          (ne _ _ _) → rest)
 
@@ -815,8 +653,8 @@ data ⊩Id≡∷-view
   (⊩A : Γ ⊩′⟨ l ⟩Id A) →
   let open _⊩ₗId_ ⊩A in
   Γ ⊩⟨ l ⟩ t ≡ u ∷ A / Idᵣ ⊩A →
-  ∃ λ (⊩t@(t′ , _ , t′-id , _) : Γ ⊩⟨ l ⟩ t ∷ A / Idᵣ ⊩A) →
-  ∃ λ (⊩u@(u′ , _ , u′-id , _) : Γ ⊩⟨ l ⟩ u ∷ A / Idᵣ ⊩A) →
+  ∃ λ (⊩t@(t′ , _ , _ , _ , t′-id , _) : Γ ⊩⟨ l ⟩ t ∷ A / Idᵣ ⊩A) →
+  ∃ λ (⊩u@(u′ , _ , _ , _ , u′-id , _) : Γ ⊩⟨ l ⟩ u ∷ A / Idᵣ ⊩A) →
   Identity-rec t′-id
     (Identity-rec u′-id
        (Lift _ ⊤)
@@ -828,11 +666,11 @@ data ⊩Id≡∷-view
 ⊩Id≡∷⁻¹ ⊩A t≡u@(t′ , u′ , t⇒*t′ , u⇒*u′ , t′-id , u′-id , rest) =
   case ⊩Id≡∷-view-inhabited ⊩A t≡u of λ where
     (rfl₌ lhs≡rhs) →
-        (t′ , t⇒*t′ , t′-id , lhs≡rhs)
-      , (u′ , u⇒*u′ , u′-id , lhs≡rhs)
+        (t′ , t′ , t⇒*t′ , t⇒*t′ , t′-id , t′-id , lhs≡rhs)
+      , (u′ , u′ , u⇒*u′ , u⇒*u′ , u′-id , u′-id , lhs≡rhs)
       , _
     (ne inc _ _ t′~u′) →
       let ~t′ , ~u′ = wf-⊢~∷ t′~u′ in
-        (t′ , t⇒*t′ , t′-id , inc , ~t′)
-      , (u′ , u⇒*u′ , u′-id , inc , ~u′)
+        (t′ , t′ , t⇒*t′ , t⇒*t′ , t′-id , t′-id , inc , ~t′)
+      , (u′ , u′ , u⇒*u′ , u⇒*u′ , u′-id , u′-id , inc , ~u′)
       , inc , t′~u′

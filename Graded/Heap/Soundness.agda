@@ -40,6 +40,7 @@ open import Definition.Typed.Inversion TR
 open import Definition.LogicalRelation TR
 open import Definition.LogicalRelation.Fundamental.Reducibility TR
 open import Definition.LogicalRelation.Substitution.Introductions.Nat TR
+open import Definition.LogicalRelation.Unary TR
 
 open import Graded.Context 𝕄
 open import Graded.Context.Properties 𝕄

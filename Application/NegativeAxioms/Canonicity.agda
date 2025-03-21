@@ -30,6 +30,7 @@ open import Definition.Typed.Consequences.Reduction R
 open import Definition.LogicalRelation R
 open import Definition.LogicalRelation.Fundamental.Reducibility R
 open import Definition.LogicalRelation.Substitution.Introductions R
+open import Definition.LogicalRelation.Unary R
 
 open import Application.NegativeAxioms.NegativeContext R
 

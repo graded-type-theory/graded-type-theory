@@ -131,115 +131,8 @@ opaque
 
     Γ ⊩⟨ l′ ⟩ Id A t u ∷ U l                       □
 
--- A variant of ⊩Id∷-view.
-
-data ⊩Id∷-view′
-       (Γ : Con Term n) (l : Universe-level) (A t u : Term n) :
-       Term n → Set a where
-  rflᵣ : Γ ⊩⟨ l ⟩ t ≡ u ∷ A →
-         ⊩Id∷-view′ Γ l A t u rfl
-  ne   : Neutrals-included →
-         Neutral v →
-         Γ ⊢~ v ∷ Id A t u →
-         ⊩Id∷-view′ Γ l A t u v
-
 opaque
-  unfolding _⊩⟨_⟩_∷_ _⊩⟨_⟩_≡_∷_
-
-  -- A characterisation lemma for _⊩⟨_⟩_∷_.
-
-  ⊩∷Id⇔ :
-    Γ ⊩⟨ l ⟩ v ∷ Id A t u ⇔
-    (∃ λ w →
-     Γ ⊢ v ⇒* w ∷ Id A t u ×
-     Γ ⊩⟨ l ⟩ t ∷ A ×
-     Γ ⊩⟨ l ⟩ u ∷ A ×
-     ⊩Id∷-view′ Γ l A t u w)
-  ⊩∷Id⇔ =
-      (λ (⊩Id , ⊩v) →
-         lemma (Id-elim ⊩Id)
-           (irrelevanceTerm ⊩Id (Id-intr (Id-elim ⊩Id)) ⊩v))
-    , (λ (w , v⇒*w , (⊩A , ⊩t) , (⊩A′ , ⊩u) , rest) →
-         case _⊢_⇒*_.id $
-              Idⱼ (escape ⊩A) (escapeTerm ⊩A ⊩t)
-                (escapeTerm ⊩A′ ⊩u) of λ
-           Id⇒*Id →
-           Idᵣ (Idᵣ _ _ _ Id⇒*Id ⊩A ⊩t (irrelevanceTerm ⊩A′ ⊩A ⊩u))
-         , ( w , v⇒*w
-           , (case rest of λ where
-                (ne inc w-ne w~w)          → ne w-ne , inc , w~w
-                (rflᵣ (⊩A″ , _ , _ , t≡u)) →
-                  rflₙ , irrelevanceEqTerm ⊩A″ ⊩A t≡u)
-           ))
-    where
-    lemma :
-      (⊩Id : Γ ⊩⟨ l ⟩Id Id A t u) →
-      Γ ⊩⟨ l ⟩ v ∷ Id A t u / Id-intr ⊩Id →
-      ∃ λ w →
-      Γ ⊢ v ⇒* w ∷ Id A t u ×
-      Γ ⊩⟨ l ⟩ t ∷ A ×
-      Γ ⊩⟨ l ⟩ u ∷ A ×
-      ⊩Id∷-view′ Γ l A t u w
-    lemma (emb ≤ᵘ-refl ⊩Id) ⊩v =
-      case lemma ⊩Id ⊩v of λ
-        (w , v⇒*w , ⊩t , ⊩u , rest) →
-        w , v⇒*w , emb-⊩∷ (≤ᵘ-step ≤ᵘ-refl) ⊩t
-      , emb-⊩∷ (≤ᵘ-step ≤ᵘ-refl) ⊩u
-      , (case rest of λ where
-           (rflᵣ t≡u)        → rflᵣ (emb-⊩≡∷ (≤ᵘ-step ≤ᵘ-refl) t≡u)
-           (ne inc v-ne v~v) → ne inc v-ne v~v)
-    lemma (emb (≤ᵘ-step s) ⊩Id) ⊩v =
-      case lemma (emb s ⊩Id) ⊩v of λ
-        (w , v⇒*w , ⊩t , ⊩u , rest) →
-        w , v⇒*w , emb-⊩∷ (≤ᵘ-step ≤ᵘ-refl) ⊩t
-      , emb-⊩∷ (≤ᵘ-step ≤ᵘ-refl) ⊩u
-      , (case rest of λ where
-           (rflᵣ t≡u)        → rflᵣ (emb-⊩≡∷ (≤ᵘ-step ≤ᵘ-refl) t≡u)
-           (ne inc v-ne v~v) → ne inc v-ne v~v)
-    lemma (noemb ⊩Id@record{}) ⊩v@(w , v⇒*w , _) =
-      case whnfRed* ⇒*Id Idₙ of λ {
-        PE.refl →
-        w , v⇒*w
-      , (⊩Ty , ⊩lhs)
-      , (⊩Ty , ⊩rhs)
-      , (case ⊩Id∷-view-inhabited ⊩v of λ where
-           (rflᵣ lhs≡rhs)    → rflᵣ (⊩Ty , ⊩lhs , ⊩rhs , lhs≡rhs)
-           (ne inc w-ne w~w) → ne inc w-ne w~w) }
-      where
-      open _⊩ₗId_ ⊩Id
-
-opaque
-
-  -- A variant of ⊩∷Id⇔.
-
-  Identity→⊩∷Id⇔ :
-    Identity v →
-    Γ ⊩⟨ l ⟩ v ∷ Id A t u ⇔
-    (Γ ⊢ v ∷ Id A t u ×
-     Γ ⊩⟨ l ⟩ t ∷ A ×
-     Γ ⊩⟨ l ⟩ u ∷ A ×
-     ⊩Id∷-view′ Γ l A t u v)
-  Identity→⊩∷Id⇔ {v} {Γ} {l} {A} {t} {u} v-id =
-    Γ ⊩⟨ l ⟩ v ∷ Id A t u     ⇔⟨ ⊩∷Id⇔ ⟩
-
-    (∃ λ w →
-     Γ ⊢ v ⇒* w ∷ Id A t u ×
-     Γ ⊩⟨ l ⟩ t ∷ A ×
-     Γ ⊩⟨ l ⟩ u ∷ A ×
-     ⊩Id∷-view′ Γ l A t u w)  ⇔⟨ (λ (_ , v⇒*w , ⊩t , ⊩u , rest) →
-                                    case whnfRed*Term v⇒*w (identityWhnf v-id) of λ {
-                                      PE.refl →
-                                    redFirst*Term v⇒*w , ⊩t , ⊩u , rest })
-                               , (λ (⊢v , ⊩t , ⊩u , rest) →
-                                    _ , id ⊢v , ⊩t , ⊩u , rest)
-                               ⟩
-    Γ ⊢ v ∷ Id A t u ×
-    Γ ⊩⟨ l ⟩ t ∷ A ×
-    Γ ⊩⟨ l ⟩ u ∷ A ×
-    ⊩Id∷-view′ Γ l A t u v    □⇔
-
-opaque
-  unfolding _⊩⟨_⟩_≡_ _⊩⟨_⟩_≡_∷_
+  unfolding _⊩⟨_⟩_≡_ _⊩⟨_⟩_≡_∷_ wf-⊩≡∷
 
   -- A characterisation lemma for _⊩⟨_⟩_≡_.
 
@@ -280,7 +173,7 @@ opaque
         PE.refl →
       case extractMaybeEmb′
              (Id-elim (redSubst*′ ⇒*Id′ ⊩B .proj₁)) of λ {
-        (_ , l″≤l , Idᵣ _ _ _ ⇒*Id″ ⊩Ty″ ⊩lhs″ ⊩rhs″) →
+        (_ , l″≤l , Idᵣ _ _ _ ⇒*Id″ ⊩Ty″ _ _) →
       case whnfRed* ⇒*Id″ Idₙ of λ {
         PE.refl →
       case emb-≤-⊩≡ A≡A′ of λ
@@ -288,16 +181,8 @@ opaque
       let ⊩Ty′ = emb-≤-⊩ l′≤l ⊩Ty in
         A′ , t′ , u′ , ⇒*Id′
       , (⊩Ty′ , emb-≤-⊩ l″≤l ⊩Ty″ , A≡A′)
-      , ( ⊩Ty′
-        , emb-≤-⊩∷ ⊩lhs
-        , convTerm₂ ⊩Ty′ ⊩Ty″ A≡A′ ⊩lhs″
-        , emb-≤-⊩≡∷ t≡t′
-        )
-      , ( ⊩Ty′
-        , emb-≤-⊩∷ ⊩rhs
-        , convTerm₂ ⊩Ty′ ⊩Ty″ A≡A′ ⊩rhs″
-        , emb-≤-⊩≡∷ u≡u′
-        ) }}}
+      , (⊩Ty′ , emb-≤-⊩≡∷ t≡t′)
+      , (⊩Ty′ , emb-≤-⊩≡∷ u≡u′) }}}
       where
       open _⊩ₗId_ ⊩Id
 
@@ -316,12 +201,15 @@ opaque
     lemma₂
       (noemb ⊩Id@record{})
       ( A′ , t′ , u′ , B⇒*Id , (⊩A , ⊩A′ , A≡A′)
-      , (⊩A″ , _ , ⊩t′ , t≡t′) , (⊩A‴ , _ , ⊩u′ , u≡u′)
+      , t≡t′′@(⊩A″ , t≡t′) , u≡u′′@(⊩A‴ , u≡u′)
       ) =
       case whnfRed* ⇒*Id Idₙ of λ {
         PE.refl →
       case ≅-eq (escapeEq ⊩A A≡A′) of λ
         ⊢A≡A′ →
+      let _ , (_ , ⊩t′) = wf-⊩≡∷ t≡t′′
+          _ , (_ , ⊩u′) = wf-⊩≡∷ u≡u′′
+      in
         redSubst* B⇒*Id
           (Idᵣ
              (Idᵣ A′ t′ u′
@@ -427,6 +315,17 @@ data ⊩Id≡∷-view′
          ⊩Id≡∷-view′ Γ l A t u v w
 
 opaque
+
+  -- If ⊩Id≡∷-view′ Γ l A t u v w holds, then Identity v and
+  -- Identity w both hold.
+
+  ⊩Id≡∷-view′→Identity :
+    ⊩Id≡∷-view′ Γ l A t u v w →
+    Identity v × Identity w
+  ⊩Id≡∷-view′→Identity (rfl₌ _)           = rflₙ , rflₙ
+  ⊩Id≡∷-view′→Identity (ne _ v-ne w-ne _) = ne v-ne , ne w-ne
+
+opaque
   unfolding _⊩⟨_⟩_∷_ _⊩⟨_⟩_≡_∷_
 
   -- A characterisation lemma for _⊩⟨_⟩_≡_∷_.
@@ -440,7 +339,7 @@ opaque
      Γ ⊩⟨ l ⟩ u ∷ A ×
      ⊩Id≡∷-view′ Γ l A t u v′ w′)
   ⊩≡∷Id⇔ =
-      (λ (⊩Id , _ , _ , ⊩v) →
+      (λ (⊩Id , ⊩v) →
          lemma (Id-elim ⊩Id)
            (irrelevanceEqTerm ⊩Id (Id-intr (Id-elim ⊩Id)) ⊩v))
     , (λ (v′ , w′ , v⇒*v′ , w⇒*w′ , (⊩A , ⊩t) , (⊩A′ , ⊩u) , rest) →
@@ -451,18 +350,11 @@ opaque
            Idᵣ (Idᵣ _ _ _ Id⇒*Id ⊩A ⊩t (irrelevanceTerm ⊩A′ ⊩A ⊩u))
          , (case rest of λ where
               (ne inc v′-ne w′-ne v′~w′) →
-                let ~v′ , ~w′ = wf-⊢~∷ v′~w′ in
-                  (v′ , v⇒*v′ , ne v′-ne , inc , ~v′)
-                , (w′ , w⇒*w′ , ne w′-ne , inc , ~w′)
-                , ( v′ , w′ , v⇒*v′ , w⇒*w′
-                  , ne v′-ne , ne w′-ne , inc , v′~w′
-                  )
-              (rfl₌ (⊩A″ , _ , _ , t≡u)) →
-                case irrelevanceEqTerm ⊩A″ ⊩A t≡u of λ
-                  t≡u →
-                  (v′ , v⇒*v′ , rflₙ , t≡u)
-                , (w′ , w⇒*w′ , rflₙ , t≡u)
-                , (v′ , w′ , v⇒*v′ , w⇒*w′ , rflₙ , rflₙ , t≡u)))
+                v′ , w′ , v⇒*v′ , w⇒*w′ ,
+                ne v′-ne , ne w′-ne , inc , v′~w′
+              (rfl₌ (⊩A″ , t≡u)) →
+                v′ , w′ , v⇒*v′ , w⇒*w′ , rflₙ , rflₙ ,
+                irrelevanceEqTerm ⊩A″ ⊩A t≡u))
     where
     lemma :
       (⊩Id : Γ ⊩⟨ l ⟩Id Id A t u) →
@@ -499,7 +391,7 @@ opaque
       , (⊩Ty , ⊩lhs)
       , (⊩Ty , ⊩rhs)
       , (case ⊩Id≡∷-view-inhabited ⊩Id v≡w of λ where
-           (rfl₌ t≡u)                 → rfl₌ (⊩Ty , ⊩lhs , ⊩rhs , t≡u)
+           (rfl₌ t≡u)                 → rfl₌ (⊩Ty , t≡u)
            (ne inc v′-ne w′-ne v′~w′) → ne inc v′-ne w′-ne v′~w′) }
       where
       open _⊩ₗId_ ⊩Id
@@ -539,6 +431,101 @@ opaque
     Γ ⊩⟨ l ⟩ t ∷ A ×
     Γ ⊩⟨ l ⟩ u ∷ A ×
     ⊩Id≡∷-view′ Γ l A t u v w      □⇔
+
+-- A variant of ⊩Id∷-view.
+
+data ⊩Id∷-view′
+       (Γ : Con Term n) (l : Universe-level) (A t u : Term n) :
+       Term n → Set a where
+  rflᵣ : Γ ⊩⟨ l ⟩ t ≡ u ∷ A →
+         ⊩Id∷-view′ Γ l A t u rfl
+  ne   : Neutrals-included →
+         Neutral v →
+         Γ ⊢~ v ∷ Id A t u →
+         ⊩Id∷-view′ Γ l A t u v
+
+opaque
+
+  -- ⊩Id∷-view′ is pointwise logically equivalent to the diagonal of
+  -- ⊩Id≡∷-view′.
+
+  ⊩Id∷-view′⇔⊩Id≡∷-view′ :
+    ⊩Id∷-view′ Γ l A t u v ⇔ ⊩Id≡∷-view′ Γ l A t u v v
+  ⊩Id∷-view′⇔⊩Id≡∷-view′ =
+      (λ where
+         (rflᵣ t≡u)       → rfl₌ t≡u
+         (ne inc v-ne ~v) → ne inc v-ne v-ne ~v)
+    , (λ where
+         (rfl₌ t≡u)         → rflᵣ t≡u
+         (ne inc v-ne _ ~v) → ne inc v-ne ~v)
+
+opaque
+
+  -- A characterisation lemma for _⊩⟨_⟩_∷_.
+
+  ⊩∷Id⇔ :
+    Γ ⊩⟨ l ⟩ v ∷ Id A t u ⇔
+    (∃ λ w →
+     Γ ⊢ v ⇒* w ∷ Id A t u ×
+     Γ ⊩⟨ l ⟩ t ∷ A ×
+     Γ ⊩⟨ l ⟩ u ∷ A ×
+     ⊩Id∷-view′ Γ l A t u w)
+  ⊩∷Id⇔ {Γ} {l} {v} {A} {t} {u} =
+    Γ ⊩⟨ l ⟩ v ∷ Id A t u          ⇔⟨ ⊩∷⇔⊩≡∷ ⟩
+
+    Γ ⊩⟨ l ⟩ v ≡ v ∷ Id A t u      ⇔⟨ ⊩≡∷Id⇔ ⟩
+
+    (∃₂ λ v′ v″ →
+     Γ ⊢ v ⇒* v′ ∷ Id A t u ×
+     Γ ⊢ v ⇒* v″ ∷ Id A t u ×
+     Γ ⊩⟨ l ⟩ t ∷ A ×
+     Γ ⊩⟨ l ⟩ u ∷ A ×
+     ⊩Id≡∷-view′ Γ l A t u v′ v″)  ⇔⟨ (λ (_ , _ , v⇒*v′ , v⇒*v″ , ⊩t , ⊩u , rest) →
+                                         let v′-id , v″-id = ⊩Id≡∷-view′→Identity rest in
+                                         case whrDet*Term (v⇒*v′ , identityWhnf v′-id)
+                                                (v⇒*v″ , identityWhnf v″-id) of λ {
+                                           PE.refl →
+                                         _ , v⇒*v′ , ⊩t , ⊩u ,
+                                         ⊩Id∷-view′⇔⊩Id≡∷-view′ .proj₂ rest })
+                                    , (λ (_ , v⇒*w , ⊩t , ⊩u , rest) →
+                                         _ , _ , v⇒*w , v⇒*w , ⊩t , ⊩u ,
+                                         ⊩Id∷-view′⇔⊩Id≡∷-view′ .proj₁ rest)
+                                    ⟩
+    (∃ λ w →
+     Γ ⊢ v ⇒* w ∷ Id A t u ×
+     Γ ⊩⟨ l ⟩ t ∷ A ×
+     Γ ⊩⟨ l ⟩ u ∷ A ×
+     ⊩Id∷-view′ Γ l A t u w)       □⇔
+
+opaque
+
+  -- A variant of ⊩∷Id⇔.
+
+  Identity→⊩∷Id⇔ :
+    Identity v →
+    Γ ⊩⟨ l ⟩ v ∷ Id A t u ⇔
+    (Γ ⊢ v ∷ Id A t u ×
+     Γ ⊩⟨ l ⟩ t ∷ A ×
+     Γ ⊩⟨ l ⟩ u ∷ A ×
+     ⊩Id∷-view′ Γ l A t u v)
+  Identity→⊩∷Id⇔ {v} {Γ} {l} {A} {t} {u} v-id =
+    Γ ⊩⟨ l ⟩ v ∷ Id A t u     ⇔⟨ ⊩∷Id⇔ ⟩
+
+    (∃ λ w →
+     Γ ⊢ v ⇒* w ∷ Id A t u ×
+     Γ ⊩⟨ l ⟩ t ∷ A ×
+     Γ ⊩⟨ l ⟩ u ∷ A ×
+     ⊩Id∷-view′ Γ l A t u w)  ⇔⟨ (λ (_ , v⇒*w , ⊩t , ⊩u , rest) →
+                                    case whnfRed*Term v⇒*w (identityWhnf v-id) of λ {
+                                      PE.refl →
+                                    redFirst*Term v⇒*w , ⊩t , ⊩u , rest })
+                               , (λ (⊢v , ⊩t , ⊩u , rest) →
+                                    _ , id ⊢v , ⊩t , ⊩u , rest)
+                               ⟩
+    Γ ⊢ v ∷ Id A t u ×
+    Γ ⊩⟨ l ⟩ t ∷ A ×
+    Γ ⊩⟨ l ⟩ u ∷ A ×
+    ⊩Id∷-view′ Γ l A t u v    □⇔
 
 opaque
 

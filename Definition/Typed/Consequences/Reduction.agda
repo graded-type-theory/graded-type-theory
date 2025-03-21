@@ -22,6 +22,7 @@ open import Definition.Typed.EqRelInstance R
 open import Definition.Typed.Consequences.Equality R
 open import Definition.Typed.Consequences.Inequality R as I
 open import Definition.Typed.Consequences.Injectivity R
+open import Definition.Typed.Consequences.Inversion R
 open import Definition.Typed.Inversion R
 open import Definition.Typed.Reasoning.Type R
 open import Definition.Typed.Syntactic R
@@ -32,6 +33,7 @@ open import Definition.LogicalRelation.Hidden R
 open import Definition.LogicalRelation.Properties R
 open import Definition.LogicalRelation.Fundamental.Reducibility R
 open import Definition.LogicalRelation.Substitution.Introductions R
+open import Definition.LogicalRelation.Unary R
 
 open import Tools.Empty
 open import Tools.Fin
@@ -86,13 +88,11 @@ opaque
     ⦃ ok : No-equality-reflection or-empty Γ ⦄ →
     Γ ⊢ t ∷ Unit s l → ∃ λ u → Star u × Γ ⊢ t ⇒* u ∷ Unit s l
   red-Unit ⊢t =
-    case ⊩∷Unit⇔ .proj₁ $ proj₂ $ reducible-⊩∷ ⊢t of λ {
-      (_ , _ , Unitₜ u t⇒*u _ rest) →
+    case ⊩∷Unit⇔ .proj₁ $ proj₂ $ reducible-⊩∷ ⊢t of λ
+      (_ , _ , Unitₜ u (t⇒*u , u-whnf) _) →
       u
-    , (case rest of λ where
-         starᵣ                 → starₙ
-         (ne (neNfₜ _ u-ne _)) → ne u-ne)
-    , t⇒*u }
+    , whnfStar (wf-⊢≡∷ (subset*Term t⇒*u) .proj₂ .proj₂) u-whnf
+    , t⇒*u
 
 opaque
 
@@ -288,23 +288,31 @@ opaque
 -- Helper function where reducible all terms can be reduced to WHNF.
 whNormTerm′ : ∀ {a A l} ([A] : Γ ⊩⟨ l ⟩ A) → Γ ⊩⟨ l ⟩ a ∷ A / [A]
                 → ∃ λ b → Whnf b × Γ ⊢ a ⇒* b ∷ A
-whNormTerm′ (Uᵣ′ _ _ A⇒*U) (Uₜ C B⇒*C C-type C≅C ⊩B) =
-    C , typeWhnf C-type , conv* B⇒*C (sym (subset* A⇒*U))
-whNormTerm′ (ℕᵣ x) (ℕₜ n d n≡n prop) =
-  let natN = natural prop
+whNormTerm′ (Uᵣ′ _ _ A⇒*U) ⊩a =
+  let Uₜ C B⇒*C C-type C≅C ⊩B = ⊩U∷U⇔⊩U≡∷U .proj₂ ⊩a in
+  C , typeWhnf C-type , conv* B⇒*C (sym (subset* A⇒*U))
+whNormTerm′ (ℕᵣ x) ⊩a =
+  let ℕₜ n d n≡n prop = ⊩ℕ∷ℕ⇔⊩ℕ≡∷ℕ .proj₂ ⊩a
+      natN = natural prop
   in  n , naturalWhnf natN , conv* d (sym (subset* x))
-whNormTerm′ (Emptyᵣ x) (Emptyₜ n d n≡n prop) =
-  let emptyN = empty prop
+whNormTerm′ (Emptyᵣ x) ⊩a =
+  let Emptyₜ n d n≡n prop = ⊩Empty∷Empty⇔⊩Empty≡∷Empty .proj₂ ⊩a
+      emptyN = empty prop
   in  n , ne emptyN , conv* d (sym (subset* x))
-whNormTerm′ (Unitᵣ (Unitₜ x _)) (Unitₜ n d n≡n prop) =
-  n , unit prop , conv* d (sym (subset* x))
-whNormTerm′ (ne (ne _ H D neH H≡H)) (neₜ k d (neNfₜ _ neH₁ k≡k)) =
+whNormTerm′ (Unitᵣ (Unitₜ A⇒*Unit _)) ⊩a =
+  let Unitₜ t (a⇒*t , t-whnf) _ = ⊩Unit∷Unit⇔⊩Unit≡∷Unit .proj₂ ⊩a in
+  t , t-whnf , conv* a⇒*t (sym (subset* A⇒*Unit))
+whNormTerm′ (ne (ne _ H D neH H≡H)) ⊩a =
+  let neₜ k d (neNfₜ _ neH₁ k≡k) = ⊩ne∷⇔⊩ne≡∷ .proj₂ ⊩a in
   k , ne neH₁ , conv* d (sym (subset* D))
-whNormTerm′ (Πᵣ′ _ _ D _ _ _ _ _) (Πₜ f d funcF _ _ _) =
+whNormTerm′ (Bᵣ BΠ! ⊩A@(Bᵣ _ _ D _ _ _ _ _)) ⊩a =
+  let Πₜ f d funcF _ _ = ⊩Π∷⇔⊩Π≡∷ ⊩A .proj₂ ⊩a in
   f , functionWhnf funcF , conv* d (sym (subset* D))
-whNormTerm′ (Σᵣ′ _ _ D _ _ _ _ _) (Σₜ p d _ pProd _) =
+whNormTerm′ (Bᵣ BΣ! ⊩A@(Bᵣ _ _ D _ _ _ _ _)) ⊩a =
+  let Σₜ p d pProd _ _ = ⊩Σ∷⇔⊩Σ≡∷ ⊩A .proj₂ ⊩a in
   p , productWhnf pProd , conv* d (sym (subset* D))
-whNormTerm′ (Idᵣ ⊩Id) (a′ , a⇒*a′ , a′-id , _) =
+whNormTerm′ (Idᵣ ⊩Id) ⊩a =
+  let Idₜ a′ a⇒*a′ a′-id _ = ⊩Id∷⇔⊩Id≡∷ ⊩Id .proj₂ ⊩a in
     a′ , identityWhnf a′-id
   , conv* a⇒*a′ (sym (subset* (_⊩ₗId_.⇒*Id ⊩Id)))
 whNormTerm′ (emb ≤ᵘ-refl     ⊩A) ⊩a = whNormTerm′ ⊩A ⊩a

@@ -519,17 +519,16 @@ whnf≢ne {Γ} {A} {t} {u} ¬-A-η t-whnf ¬-t-ne u-ne t≡u =
       ¬t⇒*ne t⇒*v v-ne
     (Emptyᵣ _) (Emptyₜ₌ _ _ t⇒*v _ _ (ne (neNfₜ₌ _ v-ne _ _))) →
       ¬t⇒*ne t⇒*v v-ne
-    (Unitᵣ (Unitₜ A⇒*Unit _)) [t≡u] →
+    (Unitᵣ (Unitₜ A⇒*Unit _)) (Unitₜ₌ _ _ (d , _) (d′ , _) prop) →
       case A⇒*no-η A⇒*Unit of λ where
         (U.neₙ ())
-        (U.Unitʷₙ not-ok) → case [t≡u] of λ where
-          (Unitₜ₌ʷ _ _ _ d′ _ starᵣ _) →
+        (U.Unitʷₙ no-η) → case prop of λ where
+          (Unitₜ₌ʷ starᵣ _) →
             U.star≢ne (u⇒*ne d′) PE.refl
-          (Unitₜ₌ʷ _ _ d _ _ (ne (neNfₜ₌ _ neK _ _)) _) →
+          (Unitₜ₌ʷ (ne (neNfₜ₌ _ neK _ _)) _) →
             ¬t⇒*ne d neK
-          (Unitₜ₌ˢ _ _ (inj₁ ()))
-          (Unitₜ₌ˢ _ _ (inj₂ ok)) →
-            not-ok ok
+          (Unitₜ₌ˢ η) →
+            no-η (Unit-with-η-𝕨→Unitʷ-η η)
     (ne _) (neₜ₌ _ _ t⇒*v _ (neNfₜ₌ _ v-ne _ _)) →
       ¬t⇒*ne t⇒*v v-ne
     (Bᵣ BΠ! (Bᵣ _ _ A⇒*Π _ _ _ _ _)) _ →
@@ -538,12 +537,11 @@ whnf≢ne {Γ} {A} {t} {u} ¬-A-η t-whnf ¬-t-ne u-ne t≡u =
     (Bᵣ BΣˢ (Bᵣ _ _ A⇒*Σ _ _ _ _ _)) _ →
       case A⇒*no-η A⇒*Σ of λ where
         (U.neₙ ())
-    (Bᵣ BΣʷ record{}) (_ , _ , _ , u⇒*w , _ , _ , _ , _ , U.prodₙ , _) →
+    (Bᵣ BΣʷ record{}) (_ , _ , _ , u⇒*w , _ , _ , U.prodₙ , _) →
       U.prod≢ne (u⇒*ne u⇒*w) PE.refl
-    (Bᵣ BΣʷ record{}) (_ , _ , t⇒*v , _ , _ , _ , _ , U.ne v-ne , _) →
+    (Bᵣ BΣʷ record{}) (_ , _ , t⇒*v , _ , _ , U.ne v-ne , _) →
       ¬t⇒*ne t⇒*v v-ne
-    (Bᵣ BΣʷ record{})
-      (_ , _ , _ , _ , _ , _ , _ , U.prodₙ , U.ne _  , ())
+    (Bᵣ BΣʷ record{}) (_ , _ , _ , _ , _ , U.prodₙ , U.ne _  , ())
     (Idᵣ ⊩Id) t≡u@(_ , _ , t⇒*t′ , u⇒*u′ , _) →
       case ⊩Id≡∷-view-inhabited ⊩Id t≡u of λ where
         (ne _ t′-ne _ _) → ¬t⇒*ne t⇒*t′ t′-ne

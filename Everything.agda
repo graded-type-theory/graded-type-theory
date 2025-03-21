@@ -245,6 +245,7 @@ import Definition.LogicalRelation
 import Definition.LogicalRelation.Properties.Kit
 import Definition.LogicalRelation.Properties.Whnf
 import Definition.LogicalRelation.Properties.Reflexivity
+import Definition.LogicalRelation.Unary
 import Definition.LogicalRelation.Properties.Escape
 import Definition.LogicalRelation.ShapeView
 import Definition.LogicalRelation.Irrelevance

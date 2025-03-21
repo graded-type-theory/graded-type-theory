@@ -40,7 +40,7 @@ private opaque
 
   univEq′ :
     (⊩U : Γ ⊩⟨ l ⟩U U l′) → Γ ⊩⟨ l ⟩ A ∷ U l′ / U-intr ⊩U → Γ ⊩⟨ l′ ⟩ A
-  univEq′ (noemb (Uᵣ _ l< (id _))) (Uₜ _ _ _ _ ⊩A) =
+  univEq′ (noemb (Uᵣ _ l< (id _))) (Uₜ₌ _ _ _ _ _ _ _ ⊩A _ _) =
     ⊩<⇔⊩ l< .proj₁ ⊩A
   univEq′ (noemb (Uᵣ _ _ (U⇒ ⇨ _))) _ =
     ⊥-elim (whnfRed U⇒ Uₙ)

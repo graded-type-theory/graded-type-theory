@@ -27,6 +27,7 @@ open import Definition.LogicalRelation.Properties R
 open import Definition.LogicalRelation.ShapeView R
 open import Definition.LogicalRelation.Substitution R
 open import Definition.LogicalRelation.Substitution.Introductions.Universe R
+open import Definition.LogicalRelation.Unary R
 
 open import Tools.Function
 open import Tools.Product
@@ -48,28 +49,6 @@ opaque
   ⊩Empty⇔ =
       wf ∘→ escape-⊩
     , (λ ⊢Γ → Emptyᵣ (id (Emptyⱼ ⊢Γ)))
-
-opaque
-  unfolding _⊩⟨_⟩_∷_ ⊩Empty⇔
-
-  -- A characterisation lemma for _⊩⟨_⟩_∷_.
-
-  ⊩∷Empty⇔ :
-    Γ ⊩⟨ l ⟩ t ∷ Empty ⇔ Γ ⊩Empty t ∷Empty
-  ⊩∷Empty⇔ =
-      (λ (⊩Empty′ , ⊩t) →
-         lemma (Empty-elim ⊩Empty′)
-           (irrelevanceTerm ⊩Empty′ (Empty-intr (Empty-elim ⊩Empty′)) ⊩t))
-    , (λ ⊩t@(Emptyₜ n d n≡n prop) →
-         ⊩Empty⇔ .proj₂ (wfEqTerm (subset*Term d)) , ⊩t)
-    where
-    lemma :
-      (⊩Empty : Γ ⊩⟨ l ⟩Empty Empty) →
-      Γ ⊩⟨ l ⟩ t ∷ Empty / Empty-intr ⊩Empty →
-      Γ ⊩Empty t ∷Empty
-    lemma (emb ≤ᵘ-refl ⊩Empty′) ⊩t = lemma ⊩Empty′ ⊩t
-    lemma (emb (≤ᵘ-step s) ⊩Empty′) ⊩t = lemma (emb s ⊩Empty′) ⊩t
-    lemma (noemb _) ⊩t = ⊩t
 
 opaque
   unfolding _⊩⟨_⟩_≡_
@@ -107,20 +86,14 @@ opaque
   ⊩≡∷Empty⇔ :
     Γ ⊩⟨ l ⟩ t ≡ u ∷ Empty ⇔ Γ ⊩Empty t ≡ u ∷Empty
   ⊩≡∷Empty⇔ =
-      (λ (⊩Empty′ , _ , _ , t≡u) →
+      (λ (⊩Empty′ , t≡u) →
         lemma (Empty-elim ⊩Empty′)
           (irrelevanceEqTerm ⊩Empty′ (Empty-intr (Empty-elim ⊩Empty′))
              t≡u))
     , λ t≡u@(Emptyₜ₌ _ _ t⇒*t′ u⇒*u′ t′≅u′ prop) →
-        case prop of λ where
+        case prop of λ {
           (ne (neNfₜ₌ inc t′-ne u′-ne t′~u′)) →
-            let ≅t′ , ≅u′ = wf-⊢≅∷ t′≅u′
-                ~t′ , ~u′ = wf-⊢~∷ t′~u′
-            in
-              ⊩Empty⇔ .proj₂ (wfEqTerm (subset*Term t⇒*t′))
-            , Emptyₜ _ t⇒*t′ ≅t′ (ne (neNfₜ inc t′-ne ~t′))
-            , Emptyₜ _ u⇒*u′ ≅u′ (ne (neNfₜ inc u′-ne ~u′))
-            , t≡u
+        ⊩Empty⇔ .proj₂ (wfEqTerm (subset*Term t⇒*t′)) , t≡u }
     where
     lemma :
       (⊩Empty : Γ ⊩⟨ l ⟩Empty Empty) →
@@ -129,6 +102,18 @@ opaque
     lemma (emb ≤ᵘ-refl     ⊩Empty′) = lemma ⊩Empty′
     lemma (emb (≤ᵘ-step s) ⊩Empty′) = lemma (emb s ⊩Empty′)
     lemma (noemb _)                 = idᶠ
+
+opaque
+
+  -- A characterisation lemma for _⊩⟨_⟩_∷_.
+
+  ⊩∷Empty⇔ :
+    Γ ⊩⟨ l ⟩ t ∷ Empty ⇔ Γ ⊩Empty t ∷Empty
+  ⊩∷Empty⇔ {Γ} {l} {t} =
+    Γ ⊩⟨ l ⟩ t ∷ Empty      ⇔⟨ ⊩∷⇔⊩≡∷ ⟩
+    Γ ⊩⟨ l ⟩ t ≡ t ∷ Empty  ⇔⟨ ⊩≡∷Empty⇔ ⟩
+    Γ ⊩Empty t ≡ t ∷Empty   ⇔˘⟨ ⊩Empty∷Empty⇔⊩Empty≡∷Empty ⟩
+    Γ ⊩Empty t ∷Empty       □⇔
 
 ------------------------------------------------------------------------
 -- Empty

@@ -46,6 +46,7 @@ open import Definition.LogicalRelation.Hidden R
 import Definition.LogicalRelation.Hidden.Restricted R as R
 open import Definition.LogicalRelation.Substitution R
 open import Definition.LogicalRelation.Substitution.Introductions.Unit R
+open import Definition.LogicalRelation.Unary R
 
 open import Graded.Context 𝕄
 open import Graded.Context.Properties 𝕄
@@ -186,21 +187,21 @@ opaque
       ⊢u[σ] →
 
     case ⊩∷Unit⇔ .proj₁ ⊩t[σ] of λ {
-      (_ , ok , Unitₜ _ t[σ]⇒t′ _ rest) →
+      (_ , ok , Unitₜ _ (t[σ]⇒t′ , _) prop) →
 
     let open RR in
-    case Unit-with-η? 𝕨 of λ where
-      (inj₁ (inj₁ ()))
-      (inj₁ (inj₂ η)) →
+    case prop of λ where
+      (Unitₜˢ η) →
         unitrec® _
           (⊩ᵛ≡∷⇔′ʰ .proj₁
-             (η-unitᵛ ⊩t (starᵛ (wf-⊩ᵛ (wf-⊩ᵛ∷ ⊩t)) ok) (inj₂ η))
+             (η-unitᵛ ⊩t (starᵛ (wf-⊩ᵛ (wf-⊩ᵛ∷ ⊩t)) ok) η)
              .proj₂ .proj₂ ⊩σ)
           (                          ∷ A [ t ]₀ [ σ ]           ⟨ singleSubstLift A _ ⟩⇒≡
-           unitrec l p q A t u [ σ ] ∷ A [ σ ⇑ ] [ t [ σ ] ]₀  ⇒⟨ unitrec-β-η ⊢A[σ⇑] (escape-⊩∷ ⊩t[σ]) ⊢u[σ] ok η ⟩∎∷
+           unitrec l p q A t u [ σ ] ∷ A [ σ ⇑ ] [ t [ σ ] ]₀  ⇒⟨ unitrec-β-η ⊢A[σ⇑] (escape-⊩∷ ⊩t[σ]) ⊢u[σ] ok
+                                                                    (Unit-with-η-𝕨→Unitʷ-η η) ⟩∎∷
            u [ σ ]                                             ∎)
 
-      (inj₂ (_ , no-η)) → case rest of λ where
+      (Unitₜʷ rest no-η) → case rest of λ where
         starᵣ →
           unitrec® _ (⊩∷-⇐* t[σ]⇒t′ (⊩star ⊢Δ ok))
             (                                  ∷ A [ t ]₀ [ σ ]            ⟨ singleSubstLift A _ ⟩⇒≡

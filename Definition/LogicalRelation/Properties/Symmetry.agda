@@ -33,9 +33,11 @@ import Tools.PropositionalEquality as PE
 
 private
   variable
-    n : Nat
-    Γ : Con Term n
-    l : Universe-level
+    n   : Nat
+    Γ   : Con Term n
+    t u : Term _
+    l   : Universe-level
+    s   : Strength
 
 symNeutralTerm : ∀ {t u A}
                → Γ ⊩neNf t ≡ u ∷ A
@@ -55,11 +57,15 @@ symEmpty-prop : ∀ {k k′}
               → [Empty]-prop Γ k′ k
 symEmpty-prop (ne prop) = ne (symNeutralTerm prop)
 
+symUnitʷ-prop : [Unitʷ]-prop Γ l t u → [Unitʷ]-prop Γ l u t
+symUnitʷ-prop starᵣ     = starᵣ
+symUnitʷ-prop (ne prop) = ne (symNeutralTerm prop)
+
 symUnit-prop : ∀ {k k′}
-             → [Unitʷ]-prop Γ l k k′
-             → [Unitʷ]-prop Γ l k′ k
-symUnit-prop starᵣ = starᵣ
-symUnit-prop (ne prop) = ne (symNeutralTerm prop)
+             → [Unit]-prop Γ l s k k′
+             → [Unit]-prop Γ l s k′ k
+symUnit-prop (Unitₜ₌ʷ prop no-η) = Unitₜ₌ʷ (symUnitʷ-prop prop) no-η
+symUnit-prop (Unitₜ₌ˢ η)         = Unitₜ₌ˢ η
 
 
 -- Helper function for symmetry of type equality using shape views.
@@ -156,45 +162,44 @@ symEqTerm (ℕᵣ D) (ℕₜ₌ k k′ d d′ t≡u prop) =
   ℕₜ₌ k′ k d′ d (≅ₜ-sym t≡u) (symNatural-prop prop)
 symEqTerm (Emptyᵣ D) (Emptyₜ₌ k k′ d d′ t≡u prop) =
   Emptyₜ₌ k′ k d′ d (≅ₜ-sym t≡u) (symEmpty-prop prop)
-symEqTerm (Unitᵣ _) (Unitₜ₌ˢ ⊢t ⊢u ok) =
-  Unitₜ₌ˢ ⊢u ⊢t ok
-symEqTerm (Unitᵣ _) (Unitₜ₌ʷ k k′ d d′ k≡k′ prop ok) =
-  Unitₜ₌ʷ k′ k d′ d (≅ₜ-sym k≡k′) (symUnit-prop prop) ok
+symEqTerm (Unitᵣ _) (Unitₜ₌ k k′ d d′ prop) =
+  Unitₜ₌ k′ k d′ d (symUnit-prop prop)
 symEqTerm (ne′ _ _ D neK K≡K) (neₜ₌ k m d d′ nf) =
   neₜ₌ m k d′ d (symNeutralTerm nf)
 symEqTerm (Bᵣ′ BΠ! F G D A≡A [F] [G] G-ext _)
-          (Πₜ₌ f g d d′ funcF funcG f≡g [f] [g] [f≡g]) =
-  Πₜ₌ g f d′ d funcG funcF (≅ₜ-sym f≡g) [g] [f]
-      (λ ρ [a] → symEqTerm ([G] ρ [a]) ([f≡g] ρ [a]))
+  (Πₜ₌ f g d d′ funcF funcG f≡g [f≡g]) =
+  Πₜ₌ g f d′ d funcG funcF (≅ₜ-sym f≡g)
+      (λ ρ ⊩v ⊩w v≡w →
+         let w≡v = symEqTerm ([F] ρ) v≡w in
+         convEqTerm₁ ([G] ρ ⊩w) ([G] ρ ⊩v) (G-ext ρ ⊩w ⊩v w≡v) $
+         symEqTerm ([G] ρ ⊩w) ([f≡g] ρ ⊩w ⊩v w≡v))
 symEqTerm (Bᵣ′ BΣˢ F G D A≡A [F] [G] G-ext _)
-          (Σₜ₌ p r d d′ pProd rProd p≅r [t] [u] ([fstp] , [fstr] , [fst≡] , [snd≡])) =
+  (Σₜ₌ p r d d′ pProd rProd p≅r ([fstp] , [fstr] , [fst≡] , [snd≡])) =
   let [Gfstp≡Gfstr] = G-ext _ [fstp] [fstr] [fst≡]
-  in  Σₜ₌ r p d′ d rProd pProd (≅ₜ-sym p≅r) [u] [t]
+  in  Σₜ₌ r p d′ d rProd pProd (≅ₜ-sym p≅r)
           ([fstr] , [fstp] , (symEqTerm ([F] _) [fst≡]) ,
            convEqTerm₁ ([G] _ [fstp]) ([G] _ [fstr]) [Gfstp≡Gfstr]
              (symEqTerm ([G] _ [fstp]) [snd≡]))
 symEqTerm
   (Bᵣ′ BΣʷ F G D A≡A [F] [G] G-ext _)
-  (Σₜ₌ p r d d′ prodₙ prodₙ p≅r [t] [u]
+  (Σₜ₌ p r d d′ prodₙ prodₙ p≅r
      (PE.refl , PE.refl , PE.refl , PE.refl ,
-      [p₁] , [r₁] , [p₂] , [r₂] , [fst≡] , [snd≡])) =
+      [p₁] , [r₁] , [fst≡] , [snd≡])) =
   let [Gfstp≡Gfstr] = G-ext _ [p₁] [r₁] [fst≡]
-  in  Σₜ₌ r p d′ d prodₙ prodₙ (≅ₜ-sym p≅r) [u] [t]
+  in  Σₜ₌ r p d′ d prodₙ prodₙ (≅ₜ-sym p≅r)
         (PE.refl , PE.refl , PE.refl , PE.refl ,
-         [r₁] , [p₁] , [r₂] , [p₂] ,
+         [r₁] , [p₁] ,
          symEqTerm ([F] _) [fst≡] ,
          convEqTerm₁ ([G] _ [p₁]) ([G] _ [r₁]) [Gfstp≡Gfstr]
            (symEqTerm ([G] _ [p₁]) [snd≡]))
 symEqTerm (Bᵣ′ BΣʷ F G D A≡A [F] [G] G-ext _)
-          (Σₜ₌ p r d d′ (ne x) (ne y) p≅r [t] [u] (inc , p~r)) =
-  Σₜ₌ r p d′ d (ne y) (ne x) (≅ₜ-sym p≅r) [u] [t] (inc , ~-sym p~r)
-symEqTerm (Bᵣ′ BΣʷ _ _ _ _ _ _ _ _)
-          (Σₜ₌ p r d d′ prodₙ (ne y) p≅r [t] [u] ())
-symEqTerm (Bᵣ′ BΣʷ _ _ _ _ _ _ _ _)
-          (Σₜ₌ p r d d′ (ne x) prodₙ p≅r [t] [u] ())
+  (Σₜ₌ p r d d′ (ne x) (ne y) p≅r (inc , p~r)) =
+  Σₜ₌ r p d′ d (ne y) (ne x) (≅ₜ-sym p≅r) (inc , ~-sym p~r)
+symEqTerm (Bᵣ′ BΣʷ _ _ _ _ _ _ _ _) (Σₜ₌ _ _ _ _ prodₙ  (ne _) _ ())
+symEqTerm (Bᵣ′ BΣʷ _ _ _ _ _ _ _ _) (Σₜ₌ _ _ _ _ (ne _) prodₙ  _ ())
 symEqTerm (Idᵣ ⊩A) t≡u =
   let ⊩t , ⊩u , _ = ⊩Id≡∷⁻¹ ⊩A t≡u in
-  ⊩Id≡∷ ⊩u ⊩t
+  ⊩Id≡∷ ⊩A ⊩u ⊩t
     (case ⊩Id≡∷-view-inhabited ⊩A t≡u of λ where
        (ne inc _ _ t′~u′) → inc , ~-sym t′~u′
        (rfl₌ _)           → _)

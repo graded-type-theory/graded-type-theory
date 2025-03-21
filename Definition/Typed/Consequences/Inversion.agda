@@ -38,7 +38,7 @@ private
     Γ : Con Term n
     p p′ q : M
     s s′ s₁ s₂ : Strength
-    l₁ l₂ : Universe-level
+    l l₁ l₂ : Universe-level
     A B t u : Term _
 
 opaque
@@ -196,3 +196,44 @@ opaque
     rflₙ →
       let _ , _ , _ , _ , eq = inversion-rfl ⊢t in
       ⊥-elim (I.Id≢ΠΣ (sym eq))
+
+opaque
+
+  -- Inversion for terms of unit type in WHNF.
+
+  whnfStar :
+    ⦃ ok : No-equality-reflection or-empty Γ ⦄ →
+    Γ ⊢ t ∷ Unit s l → Whnf t → Star t
+  whnfStar ⊢t = λ where
+    starₙ →
+      starₙ
+    (ne t-ne) →
+      ne t-ne
+    Uₙ →
+      ⊥-elim (U≢Unitⱼ (sym (inversion-U ⊢t)))
+    ΠΣₙ →
+      let _ , _ , _ , _ , Σ≡U , _ = inversion-ΠΣ-U ⊢t in
+      ⊥-elim (U≢Unitⱼ (sym Σ≡U))
+    ℕₙ →
+      ⊥-elim (U≢Unitⱼ (sym (inversion-ℕ ⊢t)))
+    Unitₙ →
+      ⊥-elim (U≢Unitⱼ (sym (inversion-Unit-U ⊢t .proj₁)))
+    Emptyₙ →
+      ⊥-elim (U≢Unitⱼ (sym (inversion-Empty ⊢t)))
+    lamₙ →
+      let _ , _ , _ , _ , _ , Unit≡Π , _ = inversion-lam ⊢t in
+      ⊥-elim (Unit≢ΠΣⱼ Unit≡Π)
+    zeroₙ →
+      ⊥-elim (ℕ≢Unitⱼ (sym (inversion-zero ⊢t)))
+    sucₙ →
+      let _ , A≡ℕ = inversion-suc ⊢t in
+      ⊥-elim (ℕ≢Unitⱼ (sym A≡ℕ))
+    prodₙ →
+      let _ , _ , _ , _ , _ , _ , _ , Unit≡Σ , _ = inversion-prod ⊢t in
+      ⊥-elim (Unit≢ΠΣⱼ Unit≡Σ)
+    Idₙ →
+      let _ , _ , _ , _ , eq = inversion-Id-U ⊢t in
+      ⊥-elim (U≢Unitⱼ (sym eq))
+    rflₙ →
+      let _ , _ , _ , _ , eq = inversion-rfl ⊢t in
+      ⊥-elim (I.Id≢Unit (sym eq))

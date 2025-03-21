@@ -59,6 +59,7 @@ open import Definition.Typed.Consequences.Reduction TR
 open import Definition.LogicalRelation TR
 open import Definition.LogicalRelation.Fundamental.Reducibility TR
 open import Definition.LogicalRelation.Substitution.Introductions TR
+open import Definition.LogicalRelation.Unary TR
 
 open import Tools.Empty
 open import Tools.Function
