@@ -303,8 +303,6 @@ opaque mutual
           ⊢nΣ = conv ⊢n A≡ΣFG
           ⊢n′Σ = conv ⊢n′ A≡ΣFG
           n~n′Σ = ~-conv n~n′ A≡ΣFG
-          n~nΣ = ~-conv n~n A≡ΣFG
-          n′~n′Σ = ~-conv n′~n′ A≡ΣFG
       in
       Σₜ₌ _ _ (id ⊢nΣ) (id ⊢n′Σ)
         (ne n-ne) (ne n′-ne) (~-to-≅ₜ n~n′Σ)
