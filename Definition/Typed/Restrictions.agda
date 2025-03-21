@@ -179,4 +179,12 @@ record Type-restrictions : Set (lsuc a) where
       (yes η)   → inj₁ (inj₂ η)
       (no no-η) → inj₂ (refl , no-η)
 
+  opaque
+
+    -- Unit-with-η 𝕨 implies Unitʷ-η.
+
+    Unit-with-η-𝕨→Unitʷ-η : Unit-with-η 𝕨 → Unitʷ-η
+    Unit-with-η-𝕨→Unitʷ-η (inj₂ η)  = η
+    Unit-with-η-𝕨→Unitʷ-η (inj₁ ())
+
 open Type-restrictions
