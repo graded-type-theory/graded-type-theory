@@ -15,7 +15,7 @@ open Type-restrictions R
 
 open import Definition.Untyped M
 open import Definition.Untyped.Neutral M type-variant as U
-  using (Neutral; No-η-equality; Whnf)
+  using (Neutral; Semineutral; No-η-equality; Whnf)
 open import Definition.Typed R
 open import Definition.Typed.EqRelInstance R
 open import Definition.Typed.Properties R
@@ -37,11 +37,10 @@ private
   variable
     n : Nat
     Γ : Con Term _
-    A B C D t u v : Term _
+    A B C D l l₁ l₂ t u v : Term _
     p p′ q q′ : M
     b : BinderMode
     s : Strength
-    l l₁ l₂ : Universe-level
 
 opaque
   unfolding _⊩⟨_⟩_≡_
@@ -63,6 +62,18 @@ opaque
         A≡B′              = irrelevanceEq ⊩A (A-intr ⊩A′) A≡B
     in
     A≢B′ (goodCases (A-intr ⊩A′) (B-intr ⊩B′) A≡B′)
+
+opaque
+
+  -- Applications of U are not definitionally equal to Level (given a
+  -- certain assumption).
+
+  U≢Level :
+    ⦃ ok : No-equality-reflection or-empty Γ ⦄ →
+    ¬ Γ ⊢ U l ≡ Level
+  U≢Level =
+    A≢B _⊩′⟨_⟩U_ (λ Γ _ A → Γ ⊩Level A) Uᵣ Levelᵣ
+      U-elim Level-elim (λ ())
 
 opaque
 
@@ -124,7 +135,7 @@ opaque
     Equality-reflection →
     ∃ λ (Γ : Con Term 1) → Γ ⊢ ℕ ≡ Empty
   ℕ≡Empty ok =
-    ε ∙ Id (U 0) ℕ Empty ,
+    ε ∙ Id (U zeroᵘ) ℕ Empty ,
     univ
       (equality-reflection′ ok $
        var₀ (Idⱼ′ (ℕⱼ ε) (Emptyⱼ ε)))
@@ -152,6 +163,43 @@ opaque
   Empty≢Unitⱼ {s} =
     A≢B (λ Γ _ A → Γ ⊩Empty A) _⊩Unit⟨_, s ⟩_ Emptyᵣ Unitᵣ
       Empty-elim Unit-elim (λ ())
+
+opaque
+
+  -- Level is not definitionally equal to neutral terms (given a certain
+  -- assumption).
+
+  Level≢ne :
+    ⦃ ok : No-equality-reflection or-empty Γ ⦄ →
+    Neutral A → ¬ Γ ⊢ Level ≡ A
+  Level≢ne A-ne =
+    A≢B (λ Γ _ A → Γ ⊩Level A) (λ Γ _ A → Γ ⊩ne A) Levelᵣ ne
+      Level-elim (ne-elim A-ne) (λ ())
+
+opaque
+
+  -- Level is not definitionally equal to applications of Unit (given
+  -- a certain assumption).
+
+  Level≢Unitⱼ :
+    ⦃ ok : No-equality-reflection or-empty Γ ⦄ →
+    ¬ Γ ⊢ Level ≡ Unit s l
+  Level≢Unitⱼ {s} =
+    A≢B (λ Γ _ A → Γ ⊩Level A) _⊩Unit⟨_, s ⟩_ Levelᵣ Unitᵣ
+      Level-elim Unit-elim (λ ())
+
+opaque
+
+  -- Level is not definitionally equal to applications of ΠΣ⟨_⟩_,_▷_▹_
+  -- (given a certain assumption).
+
+  Level≢ΠΣⱼ :
+    ⦃ ok : No-equality-reflection or-empty Γ ⦄ →
+    ¬ Γ ⊢ Level ≡ ΠΣ⟨ b ⟩ p , q ▷ A ▹ B
+  Level≢ΠΣⱼ =
+    let b = _ in
+    A≢B (λ Γ _ A → Γ ⊩Level A) _⊩′⟨_⟩B⟨ b ⟩_ Levelᵣ (Bᵣ _)
+      Level-elim B-elim (λ ())
 
 opaque
 
@@ -388,6 +436,7 @@ No-η-equality→≢Π :
   ⦃ ok : No-equality-reflection or-empty Γ ⦄ →
   No-η-equality A → Γ ⊢ A ≡ Π p , q ▷ B ▹ C → ⊥
 No-η-equality→≢Π = λ where
+  U.Levelₙ     Level≡Π → Level≢ΠΣⱼ Level≡Π
   U.Uₙ         U≡Π     → U≢ΠΣⱼ U≡Π
   U.Σʷₙ        Σʷ≡Π    → Π≢Σⱼ (sym Σʷ≡Π)
   U.Emptyₙ     Empty≡Π → Empty≢ΠΣⱼ Empty≡Π
@@ -403,6 +452,7 @@ No-η-equality→≢Σˢ :
   ⦃ ok : No-equality-reflection or-empty Γ ⦄ →
   No-η-equality A → Γ ⊢ A ≡ Σˢ p , q ▷ B ▹ C → ⊥
 No-η-equality→≢Σˢ = λ where
+  U.Levelₙ     Level≡Σ → Level≢ΠΣⱼ Level≡Σ
   U.Uₙ         U≡Σ     → U≢ΠΣⱼ U≡Σ
   U.Σʷₙ        Σʷ≡Σ    → Σˢ≢Σʷⱼ (sym Σʷ≡Σ)
   U.Emptyₙ     Empty≡Σ → Empty≢ΠΣⱼ Empty≡Σ
@@ -418,6 +468,7 @@ No-η-equality→≢Unit :
   ⦃ ok : No-equality-reflection or-empty Γ ⦄ →
   No-η-equality A → Γ ⊢ A ≡ Unit s l → ¬ Unit-with-η s
 No-η-equality→≢Unit = λ where
+  U.Levelₙ        Level≡Unit  _              → Level≢Unitⱼ Level≡Unit
   U.Uₙ            U≡Unit      _              → U≢Unitⱼ U≡Unit
   U.Σʷₙ           Σʷ≡Unit     _              → Unit≢ΠΣⱼ (sym Σʷ≡Unit)
   U.Emptyₙ        Empty≡Unit  _              → Empty≢Unitⱼ Empty≡Unit
@@ -428,13 +479,13 @@ No-η-equality→≢Unit = λ where
   (U.neₙ A-ne)    A≡Unit      _              → Unit≢neⱼ A-ne
                                                  (sym A≡Unit)
 
--- If A is a type without η-equality, then a non-neutral WHNF is not
+-- If A is a type without η-equality, then a non-semi-neutral WHNF is not
 -- definitionally equal at type A to any neutral term (given a certain
 -- assumption).
 
 whnf≢ne :
   ⦃ ok : No-equality-reflection or-empty Γ ⦄ →
-  No-η-equality A → Whnf t → ¬ Neutral t → Neutral u →
+  No-η-equality A → Whnf t → ¬ Semineutral t → Neutral u →
   ¬ Γ ⊢ t ≡ u ∷ A
 whnf≢ne {Γ} {A} {t} {u} ¬-A-η t-whnf ¬-t-ne u-ne t≡u =
   case reducible-⊩≡∷ t≡u of λ
@@ -449,20 +500,29 @@ whnf≢ne {Γ} {A} {t} {u} ¬-A-η t-whnf ¬-t-ne u-ne t≡u =
       PE.refl →
     ¬-A-η }
 
-  ¬t⇒*ne : Γ ⊢ t ⇒* v ∷ B → ¬ Neutral v
-  ¬t⇒*ne t⇒*v v-ne =
+  ¬t⇒*sne : Γ ⊢ t ⇒* v ∷ B → ¬ Semineutral v
+  ¬t⇒*sne t⇒*v v-ne =
     case whnfRed*Term t⇒*v t-whnf of λ {
       PE.refl →
     ¬-t-ne v-ne }
 
+  ¬t⇒*ne : Γ ⊢ t ⇒* v ∷ B → ¬ Neutral v
+  ¬t⇒*ne t⇒*v v-ne = ¬t⇒*sne t⇒*v (U.ne v-ne)
+
   u⇒*ne : Γ ⊢ u ⇒* v ∷ B → Neutral v
   u⇒*ne u⇒*v =
-    case whnfRed*Term u⇒*v (U.ne u-ne) of λ {
+    case whnfRed*Term u⇒*v (U.ne! u-ne) of λ {
       PE.refl →
     u-ne }
 
-  lemma : ([A] : Γ ⊩⟨ l ⟩ A) → ¬ Γ ⊩⟨ l ⟩ t ≡ u ∷ A / [A]
+  lemma : ∀ {l} → ([A] : Γ ⊩⟨ l ⟩ A) → ¬ Γ ⊩⟨ l ⟩ t ≡ u ∷ A / [A]
   lemma = λ where
+    (Levelᵣ _) (Levelₜ₌ _ _ _ u⇒ zeroᵘᵣ) →
+      U.zeroᵘ≢ne (U.ne (u⇒*ne u⇒)) PE.refl
+    (Levelᵣ _) (Levelₜ₌ _ _ _ u⇒ (sucᵘᵣ x)) →
+      U.sucᵘ≢ne (U.ne (u⇒*ne u⇒)) PE.refl
+    (Levelᵣ _) (Levelₜ₌ _ _ t⇒ _ (ne (sneₜ₌ n₁ n₂ _))) →
+      ¬t⇒*sne t⇒ n₁
     (ℕᵣ _) (ℕₜ₌ _ _ _ u⇒*zero _ zeroᵣ) →
       U.zero≢ne (u⇒*ne u⇒*zero) PE.refl
     (ℕᵣ _) (ℕₜ₌ _ _ _ u⇒*suc _ (sucᵣ _)) →
@@ -471,11 +531,11 @@ whnf≢ne {Γ} {A} {t} {u} ¬-A-η t-whnf ¬-t-ne u-ne t≡u =
       ¬t⇒*ne t⇒*v v-ne
     (Emptyᵣ _) (Emptyₜ₌ _ _ t⇒*v _ _ (ne (neNfₜ₌ _ v-ne _ _))) →
       ¬t⇒*ne t⇒*v v-ne
-    (Unitᵣ′ _ _ A⇒*Unit _) (Unitₜ₌ _ _ (d , _) (d′ , _) prop) →
+    (Unitᵣ′ _ _ _ A⇒*Unit _) (Unitₜ₌ _ _ (d , _) (d′ , _) prop) →
       case A⇒*no-η A⇒*Unit of λ where
         (U.neₙ ())
         (U.Unitʷₙ no-η) → case prop of λ where
-          (Unitₜ₌ʷ starᵣ _) →
+          (Unitₜ₌ʷ (starᵣ _ _) _) →
             U.star≢ne (u⇒*ne d′) PE.refl
           (Unitₜ₌ʷ (ne (neNfₜ₌ _ neK _ _)) _) →
             ¬t⇒*ne d neK
@@ -500,6 +560,7 @@ whnf≢ne {Γ} {A} {t} {u} ¬-A-η t-whnf ¬-t-ne u-ne t≡u =
         (rfl₌ _)         → U.rfl≢ne (u⇒*ne u⇒*u′) PE.refl
     (Uᵣ _) (Uₜ₌ _ _ t⇒*A u⇒*B A-type B-type A≡B _ _ _) →
       case B-type of λ where
+        U.Levelₙ    → U.Level≢ne (u⇒*ne u⇒*B) PE.refl
         U.Uₙ        → U.U≢ne     (u⇒*ne u⇒*B) PE.refl
         U.ΠΣₙ       → U.ΠΣ≢ne _  (u⇒*ne u⇒*B) PE.refl
         U.ℕₙ        → U.ℕ≢ne     (u⇒*ne u⇒*B) PE.refl
@@ -508,6 +569,7 @@ whnf≢ne {Γ} {A} {t} {u} ¬-A-η t-whnf ¬-t-ne u-ne t≡u =
         U.Idₙ       → U.Id≢ne    (u⇒*ne u⇒*B) PE.refl
         (U.ne B-ne) → case A-type of λ where
           (U.ne A-ne) → ⊥-elim (¬t⇒*ne t⇒*A A-ne)
+          U.Levelₙ    → Level≢ne  B-ne (univ A≡B)
           U.Uₙ        → U≢ne      B-ne (univ A≡B)
           U.ΠΣₙ       → ΠΣ≢ne     B-ne (univ A≡B)
           U.ℕₙ        → ℕ≢ne      B-ne (univ A≡B)
@@ -522,7 +584,7 @@ zero≢ne :
   ⦃ ok : No-equality-reflection or-empty Γ ⦄ →
   Neutral t →
   ¬ Γ ⊢ zero ≡ t ∷ ℕ
-zero≢ne = whnf≢ne U.ℕₙ U.zeroₙ (λ ())
+zero≢ne = whnf≢ne U.ℕₙ U.zeroₙ (λ { (U.ne ()) })
 
 -- The term suc t is not definitionally equal (at type ℕ) to any
 -- neutral term (given a certain assumption).
@@ -531,7 +593,7 @@ suc≢ne :
   ⦃ ok : No-equality-reflection or-empty Γ ⦄ →
   Neutral u →
   ¬ Γ ⊢ suc t ≡ u ∷ ℕ
-suc≢ne = whnf≢ne U.ℕₙ U.sucₙ (λ ())
+suc≢ne = whnf≢ne U.ℕₙ U.sucₙ (λ { (U.ne ()) })
 
 -- The term starʷ l is not definitionally equal (at type Unitʷ l) to
 -- any neutral term (given certain assumptions).
@@ -541,7 +603,7 @@ starʷ≢ne :
   ¬ Unitʷ-η →
   Neutral t →
   ¬ Γ ⊢ starʷ l ≡ t ∷ Unitʷ l
-starʷ≢ne no-η = whnf≢ne (U.Unitʷₙ no-η) U.starₙ (λ ())
+starʷ≢ne no-η = whnf≢ne (U.Unitʷₙ no-η) U.starₙ (λ { (U.ne ()) })
 
 -- The term prodʷ p t u is not definitionally equal (at type
 -- Σʷ p , q ▷ A ▹ B) to any neutral term (given a certain assumption).
@@ -550,7 +612,7 @@ prodʷ≢ne :
   ⦃ ok : No-equality-reflection or-empty Γ ⦄ →
   Neutral v →
   ¬ Γ ⊢ prodʷ p t u ≡ v ∷ Σʷ p , q ▷ A ▹ B
-prodʷ≢ne = whnf≢ne U.Σʷₙ U.prodₙ (λ ())
+prodʷ≢ne = whnf≢ne U.Σʷₙ U.prodₙ (λ { (U.ne ()) })
 
 -- The term rfl is not definitionally equal (at type Id A t u) to any
 -- neutral term (given a certain assumption).
@@ -559,4 +621,4 @@ rfl≢ne :
   ⦃ ok : No-equality-reflection or-empty Γ ⦄ →
   Neutral v →
   ¬ Γ ⊢ rfl ≡ v ∷ Id A t u
-rfl≢ne = whnf≢ne U.Idₙ U.rflₙ (λ ())
+rfl≢ne = whnf≢ne U.Idₙ U.rflₙ (λ { (U.ne ()) })

@@ -22,13 +22,16 @@ open import Definition.Untyped.Neutral M type-variant
 open import Definition.Untyped.Properties M
 open import Definition.Typed R
 open import Definition.Typed.Properties R
-open import Definition.LogicalRelation R
-open import Definition.LogicalRelation.Properties.Kit R
-open import Definition.LogicalRelation.ShapeView R
+open import Definition.LogicalRelation R ⦃ eqrel ⦄
+open import Definition.LogicalRelation.Properties.Kit R ⦃ eqrel ⦄
+open import Definition.LogicalRelation.Properties.Primitive R ⦃ eqrel ⦄
+open import Definition.LogicalRelation.Properties.Reflexivity R ⦃ eqrel ⦄
+open import Definition.LogicalRelation.Properties.Whnf R ⦃ eqrel ⦄
+open import Definition.LogicalRelation.ShapeView R ⦃ eqrel ⦄
 
 open import Tools.Function
-open import Tools.Level
-open import Tools.Nat hiding (_<_)
+open import Tools.Level hiding (_⊔_)
+open import Tools.Nat
 open import Tools.Product
 import Tools.PropositionalEquality as PE
 
@@ -36,8 +39,74 @@ private
   variable
     n : Nat
     Γ Γ′ : Con Term n
-    A A′ B B′ C C′ : Term _
+    A A′ B B′ C C′ t : Term _
     l l′ : Universe-level
+
+-- Irrelevance for level reflection.
+
+opaque
+  unfolding ↑ᵘ′_
+
+  mutual
+    ↑ᵘ′-cong
+      : ∀ {t t′ u u′} (t≡t′ : Γ ⊩Level t ≡ t′ ∷Level) (u≡u′ : Γ ⊩Level u ≡ u′ ∷Level)
+      → Γ ⊩Level t ≡ u ∷Level
+      → ↑ᵘ′ t≡t′ PE.≡ ↑ᵘ′ u≡u′
+    ↑ᵘ′-cong (Levelₜ₌ _ _ t⇒ t′⇒ [t]) (Levelₜ₌ _ _ u⇒ u′⇒ [u]) (Levelₜ₌ _ _ t⇒′ u⇒′ t≡u) =
+      case whrDet*Term (t⇒ , lsplit [t] .proj₁) (t⇒′ , lsplit t≡u .proj₁) of λ {
+        PE.refl →
+      case whrDet*Term (u⇒ , lsplit [u] .proj₁) (u⇒′ , lsplit t≡u .proj₂) of λ {
+        PE.refl →
+      ↑ᵘ′-prop-cong [t] [u] t≡u }}
+
+    ↑ᵘ′-prop-cong
+      : ∀ {t t′ u u′} (t≡t′ : [Level]-prop Γ t t′) (u≡u′ : [Level]-prop Γ u u′)
+      → [Level]-prop Γ t u
+      → ↑ᵘ′-prop t≡t′ PE.≡ ↑ᵘ′-prop u≡u′
+    ↑ᵘ′-prop-cong zeroᵘᵣ zeroᵘᵣ zeroᵘᵣ = PE.refl
+    ↑ᵘ′-prop-cong (sucᵘᵣ a) (sucᵘᵣ b) (sucᵘᵣ c) = PE.cong 1+ (↑ᵘ′-cong a b c)
+    ↑ᵘ′-prop-cong (ne a) (ne b) (ne c) = ↑ᵘ′-ne-cong a b c
+    ↑ᵘ′-prop-cong zeroᵘᵣ (ne (sneₜ₌ (ne ()) _ _)) zeroᵘᵣ
+    ↑ᵘ′-prop-cong (ne (sneₜ₌ (ne ()) _ _)) _ zeroᵘᵣ
+    ↑ᵘ′-prop-cong (sucᵘᵣ _) (ne (sneₜ₌ (ne ()) _ _)) (sucᵘᵣ _)
+    ↑ᵘ′-prop-cong (ne (sneₜ₌ (ne ()) _ _)) _ (sucᵘᵣ _)
+    ↑ᵘ′-prop-cong zeroᵘᵣ _ (ne (sneₜ₌ (ne ()) _ _))
+    ↑ᵘ′-prop-cong (sucᵘᵣ _) _ (ne (sneₜ₌ (ne ()) _ _))
+    ↑ᵘ′-prop-cong (ne _) zeroᵘᵣ (ne (sneₜ₌ _ (ne ()) _))
+    ↑ᵘ′-prop-cong (ne _) (sucᵘᵣ _) (ne (sneₜ₌ _ (ne ()) _))
+
+    ↑ᵘ′-ne-cong
+      : ∀ {t t′ u u′} (t≡t′ : Γ ⊩sne t ≡ t′) (u≡u′ : Γ ⊩sne u ≡ u′)
+      → Γ ⊩sne t ≡ u
+      → ↑ᵘ′-ne t≡t′ PE.≡ ↑ᵘ′-ne u≡u′
+    ↑ᵘ′-ne-cong (sneₜ₌ _ _ a) (sneₜ₌ _ _ b) (sneₜ₌ _ _ c) = ↑ᵘ′-neprop-cong a b c
+
+    ↑ᵘ′-neprop-cong
+      : ∀ {t t′ u u′} (t≡t′ : [sne]-prop Γ t t′) (u≡u′ : [sne]-prop Γ u u′)
+      → [sne]-prop Γ t u
+      → ↑ᵘ′-neprop t≡t′ PE.≡ ↑ᵘ′-neprop u≡u′
+    ↑ᵘ′-neprop-cong (maxᵘᵣ a₁ a₂) (maxᵘᵣ b₁ b₂) (maxᵘᵣ c₁ c₂) =
+      PE.cong₂ _⊔_ (↑ᵘ′-cong a₁ b₁ c₁) (↑ᵘ′-cong a₂ b₂ c₂)
+    ↑ᵘ′-neprop-cong (ne _) (ne _) (ne _) = PE.refl
+    ↑ᵘ′-neprop-cong (maxᵘᵣ _ _) (ne (neNfₜ₌ _ () _ _)) (maxᵘᵣ _ _)
+    ↑ᵘ′-neprop-cong (ne (neNfₜ₌ _ () _ _)) _ (maxᵘᵣ _ _)
+    ↑ᵘ′-neprop-cong (maxᵘᵣ _ _) _ (ne (neNfₜ₌ _ () _ _))
+    ↑ᵘ′-neprop-cong (ne _) (maxᵘᵣ _ _) (ne (neNfₜ₌ _ _ () _))
+
+↑ᵘ-cong
+  : ∀ {t t′ u u′} {t≡t′ : Γ ⊩Level t ≡ t′ ∷Level} {u≡u′ : Γ ⊩Level u ≡ u′ ∷Level}
+  → Γ ⊩Level t ≡ u ∷Level → ↑ᵘ t≡t′ PE.≡ ↑ᵘ u≡u′
+↑ᵘ-cong {t≡t′} {u≡u′} t≡u = PE.cong 0ᵘ+_ (↑ᵘ′-cong t≡t′ u≡u′ t≡u)
+
+↑ᵘ′-irrelevance
+  : ∀ {t u u′} (t≡u : Γ ⊩Level t ≡ u ∷Level) (t≡u′ : Γ ⊩Level t ≡ u′ ∷Level)
+  → ↑ᵘ′ t≡u PE.≡ ↑ᵘ′ t≡u′
+↑ᵘ′-irrelevance t≡u t≡u′ = ↑ᵘ′-cong t≡u t≡u′ (wf-⊩Level t≡u .proj₁)
+
+↑ᵘ-irrelevance
+  : ∀ {t u u′} {t≡u : Γ ⊩Level t ≡ u ∷Level} {t≡u′ : Γ ⊩Level t ≡ u′ ∷Level}
+  → ↑ᵘ t≡u PE.≡ ↑ᵘ t≡u′
+↑ᵘ-irrelevance {t≡u} {t≡u′} = PE.cong 0ᵘ+_ (↑ᵘ′-irrelevance t≡u t≡u′)
 
 -- Irrelevance for propositionally equal types
 irrelevance′ : ∀ {A A′ l}
@@ -89,16 +158,17 @@ mutual
   irrelevanceEqT : ∀ {A B l l′} {p : Γ ⊩⟨ l ⟩ A} {q : Γ ⊩⟨ l′ ⟩ A}
                        → ShapeView Γ l l′ A A p q
                        → Γ ⊩⟨ l ⟩ A ≡ B / p → Γ ⊩⟨ l′ ⟩ A ≡ B / q
+  irrelevanceEqT (Levelᵥ D D′) A≡B = A≡B
   irrelevanceEqT (ℕᵥ D D′) A≡B = A≡B
   irrelevanceEqT (Emptyᵥ D D′) A≡B = A≡B
-  irrelevanceEqT (Unitᵥ (Unitᵣ _ _ A⇒*Unit₁ _) (Unitᵣ _ _ A⇒*Unit₂ _)) A≡B =
+  irrelevanceEqT (Unitᵥ (Unitᵣ _ _ _ A⇒*Unit₁ _) (Unitᵣ _ _ _ A⇒*Unit₂ _)) (Unit₌ k′ D k≡k′) =
     case Unit-PE-injectivity $
          whrDet* (A⇒*Unit₁ , Unitₙ) (A⇒*Unit₂ , Unitₙ) of λ {
       (_ , PE.refl) →
-    A≡B }
+    Unit₌ k′ D k≡k′ }
   irrelevanceEqT
     (ne (ne _ _ D neK _) (ne _ K₁ D₁ neK₁ K≡K₁)) (ne₌ inc M D′ neM K≡M)
-    rewrite whrDet* (D , ne neK) (D₁ , ne neK₁) =
+    rewrite whrDet* (D , ne! neK) (D₁ , ne! neK₁) =
     ne₌ inc M D′ neM K≡M
   irrelevanceEqT
     {Γ = Γ}
@@ -116,8 +186,11 @@ mutual
                                          ([F]₁ [ρ]) ([F] [ρ]) [a]₁
               in  irrelevanceEq′ (PE.cong (λ y → wk (lift ρ) y [ _ ]) G≡G₁)
                     ([G] [ρ] [a]) ([G]₁ [ρ] [a]₁) ([G≡G′] [ρ] [a]))
-  irrelevanceEqT (Uᵥ (Uᵣ _ _ D1) (Uᵣ _ _ D2)) A≡B
-    rewrite whrDet* (D1 , Uₙ) (D2 , Uₙ) = A≡B
+  irrelevanceEqT (Uᵥ (Uᵣ _ _ _ D1) (Uᵣ _ _ _ D2)) A≡B
+    = case whrDet* (D1 , Uₙ) (D2 , Uₙ) of λ { PE.refl →
+        U₌ k′ ⇒*U′ k≡k′ }
+    where
+    open _⊩₁U≡_/_ A≡B
   irrelevanceEqT (Idᵥ ⊩A@record{} ⊩A′) A≡B =
     case whrDet* (_⊩ₗId_.⇒*Id ⊩A , Idₙ) (_⊩ₗId_.⇒*Id ⊩A′ , Idₙ) of λ {
       PE.refl →
@@ -195,16 +268,17 @@ mutual
   irrelevanceEqTermT : ∀ {A t u} {l l′} {p : Γ ⊩⟨ l ⟩ A} {q : Γ ⊩⟨ l′ ⟩ A}
                            → ShapeView Γ l l′ A A p q
                            → Γ ⊩⟨ l ⟩ t ≡ u ∷ A / p → Γ ⊩⟨ l′ ⟩ t ≡ u ∷ A / q
+  irrelevanceEqTermT (Levelᵥ D D′) t≡u = t≡u
   irrelevanceEqTermT (ℕᵥ D D′) t≡u = t≡u
   irrelevanceEqTermT (Emptyᵥ D D′) t≡u = t≡u
-  irrelevanceEqTermT (Unitᵥ (Unitᵣ _ _ A⇒*Unit₁ _) (Unitᵣ _ _ A⇒*Unit₂ _)) t≡u =
+  irrelevanceEqTermT (Unitᵥ (Unitᵣ _ _ _ A⇒*Unit₁ _) (Unitᵣ _ _ _ A⇒*Unit₂ _)) t≡u =
     case Unit-PE-injectivity $
          whrDet* (A⇒*Unit₁ , Unitₙ) (A⇒*Unit₂ , Unitₙ) of λ {
       (_ , PE.refl) →
     t≡u }
   irrelevanceEqTermT
     (ne (ne _ _ D neK K≡K) (ne _ K₁ D₁ neK₁ K≡K₁)) (neₜ₌ k m d d′ nf)
-    with whrDet* (D₁ , ne neK₁) (D , ne neK)
+    with whrDet* (D₁ , ne! neK₁) (D , ne! neK)
   … | PE.refl = neₜ₌ k m d d′ nf
   irrelevanceEqTermT
     {Γ = Γ} {t = t} {u = u}
@@ -277,13 +351,12 @@ mutual
     (Bᵥ BΣʷ record{} _) (Σₜ₌ _ _ _ _ prodₙ (ne _) _ (lift ()))
   irrelevanceEqTermT
     (Bᵥ BΣʷ record{} _) (Σₜ₌ _ _ _ _ (ne _) prodₙ _ (lift ()))
-  irrelevanceEqTermT (Uᵥ (Uᵣ _ l<1 ⇒*U1) (Uᵣ _ l<2 ⇒*U2))
+  irrelevanceEqTermT (Uᵥ (Uᵣ k [k] k< ⇒*U1) (Uᵣ k′ [k′] k′< ⇒*U2))
     (Uₜ₌ A B d d′ typeA typeB A≡B [t] [u] [t≡u])
     with whrDet* (⇒*U1 , Uₙ) (⇒*U2 ,  Uₙ)
-  irrelevanceEqTermT (Uᵥ (Uᵣ _ l<1 ⇒*U1) (Uᵣ _ l<2 ⇒*U2))
-    (Uₜ₌ A B d d′ typeA typeB A≡B [t] [u] [t≡u]) | PE.refl =
-    Uₜ₌ A B d d′ typeA typeB A≡B _ (irrelevance-⊩< l<1 l<2 [u])
-      (irrelevance-⊩<≡ l<1 l<2 [t≡u])
+  ... | PE.refl = Uₜ₌ A B d d′ typeA typeB A≡B _
+    (irrelevance-⊩< ↑ᵘ-irrelevance k< k′< [u])
+    (irrelevance-⊩<≡ ↑ᵘ-irrelevance k< k′< [t≡u])
   irrelevanceEqTermT
     (Idᵥ ⊩A@record{} ⊩A′) t≡u@(_ , _ , t⇒*t′ , u⇒*u′ , _) =
     case whrDet* (_⊩ₗId_.⇒*Id ⊩A , Idₙ) (_⊩ₗId_.⇒*Id ⊩A′ , Idₙ) of λ {

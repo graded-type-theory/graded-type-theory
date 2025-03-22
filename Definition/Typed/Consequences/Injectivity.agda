@@ -21,6 +21,7 @@ open import Definition.Typed R
 open import Definition.Typed.Properties R
 open import Definition.Typed.EqRelInstance R
 open import Definition.LogicalRelation.Hidden R
+open import Definition.LogicalRelation.Properties R
 open import Definition.LogicalRelation.Fundamental.Reducibility R
 open import Definition.LogicalRelation.Substitution.Introductions R
 
@@ -33,10 +34,9 @@ private
   variable
     n : Nat
     Γ : Con Term n
-    A₁ A₂ B₁ B₂ t₁ t₂ u₁ u₂ : Term _
+    A₁ A₂ B₁ B₂ l l₁ l₂ t₁ t₂ u₁ u₂ : Term _
     p₁ p₂ q₁ q₂ : M
     b₁ b₂ : BinderMode
-    l l₁ l₂ : Universe-level
     s₁ s₂ : Strength
 
 opaque
@@ -45,13 +45,11 @@ opaque
 
   U-injectivity :
     ⦃ ok : No-equality-reflection or-empty Γ ⦄ →
-    Γ ⊢ U l₁ ≡ U l₂ → l₁ PE.≡ l₂
+    Γ ⊢ U l₁ ≡ U l₂ → Γ ⊢ l₁ ≡ l₂ ∷ Level
   U-injectivity U≡U =
-    case ⊩U≡⇔ .proj₁ $ reducible-⊩≡ U≡U .proj₂ of λ
-      (_ , U⇒*U) →
-    case whnfRed* U⇒*U Uₙ of λ {
-      PE.refl →
-    PE.refl }
+    case ⊩U≡U⇔ .proj₁ $ reducible-⊩≡ U≡U .proj₂ of λ
+      (l₁≡l₂ , _) →
+    escapeLevelEq l₁≡l₂
 
 opaque
 
@@ -138,9 +136,9 @@ opaque
   Unit-injectivity :
     ⦃ ok : No-equality-reflection or-empty Γ ⦄ →
     Γ ⊢ Unit s₁ l₁ ≡ Unit s₂ l₂ →
-    s₁ PE.≡ s₂ × l₁ PE.≡ l₂
+    s₁ PE.≡ s₂ × Γ ⊢ l₁ ≡ l₂ ∷ Level
   Unit-injectivity {Γ} {s₁} {l₁} {s₂} {l₂} =
-    Γ ⊢ Unit s₁ l₁ ≡ Unit s₂ l₂                      →⟨ reducible-⊩≡ ⟩
-    (∃ λ l → Γ ⊩⟨ l ⟩ Unit s₁ l₁ ≡ Unit s₂ l₂)       →⟨ proj₂ ∘→ ⊩Unit≡Unit⇔ .proj₁ ∘→ proj₂ ⟩
-    ⊢ Γ × Unit-allowed s₁ × s₁ PE.≡ s₂ × l₁ PE.≡ l₂  →⟨ proj₂ ∘→ proj₂ ⟩
-    s₁ PE.≡ s₂ × l₁ PE.≡ l₂                          □
+    Γ ⊢ Unit s₁ l₁ ≡ Unit s₂ l₂                 →⟨ reducible-⊩≡ ⟩
+    (∃ λ l → Γ ⊩⟨ l ⟩ Unit s₁ l₁ ≡ Unit s₂ l₂)  →⟨ map idᶠ proj₂ ∘→ ⊩Unit≡Unit⇔ .proj₁ ∘→ proj₂ ⟩
+    (∃ λ l₁≡l₂ → Unit-allowed s₁ × s₁ PE.≡ s₂)  →⟨ (λ (l₁≡l₂ , _ , s₁≡s₂) → s₁≡s₂ , escapeLevelEq l₁≡l₂) ⟩
+    (s₁ PE.≡ s₂ × Γ ⊢ l₁ ≡ l₂ ∷ Level)          □

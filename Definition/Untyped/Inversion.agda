@@ -13,7 +13,7 @@ open import Tools.PropositionalEquality
 open import Tools.Sum
 
 private variable
-  l              : Nat
+  l              : Term _
   x              : Fin _
   ρ              : Wk _ _
   A B t t′ u v w : Term _
@@ -28,6 +28,10 @@ wk-var :
   wk ρ t ≡ var x →
   ∃ λ x′ → t ≡ var x′ × wkVar ρ x′ ≡ x
 wk-var {t = var _}                 refl = _ , refl , refl
+wk-var {t = Level}                 ()
+wk-var {t = zeroᵘ}                 ()
+wk-var {t = sucᵘ _}                ()
+wk-var {t = _ maxᵘ _}              ()
 wk-var {t = U _}                   ()
 wk-var {t = ΠΣ⟨ _ ⟩ _ , _ ▷ _ ▹ _} ()
 wk-var {t = lam _ _}               ()
@@ -55,6 +59,10 @@ subst-var :
   t [ σ ] ≡ var x →
   ∃ λ x′ → t ≡ var x′ ×  σ x′ ≡ var x
 subst-var {t = var _}                 eq = _ , refl , eq
+subst-var {t = Level}                 ()
+subst-var {t = zeroᵘ}                 ()
+subst-var {t = sucᵘ _}                ()
+subst-var {t = _ maxᵘ _}              ()
 subst-var {t = U _}                   ()
 subst-var {t = ΠΣ⟨ _ ⟩ _ , _ ▷ _ ▹ _} ()
 subst-var {t = lam _ _}               ()
@@ -78,10 +86,263 @@ subst-var {t = J _ _ _ _ _ _ _ _}     ()
 subst-var {t = K _ _ _ _ _ _}         ()
 subst-var {t = []-cong _ _ _ _ _}     ()
 
+-- Inversion for Level.
+
+wk-Level : wk ρ t ≡ Level → t ≡ Level
+wk-Level {t = Level}                 refl = refl
+wk-Level {t = var _}                 ()
+wk-Level {t = zeroᵘ}                 ()
+wk-Level {t = sucᵘ _}                ()
+wk-Level {t = _ maxᵘ _}              ()
+wk-Level {t = U _}                   ()
+wk-Level {t = ΠΣ⟨ _ ⟩ _ , _ ▷ _ ▹ _} ()
+wk-Level {t = lam _ _}               ()
+wk-Level {t = _ ∘⟨ _ ⟩ _}            ()
+wk-Level {t = prod _ _ _ _}          ()
+wk-Level {t = fst _ _}               ()
+wk-Level {t = snd _ _}               ()
+wk-Level {t = prodrec _ _ _ _ _ _}   ()
+wk-Level {t = Empty}                 ()
+wk-Level {t = emptyrec _ _ _}        ()
+wk-Level {t = Unit _ _}              ()
+wk-Level {t = star _ _}              ()
+wk-Level {t = unitrec _ _ _ _ _ _}   ()
+wk-Level {t = ℕ}                     ()
+wk-Level {t = zero}                  ()
+wk-Level {t = suc _}                 ()
+wk-Level {t = natrec _ _ _ _ _ _ _}  ()
+wk-Level {t = Id _ _ _}              ()
+wk-Level {t = rfl}                   ()
+wk-Level {t = J _ _ _ _ _ _ _ _}     ()
+wk-Level {t = K _ _ _ _ _ _}         ()
+wk-Level {t = []-cong _ _ _ _ _}     ()
+
+subst-Level : t [ σ ] ≡ Level → (∃ λ x → t ≡ var x) ⊎ t ≡ Level
+subst-Level {t = var _}                 _ = inj₁ (_ , refl)
+subst-Level {t = Level}                 refl = inj₂ refl
+subst-Level {t = zeroᵘ}                 ()
+subst-Level {t = sucᵘ _}                ()
+subst-Level {t = _ maxᵘ _}              ()
+subst-Level {t = U _}                   ()
+subst-Level {t = ΠΣ⟨ _ ⟩ _ , _ ▷ _ ▹ _} ()
+subst-Level {t = lam _ _}               ()
+subst-Level {t = _ ∘⟨ _ ⟩ _}            ()
+subst-Level {t = prod _ _ _ _}          ()
+subst-Level {t = fst _ _}               ()
+subst-Level {t = snd _ _}               ()
+subst-Level {t = prodrec _ _ _ _ _ _}   ()
+subst-Level {t = Empty}                 ()
+subst-Level {t = emptyrec _ _ _}        ()
+subst-Level {t = Unit _ _}              ()
+subst-Level {t = star _ _}              ()
+subst-Level {t = unitrec _ _ _ _ _ _}   ()
+subst-Level {t = ℕ}                     ()
+subst-Level {t = zero}                  ()
+subst-Level {t = suc _}                 ()
+subst-Level {t = natrec _ _ _ _ _ _ _}  ()
+subst-Level {t = Id _ _ _}              ()
+subst-Level {t = rfl}                   ()
+subst-Level {t = J _ _ _ _ _ _ _ _}     ()
+subst-Level {t = K _ _ _ _ _ _}         ()
+subst-Level {t = []-cong _ _ _ _ _}     ()
+
+-- Inversion for zeroᵘ.
+
+wk-zeroᵘ : wk ρ t ≡ zeroᵘ → t ≡ zeroᵘ
+wk-zeroᵘ {t = zeroᵘ}                 refl = refl
+wk-zeroᵘ {t = var _}                 ()
+wk-zeroᵘ {t = Level}                 ()
+wk-zeroᵘ {t = sucᵘ _}                ()
+wk-zeroᵘ {t = _ maxᵘ _}              ()
+wk-zeroᵘ {t = U _}                   ()
+wk-zeroᵘ {t = ΠΣ⟨ _ ⟩ _ , _ ▷ _ ▹ _} ()
+wk-zeroᵘ {t = lam _ _}               ()
+wk-zeroᵘ {t = _ ∘⟨ _ ⟩ _}            ()
+wk-zeroᵘ {t = prod _ _ _ _}          ()
+wk-zeroᵘ {t = fst _ _}               ()
+wk-zeroᵘ {t = snd _ _}               ()
+wk-zeroᵘ {t = prodrec _ _ _ _ _ _}   ()
+wk-zeroᵘ {t = Empty}                 ()
+wk-zeroᵘ {t = emptyrec _ _ _}        ()
+wk-zeroᵘ {t = Unit _ _}              ()
+wk-zeroᵘ {t = star _ _}              ()
+wk-zeroᵘ {t = unitrec _ _ _ _ _ _}   ()
+wk-zeroᵘ {t = ℕ}                     ()
+wk-zeroᵘ {t = zero}                  ()
+wk-zeroᵘ {t = suc _}                 ()
+wk-zeroᵘ {t = natrec _ _ _ _ _ _ _}  ()
+wk-zeroᵘ {t = Id _ _ _}              ()
+wk-zeroᵘ {t = rfl}                   ()
+wk-zeroᵘ {t = J _ _ _ _ _ _ _ _}     ()
+wk-zeroᵘ {t = K _ _ _ _ _ _}         ()
+wk-zeroᵘ {t = []-cong _ _ _ _ _}     ()
+
+subst-zeroᵘ : t [ σ ] ≡ zeroᵘ → (∃ λ x → t ≡ var x) ⊎ t ≡ zeroᵘ
+subst-zeroᵘ {t = var _}                 _ = inj₁ (_ , refl)
+subst-zeroᵘ {t = zeroᵘ}                 refl = inj₂ refl
+subst-zeroᵘ {t = Level}                 ()
+subst-zeroᵘ {t = sucᵘ _}                ()
+subst-zeroᵘ {t = _ maxᵘ _}              ()
+subst-zeroᵘ {t = U _}                   ()
+subst-zeroᵘ {t = ΠΣ⟨ _ ⟩ _ , _ ▷ _ ▹ _} ()
+subst-zeroᵘ {t = lam _ _}               ()
+subst-zeroᵘ {t = _ ∘⟨ _ ⟩ _}            ()
+subst-zeroᵘ {t = prod _ _ _ _}          ()
+subst-zeroᵘ {t = fst _ _}               ()
+subst-zeroᵘ {t = snd _ _}               ()
+subst-zeroᵘ {t = prodrec _ _ _ _ _ _}   ()
+subst-zeroᵘ {t = Empty}                 ()
+subst-zeroᵘ {t = emptyrec _ _ _}        ()
+subst-zeroᵘ {t = Unit _ _}              ()
+subst-zeroᵘ {t = star _ _}              ()
+subst-zeroᵘ {t = unitrec _ _ _ _ _ _}   ()
+subst-zeroᵘ {t = ℕ}                     ()
+subst-zeroᵘ {t = zero}                  ()
+subst-zeroᵘ {t = suc _}                 ()
+subst-zeroᵘ {t = natrec _ _ _ _ _ _ _}  ()
+subst-zeroᵘ {t = Id _ _ _}              ()
+subst-zeroᵘ {t = rfl}                   ()
+subst-zeroᵘ {t = J _ _ _ _ _ _ _ _}     ()
+subst-zeroᵘ {t = K _ _ _ _ _ _}         ()
+subst-zeroᵘ {t = []-cong _ _ _ _ _}     ()
+
+-- Inversion for sucᵘ.
+
+wk-sucᵘ :
+  wk ρ t ≡ sucᵘ u →
+  ∃ λ u′ → t ≡ sucᵘ u′ × wk ρ u′ ≡ u
+wk-sucᵘ {t = sucᵘ _}                refl = _ , refl , refl
+wk-sucᵘ {t = var _}                 ()
+wk-sucᵘ {t = Level}                 ()
+wk-sucᵘ {t = zeroᵘ}                 ()
+wk-sucᵘ {t = _ maxᵘ _}              ()
+wk-sucᵘ {t = U _}                   ()
+wk-sucᵘ {t = ΠΣ⟨ _ ⟩ _ , _ ▷ _ ▹ _} ()
+wk-sucᵘ {t = lam _ _}               ()
+wk-sucᵘ {t = _ ∘⟨ _ ⟩ _}            ()
+wk-sucᵘ {t = prod _ _ _ _}          ()
+wk-sucᵘ {t = fst _ _}               ()
+wk-sucᵘ {t = snd _ _}               ()
+wk-sucᵘ {t = prodrec _ _ _ _ _ _}   ()
+wk-sucᵘ {t = Empty}                 ()
+wk-sucᵘ {t = emptyrec _ _ _}        ()
+wk-sucᵘ {t = Unit _ _}              ()
+wk-sucᵘ {t = star _ _}              ()
+wk-sucᵘ {t = unitrec _ _ _ _ _ _}   ()
+wk-sucᵘ {t = ℕ}                     ()
+wk-sucᵘ {t = zero}                  ()
+wk-sucᵘ {t = suc _}                 ()
+wk-sucᵘ {t = natrec _ _ _ _ _ _ _}  ()
+wk-sucᵘ {t = Id _ _ _}              ()
+wk-sucᵘ {t = rfl}                   ()
+wk-sucᵘ {t = J _ _ _ _ _ _ _ _}     ()
+wk-sucᵘ {t = K _ _ _ _ _ _}         ()
+wk-sucᵘ {t = []-cong _ _ _ _ _}     ()
+
+subst-sucᵘ :
+  t [ σ ] ≡ sucᵘ u →
+  (∃ λ x → t ≡ var x) ⊎ ∃ λ u′ → t ≡ sucᵘ u′ × u′ [ σ ] ≡ u
+subst-sucᵘ {t = var _}                 _ = inj₁ (_ , refl)
+subst-sucᵘ {t = sucᵘ _}                refl = inj₂ (_ , refl , refl)
+subst-sucᵘ {t = Level}                 ()
+subst-sucᵘ {t = zeroᵘ}                 ()
+subst-sucᵘ {t = _ maxᵘ _}              ()
+subst-sucᵘ {t = U _}                   ()
+subst-sucᵘ {t = ΠΣ⟨ _ ⟩ _ , _ ▷ _ ▹ _} ()
+subst-sucᵘ {t = lam _ _}               ()
+subst-sucᵘ {t = _ ∘⟨ _ ⟩ _}            ()
+subst-sucᵘ {t = prod _ _ _ _}          ()
+subst-sucᵘ {t = fst _ _}               ()
+subst-sucᵘ {t = snd _ _}               ()
+subst-sucᵘ {t = prodrec _ _ _ _ _ _}   ()
+subst-sucᵘ {t = Empty}                 ()
+subst-sucᵘ {t = emptyrec _ _ _}        ()
+subst-sucᵘ {t = Unit _ _}              ()
+subst-sucᵘ {t = star _ _}              ()
+subst-sucᵘ {t = unitrec _ _ _ _ _ _}   ()
+subst-sucᵘ {t = ℕ}                     ()
+subst-sucᵘ {t = zero}                  ()
+subst-sucᵘ {t = suc _}                 ()
+subst-sucᵘ {t = natrec _ _ _ _ _ _ _}  ()
+subst-sucᵘ {t = Id _ _ _}              ()
+subst-sucᵘ {t = rfl}                   ()
+subst-sucᵘ {t = J _ _ _ _ _ _ _ _}     ()
+subst-sucᵘ {t = K _ _ _ _ _ _}         ()
+subst-sucᵘ {t = []-cong _ _ _ _ _}     ()
+
+-- Inversion for _maxᵘ_.
+
+wk-maxᵘ :
+  wk ρ t ≡ u maxᵘ v →
+  ∃₂ λ u′ v′ → t ≡ u′ maxᵘ v′ × wk ρ u′ ≡ u × wk ρ v′ ≡ v
+wk-maxᵘ {t = _ maxᵘ _} refl = _ , _ , refl , refl , refl
+wk-maxᵘ {t = Level}                 ()
+wk-maxᵘ {t = zeroᵘ}                 ()
+wk-maxᵘ {t = sucᵘ _}                ()
+wk-maxᵘ {t = U _}                   ()
+wk-maxᵘ {t = var _}                 ()
+wk-maxᵘ {t = ΠΣ⟨ _ ⟩ _ , _ ▷ _ ▹ _} ()
+wk-maxᵘ {t = lam _ _}               ()
+wk-maxᵘ {t = _ ∘⟨ _ ⟩ _}            ()
+wk-maxᵘ {t = prod _ _ _ _}          ()
+wk-maxᵘ {t = fst _ _}               ()
+wk-maxᵘ {t = snd _ _}               ()
+wk-maxᵘ {t = prodrec _ _ _ _ _ _}   ()
+wk-maxᵘ {t = Empty}                 ()
+wk-maxᵘ {t = emptyrec _ _ _}        ()
+wk-maxᵘ {t = Unit _ _}              ()
+wk-maxᵘ {t = star _ _}              ()
+wk-maxᵘ {t = unitrec _ _ _ _ _ _}   ()
+wk-maxᵘ {t = ℕ}                     ()
+wk-maxᵘ {t = zero}                  ()
+wk-maxᵘ {t = suc _}                 ()
+wk-maxᵘ {t = natrec _ _ _ _ _ _ _}  ()
+wk-maxᵘ {t = Id _ _ _}              ()
+wk-maxᵘ {t = rfl}                   ()
+wk-maxᵘ {t = J _ _ _ _ _ _ _ _}     ()
+wk-maxᵘ {t = K _ _ _ _ _ _}         ()
+wk-maxᵘ {t = []-cong _ _ _ _ _}     ()
+
+subst-maxᵘ :
+  t [ σ ] ≡ u maxᵘ v →
+  (∃ λ x → t ≡ var x) ⊎
+  ∃₂ λ u′ v′ → t ≡ u′ maxᵘ v′ × u′ [ σ ] ≡ u × v′ [ σ ] ≡ v
+subst-maxᵘ {t = var _}                 _ = inj₁ (_ , refl)
+subst-maxᵘ {t = _ maxᵘ _}              refl = inj₂ (_ , _ , refl , refl , refl)
+subst-maxᵘ {t = Level}                 ()
+subst-maxᵘ {t = zeroᵘ}                 ()
+subst-maxᵘ {t = sucᵘ _}                ()
+subst-maxᵘ {t = U _}                   ()
+subst-maxᵘ {t = ΠΣ⟨ _ ⟩ _ , _ ▷ _ ▹ _} ()
+subst-maxᵘ {t = lam _ _}               ()
+subst-maxᵘ {t = _ ∘⟨ _ ⟩ _}            ()
+subst-maxᵘ {t = prod _ _ _ _}          ()
+subst-maxᵘ {t = fst _ _}               ()
+subst-maxᵘ {t = snd _ _}               ()
+subst-maxᵘ {t = prodrec _ _ _ _ _ _}   ()
+subst-maxᵘ {t = Empty}                 ()
+subst-maxᵘ {t = emptyrec _ _ _}        ()
+subst-maxᵘ {t = Unit _ _}              ()
+subst-maxᵘ {t = star _ _}              ()
+subst-maxᵘ {t = unitrec _ _ _ _ _ _}   ()
+subst-maxᵘ {t = ℕ}                     ()
+subst-maxᵘ {t = zero}                  ()
+subst-maxᵘ {t = suc _}                 ()
+subst-maxᵘ {t = natrec _ _ _ _ _ _ _}  ()
+subst-maxᵘ {t = Id _ _ _}              ()
+subst-maxᵘ {t = rfl}                   ()
+subst-maxᵘ {t = J _ _ _ _ _ _ _ _}     ()
+subst-maxᵘ {t = K _ _ _ _ _ _}         ()
+subst-maxᵘ {t = []-cong _ _ _ _ _}     ()
+
 -- Inversion for U.
 
-wk-U : wk ρ t ≡ U l → t ≡ U l
-wk-U {t = U l}                   refl = refl
+wk-U : wk ρ t ≡ U l → ∃ λ l′ → t ≡ U l′ × wk ρ l′ ≡ l
+wk-U {t = U l}                   refl = _ , refl , refl
+wk-U {t = Level}                 ()
+wk-U {t = zeroᵘ}                 ()
+wk-U {t = sucᵘ _}                ()
+wk-U {t = _ maxᵘ _}              ()
 wk-U {t = var _}                 ()
 wk-U {t = ΠΣ⟨ _ ⟩ _ , _ ▷ _ ▹ _} ()
 wk-U {t = lam _ _}               ()
@@ -105,9 +366,13 @@ wk-U {t = J _ _ _ _ _ _ _ _}     ()
 wk-U {t = K _ _ _ _ _ _}         ()
 wk-U {t = []-cong _ _ _ _ _}     ()
 
-subst-U : t [ σ ] ≡ U l → (∃ λ x → t ≡ var x) ⊎ t ≡ U l
+subst-U : t [ σ ] ≡ U l → (∃ λ x → t ≡ var x) ⊎ ∃ λ l′ → t ≡ U l′ × l′ [ σ ] ≡ l
 subst-U {t = var _}                 _    = inj₁ (_ , refl)
-subst-U {t = U _}                   refl = inj₂ refl
+subst-U {t = U _}                   refl = inj₂ (_ , refl , refl)
+subst-U {t = Level}                 ()
+subst-U {t = zeroᵘ}                 ()
+subst-U {t = sucᵘ _}                ()
+subst-U {t = _ maxᵘ _}              ()
 subst-U {t = ΠΣ⟨ _ ⟩ _ , _ ▷ _ ▹ _} ()
 subst-U {t = lam _ _}               ()
 subst-U {t = _ ∘⟨ _ ⟩ _}            ()
@@ -139,6 +404,10 @@ wk-ΠΣ :
      wk ρ A′ ≡ A × wk (lift ρ) B′ ≡ B
 wk-ΠΣ {t = ΠΣ⟨ _ ⟩ _ , _ ▷ _ ▹ _} refl =
   _ , _ , refl , refl , refl
+wk-ΠΣ {t = Level}                 ()
+wk-ΠΣ {t = zeroᵘ}                 ()
+wk-ΠΣ {t = sucᵘ _}                ()
+wk-ΠΣ {t = _ maxᵘ _}              ()
 wk-ΠΣ {t = var _}                ()
 wk-ΠΣ {t = U _}                  ()
 wk-ΠΣ {t = lam _ _}              ()
@@ -172,6 +441,10 @@ subst-ΠΣ {t = var _} _ =
   inj₁ (_ , refl)
 subst-ΠΣ {t = ΠΣ⟨ _ ⟩ _ , _ ▷ _ ▹ _} refl =
   inj₂ (_ , _ , refl , refl , refl)
+subst-ΠΣ {t = Level}                 ()
+subst-ΠΣ {t = zeroᵘ}                 ()
+subst-ΠΣ {t = sucᵘ _}                ()
+subst-ΠΣ {t = _ maxᵘ _}              ()
 subst-ΠΣ {t = U _}                  ()
 subst-ΠΣ {t = lam _ _}              ()
 subst-ΠΣ {t = _ ∘⟨ _ ⟩ _}           ()
@@ -201,6 +474,10 @@ wk-lam :
   ∃ λ u′ → t ≡ lam p u′ × wk (lift ρ) u′ ≡ u
 wk-lam {t = lam _ _}               refl = _ , refl , refl
 wk-lam {t = var _}                 ()
+wk-lam {t = Level}                 ()
+wk-lam {t = zeroᵘ}                 ()
+wk-lam {t = sucᵘ _}                ()
+wk-lam {t = _ maxᵘ _}              ()
 wk-lam {t = U _}                   ()
 wk-lam {t = ΠΣ⟨ _ ⟩ _ , _ ▷ _ ▹ _} ()
 wk-lam {t = _ ∘⟨ _ ⟩ _}            ()
@@ -229,6 +506,10 @@ subst-lam :
   ∃ λ u′ → t ≡ lam p u′ × u′ [ liftSubst σ ] ≡ u
 subst-lam {t = var x}                 _    = inj₁ (_ , refl)
 subst-lam {t = lam _ _}               refl = inj₂ (_ , refl , refl)
+subst-lam {t = Level}                 ()
+subst-lam {t = zeroᵘ}                 ()
+subst-lam {t = sucᵘ _}                ()
+subst-lam {t = _ maxᵘ _}              ()
 subst-lam {t = U _}                   ()
 subst-lam {t = ΠΣ⟨ _ ⟩ _ , _ ▷ _ ▹ _} ()
 subst-lam {t = _ ∘⟨ _ ⟩ _}            ()
@@ -258,6 +539,10 @@ wk-∘ :
   ∃₂ λ u′ v′ → t ≡ u′ ∘⟨ p ⟩ v′ × wk ρ u′ ≡ u × wk ρ v′ ≡ v
 wk-∘ {t = _ ∘⟨ _ ⟩ _}            refl = _ , _ , refl , refl , refl
 wk-∘ {t = var _}                 ()
+wk-∘ {t = Level}                 ()
+wk-∘ {t = zeroᵘ}                 ()
+wk-∘ {t = sucᵘ _}                ()
+wk-∘ {t = _ maxᵘ _}              ()
 wk-∘ {t = U _}                   ()
 wk-∘ {t = ΠΣ⟨ _ ⟩ _ , _ ▷ _ ▹ _} ()
 wk-∘ {t = lam _ _}               ()
@@ -287,6 +572,10 @@ subst-∘ :
 subst-∘ {t = var x} _    = inj₁ (_ , refl)
 subst-∘ {t = _ ∘ _} refl =
   inj₂ (_ , _ , refl , refl , refl)
+subst-∘ {t = Level}                 ()
+subst-∘ {t = zeroᵘ}                 ()
+subst-∘ {t = sucᵘ _}                ()
+subst-∘ {t = _ maxᵘ _}              ()
 subst-∘ {t = U _}                   ()
 subst-∘ {t = ΠΣ⟨ _ ⟩ _ , _ ▷ _ ▹ _} ()
 subst-∘ {t = lam _ _}               ()
@@ -316,6 +605,10 @@ wk-prod :
   ∃₂ λ u′ v′ → t ≡ prod s p u′ v′ × wk ρ u′ ≡ u × wk ρ v′ ≡ v
 wk-prod {t = prod _ _ _ _}          refl = _ , _ , refl , refl , refl
 wk-prod {t = var _}                 ()
+wk-prod {t = Level}                 ()
+wk-prod {t = zeroᵘ}                 ()
+wk-prod {t = sucᵘ _}                ()
+wk-prod {t = _ maxᵘ _}              ()
 wk-prod {t = U _}                   ()
 wk-prod {t = ΠΣ⟨ _ ⟩ _ , _ ▷ _ ▹ _} ()
 wk-prod {t = lam _ _}               ()
@@ -346,6 +639,10 @@ subst-prod {t = var _} _ =
   inj₁ (_ , refl)
 subst-prod {t = prod _ _ _ _} refl =
   inj₂ (_ , _ , refl , refl , refl)
+subst-prod {t = Level}                 ()
+subst-prod {t = zeroᵘ}                 ()
+subst-prod {t = sucᵘ _}                ()
+subst-prod {t = _ maxᵘ _}              ()
 subst-prod {t = U _}                   ()
 subst-prod {t = ΠΣ⟨ _ ⟩ _ , _ ▷ _ ▹ _} ()
 subst-prod {t = lam _ _}               ()
@@ -375,6 +672,10 @@ wk-fst :
   ∃ λ u′ → t ≡ fst p u′ × wk ρ u′ ≡ u
 wk-fst {t = fst _ _}               refl = _ , refl , refl
 wk-fst {t = var _}                 ()
+wk-fst {t = Level}                 ()
+wk-fst {t = zeroᵘ}                 ()
+wk-fst {t = sucᵘ _}                ()
+wk-fst {t = _ maxᵘ _}              ()
 wk-fst {t = U _}                   ()
 wk-fst {t = ΠΣ⟨ _ ⟩ _ , _ ▷ _ ▹ _} ()
 wk-fst {t = lam _ _}               ()
@@ -403,6 +704,10 @@ subst-fst :
   ∃ λ u′ → t ≡ fst p u′ × u′ [ σ ] ≡ u
 subst-fst {t = var _}                 _    = inj₁ (_ , refl)
 subst-fst {t = fst _ _}               refl = inj₂ (_ , refl , refl)
+subst-fst {t = Level}                 ()
+subst-fst {t = zeroᵘ}                 ()
+subst-fst {t = sucᵘ _}                ()
+subst-fst {t = _ maxᵘ _}              ()
 subst-fst {t = U _}                   ()
 subst-fst {t = ΠΣ⟨ _ ⟩ _ , _ ▷ _ ▹ _} ()
 subst-fst {t = lam _ _}               ()
@@ -432,6 +737,10 @@ wk-snd :
   ∃ λ u′ → t ≡ snd p u′ × wk ρ u′ ≡ u
 wk-snd {t = snd _ _}               refl = _ , refl , refl
 wk-snd {t = var _}                 ()
+wk-snd {t = Level}                 ()
+wk-snd {t = zeroᵘ}                 ()
+wk-snd {t = sucᵘ _}                ()
+wk-snd {t = _ maxᵘ _}              ()
 wk-snd {t = U _}                   ()
 wk-snd {t = ΠΣ⟨ _ ⟩ _ , _ ▷ _ ▹ _} ()
 wk-snd {t = lam _ _}               ()
@@ -460,6 +769,10 @@ subst-snd :
   ∃ λ u′ → t ≡ snd p u′ × u′ [ σ ] ≡ u
 subst-snd {t = var _}                 _    = inj₁ (_ , refl)
 subst-snd {t = snd _ _}               refl = inj₂ (_ , refl , refl)
+subst-snd {t = Level}                 ()
+subst-snd {t = zeroᵘ}                 ()
+subst-snd {t = sucᵘ _}                ()
+subst-snd {t = _ maxᵘ _}              ()
 subst-snd {t = U _}                   ()
 subst-snd {t = ΠΣ⟨ _ ⟩ _ , _ ▷ _ ▹ _} ()
 subst-snd {t = lam _ _}               ()
@@ -492,6 +805,10 @@ wk-prodrec :
 wk-prodrec {t = prodrec _ _ _ _ _ _} refl =
   _ , _ , _ , refl , refl , refl , refl
 wk-prodrec {t = var _}                 ()
+wk-prodrec {t = Level}                 ()
+wk-prodrec {t = zeroᵘ}                 ()
+wk-prodrec {t = sucᵘ _}                ()
+wk-prodrec {t = _ maxᵘ _}              ()
 wk-prodrec {t = U _}                   ()
 wk-prodrec {t = ΠΣ⟨ _ ⟩ _ , _ ▷ _ ▹ _} ()
 wk-prodrec {t = lam _ _}               ()
@@ -525,6 +842,10 @@ subst-prodrec {t = var _} _ =
 subst-prodrec {t = prodrec _ _ _ _ _ _} refl =
   inj₂ (_ , _ , _ , refl , refl , refl , refl)
 subst-prodrec {t = U _}                   ()
+subst-prodrec {t = Level}                 ()
+subst-prodrec {t = zeroᵘ}                 ()
+subst-prodrec {t = sucᵘ _}                ()
+subst-prodrec {t = _ maxᵘ _}              ()
 subst-prodrec {t = ΠΣ⟨ _ ⟩ _ , _ ▷ _ ▹ _} ()
 subst-prodrec {t = lam _ _}               ()
 subst-prodrec {t = _ ∘⟨ _ ⟩ _}            ()
@@ -548,10 +869,14 @@ subst-prodrec {t = []-cong _ _ _ _ _}     ()
 
 -- Inversion for Unit.
 
-wk-Unit : wk ρ t ≡ Unit s l → t ≡ Unit s l
-wk-Unit {t = Unit!}                 refl = refl
+wk-Unit : wk ρ t ≡ Unit s l → ∃ λ l′ → t ≡ Unit s l′ × wk ρ l′ ≡ l
+wk-Unit {t = Unit!}                 refl = _ , refl , refl
 wk-Unit {t = var _}                 ()
 wk-Unit {t = U _}                   ()
+wk-Unit {t = Level}                 ()
+wk-Unit {t = zeroᵘ}                 ()
+wk-Unit {t = sucᵘ _}                ()
+wk-Unit {t = _ maxᵘ _}              ()
 wk-Unit {t = ΠΣ⟨ _ ⟩ _ , _ ▷ _ ▹ _} ()
 wk-Unit {t = lam _ _}               ()
 wk-Unit {t = _ ∘⟨ _ ⟩ _}            ()
@@ -574,10 +899,14 @@ wk-Unit {t = K _ _ _ _ _ _}         ()
 wk-Unit {t = []-cong _ _ _ _ _}     ()
 
 subst-Unit : t [ σ ] ≡ Unit s l →
-             (∃ λ x → t ≡ var x) ⊎ t ≡ Unit s l
+             (∃ λ x → t ≡ var x) ⊎ ∃ λ l′ → t ≡ Unit s l′ × l′ [ σ ] ≡ l
 subst-Unit {t = var _}                 _    = inj₁ (_ , refl)
-subst-Unit {t = Unit!}                 refl = inj₂ refl
+subst-Unit {t = Unit!}                 refl = inj₂ (_ , refl , refl)
 subst-Unit {t = U _}                   ()
+subst-Unit {t = Level}                 ()
+subst-Unit {t = zeroᵘ}                 ()
+subst-Unit {t = sucᵘ _}                ()
+subst-Unit {t = _ maxᵘ _}              ()
 subst-Unit {t = ΠΣ⟨ _ ⟩ _ , _ ▷ _ ▹ _} ()
 subst-Unit {t = lam _ _}               ()
 subst-Unit {t = _ ∘⟨ _ ⟩ _}            ()
@@ -601,10 +930,14 @@ subst-Unit {t = []-cong _ _ _ _ _}     ()
 
 -- Inversion for star.
 
-wk-star : wk ρ t ≡ star s l → t ≡ star s l
-wk-star {t = star!}                 refl = refl
+wk-star : wk ρ t ≡ star s l → ∃ λ l′ → t ≡ star s l′ × wk ρ l′ ≡ l
+wk-star {t = star!}                 refl = _ , refl , refl
 wk-star {t = var _}                 ()
 wk-star {t = U _}                   ()
+wk-star {t = Level}                 ()
+wk-star {t = zeroᵘ}                 ()
+wk-star {t = sucᵘ _}                ()
+wk-star {t = _ maxᵘ _}              ()
 wk-star {t = ΠΣ⟨ _ ⟩ _ , _ ▷ _ ▹ _} ()
 wk-star {t = lam _ _}               ()
 wk-star {t = _ ∘⟨ _ ⟩ _}            ()
@@ -627,10 +960,14 @@ wk-star {t = K _ _ _ _ _ _}         ()
 wk-star {t = []-cong _ _ _ _ _}     ()
 
 subst-star : t [ σ ] ≡ star s l →
-            (∃ λ x → t ≡ var x) ⊎ t ≡ star s l
+            (∃ λ x → t ≡ var x) ⊎ ∃ λ l′ → t ≡ star s l′ × l′ [ σ ] ≡ l
 subst-star {t = var _}                 _    = inj₁ (_ , refl)
-subst-star {t = star!}                 refl = inj₂ refl
+subst-star {t = star!}                 refl = inj₂ (_ , refl , refl)
 subst-star {t = U _}                   ()
+subst-star {t = Level}                 ()
+subst-star {t = zeroᵘ}                 ()
+subst-star {t = sucᵘ _}                ()
+subst-star {t = _ maxᵘ _}              ()
 subst-star {t = ΠΣ⟨ _ ⟩ _ , _ ▷ _ ▹ _} ()
 subst-star {t = lam _ _}               ()
 subst-star {t = _ ∘⟨ _ ⟩ _}            ()
@@ -655,14 +992,18 @@ subst-star {t = []-cong _ _ _ _ _}     ()
 -- Inversion for unitrec.
 
 wk-unitrec :
-  wk ρ t ≡ unitrec l p q A u v →
-  ∃₃ λ A′ u′ v′ →
-     t ≡ unitrec l p q A′ u′ v′ ×
-     wk (lift ρ) A′ ≡ A × wk ρ u′ ≡ u × wk ρ v′ ≡ v
+  wk ρ t ≡ unitrec p q l A u v →
+  ∃₄ λ l′ A′ u′ v′ →
+     t ≡ unitrec p q l′ A′ u′ v′ ×
+     wk ρ l′ ≡ l × wk (lift ρ) A′ ≡ A × wk ρ u′ ≡ u × wk ρ v′ ≡ v
 wk-unitrec {t = unitrec _ _ _ _ _ _} refl =
-  _ , _ , _ , refl , refl , refl , refl
+  _ , _ , _ , _ , refl , refl , refl , refl , refl
 wk-unitrec {t = var _}                 ()
 wk-unitrec {t = U _}                   ()
+wk-unitrec {t = Level}                 ()
+wk-unitrec {t = zeroᵘ}                 ()
+wk-unitrec {t = sucᵘ _}                ()
+wk-unitrec {t = _ maxᵘ _}              ()
 wk-unitrec {t = ΠΣ⟨ _ ⟩ _ , _ ▷ _ ▹ _} ()
 wk-unitrec {t = lam _ _}               ()
 wk-unitrec {t = _ ∘⟨ _ ⟩ _}            ()
@@ -685,15 +1026,19 @@ wk-unitrec {t = K _ _ _ _ _ _}         ()
 wk-unitrec {t = []-cong _ _ _ _ _}     ()
 
 subst-unitrec :
-  t [ σ ] ≡ unitrec l p q A u v →
+  t [ σ ] ≡ unitrec p q l A u v →
   (∃ λ x → t ≡ var x) ⊎
-  ∃₃ λ A′ u′ v′ →
-     t ≡ unitrec l p q A′ u′ v′ ×
-     A′ [ liftSubst σ ] ≡ A × u′ [ σ ] ≡ u × v′ [ σ ] ≡ v
+  ∃₄ λ l′ A′ u′ v′ →
+     t ≡ unitrec p q l′ A′ u′ v′ ×
+     l′ [ σ ] ≡ l × A′ [ liftSubst σ ] ≡ A × u′ [ σ ] ≡ u × v′ [ σ ] ≡ v
 subst-unitrec {t = var _} _ =
   inj₁ (_ , refl)
 subst-unitrec {t = unitrec _ _ _ _ _ _} refl =
-  inj₂ (_ , _ , _ , refl , refl , refl , refl)
+  inj₂ (_ , _ , _ , _ , refl , refl , refl , refl , refl)
+subst-unitrec {t = Level}                 ()
+subst-unitrec {t = zeroᵘ}                 ()
+subst-unitrec {t = sucᵘ _}                ()
+subst-unitrec {t = _ maxᵘ _}              ()
 subst-unitrec {t = U _}                   ()
 subst-unitrec {t = ΠΣ⟨ _ ⟩ _ , _ ▷ _ ▹ _} ()
 subst-unitrec {t = lam _ _}               ()
@@ -722,6 +1067,10 @@ wk-Empty : wk ρ t ≡ Empty → t ≡ Empty
 wk-Empty {t = Empty}                 refl = refl
 wk-Empty {t = var _}                 ()
 wk-Empty {t = U _}                   ()
+wk-Empty {t = Level}                 ()
+wk-Empty {t = zeroᵘ}                 ()
+wk-Empty {t = sucᵘ _}                ()
+wk-Empty {t = _ maxᵘ _}              ()
 wk-Empty {t = ΠΣ⟨ _ ⟩ _ , _ ▷ _ ▹ _} ()
 wk-Empty {t = lam _ _}               ()
 wk-Empty {t = _ ∘⟨ _ ⟩ _}            ()
@@ -748,6 +1097,10 @@ subst-Empty : t [ σ ] ≡ Empty →
 subst-Empty {t = var _}                 _    = inj₁ (_ , refl)
 subst-Empty {t = Empty}                 refl = inj₂ refl
 subst-Empty {t = U _}                   ()
+subst-Empty {t = Level}                 ()
+subst-Empty {t = zeroᵘ}                 ()
+subst-Empty {t = sucᵘ _}                ()
+subst-Empty {t = _ maxᵘ _}              ()
 subst-Empty {t = ΠΣ⟨ _ ⟩ _ , _ ▷ _ ▹ _} ()
 subst-Empty {t = lam _ _}               ()
 subst-Empty {t = _ ∘⟨ _ ⟩ _}            ()
@@ -778,6 +1131,10 @@ wk-emptyrec {t = emptyrec _ _ _} refl =
   _ , _ , refl , refl , refl
 wk-emptyrec {t = var _}                 ()
 wk-emptyrec {t = U _}                   ()
+wk-emptyrec {t = Level}                 ()
+wk-emptyrec {t = zeroᵘ}                 ()
+wk-emptyrec {t = sucᵘ _}                ()
+wk-emptyrec {t = _ maxᵘ _}              ()
 wk-emptyrec {t = ΠΣ⟨ _ ⟩ _ , _ ▷ _ ▹ _} ()
 wk-emptyrec {t = lam _ _}               ()
 wk-emptyrec {t = _ ∘⟨ _ ⟩ _}            ()
@@ -808,6 +1165,10 @@ subst-emptyrec {t = var _} _ =
 subst-emptyrec {t = emptyrec _ _ _} refl =
   inj₂ (_ , _ , refl , refl , refl)
 subst-emptyrec {t = U _}                   ()
+subst-emptyrec {t = Level}                 ()
+subst-emptyrec {t = zeroᵘ}                 ()
+subst-emptyrec {t = sucᵘ _}                ()
+subst-emptyrec {t = _ maxᵘ _}              ()
 subst-emptyrec {t = ΠΣ⟨ _ ⟩ _ , _ ▷ _ ▹ _} ()
 subst-emptyrec {t = lam _ _}               ()
 subst-emptyrec {t = _ ∘⟨ _ ⟩ _}            ()
@@ -835,6 +1196,10 @@ wk-ℕ : wk ρ t ≡ ℕ → t ≡ ℕ
 wk-ℕ {t = ℕ}                     refl = refl
 wk-ℕ {t = var _}                 ()
 wk-ℕ {t = U _}                   ()
+wk-ℕ {t = Level}                 ()
+wk-ℕ {t = zeroᵘ}                 ()
+wk-ℕ {t = sucᵘ _}                ()
+wk-ℕ {t = _ maxᵘ _}              ()
 wk-ℕ {t = ΠΣ⟨ _ ⟩ _ , _ ▷ _ ▹ _} ()
 wk-ℕ {t = lam _ _}               ()
 wk-ℕ {t = _ ∘⟨ _ ⟩ _}            ()
@@ -860,6 +1225,10 @@ subst-ℕ : t [ σ ] ≡ ℕ → (∃ λ x → t ≡ var x) ⊎ t ≡ ℕ
 subst-ℕ {t = var _}                 _    = inj₁ (_ , refl)
 subst-ℕ {t = ℕ}                     refl = inj₂ refl
 subst-ℕ {t = U _}                   ()
+subst-ℕ {t = Level}                 ()
+subst-ℕ {t = zeroᵘ}                 ()
+subst-ℕ {t = sucᵘ _}                ()
+subst-ℕ {t = _ maxᵘ _}              ()
 subst-ℕ {t = ΠΣ⟨ _ ⟩ _ , _ ▷ _ ▹ _} ()
 subst-ℕ {t = lam _ _}               ()
 subst-ℕ {t = _ ∘⟨ _ ⟩ _}            ()
@@ -887,6 +1256,10 @@ wk-zero : wk ρ t ≡ zero → t ≡ zero
 wk-zero {t = zero}                  refl = refl
 wk-zero {t = var _}                 ()
 wk-zero {t = U _}                   ()
+wk-zero {t = Level}                 ()
+wk-zero {t = zeroᵘ}                 ()
+wk-zero {t = sucᵘ _}                ()
+wk-zero {t = _ maxᵘ _}              ()
 wk-zero {t = ΠΣ⟨ _ ⟩ _ , _ ▷ _ ▹ _} ()
 wk-zero {t = lam _ _}               ()
 wk-zero {t = _ ∘⟨ _ ⟩ _}            ()
@@ -912,6 +1285,10 @@ subst-zero : t [ σ ] ≡ zero → (∃ λ x → t ≡ var x) ⊎ t ≡ zero
 subst-zero {t = var _}                 _    = inj₁ (_ , refl)
 subst-zero {t = zero}                  refl = inj₂ refl
 subst-zero {t = U _}                   ()
+subst-zero {t = Level}                 ()
+subst-zero {t = zeroᵘ}                 ()
+subst-zero {t = sucᵘ _}                ()
+subst-zero {t = _ maxᵘ _}              ()
 subst-zero {t = ΠΣ⟨ _ ⟩ _ , _ ▷ _ ▹ _} ()
 subst-zero {t = lam _ _}               ()
 subst-zero {t = _ ∘⟨ _ ⟩ _}            ()
@@ -941,6 +1318,10 @@ wk-suc :
 wk-suc {t = suc _}                 refl = _ , refl , refl
 wk-suc {t = var _}                 ()
 wk-suc {t = U _}                   ()
+wk-suc {t = Level}                 ()
+wk-suc {t = zeroᵘ}                 ()
+wk-suc {t = sucᵘ _}                ()
+wk-suc {t = _ maxᵘ _}              ()
 wk-suc {t = ΠΣ⟨ _ ⟩ _ , _ ▷ _ ▹ _} ()
 wk-suc {t = lam _ _}               ()
 wk-suc {t = _ ∘⟨ _ ⟩ _}            ()
@@ -968,6 +1349,10 @@ subst-suc :
 subst-suc {t = var _}                 _    = inj₁ (_ , refl)
 subst-suc {t = suc _}                 refl = inj₂ (_ , refl , refl)
 subst-suc {t = U _}                   ()
+subst-suc {t = Level}                 ()
+subst-suc {t = zeroᵘ}                 ()
+subst-suc {t = sucᵘ _}                ()
+subst-suc {t = _ maxᵘ _}              ()
 subst-suc {t = ΠΣ⟨ _ ⟩ _ , _ ▷ _ ▹ _} ()
 subst-suc {t = lam _ _}               ()
 subst-suc {t = _ ∘⟨ _ ⟩ _}            ()
@@ -1001,6 +1386,10 @@ wk-natrec {t = natrec _ _ _ _ _ _ _} refl =
   _ , _ , _ , _ , refl , refl , refl , refl , refl
 wk-natrec {t = var _}                 ()
 wk-natrec {t = U _}                   ()
+wk-natrec {t = Level}                 ()
+wk-natrec {t = zeroᵘ}                 ()
+wk-natrec {t = sucᵘ _}                ()
+wk-natrec {t = _ maxᵘ _}              ()
 wk-natrec {t = ΠΣ⟨ _ ⟩ _ , _ ▷ _ ▹ _} ()
 wk-natrec {t = lam _ _}               ()
 wk-natrec {t = _ ∘⟨ _ ⟩ _}            ()
@@ -1034,6 +1423,10 @@ subst-natrec {t = var _} _ =
 subst-natrec {t = natrec _ _ _ _ _ _ _} refl =
   inj₂ (_ , _ , _ , _ , refl , refl , refl , refl , refl)
 subst-natrec {t = U _}                   ()
+subst-natrec {t = Level}                 ()
+subst-natrec {t = zeroᵘ}                 ()
+subst-natrec {t = sucᵘ _}                ()
+subst-natrec {t = _ maxᵘ _}              ()
 subst-natrec {t = ΠΣ⟨ _ ⟩ _ , _ ▷ _ ▹ _} ()
 subst-natrec {t = lam _ _}               ()
 subst-natrec {t = _ ∘⟨ _ ⟩ _}            ()
@@ -1066,6 +1459,10 @@ wk-Id {v = Id _ _ _} refl =
   _ , _ , _ , refl , refl , refl , refl
 wk-Id {v = var _}                 ()
 wk-Id {v = U _}                   ()
+wk-Id {v = Level}                 ()
+wk-Id {v = zeroᵘ}                 ()
+wk-Id {v = sucᵘ _}                ()
+wk-Id {v = _ maxᵘ _}              ()
 wk-Id {v = ΠΣ⟨ _ ⟩ _ , _ ▷ _ ▹ _} ()
 wk-Id {v = lam _ _}               ()
 wk-Id {v = _ ∘⟨ _ ⟩ _}            ()
@@ -1098,6 +1495,10 @@ subst-Id {v = var _} _ =
 subst-Id {v = Id _ _ _} refl =
   inj₂ (_ , _ , _ , refl , refl , refl , refl)
 subst-Id {v = U _}                   ()
+subst-Id {v = Level}                 ()
+subst-Id {v = zeroᵘ}                 ()
+subst-Id {v = sucᵘ _}                ()
+subst-Id {v = _ maxᵘ _}              ()
 subst-Id {v = ΠΣ⟨ _ ⟩ _ , _ ▷ _ ▹ _} ()
 subst-Id {v = lam _ _}               ()
 subst-Id {v = _ ∘⟨ _ ⟩ _}            ()
@@ -1125,6 +1526,10 @@ wk-rfl : wk ρ t ≡ rfl → t ≡ rfl
 wk-rfl {t = rfl}                   refl = refl
 wk-rfl {t = var _}                 ()
 wk-rfl {t = U _}                   ()
+wk-rfl {t = Level}                 ()
+wk-rfl {t = zeroᵘ}                 ()
+wk-rfl {t = sucᵘ _}                ()
+wk-rfl {t = _ maxᵘ _}              ()
 wk-rfl {t = ΠΣ⟨ _ ⟩ _ , _ ▷ _ ▹ _} ()
 wk-rfl {t = lam _ _}               ()
 wk-rfl {t = _ ∘⟨ _ ⟩ _}            ()
@@ -1150,6 +1555,10 @@ subst-rfl : t [ σ ] ≡ rfl → (∃ λ x → t ≡ var x) ⊎ t ≡ rfl
 subst-rfl {t = var x}                 _    = inj₁ (_ , refl)
 subst-rfl {t = rfl}                   refl = inj₂ refl
 subst-rfl {t = U _}                   ()
+subst-rfl {t = Level}                 ()
+subst-rfl {t = zeroᵘ}                 ()
+subst-rfl {t = sucᵘ _}                ()
+subst-rfl {t = _ maxᵘ _}              ()
 subst-rfl {t = ΠΣ⟨ _ ⟩ _ , _ ▷ _ ▹ _} ()
 subst-rfl {t = lam _ _}               ()
 subst-rfl {t = _ ∘⟨ _ ⟩ _}            ()
@@ -1183,6 +1592,10 @@ wk-J {w = J _ _ _ _ _ _ _ _} refl =
   _ , _ , _ , _ , _ , _ , refl , refl , refl , refl , refl , refl , refl
 wk-J {w = var _}                 ()
 wk-J {w = U _}                   ()
+wk-J {w = Level}                 ()
+wk-J {w = zeroᵘ}                 ()
+wk-J {w = sucᵘ _}                ()
+wk-J {w = _ maxᵘ _}              ()
 wk-J {w = ΠΣ⟨ _ ⟩ _ , _ ▷ _ ▹ _} ()
 wk-J {w = lam _ _}               ()
 wk-J {w = _ ∘⟨ _ ⟩ _}            ()
@@ -1216,6 +1629,10 @@ subst-J {w = var _} _ =
 subst-J {w = J _ _ _ _ _ _ _ _} refl =
   inj₂ (_ , _ , _ , _ , _ , _ , refl , refl , refl , refl , refl , refl , refl)
 subst-J {w = U _}                   ()
+subst-J {w = Level}                 ()
+subst-J {w = zeroᵘ}                 ()
+subst-J {w = sucᵘ _}                ()
+subst-J {w = _ maxᵘ _}              ()
 subst-J {w = ΠΣ⟨ _ ⟩ _ , _ ▷ _ ▹ _} ()
 subst-J {w = lam _ _}               ()
 subst-J {w = _ ∘⟨ _ ⟩ _}            ()
@@ -1249,6 +1666,10 @@ wk-K {w = K _ _ _ _ _ _} refl =
   _ , _ , _ , _ , _ , refl , refl , refl , refl , refl , refl
 wk-K {w = var _}                 ()
 wk-K {w = U _}                   ()
+wk-K {w = Level}                 ()
+wk-K {w = zeroᵘ}                 ()
+wk-K {w = sucᵘ _}                ()
+wk-K {w = _ maxᵘ _}              ()
 wk-K {w = ΠΣ⟨ _ ⟩ _ , _ ▷ _ ▹ _} ()
 wk-K {w = lam _ _}               ()
 wk-K {w = _ ∘⟨ _ ⟩ _}            ()
@@ -1282,6 +1703,10 @@ subst-K {w = var _} _ =
 subst-K {w = K _ _ _ _ _ _} refl =
   inj₂ (_ , _ , _ , _ , _ , refl , refl , refl , refl , refl , refl)
 subst-K {w = U _}                   ()
+subst-K {w = Level}                 ()
+subst-K {w = zeroᵘ}                 ()
+subst-K {w = sucᵘ _}                ()
+subst-K {w = _ maxᵘ _}              ()
 subst-K {w = ΠΣ⟨ _ ⟩ _ , _ ▷ _ ▹ _} ()
 subst-K {w = lam _ _}               ()
 subst-K {w = _ ∘⟨ _ ⟩ _}            ()
@@ -1314,6 +1739,10 @@ wk-[]-cong {w = []-cong _ _ _ _ _} refl =
   _ , _ , _ , _ , refl , refl , refl , refl , refl
 wk-[]-cong {w = var _}                 ()
 wk-[]-cong {w = U _}                   ()
+wk-[]-cong {w = Level}                 ()
+wk-[]-cong {w = zeroᵘ}                 ()
+wk-[]-cong {w = sucᵘ _}                ()
+wk-[]-cong {w = _ maxᵘ _}              ()
 wk-[]-cong {w = ΠΣ⟨ _ ⟩ _ , _ ▷ _ ▹ _} ()
 wk-[]-cong {w = lam _ _}               ()
 wk-[]-cong {w = _ ∘⟨ _ ⟩ _}            ()
@@ -1346,6 +1775,10 @@ subst-[]-cong {w = var _} _ =
 subst-[]-cong {w = []-cong _ _ _ _ _} refl =
   inj₂ (_ , _ , _ , _ , refl , refl , refl , refl , refl)
 subst-[]-cong {w = U _}                   ()
+subst-[]-cong {w = Level}                 ()
+subst-[]-cong {w = zeroᵘ}                 ()
+subst-[]-cong {w = sucᵘ _}                ()
+subst-[]-cong {w = _ maxᵘ _}              ()
 subst-[]-cong {w = ΠΣ⟨ _ ⟩ _ , _ ▷ _ ▹ _} ()
 subst-[]-cong {w = lam _ _}               ()
 subst-[]-cong {w = _ ∘⟨ _ ⟩ _}            ()

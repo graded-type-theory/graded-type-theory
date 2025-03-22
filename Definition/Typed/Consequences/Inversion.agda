@@ -38,8 +38,7 @@ private
     Γ : Con Term n
     p p′ q : M
     s s′ s₁ s₂ : Strength
-    l l₁ l₂ : Universe-level
-    A B t u : Term _
+    A B l l₁ l₂ t u : Term _
 
 opaque
 
@@ -135,7 +134,7 @@ opaque
   inversion-star-Unit :
     ⦃ ok : No-equality-reflection or-empty Γ ⦄ →
     Γ ⊢ star s₁ l₁ ∷ Unit s₂ l₂ →
-    s₁ PE.≡ s₂ × l₁ PE.≡ l₂ × Unit-allowed s₁
+    s₁ PE.≡ s₂ × Γ ⊢ l₁ ≡ l₂ ∷ Level × Unit-allowed s₁
   inversion-star-Unit ⊢star =
     let Unit≡Unit , Unit-ok = inversion-star ⊢star
         eq₁ , eq₂           = Unit-injectivity (sym Unit≡Unit)
@@ -167,8 +166,24 @@ opaque
   whnfProduct ⊢t = λ where
     prodₙ →
       prodₙ
-    (ne t-ne) →
+    (ne! t-ne) →
       ne t-ne
+    (ne (maxᵘₙ₁ _ _)) →
+      let _ , _ , A≡Level = inversion-maxᵘ ⊢t in
+      ⊥-elim (Level≢ΠΣⱼ (sym A≡Level))
+    (ne (maxᵘₙ₂ _)) →
+      let _ , _ , A≡Level = inversion-maxᵘ ⊢t in
+      ⊥-elim (Level≢ΠΣⱼ (sym A≡Level))
+    (ne (maxᵘₙ₃ _)) →
+      let _ , _ , A≡Level = inversion-maxᵘ ⊢t in
+      ⊥-elim (Level≢ΠΣⱼ (sym A≡Level))
+    Levelₙ →
+      ⊥-elim (U≢ΠΣⱼ (sym (inversion-Level ⊢t)))
+    zeroᵘₙ →
+      ⊥-elim (Level≢ΠΣⱼ (sym (inversion-zeroᵘ ⊢t)))
+    sucᵘₙ →
+      let _ , A≡Level = inversion-sucᵘ ⊢t in
+      ⊥-elim (Level≢ΠΣⱼ (sym A≡Level))
     Uₙ →
       ⊥-elim (U≢ΠΣⱼ (sym (inversion-U ⊢t)))
     ΠΣₙ →
@@ -177,7 +192,7 @@ opaque
     ℕₙ →
       ⊥-elim (U≢ΠΣⱼ (sym (inversion-ℕ ⊢t)))
     Unitₙ →
-      ⊥-elim (U≢ΠΣⱼ (sym (inversion-Unit-U ⊢t .proj₁)))
+      ⊥-elim (U≢ΠΣⱼ (sym (inversion-Unit-U ⊢t .proj₂ .proj₁)))
     Emptyₙ →
       ⊥-elim (U≢ΠΣⱼ (sym (inversion-Empty ⊢t)))
     lamₙ →
@@ -207,8 +222,24 @@ opaque
   whnfStar ⊢t = λ where
     starₙ →
       starₙ
-    (ne t-ne) →
+    (ne! t-ne) →
       ne t-ne
+    (ne (maxᵘₙ₁ _ _)) →
+      let _ , _ , A≡Level = inversion-maxᵘ ⊢t in
+      ⊥-elim (Level≢Unitⱼ (sym A≡Level))
+    (ne (maxᵘₙ₂ _)) →
+      let _ , _ , A≡Level = inversion-maxᵘ ⊢t in
+      ⊥-elim (Level≢Unitⱼ (sym A≡Level))
+    (ne (maxᵘₙ₃ _)) →
+      let _ , _ , A≡Level = inversion-maxᵘ ⊢t in
+      ⊥-elim (Level≢Unitⱼ (sym A≡Level))
+    Levelₙ →
+      ⊥-elim (U≢Unitⱼ (sym (inversion-Level ⊢t)))
+    zeroᵘₙ →
+      ⊥-elim (Level≢Unitⱼ (sym (inversion-zeroᵘ ⊢t)))
+    sucᵘₙ →
+      let _ , A≡Level = inversion-sucᵘ ⊢t in
+      ⊥-elim (Level≢Unitⱼ (sym A≡Level))
     Uₙ →
       ⊥-elim (U≢Unitⱼ (sym (inversion-U ⊢t)))
     ΠΣₙ →
@@ -217,7 +248,7 @@ opaque
     ℕₙ →
       ⊥-elim (U≢Unitⱼ (sym (inversion-ℕ ⊢t)))
     Unitₙ →
-      ⊥-elim (U≢Unitⱼ (sym (inversion-Unit-U ⊢t .proj₁)))
+      ⊥-elim (U≢Unitⱼ (sym (inversion-Unit-U ⊢t .proj₂ .proj₁)))
     Emptyₙ →
       ⊥-elim (U≢Unitⱼ (sym (inversion-Empty ⊢t)))
     lamₙ →

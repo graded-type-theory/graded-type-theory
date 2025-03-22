@@ -236,6 +236,16 @@ opaque
   stabilityRedTerm : ⊢ Γ ≡ Δ → Γ ⊢ t ⇒ u ∷ A → Δ ⊢ t ⇒ u ∷ A
   stabilityRedTerm Γ≡Δ (conv d x) =
     conv (stabilityRedTerm Γ≡Δ d) (stabilityEq Γ≡Δ x)
+  stabilityRedTerm Γ≡Δ (maxᵘ-zeroˡ ⊢l) =
+    maxᵘ-zeroˡ (stabilityTerm Γ≡Δ ⊢l)
+  stabilityRedTerm Γ≡Δ (maxᵘ-zeroʳ ⊢l w l≢0) =
+    maxᵘ-zeroʳ (stabilityTerm Γ≡Δ ⊢l) w l≢0
+  stabilityRedTerm Γ≡Δ (maxᵘ-sucᵘ ⊢l₁ ⊢l₂) =
+    maxᵘ-sucᵘ (stabilityTerm Γ≡Δ ⊢l₁) (stabilityTerm Γ≡Δ ⊢l₂)
+  stabilityRedTerm Γ≡Δ (maxᵘ-substˡ t⇒t′ ⊢u) =
+    maxᵘ-substˡ (stabilityRedTerm Γ≡Δ t⇒t′) (stabilityTerm Γ≡Δ ⊢u)
+  stabilityRedTerm Γ≡Δ (maxᵘ-substʳ ⊢t u⇒u′ w t≢0) =
+    maxᵘ-substʳ (stabilityTerm Γ≡Δ ⊢t) (stabilityRedTerm Γ≡Δ u⇒u′) w t≢0
   stabilityRedTerm Γ≡Δ (app-subst d x) =
     app-subst (stabilityRedTerm Γ≡Δ d) (stabilityTerm Γ≡Δ x)
   stabilityRedTerm Γ≡Δ (fst-subst ⊢G t⇒) =
@@ -288,18 +298,19 @@ opaque
       (stabilityTerm (Γ≡Δ ∙ refl x ∙ refl x₁) x₅) x₆ ok
   stabilityRedTerm Γ≡Δ (emptyrec-subst x d) =
     emptyrec-subst (stability Γ≡Δ x) (stabilityRedTerm Γ≡Δ d)
-  stabilityRedTerm Γ≡Δ (unitrec-subst x x₁ x₂ x₃ not-ok) =
+  stabilityRedTerm Γ≡Δ (unitrec-subst ⊢l x x₁ x₂ x₃ not-ok) =
     let ⊢Γ , _ , _ = contextConvSubst Γ≡Δ
-    in  unitrec-subst (stability (Γ≡Δ ∙ refl (Unitⱼ ⊢Γ x₃)) x)
+    in  unitrec-subst (stabilityTerm Γ≡Δ ⊢l) (stability (Γ≡Δ ∙ refl (Unitⱼ ⊢l x₃)) x)
           (stabilityTerm Γ≡Δ x₁) (stabilityRedTerm Γ≡Δ x₂) x₃ not-ok
-  stabilityRedTerm Γ≡Δ (unitrec-β x x₁ x₂ not-ok) =
+  stabilityRedTerm Γ≡Δ (unitrec-β ⊢l₁ l₁≡l₂ x x₁ x₂ not-ok) =
     let ⊢Γ , _ , _ = contextConvSubst Γ≡Δ
-    in  unitrec-β (stability (Γ≡Δ ∙ refl (Unitⱼ ⊢Γ x₂)) x)
+    in  unitrec-β (stabilityTerm Γ≡Δ ⊢l₁) (stabilityEqTerm Γ≡Δ l₁≡l₂)
+                  (stability (Γ≡Δ ∙ refl (Unitⱼ ⊢l₁ x₂)) x)
                   (stabilityTerm Γ≡Δ x₁) x₂ not-ok
-  stabilityRedTerm Γ≡Δ (unitrec-β-η ⊢A ⊢t ⊢u ok₁ ok₂) =
+  stabilityRedTerm Γ≡Δ (unitrec-β-η ⊢l ⊢A ⊢t ⊢u ok₁ ok₂) =
     case contextConvSubst Γ≡Δ of λ
       (⊢Γ , _) →
-    unitrec-β-η (stability (Γ≡Δ ∙ refl (Unitⱼ ⊢Γ ok₁)) ⊢A)
+    unitrec-β-η (stabilityTerm Γ≡Δ ⊢l) (stability (Γ≡Δ ∙ refl (Unitⱼ ⊢l ok₁)) ⊢A)
       (stabilityTerm Γ≡Δ ⊢t) (stabilityTerm Γ≡Δ ⊢u) ok₁ ok₂
   stabilityRedTerm Γ≡Δ (J-subst ⊢t ⊢B ⊢u ⊢v w₁⇒w₂) =
     let ⊢A = ⊢∙→⊢ (wf (⊢∙→⊢ (wf ⊢B))) in

@@ -134,37 +134,44 @@ wk₀ {n = 1+ n} = step wk₀
 
 -- Universe levels.
 
-Universe-level : Set
-Universe-level = Nat
+data Universe-level : Set where
+  0ᵘ+_ : Nat → Universe-level
+  ωᵘ : Universe-level
+
+0ᵘ : Universe-level
+0ᵘ = 0ᵘ+ 0
+
+1ᵘ : Universe-level
+1ᵘ = 0ᵘ+ 1
 
 -- The maximum of two universe levels.
 
 infixl 6 _⊔ᵘ_
 
 _⊔ᵘ_ : (_ _ : Universe-level) → Universe-level
-_⊔ᵘ_ = flip Tools.Nat._⊔_
-
--- The definition above is set up so that l ⊔ᵘ 0 is definitionally
--- equal to l, with the intention to make it a little easier to work
--- with Erased.
-
-_ : l ⊔ᵘ 0 ≡ l
-_ = refl
+(0ᵘ+ m) ⊔ᵘ (0ᵘ+ n) = 0ᵘ+ (m Tools.Nat.⊔ n)
+(0ᵘ+ m) ⊔ᵘ ωᵘ      = ωᵘ
+ωᵘ      ⊔ᵘ n       = ωᵘ
 
 -- Ordering of universe levels.
 
 infix 4 _≤ᵘ_
 
-_≤ᵘ_ : (_ _ : Universe-level) → Set
-i ≤ᵘ j = i ≤′ j
+data _≤ᵘ_ : Universe-level → Universe-level → Set where
+  ≤ᵘ-nat : ∀ {l l′} → l ≤′ l′ → 0ᵘ+ l ≤ᵘ 0ᵘ+ l′
+  ≤ᵘ-ωᵘ  : ∀ {l} → l ≤ᵘ ωᵘ
 
-open Tools.Nat public
-  using ()
-  renaming (≤′-refl to ≤ᵘ-refl; ≤′-step to ≤ᵘ-step)
+≤ᵘ-refl : ∀ {l} → l ≤ᵘ l
+≤ᵘ-refl {0ᵘ+ x} = ≤ᵘ-nat ≤′-refl
+≤ᵘ-refl {(ωᵘ)} = ≤ᵘ-ωᵘ
 
 -- Strict ordering of universe levels.
 
 infix 4 _<ᵘ_
 
-_<ᵘ_ : (_ _ : Universe-level) → Set
-i <ᵘ j = i <′ j
+data _<ᵘ_ : Universe-level → Universe-level → Set where
+  <ᵘ-nat : ∀ {l l′} → l <′ l′ → 0ᵘ+ l <ᵘ 0ᵘ+ l′
+  <ᵘ-ωᵘ  : ∀ {l} → 0ᵘ+ l <ᵘ ωᵘ
+
+0ᵘ<ᵘ1ᵘ : 0ᵘ <ᵘ 1ᵘ
+0ᵘ<ᵘ1ᵘ = <ᵘ-nat ≤′-refl

@@ -45,10 +45,11 @@ opaque
     Γ ⊩⟨ l₂ ⟩ t ∷ A / emb-≤-⊩ p ⊩A
   emb-≤-⊩∷ {⊩A} {p} = irrelevanceTerm ⊩A (emb-≤-⊩ p ⊩A)
 
-  emb-≤-⊩ p (Uᵣ′ k k< A⇒) = Uᵣ′ k (≤ᵘ-trans k< p) A⇒
+  emb-≤-⊩ p (Levelᵣ x) = Levelᵣ x
+  emb-≤-⊩ p (Uᵣ′ k [k] k< A⇒) = Uᵣ′ k [k] (<ᵘ-≤ᵘ-trans k< p) A⇒
   emb-≤-⊩ p (ℕᵣ x) = ℕᵣ x
   emb-≤-⊩ p (Emptyᵣ x) = Emptyᵣ x
-  emb-≤-⊩ p (Unitᵣ′ l′ l′≤ A⇒ ok) = Unitᵣ′ l′ (≤ᵘ-trans l′≤ p) A⇒ ok
+  emb-≤-⊩ p (Unitᵣ′ k [k] k≤ A⇒ ok) = Unitᵣ′ k [k] (≤ᵘ-trans k≤ p) A⇒ ok
   emb-≤-⊩ p (ne′ inc k D neK K≡K) = ne′ inc k D neK K≡K
   emb-≤-⊩ p (Bᵣ′ W F G D A≡A [F] [G] G-ext ok) = Bᵣ′ W F G D A≡A
     (λ [ρ] → emb-≤-⊩ p ([F] [ρ]))

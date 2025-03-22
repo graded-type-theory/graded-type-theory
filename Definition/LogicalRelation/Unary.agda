@@ -18,6 +18,7 @@ open Type-restrictions R
 
 open import Definition.LogicalRelation R
 open import Definition.LogicalRelation.Properties.Kit R
+open import Definition.LogicalRelation.Properties.Primitive R
 open import Definition.LogicalRelation.Properties.Reflexivity R
 open import Definition.LogicalRelation.Properties.Whnf R
 open import Definition.LogicalRelation.Weakening.Restricted R
@@ -101,24 +102,25 @@ opaque
            neₜ _ t⇒u
              (⊩neNf∷⇔⊩neNf≡∷ .proj₂ $
               PE.subst (flip (_⊩neNf_≡_∷_ _ _) _)
-                (whrDet*Term (t⇒v , ne v-ne) (t⇒u , ne u-ne)) u≡v))
+                (whrDet*Term (t⇒v , ne! v-ne) (t⇒u , ne! u-ne)) u≡v))
 
 ------------------------------------------------------------------------
 -- U
 
 -- Unary reducibility for universe terms.
 
-record _⊩U_∷U/_ (Γ : Con Term n) (t : Term n) (l′<l : l′ <ᵘ l) :
+record _⊩U_∷U/_ {T} (Γ : Con Term n) (t : Term n) ([T] : Γ ⊩′⟨ l ⟩U T) :
          Set a where
   no-eta-equality
   pattern
   constructor Uₜ
-  open LogRelKit (kit′ l′<l)
+  open _⊩₁U_ [T]
+  open LogRelKit (kit′ k<)
   field
     C      : Term n
-    ⇒*C    : Γ ⊢ t ⇒* C ∷ U l′
+    ⇒*C    : Γ ⊢ t ⇒* C ∷ U k
     C-type : Type C
-    ≅C     : Γ ⊢≅ C ∷ U l′
+    ≅C     : Γ ⊢≅ C ∷ U k
     ⊩t     : Γ ⊩ t
 
 opaque
@@ -126,12 +128,12 @@ opaque
   -- The relation _⊩U_∷U/_ is pointwise logically equivalent to
   -- the diagonal of a certain relation.
 
-  ⊩U∷U⇔⊩U≡∷U : Γ ⊩U t ∷U/ l′<l ⇔ LogRel._⊩₁U_≡_∷U/_ _ kit′ Γ t t l′<l
-  ⊩U∷U⇔⊩U≡∷U {l′<l} =
+  ⊩U∷U⇔⊩U≡∷U : ∀ {T} {[T] : Γ ⊩′⟨ l ⟩U T} → Γ ⊩U t ∷U/ [T] ⇔ LogRel._⊩₁U_≡_∷U/_ _ kit′ Γ t t [T]
+  ⊩U∷U⇔⊩U≡∷U {[T]} =
       (λ where
          (Uₜ _ t⇒A A-type ≅A ⊩t) →
            Uₜ₌ _ _ t⇒A t⇒A A-type A-type ≅A ⊩t ⊩t
-             (⊩<≡⇔⊩≡ l′<l .proj₂ $ reflEq $ ⊩<⇔⊩ l′<l .proj₁ ⊩t))
+             (⊩<≡⇔⊩≡ k< .proj₂ $ reflEq $ ⊩<⇔⊩ k< .proj₁ ⊩t))
     , (λ where
          (Uₜ₌ _ _ t⇒A t⇒B A-type B-type A≅B ⊩t _ _) →
            Uₜ _ t⇒A A-type
@@ -140,6 +142,7 @@ opaque
                    (t⇒A , typeWhnf A-type))
                 A≅B)
              ⊩t)
+    where open _⊩₁U_ [T]
 
 ------------------------------------------------------------------------
 -- Empty
@@ -193,7 +196,7 @@ opaque
     , (λ where
          (Emptyₜ₌ u v t⇒u t⇒v u≅v u-v-prop) →
            let u-ne , v-ne = esplit u-v-prop
-               v≡u         = whrDet*Term (t⇒v , ne v-ne) (t⇒u , ne u-ne)
+               v≡u         = whrDet*Term (t⇒v , ne! v-ne) (t⇒u , ne! u-ne)
            in
            Emptyₜ _ t⇒u (PE.subst (flip (_⊢_≅_∷_ _ _) _) v≡u u≅v)
              (Empty-prop⇔[Empty]-prop .proj₂ $
@@ -204,48 +207,48 @@ opaque
 
 -- A property for terms of unit type in WHNF.
 
-data Unit-prop′ (Γ : Con Term n) (l : Universe-level) (s : Strength) :
+data Unit-prop′ (Γ : Con Term n) (k : Term n) (s : Strength) :
        Term n → Set a where
-  starᵣ : Unit-prop′ Γ l s (star s l)
-  ne    : Γ ⊩neNf t ∷ Unit s l → Unit-prop′ Γ l s t
+  starᵣ : ∀ {k′} → Γ ⊩Level k ≡ k′ ∷Level → Unit-prop′ Γ k s (star s k′)
+  ne    : Γ ⊩neNf t ∷ Unit s k → Unit-prop′ Γ k s t
 
 opaque
 
-  -- The relation Unit-prop′ Γ l 𝕨 is pointwise logically equivalent
-  -- to the diagonal of [Unitʷ]-prop Γ l.
+  -- The relation Unit-prop′ Γ l s is pointwise logically equivalent
+  -- to the diagonal of [Unit]-prop′ Γ l s.
 
-  Unit-prop′-𝕨⇔[Unitʷ]-prop : Unit-prop′ Γ l 𝕨 t ⇔ [Unitʷ]-prop Γ l t t
-  Unit-prop′-𝕨⇔[Unitʷ]-prop =
+  Unit-prop′⇔[Unit]-prop′ : ∀ {s k} → Unit-prop′ Γ k s t ⇔ [Unit]-prop′ Γ k s t t
+  Unit-prop′⇔[Unit]-prop′ {s} {k} =
       (λ where
-         starᵣ   → starᵣ
+         (starᵣ k≡k′) → starᵣ k≡k′ (wf-⊩Level k≡k′ .proj₂)
          (ne ⊩t) → ne (⊩neNf∷⇔⊩neNf≡∷ .proj₁ ⊩t))
     , flip lemma PE.refl
     where
-    lemma : [Unitʷ]-prop Γ l t t′ → t PE.≡ t′ → Unit-prop′ Γ l 𝕨 t
-    lemma starᵣ _         = starᵣ
+    lemma : [Unit]-prop′ Γ k s t t′ → t PE.≡ t′ → Unit-prop′ Γ k s t
+    lemma (starᵣ k≡k′ k′≡k″) _ = starᵣ k≡k′
     lemma (ne ⊩t) PE.refl = ne (⊩neNf∷⇔⊩neNf≡∷ .proj₂ ⊩t)
 
 -- A property for terms of unit type in WHNF.
 
-data Unit-prop (Γ : Con Term n) (l : Universe-level) :
+data Unit-prop (Γ : Con Term n) (k : Term n) :
        Strength → Term n → Set a where
-  Unitₜʷ : Unit-prop′ Γ l 𝕨 t → ¬ Unitʷ-η → Unit-prop Γ l 𝕨 t
-  Unitₜˢ : Unit-with-η s → Unit-prop Γ l s t
+  Unitₜʷ : Unit-prop′ Γ k 𝕨 t → ¬ Unitʷ-η → Unit-prop Γ k 𝕨 t
+  Unitₜˢ : Unit-with-η s → Unit-prop Γ k s t
 
 opaque
 
   -- The relation Unit-prop is pointwise logically equivalent to the
   -- diagonal of [Unit]-prop.
 
-  Unit-prop⇔[Unit]-prop : Unit-prop Γ l s t ⇔ [Unit]-prop Γ l s t t
+  Unit-prop⇔[Unit]-prop : ∀ {k} → Unit-prop Γ k s t ⇔ [Unit]-prop Γ k s t t
   Unit-prop⇔[Unit]-prop =
       (λ where
          (Unitₜʷ prop no-η) →
-           Unitₜ₌ʷ (Unit-prop′-𝕨⇔[Unitʷ]-prop .proj₁ prop) no-η
+           Unitₜ₌ʷ (Unit-prop′⇔[Unit]-prop′ .proj₁ prop) no-η
          (Unitₜˢ η) → Unitₜ₌ˢ η)
     , (λ where
          (Unitₜ₌ʷ prop no-η) →
-           Unitₜʷ (Unit-prop′-𝕨⇔[Unitʷ]-prop .proj₂ prop) no-η
+           Unitₜʷ (Unit-prop′⇔[Unit]-prop′ .proj₂ prop) no-η
          (Unitₜ₌ˢ η) → Unitₜˢ η)
 
 opaque
@@ -253,8 +256,9 @@ opaque
   -- A "smart constructor" for Unit-prop.
 
   Unit-prop′→Unit-prop :
-    Unit-prop′ Γ l s t →
-    Unit-prop Γ l s t
+    ∀ {k} →
+    Unit-prop′ Γ k s t →
+    Unit-prop Γ k s t
   Unit-prop′→Unit-prop {s} prop =
     case Unit-with-η? s of λ where
       (inj₁ η)                → Unitₜˢ η
@@ -264,15 +268,15 @@ opaque
 
 record _⊩Unit⟨_⟩_∷Unit/_
          (Γ : Con Term n) (s : Strength)
-         (t : Term n) (l′ : Universe-level) :
+         (t k : Term n) :
          Set a where
   no-eta-equality
   pattern
   constructor Unitₜ
   field
     u    : Term n
-    ↘u   : Γ ⊢ t ↘ u ∷ Unit s l′
-    prop : Unit-prop Γ l′ s u
+    ↘u   : Γ ⊢ t ↘ u ∷ Unit s k
+    prop : Unit-prop Γ k s u
 
 opaque
 
@@ -280,7 +284,7 @@ opaque
   -- to the diagonal of _⊩Unit⟨_,_⟩_≡_∷Unit.
 
   ⊩Unit∷Unit⇔⊩Unit≡∷Unit :
-    Γ ⊩Unit⟨ s ⟩ t ∷Unit/ l′ ⇔ Γ ⊩Unit⟨ s ⟩ t ≡ t ∷Unit/ l′
+    ∀ {k} → Γ ⊩Unit⟨ s ⟩ t ∷Unit/ k ⇔ Γ ⊩Unit⟨ s ⟩ t ≡ t ∷Unit/ k
   ⊩Unit∷Unit⇔⊩Unit≡∷Unit =
       (λ (Unitₜ _ ↘u prop) →
          Unitₜ₌ _ _ ↘u ↘u (Unit-prop⇔[Unit]-prop .proj₁ prop))

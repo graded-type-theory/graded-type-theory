@@ -48,11 +48,10 @@ private variable
   n                                               : Nat
   Γ Γ₁ Γ₂                                         : Con Term _
   A A₁ A₂ A′ B B₁ B₂ C
-    eq eq₁ eq₂ t t₁ t₂ t′ u u₁ u₂ v v₁ v₂ w w₁ w₂ : Term _
+    eq eq₁ eq₂ l t t₁ t₂ t′ u u₁ u₂ v v₁ v₂ w w₁ w₂ : Term _
   σ                                               : Subst _ _
   p q                                             : M
   s                                               : Strength
-  l                                               : Universe-level
 
 ------------------------------------------------------------------------
 -- Lemmas related to rfl
@@ -556,11 +555,12 @@ opaque
   -- A typing rule for cast.
 
   ⊢cast :
+    Γ ⊢ l ∷ Level →
     Γ ⊢ t ∷ Id (U l) A B →
     Γ ⊢ u ∷ A →
     Γ ⊢ cast l A B t u ∷ B
-  ⊢cast ⊢t ⊢u =
-    ⊢subst (univ (var₀ (Uⱼ (wfTerm ⊢t)))) ⊢t ⊢u
+  ⊢cast ⊢l ⊢t ⊢u =
+    ⊢subst (univ (var₀ (Uⱼ ⊢l))) ⊢t ⊢u
 
 opaque
   unfolding cast
@@ -568,33 +568,36 @@ opaque
   -- A reduction rule for cast.
 
   cast-⇒′ :
+    Γ ⊢ l ∷ Level →
     Γ ⊢ A ≡ A′ ∷ U l →
     Γ ⊢ t ∷ A →
     Γ ⊢ cast l A A′ rfl t ⇒ t ∷ A
-  cast-⇒′ A≡A′ ⊢t =
-    subst-⇒′ (univ (var₀ (Uⱼ (wfTerm ⊢t)))) A≡A′ ⊢t
+  cast-⇒′ ⊢l A≡A′ ⊢t =
+    subst-⇒′ (univ (var₀ (Uⱼ ⊢l))) A≡A′ ⊢t
 
 opaque
 
   -- Another reduction rule for cast.
 
   cast-⇒ :
+    Γ ⊢ l ∷ Level →
     Γ ⊢ A ∷ U l →
     Γ ⊢ t ∷ A →
     Γ ⊢ cast l A A rfl t ⇒ t ∷ A
-  cast-⇒ ⊢A ⊢t =
-    cast-⇒′ (refl ⊢A) ⊢t
+  cast-⇒ ⊢l ⊢A ⊢t =
+    cast-⇒′ ⊢l (refl ⊢A) ⊢t
 
 opaque
 
   -- An equality rule for cast.
 
   cast-≡ :
+    Γ ⊢ l ∷ Level →
     Γ ⊢ A ∷ U l →
     Γ ⊢ t ∷ A →
     Γ ⊢ cast l A A rfl t ≡ t ∷ A
-  cast-≡ ⊢A ⊢t =
-    subsetTerm (cast-⇒ ⊢A ⊢t)
+  cast-≡ ⊢l ⊢A ⊢t =
+    subsetTerm (cast-⇒ ⊢l ⊢A ⊢t)
 
 opaque
   unfolding cast
@@ -618,24 +621,26 @@ opaque
   -- A reduction rule for cast.
 
   cast-subst :
+    Γ ⊢ l ∷ Level →
     Γ ⊢ t₁ ⇒ t₂ ∷ Id (U l) A B →
     Γ ⊢ u ∷ A →
     Γ ⊢ cast l A B t₁ u ⇒ cast l A B t₂ u ∷ B
-  cast-subst t₁⇒t₂ ⊢u =
-    subst-subst (univ (var₀ (Uⱼ (wfTerm ⊢u)))) t₁⇒t₂ ⊢u
+  cast-subst ⊢l t₁⇒t₂ ⊢u =
+    subst-subst (univ (var₀ (Uⱼ ⊢l))) t₁⇒t₂ ⊢u
 
 opaque
 
   -- A reduction rule for cast.
 
   cast-subst* :
+    Γ ⊢ l ∷ Level →
     Γ ⊢ t₁ ⇒* t₂ ∷ Id (U l) A B →
     Γ ⊢ u ∷ A →
     Γ ⊢ cast l A B t₁ u ⇒* cast l A B t₂ u ∷ B
-  cast-subst* = λ where
-    (id ⊢t)          ⊢u → id (⊢cast ⊢t ⊢u)
+  cast-subst* ⊢l = λ where
+    (id ⊢t)          ⊢u → id (⊢cast ⊢l ⊢t ⊢u)
     (t₁⇒t₃ ⇨ t₃⇒*t₂) ⊢u →
-      cast-subst t₁⇒t₃ ⊢u ⇨ cast-subst* t₃⇒*t₂ ⊢u
+      cast-subst ⊢l t₁⇒t₃ ⊢u ⇨ cast-subst* ⊢l t₃⇒*t₂ ⊢u
 
 opaque
   unfolding cast

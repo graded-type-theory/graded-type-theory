@@ -228,14 +228,14 @@ opaque
   -- The constructor true.
 
   true : Term n
-  true = prodʷ 𝟙 (suc zero) E.[ starʷ 0 ]
+  true = prodʷ 𝟙 (suc zero) E.[ starʷ zeroᵘ ]
 
 opaque
 
   -- The constructor false.
 
   false : Term n
-  false = prodʷ 𝟙 zero E.[ starʷ 0 ]
+  false = prodʷ 𝟙 zero E.[ starʷ zeroᵘ ]
 
 opaque
 
@@ -256,7 +256,7 @@ opaque
          (Π 𝟙 , p ▷ Erased (OK (var x0)) ▹ Target 4 A (var x1) (var x0))
          (lam 𝟙 $
           erasedrec p (Target 4 A zero (var x0))
-            (unitrec 0 𝟘 𝟘 (Target 5 A zero E.[ var x0 ]) (var x0)
+            (unitrec 𝟘 𝟘 zeroᵘ (Target 5 A zero E.[ var x0 ]) (var x0)
                (wk[ 4 ]′ u))
             (var x0))
          (natcase boolrecᵍ-nc₁ (Boolᵍ + p)
@@ -264,7 +264,7 @@ opaque
              Target 5 A (suc (var x1)) (var x0))
             (lam 𝟙 $
              erasedrec p (Target 5 A (suc zero) (var x0))
-               (unitrec 0 𝟘 𝟘 (Target 6 A (suc zero) E.[ var x0 ])
+               (unitrec 𝟘 𝟘 zeroᵘ (Target 6 A (suc zero) E.[ var x0 ])
                   (var x0) (wk[ 5 ]′ t))
                (var x0))
             (lam 𝟙 $
@@ -409,7 +409,7 @@ opaque
          (Π 𝟙 , p ▷ Erased (OK (var x0)) ▹ Target 4 A (var x1) (var x0))
          (lam 𝟙 $
           erasedrec p (Target 4 A zero (var x0))
-            (unitrec 0 𝟘 𝟘 (Target 5 A zero E.[ var x0 ]) (var x0)
+            (unitrec 𝟘 𝟘 zeroᵘ (Target 5 A zero E.[ var x0 ]) (var x0)
                (wk[ 4 ]′ u))
             (var x0))
          (natcase boolrecᵍ-nc₁ (Boolᵍ + p)
@@ -417,7 +417,7 @@ opaque
              Target 5 A (suc (var x1)) (var x0))
             (lam 𝟙 $
              erasedrec p (Target 5 A (suc zero) (var x0))
-               (unitrec 0 𝟘 𝟘 (Target 6 A (suc zero) E.[ var x0 ])
+               (unitrec 𝟘 𝟘 zeroᵘ (Target 6 A (suc zero) E.[ var x0 ])
                   (var x0) (wk[ 5 ]′ t))
                (var x0))
             (lam 𝟙 $
@@ -450,7 +450,7 @@ opaque
           (Target 4 A (var x1) (var x0) [ σ ⇑[ 4 ] ]))
          (lam 𝟙 $
           erasedrec p (Target 4 A zero (var x0) [ σ ⇑[ 4 ] ])
-            (unitrec 0 𝟘 𝟘 (Target 5 A zero E.[ var x0 ] [ σ ⇑[ 5 ] ])
+            (unitrec 𝟘 𝟘 zeroᵘ (Target 5 A zero E.[ var x0 ] [ σ ⇑[ 5 ] ])
                (var x0) (wk[ 4 ]′ u [ σ ⇑[ 4 ] ]))
             (var x0))
          (natcase boolrecᵍ-nc₁ (Boolᵍ + p)
@@ -458,7 +458,7 @@ opaque
              (Target 5 A (suc (var x1)) (var x0) [ σ ⇑[ 5 ] ]))
             (lam 𝟙 $
              erasedrec p (Target 5 A (suc zero) (var x0) [ σ ⇑[ 5 ] ])
-               (unitrec 0 𝟘 𝟘
+               (unitrec 𝟘 𝟘 zeroᵘ
                   (Target 6 A (suc zero) E.[ var x0 ] [ σ ⇑[ 6 ] ])
                   (var x0) (wk[ 5 ]′ t [ σ ⇑[ 5 ] ]))
                (var x0))
@@ -501,7 +501,7 @@ opaque
           Target 4 (A [ σ ⇑ ]) (var x1) (var x0))
          (lam 𝟙 $
           erasedrec p (Target 4 (A [ σ ⇑ ]) zero (var x0))
-            (unitrec 0 𝟘 𝟘 (Target 5 (A [ σ ⇑ ]) zero E.[ var x0 ])
+            (unitrec 𝟘 𝟘 zeroᵘ (Target 5 (A [ σ ⇑ ]) zero E.[ var x0 ])
                (var x0) (wk[ 4 ]′ (u [ σ ])))
             (var x0))
          (natcase boolrecᵍ-nc₁ (Boolᵍ + p)
@@ -509,7 +509,7 @@ opaque
              Target 5 (A [ σ ⇑ ]) (suc (var x1)) (var x0))
             (lam 𝟙 $
              erasedrec p (Target 5 (A [ σ ⇑ ]) (suc zero) (var x0))
-               (unitrec 0 𝟘 𝟘
+               (unitrec 𝟘 𝟘 zeroᵘ
                   (Target 6 (A [ σ ⇑ ]) (suc zero) E.[ var x0 ])
                   (var x0) (wk[ 5 ]′ (t [ σ ])))
                (var x0))

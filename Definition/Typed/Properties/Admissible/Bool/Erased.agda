@@ -86,9 +86,13 @@ opaque
 
   ⊢Bool∷U :
     ⊢ Γ →
-    Γ ⊢ Bool ∷ U 0
+    Γ ⊢ Bool ∷ U zeroᵘ
   ⊢Bool∷U ⊢Γ =
-    ΠΣⱼ (ℕⱼ ⊢Γ) (Erasedⱼ-U Erased-ok (⊢OK∷U (var₀ (ℕⱼ ⊢Γ)))) Σ-ok
+    conv
+      (ΠΣⱼ (zeroᵘⱼ ⊢Γ) (zeroᵘⱼ ⊢Γ) (ℕⱼ ⊢Γ)
+        (Erasedⱼ-U Erased-ok (⊢OK∷U (var₀ (ℕⱼ ⊢Γ))))
+        Σ-ok)
+      (U-cong (maxᵘ-zeroʳ (zeroᵘⱼ ⊢Γ)))
 
 opaque
 
@@ -111,8 +115,8 @@ opaque
     prodⱼ (⊢Erased-OK (var₀ (ℕⱼ ⊢Γ)))
       (sucⱼ (zeroⱼ ⊢Γ))
       ([]ⱼ Erased-ok $
-       _⊢_∷_.conv (starⱼ ⊢Γ Unitʷ-ok)
-         (Unitʷ 0                    ≡˘⟨ OK-1≡ ⊢Γ ⟩⊢∎≡
+       _⊢_∷_.conv (starⱼ (zeroᵘⱼ ⊢Γ) Unitʷ-ok)
+         (Unitʷ zeroᵘ                ≡˘⟨ OK-1≡ ⊢Γ ⟩⊢∎≡
           OK (suc zero)              ≡˘⟨ B.OK-[] ⟩
           OK (var x0) [ suc zero ]₀  ∎))
       Σ-ok
@@ -130,8 +134,8 @@ opaque
   ⊢false ⊢Γ =
     prodⱼ (⊢Erased-OK (var₀ (ℕⱼ ⊢Γ))) (zeroⱼ ⊢Γ)
       ([]ⱼ Erased-ok $
-       _⊢_∷_.conv (starⱼ ⊢Γ Unitʷ-ok)
-         (Unitʷ 0                ≡˘⟨ OK-0≡ ⊢Γ ⟩⊢∎≡
+       _⊢_∷_.conv (starⱼ (zeroᵘⱼ ⊢Γ) Unitʷ-ok)
+         (Unitʷ zeroᵘ            ≡˘⟨ OK-0≡ ⊢Γ ⟩⊢∎≡
           OK zero                ≡˘⟨ B.OK-[] ⟩
           OK (var x0) [ zero ]₀  ∎))
       Σ-ok
@@ -206,17 +210,22 @@ private
 
     opaque
 
-      ⊢Unitʷ : Γ ⊢ Unitʷ 0
-      ⊢Unitʷ = Unitⱼ ⊢Γ Unitʷ-ok
+      ⊢Unitʷ : Γ ⊢ Unitʷ zeroᵘ
+      ⊢Unitʷ = Unitⱼ (zeroᵘⱼ ⊢Γ) Unitʷ-ok
 
     opaque
 
-      ⊢[starʷ] : Γ ⊢ [ starʷ 0 ] ∷ Erased (Unitʷ 0)
-      ⊢[starʷ] = []ⱼ Erased-ok (starⱼ ⊢Γ Unitʷ-ok)
+      ⊢starʷ : Γ ⊢ starʷ zeroᵘ ∷ Unitʷ zeroᵘ
+      ⊢starʷ = starⱼ (zeroᵘⱼ ⊢Γ) Unitʷ-ok
 
     opaque
 
-      ⊢Erased-Unitʷ : Γ ⊢ Erased (Unitʷ 0)
+      ⊢[starʷ] : Γ ⊢ [ starʷ zeroᵘ ] ∷ Erased (Unitʷ zeroᵘ)
+      ⊢[starʷ] = []ⱼ Erased-ok ⊢starʷ
+
+    opaque
+
+      ⊢Erased-Unitʷ : Γ ⊢ Erased (Unitʷ zeroᵘ)
       ⊢Erased-Unitʷ = syntacticTerm ⊢[starʷ]
 
     opaque
@@ -239,11 +248,11 @@ private
 
       Π-[]₀-lemma :
         Γ ⊢ t [ u ]₀ ∷ ℕ →
-        Γ ⊢ OK (t [ u ]₀) ≡ Unitʷ 0 →
+        Γ ⊢ OK (t [ u ]₀) ≡ Unitʷ zeroᵘ →
         Γ ⊢
           (Π 𝟙 , p ▷ Erased (OK t) ▹ Target 2 A₁ (wk1 t) (var x0))
             [ u ]₀ ≡
-          Π 𝟙 , p ▷ Erased (Unitʷ 0) ▹ Target 1 A₂ (wk1 (t [ u ]₀))
+          Π 𝟙 , p ▷ Erased (Unitʷ zeroᵘ) ▹ Target 1 A₂ (wk1 (t [ u ]₀))
             (var x0)
       Π-[]₀-lemma {t} ⊢t[u]₀ OK-t[u]₀≡Unit =
         let ⊢OK = ⊢Erased-OK ⊢t[u]₀ in
@@ -262,7 +271,7 @@ private
 
       Target-lemma-0 :
         drop k Δ PE.≡ Γ →
-        Δ ∙ B ⊢ t ∷ Erased (Unitʷ 0) →
+        Δ ∙ B ⊢ t ∷ Erased (Unitʷ zeroᵘ) →
         Δ ∙ B ⊢
           Target (1+ k) A₁ zero t ≡
           Target (1+ k) A₂ zero t
@@ -275,7 +284,7 @@ private
 
       Target-lemma-1 :
         drop k Δ PE.≡ Γ →
-        Δ ∙ B ⊢ t ∷ Erased (Unitʷ 0) →
+        Δ ∙ B ⊢ t ∷ Erased (Unitʷ zeroᵘ) →
         Δ ∙ B ⊢
           Target (1+ k) A₁ (suc zero) t ≡
           Target (1+ k) A₂ (suc zero) t
@@ -291,7 +300,7 @@ private
         drop k Δ PE.≡ Γ →
         ⊢ Δ →
         Δ ⊢ wk[ k ]′ t₁ ≡ wk[ k ]′ t₂ ∷
-          Target (1+ k) A₁ (suc zero) [ var x0 ] [ starʷ 0 ]₀
+          Target (1+ k) A₁ (suc zero) [ var x0 ] [ starʷ zeroᵘ ]₀
       wk-t₁≡wk-t₂ PE.refl ⊢Δ =
         PE.subst (_⊢_≡_∷_ _ _ _)
           (PE.sym $ PE.trans (Target-[₀⇑] 0) Target-wk[]′) $
@@ -304,7 +313,7 @@ private
         drop k Δ PE.≡ Γ →
         ⊢ Δ →
         Δ ⊢ wk[ k ]′ u₁ ≡ wk[ k ]′ u₂ ∷
-          Target (1+ k) A₁ zero [ var x0 ] [ starʷ 0 ]₀
+          Target (1+ k) A₁ zero [ var x0 ] [ starʷ zeroᵘ ]₀
       wk-u₁≡wk-u₂ PE.refl ⊢Δ =
         PE.subst (_⊢_≡_∷_ _ _ _)
           (PE.sym $ PE.trans (Target-[₀⇑] 0) Target-wk[]′) $
@@ -315,19 +324,20 @@ private
       unitrec-lemma-0 :
         drop k Δ PE.≡ Γ →
         ⊢ Δ →
-        Δ ∙ Unitʷ 0 ⊢
-          unitrec 0 𝟘 𝟘 (Target (2+ k) A₁ zero [ var x0 ])
+        Δ ∙ Unitʷ zeroᵘ ⊢
+          unitrec 𝟘 𝟘 zeroᵘ (Target (2+ k) A₁ zero [ var x0 ])
             (var x0) (wk[ 1+ k ]′ u₁) ≡
-          unitrec 0 𝟘 𝟘 (Target (2+ k) A₂ zero [ var x0 ])
+          unitrec 𝟘 𝟘 zeroᵘ (Target (2+ k) A₂ zero [ var x0 ])
             (var x0) (wk[ 1+ k ]′ u₂) ∷
           Target (1+ k) A₁ zero (var x0) [ [ var x0 ] ]↑
       unitrec-lemma-0 ≡Γ ⊢Δ =
-        let ⊢Unitʷ = Unitⱼ ⊢Δ Unitʷ-ok in
+        let ⊢Unitʷ = Unitⱼ (zeroᵘⱼ ⊢Δ) Unitʷ-ok in
         PE.subst (_⊢_≡_∷_ _ _ _)
           (PE.trans (Target-[₀⇑] 0) $ PE.sym $ Target-[↑⇑] 0) $
         unitrec-cong′
+          (refl (zeroᵘⱼ (∙ ⊢Unitʷ)))
           (Target-lemma-0 ≡Γ $
-           []ⱼ Erased-ok (var₀ (Unitⱼ (∙ ⊢Unitʷ) Unitʷ-ok)))
+           []ⱼ Erased-ok (var₀ (Unitⱼ (zeroᵘⱼ (∙ ⊢Unitʷ)) Unitʷ-ok)))
           (refl (var₀ ⊢Unitʷ))
           (wk-u₁≡wk-u₂ ≡Γ (∙ ⊢Unitʷ))
 
@@ -336,19 +346,20 @@ private
       unitrec-lemma-1 :
         drop k Δ PE.≡ Γ →
         ⊢ Δ →
-        Δ ∙ Unitʷ 0 ⊢
-          unitrec 0 𝟘 𝟘 (Target (2+ k) A₁ (suc zero) [ var x0 ])
+        Δ ∙ Unitʷ zeroᵘ ⊢
+          unitrec 𝟘 𝟘 zeroᵘ (Target (2+ k) A₁ (suc zero) [ var x0 ])
             (var x0) (wk[ 1+ k ]′ t₁) ≡
-          unitrec 0 𝟘 𝟘 (Target (2+ k) A₂ (suc zero) [ var x0 ])
+          unitrec 𝟘 𝟘 zeroᵘ (Target (2+ k) A₂ (suc zero) [ var x0 ])
             (var x0) (wk[ 1+ k ]′ t₂) ∷
           Target (1+ k) A₁ (suc zero) (var x0) [ [ var x0 ] ]↑
       unitrec-lemma-1 ≡Γ ⊢Δ =
-        let ⊢Unitʷ = Unitⱼ ⊢Δ Unitʷ-ok in
+        let ⊢Unitʷ = Unitⱼ (zeroᵘⱼ ⊢Δ) Unitʷ-ok in
         PE.subst (_⊢_≡_∷_ _ _ _)
           (PE.trans (Target-[₀⇑] 0) $ PE.sym $ Target-[↑⇑] 0) $
         unitrec-cong′
+          (refl (zeroᵘⱼ (∙ ⊢Unitʷ)))
           (Target-lemma-1 ≡Γ $
-           []ⱼ Erased-ok (var₀ (Unitⱼ (∙ ⊢Unitʷ) Unitʷ-ok)))
+           []ⱼ Erased-ok (var₀ (Unitⱼ (zeroᵘⱼ (∙ ⊢Unitʷ)) Unitʷ-ok)))
           (refl (var₀ ⊢Unitʷ))
           (wk-t₁≡wk-t₂ ≡Γ (∙ ⊢Unitʷ))
 
@@ -356,14 +367,14 @@ private
 
       erasedrec-lemma-0 :
         drop k Δ PE.≡ Γ →
-        Δ ⊢ B ≡ Erased (Unitʷ 0) →
+        Δ ⊢ B ≡ Erased (Unitʷ zeroᵘ) →
         Δ ∙ B ⊢
           erasedrec p (Target (2+ k) A₁ zero (var x0))
-            (unitrec 0 𝟘 𝟘 (Target (3+ k) A₁ zero [ var x0 ]) (var x0)
+            (unitrec 𝟘 𝟘 zeroᵘ (Target (3+ k) A₁ zero [ var x0 ]) (var x0)
                (wk[ 2+ k ]′ u₁))
             (var x0) ≡
           erasedrec p (Target (2+ k) A₂ zero (var x0))
-            (unitrec 0 𝟘 𝟘 (Target (3+ k) A₂ zero [ var x0 ]) (var x0)
+            (unitrec 𝟘 𝟘 zeroᵘ (Target (3+ k) A₂ zero [ var x0 ]) (var x0)
                (wk[ 2+ k ]′ u₂))
             (var x0) ∷
           Target (2+ k) A₁ zero (var x0) [ var x0 ]₀
@@ -378,14 +389,14 @@ private
 
       erasedrec-lemma-1 :
         drop k Δ PE.≡ Γ →
-        Δ ⊢ B ≡ Erased (Unitʷ 0) →
+        Δ ⊢ B ≡ Erased (Unitʷ zeroᵘ) →
         Δ ∙ B ⊢
           erasedrec p (Target (2+ k) A₁ (suc zero) (var x0))
-            (unitrec 0 𝟘 𝟘 (Target (3+ k) A₁ (suc zero) [ var x0 ])
+            (unitrec 𝟘 𝟘 zeroᵘ (Target (3+ k) A₁ (suc zero) [ var x0 ])
                (var x0) (wk[ 2+ k ]′ t₁))
             (var x0) ≡
           erasedrec p (Target (2+ k) A₂ (suc zero) (var x0))
-            (unitrec 0 𝟘 𝟘 (Target (3+ k) A₂ (suc zero) [ var x0 ])
+            (unitrec 𝟘 𝟘 zeroᵘ (Target (3+ k) A₂ (suc zero) [ var x0 ])
                (var x0) (wk[ 2+ k ]′ t₂))
             (var x0) ∷
           Target (2+ k) A₁ (suc zero) (var x0) [ var x0 ]₀
@@ -404,12 +415,12 @@ private
         Δ ⊢
           lam 𝟙
             (erasedrec p (Target (2+ k) A₁ zero (var x0))
-               (unitrec 0 𝟘 𝟘 (Target (3+ k) A₁ zero [ var x0 ])
+               (unitrec 𝟘 𝟘 zeroᵘ (Target (3+ k) A₁ zero [ var x0 ])
                   (var x0) (wk[ 2+ k ]′ u₁))
                (var x0)) ≡
           lam 𝟙
             (erasedrec p (Target (2+ k) A₂ zero (var x0))
-               (unitrec 0 𝟘 𝟘 (Target (3+ k) A₂ zero [ var x0 ])
+               (unitrec 𝟘 𝟘 zeroᵘ (Target (3+ k) A₂ zero [ var x0 ])
                   (var x0) (wk[ 2+ k ]′ u₂))
                (var x0)) ∷
           (Π 𝟙 , p ▷ Erased (OK (var x0)) ▹
@@ -431,12 +442,12 @@ private
         Δ ⊢
           lam 𝟙
             (erasedrec p (Target (2+ k) A₁ (suc zero) (var x0))
-               (unitrec 0 𝟘 𝟘 (Target (3+ k) A₁ (suc zero) [ var x0 ])
+               (unitrec 𝟘 𝟘 zeroᵘ (Target (3+ k) A₁ (suc zero) [ var x0 ])
                   (var x0) (wk[ 2+ k ]′ t₁))
                (var x0)) ≡
           lam 𝟙
             (erasedrec p (Target (2+ k) A₂ (suc zero) (var x0))
-               (unitrec 0 𝟘 𝟘 (Target (3+ k) A₂ (suc zero) [ var x0 ])
+               (unitrec 𝟘 𝟘 zeroᵘ (Target (3+ k) A₂ (suc zero) [ var x0 ])
                   (var x0) (wk[ 2+ k ]′ t₂))
                (var x0)) ∷
           (Π 𝟙 , p ▷ Erased (OK (suc (var x0))) ▹
@@ -511,7 +522,7 @@ private
              Target (3+ k) A₁ (suc (var x1)) (var x0))
             (lam 𝟙 $
              erasedrec p (Target (3+ k) A₁ (suc zero) (var x0))
-               (unitrec 0 𝟘 𝟘 (Target (4+ k) A₁ (suc zero) [ var x0 ])
+               (unitrec 𝟘 𝟘 zeroᵘ (Target (4+ k) A₁ (suc zero) [ var x0 ])
                   (var x0) (wk[ 3+ k ]′ t₁))
                (var x0))
             (lam 𝟙 $
@@ -527,7 +538,7 @@ private
              Target (3+ k) A₂ (suc (var x1)) (var x0))
             (lam 𝟙 $
              erasedrec p (Target (3+ k) A₂ (suc zero) (var x0))
-               (unitrec 0 𝟘 𝟘 (Target (4+ k) A₂ (suc zero) [ var x0 ])
+               (unitrec 𝟘 𝟘 zeroᵘ (Target (4+ k) A₂ (suc zero) [ var x0 ])
                   (var x0) (wk[ 3+ k ]′ t₂))
                (var x0))
             (lam 𝟙 $
@@ -565,7 +576,7 @@ private
              Target 4 A₁ (var x1) (var x0))
             (lam 𝟙 $
              erasedrec p (Target 4 A₁ zero (var x0))
-               (unitrec 0 𝟘 𝟘 (Target 5 A₁ zero [ var x0 ]) (var x0)
+               (unitrec 𝟘 𝟘 zeroᵘ (Target 5 A₁ zero [ var x0 ]) (var x0)
                   (wk[ 4 ]′ u₁))
                (var x0))
             (natcase boolrecᵍ-nc₁ (Boolᵍ + p)
@@ -573,7 +584,7 @@ private
                 Target 5 A₁ (suc (var x1)) (var x0))
                (lam 𝟙 $
                 erasedrec p (Target 5 A₁ (suc zero) (var x0))
-                  (unitrec 0 𝟘 𝟘 (Target 6 A₁ (suc zero) [ var x0 ])
+                  (unitrec 𝟘 𝟘 zeroᵘ (Target 6 A₁ (suc zero) [ var x0 ])
                      (var x0) (wk[ 5 ]′ t₁))
                   (var x0))
                (lam 𝟙 $
@@ -591,7 +602,7 @@ private
              Target 4 A₂ (var x1) (var x0))
             (lam 𝟙 $
              erasedrec p (Target 4 A₂ zero (var x0))
-               (unitrec 0 𝟘 𝟘 (Target 5 A₂ zero [ var x0 ]) (var x0)
+               (unitrec 𝟘 𝟘 zeroᵘ (Target 5 A₂ zero [ var x0 ]) (var x0)
                   (wk[ 4 ]′ u₂))
                (var x0))
             (natcase boolrecᵍ-nc₁ (Boolᵍ + p)
@@ -599,7 +610,7 @@ private
                 Target 5 A₂ (suc (var x1)) (var x0))
                (lam 𝟙 $
                 erasedrec p (Target 5 A₂ (suc zero) (var x0))
-                  (unitrec 0 𝟘 𝟘 (Target 6 A₂ (suc zero) [ var x0 ])
+                  (unitrec 𝟘 𝟘 zeroᵘ (Target 6 A₂ (suc zero) [ var x0 ])
                      (var x0) (wk[ 5 ]′ t₂))
                   (var x0))
                (lam 𝟙 $
@@ -640,7 +651,7 @@ private opaque
         Target 4 A (var x1) (var x0))
        (lam 𝟙 $
         erasedrec p (Target 4 A zero (var x0))
-          (unitrec 0 𝟘 𝟘 (Target 5 A zero [ var x0 ]) (var x0)
+          (unitrec 𝟘 𝟘 zeroᵘ (Target 5 A zero [ var x0 ]) (var x0)
              (wk[ 4 ]′ u))
           (var x0))
        (natcase boolrecᵍ-nc₁ (Boolᵍ + p)
@@ -648,7 +659,7 @@ private opaque
            Target 5 A (suc (var x1)) (var x0))
           (lam 𝟙 $
            erasedrec p (Target 5 A (suc zero) (var x0))
-             (unitrec 0 𝟘 𝟘 (Target 6 A (suc zero) [ var x0 ])
+             (unitrec 𝟘 𝟘 zeroᵘ (Target 6 A (suc zero) [ var x0 ])
                 (var x0) (wk[ 5 ]′ t))
              (var x0))
           (lam 𝟙 $
@@ -660,14 +671,14 @@ private opaque
              (var x0))
           (var x0))
        (var x1)
-       [ v , [ starʷ 0 ] ]₁₀)  ∘⟨ 𝟙 ⟩
-    [ starʷ 0 ] PE.≡
+       [ v , [ starʷ zeroᵘ ] ]₁₀)  ∘⟨ 𝟙 ⟩
+    [ starʷ zeroᵘ ] PE.≡
     natcase boolrecᵍ-nc₂ (Boolᵍ + p)
       (Π 𝟙 , p ▷ Erased (OK (var x0)) ▹
        Target 2 A (var x1) (var x0))
       (lam 𝟙 $
        erasedrec p (Target 2 A zero (var x0))
-         (unitrec 0 𝟘 𝟘 (Target 3 A zero [ var x0 ]) (var x0)
+         (unitrec 𝟘 𝟘 zeroᵘ (Target 3 A zero [ var x0 ]) (var x0)
             (wk[ 2 ]′ u))
          (var x0))
       (natcase boolrecᵍ-nc₁ (Boolᵍ + p)
@@ -675,7 +686,7 @@ private opaque
           Target 3 A (suc (var x1)) (var x0))
          (lam 𝟙 $
           erasedrec p (Target 3 A (suc zero) (var x0))
-            (unitrec 0 𝟘 𝟘 (Target 4 A (suc zero) [ var x0 ])
+            (unitrec 𝟘 𝟘 zeroᵘ (Target 4 A (suc zero) [ var x0 ])
                (var x0) (wk[ 3 ]′ t))
             (var x0))
          (lam 𝟙 $
@@ -687,7 +698,7 @@ private opaque
             (var x0))
          (var x0))
       v ∘⟨ 𝟙 ⟩
-    [ starʷ 0 ]
+    [ starʷ zeroᵘ ]
   natcase-natcase-[,]₁₀ =
     PE.cong (flip _∘⟨ 𝟙 ⟩_ _) $
     PE.trans natcase-[] $
@@ -775,12 +786,12 @@ opaque
     Γ ⊢ boolrec p A t u true ≡ t ∷ A [ true ]₀
   boolrec-true-≡ {p} {Γ} {A} {t} {u} Π-ok Π-𝟙-𝟘-ok Unitˢ-ok ⊢A ⊢t ⊢u =
     prodrec boolrecᵍ-pr 𝟙 p A
-      (prodʷ 𝟙 (suc zero) [ starʷ 0 ])
+      (prodʷ 𝟙 (suc zero) [ starʷ zeroᵘ ])
       (natcase boolrecᵍ-nc₂ (Boolᵍ + p)
          (Π 𝟙 , p ▷ Erased (OK (var x0)) ▹ Target 4 A (var x1) (var x0))
          (lam 𝟙 $
           erasedrec p (Target 4 A zero (var x0))
-            (unitrec 0 𝟘 𝟘 (Target 5 A zero [ var x0 ]) (var x0)
+            (unitrec 𝟘 𝟘 zeroᵘ (Target 5 A zero [ var x0 ]) (var x0)
                (wk[ 4 ]′ u))
             (var x0))
          (natcase boolrecᵍ-nc₁ (Boolᵍ + p)
@@ -788,7 +799,7 @@ opaque
              Target 5 A (suc (var x1)) (var x0))
             (lam 𝟙 $
              erasedrec p (Target 5 A (suc zero) (var x0))
-               (unitrec 0 𝟘 𝟘 (Target 6 A (suc zero) [ var x0 ])
+               (unitrec 𝟘 𝟘 zeroᵘ (Target 6 A (suc zero) [ var x0 ])
                   (var x0) (wk[ 5 ]′ t))
                (var x0))
             (lam 𝟙 $
@@ -808,7 +819,7 @@ opaque
        (Π 𝟙 , p ▷ Erased (OK (var x0)) ▹ Target 4 A (var x1) (var x0))
        (lam 𝟙 $
         erasedrec p (Target 4 A zero (var x0))
-          (unitrec 0 𝟘 𝟘 (Target 5 A zero [ var x0 ]) (var x0)
+          (unitrec 𝟘 𝟘 zeroᵘ (Target 5 A zero [ var x0 ]) (var x0)
              (wk[ 4 ]′ u))
           (var x0))
        (natcase boolrecᵍ-nc₁ (Boolᵍ + p)
@@ -816,7 +827,7 @@ opaque
            Target 5 A (suc (var x1)) (var x0))
           (lam 𝟙 $
            erasedrec p (Target 5 A (suc zero) (var x0))
-             (unitrec 0 𝟘 𝟘 (Target 6 A (suc zero) [ var x0 ])
+             (unitrec 𝟘 𝟘 zeroᵘ (Target 6 A (suc zero) [ var x0 ])
                 (var x0) (wk[ 5 ]′ t))
              (var x0))
           (lam 𝟙 $
@@ -827,15 +838,15 @@ opaque
              (var x0))
           (var x0))
        (var x1)
-       [ suc zero , [ starʷ 0 ] ]₁₀) ∘⟨ 𝟙 ⟩
-    [ starʷ 0 ]                                                           ≡⟨ natcase-natcase-[,]₁₀ ⟩⊢≡
+       [ suc zero , [ starʷ zeroᵘ ] ]₁₀) ∘⟨ 𝟙 ⟩
+    [ starʷ zeroᵘ ]                                                       ≡⟨ natcase-natcase-[,]₁₀ ⟩⊢≡
 
     natcase boolrecᵍ-nc₂ (Boolᵍ + p)
       (Π 𝟙 , p ▷ Erased (OK (var x0)) ▹
        Target 2 A (var x1) (var x0))
       (lam 𝟙 $
        erasedrec p (Target 2 A zero (var x0))
-         (unitrec 0 𝟘 𝟘 (Target 3 A zero [ var x0 ]) (var x0)
+         (unitrec 𝟘 𝟘 zeroᵘ (Target 3 A zero [ var x0 ]) (var x0)
             (wk[ 2 ]′ u))
          (var x0))
       (natcase boolrecᵍ-nc₁ (Boolᵍ + p)
@@ -843,7 +854,7 @@ opaque
           Target 3 A (suc (var x1)) (var x0))
          (lam 𝟙 $
           erasedrec p (Target 3 A (suc zero) (var x0))
-            (unitrec 0 𝟘 𝟘 (Target 4 A (suc zero) [ var x0 ])
+            (unitrec 𝟘 𝟘 zeroᵘ (Target 4 A (suc zero) [ var x0 ])
                (var x0) (wk[ 3 ]′ t))
             (var x0))
          (lam 𝟙 $
@@ -855,7 +866,7 @@ opaque
             (var x0))
          (var x0))
       (suc zero) ∘⟨ 𝟙 ⟩
-    [ starʷ 0 ]                                                           ⇒⟨ PE.subst (_⊢_⇒_∷_ _ _ _) (PE.trans (Target-[₀⇑] 0) Target≡) $
+    [ starʷ zeroᵘ ]                                                       ⇒⟨ PE.subst (_⊢_⇒_∷_ _ _ _) (PE.trans (Target-[₀⇑] 0) Target≡) $
                                                                              app-subst
                                                                                (conv
                                                                                   (natcase-suc-⇒
@@ -870,7 +881,7 @@ opaque
         Target 3 A (suc (var x1)) (var x0))
        (lam 𝟙 $
         erasedrec p (Target 3 A (suc zero) (var x0))
-          (unitrec 0 𝟘 𝟘 (Target 4 A (suc zero) [ var x0 ])
+          (unitrec 𝟘 𝟘 zeroᵘ (Target 4 A (suc zero) [ var x0 ])
              (var x0) (wk[ 3 ]′ t))
           (var x0))
        (lam 𝟙 $
@@ -882,7 +893,7 @@ opaque
           (var x0))
        (var x0)
        [ zero ]₀) ∘⟨ 𝟙 ⟩
-    [ starʷ 0 ]                                                           ≡⟨ PE.cong (_∘⟨ 𝟙 ⟩ _) $
+    [ starʷ zeroᵘ ]                                                       ≡⟨ PE.cong (_∘⟨ 𝟙 ⟩ _) $
                                                                              PE.trans natcase-[] $
                                                                              PE.cong₄ (natcase _ _)
                                                                                (PE.cong₂ (ΠΣ⟨_⟩_,_▷_▹_ _ _ _)
@@ -907,7 +918,7 @@ opaque
        Target 2 A (suc (var x1)) (var x0))
        (lam 𝟙 $
         erasedrec p (Target 2 A (suc zero) (var x0))
-          (unitrec 0 𝟘 𝟘 (Target 3 A (suc zero) [ var x0 ])
+          (unitrec 𝟘 𝟘 zeroᵘ (Target 3 A (suc zero) [ var x0 ])
              (var x0) (wk[ 2 ]′ t))
           (var x0))
        (lam 𝟙 $
@@ -918,7 +929,7 @@ opaque
              (var x0))
           (var x0))
       zero ∘⟨ 𝟙 ⟩
-    [ starʷ 0 ]                                                           ⇒⟨ PE.subst (_⊢_⇒_∷_ _ _ _) (PE.trans (Target-[₀⇑] 0) Target≡) $
+    [ starʷ zeroᵘ ]                                                       ⇒⟨ PE.subst (_⊢_⇒_∷_ _ _ _) (PE.trans (Target-[₀⇑] 0) Target≡) $
                                                                              app-subst
                                                                                (conv
                                                                                   (natcase-zero-⇒
@@ -929,10 +940,10 @@ opaque
                                                                                ⊢[starʷ] ⟩⊢
     lam 𝟙
       (erasedrec p (Target 2 A (suc zero) (var x0))
-         (unitrec 0 𝟘 𝟘 (Target 3 A (suc zero) [ var x0 ])
+         (unitrec 𝟘 𝟘 zeroᵘ (Target 3 A (suc zero) [ var x0 ])
             (var x0) (wk[ 2 ]′ t))
          (var x0)) ∘⟨ 𝟙 ⟩
-    [ starʷ 0 ]                                                           ⇒⟨ PE.subst (_⊢_⇒_∷_ _ _ _)
+    [ starʷ zeroᵘ ]                                                       ⇒⟨ PE.subst (_⊢_⇒_∷_ _ _ _)
                                                                                (PE.trans (PE.cong _[ _ ]₀ $ Target-[₀⇑] 0) $
                                                                                 PE.trans (Target-[₀⇑] 0) Target≡) $
                                                                              β-red-⇒
@@ -940,28 +951,28 @@ opaque
                                                                                   .proj₂ .proj₁)
                                                                                ⊢[starʷ] Π-ok ⟩⊢
     erasedrec p (Target 2 A (suc zero) (var x0))
-      (unitrec 0 𝟘 𝟘 (Target 3 A (suc zero) [ var x0 ])
+      (unitrec 𝟘 𝟘 zeroᵘ (Target 3 A (suc zero) [ var x0 ])
          (var x0) (wk[ 2 ]′ t))
       (var x0)
-      [ [ starʷ 0 ] ]₀                                                    ≡⟨ PE.trans erasedrec-[] $
+      [ [ starʷ zeroᵘ ] ]₀                                                ≡⟨ PE.trans erasedrec-[] $
                                                                              PE.cong₃ (erasedrec _)
                                                                                (Target-[₀⇑] 1)
                                                                                (PE.cong₃ (unitrec _ _ _) (Target-[₀⇑] 2) PE.refl wk[+1]′-[₀⇑]≡)
                                                                                PE.refl ⟩⊢≡
     erasedrec p (Target 1 A (suc zero) (var x0))
-      (unitrec 0 𝟘 𝟘 (Target 2 A (suc zero) [ var x0 ])
+      (unitrec 𝟘 𝟘 zeroᵘ (Target 2 A (suc zero) [ var x0 ])
          (var x0) (wk1 t))
-      [ starʷ 0 ]                                                         ≡⟨ PE.subst (_⊢_≡_∷_ _ _ _) (PE.trans (Target-[₀⇑] 0) $ Target≡) $
+      [ starʷ zeroᵘ ]                                                     ≡⟨ PE.subst (_⊢_≡_∷_ _ _ _) (PE.trans (Target-[₀⇑] 0) $ Target≡) $
                                                                              erasedrec-β
                                                                                (syntacticEq (Target-lemma-1 PE.refl (var₀ ⊢Erased-Unitʷ)) .proj₁)
                                                                                (syntacticEqTerm (unitrec-lemma-1 PE.refl ⊢Γ) .proj₂ .proj₁)
-                                                                               (starⱼ ⊢Γ Unitʷ-ok) ⟩⊢
+                                                                               ⊢starʷ ⟩⊢
 
-    unitrec 0 𝟘 𝟘 (Target 2 A (suc zero) [ var x0 ]) (var x0) (wk1 t)
-      [ starʷ 0 ]₀                                                        ≡⟨ PE.cong₃ (unitrec _ _ _)
+    unitrec 𝟘 𝟘 zeroᵘ (Target 2 A (suc zero) [ var x0 ]) (var x0) (wk1 t)
+      [ starʷ zeroᵘ ]₀                                                    ≡⟨ PE.cong₃ (unitrec _ _ _)
                                                                                (Target-[₀⇑] 1) PE.refl (wk1-sgSubst _ _) ⟩⊢≡
 
-    unitrec 0 𝟘 𝟘 (Target 1 A (suc zero) [ var x0 ]) (starʷ 0) t          ⇒⟨ PE.subst (_⊢_⇒_∷_ _ _ _) (PE.trans (Target-[₀⇑] 0) Target≡) $
+    unitrec 𝟘 𝟘 zeroᵘ (Target 1 A (suc zero) [ var x0 ]) (starʷ zeroᵘ) t  ⇒⟨ PE.subst (_⊢_⇒_∷_ _ _ _) (PE.trans (Target-[₀⇑] 0) Target≡) $
                                                                              unitrec-β-⇒
                                                                                (syntacticEq
                                                                                   (Target-lemma-1 PE.refl ([]ⱼ Erased-ok (var₀ ⊢Unitʷ))) .proj₁)
@@ -986,12 +997,12 @@ opaque
     Γ ⊢ u ∷ A [ false ]₀ →
     Γ ⊢ boolrec p A t u false ≡ u ∷ A [ false ]₀
   boolrec-false-≡ {p} {Γ} {A} {t} {u} Π-ok Π-𝟙-𝟘-ok Unitˢ-ok ⊢A ⊢t ⊢u =
-    prodrec boolrecᵍ-pr 𝟙 p A (prodʷ 𝟙 zero [ starʷ 0 ])
+    prodrec boolrecᵍ-pr 𝟙 p A (prodʷ 𝟙 zero [ starʷ zeroᵘ ])
       (natcase boolrecᵍ-nc₂ (Boolᵍ + p)
          (Π 𝟙 , p ▷ Erased (OK (var x0)) ▹ Target 4 A (var x1) (var x0))
          (lam 𝟙 $
           erasedrec p (Target 4 A zero (var x0))
-            (unitrec 0 𝟘 𝟘 (Target 5 A zero [ var x0 ]) (var x0)
+            (unitrec 𝟘 𝟘 zeroᵘ (Target 5 A zero [ var x0 ]) (var x0)
                (wk[ 4 ]′ u))
             (var x0))
          (natcase boolrecᵍ-nc₁ (Boolᵍ + p)
@@ -999,7 +1010,7 @@ opaque
              Target 5 A (suc (var x1)) (var x0))
             (lam 𝟙 $
              erasedrec p (Target 5 A (suc zero) (var x0))
-               (unitrec 0 𝟘 𝟘 (Target 6 A (suc zero) [ var x0 ])
+               (unitrec 𝟘 𝟘 zeroᵘ (Target 6 A (suc zero) [ var x0 ])
                   (var x0) (wk[ 5 ]′ t))
                (var x0))
             (lam 𝟙 $
@@ -1019,7 +1030,7 @@ opaque
        (Π 𝟙 , p ▷ Erased (OK (var x0)) ▹ Target 4 A (var x1) (var x0))
        (lam 𝟙 $
         erasedrec p (Target 4 A zero (var x0))
-          (unitrec 0 𝟘 𝟘 (Target 5 A zero [ var x0 ]) (var x0)
+          (unitrec 𝟘 𝟘 zeroᵘ (Target 5 A zero [ var x0 ]) (var x0)
              (wk[ 4 ]′ u))
           (var x0))
        (natcase boolrecᵍ-nc₁ (Boolᵍ + p)
@@ -1027,7 +1038,7 @@ opaque
            Target 5 A (suc (var x1)) (var x0))
           (lam 𝟙 $
            erasedrec p (Target 5 A (suc zero) (var x0))
-             (unitrec 0 𝟘 𝟘 (Target 6 A (suc zero) [ var x0 ])
+             (unitrec 𝟘 𝟘 zeroᵘ (Target 6 A (suc zero) [ var x0 ])
                 (var x0) (wk[ 5 ]′ t))
              (var x0))
           (lam 𝟙 $
@@ -1038,15 +1049,15 @@ opaque
              (var x0))
           (var x0))
        (var x1)
-       [ zero , [ starʷ 0 ] ]₁₀) ∘⟨ 𝟙 ⟩
-    [ starʷ 0 ]                                                           ≡⟨ natcase-natcase-[,]₁₀ ⟩⊢≡
+       [ zero , [ starʷ zeroᵘ ] ]₁₀) ∘⟨ 𝟙 ⟩
+    [ starʷ zeroᵘ ]                                                       ≡⟨ natcase-natcase-[,]₁₀ ⟩⊢≡
 
     natcase boolrecᵍ-nc₂ (Boolᵍ + p)
       (Π 𝟙 , p ▷ Erased (OK (var x0)) ▹
        Target 2 A (var x1) (var x0))
       (lam 𝟙 $
        erasedrec p (Target 2 A zero (var x0))
-         (unitrec 0 𝟘 𝟘 (Target 3 A zero [ var x0 ]) (var x0)
+         (unitrec 𝟘 𝟘 zeroᵘ (Target 3 A zero [ var x0 ]) (var x0)
             (wk[ 2 ]′ u))
          (var x0))
       (natcase boolrecᵍ-nc₁ (Boolᵍ + p)
@@ -1054,7 +1065,7 @@ opaque
           Target 3 A (suc (var x1)) (var x0))
          (lam 𝟙 $
           erasedrec p (Target 3 A (suc zero) (var x0))
-            (unitrec 0 𝟘 𝟘 (Target 4 A (suc zero) [ var x0 ])
+            (unitrec 𝟘 𝟘 zeroᵘ (Target 4 A (suc zero) [ var x0 ])
                (var x0) (wk[ 3 ]′ t))
             (var x0))
          (lam 𝟙 $
@@ -1066,7 +1077,7 @@ opaque
             (var x0))
          (var x0))
       zero ∘⟨ 𝟙 ⟩
-    [ starʷ 0 ]                                                           ⇒⟨ PE.subst (_⊢_⇒_∷_ _ _ _) (PE.trans (Target-[₀⇑] 0) Target≡) $
+    [ starʷ zeroᵘ ]                                                       ⇒⟨ PE.subst (_⊢_⇒_∷_ _ _ _) (PE.trans (Target-[₀⇑] 0) Target≡) $
                                                                              app-subst
                                                                                (conv
                                                                                   (natcase-zero-⇒
@@ -1077,10 +1088,10 @@ opaque
                                                                                ⊢[starʷ] ⟩⊢
     lam 𝟙
       (erasedrec p (Target 2 A zero (var x0))
-         (unitrec 0 𝟘 𝟘 (Target 3 A zero [ var x0 ]) (var x0)
+         (unitrec 𝟘 𝟘 zeroᵘ (Target 3 A zero [ var x0 ]) (var x0)
             (wk[ 2 ]′ u))
          (var x0)) ∘⟨ 𝟙 ⟩
-    [ starʷ 0 ]                                                           ⇒⟨ PE.subst (_⊢_⇒_∷_ _ _ _)
+    [ starʷ zeroᵘ ]                                                       ⇒⟨ PE.subst (_⊢_⇒_∷_ _ _ _)
                                                                                (PE.trans (PE.cong _[ _ ]₀ $ Target-[₀⇑] 0) $
                                                                                 PE.trans (Target-[₀⇑] 0) Target≡) $
                                                                              β-red-⇒
@@ -1088,26 +1099,26 @@ opaque
                                                                                   .proj₂ .proj₁)
                                                                                ⊢[starʷ] Π-ok ⟩⊢
     erasedrec p (Target 2 A zero (var x0))
-      (unitrec 0 𝟘 𝟘 (Target 3 A zero [ var x0 ]) (var x0)
+      (unitrec 𝟘 𝟘 zeroᵘ (Target 3 A zero [ var x0 ]) (var x0)
          (wk[ 2 ]′ u))
       (var x0)
-      [ [ starʷ 0 ] ]₀                                                    ≡⟨ PE.trans erasedrec-[] $
+      [ [ starʷ zeroᵘ ] ]₀                                                ≡⟨ PE.trans erasedrec-[] $
                                                                              PE.cong₃ (erasedrec _)
                                                                                (Target-[₀⇑] 1)
                                                                                (PE.cong₃ (unitrec _ _ _) (Target-[₀⇑] 2) PE.refl wk[+1]′-[₀⇑]≡)
                                                                                PE.refl ⟩⊢≡
     erasedrec p (Target 1 A zero (var x0))
-      (unitrec 0 𝟘 𝟘 (Target 2 A zero [ var x0 ]) (var x0) (wk1 u))
-      [ starʷ 0 ]                                                         ≡⟨ PE.subst (_⊢_≡_∷_ _ _ _) (PE.trans (Target-[₀⇑] 0) $ Target≡) $
+      (unitrec 𝟘 𝟘 zeroᵘ (Target 2 A zero [ var x0 ]) (var x0) (wk1 u))
+      [ starʷ zeroᵘ ]                                                     ≡⟨ PE.subst (_⊢_≡_∷_ _ _ _) (PE.trans (Target-[₀⇑] 0) $ Target≡) $
                                                                              erasedrec-β
                                                                                (syntacticEq (Target-lemma-0 PE.refl (var₀ ⊢Erased-Unitʷ)) .proj₁)
                                                                                (syntacticEqTerm (unitrec-lemma-0 PE.refl ⊢Γ) .proj₂ .proj₁)
-                                                                               (starⱼ ⊢Γ Unitʷ-ok) ⟩⊢
-    unitrec 0 𝟘 𝟘 (Target 2 A zero [ var x0 ]) (var x0) (wk1 u)
-      [ starʷ 0 ]₀                                                        ≡⟨ PE.cong₃ (unitrec _ _ _)
+                                                                               ⊢starʷ ⟩⊢
+    unitrec 𝟘 𝟘 zeroᵘ (Target 2 A zero [ var x0 ]) (var x0) (wk1 u)
+      [ starʷ zeroᵘ ]₀                                                    ≡⟨ PE.cong₃ (unitrec _ _ _)
                                                                                (Target-[₀⇑] 1) PE.refl (wk1-sgSubst _ _) ⟩⊢≡
 
-    unitrec 0 𝟘 𝟘 (Target 1 A zero [ var x0 ]) (starʷ 0) u                ⇒⟨ PE.subst (_⊢_⇒_∷_ _ _ _) (PE.trans (Target-[₀⇑] 0) Target≡) $
+    unitrec 𝟘 𝟘 zeroᵘ (Target 1 A zero [ var x0 ]) (starʷ zeroᵘ) u        ⇒⟨ PE.subst (_⊢_⇒_∷_ _ _ _) (PE.trans (Target-[₀⇑] 0) Target≡) $
                                                                              unitrec-β-⇒
                                                                                (syntacticEq (Target-lemma-0 PE.refl ([]ⱼ Erased-ok (var₀ ⊢Unitʷ)))
                                                                                   .proj₁)

@@ -28,10 +28,10 @@ infix 24 ∙_
 
 private
   variable
-    n l l₁ l₂ : Nat
+    n : Nat
     Γ : Con Term _
     A A₁ A₂ A′ B B₁ B₂ C E F F′ G H : Term _
-    a f g n′ s s′ t t₁ t₂ t′ u u₁ u₂ u′ v v₁ v₂ v′ w w₁ w₂ w′ z z′ :
+    a f g l l₁ l₂ l₃ l′ n′ s s′ t t₁ t₂ t′ u u₁ u₂ u′ v v₁ v₂ v′ w w₁ w₂ w′ z z′ :
       Term _
     σ σ′ : Subst _ _
     x : Fin _
@@ -44,7 +44,6 @@ data _∷_∈_ : (x : Fin n) (A : Term n) (Γ : Con Term n) → Set ℓ where
   here  :                 x0 ∷ wk1 A ∈ Γ ∙ A
   there : x ∷ A ∈ Γ → (x +1) ∷ wk1 A ∈ Γ ∙ B
 
-
 mutual
   -- Well-formed context
   data ⊢_ : Con Term n → Set ℓ where
@@ -53,11 +52,13 @@ mutual
 
   -- Well-formed type
   data _⊢_ (Γ : Con Term n) : Term n → Set ℓ where
-    Uⱼ     : ⊢ Γ → Γ ⊢ U l
+    Levelⱼ : ⊢ Γ → Γ ⊢ Level
+    Uⱼ     : Γ ⊢ l ∷ Level
+           → Γ ⊢ U l
     univ   : Γ ⊢ A ∷ U l
            → Γ ⊢ A
     Emptyⱼ : ⊢ Γ → Γ ⊢ Empty
-    Unitⱼ  : ⊢ Γ → Unit-allowed k → Γ ⊢ Unit k l
+    Unitⱼ  : Γ ⊢ l ∷ Level → Unit-allowed k → Γ ⊢ Unit k l
     ΠΣⱼ    : Γ ∙ F ⊢ G
            → ΠΣ-allowed b p q
            → Γ     ⊢ ΠΣ⟨ b ⟩ p , q ▷ F ▹ G
@@ -77,23 +78,38 @@ mutual
               → x ∷ A ∈ Γ
               → Γ ⊢ var x ∷ A
 
-    Uⱼ        : ⊢ Γ → Γ ⊢ U l ∷ U (1+ l)
+    Levelⱼ    : ⊢ Γ → Γ ⊢ Level ∷ U zeroᵘ
+    zeroᵘⱼ    : ⊢ Γ
+              → Γ ⊢ zeroᵘ ∷ Level
+    sucᵘⱼ     : Γ ⊢ l ∷ Level
+              → Γ ⊢ sucᵘ l ∷ Level
+    maxᵘⱼ     : Γ ⊢ l₁ ∷ Level
+              → Γ ⊢ l₂ ∷ Level
+              → Γ ⊢ l₁ maxᵘ l₂ ∷ Level
 
-    Emptyⱼ    : ⊢ Γ → Γ ⊢ Empty ∷ U 0
+    Uⱼ        : Γ ⊢ l ∷ Level
+              → Γ ⊢ U l ∷ U (sucᵘ l)
+
+    Emptyⱼ    : ⊢ Γ → Γ ⊢ Empty ∷ U zeroᵘ
     emptyrecⱼ : Γ ⊢ A → Γ ⊢ t ∷ Empty → Γ ⊢ emptyrec p A t ∷ A
 
-    Unitⱼ     : ⊢ Γ → Unit-allowed k → Γ ⊢ Unit k l ∷ U l
-    starⱼ     : ⊢ Γ → Unit-allowed k → Γ ⊢ star k l ∷ Unit k l
-    unitrecⱼ  : Γ ∙ Unitʷ l ⊢ A
+    Unitⱼ     : Γ ⊢ l ∷ Level → Unit-allowed k → Γ ⊢ Unit k l ∷ U l
+    starⱼ     : Γ ⊢ l ∷ Level
+              → Unit-allowed k
+              → Γ ⊢ star k l ∷ Unit k l
+    unitrecⱼ  : Γ ⊢ l ∷ Level
+              → Γ ∙ Unitʷ l ⊢ A
               → Γ ⊢ t ∷ Unitʷ l
               → Γ ⊢ u ∷ A [ starʷ l ]₀
               → Unitʷ-allowed
-              → Γ ⊢ unitrec l p q A t u ∷ A [ t ]₀
+              → Γ ⊢ unitrec p q l A t u ∷ A [ t ]₀
 
-    ΠΣⱼ       : Γ     ⊢ F ∷ U l₁
-              → Γ ∙ F ⊢ G ∷ U l₂
+    ΠΣⱼ       : Γ     ⊢ l₁ ∷ Level
+              → Γ     ⊢ l₂ ∷ Level
+              → Γ     ⊢ F ∷ U l₁
+              → Γ ∙ F ⊢ G ∷ U (wk1 l₂)
               → ΠΣ-allowed b p q
-              → Γ     ⊢ ΠΣ⟨ b ⟩ p , q ▷ F ▹ G ∷ U (l₁ ⊔ᵘ l₂)
+              → Γ     ⊢ ΠΣ⟨ b ⟩ p , q ▷ F ▹ G ∷ U (l₁ maxᵘ l₂)
 
     lamⱼ      : Γ ∙ F ⊢ G
               → Γ ∙ F ⊢ t ∷ G
@@ -120,7 +136,7 @@ mutual
               → Σʷ-allowed p q′
               → Γ ⊢ prodrec r p q A t u ∷ A [ t ]₀
 
-    ℕⱼ        : ⊢ Γ → Γ ⊢ ℕ ∷ U 0
+    ℕⱼ        : ⊢ Γ → Γ ⊢ ℕ ∷ U zeroᵘ
     zeroⱼ     : ⊢ Γ
               → Γ ⊢ zero ∷ ℕ
     sucⱼ      : ∀ {n}
@@ -169,11 +185,17 @@ mutual
            → Γ ⊢ A ≡ C
     univ   : Γ ⊢ A ≡ B ∷ U l
            → Γ ⊢ A ≡ B
+    U-cong : Γ ⊢ l₁ ≡ l₂ ∷ Level
+           → Γ ⊢ U l₁ ≡ U l₂
     ΠΣ-cong
            : Γ     ⊢ F ≡ H
            → Γ ∙ F ⊢ G ≡ E
            → ΠΣ-allowed b p q
            → Γ     ⊢ ΠΣ⟨ b ⟩ p , q ▷ F ▹ G ≡ ΠΣ⟨ b ⟩ p , q ▷ H ▹ E
+    Unit-cong
+           : Γ ⊢ l₁ ≡ l₂ ∷ Level
+           → Unit-allowed k
+           → Γ ⊢ Unit k l₁ ≡ Unit k l₂
     Id-cong
            : Γ ⊢ A₁ ≡ A₂
            → Γ ⊢ t₁ ≡ t₂ ∷ A₁
@@ -195,39 +217,74 @@ mutual
                   → Γ ⊢ u ≡ v ∷ A
                   → Γ ⊢ t ≡ v ∷ A
 
+    sucᵘ-cong     : ∀ {t t'}
+                  → Γ ⊢ t ≡ t' ∷ Level
+                  → Γ ⊢ sucᵘ t ≡ sucᵘ t' ∷ Level
+    maxᵘ-cong     : ∀ {t t' u u'}
+                  → Γ ⊢ t ≡ t' ∷ Level
+                  → Γ ⊢ u ≡ u' ∷ Level
+                  → Γ ⊢ t maxᵘ u ≡ t' maxᵘ u' ∷ Level
+    maxᵘ-zeroˡ    : Γ ⊢ l ∷ Level
+                  → Γ ⊢ zeroᵘ maxᵘ l ≡ l ∷ Level
+    maxᵘ-zeroʳ    : Γ ⊢ l ∷ Level
+                  → Γ ⊢ l maxᵘ zeroᵘ ≡ l ∷ Level
+    maxᵘ-sucᵘ     : Γ ⊢ l₁ ∷ Level
+                  → Γ ⊢ l₂ ∷ Level
+                  → Γ ⊢ sucᵘ l₁ maxᵘ sucᵘ l₂ ≡ sucᵘ (l₁ maxᵘ l₂) ∷ Level
+
+    U-cong        : Γ ⊢ l₁ ≡ l₂ ∷ Level
+                  → Γ ⊢ U l₁ ≡ U l₂ ∷ U (sucᵘ l₁)
+
     emptyrec-cong : Γ ⊢ A ≡ B
                   → Γ ⊢ t ≡ u ∷ Empty
                   → Γ ⊢ emptyrec p A t ≡ emptyrec p B u ∷ A
 
-    η-unit        : Γ ⊢ t ∷ Unit k l
+    Unit-cong     : Γ ⊢ l₁ ≡ l₂ ∷ Level
+                  → Unit-allowed k
+                  → Γ ⊢ Unit k l₁ ≡ Unit k l₂ ∷ U l₁
+
+    η-unit        : Γ ⊢ l ∷ Level
+                  → Γ ⊢ t ∷ Unit k l
                   → Γ ⊢ t′ ∷ Unit k l
+                  → Unit-allowed k
                   → Unit-with-η k
                   → Γ ⊢ t ≡ t′ ∷ Unit k l
 
-    unitrec-cong  : Γ ∙ Unitʷ l ⊢ A ≡ A′
+    star-cong     : Γ ⊢ l ≡ l′ ∷ Level
+                  → Unit-allowed k
+                  → Γ ⊢ star k l ≡ star k l′ ∷ Unit k l
+
+    unitrec-cong  : Γ ⊢ l ∷ Level
+                  → Γ ⊢ l′ ∷ Level
+                  → Γ ⊢ l ≡ l′ ∷ Level
+                  → Γ ∙ Unitʷ l ⊢ A ≡ A′
                   → Γ ⊢ t ≡ t′ ∷ Unitʷ l
                   → Γ ⊢ u ≡ u′ ∷ A [ starʷ l ]₀
                   → Unitʷ-allowed
                   → ¬ Unitʷ-η
-                  → Γ ⊢ unitrec l p q A t u ≡ unitrec l p q A′ t′ u′ ∷
+                  → Γ ⊢ unitrec p q l A t u ≡ unitrec p q l′ A′ t′ u′ ∷
                       A [ t ]₀
-    unitrec-β     : Γ ∙ Unitʷ l ⊢ A
+    unitrec-β     : Γ ⊢ l ∷ Level
+                  → Γ ∙ Unitʷ l ⊢ A
                   → Γ ⊢ u ∷ A [ starʷ l ]₀
                   → Unitʷ-allowed
                   → ¬ Unitʷ-η
-                  → Γ ⊢ unitrec l p q A (starʷ l) u ≡ u ∷ A [ starʷ l ]₀
-    unitrec-β-η   : Γ ∙ Unitʷ l ⊢ A
+                  → Γ ⊢ unitrec p q l A (starʷ l) u ≡ u ∷ A [ starʷ l ]₀
+    unitrec-β-η   : Γ ⊢ l ∷ Level
+                  → Γ ∙ Unitʷ l ⊢ A
                   → Γ ⊢ t ∷ Unitʷ l
                   → Γ ⊢ u ∷ A [ starʷ l ]₀
                   → Unitʷ-allowed
                   → Unitʷ-η
-                  → Γ ⊢ unitrec l p q A t u ≡ u ∷ A [ t ]₀
+                  → Γ ⊢ unitrec p q l A t u ≡ u ∷ A [ t ]₀
 
-    ΠΣ-cong       : Γ     ⊢ F ≡ H ∷ U l₁
-                  → Γ ∙ F ⊢ G ≡ E ∷ U l₂
+    ΠΣ-cong       : Γ     ⊢ l₁ ∷ Level
+                  → Γ     ⊢ l₂ ∷ Level
+                  → Γ     ⊢ F ≡ H ∷ U l₁
+                  → Γ ∙ F ⊢ G ≡ E ∷ U (wk1 l₂)
                   → ΠΣ-allowed b p q
                   → Γ     ⊢ ΠΣ⟨ b ⟩ p , q ▷ F ▹ G ≡
-                            ΠΣ⟨ b ⟩ p , q ▷ H ▹ E ∷ U (l₁ ⊔ᵘ l₂)
+                            ΠΣ⟨ b ⟩ p , q ▷ H ▹ E ∷ U (l₁ maxᵘ l₂)
 
     app-cong      : ∀ {b}
                   → Γ ⊢ f ≡ g ∷ Π p , q ▷ F ▹ G
@@ -373,29 +430,51 @@ data _⊢_⇒_∷_ (Γ : Con Term n) : Term n → Term n → Term n → Set ℓ 
                  → Γ ⊢ A ≡ B
                  → Γ ⊢ t ⇒ u ∷ B
 
+  maxᵘ-substˡ    : Γ ⊢ t ⇒ t′ ∷ Level
+                 → Γ ⊢ u ∷ Level
+                 → Γ ⊢ t maxᵘ u ⇒ t′ maxᵘ u ∷ Level
+  maxᵘ-substʳ    : Γ ⊢ t ∷ Level
+                 → Γ ⊢ u ⇒ u′ ∷ Level
+                 → Whnf t
+                 → t PE.≢ zeroᵘ
+                 → Γ ⊢ t maxᵘ u ⇒ t maxᵘ u′ ∷ Level
+  maxᵘ-zeroˡ     : Γ ⊢ l ∷ Level
+                 → Γ ⊢ zeroᵘ maxᵘ l ⇒ l ∷ Level
+  maxᵘ-zeroʳ     : Γ ⊢ l ∷ Level
+                 → Whnf l
+                 → l PE.≢ zeroᵘ
+                 → Γ ⊢ l maxᵘ zeroᵘ ⇒ l ∷ Level
+  maxᵘ-sucᵘ      : Γ ⊢ l₁ ∷ Level
+                 → Γ ⊢ l₂ ∷ Level
+                 → Γ ⊢ sucᵘ l₁ maxᵘ sucᵘ l₂ ⇒ sucᵘ (l₁ maxᵘ l₂) ∷ Level
+
   emptyrec-subst : ∀ {n}
                  → Γ ⊢ A
                  → Γ     ⊢ n ⇒ n′ ∷ Empty
                  → Γ     ⊢ emptyrec p A n ⇒ emptyrec p A n′ ∷ A
 
-  unitrec-subst : Γ ∙ Unitʷ l ⊢ A
+  unitrec-subst : Γ ⊢ l ∷ Level
+                → Γ ∙ Unitʷ l ⊢ A
                 → Γ ⊢ u ∷ A [ starʷ l ]₀
                 → Γ ⊢ t ⇒ t′ ∷ Unitʷ l
                 → Unitʷ-allowed
                 → ¬ Unitʷ-η
-                → Γ ⊢ unitrec l p q A t u ⇒ unitrec l p q A t′ u ∷
+                → Γ ⊢ unitrec p q l A t u ⇒ unitrec p q l A t′ u ∷
                     A [ t ]₀
-  unitrec-β     : Γ ∙ Unitʷ l ⊢ A
-                → Γ ⊢ u ∷ A [ starʷ l ]₀
+  unitrec-β     : Γ ⊢ l₁ ∷ Level
+                → Γ ⊢ l₁ ≡ l₂ ∷ Level
+                → Γ ∙ Unitʷ l₁ ⊢ A
+                → Γ ⊢ u ∷ A [ starʷ l₁ ]₀
                 → Unitʷ-allowed
                 → ¬ Unitʷ-η
-                → Γ ⊢ unitrec l p q A (starʷ l) u ⇒ u ∷ A [ starʷ l ]₀
-  unitrec-β-η   : Γ ∙ Unitʷ l ⊢ A
+                → Γ ⊢ unitrec p q l₁ A (starʷ l₂) u ⇒ u ∷ A [ starʷ l₁ ]₀
+  unitrec-β-η   : Γ ⊢ l ∷ Level
+                → Γ ∙ Unitʷ l ⊢ A
                 → Γ ⊢ t ∷ Unitʷ l
                 → Γ ⊢ u ∷ A [ starʷ l ]₀
                 → Unitʷ-allowed
                 → Unitʷ-η
-                → Γ ⊢ unitrec l p q A t u ⇒ u ∷ A [ t ]₀
+                → Γ ⊢ unitrec p q l A t u ⇒ u ∷ A [ t ]₀
 
   app-subst      : Γ ⊢ t ⇒ u ∷ Π p , q ▷ F ▹ G
                  → Γ ⊢ a ∷ F

@@ -249,6 +249,7 @@ import Definition.LogicalRelation.Unary
 import Definition.LogicalRelation.Properties.Escape
 import Definition.LogicalRelation.ShapeView
 import Definition.LogicalRelation.Irrelevance
+import Definition.LogicalRelation.Properties.Primitive
 import Definition.LogicalRelation.Properties.Conversion
 import Definition.LogicalRelation.Properties.Embedding
 import Definition.LogicalRelation.Properties.Symmetry
@@ -265,6 +266,7 @@ import Definition.LogicalRelation.Substitution
 
 -- The fundamental lemma of the logical relations.
 import Definition.LogicalRelation.Substitution.Introductions.Var
+import Definition.LogicalRelation.Substitution.Introductions.Level
 import Definition.LogicalRelation.Substitution.Introductions.Universe
 import Definition.LogicalRelation.Substitution.Introductions.Empty
 import Definition.LogicalRelation.Substitution.Introductions.Emptyrec

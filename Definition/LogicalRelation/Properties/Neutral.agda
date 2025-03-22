@@ -24,9 +24,10 @@ open import Definition.Typed.Inversion R
 open import Definition.Typed.Properties R
 import Definition.Typed.Weakening R as Wk
 open import Definition.Typed.Well-formed R
-open import Definition.LogicalRelation R
-open import Definition.LogicalRelation.ShapeView R
+open import Definition.LogicalRelation R ⦃ eqrel ⦄
+open import Definition.LogicalRelation.ShapeView R ⦃ eqrel ⦄
 open import Definition.LogicalRelation.Irrelevance R
+open import Definition.LogicalRelation.Properties.Kit R ⦃ eqrel ⦄
 open import Definition.LogicalRelation.Properties.Reflexivity R
 open import Definition.LogicalRelation.Properties.Escape R
 open import Definition.LogicalRelation.Unary R
@@ -63,7 +64,7 @@ opaque
   neuEq {Γ} {A} {B} [A] neA neB A~B =
     case ne-view neA [A] of λ {
       (ne [A]′@(ne inc _ D neK K≡K)) →
-    let A≡K = whnfRed* D (ne neA) in
+    let A≡K = whnfRed* D (ne! neA) in
     ne₌ inc _ (id (wf-⊢≡ (≅-eq A~B) .proj₂)) neB
       (PE.subst (λ x → _ ⊢ x ≅ _) A≡K A~B) }
 
@@ -83,16 +84,19 @@ opaque
     ⊢n = wf-⊢≡∷ (≅ₜ-eq (~-to-≅ₜ ~n)) .proj₂ .proj₁
 
     neuTerm′ : (⊩A : Γ ⊩⟨ l ⟩ A) → Γ ⊩⟨ l ⟩ n ∷ A / ⊩A
-    neuTerm′ (Uᵣ′ l ≤ᵘ-refl D) =
+    neuTerm′ (Levelᵣ D) =
+      let A≡Level  = subset* D
+          n~n′ = ~-conv ~n A≡Level
+      in
+      Levelₜ₌ _ _ (id (conv ⊢n A≡Level)) (id (conv ⊢n A≡Level))
+        (ne (sneₜ₌ (ne n-ne) (ne n-ne) (ne (neNfₜ₌ inc n-ne n-ne n~n′))))
+    neuTerm′ (Uᵣ′ _ [k] k< D) =
       let A≡U  = subset* D
           n≡n  = ~-to-≅ₜ (~-conv ~n A≡U)
       in
       ⊩U∷U⇔⊩U≡∷U .proj₁
         (Uₜ _ (id (conv ⊢n A≡U)) (ne n-ne) n≡n
-           (neu inc n-ne (~-to-≅ (~-conv ~n A≡U))))
-    neuTerm′ (Uᵣ′ _ (≤ᵘ-step p) A⇒*U) =
-      irrelevanceTerm (Uᵣ′ _ p A⇒*U) (Uᵣ′ _ (≤ᵘ-step p) A⇒*U)
-        (neuTerm inc (Uᵣ′ _ p A⇒*U) n-ne ~n)
+          (⊩<⇔⊩ k< .proj₂ (neu inc n-ne (≅-univ n≡n))))
     neuTerm′ (ℕᵣ D) =
       let A≡ℕ  = subset* D
           n~n′ = ~-conv ~n A≡ℕ
@@ -107,12 +111,12 @@ opaque
       in
       ⊩Empty∷Empty⇔⊩Empty≡∷Empty .proj₁
         (Emptyₜ _ (id (conv ⊢n A≡Empty)) n≡n (ne (neNfₜ inc n-ne n~n′)))
-    neuTerm′ (Unitᵣ′ _ _ D _) =
+    neuTerm′ (Unitᵣ′ _ _ _ D _) =
       let A≡Unit  = subset* D
           n~n′ = ~-conv ~n A≡Unit
       in
       ⊩Unit∷Unit⇔⊩Unit≡∷Unit .proj₁
-        (Unitₜ _ (id (conv ⊢n A≡Unit) , ne n-ne)
+        (Unitₜ _ (id (conv ⊢n A≡Unit) , ne! n-ne)
            (Unit-prop′→Unit-prop (ne (neNfₜ inc n-ne n~n′))))
     neuTerm′ (ne′ _ _ D neK K≡K) =
       let A≡K = subset* D in
@@ -186,19 +190,24 @@ opaque
     neuEqTerm′ :
       (⊩A : Γ ⊩⟨ l ⟩ A) →
       Γ ⊩⟨ l ⟩ n ≡ n′ ∷ A / ⊩A
-    neuEqTerm′ (Uᵣ′ l ≤ᵘ-refl D) =
+    neuEqTerm′ (Levelᵣ D) =
+      let A≡Level = subset* D
+          n~n′₁ = ~-conv n~n′ A≡Level
+      in
+      Levelₜ₌ _ _ (id (conv ⊢n A≡Level)) (id (conv ⊢n′ A≡Level))
+        (ne (sneₜ₌ (ne n-ne) (ne n′-ne) (ne (neNfₜ₌ inc n-ne n′-ne n~n′₁))))
+    neuEqTerm′ (Uᵣ′ _ [k] k< D) =
       let A≡U = subset* D
           n~n′₁ = ~-conv n~n′ A≡U
           ≅n , ≅n′ = wf-⊢≅ (~-to-≅ n~n′₁)
           n≡n′ = ~-to-≅ₜ n~n′₁
-          wfn = neu inc n-ne ≅n
+          ⊩n = neu inc n-ne ≅n
       in
       Uₜ₌ _ _ (id (conv ⊢n A≡U)) (id (conv ⊢n′ A≡U))
-        (ne n-ne) (ne n′-ne) n≡n′ wfn (neu inc n′-ne ≅n′)
-        (neuEq wfn n-ne n′-ne (≅-univ n≡n′))
-    neuEqTerm′ (Uᵣ′ _ (≤ᵘ-step p) A⇒*U) =
-      irrelevanceEqTerm (Uᵣ′ _ p A⇒*U) (Uᵣ′ _ (≤ᵘ-step p) A⇒*U)
-        (neuEqTerm inc (Uᵣ′ _ p A⇒*U) n-ne n′-ne n~n′)
+        (ne n-ne) (ne n′-ne) n≡n′
+        (⊩<⇔⊩ k< .proj₂ ⊩n)
+        (⊩<⇔⊩ k< .proj₂ (neu inc n′-ne ≅n′))
+        (⊩<≡⇔⊩≡′ k< .proj₂ (neuEq ⊩n n-ne n′-ne (≅-univ n≡n′)))
     neuEqTerm′ (ℕᵣ D) =
       let A≡ℕ = subset* D
           n~n′₁ = ~-conv n~n′ A≡ℕ
@@ -214,16 +223,13 @@ opaque
       Emptyₜ₌ _ _ (id (conv ⊢n A≡Empty))
         (id (conv ⊢n′ A≡Empty)) n≡n′
         (ne (neNfₜ₌ inc n-ne n′-ne n~n′₁))
-    neuEqTerm′ (Unitᵣ {s} (Unitᵣ _ _ D _)) =
+    neuEqTerm′ (Unitᵣ {s} (Unitᵣ _ _ _ D _)) =
       let A≡Unit = subset* D
           n~n′₁ = ~-conv n~n′ A≡Unit
       in
-      Unitₜ₌ _ _ (id (conv ⊢n A≡Unit) , ne n-ne)
-        (id (conv ⊢n′ A≡Unit) , ne n′-ne)
-        (case Unit-with-η? s of λ where
-           (inj₁ η)                → Unitₜ₌ˢ η
-           (inj₂ (PE.refl , no-η)) →
-             Unitₜ₌ʷ (ne (neNfₜ₌ inc n-ne n′-ne n~n′₁)) no-η)
+      Unitₜ₌ _ _ (id (conv ⊢n A≡Unit) , ne! n-ne)
+        (id (conv ⊢n′ A≡Unit) , ne! n′-ne)
+        ([Unit]-prop′→[Unit]-prop (ne (neNfₜ₌ inc n-ne n′-ne n~n′₁)))
     neuEqTerm′ (ne (ne _ _ D neK K≡K)) =
       let A≡K = subset* D in
       neₜ₌ _ _ (id (conv ⊢n A≡K))

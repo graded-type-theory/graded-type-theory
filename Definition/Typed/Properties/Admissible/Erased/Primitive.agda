@@ -30,13 +30,12 @@ import Tools.PropositionalEquality as PE
 
 private variable
   Γ       : Con Term _
-  A B t u : Term _
-  l       : Nat
+  A B l t u : Term _
 
 -- A formation rule for Erased.
 
 Erasedⱼ : Γ ⊢ A → Γ ⊢ Erased A
-Erasedⱼ ⊢A = ΠΣⱼ (Unitⱼ (∙ ⊢A) Unit-ok) Σ-ok
+Erasedⱼ ⊢A = ΠΣⱼ (Unitⱼ (zeroᵘⱼ (∙ ⊢A)) Unit-ok) Σ-ok
 
 -- A corresponding congruence rule.
 
@@ -45,23 +44,30 @@ Erased-cong :
   Γ ⊢ A ≡ B →
   Γ ⊢ Erased A ≡ Erased B
 Erased-cong ⊢A A≡B =
-  ΠΣ-cong A≡B (refl (Unitⱼ (∙ ⊢A) Unit-ok)) Σ-ok
+  ΠΣ-cong A≡B (refl (Unitⱼ (zeroᵘⱼ (∙ ⊢A)) Unit-ok)) Σ-ok
 
 opaque
 
   -- An introduction rule for U.
 
-  Erasedⱼ-U : Γ ⊢ A ∷ U l → Γ ⊢ Erased A ∷ U l
-  Erasedⱼ-U ⊢A = ΠΣⱼ ⊢A (Unitⱼ (∙ univ ⊢A) Unit-ok) Σ-ok
+  Erasedⱼ-U :
+    Γ ⊢ l ∷ Level →
+    Γ ⊢ A ∷ U l →
+    Γ ⊢ Erased A ∷ U l
+  Erasedⱼ-U ⊢l ⊢A∷U =
+    conv (ΠΣⱼ ⊢l (zeroᵘⱼ (wfTerm ⊢l)) ⊢A∷U (Unitⱼ (zeroᵘⱼ (∙ univ ⊢A∷U)) Unit-ok) Σ-ok)
+      (U-cong (maxᵘ-zeroʳ ⊢l))
 
 -- A corresponding congruence rule.
 
 Erased-cong-U :
+  Γ ⊢ l ∷ Level →
   Γ ⊢ A →
   Γ ⊢ A ≡ B ∷ U l →
   Γ ⊢ Erased A ≡ Erased B ∷ U l
-Erased-cong-U ⊢A A≡B =
-  ΠΣ-cong A≡B (refl (Unitⱼ (∙ ⊢A) Unit-ok)) Σ-ok
+Erased-cong-U ⊢l ⊢A A≡B =
+  conv (ΠΣ-cong ⊢l (zeroᵘⱼ (wf ⊢A)) A≡B (refl (Unitⱼ (zeroᵘⱼ (∙ ⊢A)) Unit-ok)) Σ-ok)
+    (U-cong (maxᵘ-zeroʳ ⊢l))
 
 -- An introduction rule for Erased.
 
@@ -70,7 +76,7 @@ Erased-cong-U ⊢A A≡B =
   Γ ⊢ t ∷ A →
   Γ ⊢ [ t ] ∷ Erased A
 []ⱼ ⊢A ⊢t =
-  prodⱼ (Unitⱼ (∙ ⊢A) Unit-ok) ⊢t (starⱼ ⊢Γ Unit-ok) Σ-ok
+  prodⱼ (Unitⱼ (zeroᵘⱼ (∙ ⊢A)) Unit-ok) ⊢t (starⱼ (zeroᵘⱼ ⊢Γ) Unit-ok) Σ-ok
   where
   ⊢Γ = wf ⊢A
 
@@ -81,5 +87,5 @@ Erased-cong-U ⊢A A≡B =
   Γ ⊢ t ≡ u ∷ A →
   Γ ⊢ [ t ] ≡ [ u ] ∷ Erased A
 []-cong′ ⊢A t≡u =
-  prod-cong (Unitⱼ (∙ ⊢A) Unit-ok) t≡u (refl (starⱼ (wf ⊢A) Unit-ok))
+  prod-cong (Unitⱼ (zeroᵘⱼ (∙ ⊢A)) Unit-ok) t≡u (refl (starⱼ (zeroᵘⱼ (wf ⊢A)) Unit-ok))
     Σ-ok

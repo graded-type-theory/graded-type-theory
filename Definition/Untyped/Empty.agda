@@ -29,7 +29,7 @@ opaque
 
   emptyrec-sink : Term n → Term n → Term n
   emptyrec-sink A t =
-    emptyrec 𝟘 (Π 𝟙 , 𝟘 ▷ (Unitˢ 0) ▹ (wk1 A)) t ∘⟨ 𝟙 ⟩ starˢ 0
+    emptyrec 𝟘 (Π 𝟙 , 𝟘 ▷ (Unitˢ zeroᵘ) ▹ (wk1 A)) t ∘⟨ 𝟙 ⟩ starˢ zeroᵘ
 
 opaque
   unfolding emptyrec-sink
@@ -39,11 +39,11 @@ opaque
   emptyrec-sink-[] :
     emptyrec-sink A t [ σ ] ≡ emptyrec-sink (A [ σ ]) (t [ σ ])
   emptyrec-sink-[] {A} {t} {σ} =
-    emptyrec 𝟘 (Π 𝟙 , 𝟘 ▷ Unitˢ 0 ▹ (wk1 A [ σ ⇑ ])) (t [ σ ]) ∘⟨ 𝟙 ⟩
-    starˢ 0                                                            ≡⟨ cong₃ _∘⟨_⟩_
+    emptyrec 𝟘 (Π 𝟙 , 𝟘 ▷ Unitˢ zeroᵘ ▹ (wk1 A [ σ ⇑ ])) (t [ σ ]) ∘⟨ 𝟙 ⟩
+    starˢ zeroᵘ                                                        ≡⟨ cong₃ _∘⟨_⟩_
                                                                             (cong₂ (emptyrec _)
                                                                                (cong (Π_,_▷_▹_ _ _ _) (wk1-liftSubst A))
                                                                                refl)
                                                                             refl refl ⟩
-    emptyrec 𝟘 (Π 𝟙 , 𝟘 ▷ Unitˢ 0 ▹ (wk1 (A [ σ ]))) (t [ σ ]) ∘⟨ 𝟙 ⟩
-    starˢ 0                                                            ∎
+    emptyrec 𝟘 (Π 𝟙 , 𝟘 ▷ Unitˢ zeroᵘ ▹ (wk1 (A [ σ ]))) (t [ σ ]) ∘⟨ 𝟙 ⟩
+    starˢ zeroᵘ                                                        ∎

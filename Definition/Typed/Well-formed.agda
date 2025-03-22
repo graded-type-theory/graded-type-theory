@@ -60,10 +60,18 @@ opaque mutual
       ⊢A
     (var ⊢Γ x∈) →
       wf-∷∈ x∈ ⊢Γ
-    (Uⱼ ⊢Γ) →
-      Uⱼ ⊢Γ
-    (ΠΣⱼ ⊢A _ _) →
-      Uⱼ (wfTerm ⊢A)
+    (Levelⱼ ⊢Γ) →
+      Uⱼ (zeroᵘⱼ ⊢Γ)
+    (zeroᵘⱼ ⊢Γ) →
+      Levelⱼ ⊢Γ
+    (sucᵘⱼ ⊢l) →
+      wf-⊢∷ ⊢l
+    (maxᵘⱼ ⊢l ⊢u) →
+      wf-⊢∷ ⊢l
+    (Uⱼ ⊢l) →
+      Uⱼ (sucᵘⱼ ⊢l)
+    (ΠΣⱼ l₁ l₂ ⊢A _ _) →
+      Uⱼ (maxᵘⱼ l₁ l₂)
     (lamⱼ ⊢B _ ok) →
       ΠΣⱼ ⊢B ok
     (⊢t ∘ⱼ ⊢u) →
@@ -78,17 +86,17 @@ opaque mutual
     (prodrecⱼ ⊢C ⊢t _ _) →
       subst-⊢ ⊢C (⊢ˢʷ∷-sgSubst ⊢t)
     (Emptyⱼ ⊢Γ) →
-      Uⱼ ⊢Γ
+      Uⱼ (zeroᵘⱼ ⊢Γ)
     (emptyrecⱼ ⊢A _) →
       ⊢A
     (starⱼ ⊢Γ ok) →
       Unitⱼ ⊢Γ ok
-    (unitrecⱼ ⊢A ⊢t _ _) →
+    (unitrecⱼ ⊢l ⊢A ⊢t _ _) →
       subst-⊢ ⊢A (⊢ˢʷ∷-sgSubst ⊢t)
     (Unitⱼ ⊢Γ _) →
       Uⱼ ⊢Γ
     (ℕⱼ ⊢Γ) →
-      Uⱼ ⊢Γ
+      Uⱼ (zeroᵘⱼ ⊢Γ)
     (zeroⱼ ⊢Γ) →
       ℕⱼ ⊢Γ
     (sucⱼ ⊢t) →
@@ -96,7 +104,7 @@ opaque mutual
     (natrecⱼ _ ⊢u ⊢v) →
       subst-⊢ (⊢∙→⊢ (wfTerm ⊢u)) (⊢ˢʷ∷-sgSubst ⊢v)
     (Idⱼ ⊢A _ _) →
-      Uⱼ (wfTerm ⊢A)
+      Uⱼ (inversion-U-Level (wf-⊢∷ ⊢A))
     (rflⱼ ⊢t) →
       Idⱼ (wf-⊢∷ ⊢t) ⊢t ⊢t
     (Jⱼ _ ⊢B _ ⊢v ⊢w) →
@@ -129,12 +137,18 @@ opaque mutual
     (univ A≡B) →
       let _ , ⊢A , ⊢B = wf-⊢≡∷ A≡B in
       univ ⊢A , univ ⊢B
+    (U-cong l₁≡l₂) →
+      let _ , ⊢l₁ , ⊢l₂ = wf-⊢≡∷ l₁≡l₂ in
+      Uⱼ ⊢l₁ , Uⱼ ⊢l₂
     (ΠΣ-cong A₁≡B₁ A₂≡B₂ ok) →
       let _ , ⊢B₁   = wf-⊢≡ A₁≡B₁
           ⊢A₂ , ⊢B₂ = wf-⊢≡ A₂≡B₂
       in
       ΠΣⱼ ⊢A₂ ok ,
       ΠΣⱼ (stability-⊢ refl-∙⟨ ⊢B₁ ∣ A₁≡B₁ ⟩ ⊢B₂) ok
+    (Unit-cong l₁≡l₂ ok) →
+      let _ , ⊢l₁ , ⊢l₂ = wf-⊢≡∷ l₁≡l₂ in
+      Unitⱼ ⊢l₁ ok , Unitⱼ ⊢l₂ ok
     (Id-cong A≡B t₁≡u₁ t₂≡u₂) →
       let ⊢A , ⊢B       = wf-⊢≡ A≡B
           _ , ⊢t₁ , ⊢u₁ = wf-⊢≡∷ t₁≡u₁
@@ -161,13 +175,30 @@ opaque mutual
           _ , ⊢A        = wf-⊢≡ B≡A
       in
       ⊢A , conv ⊢t₁ B≡A , conv ⊢t₂ B≡A
-    (ΠΣ-cong A₁≡A₂ B₁≡B₂ ok) →
+    (sucᵘ-cong l₁≡l₂) →
+      let ⊢Level , ⊢l₁ , ⊢l₂ = wf-⊢≡∷ l₁≡l₂ in
+      ⊢Level , sucᵘⱼ ⊢l₁ , sucᵘⱼ ⊢l₂
+    (maxᵘ-cong t₁≡t₂ u₁≡u₂) →
+      let ⊢Level , ⊢t₁ , ⊢t₂ = wf-⊢≡∷ t₁≡t₂
+          _ , ⊢u₁ , ⊢u₂ = wf-⊢≡∷ u₁≡u₂
+      in
+      ⊢Level , maxᵘⱼ ⊢t₁ ⊢u₁ , maxᵘⱼ ⊢t₂ ⊢u₂
+    (maxᵘ-zeroˡ ⊢l) →
+      wf-⊢∷ ⊢l , maxᵘⱼ (zeroᵘⱼ (wfTerm ⊢l)) ⊢l , ⊢l
+    (maxᵘ-zeroʳ ⊢l) →
+      wf-⊢∷ ⊢l , maxᵘⱼ ⊢l (zeroᵘⱼ (wfTerm ⊢l)) , ⊢l
+    (maxᵘ-sucᵘ ⊢l₁ ⊢l₂) →
+      wf-⊢∷ ⊢l₁ , maxᵘⱼ (sucᵘⱼ ⊢l₁) (sucᵘⱼ ⊢l₂) , sucᵘⱼ (maxᵘⱼ ⊢l₁ ⊢l₂)
+    (U-cong l₁≡l₂) →
+      let ⊢Level , ⊢l₁ , ⊢l₂ = wf-⊢≡∷ l₁≡l₂ in
+      Uⱼ (sucᵘⱼ ⊢l₁) , Uⱼ ⊢l₁ , conv (Uⱼ ⊢l₂) (sym (U-cong (sucᵘ-cong l₁≡l₂)))
+    (ΠΣ-cong ⊢l₁ ⊢l₂ A₁≡A₂ B₁≡B₂ ok) →
       let _ , ⊢A₁ , ⊢A₂ = wf-⊢≡∷ A₁≡A₂
           _ , ⊢B₁ , ⊢B₂ = wf-⊢≡∷ B₁≡B₂
       in
-      Uⱼ (wfTerm ⊢A₁) ,
-      ΠΣⱼ ⊢A₁ ⊢B₁ ok ,
-      ΠΣⱼ ⊢A₂ (stability-⊢∷ refl-∙⟨ univ ⊢A₂ ∣ univ A₁≡A₂ ⟩ ⊢B₂) ok
+      Uⱼ (maxᵘⱼ ⊢l₁ ⊢l₂) ,
+      ΠΣⱼ ⊢l₁ ⊢l₂ ⊢A₁ ⊢B₁ ok ,
+      ΠΣⱼ ⊢l₁ ⊢l₂ ⊢A₂ (stability-⊢∷ refl-∙⟨ univ ⊢A₂ ∣ univ A₁≡A₂ ⟩ ⊢B₂) ok
     (app-cong t₁≡t₂ u₁≡u₂) →
       let ⊢Π , ⊢t₁ , ⊢t₂ = wf-⊢≡∷ t₁≡t₂
           _ , ⊢u₁ , ⊢u₂  = wf-⊢≡∷ u₁≡u₂
@@ -257,30 +288,41 @@ opaque mutual
           _ , ⊢t₁ , ⊢t₂ = wf-⊢≡∷ t₁≡t₂
       in
       ⊢A₁ , emptyrecⱼ ⊢A₁ ⊢t₁ , conv (emptyrecⱼ ⊢A₂ ⊢t₂) (sym A₁≡A₂)
-    (unitrec-cong A₁≡A₂ t₁≡t₂ u₁≡u₂ ok _) →
+    (Unit-cong l₁≡l₂ ok) →
+      let ⊢Level , ⊢l₁ , ⊢l₂ = wf-⊢≡∷ l₁≡l₂ in
+      Uⱼ ⊢l₁ , Unitⱼ ⊢l₁ ok , conv (Unitⱼ ⊢l₂ ok) (sym (U-cong l₁≡l₂))
+    (star-cong l₁≡l₂ ok) →
+      let ⊢Level , ⊢l₁ , ⊢l₂ = wf-⊢≡∷ l₁≡l₂ in
+      Unitⱼ ⊢l₁ ok , starⱼ ⊢l₁ ok , conv (starⱼ ⊢l₂ ok) (sym (Unit-cong l₁≡l₂ ok))
+    (unitrec-cong ⊢l₁ ⊢l₂ l₁≡l₂ A₁≡A₂ t₁≡t₂ u₁≡u₂ ok _) →
       let ⊢A₁ , ⊢A₂     = wf-⊢≡ A₁≡A₂
           _ , ⊢t₁ , ⊢t₂ = wf-⊢≡∷ t₁≡t₂
           _ , ⊢u₁ , ⊢u₂ = wf-⊢≡∷ u₁≡u₂
+          ⊢Γ            = wfTerm ⊢l₁
+          Unit≡         = Unit-cong l₁≡l₂ ok
       in
       subst-⊢ ⊢A₁ (⊢ˢʷ∷-sgSubst ⊢t₁) ,
-      unitrecⱼ ⊢A₁ ⊢t₁ ⊢u₁ ok ,
+      unitrecⱼ ⊢l₁ ⊢A₁ ⊢t₁ ⊢u₁ ok ,
       conv
-        (unitrecⱼ ⊢A₂ ⊢t₂
-           (conv ⊢u₂ $
-            subst-⊢≡ A₁≡A₂ $
-            refl-⊢ˢʷ≡∷ $ ⊢ˢʷ∷-sgSubst (starⱼ (wfTerm ⊢t₁) ok))
-           ok)
+        (unitrecⱼ ⊢l₂
+          (stability-⊢ (reflConEq ⊢Γ ∙⟨ Unitⱼ ⊢l₂ ok ∣ Unit≡ ⟩) ⊢A₂)
+          (conv ⊢t₂ Unit≡)
+          (conv ⊢u₂ $ subst-⊢≡ A₁≡A₂ $ ⊢ˢʷ≡∷-sgSubst
+            (starⱼ ⊢l₁ ok)
+            (conv (starⱼ ⊢l₂ ok) (sym Unit≡))
+            (star-cong l₁≡l₂ ok))
+          ok)
         (sym (subst-⊢≡ A₁≡A₂ (⊢ˢʷ≡∷-sgSubst ⊢t₁ ⊢t₂ t₁≡t₂)))
-    (unitrec-β ⊢A ⊢t ok _) →
-      wf-⊢∷ ⊢t , unitrecⱼ ⊢A (starⱼ (wfTerm ⊢t) ok) ⊢t ok , ⊢t
-    (unitrec-β-η ⊢A ⊢t ⊢u ok η) →
-      let ⊢star = starⱼ (wfTerm ⊢t) ok in
+    (unitrec-β ⊢l ⊢A ⊢t ok _) →
+      wf-⊢∷ ⊢t , unitrecⱼ ⊢l ⊢A (starⱼ ⊢l ok) ⊢t ok , ⊢t
+    (unitrec-β-η ⊢l ⊢A ⊢t ⊢u ok η) →
+      let ⊢star = starⱼ ⊢l ok in
       subst-⊢ ⊢A (⊢ˢʷ∷-sgSubst ⊢t) ,
-      unitrecⱼ ⊢A ⊢t ⊢u ok ,
+      unitrecⱼ ⊢l ⊢A ⊢t ⊢u ok ,
       conv ⊢u
         (subst-⊢≡ (refl ⊢A) $
-         ⊢ˢʷ≡∷-sgSubst ⊢star ⊢t (η-unit ⊢star ⊢t (inj₂ η)))
-    (η-unit ⊢t₁ ⊢t₂ _) →
+         ⊢ˢʷ≡∷-sgSubst ⊢star ⊢t (η-unit ⊢l ⊢star ⊢t ok (inj₂ η)))
+    (η-unit ⊢l ⊢t₁ ⊢t₂ ok _) →
       wf-⊢∷ ⊢t₁ , ⊢t₁ , ⊢t₂
     (suc-cong t₁≡t₂) →
       let ⊢ℕ , ⊢t₁ , ⊢t₂ = wf-⊢≡∷ t₁≡t₂ in
@@ -314,12 +356,12 @@ opaque mutual
       PE.subst (_⊢_∷_ _ _) (PE.sym $ substComp↑² A _)
         (subst-⊢∷ ⊢u (→⊢ˢʷ∷∙ (⊢ˢʷ∷-sgSubst ⊢v) (natrecⱼ ⊢t ⊢u ⊢v)))
     (Id-cong A₁≡A₂ t₁≡t₂ u₁≡u₂) →
-      let _ , ⊢A₁ , ⊢A₂ = wf-⊢≡∷ A₁≡A₂
-          _ , ⊢t₁ , ⊢t₂ = wf-⊢≡∷ t₁≡t₂
-          _ , ⊢u₁ , ⊢u₂ = wf-⊢≡∷ u₁≡u₂
-          A₁≡A₂         = univ A₁≡A₂
+      let ⊢U , ⊢A₁ , ⊢A₂ = wf-⊢≡∷ A₁≡A₂
+          _ , ⊢t₁ , ⊢t₂  = wf-⊢≡∷ t₁≡t₂
+          _ , ⊢u₁ , ⊢u₂  = wf-⊢≡∷ u₁≡u₂
+          A₁≡A₂          = univ A₁≡A₂
       in
-      Uⱼ (wfTerm ⊢A₁) ,
+      ⊢U ,
       Idⱼ ⊢A₁ ⊢t₁ ⊢u₁ ,
       Idⱼ ⊢A₂ (conv ⊢t₂ A₁≡A₂) (conv ⊢u₂ A₁≡A₂)
     (J-cong A₁≡A₂ ⊢t₁ t₁≡t₂ B₁≡B₂ u₁≡u₂ v₁≡v₂ w₁≡w₂) →

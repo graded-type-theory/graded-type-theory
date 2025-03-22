@@ -24,6 +24,7 @@ open import Definition.Typed.Reasoning.Term R
 open import Definition.Typed.Substitution.Primitive R
 open import Definition.Typed.Syntactic R
 import Definition.Typed.Weakening R as W
+open import Definition.Typed.Well-formed R
 
 open import Definition.Untyped M hiding (lift)
 open import Definition.Untyped.Lift 𝕄
@@ -38,11 +39,10 @@ import Tools.PropositionalEquality as PE
 open import Tools.Reasoning.PropositionalEquality
 
 private variable
-  Γ                         : Con Term _
-  A B B₁ B₂ t t₁ t₂ u u₁ u₂ : Term _
-  s                         : Strength
-  l l₁ l₂                   : Universe-level
-  q r                       : M
+  Γ                                 : Con Term _
+  A B B₁ B₂ l l₁ l₂ t t₁ t₂ u u₁ u₂ : Term _
+  s                                 : Strength
+  q r                               : M
 
 ------------------------------------------------------------------------
 -- Definitions related to Lift
@@ -58,11 +58,12 @@ opaque
   -- A typing rule for Lift.
 
   ⊢Lift :
+    Γ ⊢ l₂ ∷ Level →
     Lift-allowed s →
     Γ ⊢ A ∷ U l₁ →
-    Γ ⊢ Lift s l₂ A ∷ U (l₁ ⊔ᵘ l₂)
-  ⊢Lift (ok₁ , ok₂) ⊢A =
-    ΠΣⱼ ⊢A (Unitⱼ (∙ univ ⊢A) ok₂) ok₁
+    Γ ⊢ Lift s l₂ A ∷ U (l₁ maxᵘ l₂)
+  ⊢Lift ⊢l₂ (ok₁ , ok₂) ⊢A =
+    ΠΣⱼ (inversion-U-Level (wf-⊢∷ ⊢A)) ⊢l₂ ⊢A (Unitⱼ (W.wkTerm₁ (univ ⊢A) ⊢l₂) ok₂) ok₁
 
 opaque
   unfolding Lift
@@ -74,7 +75,7 @@ opaque
     Lift-allowed s × Γ ⊢ A
   inversion-Lift ⊢Lift =
     let ⊢A , ⊢Unit , ok = inversion-ΠΣ ⊢Lift in
-    (ok , inversion-Unit ⊢Unit) , ⊢A
+    (ok , inversion-Unit-allowed ⊢Unit) , ⊢A
 
 ------------------------------------------------------------------------
 -- A typing rule for lift
@@ -85,13 +86,17 @@ opaque
   -- A typing rule for lift.
 
   ⊢lift :
+    Γ ⊢ l ∷ Level →
     Lift-allowed s →
     Γ ⊢ t ∷ A →
     Γ ⊢ lift s l t ∷ Lift s l A
-  ⊢lift (ok₁ , ok₂) ⊢t =
+  ⊢lift ⊢l (ok₁ , ok₂) ⊢t =
     let ⊢A = syntacticTerm ⊢t in
-    prodⱼ (Unitⱼ (∙ ⊢A) ok₂) ⊢t (starⱼ (wf ⊢A) ok₂) ok₁
+    prodⱼ (Unitⱼ (W.wkTerm₁ ⊢A ⊢l) ok₂) ⊢t
+      (PE.subst (_⊢_∷_ _ _) ≡Unit-wk1[]₀ (starⱼ ⊢l ok₂))
+      ok₁
 
+{-
 ------------------------------------------------------------------------
 -- Typing rules for liftrec
 
@@ -101,22 +106,23 @@ private opaque
   -- A lemma used below.
 
   liftrec-lemma :
+    Γ ⊢ l ∷ Level →
     Γ ∙ Lift s l A ⊢ B₁ ≡ B₂ →
-    Γ ∙ A ⊢ t₁ ≡ t₂ ∷ B₁ [ lift s l (var x0) ]↑ →
-    Γ ∙ A ∙ Unit s l ⊢
-      unitrec⟨ s ⟩ l r q
+    Γ ∙ A ⊢ t₁ ≡ t₂ ∷ B₁ [ lift s (wk1 l) (var x0) ]↑ →
+    Γ ∙ A ∙ Unit s (wk1 l) ⊢
+      unitrec⟨ s ⟩ r q (wk2 l)
         (B₁ [ consSubst (wkSubst 3 idSubst)
                 (prod s 𝟙 (var x2) (var x0)) ])
         (var x0) (wk1 t₁) ≡
-      unitrec⟨ s ⟩ l r q
+      unitrec⟨ s ⟩ r q (wk2 l)
         (B₂ [ consSubst (wkSubst 3 idSubst)
                 (prod s 𝟙 (var x2) (var x0)) ])
         (var x0) (wk1 t₂) ∷
       B₁ [ prod s 𝟙 (var x1) (var x0) ]↑²
-  liftrec-lemma {s} {l} {B₁} B₁≡B₂ t₁≡t₂ =
+  liftrec-lemma {l} {s} {B₁} ⊢l B₁≡B₂ t₁≡t₂ =
     let (ok₁ , ok₂) , ⊢A = inversion-Lift (⊢∙→⊢ (wfEq B₁≡B₂))
         ⊢Γ               = wf ⊢A
-        ⊢Unit            = Unitⱼ (∙ ⊢A) ok₂
+        ⊢Unit            = Unitⱼ (W.wkTerm₁ ⊢A ⊢l) ok₂
         ⊢Unit′           = W.wk₁ ⊢Unit ⊢Unit
     in
     PE.subst (_⊢_≡_∷_ _ _ _)
@@ -137,28 +143,27 @@ private opaque
       (subst-⊢≡ B₁≡B₂ $ refl-⊢ˢʷ≡∷ $ ⊢ˢʷ∷-[][]↑ $
        prodⱼ
          (Unitⱼ
-            (∙ (PE.subst (_⊢_ _) (PE.sym wk[]≡wk[]′) $
-                W.wk (W.stepʷ (W.step (W.step W.id)) ⊢Unit′) ⊢A))
+            (PE.subst₂ (_⊢_∷_ _) {!   !} PE.refl $ W.wkTerm (W.stepʷ (W.step (W.step (W.step W.id))) (PE.subst (_⊢_ _) (PE.sym wk[]≡wk[]′) $ W.wk (W.stepʷ (W.step (W.step W.id)) ⊢Unit′) ⊢A)) ⊢l)
             ok₂)
          (var₂ ⊢Unit′)
-         (var₀ ⊢Unit′) ok₁)
+         (PE.subst (_⊢_∷_ _ _) {!   !} $ var₀ ⊢Unit′) ok₁)
       (refl (var₀ ⊢Unit)) $
     PE.subst (_⊢_≡_∷_ _ _ _)
-      (wk1 (B₁ [ lift s l (var x0) ]↑)                                    ≡⟨⟩
+      (wk1 (B₁ [ lift s (wk1 l) (var x0) ]↑)                              ≡⟨⟩
 
        (wk1 $
         B₁ [ consSubst (wk1Subst idSubst)
-               (prod s 𝟙 (var x0) (star s l)) ])                          ≡˘⟨ wk1Subst-wk1 B₁ ⟩
+               (prod s 𝟙 (var x0) (star s (wk1 l))) ])                    ≡˘⟨ wk1Subst-wk1 B₁ ⟩
 
        B₁ [ wk1Subst $ consSubst (wk1Subst idSubst) $
-            prod s 𝟙 (var x0) (star s l) ]                                ≡⟨ (flip substVar-to-subst B₁ λ where
+            prod s 𝟙 (var x0) (star s (wk1 l)) ]                          ≡⟨ (flip substVar-to-subst B₁ λ where
                                                                                 x0     → PE.refl
                                                                                 (_ +1) → PE.refl) ⟩
-       B₁ [ sgSubst (star s l) ₛ•ₛ
+       B₁ [ sgSubst (star s (wk2 l)) ₛ•ₛ
             consSubst (wkSubst 3 idSubst) (prod s 𝟙 (var x2) (var x0)) ]  ≡˘⟨ substCompEq B₁ ⟩
 
        B₁ [ consSubst (wkSubst 3 idSubst) (prod s 𝟙 (var x2) (var x0)) ]
-          [ star s l ]₀                                                   ∎) $
+          [ star s (wk2 l) ]₀                                             ∎) $
     W.wkEqTerm₁ ⊢Unit t₁≡t₂
 
 opaque
@@ -297,3 +302,4 @@ opaque
       wk1 t [ u , star s l ]₁₀  ≡⟨ step-consSubst t ⟩
       wk id t [ u ]₀            ≡⟨ PE.cong _[ _ ]₀ $ wk-id t ⟩
       t [ u ]₀                  ∎
+-}

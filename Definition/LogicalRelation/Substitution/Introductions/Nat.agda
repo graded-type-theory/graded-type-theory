@@ -23,6 +23,7 @@ open import Definition.LogicalRelation.Irrelevance R
 open import Definition.LogicalRelation.Properties R
 open import Definition.LogicalRelation.ShapeView R
 open import Definition.LogicalRelation.Substitution R
+open import Definition.LogicalRelation.Substitution.Introductions.Level R
 open import
   Definition.LogicalRelation.Substitution.Introductions.Universe R
 open import Definition.LogicalRelation.Unary R
@@ -71,15 +72,15 @@ opaque
 
   -- A characterisation lemma for _⊩⟨_⟩_∷_.
 
-  ⊩ℕ∷U⇔ : Γ ⊩⟨ 1 ⟩ ℕ ∷ U 0 ⇔ ⊢ Γ
+  ⊩ℕ∷U⇔ : Γ ⊩⟨ ωᵘ ⟩ ℕ ∷ U zeroᵘ ⇔ ⊢ Γ
   ⊩ℕ∷U⇔ =
       (λ ⊩ℕ →
          case ⊩∷U⇔ .proj₁ ⊩ℕ of λ
-           (_ , _ , _ , ℕ⇒* , _) →
+           (_ , _ , _ , _ , ℕ⇒* , _) →
          wfEqTerm (subset*Term ℕ⇒*))
     , (λ ⊢Γ →
          ⊩∷U⇔ .proj₂
-           ( ≤ᵘ-refl , ⊩ℕ⇔ .proj₂ ⊢Γ
+           ( ⊩zeroᵘ ⊢Γ , <ᵘ-ωᵘ , ⊩ℕ⇔ .proj₂ ⊢Γ
            , (_ , id (ℕⱼ ⊢Γ) , ℕₙ , ≅ₜ-ℕrefl ⊢Γ)
            ))
 
@@ -106,17 +107,17 @@ opaque
 
   -- A characterisation lemma for _⊩⟨_⟩_≡_∷_.
 
-  ⊩ℕ≡ℕ∷U⇔ : Γ ⊩⟨ 1 ⟩ ℕ ≡ ℕ ∷ U 0 ⇔ ⊢ Γ
+  ⊩ℕ≡ℕ∷U⇔ : Γ ⊩⟨ ωᵘ ⟩ ℕ ≡ ℕ ∷ U zeroᵘ ⇔ ⊢ Γ
   ⊩ℕ≡ℕ∷U⇔ =
       (λ ℕ≡ℕ →
          case ⊩≡∷U⇔ .proj₁ ℕ≡ℕ of λ
-           (_ , _ , _ , _ , ℕ⇒* , _) →
+           (_ , _ , _ , _ , _ , ℕ⇒* , _) →
          wfEqTerm (subset*Term ℕ⇒*))
     , (λ ⊢Γ →
          case id (ℕⱼ ⊢Γ) of λ
            ℕ⇒*ℕ →
          ⊩≡∷U⇔ .proj₂
-           ( ≤ᵘ-refl , ⊩ℕ≡⇔ .proj₂ (id (ℕⱼ ⊢Γ))
+           ( ⊩zeroᵘ ⊢Γ , <ᵘ-ωᵘ , ⊩ℕ≡⇔ .proj₂ (id (ℕⱼ ⊢Γ))
            , (_ , _ , ℕ⇒*ℕ , ℕ⇒*ℕ , ℕₙ , ℕₙ , ≅ₜ-ℕrefl ⊢Γ)
            ))
 
@@ -256,14 +257,14 @@ opaque
 
   -- Validity of ℕ, seen as a term former.
 
-  ℕᵗᵛ : ⊩ᵛ Γ → Γ ⊩ᵛ⟨ 1 ⟩ ℕ ∷ U 0
+  ℕᵗᵛ : ⊩ᵛ Γ → Γ ⊩ᵛ⟨ ωᵘ ⟩ ℕ ∷ U zeroᵘ
   ℕᵗᵛ {Γ} ⊩Γ =
     ⊩ᵛ∷⇔ʰ .proj₂
-      ( ⊩ᵛU ⊩Γ
+      ( ⊩ᵛU (zeroᵘᵛ ⊩Γ)
       , λ {_} {Δ = Δ} {σ₁ = σ₁} {σ₂ = σ₂} →
-          Δ ⊩ˢ σ₁ ≡ σ₂ ∷ Γ      →⟨ proj₁ ∘→ escape-⊩ˢ≡∷ ⟩
-          ⊢ Δ                   ⇔˘⟨ ⊩ℕ≡ℕ∷U⇔ ⟩→
-          Δ ⊩⟨ 1 ⟩ ℕ ≡ ℕ ∷ U 0  □
+          Δ ⊩ˢ σ₁ ≡ σ₂ ∷ Γ           →⟨ proj₁ ∘→ escape-⊩ˢ≡∷ ⟩
+          ⊢ Δ                        ⇔˘⟨ ⊩ℕ≡ℕ∷U⇔ ⟩→
+          Δ ⊩⟨ ωᵘ ⟩ ℕ ≡ ℕ ∷ U zeroᵘ  □
       )
 
 ------------------------------------------------------------------------

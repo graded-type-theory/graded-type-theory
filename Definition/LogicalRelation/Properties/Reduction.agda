@@ -27,7 +27,7 @@ open import Definition.Typed.Properties R
 open import Definition.Typed.Substitution R using (_,_)
 import Definition.Typed.Weakening R as Wk
 open import Definition.Typed.Well-formed R
-open import Definition.LogicalRelation R
+open import Definition.LogicalRelation R ⦃ eqrel ⦄
 open import Definition.LogicalRelation.Irrelevance R
 open import Definition.LogicalRelation.Properties.Kit R
 open import Definition.LogicalRelation.Properties.Reflexivity R
@@ -54,14 +54,16 @@ redSubst* : ∀ {A B : Term n} {l}
           → Γ ⊩⟨ l ⟩ B
           → ∃ λ ([A] : Γ ⊩⟨ l ⟩ A)
           → Γ ⊩⟨ l ⟩ A ≡ B / [A]
-redSubst* D (Uᵣ′ l′ l< D′) =
-  Uᵣ′ l′ l< (D ⇨* D′) , D′
+redSubst* D (Levelᵣ D′) =
+  Levelᵣ (D ⇨* D′) , D′
+redSubst* D (Uᵣ′ l′ [l′] l< D′) =
+  Uᵣ′ l′ [l′] l< (D ⇨* D′) , U₌ l′ D′ [l′]
 redSubst* D (ℕᵣ D′) =
   ℕᵣ (D ⇨* D′) , D′
 redSubst* D (Emptyᵣ D′) =
   Emptyᵣ (D ⇨* D′) , D′
-redSubst* D (Unitᵣ′ l′ l′≤ D′ ok) =
-  Unitᵣ′ l′ l′≤ (D ⇨* D′) ok , D′
+redSubst* D (Unitᵣ′ k [k] k≤ D′ ok) =
+  Unitᵣ′ k [k] k≤ (D ⇨* D′) ok , Unit₌ _ D′ [k]
 redSubst* D (ne′ inc _ D′ neK K≡K) =
     ne′ inc _ (D ⇨* D′) neK K≡K
   , ne₌ inc _ D′ neK K≡K
@@ -88,20 +90,16 @@ opaque
                 → ([A] : Γ ⊩⟨ l ⟩ A)
                 → Γ ⊩⟨ l ⟩ u ∷ A / [A]
                 → Γ ⊩⟨ l ⟩ t ≡ u ∷ A / [A]
-  redSubst*Term t⇒u (Uᵣ′ l ≤ᵘ-refl D) ⊩u =
+  redSubst*Term t⇒u (Levelᵣ A⇒*Level) (Levelₜ₌ v v′ u⇒*v u⇒*v′ v≡v′) =
+    let t⇒u′ = conv* t⇒u (subset* A⇒*Level) in
+    Levelₜ₌ v v′ (t⇒u′ ⇨∷* u⇒*v) u⇒*v′ v≡v′
+  redSubst*Term t⇒u ⊩U@(Uᵣ′ k [k] k< D) ⊩u =
     let Uₜ A d typeA A≡A [u] = ⊩U∷U⇔⊩U≡∷U .proj₂ ⊩u
         A≡K = subset* D
-        d′ = conv* t⇒u A≡K ⇨∷* d
-        q = redSubst* (univ* (conv* t⇒u A≡K)) [u]
-    in
-    Uₜ₌ A A d′ d typeA typeA A≡A (proj₁ q) [u] (proj₂ q)
-  redSubst*Term t⇒u ⊩U@(Uᵣ′ l (≤ᵘ-step l<) D) ⊩u =
-    let Uₜ A D′ typeA A≡A [u] = ⊩U∷U⇔⊩U≡∷U .proj₂ ⊩u
-        Un = Uᵣ′ l l< D
-        eq = redSubst*Term t⇒u Un
-               (⊩U∷U⇔⊩U≡∷U .proj₁ (Uₜ A D′ typeA A≡A [u]))
-    in
-    irrelevanceEqTerm Un ⊩U eq
+        t⇒u′ = conv* t⇒u A≡K
+        [t] , t≡u = redSubst* (univ* t⇒u′) (⊩<⇔⊩ k< .proj₁ [u])
+    in Uₜ₌ A A (t⇒u′ ⇨∷* d) d typeA typeA A≡A
+        (⊩<⇔⊩ k< .proj₂ [t]) [u] (⊩<≡⇔⊩≡′ k< .proj₂ t≡u)
   redSubst*Term t⇒u (ℕᵣ D) ⊩u =
     let ℕₜ n d n≡n prop = ⊩ℕ∷ℕ⇔⊩ℕ≡∷ℕ .proj₂ ⊩u
         t⇒u′ = conv* t⇒u (subset* D)
@@ -112,7 +110,7 @@ opaque
         t⇒u′ = conv* t⇒u (subset* D)
     in
     Emptyₜ₌ n n (t⇒u′ ⇨∷* d) d n≡n (Empty-prop⇔[Empty]-prop .proj₁ prop)
-  redSubst*Term t⇒u (Unitᵣ′ _ _ D _) ⊩u =
+  redSubst*Term t⇒u (Unitᵣ′ _ _ _ D _) ⊩u =
     case ⊩Unit∷Unit⇔⊩Unit≡∷Unit .proj₂ ⊩u of λ
       (Unitₜ v u↘v prop) →
     Unitₜ₌ v v (⇒*∷→↘∷→↘∷ (conv* t⇒u (subset* D)) u↘v) u↘v
@@ -174,10 +172,14 @@ opaque
   redSubst*′ :
     Γ ⊢ A ⇒* B → (⊩A : Γ ⊩⟨ l ⟩ A) →
     (Γ ⊩⟨ l ⟩ B) × Γ ⊩⟨ l ⟩ A ≡ B / ⊩A
-  redSubst*′ A⇒*B ⊩U@(Uᵣ′ l l< D) =
+  redSubst*′ A⇒*B (Levelᵣ A⇒*Level) =
+    case whrDet↘ (A⇒*Level , Levelₙ) A⇒*B of λ
+      B⇒*Level →
+    Levelᵣ B⇒*Level , B⇒*Level
+  redSubst*′ A⇒*B ⊩U@(Uᵣ′ l [l] l< D) =
     case whrDet↘ (D , Uₙ) A⇒*B of λ
       B⇒*U →
-    Uᵣ′ l l< B⇒*U , B⇒*U
+    Uᵣ′ l [l] l< B⇒*U , U₌ l B⇒*U [l]
   redSubst*′ A⇒*B (ℕᵣ A⇒*ℕ) =
     case whrDet↘ (A⇒*ℕ , ℕₙ) A⇒*B of λ
       B⇒*ℕ →
@@ -186,12 +188,12 @@ opaque
     case whrDet↘ (A⇒*Empty , Emptyₙ) A⇒*B of λ
       B⇒*Empty →
     Emptyᵣ B⇒*Empty , B⇒*Empty
-  redSubst*′ A⇒*B (Unitᵣ′ l′ l′≤ A⇒*Unit ok) =
+  redSubst*′ A⇒*B (Unitᵣ′ k [k] k≤ A⇒*Unit ok) =
     case whrDet↘ (A⇒*Unit , Unitₙ) A⇒*B of λ
       B⇒*Unit →
-    Unitᵣ′ l′ l′≤ B⇒*Unit ok , B⇒*Unit
+    Unitᵣ′ k [k] k≤ B⇒*Unit ok , Unit₌ _ B⇒*Unit [k]
   redSubst*′ A⇒*B (ne′ inc C A⇒*C C-ne C≅C) =
-    case whrDet↘ (A⇒*C , ne C-ne) A⇒*B of λ
+    case whrDet↘ (A⇒*C , ne! C-ne) A⇒*B of λ
       B⇒*C →
     ne′ inc C B⇒*C C-ne C≅C , ne₌ inc C B⇒*C C-ne C≅C
   redSubst*′ A⇒*B (Bᵣ′ W C D A⇒*ΠΣ ΠΣ≡ΠΣ ⊩C ⊩D D≡D ok) =
@@ -214,19 +216,20 @@ opaque
   redSubst*Term′ :
     Γ ⊢ t ⇒* u ∷ A → (⊩A : Γ ⊩⟨ l ⟩ A) → Γ ⊩⟨ l ⟩ t ∷ A / ⊩A →
     Γ ⊩⟨ l ⟩ t ≡ u ∷ A / ⊩A
-  redSubst*Term′ t⇒*u ⊩U@(Uᵣ′ l ≤ᵘ-refl D) ⊩t =
+  redSubst*Term′ t⇒*u (Levelᵣ A⇒*Level) (Levelₜ₌ v v′ t⇒*v t⇒*v′ v≡v′) =
+    case whrDet↘Term (t⇒*v′ , lsplit v≡v′ .proj₂)
+           (conv* t⇒*u (subset* A⇒*Level)) of λ
+      u⇒*v′ →
+    Levelₜ₌ v v′ t⇒*v u⇒*v′ v≡v′
+  redSubst*Term′ t⇒*u ⊩U@(Uᵣ′ k [k] k< D) ⊩t =
     let Uₜ A t⇒*A A-type A≅A ⊩t = ⊩U∷U⇔⊩U≡∷U .proj₂ ⊩t in
     case whrDet↘Term (t⇒*A , typeWhnf A-type)
            (conv* t⇒*u (subset* D)) of λ
       u⇒*A →
-      case redSubst*′ (univ* (conv* t⇒*u (subset* D))) ⊩t of λ
-        (⊩u , t≡u) →
-    Uₜ₌ A A t⇒*A u⇒*A A-type A-type A≅A ⊩t ⊩u t≡u
-  redSubst*Term′ t⇒*u ⊩U@(Uᵣ′ l (≤ᵘ-step l<) D) ⊩t =
-    let Uₜ A t⇒*A A-type A≅A ⊩t = ⊩U∷U⇔⊩U≡∷U .proj₂ ⊩t in
-    irrelevanceEqTerm (Uᵣ′ l l< D) ⊩U
-      (redSubst*Term′ t⇒*u (Uᵣ′ l l< D)
-         (⊩U∷U⇔⊩U≡∷U .proj₁ (Uₜ A t⇒*A A-type A≅A ⊩t)))
+    case redSubst*′ (univ* (conv* t⇒*u (subset* D))) (⊩<⇔⊩ k< .proj₁ ⊩t) of λ
+      (⊩u , t≡u) →
+    Uₜ₌ A A t⇒*A u⇒*A A-type A-type A≅A
+      ⊩t (⊩<⇔⊩ k< .proj₂ ⊩u) (⊩<≡⇔⊩≡ k< .proj₂ t≡u)
   redSubst*Term′ t⇒*u (ℕᵣ A⇒*ℕ) ⊩t =
     let ℕₜ v t⇒*v v≅v v-ok = ⊩ℕ∷ℕ⇔⊩ℕ≡∷ℕ .proj₂ ⊩t in
     case whrDet↘Term (t⇒*v , naturalWhnf (natural v-ok))
@@ -235,11 +238,11 @@ opaque
     ℕₜ₌ v v t⇒*v u⇒*v v≅v (Natural-prop⇔[Natural]-prop .proj₁ v-ok)
   redSubst*Term′ t⇒*u (Emptyᵣ A⇒*Empty) ⊩t =
     let Emptyₜ v t⇒*v v≅v v-ok = ⊩Empty∷Empty⇔⊩Empty≡∷Empty .proj₂ ⊩t in
-    case whrDet↘Term (t⇒*v , ne (empty v-ok))
+    case whrDet↘Term (t⇒*v , ne! (empty v-ok))
            (conv* t⇒*u (subset* A⇒*Empty)) of λ
       u⇒*v →
     Emptyₜ₌ v v t⇒*v u⇒*v v≅v (Empty-prop⇔[Empty]-prop .proj₁ v-ok)
-  redSubst*Term′ t⇒*u (Unitᵣ′ _ _ A⇒*Unit _) ⊩t =
+  redSubst*Term′ t⇒*u (Unitᵣ′ _ _ _ A⇒*Unit _) ⊩t =
     case ⊩Unit∷Unit⇔⊩Unit≡∷Unit .proj₂ ⊩t of λ
       (Unitₜ v t↘v@(_ , v-whnf) prop) →
     Unitₜ₌ v v t↘v
@@ -247,7 +250,7 @@ opaque
       (Unit-prop⇔[Unit]-prop .proj₁ prop)
   redSubst*Term′ t⇒*u (ne′ _ B A⇒*B B-ne B≅B) ⊩t =
     let neₜ v t⇒*v prop@(neNfₜ _ v-ne _) = ⊩ne∷⇔⊩ne≡∷ .proj₂ ⊩t
-        u⇒*v = whrDet↘Term (t⇒*v , ne v-ne) (conv* t⇒*u (subset* A⇒*B))
+        u⇒*v = whrDet↘Term (t⇒*v , ne! v-ne) (conv* t⇒*u (subset* A⇒*B))
     in
     neₜ₌ v v t⇒*v u⇒*v (⊩neNf∷⇔⊩neNf≡∷ .proj₁ prop)
   redSubst*Term′ t⇒*u (Bᵣ BΠ! ⊩A@(Bᵣ C D A⇒*Π Π≡Π ⊩C ⊩D D≡D ok)) ⊩t =

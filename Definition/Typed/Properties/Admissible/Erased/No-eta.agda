@@ -39,7 +39,7 @@ Erased-β :
   Γ ⊢ t ∷ A →
   Γ ⊢ erased A [ t ] ≡ t ∷ A
 Erased-β (Unit-ok , Σ-ok) ⊢t =
-  fstʷ-β-≡ (Unitⱼ ⊢ΓA Unit-ok) ⊢t (starⱼ ⊢Γ Unit-ok) Σ-ok
+  fstʷ-β-≡ (Unitⱼ (zeroᵘⱼ ⊢ΓA) Unit-ok) ⊢t (starⱼ (zeroᵘⱼ ⊢Γ) Unit-ok) Σ-ok
   where
   ⊢Γ = wfTerm ⊢t
   ⊢ΓA = ∙ syntacticTerm ⊢t

@@ -38,12 +38,12 @@ private variable
 -- The type constructor Erased.
 
 Erased : Term n → Term n
-Erased A = Σ⟨ s ⟩ 𝟘 , 𝟘 ▷ A ▹ Unit s 0
+Erased A = Σ⟨ s ⟩ 𝟘 , 𝟘 ▷ A ▹ Unit s zeroᵘ
 
 -- The constructor [_].
 
 [_] : Term n → Term n
-[ t ] = prod s 𝟘 t (star s 0)
+[ t ] = prod s 𝟘 t (star s zeroᵘ)
 
 opaque
 
@@ -80,7 +80,7 @@ opaque
   erasedrec : M → Term (1+ n) → Term (1+ n) → Term n → Term n
   erasedrec p B t u =
     prodrec⟨ s ⟩ is-𝕨 𝟘 p B u
-      (unitrec⟨ s ⟩ 0 𝟙 p (B [ 3 ][ prod s 𝟘 (var x2) (var x0) ]↑)
+      (unitrec⟨ s ⟩ 𝟙 p zeroᵘ (B [ 3 ][ prod s 𝟘 (var x2) (var x0) ]↑)
          (var x0) (wk1 t))
 
 opaque
@@ -93,17 +93,17 @@ opaque
     erasedrec p (B U.[ liftSubst σ ]) (t U.[ liftSubst σ ]) (u U.[ σ ])
   erasedrec-[] {p} {B} {t} {u} {σ} =
     prodrec⟨ s ⟩ is-𝕨 𝟘 p B u
-      (unitrec⟨ s ⟩ 0 𝟙 p (B [ 3 ][ prod s 𝟘 (var x2) (var x0) ]↑)
+      (unitrec⟨ s ⟩ 𝟙 p zeroᵘ (B [ 3 ][ prod s 𝟘 (var x2) (var x0) ]↑)
          (var x0) (wk1 t))
       U.[ σ ]                                                        ≡⟨ prodrec⟨⟩-[] ⟩
 
     prodrec⟨ s ⟩ is-𝕨 𝟘 p (B U.[ liftSubst σ ]) (u U.[ σ ])
-      (unitrec⟨ s ⟩ 0 𝟙 p (B [ 3 ][ prod s 𝟘 (var x2) (var x0) ]↑)
+      (unitrec⟨ s ⟩ 𝟙 p zeroᵘ (B [ 3 ][ prod s 𝟘 (var x2) (var x0) ]↑)
          (var x0) (wk1 t)
          U.[ liftSubstn σ 2 ])                                       ≡⟨ PE.cong (prodrec⟨_⟩ _ _ _ _ _ _)
                                                                         unitrec⟨⟩-[] ⟩
     prodrec⟨ s ⟩ is-𝕨 𝟘 p (B U.[ liftSubst σ ]) (u U.[ σ ])
-      (unitrec⟨ s ⟩ 0 𝟙 p
+      (unitrec⟨ s ⟩ 𝟙 p zeroᵘ
          (B [ 3 ][ prod s 𝟘 (var x2) (var x0) ]↑
             U.[ liftSubstn σ 3 ])
          (var x0) (wk1 t U.[ liftSubstn σ 2 ]))                      ≡⟨ PE.cong (prodrec⟨_⟩ _ _ _ _ _ _) $
@@ -117,7 +117,7 @@ opaque
                                                                           PE.refl
                                                                           (wk1-liftSubst t) ⟩
     prodrec⟨ s ⟩ is-𝕨 𝟘 p (B U.[ liftSubst σ ]) (u U.[ σ ])
-      (unitrec⟨ s ⟩ 0 𝟙 p
+      (unitrec⟨ s ⟩ 𝟙 p zeroᵘ
          (B U.[ liftSubst σ ] [ 3 ][ prod s 𝟘 (var x2) (var x0) ]↑)
          (var x0) (wk1 (t U.[ liftSubst σ ])))                       ∎
 

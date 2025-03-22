@@ -22,7 +22,7 @@ open import Definition.Typed.Weakening R using (_∷ʷ_⊇_)
 
 open import Tools.Fin
 open import Tools.Function
-open import Tools.Level hiding (_⊔_)
+open import Tools.Level hiding (Level; _⊔_)
 open import Tools.Nat
 open import Tools.Product
 import Tools.PropositionalEquality as PE
@@ -31,13 +31,13 @@ open import Tools.Relation
 private
   variable
     p q q′ r : M
-    n n′ l l₁ l₂ : Nat
+    n n′ : Nat
     Γ : Con Term n
     Δ : Con Term n′
     ρ : Wk n′ n
     A A₁ A₂ A′ B B₁ B₂ B′ C : Term n
     a a′ b b′ e e′ : Term n
-    m t t₁ t₂ u u₁ u₂ v v₁ v₂ w₁ w₂ : Term n
+    k l l₁ l₂ l′ m t t₁ t₂ u u₁ u₂ v v₁ v₂ w₁ w₂ : Term n
     s : Strength
     bm : BinderMode
 
@@ -142,21 +142,42 @@ record Equality-relations
            → Γ ⊢ a′ ≅ b′ ∷ B
            → Γ ⊢ a  ≅ b  ∷ A
 
+    -- Level type reflexivity
+    ≅ₜ-Levelrefl : ⊢ Γ → Γ ⊢≅ Level ∷ U zeroᵘ
+
+    -- Zero level reflexivity
+    ≅ₜ-zeroᵘrefl : ⊢ Γ → Γ ⊢≅ zeroᵘ ∷ Level
+
+    -- Successor level congruence
+    ≅ₜ-sucᵘ-cong : Γ ⊢ t ≅ u ∷ Level → Γ ⊢ sucᵘ t ≅ sucᵘ u ∷ Level
+
+    -- Maximum level congruence
+    ≅ₜ-maxᵘ-cong
+      : Γ ⊢ t₁ ≅ t₂ ∷ Level
+      → Γ ⊢ u₁ ≅ u₂ ∷ Level
+      → Γ ⊢ t₁ maxᵘ u₁ ≅ t₂ maxᵘ u₂ ∷ Level
+
     -- Universe type reflexivity
-    ≅-Urefl   : ⊢ Γ → Γ ⊢≅ U l ∷ U (1+ l)
+    ≅-Urefl   : Γ ⊢ l ∷ Level → Γ ⊢≅ U l ∷ U (sucᵘ l)
+
+    -- Universe congruence
+    ≅-U-cong : Γ ⊢ l ≅ k ∷ Level → Γ ⊢ U l ≅ U k
+    ≅ₜ-U-cong : Γ ⊢ l ≅ k ∷ Level → Γ ⊢ U l ≅ U k ∷ U (sucᵘ l)
 
     -- Natural number type reflexivity
-    ≅ₜ-ℕrefl : ⊢ Γ → Γ ⊢≅ ℕ ∷ U 0
+    ≅ₜ-ℕrefl : ⊢ Γ → Γ ⊢≅ ℕ ∷ U zeroᵘ
 
     -- Empty type reflexivity
-    ≅ₜ-Emptyrefl : ⊢ Γ → Γ ⊢≅ Empty ∷ U 0
+    ≅ₜ-Emptyrefl : ⊢ Γ → Γ ⊢≅ Empty ∷ U zeroᵘ
 
-    -- Unit type reflexivity
-    ≅ₜ-Unitrefl : ⊢ Γ → Unit-allowed s → Γ ⊢≅ Unit s l ∷ U l
+    -- Unit type congruence
+    ≅ₜ-Unit-cong : Γ ⊢ l ≅ l′ ∷ Level → Unit-allowed s → Γ ⊢ Unit s l ≅ Unit s l′ ∷ U l
 
     -- Unit η-equality
-    ≅ₜ-η-unit : Γ ⊢ e ∷ Unit s l
+    ≅ₜ-η-unit : Γ ⊢ l ∷ Level
+              → Γ ⊢ e ∷ Unit s l
               → Γ ⊢ e′ ∷ Unit s l
+              → Unit-allowed s
               → Unit-with-η s
               → Γ ⊢ e ≅ e′ ∷ Unit s l
 
@@ -170,11 +191,13 @@ record Equality-relations
 
     ≅ₜ-ΠΣ-cong
               : ∀ {F G H E}
+              → Γ ⊢ l₁ ∷ Level
+              → Γ ⊢ l₂ ∷ Level
               → Γ ⊢ F ≅ H ∷ U l₁
-              → Γ ∙ F ⊢ G ≅ E ∷ U l₂
+              → Γ ∙ F ⊢ G ≅ E ∷ U (wk1 l₂)
               → ΠΣ-allowed bm p q
               → Γ ⊢ ΠΣ⟨ bm ⟩ p , q ▷ F ▹ G ≅ ΠΣ⟨ bm ⟩ p , q ▷ H ▹ E ∷
-                  U (l₁ ⊔ᵘ l₂)
+                  U (l₁ maxᵘ l₂)
 
     -- Zero reflexivity
     ≅ₜ-zerorefl : ⊢ Γ → Γ ⊢≅ zero ∷ ℕ
@@ -253,17 +276,22 @@ record Equality-relations
 
     -- Weak unit type recursion congruence
     ~-unitrec : ∀ {A A′ t t′ u u′}
+              → Γ ⊢ l ∷ Level
+              → Γ ⊢ l′ ∷ Level
+              → Γ ⊢ l ≡ l′ ∷ Level
               → Γ ∙ Unitʷ l ⊢ A ≅ A′
               → Γ ⊢ t ~ t′ ∷ Unitʷ l
               → Γ ⊢ u ≅ u′ ∷ A [ starʷ l ]₀
               → Unitʷ-allowed
               → ¬ Unitʷ-η
-              → Γ ⊢ unitrec l p q A t u ~ unitrec l p q A′ t′ u′ ∷
+              → Γ ⊢ unitrec p q l A t u ~ unitrec p q l′ A′ t′ u′ ∷
                   A [ t ]₀
 
-    -- Star reflexivity
-    ≅ₜ-starrefl :
-      ⊢ Γ → Unit-allowed s → Γ ⊢≅ star s l ∷ Unit s l
+    -- Star congruence
+    ≅ₜ-star-cong
+      : Γ ⊢ l ≅ l′ ∷ Level
+      → Unit-allowed s
+      → Γ ⊢ star s l ≅ star s l′ ∷ Unit s l
 
     -- Id preserves "equality".
     ≅-Id-cong
@@ -321,6 +349,13 @@ record Equality-relations
 
   opaque
 
+    -- A variant of ≅ₜ-Levelrefl.
+
+    ≅-Levelrefl : ⊢ Γ → Γ ⊢≅ Level
+    ≅-Levelrefl = ≅-univ ∘→ ≅ₜ-Levelrefl
+
+  opaque
+
     -- A variant of ≅ₜ-ℕrefl.
 
     ≅-ℕrefl : ⊢ Γ → Γ ⊢≅ ℕ
@@ -337,8 +372,8 @@ record Equality-relations
 
     -- A variant of ≅ₜ-Unitrefl.
 
-    ≅-Unitrefl : ⊢ Γ → Unit-allowed s → Γ ⊢≅ Unit s l
-    ≅-Unitrefl ⊢Γ ok = ≅-univ (≅ₜ-Unitrefl ⊢Γ ok)
+    ≅-Unit-cong : Γ ⊢ l ≅ l′ ∷ Level → Unit-allowed s → Γ ⊢ Unit s l ≅ Unit s l′
+    ≅-Unit-cong l≡l′ ok = ≅-univ (≅ₜ-Unit-cong l≡l′ ok)
 
   opaque
 

@@ -35,11 +35,10 @@ open import Tools.Relation
 private
   variable
     Γ         : Con Term _
-    A B C t u : Term _
+    A B C l t u : Term _
     b         : BinderMode
     p q       : M
     s         : Strength
-    l         : Universe-level
 
 opaque
 
@@ -48,30 +47,31 @@ opaque
 
   U≡A :
     ⦃ ok : No-equality-reflection or-empty Γ ⦄ →
-    Γ ⊢ U l ≡ A → Whnf A → A PE.≡ U l
+    Γ ⊢ U l ≡ A → Whnf A → ∃ λ k → A PE.≡ U k
   U≡A {Γ} {l} {A} U≡A A-whnf =    $⟨ U≡A ⟩
     Γ ⊢ U l ≡ A                   →⟨ reducible-⊩≡ ⟩
-    (∃ λ l′ → Γ ⊩⟨ l′ ⟩ U l ≡ A)  →⟨ proj₂ ∘→ ⊩U≡⇔ .proj₁ ∘→ proj₂ ⟩
-    Γ ⊢ A ⇒* U l                  →⟨ flip whnfRed* A-whnf ⟩
-    A PE.≡ U l                    □
+    (∃ λ l′ → Γ ⊩⟨ l′ ⟩ U l ≡ A)  →⟨ (λ (_ , U≡A) → let (_ , _ , u , d , _) = ⊩U≡⇔ .proj₁ U≡A in u , d) ⟩
+    (∃ λ k → Γ ⊢ A ⇒* U k)        →⟨ Σ.map idᶠ (flip whnfRed* A-whnf) ⟩
+    (∃ λ k → A PE.≡ U k)          □
 
 opaque
 
   -- If equality reflection is allowed, then there is a WHNF A that is
-  -- judgementally equal to U l but not propositionally equal to U l
-  -- (given a certain assumption).
+  -- judgementally equal to a universe but not propositionally
+  -- equal to any universe (given a certain assumption).
 
   whnf≢U :
     Equality-reflection →
     Unitʷ-allowed →
-    ∃₂ λ (Γ : Con Term 1) (A : Term 1) →
-      Γ ⊢ U l ≡ A × Whnf A × A PE.≢ U l
-  whnf≢U {l} ok₁ ok₂ =
-    ε ∙ Id (U (1+ l)) (U l) (Unitʷ (1+ l)) ,
-    Unitʷ (1+ l) ,
+    ∃₃ λ (Γ : Con Term 1) (l : Term 1) (A : Term 1) →
+      Γ ⊢ U l ≡ A × Whnf A × ¬ ∃ λ l → A PE.≡ U l
+  whnf≢U ok₁ ok₂ =
+    ε ∙ Id (U (sucᵘ zeroᵘ)) (U zeroᵘ) (Unitʷ (sucᵘ zeroᵘ)) ,
+    zeroᵘ ,
+    Unitʷ (sucᵘ zeroᵘ) ,
     univ
       (equality-reflection′ ok₁ $
-       var₀ (Idⱼ′ (Uⱼ ε) (Unitⱼ ε ok₂))) ,
+       var₀ (Idⱼ′ (Uⱼ (zeroᵘⱼ ε)) (Unitⱼ (sucᵘⱼ (zeroᵘⱼ ε)) ok₂))) ,
     Unitₙ ,
     (λ ())
 
@@ -100,7 +100,7 @@ opaque
     ∃₂ λ (Γ : Con Term 1) (A : Term 1) →
       Γ ⊢ ℕ ≡ A × Whnf A × A PE.≢ ℕ
   whnf≢ℕ ok =
-    ε ∙ Id (U 0) ℕ Empty ,
+    ε ∙ Id (U zeroᵘ) ℕ Empty ,
     Empty ,
     univ
       (equality-reflection′ ok $
@@ -134,7 +134,7 @@ opaque
     ∃₂ λ (Γ : Con Term 1) (A : Term 1) →
       Γ ⊢ Empty ≡ A × Whnf A × A PE.≢ Empty
   whnf≢Empty ok =
-    ε ∙ Id (U 0) Empty ℕ ,
+    ε ∙ Id (U zeroᵘ) Empty ℕ ,
     ℕ ,
     univ
       (equality-reflection′ ok $
@@ -149,13 +149,16 @@ opaque
 
   Unit≡A :
     ⦃ ok : No-equality-reflection or-empty Γ ⦄ →
-    Γ ⊢ Unit s l ≡ A → Whnf A → A PE.≡ Unit s l
+    Γ ⊢ Unit s l ≡ A → Whnf A → ∃ λ k → A PE.≡ Unit s k
   Unit≡A {Γ} {s} {l} {A} Unit≡A A-whnf =
                                        $⟨ Unit≡A ⟩
     Γ ⊢ Unit s l ≡ A                   →⟨ reducible-⊩≡ ⟩
-    (∃ λ l′ → Γ ⊩⟨ l′ ⟩ Unit s l ≡ A)  →⟨ proj₂ ∘→ proj₂ ∘→ proj₂ ∘→ ⊩Unit≡⇔ .proj₁ ∘→ proj₂ ⟩
-    Γ ⊢ A ⇒* Unit s l                  →⟨ flip whnfRed* A-whnf ⟩
-    A PE.≡ Unit s l                    □
+    (∃ λ l′ → Γ ⊩⟨ l′ ⟩ Unit s l ≡ A)  →⟨ (λ (_ , Unit≡A) →
+                                            case ⊩Unit≡⇔ .proj₁ Unit≡A of λ {
+                                              (_ , _ , _ , Unit₌ k ⇒Unit _) →
+                                            k , ⇒Unit }) ⟩
+    (∃ λ k → Γ ⊢ A ⇒* Unit s k)        →⟨ Σ.map idᶠ (flip whnfRed* A-whnf) ⟩
+    (∃ λ k → A PE.≡ Unit s k)          □
 
 opaque
 
@@ -166,15 +169,17 @@ opaque
   whnf≢Unit :
     Equality-reflection →
     Unit-allowed s →
-    ∃₂ λ (Γ : Con Term 1) (A : Term 1) →
+    ∃₃ λ (Γ : Con Term 1) (l : Term 1) (A : Term 1) →
       Γ ⊢ Unit s l ≡ A × Whnf A ×
       ¬ ∃₂ λ s l → A PE.≡ Unit s l
-  whnf≢Unit {s} {l} ok₁ ok₂ =
-    ε ∙ Id (U l) (Unit s l) (Id (Unit s l) (star s l) (star s l)) ,
-    Id (Unit s l) (star s l) (star s l) ,
+  whnf≢Unit {s} ok₁ ok₂ =
+    let ⊢zeroᵘ = zeroᵘⱼ ε in
+    ε ∙ Id (U zeroᵘ) (Unit s zeroᵘ) (Id (Unit s zeroᵘ) (star s zeroᵘ) (star s zeroᵘ)) ,
+    zeroᵘ ,
+    Id (Unit s zeroᵘ) (star s zeroᵘ) (star s zeroᵘ) ,
     univ
       (equality-reflection′ ok₁ $ var₀ $
-       Idⱼ′ (Unitⱼ ε ok₂) $ Idⱼ (Unitⱼ ε ok₂) (starⱼ ε ok₂) (starⱼ ε ok₂)) ,
+       Idⱼ′ (Unitⱼ ⊢zeroᵘ ok₂) $ Idⱼ (Unitⱼ ⊢zeroᵘ ok₂) (starⱼ ⊢zeroᵘ ok₂) (starⱼ ⊢zeroᵘ ok₂)) ,
     Idₙ ,
     (λ ())
 
@@ -204,12 +209,12 @@ opaque
     ∃₃ λ (Γ : Con Term 2) (A B : Term 2) →
       Γ ⊢ A ≡ B × Neutral A × Whnf B × A PE.≢ B
   whnf≢ne ok =
-    ε ∙ U 0 ∙ Id (U 0) (var x0) Empty ,
+    ε ∙ U zeroᵘ ∙ Id (U zeroᵘ) (var x0) Empty ,
     var x1 ,
     Empty ,
     univ
       (equality-reflection′ ok $
-       var₀ (Idⱼ′ (var₀ (Uⱼ ε)) (Emptyⱼ (∙ Uⱼ ε)))) ,
+       var₀ (Idⱼ′ (var₀ (Uⱼ (zeroᵘⱼ ε))) (Emptyⱼ (∙ Uⱼ (zeroᵘⱼ ε))))) ,
     var _ ,
     Emptyₙ ,
     (λ ())
@@ -244,11 +249,13 @@ opaque
       Γ ⊢ ΠΣ⟨ b ⟩ p , q ▷ A ▹ B ≡ C × Whnf C ×
       ¬ ∃₅ λ b p q A B → C PE.≡ ΠΣ⟨ b ⟩ p , q ▷ A ▹ B
   whnf≢ΠΣ {b} {p} {q} ok₁ ok₂ =
-    ε ∙ Id (U 0) (ΠΣ⟨ b ⟩ p , q ▷ ℕ ▹ ℕ) ℕ ,
+    let ⊢zeroᵘ = zeroᵘⱼ ε in
+    ε ∙ Id (U zeroᵘ) (ΠΣ⟨ b ⟩ p , q ▷ ℕ ▹ ℕ) ℕ ,
     ℕ , ℕ , ℕ ,
     univ
       (equality-reflection′ ok₁ $
-       var₀ (Idⱼ′ (ΠΣⱼ (ℕⱼ ε) (ℕⱼ (∙ ℕⱼ ε)) ok₂) (ℕⱼ ε))) ,
+       var₀ (Idⱼ′ (conv (ΠΣⱼ ⊢zeroᵘ ⊢zeroᵘ (ℕⱼ ε) (ℕⱼ (∙ ℕⱼ ε)) ok₂)
+         (U-cong (maxᵘ-zeroˡ ⊢zeroᵘ))) (ℕⱼ ε))) ,
     ℕₙ ,
     (λ ())
 
@@ -304,7 +311,7 @@ opaque
       Γ ⊢ Id A t u ≡ B × Whnf B ×
       ¬ ∃₃ λ A t u → B PE.≡ Id A t u
   whnf≢Id ok =
-    ε ∙ Id (U 0) (Id ℕ zero zero) ℕ ,
+    ε ∙ Id (U zeroᵘ) (Id ℕ zero zero) ℕ ,
     ℕ , zero , zero , ℕ ,
     univ
       (equality-reflection′ ok $
@@ -375,5 +382,5 @@ opaque
     Id ℕ zero zero , var x1 ,
     (equality-reflection′ ok $
      var₀ (Idⱼ′ (var₀ ⊢Id) (rflⱼ (zeroⱼ (∙ ⊢Id))))) ,
-    ne (var _) ,
+    ne! (var _) ,
     (λ ())

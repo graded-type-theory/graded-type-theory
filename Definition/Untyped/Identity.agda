@@ -25,9 +25,8 @@ open import Tools.Reasoning.PropositionalEquality
 
 private variable
   n                      : Nat
-  A B eq eq₁ eq₂ t u v w : Term _
+  A B eq eq₁ eq₂ l t u v w : Term _
   σ                      : Subst _ _
-  l                      : Universe-level
   p q                    : M
 
 opaque
@@ -56,7 +55,7 @@ opaque
 
   -- A cast lemma.
 
-  cast : Universe-level → Term n → Term n → Term n → Term n → Term n
+  cast : Term n → Term n → Term n → Term n → Term n → Term n
   cast l A B t u =
     subst 𝟙 (U l) (var x0) A B t u
 
@@ -67,10 +66,10 @@ opaque
 
   cast-[] :
     cast l A B t u [ σ ] ≡
-    cast l (A [ σ ]) (B [ σ ]) (t [ σ ]) (u [ σ ])
+    cast (l [ σ ]) (A [ σ ]) (B [ σ ]) (t [ σ ]) (u [ σ ])
   cast-[] {l} {A} {B} {t} {u} {σ} =
     subst 𝟙 (U l) (var x0) A B t u [ σ ]                            ≡⟨ subst-[] ⟩
-    subst 𝟙 (U l) (var x0) (A [ σ ]) (B [ σ ]) (t [ σ ]) (u [ σ ])  ∎
+    subst 𝟙 (U (l [ σ ])) (var x0) (A [ σ ]) (B [ σ ]) (t [ σ ]) (u [ σ ])  ∎
 
 opaque
 

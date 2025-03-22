@@ -27,33 +27,36 @@ open import Tools.PropositionalEquality
 open import Tools.Reasoning.PropositionalEquality
 
 private variable
-  n     : Nat
-  A t u : Term _
-  σ     : Subst _ _
-  s     : Strength
-  l     : Universe-level
-  q r   : M
+  n       : Nat
+  A l t u : Term _
+  σ       : Subst _ _
+  s       : Strength
+  q r     : M
 
 opaque
 
   -- Lifting.
 
-  Lift : Strength → Universe-level → Term n → Term n
-  Lift s l A = Σ⟨ s ⟩ 𝟙 , 𝟘 ▷ A ▹ Unit s l
+  Lift : Strength → Term n → Term n → Term n
+  Lift s l A = Σ⟨ s ⟩ 𝟙 , 𝟘 ▷ A ▹ Unit s (wk1 l)
 
 opaque
   unfolding Lift
 
   -- A substitution lemma for Lift.
 
-  Lift-[] : Lift s l A [ σ ] ≡ Lift s l (A [ σ ])
-  Lift-[] = refl
+  Lift-[] : Lift s l A [ σ ] ≡ Lift s (l [ σ ]) (A [ σ ])
+  Lift-[] {s} {l} {A} {σ} =
+    Lift s l A [ σ ]                                        ≡⟨⟩
+    Σ⟨ s ⟩ 𝟙 , 𝟘 ▷ A [ σ ] ▹ Unit s (wk1 l [ liftSubst σ ]) ≡⟨ cong (λ x → Σ⟨ s ⟩ 𝟙 , 𝟘 ▷ A [ σ ] ▹ Unit s x) (wk1-liftSubst l) ⟩
+    Σ⟨ s ⟩ 𝟙 , 𝟘 ▷ A [ σ ] ▹ Unit s (wk1 (l [ σ ]))         ≡⟨⟩
+    Lift s (l [ σ ]) (A [ σ ])                              ∎
 
 opaque
 
   -- A constructor for Lift.
 
-  lift : Strength → Universe-level → Term n → Term n
+  lift : Strength → Term n → Term n → Term n
   lift s l t = prod s 𝟙 t (star s l)
 
 opaque
@@ -61,7 +64,7 @@ opaque
 
   -- A substitution lemma for lift.
 
-  lift-[] : lift s l t [ σ ] ≡ lift s l (t [ σ ])
+  lift-[] : lift s l t [ σ ] ≡ lift s (l [ σ ]) (t [ σ ])
   lift-[] = refl
 
 opaque
@@ -69,11 +72,11 @@ opaque
   -- An eliminator for Lift.
 
   liftrec :
-    M → M → Strength → Universe-level →
+    M → M → Strength → Term n →
     Term (1+ n) → Term (1+ n) → Term n → Term n
   liftrec r q s l A t u =
     prodrec⟨ s ⟩ r 𝟙 q A u
-      (unitrec⟨ s ⟩ l r q
+      (unitrec⟨ s ⟩ r q (wk2 l)
          (A [ consSubst (wkSubst 3 idSubst)
                 (prod s 𝟙 (var x2) (var x0)) ])
          (var x0) (wk1 t))
@@ -85,38 +88,38 @@ opaque
 
   liftrec-[] :
     liftrec r q s l A t u [ σ ] ≡
-    liftrec r q s l (A [ σ ⇑ ]) (t [ σ ⇑ ]) (u [ σ ])
+    liftrec r q s (l [ σ ]) (A [ σ ⇑ ]) (t [ σ ⇑ ]) (u [ σ ])
   liftrec-[] {r} {q} {s} {l} {A} {t} {u} {σ} =
     liftrec r q s l A t u [ σ ]                        ≡⟨⟩
 
     prodrec⟨ s ⟩ r 𝟙 q A u
-      (unitrec⟨ s ⟩ l r q
+      (unitrec⟨ s ⟩ r q (wk2 l)
          (A [ consSubst (wkSubst 3 idSubst)
                 (prod s 𝟙 (var x2) (var x0)) ])
          (var x0) (wk1 t)) [ σ ]                       ≡⟨ prodrec⟨⟩-[] ⟩
 
     prodrec⟨ s ⟩ r 𝟙 q (A [ σ ⇑ ]) (u [ σ ])
-      (unitrec⟨ s ⟩ l r q
+      (unitrec⟨ s ⟩ r q (wk2 l)
          (A [ consSubst (wkSubst 3 idSubst)
                 (prod s 𝟙 (var x2) (var x0)) ])
          (var x0) (wk1 t) [ σ ⇑ ⇑ ])                   ≡⟨ cong (prodrec⟨ _ ⟩ _ _ _ _ _)
                                                           unitrec⟨⟩-[] ⟩
     prodrec⟨ s ⟩ r 𝟙 q (A [ σ ⇑ ]) (u [ σ ])
-      (unitrec⟨ s ⟩ l r q
+      (unitrec⟨ s ⟩ r q (wk2 l [ σ ⇑ ⇑ ])
          (A [ consSubst (wkSubst 3 idSubst)
                 (prod s 𝟙 (var x2) (var x0)) ]
             [ σ ⇑ ⇑ ⇑ ])
-         (var x0) (wk1 t [ σ ⇑ ⇑ ]))                   ≡⟨ cong (prodrec⟨ _ ⟩ _ _ _ _ _) $
-                                                          cong₃ (unitrec⟨ _ ⟩ _ _ _)
-                                                            lemma₂ refl (wk1-liftSubst t) ⟩
+         (var x0) (wk1 t [ σ ⇑ ⇑ ]))                   ≡⟨ (cong (prodrec⟨ _ ⟩ _ _ _ _ _) $
+                                                          cong₄ (unitrec⟨ _ ⟩ _ _) (wk2-liftSubst l)
+                                                            lemma₂ refl (wk1-liftSubst t)) ⟩
     prodrec⟨ s ⟩ r 𝟙 q (A [ σ ⇑ ]) (u [ σ ])
-      (unitrec⟨ s ⟩ l r q
+      (unitrec⟨ s ⟩ r q (wk2 (l [ σ ]))
          (A [ σ ⇑ ]
             [ consSubst (wkSubst 3 idSubst)
                 (prod s 𝟙 (var x2) (var x0)) ])
          (var x0) (wk1 (t [ σ ⇑ ])))                   ≡⟨⟩
 
-    liftrec r q s l (A [ σ ⇑ ]) (t [ σ ⇑ ]) (u [ σ ])  ∎
+    liftrec r q s (l [ σ ]) (A [ σ ⇑ ]) (t [ σ ⇑ ]) (u [ σ ])  ∎
     where
     lemma₁ :
       (t : Term n) →

@@ -143,11 +143,12 @@ private module Lemmas where
       size-⊢ ⊢A PE.≡ s₂ →
       ∃ λ (⊢Γ : ⊢ Γ) → size-⊢′ ⊢Γ <ˢ size-⊢ ⊢A
     wf-<ˢ′ hyp = λ where
-        (Uⱼ ⊢Γ)      _       → ⊢Γ , !
+        (Levelⱼ ⊢Γ)  _       → ⊢Γ , !
+        (Uⱼ ⊢l)      PE.refl → fix (wfTerm-<ˢ ⊢l)
         (univ A)     PE.refl → fix (wfTerm-<ˢ A)
         (ΠΣⱼ ⊢B _)   PE.refl → fix (∙⊢→⊢-<ˢ ⊢B .proj₁)
         (Emptyⱼ ⊢Γ)  _       → ⊢Γ , !
-        (Unitⱼ ⊢Γ _) _       → ⊢Γ , !
+        (Unitⱼ ⊢l _) PE.refl → fix (wfTerm-<ˢ ⊢l)
         (ℕⱼ ⊢Γ)      _       → ⊢Γ , !
         (Idⱼ ⊢A _ _) PE.refl → fix (wf-<ˢ ⊢A)
       where
@@ -167,8 +168,12 @@ private module Lemmas where
     wfTerm-<ˢ′ hyp = λ where
         (conv ⊢t _)           PE.refl → fix (wfTerm-<ˢ ⊢t)
         (var ⊢Γ _)            _       → ⊢Γ , !
-        (Uⱼ ⊢Γ)               _       → ⊢Γ , !
-        (ΠΣⱼ ⊢A _ _)          PE.refl → fix (wfTerm-<ˢ ⊢A)
+        (Levelⱼ ⊢Γ)           _       → ⊢Γ , !
+        (zeroᵘⱼ ⊢Γ)           _       → ⊢Γ , !
+        (sucᵘⱼ t)             PE.refl → fix (wfTerm-<ˢ t)
+        (maxᵘⱼ t u)           PE.refl → fix (wfTerm-<ˢ t)
+        (Uⱼ ⊢l)               PE.refl → fix (wfTerm-<ˢ ⊢l)
+        (ΠΣⱼ ⊢l₁ _ _ _ _)     PE.refl → fix (wfTerm-<ˢ ⊢l₁)
         (lamⱼ _ ⊢t _)         PE.refl → fix (∙⊢∷→⊢-<ˢ ⊢t .proj₁)
         (⊢t ∘ⱼ _)             PE.refl → fix (wfTerm-<ˢ ⊢t)
         (prodⱼ _ ⊢t _ _)      PE.refl → fix (wfTerm-<ˢ ⊢t)
@@ -177,9 +182,9 @@ private module Lemmas where
         (prodrecⱼ _ ⊢t _ _)   PE.refl → fix (wfTerm-<ˢ ⊢t)
         (Emptyⱼ ⊢Γ)           _       → ⊢Γ , !
         (emptyrecⱼ ⊢A _)      PE.refl → fix (wf-<ˢ ⊢A)
-        (Unitⱼ ⊢Γ _)          _       → ⊢Γ , !
-        (starⱼ ⊢Γ _)          _       → ⊢Γ , !
-        (unitrecⱼ ⊢A ⊢t _ _)  PE.refl → fix (wfTerm-<ˢ ⊢t)
+        (Unitⱼ ⊢l _)          PE.refl → fix (wfTerm-<ˢ ⊢l)
+        (starⱼ ⊢l _)          PE.refl → fix (wfTerm-<ˢ ⊢l)
+        (unitrecⱼ ⊢l ⊢A ⊢t _ _)  PE.refl → fix (wfTerm-<ˢ ⊢t)
         (ℕⱼ ⊢Γ)               _       → ⊢Γ , !
         (zeroⱼ ⊢Γ)            _       → ⊢Γ , !
         (sucⱼ n)              PE.refl → fix (wfTerm-<ˢ n)
@@ -237,7 +242,9 @@ opaque
     wfEq-<ˢ (refl ⊢A)           = fix (wf-<ˢ ⊢A)
     wfEq-<ˢ (sym B≡A)           = fix (wfEq-<ˢ B≡A)
     wfEq-<ˢ (trans A≡B B≡C)     = fix (wfEq-<ˢ A≡B)
+    wfEq-<ˢ (U-cong l₁≡l₂)      = fix (wfEqTerm-<ˢ l₁≡l₂)
     wfEq-<ˢ (ΠΣ-cong A₁≡B₁ _ _) = fix (wfEq-<ˢ A₁≡B₁)
+    wfEq-<ˢ (Unit-cong l₁≡l₂ _) = fix (wfEqTerm-<ˢ l₁≡l₂)
     wfEq-<ˢ (Id-cong A≡B _ _)   = fix (wfEq-<ˢ A≡B)
 
     -- If there is a proof of type Γ ⊢ t ≡ u ∷ A, then there is a
@@ -254,8 +261,20 @@ opaque
       fix (wfEqTerm-<ˢ t≡u)
     wfEqTerm-<ˢ (conv t≡u _) =
       fix (wfEqTerm-<ˢ t≡u)
-    wfEqTerm-<ˢ (ΠΣ-cong A≡B _ _) =
-      fix (wfEqTerm-<ˢ A≡B)
+    wfEqTerm-<ˢ (sucᵘ-cong t≡u) =
+      fix (wfEqTerm-<ˢ t≡u)
+    wfEqTerm-<ˢ (maxᵘ-cong t≡t' u≡u') =
+      fix (wfEqTerm-<ˢ t≡t')
+    wfEqTerm-<ˢ (maxᵘ-zeroˡ l) =
+      fix (wfTerm-<ˢ l)
+    wfEqTerm-<ˢ (maxᵘ-zeroʳ l) =
+      fix (wfTerm-<ˢ l)
+    wfEqTerm-<ˢ (maxᵘ-sucᵘ l₁ l₂) =
+      fix (wfTerm-<ˢ l₁)
+    wfEqTerm-<ˢ (U-cong l₁≡l₂) =
+      fix (wfEqTerm-<ˢ l₁≡l₂)
+    wfEqTerm-<ˢ (ΠΣ-cong l₁ l₂ A≡B _ _) =
+      fix (wfTerm-<ˢ l₁)
     wfEqTerm-<ˢ (app-cong t₁≡u₁ _) =
       fix (wfEqTerm-<ˢ t₁≡u₁)
     wfEqTerm-<ˢ (β-red _ _ ⊢u _ _) =
@@ -280,14 +299,18 @@ opaque
       fix (wfTerm-<ˢ ⊢t)
     wfEqTerm-<ˢ (emptyrec-cong A≡B _) =
       fix (wfEq-<ˢ A≡B)
-    wfEqTerm-<ˢ (unitrec-cong _ t₁≡u₁ _ _ _) =
+    wfEqTerm-<ˢ (Unit-cong l₁≡l₂ _) =
+      fix (wfEqTerm-<ˢ l₁≡l₂)
+    wfEqTerm-<ˢ (star-cong l₁≡l₂ _) =
+      fix (wfEqTerm-<ˢ l₁≡l₂)
+    wfEqTerm-<ˢ (unitrec-cong _ _ _ _ t₁≡u₁ _ _ _) =
       fix (wfEqTerm-<ˢ t₁≡u₁)
-    wfEqTerm-<ˢ (unitrec-β _ ⊢t _ _) =
+    wfEqTerm-<ˢ (unitrec-β _ _ ⊢t _ _) =
       fix (wfTerm-<ˢ ⊢t)
-    wfEqTerm-<ˢ (unitrec-β-η _ ⊢t _ _ _) =
+    wfEqTerm-<ˢ (unitrec-β-η _ _ ⊢t _ _ _) =
       fix (wfTerm-<ˢ ⊢t)
-    wfEqTerm-<ˢ (η-unit ⊢t _ _) =
-      fix (wfTerm-<ˢ ⊢t)
+    wfEqTerm-<ˢ (η-unit ⊢l _ _ _ _) =
+      fix (wfTerm-<ˢ ⊢l)
     wfEqTerm-<ˢ (suc-cong t≡u) =
       fix (wfEqTerm-<ˢ t≡u)
     wfEqTerm-<ˢ (natrec-cong _ t₁≡u₁ _ _) =
@@ -529,5 +552,5 @@ opaque
 
 -- An example of how _∙[_] can be used.
 
-_ : ⊢ ε ∙ ℕ ∙ U l ∙ Empty
-_ = ε ∙[ ℕⱼ ] ∙[ Uⱼ ] ∙[ Emptyⱼ ]
+_ : ⊢ ε ∙ ℕ ∙ U zeroᵘ ∙ Empty
+_ = ε ∙[ ℕⱼ ] ∙[ Uⱼ ∘ᶠ zeroᵘⱼ ] ∙[ Emptyⱼ ]

@@ -30,9 +30,12 @@ private variable
   A B t u : Term _
   σ       : Subst _ _
 
+{-
 opaque
 
   -- A substitution lemma for _⊢_⇒_∷_.
+  -- This now fails because of maxᵘ-zeroʳ, but the version for _⊢_⇒*_∷_
+  -- should still be a consequence of the fundamental lemma.
 
   subst-⊢⇒∷ :
     Γ ⊢ t ⇒ u ∷ A →
@@ -40,6 +43,16 @@ opaque
     Δ ⊢ t [ σ ] ⇒ u [ σ ] ∷ A [ σ ]
   subst-⊢⇒∷ (conv t⇒u B≡A) ⊢σ =
     conv (subst-⊢⇒∷ t⇒u ⊢σ) (subst-⊢≡ B≡A (refl-⊢ˢʷ≡∷ ⊢σ))
+  subst-⊢⇒∷ (maxᵘ-zeroˡ ⊢l) ⊢σ =
+    maxᵘ-zeroˡ (subst-⊢∷ ⊢l ⊢σ)
+  subst-⊢⇒∷ (maxᵘ-zeroʳ ⊢l) ⊢σ =
+    maxᵘ-zeroʳ (subst-⊢∷ ⊢l ⊢σ)
+  subst-⊢⇒∷ (maxᵘ-sucᵘ ⊢l ⊢u) ⊢σ =
+    maxᵘ-sucᵘ (subst-⊢∷ ⊢l ⊢σ) (subst-⊢∷ ⊢u ⊢σ)
+  subst-⊢⇒∷ (maxᵘ-substˡ l⇒l′ ⊢u) ⊢σ =
+    maxᵘ-substˡ (subst-⊢⇒∷ l⇒l′ ⊢σ) (subst-⊢∷ ⊢u ⊢σ)
+  subst-⊢⇒∷ (maxᵘ-substʳ ⊢l u⇒u′) ⊢σ =
+    maxᵘ-substʳ (subst-⊢∷ ⊢l ⊢σ) (subst-⊢⇒∷ u⇒u′ ⊢σ)
   subst-⊢⇒∷ (app-subst {G = B} t⇒u ⊢v) ⊢σ =
     PE.subst (_⊢_⇒_∷_ _ _ _) (PE.sym (singleSubstLift B _))
       (app-subst (subst-⊢⇒∷ t⇒u ⊢σ) (subst-⊢∷ ⊢v ⊢σ))
@@ -103,19 +116,19 @@ opaque
       (subst-⊢∷ ⊢v ⊢σ)
   subst-⊢⇒∷ (emptyrec-subst ⊢A t₁⇒t₂) ⊢σ =
     emptyrec-subst (subst-⊢ ⊢A ⊢σ) (subst-⊢⇒∷ t₁⇒t₂ ⊢σ)
-  subst-⊢⇒∷ (unitrec-subst {A} ⊢A ⊢u t₁⇒t₂ ok no-η) ⊢σ =
+  subst-⊢⇒∷ (unitrec-subst {A} ⊢l ⊢A ⊢u t₁⇒t₂ ok no-η) ⊢σ =
     PE.subst (_⊢_⇒_∷_ _ _ _) (PE.sym $ singleSubstLift A _) $
-    unitrec-subst (subst-⊢-⇑ ⊢A ⊢σ)
+    unitrec-subst (subst-⊢∷ ⊢l ⊢σ) (subst-⊢-⇑ ⊢A ⊢σ)
       (PE.subst (_⊢_∷_ _ _) (singleSubstLift A _) (subst-⊢∷ ⊢u ⊢σ))
       (subst-⊢⇒∷ t₁⇒t₂ ⊢σ) ok no-η
-  subst-⊢⇒∷ (unitrec-β {A} ⊢A ⊢t ok no-η) ⊢σ =
+  subst-⊢⇒∷ (unitrec-β {A} ⊢l ⊢A ⊢t ok no-η) ⊢σ =
     PE.subst (_⊢_⇒_∷_ _ _ _) (PE.sym $ singleSubstLift A _) $
-    unitrec-β (subst-⊢-⇑ ⊢A ⊢σ)
+    unitrec-β (subst-⊢∷ ⊢l ⊢σ) (subst-⊢-⇑ ⊢A ⊢σ)
       (PE.subst (_⊢_∷_ _ _) (singleSubstLift A _) (subst-⊢∷ ⊢t ⊢σ)) ok
       no-η
-  subst-⊢⇒∷ (unitrec-β-η {A} ⊢A ⊢t ⊢u ok η) ⊢σ =
+  subst-⊢⇒∷ (unitrec-β-η {A} ⊢l ⊢A ⊢t ⊢u ok η) ⊢σ =
     PE.subst (_⊢_⇒_∷_ _ _ _) (PE.sym $ singleSubstLift A _) $
-    unitrec-β-η (subst-⊢-⇑ ⊢A ⊢σ) (subst-⊢∷ ⊢t ⊢σ)
+    unitrec-β-η (subst-⊢∷ ⊢l ⊢σ) (subst-⊢-⇑ ⊢A ⊢σ) (subst-⊢∷ ⊢t ⊢σ)
       (PE.subst (_⊢_∷_ _ _) (singleSubstLift A _) (subst-⊢∷ ⊢u ⊢σ)) ok η
   subst-⊢⇒∷ (J-subst {t} {A} {B} ⊢t ⊢B ⊢u ⊢v w₁⇒w₂) ⊢σ =
     PE.subst (_⊢_⇒_∷_ _ _ _) (PE.sym $ [,]-[]-commute B) $
@@ -180,3 +193,4 @@ opaque
     Δ ⊢ A [ σ ] ⇒* B [ σ ]
   subst-⊢⇒* (id ⊢A)      ⊢σ = id (subst-⊢ ⊢A ⊢σ)
   subst-⊢⇒* (A⇒B ⇨ B⇒*C) ⊢σ = subst-⊢⇒ A⇒B ⊢σ ⇨ subst-⊢⇒* B⇒*C ⊢σ
+-}

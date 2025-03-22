@@ -21,12 +21,12 @@ private variable
 -- The type constructor Unrestricted.
 
 Unrestricted : Term n → Term n
-Unrestricted A = Σˢ ω , ω ▷ A ▹ Unitˢ 0
+Unrestricted A = Σˢ ω , ω ▷ A ▹ Unitˢ zeroᵘ
 
 -- The constructor [_].
 
 [_] : Term n → Term n
-[ t ] = prodˢ ω t (starˢ 0)
+[ t ] = prodˢ ω t (starˢ zeroᵘ)
 
 -- The projection unbox.
 

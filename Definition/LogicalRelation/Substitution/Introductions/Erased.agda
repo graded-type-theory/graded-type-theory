@@ -21,16 +21,17 @@ module Definition.LogicalRelation.Substitution.Introductions.Erased
 
 open EqRelSet eqrel
 
-open import Definition.LogicalRelation R
-open import Definition.LogicalRelation.Hidden R
-import Definition.LogicalRelation.Hidden.Restricted R as R
-open import Definition.LogicalRelation.Substitution R
+open import Definition.LogicalRelation R ⦃ eqrel ⦄
+open import Definition.LogicalRelation.Hidden R ⦃ eqrel ⦄
+import Definition.LogicalRelation.Hidden.Restricted R ⦃ eqrel ⦄ as R
+open import Definition.LogicalRelation.Substitution R ⦃ eqrel ⦄
+open import Definition.LogicalRelation.Substitution.Introductions.Level R ⦃ eqrel ⦄
 open import
-  Definition.LogicalRelation.Substitution.Introductions.Pi-Sigma R
+  Definition.LogicalRelation.Substitution.Introductions.Pi-Sigma R ⦃ eqrel ⦄
 open import
-  Definition.LogicalRelation.Substitution.Introductions.Sigma R
-open import Definition.LogicalRelation.Substitution.Introductions.Unit R
-open import Definition.LogicalRelation.Weakening.Restricted R
+  Definition.LogicalRelation.Substitution.Introductions.Sigma R ⦃ eqrel ⦄
+open import Definition.LogicalRelation.Substitution.Introductions.Unit R ⦃ eqrel ⦄
+open import Definition.LogicalRelation.Weakening.Restricted R ⦃ eqrel ⦄
 open import Definition.Typed R
 open import Definition.Typed.Properties R
 open import Definition.Untyped M
@@ -53,10 +54,10 @@ opaque
   ⊩Erased ⊩A =
     ⊩ΠΣ⇔ .proj₂
       ( ≅-ΠΣ-cong (escape-⊩≡ $ refl-⊩≡ ⊩A)
-          (≅-Unitrefl (∙ escape-⊩ ⊩A) Unit-ok) Σ-ok
+          (≅-Unit-cong (≅ₜ-zeroᵘrefl (∙ escape-⊩ ⊩A)) Unit-ok) Σ-ok
       , λ ρ⊇ →
             wk-⊩ ρ⊇ ⊩A
-          , λ _ → refl-⊩≡ $ emb-⊩ 0≤ᵘ $ ⊩Unit (wf-∷ʷʳ⊇ ρ⊇) Unit-ok
+          , λ _ → refl-⊩≡ $ emb-⊩ zeroᵘ-≤ᵘ $ ⊩Unit (⊩zeroᵘ (wf-∷ʷʳ⊇ ρ⊇)) Unit-ok
       )
 
 opaque
@@ -73,11 +74,11 @@ opaque
       ( ⊩Erased ⊩A₁
       , ⊩Erased ⊩A₂
       , ≅-ΠΣ-cong (escape-⊩≡ A₁≡A₂)
-          (≅-Unitrefl (∙ escape-⊩ ⊩A₁) Unit-ok) Σ-ok
+          (≅-Unit-cong (≅ₜ-zeroᵘrefl (∙ escape-⊩ ⊩A₁)) Unit-ok) Σ-ok
       , PE.refl , PE.refl , PE.refl
       , λ ρ⊇ →
             wk-⊩≡ ρ⊇ A₁≡A₂
-          , λ _ → refl-⊩≡ $ emb-⊩ 0≤ᵘ $ ⊩Unit (wf-∷ʷʳ⊇ ρ⊇) Unit-ok
+          , λ _ → refl-⊩≡ $ emb-⊩ zeroᵘ-≤ᵘ $ ⊩Unit (⊩zeroᵘ (wf-∷ʷʳ⊇ ρ⊇)) Unit-ok
       )
 
 opaque
@@ -113,8 +114,8 @@ opaque
       ⊩A →
     case escape-⊩ ⊩A of λ
       ⊢A →
-    ⊩prod≡prod (Unitⱼ (∙ ⊢A) Unit-ok) (⊩Erased ⊩A) t≡u
-      (refl-⊩≡∷ (⊩star (wf ⊢A) Unit-ok))
+    ⊩prod≡prod (Unitⱼ (zeroᵘⱼ (∙ ⊢A)) Unit-ok) (⊩Erased ⊩A) t≡u
+      (refl-⊩≡∷ (⊩star (⊩zeroᵘ (wf ⊢A)) Unit-ok))
 
 opaque
 

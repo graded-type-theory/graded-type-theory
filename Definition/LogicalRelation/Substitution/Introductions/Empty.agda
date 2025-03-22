@@ -26,6 +26,7 @@ open import Definition.LogicalRelation.Irrelevance R
 open import Definition.LogicalRelation.Properties R
 open import Definition.LogicalRelation.ShapeView R
 open import Definition.LogicalRelation.Substitution R
+open import Definition.LogicalRelation.Substitution.Introductions.Level R
 open import Definition.LogicalRelation.Substitution.Introductions.Universe R
 open import Definition.LogicalRelation.Unary R
 
@@ -127,13 +128,17 @@ opaque
 
   -- Validity for Empty, seen as a term former.
 
-  Emptyᵗᵛ : ⊩ᵛ Γ → Γ ⊩ᵛ⟨ 1 ⟩ Empty ∷ U 0
+  Emptyᵗᵛ : ⊩ᵛ Γ → Γ ⊩ᵛ⟨ ωᵘ ⟩ Empty ∷ U zeroᵘ
   Emptyᵗᵛ ⊩Γ =
     ⊩ᵛ∷⇔ʰ .proj₂
-      ( ⊩ᵛU ⊩Γ
+      ( ⊩ᵛU (zeroᵘᵛ ⊩Γ)
       , λ σ₁≡σ₂ →
           case escape-⊩ˢ≡∷ σ₁≡σ₂ of λ
             (⊢Δ , _) →
           Type→⊩≡∷U⇔ Emptyₙ Emptyₙ .proj₂
-            (≤ᵘ-refl , refl-⊩≡ (⊩Empty ⊢Δ) , ≅ₜ-Emptyrefl ⊢Δ)
+            ( ⊩zeroᵘ ⊢Δ
+            , <ᵘ-ωᵘ
+            , refl-⊩≡ (⊩Empty ⊢Δ)
+            , ≅ₜ-Emptyrefl ⊢Δ
+            )
       )

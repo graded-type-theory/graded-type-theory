@@ -31,11 +31,12 @@ opaque mutual
   -- The size of a derivation.
 
   size-⊢ : Γ ⊢ A → Size
-  size-⊢ (Uⱼ ⊢Γ)        = node (size-⊢′ ⊢Γ)
+  size-⊢ (Levelⱼ ⊢Γ)    = node (size-⊢′ ⊢Γ)
+  size-⊢ (Uⱼ ⊢l)        = node (size-⊢∷ ⊢l)
   size-⊢ (univ ⊢A)      = node (size-⊢∷ ⊢A)
   size-⊢ (ΠΣⱼ ⊢B _)     = node (size-⊢ ⊢B)
   size-⊢ (Emptyⱼ ⊢Γ)    = node (size-⊢′ ⊢Γ)
-  size-⊢ (Unitⱼ ⊢Γ _)   = node (size-⊢′ ⊢Γ)
+  size-⊢ (Unitⱼ ⊢l _)   = node (size-⊢∷ ⊢l)
   size-⊢ (ℕⱼ ⊢Γ)        = node (size-⊢′ ⊢Γ)
   size-⊢ (Idⱼ ⊢A ⊢t ⊢u) = size-⊢ ⊢A ⊕ size-⊢∷ ⊢t ⊕ size-⊢∷ ⊢u
 
@@ -46,10 +47,18 @@ opaque mutual
     size-⊢∷ ⊢t ⊕ size-⊢≡ B≡A
   size-⊢∷ (var ⊢Γ _) =
     node (size-⊢′ ⊢Γ)
-  size-⊢∷ (Uⱼ ⊢Γ) =
+  size-⊢∷ (Levelⱼ ⊢Γ) =
     node (size-⊢′ ⊢Γ)
-  size-⊢∷ (ΠΣⱼ ⊢A ⊢B _) =
-    size-⊢∷ ⊢A ⊕ size-⊢∷ ⊢B
+  size-⊢∷ (zeroᵘⱼ ⊢Γ) =
+    node (size-⊢′ ⊢Γ)
+  size-⊢∷ (sucᵘⱼ ⊢t) =
+    node (size-⊢∷ ⊢t)
+  size-⊢∷ (maxᵘⱼ ⊢t ⊢u) =
+    size-⊢∷ ⊢t ⊕ size-⊢∷ ⊢u
+  size-⊢∷ (Uⱼ ⊢l) =
+    node (size-⊢∷ ⊢l)
+  size-⊢∷ (ΠΣⱼ ⊢l₁ ⊢l₂ ⊢A ⊢B _) =
+    size-⊢∷ ⊢l₁ ⊕ size-⊢∷ ⊢l₂ ⊕ size-⊢∷ ⊢A ⊕ size-⊢∷ ⊢B
   size-⊢∷ (lamⱼ ⊢B ⊢t _) =
     size-⊢ ⊢B ⊕ size-⊢∷ ⊢t
   size-⊢∷ (⊢t ∘ⱼ ⊢u) =
@@ -66,12 +75,12 @@ opaque mutual
     node (size-⊢′ ⊢Γ)
   size-⊢∷ (emptyrecⱼ ⊢A ⊢t) =
     size-⊢ ⊢A ⊕ size-⊢∷ ⊢t
-  size-⊢∷ (Unitⱼ ⊢Γ _) =
-    node (size-⊢′ ⊢Γ)
-  size-⊢∷ (starⱼ ⊢Γ _) =
-    node (size-⊢′ ⊢Γ)
-  size-⊢∷ (unitrecⱼ ⊢A ⊢t ⊢u _) =
-    size-⊢ ⊢A ⊕ size-⊢∷ ⊢t ⊕ size-⊢∷ ⊢u
+  size-⊢∷ (Unitⱼ ⊢l _) =
+    node (size-⊢∷ ⊢l)
+  size-⊢∷ (starⱼ ⊢l _) =
+    node (size-⊢∷ ⊢l)
+  size-⊢∷ (unitrecⱼ ⊢l ⊢A ⊢t ⊢u _) =
+    size-⊢∷ ⊢l ⊕ size-⊢ ⊢A ⊕ size-⊢∷ ⊢t ⊕ size-⊢∷ ⊢u
   size-⊢∷ (ℕⱼ ⊢Γ) =
     node (size-⊢′ ⊢Γ)
   size-⊢∷ (zeroⱼ ⊢Γ) =
@@ -103,8 +112,12 @@ opaque mutual
     node (size-⊢≡ B≡A)
   size-⊢≡ (trans A≡B B≡C) =
     size-⊢≡ A≡B ⊕ size-⊢≡ B≡C
+  size-⊢≡ (U-cong l₁≡l₂) =
+    node (size-⊢≡∷ l₁≡l₂)
   size-⊢≡ (ΠΣ-cong A₁≡B₁ A₂≡B₂ _) =
     size-⊢≡ A₁≡B₁ ⊕ size-⊢≡ A₂≡B₂
+  size-⊢≡ (Unit-cong l₁≡l₂ ok) =
+    node (size-⊢≡∷ l₁≡l₂)
   size-⊢≡ (Id-cong A≡B t₁≡u₁ t₂≡u₂) =
     size-⊢≡ A≡B ⊕ size-⊢≡∷ t₁≡u₁ ⊕ size-⊢≡∷ t₂≡u₂
 
@@ -119,8 +132,20 @@ opaque mutual
     size-⊢≡∷ t≡u ⊕ size-⊢≡∷ u≡v
   size-⊢≡∷ (conv t≡u B≡A) =
     size-⊢≡∷ t≡u ⊕ size-⊢≡ B≡A
-  size-⊢≡∷ (ΠΣ-cong A₁≡B₁ A₂≡B₂ _) =
-    size-⊢≡∷ A₁≡B₁ ⊕ size-⊢≡∷ A₂≡B₂
+  size-⊢≡∷ (sucᵘ-cong t≡u) =
+    node (size-⊢≡∷ t≡u)
+  size-⊢≡∷ (maxᵘ-cong t≡t' u≡u') =
+    size-⊢≡∷ t≡t' ⊕ size-⊢≡∷ u≡u'
+  size-⊢≡∷ (maxᵘ-zeroˡ l) =
+    node (size-⊢∷ l)
+  size-⊢≡∷ (maxᵘ-zeroʳ l) =
+    node (size-⊢∷ l)
+  size-⊢≡∷ (maxᵘ-sucᵘ l₁ l₂) =
+    size-⊢∷ l₁ ⊕ size-⊢∷ l₂
+  size-⊢≡∷ (U-cong l₁≡l₂) =
+    node (size-⊢≡∷ l₁≡l₂)
+  size-⊢≡∷ (ΠΣ-cong l₁ l₂ A₁≡B₁ A₂≡B₂ _) =
+    size-⊢∷ l₁ ⊕ size-⊢∷ l₂ ⊕ size-⊢≡∷ A₁≡B₁ ⊕ size-⊢≡∷ A₂≡B₂
   size-⊢≡∷ (app-cong t₁≡u₁ t₂≡u₂) =
     size-⊢≡∷ t₁≡u₁ ⊕ size-⊢≡∷ t₂≡u₂
   size-⊢≡∷ (β-red ⊢B ⊢t ⊢u _ _) =
@@ -146,14 +171,18 @@ opaque mutual
     (size-⊢ ⊢C ⊕ size-⊢∷ ⊢t) ⊕ (size-⊢∷ ⊢u ⊕ size-⊢∷ ⊢v)
   size-⊢≡∷ (emptyrec-cong A≡B t≡u) =
     size-⊢≡ A≡B ⊕ size-⊢≡∷ t≡u
-  size-⊢≡∷ (unitrec-cong A≡B t₁≡u₁ t₂≡u₂ _ _) =
-    size-⊢≡ A≡B ⊕ size-⊢≡∷ t₁≡u₁ ⊕ size-⊢≡∷ t₂≡u₂
-  size-⊢≡∷ (unitrec-β ⊢A ⊢t _ _) =
-    size-⊢ ⊢A ⊕ size-⊢∷ ⊢t
-  size-⊢≡∷ (unitrec-β-η ⊢A ⊢t ⊢u _ _) =
-    size-⊢ ⊢A ⊕ size-⊢∷ ⊢t ⊕ size-⊢∷ ⊢u
-  size-⊢≡∷ (η-unit ⊢t ⊢u _) =
-    size-⊢∷ ⊢t ⊕ size-⊢∷ ⊢u
+  size-⊢≡∷ (Unit-cong l₁≡l₂ _) =
+    node (size-⊢≡∷ l₁≡l₂)
+  size-⊢≡∷ (star-cong l₁≡l₂ _) =
+    node (size-⊢≡∷ l₁≡l₂)
+  size-⊢≡∷ (unitrec-cong ⊢l₁ ⊢l₂ l₁≡l₂ A≡B t₁≡u₁ t₂≡u₂ _ _) =
+    size-⊢∷ ⊢l₁ ⊕ size-⊢∷ ⊢l₂ ⊕ size-⊢≡∷ l₁≡l₂ ⊕ size-⊢≡ A≡B ⊕ size-⊢≡∷ t₁≡u₁ ⊕ size-⊢≡∷ t₂≡u₂
+  size-⊢≡∷ (unitrec-β ⊢l ⊢A ⊢t _ _) =
+    size-⊢∷ ⊢l ⊕ size-⊢ ⊢A ⊕ size-⊢∷ ⊢t
+  size-⊢≡∷ (unitrec-β-η ⊢l ⊢A ⊢t ⊢u _ _) =
+    size-⊢∷ ⊢l ⊕ size-⊢ ⊢A ⊕ size-⊢∷ ⊢t ⊕ size-⊢∷ ⊢u
+  size-⊢≡∷ (η-unit ⊢l ⊢t ⊢u _ _) =
+    size-⊢∷ ⊢l ⊕ size-⊢∷ ⊢t ⊕ size-⊢∷ ⊢u
   size-⊢≡∷ (suc-cong t≡u) =
     node (size-⊢≡∷ t≡u)
   size-⊢≡∷ (natrec-cong A≡B t₁≡u₁ t₂≡u₂ t₃≡u₃) =

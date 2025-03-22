@@ -938,7 +938,7 @@ opaque
       (λ ⊩A →
          case ne-view A-ne ⊩A of λ {
            (ne (ne inc B A⇒*B _ B≅B)) →
-         case whnfRed* A⇒*B (ne A-ne) of λ {
+         case whnfRed* A⇒*B (ne! A-ne) of λ {
            PE.refl →
          inc , B≅B }})
     , (λ (inc , A≅A) → neu inc A-ne A≅A)
@@ -958,7 +958,7 @@ opaque
            (ne (ne inc _ A⇒*A′ _ _)) →
          case A≡B of λ
            (ne₌ inc C B⇒*C C-ne A′≅C) →
-         case whnfRed* A⇒*A′ (ne A-ne) of λ {
+         case whnfRed* A⇒*A′ (ne! A-ne) of λ {
            PE.refl →
          inc , C , C-ne , B⇒*C , A′≅C }})
     , (λ (inc , C , C-ne , B⇒*C , A≅C) →
@@ -983,7 +983,7 @@ opaque
     Γ ⊩⟨ l ⟩ A ≡ B                                                    ⇔⟨ ⊩ne≡⇔ A-ne ⟩
     (Neutrals-included × ∃ λ C → Neutral C × Γ ⊢ B ⇒* C × Γ ⊢ A ≅ C)  ⇔⟨ (Σ-cong-⇔ λ _ →
                                                                             (λ (_ , _ , B⇒*C , A≅C) →
-                                                                               case whnfRed* B⇒*C (ne B-ne) of λ {
+                                                                               case whnfRed* B⇒*C (ne! B-ne) of λ {
                                                                                  PE.refl →
                                                                                A≅C })
                                                                           , (λ A≅B → _ , B-ne , id (wf-⊢≡ (≅-eq A≅B) .proj₂) , A≅B))
@@ -1008,7 +1008,7 @@ opaque
            (ne (ne inc _ A⇒*A′ _ _)) →
          case t₁≡t₂ of λ
            (neₜ₌ u₁ u₂ t₁⇒*u₁ t₂⇒*u₂ u₁≡u₂) →
-         case whnfRed* A⇒*A′ (ne A-ne) of λ {
+         case whnfRed* A⇒*A′ (ne! A-ne) of λ {
            PE.refl →
          ⊩ne⇔ A-ne .proj₁ ⊩A .proj₂ ,
          u₁ , u₂ , t₁⇒*u₁ , t₂⇒*u₂ , u₁≡u₂ }})

@@ -25,8 +25,6 @@ open import Definition.Typed.Properties R
 open import Definition.Typed.Substitution R
 open import Definition.LogicalRelation.Substitution R
 open import Definition.LogicalRelation.Substitution.Introductions R
-import Definition.LogicalRelation.Substitution.Introductions.Erased R
-  as Erased
 
 open import Tools.Product
 open import Tools.Nat using (Nat)
@@ -51,14 +49,16 @@ opaque mutual
 
   -- Fundamental theorem for types.
   fundamental-⊩ᵛ : Γ ⊢ A → ∃ λ l → Γ ⊩ᵛ⟨ l ⟩ A
+  fundamental-⊩ᵛ (Levelⱼ ⊢Γ) =
+    0ᵘ , Levelᵛ (valid ⊢Γ)
   fundamental-⊩ᵛ (ℕⱼ ⊢Γ) =
-    0 , ℕᵛ (valid ⊢Γ)
+    0ᵘ , ℕᵛ (valid ⊢Γ)
   fundamental-⊩ᵛ (Emptyⱼ x) =
-    0 , Emptyᵛ (valid x)
-  fundamental-⊩ᵛ (Unitⱼ ⊢Γ ok) =
-    _ , Unitᵛ (valid ⊢Γ) ok
-  fundamental-⊩ᵛ (Uⱼ ⊢Γ) =
-    _ , ⊩ᵛU (valid ⊢Γ)
+    0ᵘ , Emptyᵛ (valid x)
+  fundamental-⊩ᵛ (Unitⱼ ⊢l ok) =
+    _ , Unitᵛ (fundamental-⊩ᵛ∷ ⊢l .proj₂) ok
+  fundamental-⊩ᵛ (Uⱼ ⊢l) =
+    _ , ⊩ᵛU (fundamental-⊩ᵛ∷ ⊢l .proj₂)
   fundamental-⊩ᵛ ⊢ΠΣ@(ΠΣⱼ ⊢B _) =
     let _ , ⊩B = fundamental-⊩ᵛ ⊢B
         _ , ⊩A = wf-∙-⊩ᵛ ⊩B
@@ -85,12 +85,16 @@ opaque mutual
         l₂ , B≡C = fundamental-⊩ᵛ≡ B≡C
     in
     l₁ ⊔ᵘ l₂ , trans-⊩ᵛ≡ (emb-⊩ᵛ≡ ≤ᵘ⊔ᵘʳ A≡B) (emb-⊩ᵛ≡ ≤ᵘ⊔ᵘˡ B≡C)
+  fundamental-⊩ᵛ≡ (U-cong l₁≡l₂) =
+    _ , ⊩ᵛU≡U (fundamental-⊩ᵛ≡∷ l₁≡l₂ .proj₂)
   fundamental-⊩ᵛ≡ ΠΣ≡ΠΣ@(ΠΣ-cong A₁≡A₂ B₁≡B₂ _) =
     let l₁ , A₁≡A₂ = fundamental-⊩ᵛ≡ A₁≡A₂
         l₂ , B₁≡B₂ = fundamental-⊩ᵛ≡ B₁≡B₂
     in
     l₁ ⊔ᵘ l₂ ,
     ΠΣ-congᵛ ΠΣ≡ΠΣ (emb-⊩ᵛ≡ ≤ᵘ⊔ᵘʳ A₁≡A₂) (emb-⊩ᵛ≡ ≤ᵘ⊔ᵘˡ B₁≡B₂)
+  fundamental-⊩ᵛ≡ (Unit-cong l₁≡l₂ ok) =
+    _ , Unit-congᵛ (fundamental-⊩ᵛ≡∷ l₁≡l₂ .proj₂) ok
   fundamental-⊩ᵛ≡ (Id-cong A₁≡A₂ t₁≡t₂ u₁≡u₂) =
      _ , (Id-congᵛ (fundamental-⊩ᵛ≡ A₁≡A₂ .proj₂)
                    (proj₂ (fundamental-⊩ᵛ≡∷ t₁≡t₂))
@@ -98,14 +102,23 @@ opaque mutual
 
   -- Fundamental theorem for terms.
   fundamental-⊩ᵛ∷ : Γ ⊢ t ∷ A → ∃ λ l → Γ ⊩ᵛ⟨ l ⟩ t ∷ A
+  fundamental-⊩ᵛ∷ (Levelⱼ ⊢Γ) =
+    _ , Levelᵗᵛ (valid ⊢Γ)
+  fundamental-⊩ᵛ∷ (zeroᵘⱼ ⊢Γ) =
+    0ᵘ , zeroᵘᵛ (valid ⊢Γ)
+  fundamental-⊩ᵛ∷ (sucᵘⱼ ⊢l) =
+    _ , sucᵘᵛ (fundamental-⊩ᵛ∷ ⊢l .proj₂)
+  fundamental-⊩ᵛ∷ (maxᵘⱼ ⊢l₁ ⊢l₂) =
+    _ , maxᵘᵛ (fundamental-⊩ᵛ∷ ⊢l₁ .proj₂) (fundamental-⊩ᵛ∷ ⊢l₂ .proj₂)
   fundamental-⊩ᵛ∷ (ℕⱼ ⊢Γ) =
-    1 , ℕᵗᵛ (valid ⊢Γ)
+    _ , ℕᵗᵛ (valid ⊢Γ)
   fundamental-⊩ᵛ∷ (Emptyⱼ x) =
-    1 , Emptyᵗᵛ (valid x)
-  fundamental-⊩ᵛ∷ (Unitⱼ ⊢Γ ok) =
-    _ , Unitᵗᵛ (valid ⊢Γ) ok
-  fundamental-⊩ᵛ∷ ⊢ΠΣ@(ΠΣⱼ ⊢A ⊢B _) =
-    _ , ΠΣᵗᵛ ⊢ΠΣ (fundamental-⊩ᵛ∷ ⊢A .proj₂) (fundamental-⊩ᵛ∷ ⊢B .proj₂)
+    _ , Emptyᵗᵛ (valid x)
+  fundamental-⊩ᵛ∷ (Unitⱼ ⊢l ok) =
+    _ , Unitᵗᵛ (fundamental-⊩ᵛ∷ ⊢l .proj₂) ok
+  fundamental-⊩ᵛ∷ ⊢ΠΣ@(ΠΣⱼ ⊢l₁ ⊢l₂ ⊢A ⊢B _) =
+    _ , ΠΣᵗᵛ ⊢ΠΣ (fundamental-⊩ᵛ∷ ⊢l₁ .proj₂) (fundamental-⊩ᵛ∷ ⊢l₂ .proj₂)
+        (fundamental-⊩ᵛ∷ ⊢A .proj₂) (fundamental-⊩ᵛ∷ ⊢B .proj₂)
   fundamental-⊩ᵛ∷ (var ⊢Γ x∈Γ) =
     _ , varᵛ x∈Γ (valid ⊢Γ) .proj₂
   fundamental-⊩ᵛ∷ (lamⱼ _ ⊢t ok) =
@@ -130,7 +143,7 @@ opaque mutual
   fundamental-⊩ᵛ∷ (sndⱼ _ ⊢t) =
     _ , sndᵛ (fundamental-⊩ᵛ∷ ⊢t .proj₂)
   fundamental-⊩ᵛ∷ (zeroⱼ ⊢Γ) =
-    0 , zeroᵛ (valid ⊢Γ)
+    0ᵘ , zeroᵛ (valid ⊢Γ)
   fundamental-⊩ᵛ∷ (sucⱼ ⊢t) =
     _ , sucᵛ (fundamental-⊩ᵛ∷ ⊢t .proj₂)
   fundamental-⊩ᵛ∷ (natrecⱼ ⊢t ⊢u ⊢v) =
@@ -143,8 +156,8 @@ opaque mutual
         _ , ⊩t = fundamental-⊩ᵛ∷ ⊢t
     in
     l , emptyrecᵛ ⊩A ⊩t
-  fundamental-⊩ᵛ∷ (starⱼ ⊢Γ ok) =
-    _ , starᵛ (valid ⊢Γ) ok
+  fundamental-⊩ᵛ∷ (starⱼ ⊢l ok) =
+    _ , starᵛ (fundamental-⊩ᵛ∷ ⊢l .proj₂) ok
   fundamental-⊩ᵛ∷ (conv ⊢t A≡B) =
     let l , A≡B = fundamental-⊩ᵛ≡ A≡B in
     l , conv-⊩ᵛ∷ A≡B (fundamental-⊩ᵛ∷ ⊢t .proj₂)
@@ -152,10 +165,11 @@ opaque mutual
     _ ,
     prodrecᵛ ⊢C (fundamental-⊩ᵛ ⊢C .proj₂) (fundamental-⊩ᵛ∷ ⊢t .proj₂)
       ⊢u (fundamental-⊩ᵛ∷ ⊢u .proj₂)
-  fundamental-⊩ᵛ∷ (unitrecⱼ ⊢A ⊢t ⊢u _) =
+  fundamental-⊩ᵛ∷ (unitrecⱼ ⊢l ⊢A ⊢t ⊢u _) =
     _ ,
-    unitrecᵛ ⊢A (fundamental-⊩ᵛ ⊢A .proj₂) (fundamental-⊩ᵛ∷ ⊢t .proj₂)
-      (proj₂ (fundamental-⊩ᵛ∷ ⊢u))
+    unitrecᵛ ⊢A (fundamental-⊩ᵛ∷ ⊢l .proj₂) (fundamental-⊩ᵛ ⊢A .proj₂)
+      (fundamental-⊩ᵛ∷ ⊢t .proj₂)
+      (fundamental-⊩ᵛ∷ ⊢u .proj₂)
   fundamental-⊩ᵛ∷ (Idⱼ ⊢A ⊢t ⊢u) =
     _
     , Idᵗᵛ (fundamental-⊩ᵛ∷ ⊢A .proj₂) (fundamental-⊩ᵛ∷ ⊢t .proj₂)
@@ -172,8 +186,8 @@ opaque mutual
         (fundamental-⊩ᵛ∷ ⊢v .proj₂)
   fundamental-⊩ᵛ∷ ([]-congⱼ _ _ _ ⊢v ok) =
     _ , []-congᵛ ok (fundamental-⊩ᵛ∷ ⊢v .proj₂)
-  fundamental-⊩ᵛ∷ (Uⱼ ⊢Γ) =
-    _ , ⊩ᵛU∷U (valid ⊢Γ)
+  fundamental-⊩ᵛ∷ (Uⱼ ⊢l) =
+    _ , ⊩ᵛU∷U (fundamental-⊩ᵛ∷ ⊢l .proj₂)
 
   -- Fundamental theorem for term equality.
   fundamental-⊩ᵛ≡∷ : Γ ⊢ t ≡ u ∷ A → ∃ λ l → Γ ⊩ᵛ⟨ l ⟩ t ≡ u ∷ A
@@ -186,10 +200,29 @@ opaque mutual
     in l , trans-⊩ᵛ≡∷ (proj₂ (fundamental-⊩ᵛ≡∷ t≡u)) [u≡v]
   fundamental-⊩ᵛ≡∷ (conv t≡u A≡B) =
     _ , conv-⊩ᵛ≡∷ (proj₂ (fundamental-⊩ᵛ≡ A≡B)) (proj₂ (fundamental-⊩ᵛ≡∷ t≡u))
-  fundamental-⊩ᵛ≡∷ ΠΣ≡ΠΣ@(ΠΣ-cong A₁≡A₂ B₁≡B₂ ok) =
+  fundamental-⊩ᵛ≡∷ (sucᵘ-cong l₁≡l₂) =
+    _ , sucᵘ-congᵛ (fundamental-⊩ᵛ≡∷ l₁≡l₂ .proj₂)
+  fundamental-⊩ᵛ≡∷ (maxᵘ-cong l₁≡l₂ l₃≡l₄) =
+    _ , maxᵘ-congᵛ (fundamental-⊩ᵛ≡∷ l₁≡l₂ .proj₂) (fundamental-⊩ᵛ≡∷ l₃≡l₄ .proj₂)
+  fundamental-⊩ᵛ≡∷ (maxᵘ-zeroˡ ⊢l) =
+    _ , maxᵘ-zeroˡᵛ (fundamental-⊩ᵛ∷ ⊢l .proj₂)
+  fundamental-⊩ᵛ≡∷ (maxᵘ-zeroʳ ⊢l) =
+    _ , maxᵘ-zeroʳᵛ (fundamental-⊩ᵛ∷ ⊢l .proj₂)
+  fundamental-⊩ᵛ≡∷ (maxᵘ-sucᵘ ⊢l₁ ⊢l₂) =
+    _ , maxᵘ-sucᵘᵛ (fundamental-⊩ᵛ∷ ⊢l₁ .proj₂) (fundamental-⊩ᵛ∷ ⊢l₂ .proj₂)
+  fundamental-⊩ᵛ≡∷ (U-cong l₁≡l₂) =
+    _ , ⊩ᵛU≡U∷U (fundamental-⊩ᵛ≡∷ l₁≡l₂ .proj₂)
+  fundamental-⊩ᵛ≡∷ ΠΣ≡ΠΣ@(ΠΣ-cong ⊢l₁ ⊢l₂ A₁≡A₂ B₁≡B₂ ok) =
       _
-    , ΠΣ-congᵗᵛ ΠΣ≡ΠΣ (fundamental-⊩ᵛ≡∷ A₁≡A₂ .proj₂)
+    , ΠΣ-congᵗᵛ ΠΣ≡ΠΣ
+        (fundamental-⊩ᵛ∷ ⊢l₁ .proj₂)
+        (fundamental-⊩ᵛ∷ ⊢l₂ .proj₂)
+        (fundamental-⊩ᵛ≡∷ A₁≡A₂ .proj₂)
         (fundamental-⊩ᵛ≡∷ B₁≡B₂ .proj₂)
+  fundamental-⊩ᵛ≡∷ (Unit-cong l₁≡l₂ ok) =
+    _ , Unit-congᵗᵛ (fundamental-⊩ᵛ≡∷ l₁≡l₂ .proj₂) ok
+  fundamental-⊩ᵛ≡∷ (star-cong l₁≡l₂ ok) =
+    _ , star-congᵛ (fundamental-⊩ᵛ≡∷ l₁≡l₂ .proj₂) ok
   fundamental-⊩ᵛ≡∷ (app-cong t₁≡t₂ u₁≡u₂) =
     _ , ∘-congᵛ (fundamental-⊩ᵛ≡∷ t₁≡t₂ .proj₂) (fundamental-⊩ᵛ≡∷ u₁≡u₂ .proj₂)
   fundamental-⊩ᵛ≡∷ (β-red _ ⊢t ⊢u PE.refl ok) =
@@ -217,7 +250,7 @@ opaque mutual
       ⊢u ⊩u (fundamental-⊩ᵛ∷ ⊢v .proj₂)
   fundamental-⊩ᵛ≡∷ (emptyrec-cong F≡F′ n≡n′) = _ ,
     emptyrec-congᵛ (proj₂ (fundamental-⊩ᵛ≡ F≡F′)) (proj₂ (fundamental-⊩ᵛ≡∷ n≡n′))
-  fundamental-⊩ᵛ≡∷ (η-unit ⊢t ⊢u η) = _ ,
+  fundamental-⊩ᵛ≡∷ (η-unit ⊢l ⊢t ⊢u ok η) = _ ,
     η-unitᵛ (proj₂ (fundamental-⊩ᵛ∷ ⊢t)) (proj₂ (fundamental-⊩ᵛ∷ ⊢u)) η
   fundamental-⊩ᵛ≡∷ (fst-cong _ t₁≡t₂) =
     _ , fst-congᵛ (fundamental-⊩ᵛ≡∷ t₁≡t₂ .proj₂)
@@ -249,17 +282,21 @@ opaque mutual
     _ ,
     prodrec-βᵛ ⊢C (fundamental-⊩ᵛ∷ ⊢t .proj₂)
       (fundamental-⊩ᵛ∷ ⊢u .proj₂) ⊢v (fundamental-⊩ᵛ∷ ⊢v .proj₂)
-  fundamental-⊩ᵛ≡∷ (unitrec-cong A₁≡A₂ t₁≡t₂ u₁≡u₂ _ _) =
+  fundamental-⊩ᵛ≡∷ (unitrec-cong ⊢l₁ ⊢l₂ l₁≡l₂ A₁≡A₂ t₁≡t₂ u₁≡u₂ _ _) =
     _ ,
-    unitrec-congᵛ A₁≡A₂ (fundamental-⊩ᵛ≡ A₁≡A₂ .proj₂)
+    unitrec-congᵛ A₁≡A₂ (fundamental-⊩ᵛ≡∷ l₁≡l₂ .proj₂)
+      (fundamental-⊩ᵛ≡ A₁≡A₂ .proj₂)
       (fundamental-⊩ᵛ≡∷ t₁≡t₂ .proj₂) (fundamental-⊩ᵛ≡∷ u₁≡u₂ .proj₂)
-  fundamental-⊩ᵛ≡∷ (unitrec-β ⊢A ⊢t _ no-η) =
+  fundamental-⊩ᵛ≡∷ (unitrec-β ⊢l ⊢A ⊢t _ no-η) =
     _ ,
-    unitrec-βᵛ ⊢A (fundamental-⊩ᵛ ⊢A .proj₂) (fundamental-⊩ᵛ∷ ⊢t .proj₂)
+    unitrec-βᵛ ⊢A (fundamental-⊩ᵛ∷ ⊢l .proj₂)
+      (fundamental-⊩ᵛ ⊢A .proj₂)
+      (fundamental-⊩ᵛ∷ ⊢t .proj₂)
       no-η
-  fundamental-⊩ᵛ≡∷ (unitrec-β-η ⊢A ⊢t ⊢u _ η) =
+  fundamental-⊩ᵛ≡∷ (unitrec-β-η ⊢l ⊢A ⊢t ⊢u _ η) =
     _ ,
-    unitrec-β-ηᵛ ⊢A (fundamental-⊩ᵛ ⊢A .proj₂)
+    unitrec-β-ηᵛ ⊢A (fundamental-⊩ᵛ∷ ⊢l .proj₂)
+      (fundamental-⊩ᵛ ⊢A .proj₂)
       (fundamental-⊩ᵛ∷ ⊢t .proj₂) (fundamental-⊩ᵛ∷ ⊢u .proj₂) η
   fundamental-⊩ᵛ≡∷ (Id-cong A₁≡A₂ t₁≡t₂ u₁≡u₂) =
     _ , Id-congᵗᵛ (proj₂ (fundamental-⊩ᵛ≡∷ A₁≡A₂)) (proj₂ (fundamental-⊩ᵛ≡∷ t₁≡t₂))
