@@ -1234,7 +1234,7 @@ opaque
            (PE.cong₃ Id wk2-[,] wk2-[,] PE.refl) PE.refl PE.refl) $
       Jⱼ′ {p = ω} {q = ω}
         (Idⱼ′ ⊢Id (rflⱼ′ (equality-reflection′ ok ⊢Id)))
-        (rflⱼ′ $ _⊢_≡_∷_.refl $
+        (rflⱼ $
          PE.subst (_⊢_∷_ _ _)
            (PE.sym $ PE.cong₃ Id wk2-[,] wk2-[,] PE.refl) $
          rflⱼ ⊢t)
