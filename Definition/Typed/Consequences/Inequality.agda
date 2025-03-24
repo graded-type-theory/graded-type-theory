@@ -583,6 +583,16 @@ suc≢ne :
   ¬ Γ ⊢ suc t ≡ u ∷ ℕ
 suc≢ne = whnf≢ne U.ℕₙ U.sucₙ (λ ())
 
+-- The term starʷ l is not definitionally equal (at type Unitʷ l) to
+-- any neutral term (given certain assumptions).
+
+starʷ≢ne :
+  ⦃ ok : No-equality-reflection or-empty Γ ⦄ →
+  ¬ Unitʷ-η →
+  Neutral t →
+  ¬ Γ ⊢ starʷ l ≡ t ∷ Unitʷ l
+starʷ≢ne no-η = whnf≢ne (U.Unitʷₙ no-η) U.starₙ (λ ())
+
 -- The term prodʷ p t u is not definitionally equal (at type
 -- Σʷ p , q ▷ A ▹ B) to any neutral term (given a certain assumption).
 
