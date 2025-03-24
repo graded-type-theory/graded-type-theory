@@ -286,17 +286,17 @@ opaque
     erase′ true s
       (λx∙xx p ∘⟨ ω + ω ⟩
        cast (var x0) (Π (ω + ω) , p ▷ ℕ ▹ ℕ) ℕ (λx∙xx p))
-      T.[ loop? s ]₀                                         ≡⟨ PE.cong T._[ _ ] $
+      T.[ loop s ]₀                                          ≡⟨ PE.cong T._[ _ ] $
                                                                 ∘-≢𝟘 (ω≢𝟘 ∘→ proj₁ ∘→ +-positive) ⟩
     erase′ true s (λx∙xx p) T.∘⟨ s ⟩
       erase′ true s
         (cast (var x0) (Π (ω + ω) , p ▷ ℕ ▹ ℕ) ℕ (λx∙xx p))
-      T.[ loop? s ]₀                                         ≡⟨ PE.cong
+      T.[ loop s ]₀                                          ≡⟨ PE.cong
                                                                   (λ t → erase′ _ _ (λx∙xx _) T.∘⟨ _ ⟩ t T.[ _ ])
                                                                   erase-cast ⟩
     erase′ true s (λx∙xx p) T.∘⟨ s ⟩
       erase′ true s (λx∙xx p)
-      T.[ loop? s ]₀                                         ≡⟨ PE.cong (λ t → t T.∘⟨ _ ⟩ t T.[ _ ])
+      T.[ loop s ]₀                                          ≡⟨ PE.cong (λ t → t T.∘⟨ _ ⟩ t T.[ _ ])
                                                                 erase-λx∙xx ⟩
     loop s                                                   ∎
     where
