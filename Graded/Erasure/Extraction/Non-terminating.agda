@@ -356,9 +356,9 @@ opaque
 
 opaque
 
-  -- A term for which the extraction does not terminate if erasable
-  -- arguments are removed entirely and strict applications are used
-  -- (if ω is non-zero).
+  -- A term for which the extracted term does not terminate if
+  -- erasable arguments are removed entirely and strict applications
+  -- are used (if the modality's zero is well-behaved).
 
   loops : M → Term n
   loops p = lam ω zero ∘⟨ ω ⟩ extracts-to-loop p
@@ -384,9 +384,9 @@ opaque
 
 opaque
 
-  -- If ω is non-zero, erasable arguments are removed entirely, and
-  -- strict applications are used, then the extraction of loops p does
-  -- not reduce to a value.
+  -- If erasable arguments are removed entirely and strict
+  -- applications are used, then the extraction of loops p does not
+  -- reduce to a value (if the modality's zero is well-behaved).
 
   loops-does-not-reduce-to-a-value :
     ⦃ 𝟘-well-behaved : Has-well-behaved-zero M semiring-with-meet ⦄ →
