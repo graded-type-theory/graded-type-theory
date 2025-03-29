@@ -51,15 +51,15 @@ opaque
     (_⊩′⟨_⟩A_ _⊩′⟨_⟩B_ : Con Term n → Universe-level → Term n → Set a)
     (A-intr : ∀ {l} → Γ ⊩′⟨ l ⟩A A → Γ ⊩⟨ l ⟩ A)
     (B-intr : ∀ {l} → Γ ⊩′⟨ l ⟩B B → Γ ⊩⟨ l ⟩ B) →
-    (∀ {l} → Γ ⊩⟨ l ⟩ A → ∃ λ l′ → Γ ⊩′⟨ l′ ⟩A A) →
-    (∀ {l} → Γ ⊩⟨ l ⟩ B → ∃ λ l′ → Γ ⊩′⟨ l′ ⟩B B) →
+    (∀ {l} → Γ ⊩⟨ l ⟩ A → Γ ⊩′⟨ l ⟩A A) →
+    (∀ {l} → Γ ⊩⟨ l ⟩ B → Γ ⊩′⟨ l ⟩B B) →
     (∀ {l₁ l₂} {⊩A : Γ ⊩′⟨ l₁ ⟩A A} {⊩B : Γ ⊩′⟨ l₂ ⟩B B} →
      ¬ ShapeView Γ l₁ l₂ A B (A-intr ⊩A) (B-intr ⊩B)) →
     ¬ Γ ⊢ A ≡ B
   A≢B _ _ A-intr B-intr A-elim B-elim A≢B′ A≡B =
     let _ , ⊩A , ⊩B , A≡B = reducible-⊩≡ A≡B
-        _ , ⊩A′           = A-elim ⊩A
-        _ , ⊩B′           = B-elim ⊩B
+        ⊩A′               = A-elim ⊩A
+        ⊩B′               = B-elim ⊩B
         A≡B′              = irrelevanceEq ⊩A (A-intr ⊩A′) A≡B
     in
     A≢B′ (goodCases (A-intr ⊩A′) (B-intr ⊩B′) A≡B′)
@@ -74,9 +74,7 @@ opaque
     ¬ Γ ⊢ U l ≡ ℕ
   U≢ℕ =
     A≢B _⊩′⟨_⟩U_ (λ Γ _ A → Γ ⊩ℕ A) Uᵣ ℕᵣ
-      (extractMaybeEmb ∘→ U-elim)
-      (extractMaybeEmb ∘→ ℕ-elim)
-      (λ ())
+      U-elim ℕ-elim (λ ())
 
 opaque
 
@@ -88,9 +86,7 @@ opaque
     ¬ Γ ⊢ U l ≡ Empty
   U≢Emptyⱼ =
     A≢B _⊩′⟨_⟩U_ (λ Γ _ A → Γ ⊩Empty A) Uᵣ Emptyᵣ
-      (extractMaybeEmb ∘→ U-elim)
-      (extractMaybeEmb ∘→ Empty-elim)
-      (λ ())
+      U-elim Empty-elim (λ ())
 
 opaque
 
@@ -102,9 +98,7 @@ opaque
     ¬ Γ ⊢ U l₁ ≡ Unit s l₂
   U≢Unitⱼ {s} =
     A≢B _⊩′⟨_⟩U_ _⊩Unit⟨_, s ⟩_ Uᵣ Unitᵣ
-      (extractMaybeEmb ∘→ U-elim)
-      (extractMaybeEmb ∘→ Unit-elim)
-      (λ ())
+      U-elim Unit-elim (λ ())
 
 opaque
 
@@ -116,9 +110,7 @@ opaque
     ¬ Γ ⊢ ℕ ≡ Empty
   ℕ≢Emptyⱼ =
     A≢B (λ Γ _ A → Γ ⊩ℕ A) (λ Γ _ A → Γ ⊩Empty A) ℕᵣ Emptyᵣ
-      (extractMaybeEmb ∘→ ℕ-elim)
-      (extractMaybeEmb ∘→ Empty-elim)
-      (λ ())
+      ℕ-elim Empty-elim (λ ())
 
 opaque
 
@@ -147,9 +139,7 @@ opaque
     ¬ Γ ⊢ ℕ ≡ Unit s l
   ℕ≢Unitⱼ {s} =
     A≢B (λ Γ _ A → Γ ⊩ℕ A) _⊩Unit⟨_, s ⟩_ ℕᵣ Unitᵣ
-      (extractMaybeEmb ∘→ ℕ-elim)
-      (extractMaybeEmb ∘→ Unit-elim)
-      (λ ())
+      ℕ-elim Unit-elim (λ ())
 
 opaque
 
@@ -161,9 +151,7 @@ opaque
     ¬ Γ ⊢ Empty ≡ Unit s l
   Empty≢Unitⱼ {s} =
     A≢B (λ Γ _ A → Γ ⊩Empty A) _⊩Unit⟨_, s ⟩_ Emptyᵣ Unitᵣ
-      (extractMaybeEmb ∘→ Empty-elim)
-      (extractMaybeEmb ∘→ Unit-elim)
-      (λ ())
+      Empty-elim Unit-elim (λ ())
 
 opaque
 
@@ -176,9 +164,7 @@ opaque
   U≢ΠΣⱼ =
     let b = _ in
     A≢B _⊩′⟨_⟩U_ _⊩′⟨_⟩B⟨ b ⟩_ Uᵣ (Bᵣ _)
-      (extractMaybeEmb ∘→ U-elim)
-      (extractMaybeEmb ∘→ B-elim _)
-      (λ ())
+      U-elim B-elim (λ ())
 
 opaque
 
@@ -190,9 +176,7 @@ opaque
     Neutral A → ¬ Γ ⊢ U l ≡ A
   U≢ne A-ne =
     A≢B _⊩′⟨_⟩U_ (λ Γ _ A → Γ ⊩ne A) Uᵣ ne
-      (extractMaybeEmb ∘→ U-elim)
-      (extractMaybeEmb ∘→ ne-elim A-ne)
-      (λ ())
+      U-elim (ne-elim A-ne) (λ ())
 
 opaque
 
@@ -205,9 +189,7 @@ opaque
   ℕ≢ΠΣⱼ =
     let b = _ in
     A≢B (λ Γ _ A → Γ ⊩ℕ A) _⊩′⟨_⟩B⟨ b ⟩_ ℕᵣ (Bᵣ _)
-      (extractMaybeEmb ∘→ ℕ-elim)
-      (extractMaybeEmb ∘→ B-elim _)
-      (λ ())
+      ℕ-elim B-elim (λ ())
 
 opaque
 
@@ -220,9 +202,7 @@ opaque
   Empty≢ΠΣⱼ =
     let b = _ in
     A≢B (λ Γ _ A → Γ ⊩Empty A) _⊩′⟨_⟩B⟨ b ⟩_ Emptyᵣ (Bᵣ _)
-      (extractMaybeEmb ∘→ Empty-elim)
-      (extractMaybeEmb ∘→ B-elim _)
-      (λ ())
+      Empty-elim B-elim (λ ())
 
 opaque
 
@@ -235,9 +215,7 @@ opaque
   Unit≢ΠΣⱼ {s} =
     let b = _ in
     A≢B _⊩Unit⟨_, s ⟩_ _⊩′⟨_⟩B⟨ b ⟩_ Unitᵣ (Bᵣ _)
-      (extractMaybeEmb ∘→ Unit-elim)
-      (extractMaybeEmb ∘→ B-elim _)
-      (λ ())
+      Unit-elim B-elim (λ ())
 
 opaque
 
@@ -249,9 +227,7 @@ opaque
     Neutral A → ¬ Γ ⊢ ℕ ≡ A
   ℕ≢ne A-ne =
     A≢B (λ Γ _ A → Γ ⊩ℕ A) (λ Γ _ A → Γ ⊩ne A) ℕᵣ ne
-      (extractMaybeEmb ∘→ ℕ-elim)
-      (extractMaybeEmb ∘→ ne-elim A-ne)
-      (λ ())
+      ℕ-elim (ne-elim A-ne) (λ ())
 
 opaque
 
@@ -263,9 +239,7 @@ opaque
     Neutral A → ¬ Γ ⊢ Empty ≡ A
   Empty≢neⱼ A-ne =
     A≢B (λ Γ _ A → Γ ⊩Empty A) (λ Γ _ A → Γ ⊩ne A) Emptyᵣ ne
-      (extractMaybeEmb ∘→ Empty-elim)
-      (extractMaybeEmb ∘→ ne-elim A-ne)
-      (λ ())
+      Empty-elim (ne-elim A-ne) (λ ())
 
 opaque
 
@@ -277,9 +251,7 @@ opaque
     Neutral A → ¬ Γ ⊢ Unit s l ≡ A
   Unit≢neⱼ {s} A-ne =
     A≢B _⊩Unit⟨_, s ⟩_ (λ Γ _ A → Γ ⊩ne A) Unitᵣ ne
-      (extractMaybeEmb ∘→ Unit-elim)
-      (extractMaybeEmb ∘→ ne-elim A-ne)
-      (λ ())
+      Unit-elim (ne-elim A-ne) (λ ())
 
 opaque
 
@@ -292,9 +264,7 @@ opaque
   ΠΣ≢ne C-ne =
     let b = _ in
     A≢B _⊩′⟨_⟩B⟨ b ⟩_ (λ Γ _ A → Γ ⊩ne A) (Bᵣ _) ne
-      (extractMaybeEmb ∘→ B-elim _)
-      (extractMaybeEmb ∘→ ne-elim C-ne)
-      (λ ())
+      B-elim (ne-elim C-ne) (λ ())
 
 opaque
 
@@ -309,9 +279,7 @@ opaque
         b₂ = _
     in
     A≢B _⊩′⟨_⟩B⟨ b₁ ⟩_ _⊩′⟨_⟩B⟨ b₂ ⟩_ (Bᵣ _) (Bᵣ _)
-      (extractMaybeEmb ∘→ B-elim _)
-      (extractMaybeEmb ∘→ B-elim _)
-      (λ ())
+      B-elim B-elim (λ ())
 
 opaque
 
@@ -326,9 +294,7 @@ opaque
         b₂ = _
     in
     A≢B _⊩′⟨_⟩B⟨ b₁ ⟩_ _⊩′⟨_⟩B⟨ b₂ ⟩_ (Bᵣ _) (Bᵣ _)
-      (extractMaybeEmb ∘→ B-elim _)
-      (extractMaybeEmb ∘→ B-elim _)
-      (λ ())
+      B-elim B-elim (λ ())
 
 opaque
 
@@ -340,9 +306,7 @@ opaque
     ¬ Γ ⊢ Unitʷ l₁ ≡ Unitˢ l₂
   Unitʷ≢Unitˢ =
     A≢B _⊩Unit⟨_, 𝕨 ⟩_ _⊩Unit⟨_, 𝕤 ⟩_ Unitᵣ Unitᵣ
-      (extractMaybeEmb ∘→ Unit-elim)
-      (extractMaybeEmb ∘→ Unit-elim)
-      (λ ())
+      Unit-elim Unit-elim (λ ())
 
 opaque
 
@@ -354,9 +318,7 @@ opaque
     Neutral B → ¬ Γ ⊢ Id A t u ≡ B
   Id≢ne B-ne =
     A≢B _⊩′⟨_⟩Id_ (λ Γ _ A → Γ ⊩ne A) Idᵣ ne
-      (extractMaybeEmb ∘→ Id-elim)
-      (extractMaybeEmb ∘→ ne-elim B-ne)
-      (λ ())
+      Id-elim (ne-elim B-ne) (λ ())
 
 opaque
 
@@ -368,9 +330,7 @@ opaque
     ¬ Γ ⊢ Id A t u ≡ U l
   Id≢U =
     A≢B _⊩′⟨_⟩Id_ _⊩′⟨_⟩U_ Idᵣ Uᵣ
-      (extractMaybeEmb ∘→ Id-elim)
-      (extractMaybeEmb ∘→ U-elim)
-      (λ ())
+      Id-elim U-elim (λ ())
 
 opaque
 
@@ -382,9 +342,7 @@ opaque
     ¬ Γ ⊢ Id A t u ≡ ℕ
   Id≢ℕ =
     A≢B _⊩′⟨_⟩Id_ (λ Γ _ A → Γ ⊩ℕ A) Idᵣ ℕᵣ
-      (extractMaybeEmb ∘→ Id-elim)
-      (extractMaybeEmb ∘→ ℕ-elim)
-      (λ ())
+      Id-elim ℕ-elim (λ ())
 
 opaque
 
@@ -396,9 +354,7 @@ opaque
     ¬ Γ ⊢ Id A t u ≡ Unit s l
   Id≢Unit {s} =
     A≢B _⊩′⟨_⟩Id_ _⊩Unit⟨_, s ⟩_ Idᵣ Unitᵣ
-      (extractMaybeEmb ∘→ Id-elim)
-      (extractMaybeEmb ∘→ Unit-elim)
-      (λ ())
+      Id-elim Unit-elim (λ ())
 
 opaque
 
@@ -410,9 +366,7 @@ opaque
     ¬ Γ ⊢ Id A t u ≡ Empty
   Id≢Empty =
     A≢B _⊩′⟨_⟩Id_ (λ Γ _ A → Γ ⊩Empty A) Idᵣ Emptyᵣ
-      (extractMaybeEmb ∘→ Id-elim)
-      (extractMaybeEmb ∘→ Empty-elim)
-      (λ ())
+      Id-elim Empty-elim (λ ())
 
 opaque
 
@@ -425,9 +379,7 @@ opaque
   Id≢ΠΣ =
     let b = _ in
     A≢B _⊩′⟨_⟩Id_ _⊩′⟨_⟩B⟨ b ⟩_ Idᵣ (Bᵣ _)
-      (extractMaybeEmb ∘→ Id-elim)
-      (extractMaybeEmb ∘→ B-elim _)
-      (λ ())
+      Id-elim B-elim (λ ())
 
 -- If No-η-equality A holds, then A is not a Π-type (given a certain
 -- assumption).
@@ -519,7 +471,7 @@ whnf≢ne {Γ} {A} {t} {u} ¬-A-η t-whnf ¬-t-ne u-ne t≡u =
       ¬t⇒*ne t⇒*v v-ne
     (Emptyᵣ _) (Emptyₜ₌ _ _ t⇒*v _ _ (ne (neNfₜ₌ _ v-ne _ _))) →
       ¬t⇒*ne t⇒*v v-ne
-    (Unitᵣ (Unitₜ A⇒*Unit _)) (Unitₜ₌ _ _ (d , _) (d′ , _) prop) →
+    (Unitᵣ′ _ _ A⇒*Unit _) (Unitₜ₌ _ _ (d , _) (d′ , _) prop) →
       case A⇒*no-η A⇒*Unit of λ where
         (U.neₙ ())
         (U.Unitʷₙ no-η) → case prop of λ where
@@ -562,8 +514,6 @@ whnf≢ne {Γ} {A} {t} {u} ¬-A-η t-whnf ¬-t-ne u-ne t≡u =
           U.Emptyₙ    → Empty≢neⱼ B-ne (univ A≡B)
           U.Unitₙ     → Unit≢neⱼ  B-ne (univ A≡B)
           U.Idₙ       → Id≢ne     B-ne (univ A≡B)
-    (emb ≤ᵘ-refl     [A]) → lemma [A]
-    (emb (≤ᵘ-step p) [A]) → lemma (emb p [A])
 
 -- The term zero is not definitionally equal (at type ℕ) to any
 -- neutral term (given a certain assumption).

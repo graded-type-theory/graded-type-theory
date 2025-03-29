@@ -54,8 +54,8 @@ irrelevanceTermSV : ∀ {l l′ t v A}
 irrelevanceTermSV .(Uᵣ UA) .(Uᵣ UB) t®v (Uᵥ UA UB) = t®v
 irrelevanceTermSV .(ℕᵣ ℕA) .(ℕᵣ ℕB) t®v (ℕᵥ ℕA ℕB) = t®v
 irrelevanceTermSV
-  {l} {l′} {A}
-  _ _ t®v (Unitᵥ {s} (Unitₜ A⇒*Unit₁ _) (Unitₜ A⇒*Unit₂ _)) =
+  {A}
+  _ _ t®v (Unitᵥ {s} (Unitᵣ l _ A⇒*Unit₁ _) (Unitᵣ l′ _ A⇒*Unit₂ _)) =
   case Unit-injectivity
          (Unit s l  ≡˘⟨ subset* A⇒*Unit₁ ⟩⊢
           A         ≡⟨ subset* A⇒*Unit₂ ⟩⊢∎
@@ -104,14 +104,6 @@ irrelevanceTermSV _ _ t®v (Idᵥ ⊩A@record{} ⊩B) =
   case whrDet* (_⊩ₗId_.⇒*Id ⊩A , Idₙ) (_⊩ₗId_.⇒*Id ⊩B , Idₙ) of λ {
     PE.refl →
   t®v }
-irrelevanceTermSV _ _ t®v (embᵥ₁ ≤ᵘ-refl A≡B) =
-  irrelevanceTermSV _ _ t®v A≡B
-irrelevanceTermSV _ _ t®v (embᵥ₁ (≤ᵘ-step p) A≡B) =
-  irrelevanceTermSV _ _ t®v (embᵥ₁ p A≡B)
-irrelevanceTermSV _ _ t®v (embᵥ₂ ≤ᵘ-refl A≡B) =
-  irrelevanceTermSV _ _ t®v A≡B
-irrelevanceTermSV _ _ t®v (embᵥ₂ (≤ᵘ-step p) A≡B) =
-  irrelevanceTermSV _ _ t®v (embᵥ₂ p A≡B)
 -- Impossible cases
 irrelevanceTermSV _ _ () (Emptyᵥ _ _)
 irrelevanceTermSV _ _ () (ne record{} _)

@@ -45,12 +45,10 @@ escape : ∀ {l A} → Γ ⊩⟨ l ⟩ A → Γ ⊢ A
 escape (Uᵣ′ _ _ D) = redFirst* D
 escape (ℕᵣ D) = redFirst* D
 escape (Emptyᵣ D) = redFirst* D
-escape (Unitᵣ (Unitₜ D _)) = redFirst* D
+escape (Unitᵣ′ _ _ D _) = redFirst* D
 escape (ne′ _ _ D _ _) = redFirst* D
 escape (Bᵣ′ _ _ _ D _ _ _ _ _) = redFirst* D
 escape (Idᵣ ⊩A) = redFirst* (_⊩ₗId_.⇒*Id ⊩A)
-escape (emb ≤ᵘ-refl A) = escape A
-escape (emb (≤ᵘ-step k) A) = escape (emb k A)
 
 -- Reducible type equality is contained in the equality relation.
 escapeEq :
@@ -94,7 +92,7 @@ escapeEq (ℕᵣ D) D′ =
   ≅-red (D , ℕₙ) (D′ , ℕₙ) (≅-ℕrefl (wfEq (subset* D)))
 escapeEq (Emptyᵣ D) D′ =
   ≅-red (D , Emptyₙ) (D′ , Emptyₙ) (≅-Emptyrefl (wfEq (subset* D)))
-escapeEq (Unitᵣ (Unitₜ D ok)) D′ =
+escapeEq (Unitᵣ′ _ _ D ok) D′ =
   ≅-red (D , Unitₙ) (D′ , Unitₙ) (≅-Unitrefl (wfEq (subset* D)) ok)
 escapeEq (ne′ _ _ D neK _) (ne₌ _ _ D′ neM K≡M) =
   ≅-red (D , ne neK) (D′ , ne neM) K≡M
@@ -102,8 +100,6 @@ escapeEq (Bᵣ′ W _ _ D _ _ _ _ _) (B₌ _ _ D′ A≡B _ _) =
   ≅-red (D , ⟦ W ⟧ₙ) (D′ , ⟦ W ⟧ₙ) A≡B
 escapeEq (Idᵣ ⊩A) A≡B =
   ≅-red (_⊩ₗId_.⇒*Id ⊩A , Idₙ) (_⊩ₗId_≡_/_.⇒*Id′ A≡B , Idₙ) (Id≅Id A≡B)
-escapeEq (emb ≤ᵘ-refl A) A≡B = escapeEq A A≡B
-escapeEq (emb (≤ᵘ-step k) A) A≡B = escapeEq (emb k A) A≡B
 
 escapeTermEq (Uᵣ′ _ _ D) (Uₜ₌ _ _ d d′ typeA typeB A≡B _ _ _) =
   ≅ₜ-red (D , Uₙ) (d , typeWhnf typeA) (d′ , typeWhnf typeB)  A≡B
@@ -114,7 +110,7 @@ escapeTermEq (ℕᵣ D) (ℕₜ₌ _ _ d d′ k≡k′ prop) =
 escapeTermEq (Emptyᵣ D) (Emptyₜ₌ k k′ d d′ k≡k′ prop) =
   let natK , natK′ = esplit prop
   in  ≅ₜ-red (D , Emptyₙ) (d , ne natK) (d′ , ne natK′) k≡k′
-escapeTermEq (Unitᵣ (Unitₜ D ok)) (Unitₜ₌ _ _ d d′ prop) =
+escapeTermEq (Unitᵣ′ _ _ D ok) (Unitₜ₌ _ _ d d′ prop) =
   let _ , _ , ⊢t′ = wf-⊢≡∷ (subset*Term (d .proj₁))
       _ , _ , ⊢u′ = wf-⊢≡∷ (subset*Term (d′ .proj₁))
   in
@@ -150,9 +146,6 @@ escapeTermEq {Γ = Γ} (Idᵣ ⊩A) t≡u@(_ , _ , t⇒*t′ , u⇒*u′ , _) =
   open _⊩ₗId_ ⊩A
   lemma = λ t′-whnf u′-whnf →
             ≅ₜ-red (⇒*Id , Idₙ) (t⇒*t′ , t′-whnf) (u⇒*u′ , u′-whnf)
-
-escapeTermEq (emb ≤ᵘ-refl A) t≡u = escapeTermEq A t≡u
-escapeTermEq (emb (≤ᵘ-step k) A) t≡u = escapeTermEq (emb k A) t≡u
 
 opaque
 

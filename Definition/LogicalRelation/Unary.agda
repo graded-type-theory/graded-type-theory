@@ -262,17 +262,17 @@ opaque
 
 -- Unary reducibility for terms of unit type.
 
-record _⊩Unit⟨_,_⟩_∷Unit
-         (Γ : Con Term n) (l : Universe-level) (s : Strength)
-         (t : Term n) :
+record _⊩Unit⟨_⟩_∷Unit/_
+         (Γ : Con Term n) (s : Strength)
+         (t : Term n) (l′ : Universe-level) :
          Set a where
   no-eta-equality
   pattern
   constructor Unitₜ
   field
     u    : Term n
-    ↘u   : Γ ⊢ t ↘ u ∷ Unit s l
-    prop : Unit-prop Γ l s u
+    ↘u   : Γ ⊢ t ↘ u ∷ Unit s l′
+    prop : Unit-prop Γ l′ s u
 
 opaque
 
@@ -280,7 +280,7 @@ opaque
   -- to the diagonal of _⊩Unit⟨_,_⟩_≡_∷Unit.
 
   ⊩Unit∷Unit⇔⊩Unit≡∷Unit :
-    Γ ⊩Unit⟨ l , s ⟩ t ∷Unit ⇔ Γ ⊩Unit⟨ l , s ⟩ t ≡ t ∷Unit
+    Γ ⊩Unit⟨ s ⟩ t ∷Unit/ l′ ⇔ Γ ⊩Unit⟨ s ⟩ t ≡ t ∷Unit/ l′
   ⊩Unit∷Unit⇔⊩Unit≡∷Unit =
       (λ (Unitₜ _ ↘u prop) →
          Unitₜ₌ _ _ ↘u ↘u (Unit-prop⇔[Unit]-prop .proj₁ prop))

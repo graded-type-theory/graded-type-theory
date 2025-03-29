@@ -168,13 +168,11 @@ whNorm′ : ∀ {A l} ([A] : Γ ⊩⟨ l ⟩ A)
 whNorm′ (Uᵣ′ l _ ⇒*U) = U l , Uₙ , ⇒*U
 whNorm′ (ℕᵣ D) = ℕ , ℕₙ , D
 whNorm′ (Emptyᵣ D) = Empty , Emptyₙ , D
-whNorm′ (Unitᵣ (Unitₜ D _)) = Unit! , Unitₙ , D
+whNorm′ (Unitᵣ′ _ _ D _) = Unit! , Unitₙ , D
 whNorm′ (ne′ _ H D neH H≡H) = H , ne neH , D
 whNorm′ (Πᵣ′ F G D _ _ _ _ _) = Π _ , _ ▷ F ▹ G , ΠΣₙ , D
 whNorm′ (Σᵣ′ F G D _ _ _ _ _) = Σ _ , _ ▷ F ▹ G , ΠΣₙ , D
 whNorm′ (Idᵣ ⊩Id) = _ , Idₙ , _⊩ₗId_.⇒*Id ⊩Id
-whNorm′ (emb ≤ᵘ-refl     ⊩A) = whNorm′ ⊩A
-whNorm′ (emb (≤ᵘ-step p) ⊩A) = whNorm′ (emb p ⊩A)
 
 opaque
 
@@ -299,7 +297,7 @@ whNormTerm′ (Emptyᵣ x) ⊩a =
   let Emptyₜ n d n≡n prop = ⊩Empty∷Empty⇔⊩Empty≡∷Empty .proj₂ ⊩a
       emptyN = empty prop
   in  n , ne emptyN , conv* d (sym (subset* x))
-whNormTerm′ (Unitᵣ (Unitₜ A⇒*Unit _)) ⊩a =
+whNormTerm′ (Unitᵣ′ _ _ A⇒*Unit _) ⊩a =
   let Unitₜ t (a⇒*t , t-whnf) _ = ⊩Unit∷Unit⇔⊩Unit≡∷Unit .proj₂ ⊩a in
   t , t-whnf , conv* a⇒*t (sym (subset* A⇒*Unit))
 whNormTerm′ (ne (ne _ H D neH H≡H)) ⊩a =
@@ -315,8 +313,6 @@ whNormTerm′ (Idᵣ ⊩Id) ⊩a =
   let Idₜ a′ a⇒*a′ a′-id _ = ⊩Id∷⇔⊩Id≡∷ ⊩Id .proj₂ ⊩a in
     a′ , identityWhnf a′-id
   , conv* a⇒*a′ (sym (subset* (_⊩ₗId_.⇒*Id ⊩Id)))
-whNormTerm′ (emb ≤ᵘ-refl     ⊩A) ⊩a = whNormTerm′ ⊩A ⊩a
-whNormTerm′ (emb (≤ᵘ-step p) ⊩A) ⊩a = whNormTerm′ (emb p ⊩A) ⊩a
 
 opaque
 

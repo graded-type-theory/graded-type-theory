@@ -69,19 +69,6 @@ _⊩<⟨_⟩_≡_/_ :
 ⊩<≡⇔⊩≡′ ≤ᵘ-refl     = id⇔
 ⊩<≡⇔⊩≡′ (≤ᵘ-step p) = ⊩<≡⇔⊩≡′ p
 
--- If l₁ <ᵘ l₂, then Γ ⊩⟨ l₁ ⟩ A is contained in Γ ⊩⟨ l₂ ⟩ A.
-
-emb-<-⊩ : l₁ <ᵘ l₂ → Γ ⊩⟨ l₁ ⟩ A → Γ ⊩⟨ l₂ ⟩ A
-emb-<-⊩ p = emb p ∘→ ⊩<⇔⊩ p .proj₂
-
-opaque
-
-  -- If l₁ ≤ᵘ l₂, then Γ ⊩⟨ l₁ ⟩ A is contained in Γ ⊩⟨ l₂ ⟩ A.
-
-  emb-≤-⊩ : l₁ ≤ᵘ l₂ → Γ ⊩⟨ l₁ ⟩ A → Γ ⊩⟨ l₂ ⟩ A
-  emb-≤-⊩ ≤ᵘ-refl     = idᶠ
-  emb-≤-⊩ (≤ᵘ-step p) = emb (1+≤ᵘ1+ p) ∘→ ⊩<⇔⊩ (1+≤ᵘ1+ p) .proj₂
-
 opaque
 
   -- If p : l₁ <ᵘ l₂, then kit l₁ is equal to kit′ p.

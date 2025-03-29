@@ -185,7 +185,7 @@ Id₌′ {⊩A = ⊩A} ⇒*Id′ Ty≡Ty′ lhs≡lhs′ rhs≡rhs′ = record
 
 transEqT (ℕᵥ D D′ D″) A≡B B≡C = B≡C
 transEqT (Emptyᵥ D D′ D″) A≡B B≡C = B≡C
-transEqT (Unitᵥ _ (Unitₜ B⇒*Unit₁ _) _) B⇒*Unit₂ C⇒*Unit =
+transEqT (Unitᵥ _ (Unitᵣ _ _ B⇒*Unit₁ _) _) B⇒*Unit₂ C⇒*Unit =
   case Unit-PE-injectivity $
        whrDet* (B⇒*Unit₁ , Unitₙ) (B⇒*Unit₂ , Unitₙ) of λ {
     (_ , PE.refl) →
@@ -249,12 +249,6 @@ transEqT (Idᵥ ⊩A ⊩B@record{} ⊩C@record{}) A≡B B≡C =
        (_⊩ₗId_.⊩Ty ⊩B)
        (_⊩ₗId_≡_/_.Ty≡Ty′ A≡B)
        (_⊩ₗId_≡_/_.rhs≡rhs′ B≡C)) }}
-transEqT (embᵥ₁ ≤ᵘ-refl     A≡B≡C) = transEqT          A≡B≡C
-transEqT (embᵥ₁ (≤ᵘ-step p) A≡B≡C) = transEqT (embᵥ₁ p A≡B≡C)
-transEqT (embᵥ₂ ≤ᵘ-refl     A≡B≡C) = transEqT          A≡B≡C
-transEqT (embᵥ₂ (≤ᵘ-step p) A≡B≡C) = transEqT (embᵥ₂ p A≡B≡C)
-transEqT (embᵥ₃ ≤ᵘ-refl     A≡B≡C) = transEqT          A≡B≡C
-transEqT (embᵥ₃ (≤ᵘ-step p) A≡B≡C) = transEqT (embᵥ₃ p A≡B≡C)
 
 transEqTerm (Uᵣ′ _ (≤ᵘ-step p) A⇒*U) B≡C C≡D =
   irrelevanceEqTerm (Uᵣ′ _ p A⇒*U) (Uᵣ′ _ (≤ᵘ-step p) A⇒*U)
@@ -407,5 +401,3 @@ transEqTerm
          (ne _ u″-n _ _) →
            ⊥-elim $ rfl≢ne u″-n $
            whrDet*Term (u⇒*u′ , rflₙ) (u⇒*u″ , ne u″-n)) }
-transEqTerm (emb ≤ᵘ-refl     ⊩A) = transEqTerm ⊩A
-transEqTerm (emb (≤ᵘ-step p) ⊩A) = transEqTerm (emb p ⊩A)

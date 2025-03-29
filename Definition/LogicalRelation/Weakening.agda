@@ -122,8 +122,8 @@ wkTerm ⊩A ⊩t = wkEqTerm ⊩A ⊩t
 wk ρ (Uᵣ′ l′ l< D) = Uᵣ′ l′ l< (wkRed* (∷ʷʳ⊇→∷ʷ⊇ ρ) D)
 wk ρ (ℕᵣ D) = ℕᵣ (wkRed* (∷ʷʳ⊇→∷ʷ⊇ ρ) D)
 wk ρ (Emptyᵣ D) = Emptyᵣ (wkRed* (∷ʷʳ⊇→∷ʷ⊇ ρ) D)
-wk ρ (Unitᵣ (Unitₜ D ok)) =
-  Unitᵣ (Unitₜ (wkRed* (∷ʷʳ⊇→∷ʷ⊇ ρ) D) ok)
+wk ρ (Unitᵣ′ l′ l′≤ D ok) =
+  Unitᵣ′ l′ l′≤ (wkRed* (∷ʷʳ⊇→∷ʷ⊇ ρ) D) ok
 wk {ρ} [ρ] (ne′ inc _ D neK K≡K) =
   let [ρ] = ∷ʷʳ⊇→∷ʷ⊇ [ρ] in
   ne′ inc (U.wk ρ _) (wkRed* [ρ] D) (wkNeutral ρ neK) (≅-wk [ρ] K≡K)
@@ -211,13 +211,11 @@ wk ρ∷⊇ (Idᵣ ⊩A) = Idᵣ (record
   })
   where
   open _⊩ₗId_ ⊩A
-wk ρ (emb ≤ᵘ-refl x) = emb ≤ᵘ-refl (wk ρ x)
-wk ρ (emb (≤ᵘ-step l<) x) = emb-<-⊩ ≤ᵘ-refl (wk ρ (emb l< x))
 
 wkEq ρ (Uᵣ′ l l< D) D′ = wkRed* (∷ʷʳ⊇→∷ʷ⊇ ρ) D′
 wkEq ρ (ℕᵣ D) A≡B = wkRed* (∷ʷʳ⊇→∷ʷ⊇ ρ) A≡B
 wkEq ρ (Emptyᵣ D) A≡B = wkRed* (∷ʷʳ⊇→∷ʷ⊇ ρ) A≡B
-wkEq ρ (Unitᵣ (Unitₜ D _)) A≡B = wkRed* (∷ʷʳ⊇→∷ʷ⊇ ρ) A≡B
+wkEq ρ (Unitᵣ′ _ _ D _) A≡B = wkRed* (∷ʷʳ⊇→∷ʷ⊇ ρ) A≡B
 wkEq {ρ = ρ} [ρ] (ne′ _ _ _ _ _) (ne₌ inc M D′ neM K≡M) =
   let [ρ] = ∷ʷʳ⊇→∷ʷ⊇ [ρ] in
   ne₌ inc (U.wk ρ M) (wkRed* [ρ] D′) (wkNeutral ρ neM)
@@ -273,10 +271,6 @@ wkEq ρ∷⊇ (Idᵣ ⊩A) A≡B = Id₌′
   where
   open _⊩ₗId_ ⊩A
   open _⊩ₗId_≡_/_ A≡B
-wkEq ρ (emb ≤ᵘ-refl x) A≡B = wkEq ρ x A≡B
-wkEq ρ (emb (≤ᵘ-step p) ⊩A) A≡B =
-  let ⊩A′ = wk ρ (emb p ⊩A) in
-  irrelevanceEq ⊩A′ (emb-<-⊩ ≤ᵘ-refl ⊩A′) (wkEq ρ (emb p ⊩A) A≡B)
 
 wkEqTerm
   {ρ} {l = 1+ l′} [ρ] (Uᵣ′ l (≤ᵘ-step l<) D)
@@ -295,7 +289,7 @@ wkEqTerm
       (wk [ρ] [u]) (wkEq [ρ] [t] [t≡u])
 wkEqTerm ρ (ℕᵣ D) [t≡u] = wkEqTermℕ (∷ʷʳ⊇→∷ʷ⊇ ρ) [t≡u]
 wkEqTerm ρ (Emptyᵣ D) [t≡u] = wkEqTermEmpty (∷ʷʳ⊇→∷ʷ⊇ ρ) [t≡u]
-wkEqTerm ρ (Unitᵣ (Unitₜ _ _)) (Unitₜ₌ _ _ ↘v ↘w prop) =
+wkEqTerm ρ (Unitᵣ′ _ _ _ _) (Unitₜ₌ _ _ ↘v ↘w prop) =
   let ρ = ∷ʷʳ⊇→∷ʷ⊇ ρ in
   Unitₜ₌ _ _ (wkRed↘Term ρ ↘v) (wkRed↘Term ρ ↘w) (wk[Unit]-prop ρ prop)
 wkEqTerm {ρ} [ρ] (ne′ _ _ D neK K≡K) (neₜ₌ k m d d′ nf) =
@@ -455,10 +449,6 @@ wkEqTerm ρ∷⊇ (Idᵣ ⊩A) t≡u@(_ , _ , t⇒*t′ , u⇒*u′ , _) =
          , ~-wk ρ∷⊇′ t′~u′)
   where
   open _⊩ₗId_ ⊩A
-wkEqTerm ρ (emb ≤ᵘ-refl x) t≡u = wkEqTerm ρ x t≡u
-wkEqTerm ρ (emb (≤ᵘ-step s) x) t≡u =
-  let wkET′ = wkEqTerm ρ (emb s x) t≡u
-  in irrelevanceEqTerm (wk ρ (emb s x)) (wk ρ (emb (≤ᵘ-step s) x)) wkET′
 
 -- Impossible cases
 wkEqTerm _ (Bᵣ BΣʷ record{}) (Σₜ₌ _ _ _ _ prodₙ (ne _) _ ())

@@ -89,7 +89,7 @@ symEqTerm : ∀ {l A t u} ([A] : Γ ⊩⟨ l ⟩ A)
 
 symEqT (ℕᵥ D D′) A≡B = D
 symEqT (Emptyᵥ D D′) A≡B = D
-symEqT (Unitᵥ (Unitₜ A⇒*Unit _) (Unitₜ B⇒*Unit₁ _)) B⇒*Unit₂ =
+symEqT (Unitᵥ (Unitᵣ _ _ A⇒*Unit _) (Unitᵣ _ _ B⇒*Unit₁ _)) B⇒*Unit₂ =
   case Unit-PE-injectivity $
        whrDet* (B⇒*Unit₁ , Unitₙ) (B⇒*Unit₂ , Unitₙ) of λ {
     (_ , PE.refl) →
@@ -153,10 +153,6 @@ symEqT (Idᵥ ⊩A ⊩B@record{}) A≡B =
     } }
   where
   open _⊩ₗId_≡_/_ A≡B
-symEqT (embᵥ₁ ≤ᵘ-refl     A≡B) = symEqT          A≡B
-symEqT (embᵥ₁ (≤ᵘ-step p) A≡B) = symEqT (embᵥ₁ p A≡B)
-symEqT (embᵥ₂ ≤ᵘ-refl     A≡B) = symEqT          A≡B
-symEqT (embᵥ₂ (≤ᵘ-step p) A≡B) = symEqT (embᵥ₂ p A≡B)
 
 symEqTerm (ℕᵣ D) (ℕₜ₌ k k′ d d′ t≡u prop) =
   ℕₜ₌ k′ k d′ d (≅ₜ-sym t≡u) (symNatural-prop prop)
@@ -203,8 +199,6 @@ symEqTerm (Idᵣ ⊩A) t≡u =
     (case ⊩Id≡∷-view-inhabited ⊩A t≡u of λ where
        (ne inc _ _ t′~u′) → inc , ~-sym t′~u′
        (rfl₌ _)           → _)
-symEqTerm (emb ≤ᵘ-refl ⊩A)     = symEqTerm ⊩A
-symEqTerm (emb (≤ᵘ-step p) ⊩A) = symEqTerm (emb p ⊩A)
 symEqTerm
   (Uᵣ′ _ ≤ᵘ-refl _) (Uₜ₌ A B d d′ typeA typeB A≡B [t] [u] [t≡u]) =
     Uₜ₌ B A d′ d typeB typeA (≅ₜ-sym A≡B) [u] [t] (symEq [t] [u] [t≡u])

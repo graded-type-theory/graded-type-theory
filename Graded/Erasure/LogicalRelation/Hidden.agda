@@ -101,13 +101,14 @@ opaque
     (∃₂ λ l′ (⊩U : Δ ⊩⟨ l′ ⟩ U l) → t ®⟨ l′ ⟩ v ∷ U l / ⊩U)  ⇔⟨ (λ (_ , ⊩U , t®v) →
                                                                      _
                                                                    , ⊩U⇔ .proj₁ ⊩U
-                                                                   , irrelevanceTerm ⊩U (Uᵣ (extractMaybeEmb (U-elim ⊩U) .proj₂)) t®v)
+                                                                   , irrelevanceTerm ⊩U (Uᵣ (U-elim ⊩U)) t®v)
                                                               , Σ.map idᶠ (Σ.map (⊩U⇔ .proj₂) idᶠ)
                                                               ⟩
     (∃ λ l′ → (l <ᵘ l′ × ⊢ Δ) × t ® v ∷U)                    ⇔⟨ (λ (_ , (l< , _) , t®v) → _ , l< , t®v)
                                                               , (λ (_ , l< , t®v) → _ , (l< , ⊢Δ) , t®v)
                                                               ⟩
     (∃ λ l′ → l <ᵘ l′ × t ® v ∷U)                            □⇔
+
 
 opaque
   unfolding _®_∷_
@@ -118,7 +119,7 @@ opaque
   ®∷Empty⇔ =
       (λ (_ , ⊩Empty′ , t®v) →
          irrelevanceTerm {l′ = 0} ⊩Empty′
-           (Emptyᵣ (extractMaybeEmb (Empty-elim ⊩Empty′) .proj₂)) t®v)
+           (Emptyᵣ (Empty-elim ⊩Empty′)) t®v)
     , (λ ())
 
 opaque
@@ -131,7 +132,7 @@ opaque
       (λ (_ , ⊩U , t®v) →
          let ⊩U′ = ⊩Unit⇔ .proj₂ (≤ᵘ-refl , ⊩Unit⇔ .proj₁ ⊩U .proj₂) in
          irrelevanceTerm ⊩U
-           (Unitᵣ (extractMaybeEmb (Unit-elim ⊩U′) .proj₂)) t®v)
+           (Unitᵣ (Unit-elim ⊩U′)) t®v)
     , (λ t®v →
            l
          , ⊩Unit⇔ .proj₂
@@ -152,7 +153,7 @@ opaque
   ®∷ℕ⇔ =
       (λ (_ , ⊩ℕ′ , t®v) →
          irrelevanceTerm {l′ = 0} ⊩ℕ′
-           (ℕᵣ (extractMaybeEmb (ℕ-elim ⊩ℕ′) .proj₂)) t®v)
+           (ℕᵣ (ℕ-elim ⊩ℕ′)) t®v)
     , (λ t®v → 0 , ⊩ℕ⇔ .proj₂ ⊢Δ , t®v)
 
 opaque
@@ -165,7 +166,7 @@ opaque
     (Δ ⊢ A × t ® v ∷Id⟨ A ⟩⟨ t₁ ⟩⟨ t₂ ⟩)
   ®∷Id⇔ =
       (λ (_ , ⊩Id , t®v) →
-         case extractMaybeEmb (Id-elim ⊩Id) .proj₂ of λ
+         case Id-elim ⊩Id of λ
            ⊩Id′ →
          case irrelevanceTerm ⊩Id (Idᵣ ⊩Id′) t®v of λ {
            (rflᵣ t⇒* ⇒*↯) →
@@ -201,8 +202,8 @@ opaque
        t ∘⟨ p ⟩ t′ ® v T.∘⟨ str ⟩ v′ ∷ B [ t′ ]₀)))
   ®∷Π⇔ {p} {B} =
       (λ (_ , ⊩Π , t®v) →
-         case extractMaybeEmb′ (B-elim _ ⊩Π) of λ {
-           (_ , _ , ⊩Π′@record{}) →
+         case B-elim ⊩Π of λ {
+           ⊩Π′@record{} →
          case irrelevanceTerm ⊩Π (Bᵣ _ ⊩Π′) t®v of λ
            t®v →
            escape-⊩ ⊩Π , t®v .proj₁
@@ -337,8 +338,8 @@ opaque
      (p ≢ 𝟘 → ∃ λ v₁ → v T.⇒* T.prod v₁ v₂ × t₁ ® v₁ ∷ A))
   ®∷Σ⇔ {t} {v} {s} {p} {q} {A} {B} =
       (λ (_ , ⊩Σ , t®v) →
-         case extractMaybeEmb′ (B-elim _ ⊩Σ) of λ {
-           (_ , _ , ⊩Σ′@record{}) →
+         case B-elim ⊩Σ of λ {
+           ⊩Σ′@record{} →
          case irrelevanceTerm ⊩Σ (Bᵣ _ ⊩Σ′) t®v of λ
            (t₁ , t₂ , t⇒ , ⊩t₁ , v₂ , t₂®v₂ , rest) →
          case B-PE-injectivity (BΣ _ _ _) (BΣ _ _ _)
