@@ -64,8 +64,6 @@ opaque
              Σ.map idᶠ (Σ.map idᶠ (red*concat u⇒*v₂)) $
              helper (⊩B _ _) t₂®v₂)
           (λ _ u⇒*prod _ _ → _ , T.prod , u⇒*prod)
-      (emb ≤ᵘ-refl     ⊩A) → helper ⊩A
-      (emb (≤ᵘ-step p) ⊩A) → helper (emb p ⊩A)
 
 opaque
 

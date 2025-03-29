@@ -43,20 +43,10 @@ reflEqTerm _ ⊩t = ⊩t
 
 -- Reflexivity of reducible types.
 reflEq : ∀ {l A} ([A] : Γ ⊩⟨ l ⟩ A) → Γ ⊩⟨ l ⟩ A ≡ A / [A]
-
-private
-
-  -- A lemma used below.
-
-  reflEq-⊩< :
-    (p : l′ <ᵘ l) (⊩A : Γ ⊩<⟨ p ⟩ A) → Γ ⊩⟨ l ⟩ A ≡ A / emb p ⊩A
-  reflEq-⊩< ≤ᵘ-refl     = reflEq
-  reflEq-⊩< (≤ᵘ-step p) = reflEq-⊩< p
-
 reflEq (Uᵣ′ l′ l< ⊢Γ) = ⊢Γ
 reflEq (ℕᵣ D) = D
 reflEq (Emptyᵣ D) = D
-reflEq (Unitᵣ (Unitₜ D _)) = D
+reflEq (Unitᵣ′ _ _ D _) = D
 reflEq (ne′ inc _ D neK K≡K) = ne₌ inc _ D neK K≡K
 reflEq (Bᵣ′ _ _ _ D A≡A [F] [G] _ _) =
    B₌ _ _ D A≡A
@@ -72,4 +62,3 @@ reflEq (Idᵣ ⊩A) = record
   }
   where
   open _⊩ₗId_ ⊩A
-reflEq (emb p [A]) = reflEq-⊩< p [A]

@@ -84,7 +84,7 @@ private opaque
   isΠΣ′ (Emptyᵣ A⇒*Empty) =
     no λ (_ , _ , _ , _ , _ , A⇒*W) →
     Empty≢ΠΣⱼ (trans (sym (subset* A⇒*Empty)) (subset* A⇒*W))
-  isΠΣ′ (Unitᵣ (Unitₜ A⇒*Unit _)) =
+  isΠΣ′ (Unitᵣ′ _ _ A⇒*Unit _) =
     no λ (_ , _ , _ , _ , _ , A⇒*W) →
     Unit≢ΠΣⱼ (trans (sym (subset* A⇒*Unit)) (subset* A⇒*W))
   isΠΣ′ (ne′ _ _ A⇒*B B-ne _) =
@@ -98,8 +98,6 @@ private opaque
     no λ (_ , _ , _ , _ , _ , A⇒*Id) →
     I.Id≢ΠΣ $
     trans (sym (subset* (_⊩ₗId_.⇒*Id ⊩A))) (subset* A⇒*Id)
-  isΠΣ′ (emb ≤ᵘ-refl     ⊩A) = isΠΣ′ ⊩A
-  isΠΣ′ (emb (≤ᵘ-step p) ⊩A) = isΠΣ′ (emb p ⊩A)
 
 opaque
 
@@ -195,5 +193,3 @@ opaque
     helper (Idᵣ ⊩A) = yes (_ , _ , _ , ⇒*Id)
       where
       open _⊩ₗId_ ⊩A
-    helper (emb ≤ᵘ-refl     ⊩A) = helper ⊩A
-    helper (emb (≤ᵘ-step p) ⊩A) = helper (emb p ⊩A)

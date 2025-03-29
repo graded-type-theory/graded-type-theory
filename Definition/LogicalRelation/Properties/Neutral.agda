@@ -61,18 +61,11 @@ opaque
     (⊩A : Γ ⊩⟨ l ⟩ A) → Neutral A → Neutral B → Γ ⊢ A ≅ B →
     Γ ⊩⟨ l ⟩ A ≡ B / ⊩A
   neuEq {Γ} {A} {B} [A] neA neB A~B =
-    irrelevanceEq (ne-intr (ne-elim neA [A])) [A]
-      (neuEq′ (ne-elim neA [A]))
-    where
-    neuEq′ :
-      (⊩A : Γ ⊩⟨ l ⟩ne A) →
-      Γ ⊩⟨ l ⟩ A ≡ B / ne-intr ⊩A
-    neuEq′ (noemb (ne inc _ D neK K≡K)) =
-      let A≡K = whnfRed* D (ne neA) in
-      ne₌ inc _ (id (wf-⊢≡ (≅-eq A~B) .proj₂)) neB
-        (PE.subst (λ x → _ ⊢ x ≅ _) A≡K A~B)
-    neuEq′ (emb ≤ᵘ-refl x) = neuEq′ x
-    neuEq′ (emb (≤ᵘ-step p) x) = neuEq′ (emb p x)
+    case ne-view neA [A] of λ {
+      (ne [A]′@(ne inc _ D neK K≡K)) →
+    let A≡K = whnfRed* D (ne neA) in
+    ne₌ inc _ (id (wf-⊢≡ (≅-eq A~B) .proj₂)) neB
+      (PE.subst (λ x → _ ⊢ x ≅ _) A≡K A~B) }
 
 opaque
  unfolding ⊩Id∷⇔⊩Id≡∷
@@ -114,7 +107,7 @@ opaque
       in
       ⊩Empty∷Empty⇔⊩Empty≡∷Empty .proj₁
         (Emptyₜ _ (id (conv ⊢n A≡Empty)) n≡n (ne (neNfₜ inc n-ne n~n′)))
-    neuTerm′ (Unitᵣ (Unitₜ D _)) =
+    neuTerm′ (Unitᵣ′ _ _ D _) =
       let A≡Unit  = subset* D
           n~n′ = ~-conv ~n A≡Unit
       in
@@ -169,8 +162,6 @@ opaque
            (ne inc n-ne (~-conv ~n A≡Id)))
       where
       open _⊩ₗId_ ⊩A
-    neuTerm′ (emb ≤ᵘ-refl x) = neuTerm′ x
-    neuTerm′ (emb (≤ᵘ-step l<) x) = neuTerm′ (emb l< x)
 
   -- "Neutrally equal" terms are "reducibly equal" (if
   -- Neutrals-included holds).
@@ -223,7 +214,7 @@ opaque
       Emptyₜ₌ _ _ (id (conv ⊢n A≡Empty))
         (id (conv ⊢n′ A≡Empty)) n≡n′
         (ne (neNfₜ₌ inc n-ne n′-ne n~n′₁))
-    neuEqTerm′ (Unitᵣ {s} (Unitₜ D _)) =
+    neuEqTerm′ (Unitᵣ {s} (Unitᵣ _ _ D _)) =
       let A≡Unit = subset* D
           n~n′₁ = ~-conv n~n′ A≡Unit
       in
@@ -305,5 +296,3 @@ opaque
          (inc , ~-conv n~n′ A≡Id))
       where
       open _⊩ₗId_ ⊩A
-    neuEqTerm′ (emb ≤ᵘ-refl     ⊩A) = neuEqTerm′ ⊩A
-    neuEqTerm′ (emb (≤ᵘ-step p) ⊩A) = neuEqTerm′ (emb p ⊩A)

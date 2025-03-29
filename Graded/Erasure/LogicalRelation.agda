@@ -97,7 +97,7 @@ mutual
   t ®⟨ l ⟩ v ∷ A / Uᵣ x              = t ® v ∷U
   t ®⟨ l ⟩ v ∷ A / ℕᵣ x              = t ® v ∷ℕ
   t ®⟨ l ⟩ v ∷ A / Emptyᵣ x          = t ® v ∷Empty
-  t ®⟨ l ⟩ v ∷ A / Unitᵣ {s = s} x   = t ® v ∷Unit⟨ s , l ⟩
+  t ®⟨ l ⟩ v ∷ A / Unitᵣ {s = s} ⊩A  = t ® v ∷Unit⟨ s , ⊩A ._⊩Unit⟨_,_⟩_.l′ ⟩
   t ®⟨ l ⟩ v ∷ A / ne′ _ _ D neK K≡K = Lift a ⊥
 
   -- Π:
@@ -124,11 +124,6 @@ mutual
   t ®⟨ _ ⟩ v ∷ A / Idᵣ ⊩A = t ® v ∷Id⟨ Ty ⟩⟨ lhs ⟩⟨ rhs ⟩
     where
     open _⊩ₗId_ ⊩A
-
-  -- Subsumption:
-  t ®⟨ _ ⟩ v ∷ A / emb ≤ᵘ-refl     ⊩A = t ®⟨ _ ⟩ v ∷ A / ⊩A
-  t ®⟨ _ ⟩ v ∷ A / emb (≤ᵘ-step p) ⊩A = t ®⟨ _ ⟩ v ∷ A / emb p ⊩A
-
 
   -- Extra data for Π-types, depending on whether the function argument
   -- is erased or not.
