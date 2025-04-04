@@ -207,8 +207,8 @@ data _≈ⁿᵐ_
   No-nr :
     No-nr ≈ⁿᵐ No-nr
   No-nr-glb :
-    ⦃ ok₁ : Supports-GLB-for-natrec M₁ (Modality.semiring-with-meet 𝕄₁) ⦄ →
-    ⦃ ok₂ : Supports-GLB-for-natrec M₂ (Modality.semiring-with-meet 𝕄₂) ⦄ →
+    ⦃ ok₁ : Has-well-behaved-GLBs M₁ (Modality.semiring-with-meet 𝕄₁) ⦄ →
+    ⦃ ok₂ : Has-well-behaved-GLBs M₂ (Modality.semiring-with-meet 𝕄₂) ⦄ →
     No-nr-glb ≈ⁿᵐ No-nr-glb
 
 opaque

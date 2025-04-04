@@ -508,11 +508,10 @@ opaque
 
 opaque instance
 
-  -- The modality supports the usage rule for natrec
-  -- with greatest lower bounds
+  -- The modality has well-behaved GLBs.
 
   Erasure-supports-factoring-nr-rule :
-    Supports-GLB-for-natrec erasure-semiring-with-meet
+    Has-well-behaved-GLBs erasure-semiring-with-meet
   Erasure-supports-factoring-nr-rule = record
     { +-GLBˡ = +-GLBˡ′
     ; ·-GLBˡ = ·-GLBˡ′

@@ -2202,11 +2202,10 @@ opaque
 
 opaque
 
-  -- The modality supports the usage rule for natrec using
-  -- greatest lower bounds.
+  -- The modality has well-behaved GLBs
 
   zero-one-many-supports-glb-for-natrec :
-    Supports-GLB-for-natrec zero-one-many-semiring-with-meet
+    Has-well-behaved-GLBs zero-one-many-semiring-with-meet
   zero-one-many-supports-glb-for-natrec = record
     { +-GLBˡ = +-GLBˡ
     ; ·-GLBˡ = ·-GLBˡ

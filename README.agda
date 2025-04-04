@@ -241,7 +241,7 @@ linear-or-affine-factoring-nr =
 -- different usage rule for natrec that was added after the paper was
 -- published assuming that the modality satisfies certain conditions.
 
-Supports-GLB-for-natrec = Graded.Modality.Supports-GLB-for-natrec
+Has-well-behaved-GLBs = Graded.Modality.Has-well-behaved-GLBs
 
 -- Section 7.1.4 in the paper briefly discusses an alternative usage
 -- rule for natrec. This rule has been changed:

@@ -25,6 +25,6 @@ instance
   No-nr-no-nr = No-nr
 
   No-nr-glb-no-nr-glb :
-   ⦃ ok : Supports-GLB-for-natrec _ semiring-with-meet ⦄ →
+   ⦃ ok : Has-well-behaved-GLBs _ semiring-with-meet ⦄ →
    Natrec-mode-no-nr-glb No-nr-glb
   No-nr-glb-no-nr-glb = No-nr-glb
