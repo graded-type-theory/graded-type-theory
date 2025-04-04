@@ -161,12 +161,12 @@ opaque
   -- A property of greatest lower bounds of nrᵢ sequences
 
   nrᵢ-GLB-≤ :
-    ⦃ ok : Supports-GLB-for-natrec _ 𝕄 ⦄ →
+    ⦃ ok : Has-well-behaved-GLBs _ 𝕄 ⦄ →
     Greatest-lower-bound p (nrᵢ r z s) → p ≤ s + r · p
   nrᵢ-GLB-≤ ⦃ ok ⦄ p-glb =
     +-GLBˡ (·-GLBˡ p-glb) .proj₂ _ (λ i → p-glb .proj₁ (1+ i))
     where
-    open Supports-GLB-for-natrec ok
+    open Has-well-behaved-GLBs ok
 
 opaque
 
@@ -258,7 +258,7 @@ opaque
 -- be defined.
 
 module _
-  ⦃ ok : Supports-GLB-for-natrec _ 𝕄 ⦄
+  ⦃ ok : Has-well-behaved-GLBs _ 𝕄 ⦄
   (has-glb : ∀ r z s → ∃ λ p → Greatest-lower-bound p (nrᵢ r z s))
   where
 
@@ -304,7 +304,7 @@ module _
       ; nr-suc = nr-suc
       }
       where
-      open Supports-GLB-for-natrec ok
+      open Has-well-behaved-GLBs ok
       open RPo
       nr₃-monotone : z ≤ z′ → s ≤ s′ → nr₃ r z s ≤ nr₃ r z′ s′
       nr₃-monotone {z} {z′} {s} {s′} {r} z≤z′ s≤s′ =

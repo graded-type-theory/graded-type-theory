@@ -26,8 +26,8 @@ instance
 
 instance
 
-  Nr-not-available-Supports-factoring :
+  Nr-not-available-Has-well-behaved-GLBs :
     ⦃ no-nr : Nr-not-available-GLB ⦄ →
-    Supports-GLB-for-natrec M semiring-with-meet
-  Nr-not-available-Supports-factoring ⦃ no-nr ⦄ =
-    Natrec-mode-Supports-factoring no-nr
+    Has-well-behaved-GLBs M semiring-with-meet
+  Nr-not-available-Has-well-behaved-GLBs ⦃ no-nr ⦄ =
+    Natrec-mode-Has-well-behaved-GLBs no-nr

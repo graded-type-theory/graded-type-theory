@@ -217,11 +217,9 @@ opaque
 
 opaque
 
-  -- The modality supports the usage rule for natrec using
-  -- greatest lower bounds.
-
+  -- The modality has well-behaved GLBs.
   unit-supports-glb-for-nr :
-    Supports-GLB-for-natrec unit-semiring-with-meet
+    Has-well-behaved-GLBs unit-semiring-with-meet
   unit-supports-glb-for-nr = record
     { +-GLBˡ = λ _ → (λ _ → refl) , λ _ _ → refl
     ; ·-GLBˡ = λ _ → (λ _ → refl) , λ _ _ → refl

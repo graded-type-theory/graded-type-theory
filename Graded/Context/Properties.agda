@@ -568,11 +568,11 @@ opaque
   nrᵢᶜ-𝟘-GLB {γ = _ ∙ _} {δ = _ ∙ _} =
     GLBᶜ-pointwise′ nrᵢᶜ-𝟘-GLB nrᵢ-𝟘-GLB
 
--- Lifting the properties of Supports-GLB-for-natrec to contexts
+-- Lifting the properties of Has-well-behaved-GLBs to contexts
 
-module _ ⦃ ok : Supports-GLB-for-natrec M semiring-with-meet ⦄ where
+module _ ⦃ ok : Has-well-behaved-GLBs M semiring-with-meet ⦄ where
 
-  open Supports-GLB-for-natrec ok public
+  open Has-well-behaved-GLBs ok public
 
   opaque
 

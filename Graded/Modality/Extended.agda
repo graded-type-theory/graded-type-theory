@@ -59,9 +59,8 @@ record Extended-modality a : Set (lsuc a) where
     -- The modality supports nr functions.
     NR : Usage-restrictions.Nr-available UR
 
-    -- The modality supports the additional properties required
-    -- when the natrec-mode is chosen to be No-nr-glb.
-    NO-NR-GLB : Supports-GLB-for-natrec _ semiring-with-meet
+    -- The modality has well-behaved GLBs.
+    NO-NR-GLB : Has-well-behaved-GLBs _ semiring-with-meet
 
   open Has-nr (Natrec-mode-Has-nr 𝕄 NR) public
 

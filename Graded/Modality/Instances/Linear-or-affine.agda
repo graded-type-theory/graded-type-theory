@@ -4796,11 +4796,10 @@ opaque
 
 opaque
 
-  -- The modality supports the usage rule for natrec using
-  -- greatest lower bounds.
+  -- The modality has well-behaved GLBs
 
   linear-or-affine-supports-glb-for-natrec :
-    Supports-GLB-for-natrec linear-or-affine-semiring-with-meet
+    Has-well-behaved-GLBs linear-or-affine-semiring-with-meet
   linear-or-affine-supports-glb-for-natrec = record
     { +-GLBˡ = λ {_} {_} {q} → +-GLBˡ {q = q}
     ; ·-GLBˡ = λ {_} {_} {q} → ·-GLBˡ {q = q}

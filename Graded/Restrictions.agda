@@ -309,7 +309,8 @@ nr-available-UR has-nr UR =
 -- natrec-no-nr-glbₘ for natrec, assuming that the rule is supported.
 
 nr-not-available-glb-UR :
-  Supports-GLB-for-natrec semiring-with-meet → Usage-restrictions → Usage-restrictions
+  Has-well-behaved-GLBs semiring-with-meet →
+  Usage-restrictions → Usage-restrictions
 nr-not-available-glb-UR ok UR =
   record UR { natrec-mode = No-nr-glb ⦃ ok ⦄ }
 
