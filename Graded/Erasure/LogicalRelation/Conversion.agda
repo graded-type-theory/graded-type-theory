@@ -62,8 +62,8 @@ convTermʳ′ : ∀ {l l′}
 convTermʳ′ _ _ A≡B (Uᵥ UA UB) t®v = t®v
 convTermʳ′ _ _ A≡B (ℕᵥ ℕA ℕB) t®v = t®v
 convTermʳ′
-  {A} {B} {l} {l′}
-  _ _ A≡B (Unitᵥ {s} (Unitₜ A⇒*Unit _) (Unitₜ B⇒*Unit _)) t®v =
+  {A} {B}
+  _ _ A≡B (Unitᵥ {s} (Unitᵣ l _ A⇒*Unit _) (Unitᵣ l′ _ B⇒*Unit _)) t®v =
   case Unit-injectivity
          (Unit s l  ≡˘⟨ subset* A⇒*Unit ⟩⊢
           A         ≡⟨ A≡B ⟩⊢
@@ -162,14 +162,6 @@ convTermʳ′ {A} {B} _ _ A≡B (Idᵥ ⊩A ⊩B) (rflᵣ t⇒*rfl ⇒*↯) =
         B                                                  ≡⟨ subset* (_⊩ₗId_.⇒*Id ⊩B) ⟩⊢∎
         Id (_⊩ₗId_.Ty ⊩B) (_⊩ₗId_.lhs ⊩B) (_⊩ₗId_.rhs ⊩B)  ∎))
     ⇒*↯
-convTermʳ′ _ _ A≡B (embᵥ₁ ≤ᵘ-refl A≡B′) =
-  convTermʳ′ _ _ A≡B A≡B′
-convTermʳ′ _ _ A≡B (embᵥ₁ (≤ᵘ-step p) A≡B′) =
-  convTermʳ′ _ _ A≡B (embᵥ₁ p A≡B′)
-convTermʳ′ _ _ A≡B (embᵥ₂ ≤ᵘ-refl A≡B′) =
-  convTermʳ′ _ _ A≡B A≡B′
-convTermʳ′ _ _ A≡B (embᵥ₂ (≤ᵘ-step p) A≡B′) =
-  convTermʳ′ _ _ A≡B (embᵥ₂ p A≡B′)
 -- Impossible cases
 convTermʳ′ _ _ _ (Emptyᵥ _ _) ()
 convTermʳ′ _ _ _ (ne record{} _) ()

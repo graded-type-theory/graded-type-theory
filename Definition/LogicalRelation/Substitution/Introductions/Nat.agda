@@ -61,12 +61,11 @@ opaque
 
   ⊩ℕ⇔ : Γ ⊩⟨ l ⟩ ℕ ⇔ ⊢ Γ
   ⊩ℕ⇔ =
-      lemma ∘→ ℕ-elim
+      (λ ⊩ℕ →
+        case ℕ-view ⊩ℕ of λ {
+          (ℕᵣ ℕ⇒*ℕ) →
+        wfEq (subset* ℕ⇒*ℕ) })
     , (λ ⊢Γ → ℕᵣ (id (ℕⱼ ⊢Γ)))
-    where
-    lemma : Γ ⊩⟨ l ⟩ℕ ℕ → ⊢ Γ
-    lemma (emb 0<1 ⊩ℕ) = lemma ⊩ℕ
-    lemma (noemb ℕ⇒*ℕ) = wfEq (subset* ℕ⇒*ℕ)
 
 opaque
 
@@ -92,8 +91,9 @@ opaque
   ⊩ℕ≡⇔ : Γ ⊩⟨ l ⟩ ℕ ≡ A ⇔ Γ ⊩ℕ ℕ ≡ A
   ⊩ℕ≡⇔ =
       (λ (⊩ℕ , _ , ℕ≡A) →
-         lemma (ℕ-elim ⊩ℕ)
-           ((irrelevanceEq ⊩ℕ) (ℕ-intr (ℕ-elim ⊩ℕ)) ℕ≡A))
+         case ℕ-view ⊩ℕ of λ {
+           (ℕᵣ _) →
+         ℕ≡A })
     , (λ ℕ≡A →
          case id (ℕⱼ (wfEq (subset* ℕ≡A))) of λ
            ℕ⇒*ℕ →
@@ -101,14 +101,6 @@ opaque
            ⊩ℕ
          , (redSubst* ℕ≡A ⊩ℕ) .proj₁
          , ℕ≡A)
-    where
-    lemma :
-      (⊩A : Γ ⊩⟨ l ⟩ℕ A) →
-      Γ ⊩⟨ l ⟩ A ≡ B / ℕ-intr ⊩A →
-      Γ ⊩ℕ A ≡ B
-    lemma (noemb _)    A≡B = A≡B
-    lemma (emb ≤ᵘ-refl ⊩A) A≡B = lemma ⊩A A≡B
-    lemma (emb (≤ᵘ-step s) ⊩A) A≡B = lemma (emb s ⊩A) A≡B
 
 opaque
 
@@ -136,18 +128,11 @@ opaque
   ⊩≡∷ℕ⇔ : Γ ⊩⟨ l ⟩ t ≡ u ∷ ℕ ⇔ Γ ⊩ℕ t ≡ u ∷ℕ
   ⊩≡∷ℕ⇔ =
       (λ (⊩ℕ , t≡u) →
-         lemma (ℕ-elim ⊩ℕ)
-           ((irrelevanceEqTerm ⊩ℕ) (ℕ-intr (ℕ-elim ⊩ℕ)) t≡u))
+         case ℕ-view ⊩ℕ of λ {
+           (ℕᵣ _) →
+         t≡u })
     , (λ t≡u →
          ℕᵣ (id (ℕⱼ (wfEqTerm (subset*Term (_⊩ℕ_≡_∷ℕ.d t≡u))))) , t≡u)
-    where
-    lemma :
-      (⊩A : Γ ⊩⟨ l ⟩ℕ A) →
-      Γ ⊩⟨ l ⟩ t ≡ u ∷ A / ℕ-intr ⊩A →
-      Γ ⊩ℕ t ≡ u ∷ℕ
-    lemma (noemb _)            t≡u = t≡u
-    lemma (emb ≤ᵘ-refl ⊩A)     t≡u = lemma ⊩A t≡u
-    lemma (emb (≤ᵘ-step s) ⊩A) t≡u = lemma (emb s ⊩A) t≡u
 
 opaque
 

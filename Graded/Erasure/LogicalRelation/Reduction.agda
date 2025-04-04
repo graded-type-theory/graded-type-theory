@@ -63,7 +63,7 @@ sourceRedSubstTerm (ℕᵣ D) (zeroᵣ t′⇒zero v⇒v′) t⇒t′ =
   zeroᵣ (trans-⇛ (conv-⇛ t⇒t′ (subset* D)) t′⇒zero) v⇒v′
 sourceRedSubstTerm (ℕᵣ ⇒*ℕ) (sucᵣ t′⇒suc v⇒v′ num t®v) t⇒t′ =
   sucᵣ (trans-⇛ (conv-⇛ t⇒t′ (subset* ⇒*ℕ)) t′⇒suc) v⇒v′ num t®v
-sourceRedSubstTerm (Unitᵣ (Unitₜ D _)) (starᵣ t′⇒star v⇒star) t⇒t′ =
+sourceRedSubstTerm (Unitᵣ′ _ _ D _) (starᵣ t′⇒star v⇒star) t⇒t′ =
   starᵣ (trans-⇛ (conv-⇛ t⇒t′ (subset* D)) t′⇒star) v⇒star
 sourceRedSubstTerm (Bᵣ′ (BΠ p q) F G D A≡A [F] [G] G-ext _) t®v′ t⇒t′
   with is-𝟘? p
@@ -92,8 +92,6 @@ sourceRedSubstTerm
   extra
 sourceRedSubstTerm (Idᵣ ⊩A) (rflᵣ t′⇒*rfl ⇒*↯) t⇒t′ =
   rflᵣ (trans-⇛ (conv-⇛ t⇒t′ (subset* (_⊩ₗId_.⇒*Id ⊩A))) t′⇒*rfl) ⇒*↯
-sourceRedSubstTerm (emb ≤ᵘ-refl     ⊩A) = sourceRedSubstTerm ⊩A
-sourceRedSubstTerm (emb (≤ᵘ-step p) ⊩A) = sourceRedSubstTerm (emb p ⊩A)
 sourceRedSubstTerm (ne record{}) ()
 sourceRedSubstTerm (Emptyᵣ _)    ()
 
@@ -131,8 +129,6 @@ targetRedSubstTerm {A = A} {t = t} {v = v}
                     (λ v₁ v′⇒p t₁®v₁ → Σ-®-intro-ω v₁ (trans v⇒v′ v′⇒p) t₁®v₁)
 targetRedSubstTerm (Idᵣ _) (rflᵣ t⇒*rfl ⇒*↯) v⇒v′ =
   rflᵣ t⇒*rfl (T.trans v⇒v′ ∘→ ⇒*↯)
-targetRedSubstTerm (emb ≤ᵘ-refl     ⊩A) = targetRedSubstTerm ⊩A
-targetRedSubstTerm (emb (≤ᵘ-step p) ⊩A) = targetRedSubstTerm (emb p ⊩A)
 targetRedSubstTerm (ne record{}) ()
 targetRedSubstTerm (Emptyᵣ _)    ()
 
@@ -183,7 +179,7 @@ sourceRedSubstTerm′ (ℕᵣ D) (zeroᵣ t⇒zero v⇒zero) t⇒t′
 sourceRedSubstTerm′ (ℕᵣ D) (sucᵣ t⇒suc v⇒suc num t®v) t⇒t′
   with whnf-⇛ t⇒suc sucₙ (conv-⇛ t⇒t′ (subset* D))
 ... | t′⇒suc = sucᵣ t′⇒suc v⇒suc num t®v
-sourceRedSubstTerm′ (Unitᵣ (Unitₜ x _)) (starᵣ t⇒star v⇒star) t⇒t′
+sourceRedSubstTerm′ (Unitᵣ′ _ _ x _) (starᵣ t⇒star v⇒star) t⇒t′
   with whnf-⇛ t⇒star starₙ (conv-⇛ t⇒t′ (subset* x))
 ... | t′⇒star = starᵣ t′⇒star v⇒star
 sourceRedSubstTerm′
@@ -215,9 +211,6 @@ sourceRedSubstTerm′
      , [t₁] , v₂ , t₂®v₂ , extra
 sourceRedSubstTerm′ (Idᵣ ⊩A) (rflᵣ t⇒*rfl ⇒*↯) t⇒t′ =
   rflᵣ (whnf-⇛ t⇒*rfl rflₙ (conv-⇛ t⇒t′ (subset* (_⊩ₗId_.⇒*Id ⊩A)))) ⇒*↯
-sourceRedSubstTerm′ (emb ≤ᵘ-refl     ⊩A) = sourceRedSubstTerm′ ⊩A
-sourceRedSubstTerm′ (emb (≤ᵘ-step p) ⊩A) =
-  sourceRedSubstTerm′ (emb p ⊩A)
 sourceRedSubstTerm′ (ne record{}) ()
 sourceRedSubstTerm′ (Emptyᵣ _)    ()
 
@@ -302,9 +295,6 @@ targetRedSubstTerm′
 
 targetRedSubstTerm′ (Idᵣ _) (rflᵣ t⇒*rfl v⇒*↯) v⇒v′ =
   rflᵣ t⇒*rfl (⇒*↯→⇒→⇒*↯ v⇒*↯ v⇒v′)
-targetRedSubstTerm′ (emb ≤ᵘ-refl     ⊩A) = targetRedSubstTerm′ ⊩A
-targetRedSubstTerm′ (emb (≤ᵘ-step p) ⊩A) =
-  targetRedSubstTerm′ (emb p ⊩A)
 targetRedSubstTerm′ (ne record{}) ()
 targetRedSubstTerm′ (Emptyᵣ _)    ()
 

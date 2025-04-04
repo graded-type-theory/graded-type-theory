@@ -79,7 +79,13 @@ opaque
     Γ ⊩⟨ l ⟩ Id A t u ⇔
     (Γ ⊩⟨ l ⟩ t ∷ A × Γ ⊩⟨ l ⟩ u ∷ A)
   ⊩Id⇔ {A} {t} {u} =
-      (λ ⊩Id → lemma (Id-elim ⊩Id))
+      (λ ⊩Id →
+        case Id-view ⊩Id of λ {
+          (Idᵣ ⊩Id@record{}) →
+        let open _⊩ₗId_ ⊩Id in
+        case whnfRed* ⇒*Id Idₙ of λ {
+          PE.refl →
+        (⊩Ty , ⊩lhs) , (⊩Ty , ⊩rhs) }})
     , (λ ((⊩A , ⊩t) , (⊩A′ , ⊩u)) →
          Idᵣ
            (Idᵣ A t u
@@ -87,20 +93,6 @@ opaque
                Idⱼ (escape ⊩A) (escapeTerm ⊩A ⊩t) (escapeTerm ⊩A′ ⊩u))
               ⊩A
               ⊩t (irrelevanceTerm ⊩A′ ⊩A ⊩u)))
-    where
-    lemma :
-      Γ ⊩⟨ l ⟩Id Id A t u →
-      Γ ⊩⟨ l ⟩ t ∷ A × Γ ⊩⟨ l ⟩ u ∷ A
-    lemma (emb 0<1 ⊩Id) =
-      case lemma ⊩Id of λ
-        (⊩t , ⊩u) →
-      emb-⊩∷ (<ᵘ→≤ᵘ 0<1) ⊩t , emb-⊩∷ (<ᵘ→≤ᵘ 0<1) ⊩u
-    lemma (noemb ⊩Id@record{}) =
-      case whnfRed* ⇒*Id Idₙ of λ {
-        PE.refl →
-      (⊩Ty , ⊩lhs) , (⊩Ty , ⊩rhs) }
-      where
-      open _⊩ₗId_ ⊩Id
 
 opaque
 
@@ -146,85 +138,51 @@ opaque
      Γ ⊩⟨ l ⟩ u ≡ u′ ∷ A)
   ⊩Id≡⇔ =
       (λ (⊩Id , ⊩B , Id≡B) →
-           ⊩Id
-         , lemma₁ ≤ᵘ-refl (Id-elim ⊩Id) ⊩B
-             (irrelevanceEq ⊩Id (Id-intr (Id-elim ⊩Id)) Id≡B))
+        case Id-view ⊩Id of λ {
+          (Idᵣ ⊩Id@record{}) →
+        let open _⊩ₗId_ ⊩Id in
+        case Id≡B of λ
+          (Id₌ A′ t′ u′ ⇒*Id′ A≡A′ t≡t′ u≡u′ _ _) →
+        case whnfRed* ⇒*Id Idₙ of λ {
+          PE.refl →
+        case Id-elim (redSubst*′ ⇒*Id′ ⊩B .proj₁) of λ {
+          (Idᵣ _ _ _ ⇒*Id″ ⊩Ty″ _ _) →
+        case whnfRed* ⇒*Id″ Idₙ of λ {
+          PE.refl →
+          Idᵣ ⊩Id
+        , A′ , t′ , u′ , ⇒*Id′
+        , (⊩Ty , ⊩Ty″ , A≡A′)
+        , (⊩Ty , t≡t′)
+        , (⊩Ty , u≡u′) }}}})
     , (λ (⊩Id , rest) →
-         Id-intr (Id-elim ⊩Id) , lemma₂ (Id-elim ⊩Id) rest)
-    where
-    lemma₁ :
-      l′ ≤ᵘ l →
-      (⊩Id : Γ ⊩⟨ l′ ⟩Id Id A t u) →
-      Γ ⊩⟨ l ⟩ B →
-      Γ ⊩⟨ l′ ⟩ Id A t u ≡ B / Id-intr ⊩Id →
-      ∃₃ λ A′ t′ u′ →
-      (Γ ⊢ B ⇒* Id A′ t′ u′) ×
-      (Γ ⊩⟨ l ⟩ A ≡ A′) ×
-      Γ ⊩⟨ l ⟩ t ≡ t′ ∷ A ×
-      Γ ⊩⟨ l ⟩ u ≡ u′ ∷ A
-    lemma₁ l′<l (emb ≤ᵘ-refl ⊩Id) ⊩B Id≡A =
-      lemma₁ (<ᵘ→≤ᵘ l′<l) ⊩Id ⊩B Id≡A
-    lemma₁ l′<l (emb (≤ᵘ-step l″<l′) ⊩Id) ⊩B Id≡A =
-      lemma₁ (<ᵘ→≤ᵘ l′<l) (emb l″<l′ ⊩Id) ⊩B Id≡A
-    lemma₁
-      l′≤l (noemb ⊩Id@record{}) ⊩B
-      (Id₌ A′ t′ u′ ⇒*Id′ A≡A′ t≡t′ u≡u′ _ _) =
-      case whnfRed* ⇒*Id Idₙ of λ {
-        PE.refl →
-      case extractMaybeEmb′
-             (Id-elim (redSubst*′ ⇒*Id′ ⊩B .proj₁)) of λ {
-        (_ , l″≤l , Idᵣ _ _ _ ⇒*Id″ ⊩Ty″ _ _) →
-      case whnfRed* ⇒*Id″ Idₙ of λ {
-        PE.refl →
-      case emb-≤-⊩≡ A≡A′ of λ
-        A≡A′ →
-      let ⊩Ty′ = emb-≤-⊩ l′≤l ⊩Ty in
-        A′ , t′ , u′ , ⇒*Id′
-      , (⊩Ty′ , emb-≤-⊩ l″≤l ⊩Ty″ , A≡A′)
-      , (⊩Ty′ , emb-≤-⊩≡∷ t≡t′)
-      , (⊩Ty′ , emb-≤-⊩≡∷ u≡u′) }}}
-      where
-      open _⊩ₗId_ ⊩Id
-
-    lemma₂ :
-      (⊩Id : Γ ⊩⟨ l′ ⟩Id Id A t u) →
-      (∃₃ λ A′ t′ u′ →
-       (Γ ⊢ B ⇒* Id A′ t′ u′) ×
-       (Γ ⊩⟨ l ⟩ A ≡ A′) ×
-       Γ ⊩⟨ l ⟩ t ≡ t′ ∷ A ×
-       Γ ⊩⟨ l ⟩ u ≡ u′ ∷ A) →
-      (Γ ⊩⟨ l ⟩ B) × Γ ⊩⟨ l′ ⟩ Id A t u ≡ B / Id-intr ⊩Id
-    lemma₂ (emb ≤ᵘ-refl ⊩Id) rest =
-      lemma₂ ⊩Id rest
-    lemma₂ (emb (≤ᵘ-step s) ⊩Id) rest =
-      lemma₂ (emb s ⊩Id) rest
-    lemma₂
-      (noemb ⊩Id@record{})
-      ( A′ , t′ , u′ , B⇒*Id , (⊩A , ⊩A′ , A≡A′)
-      , t≡t′′@(⊩A″ , t≡t′) , u≡u′′@(⊩A‴ , u≡u′)
-      ) =
-      case whnfRed* ⇒*Id Idₙ of λ {
-        PE.refl →
-      case ≅-eq (escapeEq ⊩A A≡A′) of λ
-        ⊢A≡A′ →
-      let _ , (_ , ⊩t′) = wf-⊩≡∷ t≡t′′
-          _ , (_ , ⊩u′) = wf-⊩≡∷ u≡u′′
-      in
-        redSubst* B⇒*Id
-          (Idᵣ
-             (Idᵣ A′ t′ u′
-                (_⊢_⇒*_.id $
-                 Idⱼ (escape ⊩A′) (conv (escapeTerm ⊩A″ ⊩t′) ⊢A≡A′)
-                   (conv (escapeTerm ⊩A‴ ⊩u′) ⊢A≡A′))
-                ⊩A′
-                (convTerm₁ ⊩A″ ⊩A′ (irrelevanceEq ⊩A ⊩A″ A≡A′) ⊩t′)
-                (convTerm₁ ⊩A‴ ⊩A′ (irrelevanceEq ⊩A ⊩A‴ A≡A′) ⊩u′)))
-          .proj₁
-      , Id₌′ B⇒*Id (irrelevanceEq ⊩A ⊩Ty A≡A′)
-          (irrelevanceEqTerm ⊩A″ ⊩Ty t≡t′)
-          (irrelevanceEqTerm ⊩A‴ ⊩Ty u≡u′) }
-      where
-      open _⊩ₗId_ ⊩Id
+        case Id-view ⊩Id of λ {
+          (Idᵣ ⊩Id@record{}) →
+        let open _⊩ₗId_ ⊩Id in
+        case rest of λ
+          ( A′ , t′ , u′ , B⇒*Id , (⊩A , ⊩A′ , A≡A′)
+          , t≡t′′@(⊩A″ , t≡t′) , u≡u′′@(⊩A‴ , u≡u′)
+          ) →
+        case whnfRed* ⇒*Id Idₙ of λ {
+          PE.refl →
+        case ≅-eq (escapeEq ⊩A A≡A′) of λ
+          ⊢A≡A′ →
+        let _ , (_ , ⊩t′) = wf-⊩≡∷ t≡t′′
+            _ , (_ , ⊩u′) = wf-⊩≡∷ u≡u′′
+        in
+          Idᵣ ⊩Id
+        , redSubst* B⇒*Id
+            (Idᵣ
+              (Idᵣ A′ t′ u′
+                  (_⊢_⇒*_.id $
+                  Idⱼ (escape ⊩A′) (conv (escapeTerm ⊩A″ ⊩t′) ⊢A≡A′)
+                    (conv (escapeTerm ⊩A‴ ⊩u′) ⊢A≡A′))
+                  ⊩A′
+                  (convTerm₁ ⊩A″ ⊩A′ (irrelevanceEq ⊩A ⊩A″ A≡A′) ⊩t′)
+                  (convTerm₁ ⊩A‴ ⊩A′ (irrelevanceEq ⊩A ⊩A‴ A≡A′) ⊩u′)))
+            .proj₁
+        , Id₌′ B⇒*Id (irrelevanceEq ⊩A ⊩Ty A≡A′)
+            (irrelevanceEqTerm ⊩A″ ⊩Ty t≡t′)
+            (irrelevanceEqTerm ⊩A‴ ⊩Ty u≡u′) }})
 
 opaque
 
@@ -339,9 +297,20 @@ opaque
      Γ ⊩⟨ l ⟩ u ∷ A ×
      ⊩Id≡∷-view′ Γ l A t u v′ w′)
   ⊩≡∷Id⇔ =
-      (λ (⊩Id , ⊩v) →
-         lemma (Id-elim ⊩Id)
-           (irrelevanceEqTerm ⊩Id (Id-intr (Id-elim ⊩Id)) ⊩v))
+      (λ (⊩Id , v≡w) →
+        case Id-view ⊩Id of λ {
+          (Idᵣ ⊩Id@record{}) →
+        let open _⊩ₗId_ ⊩Id in
+        case v≡w of λ
+          v≡w@(v′ , w′ , v⇒*v′ , w⇒*w′ , _) →
+        case whnfRed* ⇒*Id Idₙ of λ {
+          PE.refl →
+          v′ , w′ , v⇒*v′ , w⇒*w′
+        , (⊩Ty , ⊩lhs)
+        , (⊩Ty , ⊩rhs)
+        , (case ⊩Id≡∷-view-inhabited ⊩Id v≡w of λ where
+            (rfl₌ t≡u)                 → rfl₌ (⊩Ty , t≡u)
+            (ne inc v′-ne w′-ne v′~w′) → ne inc v′-ne w′-ne v′~w′) }})
     , (λ (v′ , w′ , v⇒*v′ , w⇒*w′ , (⊩A , ⊩t) , (⊩A′ , ⊩u) , rest) →
          case _⊢_⇒*_.id $
               Idⱼ (escape ⊩A) (escapeTerm ⊩A ⊩t)
@@ -355,46 +324,6 @@ opaque
               (rfl₌ (⊩A″ , t≡u)) →
                 v′ , w′ , v⇒*v′ , w⇒*w′ , rflₙ , rflₙ ,
                 irrelevanceEqTerm ⊩A″ ⊩A t≡u))
-    where
-    lemma :
-      (⊩Id : Γ ⊩⟨ l ⟩Id Id A t u) →
-      Γ ⊩⟨ l ⟩ v ≡ w ∷ Id A t u / Id-intr ⊩Id →
-      ∃₂ λ v′ w′ →
-      Γ ⊢ v ⇒* v′ ∷ Id A t u ×
-      Γ ⊢ w ⇒* w′ ∷ Id A t u ×
-      Γ ⊩⟨ l ⟩ t ∷ A ×
-      Γ ⊩⟨ l ⟩ u ∷ A ×
-      ⊩Id≡∷-view′ Γ l A t u v′ w′
-    lemma (emb ≤ᵘ-refl ⊩Id) v≡w =
-      case lemma ⊩Id v≡w of λ
-        (v′ , w′ , v⇒*v′ , w⇒*w′ , ⊩t , ⊩u , rest) →
-        v′ , w′ , v⇒*v′ , w⇒*w′
-      , emb-⊩∷ (≤ᵘ-step ≤ᵘ-refl) ⊩t , emb-⊩∷ (≤ᵘ-step ≤ᵘ-refl) ⊩u
-      , (case rest of λ where
-           (rfl₌ t≡u) →
-             rfl₌ (emb-⊩≡∷ (≤ᵘ-step ≤ᵘ-refl) t≡u)
-           (ne inc v′-ne w′-ne v′~w′) →
-             ne inc v′-ne w′-ne v′~w′)
-    lemma (emb (≤ᵘ-step s) ⊩Id) v≡w =
-      case lemma (emb s ⊩Id) v≡w of λ
-        (v′ , w′ , v⇒*v′ , w⇒*w′ , ⊩t , ⊩u , rest) →
-        v′ , w′ , v⇒*v′ , w⇒*w′
-      , emb-⊩∷ (≤ᵘ-step ≤ᵘ-refl) ⊩t , emb-⊩∷ (≤ᵘ-step ≤ᵘ-refl) ⊩u
-      , (case rest of λ where
-           (rfl₌ t≡u) →
-             rfl₌ (emb-⊩≡∷ (≤ᵘ-step ≤ᵘ-refl) t≡u)
-           (ne inc v′-ne w′-ne v′~w′) → ne inc v′-ne w′-ne v′~w′)
-    lemma (noemb ⊩Id@record{}) v≡w@(v′ , w′ , v⇒*v′ , w⇒*w′ , _) =
-      case whnfRed* ⇒*Id Idₙ of λ {
-        PE.refl →
-        v′ , w′ , v⇒*v′ , w⇒*w′
-      , (⊩Ty , ⊩lhs)
-      , (⊩Ty , ⊩rhs)
-      , (case ⊩Id≡∷-view-inhabited ⊩Id v≡w of λ where
-           (rfl₌ t≡u)                 → rfl₌ (⊩Ty , t≡u)
-           (ne inc v′-ne w′-ne v′~w′) → ne inc v′-ne w′-ne v′~w′) }
-      where
-      open _⊩ₗId_ ⊩Id
 
 opaque
 

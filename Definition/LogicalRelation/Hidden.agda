@@ -798,12 +798,10 @@ opaque
     l ≤ᵘ l′ →
     Γ ⊩⟨ l ⟩ A ≡ B →
     Γ ⊩⟨ l′ ⟩ A ≡ B
-  emb-⊩≡ ≤ᵘ-refl        A≡B             = A≡B
-  emb-⊩≡ (≤ᵘ-step l<l′) (⊩A , ⊩B , A≡B) =
-    let p = 1+≤ᵘ1+ l<l′ in
-      emb p (⊩<⇔⊩ p .proj₂ ⊩A)
-    , emb p (⊩<⇔⊩ p .proj₂ ⊩B)
-    , ⊩<≡⇔⊩≡′ p .proj₂ A≡B
+  emb-⊩≡ p (⊩A , ⊩B , A≡B) =
+      emb-≤-⊩ p ⊩A
+    , emb-≤-⊩ p ⊩B
+    , emb-≤-⊩≡ A≡B
 
 opaque
   unfolding _⊩⟨_⟩_≡_∷_
@@ -814,12 +812,9 @@ opaque
     l ≤ᵘ l′ →
     Γ ⊩⟨ l ⟩ t ≡ u ∷ A →
     Γ ⊩⟨ l′ ⟩ t ≡ u ∷ A
-  emb-⊩≡∷ ≤ᵘ-refl        t≡u        = t≡u
-  emb-⊩≡∷ (≤ᵘ-step l<l′) (⊩A , t≡u) =
-    let p   = 1+≤ᵘ1+ l<l′
-        ⊩A′ = emb p (⊩<⇔⊩ p .proj₂ ⊩A)
-    in
-    ⊩A′ , irrelevanceEqTerm ⊩A ⊩A′ t≡u
+  emb-⊩≡∷ p (⊩A , t≡u) =
+      emb-≤-⊩ p ⊩A
+    , emb-≤-⊩≡∷ t≡u
 
 opaque
 
@@ -941,8 +936,8 @@ opaque
     Γ ⊩⟨ l ⟩ A ⇔ (Neutrals-included × Γ ⊢≅ A)
   ⊩ne⇔ A-ne =
       (λ ⊩A →
-         case extractMaybeEmb (ne-elim A-ne ⊩A) of λ {
-           (_ , ne inc _ A⇒*B _ B≅B) →
+         case ne-view A-ne ⊩A of λ {
+           (ne (ne inc B A⇒*B _ B≅B)) →
          case whnfRed* A⇒*B (ne A-ne) of λ {
            PE.refl →
          inc , B≅B }})
@@ -959,9 +954,13 @@ opaque
     (Neutrals-included × ∃ λ C → Neutral C × Γ ⊢ B ⇒* C × Γ ⊢ A ≅ C)
   ⊩ne≡⇔ {A} {B} A-ne =
       (λ (⊩A , ⊩B , A≡B) →
-         case ne-elim A-ne ⊩A of λ
-           ⊩A′ →
-         lemma ⊩A′ (irrelevanceEq ⊩A (ne-intr ⊩A′) A≡B))
+         case ne-view A-ne ⊩A of λ {
+           (ne (ne inc _ A⇒*A′ _ _)) →
+         case A≡B of λ
+           (ne₌ inc C B⇒*C C-ne A′≅C) →
+         case whnfRed* A⇒*A′ (ne A-ne) of λ {
+           PE.refl →
+         inc , C , C-ne , B⇒*C , A′≅C }})
     , (λ (inc , C , C-ne , B⇒*C , A≅C) →
          let ≅A , ≅C = wf-⊢≅ A≅C in
          sym-⊩≡
@@ -971,19 +970,6 @@ opaque
                     (⊩ne⇔ A-ne .proj₂ (inc , ≅A))
                     C-ne A-ne (≅-sym A≅C) ⟩⊩∎
             A  ∎))
-    where
-    lemma :
-      (⊩A : Γ ⊩⟨ l ⟩ne A) →
-      Γ ⊩⟨ l ⟩ A ≡ B / ne-intr ⊩A →
-      Neutrals-included × ∃ λ C → Neutral C × Γ ⊢ B ⇒* C × Γ ⊢ A ≅ C
-    lemma (emb ≤ᵘ-refl ⊩A) A≡B =
-      lemma ⊩A A≡B
-    lemma (emb (≤ᵘ-step l<) ⊩A) A≡B =
-      lemma (emb l< ⊩A) A≡B
-    lemma (noemb (ne _ _ A⇒*A′ _ _)) (ne₌ inc C B⇒*C C-ne A′≅C) =
-      case whnfRed* A⇒*A′ (ne A-ne) of λ {
-        PE.refl →
-      inc , C , C-ne , B⇒*C , A′≅C }
 
 opaque
 
@@ -1018,28 +1004,17 @@ opaque
      Γ ⊩neNf u₁ ≡ u₂ ∷ A)
   ⊩≡∷ne⇔ {A} A-ne =
       (λ (⊩A , t₁≡t₂) →
-         case ne-elim A-ne ⊩A of λ
-           ⊩A′ →
+         case ne-view A-ne ⊩A of λ {
+           (ne (ne inc _ A⇒*A′ _ _)) →
+         case t₁≡t₂ of λ
+           (neₜ₌ u₁ u₂ t₁⇒*u₁ t₂⇒*u₂ u₁≡u₂) →
+         case whnfRed* A⇒*A′ (ne A-ne) of λ {
+           PE.refl →
          ⊩ne⇔ A-ne .proj₁ ⊩A .proj₂ ,
-         lemma ⊩A′ (irrelevanceEqTerm ⊩A (ne-intr ⊩A′) t₁≡t₂))
+         u₁ , u₂ , t₁⇒*u₁ , t₂⇒*u₂ , u₁≡u₂ }})
     , (λ (≅A , u₁ , u₂ , t₁⇒*u₁ , t₂⇒*u₂ , u₁≡u₂@(neNfₜ₌ inc _ _ _)) →
          ⊩ne⇔ A-ne .proj₂ (inc , ≅A) ,
          neₜ₌ u₁ u₂ t₁⇒*u₁ t₂⇒*u₂ u₁≡u₂)
-    where
-    lemma :
-      ∀ {l} (⊩A : Γ ⊩⟨ l ⟩ne A) →
-      Γ ⊩⟨ l ⟩ t₁ ≡ t₂ ∷ A / ne-intr ⊩A →
-      ∃₂ λ u₁ u₂ →
-      Γ ⊢ t₁ ⇒* u₁ ∷ A × Γ ⊢ t₂ ⇒* u₂ ∷ A ×
-      Γ ⊩neNf u₁ ≡ u₂ ∷ A
-    lemma (emb ≤ᵘ-refl ⊩A) t₁≡t₂ =
-      lemma ⊩A t₁≡t₂
-    lemma (emb (≤ᵘ-step l<) ⊩A) t₁≡t₂ =
-      lemma (emb l< ⊩A) t₁≡t₂
-    lemma (noemb (ne _ _ A⇒*A′ _ _)) (neₜ₌ u₁ u₂ t₁⇒*u₁ t₂⇒*u₂ u₁≡u₂) =
-      case whnfRed* A⇒*A′ (ne A-ne) of λ {
-        PE.refl →
-      u₁ , u₂ , t₁⇒*u₁ , t₂⇒*u₂ , u₁≡u₂ }
 
 opaque
   unfolding _⊩⟨_⟩_∷_ ⊩ne⇔ neu

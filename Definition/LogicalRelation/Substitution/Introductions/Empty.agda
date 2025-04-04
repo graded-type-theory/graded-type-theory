@@ -58,10 +58,9 @@ opaque
   ⊩Empty≡⇔ : Γ ⊩⟨ l ⟩ Empty ≡ A ⇔ Γ ⊩Empty Empty ≡ A
   ⊩Empty≡⇔ =
       (λ (⊩Empty , _ , Empty≡A) →
-         case Empty-elim ⊩Empty of λ
-           ⊩Empty′ →
-         lemma ⊩Empty′
-           ((irrelevanceEq ⊩Empty) (Empty-intr ⊩Empty′) Empty≡A))
+         case Empty-view ⊩Empty of λ {
+           (Emptyᵣ _) →
+         Empty≡A })
     , (λ Empty≡A →
          case id (Emptyⱼ (wfEq (subset* Empty≡A))) of λ
            Empty⇒*Empty →
@@ -69,14 +68,6 @@ opaque
            ⊩Empty
          , (redSubst* Empty≡A ⊩Empty) .proj₁
          , Empty≡A)
-    where
-    lemma :
-      (⊩A : Γ ⊩⟨ l ⟩Empty A) →
-      Γ ⊩⟨ l ⟩ A ≡ B / Empty-intr ⊩A →
-      Γ ⊩Empty A ≡ B
-    lemma (noemb _)    A≡B = A≡B
-    lemma (emb ≤ᵘ-refl ⊩A) A≡B = lemma ⊩A A≡B
-    lemma (emb (≤ᵘ-step l<) ⊩A) A≡B = lemma (emb l< ⊩A) A≡B
 
 opaque
   unfolding _⊩⟨_⟩_≡_∷_ ⊩Empty⇔
@@ -87,21 +78,13 @@ opaque
     Γ ⊩⟨ l ⟩ t ≡ u ∷ Empty ⇔ Γ ⊩Empty t ≡ u ∷Empty
   ⊩≡∷Empty⇔ =
       (λ (⊩Empty′ , t≡u) →
-        lemma (Empty-elim ⊩Empty′)
-          (irrelevanceEqTerm ⊩Empty′ (Empty-intr (Empty-elim ⊩Empty′))
-             t≡u))
+        case Empty-view ⊩Empty′ of λ {
+          (Emptyᵣ _) →
+        t≡u })
     , λ t≡u@(Emptyₜ₌ _ _ t⇒*t′ u⇒*u′ t′≅u′ prop) →
         case prop of λ {
           (ne (neNfₜ₌ inc t′-ne u′-ne t′~u′)) →
         ⊩Empty⇔ .proj₂ (wfEqTerm (subset*Term t⇒*t′)) , t≡u }
-    where
-    lemma :
-      (⊩Empty : Γ ⊩⟨ l ⟩Empty Empty) →
-      Γ ⊩⟨ l ⟩ t ≡ u ∷ Empty / Empty-intr ⊩Empty →
-      Γ ⊩Empty t ≡ u ∷Empty
-    lemma (emb ≤ᵘ-refl     ⊩Empty′) = lemma ⊩Empty′
-    lemma (emb (≤ᵘ-step s) ⊩Empty′) = lemma (emb s ⊩Empty′)
-    lemma (noemb _)                 = idᶠ
 
 opaque
 
