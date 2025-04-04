@@ -235,6 +235,7 @@ import
 import
   Graded.Modality.Instances.Bounded-distributive-lattice.Downward-closed
 import Graded.Modality.Instances.Set.Interval.Implementation
+import Graded.Modality.Instances.Relevancy
 
 ------------------------------------------------------------------------
 -- Properties of the type theory
