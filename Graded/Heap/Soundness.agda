@@ -100,7 +100,7 @@ opaque
         let H′ , d = ▸↦→↦[] subtraction-ok ∣S∣≡ d ▸s
         in  _ , _ , _ , d
       (inj₂ d) →
-        case ▸∣S∣≢𝟘 (nem (λ ())) ▸S of λ where
+        case ▸∣∣≢𝟘 (nem (λ ())) ▸S of λ where
           (inj₁ ∣S∣≢𝟘) → ⊥-elim (∣S∣≢𝟘 (▸s● subtraction-ok d ▸s))
           (inj₂ (er∈ , ok)) →
             ⊥-elim (⊢emptyrec₀∉S (consistent ok) ⊢s er∈)

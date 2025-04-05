@@ -35,7 +35,7 @@ open import Graded.Heap.Usage type-variant UR factoring-nr
 private variable
   ℓ k n : Nat
   γ δ : Conₘ _
-  e : Elim _
+  c : Cont _
   S : Stack _
   ρ ρ′ : Wk _ _
   p q : M
@@ -54,31 +54,31 @@ private opaque
 
 opaque
 
-  -- Usage of weakened eliminators.
+  -- Usage of weakened continuations.
 
-  wk-▸ᵉ : (ρ : Wk k n) → γ ▸ᵉ[ m ] e → wkConₘ ρ γ ▸ᵉ[ m ] wkᵉ ρ e
-  wk-▸ᵉ ρ (∘ₑ {γ} {m} {ρ = ρ′} ▸u) =
-    subst (_▸ᵉ[ _ ] _) (≈ᶜ→≡ (·ᶜ-• γ ρ ρ′)) (∘ₑ {m = m} ▸u)
-  wk-▸ᵉ ρ (fstₑ p≤𝟙) =
-    subst (_▸ᵉ[ _ ] _) (sym (wk-𝟘ᶜ ρ)) (fstₑ p≤𝟙)
-  wk-▸ᵉ ρ sndₑ =
-    subst (_▸ᵉ[ _ ] _) (sym (wk-𝟘ᶜ ρ)) sndₑ
-  wk-▸ᵉ ρ (prodrecₑ {ρ = ρ′} ▸u ok) =
-    subst (_▸ᵉ[ _ ] _) (wk-•ᶜ ρ ρ′) (prodrecₑ ▸u ok)
-  wk-▸ᵉ ρ (natrecₑ {ρ = ρ′} ▸z ▸s ▸A) =
-    subst (_▸ᵉ[ _ ] _) (wk-•ᶜ ρ ρ′) (natrecₑ ▸z ▸s ▸A)
-  wk-▸ᵉ ρ (natrec-no-nrₑ {ρ = ρ′} ▸z ▸s ▸A χ-glb) =
-    subst (_▸ᵉ[ _ ] _) (wk-•ᶜ ρ ρ′) (natrec-no-nrₑ ▸z ▸s ▸A χ-glb)
-  wk-▸ᵉ ρ (unitrecₑ {ρ = ρ′} ▸u ok no-η) =
-    subst (_▸ᵉ[ _ ] _) (wk-•ᶜ ρ ρ′) (unitrecₑ ▸u ok no-η)
-  wk-▸ᵉ ρ (emptyrecₑ ok) =
-    subst (_▸ᵉ[ _ ] _) (sym (wk-𝟘ᶜ ρ)) (emptyrecₑ ok)
-  wk-▸ᵉ ρ (Jₑ {ρ = ρ′} ▸u) =
-    subst (_▸ᵉ[ _ ] _) (wk-•ᶜ ρ ρ′) (Jₑ ▸u)
-  wk-▸ᵉ ρ (Kₑ {ρ = ρ′} ▸u) =
-    subst (_▸ᵉ[ _ ] _) (wk-•ᶜ ρ ρ′) (Kₑ ▸u)
-  wk-▸ᵉ ρ ([]-congₑ ok) =
-    subst (_▸ᵉ[ _ ] _) (sym (wk-𝟘ᶜ ρ)) ([]-congₑ ok)
+  wk-▸ᶜ : (ρ : Wk k n) → γ ▸ᶜ[ m ] c → wkConₘ ρ γ ▸ᶜ[ m ] wkᶜ ρ c
+  wk-▸ᶜ ρ (∘ₑ {γ} {m} {ρ = ρ′} ▸u) =
+    subst (_▸ᶜ[ _ ] _) (≈ᶜ→≡ (·ᶜ-• γ ρ ρ′)) (∘ₑ {m = m} ▸u)
+  wk-▸ᶜ ρ (fstₑ p≤𝟙) =
+    subst (_▸ᶜ[ _ ] _) (sym (wk-𝟘ᶜ ρ)) (fstₑ p≤𝟙)
+  wk-▸ᶜ ρ sndₑ =
+    subst (_▸ᶜ[ _ ] _) (sym (wk-𝟘ᶜ ρ)) sndₑ
+  wk-▸ᶜ ρ (prodrecₑ {ρ = ρ′} ▸u ok) =
+    subst (_▸ᶜ[ _ ] _) (wk-•ᶜ ρ ρ′) (prodrecₑ ▸u ok)
+  wk-▸ᶜ ρ (natrecₑ {ρ = ρ′} ▸z ▸s ▸A) =
+    subst (_▸ᶜ[ _ ] _) (wk-•ᶜ ρ ρ′) (natrecₑ ▸z ▸s ▸A)
+  wk-▸ᶜ ρ (natrec-no-nrₑ {ρ = ρ′} ▸z ▸s ▸A χ-glb) =
+    subst (_▸ᶜ[ _ ] _) (wk-•ᶜ ρ ρ′) (natrec-no-nrₑ ▸z ▸s ▸A χ-glb)
+  wk-▸ᶜ ρ (unitrecₑ {ρ = ρ′} ▸u ok no-η) =
+    subst (_▸ᶜ[ _ ] _) (wk-•ᶜ ρ ρ′) (unitrecₑ ▸u ok no-η)
+  wk-▸ᶜ ρ (emptyrecₑ ok) =
+    subst (_▸ᶜ[ _ ] _) (sym (wk-𝟘ᶜ ρ)) (emptyrecₑ ok)
+  wk-▸ᶜ ρ (Jₑ {ρ = ρ′} ▸u) =
+    subst (_▸ᶜ[ _ ] _) (wk-•ᶜ ρ ρ′) (Jₑ ▸u)
+  wk-▸ᶜ ρ (Kₑ {ρ = ρ′} ▸u) =
+    subst (_▸ᶜ[ _ ] _) (wk-•ᶜ ρ ρ′) (Kₑ ▸u)
+  wk-▸ᶜ ρ ([]-congₑ ok) =
+    subst (_▸ᶜ[ _ ] _) (sym (wk-𝟘ᶜ ρ)) ([]-congₑ ok)
 
 opaque
 
@@ -88,7 +88,7 @@ opaque
   wk-▸ˢ ρ ε = subst (_▸ˢ ε) (sym (wk-𝟘ᶜ ρ)) ε
   wk-▸ˢ {S = e ∙ S} ρ (▸ˢ∙ ∣S∣≡ ▸e ▸S) =
     subst (_▸ˢ _) (≈ᶜ→≡ lemma)
-      (▸ˢ∙ (wk-∣∣ ∣S∣≡) (wk-▸ᵉ ρ ▸e) (wk-▸ˢ ρ ▸S))
+      (▸ˢ∙ (wk-∣∣ ∣S∣≡) (wk-▸ᶜ ρ ▸e) (wk-▸ˢ ρ ▸S))
     where
     open Tools.Reasoning.Equivalence Conₘ-setoid
     lemma : wkConₘ ρ γ +ᶜ p ·ᶜ wkConₘ ρ δ ≈ᶜ wkConₘ ρ (γ +ᶜ p ·ᶜ δ)
