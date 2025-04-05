@@ -58,10 +58,10 @@ private variable
   n : Nat
   Γ Δ : Con Term _
   H H′ : Heap _ _
-  e : Elim _
+  c : Cont _
   t t′ u A B C : Term _
   y : Ptr _
-  c : Entry _ _
+  e : Entry _ _
   S S′ : Stack _
   s s′ : State _ _ _
   ρ ρ′ : Wk _ _
@@ -72,23 +72,23 @@ private variable
 
 opaque
 
-  -- Eliminator typing is preserved by heap lookups/updates
+  -- Continuation typing is preserved by heap lookups/updates
 
-  heapUpdate-⊢ᵉ : Δ ⨾ H ⊢ᵉ e ⟨ t ⟩∷ A ↝ B → H ⊢ y ↦[ q ] c ⨾ H′ → Δ ⨾ H′ ⊢ᵉ e ⟨ t ⟩∷ A ↝ B
-  heapUpdate-⊢ᵉ {H} {H′} (∘ₑ {ρ} {u} {A} {B} {p} {q} ⊢u ⊢B) d =
+  heapUpdate-⊢ᶜ : Δ ⨾ H ⊢ᶜ c ⟨ t ⟩∷ A ↝ B → H ⊢ y ↦[ q ] e ⨾ H′ → Δ ⨾ H′ ⊢ᶜ c ⟨ t ⟩∷ A ↝ B
+  heapUpdate-⊢ᶜ {H} {H′} (∘ₑ {ρ} {u} {A} {B} {p} {q} ⊢u ⊢B) d =
     case heapUpdateSubst d of λ
       H≡H′ →
     case PE.subst (λ x → _ ⊢ wk ρ u [ x ] ∷ _) H≡H′ ⊢u of λ
       ⊢u′ →
-    PE.subst (λ x → _ ⨾ H′ ⊢ᵉ ∘ₑ p u ρ ⟨ _ ⟩∷ _ ↝ B [ wk ρ u [ x ] ]₀)
+    PE.subst (λ x → _ ⨾ H′ ⊢ᶜ ∘ₑ p u ρ ⟨ _ ⟩∷ _ ↝ B [ wk ρ u [ x ] ]₀)
       (PE.sym H≡H′) (∘ₑ {A = A} {B = B} ⊢u′ ⊢B)
-  heapUpdate-⊢ᵉ (fstₑ ⊢B) d =
+  heapUpdate-⊢ᶜ (fstₑ ⊢B) d =
     fstₑ ⊢B
-  heapUpdate-⊢ᵉ {t} {H′} (sndₑ {B} ⊢B) d =
-    PE.subst (λ x → _ ⨾ H′ ⊢ᵉ _ ⟨ t ⟩∷ _ ↝ B [ fst _ t [ x ] ]₀)
+  heapUpdate-⊢ᶜ {t} {H′} (sndₑ {B} ⊢B) d =
+    PE.subst (λ x → _ ⨾ H′ ⊢ᶜ _ ⟨ t ⟩∷ _ ↝ B [ fst _ t [ x ] ]₀)
       (PE.sym (heapUpdateSubst d))
       (sndₑ ⊢B)
-  heapUpdate-⊢ᵉ {Δ} {H} {t} {H′} (prodrecₑ {ρ} {u} {A} ⊢u ⊢A) d =
+  heapUpdate-⊢ᶜ {Δ} {H} {t} {H′} (prodrecₑ {ρ} {u} {A} ⊢u ⊢A) d =
     case heapUpdateSubst d of λ
       H≡H′ →
     case PE.subst (λ x → Δ ∙ _ ∙ _ ⊢
@@ -98,9 +98,9 @@ opaque
       ⊢u′ →
     case PE.subst (λ x → Δ ∙ _ ⊢ wk (lift ρ) A [ liftSubst x ]) H≡H′ ⊢A of λ
       ⊢A′ →
-    PE.subst (λ x → Δ ⨾ H′ ⊢ᵉ _ ⟨ _ ⟩∷ _ ↝ wk (lift ρ) A [ liftSubst x ] [ t [ x ] ]₀)
+    PE.subst (λ x → Δ ⨾ H′ ⊢ᶜ _ ⟨ _ ⟩∷ _ ↝ wk (lift ρ) A [ liftSubst x ] [ t [ x ] ]₀)
       (PE.sym H≡H′) (prodrecₑ ⊢u′ ⊢A′)
-  heapUpdate-⊢ᵉ {H} {t} {H′} (natrecₑ {ρ} {z} {A} {s} ⊢z ⊢s) d =
+  heapUpdate-⊢ᶜ {H} {t} {H′} (natrecₑ {ρ} {z} {A} {s} ⊢z ⊢s) d =
     case heapUpdateSubst d of λ
       H≡H′ →
     case PE.subst (λ x → _ ⊢ wk ρ z [ x ] ∷ wk (lift ρ) A [ liftSubst x ] [ zero ]₀)
@@ -111,19 +111,19 @@ opaque
                          wk (lift ρ) A [ liftSubst x ] [ suc (var x1) ]↑²)
            H≡H′ ⊢s of λ
       ⊢s′ →
-    PE.subst (λ x → _ ⨾ H′ ⊢ᵉ _ ⟨ _ ⟩∷ ℕ ↝ wk (lift ρ) A [ liftSubst x ] [ t [ x ] ]₀)
+    PE.subst (λ x → _ ⨾ H′ ⊢ᶜ _ ⟨ _ ⟩∷ ℕ ↝ wk (lift ρ) A [ liftSubst x ] [ t [ x ] ]₀)
       (PE.sym H≡H′) (natrecₑ ⊢z′ ⊢s′)
-  heapUpdate-⊢ᵉ (unitrecₑ ⊢u ⊢A no-η) d
+  heapUpdate-⊢ᶜ (unitrecₑ ⊢u ⊢A no-η) d
     rewrite heapUpdateSubst d =
     unitrecₑ ⊢u ⊢A no-η
-  heapUpdate-⊢ᵉ {H} {t} {H′} (emptyrecₑ {ρ} {A} ⊢A) d =
+  heapUpdate-⊢ᶜ {H} {t} {H′} (emptyrecₑ {ρ} {A} ⊢A) d =
     case heapUpdateSubst d of λ
       H≡H′ →
     case PE.subst (λ x → _ ⊢ wk ρ A [ x ]) H≡H′ ⊢A of λ
       ⊢A′ →
-    PE.subst (λ x → _ ⨾ H′ ⊢ᵉ _ ⟨ t ⟩∷ Empty ↝ (wk ρ A [ x ]))
+    PE.subst (λ x → _ ⨾ H′ ⊢ᶜ _ ⟨ t ⟩∷ Empty ↝ (wk ρ A [ x ]))
       (PE.sym H≡H′) (emptyrecₑ ⊢A′)
-  heapUpdate-⊢ᵉ {t = w} {H′} (Jₑ {ρ} {A} {B} {t} {u} {v} {p} {q} ⊢u ⊢B) d =
+  heapUpdate-⊢ᶜ {t = w} {H′} (Jₑ {ρ} {A} {B} {t} {u} {v} {p} {q} ⊢u ⊢B) d =
     case heapUpdateSubst d of λ
       H≡H′ →
     case PE.subst
@@ -135,9 +135,9 @@ opaque
            H≡H′ ⊢B  of λ
       ⊢B′ →
     PE.subst
-      (λ x → _ ⨾ H′ ⊢ᵉ _ ⟨ w ⟩∷ wk ρ (Id A t v) [ x ] ↝ ((wk (liftn ρ 2) B [ liftSubstn x 2 ]) [ wk ρ v [ x ] , w [ x ] ]₁₀))
+      (λ x → _ ⨾ H′ ⊢ᶜ _ ⟨ w ⟩∷ wk ρ (Id A t v) [ x ] ↝ ((wk (liftn ρ 2) B [ liftSubstn x 2 ]) [ wk ρ v [ x ] , w [ x ] ]₁₀))
       (PE.sym H≡H′) (Jₑ ⊢u′ ⊢B′)
-  heapUpdate-⊢ᵉ {t = v} {H′} (Kₑ {ρ} {u} {B} {A} {t} {p} ⊢u ⊢B ok) d =
+  heapUpdate-⊢ᶜ {t = v} {H′} (Kₑ {ρ} {u} {B} {A} {t} {p} ⊢u ⊢B ok) d =
     case heapUpdateSubst d of λ
       H≡H′ →
     case PE.subst
@@ -149,33 +149,33 @@ opaque
            H≡H′ ⊢B of λ
       ⊢B′ →
     PE.subst
-      (λ x → _ ⨾ H′ ⊢ᵉ Kₑ p A t B u ρ ⟨ v ⟩∷ wk ρ (Id A t t) [ x ] ↝ wk (lift ρ) B [ liftSubst x ] [ v [ x ] ]₀)
+      (λ x → _ ⨾ H′ ⊢ᶜ Kₑ p A t B u ρ ⟨ v ⟩∷ wk ρ (Id A t t) [ x ] ↝ wk (lift ρ) B [ liftSubst x ] [ v [ x ] ]₀)
       (PE.sym H≡H′) (Kₑ ⊢u′ ⊢B′ ok)
-  heapUpdate-⊢ᵉ {t = v} {H′} ([]-congₑ {s′ = s} {A} {t} {u} {ρ} ok) d =
-    PE.subst (λ x → _ ⨾ H′ ⊢ᵉ []-congₑ s A t u ρ ⟨ v ⟩∷ wk ρ (Id A t u) [ x ] ↝ wk ρ (Id (E.Erased A) E.[ t ] E.[ u ]) [ x ])
+  heapUpdate-⊢ᶜ {t = v} {H′} ([]-congₑ {s′ = s} {A} {t} {u} {ρ} ok) d =
+    PE.subst (λ x → _ ⨾ H′ ⊢ᶜ []-congₑ s A t u ρ ⟨ v ⟩∷ wk ρ (Id A t u) [ x ] ↝ wk ρ (Id (E.Erased A) E.[ t ] E.[ u ]) [ x ])
       (PE.sym (heapUpdateSubst d)) ([]-congₑ ok)
     where
     import Definition.Untyped.Erased 𝕄 s as E
-  heapUpdate-⊢ᵉ (conv ⊢e x) d =
-    conv (heapUpdate-⊢ᵉ ⊢e d) x
+  heapUpdate-⊢ᶜ (conv ⊢c x) d =
+    conv (heapUpdate-⊢ᶜ ⊢c d) x
 
 opaque
 
   -- Stack typing is preserved by heap lookups/updates
 
-  heapUpdate-⊢ˢ : Δ ⨾ H ⊢ S ⟨ t ⟩∷ A ↝ B → H ⊢ y ↦[ q ] c ⨾ H′ → Δ ⨾ H′ ⊢ S ⟨ t ⟩∷ A ↝ B
+  heapUpdate-⊢ˢ : Δ ⨾ H ⊢ S ⟨ t ⟩∷ A ↝ B → H ⊢ y ↦[ q ] e ⨾ H′ → Δ ⨾ H′ ⊢ S ⟨ t ⟩∷ A ↝ B
   heapUpdate-⊢ˢ ε d = ε
-  heapUpdate-⊢ˢ {H} {S = e ∙ S} {t} (⊢e ∙ ⊢S) d =
-      heapUpdate-⊢ᵉ ⊢e d ∙ heapUpdate-⊢ˢ ⊢S d
+  heapUpdate-⊢ˢ {H} {S = c ∙ S} {t} (⊢c ∙ ⊢S) d =
+      heapUpdate-⊢ᶜ ⊢c d ∙ heapUpdate-⊢ˢ ⊢S d
 
 opaque
 
   -- Heap typing is preserved by heap lookups/updates
 
-  heapUpdate-⊢ʰ : Δ ⊢ʰ H ∷ Γ → H ⊢ y ↦[ q ] c ⨾ H′ → Δ ⊢ʰ H′ ∷ Γ
+  heapUpdate-⊢ʰ : Δ ⊢ʰ H ∷ Γ → H ⊢ y ↦[ q ] e ⨾ H′ → Δ ⊢ʰ H′ ∷ Γ
   heapUpdate-⊢ʰ ε         ()
   heapUpdate-⊢ʰ (⊢H ∙ ⊢t) (here _) = ⊢H ∙ ⊢t
-  heapUpdate-⊢ʰ {c = u , _} (_∙_ {ρ} {t} {A = A} ⊢H ⊢t) (there d) =
+  heapUpdate-⊢ʰ {e = u , _} (_∙_ {ρ} {t} {A = A} ⊢H ⊢t) (there d) =
     case heapUpdate-⊢ʰ ⊢H d of λ
       ⊢H′ →
     case heapUpdateSubst d of λ
@@ -204,8 +204,8 @@ opaque
     Δ ⊢ₛ s ∷ A → s ⇒ᵥ s′ → Δ ⊢ₛ s′ ∷ A
   ⊢ₛ-⇒ᵥ ⊢s (lamₕ {H} {p} {t} {ρ} {u} {ρ′} _) =
     case ⊢ₛ-inv′ ⊢s of λ
-      (Γ , _ , _ , ⊢H , ⊢λt , ⊢e , ⊢S) →
-    case inversion-∘ₑ ⊢e of λ {
+      (Γ , _ , _ , ⊢H , ⊢λt , ⊢c , ⊢S) →
+    case inversion-∘ₑ ⊢c of λ {
       (F , G , q , ⊢u , PE.refl , B≡Gu) →
     let _ , ⊢t , ≡G , _ , ok = inversion-lam-Π ⊢λt
         ≡G[u]₀ = ≡G (refl ⊢u)
@@ -226,8 +226,8 @@ opaque
 
   ⊢ₛ-⇒ᵥ ⊢s prodˢₕ₁ =
     case ⊢ₛ-inv′ ⊢s of λ
-      (_ , _ , _ , ⊢H , ⊢t , ⊢e , ⊢S) →
-    case inversion-fstₑ ⊢e of λ {
+      (_ , _ , _ , ⊢H , ⊢t , ⊢c , ⊢S) →
+    case inversion-fstₑ ⊢c of λ {
       (F , G , q , ⊢G , PE.refl , B≡F) →
     let ⊢t₁ , ⊢t₂ , _ , _ , ok = inversion-prod-Σ ⊢t
     in  ⊢ₛ ⊢H (conv ⊢t₁ (sym B≡F))
@@ -235,8 +235,8 @@ opaque
 
   ⊢ₛ-⇒ᵥ ⊢s prodˢₕ₂ =
     case ⊢ₛ-inv′ ⊢s of λ
-      (_ , _ , _ , ⊢H , ⊢t , ⊢e , ⊢S) →
-    case inversion-sndₑ ⊢e of λ {
+      (_ , _ , _ , ⊢H , ⊢t , ⊢c , ⊢S) →
+    case inversion-sndₑ ⊢c of λ {
       (F , G , q , ⊢G , PE.refl , B≡G₊) →
     let ⊢t₁ , ⊢t₂ , _ , _ , ok = inversion-prod-Σ ⊢t
         fstt≡t₁ = Σ-β₁-≡ ⊢G ⊢t₁ ⊢t₂ ok
@@ -245,8 +245,8 @@ opaque
 
   ⊢ₛ-⇒ᵥ ⊢s (prodʷₕ {S} {q′} {H} {p} {t₁} {t₂} {ρ} {r} {q} {A} {u} {ρ′} _) =
     case ⊢ₛ-inv′ ⊢s of λ
-      (Γ , _ , _ , ⊢H , ⊢t , ⊢e , ⊢S) →
-    case inversion-prodrecₑ ⊢e of λ {
+      (Γ , _ , _ , ⊢H , ⊢t , ⊢c , ⊢S) →
+    case inversion-prodrecₑ ⊢c of λ {
       (F , G , _ , ⊢u , ⊢A , PE.refl , B≡A₊) →
     let ⊢t₁ , ⊢t₂ , _ = inversion-prod-Σ ⊢t
         H₁ = H ∙ (q′ · r · p , t₁ , ρ)
@@ -294,16 +294,16 @@ opaque
 
   ⊢ₛ-⇒ᵥ ⊢s zeroₕ =
     case ⊢ₛ-inv′ ⊢s of λ
-      (_ , _ , _ , ⊢H , ⊢t , ⊢e , ⊢S) →
-    case inversion-natrecₑ ⊢e of λ {
+      (_ , _ , _ , ⊢H , ⊢t , ⊢c , ⊢S) →
+    case inversion-natrecₑ ⊢c of λ {
       (⊢z , ⊢s , PE.refl , B≡) →
     ⊢ₛ ⊢H (conv ⊢z (sym (B≡ ⊢t)))
        (⊢ˢ-convₜ ⊢S (conv (natrec-zero ⊢z ⊢s) (sym (B≡ ⊢t)))) }
 
   ⊢ₛ-⇒ᵥ {Δ} ⊢s (sucₕ {p} {r} {H} {t} {ρ} {q} {(n)} {A} {z} {s} {ρ′} _ _) =
     case ⊢ₛ-inv′ ⊢s of λ
-      (Γ , _ , _ , ⊢H , ⊢t , ⊢e , ⊢S) →
-    case inversion-natrecₑ ⊢e of λ {
+      (Γ , _ , _ , ⊢H , ⊢t , ⊢c , ⊢S) →
+    case inversion-natrecₑ ⊢c of λ {
       (⊢z , ⊢s , PE.refl , B≡) →
     let ⊢t′ , _ = inversion-suc ⊢t
         ⊢natrec = natrecⱼ ⊢z ⊢s ⊢t′
@@ -325,8 +325,8 @@ opaque
 
   ⊢ₛ-⇒ᵥ ⊢s starʷₕ =
     case ⊢ₛ-inv′ ⊢s of λ
-      (_ , _ , _ , ⊢H , ⊢t , ⊢e , ⊢S) →
-    case inversion-unitrecₑ ⊢e of λ {
+      (_ , _ , _ , ⊢H , ⊢t , ⊢c , ⊢S) →
+    case inversion-unitrecₑ ⊢c of λ {
       (⊢u , ⊢A , no-η , PE.refl , B≡) →
     ⊢ₛ ⊢H (conv ⊢u (sym (B≡ ⊢t)))
        (⊢ˢ-convₜ ⊢S (conv (unitrec-β-≡ ⊢A ⊢u) (sym (B≡ ⊢t)))) }
@@ -339,33 +339,33 @@ opaque
 
   ⊢ₛ-⇒ᵥ ⊢s (rflₕⱼ {H} {p} {q} {A} {t} {B} {u} {v} {ρ′}) =
     case ⊢ₛ-inv′ ⊢s of λ
-      (_ , _ , _ , ⊢H , ⊢rfl , ⊢e , ⊢S) →
-    case inversion-Jₑ ⊢e of λ {
+      (_ , _ , _ , ⊢H , ⊢rfl , ⊢c , ⊢S) →
+    case inversion-Jₑ ⊢c of λ {
       (⊢u , ⊢B , PE.refl , B′≡) →
     let t≡v = inversion-rfl-Id ⊢rfl
         ⊢A , ⊢t , ⊢v = syntacticEqTerm t≡v
         Bt≡Bv = J-motive-rfl-cong (refl ⊢B) t≡v
     in  ⊢ₛ ⊢H (conv ⊢u (trans Bt≡Bv (sym (B′≡ ⊢rfl))))
            (⊢ˢ-convₜ ⊢S (conv
-             (⦅ Jₑ p q A t B u v ρ′ ⦆ᵉ rfl [ H ]ₕ
+             (⦅ Jₑ p q A t B u v ρ′ ⦆ᶜ rfl [ H ]ₕ
                ≡⟨ J-cong′ (refl ⊢A) (refl ⊢t) (refl ⊢B) (refl ⊢u) (sym′ t≡v) (refl (rflⱼ′ t≡v)) ⟩⊢
-             ⦅ Jₑ p q A t B u t ρ′ ⦆ᵉ rfl [ H ]ₕ
+             ⦅ Jₑ p q A t B u t ρ′ ⦆ᶜ rfl [ H ]ₕ
                ≡⟨ conv (J-β-≡ ⊢t ⊢B ⊢u) (J-motive-rfl-cong (refl ⊢B) t≡v) ⟩⊢∎
              wk ρ′ u [ H ]ₕ ∎)
              (sym (B′≡ ⊢rfl))))}
 
   ⊢ₛ-⇒ᵥ ⊢s rflₕₖ =
     case ⊢ₛ-inv′ ⊢s of λ
-      (_ , _ , _ , ⊢H , ⊢rfl , ⊢e , ⊢S) →
-    case inversion-Kₑ ⊢e of λ {
+      (_ , _ , _ , ⊢H , ⊢rfl , ⊢c , ⊢S) →
+    case inversion-Kₑ ⊢c of λ {
       (⊢u , ⊢B , ok , PE.refl , B′≡) →
     ⊢ₛ ⊢H (conv ⊢u (sym (B′≡ ⊢rfl)))
        (⊢ˢ-convₜ ⊢S (conv (K-β ⊢B ⊢u ok) (sym (B′≡ ⊢rfl)))) }
 
   ⊢ₛ-⇒ᵥ ⊢s rflₕₑ =
     case ⊢ₛ-inv′ ⊢s of λ
-      (_ , _ , _ , ⊢H , ⊢rfl , ⊢e , ⊢S) →
-    case inversion-[]-congₑ ⊢e of λ {
+      (_ , _ , _ , ⊢H , ⊢rfl , ⊢c , ⊢S) →
+    case inversion-[]-congₑ ⊢c of λ {
       (ok , PE.refl , B≡) →
     let t≡u = inversion-rfl-Id ⊢rfl
         ⊢A , ⊢t , ⊢u = syntacticEqTerm t≡u
@@ -500,11 +500,11 @@ opaque
 
   ¬⊢ₛ-⇒ₙ : Δ ⊢ₛ s ∷ A → s ⇒ₙ s′ → Δ ⊢ₛ s′ ∷ A → ⊥
   ¬⊢ₛ-⇒ₙ ⊢s (sucₕ x) ⊢s′ =
-    let _ , _ , _ , _ , _ , ⊢e , _ = ⊢ₛ-inv′ ⊢s′
-    in  inversion-sucₑ ⊢e
+    let _ , _ , _ , _ , _ , ⊢c , _ = ⊢ₛ-inv′ ⊢s′
+    in  inversion-sucₑ ⊢c
   ¬⊢ₛ-⇒ₙ ⊢s (numₕ x) ⊢s′ =
-    let _ , _ , _ , _ , _ , ⊢e , _ = ⊢ₛ-inv′ ⊢s
-    in  inversion-sucₑ ⊢e
+    let _ , _ , _ , _ , _ , ⊢c , _ = ⊢ₛ-inv′ ⊢s
+    in  inversion-sucₑ ⊢c
 
 opaque
 
@@ -526,8 +526,8 @@ opaque
     Δ ⊢ₛ s ∷ A → s ⇒ᵥ s′ → Δ ⊢ ⦅ s ⦆ ⇒ ⦅ s′ ⦆ ∷ A
   ⇒ᵥ→⇒ {A} ⊢s (lamₕ {S} {H} {p} {t} {ρ} {u} {ρ′} _) =
     case ⊢ₛ-inv′ ⊢s of λ
-      (_ , _ , _ , ⊢H , ⊢t , ⊢e , ⊢S) →
-    case inversion-∘ₑ ⊢e of λ {
+      (_ , _ , _ , ⊢H , ⊢t , ⊢c , ⊢S) →
+    case inversion-∘ₑ ⊢c of λ {
       (F , G , q , ⊢u , PE.refl , C≡Gu) →
     let β-⇒ = PE.subst (_ ⊢ (wk ρ (lam p t) ∘⟨ p ⟩ wk ρ′ u) [ H ]ₕ ⇒_∷ _)
                 (PE.trans (singleSubstComp (wk ρ′ u [ H ]ₕ) (toSubstₕ H) (wk (lift ρ) t))
@@ -548,16 +548,16 @@ opaque
       ⦅ wk1ˢ S ⦆ˢ (wk (lift ρ) t) [ H ∙ (p , u , ρ′) ]ₕ ∎
   ⇒ᵥ→⇒ ⊢s prodˢₕ₁ =
     case ⊢ₛ-inv′ ⊢s of λ
-      (_ , _ , _ , ⊢H , ⊢t , ⊢e , ⊢S) →
-    case inversion-fstₑ ⊢e of λ {
+      (_ , _ , _ , ⊢H , ⊢t , ⊢c , ⊢S) →
+    case inversion-fstₑ ⊢c of λ {
       (F′ , G′ , q′ , ⊢G′ , PE.refl , C≡F′) →
     let F , G , q , ⊢F , ⊢G , ⊢t₁ , ⊢t₂ , B≡Σ , ok = inversion-prod ⊢t
         F≡F′ , _ = ΠΣ-injectivity (sym B≡Σ)
     in  ⊢⦅⦆ˢ-subst ⊢S (conv (Σ-β₁-⇒ ⊢G ⊢t₁ ⊢t₂ ok) (trans F≡F′ (sym C≡F′))) }
   ⇒ᵥ→⇒ ⊢s prodˢₕ₂ =
     case ⊢ₛ-inv′ ⊢s of λ
-      (_ , _ , _ , ⊢H , ⊢t , ⊢e , ⊢S) →
-    case inversion-sndₑ ⊢e of λ {
+      (_ , _ , _ , ⊢H , ⊢t , ⊢c , ⊢S) →
+    case inversion-sndₑ ⊢c of λ {
       (F′ , G′ , q′ , ⊢G′ , PE.refl , C≡G′₊) →
     let F , G , q , ⊢F , ⊢G , ⊢t₁ , ⊢t₂ , B≡Σ , ok = inversion-prod ⊢t
         F≡F′ , G≡G′ , _ = ΠΣ-injectivity (sym B≡Σ)
@@ -565,8 +565,8 @@ opaque
     in  ⊢⦅⦆ˢ-subst ⊢S (conv (Σ-β₂-⇒ ⊢G ⊢t₁ ⊢t₂ ok) (trans G₊≡G′₊ (sym (C≡G′₊ ⊢t)))) }
   ⇒ᵥ→⇒ {(k)} {(_)} {(m)} ⊢s (prodʷₕ {S} {q′} {H} {p} {t₁} {t₂} {ρ} {r} {q} {A} {u} {ρ′} _) =
     case ⊢ₛ-inv′ ⊢s of λ
-      (_ , _ , _ , ⊢H , ⊢t , ⊢e , ⊢S) →
-    case inversion-prodrecₑ ⊢e of λ {
+      (_ , _ , _ , ⊢H , ⊢t , ⊢c , ⊢S) →
+    case inversion-prodrecₑ ⊢c of λ {
       (F , G , q′ , ⊢u , ⊢A , PE.refl , C≡) →
     let β-⇒ = PE.subst (_ ⊢ prodrec r p q (wk (lift ρ′) A) (wk ρ (prodʷ p t₁ t₂)) (wk (liftn ρ′ 2) u) [ H ]ₕ ⇒_∷ _)
                 (PE.sym ([,]-[]-commute {u = wk ρ t₁} {v = wk ρ t₂} (wk (liftn ρ′ 2) u)))
@@ -588,14 +588,14 @@ opaque
       ⦅ wk2ˢ S ⦆ˢ (wk (liftn ρ′ 2) u) [ H₂ ]ₕ ∎
   ⇒ᵥ→⇒ ⊢s zeroₕ =
     case ⊢ₛ-inv′ ⊢s of λ
-      (_ , _ , _ , ⊢H , ⊢t , ⊢e , ⊢S) →
-    case inversion-natrecₑ ⊢e of λ {
+      (_ , _ , _ , ⊢H , ⊢t , ⊢c , ⊢S) →
+    case inversion-natrecₑ ⊢c of λ {
         (⊢z , ⊢s , PE.refl , B≡) →
     ⊢⦅⦆ˢ-subst ⊢S (conv (natrec-zero ⊢z ⊢s) (sym (B≡ ⊢t))) }
   ⇒ᵥ→⇒ {(k)} {(_)} {(m)} ⊢s (sucₕ {S} {p} {r} {H} {t} {ρ} {q} {(n)} {A} {z} {s} {ρ′} _ _) =
     case ⊢ₛ-inv′ ⊢s of λ
-      (_ , _ , _ , ⊢H , ⊢t , ⊢e , ⊢S) →
-    case inversion-natrecₑ ⊢e of λ {
+      (_ , _ , _ , ⊢H , ⊢t , ⊢c , ⊢S) →
+    case inversion-natrecₑ ⊢c of λ {
       (⊢z , ⊢s , PE.refl , B≡) →
     let β-⇒ = PE.subst (_ ⊢ nr″ (wk ρ (suc t)) [ H ]ₕ ⇒_∷ _)
                 (PE.sym ([,]-[]-commute (wk (liftn ρ′ 2) s)))
@@ -625,8 +625,8 @@ opaque
       ⦅ wk2ˢ S ⦆ˢ (wk (liftn ρ′ 2) s) [ H₂ ]ₕ ∎
   ⇒ᵥ→⇒ ⊢s starʷₕ =
     case ⊢ₛ-inv′ ⊢s of λ
-      (_ , _ , _ , ⊢H , ⊢t , ⊢e , ⊢S) →
-    case inversion-unitrecₑ ⊢e of λ {
+      (_ , _ , _ , ⊢H , ⊢t , ⊢c , ⊢S) →
+    case inversion-unitrecₑ ⊢c of λ {
       (⊢u , ⊢A , no-η , PE.refl , C≡A₊) →
     ⊢⦅⦆ˢ-subst ⊢S (conv (unitrec-β-⇒ ⊢A ⊢u) (sym (C≡A₊ ⊢t))) }
   ⇒ᵥ→⇒ ⊢s (unitrec-ηₕ η) =
@@ -635,22 +635,22 @@ opaque
     in  ⊢⦅⦆ˢ-subst ⊢S (conv (unitrec-β-η-⇒ ⊢A ⊢t ⊢u η) (sym A≡))
   ⇒ᵥ→⇒ ⊢s rflₕⱼ =
     case ⊢ₛ-inv′ ⊢s of λ
-      (_ , _ , _ , ⊢H , ⊢rfl , ⊢e , ⊢S) →
-    case inversion-Jₑ ⊢e of λ {
+      (_ , _ , _ , ⊢H , ⊢rfl , ⊢c , ⊢S) →
+    case inversion-Jₑ ⊢c of λ {
       (⊢w , ⊢B , PE.refl , ≡B) →
     let t≡v = inversion-rfl-Id ⊢rfl
         ≡B′ = trans (J-motive-rfl-cong (refl ⊢B) t≡v) (sym (≡B ⊢rfl))
     in  ⊢⦅⦆ˢ-subst ⊢S (conv (J-β-⇒ t≡v ⊢B ⊢w) ≡B′) }
   ⇒ᵥ→⇒ ⊢s rflₕₖ =
     case ⊢ₛ-inv′ ⊢s of λ
-      (_ , _ , _ , ⊢H , ⊢rfl , ⊢e , ⊢S) →
-    case inversion-Kₑ ⊢e of λ {
+      (_ , _ , _ , ⊢H , ⊢rfl , ⊢c , ⊢S) →
+    case inversion-Kₑ ⊢c of λ {
       (⊢v , ⊢B , ok , PE.refl , B′≡)  →
     ⊢⦅⦆ˢ-subst ⊢S (conv (K-β ⊢B ⊢v ok) (sym (B′≡ ⊢rfl))) }
   ⇒ᵥ→⇒ ⊢s rflₕₑ =
     case ⊢ₛ-inv′ ⊢s of λ
-      (_ , _ , _ , ⊢H , ⊢rfl , ⊢e , ⊢S) →
-    case inversion-[]-congₑ ⊢e of λ {
+      (_ , _ , _ , ⊢H , ⊢rfl , ⊢c , ⊢S) →
+    case inversion-[]-congₑ ⊢c of λ {
         (ok , PE.refl , B′≡) →
     let t≡u = inversion-rfl-Id ⊢rfl
         _ , ⊢t , ⊢u = syntacticEqTerm t≡u
@@ -737,13 +737,13 @@ opaque
 
   ⊢ˢValue-⇒ᵥ :
     ⦃ ok : No-equality-reflection or-empty Δ ⦄ →
-    ∣ e ∙ S ∣≡ p →
-    Δ ⨾ H ⊢ᵉ e ⟨ wk ρ t ⟩∷ A ↝ B → Δ ⊢ wk ρ t [ H ]ₕ ∷ A → Value t →
-    ∃₃ λ m n (s : State _ m n) → ⟨ H , t , ρ , e ∙ S ⟩ ⇒ᵥ s
+    ∣ c ∙ S ∣≡ p →
+    Δ ⨾ H ⊢ᶜ c ⟨ wk ρ t ⟩∷ A ↝ B → Δ ⊢ wk ρ t [ H ]ₕ ∷ A → Value t →
+    ∃₃ λ m n (s : State _ m n) → ⟨ H , t , ρ , c ∙ S ⟩ ⇒ᵥ s
   -- Ok cases:
-  ⊢ˢValue-⇒ᵥ ∣S∣≡ (conv ⊢e x) ⊢t v =
-    ⊢ˢValue-⇒ᵥ ∣S∣≡ ⊢e ⊢t v
-  ⊢ˢValue-⇒ᵥ _ ⊢e ⊢t (unitrec-ηᵥ η) =
+  ⊢ˢValue-⇒ᵥ ∣S∣≡ (conv ⊢c x) ⊢t v =
+    ⊢ˢValue-⇒ᵥ ∣S∣≡ ⊢c ⊢t v
+  ⊢ˢValue-⇒ᵥ _ ⊢c ⊢t (unitrec-ηᵥ η) =
     _ , _ , _ , unitrec-ηₕ η
   ⊢ˢValue-⇒ᵥ (_ ∙ ∣S∣≡) (∘ₑ x x₁) ⊢t lamᵥ =
     case inversion-lam-Π ⊢t of λ {
@@ -1073,9 +1073,9 @@ opaque
 
   ⊢Value-⇒ᵥ :
     ⦃ ok : No-equality-reflection or-empty Δ ⦄ →
-    ∣ e ∙ S ∣≡ p →
-    Δ ⊢ₛ ⟨ H , t , ρ , e ∙ S ⟩ ∷ A → Value t →
-    ∃₃ λ m n (s : State _ m n) → ⟨ H , t , ρ , e ∙ S ⟩ ⇒ᵥ s
+    ∣ c ∙ S ∣≡ p →
+    Δ ⊢ₛ ⟨ H , t , ρ , c ∙ S ⟩ ∷ A → Value t →
+    ∃₃ λ m n (s : State _ m n) → ⟨ H , t , ρ , c ∙ S ⟩ ⇒ᵥ s
   ⊢Value-⇒ᵥ ∣S∣≡ ⊢s v =
     let _ , _ , _ , _ , ⊢t , ⊢e , _ = ⊢ₛ-inv′ ⊢s
     in  ⊢ˢValue-⇒ᵥ ∣S∣≡ ⊢e ⊢t v
@@ -1088,10 +1088,10 @@ opaque
 
   ⊢Matching :
     ⦃ ok : No-equality-reflection or-empty Δ ⦄ →
-    ∣ e ∙ S ∣≡ p →
-    Δ ⊢ₛ ⟨ H , t , ρ , e ∙ S ⟩ ∷ A →
+    ∣ c ∙ S ∣≡ p →
+    Δ ⊢ₛ ⟨ H , t , ρ , c ∙ S ⟩ ∷ A →
     Value t →
-    Matching t (e ∙ S)
+    Matching t (c ∙ S)
   ⊢Matching ∣S∣≡ ⊢s v =
     let _ , _ , _ , d = ⊢Value-⇒ᵥ ∣S∣≡ ⊢s v
     in  ⇒ᵥ→Matching d
@@ -1111,8 +1111,8 @@ opaque
     Δ ⊢ₛ ⟨ H , t , ρ , S ⟩ ∷ A →
     Final ⟨ H , t , ρ , S ⟩ →
     (∃ λ x → t PE.≡ var x ×
-         (∀ {p n H′} {c : Entry _ n} → ∣ S ∣≡ p → H ⊢ wkVar ρ x ↦[ p ] c ⨾ H′ → ⊥)) ⊎
-    (∃₂ λ e S′ → S PE.≡ e ∙ S′ × Value t × ¬ (∃ ∣ S ∣≡_)) ⊎
+         (∀ {p n H′} {e : Entry _ n} → ∣ S ∣≡ p → H ⊢ wkVar ρ x ↦[ p ] e ⨾ H′ → ⊥)) ⊎
+    (∃₂ λ c S′ → S PE.≡ c ∙ S′ × Value t × ¬ (∃ ∣ S ∣≡_)) ⊎
     Value t × S PE.≡ ε
   ⊢Final-reasons ⊢s f =
     case Final-reasons _ f of λ where
@@ -1131,8 +1131,8 @@ opaque
     Δ ⊢ₛ s ∷ A →
     s ⇘ ⟨ H , t , ρ , S ⟩ →
     (∃ λ x → t PE.≡ var x ×
-         (∀ {p n H′} {c : Entry _ n} → ∣ S ∣≡ p → H ⊢ wkVar ρ x ↦[ p ] c ⨾ H′ → ⊥)) ⊎
-    (∃₂ λ e S′ → S PE.≡ e ∙ S′ × Value t × ¬ (∃ ∣ S ∣≡_)) ⊎
+         (∀ {p n H′} {e : Entry _ n} → ∣ S ∣≡ p → H ⊢ wkVar ρ x ↦[ p ] e ⨾ H′ → ⊥)) ⊎
+    (∃₂ λ c S′ → S PE.≡ c ∙ S′ × Value t × ¬ (∃ ∣ S ∣≡_)) ⊎
     Value t × S PE.≡ ε
   ⊢⇘-reasons ⊢s (d , f) =
     ⊢Final-reasons (⊢ₛ-⇾* ⊢s d) f

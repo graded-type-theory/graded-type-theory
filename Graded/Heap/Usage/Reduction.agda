@@ -81,7 +81,7 @@ opaque
         θ′ , ▸u , θ≈ = ▸-inv-∘ₑ ▸e
         invUsageLam {δ = δ′} ▸t δ≤ = inv-usage-lam ▸t
         q′≡q = ∣∣-functional ∣S∣≡′ ∣S∣≡
-        p′≡𝟙 = ∣∣ᵉ-functional ∣e∣≡ ∘ₑ
+        p′≡𝟙 = ∣∣ᶜ-functional ∣e∣≡ ∘ₑ
         γ≤′ = let open ≤ᶜ-reasoning in begin
           γ ≤⟨ γ≤ ⟩
           (q′ · p′) ·ᶜ wkConₘ ρ δ +ᶜ η +ᶜ q′ ·ᶜ θ                 ≈⟨ +ᶜ-congˡ (+ᶜ-congˡ (·ᶜ-congˡ θ≈)) ⟩
@@ -109,7 +109,7 @@ opaque
            , ∣S∣≡ , ∣e∣≡ , ▸H , ▸t , ▸S , ▸e , γ≤ = ▸ₛ-∙-inv ▸s
         mp-cond , θ≈𝟘 = ▸-inv-fstₑ ▸e
         invUsageProdˢ {δ = δ₁} {η = δ₂} ▸t ▸u δ≤ = inv-usage-prodˢ ▸t
-        p′≡𝟙 = ∣∣ᵉ-functional ∣e∣≡ fstₑ
+        p′≡𝟙 = ∣∣ᶜ-functional ∣e∣≡ fstₑ
     in  ▸ₛ ∣S∣≡ ▸H (▸-cong (lemma′ mp-cond p′≡𝟙) ▸t) ▸S $ begin
       γ                                        ≤⟨ γ≤ ⟩
       (q′ · p′) ·ᶜ wkConₘ ρ δ +ᶜ η +ᶜ q′ ·ᶜ θ  ≈⟨ +ᶜ-cong (·ᶜ-congʳ (·-congˡ p′≡𝟙)) (+ᶜ-congˡ (·ᶜ-congˡ θ≈𝟘)) ⟩
@@ -154,7 +154,7 @@ opaque
            , ∣S∣≡ , ∣e∣≡ , ▸H , ▸t , ▸S , ▸e , γ≤ = ▸ₛ-∙-inv ▸s
         θ≈𝟘 = ▸-inv-sndₑ ▸e
         invUsageProdˢ {δ = δ₁} {η = δ₂} ▸t ▸u δ≤ = inv-usage-prodˢ ▸t
-        p′≡𝟙 = ∣∣ᵉ-functional ∣e∣≡ sndₑ
+        p′≡𝟙 = ∣∣ᶜ-functional ∣e∣≡ sndₑ
     in  ▸ₛ ∣S∣≡ ▸H
            (▸-cong (⌞⌟-cong (trans (·-congˡ p′≡𝟙) (·-identityʳ _))) ▸u)
            ▸S $ begin
@@ -173,7 +173,7 @@ opaque
            , ∣S∣≡ , ∣e∣≡ , ▸H , ▸t , ▸S , ▸e , γ≤ = ▸ₛ-∙-inv ▸s
         θ′ , ▸u , ok , θ≈ = ▸-inv-prodrecₑ ▸e
         invUsageProdʷ {δ = δ′} {η = η′} ▸t₁ ▸t₂ δ≤ = inv-usage-prodʷ ▸t
-        r′≡r = ∣∣ᵉ-functional ∣e∣≡ prodrecₑ
+        r′≡r = ∣∣ᶜ-functional ∣e∣≡ prodrecₑ
         q≡q′ = ∣∣-functional ∣S∣≡ ∣S∣≡′
         q′rp≡ = let open RPe in begin
           q′ · r · p                ≡˘⟨ +-identityʳ _ ⟩
@@ -243,7 +243,7 @@ opaque
         γ′ , δ′ , η′ , ▸z , ▸s , ▸A , extra = ▸-inv-natrecₑ ▸e
         invUsageSuc {δ = θ} ▸t δ≤ = inv-usage-suc ▸t
         q≡q′ = ∣∣-functional ∣S∣≡ ∣S∣≡′
-        p″≡p′ = ∣∣ᵉ-functional ∣e∣≡ (natrecₑ ∣nr∣≡)
+        p″≡p′ = ∣∣ᶜ-functional ∣e∣≡ (natrecₑ ∣nr∣≡)
         χ , x , χ▸nr , rρ′χ≈rθ′ , rx≡rp′ = ▸nr′ ▸z ▸s ▸A extra ∣nr∣≡
         ▸t′ = ▸-cong (⌞⌟-cong (·-cong q≡q′ p″≡p′)) ▸t
         χ▸nr′ = ▸-cong (trans ⌞⌟ᵐ· (⌞⌟-cong (·-congʳ q≡q′))) χ▸nr
@@ -428,7 +428,7 @@ opaque
     let q , p , γ , δ , η , θ
           , ∣S∣≡ , ∣e∣≡ , ▸H , ▸t , ▸S , ▸e , γ≤ = ▸ₛ-∙-inv ▸s
         ok , θ≈𝟘  = ▸-inv-[]-congₑ ▸e
-        p≡𝟘 = ∣∣ᵉ-functional ∣e∣≡ []-congₑ
+        p≡𝟘 = ∣∣ᶜ-functional ∣e∣≡ []-congₑ
     in  ▸ₛ ∣S∣≡ ▸H rflₘ ▸S $ begin
       γ                                     ≤⟨ γ≤ ⟩
       (q · p) ·ᶜ wkConₘ ρ δ +ᶜ η +ᶜ q ·ᶜ θ  ≈⟨ +ᶜ-cong (·ᶜ-congʳ (·-congˡ p≡𝟘)) (+ᶜ-congˡ (·ᶜ-congˡ θ≈𝟘)) ⟩
@@ -517,7 +517,7 @@ opaque
     open ≤ᶜ-reasoning
     lemma : InvUsageNatrec γ ⌞ q ⌟ p q′ r A z s t →
             ∃₃ λ r′ δ η → ∣natrec p , r ∣≡ r′ × δ ▸[ ⌞ q · r′ ⌟ ] t ×
-            η ▸ᵉ[ ⌞ q ⌟ ] natrecₑ p q′ r A z s ρ ×
+            η ▸ᶜ[ ⌞ q ⌟ ] natrecₑ p q′ r A z s ρ ×
             wkConₘ ρ γ ≤ᶜ r′ ·ᶜ wkConₘ ρ δ +ᶜ η
     lemma {γ} (invUsageNatrec {δ} {η} {θ} ▸z ▸s ▸n ▸A γ≤ invUsageNatrecNr) =
       _ , _ , _
@@ -880,7 +880,7 @@ opaque
     case ▸Final-reasons ok ▸s f of λ where
       (inj₂ x) → inj₂ x
       (inj₁ (x , t≡x , d , ∣S∣≡𝟘)) →
-        case ▸∣S∣≢𝟘 (nem (¬erased-heap→¬↦● d)) ▸S of λ where
+        case ▸∣∣≢𝟘 (nem (¬erased-heap→¬↦● d)) ▸S of λ where
            (inj₁ ∣S∣≢𝟘) → ⊥-elim (∣S∣≢𝟘 ∣S∣≡𝟘)
            (inj₂ prop) → inj₁ (x , t≡x , d , prop)
 

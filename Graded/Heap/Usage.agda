@@ -44,9 +44,9 @@ private variable
   p q q′ r : M
   A B t t′ u u′ v z s : Term _
   S S′ : Stack _
-  e : Elim _
+  c : Cont _
   m : Mode
-  c : Entry _ _
+  e : Entry _ _
   s′ : Strength
   l : Universe-level
 
@@ -70,37 +70,37 @@ data _▸ʰ_ : (γ : Conₘ n) (H : Heap k n) → Set a where
   sub : γ ▸ʰ H → γ ≤ᶜ δ → δ ▸ʰ H
 
 ------------------------------------------------------------------------
--- Usage of eliminators and stacks
+-- Usage of continuations and stacks
 
--- Usage of eliminators
+-- Usage of continuations
 
-data _▸ᵉ[_]_ {n : Nat} : (γ : Conₘ n) (m : Mode) (e : Elim n) → Set a where
-  ∘ₑ : γ ▸[ m ᵐ· p ] u → p ·ᶜ wkConₘ ρ γ ▸ᵉ[ m ] ∘ₑ p u ρ
-  fstₑ : (m ≡ 𝟙ᵐ → p ≤ 𝟙) → 𝟘ᶜ ▸ᵉ[ m ] fstₑ p
-  sndₑ : 𝟘ᶜ ▸ᵉ[ m ] sndₑ p
+data _▸ᶜ[_]_ {n : Nat} : (γ : Conₘ n) (m : Mode) (c : Cont n) → Set a where
+  ∘ₑ : γ ▸[ m ᵐ· p ] u → p ·ᶜ wkConₘ ρ γ ▸ᶜ[ m ] ∘ₑ p u ρ
+  fstₑ : (m ≡ 𝟙ᵐ → p ≤ 𝟙) → 𝟘ᶜ ▸ᶜ[ m ] fstₑ p
+  sndₑ : 𝟘ᶜ ▸ᶜ[ m ] sndₑ p
   prodrecₑ : γ ∙ ⌜ m ⌝ · r · p ∙ ⌜ m ⌝ · r ▸[ m ] u → Prodrec-allowed m r p q
-           → wkConₘ ρ γ ▸ᵉ[ m ] prodrecₑ r p q A u ρ
+           → wkConₘ ρ γ ▸ᶜ[ m ] prodrecₑ r p q A u ρ
   natrecₑ : ⦃ has-nr : Nr-available ⦄
           → γ ▸[ m ] z → δ ∙ ⌜ m ⌝ · p ∙ ⌜ m ⌝ · r ▸[ m ] s
           → θ ∙ (⌜ 𝟘ᵐ? ⌝ · q) ▸[ 𝟘ᵐ? ] A
-          → wkConₘ ρ (nrᶜ p r γ δ 𝟘ᶜ) ▸ᵉ[ m ] natrecₑ p q r A z s ρ
+          → wkConₘ ρ (nrᶜ p r γ δ 𝟘ᶜ) ▸ᶜ[ m ] natrecₑ p q r A z s ρ
   natrec-no-nrₑ : ⦃ no-nr : Nr-not-available-GLB ⦄
                 → γ ▸[ m ] z → δ ∙ ⌜ m ⌝ · p ∙ ⌜ m ⌝ · r ▸[ m ] s
                 → θ ∙ (⌜ 𝟘ᵐ? ⌝ · q) ▸[ 𝟘ᵐ? ] A
                 → Greatest-lower-boundᶜ χ (nrᵢᶜ r γ δ)
-                → wkConₘ ρ χ ▸ᵉ[ m ] natrecₑ p q r A z s ρ
+                → wkConₘ ρ χ ▸ᶜ[ m ] natrecₑ p q r A z s ρ
   unitrecₑ : γ ▸[ m ] u → Unitrec-allowed m p q → ¬ Unitʷ-η
-           → wkConₘ ρ γ ▸ᵉ[ m ] unitrecₑ l p q A u ρ
-  emptyrecₑ : Emptyrec-allowed m p → 𝟘ᶜ ▸ᵉ[ m ] emptyrecₑ p A ρ
-  Jₑ : γ ▸[ m ] u → wkConₘ ρ γ ▸ᵉ[ m ] Jₑ p q A t B u v ρ
-  Kₑ : γ ▸[ m ] u → wkConₘ ρ γ ▸ᵉ[ m ] Kₑ p A t B u ρ
-  []-congₑ : []-cong-allowed-mode s′ m → 𝟘ᶜ ▸ᵉ[ m ] []-congₑ s′ A t u ρ
+           → wkConₘ ρ γ ▸ᶜ[ m ] unitrecₑ l p q A u ρ
+  emptyrecₑ : Emptyrec-allowed m p → 𝟘ᶜ ▸ᶜ[ m ] emptyrecₑ p A ρ
+  Jₑ : γ ▸[ m ] u → wkConₘ ρ γ ▸ᶜ[ m ] Jₑ p q A t B u v ρ
+  Kₑ : γ ▸[ m ] u → wkConₘ ρ γ ▸ᶜ[ m ] Kₑ p A t B u ρ
+  []-congₑ : []-cong-allowed-mode s′ m → 𝟘ᶜ ▸ᶜ[ m ] []-congₑ s′ A t u ρ
 
 -- Usage of stacks.
 
 data _▸ˢ_ {n : Nat} : (γ : Conₘ n) (S : Stack n) → Set a where
   ε : 𝟘ᶜ ▸ˢ ε
-  ▸ˢ∙ : ∣ S ∣≡ p → δ ▸ᵉ[ ⌞ p ⌟ ] e → γ ▸ˢ S → γ +ᶜ p ·ᶜ δ ▸ˢ e ∙ S
+  ▸ˢ∙ : ∣ S ∣≡ p → δ ▸ᶜ[ ⌞ p ⌟ ] c → γ ▸ˢ S → γ +ᶜ p ·ᶜ δ ▸ˢ c ∙ S
 
 ------------------------------------------------------------------------
 -- Usage of evaluation states.

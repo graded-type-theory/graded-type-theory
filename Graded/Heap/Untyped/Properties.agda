@@ -50,9 +50,9 @@ private variable
   p p′ q q′ r r′ : M
   y y′ : Ptr _
   x : Fin _
-  c c′ : Entry _ _
+  e e′ : Entry _ _
   Γ : Con Term _
-  e e′ e″ : Elim _
+  c c′ c″ : Cont _
   s s′ : State _ _ _
   σ : Subst _ _
   em : Erased-matches
@@ -216,7 +216,7 @@ opaque
 
   -- Lookup cannot yield both an entry and a dummy entry.
 
-  ¬↦∧↦● : H ⊢ y ↦ c → H ⊢ y ↦● → ⊥
+  ¬↦∧↦● : H ⊢ y ↦ e → H ⊢ y ↦● → ⊥
   ¬↦∧↦● here ()
   ¬↦∧↦● (there d) (there d′) = ¬↦∧↦● d d′
   ¬↦∧↦● (there● d) (there● d′) = ¬↦∧↦● d d′
@@ -235,7 +235,7 @@ opaque
 
   ¬erased-heap→↦ :
     {H : Heap k m} → k ≡ 0 → (y : Ptr m) →
-    ∃₂ λ n (c : Entry m n) → H ⊢ y ↦ c
+    ∃₂ λ n (e : Entry m n) → H ⊢ y ↦ e
   ¬erased-heap→↦ k≡0 y =
     case ↦⊎↦● y of λ where
       (inj₁ x) → x
@@ -246,7 +246,7 @@ opaque
   -- If heap lookup with update succeeds lookup without heap update
   -- succeeds with the same result.
 
-  ↦[]→↦ : H ⊢ y ↦[ q ] c ⨾ H′ → H ⊢ y ↦ c
+  ↦[]→↦ : H ⊢ y ↦[ q ] e ⨾ H′ → H ⊢ y ↦ e
   ↦[]→↦ (here x) = here
   ↦[]→↦ (there d) = there (↦[]→↦ d)
   ↦[]→↦ (there● d) = there● (↦[]→↦ d)
@@ -286,7 +286,7 @@ opaque
 
   -≢-no-lookup :
     (∀ {r} → H ⟨ y ⟩ʰ - q ≡ r → ⊥) →
-    H ⊢ y ↦[ q ] c ⨾ H′ → ⊥
+    H ⊢ y ↦[ q ] e ⨾ H′ → ⊥
   -≢-no-lookup p-q≢r (here p-q≡r) =
     p-q≢r p-q≡r
   -≢-no-lookup p-q≢r (there d) =
@@ -295,48 +295,48 @@ opaque
     -≢-no-lookup p-q≢r d
 
 ------------------------------------------------------------------------
--- Properties of stacks and eliminators
+-- Properties of stacks and continuations
 
 opaque
 
-  -- Applying a single substitution to a term and then to an eliminator
+  -- Applying a single substitution to a term and then to a continuation
 
-  ⦅⦆ᵉ-sgSubst : ∀ e → ⦅ e ⦆ᵉ (t [ u ]₀) ≡ ⦅ wk1ᵉ e ⦆ᵉ t [ u ]₀
-  ⦅⦆ᵉ-sgSubst (∘ₑ p u ρ) =
+  ⦅⦆ᶜ-sgSubst : ∀ c → ⦅ c ⦆ᶜ (t [ u ]₀) ≡ ⦅ wk1ᶜ c ⦆ᶜ t [ u ]₀
+  ⦅⦆ᶜ-sgSubst (∘ₑ p u ρ) =
     cong (_ ∘_) (sym (step-sgSubst _ _))
-  ⦅⦆ᵉ-sgSubst (fstₑ p) = refl
-  ⦅⦆ᵉ-sgSubst (sndₑ p) = refl
-  ⦅⦆ᵉ-sgSubst {u = v} (prodrecₑ r p q A u ρ) =
+  ⦅⦆ᶜ-sgSubst (fstₑ p) = refl
+  ⦅⦆ᶜ-sgSubst (sndₑ p) = refl
+  ⦅⦆ᶜ-sgSubst {u = v} (prodrecₑ r p q A u ρ) =
     cong₂ (λ u A → prodrec r p q A _ u)
       (lifts-step-sgSubst 2 u)
       (lifts-step-sgSubst 1 A)
-  ⦅⦆ᵉ-sgSubst {u} (natrecₑ p q r A z s ρ) =
+  ⦅⦆ᶜ-sgSubst {u} (natrecₑ p q r A z s ρ) =
     cong₃ (λ A z s → natrec p q r A z s _)
       (lifts-step-sgSubst 1 A)
       (lifts-step-sgSubst 0 z)
       (lifts-step-sgSubst 2 s)
-  ⦅⦆ᵉ-sgSubst {u = v} (unitrecₑ _ p q A u ρ) =
+  ⦅⦆ᶜ-sgSubst {u = v} (unitrecₑ _ p q A u ρ) =
     cong₂ (λ u A → unitrec _ p q A _ u)
       (sym (step-sgSubst _ _))
       (lifts-step-sgSubst 1 A)
-  ⦅⦆ᵉ-sgSubst (emptyrecₑ p A ρ) =
+  ⦅⦆ᶜ-sgSubst (emptyrecₑ p A ρ) =
     cong (λ A → emptyrec p A _)
       (lifts-step-sgSubst 0 A)
-  ⦅⦆ᵉ-sgSubst (Jₑ p q A t B u v ρ) =
+  ⦅⦆ᶜ-sgSubst (Jₑ p q A t B u v ρ) =
     sym (cong₅ (λ A t B u v → J p q A t B u v _)
       (step-sgSubst A _) (step-sgSubst t _)
       (sym (lifts-step-sgSubst 2 B))
       (step-sgSubst u _) (step-sgSubst v _))
-  ⦅⦆ᵉ-sgSubst (Kₑ p A t B u ρ) =
+  ⦅⦆ᶜ-sgSubst (Kₑ p A t B u ρ) =
     sym (cong₄ (λ A t B u → K p A t B u _)
       (step-sgSubst A _) (step-sgSubst t _)
       (sym (lifts-step-sgSubst 1 B))
       (step-sgSubst u _))
-  ⦅⦆ᵉ-sgSubst ([]-congₑ s A t u ρ) =
+  ⦅⦆ᶜ-sgSubst ([]-congₑ s A t u ρ) =
     sym (cong₃ (λ A t u → []-cong s A t u _)
       (step-sgSubst A _) (step-sgSubst t _)
       (step-sgSubst u _))
-  ⦅⦆ᵉ-sgSubst sucₑ = refl
+  ⦅⦆ᶜ-sgSubst sucₑ = refl
 
 opaque
 
@@ -346,48 +346,48 @@ opaque
   ⦅⦆ˢ-sgSubst ε = refl
   ⦅⦆ˢ-sgSubst {t} {u} (e ∙ S) = begin
    ⦅ e ∙ S ⦆ˢ (t [ u ]₀)              ≡⟨⟩
-   ⦅ S ⦆ˢ (⦅ e ⦆ᵉ (t [ u ]₀))          ≡⟨ cong ⦅ S ⦆ˢ_ (⦅⦆ᵉ-sgSubst e) ⟩
-   ⦅ S ⦆ˢ (⦅ wk1ᵉ e ⦆ᵉ t [ u ]₀)       ≡⟨ ⦅⦆ˢ-sgSubst S ⟩
-   ⦅ wk1ˢ S ⦆ˢ (⦅ wk1ᵉ e ⦆ᵉ t) [ u ]₀  ≡⟨⟩
+   ⦅ S ⦆ˢ (⦅ e ⦆ᶜ (t [ u ]₀))          ≡⟨ cong ⦅ S ⦆ˢ_ (⦅⦆ᶜ-sgSubst e) ⟩
+   ⦅ S ⦆ˢ (⦅ wk1ᶜ e ⦆ᶜ t [ u ]₀)       ≡⟨ ⦅⦆ˢ-sgSubst S ⟩
+   ⦅ wk1ˢ S ⦆ˢ (⦅ wk1ᶜ e ⦆ᶜ t) [ u ]₀  ≡⟨⟩
    ⦅ wk1ˢ (e ∙ S) ⦆ˢ t [ u ]₀         ∎
 
 opaque
 
-  -- Applying a double substitution to a term and then to an eliminator
+  -- Applying a double substitution to a term and then to a continuation
 
-  ⦅⦆ᵉ-[,] : ∀ e → ⦅ e ⦆ᵉ (t [ u , v ]₁₀) ≡ ⦅ wk2ᵉ e ⦆ᵉ t [ u , v ]₁₀
-  ⦅⦆ᵉ-[,] (∘ₑ p u ρ) =
+  ⦅⦆ᶜ-[,] : ∀ e → ⦅ e ⦆ᶜ (t [ u , v ]₁₀) ≡ ⦅ wk2ᶜ e ⦆ᶜ t [ u , v ]₁₀
+  ⦅⦆ᶜ-[,] (∘ₑ p u ρ) =
     cong (_ ∘_) (lifts-step-[,] 0 u)
-  ⦅⦆ᵉ-[,] (fstₑ x) = refl
-  ⦅⦆ᵉ-[,] (sndₑ x) = refl
-  ⦅⦆ᵉ-[,] (prodrecₑ r p q A u ρ) =
+  ⦅⦆ᶜ-[,] (fstₑ x) = refl
+  ⦅⦆ᶜ-[,] (sndₑ x) = refl
+  ⦅⦆ᶜ-[,] (prodrecₑ r p q A u ρ) =
     cong₂ (λ x y → prodrec r p q x _ y)
       (lifts-step-[,] 1 A)
       (lifts-step-[,] 2 u)
-  ⦅⦆ᵉ-[,] (natrecₑ p q r A z s ρ) =
+  ⦅⦆ᶜ-[,] (natrecₑ p q r A z s ρ) =
     cong₃ (λ A z s → natrec p q r A z s _)
       (lifts-step-[,] 1 A)
       (lifts-step-[,] 0 z)
       (lifts-step-[,] 2 s)
-  ⦅⦆ᵉ-[,] (unitrecₑ _ p q A u ρ) =
+  ⦅⦆ᶜ-[,] (unitrecₑ _ p q A u ρ) =
     cong₂ (λ x y → unitrec _ p q x _ y)
       (lifts-step-[,] 1 A) (lifts-step-[,] 0 u)
-  ⦅⦆ᵉ-[,] (emptyrecₑ p A ρ) =
+  ⦅⦆ᶜ-[,] (emptyrecₑ p A ρ) =
     cong (λ A → emptyrec p A _) (lifts-step-[,] 0 A)
-  ⦅⦆ᵉ-[,] (Jₑ p q A t B u v ρ) =
+  ⦅⦆ᶜ-[,] (Jₑ p q A t B u v ρ) =
     cong₅ (λ A t B u v → J p q A t B u v _)
       (lifts-step-[,] 0 A) (lifts-step-[,] 0 t)
       (lifts-step-[,] 2 B) (lifts-step-[,] 0 u)
       (lifts-step-[,] 0 v)
-  ⦅⦆ᵉ-[,] (Kₑ p A t B u ρ) =
+  ⦅⦆ᶜ-[,] (Kₑ p A t B u ρ) =
     cong₄ (λ A t B u → K p A t B u _)
       (lifts-step-[,] 0 A) (lifts-step-[,] 0 t)
       (lifts-step-[,] 1 B) (lifts-step-[,] 0 u)
-  ⦅⦆ᵉ-[,] ([]-congₑ s A t u ρ) =
+  ⦅⦆ᶜ-[,] ([]-congₑ s A t u ρ) =
     cong₃ (λ A t u → []-cong s A t u _)
       (lifts-step-[,] 0 A) (lifts-step-[,] 0 t)
       (lifts-step-[,] 0 u)
-  ⦅⦆ᵉ-[,] sucₑ = refl
+  ⦅⦆ᶜ-[,] sucₑ = refl
 
 opaque
 
@@ -397,77 +397,77 @@ opaque
   ⦅⦆ˢ-[,] ε = refl
   ⦅⦆ˢ-[,] {t} {u} {v} (e ∙ S) = begin
     ⦅ e ∙ S ⦆ˢ (t [ u , v ]₁₀)             ≡⟨⟩
-    ⦅ S ⦆ˢ (⦅ e ⦆ᵉ (t [ u , v ]₁₀))         ≡⟨ cong ⦅ S ⦆ˢ_ (⦅⦆ᵉ-[,] e) ⟩
-    ⦅ S ⦆ˢ (⦅ wk2ᵉ e ⦆ᵉ t [ u , v ]₁₀)      ≡⟨ ⦅⦆ˢ-[,] S ⟩
-    ⦅ wk2ˢ S ⦆ˢ (⦅ wk2ᵉ e ⦆ᵉ t) [ u , v ]₁₀ ≡⟨⟩
+    ⦅ S ⦆ˢ (⦅ e ⦆ᶜ (t [ u , v ]₁₀))         ≡⟨ cong ⦅ S ⦆ˢ_ (⦅⦆ᶜ-[,] e) ⟩
+    ⦅ S ⦆ˢ (⦅ wk2ᶜ e ⦆ᶜ t [ u , v ]₁₀)      ≡⟨ ⦅⦆ˢ-[,] S ⟩
+    ⦅ wk2ˢ S ⦆ˢ (⦅ wk2ᶜ e ⦆ᶜ t) [ u , v ]₁₀ ≡⟨⟩
     ⦅ wk2ˢ (e ∙ S) ⦆ˢ t [ u , v ]₁₀        ∎
 
 opaque
 
-  -- Weakening of an eliminator applied to a Term
+  -- Weakening of a continuation applied to a Term
 
-  wk-⦅⦆ᵉ : ∀ {ρ : Wk m n} e → wk ρ (⦅ e ⦆ᵉ t) ≡ ⦅ wkᵉ ρ e ⦆ᵉ (wk ρ t)
-  wk-⦅⦆ᵉ {ρ} (∘ₑ p u ρ′) =
+  wk-⦅⦆ᶜ : ∀ {ρ : Wk m n} e → wk ρ (⦅ e ⦆ᶜ t) ≡ ⦅ wkᶜ ρ e ⦆ᶜ (wk ρ t)
+  wk-⦅⦆ᶜ {ρ} (∘ₑ p u ρ′) =
     cong (_ ∘_) (wk-comp ρ ρ′ u)
-  wk-⦅⦆ᵉ (fstₑ p) = refl
-  wk-⦅⦆ᵉ (sndₑ p) = refl
-  wk-⦅⦆ᵉ {ρ} (prodrecₑ r p q A u ρ′) =
+  wk-⦅⦆ᶜ (fstₑ p) = refl
+  wk-⦅⦆ᶜ (sndₑ p) = refl
+  wk-⦅⦆ᶜ {ρ} (prodrecₑ r p q A u ρ′) =
     cong₂ (λ A u → prodrec r p q A _ u)
       (wk-comp (lift ρ) (lift ρ′) A)
       (wk-comp (liftn ρ 2) (liftn ρ′ 2) u)
-  wk-⦅⦆ᵉ {ρ} (natrecₑ p q r A z s ρ′) =
+  wk-⦅⦆ᶜ {ρ} (natrecₑ p q r A z s ρ′) =
     cong₃ (λ A z s → natrec p q r A z s _)
       (wk-comp (lift ρ) (lift ρ′) A)
       (wk-comp ρ ρ′ z)
       (wk-comp (liftn ρ 2) (liftn ρ′ 2) s)
-  wk-⦅⦆ᵉ {ρ} (unitrecₑ _ p q A u ρ′) =
+  wk-⦅⦆ᶜ {ρ} (unitrecₑ _ p q A u ρ′) =
     cong₂ (λ A u → unitrec _ p q A _ u)
       (wk-comp (lift ρ) (lift ρ′) A)
       (wk-comp ρ ρ′ u)
-  wk-⦅⦆ᵉ {ρ} (emptyrecₑ p A ρ′) =
+  wk-⦅⦆ᶜ {ρ} (emptyrecₑ p A ρ′) =
     cong (λ A → emptyrec p A _) (wk-comp ρ ρ′ A)
-  wk-⦅⦆ᵉ {ρ} (Jₑ p q A t B u v ρ′) =
+  wk-⦅⦆ᶜ {ρ} (Jₑ p q A t B u v ρ′) =
     cong₅ (λ A t B u v → J p q A t B u v _)
       (wk-comp ρ ρ′ A) (wk-comp ρ ρ′ t)
       (wk-comp (liftn ρ 2) (liftn ρ′ 2) B)
       (wk-comp ρ ρ′ u) (wk-comp ρ ρ′ v)
-  wk-⦅⦆ᵉ {ρ} (Kₑ p A t B u ρ′) =
+  wk-⦅⦆ᶜ {ρ} (Kₑ p A t B u ρ′) =
     cong₄ (λ A t B u → K p A t B u _)
       (wk-comp ρ ρ′ A) (wk-comp ρ ρ′ t)
       (wk-comp (lift ρ) (lift ρ′) B) (wk-comp ρ ρ′ u)
-  wk-⦅⦆ᵉ {ρ} ([]-congₑ s A t u ρ′) =
+  wk-⦅⦆ᶜ {ρ} ([]-congₑ s A t u ρ′) =
     cong₃ (λ A t u → []-cong s A t u _)
       (wk-comp ρ ρ′ A) (wk-comp ρ ρ′ t)
       (wk-comp ρ ρ′ u)
-  wk-⦅⦆ᵉ {ρ} sucₑ = refl
+  wk-⦅⦆ᶜ {ρ} sucₑ = refl
 
 opaque
 
-  -- A congruence property for eliminators
+  -- A congruence property for continuations
 
-  ⦅⦆ᵉ-cong : ∀ e → t [ σ ] ≡ u [ σ ]
-         → ⦅ e ⦆ᵉ t [ σ ] ≡ ⦅ e ⦆ᵉ u [ σ ]
-  ⦅⦆ᵉ-cong (∘ₑ p u ρ) t≡u =
+  ⦅⦆ᶜ-cong : ∀ e → t [ σ ] ≡ u [ σ ]
+         → ⦅ e ⦆ᶜ t [ σ ] ≡ ⦅ e ⦆ᶜ u [ σ ]
+  ⦅⦆ᶜ-cong (∘ₑ p u ρ) t≡u =
     cong (_∘ _) t≡u
-  ⦅⦆ᵉ-cong (fstₑ x) t≡u =
+  ⦅⦆ᶜ-cong (fstₑ x) t≡u =
     cong (fst _) t≡u
-  ⦅⦆ᵉ-cong (sndₑ x) t≡u =
+  ⦅⦆ᶜ-cong (sndₑ x) t≡u =
     cong (snd _) t≡u
-  ⦅⦆ᵉ-cong (prodrecₑ r p q A u ρ) t≡u =
+  ⦅⦆ᶜ-cong (prodrecₑ r p q A u ρ) t≡u =
     cong (λ t → prodrec _ _ _ _ t _) t≡u
-  ⦅⦆ᵉ-cong (natrecₑ p q r A z s ρ) t≡u =
+  ⦅⦆ᶜ-cong (natrecₑ p q r A z s ρ) t≡u =
     cong (λ t → natrec _ _ _ _ _ _ t) t≡u
-  ⦅⦆ᵉ-cong (unitrecₑ _ p q A u ρ) t≡u =
+  ⦅⦆ᶜ-cong (unitrecₑ _ p q A u ρ) t≡u =
     cong (λ t → unitrec _ _ _ _ t _) t≡u
-  ⦅⦆ᵉ-cong (emptyrecₑ p A ρ) t≡u =
+  ⦅⦆ᶜ-cong (emptyrecₑ p A ρ) t≡u =
     cong (emptyrec _ _) t≡u
-  ⦅⦆ᵉ-cong (Jₑ p q A t B u v ρ) t≡u =
+  ⦅⦆ᶜ-cong (Jₑ p q A t B u v ρ) t≡u =
     cong (J _ _ _ _ _ _ _) t≡u
-  ⦅⦆ᵉ-cong (Kₑ p A t B u ρ) t≡u =
+  ⦅⦆ᶜ-cong (Kₑ p A t B u ρ) t≡u =
     cong (K _ _ _ _ _) t≡u
-  ⦅⦆ᵉ-cong ([]-congₑ s A t u ρ) t≡u =
+  ⦅⦆ᶜ-cong ([]-congₑ s A t u ρ) t≡u =
     cong ([]-cong _ _ _ _) t≡u
-  ⦅⦆ᵉ-cong sucₑ t≡u =
+  ⦅⦆ᶜ-cong sucₑ t≡u =
     cong suc t≡u
 
 opaque
@@ -477,7 +477,7 @@ opaque
   ⦅⦆ˢ-cong : ∀ S → t [ σ ] ≡ u [ σ ]
          → ⦅ S ⦆ˢ t [ σ ] ≡ ⦅ S ⦆ˢ u [ σ ]
   ⦅⦆ˢ-cong ε t≡u = t≡u
-  ⦅⦆ˢ-cong (e ∙ S) t≡u = ⦅⦆ˢ-cong S (⦅⦆ᵉ-cong e t≡u)
+  ⦅⦆ˢ-cong (e ∙ S) t≡u = ⦅⦆ˢ-cong S (⦅⦆ᶜ-cong e t≡u)
 
 opaque
 
@@ -491,25 +491,25 @@ opaque
 
   -- An inversion lemma for multiplicity of non-empty stacks
 
-  ∣∣∙-inv : ∣ e ∙ S ∣≡ p → ∃₂ λ q r → ∣ e ∣ᵉ≡ q × ∣ S ∣≡ r × p ≡ r · q
+  ∣∣∙-inv : ∣ c ∙ S ∣≡ p → ∃₂ λ q r → ∣ c ∣ᶜ≡ q × ∣ S ∣≡ r × p ≡ r · q
   ∣∣∙-inv (e ∙ S) = _ , _ , e , S , refl
 
 opaque
 
-  -- Eliminator weakening preserves multiplicity
+  -- Continuation weakening preserves multiplicity
 
-  wk-∣∣ᵉ : ∣ e ∣ᵉ≡ p → ∣ wkᵉ ρ e ∣ᵉ≡ p
-  wk-∣∣ᵉ ∘ₑ = ∘ₑ
-  wk-∣∣ᵉ fstₑ = fstₑ
-  wk-∣∣ᵉ sndₑ = sndₑ
-  wk-∣∣ᵉ (natrecₑ x) = natrecₑ x
-  wk-∣∣ᵉ prodrecₑ = prodrecₑ
-  wk-∣∣ᵉ unitrecₑ = unitrecₑ
-  wk-∣∣ᵉ emptyrecₑ = emptyrecₑ
-  wk-∣∣ᵉ (Jₑ x) = Jₑ x
-  wk-∣∣ᵉ (Kₑ x) = Kₑ x
-  wk-∣∣ᵉ []-congₑ = []-congₑ
-  wk-∣∣ᵉ sucₑ = sucₑ
+  wk-∣∣ᶜ : ∣ c ∣ᶜ≡ p → ∣ wkᶜ ρ c ∣ᶜ≡ p
+  wk-∣∣ᶜ ∘ₑ = ∘ₑ
+  wk-∣∣ᶜ fstₑ = fstₑ
+  wk-∣∣ᶜ sndₑ = sndₑ
+  wk-∣∣ᶜ (natrecₑ x) = natrecₑ x
+  wk-∣∣ᶜ prodrecₑ = prodrecₑ
+  wk-∣∣ᶜ unitrecₑ = unitrecₑ
+  wk-∣∣ᶜ emptyrecₑ = emptyrecₑ
+  wk-∣∣ᶜ (Jₑ x) = Jₑ x
+  wk-∣∣ᶜ (Kₑ x) = Kₑ x
+  wk-∣∣ᶜ []-congₑ = []-congₑ
+  wk-∣∣ᶜ sucₑ = sucₑ
 
 opaque
 
@@ -517,70 +517,70 @@ opaque
 
   wk-∣∣ : ∣ S ∣≡ p → ∣ wkˢ ρ S ∣≡ p
   wk-∣∣ ε = ε
-  wk-∣∣ (e ∙ S) = wk-∣∣ᵉ e ∙ wk-∣∣ S
+  wk-∣∣ (e ∙ S) = wk-∣∣ᶜ e ∙ wk-∣∣ S
 
 opaque
 
   -- The multiplicity relation for natrecₑ is functional
 
-  ∣natrec∣ᵉ-functional :
+  ∣natrec∣ᶜ-functional :
     ∣natrec p , r ∣≡ q → ∣natrec p , r ∣≡ q′ → q ≡ q′
-  ∣natrec∣ᵉ-functional
+  ∣natrec∣ᶜ-functional
     (has-nrₑ ⦃ has-nr ⦄) (has-nrₑ ⦃ has-nr = has-nr′ ⦄) =
     case Nr-available-propositional _ has-nr has-nr′ of λ where
       refl → refl
-  ∣natrec∣ᵉ-functional (has-nrₑ ⦃ has-nr ⦄) (no-nrₑ ⦃ no-nr ⦄ x) =
+  ∣natrec∣ᶜ-functional (has-nrₑ ⦃ has-nr ⦄) (no-nrₑ ⦃ no-nr ⦄ x) =
     ⊥-elim (¬[Nr∧No-nr-glb] _ has-nr no-nr)
-  ∣natrec∣ᵉ-functional (no-nrₑ ⦃ no-nr ⦄ x) (has-nrₑ ⦃ has-nr ⦄) =
+  ∣natrec∣ᶜ-functional (no-nrₑ ⦃ no-nr ⦄ x) (has-nrₑ ⦃ has-nr ⦄) =
     ⊥-elim (¬[Nr∧No-nr-glb] _ has-nr no-nr)
-  ∣natrec∣ᵉ-functional (no-nrₑ x) (no-nrₑ y) =
+  ∣natrec∣ᶜ-functional (no-nrₑ x) (no-nrₑ y) =
     GLB-unique x y
 
 opaque
 
   -- The multiplicity relation for Jₑ is functional
 
-  ∣J∣ᵉ-functional : ∣J em , p , q ∣≡ r → ∣J em , p , q ∣≡ r′ → r ≡ r′
-  ∣J∣ᵉ-functional J-all J-all = refl
-  ∣J∣ᵉ-functional (J-some₀ _ _) (J-some₀ _ _) = refl
-  ∣J∣ᵉ-functional (J-some₀ p≡𝟘 q≡𝟘) (J-some false) =
+  ∣J∣ᶜ-functional : ∣J em , p , q ∣≡ r → ∣J em , p , q ∣≡ r′ → r ≡ r′
+  ∣J∣ᶜ-functional J-all J-all = refl
+  ∣J∣ᶜ-functional (J-some₀ _ _) (J-some₀ _ _) = refl
+  ∣J∣ᶜ-functional (J-some₀ p≡𝟘 q≡𝟘) (J-some false) =
     ⊥-elim (false (p≡𝟘 , q≡𝟘))
-  ∣J∣ᵉ-functional (J-some false) (J-some₀ p≡𝟘 q≡𝟘) =
+  ∣J∣ᶜ-functional (J-some false) (J-some₀ p≡𝟘 q≡𝟘) =
     ⊥-elim (false (p≡𝟘 , q≡𝟘))
-  ∣J∣ᵉ-functional (J-some _) (J-some _) = refl
-  ∣J∣ᵉ-functional J-none J-none = refl
+  ∣J∣ᶜ-functional (J-some _) (J-some _) = refl
+  ∣J∣ᶜ-functional J-none J-none = refl
 
 opaque
 
   -- The multiplicity relation for Kₑ is functional
 
-  ∣K∣ᵉ-functional : ∣K em , p ∣≡ r → ∣K em , p ∣≡ r′ → r ≡ r′
-  ∣K∣ᵉ-functional K-all K-all = refl
-  ∣K∣ᵉ-functional (K-some₀ _) (K-some₀ _) = refl
-  ∣K∣ᵉ-functional (K-some₀ p≡𝟘) (K-some p≢𝟘) =
+  ∣K∣ᶜ-functional : ∣K em , p ∣≡ r → ∣K em , p ∣≡ r′ → r ≡ r′
+  ∣K∣ᶜ-functional K-all K-all = refl
+  ∣K∣ᶜ-functional (K-some₀ _) (K-some₀ _) = refl
+  ∣K∣ᶜ-functional (K-some₀ p≡𝟘) (K-some p≢𝟘) =
     ⊥-elim (p≢𝟘 p≡𝟘)
-  ∣K∣ᵉ-functional (K-some p≢𝟘) (K-some₀ p≡𝟘) =
+  ∣K∣ᶜ-functional (K-some p≢𝟘) (K-some₀ p≡𝟘) =
     ⊥-elim (p≢𝟘 p≡𝟘)
-  ∣K∣ᵉ-functional (K-some _) (K-some _) = refl
-  ∣K∣ᵉ-functional K-none K-none = refl
+  ∣K∣ᶜ-functional (K-some _) (K-some _) = refl
+  ∣K∣ᶜ-functional K-none K-none = refl
 
 opaque
 
-  -- The multiplicity relation for eliminators is functional
+  -- The multiplicity relation for continuations is functional
 
-  ∣∣ᵉ-functional : ∣ e ∣ᵉ≡ p → ∣ e ∣ᵉ≡ q → p ≡ q
-  ∣∣ᵉ-functional ∘ₑ ∘ₑ = refl
-  ∣∣ᵉ-functional fstₑ fstₑ = refl
-  ∣∣ᵉ-functional sndₑ sndₑ = refl
-  ∣∣ᵉ-functional prodrecₑ prodrecₑ = refl
-  ∣∣ᵉ-functional (natrecₑ x) (natrecₑ y) =
-    ∣natrec∣ᵉ-functional x y
-  ∣∣ᵉ-functional unitrecₑ unitrecₑ = refl
-  ∣∣ᵉ-functional emptyrecₑ emptyrecₑ = refl
-  ∣∣ᵉ-functional (Jₑ x) (Jₑ y) = ∣J∣ᵉ-functional x y
-  ∣∣ᵉ-functional (Kₑ x) (Kₑ y) = ∣K∣ᵉ-functional x y
-  ∣∣ᵉ-functional []-congₑ []-congₑ = refl
-  ∣∣ᵉ-functional sucₑ sucₑ = refl
+  ∣∣ᶜ-functional : ∣ c ∣ᶜ≡ p → ∣ c ∣ᶜ≡ q → p ≡ q
+  ∣∣ᶜ-functional ∘ₑ ∘ₑ = refl
+  ∣∣ᶜ-functional fstₑ fstₑ = refl
+  ∣∣ᶜ-functional sndₑ sndₑ = refl
+  ∣∣ᶜ-functional prodrecₑ prodrecₑ = refl
+  ∣∣ᶜ-functional (natrecₑ x) (natrecₑ y) =
+    ∣natrec∣ᶜ-functional x y
+  ∣∣ᶜ-functional unitrecₑ unitrecₑ = refl
+  ∣∣ᶜ-functional emptyrecₑ emptyrecₑ = refl
+  ∣∣ᶜ-functional (Jₑ x) (Jₑ y) = ∣J∣ᶜ-functional x y
+  ∣∣ᶜ-functional (Kₑ x) (Kₑ y) = ∣K∣ᶜ-functional x y
+  ∣∣ᶜ-functional []-congₑ []-congₑ = refl
+  ∣∣ᶜ-functional sucₑ sucₑ = refl
 
 opaque
 
@@ -589,7 +589,7 @@ opaque
   ∣∣-functional : ∣ S ∣≡ p → ∣ S ∣≡ q → p ≡ q
   ∣∣-functional ε ε = refl
   ∣∣-functional (e ∙ S) (e′ ∙ S′) =
-    ·-cong (∣∣-functional S S′) (∣∣ᵉ-functional e e′)
+    ·-cong (∣∣-functional S S′) (∣∣ᶜ-functional e e′)
 
 opaque
 
@@ -628,24 +628,24 @@ opaque
 
 opaque
 
-  -- The multiplicity for an eliminator e always exists if when e is
+  -- The multiplicity for a continuation c always exists if when c is
   -- natrecₑ then the usage rule for natrec using an nr function is used.
 
-  ∣∣ᵉ≡ :
-    (∀ {n p q r A u v ρ} → e ≡ natrecₑ {n = n} p q r A u v ρ → Nr-available) →
-    ∃ ∣ e ∣ᵉ≡_
-  ∣∣ᵉ≡ {e = ∘ₑ p u ρ} _ = 𝟙 , ∘ₑ
-  ∣∣ᵉ≡ {e = fstₑ x} _ = 𝟙 , fstₑ
-  ∣∣ᵉ≡ {e = sndₑ x} _ = 𝟙 , sndₑ
-  ∣∣ᵉ≡ {e = prodrecₑ r p q A u ρ} _ = r , prodrecₑ
-  ∣∣ᵉ≡ {e = natrecₑ p q r A z s ρ} has-nr =
+  ∣∣ᶜ≡ :
+    (∀ {n p q r A u v ρ} → c ≡ natrecₑ {n = n} p q r A u v ρ → Nr-available) →
+    ∃ ∣ c ∣ᶜ≡_
+  ∣∣ᶜ≡ {c = ∘ₑ p u ρ} _ = 𝟙 , ∘ₑ
+  ∣∣ᶜ≡ {c = fstₑ x} _ = 𝟙 , fstₑ
+  ∣∣ᶜ≡ {c = sndₑ x} _ = 𝟙 , sndₑ
+  ∣∣ᶜ≡ {c = prodrecₑ r p q A u ρ} _ = r , prodrecₑ
+  ∣∣ᶜ≡ {c = natrecₑ p q r A z s ρ} has-nr =
     _ , natrecₑ (∣nr∣≡ ⦃ has-nr refl ⦄ .proj₂)
-  ∣∣ᵉ≡ {e = unitrecₑ l p q A u ρ} _ = p , unitrecₑ
-  ∣∣ᵉ≡ {e = emptyrecₑ p A ρ} _ = p , emptyrecₑ
-  ∣∣ᵉ≡ {e = Jₑ p q A t B u v ρ} _ = _ , Jₑ (∣J∣≡ .proj₂)
-  ∣∣ᵉ≡ {e = Kₑ p A t B u ρ} _ = _ , Kₑ (∣K∣≡ .proj₂)
-  ∣∣ᵉ≡ {e = []-congₑ s A t u ρ} _ = 𝟘 , []-congₑ
-  ∣∣ᵉ≡ {e = sucₑ} _ = 𝟙 , sucₑ
+  ∣∣ᶜ≡ {c = unitrecₑ l p q A u ρ} _ = p , unitrecₑ
+  ∣∣ᶜ≡ {c = emptyrecₑ p A ρ} _ = p , emptyrecₑ
+  ∣∣ᶜ≡ {c = Jₑ p q A t B u v ρ} _ = _ , Jₑ (∣J∣≡ .proj₂)
+  ∣∣ᶜ≡ {c = Kₑ p A t B u ρ} _ = _ , Kₑ (∣K∣≡ .proj₂)
+  ∣∣ᶜ≡ {c = []-congₑ s A t u ρ} _ = 𝟘 , []-congₑ
+  ∣∣ᶜ≡ {c = sucₑ} _ = 𝟙 , sucₑ
 
 opaque
 
@@ -657,7 +657,7 @@ opaque
   ∣∣≡ {S = ε} _ = 𝟙 , ε
   ∣∣≡ {S = e ∙ S} has-nr =
     let _ , ∣S∣≡ = ∣∣≡ (has-nr ∘→ there)
-        _ , ∣e∣≡ = ∣∣ᵉ≡ λ { refl → has-nr here}
+        _ , ∣e∣≡ = ∣∣ᶜ≡ λ { refl → has-nr here}
     in  _ , ∣e∣≡ ∙ ∣S∣≡
 
 opaque
@@ -791,8 +791,8 @@ opaque
     there′ :
       (∃ λ p → prodrec 𝟘 , p ∈ S) ⊎ (unitrec 𝟘 ∈ S) ⊎ (emptyrec 𝟘 ∈ S) ⊎
       (∃₂ λ p q → J p , q ∈ S) ⊎ (∃ λ p → K p ∈ S) ⊎ ([]-cong∈ S) →
-      (∃ λ p → prodrec 𝟘 , p ∈ (e ∙ S)) ⊎ (unitrec 𝟘 ∈ e ∙ S) ⊎ (emptyrec 𝟘 ∈ e ∙ S) ⊎
-      (∃₂ λ p q → J p , q ∈ e ∙ S) ⊎ (∃ λ p → K p ∈ e ∙ S) ⊎ ([]-cong∈ e ∙ S)
+      (∃ λ p → prodrec 𝟘 , p ∈ (c ∙ S)) ⊎ (unitrec 𝟘 ∈ c ∙ S) ⊎ (emptyrec 𝟘 ∈ c ∙ S) ⊎
+      (∃₂ λ p q → J p , q ∈ c ∙ S) ⊎ (∃ λ p → K p ∈ c ∙ S) ⊎ ([]-cong∈ c ∙ S)
     there′ (inj₁ (_ , x)) = inj₁ (_ , there x)
     there′ (inj₂ (inj₁ x)) = inj₂ (inj₁ (there x))
     there′ (inj₂ (inj₂ (inj₁ x))) = inj₂ (inj₂ (inj₁ (there x)))
@@ -800,9 +800,9 @@ opaque
     there′ (inj₂ (inj₂ (inj₂ (inj₂ (inj₁ (_ , x)))))) = inj₂ (inj₂ (inj₂ (inj₂ (inj₁ (_ , there x)))))
     there′ (inj₂ (inj₂ (inj₂ (inj₂ (inj₂ x))))) = inj₂ (inj₂ (inj₂ (inj₂ (inj₂ (there x)))))
     here′ :
-      q ≡ 𝟘 → ∣ e ∣ᵉ≡ q →
-      (∃ λ p → prodrec 𝟘 , p ∈ (e ∙ S)) ⊎ (unitrec 𝟘 ∈ e ∙ S) ⊎ (emptyrec 𝟘 ∈ e ∙ S) ⊎
-      (∃₂ λ p q → J p , q ∈ e ∙ S) ⊎ (∃ λ p → K p ∈ e ∙ S) ⊎ ([]-cong∈ e ∙ S)
+      q ≡ 𝟘 → ∣ c ∣ᶜ≡ q →
+      (∃ λ p → prodrec 𝟘 , p ∈ (c ∙ S)) ⊎ (unitrec 𝟘 ∈ c ∙ S) ⊎ (emptyrec 𝟘 ∈ c ∙ S) ⊎
+      (∃₂ λ p q → J p , q ∈ c ∙ S) ⊎ (∃ λ p → K p ∈ c ∙ S) ⊎ ([]-cong∈ c ∙ S)
     here′ q≡ ∘ₑ = ⊥-elim (non-trivial q≡)
     here′ q≡ fstₑ = ⊥-elim (non-trivial q≡)
     here′ q≡ sndₑ = ⊥-elim (non-trivial q≡)
@@ -844,7 +844,7 @@ opaque
 
   ⦅⦆ˢ++ : ∀ S S′ → ⦅ S ++ S′ ⦆ˢ t ≡ ⦅ S′ ⦆ˢ (⦅ S ⦆ˢ t)
   ⦅⦆ˢ++ ε S′ = refl
-  ⦅⦆ˢ++ (e ∙ S) S′ = ⦅⦆ˢ++ S S′
+  ⦅⦆ˢ++ (c ∙ S) S′ = ⦅⦆ˢ++ S S′
 
 opaque
 
@@ -852,7 +852,7 @@ opaque
 
   wk-++ : (ρ : Wk m n) (S : Stack n) → wkˢ ρ (S ++ S′) ≡ wkˢ ρ S ++ wkˢ ρ S′
   wk-++ ρ ε = refl
-  wk-++ ρ (e ∙ S) = cong (_ ∙_) (wk-++ ρ S)
+  wk-++ ρ (c ∙ S) = cong (_ ∙_) (wk-++ ρ S)
 
 opaque
 
@@ -871,28 +871,28 @@ opaque
 
 opaque
 
-  -- Applying a term to an eliminator becomes neutral only if the
+  -- Applying a term to a continuation becomes neutral only if the
   -- term is neutral.
 
-  ⦅⦆ᵉ-neutral : ∀ e → Neutral (⦅ e ⦆ᵉ t) → Neutral t
-  ⦅⦆ᵉ-neutral (∘ₑ p u ρ) (∘ₙ n) = n
-  ⦅⦆ᵉ-neutral (fstₑ x) (fstₙ n) = n
-  ⦅⦆ᵉ-neutral (sndₑ x) (sndₙ n) = n
-  ⦅⦆ᵉ-neutral (prodrecₑ r p q A u ρ) (prodrecₙ n) = n
-  ⦅⦆ᵉ-neutral (natrecₑ p q r A z s ρ) (natrecₙ n) = n
-  ⦅⦆ᵉ-neutral (unitrecₑ l p q A u ρ) (unitrecₙ x n) = n
-  ⦅⦆ᵉ-neutral (emptyrecₑ p A ρ) (emptyrecₙ n) = n
-  ⦅⦆ᵉ-neutral (Jₑ p q A t B u v ρ) (Jₙ n) = n
-  ⦅⦆ᵉ-neutral (Kₑ p A t B u ρ) (Kₙ n) = n
-  ⦅⦆ᵉ-neutral ([]-congₑ s A t u ρ) ([]-congₙ n) = n
-  ⦅⦆ᵉ-neutral sucₑ ()
+  ⦅⦆ᶜ-neutral : ∀ c → Neutral (⦅ c ⦆ᶜ t) → Neutral t
+  ⦅⦆ᶜ-neutral (∘ₑ p u ρ) (∘ₙ n) = n
+  ⦅⦆ᶜ-neutral (fstₑ x) (fstₙ n) = n
+  ⦅⦆ᶜ-neutral (sndₑ x) (sndₙ n) = n
+  ⦅⦆ᶜ-neutral (prodrecₑ r p q A u ρ) (prodrecₙ n) = n
+  ⦅⦆ᶜ-neutral (natrecₑ p q r A z s ρ) (natrecₙ n) = n
+  ⦅⦆ᶜ-neutral (unitrecₑ l p q A u ρ) (unitrecₙ x n) = n
+  ⦅⦆ᶜ-neutral (emptyrecₑ p A ρ) (emptyrecₙ n) = n
+  ⦅⦆ᶜ-neutral (Jₑ p q A t B u v ρ) (Jₙ n) = n
+  ⦅⦆ᶜ-neutral (Kₑ p A t B u ρ) (Kₙ n) = n
+  ⦅⦆ᶜ-neutral ([]-congₑ s A t u ρ) ([]-congₙ n) = n
+  ⦅⦆ᶜ-neutral sucₑ ()
 
 opaque
 
   -- Injectivity of stacks
 
-  stack-injective : {e : Elim m} {S : Stack m}
-                  → e ∙ S ≡ e′ ∙ S′ → e ≡ e′ × S ≡ S′
+  stack-injective : {c : Cont m} {S : Stack m}
+                  → c ∙ S ≡ c′ ∙ S′ → c ≡ c′ × S ≡ S′
   stack-injective refl = refl , refl
 
 opaque
@@ -940,7 +940,7 @@ opaque
 
   -- Heap lookup without update behaves the same on equal heaps
 
-  ~ʰ-lookup : H ~ʰ H′ → H ⊢ y ↦ c → H′ ⊢ y ↦ c
+  ~ʰ-lookup : H ~ʰ H′ → H ⊢ y ↦ e → H′ ⊢ y ↦ e
   ~ʰ-lookup ε ()
   ~ʰ-lookup (H~H′ ∙ _) here = here
   ~ʰ-lookup (H~H′ ∙ _) (there d) = there (~ʰ-lookup H~H′ d)
@@ -973,7 +973,7 @@ opaque
 
   -- An updated heap is equal to the original one (up to grades)
 
-  update-~ʰ : H ⊢ y ↦[ q ] c ⨾ H′ → H ~ʰ H′
+  update-~ʰ : H ⊢ y ↦[ q ] e ⨾ H′ → H ~ʰ H′
   update-~ʰ (here _) = ~ʰ-refl ∙ _
   update-~ʰ (there d) = update-~ʰ d ∙ _
   update-~ʰ (there● d) = update-~ʰ d ∙●
@@ -983,7 +983,7 @@ opaque
 
 opaque
 
-  wk1-Normal : Normal ⟨ H , t , ρ , S ⟩ → Normal ⟨ H ∙ (p , c) , t , step ρ , wk1ˢ S ⟩
+  wk1-Normal : Normal ⟨ H , t , ρ , S ⟩ → Normal ⟨ H ∙ (p , e) , t , step ρ , wk1ˢ S ⟩
   wk1-Normal (val x) = val x
   wk1-Normal (var d) = var (there d)
 
@@ -1020,7 +1020,7 @@ opaque
   wk-[]ₕ : ρ ∷ H ⊇ʰ H′ → (t : Term n) → t [ H′ ]ₕ ≡ wk ρ t [ H ]ₕ
   wk-[]ₕ {H} id t = cong (_[ H ]ₕ) (sym (wk-id t))
   wk-[]ₕ (step ρ) t = trans (wk-[]ₕ ρ t) (sym (step-consSubst t))
-  wk-[]ₕ (lift {ρ} {H} {H′} {c = u , ρ′} [ρ]) t = begin
+  wk-[]ₕ (lift {ρ} {H} {H′} {e = u , ρ′} [ρ]) t = begin
     t [ consSubst (toSubstₕ H′) (wk ρ′ u [ H′ ]ₕ) ]                     ≡˘⟨ singleSubstComp (wk ρ′ u [ H′ ]ₕ) (toSubstₕ H′) t ⟩
     t [ liftSubst (toSubstₕ H′) ] [ wk ρ′ u [ H′ ]ₕ ]₀                  ≡˘⟨ singleSubstLift t (wk ρ′ u) ⟩
     t [ wk ρ′ u ]₀ [ H′ ]ₕ                                              ≡⟨ wk-[]ₕ [ρ] (t [ wk ρ′ u ]₀) ⟩
@@ -1035,7 +1035,7 @@ opaque
   -- A heap updated by a pointer lookup gives the same substitution
   -- as the original heap.
 
-  heapUpdateSubst : H ⊢ y ↦[ q ] c ⨾ H′ → toSubstₕ H ≡ toSubstₕ H′
+  heapUpdateSubst : H ⊢ y ↦[ q ] e ⨾ H′ → toSubstₕ H ≡ toSubstₕ H′
   heapUpdateSubst d = ~ʰ-subst (update-~ʰ d)
 
 opaque

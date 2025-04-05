@@ -42,11 +42,11 @@ private variable
   t t′ u A : Term _
   H H′ H″ H‴ : Heap _ _
   ρ ρ′ ρ″ : Wk _ _
-  e : Elim _
+  c : Cont _
   S S′ S″ : Stack _
   p p′ q r r′ : M
   s s′ s″ : State _ _ _
-  c : Entryₘ _ _
+  e : Entryₘ _ _
   x x′ : Fin _
 
 opaque
@@ -153,7 +153,7 @@ opaque
     let _ , _ , ∣S∣≡′ , ∣nr∣≡′ , rest = ⇒ᵥ-inv-suc-natrecₑ d
     in  case ∣∣-functional ∣S∣≡ ∣S∣≡′ of λ {
           refl →
-        case ∣natrec∣ᵉ-functional ∣nr∣≡ ∣nr∣≡′ of λ {
+        case ∣natrec∣ᶜ-functional ∣nr∣≡ ∣nr∣≡′ of λ {
           refl →
         rest }}
   ⇒ᵥ-det d starʷₕ = ⇒ᵥ-inv-starʷ-unitrecₑ d .proj₂
@@ -375,7 +375,7 @@ opaque
   -- Lifting a normalising reduction to a larger heap
 
   wk1-⇒ₑ : ⟨ H , t , ρ , S ⟩ ⇒ₑ ⟨ H′ , t′ , ρ′ , S′ ⟩
-          → ⟨ H ∙ c , t , step ρ , wk1ˢ S ⟩ ⇒ₑ ⟨ H′ ∙ c , t′ , step ρ′ , wk1ˢ S′ ⟩
+          → ⟨ H ∙ e , t , step ρ , wk1ˢ S ⟩ ⇒ₑ ⟨ H′ ∙ e , t′ , step ρ′ , wk1ˢ S′ ⟩
   wk1-⇒ₑ appₕ = appₕ
   wk1-⇒ₑ fstₕ = fstₕ
   wk1-⇒ₑ sndₕ = sndₕ
@@ -392,7 +392,7 @@ opaque
   -- Lifting a normalising reduction to a larger heap
 
   wk1-⇾ₑ : ⟨ H , t , ρ , S ⟩ ⇾ₑ ⟨ H′ , t′ , ρ′ , S′ ⟩
-         → ⟨ H ∙ c , t , step ρ , wk1ˢ S ⟩ ⇾ₑ ⟨ H′ ∙ c , t′ , step ρ′ , wk1ˢ S′ ⟩
+         → ⟨ H ∙ e , t , step ρ , wk1ˢ S ⟩ ⇾ₑ ⟨ H′ ∙ e , t′ , step ρ′ , wk1ˢ S′ ⟩
   wk1-⇾ₑ {S} (var ∣S∣≡ d) =
     var (wk-∣∣ ∣S∣≡) (there d)
   wk1-⇾ₑ (⇒ₑ d) = ⇒ₑ (wk1-⇒ₑ d)
@@ -402,7 +402,7 @@ opaque
   -- Lifting a normalising reduction to a larger heap
 
   wk1-⇢ₑ : ⟨ H , t , ρ , S ⟩ ⇢ₑ ⟨ H′ , t′ , ρ′ , S′ ⟩
-         → ⟨ H ∙ c , t , step ρ , wk1ˢ S ⟩ ⇢ₑ ⟨ H′ ∙ c , t′ , step ρ′ , wk1ˢ S′ ⟩
+         → ⟨ H ∙ e , t , step ρ , wk1ˢ S ⟩ ⇢ₑ ⟨ H′ ∙ e , t′ , step ρ′ , wk1ˢ S′ ⟩
   wk1-⇢ₑ (var d) = var (there d)
   wk1-⇢ₑ (⇒ₑ d) = ⇒ₑ (wk1-⇒ₑ d)
 
@@ -411,7 +411,7 @@ opaque
   -- Lifting a normalising reduction to a larger heap
 
   wk1-⇢ₑ* : ⟨ H , t , ρ , S ⟩ ⇢ₑ* ⟨ H′ , t′ , ρ′ , S′ ⟩
-          → ⟨ H ∙ c , t , step ρ , wk1ˢ S ⟩ ⇢ₑ* ⟨ H′ ∙ c , t′ , step ρ′ , wk1ˢ S′ ⟩
+          → ⟨ H ∙ e , t , step ρ , wk1ˢ S ⟩ ⇢ₑ* ⟨ H′ ∙ e , t′ , step ρ′ , wk1ˢ S′ ⟩
   wk1-⇢ₑ* id = id
   wk1-⇢ₑ* (_⇨_ {s′ = record{}} x d) = wk1-⇢ₑ x ⇨ wk1-⇢ₑ* d
 
@@ -840,8 +840,8 @@ opaque
       ([]-cong x t t₁ t₂ t₃) ¬d → ⊥-elim (¬d (⇾ₑ′ []-congₕ))
         where
         lemma′ :
-          Value t → Final ⟨ H , t , ρ , e ∙ S ⟩ →
-          ¬ (Matching t (e ∙ S) × ∃ ∣ e ∙ S ∣≡_)
+          Value t → Final ⟨ H , t , ρ , c ∙ S ⟩ →
+          ¬ (Matching t (c ∙ S) × ∃ ∣ c ∙ S ∣≡_)
         lemma′ lamᵥ ¬d (∘ₑ , _ , _ ∙ ∣S∣≡) =
           ¬d (⇒ᵥ lamₕ ∣S∣≡)
         lemma′ zeroᵥ ¬d (natrecₑ₀ , _ , _) =

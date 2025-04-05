@@ -58,7 +58,6 @@ private variable
   H H′ : Heap _ _
   ρ ρ′ : Wk _ _
   S S′ : Stack _
-  e : Elim _
   Γ Δ : Con Term _
   s s′ : State _ _ _
   m : Mode

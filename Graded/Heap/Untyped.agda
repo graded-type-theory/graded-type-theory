@@ -80,62 +80,62 @@ Entryₘ m n = M × Entry m n
 
 -- Weakening of entries
 
-wkᵉⁿ : Wk m′ m → Entry m n → Entry m′ n
-wkᵉⁿ ρ (t , E) = t , ρ • E
+wkᵉ : Wk m′ m → Entry m n → Entry m′ n
+wkᵉ ρ (t , E) = t , ρ • E
 
-wk1ᵉⁿ : Entry m n → Entry (1+ m) n
-wk1ᵉⁿ = wkᵉⁿ (step id)
-
-------------------------------------------------------------------------
--- Eliminators and Evaluation stacks
-
--- Eliminators, indexed by the size of the heap.
--- The successor contructor is also treated as en eliminator when
--- evaluating under it.
-
-data Elim (m : Nat) : Set a where
-  ∘ₑ        : (p : M) (u : Term n) (ρ : Wk m n) → Elim m
-  fstₑ      : M → Elim m
-  sndₑ      : M → Elim m
-  prodrecₑ  : (r p q : M) (A : Term (1+ n)) (u : Term (2+ n))
-              (ρ : Wk m n) → Elim m
-  natrecₑ   : (p q r : M) (A : Term (1+ n)) (z : Term n)
-              (s : Term (2+ n)) (ρ : Wk m n) → Elim m
-  unitrecₑ  : (l : Universe-level) (p q : M) (A : Term (1+ n))
-              (u : Term n) (ρ : Wk m n) → Elim m
-  emptyrecₑ : (p : M) (A : Term n) (ρ : Wk m n) → Elim m
-  Jₑ        : (p q : M) (A t : Term n) (B : Term (2+ n))
-              (u v : Term n) (ρ : Wk m n) → Elim m
-  Kₑ        : (p : M) (A t : Term n) (B : Term (1+ n))
-              (u : Term n) (ρ : Wk m n) → Elim m
-  []-congₑ  : (s : Strength) (A t u : Term n) (ρ : Wk m n) → Elim m
-  sucₑ      : Elim m
-
-private variable
-  e e′ : Elim _
-
--- Weakening of eliminators
-
-wkᵉ : Wk m′ m → Elim m → Elim m′
-wkᵉ ρ (∘ₑ p u ρ′) = ∘ₑ p u (ρ • ρ′)
-wkᵉ ρ (fstₑ p) = fstₑ p
-wkᵉ ρ (sndₑ p) = sndₑ p
-wkᵉ ρ (natrecₑ p q r A z s ρ′) = natrecₑ p q r A z s (ρ • ρ′)
-wkᵉ ρ (prodrecₑ r p q A u ρ′) = prodrecₑ r p q A u (ρ • ρ′)
-wkᵉ ρ (unitrecₑ l p q A u ρ′) = unitrecₑ l p q A u (ρ • ρ′)
-wkᵉ ρ (emptyrecₑ p A ρ′) = emptyrecₑ p A (ρ • ρ′)
-wkᵉ ρ (Jₑ p q A t B u v ρ′) = Jₑ p q A t B u v (ρ • ρ′)
-wkᵉ ρ (Kₑ p A t B u ρ′) = Kₑ p A t B u (ρ • ρ′)
-wkᵉ ρ ([]-congₑ s A t u ρ′) = []-congₑ s A t u (ρ • ρ′)
-wkᵉ ρ sucₑ = sucₑ
-
-wk1ᵉ : Elim m → Elim (1+ m)
+wk1ᵉ : Entry m n → Entry (1+ m) n
 wk1ᵉ = wkᵉ (step id)
 
-wk2ᵉ : Elim m → Elim (2+ m)
-wk2ᵉ = wkᵉ (step (step id))
+------------------------------------------------------------------------
+-- Continuations and Evaluation stacks
 
--- The multiplicity of the natrecₑ eliminator
+-- Contiuations, indexed by the size of the heap.
+-- These are essentially continuations but the successor contructor is
+-- also treated as a continuation when evaluating under it.
+
+data Cont (m : Nat) : Set a where
+  ∘ₑ        : (p : M) (u : Term n) (ρ : Wk m n) → Cont m
+  fstₑ      : M → Cont m
+  sndₑ      : M → Cont m
+  prodrecₑ  : (r p q : M) (A : Term (1+ n)) (u : Term (2+ n))
+              (ρ : Wk m n) → Cont m
+  natrecₑ   : (p q r : M) (A : Term (1+ n)) (z : Term n)
+              (s : Term (2+ n)) (ρ : Wk m n) → Cont m
+  unitrecₑ  : (l : Universe-level) (p q : M) (A : Term (1+ n))
+              (u : Term n) (ρ : Wk m n) → Cont m
+  emptyrecₑ : (p : M) (A : Term n) (ρ : Wk m n) → Cont m
+  Jₑ        : (p q : M) (A t : Term n) (B : Term (2+ n))
+              (u v : Term n) (ρ : Wk m n) → Cont m
+  Kₑ        : (p : M) (A t : Term n) (B : Term (1+ n))
+              (u : Term n) (ρ : Wk m n) → Cont m
+  []-congₑ  : (s : Strength) (A t u : Term n) (ρ : Wk m n) → Cont m
+  sucₑ      : Cont m
+
+private variable
+  c c′ : Cont _
+
+-- Weakening of continuations
+
+wkᶜ : Wk m′ m → Cont m → Cont m′
+wkᶜ ρ (∘ₑ p u ρ′) = ∘ₑ p u (ρ • ρ′)
+wkᶜ ρ (fstₑ p) = fstₑ p
+wkᶜ ρ (sndₑ p) = sndₑ p
+wkᶜ ρ (natrecₑ p q r A z s ρ′) = natrecₑ p q r A z s (ρ • ρ′)
+wkᶜ ρ (prodrecₑ r p q A u ρ′) = prodrecₑ r p q A u (ρ • ρ′)
+wkᶜ ρ (unitrecₑ l p q A u ρ′) = unitrecₑ l p q A u (ρ • ρ′)
+wkᶜ ρ (emptyrecₑ p A ρ′) = emptyrecₑ p A (ρ • ρ′)
+wkᶜ ρ (Jₑ p q A t B u v ρ′) = Jₑ p q A t B u v (ρ • ρ′)
+wkᶜ ρ (Kₑ p A t B u ρ′) = Kₑ p A t B u (ρ • ρ′)
+wkᶜ ρ ([]-congₑ s A t u ρ′) = []-congₑ s A t u (ρ • ρ′)
+wkᶜ ρ sucₑ = sucₑ
+
+wk1ᶜ : Cont m → Cont (1+ m)
+wk1ᶜ = wkᶜ (step id)
+
+wk2ᶜ : Cont m → Cont (2+ m)
+wk2ᶜ = wkᶜ (step (step id))
+
+-- The multiplicity of the natrecₑ continuation
 
 data ∣natrec_,_∣≡_ : M → M → M → Set a where
   has-nrₑ :
@@ -146,7 +146,7 @@ data ∣natrec_,_∣≡_ : M → M → M → Set a where
     Greatest-lower-bound q (nrᵢ r 𝟙 p) →
     ∣natrec p , r ∣≡ q
 
--- The multiplicity of the Jₑ eliminator, depending on which
+-- The multiplicity of the Jₑ continuation, depending on which
 -- erased matches are used.
 
 data ∣J_,_,_∣≡_ : Erased-matches → M → M → M → Set a where
@@ -157,7 +157,7 @@ data ∣J_,_,_∣≡_ : Erased-matches → M → M → M → Set a where
             ∣J some , p , q ∣≡ ω
   J-none  : ∣J none , p , q ∣≡ ω
 
--- The multiplicity of the Kₑ eliminator, depending on which
+-- The multiplicity of the Kₑ continuation, depending on which
 -- erased matches are used.
 
 data ∣K_,_∣≡_ : Erased-matches → M → M → Set a where
@@ -168,33 +168,33 @@ data ∣K_,_∣≡_ : Erased-matches → M → M → Set a where
             ∣K some , p ∣≡ ω
   K-none  : ∣K none , p ∣≡ ω
 
--- Multiplicity of an eliminator, representing how many copies need to
+-- Multiplicity of an continuation, representing how many copies need to
 -- be evaluated.
 
-data ∣_∣ᵉ≡_ {m} : Elim m → M → Set a where
-  ∘ₑ : ∣ ∘ₑ p u ρ ∣ᵉ≡ 𝟙
-  fstₑ : ∣ fstₑ p ∣ᵉ≡ 𝟙
-  sndₑ : ∣ sndₑ p ∣ᵉ≡ 𝟙
-  prodrecₑ : ∣ prodrecₑ r p q A u ρ ∣ᵉ≡ r
+data ∣_∣ᶜ≡_ {m} : Cont m → M → Set a where
+  ∘ₑ : ∣ ∘ₑ p u ρ ∣ᶜ≡ 𝟙
+  fstₑ : ∣ fstₑ p ∣ᶜ≡ 𝟙
+  sndₑ : ∣ sndₑ p ∣ᶜ≡ 𝟙
+  prodrecₑ : ∣ prodrecₑ r p q A u ρ ∣ᶜ≡ r
   natrecₑ :
     ∣natrec p , r ∣≡ q′ →
-    ∣ natrecₑ p q r A u v ρ ∣ᵉ≡ q′
-  unitrecₑ : ∣ unitrecₑ l p q A u ρ ∣ᵉ≡ p
-  emptyrecₑ : ∣ emptyrecₑ p A ρ ∣ᵉ≡ p
+    ∣ natrecₑ p q r A u v ρ ∣ᶜ≡ q′
+  unitrecₑ : ∣ unitrecₑ l p q A u ρ ∣ᶜ≡ p
+  emptyrecₑ : ∣ emptyrecₑ p A ρ ∣ᶜ≡ p
   Jₑ :
     ∣J erased-matches-for-J 𝟙ᵐ , p , q ∣≡ r →
-    ∣ Jₑ p q A t B u v ρ ∣ᵉ≡ r
+    ∣ Jₑ p q A t B u v ρ ∣ᶜ≡ r
   Kₑ :
     ∣K erased-matches-for-K 𝟙ᵐ , p ∣≡ r →
-    ∣ Kₑ p A t B u ρ ∣ᵉ≡ r
-  []-congₑ : ∣ []-congₑ s A t u ρ ∣ᵉ≡ 𝟘
-  sucₑ : ∣ sucₑ ∣ᵉ≡ 𝟙
+    ∣ Kₑ p A t B u ρ ∣ᶜ≡ r
+  []-congₑ : ∣ []-congₑ s A t u ρ ∣ᶜ≡ 𝟘
+  sucₑ : ∣ sucₑ ∣ᶜ≡ 𝟙
 
 -- Evaluation stacks, indexed by the size of the heap
 
 data Stack (m : Nat) : Set a where
   ε : Stack m
-  _∙_ : (e : Elim m) → (S : Stack m) → Stack m
+  _∙_ : (c : Cont m) → (S : Stack m) → Stack m
 
 private variable
   S S′ : Stack _
@@ -204,13 +204,13 @@ private variable
 
 data ∣_∣≡_ {m} : Stack m → M → Set a where
   ε   : ∣ ε ∣≡ 𝟙
-  _∙_ : ∣ e ∣ᵉ≡ q → ∣ S ∣≡ p → ∣ e ∙ S ∣≡ p · q
+  _∙_ : ∣ c ∣ᶜ≡ q → ∣ S ∣≡ p → ∣ c ∙ S ∣≡ p · q
 
 -- Weakening of stacks
 
 wkˢ : Wk m′ m → Stack m → Stack m′
 wkˢ ρ ε = ε
-wkˢ ρ (e ∙ S) = wkᵉ ρ e ∙ wkˢ ρ S
+wkˢ ρ (c ∙ S) = wkᶜ ρ c ∙ wkˢ ρ S
 
 wk1ˢ : Stack m → Stack (1+ m)
 wk1ˢ = wkˢ (step id)
@@ -222,9 +222,9 @@ wk2ˢ = wkˢ (step (step id))
 
 _++_ : (S S′ : Stack m) → Stack m
 ε ++ S′ = S′
-(e ∙ S) ++ S′ = e ∙ (S ++ S′)
+(c ∙ S) ++ S′ = c ∙ (S ++ S′)
 
--- A stack consisting only of successor eliminators
+-- A stack consisting only of successor continuations
 
 sucₛ : Nat → Stack m
 sucₛ 0 = ε
@@ -234,50 +234,49 @@ sucₛ (1+ n) = sucₑ ∙ sucₛ n
 
 data prodrec_,_∈ {m} (r p : M) : (S : Stack m) → Set a where
   here  : prodrec r , p ∈ (prodrecₑ r p q A u ρ ∙ S)
-  there : prodrec r , p ∈ S → prodrec r , p ∈ (e ∙ S)
+  there : prodrec r , p ∈ S → prodrec r , p ∈ (c ∙ S)
 
 -- A predicate for stacks containing natrec (with given grades)
 
 data natrec_,_∈ {m} (p r : M) : (S : Stack m) → Set a where
   here  : natrec p , r ∈ (natrecₑ p q r A u v ρ ∙ S)
-  there : natrec p , r ∈ S → natrec p , r ∈ (e ∙ S)
+  there : natrec p , r ∈ S → natrec p , r ∈ (c ∙ S)
 
 -- A predicate for stacks containing unitrecₑ (with a given grade)
 
 data unitrec_∈_ {m} (p : M) : (S : Stack m) → Set a where
   here  : unitrec p ∈ (unitrecₑ n p q A u ρ ∙ S)
-  there : unitrec p ∈ S → unitrec p ∈ (e ∙ S)
+  there : unitrec p ∈ S → unitrec p ∈ (c ∙ S)
 
 -- A predicate for stacks containing emptyrecₑ (with a given grade)
 
 data emptyrec_∈_ {m} (p : M) : (S : Stack m) → Set a where
   here : emptyrec p ∈ (emptyrecₑ p A ρ ∙ S)
-  there : emptyrec p ∈ S → emptyrec p ∈ (e ∙ S)
+  there : emptyrec p ∈ S → emptyrec p ∈ (c ∙ S)
 
 -- A predicate for stacks containing Jₑ (with given grades)
 
 data J_,_∈_ {m} (p q : M) : (S : Stack m) → Set a where
   here : J p , q ∈ (Jₑ p q A t B u v ρ ∙ S)
-  there : J p , q ∈ S → J p , q ∈ (e ∙ S)
+  there : J p , q ∈ S → J p , q ∈ (c ∙ S)
 
 -- A predicate for stacks containing Kₑ (with a given grade)
 
 data K_∈_ {m} (p : M) : (S : Stack m) → Set a where
   here : K p ∈ (Kₑ p A t B u ρ ∙ S)
-  there : K p ∈ S → K p ∈ (e ∙ S)
+  there : K p ∈ S → K p ∈ (c ∙ S)
 
 -- A predicate for stacks containing []-congₑ
 
 data []-cong∈_ {m} : (S : Stack m) → Set a where
   here : []-cong∈ ([]-congₑ s A t u ρ ∙ S)
-  there : []-cong∈ S → []-cong∈ (e ∙ S)
+  there : []-cong∈ S → []-cong∈ (c ∙ S)
 
 -- A predicate for stacks containing []-congₑ
 
 data suc∈_ {m} : (S : Stack m) → Set a where
   here : suc∈ (sucₑ ∙ S)
-  there : suc∈ S → suc∈ (e ∙ S)
-
+  there : suc∈ S → suc∈ (c ∙ S)
 
 ------------------------------------------------------------------------
 -- Heaps
@@ -302,8 +301,8 @@ erasedHeap (1+ k) = erasedHeap k ∙●
 
 private variable
   H H′ : Heap _ _
-  c : Entry _ _
-  c′ : Entryₘ _ _
+  e : Entry _ _
+  e′ : Entryₘ _ _
   y : Ptr _
 
 infix 20 _⊢_↦[_]_⨾_
@@ -314,24 +313,24 @@ infix 20 _⊢_↦[_]_⨾_
 -- are zero copies available.
 
 data _⊢_↦[_]_⨾_ : (H : Heap k m) (y : Ptr m) (q : M)
-                  (c : Entry m n) (H′ : Heap k m) → Set a where
+                  (e : Entry m n) (H′ : Heap k m) → Set a where
   here : p - q ≡ r
-       → H ∙ (p , c) ⊢ y0 ↦[ q ] wk1ᵉⁿ c ⨾ H ∙ (r , c)
-  there : H ⊢ y ↦[ q ] c ⨾ H′
-        → H ∙ c′ ⊢ y +1 ↦[ q ] wk1ᵉⁿ c ⨾ H′ ∙ c′
-  there● : H ⊢ y ↦[ q ] c ⨾ H′
-         → H ∙● ⊢ y +1 ↦[ q ] wk1ᵉⁿ c ⨾ H′ ∙●
+       → H ∙ (p , e) ⊢ y0 ↦[ q ] wk1ᵉ e ⨾ H ∙ (r , e)
+  there : H ⊢ y ↦[ q ] e ⨾ H′
+        → H ∙ e′ ⊢ y +1 ↦[ q ] wk1ᵉ e ⨾ H′ ∙ e′
+  there● : H ⊢ y ↦[ q ] e ⨾ H′
+         → H ∙● ⊢ y +1 ↦[ q ] wk1ᵉ e ⨾ H′ ∙●
 
 infix 20 _⊢_↦_
 
 -- Heap lookup (without grade update)
 
-data _⊢_↦_ : (H : Heap k m) (y : Ptr m) (c : Entry m n) → Set a where
-  here : H ∙ (p , c) ⊢ y0 ↦ wk1ᵉⁿ c
-  there : H ⊢ y ↦ c
-        → H ∙ c′ ⊢ y +1 ↦ wk1ᵉⁿ c
-  there● : H ⊢ y ↦ c
-         → H ∙● ⊢ y +1 ↦ wk1ᵉⁿ c
+data _⊢_↦_ : (H : Heap k m) (y : Ptr m) (e : Entry m n) → Set a where
+  here : H ∙ (p , e) ⊢ y0 ↦ wk1ᵉ e
+  there : H ⊢ y ↦ e
+        → H ∙ e′ ⊢ y +1 ↦ wk1ᵉ e
+  there● : H ⊢ y ↦ e
+         → H ∙● ⊢ y +1 ↦ wk1ᵉ e
 
 infix 20 _⊢_↦●
 
@@ -339,7 +338,7 @@ infix 20 _⊢_↦●
 
 data _⊢_↦● : (H : Heap k m) (y : Ptr m) → Set a where
   here : H ∙● ⊢ y0 ↦●
-  there : H ⊢ y ↦● → H ∙ c′ ⊢ y +1 ↦●
+  there : H ⊢ y ↦● → H ∙ e′ ⊢ y +1 ↦●
   there● : H ⊢ y ↦● → H ∙● ⊢ y +1 ↦●
 
 infix 5 _~ʰ_
@@ -348,22 +347,22 @@ infix 5 _~ʰ_
 
 data _~ʰ_ : (H H′ : Heap k m) → Set a where
   ε : ε ~ʰ ε
-  _∙_ : H ~ʰ H′ → (c : Entry m n) → H ∙ (p , c) ~ʰ H′ ∙ (q , c)
+  _∙_ : H ~ʰ H′ → (e : Entry m n) → H ∙ (p , e) ~ʰ H′ ∙ (q , e)
   _∙● : H ~ʰ H′ → H ∙● ~ʰ H′ ∙●
 
 -- Weakening of heaps
 
 data _∷_⊇ʰ_ : (ρ : Wk m n) (H : Heap k m) (H′ : Heap k n) → Set a where
   id : id ∷ H ⊇ʰ H
-  step : ρ ∷ H ⊇ʰ H′ → step ρ ∷ H ∙ c′ ⊇ʰ H′
-  lift : ρ ∷ H ⊇ʰ H′ → lift ρ ∷ H ∙ (p , wkᵉⁿ ρ c) ⊇ʰ H′ ∙ (p , c)
+  step : ρ ∷ H ⊇ʰ H′ → step ρ ∷ H ∙ e′ ⊇ʰ H′
+  lift : ρ ∷ H ⊇ʰ H′ → lift ρ ∷ H ∙ (p , wkᵉ ρ e) ⊇ʰ H′ ∙ (p , e)
 
 -- Lookup the grade of the entry of a given pointer
 
 _⟨_⟩ʰ : Heap k m → Ptr m → M
 ε ⟨ () ⟩ʰ
 (H ∙ (p , _)) ⟨ y0 ⟩ʰ = p
-(H ∙ c) ⟨ y +1 ⟩ʰ = H ⟨ y ⟩ʰ
+(H ∙ _) ⟨ y +1 ⟩ʰ = H ⟨ y ⟩ʰ
 (H ∙●) ⟨ y0 ⟩ʰ = 𝟘
 (H ∙●) ⟨ y +1 ⟩ʰ = H ⟨ y ⟩ʰ
 
@@ -394,7 +393,7 @@ t [ H ]⇑²ₕ = t [ liftSubstn (toSubstₕ H) 2 ]
 
 toWkₕ : Heap k m → Wk m k
 toWkₕ ε = id
-toWkₕ (H ∙ c) = step (toWkₕ H)
+toWkₕ (H ∙ e) = step (toWkₕ H)
 toWkₕ (H ∙●) = lift (toWkₕ H)
 
 ------------------------------------------------------------------------
@@ -417,29 +416,29 @@ record State (k m n : Nat) : Set a where
     env : Wk m n
     stack : Stack m
 
--- Converting eliminators back to terms
+-- Converting continuations back to terms
 
-infixr 29 ⦅_⦆ᵉ_
+infixr 29 ⦅_⦆ᶜ_
 
-⦅_⦆ᵉ_ : Elim m → (Term m → Term m)
-⦅ ∘ₑ p u ρ ⦆ᵉ t = t ∘⟨ p ⟩ wk ρ u
-⦅ fstₑ p ⦆ᵉ t = fst p t
-⦅ sndₑ p ⦆ᵉ t = snd p t
-⦅ prodrecₑ r p q A u ρ ⦆ᵉ t =
+⦅_⦆ᶜ_ : Cont m → (Term m → Term m)
+⦅ ∘ₑ p u ρ ⦆ᶜ t = t ∘⟨ p ⟩ wk ρ u
+⦅ fstₑ p ⦆ᶜ t = fst p t
+⦅ sndₑ p ⦆ᶜ t = snd p t
+⦅ prodrecₑ r p q A u ρ ⦆ᶜ t =
   prodrec r p q (wk (lift ρ) A) t (wk (liftn ρ 2) u)
-⦅ natrecₑ p q r A z s ρ ⦆ᵉ t =
+⦅ natrecₑ p q r A z s ρ ⦆ᶜ t =
   natrec p q r (wk (lift ρ) A) (wk ρ z) (wk (liftn ρ 2) s) t
-⦅ unitrecₑ l p q A u ρ ⦆ᵉ t =
+⦅ unitrecₑ l p q A u ρ ⦆ᶜ t =
   unitrec l p q (wk (lift ρ) A) t (wk ρ u)
-⦅ emptyrecₑ p A ρ ⦆ᵉ t =
+⦅ emptyrecₑ p A ρ ⦆ᶜ t =
   emptyrec p (wk ρ A) t
-⦅ Jₑ p q A t B u v ρ ⦆ᵉ w =
+⦅ Jₑ p q A t B u v ρ ⦆ᶜ w =
   J p q (wk ρ A) (wk ρ t) (wk (liftn ρ 2) B) (wk ρ u) (wk ρ v) w
-⦅ Kₑ p A t B u ρ ⦆ᵉ v =
+⦅ Kₑ p A t B u ρ ⦆ᶜ v =
   K p (wk ρ A) (wk ρ t) (wk (lift ρ) B) (wk ρ u) v
-⦅ []-congₑ s A t u ρ ⦆ᵉ v =
+⦅ []-congₑ s A t u ρ ⦆ᶜ v =
   []-cong s (wk ρ A ) (wk ρ t) (wk ρ u) v
-⦅ sucₑ ⦆ᵉ t = suc t
+⦅ sucₑ ⦆ᶜ t = suc t
 
 -- Converting stacks back to terms
 
@@ -447,7 +446,7 @@ infixr 28 ⦅_⦆ˢ_
 
 ⦅_⦆ˢ_ : Stack m → (Term m → Term m)
 ⦅ ε ⦆ˢ t = t
-⦅ e ∙ S ⦆ˢ t = ⦅ S ⦆ˢ ⦅ e ⦆ᵉ t
+⦅ c ∙ S ⦆ˢ t = ⦅ S ⦆ˢ ⦅ c ⦆ᶜ t
 
 -- Converting states back to terms
 
@@ -491,10 +490,10 @@ data Normal : (State k m n) → Set a where
   var : H ⊢ wkVar ρ x ↦● → Normal ⟨ H , var x , ρ , S ⟩
 
 ------------------------------------------------------------------------
--- Matching terms and eliminators
+-- Matching terms and continuations
 
--- "Matching" terms and stacks. A term and an eliminator are considered
--- to match if a state with the term in head position and the eliminator
+-- "Matching" terms and stacks. A term and a continuation are considered
+-- to match if a state with the term in head position and the continuation
 -- on top of the stack would reduce using _⇒ᵥ_, see ⇒ᵥ→Matching and
 -- Matching→⇒ᵥ in Graded.Heap.Reduction.Properties.
 --
