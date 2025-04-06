@@ -322,11 +322,10 @@ opaque
     Unit-with-η s →
     Γ ⊩⟨ l′ ⟩ t ≡ u ∷ Unit s k
   ⊩η-unit ⊩t ⊩u η =
-    case ⊩∷Unit⇔ .proj₁ ⊩t of λ
-      ([k] , k≤ , ok , Unitₜ _ t↘ _) →
-    case ⊩∷Unit⇔ .proj₁ ⊩u of λ
-      (_ , _ , _ , Unitₜ _ u↘ _) →
-    ⊩≡∷Unit⇔ .proj₂
+    let
+      ([k] , k≤ , ok , Unitₜ _ t↘ _) = ⊩∷Unit⇔ .proj₁ ⊩t
+      (_   , _  , _  , Unitₜ _ u↘ _) = ⊩∷Unit⇔ .proj₁ ⊩u
+    in ⊩≡∷Unit⇔ .proj₂
       ( [k] , k≤ , ok
       , Unitₜ₌ _ _ t↘ u↘ (Unitₜ₌ˢ η)
       )
@@ -370,79 +369,60 @@ opaque
   ⊩unitrec≡unitrec
     {k₁} {A₁} {A₂} {l} {k₂} {l′} {t₁} {t₂} {u₁} {u₂} {Δ} {σ₁} {σ₂} {p} {q}
     ⊢A₁≡A₂ k₁≡k₂ A₁≡A₂ t₁≡t₂ u₁≡u₂ σ₁≡σ₂ =
-    case ⊩≡∷Level⇔ .proj₁ $ R.⊩≡∷→ $ ⊩ᵛ≡∷→⊩ˢ≡∷→⊩[]≡[]∷ k₁≡k₂ σ₁≡σ₂ of λ
-      k₁[σ₁]≡k₂[σ₂] →
-    case ⊩≡∷Level⇔ .proj₁ $ R.⊩≡∷→ $ ⊩ᵛ≡∷→⊩ˢ≡∷→⊩[]≡[]∷
-          (⊩ᵛ∷⇔⊩ᵛ≡∷ .proj₁ $ wf-⊩ᵛ≡∷ k₁≡k₂ .proj₁) σ₁≡σ₂ of λ
-      k₁[σ₁]≡k₁[σ₂] →
-    case wf-⊩Level k₁[σ₁]≡k₂[σ₂] of λ
-      (⊩k₁[σ₁] , ⊩k₂[σ₂]) →
-    case escapeLevel ⊩k₁[σ₁] of λ
-      ⊢k₁[σ₁] →
-    case escapeLevel ⊩k₂[σ₂] of λ
-      ⊢k₂[σ₂] →
-    case wf-⊩ᵛ≡ A₁≡A₂ of λ
-      (⊩A₁ , Unit₁⊩A₂) →
-    case ⊩ᵛ≡∷⇔″ .proj₁ t₁≡t₂ of λ
-      (⊩t₁ , ⊩t₂∷Unit₁ , t₁≡t₂) →
-    case ⊩ᵛ≡∷⇔″ .proj₁ u₁≡u₂ of λ
-      (⊩u₁ , ⊩u₂ , u₁≡u₂) →
-    case wf-⊩ˢ≡∷ σ₁≡σ₂ of λ
-      (⊩σ₁ , ⊩σ₂) →
-    case ⊩ᵛ∷⇔ .proj₁ ⊩t₁ .proj₁ of λ
-      ⊩Unit →
-    case ⊩ᵛ≡→⊩ˢ≡∷→⊩[⇑]≡[⇑] A₁≡A₂ σ₁≡σ₂ of λ
-      A₁[σ₁⇑]≡A₂[σ₂⇑] →
+    let
+      k₁[σ₁]≡k₂[σ₂] = ⊩≡∷Level⇔ .proj₁ $ R.⊩≡∷→ $ ⊩ᵛ≡∷→⊩ˢ≡∷→⊩[]≡[]∷ k₁≡k₂ σ₁≡σ₂
+      k₁[σ₁]≡k₁[σ₂] =
+        ⊩≡∷Level⇔ .proj₁ $ R.⊩≡∷→ $ ⊩ᵛ≡∷→⊩ˢ≡∷→⊩[]≡[]∷
+        (⊩ᵛ∷⇔⊩ᵛ≡∷ .proj₁ $ wf-⊩ᵛ≡∷ k₁≡k₂ .proj₁) σ₁≡σ₂
+      (⊩k₁[σ₁] , ⊩k₂[σ₂]) = wf-⊩Level k₁[σ₁]≡k₂[σ₂]
+      ⊢k₁[σ₁] = escapeLevel ⊩k₁[σ₁]
+      ⊢k₂[σ₂] = escapeLevel ⊩k₂[σ₂]
+      (⊩A₁ , Unit₁⊩A₂) = wf-⊩ᵛ≡ A₁≡A₂
+      (⊩t₁ , ⊩t₂∷Unit₁ , t₁≡t₂) = ⊩ᵛ≡∷⇔″ .proj₁ t₁≡t₂
+      (⊩u₁ , ⊩u₂ , u₁≡u₂) = ⊩ᵛ≡∷⇔″ .proj₁ u₁≡u₂
+      (⊩σ₁ , ⊩σ₂) = wf-⊩ˢ≡∷ σ₁≡σ₂
+      ⊩Unit = ⊩ᵛ∷⇔ .proj₁ ⊩t₁ .proj₁
+      A₁[σ₁⇑]≡A₂[σ₂⇑] = ⊩ᵛ≡→⊩ˢ≡∷→⊩[⇑]≡[⇑] A₁≡A₂ σ₁≡σ₂
+    in
     case ⊩≡∷Unit⇔ .proj₁ (R.⊩≡∷⇔ .proj₁ (t₁≡t₂ σ₁≡σ₂)) of λ {
       (_ , _ , ok ,
        Unitₜ₌ t₁′ t₂′ (t₁[σ₁]⇒*t₁′ , _) (t₂[σ₂]⇒*t₂′∷Unit₁ , _) prop) →
-    case Unit-cong (≅ₜ-eq (escapeLevelEq k₁[σ₁]≡k₂[σ₂])) ok of λ
-      Unit₁≡Unit₂ →
-    case Unit-cong (≅ₜ-eq (escapeLevelEq k₁[σ₁]≡k₁[σ₂])) ok of λ
-      Unit₁≡Unit₁ →
-    case star-congᵛ k₁≡k₂ ok of λ
-      ⋆₁≡⋆₂ →
-    case wf-⊩ᵛ≡∷ ⋆₁≡⋆₂ of λ
-      (⊩⋆₁ , ⊩⋆₂∷Unit₁) →
-    case conv-⊩ᵛ∷ (Unit-congᵛ k₁≡k₂ ok) ⊩⋆₂∷Unit₁ of λ
-      ⊩⋆₂ →
-    case PE.subst₂ (_⊢_≡_ _) (substConsId {t = star!} A₁)
-           (substConsId {t = star!} A₂) $
-         ≅-eq $ R.escape-⊩≡ $
-         ⊩ᵛ≡→⊩ˢ≡∷→⊩≡∷→⊩[,]≡[,] A₁≡A₂ σ₁≡σ₂ $
-         ⊩ᵛ≡∷→⊩ˢ≡∷→⊩[]≡[]∷ ⋆₁≡⋆₂ σ₁≡σ₂ of λ
-      A₁[⋆₁]₀[σ₁]≡A₂[⋆₂]₀[σ₂] →
-    case conv-∙-⊩ᵛ (Unit-congᵛ k₁≡k₂ ok) Unit₁⊩A₂ of λ
-      ⊩A₂ →
-    case subst-⊢≡ ⊢A₁≡A₂ $
-         ⊢ˢʷ≡∷-⇑ Unit₁≡Unit₁ $ escape-⊩ˢ≡∷ σ₁≡σ₂ .proj₂ of λ
-      ⊢A₁[]≡A₂[] →
-    case wf-⊢≡ ⊢A₁[]≡A₂[] of λ
-      (⊢A₁[σ₁⇑] , Unit₁⊢A₂[σ₂⇑]) →
-    case stability-⊢ refl-∙⟨ (wf-⊢≡ Unit₁≡Unit₂ .proj₂) ∣ Unit₁≡Unit₂ ⟩ Unit₁⊢A₂[σ₂⇑] of λ
-      ⊢A₂[σ₂⇑] →
-    case conv-⊩ᵛ∷ (Unit-congᵛ k₁≡k₂ ok) ⊩t₂∷Unit₁ of λ
-      ⊩t₂ →
-    case ⊩ᵛ∷→⊩ˢ∷→⊩[]∷ ⊩t₁ ⊩σ₁ of λ
-      ⊩t₁[σ₁] →
-    case ⊩ᵛ∷→⊩ˢ∷→⊩[]∷ ⊩t₂ ⊩σ₂ of λ
-      ⊩t₂[σ₂] →
-    case R.escape-⊩∷ ⊩t₂[σ₂] of λ
-      ⊢t₂[σ₂] →
-    case conv* t₂[σ₂]⇒*t₂′∷Unit₁ Unit₁≡Unit₂ of λ
-      t₂[σ₂]⇒*t₂′ →
-    case R.escape-⊩∷ $
-         PE.subst (R._⊩⟨_⟩_∷_ _ _ _) (singleSubstLift A₁ (starʷ _)) $
-         ⊩ᵛ∷→⊩ˢ∷→⊩[]∷ ⊩u₁ ⊩σ₁ of λ
-      ⊢u₁[σ₁] →
-    case R.escape-⊩∷ $
-         R.conv-⊩∷
-           (⊩ᵛ≡→⊩ˢ≡∷→⊩≡∷→⊩[⇑][]₀≡[⇑][]₀ A₁≡A₂ (refl-⊩ˢ≡∷ ⊩σ₂)
-             (⊩ᵛ≡∷→⊩ˢ≡∷→⊩[]≡[]∷ ⋆₁≡⋆₂ (refl-⊩ˢ≡∷ ⊩σ₂))) $
-         PE.subst (R._⊩⟨_⟩_∷_ _ _ _) (singleSubstLift A₁ (starʷ _)) $
-         ⊩ᵛ∷→⊩ˢ∷→⊩[]∷ ⊩u₂ ⊩σ₂ of λ
-      ⊢u₂[σ₂] →
-    case prop of λ where
+    let
+      Unit₁≡Unit₂ = Unit-congᵛ k₁≡k₂ ok
+      Unit₁[]≡Unit₂[] = Unit-cong (≅ₜ-eq (escapeLevelEq k₁[σ₁]≡k₂[σ₂])) ok
+      Unit₁[]≡Unit₁[] = Unit-cong (≅ₜ-eq (escapeLevelEq k₁[σ₁]≡k₁[σ₂])) ok
+      ⋆₁≡⋆₂ = star-congᵛ k₁≡k₂ ok
+      (⊩⋆₁ , ⊩⋆₂∷Unit₁) = wf-⊩ᵛ≡∷ ⋆₁≡⋆₂
+      ⊩⋆₂ = conv-⊩ᵛ∷ Unit₁≡Unit₂ ⊩⋆₂∷Unit₁
+      A₁[⋆₁]₀[σ₁]≡A₂[⋆₂]₀[σ₂] =
+        PE.subst₂ (_⊢_≡_ _) (substConsId {t = star!} A₁)
+          (substConsId {t = star!} A₂) $
+        ≅-eq $ R.escape-⊩≡ $
+        ⊩ᵛ≡→⊩ˢ≡∷→⊩≡∷→⊩[,]≡[,] A₁≡A₂ σ₁≡σ₂ $
+        ⊩ᵛ≡∷→⊩ˢ≡∷→⊩[]≡[]∷ ⋆₁≡⋆₂ σ₁≡σ₂
+      ⊩A₂ = conv-∙-⊩ᵛ Unit₁≡Unit₂ Unit₁⊩A₂
+      ⊢A₁[]≡A₂[] =
+        subst-⊢≡ ⊢A₁≡A₂ $
+        ⊢ˢʷ≡∷-⇑ Unit₁[]≡Unit₁[] $ escape-⊩ˢ≡∷ σ₁≡σ₂ .proj₂
+      (⊢A₁[σ₁⇑] , Unit₁⊢A₂[σ₂⇑]) = wf-⊢≡ ⊢A₁[]≡A₂[]
+      ⊢A₂[σ₂⇑] = stability-⊢ refl-∙⟨ (wf-⊢≡ Unit₁[]≡Unit₂[] .proj₂) ∣ Unit₁[]≡Unit₂[] ⟩ Unit₁⊢A₂[σ₂⇑]
+      ⊩t₂ = conv-⊩ᵛ∷ (Unit-congᵛ k₁≡k₂ ok) ⊩t₂∷Unit₁
+      ⊩t₁[σ₁] = ⊩ᵛ∷→⊩ˢ∷→⊩[]∷ ⊩t₁ ⊩σ₁
+      ⊩t₂[σ₂] = ⊩ᵛ∷→⊩ˢ∷→⊩[]∷ ⊩t₂ ⊩σ₂
+      ⊢t₂[σ₂] = R.escape-⊩∷ ⊩t₂[σ₂]
+      t₂[σ₂]⇒*t₂′ = conv* t₂[σ₂]⇒*t₂′∷Unit₁ Unit₁[]≡Unit₂[]
+      ⊢u₁[σ₁] =
+        R.escape-⊩∷ $
+        PE.subst (R._⊩⟨_⟩_∷_ _ _ _) (singleSubstLift A₁ (starʷ _)) $
+        ⊩ᵛ∷→⊩ˢ∷→⊩[]∷ ⊩u₁ ⊩σ₁
+      ⊢u₂[σ₂] =
+        R.escape-⊩∷ $
+        R.conv-⊩∷
+          (⊩ᵛ≡→⊩ˢ≡∷→⊩≡∷→⊩[⇑][]₀≡[⇑][]₀ A₁≡A₂ (refl-⊩ˢ≡∷ ⊩σ₂)
+            (⊩ᵛ≡∷→⊩ˢ≡∷→⊩[]≡[]∷ ⋆₁≡⋆₂ (refl-⊩ˢ≡∷ ⊩σ₂))) $
+        PE.subst (R._⊩⟨_⟩_∷_ _ _ _) (singleSubstLift A₁ (starʷ _)) $
+        ⊩ᵛ∷→⊩ˢ∷→⊩[]∷ ⊩u₂ ⊩σ₂
+    in case prop of λ where
       (Unitₜ₌ˢ η)  →
         unitrec p q k₁ A₁ t₁ u₁ [ σ₁ ] ∷ A₁ [ t₁ ]₀ [ σ₁ ]        ⇒⟨ PE.subst (_⊢_⇒_∷_ _ _ _) (PE.sym $ singleSubstLift A₁ t₁) $
                                                                      unitrec-β-η ⊢k₁[σ₁] ⊢A₁[σ₁⇑] (R.escape-⊩∷ ⊩t₁[σ₁]) ⊢u₁[σ₁] ok
@@ -466,45 +446,40 @@ opaque
         unitrec p q k₂ A₂ t₂ u₂ [ σ₂ ]                            ∎
 
       (Unitₜ₌ʷ rest no-η) →
-        case PE.subst (_⊢_⇒*_∷_ _ _ _)
-               (PE.sym $ singleSubstLift A₁ t₁) $
-             unitrec-subst* {p = p} {q = q} t₁[σ₁]⇒*t₁′ ⊢A₁[σ₁⇑] ⊢u₁[σ₁]
-               no-η of λ
-          unitrec⇒*₁ →
-        case PE.subst (_⊢_⇒*_∷_ _ _ _)
-               (PE.sym $ singleSubstLift A₂ t₂) $
-             unitrec-subst* {p = p} {q = q} t₂[σ₂]⇒*t₂′ ⊢A₂[σ₂⇑] ⊢u₂[σ₂]
-               no-η of λ
-          unitrec⇒*₂ →
-        case PE.subst₂ (_⊩⟨_⟩_≡_ _ _)
-               (PE.sym $ singleSubstLift A₁ t₁) PE.refl $
-             R.⊩≡→ $
-             ⊩ᵛ≡→⊩ˢ≡∷→⊩≡∷→⊩[⇑][]₀≡[⇑][]₀ (refl-⊩ᵛ≡ ⊩A₁) (refl-⊩ˢ≡∷ ⊩σ₁)
-               (R.→⊩≡∷ $ ⊩∷-⇒* t₁[σ₁]⇒*t₁′ $ R.⊩∷→ ⊩t₁[σ₁]) of λ
-          A₁[t₁]₀[σ₁]≡A₁[σ₁⇑][t₁′]₀ →
-        case ≅-eq $ escape-⊩≡ $
-             PE.subst₂ (_⊩⟨_⟩_≡_ _ _)
-               (PE.sym $ singleSubstLift A₂ t₂) PE.refl $
-             R.⊩≡→ $
-             ⊩ᵛ≡→⊩ˢ≡∷→⊩≡∷→⊩[⇑][]₀≡[⇑][]₀ (refl-⊩ᵛ≡ ⊩A₂) (refl-⊩ˢ≡∷ ⊩σ₂)
-               (R.→⊩≡∷ $ ⊩∷-⇒* t₂[σ₂]⇒*t₂′ $ R.⊩∷→ ⊩t₂[σ₂]) of λ
-          ⊢A₂[t₂]₀[σ₂]≡A₂[σ₂⇑][t₂′]₀ →
-        case rest of λ where
+        let
+          unitrec⇒*₁ =
+            PE.subst (_⊢_⇒*_∷_ _ _ _) (PE.sym $ singleSubstLift A₁ t₁) $
+            unitrec-subst* {p = p} {q = q} t₁[σ₁]⇒*t₁′ ⊢A₁[σ₁⇑] ⊢u₁[σ₁] no-η
+          unitrec⇒*₂ =
+            PE.subst (_⊢_⇒*_∷_ _ _ _) (PE.sym $ singleSubstLift A₂ t₂) $
+            unitrec-subst* {p = p} {q = q} t₂[σ₂]⇒*t₂′ ⊢A₂[σ₂⇑] ⊢u₂[σ₂] no-η
+          A₁[t₁]₀[σ₁]≡A₁[σ₁⇑][t₁′]₀ =
+            PE.subst₂ (_⊩⟨_⟩_≡_ _ _) (PE.sym $ singleSubstLift A₁ t₁) PE.refl $
+            R.⊩≡→ $
+            ⊩ᵛ≡→⊩ˢ≡∷→⊩≡∷→⊩[⇑][]₀≡[⇑][]₀ (refl-⊩ᵛ≡ ⊩A₁) (refl-⊩ˢ≡∷ ⊩σ₁)
+              (R.→⊩≡∷ $ ⊩∷-⇒* t₁[σ₁]⇒*t₁′ $ R.⊩∷→ ⊩t₁[σ₁])
+          ⊢A₂[t₂]₀[σ₂]≡A₂[σ₂⇑][t₂′]₀ =
+            ≅-eq $ escape-⊩≡ $
+            PE.subst₂ (_⊩⟨_⟩_≡_ _ _) (PE.sym $ singleSubstLift A₂ t₂) PE.refl $
+            R.⊩≡→ $
+            ⊩ᵛ≡→⊩ˢ≡∷→⊩≡∷→⊩[⇑][]₀≡[⇑][]₀ (refl-⊩ᵛ≡ ⊩A₂) (refl-⊩ˢ≡∷ ⊩σ₂)
+              (R.→⊩≡∷ $ ⊩∷-⇒* t₂[σ₂]⇒*t₂′ $ R.⊩∷→ ⊩t₂[σ₂])
+        in case rest of λ where
           (starᵣ {k′} {k″} k₁≡k′ k′≡k″) →
-            case transEqTermLevel
+            let
+              k₂≡k″ =
+                transEqTermLevel
                   (symLevel k₁[σ₁]≡k₂[σ₂])
-                  (transEqTermLevel k₁≡k′ k′≡k″) of λ
-              k₂≡k″ →
-            case ≅ₜ-eq $ escapeLevelEq k₁≡k′ of λ
-              ⊢k₁≡k′ →
-            case ≅ₜ-eq $ escapeLevelEq k₂≡k″ of λ
-              ⊢k₂≡k″ →
-            case R.⊩≡→ $ ⊩ᵛ≡→⊩ˢ≡∷→⊩≡∷→⊩[⇑][]₀≡[⇑][]₀ (refl-⊩ᵛ≡ ⊩A₁) (refl-⊩ˢ≡∷ ⊩σ₁)
-                  (R.→⊩≡∷ $ ⊩star≡star k₁≡k′ ok) of λ
-              A₁[σ₁⇑][⋆₁]₀≡A₁[σ₁⇑][⋆′]₀ →
-            case R.⊩≡→ $ ⊩ᵛ≡→⊩ˢ≡∷→⊩≡∷→⊩[⇑][]₀≡[⇑][]₀ (refl-⊩ᵛ≡ ⊩A₂) (refl-⊩ˢ≡∷ ⊩σ₂)
-                  (R.→⊩≡∷ $ ⊩star≡star k₂≡k″ ok) of λ
-              A₂[σ₂⇑][⋆₂]₀≡A₂[σ₂⇑][⋆″]₀ →
+                  (transEqTermLevel k₁≡k′ k′≡k″)
+              ⊢k₁≡k′ = ≅ₜ-eq $ escapeLevelEq k₁≡k′
+              ⊢k₂≡k″ = ≅ₜ-eq $ escapeLevelEq k₂≡k″
+              A₁[σ₁⇑][⋆₁]₀≡A₁[σ₁⇑][⋆′]₀ =
+                R.⊩≡→ $ ⊩ᵛ≡→⊩ˢ≡∷→⊩≡∷→⊩[⇑][]₀≡[⇑][]₀ (refl-⊩ᵛ≡ ⊩A₁) (refl-⊩ˢ≡∷ ⊩σ₁)
+                  (R.→⊩≡∷ $ ⊩star≡star k₁≡k′ ok)
+              A₂[σ₂⇑][⋆₂]₀≡A₂[σ₂⇑][⋆″]₀ =
+                R.⊩≡→ $ ⊩ᵛ≡→⊩ˢ≡∷→⊩≡∷→⊩[⇑][]₀≡[⇑][]₀ (refl-⊩ᵛ≡ ⊩A₂) (refl-⊩ˢ≡∷ ⊩σ₂)
+                  (R.→⊩≡∷ $ ⊩star≡star k₂≡k″ ok)
+            in
             unitrec p q k₁ A₁ t₁       u₁ [ σ₁ ] ∷ A₁ [ t₁ ]₀ [ σ₁ ]         ⇒*⟨ unitrec⇒*₁ ⟩⊩∷∷
                                                                                ⟨ A₁[t₁]₀[σ₁]≡A₁[σ₁⇑][t₁′]₀ ⟩⊩∷
                                                  ∷ A₁ [ σ₁ ⇑ ] [ starʷ k′ ]₀ ˘⟨ A₁[σ₁⇑][⋆₁]₀≡A₁[σ₁⇑][⋆′]₀ ⟩⊩∷∷
