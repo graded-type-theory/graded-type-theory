@@ -490,6 +490,7 @@ import Graded.Heap.Termination
 
 -- Resource correctness of the abstract machine
 import Graded.Heap.Soundness
+import Graded.Heap.Soundness.Counterexample
 
 -- Examples related to the abstract machine
 import Graded.Heap.Examples
