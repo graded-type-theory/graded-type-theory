@@ -226,6 +226,7 @@ import Graded.Modality.Instances.Linearity.Properties
 import Graded.Modality.Instances.Linear-or-affine
 import Graded.Modality.Instances.Information-flow
 import Graded.Modality.Instances.Zero-below-one
+import Graded.Modality.Instances.Nat
 import Graded.Modality.Instances.Nat-plus-infinity
 import Graded.Modality.Instances.Exact-or-at-most
 import

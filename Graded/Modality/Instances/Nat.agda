@@ -380,12 +380,11 @@ opaque
 opaque
   unfolding Nat-semiring-with-meet
 
-  -- The modality supports the usage rule for natrec using
-  -- greatest lower bounds.
+  -- The modality has well-behaved greatest lower bounds.
 
-  Nat-supports-glb-for-natrec :
-    Supports-GLB-for-natrec Nat-semiring-with-meet
-  Nat-supports-glb-for-natrec = record
+  Nat-has-well-behaved-GLBs :
+    Has-well-behaved-GLBs Nat-semiring-with-meet
+  Nat-has-well-behaved-GLBs = record
     { +-GLBˡ = +-GLBˡ
     ; ·-GLBˡ = λ {_} {_} {q} → ·-GLBˡ {q = q}
     ; ·-GLBʳ = comm∧·-GLBˡ⇒·-GLBʳ N.*-comm (λ {_} {_} {q} → ·-GLBˡ {q = q})
