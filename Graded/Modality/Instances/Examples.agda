@@ -25,10 +25,14 @@ import Tools.Reasoning.PartialOrder
 
 open import Definition.Typed R
 open import Definition.Typed.Properties R
+open import Definition.Typed.Weakening R
 open import Definition.Untyped M
 
 private variable
-  n : Nat
+  n   : Nat
+  Γ   : Con Term _
+  t u : Term _
+  p   : M
 
 private
 
@@ -42,9 +46,6 @@ private
 
   ⊢ℕℕℕ : ⊢ ε ∙ ℕ ∙ ℕ ∙ ℕ
   ⊢ℕℕℕ = ∙ ℕⱼ ⊢ℕℕ
-
-  ⊢ℕℕℕℕ : ⊢ ε ∙ ℕ ∙ ℕ ∙ ℕ ∙ ℕ
-  ⊢ℕℕℕℕ = ∙ ℕⱼ ⊢ℕℕℕ
 
 -- A program that takes a natural number and adds it to itself:
 -- λ n. n + n. This program should presumably not be seen as linear,
@@ -82,6 +83,13 @@ plus′ t u = natrec 𝟘 𝟘 𝟙 ℕ t (suc (var x0)) u
 plus : Term 0
 plus = lam 𝟙 $ lam 𝟙 $ plus′ (var x0) (var x1)
 
+opaque
+
+  -- A typing rule for plus′.
+
+  ⊢plus′ : Γ ⊢ t ∷ ℕ → Γ ⊢ u ∷ ℕ → Γ ⊢ plus′ t u ∷ ℕ
+  ⊢plus′ ⊢t ⊢u = natrecⱼ ⊢t (sucⱼ (var₀ (ℕⱼ (∙ ℕⱼ (wfTerm ⊢t))))) ⊢u
+
 -- The term plus is well-typed.
 --
 -- With a certain linearity modality the term is also well-resourced,
@@ -93,6 +101,47 @@ plus = lam 𝟙 $ lam 𝟙 $ plus′ (var x0) (var x1)
 ⊢plus =
   lamⱼ′ Π-𝟙-𝟘 $
   lamⱼ′ Π-𝟙-𝟘 $
-  natrecⱼ (var ⊢ℕℕ here)
-    (sucⱼ (var ⊢ℕℕℕℕ here))
-    (var ⊢ℕℕ (there here))
+  ⊢plus′ (var ⊢ℕℕ here) (var ⊢ℕℕ (there here))
+
+opaque
+
+  -- A term used to define f below.
+
+  f′ : Term n → Term n → Term n
+  f′ t u = natrec 𝟙 𝟘 𝟘 ℕ t (plus′ (wk₂ t) (var x1)) u
+
+opaque
+
+  -- An implementation of something like the following Agda code:
+  --
+  --   f : ℕ → ℕ → ℕ
+  --   f m zero    = m
+  --   f m (suc n) = m + n
+
+  f : Term 0
+  f = lam 𝟙 $ lam 𝟙 $ f′ (var x1) (var x0)
+
+opaque
+  unfolding f′
+
+  -- A typing rule for f′.
+
+  ⊢f′ : Γ ⊢ t ∷ ℕ → Γ ⊢ u ∷ ℕ → Γ ⊢ f′ t u ∷ ℕ
+  ⊢f′ ⊢t ⊢u =
+    let ⊢ℕ = ℕⱼ (∙ ℕⱼ (wfTerm ⊢t)) in
+    natrecⱼ ⊢t
+      (⊢plus′ (wkTerm (∷⊇→∷ʷ⊇ (step (step id)) (∙ ⊢ℕ)) ⊢t) (var₁ ⊢ℕ)) ⊢u
+
+opaque
+  unfolding f
+
+  -- A typing rule for f.
+
+  ⊢f :
+    Π-allowed 𝟙 p →
+    ε ⊢ f ∷ Π 𝟙 , p ▷ ℕ ▹ Π 𝟙 , p ▷ ℕ ▹ ℕ
+  ⊢f ok =
+    let ⊢ℕ = ℕⱼ ⊢ℕ in
+    lamⱼ′ ok $
+    lamⱼ′ ok $
+    ⊢f′ (var₁ ⊢ℕ) (var₀ ⊢ℕ)

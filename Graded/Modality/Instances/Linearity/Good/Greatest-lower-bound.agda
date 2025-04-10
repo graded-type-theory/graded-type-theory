@@ -35,6 +35,7 @@ private
     no-nr : Nr-not-available-GLB
     no-nr = No-nr-glb ⦃ zero-one-many-supports-glb-for-natrec ⦄
 
+open import Tools.Fin
 open import Tools.Function
 open import Tools.Nat using (1+)
 import Tools.Reasoning.PartialOrder
@@ -46,9 +47,11 @@ open import Graded.Context linearityModality
 open import Graded.Context.Properties linearityModality
 open import Graded.Modality.Instances.Examples TR Π-𝟙-𝟘
 open import Graded.Modality.Properties linearityModality
+  hiding (nrᵢ-𝟘-GLB)
 open import Graded.Mode linearityModality
 open import Graded.Usage linearityModality UR′
 open import Graded.Usage.Inversion linearityModality UR′
+open import Graded.Usage.Weakening linearityModality UR′
 
 open import Definition.Untyped Linearity
 
@@ -151,3 +154,40 @@ opaque
                      (≈ᶜ-trans (·ᶜ-identityˡ _) (≈ᶜ-sym (lemma i)))))
     γ-GLB : Greatest-lower-boundᶜ γ (nrᵢᶜ 𝟙 γ 𝟘ᶜ)
     γ-GLB = GLBᶜ-congˡ lemma (GLBᶜ-const (λ i → ≈ᶜ-refl))
+
+opaque
+  unfolding f′
+
+  -- A usage rule for f′.
+
+  ▸f′ :
+    γ ▸[ 𝟙ᵐ ] t →
+    δ ▸[ 𝟙ᵐ ] u →
+    γ +ᶜ δ ▸[ 𝟙ᵐ ] f′ t u
+  ▸f′ {γ} {δ} ▸t ▸u =
+    sub
+      (natrec-no-nr-glbₘ ▸t
+         (sub (▸plus″ (wkUsage (step (step id)) ▸t) var) $ begin
+          γ ∙ 𝟙 · 𝟙 ∙ 𝟙 · 𝟘             ≈⟨ ≈ᶜ-refl ∙ M.·-identityˡ _ ∙ M.·-identityˡ _ ⟩
+          γ ∙ 𝟙 ∙ 𝟘                     ≈˘⟨ +ᶜ-identityʳ _ ∙ M.+-identityˡ _ ∙ M.+-identityˡ _ ⟩
+          (γ ∙ 𝟘 ∙ 𝟘) +ᶜ (𝟘ᶜ , x1 ≔ 𝟙)  ∎)
+         ▸u
+         (sub ℕₘ $ begin
+          𝟘ᶜ ∙ ⌜ 𝟘ᵐ? ⌝ · 𝟘  ≈⟨ ≈ᶜ-refl ∙ M.·-zeroʳ _ ⟩
+          𝟘ᶜ                ∎)
+         (nrᵢ-𝟘-GLB 𝟙 𝟙)
+         (GLBᶜ-congʳ (∧ᶜ-idem _) nrᵢᶜ-𝟘-GLB))
+      (begin
+         γ +ᶜ δ       ≈⟨ +ᶜ-comm _ _ ⟩
+         δ +ᶜ γ       ≈˘⟨ +ᶜ-congʳ $ ·ᶜ-identityˡ _ ⟩
+         𝟙 ·ᶜ δ +ᶜ γ  ∎)
+    where
+    open ≤ᶜ-reasoning
+
+opaque
+  unfolding f
+
+  -- The term f is well-resourced.
+
+  ▸f : ε ▸[ 𝟙ᵐ ] f
+  ▸f = lamₘ $ lamₘ $ ▸f′ var var
