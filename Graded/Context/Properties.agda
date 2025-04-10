@@ -559,6 +559,15 @@ opaque
         χ , χ-glb = nrᵢᶜ-has-GLBᶜ nrᵢ-has-GLB r γ δ
     in  χ ∙ x , GLBᶜ-pointwise′ χ-glb x-glb
 
+opaque
+
+  -- The greatest lower bound of nrᵢᶜ 𝟘 γ δ is γ ∧ᶜ δ.
+
+  nrᵢᶜ-𝟘-GLB : Greatest-lower-boundᶜ (γ ∧ᶜ δ) (nrᵢᶜ 𝟘 γ δ)
+  nrᵢᶜ-𝟘-GLB {γ = ε}     {δ = ε}     = ε-GLB
+  nrᵢᶜ-𝟘-GLB {γ = _ ∙ _} {δ = _ ∙ _} =
+    GLBᶜ-pointwise′ nrᵢᶜ-𝟘-GLB nrᵢ-𝟘-GLB
+
 -- Lifting the properties of Supports-GLB-for-natrec to contexts
 
 module _ ⦃ ok : Supports-GLB-for-natrec M semiring-with-meet ⦄ where
