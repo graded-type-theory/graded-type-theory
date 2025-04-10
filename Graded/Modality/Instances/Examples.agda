@@ -20,7 +20,7 @@ module Graded.Modality.Instances.Examples
 
 open import Tools.Fin
 open import Tools.Function
-open import Tools.Nat
+open import Tools.Nat hiding (pred)
 import Tools.Reasoning.PartialOrder
 
 open import Definition.Typed R
@@ -145,3 +145,22 @@ opaque
     lamⱼ′ ok $
     lamⱼ′ ok $
     ⊢f′ (var₁ ⊢ℕ) (var₀ ⊢ℕ)
+
+-- A term used to define pred
+
+pred′ : Term n → Term n
+pred′ t = natrec 𝟙 𝟘 𝟘 ℕ zero (var x1) t
+
+-- A program that takes a natural numbers and returns its predecessor (truncated)
+-- It might make sense to see this program as linear.
+
+pred : Term 0
+pred = lam 𝟙 $ pred′ (var x0)
+
+-- The term pred is well-typed.
+
+⊢pred : ε ⊢ pred ∷ Π 𝟙 , 𝟘 ▷ ℕ ▹ ℕ
+⊢pred =
+  lamⱼ′ Π-𝟙-𝟘 $
+  natrecⱼ (zeroⱼ ⊢ℕ) (var ⊢ℕℕℕ (there here))
+    (var ⊢ℕ here)
