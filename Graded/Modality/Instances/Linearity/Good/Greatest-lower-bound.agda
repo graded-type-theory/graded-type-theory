@@ -45,7 +45,7 @@ open import Tools.Relation
 open import Graded.Context linearityModality
 open import Graded.Context.Properties linearityModality
 open import Graded.Modality.Instances.Examples TR Π-𝟙-𝟘
-open import Graded.Modality.Properties linearityModality
+open import Graded.Modality.Properties linearityModality hiding (nrᵢ-𝟘-GLB)
 open import Graded.Mode linearityModality
 open import Graded.Usage linearityModality UR′
 open import Graded.Usage.Inversion linearityModality UR′
@@ -57,19 +57,6 @@ private variable
   t u : Term _
   m : Mode
   p : Linearity
-
-private
-
-  opaque
-
-    -- The greatest lower bound of nrᵢ 𝟙 𝟙 𝟘 is 𝟙.
-
-    𝟙-GLB : M.Greatest-lower-bound 𝟙 (M.nrᵢ 𝟙 𝟙 𝟘)
-    𝟙-GLB = ≤-reflexive ∘→ lemma , λ { 𝟘 q≤ → q≤ 0 ; 𝟙 q≤ → q≤ 0 ; ω q≤ → ≤-refl}
-      where
-      lemma : ∀ i → 𝟙 ≡ M.nrᵢ 𝟙 𝟙 𝟘 i
-      lemma 0 = refl
-      lemma (1+ i) rewrite sym (lemma i) = refl
 
 opaque
 
@@ -92,8 +79,8 @@ opaque
       (_ ∙ q″≤𝟘 ∙ _ ∙ _) →
     let _ , q′-GLB = GLBᶜ-pointwise q′-GLB′
         q′≤𝟙 = GLB-monotone (λ i → nrᵢ-monotone i p≤𝟙 (≤-trans q≤q″ q″≤𝟘))
-                 q′-GLB 𝟙-GLB
-        p′≡𝟙 = GLB-unique p′-GLB 𝟙-GLB
+                 q′-GLB (nrᵢ-𝟙-GLB 𝟙 𝟘)
+        p′≡𝟙 = GLB-unique p′-GLB (nrᵢ-𝟙-GLB 𝟙 𝟘)
     in case begin
       𝟙           ≤⟨ 𝟙≤ ⟩
       p′ · r + q′ ≤⟨ +-monotone (·-monotoneʳ r≤𝟙) q′≤𝟙 ⟩
@@ -116,8 +103,8 @@ opaque
       (sub ℕₘ $ begin
        𝟘ᶜ ∙ ⌜ 𝟘ᵐ? ⌝ · 𝟘  ≈⟨ ≈ᶜ-refl ∙ M.·-zeroʳ _ ⟩
        𝟘ᶜ                ∎)
-      𝟙-GLB
-      (GLBᶜ-pointwise′ (GLBᶜ-pointwise′ ε-GLB GLB-nrᵢ-𝟘) 𝟙-GLB)
+      (nrᵢ-𝟙-GLB 𝟙 𝟘)
+      (GLBᶜ-pointwise′ (GLBᶜ-pointwise′ ε-GLB GLB-nrᵢ-𝟘) (nrᵢ-𝟙-GLB 𝟙 𝟘))
     where
     open Tools.Reasoning.PartialOrder ≤ᶜ-poset
 
@@ -142,7 +129,7 @@ opaque
     γ ▸[ m ] t → δ ▸[ m ] u →
     γ +ᶜ δ ▸[ m ] plus′ t u
   ▸plus″ ▸t ▸u =
-    sub (▸plus′ ▸t ▸u 𝟙-GLB γ-GLB)
+    sub (▸plus′ ▸t ▸u (nrᵢ-𝟙-GLB 𝟙 𝟘) γ-GLB)
       (≤ᶜ-reflexive (≈ᶜ-trans (+ᶜ-comm _ _) (+ᶜ-congʳ (≈ᶜ-sym (·ᶜ-identityˡ _)))))
     where
     lemma : ∀ i → γ ≈ᶜ nrᵢᶜ 𝟙 γ 𝟘ᶜ i
@@ -151,3 +138,22 @@ opaque
                      (≈ᶜ-trans (·ᶜ-identityˡ _) (≈ᶜ-sym (lemma i)))))
     γ-GLB : Greatest-lower-boundᶜ γ (nrᵢᶜ 𝟙 γ 𝟘ᶜ)
     γ-GLB = GLBᶜ-congˡ lemma (GLBᶜ-const (λ i → ≈ᶜ-refl))
+
+opaque
+
+  -- A usage rule for pred′
+
+  ▸pred′ :
+    γ ▸[ m ] t →
+    γ ▸[ m ] pred′ t
+  ▸pred′ {γ} ▸t =
+    sub (natrec-no-nr-glbₘ {θ = 𝟘ᶜ} zeroₘ
+      (sub var (≤ᶜ-reflexive (≈ᶜ-refl ∙ M.·-identityʳ _ ∙ M.·-zeroʳ _)))
+      ▸t (sub ℕₘ (≤ᶜ-refl ∙ ≤-reflexive (M.·-zeroʳ _)))
+      (nrᵢ-𝟘-GLB 𝟙 𝟙) (GLBᶜ-const (λ _ → nrᵢᶜ-𝟘ᶜ)))
+      (begin
+        γ            ≈˘⟨ ·ᶜ-identityˡ _ ⟩
+        𝟙 ·ᶜ γ       ≈˘⟨ +ᶜ-identityʳ _ ⟩
+        𝟙 ·ᶜ γ +ᶜ 𝟘ᶜ ∎)
+    where
+    open ≤ᶜ-reasoning
