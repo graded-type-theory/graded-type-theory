@@ -16,10 +16,12 @@ module Definition.LogicalRelation.Properties.Embedding
 open EqRelSet {{...}}
 
 open import Definition.Untyped M
+open import Definition.Untyped.Properties M
 open import Definition.LogicalRelation R
 open import Definition.LogicalRelation.Properties.Kit R
 open import Definition.LogicalRelation.Irrelevance R
 
+open import Tools.Function
 open import Tools.Nat using (Nat)
 
 private
@@ -31,6 +33,10 @@ private
 
 opaque
 
+  -- If l₁ <ᵘ l₂, then Γ ⊩⟨ l₁ ⟩ A is contained in Γ ⊩⟨ l₂ ⟩ A.
+
+  emb-≤-⊩ : ∀ {l₁ l₂} → l₁ ≤ᵘ l₂ → Γ ⊩⟨ l₁ ⟩ A → Γ ⊩⟨ l₂ ⟩ A
+
   -- An embedding lemma for _⊩⟨_⟩_∷_/_.
 
   emb-≤-⊩∷ :
@@ -38,6 +44,22 @@ opaque
     Γ ⊩⟨ l₁ ⟩ t ∷ A / ⊩A →
     Γ ⊩⟨ l₂ ⟩ t ∷ A / emb-≤-⊩ p ⊩A
   emb-≤-⊩∷ {⊩A} {p} = irrelevanceTerm ⊩A (emb-≤-⊩ p ⊩A)
+
+  emb-≤-⊩ p (Uᵣ′ k k< A⇒) = Uᵣ′ k (≤ᵘ-trans k< p) A⇒
+  emb-≤-⊩ p (ℕᵣ x) = ℕᵣ x
+  emb-≤-⊩ p (Emptyᵣ x) = Emptyᵣ x
+  emb-≤-⊩ p (Unitᵣ′ l′ l′≤ A⇒ ok) = Unitᵣ′ l′ (≤ᵘ-trans l′≤ p) A⇒ ok
+  emb-≤-⊩ p (ne′ inc k D neK K≡K) = ne′ inc k D neK K≡K
+  emb-≤-⊩ p (Bᵣ′ W F G D A≡A [F] [G] G-ext ok) = Bᵣ′ W F G D A≡A
+    (λ [ρ] → emb-≤-⊩ p ([F] [ρ]))
+    (λ [ρ] [a] → emb-≤-⊩ p ([G] [ρ] (irrelevanceTerm (emb-≤-⊩ p ([F] [ρ])) ([F] [ρ]) [a])))
+    (λ [ρ] [a] [b] a≡b → irrelevanceEq _ _ $ G-ext [ρ]
+        (irrelevanceTerm (emb-≤-⊩ p ([F] [ρ])) ([F] [ρ]) [a])
+        (irrelevanceTerm (emb-≤-⊩ p ([F] [ρ])) ([F] [ρ]) [b])
+        (irrelevanceEqTerm (emb-≤-⊩ p ([F] [ρ])) ([F] [ρ]) a≡b))
+    ok
+  emb-≤-⊩ p (Idᵣ (Idᵣ Ty lhs rhs ⇒*Id ⊩Ty ⊩lhs ⊩rhs)) =
+    Idᵣ (Idᵣ Ty lhs rhs ⇒*Id (emb-≤-⊩ p ⊩Ty) (emb-≤-⊩∷ {⊩A = ⊩Ty} ⊩lhs) (emb-≤-⊩∷ {⊩A = ⊩Ty} ⊩rhs))
 
 opaque
 

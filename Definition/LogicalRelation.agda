@@ -166,33 +166,35 @@ record _⊩Unit⟨_,_⟩_
   Set a where
   no-eta-equality
   pattern
-  constructor Unitₜ
+  constructor Unitᵣ
   field
-    ⇒*-Unit : Γ ⊢ A ⇒* Unit s l
+    l′      : Universe-level
+    l′≤     : l′ ≤ᵘ l
+    ⇒*-Unit : Γ ⊢ A ⇒* Unit s l′
     ok      : Unit-allowed s
 
 -- Unit type equality
-_⊩Unit⟨_,_⟩_≡_ :
-  Con Term ℓ → Universe-level → Strength → (_ _ : Term ℓ) → Set a
-Γ ⊩Unit⟨ l , s ⟩ A ≡ B = Γ ⊢ B ⇒* Unit s l
+_⊩Unit⟨_⟩_≡_/_ :
+  Con Term ℓ → Strength → (_ _ : Term ℓ) → Universe-level → Set a
+Γ ⊩Unit⟨ s ⟩ A ≡ B / l′ = Γ ⊢ B ⇒* Unit s l′
 
 -- Unit term equality
 
 data [Unitʷ]-prop
-       (Γ : Con Term ℓ) (l : Universe-level) :
+       (Γ : Con Term ℓ) (l′ : Universe-level) :
        Term ℓ → Term ℓ → Set a where
-  starᵣ : [Unitʷ]-prop Γ l (starʷ l) (starʷ l)
-  ne    : Γ ⊩neNf t ≡ u ∷ Unitʷ l → [Unitʷ]-prop Γ l t u
+  starᵣ : [Unitʷ]-prop Γ l′ (starʷ l′) (starʷ l′)
+  ne    : Γ ⊩neNf t ≡ u ∷ Unitʷ l′ → [Unitʷ]-prop Γ l′ t u
 
 data [Unit]-prop
-       (Γ : Con Term ℓ) (l : Universe-level) :
+       (Γ : Con Term ℓ) (l′ : Universe-level) :
        Strength → Term ℓ → Term ℓ → Set a where
-  Unitₜ₌ʷ : [Unitʷ]-prop Γ l t u → ¬ Unitʷ-η → [Unit]-prop Γ l 𝕨 t u
-  Unitₜ₌ˢ : Unit-with-η s → [Unit]-prop Γ l s t u
+  Unitₜ₌ʷ : [Unitʷ]-prop Γ l′ t u → ¬ Unitʷ-η → [Unit]-prop Γ l′ 𝕨 t u
+  Unitₜ₌ˢ : Unit-with-η s → [Unit]-prop Γ l′ s t u
 
-record _⊩Unit⟨_,_⟩_≡_∷Unit
-         (Γ : Con Term ℓ) (l : Universe-level) (s : Strength)
-         (t₁ t₂ : Term ℓ) :
+record _⊩Unit⟨_⟩_≡_∷Unit/_
+         (Γ : Con Term ℓ) (s : Strength)
+         (t₁ t₂ : Term ℓ) (l′ : Universe-level) :
          Set a where
   inductive
   no-eta-equality
@@ -200,9 +202,9 @@ record _⊩Unit⟨_,_⟩_≡_∷Unit
   constructor Unitₜ₌
   field
     u₁ u₂ : Term ℓ
-    ↘u₁   : Γ ⊢ t₁ ↘ u₁ ∷ Unit s l
-    ↘u₂   : Γ ⊢ t₂ ↘ u₂ ∷ Unit s l
-    prop  : [Unit]-prop Γ l s u₁ u₂
+    ↘u₁   : Γ ⊢ t₁ ↘ u₁ ∷ Unit s l′
+    ↘u₂   : Γ ⊢ t₂ ↘ u₂ ∷ Unit s l′
+    prop  : [Unit]-prop Γ l′ s u₁ u₂
 
 
 -- Logical relation
@@ -459,19 +461,15 @@ module LogRel
       ne  : ∀ {A} → Γ ⊩ne A → Γ ⊩ₗ A
       Bᵣ  : ∀ {A} W → Γ ⊩ₗB⟨ W ⟩ A → Γ ⊩ₗ A
       Idᵣ : ∀ {A} → Γ ⊩ₗId A → Γ ⊩ₗ A
-      emb : ∀ {A l′} (l< : l′ <ᵘ l) (let open LogRelKit (rec l<))
-            ([A] : Γ ⊩ A) → Γ ⊩ₗ A
 
     _⊩ₗ_≡_/_ : (Γ : Con Term ℓ) (A B : Term ℓ) → Γ ⊩ₗ A → Set a
     Γ ⊩ₗ A ≡ B / Uᵣ ⊩A = Γ ⊩₁U≡ B / _⊩₁U_.l′ ⊩A
     Γ ⊩ₗ A ≡ B / ℕᵣ D = Γ ⊩ℕ A ≡ B
     Γ ⊩ₗ A ≡ B / Emptyᵣ D = Γ ⊩Empty A ≡ B
-    Γ ⊩ₗ A ≡ B / Unitᵣ {s = s} D = Γ ⊩Unit⟨ l , s ⟩ A ≡ B
+    Γ ⊩ₗ A ≡ B / Unitᵣ {s = s} ⊩A = Γ ⊩Unit⟨ s ⟩ A ≡ B / ⊩A ._⊩Unit⟨_,_⟩_.l′
     Γ ⊩ₗ A ≡ B / ne neA = Γ ⊩ne A ≡ B / neA
     Γ ⊩ₗ A ≡ B / Bᵣ W BA = Γ ⊩ₗB⟨ W ⟩ A ≡ B / BA
     Γ ⊩ₗ A ≡ B / Idᵣ ⊩A = Γ ⊩ₗId A ≡ B / ⊩A
-    Γ ⊩ₗ A ≡ B / emb l< [A] = Γ ⊩ A ≡ B / [A]
-      where open LogRelKit (rec l<)
 
     _⊩ₗ_∷_/_ : (Γ : Con Term ℓ) (t A : Term ℓ) → Γ ⊩ₗ A → Set a
     Γ ⊩ₗ t ∷ A / ⊩A = Γ ⊩ₗ t ≡ t ∷ A / ⊩A
@@ -480,13 +478,11 @@ module LogRel
     Γ ⊩ₗ t ≡ u ∷ A / Uᵣ ⊩A = Γ ⊩₁U t ≡ u ∷U/ _⊩₁U_.l′< ⊩A
     Γ ⊩ₗ t ≡ u ∷ A / ℕᵣ D = Γ ⊩ℕ t ≡ u ∷ℕ
     Γ ⊩ₗ t ≡ u ∷ A / Emptyᵣ D = Γ ⊩Empty t ≡ u ∷Empty
-    Γ ⊩ₗ t ≡ u ∷ A / Unitᵣ {s = s} D = Γ ⊩Unit⟨ l , s ⟩ t ≡ u ∷Unit
+    Γ ⊩ₗ t ≡ u ∷ A / Unitᵣ {s = s} ⊩A = Γ ⊩Unit⟨ s ⟩ t ≡ u ∷Unit/ ⊩A ._⊩Unit⟨_,_⟩_.l′
     Γ ⊩ₗ t ≡ u ∷ A / ne neA = Γ ⊩ne t ≡ u ∷ A / neA
     Γ ⊩ₗ t ≡ u ∷ A / Bᵣ BΠ! ΠA = Γ ⊩ₗΠ t ≡ u ∷ A / ΠA
     Γ ⊩ₗ t ≡ u ∷ A / Bᵣ BΣ! ΣA  = Γ ⊩ₗΣ t ≡ u ∷ A / ΣA
     Γ ⊩ₗ t ≡ u ∷ A / Idᵣ ⊩A = Γ ⊩ₗId t ≡ u ∷ A / ⊩A
-    Γ ⊩ₗ t ≡ u ∷ A / emb l< [A] = Γ ⊩ t ≡ u ∷ A / [A]
-      where open LogRelKit (rec l<)
 
     kit : LogRelKit
     kit = Kit _⊩₁U_ _⊩ₗB⟨_⟩_ _⊩ₗId_
@@ -494,7 +490,7 @@ module LogRel
 
 open LogRel public
   using
-    (Uᵣ; ℕᵣ; Emptyᵣ; Unitᵣ; ne; Bᵣ; B₌; Idᵣ; Id₌; emb; Uₜ₌;
+    (Uᵣ; ℕᵣ; Emptyᵣ; Unitᵣ; ne; Bᵣ; B₌; Idᵣ; Id₌; Uₜ₌;
      module _⊩₁U_; module _⊩₁U_≡_∷U/_;
      module _⊩ₗB⟨_⟩_; module _⊩ₗB⟨_⟩_≡_/_;
      module _⊩ₗId_; module _⊩ₗId_≡_/_)
@@ -503,6 +499,7 @@ open LogRel public
 pattern Πₜ₌ f g d d′ funcF funcG f≡g [f≡g] = f , g , d , d′ , funcF , funcG , f≡g , [f≡g]
 pattern Σₜ₌ p r d d′ pProd rProd p≅r prop = p , r , d , d′ , p≅r , pProd , rProd , prop
 
+pattern Unitᵣ′ a b c d = Unitᵣ (Unitᵣ a b c d)
 pattern Uᵣ′ a b c = Uᵣ (Uᵣ a b c)
 pattern ne′ a b c d e = ne (ne a b c d e)
 pattern Bᵣ′ W a b c d e f g h = Bᵣ W (Bᵣ a b c d e f g h)

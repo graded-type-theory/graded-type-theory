@@ -85,7 +85,7 @@ mutual
                 rewrite PE.sym (whrDet* (D , Emptyₙ) (D₁ , whnfB)) =
     Empty-ins ([~] A (D₂ , Emptyₙ) k~l)
   lift~toConv↓′
-    (Unitᵣ {s} (Unitₜ A′⇒*Unit _)) A′⇒*A
+    (Unitᵣ {s} (Unitᵣ _ _ A′⇒*Unit _)) A′⇒*A
     t~u↓@([~] _ (B⇒*A , A-whnf) t~u↑) =
     case whrDet* (A′⇒*Unit , Unitₙ) (A′⇒*A , A-whnf) of λ {
       PE.refl →
@@ -163,8 +163,6 @@ mutual
     case syntacticEqTerm (soundness~↓ t~u) .proj₂ .proj₁ of λ {
       ⊢t →
     Id-ins ⊢t t~u }}
-  lift~toConv↓′ (emb ≤ᵘ-refl     ⊩A) = lift~toConv↓′ ⊩A
-  lift~toConv↓′ (emb (≤ᵘ-step p) ⊩A) = lift~toConv↓′ (emb p ⊩A)
 
   -- Helper function for lifting from neutrals to generic terms.
   lift~toConv↑′ : ∀ {t u A l}

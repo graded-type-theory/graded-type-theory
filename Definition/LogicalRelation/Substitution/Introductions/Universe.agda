@@ -62,19 +62,14 @@ opaque
     Γ ⊩⟨ l ⟩ U l′ ⇔
     (l′ <ᵘ l × ⊢ Γ)
   ⊩U⇔ =
-      lemma ∘→ U-elim
+      (λ ⊩U →
+        case U-view ⊩U of λ {
+          (Uᵣ (Uᵣ _ l′<l U⇒*U)) →
+        case U⇒*U→≡ U⇒*U of λ {
+          PE.refl →
+        l′<l , wfEq (subset* U⇒*U) }})
     , (λ (l′<l , ⊢Γ) →
         Uᵣ (Uᵣ _ l′<l (id (Uⱼ ⊢Γ))))
-    where
-    lemma :
-      Γ ⊩⟨ l ⟩U U l′ →
-      l′ <ᵘ l × ⊢ Γ
-    lemma (noemb (Uᵣ _ l′<l U⇒*U)) =
-      case U⇒*U→≡ U⇒*U of λ {
-        PE.refl →
-      l′<l , wfEq (subset* U⇒*U) }
-    lemma (emb ≤ᵘ-refl     ⊩U) = Σ.map ≤ᵘ-step idᶠ (lemma ⊩U)
-    lemma (emb (≤ᵘ-step p) ⊩U) = Σ.map ≤ᵘ-step idᶠ (lemma (emb p ⊩U))
 
 opaque
   unfolding _⊩⟨_⟩_≡_
@@ -86,26 +81,16 @@ opaque
     (l′ <ᵘ l × Γ ⊢ A ⇒* U l′)
   ⊩U≡⇔ =
       (λ (⊩U , _ , U≡A) →
-         lemma (U-elim ⊩U)
-           (irrelevanceEq ⊩U (U-intr (U-elim ⊩U)) U≡A))
+        case U-view ⊩U of λ {
+          (Uᵣ (Uᵣ _ p U⇒*U)) →
+        case U⇒*U→≡ U⇒*U of λ {
+          PE.refl →
+        p , U≡A }})
     , (λ (p , A⇒*U) →
          let _ , ⊢U = wf-⊢≡ (subset* A⇒*U) in
            Uᵣ (Uᵣ _ p (id ⊢U))
          , wf-⊩≡ (⊩-⇐* A⇒*U (⊩U⇔ .proj₂ (p , wf ⊢U))) .proj₁
          , A⇒*U)
-    where
-    lemma :
-      (⊩U : Γ ⊩⟨ l ⟩U U l′) →
-      Γ ⊩⟨ l ⟩ U l′ ≡ A / U-intr ⊩U →
-      l′ <ᵘ l × Γ ⊢ A ⇒* U l′
-    lemma (noemb (Uᵣ _ p U⇒*U)) A≡U =
-      case U⇒*U→≡ U⇒*U of λ {
-        PE.refl →
-      p , A≡U }
-    lemma (emb ≤ᵘ-refl ⊩U) A≡U =
-      Σ.map ≤ᵘ-step idᶠ (lemma ⊩U A≡U)
-    lemma (emb (≤ᵘ-step p) ⊩U) A≡U =
-      Σ.map ≤ᵘ-step idᶠ (lemma (emb p ⊩U) A≡U)
 
 opaque
   unfolding _⊩⟨_⟩_≡_ _⊩⟨_⟩_≡_∷_
@@ -123,8 +108,18 @@ opaque
      Γ ⊢ A′ ≅ B′ ∷ U l′)
   ⊩≡∷U⇔ =
       (λ (⊩U , A≡B) →
-          lemma (U-elim ⊩U)
-            (irrelevanceEqTerm ⊩U (U-intr (U-elim ⊩U)) A≡B))
+        case U-view ⊩U of λ {
+          (Uᵣ (Uᵣ _ l′<l U⇒*U)) →
+        case A≡B of λ
+          (Uₜ₌ _ _ A⇒*A′ B⇒*B′ A′-type B′-type A′≅B′ ⊩A ⊩B A≡B) →
+        case U⇒*U→≡ U⇒*U of λ {
+          PE.refl →
+          l′<l
+        , ( ⊩<⇔⊩ l′<l .proj₁ ⊩A
+          , ⊩<⇔⊩ l′<l .proj₁ ⊩B
+          , ⊩<≡⇔⊩≡ l′<l .proj₁ A≡B
+          )
+        , _ , _ , A⇒*A′ , B⇒*B′ , A′-type , B′-type , A′≅B′ }})
     , (λ (l′<l , (⊩A , ⊩B , A≡B) , _ , _ ,
           A⇒*A′ , B⇒*B′ , A′-type , B′-type , A′≅B′) →
          let ⊩A = ⊩<⇔⊩ l′<l .proj₂ ⊩A
@@ -133,30 +128,6 @@ opaque
            Uᵣ (Uᵣ _ l′<l (id (Uⱼ (wfEqTerm (subset*Term A⇒*A′)))))
          , Uₜ₌ _ _ A⇒*A′ B⇒*B′ A′-type B′-type A′≅B′ ⊩A ⊩B
              (⊩<≡⇔⊩≡′ l′<l .proj₂ A≡B))
-    where
-    lemma :
-      (⊩U : Γ ⊩⟨ l ⟩U U l′) →
-      Γ ⊩⟨ l ⟩ A ≡ B ∷ U l′ / U-intr ⊩U →
-      l′ <ᵘ l × Γ ⊩⟨ l′ ⟩ A ≡ B ×
-      ∃₂ λ A′ B′ →
-      Γ ⊢ A ⇒* A′ ∷ U l′ ×
-      Γ ⊢ B ⇒* B′ ∷ U l′ ×
-      Type A′ ×
-      Type B′ ×
-      Γ ⊢ A′ ≅ B′ ∷ U l′
-    lemma
-      (noemb (Uᵣ _ l′<l U⇒*U))
-      (Uₜ₌ _ _ A⇒*A′ B⇒*B′ A′-type B′-type A′≅B′ ⊩A ⊩B A≡B) =
-        case U⇒*U→≡ U⇒*U of λ {
-          PE.refl →
-          l′<l
-        , ( ⊩<⇔⊩ l′<l .proj₁ ⊩A
-          , ⊩<⇔⊩ l′<l .proj₁ ⊩B
-          , ⊩<≡⇔⊩≡ l′<l .proj₁ A≡B
-          )
-        , _ , _ , A⇒*A′ , B⇒*B′ , A′-type , B′-type , A′≅B′ }
-    lemma (emb ≤ᵘ-refl     ⊩U) = Σ.map ≤ᵘ-step idᶠ ∘→ lemma ⊩U
-    lemma (emb (≤ᵘ-step p) ⊩U) = Σ.map ≤ᵘ-step idᶠ ∘→ lemma (emb p ⊩U)
 
 opaque
 
