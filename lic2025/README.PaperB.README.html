@@ -1,0 +1,1545 @@
+<!DOCTYPE HTML>
+<html><head><meta charset="utf-8"><title>README.PaperB.README</title><link rel="stylesheet" href="Agda.css"></head><body><pre class="Agda"><a id="1" class="Comment">------------------------------------------------------------------------</a>
+<a id="74" class="Comment">-- Code related to the paper &quot;A Resource-Correct Graded Modal Dependent</a>
+<a id="146" class="Comment">-- Type Theory with Recursion, Formalized&quot; by Oskar Eriksson, Nils</a>
+<a id="213" class="Comment">-- Anders Danielsson and Andreas Abel.</a>
+<a id="252" class="Comment">------------------------------------------------------------------------</a>
+
+<a id="326" class="Comment">-- Currently, the paper is not published and the code in this file</a>
+<a id="393" class="Comment">-- refers to a preliminary version.</a>
+<a id="429" class="Comment">--</a>
+<a id="432" class="Comment">-- Note that Andreas Abel, Nils Anders Danielsson, Oskar Eriksson,</a>
+<a id="499" class="Comment">-- Gaëtan Gilbert, Ondřej Kubánek, Wojciech Nawrocki, Joakim Öhman and</a>
+<a id="570" class="Comment">-- Andrea Vezzosi have also contributed to the code.</a>
+<a id="623" class="Comment">--</a>
+<a id="626" class="Comment">-- The code also depends on some libraries:</a>
+<a id="670" class="Comment">--</a>
+<a id="673" class="Comment">-- * Agda&#39;s standard library, version 2.1.</a>
+<a id="716" class="Comment">-- * The builtin modules that are shipped with Agda 2.7.0.1.</a>
+<a id="777" class="Comment">--</a>
+<a id="780" class="Comment">-- When HTML code is generated from this file code is also generated</a>
+<a id="849" class="Comment">-- for the two libraries above, so URLs for their licences are</a>
+<a id="912" class="Comment">-- included here. At the time of writing the licence texts can be</a>
+<a id="978" class="Comment">-- found at the following URLs:</a>
+<a id="1010" class="Comment">--</a>
+<a id="1013" class="Comment">-- * https://github.com/agda/agda-stdlib/blob/v2.1/LICENCE</a>
+<a id="1072" class="Comment">-- * https://github.com/agda/agda/blob/v2.7.0.1/LICENSE</a>
+
+<a id="1129" class="Keyword">module</a> <a id="1136" href="README.PaperB.README.html" class="Module">README.PaperB.README</a> <a id="1157" class="Keyword">where</a>
+
+<a id="1164" class="Keyword">import</a> <a id="1171" href="Definition.Typed.html" class="Module">Definition.Typed</a>
+<a id="1188" class="Keyword">import</a> <a id="1195" href="Definition.Typed.Consequences.Inversion.html" class="Module">Definition.Typed.Consequences.Inversion</a>
+<a id="1235" class="Keyword">import</a> <a id="1242" href="Definition.Typed.Consequences.Reduction.html" class="Module">Definition.Typed.Consequences.Reduction</a>
+<a id="1282" class="Keyword">import</a> <a id="1289" href="Definition.Typed.Inversion.html" class="Module">Definition.Typed.Inversion</a>
+<a id="1316" class="Keyword">import</a> <a id="1323" href="Definition.Typed.Properties.Reduction.html" class="Module">Definition.Typed.Properties.Reduction</a>
+<a id="1361" class="Keyword">import</a> <a id="1368" href="Definition.Typed.Restrictions.html" class="Module">Definition.Typed.Restrictions</a>
+<a id="1398" class="Keyword">import</a> <a id="1405" href="Definition.Untyped.html" class="Module">Definition.Untyped</a>
+<a id="1424" class="Keyword">import</a> <a id="1431" href="Definition.Untyped.NotParametrised.html" class="Module">Definition.Untyped.NotParametrised</a>
+
+<a id="1467" class="Keyword">import</a> <a id="1474" href="Graded.Context.html" class="Module">Graded.Context</a>
+<a id="1489" class="Keyword">import</a> <a id="1496" href="Graded.Context.Properties.Natrec.html" class="Module">Graded.Context.Properties.Natrec</a>
+<a id="1529" class="Keyword">import</a> <a id="1536" href="Graded.Context.Properties.PartialOrder.html" class="Module">Graded.Context.Properties.PartialOrder</a>
+<a id="1575" class="Keyword">import</a> <a id="1582" href="Graded.Context.Weakening.html" class="Module">Graded.Context.Weakening</a>
+<a id="1607" class="Keyword">import</a> <a id="1614" href="Graded.Erasure.Consequences.Soundness.html" class="Module">Graded.Erasure.Consequences.Soundness</a>
+<a id="1652" class="Keyword">import</a> <a id="1659" href="Graded.Heap.Assumptions.html" class="Module">Graded.Heap.Assumptions</a>
+<a id="1683" class="Keyword">import</a> <a id="1690" href="Graded.Heap.Bisimilarity.html" class="Module">Graded.Heap.Bisimilarity</a>
+<a id="1715" class="Keyword">import</a> <a id="1722" href="Graded.Heap.Examples.html" class="Module">Graded.Heap.Examples</a>
+<a id="1743" class="Keyword">import</a> <a id="1750" href="Graded.Heap.Examples.Linearity.html" class="Module">Graded.Heap.Examples.Linearity</a>
+<a id="1781" class="Keyword">import</a> <a id="1788" href="Graded.Heap.Normalization.html" class="Module">Graded.Heap.Normalization</a>
+<a id="1814" class="Keyword">import</a> <a id="1821" href="Graded.Heap.Reduction.html" class="Module">Graded.Heap.Reduction</a>
+<a id="1843" class="Keyword">import</a> <a id="1850" href="Graded.Heap.Reduction.Properties.html" class="Module">Graded.Heap.Reduction.Properties</a>
+<a id="1883" class="Keyword">import</a> <a id="1890" href="Graded.Heap.Soundness.html" class="Module">Graded.Heap.Soundness</a>
+<a id="1912" class="Keyword">import</a> <a id="1919" href="Graded.Heap.Soundness.Counterexample.html" class="Module">Graded.Heap.Soundness.Counterexample</a>
+<a id="1956" class="Keyword">import</a> <a id="1963" href="Graded.Heap.Termination.html" class="Module">Graded.Heap.Termination</a>
+<a id="1987" class="Keyword">import</a> <a id="1994" href="Graded.Heap.Typed.html" class="Module">Graded.Heap.Typed</a>
+<a id="2012" class="Keyword">import</a> <a id="2019" href="Graded.Heap.Typed.Properties.html" class="Module">Graded.Heap.Typed.Properties</a>
+<a id="2048" class="Keyword">import</a> <a id="2055" href="Graded.Heap.Typed.Reduction.html" class="Module">Graded.Heap.Typed.Reduction</a>
+<a id="2083" class="Keyword">import</a> <a id="2090" href="Graded.Heap.Untyped.html" class="Module">Graded.Heap.Untyped</a>
+<a id="2110" class="Keyword">import</a> <a id="2117" href="Graded.Heap.Untyped.Properties.html" class="Module">Graded.Heap.Untyped.Properties</a>
+<a id="2148" class="Keyword">import</a> <a id="2155" href="Graded.Heap.Usage.html" class="Module">Graded.Heap.Usage</a>
+<a id="2173" class="Keyword">import</a> <a id="2180" href="Graded.Heap.Usage.Inversion.html" class="Module">Graded.Heap.Usage.Inversion</a>
+<a id="2208" class="Keyword">import</a> <a id="2215" href="Graded.Heap.Usage.Properties.html" class="Module">Graded.Heap.Usage.Properties</a>
+<a id="2244" class="Keyword">import</a> <a id="2251" href="Graded.Heap.Usage.Reduction.html" class="Module">Graded.Heap.Usage.Reduction</a>
+<a id="2279" class="Keyword">import</a> <a id="2286" href="Graded.Modality.html" class="Module">Graded.Modality</a>
+<a id="2302" class="Keyword">import</a> <a id="2309" href="Graded.Modality.Instances.Affine.html" class="Module">Graded.Modality.Instances.Affine</a>
+<a id="2342" class="Keyword">import</a> <a id="2349" href="Graded.Modality.Instances.Erasure.Modality.html" class="Module">Graded.Modality.Instances.Erasure.Modality</a>
+<a id="2392" class="Keyword">import</a> <a id="2399" href="Graded.Modality.Instances.Erasure.Properties.html" class="Module">Graded.Modality.Instances.Erasure.Properties</a>
+<a id="2444" class="Keyword">import</a> <a id="2451" href="Graded.Modality.Instances.Examples.html" class="Module">Graded.Modality.Instances.Examples</a>
+<a id="2486" class="Keyword">import</a> <a id="2493" href="Graded.Modality.Instances.Linearity.html" class="Module">Graded.Modality.Instances.Linearity</a>
+<a id="2529" class="Keyword">import</a> <a id="2536" href="Graded.Modality.Instances.Linearity.Bad.html" class="Module">Graded.Modality.Instances.Linearity.Bad</a>
+<a id="2576" class="Keyword">import</a> <a id="2583" href="Graded.Modality.Instances.Linearity.Bad.No-dedicated-nr.html" class="Module">Graded.Modality.Instances.Linearity.Bad.No-dedicated-nr</a>
+<a id="2639" class="Keyword">import</a> <a id="2646" href="Graded.Modality.Instances.Linearity.Good.Greatest-lower-bound.html" class="Module">Graded.Modality.Instances.Linearity.Good.Greatest-lower-bound</a>
+<a id="2708" class="Keyword">import</a> <a id="2715" href="Graded.Modality.Instances.Nat.html" class="Module">Graded.Modality.Instances.Nat</a>
+<a id="2745" class="Keyword">import</a> <a id="2752" href="Graded.Modality.Instances.Nat-plus-infinity.html" class="Module">Graded.Modality.Instances.Nat-plus-infinity</a>
+<a id="2796" class="Keyword">import</a> <a id="2803" href="Graded.Modality.Instances.Set.html" class="Module">Graded.Modality.Instances.Set</a>
+<a id="2833" class="Keyword">import</a> <a id="2840" href="Graded.Modality.Instances.Zero-one-many.html" class="Module">Graded.Modality.Instances.Zero-one-many</a>
+<a id="2880" class="Keyword">import</a> <a id="2887" href="Graded.Modality.Properties.Addition.html" class="Module">Graded.Modality.Properties.Addition</a>
+<a id="2923" class="Keyword">import</a> <a id="2930" href="Graded.Modality.Properties.Greatest-lower-bound.html" class="Module">Graded.Modality.Properties.Greatest-lower-bound</a>
+<a id="2978" class="Keyword">import</a> <a id="2985" href="Graded.Modality.Properties.Has-well-behaved-zero.html" class="Module">Graded.Modality.Properties.Has-well-behaved-zero</a>
+<a id="3034" class="Keyword">import</a> <a id="3041" href="Graded.Modality.Properties.Natrec.html" class="Module">Graded.Modality.Properties.Natrec</a>
+<a id="3075" class="Keyword">import</a> <a id="3082" href="Graded.Modality.Properties.PartialOrder.html" class="Module">Graded.Modality.Properties.PartialOrder</a>
+<a id="3122" class="Keyword">import</a> <a id="3129" href="Graded.Modality.Properties.Star.html" class="Module">Graded.Modality.Properties.Star</a>
+<a id="3161" class="Keyword">import</a> <a id="3168" href="Graded.Modality.Properties.Subtraction.html" class="Module">Graded.Modality.Properties.Subtraction</a>
+<a id="3207" class="Keyword">import</a> <a id="3214" href="Graded.Modality.Variant.html" class="Module">Graded.Modality.Variant</a>
+<a id="3238" class="Keyword">import</a> <a id="3245" href="Graded.Mode.html" class="Module">Graded.Mode</a>
+<a id="3257" class="Keyword">import</a> <a id="3264" href="Graded.Reduction.html" class="Module">Graded.Reduction</a>
+<a id="3281" class="Keyword">import</a> <a id="3288" href="Graded.Substitution.Properties.html" class="Module">Graded.Substitution.Properties</a>
+<a id="3319" class="Keyword">import</a> <a id="3326" href="Graded.Usage.html" class="Module">Graded.Usage</a>
+<a id="3339" class="Keyword">import</a> <a id="3346" href="Graded.Usage.Inversion.html" class="Module">Graded.Usage.Inversion</a>
+<a id="3369" class="Keyword">import</a> <a id="3376" href="Graded.Usage.Restrictions.html" class="Module">Graded.Usage.Restrictions</a>
+<a id="3402" class="Keyword">import</a> <a id="3409" href="Graded.Usage.Weakening.html" class="Module">Graded.Usage.Weakening</a>
+
+<a id="3433" class="Keyword">import</a> <a id="3440" href="Tools.Fin.html" class="Module">Tools.Fin</a>
+<a id="3450" class="Keyword">import</a> <a id="3457" href="Tools.Nat.html" class="Module">Tools.Nat</a>
+
+<a id="3468" class="Comment">------------------------------------------------------------------------</a>
+<a id="3541" class="Comment">-- Differences between the paper and the code</a>
+<a id="3587" class="Comment">------------------------------------------------------------------------</a>
+
+<a id="3661" class="Comment">-- The code does not follow the paper exactly. Notably, the</a>
+<a id="3721" class="Comment">-- formalisation contains parameters that make it possible to control</a>
+<a id="3791" class="Comment">-- whether certain features should be included or not (in addition to</a>
+<a id="3861" class="Comment">-- the possibility to choose what modality to use). The three most</a>
+<a id="3928" class="Comment">-- prominent parameters are `Modality-variant`, `Type-restrictions` and</a>
+<a id="4000" class="Comment">-- `Usage-restrictions`. The presentation in the paper is done for</a>
+<a id="4067" class="Comment">-- certain instantiations of these parameters as discussed below:</a>
+
+<a id="4134" class="Comment">-- Modality-variant controls whether the usage relation should support</a>
+<a id="4205" class="Comment">-- one or two modes. In the paper, we use two modes but our results hold</a>
+<a id="4278" class="Comment">-- also for the theory with one mode.</a>
+
+<a id="Modality-variant"></a><a id="4317" href="README.PaperB.README.html#4317" class="Function">Modality-variant</a> <a id="4334" class="Symbol">=</a> <a id="4336" href="Graded.Modality.Variant.html#362" class="Record">Graded.Modality.Variant.Modality-variant</a>
+
+<a id="4378" class="Comment">-- Type-restrictions control the typing judgments and the reduction</a>
+<a id="4446" class="Comment">-- relation.</a>
+
+<a id="Type-restrictions"></a><a id="4460" href="README.PaperB.README.html#4460" class="Function">Type-restrictions</a> <a id="4478" class="Symbol">=</a> <a id="4480" href="Definition.Typed.Restrictions.html#808" class="Record">Definition.Typed.Restrictions.Type-restrictions</a>
+
+<a id="4529" class="Comment">-- One can choose whether to allow strong and/or weak unit types as well</a>
+<a id="4602" class="Comment">-- as binders of the form B_p^q, where p and q are grades and B is &quot;Π&quot;,</a>
+<a id="4674" class="Comment">-- &quot;strong Σ&quot; or &quot;weak Σ&quot;.</a>
+<a id="4701" class="Comment">--</a>
+<a id="4704" class="Comment">-- If a term has a certain type (&quot;Unit&quot; or &quot;B_p^q C D&quot;), then this type</a>
+<a id="4776" class="Comment">-- must be allowed by the Type-restrictions:</a>
+
+<a id="Unit-allowed"></a><a id="4822" href="README.PaperB.README.html#4822" class="Function">Unit-allowed</a> <a id="4835" class="Symbol">=</a> <a id="4837" href="Definition.Typed.Inversion.html#1520" class="Function">Definition.Typed.Inversion.⊢∷Unit→Unit-allowed</a>
+<a id="ΠΣ-allowed"></a><a id="4884" href="README.PaperB.README.html#4884" class="Function">ΠΣ-allowed</a>   <a id="4897" class="Symbol">=</a> <a id="4899" href="Definition.Typed.Inversion.html#2310" class="Function">Definition.Typed.Inversion.⊢∷ΠΣ→ΠΣ-allowed</a>
+
+<a id="4943" class="Comment">-- In the paper, we do not have such restrictions (i.e. these types are</a>
+<a id="5015" class="Comment">-- always allowed) but our results hold also if such restrictions are</a>
+<a id="5085" class="Comment">-- included. Similar choices can also be made for certain terms related</a>
+<a id="5157" class="Comment">-- to identity types. We do not discuss these in the paper but again our</a>
+<a id="5230" class="Comment">-- results hold regardless of whether these are allowed or not.</a>
+
+<a id="5295" class="Comment">-- One can choose to allow a form of η-equality for the weak unit type.</a>
+<a id="5367" class="Comment">-- Enabling this rule changes the definition of typing and reduction for</a>
+<a id="5440" class="Comment">-- the weak unit element and unitrec.</a>
+<a id="5478" class="Comment">--</a>
+<a id="5481" class="Comment">-- In the paper, this is not enabled but a version of our results hold</a>
+<a id="5552" class="Comment">-- also when it is. In order to be consistent with the reduction, the</a>
+<a id="5622" class="Comment">-- rules for machine transitions are changed slightly and some</a>
+<a id="5685" class="Comment">-- properties (including our main correctness theorem) are shown under</a>
+<a id="5756" class="Comment">-- an additional assumption:</a>
+
+<a id="Unitʷ-η-assumption"></a><a id="5786" href="README.PaperB.README.html#5786" class="Function">Unitʷ-η-assumption</a> <a id="5805" class="Symbol">=</a> <a id="5807" href="Graded.Heap.Assumptions.html#1252" class="Field">Graded.Heap.Assumptions.Assumptions.Unitʷ-η→</a>
+
+<a id="5853" class="Comment">-- One can choose whether to allow equality reflection. We do not</a>
+<a id="5919" class="Comment">-- discuss equality types in the paper so this is of no consequence in</a>
+<a id="5990" class="Comment">-- that regard. The formalized results hold for closed terms when this</a>
+<a id="6061" class="Comment">-- is enabled. For open terms our proof holds only with equality</a>
+<a id="6126" class="Comment">-- reflection turned off.</a>
+
+<a id="6153" class="Comment">-- Usage-restrictions control the usage relation.</a>
+
+<a id="Usage-restrictions"></a><a id="6204" href="README.PaperB.README.html#6204" class="Function">Usage-restrictions</a> <a id="6223" class="Symbol">=</a> <a id="6225" href="Graded.Usage.Restrictions.html#812" class="Record">Graded.Usage.Restrictions.Usage-restrictions</a>
+
+<a id="6271" class="Comment">-- One can choose for some terms which grade annotations should be</a>
+<a id="6338" class="Comment">-- allowed (for a given mode). This corresponds to the side conditions</a>
+<a id="6409" class="Comment">-- for some usage rules in the paper. For the terms presented in the</a>
+<a id="6478" class="Comment">-- paper this is available for prodrec_r^p, unitrec_p, and emptyrec_p.</a>
+<a id="6549" class="Comment">--</a>
+<a id="6552" class="Comment">-- If a certain term is well-resourced then (with respect to a given</a>
+<a id="6621" class="Comment">-- mode) then the term is allowed for that mode.</a>
+
+<a id="prodrec-allowed"></a><a id="6671" href="README.PaperB.README.html#6671" class="Function">prodrec-allowed</a> <a id="6687" class="Symbol">=</a> <a id="6689" href="Graded.Usage.Inversion.html#7682" class="Function">Graded.Usage.Inversion.inv-usage-prodrec</a>
+<a id="unitrec-allowed"></a><a id="6730" href="README.PaperB.README.html#6730" class="Function">unitrec-allowed</a> <a id="6746" class="Symbol">=</a> <a id="6748" href="Graded.Usage.Inversion.html#15192" class="Function">Graded.Usage.Inversion.inv-usage-unitrec</a>
+<a id="emptyrec-allowed"></a><a id="6789" href="README.PaperB.README.html#6789" class="Function">emptyrec-allowed</a> <a id="6806" class="Symbol">=</a> <a id="6808" href="Graded.Usage.Inversion.html#13756" class="Function">Graded.Usage.Inversion.inv-usage-emptyrec</a>
+
+<a id="6851" class="Comment">-- One can choose whether the strong unit element should be</a>
+<a id="6911" class="Comment">-- well-resourced in any context (as opposed to only in the zero</a>
+<a id="6976" class="Comment">-- context). In the presentation used in the paper this is allowed but</a>
+<a id="7047" class="Comment">-- the results hold either way.</a>
+
+<a id="7080" class="Comment">-- One can choose between three mutually exclusive usage rules for</a>
+<a id="7147" class="Comment">-- natrec. One corresponds to the usage rule using the natrec-star</a>
+<a id="7214" class="Comment">-- operator, one corresponds to the usage rule we define in the paper</a>
+<a id="7284" class="Comment">-- and the third is only mentioned briefly in the paper. We have not</a>
+<a id="7353" class="Comment">-- shown that our results hold when this usage rule is used.</a>
+
+<a id="7415" class="Comment">------------------------------------------------------------------------</a>
+<a id="7488" class="Comment">-- Pointers to results from the paper</a>
+<a id="7526" class="Comment">------------------------------------------------------------------------</a>
+
+<a id="7600" class="Comment">-- The remainder of this file contains pointers to results from the</a>
+<a id="7668" class="Comment">-- paper.</a>
+
+<a id="7679" class="Comment">------------------------------------------------------------------------</a>
+<a id="7752" class="Comment">-- 2: A Graded Modal Dependent Type Theory</a>
+
+<a id="7796" class="Comment">------------------------------------------------------------------------</a>
+<a id="7869" class="Comment">-- 2.1: Modalities</a>
+
+<a id="7889" class="Comment">-- Definition 2.1: Modalities.</a>
+<a id="7920" class="Comment">--</a>
+<a id="7923" class="Comment">-- The formalized definition differs somewhat from the definition in the</a>
+<a id="7996" class="Comment">-- paper:</a>
+<a id="8006" class="Comment">--</a>
+<a id="8009" class="Comment">-- In the formalization, a modality comes with an additional</a>
+<a id="8070" class="Comment">-- special grade ω which is assumed to satisfy certain properties. This</a>
+<a id="8142" class="Comment">-- grade is used to state the usage rules for the eliminators for the</a>
+<a id="8212" class="Comment">-- identity type which we do not include in the paper.</a>
+<a id="8267" class="Comment">--</a>
+<a id="8270" class="Comment">-- Equality between grades is not assumed to be decidable in general but</a>
+<a id="8343" class="Comment">-- it is decidable whether a grade is equal to zero.</a>
+<a id="8396" class="Comment">--</a>
+<a id="8399" class="Comment">-- Modality records contain a field of type Modality-variant in addition</a>
+<a id="8472" class="Comment">-- to the algebraic structure which is referred to as</a>
+<a id="8526" class="Comment">-- `Semiring-with-meet` in the formalization.</a>
+
+<a id="Modality"></a><a id="8573" href="README.PaperB.README.html#8573" class="Function">Modality</a> <a id="8582" class="Symbol">=</a> <a id="8584" href="Graded.Modality.html#9574" class="Record">Graded.Modality.Modality</a>
+<a id="Semiring-with-meet"></a><a id="8609" href="README.PaperB.README.html#8609" class="Function">Semiring-with-meet</a> <a id="8628" class="Symbol">=</a> <a id="8630" href="Graded.Modality.html#620" class="Record">Graded.Modality.Semiring-with-meet</a>
+
+<a id="8666" class="Comment">-- Sets of natural numbers are not generally modalities</a>
+
+<a id="set-no-modality"></a><a id="8723" href="README.PaperB.README.html#8723" class="Function">set-no-modality</a> <a id="8739" class="Symbol">=</a> <a id="8741" href="Graded.Modality.Instances.Set.html#9709" class="Function">Graded.Modality.Instances.Set.𝟙-𝟚.no-modality</a>
+
+<a id="8788" class="Comment">-- The partial order relation for modalities</a>
+
+<a id="_≤_"></a><a id="8834" href="README.PaperB.README.html#8834" class="Function Operator">_≤_</a> <a id="8838" class="Symbol">=</a> <a id="8840" href="Graded.Modality.html#1384" class="Function Operator">Graded.Modality.Modality._≤_</a>
+
+<a id="8870" class="Comment">-- The order is a partial order</a>
+
+<a id="≤-partial-order"></a><a id="8903" href="README.PaperB.README.html#8903" class="Function">≤-partial-order</a> <a id="8919" class="Symbol">=</a> <a id="8921" href="Graded.Modality.Properties.PartialOrder.html#1457" class="Function">Graded.Modality.Properties.PartialOrder.≤-poset</a>
+
+<a id="8970" class="Comment">-- Definition 2.2: Modalities with a well-behaved zero.</a>
+
+<a id="9027" class="Comment">-- The property of having a well-behaved zero is defined for</a>
+<a id="9088" class="Comment">-- `Semiring-with-meet`, the algebraic structure of the modality.</a>
+
+<a id="Has-well-behaved-zero"></a><a id="9155" href="README.PaperB.README.html#9155" class="Function">Has-well-behaved-zero</a> <a id="9177" class="Symbol">=</a> <a id="9179" href="Graded.Modality.html#4341" class="Record">Graded.Modality.Has-well-behaved-zero</a>
+
+<a id="9218" class="Comment">-- The formalized definition does not require q ≡ 𝟘 to follow from</a>
+<a id="9285" class="Comment">-- p + q ≡ 𝟘 or p ∧ q ≡ 𝟘. This follows from commutativity of the</a>
+<a id="9351" class="Comment">-- operators.</a>
+
+<a id="+-positiveʳ"></a><a id="9366" href="README.PaperB.README.html#9366" class="Function">+-positiveʳ</a> <a id="9378" class="Symbol">=</a>
+  <a id="9382" href="Graded.Modality.Properties.Has-well-behaved-zero.html#971" class="Function">Graded.Modality.Properties.Has-well-behaved-zero.+-positiveʳ</a>
+<a id="∧-positiveʳ"></a><a id="9443" href="README.PaperB.README.html#9443" class="Function">∧-positiveʳ</a> <a id="9455" class="Symbol">=</a>
+  <a id="9459" href="Graded.Modality.Properties.Has-well-behaved-zero.html#1243" class="Function">Graded.Modality.Properties.Has-well-behaved-zero.∧-positiveʳ</a>
+
+<a id="9521" class="Comment">-- Example modalities.</a>
+<a id="9544" class="Comment">--</a>
+<a id="9547" class="Comment">-- All these modality definitions takes an argument of type</a>
+<a id="9607" class="Comment">-- `Modality-variant`. The modalities can thus be defined to support</a>
+<a id="9676" class="Comment">-- either the moded or non-moded usage relation.</a>
+
+<a id="9726" class="Comment">-- The erasure modality.</a>
+
+<a id="erasureModality"></a><a id="9752" href="README.PaperB.README.html#9752" class="Function">erasureModality</a> <a id="9768" class="Symbol">=</a>
+  <a id="9772" href="Graded.Modality.Instances.Erasure.Modality.html#2775" class="Function">Graded.Modality.Instances.Erasure.Modality.ErasureModality</a>
+
+<a id="9832" class="Comment">-- The affine types modality</a>
+
+<a id="affineTypesModality"></a><a id="9862" href="README.PaperB.README.html#9862" class="Function">affineTypesModality</a> <a id="9882" class="Symbol">=</a>
+  <a id="9886" href="Graded.Modality.Instances.Linearity.html#1024" class="Function">Graded.Modality.Instances.Linearity.linearityModality</a>
+
+<a id="9941" class="Comment">-- The linear types modality.</a>
+
+<a id="linearTypesModality"></a><a id="9972" href="README.PaperB.README.html#9972" class="Function">linearTypesModality</a> <a id="9992" class="Symbol">=</a>
+  <a id="9996" href="Graded.Modality.Instances.Linearity.html#1024" class="Function">Graded.Modality.Instances.Linearity.linearityModality</a>
+
+<a id="10051" class="Comment">-- The &quot;natural numbers&quot; instances</a>
+
+<a id="10087" class="Comment">-- The definition takes a boolean argument, controlling which of the two</a>
+<a id="10160" class="Comment">-- order relations should be used.</a>
+<a id="10195" class="Comment">--</a>
+<a id="10198" class="Comment">-- In the formalization, the grade ∞ is used to represent any number of</a>
+<a id="10270" class="Comment">-- uses. In the paper we refer to this grade as ω.</a>
+
+<a id="ℕω-Modality"></a><a id="10322" href="README.PaperB.README.html#10322" class="Function">ℕω-Modality</a> <a id="10334" class="Symbol">=</a> <a id="10336" href="Graded.Modality.Instances.Nat-plus-infinity.html#22613" class="Function">Graded.Modality.Instances.Nat-plus-infinity.ℕ⊎∞-Modality</a>
+
+<a id="10394" class="Comment">------------------------------------------------------------------------</a>
+<a id="10467" class="Comment">-- 2.2: Syntax, Typing and Usage</a>
+
+<a id="10501" class="Comment">-- de Bruijn index</a>
+<a id="10520" class="Comment">--</a>
+<a id="10523" class="Comment">-- In the formalization, de Bruijn indices are represented as the type</a>
+<a id="10594" class="Comment">-- `Fin`, unlike the paper which uses `Nat`. This representation ensures</a>
+<a id="10667" class="Comment">-- that the syntax is well-scoped since out-of-scope variable indices</a>
+<a id="10737" class="Comment">-- cannot occur.</a>
+
+<a id="de-Bruijn-index"></a><a id="10755" href="README.PaperB.README.html#10755" class="Function">de-Bruijn-index</a> <a id="10771" class="Symbol">=</a> <a id="10773" href="Data.Fin.Base.html#1159" class="Datatype">Tools.Fin.Fin</a>
+
+<a id="10788" class="Comment">-- Universe level</a>
+
+<a id="Universe-level"></a><a id="10807" href="README.PaperB.README.html#10807" class="Function">Universe-level</a> <a id="10822" class="Symbol">=</a> <a id="10824" href="Definition.Untyped.NotParametrised.html#4244" class="Function">Definition.Untyped.NotParametrised.Universe-level</a>
+
+<a id="10875" class="Comment">-- Grade</a>
+<a id="10884" class="Comment">--</a>
+<a id="10887" class="Comment">-- Grades are elements of the chosen modality</a>
+
+<a id="grade"></a><a id="10934" href="README.PaperB.README.html#10934" class="Function">grade</a> <a id="10940" class="Symbol">=</a> <a id="10942" href="Graded.Modality.html#9574" class="Record">Graded.Modality.Modality</a>
+
+<a id="10968" class="Comment">-- Strength</a>
+
+<a id="Strength"></a><a id="10981" href="README.PaperB.README.html#10981" class="Function">Strength</a> <a id="10990" class="Symbol">=</a> <a id="10992" href="Definition.Untyped.NotParametrised.html#1964" class="Datatype">Definition.Untyped.NotParametrised.Strength</a>
+
+<a id="11037" class="Comment">-- Term</a>
+<a id="11045" class="Comment">--</a>
+<a id="11048" class="Comment">-- The type of terms is indexed by a natural number, representing the</a>
+<a id="11118" class="Comment">-- number of free variables it has. The representation of de Bruijn</a>
+<a id="11186" class="Comment">-- indices (discussed above) ensures that no variable indices are</a>
+<a id="11252" class="Comment">-- out-of-scope, making the syntax well-scoped.</a>
+<a id="11300" class="Comment">--</a>
+<a id="11303" class="Comment">-- The syntax defined in the formalization is the full syntax, including</a>
+<a id="11376" class="Comment">-- terms which we do not discuss in this section or in the paper at all.</a>
+<a id="11449" class="Comment">-- In particular, this includes `natrec`, the eliminator for natural</a>
+<a id="11518" class="Comment">-- numbers and the terms related to the Identity type (`Id`, `rfl`, `J`,</a>
+<a id="11591" class="Comment">-- `K`, and `[]-cong`).</a>
+<a id="11615" class="Comment">--</a>
+<a id="11618" class="Comment">-- In the formalized syntax, Π and Σ-types have been merged. The</a>
+<a id="11683" class="Comment">-- corresponding type constructor takes an argument of type `BinderMode`</a>
+<a id="11756" class="Comment">-- which determines whether the term is a Π-type or a Σ-type (as well as</a>
+<a id="11829" class="Comment">-- the strength in the latter case). This is done to aid the</a>
+<a id="11890" class="Comment">-- formalization effort and reduce code duplication since the two types</a>
+<a id="11962" class="Comment">-- can often be treated the same in proofs.</a>
+<a id="12006" class="Comment">--</a>
+<a id="12009" class="Comment">-- Another difference is that the unit types exist at any universe level</a>
+<a id="12082" class="Comment">-- unlike in the paper where we define them at level 0 for simplicity.</a>
+<a id="12153" class="Comment">-- In the formalized syntax, the terms for the unit types, unit elements</a>
+<a id="12226" class="Comment">-- and `unitrec`, the eliminator for the weak unit type, all take an</a>
+<a id="12295" class="Comment">-- argument of type `Universe-level`. The version of this theory that</a>
+<a id="12365" class="Comment">-- is presented in the paper always set these to zero.</a>
+<a id="12420" class="Comment">--</a>
+<a id="12423" class="Comment">-- Some terms come with an additional grade annotation which is used to</a>
+<a id="12495" class="Comment">-- assign a grade to the variable bound by the motive of eliminators.</a>
+<a id="12565" class="Comment">-- For the usage relation with two modes, this is forced to be zero so</a>
+<a id="12636" class="Comment">-- we have left out this grade in the paper.</a>
+
+<a id="Term"></a><a id="12682" href="README.PaperB.README.html#12682" class="Function">Term</a> <a id="12687" class="Symbol">=</a> <a id="12689" href="Definition.Untyped.html#1181" class="Datatype">Definition.Untyped.Term</a>
+
+<a id="12714" class="Comment">-- Weakening</a>
+
+<a id="Weakening"></a><a id="12728" href="README.PaperB.README.html#12728" class="Function">Weakening</a> <a id="12738" class="Symbol">=</a> <a id="12740" href="Definition.Untyped.NotParametrised.html#2948" class="Datatype">Definition.Untyped.NotParametrised.Wk</a>
+
+<a id="12779" class="Comment">-- Typing context</a>
+<a id="12797" class="Comment">--</a>
+<a id="12800" class="Comment">-- Typing contexts are also well-scoped. The first term in a context is</a>
+<a id="12872" class="Comment">-- closed and each consequent term (can) contain an additional variable.</a>
+
+<a id="Con"></a><a id="12946" href="README.PaperB.README.html#12946" class="Function">Con</a> <a id="12950" class="Symbol">=</a> <a id="12952" href="Definition.Untyped.NotParametrised.html#882" class="Datatype">Definition.Untyped.NotParametrised.Con</a>
+
+<a id="12992" class="Comment">-- Grade context</a>
+
+<a id="Conₘ"></a><a id="13010" href="README.PaperB.README.html#13010" class="Function">Conₘ</a> <a id="13015" class="Symbol">=</a> <a id="13017" href="Graded.Context.html#729" class="Datatype">Graded.Context.Conₘ</a>
+
+<a id="13038" class="Comment">-- Mode</a>
+<a id="13046" class="Comment">--</a>
+<a id="13049" class="Comment">-- As explained above, a modality can either support the two-moded usage</a>
+<a id="13122" class="Comment">-- relation or not using the `Modality-variant` field of the modality.</a>
+<a id="13193" class="Comment">-- The type `Mode` contains two elements if the chosen modality supports</a>
+<a id="13266" class="Comment">-- the moded usage relation and one element if it does not. Again, in</a>
+<a id="13336" class="Comment">-- the theory presented in the paper, we are using two modes.</a>
+
+<a id="Mode"></a><a id="13399" href="README.PaperB.README.html#13399" class="Function">Mode</a> <a id="13404" class="Symbol">=</a> <a id="13406" href="Graded.Mode.html#1039" class="Datatype">Graded.Mode.Mode</a>
+
+<a id="13424" class="Comment">-- Weakenings applied to variable indices. In the paper, the notation</a>
+<a id="13494" class="Comment">-- _[_] is used for this operation.</a>
+
+<a id="wkVar"></a><a id="13531" href="README.PaperB.README.html#13531" class="Function">wkVar</a> <a id="13537" class="Symbol">=</a> <a id="13539" href="Definition.Untyped.NotParametrised.html#3851" class="Function">Definition.Untyped.NotParametrised.wkVar</a>
+
+<a id="13581" class="Comment">-- Weakenings applied to terms. In the paper, the notation</a>
+<a id="13640" class="Comment">-- _[_] is used for this operation.</a>
+
+<a id="wk"></a><a id="13677" href="README.PaperB.README.html#13677" class="Function">wk</a> <a id="13680" class="Symbol">=</a> <a id="13682" href="Definition.Untyped.html#9240" class="Function">Definition.Untyped.wk</a>
+
+<a id="13705" class="Comment">-- The weakenings ↑ⁿ and ⇑ⁿ</a>
+
+<a id="↑ⁿ"></a><a id="13734" href="README.PaperB.README.html#13734" class="Function">↑ⁿ</a> <a id="13737" class="Symbol">=</a> <a id="13739" href="Definition.Untyped.NotParametrised.html#3658" class="Function">Definition.Untyped.NotParametrised.stepn</a>
+<a id="⇑ⁿ"></a><a id="13780" href="README.PaperB.README.html#13780" class="Function">⇑ⁿ</a> <a id="13783" class="Symbol">=</a> <a id="13785" href="Definition.Untyped.NotParametrised.html#3547" class="Function">Definition.Untyped.NotParametrised.liftn</a>
+
+<a id="13827" class="Comment">-- Substitutions</a>
+
+<a id="Subst"></a><a id="13845" href="README.PaperB.README.html#13845" class="Function">Subst</a> <a id="13851" class="Symbol">=</a> <a id="13853" href="Definition.Untyped.html#11546" class="Function">Definition.Untyped.Subst</a>
+
+<a id="13879" class="Comment">-- Application of substitutions to terms</a>
+
+<a id="_[_]"></a><a id="13921" href="README.PaperB.README.html#13921" class="Function Operator">_[_]</a> <a id="13926" class="Symbol">=</a> <a id="13928" href="Definition.Untyped.html#13697" class="Function Operator">Definition.Untyped._[_]</a>
+
+<a id="13953" class="Comment">-- Extending a substitution σ with a term t.</a>
+
+<a id="consSubst"></a><a id="13999" href="README.PaperB.README.html#13999" class="Function">consSubst</a> <a id="14009" class="Symbol">=</a> <a id="14011" href="Definition.Untyped.html#15372" class="Function">Definition.Untyped.consSubst</a>
+
+<a id="14041" class="Comment">-- Substituting a single variable</a>
+
+<a id="_[_]₀"></a><a id="14076" href="README.PaperB.README.html#14076" class="Function Operator">_[_]₀</a> <a id="14082" class="Symbol">=</a> <a id="14084" href="Definition.Untyped.html#16173" class="Function Operator">Definition.Untyped._[_]₀</a>
+
+<a id="14110" class="Comment">-- Composition of substitutions</a>
+<a id="14142" class="Comment">--</a>
+<a id="14145" class="Comment">-- There are four composition operators for composing weakenings and</a>
+<a id="14214" class="Comment">-- substitutions. In the paper we treat weakenings and substitutions the</a>
+<a id="14287" class="Comment">-- same and use only one composition operator for all cases. Note that</a>
+<a id="14358" class="Comment">-- the formalization uses a different symbol for composition than the</a>
+<a id="14428" class="Comment">-- paper</a>
+
+<a id="14438" class="Comment">-- Composing two substitutions</a>
+
+<a id="_ₛ•ₛ_"></a><a id="14470" href="README.PaperB.README.html#14470" class="Function Operator">_ₛ•ₛ_</a> <a id="14476" class="Symbol">=</a> <a id="14478" href="Definition.Untyped.html#15697" class="Function Operator">Definition.Untyped._ₛ•ₛ_</a>
+
+<a id="14504" class="Comment">-- Composing two weakenings</a>
+
+<a id="_•_"></a><a id="14533" href="README.PaperB.README.html#14533" class="Function Operator">_•_</a> <a id="14537" class="Symbol">=</a> <a id="14539" href="Definition.Untyped.NotParametrised.html#3317" class="Function Operator">Definition.Untyped.NotParametrised._•_</a>
+
+<a id="14579" class="Comment">-- Composing a weakening with a substitution</a>
+
+<a id="_•ₛ_"></a><a id="14625" href="README.PaperB.README.html#14625" class="Function Operator">_•ₛ_</a> <a id="14630" class="Symbol">=</a> <a id="14632" href="Definition.Untyped.html#15868" class="Function Operator">Definition.Untyped._•ₛ_</a>
+
+<a id="14657" class="Comment">-- Composing a substitution with a weakening</a>
+
+<a id="_ₛ•_"></a><a id="14703" href="README.PaperB.README.html#14703" class="Function Operator">_ₛ•_</a> <a id="14708" class="Symbol">=</a> <a id="14710" href="Definition.Untyped.html#15984" class="Function Operator">Definition.Untyped._ₛ•_</a>
+
+<a id="14735" class="Comment">-- Weakening for substitutions</a>
+
+<a id="↑ˢ"></a><a id="14767" href="README.PaperB.README.html#14767" class="Function">↑ˢ</a> <a id="14770" class="Symbol">=</a> <a id="14772" href="Definition.Untyped.html#12728" class="Function">Definition.Untyped.wk1Subst</a>
+<a id="⇑ˢ"></a><a id="14800" href="README.PaperB.README.html#14800" class="Function">⇑ˢ</a> <a id="14803" class="Symbol">=</a> <a id="14805" href="Definition.Untyped.html#13005" class="Function">Definition.Untyped.liftSubst</a>
+
+<a id="14835" class="Comment">-- The type system</a>
+<a id="14854" class="Comment">--</a>
+<a id="14857" class="Comment">-- Like the syntax, the typing judgements are defined for the whole</a>
+<a id="14925" class="Comment">-- language, including those terms which are not covered by this</a>
+<a id="14990" class="Comment">-- section or the paper.</a>
+
+<a id="15016" class="Comment">-- Well-formed contexts</a>
+
+<a id="⊢_"></a><a id="15041" href="README.PaperB.README.html#15041" class="Function Operator">⊢_</a> <a id="15044" class="Symbol">=</a> <a id="15046" href="Definition.Typed.html#1164" class="Datatype Operator">Definition.Typed.⊢_</a>
+
+<a id="15067" class="Comment">-- Well-formed types</a>
+
+<a id="_⊢_"></a><a id="15089" href="README.PaperB.README.html#15089" class="Function Operator">_⊢_</a> <a id="15093" class="Symbol">=</a> <a id="15095" href="Definition.Typed.html#1262" class="Datatype Operator">Definition.Typed._⊢_</a>
+
+<a id="15117" class="Comment">-- Well-formed terms</a>
+
+<a id="_⊢_∷_"></a><a id="15139" href="README.PaperB.README.html#15139" class="Function Operator">_⊢_∷_</a> <a id="15145" class="Symbol">=</a> <a id="15147" href="Definition.Typed.html#1707" class="Datatype Operator">Definition.Typed._⊢_∷_</a>
+
+<a id="15171" class="Comment">-- Definitional equality for types</a>
+
+<a id="_⊢_≡_"></a><a id="15207" href="README.PaperB.README.html#15207" class="Function Operator">_⊢_≡_</a> <a id="15213" class="Symbol">=</a> <a id="15215" href="Definition.Typed.html#4649" class="Datatype Operator">Definition.Typed._⊢_≡_</a>
+
+<a id="15239" class="Comment">-- Definitional equality for terms</a>
+
+<a id="_⊢_≡_∷_"></a><a id="15275" href="README.PaperB.README.html#15275" class="Function Operator">_⊢_≡_∷_</a> <a id="15283" class="Symbol">=</a> <a id="15285" href="Definition.Typed.html#5243" class="Datatype Operator">Definition.Typed._⊢_≡_∷_</a>
+
+<a id="15311" class="Comment">-- Well-formed variables</a>
+
+<a id="_∷_∈_"></a><a id="15337" href="README.PaperB.README.html#15337" class="Function Operator">_∷_∈_</a> <a id="15343" class="Symbol">=</a> <a id="15345" href="Definition.Typed.html#969" class="Datatype Operator">Definition.Typed._∷_∈_</a>
+
+<a id="15369" class="Comment">-- Max for universe levels</a>
+
+<a id="_⊔_"></a><a id="15397" href="README.PaperB.README.html#15397" class="Function Operator">_⊔_</a> <a id="15401" class="Symbol">=</a> <a id="15403" href="Definition.Untyped.NotParametrised.html#4342" class="Function Operator">Definition.Untyped.NotParametrised._⊔ᵘ_</a>
+
+<a id="15444" class="Comment">-- Well-typed applications to lambdas have matching grades</a>
+
+<a id="⊢λʳtᵖu→p≡r"></a><a id="15504" href="README.PaperB.README.html#15504" class="Function">⊢λʳtᵖu→p≡r</a> <a id="15515" class="Symbol">=</a> <a id="15517" href="Definition.Typed.Consequences.Inversion.html#2663" class="Function">Definition.Typed.Consequences.Inversion.inversion-lam-app</a>
+
+<a id="15576" class="Comment">-- The usage relation</a>
+<a id="15598" class="Comment">--</a>
+<a id="15601" class="Comment">-- Like the syntax and typing judgements, the usage relation is defined</a>
+<a id="15673" class="Comment">-- for the whole language, including those terms which are not covered</a>
+<a id="15744" class="Comment">-- by this section or the paper.</a>
+
+<a id="_▸[_]_"></a><a id="15778" href="README.PaperB.README.html#15778" class="Function Operator">_▸[_]_</a> <a id="15785" class="Symbol">=</a> <a id="15787" href="Graded.Usage.html#8567" class="Datatype Operator">Graded.Usage._▸[_]_</a>
+
+<a id="15808" class="Comment">-- Grade context lookup</a>
+
+<a id="_⟨_⟩"></a><a id="15833" href="README.PaperB.README.html#15833" class="Function Operator">_⟨_⟩</a> <a id="15838" class="Symbol">=</a> <a id="15840" href="Graded.Context.html#1320" class="Function Operator">Graded.Context._⟨_⟩</a>
+
+<a id="15861" class="Comment">-- Lifted operators and order relation to grade contexts</a>
+
+<a id="_+ᶜ_"></a><a id="15919" href="README.PaperB.README.html#15919" class="Function Operator">_+ᶜ_</a> <a id="15924" class="Symbol">=</a> <a id="15926" href="Graded.Context.html#1574" class="Function Operator">Graded.Context._+ᶜ_</a>
+<a id="_∧ᶜ_"></a><a id="15946" href="README.PaperB.README.html#15946" class="Function Operator">_∧ᶜ_</a> <a id="15951" class="Symbol">=</a> <a id="15953" href="Graded.Context.html#1694" class="Function Operator">Graded.Context._∧ᶜ_</a>
+<a id="_·ᶜ_"></a><a id="15973" href="README.PaperB.README.html#15973" class="Function Operator">_·ᶜ_</a> <a id="15978" class="Symbol">=</a> <a id="15980" href="Graded.Context.html#1806" class="Function Operator">Graded.Context._·ᶜ_</a>
+<a id="_≤ᶜ_"></a><a id="16000" href="README.PaperB.README.html#16000" class="Function Operator">_≤ᶜ_</a> <a id="16005" class="Symbol">=</a> <a id="16007" href="Graded.Context.html#1928" class="Function Operator">Graded.Context._≤ᶜ_</a>
+
+<a id="16028" class="Comment">-- The lifted order relation is a partial order</a>
+
+<a id="≤ᶜ-partial-order"></a><a id="16077" href="README.PaperB.README.html#16077" class="Function">≤ᶜ-partial-order</a> <a id="16094" class="Symbol">=</a> <a id="16096" href="Graded.Context.Properties.PartialOrder.html#1875" class="Function">Graded.Context.Properties.PartialOrder.≤ᶜ-poset</a>
+
+<a id="16145" class="Comment">-- Conversion between grades and modes.</a>
+<a id="16185" class="Comment">--</a>
+<a id="16188" class="Comment">-- In the paper we implicitly convert from modes to grades. In the</a>
+<a id="16255" class="Comment">-- formalization, these are explicit.</a>
+
+<a id="16294" class="Comment">-- Conversion from grades to modes</a>
+
+<a id="⌞_⌟"></a><a id="16330" href="README.PaperB.README.html#16330" class="Function Operator">⌞_⌟</a> <a id="16334" class="Symbol">=</a> <a id="16336" href="Graded.Mode.html#5190" class="Function Operator">Graded.Mode.⌞_⌟</a>
+
+<a id="16353" class="Comment">-- Conversion from modes to grades</a>
+
+<a id="⌜_⌝"></a><a id="16389" href="README.PaperB.README.html#16389" class="Function Operator">⌜_⌝</a> <a id="16393" class="Symbol">=</a> <a id="16395" href="Graded.Mode.html#4855" class="Function Operator">Graded.Mode.⌜_⌝</a>
+
+<a id="16412" class="Comment">-- Weakening of usage contexts</a>
+<a id="16443" class="Comment">--</a>
+<a id="16446" class="Comment">--  In the paper, the notation _[_] is used for this operation.</a>
+
+<a id="wkConₘ"></a><a id="16511" href="README.PaperB.README.html#16511" class="Function">wkConₘ</a> <a id="16518" class="Symbol">=</a> <a id="16520" href="Graded.Context.Weakening.html#967" class="Function">Graded.Context.Weakening.wkConₘ</a>
+
+<a id="16553" class="Comment">-- Usage is preserved by weakening</a>
+
+<a id="wkUsage"></a><a id="16589" href="README.PaperB.README.html#16589" class="Function">wkUsage</a> <a id="16597" class="Symbol">=</a> <a id="16599" href="Graded.Usage.Weakening.html#1445" class="Function">Graded.Usage.Weakening.wkUsage</a>
+
+<a id="16631" class="Comment">-- The call-by-name, weak-head reduction relation.</a>
+
+<a id="_⊢_⇒_∷_"></a><a id="16683" href="README.PaperB.README.html#16683" class="Function Operator">_⊢_⇒_∷_</a> <a id="16691" class="Symbol">=</a> <a id="16693" href="Definition.Typed.html#12841" class="Datatype Operator">Definition.Typed._⊢_⇒_∷_</a>
+
+<a id="16719" class="Comment">-- The reflexive, transitive closure of the reduction relation.</a>
+
+<a id="_⊢_⇒*_∷_"></a><a id="16784" href="README.PaperB.README.html#16784" class="Function Operator">_⊢_⇒*_∷_</a> <a id="16793" class="Symbol">=</a> <a id="16795" href="Definition.Typed.html#18342" class="Datatype Operator">Definition.Typed._⊢_⇒*_∷_</a>
+
+<a id="16822" class="Comment">-- Reduction is deterministic</a>
+
+<a id="⇒-deterministic"></a><a id="16853" href="README.PaperB.README.html#16853" class="Function">⇒-deterministic</a> <a id="16869" class="Symbol">=</a> <a id="16871" href="Definition.Typed.Properties.Reduction.html#14853" class="Function">Definition.Typed.Properties.Reduction.whrDetTerm</a>
+
+<a id="16921" class="Comment">-- Well-typed terms reduce to WHNF.</a>
+
+<a id="redWhnf"></a><a id="16958" href="README.PaperB.README.html#16958" class="Function">redWhnf</a> <a id="16966" class="Symbol">=</a> <a id="16968" href="Definition.Typed.Consequences.Reduction.html#10780" class="Function">Definition.Typed.Consequences.Reduction.whNormTerm</a>
+
+<a id="17020" class="Comment">-- Terms in WHNF do not reduce.</a>
+
+<a id="whnfNoRed"></a><a id="17053" href="README.PaperB.README.html#17053" class="Function">whnfNoRed</a> <a id="17063" class="Symbol">=</a> <a id="17065" href="Definition.Typed.Properties.Reduction.html#12742" class="Function">Definition.Typed.Properties.Reduction.whnfRedTerm</a>
+
+<a id="17116" class="Comment">------------------------------------------------------------------------</a>
+<a id="17189" class="Comment">-- 3: A Resource Aware Abstract Machine</a>
+
+<a id="17230" class="Comment">------------------------------------------------------------------------</a>
+<a id="17303" class="Comment">-- 3.1: Subtraction of Grades</a>
+
+<a id="17334" class="Comment">-- Definition 3.1: Subtraction</a>
+
+<a id="_-_≤_"></a><a id="17366" href="README.PaperB.README.html#17366" class="Function Operator">_-_≤_</a> <a id="17372" class="Symbol">=</a> <a id="17374" href="Graded.Modality.Properties.Subtraction.html#1071" class="Function Operator">Graded.Modality.Properties.Subtraction._-_≤_</a>
+<a id="_-_≡_"></a><a id="17419" href="README.PaperB.README.html#17419" class="Function Operator">_-_≡_</a> <a id="17425" class="Symbol">=</a> <a id="17427" href="Graded.Modality.Properties.Subtraction.html#1711" class="Function Operator">Graded.Modality.Properties.Subtraction._-_≡_</a>
+
+<a id="17473" class="Comment">-- Theorem 3.2: Properties of Subtraction</a>
+
+<a id="17516" class="Comment">-- Subtraction is functional</a>
+
+<a id="-≡-functional"></a><a id="17546" href="README.PaperB.README.html#17546" class="Function">-≡-functional</a> <a id="17560" class="Symbol">=</a> <a id="17562" href="Graded.Modality.Properties.Subtraction.html#1831" class="Function">Graded.Modality.Properties.Subtraction.-≡-functional</a>
+
+<a id="17616" class="Comment">-- Subtraction is monotone in its first argument</a>
+
+<a id="-≡-monotoneˡ"></a><a id="17666" href="README.PaperB.README.html#17666" class="Function">-≡-monotoneˡ</a> <a id="17679" class="Symbol">=</a> <a id="17681" href="Graded.Modality.Properties.Subtraction.html#2239" class="Function">Graded.Modality.Properties.Subtraction.-≡-monotoneˡ</a>
+
+<a id="17734" class="Comment">-- Subtraction is antitone in its second argument</a>
+
+<a id="-≡-antitoneʳ"></a><a id="17785" href="README.PaperB.README.html#17785" class="Function">-≡-antitoneʳ</a> <a id="17798" class="Symbol">=</a> <a id="17800" href="Graded.Modality.Properties.Subtraction.html#2441" class="Function">Graded.Modality.Properties.Subtraction.-≡-antitoneʳ</a>
+
+<a id="17853" class="Comment">-- Subtraction by zero is the identity</a>
+
+<a id="-𝟘≡"></a><a id="17893" href="README.PaperB.README.html#17893" class="Function">-𝟘≡</a> <a id="17897" class="Symbol">=</a> <a id="17899" href="Graded.Modality.Properties.Subtraction.html#2756" class="Function">Graded.Modality.Properties.Subtraction.p-𝟘≡p</a>
+
+<a id="17945" class="Comment">-- Subtraction of the least grade is the identity</a>
+
+<a id="ω-≡"></a><a id="17996" href="README.PaperB.README.html#17996" class="Function">ω-≡</a> <a id="18000" class="Symbol">=</a> <a id="18002" href="Graded.Modality.Properties.Subtraction.html#3385" class="Function">Graded.Modality.Properties.Subtraction.∞-p≡∞</a>
+
+<a id="18048" class="Comment">-- Subtraction of zero by is only possible by zero.</a>
+
+<a id="𝟘-≡"></a><a id="18101" href="README.PaperB.README.html#18101" class="Function">𝟘-≡</a> <a id="18105" class="Symbol">=</a> <a id="18107" href="Graded.Modality.Properties.Subtraction.html#6922" class="Function">Graded.Modality.Properties.Subtraction.𝟘-p≡q</a>
+
+<a id="18153" class="Comment">-- Modalities supporting subtraction</a>
+
+<a id="Supports-subtraction"></a><a id="18191" href="README.PaperB.README.html#18191" class="Function">Supports-subtraction</a> <a id="18212" class="Symbol">=</a>
+  <a id="18216" href="Graded.Modality.Properties.Subtraction.html#4752" class="Function">Graded.Modality.Properties.Subtraction.Supports-subtraction</a>
+
+<a id="18277" class="Comment">-- The example modalities support subtraction and defines subtraction as</a>
+<a id="18350" class="Comment">-- specified in the paper.</a>
+<a id="18377" class="Comment">--</a>
+<a id="18380" class="Comment">-- To help illustrate the latter point, we link here to alternative</a>
+<a id="18448" class="Comment">-- subtraction relations (for each instance) from which it is clearer</a>
+<a id="18518" class="Comment">-- for which grades subtraction is defined and what the result is.</a>
+<a id="18585" class="Comment">-- These relations are proved to be equivalent to the proper subtraction</a>
+<a id="18658" class="Comment">-- relation.</a>
+
+<a id="erasure-supports-subtraction"></a><a id="18672" href="README.PaperB.README.html#18672" class="Function">erasure-supports-subtraction</a> <a id="18701" class="Symbol">=</a>
+  <a id="18705" href="Graded.Modality.Instances.Erasure.Properties.html#13792" class="Function">Graded.Modality.Instances.Erasure.Properties.supports-subtraction</a>
+<a id="erasure-subtraction-def"></a><a id="18771" href="README.PaperB.README.html#18771" class="Function">erasure-subtraction-def</a> <a id="18795" class="Symbol">=</a>
+  <a id="18799" href="Graded.Modality.Instances.Erasure.Properties.html#14066" class="Datatype Operator">Graded.Modality.Instances.Erasure.Properties._-_≡′_</a>
+<a id="erasure-subtraction-def-correct"></a><a id="18851" href="README.PaperB.README.html#18851" class="Function">erasure-subtraction-def-correct</a> <a id="18883" class="Symbol">=</a>
+  <a id="18887" href="Graded.Modality.Instances.Erasure.Properties.html#14212" class="Function">Graded.Modality.Instances.Erasure.Properties.-≡↔-≡′</a>
+
+<a id="affine-supports-subtraction"></a><a id="18940" href="README.PaperB.README.html#18940" class="Function">affine-supports-subtraction</a> <a id="18968" class="Symbol">=</a>
+  <a id="18972" href="Graded.Modality.Instances.Zero-one-many.html#63040" class="Function">Graded.Modality.Instances.Zero-one-many.supports-subtraction</a>
+<a id="affine-subtraction-def"></a><a id="19033" href="README.PaperB.README.html#19033" class="Function">affine-subtraction-def</a> <a id="19056" class="Symbol">=</a>
+  <a id="19060" href="Graded.Modality.Instances.Zero-one-many.html#63620" class="Datatype Operator">Graded.Modality.Instances.Zero-one-many._-_≡′_</a>
+<a id="affine-subtraction-def-correct"></a><a id="19107" href="README.PaperB.README.html#19107" class="Function">affine-subtraction-def-correct</a> <a id="19138" class="Symbol">=</a>
+  <a id="19142" href="Graded.Modality.Instances.Zero-one-many.html#63794" class="Function">Graded.Modality.Instances.Zero-one-many.-≡↔-≡′</a>
+
+<a id="linearity-supports-subtraction"></a><a id="19190" href="README.PaperB.README.html#19190" class="Function">linearity-supports-subtraction</a> <a id="19221" class="Symbol">=</a>
+  <a id="19225" href="Graded.Modality.Instances.Zero-one-many.html#63040" class="Function">Graded.Modality.Instances.Zero-one-many.supports-subtraction</a>
+<a id="linearity-subtraction-def"></a><a id="19286" href="README.PaperB.README.html#19286" class="Function">linearity-subtraction-def</a> <a id="19312" class="Symbol">=</a>
+  <a id="19316" href="Graded.Modality.Instances.Zero-one-many.html#63620" class="Datatype Operator">Graded.Modality.Instances.Zero-one-many._-_≡′_</a>
+<a id="linearity-subtraction-def-correct"></a><a id="19363" href="README.PaperB.README.html#19363" class="Function">linearity-subtraction-def-correct</a> <a id="19397" class="Symbol">=</a>
+  <a id="19401" href="Graded.Modality.Instances.Zero-one-many.html#63794" class="Function">Graded.Modality.Instances.Zero-one-many.-≡↔-≡′</a>
+
+<a id="ℕω-supports-subtraction"></a><a id="19449" href="README.PaperB.README.html#19449" class="Function">ℕω-supports-subtraction</a> <a id="19473" class="Symbol">=</a>
+  <a id="19477" href="Graded.Modality.Instances.Nat-plus-infinity.html#57652" class="Function">Graded.Modality.Instances.Nat-plus-infinity.supports-subtraction</a>
+<a id="ℕω-subtraction-def"></a><a id="19542" href="README.PaperB.README.html#19542" class="Function">ℕω-subtraction-def</a> <a id="19561" class="Symbol">=</a>
+  <a id="19565" href="Graded.Modality.Instances.Nat-plus-infinity.html#58294" class="Datatype Operator">Graded.Modality.Instances.Nat-plus-infinity._-_≡′_</a>
+<a id="ℕω-subtraction-def-correct"></a><a id="19616" href="README.PaperB.README.html#19616" class="Function">ℕω-subtraction-def-correct</a> <a id="19643" class="Symbol">=</a>
+  <a id="19647" href="Graded.Modality.Instances.Nat-plus-infinity.html#58484" class="Function">Graded.Modality.Instances.Nat-plus-infinity.-≡↔-≡′</a>
+
+<a id="19699" class="Comment">------------------------------------------------------------------------</a>
+<a id="19772" class="Comment">-- 3.2: The Abstract Machine</a>
+
+<a id="19802" class="Comment">-- In this, and following sections, we define the abstract machine for</a>
+<a id="19873" class="Comment">-- a subset of the formalized language. In particular, we do not include</a>
+<a id="19946" class="Comment">-- natrec or identity types. The formalization, however, includes these.</a>
+<a id="20019" class="Comment">-- This means that some properties do not hold exactly as stated in this</a>
+<a id="20092" class="Comment">-- section. We discuss such cases in more detail below.</a>
+<a id="20148" class="Comment">--</a>
+<a id="20151" class="Comment">-- Another difference between the presentation in this section and the</a>
+<a id="20222" class="Comment">-- formalization is that we only consider closed terms at this point</a>
+<a id="20291" class="Comment">-- though the formalization allows open terms. Again, we discuss this</a>
+<a id="20361" class="Comment">-- further below.</a>
+<a id="20379" class="Comment">--</a>
+<a id="20382" class="Comment">-- Also note that we have assumed to be working with a modality</a>
+<a id="20446" class="Comment">-- supporting subtraction and with a well-behaved zero. Some properties</a>
+<a id="20518" class="Comment">-- mentioned below are proved under these assumptions.</a>
+
+<a id="20574" class="Comment">-- Heap entries</a>
+<a id="20590" class="Comment">--</a>
+<a id="20593" class="Comment">-- The type of heap entries is indexed by two natural numbers which</a>
+<a id="20661" class="Comment">-- denote the size of the heap in which the entry lives and the number</a>
+<a id="20732" class="Comment">-- of free variables of its term.</a>
+
+<a id="Entry"></a><a id="20767" href="README.PaperB.README.html#20767" class="Function">Entry</a> <a id="20773" class="Symbol">=</a> <a id="20775" href="Graded.Heap.Untyped.html#2050" class="Function">Graded.Heap.Untyped.Entry</a>
+
+<a id="20802" class="Comment">-- Heaps</a>
+<a id="20811" class="Comment">--</a>
+<a id="20814" class="Comment">-- The type of heaps is indexed by two natural numbers. The first is the</a>
+<a id="20887" class="Comment">-- size of the heap (the total number of entries) and is used to ensure</a>
+<a id="20959" class="Comment">-- well-scopedness (that is, ensuring that pointers have a corresponding</a>
+<a id="21032" class="Comment">-- entry). The second index represents the number of dummy indices the</a>
+<a id="21103" class="Comment">-- heap contains. In this section, we do not consider heaps with</a>
+<a id="21168" class="Comment">-- dummy entries and consequently require this index to always be zero.</a>
+
+<a id="Heap"></a><a id="21241" href="README.PaperB.README.html#21241" class="Function">Heap</a> <a id="21246" class="Symbol">=</a> <a id="21248" href="Graded.Heap.Untyped.html#8422" class="Datatype">Graded.Heap.Untyped.Heap</a>
+
+<a id="21274" class="Comment">-- Continuations</a>
+<a id="21291" class="Comment">--</a>
+<a id="21294" class="Comment">-- Continuations are indexed by one natural number, representing the</a>
+<a id="21363" class="Comment">-- size of the heap to which it is associated. Again, this is used to</a>
+<a id="21433" class="Comment">-- achieve well-scopedness.</a>
+<a id="21461" class="Comment">--</a>
+<a id="21464" class="Comment">-- The formalization contains additional continuations compared to the</a>
+<a id="21535" class="Comment">-- paper, corresponding to natrec and the eliminators related to</a>
+<a id="21600" class="Comment">-- the identity type.</a>
+<a id="21622" class="Comment">--</a>
+<a id="21625" class="Comment">-- Some continuations have an additional grade annotation than in the</a>
+<a id="21695" class="Comment">-- paper. This corresponds to the extra annotations for terms explained</a>
+<a id="21767" class="Comment">-- above.</a>
+
+<a id="Continuation"></a><a id="21778" href="README.PaperB.README.html#21778" class="Function">Continuation</a> <a id="21791" class="Symbol">=</a> <a id="21793" href="Graded.Heap.Untyped.html#2636" class="Datatype">Graded.Heap.Untyped.Cont</a>
+
+<a id="21819" class="Comment">-- Stacks</a>
+<a id="21829" class="Comment">--</a>
+<a id="21832" class="Comment">-- Stacks are indexed in the same way as continuations.</a>
+
+<a id="Stack"></a><a id="21889" href="README.PaperB.README.html#21889" class="Function">Stack</a> <a id="21895" class="Symbol">=</a> <a id="21897" href="Graded.Heap.Untyped.html#5765" class="Datatype">Graded.Heap.Untyped.Stack</a>
+
+<a id="21924" class="Comment">-- Machine states</a>
+<a id="21942" class="Comment">--</a>
+<a id="21945" class="Comment">-- Machine states are parametrized by three natural numbers. One</a>
+<a id="22010" class="Comment">-- corresponds to the size of the heap, one to the number of free</a>
+<a id="22076" class="Comment">-- variables of the head (these two ensure that the weakening contains</a>
+<a id="22147" class="Comment">-- translations from variable indices to pointer indices). The last</a>
+<a id="22215" class="Comment">-- index represents the number of dummy entries in the heap. Again, this</a>
+<a id="22288" class="Comment">-- is zero in this section.</a>
+
+<a id="State"></a><a id="22317" href="README.PaperB.README.html#22317" class="Function">State</a> <a id="22323" class="Symbol">=</a> <a id="22325" href="Graded.Heap.Untyped.html#11546" class="Record">Graded.Heap.Untyped.State</a>
+
+<a id="22352" class="Comment">-- Lookup with heap update</a>
+<a id="22379" class="Comment">--</a>
+<a id="22382" class="Comment">-- In the paper the number of copies to look up is written as a</a>
+<a id="22446" class="Comment">-- superscript. In the formalization it is written inside brackets.</a>
+
+<a id="_⊢_↦[_]_⨾_"></a><a id="22515" href="README.PaperB.README.html#22515" class="Function Operator">_⊢_↦[_]_⨾_</a> <a id="22526" class="Symbol">=</a> <a id="22528" href="Graded.Heap.Untyped.html#9017" class="Datatype Operator">Graded.Heap.Untyped._⊢_↦[_]_⨾_</a>
+
+<a id="22560" class="Comment">-- Lookup can fail if the heap does not contain enough resources (as</a>
+<a id="22629" class="Comment">-- determined by the subtraction of the modality).</a>
+
+<a id="-≢-no-lookup"></a><a id="22681" href="README.PaperB.README.html#22681" class="Function">-≢-no-lookup</a> <a id="22694" class="Symbol">=</a> <a id="22696" href="Graded.Heap.Untyped.Properties.html#7949" class="Function">Graded.Heap.Untyped.Properties.-≢-no-lookup</a>
+
+<a id="22741" class="Comment">-- Lookup without heap update.</a>
+
+<a id="_⊢_↦_"></a><a id="22773" href="README.PaperB.README.html#22773" class="Function Operator">_⊢_↦_</a> <a id="22779" class="Symbol">=</a> <a id="22781" href="Graded.Heap.Untyped.html#9417" class="Datatype Operator">Graded.Heap.Untyped._⊢_↦_</a>
+
+<a id="22808" class="Comment">-- Heap lookup without heap update always succeeds. This property is</a>
+<a id="22877" class="Comment">-- proven under the assumption that the heap does not contain dummy</a>
+<a id="22945" class="Comment">-- entries as is the case in this section.</a>
+
+<a id="⊢↦-succeeds"></a><a id="22989" href="README.PaperB.README.html#22989" class="Function">⊢↦-succeeds</a> <a id="23001" class="Symbol">=</a> <a id="23003" href="Graded.Heap.Untyped.Properties.html#6434" class="Function">Graded.Heap.Untyped.Properties.¬erased-heap→↦</a>
+
+<a id="23050" class="Comment">-- Heaps as substitutions</a>
+
+<a id="⦅_⦆ʰ"></a><a id="23077" href="README.PaperB.README.html#23077" class="Function Operator">⦅_⦆ʰ</a> <a id="23082" class="Symbol">=</a> <a id="23084" href="Graded.Heap.Untyped.html#10476" class="Function">Graded.Heap.Untyped.toSubstₕ</a>
+
+<a id="23114" class="Comment">-- Applying a term to a continuation</a>
+
+<a id="⦅_⦆ᶜ_"></a><a id="23152" href="README.PaperB.README.html#23152" class="Function Operator">⦅_⦆ᶜ_</a> <a id="23158" class="Symbol">=</a> <a id="23160" href="Graded.Heap.Untyped.html#11776" class="Function Operator">Graded.Heap.Untyped.⦅_⦆ᶜ_</a>
+
+<a id="23187" class="Comment">-- Applying a term to a stack</a>
+
+<a id="⦅_⦆ˢ_"></a><a id="23218" href="README.PaperB.README.html#23218" class="Function Operator">⦅_⦆ˢ_</a> <a id="23224" class="Symbol">=</a> <a id="23226" href="Graded.Heap.Untyped.html#12502" class="Function Operator">Graded.Heap.Untyped.⦅_⦆ˢ_</a>
+
+<a id="23253" class="Comment">-- Translating a state into a term.</a>
+
+<a id="⦅_⦆"></a><a id="23290" href="README.PaperB.README.html#23290" class="Function Operator">⦅_⦆</a> <a id="23294" class="Symbol">=</a> <a id="23296" href="Graded.Heap.Untyped.html#12633" class="Function Operator">Graded.Heap.Untyped.⦅_⦆</a>
+
+<a id="23321" class="Comment">-- Initial states</a>
+
+<a id="initial"></a><a id="23340" href="README.PaperB.README.html#23340" class="Function">initial</a> <a id="23348" class="Symbol">=</a> <a id="23350" href="Graded.Heap.Untyped.html#12805" class="Function">Graded.Heap.Untyped.initial</a>
+
+<a id="23379" class="Comment">-- Multiplicity of a stack.</a>
+
+<a id="∣_∣≡_"></a><a id="23408" href="README.PaperB.README.html#23408" class="Function Operator">∣_∣≡_</a> <a id="23414" class="Symbol">=</a> <a id="23416" href="Graded.Heap.Untyped.html#5989" class="Datatype Operator">Graded.Heap.Untyped.∣_∣≡_</a>
+
+<a id="23443" class="Comment">-- Multiplicity of a continuation</a>
+
+<a id="∣_∣ᶜ≡_"></a><a id="23478" href="README.PaperB.README.html#23478" class="Function Operator">∣_∣ᶜ≡_</a> <a id="23485" class="Symbol">=</a> <a id="23487" href="Graded.Heap.Untyped.html#5177" class="Datatype Operator">Graded.Heap.Untyped.∣_∣ᶜ≡_</a>
+
+<a id="23515" class="Comment">-- The multiplicity of a stack is unique (if it exists).</a>
+
+<a id="∣∣-functional"></a><a id="23573" href="README.PaperB.README.html#23573" class="Function">∣∣-functional</a> <a id="23587" class="Symbol">=</a> <a id="23589" href="Graded.Heap.Untyped.Properties.html#17371" class="Function">Graded.Heap.Untyped.Properties.∣∣-functional</a>
+
+<a id="23635" class="Comment">-- The multiplicity of a stack always exists.</a>
+<a id="23681" class="Comment">--</a>
+<a id="23684" class="Comment">-- This property does not hold as stated since the formalization</a>
+<a id="23749" class="Comment">-- contains natrec while the paper does not (in this section). The</a>
+<a id="23816" class="Comment">-- linked property contains an additional assumption that the stack does</a>
+<a id="23889" class="Comment">-- not contain any continuations corresponding to natrec.</a>
+
+<a id="∃∣∣≡"></a><a id="23948" href="README.PaperB.README.html#23948" class="Function">∃∣∣≡</a> <a id="23953" class="Symbol">=</a> <a id="23955" href="Graded.Heap.Untyped.Properties.html#19762" class="Function">Graded.Heap.Untyped.Properties.nr∉-∣∣≡</a>
+
+<a id="23995" class="Comment">-- The property that a stack contains a natrec continuation</a>
+
+<a id="natrec∈"></a><a id="24056" href="README.PaperB.README.html#24056" class="Function">natrec∈</a> <a id="24064" class="Symbol">=</a> <a id="24066" href="Graded.Heap.Untyped.html#6836" class="Datatype Operator">Graded.Heap.Untyped.natrec_,_∈</a>
+
+<a id="24098" class="Comment">-- Reduction of eliminators and variables</a>
+
+<a id="_⇾ₑ_"></a><a id="24141" href="README.PaperB.README.html#24141" class="Function Operator">_⇾ₑ_</a> <a id="24146" class="Symbol">=</a> <a id="24148" href="Graded.Heap.Reduction.html#2983" class="Datatype Operator">Graded.Heap.Reduction._⇾ₑ_</a>
+
+<a id="24176" class="Comment">-- This relation is defined using an auxiliary reduction relation that</a>
+<a id="24247" class="Comment">-- excludes the variable rule. The reduction without tracking is defined</a>
+<a id="24320" class="Comment">-- using the same auxiliary reduction.</a>
+
+<a id="_⇒ₑ_"></a><a id="24360" href="README.PaperB.README.html#24360" class="Function Operator">_⇒ₑ_</a> <a id="24365" class="Symbol">=</a> <a id="24367" href="Graded.Heap.Reduction.html#1851" class="Datatype Operator">Graded.Heap.Reduction._⇒ₑ_</a>
+
+<a id="24395" class="Comment">-- Reduction of values</a>
+
+<a id="_⇒ᵥ_"></a><a id="24419" href="README.PaperB.README.html#24419" class="Function Operator">_⇒ᵥ_</a> <a id="24424" class="Symbol">=</a> <a id="24426" href="Graded.Heap.Reduction.html#4138" class="Datatype Operator">Graded.Heap.Reduction._⇒ᵥ_</a>
+
+<a id="24454" class="Comment">-- The weak head semantics of the machine.</a>
+
+<a id="_⇾_"></a><a id="24498" href="README.PaperB.README.html#24498" class="Function Operator">_⇾_</a> <a id="24502" class="Symbol">=</a> <a id="24504" href="Graded.Heap.Reduction.html#6440" class="Datatype Operator">Graded.Heap.Reduction._⇾_</a>
+
+<a id="24531" class="Comment">-- The reflexive, transitive closure of the weak head semantics.</a>
+
+<a id="_⇾*_"></a><a id="24597" href="README.PaperB.README.html#24597" class="Function Operator">_⇾*_</a> <a id="24602" class="Symbol">=</a> <a id="24604" href="Graded.Heap.Reduction.html#7038" class="Datatype Operator">Graded.Heap.Reduction._⇾*_</a>
+
+<a id="24632" class="Comment">-- States with variables in head position can get stuck if the heap</a>
+<a id="24700" class="Comment">-- does not contain enough resources to perform a lookup.</a>
+
+<a id="var-noRed"></a><a id="24759" href="README.PaperB.README.html#24759" class="Function">var-noRed</a> <a id="24769" class="Symbol">=</a> <a id="24771" href="Graded.Heap.Reduction.Properties.html#21111" class="Function">Graded.Heap.Reduction.Properties.var-noRed</a>
+
+<a id="24815" class="Comment">-- Evaluation in _⇒ᵥ_ can fail if the head does not match the stack</a>
+<a id="24883" class="Comment">--</a>
+<a id="24886" class="Comment">-- A term is said to be matching a stack if it is a value and the</a>
+<a id="24952" class="Comment">-- continuation on top of the stack corresponds to an eliminator for</a>
+<a id="25021" class="Comment">-- that value.</a>
+
+<a id="⇒ᵥ-noRed"></a><a id="25037" href="README.PaperB.README.html#25037" class="Function">⇒ᵥ-noRed</a> <a id="25046" class="Symbol">=</a> <a id="25048" href="Graded.Heap.Reduction.Properties.html#22755" class="Function">Graded.Heap.Reduction.Properties.¬Matching→¬⇒̬</a>
+<a id="Matching"></a><a id="25095" href="README.PaperB.README.html#25095" class="Function">Matching</a> <a id="25104" class="Symbol">=</a> <a id="25106" href="Graded.Heap.Untyped.html#14222" class="Datatype">Graded.Heap.Untyped.Matching</a>
+
+<a id="25136" class="Comment">-- Weakening of stacks. In the paper, the notation _[_] is used for</a>
+<a id="25204" class="Comment">-- this operation.</a>
+
+<a id="wkˢ"></a><a id="25224" href="README.PaperB.README.html#25224" class="Function">wkˢ</a> <a id="25228" class="Symbol">=</a> <a id="25230" href="Graded.Heap.Untyped.html#6117" class="Function">Graded.Heap.Untyped.wkˢ</a>
+
+<a id="25255" class="Comment">-- The stack multiplicity is zero iff it contains erased prodrec,</a>
+<a id="25321" class="Comment">-- unitrec or emptyrec.</a>
+<a id="25345" class="Comment">--</a>
+<a id="25348" class="Comment">-- Because the formalized theory contains natrec and identity types,</a>
+<a id="25417" class="Comment">-- this property does not hold exactly as stated. The first direction,</a>
+<a id="25488" class="Comment">-- showing that the stack multiplicity is zero if the stack contains</a>
+<a id="25557" class="Comment">-- an erased prodrec, unitrec, or emptyrec assumes that the stack</a>
+<a id="25623" class="Comment">-- multiplicity exists. As discussed above, this is the case if the</a>
+<a id="25691" class="Comment">-- stack does not contain any natrec eliminators.</a>
+<a id="25741" class="Comment">--</a>
+<a id="25744" class="Comment">-- The second direction, showing that the stack contains erased prodrec,</a>
+<a id="25817" class="Comment">-- unitrec, or emptyrec if the stack multiplicity is zero does not</a>
+<a id="25884" class="Comment">-- necessarily hold if the stack contains continuations related to the</a>
+<a id="25955" class="Comment">-- identity type since these can have multiplicity zero. In the linked</a>
+<a id="26026" class="Comment">-- property, we have shown that the stack contains erased prodrec,</a>
+<a id="26093" class="Comment">-- unitrec or emptyrec or a continuation related the identity type (J,</a>
+<a id="26164" class="Comment">-- K, or []-cong).</a>
+
+<a id="∣∣≡𝟘-if-erased-elim"></a><a id="26184" href="README.PaperB.README.html#26184" class="Function">∣∣≡𝟘-if-erased-elim</a> <a id="26204" class="Symbol">=</a> <a id="26206" href="Graded.Heap.Untyped.Properties.html#22152" class="Function">Graded.Heap.Untyped.Properties.nr∉→∣∣≡𝟘</a>
+<a id="erased-elim-if-∣∣≡𝟘"></a><a id="26246" href="README.PaperB.README.html#26246" class="Function">erased-elim-if-∣∣≡𝟘</a> <a id="26266" class="Symbol">=</a> <a id="26268" href="Graded.Heap.Untyped.Properties.html#22734" class="Function">Graded.Heap.Untyped.Properties.∣∣≡𝟘→erased-match</a>
+
+<a id="26318" class="Comment">-- Reduction of eliminators and variables without resource tracking</a>
+
+<a id="_⇢ₑ_"></a><a id="26387" href="README.PaperB.README.html#26387" class="Function Operator">_⇢ₑ_</a> <a id="26392" class="Symbol">=</a> <a id="26394" href="Graded.Heap.Reduction.html#3587" class="Datatype Operator">Graded.Heap.Reduction._⇢ₑ_</a>
+
+<a id="26422" class="Comment">-- The weak head semantics without resource tracking.</a>
+
+<a id="_⇢_"></a><a id="26477" href="README.PaperB.README.html#26477" class="Function Operator">_⇢_</a> <a id="26481" class="Symbol">=</a> <a id="26483" href="Graded.Heap.Reduction.html#6840" class="Datatype Operator">Graded.Heap.Reduction._⇢_</a>
+
+<a id="26510" class="Comment">-- Reduction for numerals</a>
+
+<a id="_⇒ₙ_"></a><a id="26537" href="README.PaperB.README.html#26537" class="Function Operator">_⇒ₙ_</a> <a id="26542" class="Symbol">=</a> <a id="26544" href="Graded.Heap.Reduction.html#6000" class="Datatype Operator">Graded.Heap.Reduction._⇒ₙ_</a>
+
+<a id="26572" class="Comment">-- A stack consisting only of (a given number of) successor</a>
+<a id="26632" class="Comment">-- continuations</a>
+
+<a id="sucᵏ"></a><a id="26650" href="README.PaperB.README.html#26650" class="Function">sucᵏ</a> <a id="26655" class="Symbol">=</a> <a id="26657" href="Graded.Heap.Untyped.html#6471" class="Function">Graded.Heap.Untyped.sucₛ</a>
+
+<a id="26683" class="Comment">-- The reduction relations are deterministic</a>
+
+<a id="⇾-det"></a><a id="26729" href="README.PaperB.README.html#26729" class="Function">⇾-det</a> <a id="26735" class="Symbol">=</a> <a id="26737" href="Graded.Heap.Reduction.Properties.html#6866" class="Function">Graded.Heap.Reduction.Properties.⇾-det</a>
+<a id="⇢-det"></a><a id="26776" href="README.PaperB.README.html#26776" class="Function">⇢-det</a> <a id="26782" class="Symbol">=</a> <a id="26784" href="Graded.Heap.Reduction.Properties.html#7386" class="Function">Graded.Heap.Reduction.Properties.⇢-det</a>
+<a id="↠-det"></a><a id="26823" href="README.PaperB.README.html#26823" class="Function">↠-det</a> <a id="26829" class="Symbol">=</a> <a id="26831" href="Graded.Heap.Reduction.Properties.html#7901" class="Function">Graded.Heap.Reduction.Properties.↠-det</a>
+
+<a id="26871" class="Comment">-- The full semantics of the machine</a>
+
+<a id="_↠_"></a><a id="26909" href="README.PaperB.README.html#26909" class="Function Operator">_↠_</a> <a id="26913" class="Symbol">=</a> <a id="26915" href="Graded.Heap.Reduction.html#6623" class="Datatype Operator">Graded.Heap.Reduction._↠_</a>
+
+<a id="26942" class="Comment">-- Reduction can fail in three different ways</a>
+<a id="26988" class="Comment">--</a>
+<a id="26991" class="Comment">-- Due to the formalization including natrec, this property does not</a>
+<a id="27060" class="Comment">-- hold quite as stated. The linked property contains an additional</a>
+<a id="27128" class="Comment">-- assumption that the stack does not contain any continuations</a>
+<a id="27192" class="Comment">-- corresponding to natrec.</a>
+
+<a id="Final-reasons"></a><a id="27221" href="README.PaperB.README.html#27221" class="Function">Final-reasons</a> <a id="27235" class="Symbol">=</a> <a id="27237" href="Graded.Heap.Reduction.Properties.html#28332" class="Function">Graded.Heap.Reduction.Properties.nr∉-Final-reasons′</a>
+
+<a id="27290" class="Comment">------------------------------------------------------------------------</a>
+<a id="27363" class="Comment">-- 3.3: Usage for the Machine</a>
+
+<a id="27394" class="Comment">-- Usage for heaps</a>
+<a id="27413" class="Comment">--</a>
+<a id="27416" class="Comment">-- The usage relation for heaps includes an additional rule not</a>
+<a id="27480" class="Comment">-- mentioned in the paper related to dummy entries. In this section,</a>
+<a id="27549" class="Comment">-- heaps are assumed to not have such entries so this rule cannot apply.</a>
+<a id="27622" class="Comment">-- This case is discussed in the extended version.</a>
+
+<a id="_▸ʰ_"></a><a id="27674" href="README.PaperB.README.html#27674" class="Function Operator">_▸ʰ_</a> <a id="27679" class="Symbol">=</a> <a id="27681" href="Graded.Heap.Usage.html#1708" class="Datatype Operator">Graded.Heap.Usage._▸ʰ_</a>
+
+<a id="27705" class="Comment">-- Usage for continuations</a>
+<a id="27732" class="Comment">--</a>
+<a id="27735" class="Comment">-- The usage relation for continuations includes additional rules</a>
+<a id="27801" class="Comment">-- corresponding to the eliminators not included in this section or the</a>
+<a id="27873" class="Comment">-- paper. The case for natrec is discussed in Section 4.</a>
+<a id="27930" class="Comment">--</a>
+<a id="27933" class="Comment">-- In the paper the mode is written as a superscript. In the</a>
+<a id="27994" class="Comment">-- formalization it is written inside brackets.</a>
+
+<a id="_▸ᶜ[_]_"></a><a id="28043" href="README.PaperB.README.html#28043" class="Function Operator">_▸ᶜ[_]_</a> <a id="28051" class="Symbol">=</a> <a id="28053" href="Graded.Heap.Usage.html#2070" class="Datatype Operator">Graded.Heap.Usage._▸ᶜ[_]_</a>
+
+<a id="28080" class="Comment">-- Usage for Stacks</a>
+<a id="28100" class="Comment">--</a>
+<a id="28103" class="Comment">-- The usage rule for non-empty stacks contains the assumption that the</a>
+<a id="28175" class="Comment">-- stack multiplicity exists. As mentioned in the paper, this assumption</a>
+<a id="28248" class="Comment">-- is implicit there.</a>
+
+<a id="_▸ˢ_"></a><a id="28271" href="README.PaperB.README.html#28271" class="Function Operator">_▸ˢ_</a> <a id="28276" class="Symbol">=</a> <a id="28278" href="Graded.Heap.Usage.html#3276" class="Datatype Operator">Graded.Heap.Usage._▸ˢ_</a>
+
+<a id="28302" class="Comment">-- Usage for states</a>
+<a id="28322" class="Comment">--</a>
+<a id="28325" class="Comment">-- The usage rule contains the assumption that the stack multiplicity</a>
+<a id="28395" class="Comment">-- exists. As mentioned in the paper, this assumption is implicit there.</a>
+
+<a id="▸_"></a><a id="28469" href="README.PaperB.README.html#28469" class="Function Operator">▸_</a> <a id="28472" class="Symbol">=</a> <a id="28474" href="Graded.Heap.Usage.html#3526" class="Datatype Operator">Graded.Heap.Usage.▸_</a>
+
+<a id="28496" class="Comment">-- Lemma 3.3: Heap lookups in well-resourced heaps yield well-resourced</a>
+<a id="28568" class="Comment">-- entries and well-resourced updated heaps.</a>
+
+<a id="well-resourced-lookup"></a><a id="28614" href="README.PaperB.README.html#28614" class="Function">well-resourced-lookup</a> <a id="28636" class="Symbol">=</a> <a id="28638" href="Graded.Heap.Usage.Properties.html#2988" class="Function">Graded.Heap.Usage.Properties.▸-heapLookup</a>
+
+<a id="28681" class="Comment">-- Theorem 3.4: Usage preservation for the abstract machine</a>
+
+<a id="▸-⇾"></a><a id="28742" href="README.PaperB.README.html#28742" class="Function">▸-⇾</a> <a id="28746" class="Symbol">=</a> <a id="28748" href="Graded.Heap.Usage.Reduction.html#45428" class="Function">Graded.Heap.Usage.Reduction.▸-⇾</a>
+<a id="▸-⇾*"></a><a id="28780" href="README.PaperB.README.html#28780" class="Function">▸-⇾*</a> <a id="28785" class="Symbol">=</a> <a id="28787" href="Graded.Heap.Usage.Reduction.html#45583" class="Function">Graded.Heap.Usage.Reduction.▸-⇾*</a>
+
+<a id="28821" class="Comment">-- Theorem 3.5: Heap lookups succeed for well-resourced heaps</a>
+<a id="28883" class="Comment">--</a>
+<a id="28886" class="Comment">-- This theorem is stated with an additional assumption that the stack</a>
+<a id="28957" class="Comment">-- multiplicity exists. In the paper this assumption is implicit.</a>
+
+<a id="heap-lookup-succeeds"></a><a id="29024" href="README.PaperB.README.html#29024" class="Function">heap-lookup-succeeds</a> <a id="29045" class="Symbol">=</a> <a id="29047" href="Graded.Heap.Usage.Properties.html#15559" class="Function">Graded.Heap.Usage.Properties.▸↦[]-closed</a>
+
+<a id="29089" class="Comment">-- Reduction cannot fail due to failing heap lookups.</a>
+<a id="29143" class="Comment">--</a>
+<a id="29146" class="Comment">-- In the formalization, this is stated as there being two ways</a>
+<a id="29210" class="Comment">-- reduction can fail. Of the original three reasons mentioned earlier,</a>
+<a id="29282" class="Comment">-- the case for states with variables in head position is no longer</a>
+<a id="29350" class="Comment">-- possible.</a>
+
+<a id="▸Final-reasons"></a><a id="29364" href="README.PaperB.README.html#29364" class="Function">▸Final-reasons</a> <a id="29379" class="Symbol">=</a> <a id="29381" href="Graded.Heap.Usage.Reduction.html#49276" class="Function">Graded.Heap.Usage.Reduction.▸Final-reasons-closed</a>
+
+<a id="29432" class="Comment">------------------------------------------------------------------------</a>
+<a id="29505" class="Comment">-- 3.4: Typing for the Machine</a>
+
+<a id="29537" class="Comment">-- Typing for heaps.</a>
+<a id="29558" class="Comment">--</a>
+<a id="29561" class="Comment">-- The formalized version of this judgment is the one which includes</a>
+<a id="29630" class="Comment">-- support for evaluating open programs. There,</a>
+<a id="29678" class="Comment">-- the judgment mentions an additional context which does not appear in</a>
+<a id="29750" class="Comment">-- this section. For heaps without dummy entries, which is the case in</a>
+<a id="29821" class="Comment">-- this section, one can show that this context is always empty.</a>
+<a id="29886" class="Comment">--</a>
+<a id="29889" class="Comment">-- The judgment has an additional case related to dummy entries. In this</a>
+<a id="29962" class="Comment">-- section, heaps are assumed to not contain dummy entries so this rule</a>
+<a id="30034" class="Comment">-- does not apply.</a>
+
+<a id="⊢ʰ_∷_"></a><a id="30054" href="README.PaperB.README.html#30054" class="Function Operator">⊢ʰ_∷_</a> <a id="30060" class="Symbol">=</a> <a id="30062" href="Graded.Heap.Typed.html#1159" class="Datatype Operator">Graded.Heap.Typed._⊢ʰ_∷_</a>
+
+<a id="30088" class="Comment">-- Typing for continuations</a>
+<a id="30116" class="Comment">--</a>
+<a id="30119" class="Comment">-- As for heaps, the formalized judgment contains an additional context.</a>
+<a id="30192" class="Comment">-- For the theory presented in this section, this context is empty.</a>
+<a id="30260" class="Comment">--</a>
+<a id="30263" class="Comment">-- The typing relation for continuations includes additional rules</a>
+<a id="30330" class="Comment">-- corresponding to the eliminators not included in this section or the</a>
+<a id="30402" class="Comment">-- paper. The case for natrec is discussed in Section 4.</a>
+
+<a id="_⊢ᶜ_⟨_⟩∷_↝_"></a><a id="30460" href="README.PaperB.README.html#30460" class="Function Operator">_⊢ᶜ_⟨_⟩∷_↝_</a> <a id="30472" class="Symbol">=</a> <a id="30474" href="Graded.Heap.Typed.html#1424" class="Datatype Operator">Graded.Heap.Typed._⨾_⊢ᶜ_⟨_⟩∷_↝_</a>
+
+<a id="30507" class="Comment">-- Typing for stacks</a>
+<a id="30528" class="Comment">--</a>
+<a id="30531" class="Comment">-- Again, the formalized judgment contains an additional context.</a>
+<a id="30597" class="Comment">-- For the theory presented in this section, this context is empty.</a>
+
+<a id="_⊢_⟨_⟩∷_↝_"></a><a id="30666" href="README.PaperB.README.html#30666" class="Function Operator">_⊢_⟨_⟩∷_↝_</a> <a id="30677" class="Symbol">=</a> <a id="30679" href="Graded.Heap.Typed.html#3622" class="Datatype Operator">Graded.Heap.Typed._⨾_⊢_⟨_⟩∷_↝_</a>
+
+<a id="30711" class="Comment">-- Typing for states</a>
+<a id="30732" class="Comment">--</a>
+<a id="30735" class="Comment">-- Again, the formalized judgment contains an additional context.</a>
+<a id="30801" class="Comment">-- For the theory presented in this section, this context is empty.</a>
+
+<a id="⊢ₛ_∷_"></a><a id="30870" href="README.PaperB.README.html#30870" class="Function Operator">⊢ₛ_∷_</a> <a id="30876" class="Symbol">=</a> <a id="30878" href="Graded.Heap.Typed.html#3913" class="Datatype Operator">Graded.Heap.Typed._⊢ₛ_∷_</a>
+
+<a id="30904" class="Comment">-- Well-typed states are well-typed when translated back into terms</a>
+
+<a id="⊢⦅⦆"></a><a id="30973" href="README.PaperB.README.html#30973" class="Function">⊢⦅⦆</a> <a id="30977" class="Symbol">=</a> <a id="30979" href="Graded.Heap.Typed.Properties.html#3353" class="Function">Graded.Heap.Typed.Properties.⊢⦅⦆</a>
+
+<a id="31013" class="Comment">-- Theorem 3.6: Type preservation for the abstract machine</a>
+
+<a id="⊢-⇾"></a><a id="31073" href="README.PaperB.README.html#31073" class="Function">⊢-⇾</a> <a id="31077" class="Symbol">=</a> <a id="31079" href="Graded.Heap.Typed.Reduction.html#19066" class="Function">Graded.Heap.Typed.Reduction.⊢ₛ-⇾</a>
+<a id="⊢-⇾*"></a><a id="31112" href="README.PaperB.README.html#31112" class="Function">⊢-⇾*</a> <a id="31117" class="Symbol">=</a> <a id="31119" href="Graded.Heap.Typed.Reduction.html#19461" class="Function">Graded.Heap.Typed.Reduction.⊢ₛ-⇾*</a>
+
+<a id="31154" class="Comment">-- Theorem 3.7: Values in non-empty stacks always reduce.</a>
+<a id="31212" class="Comment">--</a>
+<a id="31215" class="Comment">-- In the formalization, this theorem additionally assumes that the</a>
+<a id="31283" class="Comment">-- stack multiplicity exists. As have been discussed above, this is the</a>
+<a id="31355" class="Comment">-- case for the theory presented in this section.</a>
+
+<a id="⊢Value-⇒ᵥ"></a><a id="31406" href="README.PaperB.README.html#31406" class="Function">⊢Value-⇒ᵥ</a> <a id="31416" class="Symbol">=</a> <a id="31418" href="Graded.Heap.Typed.Reduction.html#41293" class="Function">Graded.Heap.Typed.Reduction.⊢Value-⇒ᵥ</a>
+
+<a id="31457" class="Comment">-- Theorem 3.8: For well-typed and well-resourced states, reduction</a>
+<a id="31525" class="Comment">-- terminates only for states with value in head position and an empty</a>
+<a id="31596" class="Comment">-- stack.</a>
+
+<a id="⊢▸Final-reasons"></a><a id="31607" href="README.PaperB.README.html#31607" class="Function">⊢▸Final-reasons</a> <a id="31623" class="Symbol">=</a> <a id="31625" href="Graded.Heap.Termination.html#3588" class="Function">Graded.Heap.Termination.⊢▸Final-reasons-closed</a>
+
+<a id="31673" class="Comment">------------------------------------------------------------------------</a>
+<a id="31746" class="Comment">-- 3.5: Bisimilarity and Termination</a>
+<a id="31783" class="Comment">--</a>
+<a id="31786" class="Comment">-- Some properties in this section are stated in the paper for empty</a>
+<a id="31855" class="Comment">-- contexts whereas the formalized versions hold also for non-empty</a>
+<a id="31923" class="Comment">-- contexts.</a>
+
+<a id="31937" class="Comment">-- Theorem 3.9: Reduction in the abstract machine implies reduction in</a>
+<a id="32008" class="Comment">-- the call-by-name reduction.</a>
+
+<a id="32040" class="Comment">-- The reduction for eliminators and variables corresponds to zero steps</a>
+<a id="32113" class="Comment">-- in the call-by-name reduction.</a>
+
+<a id="⇒ₑ→≡"></a><a id="32148" href="README.PaperB.README.html#32148" class="Function">⇒ₑ→≡</a> <a id="32153" class="Symbol">=</a> <a id="32155" href="Graded.Heap.Reduction.Properties.html#9728" class="Function">Graded.Heap.Reduction.Properties.⇾ₑ-⦅⦆-≡</a>
+
+<a id="32197" class="Comment">-- The reduction for values corresponds to one step in the call-by-name</a>
+<a id="32269" class="Comment">-- reduction.</a>
+
+<a id="⇒ᵥ→⇒"></a><a id="32284" href="README.PaperB.README.html#32284" class="Function">⇒ᵥ→⇒</a> <a id="32289" class="Symbol">=</a> <a id="32291" href="Graded.Heap.Typed.Reduction.html#20588" class="Function">Graded.Heap.Typed.Reduction.⇒ᵥ→⇒</a>
+
+<a id="32325" class="Comment">-- The weak-head machine reduction corresponds to the call-by-name</a>
+<a id="32392" class="Comment">-- reduction.</a>
+
+<a id="⇾→⊢⇒"></a><a id="32407" href="README.PaperB.README.html#32407" class="Function">⇾→⊢⇒</a> <a id="32412" class="Symbol">=</a> <a id="32414" href="Graded.Heap.Bisimilarity.html#6489" class="Function">Graded.Heap.Bisimilarity.⇾→⊢⇒</a>
+
+<a id="32445" class="Comment">-- The reflexive, transitive closure of the weak-head machine reduction</a>
+<a id="32517" class="Comment">-- corresponds to the call-by-name reduction.</a>
+
+<a id="⇾*→⊢⇒*"></a><a id="32564" href="README.PaperB.README.html#32564" class="Function">⇾*→⊢⇒*</a> <a id="32571" class="Symbol">=</a> <a id="32573" href="Graded.Heap.Bisimilarity.html#6690" class="Function">Graded.Heap.Bisimilarity.⇾*→⊢⇒*</a>
+
+<a id="32606" class="Comment">-- States in normal form</a>
+<a id="32631" class="Comment">--</a>
+<a id="32634" class="Comment">-- The definition stated here additionally includes states for which</a>
+<a id="32703" class="Comment">-- lookup yields a dummy entry to be in normal form. This is not</a>
+<a id="32768" class="Comment">-- applicable for the theory presented in this section.</a>
+
+<a id="Normal"></a><a id="32825" href="README.PaperB.README.html#32825" class="Function">Normal</a> <a id="32832" class="Symbol">=</a> <a id="32834" href="Graded.Heap.Untyped.html#13587" class="Datatype">Graded.Heap.Untyped.Normal</a>
+
+<a id="32862" class="Comment">-- Theorem 3.10: Bisimilarity between the tracking and non-tracking</a>
+<a id="32930" class="Comment">-- reductions.</a>
+
+<a id="32946" class="Comment">-- Reduction with the tracking semantics implies reduction in the</a>
+<a id="33012" class="Comment">-- non-tracking semantics.</a>
+
+<a id="⇾→⇢"></a><a id="33040" href="README.PaperB.README.html#33040" class="Function">⇾→⇢</a> <a id="33044" class="Symbol">=</a> <a id="33046" href="Graded.Heap.Bisimilarity.html#3150" class="Function">Graded.Heap.Bisimilarity.⇾→⇢</a>
+
+<a id="33076" class="Comment">-- Reduction with the non-tracking semantics implies reduction in the</a>
+<a id="33146" class="Comment">-- tracking semantics for well-resourced states.</a>
+
+<a id="⇢→⇾"></a><a id="33196" href="README.PaperB.README.html#33196" class="Function">⇢→⇾</a> <a id="33200" class="Symbol">=</a> <a id="33202" href="Graded.Heap.Bisimilarity.html#4829" class="Function">Graded.Heap.Bisimilarity.⇢→⇾</a>
+
+<a id="33232" class="Comment">-- Theorem 3.11: Evaluation to normal form</a>
+
+<a id="normalize"></a><a id="33276" href="README.PaperB.README.html#33276" class="Function">normalize</a> <a id="33286" class="Symbol">=</a> <a id="33288" href="Graded.Heap.Normalization.html#2718" class="Function">Graded.Heap.Normalization.normalize</a>
+<a id="▸normalize"></a><a id="33324" href="README.PaperB.README.html#33324" class="Function">▸normalize</a> <a id="33335" class="Symbol">=</a> <a id="33337" href="Graded.Heap.Bisimilarity.html#5634" class="Function">Graded.Heap.Bisimilarity.▸normalize</a>
+
+<a id="33374" class="Comment">-- Theorem 3.12: Evaluation for values corresponds to evaluation in the</a>
+<a id="33446" class="Comment">-- call-by-name reduction.</a>
+<a id="33473" class="Comment">--</a>
+<a id="33476" class="Comment">-- This property assumes that the stack multiplicity exists. As</a>
+<a id="33540" class="Comment">-- discussed above, this is the case for the theory presented in this</a>
+<a id="33610" class="Comment">-- section.</a>
+
+<a id="⊢⇒→⇒ᵥ"></a><a id="33623" href="README.PaperB.README.html#33623" class="Function">⊢⇒→⇒ᵥ</a> <a id="33629" class="Symbol">=</a> <a id="33631" href="Graded.Heap.Bisimilarity.html#6902" class="Function">Graded.Heap.Bisimilarity.⊢⇒→⇒ᵥ</a>
+
+<a id="33663" class="Comment">-- Theorem 3.13: Reduction in the call-by-name semantics implies</a>
+<a id="33728" class="Comment">-- reduction in the abstract machine.</a>
+
+<a id="33767" class="Comment">-- The first part of the theorem, for which evaluation is not</a>
+<a id="33829" class="Comment">-- necessarily to a term in WHNF:</a>
+
+<a id="⊢⇒→⇾*"></a><a id="33864" href="README.PaperB.README.html#33864" class="Function">⊢⇒→⇾*</a> <a id="33870" class="Symbol">=</a> <a id="33872" href="Graded.Heap.Bisimilarity.html#8566" class="Function">Graded.Heap.Bisimilarity.⊢⇒→⇾*</a>
+
+<a id="33904" class="Comment">-- The second part, for evaluation to a term in WHNF:</a>
+
+<a id="⊢⇒→⇾*-whnf"></a><a id="33959" href="README.PaperB.README.html#33959" class="Function">⊢⇒→⇾*-whnf</a> <a id="33970" class="Symbol">=</a> <a id="33972" href="Graded.Heap.Termination.html#5456" class="Function">Graded.Heap.Termination.whBisim-closed</a>
+
+<a id="34012" class="Comment">-- Corollary 3.14: Termination of the weak-head reduction.</a>
+
+<a id="termination"></a><a id="34072" href="README.PaperB.README.html#34072" class="Function">termination</a> <a id="34084" class="Symbol">=</a> <a id="34086" href="Graded.Heap.Termination.html#6939" class="Function">Graded.Heap.Termination.⊢▸-⇘-closed</a>
+
+<a id="34123" class="Comment">------------------------------------------------------------------------</a>
+<a id="34196" class="Comment">-- Resource Correctness</a>
+
+<a id="34221" class="Comment">-- Bisimilarity does not hold if stacks are allowed to contain</a>
+<a id="34284" class="Comment">-- successor continuations.</a>
+
+<a id="¬sucₑ-bisim"></a><a id="34313" href="README.PaperB.README.html#34313" class="Function">¬sucₑ-bisim</a> <a id="34325" class="Symbol">=</a> <a id="34327" href="Graded.Heap.Typed.Reduction.html#27336" class="Function">Graded.Heap.Typed.Reduction.¬sucₑ-⇒ᵥ→⇒</a>
+
+<a id="34367" class="Comment">-- Lemma 3.15: Adding successor continuations to the bottom of a stack</a>
+<a id="34438" class="Comment">-- preserves reduction.</a>
+
+<a id="++sucₛ-↠*"></a><a id="34463" href="README.PaperB.README.html#34463" class="Function">++sucₛ-↠*</a> <a id="34473" class="Symbol">=</a> <a id="34475" href="Graded.Heap.Reduction.Properties.html#17146" class="Function">Graded.Heap.Reduction.Properties.++sucₛ-↠*</a>
+
+<a id="34519" class="Comment">-- Theorem 3.16: Evaluation to numerals</a>
+
+<a id="redNumeral"></a><a id="34560" href="README.PaperB.README.html#34560" class="Function">redNumeral</a> <a id="34571" class="Symbol">=</a> <a id="34573" href="Graded.Heap.Soundness.html#7580" class="Function">Graded.Heap.Soundness.redNumeral-closed</a>
+
+<a id="34614" class="Comment">-- Theorem 3.17: Resource correctness</a>
+<a id="34652" class="Comment">--</a>
+<a id="34655" class="Comment">-- The grade associated with each entry in the heap being bounded by 𝟘</a>
+<a id="34726" class="Comment">-- is expressed using the relation _≤ʰ_ which relates a heap to a grade.</a>
+<a id="34799" class="Comment">-- H ≤ʰ p is inhabited iff the grade associated with each entry is less</a>
+<a id="34871" class="Comment">-- than p.</a>
+
+<a id="resourceCorrectness"></a><a id="34883" href="README.PaperB.README.html#34883" class="Function">resourceCorrectness</a> <a id="34903" class="Symbol">=</a> <a id="34905" href="Graded.Heap.Soundness.html#9957" class="Function">Graded.Heap.Soundness.soundness-closed</a>
+
+<a id="_≤ʰ_"></a><a id="34945" href="README.PaperB.README.html#34945" class="Function Operator">_≤ʰ_</a> <a id="34950" class="Symbol">=</a> <a id="34952" href="Graded.Heap.Usage.html#1479" class="Datatype Operator">Graded.Heap.Usage._≤ʰ_</a>
+
+<a id="34976" class="Comment">-- Resource correctness for open terms.</a>
+<a id="35016" class="Comment">--</a>
+<a id="35019" class="Comment">-- The formalized statement also disallows erased matches for</a>
+<a id="35081" class="Comment">-- eliminators related to identity types.</a>
+
+<a id="resourceCorrectnessOpen"></a><a id="35124" href="README.PaperB.README.html#35124" class="Function">resourceCorrectnessOpen</a> <a id="35148" class="Symbol">=</a>
+  <a id="35152" href="Graded.Heap.Soundness.html#11078" class="Function">Graded.Heap.Soundness.soundness-open-consistent</a>
+
+<a id="35201" class="Comment">-- Example: Projection function for weak Σ-types</a>
+
+<a id="35251" class="Comment">-- The projection function.</a>
+
+<a id="proj₁"></a><a id="35280" href="README.PaperB.README.html#35280" class="Function">proj₁</a> <a id="35286" class="Symbol">=</a> <a id="35288" href="Graded.Heap.Examples.html#1615" class="Function">Graded.Heap.Examples.fstʷ</a>
+
+<a id="35315" class="Comment">-- Two entries are added to the heap during evaluation</a>
+
+<a id="proj₁↠₁"></a><a id="35371" href="README.PaperB.README.html#35371" class="Function">proj₁↠₁</a> <a id="35379" class="Symbol">=</a> <a id="35381" href="Graded.Heap.Examples.html#1828" class="Function">Graded.Heap.Examples.fstʷ⟨0,0⟩↠*′</a>
+
+<a id="35416" class="Comment">-- The complete evaluation of the example</a>
+
+<a id="proj₁↠₂"></a><a id="35459" href="README.PaperB.README.html#35459" class="Function">proj₁↠₂</a> <a id="35467" class="Symbol">=</a> <a id="35469" href="Graded.Heap.Examples.html#2450" class="Function">Graded.Heap.Examples.fstʷ⟨0,0⟩↠*</a>
+
+<a id="¬▸proj₁"></a><a id="35503" href="README.PaperB.README.html#35503" class="Function">¬▸proj₁</a> <a id="35511" class="Symbol">=</a> <a id="35513" href="Graded.Heap.Examples.Linearity.html#1466" class="Function">Graded.Heap.Examples.Linearity.fstʷ-no-usage</a>
+
+<a id="35559" class="Comment">------------------------------------------------------------------------</a>
+<a id="35632" class="Comment">-- 4: Usage Counting for Natural Number Recursion</a>
+
+<a id="35683" class="Comment">------------------------------------------------------------------------</a>
+<a id="35756" class="Comment">-- 4.1: Natrec-star</a>
+
+<a id="35777" class="Comment">-- The alternative usage rule has problems related to linearity</a>
+
+<a id="alt-usage-bad"></a><a id="35842" href="README.PaperB.README.html#35842" class="Function">alt-usage-bad</a> <a id="35856" class="Symbol">=</a>
+  <a id="35860" href="Graded.Modality.Instances.Linearity.Bad.No-dedicated-nr.html#1685" class="Function">Graded.Modality.Instances.Linearity.Bad.No-dedicated-nr.▸double</a>
+
+<a id="35925" class="Comment">-- The natrec-star operator.</a>
+<a id="35954" class="Comment">--</a>
+<a id="35957" class="Comment">-- The usage rule using natrec-star is more general than the one</a>
+<a id="36022" class="Comment">-- mentioned in the paper and is based on the modality providing a so</a>
+<a id="36092" class="Comment">-- called nr-function which is assumed to satisfy certain properties.</a>
+<a id="36162" class="Comment">-- any natrec-star operator is an instance of such an nr-function.</a>
+
+<a id="natrec-star"></a><a id="36230" href="README.PaperB.README.html#36230" class="Function">natrec-star</a> <a id="36242" class="Symbol">=</a> <a id="36244" href="Graded.Modality.html#8342" class="Record">Graded.Modality.Has-star</a>
+
+<a id="natrec-star→nr"></a><a id="36270" href="README.PaperB.README.html#36270" class="Function">natrec-star→nr</a> <a id="36285" class="Symbol">=</a> <a id="36287" href="Graded.Modality.Properties.Star.html#2551" class="Function">Graded.Modality.Properties.Star.has-nr</a>
+
+<a id="36327" class="Comment">-- The problems we describe hold both for the usage relation with modes</a>
+<a id="36399" class="Comment">-- and the one without modes. Note that this module is parametrized</a>
+<a id="36467" class="Comment">-- over a Modality-variant</a>
+
+<a id="usage-bad-linearity"></a><a id="36495" href="README.PaperB.README.html#36495" class="Function">usage-bad-linearity</a> <a id="36515" class="Symbol">=</a> <a id="36517" href="Graded.Modality.Instances.Linearity.Bad.html#2027" class="Function">Graded.Modality.Instances.Linearity.Bad.▸double</a>
+
+<a id="36566" class="Comment">-- Addition for natural numbers</a>
+
+<a id="plus"></a><a id="36599" href="README.PaperB.README.html#36599" class="Function">plus</a> <a id="36604" class="Symbol">=</a> <a id="36606" href="Graded.Modality.Instances.Examples.html#1799" class="Function">Graded.Modality.Instances.Examples.plus′</a>
+
+<a id="36648" class="Comment">-- Natrec-star for the linear types modality</a>
+
+<a id="⊛-linearity"></a><a id="36694" href="README.PaperB.README.html#36694" class="Function">⊛-linearity</a> <a id="36706" class="Symbol">=</a> <a id="36708" href="Graded.Modality.Instances.Zero-one-many.html#23505" class="Function Operator">Graded.Modality.Instances.Zero-one-many._⊛_▷_</a>
+
+<a id="36755" class="Comment">-- This is the greatest lawful natrec-star operator</a>
+
+<a id="⊛-linearity-greatest"></a><a id="36808" href="README.PaperB.README.html#36808" class="Function">⊛-linearity-greatest</a> <a id="36829" class="Symbol">=</a>
+  <a id="36833" href="Graded.Modality.Instances.Zero-one-many.html#25695" class="Function">Graded.Modality.Instances.Zero-one-many.⊛-greatest</a>
+
+<a id="36885" class="Comment">-- A usage rule for plus</a>
+
+<a id="▸plus"></a><a id="36911" href="README.PaperB.README.html#36911" class="Function">▸plus</a> <a id="36917" class="Symbol">=</a> <a id="36919" href="Graded.Modality.Instances.Linearity.Bad.html#2287" class="Function">Graded.Modality.Instances.Linearity.Bad.▸plus′</a>
+
+<a id="36967" class="Comment">-- The usage for adding two variables</a>
+
+<a id="▸plus-x₀-x₁"></a><a id="37006" href="README.PaperB.README.html#37006" class="Function">▸plus-x₀-x₁</a> <a id="37018" class="Symbol">=</a> <a id="37020" href="Graded.Modality.Instances.Linearity.Bad.html#3182" class="Function">Graded.Modality.Instances.Linearity.Bad.▸plus′-x₀-x₁</a>
+
+<a id="37074" class="Comment">-- The usage for adding a variable to itself</a>
+
+<a id="▸plus-x₀-x₀"></a><a id="37120" href="README.PaperB.README.html#37120" class="Function">▸plus-x₀-x₀</a> <a id="37132" class="Symbol">=</a> <a id="37134" href="Graded.Modality.Instances.Linearity.Bad.html#3339" class="Function">Graded.Modality.Instances.Linearity.Bad.▸plus′-x₀-x₀</a>
+
+<a id="37188" class="Comment">------------------------------------------------------------------------</a>
+<a id="37261" class="Comment">-- 4.2: A Resource-Correct Usage Rule</a>
+
+<a id="37300" class="Comment">-- Grade sequences</a>
+<a id="37319" class="Comment">--</a>
+<a id="37322" class="Comment">-- This defines sequences of any type.</a>
+
+<a id="Grade-sequence"></a><a id="37362" href="README.PaperB.README.html#37362" class="Function">Grade-sequence</a> <a id="37377" class="Symbol">=</a> <a id="37379" href="Tools.Nat.html#11998" class="Function">Tools.Nat.Sequence</a>
+
+<a id="37399" class="Comment">-- Greatest lower bounds of grade sequences</a>
+
+<a id="Greatest-lower-bound"></a><a id="37444" href="README.PaperB.README.html#37444" class="Function">Greatest-lower-bound</a> <a id="37465" class="Symbol">=</a> <a id="37467" href="Graded.Modality.html#2565" class="Function">Graded.Modality.Modality.Greatest-lower-bound</a>
+
+<a id="37514" class="Comment">-- Greatest lower bounds of context sequences</a>
+
+<a id="Greatest-lower-boundᶜ"></a><a id="37561" href="README.PaperB.README.html#37561" class="Function">Greatest-lower-boundᶜ</a> <a id="37583" class="Symbol">=</a> <a id="37585" href="Graded.Context.html#3040" class="Function">Graded.Context.Greatest-lower-boundᶜ</a>
+
+<a id="37623" class="Comment">-- The usage rule for natrec</a>
+<a id="37652" class="Comment">--</a>
+<a id="37655" class="Comment">-- The rule in question is natrec-no-nr-glbₘ</a>
+
+<a id="▸natrec"></a><a id="37701" href="README.PaperB.README.html#37701" class="Function">▸natrec</a> <a id="37709" class="Symbol">=</a> <a id="37711" href="Graded.Usage.html#8567" class="Datatype Operator">Graded.Usage._▸[_]_</a>
+
+<a id="37732" class="Comment">-- The function nrᵢ</a>
+
+<a id="nrᵢ"></a><a id="37753" href="README.PaperB.README.html#37753" class="Function">nrᵢ</a> <a id="37757" class="Symbol">=</a> <a id="37759" href="Graded.Modality.html#2774" class="Function">Graded.Modality.Modality.nrᵢ</a>
+
+<a id="37789" class="Comment">-- The function nrᵢ lifted to contexts</a>
+
+<a id="nrᵢᶜ"></a><a id="37829" href="README.PaperB.README.html#37829" class="Function">nrᵢᶜ</a> <a id="37834" class="Symbol">=</a> <a id="37836" href="Graded.Context.Properties.Natrec.html#5492" class="Function">Graded.Context.Properties.Natrec.nrᵢᶜ</a>
+
+<a id="37875" class="Comment">-- Definition 4.1: Modalities with well-behaved greatest lower bounds</a>
+<a id="37945" class="Comment">--</a>
+<a id="37948" class="Comment">-- This property is defined for Semiring-with-meet</a>
+
+<a id="Well-behaved-GLB"></a><a id="38000" href="README.PaperB.README.html#38000" class="Function">Well-behaved-GLB</a> <a id="38017" class="Symbol">=</a> <a id="38019" href="Graded.Modality.html#7682" class="Record">Graded.Modality.Has-well-behaved-GLBs</a>
+
+<a id="38058" class="Comment">-- A sub-interchange law for addition and meet</a>
+
+<a id="+-sub-interchangeable-∧"></a><a id="38106" href="README.PaperB.README.html#38106" class="Function">+-sub-interchangeable-∧</a> <a id="38130" class="Symbol">=</a>
+  <a id="38134" href="Graded.Modality.Properties.Addition.html#2449" class="Function">Graded.Modality.Properties.Addition.+-sub-interchangeable-∧</a>
+
+<a id="38195" class="Comment">-- The example modalities have well-behaved greatest lower bounds</a>
+<a id="38261" class="Comment">--</a>
+<a id="38264" class="Comment">-- Note that the proof for the linear types and affine types instances</a>
+<a id="38335" class="Comment">-- link to the same property since it is proven independently of the</a>
+<a id="38404" class="Comment">-- choice of partial order.</a>
+
+<a id="erasure-well-behaved-GLB"></a><a id="38433" href="README.PaperB.README.html#38433" class="Function">erasure-well-behaved-GLB</a> <a id="38458" class="Symbol">=</a>
+  <a id="38462" href="Graded.Modality.Instances.Erasure.Properties.html#15779" class="Function">Graded.Modality.Instances.Erasure.Properties.Erasure-supports-factoring-nr-rule</a>
+<a id="affine-well-behaved-GLB"></a><a id="38542" href="README.PaperB.README.html#38542" class="Function">affine-well-behaved-GLB</a> <a id="38566" class="Symbol">=</a>
+  <a id="38570" href="Graded.Modality.Instances.Zero-one-many.html#67664" class="Function">Graded.Modality.Instances.Zero-one-many.zero-one-many-supports-glb-for-natrec</a>
+<a id="linearity-well-behaved-GLB"></a><a id="38648" href="README.PaperB.README.html#38648" class="Function">linearity-well-behaved-GLB</a> <a id="38675" class="Symbol">=</a>
+  <a id="38679" href="Graded.Modality.Instances.Zero-one-many.html#67664" class="Function">Graded.Modality.Instances.Zero-one-many.zero-one-many-supports-glb-for-natrec</a>
+<a id="ℕω-well-behaved-GLB"></a><a id="38757" href="README.PaperB.README.html#38757" class="Function">ℕω-well-behaved-GLB</a> <a id="38777" class="Symbol">=</a>
+  <a id="38781" href="Graded.Modality.Instances.Nat-plus-infinity.html#65757" class="Function">Graded.Modality.Instances.Nat-plus-infinity.ℕ⊎∞-supports-glb-for-natrec</a>
+
+<a id="38854" class="Comment">-- Subject reduction</a>
+
+<a id="subject-reduction"></a><a id="38876" href="README.PaperB.README.html#38876" class="Function">subject-reduction</a> <a id="38894" class="Symbol">=</a> <a id="38896" href="Graded.Reduction.html#4145" class="Function">Graded.Reduction.usagePresTerm</a>
+
+<a id="38928" class="Comment">-- The characteristic inequalities of greatest lower bounds of nrᵢ</a>
+
+<a id="nrᵢ-≤₁"></a><a id="38996" href="README.PaperB.README.html#38996" class="Function">nrᵢ-≤₁</a> <a id="39003" class="Symbol">=</a> <a id="39005" href="Graded.Modality.Properties.Natrec.html#4754" class="Function">Graded.Modality.Properties.Natrec.nrᵢ-GLB-≤₀</a>
+<a id="nrᵢ-≤₂"></a><a id="39050" href="README.PaperB.README.html#39050" class="Function">nrᵢ-≤₂</a> <a id="39057" class="Symbol">=</a> <a id="39059" href="Graded.Modality.Properties.Natrec.html#4920" class="Function">Graded.Modality.Properties.Natrec.nrᵢ-GLB-≤</a>
+
+<a id="39104" class="Comment">-- The substitution lemma</a>
+
+<a id="subst-lemma"></a><a id="39131" href="README.PaperB.README.html#39131" class="Function">subst-lemma</a> <a id="39143" class="Symbol">=</a> <a id="39145" href="Graded.Substitution.Properties.html#35704" class="Function">Graded.Substitution.Properties.substₘ-lemma</a>
+
+<a id="39190" class="Comment">-- Correctness for erasure</a>
+
+<a id="erasure-correct"></a><a id="39218" href="README.PaperB.README.html#39218" class="Function">erasure-correct</a> <a id="39234" class="Symbol">=</a>
+  <a id="39238" href="Graded.Erasure.Consequences.Soundness.html#7112" class="Function">Graded.Erasure.Consequences.Soundness.Soundness.soundness-ℕ</a>
+
+<a id="39299" class="Comment">-- A usage rule for plus for the linear types modality</a>
+
+<a id="▸plus′"></a><a id="39355" href="README.PaperB.README.html#39355" class="Function">▸plus′</a> <a id="39362" class="Symbol">=</a>
+  <a id="39366" href="Graded.Modality.Instances.Linearity.Good.Greatest-lower-bound.html#3465" class="Function">Graded.Modality.Instances.Linearity.Good.Greatest-lower-bound.▸plus′</a>
+
+<a id="39436" class="Comment">-- The usage rule for plus simplified</a>
+
+<a id="▸plus″"></a><a id="39475" href="README.PaperB.README.html#39475" class="Function">▸plus″</a> <a id="39482" class="Symbol">=</a>
+  <a id="39486" href="Graded.Modality.Instances.Linearity.Good.Greatest-lower-bound.html#3895" class="Function">Graded.Modality.Instances.Linearity.Good.Greatest-lower-bound.▸plus″</a>
+
+<a id="39556" class="Comment">------------------------------------------------------------------------</a>
+<a id="39629" class="Comment">-- 4.3: Resource Correctness for the Natural Number Eliminator</a>
+
+<a id="39693" class="Comment">-- Multiplicity of a continuation</a>
+
+<a id="∣_∣ᶜ≡′_"></a><a id="39728" href="README.PaperB.README.html#39728" class="Function Operator">∣_∣ᶜ≡′_</a> <a id="39736" class="Symbol">=</a> <a id="39738" href="Graded.Heap.Untyped.html#5177" class="Datatype Operator">Graded.Heap.Untyped.∣_∣ᶜ≡_</a>
+
+<a id="39766" class="Comment">-- The greatest lower bound does not exist for all nrᵢ sequences for</a>
+<a id="39835" class="Comment">-- all modalities. This example is the modality of natural numbers</a>
+<a id="39902" class="Comment">-- (without ω).</a>
+
+<a id="¬nrᵢ-GLB"></a><a id="39919" href="README.PaperB.README.html#39919" class="Function">¬nrᵢ-GLB</a> <a id="39928" class="Symbol">=</a> <a id="39930" href="Graded.Modality.Instances.Nat.html#11623" class="Function">Graded.Modality.Instances.Nat.¬nrᵢ-GLB</a>
+
+<a id="39970" class="Comment">-- This instance has a well-behaved zero, supports subtraction and</a>
+<a id="40037" class="Comment">-- has well-behaved greatest lower bounds.</a>
+
+<a id="Nat-well-behaved-zero"></a><a id="40081" href="README.PaperB.README.html#40081" class="Function">Nat-well-behaved-zero</a> <a id="40103" class="Symbol">=</a>
+  <a id="40107" href="Graded.Modality.Instances.Nat.html#2276" class="Function">Graded.Modality.Instances.Nat.Nat-has-well-behaved-zero</a>
+<a id="Nat-subtraction"></a><a id="40163" href="README.PaperB.README.html#40163" class="Function">Nat-subtraction</a> <a id="40179" class="Symbol">=</a>
+  <a id="40183" href="Graded.Modality.Instances.Nat.html#7605" class="Function">Graded.Modality.Instances.Nat.supports-subtraction</a>
+<a id="Nat-well-behaved-GLB"></a><a id="40234" href="README.PaperB.README.html#40234" class="Function">Nat-well-behaved-GLB</a> <a id="40255" class="Symbol">=</a>
+  <a id="40259" href="Graded.Modality.Instances.Nat.html#11931" class="Function">Graded.Modality.Instances.Nat.Nat-has-well-behaved-GLBs</a>
+
+<a id="40316" class="Comment">-- The stack multiplicity does not necessarily exist</a>
+
+<a id="∣∣≢"></a><a id="40370" href="README.PaperB.README.html#40370" class="Function">∣∣≢</a> <a id="40374" class="Symbol">=</a> <a id="40376" href="Graded.Heap.Untyped.Properties.html#25011" class="Function">Graded.Heap.Untyped.Properties.∣∣≢</a>
+
+<a id="40412" class="Comment">-- The stack multiplicity is functional</a>
+
+<a id="∣∣-functional′"></a><a id="40453" href="README.PaperB.README.html#40453" class="Function">∣∣-functional′</a> <a id="40468" class="Symbol">=</a> <a id="40470" href="Graded.Heap.Untyped.Properties.html#17371" class="Function">Graded.Heap.Untyped.Properties.∣∣-functional</a>
+
+<a id="40516" class="Comment">-- The greatest lower bound of grade sequences is unique if it exists</a>
+
+<a id="GLB-unique"></a><a id="40587" href="README.PaperB.README.html#40587" class="Function">GLB-unique</a> <a id="40598" class="Symbol">=</a> <a id="40600" href="Graded.Modality.Properties.Greatest-lower-bound.html#1895" class="Function">Graded.Modality.Properties.Greatest-lower-bound.GLB-unique</a>
+
+<a id="40660" class="Comment">-- Applying a term to a continuation</a>
+
+<a id="⦅_⦆ᶜ′_"></a><a id="40698" href="README.PaperB.README.html#40698" class="Function Operator">⦅_⦆ᶜ′_</a> <a id="40705" class="Symbol">=</a> <a id="40707" href="Graded.Heap.Untyped.html#11776" class="Function Operator">Graded.Heap.Untyped.⦅_⦆ᶜ_</a>
+
+<a id="40734" class="Comment">-- The reduction of eliminators and variables is updated</a>
+
+<a id="_⇾ₑ′_"></a><a id="40792" href="README.PaperB.README.html#40792" class="Function Operator">_⇾ₑ′_</a> <a id="40798" class="Symbol">=</a> <a id="40800" href="Graded.Heap.Reduction.html#2983" class="Datatype Operator">Graded.Heap.Reduction._⇾ₑ_</a>
+
+<a id="40828" class="Comment">-- In particular, the auxiliary reduction is updated.</a>
+
+<a id="_⇒ₑ′_"></a><a id="40883" href="README.PaperB.README.html#40883" class="Function Operator">_⇒ₑ′_</a> <a id="40889" class="Symbol">=</a> <a id="40891" href="Graded.Heap.Reduction.html#1851" class="Datatype Operator">Graded.Heap.Reduction._⇒ₑ_</a>
+
+<a id="40919" class="Comment">-- Reduction of values is also updated.</a>
+
+<a id="_⇒ᵥ′_"></a><a id="40960" href="README.PaperB.README.html#40960" class="Function Operator">_⇒ᵥ′_</a> <a id="40966" class="Symbol">=</a> <a id="40968" href="Graded.Heap.Reduction.html#4138" class="Datatype Operator">Graded.Heap.Reduction._⇒ᵥ_</a>
+
+<a id="40996" class="Comment">-- The reduction relations are deterministic</a>
+
+<a id="⇾-det′"></a><a id="41042" href="README.PaperB.README.html#41042" class="Function">⇾-det′</a> <a id="41049" class="Symbol">=</a> <a id="41051" href="Graded.Heap.Reduction.Properties.html#6866" class="Function">Graded.Heap.Reduction.Properties.⇾-det</a>
+<a id="⇢-det′"></a><a id="41090" href="README.PaperB.README.html#41090" class="Function">⇢-det′</a> <a id="41097" class="Symbol">=</a> <a id="41099" href="Graded.Heap.Reduction.Properties.html#7386" class="Function">Graded.Heap.Reduction.Properties.⇢-det</a>
+<a id="↠-det′"></a><a id="41138" href="README.PaperB.README.html#41138" class="Function">↠-det′</a> <a id="41145" class="Symbol">=</a> <a id="41147" href="Graded.Heap.Reduction.Properties.html#7901" class="Function">Graded.Heap.Reduction.Properties.↠-det</a>
+
+<a id="41187" class="Comment">-- The usage for continuations is extended</a>
+
+<a id="_▸ᶜ[_]′_"></a><a id="41231" href="README.PaperB.README.html#41231" class="Function Operator">_▸ᶜ[_]′_</a> <a id="41240" class="Symbol">=</a> <a id="41242" href="Graded.Heap.Usage.html#2070" class="Datatype Operator">Graded.Heap.Usage._▸ᶜ[_]_</a>
+
+<a id="41269" class="Comment">-- The stack multiplicity always exist for well-resourced states</a>
+
+<a id="▸∣∣≡"></a><a id="41335" href="README.PaperB.README.html#41335" class="Function">▸∣∣≡</a> <a id="41340" class="Symbol">=</a> <a id="41342" href="Graded.Heap.Usage.Inversion.html#2699" class="Function">Graded.Heap.Usage.Inversion.▸ₛ-inv</a>
+
+<a id="41378" class="Comment">-- Well-resourced states do not get stuck due to non-existing stack</a>
+<a id="41446" class="Comment">-- multiplicity</a>
+<a id="41462" class="Comment">--</a>
+<a id="41465" class="Comment">-- In the formalization, this is stated as there being two ways</a>
+<a id="41529" class="Comment">-- reduction can fail. Of the original three reasons mentioned earlier,</a>
+<a id="41601" class="Comment">-- the case for states with variables in head position is no longer</a>
+<a id="41669" class="Comment">-- possible.</a>
+
+<a id="▸Final-reasons′"></a><a id="41683" href="README.PaperB.README.html#41683" class="Function">▸Final-reasons′</a> <a id="41699" class="Symbol">=</a> <a id="41701" href="Graded.Heap.Usage.Reduction.html#49276" class="Function">Graded.Heap.Usage.Reduction.▸Final-reasons-closed</a>
+
+<a id="41752" class="Comment">-- The typing relation for continuations is extended</a>
+
+<a id="_⊢ᶜ_⟨_⟩∷_↝′_"></a><a id="41806" href="README.PaperB.README.html#41806" class="Function Operator">_⊢ᶜ_⟨_⟩∷_↝′_</a> <a id="41819" class="Symbol">=</a> <a id="41821" href="Graded.Heap.Typed.html#1424" class="Datatype Operator">Graded.Heap.Typed._⨾_⊢ᶜ_⟨_⟩∷_↝_</a>
+
+<a id="41854" class="Comment">------------------------------------------------------------------------</a>
+<a id="41927" class="Comment">-- 4.4: Usage Counting for the Natural Number Eliminator</a>
+
+<a id="41985" class="Comment">-- For the example modalities the greatest lower bound of nrᵢ r p q</a>
+<a id="42053" class="Comment">-- always exists.</a>
+<a id="42071" class="Comment">--</a>
+<a id="42074" class="Comment">-- Note that the proof for the linear types and affine types instances</a>
+<a id="42145" class="Comment">-- link to the same property since it is proven independently of the</a>
+<a id="42214" class="Comment">-- choice of partial order.</a>
+
+<a id="erasure-GLB-nrᵢ"></a><a id="42243" href="README.PaperB.README.html#42243" class="Function">erasure-GLB-nrᵢ</a> <a id="42259" class="Symbol">=</a>
+  <a id="42263" href="Graded.Modality.Instances.Erasure.Properties.html#15469" class="Function">Graded.Modality.Instances.Erasure.Properties.Erasure-nrᵢ-glb</a>
+<a id="affine-GLB-nrᵢ"></a><a id="42324" href="README.PaperB.README.html#42324" class="Function">affine-GLB-nrᵢ</a> <a id="42339" class="Symbol">=</a>
+  <a id="42343" href="Graded.Modality.Instances.Zero-one-many.html#64674" class="Function">Graded.Modality.Instances.Zero-one-many.nr-nrᵢ-GLB</a>
+<a id="linear-GLB-nrᵢ"></a><a id="42394" href="README.PaperB.README.html#42394" class="Function">linear-GLB-nrᵢ</a> <a id="42409" class="Symbol">=</a>
+  <a id="42413" href="Graded.Modality.Instances.Zero-one-many.html#64674" class="Function">Graded.Modality.Instances.Zero-one-many.nr-nrᵢ-GLB</a>
+<a id="ℕω-GLB-nrᵢ"></a><a id="42464" href="README.PaperB.README.html#42464" class="Function">ℕω-GLB-nrᵢ</a> <a id="42475" class="Symbol">=</a>
+  <a id="42479" href="Graded.Modality.Instances.Nat-plus-infinity.html#65605" class="Function">Graded.Modality.Instances.Nat-plus-infinity.nrᵢ-GLB</a>
+
+<a id="42532" class="Comment">-- For modalities with a well-behaved zero, the greatest lower bound</a>
+<a id="42601" class="Comment">-- of any grade sequence is zero only if the sequence is constantly</a>
+<a id="42669" class="Comment">-- zero.</a>
+<a id="42678" class="Comment">--</a>
+<a id="42681" class="Comment">-- Note that this applies to the linear and affine types modalities.</a>
+
+<a id="𝟘-GLB"></a><a id="42751" href="README.PaperB.README.html#42751" class="Function">𝟘-GLB</a> <a id="42757" class="Symbol">=</a> <a id="42759" href="Graded.Modality.Properties.Greatest-lower-bound.html#2595" class="Function">Graded.Modality.Properties.Greatest-lower-bound.𝟘-GLB-inv</a>
+
+<a id="42818" class="Comment">-- For the linear types modality, the greatest lower bound</a>
+<a id="42877" class="Comment">-- of any grade sequence is one only if the sequence is constantly</a>
+<a id="42944" class="Comment">-- one.</a>
+
+<a id="𝟙-GLB-linear"></a><a id="42953" href="README.PaperB.README.html#42953" class="Function">𝟙-GLB-linear</a> <a id="42966" class="Symbol">=</a> <a id="42968" href="Graded.Modality.Instances.Linearity.html#4982" class="Function">Graded.Modality.Instances.Linearity.𝟙-GLB-inv</a>
+
+<a id="43015" class="Comment">-- For the linear types modality, the greatest lower bound</a>
+<a id="43074" class="Comment">-- of any grade sequence is one only if the sequence only consists</a>
+<a id="43141" class="Comment">-- of grades zero and one.</a>
+
+<a id="𝟙-GLB-affine"></a><a id="43169" href="README.PaperB.README.html#43169" class="Function">𝟙-GLB-affine</a> <a id="43182" class="Symbol">=</a> <a id="43184" href="Graded.Modality.Instances.Linearity.html#4982" class="Function">Graded.Modality.Instances.Linearity.𝟙-GLB-inv</a>
+
+<a id="43231" class="Comment">-- For both the linear and affine types modalities, 𝟘 is the greatest</a>
+<a id="43301" class="Comment">-- lower bound of nrᵢ r p q only if p ≡ 𝟘 and q ≡ 𝟘</a>
+
+<a id="𝟘-GLB-nrᵢ-linearity"></a><a id="43354" href="README.PaperB.README.html#43354" class="Function">𝟘-GLB-nrᵢ-linearity</a> <a id="43374" class="Symbol">=</a> <a id="43376" href="Graded.Modality.Instances.Linearity.html#5314" class="Function">Graded.Modality.Instances.Linearity.nrᵢ-GLB-𝟘-inv</a>
+<a id="𝟘-GLB-nrᵢ-affine"></a><a id="43426" href="README.PaperB.README.html#43426" class="Function">𝟘-GLB-nrᵢ-affine</a> <a id="43443" class="Symbol">=</a> <a id="43445" href="Graded.Modality.Instances.Affine.html#10193" class="Function">Graded.Modality.Instances.Affine.nrᵢ-GLB-𝟘-inv</a>
+
+<a id="43493" class="Comment">-- For the affine types modality, the greatest lower bound of nrᵢ r p q</a>
+<a id="43565" class="Comment">-- is one only in some cases.</a>
+
+<a id="𝟙-GLB-nrᵢ-linearity"></a><a id="43596" href="README.PaperB.README.html#43596" class="Function">𝟙-GLB-nrᵢ-linearity</a> <a id="43616" class="Symbol">=</a> <a id="43618" href="Graded.Modality.Instances.Linearity.html#5956" class="Function">Graded.Modality.Instances.Linearity.nrᵢ-GLB-𝟙-inv</a>
+
+<a id="43669" class="Comment">-- For the affine types modality, the greatest lower bound of nrᵢ r p q</a>
+<a id="43741" class="Comment">-- is one only in some cases.</a>
+
+<a id="𝟙-GLB-nrᵢ-affine"></a><a id="43772" href="README.PaperB.README.html#43772" class="Function">𝟙-GLB-nrᵢ-affine</a> <a id="43789" class="Symbol">=</a> <a id="43791" href="Graded.Modality.Instances.Affine.html#10873" class="Function">Graded.Modality.Instances.Affine.nrᵢ-GLB-𝟙-inv</a>
+
+<a id="43839" class="Comment">-- For the linear types modality, the greatest lower bound of nrᵢ r 𝟙 p</a>
+<a id="43911" class="Comment">-- is 𝟙 only if r ≡ 𝟘 and p ≡ 𝟙 or r ≡ 𝟙 and p ≡ 𝟘.</a>
+<a id="43963" class="Comment">-- In other words, the natural number argument to natrec is used</a>
+<a id="44028" class="Comment">-- linearly only in these cases</a>
+
+<a id="natrec-linear"></a><a id="44061" href="README.PaperB.README.html#44061" class="Function">natrec-linear</a> <a id="44075" class="Symbol">=</a> <a id="44077" href="Graded.Modality.Instances.Linearity.html#7172" class="Function">Graded.Modality.Instances.Linearity.nrᵢ-r𝟙p-GLB-𝟙-inv</a>
+
+<a id="44132" class="Comment">-- The predecessor function</a>
+
+<a id="pred"></a><a id="44161" href="README.PaperB.README.html#44161" class="Function">pred</a> <a id="44166" class="Symbol">=</a> <a id="44168" href="Graded.Modality.Instances.Examples.html#2584" class="Function">Graded.Modality.Instances.Examples.pred′</a>
+
+<a id="44210" class="Comment">-- A usage rule for the predecessor function</a>
+
+<a id="▸pred"></a><a id="44256" href="README.PaperB.README.html#44256" class="Function">▸pred</a> <a id="44262" class="Symbol">=</a> <a id="44264" href="Graded.Modality.Instances.Linearity.Good.Greatest-lower-bound.html#4475" class="Function">Graded.Modality.Instances.Linearity.Good.Greatest-lower-bound.▸pred′</a>
+
+<a id="44334" class="Comment">-- For the affine types modality, the greatest lower bound of nrᵢ r 𝟙 p</a>
+<a id="44406" class="Comment">-- is 𝟙 only if r ≡ 𝟘 and p ≡ 𝟙 or r ≡ 𝟙 and p ≡ 𝟘 or r ≡ 𝟘 and p ≡ 𝟘</a>
+<a id="44476" class="Comment">-- In other words, the natural number argument to natrec is used</a>
+<a id="44541" class="Comment">-- in an affine way only in these cases</a>
+
+<a id="natrec-affine"></a><a id="44582" href="README.PaperB.README.html#44582" class="Function">natrec-affine</a> <a id="44596" class="Symbol">=</a> <a id="44598" href="Graded.Modality.Instances.Affine.html#12221" class="Function">Graded.Modality.Instances.Affine.nrᵢ-r𝟙p-GLB-𝟙-inv</a>
+
+<a id="44650" class="Comment">-- The natural number argument is never considered to be erased. I.e.</a>
+<a id="44720" class="Comment">-- the greatest lower bound of nrᵢ r 𝟙 p is never 𝟘.</a>
+
+<a id="natrec-not-erased"></a><a id="44774" href="README.PaperB.README.html#44774" class="Function">natrec-not-erased</a> <a id="44792" class="Symbol">=</a>
+  <a id="44796" href="Graded.Modality.Properties.Natrec.html#6901" class="Function">Graded.Modality.Properties.Natrec.nrᵢ-natrec-not-erased</a>
+
+<a id="44853" class="Comment">-- For both the linear types and the affine types modalities, the</a>
+<a id="44919" class="Comment">-- greatest lower bound of nrᵢ 𝟘 p q is p ∧ q.</a>
+<a id="44966" class="Comment">-- In other words, the contribution of the zero and successor branches</a>
+<a id="45037" class="Comment">-- of natrec p′ q′ 𝟘 A z s n is γ ∧ δ when γ ▸ z and δ,p,r▸s</a>
+
+<a id="natrec-usage-𝟘"></a><a id="45099" href="README.PaperB.README.html#45099" class="Function">natrec-usage-𝟘</a> <a id="45114" class="Symbol">=</a> <a id="45116" href="Graded.Modality.Instances.Zero-one-many.html#66183" class="Function">Graded.Modality.Instances.Zero-one-many.nrᵢ-𝟘-GLB</a>
+
+<a id="45167" class="Comment">-- For both the linear types and the affine types modalities, the</a>
+<a id="45233" class="Comment">-- greatest lower bound of nrᵢ 𝟙 p q is p + ω · q.</a>
+<a id="45284" class="Comment">-- In other words, the contribution of the zero and successor branches</a>
+<a id="45355" class="Comment">-- of natrec p′ q′ 𝟙 A z s n is γ + ω · δ when γ ▸ z and δ,p,r▸s</a>
+
+<a id="natrec-usage-𝟙"></a><a id="45421" href="README.PaperB.README.html#45421" class="Function">natrec-usage-𝟙</a> <a id="45436" class="Symbol">=</a> <a id="45438" href="Graded.Modality.Instances.Zero-one-many.html#66486" class="Function">Graded.Modality.Instances.Zero-one-many.nrᵢ-𝟙-GLB</a>
+
+<a id="45489" class="Comment">-- For both the linear types and the affine types modalities, the</a>
+<a id="45555" class="Comment">-- greatest lower bound of nrᵢ ω p q is p + ω · q.</a>
+<a id="45606" class="Comment">-- In other words, the contribution of the zero and successor branches</a>
+<a id="45677" class="Comment">-- of natrec p q ω A z s n is ω ·(γ + δ) when γ ▸ z and δ,p,r▸s</a>
+
+<a id="natrec-usage-ω"></a><a id="45742" href="README.PaperB.README.html#45742" class="Function">natrec-usage-ω</a> <a id="45757" class="Symbol">=</a> <a id="45759" href="Graded.Modality.Instances.Zero-one-many.html#66945" class="Function">Graded.Modality.Instances.Zero-one-many.nrᵢ-ω-GLB</a>
+
+<a id="45810" class="Comment">------------------------------------------------------------------------</a>
+<a id="45883" class="Comment">-- 5: Resource Correctness for Open Programs</a>
+
+<a id="45929" class="Comment">-- The definition of heap substitutions is extended</a>
+
+<a id="⦅_⦆ʰ′"></a><a id="45982" href="README.PaperB.README.html#45982" class="Function Operator">⦅_⦆ʰ′</a> <a id="45988" class="Symbol">=</a> <a id="45990" href="Graded.Heap.Untyped.html#10476" class="Function">Graded.Heap.Untyped.toSubstₕ</a>
+
+<a id="46020" class="Comment">-- The definition of initial state is updated</a>
+
+<a id="initial′"></a><a id="46067" href="README.PaperB.README.html#46067" class="Function">initial′</a> <a id="46076" class="Symbol">=</a> <a id="46078" href="Graded.Heap.Untyped.html#12805" class="Function">Graded.Heap.Untyped.initial</a>
+
+<a id="46107" class="Comment">-- Reduction can fail in three different ways</a>
+
+<a id="Final-reasons-open"></a><a id="46154" href="README.PaperB.README.html#46154" class="Function">Final-reasons-open</a> <a id="46173" class="Symbol">=</a> <a id="46175" href="Graded.Heap.Reduction.Properties.html#23381" class="Function">Graded.Heap.Reduction.Properties.Final-reasons</a>
+
+<a id="46223" class="Comment">-- Typing judgments:</a>
+
+<a id="46245" class="Comment">-- Typing for heaps</a>
+
+<a id="⊢ʰ_∷′_"></a><a id="46266" href="README.PaperB.README.html#46266" class="Function Operator">⊢ʰ_∷′_</a> <a id="46273" class="Symbol">=</a> <a id="46275" href="Graded.Heap.Typed.html#1159" class="Datatype Operator">Graded.Heap.Typed._⊢ʰ_∷_</a>
+
+<a id="46301" class="Comment">-- Typing for continuations</a>
+
+<a id="_⊢ᶜ_⟨_⟩∷_↝″_"></a><a id="46330" href="README.PaperB.README.html#46330" class="Function Operator">_⊢ᶜ_⟨_⟩∷_↝″_</a> <a id="46343" class="Symbol">=</a> <a id="46345" href="Graded.Heap.Typed.html#1424" class="Datatype Operator">Graded.Heap.Typed._⨾_⊢ᶜ_⟨_⟩∷_↝_</a>
+
+<a id="46378" class="Comment">-- Typing for stacks</a>
+
+<a id="_⊢_⟨_⟩∷_↝′_"></a><a id="46400" href="README.PaperB.README.html#46400" class="Function Operator">_⊢_⟨_⟩∷_↝′_</a> <a id="46412" class="Symbol">=</a> <a id="46414" href="Graded.Heap.Typed.html#3622" class="Datatype Operator">Graded.Heap.Typed._⨾_⊢_⟨_⟩∷_↝_</a>
+
+<a id="46446" class="Comment">-- Typing for states</a>
+
+<a id="⊢ₛ_∷′_"></a><a id="46468" href="README.PaperB.README.html#46468" class="Function Operator">⊢ₛ_∷′_</a> <a id="46475" class="Symbol">=</a> <a id="46477" href="Graded.Heap.Typed.html#3913" class="Datatype Operator">Graded.Heap.Typed._⊢ₛ_∷_</a>
+
+<a id="46503" class="Comment">-- Type preservation for the abstract machine</a>
+
+<a id="⊢-⇾′"></a><a id="46550" href="README.PaperB.README.html#46550" class="Function">⊢-⇾′</a> <a id="46555" class="Symbol">=</a> <a id="46557" href="Graded.Heap.Typed.Reduction.html#19066" class="Function">Graded.Heap.Typed.Reduction.⊢ₛ-⇾</a>
+<a id="⊢-⇾*′"></a><a id="46590" href="README.PaperB.README.html#46590" class="Function">⊢-⇾*′</a> <a id="46596" class="Symbol">=</a> <a id="46598" href="Graded.Heap.Typed.Reduction.html#19461" class="Function">Graded.Heap.Typed.Reduction.⊢ₛ-⇾*</a>
+
+<a id="46633" class="Comment">-- Values in non-empty stacks always reduce.</a>
+
+<a id="⊢Value-⇒ᵥ′"></a><a id="46679" href="README.PaperB.README.html#46679" class="Function">⊢Value-⇒ᵥ′</a> <a id="46690" class="Symbol">=</a> <a id="46692" href="Graded.Heap.Typed.Reduction.html#41293" class="Function">Graded.Heap.Typed.Reduction.⊢Value-⇒ᵥ</a>
+
+<a id="46731" class="Comment">-- Usage preservation for the abstract machine</a>
+
+<a id="▸-⇾′"></a><a id="46779" href="README.PaperB.README.html#46779" class="Function">▸-⇾′</a> <a id="46784" class="Symbol">=</a> <a id="46786" href="Graded.Heap.Usage.Reduction.html#45428" class="Function">Graded.Heap.Usage.Reduction.▸-⇾</a>
+<a id="▸-⇾*′"></a><a id="46818" href="README.PaperB.README.html#46818" class="Function">▸-⇾*′</a> <a id="46824" class="Symbol">=</a> <a id="46826" href="Graded.Heap.Usage.Reduction.html#45583" class="Function">Graded.Heap.Usage.Reduction.▸-⇾*</a>
+
+<a id="46860" class="Comment">-- Well-resourced dummy entries are assigned grade 𝟘</a>
+
+<a id="▸H●"></a><a id="46914" href="README.PaperB.README.html#46914" class="Function">▸H●</a> <a id="46918" class="Symbol">=</a> <a id="46920" href="Graded.Heap.Usage.Properties.html#15999" class="Function">Graded.Heap.Usage.Properties.▸H●</a>
+
+<a id="46954" class="Comment">-- Lookups to dummy entries can only occur if the stack multiplicity is 𝟘</a>
+
+<a id="▸s●"></a><a id="47029" href="README.PaperB.README.html#47029" class="Function">▸s●</a> <a id="47033" class="Symbol">=</a> <a id="47035" href="Graded.Heap.Usage.Properties.html#16799" class="Function">Graded.Heap.Usage.Properties.▸s●</a>
+
+<a id="47069" class="Comment">-- The stack multiplicity is zero iff it contains erased prodrec,</a>
+<a id="47135" class="Comment">-- unitrec or emptyrec.</a>
+<a id="47159" class="Comment">--</a>
+<a id="47162" class="Comment">-- The second direction, showing that the stack contains erased prodrec,</a>
+<a id="47235" class="Comment">-- unitrec, or emptyrec if the stack multiplicity is zero does not</a>
+<a id="47302" class="Comment">-- necessarily hold if the stack contains continuations related to the</a>
+<a id="47373" class="Comment">-- identity type since these can have multiplicity zero. In the linked</a>
+<a id="47444" class="Comment">-- property, we have shown that the stack contains erased prodrec,</a>
+<a id="47511" class="Comment">-- unitrec or emptyrec or a continuation related the identity type (J, K,</a>
+<a id="47585" class="Comment">-- or []-cong).</a>
+
+<a id="∣∣≡𝟘-if-erased-elim′"></a><a id="47602" href="README.PaperB.README.html#47602" class="Function">∣∣≡𝟘-if-erased-elim′</a> <a id="47623" class="Symbol">=</a> <a id="47625" href="Graded.Heap.Untyped.Properties.html#21839" class="Function">Graded.Heap.Untyped.Properties.∣∣≡𝟘</a>
+<a id="erased-elim-if-∣∣≡𝟘′"></a><a id="47661" href="README.PaperB.README.html#47661" class="Function">erased-elim-if-∣∣≡𝟘′</a> <a id="47682" class="Symbol">=</a> <a id="47684" href="Graded.Heap.Untyped.Properties.html#22734" class="Function">Graded.Heap.Untyped.Properties.∣∣≡𝟘→erased-match</a>
+
+<a id="47734" class="Comment">-- The multiplicity of the continuation for natrec is never 𝟘</a>
+
+<a id="∣nr∣≢𝟘"></a><a id="47797" href="README.PaperB.README.html#47797" class="Function">∣nr∣≢𝟘</a> <a id="47804" class="Symbol">=</a> <a id="47806" href="Graded.Heap.Untyped.Properties.html#22438" class="Function">Graded.Heap.Untyped.Properties.∣nr∣≢𝟘</a>
+
+<a id="47845" class="Comment">-- Theorem 5.1: Heap lookups succeed for well-resourced heaps</a>
+
+<a id="heap-lookup-succeeds′"></a><a id="47908" href="README.PaperB.README.html#47908" class="Function">heap-lookup-succeeds′</a> <a id="47930" class="Symbol">=</a> <a id="47932" href="Graded.Heap.Soundness.html#3820" class="Function">Graded.Heap.Soundness.lookup-succeeds′</a>
+
+<a id="47972" class="Comment">-- States in normal form</a>
+
+<a id="Normal′"></a><a id="47998" href="README.PaperB.README.html#47998" class="Function">Normal′</a> <a id="48006" class="Symbol">=</a> <a id="48008" href="Graded.Heap.Untyped.html#13587" class="Datatype">Graded.Heap.Untyped.Normal</a>
+
+<a id="48036" class="Comment">-- Theorem 5.2: Resource correctness for open terms.</a>
+<a id="48089" class="Comment">--</a>
+<a id="48092" class="Comment">-- The formalized statement also disallows erased matches for</a>
+<a id="48154" class="Comment">-- eliminators related to identity types.</a>
+
+<a id="resourceCorrectnessOpen′"></a><a id="48197" href="README.PaperB.README.html#48197" class="Function">resourceCorrectnessOpen′</a> <a id="48222" class="Symbol">=</a>
+  <a id="48226" href="Graded.Heap.Soundness.html#11078" class="Function">Graded.Heap.Soundness.soundness-open-consistent</a>
+
+<a id="48275" class="Comment">-- Counterexamples to the resource correctness theorem when some</a>
+<a id="48340" class="Comment">-- assumptions are removed.</a>
+<a id="48368" class="Comment">-- These countrexamples are constructed under the assumption that some</a>
+<a id="48439" class="Comment">-- function types are allowed (as given by the type restrictions).</a>
+
+<a id="48507" class="Comment">-- Inconsistent contexts</a>
+
+<a id="¬resource-correctness-inconsistent"></a><a id="48533" href="README.PaperB.README.html#48533" class="Function">¬resource-correctness-inconsistent</a> <a id="48568" class="Symbol">=</a>
+  <a id="48572" href="Graded.Heap.Soundness.Counterexample.html#2133" class="Function">Graded.Heap.Soundness.Counterexample.¬soundness-inconsistent</a>
+
+<a id="48634" class="Comment">-- Erased matches for unitrec</a>
+
+<a id="¬resource-correctness-erased-matches-unitrec"></a><a id="48665" href="README.PaperB.README.html#48665" class="Function">¬resource-correctness-erased-matches-unitrec</a> <a id="48710" class="Symbol">=</a>
+  <a id="48714" href="Graded.Heap.Soundness.Counterexample.html#4639" class="Function">Graded.Heap.Soundness.Counterexample.¬soundness-erased-matches-unitrec</a>
+
+<a id="48786" class="Comment">-- Erased matches for prodrec</a>
+
+<a id="¬resource-correctness-erased-matches-prodrec"></a><a id="48817" href="README.PaperB.README.html#48817" class="Function">¬resource-correctness-erased-matches-prodrec</a> <a id="48862" class="Symbol">=</a>
+  <a id="48866" href="Graded.Heap.Soundness.Counterexample.html#7095" class="Function">Graded.Heap.Soundness.Counterexample.¬soundness-erased-matches-prodrec</a>
+
+<a id="48938" class="Comment">-- Programs using free variables in a non-erased way</a>
+
+<a id="¬resource-correctness-non-erased"></a><a id="48992" href="README.PaperB.README.html#48992" class="Function">¬resource-correctness-non-erased</a> <a id="49025" class="Symbol">=</a>
+  <a id="49029" href="Graded.Heap.Soundness.Counterexample.html#9876" class="Function">Graded.Heap.Soundness.Counterexample.¬soundness-not-erased</a>
+
+<a id="49089" class="Comment">-- A version of resource correctness with no erased matches for</a>
+<a id="49153" class="Comment">-- emptyrec.</a>
+
+<a id="resourceCorrectnessOpen″"></a><a id="49167" href="README.PaperB.README.html#49167" class="Function">resourceCorrectnessOpen″</a> <a id="49192" class="Symbol">=</a>
+  <a id="49196" href="Graded.Heap.Soundness.html#11467" class="Function">Graded.Heap.Soundness.soundness-open-¬emptyrec₀</a>
+
+<a id="49245" class="Comment">------------------------------------------------------------------------</a>
+<a id="49318" class="Comment">-- 7: Related Work</a>
+
+<a id="49338" class="Comment">-- For erasure, the context in the contexts in the conclusions of the</a>
+<a id="49408" class="Comment">-- usage rules for natrec using natrec-star and greatest lower bounds</a>
+<a id="49478" class="Comment">-- coincide</a>
+
+<a id="Erasure-⊛≡GLB"></a><a id="49491" href="README.PaperB.README.html#49491" class="Function">Erasure-⊛≡GLB</a> <a id="49505" class="Symbol">=</a> <a id="49507" href="Graded.Modality.Instances.Erasure.Properties.html#18145" class="Function">Graded.Modality.Instances.Erasure.Properties.▸⊛≈GLB</a>
+</pre></body></html>
