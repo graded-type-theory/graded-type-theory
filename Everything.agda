@@ -517,4 +517,6 @@ import Application.NegativeOrErasedAxioms.Canonicity.ErasedMatches
 -- Pointers to code related to the paper "A Graded Modal Dependent
 -- Type Theory with a Universe and Erasure, Formalized"
 
+import README.PaperA.README
+import README.PaperB.README
 import README
