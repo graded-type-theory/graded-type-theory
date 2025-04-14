@@ -91,14 +91,10 @@ import Definition.Untyped.Identity
 import Definition.Untyped.Sigma
 import Definition.Untyped.Unit
 import Definition.Untyped.Nat
-import Definition.Untyped.Lift
 import Definition.Untyped.Empty
-import Definition.Untyped.Bool
 import Definition.Untyped.Erased.Eta
 import Definition.Untyped.Erased.No-eta
 import Definition.Untyped.Erased
-import Definition.Untyped.Bool.Erased
-import Graded.Derived.Unrestricted.Eta.Untyped
 import Definition.Typed.Variant
 import Definition.Untyped.Neutral
 import Definition.Untyped.Properties.Neutral
@@ -138,10 +134,6 @@ import Definition.Typed.Properties.Admissible.Unit
 import Definition.Typed.Properties.Admissible.Erased.Eta
 import Definition.Typed.Properties.Admissible.Erased.No-eta
 import Definition.Typed.Properties.Admissible.Erased
-import Definition.Typed.Properties.Admissible.Lift
-import Definition.Typed.Properties.Admissible.Bool.OK
-import Definition.Typed.Properties.Admissible.Bool
-import Definition.Typed.Properties.Admissible.Bool.Erased
 import Definition.Typed.Substitution
 import Definition.Typed.Properties
 import Definition.Typed.EqualityRelation
@@ -182,15 +174,9 @@ import Graded.Derived.Sigma
 -- Properties related to usage and certain type formers.
 import Graded.Derived.Identity
 import Graded.Derived.Unit
-import Graded.Derived.Nat
-import Graded.Derived.Lift
-import Graded.Derived.Empty
-import Graded.Derived.Bool
 import Graded.Derived.Erased.Usage.Eta
 import Graded.Derived.Erased.Usage.No-eta
 import Graded.Derived.Erased.Usage
-import Graded.Derived.Bool.Erased
-import Graded.Derived.Unrestricted.Eta.Usage
 
 ------------------------------------------------------------------------
 -- Assumptions used to state the theorems in Graded.FullReduction
@@ -202,8 +188,6 @@ import Graded.FullReduction.Assumptions
 
 -- Some structures that are not modalities.
 import Graded.Modality.Instances.Set
-import Graded.Modality.Instances.Set.Non-empty
-import Graded.Modality.Instances.Set.Non-empty.Implementation
 
 -- Modality pseudo-instances.
 import Graded.Modality.Instances.LowerBounded
@@ -213,8 +197,6 @@ import Graded.Modality.Instances.Recursive.Sequences
 import Graded.Modality.Instances.Recursive
 import Graded.Modality.Instances.Erasure
 import Graded.Modality.Instances.Zero-one-many
-import Graded.Modality.Instances.Bounded-distributive-lattice
-import Graded.Modality.Instances.Set.Interval
 
 -- Modality instances.
 import Graded.Modality.Instances.Erasure.Modality
@@ -222,20 +204,11 @@ import Graded.Modality.Instances.Erasure.Properties
 import Graded.Modality.Instances.Unit
 import Graded.Modality.Instances.Affine
 import Graded.Modality.Instances.Linearity
-import Graded.Modality.Instances.Linearity.Properties
 import Graded.Modality.Instances.Linear-or-affine
 import Graded.Modality.Instances.Information-flow
-import Graded.Modality.Instances.Zero-below-one
 import Graded.Modality.Instances.Nat
 import Graded.Modality.Instances.Nat-plus-infinity
 import Graded.Modality.Instances.Exact-or-at-most
-import
-  Graded.Modality.Instances.Bounded-distributive-lattice.No-division
-import
-  Graded.Modality.Instances.Bounded-distributive-lattice.Nat-plus-infinity
-import
-  Graded.Modality.Instances.Bounded-distributive-lattice.Downward-closed
-import Graded.Modality.Instances.Set.Interval.Implementation
 import Graded.Modality.Instances.Relevancy
 
 ------------------------------------------------------------------------
@@ -295,13 +268,11 @@ import Definition.Typed.Consequences.Canonicity
 import Definition.Typed.Consequences.Reduction
 import Definition.Typed.Consequences.Admissible.Pi
 import Definition.Typed.Consequences.Admissible.Sigma
-import Definition.Typed.Consequences.Inversion.Lift
 import Definition.Typed.Consequences.Inversion.Erased
 import Definition.Typed.Consequences.Inversion.Erased.Eta
 import Definition.Typed.Consequences.Inversion.Erased.No-eta
 import Definition.Typed.Consequences.Admissible
 import Definition.Typed.Consequences.Consistency
-import Graded.Derived.Unrestricted.Eta.Typed
 import Definition.Typed.Consequences.NeTypeEq
 
 -- Algorithmic equality.
@@ -321,7 +292,6 @@ import Definition.Conversion.Decidable
 import Definition.Conversion.EqRelInstance
 import Definition.Conversion.Consequences.Completeness
 import Definition.Conversion.Consequences.InverseUniv
-import Definition.Conversion.Consequences.Var
 import Definition.Untyped.Normal-form
 import Definition.Typed.Eta-long-normal-form
 import Definition.Conversion.FullReduction
@@ -368,33 +338,6 @@ import Graded.Reduction
 import Graded.FullReduction
 
 ------------------------------------------------------------------------
--- Modality morphisms and quantity translations
-
-import Definition.Untyped.QuantityTranslation
-import Definition.Untyped.QuantityTranslation.Identity
-import Graded.Modality.Morphism
-import Graded.Modality.Morphism.Examples
-import Graded.Modality.Morphism.Type-restrictions
-import Graded.Modality.Morphism.Type-restrictions.Examples
-import Graded.Modality.Morphism.Usage-restrictions
-import Graded.Modality.Morphism.Usage-restrictions.Examples
-import Graded.Modality.Morphism.Forward-instances
-import Graded.Modality.Morphism.Backward-instances
-import Definition.Typed.QuantityTranslation
-import Graded.Context.QuantityTranslation
-import Graded.Mode.QuantityTranslation
-import Graded.Usage.QuantityTranslation
-
-------------------------------------------------------------------------
--- Extended modalities
-
-import Graded.Modality.Extended
-import Graded.Modality.Extended.K-allowed
-import Graded.Modality.Extended.K-not-allowed.Erased-matches
-import Graded.Modality.Extended.K-not-allowed.Only-some-erased-matches
-import Graded.Modality.Extended.K-not-allowed.No-erased-matches
-
-------------------------------------------------------------------------
 -- A case study: erasure
 
 -- The target language.
@@ -434,27 +377,13 @@ import Graded.Erasure.LogicalRelation.Fundamental
 -- Soundness of extraction.
 import Graded.Erasure.SucRed
 import Graded.Erasure.Consequences.Soundness
-import Graded.Erasure.Consequences.Soundness.Erased-matches
 import Graded.Erasure.LogicalRelation.Fundamental.Counterexample
 
 -- Some consequences of the fundamental lemma.
 import Graded.Erasure.Consequences.Non-interference
-import Graded.Erasure.Consequences.Identity
-import Graded.Erasure.Consequences.Resurrectable
 
 -- Some examples related to the erasure modality and extraction.
 import Graded.Erasure.Examples
-
-------------------------------------------------------------------------
--- A result related to neutral terms and usage
-
-import Graded.Neutral
-
-------------------------------------------------------------------------
--- Some discussion of under what circumstances a []-cong combinator
--- can be defined
-
-import Graded.Box-cong
 
 ------------------------------------------------------------------------
 -- A resource aware abstract machine
@@ -497,21 +426,6 @@ import Graded.Heap.Soundness.Counterexample
 -- Examples related to the abstract machine
 import Graded.Heap.Examples
 import Graded.Heap.Examples.Linearity
-
-------------------------------------------------------------------------
--- Some applications
-
--- An application: consistent negative axioms preserve canonicity.
-import Application.NegativeAxioms.NegativeType
-import Application.NegativeAxioms.NegativeContext
-import Application.NegativeAxioms.Canonicity
-
--- An application: consistent negative or erased axioms preserve
--- canonicity (if erased matches are not allowed).
-import Application.NegativeOrErasedAxioms.NegativeOrErasedType
-import Application.NegativeOrErasedAxioms.NegativeOrErasedContext
-import Application.NegativeOrErasedAxioms.Canonicity
-import Application.NegativeOrErasedAxioms.Canonicity.ErasedMatches
 
 ------------------------------------------------------------------------
 -- Pointers to code related to the paper "A Graded Modal Dependent

@@ -18,12 +18,10 @@ open import Definition.Typed R
 open import Tools.Fin
 open import Tools.PropositionalEquality
 
-open import Definition.Typed.Properties.Admissible.Bool R public
 open import Definition.Typed.Properties.Admissible.Empty R public
 open import Definition.Typed.Properties.Admissible.Equality R public
 open import Definition.Typed.Properties.Admissible.Erased R public
 open import Definition.Typed.Properties.Admissible.Identity R public
-open import Definition.Typed.Properties.Admissible.Lift R public
 open import Definition.Typed.Properties.Admissible.Nat R public
 open import Definition.Typed.Properties.Admissible.Pi R public
 open import Definition.Typed.Properties.Admissible.Sigma R public
