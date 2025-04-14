@@ -261,7 +261,7 @@ Has-well-behaved-GLBs = Graded.Modality.Has-well-behaved-GLBs
 -- The problems discussed above also affect the alternative usage rule
 -- for natrec:
 --
--- * The linear/affine doubling function is well-resoured (for the
+-- * The linear/affine doubling function is well-resourced (for the
 --   linear or affine types modality, and the linear types modality,
 --   this is only the case if 𝟘ᵐ is not allowed).
 --

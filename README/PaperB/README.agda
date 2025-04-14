@@ -1504,7 +1504,7 @@ resourceCorrectnessOpen′ =
 
 -- Counterexamples to the resource correctness theorem when some
 -- assumptions are removed.
--- These countrexamples are constructed under the assumption that some
+-- These counterexamples are constructed under the assumption that some
 -- function types are allowed (as given by the type restrictions).
 
 -- Inconsistent contexts
