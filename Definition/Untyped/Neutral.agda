@@ -75,9 +75,8 @@ noClosedNe ([]-congₙ net) = noClosedNe net
 -- relation a priori.
 
 data Semineutral : Term n → Set a where
-  maxᵘₙ₁ : Semineutral t → Semineutral u → Semineutral (t maxᵘ u)
-  maxᵘₙ₂ : Semineutral t → Semineutral (t maxᵘ sucᵘ u)
-  maxᵘₙ₃ : Semineutral u → Semineutral (sucᵘ t maxᵘ u)
+  maxᵘˡₙ : Semineutral t → Semineutral (t maxᵘ u)
+  maxᵘʳₙ : Semineutral u → Semineutral (sucᵘ t maxᵘ u)
   ne     : Neutral t → Semineutral t
 
 ------------------------------------------------------------------------
@@ -376,10 +375,9 @@ wkNeutral ρ ([]-congₙ n)        = []-congₙ (wkNeutral ρ n)
 -- Weakening of a semi-neutral term.
 
 wkSemineutral : ∀ ρ → Semineutral t → Semineutral {n = n} (wk ρ t)
-wkSemineutral ρ (maxᵘₙ₁ t u) = maxᵘₙ₁ (wkSemineutral ρ t) (wkSemineutral ρ u)
-wkSemineutral ρ (maxᵘₙ₂ t)   = maxᵘₙ₂ (wkSemineutral ρ t)
-wkSemineutral ρ (maxᵘₙ₃ u)   = maxᵘₙ₃ (wkSemineutral ρ u)
-wkSemineutral ρ (ne n)       = ne (wkNeutral ρ n)
+wkSemineutral ρ (maxᵘˡₙ t) = maxᵘˡₙ (wkSemineutral ρ t)
+wkSemineutral ρ (maxᵘʳₙ t) = maxᵘʳₙ (wkSemineutral ρ t)
+wkSemineutral ρ (ne n)     = ne (wkNeutral ρ n)
 
 -- Weakening can be applied to our whnf views.
 

@@ -116,6 +116,37 @@ _⊩Level_≡_ : (Γ : Con Term ℓ) (A B : Term ℓ) → Set a
 Γ ⊩Level A ≡ B = Γ ⊢ B ⇒* Level
 
 mutual
+  -- Level term
+  record _⊩Level_∷Level (Γ : Con Term ℓ) (t : Term ℓ) : Set a where
+    inductive
+    no-eta-equality
+    pattern
+    constructor Levelₜ
+    field
+      k : Term ℓ
+      d : Γ ⊢ t ⇒* k ∷ Level
+      prop : Level-prop Γ k
+
+  -- WHNF property of level term
+  data Level-prop (Γ : Con Term ℓ) : (k : Term ℓ) → Set a where
+    zeroᵘᵣ : Level-prop Γ zeroᵘ
+    sucᵘᵣ  : ∀ {k} → Γ ⊩Level k ∷Level → Level-prop Γ (sucᵘ k)
+    neLvl : ∀ {k} → neLevel-prop Γ k → Level-prop Γ k
+
+  data neLevel-prop (Γ : Con Term ℓ) : (k : Term ℓ) → Set a where
+    maxᵘˡᵣ
+      : ∀ {k₁ k₂}
+      → neLevel-prop Γ k₁
+      → Γ ⊩Level k₂ ∷Level
+      → neLevel-prop Γ (k₁ maxᵘ k₂)
+    maxᵘʳᵣ
+      : ∀ {k₁ k₂}
+      → Γ ⊩Level k₁ ∷Level
+      → neLevel-prop Γ k₂
+      → neLevel-prop Γ (sucᵘ k₁ maxᵘ k₂)
+    ne : ∀ {k} → Γ ⊩neNf k ≡ k ∷ Level → neLevel-prop Γ k
+
+mutual
   -- Level term equality
   record _⊩Level_≡_∷Level (Γ : Con Term ℓ) (t u : Term ℓ) : Set a where
     inductive
@@ -132,53 +163,54 @@ mutual
   data [Level]-prop (Γ : Con Term ℓ) : (k k′ : Term ℓ) → Set a where
     zeroᵘᵣ : [Level]-prop Γ zeroᵘ zeroᵘ
     sucᵘᵣ  : ∀ {k k′} → Γ ⊩Level k ≡ k′ ∷Level → [Level]-prop Γ (sucᵘ k) (sucᵘ k′)
-    ne     : ∀ {k k′} → Γ ⊩sne k ≡ k′ → [Level]-prop Γ k k′
+    neLvl : ∀ {k k′} → [neLevel]-prop Γ k k′ → [Level]-prop Γ k k′
 
-  -- Semi-neutral term equality in WHNF
-  record _⊩sne_≡_ (Γ : Con Term ℓ) (k m : Term ℓ) : Set a where
-    inductive
-    no-eta-equality
-    pattern
-    constructor sneₜ₌
-    field
-      neK  : Semineutral k
-      neM  : Semineutral m
-      prop : [sne]-prop Γ k m
-
-  -- Property of semi-neutral term equality
-  data [sne]-prop (Γ : Con Term ℓ) : (k k′ : Term ℓ) → Set a where
-    maxᵘᵣ
+  data [neLevel]-prop (Γ : Con Term ℓ) : (k k′ : Term ℓ) → Set a where
+    maxᵘˡᵣ
+      : ∀ {k₁ k₂ k₁′ k₂′}
+      → [neLevel]-prop Γ k₁ k₁′
+      → Γ ⊩Level k₂ ≡ k₂′ ∷Level
+      → [neLevel]-prop Γ (k₁ maxᵘ k₂) (k₁′ maxᵘ k₂′)
+    maxᵘʳᵣ
       : ∀ {k₁ k₂ k₁′ k₂′}
       → Γ ⊩Level k₁ ≡ k₁′ ∷Level
-      → Γ ⊩Level k₂ ≡ k₂′ ∷Level
-      → [sne]-prop Γ (k₁ maxᵘ k₂) (k₁′ maxᵘ k₂′)
-    ne : ∀ {k k′} → Γ ⊩neNf k ≡ k′ ∷ Level → [sne]-prop Γ k k′
-
--- Level term
-_⊩Level_∷Level : Con Term ℓ → Term ℓ → Set a
-Γ ⊩Level t ∷Level = Γ ⊩Level t ≡ t ∷Level
+      → [neLevel]-prop Γ k₂ k₂′
+      → [neLevel]-prop Γ (sucᵘ k₁ maxᵘ k₂) (sucᵘ k₁′ maxᵘ k₂′)
+    maxᵘ-zeroʳˡᵣ
+      : ∀ {k₁}
+      → [neLevel]-prop Γ k₁ k₁
+      → [neLevel]-prop Γ (k₁ maxᵘ zeroᵘ) k₁
+    ne : ∀ {k k′} → Γ ⊩neNf k ≡ k′ ∷ Level → [neLevel]-prop Γ k k′
+    sym : ∀ {k k′} → [neLevel]-prop Γ k k′ → [neLevel]-prop Γ k′ k
+    trans : ∀ {k k′ k″} → [neLevel]-prop Γ k k′ → [neLevel]-prop Γ k′ k″ → [neLevel]-prop Γ k k″
 
 -- Level reflection
 
+abstract
+
+  -- The level that neutral levels are reflected as.
+  -- This does not matter, so it can be kept abstract.
+
+  ↑ᵘ-neutral : Nat
+  ↑ᵘ-neutral = 0
+
 opaque mutual
 
-  ↑ᵘ′_ : Γ ⊩Level t ≡ u ∷Level → Nat
-  ↑ᵘ′ t≡u = ↑ᵘ′-prop (t≡u ._⊩Level_≡_∷Level.prop)
+  ↑ᵘ′_ : Γ ⊩Level t ∷Level → Nat
+  ↑ᵘ′ [t] = ↑ᵘ′-prop ([t] ._⊩Level_∷Level.prop)
 
-  ↑ᵘ′-prop : [Level]-prop Γ t u → Nat
+  ↑ᵘ′-prop : Level-prop Γ t → Nat
   ↑ᵘ′-prop zeroᵘᵣ    = 0
   ↑ᵘ′-prop (sucᵘᵣ k) = 1+ (↑ᵘ′ k)
-  ↑ᵘ′-prop (ne n)    = ↑ᵘ′-ne n
+  ↑ᵘ′-prop (neLvl n) = ↑ᵘ′-neprop n
 
-  ↑ᵘ′-ne : Γ ⊩sne t ≡ u → Nat
-  ↑ᵘ′-ne (sneₜ₌ _ _ prop) = ↑ᵘ′-neprop prop
+  ↑ᵘ′-neprop : neLevel-prop Γ t → Nat
+  ↑ᵘ′-neprop (maxᵘˡᵣ x₁ x₂) = ↑ᵘ′-neprop x₁ ⊔ ↑ᵘ′ x₂
+  ↑ᵘ′-neprop (maxᵘʳᵣ x₁ x₂) = 1+ (↑ᵘ′ x₁) ⊔ ↑ᵘ′-neprop x₂
+  ↑ᵘ′-neprop (ne _)         = ↑ᵘ-neutral
 
-  ↑ᵘ′-neprop : [sne]-prop Γ t u → Nat
-  ↑ᵘ′-neprop (maxᵘᵣ x y) = ↑ᵘ′ x ⊔ ↑ᵘ′ y
-  ↑ᵘ′-neprop (ne x) = 0
-
-↑ᵘ_ : Γ ⊩Level t ≡ u ∷Level → Universe-level
-↑ᵘ t≡u = 0ᵘ+ ↑ᵘ′ t≡u
+↑ᵘ_ : Γ ⊩Level t ∷Level → Universe-level
+↑ᵘ [t] = 0ᵘ+ ↑ᵘ′ [t]
 
 -- Reducibility of natural numbers:
 

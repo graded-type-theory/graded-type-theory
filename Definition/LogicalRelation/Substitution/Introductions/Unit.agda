@@ -93,7 +93,7 @@ opaque
            (_ , PE.refl) →
         [k] , k≤ , ok , Unit≡A }})
     , (λ ([k] , k≤ , ok , Unit₌ k′ A⇒*Unit k≡k′) →
-         let [k′] = wf-⊩Level k≡k′ .proj₂
+         let [k′] = wf-Level-eq k≡k′ .proj₂
              ⊢Unitk = Unitⱼ (escapeLevel [k]) ok
              ⊢Unitk′ = Unitⱼ (escapeLevel [k′]) ok
              Unitk≡Unitk′
@@ -111,21 +111,21 @@ opaque
 
   ⊩Unit≡Unit⇔ :
     Γ ⊩⟨ l ⟩ Unit s₁ k ≡ Unit s₂ k′ ⇔
-    (∃ λ (k≡k′ : Γ ⊩Level k ≡ k′ ∷Level) → ↑ᵘ k≡k′ ≤ᵘ l ×
+    (∃ λ (k≡k′ : Γ ⊩Level k ≡ k′ ∷Level) → ↑ᵘ wf-Level-eq k≡k′ .proj₁ ≤ᵘ l ×
      Unit-allowed s₁ × s₁ PE.≡ s₂)
   ⊩Unit≡Unit⇔ {Γ} {l} {s₁} {k} {s₂} {k′} =
-    Γ ⊩⟨ l ⟩ Unit s₁ k ≡ Unit s₂ k′                                 ⇔⟨ ⊩Unit≡⇔ ⟩
+    Γ ⊩⟨ l ⟩ Unit s₁ k ≡ Unit s₂ k′            ⇔⟨ ⊩Unit≡⇔ ⟩
     (∃ λ [k] → ↑ᵘ [k] ≤ᵘ l × Unit-allowed s₁ ×
-     Γ ⊩Unit⟨ s₁ ⟩ Unit s₁ k ≡ Unit s₂ k′ / k)                      ⇔⟨ ((λ { ([k] , k≤ , ok , Unit₌ _ Unit⇒*Unit k≡k′) →
-                                                                          case Unit-PE-injectivity $ whnfRed* Unit⇒*Unit Unitₙ of λ {
-                                                                            (PE.refl , PE.refl) →
-                                                                          k≡k′ , PE.subst (_≤ᵘ l) ↑ᵘ-irrelevance k≤ , ok , PE.refl }})
-                                                                      , λ { (k≡k′ , k≤ , ok , PE.refl) →
-                                                                            wf-⊩Level k≡k′ .proj₁
-                                                                          , PE.subst (_≤ᵘ l) ↑ᵘ-irrelevance k≤
-                                                                          , ok
-                                                                          , Unit₌ _ (id (Unitⱼ (escapeLevel (wf-⊩Level k≡k′ .proj₂)) ok)) k≡k′ }) ⟩
-    (∃ λ k≡k′ → ↑ᵘ k≡k′ ≤ᵘ l × Unit-allowed s₁ × s₁ PE.≡ s₂)        □⇔
+     Γ ⊩Unit⟨ s₁ ⟩ Unit s₁ k ≡ Unit s₂ k′ / k) ⇔⟨ ((λ { ([k] , k≤ , ok , Unit₌ _ Unit⇒*Unit k≡k′) →
+                                                     case Unit-PE-injectivity $ whnfRed* Unit⇒*Unit Unitₙ of λ {
+                                                       (PE.refl , PE.refl) →
+                                                     k≡k′ , PE.subst (_≤ᵘ l) ↑ᵘ-irrelevance k≤ , ok , PE.refl }})
+                                                 , λ { (k≡k′ , k≤ , ok , PE.refl) →
+                                                       wf-Level-eq k≡k′ .proj₁
+                                                     , PE.subst (_≤ᵘ l) ↑ᵘ-irrelevance k≤
+                                                     , ok
+                                                     , Unit₌ _ (id (Unitⱼ (escapeLevel (wf-Level-eq k≡k′ .proj₂)) ok)) k≡k′ }) ⟩
+    (∃ λ k≡k′ → ↑ᵘ wf-Level-eq k≡k′ .proj₁ ≤ᵘ l × Unit-allowed s₁ × s₁ PE.≡ s₂) □⇔
 
 opaque
   unfolding _⊩⟨_⟩_≡_∷_ ⊩Unit⇔
@@ -205,12 +205,12 @@ opaque
       ( ⊩ᵛU (wf-⊩ᵛ≡∷ k≡k′ .proj₁)
       , λ σ₁≡σ₂ →
           let k[σ₁]≡k′[σ₂] = ⊩≡∷Level⇔ .proj₁ $ R.⊩≡∷→ $ ⊩ᵛ≡∷→⊩ˢ≡∷→⊩[]≡[]∷ k≡k′ σ₁≡σ₂
-              ⊩k[σ₁] , ⊩k[σ₂] = wf-⊩Level k[σ₁]≡k′[σ₂]
+              ⊩k[σ₁] , ⊩k[σ₂] = wf-Level-eq k[σ₁]≡k′[σ₂]
           in Type→⊩≡∷U⇔ Unitₙ Unitₙ .proj₂
             ( ⊩k[σ₁] , <ᵘ-ωᵘ
             , ⊩Unit≡Unit⇔ .proj₂
               ( k[σ₁]≡k′[σ₂]
-              , PE.subst (↑ᵘ k[σ₁]≡k′[σ₂] ≤ᵘ_) ↑ᵘ-irrelevance ≤ᵘ-refl
+              , PE.subst (↑ᵘ ⊩k[σ₁] ≤ᵘ_) ↑ᵘ-irrelevance ≤ᵘ-refl
               , ok
               , PE.refl
               )
@@ -258,18 +258,18 @@ opaque
   ⊩star≡star :
     (k≡k′ : Γ ⊩Level k ≡ k′ ∷Level) →
     Unit-allowed s →
-    Γ ⊩⟨ ↑ᵘ k≡k′ ⟩ star s k ≡ star s k′ ∷ Unit s k
+    Γ ⊩⟨ ↑ᵘ wf-Level-eq k≡k′ .proj₁ ⟩ star s k ≡ star s k′ ∷ Unit s k
   ⊩star≡star {s} k≡k′ ok =
-    let ⊩k , ⊩k′ = wf-⊩Level k≡k′
+    let ⊩k , ⊩k′ = wf-Level-eq k≡k′
         Unit≡Unit = Unit-cong (≅ₜ-eq (escapeLevelEq k≡k′)) ok
     in ⊩≡∷Unit⇔ .proj₂
       ( ⊩k
-      , PE.subst (_≤ᵘ ↑ᵘ k≡k′) ↑ᵘ-irrelevance ≤ᵘ-refl
+      , PE.subst (_≤ᵘ ↑ᵘ ⊩k) ↑ᵘ-irrelevance ≤ᵘ-refl
       , ok
       , Unitₜ₌ _ _
           (id (starⱼ (escapeLevel ⊩k) ok) , starₙ)
           (id (conv (starⱼ (escapeLevel ⊩k′) ok) (sym Unit≡Unit)) , starₙ)
-          ([Unit]-prop′→[Unit]-prop (starᵣ ⊩k k≡k′))
+          ([Unit]-prop′→[Unit]-prop (starᵣ (reflLevel ⊩k) k≡k′))
       )
 
 opaque
@@ -279,8 +279,8 @@ opaque
   ⊩star :
     (⊩k : Γ ⊩Level k ∷Level) →
     Unit-allowed s →
-    Γ ⊩⟨ ↑ᵘ ⊩k ⟩ star s k ∷ Unit s k
-  ⊩star ⊩k ok = ⊩∷⇔⊩≡∷ .proj₂ (⊩star≡star ⊩k ok)
+    Γ ⊩⟨ ↑ᵘ wf-Level-eq (reflLevel ⊩k) .proj₁ ⟩ star s k ∷ Unit s k
+  ⊩star ⊩k ok = ⊩∷⇔⊩≡∷ .proj₂ (⊩star≡star (reflLevel ⊩k) ok)
 
 opaque
 
@@ -374,7 +374,7 @@ opaque
       k₁[σ₁]≡k₁[σ₂] =
         ⊩≡∷Level⇔ .proj₁ $ R.⊩≡∷→ $ ⊩ᵛ≡∷→⊩ˢ≡∷→⊩[]≡[]∷
         (⊩ᵛ∷⇔⊩ᵛ≡∷ .proj₁ $ wf-⊩ᵛ≡∷ k₁≡k₂ .proj₁) σ₁≡σ₂
-      (⊩k₁[σ₁] , ⊩k₂[σ₂]) = wf-⊩Level k₁[σ₁]≡k₂[σ₂]
+      (⊩k₁[σ₁] , ⊩k₂[σ₂]) = wf-Level-eq k₁[σ₁]≡k₂[σ₂]
       ⊢k₁[σ₁] = escapeLevel ⊩k₁[σ₁]
       ⊢k₂[σ₂] = escapeLevel ⊩k₂[σ₂]
       (⊩A₁ , Unit₁⊩A₂) = wf-⊩ᵛ≡ A₁≡A₂

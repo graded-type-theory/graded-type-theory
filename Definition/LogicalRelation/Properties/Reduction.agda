@@ -57,13 +57,13 @@ redSubst* : ∀ {A B : Term n} {l}
 redSubst* D (Levelᵣ D′) =
   Levelᵣ (D ⇨* D′) , D′
 redSubst* D (Uᵣ′ l′ [l′] l< D′) =
-  Uᵣ′ l′ [l′] l< (D ⇨* D′) , U₌ l′ D′ [l′]
+  Uᵣ′ l′ [l′] l< (D ⇨* D′) , U₌ l′ D′ (reflLevel [l′])
 redSubst* D (ℕᵣ D′) =
   ℕᵣ (D ⇨* D′) , D′
 redSubst* D (Emptyᵣ D′) =
   Emptyᵣ (D ⇨* D′) , D′
 redSubst* D (Unitᵣ′ k [k] k≤ D′ ok) =
-  Unitᵣ′ k [k] k≤ (D ⇨* D′) ok , Unit₌ _ D′ [k]
+  Unitᵣ′ k [k] k≤ (D ⇨* D′) ok , Unit₌ _ D′ (reflLevel [k])
 redSubst* D (ne′ inc _ D′ neK K≡K) =
     ne′ inc _ (D ⇨* D′) neK K≡K
   , ne₌ inc _ D′ neK K≡K
@@ -179,7 +179,7 @@ opaque
   redSubst*′ A⇒*B ⊩U@(Uᵣ′ l [l] l< D) =
     case whrDet↘ (D , Uₙ) A⇒*B of λ
       B⇒*U →
-    Uᵣ′ l [l] l< B⇒*U , U₌ l B⇒*U [l]
+    Uᵣ′ l [l] l< B⇒*U , U₌ l B⇒*U (reflLevel [l])
   redSubst*′ A⇒*B (ℕᵣ A⇒*ℕ) =
     case whrDet↘ (A⇒*ℕ , ℕₙ) A⇒*B of λ
       B⇒*ℕ →
@@ -191,7 +191,7 @@ opaque
   redSubst*′ A⇒*B (Unitᵣ′ k [k] k≤ A⇒*Unit ok) =
     case whrDet↘ (A⇒*Unit , Unitₙ) A⇒*B of λ
       B⇒*Unit →
-    Unitᵣ′ k [k] k≤ B⇒*Unit ok , Unit₌ _ B⇒*Unit [k]
+    Unitᵣ′ k [k] k≤ B⇒*Unit ok , Unit₌ _ B⇒*Unit (reflLevel [k])
   redSubst*′ A⇒*B (ne′ inc C A⇒*C C-ne C≅C) =
     case whrDet↘ (A⇒*C , ne! C-ne) A⇒*B of λ
       B⇒*C →

@@ -435,15 +435,11 @@ data _⊢_⇒_∷_ (Γ : Con Term n) : Term n → Term n → Term n → Set ℓ 
                  → Γ ⊢ t maxᵘ u ⇒ t′ maxᵘ u ∷ Level
   maxᵘ-substʳ    : Γ ⊢ t ∷ Level
                  → Γ ⊢ u ⇒ u′ ∷ Level
-                 → Whnf t
-                 → t PE.≢ zeroᵘ
-                 → Γ ⊢ t maxᵘ u ⇒ t maxᵘ u′ ∷ Level
+                 → Γ ⊢ sucᵘ t maxᵘ u ⇒ sucᵘ t maxᵘ u′ ∷ Level
   maxᵘ-zeroˡ     : Γ ⊢ l ∷ Level
                  → Γ ⊢ zeroᵘ maxᵘ l ⇒ l ∷ Level
   maxᵘ-zeroʳ     : Γ ⊢ l ∷ Level
-                 → Whnf l
-                 → l PE.≢ zeroᵘ
-                 → Γ ⊢ l maxᵘ zeroᵘ ⇒ l ∷ Level
+                 → Γ ⊢ sucᵘ l maxᵘ zeroᵘ ⇒ sucᵘ l ∷ Level
   maxᵘ-sucᵘ      : Γ ⊢ l₁ ∷ Level
                  → Γ ⊢ l₂ ∷ Level
                  → Γ ⊢ sucᵘ l₁ maxᵘ sucᵘ l₂ ⇒ sucᵘ (l₁ maxᵘ l₂) ∷ Level

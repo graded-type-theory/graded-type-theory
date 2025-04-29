@@ -58,6 +58,7 @@ private opaque
       .≅ₜ-zeroᵘrefl → refl ∘ᶠ zeroᵘⱼ
       .≅ₜ-sucᵘ-cong → sucᵘ-cong
       .≅ₜ-maxᵘ-cong → maxᵘ-cong
+      .≅ₜ-maxᵘ-zeroʳ → maxᵘ-zeroʳ
       .≅-Urefl      → refl ∘ᶠ Uⱼ
       .≅-U-cong     → U-cong
       .≅ₜ-U-cong    → U-cong

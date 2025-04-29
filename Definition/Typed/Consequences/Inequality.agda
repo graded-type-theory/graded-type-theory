@@ -22,6 +22,7 @@ open import Definition.Typed.Properties R
 open import Definition.LogicalRelation R
 open import Definition.LogicalRelation.Hidden R
 open import Definition.LogicalRelation.Irrelevance R
+open import Definition.LogicalRelation.Properties.Whnf R
 open import Definition.LogicalRelation.ShapeView R
 open import Definition.LogicalRelation.Fundamental.Reducibility R
 
@@ -521,8 +522,8 @@ whnf≢ne {Γ} {A} {t} {u} ¬-A-η t-whnf ¬-t-ne u-ne t≡u =
       U.zeroᵘ≢ne (U.ne (u⇒*ne u⇒)) PE.refl
     (Levelᵣ _) (Levelₜ₌ _ _ _ u⇒ (sucᵘᵣ x)) →
       U.sucᵘ≢ne (U.ne (u⇒*ne u⇒)) PE.refl
-    (Levelᵣ _) (Levelₜ₌ _ _ t⇒ _ (ne (sneₜ₌ n₁ n₂ _))) →
-      ¬t⇒*sne t⇒ n₁
+    (Levelᵣ _) (Levelₜ₌ _ _ t⇒ _ (neLvl n)) →
+      ¬t⇒*sne t⇒ (nelsplit n .proj₁)
     (ℕᵣ _) (ℕₜ₌ _ _ _ u⇒*zero _ zeroᵣ) →
       U.zero≢ne (u⇒*ne u⇒*zero) PE.refl
     (ℕᵣ _) (ℕₜ₌ _ _ _ u⇒*suc _ (sucᵣ _)) →

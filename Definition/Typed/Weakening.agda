@@ -882,10 +882,10 @@ mutual
     ρ ∷ʷ Δ ⊇ Γ → Γ ⊢ t ⇒ u ∷ A → Δ ⊢ U.wk ρ t ⇒ U.wk ρ u ∷ U.wk ρ A
   wkRedTerm ρ (conv t⇒u A≡B) = conv (wkRedTerm ρ t⇒u) (wkEq ρ A≡B)
   wkRedTerm ρ (maxᵘ-zeroˡ ⊢l) = maxᵘ-zeroˡ (wkTerm ρ ⊢l)
-  wkRedTerm {ρ} [ρ] (maxᵘ-zeroʳ ⊢l w l≢0) = maxᵘ-zeroʳ (wkTerm [ρ] ⊢l) (wkWhnf ρ w) (l≢0 ∘→ wk-zeroᵘ)
+  wkRedTerm {ρ} [ρ] (maxᵘ-zeroʳ ⊢l) = maxᵘ-zeroʳ (wkTerm [ρ] ⊢l)
   wkRedTerm ρ (maxᵘ-sucᵘ ⊢l₁ ⊢l₂) = maxᵘ-sucᵘ (wkTerm ρ ⊢l₁) (wkTerm ρ ⊢l₂)
   wkRedTerm ρ (maxᵘ-substˡ t⇒t′ ⊢u) = maxᵘ-substˡ (wkRedTerm ρ t⇒t′) (wkTerm ρ ⊢u)
-  wkRedTerm {ρ} [ρ] (maxᵘ-substʳ ⊢t u⇒u′ w t≢0) = maxᵘ-substʳ (wkTerm [ρ] ⊢t) (wkRedTerm [ρ] u⇒u′) (wkWhnf ρ w) (t≢0 ∘→ wk-zeroᵘ)
+  wkRedTerm {ρ} [ρ] (maxᵘ-substʳ ⊢t u⇒u′) = maxᵘ-substʳ (wkTerm [ρ] ⊢t) (wkRedTerm [ρ] u⇒u′)
   wkRedTerm ρ (app-subst {G = B} t⇒u a) =
     PE.subst (λ x → _ ⊢ _ ⇒ _ ∷ x) (PE.sym (wk-β B))
              (app-subst (wkRedTerm ρ t⇒u) (wkTerm ρ a))

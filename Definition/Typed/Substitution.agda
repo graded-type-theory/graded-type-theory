@@ -30,12 +30,9 @@ private variable
   A B t u : Term _
   σ       : Subst _ _
 
-{-
 opaque
 
   -- A substitution lemma for _⊢_⇒_∷_.
-  -- This now fails because of maxᵘ-zeroʳ, but the version for _⊢_⇒*_∷_
-  -- should still be a consequence of the fundamental lemma.
 
   subst-⊢⇒∷ :
     Γ ⊢ t ⇒ u ∷ A →
@@ -121,9 +118,9 @@ opaque
     unitrec-subst (subst-⊢∷ ⊢l ⊢σ) (subst-⊢-⇑ ⊢A ⊢σ)
       (PE.subst (_⊢_∷_ _ _) (singleSubstLift A _) (subst-⊢∷ ⊢u ⊢σ))
       (subst-⊢⇒∷ t₁⇒t₂ ⊢σ) ok no-η
-  subst-⊢⇒∷ (unitrec-β {A} ⊢l ⊢A ⊢t ok no-η) ⊢σ =
+  subst-⊢⇒∷ (unitrec-β {A} ⊢l₁ l₁≡l₂ ⊢A ⊢t ok no-η) ⊢σ =
     PE.subst (_⊢_⇒_∷_ _ _ _) (PE.sym $ singleSubstLift A _) $
-    unitrec-β (subst-⊢∷ ⊢l ⊢σ) (subst-⊢-⇑ ⊢A ⊢σ)
+    unitrec-β (subst-⊢∷ ⊢l₁ ⊢σ) (subst-⊢≡∷ l₁≡l₂ (refl-⊢ˢʷ≡∷ ⊢σ)) (subst-⊢-⇑ ⊢A ⊢σ)
       (PE.subst (_⊢_∷_ _ _) (singleSubstLift A _) (subst-⊢∷ ⊢t ⊢σ)) ok
       no-η
   subst-⊢⇒∷ (unitrec-β-η {A} ⊢l ⊢A ⊢t ⊢u ok η) ⊢σ =
@@ -193,4 +190,3 @@ opaque
     Δ ⊢ A [ σ ] ⇒* B [ σ ]
   subst-⊢⇒* (id ⊢A)      ⊢σ = id (subst-⊢ ⊢A ⊢σ)
   subst-⊢⇒* (A⇒B ⇨ B⇒*C) ⊢σ = subst-⊢⇒ A⇒B ⊢σ ⇨ subst-⊢⇒* B⇒*C ⊢σ
--}

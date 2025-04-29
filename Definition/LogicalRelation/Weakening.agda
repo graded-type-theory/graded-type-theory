@@ -65,19 +65,23 @@ mutual
                  → [Level]-prop Δ (U.wk ρ t) (U.wk ρ u)
   wk[Level]-prop ρ (sucᵘᵣ [t≡u]) = sucᵘᵣ (wkEqTermLevel ρ [t≡u])
   wk[Level]-prop ρ zeroᵘᵣ = zeroᵘᵣ
-  wk[Level]-prop ρ (ne x) = ne (wkEqTermSne ρ x)
+  wk[Level]-prop ρ (neLvl x) = neLvl (wk[neLevel]-prop ρ x)
 
-  wkEqTermSne : ρ ∷ʷ Δ ⊇ Γ
-              → Γ ⊩sne t ≡ u
-              → Δ ⊩sne U.wk ρ t ≡ U.wk ρ u
-  wkEqTermSne {ρ = ρ} [ρ] (sneₜ₌ a b prop) =
-    sneₜ₌ (wkSemineutral ρ a) (wkSemineutral ρ b) (wk[sne]-prop [ρ] prop)
+  wk[neLevel]-prop : ρ ∷ʷ Δ ⊇ Γ
+                   → [neLevel]-prop Γ t u
+                   → [neLevel]-prop Δ (U.wk ρ t) (U.wk ρ u)
+  wk[neLevel]-prop [ρ] (maxᵘˡᵣ t≡u x) = maxᵘˡᵣ (wk[neLevel]-prop [ρ] t≡u) (wkEqTermLevel [ρ] x)
+  wk[neLevel]-prop [ρ] (maxᵘʳᵣ x t≡u) = maxᵘʳᵣ (wkEqTermLevel [ρ] x) (wk[neLevel]-prop [ρ] t≡u)
+  wk[neLevel]-prop [ρ] (maxᵘ-zeroʳˡᵣ t≡u) = maxᵘ-zeroʳˡᵣ (wk[neLevel]-prop [ρ] t≡u)
+  wk[neLevel]-prop [ρ] (ne x) = ne (wkEqTermNe [ρ] x)
+  wk[neLevel]-prop [ρ] (sym u≡t) = sym (wk[neLevel]-prop [ρ] u≡t)
+  wk[neLevel]-prop [ρ] (trans t≡u u≡v) = trans (wk[neLevel]-prop [ρ] t≡u) (wk[neLevel]-prop [ρ] u≡v)
 
-  wk[sne]-prop : ρ ∷ʷ Δ ⊇ Γ
-               → [sne]-prop Γ t u
-               → [sne]-prop Δ (U.wk ρ t) (U.wk ρ u)
-  wk[sne]-prop ρ (maxᵘᵣ x y) = maxᵘᵣ (wkEqTermLevel ρ x) (wkEqTermLevel ρ y)
-  wk[sne]-prop ρ (ne n) = ne (wkEqTermNe ρ n)
+mutual
+  wkTermLevel : ρ ∷ʷ Δ ⊇ Γ
+              → Γ ⊩Level t ∷Level
+              → Δ ⊩Level U.wk ρ t ∷Level
+  wkTermLevel [ρ] [t] = wf-Level-eq (wkEqTermLevel [ρ] (reflLevel [t])) .proj₁
 
 opaque
   unfolding ↑ᵘ′_
@@ -87,61 +91,63 @@ opaque
   mutual
     wk-↑ᵘ′
       : ([ρ] : ρ ∷ʷ Δ ⊇ Γ)
-      → (t≡u : Γ ⊩Level t ≡ u ∷Level)
-      → (wk-t≡u′ : Δ ⊩Level t′ ≡ u′ ∷Level)
+      → (t≡u : Γ ⊩Level t ∷Level)
+      → (wk-t≡u′ : Δ ⊩Level t′ ∷Level)
       → t′ PE.≡ U.wk ρ t
       → ↑ᵘ′ wk-t≡u′ PE.≡ ↑ᵘ′ t≡u
-    wk-↑ᵘ′ {ρ} [ρ] (Levelₜ₌ t u d _ prop) (Levelₜ₌ t′ u′ d′ _ prop′) PE.refl =
-      case whrDet*Term (d′ , lsplit prop′ .proj₁) (wkRed*Term [ρ] d , wkWhnf ρ (lsplit prop .proj₁)) of λ {
+    wk-↑ᵘ′ {ρ} [ρ] (Levelₜ t d prop) (Levelₜ t′ d′ prop′) PE.refl =
+      case whrDet*Term (d′ , level prop′) (wkRed*Term [ρ] d , wkWhnf ρ (level prop)) of λ {
         PE.refl →
       wk-↑ᵘ′-prop [ρ] prop prop′ PE.refl }
 
     wk-↑ᵘ′-prop
       : ([ρ] : ρ ∷ʷ Δ ⊇ Γ)
-      → (t≡u : [Level]-prop Γ t u)
-      → (wk-t≡u : [Level]-prop Δ t′ u′)
+      → (t≡u : Level-prop Γ t)
+      → (wk-t≡u : Level-prop Δ t′)
       → t′ PE.≡ U.wk ρ t
       → ↑ᵘ′-prop wk-t≡u PE.≡ ↑ᵘ′-prop t≡u
-    wk-↑ᵘ′-prop [ρ] zeroᵘᵣ zeroᵘᵣ PE.refl = PE.refl
-    wk-↑ᵘ′-prop [ρ] (sucᵘᵣ x) (sucᵘᵣ y) PE.refl = PE.cong 1+ (wk-↑ᵘ′ [ρ] x y PE.refl)
-    wk-↑ᵘ′-prop [ρ] (ne x) (ne y) PE.refl = wk-↑ᵘ′-ne [ρ] x y PE.refl
-    wk-↑ᵘ′-prop [ρ] zeroᵘᵣ (sucᵘᵣ y) ()
-    wk-↑ᵘ′-prop [ρ] (sucᵘᵣ y) zeroᵘᵣ ()
-    wk-↑ᵘ′-prop [ρ] zeroᵘᵣ (ne (sneₜ₌ n _ _)) PE.refl = case n of λ { (ne ()) }
-    wk-↑ᵘ′-prop [ρ] (sucᵘᵣ x) (ne (sneₜ₌ n _ _)) PE.refl = case n of λ { (ne ()) }
-    wk-↑ᵘ′-prop [ρ] (ne x) zeroᵘᵣ q with wk-zeroᵘ (PE.sym q)
-    wk-↑ᵘ′-prop [ρ] (ne (sneₜ₌ (ne ()) _ _)) zeroᵘᵣ q | PE.refl
-    wk-↑ᵘ′-prop [ρ] (ne x) (sucᵘᵣ y) q with wk-sucᵘ (PE.sym q)
-    wk-↑ᵘ′-prop [ρ] (ne (sneₜ₌ (ne ()) _ _)) (sucᵘᵣ y) q | _ , PE.refl , _
-
-    wk-↑ᵘ′-ne
-      : ([ρ] : ρ ∷ʷ Δ ⊇ Γ)
-      → (t≡u : Γ ⊩sne t ≡ u)
-      → (wk-t≡u′ : Δ ⊩sne t′ ≡ u′)
-      → t′ PE.≡ U.wk ρ t
-      → ↑ᵘ′-ne wk-t≡u′ PE.≡ ↑ᵘ′-ne t≡u
-    wk-↑ᵘ′-ne [ρ] (sneₜ₌ _ _ prop) (sneₜ₌ _ _ prop′) eq = wk-↑ᵘ′-neprop [ρ] prop prop′ eq
+    wk-↑ᵘ′-prop [ρ] zeroᵘᵣ y PE.refl = ↑ᵘ′-prop-zeroᵘ y
+    wk-↑ᵘ′-prop [ρ] (sucᵘᵣ x) y PE.refl =
+      let y₁ , y≡ = ↑ᵘ′-prop-sucᵘ y
+      in PE.trans y≡ (PE.cong 1+ (wk-↑ᵘ′ [ρ] x y₁ PE.refl))
+    wk-↑ᵘ′-prop [ρ] (neLvl x) zeroᵘᵣ p =
+      case wk-zeroᵘ (PE.sym p) of λ { PE.refl →
+      case nelevel x of λ { (ne ()) } }
+    wk-↑ᵘ′-prop [ρ] (neLvl x) (sucᵘᵣ _) p =
+      case wk-sucᵘ (PE.sym p) of λ { (_ , PE.refl , PE.refl) →
+      case nelevel x of λ { (ne ()) } }
+    wk-↑ᵘ′-prop [ρ] (neLvl x) (neLvl y) PE.refl = wk-↑ᵘ′-neprop [ρ] x y PE.refl
 
     wk-↑ᵘ′-neprop
       : ([ρ] : ρ ∷ʷ Δ ⊇ Γ)
-      → (t≡u : [sne]-prop Γ t u)
-      → (wk-t≡u′ : [sne]-prop Δ t′ u′)
+      → (t≡u : neLevel-prop Γ t)
+      → (wk-t≡u : neLevel-prop Δ t′)
       → t′ PE.≡ U.wk ρ t
-      → ↑ᵘ′-neprop wk-t≡u′ PE.≡ ↑ᵘ′-neprop t≡u
-    wk-↑ᵘ′-neprop [ρ] (maxᵘᵣ x y) (maxᵘᵣ z w) PE.refl =
-      PE.cong₂ _⊔_ (wk-↑ᵘ′ [ρ] x z PE.refl) (wk-↑ᵘ′ [ρ] y w PE.refl)
-    wk-↑ᵘ′-neprop [ρ] (ne x) (ne y) q = PE.refl
-    wk-↑ᵘ′-neprop [ρ] (maxᵘᵣ x y) (ne (neNfₜ₌ _ () _ _)) PE.refl
-    wk-↑ᵘ′-neprop [ρ] (ne n) (maxᵘᵣ _ _) eq =
-      case wk-maxᵘ (PE.sym eq) of λ {
-        (_ , _ , PE.refl , _) →
-      case n of λ {
-        (neNfₜ₌ _ () _ _) }}
+      → ↑ᵘ′-neprop wk-t≡u PE.≡ ↑ᵘ′-neprop t≡u
+    wk-↑ᵘ′-neprop [ρ] (maxᵘˡᵣ t≡u x) (maxᵘˡᵣ wk-t≡u x₁) PE.refl =
+      PE.cong₂ _⊔_ (wk-↑ᵘ′-neprop [ρ] t≡u wk-t≡u PE.refl) (wk-↑ᵘ′ [ρ] x x₁ PE.refl)
+    wk-↑ᵘ′-neprop [ρ] (maxᵘʳᵣ x t≡u) (maxᵘʳᵣ x₁ wk-t≡u) PE.refl =
+      PE.cong₂ _⊔_ (PE.cong 1+ (wk-↑ᵘ′ [ρ] x x₁ PE.refl)) (wk-↑ᵘ′-neprop [ρ] t≡u wk-t≡u PE.refl)
+    wk-↑ᵘ′-neprop [ρ] (ne _) (ne _) PE.refl = PE.refl
+    wk-↑ᵘ′-neprop [ρ] (maxᵘˡᵣ t≡u x) (maxᵘʳᵣ x₁ wk-t≡u) p =
+      case maxᵘ-PE-injectivity p of λ { (q , PE.refl) →
+      case wk-sucᵘ (PE.sym q) of λ { (_ , PE.refl , PE.refl) →
+      case nelevel t≡u of λ { (ne ()) } } }
+    wk-↑ᵘ′-neprop [ρ] (maxᵘˡᵣ t≡u x) (ne (neNfₜ₌ _ () neM k≡m)) PE.refl
+    wk-↑ᵘ′-neprop [ρ] (maxᵘʳᵣ x t≡u) (maxᵘˡᵣ wk-t≡u x₁) PE.refl =
+      case nelevel wk-t≡u of λ { (ne ()) }
+    wk-↑ᵘ′-neprop [ρ] (maxᵘʳᵣ x t≡u) (ne (neNfₜ₌ _ () neM k≡m)) PE.refl
+    wk-↑ᵘ′-neprop [ρ] (ne (neNfₜ₌ _ neK _ _)) (maxᵘˡᵣ wk-t≡u x₁) p =
+      case wk-maxᵘ (PE.sym p) of λ { (_ , _ , PE.refl , _ , _) →
+      case neK of λ () }
+    wk-↑ᵘ′-neprop [ρ] (ne (neNfₜ₌ _ neK _ _)) (maxᵘʳᵣ x₁ wk-t≡u) p =
+      case wk-maxᵘ (PE.sym p) of λ { (_ , _ , PE.refl , _ , _) →
+      case neK of λ () }
 
   wk-↑ᵘ
     : ([ρ] : ρ ∷ʷ Δ ⊇ Γ)
-    → {t≡u : Γ ⊩Level t ≡ u ∷Level}
-    → {wk-t≡u′ : Δ ⊩Level t′ ≡ u′ ∷Level}
+    → {t≡u : Γ ⊩Level t ∷Level}
+    → {wk-t≡u′ : Δ ⊩Level t′ ∷Level}
     → t′ PE.≡ U.wk ρ t
     → ↑ᵘ wk-t≡u′ PE.≡ ↑ᵘ t≡u
   wk-↑ᵘ [ρ] {t≡u} {wk-t≡u′} eq = PE.cong 0ᵘ+_ (wk-↑ᵘ′ [ρ] t≡u wk-t≡u′ eq)
@@ -183,7 +189,7 @@ wkUnit : ∀ {s} ([ρ] : ρ ∷ʷ Δ ⊇ Γ)
        → Γ ⊩Unit⟨ l , s ⟩ A
        → Δ ⊩Unit⟨ l , s ⟩ U.wk ρ A
 wkUnit {ρ} {l} [ρ] (Unitᵣ k [k] k≤ D ok) =
-  Unitᵣ (U.wk ρ k) (wkEqTermLevel [ρ] [k])
+  Unitᵣ (U.wk ρ k) (wkTermLevel [ρ] [k])
     (PE.subst (_≤ᵘ l) (PE.sym $ wk-↑ᵘ [ρ] PE.refl) k≤)
     (wkRed* [ρ] D)
     ok
@@ -222,7 +228,7 @@ wkU : ∀ ([ρ] : ρ ∷ʷ Δ ⊇ Γ)
     → Γ ⊩′⟨ l ⟩U A
     → Δ ⊩′⟨ l ⟩U U.wk ρ A
 wkU {ρ} {l} [ρ] (Uᵣ l′ [l′] l′< D) = Uᵣ (U.wk ρ l′)
-  (wkEqTermLevel [ρ] [l′])
+  (wkTermLevel [ρ] [l′])
   (PE.subst (_<ᵘ l) (PE.sym (wk-↑ᵘ [ρ] PE.refl)) l′<)
   (wkRed* [ρ] D)
 

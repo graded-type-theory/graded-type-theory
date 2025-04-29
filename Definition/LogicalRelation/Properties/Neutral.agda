@@ -89,7 +89,7 @@ opaque
           n~n′ = ~-conv ~n A≡Level
       in
       Levelₜ₌ _ _ (id (conv ⊢n A≡Level)) (id (conv ⊢n A≡Level))
-        (ne (sneₜ₌ (ne n-ne) (ne n-ne) (ne (neNfₜ₌ inc n-ne n-ne n~n′))))
+        (neLvl (ne (neNfₜ₌ inc n-ne n-ne n~n′)))
     neuTerm′ (Uᵣ′ _ [k] k< D) =
       let A≡U  = subset* D
           n≡n  = ~-to-≅ₜ (~-conv ~n A≡U)
@@ -195,7 +195,7 @@ opaque
           n~n′₁ = ~-conv n~n′ A≡Level
       in
       Levelₜ₌ _ _ (id (conv ⊢n A≡Level)) (id (conv ⊢n′ A≡Level))
-        (ne (sneₜ₌ (ne n-ne) (ne n′-ne) (ne (neNfₜ₌ inc n-ne n′-ne n~n′₁))))
+        (neLvl (ne (neNfₜ₌ inc n-ne n′-ne n~n′₁)))
     neuEqTerm′ (Uᵣ′ _ [k] k< D) =
       let A≡U = subset* D
           n~n′₁ = ~-conv n~n′ A≡U

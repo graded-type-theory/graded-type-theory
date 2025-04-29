@@ -220,7 +220,7 @@ opaque
   Unit-prop′⇔[Unit]-prop′ : ∀ {s k} → Unit-prop′ Γ k s t ⇔ [Unit]-prop′ Γ k s t t
   Unit-prop′⇔[Unit]-prop′ {s} {k} =
       (λ where
-         (starᵣ k≡k′) → starᵣ k≡k′ (wf-⊩Level k≡k′ .proj₂)
+         (starᵣ k≡k′) → starᵣ k≡k′ (reflLevel (wf-Level-eq k≡k′ .proj₂))
          (ne ⊩t) → ne (⊩neNf∷⇔⊩neNf≡∷ .proj₁ ⊩t))
     , flip lemma PE.refl
     where

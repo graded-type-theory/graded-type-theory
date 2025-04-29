@@ -238,14 +238,14 @@ opaque
     conv (stabilityRedTerm Γ≡Δ d) (stabilityEq Γ≡Δ x)
   stabilityRedTerm Γ≡Δ (maxᵘ-zeroˡ ⊢l) =
     maxᵘ-zeroˡ (stabilityTerm Γ≡Δ ⊢l)
-  stabilityRedTerm Γ≡Δ (maxᵘ-zeroʳ ⊢l w l≢0) =
-    maxᵘ-zeroʳ (stabilityTerm Γ≡Δ ⊢l) w l≢0
+  stabilityRedTerm Γ≡Δ (maxᵘ-zeroʳ ⊢l) =
+    maxᵘ-zeroʳ (stabilityTerm Γ≡Δ ⊢l)
   stabilityRedTerm Γ≡Δ (maxᵘ-sucᵘ ⊢l₁ ⊢l₂) =
     maxᵘ-sucᵘ (stabilityTerm Γ≡Δ ⊢l₁) (stabilityTerm Γ≡Δ ⊢l₂)
   stabilityRedTerm Γ≡Δ (maxᵘ-substˡ t⇒t′ ⊢u) =
     maxᵘ-substˡ (stabilityRedTerm Γ≡Δ t⇒t′) (stabilityTerm Γ≡Δ ⊢u)
-  stabilityRedTerm Γ≡Δ (maxᵘ-substʳ ⊢t u⇒u′ w t≢0) =
-    maxᵘ-substʳ (stabilityTerm Γ≡Δ ⊢t) (stabilityRedTerm Γ≡Δ u⇒u′) w t≢0
+  stabilityRedTerm Γ≡Δ (maxᵘ-substʳ ⊢t u⇒u′) =
+    maxᵘ-substʳ (stabilityTerm Γ≡Δ ⊢t) (stabilityRedTerm Γ≡Δ u⇒u′)
   stabilityRedTerm Γ≡Δ (app-subst d x) =
     app-subst (stabilityRedTerm Γ≡Δ d) (stabilityTerm Γ≡Δ x)
   stabilityRedTerm Γ≡Δ (fst-subst ⊢G t⇒) =

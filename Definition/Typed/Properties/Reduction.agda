@@ -183,10 +183,10 @@ opaque
 
   subsetTerm : Γ ⊢ t ⇒ u ∷ A → Γ ⊢ t ≡ u ∷ A
   subsetTerm (maxᵘ-zeroˡ ⊢l) = maxᵘ-zeroˡ ⊢l
-  subsetTerm (maxᵘ-zeroʳ ⊢l _ _) = maxᵘ-zeroʳ ⊢l
+  subsetTerm (maxᵘ-zeroʳ ⊢l) = maxᵘ-zeroʳ (sucᵘⱼ ⊢l)
   subsetTerm (maxᵘ-sucᵘ ⊢l₁ ⊢l₂) = maxᵘ-sucᵘ ⊢l₁ ⊢l₂
   subsetTerm (maxᵘ-substˡ t⇒t′ ⊢u) = maxᵘ-cong (subsetTerm t⇒t′) (refl ⊢u)
-  subsetTerm (maxᵘ-substʳ ⊢t u⇒u′ _ _) = maxᵘ-cong (refl ⊢t) (subsetTerm u⇒u′)
+  subsetTerm (maxᵘ-substʳ ⊢t u⇒u′) = maxᵘ-cong (refl (sucᵘⱼ ⊢t)) (subsetTerm u⇒u′)
   subsetTerm (natrec-subst z s n⇒n′) =
     natrec-cong (refl (⊢∙→⊢ (wfTerm s))) (refl z) (refl s)
       (subsetTerm n⇒n′)
@@ -383,10 +383,10 @@ opaque
   neRedTerm = λ where
     (conv d _)                → neRedTerm d
     (maxᵘ-zeroˡ _)            → λ ()
-    (maxᵘ-zeroʳ _ _ _)        → λ ()
+    (maxᵘ-zeroʳ _)            → λ ()
     (maxᵘ-sucᵘ _ _)           → λ ()
     (maxᵘ-substˡ d _)         → λ ()
-    (maxᵘ-substʳ _ d _ _)     → λ ()
+    (maxᵘ-substʳ _ d)         → λ ()
     (app-subst d _)           → neRedTerm d ∘→ inv-ne-∘
     (β-red _ _ _ _ _)         → (λ ()) ∘→ inv-ne-∘
     (natrec-subst _ _ d)      → neRedTerm d ∘→ inv-ne-natrec
@@ -425,19 +425,15 @@ opaque
 
   sneRedTerm : Γ ⊢ t ⇒ u ∷ A → ¬ Semineutral t
   sneRedTerm (conv d _) n = sneRedTerm d n
-  sneRedTerm (maxᵘ-substˡ d _) (maxᵘₙ₁ n n₁) = sneRedTerm d n
-  sneRedTerm (maxᵘ-zeroˡ _) (maxᵘₙ₁ (ne ()) _)
-  sneRedTerm (maxᵘ-substʳ _ d _ _) (maxᵘₙ₁ n n₁) = sneRedTerm d n₁
-  sneRedTerm (maxᵘ-zeroʳ _ _ _) (maxᵘₙ₁ _ (ne ()))
-  sneRedTerm (maxᵘ-sucᵘ _ _) (maxᵘₙ₁ (ne ()) _)
-  sneRedTerm (maxᵘ-substˡ d _) (maxᵘₙ₂ n) = sneRedTerm d n
-  sneRedTerm (maxᵘ-zeroˡ _) (maxᵘₙ₂ (ne ()))
-  sneRedTerm (maxᵘ-substʳ _ d _ _) (maxᵘₙ₂ n) = ¬sucᵘ⇒ d
-  sneRedTerm (maxᵘ-sucᵘ _ _) (maxᵘₙ₂ (ne ()))
-  sneRedTerm (maxᵘ-substˡ d _) (maxᵘₙ₃ n) = ¬sucᵘ⇒ d
-  sneRedTerm (maxᵘ-substʳ _ d _ _) (maxᵘₙ₃ n) = sneRedTerm d n
-  sneRedTerm (maxᵘ-zeroʳ _ _ _) (maxᵘₙ₃ (ne ()))
-  sneRedTerm (maxᵘ-sucᵘ _ _) (maxᵘₙ₃ (ne ()))
+  sneRedTerm (maxᵘ-substˡ d _) (maxᵘˡₙ n) = sneRedTerm d n
+  sneRedTerm (maxᵘ-zeroˡ _) (maxᵘˡₙ (ne ()))
+  sneRedTerm (maxᵘ-substʳ x x₁) (maxᵘˡₙ (ne ()))
+  sneRedTerm (maxᵘ-zeroʳ x) (maxᵘˡₙ (ne ()))
+  sneRedTerm (maxᵘ-sucᵘ x x₁) (maxᵘˡₙ (ne ()))
+  sneRedTerm (maxᵘ-substˡ d _) (maxᵘʳₙ _) = ¬sucᵘ⇒ d
+  sneRedTerm (maxᵘ-substʳ _ d) (maxᵘʳₙ n) = sneRedTerm d n
+  sneRedTerm (maxᵘ-zeroʳ _) (maxᵘʳₙ (ne ()))
+  sneRedTerm (maxᵘ-sucᵘ _ _) (maxᵘʳₙ (ne ()))
   sneRedTerm d (ne n) = neRedTerm d n
 
 ------------------------------------------------------------------------
@@ -450,11 +446,11 @@ opaque
   whnfRedTerm : Γ ⊢ t ⇒ u ∷ A → ¬ Whnf t
   whnfRedTerm = λ where
     (conv d _)                → whnfRedTerm d
-    (maxᵘ-zeroˡ _)            → λ { (ne (maxᵘₙ₁ (ne ()) _)); (ne (maxᵘₙ₂ (ne ()))); (ne! ()) }
-    (maxᵘ-zeroʳ _ _ _)        → λ { (ne (maxᵘₙ₁ _ (ne ()))); (ne (maxᵘₙ₃ (ne ()))); (ne! ()) }
-    (maxᵘ-sucᵘ _ _)           → λ { (ne (maxᵘₙ₁ (ne ()) _)); (ne (maxᵘₙ₂ (ne ()))); (ne (maxᵘₙ₃ (ne ()))); (ne! ()) }
-    (maxᵘ-substˡ d _)         → λ { (ne (maxᵘₙ₁ x _)) → sneRedTerm d x; (ne (maxᵘₙ₂ x)) → sneRedTerm d x; (ne (maxᵘₙ₃ x)) → ¬sucᵘ⇒ d; (ne! ()) }
-    (maxᵘ-substʳ _ d _ _)     → λ { (ne (maxᵘₙ₁ _ x)) → sneRedTerm d x; (ne (maxᵘₙ₂ x)) → ¬sucᵘ⇒ d; (ne (maxᵘₙ₃ x)) → sneRedTerm d x; (ne! ()) }
+    (maxᵘ-zeroˡ _)            → λ { (ne (maxᵘˡₙ (ne ()))); (ne! ()) }
+    (maxᵘ-zeroʳ _)            → λ { (ne (maxᵘˡₙ (ne ()))); (ne (maxᵘʳₙ (ne ()))); (ne! ()) }
+    (maxᵘ-sucᵘ _ _)           → λ { (ne (maxᵘˡₙ (ne ()))); (ne (maxᵘʳₙ (ne ()))); (ne! ()) }
+    (maxᵘ-substˡ d _)         → λ { (ne (maxᵘˡₙ n)) → sneRedTerm d n; (ne (maxᵘʳₙ n)) → ¬sucᵘ⇒ d; (ne! ()) }
+    (maxᵘ-substʳ _ d)         → λ { (ne (maxᵘˡₙ (ne ()))); (ne (maxᵘʳₙ n)) → sneRedTerm d n; (ne! ()) }
     (app-subst d _)           → neRedTerm d ∘→ inv-whnf-∘
     (β-red _ _ _ _ _)         → (λ ()) ∘→ inv-whnf-∘
     (natrec-subst _ _ d)      → neRedTerm d ∘→ inv-whnf-natrec
@@ -517,29 +513,25 @@ opaque
     (maxᵘ-zeroˡ _) (maxᵘ-zeroˡ _) → PE.refl
     d@(maxᵘ-zeroˡ _) (conv d′ _) → whrDetTerm d d′
     (maxᵘ-zeroˡ _) (maxᵘ-substˡ d _) → ⊥-elim (whnfRedTerm d zeroᵘₙ)
-    (maxᵘ-zeroˡ _) (maxᵘ-substʳ _ _ _ 0≢0) → ⊥-elim (0≢0 PE.refl)
-    (maxᵘ-zeroˡ _) (maxᵘ-zeroʳ _ _ 0≢0) → ⊥-elim (0≢0 PE.refl)
-    (maxᵘ-zeroʳ _ _ _) (maxᵘ-zeroʳ _ _ _) → PE.refl
-    d@(maxᵘ-zeroʳ _ _ _) (conv d′ _) → whrDetTerm d d′
-    (maxᵘ-zeroʳ _ w _) (maxᵘ-substˡ d _) → ⊥-elim (whnfRedTerm d w)
-    (maxᵘ-zeroʳ _ _ _) (maxᵘ-substʳ _ d _ _) → ⊥-elim (whnfRedTerm d zeroᵘₙ)
-    (maxᵘ-zeroʳ _ _ 0≢0) (maxᵘ-zeroˡ _) → ⊥-elim (0≢0 PE.refl)
+    (maxᵘ-zeroʳ _) (maxᵘ-zeroʳ _) → PE.refl
+    d@(maxᵘ-zeroʳ _) (conv d′ _) → whrDetTerm d d′
+    (maxᵘ-zeroʳ _) (maxᵘ-substˡ d _) → ⊥-elim (¬sucᵘ⇒ d)
+    (maxᵘ-zeroʳ _) (maxᵘ-substʳ _ d) → ⊥-elim (whnfRedTerm d zeroᵘₙ)
     (maxᵘ-sucᵘ _ _) (maxᵘ-sucᵘ _ _) → PE.refl
     d@(maxᵘ-sucᵘ _ _) (conv d′ _) → whrDetTerm d d′
     (maxᵘ-sucᵘ _ _) (maxᵘ-substˡ d _) → ⊥-elim (whnfRedTerm d sucᵘₙ)
-    (maxᵘ-sucᵘ _ _) (maxᵘ-substʳ _ d _ _) → ⊥-elim (whnfRedTerm d sucᵘₙ)
+    (maxᵘ-sucᵘ _ _) (maxᵘ-substʳ _ d) → ⊥-elim (whnfRedTerm d sucᵘₙ)
     (maxᵘ-substˡ d _) (maxᵘ-substˡ d′ _) → PE.cong (_maxᵘ _) (whrDetTerm d d′)
     d@(maxᵘ-substˡ _ _) (conv d′ _) → whrDetTerm d d′
     (maxᵘ-substˡ d _) (maxᵘ-zeroˡ _) → ⊥-elim (whnfRedTerm d zeroᵘₙ)
-    (maxᵘ-substˡ d _) (maxᵘ-zeroʳ _ w _) → ⊥-elim (whnfRedTerm d w)
+    (maxᵘ-substˡ d _) (maxᵘ-zeroʳ _) → ⊥-elim (¬sucᵘ⇒ d)
     (maxᵘ-substˡ d _) (maxᵘ-sucᵘ _ _) → ⊥-elim (whnfRedTerm d sucᵘₙ)
-    (maxᵘ-substˡ d _) (maxᵘ-substʳ _ d′ w _) → ⊥-elim (whnfRedTerm d w)
-    (maxᵘ-substʳ _ d _ _) (maxᵘ-substʳ _ d′ _ _) → PE.cong (_ maxᵘ_) (whrDetTerm d d′)
-    d@(maxᵘ-substʳ _ _ _ _) (conv d′ _) → whrDetTerm d d′
-    (maxᵘ-substʳ _ d _ _) (maxᵘ-zeroʳ _ _ _) → ⊥-elim (whnfRedTerm d zeroᵘₙ)
-    (maxᵘ-substʳ _ d _ _) (maxᵘ-sucᵘ _ _) → ⊥-elim (whnfRedTerm d sucᵘₙ)
-    (maxᵘ-substʳ _ d w _) (maxᵘ-substˡ d′ _) → ⊥-elim (whnfRedTerm d′ w)
-    (maxᵘ-substʳ _ d w 0≢0) (maxᵘ-zeroˡ _) → ⊥-elim (0≢0 PE.refl)
+    (maxᵘ-substˡ d _) (maxᵘ-substʳ _ d′) → ⊥-elim (¬sucᵘ⇒ d)
+    (maxᵘ-substʳ _ d) (maxᵘ-substʳ _ d′) → PE.cong (_ maxᵘ_) (whrDetTerm d d′)
+    d@(maxᵘ-substʳ _ _) (conv d′ _) → whrDetTerm d d′
+    (maxᵘ-substʳ _ d) (maxᵘ-zeroʳ _) → ⊥-elim (whnfRedTerm d zeroᵘₙ)
+    (maxᵘ-substʳ _ d) (maxᵘ-sucᵘ _ _) → ⊥-elim (whnfRedTerm d sucᵘₙ)
+    (maxᵘ-substʳ _ d) (maxᵘ-substˡ d′ _) → ⊥-elim (¬sucᵘ⇒ d′)
     (app-subst d _) d′ →
       case inv-⇒-∘ d′ of λ where
         (inj₁ (_ , _ , d′ , PE.refl)) →
@@ -811,8 +803,6 @@ opaque
   maxᵘ-substʳ* :
     Γ ⊢ t ∷ Level →
     Γ ⊢ u ⇒* u′ ∷ Level →
-    Whnf t →
-    t PE.≢ zeroᵘ →
-    Γ ⊢ t maxᵘ u ⇒* t maxᵘ u′ ∷ Level
-  maxᵘ-substʳ* ⊢t (id ⊢u) _ _ = id (maxᵘⱼ ⊢t ⊢u)
-  maxᵘ-substʳ* ⊢t (d ⇨ u⇒*u′) w t≢0 = maxᵘ-substʳ ⊢t d w t≢0 ⇨ maxᵘ-substʳ* ⊢t u⇒*u′ w t≢0
+    Γ ⊢ sucᵘ t maxᵘ u ⇒* sucᵘ t maxᵘ u′ ∷ Level
+  maxᵘ-substʳ* ⊢t (id ⊢u) = id (maxᵘⱼ (sucᵘⱼ ⊢t) ⊢u)
+  maxᵘ-substʳ* ⊢t (d ⇨ u⇒*u′) = maxᵘ-substʳ ⊢t d ⇨ maxᵘ-substʳ* ⊢t u⇒*u′

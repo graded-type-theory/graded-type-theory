@@ -271,15 +271,11 @@ opaque
         sym (inversion-rfl ⊢rfl .proj₂ .proj₂ .proj₂ .proj₂)
   … | _ , ne! n , D =
     ⊥-elim (I.ΠΣ≢ne n (trans (sym A≡ΠΣ) (subset* D)))
-  … | _ , ne (maxᵘₙ₁ _ _) , A⇒maxᵘ =
+  … | _ , ne (maxᵘˡₙ _) , A⇒maxᵘ =
     case wf-⊢≡ (subset* A⇒maxᵘ) of λ where
       (_ , univ ⊢maxᵘ) →
         ⊥-elim (U≢Level (inversion-maxᵘ ⊢maxᵘ .proj₂ .proj₂))
-  … | _ , ne (maxᵘₙ₂ _) , A⇒maxᵘ =
-    case wf-⊢≡ (subset* A⇒maxᵘ) of λ where
-      (_ , univ ⊢maxᵘ) →
-        ⊥-elim (U≢Level (inversion-maxᵘ ⊢maxᵘ .proj₂ .proj₂))
-  … | _ , ne (maxᵘₙ₃ _) , A⇒maxᵘ =
+  … | _ , ne (maxᵘʳₙ _) , A⇒maxᵘ =
     case wf-⊢≡ (subset* A⇒maxᵘ) of λ where
       (_ , univ ⊢maxᵘ) →
         ⊥-elim (U≢Level (inversion-maxᵘ ⊢maxᵘ .proj₂ .proj₂))

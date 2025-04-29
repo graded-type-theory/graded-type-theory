@@ -24,8 +24,8 @@ open import Definition.Untyped.Neutral M type-variant
 open import Definition.LogicalRelation R ⦃ eqrel ⦄
 open import Definition.LogicalRelation.Hidden R ⦃ eqrel ⦄
 open import Definition.LogicalRelation.Irrelevance R ⦃ eqrel ⦄
-open import Definition.LogicalRelation.Properties R
-open import Definition.LogicalRelation.ShapeView R
+open import Definition.LogicalRelation.Properties R ⦃ eqrel ⦄
+open import Definition.LogicalRelation.ShapeView R ⦃ eqrel ⦄
 open import Definition.LogicalRelation.Substitution R ⦃ eqrel ⦄
 open import Definition.LogicalRelation.Substitution.Introductions.Level R ⦃ eqrel ⦄
 
@@ -90,7 +90,7 @@ opaque
           PE.refl →
         [t] , t<l , _ , A⇒*U , t≡u }})
     , (λ ([t] , t<l , u , A⇒*U , t≡u) →
-         let [u] = wf-⊩Level t≡u .proj₂ in
+         let [u] = wf-Level-eq t≡u .proj₂ in
            Uᵣ (Uᵣ _ [t] t<l (id (Uⱼ (escapeLevel [t]))))
          , wf-⊩≡ (⊩-⇐* A⇒*U (⊩U⇔ .proj₂ ([u] , PE.subst (_<ᵘ l) (↑ᵘ-cong t≡u) t<l))) .proj₁
          , U₌ _ A⇒*U t≡u)
@@ -99,7 +99,7 @@ opaque
 
   ⊩U≡U⇔ :
     Γ ⊩⟨ l ⟩ U t ≡ U u ⇔
-    (∃ λ (t≡u : Γ ⊩Level t ≡ u ∷Level) → ↑ᵘ t≡u <ᵘ l)
+    (∃ λ (t≡u : Γ ⊩Level t ≡ u ∷Level) → ↑ᵘ wf-Level-eq t≡u .proj₁ <ᵘ l)
   ⊩U≡U⇔ {Γ} {l} {t} {u} =
     Γ ⊩⟨ l ⟩ U t ≡ U u                                                           ⇔⟨ ⊩U≡⇔ ⟩
     (∃ λ [t] → ↑ᵘ [t] <ᵘ l × ∃ λ u′ → Γ ⊢ U u ⇒* U u′ × Γ ⊩Level t ≡ u′ ∷Level)  ⇔⟨ (λ ([t] , t<l , u′ , U⇒*U , t≡u′) →
@@ -107,11 +107,11 @@ opaque
                                                                                         PE.refl →
                                                                                       t≡u′ , PE.subst (_<ᵘ l) ↑ᵘ-irrelevance t<l })
                                                                                     , (λ (t≡u , t<l) →
-                                                                                        wf-⊩Level t≡u .proj₁
+                                                                                        wf-Level-eq t≡u .proj₁
                                                                                       , PE.subst (_<ᵘ l) ↑ᵘ-irrelevance t<l
-                                                                                      , u , id (Uⱼ (escapeLevel (wf-⊩Level t≡u .proj₂)))
+                                                                                      , u , id (Uⱼ (escapeLevel (wf-Level-eq t≡u .proj₂)))
                                                                                       , t≡u) ⟩
-    (∃ λ t≡u → ↑ᵘ t≡u <ᵘ l)                                                      □⇔
+    (∃ λ t≡u → ↑ᵘ wf-Level-eq t≡u .proj₁ <ᵘ l)                                   □⇔
 
 opaque
   unfolding _⊩⟨_⟩_≡_ _⊩⟨_⟩_≡_∷_
@@ -252,7 +252,7 @@ opaque
       ( wf-⊩ᵛ (wf-⊩ᵛ∷ ⊩t)
       , λ σ₁≡σ₂ →
           let t[σ₁]≡t[σ₂] = ⊩≡∷Level⇔ .proj₁ (⊩ᵛ∷⇔ʰ .proj₁ ⊩t .proj₂ σ₁≡σ₂)
-              ⊩t[σ₁] , ⊩t[σ₂] = wf-⊩Level t[σ₁]≡t[σ₂]
+              ⊩t[σ₁] , ⊩t[σ₂] = wf-Level-eq t[σ₁]≡t[σ₂]
           in ⊩U≡⇔ .proj₂
             ( ⊩t[σ₁] , <ᵘ-ωᵘ
             , _ , id (Uⱼ (escapeLevel ⊩t[σ₂]))
@@ -270,7 +270,7 @@ opaque
       ( ⊩ᵛU (sucᵘᵛ (wf-⊩ᵛ≡∷ t≡u .proj₁))
       , λ σ₁≡σ₂ →
           let t[σ₁]≡u[σ₂] = ⊩≡∷Level⇔ .proj₁ (⊩ᵛ≡∷⇔ʰ .proj₁ t≡u .proj₂ σ₁≡σ₂)
-              ⊩t[σ₁] , ⊩u[σ₂] = wf-⊩Level t[σ₁]≡u[σ₂]
+              ⊩t[σ₁] , ⊩u[σ₂] = wf-Level-eq t[σ₁]≡u[σ₂]
           in Type→⊩≡∷U⇔ Uₙ Uₙ .proj₂
             ( ⊩sucᵘ ⊩t[σ₁] , <ᵘ-ωᵘ
             , ⊩U≡U⇔ .proj₂ (t[σ₁]≡u[σ₂] , <ᵘ-sucᵘ)

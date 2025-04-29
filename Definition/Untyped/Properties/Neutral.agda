@@ -156,25 +156,17 @@ opaque
   semineutral-subst n = lemma n refl
     where
     lemma : Semineutral u → t [ σ ] ≡ u → Semineutral t
-    lemma {t} (maxᵘₙ₁ {t = u₁} {u = u₂} n₁ n₂) ≡u =
+    lemma {t} (maxᵘˡₙ n) ≡u =
       case subst-maxᵘ {t = t} ≡u of λ {
         (inj₁ (_ , refl)) → ne (var _);
-        (inj₂ (t₁ , t₂ , refl , ≡u₁ , ≡u₂)) →
-      maxᵘₙ₁ (lemma n₁ ≡u₁) (lemma n₂ ≡u₂) }
-    lemma {t} (maxᵘₙ₂ {t = u₁} {u = u₂} n₁) ≡u =
-      case subst-maxᵘ {t = t} ≡u of λ {
-        (inj₁ (_ , refl)) → ne (var _);
-        (inj₂ (t₁ , t₂ , refl , ≡u₁ , ≡u₂)) →
-      case subst-sucᵘ {t = t₂} ≡u₂ of λ {
-        (inj₁ (i , refl)) → maxᵘₙ₁ (lemma n₁ ≡u₁) (ne (var _));
-        (inj₂ (_ , refl , _)) → maxᵘₙ₂ (lemma n₁ ≡u₁) }}
-    lemma {t} (maxᵘₙ₃ {u = u₂} {t = u₁} n₂) ≡u =
+        (inj₂ (t₁ , t₂ , refl , ≡u₁ , ≡u₂)) → maxᵘˡₙ (lemma n ≡u₁) }
+    lemma {t} (maxᵘʳₙ n) ≡u =
       case subst-maxᵘ {t = t} ≡u of λ {
         (inj₁ (_ , refl)) → ne (var _);
         (inj₂ (t₁ , t₂ , refl , ≡u₁ , ≡u₂)) →
       case subst-sucᵘ {t = t₁} ≡u₁ of λ {
-        (inj₁ (i , refl)) → maxᵘₙ₁ (ne (var _)) (lemma n₂ ≡u₂);
-        (inj₂ (_ , refl , _)) → maxᵘₙ₃ (lemma n₂ ≡u₂) }}
+        (inj₁ (i , refl)) → maxᵘˡₙ (ne (var _));
+        (inj₂ (_ , refl , _)) → maxᵘʳₙ (lemma n ≡u₂) }}
     lemma (ne n) ≡u = ne (neutral-subst (subst Neutral (sym ≡u) n))
 
 opaque
