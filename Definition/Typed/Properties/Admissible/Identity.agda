@@ -46,15 +46,16 @@ open import Tools.Reasoning.PropositionalEquality
 open Definition.Typed.Properties.Admissible.Identity.Primitive R public
 
 private variable
-  n                                               : Nat
-  Γ Γ₁ Γ₂                                         : Con Term _
+  n                                    : Nat
+  Γ Γ₁ Γ₂                              : Con Term _
   A A₁ A₂ A′ B B₁ B₂ C
-    eq eq₁ eq₂ t t₁ t₂ t′ u u₁ u₂ v v₁ v₂ w w₁ w₂ : Term _
-  σ                                               : Subst _ _
-  p p′ q q′                                       : M
-  b                                               : BinderMode
-  s                                               : Strength
-  l l₁ l₂                                         : Universe-level
+    eq eq₁ eq₁₁ eq₁₂ eq₂ eq₂₁ eq₂₂
+    t t₁ t₂ t′ u u₁ u₂ v v₁ v₂ w w₁ w₂ : Term _
+  σ                                    : Subst _ _
+  p p′ q q′                            : M
+  b                                    : BinderMode
+  s                                    : Strength
+  l l₁ l₂                              : Universe-level
 
 ------------------------------------------------------------------------
 -- Lemmas related to rfl
@@ -684,23 +685,38 @@ opaque
 opaque
   unfolding symmetry
 
+  -- An equality rule for symmetry.
+
+  symmetry-cong :
+    Γ ⊢ A₁ ≡ A₂ →
+    Γ ⊢ t₁ ≡ t₂ ∷ A₁ →
+    Γ ⊢ u₁ ≡ u₂ ∷ A₁ →
+    Γ ⊢ eq₁ ≡ eq₂ ∷ Id A₁ t₁ u₁ →
+    Γ ⊢ symmetry A₁ t₁ u₁ eq₁ ≡ symmetry A₂ t₂ u₂ eq₂ ∷ Id A₁ u₁ t₁
+  symmetry-cong A₁≡A₂ t₁≡t₂ u₁≡u₂ eq₁≡eq₂ =
+    let ⊢A₁ , ⊢t₁ , _ = wf-⊢≡∷ t₁≡t₂ in
+    PE.subst (_⊢_≡_∷_ _ _ _)
+      (PE.cong₃ Id (wk1-sgSubst _ _) PE.refl (wk1-sgSubst _ _)) $
+    subst-cong A₁≡A₂
+      (Id-cong (wkEq₁ ⊢A₁ A₁≡A₂) (refl (var₀ ⊢A₁))
+         (wkEqTerm₁ ⊢A₁ t₁≡t₂))
+      t₁≡t₂ u₁≡u₂ eq₁≡eq₂
+      (PE.subst (_⊢_≡_∷_ _ _ _)
+         (PE.sym $
+          PE.cong₃ Id (wk1-sgSubst _ _) PE.refl (wk1-sgSubst _ _)) $
+       refl (rflⱼ ⊢t₁))
+
+opaque
+
   -- A typing rule for symmetry.
 
   ⊢symmetry :
     Γ ⊢ eq ∷ Id A t u →
     Γ ⊢ symmetry A t u eq ∷ Id A u t
   ⊢symmetry ⊢eq =
-    case inversion-Id (syntacticTerm ⊢eq) of λ
-      (⊢A , ⊢t , _) →
-    PE.subst (_⊢_∷_ _ _)
-      (PE.cong₃ Id (wk1-sgSubst _ _) PE.refl (wk1-sgSubst _ _)) $
-    ⊢subst
-      (Idⱼ′ (var₀ ⊢A) (wkTerm₁ ⊢A ⊢t))
-      ⊢eq
-      (PE.subst (_⊢_∷_ _ _)
-         (PE.sym $
-          PE.cong₃ Id (wk1-sgSubst _ _) PE.refl (wk1-sgSubst _ _)) $
-       rflⱼ ⊢t)
+    let ⊢A , ⊢t , ⊢u = inversion-Id (syntacticTerm ⊢eq) in
+    wf-⊢≡∷ (symmetry-cong (refl ⊢A) (refl ⊢t) (refl ⊢u) (refl ⊢eq))
+      .proj₂ .proj₁
 
 opaque
   unfolding symmetry
@@ -738,20 +754,39 @@ opaque
 opaque
   unfolding transitivity
 
+  -- An equality rule for transitivity.
+
+  transitivity-cong :
+    Γ ⊢ A₁ ≡ A₂ →
+    Γ ⊢ t₁ ≡ t₂ ∷ A₁ →
+    Γ ⊢ u₁ ≡ u₂ ∷ A₁ →
+    Γ ⊢ v₁ ≡ v₂ ∷ A₁ →
+    Γ ⊢ eq₁₁ ≡ eq₁₂ ∷ Id A₁ t₁ u₁ →
+    Γ ⊢ eq₂₁ ≡ eq₂₂ ∷ Id A₁ u₁ v₁ →
+    Γ ⊢ transitivity A₁ t₁ u₁ v₁ eq₁₁ eq₂₁ ≡
+      transitivity A₂ t₂ u₂ v₂ eq₁₂ eq₂₂ ∷ Id A₁ t₁ v₁
+  transitivity-cong A₁≡A₂ t₁≡t₂ u₁≡u₂ v₁≡v₂ eq₁₁≡eq₁₂ eq₂₁≡eq₂₂ =
+    PE.subst (_⊢_≡_∷_ _ _ _) (PE.sym ≡Id-wk1-wk1-0[]₀) $
+    subst-cong A₁≡A₂ (J-motive-context-cong″ A₁≡A₂ t₁≡t₂) u₁≡u₂ v₁≡v₂
+      eq₂₁≡eq₂₂ (PE.subst (_⊢_≡_∷_ _ _ _) ≡Id-wk1-wk1-0[]₀ eq₁₁≡eq₁₂)
+
+opaque
+  unfolding transitivity
+
   -- A typing rule for transitivity.
 
   ⊢transitivity :
     Γ ⊢ eq₁ ∷ Id A t u →
     Γ ⊢ eq₂ ∷ Id A u v →
     Γ ⊢ transitivity A t u v eq₁ eq₂ ∷ Id A t v
-  ⊢transitivity {A} {t} {u} {eq₂} {v} ⊢eq₁ ⊢eq₂ =
-    case inversion-Id (syntacticTerm ⊢eq₁) of λ {
-      (_ , ⊢t , _) →
-    PE.subst (_⊢_∷_ _ _) (PE.sym ≡Id-wk1-wk1-0[]₀) $
-    ⊢subst
-      (J-motive-context-type ⊢t)
-      ⊢eq₂
-      (PE.subst (_⊢_∷_ _ _) ≡Id-wk1-wk1-0[]₀ ⊢eq₁) }
+  ⊢transitivity ⊢eq₁ ⊢eq₂ =
+    let ⊢A , ⊢t , ⊢u = inversion-Id (wf-⊢∷ ⊢eq₁)
+        _  , _  , ⊢v = inversion-Id (wf-⊢∷ ⊢eq₂)
+    in
+    wf-⊢≡∷
+      (transitivity-cong (refl ⊢A) (refl ⊢t) (refl ⊢u) (refl ⊢v)
+         (refl ⊢eq₁) (refl ⊢eq₂))
+      .proj₂ .proj₁
 
 opaque
   unfolding transitivity
