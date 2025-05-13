@@ -194,6 +194,11 @@ mutual
         _ , _ , ⊢t₂ = wf-⊢≡∷ (≅ₜ-eq t₁+1≡t₂)
         _ , ⊢u , _ = wf-⊢≡∷ (≅ₜ-eq u≡u)
     in ≅ₜ-trans (≅ₜ-maxᵘ-cong t₁+1≡t₂ u≡u) (≅ₜ-maxᵘ-comm ⊢t₂ ⊢u)
+  escape-[neLevel]-prop (maxᵘ-idem x y) =
+    let t₁≡t₁ = escape-[neLevel]-prop x
+        t₁≡t₂ = escapeLevelEq y
+        _ , ⊢u , _ = wf-⊢≡∷ (≅ₜ-eq t₁≡t₂)
+    in ≅ₜ-trans (≅ₜ-maxᵘ-cong t₁≡t₁ (≅ₜ-sym t₁≡t₂)) (≅ₜ-maxᵘ-idem ⊢u)
   escape-[neLevel]-prop (ne (neNfₜ₌ _ _ _ k≡m)) =
     ~-to-≅ₜ k≡m
   escape-[neLevel]-prop (sym x) =
@@ -224,6 +229,12 @@ mutual
 
 ⊩neLvl : neLevel-prop Γ t → Γ ⊩Level t ∷Level
 ⊩neLvl x = Levelₜ _ (id (escape-neLevel-prop x)) (neLvl x)
+
+opaque
+
+  ⊩zeroᵘ : ⊢ Γ → Γ ⊩Level zeroᵘ ∷Level
+  ⊩zeroᵘ ⊢Γ =
+    Levelₜ _ (id (zeroᵘⱼ ⊢Γ)) zeroᵘᵣ
 
 opaque
 
@@ -432,7 +443,7 @@ opaque
 
 opaque
 
-  -- An commutativity lemma for levels
+  -- A commutativity lemma for levels
 
   ⊩maxᵘ-comm :
     Γ ⊩Level t ∷Level →
@@ -482,6 +493,32 @@ opaque
           (neLvl [u′]) →
             Levelₜ₌ _ _ (id (maxᵘⱼ ⊢t′ ⊢u)) (id (maxᵘⱼ ⊢u′ ⊢t))
               (neLvl (maxᵘ-comm¹ᵣ (reflneLevel-prop [t′]) (symLevel (redLevel t⇒ [t])) (reflneLevel-prop [u′]) (redLevel u⇒ [u])))
+
+opaque
+
+  -- An idempotence lemma for levels
+
+  ⊩maxᵘ-idem :
+    Γ ⊩Level t ∷Level →
+    Γ ⊩Level t maxᵘ t ≡ t ∷Level
+  ⊩maxᵘ-idem {t} [t]@(Levelₜ t′ t⇒ propt) =
+    let
+      ⊢t = escapeLevel [t]
+      ⊢Γ = wfTerm ⊢t
+      ⊢t′ = escape-Level-prop ⊢Γ propt
+    in ⊩Level≡-⇒* (maxᵘ-substˡ* t⇒ ⊢t) t⇒ $
+      case propt of λ where
+        zeroᵘᵣ → redLevel (maxᵘ-zeroˡ ⊢t ⇨ t⇒) (⊩maxᵘ (⊩zeroᵘ ⊢Γ) [t])
+        (sucᵘᵣ [t′]) →
+          let ⊢t′ = escapeLevel [t′]
+          in ⊩Level≡-⇒*
+            (maxᵘ-substʳ* ⊢t′ t⇒ ⇨∷* redMany (maxᵘ-sucᵘ ⊢t′ ⊢t′))
+            (id (sucᵘⱼ ⊢t′))
+            (⊩sucᵘ≡sucᵘ (⊩maxᵘ-idem [t′]))
+        (neLvl [t′]) → Levelₜ₌ _ _
+          (id (maxᵘⱼ ⊢t′ ⊢t))
+          (id ⊢t′)
+          (neLvl (maxᵘ-idem (reflneLevel-prop [t′]) (symLevel (redLevel t⇒ [t]))))
 
 -- Well-formedness for neutrals in WHNF and levels
 
@@ -552,6 +589,10 @@ mutual
         _ , [t₂] = wf-Level-eq d
         [u] , _ = wf-[neLevel]-prop y
     in maxᵘʳᵣ [t₁] [u] , maxᵘˡᵣ [u] [t₂]
+  wf-[neLevel]-prop (maxᵘ-idem x y) =
+    let [u] , _ = wf-[neLevel]-prop x
+        _ , [t₂] = wf-Level-eq y
+    in maxᵘˡᵣ [u] [t₂] , [u]
   wf-[neLevel]-prop (ne x) =
     let a , b = wf-neNf x
     in ne a , ne b

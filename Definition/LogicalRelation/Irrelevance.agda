@@ -201,6 +201,11 @@ opaque
       PE.trans
         (⊔-comm (1+ (↑ᵘ′ x)) (↑ᵘ′-neprop x₁))
         (PE.cong₂ _⊔_ (↑ᵘ′-neprop-cong x₁ y w) (↑ᵘ′-cong (⊩sucᵘ x) x₂ d))
+    ↑ᵘ′-neprop-cong (maxᵘˡᵣ x x₁) y (maxᵘ-idem z w) = PE.trans
+      (PE.cong₂ _⊔_
+        (↑ᵘ′-neprop-irrelevance x y)
+        (PE.sym (↑ᵘ′-cong (⊩neLvl y) x₁ w)))
+      (⊔-idem (↑ᵘ′-neprop y))
     -- Absurd cases
     ↑ᵘ′-neprop-cong (maxᵘˡᵣ _ _) (maxᵘʳᵣ _ _) (maxᵘˡᵣ z _) = case nelsplit z .proj₂ of λ { (ne ()) }
     ↑ᵘ′-neprop-cong (maxᵘˡᵣ _ _) (ne (neNfₜ₌ _ () neM k≡m)) (maxᵘˡᵣ z x₃)
@@ -242,6 +247,8 @@ opaque
     ↑ᵘ′-neprop-cong (maxᵘʳᵣ x x₁) (maxᵘʳᵣ x₂ y) (maxᵘ-comm²ᵣ z d w) = case nelevel x₁ of λ { (ne ()) }
     ↑ᵘ′-neprop-cong (maxᵘʳᵣ x x₁) (ne (neNfₜ₌ _ () neM k≡m)) (maxᵘ-comm²ᵣ z d w)
     ↑ᵘ′-neprop-cong (ne (neNfₜ₌ _ () neM k≡m)) y (maxᵘ-comm²ᵣ z d w)
+    ↑ᵘ′-neprop-cong (maxᵘʳᵣ x x₁) y (maxᵘ-idem z w) = case nelevel y of λ { (ne ()) }
+    ↑ᵘ′-neprop-cong (ne (neNfₜ₌ _ () neM k≡m)) y (maxᵘ-idem z w)
 
 ↑ᵘ-cong
   : ∀ {t u} {[t] : Γ ⊩Level t ∷Level} {[u] : Γ ⊩Level u ∷Level}

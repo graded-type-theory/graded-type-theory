@@ -24,6 +24,7 @@ open EqRelSet eqrel
 open import Definition.LogicalRelation R ⦃ eqrel ⦄
 open import Definition.LogicalRelation.Hidden R ⦃ eqrel ⦄
 import Definition.LogicalRelation.Hidden.Restricted R ⦃ eqrel ⦄ as R
+open import Definition.LogicalRelation.Properties R ⦃ eqrel ⦄
 open import Definition.LogicalRelation.Substitution R ⦃ eqrel ⦄
 open import Definition.LogicalRelation.Substitution.Introductions.Level R ⦃ eqrel ⦄
 open import

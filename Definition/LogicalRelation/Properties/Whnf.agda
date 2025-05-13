@@ -59,6 +59,7 @@ opaque
         u₂ , _ = nelsplit y
     in maxᵘˡₙ t₁ , maxᵘˡₙ u₂
   nelsplit (maxᵘ-comm²ᵣ x d y) = let u₁ , u₂ = nelsplit y in maxᵘʳₙ u₁ , maxᵘˡₙ u₂
+  nelsplit (maxᵘ-idem x y) = let n , _ = nelsplit x in maxᵘˡₙ n , n
   nelsplit (ne (neNfₜ₌ _ neK neM _)) = ne neK , ne neM
   nelsplit (sym u≡t) = let a , b = nelsplit u≡t in b , a
   nelsplit (trans t≡u u≡v) = let a , _ = nelsplit t≡u; _ , b = nelsplit u≡v in a , b

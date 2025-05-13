@@ -217,6 +217,8 @@ opaque mutual
       (fundamental-⊩ᵛ∷ ⊢l₃ .proj₂)
   fundamental-⊩ᵛ≡∷ (maxᵘ-comm ⊢l₁ ⊢l₂) =
     _ , maxᵘ-commᵛ (fundamental-⊩ᵛ∷ ⊢l₁ .proj₂) (fundamental-⊩ᵛ∷ ⊢l₂ .proj₂)
+  fundamental-⊩ᵛ≡∷ (maxᵘ-idem ⊢l) =
+    _ , maxᵘ-idemᵛ (fundamental-⊩ᵛ∷ ⊢l .proj₂)
   fundamental-⊩ᵛ≡∷ (U-cong l₁≡l₂) =
     _ , ⊩ᵛU≡U∷U (fundamental-⊩ᵛ≡∷ l₁≡l₂ .proj₂)
   fundamental-⊩ᵛ≡∷ ΠΣ≡ΠΣ@(ΠΣ-cong ⊢l₁ ⊢l₂ A₁≡A₂ B₁≡B₂ ok) =

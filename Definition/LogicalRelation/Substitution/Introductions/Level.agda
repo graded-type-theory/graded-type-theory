@@ -113,10 +113,6 @@ opaque
 
 opaque
 
-  ⊩zeroᵘ : ⊢ Γ → Γ ⊩Level zeroᵘ ∷Level
-  ⊩zeroᵘ ⊢Γ =
-    Levelₜ _ (id (zeroᵘⱼ ⊢Γ)) zeroᵘᵣ
-
   -- A characterisation lemma for _⊩⟨_⟩ zeroᵘ ∷ Level
 
   ⊩zeroᵘ∷Level⇔ : Γ ⊩⟨ l ⟩ zeroᵘ ∷ Level ⇔ ⊢ Γ
@@ -466,6 +462,26 @@ opaque
           in trans-⊩≡∷
             (⊩maxᵘ≡maxᵘ∷Level t[σ₁]≡t[σ₂] u[σ₁]≡u[σ₂])
             (⊩maxᵘ-comm∷Level ⊩t[σ₂] ⊩u[σ₂])
+      )
+
+opaque
+
+  ⊩maxᵘ-idem∷Level :
+    Γ ⊩⟨ l ⟩ t ∷ Level →
+    Γ ⊩⟨ l ⟩ t maxᵘ t ≡ t ∷ Level
+  ⊩maxᵘ-idem∷Level ⊩t = ⊩≡∷Level⇔ .proj₂ $
+    ⊩maxᵘ-idem (⊩∷Level⇔ .proj₁ ⊩t)
+
+  maxᵘ-idemᵛ :
+    Γ ⊩ᵛ⟨ l ⟩ t ∷ Level →
+    Γ ⊩ᵛ⟨ l ⟩ t maxᵘ t ≡ t ∷ Level
+  maxᵘ-idemᵛ ⊩t =
+    ⊩ᵛ≡∷⇔ʰ .proj₂
+      ( wf-⊩ᵛ∷ ⊩t
+      , λ σ₁≡σ₂ →
+          let t[σ₁]≡t[σ₂] = ⊩ᵛ∷⇔ʰ .proj₁ ⊩t .proj₂ σ₁≡σ₂
+              ⊩t[σ₁] , ⊩t[σ₂] = wf-⊩≡∷ t[σ₁]≡t[σ₂]
+          in trans-⊩≡∷ (⊩maxᵘ-idem∷Level ⊩t[σ₁]) t[σ₁]≡t[σ₂]
       )
 
 ------------------------------------------------------------------------
