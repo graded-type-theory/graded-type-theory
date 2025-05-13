@@ -23,8 +23,8 @@ open import Definition.Untyped.Properties M
 open import Definition.Typed R
 open import Definition.Typed.Properties R
 open import Definition.Typed.Substitution R
-open import Definition.LogicalRelation.Substitution R
-open import Definition.LogicalRelation.Substitution.Introductions R
+open import Definition.LogicalRelation.Substitution R ⦃ eqrel ⦄
+open import Definition.LogicalRelation.Substitution.Introductions R ⦃ eqrel ⦄
 
 open import Tools.Product
 open import Tools.Nat using (Nat)
@@ -210,6 +210,11 @@ opaque mutual
     _ , maxᵘ-zeroʳᵛ (fundamental-⊩ᵛ∷ ⊢l .proj₂)
   fundamental-⊩ᵛ≡∷ (maxᵘ-sucᵘ ⊢l₁ ⊢l₂) =
     _ , maxᵘ-sucᵘᵛ (fundamental-⊩ᵛ∷ ⊢l₁ .proj₂) (fundamental-⊩ᵛ∷ ⊢l₂ .proj₂)
+  fundamental-⊩ᵛ≡∷ (maxᵘ-assoc ⊢l₁ ⊢l₂ ⊢l₃) =
+    _ , maxᵘ-assocᵛ
+      (fundamental-⊩ᵛ∷ ⊢l₁ .proj₂)
+      (fundamental-⊩ᵛ∷ ⊢l₂ .proj₂)
+      (fundamental-⊩ᵛ∷ ⊢l₃ .proj₂)
   fundamental-⊩ᵛ≡∷ (U-cong l₁≡l₂) =
     _ , ⊩ᵛU≡U∷U (fundamental-⊩ᵛ≡∷ l₁≡l₂ .proj₂)
   fundamental-⊩ᵛ≡∷ ΠΣ≡ΠΣ@(ΠΣ-cong ⊢l₁ ⊢l₂ A₁≡A₂ B₁≡B₂ ok) =

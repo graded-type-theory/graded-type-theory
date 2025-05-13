@@ -384,6 +384,8 @@ private module Inhabited where
         maxᵘ-zeroʳ (stability-⊢∷ Γ≡Δ l)
       (maxᵘ-sucᵘ l₁ l₂) PE.refl →
         maxᵘ-sucᵘ (stability-⊢∷ Γ≡Δ l₁) (stability-⊢∷ Γ≡Δ l₂)
+      (maxᵘ-assoc l₁ l₂ l₃) PE.refl →
+        maxᵘ-assoc (stability-⊢∷ Γ≡Δ l₁) (stability-⊢∷ Γ≡Δ l₂) (stability-⊢∷ Γ≡Δ l₃)
       (U-cong l₁≡l₂) PE.refl →
         U-cong (stability-⊢≡∷ Γ≡Δ l₁≡l₂)
       (ΠΣ-cong ⊢l₁ ⊢l₂ A₁≡A₂ B₁≡B₂ ok) PE.refl →

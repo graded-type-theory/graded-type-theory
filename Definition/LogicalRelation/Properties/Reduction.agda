@@ -30,6 +30,7 @@ open import Definition.Typed.Well-formed R
 open import Definition.LogicalRelation R ⦃ eqrel ⦄
 open import Definition.LogicalRelation.Irrelevance R
 open import Definition.LogicalRelation.Properties.Kit R
+open import Definition.LogicalRelation.Properties.Primitive R
 open import Definition.LogicalRelation.Properties.Reflexivity R
 open import Definition.LogicalRelation.Properties.Transitivity R
 open import Definition.LogicalRelation.Properties.Whnf R

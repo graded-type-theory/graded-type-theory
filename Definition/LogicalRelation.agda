@@ -180,6 +180,24 @@ mutual
       : ∀ {k₁}
       → [neLevel]-prop Γ k₁ k₁
       → [neLevel]-prop Γ (k₁ maxᵘ zeroᵘ) k₁
+    maxᵘ-assoc¹ᵣ
+      : ∀ {t u v}
+      → [neLevel]-prop Γ t t
+      → Γ ⊩Level u ≡ u ∷Level
+      → Γ ⊩Level v ≡ v ∷Level
+      → [neLevel]-prop Γ ((t maxᵘ u) maxᵘ v) (t maxᵘ u maxᵘ v)
+    maxᵘ-assoc²ᵣ
+      : ∀ {t u v}
+      → Γ ⊩Level t ≡ t ∷Level
+      → [neLevel]-prop Γ u u
+      → Γ ⊩Level v ≡ v ∷Level
+      → [neLevel]-prop Γ ((sucᵘ t maxᵘ u) maxᵘ v) (sucᵘ t maxᵘ u maxᵘ v)
+    maxᵘ-assoc³ᵣ
+      : ∀ {t u v}
+      → Γ ⊩Level t ≡ t ∷Level
+      → Γ ⊩Level u ≡ u ∷Level
+      → [neLevel]-prop Γ v v
+      → [neLevel]-prop Γ (sucᵘ (t maxᵘ u) maxᵘ v) (sucᵘ t maxᵘ sucᵘ u maxᵘ v)
     ne : ∀ {k k′} → Γ ⊩neNf k ≡ k′ ∷ Level → [neLevel]-prop Γ k k′
     sym : ∀ {k k′} → [neLevel]-prop Γ k k′ → [neLevel]-prop Γ k′ k
     trans : ∀ {k k′ k″} → [neLevel]-prop Γ k k′ → [neLevel]-prop Γ k′ k″ → [neLevel]-prop Γ k k″

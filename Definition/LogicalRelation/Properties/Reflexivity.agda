@@ -35,23 +35,6 @@ private
     A B t : Term _
     Γ : Con Term n
 
-mutual
-
-  -- Reflexivity of level terms.
-
-  reflLevel : Γ ⊩Level t ∷Level → Γ ⊩Level t ≡ t ∷Level
-  reflLevel (Levelₜ k d prop) = Levelₜ₌ k k d d (reflLevel-prop prop)
-
-  reflLevel-prop : Level-prop Γ t → [Level]-prop Γ t t
-  reflLevel-prop zeroᵘᵣ = zeroᵘᵣ
-  reflLevel-prop (sucᵘᵣ x) = sucᵘᵣ (reflLevel x)
-  reflLevel-prop (neLvl x₁) = neLvl (reflneLevel-prop x₁)
-
-  reflneLevel-prop : neLevel-prop Γ t → [neLevel]-prop Γ t t
-  reflneLevel-prop (maxᵘˡᵣ x₁ x₂) = maxᵘˡᵣ (reflneLevel-prop x₁) (reflLevel x₂)
-  reflneLevel-prop (maxᵘʳᵣ x₁ x₂) = maxᵘʳᵣ (reflLevel x₁) (reflneLevel-prop x₂)
-  reflneLevel-prop (ne x) = ne x
-
 -- Reflexivity of reducible terms.
 reflEqTerm : ∀ {l A t} ([A] : Γ ⊩⟨ l ⟩ A)
            → Γ ⊩⟨ l ⟩ t ∷ A / [A]

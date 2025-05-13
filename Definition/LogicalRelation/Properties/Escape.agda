@@ -41,53 +41,6 @@ private
     s : Strength
     p q : M
 
-mutual
-  -- Reducible level equalities are well-formed.
-  escapeLevelEq
-    : Γ ⊩Level t ≡ u ∷Level
-    → Γ ⊢ t ≅ u ∷ Level
-  escapeLevelEq (Levelₜ₌ k k′ D D′ prop) =
-    let lk , lk′ = lsplit prop in
-    ≅ₜ-red (id (Levelⱼ (wfTerm (redFirst*Term D))) , Levelₙ) (D , lk) (D′ , lk′)
-      (escape-Level-prop (wfTerm (redFirst*Term D)) prop)
-
-  escape-Level-prop
-    : ⊢ Γ
-    → [Level]-prop Γ t u
-    → Γ ⊢ t ≅ u ∷ Level
-  escape-Level-prop ⊢Γ zeroᵘᵣ = ≅ₜ-zeroᵘrefl ⊢Γ
-  escape-Level-prop ⊢Γ (sucᵘᵣ x) = ≅ₜ-sucᵘ-cong (escapeLevelEq x)
-  escape-Level-prop ⊢Γ (neLvl n) = escape-[neLevel]-prop n
-
-  escape-[neLevel]-prop
-    : [neLevel]-prop Γ t u
-    → Γ ⊢ t ≅ u ∷ Level
-  escape-[neLevel]-prop (maxᵘˡᵣ x y) =
-    ≅ₜ-maxᵘ-cong (escape-[neLevel]-prop x) (escapeLevelEq y)
-  escape-[neLevel]-prop (maxᵘʳᵣ x y) =
-    ≅ₜ-maxᵘ-cong (≅ₜ-sucᵘ-cong (escapeLevelEq x)) (escape-[neLevel]-prop y)
-  escape-[neLevel]-prop (maxᵘ-zeroʳˡᵣ x) =
-    ≅ₜ-maxᵘ-zeroʳ (wf-⊢≡∷ (≅ₜ-eq (escape-[neLevel]-prop x)) .proj₂ .proj₁)
-  escape-[neLevel]-prop (ne (neNfₜ₌ _ _ _ k≡m)) =
-    ~-to-≅ₜ k≡m
-  escape-[neLevel]-prop (sym x) =
-    ≅ₜ-sym (escape-[neLevel]-prop x)
-  escape-[neLevel]-prop (trans x y) =
-    ≅ₜ-trans (escape-[neLevel]-prop x) (escape-[neLevel]-prop y)
-
-  -- Reducible levels are well-formed.
-  escapeLevel
-    : Γ ⊩Level t ∷Level
-    → Γ ⊢ t ∷ Level
-  escapeLevel (Levelₜ k D prop) = redFirst*Term D
-
-  escape-neLevel-prop
-    : neLevel-prop Γ t
-    → Γ ⊢ t ∷ Level
-  escape-neLevel-prop (maxᵘˡᵣ x y) = maxᵘⱼ (escape-neLevel-prop x) (escapeLevel y)
-  escape-neLevel-prop (maxᵘʳᵣ x y) = maxᵘⱼ (sucᵘⱼ (escapeLevel x)) (escape-neLevel-prop y)
-  escape-neLevel-prop (ne (neNfₜ₌ _ _ _ k≡m)) = wf-⊢≡∷ (≅ₜ-eq (~-to-≅ₜ k≡m)) .proj₂ .proj₁
-
 -- Reducible types are well-formed.
 escape : ∀ {l A} → Γ ⊩⟨ l ⟩ A → Γ ⊢ A
 escape (Levelᵣ D) = redFirst* D
@@ -155,7 +108,7 @@ escapeEq (Idᵣ ⊩A) A≡B =
 escapeTermEq (Levelᵣ D) (Levelₜ₌ k k′ d d′ prop) =
   let lk , lk′ = lsplit prop
   in ≅ₜ-red (D , Levelₙ) (d , lk) (d′ , lk′)
-      (escape-Level-prop (wf (redFirst* D)) prop)
+      (escape-[Level]-prop (wf (redFirst* D)) prop)
 escapeTermEq (Uᵣ′ _ _ _ D) (Uₜ₌ A B d d′ typeA typeB A≡B [A] [B] [A≡B]) =
   ≅ₜ-red (D , Uₙ) (d , typeWhnf typeA) (d′ , typeWhnf typeB)  A≡B
 escapeTermEq (ℕᵣ D) (ℕₜ₌ _ _ d d′ k≡k′ prop) =

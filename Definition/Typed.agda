@@ -231,6 +231,10 @@ mutual
     maxᵘ-sucᵘ     : Γ ⊢ l₁ ∷ Level
                   → Γ ⊢ l₂ ∷ Level
                   → Γ ⊢ sucᵘ l₁ maxᵘ sucᵘ l₂ ≡ sucᵘ (l₁ maxᵘ l₂) ∷ Level
+    maxᵘ-assoc    : Γ ⊢ l₁ ∷ Level
+                  → Γ ⊢ l₂ ∷ Level
+                  → Γ ⊢ l₃ ∷ Level
+                  → Γ ⊢ (l₁ maxᵘ l₂) maxᵘ l₃ ≡ l₁ maxᵘ (l₂ maxᵘ l₃) ∷ Level
 
     U-cong        : Γ ⊢ l₁ ≡ l₂ ∷ Level
                   → Γ ⊢ U l₁ ≡ U l₂ ∷ U (sucᵘ l₁)

@@ -527,6 +527,8 @@ private module Inhabited where
           maxᵘ-zeroʳ (wkTerm ρ⊇ ⊢Δ l)
         (maxᵘ-sucᵘ l₁ l₂) PE.refl →
           maxᵘ-sucᵘ (wkTerm ρ⊇ ⊢Δ l₁) (wkTerm ρ⊇ ⊢Δ l₂)
+        (maxᵘ-assoc l₁ l₂ l₃) PE.refl →
+          maxᵘ-assoc (wkTerm ρ⊇ ⊢Δ l₁) (wkTerm ρ⊇ ⊢Δ l₂) (wkTerm ρ⊇ ⊢Δ l₃)
         (U-cong l₁≡l₂) PE.refl →
           U-cong (wkEqTerm ρ⊇ ⊢Δ l₁≡l₂)
         (ΠΣ-cong ⊢l₁ ⊢l₂ A₁≡A₂ B₁≡B₂ ok) PE.refl →

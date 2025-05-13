@@ -51,6 +51,9 @@ opaque
   nelsplit (maxᵘˡᵣ t≡u x) = let a , b = nelsplit t≡u in maxᵘˡₙ a , maxᵘˡₙ b
   nelsplit (maxᵘʳᵣ x t≡u) = let a , b = nelsplit t≡u in maxᵘʳₙ a , maxᵘʳₙ b
   nelsplit (maxᵘ-zeroʳˡᵣ u≡u) = let a , _ = nelsplit u≡u in maxᵘˡₙ a , a
+  nelsplit (maxᵘ-assoc¹ᵣ x y z) = let a , _ = nelsplit x in maxᵘˡₙ (maxᵘˡₙ a) , maxᵘˡₙ a
+  nelsplit (maxᵘ-assoc²ᵣ x y z) = let a , _ = nelsplit y in maxᵘˡₙ (maxᵘʳₙ a) , maxᵘʳₙ (maxᵘˡₙ a)
+  nelsplit (maxᵘ-assoc³ᵣ x y z) = let a , _ = nelsplit z in maxᵘʳₙ a , maxᵘʳₙ (maxᵘʳₙ a)
   nelsplit (ne (neNfₜ₌ _ neK neM _)) = ne neK , ne neM
   nelsplit (sym u≡t) = let a , b = nelsplit u≡t in b , a
   nelsplit (trans t≡u u≡v) = let a , _ = nelsplit t≡u; _ , b = nelsplit u≡v in a , b

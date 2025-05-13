@@ -1209,6 +1209,13 @@ private module Inhabited where
         in trans
           (maxᵘ-sucᵘ (subst-⊢∷ ⊢l₁ ⊢σ₁) (subst-⊢∷ ⊢l₂ ⊢σ₁))
           (sucᵘ-cong (maxᵘ-cong (subst-⊢∷→⊢≡∷ ⊢l₁ σ₁≡σ₂) (subst-⊢∷→⊢≡∷ ⊢l₂ σ₁≡σ₂)))
+      (maxᵘ-assoc ⊢l₁ ⊢l₂ ⊢l₃) PE.refl →
+        let _ , ⊢σ₁ , ⊢σ₂ = wf-⊢ˢʷ≡∷ σ₁≡σ₂
+        in trans
+          (maxᵘ-assoc (subst-⊢∷ ⊢l₁ ⊢σ₁) (subst-⊢∷ ⊢l₂ ⊢σ₁) (subst-⊢∷ ⊢l₃ ⊢σ₁))
+          (maxᵘ-cong (subst-⊢∷→⊢≡∷ ⊢l₁ σ₁≡σ₂)
+            (maxᵘ-cong (subst-⊢∷→⊢≡∷ ⊢l₂ σ₁≡σ₂)
+              (subst-⊢∷→⊢≡∷ ⊢l₃ σ₁≡σ₂)))
       (U-cong l₁≡l₂) PE.refl →
         U-cong (subst-⊢≡∷ l₁≡l₂ σ₁≡σ₂)
       (ΠΣ-cong {l₂} ⊢l₁ ⊢l₂ A₁≡A₂ B₁≡B₂ ok) PE.refl →
