@@ -76,6 +76,8 @@ mutual
   wk[neLevel]-prop [ρ] (maxᵘ-assoc¹ᵣ x y z) = maxᵘ-assoc¹ᵣ (wk[neLevel]-prop [ρ] x) (wkEqTermLevel [ρ] y) (wkEqTermLevel [ρ] z)
   wk[neLevel]-prop [ρ] (maxᵘ-assoc²ᵣ x y z) = maxᵘ-assoc²ᵣ (wkEqTermLevel [ρ] x) (wk[neLevel]-prop [ρ] y) (wkEqTermLevel [ρ] z)
   wk[neLevel]-prop [ρ] (maxᵘ-assoc³ᵣ x y z) = maxᵘ-assoc³ᵣ (wkEqTermLevel [ρ] x) (wkEqTermLevel [ρ] y) (wk[neLevel]-prop [ρ] z)
+  wk[neLevel]-prop [ρ] (maxᵘ-comm¹ᵣ x x₁ x₂ x₃) = maxᵘ-comm¹ᵣ (wk[neLevel]-prop [ρ] x) (wkEqTermLevel [ρ] x₁) (wk[neLevel]-prop [ρ] x₂) (wkEqTermLevel [ρ] x₃)
+  wk[neLevel]-prop [ρ] (maxᵘ-comm²ᵣ x x₁ x₂) = maxᵘ-comm²ᵣ (wkEqTermLevel [ρ] x) (wkEqTermLevel [ρ] x₁) (wk[neLevel]-prop [ρ] x₂)
   wk[neLevel]-prop [ρ] (ne x) = ne (wkEqTermNe [ρ] x)
   wk[neLevel]-prop [ρ] (sym u≡t) = sym (wk[neLevel]-prop [ρ] u≡t)
   wk[neLevel]-prop [ρ] (trans t≡u u≡v) = trans (wk[neLevel]-prop [ρ] t≡u) (wk[neLevel]-prop [ρ] u≡v)

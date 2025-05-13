@@ -61,6 +61,7 @@ private opaque
       .≅ₜ-maxᵘ-zeroʳ → maxᵘ-zeroʳ
       .≅ₜ-maxᵘ-sucᵘ → maxᵘ-sucᵘ
       .≅ₜ-maxᵘ-assoc → maxᵘ-assoc
+      .≅ₜ-maxᵘ-comm → maxᵘ-comm
       .≅-Urefl      → refl ∘ᶠ Uⱼ
       .≅-U-cong     → U-cong
       .≅ₜ-U-cong    → U-cong

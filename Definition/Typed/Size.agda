@@ -144,6 +144,8 @@ opaque mutual
     size-⊢∷ l₁ ⊕ size-⊢∷ l₂
   size-⊢≡∷ (maxᵘ-assoc l₁ l₂ l₃) =
     size-⊢∷ l₁ ⊕ size-⊢∷ l₂ ⊕ size-⊢∷ l₃
+  size-⊢≡∷ (maxᵘ-comm l₁ l₂) =
+    size-⊢∷ l₁ ⊕ size-⊢∷ l₂
   size-⊢≡∷ (U-cong l₁≡l₂) =
     node (size-⊢≡∷ l₁≡l₂)
   size-⊢≡∷ (ΠΣ-cong l₁ l₂ A₁≡B₁ A₂≡B₂ _) =

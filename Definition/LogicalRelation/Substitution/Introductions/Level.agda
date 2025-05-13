@@ -356,30 +356,6 @@ opaque
 
   -- Reducibility of maxᵘ-zeroʳ.
 
-  private
-    maxᵘ-zeroʳ′ : ⊢ Γ → Level-prop Γ t → ∃ λ u → Γ ⊢ t maxᵘ zeroᵘ ⇒* u ∷ Level × [Level]-prop Γ u t
-    maxᵘ-zeroʳ′ ⊢Γ zeroᵘᵣ =
-      _ , redMany (maxᵘ-zeroˡ (zeroᵘⱼ ⊢Γ)) , zeroᵘᵣ
-    maxᵘ-zeroʳ′ ⊢Γ (sucᵘᵣ x) =
-      _ , redMany (maxᵘ-zeroʳ (escapeLevel x)) , sucᵘᵣ (reflLevel x)
-    maxᵘ-zeroʳ′ ⊢Γ (neLvl n) =
-        _
-      , id (maxᵘⱼ (escape-neLevel-prop n) (zeroᵘⱼ ⊢Γ))
-      , neLvl (maxᵘ-zeroʳˡᵣ (reflneLevel-prop n))
-
-  ⊩maxᵘ-zeroʳ :
-    Γ ⊩Level t ∷Level →
-    Γ ⊩Level t maxᵘ zeroᵘ ≡ t ∷Level
-  ⊩maxᵘ-zeroʳ {t} (Levelₜ k t⇒ prop) =
-    let ⊢Γ = wfEqTerm (subset*Term t⇒)
-        u , k⇒ , u≡k = maxᵘ-zeroʳ′ ⊢Γ prop
-    in Levelₜ₌ _ _
-      (t maxᵘ zeroᵘ ⇒*⟨ maxᵘ-substˡ* t⇒ (zeroᵘⱼ ⊢Γ) ⟩
-       k maxᵘ zeroᵘ ⇒*⟨ k⇒ ⟩∎
-       u ∎)
-      t⇒
-      u≡k
-
   ⊩maxᵘ-zeroʳ∷Level :
     Γ ⊩⟨ l ⟩ t ∷ Level →
     Γ ⊩⟨ l ⟩ t maxᵘ zeroᵘ ≡ t ∷ Level
@@ -436,6 +412,8 @@ opaque
             (⊩sucᵘ≡sucᵘ∷Level $ ⊩maxᵘ≡maxᵘ∷Level t[σ₁]≡t[σ₂] u[σ₁]≡u[σ₂])
       )
 
+opaque
+
   ⊩maxᵘ-assoc∷Level :
     Γ ⊩⟨ l ⟩ t ∷ Level →
     Γ ⊩⟨ l′ ⟩ u ∷ Level →
@@ -459,7 +437,35 @@ opaque
               ⊩t[σ₁] , ⊩t[σ₂] = wf-⊩≡∷ t[σ₁]≡t[σ₂]
               ⊩u[σ₁] , ⊩u[σ₂] = wf-⊩≡∷ u[σ₁]≡u[σ₂]
               ⊩v[σ₁] , ⊩v[σ₂] = wf-⊩≡∷ v[σ₁]≡v[σ₂]
-          in trans-⊩≡∷ (⊩maxᵘ-assoc∷Level ⊩t[σ₁] ⊩u[σ₁] ⊩v[σ₁]) (⊩maxᵘ≡maxᵘ∷Level t[σ₁]≡t[σ₂] (⊩maxᵘ≡maxᵘ∷Level u[σ₁]≡u[σ₂] v[σ₁]≡v[σ₂]))
+          in trans-⊩≡∷
+            (⊩maxᵘ-assoc∷Level ⊩t[σ₁] ⊩u[σ₁] ⊩v[σ₁])
+            (⊩maxᵘ≡maxᵘ∷Level t[σ₁]≡t[σ₂] (⊩maxᵘ≡maxᵘ∷Level u[σ₁]≡u[σ₂] v[σ₁]≡v[σ₂]))
+      )
+
+opaque
+
+  ⊩maxᵘ-comm∷Level :
+    Γ ⊩⟨ l ⟩ t ∷ Level →
+    Γ ⊩⟨ l′ ⟩ u ∷ Level →
+    Γ ⊩⟨ l ⟩ t maxᵘ u ≡ u maxᵘ t ∷ Level
+  ⊩maxᵘ-comm∷Level ⊩t ⊩u = ⊩≡∷Level⇔ .proj₂ $
+    ⊩maxᵘ-comm (⊩∷Level⇔ .proj₁ ⊩t) (⊩∷Level⇔ .proj₁ ⊩u)
+
+  maxᵘ-commᵛ :
+    Γ ⊩ᵛ⟨ l ⟩ t ∷ Level →
+    Γ ⊩ᵛ⟨ l′ ⟩ u ∷ Level →
+    Γ ⊩ᵛ⟨ l ⟩ t maxᵘ u ≡ u maxᵘ t ∷ Level
+  maxᵘ-commᵛ ⊩t ⊩u =
+    ⊩ᵛ≡∷⇔ʰ .proj₂
+      ( wf-⊩ᵛ∷ ⊩t
+      , λ σ₁≡σ₂ →
+          let t[σ₁]≡t[σ₂] = ⊩ᵛ∷⇔ʰ .proj₁ ⊩t .proj₂ σ₁≡σ₂
+              u[σ₁]≡u[σ₂] = ⊩ᵛ∷⇔ʰ .proj₁ ⊩u .proj₂ σ₁≡σ₂
+              ⊩t[σ₁] , ⊩t[σ₂] = wf-⊩≡∷ t[σ₁]≡t[σ₂]
+              ⊩u[σ₁] , ⊩u[σ₂] = wf-⊩≡∷ u[σ₁]≡u[σ₂]
+          in trans-⊩≡∷
+            (⊩maxᵘ≡maxᵘ∷Level t[σ₁]≡t[σ₂] u[σ₁]≡u[σ₂])
+            (⊩maxᵘ-comm∷Level ⊩t[σ₂] ⊩u[σ₂])
       )
 
 ------------------------------------------------------------------------

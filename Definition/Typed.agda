@@ -235,6 +235,9 @@ mutual
                   → Γ ⊢ l₂ ∷ Level
                   → Γ ⊢ l₃ ∷ Level
                   → Γ ⊢ (l₁ maxᵘ l₂) maxᵘ l₃ ≡ l₁ maxᵘ (l₂ maxᵘ l₃) ∷ Level
+    maxᵘ-comm     : Γ ⊢ l₁ ∷ Level
+                  → Γ ⊢ l₂ ∷ Level
+                  → Γ ⊢ l₁ maxᵘ l₂ ≡ l₂ maxᵘ l₁ ∷ Level
 
     U-cong        : Γ ⊢ l₁ ≡ l₂ ∷ Level
                   → Γ ⊢ U l₁ ≡ U l₂ ∷ U (sucᵘ l₁)

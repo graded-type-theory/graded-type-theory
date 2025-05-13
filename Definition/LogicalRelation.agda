@@ -198,6 +198,19 @@ mutual
       → Γ ⊩Level u ≡ u ∷Level
       → [neLevel]-prop Γ v v
       → [neLevel]-prop Γ (sucᵘ (t maxᵘ u) maxᵘ v) (sucᵘ t maxᵘ sucᵘ u maxᵘ v)
+    maxᵘ-comm¹ᵣ
+      : ∀ {t₁ t₂ u₁ u₂}
+      → [neLevel]-prop Γ t₁ t₁
+      → Γ ⊩Level t₁ ≡ t₂ ∷Level
+      → [neLevel]-prop Γ u₂ u₂
+      → Γ ⊩Level u₁ ≡ u₂ ∷Level
+      → [neLevel]-prop Γ (t₁ maxᵘ u₁) (u₂ maxᵘ t₂)
+    maxᵘ-comm²ᵣ
+      : ∀ {t₁ t₂ u}
+      → Γ ⊩Level t₁ ≡ t₁ ∷Level
+      → Γ ⊩Level sucᵘ t₁ ≡ t₂ ∷Level
+      → [neLevel]-prop Γ u u
+      → [neLevel]-prop Γ (sucᵘ t₁ maxᵘ u) (u maxᵘ t₂)
     ne : ∀ {k k′} → Γ ⊩neNf k ≡ k′ ∷ Level → [neLevel]-prop Γ k k′
     sym : ∀ {k k′} → [neLevel]-prop Γ k k′ → [neLevel]-prop Γ k′ k
     trans : ∀ {k k′ k″} → [neLevel]-prop Γ k k′ → [neLevel]-prop Γ k′ k″ → [neLevel]-prop Γ k k″
