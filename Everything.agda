@@ -89,6 +89,7 @@ import Definition.Untyped.Properties.NotParametrised
 import Definition.Untyped.Properties
 import Definition.Untyped.Identity
 import Definition.Untyped.Sigma
+import Definition.Untyped.Non-dependent
 import Definition.Untyped.Unit
 import Definition.Untyped.Nat
 import Definition.Untyped.Lift
@@ -134,6 +135,7 @@ import Definition.Typed.Properties.Admissible.Empty
 import Definition.Typed.Properties.Admissible.Identity
 import Definition.Typed.Properties.Admissible.Nat
 import Definition.Typed.Properties.Admissible.Sigma
+import Definition.Typed.Properties.Admissible.Non-dependent
 import Definition.Typed.Properties.Admissible.Unit
 import Definition.Typed.Properties.Admissible.Erased.Eta
 import Definition.Typed.Properties.Admissible.Erased.No-eta
@@ -180,6 +182,7 @@ import Graded.Substitution.Decidable
 import Graded.Derived.Sigma
 
 -- Properties related to usage and certain type formers.
+import Graded.Derived.Non-dependent
 import Graded.Derived.Identity
 import Graded.Derived.Unit
 import Graded.Derived.Nat

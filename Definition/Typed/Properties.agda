@@ -25,6 +25,8 @@ open import Definition.Typed.Properties.Admissible.Erased R public
 open import Definition.Typed.Properties.Admissible.Identity R public
 open import Definition.Typed.Properties.Admissible.Lift R public
 open import Definition.Typed.Properties.Admissible.Nat R public
+open import Definition.Typed.Properties.Admissible.Non-dependent R
+  public
 open import Definition.Typed.Properties.Admissible.Pi R public
 open import Definition.Typed.Properties.Admissible.Sigma R public
 open import Definition.Typed.Properties.Admissible.Unit R public
