@@ -52,7 +52,7 @@ private variable
   σ                                               : Subst _ _
   p q                                             : M
   s                                               : Strength
-  l                                               : Universe-level
+  l l₁ l₂                                         : Universe-level
 
 ------------------------------------------------------------------------
 -- Lemmas related to rfl
@@ -1146,6 +1146,115 @@ opaque
         transitivity A t u u eq₂ eq                                      ∎
 
 ------------------------------------------------------------------------
+-- Function extensionality
+
+opaque
+
+  -- Has-function-extensionality p q l₁ l₂ Γ means that a certain
+  -- formulation of function extensionality holds for the context Γ.
+
+  Has-function-extensionality :
+    M → M → Universe-level → Universe-level → Con Term n → Set a
+  Has-function-extensionality p q l₁ l₂ Γ =
+    ∃ λ t →
+    Γ ⊢ t ∷
+      Π p , q ▷ U l₁ ▹
+      Π p , q ▷ (Π p , q ▷ var x0 ▹ U l₂) ▹
+      let Π-type = Π p , q ▷ var x1 ▹ (var x1 ∘⟨ p ⟩ var x0) in
+      Π p , q ▷ Π-type ▹
+      Π p , q ▷ wk1 Π-type ▹
+      Π p , q ▷
+        (Π p , q ▷ var x3 ▹
+         Id (var x3 ∘⟨ p ⟩ var x0)
+           (var x2 ∘⟨ p ⟩ var x0)
+           (var x1 ∘⟨ p ⟩ var x0)) ▹
+      Id (wk[ 3 ]′ Π-type) (var x2) (var x1)
+
+opaque
+
+  -- Extends the context with the assumption that a certain instance
+  -- of function extensionality holds.
+
+  with-function-extensionality-assumption :
+    M → M → Universe-level → Universe-level →
+    Con Term n → Con Term (1+ n)
+  with-function-extensionality-assumption p q l₁ l₂ Γ =
+    Γ ∙
+    Π p , q ▷ U l₁ ▹
+    Π p , q ▷ (Π p , q ▷ var x0 ▹ U l₂) ▹
+    let Π-type = Π p , q ▷ var x1 ▹ (var x1 ∘⟨ p ⟩ var x0) in
+    Π p , q ▷ Π-type ▹
+    Π p , q ▷ wk1 Π-type ▹
+    Π p , q ▷
+      (Π p , q ▷ var x3 ▹
+       Id (var x3 ∘⟨ p ⟩ var x0)
+         (var x2 ∘⟨ p ⟩ var x0)
+         (var x1 ∘⟨ p ⟩ var x0)) ▹
+    Id (wk[ 3 ]′ Π-type) (var x2) (var x1)
+
+private opaque
+
+  -- A lemma used below.
+
+  ⊢Π3Id :
+    Π-allowed p q →
+    ⊢ Γ →
+    Γ ∙ U l₁ ∙ Π p , q ▷ var x0 ▹ U l₂ ∙
+    Π p , q ▷ var x1 ▹ (var x1 ∘⟨ p ⟩ var x0) ∙
+    Π p , q ▷ var x2 ▹ (var x2 ∘⟨ p ⟩ var x0) ⊢
+    Π p , q ▷ var x3 ▹
+    Id (var x3 ∘⟨ p ⟩ var x0)
+      (var x2 ∘⟨ p ⟩ var x0) (var x1 ∘⟨ p ⟩ var x0)
+  ⊢Π3Id {p} {q} {Γ} ok ⊢Γ =
+    flip _⊢_.ΠΣⱼ ok $
+    Idⱼ′ (var₂ ⊢3 ∘ⱼ var₀ ⊢3) (var₁ ⊢3 ∘ⱼ var₀ ⊢3)
+    where
+    ⊢1 : Γ ∙ U l₁ ∙ Π p , q ▷ var x0 ▹ U l₂ ⊢ var x1
+    ⊢1 =
+      _⊢_.univ $ var₁ $ flip _⊢_.ΠΣⱼ ok $
+      Uⱼ (∙ univ (var₀ (Uⱼ ⊢Γ)))
+
+    ⊢2 :
+      Γ ∙ U l₁ ∙ Π p , q ▷ var x0 ▹ U l₂ ∙
+      Π p , q ▷ var x1 ▹ (var x1 ∘⟨ p ⟩ var x0) ⊢
+      var x2
+    ⊢2 =
+      _⊢_.univ $ var₂ $ flip _⊢_.ΠΣⱼ ok $
+      univ (var₁ ⊢1 ∘ⱼ var₀ ⊢1)
+
+    ⊢3 :
+      Γ ∙ U l₁ ∙ Π p , q ▷ var x0 ▹ U l₂ ∙
+      Π p , q ▷ var x1 ▹ (var x1 ∘⟨ p ⟩ var x0) ∙
+      Π p , q ▷ var x2 ▹ (var x2 ∘⟨ p ⟩ var x0) ⊢
+      var x3
+    ⊢3 =
+      _⊢_.univ $ var₃ $ flip _⊢_.ΠΣⱼ ok $
+      univ (var₂ ⊢2 ∘ⱼ var₀ ⊢2)
+
+opaque
+  unfolding
+    Has-function-extensionality with-function-extensionality-assumption
+
+  -- If Γ is a well-formed context and certain Π-types are allowed,
+  -- then the context
+  -- with-function-extensionality-assumption p q l₁ l₂ Γ satisfies
+  -- Has-function-extensionality p q l₁ l₂.
+
+  Has-function-extensionality-with-function-extensionality-assumption :
+    Π-allowed p q →
+    ⊢ Γ →
+    Has-function-extensionality p q l₁ l₂
+      (with-function-extensionality-assumption p q l₁ l₂ Γ)
+  Has-function-extensionality-with-function-extensionality-assumption
+    ok ⊢Γ =
+    let ⊢Π3Id = ⊢Π3Id ok ⊢Γ in
+    var x0 ,
+    (var₀ $
+     flip _⊢_.ΠΣⱼ ok $ flip _⊢_.ΠΣⱼ ok $ flip _⊢_.ΠΣⱼ ok $
+     flip _⊢_.ΠΣⱼ ok $ flip _⊢_.ΠΣⱼ ok $
+     Idⱼ′ (var₂ ⊢Π3Id) (var₁ ⊢Π3Id))
+
+------------------------------------------------------------------------
 -- Some lemmas related to equality-reflection
 
 opaque
@@ -1209,6 +1318,25 @@ opaque
          (PE.cong₃ _∘⟨_⟩_ (wkSingleSubstId _) PE.refl PE.refl)
          (PE.cong₃ _∘⟨_⟩_ (wkSingleSubstId _) PE.refl PE.refl))
       (wkTerm₁ ⊢A ⊢v ∘ⱼ var₀ ⊢A)
+
+opaque
+  unfolding Has-function-extensionality
+
+  -- In the presence of equality reflection
+  -- Has-function-extensionality p q holds for every well-formed
+  -- context (assuming that Π-allowed p q holds).
+
+  has-function-extensionality :
+    Equality-reflection →
+    Π-allowed p q →
+    ⊢ Γ →
+    Has-function-extensionality p q l₁ l₂ Γ
+  has-function-extensionality {p} ok Π-ok ⊢Γ =
+    let ⊢Π3Id = ⊢Π3Id Π-ok ⊢Γ in
+    lam p (lam p (lam p (lam p (lam p rfl)))) ,
+    (lamⱼ′ Π-ok $ lamⱼ′ Π-ok $ lamⱼ′ Π-ok $ lamⱼ′ Π-ok $ lamⱼ′ Π-ok $
+     function-extensionality-Π ok (var₂ ⊢Π3Id) (var₁ ⊢Π3Id)
+       (var₀ ⊢Π3Id))
 
 opaque
 
