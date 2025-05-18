@@ -195,6 +195,8 @@ opaque mutual
       wf-⊢∷ ⊢l₁ , maxᵘⱼ ⊢l₁ ⊢l₂ , maxᵘⱼ ⊢l₂ ⊢l₁
     (maxᵘ-idem ⊢l) →
       wf-⊢∷ ⊢l , maxᵘⱼ ⊢l ⊢l , ⊢l
+    (maxᵘ-sub ⊢l) →
+      wf-⊢∷ ⊢l , maxᵘⱼ ⊢l (sucᵘⱼ ⊢l) , (sucᵘⱼ ⊢l)
     (U-cong l₁≡l₂) →
       let ⊢Level , ⊢l₁ , ⊢l₂ = wf-⊢≡∷ l₁≡l₂ in
       Uⱼ (sucᵘⱼ ⊢l₁) , Uⱼ ⊢l₁ , conv (Uⱼ ⊢l₂) (sym (U-cong (sucᵘ-cong l₁≡l₂)))

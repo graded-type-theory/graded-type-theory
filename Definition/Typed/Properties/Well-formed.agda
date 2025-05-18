@@ -277,6 +277,8 @@ opaque
       fix (wfTerm-<ˢ l₁)
     wfEqTerm-<ˢ (maxᵘ-idem ⊢l) =
       fix (wfTerm-<ˢ ⊢l)
+    wfEqTerm-<ˢ (maxᵘ-sub ⊢l) =
+      fix (wfTerm-<ˢ ⊢l)
     wfEqTerm-<ˢ (U-cong l₁≡l₂) =
       fix (wfEqTerm-<ˢ l₁≡l₂)
     wfEqTerm-<ˢ (ΠΣ-cong l₁ l₂ A≡B _ _) =

@@ -25,7 +25,7 @@ open Data.Nat.Properties
          *-identityˡ; *-identityʳ; *-assoc; *-comm; *-zeroʳ; *-cancelˡ-≡;
          *-suc; *-1-isCommutativeMonoid; +-*-isSemiring; ⊔-isSemilattice;
          m*n≡0⇒m≡0∨n≡0;
-         ⊔-identityʳ; ⊔-assoc; ⊔-comm; ⊔-idem; m≥n⇒m⊔n≡m; m⊔n≡m⇒n≤m;
+         ⊔-identityʳ; ⊔-assoc; ⊔-comm; ⊔-idem; m≥n⇒m⊔n≡m; m≤n⇒m⊔n≡n; m⊔n≡m⇒n≤m; m⊔n≡n⇒m≤n;
          ⊓-assoc; ⊓-comm;
          +-distribˡ-⊔; +-distribʳ-⊔; ∸-distribʳ-⊔;
          *-distribˡ-+; *-distribʳ-+; *-distribˡ-⊔; *-distribʳ-⊔;
@@ -35,7 +35,7 @@ open Data.Nat.Properties
          ≤-<-trans;
          n≮n; ≤∧≢⇒<; m<n⇒n≢0;
          ≤⇒pred≤;
-         +-mono-≤; m≤m+n; m≤n+m; m+n≤o⇒n≤o; 0<1+n; n≤1+n;
+         +-mono-≤; m≤m+n; m≤n+m; m+n≤o⇒n≤o; 0<1+n; n≤1+n; m≤n⇒m≤1+n;
          *-mono-≤; m≤m*n; m≤n*m; m+1+n≰m;
          m≤m⊔n; m≤n⊔m;
          m<n⊓o⇒m<n; m<n⊓o⇒m<o; ⊓-pres-m<;

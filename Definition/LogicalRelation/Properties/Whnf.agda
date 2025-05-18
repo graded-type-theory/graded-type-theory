@@ -31,12 +31,14 @@ private variable
 
 opaque
 
-  -- If t satisfies Level-prop Γ, then it is a WHNF.
+  -- If t satisfies neLevel-prop Γ, then it is semineutral.
 
   nelevel : neLevel-prop Γ t → Semineutral t
   nelevel (maxᵘˡᵣ x x₁) = maxᵘˡₙ (nelevel x)
   nelevel (maxᵘʳᵣ x x₁) = maxᵘʳₙ (nelevel x₁)
   nelevel (ne (neNfₜ₌ _ neK neM k≡m)) = ne neK
+
+  -- If t satisfies Level-prop Γ, then it is a WHNF.
 
   level : Level-prop Γ t → Whnf t
   level zeroᵘᵣ = zeroᵘₙ
@@ -45,29 +47,29 @@ opaque
 
 opaque
 
-  -- If t and u satisfy [Level]-prop Γ, then they are WHNFs.
+  -- If t and u satisfy [neLevel]-prop Γ, then they are semineutrals.
 
   nelsplit : [neLevel]-prop Γ t u → Semineutral t × Semineutral u
   nelsplit (maxᵘˡᵣ t≡u x) = let a , b = nelsplit t≡u in maxᵘˡₙ a , maxᵘˡₙ b
   nelsplit (maxᵘʳᵣ x t≡u) = let a , b = nelsplit t≡u in maxᵘʳₙ a , maxᵘʳₙ b
-  nelsplit (maxᵘ-zeroʳˡᵣ u≡u) = let a , _ = nelsplit u≡u in maxᵘˡₙ a , a
-  nelsplit (maxᵘ-assoc¹ᵣ x y z) = let a , _ = nelsplit x in maxᵘˡₙ (maxᵘˡₙ a) , maxᵘˡₙ a
-  nelsplit (maxᵘ-assoc²ᵣ x y z) = let a , _ = nelsplit y in maxᵘˡₙ (maxᵘʳₙ a) , maxᵘʳₙ (maxᵘˡₙ a)
-  nelsplit (maxᵘ-assoc³ᵣ x y z) = let a , _ = nelsplit z in maxᵘʳₙ a , maxᵘʳₙ (maxᵘʳₙ a)
-  nelsplit (maxᵘ-comm¹ᵣ x d y d′) =
-    let t₁ , _ = nelsplit x
-        u₂ , _ = nelsplit y
-    in maxᵘˡₙ t₁ , maxᵘˡₙ u₂
-  nelsplit (maxᵘ-comm²ᵣ x d y) = let u₁ , u₂ = nelsplit y in maxᵘʳₙ u₁ , maxᵘˡₙ u₂
-  nelsplit (maxᵘ-idem x y) = let n , _ = nelsplit x in maxᵘˡₙ n , n
+  nelsplit (maxᵘ-zeroʳᵣ [u]) = let a = nelevel [u] in maxᵘˡₙ a , a
+  nelsplit (maxᵘ-assoc¹ᵣ x y z) = let a = nelevel x in maxᵘˡₙ (maxᵘˡₙ a) , maxᵘˡₙ a
+  nelsplit (maxᵘ-assoc²ᵣ x y z) = let a = nelevel y in maxᵘˡₙ (maxᵘʳₙ a) , maxᵘʳₙ (maxᵘˡₙ a)
+  nelsplit (maxᵘ-assoc³ᵣ x y z) = let a = nelevel z in maxᵘʳₙ a , maxᵘʳₙ (maxᵘʳₙ a)
+  nelsplit (maxᵘ-comm¹ᵣ x d y d′) = maxᵘˡₙ (nelevel x) , maxᵘˡₙ (nelevel y)
+  nelsplit (maxᵘ-comm²ᵣ x d y) = let u = nelevel y in maxᵘʳₙ u , maxᵘˡₙ u
+  nelsplit (maxᵘ-idemᵣ x y) = let n = nelevel x in maxᵘˡₙ n , n
   nelsplit (ne (neNfₜ₌ _ neK neM _)) = ne neK , ne neM
-  nelsplit (sym u≡t) = let a , b = nelsplit u≡t in b , a
-  nelsplit (trans t≡u u≡v) = let a , _ = nelsplit t≡u; _ , b = nelsplit u≡v in a , b
+
+  -- If t and u satisfy [Level]-prop Γ, then they are WHNFs.
 
   lsplit : [Level]-prop Γ t u → Whnf t × Whnf u
   lsplit zeroᵘᵣ = zeroᵘₙ , zeroᵘₙ
   lsplit (sucᵘᵣ x) = sucᵘₙ , sucᵘₙ
+  lsplit (maxᵘ-subᵣ x _) = let a = nelevel x in ne (maxᵘˡₙ a) , sucᵘₙ
   lsplit (neLvl x) = let a , b = nelsplit x in ne a , ne b
+  lsplit (sym u≡t) = let a , b = lsplit u≡t in b , a
+  lsplit (trans t≡u u≡v) = let a , _ = lsplit t≡u; _ , b = lsplit u≡v in a , b
 
 opaque
 

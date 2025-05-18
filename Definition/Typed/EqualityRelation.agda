@@ -18,6 +18,7 @@ open import Definition.Untyped M
 import Definition.Untyped.Erased 𝕄 as Erased
 open import Definition.Untyped.Neutral M type-variant
 open import Definition.Typed R
+open import Definition.Typed.Well-formed R
 open import Definition.Typed.Weakening R using (_∷ʷ_⊇_)
 
 open import Tools.Fin
@@ -151,35 +152,45 @@ record Equality-relations
     -- Successor level congruence
     ≅ₜ-sucᵘ-cong : Γ ⊢ t ≅ u ∷ Level → Γ ⊢ sucᵘ t ≅ sucᵘ u ∷ Level
 
-    -- Maximum level congruence
+    -- maxᵘ congruence
     ≅ₜ-maxᵘ-cong
       : Γ ⊢ t₁ ≅ t₂ ∷ Level
       → Γ ⊢ u₁ ≅ u₂ ∷ Level
       → Γ ⊢ t₁ maxᵘ u₁ ≅ t₂ maxᵘ u₂ ∷ Level
 
+    -- maxᵘ right identity
     ≅ₜ-maxᵘ-zeroʳ
       : Γ ⊢ t ∷ Level
       → Γ ⊢ t maxᵘ zeroᵘ ≅ t ∷ Level
 
+    -- maxᵘ distributivity over sucᵘ
     ≅ₜ-maxᵘ-sucᵘ
       : Γ ⊢ t ∷ Level
       → Γ ⊢ u ∷ Level
       → Γ ⊢ sucᵘ t maxᵘ sucᵘ u ≅ sucᵘ (t maxᵘ u) ∷ Level
 
+    -- maxᵘ associativity
     ≅ₜ-maxᵘ-assoc
       : Γ ⊢ t ∷ Level
       → Γ ⊢ u ∷ Level
       → Γ ⊢ v ∷ Level
       → Γ ⊢ (t maxᵘ u) maxᵘ v ≅ t maxᵘ (u maxᵘ v) ∷ Level
 
+    -- maxᵘ commutativity
     ≅ₜ-maxᵘ-comm
       : Γ ⊢ t ∷ Level
       → Γ ⊢ u ∷ Level
       → Γ ⊢ t maxᵘ u ≅ u maxᵘ t ∷ Level
 
+    -- maxᵘ idempotence
     ≅ₜ-maxᵘ-idem
       : Γ ⊢ t ∷ Level
       → Γ ⊢ t maxᵘ t ≅ t ∷ Level
+
+    -- maxᵘ subsumption
+    ≅ₜ-maxᵘ-sub
+      : Γ ⊢ t ∷ Level
+      → Γ ⊢ t maxᵘ sucᵘ t ≅ sucᵘ t ∷ Level
 
     -- Universe type reflexivity
     ≅-Urefl   : Γ ⊢ l ∷ Level → Γ ⊢≅ U l ∷ U (sucᵘ l)
@@ -461,6 +472,33 @@ record Equality-relations
       case Neutrals-included? of λ where
         (yes inc) → t≅u ⦃ inc = inc ⦄
         (no ni)   → ⊢≡∷→⊢≅∷ ni t≡u
+
+  opaque
+
+    -- A variant of ≅ₜ-maxᵘ-sub.
+
+    ≅ₜ-maxᵘ-sub′
+      : Γ ⊢≅ t ∷ Level
+      → Γ ⊢ t maxᵘ u ≅ u ∷ Level
+      → Γ ⊢ t maxᵘ sucᵘ u ≅ sucᵘ u ∷ Level
+    ≅ₜ-maxᵘ-sub′ ⊢≅t t⊔u≡u =
+      let _ , ⊢t , _ = wf-⊢≡∷ (≅ₜ-eq ⊢≅t)
+          _ , _ , ⊢u = wf-⊢≡∷ (≅ₜ-eq t⊔u≡u)
+          _ , ⊢≅u = wf-⊢≅∷ t⊔u≡u
+      in
+      -- t maxᵘ sucᵘ u
+        ≅ₜ-trans (≅ₜ-maxᵘ-cong ⊢≅t (≅ₜ-trans
+          (≅ₜ-sucᵘ-cong (≅ₜ-sym t⊔u≡u))
+          (≅ₜ-sym (≅ₜ-maxᵘ-sucᵘ ⊢t ⊢u))))
+      -- t maxᵘ (sucᵘ t maxᵘ sucᵘ u)
+      $ ≅ₜ-trans (≅ₜ-sym (≅ₜ-maxᵘ-assoc ⊢t (sucᵘⱼ ⊢t) (sucᵘⱼ ⊢u)))
+      -- (t maxᵘ sucᵘ t) maxᵘ sucᵘ u
+      $ ≅ₜ-trans (≅ₜ-maxᵘ-cong (≅ₜ-maxᵘ-sub ⊢t) (≅ₜ-sucᵘ-cong ⊢≅u))
+      -- sucᵘ t maxᵘ sucᵘ u
+      $ ≅ₜ-trans (≅ₜ-maxᵘ-sucᵘ ⊢t ⊢u)
+      -- sucᵘ (t maxᵘ u)
+      $ ≅ₜ-sucᵘ-cong t⊔u≡u
+      -- sucᵘ u
 
 -- Values of type EqRelSet contain three relations that the logical
 -- relation in Definition.LogicalRelation can be instantiated with.

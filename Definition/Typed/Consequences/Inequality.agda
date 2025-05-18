@@ -484,6 +484,13 @@ No-η-equality→≢Unit = λ where
 -- definitionally equal at type A to any neutral term (given a certain
 -- assumption).
 
+-- TODO: this is not straightforward any more because a neutral level
+-- can be equal to a semineutral level (k ≡ k ⊔ k) and a semineutral
+-- level can be equal to a non-semineutral level (k ⊔ sucᵘ k ≡ sucᵘ k),
+-- but it should still be true (a neutral level can never be equal to
+-- zeroᵘ or a successor level).
+
+{-
 whnf≢ne :
   ⦃ ok : No-equality-reflection or-empty Γ ⦄ →
   No-η-equality A → Whnf t → ¬ Semineutral t → Neutral u →
@@ -516,14 +523,27 @@ whnf≢ne {Γ} {A} {t} {u} ¬-A-η t-whnf ¬-t-ne u-ne t≡u =
       PE.refl →
     u-ne }
 
+  mutual
+    whnf≢ne∷Level : ∀ {t u} → ¬ Semineutral t → Neutral u → ¬ [Level]-prop Γ t u
+    whnf≢ne∷Level ¬sne () zeroᵘᵣ
+    whnf≢ne∷Level ¬sne () (sucᵘᵣ x)
+    whnf≢ne∷Level ¬sne () (maxᵘ-subᵣ x x₁)
+    whnf≢ne∷Level ¬sne n (neLvl x) = ¬sne (nelsplit x .proj₁)
+    whnf≢ne∷Level ¬sne n (sym x) = ne≢whnf∷Level ¬sne n x
+    whnf≢ne∷Level ¬sne n (trans x y) = {!   !}
+
+    ne≢whnf∷Level : ∀ {t u} → ¬ Semineutral t → Neutral u → ¬ [Level]-prop Γ u t
+    ne≢whnf∷Level ¬sne () zeroᵘᵣ
+    ne≢whnf∷Level ¬sne () (sucᵘᵣ x)
+    ne≢whnf∷Level ¬sne () (maxᵘ-subᵣ x x₁)
+    ne≢whnf∷Level ¬sne n (neLvl x) = ¬sne (nelsplit x .proj₂)
+    ne≢whnf∷Level ¬sne n (sym x) = whnf≢ne∷Level ¬sne n x
+    ne≢whnf∷Level ¬sne n (trans x y) = {!   !}
+
   lemma : ∀ {l} → ([A] : Γ ⊩⟨ l ⟩ A) → ¬ Γ ⊩⟨ l ⟩ t ≡ u ∷ A / [A]
   lemma = λ where
-    (Levelᵣ _) (Levelₜ₌ _ _ _ u⇒ zeroᵘᵣ) →
-      U.zeroᵘ≢ne (U.ne (u⇒*ne u⇒)) PE.refl
-    (Levelᵣ _) (Levelₜ₌ _ _ _ u⇒ (sucᵘᵣ x)) →
-      U.sucᵘ≢ne (U.ne (u⇒*ne u⇒)) PE.refl
-    (Levelᵣ _) (Levelₜ₌ _ _ t⇒ _ (neLvl n)) →
-      ¬t⇒*sne t⇒ (nelsplit n .proj₁)
+    (Levelᵣ _) (Levelₜ₌ _ _ t⇒ u⇒ prop) →
+      whnf≢ne∷Level (¬t⇒*sne t⇒) (u⇒*ne u⇒) prop
     (ℕᵣ _) (ℕₜ₌ _ _ _ u⇒*zero _ zeroᵣ) →
       U.zero≢ne (u⇒*ne u⇒*zero) PE.refl
     (ℕᵣ _) (ℕₜ₌ _ _ _ u⇒*suc _ (sucᵣ _)) →
@@ -623,3 +643,4 @@ rfl≢ne :
   Neutral v →
   ¬ Γ ⊢ rfl ≡ v ∷ Id A t u
 rfl≢ne = whnf≢ne U.Idₙ U.rflₙ (λ { (U.ne ()) })
+-}

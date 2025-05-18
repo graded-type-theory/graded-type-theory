@@ -533,6 +533,8 @@ private module Inhabited where
           maxᵘ-comm (wkTerm ρ⊇ ⊢Δ l₁) (wkTerm ρ⊇ ⊢Δ l₂)
         (maxᵘ-idem ⊢l) PE.refl →
           maxᵘ-idem (wkTerm ρ⊇ ⊢Δ ⊢l)
+        (maxᵘ-sub ⊢l) PE.refl →
+          maxᵘ-sub (wkTerm ρ⊇ ⊢Δ ⊢l)
         (U-cong l₁≡l₂) PE.refl →
           U-cong (wkEqTerm ρ⊇ ⊢Δ l₁≡l₂)
         (ΠΣ-cong ⊢l₁ ⊢l₂ A₁≡A₂ B₁≡B₂ ok) PE.refl →

@@ -132,52 +132,44 @@ opaque
 
 opaque
 
-  ⊩sucᵘ≡sucᵘ⇔ :
-    Γ ⊩Level sucᵘ t ≡ sucᵘ u ∷Level ⇔
-    Γ ⊩Level t ≡ u ∷Level
-  ⊩sucᵘ≡sucᵘ⇔ {Γ} {t} {u} = lemma₁ , ⊩sucᵘ≡sucᵘ
-    where
-    lemma₀ : ∀ {t u} → [Level]-prop Γ (sucᵘ t) (sucᵘ u) → Γ ⊩Level t ≡ u ∷Level
-    lemma₀ (sucᵘᵣ t≡u) = t≡u
-    lemma₀ (neLvl x₂) = case nelsplit x₂ .proj₁ of λ { (ne ()) }
-
-    lemma₁ : Γ ⊩Level sucᵘ t ≡ sucᵘ u ∷Level → Γ ⊩Level t ≡ u ∷Level
-    lemma₁ (Levelₜ₌ _ _ sucᵘ-t⇒*t′ sucᵘ-u⇒*u′ t′≡u′) =
-      case whnfRed*Term sucᵘ-t⇒*t′ sucᵘₙ of λ {
-        PE.refl →
-      case whnfRed*Term sucᵘ-u⇒*u′ sucᵘₙ of λ {
-        PE.refl →
-      lemma₀ t′≡u′}}
-
   -- A characterisation lemma for _⊩⟨_⟩ sucᵘ _ ≡ sucᵘ _ ∷ Level
 
-  ⊩sucᵘ≡sucᵘ∷Level⇔ :
-    Γ ⊩⟨ l ⟩ sucᵘ t ≡ sucᵘ u ∷ Level ⇔
-    Γ ⊩⟨ l ⟩ t ≡ u ∷ Level
-  ⊩sucᵘ≡sucᵘ∷Level⇔ {Γ} {l} {t} {u} =
-    Γ ⊩⟨ l ⟩ sucᵘ t ≡ sucᵘ u ∷ Level  ⇔⟨ ⊩≡∷Level⇔ ⟩
-    Γ ⊩Level sucᵘ t ≡ sucᵘ u ∷Level   ⇔⟨ ⊩sucᵘ≡sucᵘ⇔ ⟩
-    Γ ⊩Level t ≡ u ∷Level             ⇔˘⟨ ⊩≡∷Level⇔ ⟩
-    Γ ⊩⟨ l ⟩ t ≡ u ∷ Level            □⇔
+  ⊩sucᵘ≡sucᵘ∷Level :
+    Γ ⊩⟨ l ⟩ t ≡ u ∷ Level →
+    Γ ⊩⟨ l ⟩ sucᵘ t ≡ sucᵘ u ∷ Level
+  ⊩sucᵘ≡sucᵘ∷Level {Γ} {l} {t} {u} =
+    Γ ⊩⟨ l ⟩ t ≡ u ∷ Level            ⇔⟨ ⊩≡∷Level⇔ ⟩→
+    Γ ⊩Level t ≡ u ∷Level             →⟨ ⊩sucᵘ≡sucᵘ ⟩
+    Γ ⊩Level sucᵘ t ≡ sucᵘ u ∷Level   ⇔˘⟨ ⊩≡∷Level⇔ ⟩→
+    Γ ⊩⟨ l ⟩ sucᵘ t ≡ sucᵘ u ∷ Level  □
 
 opaque
 
   -- A characterisation lemma for _⊩⟨_⟩ sucᵘ _ ∷ Level
 
-  ⊩sucᵘ∷Level⇔ :
-    Γ ⊩⟨ l ⟩ sucᵘ t ∷ Level ⇔
-    Γ ⊩⟨ l ⟩ t ∷ Level
-  ⊩sucᵘ∷Level⇔ {Γ} {l} {t} =
-    Γ ⊩⟨ l ⟩ sucᵘ t ∷ Level           ⇔⟨ ⊩∷⇔⊩≡∷ ⟩
-    Γ ⊩⟨ l ⟩ sucᵘ t ≡ sucᵘ t ∷ Level  ⇔⟨ ⊩sucᵘ≡sucᵘ∷Level⇔ ⟩
-    Γ ⊩⟨ l ⟩ t ≡ t ∷ Level            ⇔˘⟨ ⊩∷⇔⊩≡∷ ⟩
-    Γ ⊩⟨ l ⟩ t ∷ Level                □⇔
+  ⊩sucᵘ∷Level :
+    Γ ⊩⟨ l ⟩ t ∷ Level →
+    Γ ⊩⟨ l ⟩ sucᵘ t ∷ Level
+  ⊩sucᵘ∷Level{Γ} {l} {t} =
+    Γ ⊩⟨ l ⟩ t ∷ Level                ⇔⟨ ⊩∷⇔⊩≡∷ ⟩→
+    Γ ⊩⟨ l ⟩ t ≡ t ∷ Level            →⟨ ⊩sucᵘ≡sucᵘ∷Level ⟩
+    Γ ⊩⟨ l ⟩ sucᵘ t ≡ sucᵘ t ∷ Level  ⇔˘⟨ ⊩∷⇔⊩≡∷ ⟩→
+    Γ ⊩⟨ l ⟩ sucᵘ t ∷ Level           □
 
 opaque
 
-  0≡t : ∀ {t} → [Level]-prop Γ zeroᵘ t → t PE.≡ zeroᵘ
-  0≡t zeroᵘᵣ = PE.refl
-  0≡t (neLvl n) = case nelsplit n .proj₁ of λ { (ne ()) }
+  private mutual
+    0≡t : ∀ {t} → [Level]-prop Γ zeroᵘ t → t PE.≡ zeroᵘ
+    0≡t zeroᵘᵣ = PE.refl
+    0≡t (sym x) = t≡0 x
+    0≡t (trans x y) = case 0≡t x of λ { PE.refl → 0≡t y }
+    0≡t (neLvl n) = case nelsplit n .proj₁ of λ { (ne ()) }
+
+    t≡0 : ∀ {t} → [Level]-prop Γ t zeroᵘ → t PE.≡ zeroᵘ
+    t≡0 zeroᵘᵣ = PE.refl
+    t≡0 (neLvl x) = case nelsplit x .proj₂ of λ { (ne ()) }
+    t≡0 (sym x) = 0≡t x
+    t≡0 (trans x y) = case t≡0 y of λ { PE.refl → t≡0 x }
 
   -- A characterisation lemma for _⊩⟨_⟩ zeroᵘ ≡ sucᵘ _ ∷ Level
 
@@ -239,24 +231,6 @@ opaque
           ⊢ Δ                              ⇔˘⟨ ⊩zeroᵘ≡zeroᵘ∷Level⇔ ⟩→
           Δ ⊩⟨ 0ᵘ ⟩ zeroᵘ ≡ zeroᵘ ∷ Level  □
       )
-
-opaque
-
-  -- Reducibility of sucᵘ.
-
-  ⊩sucᵘ∷Level :
-    Γ ⊩⟨ l ⟩ t ∷ Level →
-    Γ ⊩⟨ l ⟩ sucᵘ t ∷ Level
-  ⊩sucᵘ∷Level = ⊩sucᵘ∷Level⇔ .proj₂
-
-opaque
-
-  -- Reducibility of equality between applications of sucᵘ.
-
-  ⊩sucᵘ≡sucᵘ∷Level :
-    Γ ⊩⟨ l ⟩ t ≡ u ∷ Level →
-    Γ ⊩⟨ l ⟩ sucᵘ t ≡ sucᵘ u ∷ Level
-  ⊩sucᵘ≡sucᵘ∷Level = ⊩sucᵘ≡sucᵘ∷Level⇔ .proj₂
 
 opaque
 
@@ -410,6 +384,8 @@ opaque
 
 opaque
 
+  -- Reducibility of maxᵘ-assoc.
+
   ⊩maxᵘ-assoc∷Level :
     Γ ⊩⟨ l ⟩ t ∷ Level →
     Γ ⊩⟨ l′ ⟩ u ∷ Level →
@@ -417,6 +393,10 @@ opaque
     Γ ⊩⟨ l ⟩ (t maxᵘ u) maxᵘ v ≡ t maxᵘ (u maxᵘ v) ∷ Level
   ⊩maxᵘ-assoc∷Level ⊩t ⊩u ⊩v = ⊩≡∷Level⇔ .proj₂ $
     ⊩maxᵘ-assoc (⊩∷Level⇔ .proj₁ ⊩t) (⊩∷Level⇔ .proj₁ ⊩u) (⊩∷Level⇔ .proj₁ ⊩v)
+
+opaque
+
+  -- Validity of maxᵘ-assoc.
 
   maxᵘ-assocᵛ :
     Γ ⊩ᵛ⟨ l ⟩ t ∷ Level →
@@ -440,12 +420,18 @@ opaque
 
 opaque
 
+  -- Reducibility of maxᵘ-comm.
+
   ⊩maxᵘ-comm∷Level :
     Γ ⊩⟨ l ⟩ t ∷ Level →
     Γ ⊩⟨ l′ ⟩ u ∷ Level →
     Γ ⊩⟨ l ⟩ t maxᵘ u ≡ u maxᵘ t ∷ Level
   ⊩maxᵘ-comm∷Level ⊩t ⊩u = ⊩≡∷Level⇔ .proj₂ $
     ⊩maxᵘ-comm (⊩∷Level⇔ .proj₁ ⊩t) (⊩∷Level⇔ .proj₁ ⊩u)
+
+opaque
+
+  -- Validity of maxᵘ-comm.
 
   maxᵘ-commᵛ :
     Γ ⊩ᵛ⟨ l ⟩ t ∷ Level →
@@ -466,11 +452,17 @@ opaque
 
 opaque
 
+  -- Reducibility of maxᵘ-idem.
+
   ⊩maxᵘ-idem∷Level :
     Γ ⊩⟨ l ⟩ t ∷ Level →
     Γ ⊩⟨ l ⟩ t maxᵘ t ≡ t ∷ Level
   ⊩maxᵘ-idem∷Level ⊩t = ⊩≡∷Level⇔ .proj₂ $
     ⊩maxᵘ-idem (⊩∷Level⇔ .proj₁ ⊩t)
+
+opaque
+
+  -- Validity of maxᵘ-idem.
 
   maxᵘ-idemᵛ :
     Γ ⊩ᵛ⟨ l ⟩ t ∷ Level →
@@ -482,6 +474,32 @@ opaque
           let t[σ₁]≡t[σ₂] = ⊩ᵛ∷⇔ʰ .proj₁ ⊩t .proj₂ σ₁≡σ₂
               ⊩t[σ₁] , ⊩t[σ₂] = wf-⊩≡∷ t[σ₁]≡t[σ₂]
           in trans-⊩≡∷ (⊩maxᵘ-idem∷Level ⊩t[σ₁]) t[σ₁]≡t[σ₂]
+      )
+
+opaque
+
+  -- Reducibility of maxᵘ-sub.
+
+  ⊩maxᵘ-sub∷Level :
+    Γ ⊩⟨ l ⟩ t ∷ Level →
+    Γ ⊩⟨ l ⟩ t maxᵘ sucᵘ t ≡ sucᵘ t ∷ Level
+  ⊩maxᵘ-sub∷Level ⊩t = ⊩≡∷Level⇔ .proj₂ $
+    ⊩maxᵘ-sub (⊩∷Level⇔ .proj₁ ⊩t)
+
+opaque
+
+  -- Validity of maxᵘ-sub.
+
+  maxᵘ-subᵛ :
+    Γ ⊩ᵛ⟨ l ⟩ t ∷ Level →
+    Γ ⊩ᵛ⟨ l ⟩ t maxᵘ sucᵘ t ≡ sucᵘ t ∷ Level
+  maxᵘ-subᵛ ⊩t =
+    ⊩ᵛ≡∷⇔ʰ .proj₂
+      ( wf-⊩ᵛ∷ ⊩t
+      , λ σ₁≡σ₂ →
+          let t[σ₁]≡t[σ₂] = ⊩ᵛ∷⇔ʰ .proj₁ ⊩t .proj₂ σ₁≡σ₂
+              ⊩t[σ₁] , ⊩t[σ₂] = wf-⊩≡∷ t[σ₁]≡t[σ₂]
+          in trans-⊩≡∷ (⊩maxᵘ-sub∷Level ⊩t[σ₁]) (⊩sucᵘ≡sucᵘ∷Level t[σ₁]≡t[σ₂])
       )
 
 ------------------------------------------------------------------------
@@ -501,17 +519,14 @@ opaque
   zeroᵘ-≤ᵘ {l} {[0]} = PE.subst (_≤ᵘ l) (PE.sym (↑ᵘ-zeroᵘ [0])) 0≤ᵘ
 
 opaque
-  unfolding ↑ᵘ′_
+  unfolding ↑ᵘ′_ ⊩sucᵘ
 
   -- Level reflection sends sucᵘ to 1+.
 
   ↑ᵘ′-sucᵘ
     : ∀ {t} ([t] : Γ ⊩Level t ∷Level) ([t+1] : Γ ⊩Level sucᵘ t ∷Level)
     → ↑ᵘ′ [t+1] PE.≡ 1+ (↑ᵘ′ [t])
-  ↑ᵘ′-sucᵘ [t] (Levelₜ _ t+1⇒ prop′) with whnfRed*Term t+1⇒ sucᵘₙ
-  ↑ᵘ′-sucᵘ [t] [t+1]@(Levelₜ _ t+1⇒ (sucᵘᵣ [t]′)) | PE.refl
-    = PE.cong 1+ (↑ᵘ′-irrelevance [t]′ [t])
-  ↑ᵘ′-sucᵘ [t] (Levelₜ _ t+1⇒ (neLvl x₁)) | PE.refl = case nelevel x₁ of λ { (ne ()) }
+  ↑ᵘ′-sucᵘ [t]@record{} [t+1] = ↑ᵘ′-irrelevance [t+1] (⊩sucᵘ [t])
 
   -- sucᵘ is inflationary.
 

@@ -161,9 +161,30 @@ mutual
 
   -- WHNF property of level term equality
   data [Level]-prop (Γ : Con Term ℓ) : (k k′ : Term ℓ) → Set a where
-    zeroᵘᵣ : [Level]-prop Γ zeroᵘ zeroᵘ
-    sucᵘᵣ  : ∀ {k k′} → Γ ⊩Level k ≡ k′ ∷Level → [Level]-prop Γ (sucᵘ k) (sucᵘ k′)
-    neLvl : ∀ {k k′} → [neLevel]-prop Γ k k′ → [Level]-prop Γ k k′
+    zeroᵘᵣ
+      : [Level]-prop Γ zeroᵘ zeroᵘ
+    sucᵘᵣ
+      : ∀ {k k′}
+      → Γ ⊩Level k ≡ k′ ∷Level
+      → [Level]-prop Γ (sucᵘ k) (sucᵘ k′)
+    maxᵘ-subᵣ
+      : ∀ {k k′}
+      → neLevel-prop Γ k
+      → Γ ⊩Level k maxᵘ k′ ≡ k′ ∷Level
+      → [Level]-prop Γ (k maxᵘ sucᵘ k′) (sucᵘ k′)
+    neLvl
+      : ∀ {k k′}
+      → [neLevel]-prop Γ k k′
+      → [Level]-prop Γ k k′
+    sym
+      : ∀ {k k′}
+      → [Level]-prop Γ k k′
+      → [Level]-prop Γ k′ k
+    trans
+      : ∀ {k k′ k″}
+      → [Level]-prop Γ k k′
+      → [Level]-prop Γ k′ k″
+      → [Level]-prop Γ k k″
 
   data [neLevel]-prop (Γ : Con Term ℓ) : (k k′ : Term ℓ) → Set a where
     maxᵘˡᵣ
@@ -176,49 +197,47 @@ mutual
       → Γ ⊩Level k₁ ≡ k₁′ ∷Level
       → [neLevel]-prop Γ k₂ k₂′
       → [neLevel]-prop Γ (sucᵘ k₁ maxᵘ k₂) (sucᵘ k₁′ maxᵘ k₂′)
-    maxᵘ-zeroʳˡᵣ
-      : ∀ {k₁}
-      → [neLevel]-prop Γ k₁ k₁
-      → [neLevel]-prop Γ (k₁ maxᵘ zeroᵘ) k₁
+    maxᵘ-zeroʳᵣ
+      : ∀ {k}
+      → neLevel-prop Γ k
+      → [neLevel]-prop Γ (k maxᵘ zeroᵘ) k
     maxᵘ-assoc¹ᵣ
       : ∀ {t u v}
-      → [neLevel]-prop Γ t t
-      → Γ ⊩Level u ≡ u ∷Level
-      → Γ ⊩Level v ≡ v ∷Level
-      → [neLevel]-prop Γ ((t maxᵘ u) maxᵘ v) (t maxᵘ u maxᵘ v)
+      → neLevel-prop Γ t
+      → Γ ⊩Level u ∷Level
+      → Γ ⊩Level v ∷Level
+      → [neLevel]-prop Γ ((t maxᵘ u) maxᵘ v) (t maxᵘ (u maxᵘ v))
     maxᵘ-assoc²ᵣ
       : ∀ {t u v}
-      → Γ ⊩Level t ≡ t ∷Level
-      → [neLevel]-prop Γ u u
-      → Γ ⊩Level v ≡ v ∷Level
-      → [neLevel]-prop Γ ((sucᵘ t maxᵘ u) maxᵘ v) (sucᵘ t maxᵘ u maxᵘ v)
+      → Γ ⊩Level t ∷Level
+      → neLevel-prop Γ u
+      → Γ ⊩Level v ∷Level
+      → [neLevel]-prop Γ ((sucᵘ t maxᵘ u) maxᵘ v) (sucᵘ t maxᵘ (u maxᵘ v))
     maxᵘ-assoc³ᵣ
       : ∀ {t u v}
-      → Γ ⊩Level t ≡ t ∷Level
-      → Γ ⊩Level u ≡ u ∷Level
-      → [neLevel]-prop Γ v v
-      → [neLevel]-prop Γ (sucᵘ (t maxᵘ u) maxᵘ v) (sucᵘ t maxᵘ sucᵘ u maxᵘ v)
+      → Γ ⊩Level t ∷Level
+      → Γ ⊩Level u ∷Level
+      → neLevel-prop Γ v
+      → [neLevel]-prop Γ (sucᵘ (t maxᵘ u) maxᵘ v) (sucᵘ t maxᵘ (sucᵘ u maxᵘ v))
     maxᵘ-comm¹ᵣ
       : ∀ {t₁ t₂ u₁ u₂}
-      → [neLevel]-prop Γ t₁ t₁
+      → neLevel-prop Γ t₁
       → Γ ⊩Level t₁ ≡ t₂ ∷Level
-      → [neLevel]-prop Γ u₂ u₂
+      → neLevel-prop Γ u₂
       → Γ ⊩Level u₁ ≡ u₂ ∷Level
       → [neLevel]-prop Γ (t₁ maxᵘ u₁) (u₂ maxᵘ t₂)
     maxᵘ-comm²ᵣ
       : ∀ {t₁ t₂ u}
-      → Γ ⊩Level t₁ ≡ t₁ ∷Level
+      → Γ ⊩Level t₁ ∷Level
       → Γ ⊩Level sucᵘ t₁ ≡ t₂ ∷Level
-      → [neLevel]-prop Γ u u
+      → neLevel-prop Γ u
       → [neLevel]-prop Γ (sucᵘ t₁ maxᵘ u) (u maxᵘ t₂)
-    maxᵘ-idem
+    maxᵘ-idemᵣ
       : ∀ {t₁ t₂}
-      → [neLevel]-prop Γ t₁ t₁
+      → neLevel-prop Γ t₁
       → Γ ⊩Level t₁ ≡ t₂ ∷Level
       → [neLevel]-prop Γ (t₁ maxᵘ t₂) t₁
     ne : ∀ {k k′} → Γ ⊩neNf k ≡ k′ ∷ Level → [neLevel]-prop Γ k k′
-    sym : ∀ {k k′} → [neLevel]-prop Γ k k′ → [neLevel]-prop Γ k′ k
-    trans : ∀ {k k′ k″} → [neLevel]-prop Γ k k′ → [neLevel]-prop Γ k′ k″ → [neLevel]-prop Γ k k″
 
 -- Level reflection
 

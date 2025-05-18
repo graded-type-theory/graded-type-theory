@@ -52,6 +52,27 @@ wkEqTermNe {ρ} [ρ] (neNfₜ₌ inc neK neM k≡m) =
 -- Weakening of reducible levels
 
 mutual
+  wkTermLevel : ρ ∷ʷ Δ ⊇ Γ
+              → Γ ⊩Level t ∷Level
+              → Δ ⊩Level U.wk ρ t ∷Level
+  wkTermLevel {ρ = ρ} [ρ] (Levelₜ k d prop) =
+    Levelₜ (U.wk ρ k) (wkRed*Term [ρ] d) (wkLevel-prop [ρ] prop)
+
+  wkLevel-prop : ρ ∷ʷ Δ ⊇ Γ
+               → Level-prop Γ t
+               → Level-prop Δ (U.wk ρ t)
+  wkLevel-prop [ρ] zeroᵘᵣ = zeroᵘᵣ
+  wkLevel-prop [ρ] (sucᵘᵣ x) = sucᵘᵣ (wkTermLevel [ρ] x)
+  wkLevel-prop [ρ] (neLvl x) = neLvl (wkneLevel-prop [ρ] x)
+
+  wkneLevel-prop : ρ ∷ʷ Δ ⊇ Γ
+                 → neLevel-prop Γ t
+                 → neLevel-prop Δ (U.wk ρ t)
+  wkneLevel-prop [ρ] (maxᵘˡᵣ x y) = maxᵘˡᵣ (wkneLevel-prop [ρ] x) (wkTermLevel [ρ] y)
+  wkneLevel-prop [ρ] (maxᵘʳᵣ x y) = maxᵘʳᵣ (wkTermLevel [ρ] x) (wkneLevel-prop [ρ] y)
+  wkneLevel-prop [ρ] (ne x) = ne (wkEqTermNe [ρ] x)
+
+mutual
   wkEqTermLevel : ρ ∷ʷ Δ ⊇ Γ
                 → Γ ⊩Level t ≡ u ∷Level
                 → Δ ⊩Level U.wk ρ t ≡ U.wk ρ u ∷Level
@@ -66,28 +87,23 @@ mutual
   wk[Level]-prop ρ (sucᵘᵣ [t≡u]) = sucᵘᵣ (wkEqTermLevel ρ [t≡u])
   wk[Level]-prop ρ zeroᵘᵣ = zeroᵘᵣ
   wk[Level]-prop ρ (neLvl x) = neLvl (wk[neLevel]-prop ρ x)
+  wk[Level]-prop ρ (maxᵘ-subᵣ x y) = maxᵘ-subᵣ (wkneLevel-prop ρ x) (wkEqTermLevel ρ y)
+  wk[Level]-prop [ρ] (sym u≡t) = sym (wk[Level]-prop [ρ] u≡t)
+  wk[Level]-prop [ρ] (trans t≡u u≡v) = trans (wk[Level]-prop [ρ] t≡u) (wk[Level]-prop [ρ] u≡v)
 
   wk[neLevel]-prop : ρ ∷ʷ Δ ⊇ Γ
                    → [neLevel]-prop Γ t u
                    → [neLevel]-prop Δ (U.wk ρ t) (U.wk ρ u)
   wk[neLevel]-prop [ρ] (maxᵘˡᵣ t≡u x) = maxᵘˡᵣ (wk[neLevel]-prop [ρ] t≡u) (wkEqTermLevel [ρ] x)
   wk[neLevel]-prop [ρ] (maxᵘʳᵣ x t≡u) = maxᵘʳᵣ (wkEqTermLevel [ρ] x) (wk[neLevel]-prop [ρ] t≡u)
-  wk[neLevel]-prop [ρ] (maxᵘ-zeroʳˡᵣ t≡u) = maxᵘ-zeroʳˡᵣ (wk[neLevel]-prop [ρ] t≡u)
-  wk[neLevel]-prop [ρ] (maxᵘ-assoc¹ᵣ x y z) = maxᵘ-assoc¹ᵣ (wk[neLevel]-prop [ρ] x) (wkEqTermLevel [ρ] y) (wkEqTermLevel [ρ] z)
-  wk[neLevel]-prop [ρ] (maxᵘ-assoc²ᵣ x y z) = maxᵘ-assoc²ᵣ (wkEqTermLevel [ρ] x) (wk[neLevel]-prop [ρ] y) (wkEqTermLevel [ρ] z)
-  wk[neLevel]-prop [ρ] (maxᵘ-assoc³ᵣ x y z) = maxᵘ-assoc³ᵣ (wkEqTermLevel [ρ] x) (wkEqTermLevel [ρ] y) (wk[neLevel]-prop [ρ] z)
-  wk[neLevel]-prop [ρ] (maxᵘ-comm¹ᵣ x x₁ x₂ x₃) = maxᵘ-comm¹ᵣ (wk[neLevel]-prop [ρ] x) (wkEqTermLevel [ρ] x₁) (wk[neLevel]-prop [ρ] x₂) (wkEqTermLevel [ρ] x₃)
-  wk[neLevel]-prop [ρ] (maxᵘ-comm²ᵣ x x₁ x₂) = maxᵘ-comm²ᵣ (wkEqTermLevel [ρ] x) (wkEqTermLevel [ρ] x₁) (wk[neLevel]-prop [ρ] x₂)
-  wk[neLevel]-prop [ρ] (maxᵘ-idem x y) = maxᵘ-idem (wk[neLevel]-prop [ρ] x) (wkEqTermLevel [ρ] y)
+  wk[neLevel]-prop [ρ] (maxᵘ-zeroʳᵣ [u]) = maxᵘ-zeroʳᵣ (wkneLevel-prop [ρ] [u])
+  wk[neLevel]-prop [ρ] (maxᵘ-assoc¹ᵣ x y z) = maxᵘ-assoc¹ᵣ (wkneLevel-prop [ρ] x) (wkTermLevel [ρ] y) (wkTermLevel [ρ] z)
+  wk[neLevel]-prop [ρ] (maxᵘ-assoc²ᵣ x y z) = maxᵘ-assoc²ᵣ (wkTermLevel [ρ] x) (wkneLevel-prop [ρ] y) (wkTermLevel [ρ] z)
+  wk[neLevel]-prop [ρ] (maxᵘ-assoc³ᵣ x y z) = maxᵘ-assoc³ᵣ (wkTermLevel [ρ] x) (wkTermLevel [ρ] y) (wkneLevel-prop [ρ] z)
+  wk[neLevel]-prop [ρ] (maxᵘ-comm¹ᵣ x x₁ x₂ x₃) = maxᵘ-comm¹ᵣ (wkneLevel-prop [ρ] x) (wkEqTermLevel [ρ] x₁) (wkneLevel-prop [ρ] x₂) (wkEqTermLevel [ρ] x₃)
+  wk[neLevel]-prop [ρ] (maxᵘ-comm²ᵣ x x₁ x₂) = maxᵘ-comm²ᵣ (wkTermLevel [ρ] x) (wkEqTermLevel [ρ] x₁) (wkneLevel-prop [ρ] x₂)
+  wk[neLevel]-prop [ρ] (maxᵘ-idemᵣ x y) = maxᵘ-idemᵣ (wkneLevel-prop [ρ] x) (wkEqTermLevel [ρ] y)
   wk[neLevel]-prop [ρ] (ne x) = ne (wkEqTermNe [ρ] x)
-  wk[neLevel]-prop [ρ] (sym u≡t) = sym (wk[neLevel]-prop [ρ] u≡t)
-  wk[neLevel]-prop [ρ] (trans t≡u u≡v) = trans (wk[neLevel]-prop [ρ] t≡u) (wk[neLevel]-prop [ρ] u≡v)
-
-mutual
-  wkTermLevel : ρ ∷ʷ Δ ⊇ Γ
-              → Γ ⊩Level t ∷Level
-              → Δ ⊩Level U.wk ρ t ∷Level
-  wkTermLevel [ρ] [t] = wf-Level-eq (wkEqTermLevel [ρ] (reflLevel [t])) .proj₁
 
 opaque
   unfolding ↑ᵘ′_
