@@ -31,12 +31,12 @@ import Tools.PropositionalEquality as PE
 open P public hiding (lam-cong; ⊢ˢʷ≡∷-⇑; ⊢ˢʷ≡∷-sgSubst)
 
 private variable
-  k n                                     : Nat
-  Γ Δ Η                                   : Con Term _
-  A B B₁ B₂ C C₁ C₂ D E t t₁ t₂ u u₁ u₂ v : Term _
-  σ σ₁ σ₁₁ σ₁₂ σ₂ σ₂₁ σ₂₂ σ₃              : Subst _ _
-  s                                       : Strength
-  p q                                     : M
+  k n                                           : Nat
+  Γ Δ Η                                         : Con Term _
+  A B B₁ B₂ C C₁ C₂ D E t t₁ t₂ u u₁ u₂ v v₁ v₂ : Term _
+  σ σ₁ σ₁₁ σ₁₂ σ₂ σ₂₁ σ₂₂ σ₃                    : Subst _ _
+  s                                             : Strength
+  p q                                           : M
 
 ------------------------------------------------------------------------
 -- Lemmas related to _⊢ˢʷ_∷_ and _⊢ˢʷ_≡_∷_
@@ -350,6 +350,19 @@ opaque
     Γ ⊢ t [ u , v ]₁₀ ∷ C [ u , v ]₁₀
   substTerm₂ ⊢t ⊢u ⊢v =
     subst-⊢∷ ⊢t (→⊢ˢʷ∷∙ (⊢ˢʷ∷-sgSubst ⊢u) ⊢v)
+
+opaque
+
+  -- A variant of substTermEq for _[_,_]₁₀.
+
+  substTermEq₂ :
+    Γ ∙ A ∙ B ⊢ t₁ ≡ t₂ ∷ C →
+    Γ ⊢ u₁ ≡ u₂ ∷ A →
+    Γ ⊢ v₁ ≡ v₂ ∷ B [ u₁ ]₀ →
+    Γ ⊢ t₁ [ u₁ , v₁ ]₁₀ ≡ t₂ [ u₂ , v₂ ]₁₀ ∷ C [ u₁ , v₁ ]₁₀
+  substTermEq₂ t₁≡t₂ u₁≡u₂ v₁≡v₂ =
+    subst-⊢≡∷ t₁≡t₂ $
+    →⊢ˢʷ≡∷∙ (⊢∙→⊢ (wfEqTerm t₁≡t₂)) (⊢ˢʷ≡∷-sgSubst u₁≡u₂) v₁≡v₂
 
 opaque
 
