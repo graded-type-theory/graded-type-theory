@@ -27,6 +27,7 @@ private variable
   n                      : Nat
   A B eq eq₁ eq₂ t u v w : Term _
   σ                      : Subst _ _
+  ρ                      : Wk _ _
   l                      : Universe-level
   p q                    : M
 
@@ -71,6 +72,23 @@ opaque
   cast-[] {l} {A} {B} {t} {u} {σ} =
     subst 𝟙 (U l) (var x0) A B t u [ σ ]                            ≡⟨ subst-[] ⟩
     subst 𝟙 (U l) (var x0) (A [ σ ]) (B [ σ ]) (t [ σ ]) (u [ σ ])  ∎
+
+opaque
+
+  -- A weakening lemma for cast.
+
+  wk-cast :
+    wk ρ (cast l A B t u) ≡
+    cast l (wk ρ A) (wk ρ B) (wk ρ t) (wk ρ u)
+  wk-cast {ρ} {l} {A} {B} {t} {u} =
+    wk ρ (cast l A B t u)                                         ≡⟨ wk≡subst _ _ ⟩
+
+    cast l A B t u [ toSubst ρ ]                                  ≡⟨ cast-[] ⟩
+
+    cast l (A [ toSubst ρ ]) (B [ toSubst ρ ]) (t [ toSubst ρ ])
+      (u [ toSubst ρ ])                                           ≡˘⟨ cong₄ (cast _) (wk≡subst _ _) (wk≡subst _ _) (wk≡subst _ _) (wk≡subst _ _) ⟩
+
+    cast l (wk ρ A) (wk ρ B) (wk ρ t) (wk ρ u)                    ∎
 
 opaque
 
