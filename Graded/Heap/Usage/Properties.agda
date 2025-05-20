@@ -106,8 +106,7 @@ opaque
   -- In a well-resorced heap, a pointer lookup yields a well-resourced
   -- term and a well-resourced heap.
 
-  ▸-heapLookup : ⦃ Has-well-behaved-zero M semiring-with-meet ⦄
-               → H ⊢ y ↦[ q ] t , ρ ⨾ H′
+  ▸-heapLookup : H ⊢ y ↦[ q ] t , ρ ⨾ H′
                → γ ▸ʰ H
                → γ ⟨ y ⟩ - q ≤ r
                → ∃ λ δ → δ ▸[ ⌞ q ⌟ ] t × (γ , y ≔ r) +ᶜ q ·ᶜ wkConₘ ρ δ ▸ʰ H′
@@ -124,12 +123,8 @@ opaque
     lemma {δ} {η} ▸t ▸H p′≤p η≤ =
       case is-𝟘? p′ of λ where
         (yes refl) →
-          case p′≡𝟘→ refl of λ {
-            (refl , refl , refl , refl) →
-          _ , ▸t
-            , sub (sub ▸H η≤ ∙ ▸t)
-               (≤ᶜ-reflexive (≈ᶜ-sym (≈ᶜ-trans (+ᶜ-congˡ (·ᶜ-zeroˡ _))
-                 (+ᶜ-identityʳ _)))) }
+          _ , ▸-cong (mode-eq refl .proj₁) ▸t
+            , sub (sub ▸H η≤′ ∙ ▸-cong (mode-eq refl .proj₂) ▸t) (≤ᶜ-refl ∙ r′≤r+q·𝟘)
         (no p′≢𝟘) →
           case ▸-𝟘ᵐ? ▸t of λ
             (δ′ , ▸⁰t) →
@@ -160,13 +155,19 @@ opaque
       where
       r′≤r : r′ ≤ r
       r′≤r = p′-q≡r′ .proj₂ r (≤-trans p′≤p p-q≤r)
-      p′≡𝟘→ : p′ ≡ 𝟘 → p ≡ 𝟘 × q ≡ 𝟘 × r ≡ 𝟘 × r′ ≡ 𝟘
-      p′≡𝟘→ refl =
+      mode-eq′ : ⦃ Has-well-behaved-zero M semiring-with-meet ⦄ → p′ ≡ 𝟘 → ⌞ p′ ⌟ ≡ ⌞ q ⌟ × ⌞ p′ ⌟ ≡ ⌞ r′ ⌟
+      mode-eq′ refl =
         case 𝟘≮ p′≤p of λ {
           refl →
         case 𝟘-p≤q p-q≤r of λ {
           (refl , refl) →
-        refl , refl , refl , 𝟘-p≡q p′-q≡r′ .proj₁ }}
+        case 𝟘-p≡q p′-q≡r′ .proj₁ of λ {
+          refl →
+        refl , refl }}}
+      mode-eq : p′ ≡ 𝟘 → ⌞ p′ ⌟ ≡ ⌞ q ⌟ × ⌞ p′ ⌟ ≡ ⌞ r′ ⌟
+      mode-eq p′≡𝟘 = 𝟘ᵐ-allowed-elim
+        (λ x → mode-eq′ ⦃ 𝟘-well-behaved x ⦄ p′≡𝟘)
+        (λ x → Mode-propositional-without-𝟘ᵐ x , Mode-propositional-without-𝟘ᵐ x)
       r≡r+q·𝟘 : r ≡ r + q · 𝟘
       r≡r+q·𝟘 = begin
         r          ≡˘⟨ +-identityʳ r ⟩
@@ -343,8 +344,7 @@ module _ (nem : No-erased-matches′ type-variant UR) where
 -- Some properties proven under the assumption that the modality
 -- supports subtraction.
 
-module _ ⦃ _ : Has-well-behaved-zero M semiring-with-meet ⦄
-         (subtraction-ok : Supports-subtraction) where
+module _ (subtraction-ok : Supports-subtraction) where
 
   -- Under some assumptions, lookup always succeeds for well-resourced heaps
 
@@ -412,7 +412,8 @@ module _ ⦃ _ : Has-well-behaved-zero M semiring-with-meet ⦄
     -- If a pointer points to a dummy entry in a well-resource heap then
     -- the corresponding entry in the usage context is 𝟘.
 
-    ▸H● : H ⊢ y ↦● → γ ▸ʰ H → γ ⟨ y ⟩ ≡ 𝟘
+    ▸H● : ⦃ _ : Has-well-behaved-zero M semiring-with-meet ⦄ →
+          H ⊢ y ↦● → γ ▸ʰ H → γ ⟨ y ⟩ ≡ 𝟘
     ▸H● {γ = ε} ()
     ▸H● {γ = _ ∙ _} here ▸H =
       let _ , 𝟘≤p , _ , _ = ▸ʰ●-inv ▸H
@@ -434,7 +435,8 @@ module _ ⦃ _ : Has-well-behaved-zero M semiring-with-meet ⦄
     -- corresponding dummy entry in the heap, the stack multiplicity and usage
     -- context of the stack are both 𝟘.
 
-    ▸s● : H ⊢ wkVar ρ x ↦● → ▸ ⟨ H , var x , ρ , S ⟩ → ∣ S ∣≡ 𝟘
+    ▸s● : ⦃ _ : Has-well-behaved-zero M semiring-with-meet ⦄ →
+          H ⊢ wkVar ρ x ↦● → ▸ ⟨ H , var x , ρ , S ⟩ → ∣ S ∣≡ 𝟘
     ▸s● d ▸s =
       let _ , _ , _ , ∣S∣≡ , ▸H , ▸S , γ⟨x⟩≤ = ▸ₛ-var-inv′ ▸s
       in  subst (∣ _ ∣≡_)

@@ -23,12 +23,12 @@ module Graded.Heap.Usage.Reduction
     Is-factoring-nr M (Natrec-mode-Has-nr 𝕄 has-nr))
   (Unitʷ-η→ : ∀ {p q} → Unitʷ-η → Unitrec-allowed 𝟙ᵐ p q → p ≤ 𝟘)
   (¬Nr-not-available : ¬ Nr-not-available)
-  ⦃ _ : Has-well-behaved-zero M semiring-with-meet ⦄
   where
 
 open import Tools.Empty
 open import Tools.Fin
 open import Tools.Function
+open import Tools.Nat using (Nat; 1+)
 open import Tools.Product
 open import Tools.PropositionalEquality
 open import Tools.Sum
@@ -61,6 +61,7 @@ open import Graded.Usage.Weakening 𝕄 UR
 open import Graded.Restrictions 𝕄
 
 private variable
+  k : Nat
   γ δ η γ′ δ′ θ : Conₘ _
   s s′ : State _ _ _
   m : Mode
@@ -132,8 +133,10 @@ opaque
           q′     ∎
       where
       open RPo ≤-poset
-    lemma′ : (⌞ q′ ⌟ ≡ 𝟙ᵐ → p ≤ 𝟙) → p′ ≡ 𝟙 → ⌞ q′ · p′ ⌟ ᵐ· p ≡ ⌞ q′ ⌟
-    lemma′ {q′} mp-cond refl =
+    lemma″ :
+      ⦃ Has-well-behaved-zero M semiring-with-meet ⦄ →
+      (⌞ q′ ⌟ ≡ 𝟙ᵐ → p ≤ 𝟙) → p′ ≡ 𝟙 → ⌞ q′ · p′ ⌟ ᵐ· p ≡ ⌞ q′ ⌟
+    lemma″ {q′} mp-cond refl =
       case is-𝟘? q′ of λ where
         (yes refl) → begin
           ⌞ 𝟘 · 𝟙 ⌟ ᵐ· p    ≡⟨ cong (_ᵐ· p) (⌞⌟-cong (·-zeroˡ 𝟙)) ⟩
@@ -147,6 +150,10 @@ opaque
           ⌞ q′ ⌟          ∎
       where
       open RPe
+    lemma′ : (⌞ q′ ⌟ ≡ 𝟙ᵐ → p ≤ 𝟙) → p′ ≡ 𝟙 → ⌞ q′ · p′ ⌟ ᵐ· p ≡ ⌞ q′ ⌟
+    lemma′ mp-cond p′≡𝟙 = 𝟘ᵐ-allowed-elim
+      (λ x → lemma″ ⦃ 𝟘-well-behaved x ⦄ mp-cond p′≡𝟙)
+      Mode-propositional-without-𝟘ᵐ
     open ≤ᶜ-reasoning
 
   ▸-⇒ᵥ ▸s (prodˢₕ₂ {p} {ρ}) =
@@ -530,16 +537,24 @@ opaque
           wkConₘ ρ (nr₂ p r ·ᶜ θ +ᶜ nrᶜ p r δ η 𝟘ᶜ)            ≈⟨ wk-+ᶜ ρ ⟩
           wkConₘ ρ (nr₂ p r ·ᶜ θ) +ᶜ wkConₘ ρ (nrᶜ p r δ η 𝟘ᶜ) ≈⟨ +ᶜ-congʳ (wk-·ᶜ ρ) ⟩
           nr₂ p r ·ᶜ wkConₘ ρ θ +ᶜ wkConₘ ρ (nrᶜ p r δ η 𝟘ᶜ)   ∎)
-    lemma {γ} (invUsageNatrec {θ} ▸z ▸s ▸n ▸A γ≤ (invUsageNatrecNoNrGLB {χ} {x} x-glb χ-glb)) =
+    lemma {γ} {q} (invUsageNatrec {θ} ▸z ▸s ▸n ▸A γ≤ (invUsageNatrecNoNrGLB {χ} {x} x-glb χ-glb)) =
       _ , _ , _
         , no-nrₑ x-glb
-        , ▸-cong (sym (≢𝟘→⌞·⌟≡ʳ (λ {refl → 𝟘≰𝟙 (x-glb .proj₁ 0)}))) ▸n
+        , ▸-cong ⌞⌟≡⌞⌟ ▸n
         , natrec-no-nrₑ ▸z ▸s ▸A χ-glb
         , (begin
           wkConₘ ρ γ                      ≤⟨ wk-≤ᶜ ρ γ≤ ⟩
           wkConₘ ρ (x ·ᶜ θ +ᶜ χ)          ≈⟨ wk-+ᶜ ρ ⟩
           wkConₘ ρ (x ·ᶜ θ) +ᶜ wkConₘ ρ χ ≈⟨ +ᶜ-congʳ (wk-·ᶜ ρ) ⟩
           x ·ᶜ wkConₘ ρ θ +ᶜ wkConₘ ρ χ   ∎)
+      where
+      ⌞⌟≡⌞⌟′ : ⦃ Has-well-behaved-zero M semiring-with-meet ⦄ → ⌞ q ⌟ ≡ ⌞ q · x ⌟
+      ⌞⌟≡⌞⌟′ = sym (≢𝟘→⌞·⌟≡ʳ (λ {refl → 𝟘≰𝟙 (x-glb .proj₁ 0)}))
+      ⌞⌟≡⌞⌟ : ⌞ q ⌟ ≡ ⌞ q · x ⌟
+      ⌞⌟≡⌞⌟ =
+        𝟘ᵐ-allowed-elim
+          (λ x → ⌞⌟≡⌞⌟′ ⦃ 𝟘-well-behaved x ⦄ )
+          Mode-propositional-without-𝟘ᵐ
     lemma (invUsageNatrec _ _ _ _ _ (invUsageNatrecNoNr ⦃ (x) ⦄ _ _ _ _)) =
       ⊥-elim (¬Nr-not-available x)
 
@@ -607,7 +622,7 @@ opaque
     ▸-⇒ₑ-J {γ} {η} {r} {m = 𝟙ᵐ} {ρ} {δ} ▸H ▸S ∣S∣≡ m≡ γ≤
            (invUsageJ {γ₂} {γ₃} {γ₄} {γ₅} {γ₆} e e′ _ _ _ ▸u _ ▸w δ≤) =
       ▸ₛ (Jₑ (∣J∣≡ω e e′) ∙ ∣S∣≡) ▸H
-         (▸-cong (trans m≡ (sym (≢𝟘→⌞·⌟≡ʳ ω≢𝟘))) ▸w)
+         (▸-cong lemma ▸w)
          (▸ˢ∙ ∣S∣≡ (Jₑ (▸-cong m≡ ▸u)) ▸S) $ begin
             γ                                                      ≤⟨ γ≤ ⟩
             r ·ᶜ wkConₘ ρ δ +ᶜ η                                   ≤⟨ +ᶜ-monotoneˡ (·ᶜ-monotoneʳ (wk-≤ᶜ ρ δ≤)) ⟩
@@ -624,6 +639,11 @@ opaque
             (r ·ᶜ ω ·ᶜ wkConₘ ρ γ₆ +ᶜ r ·ᶜ wkConₘ ρ γ₄) +ᶜ η       ≈⟨ +ᶜ-assoc _ _ _ ⟩
             r ·ᶜ ω ·ᶜ wkConₘ ρ γ₆ +ᶜ r ·ᶜ wkConₘ ρ γ₄ +ᶜ η         ≈˘⟨ +ᶜ-cong (·ᶜ-assoc _ _ _) (+ᶜ-comm _ _) ⟩
             (r · ω) ·ᶜ wkConₘ ρ γ₆ +ᶜ η +ᶜ r ·ᶜ wkConₘ ρ γ₄        ∎
+         where
+         lemma′ : ⦃ Has-well-behaved-zero M semiring-with-meet ⦄ → 𝟙ᵐ ≡ ⌞ r · ω ⌟
+         lemma′ = trans m≡ (sym (≢𝟘→⌞·⌟≡ʳ ω≢𝟘))
+         lemma : 𝟙ᵐ ≡ ⌞ r · ω ⌟
+         lemma = 𝟘ᵐ-allowed-elim (λ x → lemma′ ⦃ 𝟘-well-behaved x ⦄) Mode-propositional-without-𝟘ᵐ
     ▸-⇒ₑ-J {m = 𝟘ᵐ} ▸H ▸S ∣S∣≡ m≡ γ≤
            (invUsageJ₀₁ {γ₄} {γ₆} e _ _ _ _ _ ▸u _ ▸w δ≤) =
            ▸-⇒ₑ-J-𝟘ᵐ ▸H ▸S ∣S∣≡ (⌞⌟≡𝟘ᵐ→≡𝟘 (sym m≡)) γ≤ ▸u (▸-cong 𝟘ᵐ?≡𝟘ᵐ ▸w)
@@ -687,7 +707,7 @@ opaque
     ▸-⇒ₑ-K {γ} {η} {r} {m = 𝟙ᵐ} {ρ} {δ} {p} ▸H ▸S ∣S∣≡ m≡ γ≤
            (invUsageK {γ₂} {γ₃} {γ₄} {γ₅} e e′ _ _ _ ▸u ▸v δ≤) =
       ▸ₛ (Kₑ (∣K∣≡ω e e′) ∙ ∣S∣≡) ▸H
-        (▸-cong (trans m≡ (sym (≢𝟘→⌞·⌟≡ʳ ω≢𝟘))) ▸v)
+        (▸-cong lemma ▸v)
         (▸ˢ∙ ∣S∣≡ (Kₑ (▸-cong m≡ ▸u)) ▸S) $ begin
             γ                                                ≤⟨ γ≤ ⟩
             r ·ᶜ wkConₘ ρ δ +ᶜ η                             ≤⟨ +ᶜ-monotoneˡ (·ᶜ-monotoneʳ (wk-≤ᶜ ρ δ≤)) ⟩
@@ -703,6 +723,11 @@ opaque
             (r ·ᶜ ω ·ᶜ wkConₘ ρ γ₅ +ᶜ r ·ᶜ wkConₘ ρ γ₄) +ᶜ η ≈⟨ +ᶜ-assoc _ _ _ ⟩
             r ·ᶜ ω ·ᶜ wkConₘ ρ γ₅ +ᶜ r ·ᶜ wkConₘ ρ γ₄ +ᶜ η   ≈˘⟨ +ᶜ-cong (·ᶜ-assoc _ _ _) (+ᶜ-comm _ _) ⟩
             (r · ω) ·ᶜ wkConₘ ρ γ₅ +ᶜ η +ᶜ r ·ᶜ wkConₘ ρ γ₄  ∎
+        where
+         lemma′ : ⦃ Has-well-behaved-zero M semiring-with-meet ⦄ → 𝟙ᵐ ≡ ⌞ r · ω ⌟
+         lemma′ = trans m≡ (sym (≢𝟘→⌞·⌟≡ʳ ω≢𝟘))
+         lemma : 𝟙ᵐ ≡ ⌞ r · ω ⌟
+         lemma = 𝟘ᵐ-allowed-elim (λ x → lemma′ ⦃ 𝟘-well-behaved x ⦄) Mode-propositional-without-𝟘ᵐ
     ▸-⇒ₑ-K {m = 𝟘ᵐ} ▸H ▸S ∣S∣≡ m≡ γ≤ (invUsageK₀₁ _ _ _ _ _ ▸u ▸v _) =
       ▸-⇒ₑ-K-𝟘ᵐ ▸H ▸S ∣S∣≡ (⌞⌟≡𝟘ᵐ→≡𝟘 (sym m≡)) γ≤ ▸u (▸-cong 𝟘ᵐ?≡𝟘ᵐ ▸v)
     ▸-⇒ₑ-K {γ} {η} {r} {m = 𝟙ᵐ} {ρ} {δ} {p} ▸H ▸S ∣S∣≡ m≡ γ≤
@@ -825,7 +850,8 @@ opaque
 
   -- There are three different reasons a well-resourced state can be Final:
   -- 1. It has a variable in head position pointing to a dummy entry
-  --    in the heap and the stack multiplicity is 𝟘.
+  --    in the heap and the stack multiplicity is 𝟘 if the modality has
+  --    a well-behaved zero.
   -- 2. It has a value in head position, the stack is not empty and the
   --    top of the stack does not match the head.
   -- 3. It has a value in head position and the stack is empty.
@@ -834,7 +860,8 @@ opaque
     Supports-subtraction →
     ▸ ⟨ H , t , ρ , S ⟩ →
     Final (⟨_,_,_,_⟩ H t ρ S) →
-    (∃ λ x → t ≡ var x × H ⊢ wkVar ρ x ↦● × ∣ S ∣≡ 𝟘) ⊎
+    (∃ λ x → t ≡ var x × H ⊢ wkVar ρ x ↦● ×
+       (Has-well-behaved-zero M semiring-with-meet → ∣ S ∣≡ 𝟘)) ⊎
     (∃₂ λ e S′ → S ≡ e ∙ S′ × Value t × ¬ Matching t S) ⊎
     Value t × S ≡ ε
   ▸Final-reasons {ρ} ok ▸s f =
@@ -849,13 +876,13 @@ opaque
                 case ▸↦→↦[] ok ∣S∣≡ d ▸s of λ
                   (_ , d′) →
                 ⊥-elim (¬d ∣S∣≡ d′)
-              (inj₂ d) →
-                inj₁ (_ , refl , d , ▸s● ok d ▸s)
+              (inj₂ d) → inj₁ (_ , refl , d , λ x → ▸s● ok ⦃ x ⦄ d ▸s)
 
 opaque
 
   -- A variant of the above property with the added assumption that
-  -- there are no erased matches if the state is not closed.
+  -- there are no erased matches and the zero is well-behaved if the
+  -- state is not closed.
 
   -- Under this assumption there are three different reasons a wel-resourced
   -- state can be Final:
@@ -869,20 +896,21 @@ opaque
   ▸Final-reasons′ :
     ∀ {k} {H : Heap k _} →
     Supports-subtraction →
-    (k ≢ 0 → No-erased-matches′ type-variant UR) →
+    (k ≢ 0 → No-erased-matches′ type-variant UR × Has-well-behaved-zero M semiring-with-meet) →
     ▸ ⟨ H , t , ρ , S ⟩ →
     Final (⟨_,_,_,_⟩ H t ρ S) →
     (∃ λ x → t ≡ var x × H ⊢ wkVar ρ x ↦● × emptyrec 𝟘 ∈ S × Emptyrec-allowed 𝟙ᵐ 𝟘) ⊎
     (∃₂ λ e S′ → S ≡ e ∙ S′ × Value t × (Matching t S → ⊥)) ⊎
     Value t × S ≡ ε
-  ▸Final-reasons′ {ρ} ok nem ▸s f =
+  ▸Final-reasons′ {ρ} ok prop ▸s f =
     let _ , _ , _ , _ , _ , _ , _ , ▸S , _ = ▸ₛ-inv ▸s in
     case ▸Final-reasons ok ▸s f of λ where
       (inj₂ x) → inj₂ x
       (inj₁ (x , t≡x , d , ∣S∣≡𝟘)) →
-        case ▸∣∣≢𝟘 (nem (¬erased-heap→¬↦● d)) ▸S of λ where
-           (inj₁ ∣S∣≢𝟘) → ⊥-elim (∣S∣≢𝟘 ∣S∣≡𝟘)
-           (inj₂ prop) → inj₁ (x , t≡x , d , prop)
+        let nem , wb-𝟘 = prop (¬erased-heap→¬↦● d)
+        in  case ▸∣∣≢𝟘 nem ⦃ wb-𝟘 ⦄ ▸S of λ where
+              (inj₁ ∣S∣≢𝟘) → ⊥-elim (∣S∣≢𝟘 (∣S∣≡𝟘 wb-𝟘))
+              (inj₂ prop) → inj₁ (x , t≡x , d , prop)
 
 opaque
 
@@ -892,7 +920,8 @@ opaque
     Supports-subtraction →
     ▸ s →
     s ⇘ ⟨ H , t , ρ , S ⟩ →
-    (∃ λ x → t ≡ var x × H ⊢ wkVar ρ x ↦● × ∣ S ∣≡ 𝟘) ⊎
+    (∃ λ x → t ≡ var x × H ⊢ wkVar ρ x ↦● ×
+      (Has-well-behaved-zero M semiring-with-meet → ∣ S ∣≡ 𝟘)) ⊎
     (∃₂ λ e S′ → S ≡ e ∙ S′ × Value t × (Matching t S → ⊥)) ⊎
     Value t × S ≡ ε
   ▸-⇘-reasons ok ▸s (d , f) =
