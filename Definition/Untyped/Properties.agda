@@ -1693,6 +1693,22 @@ opaque
 
 opaque
 
+  -- One can express _[_][_]↑ using some other operations.
+
+  [][]↑≡ :
+    ∀ {k u} (t : Term (1+ n)) →
+    t [ k ][ u ]↑ ≡ wk (lift (stepn id k)) t [ u ]₀
+  [][]↑≡ {k} {u} t =
+      t [ consSubst (wkSubst k idSubst) u ]  ≡⟨ (flip substVar-to-subst t λ where
+                                                   x0     → refl
+                                                   (x +1) →
+                                                     trans (sym $ wk[]≡wkSubst k _) $
+                                                     wk[]≡wk[]′ {t = var x}) ⟩
+      t [ sgSubst u ₛ• lift (stepn id k) ]   ≡˘⟨ subst-wk t ⟩
+      wk (lift (stepn id k)) t [ u ]₀        ∎
+
+opaque
+
   -- The function _[_][_]↑ commutes (in a certain sense) with _[_].
 
   [][]↑-commutes :
@@ -1867,14 +1883,9 @@ opaque
     (t : Term (1+ n)) →
     t [ k ][ wk[ k ]′ u ]↑ ≡ wk[ k ]′ (t [ u ]₀)
   [][wk[]′]↑ {k} {u} t =
-    t [ consSubst (wkSubst k idSubst) (wk[ k ]′ u) ]  ≡⟨ (flip substVar-to-subst t λ where
-                                                            x0     → refl
-                                                            (x +1) →
-                                                              trans (sym $ wk[]≡wkSubst k _) $
-                                                              wk[]≡wk[]′ {t = var x}) ⟩
-    t [ sgSubst (wk[ k ]′ u) ₛ• lift (stepn id k) ]   ≡˘⟨ subst-wk t ⟩
-    wk (lift (stepn id k)) t [ wk[ k ]′ u ]₀          ≡˘⟨ wk-β t ⟩
-    wk[ k ]′ (t [ u ]₀)                               ∎
+    t [ k ][ wk[ k ]′ u ]↑                    ≡⟨ [][]↑≡ t ⟩
+    wk (lift (stepn id k)) t [ wk[ k ]′ u ]₀  ≡˘⟨ wk-β t ⟩
+    wk[ k ]′ (t [ u ]₀)                       ∎
 
 opaque
 
@@ -1938,6 +1949,30 @@ opaque
     wk1 t [ k ][ u ]↑  ≡⟨ wk1-[][]↑ k ⟩
     wk[ k ] t          ≡⟨ wk[]≡wk[]′ ⟩
     wk[ k ]′ t         ∎
+
+opaque
+
+  -- A lemma related to t [ 1+ k ][ var x0 ]↑.
+
+  [1+][0]↑ : t [ 1+ k ][ var x0 ]↑ ≡ wk (lift (stepn id k)) t
+  [1+][0]↑ {t} {k} =
+    t [ 1+ k ][ var x0 ]↑                             ≡⟨ [][]↑≡ t ⟩
+    wk (lift (stepn id (1+ k))) t [ var x0 ]₀         ≡⟨ subst-wk t ⟩
+    t [ sgSubst (var x0) ₛ• lift (stepn id (1+ k)) ]  ≡⟨ (flip substVar-to-subst t λ where
+                                                            x0     → refl
+                                                            (_ +1) → refl) ⟩
+    t [ toSubst (lift (stepn id k)) ]                 ≡˘⟨ wk≡subst _ _ ⟩
+    wk (lift (stepn id k)) t                          ∎
+
+opaque
+
+  -- The result of t [ var x0 ]↑ is equal to t.
+
+  [0]↑ : t [ var x0 ]↑ ≡ t
+  [0]↑ {t} =
+    t [ var x0 ]↑   ≡⟨ [1+][0]↑ ⟩
+    wk (lift id) t  ≡⟨ wk-lift-id _ ⟩
+    t               ∎
 
 ------------------------------------------------------------------------
 -- Some lemmas related to numerals
