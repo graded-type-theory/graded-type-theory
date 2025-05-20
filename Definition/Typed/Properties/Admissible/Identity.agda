@@ -242,6 +242,20 @@ opaque
 
   -- A lemma related to the context of one of the assumptions of J.
 
+  J-motive-context-cong″ :
+    Γ ⊢ A₁ ≡ A₂ →
+    Γ ⊢ t₁ ≡ t₂ ∷ A₁ →
+    Γ ∙ A₁ ⊢
+      Id (wk1 A₁) (wk1 t₁) (var x0) ≡
+      Id (wk1 A₂) (wk1 t₂) (var x0)
+  J-motive-context-cong″ A₁≡A₂ t₁≡t₂ =
+    let ⊢A₁ , _ = wf-⊢≡ A₁≡A₂ in
+    Id-cong (wkEq₁ ⊢A₁ A₁≡A₂) (wkEqTerm₁ ⊢A₁ t₁≡t₂) (refl (var₀ ⊢A₁))
+
+opaque
+
+  -- A variant of the previous lemma.
+
   J-motive-context-cong :
     ⊢ Γ₁ ≡ Γ₂ →
     Γ₁ ⊢ A₁ ≡ A₂ →
@@ -249,10 +263,7 @@ opaque
     ⊢ Γ₁ ∙ A₁ ∙ Id (wk1 A₁) (wk1 t₁) (var x0) ≡
       Γ₂ ∙ A₂ ∙ Id (wk1 A₂) (wk1 t₂) (var x0)
   J-motive-context-cong Γ₁≡Γ₂ A₁≡A₂ t₁≡t₂ =
-    case syntacticEq A₁≡A₂ .proj₁ of λ {
-      ⊢A₁ →
-    Γ₁≡Γ₂ ∙ A₁≡A₂ ∙
-    Id-cong (wkEq₁ ⊢A₁ A₁≡A₂) (wkEqTerm₁ ⊢A₁ t₁≡t₂) (refl (var₀ ⊢A₁)) }
+    Γ₁≡Γ₂ ∙ A₁≡A₂ ∙ J-motive-context-cong″ A₁≡A₂ t₁≡t₂
 
 opaque
 
@@ -318,13 +329,24 @@ opaque
 
   -- A lemma related to the context of one of the assumptions of K.
 
+  K-motive-context-cong″ :
+    Γ ⊢ A₁ ≡ A₂ →
+    Γ ⊢ t₁ ≡ t₂ ∷ A₁ →
+    Γ ⊢ Id A₁ t₁ t₁ ≡ Id A₂ t₂ t₂
+  K-motive-context-cong″ A₁≡A₂ t₁≡t₂ =
+    Id-cong A₁≡A₂ t₁≡t₂ t₁≡t₂
+
+opaque
+
+  -- A variant of the previous lemma.
+
   K-motive-context-cong :
     ⊢ Γ₁ ≡ Γ₂ →
     Γ₁ ⊢ A₁ ≡ A₂ →
     Γ₁ ⊢ t₁ ≡ t₂ ∷ A₁ →
     ⊢ Γ₁ ∙ Id A₁ t₁ t₁ ≡ Γ₂ ∙ Id A₂ t₂ t₂
   K-motive-context-cong Γ₁≡Γ₂ A₁≡A₂ t₁≡t₂ =
-    Γ₁≡Γ₂ ∙ Id-cong A₁≡A₂ t₁≡t₂ t₁≡t₂
+    Γ₁≡Γ₂ ∙ K-motive-context-cong″ A₁≡A₂ t₁≡t₂
 
 opaque
 
