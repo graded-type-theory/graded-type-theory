@@ -37,7 +37,8 @@ open import Definition.Untyped.Properties M
 
 open import Tools.Fin
 open import Tools.Function
-open import Tools.Nat using (Nat; 1+)
+open import Tools.Level
+open import Tools.Nat as N using (Nat; 1+; 2+; 3+)
 open import Tools.Product
 import Tools.PropositionalEquality as PE
 open import Tools.Reasoning.PropositionalEquality
@@ -50,7 +51,8 @@ private variable
   A A₁ A₂ A′ B B₁ B₂ C
     eq eq₁ eq₂ t t₁ t₂ t′ u u₁ u₂ v v₁ v₂ w w₁ w₂ : Term _
   σ                                               : Subst _ _
-  p q                                             : M
+  p p′ q q′                                       : M
+  b                                               : BinderMode
   s                                               : Strength
   l l₁ l₂                                         : Universe-level
 
@@ -1395,3 +1397,711 @@ opaque
   []-cong-with-equality-reflection ok₁ ok₂ ⊢eq =
     let ⊢A , _ = inversion-Id (syntacticTerm ⊢eq) in
     rflⱼ′ (EP.[]-cong′ ok₂ ⊢A (equality-reflection′ ok₁ ⊢eq))
+
+------------------------------------------------------------------------
+-- A preservation lemma
+
+private opaque
+
+  -- A variant of the J rule.
+
+  J′ :
+    ∀ {a p} {A : Set a} {x y : A}
+    (P : ∀ y → x PE.≡ y → Set p) →
+    P x PE.refl →
+    (x≡y : x PE.≡ y) →
+    P y x≡y
+  J′ _ p PE.refl = p
+
+  -- The following code illustrates roughly how ΠΣ-cong-Idˡ below is
+  -- defined.
+
+  Π-cong-Idˡ′ :
+    ∀ {a b} →
+    Function-extensionality a (lsuc b) →
+    {A₁ A₂ : Set a} {B₁ : A₁ → Set b} {B₂ : A₂ → Set b} →
+    (A₁≡A₂ : A₁ PE.≡ A₂) →
+    ((x : A₁) → B₁ x PE.≡ B₂ (PE.subst (λ A → A) A₁≡A₂ x)) →
+    ((x : A₁) → B₁ x) PE.≡ ((x : A₂) → B₂ x)
+  Π-cong-Idˡ′ {b} fe {A₁} {A₂} {B₁} {B₂} A₁≡A₂ B₁≡B₂ =
+    J′ (λ A₂ A₁≡A₂ →
+          {B₂ : A₂ → Set b} →
+          ((x : A₁) → B₁ x PE.≡ B₂ (PE.subst (λ A → A) A₁≡A₂ x)) →
+          ((x : A₁) → B₁ x) PE.≡ ((x : A₂) → B₂ x))
+       (λ {B₂} B₁≡B₂ →
+          PE.cong (λ B → (x : A₁) → B x) {x = B₁} {y = B₂}
+            (ext {A = A₁} {P = λ _ → Set b} {f = B₁} {g = B₂} fe B₁≡B₂))
+       A₁≡A₂ B₁≡B₂
+
+opaque
+  unfolding Has-function-extensionality
+
+  -- Allowed Π- and Σ-types preserve propositional equality in a
+  -- certain sense, assuming that a certain form of function
+  -- extensionality can be proved (and that some Π-type is allowed).
+
+  ΠΣ-cong-Idˡ :
+    {Γ : Con Term n} →
+    ΠΣ-allowed b p q →
+    Π-allowed p′ q′ →
+    Has-function-extensionality p′ q′ l₁ (1+ l₂) Γ →
+    Γ ∙ A₂ ⊢ B₂ ∷ U l₂ →
+    Γ ⊢ t ∷ Id (U l₁) A₁ A₂ →
+    Γ ∙ A₁ ⊢ u ∷
+      Id (U l₂) B₁
+        (B₂ [ cast l₁ (wk1 A₁) (wk1 A₂) (wk1 t) (var x0) ]↑) →
+    ∃ λ v →
+      Γ ⊢ v ∷
+        Id (U (l₁ ⊔ᵘ l₂)) (ΠΣ⟨ b ⟩ p , q ▷ A₁ ▹ B₁)
+          (ΠΣ⟨ b ⟩ p , q ▷ A₂ ▹ B₂)
+  ΠΣ-cong-Idˡ
+    {n} {b} {p} {q} {p′} {q′} {l₁} {l₂} {A₂} {B₂} {t} {A₁} {u} {B₁} {Γ}
+    ok ok′ (ext , ⊢ext) ⊢B₂ ⊢t ⊢u =
+    J-app ∘⟨ p′ ⟩ lam p′ B₂ ∘⟨ p′ ⟩ lam p′ u , ⊢J∘∘
+    where
+    opaque
+      ⊢A₁ : Γ ⊢ A₁ ∷ U l₁
+      ⊢A₁ = inversion-Id (wf-⊢∷ ⊢t) .proj₂ .proj₁
+
+    opaque
+      ⊢A₂ : Γ ⊢ A₂ ∷ U l₁
+      ⊢A₂ = inversion-Id (wf-⊢∷ ⊢t) .proj₂ .proj₂
+
+    opaque
+      ⊢B₁ : Γ ∙ A₁ ⊢ B₁ ∷ U l₂
+      ⊢B₁ = inversion-Id (wf-⊢∷ ⊢u) .proj₂ .proj₁
+
+    opaque
+      ∙⊢Id : Γ ∙ U l₁ ⊢ Id (U l₁) (wk1 A₁) (var x0)
+      ∙⊢Id = Idⱼ′ (wkTerm₁ (wf-⊢∷ ⊢A₁) ⊢A₁) (var₀ (wf-⊢∷ ⊢A₁))
+
+    opaque
+      ∙²⊢ΠU :
+        Γ ∙ U l₁ ∙ Id (U l₁) (wk1 A₁) (var x0) ⊢
+        Π p′ , q′ ▷ var x1 ▹ U l₂
+      ∙²⊢ΠU = ΠΣⱼ (Uⱼ (∙ univ (var₁ ∙⊢Id))) ok′
+
+    opaque
+      ∙³⊢A₁ :
+        Γ ∙ U l₁ ∙ Id (U l₁) (wk1 A₁) (var x0) ∙
+        Π p′ , q′ ▷ var x1 ▹ U l₂ ⊢
+        wk[ 3 ] A₁
+      ∙³⊢A₁ =
+        PE.subst (_⊢_ _) (PE.sym wk[]≡wk[]′) $
+        _⊢_.univ $ wkTerm (ʷ⊇-drop (∙ ∙²⊢ΠU)) ⊢A₁
+
+    ΠId : ∀ k → (_ _ _ : Term (1+ (k N.+ n))) → Term (k N.+ n)
+    ΠId k C D t =
+      Π p′ , q′ ▷ wk[ k ] A₁ ▹
+      Id (U l₂) (B₁ [ 1+ k ][ var x0 ]↑)
+        (C ∘⟨ p′ ⟩ cast l₁ (wk[ 1+ k ]′ A₁) D t (var x0))
+
+    opaque
+      ⊢ΠId :
+        {k : Nat} {Δ : Con Term (k N.+ n)}
+        {C D t : Term (1+ (k N.+ n))} →
+        drop k Δ PE.≡ Γ →
+        Δ ∙ wk[ k ] A₁ ⊢ C ∷ Π p′ , q′ ▷ D ▹ U l₂ →
+        Δ ∙ wk[ k ] A₁ ⊢ t ∷ Id (U l₁) (wk[ 1+ k ]′ A₁) D →
+        Δ ⊢ ΠId k C D t
+      ⊢ΠId {k} {Δ} PE.refl ⊢C ⊢t =
+        flip _⊢_.ΠΣⱼ ok′ $
+        Idⱼ′ (subst-⊢∷ ⊢B₁ (⊢ˢʷ∷-[][]↑ (var₀ (univ ⊢wk[k]A₁∷))))
+          (⊢C ∘ⱼ
+           ⊢cast ⊢t
+             (PE.subst (_⊢_∷_ _ _) wk[]≡wk[]′ $
+              var₀ (univ ⊢wk[k]A₁∷)))
+        where
+        ⊢wk[k]A₁∷ : Δ ⊢ wk[ k ] A₁ ∷ U l₁
+        ⊢wk[k]A₁∷ =
+          PE.subst₂ (_⊢_∷_ _) (PE.sym wk[]≡wk[]′) PE.refl $
+          wkTerm (ʷ⊇-drop (wf (⊢∙→⊢ (wf (wf-⊢∷ ⊢C))))) ⊢A₁
+
+    ΠId-lam : Term n
+    ΠId-lam = ΠId 0 (wk1 (lam p′ B₂)) (wk1 A₂) (wk1 t)
+
+    opaque
+      ⊢ΠId-lam : Γ ⊢ ΠId-lam
+      ⊢ΠId-lam =
+        ⊢ΠId PE.refl (wkTerm₁ (univ ⊢A₁) (lamⱼ′ ok′ ⊢B₂))
+          (wkTerm₁ (univ ⊢A₁) ⊢t)
+
+    opaque
+      ΠId-lam⊢A₂ : Γ ∙ ΠId-lam ⊢ wk1 A₂ ∷ U l₁
+      ΠId-lam⊢A₂ = wkTerm₁ ⊢ΠId-lam ⊢A₂
+
+    ΠId-1 : Term (3+ n)
+    ΠId-1 = ΠId 3 (var x1) (var x3) (var x2)
+
+    opaque
+      ⊢ΠId-1 :
+        Γ ∙ U l₁ ∙ Id (U l₁) (wk1 A₁) (var x0) ∙
+        Π p′ , q′ ▷ var x1 ▹ U l₂ ⊢
+        ΠId-1
+      ⊢ΠId-1 =
+        ⊢ΠId PE.refl (var₁ ∙³⊢A₁)
+          (PE.subst (_⊢_∷_ _ _)
+             (PE.cong₂ (Id _) wk[]≡wk[]′ PE.refl) $
+           var₂ ∙³⊢A₁)
+
+    opaque
+      ⊢ΠId-1[] :
+        Γ ∙ Π p′ , q′ ▷ A₁ ▹ U l₂ ⊢
+        ΠId-1 [ consSubst (sgSubst A₁) rfl ⇑ ]
+      ⊢ΠId-1[] =
+        subst-⊢ ⊢ΠId-1 $
+        ⊢ˢʷ∷-⇑′ ∙²⊢ΠU $
+        →⊢ˢʷ∷∙ (⊢ˢʷ∷-sgSubst ⊢A₁) $
+        PE.subst (_⊢_∷_ _ _)
+          (PE.cong₂ (Id _) (PE.sym $ wk1-sgSubst _ _) PE.refl) $
+        rflⱼ ⊢A₁
+
+    opaque
+      ∙⊢A₁ : Γ ∙ Π p′ , q′ ▷ A₁ ▹ U l₂ ⊢ wk1 A₁ ∷ U l₁
+      ∙⊢A₁ = wkTerm₁ (ΠΣⱼ (Uⱼ (∙ univ ⊢A₁)) ok′) ⊢A₁
+
+    opaque
+      ∙²⊢A₁ :
+        Γ ∙ ΠΣ⟨ BMΠ ⟩ p′ , q′ ▷ A₁ ▹ U l₂ ∙
+        ΠId-1 [ consSubst (sgSubst A₁) rfl ⇑ ] ⊢
+        wk[ 2 ]′ A₁ ∷ U l₁
+      ∙²⊢A₁ = wkTerm (stepʷ ⊇-drop ⊢ΠId-1[]) ⊢A₁
+
+    opaque
+      ∙³⊢U₂ :
+        Γ ∙ ΠΣ⟨ BMΠ ⟩ p′ , q′ ▷ A₁ ▹ U l₂ ∙
+        ΠId-1 [ consSubst (sgSubst A₁) rfl ⇑ ] ∙ wk[ 2 ]′ A₁ ⊢
+        U l₂ ∷ U (1+ l₂)
+      ∙³⊢U₂ = Uⱼ (∙ univ ∙²⊢A₁)
+
+    opaque
+      ∙³⊢A₁′ :
+        Γ ∙ ΠΣ⟨ BMΠ ⟩ p′ , q′ ▷ A₁ ▹ U l₂ ∙
+        ΠId-1 [ consSubst (sgSubst A₁) rfl ⇑ ] ∙ wk[ 2 ]′ A₁ ⊢
+        wk[ 3 ]′ A₁ ∷ U l₁
+      ∙³⊢A₁′ = wkTerm (stepʷ ⊇-drop (univ ∙²⊢A₁)) ⊢A₁
+
+    opaque
+      ∙³⊢A₁″ :
+        Γ ∙ ΠΣ⟨ BMΠ ⟩ p′ , q′ ▷ A₁ ▹ U l₂ ∙
+        ΠId-1 [ consSubst (sgSubst A₁) rfl ⇑ ] ∙
+        ΠΣ⟨ BMΠ ⟩ p′ , q′ ▷ wk[ 2 ]′ A₁ ▹ U l₂ ⊢
+        wk[ 3 ]′ A₁ ∷ U l₁
+      ∙³⊢A₁″ = wkTerm (stepʷ ⊇-drop (univ (ΠΣⱼ ∙²⊢A₁ ∙³⊢U₂ ok′))) ⊢A₁
+
+    Motive : Term (2+ n)
+    Motive =
+      Π p′ , q′ ▷ (Π p′ , q′ ▷ var x1 ▹ U l₂) ▹
+      Π p′ , q′ ▷ ΠId-1 ▹
+      Id (U (l₁ ⊔ᵘ l₂)) (wk[ 4 ]′ (ΠΣ⟨ b ⟩ p , q ▷ A₁ ▹ B₁))
+        (ΠΣ⟨ b ⟩ p , q ▷ var x3 ▹ (var x2 ∘⟨ p′ ⟩ var x0))
+
+    opaque
+      ⊢Π20 :
+        Γ ∙ U l₁ ∙ Id (U l₁) (wk1 A₁) (var x0) ∙
+        Π p′ , q′ ▷ var x1 ▹ U l₂ ∙ ΠId-1 ⊢
+        ΠΣ⟨ b ⟩ p , q ▷ var x3 ▹ (var x2 ∘⟨ p′ ⟩ var x0) ∷
+        wk[ 4 ]′ (U (l₁ ⊔ᵘ l₂))
+      ⊢Π20 =
+        ΠΣⱼ (var₃ ⊢ΠId-1)
+          (var₂ (univ (var₃ ⊢ΠId-1)) ∘ⱼ var₀ (univ (var₃ ⊢ΠId-1))) ok
+
+    opaque
+      ⊢Π20′ :
+        Γ ∙ Π p′ , q′ ▷ A₁ ▹ U l₂ ∙
+        ΠId-1 [ consSubst (sgSubst A₁) rfl ⇑ ] ⊢
+        ΠΣ⟨ b ⟩ p , q ▷ wk[ 2 ]′ A₁ ▹ (var x2 ∘⟨ p′ ⟩ var x0) ∷
+        U (l₁ ⊔ᵘ l₂)
+      ⊢Π20′ =
+        ΠΣⱼ ∙²⊢A₁
+          (var₂ (univ ∙²⊢A₁) ∘ⱼ
+           PE.subst (_⊢_∷_ _ _) (PE.sym $ PE.cong wk1 wk[]≡wk[]′)
+             (var₀ (univ ∙²⊢A₁)))
+          ok
+
+    opaque
+      ⊢Π10 :
+        Γ ∙ Π p′ , q′ ▷ A₁ ▹ U l₂ ∙
+        ΠId-1 [ consSubst (sgSubst A₁) rfl ⇑ ] ∙
+        wk[ 2 ]′ (Π p′ , q′ ▷ A₁ ▹ U l₂) ⊢
+        ΠΣ⟨ b ⟩ p , q ▷ wk[ 3 ]′ A₁ ▹ (var x1 ∘⟨ p′ ⟩ var x0) ∷
+        U (l₁ ⊔ᵘ l₂)
+      ⊢Π10 =
+        ΠΣⱼ ∙³⊢A₁″
+          (var₁ (univ ∙³⊢A₁″) ∘ⱼ
+           PE.subst (_⊢_∷_ _ _) (PE.sym $ PE.cong wk1 $ wk-comp _ _ _)
+             (var₀ (univ ∙³⊢A₁″)))
+          ok
+
+    opaque
+      ⊢Motive : Γ ∙ U l₁ ∙ Id (U l₁) (wk1 A₁) (var x0) ⊢ Motive
+      ⊢Motive =
+        flip _⊢_.ΠΣⱼ ok′ $
+        flip _⊢_.ΠΣⱼ ok′ $
+        Idⱼ′ (wkTerm (ʷ⊇-drop (∙ ⊢ΠId-1)) (ΠΣⱼ ⊢A₁ ⊢B₁ ok)) ⊢Π20
+
+    opaque
+      ⊢U≡λU0 : Γ ∙ A₁ ⊢ U l₂ ≡ lam p′ (U l₂) ∘⟨ p′ ⟩ var x0 ∷ U (1+ l₂)
+      ⊢U≡λU0 =
+        sym′ $
+        β-red-≡ (Uⱼ (∙ wk₁ (univ ⊢A₁) (univ ⊢A₁))) (var₀ (univ ⊢A₁)) ok′
+
+    opaque
+      ⊢10 :
+        Γ ∙ Π p′ , q′ ▷ A₁ ▹ U l₂ ∙ wk1 A₁ ⊢
+        var x1 ∘⟨ p′ ⟩ var x0 ∷ U l₂
+      ⊢10 = var₁ (univ ∙⊢A₁) ∘ⱼ var₀ (univ ∙⊢A₁)
+
+    opaque
+      ⊢ΠId′ :
+        Γ ∙ Π p′ , q′ ▷ A₁ ▹ U l₂ ⊢
+        Π p′ , q′ ▷ wk1 A₁ ▹
+        Id (U l₂) (B₁ [ 2 ][ var x0 ]↑) (var x1 ∘⟨ p′ ⟩ var x0)
+      ⊢ΠId′ =
+        flip ΠΣⱼ ok′ $
+        Idⱼ′ (subst-⊢∷ ⊢B₁ (⊢ˢʷ∷-[][]↑ (var₀ (univ ∙⊢A₁)))) ⊢10
+
+    opaque
+      ∙²⊢A₁′ :
+        Γ ∙ Π p′ , q′ ▷ A₁ ▹ U l₂ ∙
+        Π p′ , q′ ▷ wk1 A₁ ▹
+          Id (U l₂) (B₁ [ 2 ][ var x0 ]↑) (var x1 ∘⟨ p′ ⟩ var x0) ⊢
+        wk[ 2 ]′ A₁ ∷ U l₁
+      ∙²⊢A₁′ = wkTerm (stepʷ ⊇-drop ⊢ΠId′) ⊢A₁
+
+    ext∘³ : Term n
+    ext∘³ =
+      ext ∘⟨ p′ ⟩ A₁ ∘⟨ p′ ⟩ lam p′ (U l₂) ∘⟨ p′ ⟩ lam p′ B₁
+
+    opaque
+      ⊢ext∘³ :
+        Γ ⊢
+        ext∘³ ∷
+        Π p′ , q′ ▷ (Π p′ , q′ ▷ A₁ ▹ U l₂) ▹
+        Π p′ , q′ ▷
+          (Π p′ , q′ ▷ wk1 A₁ ▹
+           Id (U l₂) (B₁ [ 2 ][ var x0 ]↑)
+             (var x1 ∘⟨ p′ ⟩ var x0)) ▹
+        Id (wk[ 2 ]′ (Π p′ , q′ ▷ A₁ ▹ U l₂))
+          (wk[ 2 ]′ (lam p′ B₁)) (var x1)
+      ⊢ext∘³ =
+        conv
+          (((⊢ext ∘ⱼ ⊢A₁) ∘ⱼ
+            lamⱼ′ ok′ (Uⱼ (∙ univ ⊢A₁))) ∘ⱼ
+           (_⊢_∷_.conv (lamⱼ′ ok′ ⊢B₁) $ univ
+              (Π p′ , q′ ▷ A₁ ▹ U l₂                    ≡⟨ ΠΣ-cong
+                                                             (PE.subst₂ (_⊢_≡_∷_ _ _) (PE.sym $ wk1-sgSubst _ _) PE.refl $
+                                                              refl ⊢A₁)
+                                                             ⊢U≡λU0 ok′ ⟩⊢∎
+               Π p′ , q′ ▷ wk1 A₁ [ lam p′ (U l₂) ]₀ ▹
+               (lam p′ (U l₂) ∘⟨ p′ ⟩ var x0)           ∎)))
+          (_⊢_≡_.univ $ sym′
+             (Π p′ , q′ ▷ (Π p′ , q′ ▷ A₁ ▹ U l₂) ▹
+              Π p′ , q′ ▷
+                (Π p′ , q′ ▷ wk1 A₁ ▹
+                 Id (U l₂) (B₁ [ 2 ][ var x0 ]↑)
+                   (var x1 ∘⟨ p′ ⟩ var x0)) ▹
+              Id (wk[ 2 ]′ (Π p′ , q′ ▷ A₁ ▹ U l₂))
+                (wk[ 2 ]′ (lam p′ B₁)) (var x1)                        ≡⟨ ΠΣ-cong
+                                                                            (ΠΣ-cong (refl ⊢A₁) ⊢U≡λU0 ok′)
+                                                                            (ΠΣ-cong
+                                                                               (ΠΣ-cong
+                                                                                  (refl ∙⊢A₁)
+                                                                                  (Id-cong
+                                                                                     (wkEqTerm (liftʷ ⊇-drop (univ ∙⊢A₁)) ⊢U≡λU0)
+                                                                                     (PE.subst₃ (_⊢_≡_∷_ _) (PE.sym $ [][]↑≡ B₁) PE.refl PE.refl $
+                                                                                      sym′ $
+                                                                                      β-red-≡
+                                                                                        (PE.subst₃ _⊢_∷_
+                                                                                           (PE.cong (_∙_ _) (PE.sym wk[]≡wk[]′)) PE.refl PE.refl $
+                                                                                         wkTerm
+                                                                                           (liftʷ ⊇-drop $
+                                                                                            univ (wkTerm (stepʷ ⊇-drop (univ ∙⊢A₁)) ⊢A₁))
+                                                                                           ⊢B₁)
+                                                                                        (var₀ (univ ∙⊢A₁)) ok′)
+                                                                                     (refl ⊢10))
+                                                                                  ok′)
+                                                                               (Id-cong
+                                                                                  (ΠΣ-cong
+                                                                                     (refl ∙²⊢A₁′)
+                                                                                     (wkEqTerm (liftʷ ⊇-drop (univ ∙²⊢A₁′)) ⊢U≡λU0)
+                                                                                     ok′)
+                                                                                  (_⊢_≡_∷_.refl $
+                                                                                   wkTerm (stepʷ ⊇-drop ⊢ΠId′) (lamⱼ′ ok′ ⊢B₁))
+                                                                                  (_⊢_≡_∷_.refl $
+                                                                                   PE.subst (_⊢_∷_ _ _) wk[]≡wk[]′ $
+                                                                                   var₁ ⊢ΠId′))
+                                                                               ok′)
+                                                                            ok′ ⟩⊢∎≡
+              Π p′ , q′ ▷
+                (Π p′ , q′ ▷ A₁ ▹
+                 (lam p′ (U l₂) ∘⟨ p′ ⟩ var x0)) ▹
+              Π p′ , q′ ▷
+                (Π p′ , q′ ▷ wk1 A₁ ▹
+                 Id (lam p′ (U l₂) ∘⟨ p′ ⟩ var x0)
+                   (wk[ 2 ]′ (lam p′ B₁) ∘⟨ p′ ⟩ var x0)
+                   (var x1 ∘⟨ p′ ⟩ var x0)) ▹
+              Id
+                (wk[ 2 ]′
+                   (Π p′ , q′ ▷ A₁ ▹ (lam p′ (U l₂) ∘⟨ p′ ⟩ var x0)))
+                (wk[ 2 ]′ (lam p′ B₁)) (var x1)                        ≡˘⟨ PE.cong₂ (Π p′ , q′ ▷_▹_)
+                                                                             (PE.cong₂ (Π p′ , q′ ▷_▹_) wk2-[,] PE.refl)
+                                                                             (PE.cong₂ (Π p′ , q′ ▷_▹_)
+                                                                                (PE.cong₂ (Π p′ , q′ ▷_▹_)
+                                                                                   (PE.trans (PE.cong _[ _ ] $ wk[]≡wk[]′ {t = A₁})
+                                                                                    wk[2+]′[,⇑]≡)
+                                                                                   (PE.cong₂ (Id _)
+                                                                                      (PE.cong₃ _∘⟨_⟩_ (wk-comp _ _ _) PE.refl PE.refl)
+                                                                                      PE.refl))
+                                                                                (PE.cong₃ Id
+                                                                                   (PE.cong₂ (Π p′ , q′ ▷_▹_)
+                                                                                      (PE.trans (PE.cong _[ _ ] $ wk[]≡wk[]′ {t = A₁})
+                                                                                       wk[2+]′[,⇑]≡)
+                                                                                      PE.refl)
+                                                                                   (wk-comp _ _ _)
+                                                                                   PE.refl)) ⟩
+              Π p′ , q′ ▷
+                (Π p′ , q′ ▷ wk[ 2 ] A₁ ▹
+                 (lam p′ (U l₂) ∘⟨ p′ ⟩ var x0)) ▹
+              Π p′ , q′ ▷
+                (Π p′ , q′ ▷ wk[ 3 ] A₁ ▹
+                 Id (lam p′ (U l₂) ∘⟨ p′ ⟩ var x0)
+                   (var x2 ∘⟨ p′ ⟩ var x0) (var x1 ∘⟨ p′ ⟩ var x0)) ▹
+              Id
+                (Π p′ , q′ ▷ wk[ 4 ] A₁ ▹
+                 (lam p′ (U l₂) ∘⟨ p′ ⟩ var x0))
+                (var x2) (var x1)
+              [ lam p′ (U l₂) , lam p′ B₁ ]₁₀                          ≡˘⟨ singleSubstComp _ _
+                                                                             (Π _ , _ ▷ (Π _ , _ ▷ wk[ _ ] A₁ ▹ (lam _ (U _) ∘⟨ _ ⟩ var x0)) ▹
+                                                                              Π _ , _ ▷
+                                                                                (Π _ , _ ▷ wk[ _ ] A₁ ▹
+                                                                                 Id (lam _ (U _) ∘⟨ _ ⟩ var x0) (var x2 ∘⟨ _ ⟩ var x0)
+                                                                                   (var x1 ∘⟨ _ ⟩ var x0)) ▹
+                                                                              Id (Π _ , _ ▷ wk[ 4 ] A₁ ▹ (lam _ (U _) ∘⟨ _ ⟩ var x0)) (var x2)
+                                                                                (var x1)) ⟩
+              Π p′ , q′ ▷
+                (Π p′ , q′ ▷ wk[ 2 ] A₁ ▹
+                 (lam p′ (U l₂) ∘⟨ p′ ⟩ var x0)) ▹
+              Π p′ , q′ ▷
+                (Π p′ , q′ ▷ wk[ 3 ] A₁ ▹
+                 Id (lam p′ (U l₂) ∘⟨ p′ ⟩ var x0)
+                   (var x2 ∘⟨ p′ ⟩ var x0) (var x1 ∘⟨ p′ ⟩ var x0)) ▹
+              Id
+                (Π p′ , q′ ▷ wk[ 4 ] A₁ ▹
+                 (lam p′ (U l₂) ∘⟨ p′ ⟩ var x0))
+                (var x2) (var x1)
+              [ sgSubst (lam p′ (U l₂)) ⇑ ] [ lam p′ B₁ ]₀             ∎))
+
+    opaque
+      ⊢ext∘⁴ :
+        Γ ∙ ΠΣ⟨ BMΠ ⟩ p′ , q′ ▷ A₁ ▹ U l₂ ∙
+        ΠId-1 [ consSubst (sgSubst A₁) rfl ⇑ ] ⊢
+        wk[ 2 ]′ ext∘³ ∘⟨ p′ ⟩ var x1 ∷
+        Π p′ , q′ ▷
+          (Π p′ , q′ ▷ wk[ 2 ]′ A₁ ▹
+           Id (U l₂) (B₁ [ 3 ][ var x0 ]↑)
+             (var x2 ∘⟨ p′ ⟩ var x0)) ▹
+        Id (wk[ 3 ]′ (ΠΣ⟨ BMΠ ⟩ p′ , q′ ▷ A₁ ▹ U l₂))
+          (wk[ 3 ]′ (lam p′ B₁)) (var x2)
+      ⊢ext∘⁴ =
+        PE.subst (_⊢_∷_ _ _)
+          (Π p′ , q′ ▷
+             (U.wk (lift (stepn id 2)) $
+              Π p′ , q′ ▷ wk1 A₁ ▹
+              Id (U l₂) (B₁ [ 2 ][ var x0 ]↑) (var x1 ∘⟨ p′ ⟩ var x0)) ▹
+           Id
+             (U.wk (liftn (stepn id 2) 2)
+                (wk[ 2 ]′ (Π p′ , q′ ▷ A₁ ▹ U l₂)))
+             (U.wk (liftn (stepn id 2) 2) (wk[ 2 ]′ (lam p′ B₁)))
+             (var x1)
+           [ var x1 ]₀                                                    ≡⟨ PE.cong₂ (Π p′ , q′ ▷_▹_)
+                                                                               (PE.cong₂ (Π p′ , q′ ▷_▹_)
+                                                                                  (PE.trans (PE.sym $ [][]↑≡ (wk1 A₁))
+                                                                                   wk1-[][]↑′)
+                                                                                  (PE.cong₂ (Id _)
+                                                                                     (PE.trans (subst-wk (B₁ [ 2 ][ _ ]↑)) $
+                                                                                      PE.trans (substCompEq B₁) $
+                                                                                      flip substVar-to-subst B₁ λ where
+                                                                                        x0     → PE.refl
+                                                                                        (_ +1) → PE.refl)
+                                                                                     PE.refl))
+                                                                               (PE.cong₃ Id
+                                                                                  (PE.trans (subst-wk (wk[ 2 ]′ (Π _ , _ ▷ A₁ ▹ U _))) $
+                                                                                   PE.trans (subst-wk (Π _ , _ ▷ A₁ ▹ U _)) $
+                                                                                   PE.sym $ wk≡subst _ _)
+                                                                                  (PE.trans (subst-wk (wk[ 2 ]′ (lam _ B₁))) $
+                                                                                   PE.trans (subst-wk (lam _ B₁)) $
+                                                                                   PE.sym $ wk≡subst _ _)
+                                                                                  PE.refl) ⟩
+          Π p′ , q′ ▷
+            (Π p′ , q′ ▷ wk[ 2 ]′ A₁ ▹
+             Id (U l₂) (B₁ [ 3 ][ var x0 ]↑) (var x2 ∘⟨ p′ ⟩ var x0)) ▹
+          Id (wk[ 3 ]′ (Π p′ , q′ ▷ A₁ ▹ U l₂)) (wk[ 3 ]′ (lam p′ B₁))
+            (var x2)                                                      ∎) $
+        PE.subst (_⊢_∷_ _ _)
+          (PE.cong₂ (Π p′ , q′ ▷_▹_) (PE.sym wk[]≡wk[]′) PE.refl)
+          (wkTerm (stepʷ ⊇-drop ⊢ΠId-1[]) ⊢ext∘³) ∘ⱼ
+        var₁ ⊢ΠId-1[]
+
+    opaque
+      ⊢ext∘⁵ :
+        Γ ∙ ΠΣ⟨ BMΠ ⟩ p′ , q′ ▷ A₁ ▹ U l₂ ∙
+        ΠId-1 [ consSubst (sgSubst A₁) rfl ⇑ ] ⊢
+        wk[ 2 ]′ ext∘³ ∘⟨ p′ ⟩ var x1 ∘⟨ p′ ⟩ var x0 ∷
+        Id (wk[ 2 ]′ (ΠΣ⟨ BMΠ ⟩ p′ , q′ ▷ A₁ ▹ U l₂))
+          (wk[ 2 ]′ (lam p′ B₁)) (var x1)
+      ⊢ext∘⁵ =
+        PE.subst (_⊢_∷_ _ _)
+          (PE.cong₃ Id (step-sgSubst _ _) (step-sgSubst _ _) PE.refl) $
+        ⊢ext∘⁴ ∘ⱼ
+        (_⊢_∷_.conv (var₀ ⊢ΠId-1[]) $ univ
+           (wk1 (ΠId-1 [ consSubst (sgSubst A₁) rfl ⇑ ])             ≡⟨ PE.trans
+                                                                          (PE.cong wk1 $
+                                                                           PE.cong₂ (Π p′ , q′ ▷_▹_)
+                                                                             (PE.trans
+                                                                                (PE.cong _[ consSubst (sgSubst _) _ ⇑ ] $
+                                                                                 wk[]≡wk[]′ {t = A₁})
+                                                                              wk[2+]′[,⇑]≡)
+                                                                             (PE.cong₂ (Id _)
+                                                                                (PE.trans ([][]↑-[,⇑] 2 B₁) $
+                                                                                 [1+][0]↑ {t = B₁})
+                                                                                (PE.cong (var x1 ∘⟨ _ ⟩_) $
+                                                                                 PE.trans cast-[] $
+                                                                                 PE.cong₄ (cast _)
+                                                                                   wk[2+]′[,⇑]≡ wk[]≡wk[]′ PE.refl PE.refl))) $
+                                                                        PE.cong₂ (Π p′ , q′ ▷_▹_)
+                                                                          wk[]≡wk[]′
+                                                                          (PE.cong₂ (Id _)
+                                                                             (PE.trans (wk-comp _ _ _) $
+                                                                              PE.sym [1+][0]↑)
+                                                                             (PE.cong (_ ∘⟨ _ ⟩_) $
+                                                                              PE.trans wk-cast $
+                                                                              PE.cong₄ (cast _)
+                                                                                (wk-comp _ _ _) (wk-comp _ _ _) PE.refl PE.refl)) ⟩⊢≡
+            Π p′ , q′ ▷ wk[ 2 ]′ A₁ ▹
+            Id (U l₂) (B₁ [ 3 ][ var x0 ]↑)
+              (var x2 ∘⟨ p′ ⟩
+               cast l₁ (wk[ 3 ]′ A₁) (wk[ 3 ]′ A₁) rfl (var x0))     ≡⟨ ΠΣ-cong
+                                                                          (refl ∙²⊢A₁)
+                                                                          (Id-cong
+                                                                             (refl ∙³⊢U₂)
+                                                                             (_⊢_≡_∷_.refl $ subst-⊢∷ ⊢B₁ $ ⊢ˢʷ∷-[][]↑ $
+                                                                              PE.subst₃ _⊢_∷_ (PE.cong (_∙_ _) wk[]≡wk[]′) PE.refl PE.refl $
+                                                                              var₀ (PE.subst (_⊢_ _) (PE.sym wk[]≡wk[]′) (univ ∙²⊢A₁)))
+                                                                             (app-cong
+                                                                                (refl (var₂ (univ ∙²⊢A₁)))
+                                                                                (PE.subst (_⊢_≡_∷_ _ _ _) (PE.sym wk[]≡wk[]′) $
+                                                                                 cast-≡ ∙³⊢A₁′ $
+                                                                                 PE.subst (_⊢_∷_ _ _) (wk-comp _ _ _) $
+                                                                                 var₀ (univ ∙²⊢A₁))))
+                                                                          ok′ ⟩⊢∎≡
+            Π p′ , q′ ▷ wk[ 2 ]′ A₁ ▹
+            Id (U l₂) (B₁ [ 3 ][ var x0 ]↑) (var x2 ∘⟨ p′ ⟩ var x0)  ∎))
+
+    rfl-case : Term n
+    rfl-case =
+      lam p′ $ lam p′ $
+      cong ω (wk[ 2 ]′ (Π p′ , q′ ▷ A₁ ▹ U l₂))
+        (wk[ 2 ]′ (lam p′ B₁)) (var x1) (U (l₁ ⊔ᵘ l₂))
+        (ΠΣ⟨ b ⟩ p , q ▷ wk[ 3 ]′ A₁ ▹ (var x1 ∘⟨ p′ ⟩ var x0))
+        (wk[ 2 ]′ ext∘³ ∘⟨ p′ ⟩ var x1 ∘⟨ p′ ⟩ var x0)
+
+    opaque
+      ⊢rfl-case : Γ ⊢ rfl-case ∷ Motive [ A₁ , rfl ]₁₀
+      ⊢rfl-case =
+        lamⱼ′ ok′ $ lamⱼ′ ok′ $
+        _⊢_∷_.conv (⊢cong ⊢Π10 ⊢ext∘⁵) $ univ
+          (Id (U (l₁ ⊔ᵘ l₂))
+             (ΠΣ⟨ b ⟩ p , q ▷ wk[ 3 ]′ A₁ ▹ (var x1 ∘⟨ p′ ⟩ var x0)
+              [ wk[ 2 ]′ (lam p′ B₁) ]₀)
+             (ΠΣ⟨ b ⟩ p , q ▷ wk[ 3 ]′ A₁ ▹ (var x1 ∘⟨ p′ ⟩ var x0)
+              [ var x1 ]₀)                                            ≡⟨ PE.cong₂ (Id _)
+                                                                           (PE.cong₂ (ΠΣ⟨_⟩_,_▷_▹_ _ _ _)
+                                                                              wk[1+]′-[]₀≡
+                                                                              (PE.cong₃ _∘⟨_⟩_ (wk-comp _ _ _) PE.refl PE.refl))
+                                                                           (PE.cong₂ (ΠΣ⟨_⟩_,_▷_▹_ _ _ _) wk[1+]′-[]₀≡ PE.refl) ⟩⊢≡
+           Id (U (l₁ ⊔ᵘ l₂))
+             (ΠΣ⟨ b ⟩ p , q ▷ wk[ 2 ]′ A₁ ▹
+              (wk[ 3 ]′ (lam p′ B₁) ∘⟨ p′ ⟩ var x0))
+             (ΠΣ⟨ b ⟩ p , q ▷ wk[ 2 ]′ A₁ ▹ (var x2 ∘⟨ p′ ⟩ var x0))  ≡⟨ Id-cong (refl (Uⱼ (∙ ⊢ΠId-1[])))
+                                                                           (ΠΣ-cong (refl ∙²⊢A₁)
+                                                                              (PE.subst₂ (_⊢_≡_∷_ _ _)
+                                                                                 (PE.trans (PE.sym $ [][]↑≡ B₁) [1+][0]↑)
+                                                                                 PE.refl $
+                                                                               β-red-≡
+                                                                                 (PE.subst₃ _⊢_∷_
+                                                                                    (PE.cong (_∙_ _) $ PE.sym $ wk-comp _ _ _) PE.refl PE.refl $
+                                                                                  wkTerm (liftʷ ⊇-drop (univ ∙³⊢A₁′)) ⊢B₁)
+                                                                                 (var₀ (univ ∙²⊢A₁)) ok′)
+                                                                              ok)
+                                                                           (refl ⊢Π20′) ⟩⊢∎≡
+           Id (U (l₁ ⊔ᵘ l₂)) (wk[ 2 ]′ (ΠΣ⟨ b ⟩ p , q ▷  A₁ ▹ B₁))
+             (ΠΣ⟨ b ⟩ p , q ▷ wk[ 2 ]′ A₁ ▹ (var x2 ∘⟨ p′ ⟩ var x0))  ≡˘⟨ PE.cong₂ (Id _)
+                                                                            wk[2+]′[,⇑]≡
+                                                                            (PE.cong₂ (ΠΣ⟨_⟩_,_▷_▹_ _ _ _) wk[]≡wk[]′ PE.refl) ⟩
+           (Id (U (l₁ ⊔ᵘ l₂)) (wk[ 4 ]′ (ΠΣ⟨ b ⟩ p , q ▷  A₁ ▹ B₁))
+              (ΠΣ⟨ b ⟩ p , q ▷ var x3 ▹ (var x2 ∘⟨ p′ ⟩ var x0))
+            [ consSubst (sgSubst A₁) rfl ⇑[ 2 ] ])                    ∎)
+
+    J-app : Term n
+    J-app = J ω ω (U l₁) A₁ Motive rfl-case A₂ t
+
+    opaque
+      ⊢J :
+        Γ ⊢ J-app ∷
+        Π p′ , q′ ▷ (Π p′ , q′ ▷ A₂ ▹ U l₂) ▹
+        Π p′ , q′ ▷ ΠId 1 (var x1) (wk[ 2 ]′ A₂) (wk[ 2 ]′ t) ▹
+        Id (U (l₁ ⊔ᵘ l₂)) (wk[ 2 ]′ (ΠΣ⟨ b ⟩ p , q ▷ A₁ ▹ B₁))
+          (ΠΣ⟨ b ⟩ p , q ▷ wk[ 2 ]′ A₂ ▹ (var x2 ∘⟨ p′ ⟩ var x0))
+      ⊢J =
+        PE.subst (_⊢_∷_ _ _)
+          (Π p′ , q′ ▷ (Π p′ , q′ ▷ var x1 ▹ U l₂) ▹
+           Π p′ , q′ ▷
+             (Π p′ , q′ ▷ wk[ 3 ] A₁ ▹
+              Id (U l₂) (B₁ [ 4 ][ var x0 ]↑)
+                (var x1 ∘⟨ p′ ⟩
+                 cast l₁ (wk[ 4 ]′ A₁) (var x3) (var x2) (var x0))) ▹
+           Id (U (l₁ ⊔ᵘ l₂)) (wk[ 4 ]′ (ΠΣ⟨ b ⟩ p , q ▷ A₁ ▹ B₁))
+             (ΠΣ⟨ b ⟩ p , q ▷ var x3 ▹ (var x2 ∘⟨ p′ ⟩ var x0))
+           [ A₂ , t ]₁₀                                                ≡⟨ PE.cong₂ (Π p′ , q′ ▷_▹_) PE.refl $
+                                                                          PE.cong₂ (Π p′ , q′ ▷_▹_)
+                                                                            (PE.cong₂ (Π p′ , q′ ▷_▹_)
+                                                                               (PE.trans
+                                                                                  (PE.cong _[ _ ] $
+                                                                                   wk[]≡wk[]′ {t = A₁}) $
+                                                                                wk[2+]′[,⇑]≡)
+                                                                               (PE.cong₂ (Id _)
+                                                                                  ([][]↑-[,⇑] 2 B₁)
+                                                                                  (PE.cong (_∘⟨_⟩_ _ _) $
+                                                                                   PE.trans cast-[] $
+                                                                                   PE.cong₄ (cast _)
+                                                                                     wk[2+]′[,⇑]≡ wk[]≡wk[]′ wk[]≡wk[]′ PE.refl)))
+                                                                            (PE.cong₂ (Id _)
+                                                                               wk[2+]′[,⇑]≡
+                                                                               (PE.cong₂ (ΠΣ⟨_⟩_,_▷_▹_ _ _ _) wk[]≡wk[]′ PE.refl)) ⟩
+        Π p′ , q′ ▷ (Π p′ , q′ ▷ A₂ ▹ U l₂) ▹
+        Π p′ , q′ ▷
+          (Π p′ , q′ ▷ wk1 A₁ ▹
+           Id (U l₂) (B₁ [ 2 ][ var x0 ]↑)
+             (var x1 ∘⟨ p′ ⟩
+              cast l₁ (wk[ 2 ]′ A₁) (wk[ 2 ]′ A₂) (wk[ 2 ]′ t)
+                (var x0))) ▹
+        Id (U (l₁ ⊔ᵘ l₂)) (wk[ 2 ]′ (ΠΣ⟨ b ⟩ p , q ▷ A₁ ▹ B₁))
+          (ΠΣ⟨ b ⟩ p , q ▷ wk[ 2 ]′ A₂ ▹ (var x2 ∘⟨ p′ ⟩ var x0))      ∎) $
+        Jⱼ′ ⊢Motive ⊢rfl-case ⊢t
+
+    opaque
+      ⊢J∘ :
+        Γ ⊢ J-app ∘⟨ p′ ⟩ lam p′ B₂ ∷
+        Π p′ , q′ ▷
+          (Π p′ , q′ ▷ A₁ ▹
+           Id (U l₂) (B₁ [ 1 ][ var x0 ]↑)
+             (B₂ [ 1 ][ cast l₁ (wk1 A₁) (wk1 A₂) (wk1 t)
+                          (var x0) ]↑)) ▹
+        Id (U (l₁ ⊔ᵘ l₂)) (wk1 (ΠΣ⟨ b ⟩ p , q ▷ A₁ ▹ B₁))
+          (ΠΣ⟨ b ⟩ p , q ▷ wk1 A₂ ▹ (B₂ [ 2 ][ var x0 ]↑))
+      ⊢J∘ =
+        _⊢_∷_.conv (⊢J ∘ⱼ lamⱼ′ ok′ ⊢B₂) $ univ
+          (Π p′ , q′ ▷
+             (Π p′ , q′ ▷ wk1 A₁ ▹
+              Id (U l₂) (B₁ [ 2 ][ var x0 ]↑)
+                (var x1 ∘⟨ p′ ⟩
+                 cast l₁ (wk[ 2 ]′ A₁) (wk[ 2 ]′ A₂) (wk[ 2 ]′ t)
+                   (var x0))) ▹
+           Id (U (l₁ ⊔ᵘ l₂)) (wk[ 2 ]′ (ΠΣ⟨ b ⟩ p , q ▷ A₁ ▹ B₁))
+             (ΠΣ⟨ b ⟩ p , q ▷ wk[ 2 ]′ A₂ ▹ (var x2 ∘⟨ p′ ⟩ var x0))
+           [ lam p′ B₂ ]₀                                             ≡⟨ PE.cong₂ (Π p′ , q′ ▷_▹_)
+                                                                           (PE.cong₂ (Π p′ , q′ ▷_▹_)
+                                                                              (wk1-sgSubst _ _)
+                                                                              (PE.cong₂ (Id _)
+                                                                                 ([][]↑-[₀⇑] 1 B₁)
+                                                                                 (PE.cong (_∘⟨_⟩_ _ _) $
+                                                                                  PE.trans cast-[] $
+                                                                                  PE.cong₄ (cast _)
+                                                                                    wk[+1]′-[₀⇑]≡ wk[+1]′-[₀⇑]≡ wk[+1]′-[₀⇑]≡ PE.refl)))
+                                                                           (PE.cong₂ (Id _)
+                                                                              wk[+1]′-[₀⇑]≡
+                                                                              (PE.cong₂ (ΠΣ⟨_⟩_,_▷_▹_ _ _ _)
+                                                                                 wk[+1]′-[₀⇑]≡
+                                                                                 (PE.cong₃ _∘⟨_⟩_ wk[]≡wk[]′ PE.refl PE.refl))) ⟩⊢≡
+          (Π p′ , q′ ▷
+             (Π p′ , q′ ▷ A₁ ▹
+              Id (U l₂) (B₁ [ 1 ][ var x0 ]↑)
+                (wk1 (lam p′ B₂) ∘⟨ p′ ⟩
+                 cast l₁ (wk1 A₁) (wk1 A₂) (wk1 t) (var x0))) ▹
+           Id (U (l₁ ⊔ᵘ l₂)) (wk1 (ΠΣ⟨ b ⟩ p , q ▷ A₁ ▹ B₁))
+             (ΠΣ⟨ b ⟩ p , q ▷ wk1 A₂ ▹
+              (wk[ 2 ]′ (lam p′ B₂) ∘⟨ p′ ⟩ var x0)))                 ≡⟨ ΠΣ-cong
+                                                                           (ΠΣ-cong
+                                                                              (refl ⊢A₁)
+                                                                              (Id-cong (refl (Uⱼ (∙ univ ⊢A₁)))
+                                                                                 (refl (subst-⊢∷ ⊢B₁ (⊢ˢʷ∷-[][]↑ (var₀ (univ ⊢A₁)))))
+                                                                                 (PE.subst₂ (_⊢_≡_∷_ _ _) (PE.sym $ [][]↑≡ B₂) PE.refl $
+                                                                                  β-red-≡
+                                                                                    (wkTerm (liftʷ ⊇-drop (wk₁ (univ ⊢A₁) (univ ⊢A₂))) ⊢B₂)
+                                                                                    (⊢cast (wkTerm₁ (univ ⊢A₁) ⊢t) (var₀ (univ ⊢A₁))) ok′))
+                                                                              ok′)
+                                                                           (Id-cong (refl (Uⱼ (∙ ⊢ΠId-lam)))
+                                                                              (refl (wkTerm₁ ⊢ΠId-lam (ΠΣⱼ ⊢A₁ ⊢B₁ ok)))
+                                                                              (ΠΣ-cong (refl ΠId-lam⊢A₂)
+                                                                                 (PE.subst₂ (_⊢_≡_∷_ _ _) (PE.sym $ [][]↑≡ B₂) PE.refl $
+                                                                                  β-red-≡
+                                                                                    (wkTerm
+                                                                                       (liftʷ ⊇-drop $ _⊢_.univ $
+                                                                                        wkTerm (ʷ⊇-drop (∙ univ ΠId-lam⊢A₂)) ⊢A₂)
+                                                                                       ⊢B₂)
+                                                                                    (PE.subst (_⊢_∷_ _ _) wk[]≡wk[]′ $
+                                                                                     var₀ (univ ΠId-lam⊢A₂)) ok′)
+                                                                                 ok))
+                                                                           ok′ ⟩⊢∎
+           Π p′ , q′ ▷
+             (Π p′ , q′ ▷ A₁ ▹
+              Id (U l₂) (B₁ [ 1 ][ var x0 ]↑)
+                (B₂ [ 1 ][ cast l₁ (wk1 A₁) (wk1 A₂) (wk1 t)
+                             (var x0) ]↑)) ▹
+           Id (U (l₁ ⊔ᵘ l₂)) (wk1 (ΠΣ⟨ b ⟩ p , q ▷ A₁ ▹ B₁))
+             (ΠΣ⟨ b ⟩ p , q ▷ wk1 A₂ ▹ (B₂ [ 2 ][ var x0 ]↑))         ∎)
+
+    opaque
+      ⊢J∘∘ :
+        Γ ⊢ J-app ∘⟨ p′ ⟩ lam p′ B₂ ∘⟨ p′ ⟩ lam p′ u ∷
+        Id (U (l₁ ⊔ᵘ l₂)) (ΠΣ⟨ b ⟩ p , q ▷ A₁ ▹ B₁)
+          (ΠΣ⟨ b ⟩ p , q ▷ A₂ ▹ B₂)
+      ⊢J∘∘ =
+        PE.subst (_⊢_∷_ _ _)
+          (Id (U (l₁ ⊔ᵘ l₂)) (wk1 (ΠΣ⟨ b ⟩ p , q ▷ A₁ ▹ B₁))
+             (ΠΣ⟨ b ⟩ p , q ▷ wk1 A₂ ▹ (B₂ [ 2 ][ var x0 ]↑))
+           [ lam p′ u ]₀                                       ≡⟨ PE.cong₂ (Id _) (wk1-sgSubst _ _) $
+                                                                  PE.cong₂ (ΠΣ⟨_⟩_,_▷_▹_ _ _ _)
+                                                                    (wk1-sgSubst _ _)
+                                                                    ([][]↑-[₀⇑] 1 B₂) ⟩
+           Id (U (l₁ ⊔ᵘ l₂)) (ΠΣ⟨ b ⟩ p , q ▷ A₁ ▹ B₁)
+             (ΠΣ⟨ b ⟩ p , q ▷ A₂ ▹ (B₂ [ var x0 ]↑))           ≡⟨ PE.cong (Id _ _ ∘→ ΠΣ⟨_⟩_,_▷_▹_ _ _ _ _) [0]↑ ⟩
+
+           Id (U (l₁ ⊔ᵘ l₂)) (ΠΣ⟨ b ⟩ p , q ▷ A₁ ▹ B₁)
+             (ΠΣ⟨ b ⟩ p , q ▷ A₂ ▹ B₂)                         ∎)
+          (⊢J∘ ∘ⱼ
+           PE.subst (_⊢_∷_ _ _)
+             (PE.cong (Π p′ , q′ ▷ A₁ ▹_) $
+              PE.cong₂ (Id _) (PE.sym [0]↑) PE.refl)
+             (lamⱼ′ ok′ ⊢u))
+
+opaque
+
+  -- A variant of ΠΣ-cong-Idˡ.
+
+  ΠΣ-cong-Idʳ :
+    ΠΣ-allowed b p q →
+    Π-allowed p′ q′ →
+    Has-function-extensionality p′ q′ l₁ (1+ l₂) Γ →
+    Γ ∙ A₁ ⊢ B₁ ∷ U l₂ →
+    Γ ⊢ t ∷ Id (U l₁) A₂ A₁ →
+    Γ ∙ A₂ ⊢ u ∷
+      Id (U l₂) (B₁ [ cast l₁ (wk1 A₂) (wk1 A₁) (wk1 t) (var x0) ]↑)
+        B₂ →
+    ∃ λ v →
+      Γ ⊢ v ∷
+        Id (U (l₁ ⊔ᵘ l₂)) (ΠΣ⟨ b ⟩ p , q ▷ A₁ ▹ B₁)
+          (ΠΣ⟨ b ⟩ p , q ▷ A₂ ▹ B₂)
+  ΠΣ-cong-Idʳ ok ok′ ext ⊢B₁ ⊢t ⊢u =
+    _ , ⊢symmetry (ΠΣ-cong-Idˡ ok ok′ ext ⊢B₁ ⊢t (⊢symmetry ⊢u) .proj₂)
