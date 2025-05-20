@@ -1613,6 +1613,19 @@ opaque
 
 opaque
 
+  -- A composition lemma for wk[_] and wk[_]′.
+
+  wk[]-wk[]′-comp :
+    ∀ m →
+    subst Term (+-assoc m n o) (wk[ m + n ]′ t) ≡
+    wk[ m ] (wk[ n ]′ t)
+  wk[]-wk[]′-comp {n} {o} {t} m =
+    subst Term (+-assoc m n o) (wk[ m + n ]′ t)  ≡⟨ wk[]′-comp _ ⟩
+    wk[ m ]′ (wk[ n ]′ t)                        ≡˘⟨ wk[]≡wk[]′ ⟩
+    wk[ m ] (wk[ n ]′ t)                         ∎
+
+opaque
+
   -- A lemma relating wk[_], _[_] and _⇑[_].
 
   wk[]-⇑[] : ∀ k → wk[ k ] t [ σ ⇑[ k ] ] ≡ wk[ k ] (t [ σ ])
