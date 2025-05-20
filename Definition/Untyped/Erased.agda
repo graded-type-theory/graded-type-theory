@@ -329,7 +329,7 @@ opaque
           (Id (wk₂ (A U.[ σ ])) (wk₂ (t U.[ σ ])) (var x0)) (var x0)                    ∎;
                                                                                       (x0 +1) →
         fst⟨ s ⟩ 𝟘 (wk1 A) (var x0) U.[ liftSubst σ ]                                   ≡⟨ fst⟨⟩-[] ⟩
-        fst⟨ s ⟩ 𝟘 (wk1 A U.[ liftSubst σ ]) (var x0)                                   ≡⟨ cong₂ (fst⟨ _ ⟩ _) (wk1-liftSubst A) refl ⟩
+        fst⟨ s ⟩ 𝟘 (wk1 A U.[ liftSubst σ ]) (var x0)                                   ≡⟨ PE.cong₂ (fst⟨ _ ⟩ _) (wk1-liftSubst A) refl ⟩
         fst⟨ s ⟩ 𝟘 (wk1 (A U.[ σ ])) (var x0)                                           ∎;
                                                                                       (x +1 +1) →
         wk1 (σ x)                                                                       ≡⟨ wk1-tailId _ ⟩
@@ -356,7 +356,7 @@ opaque
                                                                                         (wk[]′-[⇑]
                                                                                            (Σ⟨ _ ⟩ _ , _ ▷ A ▹ Id (wk1 A) (wk1 t) (var x0))) $
                                                                                       PE.cong wk₂ lemma)
-                                                                                     (cong₂ (prod s 𝟘) (wk[]′-[⇑] t) refl)
+                                                                                     (PE.cong₂ (prod s 𝟘) (wk[]′-[⇑] t) refl)
                                                                                      refl)
                                                                                   refl refl refl)
                                                                                refl ⟩

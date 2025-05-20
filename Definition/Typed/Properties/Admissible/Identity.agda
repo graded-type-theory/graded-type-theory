@@ -46,16 +46,17 @@ open import Tools.Reasoning.PropositionalEquality
 open Definition.Typed.Properties.Admissible.Identity.Primitive R public
 
 private variable
-  n                                    : Nat
-  Γ Γ₁ Γ₂                              : Con Term _
-  A A₁ A₂ A′ B B₁ B₂ C
+  n                                                    : Nat
+  Γ Γ₁ Γ₂                                              : Con Term _
+  A A₁ A₁₁ A₁₂ A₂ A₂₁ A₂₂ A′ B B₁ B₂ C
     eq eq₁ eq₁₁ eq₁₂ eq₂ eq₂₁ eq₂₂
-    t t₁ t₂ t′ u u₁ u₂ v v₁ v₂ w w₁ w₂ : Term _
-  σ                                    : Subst _ _
-  p p′ q q′                            : M
-  b                                    : BinderMode
-  s                                    : Strength
-  l l₁ l₂                              : Universe-level
+    t t₁ t₁₁ t₁₂ t₂ t₂₁ t₂₂ t′ u u₁ u₁₁ u₁₂ u₂ u₂₁ u₂₂
+    v v₁ v₂ w w₁ w₁₁ w₁₂ w₂ w₂₁ w₂₂                    : Term _
+  σ                                                    : Subst _ _
+  p p′ q q′                                            : M
+  b                                                    : BinderMode
+  s                                                    : Strength
+  l l₁ l₂                                              : Universe-level
 
 ------------------------------------------------------------------------
 -- Lemmas related to rfl
@@ -1014,6 +1015,125 @@ opaque
     (id ⊢w)          → id (⊢cong ⊢v ⊢w)
     (w₁⇒w₃ ⇨ w₃⇒*w₂) →
       cong-subst ⊢v w₁⇒w₃ ⇨ cong-subst* ⊢v w₃⇒*w₂
+
+------------------------------------------------------------------------
+-- Lemmas related to cong₂
+
+opaque
+  unfolding cong₂
+
+  -- An equality rule for cong₂.
+
+  cong₂-cong :
+    Γ ⊢ A₁₁ ≡ A₁₂ →
+    Γ ⊢ t₁₁ ≡ t₁₂ ∷ A₁₁ →
+    Γ ⊢ u₁₁ ≡ u₁₂ ∷ A₁₁ →
+    Γ ⊢ A₂₁ ≡ A₂₂ →
+    Γ ⊢ t₂₁ ≡ t₂₂ ∷ A₂₁ →
+    Γ ⊢ u₂₁ ≡ u₂₂ ∷ A₂₁ →
+    Γ ⊢ B₁ ≡ B₂ →
+    Γ ∙ A₁₁ ∙ wk1 A₂₁ ⊢ v₁ ≡ v₂ ∷ wk[ 2 ]′ B₁ →
+    Γ ⊢ w₁₁ ≡ w₁₂ ∷ Id A₁₁ t₁₁ u₁₁ →
+    Γ ⊢ w₂₁ ≡ w₂₂ ∷ Id A₂₁ t₂₁ u₂₁ →
+    Γ ⊢ cong₂ p A₁₁ t₁₁ u₁₁ A₂₁ t₂₁ u₂₁ B₁ v₁ w₁₁ w₂₁ ≡
+      cong₂ p A₁₂ t₁₂ u₁₂ A₂₂ t₂₂ u₂₂ B₂ v₂ w₁₂ w₂₂ ∷
+      Id B₁ (v₁ [ t₁₁ , t₂₁ ]₁₀) (v₁ [ u₁₁ , u₂₁ ]₁₀)
+  cong₂-cong
+    {Γ} {A₁₁} {A₂₁} {B₁} {v₁} {v₂}
+    A₁₁≡A₁₂ t₁₁≡t₁₂ u₁₁≡u₁₂ A₂₁≡A₂₂ t₂₁≡t₂₂ u₂₁≡u₂₂ B₁≡B₂ v₁≡v₂
+    w₁₁≡w₁₂ w₂₁≡w₂₂ =
+    let ⊢A₁₁ , _ = wf-⊢≡ A₁₁≡A₁₂ in
+    transitivity-cong B₁≡B₂ (lemma t₁₁≡t₁₂ t₂₁≡t₂₂)
+      (lemma u₁₁≡u₁₂ t₂₁≡t₂₂) (lemma u₁₁≡u₁₂ u₂₁≡u₂₂)
+      (PE.subst (_⊢_≡_∷_ _ _ _)
+         (PE.sym $
+          PE.cong₂ (Id _) ([,]≡[wk1]₀[]₀ v₁) ([,]≡[wk1]₀[]₀ v₁)) $
+       cong-cong A₁₁≡A₁₂ t₁₁≡t₁₂ u₁₁≡u₁₂ B₁≡B₂
+         (PE.subst (_⊢_≡_∷_ _ _ _) wk[1+]′-[]₀≡ $
+          substTermEq v₁≡v₂ (wkEqTerm₁ ⊢A₁₁ t₂₁≡t₂₂))
+         w₁₁≡w₁₂)
+      (PE.subst (_⊢_≡_∷_ _ _ _)
+         (PE.cong₂ (Id _)
+            (singleSubstComp _ _ v₁) (singleSubstComp _ _ v₁)) $
+       cong-cong A₂₁≡A₂₂ t₂₁≡t₂₂ u₂₁≡u₂₂ B₁≡B₂
+         (PE.subst₄ _⊢_≡_∷_
+            (PE.cong (_∙_ _) (wk1-sgSubst _ _)) PE.refl PE.refl
+            wk[+1]′-[₀⇑]≡ $
+          subst-⊢≡∷-⇑ v₁≡v₂ (⊢ˢʷ≡∷-sgSubst u₁₁≡u₁₂))
+         w₂₁≡w₂₂)
+      where
+      lemma :
+        Γ ⊢ t₁ ≡ t₂ ∷ A₁₁ →
+        Γ ⊢ u₁ ≡ u₂ ∷ A₂₁ →
+        Γ ⊢ v₁ [ t₁ , u₁ ]₁₀ ≡ v₂ [ t₂ , u₂ ]₁₀ ∷ B₁
+      lemma t₁≡t₂ u₁≡u₂ =
+        PE.subst (_⊢_≡_∷_ _ _ _) wk₂-[,] $
+        substTermEq₂ v₁≡v₂ t₁≡t₂ $
+        PE.subst (_⊢_≡_∷_ _ _ _) (PE.sym $ wk1-sgSubst _ _) u₁≡u₂
+
+opaque
+
+  -- A typing rule for cong₂.
+
+  ⊢cong₂ :
+    Γ ∙ A₁ ∙ wk1 A₂ ⊢ v ∷ wk[ 2 ]′ B →
+    Γ ⊢ w₁ ∷ Id A₁ t₁ u₁ →
+    Γ ⊢ w₂ ∷ Id A₂ t₂ u₂ →
+    Γ ⊢ cong₂ p A₁ t₁ u₁ A₂ t₂ u₂ B v w₁ w₂ ∷
+      Id B (v [ t₁ , t₂ ]₁₀) (v [ u₁ , u₂ ]₁₀)
+  ⊢cong₂ ⊢v ⊢w₁ ⊢w₂ =
+    let ⊢A₁ , ⊢t₁ , ⊢u₁ = inversion-Id (wf-⊢∷ ⊢w₁)
+        ⊢A₂ , ⊢t₂ , ⊢u₂ = inversion-Id (wf-⊢∷ ⊢w₂)
+        ⊢B              = PE.subst (_⊢_ _) wk₂-[,] $
+                          substType₂ (wf-⊢∷ ⊢v) ⊢t₁
+                            (PE.subst (_⊢_∷_ _ _)
+                               (PE.sym $ wk1-sgSubst _ _)
+                             ⊢t₂)
+    in
+    wf-⊢≡∷
+      (cong₂-cong (refl ⊢A₁) (refl ⊢t₁) (refl ⊢u₁) (refl ⊢A₂) (refl ⊢t₂)
+         (refl ⊢u₂) (refl ⊢B) (refl ⊢v) (refl ⊢w₁) (refl ⊢w₂))
+      .proj₂ .proj₁
+
+opaque
+  unfolding cong₂
+
+  -- A β-rule for cong₂.
+
+  cong₂-β :
+    Γ ⊢ t₁ ∷ A₁ →
+    Γ ⊢ t₂ ∷ A₂ →
+    Γ ∙ A₁ ∙ wk1 A₂ ⊢ u ∷ wk[ 2 ]′ B →
+    Γ ⊢ cong₂ p A₁ t₁ t₁ A₂ t₂ t₂ B u rfl rfl ≡ rfl ∷
+      Id B (u [ t₁ , t₂ ]₁₀) (u [ t₁ , t₂ ]₁₀)
+  cong₂-β {t₁} {A₁} {t₂} {A₂} {u} {B} {p} ⊢t₁ ⊢t₂ ⊢u =
+    let ⊢t₂′      = PE.subst (_⊢_∷_ _ _) (PE.sym $ wk1-sgSubst _ _) ⊢t₂
+        ⊢B        = PE.subst (_⊢_ _) wk₂-[,] $
+                    substType₂ (wf-⊢∷ ⊢u) ⊢t₁ ⊢t₂′
+        ⊢u[,]     = PE.subst (_⊢_∷_ _ _) wk₂-[,] $
+                    substTerm₂ ⊢u ⊢t₁ ⊢t₂′
+        u[,]≡u[,] = refl ⊢u[,]
+    in
+    transitivity B (u [ t₁ , t₂ ]₁₀) (u [ t₁ , t₂ ]₁₀)
+      (u [ t₁ , t₂ ]₁₀) (cong p A₁ t₁ t₁ B (u [ sgSubst (wk1 t₂) ]) rfl)
+      (cong p A₂ t₂ t₂ B (u [ sgSubst t₁ ⇑ ]) rfl)                        ≡⟨ transitivity-cong (refl ⊢B) u[,]≡u[,] u[,]≡u[,] u[,]≡u[,]
+                                                                               (PE.subst (_⊢_≡_∷_ _ _ _)
+                                                                                  (PE.sym $
+                                                                                   PE.cong₂ (Id _) ([,]≡[wk1]₀[]₀ u) ([,]≡[wk1]₀[]₀ u)) $
+                                                                                cong-≡ ⊢t₁
+                                                                                  (PE.subst (_⊢_∷_ _ _) wk[1+]′-[]₀≡ $
+                                                                                   substTerm ⊢u (wkTerm₁ (wf-⊢∷ ⊢t₁) ⊢t₂)))
+                                                                               (PE.subst (_⊢_≡_∷_ _ _ _)
+                                                                                  (PE.cong₂ (Id _)
+                                                                                     (singleSubstComp _ _ u) (singleSubstComp _ _ u)) $
+                                                                                cong-≡ ⊢t₂
+                                                                                  (PE.subst₃ _⊢_∷_
+                                                                                     (PE.cong (_∙_ _) (wk1-sgSubst _ _)) PE.refl wk[+1]′-[₀⇑]≡ $
+                                                                                   subst-⊢∷-⇑ ⊢u (⊢ˢʷ∷-sgSubst ⊢t₁))) ⟩⊢
+    transitivity B (u [ t₁ , t₂ ]₁₀) (u [ t₁ , t₂ ]₁₀)
+      (u [ t₁ , t₂ ]₁₀) rfl rfl                                           ≡⟨ transitivity-≡ (rflⱼ ⊢u[,]) ⟩⊢∎
+
+    rfl                                                                   ∎
 
 ------------------------------------------------------------------------
 -- Lemmas related to pointwise-equality

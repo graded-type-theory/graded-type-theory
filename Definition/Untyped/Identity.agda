@@ -20,16 +20,17 @@ open import Definition.Untyped.Properties M
 open import Tools.Fin
 open import Tools.Function
 open import Tools.Nat
-open import Tools.PropositionalEquality as PE hiding (cong; subst)
+open import Tools.PropositionalEquality as PE
+  hiding (cong; cong₂; subst)
 open import Tools.Reasoning.PropositionalEquality
 
 private variable
-  n                      : Nat
-  A B eq eq₁ eq₂ t u v w : Term _
-  σ                      : Subst _ _
-  ρ                      : Wk _ _
-  l                      : Universe-level
-  p q                    : M
+  n                                              : Nat
+  A A₁ A₂ B eq eq₁ eq₂ t t₁ t₂ u u₁ u₂ v w w₁ w₂ : Term _
+  σ                                              : Subst _ _
+  ρ                                              : Wk _ _
+  l                                              : Universe-level
+  p q                                            : M
 
 opaque
 
@@ -201,6 +202,71 @@ opaque
       (Id (wk1 (B [ σ ])) (wk1 (v [ liftSubst σ ] [ t [ σ ] ]₀))
          (v [ liftSubst σ ]))
       (t [ σ ]) (u [ σ ]) (w [ σ ]) rfl                              ∎
+
+opaque
+
+  -- Binary congruence.
+
+  cong₂ :
+    M → Term n → Term n → Term n → Term n → Term n → Term n → Term n →
+    Term (2+ n) → Term n → Term n → Term n
+  cong₂ p A₁ t₁ u₁ A₂ t₂ u₂ B v w₁ w₂ =
+    transitivity B (v [ t₁ , t₂ ]₁₀) (v [ u₁ , t₂ ]₁₀) (v [ u₁ , u₂ ]₁₀)
+      (cong p A₁ t₁ u₁ B (v [ sgSubst (wk1 t₂) ]) w₁)
+      (cong p A₂ t₂ u₂ B (v [ sgSubst u₁ ⇑ ]) w₂)
+
+opaque
+  unfolding cong₂
+
+  -- A substitution lemma for cong₂.
+
+  cong₂-[] :
+    cong₂ p A₁ t₁ u₁ A₂ t₂ u₂ B v w₁ w₂ [ σ ] ≡
+    cong₂ p (A₁ [ σ ]) (t₁ [ σ ]) (u₁ [ σ ]) (A₂ [ σ ]) (t₂ [ σ ])
+      (u₂ [ σ ]) (B [ σ ]) (v [ σ ⇑[ 2 ] ]) (w₁ [ σ ]) (w₂ [ σ ])
+  cong₂-[] {p} {A₁} {t₁} {u₁} {A₂} {t₂} {u₂} {B} {v} {w₁} {w₂} {σ} =
+    transitivity B (v [ t₁ , t₂ ]₁₀) (v [ u₁ , t₂ ]₁₀) (v [ u₁ , u₂ ]₁₀)
+      (cong p A₁ t₁ u₁ B (v [ sgSubst (wk1 t₂) ]) w₁)
+      (cong p A₂ t₂ u₂ B (v [ sgSubst u₁ ⇑ ]) w₂)
+      [ σ ]                                                               ≡⟨ transitivity-[] ⟩
+
+    transitivity (B [ σ ]) (v [ t₁ , t₂ ]₁₀ [ σ ])
+      (v [ u₁ , t₂ ]₁₀ [ σ ]) (v [ u₁ , u₂ ]₁₀ [ σ ])
+      (cong p A₁ t₁ u₁ B (v [ sgSubst (wk1 t₂) ]) w₁ [ σ ])
+      (cong p A₂ t₂ u₂ B (v [ sgSubst u₁ ⇑ ]) w₂ [ σ ])                   ≡⟨ PE.cong₂ (transitivity _ _ _ _)
+                                                                               cong-[] cong-[] ⟩
+    transitivity (B [ σ ]) (v [ t₁ , t₂ ]₁₀ [ σ ])
+      (v [ u₁ , t₂ ]₁₀ [ σ ]) (v [ u₁ , u₂ ]₁₀ [ σ ])
+      (cong p (A₁ [ σ ]) (t₁ [ σ ]) (u₁ [ σ ]) (B [ σ ])
+         (v [ sgSubst (wk1 t₂) ] [ σ ⇑ ]) (w₁ [ σ ]))
+      (cong p (A₂ [ σ ]) (t₂ [ σ ]) (u₂ [ σ ]) (B [ σ ])
+         (v [ sgSubst u₁ ⇑ ] [ σ ⇑ ]) (w₂ [ σ ]))                         ≡⟨ cong₅ (transitivity _)
+                                                                               ([,]-[]-commute v)
+                                                                               ([,]-[]-commute v)
+                                                                               ([,]-[]-commute v)
+                                                                               (PE.cong (flip (cong _ _ _ _ _) _) $
+                                                                                trans (singleSubstLift v _) $
+                                                                                PE.cong (v [ _ ⇑[ 2 ] ] [_]₀) $
+                                                                                wk1-liftSubst t₂)
+                                                                               (PE.cong (flip (cong _ _ _ _ _) _) $
+                                                                                trans (substCompEq v) $
+                                                                                trans
+                                                                                  (flip substVar-to-subst v λ x →
+                                                                                   trans (substCompLift x) $
+                                                                                   trans
+                                                                                     (flip substVar-lift x λ where
+                                                                                        x0 → refl
+                                                                                        (x +1) → sym $ wk1-sgSubst _ _) $
+                                                                                   sym (substCompLift x)) $
+                                                                                sym $ substCompEq v) ⟩
+    transitivity (B [ σ ])
+      (v [ σ ⇑[ 2 ] ] [ t₁ [ σ ] , t₂ [ σ ] ]₁₀)
+      (v [ σ ⇑[ 2 ] ] [ u₁ [ σ ] , t₂ [ σ ] ]₁₀)
+      (v [ σ ⇑[ 2 ] ] [ u₁ [ σ ] , u₂ [ σ ] ]₁₀)
+      (cong p (A₁ [ σ ]) (t₁ [ σ ]) (u₁ [ σ ]) (B [ σ ])
+         (v [ σ ⇑[ 2 ] ] [ wk1 (t₂ [ σ ]) ]₀) (w₁ [ σ ]))
+      (cong p (A₂ [ σ ]) (t₂ [ σ ]) (u₂ [ σ ]) (B [ σ ])
+         (v [ σ ⇑[ 2 ] ] [ sgSubst (u₁ [ σ ]) ⇑ ]) (w₂ [ σ ]))            ∎
 
 opaque
 
