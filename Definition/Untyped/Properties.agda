@@ -1308,6 +1308,16 @@ opaque
     lemma (1+ k) x0 = refl
     lemma (1+ k) (x +1) = cong wk1 (lemma k x)
 
+opaque
+
+  -- One can express _[_,_]₁₀ using _[_]₀ and wk1.
+
+  [,]≡[wk1]₀[]₀ :
+    (t : Term (2+ n)) → t [ u , v ]₁₀ PE.≡ t [ wk1 v ]₀ [ u ]₀
+  [,]≡[wk1]₀[]₀ {u} {v} t =
+    t [ u , v ]₁₀             ≡˘⟨ PE.cong (t [ _ ,_]₁₀) $ wk1-sgSubst _ _ ⟩
+    t [ u , wk1 v [ u ]₀ ]₁₀  ≡⟨ substConsId t ⟩
+    t [ wk1 v ]₀ [ u ]₀       ∎
 
 opaque
 
