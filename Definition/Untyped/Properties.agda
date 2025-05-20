@@ -1640,6 +1640,17 @@ opaque
 
   -- A variant of wk1-sgSubst.
 
+  wk[1+]′-[]₀≡ : wk[ 1+ k ]′ t [ u ]₀ ≡ wk[ k ]′ t
+  wk[1+]′-[]₀≡ {k} {t} {u} =
+    wk[ 1+ k ]′ t [ u ]₀  ≡˘⟨ cong _[ _ ]₀ $ wk[]≡wk[]′ {k = 1+ k} ⟩
+    wk[ 1+ k ] t [ u ]₀   ≡⟨ wk1-sgSubst _ _ ⟩
+    wk[ k ] t             ≡⟨ wk[]≡wk[]′ ⟩
+    wk[ k ]′ t            ∎
+
+opaque
+
+  -- A variant of wk1-sgSubst.
+
   wk[+1]′-[₀⇑]≡ :
     {t : Term n} →
     subst Term (+-assoc k _ _) (wk[ k + 1 ]′ t) [ sgSubst u ⇑[ k ] ] ≡
@@ -1649,6 +1660,17 @@ opaque
     wk[ k ]′ (wk1 t) [ sgSubst u ⇑[ k ] ]                             ≡⟨ wk[]′-[⇑] (wk1 t) ⟩
     wk[ k ]′ (wk1 t [ u ]₀)                                           ≡⟨ cong wk[ _ ]′ $ wk1-sgSubst _ _ ⟩
     wk[ k ]′ t                                                        ∎
+
+opaque
+
+  -- A variant of wk₂-[,].
+
+  wk[2+]′-[,]≡ : wk[ 2+ k ]′ t [ u , v ]₁₀ ≡ wk[ k ]′ t
+  wk[2+]′-[,]≡ {k} {t} {u} {v} =
+    wk[ 2+ k ]′ t [ u , v ]₁₀  ≡˘⟨ cong _[ _ , _ ]₁₀ $ wk[]≡wk[]′ {k = 2+ k} ⟩
+    wk[ 2+ k ] t [ u , v ]₁₀   ≡⟨ wk2-[,] ⟩
+    wk[ k ] t                  ≡⟨ wk[]≡wk[]′ ⟩
+    wk[ k ]′ t                 ∎
 
 opaque
 
@@ -1906,6 +1928,16 @@ opaque
     t [ consSubst (wkSubst k idSubst) u ₛ• step id ]  ≡⟨⟩
     t [ wkSubst k idSubst ]                           ≡˘⟨ wk[]≡[] k ⟩
     wk[ k ] t                                         ∎
+
+opaque
+
+  -- A weakening lemma for _[_][_]↑.
+
+  wk1-[][]↑′ : wk1 t [ k ][ u ]↑ ≡ wk[ k ]′ t
+  wk1-[][]↑′ {t} {k} {u} =
+    wk1 t [ k ][ u ]↑  ≡⟨ wk1-[][]↑ k ⟩
+    wk[ k ] t          ≡⟨ wk[]≡wk[]′ ⟩
+    wk[ k ]′ t         ∎
 
 ------------------------------------------------------------------------
 -- Some lemmas related to numerals
