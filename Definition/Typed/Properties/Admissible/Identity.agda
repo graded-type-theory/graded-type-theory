@@ -1195,6 +1195,134 @@ opaque
     subsetTerm (pointwise-equality-⇒ ⊢t ⊢u)
 
 ------------------------------------------------------------------------
+-- Some lemmas related to cast and symmetry
+
+opaque
+
+  -- A simplification lemma involving cast and symmetry.
+
+  ⊢cast-symmetry-cast :
+    Γ ⊢ t ∷ Id (U l) A B →
+    Γ ⊢ u ∷ A →
+    ∃ λ v →
+      Γ ⊢ v ∷
+        Id A (cast l B A (symmetry (U l) A B t) (cast l A B t u)) u
+  ⊢cast-symmetry-cast {t} {l} {A} {B} {u} ⊢t ⊢u =
+    let _ , ⊢A , ⊢B = inversion-Id (wf-⊢∷ ⊢t)
+        ⊢Id         = J-motive-context-type ⊢A
+        ⊢0          = PE.subst (_⊢_∷_ _ _)
+                        (PE.cong₂ (Id _) wk[]≡wk[]′ PE.refl) $
+                      var₀ ⊢Id
+        ⊢u′         = wkTerm (ʷ⊇-drop (∙ ⊢Id)) ⊢u
+    in
+    J ω ω (U l) A
+      (Id (wk[ 2 ]′ A)
+         (cast l (var x1) (wk[ 2 ]′ A)
+            (symmetry (U l) (wk[ 2 ]′ A) (var x1) (var x0))
+            (cast l (wk[ 2 ]′ A) (var x1) (var x0) (wk[ 2 ]′ u)))
+         (wk[ 2 ]′ u))
+      rfl B t ,
+    PE.subst (_⊢_∷_ _ _)
+      (Id (wk[ 2 ]′ A)
+         (cast l (var x1) (wk[ 2 ]′ A)
+            (symmetry (U l) (wk[ 2 ]′ A) (var x1) (var x0))
+            (cast l (wk[ 2 ]′ A) (var x1) (var x0) (wk[ 2 ]′ u)))
+         (wk[ 2 ]′ u)
+       [ B , t ]₁₀                                                  ≡⟨ PE.cong₃ Id
+                                                                         wk₂-[,]
+                                                                         (PE.trans cast-[] $
+                                                                          PE.cong₃ (cast _ _)
+                                                                            wk₂-[,]
+                                                                            (PE.trans symmetry-[] $
+                                                                             PE.cong₃ (symmetry _) wk₂-[,] PE.refl PE.refl)
+                                                                            (PE.trans cast-[] $
+                                                                             PE.cong₄ (cast _) wk₂-[,] PE.refl PE.refl wk₂-[,]))
+                                                                         wk₂-[,] ⟩
+       Id A (cast l B A (symmetry (U l) A B t) (cast l A B t u)) u  ∎)
+      (Jⱼ′ (Idⱼ′ (⊢cast (⊢symmetry ⊢0) (⊢cast ⊢0 ⊢u′)) ⊢u′)
+         (_⊢_∷_.conv (rflⱼ ⊢u) $ univ
+            (Id A u u                                                    ≡˘⟨ Id-cong (refl ⊢A) (cast-≡ ⊢A ⊢u) (refl ⊢u) ⟩⊢
+
+             Id A (cast l A A rfl u) u                                   ≡˘⟨ Id-cong
+                                                                               (refl ⊢A)
+                                                                               (cast-cong (refl ⊢A) (refl ⊢A) (symmetry-≡ ⊢A) (cast-≡ ⊢A ⊢u))
+                                                                               (refl ⊢u) ⟩⊢∎≡
+             Id A
+               (cast l A A (symmetry (U l) A A rfl) (cast l A A rfl u))
+               u                                                         ≡˘⟨ PE.cong₃ Id
+                                                                               wk₂-[,]
+                                                                               (PE.trans cast-[] $
+                                                                                PE.cong₃ (cast _ _)
+                                                                                  wk₂-[,]
+                                                                                  (PE.trans symmetry-[] $
+                                                                                   PE.cong₃ (symmetry _) wk₂-[,] PE.refl PE.refl)
+                                                                                  (PE.trans cast-[] $
+                                                                                   PE.cong₄ (cast _) wk₂-[,] PE.refl PE.refl wk₂-[,]))
+                                                                               wk₂-[,] ⟩
+             Id (wk[ 2 ]′ A)
+               (cast l (var x1) (wk[ 2 ]′ A)
+                  (symmetry (U l) (wk[ 2 ]′ A) (var x1) (var x0))
+                  (cast l (wk[ 2 ]′ A) (var x1) (var x0) (wk[ 2 ]′ u)))
+               (wk[ 2 ]′ u)
+             [ A , rfl ]₁₀                                               ∎))
+         ⊢t)
+
+opaque
+
+  -- An equality of the form "t₁ is equal to a cast of t₂" can be
+  -- turned into an equality of the form "a cast of t₁ is equal to
+  -- t₂".
+
+  cast-right-left :
+    Γ ⊢ u ∷ Id (U l) A₁ A₂ →
+    Γ ⊢ v ∷ Id A₂ t₁ (cast l A₁ A₂ u t₂) →
+    ∃ λ v → Γ ⊢ v ∷ Id A₁ (cast l A₂ A₁ (symmetry (U l) A₁ A₂ u) t₁) t₂
+  cast-right-left {u} {l} {A₁} {A₂} {t₁} {t₂} ⊢u ⊢v =
+    let ⊢A₂ , _ , ⊢cast-t₂  = inversion-Id (wf-⊢∷ ⊢v)
+        _ , _ , _ , ⊢t₂ , _ = inversion-cast ⊢cast-t₂
+    in
+    _ ,
+    PE.subst (_⊢_∷_ _ _)
+      (Id A₁
+         (cast l (wk1 A₂) (wk1 A₁)
+            (symmetry (U l) (wk1 A₁) (wk1 A₂) (wk1 u)) (var x0)
+            [ t₁ ]₀)
+         t₂                                                      ≡⟨ PE.cong₂ (Id _)
+                                                                      (PE.trans cast-[] $
+                                                                       PE.cong₄ (cast _)
+                                                                         (wk1-sgSubst _ _)
+                                                                         (wk1-sgSubst _ _)
+                                                                         (PE.trans symmetry-[] $
+                                                                          PE.cong₃ (symmetry _)
+                                                                            (wk1-sgSubst _ _) (wk1-sgSubst _ _) (wk1-sgSubst _ _))
+                                                                         PE.refl)
+                                                                      PE.refl ⟩
+       Id A₁ (cast l A₂ A₁ (symmetry (U l) A₁ A₂ u) t₁) t₂       ∎)
+      (⊢transitivity
+         (⊢cong {p = ω}
+            (⊢cast (⊢symmetry (wkTerm₁ ⊢A₂ ⊢u)) (var₀ ⊢A₂)) ⊢v)
+         (PE.subst (_⊢_∷_ _ _)
+            (Id A₁
+               (cast l A₂ A₁ (symmetry (U l) A₁ A₂ u)
+                  (cast l A₁ A₂ u t₂))
+               t₂                                                      ≡˘⟨ PE.cong₂ (Id _)
+                                                                             (PE.trans cast-[] $
+                                                                              PE.cong₄ (cast _)
+                                                                                (wk1-sgSubst _ _)
+                                                                                (wk1-sgSubst _ _)
+                                                                                (PE.trans symmetry-[] $
+                                                                                 PE.cong₃ (symmetry _)
+                                                                                   (wk1-sgSubst _ _) (wk1-sgSubst _ _) (wk1-sgSubst _ _))
+                                                                                PE.refl)
+                                                                             PE.refl ⟩
+             Id A₁
+               (cast l (wk1 A₂) (wk1 A₁)
+                  (symmetry (U l) (wk1 A₁) (wk1 A₂) (wk1 u)) (var x0)
+                  [ cast l A₁ A₂ u t₂ ]₀)
+               t₂                                                      ∎) $
+          ⊢cast-symmetry-cast ⊢u ⊢t₂ .proj₂))
+
+------------------------------------------------------------------------
 -- Lemmas related to uip
 
 opaque
