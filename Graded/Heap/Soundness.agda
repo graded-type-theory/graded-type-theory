@@ -87,21 +87,22 @@ opaque
     {Δ : Con Term k}
     ⦃ ok : No-equality-reflection or-empty Δ ⦄ →
     (Emptyrec-allowed 𝟙ᵐ 𝟘 → Consistent Δ) →
-    (k PE.≢ 0 → No-erased-matches′ type-variant UR) →
+    (k PE.≢ 0 → No-erased-matches′ type-variant UR × Has-well-behaved-zero M semiring-with-meet) →
     ∣ S ∣≡ p →
     ▸ ⟨ H , var x , ρ , S ⟩ → Δ ⊢ₛ ⟨ H , var x , ρ , S ⟩ ∷ A →
     ∃₃ λ n H′ (c′ : Entry _ n) → H ⊢ wkVar ρ x ↦[ p ] c′ ⨾ H′
-  lookup-succeeds {k = 0} consistent nem ∣S∣≡ ▸s ⊢s =
+  lookup-succeeds {k = 0} _ _ ∣S∣≡ ▸s _ =
     ▸↦[]-closed subtraction-ok ∣S∣≡ ▸s
-  lookup-succeeds {k = 1+ _} {H} {x} {ρ} consistent nem ∣S∣≡ ▸s ⊢s =
+  lookup-succeeds {k = 1+ _} {H} {x} {ρ} consistent prop ∣S∣≡ ▸s ⊢s =
     let _ , _ , _ , _ , _ , _ , _ , ▸S , _ = ▸ₛ-inv ▸s in
     case ↦⊎↦● {H = H} (wkVar ρ x) of λ where
       (inj₁ (_ , _ , d)) →
         let H′ , d = ▸↦→↦[] subtraction-ok ∣S∣≡ d ▸s
         in  _ , _ , _ , d
       (inj₂ d) →
-        case ▸∣S∣≢𝟘 (nem (λ ())) ▸S of λ where
-          (inj₁ ∣S∣≢𝟘) → ⊥-elim (∣S∣≢𝟘 (▸s● subtraction-ok d ▸s))
+        let nem , 𝟘-wb = prop λ ()
+        in  case ▸∣∣≢𝟘 nem ⦃ 𝟘-wb ⦄ ▸S of λ where
+          (inj₁ ∣S∣≢𝟘) → ⊥-elim (∣S∣≢𝟘 (▸s● subtraction-ok ⦃ 𝟘-wb ⦄ d ▸s))
           (inj₂ (er∈ , ok)) →
             ⊥-elim (⊢emptyrec₀∉S (consistent ok) ⊢s er∈)
 
@@ -115,11 +116,12 @@ opaque
     ⦃ ok : No-equality-reflection or-empty Δ ⦄ →
     Consistent Δ →
     No-erased-matches′ type-variant UR →
+    Has-well-behaved-zero M semiring-with-meet →
     ∣ S ∣≡ p →
     ▸ ⟨ H , var x , ρ , S ⟩ → Δ ⊢ₛ ⟨ H , var x , ρ , S ⟩ ∷ A →
     ∃₃ λ n H′ (c′ : Entry _ n) → H ⊢ wkVar ρ x ↦[ p ] c′ ⨾ H′
-  lookup-succeeds′ consistent nem =
-    lookup-succeeds (λ _ → consistent) (λ _ → nem)
+  lookup-succeeds′ consistent nem 𝟘-wb =
+    lookup-succeeds (λ _ → consistent) (λ _ → nem , 𝟘-wb)
 
 opaque
 
@@ -129,13 +131,13 @@ opaque
   redNumeral′ : {Δ : Con Term k}
                 ⦃ ok : No-equality-reflection or-empty Δ ⦄
              → (Emptyrec-allowed 𝟙ᵐ 𝟘 → Consistent Δ)
-             → (k PE.≢ 0 → No-erased-matches′ type-variant UR)
+             → (k PE.≢ 0 → No-erased-matches′ type-variant UR × Has-well-behaved-zero M semiring-with-meet)
              → Δ ⊩ℕ n ∷ℕ → n PE.≡ ⦅ s ⦆ → Δ ⊢ₛ s ∷ ℕ → ▸ s
              → ∃₅ λ m n H (ρ : Wk m n) t → s ↠* ⟨ H , t , ρ , ε ⟩ ×
                Numeral t × Δ ⊢ ⦅ s ⦆ ≡ wk ρ t [ H ]ₕ ∷ ℕ ×
                ▸ ⟨ H , t , ρ , ε ⟩
-  redNumeral′ consistent nem (ℕₜ _ d n≡n (sucᵣ x)) PE.refl ⊢s ▸s =
-    case whBisim consistent nem ⊢s ▸s (d , sucₙ) of λ
+  redNumeral′ consistent prop (ℕₜ _ d n≡n (sucᵣ x)) PE.refl ⊢s ▸s =
+    case whBisim consistent prop ⊢s ▸s (d , sucₙ) of λ
       (_ , _ , H , t , ρ , (d′ , _) , ≡u , v) →
     case subst-suc {t = wk ρ t} ≡u of λ {
       (inj₁ (x , ≡x)) →
@@ -159,7 +161,7 @@ opaque
       (_ , _ , _ , _ , ∣ε∣≡ , ▸H , ▸t , ▸ε , γ≤) →
     case inv-usage-suc ▸t of λ
       (invUsageSuc ▸n″ δ≤)  →
-    case redNumeral′ {s = ⟨ H , n″ , ρ , ε ⟩} consistent nem x
+    case redNumeral′ {s = ⟨ H , n″ , ρ , ε ⟩} consistent prop x
           (PE.sym (PE.trans (PE.cong (_[ H ]ₕ) ≡n′) ≡n))
           (⊢ₛ ⊢H ⊢n″ ε)
           (▸ₛ ∣ε∣≡ ▸H ▸n″ ▸ε (≤ᶜ-trans γ≤ (+ᶜ-monotoneˡ (·ᶜ-monotoneʳ (wk-≤ᶜ ρ δ≤))))) of λ
@@ -172,8 +174,8 @@ opaque
       , sucₙ n , trans s≡ (suc-cong s′≡)
       , ▸ₛ ∣ε∣≡ ▸H (sucₘ ▸t) ▸S γ≤ }}}
 
-  redNumeral′ consistent nem (ℕₜ _ d n≡n zeroᵣ) PE.refl ⊢s ▸s =
-    case whBisim consistent nem ⊢s ▸s (d , zeroₙ) of λ
+  redNumeral′ consistent prop (ℕₜ _ d n≡n zeroᵣ) PE.refl ⊢s ▸s =
+    case whBisim consistent prop ⊢s ▸s (d , zeroₙ) of λ
       (_ , _ , H , t , ρ , (d′ , _) , ≡u , v) →
     case subst-zero {t = wk ρ t} ≡u of λ {
       (inj₁ (x , ≡x)) →
@@ -187,11 +189,10 @@ opaque
 
   redNumeral′
     {s}
-    consistent nem (ℕₜ _ d n≡n (ne (neNfₜ _ neK k≡k))) PE.refl ⊢s ▸s =
-    case whBisim {s = s} consistent nem ⊢s ▸s (d , ne neK) of λ {
+    consistent prop (ℕₜ _ d n≡n (ne (neNfₜ _ neK k≡k))) PE.refl ⊢s ▸s =
+    case whBisim {s = s} consistent prop ⊢s ▸s (d , ne neK) of λ {
       (_ , _ , H , t , ρ , d′ , PE.refl , v) →
     ⊥-elim (Value→¬Neutral (substValue (toSubstₕ H) (wkValue ρ v)) neK) }
-
 
 opaque
 
@@ -200,13 +201,13 @@ opaque
   redNumeral : {Δ : Con Term k}
                ⦃ ok : No-equality-reflection or-empty Δ ⦄
              → (Emptyrec-allowed 𝟙ᵐ 𝟘 → Consistent Δ)
-             → (k PE.≢ 0 → No-erased-matches′ type-variant UR)
+             → (k PE.≢ 0 → No-erased-matches′ type-variant UR × Has-well-behaved-zero M semiring-with-meet)
              → Δ ⊢ₛ s ∷ ℕ → ▸ s
              → ∃₅ λ m n H (ρ : Wk m n) t → s ↠* ⟨ H , t , ρ , ε ⟩ ×
                Numeral t × Δ ⊢ ⦅ s ⦆ ≡ wk ρ t [ H ]ₕ ∷ ℕ ×
                ▸ ⟨ H , t , ρ , ε ⟩
-  redNumeral {s} consistent nem ⊢s ▸s =
-    redNumeral′ consistent nem
+  redNumeral {s} consistent prop ⊢s ▸s =
+    redNumeral′ consistent prop
       (⊩∷ℕ⇔ .proj₁ (reducible-⊩∷ (⊢⦅⦆ {s = s} ⊢s) .proj₂))
       PE.refl ⊢s ▸s
 
@@ -233,16 +234,16 @@ opaque
   soundness : {Δ : Con Term k}
               ⦃ ok : No-equality-reflection or-empty Δ ⦄
             → (Emptyrec-allowed 𝟙ᵐ 𝟘 → Consistent Δ)
-            → (k PE.≢ 0 → No-erased-matches′ type-variant UR)
+            → (k PE.≢ 0 → No-erased-matches′ type-variant UR × Has-well-behaved-zero M semiring-with-meet)
             → Δ ⊢ t ∷ ℕ → 𝟘ᶜ ▸ t
             → ∃₅ λ m n H k (ρ : Wk m n) →
               initial t ↠* ⟨ H , sucᵏ k , ρ , ε ⟩ ×
               (Δ ⊢ t ≡ sucᵏ k ∷ ℕ) ×
               H ≤ʰ 𝟘
-  soundness {k} {t} {Δ} consistent nem ⊢t ▸t =
+  soundness {k} {t} {Δ} consistent prop ⊢t ▸t =
     case ▸initial ▸t of λ
       ▸s →
-    case redNumeral consistent nem (⊢initial ⊢t) ▸s of λ
+    case redNumeral consistent prop (⊢initial ⊢t) ▸s of λ
       (_ , _ , H , ρ , t , d , num , s≡ , ▸s′) →
     case ▸ₛ-inv ▸s′ of λ
       (p , γ , δ , η , ∣ε∣≡ , ▸H , ▸n , ▸ε , γ≤) →
@@ -295,12 +296,13 @@ opaque
   soundness-open : ⦃ No-equality-reflection or-empty Δ ⦄
                    → (Emptyrec-allowed 𝟙ᵐ 𝟘 → Consistent Δ)
                    → No-erased-matches′ type-variant UR
+                   → Has-well-behaved-zero M semiring-with-meet
                    → Δ ⊢ t ∷ ℕ → 𝟘ᶜ ▸ t
                    → ∃₅ λ m n H k (ρ : Wk m n) →
                    initial t ↠* ⟨ H , sucᵏ k , ρ , ε ⟩ ×
                    (Δ ⊢ t ≡ sucᵏ k ∷ ℕ) ×
                    H ≤ʰ 𝟘
-  soundness-open consistent erased = soundness consistent λ _ → erased
+  soundness-open consistent erased 𝟘-wb = soundness consistent λ _ → erased , 𝟘-wb
 
 opaque
 
@@ -310,6 +312,7 @@ opaque
     ⦃ No-equality-reflection or-empty Δ ⦄ →
     Consistent Δ →
     No-erased-matches′ type-variant UR →
+    Has-well-behaved-zero M semiring-with-meet →
     Δ ⊢ t ∷ ℕ → 𝟘ᶜ ▸ t →
     ∃₅ λ m n H k (ρ : Wk m n) →
     initial t ↠* ⟨ H , sucᵏ k , ρ , ε ⟩ ×
@@ -325,6 +328,7 @@ opaque
     ⦃ No-equality-reflection or-empty Δ ⦄ →
     ¬ Emptyrec-allowed 𝟙ᵐ 𝟘 →
     No-erased-matches′ type-variant UR →
+    Has-well-behaved-zero M semiring-with-meet →
     Δ ⊢ t ∷ ℕ → 𝟘ᶜ ▸ t →
     ∃₅ λ m n H k (ρ : Wk m n) →
     initial t ↠* ⟨ H , sucᵏ k , ρ , ε ⟩ ×

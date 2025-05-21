@@ -27,13 +27,13 @@ private variable
 --               count.
 -- * No-nr     : A usage rule that can be used for any modality.
 -- * No-nr-glb : A usage rule that does not require an nr function but
---               instead that the modality satisfies certain properties
---               about greatest lower bounds.
+--               instead that the modality has well-behaved greatest lower
+--               bounds.
 
 data Natrec-mode : Set a where
   Nr        : ⦃ Has-nr semiring-with-meet ⦄ → Natrec-mode
   No-nr     : Natrec-mode
-  No-nr-glb : ⦃ Supports-GLB-for-natrec semiring-with-meet ⦄ → Natrec-mode
+  No-nr-glb : ⦃ Has-well-behaved-GLBs semiring-with-meet ⦄ → Natrec-mode
 
 private variable
   nm : Natrec-mode
@@ -50,7 +50,7 @@ data Natrec-mode-no-nr : Natrec-mode → Set a where
 
 data Natrec-mode-no-nr-glb : Natrec-mode → Set a where
   No-nr-glb :
-    ⦃ ok : Supports-GLB-for-natrec semiring-with-meet ⦄ →
+    ⦃ ok : Has-well-behaved-GLBs semiring-with-meet ⦄ →
     Natrec-mode-no-nr-glb No-nr-glb
 
 -- Does the natrec mode support usage inference?
@@ -60,7 +60,7 @@ data Natrec-mode-supports-usage-inference : Natrec-mode → Set a where
     ⦃ has-nr : Has-nr semiring-with-meet ⦄ →
     Natrec-mode-supports-usage-inference Nr
   No-nr-glb :
-    ⦃ ok : Supports-GLB-for-natrec semiring-with-meet ⦄ →
+    ⦃ ok : Has-well-behaved-GLBs semiring-with-meet ⦄ →
     (∀ r z s → ∃ λ p → Greatest-lower-bound p (nrᵢ r z s)) →
     Natrec-mode-supports-usage-inference No-nr-glb
 
@@ -73,12 +73,12 @@ Natrec-mode-Has-nr :
 Natrec-mode-Has-nr (Nr ⦃ has-nr ⦄) = has-nr
 
 -- If a natrec-mode corresponds to the usage rule using greatest lower
--- bounds then the modality satisfies the necessary properties.
+-- bounds then the modality has well-behaved GLBs.
 
-Natrec-mode-Supports-factoring :
+Natrec-mode-Has-well-behaved-GLBs :
   Natrec-mode-no-nr-glb nm →
-  Supports-GLB-for-natrec semiring-with-meet
-Natrec-mode-Supports-factoring (No-nr-glb ⦃ ok ⦄) = ok
+  Has-well-behaved-GLBs semiring-with-meet
+Natrec-mode-Has-well-behaved-GLBs (No-nr-glb ⦃ ok ⦄) = ok
 
 opaque
 

@@ -45,9 +45,6 @@ record Assumptions : Set a where
       (Σ Nr-available λ has-nr →
         Is-factoring-nr M (Natrec-mode-Has-nr has-nr)) ⊎
       Nr-not-available-GLB
-    instance
-      -- The modality has a well-behaved zero
-      has-well-behaved-zero : Has-well-behaved-zero M semiring-with-meet
 
   opaque
 

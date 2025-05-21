@@ -37,9 +37,9 @@ private variable
   ρ : Wk _ _
   t u A B : Term _
   y : Ptr _
-  c : Entry _ _
+  e : Entry _ _
   p : M
-  e : Elim _
+  c : Cont _
   S : Stack _
   σ : Subst _ _
 

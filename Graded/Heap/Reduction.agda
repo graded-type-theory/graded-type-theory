@@ -123,7 +123,7 @@ data _⇢ₑ*_ (s : State k m n) : (s′ : State k m n′) → Set a where
       → s ⇢ₑ s′ → s′ ⇢ₑ* s″ → s ⇢ₑ* s″
 
 -- The relation _⇒ᵥ_ evaluates states with values in head position and a
--- matching eliminator on the top of the stack.
+-- matching continuation on the top of the stack.
 
 infix 28 _⇒ᵥ_
 
@@ -142,7 +142,7 @@ data _⇒ᵥ_ {k m n} : State k m n → State k m′ n′ → Set a where
   zeroₕ : ⟨ H , zero , ρ  , natrecₑ p q r A z s ρ′ ∙ S ⟩ ⇒ᵥ
           ⟨ H , z    , ρ′ , S                          ⟩
 
-  sucₕ : -- p′ is the multiplicity of the natrec eliminator
+  sucₕ : -- p′ is the multiplicity of the natrec continuation
          -- on top of the stack and q′ is the multiplicity of
          -- the rest of the stack.
          ∣ S ∣≡ q′ → ∣natrec p , r ∣≡ p′ →

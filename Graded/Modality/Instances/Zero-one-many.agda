@@ -2148,18 +2148,7 @@ opaque
     let 𝕄 = zero-one-many-semiring-with-meet in
     ∀ p q → Semiring-with-meet.Greatest-lower-bound
             𝕄 (p ∧ q) (Semiring-with-meet.nrᵢ 𝕄 𝟘 p q)
-  nrᵢ-𝟘-GLB p q =
-    GLB.GLB-congʳ zero-one-many-semiring-with-meet lemma (nr-nrᵢ-GLB {z = p} {s = q} 𝟘)
-    where
-    open Tools.Reasoning.PropositionalEquality
-    open Semiring-with-meet zero-one-many-semiring-with-meet
-      hiding (𝟘; _·_; _+_; _∧_)
-    lemma : (𝟘∧𝟙 · 𝟘 + q) ∧ p ≡ p ∧ q
-    lemma = begin
-      (𝟘∧𝟙 · 𝟘 + q) ∧ p ≡⟨ ∧-congʳ (+-congʳ (·-zeroʳ 𝟘∧𝟙)) ⟩
-      (𝟘 + q) ∧ p       ≡⟨ ∧-congʳ (+-identityˡ q) ⟩
-      q ∧ p             ≡⟨ ∧-comm q p ⟩
-      p ∧ q             ∎
+  nrᵢ-𝟘-GLB p q = Natrec.nrᵢ-𝟘-GLB zero-one-many-semiring-with-meet
 
 opaque
 
@@ -2202,11 +2191,10 @@ opaque
 
 opaque
 
-  -- The modality supports the usage rule for natrec using
-  -- greatest lower bounds.
+  -- The modality has well-behaved GLBs
 
   zero-one-many-supports-glb-for-natrec :
-    Supports-GLB-for-natrec zero-one-many-semiring-with-meet
+    Has-well-behaved-GLBs zero-one-many-semiring-with-meet
   zero-one-many-supports-glb-for-natrec = record
     { +-GLBˡ = +-GLBˡ
     ; ·-GLBˡ = ·-GLBˡ

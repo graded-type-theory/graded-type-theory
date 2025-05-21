@@ -60,9 +60,9 @@ private variable
   A z s t : Term _
   ρ ρ′ : Wk _ _
   S : Stack _
-  e : Elim _
-  c : Entryₘ _ _
-  c′ : Entry _ _
+  c : Cont _
+  e : Entryₘ _ _
+  e′ : Entry _ _
 
 opaque
 
@@ -106,15 +106,14 @@ opaque
   -- In a well-resorced heap, a pointer lookup yields a well-resourced
   -- term and a well-resourced heap.
 
-  ▸-heapLookup : ⦃ Has-well-behaved-zero M semiring-with-meet ⦄
-               → H ⊢ y ↦[ q ] t , ρ ⨾ H′
+  ▸-heapLookup : H ⊢ y ↦[ q ] t , ρ ⨾ H′
                → γ ▸ʰ H
                → γ ⟨ y ⟩ - q ≤ r
                → ∃ λ δ → δ ▸[ ⌞ q ⌟ ] t × (γ , y ≔ r) +ᶜ q ·ᶜ wkConₘ ρ δ ▸ʰ H′
   ▸-heapLookup {γ = ε} ()
   ▸-heapLookup
     {q} {γ = γ ∙ p} {r}
-    (here {p = p′} {r = r′} {c = t , ρ} p′-q≡r′) ▸H p-q≤r =
+    (here {p = p′} {r = r′} {e = t , ρ} p′-q≡r′) ▸H p-q≤r =
     let _ , _ , ▸t , ▸H′ , p′≤p , η≤ = ▸ʰ∙-inv ▸H
     in  lemma ▸t ▸H′ p′≤p η≤
     where
@@ -124,12 +123,8 @@ opaque
     lemma {δ} {η} ▸t ▸H p′≤p η≤ =
       case is-𝟘? p′ of λ where
         (yes refl) →
-          case p′≡𝟘→ refl of λ {
-            (refl , refl , refl , refl) →
-          _ , ▸t
-            , sub (sub ▸H η≤ ∙ ▸t)
-               (≤ᶜ-reflexive (≈ᶜ-sym (≈ᶜ-trans (+ᶜ-congˡ (·ᶜ-zeroˡ _))
-                 (+ᶜ-identityʳ _)))) }
+          _ , ▸-cong (mode-eq refl .proj₁) ▸t
+            , sub (sub ▸H η≤′ ∙ ▸-cong (mode-eq refl .proj₂) ▸t) (≤ᶜ-refl ∙ r′≤r+q·𝟘)
         (no p′≢𝟘) →
           case ▸-𝟘ᵐ? ▸t of λ
             (δ′ , ▸⁰t) →
@@ -160,13 +155,19 @@ opaque
       where
       r′≤r : r′ ≤ r
       r′≤r = p′-q≡r′ .proj₂ r (≤-trans p′≤p p-q≤r)
-      p′≡𝟘→ : p′ ≡ 𝟘 → p ≡ 𝟘 × q ≡ 𝟘 × r ≡ 𝟘 × r′ ≡ 𝟘
-      p′≡𝟘→ refl =
+      mode-eq′ : ⦃ Has-well-behaved-zero M semiring-with-meet ⦄ → p′ ≡ 𝟘 → ⌞ p′ ⌟ ≡ ⌞ q ⌟ × ⌞ p′ ⌟ ≡ ⌞ r′ ⌟
+      mode-eq′ refl =
         case 𝟘≮ p′≤p of λ {
           refl →
         case 𝟘-p≤q p-q≤r of λ {
           (refl , refl) →
-        refl , refl , refl , 𝟘-p≡q p′-q≡r′ .proj₁ }}
+        case 𝟘-p≡q p′-q≡r′ .proj₁ of λ {
+          refl →
+        refl , refl }}}
+      mode-eq : p′ ≡ 𝟘 → ⌞ p′ ⌟ ≡ ⌞ q ⌟ × ⌞ p′ ⌟ ≡ ⌞ r′ ⌟
+      mode-eq p′≡𝟘 = 𝟘ᵐ-allowed-elim
+        (λ x → mode-eq′ ⦃ 𝟘-well-behaved x ⦄ p′≡𝟘)
+        (λ x → Mode-propositional-without-𝟘ᵐ x , Mode-propositional-without-𝟘ᵐ x)
       r≡r+q·𝟘 : r ≡ r + q · 𝟘
       r≡r+q·𝟘 = begin
         r          ≡˘⟨ +-identityʳ r ⟩
@@ -208,7 +209,7 @@ opaque
         open ≤ᶜ-reasoning
   ▸-heapLookup
     {q} {γ = γ ∙ p} {r}
-    (there {y} {c = (t , ρ′)} {c′ = (p′ , u , ρ)} d) ▸H γ⟨y⟩-q≤r =
+    (there {y} {e = (t , ρ′)} {e′ = (p′ , u , ρ)} d) ▸H γ⟨y⟩-q≤r =
     let δ , η , ▸u , ▸H′ , p′≤p , η≤ = ▸ʰ∙-inv ▸H
         γ⟨y⟩+pδ⟨y⟩-q≤pδ⟨y⟩+r = p+q-r≤p-r+q γ⟨y⟩-q≤r ((p′ ·ᶜ wkConₘ ρ δ) ⟨ y ⟩)
         η⟨y⟩-q≤ = let open RPo ≤-poset in begin
@@ -237,7 +238,7 @@ opaque
           , sub (sub ▸H″ η,y≔≤ ∙ ▸u)
               (≤ᶜ-refl ∙ ≤-trans p′≤p (≤-reflexive
                 (sym (trans (+-congˡ (·-zeroʳ _)) (+-identityʳ _)))))
-  ▸-heapLookup {q} {γ = γ ∙ p} {r} (there● {y} {c = _ , ρ} d) ▸H γ⟨y⟩-q≤r =
+  ▸-heapLookup {q} {γ = γ ∙ p} {r} (there● {y} {e = _ , ρ} d) ▸H γ⟨y⟩-q≤r =
     let δ , 𝟘≤p , ▸H′ , δ≤γ = ▸ʰ●-inv ▸H
         η , ▸t , ▸H″ = ▸-heapLookup d ▸H′
           (≤-trans (lookup-monotone y δ≤γ) γ⟨y⟩-q≤r)
@@ -275,16 +276,16 @@ module _ (nem : No-erased-matches′ type-variant UR) where
 
   opaque
 
-    -- The multiplicity of a well-resourced eliminator is not zero
+    -- The multiplicity of a well-resourced continuation is not zero
     -- unless it is an erased emptyrec
 
-    ▸∣e∣≢𝟘 :
+    ▸∣∣ᶜ≢𝟘 :
       ⦃ Has-well-behaved-zero M semiring-with-meet ⦄ →
-      γ ▸ᵉ[ 𝟙ᵐ ] e →
-      ¬ ∣ e ∣ᵉ≡ 𝟘 ⊎
-      ∃₃ λ n (A : Term n) ρ → e ≡ emptyrecₑ 𝟘 A ρ × Emptyrec-allowed 𝟙ᵐ 𝟘
-    ▸∣e∣≢𝟘 (∘ₑ _) = inj₁ λ ∣e∣≡𝟘 → non-trivial (∣∣ᵉ-functional ∘ₑ ∣e∣≡𝟘)
-    ▸∣e∣≢𝟘 = λ where
+      γ ▸ᶜ[ 𝟙ᵐ ] c →
+      ¬ ∣ c ∣ᶜ≡ 𝟘 ⊎
+      ∃₃ λ n (A : Term n) ρ → c ≡ emptyrecₑ 𝟘 A ρ × Emptyrec-allowed 𝟙ᵐ 𝟘
+    ▸∣∣ᶜ≢𝟘 (∘ₑ _) = inj₁ λ ∣e∣≡𝟘 → non-trivial (∣∣ᶜ-functional ∘ₑ ∣e∣≡𝟘)
+    ▸∣∣ᶜ≢𝟘 = λ where
         (∘ₑ _) → inj₁ (lemma non-trivial ∘ₑ)
         (fstₑ _) → inj₁ (lemma non-trivial fstₑ)
         sndₑ → inj₁ (lemma non-trivial sndₑ)
@@ -313,8 +314,8 @@ module _ (nem : No-erased-matches′ type-variant UR) where
         ([]-congₑ ok) →
           inj₁ λ _ → nem non-trivial .proj₂ .proj₂ .proj₁ ok
       where
-      lemma :  p ≢ r → ∣ e ∣ᵉ≡ p → ∣ e ∣ᵉ≡ r → ⊥
-      lemma p≢r ≡p ≡r = p≢r (∣∣ᵉ-functional ≡p ≡r)
+      lemma :  p ≢ r → ∣ c ∣ᶜ≡ p → ∣ c ∣ᶜ≡ r → ⊥
+      lemma p≢r ≡p ≡r = p≢r (∣∣ᶜ-functional ≡p ≡r)
       lemma-nr : ∣natrec p , r ∣≡ q → q ≢ 𝟘
       lemma-nr has-nrₑ nr₂≡𝟘 = nr₂≢𝟘 nr₂≡𝟘
       lemma-nr (no-nrₑ x) refl = 𝟘≰𝟙 (x .proj₁ 0)
@@ -324,40 +325,39 @@ module _ (nem : No-erased-matches′ type-variant UR) where
     -- The multiplicity of a well-resourced stack is either not zero
     -- or contains an erased application of emptyrec
 
-    ▸∣S∣≢𝟘 : ⦃ Has-well-behaved-zero M semiring-with-meet ⦄
+    ▸∣∣≢𝟘 : ⦃ Has-well-behaved-zero M semiring-with-meet ⦄
            → γ ▸ˢ S → ¬ ∣ S ∣≡ 𝟘 ⊎ (emptyrec 𝟘 ∈ S × Emptyrec-allowed 𝟙ᵐ 𝟘)
-    ▸∣S∣≢𝟘 ε = inj₁ λ ≡𝟘 → non-trivial (∣∣-functional ε ≡𝟘)
-    ▸∣S∣≢𝟘 (▸ˢ∙ ∣S∣≡ ▸e ▸S) =
-      case ▸∣S∣≢𝟘 ▸S of λ where
+    ▸∣∣≢𝟘 ε = inj₁ λ ≡𝟘 → non-trivial (∣∣-functional ε ≡𝟘)
+    ▸∣∣≢𝟘 (▸ˢ∙ ∣S∣≡ ▸c ▸S) =
+      case ▸∣∣≢𝟘 ▸S of λ where
         (inj₂ (x , ok)) → inj₂ (there x , ok)
         (inj₁ ∣S∣≢𝟘) →
-          case ▸∣e∣≢𝟘 (subst (_ ▸ᵉ[_] _)
-                        (≢𝟘→⌞⌟≡𝟙ᵐ (λ {refl → ∣S∣≢𝟘 ∣S∣≡})) ▸e) of λ where
+          case ▸∣∣ᶜ≢𝟘 (subst (_ ▸ᶜ[_] _)
+                        (≢𝟘→⌞⌟≡𝟙ᵐ (λ {refl → ∣S∣≢𝟘 ∣S∣≡})) ▸c) of λ where
             (inj₂ (_ , _ , _ , refl , ok)) → inj₂ (here , ok)
-            (inj₁ ∣e∣≢𝟘) → inj₁ λ ∣eS∣≡ →
-              let q , r , ∣e∣≡q , ∣S∣≡r , 𝟘≡rq = ∣∣∙-inv ∣eS∣≡
+            (inj₁ ∣c∣≢𝟘) → inj₁ λ ∣cS∣≡ →
+              let q , r , ∣c∣≡q , ∣S∣≡r , 𝟘≡rq = ∣∣∙-inv ∣cS∣≡
               in  case zero-product (sym 𝟘≡rq) of λ where
                     (inj₁ r≡𝟘) → ∣S∣≢𝟘 (subst (∣ _ ∣≡_) r≡𝟘 ∣S∣≡r)
-                    (inj₂ q≡𝟘) → ∣e∣≢𝟘 (subst (∣ _ ∣ᵉ≡_) q≡𝟘 ∣e∣≡q)
+                    (inj₂ q≡𝟘) → ∣c∣≢𝟘 (subst (∣ _ ∣ᶜ≡_) q≡𝟘 ∣c∣≡q)
 
 -- Some properties proven under the assumption that the modality
 -- supports subtraction.
 
-module _ ⦃ _ : Has-well-behaved-zero M semiring-with-meet ⦄
-         (subtraction-ok : Supports-subtraction) where
+module _ (subtraction-ok : Supports-subtraction) where
 
   -- Under some assumptions, lookup always succeeds for well-resourced heaps
 
   opaque
 
     ↦→↦[] : {H : Heap k _}
-        → H ⊢ y ↦ c′ → γ ▸ʰ H → γ ⟨ y ⟩ ≤ p + q
-        → ∃ λ H′ → H ⊢ y ↦[ q ] c′ ⨾ H′
+        → H ⊢ y ↦ e′ → γ ▸ʰ H → γ ⟨ y ⟩ ≤ p + q
+        → ∃ λ H′ → H ⊢ y ↦[ q ] e′ ⨾ H′
     ↦→↦[] {γ = ε} ()
     ↦→↦[] {γ = _ ∙ _} here ▸H p′≤p+q =
       let _ , _ , _ , _ , p≤ , _ = ▸ʰ∙-inv ▸H
       in  _ , here (subtraction-ok (≤-trans p≤ p′≤p+q) .proj₂)
-    ↦→↦[] {γ = γ ∙ r} {p} {q} (there {y} {c′ = r′ , _ , ρ} d) ▸H γ⟨y⟩≤p+q =
+    ↦→↦[] {γ = γ ∙ r} {p} {q} (there {y} {e′ = r′ , _ , ρ} d) ▸H γ⟨y⟩≤p+q =
       let δ , η , _ , ▸H′ , r′≤r , η≤ = ▸ʰ∙-inv ▸H
           open RPo ≤-poset
           _ , d′ = ↦→↦[] d ▸H′ (begin
@@ -382,9 +382,9 @@ module _ ⦃ _ : Has-well-behaved-zero M semiring-with-meet ⦄
 
     ▸↦→↦[] : {H : Heap k _}
           → ∣ S ∣≡ p
-          → H ⊢ wkVar ρ x ↦ c′
+          → H ⊢ wkVar ρ x ↦ e′
           → ▸ ⟨ H , var x , ρ , S ⟩
-          → ∃ λ H′ → H ⊢ wkVar ρ x ↦[ p ] c′ ⨾ H′
+          → ∃ λ H′ → H ⊢ wkVar ρ x ↦[ p ] e′ ⨾ H′
     ▸↦→↦[] {p} {ρ} {x} ∣S∣≡p d ▸s =
       let q , γ , δ , ∣S∣≡q , ▸H , _ , γ⟨x⟩≤ = ▸ₛ-var-inv′ ▸s
           open RPo ≤-poset
@@ -412,7 +412,8 @@ module _ ⦃ _ : Has-well-behaved-zero M semiring-with-meet ⦄
     -- If a pointer points to a dummy entry in a well-resource heap then
     -- the corresponding entry in the usage context is 𝟘.
 
-    ▸H● : H ⊢ y ↦● → γ ▸ʰ H → γ ⟨ y ⟩ ≡ 𝟘
+    ▸H● : ⦃ _ : Has-well-behaved-zero M semiring-with-meet ⦄ →
+          H ⊢ y ↦● → γ ▸ʰ H → γ ⟨ y ⟩ ≡ 𝟘
     ▸H● {γ = ε} ()
     ▸H● {γ = _ ∙ _} here ▸H =
       let _ , 𝟘≤p , _ , _ = ▸ʰ●-inv ▸H
@@ -434,7 +435,8 @@ module _ ⦃ _ : Has-well-behaved-zero M semiring-with-meet ⦄
     -- corresponding dummy entry in the heap, the stack multiplicity and usage
     -- context of the stack are both 𝟘.
 
-    ▸s● : H ⊢ wkVar ρ x ↦● → ▸ ⟨ H , var x , ρ , S ⟩ → ∣ S ∣≡ 𝟘
+    ▸s● : ⦃ _ : Has-well-behaved-zero M semiring-with-meet ⦄ →
+          H ⊢ wkVar ρ x ↦● → ▸ ⟨ H , var x , ρ , S ⟩ → ∣ S ∣≡ 𝟘
     ▸s● d ▸s =
       let _ , _ , _ , ∣S∣≡ , ▸H , ▸S , γ⟨x⟩≤ = ▸ₛ-var-inv′ ▸s
       in  subst (∣ _ ∣≡_)

@@ -261,7 +261,7 @@ record Is-factoring-nr {𝕄 : Semiring-with-meet} (has-nr : Has-nr 𝕄)  : Set
 -- A bundling of properties that the modality is required to satisfy
 -- when a certain usage rule for natrec is used.
 
-record Supports-GLB-for-natrec (𝕄 : Semiring-with-meet) : Set a where
+record Has-well-behaved-GLBs (𝕄 : Semiring-with-meet) : Set a where
   no-eta-equality
 
   open Semiring-with-meet 𝕄

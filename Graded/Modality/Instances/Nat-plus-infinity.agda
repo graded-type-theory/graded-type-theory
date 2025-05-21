@@ -1914,11 +1914,10 @@ opaque
 
 opaque
 
-  -- The modality supports the usage rule for natrec using
-  -- greatest lower bounds.
+  -- The modality has well-behaved GLBs.
 
   ℕ⊎∞-supports-glb-for-natrec :
-    Supports-GLB-for-natrec ℕ⊎∞-semiring-with-meet
+    Has-well-behaved-GLBs ℕ⊎∞-semiring-with-meet
   ℕ⊎∞-supports-glb-for-natrec = record
     { +-GLBˡ = +-GLBˡ
     ; ·-GLBˡ = ·-GLBˡ

@@ -52,7 +52,7 @@ private
   variable
     m n : Nat
     σ σ′ : Subst m n
-    γ δ : Conₘ n
+    γ δ η χ : Conₘ n
     t u a : Term n
     x : Fin n
     p q r s z z′ s′ : Erasure
@@ -126,6 +126,12 @@ opaque
 ⊛ᶜ-decreasingʳ (γ ∙ 𝟘) (δ ∙ ω) r = ⊛ᶜ-decreasingʳ γ δ r ∙ PE.refl
 ⊛ᶜ-decreasingʳ (γ ∙ ω) (δ ∙ 𝟘) r = ⊛ᶜ-decreasingʳ γ δ r ∙ PE.refl
 ⊛ᶜ-decreasingʳ (γ ∙ ω) (δ ∙ ω) r = ⊛ᶜ-decreasingʳ γ δ r ∙ PE.refl
+
+opaque
+
+  ⊛ᶜ≈+ᶜ : (γ δ : Conₘ n) → γ ⊛ᶜ δ ▷ r ≈ᶜ γ +ᶜ δ
+  ⊛ᶜ≈+ᶜ ε ε = ε
+  ⊛ᶜ≈+ᶜ (γ ∙ p) (δ ∙ q) = ⊛ᶜ≈+ᶜ γ δ ∙ PE.refl
 
 -- 𝟘 is the greatest element of the erasure modality
 -- p ≤ 𝟘
@@ -491,6 +497,26 @@ opaque
 
 opaque
 
+  -- z ∧ s is the greatest lower bound of the sequence nrᵢ r z s.
+
+  Erasure-nrᵢ-glb-∧ :
+    ∀ r z s →
+    Semiring-with-meet.Greatest-lower-bound
+        erasure-semiring-with-meet (z ∧ s)
+         (Semiring-with-meet.nrᵢ erasure-semiring-with-meet r z s)
+  Erasure-nrᵢ-glb-∧ r 𝟘 𝟘 =
+    ≤-reflexive ∘→ PE.sym ∘→ nrᵢ-𝟘
+      , λ { 𝟘 q≤ → ≤-refl ; ω q≤ → least-elem 𝟘}
+  Erasure-nrᵢ-glb-∧ _ ω _ =
+    (λ _ → PE.refl) , λ { 𝟘 𝟘≤ → 𝟘≤ 0 ; ω _ → ≤-refl}
+  Erasure-nrᵢ-glb-∧ _ _ ω =
+    lemma , λ { 𝟘 𝟘≤ → case 𝟘≤ 1 of λ () ; ω _ → ≤-refl}
+    where
+    lemma : ∀ i → z ∧ ω ≤ EM.nrᵢ r z ω i
+    lemma i = ≤-trans (≤-reflexive (EM.+-comm _ ω)) PE.refl
+
+opaque
+
   -- The sequence nrᵢ r z s has a greatest lowest bound.
 
   Erasure-nrᵢ-glb :
@@ -498,21 +524,14 @@ opaque
       Semiring-with-meet.Greatest-lower-bound
         erasure-semiring-with-meet x
          (Semiring-with-meet.nrᵢ erasure-semiring-with-meet r z s)
-  Erasure-nrᵢ-glb r 𝟘 𝟘 =
-    𝟘 , ≤-reflexive ∘→ PE.sym ∘→ nrᵢ-𝟘
-      , λ { 𝟘 q≤ → ≤-refl ; ω q≤ → least-elem 𝟘}
-  Erasure-nrᵢ-glb _ ω _ =
-    ω , (λ _ → PE.refl) , λ { 𝟘 𝟘≤ → 𝟘≤ 0 ; ω _ → ≤-refl}
-  Erasure-nrᵢ-glb _ _ ω =
-    ω , (λ _ → PE.refl) , λ { 𝟘 𝟘≤ → 𝟘≤ 1 ; ω _ → ≤-refl}
+  Erasure-nrᵢ-glb r z s = z ∧ s , Erasure-nrᵢ-glb-∧ r z s
 
 opaque instance
 
-  -- The modality supports the usage rule for natrec
-  -- with greatest lower bounds
+  -- The modality has well-behaved GLBs.
 
   Erasure-supports-factoring-nr-rule :
-    Supports-GLB-for-natrec erasure-semiring-with-meet
+    Has-well-behaved-GLBs erasure-semiring-with-meet
   Erasure-supports-factoring-nr-rule = record
     { +-GLBˡ = +-GLBˡ′
     ; ·-GLBˡ = ·-GLBˡ′
@@ -565,3 +584,46 @@ opaque instance
     nrᵢ+-GLB {r} {z = ω} {s} {s′} p-glb q-glb =
       ω , nrᵢ+-ω-GLB {r = r} {s = s + s′} 0 PE.refl
         , +-monotoneˡ (p-glb .proj₁ 0)
+
+opaque
+
+  -- The context in the conclusions of the usage rules for natrec with
+  -- the natrec-star operator and with greatest lower bounds are the same
+
+  ▸⊛≈GLB :
+    let open Semiring-with-meet erasure-semiring-with-meet in
+    Greatest-lower-bound q (nrᵢ r 𝟙 p) →
+    Greatest-lower-boundᶜ χ (nrᵢᶜ r γ δ) →
+    ((γ ∧ᶜ η) ⊛ᶜ p ·ᶜ η +ᶜ δ ▷ r) ≈ᶜ (q ·ᶜ η +ᶜ χ)
+  ▸⊛≈GLB {q} {r} {p} {χ} {γ} {δ} {η} q-GLB χ-GLB = begin
+    (γ ∧ᶜ η) ⊛ᶜ p ·ᶜ η +ᶜ δ ▷ r ≈⟨ ⊛ᶜ≈+ᶜ _ _ ⟩
+    (γ ∧ᶜ η) +ᶜ p ·ᶜ η +ᶜ δ     ≈⟨ +ᶜ-congʳ ∧ᶜ≈ᶜ+ᶜ ⟩
+    (γ +ᶜ η) +ᶜ p ·ᶜ η +ᶜ δ     ≈˘⟨ +ᶜ-assoc _ _ _ ⟩
+    ((γ +ᶜ η) +ᶜ p ·ᶜ η) +ᶜ δ   ≈⟨ +ᶜ-congʳ (+ᶜ-assoc _ _ _) ⟩
+    (γ +ᶜ η +ᶜ p ·ᶜ η) +ᶜ δ     ≈⟨ +ᶜ-assoc _ _ _ ⟩
+    γ +ᶜ (η +ᶜ p ·ᶜ η) +ᶜ δ     ≈⟨ +ᶜ-comm _ _ ⟩
+    ((η +ᶜ p ·ᶜ η) +ᶜ δ) +ᶜ γ   ≈⟨ +ᶜ-assoc _ _ _ ⟩
+    (η +ᶜ p ·ᶜ η) +ᶜ (δ +ᶜ γ)   ≈⟨ +ᶜ-cong (lemma p) (+ᶜ-comm _ _) ⟩
+    η +ᶜ (γ +ᶜ δ)               ≈˘⟨ +ᶜ-congʳ (·ᶜ-identityˡ _) ⟩
+    ω ·ᶜ η +ᶜ (γ +ᶜ δ)          ≈˘⟨ +ᶜ-cong (·ᶜ-congʳ q≡ω) χ≈ ⟩
+    q ·ᶜ η +ᶜ χ                 ∎
+    where
+    open ≈ᶜ-reasoning
+    q≡ω : q ≡ ω
+    q≡ω = GLB-unique q-GLB (Erasure-nrᵢ-glb-∧ _ _ _)
+    χ≈ : χ ≈ᶜ γ +ᶜ δ
+    χ≈ = GLBᶜ-unique χ-GLB (lemma _ _)
+      where
+      lemma : (γ δ : Conₘ n) → Greatest-lower-boundᶜ (γ +ᶜ δ) (nrᵢᶜ r γ δ)
+      lemma ε ε = ε-GLB
+      lemma (γ ∙ p) (δ ∙ q) =
+        GLBᶜ-pointwise′ (lemma γ δ) (Erasure-nrᵢ-glb-∧ r p q)
+    lemma : ∀ p → η +ᶜ p ·ᶜ η ≈ᶜ η
+    lemma 𝟘 = begin
+      η +ᶜ 𝟘 ·ᶜ η ≈⟨ +ᶜ-congˡ (·ᶜ-zeroˡ _) ⟩
+      η +ᶜ 𝟘ᶜ     ≈⟨ +ᶜ-identityʳ _ ⟩
+      η           ∎
+    lemma ω = begin
+      η +ᶜ ω ·ᶜ η ≈⟨ +ᶜ-congˡ (·ᶜ-identityˡ _) ⟩
+      η +ᶜ η      ≡⟨ +ᶜ-idem _ ⟩
+      η           ∎

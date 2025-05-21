@@ -48,7 +48,7 @@ private variable
   H : Heap _ _
   A B s t u v z : Term _
   ρ : Wk _ _
-  e : Elim _
+  c : Cont _
   S : Stack _
   γ η χ : Conₘ _
   p q q′ r : M
@@ -87,8 +87,8 @@ opaque
   -- Inversion of non-empty stacks
 
   ▸ˢ-∙-inv :
-    η ▸ˢ e ∙ S →
-    ∃₃ λ p δ γ → ∣ S ∣≡ p × δ ▸ᵉ[ ⌞ p ⌟ ] e × γ ▸ˢ S × η ≈ᶜ γ +ᶜ p ·ᶜ δ
+    η ▸ˢ c ∙ S →
+    ∃₃ λ p δ γ → ∣ S ∣≡ p × δ ▸ᶜ[ ⌞ p ⌟ ] c × γ ▸ˢ S × η ≈ᶜ γ +ᶜ p ·ᶜ δ
   ▸ˢ-∙-inv (▸ˢ∙ ∣S∣≡ ▸e ▸S) = _ , _ , _ , ∣S∣≡ , ▸e , ▸S , ≈ᶜ-refl
 
 opaque
@@ -116,19 +116,19 @@ opaque
   -- Inversion of states with non-empty stacks.
 
   ▸ₛ-∙-inv :
-    ▸ ⟨ H , t , ρ , e ∙ S ⟩ →
+    ▸ ⟨ H , t , ρ , c ∙ S ⟩ →
     ∃₆ λ p q γ δ η θ →
-    ∣ S ∣≡ p × ∣ e ∣ᵉ≡ q ×
+    ∣ S ∣≡ p × ∣ c ∣ᶜ≡ q ×
     γ ▸ʰ H × δ ▸[ ⌞ p · q ⌟ ] t ×
-    η ▸ˢ S × θ ▸ᵉ[ ⌞ p ⌟ ] e ×
+    η ▸ˢ S × θ ▸ᶜ[ ⌞ p ⌟ ] c ×
     γ ≤ᶜ (p · q) ·ᶜ wkConₘ ρ δ +ᶜ η +ᶜ p ·ᶜ θ
   ▸ₛ-∙-inv {ρ} ▸s =
-    let p , γ , δ , η , ∣eS∣≡ , ▸H , ▸t , ▸eS , γ≤ = ▸ₛ-inv ▸s
-        q , δ′ , η′ , ∣S∣≡ , ▸e , ▸S , η≈ = ▸ˢ-∙-inv ▸eS
-        r , q′ , ∣e∣≡ , ∣S∣≡′ , p≡ = ∣∣∙-inv ∣eS∣≡
+    let p , γ , δ , η , ∣cS∣≡ , ▸H , ▸t , ▸cS , γ≤ = ▸ₛ-inv ▸s
+        q , δ′ , η′ , ∣S∣≡ , ▸c , ▸S , η≈ = ▸ˢ-∙-inv ▸cS
+        r , q′ , ∣c∣≡ , ∣S∣≡′ , p≡ = ∣∣∙-inv ∣cS∣≡
         q′≡q = ∣∣-functional ∣S∣≡′ ∣S∣≡
     in  _ , _ , _ , _ , _ , _
-          , ∣S∣≡ , ∣e∣≡ , ▸H , ▸-cong (⌞⌟-cong (trans p≡ (·-congʳ q′≡q))) ▸t , ▸S , ▸e
+          , ∣S∣≡ , ∣c∣≡ , ▸H , ▸-cong (⌞⌟-cong (trans p≡ (·-congʳ q′≡q))) ▸t , ▸S , ▸c
           , (begin
             γ                                           ≤⟨ γ≤ ⟩
             p ·ᶜ wkConₘ ρ δ +ᶜ η                        ≈⟨ +ᶜ-cong (·ᶜ-congʳ p≡) η≈ ⟩
@@ -182,7 +182,7 @@ opaque
   -- Inversion of application
 
   ▸-inv-∘ₑ :
-    γ ▸ᵉ[ m ] ∘ₑ p u ρ →
+    γ ▸ᶜ[ m ] ∘ₑ p u ρ →
     ∃ λ δ → δ ▸[ m ᵐ· p ] u × γ ≈ᶜ p ·ᶜ wkConₘ ρ δ
   ▸-inv-∘ₑ (∘ₑ ▸u) = _ , ▸u , ≈ᶜ-refl
 
@@ -191,7 +191,7 @@ opaque
   -- Inversion of fst
 
   ▸-inv-fstₑ :
-    γ ▸ᵉ[ m ] fstₑ p → (m ≡ 𝟙ᵐ → p ≤ 𝟙) × γ ≈ᶜ 𝟘ᶜ
+    γ ▸ᶜ[ m ] fstₑ p → (m ≡ 𝟙ᵐ → p ≤ 𝟙) × γ ≈ᶜ 𝟘ᶜ
   ▸-inv-fstₑ (fstₑ x) = x , ≈ᶜ-refl
 
 opaque
@@ -199,7 +199,7 @@ opaque
   -- Inversion of snd
 
   ▸-inv-sndₑ :
-    γ ▸ᵉ[ m ] sndₑ p → γ ≈ᶜ 𝟘ᶜ
+    γ ▸ᶜ[ m ] sndₑ p → γ ≈ᶜ 𝟘ᶜ
   ▸-inv-sndₑ sndₑ = ≈ᶜ-refl
 
 opaque
@@ -207,7 +207,7 @@ opaque
   -- Inversion of prodrec
 
   ▸-inv-prodrecₑ :
-    γ ▸ᵉ[ m ] prodrecₑ r p q A u ρ →
+    γ ▸ᶜ[ m ] prodrecₑ r p q A u ρ →
     ∃ λ δ → δ ∙ ⌜ m ⌝ · r · p ∙ ⌜ m ⌝ · r ▸[ m ] u ×
     Prodrec-allowed m r p q × γ ≈ᶜ wkConₘ ρ δ
   ▸-inv-prodrecₑ (prodrecₑ ▸u ok) =
@@ -229,7 +229,7 @@ opaque
   -- Inversion of natrec
 
   ▸-inv-natrecₑ :
-    γ ▸ᵉ[ m ] natrecₑ p q r A z s ρ →
+    γ ▸ᶜ[ m ] natrecₑ p q r A z s ρ →
     ∃₃ λ δ η θ → δ ▸[ m ] z × η ∙ ⌜ m ⌝ · p ∙ ⌜ m ⌝ · r ▸[ m ] s ×
     θ ∙ ⌜ 𝟘ᵐ? ⌝ · q ▸[ 𝟘ᵐ? ] A × InvUsageNatrecₑ p r δ η ρ γ
   ▸-inv-natrecₑ (natrecₑ ▸z ▸s ▸A) =
@@ -242,7 +242,7 @@ opaque
   -- Inversion of unitrec
 
   ▸-inv-unitrecₑ :
-    γ ▸ᵉ[ m ] unitrecₑ l p q A u ρ →
+    γ ▸ᶜ[ m ] unitrecₑ l p q A u ρ →
     ∃ λ δ → δ ▸[ m ] u × Unitrec-allowed m p q ×
     ¬ Unitʷ-η × γ ≈ᶜ wkConₘ ρ δ
   ▸-inv-unitrecₑ (unitrecₑ ▸u ok no-η) =
@@ -253,7 +253,7 @@ opaque
   -- Inversion of emptyrec
 
   ▸-inv-emptyrecₑ :
-    γ ▸ᵉ[ m ] emptyrecₑ p A ρ →
+    γ ▸ᶜ[ m ] emptyrecₑ p A ρ →
     Emptyrec-allowed m p × γ ≈ᶜ 𝟘ᶜ
   ▸-inv-emptyrecₑ (emptyrecₑ ok) =
     ok , ≈ᶜ-refl
@@ -263,7 +263,7 @@ opaque
   -- Inversion of J
 
   ▸-inv-Jₑ :
-    γ ▸ᵉ[ m ] Jₑ p q A t B u v ρ →
+    γ ▸ᶜ[ m ] Jₑ p q A t B u v ρ →
     ∃ λ δ → δ ▸[ m ] u × γ ≈ᶜ wkConₘ ρ δ
   ▸-inv-Jₑ (Jₑ ▸u) = _ , ▸u , ≈ᶜ-refl
 
@@ -272,7 +272,7 @@ opaque
   -- Inversion of K
 
   ▸-inv-Kₑ :
-    γ ▸ᵉ[ m ] Kₑ p A t B u ρ →
+    γ ▸ᶜ[ m ] Kₑ p A t B u ρ →
     ∃ λ δ → δ ▸[ m ] u × γ ≈ᶜ wkConₘ ρ δ
   ▸-inv-Kₑ (Kₑ ▸u) =
     _ , ▸u , ≈ᶜ-refl
@@ -282,7 +282,7 @@ opaque
   -- Inversion of []-cong
 
   ▸-inv-[]-congₑ :
-    γ ▸ᵉ[ m ] []-congₑ str A t u ρ →
+    γ ▸ᶜ[ m ] []-congₑ str A t u ρ →
     []-cong-allowed-mode str m × γ ≈ᶜ 𝟘ᶜ
   ▸-inv-[]-congₑ ([]-congₑ ok) =
     ok , ≈ᶜ-refl
@@ -291,5 +291,5 @@ opaque
 
   -- Inversion of suc
 
-  ▸-inv-sucₑ : γ ▸ᵉ[ m ] sucₑ → ⊥
+  ▸-inv-sucₑ : γ ▸ᶜ[ m ] sucₑ → ⊥
   ▸-inv-sucₑ ()
