@@ -17,6 +17,7 @@ open Type-restrictions R
 open import Definition.Typed R
 open import Definition.Typed.Properties R
 open import Definition.Typed.Weakening R
+open import Definition.Typed.Well-formed R
 open import Definition.Typed.EqualityRelation R
 import Definition.Typed.EqualityRelation.Instance
 
@@ -58,14 +59,11 @@ private opaque
       .≅ₜ-zeroᵘrefl → refl ∘ᶠ zeroᵘⱼ
       .≅ₜ-sucᵘ-cong → sucᵘ-cong
       .≅ₜ-maxᵘ-cong → maxᵘ-cong
-      .≅ₜ-maxᵘ-zeroʳ → maxᵘ-zeroʳ
-      .≅ₜ-maxᵘ-sucᵘ → maxᵘ-sucᵘ
-      .≅ₜ-maxᵘ-assoc → maxᵘ-assoc
-      .≅ₜ-maxᵘ-comm → maxᵘ-comm
-      .≅ₜ-maxᵘ-idem → maxᵘ-idem
-      .≅ₜ-maxᵘ-sub  → maxᵘ-sub
-      .≅-Urefl      → refl ∘ᶠ Uⱼ
-      .≅-U-cong     → U-cong
+      .≅ₜ-maxᵘ-zeroʳ → maxᵘ-zeroʳ ∘ᶠ ⊢≡→⊢
+      .≅ₜ-maxᵘ-assoc → λ a b c → maxᵘ-assoc (⊢≡→⊢ a) (⊢≡→⊢ b) (⊢≡→⊢ c)
+      .≅ₜ-maxᵘ-comm → λ a b → maxᵘ-comm (⊢≡→⊢ a) (⊢≡→⊢ b)
+      .≅ₜ-maxᵘ-idem → λ a → maxᵘ-idem (⊢≡→⊢ a)
+      .≅ₜ-maxᵘ-sub  → λ a → maxᵘ-sub (⊢≡→⊢ a)
       .≅ₜ-U-cong    → U-cong
       .≅ₜ-ℕrefl     → refl ∘ᶠ ℕⱼ
       .≅ₜ-Emptyrefl → refl ∘ᶠ Emptyⱼ

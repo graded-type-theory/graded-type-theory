@@ -26,6 +26,9 @@ private variable
   f g     : (x : A) → P x
 
 -- Function composition (simply typed variant)
+
+infixr 9 _∘ᶠ_
+
 _∘ᶠ_ : ∀ {ℓ} → {A B C : Set ℓ} → (B → C) → (A → B) → A → C
 _∘ᶠ_ f g a = f (g a)
 

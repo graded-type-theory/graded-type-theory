@@ -164,7 +164,7 @@ opaque
       Γ ⊢ A ∷ U t × Erased-allowed s × Γ ⊢ B ≡ U (t maxᵘ u)
   inversion-Erased-∷ ⊢Erased =
     case inversion-ΠΣ-U ⊢Erased of λ {
-      (t , u , ⊢A , ⊢Unit , B≡ , Σˢ-ok) →
+      (t , u , _ , _ , ⊢A , ⊢Unit , B≡ , Σˢ-ok) →
     t , u , ⊢A , (inversion-Unit-allowed (univ ⊢Unit) , Σˢ-ok) , B≡ }
 
 opaque

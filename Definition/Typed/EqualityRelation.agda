@@ -18,6 +18,7 @@ open import Definition.Untyped M
 import Definition.Untyped.Erased 𝕄 as Erased
 open import Definition.Untyped.Neutral M type-variant
 open import Definition.Typed R
+open import Definition.Typed.Properties R
 open import Definition.Typed.Well-formed R
 open import Definition.Typed.Weakening R using (_∷ʷ_⊇_)
 
@@ -160,43 +161,33 @@ record Equality-relations
 
     -- maxᵘ right identity
     ≅ₜ-maxᵘ-zeroʳ
-      : Γ ⊢ t ∷ Level
+      : Γ ⊢≅ t ∷ Level
       → Γ ⊢ t maxᵘ zeroᵘ ≅ t ∷ Level
-
-    -- maxᵘ distributivity over sucᵘ
-    ≅ₜ-maxᵘ-sucᵘ
-      : Γ ⊢ t ∷ Level
-      → Γ ⊢ u ∷ Level
-      → Γ ⊢ sucᵘ t maxᵘ sucᵘ u ≅ sucᵘ (t maxᵘ u) ∷ Level
 
     -- maxᵘ associativity
     ≅ₜ-maxᵘ-assoc
-      : Γ ⊢ t ∷ Level
-      → Γ ⊢ u ∷ Level
-      → Γ ⊢ v ∷ Level
+      : Γ ⊢≅ t ∷ Level
+      → Γ ⊢≅ u ∷ Level
+      → Γ ⊢≅ v ∷ Level
       → Γ ⊢ (t maxᵘ u) maxᵘ v ≅ t maxᵘ (u maxᵘ v) ∷ Level
 
     -- maxᵘ commutativity
     ≅ₜ-maxᵘ-comm
-      : Γ ⊢ t ∷ Level
-      → Γ ⊢ u ∷ Level
+      : Γ ⊢≅ t ∷ Level
+      → Γ ⊢≅ u ∷ Level
       → Γ ⊢ t maxᵘ u ≅ u maxᵘ t ∷ Level
 
     -- maxᵘ idempotence
     ≅ₜ-maxᵘ-idem
-      : Γ ⊢ t ∷ Level
+      : Γ ⊢≅ t ∷ Level
       → Γ ⊢ t maxᵘ t ≅ t ∷ Level
 
     -- maxᵘ subsumption
     ≅ₜ-maxᵘ-sub
-      : Γ ⊢ t ∷ Level
+      : Γ ⊢≅ t ∷ Level
       → Γ ⊢ t maxᵘ sucᵘ t ≅ sucᵘ t ∷ Level
 
-    -- Universe type reflexivity
-    ≅-Urefl   : Γ ⊢ l ∷ Level → Γ ⊢≅ U l ∷ U (sucᵘ l)
-
     -- Universe congruence
-    ≅-U-cong : Γ ⊢ l ≅ k ∷ Level → Γ ⊢ U l ≅ U k
     ≅ₜ-U-cong : Γ ⊢ l ≅ k ∷ Level → Γ ⊢ U l ≅ U k ∷ U (sucᵘ l)
 
     -- Natural number type reflexivity
@@ -313,7 +304,7 @@ record Equality-relations
     ~-unitrec : ∀ {A A′ t t′ u u′}
               → Γ ⊢ l ∷ Level
               → Γ ⊢ l′ ∷ Level
-              → Γ ⊢ l ≡ l′ ∷ Level
+              → Γ ⊢ l ≅ l′ ∷ Level
               → Γ ∙ Unitʷ l ⊢ A ≅ A′
               → Γ ⊢ t ~ t′ ∷ Unitʷ l
               → Γ ⊢ u ≅ u′ ∷ A [ starʷ l ]₀
@@ -405,7 +396,14 @@ record Equality-relations
 
   opaque
 
-    -- A variant of ≅ₜ-Unitrefl.
+    -- A variant of ≅ₜ-U-cong.
+
+    ≅-U-cong : Γ ⊢ l ≅ k ∷ Level → Γ ⊢ U l ≅ U k
+    ≅-U-cong l≡k = ≅-univ (≅ₜ-U-cong l≡k)
+
+  opaque
+
+    -- A variant of ≅ₜ-Unit-cong.
 
     ≅-Unit-cong : Γ ⊢ l ≅ l′ ∷ Level → Unit-allowed s → Γ ⊢ Unit s l ≅ Unit s l′
     ≅-Unit-cong l≡l′ ok = ≅-univ (≅ₜ-Unit-cong l≡l′ ok)
@@ -475,6 +473,23 @@ record Equality-relations
 
   opaque
 
+    -- maxᵘ distributes over sucᵘ
+
+    ≅ₜ-maxᵘ-sucᵘ
+      : Γ ⊢≅ t ∷ Level
+      → Γ ⊢≅ u ∷ Level
+      → Γ ⊢ sucᵘ t maxᵘ sucᵘ u ≅ sucᵘ (t maxᵘ u) ∷ Level
+    ≅ₜ-maxᵘ-sucᵘ ⊢≅t ⊢≅u =
+      let ⊢Level , ⊢t , _ = wf-⊢≡∷ (≅ₜ-eq ⊢≅t)
+          _ , ⊢u , _ = wf-⊢≡∷ (≅ₜ-eq ⊢≅u)
+      in ≅ₜ-red
+        (id ⊢Level , Levelₙ)
+        (redMany (maxᵘ-sucᵘ ⊢t ⊢u) , sucᵘₙ)
+        (id (sucᵘⱼ (maxᵘⱼ ⊢t ⊢u)) , sucᵘₙ)
+        (≅ₜ-sucᵘ-cong (≅ₜ-maxᵘ-cong ⊢≅t ⊢≅u))
+
+  opaque
+
     -- A variant of ≅ₜ-maxᵘ-sub.
 
     ≅ₜ-maxᵘ-sub′
@@ -489,13 +504,13 @@ record Equality-relations
       -- t maxᵘ sucᵘ u
         ≅ₜ-trans (≅ₜ-maxᵘ-cong ⊢≅t (≅ₜ-trans
           (≅ₜ-sucᵘ-cong (≅ₜ-sym t⊔u≡u))
-          (≅ₜ-sym (≅ₜ-maxᵘ-sucᵘ ⊢t ⊢u))))
+          (≅ₜ-sym (≅ₜ-maxᵘ-sucᵘ ⊢≅t ⊢≅u))))
       -- t maxᵘ (sucᵘ t maxᵘ sucᵘ u)
-      $ ≅ₜ-trans (≅ₜ-sym (≅ₜ-maxᵘ-assoc ⊢t (sucᵘⱼ ⊢t) (sucᵘⱼ ⊢u)))
+      $ ≅ₜ-trans (≅ₜ-sym (≅ₜ-maxᵘ-assoc ⊢≅t (≅ₜ-sucᵘ-cong ⊢≅t) (≅ₜ-sucᵘ-cong ⊢≅u)))
       -- (t maxᵘ sucᵘ t) maxᵘ sucᵘ u
-      $ ≅ₜ-trans (≅ₜ-maxᵘ-cong (≅ₜ-maxᵘ-sub ⊢t) (≅ₜ-sucᵘ-cong ⊢≅u))
+      $ ≅ₜ-trans (≅ₜ-maxᵘ-cong (≅ₜ-maxᵘ-sub ⊢≅t) (≅ₜ-sucᵘ-cong ⊢≅u))
       -- sucᵘ t maxᵘ sucᵘ u
-      $ ≅ₜ-trans (≅ₜ-maxᵘ-sucᵘ ⊢t ⊢u)
+      $ ≅ₜ-trans (≅ₜ-maxᵘ-sucᵘ ⊢≅t ⊢≅u)
       -- sucᵘ (t maxᵘ u)
       $ ≅ₜ-sucᵘ-cong t⊔u≡u
       -- sucᵘ u

@@ -19,7 +19,7 @@ open import Definition.Untyped.Neutral M type-variant
 open import Definition.Untyped.Properties M
 open import Definition.Untyped.Properties.Neutral M type-variant
 open import Definition.Typed R
-open import Definition.Typed.EqRelInstance R
+open import Definition.Typed.EqRelInstance R using (eqRelInstance)
 open import Definition.Typed.EqualityRelation.Instance R
 open import Definition.Typed.Inversion R
 open import Definition.Typed.Properties R
@@ -32,10 +32,12 @@ open import Definition.Conversion.Soundness R
 open import Definition.Conversion.Stability R
 open import Definition.Conversion.Whnf R
 open import Definition.Conversion.Conversion R
+open import Definition.Conversion.Level R
 open import Definition.Typed.Consequences.Injectivity R
 import Definition.Typed.Consequences.Inequality R as WF
 open import Definition.Typed.Consequences.NeTypeEq R
 
+open import Tools.Bool
 open import Tools.Function
 open import Tools.Nat
 open import Tools.Product
@@ -43,12 +45,19 @@ open import Tools.Empty
 import Tools.PropositionalEquality as PE
 open import Tools.Sum using (inj₁; inj₂)
 
+import Data.List as L
+import Data.List.Relation.Unary.All as All
+import Data.List.Relation.Unary.All.Properties as All
+import Data.List.Relation.Unary.Any as Any
+import Data.List.Relation.Unary.Any.Properties as Any
+
 
 private
   variable
     n : Nat
     Γ Δ : Con Term n
     A t u v : Term _
+    d : Bool
 
 mutual
   -- Transitivity of algorithmic equality of neutrals.
@@ -112,18 +121,20 @@ mutual
         A<>C = transConv↑ A<>B B<>C
         t~v , _ = trans~↓  t~u u~v
     in  emptyrec-cong A<>C t~v , A≡B
-  trans~↑ (unitrec-cong A<>B k~l u<>v no-η)
-    (unitrec-cong B<>C l~m v<>w _) =
-    let A<>C = transConv↑ A<>B B<>C
-        k~m , ⊢Unit≡Unit = trans~↓ k~l l~m
+  trans~↑ (unitrec-cong x A<>B k~l u<>v no-η)
+    (unitrec-cong y B<>C l~m v<>w _) =
+    let l₁≡l₂ = soundnessConv↑Term x
+        k~m , ⊢Unit≡Unit = trans~∷ k~l l~m
         ⊢Unit = proj₁ (syntacticEq ⊢Unit≡Unit)
-        ok = inversion-Unit ⊢Unit
+        ok = inversion-Unit-allowed ⊢Unit
         ⊢Γ = wf ⊢Unit
+        l₁<>l₃ = transConvTerm x y
+        A<>C = transConv↑′ (refl-∙ (Unit-cong l₁≡l₂ ok)) A<>B B<>C
         A≡B = soundnessConv↑ A<>B
-        A₊≡B₊ = substTypeEq A≡B (refl (starⱼ ⊢Γ ok))
-        Ak≡Bl = substTypeEq A≡B (soundness~↓ k~l)
+        A₊≡B₊ = substTypeEq A≡B (star-cong l₁≡l₂ ok)
+        Ak≡Bl = substTypeEq A≡B (soundness~∷ k~l)
         u<>w = transConv↑Term A₊≡B₊ u<>v v<>w
-    in  unitrec-cong A<>C k~m u<>w no-η , Ak≡Bl
+    in  unitrec-cong l₁<>l₃ A<>C k~m u<>w no-η , Ak≡Bl
   trans~↑ (J-cong A₁≡A₂ t₁≡t₂ B₁≡B₂ u₁≡u₂ v₁≡v₂ w₁~w₂ C₁≡Id-t₁-v₁)
     (J-cong A₂≡A₃ t₂≡t₃ B₂≡B₃ u₂≡u₃ v₂≡v₃ w₂~w₃ _) =
     case soundnessConv↑ A₁≡A₂ of λ {
@@ -185,6 +196,15 @@ mutual
               (trans A≡B
                      (subset* D₁))
 
+  trans~∷ : ∀ {t u v A B}
+          → Γ ⊢ t ~ u ∷ A
+          → Γ ⊢ u ~ v ∷ B
+          → Γ ⊢ t ~ v ∷ A
+          × Γ ⊢ A ≡ B
+  trans~∷ (↑ A≡C t~u) (↑ B≡D u~v) =
+    let t~v , C≡D = trans~↑ t~u u~v
+    in ↑ A≡C t~v , trans A≡C (trans C≡D (sym B≡D))
+
   -- Transitivity of algorithmic equality of types.
   transConv↑ : ∀ {A B C}
             → Γ ⊢ A [conv↑] B
@@ -209,15 +229,19 @@ mutual
             → Γ ⊢ A [conv↓] B
             → Γ ⊢ B [conv↓] C
             → Γ ⊢ A [conv↓] C
+  transConv↓ Level≡Level@(Level-refl _) Level≡C =
+    case inv-[conv↓]-Level′ Level≡C of λ where
+      (inj₁ (PE.refl , PE.refl)) → Level≡Level
+      (inj₂ (Level≢Level , _))           → ⊥-elim (Level≢Level PE.refl)
   transConv↓ (ne A~B) B≡C =
     case inv-[conv↓]-ne′ B≡C of λ where
       (inj₁ (_ , B~C))    → ne (trans~↓ A~B B~C .proj₁)
       (inj₂ (¬-B-ne , _)) →
         let _ , _ , B-ne = ne~↓ A~B in
         ⊥-elim (¬-B-ne B-ne)
-  transConv↓ U≡U@(U-refl _) U≡C =
+  transConv↓ U≡U@(U-cong x) U≡C =
     case inv-[conv↓]-U′ U≡C of λ where
-      (inj₁ (_ , PE.refl , PE.refl)) → U≡U
+      (inj₁ (_ , _ , PE.refl , PE.refl , y)) → U-cong (transConv↑Term (refl (syntacticEqTerm (soundnessConv↑Term x) .proj₁)) x y)
       (inj₂ (U≢U , _))               → ⊥-elim (U≢U (_ , PE.refl))
   transConv↓ (ΠΣ-cong A₁≡B₁ A₂≡B₂ ok) ΠΣ≡C =
     case inv-[conv↓]-ΠΣ′ ΠΣ≡C of λ where
@@ -232,9 +256,10 @@ mutual
     case inv-[conv↓]-Empty′ Empty≡C of λ where
       (inj₁ (PE.refl , PE.refl)) → Empty≡Empty
       (inj₂ (Empty≢Empty , _))   → ⊥-elim (Empty≢Empty PE.refl)
-  transConv↓ Unit≡Unit@(Unit-refl _ _) Unit≡C =
+  transConv↓ Unit≡Unit@(Unit-cong x ok) Unit≡C =
     case inv-[conv↓]-Unit′ Unit≡C of λ where
-      (inj₁ (_ , _ , PE.refl , PE.refl)) → Unit≡Unit
+      (inj₁ (_ , _ , _ , PE.refl , PE.refl , y)) →
+        Unit-cong (transConvTerm x y) ok
       (inj₂ (Unit≢Unit , _))             →
         ⊥-elim (Unit≢Unit (_ , _ , PE.refl))
   transConv↓ ℕ≡ℕ@(ℕ-refl _) ℕ≡C =
@@ -270,11 +295,66 @@ mutual
              (convConv↓Term (sym B₁≡B₂) (whnfConv↓Term t<>u .proj₁) $
               PE.subst (_ ⊢_[conv↓] _ ∷ _) (whrDet*Term d₁ d₁′) t<>u₁))
 
+  trans-≡ⁿ : ∀ {t u v : Term n} → ≡ⁿ Γ t u false → ≡ⁿ Γ u v false → ≡ⁿ Γ t v false
+  trans-≡ⁿ (ne≡ x) (ne≡ y) = ne≡ (trans~↓ x y .proj₁)
+
+  trans-≤ᵃ : ∀ {t u v : LevelAtom Γ} → ≤ᵃ false t u → ≤ᵃ false u v → ≤ᵃ false t v
+  trans-≤ᵃ zeroᵘ≤ u≤v = zeroᵘ≤
+  trans-≤ᵃ (ne≤ t~u) (ne≤ u~v) = ne≤ (trans-≡ⁿ t~u u~v)
+
+  trans-≤⁺ : ∀ {t u v : LevelPlus Γ} → ≤⁺ false t u → ≤⁺ false u v → ≤⁺ false t v
+  trans-≤⁺ (n≤m , t≤u) (m≤o , u≤v) = ≤-trans n≤m m≤o , trans-≤ᵃ t≤u u≤v
+
+  trans-≤⁺-≤⁺ᵛ : ∀ {t u : LevelPlus Γ} {v : LevelView Γ} → ≤⁺ false t u → ≤⁺ᵛ false u v → ≤⁺ᵛ false t v
+  trans-≤⁺-≤⁺ᵛ t≤u (Any.here px) = Any.here (trans-≤⁺ t≤u px)
+  trans-≤⁺-≤⁺ᵛ t≤u (Any.there u≤v) = Any.there (trans-≤⁺-≤⁺ᵛ t≤u u≤v)
+
+  trans-≤⁺ᵛ-≤ᵛ : ∀ {t : LevelPlus Γ} {u v : LevelView Γ} → ≤⁺ᵛ false t u → ≤ᵛ false u v → ≤⁺ᵛ false t v
+  trans-≤⁺ᵛ-≤ᵛ (Any.here px) (px₁ All.∷ u≤v) = trans-≤⁺-≤⁺ᵛ px px₁
+  trans-≤⁺ᵛ-≤ᵛ (Any.there t≤u) (px All.∷ u≤v) = trans-≤⁺ᵛ-≤ᵛ t≤u u≤v
+
+  trans-≤ᵛ : ∀ {t u v : LevelView Γ} → ≤ᵛ false t u → ≤ᵛ false u v → ≤ᵛ false t v
+  trans-≤ᵛ All.[] u≤v = All.[]
+  trans-≤ᵛ (px All.∷ t≤u) u≤v = trans-≤⁺ᵛ-≤ᵛ px u≤v All.∷ trans-≤ᵛ t≤u u≤v
+
+  trans'-≡ⁿ : ∀ {t u v : Term n} → ≡ⁿ Γ t u true → ≡ⁿ Γ u v true → ≡ⁿ Γ t v true
+  trans'-≡ⁿ (ne≡' x) (ne≡' y) = ne≡' (trans~↓ y x .proj₁)
+
+  trans'-≤ᵃ : ∀ {t u v : LevelAtom Γ} → ≤ᵃ true t u → ≤ᵃ true u v → ≤ᵃ true t v
+  trans'-≤ᵃ zeroᵘ≤ u≤v = zeroᵘ≤
+  trans'-≤ᵃ (ne≤ t~u) (ne≤ u~v) = ne≤ (trans'-≡ⁿ t~u u~v)
+
+  trans'-≤⁺ : ∀ {t u v : LevelPlus Γ} → ≤⁺ true t u → ≤⁺ true u v → ≤⁺ true t v
+  trans'-≤⁺ (n≤m , t≤u) (m≤o , u≤v) = ≤-trans n≤m m≤o , trans'-≤ᵃ t≤u u≤v
+
+  trans'-≤⁺-≤⁺ᵛ : ∀ {t u : LevelPlus Γ} {v : LevelView Γ} → ≤⁺ true t u → ≤⁺ᵛ true u v → ≤⁺ᵛ true t v
+  trans'-≤⁺-≤⁺ᵛ t≤u (Any.here px) = Any.here (trans'-≤⁺ t≤u px)
+  trans'-≤⁺-≤⁺ᵛ t≤u (Any.there u≤v) = Any.there (trans'-≤⁺-≤⁺ᵛ t≤u u≤v)
+
+  trans'-≤⁺ᵛ-≤ᵛ : ∀ {t : LevelPlus Γ} {u v : LevelView Γ} → ≤⁺ᵛ true t u → ≤ᵛ true u v → ≤⁺ᵛ true t v
+  trans'-≤⁺ᵛ-≤ᵛ (Any.here px) (px₁ All.∷ u≤v) = trans'-≤⁺-≤⁺ᵛ px px₁
+  trans'-≤⁺ᵛ-≤ᵛ (Any.there t≤u) (px All.∷ u≤v) = trans'-≤⁺ᵛ-≤ᵛ t≤u u≤v
+
+  trans'-≤ᵛ : ∀ {t u v : LevelView Γ} → ≤ᵛ true t u → ≤ᵛ true u v → ≤ᵛ true t v
+  trans'-≤ᵛ All.[] u≤v = All.[]
+  trans'-≤ᵛ (px All.∷ t≤u) u≤v = trans'-≤⁺ᵛ-≤ᵛ px u≤v All.∷ trans'-≤ᵛ t≤u u≤v
+
+  trans-≡ᵛ : ∀ {t u v : LevelView Γ} → t ≡ᵛ u → u ≡ᵛ v → t ≡ᵛ v
+  trans-≡ᵛ (t≤u , u≤t) (u≤v , v≤u) = trans-≤ᵛ t≤u u≤v , trans'-≤ᵛ v≤u u≤t
+
+  transConv↓Level :
+    Γ ⊢ t [conv↓] u ∷Level →
+    Γ ⊢ u [conv↓] v ∷Level →
+    Γ ⊢ t [conv↓] v ∷Level
+  transConv↓Level ([↓]ˡ tᵛ uᵛ t≡ u≡ t≡u) ([↓]ˡ uᵛ′ vᵛ u≡′ v≡ u≡v) =
+    [↓]ˡ tᵛ vᵛ t≡ v≡ (trans-≡ᵛ t≡u (trans-≡≡ᵛ-≡ᵛ (irrelevance-↓ᵛ u≡ u≡′) u≡v))
+
   -- Transitivity for _⊢_[conv↓]_∷_.
   transConv↓Term :
     Γ ⊢ t [conv↓] u ∷ A →
     Γ ⊢ u [conv↓] v ∷ A →
     Γ ⊢ t [conv↓] v ∷ A
+  transConv↓Term (Level-ins x) u≡v = Level-ins (transConv↓Level x (inv-[conv↓]∷-Level u≡v))
   transConv↓Term (ne-ins ⊢t _ A-ne t~u) u≡v =
     let _ , u~v    = inv-[conv↓]∷-ne A-ne u≡v
         _ , _ , ⊢v = syntacticEqTerm (soundnessConv↓Term u≡v)
@@ -319,25 +399,25 @@ mutual
           ok }
   transConv↓Term (Empty-ins t~u) u≡v =
     Empty-ins (trans~↓ t~u (inv-[conv↓]∷-Empty u≡v) .proj₁)
-  transConv↓Term (η-unit ⊢t _ t-whnf _ η) u≡v =
+  transConv↓Term (η-unit x ⊢t _ t-whnf _ ok η) u≡v =
     let _ , _ , ⊢v = syntacticEqTerm (soundnessConv↓Term u≡v) in
     case inv-[conv↓]∷-Unit u≡v of λ where
-      (inj₁ (_ , _ , v-whnf)) → η-unit ⊢t ⊢v t-whnf v-whnf η
+      (inj₁ (_ , _ , v-whnf)) → η-unit x ⊢t ⊢v t-whnf v-whnf ok η
       (inj₂ (no-η , _))       → ⊥-elim (no-η η)
   transConv↓Term (Unitʷ-ins no-η t~u) u≡v =
     case inv-[conv↓]∷-Unitʷ u≡v of λ where
       (inj₁ (_ , inj₁ u~v)) →
-        Unitʷ-ins no-η (trans~↓ t~u u~v .proj₁)
-      (inj₁ (_ , inj₂ (PE.refl , _))) →
-        ⊥-elim $ ¬-Neutral-star $ ne~↓ t~u .proj₂ .proj₂
+        Unitʷ-ins no-η (trans~∷ t~u u~v .proj₁)
+      (inj₁ (_ , inj₂ (_ , _ , PE.refl , _ , _))) →
+        ⊥-elim $ ¬-Neutral-star $ ne~∷ t~u .proj₂
       (inj₂ (η , _)) →
         ⊥-elim (no-η η)
-  transConv↓Term (starʷ-refl _ _ no-η) u≡v =
+  transConv↓Term (starʷ-cong x y ok no-η) u≡v =
     case inv-[conv↓]∷-Unitʷ u≡v of λ where
       (inj₁ (_ , inj₁ u~v)) →
-        ⊥-elim $ ¬-Neutral-star $ ne~↓ u~v .proj₂ .proj₁
-      (inj₁ (_ , inj₂ (_ , PE.refl))) →
-        u≡v
+        ⊥-elim $ ¬-Neutral-star $ ne~∷ u~v .proj₁
+      (inj₁ (_ , inj₂ (_ , _ , PE.refl , PE.refl , _ , z))) →
+        starʷ-cong x (trans y z) ok no-η
       (inj₂ (η , _)) →
         ⊥-elim (no-η η)
   transConv↓Term (ℕ-ins t~u) u≡v =

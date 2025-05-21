@@ -38,6 +38,9 @@ opaque
 
   -- Constructor applications are not neutral.
 
+  ¬-Neutral-Level : ¬ Neutral {n = n} Level
+  ¬-Neutral-Level ()
+
   ¬-Neutral-U : ¬ Neutral {n = n} (U l)
   ¬-Neutral-U ()
 

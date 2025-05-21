@@ -533,7 +533,7 @@ opaque
     case ⊩∷Level⇔ .proj₁ $ R.⊩∷→ $ ⊩ᵛ∷→⊩ˢ∷→⊩[]∷ ⊩u ⊩σ of λ
       ⊩u[σ] →
     case inversion-ΠΣ-U ⊢ΠΣ∷U of λ
-      (_ , _ , _ , _ , _ , ok) →
+      (_ , _ , _ , _ , _ , _ , _ , ok) →
     let ⊢ΠΣ[] = refl $ subst-⊢∷ ⊢ΠΣ∷U $ escape-⊩ˢ∷ ⊩σ .proj₂
         ⊢≅ΠΣ[] = with-inc-⊢≅∷ ⊢ΠΣ[] $ ≅ₜ-ΠΣ-cong
             (escapeLevel ⊩t[σ]) (escapeLevel ⊩u[σ])

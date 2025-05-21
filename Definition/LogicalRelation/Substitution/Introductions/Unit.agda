@@ -510,7 +510,7 @@ opaque
                ∷ A₁ [ σ₁ ⇑ ] [ t₁′ ]₀                             ≡⟨ neutral-⊩≡∷ inc (wf-⊩≡ A₁[t₁]₀[σ₁]≡A₁[σ₁⇑][t₁′]₀ .proj₂)
                                                                        (unitrecₙ no-η t₁′-ne) (unitrecₙ no-η t₂′-ne)
                                                                        (~-unitrec ⊢k₁[σ₁] ⊢k₂[σ₂]
-                                                                          (≅ₜ-eq $ escapeLevelEq k₁[σ₁]≡k₂[σ₂])
+                                                                          (escapeLevelEq k₁[σ₁]≡k₂[σ₂])
                                                                           (escape-⊩≡ $
                                                                            R.⊩≡→ ⦃ inc = included ⦃ inc = inc ⦄ ⦄ A₁[σ₁⇑]≡A₂[σ₂⇑])
                                                                           t₁′~t₂′

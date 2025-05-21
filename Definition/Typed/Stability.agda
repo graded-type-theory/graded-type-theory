@@ -97,7 +97,7 @@ opaque
   refl-∙ : Γ ⊢ A ≡ B → ⊢ Γ ∙ A ≡ Γ ∙ B
   refl-∙ A≡B = reflConEq (wfEq A≡B) ∙ A≡B
 
-private opaque
+opaque
 
   -- A well-formedness lemma for ⊢_≡_.
 

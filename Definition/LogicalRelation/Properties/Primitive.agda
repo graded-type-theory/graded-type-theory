@@ -122,6 +122,14 @@ redLevel′ t⇒ (Levelₜ k d prop) =
 
 -- Escape lemmas for levels
 
+opaque
+
+  escape-neNf
+    : Γ ⊩neNf t ≡ t ∷ A
+    → Γ ⊢ t ∷ A
+  escape-neNf (neNfₜ₌ _ neK neM k≡m) =
+    wf-⊢≡∷ (≅ₜ-eq (~-to-≅ₜ k≡m)) .proj₂ .proj₁
+
 opaque mutual
 
   -- Reducible levels are well-formed.
@@ -146,8 +154,7 @@ opaque mutual
     maxᵘⱼ (escape-neLevel-prop x) (escapeLevel y)
   escape-neLevel-prop (maxᵘʳᵣ x y) =
     maxᵘⱼ (sucᵘⱼ (escapeLevel x)) (escape-neLevel-prop y)
-  escape-neLevel-prop (ne (neNfₜ₌ _ _ _ k≡m)) =
-    wf-⊢≡∷ (≅ₜ-eq (~-to-≅ₜ k≡m)) .proj₂ .proj₁
+  escape-neLevel-prop (ne x) = escape-neNf x
 
 opaque mutual
 
@@ -214,37 +221,34 @@ opaque mutual
   escape-[neLevel]-prop (maxᵘʳᵣ x y) =
     ≅ₜ-maxᵘ-cong (≅ₜ-sucᵘ-cong (escapeLevelEq x)) (escape-[neLevel]-prop y)
   escape-[neLevel]-prop (maxᵘ-zeroʳᵣ x) =
-    let ⊢t = escape-neLevel-prop x
+    let ⊢t = escape-neLevel-prop′ x
     in ≅ₜ-maxᵘ-zeroʳ ⊢t
   escape-[neLevel]-prop (maxᵘ-assoc¹ᵣ x y z) =
-    ≅ₜ-maxᵘ-assoc (escape-neLevel-prop x) (escapeLevel y) (escapeLevel z)
+    ≅ₜ-maxᵘ-assoc (escape-neLevel-prop′ x) (escapeLevel′ y) (escapeLevel′ z)
   escape-[neLevel]-prop (maxᵘ-assoc²ᵣ x y z) =
-    ≅ₜ-maxᵘ-assoc (sucᵘⱼ (escapeLevel x)) (escape-neLevel-prop y) (escapeLevel z)
+    ≅ₜ-maxᵘ-assoc (≅ₜ-sucᵘ-cong (escapeLevel′ x)) (escape-neLevel-prop′ y) (escapeLevel′ z)
   escape-[neLevel]-prop (maxᵘ-assoc³ᵣ x y z) =
-    let ⊢t = escapeLevel x
-        ⊢u = escapeLevel y
-        ⊢v = escape-neLevel-prop z
+    let ⊢t = escapeLevel′ x
+        ⊢u = escapeLevel′ y
+        ⊢v = escape-neLevel-prop′ z
     in ≅ₜ-trans
-      (≅ₜ-maxᵘ-cong (≅ₜ-sym (≅ₜ-maxᵘ-sucᵘ ⊢t ⊢u)) (escape-neLevel-prop′ z))
-      (≅ₜ-maxᵘ-assoc (sucᵘⱼ ⊢t) (sucᵘⱼ ⊢u) ⊢v)
+      (≅ₜ-maxᵘ-cong (≅ₜ-sym (≅ₜ-maxᵘ-sucᵘ ⊢t ⊢u)) ⊢v)
+      (≅ₜ-maxᵘ-assoc (≅ₜ-sucᵘ-cong ⊢t) (≅ₜ-sucᵘ-cong ⊢u) ⊢v)
   escape-[neLevel]-prop (maxᵘ-comm¹ᵣ x d y d′) =
     let t₁≡t₂ = escapeLevelEq d
         u₁≡u₂ = escapeLevelEq d′
-        _ , ⊢t₁ , ⊢t₂ = wf-⊢≡∷ (≅ₜ-eq t₁≡t₂)
-        _ , ⊢u₁ , ⊢u₂ = wf-⊢≡∷ (≅ₜ-eq u₁≡u₂)
+        ⊢t₁ , _ = wf-⊢≅∷ t₁≡t₂
+        ⊢u₁ , _ = wf-⊢≅∷ u₁≡u₂
     in ≅ₜ-trans (≅ₜ-maxᵘ-comm ⊢t₁ ⊢u₁) (≅ₜ-maxᵘ-cong u₁≡u₂ t₁≡t₂)
   escape-[neLevel]-prop (maxᵘ-comm²ᵣ [t₁] d [u]) =
     let t₁+1≡t₂ = escapeLevelEq d
-        ⊢t₁ = escapeLevel [t₁]
-        _ , _ , ⊢t₂ = wf-⊢≡∷ (≅ₜ-eq t₁+1≡t₂)
-        ⊢u = escape-neLevel-prop [u]
-        u≡u = escape-neLevel-prop′ [u]
-    in ≅ₜ-trans (≅ₜ-maxᵘ-cong t₁+1≡t₂ u≡u) (≅ₜ-maxᵘ-comm ⊢t₂ ⊢u)
+        _ , ⊢t₂ = wf-⊢≅∷ t₁+1≡t₂
+        ⊢u = escape-neLevel-prop′ [u]
+    in ≅ₜ-trans (≅ₜ-maxᵘ-cong t₁+1≡t₂ ⊢u) (≅ₜ-maxᵘ-comm ⊢t₂ ⊢u)
   escape-[neLevel]-prop (maxᵘ-idemᵣ [t₁] y) =
     let t₁≡t₁ = escape-neLevel-prop′ [t₁]
         t₁≡t₂ = escapeLevelEq y
-        _ , ⊢u , _ = wf-⊢≡∷ (≅ₜ-eq t₁≡t₂)
-    in ≅ₜ-trans (≅ₜ-maxᵘ-cong t₁≡t₁ (≅ₜ-sym t₁≡t₂)) (≅ₜ-maxᵘ-idem ⊢u)
+    in ≅ₜ-trans (≅ₜ-maxᵘ-cong t₁≡t₁ (≅ₜ-sym t₁≡t₂)) (≅ₜ-maxᵘ-idem t₁≡t₁)
   escape-[neLevel]-prop (ne (neNfₜ₌ _ _ _ k≡m)) =
     ~-to-≅ₜ k≡m
 

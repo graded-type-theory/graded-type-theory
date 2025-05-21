@@ -29,8 +29,7 @@ private
   variable
     n   : Nat
     Γ   : Con Term n
-    A B : Term _
-    l   : Universe-level
+    A B l : Term _
 
 -- The relation _⊢_[conv↓]_∷ U l is contained in _⊢_[conv↓]_.
 

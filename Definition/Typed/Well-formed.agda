@@ -484,6 +484,9 @@ opaque mutual
     (equality-reflection _ ⊢Id _) →
       inversion-Id ⊢Id
 
+  ⊢≡→⊢ : Γ ⊢ t ≡ t ∷ A → Γ ⊢ t ∷ A
+  ⊢≡→⊢ t≡t = wf-⊢≡∷ t≡t .proj₂ .proj₁
+
 opaque
 
   -- A well-formedness lemma for _⊢ˢ_≡_∷_.

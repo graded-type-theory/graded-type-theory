@@ -19,7 +19,7 @@ open Data.Nat.DivMod using (_/_; m/n*n≤m; m*n/n≡m) public
 open import Data.Nat.Properties
 open import Data.Nat using (_<′_; ≤′-refl; ≤′-step; _≤′_) public
 open Data.Nat.Properties
-  using (_≟_; _<?_; ≤-total;
+  using (_≟_; _<?_; _≤?_; ≤-total;
          +-identityʳ; +-assoc; +-comm; +-0-isCommutativeMonoid; +-suc;
          +-cancelˡ-≡;
          *-identityˡ; *-identityʳ; *-assoc; *-comm; *-zeroʳ; *-cancelˡ-≡;

@@ -42,6 +42,39 @@ private
 
 opaque
 
+  -- If the WHNF A is judgmentally equal to Level, then A is
+  -- propositionally equal to Level (given a certain assumption).
+
+  Level≡A :
+    ⦃ ok : No-equality-reflection or-empty Γ ⦄ →
+    Γ ⊢ Level ≡ A → Whnf A → A PE.≡ Level
+  Level≡A {Γ} {A} Level≡A A-whnf =
+                $⟨ Level≡A ⟩
+    Γ ⊢ Level ≡ A       →⟨ ⊩Level≡⇔ .proj₁ ∘→ proj₂ ∘→ reducible-⊩≡ ⟩
+    Γ ⊩Level Level ≡ A  ≡⟨ PE.refl ⟩→
+    Γ ⊢ A ⇒* Level      →⟨ flip whnfRed* A-whnf ⟩
+    A PE.≡ Level        □
+
+opaque
+
+  -- If equality reflection is allowed, then there is a WHNF A that is
+  -- judgementally equal to Level but not propositionally equal to Level.
+
+  whnf≢Level :
+    Equality-reflection →
+    ∃₂ λ (Γ : Con Term 1) (A : Term 1) →
+      Γ ⊢ Level ≡ A × Whnf A × A PE.≢ Level
+  whnf≢Level ok =
+    ε ∙ Id (U zeroᵘ) Level Empty ,
+    Empty ,
+    univ
+      (equality-reflection′ ok $
+       var₀ (Idⱼ′ (Levelⱼ ε) (Emptyⱼ ε))) ,
+    Emptyₙ ,
+    (λ ())
+
+opaque
+
   -- If the WHNF A is judgmentally equal to U l, then A is
   -- propositionally equal to U l (given a certain assumption).
 

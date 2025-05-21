@@ -17,15 +17,27 @@ open import Definition.Untyped M
 import Definition.Untyped.Erased 𝕄 as Erased
 open import Definition.Untyped.Neutral M type-variant
 open import Definition.Typed R
+open import Definition.Typed.Syntactic R
+open import Definition.Typed.Properties R
+open import Definition.Typed.EqRelInstance R hiding (_⊢_~_∷_)
+open import Definition.LogicalRelation R ⦃ eqRelInstance ⦄
+open import Definition.LogicalRelation.Properties R ⦃ eqRelInstance ⦄
 
+open import Tools.Bool
 open import Tools.Fin
 open import Tools.Function
+import Tools.List as L
 open import Tools.Nat
 open import Tools.Product
 import Tools.PropositionalEquality as PE
 open import Tools.Relation
 open import Tools.Sum
 
+import Data.List as L
+import Data.List.Relation.Unary.All as All
+import Data.List.Relation.Unary.All.Properties as All
+import Data.List.Relation.Unary.Any as Any
+import Data.List.Relation.Unary.Any.Properties as Any
 
 infix 10 _⊢_~_↑_
 infix 10 _⊢_~_↓_
@@ -36,10 +48,10 @@ infix 10 _⊢_[conv↓]_∷_
 
 private
   variable
-    n l : Nat
+    n : Nat
     Γ : Con Term n
     A₁ A₂ B₁ B₂ C F G E : Term n
-    g h t t₁ t₂ t₃ u u₁ u₂ u₃ v v₁ v₂ w₁ w₂ : Term n
+    g h l l′ l₁ l₂ t t₁ t₂ t₃ u u₁ u₂ u₃ v v₁ v₂ w₁ w₂ : Term n
     x y : Fin n
     p p′ p″ p₁ p₂ q q′ q″ q₁ q₂ r r′ : M
     b : BinderMode
@@ -82,11 +94,12 @@ mutual
                   → Γ ⊢ t₁ ~ t₂ ↓ Empty
                   → Γ ⊢ emptyrec p A₁ t₁ ~ emptyrec p A₂ t₂ ↑ A₁
 
-    unitrec-cong : Γ ∙ Unitʷ l ⊢ A₁ [conv↑] A₂
-                 → Γ ⊢ t₁ ~ t₂ ↓ Unitʷ l
-                 → Γ ⊢ u₁ [conv↑] u₂ ∷ A₁ [ starʷ l ]₀
+    unitrec-cong : Γ ⊢ l₁ [conv↑] l₂ ∷ Level
+                 → Γ ∙ Unitʷ l₁ ⊢ A₁ [conv↑] A₂
+                 → Γ ⊢ t₁ ~ t₂ ∷ Unitʷ l₁
+                 → Γ ⊢ u₁ [conv↑] u₂ ∷ A₁ [ starʷ l₁ ]₀
                  → ¬ Unitʷ-η
-                 → Γ ⊢ unitrec l p q A₁ t₁ u₁ ~ unitrec l p q A₂ t₂ u₂ ↑
+                 → Γ ⊢ unitrec p q l₁ A₁ t₁ u₁ ~ unitrec p q l₂ A₂ t₂ u₂ ↑
                      A₁ [ t₁ ]₀
 
     J-cong        : Γ ⊢ A₁ [conv↑] A₂
@@ -131,6 +144,17 @@ mutual
       D   : Γ ⊢ A ↘ B
       k~l : Γ ⊢ k ~ l ↑ A
 
+  -- Algorithmic equality of neutrals with injected conversion.
+  record _⊢_~_∷_ (Γ : Con Term n) (k l A : Term n) : Set a where
+    inductive
+    no-eta-equality
+    pattern
+    constructor ↑
+    field
+      {B} : Term n
+      A≡B : Γ ⊢ A ≡ B
+      k~↑l : Γ ⊢ k ~ l ↑ B
+
   -- Type equality.
   record _⊢_[conv↑]_ (Γ : Con Term n) (A B : Term n) : Set a where
     inductive
@@ -146,13 +170,18 @@ mutual
   -- Type equality with types in WHNF.
   data _⊢_[conv↓]_ (Γ : Con Term n) : (A B : Term n) → Set a where
 
-    U-refl     : ⊢ Γ → Γ ⊢ U l [conv↓] U l
+    Level-refl : ⊢ Γ → Γ ⊢ Level [conv↓] Level
+
+    U-cong     : Γ ⊢ l₁ [conv↑] l₂ ∷ Level
+               → Γ ⊢ U l₁ [conv↓] U l₂
 
     ℕ-refl     : ⊢ Γ → Γ ⊢ ℕ [conv↓] ℕ
 
     Empty-refl : ⊢ Γ → Γ ⊢ Empty [conv↓] Empty
 
-    Unit-refl  : ⊢ Γ → Unit-allowed s → Γ ⊢ Unit s l [conv↓] Unit s l
+    Unit-cong  : Γ ⊢ l₁ [conv↑] l₂ ∷ Level
+               → Unit-allowed s
+               → Γ ⊢ Unit s l₁ [conv↓] Unit s l₂
 
     ne         : Γ ⊢ A₁ ~ A₂ ↓ U l
                → Γ ⊢ A₁ [conv↓] A₂
@@ -181,8 +210,120 @@ mutual
       d′      : Γ ⊢ u ↘ u′ ∷ B
       t<>u    : Γ ⊢ t′ [conv↓] u′ ∷ B
 
+  data LevelAtom (Γ : Con Term n) : Set a where
+    zeroᵘ : LevelAtom Γ
+    ne : ∀ {t : Term n} → Γ ⊢ t ~ t ↓ Level → LevelAtom Γ
+
+  LevelPlus : Con Term n → Set a
+  LevelPlus Γ = Nat × LevelAtom Γ
+
+  LevelView : Con Term n → Set a
+  LevelView Γ = L.List (LevelPlus Γ)
+
+  data ≡ⁿ (Γ : Con Term n) (t u : Term n) : Bool → Set a where
+    ne≡ : Γ ⊢ t ~ u ↓ Level → ≡ⁿ Γ t u false
+    ne≡' : Γ ⊢ u ~ t ↓ Level → ≡ⁿ Γ t u true
+
+  data ≤ᵃ {Γ : Con Term n} (d : Bool) : LevelAtom Γ → LevelAtom Γ → Set a where
+    zeroᵘ≤ : ∀ {a} → ≤ᵃ d zeroᵘ a
+    ne≤
+      : ∀ {t u} {[t] : Γ ⊢ t ~ t ↓ Level} {[u] : Γ ⊢ u ~ u ↓ Level}
+      → ≡ⁿ Γ t u d
+      → ≤ᵃ d (ne [t]) (ne [u])
+
+  ≤⁺ : Bool → LevelPlus Γ → LevelPlus Γ → Set a
+  ≤⁺ d (n , a) (m , b) = n ≤ m × ≤ᵃ d a b
+
+  ≤⁺ᵛ : Bool → LevelPlus Γ → LevelView Γ → Set a
+  ≤⁺ᵛ d l l′ = Any.Any (≤⁺ d l) l′
+
+  ≤ᵛ : Bool → LevelView Γ → LevelView Γ → Set a
+  ≤ᵛ d l l′ = All.All (λ x → ≤⁺ᵛ d x l′) l
+
+  _≡ᵛ_ : LevelView Γ → LevelView Γ → Set a
+  l ≡ᵛ l′ = ≤ᵛ false l l′ × ≤ᵛ true l′ l
+
+  record _⊢_↑ᵛ_ (Γ : Con Term n) (t : Term n) (v : LevelView Γ) : Set a where
+    inductive
+    no-eta-equality
+    pattern
+    constructor [↑]ᵛ
+    field
+      {t′} : Term n
+      d    : Γ ⊢ t ↘ t′ ∷ Level
+      t↓v  : Γ ⊢ t′ ↓ᵛ v
+
+  zeroᵛ : LevelView Γ
+  zeroᵛ = L.[]
+
+  suc⁺ : LevelPlus Γ → LevelPlus Γ
+  suc⁺ (n , a) = 1+ n , a
+
+  -- Using L.map here results in termination problems in Definition.Conversion.Weakening
+  map-suc⁺ : LevelView Γ → LevelView Γ
+  map-suc⁺ L.[] = L.[]
+  map-suc⁺ (x L.∷ l) = suc⁺ x L.∷ map-suc⁺ l
+
+  sucᵛ : LevelView Γ → LevelView Γ
+  sucᵛ l = (1 , zeroᵘ) L.∷ map-suc⁺ l
+
+  maxᵛ : LevelView Γ → LevelView Γ → LevelView Γ
+  maxᵛ = L._++_
+
+  neᵛ : Γ ⊢ t ~ t ↓ Level → LevelView Γ
+  neᵛ t~t = L.[ 0 , ne t~t ]
+
+  data _⊢_↓ᵛ_ (Γ : Con Term n) : Term n → LevelView Γ → Set a where
+    zeroᵘ-↓ᵛ
+      : ⊢ Γ
+      → Γ ⊢ zeroᵘ ↓ᵛ zeroᵛ
+    sucᵘ-↓ᵛ
+      : ∀ {t v v′}
+      → v PE.≡ sucᵛ v′
+      → Γ ⊢ t ↑ᵛ v′
+      → Γ ⊢ sucᵘ t ↓ᵛ v
+    maxᵘ-↓ᵛ
+      : ∀ {t′ t″ v v′ v″}
+      → Whnf (t′ maxᵘ t″)
+      → v PE.≡ maxᵛ v′ v″
+      → Γ ⊢ t′ ↑ᵛ v′
+      → Γ ⊢ t″ ↑ᵛ v″
+      → Γ ⊢ t′ maxᵘ t″ ↓ᵛ v
+    ne-↓ᵛ
+      : ∀ {t v}
+      → ([t] : Γ ⊢ t ~ t ↓ Level)
+      → v PE.≡ neᵛ [t]
+      → Γ ⊢ t ↓ᵛ v
+
+  record _⊢_[conv↑]_∷Level (Γ : Con Term n) (t u : Term n) : Set a where
+    inductive
+    no-eta-equality
+    pattern
+    constructor [↑]ˡ
+    field
+      tᵛ : LevelView Γ
+      uᵛ : LevelView Γ
+      t↑ : Γ ⊢ t ↑ᵛ tᵛ
+      u↑ : Γ ⊢ u ↑ᵛ uᵛ
+      t≡u : tᵛ ≡ᵛ uᵛ
+
+  record _⊢_[conv↓]_∷Level (Γ : Con Term n) (t u : Term n) : Set a where
+    inductive
+    no-eta-equality
+    pattern
+    constructor [↓]ˡ
+    field
+      tᵛ : LevelView Γ
+      uᵛ : LevelView Γ
+      t↓ : Γ ⊢ t ↓ᵛ tᵛ
+      u↓ : Γ ⊢ u ↓ᵛ uᵛ
+      t≡u : tᵛ ≡ᵛ uᵛ
+
   -- Term equality with types and terms in WHNF.
   data _⊢_[conv↓]_∷_ (Γ : Con Term n) : (t u A : Term n) → Set a where
+
+    Level-ins : Γ ⊢ t₁ [conv↓] t₂ ∷Level
+              → Γ ⊢ t₁ [conv↓] t₂ ∷ Level
 
     ℕ-ins     : Γ ⊢ t₁ ~ t₂ ↓ ℕ
               → Γ ⊢ t₁ [conv↓] t₂ ∷ ℕ
@@ -191,7 +332,7 @@ mutual
               → Γ ⊢ t₁ [conv↓] t₂ ∷ Empty
 
     Unitʷ-ins : ¬ Unitʷ-η
-              → Γ ⊢ t₁ ~ t₂ ↓ Unitʷ l
+              → Γ ⊢ t₁ ~ t₂ ∷ Unitʷ l
               → Γ ⊢ t₁ [conv↓] t₂ ∷ Unitʷ l
 
     Σʷ-ins    : ∀ {A A′ B B′}
@@ -215,10 +356,11 @@ mutual
 
     zero-refl : ⊢ Γ → Γ ⊢ zero [conv↓] zero ∷ ℕ
 
-    starʷ-refl : ⊢ Γ
+    starʷ-cong : Γ ⊢ l ≡ l₁ ∷ Level
+               → Γ ⊢ l₁ ≡ l₂ ∷ Level
                → Unitʷ-allowed
                → ¬ Unitʷ-η
-               → Γ ⊢ starʷ l [conv↓] starʷ l ∷ Unitʷ l
+               → Γ ⊢ starʷ l₁ [conv↓] starʷ l₂ ∷ Unitʷ l
 
     suc-cong  : ∀ {m n}
               → Γ ⊢ m [conv↑] n ∷ ℕ
@@ -248,10 +390,12 @@ mutual
               → Γ ⊢ snd p t₁ [conv↑] snd p t₂ ∷ B [ fst p t₁ ]₀
               → Γ ⊢ t₁ [conv↓] t₂ ∷ Σˢ p , q ▷ A ▹ B
 
-    η-unit    : Γ ⊢ t₁ ∷ Unit s l
+    η-unit    : Γ ⊢ l ∷ Level
+              → Γ ⊢ t₁ ∷ Unit s l
               → Γ ⊢ t₂ ∷ Unit s l
               → Whnf t₁
               → Whnf t₂
+              → Unit-allowed s
               → Unit-with-η s
               → Γ ⊢ t₁ [conv↓] t₂ ∷ Unit s l
 
@@ -263,16 +407,6 @@ mutual
     rfl-refl  : ∀ {A}
               → Γ ⊢ t ≡ u ∷ A
               → Γ ⊢ rfl [conv↓] rfl ∷ Id A t u
-
-opaque
-
-  star-refl :
-    ⊢ Γ → Unit-allowed s → Γ ⊢ star s l [conv↓] star s l ∷ Unit s l
-  star-refl {s} ⊢Γ ok =
-    case Unit-with-η? s of λ where
-      (inj₂ (PE.refl , no-η)) → starʷ-refl ⊢Γ ok no-η
-      (inj₁ η)                →
-        η-unit (starⱼ ⊢Γ ok) (starⱼ ⊢Γ ok) starₙ starₙ η
 
 -- An inversion lemma for prod-cong.
 

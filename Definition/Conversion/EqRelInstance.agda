@@ -30,51 +30,65 @@ open import Definition.Typed.Syntactic R
 open import Definition.Typed.Weakening R using (_∷ʷ_⊇_; wkEq)
 open import Definition.Typed.Well-formed R
 open import Definition.Conversion R
+open import Definition.Conversion.Level R
 open import Definition.Conversion.Reduction R
 open import Definition.Conversion.Universe R
 open import Definition.Conversion.Stability R
 open import Definition.Conversion.Soundness R
 open import Definition.Conversion.Lift R
 open import Definition.Conversion.Conversion R
+open import Definition.Conversion.Inversion R
 open import Definition.Conversion.Symmetry R
 open import Definition.Conversion.Transitivity R
 open import Definition.Conversion.Weakening R
+open import Definition.Conversion.Whnf R
 open import Definition.Typed.EqualityRelation R
 import Definition.Typed.EqualityRelation.Instance
 open import Definition.Typed.Consequences.Injectivity R
 open import Definition.Typed.Consequences.Equality R
 open import Definition.Typed.Consequences.Reduction R
 
+open import Tools.Bool
 open import Tools.Empty
 open import Tools.Fin
 open import Tools.Function
-open import Tools.Level
+open import Tools.Level hiding (Level)
 open import Tools.Nat
 open import Tools.Product
+open import Tools.Sum
 import Tools.PropositionalEquality as PE
 open import Tools.Relation
 open import Tools.Unit
+
+import Data.List as L
+import Data.List.Properties as L
+import Data.List.Relation.Unary.All as All
+import Data.List.Relation.Unary.All.Properties as All
+import Data.List.Relation.Unary.Any as Any
+import Data.List.Relation.Unary.Any.Properties as Any
 
 private
   variable
     m n : Nat
     Γ : Con Term n
-    A₁ A₂ B₁ B₂ t₁ t₂ u₁ u₂ v₁ v₂ w₁ w₂ : Term _
+    A₁ A₂ B₁ B₂ l l′ t t′ t₁ t₂ u u′ u₁ u₂ v v₁ v₂ w₁ w₂ : Term _
     ρ : Wk m n
     p p₁ p₂ p′ q q′ q₁ q₂ r r′ : M
     s : Strength
-    l : Universe-level
+    d : Bool
 
--- Algorithmic equality of neutrals with injected conversion.
-record _⊢_~_∷_ (Γ : Con Term n) (k l A : Term n) : Set a where
-  inductive
-  no-eta-equality
-  pattern
-  constructor ↑
-  field
-    {B} : Term n
-    A≡B : Γ ⊢ A ≡ B
-    k~↑l : Γ ⊢ k ~ l ↑ B
+opaque
+
+  star-cong′ :
+    Γ ⊢ l [conv↑] l′ ∷ Level → Unit-allowed s → Γ ⊢ star s l [conv↓] star s l′ ∷ Unit s l
+  star-cong′ {s} l≡l′ ok =
+    let ⊢l≡l′ = soundnessConv↑Term l≡l′
+        ⊢Level , ⊢l , ⊢l′ = syntacticEqTerm ⊢l≡l′
+    in case Unit-with-η? s of λ where
+      (inj₂ (PE.refl , no-η)) → starʷ-cong (refl ⊢l) ⊢l≡l′ ok no-η
+      (inj₁ η)                →
+        η-unit ⊢l (starⱼ ⊢l ok) (conv (starⱼ ⊢l′ ok) (Unit-cong (sym ⊢Level ⊢l≡l′) ok))
+          starₙ starₙ ok η
 
 -- Properties of algorithmic equality of neutrals with injected conversion.
 
@@ -195,24 +209,21 @@ private module Lemmas where
           (emptyrec-cong x k~l′)
 
   ~-unitrec : ∀ {A A′ t t′ u u′}
+            → Γ ⊢ l ∷ Level
+            → Γ ⊢ l′ ∷ Level
+            → Γ ⊢ l [conv↑] l′ ∷ Level
             → Γ ∙ Unitʷ l ⊢ A [conv↑] A′
             → Γ ⊢ t ~ t′ ∷ Unitʷ l
             → Γ ⊢ u [conv↑] u′ ∷ A [ starʷ l ]₀
             → Unitʷ-allowed
             → ¬ Unitʷ-η
-            → Γ ⊢ unitrec l p q A t u ~ unitrec l p q A′ t′ u′ ∷
+            → Γ ⊢ unitrec p q l A t u ~ unitrec p q l′ A′ t′ u′ ∷
                 A [ t ]₀
-  ~-unitrec A<>A′ (↑ A≡B t~t′) u<>u′ ok no-η =
-    let _ , ⊢B = syntacticEq A≡B
-        B′ , whnfB′ , D = whNorm ⊢B
-        Unit≡B′ = trans A≡B (subset* D)
-        B≡Unit = Unit≡A Unit≡B′ whnfB′
-        t~t″ = PE.subst (λ x → _ ⊢ _ ~ _ ↓ x) B≡Unit
-                        ([~] _ (D , whnfB′) t~t′)
-        ⊢A , _ = syntacticEq (soundnessConv↑ A<>A′)
-        _ , ⊢t , _ = syntacticEqTerm (soundness~↓ t~t″)
-    in  ↑ (refl (substType ⊢A ⊢t))
-          (unitrec-cong A<>A′ t~t″ u<>u′ no-η)
+  ~-unitrec ⊢l ⊢l′ l≡l′ A<>A′ t~t′ u<>u′ ok no-η =
+    let ⊢A , _ = syntacticEq (soundnessConv↑ A<>A′)
+        _ , ⊢t , _ = syntacticEqTerm (soundness~∷ t~t′)
+    in ↑ (refl (substType ⊢A ⊢t))
+         (unitrec-cong l≡l′ A<>A′ t~t′ u<>u′ no-η)
 
   opaque
 
@@ -283,23 +294,17 @@ private module Lemmas where
            ok) }
 
   ~-sym : ∀ {k l A} → Γ ⊢ k ~ l ∷ A → Γ ⊢ l ~ k ∷ A
-  ~-sym (↑ A≡B x) =
-    let ⊢Γ = wfEq A≡B
-        B , A≡B′ , l~k = sym~↑ (reflConEq ⊢Γ) x
-    in  ↑ (trans A≡B A≡B′) l~k
+  ~-sym x@(↑ A≡B _) = sym~∷ (reflConEq (wfEq A≡B)) x
 
   ~-trans : ∀ {k l m A}
           → Γ ⊢ k ~ l ∷ A → Γ ⊢ l ~ m ∷ A
           → Γ ⊢ k ~ m ∷ A
-  ~-trans (↑ x x₁) (↑ x₂ x₃) =
-    let ⊢Γ = wfEq x
-        k~m , _ = trans~↑ x₁ x₃
-    in  ↑ x k~m
+  ~-trans x y = trans~∷ x y .proj₁
 
   ~-wk : ∀ {k l A} {ρ : Wk m n} {Γ Δ} →
         ρ ∷ʷ Δ ⊇ Γ →
         Γ ⊢ k ~ l ∷ A → Δ ⊢ wk ρ k ~ wk ρ l ∷ wk ρ A
-  ~-wk x (↑ x₂ x₃) = ↑ (wkEq x x₂) (wk~↑ x x₃)
+  ~-wk = wk~∷
 
   ~-conv : ∀ {k l A B} →
         Γ ⊢ k ~ l ∷ A → Γ ⊢ A ≡ B → Γ ⊢ k ~ l ∷ B
@@ -308,6 +313,86 @@ private module Lemmas where
   ~-to-conv : ∀ {k l A} →
         Γ ⊢ k ~ l ∷ A → Γ ⊢ k [conv↑] l ∷ A
   ~-to-conv (↑ x x₁) = convConv↑Term (sym x) (lift~toConv↑ x₁)
+
+  ≅ₜ-sucᵘ-cong : Γ ⊢ t [conv↑] u ∷ Level → Γ ⊢ sucᵘ t [conv↓] sucᵘ u ∷Level
+  ≅ₜ-sucᵘ-cong ([↑]ₜ B t′ u′ (D , _) d d′ t<>u) =
+    case whnfRed* D Levelₙ of λ {
+      PE.refl →
+    let [↓]ˡ tᵛ uᵛ t≡ u≡ t≡u = inv-[conv↓]∷-Level t<>u
+    in [↓]ˡ (sucᵛ tᵛ) (sucᵛ uᵛ)
+      (sucᵘ-↓ᵛ PE.refl ([↑]ᵛ d t≡))
+      (sucᵘ-↓ᵛ PE.refl ([↑]ᵛ d′ u≡))
+      (≡ᵛ-suc t≡u) }
+
+  maxᵘ-↑ᵛ : ∀ {v′ v″} → Γ ⊢ t ↑ᵛ v′ → Γ ⊢ u ↑ᵛ v″ → ∃ λ v → Γ ⊢ t maxᵘ u ↑ᵛ v × v ≡ᵛ maxᵛ v′ v″
+  maxᵘ-↑ᵛ {v′} {v″} ([↑]ᵛ (t⇒ , tw) t↓) u↑@([↑]ᵛ (u⇒ , uw) u↓) =
+    let ⊢u = redFirst*Term u⇒
+    in case t↓ of λ where
+      (zeroᵘ-↓ᵛ _) → v″ , [↑]ᵛ (maxᵘ-substˡ* t⇒ ⊢u ⇨∷* (maxᵘ-zeroˡ ⊢u ⇨ u⇒) , uw) u↓ , ≡ᵛ-maxᵘ-zeroˡ
+      (sucᵘ-↓ᵛ {v′ = v₁} PE.refl t′↑) →
+        let ⊢t′ = wf↑ᵛ t′↑
+        in case u↓ of λ where
+          (zeroᵘ-↓ᵛ _) → v′ , [↑]ᵛ (maxᵘ-substˡ* t⇒ ⊢u ⇨∷* (maxᵘ-substʳ* ⊢t′ u⇒ ⇨∷* redMany (maxᵘ-zeroʳ ⊢t′)) , sucᵘₙ) t↓ , sym-≡ᵛ ≡ᵛ-maxᵘ-zeroʳ
+          (sucᵘ-↓ᵛ PE.refl u′↑) →
+            let ⊢u′ = wf↑ᵛ u′↑
+                a , a↑ , a≡ = maxᵘ-↑ᵛ t′↑ u′↑
+            in sucᵛ a , [↑]ᵛ (maxᵘ-substˡ* t⇒ ⊢u ⇨∷* (maxᵘ-substʳ* ⊢t′ u⇒ ⇨∷* redMany (maxᵘ-sucᵘ ⊢t′ ⊢u′)) , sucᵘₙ) (sucᵘ-↓ᵛ PE.refl a↑) , trans-≡ᵛ (≡ᵛ-suc a≡) ≡ᵛ-maxᵘ-sucᵘ
+          (maxᵘ-↓ᵛ (ne x) PE.refl u′↑ u″↑) →
+            let w = ne (maxᵘʳₙ x)
+            in maxᵛ v′ v″ , [↑]ᵛ (maxᵘ-substˡ* t⇒ ⊢u ⇨∷* maxᵘ-substʳ* ⊢t′ u⇒ , w) (maxᵘ-↓ᵛ w PE.refl (lift-↓ᵛ t↓) (lift-↓ᵛ u↓)) , ≡ᵛ-refl _
+          (ne-↓ᵛ [t] x) →
+            let w = ne (maxᵘʳₙ (ne (ne~↓ [t] .proj₂ .proj₁)))
+            in maxᵛ v′ v″ , [↑]ᵛ (maxᵘ-substˡ* t⇒ ⊢u ⇨∷* maxᵘ-substʳ* ⊢t′ u⇒ , w) (maxᵘ-↓ᵛ w PE.refl (lift-↓ᵛ t↓) (lift-↓ᵛ u↓)) , ≡ᵛ-refl _
+      (maxᵘ-↓ᵛ (ne x) x₁ x₂ x₃) →
+        let w = ne (maxᵘˡₙ x)
+        in maxᵛ v′ v″ , [↑]ᵛ (maxᵘ-substˡ* t⇒ ⊢u , w) (maxᵘ-↓ᵛ w PE.refl (lift-↓ᵛ t↓) u↑) , ≡ᵛ-refl _
+      (ne-↓ᵛ [t] x) →
+        let w = ne (maxᵘˡₙ (ne (ne~↓ [t] .proj₂ .proj₁)))
+        in maxᵛ v′ v″ , [↑]ᵛ (maxᵘ-substˡ* t⇒ ⊢u , w) (maxᵘ-↓ᵛ w PE.refl (lift-↓ᵛ t↓) u↑) , ≡ᵛ-refl _
+
+  ≅ₜ-maxᵘ-cong : Γ ⊢ t [conv↑] u ∷Level → Γ ⊢ t′ [conv↑] u′ ∷Level → Γ ⊢ t maxᵘ t′ [conv↑] u maxᵘ u′ ∷Level
+  ≅ₜ-maxᵘ-cong ([↑]ˡ tᵛ uᵛ t↑ u↑ t≡u) ([↑]ˡ tᵛ₁ uᵛ₁ t↑₁ u↑₁ t≡u₁) =
+    let [a] , a↑ , a≡ = maxᵘ-↑ᵛ t↑ t↑₁
+        [b] , b↑ , b≡ = maxᵘ-↑ᵛ u↑ u↑₁
+    in [↑]ˡ [a] [b] a↑ b↑ (trans-≡ᵛ a≡ (trans-≡ᵛ (≡ᵛ-max t≡u t≡u₁) (sym-≡ᵛ b≡)))
+
+  zeroᵘ-↑ᵛ : ⊢ Γ → Γ ⊢ zeroᵘ ↑ᵛ zeroᵛ
+  zeroᵘ-↑ᵛ ⊢Γ = [↑]ᵛ (id (zeroᵘⱼ ⊢Γ) , zeroᵘₙ) (zeroᵘ-↓ᵛ ⊢Γ)
+
+  ≅ₜ-maxᵘ-zeroʳ : Γ ⊢ t [conv↑] t ∷Level → Γ ⊢ t maxᵘ zeroᵘ [conv↑] t ∷Level
+  ≅ₜ-maxᵘ-zeroʳ ([↑]ˡ v _ t↑ _ _) =
+    let v′ , x , y = maxᵘ-↑ᵛ t↑ (zeroᵘ-↑ᵛ (wfTerm (wf↑ᵛ t↑)))
+    in [↑]ˡ _ _ x t↑ (trans-≡ᵛ y ≡ᵛ-maxᵘ-zeroʳ)
+
+  ≅ₜ-maxᵘ-assoc : Γ ⊢ t [conv↑] t ∷Level → Γ ⊢ u [conv↑] u ∷Level → Γ ⊢ v [conv↑] v ∷Level → Γ ⊢ (t maxᵘ u) maxᵘ v [conv↑] t maxᵘ (u maxᵘ v) ∷Level
+  ≅ₜ-maxᵘ-assoc ([↑]ˡ tᵛ _ t↑ _ _) ([↑]ˡ uᵛ _ u↑ _ _) ([↑]ˡ vᵛ _ v↑ _ _) =
+    let tuᵛ , tu↑ , tu≡ = maxᵘ-↑ᵛ t↑ u↑
+        uvᵛ , uv↑ , uv≡ = maxᵘ-↑ᵛ u↑ v↑
+        [tu]vᵛ , [tu]v↑ , [tu]v≡ = maxᵘ-↑ᵛ tu↑ v↑
+        t[uv]ᵛ , t[uv]↑ , t[uv]≡ = maxᵘ-↑ᵛ t↑ uv↑
+    in [↑]ˡ [tu]vᵛ t[uv]ᵛ [tu]v↑ t[uv]↑
+    $ trans-≡ᵛ [tu]v≡
+    $ trans-≡ᵛ (≡ᵛ-max tu≡ (≡ᵛ-refl _))
+    $ trans-≡ᵛ (≡ᵛ-maxᵘ-assoc {a = tᵛ} {b = uᵛ} {c = vᵛ})
+    $ trans-≡ᵛ (≡ᵛ-max (≡ᵛ-refl _) (sym-≡ᵛ uv≡))
+    $ sym-≡ᵛ t[uv]≡
+
+  ≅ₜ-maxᵘ-comm : Γ ⊢ t [conv↑] t ∷Level → Γ ⊢ u [conv↑] u ∷Level →  Γ ⊢ t maxᵘ u [conv↑] u maxᵘ t ∷Level
+  ≅ₜ-maxᵘ-comm ([↑]ˡ tᵛ _ t↑ _ _) ([↑]ˡ uᵛ _ u↑ _ _) =
+    let tuᵛ , tu↑ , tu≡ = maxᵘ-↑ᵛ t↑ u↑
+        utᵛ , ut↑ , ut≡ = maxᵘ-↑ᵛ u↑ t↑
+    in [↑]ˡ tuᵛ utᵛ tu↑ ut↑ (trans-≡ᵛ tu≡ (trans-≡ᵛ (≡ᵛ-maxᵘ-comm {a = tᵛ}) (sym-≡ᵛ ut≡)))
+
+  ≅ₜ-maxᵘ-idem : Γ ⊢ t [conv↑] t ∷Level →  Γ ⊢ t maxᵘ t [conv↑] t ∷Level
+  ≅ₜ-maxᵘ-idem ([↑]ˡ tᵛ _ t↑ _ _) =
+    let ttᵛ , tt↑ , tt≡ = maxᵘ-↑ᵛ t↑ t↑
+    in [↑]ˡ ttᵛ tᵛ tt↑ t↑ (trans-≡ᵛ tt≡ ≡ᵛ-maxᵘ-idem)
+
+  ≅ₜ-maxᵘ-sub : Γ ⊢ t [conv↑] t ∷Level →  Γ ⊢ t maxᵘ sucᵘ t [conv↑] sucᵘ t ∷Level
+  ≅ₜ-maxᵘ-sub ([↑]ˡ tᵛ _ t↑ _ _) =
+    let t+1↑ = lift-↓ᵛ (sucᵘ-↓ᵛ PE.refl t↑)
+        ttᵛ , tt↑ , tt≡ = maxᵘ-↑ᵛ t↑ t+1↑
+    in [↑]ˡ ttᵛ (sucᵛ tᵛ) tt↑ t+1↑ (trans-≡ᵛ tt≡ ≡ᵛ-maxᵘ-sub)
 
 private opaque
 
@@ -341,18 +426,39 @@ private opaque
       λ (A⇒* , _) (B⇒* , _) → reductionConv↑ A⇒* B⇒*
     .Equality-relations.≅ₜ-red   →
       λ (A⇒* , _) (t⇒* , _) (u⇒* , _) → reductionConv↑Term A⇒* t⇒* u⇒*
-    .Equality-relations.≅-Urefl  →
-      λ ⊢Γ → liftConvTerm (univ (Uⱼ ⊢Γ) (Uⱼ ⊢Γ) (U-refl ⊢Γ))
+    .Equality-relations.≅ₜ-Levelrefl →
+      λ x → liftConvTerm (univ (Levelⱼ x) (Levelⱼ x) (Level-refl x))
+    .Equality-relations.≅ₜ-zeroᵘrefl →
+      liftConvTerm ∘ᶠ Level-ins ∘ᶠ zeroᵘrefl
+    .Equality-relations.≅ₜ-sucᵘ-cong →
+      liftConvTerm ∘ᶠ Level-ins ∘ᶠ ≅ₜ-sucᵘ-cong
+    .Equality-relations.≅ₜ-maxᵘ-cong → λ a b → inv-[conv↑]∷-Level⇔ .proj₂ (≅ₜ-maxᵘ-cong (inv-[conv↑]∷-Level⇔ .proj₁ a) (inv-[conv↑]∷-Level⇔ .proj₁ b))
+    .Equality-relations.≅ₜ-maxᵘ-zeroʳ → λ a → inv-[conv↑]∷-Level⇔ .proj₂ (≅ₜ-maxᵘ-zeroʳ (inv-[conv↑]∷-Level⇔ .proj₁ a))
+    .Equality-relations.≅ₜ-maxᵘ-assoc →
+      λ a b c → inv-[conv↑]∷-Level⇔ .proj₂ (≅ₜ-maxᵘ-assoc (inv-[conv↑]∷-Level⇔ .proj₁ a) (inv-[conv↑]∷-Level⇔ .proj₁ b) (inv-[conv↑]∷-Level⇔ .proj₁ c))
+    .Equality-relations.≅ₜ-maxᵘ-comm →
+      λ a b → inv-[conv↑]∷-Level⇔ .proj₂ (≅ₜ-maxᵘ-comm (inv-[conv↑]∷-Level⇔ .proj₁ a) (inv-[conv↑]∷-Level⇔ .proj₁ b))
+    .Equality-relations.≅ₜ-maxᵘ-idem →
+      λ a → inv-[conv↑]∷-Level⇔ .proj₂ (≅ₜ-maxᵘ-idem (inv-[conv↑]∷-Level⇔ .proj₁ a))
+    .Equality-relations.≅ₜ-maxᵘ-sub →
+      λ a → inv-[conv↑]∷-Level⇔ .proj₂ (≅ₜ-maxᵘ-sub (inv-[conv↑]∷-Level⇔ .proj₁ a))
+    .Equality-relations.≅ₜ-U-cong →
+      λ l≡l′ →
+        let ⊢l≡l′ = soundnessConv↑Term l≡l′
+            ⊢Level , ⊢l , ⊢l′ = syntacticEqTerm ⊢l≡l′
+        in liftConvTerm (univ (Uⱼ ⊢l) (conv (Uⱼ ⊢l′) (U-cong (sucᵘ-cong (sym ⊢Level ⊢l≡l′)))) (U-cong l≡l′))
     .Equality-relations.≅ₜ-ℕrefl →
       λ x → liftConvTerm (univ (ℕⱼ x) (ℕⱼ x) (ℕ-refl x))
     .Equality-relations.≅ₜ-Emptyrefl →
       λ x → liftConvTerm (univ (Emptyⱼ x) (Emptyⱼ x) (Empty-refl x))
-    .Equality-relations.≅ₜ-Unitrefl →
-      λ ⊢Γ ok →
-        liftConvTerm $
-        univ (Unitⱼ ⊢Γ ok) (Unitⱼ ⊢Γ ok) (Unit-refl ⊢Γ ok)
+    .Equality-relations.≅ₜ-Unit-cong →
+      λ l≡l′ ok →
+        let ⊢l≡l′ = soundnessConv↑Term l≡l′
+            ⊢Level , ⊢l , ⊢l′ = syntacticEqTerm ⊢l≡l′
+        in liftConvTerm $
+        univ (Unitⱼ ⊢l ok) (conv (Unitⱼ ⊢l′ ok) (U-cong (sym ⊢Level ⊢l≡l′))) (Unit-cong l≡l′ ok)
     .Equality-relations.≅ₜ-η-unit →
-      λ [e] [e'] ok →
+      λ [l] [e] [e'] ok η →
         let u , uWhnf , uRed = whNormTerm [e]
             u' , u'Whnf , u'Red = whNormTerm [e']
             _ , _ , [u] = wf-⊢≡∷ (subset*Term uRed)
@@ -361,11 +467,11 @@ private opaque
               (id (syntacticTerm [e]) , Unitₙ)
               (uRed , uWhnf)
               (u'Red , u'Whnf)
-              (η-unit [u] [u'] uWhnf u'Whnf ok)
+              (η-unit [l] [u] [u'] uWhnf u'Whnf ok η)
     .Equality-relations.≅-ΠΣ-cong →
       λ x₁ x₂ ok → liftConv (ΠΣ-cong x₁ x₂ ok)
     .Equality-relations.≅ₜ-ΠΣ-cong →
-      λ x₁ x₂ ok →
+      λ l₁ l₂ x₁ x₂ ok →
         let _ , F∷U , H∷U = syntacticEqTerm (soundnessConv↑Term x₁)
             _ , G∷U , E∷U = syntacticEqTerm (soundnessConv↑Term x₂)
             ⊢Γ = wfTerm F∷U
@@ -374,12 +480,14 @@ private opaque
             F≡H = soundnessConv↑ F<>H
             E∷U′ = stabilityTerm (refl-∙ F≡H) E∷U
         in
-        liftConvTerm $
-        univ (ΠΣⱼ F∷U G∷U ok) (ΠΣⱼ H∷U E∷U′ ok) (ΠΣ-cong F<>H G<>E ok)
+        liftConvTerm $ univ
+          (ΠΣⱼ l₁ l₂ F∷U G∷U ok)
+          (ΠΣⱼ l₁ l₂ H∷U E∷U′ ok)
+          (ΠΣ-cong F<>H G<>E ok)
     .Equality-relations.≅ₜ-zerorefl →
       liftConvTerm ∘ᶠ zero-refl
-    .Equality-relations.≅ₜ-starrefl →
-      λ x x₁ → liftConvTerm (star-refl x x₁)
+    .Equality-relations.≅ₜ-star-cong →
+      λ l≡l′ ok → liftConvTerm (star-cong′ l≡l′ ok)
     .Equality-relations.≅-suc-cong →
       liftConvTerm ∘ᶠ suc-cong
     .Equality-relations.≅-prod-cong →
