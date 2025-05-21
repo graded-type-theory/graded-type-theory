@@ -197,3 +197,11 @@ opaque
         𝟙 ·ᶜ γ +ᶜ 𝟘ᶜ ∎)
     where
     open ≤ᶜ-reasoning
+
+opaque
+
+  -- A usage rule for pred
+
+  ▸pred : ε ▸[ m ] pred
+  ▸pred =
+    lamₘ (▸pred′ (sub var (ε ∙ ≤-reflexive (M.·-identityʳ _))))
