@@ -10,12 +10,12 @@
 <a id="299" class="Keyword">module</a> <a id="306" href="Graded.Neutral.html" class="Module">Graded.Neutral</a>
   <a id="323" class="Symbol">{</a><a id="324" href="Graded.Neutral.html#324" class="Bound">a</a><a id="325" class="Symbol">}</a> <a id="327" class="Symbol">{</a><a id="328" href="Graded.Neutral.html#328" class="Bound">M</a> <a id="330" class="Symbol">:</a> <a id="332" href="Agda.Primitive.html#388" class="Primitive">Set</a> <a id="336" href="Graded.Neutral.html#324" class="Bound">a</a><a id="337" class="Symbol">}</a>
   <a id="341" class="Symbol">(</a><a id="342" class="Keyword">open</a> <a id="347" href="Graded.Modality.html" class="Module">Graded.Modality</a> <a id="363" href="Graded.Neutral.html#328" class="Bound">M</a><a id="364" class="Symbol">)</a>
-  <a id="368" class="Symbol">{</a><a id="369" href="Graded.Neutral.html#369" class="Bound">𝕄</a> <a id="371" class="Symbol">:</a> <a id="373" href="Graded.Modality.html#9576" class="Record">Modality</a><a id="381" class="Symbol">}</a>
+  <a id="368" class="Symbol">{</a><a id="369" href="Graded.Neutral.html#369" class="Bound">𝕄</a> <a id="371" class="Symbol">:</a> <a id="373" href="Graded.Modality.html#9574" class="Record">Modality</a><a id="381" class="Symbol">}</a>
   <a id="385" class="Symbol">(</a><a id="386" href="Graded.Neutral.html#386" class="Bound">TR</a> <a id="389" class="Symbol">:</a> <a id="391" href="Definition.Typed.Restrictions.html#808" class="Record">Type-restrictions</a> <a id="409" href="Graded.Neutral.html#369" class="Bound">𝕄</a><a id="410" class="Symbol">)</a>
   <a id="414" class="Symbol">(</a><a id="415" href="Graded.Neutral.html#415" class="Bound">UR</a> <a id="418" class="Symbol">:</a> <a id="420" href="Graded.Usage.Restrictions.html#812" class="Record">Usage-restrictions</a> <a id="439" href="Graded.Neutral.html#369" class="Bound">𝕄</a><a id="440" class="Symbol">)</a>
   <a id="444" class="Keyword">where</a>
 
-<a id="451" class="Keyword">open</a> <a id="456" href="Graded.Modality.html#9576" class="Module">Modality</a> <a id="465" href="Graded.Neutral.html#369" class="Bound">𝕄</a>
+<a id="451" class="Keyword">open</a> <a id="456" href="Graded.Modality.html#9574" class="Module">Modality</a> <a id="465" href="Graded.Neutral.html#369" class="Bound">𝕄</a>
 <a id="467" class="Keyword">open</a> <a id="472" href="Definition.Typed.Restrictions.html#808" class="Module">Type-restrictions</a> <a id="490" href="Graded.Neutral.html#386" class="Bound">TR</a>
 <a id="493" class="Keyword">open</a> <a id="498" href="Graded.Usage.Restrictions.html#812" class="Module">Usage-restrictions</a> <a id="517" href="Graded.Neutral.html#415" class="Bound">UR</a>
 
@@ -58,7 +58,7 @@
   <a id="1627" class="Comment">-- need to be consistent if emptyrec is allowed for 𝟙ᵐ and 𝟘.)</a>
 
   <a id="neutral-not-well-resourced"></a><a id="1693" href="Graded.Neutral.html#1693" class="Function">neutral-not-well-resourced</a> <a id="1720" class="Symbol">:</a>
-    <a id="1726" class="Symbol">⦃</a> <a id="1728" href="Graded.Neutral.html#1728" class="Bound">𝟘-well-behaved</a> <a id="1743" class="Symbol">:</a> <a id="1745" href="Graded.Modality.html#4341" class="Record">Has-well-behaved-zero</a> <a id="1767" href="Graded.Modality.html#9717" class="Function">semiring-with-meet</a> <a id="1786" class="Symbol">⦄</a> <a id="1788" class="Symbol">→</a>
+    <a id="1726" class="Symbol">⦃</a> <a id="1728" href="Graded.Neutral.html#1728" class="Bound">𝟘-well-behaved</a> <a id="1743" class="Symbol">:</a> <a id="1745" href="Graded.Modality.html#4341" class="Record">Has-well-behaved-zero</a> <a id="1767" href="Graded.Modality.html#9715" class="Function">semiring-with-meet</a> <a id="1786" class="Symbol">⦄</a> <a id="1788" class="Symbol">→</a>
     <a id="1794" href="Graded.Restrictions.html#12382" class="Function">No-erased-matches</a> <a id="1812" href="Graded.Neutral.html#386" class="Bound">TR</a> <a id="1815" href="Graded.Neutral.html#415" class="Bound">UR</a> <a id="1818" class="Symbol">→</a>
     <a id="1824" class="Symbol">(</a><a id="1825" href="Graded.Usage.Restrictions.html#1782" class="Field">Emptyrec-allowed</a> <a id="1842" class="InductiveConstructor">𝟙ᵐ</a> <a id="1845" href="Graded.Modality.html#945" class="Function">𝟘</a> <a id="1847" class="Symbol">→</a> <a id="1849" href="Definition.Typed.html#19018" class="Function">Consistent</a> <a id="1860" href="Graded.Neutral.html#1304" class="Generalizable">Γ</a><a id="1861" class="Symbol">)</a> <a id="1863" class="Symbol">→</a>
     <a id="1869" href="Definition.Untyped.Neutral.html#944" class="Datatype">Neutral</a> <a id="1877" href="Graded.Neutral.html#1325" class="Generalizable">t</a> <a id="1879" class="Symbol">→</a>

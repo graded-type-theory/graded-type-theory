@@ -8,7 +8,7 @@
 <a id="209" class="Keyword">module</a> <a id="216" href="Graded.Usage.Restrictions.html" class="Module">Graded.Usage.Restrictions</a>
   <a id="244" class="Symbol">{</a><a id="245" href="Graded.Usage.Restrictions.html#245" class="Bound">a</a><a id="246" class="Symbol">}</a> <a id="248" class="Symbol">{</a><a id="249" href="Graded.Usage.Restrictions.html#249" class="Bound">M</a> <a id="251" class="Symbol">:</a> <a id="253" href="Agda.Primitive.html#388" class="Primitive">Set</a> <a id="257" href="Graded.Usage.Restrictions.html#245" class="Bound">a</a><a id="258" class="Symbol">}</a>
   <a id="262" class="Symbol">(</a><a id="263" class="Keyword">open</a> <a id="268" href="Graded.Modality.html" class="Module">Graded.Modality</a> <a id="284" href="Graded.Usage.Restrictions.html#249" class="Bound">M</a><a id="285" class="Symbol">)</a>
-  <a id="289" class="Symbol">(</a><a id="290" href="Graded.Usage.Restrictions.html#290" class="Bound">𝕄</a> <a id="292" class="Symbol">:</a> <a id="294" href="Graded.Modality.html#9576" class="Record">Modality</a><a id="302" class="Symbol">)</a>
+  <a id="289" class="Symbol">(</a><a id="290" href="Graded.Usage.Restrictions.html#290" class="Bound">𝕄</a> <a id="292" class="Symbol">:</a> <a id="294" href="Graded.Modality.html#9574" class="Record">Modality</a><a id="302" class="Symbol">)</a>
   <a id="306" class="Keyword">where</a>
 
 <a id="313" class="Keyword">open</a> <a id="318" class="Keyword">import</a> <a id="325" href="Graded.Mode.html" class="Module">Graded.Mode</a> <a id="337" href="Graded.Usage.Restrictions.html#290" class="Bound">𝕄</a>
@@ -24,7 +24,7 @@
 <a id="615" class="Keyword">open</a> <a id="620" class="Keyword">import</a> <a id="627" href="Tools.Sum.html" class="Module">Tools.Sum</a>
 <a id="637" class="Keyword">open</a> <a id="642" class="Keyword">import</a> <a id="649" href="Tools.Empty.html" class="Module">Tools.Empty</a>
 
-<a id="662" class="Keyword">open</a> <a id="667" href="Graded.Modality.html#9576" class="Module">Modality</a> <a id="676" href="Graded.Usage.Restrictions.html#290" class="Bound">𝕄</a>
+<a id="662" class="Keyword">open</a> <a id="667" href="Graded.Modality.html#9574" class="Module">Modality</a> <a id="676" href="Graded.Usage.Restrictions.html#290" class="Bound">𝕄</a>
 
 <a id="679" class="Keyword">private</a> <a id="687" class="Keyword">variable</a>
   <a id="698" href="Graded.Usage.Restrictions.html#698" class="Generalizable">p</a> <a id="700" href="Graded.Usage.Restrictions.html#700" class="Generalizable">q</a> <a id="702" href="Graded.Usage.Restrictions.html#702" class="Generalizable">r</a> <a id="704" class="Symbol">:</a> <a id="706" href="Graded.Usage.Restrictions.html#249" class="Bound">M</a>
@@ -38,7 +38,7 @@
   <a id="854" class="Keyword">no-eta-equality</a>
   <a id="872" class="Keyword">field</a>
     <a id="882" class="Comment">-- Which usage rule for natrec should be used.</a>
-    <a id="Usage-restrictions.natrec-mode"></a><a id="933" href="Graded.Usage.Restrictions.html#933" class="Field">natrec-mode</a> <a id="945" class="Symbol">:</a> <a id="947" href="Graded.Usage.Restrictions.Natrec.html#1000" class="Datatype">Natrec-mode</a>
+    <a id="Usage-restrictions.natrec-mode"></a><a id="933" href="Graded.Usage.Restrictions.html#933" class="Field">natrec-mode</a> <a id="945" class="Symbol">:</a> <a id="947" href="Graded.Usage.Restrictions.Natrec.html#982" class="Datatype">Natrec-mode</a>
 
     <a id="964" class="Comment">-- The prodrec constructor&#39;s quantities have to satisfy this</a>
     <a id="1029" class="Comment">-- predicate (for the current mode).</a>
@@ -108,13 +108,13 @@
   <a id="3468" class="Comment">-- three possibilities for natrec-mode</a>
 
   <a id="Usage-restrictions.Nr-available"></a><a id="3510" href="Graded.Usage.Restrictions.html#3510" class="Function">Nr-available</a> <a id="3523" class="Symbol">:</a> <a id="3525" href="Agda.Primitive.html#388" class="Primitive">Set</a> <a id="3529" href="Graded.Usage.Restrictions.html#245" class="Bound">a</a>
-  <a id="3533" href="Graded.Usage.Restrictions.html#3510" class="Function">Nr-available</a> <a id="3546" class="Symbol">=</a> <a id="3548" href="Graded.Usage.Restrictions.Natrec.html#1306" class="Datatype">Natrec-mode-has-nr</a> <a id="3567" href="Graded.Usage.Restrictions.html#933" class="Field">natrec-mode</a>
+  <a id="3533" href="Graded.Usage.Restrictions.html#3510" class="Function">Nr-available</a> <a id="3546" class="Symbol">=</a> <a id="3548" href="Graded.Usage.Restrictions.Natrec.html#1286" class="Datatype">Natrec-mode-has-nr</a> <a id="3567" href="Graded.Usage.Restrictions.html#933" class="Field">natrec-mode</a>
 
   <a id="Usage-restrictions.Nr-not-available"></a><a id="3582" href="Graded.Usage.Restrictions.html#3582" class="Function">Nr-not-available</a> <a id="3599" class="Symbol">:</a> <a id="3601" href="Agda.Primitive.html#388" class="Primitive">Set</a> <a id="3605" href="Graded.Usage.Restrictions.html#245" class="Bound">a</a>
-  <a id="3609" href="Graded.Usage.Restrictions.html#3582" class="Function">Nr-not-available</a> <a id="3626" class="Symbol">=</a> <a id="3628" href="Graded.Usage.Restrictions.Natrec.html#1437" class="Datatype">Natrec-mode-no-nr</a> <a id="3646" href="Graded.Usage.Restrictions.html#933" class="Field">natrec-mode</a>
+  <a id="3609" href="Graded.Usage.Restrictions.html#3582" class="Function">Nr-not-available</a> <a id="3626" class="Symbol">=</a> <a id="3628" href="Graded.Usage.Restrictions.Natrec.html#1417" class="Datatype">Natrec-mode-no-nr</a> <a id="3646" href="Graded.Usage.Restrictions.html#933" class="Field">natrec-mode</a>
 
   <a id="Usage-restrictions.Nr-not-available-GLB"></a><a id="3661" href="Graded.Usage.Restrictions.html#3661" class="Function">Nr-not-available-GLB</a> <a id="3682" class="Symbol">:</a> <a id="3684" href="Agda.Primitive.html#388" class="Primitive">Set</a> <a id="3688" href="Graded.Usage.Restrictions.html#245" class="Bound">a</a>
-  <a id="3692" href="Graded.Usage.Restrictions.html#3661" class="Function">Nr-not-available-GLB</a> <a id="3713" class="Symbol">=</a> <a id="3715" href="Graded.Usage.Restrictions.Natrec.html#1523" class="Datatype">Natrec-mode-no-nr-glb</a> <a id="3737" href="Graded.Usage.Restrictions.html#933" class="Field">natrec-mode</a>
+  <a id="3692" href="Graded.Usage.Restrictions.html#3661" class="Function">Nr-not-available-GLB</a> <a id="3713" class="Symbol">=</a> <a id="3715" href="Graded.Usage.Restrictions.Natrec.html#1503" class="Datatype">Natrec-mode-no-nr-glb</a> <a id="3737" href="Graded.Usage.Restrictions.html#933" class="Field">natrec-mode</a>
 
   <a id="3752" class="Keyword">private</a> <a id="3760" class="Keyword">opaque</a>
 
