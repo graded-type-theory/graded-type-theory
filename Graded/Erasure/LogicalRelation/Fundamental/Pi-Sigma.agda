@@ -711,7 +711,7 @@ opaque
                           erase str u
                             T.[ T.consSubst (T.consSubst σ′ v₁) v₂ ]
 
-      private opaque
+      opaque
 
         ⊢t₁,⊢t₂ : Δ ⊢ t₁ ∷ A [ σ ] × Δ ⊢ t₂ ∷ B [ σ ⇑ ] [ t₁ ]₀
         ⊢t₁,⊢t₂ =
