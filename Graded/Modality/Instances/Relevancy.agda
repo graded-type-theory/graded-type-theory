@@ -751,9 +751,9 @@ opaque
 
   -- The nr function does not satisfy Linearity-like-nr-for-𝟘.
 
-  nr-linearity-like-for-𝟘 :
+  not-nr-linearity-like-for-𝟘 :
     ¬ Has-nr.Linearity-like-nr-for-𝟘 relevancy-has-nr
-  nr-linearity-like-for-𝟘 ass =
+  not-nr-linearity-like-for-𝟘 ass =
     case trans (sym (nr≡ {𝟘} {𝟘} {𝟘} {≥𝟙} {≥𝟙})) (ass {𝟘} {𝟘} {≥𝟙} {≥𝟙}) of λ ()
 
 opaque
