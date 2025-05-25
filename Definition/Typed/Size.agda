@@ -17,6 +17,7 @@ open import Definition.Typed R
 open import Tools.Size
 
 private variable
+  ∇       : DCon (Term 0) _
   Γ       : Con Term _
   A B t u : Term _
 
@@ -24,13 +25,19 @@ opaque mutual
 
   -- The size of a derivation.
 
-  size-⊢′ : ⊢ Γ → Size
-  size-⊢′ ε      = leaf
+  size-» : » ∇ → Size
+  size-» ε      = leaf
+  size-» (∙ ⊢t) = node (size-⊢∷ ⊢t)
+
+  -- The size of a derivation.
+
+  size-⊢′ : ∇ »⊢ Γ → Size
+  size-⊢′ (ε »∇) = size-» »∇
   size-⊢′ (∙ ⊢A) = node (size-⊢ ⊢A)
 
   -- The size of a derivation.
 
-  size-⊢ : Γ ⊢ A → Size
+  size-⊢ : ∇ » Γ ⊢ A → Size
   size-⊢ (Uⱼ ⊢Γ)        = node (size-⊢′ ⊢Γ)
   size-⊢ (univ ⊢A)      = node (size-⊢∷ ⊢A)
   size-⊢ (ΠΣⱼ ⊢B _)     = node (size-⊢ ⊢B)
@@ -41,10 +48,12 @@ opaque mutual
 
   -- The size of a derivation.
 
-  size-⊢∷ : Γ ⊢ t ∷ A → Size
+  size-⊢∷ : ∇ » Γ ⊢ t ∷ A → Size
   size-⊢∷ (conv ⊢t B≡A) =
     size-⊢∷ ⊢t ⊕ size-⊢≡ B≡A
   size-⊢∷ (var ⊢Γ _) =
+    node (size-⊢′ ⊢Γ)
+  size-⊢∷ (defn ⊢Γ _ _) =
     node (size-⊢′ ⊢Γ)
   size-⊢∷ (Uⱼ ⊢Γ) =
     node (size-⊢′ ⊢Γ)
@@ -94,7 +103,7 @@ opaque mutual
 
   -- The size of a derivation.
 
-  size-⊢≡ : Γ ⊢ A ≡ B → Size
+  size-⊢≡ : ∇ » Γ ⊢ A ≡ B → Size
   size-⊢≡ (univ A≡B) =
     node (size-⊢≡∷ A≡B)
   size-⊢≡ (refl ⊢A) =
@@ -110,7 +119,7 @@ opaque mutual
 
   -- The size of a derivation.
 
-  size-⊢≡∷ : Γ ⊢ t ≡ u ∷ A → Size
+  size-⊢≡∷ : ∇ » Γ ⊢ t ≡ u ∷ A → Size
   size-⊢≡∷ (refl ⊢t) =
     node (size-⊢∷ ⊢t)
   size-⊢≡∷ (sym ⊢A u≡t) =
@@ -119,6 +128,8 @@ opaque mutual
     size-⊢≡∷ t≡u ⊕ size-⊢≡∷ u≡v
   size-⊢≡∷ (conv t≡u B≡A) =
     size-⊢≡∷ t≡u ⊕ size-⊢≡ B≡A
+  size-⊢≡∷ (δ-red ⊢Γ _ _ _) =
+    node (size-⊢′ ⊢Γ)
   size-⊢≡∷ (ΠΣ-cong A₁≡B₁ A₂≡B₂ _) =
     size-⊢≡∷ A₁≡B₁ ⊕ size-⊢≡∷ A₂≡B₂
   size-⊢≡∷ (app-cong t₁≡u₁ t₂≡u₂) =

@@ -13,25 +13,70 @@ open import Tools.Empty
 open import Tools.Fin
 open import Tools.Function
 open import Tools.Nat
-open import Tools.Relation
 open import Tools.Product
 open import Tools.PropositionalEquality as PE
 open import Tools.Reasoning.PropositionalEquality
+open import Tools.Relation
 open import Tools.Sum
 
 private
   variable
-    j k k₁ k₂ ℓ m n o : Nat
+    j k k₁ k₂ ℓ m n o α β : Nat
     x x₁ x₂ : Fin _
     eq eq₁ eq₂ : _ ≡ _
-    A A₁ A₂ B₁ B₂ t t₁ t₂ u u₁ u₂ v v₁ v₂ w w₁ w₂ : Term _
+    𝕋 : Set _
+    ∇ ∇′ : DCon _ _
+    A A₁ A₂ B₁ B₂ E F G H t t₁ t₂ u u₁ u₂ v v₁ v₂ w w₁ w₂ : Term _
     ρ ρ′ : Wk m n
     η : Wk n ℓ
     σ σ₁ σ₂ σ′ : Subst m n
     p p₁ p₂ q q₁ q₂ r r₁ r₂ : M
     s s₁ s₂ : Strength
     b₁ b₂ : BinderMode
-    l₁ l₂ : Universe-level
+    l l₁ l₂ : Universe-level
+
+------------------------------------------------------------------------
+-- Properties of definition contexts
+
+opaque
+
+  ↦∷∈⇒↦∈ : ∀ {A t} → α ↦ t ∷ A ∈ ∇ → α ↦∷ A ∈ ∇
+  ↦∷∈⇒↦∈ here        = here
+  ↦∷∈⇒↦∈ (there α↦t) = there (↦∷∈⇒↦∈ α↦t)
+
+opaque
+
+  ↦∈⇒↦∷∈ : ∀ {A} → α ↦∷ A ∈ ∇ → ∃ λ t → α ↦ t ∷ A ∈ ∇
+  ↦∈⇒↦∷∈ here         = _ , here
+  ↦∈⇒↦∷∈ (there α↦∷A) = let t , α↦t = ↦∈⇒↦∷∈ α↦∷A in t , there α↦t
+
+opaque
+
+  scoped-↦∈ : ∀ {∇ : DCon 𝕋 n} {A} → α ↦∷ A ∈ ∇ → α < n
+  scoped-↦∈ here         = s≤s ≤-refl
+  scoped-↦∈ (there α↦∷A) = s≤s (≤⇒pred≤ (scoped-↦∈ α↦∷A))
+
+opaque
+
+  scoped-↦∷∈ : ∀ {∇ : DCon 𝕋 n} {A t} → α ↦ t ∷ A ∈ ∇ → α < n
+  scoped-↦∷∈ α↦t = scoped-↦∈ (↦∷∈⇒↦∈ α↦t)
+
+opaque
+
+  unique-↦∈ : ∀ {A B} → α ↦∷ A ∈ ∇ → β ↦∷ B ∈ ∇ → α ≡ β → A ≡ B
+  unique-↦∈ here        here        _    = refl
+  unique-↦∈ here        (there α↦u) refl = ⊥-elim (n≮n _ (scoped-↦∈ α↦u))
+  unique-↦∈ (there α↦t) here        refl = ⊥-elim (n≮n _ (scoped-↦∈ α↦t))
+  unique-↦∈ (there α↦t) (there β↦u) α≡β  = unique-↦∈ α↦t β↦u α≡β
+
+opaque
+
+  unique-↦∷∈ :
+    ∀ {A B t u} → α ↦ t ∷ A ∈ ∇ → β ↦ u ∷ B ∈ ∇ → α ≡ β → A ≡ B × t ≡ u
+  unique-↦∷∈ here        here        _    = refl , refl
+  unique-↦∷∈ here        (there α↦u) refl = ⊥-elim (n≮n _ (scoped-↦∷∈ α↦u))
+  unique-↦∷∈ (there α↦t) here        refl = ⊥-elim (n≮n _ (scoped-↦∷∈ α↦t))
+  unique-↦∷∈ (there α↦t) (there β↦u) α≡β  = unique-↦∷∈ α↦t β↦u α≡β
 
 ------------------------------------------------------------------------
 -- Properties of toTerm and fromTerm.
@@ -43,6 +88,7 @@ opaque
 
   toTerm∘fromTerm : (t : Term n) → toTerm (fromTerm t) ≡ t
   toTerm∘fromTerm (var x) = refl
+  toTerm∘fromTerm (defn α) = refl
   toTerm∘fromTerm (U l) = refl
   toTerm∘fromTerm (ΠΣ⟨ b ⟩ p , q ▷ A ▹ B) =
     cong₂ (ΠΣ⟨ b ⟩ p , q ▷_▹_) (toTerm∘fromTerm A) (toTerm∘fromTerm B)
@@ -95,6 +141,7 @@ opaque
 
   fromTerm∘toTerm : (t : Term′ n) → fromTerm (toTerm t) ≡ t
   fromTerm∘toTerm (var x) = refl
+  fromTerm∘toTerm (defn α) = refl
   fromTerm∘toTerm (gen (Ukind l) []) = refl
   fromTerm∘toTerm (gen (Binderkind b p q) (A ∷ₜ B ∷ₜ [])) =
     cong₂ (λ A B → gen (Binderkind b p q) (A ∷ₜ B ∷ₜ []))
@@ -159,6 +206,7 @@ opaque
 
   wk≡wk′ : ∀ t → wk ρ t ≡ toTerm (wk′ ρ (fromTerm t))
   wk≡wk′ (var x) = refl
+  wk≡wk′ (defn α) = refl
   wk≡wk′ (U x) = refl
   wk≡wk′ (ΠΣ⟨ b ⟩ p , q ▷ t ▹ t₁) =
     cong₂ (ΠΣ⟨ b ⟩ p , q ▷_▹_) (wk≡wk′ t) (wk≡wk′ t₁)
@@ -202,6 +250,7 @@ opaque mutual
     (∀ x → wkVar ρ x ≡ wkVar ρ′ x) →
     ∀ (t : Term′ n) → wk′ ρ t ≡ wk′ ρ′ t
   wkVar-to-wk′ eq (var x)    = cong var (eq x)
+  wkVar-to-wk′ eq (defn α)   = refl
   wkVar-to-wk′ eq (gen k ts) = cong (gen k) (wkVar-to-wkGen eq ts)
 
   wkVar-to-wkGen :
@@ -232,7 +281,8 @@ opaque mutual
   -- id is the identity renaming for the alternative term representation
 
   wk′-id : (t : Term′ n) → wk′ id t ≡ t
-  wk′-id (var x)   = refl
+  wk′-id (var x)    = refl
+  wk′-id (defn α)   = refl
   wk′-id (gen k ts) = cong (gen k) (wkGen-id ts)
 
   wkGen-id : ∀ {bs} ts → wkGen {m = n} {n} {bs} id ts ≡ ts
@@ -265,6 +315,7 @@ opaque mutual
     (ρ : Wk m ℓ) (ρ′ : Wk ℓ n) (t : Term′ n) →
     wk′ ρ (wk′ ρ′ t) ≡ wk′ (ρ • ρ′) t
   wk′-comp ρ ρ′ (var x) = cong var (wkVar-comp ρ ρ′ x)
+  wk′-comp ρ ρ′ (defn α) = refl
   wk′-comp ρ ρ′ (gen k ts) = cong (gen k) (wkGen-comp ρ ρ′ ts)
 
   wkGen-comp : (ρ : Wk m ℓ) (ρ′ : Wk ℓ n) → ∀ {bs} g
@@ -301,6 +352,22 @@ opaque
   •-idʳ (lift ρ) = refl
 
 
+opaque
+
+  -- wk₀ is invariant under further weakenings
+
+  wk₀-invariant : (ρ : Wk m n) → ρ • wk₀ ≡ wk₀
+  wk₀-invariant id       = refl
+  wk₀-invariant (step ρ) = cong step (wk₀-invariant ρ)
+  wk₀-invariant (lift ρ) = cong step (wk₀-invariant ρ)
+
+  wk₀-comp : (ρ : Wk m n) (t : Term 0) → wk ρ (wk wk₀ t) ≡ wk wk₀ t
+  wk₀-comp ρ t = begin
+    wk ρ (wk wk₀ t) ≡⟨ wk-comp ρ wk₀ t ⟩
+    wk (ρ • wk₀) t  ≡⟨ cong (λ w → wk w t) (wk₀-invariant ρ) ⟩
+    wk wk₀ t        ∎
+
+
 -- The following lemmata are variations on the equality
 --
 --   wk1 ∘ ρ = lift ρ ∘ wk1.
@@ -327,6 +394,7 @@ opaque
 
   subst≡subst′ : ∀ t → t [ σ ] ≡ toTerm (fromTerm t [ σ ]′)
   subst≡subst′ (var x) = sym (toTerm∘fromTerm _)
+  subst≡subst′ (defn α) = refl
   subst≡subst′ (U x) = refl
   subst≡subst′ (ΠΣ⟨ b ⟩ p , q ▷ t ▹ t₁) =
     cong₂ (ΠΣ⟨ b ⟩ p , q ▷_▹_) (subst≡subst′ t) (subst≡subst′ t₁)
@@ -416,6 +484,7 @@ opaque mutual
   substVar-to-subst′ : ((x : Fin n) → σ x ≡ σ′ x)
                      → (t : Term′ n) → t [ σ ]′ ≡ t [ σ′ ]′
   substVar-to-subst′ eq (var x)    = cong fromTerm (eq x)
+  substVar-to-subst′ eq (defn α)   = refl
   substVar-to-subst′ eq (gen k ts) = cong (gen k) (substVar-to-substGen eq ts)
 
   substVar-to-substGen : ∀ {bs} → ((x : Fin n) → σ x ≡ σ′ x)
@@ -455,6 +524,7 @@ opaque mutual
 
   subst′-id : (t : Term′ n) → t [ idSubst ]′ ≡ t
   subst′-id (var x) = refl
+  subst′-id (defn α) = refl
   subst′-id (gen k ts) = cong (gen k) (substGen-id ts)
 
   substGen-id : ∀ {bs} ts → substGen {m = n} {n} {bs} idSubst ts ≡ ts
@@ -581,6 +651,7 @@ opaque mutual
     fromTerm (toTerm (wk′ ρ (fromTerm (σ x)))) ≡˘⟨ cong fromTerm (wk≡wk′ (σ x)) ⟩
     fromTerm (wk ρ (σ x))                      ≡⟨⟩
     (var x [ ρ •ₛ σ ]′)                        ∎
+  wk′-subst′ (defn α) = refl
   wk′-subst′ (gen k ts) = cong (gen k) (wkGen-substGen ts)
 
   wkGen-substGen : ∀ {bs} ts → wkGen ρ (substGen σ ts) ≡ substGen {bs = bs} (ρ •ₛ σ) ts
@@ -610,6 +681,7 @@ mutual
 
   subst′-wk′ : ∀ t → wk′ ρ t [ σ ]′ ≡ t [ σ ₛ• ρ ]′
   subst′-wk′ (var x) = refl
+  subst′-wk′ (defn α) = refl
   subst′-wk′ (gen k ts) = cong (gen k) (substGen-wkGen ts)
 
   substGen-wkGen : ∀ {bs} ts → substGen σ (wkGen ρ ts) ≡ substGen {bs = bs} (σ ₛ• ρ) ts
@@ -718,6 +790,7 @@ opaque mutual
     fromTerm (σ′ x) [ σ ]′                     ≡˘⟨ fromTerm∘toTerm _ ⟩
     fromTerm (toTerm (fromTerm (σ′ x) [ σ ]′)) ≡˘⟨ cong fromTerm (subst≡subst′ (σ′ x)) ⟩
     fromTerm (σ′ x [ σ ])                      ∎
+  subst′CompEq (defn α) = refl
   subst′CompEq (gen k ts) = cong (gen k) (substGenCompEq ts)
 
   substGenCompEq : ∀ {bs} ts
@@ -1311,6 +1384,38 @@ opaque
     lemma (1+ k) x0 = refl
     lemma (1+ k) (x +1) = cong wk1 (lemma k x)
 
+opaque
+  
+  -- wkSubst₀ is equivalent to weakening
+
+  wkSubst₀-subst : (t : Term 0) → t [ wkSubst₀ {n} ] ≡ wk wk₀ t
+  wkSubst₀-subst {n = 0} t = begin
+    t [ wkSubst₀ ]  ≡⟨ substVar-to-subst (λ ()) t ⟩
+    t [ idSubst ]   ≡⟨ subst-id t ⟩
+    t               ≡˘⟨ wk-id t ⟩
+    wk wk₀ t        ∎
+  wkSubst₀-subst {n = 1+ n} t = begin
+    t [ wkSubst₀ ]           ≡⟨ substVar-to-subst (λ ()) t ⟩
+    t [ wk1Subst wkSubst₀ ]  ≡⟨ wk1Subst-wk1 t ⟩
+    wk1 (t [ wkSubst₀ ])     ≡⟨ cong wk1 (wkSubst₀-subst t) ⟩
+    wk1 (wk wk₀ t)           ≡⟨ wk₀-comp (step id) t ⟩
+    wk wk₀ t                 ∎
+
+opaque
+
+  -- Closed terms are invariant under substitution
+
+  wk₀-subst-invariant : {σ : Subst m n} (t : Term 0) → wk wk₀ t [ σ ] ≡ wk wk₀ t
+  wk₀-subst-invariant {m} {n = 0} {σ} t = begin
+    wk wk₀ t [ σ ]         ≡⟨ substVar-to-subst (λ ()) (wk wk₀ t) ⟩
+    wk wk₀ t [ wkSubst₀ ]  ≡⟨ wkSubst₀-subst (wk wk₀ t) ⟩
+    wk wk₀ (wk wk₀ t)      ≡⟨ wk₀-comp wk₀ t ⟩
+    wk wk₀ t               ∎
+  wk₀-subst-invariant {n = 1+ n} {σ} t = begin
+    wk wk₀ t [ σ ]                            ≡⟨ head-tail-subst (wk wk₀ t) ⟩
+    wk wk₀ t [ consSubst (tail σ) (head σ) ]  ≡⟨ step-consSubst t ⟩
+    wk wk₀ t [ tail σ ]                       ≡⟨ wk₀-subst-invariant t ⟩
+    wk wk₀ t                                  ∎
 
 opaque
 
@@ -1924,6 +2029,7 @@ opaque
       (yes n) → yes (sucₙ n)
       (no ¬n) → no (λ { (sucₙ n) → ¬n n})
   isNumeral? (var x) = no (λ ())
+  isNumeral? (defn α) = no (λ ())
   isNumeral? (U _) = no (λ ())
   isNumeral? ℕ = no λ ()
   isNumeral? Empty = no λ ()
@@ -1993,19 +2099,24 @@ opaque
 
 -- BΠ is injective.
 
-BΠ-PE-injectivity : BΠ p₁ q₁ PE.≡ BΠ p₂ q₂ → p₁ PE.≡ p₂ × q₁ PE.≡ q₂
+BΠ-PE-injectivity : BM BMΠ p₁ q₁ PE.≡ BM BMΠ p₂ q₂ → p₁ PE.≡ p₂ × q₁ PE.≡ q₂ -- Cannot use BΠ here because of #5054
 BΠ-PE-injectivity PE.refl = PE.refl , PE.refl
 
 -- BΣ is injective.
 
 BΣ-PE-injectivity :
-  BΣ s₁ p₁ q₁ PE.≡ BΣ s₂ p₂ q₂ → p₁ PE.≡ p₂ × q₁ PE.≡ q₂ × s₁ PE.≡ s₂
+  BM (BMΣ s₁) p₁ q₁ PE.≡ BM (BMΣ s₂) p₂ q₂ → p₁ PE.≡ p₂ × q₁ PE.≡ q₂ × s₁ PE.≡ s₂ -- As above, for BΣ
 BΣ-PE-injectivity PE.refl = PE.refl , PE.refl , PE.refl
 
 -- The constructor var is injective.
 
 var-PE-injectivity : Term.var {n = n} x₁ PE.≡ var x₂ → x₁ PE.≡ x₂
 var-PE-injectivity PE.refl = PE.refl
+
+-- The constructor defn is injective.
+
+defn-PE-injectivity : Term.defn {n = n} α PE.≡ defn β → α PE.≡ β
+defn-PE-injectivity PE.refl = PE.refl
 
 -- ΠΣ⟨_⟩_,_▷_▹_ is injective.
 

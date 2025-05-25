@@ -27,15 +27,16 @@ open import Definition.Typed.Substitution R
 open import Definition.Typed.Consequences.Injectivity R
 open import Definition.Typed.Consequences.Inequality R as I
 
+open import Tools.Empty using (⊥; ⊥-elim)
 open import Tools.Function
 open import Tools.Nat
 open import Tools.Product
 import Tools.PropositionalEquality as PE
-open import Tools.Empty using (⊥; ⊥-elim)
 
 private
   variable
-    n : Nat
+    m n : Nat
+    ∇ : DCon (Term 0) m
     Γ : Con Term n
     p p′ q : M
     s s′ s₁ s₂ : Strength
@@ -48,12 +49,12 @@ opaque
 
   inversion-lam-Π′ :
     ⦃ ok : No-equality-reflection or-empty Γ ⦄ →
-    Γ ⊢ lam p′ t ∷ Π p , q ▷ A ▹ B →
+    ∇ » Γ ⊢ lam p′ t ∷ Π p , q ▷ A ▹ B →
     p PE.≡ p′ × Π-allowed p q ×
-    (⦃ not-ok : No-equality-reflection ⦄ → Γ ∙ A ⊢ t ∷ B) ×
+    (⦃ not-ok : No-equality-reflection ⦄ → ∇ » Γ ∙ A ⊢ t ∷ B) ×
     ∃ λ B′ →
-      Γ ∙ A ⊢ t ∷ B′ ×
-      (∀ {u v} → Γ ⊢ u ≡ v ∷ A → Γ ⊢ B′ [ u ]₀ ≡ B [ v ]₀)
+      ∇ » Γ ∙ A ⊢ t ∷ B′ ×
+      (∀ {u v} → ∇ » Γ ⊢ u ≡ v ∷ A → ∇ » Γ ⊢ B′ [ u ]₀ ≡ B [ v ]₀)
   inversion-lam-Π′ ⊢lam =
     case inversion-lam ⊢lam of λ
       (_ , _ , _ , _ , ⊢t , Π≡Π , ok) →
@@ -70,10 +71,10 @@ opaque
 
   inversion-lam-Π :
     ⦃ ok : No-equality-reflection or-empty Γ ⦄ →
-    Γ ⊢ lam p′ t ∷ Π p , q ▷ A ▹ B →
+    ∇ » Γ ⊢ lam p′ t ∷ Π p , q ▷ A ▹ B →
     ∃ λ B′ →
-      Γ ∙ A ⊢ t ∷ B′ ×
-      (∀ {u v} → Γ ⊢ u ≡ v ∷ A → Γ ⊢ B′ [ u ]₀ ≡ B [ v ]₀) ×
+      ∇ » Γ ∙ A ⊢ t ∷ B′ ×
+      (∀ {u v} → ∇ » Γ ⊢ u ≡ v ∷ A → ∇ » Γ ⊢ B′ [ u ]₀ ≡ B [ v ]₀) ×
       p PE.≡ p′ × Π-allowed p q
   inversion-lam-Π ⊢lam =
     let p≡p′ , ok , _ , _ , ⊢t , B[]≡B′[] = inversion-lam-Π′ ⊢lam in
@@ -85,8 +86,8 @@ opaque
 
   inversion-lam-Π-no-equality-reflection :
     ⦃ ok : No-equality-reflection ⦄ →
-    Γ ⊢ lam p′ t ∷ Π p , q ▷ A ▹ B →
-    Γ ∙ A ⊢ t ∷ B × p PE.≡ p′ × Π-allowed p q
+    ∇ » Γ ⊢ lam p′ t ∷ Π p , q ▷ A ▹ B →
+    ∇ » Γ ∙ A ⊢ t ∷ B × p PE.≡ p′ × Π-allowed p q
   inversion-lam-Π-no-equality-reflection ⊢lam =
     let p≡p′ , ok , ⊢t , _ = inversion-lam-Π′ ⦃ ok = included ⦄ ⊢lam in
     ⊢t , p≡p′ , ok
@@ -97,8 +98,8 @@ opaque
 
   inversion-prod-Σ :
     ⦃ ok : No-equality-reflection or-empty Γ ⦄ →
-    Γ ⊢ prod s′ p′ t u ∷ Σ⟨ s ⟩ p , q ▷ A ▹ B →
-    Γ ⊢ t ∷ A × Γ ⊢ u ∷ B [ t ]₀ ×
+    ∇ » Γ ⊢ prod s′ p′ t u ∷ Σ⟨ s ⟩ p , q ▷ A ▹ B →
+    ∇ » Γ ⊢ t ∷ A × ∇ » Γ ⊢ u ∷ B [ t ]₀ ×
     s PE.≡ s′ × p PE.≡ p′ × Σ-allowed s p q
   inversion-prod-Σ ⊢prod =
     case inversion-prod ⊢prod of λ {
@@ -119,7 +120,7 @@ opaque
 
   inversion-star-Unit :
     ⦃ ok : No-equality-reflection or-empty Γ ⦄ →
-    Γ ⊢ star s₁ l₁ ∷ Unit s₂ l₂ →
+    ∇ » Γ ⊢ star s₁ l₁ ∷ Unit s₂ l₂ →
     s₁ PE.≡ s₂ × l₁ PE.≡ l₂ × Unit-allowed s₁
   inversion-star-Unit ⊢star =
     let Unit≡Unit , Unit-ok = inversion-star ⊢star
@@ -133,8 +134,8 @@ opaque
 
   inversion-rfl-Id :
     ⦃ ok : No-equality-reflection or-empty Γ ⦄ →
-    Γ ⊢ rfl ∷ Id A t u →
-    Γ ⊢ t ≡ u ∷ A
+    ∇ » Γ ⊢ rfl ∷ Id A t u →
+    ∇ » Γ ⊢ t ≡ u ∷ A
   inversion-rfl-Id ⊢rfl =
     case inversion-rfl ⊢rfl of λ {
       (_ , _ , _ , _ , Id≡Id) →
@@ -148,7 +149,7 @@ opaque
 
   whnfProduct :
     ⦃ ok : No-equality-reflection or-empty Γ ⦄ →
-    Γ ⊢ t ∷ Σ⟨ s ⟩ p , q ▷ A ▹ B → Whnf t → Product t
+    ∇ » Γ ⊢ t ∷ Σ⟨ s ⟩ p , q ▷ A ▹ B → Whnf t → Product t
   whnfProduct ⊢t = λ where
     prodₙ →
       prodₙ

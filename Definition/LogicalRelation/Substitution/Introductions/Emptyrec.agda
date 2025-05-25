@@ -22,6 +22,7 @@ open import Definition.Typed R
 import Definition.Typed.Weakening R as T
 open import Definition.Typed.Properties R
 open import Definition.Typed.Reasoning.Reduction R
+open import Definition.Typed.Weakening.Definition R
 open import Definition.LogicalRelation R
 open import Definition.LogicalRelation.Hidden R
 import Definition.LogicalRelation.Hidden.Restricted R as R
@@ -38,6 +39,7 @@ import Tools.PropositionalEquality as PE
 
 private
   variable
+    ∇ : DCon (Term 0) _
     Γ Δ : Con Term _
     A A₁ A₂ t t₁ t₂ : Term _
     l l′ : Universe-level
@@ -53,11 +55,11 @@ opaque
   -- Reducibility of equality between applications of emptyrec.
 
   ⊩emptyrec≡emptyrec :
-    Γ ⊩ᵛ⟨ l ⟩ A₁ ≡ A₂ →
-    Γ ⊩ᵛ⟨ l′ ⟩ t₁ ≡ t₂ ∷ Empty →
-    ⦃ inc : Neutrals-included or-empty Δ ⦄ →
-    Δ ⊩ˢ σ₁ ≡ σ₂ ∷ Γ →
-    Δ ⊩⟨ l ⟩ emptyrec p A₁ t₁ [ σ₁ ] ≡ emptyrec p A₂ t₂ [ σ₂ ] ∷ A₁ [ σ₁ ]
+    ∇ » Γ ⊩ᵛ⟨ l ⟩ A₁ ≡ A₂ →
+    ∇ » Γ ⊩ᵛ⟨ l′ ⟩ t₁ ≡ t₂ ∷ Empty →
+    ⦃ inc : Var-included or-empty Δ ⦄ →
+    ∇ » Δ ⊩ˢ σ₁ ≡ σ₂ ∷ Γ →
+    ∇ » Δ ⊩⟨ l ⟩ emptyrec p A₁ t₁ [ σ₁ ] ≡ emptyrec p A₂ t₂ [ σ₂ ] ∷ A₁ [ σ₁ ]
   ⊩emptyrec≡emptyrec
     {A₁} {A₂} {t₁} {t₂} {σ₁} {σ₂} {p} A₁≡A₂ t₁≡t₂ σ₁≡σ₂ =
     case ⊩ᵛ≡→⊩ˢ≡∷→⊩[]≡[] A₁≡A₂ of λ
@@ -91,13 +93,14 @@ opaque
   -- Validity of equality between applications of emptyrec
 
   emptyrec-congᵛ :
-    Γ ⊩ᵛ⟨ l ⟩ A₁ ≡ A₂ →
-    Γ ⊩ᵛ⟨ l′ ⟩ t₁ ≡ t₂ ∷ Empty →
-    Γ ⊩ᵛ⟨ l ⟩ emptyrec p A₁ t₁ ≡ emptyrec p A₂ t₂ ∷ A₁
+    ∇ » Γ ⊩ᵛ⟨ l ⟩ A₁ ≡ A₂ →
+    ∇ » Γ ⊩ᵛ⟨ l′ ⟩ t₁ ≡ t₂ ∷ Empty →
+    ∇ » Γ ⊩ᵛ⟨ l ⟩ emptyrec p A₁ t₁ ≡ emptyrec p A₂ t₂ ∷ A₁
   emptyrec-congᵛ A₁≡A₂ t₁≡t₂ =
     ⊩ᵛ≡∷⇔ʰ .proj₂
       ( wf-⊩ᵛ≡ A₁≡A₂ .proj₁
-      , ⊩emptyrec≡emptyrec A₁≡A₂ t₁≡t₂
+      , λ ξ⊇ → ⊩emptyrec≡emptyrec (defn-wk-⊩ᵛ≡ ξ⊇ A₁≡A₂)
+                                  (defn-wk-⊩ᵛ≡∷ ξ⊇ t₁≡t₂)
       )
 
 opaque
@@ -105,9 +108,9 @@ opaque
   -- Validity of emptyrec.
 
   emptyrecᵛ :
-    Γ ⊩ᵛ⟨ l ⟩ A →
-    Γ ⊩ᵛ⟨ l′ ⟩ t ∷ Empty →
-    Γ ⊩ᵛ⟨ l ⟩ emptyrec p A t ∷ A
+    ∇ » Γ ⊩ᵛ⟨ l ⟩ A →
+    ∇ » Γ ⊩ᵛ⟨ l′ ⟩ t ∷ Empty →
+    ∇ » Γ ⊩ᵛ⟨ l ⟩ emptyrec p A t ∷ A
   emptyrecᵛ ⊩A ⊩t =
     ⊩ᵛ∷⇔⊩ᵛ≡∷ .proj₂ $
     emptyrec-congᵛ (refl-⊩ᵛ≡ ⊩A) (refl-⊩ᵛ≡∷ ⊩t)

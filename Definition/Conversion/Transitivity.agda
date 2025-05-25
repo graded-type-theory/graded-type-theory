@@ -46,21 +46,22 @@ open import Tools.Sum using (inj₁; inj₂)
 
 private
   variable
-    n : Nat
+    m n : Nat
+    ∇ : DCon (Term 0) m
     Γ Δ : Con Term n
     A t u v : Term _
 
 mutual
   -- Transitivity of algorithmic equality of neutrals.
   trans~↑ : ∀ {t u v A B}
-         → Γ ⊢ t ~ u ↑ A
-         → Γ ⊢ u ~ v ↑ B
-         → Γ ⊢ t ~ v ↑ A
-         × Γ ⊢ A ≡ B
+         → ∇ » Γ ⊢ t ~ u ↑ A
+         → ∇ » Γ ⊢ u ~ v ↑ B
+         → ∇ » Γ ⊢ t ~ v ↑ A
+         × ∇ » Γ ⊢ A ≡ B
   trans~↑ (var-refl x₁ x≡y) (var-refl x₂ x≡y₁) =
     var-refl x₁ (PE.trans x≡y x≡y₁)
     , neTypeEq (var _) x₁
-               (PE.subst (λ x → _ ⊢ var x ∷ _) (PE.sym x≡y)
+               (PE.subst (λ x → _ » _ ⊢ var x ∷ _) (PE.sym x≡y)
                          x₂)
   trans~↑ (app-cong t~u a<>b) (app-cong u~v b<>c) =
     let t~v , ΠFG≡ΠF′G′ = trans~↓ t~u u~v
@@ -121,9 +122,9 @@ mutual
         ⊢Γ = wf ⊢Unit
         A≡B = soundnessConv↑ A<>B
         A₊≡B₊ = substTypeEq A≡B (refl (starⱼ ⊢Γ ok))
-        Ak≡Bl = substTypeEq A≡B (soundness~↓ k~l)
+        Ak≡Ne = substTypeEq A≡B (soundness~↓ k~l)
         u<>w = transConv↑Term A₊≡B₊ u<>v v<>w
-    in  unitrec-cong A<>C k~m u<>w no-η , Ak≡Bl
+    in  unitrec-cong A<>C k~m u<>w no-η , Ak≡Ne
   trans~↑ (J-cong A₁≡A₂ t₁≡t₂ B₁≡B₂ u₁≡u₂ v₁≡v₂ w₁~w₂ C₁≡Id-t₁-v₁)
     (J-cong A₂≡A₃ t₂≡t₃ B₂≡B₃ u₂≡u₃ v₂≡v₃ w₂~w₃ _) =
     case soundnessConv↑ A₁≡A₂ of λ {
@@ -174,10 +175,10 @@ mutual
 
   -- Transitivity of algorithmic equality of neutrals with types in WHNF.
   trans~↓ : ∀ {t u v A B}
-          → Γ ⊢ t ~ u ↓ A
-          → Γ ⊢ u ~ v ↓ B
-          → Γ ⊢ t ~ v ↓ A
-          × Γ ⊢ A ≡ B
+          → ∇ » Γ ⊢ t ~ u ↓ A
+          → ∇ » Γ ⊢ u ~ v ↓ B
+          → ∇ » Γ ⊢ t ~ v ↓ A
+          × ∇ » Γ ⊢ A ≡ B
   trans~↓ ([~] A₁ D′@(D , _) k~l) ([~] A₂ (D₁ , _) k~l₁) =
     let t~v , A≡B = trans~↑ k~l k~l₁
     in  [~] A₁ D′ t~v
@@ -187,28 +188,28 @@ mutual
 
   -- Transitivity of algorithmic equality of types.
   transConv↑ : ∀ {A B C}
-            → Γ ⊢ A [conv↑] B
-            → Γ ⊢ B [conv↑] C
-            → Γ ⊢ A [conv↑] C
+            → ∇ » Γ ⊢ A [conv↑] B
+            → ∇ » Γ ⊢ B [conv↑] C
+            → ∇ » Γ ⊢ A [conv↑] C
   transConv↑ ([↑] A′ B′ D D′ A′<>B′)
              ([↑] A″ B″ D₁ D″ A′<>B″) =
     [↑] A′ B″ D D″
         (transConv↓ A′<>B′
-                    (PE.subst (λ x → _ ⊢ x [conv↓] B″)
+                    (PE.subst (λ x → _ » _ ⊢ x [conv↓] B″)
                        (whrDet* D₁ D′) A′<>B″))
   transConv↑′ : ∀ {A B C}
-              → ⊢ Γ ≡ Δ
-              → Γ ⊢ A [conv↑] B
-              → Δ ⊢ B [conv↑] C
-              → Γ ⊢ A [conv↑] C
+              → ∇ »⊢ Γ ≡ Δ
+              → ∇ » Γ ⊢ A [conv↑] B
+              → ∇ » Δ ⊢ B [conv↑] C
+              → ∇ » Γ ⊢ A [conv↑] C
   transConv↑′ Γ≡Δ aConvB bConvC =
     transConv↑ aConvB (stabilityConv↑ (symConEq Γ≡Δ) bConvC)
 
   -- Transitivity of algorithmic equality of types in WHNF.
   transConv↓ : ∀ {A B C}
-            → Γ ⊢ A [conv↓] B
-            → Γ ⊢ B [conv↓] C
-            → Γ ⊢ A [conv↓] C
+            → ∇ » Γ ⊢ A [conv↓] B
+            → ∇ » Γ ⊢ B [conv↓] C
+            → ∇ » Γ ⊢ A [conv↓] C
   transConv↓ (ne A~B) B≡C =
     case inv-[conv↓]-ne′ B≡C of λ where
       (inj₁ (_ , B~C))    → ne (trans~↓ A~B B~C .proj₁)
@@ -254,10 +255,10 @@ mutual
 
   -- Transitivity of algorithmic equality of terms.
   transConv↑Term : ∀ {t u v A B}
-                → Γ ⊢ A ≡ B
-                → Γ ⊢ t [conv↑] u ∷ A
-                → Γ ⊢ u [conv↑] v ∷ B
-                → Γ ⊢ t [conv↑] v ∷ A
+                → ∇ » Γ ⊢ A ≡ B
+                → ∇ » Γ ⊢ t [conv↑] u ∷ A
+                → ∇ » Γ ⊢ u [conv↑] v ∷ B
+                → ∇ » Γ ⊢ t [conv↑] v ∷ A
   transConv↑Term A≡B ([↑]ₜ B₁ t′ u′ D d d′ t<>u)
                  ([↑]ₜ B₂ t″ u″ D₁ d₁ d″ t<>u₁) =
     let B₁≡B₂ = trans (sym (subset* (D .proj₁)))
@@ -268,13 +269,13 @@ mutual
     in  [↑]ₜ B₁ t′ u″ D d d₁″
           (transConv↓Term t<>u
              (convConv↓Term (sym B₁≡B₂) (whnfConv↓Term t<>u .proj₁) $
-              PE.subst (_ ⊢_[conv↓] _ ∷ _) (whrDet*Term d₁ d₁′) t<>u₁))
+              PE.subst (_ » _ ⊢_[conv↓] _ ∷ _) (whrDet*Term d₁ d₁′) t<>u₁))
 
   -- Transitivity for _⊢_[conv↓]_∷_.
   transConv↓Term :
-    Γ ⊢ t [conv↓] u ∷ A →
-    Γ ⊢ u [conv↓] v ∷ A →
-    Γ ⊢ t [conv↓] v ∷ A
+    ∇ » Γ ⊢ t [conv↓] u ∷ A →
+    ∇ » Γ ⊢ u [conv↓] v ∷ A →
+    ∇ » Γ ⊢ t [conv↓] v ∷ A
   transConv↓Term (ne-ins ⊢t _ A-ne t~u) u≡v =
     let _ , u~v    = inv-[conv↓]∷-ne A-ne u≡v
         _ , _ , ⊢v = syntacticEqTerm (soundnessConv↓Term u≡v)
@@ -377,9 +378,9 @@ mutual
 
   -- Transitivity of _⊢_[conv↑]_∷_.
   transConvTerm :
-    Γ ⊢ t [conv↑] u ∷ A →
-    Γ ⊢ u [conv↑] v ∷ A →
-    Γ ⊢ t [conv↑] v ∷ A
+    ∇ » Γ ⊢ t [conv↑] u ∷ A →
+    ∇ » Γ ⊢ u [conv↑] v ∷ A →
+    ∇ » Γ ⊢ t [conv↑] v ∷ A
   transConvTerm t<>u u<>v =
     let t≡u = soundnessConv↑Term t<>u
         ⊢A , _ , _ = syntacticEqTerm t≡u
@@ -387,7 +388,7 @@ mutual
 
 -- Transitivity of algorithmic equality of types of the same context.
 transConv : ∀ {A B C}
-          → Γ ⊢ A [conv↑] B
-          → Γ ⊢ B [conv↑] C
-          → Γ ⊢ A [conv↑] C
+          → ∇ » Γ ⊢ A [conv↑] B
+          → ∇ » Γ ⊢ B [conv↑] C
+          → ∇ » Γ ⊢ A [conv↑] C
 transConv A<>B B<>C = transConv↑ A<>B B<>C

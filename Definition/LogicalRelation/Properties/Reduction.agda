@@ -44,17 +44,18 @@ open import Tools.Sum using (inj₁; inj₂)
 
 private
   variable
-    n       : Nat
+    m n     : Nat
+    ∇       : DCon (Term 0) m
     Γ       : Con Term n
     A B t u : Term n
     l       : Universe-level
 
 -- Weak head expansion of reducible types.
 redSubst* : ∀ {A B : Term n} {l}
-          → Γ ⊢ A ⇒* B
-          → Γ ⊩⟨ l ⟩ B
-          → ∃ λ ([A] : Γ ⊩⟨ l ⟩ A)
-          → Γ ⊩⟨ l ⟩ A ≡ B / [A]
+          → ∇ » Γ ⊢ A ⇒* B
+          → ∇ » Γ ⊩⟨ l ⟩ B
+          → ∃ λ ([A] : ∇ » Γ ⊩⟨ l ⟩ A)
+          → ∇ » Γ ⊩⟨ l ⟩ A ≡ B / [A]
 redSubst* D (Uᵣ′ l′ l< D′) =
   Uᵣ′ l′ l< (D ⇨* D′) , D′
 redSubst* D (ℕᵣ D′) =
@@ -69,7 +70,7 @@ redSubst* D (ne′ inc _ D′ neK K≡K) =
 redSubst*
   D (Bᵣ′ W F G D′ A≡A [F] [G] G-ext ok) =
     Bᵣ′ W F G (D ⇨* D′) A≡A [F] [G] G-ext ok
-  , B₌ _ _ D′ A≡A (λ ρ → reflEq ([F] ρ)) (λ ρ [a] → reflEq ([G] ρ [a]))
+  , B₌ _ _ D′ A≡A (λ ξ⊇ ρ → reflEq ([F] ξ⊇ ρ)) (λ ξ⊇ ρ [a] → reflEq ([G] ξ⊇ ρ [a]))
 redSubst* A⇒*B (Idᵣ ⊩B) =
     Idᵣ record
       { ⇒*Id  = A⇒*B ⇨* ⇒*Id
@@ -79,7 +80,7 @@ redSubst* A⇒*B (Idᵣ ⊩B) =
       }
   , Id₌′ ⇒*Id (reflEq ⊩Ty) (reflEqTerm ⊩Ty ⊩lhs) (reflEqTerm ⊩Ty ⊩rhs)
   where
-  open _⊩ₗId_ ⊩B
+  open _»_⊩ₗId_ ⊩B
 redSubst* D (emb ≤ᵘ-refl x) with redSubst* D x
 redSubst* D (emb ≤ᵘ-refl x) | y , y₁ = emb ≤ᵘ-refl y , y₁
 redSubst* A⇒*B (emb (≤ᵘ-step p) ⊩B) =
@@ -89,11 +90,11 @@ redSubst* A⇒*B (emb (≤ᵘ-step p) ⊩B) =
 
 -- Weak head expansion of reducible terms.
 redSubst*Term : ∀ {A : Term n} {t u l}
-              → Γ ⊢ t ⇒* u ∷ A
-              → ([A] : Γ ⊩⟨ l ⟩ A)
-              → Γ ⊩⟨ l ⟩ u ∷ A / [A]
-              → Γ ⊩⟨ l ⟩ t ∷ A / [A]
-              × Γ ⊩⟨ l ⟩ t ≡ u ∷ A / [A]
+              → ∇ » Γ ⊢ t ⇒* u ∷ A
+              → ([A] : ∇ » Γ ⊩⟨ l ⟩ A)
+              → ∇ » Γ ⊩⟨ l ⟩ u ∷ A / [A]
+              → ∇ » Γ ⊩⟨ l ⟩ t ∷ A / [A]
+              × ∇ » Γ ⊩⟨ l ⟩ t ≡ u ∷ A / [A]
 redSubst*Term t⇒u (Uᵣ′ l ≤ᵘ-refl D) (Uₜ A d typeA A≡A [u]) =
   let A≡K  = subset* D
       d′ = conv* t⇒u A≡K ⇨∷* d
@@ -131,43 +132,39 @@ redSubst*Term t⇒u (ne′ _ _ D neK K≡K) (neₜ k d (neNfₜ inc neK₁ k≡k
     neₜ k d′ (neNfₜ inc neK₁ k≡k)
   , neₜ₌ k k d′ d (neNfₜ₌ inc neK₁ neK₁ k≡k)
 redSubst*Term
-  {Γ = Γ} {A = A} {t} {u} {l}
   t⇒u (Πᵣ′ F G D A≡A [F] [G] G-ext _) [u]@(Πₜ f d funcF f≡f [f] [f]₁) =
   let d′   = conv* t⇒u (subset* D) ⇨∷* d
       [u′] = Πₜ f d′ funcF f≡f [f] [f]₁
   in  [u′]
-  ,   Πₜ₌ f f d′ d funcF funcF f≡f [u′] [u] λ [ρ] [a] →
-        [f] [ρ] [a] [a] (reflEqTerm ([F] [ρ]) [a])
+  ,   Πₜ₌ f f d′ d funcF funcF f≡f [u′] [u] λ [ξ] [ρ] [a] →
+        [f] [ξ] [ρ] [a] [a] (reflEqTerm ([F] [ξ] [ρ]) [a])
 redSubst*Term
-  {Γ = Γ} {A} {t} {u} {l}
   t⇒u (Bᵣ′ BΣˢ F G D A≡A [F] [G] G-ext _) [u]@(Σₜ p d p≅p pProd pProp) =
 
   let d′ = conv* t⇒u (subset* D) ⇨∷* d
       [fstp] , [sndp] = pProp
       [u′] = Σₜ p d′ p≅p pProd pProp
   in  [u′] , Σₜ₌ p p d′ d pProd pProd p≅p [u′] [u]
-                 ([fstp] , [fstp] , reflEqTerm ([F] _) [fstp] ,
-                   reflEqTerm ([G] _ [fstp]) [sndp])
+                 ([fstp] , [fstp] , reflEqTerm ([F] _ _) [fstp] ,
+                   reflEqTerm ([G] _ _ [fstp]) [sndp])
 redSubst*Term
-  {Γ = Γ} {A} {t} {u} {l}
   t⇒u (Bᵣ′ BΣʷ F G D A≡A [F] [G] G-ext _) [u]@(Σₜ p d p≅p prodₙ pProp) =
   let d′ = conv* t⇒u (subset* D) ⇨∷* d
       p′≡p″ , [p₁] , [p₂] , m≡Σʷ = pProp
-      [p₁≡p₁] = reflEqTerm ([F] _) [p₁]
-      [p₂≡p₂] = reflEqTerm ([G] _ [p₁]) [p₂]
+      [p₁≡p₁] = reflEqTerm ([F] _ _) [p₁]
+      [p₂≡p₂] = reflEqTerm ([G] _ _ [p₁]) [p₂]
       [u′] = Σₜ p d′ p≅p prodₙ pProp
   in  [u′] ,
       Σₜ₌ p p d′ d prodₙ prodₙ p≅p [u′] [u]
         (p′≡p″ , p′≡p″ , [p₁] , [p₁] , [p₂] , [p₂] , [p₁≡p₁] , [p₂≡p₂])
 redSubst*Term
-  {Γ = Γ} {A} {t} {u} {l}
   t⇒u (Bᵣ′ BΣʷ F G D A≡A [F] [G] G-ext _) [u]@(Σₜ p d p≅p (ne x) p~p) =
   let d′   = conv* t⇒u (subset* D) ⇨∷* d
       [u′] = Σₜ p d′ p≅p (ne x) p~p
   in  [u′] , Σₜ₌ p p d′ d (ne x) (ne x) p≅p [u′] [u] p~p
 redSubst*Term
-  {Γ = Γ} {A = A} {t = t} {l = l} t⇒*u (Idᵣ ⊩A) ⊩u@(u′ , u⇒*u′ , rest) =
-  let ⊩t : Γ ⊩⟨ l ⟩ t ∷ A / Idᵣ ⊩A
+  {∇ = ∇} {Γ = Γ} {A = A} {t = t} {l = l} t⇒*u (Idᵣ ⊩A) ⊩u@(u′ , u⇒*u′ , rest) =
+  let ⊩t : ∇ » Γ ⊩⟨ l ⟩ t ∷ A / Idᵣ ⊩A
       ⊩t =
           u′
         , conv* t⇒*u (subset* ⇒*Id) ⇨∷* u⇒*u′
@@ -179,25 +176,25 @@ redSubst*Term
          (ne inc _ u′~u′) → inc , u′~u′
          (rflᵣ _)         → _)
   where
-  open _⊩ₗId_ ⊩A
+  open _»_⊩ₗId_ ⊩A
 redSubst*Term t⇒u (emb ≤ᵘ-refl     ⊩A) = redSubst*Term t⇒u ⊩A
 redSubst*Term t⇒u (emb (≤ᵘ-step p) ⊩A) = redSubst*Term t⇒u (emb p ⊩A)
 
 -- Weak head expansion of reducible types with single reduction step.
 redSubst : ∀ {A B : Term n} {l}
-         → Γ ⊢ A ⇒ B
-         → Γ ⊩⟨ l ⟩ B
-         → ∃ λ ([A] : Γ ⊩⟨ l ⟩ A)
-         → Γ ⊩⟨ l ⟩ A ≡ B / [A]
+         → ∇ » Γ ⊢ A ⇒ B
+         → ∇ » Γ ⊩⟨ l ⟩ B
+         → ∃ λ ([A] : ∇ » Γ ⊩⟨ l ⟩ A)
+         → ∇ » Γ ⊩⟨ l ⟩ A ≡ B / [A]
 redSubst A⇒B [B] = redSubst* (redMany-⊢ A⇒B) [B]
 
 -- Weak head expansion of reducible terms with single reduction step.
 redSubstTerm : ∀ {A t u : Term n} {l}
-             → Γ ⊢ t ⇒ u ∷ A
-             → ([A] : Γ ⊩⟨ l ⟩ A)
-             → Γ ⊩⟨ l ⟩ u ∷ A / [A]
-             → Γ ⊩⟨ l ⟩ t ∷ A / [A]
-             × Γ ⊩⟨ l ⟩ t ≡ u ∷ A / [A]
+             → ∇ » Γ ⊢ t ⇒ u ∷ A
+             → ([A] : ∇ » Γ ⊩⟨ l ⟩ A)
+             → ∇ » Γ ⊩⟨ l ⟩ u ∷ A / [A]
+             → ∇ » Γ ⊩⟨ l ⟩ t ∷ A / [A]
+             × ∇ » Γ ⊩⟨ l ⟩ t ≡ u ∷ A / [A]
 redSubstTerm t⇒u [A] [u] = redSubst*Term (redMany t⇒u) [A] [u]
 
 opaque
@@ -206,8 +203,8 @@ opaque
   -- to A.
 
   redSubst*′ :
-    Γ ⊢ A ⇒* B → (⊩A : Γ ⊩⟨ l ⟩ A) →
-    (Γ ⊩⟨ l ⟩ B) × Γ ⊩⟨ l ⟩ A ≡ B / ⊩A
+    ∇ » Γ ⊢ A ⇒* B → (⊩A : ∇ » Γ ⊩⟨ l ⟩ A) →
+    (∇ » Γ ⊩⟨ l ⟩ B) × ∇ » Γ ⊩⟨ l ⟩ A ≡ B / ⊩A
   redSubst*′ A⇒*B ⊩U@(Uᵣ′ l l< D) =
     case whrDet↘ (D , Uₙ) A⇒*B of λ
       B⇒*U →
@@ -232,7 +229,7 @@ opaque
     case whrDet↘ (A⇒*ΠΣ , ⟦ W ⟧ₙ) A⇒*B of λ
       B⇒*ΠΣ →
       Bᵣ′ _ _ _ B⇒*ΠΣ ΠΣ≡ΠΣ ⊩C ⊩D D≡D ok
-    , B₌ _ _ B⇒*ΠΣ ΠΣ≡ΠΣ (λ _ → reflEq (⊩C _)) (λ _ _ → reflEq (⊩D _ _))
+    , B₌ _ _ B⇒*ΠΣ ΠΣ≡ΠΣ (λ _ _ → reflEq (⊩C _ _)) (λ _ _ _ → reflEq (⊩D _ _ _))
   redSubst*′ A⇒*B (Idᵣ (Idᵣ Ty lhs rhs A⇒*Id ⊩Ty ⊩lhs ⊩rhs)) =
     case whrDet↘ (A⇒*Id , Idₙ) A⇒*B of λ
       B⇒*Id →
@@ -255,8 +252,8 @@ opaque
   -- to t.
 
   redSubst*Term′ :
-    Γ ⊢ t ⇒* u ∷ A → (⊩A : Γ ⊩⟨ l ⟩ A) → Γ ⊩⟨ l ⟩ t ∷ A / ⊩A →
-    Γ ⊩⟨ l ⟩ u ∷ A / ⊩A × Γ ⊩⟨ l ⟩ t ≡ u ∷ A / ⊩A
+    ∇ » Γ ⊢ t ⇒* u ∷ A → (⊩A : ∇ » Γ ⊩⟨ l ⟩ A) → ∇ » Γ ⊩⟨ l ⟩ t ∷ A / ⊩A →
+    ∇ » Γ ⊩⟨ l ⟩ u ∷ A / ⊩A × ∇ » Γ ⊩⟨ l ⟩ t ≡ u ∷ A / ⊩A
   redSubst*Term′ t⇒*u ⊩U@(Uᵣ′ l ≤ᵘ-refl D) (Uₜ A t⇒*A A-type A≅A ⊩t) =
     case whrDet↘Term (t⇒*A , typeWhnf A-type)
            (conv* t⇒*u (subset* D)) of λ
@@ -308,10 +305,10 @@ opaque
            (conv* t⇒*u (subset* A⇒*Π)) of λ
       u⇒*v →
     case v , u⇒*v , v-fun , v≅v , v∘≡v∘ , ⊩v∘ of λ
-      (⊩u : _ ⊩⟨ _ ⟩ _ ∷ _ / ⊩A) →
+      (⊩u : _ » _ ⊩⟨ _ ⟩ _ ∷ _ / ⊩A) →
       ⊩u
     , ( v , v , t⇒*v , u⇒*v , v-fun , v-fun , v≅v , ⊩t , ⊩u
-      , (λ _ _ → reflEqTerm (⊩D _ _) (⊩v∘ _ _))
+      , (λ _ _ _ → reflEqTerm (⊩D _ _ _) (⊩v∘ _ _ _))
       )
   redSubst*Term′
     t⇒*u ⊩A@(Bᵣ′ (BΣ s _ _) C D A⇒*Σ Σ≡Σ ⊩C ⊩D D≡D ok)
@@ -320,15 +317,15 @@ opaque
            (conv* t⇒*u (subset* A⇒*Σ)) of λ
       u⇒*v →
     case v , u⇒*v , v≅v , v-prod , v-ok of λ
-      (⊩u : _ ⊩⟨ _ ⟩ _ ∷ _ / ⊩A) →
+      (⊩u : _ » _ ⊩⟨ _ ⟩ _ ∷ _ / ⊩A) →
       ⊩u
     , ( v , v , t⇒*v , u⇒*v , v≅v , ⊩t , ⊩u , v-prod , v-prod
       , (case PE.singleton s of λ where
            (𝕤 , PE.refl) →
              case v-ok of λ
                (⊩fst , ⊩snd) →
-               ⊩fst , ⊩fst , reflEqTerm (⊩C _) ⊩fst
-             , reflEqTerm (⊩D _ _) ⊩snd
+               ⊩fst , ⊩fst , reflEqTerm (⊩C _ _) ⊩fst
+             , reflEqTerm (⊩D _ _ _) ⊩snd
            (𝕨 , PE.refl) →
              case PE.singleton v-prod of λ where
                (ne _  , PE.refl) → v-ok
@@ -336,8 +333,8 @@ opaque
                  case v-ok of λ
                    (eq , ⊩fst , ⊩snd , _) →
                    eq , eq , ⊩fst , ⊩fst , ⊩snd , ⊩snd
-                 , reflEqTerm (⊩C _) ⊩fst
-                 , reflEqTerm (⊩D _ _) ⊩snd)
+                 , reflEqTerm (⊩C _ _) ⊩fst
+                 , reflEqTerm (⊩D _ _ _) ⊩snd)
       )
   redSubst*Term′
     t⇒*u (Idᵣ (Idᵣ Ty lhs rhs A⇒*Id ⊩Ty ⊩lhs ⊩rhs))

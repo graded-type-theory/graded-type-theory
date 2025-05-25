@@ -33,6 +33,7 @@ open import Tools.Nat using (Nat; 1+)
 open import Tools.Product
 
 private variable
+  ∇ : DCon (Term 0) _
   Γ Δ : Con Term _
   A B t u : Term _
   l : Universe-level
@@ -45,18 +46,18 @@ opaque
   --  A characterisation lemma for _⊩⟨_⟩_.
 
   ⊩Empty⇔ :
-    Γ ⊩⟨ l ⟩ Empty ⇔ ⊢ Γ
+    ∇ » Γ ⊩⟨ l ⟩ Empty ⇔ ∇ »⊢ Γ
   ⊩Empty⇔ =
       wf ∘→ escape-⊩
     , (λ ⊢Γ → Emptyᵣ (id (Emptyⱼ ⊢Γ)))
 
 opaque
-  unfolding _⊩⟨_⟩_∷_ ⊩Empty⇔
+  unfolding _»_⊩⟨_⟩_∷_ ⊩Empty⇔
 
   -- A characterisation lemma for _⊩⟨_⟩_∷_.
 
   ⊩∷Empty⇔ :
-    Γ ⊩⟨ l ⟩ t ∷ Empty ⇔ Γ ⊩Empty t ∷Empty
+    ∇ » Γ ⊩⟨ l ⟩ t ∷ Empty ⇔ ∇ » Γ ⊩Empty t ∷Empty
   ⊩∷Empty⇔ =
       (λ (⊩Empty′ , ⊩t) →
          lemma (Empty-elim ⊩Empty′)
@@ -65,19 +66,19 @@ opaque
          ⊩Empty⇔ .proj₂ (wfEqTerm (subset*Term d)) , ⊩t)
     where
     lemma :
-      (⊩Empty : Γ ⊩⟨ l ⟩Empty Empty) →
-      Γ ⊩⟨ l ⟩ t ∷ Empty / Empty-intr ⊩Empty →
-      Γ ⊩Empty t ∷Empty
+      (⊩Empty : ∇ » Γ ⊩⟨ l ⟩Empty Empty) →
+      ∇ » Γ ⊩⟨ l ⟩ t ∷ Empty / Empty-intr ⊩Empty →
+      ∇ » Γ ⊩Empty t ∷Empty
     lemma (emb ≤ᵘ-refl ⊩Empty′) ⊩t = lemma ⊩Empty′ ⊩t
     lemma (emb (≤ᵘ-step s) ⊩Empty′) ⊩t = lemma (emb s ⊩Empty′) ⊩t
     lemma (noemb _) ⊩t = ⊩t
 
 opaque
-  unfolding _⊩⟨_⟩_≡_
+  unfolding _»_⊩⟨_⟩_≡_
 
   -- A characterisation lemma for _⊩⟨_⟩_≡_.
 
-  ⊩Empty≡⇔ : Γ ⊩⟨ l ⟩ Empty ≡ A ⇔ Γ ⊩Empty Empty ≡ A
+  ⊩Empty≡⇔ : ∇ » Γ ⊩⟨ l ⟩ Empty ≡ A ⇔ ∇ » Γ ⊩Empty Empty ≡ A
   ⊩Empty≡⇔ =
       (λ (⊩Empty , _ , Empty≡A) →
          case Empty-elim ⊩Empty of λ
@@ -93,20 +94,20 @@ opaque
          , Empty≡A)
     where
     lemma :
-      (⊩A : Γ ⊩⟨ l ⟩Empty A) →
-      Γ ⊩⟨ l ⟩ A ≡ B / Empty-intr ⊩A →
-      Γ ⊩Empty A ≡ B
+      (⊩A : ∇ » Γ ⊩⟨ l ⟩Empty A) →
+      ∇ » Γ ⊩⟨ l ⟩ A ≡ B / Empty-intr ⊩A →
+      ∇ » Γ ⊩Empty A ≡ B
     lemma (noemb _)    A≡B = A≡B
     lemma (emb ≤ᵘ-refl ⊩A) A≡B = lemma ⊩A A≡B
     lemma (emb (≤ᵘ-step l<) ⊩A) A≡B = lemma (emb l< ⊩A) A≡B
 
 opaque
-  unfolding _⊩⟨_⟩_≡_∷_ ⊩Empty⇔
+  unfolding _»_⊩⟨_⟩_≡_∷_ ⊩Empty⇔
 
   -- A characterisation lemma for _⊩⟨_⟩_≡_∷_.
 
   ⊩≡∷Empty⇔ :
-    Γ ⊩⟨ l ⟩ t ≡ u ∷ Empty ⇔ Γ ⊩Empty t ≡ u ∷Empty
+    ∇ » Γ ⊩⟨ l ⟩ t ≡ u ∷ Empty ⇔ ∇ » Γ ⊩Empty t ≡ u ∷Empty
   ⊩≡∷Empty⇔ =
       (λ (⊩Empty′ , _ , _ , t≡u) →
         lemma (Empty-elim ⊩Empty′)
@@ -124,9 +125,9 @@ opaque
             , t≡u
     where
     lemma :
-      (⊩Empty : Γ ⊩⟨ l ⟩Empty Empty) →
-      Γ ⊩⟨ l ⟩ t ≡ u ∷ Empty / Empty-intr ⊩Empty →
-      Γ ⊩Empty t ≡ u ∷Empty
+      (⊩Empty : ∇ » Γ ⊩⟨ l ⟩Empty Empty) →
+      ∇ » Γ ⊩⟨ l ⟩ t ≡ u ∷ Empty / Empty-intr ⊩Empty →
+      ∇ » Γ ⊩Empty t ≡ u ∷Empty
     lemma (emb ≤ᵘ-refl     ⊩Empty′) = lemma ⊩Empty′
     lemma (emb (≤ᵘ-step s) ⊩Empty′) = lemma (emb s ⊩Empty′)
     lemma (noemb _)                 = idᶠ
@@ -138,33 +139,33 @@ opaque
 
   -- Reducibility for Empty.
 
-  ⊩Empty : ⊢ Γ → Γ ⊩⟨ l ⟩ Empty
+  ⊩Empty : ∇ »⊢ Γ → ∇ » Γ ⊩⟨ l ⟩ Empty
   ⊩Empty = ⊩Empty⇔ .proj₂
 
 opaque
 
   -- Validity for Empty, seen as a type formerr.
 
-  Emptyᵛ : ⊩ᵛ Γ → Γ ⊩ᵛ⟨ l ⟩ Empty
-  Emptyᵛ {Γ} {l} ⊩Γ =
+  Emptyᵛ : ∇ »⊩ᵛ Γ → ∇ » Γ ⊩ᵛ⟨ l ⟩ Empty
+  Emptyᵛ {∇} {Γ} {l} ⊩Γ =
     ⊩ᵛ⇔ʰ .proj₂
       ( ⊩Γ
-      , λ {_} {Δ = Δ} {σ₁ = σ₁} {σ₂ = σ₂} →
-          Δ ⊩ˢ σ₁ ≡ σ₂ ∷ Γ        →⟨ proj₁ ∘→ escape-⊩ˢ≡∷ ⟩
-          ⊢ Δ                     ⇔˘⟨ ⊩Empty⇔ ⟩→
-          (Δ ⊩⟨ l ⟩ Empty)        →⟨ refl-⊩≡ ⟩
-          Δ ⊩⟨ l ⟩ Empty ≡ Empty  □
+      , λ {_} {∇′} {_} ξ⊇ {_} {Δ} {σ₁} {σ₂} →
+          ∇′ » Δ ⊩ˢ σ₁ ≡ σ₂ ∷ Γ        →⟨ proj₁ ∘→ escape-⊩ˢ≡∷ ⟩
+          ∇′ »⊢ Δ                      ⇔˘⟨ ⊩Empty⇔ ⟩→
+          (∇′ » Δ ⊩⟨ l ⟩ Empty)        →⟨ refl-⊩≡ ⟩
+          ∇′ » Δ ⊩⟨ l ⟩ Empty ≡ Empty  □
       )
 
 opaque
 
   -- Validity for Empty, seen as a term former.
 
-  Emptyᵗᵛ : ⊩ᵛ Γ → Γ ⊩ᵛ⟨ 1 ⟩ Empty ∷ U 0
+  Emptyᵗᵛ : ∇ »⊩ᵛ Γ → ∇ » Γ ⊩ᵛ⟨ 1 ⟩ Empty ∷ U 0
   Emptyᵗᵛ ⊩Γ =
     ⊩ᵛ∷⇔ʰ .proj₂
       ( ⊩ᵛU ⊩Γ
-      , λ σ₁≡σ₂ →
+      , λ ξ⊇ σ₁≡σ₂ →
           case escape-⊩ˢ≡∷ σ₁≡σ₂ of λ
             (⊢Δ , _) →
           Type→⊩≡∷U⇔ Emptyₙ Emptyₙ .proj₂

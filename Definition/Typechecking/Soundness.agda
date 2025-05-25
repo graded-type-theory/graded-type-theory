@@ -20,6 +20,7 @@ open import Definition.Typed.Properties R
 open import Definition.Typed.Substitution R
 open import Definition.Typed.Syntactic R
 import Definition.Typed.Weakening R as W
+open import Definition.Typed.Well-formed R
 open import Definition.Untyped M
 open import Definition.Untyped.Properties M
 
@@ -30,12 +31,13 @@ import Tools.PropositionalEquality as PE
 
 private
   variable
-    n : Nat
+    m n : Nat
+    ∇ : DCon (Term 0) m
     Γ : Con Term n
     t A : Term n
 
-soundness⇉-var : ∀ {x} →  ⊢ Γ → x ∷ A ∈ Γ → (Γ ⊢ A) × (Γ ⊢ var x ∷ A)
-soundness⇉-var ε      ()
+soundness⇉-var : ∀ {x} →  ∇ »⊢ Γ → x ∷ A ∈ Γ → (∇ » Γ ⊢ A) × (∇ » Γ ⊢ var x ∷ A)
+soundness⇉-var (ε »∇) ()
 soundness⇉-var (∙ ⊢A) here =
   W.wk₁ ⊢A ⊢A , var₀ ⊢A
 soundness⇉-var (∙ ⊢B) (there x) =
@@ -45,7 +47,7 @@ soundness⇉-var (∙ ⊢B) (there x) =
 
 mutual
 
-  soundness⇇Type : ⊢ Γ → Γ ⊢ A ⇇Type → Γ ⊢ A
+  soundness⇇Type : ∇ »⊢ Γ → ∇ » Γ ⊢ A ⇇Type → ∇ » Γ ⊢ A
   soundness⇇Type ⊢Γ Uᶜ = Uⱼ ⊢Γ
   soundness⇇Type ⊢Γ ℕᶜ = ℕⱼ ⊢Γ
   soundness⇇Type ⊢Γ (Unitᶜ ok) = Unitⱼ ⊢Γ ok
@@ -57,7 +59,7 @@ mutual
   soundness⇇Type ⊢Γ (univᶜ ⊢A (A⇒*U , _)) =
     univ (conv (soundness⇉ ⊢Γ ⊢A .proj₂) (subset* A⇒*U))
 
-  soundness⇉ : ⊢ Γ → Γ ⊢ t ⇉ A → (Γ ⊢ A) × (Γ ⊢ t ∷ A)
+  soundness⇉ : ∇ »⊢ Γ → ∇ » Γ ⊢ t ⇉ A → (∇ » Γ ⊢ A) × (∇ » Γ ⊢ t ∷ A)
   soundness⇉ ⊢Γ Uᵢ = Uⱼ ⊢Γ , Uⱼ ⊢Γ
   soundness⇉ ⊢Γ (ΠΣᵢ ⊢A (⇒*U₁ , _) ⊢B (⇒*U₂ , _) ok) =
     let _ , ⊢A = soundness⇉ ⊢Γ ⊢A
@@ -67,6 +69,8 @@ mutual
     in
     Uⱼ ⊢Γ , ΠΣⱼ ⊢A ⊢B ok
   soundness⇉ ⊢Γ (varᵢ x∷A∈Γ) = soundness⇉-var ⊢Γ x∷A∈Γ
+  soundness⇉ ⊢Γ (defnᵢ α↦t) =
+    W.wk (W.wk₀∷ʷ⊇ ⊢Γ) (wf-↦∈ α↦t (defn-wf ⊢Γ)) , defn ⊢Γ α↦t PE.refl
   soundness⇉ ⊢Γ (appᵢ t⇉A (A⇒ΠFG , _) u⇇F) =
     let ⊢A , ⊢t = soundness⇉ ⊢Γ t⇉A
         A≡ΠFG = subset* A⇒ΠFG
@@ -134,7 +138,7 @@ mutual
     case soundness⇇ ⊢w of λ {
       ⊢w →
       substType₂ ⊢B (soundness⇇ ⊢v)
-        (PE.subst (_⊢_∷_ _ _) ≡Id-wk1-wk1-0[]₀ ⊢w)
+        (PE.subst (_»_⊢_∷_ _ _ _) ≡Id-wk1-wk1-0[]₀ ⊢w)
     , Jⱼ′ ⊢B (soundness⇇ ⊢u) ⊢w }}}}
   soundness⇉ ⊢Γ (Kᵢ ⊢A ⊢t ⊢B ⊢u ⊢v ok) =
     case soundness⇇Type ⊢Γ ⊢A of λ {
@@ -152,7 +156,7 @@ mutual
         ([]ⱼ ([]-cong→Erased ok) (soundness⇇ ⊢u))
     , []-congⱼ′ ok (soundness⇇ ⊢v)
 
-  soundness⇇ : Γ ⊢ t ⇇ A → Γ ⊢ t ∷ A
+  soundness⇇ : ∇ » Γ ⊢ t ⇇ A → ∇ » Γ ⊢ t ∷ A
   soundness⇇ (lamᶜ A↘ΠFG t⇇G)=
     let A≡ΠFG = subset* (proj₁ A↘ΠFG)
         _ , ⊢ΠFG = syntacticEq A≡ΠFG

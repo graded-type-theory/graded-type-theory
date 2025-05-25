@@ -22,7 +22,8 @@ open import Tools.Product
 
 private
   variable
-    n   : Nat
+    m n : Nat
+    ∇   : DCon (Term 0) m
     Γ   : Con Term n
     A B : Term n
 
@@ -30,7 +31,7 @@ opaque
 
   -- Every well-formed type is also a term of type U l for some l.
 
-  inverseUniv : Γ ⊢ A → ∃ λ l → Γ ⊢ A ∷ U l
+  inverseUniv : ∇ » Γ ⊢ A → ∃ λ l → ∇ » Γ ⊢ A ∷ U l
   inverseUniv (ℕⱼ ⊢Γ)       = _ , ℕⱼ ⊢Γ
   inverseUniv (Emptyⱼ ⊢Γ)   = _ , Emptyⱼ ⊢Γ
   inverseUniv (Unitⱼ ⊢Γ ok) = _ , Unitⱼ ⊢Γ ok
@@ -47,19 +48,19 @@ opaque
   -- Being a type is logically equivalent to being a term of type U l
   -- for some l.
 
-  ⊢⇔⊢∷U : Γ ⊢ A ⇔ (∃ λ l → Γ ⊢ A ∷ U l)
+  ⊢⇔⊢∷U : ∇ » Γ ⊢ A ⇔ (∃ λ l → ∇ » Γ ⊢ A ∷ U l)
   ⊢⇔⊢∷U = inverseUniv , univ ∘→ proj₂
 
 opaque
 
   -- If A reduces to B, then A reduces to B at type U l for some l.
 
-  inverseUnivRed : Γ ⊢ A ⇒ B → ∃ λ l → Γ ⊢ A ⇒ B ∷ U l
+  inverseUnivRed : ∇ » Γ ⊢ A ⇒ B → ∃ λ l → ∇ » Γ ⊢ A ⇒ B ∷ U l
   inverseUnivRed (univ A⇒B) = _ , A⇒B
 
 opaque
 
-  -- Γ ⊢ A ⇒ B is logically equivalent to ∃ λ l → Γ ⊢ A ⇒ B ∷ U l.
+  -- ∇ » Γ ⊢ A ⇒ B is logically equivalent to ∃ λ l → ∇ » Γ ⊢ A ⇒ B ∷ U l.
 
-  ⊢⇒⇔⊢⇒∷U : Γ ⊢ A ⇒ B ⇔ ∃ λ l → Γ ⊢ A ⇒ B ∷ U l
+  ⊢⇒⇔⊢⇒∷U : ∇ » Γ ⊢ A ⇒ B ⇔ ∃ λ l → ∇ » Γ ⊢ A ⇒ B ∷ U l
   ⊢⇒⇔⊢⇒∷U = inverseUnivRed , univ ∘→ proj₂

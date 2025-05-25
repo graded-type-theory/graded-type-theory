@@ -41,6 +41,7 @@ open import Tools.Function
 import Tools.PropositionalEquality as PE
 
 private variable
+  ∇           : DCon (Term 0) _
   Γ           : Con Term _
   A A₁ A₂ t u : Term _
   l           : Universe-level
@@ -49,13 +50,13 @@ opaque
 
   -- Reducibility for Erased.
 
-  ⊩Erased : Γ ⊩⟨ l ⟩ A → Γ ⊩⟨ l ⟩ Erased A
+  ⊩Erased : ∇ » Γ ⊩⟨ l ⟩ A → ∇ » Γ ⊩⟨ l ⟩ Erased A
   ⊩Erased ⊩A =
     ⊩ΠΣ⇔ .proj₂
       ( ≅-ΠΣ-cong (escape-⊩≡ $ refl-⊩≡ ⊩A)
           (≅-Unitrefl (∙ escape-⊩ ⊩A) Unit-ok) Σ-ok
-      , λ ρ⊇ →
-            wk-⊩ ρ⊇ ⊩A
+      , λ ξ⊇ ρ⊇ →
+            wk-⊩ ρ⊇ (defn-wk-⊩ ξ⊇ ⊩A)
           , λ _ → refl-⊩≡ $ emb-⊩ 0≤ᵘ $ ⊩Unit (wf-∷ʷʳ⊇ ρ⊇) Unit-ok
       )
 
@@ -64,8 +65,8 @@ opaque
   -- Reducibility of equality between applications of Erased.
 
   ⊩Erased≡Erased :
-    Γ ⊩⟨ l ⟩ A₁ ≡ A₂ →
-    Γ ⊩⟨ l ⟩ Erased A₁ ≡ Erased A₂
+    ∇ » Γ ⊩⟨ l ⟩ A₁ ≡ A₂ →
+    ∇ » Γ ⊩⟨ l ⟩ Erased A₁ ≡ Erased A₂
   ⊩Erased≡Erased A₁≡A₂ =
     case wf-⊩≡ A₁≡A₂ of λ
       (⊩A₁ , ⊩A₂) →
@@ -75,8 +76,8 @@ opaque
       , ≅-ΠΣ-cong (escape-⊩≡ A₁≡A₂)
           (≅-Unitrefl (∙ escape-⊩ ⊩A₁) Unit-ok) Σ-ok
       , PE.refl , PE.refl , PE.refl
-      , λ ρ⊇ →
-            wk-⊩≡ ρ⊇ A₁≡A₂
+      , λ ξ⊇ ρ⊇ →
+            wk-⊩≡ ρ⊇ (defn-wk-⊩≡ ξ⊇ A₁≡A₂)
           , λ _ → refl-⊩≡ $ emb-⊩ 0≤ᵘ $ ⊩Unit (wf-∷ʷʳ⊇ ρ⊇) Unit-ok
       )
 
@@ -85,20 +86,20 @@ opaque
   -- Validity of equality preservation for Erased.
 
   Erased-congᵛ :
-    Γ ⊩ᵛ⟨ l ⟩ A₁ ≡ A₂ →
-    Γ ⊩ᵛ⟨ l ⟩ Erased A₁ ≡ Erased A₂
+    ∇ » Γ ⊩ᵛ⟨ l ⟩ A₁ ≡ A₂ →
+    ∇ » Γ ⊩ᵛ⟨ l ⟩ Erased A₁ ≡ Erased A₂
   Erased-congᵛ A₁≡A₂ =
     case ⊩ᵛ≡⇔ʰ .proj₁ A₁≡A₂ of λ
       (⊩Γ , A₁≡A₂) →
-    ⊩ᵛ≡⇔ʰ .proj₂ (⊩Γ , ⊩Erased≡Erased ∘→ A₁≡A₂)
+    ⊩ᵛ≡⇔ʰ .proj₂ (⊩Γ , λ ξ⊇ → ⊩Erased≡Erased ∘→ A₁≡A₂ ξ⊇)
 
 opaque
 
   -- Validity of Erased.
 
   Erasedᵛ :
-    Γ ⊩ᵛ⟨ l ⟩ A →
-    Γ ⊩ᵛ⟨ l ⟩ Erased A
+    ∇ » Γ ⊩ᵛ⟨ l ⟩ A →
+    ∇ » Γ ⊩ᵛ⟨ l ⟩ Erased A
   Erasedᵛ = ⊩ᵛ⇔⊩ᵛ≡ .proj₂ ∘→ Erased-congᵛ ∘→ ⊩ᵛ⇔⊩ᵛ≡ .proj₁
 
 opaque
@@ -106,8 +107,8 @@ opaque
   -- Reducibility of equality between applications of [_].
 
   ⊩[]≡[] :
-    Γ ⊩⟨ l ⟩ t ≡ u ∷ A →
-    Γ ⊩⟨ l ⟩ [ t ] ≡ [ u ] ∷ Erased A
+    ∇ » Γ ⊩⟨ l ⟩ t ≡ u ∷ A →
+    ∇ » Γ ⊩⟨ l ⟩ [ t ] ≡ [ u ] ∷ Erased A
   ⊩[]≡[] {l} t≡u =
     case wf-⊩∷ (wf-⊩≡∷ t≡u .proj₁) of λ
       ⊩A →
@@ -121,8 +122,8 @@ opaque
   -- Reducibility for [_].
 
   ⊩[] :
-    Γ ⊩⟨ l ⟩ t ∷ A →
-    Γ ⊩⟨ l ⟩ [ t ] ∷ Erased A
+    ∇ » Γ ⊩⟨ l ⟩ t ∷ A →
+    ∇ » Γ ⊩⟨ l ⟩ [ t ] ∷ Erased A
   ⊩[] = ⊩∷⇔⊩≡∷ .proj₂ ∘→ ⊩[]≡[] ∘→ ⊩∷⇔⊩≡∷ .proj₁
 
 opaque
@@ -130,14 +131,14 @@ opaque
   -- Validity of equality preservation for [_].
 
   []-congᵛ :
-    Γ ⊩ᵛ⟨ l ⟩ t ≡ u ∷ A →
-    Γ ⊩ᵛ⟨ l ⟩ [ t ] ≡ [ u ] ∷ Erased A
+    ∇ » Γ ⊩ᵛ⟨ l ⟩ t ≡ u ∷ A →
+    ∇ » Γ ⊩ᵛ⟨ l ⟩ [ t ] ≡ [ u ] ∷ Erased A
   []-congᵛ t≡u =
     case ⊩ᵛ≡∷⇔ .proj₁ t≡u of λ
       (⊩A , _) →
     ⊩ᵛ≡∷⇔ʰ .proj₂
       ( Erasedᵛ ⊩A
-      , ⊩[]≡[] ∘→ R.⊩≡∷→ ∘→ ⊩ᵛ≡∷→⊩ˢ≡∷→⊩[]≡[]∷ t≡u
+      , λ ξ⊇ → ⊩[]≡[] ∘→ R.⊩≡∷→ ∘→ ⊩ᵛ≡∷→⊩ˢ≡∷→⊩[]≡[]∷ (defn-wk-⊩ᵛ≡∷ ξ⊇ t≡u)
       )
 
 opaque
@@ -145,6 +146,6 @@ opaque
   -- Validity of [_].
 
   []ᵛ :
-    Γ ⊩ᵛ⟨ l ⟩ t ∷ A →
-    Γ ⊩ᵛ⟨ l ⟩ [ t ] ∷ Erased A
+    ∇ » Γ ⊩ᵛ⟨ l ⟩ t ∷ A →
+    ∇ » Γ ⊩ᵛ⟨ l ⟩ [ t ] ∷ Erased A
   []ᵛ = ⊩ᵛ∷⇔⊩ᵛ≡∷ .proj₂ ∘→ []-congᵛ ∘→ ⊩ᵛ∷⇔⊩ᵛ≡∷ .proj₁

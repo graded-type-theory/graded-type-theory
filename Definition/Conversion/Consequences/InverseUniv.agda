@@ -30,6 +30,7 @@ open import Tools.Product
 import Tools.PropositionalEquality as PE
 
 private variable
+  ∇       : DCon (Term 0) _
   Γ       : Con Term _
   A B     : Term _
   l l₁ l₂ : Universe-level
@@ -38,26 +39,26 @@ opaque
 
   -- Terms can only "belong" to a single universe.
 
-  universe-level-unique : Γ ⊢ A ∷ U l₁ → Γ ⊢ A ∷ U l₂ → l₁ PE.≡ l₂
+  universe-level-unique : ∇ » Γ ⊢ A ∷ U l₁ → ∇ » Γ ⊢ A ∷ U l₂ → l₁ PE.≡ l₂
   universe-level-unique ⊢A₁ ⊢A₂ =
     soundnessConv↑-U ⊢A₁ ⊢A₂ (completeEq (refl (univ ⊢A₁))) .proj₂
 
 opaque
 
-  -- If A or B is a term of type U l, then Γ ⊢ A ≡ B implies
-  -- Γ ⊢ A ≡ B ∷ U l.
+  -- If A or B is a term of type U l, then ∇ » Γ ⊢ A ≡ B implies
+  -- ∇ » Γ ⊢ A ≡ B ∷ U l.
 
   inverseUnivEq′ :
-    Γ ⊢ A ∷ U l ⊎ Γ ⊢ B ∷ U l →
-    Γ ⊢ A ≡ B →
-    Γ ⊢ A ≡ B ∷ U l
+    ∇ » Γ ⊢ A ∷ U l ⊎ ∇ » Γ ⊢ B ∷ U l →
+    ∇ » Γ ⊢ A ≡ B →
+    ∇ » Γ ⊢ A ≡ B ∷ U l
   inverseUnivEq′ (inj₁ ⊢A) (univ A≡B) =
-    PE.subst (_⊢_≡_∷_ _ _ _)
+    PE.subst (_»_⊢_≡_∷_ _ _ _ _)
       (PE.sym $ PE.cong U $
        universe-level-unique ⊢A (syntacticEqTerm A≡B .proj₂ .proj₁))
       A≡B
   inverseUnivEq′ (inj₂ ⊢B) (univ A≡B) =
-    PE.subst (_⊢_≡_∷_ _ _ _)
+    PE.subst (_»_⊢_≡_∷_ _ _ _ _)
       (PE.sym $ PE.cong U $
        universe-level-unique ⊢B (syntacticEqTerm A≡B .proj₂ .proj₂))
       A≡B
@@ -109,17 +110,17 @@ opaque
 
 opaque
 
-  -- If A is a term of type U l, then Γ ⊢ A ≡ B implies
-  -- Γ ⊢ A ≡ B ∷ U l.
+  -- If A is a term of type U l, then ∇ » Γ ⊢ A ≡ B implies
+  -- ∇ » Γ ⊢ A ≡ B ∷ U l.
 
-  inverseUnivEq : Γ ⊢ A ∷ U l → Γ ⊢ A ≡ B → Γ ⊢ A ≡ B ∷ U l
+  inverseUnivEq : ∇ » Γ ⊢ A ∷ U l → ∇ » Γ ⊢ A ≡ B → ∇ » Γ ⊢ A ≡ B ∷ U l
   inverseUnivEq = inverseUnivEq′ ∘→ inj₁
 
 opaque
 
-  -- Γ ⊢ A ≡ B is logically equivalent to ∃ λ l → Γ ⊢ A ≡ B ∷ U l.
+  -- ∇ » Γ ⊢ A ≡ B is logically equivalent to ∃ λ l → ∇ » Γ ⊢ A ≡ B ∷ U l.
 
-  ⊢≡⇔⊢≡∷U : Γ ⊢ A ≡ B ⇔ ∃ λ l → Γ ⊢ A ≡ B ∷ U l
+  ⊢≡⇔⊢≡∷U : ∇ » Γ ⊢ A ≡ B ⇔ ∃ λ l → ∇ » Γ ⊢ A ≡ B ∷ U l
   ⊢≡⇔⊢≡∷U =
       (λ A≡B →
          let ⊢A , _ = syntacticEq A≡B
@@ -132,7 +133,7 @@ opaque
   -- If A has type U l and reduces to B, then A reduces to B at type
   -- U l.
 
-  inverseUnivRed* : Γ ⊢ A ∷ U l → Γ ⊢ A ⇒* B → Γ ⊢ A ⇒* B ∷ U l
+  inverseUnivRed* : ∇ » Γ ⊢ A ∷ U l → ∇ » Γ ⊢ A ⇒* B → ∇ » Γ ⊢ A ⇒* B ∷ U l
   inverseUnivRed* ⊢A (id _)            = id ⊢A
   inverseUnivRed* ⊢A (univ A⇒C ⇨ C⇒*B) =
     case universe-level-unique ⊢A (redFirstTerm A⇒C) of λ {
@@ -144,9 +145,9 @@ opaque
 
 opaque
 
-  -- Γ ⊢ A ⇒* B is logically equivalent to ∃ λ l → Γ ⊢ A ⇒* B ∷ U l.
+  -- ∇ » Γ ⊢ A ⇒* B is logically equivalent to ∃ λ l → ∇ » Γ ⊢ A ⇒* B ∷ U l.
 
-  ⊢⇒*⇔⊢⇒*∷U : Γ ⊢ A ⇒* B ⇔ ∃ λ l → Γ ⊢ A ⇒* B ∷ U l
+  ⊢⇒*⇔⊢⇒*∷U : ∇ » Γ ⊢ A ⇒* B ⇔ ∃ λ l → ∇ » Γ ⊢ A ⇒* B ∷ U l
   ⊢⇒*⇔⊢⇒*∷U =
       (λ A⇒*B →
          let ⊢A , _ = syntacticRed A⇒*B

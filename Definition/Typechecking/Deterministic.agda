@@ -25,7 +25,8 @@ import Tools.PropositionalEquality as PE
 
 private
   variable
-    n : Nat
+    m n : Nat
+    ∇ : DCon (Term 0) m
     t A B : Term n
     Γ : Con Term n
 
@@ -35,9 +36,9 @@ deterministic⇉-var {x = x0} here here = PE.refl
 deterministic⇉-var {x = x +1} (there y) (there z) rewrite deterministic⇉-var y z = PE.refl
 
 -- Type inference is deterministic
--- If Γ ⊢ t ⇉ A and Γ ⊢ t ⇉ B then A ≡ B
+-- If ∇ » Γ ⊢ t ⇉ A and ∇ » Γ ⊢ t ⇉ B then A ≡ B
 
-deterministic⇉ : Γ ⊢ t ⇉ A → Γ ⊢ t ⇉ B → A PE.≡ B
+deterministic⇉ : ∇ » Γ ⊢ t ⇉ A → ∇ » Γ ⊢ t ⇉ B → A PE.≡ B
 deterministic⇉ Uᵢ Uᵢ = PE.refl
 deterministic⇉ (ΠΣᵢ A₁ C₁ B₁ D₁ _) (ΠΣᵢ A₂ C₂ B₂ D₂ _) =
   case deterministic⇉ A₁ A₂ of λ {
@@ -50,6 +51,8 @@ deterministic⇉ (ΠΣᵢ A₁ C₁ B₁ D₁ _) (ΠΣᵢ A₂ C₂ B₂ D₂ _)
     PE.refl →
   PE.refl }}}}
 deterministic⇉ (varᵢ x) (varᵢ x₁) = deterministic⇉-var x x₁
+deterministic⇉ (defnᵢ ↦∷A) (defnᵢ ↦∷A′) =
+  PE.cong (wk wk₀) (unique-↦∈ ↦∷A ↦∷A′ PE.refl)
 deterministic⇉ (appᵢ x x₁ x₂) (appᵢ y x₃ x₄)
   rewrite deterministic⇉ x y
   with B-PE-injectivity BΠ! BΠ! (whrDet* x₁ x₃)

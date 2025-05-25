@@ -28,6 +28,7 @@ open W public
      wf-⊢≡∷ to syntacticEqTerm)
 
 private variable
+  ∇       : DCon (Term 0) _
   Γ       : Con Term _
   A B t u : Term _
 
@@ -35,12 +36,12 @@ opaque
 
   -- A well-formedness lemma for _⊢_⇒*_.
 
-  syntacticRed : Γ ⊢ A ⇒* B → Γ ⊢ A × Γ ⊢ B
+  syntacticRed : ∇ » Γ ⊢ A ⇒* B → ∇ » Γ ⊢ A × ∇ » Γ ⊢ B
   syntacticRed = syntacticEq ∘→ subset*
 
 opaque
 
   -- A well-formedness lemma for _⊢_⇒*_∷_.
 
-  syntacticRedTerm : Γ ⊢ t ⇒* u ∷ A → (Γ ⊢ A) × Γ ⊢ t ∷ A × Γ ⊢ u ∷ A
+  syntacticRedTerm : ∇ » Γ ⊢ t ⇒* u ∷ A → (∇ » Γ ⊢ A) × ∇ » Γ ⊢ t ∷ A × ∇ » Γ ⊢ u ∷ A
   syntacticRedTerm = syntacticEqTerm ∘→ subset*Term

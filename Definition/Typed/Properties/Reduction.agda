@@ -24,17 +24,21 @@ open import Definition.Typed.Well-formed R
 open import Definition.Untyped M
 import Definition.Untyped.Erased 𝕄 as Erased
 open import Definition.Untyped.Neutral M type-variant
+open import Definition.Untyped.Properties M
 
 open import Tools.Empty
 open import Tools.Function
+open import Tools.Nat
 open import Tools.Product
 import Tools.PropositionalEquality as PE
 open import Tools.Relation
 open import Tools.Sum using (_⊎_; inj₁; inj₂)
 
 private variable
+  ∇                               : DCon (Term 0) _
   Γ                               : Con Term _
   A A′ B B′ C t t′ u u′ v v₁ v₂ w : Term _
+  n α                             : Nat
   s                               : Strength
   p p′ q r                        : M
   l                               : Universe-level
@@ -44,11 +48,19 @@ private variable
 
 opaque
 
+  -- An inversion lemma related to defn.
+
+  inv-⇒-defn :
+    {Γ : Con Term n} → ∇ » Γ ⊢ defn α ⇒ t ∷ A →
+    (∃₂ λ t′ A′ → α ↦ t′ ∷ A′ ∈ ∇ × t PE.≡ wk (wk₀ {n}) t′)
+  inv-⇒-defn (conv d _)               = inv-⇒-defn d
+  inv-⇒-defn (δ-red ⊢Γ α↦t A≡A′ t≡t′) = _ , _ , α↦t , t≡t′
+
   -- An inversion lemma related to _∘⟨_⟩_.
 
   inv-⇒-∘ :
-    Γ ⊢ t ∘⟨ p ⟩ u ⇒ v ∷ A →
-    (∃₂ λ t′ B → Γ ⊢ t ⇒ t′ ∷ B × v PE.≡ t′ ∘⟨ p ⟩ u) ⊎
+    ∇ » Γ ⊢ t ∘⟨ p ⟩ u ⇒ v ∷ A →
+    (∃₂ λ t′ B → ∇ » Γ ⊢ t ⇒ t′ ∷ B × v PE.≡ t′ ∘⟨ p ⟩ u) ⊎
     (∃ λ t′ → t PE.≡ lam p t′ × v PE.≡ t′ [ u ]₀)
   inv-⇒-∘ (conv d _)              = inv-⇒-∘ d
   inv-⇒-∘ (app-subst d _)         = inj₁ (_ , _ , d , PE.refl)
@@ -57,8 +69,8 @@ opaque
   -- An inversion lemma related to fst.
 
   inv-⇒-fst :
-    Γ ⊢ fst p t ⇒ u ∷ A →
-    (∃₂ λ t′ B → Γ ⊢ t ⇒ t′ ∷ B × u PE.≡ fst p t′) ⊎
+    ∇ » Γ ⊢ fst p t ⇒ u ∷ A →
+    (∃₂ λ t′ B → ∇ » Γ ⊢ t ⇒ t′ ∷ B × u PE.≡ fst p t′) ⊎
     (∃₂ λ t′ t″ → t PE.≡ prodˢ p t′ t″ × u PE.≡ t′)
   inv-⇒-fst (conv d _)             = inv-⇒-fst d
   inv-⇒-fst (fst-subst _ d)        = inj₁ (_ , _ , d , PE.refl)
@@ -67,8 +79,8 @@ opaque
   -- An inversion lemma related to snd.
 
   inv-⇒-snd :
-    Γ ⊢ snd p t ⇒ u ∷ A →
-    (∃₂ λ t′ B → Γ ⊢ t ⇒ t′ ∷ B × u PE.≡ snd p t′) ⊎
+    ∇ » Γ ⊢ snd p t ⇒ u ∷ A →
+    (∃₂ λ t′ B → ∇ » Γ ⊢ t ⇒ t′ ∷ B × u PE.≡ snd p t′) ⊎
     (∃₂ λ t′ t″ → t PE.≡ prodˢ p t′ t″ × u PE.≡ t″)
   inv-⇒-snd (conv d _)             = inv-⇒-snd d
   inv-⇒-snd (snd-subst _ d)        = inj₁ (_ , _ , d , PE.refl)
@@ -77,8 +89,8 @@ opaque
   -- An inversion lemma related to prodrec.
 
   inv-⇒-prodrec :
-    Γ ⊢ prodrec r p q A t u ⇒ v ∷ B →
-    (∃₂ λ t′ C → Γ ⊢ t ⇒ t′ ∷ C × v PE.≡ prodrec r p q A t′ u) ⊎
+    ∇ » Γ ⊢ prodrec r p q A t u ⇒ v ∷ B →
+    (∃₂ λ t′ C → ∇ » Γ ⊢ t ⇒ t′ ∷ C × v PE.≡ prodrec r p q A t′ u) ⊎
     (∃₂ λ t′ t″ → t PE.≡ prodʷ p t′ t″ × v PE.≡ u [ t′ , t″ ]₁₀)
   inv-⇒-prodrec (conv d _) =
     inv-⇒-prodrec d
@@ -90,8 +102,8 @@ opaque
   -- An inversion lemma related to natrec.
 
   inv-⇒-natrec :
-    Γ ⊢ natrec p q r A t u v ⇒ w ∷ B →
-    (∃₂ λ v′ C → Γ ⊢ v ⇒ v′ ∷ C × w PE.≡ natrec p q r A t u v′) ⊎
+    ∇ » Γ ⊢ natrec p q r A t u v ⇒ w ∷ B →
+    (∃₂ λ v′ C → ∇ » Γ ⊢ v ⇒ v′ ∷ C × w PE.≡ natrec p q r A t u v′) ⊎
     v PE.≡ zero × w PE.≡ t ⊎
     (∃ λ v′ → v PE.≡ suc v′ × w PE.≡ u [ v′ , natrec p q r A t u v′ ]₁₀)
   inv-⇒-natrec (conv d _) =
@@ -106,8 +118,8 @@ opaque
   -- An inversion lemma related to emptyrec.
 
   inv-⇒-emptyrec :
-    Γ ⊢ emptyrec p A t ⇒ u ∷ B →
-    (∃₂ λ t′ C → Γ ⊢ t ⇒ t′ ∷ C × u PE.≡ emptyrec p A t′)
+    ∇ » Γ ⊢ emptyrec p A t ⇒ u ∷ B →
+    (∃₂ λ t′ C → ∇ » Γ ⊢ t ⇒ t′ ∷ C × u PE.≡ emptyrec p A t′)
   inv-⇒-emptyrec (conv d _) =
     inv-⇒-emptyrec d
   inv-⇒-emptyrec (emptyrec-subst _ d) =
@@ -116,8 +128,8 @@ opaque
   -- An inversion lemma related to unitrec.
 
   inv-⇒-unitrec :
-    Γ ⊢ unitrec l p q A t u ⇒ v ∷ B →
-    (∃₂ λ t′ C → Γ ⊢ t ⇒ t′ ∷ C × v PE.≡ unitrec l p q A t′ u ×
+    ∇ » Γ ⊢ unitrec l p q A t u ⇒ v ∷ B →
+    (∃₂ λ t′ C → ∇ » Γ ⊢ t ⇒ t′ ∷ C × v PE.≡ unitrec l p q A t′ u ×
      ¬ Unitʷ-η) ⊎
     t PE.≡ starʷ l × v PE.≡ u × ¬ Unitʷ-η ⊎
     v PE.≡ u × Unitʷ-η
@@ -133,8 +145,8 @@ opaque
   -- An inversion lemma related to J.
 
   inv-⇒-J :
-    Γ ⊢ J p q A t B u v w ⇒ t′ ∷ C →
-    (∃₂ λ w′ D → Γ ⊢ w ⇒ w′ ∷ D × t′ PE.≡ J p q A t B u v w′) ⊎
+    ∇ » Γ ⊢ J p q A t B u v w ⇒ t′ ∷ C →
+    (∃₂ λ w′ D → ∇ » Γ ⊢ w ⇒ w′ ∷ D × t′ PE.≡ J p q A t B u v w′) ⊎
     w PE.≡ rfl × t′ PE.≡ u
   inv-⇒-J (conv d _) =
     inv-⇒-J d
@@ -146,8 +158,8 @@ opaque
   -- An inversion lemma related to K.
 
   inv-⇒-K :
-    Γ ⊢ K p A t B u v ⇒ w ∷ C →
-    (∃₂ λ v′ D → Γ ⊢ v ⇒ v′ ∷ D × w PE.≡ K p A t B u v′) ⊎
+    ∇ » Γ ⊢ K p A t B u v ⇒ w ∷ C →
+    (∃₂ λ v′ D → ∇ » Γ ⊢ v ⇒ v′ ∷ D × w PE.≡ K p A t B u v′) ⊎
     v PE.≡ rfl × w PE.≡ u
   inv-⇒-K (conv d _) =
     inv-⇒-K d
@@ -159,8 +171,8 @@ opaque
   -- An inversion lemma related to []-cong.
 
   inv-⇒-[]-cong :
-    Γ ⊢ []-cong s A t u v ⇒ w ∷ C →
-    (∃₂ λ v′ D → Γ ⊢ v ⇒ v′ ∷ D × w PE.≡ []-cong s A t u v′) ⊎
+    ∇ » Γ ⊢ []-cong s A t u v ⇒ w ∷ C →
+    (∃₂ λ v′ D → ∇ » Γ ⊢ v ⇒ v′ ∷ D × w PE.≡ []-cong s A t u v′) ⊎
     v PE.≡ rfl × w PE.≡ rfl
   inv-⇒-[]-cong (conv d _) =
     inv-⇒-[]-cong d
@@ -177,7 +189,7 @@ opaque
   -- The reduction relation _⊢_⇒_∷_ is contained in the conversion
   -- relation _⊢_≡_∷_.
 
-  subsetTerm : Γ ⊢ t ⇒ u ∷ A → Γ ⊢ t ≡ u ∷ A
+  subsetTerm : ∇ » Γ ⊢ t ⇒ u ∷ A → ∇ » Γ ⊢ t ≡ u ∷ A
   subsetTerm (natrec-subst z s n⇒n′) =
     natrec-cong (refl (⊢∙→⊢ (wfTerm s))) (refl z) (refl s)
       (subsetTerm n⇒n′)
@@ -189,6 +201,7 @@ opaque
     app-cong (subsetTerm t⇒u) (refl a)
   subsetTerm (β-red B t a p≡p′ ok) = β-red B t a p≡p′ ok
   subsetTerm (conv t⇒u A≡B) = conv (subsetTerm t⇒u) A≡B
+  subsetTerm (δ-red ⊢Γ α↦t A≡A′ t≡t′) = δ-red ⊢Γ α↦t A≡A′ t≡t′
   subsetTerm (fst-subst G x) = fst-cong G (subsetTerm x)
   subsetTerm (snd-subst G x) = snd-cong G (subsetTerm x)
   subsetTerm (prodrec-subst A u t⇒t′ ok) =
@@ -234,7 +247,7 @@ opaque
   -- The reduction relation _⊢_⇒_ is contained in the conversion
   -- relation _⊢_≡_.
 
-  subset : Γ ⊢ A ⇒ B → Γ ⊢ A ≡ B
+  subset : ∇ » Γ ⊢ A ⇒ B → ∇ » Γ ⊢ A ≡ B
   subset (univ A⇒B) = univ (subsetTerm A⇒B)
 
 opaque
@@ -242,7 +255,7 @@ opaque
   -- The reduction relation _⊢_⇒*_∷_ is contained in the conversion
   -- relation _⊢_≡_∷_.
 
-  subset*Term : Γ ⊢ t ⇒* u ∷ A → Γ ⊢ t ≡ u ∷ A
+  subset*Term : ∇ » Γ ⊢ t ⇒* u ∷ A → ∇ » Γ ⊢ t ≡ u ∷ A
   subset*Term (id t) = refl t
   subset*Term (t⇒t′ ⇨ t⇒*u) = trans (subsetTerm t⇒t′) (subset*Term t⇒*u)
 
@@ -251,7 +264,7 @@ opaque
   -- The reduction relation _⊢_⇒*_ is contained in the conversion
   -- relation _⊢_≡_.
 
-  subset* : Γ ⊢ A ⇒* B → Γ ⊢ A ≡ B
+  subset* : ∇ » Γ ⊢ A ⇒* B → ∇ » Γ ⊢ A ≡ B
   subset* (id A) = refl A
   subset* (A⇒A′ ⇨ A′⇒*B) = trans (subset A⇒A′) (subset* A′⇒*B)
 
@@ -264,7 +277,7 @@ opaque
   -- If t reduces in one step to u, then t reduces in zero or more
   -- steps to u.
 
-  redMany : Γ ⊢ t ⇒ u ∷ A → Γ ⊢ t ⇒* u ∷ A
+  redMany : ∇ » Γ ⊢ t ⇒ u ∷ A → ∇ » Γ ⊢ t ⇒* u ∷ A
   redMany t⇒u =
     let _ , _ , ⊢u = wf-⊢≡∷ (subsetTerm t⇒u) in
     t⇒u ⇨ id ⊢u
@@ -274,7 +287,7 @@ opaque
   -- If A reduces in one step to B, then A reduces in zero or more
   -- steps to B.
 
-  redMany-⊢ : Γ ⊢ A ⇒ B → Γ ⊢ A ⇒* B
+  redMany-⊢ : ∇ » Γ ⊢ A ⇒ B → ∇ » Γ ⊢ A ⇒* B
   redMany-⊢ A⇒B =
     let _ , ⊢B = wf-⊢≡ (subset A⇒B) in
     A⇒B ⇨ id ⊢B
@@ -286,28 +299,28 @@ opaque
 
   -- If t reduces to u, then t is well-typed.
 
-  redFirstTerm : Γ ⊢ t ⇒ u ∷ A → Γ ⊢ t ∷ A
+  redFirstTerm : ∇ » Γ ⊢ t ⇒ u ∷ A → ∇ » Γ ⊢ t ∷ A
   redFirstTerm = proj₁ ∘→ proj₂ ∘→ wf-⊢≡∷ ∘→ subsetTerm
 
 opaque
 
   -- If A reduces to B, then A is well-formed.
 
-  redFirst : Γ ⊢ A ⇒ B → Γ ⊢ A
+  redFirst : ∇ » Γ ⊢ A ⇒ B → ∇ » Γ ⊢ A
   redFirst = proj₁ ∘→ wf-⊢≡ ∘→ subset
 
 opaque
 
   -- If t reduces to u, then t is well-typed.
 
-  redFirst*Term : Γ ⊢ t ⇒* u ∷ A → Γ ⊢ t ∷ A
+  redFirst*Term : ∇ » Γ ⊢ t ⇒* u ∷ A → ∇ » Γ ⊢ t ∷ A
   redFirst*Term = proj₁ ∘→ proj₂ ∘→ wf-⊢≡∷ ∘→ subset*Term
 
 opaque
 
   -- If A reduces to B, then A is well-formed.
 
-  redFirst* : Γ ⊢ A ⇒* B → Γ ⊢ A
+  redFirst* : ∇ » Γ ⊢ A ⇒* B → ∇ » Γ ⊢ A
   redFirst* = proj₁ ∘→ wf-⊢≡ ∘→ subset*
 
 ------------------------------------------------------------------------
@@ -317,7 +330,7 @@ opaque
 
   -- An expansion lemma for ⊢_≡_.
 
-  reduction : Γ ⊢ A ⇒* A′ → Γ ⊢ B ⇒* B′ → Γ ⊢ A′ ≡ B′ → Γ ⊢ A ≡ B
+  reduction : ∇ » Γ ⊢ A ⇒* A′ → ∇ » Γ ⊢ B ⇒* B′ → ∇ » Γ ⊢ A′ ≡ B′ → ∇ » Γ ⊢ A ≡ B
   reduction D D′ A′≡B′ =
     trans (subset* D) (trans A′≡B′ (sym (subset* D′)))
 
@@ -325,7 +338,7 @@ opaque
 
   -- A reduction lemma for ⊢_≡_.
 
-  reduction′ : Γ ⊢ A ⇒* A′ → Γ ⊢ B ⇒* B′ → Γ ⊢ A ≡ B → Γ ⊢ A′ ≡ B′
+  reduction′ : ∇ » Γ ⊢ A ⇒* A′ → ∇ » Γ ⊢ B ⇒* B′ → ∇ » Γ ⊢ A ≡ B → ∇ » Γ ⊢ A′ ≡ B′
   reduction′ D D′ A≡B =
     trans (sym (subset* D)) (trans A≡B (subset* D′))
 
@@ -334,11 +347,11 @@ opaque
   -- An expansion lemma for ⊢_≡_∷_.
 
   reductionₜ :
-    Γ ⊢ A ⇒* B →
-    Γ ⊢ t ⇒* t′ ∷ B →
-    Γ ⊢ u ⇒* u′ ∷ B →
-    Γ ⊢ t′ ≡ u′ ∷ B →
-    Γ ⊢ t ≡ u ∷ A
+    ∇ » Γ ⊢ A ⇒* B →
+    ∇ » Γ ⊢ t ⇒* t′ ∷ B →
+    ∇ » Γ ⊢ u ⇒* u′ ∷ B →
+    ∇ » Γ ⊢ t′ ≡ u′ ∷ B →
+    ∇ » Γ ⊢ t ≡ u ∷ A
   reductionₜ D d d′ t′≡u′ =
     conv
       (trans (subset*Term d)
@@ -350,11 +363,11 @@ opaque
   -- A reduction lemma for ⊢_≡_∷_.
 
   reductionₜ′ :
-    Γ ⊢ A ⇒* B →
-    Γ ⊢ t ⇒* t′ ∷ B →
-    Γ ⊢ u ⇒* u′ ∷ B →
-    Γ ⊢ t ≡ u ∷ A →
-    Γ ⊢ t′ ≡ u′ ∷ B
+    ∇ » Γ ⊢ A ⇒* B →
+    ∇ » Γ ⊢ t ⇒* t′ ∷ B →
+    ∇ » Γ ⊢ u ⇒* u′ ∷ B →
+    ∇ » Γ ⊢ t ≡ u ∷ A →
+    ∇ » Γ ⊢ t′ ≡ u′ ∷ B
   reductionₜ′ D d d′ t≡u =
     trans (sym′ (subset*Term d))
       (trans (conv t≡u (subset* D)) (subset*Term d′))
@@ -366,9 +379,10 @@ opaque
 
   -- Neutral terms do not reduce.
 
-  neRedTerm : Γ ⊢ t ⇒ u ∷ A → ¬ Neutral t
+  neRedTerm : ∇ » Γ ⊢ t ⇒ u ∷ A → ¬ Neutral t
   neRedTerm = λ where
     (conv d _)                → neRedTerm d
+    (δ-red _ α↦t _ _)         → λ ()
     (app-subst d _)           → neRedTerm d ∘→ inv-ne-∘
     (β-red _ _ _ _ _)         → (λ ()) ∘→ inv-ne-∘
     (natrec-subst _ _ d)      → neRedTerm d ∘→ inv-ne-natrec
@@ -395,8 +409,8 @@ opaque
 
   -- Neutral types do not reduce.
 
-  neRed : Γ ⊢ A ⇒ B → ¬ Neutral A
-  neRed (univ x) N = neRedTerm x N
+  neRed : ∇ » Γ ⊢ A ⇒ B → ¬ Neutral A
+  neRed (univ ⊢A) not = neRedTerm ⊢A not
 
 ------------------------------------------------------------------------
 -- Some lemmas related to WHNFs
@@ -405,9 +419,10 @@ opaque
 
   -- WHNFs do not reduce.
 
-  whnfRedTerm : Γ ⊢ t ⇒ u ∷ A → ¬ Whnf t
+  whnfRedTerm : ∇ » Γ ⊢ t ⇒ u ∷ A → ¬ Whnf t
   whnfRedTerm = λ where
     (conv d _)                → whnfRedTerm d
+    (δ-red ⊢Γ α↦t A≡A′ t≡t′)  → λ { (ne b) → neRedTerm (δ-red ⊢Γ α↦t A≡A′ t≡t′) b }
     (app-subst d _)           → neRedTerm d ∘→ inv-whnf-∘
     (β-red _ _ _ _ _)         → (λ ()) ∘→ inv-whnf-∘
     (natrec-subst _ _ d)      → neRedTerm d ∘→ inv-whnf-natrec
@@ -435,7 +450,7 @@ opaque
 
   -- WHNFs do not reduce.
 
-  whnfRed : Γ ⊢ A ⇒ B → ¬ Whnf A
+  whnfRed : ∇ » Γ ⊢ A ⇒ B → ¬ Whnf A
   whnfRed (univ x) w = whnfRedTerm x w
 
 opaque
@@ -443,7 +458,7 @@ opaque
   -- If a WHNF t reduces in zero or more steps to u, then t is equal
   -- to u.
 
-  whnfRed*Term : Γ ⊢ t ⇒* u ∷ A → Whnf t → t PE.≡ u
+  whnfRed*Term : ∇ » Γ ⊢ t ⇒* u ∷ A → Whnf t → t PE.≡ u
   whnfRed*Term (id _)  _ = PE.refl
   whnfRed*Term (d ⇨ _) w = ⊥-elim (whnfRedTerm d w)
 
@@ -452,7 +467,7 @@ opaque
   -- If a WHNF A reduces in zero or more steps to B, then A is equal
   -- to B.
 
-  whnfRed* : Γ ⊢ A ⇒* B → Whnf A → A PE.≡ B
+  whnfRed* : ∇ » Γ ⊢ A ⇒* B → Whnf A → A PE.≡ B
   whnfRed* (id x)  w = PE.refl
   whnfRed* (x ⇨ d) w = ⊥-elim (whnfRed x w)
 
@@ -463,10 +478,14 @@ opaque
 
   -- Single-step reduction is deterministic.
 
-  whrDetTerm : Γ ⊢ t ⇒ u ∷ A → Γ ⊢ t ⇒ u′ ∷ A′ → u PE.≡ u′
+  whrDetTerm : ∇ » Γ ⊢ t ⇒ u ∷ A → ∇ » Γ ⊢ t ⇒ u′ ∷ A′ → u PE.≡ u′
   whrDetTerm = λ where
     (conv d _) d′ →
       whrDetTerm d d′
+    (δ-red ⊢Γ α↦u A≡A′ PE.refl) d′ →
+      case inv-⇒-defn d′ of λ where
+        (_ , _ , α↦u′ , PE.refl) →
+          PE.cong (wk wk₀) (proj₂ (unique-↦∷∈ α↦u α↦u′ PE.refl))
     (app-subst d _) d′ →
       case inv-⇒-∘ d′ of λ where
         (inj₁ (_ , _ , d′ , PE.refl)) →
@@ -575,7 +594,7 @@ opaque
 
   -- Single-step reduction is deterministic.
 
-  whrDet : Γ ⊢ A ⇒ B → Γ ⊢ A ⇒ B′ → B PE.≡ B′
+  whrDet : ∇ » Γ ⊢ A ⇒ B → ∇ » Γ ⊢ A ⇒ B′ → B PE.≡ B′
   whrDet (univ x) (univ x₁) = whrDetTerm x x₁
 
 opaque
@@ -583,30 +602,30 @@ opaque
   -- If A reduces to the WHNF B, and A also reduces to C, then C
   -- reduces to B.
 
-  whrDet↘ : Γ ⊢ A ↘ B → Γ ⊢ A ⇒* C → Γ ⊢ C ⇒* B
+  whrDet↘ : ∇ » Γ ⊢ A ↘ B → ∇ » Γ ⊢ A ⇒* C → ∇ » Γ ⊢ C ⇒* B
   whrDet↘ (A⇒*B , _)      (id _)    = A⇒*B
   whrDet↘ (id _ , A-whnf) (A⇒D ⇨ _) =
     ⊥-elim (whnfRed A⇒D A-whnf)
   whrDet↘ (A⇒D ⇨ D⇒*B , B-whnf) (A⇒E ⇨ E⇒*C) =
-    whrDet↘ (PE.subst (_ ⊢_⇒* _) (whrDet A⇒D A⇒E) D⇒*B , B-whnf) E⇒*C
+    whrDet↘ (PE.subst (_ » _ ⊢_⇒* _) (whrDet A⇒D A⇒E) D⇒*B , B-whnf) E⇒*C
 
 opaque
 
   -- If t reduces to the WHNF u, and t also reduces to v, then v
   -- reduces to u.
 
-  whrDet↘Term : Γ ⊢ t ↘ u ∷ A → Γ ⊢ t ⇒* v ∷ A → Γ ⊢ v ⇒* u ∷ A
+  whrDet↘Term : ∇ » Γ ⊢ t ↘ u ∷ A → ∇ » Γ ⊢ t ⇒* v ∷ A → ∇ » Γ ⊢ v ⇒* u ∷ A
   whrDet↘Term (proj₁ , proj₂) (id x) = proj₁
   whrDet↘Term (id x , proj₂) (x₁ ⇨ d′) = ⊥-elim (whnfRedTerm x₁ proj₂)
   whrDet↘Term (x ⇨ proj₁ , proj₂) (x₁ ⇨ d′) =
     whrDet↘Term
-      (PE.subst (_ ⊢_↘ _ ∷ _) (whrDetTerm x x₁) (proj₁ , proj₂)) d′
+      (PE.subst (_ » _ ⊢_↘ _ ∷ _) (whrDetTerm x x₁) (proj₁ , proj₂)) d′
 
 opaque
 
   -- Reduction to WHNF is deterministic.
 
-  whrDet*Term : Γ ⊢ t ↘ u ∷ A → Γ ⊢ t ↘ u′ ∷ A′ → u PE.≡ u′
+  whrDet*Term : ∇ » Γ ⊢ t ↘ u ∷ A → ∇ » Γ ⊢ t ↘ u′ ∷ A′ → u PE.≡ u′
   whrDet*Term (id x , proj₂) (id x₁ , proj₄) =
     PE.refl
   whrDet*Term (id x , proj₂) (x₁ ⇨ proj₃ , proj₄) =
@@ -615,18 +634,18 @@ opaque
     ⊥-elim (whnfRedTerm x proj₄)
   whrDet*Term (x ⇨ proj₁ , proj₂) (x₁ ⇨ proj₃ , proj₄) =
     whrDet*Term (proj₁ , proj₂)
-      (PE.subst (_ ⊢_↘ _ ∷ _) (whrDetTerm x₁ x) (proj₃ , proj₄))
+      (PE.subst (_ » _ ⊢_↘ _ ∷ _) (whrDetTerm x₁ x) (proj₃ , proj₄))
 
 opaque
 
   -- Reduction to WHNF is deterministic.
 
-  whrDet* : Γ ⊢ A ↘ B → Γ ⊢ A ↘ B′ → B PE.≡ B′
+  whrDet* : ∇ » Γ ⊢ A ↘ B → ∇ » Γ ⊢ A ↘ B′ → B PE.≡ B′
   whrDet* (id x , proj₂) (id x₁ , proj₄) = PE.refl
   whrDet* (id x , proj₂) (x₁ ⇨ proj₃ , proj₄) = ⊥-elim (whnfRed x₁ proj₂)
   whrDet* (x ⇨ proj₁ , proj₂) (id x₁ , proj₄) = ⊥-elim (whnfRed x proj₄)
   whrDet* (A⇒A′ ⇨ A′⇒*B , whnfB) (A⇒A″ ⇨ A″⇒*B′ , whnfB′) =
-    whrDet* (A′⇒*B , whnfB) (PE.subst (λ x → _ ⊢ x ↘ _)
+    whrDet* (A′⇒*B , whnfB) (PE.subst (λ x → _ » _ ⊢ x ↘ _)
                                        (whrDet A⇒A″ A⇒A′)
                                        (A″⇒*B′ , whnfB′))
 
@@ -640,7 +659,7 @@ opaque
   -- type Unit s l), then t is equal to star s l.
 
   no-η-expansion-Unit :
-    Whnf t → Γ ⊢ t ⇒* star s l ∷ Unit s l → t PE.≡ star s l
+    Whnf t → ∇ » Γ ⊢ t ⇒* star s l ∷ Unit s l → t PE.≡ star s l
   no-η-expansion-Unit = flip whnfRed*Term
 
 opaque
@@ -651,7 +670,7 @@ opaque
 
   no-η-expansion-Σˢ :
     Whnf t →
-    Γ ⊢ t ⇒* prodˢ p u v ∷ Σˢ p′ , q ▷ A ▹ B →
+    ∇ » Γ ⊢ t ⇒* prodˢ p u v ∷ Σˢ p′ , q ▷ A ▹ B →
     t PE.≡ prodˢ p u v
   no-η-expansion-Σˢ = flip whnfRed*Term
 
@@ -662,7 +681,7 @@ opaque
 
   -- The relation Γ ⊢_⇒*_ is transitive.
 
-  _⇨*_ : Γ ⊢ A ⇒* B → Γ ⊢ B ⇒* C → Γ ⊢ A ⇒* C
+  _⇨*_ : ∇ » Γ ⊢ A ⇒* B → ∇ » Γ ⊢ B ⇒* C → ∇ » Γ ⊢ A ⇒* C
   id _          ⇨* B⇒C = B⇒C
   (A⇒A′ ⇨ A′⇒B) ⇨* B⇒C = A⇒A′ ⇨ (A′⇒B ⇨* B⇒C)
 
@@ -670,7 +689,7 @@ opaque
 
   -- The relation Γ ⊢_⇒*_∷ A is transitive.
 
-  _⇨∷*_ : Γ ⊢ t ⇒* u ∷ A → Γ ⊢ u ⇒* v ∷ A → Γ ⊢ t ⇒* v ∷ A
+  _⇨∷*_ : ∇ » Γ ⊢ t ⇒* u ∷ A → ∇ » Γ ⊢ u ⇒* v ∷ A → ∇ » Γ ⊢ t ⇒* v ∷ A
   id _          ⇨∷* u⇒v = u⇒v
   (t⇒t′ ⇨ t′⇒u) ⇨∷* u⇒v = t⇒t′ ⇨ (t′⇒u ⇨∷* u⇒v)
 
@@ -678,14 +697,14 @@ opaque
 
   -- A variant of _⇨*_ for _⊢_⇒*_ and _⊢_↘_.
 
-  ⇒*→↘→↘ : Γ ⊢ A ⇒* B → Γ ⊢ B ↘ C → Γ ⊢ A ↘ C
+  ⇒*→↘→↘ : ∇ » Γ ⊢ A ⇒* B → ∇ » Γ ⊢ B ↘ C → ∇ » Γ ⊢ A ↘ C
   ⇒*→↘→↘ A⇒*B (B⇒*C , C-whnf) = (A⇒*B ⇨* B⇒*C) , C-whnf
 
 opaque
 
   -- A variant of _⇨∷*_ for _⊢_⇒*_∷_ and _⊢_↘_∷_.
 
-  ⇒*∷→↘∷→↘∷ : Γ ⊢ t ⇒* u ∷ A → Γ ⊢ u ↘ v ∷ A → Γ ⊢ t ↘ v ∷ A
+  ⇒*∷→↘∷→↘∷ : ∇ » Γ ⊢ t ⇒* u ∷ A → ∇ » Γ ⊢ u ↘ v ∷ A → ∇ » Γ ⊢ t ↘ v ∷ A
   ⇒*∷→↘∷→↘∷ t⇒*u (u⇒*v , v-whnf) = (t⇒*u ⇨∷* u⇒*v) , v-whnf
 
 ------------------------------------------------------------------------
@@ -695,7 +714,7 @@ opaque
 
   -- Conversion for _⊢_⇒*_.
 
-  conv* : Γ ⊢ t ⇒* u ∷ A → Γ ⊢ A ≡ B → Γ ⊢ t ⇒* u ∷ B
+  conv* : ∇ » Γ ⊢ t ⇒* u ∷ A → ∇ » Γ ⊢ A ≡ B → ∇ » Γ ⊢ t ⇒* u ∷ B
   conv* (id ⊢t)     A≡B = id (conv ⊢t A≡B)
   conv* (t⇒u ⇨ u⇒v) A≡B = conv t⇒u A≡B ⇨ conv* u⇒v A≡B
 
@@ -703,7 +722,7 @@ opaque
 
   -- Conversion for _⊢_↘_∷_.
 
-  conv↘∷ : Γ ⊢ t ↘ u ∷ A → Γ ⊢ A ≡ B → Γ ⊢ t ↘ u ∷ B
+  conv↘∷ : ∇ » Γ ⊢ t ↘ u ∷ A → ∇ » Γ ⊢ A ≡ B → ∇ » Γ ⊢ t ↘ u ∷ B
   conv↘∷ (t⇒*u , u-whnf) A≡B = conv* t⇒*u A≡B , u-whnf
 
 ------------------------------------------------------------------------
@@ -713,6 +732,6 @@ opaque
 
   -- A variant of univ for _⊢_⇒*_.
 
-  univ* : Γ ⊢ A ⇒* B ∷ U l → Γ ⊢ A ⇒* B
+  univ* : ∇ » Γ ⊢ A ⇒* B ∷ U l → ∇ » Γ ⊢ A ⇒* B
   univ* (id ⊢A)     = id (univ ⊢A)
   univ* (A⇒B ⇨ B⇒C) = univ A⇒B ⇨ univ* B⇒C

@@ -38,7 +38,8 @@ open import Tools.Product
 
 private
   variable
-    n : Nat
+    m n : Nat
+    ∇ : DCon (Term 0) m
     Γ : Con Term n
     t u A B : Term n
 
@@ -48,9 +49,9 @@ private
 mutual
 
   -- If A is a checkable type that is well-formed with respect to Γ,
-  -- then Γ ⊢ A ⇇Type holds.
+  -- then ∇ » Γ ⊢ A ⇇Type holds.
 
-  completeness⇇Type : Checkable-type A → Γ ⊢ A → Γ ⊢ A ⇇Type
+  completeness⇇Type : Checkable-type A → ∇ » Γ ⊢ A → ∇ » Γ ⊢ A ⇇Type
   completeness⇇Type (ΠΣᶜ B C) ⊢A =
     let ⊢B , ⊢C , ok = inversion-ΠΣ ⊢A in
     ΠΣᶜ (completeness⇇Type B ⊢B) (completeness⇇Type C ⊢C) ok
@@ -61,10 +62,10 @@ mutual
   completeness⇇Type (checkᶜ A) ⊢A =
     completeness⇇Type′ A ⊢A
 
-  -- If A is a checkable term for which Γ ⊢ A holds, then Γ ⊢ A ⇇Type
+  -- If A is a checkable term for which ∇ » Γ ⊢ A holds, then ∇ » Γ ⊢ A ⇇Type
   -- holds.
 
-  completeness⇇Type′ : Checkable A → Γ ⊢ A → Γ ⊢ A ⇇Type
+  completeness⇇Type′ : Checkable A → ∇ » Γ ⊢ A → ∇ » Γ ⊢ A ⇇Type
   completeness⇇Type′ (lamᶜ _) (univ ⊢A) =
     let _ , _ , _ , _ , _ , U≡Π , _ = inversion-lam ⊢A in
     ⊥-elim (U≢ΠΣⱼ U≡Π)
@@ -80,7 +81,7 @@ mutual
 
   -- Completeness of type inference
 
-  completeness⇉ : Inferable t → Γ ⊢ t ∷ A → ∃ λ B → Γ ⊢ t ⇉ B × Γ ⊢ A ≡ B
+  completeness⇉ : Inferable t → ∇ » Γ ⊢ t ∷ A → ∃ λ B → ∇ » Γ ⊢ t ⇉ B × ∇ » Γ ⊢ A ≡ B
   completeness⇉ Uᵢ ⊢t =
     _ , Uᵢ , inversion-U ⊢t
   completeness⇉ (ΠΣᵢ B C) ⊢ΠΣ =
@@ -94,6 +95,9 @@ mutual
   completeness⇉ varᵢ ⊢t =
     let B , x∷B∈Γ , A≡B = inversion-var ⊢t
     in  _ , varᵢ x∷B∈Γ , A≡B
+  completeness⇉ defnᵢ ⊢α =
+    let A′ , α↦∷A′ , A≡wkA′ = inversion-defn ⊢α
+    in  wk wk₀ A′ , defnᵢ α↦∷A′ , A≡wkA′
   completeness⇉ (∘ᵢ t u) ⊢tu =
     let F , G , q , ⊢t , ⊢u , A≡Gu = inversion-app ⊢tu
         B , t⇉B , ΠFG≡B = completeness⇉ t ⊢t
@@ -193,7 +197,7 @@ mutual
 
   -- Completeness of type checking
 
-  completeness⇇ : Checkable t → Γ ⊢ t ∷ A → Γ ⊢ t ⇇ A
+  completeness⇇ : Checkable t → ∇ » Γ ⊢ t ∷ A → ∇ » Γ ⊢ t ⇇ A
   completeness⇇ (lamᶜ t) ⊢t =
     let F , G , q , _ , ⊢t , A≡ΠFG , _ = inversion-lam ⊢t
         F′ , G′ , A⇒ΠF′G′ , F≡F′ , G≡G′ , _ = ΠΣNorm A≡ΠFG

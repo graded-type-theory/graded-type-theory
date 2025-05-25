@@ -78,6 +78,11 @@ record Type-restrictions : Set (lsuc a) where
   Σʷ-allowed : M → M → Set a
   Σʷ-allowed = Σ-allowed 𝕨
 
+  field
+    -- Opaque definitions are only allowed if the given predicate
+    -- holds.
+    Opacity-allowed : Set a
+
   -- The type Erased A is only allowed if Erased-allowed holds.
   -- Note that the Erased type can be defined using either a
   -- weak or strong unit type.
@@ -114,6 +119,10 @@ record Type-restrictions : Set (lsuc a) where
     -- Equality-reflection is decided.
     Equality-reflection? : Dec Equality-reflection
 
+    -- Equality reflection is incompatible with opaque definitions.
+    no-opaque-equality-reflection :
+      Opacity-allowed → ¬ Equality-reflection
+
   -- No-equality-reflection holds if equality reflection is not
   -- allowed.
 
@@ -138,6 +147,15 @@ record Type-restrictions : Set (lsuc a) where
     No-equality-reflection? : Dec No-equality-reflection
     No-equality-reflection? =
       Dec-map (sym⇔ No-equality-reflection⇔) (¬? Equality-reflection?)
+
+  opaque
+
+    -- No-equality-reflection holds if opacity is allowed.
+
+    Opacity-allowed→No-equality-reflection :
+      Opacity-allowed → No-equality-reflection
+    Opacity-allowed→No-equality-reflection =
+      no-equality-reflection ∘→ no-opaque-equality-reflection
 
   opaque
 

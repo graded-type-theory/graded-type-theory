@@ -37,17 +37,18 @@ import Tools.PropositionalEquality as PE
 
 private
   variable
-    n : Nat
+    m n : Nat
+    ∇ : DCon (Term 0) m
     Γ Δ : Con Term n
     A B t u : Term _
 
 mutual
   -- Conversion of algorithmic equality.
   convConv↑Term′ :
-    ⊢ Γ ≡ Δ →
-    Γ ⊢ A ≡ B →
-    Γ ⊢ t [conv↑] u ∷ A →
-    Δ ⊢ t [conv↑] u ∷ B
+    ∇ »⊢ Γ ≡ Δ →
+    ∇ » Γ ⊢ A ≡ B →
+    ∇ » Γ ⊢ t [conv↑] u ∷ A →
+    ∇ » Δ ⊢ t [conv↑] u ∷ B
   convConv↑Term′ Γ≡Δ A≡B ([↑]ₜ B₁ t′ u′ (D , _) d d′ t<>u) =
     let _ , ⊢B = syntacticEq A≡B
         B′ , whnfB′ , D′ = whNorm ⊢B
@@ -59,11 +60,11 @@ mutual
 
   -- Conversion of algorithmic equality with terms and types in WHNF.
   convConv↓Term′ :
-    ⊢ Γ ≡ Δ →
-    Γ ⊢ A ≡ B →
+    ∇ »⊢ Γ ≡ Δ →
+    ∇ » Γ ⊢ A ≡ B →
     Whnf B →
-    Γ ⊢ t [conv↓] u ∷ A →
-    Δ ⊢ t [conv↓] u ∷ B
+    ∇ » Γ ⊢ t [conv↓] u ∷ A →
+    ∇ » Δ ⊢ t [conv↓] u ∷ B
   convConv↓Term′ Γ≡Δ A≡B whnfB (ℕ-ins x) rewrite ℕ≡A A≡B whnfB =
     ℕ-ins (stability~↓ Γ≡Δ x)
   convConv↓Term′ Γ≡Δ A≡B whnfB (Empty-ins x) rewrite Empty≡A A≡B whnfB =
@@ -140,9 +141,9 @@ mutual
 
 -- Conversion of algorithmic equality with the same context.
 convConv↑Term :
-  Γ ⊢ A ≡ B →
-  Γ ⊢ t [conv↑] u ∷ A →
-  Γ ⊢ t [conv↑] u ∷ B
+  ∇ » Γ ⊢ A ≡ B →
+  ∇ » Γ ⊢ t [conv↑] u ∷ A →
+  ∇ » Γ ⊢ t [conv↑] u ∷ B
 convConv↑Term A≡B = convConv↑Term′ (reflConEq (wfEq A≡B)) A≡B
 
 opaque
@@ -150,8 +151,8 @@ opaque
   -- Conversion for _⊢_[conv↓]_∷_.
 
   convConv↓Term :
-    Γ ⊢ A ≡ B →
+    ∇ » Γ ⊢ A ≡ B →
     Whnf B →
-    Γ ⊢ t [conv↓] u ∷ A →
-    Γ ⊢ t [conv↓] u ∷ B
+    ∇ » Γ ⊢ t [conv↓] u ∷ A →
+    ∇ » Γ ⊢ t [conv↓] u ∷ B
   convConv↓Term A≡B = convConv↓Term′ (reflConEq (wfEq A≡B)) A≡B

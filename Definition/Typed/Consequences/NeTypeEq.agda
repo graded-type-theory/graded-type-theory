@@ -30,7 +30,8 @@ import Tools.PropositionalEquality as PE
 
 private
   variable
-    n     : Nat
+    m n   : Nat
+    ∇     : DCon (Term 0) m
     Γ     : Con Term n
     A B t : Term _
 
@@ -40,14 +41,14 @@ varTypeEq′ here here = PE.refl
 varTypeEq′ (there n∷R) (there n∷T) rewrite varTypeEq′ n∷R n∷T = PE.refl
 
 -- The same variable instance of a context have equal types.
-varTypeEq : ∀ {x A B} → Γ ⊢ A → Γ ⊢ B → x ∷ A ∈ Γ → x ∷ B ∈ Γ → Γ ⊢ A ≡ B
+varTypeEq : ∀ {x A B} → ∇ » Γ ⊢ A → ∇ » Γ ⊢ B → x ∷ A ∈ Γ → x ∷ B ∈ Γ → ∇ » Γ ⊢ A ≡ B
 varTypeEq A B x∷A x∷B rewrite varTypeEq′ x∷A x∷B = refl A
 
 -- Types are unique for neutral terms (given a certain assumption).
 
 neTypeEq :
   ⦃ ok : No-equality-reflection or-empty Γ ⦄ →
-  Neutral t → Γ ⊢ t ∷ A → Γ ⊢ t ∷ B → Γ ⊢ A ≡ B
+  Neutral t → ∇ » Γ ⊢ t ∷ A → ∇ » Γ ⊢ t ∷ B → ∇ » Γ ⊢ A ≡ B
 neTypeEq (var x) (var x₁ x₂) (var x₃ x₄) =
   varTypeEq (syntacticTerm (var x₃ x₂)) (syntacticTerm (var x₃ x₄)) x₂ x₄
 neTypeEq (∘ₙ neT) (t∷A ∘ⱼ t∷A₁) (t∷B ∘ⱼ t∷B₁) with neTypeEq neT t∷A t∷B
@@ -65,10 +66,10 @@ neTypeEq (emptyrecₙ neT) (emptyrecⱼ x t∷A) (emptyrecⱼ x₁ t∷B) =
   refl x₁
 neTypeEq (unitrecₙ _ neT) (unitrecⱼ ⊢A ⊢t _ _) (unitrecⱼ _ _ _ _) =
   refl (substType ⊢A ⊢t)
-neTypeEq {Γ} (Jₙ _) (Jⱼ {w} _ ⊢B _ ⊢v ⊢w) (Jⱼ _ _ _ _ _) =
+neTypeEq {Γ} {∇} (Jₙ _) (Jⱼ {w} _ ⊢B _ ⊢v ⊢w) (Jⱼ _ _ _ _ _) =
   refl $
   substType₂ ⊢B ⊢v $
-  PE.subst (Γ ⊢ w ∷_) ≡Id-wk1-wk1-0[]₀ ⊢w
+  PE.subst (∇ » Γ ⊢ w ∷_) ≡Id-wk1-wk1-0[]₀ ⊢w
 neTypeEq (Kₙ _) (Kⱼ ⊢B _ ⊢v _) (Kⱼ _ _ _ _) =
   refl (substType ⊢B ⊢v)
 neTypeEq ([]-congₙ _) ([]-congⱼ _ ⊢t ⊢u _ ok) ([]-congⱼ _ _ _ _ _) =

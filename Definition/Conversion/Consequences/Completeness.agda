@@ -29,7 +29,8 @@ open import Tools.Product
 
 private
   variable
-    n       : Nat
+    m n     : Nat
+    ∇       : DCon (Term 0) m
     Γ       : Con Term n
     A B t u : Term n
 
@@ -38,19 +39,19 @@ opaque
   -- Algorithmic equality of types is derivable from judgmental
   -- equality.
 
-  completeEq : Γ ⊢ A ≡ B → Γ ⊢ A [conv↑] B
-  completeEq {Γ} {A} {B} =
-    Γ ⊢ A ≡ B                 →⟨ reducible-⊩≡ ⟩
-    (∃ λ l → Γ ⊩⟨ l ⟩ A ≡ B)  →⟨ escape-⊩≡ ∘→ proj₂ ⟩
-    Γ ⊢ A [conv↑] B           □
+  completeEq : ∇ » Γ ⊢ A ≡ B → ∇ » Γ ⊢ A [conv↑] B
+  completeEq {∇} {Γ} {A} {B} =
+    ∇ » Γ ⊢ A ≡ B                 →⟨ reducible-⊩≡ ⟩
+    (∃ λ l → ∇ » Γ ⊩⟨ l ⟩ A ≡ B)  →⟨ escape-⊩≡ ∘→ proj₂ ⟩
+    ∇ » Γ ⊢ A [conv↑] B           □
 
 opaque
 
   -- Algorithmic equality of terms is derivable from judgmental
   -- equality.
 
-  completeEqTerm : Γ ⊢ t ≡ u ∷ A → Γ ⊢ t [conv↑] u ∷ A
-  completeEqTerm {Γ} {t} {u} {A} =
-    Γ ⊢ t ≡ u ∷ A                 →⟨ reducible-⊩≡∷ ⟩
-    (∃ λ l → Γ ⊩⟨ l ⟩ t ≡ u ∷ A)  →⟨ escape-⊩≡∷ ∘→ proj₂ ⟩
-    Γ ⊢ t [conv↑] u ∷ A           □
+  completeEqTerm : ∇ » Γ ⊢ t ≡ u ∷ A → ∇ » Γ ⊢ t [conv↑] u ∷ A
+  completeEqTerm {∇} {Γ} {t} {u} {A} =
+    ∇ » Γ ⊢ t ≡ u ∷ A                 →⟨ reducible-⊩≡∷ ⟩
+    (∃ λ l → ∇ » Γ ⊩⟨ l ⟩ t ≡ u ∷ A)  →⟨ escape-⊩≡∷ ∘→ proj₂ ⟩
+    ∇ » Γ ⊢ t [conv↑] u ∷ A           □

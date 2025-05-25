@@ -34,6 +34,7 @@ import Tools.PropositionalEquality as PE
 private
   variable
     x : Fin _
+    ∇ : DCon (Term 0) _
     Γ : Con Term _
     A : Term _
     l : Universe-level
@@ -43,10 +44,10 @@ opaque
   -- Reducibility for variables.
 
   ⊩var :
-    ⦃ inc : Neutrals-included ⦄ →
+    ⦃ inc : Var-included ⦄ →
     x ∷ A ∈ Γ →
-    Γ ⊩⟨ l ⟩ A →
-    Γ ⊩⟨ l ⟩ var x ∷ A
+    ∇ » Γ ⊩⟨ l ⟩ A →
+    ∇ » Γ ⊩⟨ l ⟩ var x ∷ A
   ⊩var ⦃ inc ⦄ x∈Γ ⊩A =
     case var (wf (escape-⊩ ⊩A)) x∈Γ of λ
       ⊢var →
@@ -58,8 +59,8 @@ opaque
 
   varᵛ :
     x ∷ A ∈ Γ →
-    ⊩ᵛ Γ →
-    ∃ λ l → Γ ⊩ᵛ⟨ l ⟩ var x ∷ A
+    ∇ »⊩ᵛ Γ →
+    ∃ λ l → ∇ » Γ ⊩ᵛ⟨ l ⟩ var x ∷ A
   varᵛ (here {A}) ⊩Γ∙A =
     case wf-⊩ᵛ-∙ ⊩Γ∙A of λ
       (l , ⊩A) →
@@ -68,12 +69,12 @@ opaque
       l
     , ⊩ᵛ∷⇔ .proj₂
         ( ⊩wk1-A
-        , λ σ₁≡σ₂ →
+        , λ ξ⊇ σ₁≡σ₂ →
             case ⊩ˢ≡∷∙⇔ .proj₁ σ₁≡σ₂ of λ
               ((_ , _ , σ₁₀≡σ₂₀) , _) →
             R.level-⊩≡∷
-              (⊩ᵛ→⊩ˢ∷→⊩[] ⊩wk1-A (wf-⊩ˢ≡∷ σ₁≡σ₂ .proj₁))
-              (PE.subst (R._⊩⟨_⟩_≡_∷_ _ _ _ _) (PE.sym $ wk1-tail A)
+              (⊩ᵛ→⊩ˢ∷→⊩[] (defn-wk-⊩ᵛ ξ⊇ ⊩wk1-A) (wf-⊩ˢ≡∷ σ₁≡σ₂ .proj₁))
+              (PE.subst (R._»_⊩⟨_⟩_≡_∷_ _ _ _ _ _) (PE.sym $ wk1-tail A)
                  σ₁₀≡σ₂₀)
         )
   varᵛ (there x∈Γ) ⊩Γ∙B =
@@ -87,7 +88,7 @@ opaque
 
   varᵛ′ :
     x ∷ A ∈ Γ →
-    Γ ⊩ᵛ⟨ l ⟩ A →
-    Γ ⊩ᵛ⟨ l ⟩ var x ∷ A
+    ∇ » Γ ⊩ᵛ⟨ l ⟩ A →
+    ∇ » Γ ⊩ᵛ⟨ l ⟩ var x ∷ A
   varᵛ′ x∈Γ ⊩A =
     level-⊩ᵛ∷ ⊩A (varᵛ x∈Γ (wf-⊩ᵛ ⊩A) .proj₂)

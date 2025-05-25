@@ -19,6 +19,7 @@ open import Tools.Function
 import Tools.PropositionalEquality as PE
 
 private variable
+  ∇         : DCon (Term 0) _
   A B t u v : Term _
   Γ         : Con Term _
 
@@ -30,7 +31,7 @@ infixr -2 step-⇒ step-⇒* finally-⇒*≡ finally-⇒≡
 
 -- A single step.
 
-step-⇒ : ∀ t → Γ ⊢ u ⇒* v ∷ A → Γ ⊢ t ⇒ u ∷ A → Γ ⊢ t ⇒* v ∷ A
+step-⇒ : ∀ t → ∇ » Γ ⊢ u ⇒* v ∷ A → ∇ » Γ ⊢ t ⇒ u ∷ A → ∇ » Γ ⊢ t ⇒* v ∷ A
 step-⇒ _ = flip _⇨_
 
 syntax step-⇒ t u⇒v t⇒u = t ⇒⟨ t⇒u ⟩ u⇒v
@@ -39,7 +40,7 @@ syntax step-⇒ t u⇒v t⇒u = t ⇒⟨ t⇒u ⟩ u⇒v
 
 -- Multiple steps.
 
-step-⇒* : ∀ t → Γ ⊢ u ⇒* v ∷ A → Γ ⊢ t ⇒* u ∷ A → Γ ⊢ t ⇒* v ∷ A
+step-⇒* : ∀ t → ∇ » Γ ⊢ u ⇒* v ∷ A → ∇ » Γ ⊢ t ⇒* u ∷ A → ∇ » Γ ⊢ t ⇒* v ∷ A
 step-⇒* _ = flip _⇨∷*_
 
 syntax step-⇒* t u⇒v t⇒u = t ⇒*⟨ t⇒u ⟩ u⇒v
@@ -50,7 +51,7 @@ syntax step-⇒* t u⇒v t⇒u = t ⇒*⟨ t⇒u ⟩ u⇒v
 -- well-typed. In a non-empty chain of reasoning steps one can instead
 -- end with the following combinator.
 
-finally-⇒* : ∀ t u → Γ ⊢ t ⇒* u ∷ A → Γ ⊢ t ⇒* u ∷ A
+finally-⇒* : ∀ t u → ∇ » Γ ⊢ t ⇒* u ∷ A → ∇ » Γ ⊢ t ⇒* u ∷ A
 finally-⇒* _ _ t⇒u = t⇒u
 
 syntax finally-⇒* t u t⇒u = t ⇒*⟨ t⇒u ⟩∎ u ∎
@@ -59,7 +60,7 @@ syntax finally-⇒* t u t⇒u = t ⇒*⟨ t⇒u ⟩∎ u ∎
 
 -- A variant of finally-⇒*.
 
-finally-⇒ : ∀ t u → Γ ⊢ t ⇒ u ∷ A → Γ ⊢ t ⇒* u ∷ A
+finally-⇒ : ∀ t u → ∇ » Γ ⊢ t ⇒ u ∷ A → ∇ » Γ ⊢ t ⇒* u ∷ A
 finally-⇒ _ _ t⇒u = redMany t⇒u
 
 syntax finally-⇒ t u t⇒u = t ⇒⟨ t⇒u ⟩∎ u ∎
@@ -70,14 +71,14 @@ syntax finally-⇒ t u t⇒u = t ⇒⟨ t⇒u ⟩∎ u ∎
 -- reasoning steps with a propositional equality, without the use of
 -- _∎⟨_⟩⇒.
 
-finally-⇒*≡ : ∀ t → u PE.≡ v → Γ ⊢ t ⇒* u ∷ A → Γ ⊢ t ⇒* v ∷ A
+finally-⇒*≡ : ∀ t → u PE.≡ v → ∇ » Γ ⊢ t ⇒* u ∷ A → ∇ » Γ ⊢ t ⇒* v ∷ A
 finally-⇒*≡ _ PE.refl t⇒u = t⇒u
 
 syntax finally-⇒*≡ t u≡v t⇒u = t ⇒*⟨ t⇒u ⟩∎≡ u≡v
 
 -- A variant of finally-⇒*≡.
 
-finally-⇒≡ : ∀ t → u PE.≡ v → Γ ⊢ t ⇒ u ∷ A → Γ ⊢ t ⇒* v ∷ A
+finally-⇒≡ : ∀ t → u PE.≡ v → ∇ » Γ ⊢ t ⇒ u ∷ A → ∇ » Γ ⊢ t ⇒* v ∷ A
 finally-⇒≡ _ PE.refl = finally-⇒ _ _
 
 syntax finally-⇒≡ t u≡v t⇒u = t ⇒⟨ t⇒u ⟩∎≡ u≡v
@@ -93,14 +94,14 @@ opaque
   -- A single step.
 
   step-⇐ :
-    ∀ v → Γ ⊢ t ⇒* u ∷ A → Γ ⊢ u ⇒ v ∷ A → Γ ⊢ t ⇒* v ∷ A
+    ∀ v → ∇ » Γ ⊢ t ⇒* u ∷ A → ∇ » Γ ⊢ u ⇒ v ∷ A → ∇ » Γ ⊢ t ⇒* v ∷ A
   step-⇐ _ t⇒u u⇒v = t⇒u ⇨∷* redMany u⇒v
 
   syntax step-⇐ v t⇒u u⇒v = v ⇐⟨ u⇒v ⟩ t⇒u
 
 -- Multiple steps.
 
-step-⇐* : ∀ v → Γ ⊢ t ⇒* u ∷ A → Γ ⊢ u ⇒* v ∷ A → Γ ⊢ t ⇒* v ∷ A
+step-⇐* : ∀ v → ∇ » Γ ⊢ t ⇒* u ∷ A → ∇ » Γ ⊢ u ⇒* v ∷ A → ∇ » Γ ⊢ t ⇒* v ∷ A
 step-⇐* _ = _⇨∷*_
 
 syntax step-⇐* v t⇒u u⇒v = v ⇐*⟨ u⇒v ⟩ t⇒u
@@ -111,7 +112,7 @@ syntax step-⇐* v t⇒u u⇒v = v ⇐*⟨ u⇒v ⟩ t⇒u
 -- well-typed. In a non-empty chain of reasoning steps one can instead
 -- end with the following combinator.
 
-finally-⇐* : ∀ u t → Γ ⊢ t ⇒* u ∷ A → Γ ⊢ t ⇒* u ∷ A
+finally-⇐* : ∀ u t → ∇ » Γ ⊢ t ⇒* u ∷ A → ∇ » Γ ⊢ t ⇒* u ∷ A
 finally-⇐* _ _ t⇒u = t⇒u
 
 syntax finally-⇐* u t t⇒u = u ⇐*⟨ t⇒u ⟩∎ t ∎
@@ -120,7 +121,7 @@ syntax finally-⇐* u t t⇒u = u ⇐*⟨ t⇒u ⟩∎ t ∎
 
 -- A variant of finally-⇐*.
 
-finally-⇐ : ∀ u t → Γ ⊢ t ⇒ u ∷ A → Γ ⊢ t ⇒* u ∷ A
+finally-⇐ : ∀ u t → ∇ » Γ ⊢ t ⇒ u ∷ A → ∇ » Γ ⊢ t ⇒* u ∷ A
 finally-⇐ _ _ t⇒u = redMany t⇒u
 
 syntax finally-⇐ u t t⇒u = u ⇐⟨ t⇒u ⟩∎ t ∎
@@ -131,14 +132,14 @@ syntax finally-⇐ u t t⇒u = u ⇐⟨ t⇒u ⟩∎ t ∎
 -- reasoning steps with a propositional equality, without the use of
 -- _∎⟨_⟩⇒.
 
-finally-⇐*≡ : ∀ v → u PE.≡ t → Γ ⊢ v ⇒* u ∷ A → Γ ⊢ v ⇒* t ∷ A
+finally-⇐*≡ : ∀ v → u PE.≡ t → ∇ » Γ ⊢ v ⇒* u ∷ A → ∇ » Γ ⊢ v ⇒* t ∷ A
 finally-⇐*≡ _ PE.refl v⇒u = v⇒u
 
 syntax finally-⇐*≡ v u≡t v⇒u = v ⇐*⟨ v⇒u ⟩∎≡ u≡t
 
 -- A variant of finally-⇐*≡.
 
-finally-⇐≡ : ∀ v → u PE.≡ t → Γ ⊢ v ⇒ u ∷ A → Γ ⊢ v ⇒* t ∷ A
+finally-⇐≡ : ∀ v → u PE.≡ t → ∇ » Γ ⊢ v ⇒ u ∷ A → ∇ » Γ ⊢ v ⇒* t ∷ A
 finally-⇐≡ _ PE.refl = finally-⇐ _ _
 
 syntax finally-⇐≡ v u≡t v⇒u = v ⇐⟨ v⇒u ⟩∎≡ u≡t
@@ -151,7 +152,7 @@ infixr -2 step-≡ step-≡˘ _≡⟨⟩⇒_
 
 -- A reasoning step that uses propositional equality.
 
-step-≡ : ∀ t → Γ ⊢ u ⇒* v ∷ A → t PE.≡ u → Γ ⊢ t ⇒* v ∷ A
+step-≡ : ∀ t → ∇ » Γ ⊢ u ⇒* v ∷ A → t PE.≡ u → ∇ » Γ ⊢ t ⇒* v ∷ A
 step-≡ _ u⇒v PE.refl = u⇒v
 
 syntax step-≡ t u⇒v t≡u = t ≡⟨ t≡u ⟩⇒ u⇒v
@@ -159,21 +160,21 @@ syntax step-≡ t u⇒v t≡u = t ≡⟨ t≡u ⟩⇒ u⇒v
 -- A reasoning step that uses propositional equality, combined with
 -- symmetry.
 
-step-≡˘ : ∀ t → Γ ⊢ u ⇒* v ∷ A → u PE.≡ t → Γ ⊢ t ⇒* v ∷ A
+step-≡˘ : ∀ t → ∇ » Γ ⊢ u ⇒* v ∷ A → u PE.≡ t → ∇ » Γ ⊢ t ⇒* v ∷ A
 step-≡˘ _ u⇒v PE.refl = u⇒v
 
 syntax step-≡˘ t u⇒v u≡t = t ≡˘⟨ u≡t ⟩⇒ u⇒v
 
 -- A reasoning step that uses (Agda's) definitional equality.
 
-_≡⟨⟩⇒_ : ∀ t → Γ ⊢ t ⇒* u ∷ A → Γ ⊢ t ⇒* u ∷ A
+_≡⟨⟩⇒_ : ∀ t → ∇ » Γ ⊢ t ⇒* u ∷ A → ∇ » Γ ⊢ t ⇒* u ∷ A
 _ ≡⟨⟩⇒ t⇒u = t⇒u
 
 {-# INLINE _≡⟨⟩⇒_ #-}
 
 -- Reflexivity.
 
-_∎⟨_⟩⇒ : ∀ t → Γ ⊢ t ∷ A → Γ ⊢ t ⇒* t ∷ A
+_∎⟨_⟩⇒ : ∀ t → ∇ » Γ ⊢ t ∷ A → ∇ » Γ ⊢ t ⇒* t ∷ A
 _ ∎⟨ ⊢t ⟩⇒ = id ⊢t
 
 {-# INLINE _∎⟨_⟩⇒ #-}
@@ -189,7 +190,7 @@ infixr -2
 
 -- A single step.
 
-step-⇒∷ : ∀ t A → Γ ⊢ u ⇒* v ∷ A → Γ ⊢ t ⇒ u ∷ A → Γ ⊢ t ⇒* v ∷ A
+step-⇒∷ : ∀ t A → ∇ » Γ ⊢ u ⇒* v ∷ A → ∇ » Γ ⊢ t ⇒ u ∷ A → ∇ » Γ ⊢ t ⇒* v ∷ A
 step-⇒∷ _ _ = flip _⇨_
 
 syntax step-⇒∷ t A u⇒v t⇒u = t ∷ A ⇒⟨ t⇒u ⟩∷ u⇒v
@@ -198,7 +199,7 @@ syntax step-⇒∷ t A u⇒v t⇒u = t ∷ A ⇒⟨ t⇒u ⟩∷ u⇒v
 
 -- Multiple steps.
 
-step-⇒*∷ : ∀ t A → Γ ⊢ u ⇒* v ∷ A → Γ ⊢ t ⇒* u ∷ A → Γ ⊢ t ⇒* v ∷ A
+step-⇒*∷ : ∀ t A → ∇ » Γ ⊢ u ⇒* v ∷ A → ∇ » Γ ⊢ t ⇒* u ∷ A → ∇ » Γ ⊢ t ⇒* v ∷ A
 step-⇒*∷ _ _ = flip _⇨∷*_
 
 syntax step-⇒*∷ t A u⇒v t⇒u = t ∷ A ⇒*⟨ t⇒u ⟩∷ u⇒v
@@ -207,7 +208,7 @@ syntax step-⇒*∷ t A u⇒v t⇒u = t ∷ A ⇒*⟨ t⇒u ⟩∷ u⇒v
 
 -- A reasoning step that uses propositional equality.
 
-step-⇒*∷≡ : ∀ t A → Γ ⊢ u ⇒* v ∷ A → t PE.≡ u → Γ ⊢ t ⇒* v ∷ A
+step-⇒*∷≡ : ∀ t A → ∇ » Γ ⊢ u ⇒* v ∷ A → t PE.≡ u → ∇ » Γ ⊢ t ⇒* v ∷ A
 step-⇒*∷≡ _ _ u⇒v PE.refl = u⇒v
 
 syntax step-⇒*∷≡ t A u⇒v t≡u = t ∷ A ≡⟨ t≡u ⟩⇒∷ u⇒v
@@ -215,14 +216,14 @@ syntax step-⇒*∷≡ t A u⇒v t≡u = t ∷ A ≡⟨ t≡u ⟩⇒∷ u⇒v
 -- A reasoning step that uses propositional equality, combined with
 -- symmetry.
 
-step-⇒*∷≡˘ : ∀ t A → Γ ⊢ u ⇒* v ∷ A → u PE.≡ t → Γ ⊢ t ⇒* v ∷ A
+step-⇒*∷≡˘ : ∀ t A → ∇ » Γ ⊢ u ⇒* v ∷ A → u PE.≡ t → ∇ » Γ ⊢ t ⇒* v ∷ A
 step-⇒*∷≡˘ _ _ u⇒v PE.refl = u⇒v
 
 syntax step-⇒*∷≡˘ t A u⇒v u≡t = t ∷ A ≡˘⟨ u≡t ⟩⇒∷ u⇒v
 
 -- A reasoning step that uses (Agda's) definitional equality.
 
-_∷_≡⟨⟩⇒∷_ : ∀ t A → Γ ⊢ t ⇒* u ∷ A → Γ ⊢ t ⇒* u ∷ A
+_∷_≡⟨⟩⇒∷_ : ∀ t A → ∇ » Γ ⊢ t ⇒* u ∷ A → ∇ » Γ ⊢ t ⇒* u ∷ A
 _ ∷ _ ≡⟨⟩⇒∷ t⇒u = t⇒u
 
 {-# INLINE _∷_≡⟨⟩⇒∷_ #-}
@@ -231,7 +232,7 @@ _ ∷ _ ≡⟨⟩⇒∷ t⇒u = t⇒u
 -- well-typed. In a non-empty chain of reasoning steps one can instead
 -- end with the following combinator.
 
-finally-⇒*∷ : ∀ t A u → Γ ⊢ t ⇒* u ∷ A → Γ ⊢ t ⇒* u ∷ A
+finally-⇒*∷ : ∀ t A u → ∇ » Γ ⊢ t ⇒* u ∷ A → ∇ » Γ ⊢ t ⇒* u ∷ A
 finally-⇒*∷ _ _ _ t⇒u = t⇒u
 
 syntax finally-⇒*∷ t A u t⇒u = t ∷ A ⇒*⟨ t⇒u ⟩∎∷ u ∎
@@ -240,7 +241,7 @@ syntax finally-⇒*∷ t A u t⇒u = t ∷ A ⇒*⟨ t⇒u ⟩∎∷ u ∎
 
 -- A variant of finally-⇒*∷.
 
-finally-⇒∷ : ∀ t A u → Γ ⊢ t ⇒ u ∷ A → Γ ⊢ t ⇒* u ∷ A
+finally-⇒∷ : ∀ t A u → ∇ » Γ ⊢ t ⇒ u ∷ A → ∇ » Γ ⊢ t ⇒* u ∷ A
 finally-⇒∷ _ _ _ t⇒u = redMany t⇒u
 
 syntax finally-⇒∷ t A u t⇒u = t ∷ A ⇒⟨ t⇒u ⟩∎∷ u ∎
@@ -251,7 +252,7 @@ syntax finally-⇒∷ t A u t⇒u = t ∷ A ⇒⟨ t⇒u ⟩∎∷ u ∎
 -- reasoning steps with a propositional equality, without the use of
 -- _∷_∎⟨_⟩⇒.
 
-finally-⇒*∷≡ : ∀ t A → u PE.≡ v → Γ ⊢ t ⇒* u ∷ A → Γ ⊢ t ⇒* v ∷ A
+finally-⇒*∷≡ : ∀ t A → u PE.≡ v → ∇ » Γ ⊢ t ⇒* u ∷ A → ∇ » Γ ⊢ t ⇒* v ∷ A
 finally-⇒*∷≡ _ _ PE.refl t⇒u = t⇒u
 
 syntax finally-⇒*∷≡ t A u≡v t⇒u = t ∷ A ⇒*⟨ t⇒u ⟩∎∷≡ u≡v
@@ -259,7 +260,7 @@ syntax finally-⇒*∷≡ t A u≡v t⇒u = t ∷ A ⇒*⟨ t⇒u ⟩∎∷≡ u
 -- A variant of finally-⇒*∷≡.
 
 finally-⇒∷≡ :
-  ∀ t A → u PE.≡ v → Γ ⊢ t ⇒ u ∷ A → Γ ⊢ t ⇒* v ∷ A
+  ∀ t A → u PE.≡ v → ∇ » Γ ⊢ t ⇒ u ∷ A → ∇ » Γ ⊢ t ⇒* v ∷ A
 finally-⇒∷≡ _ _ PE.refl = finally-⇒ _ _
 
 syntax finally-⇒∷≡ t A u≡v t⇒u = t ∷ A ⇒⟨ t⇒u ⟩∎∷≡ u≡v
@@ -277,14 +278,14 @@ opaque
 
   -- A single step.
 
-  step-⇐∷ : ∀ v A → Γ ⊢ t ⇒* u ∷ A → Γ ⊢ u ⇒ v ∷ A → Γ ⊢ t ⇒* v ∷ A
+  step-⇐∷ : ∀ v A → ∇ » Γ ⊢ t ⇒* u ∷ A → ∇ » Γ ⊢ u ⇒ v ∷ A → ∇ » Γ ⊢ t ⇒* v ∷ A
   step-⇐∷ _ _ t⇒u u⇒v = t⇒u ⇨∷* redMany u⇒v
 
   syntax step-⇐∷ v A t⇒u u⇒v = v ∷ A ⇐⟨ u⇒v ⟩∷ t⇒u
 
 -- Multiple steps.
 
-step-⇐*∷ : ∀ v A → Γ ⊢ t ⇒* u ∷ A → Γ ⊢ u ⇒* v ∷ A → Γ ⊢ t ⇒* v ∷ A
+step-⇐*∷ : ∀ v A → ∇ » Γ ⊢ t ⇒* u ∷ A → ∇ » Γ ⊢ u ⇒* v ∷ A → ∇ » Γ ⊢ t ⇒* v ∷ A
 step-⇐*∷ _ _ = _⇨∷*_
 
 syntax step-⇐*∷ v A t⇒u u⇒v = v ∷ A ⇐*⟨ u⇒v ⟩∷ t⇒u
@@ -293,7 +294,7 @@ syntax step-⇐*∷ v A t⇒u u⇒v = v ∷ A ⇐*⟨ u⇒v ⟩∷ t⇒u
 
 -- A reasoning step that uses propositional equality.
 
-step-⇐*∷≡ : ∀ v A → Γ ⊢ t ⇒* u ∷ A → v PE.≡ u → Γ ⊢ t ⇒* v ∷ A
+step-⇐*∷≡ : ∀ v A → ∇ » Γ ⊢ t ⇒* u ∷ A → v PE.≡ u → ∇ » Γ ⊢ t ⇒* v ∷ A
 step-⇐*∷≡ _ _ t⇒u PE.refl = t⇒u
 
 syntax step-⇐*∷≡ v A t⇒u v≡u = v ∷ A ≡⟨ v≡u ⟩⇐∷ t⇒u
@@ -301,14 +302,14 @@ syntax step-⇐*∷≡ v A t⇒u v≡u = v ∷ A ≡⟨ v≡u ⟩⇐∷ t⇒u
 -- A reasoning step that uses propositional equality, combined with
 -- symmetry.
 
-step-⇐*∷≡˘ : ∀ v A → Γ ⊢ t ⇒* u ∷ A → u PE.≡ v → Γ ⊢ t ⇒* v ∷ A
+step-⇐*∷≡˘ : ∀ v A → ∇ » Γ ⊢ t ⇒* u ∷ A → u PE.≡ v → ∇ » Γ ⊢ t ⇒* v ∷ A
 step-⇐*∷≡˘ _ _ t⇒u PE.refl = t⇒u
 
 syntax step-⇐*∷≡˘ v A t⇒u u≡v = v ∷ A ≡˘⟨ u≡v ⟩⇐∷ t⇒u
 
 -- A reasoning step that uses (Agda's) definitional equality.
 
-_∷_≡⟨⟩⇐∷_ : ∀ u A → Γ ⊢ t ⇒* u ∷ A → Γ ⊢ t ⇒* u ∷ A
+_∷_≡⟨⟩⇐∷_ : ∀ u A → ∇ » Γ ⊢ t ⇒* u ∷ A → ∇ » Γ ⊢ t ⇒* u ∷ A
 _ ∷ _ ≡⟨⟩⇐∷ t⇒u = t⇒u
 
 {-# INLINE _∷_≡⟨⟩⇐∷_ #-}
@@ -317,7 +318,7 @@ _ ∷ _ ≡⟨⟩⇐∷ t⇒u = t⇒u
 -- well-typed. In a non-empty chain of reasoning steps one can instead
 -- end with the following combinator.
 
-finally-⇐*∷ : ∀ u A t → Γ ⊢ t ⇒* u ∷ A → Γ ⊢ t ⇒* u ∷ A
+finally-⇐*∷ : ∀ u A t → ∇ » Γ ⊢ t ⇒* u ∷ A → ∇ » Γ ⊢ t ⇒* u ∷ A
 finally-⇐*∷ _ _ _ t⇒u = t⇒u
 
 syntax finally-⇐*∷ u A t t⇒u = u ∷ A ⇐*⟨ t⇒u ⟩∎∷ t ∎
@@ -326,7 +327,7 @@ syntax finally-⇐*∷ u A t t⇒u = u ∷ A ⇐*⟨ t⇒u ⟩∎∷ t ∎
 
 -- A variant of finally-⇐*∷.
 
-finally-⇐∷ : ∀ u A t → Γ ⊢ t ⇒ u ∷ A → Γ ⊢ t ⇒* u ∷ A
+finally-⇐∷ : ∀ u A t → ∇ » Γ ⊢ t ⇒ u ∷ A → ∇ » Γ ⊢ t ⇒* u ∷ A
 finally-⇐∷ _ _ _ t⇒u = redMany t⇒u
 
 syntax finally-⇐∷ u A t t⇒u = u ∷ A ⇐⟨ t⇒u ⟩∎∷ t ∎
@@ -337,14 +338,14 @@ syntax finally-⇐∷ u A t t⇒u = u ∷ A ⇐⟨ t⇒u ⟩∎∷ t ∎
 -- reasoning steps with a propositional equality, without the use of
 -- _∷_∎⟨_⟩⇒.
 
-finally-⇐*∷≡ : ∀ v A → u PE.≡ t → Γ ⊢ v ⇒* u ∷ A → Γ ⊢ v ⇒* t ∷ A
+finally-⇐*∷≡ : ∀ v A → u PE.≡ t → ∇ » Γ ⊢ v ⇒* u ∷ A → ∇ » Γ ⊢ v ⇒* t ∷ A
 finally-⇐*∷≡ _ _ PE.refl v⇒u = v⇒u
 
 syntax finally-⇐*∷≡ v A u≡t v⇒u = v ∷ A ⇐*⟨ v⇒u ⟩∎∷≡ u≡t
 
 -- A variant of finally-⇐*∷≡.
 
-finally-⇐∷≡ : ∀ v A → u PE.≡ t → Γ ⊢ v ⇒ u ∷ A → Γ ⊢ v ⇒* t ∷ A
+finally-⇐∷≡ : ∀ v A → u PE.≡ t → ∇ » Γ ⊢ v ⇒ u ∷ A → ∇ » Γ ⊢ v ⇒* t ∷ A
 finally-⇐∷≡ _ _ PE.refl = finally-⇐ _ _
 
 syntax finally-⇐∷≡ v A u≡t v⇒u = v ∷ A ⇐⟨ v⇒u ⟩∎∷≡ u≡t
@@ -357,7 +358,7 @@ infix -1 _∷_∎⟨_⟩⇒
 
 -- Reflexivity.
 
-_∷_∎⟨_⟩⇒ : ∀ t A → Γ ⊢ t ∷ A → Γ ⊢ t ⇒* t ∷ A
+_∷_∎⟨_⟩⇒ : ∀ t A → ∇ » Γ ⊢ t ∷ A → ∇ » Γ ⊢ t ⇒* t ∷ A
 _ ∷ _ ∎⟨ ⊢t ⟩⇒ = id ⊢t
 
 {-# INLINE _∷_∎⟨_⟩⇒ #-}
@@ -371,7 +372,7 @@ opaque
 
   -- Conversion.
 
-  step-⇒*-conv : Γ ⊢ t ⇒* u ∷ B → Γ ⊢ A ≡ B → Γ ⊢ t ⇒* u ∷ A
+  step-⇒*-conv : ∇ » Γ ⊢ t ⇒* u ∷ B → ∇ » Γ ⊢ A ≡ B → ∇ » Γ ⊢ t ⇒* u ∷ A
   step-⇒*-conv t⇒u A≡B = conv* t⇒u (sym A≡B)
 
   syntax step-⇒*-conv t⇒u A≡B = ⟨ A≡B ⟩⇒ t⇒u
@@ -380,21 +381,21 @@ opaque
 
   -- Conversion.
 
-  step-⇒*-conv˘ : Γ ⊢ t ⇒* u ∷ B → Γ ⊢ B ≡ A → Γ ⊢ t ⇒* u ∷ A
+  step-⇒*-conv˘ : ∇ » Γ ⊢ t ⇒* u ∷ B → ∇ » Γ ⊢ B ≡ A → ∇ » Γ ⊢ t ⇒* u ∷ A
   step-⇒*-conv˘ t⇒u B≡A = conv* t⇒u B≡A
 
   syntax step-⇒*-conv˘ t⇒u B≡A = ˘⟨ B≡A ⟩⇒ t⇒u
 
 -- Conversion using propositional equality.
 
-step-⇒*-conv-≡ : Γ ⊢ t ⇒* u ∷ B → A PE.≡ B → Γ ⊢ t ⇒* u ∷ A
+step-⇒*-conv-≡ : ∇ » Γ ⊢ t ⇒* u ∷ B → A PE.≡ B → ∇ » Γ ⊢ t ⇒* u ∷ A
 step-⇒*-conv-≡ t⇒u PE.refl = t⇒u
 
 syntax step-⇒*-conv-≡ t⇒u A≡B = ⟨ A≡B ⟩⇒≡ t⇒u
 
 -- Conversion using propositional equality.
 
-step-⇒*-conv-≡˘ : Γ ⊢ t ⇒* u ∷ B → B PE.≡ A → Γ ⊢ t ⇒* u ∷ A
+step-⇒*-conv-≡˘ : ∇ » Γ ⊢ t ⇒* u ∷ B → B PE.≡ A → ∇ » Γ ⊢ t ⇒* u ∷ A
 step-⇒*-conv-≡˘ t⇒u PE.refl = t⇒u
 
 syntax step-⇒*-conv-≡˘ t⇒u B≡A = ˘⟨ B≡A ⟩⇒≡ t⇒u
@@ -407,7 +408,7 @@ infix -2 step-∷⇒*-conv step-∷⇒*-conv˘ step-∷⇒*-conv-≡ step-∷⇒
 
 -- Conversion.
 
-step-∷⇒*-conv : ∀ A → Γ ⊢ t ⇒* u ∷ B → Γ ⊢ A ≡ B → Γ ⊢ t ⇒* u ∷ A
+step-∷⇒*-conv : ∀ A → ∇ » Γ ⊢ t ⇒* u ∷ B → ∇ » Γ ⊢ A ≡ B → ∇ » Γ ⊢ t ⇒* u ∷ A
 step-∷⇒*-conv _ = step-⇒*-conv
 
 syntax step-∷⇒*-conv A t⇒u A≡B = ∷ A ⟨ A≡B ⟩⇒ t⇒u
@@ -416,7 +417,7 @@ syntax step-∷⇒*-conv A t⇒u A≡B = ∷ A ⟨ A≡B ⟩⇒ t⇒u
 
 -- Conversion.
 
-step-∷⇒*-conv˘ : ∀ A → Γ ⊢ t ⇒* u ∷ B → Γ ⊢ B ≡ A → Γ ⊢ t ⇒* u ∷ A
+step-∷⇒*-conv˘ : ∀ A → ∇ » Γ ⊢ t ⇒* u ∷ B → ∇ » Γ ⊢ B ≡ A → ∇ » Γ ⊢ t ⇒* u ∷ A
 step-∷⇒*-conv˘ _ = step-⇒*-conv˘
 
 syntax step-∷⇒*-conv˘ A t⇒u B≡A = ∷ A ˘⟨ B≡A ⟩⇒ t⇒u
@@ -425,14 +426,14 @@ syntax step-∷⇒*-conv˘ A t⇒u B≡A = ∷ A ˘⟨ B≡A ⟩⇒ t⇒u
 
 -- Conversion using propositional equality.
 
-step-∷⇒*-conv-≡ : ∀ A → Γ ⊢ t ⇒* u ∷ B → A PE.≡ B → Γ ⊢ t ⇒* u ∷ A
+step-∷⇒*-conv-≡ : ∀ A → ∇ » Γ ⊢ t ⇒* u ∷ B → A PE.≡ B → ∇ » Γ ⊢ t ⇒* u ∷ A
 step-∷⇒*-conv-≡ _ t⇒u PE.refl = t⇒u
 
 syntax step-∷⇒*-conv-≡ A t⇒u A≡B = ∷ A ⟨ A≡B ⟩⇒≡ t⇒u
 
 -- Conversion using propositional equality.
 
-step-∷⇒*-conv-≡˘ : ∀ A → Γ ⊢ t ⇒* u ∷ B → B PE.≡ A → Γ ⊢ t ⇒* u ∷ A
+step-∷⇒*-conv-≡˘ : ∀ A → ∇ » Γ ⊢ t ⇒* u ∷ B → B PE.≡ A → ∇ » Γ ⊢ t ⇒* u ∷ A
 step-∷⇒*-conv-≡˘ _ t⇒u PE.refl = t⇒u
 
 syntax step-∷⇒*-conv-≡˘ A t⇒u B≡A = ∷ A ˘⟨ B≡A ⟩⇒≡ t⇒u
@@ -445,7 +446,7 @@ infix -2 step-∷⇐*-conv step-∷⇐*-conv˘ step-∷⇐*-conv-≡ step-∷⇐
 
 -- Conversion.
 
-step-∷⇐*-conv : ∀ A → Γ ⊢ t ⇒* u ∷ B → Γ ⊢ A ≡ B → Γ ⊢ t ⇒* u ∷ A
+step-∷⇐*-conv : ∀ A → ∇ » Γ ⊢ t ⇒* u ∷ B → ∇ » Γ ⊢ A ≡ B → ∇ » Γ ⊢ t ⇒* u ∷ A
 step-∷⇐*-conv _ = step-⇒*-conv
 
 syntax step-∷⇐*-conv A t⇒u A≡B = ∷ A ⟨ A≡B ⟩⇐ t⇒u
@@ -454,7 +455,7 @@ syntax step-∷⇐*-conv A t⇒u A≡B = ∷ A ⟨ A≡B ⟩⇐ t⇒u
 
 -- Conversion.
 
-step-∷⇐*-conv˘ : ∀ A → Γ ⊢ t ⇒* u ∷ B → Γ ⊢ B ≡ A → Γ ⊢ t ⇒* u ∷ A
+step-∷⇐*-conv˘ : ∀ A → ∇ » Γ ⊢ t ⇒* u ∷ B → ∇ » Γ ⊢ B ≡ A → ∇ » Γ ⊢ t ⇒* u ∷ A
 step-∷⇐*-conv˘ _ = step-⇒*-conv˘
 
 syntax step-∷⇐*-conv˘ A t⇒u B≡A = ∷ A ˘⟨ B≡A ⟩⇐ t⇒u
@@ -463,14 +464,14 @@ syntax step-∷⇐*-conv˘ A t⇒u B≡A = ∷ A ˘⟨ B≡A ⟩⇐ t⇒u
 
 -- Conversion using propositional equality.
 
-step-∷⇐*-conv-≡ : ∀ A → Γ ⊢ t ⇒* u ∷ B → A PE.≡ B → Γ ⊢ t ⇒* u ∷ A
+step-∷⇐*-conv-≡ : ∀ A → ∇ » Γ ⊢ t ⇒* u ∷ B → A PE.≡ B → ∇ » Γ ⊢ t ⇒* u ∷ A
 step-∷⇐*-conv-≡ _ t⇒u PE.refl = t⇒u
 
 syntax step-∷⇐*-conv-≡ A t⇒u A≡B = ∷ A ⟨ A≡B ⟩⇐≡ t⇒u
 
 -- Conversion using propositional equality.
 
-step-∷⇐*-conv-≡˘ : ∀ A → Γ ⊢ t ⇒* u ∷ B → B PE.≡ A → Γ ⊢ t ⇒* u ∷ A
+step-∷⇐*-conv-≡˘ : ∀ A → ∇ » Γ ⊢ t ⇒* u ∷ B → B PE.≡ A → ∇ » Γ ⊢ t ⇒* u ∷ A
 step-∷⇐*-conv-≡˘ _ t⇒u PE.refl = t⇒u
 
 syntax step-∷⇐*-conv-≡˘ A t⇒u B≡A = ∷ A ˘⟨ B≡A ⟩⇐≡ t⇒u

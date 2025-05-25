@@ -45,8 +45,9 @@ open import Tools.Relation
 open import Tools.Sum using (_⊎_; inj₁; inj₂)
 
 private variable
-  n             : Nat
+  m n           : Nat
   x             : Fin _
+  ∇             : DCon _ _
   Γ Δ           : Con _ _
   A B C t u v w : Term _
   b             : BinderMode
@@ -60,141 +61,141 @@ private variable
 
 mutual
 
-  -- Γ ⊢nf A holds if A is a type in η-long normal form (with respect
+  -- ∇ » Γ ⊢nf A holds if A is a type in η-long normal form (with respect
   -- to the context Γ).
 
-  infix 4 _⊢nf_
+  infix 4 _»_⊢nf_
 
-  data _⊢nf_ (Γ : Con Term n) : Term n → Set a where
-    Uₙ     : ⊢ Γ →
-             Γ ⊢nf U l
-    univₙ  : Γ ⊢nf A ∷ U l →
-             Γ ⊢nf A
-    ΠΣₙ    : Γ ⊢nf A →
-             Γ ∙ A ⊢nf B →
+  data _»_⊢nf_ (∇ : DCon (Term 0) m) (Γ : Con Term n) : Term n → Set a where
+    Uₙ     : ∇ »⊢ Γ →
+             ∇ » Γ ⊢nf U l
+    univₙ  : ∇ » Γ ⊢nf A ∷ U l →
+             ∇ » Γ ⊢nf A
+    ΠΣₙ    : ∇ » Γ ⊢nf A →
+             ∇ » Γ ∙ A ⊢nf B →
              ΠΣ-allowed b p q →
-             Γ ⊢nf ΠΣ⟨ b ⟩ p , q ▷ A ▹ B
-    Emptyₙ : ⊢ Γ →
-             Γ ⊢nf Empty
-    Unitₙ  : ⊢ Γ →
+             ∇ » Γ ⊢nf ΠΣ⟨ b ⟩ p , q ▷ A ▹ B
+    Emptyₙ : ∇ »⊢ Γ →
+             ∇ » Γ ⊢nf Empty
+    Unitₙ  : ∇ »⊢ Γ →
              Unit-allowed s →
-             Γ ⊢nf Unit s l
-    ℕₙ     : ⊢ Γ →
-             Γ ⊢nf ℕ
-    Idₙ    : Γ ⊢nf A →
-             Γ ⊢nf t ∷ A →
-             Γ ⊢nf u ∷ A →
-             Γ ⊢nf Id A t u
+             ∇ » Γ ⊢nf Unit s l
+    ℕₙ     : ∇ »⊢ Γ →
+             ∇ » Γ ⊢nf ℕ
+    Idₙ    : ∇ » Γ ⊢nf A →
+             ∇ » Γ ⊢nf t ∷ A →
+             ∇ » Γ ⊢nf u ∷ A →
+             ∇ » Γ ⊢nf Id A t u
 
-  -- Γ ⊢nf t ∷ A holds if t is a term in η-long normal form (with
+  -- ∇ » Γ ⊢nf t ∷ A holds if t is a term in η-long normal form (with
   -- respect to the context Γ and the type A).
 
-  infix 4 _⊢nf_∷_
+  infix 4 _»_⊢nf_∷_
 
-  data _⊢nf_∷_ (Γ : Con Term n) : Term n → Term n → Set a where
-    convₙ  : Γ ⊢nf t ∷ A →
-             Γ ⊢ A ≡ B →
-             Γ ⊢nf t ∷ B
-    Uₙ     : ⊢ Γ →
-             Γ ⊢nf U l ∷ U (1+ l)
-    ΠΣₙ    : Γ ⊢nf A ∷ U l₁ →
-             Γ ∙ A ⊢nf B ∷ U l₂ →
+  data _»_⊢nf_∷_ (∇ : DCon (Term 0) m) (Γ : Con Term n) : Term n → Term n → Set a where
+    convₙ  : ∇ » Γ ⊢nf t ∷ A →
+             ∇ » Γ ⊢ A ≡ B →
+             ∇ » Γ ⊢nf t ∷ B
+    Uₙ     : ∇ »⊢ Γ →
+             ∇ » Γ ⊢nf U l ∷ U (1+ l)
+    ΠΣₙ    : ∇ » Γ ⊢nf A ∷ U l₁ →
+             ∇ » Γ ∙ A ⊢nf B ∷ U l₂ →
              ΠΣ-allowed b p q →
-             Γ ⊢nf ΠΣ⟨ b ⟩ p , q ▷ A ▹ B ∷ U (l₁ ⊔ᵘ l₂)
-    lamₙ   : Γ ∙ A ⊢nf t ∷ B →
+             ∇ » Γ ⊢nf ΠΣ⟨ b ⟩ p , q ▷ A ▹ B ∷ U (l₁ ⊔ᵘ l₂)
+    lamₙ   : ∇ » Γ ∙ A ⊢nf t ∷ B →
              Π-allowed p q →
-             Γ ⊢nf lam p t ∷ Π p , q ▷ A ▹ B
-    prodₙ  : Γ ∙ A ⊢ B →
-             Γ ⊢nf t ∷ A →
-             Γ ⊢nf u ∷ B [ t ]₀ →
+             ∇ » Γ ⊢nf lam p t ∷ Π p , q ▷ A ▹ B
+    prodₙ  : ∇ » Γ ∙ A ⊢ B →
+             ∇ » Γ ⊢nf t ∷ A →
+             ∇ » Γ ⊢nf u ∷ B [ t ]₀ →
              Σ-allowed s p q →
-             Γ ⊢nf prod s p t u ∷ Σ⟨ s ⟩ p , q ▷ A ▹ B
-    Emptyₙ : ⊢ Γ →
-             Γ ⊢nf Empty ∷ U 0
-    Unitₙ  : ⊢ Γ →
+             ∇ » Γ ⊢nf prod s p t u ∷ Σ⟨ s ⟩ p , q ▷ A ▹ B
+    Emptyₙ : ∇ »⊢ Γ →
+             ∇ » Γ ⊢nf Empty ∷ U 0
+    Unitₙ  : ∇ »⊢ Γ →
              Unit-allowed s →
-             Γ ⊢nf Unit s l ∷ U l
-    starₙ  : ⊢ Γ →
+             ∇ » Γ ⊢nf Unit s l ∷ U l
+    starₙ  : ∇ »⊢ Γ →
              Unit-allowed s →
-             Γ ⊢nf star s l ∷ Unit s l
-    ℕₙ     : ⊢ Γ →
-             Γ ⊢nf ℕ ∷ U 0
-    zeroₙ  : ⊢ Γ →
-             Γ ⊢nf zero ∷ ℕ
-    sucₙ   : Γ ⊢nf t ∷ ℕ →
-             Γ ⊢nf suc t ∷ ℕ
-    Idₙ    : Γ ⊢nf A ∷ U l →
-             Γ ⊢nf t ∷ A →
-             Γ ⊢nf u ∷ A →
-             Γ ⊢nf Id A t u ∷ U l
-    rflₙ   : Γ ⊢ t ∷ A →
-             Γ ⊢nf rfl ∷ Id A t t
+             ∇ » Γ ⊢nf star s l ∷ Unit s l
+    ℕₙ     : ∇ »⊢ Γ →
+             ∇ » Γ ⊢nf ℕ ∷ U 0
+    zeroₙ  : ∇ »⊢ Γ →
+             ∇ » Γ ⊢nf zero ∷ ℕ
+    sucₙ   : ∇ » Γ ⊢nf t ∷ ℕ →
+             ∇ » Γ ⊢nf suc t ∷ ℕ
+    Idₙ    : ∇ » Γ ⊢nf A ∷ U l →
+             ∇ » Γ ⊢nf t ∷ A →
+             ∇ » Γ ⊢nf u ∷ A →
+             ∇ » Γ ⊢nf Id A t u ∷ U l
+    rflₙ   : ∇ » Γ ⊢ t ∷ A →
+             ∇ » Γ ⊢nf rfl ∷ Id A t t
     neₙ    : No-η-equality A →
-             Γ ⊢ne t ∷ A →
-             Γ ⊢nf t ∷ A
+             ∇ » Γ ⊢ne t ∷ A →
+             ∇ » Γ ⊢nf t ∷ A
 
-  -- Γ ⊢ne t ∷ A holds if t is a neutral term (with respect to the
+  -- ∇ » Γ ⊢ne t ∷ A holds if t is a neutral term (with respect to the
   -- context Γ and the type A) for which the "non-neutral parts" are
   -- in η-long normal form.
 
-  infix 4 _⊢ne_∷_
+  infix 4 _»_⊢ne_∷_
 
-  data _⊢ne_∷_ (Γ : Con Term n) : Term n → Term n → Set a where
-    convₙ     : Γ ⊢ne t ∷ A →
-                Γ ⊢ A ≡ B →
-                Γ ⊢ne t ∷ B
-    varₙ      : ⊢ Γ →
+  data _»_⊢ne_∷_ (∇ : DCon (Term 0) m) (Γ : Con Term n) : Term n → Term n → Set a where
+    convₙ     : ∇ » Γ ⊢ne t ∷ A →
+                ∇ » Γ ⊢ A ≡ B →
+                ∇ » Γ ⊢ne t ∷ B
+    varₙ      : ∇ »⊢ Γ →
                 x ∷ A ∈ Γ →
-                Γ ⊢ne var x ∷ A
-    ∘ₙ        : Γ ⊢ne t ∷ Π p , q ▷ A ▹ B →
-                Γ ⊢nf u ∷ A →
-                Γ ⊢ne t ∘⟨ p ⟩ u ∷ B [ u ]₀
-    fstₙ      : Γ ∙ A ⊢ B →
-                Γ ⊢ne t ∷ Σˢ p , q ▷ A ▹ B →
-                Γ ⊢ne fst p t ∷ A
-    sndₙ      : Γ ∙ A ⊢ B →
-                Γ ⊢ne t ∷ Σˢ p , q ▷ A ▹ B →
-                Γ ⊢ne snd p t ∷ B [ fst p t ]₀
-    prodrecₙ  : Γ ∙ Σʷ p , q′ ▷ A ▹ B ⊢nf C →
-                Γ ⊢ne t ∷ Σʷ p , q′ ▷ A ▹ B →
-                Γ ∙ A ∙ B ⊢nf u ∷ C [ prodʷ p (var x1) (var x0) ]↑² →
+                ∇ » Γ ⊢ne var x ∷ A
+    ∘ₙ        : ∇ » Γ ⊢ne t ∷ Π p , q ▷ A ▹ B →
+                ∇ » Γ ⊢nf u ∷ A →
+                ∇ » Γ ⊢ne t ∘⟨ p ⟩ u ∷ B [ u ]₀
+    fstₙ      : ∇ » Γ ∙ A ⊢ B →
+                ∇ » Γ ⊢ne t ∷ Σˢ p , q ▷ A ▹ B →
+                ∇ » Γ ⊢ne fst p t ∷ A
+    sndₙ      : ∇ » Γ ∙ A ⊢ B →
+                ∇ » Γ ⊢ne t ∷ Σˢ p , q ▷ A ▹ B →
+                ∇ » Γ ⊢ne snd p t ∷ B [ fst p t ]₀
+    prodrecₙ  : ∇ » Γ ∙ Σʷ p , q′ ▷ A ▹ B ⊢nf C →
+                ∇ » Γ ⊢ne t ∷ Σʷ p , q′ ▷ A ▹ B →
+                ∇ » Γ ∙ A ∙ B ⊢nf u ∷ C [ prodʷ p (var x1) (var x0) ]↑² →
                 Σʷ-allowed p q′ →
-                Γ ⊢ne prodrec r p q C t u ∷ C [ t ]₀
-    emptyrecₙ : Γ ⊢nf A →
-                Γ ⊢ne t ∷ Empty →
-                Γ ⊢ne emptyrec p A t ∷ A
-    natrecₙ   : Γ ∙ ℕ ⊢nf A →
-                Γ ⊢nf t ∷ A [ zero ]₀ →
-                Γ ∙ ℕ ∙ A ⊢nf u ∷ A [ suc (var x1) ]↑² →
-                Γ ⊢ne v ∷ ℕ →
-                Γ ⊢ne natrec p q r A t u v ∷ A [ v ]₀
-    unitrecₙ  : Γ ∙ Unitʷ l ⊢nf A →
-                Γ ⊢ne t ∷ Unitʷ l →
-                Γ ⊢nf u ∷ A [ starʷ l ]₀ →
+                ∇ » Γ ⊢ne prodrec r p q C t u ∷ C [ t ]₀
+    emptyrecₙ : ∇ » Γ ⊢nf A →
+                ∇ » Γ ⊢ne t ∷ Empty →
+                ∇ » Γ ⊢ne emptyrec p A t ∷ A
+    natrecₙ   : ∇ » Γ ∙ ℕ ⊢nf A →
+                ∇ » Γ ⊢nf t ∷ A [ zero ]₀ →
+                ∇ » Γ ∙ ℕ ∙ A ⊢nf u ∷ A [ suc (var x1) ]↑² →
+                ∇ » Γ ⊢ne v ∷ ℕ →
+                ∇ » Γ ⊢ne natrec p q r A t u v ∷ A [ v ]₀
+    unitrecₙ  : ∇ » Γ ∙ Unitʷ l ⊢nf A →
+                ∇ » Γ ⊢ne t ∷ Unitʷ l →
+                ∇ » Γ ⊢nf u ∷ A [ starʷ l ]₀ →
                 Unitʷ-allowed →
                 ¬ Unitʷ-η →
-                Γ ⊢ne unitrec l p q A t u ∷ A [ t ]₀
-    Jₙ        : Γ ⊢nf A →
-                Γ ⊢nf t ∷ A →
-                Γ ∙ A ∙ Id (wk1 A) (wk1 t) (var x0) ⊢nf B →
-                Γ ⊢nf u ∷ B [ t , rfl ]₁₀ →
-                Γ ⊢nf v ∷ A →
-                Γ ⊢ne w ∷ Id A t v →
-                Γ ⊢ne J p q A t B u v w ∷ B [ v , w ]₁₀
-    Kₙ        : Γ ⊢nf A →
-                Γ ⊢nf t ∷ A →
-                Γ ∙ Id A t t ⊢nf B →
-                Γ ⊢nf u ∷ B [ rfl ]₀ →
-                Γ ⊢ne v ∷ Id A t t →
+                ∇ » Γ ⊢ne unitrec l p q A t u ∷ A [ t ]₀
+    Jₙ        : ∇ » Γ ⊢nf A →
+                ∇ » Γ ⊢nf t ∷ A →
+                ∇ » Γ ∙ A ∙ Id (wk1 A) (wk1 t) (var x0) ⊢nf B →
+                ∇ » Γ ⊢nf u ∷ B [ t , rfl ]₁₀ →
+                ∇ » Γ ⊢nf v ∷ A →
+                ∇ » Γ ⊢ne w ∷ Id A t v →
+                ∇ » Γ ⊢ne J p q A t B u v w ∷ B [ v , w ]₁₀
+    Kₙ        : ∇ » Γ ⊢nf A →
+                ∇ » Γ ⊢nf t ∷ A →
+                ∇ » Γ ∙ Id A t t ⊢nf B →
+                ∇ » Γ ⊢nf u ∷ B [ rfl ]₀ →
+                ∇ » Γ ⊢ne v ∷ Id A t t →
                 K-allowed →
-                Γ ⊢ne K p A t B u v ∷ B [ v ]₀
-    []-congₙ  : Γ ⊢nf A →
-                Γ ⊢nf t ∷ A →
-                Γ ⊢nf u ∷ A →
-                Γ ⊢ne v ∷ Id A t u →
+                ∇ » Γ ⊢ne K p A t B u v ∷ B [ v ]₀
+    []-congₙ  : ∇ » Γ ⊢nf A →
+                ∇ » Γ ⊢nf t ∷ A →
+                ∇ » Γ ⊢nf u ∷ A →
+                ∇ » Γ ⊢ne v ∷ Id A t u →
                 []-cong-allowed s →
                 let open Erased s in
-                Γ ⊢ne []-cong s A t u v ∷
+                ∇ » Γ ⊢ne []-cong s A t u v ∷
                   Id (Erased A) ([ t ]) ([ u ])
 
 ------------------------------------------------------------------------
@@ -204,7 +205,7 @@ mutual
 
   -- If A is an η-long normal type, then A is well-typed.
 
-  ⊢nf→⊢ : Γ ⊢nf A → Γ ⊢ A
+  ⊢nf→⊢ : ∇ » Γ ⊢nf A → ∇ » Γ ⊢ A
   ⊢nf→⊢ = λ where
     (Uₙ ⊢Γ)       → Uⱼ ⊢Γ
     (univₙ ⊢A)    → univ (⊢nf∷→⊢∷ ⊢A)
@@ -216,7 +217,7 @@ mutual
 
   -- If t is an η-long normal term, then t is well-typed.
 
-  ⊢nf∷→⊢∷ : Γ ⊢nf t ∷ A → Γ ⊢ t ∷ A
+  ⊢nf∷→⊢∷ : ∇ » Γ ⊢nf t ∷ A → ∇ » Γ ⊢ t ∷ A
   ⊢nf∷→⊢∷ = λ where
     (convₙ ⊢t A≡B)      → conv (⊢nf∷→⊢∷ ⊢t) A≡B
     (Uₙ ⊢Γ)             → Uⱼ ⊢Γ
@@ -233,9 +234,9 @@ mutual
     (rflₙ ⊢t)           → rflⱼ ⊢t
     (neₙ _ ⊢t)          → ⊢ne∷→⊢∷ ⊢t
 
-  -- If Γ ⊢ne t ∷ A holds, then t is well-typed.
+  -- If ∇ » Γ ⊢ne t ∷ A holds, then t is well-typed.
 
-  ⊢ne∷→⊢∷ : Γ ⊢ne t ∷ A → Γ ⊢ t ∷ A
+  ⊢ne∷→⊢∷ : ∇ » Γ ⊢ne t ∷ A → ∇ » Γ ⊢ t ∷ A
   ⊢ne∷→⊢∷ = λ where
     (convₙ ⊢t A≡B)           → conv (⊢ne∷→⊢∷ ⊢t) A≡B
     (varₙ ⊢Γ x∈)             → var ⊢Γ x∈
@@ -259,7 +260,7 @@ mutual
 
   -- If A is an η-long normal type, then A is normal.
 
-  ⊢nf→Nf : Γ ⊢nf A → Nf A
+  ⊢nf→Nf : ∇ » Γ ⊢nf A → Nf A
   ⊢nf→Nf = λ where
     (Uₙ _)         → Uₙ
     (univₙ ⊢A)     → ⊢nf∷→Nf ⊢A
@@ -271,7 +272,7 @@ mutual
 
   -- If t is an η-long normal term, then t is normal.
 
-  ⊢nf∷→Nf : Γ ⊢nf t ∷ A → Nf t
+  ⊢nf∷→Nf : ∇ » Γ ⊢nf t ∷ A → Nf t
   ⊢nf∷→Nf = λ where
     (convₙ ⊢t _)      → ⊢nf∷→Nf ⊢t
     (Uₙ _)            → Uₙ
@@ -288,9 +289,9 @@ mutual
     (rflₙ ⊢t)         → rflₙ
     (neₙ _ ⊢t)        → ne (⊢ne∷→NfNeutral ⊢t)
 
-  -- If Γ ⊢ne t ∷ A holds, then t is "NfNeutral".
+  -- If ∇ » Γ ⊢ne t ∷ A holds, then t is "NfNeutral".
 
-  ⊢ne∷→NfNeutral : Γ ⊢ne t ∷ A → NfNeutral t
+  ⊢ne∷→NfNeutral : ∇ » Γ ⊢ne t ∷ A → NfNeutral t
   ⊢ne∷→NfNeutral = λ where
     (convₙ ⊢t _)                 → ⊢ne∷→NfNeutral ⊢t
     (varₙ _ _)                   → var _
@@ -324,12 +325,12 @@ opaque
 
   ⊢nf∷U→⊢nf∷U :
     ⦃ not-ok : No-equality-reflection ⦄ →
-    Γ ⊢nf A → Γ ⊢ A ∷ U l → Γ ⊢nf A ∷ U l
+    ∇ » Γ ⊢nf A → ∇ » Γ ⊢ A ∷ U l → ∇ » Γ ⊢nf A ∷ U l
   ⊢nf∷U→⊢nf∷U = λ where
     (Uₙ ⊢Γ) ⊢U →
       convₙ (Uₙ ⊢Γ) (sym $ inversion-U ⊢U)
     (univₙ ⊢A) ⊢A∷U →
-      PE.subst (_⊢nf_∷_ _ _)
+      PE.subst (_»_⊢nf_∷_ _ _ _)
         (PE.cong U $ universe-level-unique (⊢nf∷→⊢∷ ⊢A) ⊢A∷U) ⊢A
     (ΠΣₙ ⊢A ⊢B ok) ⊢ΠΣ →
       let _ , _ , ⊢A∷U , ⊢B∷U , U≡U , _ = inversion-ΠΣ-U ⊢ΠΣ in
@@ -354,7 +355,7 @@ mutual
   -- judgmentally equal to Δ, then A is also a normal type with
   -- respect to Δ.
 
-  ⊢nf-stable : ⊢ Γ ≡ Δ → Γ ⊢nf A → Δ ⊢nf A
+  ⊢nf-stable : ∇ »⊢ Γ ≡ Δ → ∇ » Γ ⊢nf A → ∇ » Δ ⊢nf A
   ⊢nf-stable Γ≡Δ = λ where
       (Uₙ ⊢Γ)        → Uₙ ⊢Δ
       (univₙ ⊢A)     → univₙ (⊢nf∷-stable Γ≡Δ ⊢A)
@@ -372,7 +373,7 @@ mutual
   -- judgmentally equal to Δ, then t is also a normal term with
   -- respect to Δ.
 
-  ⊢nf∷-stable : ⊢ Γ ≡ Δ → Γ ⊢nf t ∷ A → Δ ⊢nf t ∷ A
+  ⊢nf∷-stable : ∇ »⊢ Γ ≡ Δ → ∇ » Γ ⊢nf t ∷ A → ∇ » Δ ⊢nf t ∷ A
   ⊢nf∷-stable Γ≡Δ = λ where
       (convₙ ⊢t B≡A) → convₙ
         (⊢nf∷-stable Γ≡Δ ⊢t)
@@ -413,7 +414,7 @@ mutual
   -- context Γ, and Γ is judgmentally equal to Δ, then t is also a
   -- neutral term with respect to Δ.
 
-  ⊢ne∷-stable : ⊢ Γ ≡ Δ → Γ ⊢ne t ∷ A → Δ ⊢ne t ∷ A
+  ⊢ne∷-stable : ∇ »⊢ Γ ≡ Δ → ∇ » Γ ⊢ne t ∷ A → ∇ » Δ ⊢ne t ∷ A
   ⊢ne∷-stable Γ≡Δ = λ where
       (convₙ ⊢t B≡A) → convₙ
         (⊢ne∷-stable Γ≡Δ ⊢t)
@@ -484,9 +485,9 @@ mutual
 -- Inversion for terms that are Π- or Σ-types.
 
 inversion-nf-ΠΣ-U :
-  Γ ⊢nf ΠΣ⟨ b ⟩ p , q ▷ A ▹ B ∷ C →
+  ∇ » Γ ⊢nf ΠΣ⟨ b ⟩ p , q ▷ A ▹ B ∷ C →
   ∃₂ λ l₁ l₂ →
-  Γ ⊢nf A ∷ U l₁ × Γ ∙ A ⊢nf B ∷ U l₂ × Γ ⊢ C ≡ U (l₁ ⊔ᵘ l₂) ×
+  ∇ » Γ ⊢nf A ∷ U l₁ × ∇ » Γ ∙ A ⊢nf B ∷ U l₂ × ∇ » Γ ⊢ C ≡ U (l₁ ⊔ᵘ l₂) ×
   ΠΣ-allowed b p q
 inversion-nf-ΠΣ-U (ΠΣₙ ⊢A ⊢B ok) =
   _ , _ , ⊢A , ⊢B , refl (Uⱼ (wfTerm (⊢nf∷→⊢∷ ⊢A))) , ok
@@ -500,8 +501,8 @@ inversion-nf-ΠΣ-U (neₙ _ ⊢ΠΣ) =
 -- Inversion for Π- and Σ-types.
 
 inversion-nf-ΠΣ :
-  Γ ⊢nf ΠΣ⟨ b ⟩ p , q ▷ A ▹ B →
-  Γ ⊢nf A × Γ ∙ A ⊢nf B × ΠΣ-allowed b p q
+  ∇ » Γ ⊢nf ΠΣ⟨ b ⟩ p , q ▷ A ▹ B →
+  ∇ » Γ ⊢nf A × ∇ » Γ ∙ A ⊢nf B × ΠΣ-allowed b p q
 inversion-nf-ΠΣ = λ where
   (ΠΣₙ ⊢A ⊢B ok) → ⊢A , ⊢B , ok
   (univₙ ⊢ΠΣAB)  → case inversion-nf-ΠΣ-U ⊢ΠΣAB of λ where
@@ -510,10 +511,10 @@ inversion-nf-ΠΣ = λ where
 -- Inversion for lam.
 
 inversion-nf-lam :
-  Γ ⊢nf lam p t ∷ A →
+  ∇ » Γ ⊢nf lam p t ∷ A →
   ∃₃ λ B C q →
-     Γ ∙ B ⊢nf t ∷ C ×
-     Γ ⊢ A ≡ Π p , q ▷ B ▹ C ×
+     ∇ » Γ ∙ B ⊢nf t ∷ C ×
+     ∇ » Γ ⊢ A ≡ Π p , q ▷ B ▹ C ×
      Π-allowed p q
 inversion-nf-lam (neₙ _ ⊢lam) =
   case ⊢ne∷→NfNeutral ⊢lam of λ ()
@@ -527,11 +528,11 @@ inversion-nf-lam (convₙ ⊢lam A≡B) =
 -- Inversion for prod.
 
 inversion-nf-prod :
-  Γ ⊢nf prod s p t u ∷ A →
+  ∇ » Γ ⊢nf prod s p t u ∷ A →
   ∃₃ λ B C q →
-    (Γ ∙ B ⊢ C) ×
-    Γ ⊢nf t ∷ B × Γ ⊢nf u ∷ C [ t ]₀ ×
-    Γ ⊢ A ≡ Σ⟨ s ⟩ p , q ▷ B ▹ C ×
+    (∇ » Γ ∙ B ⊢ C) ×
+    ∇ » Γ ⊢nf t ∷ B × ∇ » Γ ⊢nf u ∷ C [ t ]₀ ×
+    ∇ » Γ ⊢ A ≡ Σ⟨ s ⟩ p , q ▷ B ▹ C ×
     Σ-allowed s p q
 inversion-nf-prod (neₙ _ ⊢prod) =
   case ⊢ne∷→NfNeutral ⊢prod of λ ()
@@ -545,8 +546,8 @@ inversion-nf-prod (convₙ ⊢prod A≡B) =
 -- Inversion for suc.
 
 inversion-nf-suc :
-  Γ ⊢nf suc t ∷ A →
-  Γ ⊢nf t ∷ ℕ × Γ ⊢ A ≡ ℕ
+  ∇ » Γ ⊢nf suc t ∷ A →
+  ∇ » Γ ⊢nf t ∷ ℕ × ∇ » Γ ⊢ A ≡ ℕ
 inversion-nf-suc (neₙ _ ⊢suc) =
   case ⊢ne∷→NfNeutral ⊢suc of λ ()
 inversion-nf-suc (sucₙ ⊢t) =
@@ -559,9 +560,9 @@ inversion-nf-suc (convₙ ⊢suc A≡B) =
 -- Inversion for application.
 
 inversion-ne-app :
-  Γ ⊢ne t ∘⟨ p ⟩ u ∷ A →
+  ∇ » Γ ⊢ne t ∘⟨ p ⟩ u ∷ A →
   ∃₃ λ B C q →
-     Γ ⊢ne t ∷ Π p , q ▷ B ▹ C × Γ ⊢nf u ∷ B × Γ ⊢ A ≡ C [ u ]₀
+     ∇ » Γ ⊢ne t ∷ Π p , q ▷ B ▹ C × ∇ » Γ ⊢nf u ∷ B × ∇ » Γ ⊢ A ≡ C [ u ]₀
 inversion-ne-app (∘ₙ ⊢t ⊢u) =
   _ , _ , _ , ⊢t , ⊢u ,
   refl (substTypeΠ (syntacticTerm (⊢ne∷→⊢∷ ⊢t)) (⊢nf∷→⊢∷ ⊢u))
@@ -571,9 +572,9 @@ inversion-ne-app (convₙ ⊢app A≡B) =
   _ , _ , _ , ⊢t , ⊢u , trans (sym A≡B) A≡ }
 
 inversion-nf-app :
-  Γ ⊢nf t ∘⟨ p ⟩ u ∷ A →
+  ∇ » Γ ⊢nf t ∘⟨ p ⟩ u ∷ A →
   ∃₃ λ B C q →
-     Γ ⊢ne t ∷ Π p , q ▷ B ▹ C × Γ ⊢nf u ∷ B × Γ ⊢ A ≡ C [ u ]₀
+     ∇ » Γ ⊢ne t ∷ Π p , q ▷ B ▹ C × ∇ » Γ ⊢nf u ∷ B × ∇ » Γ ⊢ A ≡ C [ u ]₀
 inversion-nf-app (neₙ _ ⊢app) =
   inversion-ne-app ⊢app
 inversion-nf-app (convₙ ⊢app A≡B) =
@@ -582,17 +583,17 @@ inversion-nf-app (convₙ ⊢app A≡B) =
   _ , _ , _ , ⊢t , ⊢u , trans (sym A≡B) A≡ }
 
 inversion-nf-ne-app :
-  Γ ⊢nf t ∘⟨ p ⟩ u ∷ A ⊎ Γ ⊢ne t ∘⟨ p ⟩ u ∷ A →
+  ∇ » Γ ⊢nf t ∘⟨ p ⟩ u ∷ A ⊎ ∇ » Γ ⊢ne t ∘⟨ p ⟩ u ∷ A →
   ∃₃ λ B C q →
-     Γ ⊢ne t ∷ Π p , q ▷ B ▹ C × Γ ⊢nf u ∷ B × Γ ⊢ A ≡ C [ u ]₀
+     ∇ » Γ ⊢ne t ∷ Π p , q ▷ B ▹ C × ∇ » Γ ⊢nf u ∷ B × ∇ » Γ ⊢ A ≡ C [ u ]₀
 inversion-nf-ne-app (inj₁ ⊢app) = inversion-nf-app ⊢app
 inversion-nf-ne-app (inj₂ ⊢app) = inversion-ne-app ⊢app
 
 -- Inversion for fst.
 
 inversion-ne-fst :
-  Γ ⊢ne fst p t ∷ A →
-  ∃₃ λ B C q → (Γ ∙ B ⊢ C) × Γ ⊢ne t ∷ Σˢ p , q ▷ B ▹ C × Γ ⊢ A ≡ B
+  ∇ » Γ ⊢ne fst p t ∷ A →
+  ∃₃ λ B C q → (∇ » Γ ∙ B ⊢ C) × ∇ » Γ ⊢ne t ∷ Σˢ p , q ▷ B ▹ C × ∇ » Γ ⊢ A ≡ B
 inversion-ne-fst (fstₙ ⊢C ⊢t) =
   _ , _ , _ , ⊢C , ⊢t , refl (⊢∙→⊢ (wf ⊢C))
 inversion-ne-fst (convₙ ⊢fst A≡B) =
@@ -601,8 +602,8 @@ inversion-ne-fst (convₙ ⊢fst A≡B) =
   _ , _ , _ , ⊢C , ⊢t , trans (sym A≡B) A≡ }
 
 inversion-nf-fst :
-  Γ ⊢nf fst p t ∷ A →
-  ∃₃ λ B C q → (Γ ∙ B ⊢ C) × Γ ⊢ne t ∷ Σˢ p , q ▷ B ▹ C × Γ ⊢ A ≡ B
+  ∇ » Γ ⊢nf fst p t ∷ A →
+  ∃₃ λ B C q → (∇ » Γ ∙ B ⊢ C) × ∇ » Γ ⊢ne t ∷ Σˢ p , q ▷ B ▹ C × ∇ » Γ ⊢ A ≡ B
 inversion-nf-fst (neₙ _ ⊢fst) =
   inversion-ne-fst ⊢fst
 inversion-nf-fst (convₙ ⊢fst A≡B) =
@@ -611,19 +612,19 @@ inversion-nf-fst (convₙ ⊢fst A≡B) =
   _ , _ , _ , ⊢C , ⊢t , trans (sym A≡B) A≡ }
 
 inversion-nf-ne-fst :
-  Γ ⊢nf fst p t ∷ A ⊎ Γ ⊢ne fst p t ∷ A →
-  ∃₃ λ B C q → (Γ ∙ B ⊢ C) × Γ ⊢ne t ∷ Σˢ p , q ▷ B ▹ C × Γ ⊢ A ≡ B
+  ∇ » Γ ⊢nf fst p t ∷ A ⊎ ∇ » Γ ⊢ne fst p t ∷ A →
+  ∃₃ λ B C q → (∇ » Γ ∙ B ⊢ C) × ∇ » Γ ⊢ne t ∷ Σˢ p , q ▷ B ▹ C × ∇ » Γ ⊢ A ≡ B
 inversion-nf-ne-fst (inj₁ ⊢fst) = inversion-nf-fst ⊢fst
 inversion-nf-ne-fst (inj₂ ⊢fst) = inversion-ne-fst ⊢fst
 
 -- Inversion for snd.
 
 inversion-ne-snd :
-  Γ ⊢ne snd p t ∷ A →
+  ∇ » Γ ⊢ne snd p t ∷ A →
   ∃₃ λ B C q →
-     (Γ ∙ B ⊢ C) ×
-     Γ ⊢ne t ∷ Σˢ p , q ▷ B ▹ C ×
-     Γ ⊢ A ≡ C [ fst p t ]₀
+     (∇ » Γ ∙ B ⊢ C) ×
+     ∇ » Γ ⊢ne t ∷ Σˢ p , q ▷ B ▹ C ×
+     ∇ » Γ ⊢ A ≡ C [ fst p t ]₀
 inversion-ne-snd (sndₙ ⊢C ⊢t) =
   _ , _ , _ , ⊢C , ⊢t ,
   refl (substType ⊢C (fstⱼ ⊢C (⊢ne∷→⊢∷ ⊢t)))
@@ -633,11 +634,11 @@ inversion-ne-snd (convₙ ⊢snd A≡B) =
   _ , _ , _ , ⊢C , ⊢t , trans (sym A≡B) A≡ }
 
 inversion-nf-snd :
-  Γ ⊢nf snd p t ∷ A →
+  ∇ » Γ ⊢nf snd p t ∷ A →
   ∃₃ λ B C q →
-     (Γ ∙ B ⊢ C) ×
-     Γ ⊢ne t ∷ Σˢ p , q ▷ B ▹ C ×
-     Γ ⊢ A ≡ C [ fst p t ]₀
+     (∇ » Γ ∙ B ⊢ C) ×
+     ∇ » Γ ⊢ne t ∷ Σˢ p , q ▷ B ▹ C ×
+     ∇ » Γ ⊢ A ≡ C [ fst p t ]₀
 inversion-nf-snd (neₙ _ ⊢snd) =
   inversion-ne-snd ⊢snd
 inversion-nf-snd (convₙ ⊢snd A≡B) =
@@ -646,23 +647,23 @@ inversion-nf-snd (convₙ ⊢snd A≡B) =
   _ , _ , _ , ⊢C , ⊢t , trans (sym A≡B) A≡ }
 
 inversion-nf-ne-snd :
-  Γ ⊢nf snd p t ∷ A ⊎ Γ ⊢ne snd p t ∷ A →
+  ∇ » Γ ⊢nf snd p t ∷ A ⊎ ∇ » Γ ⊢ne snd p t ∷ A →
   ∃₃ λ B C q →
-     (Γ ∙ B ⊢ C) ×
-     Γ ⊢ne t ∷ Σˢ p , q ▷ B ▹ C ×
-     Γ ⊢ A ≡ C [ fst p t ]₀
+     (∇ » Γ ∙ B ⊢ C) ×
+     ∇ » Γ ⊢ne t ∷ Σˢ p , q ▷ B ▹ C ×
+     ∇ » Γ ⊢ A ≡ C [ fst p t ]₀
 inversion-nf-ne-snd (inj₁ ⊢snd) = inversion-nf-snd ⊢snd
 inversion-nf-ne-snd (inj₂ ⊢snd) = inversion-ne-snd ⊢snd
 
 -- Inversion for prodrec.
 
 inversion-ne-prodrec :
-  Γ ⊢ne prodrec r p q A t u ∷ B →
+  ∇ » Γ ⊢ne prodrec r p q A t u ∷ B →
   ∃₃ λ C D q →
-    (Γ ∙ (Σʷ p , q ▷ C ▹ D) ⊢nf A) ×
-    Γ ⊢ne t ∷ Σʷ p , q ▷ C ▹ D ×
-    Γ ∙ C ∙ D ⊢nf u ∷ A [ prodʷ p (var x1) (var x0) ]↑² ×
-    Γ ⊢ B ≡ A [ t ]₀
+    (∇ » Γ ∙ (Σʷ p , q ▷ C ▹ D) ⊢nf A) ×
+    ∇ » Γ ⊢ne t ∷ Σʷ p , q ▷ C ▹ D ×
+    ∇ » Γ ∙ C ∙ D ⊢nf u ∷ A [ prodʷ p (var x1) (var x0) ]↑² ×
+    ∇ » Γ ⊢ B ≡ A [ t ]₀
 inversion-ne-prodrec (prodrecₙ ⊢A ⊢t ⊢u _) =
   _ , _ , _ , ⊢A , ⊢t , ⊢u ,
   refl (substType (⊢nf→⊢ ⊢A) (⊢ne∷→⊢∷ ⊢t))
@@ -672,12 +673,12 @@ inversion-ne-prodrec (convₙ ⊢pr B≡C) =
   _ , _ , _ , ⊢A , ⊢t , ⊢u , trans (sym B≡C) B≡ }
 
 inversion-nf-prodrec :
-  Γ ⊢nf prodrec r p q A t u ∷ B →
+  ∇ » Γ ⊢nf prodrec r p q A t u ∷ B →
   ∃₃ λ C D q →
-    (Γ ∙ (Σʷ p , q ▷ C ▹ D) ⊢nf A) ×
-    Γ ⊢ne t ∷ Σʷ p , q ▷ C ▹ D ×
-    Γ ∙ C ∙ D ⊢nf u ∷ A [ prodʷ p (var x1) (var x0) ]↑² ×
-    Γ ⊢ B ≡ A [ t ]₀
+    (∇ » Γ ∙ (Σʷ p , q ▷ C ▹ D) ⊢nf A) ×
+    ∇ » Γ ⊢ne t ∷ Σʷ p , q ▷ C ▹ D ×
+    ∇ » Γ ∙ C ∙ D ⊢nf u ∷ A [ prodʷ p (var x1) (var x0) ]↑² ×
+    ∇ » Γ ⊢ B ≡ A [ t ]₀
 inversion-nf-prodrec (neₙ _ ⊢pr) =
   inversion-ne-prodrec ⊢pr
 inversion-nf-prodrec (convₙ ⊢pr B≡C) =
@@ -686,20 +687,20 @@ inversion-nf-prodrec (convₙ ⊢pr B≡C) =
   _ , _ , _ , ⊢A , ⊢t , ⊢u , trans (sym B≡C) B≡ }
 
 inversion-nf-ne-prodrec :
-  Γ ⊢nf prodrec r p q A t u ∷ B ⊎ Γ ⊢ne prodrec r p q A t u ∷ B →
+  ∇ » Γ ⊢nf prodrec r p q A t u ∷ B ⊎ ∇ » Γ ⊢ne prodrec r p q A t u ∷ B →
   ∃₃ λ C D q →
-    (Γ ∙ (Σʷ p , q ▷ C ▹ D) ⊢nf A) ×
-    Γ ⊢ne t ∷ Σʷ p , q ▷ C ▹ D ×
-    Γ ∙ C ∙ D ⊢nf u ∷ A [ prodʷ p (var x1) (var x0) ]↑² ×
-    Γ ⊢ B ≡ A [ t ]₀
+    (∇ » Γ ∙ (Σʷ p , q ▷ C ▹ D) ⊢nf A) ×
+    ∇ » Γ ⊢ne t ∷ Σʷ p , q ▷ C ▹ D ×
+    ∇ » Γ ∙ C ∙ D ⊢nf u ∷ A [ prodʷ p (var x1) (var x0) ]↑² ×
+    ∇ » Γ ⊢ B ≡ A [ t ]₀
 inversion-nf-ne-prodrec (inj₁ ⊢pr) = inversion-nf-prodrec ⊢pr
 inversion-nf-ne-prodrec (inj₂ ⊢pr) = inversion-ne-prodrec ⊢pr
 
 -- Inversion for emptyrec.
 
 inversion-ne-emptyrec :
-  Γ ⊢ne emptyrec p A t ∷ B →
-  Γ ⊢nf A × Γ ⊢ne t ∷ Empty × Γ ⊢ B ≡ A
+  ∇ » Γ ⊢ne emptyrec p A t ∷ B →
+  ∇ » Γ ⊢nf A × ∇ » Γ ⊢ne t ∷ Empty × ∇ » Γ ⊢ B ≡ A
 inversion-ne-emptyrec (emptyrecₙ ⊢A ⊢t) =
   ⊢A , ⊢t , refl (⊢nf→⊢ ⊢A)
 inversion-ne-emptyrec (convₙ ⊢er A≡B) =
@@ -708,8 +709,8 @@ inversion-ne-emptyrec (convₙ ⊢er A≡B) =
   ⊢A , ⊢t , trans (sym A≡B) A≡ }
 
 inversion-nf-emptyrec :
-  Γ ⊢nf emptyrec p A t ∷ B →
-  Γ ⊢nf A × Γ ⊢ne t ∷ Empty × Γ ⊢ B ≡ A
+  ∇ » Γ ⊢nf emptyrec p A t ∷ B →
+  ∇ » Γ ⊢nf A × ∇ » Γ ⊢ne t ∷ Empty × ∇ » Γ ⊢ B ≡ A
 inversion-nf-emptyrec (neₙ _ ⊢er) =
   inversion-ne-emptyrec ⊢er
 inversion-nf-emptyrec (convₙ ⊢er A≡B) =
@@ -718,20 +719,20 @@ inversion-nf-emptyrec (convₙ ⊢er A≡B) =
   ⊢A , ⊢t , trans (sym A≡B) A≡ }
 
 inversion-nf-ne-emptyrec :
-  Γ ⊢nf emptyrec p A t ∷ B ⊎ Γ ⊢ne emptyrec p A t ∷ B →
-  Γ ⊢nf A × Γ ⊢ne t ∷ Empty × Γ ⊢ B ≡ A
+  ∇ » Γ ⊢nf emptyrec p A t ∷ B ⊎ ∇ » Γ ⊢ne emptyrec p A t ∷ B →
+  ∇ » Γ ⊢nf A × ∇ » Γ ⊢ne t ∷ Empty × ∇ » Γ ⊢ B ≡ A
 inversion-nf-ne-emptyrec (inj₁ ⊢er) = inversion-nf-emptyrec ⊢er
 inversion-nf-ne-emptyrec (inj₂ ⊢er) = inversion-ne-emptyrec ⊢er
 
 -- Inversion for natrec.
 
 inversion-ne-natrec :
-  Γ ⊢ne natrec p q r A t u v ∷ B →
-  (Γ ∙ ℕ ⊢nf A) ×
-  Γ ⊢nf t ∷ A [ zero ]₀ ×
-  Γ ∙ ℕ ∙ A ⊢nf u ∷ A [ suc (var x1) ]↑² ×
-  Γ ⊢ne v ∷ ℕ ×
-  Γ ⊢ B ≡ A [ v ]₀
+  ∇ » Γ ⊢ne natrec p q r A t u v ∷ B →
+  (∇ » Γ ∙ ℕ ⊢nf A) ×
+  ∇ » Γ ⊢nf t ∷ A [ zero ]₀ ×
+  ∇ » Γ ∙ ℕ ∙ A ⊢nf u ∷ A [ suc (var x1) ]↑² ×
+  ∇ » Γ ⊢ne v ∷ ℕ ×
+  ∇ » Γ ⊢ B ≡ A [ v ]₀
 inversion-ne-natrec (natrecₙ ⊢A ⊢t ⊢u ⊢v) =
   ⊢A , ⊢t , ⊢u , ⊢v ,
   refl (substType (⊢nf→⊢ ⊢A) (⊢ne∷→⊢∷ ⊢v))
@@ -741,12 +742,12 @@ inversion-ne-natrec (convₙ ⊢pr B≡C) =
   ⊢A , ⊢t , ⊢u , ⊢v , trans (sym B≡C) B≡ }
 
 inversion-nf-natrec :
-  Γ ⊢nf natrec p q r A t u v ∷ B →
-  (Γ ∙ ℕ ⊢nf A) ×
-  Γ ⊢nf t ∷ A [ zero ]₀ ×
-  Γ ∙ ℕ ∙ A ⊢nf u ∷ A [ suc (var x1) ]↑² ×
-  Γ ⊢ne v ∷ ℕ ×
-  Γ ⊢ B ≡ A [ v ]₀
+  ∇ » Γ ⊢nf natrec p q r A t u v ∷ B →
+  (∇ » Γ ∙ ℕ ⊢nf A) ×
+  ∇ » Γ ⊢nf t ∷ A [ zero ]₀ ×
+  ∇ » Γ ∙ ℕ ∙ A ⊢nf u ∷ A [ suc (var x1) ]↑² ×
+  ∇ » Γ ⊢ne v ∷ ℕ ×
+  ∇ » Γ ⊢ B ≡ A [ v ]₀
 inversion-nf-natrec (neₙ _ ⊢nr) =
   inversion-ne-natrec ⊢nr
 inversion-nf-natrec (convₙ ⊢pr B≡C) =
@@ -755,12 +756,12 @@ inversion-nf-natrec (convₙ ⊢pr B≡C) =
   ⊢A , ⊢t , ⊢u , ⊢v , trans (sym B≡C) B≡ }
 
 inversion-nf-ne-natrec :
-  Γ ⊢nf natrec p q r A t u v ∷ B ⊎ Γ ⊢ne natrec p q r A t u v ∷ B →
-  (Γ ∙ ℕ ⊢nf A) ×
-  Γ ⊢nf t ∷ A [ zero ]₀ ×
-  Γ ∙ ℕ ∙ A ⊢nf u ∷ A [ suc (var x1) ]↑² ×
-  Γ ⊢ne v ∷ ℕ ×
-  Γ ⊢ B ≡ A [ v ]₀
+  ∇ » Γ ⊢nf natrec p q r A t u v ∷ B ⊎ ∇ » Γ ⊢ne natrec p q r A t u v ∷ B →
+  (∇ » Γ ∙ ℕ ⊢nf A) ×
+  ∇ » Γ ⊢nf t ∷ A [ zero ]₀ ×
+  ∇ » Γ ∙ ℕ ∙ A ⊢nf u ∷ A [ suc (var x1) ]↑² ×
+  ∇ » Γ ⊢ne v ∷ ℕ ×
+  ∇ » Γ ⊢ B ≡ A [ v ]₀
 inversion-nf-ne-natrec (inj₁ ⊢nr) = inversion-nf-natrec ⊢nr
 inversion-nf-ne-natrec (inj₂ ⊢nr) = inversion-ne-natrec ⊢nr
 
@@ -769,8 +770,8 @@ opaque
   -- Inversion for terms that are identity types.
 
   inversion-nf-Id-U :
-    Γ ⊢nf Id A t u ∷ B →
-    ∃ λ l → Γ ⊢nf A ∷ U l × Γ ⊢nf t ∷ A × Γ ⊢nf u ∷ A × Γ ⊢ B ≡ U l
+    ∇ » Γ ⊢nf Id A t u ∷ B →
+    ∃ λ l → ∇ » Γ ⊢nf A ∷ U l × ∇ » Γ ⊢nf t ∷ A × ∇ » Γ ⊢nf u ∷ A × ∇ » Γ ⊢ B ≡ U l
   inversion-nf-Id-U = λ where
     (Idₙ ⊢A ⊢t ⊢u) →
       _ , ⊢A , ⊢t , ⊢u , refl (Uⱼ (wfTerm (⊢nf∷→⊢∷ ⊢A)))
@@ -786,8 +787,8 @@ opaque
   -- Inversion for identity types.
 
   inversion-nf-Id :
-    Γ ⊢nf Id A t u →
-    (Γ ⊢nf A) × Γ ⊢nf t ∷ A × Γ ⊢nf u ∷ A
+    ∇ » Γ ⊢nf Id A t u →
+    (∇ » Γ ⊢nf A) × ∇ » Γ ⊢nf t ∷ A × ∇ » Γ ⊢nf u ∷ A
   inversion-nf-Id = λ where
     (Idₙ ⊢A ⊢t ⊢u) → ⊢A , ⊢t , ⊢u
     (univₙ ⊢Id)    → case inversion-nf-Id-U ⊢Id of λ where
@@ -798,14 +799,14 @@ opaque
 opaque
 
   inversion-ne-J :
-    Γ ⊢ne J p q A t B u v w ∷ C →
-    (Γ ⊢nf A) ×
-    Γ ⊢nf t ∷ A ×
-    (Γ ∙ A ∙ Id (wk1 A) (wk1 t) (var x0) ⊢nf B) ×
-    Γ ⊢nf u ∷ B [ t , rfl ]₁₀ ×
-    Γ ⊢nf v ∷ A ×
-    Γ ⊢ne w ∷ Id A t v ×
-    Γ ⊢ C ≡ B [ v , w ]₁₀
+    ∇ » Γ ⊢ne J p q A t B u v w ∷ C →
+    (∇ » Γ ⊢nf A) ×
+    ∇ » Γ ⊢nf t ∷ A ×
+    (∇ » Γ ∙ A ∙ Id (wk1 A) (wk1 t) (var x0) ⊢nf B) ×
+    ∇ » Γ ⊢nf u ∷ B [ t , rfl ]₁₀ ×
+    ∇ » Γ ⊢nf v ∷ A ×
+    ∇ » Γ ⊢ne w ∷ Id A t v ×
+    ∇ » Γ ⊢ C ≡ B [ v , w ]₁₀
   inversion-ne-J = λ where
     ⊢J@(Jₙ ⊢A ⊢t ⊢B ⊢u ⊢v ⊢w) →
       ⊢A , ⊢t , ⊢B , ⊢u , ⊢v , ⊢w , refl (syntacticTerm (⊢ne∷→⊢∷ ⊢J))
@@ -817,14 +818,14 @@ opaque
 opaque
 
   inversion-nf-J :
-    Γ ⊢nf J p q A t B u v w ∷ C →
-    (Γ ⊢nf A) ×
-    Γ ⊢nf t ∷ A ×
-    (Γ ∙ A ∙ Id (wk1 A) (wk1 t) (var x0) ⊢nf B) ×
-    Γ ⊢nf u ∷ B [ t , rfl ]₁₀ ×
-    Γ ⊢nf v ∷ A ×
-    Γ ⊢ne w ∷ Id A t v ×
-    Γ ⊢ C ≡ B [ v , w ]₁₀
+    ∇ » Γ ⊢nf J p q A t B u v w ∷ C →
+    (∇ » Γ ⊢nf A) ×
+    ∇ » Γ ⊢nf t ∷ A ×
+    (∇ » Γ ∙ A ∙ Id (wk1 A) (wk1 t) (var x0) ⊢nf B) ×
+    ∇ » Γ ⊢nf u ∷ B [ t , rfl ]₁₀ ×
+    ∇ » Γ ⊢nf v ∷ A ×
+    ∇ » Γ ⊢ne w ∷ Id A t v ×
+    ∇ » Γ ⊢ C ≡ B [ v , w ]₁₀
   inversion-nf-J = λ where
     (neₙ _ ⊢J) →
       inversion-ne-J ⊢J
@@ -836,14 +837,14 @@ opaque
 opaque
 
   inversion-nf-ne-J :
-    Γ ⊢nf J p q A t B u v w ∷ C ⊎ Γ ⊢ne J p q A t B u v w ∷ C →
-    (Γ ⊢nf A) ×
-    Γ ⊢nf t ∷ A ×
-    (Γ ∙ A ∙ Id (wk1 A) (wk1 t) (var x0) ⊢nf B) ×
-    Γ ⊢nf u ∷ B [ t , rfl ]₁₀ ×
-    Γ ⊢nf v ∷ A ×
-    Γ ⊢ne w ∷ Id A t v ×
-    Γ ⊢ C ≡ B [ v , w ]₁₀
+    ∇ » Γ ⊢nf J p q A t B u v w ∷ C ⊎ ∇ » Γ ⊢ne J p q A t B u v w ∷ C →
+    (∇ » Γ ⊢nf A) ×
+    ∇ » Γ ⊢nf t ∷ A ×
+    (∇ » Γ ∙ A ∙ Id (wk1 A) (wk1 t) (var x0) ⊢nf B) ×
+    ∇ » Γ ⊢nf u ∷ B [ t , rfl ]₁₀ ×
+    ∇ » Γ ⊢nf v ∷ A ×
+    ∇ » Γ ⊢ne w ∷ Id A t v ×
+    ∇ » Γ ⊢ C ≡ B [ v , w ]₁₀
   inversion-nf-ne-J = λ where
     (inj₁ ⊢J) → inversion-nf-J ⊢J
     (inj₂ ⊢J) → inversion-ne-J ⊢J
@@ -853,14 +854,14 @@ opaque
 opaque
 
   inversion-ne-K :
-    Γ ⊢ne K p A t B u v ∷ C →
-    (Γ ⊢nf A) ×
-    Γ ⊢nf t ∷ A ×
-    (Γ ∙ Id A t t ⊢nf B) ×
-    Γ ⊢nf u ∷ B [ rfl ]₀ ×
-    Γ ⊢ne v ∷ Id A t t ×
+    ∇ » Γ ⊢ne K p A t B u v ∷ C →
+    (∇ » Γ ⊢nf A) ×
+    ∇ » Γ ⊢nf t ∷ A ×
+    (∇ » Γ ∙ Id A t t ⊢nf B) ×
+    ∇ » Γ ⊢nf u ∷ B [ rfl ]₀ ×
+    ∇ » Γ ⊢ne v ∷ Id A t t ×
     K-allowed ×
-    Γ ⊢ C ≡ B [ v ]₀
+    ∇ » Γ ⊢ C ≡ B [ v ]₀
   inversion-ne-K = λ where
     ⊢K@(Kₙ ⊢A ⊢t ⊢B ⊢u ⊢v ok) →
       ⊢A , ⊢t , ⊢B , ⊢u , ⊢v , ok , refl (syntacticTerm (⊢ne∷→⊢∷ ⊢K))
@@ -872,14 +873,14 @@ opaque
 opaque
 
   inversion-nf-K :
-    Γ ⊢nf K p A t B u v ∷ C →
-    (Γ ⊢nf A) ×
-    Γ ⊢nf t ∷ A ×
-    (Γ ∙ Id A t t ⊢nf B) ×
-    Γ ⊢nf u ∷ B [ rfl ]₀ ×
-    Γ ⊢ne v ∷ Id A t t ×
+    ∇ » Γ ⊢nf K p A t B u v ∷ C →
+    (∇ » Γ ⊢nf A) ×
+    ∇ » Γ ⊢nf t ∷ A ×
+    (∇ » Γ ∙ Id A t t ⊢nf B) ×
+    ∇ » Γ ⊢nf u ∷ B [ rfl ]₀ ×
+    ∇ » Γ ⊢ne v ∷ Id A t t ×
     K-allowed ×
-    Γ ⊢ C ≡ B [ v ]₀
+    ∇ » Γ ⊢ C ≡ B [ v ]₀
   inversion-nf-K = λ where
     (neₙ _ ⊢K) →
       inversion-ne-K ⊢K
@@ -891,14 +892,14 @@ opaque
 opaque
 
   inversion-nf-ne-K :
-    Γ ⊢nf K p A t B u v ∷ C ⊎ Γ ⊢ne K p A t B u v ∷ C →
-    (Γ ⊢nf A) ×
-    Γ ⊢nf t ∷ A ×
-    (Γ ∙ Id A t t ⊢nf B) ×
-    Γ ⊢nf u ∷ B [ rfl ]₀ ×
-    Γ ⊢ne v ∷ Id A t t ×
+    ∇ » Γ ⊢nf K p A t B u v ∷ C ⊎ ∇ » Γ ⊢ne K p A t B u v ∷ C →
+    (∇ » Γ ⊢nf A) ×
+    ∇ » Γ ⊢nf t ∷ A ×
+    (∇ » Γ ∙ Id A t t ⊢nf B) ×
+    ∇ » Γ ⊢nf u ∷ B [ rfl ]₀ ×
+    ∇ » Γ ⊢ne v ∷ Id A t t ×
     K-allowed ×
-    Γ ⊢ C ≡ B [ v ]₀
+    ∇ » Γ ⊢ C ≡ B [ v ]₀
   inversion-nf-ne-K = λ where
     (inj₁ ⊢K) → inversion-nf-K ⊢K
     (inj₂ ⊢K) → inversion-ne-K ⊢K
@@ -908,14 +909,14 @@ opaque
 opaque
 
   inversion-ne-[]-cong :
-    Γ ⊢ne []-cong s A t u v ∷ B →
+    ∇ » Γ ⊢ne []-cong s A t u v ∷ B →
     let open Erased s in
-    (Γ ⊢nf A) ×
-    Γ ⊢nf t ∷ A ×
-    Γ ⊢nf u ∷ A ×
-    Γ ⊢ne v ∷ Id A t u ×
+    (∇ » Γ ⊢nf A) ×
+    ∇ » Γ ⊢nf t ∷ A ×
+    ∇ » Γ ⊢nf u ∷ A ×
+    ∇ » Γ ⊢ne v ∷ Id A t u ×
     []-cong-allowed s ×
-    Γ ⊢ B ≡ Id (Erased A) ([ t ]) ([ u ])
+    ∇ » Γ ⊢ B ≡ Id (Erased A) ([ t ]) ([ u ])
   inversion-ne-[]-cong = λ where
     ⊢[]-cong@([]-congₙ ⊢A ⊢t ⊢u ⊢v ok) →
         ⊢A , ⊢t , ⊢u , ⊢v , ok
@@ -928,14 +929,14 @@ opaque
 opaque
 
   inversion-nf-[]-cong :
-    Γ ⊢nf []-cong s A t u v ∷ B →
+    ∇ » Γ ⊢nf []-cong s A t u v ∷ B →
     let open Erased s in
-    (Γ ⊢nf A) ×
-    Γ ⊢nf t ∷ A ×
-    Γ ⊢nf u ∷ A ×
-    Γ ⊢ne v ∷ Id A t u ×
+    (∇ » Γ ⊢nf A) ×
+    ∇ » Γ ⊢nf t ∷ A ×
+    ∇ » Γ ⊢nf u ∷ A ×
+    ∇ » Γ ⊢ne v ∷ Id A t u ×
     []-cong-allowed s ×
-    Γ ⊢ B ≡ Id (Erased A) ([ t ]) ([ u ])
+    ∇ » Γ ⊢ B ≡ Id (Erased A) ([ t ]) ([ u ])
   inversion-nf-[]-cong = λ where
     (neₙ _ ⊢[]-cong) →
       inversion-ne-[]-cong ⊢[]-cong
@@ -947,14 +948,14 @@ opaque
 opaque
 
   inversion-nf-ne-[]-cong :
-    Γ ⊢nf []-cong s A t u v ∷ B ⊎ Γ ⊢ne []-cong s A t u v ∷ B →
+    ∇ » Γ ⊢nf []-cong s A t u v ∷ B ⊎ ∇ » Γ ⊢ne []-cong s A t u v ∷ B →
     let open Erased s in
-    (Γ ⊢nf A) ×
-    Γ ⊢nf t ∷ A ×
-    Γ ⊢nf u ∷ A ×
-    Γ ⊢ne v ∷ Id A t u ×
+    (∇ » Γ ⊢nf A) ×
+    ∇ » Γ ⊢nf t ∷ A ×
+    ∇ » Γ ⊢nf u ∷ A ×
+    ∇ » Γ ⊢ne v ∷ Id A t u ×
     []-cong-allowed s ×
-    Γ ⊢ B ≡ Id (Erased A) ([ t ]) ([ u ])
+    ∇ » Γ ⊢ B ≡ Id (Erased A) ([ t ]) ([ u ])
   inversion-nf-ne-[]-cong = λ where
     (inj₁ ⊢[]-cong) → inversion-nf-[]-cong ⊢[]-cong
     (inj₂ ⊢[]-cong) → inversion-ne-[]-cong ⊢[]-cong
@@ -964,11 +965,11 @@ opaque
 opaque
 
   inversion-ne-unitrec :
-    Γ ⊢ne unitrec l p q A t u ∷ B →
-    (Γ ∙ Unitʷ l ⊢nf A) ×
-    Γ ⊢ne t ∷ Unitʷ l ×
-    Γ ⊢nf u ∷ A [ starʷ l ]₀ ×
-    Γ ⊢ B ≡ A [ t ]₀ ×
+    ∇ » Γ ⊢ne unitrec l p q A t u ∷ B →
+    (∇ » Γ ∙ Unitʷ l ⊢nf A) ×
+    ∇ » Γ ⊢ne t ∷ Unitʷ l ×
+    ∇ » Γ ⊢nf u ∷ A [ starʷ l ]₀ ×
+    ∇ » Γ ⊢ B ≡ A [ t ]₀ ×
     ¬ Unitʷ-η
   inversion-ne-unitrec (unitrecₙ ⊢A ⊢t ⊢u _ not-ok) =
     ⊢A , ⊢t , ⊢u , refl (substType (⊢nf→⊢ ⊢A) (⊢ne∷→⊢∷ ⊢t)) , not-ok
@@ -980,11 +981,11 @@ opaque
 opaque
 
   inversion-nf-unitrec :
-    Γ ⊢nf unitrec l p q A t u ∷ B →
-    (Γ ∙ Unitʷ l ⊢nf A) ×
-    Γ ⊢ne t ∷ Unitʷ l ×
-    Γ ⊢nf u ∷ A [ starʷ l ]₀ ×
-    Γ ⊢ B ≡ A [ t ]₀ ×
+    ∇ » Γ ⊢nf unitrec l p q A t u ∷ B →
+    (∇ » Γ ∙ Unitʷ l ⊢nf A) ×
+    ∇ » Γ ⊢ne t ∷ Unitʷ l ×
+    ∇ » Γ ⊢nf u ∷ A [ starʷ l ]₀ ×
+    ∇ » Γ ⊢ B ≡ A [ t ]₀ ×
     ¬ Unitʷ-η
   inversion-nf-unitrec (neₙ _ ⊢ur) = inversion-ne-unitrec ⊢ur
   inversion-nf-unitrec (convₙ ⊢ur B≡C) =
@@ -995,11 +996,11 @@ opaque
 opaque
 
   inversion-nf-ne-unitrec :
-    Γ ⊢nf unitrec l p q A t u ∷ B ⊎ Γ ⊢ne unitrec l p q A t u ∷ B →
-    (Γ ∙ Unitʷ l ⊢nf A) ×
-    Γ ⊢ne t ∷ Unitʷ l ×
-    Γ ⊢nf u ∷ A [ starʷ l ]₀ ×
-    Γ ⊢ B ≡ A [ t ]₀ ×
+    ∇ » Γ ⊢nf unitrec l p q A t u ∷ B ⊎ ∇ » Γ ⊢ne unitrec l p q A t u ∷ B →
+    (∇ » Γ ∙ Unitʷ l ⊢nf A) ×
+    ∇ » Γ ⊢ne t ∷ Unitʷ l ×
+    ∇ » Γ ⊢nf u ∷ A [ starʷ l ]₀ ×
+    ∇ » Γ ⊢ B ≡ A [ t ]₀ ×
     ¬ Unitʷ-η
   inversion-nf-ne-unitrec (inj₁ ⊢ur) = inversion-nf-unitrec ⊢ur
   inversion-nf-ne-unitrec (inj₂ ⊢ur) = inversion-ne-unitrec ⊢ur
@@ -1013,12 +1014,12 @@ opaque
 
 ⊢nf∷Π→Neutral→⊥ :
   ⦃ ok : No-equality-reflection or-empty Γ ⦄ →
-  Γ ⊢nf t ∷ Π p , q ▷ A ▹ B → Neutral t → ⊥
+  ∇ » Γ ⊢nf t ∷ Π p , q ▷ A ▹ B → Neutral t → ⊥
 ⊢nf∷Π→Neutral→⊥ {Γ} ⊢t =
   ⊢nf∷Π→Neutral→⊥′ ⊢t (refl (syntacticTerm (⊢nf∷→⊢∷ ⊢t)))
   where
   ⊢nf∷Π→Neutral→⊥′ :
-    Γ ⊢nf t ∷ A → Γ ⊢ A ≡ Π p , q ▷ B ▹ C → Neutral t → ⊥
+    ∇ » Γ ⊢nf t ∷ A → ∇ » Γ ⊢ A ≡ Π p , q ▷ B ▹ C → Neutral t → ⊥
   ⊢nf∷Π→Neutral→⊥′ = λ where
     (convₙ ⊢t B≡A) A≡Σ t-ne →
       ⊢nf∷Π→Neutral→⊥′ ⊢t (trans B≡A A≡Σ) t-ne
@@ -1042,12 +1043,12 @@ opaque
 
 ⊢nf∷Σˢ→Neutral→⊥ :
   ⦃ ok : No-equality-reflection or-empty Γ ⦄ →
-  Γ ⊢nf t ∷ Σˢ p , q ▷ A ▹ B → Neutral t → ⊥
+  ∇ » Γ ⊢nf t ∷ Σˢ p , q ▷ A ▹ B → Neutral t → ⊥
 ⊢nf∷Σˢ→Neutral→⊥ {Γ} ⊢t =
   ⊢nf∷Σˢ→Neutral→⊥′ ⊢t (refl (syntacticTerm (⊢nf∷→⊢∷ ⊢t)))
   where
   ⊢nf∷Σˢ→Neutral→⊥′ :
-    Γ ⊢nf t ∷ A → Γ ⊢ A ≡ Σˢ p , q ▷ B ▹ C → Neutral t → ⊥
+    ∇ » Γ ⊢nf t ∷ A → ∇ » Γ ⊢ A ≡ Σˢ p , q ▷ B ▹ C → Neutral t → ⊥
   ⊢nf∷Σˢ→Neutral→⊥′ = λ where
     (convₙ ⊢t B≡A) A≡Σ t-ne →
       ⊢nf∷Σˢ→Neutral→⊥′ ⊢t (trans B≡A A≡Σ) t-ne
@@ -1071,12 +1072,12 @@ opaque
 
 ⊢nf∷Unitˢ→≡starˢ :
   ⦃ ok : No-equality-reflection or-empty Γ ⦄ →
-  Unit-with-η s → Γ ⊢nf t ∷ Unit s l → t PE.≡ star s l
+  Unit-with-η s → ∇ » Γ ⊢nf t ∷ Unit s l → t PE.≡ star s l
 ⊢nf∷Unitˢ→≡starˢ {Γ} {s} ok ⊢t =
   ⊢nf∷Unitˢ→≡starˢ′ (refl (syntacticTerm (⊢nf∷→⊢∷ ⊢t))) ⊢t
   where
   ⊢nf∷Unitˢ→≡starˢ′ :
-    Γ ⊢ A ≡ Unit s l → Γ ⊢nf t ∷ A → t PE.≡ star s l
+    ∇ » Γ ⊢ A ≡ Unit s l → ∇ » Γ ⊢nf t ∷ A → t PE.≡ star s l
   ⊢nf∷Unitˢ→≡starˢ′ A≡Unit = λ where
     (starₙ _ _)     → uncurry (PE.cong₂ star) $
                       Unit-injectivity A≡Unit
@@ -1104,7 +1105,7 @@ mutual
 
   normal-types-unique-[conv↑] :
     ⦃ not-ok : No-equality-reflection ⦄ →
-    Γ ⊢nf A → Γ ⊢nf B → Γ ⊢ A [conv↑] B → A PE.≡ B
+    ∇ » Γ ⊢nf A → ∇ » Γ ⊢nf B → ∇ » Γ ⊢ A [conv↑] B → A PE.≡ B
   normal-types-unique-[conv↑] ⊢A ⊢B ([↑] _ _ (A⇒* , _) (B⇒* , _) A≡B) =
     case whnfRed* A⇒* (nfWhnf (⊢nf→Nf ⊢A)) of λ {
       PE.refl →
@@ -1114,7 +1115,7 @@ mutual
 
   normal-types-unique-[conv↓] :
     ⦃ not-ok : No-equality-reflection ⦄ →
-    Γ ⊢nf A → Γ ⊢nf B → Γ ⊢ A [conv↓] B → A PE.≡ B
+    ∇ » Γ ⊢nf A → ∇ » Γ ⊢nf B → ∇ » Γ ⊢ A [conv↓] B → A PE.≡ B
   normal-types-unique-[conv↓] ⊢A ⊢B = λ where
     (U-refl _) →
       PE.refl
@@ -1155,9 +1156,9 @@ mutual
 
   normal-or-neutral-terms-unique-~↑ :
     ⦃ not-ok : No-equality-reflection ⦄ →
-    Γ ⊢nf u ∷ A ⊎ Γ ⊢ne u ∷ A →
-    Γ ⊢nf v ∷ B ⊎ Γ ⊢ne v ∷ B →
-    Γ ⊢ u ~ v ↑ C → u PE.≡ v
+    ∇ » Γ ⊢nf u ∷ A ⊎ ∇ » Γ ⊢ne u ∷ A →
+    ∇ » Γ ⊢nf v ∷ B ⊎ ∇ » Γ ⊢ne v ∷ B →
+    ∇ » Γ ⊢ u ~ v ↑ C → u PE.≡ v
   normal-or-neutral-terms-unique-~↑ ⊢u ⊢v = λ where
     (var-refl _ PE.refl) →
       PE.refl
@@ -1280,7 +1281,7 @@ mutual
               ⊢B₂)
            B₁≡B₂)
         (normal-terms-unique-[conv↑]∷ ⊢u₁
-           (convₙ ⊢u₂ $ _⊢_≡_.sym $
+           (convₙ ⊢u₂ $ _»_⊢_≡_.sym $
             J-motive-rfl-cong (soundnessConv↑ B₁≡B₂) ⊢t₁≡t₂)
            u₁≡u₂)
         (normal-terms-unique-[conv↑]∷
@@ -1305,7 +1306,7 @@ mutual
               ⊢B₂)
            B₁≡B₂)
         (normal-terms-unique-[conv↑]∷ ⊢u₁
-           (convₙ ⊢u₂ $ _⊢_≡_.sym $
+           (convₙ ⊢u₂ $ _»_⊢_≡_.sym $
             K-motive-rfl-cong (soundnessConv↑ B₁≡B₂))
            u₁≡u₂)
         (neutral-terms-unique-~↓ ⊢v₁ ⊢v₂ v₁~v₂) }}}
@@ -1324,31 +1325,31 @@ mutual
 
   neutral-terms-unique-~↑ :
     ⦃ not-ok : No-equality-reflection ⦄ →
-    Γ ⊢ne u ∷ A → Γ ⊢ne v ∷ B → Γ ⊢ u ~ v ↑ C → u PE.≡ v
+    ∇ » Γ ⊢ne u ∷ A → ∇ » Γ ⊢ne v ∷ B → ∇ » Γ ⊢ u ~ v ↑ C → u PE.≡ v
   neutral-terms-unique-~↑ ⊢u ⊢v u≡v =
     normal-or-neutral-terms-unique-~↑ (inj₂ ⊢u) (inj₂ ⊢v) u≡v
 
   normal-terms-unique-~↑ :
     ⦃ not-ok : No-equality-reflection ⦄ →
-    Γ ⊢nf u ∷ A → Γ ⊢nf v ∷ B → Γ ⊢ u ~ v ↑ C → u PE.≡ v
+    ∇ » Γ ⊢nf u ∷ A → ∇ » Γ ⊢nf v ∷ B → ∇ » Γ ⊢ u ~ v ↑ C → u PE.≡ v
   normal-terms-unique-~↑ ⊢u ⊢v u≡v =
     normal-or-neutral-terms-unique-~↑ (inj₁ ⊢u) (inj₁ ⊢v) u≡v
 
   normal-terms-unique-~↓ :
     ⦃ not-ok : No-equality-reflection ⦄ →
-    Γ ⊢nf u ∷ A → Γ ⊢nf v ∷ B → Γ ⊢ u ~ v ↓ C → u PE.≡ v
+    ∇ » Γ ⊢nf u ∷ A → ∇ » Γ ⊢nf v ∷ B → ∇ » Γ ⊢ u ~ v ↓ C → u PE.≡ v
   normal-terms-unique-~↓ ⊢u ⊢v ([~] _ _ u≡v) =
     normal-terms-unique-~↑ ⊢u ⊢v u≡v
 
   neutral-terms-unique-~↓ :
     ⦃ not-ok : No-equality-reflection ⦄ →
-    Γ ⊢ne u ∷ A → Γ ⊢ne v ∷ B → Γ ⊢ u ~ v ↓ C → u PE.≡ v
+    ∇ » Γ ⊢ne u ∷ A → ∇ » Γ ⊢ne v ∷ B → ∇ » Γ ⊢ u ~ v ↓ C → u PE.≡ v
   neutral-terms-unique-~↓ ⊢u ⊢v ([~] _ _ u≡v) =
     neutral-terms-unique-~↑ ⊢u ⊢v u≡v
 
   normal-terms-unique-[conv↓]∷ :
     ⦃ not-ok : No-equality-reflection ⦄ →
-    Γ ⊢nf u ∷ A → Γ ⊢nf v ∷ A → Γ ⊢ u [conv↓] v ∷ A → u PE.≡ v
+    ∇ » Γ ⊢nf u ∷ A → ∇ » Γ ⊢nf v ∷ A → ∇ » Γ ⊢ u [conv↓] v ∷ A → u PE.≡ v
   normal-terms-unique-[conv↓]∷ ⊢u ⊢v = λ where
     (ℕ-ins u≡v) →
       normal-terms-unique-~↓ ⊢u ⊢v u≡v
@@ -1466,16 +1467,16 @@ mutual
 
   normal-terms-unique-[conv↑]∷ :
     ⦃ not-ok : No-equality-reflection ⦄ →
-    Γ ⊢nf u ∷ A → Γ ⊢nf v ∷ A → Γ ⊢ u [conv↑] v ∷ A → u PE.≡ v
+    ∇ » Γ ⊢nf u ∷ A → ∇ » Γ ⊢nf v ∷ A → ∇ » Γ ⊢ u [conv↑] v ∷ A → u PE.≡ v
   normal-terms-unique-[conv↑]∷ ⊢u ⊢v u≡v =
     normal-terms-unique-[conv↑]∷′
       ⊢u ⊢v (id (⊢nf∷→⊢∷ ⊢u)) (id (⊢nf∷→⊢∷ ⊢v)) u≡v
 
   normal-terms-unique-[conv↑]∷′ :
     ⦃ not-ok : No-equality-reflection ⦄ →
-    Γ ⊢nf u ∷ A → Γ ⊢nf w ∷ A →
-    Γ ⊢ t ⇒* u ∷ A → Γ ⊢ v ⇒* w ∷ A →
-    Γ ⊢ t [conv↑] v ∷ A → u PE.≡ w
+    ∇ » Γ ⊢nf u ∷ A → ∇ » Γ ⊢nf w ∷ A →
+    ∇ » Γ ⊢ t ⇒* u ∷ A → ∇ » Γ ⊢ v ⇒* w ∷ A →
+    ∇ » Γ ⊢ t [conv↑] v ∷ A → u PE.≡ w
   normal-terms-unique-[conv↑]∷′
     ⊢u ⊢w t⇒*u v⇒*w
     ([↑]ₜ _ _ _ (A⇒*B , _) t↘t′ v↘v′ u≡w) =
@@ -1492,7 +1493,7 @@ mutual
 
 normal-types-unique :
   ⦃ not-ok : No-equality-reflection ⦄ →
-  Γ ⊢nf A → Γ ⊢nf B → Γ ⊢ A ≡ B → A PE.≡ B
+  ∇ » Γ ⊢nf A → ∇ » Γ ⊢nf B → ∇ » Γ ⊢ A ≡ B → A PE.≡ B
 normal-types-unique ⊢A ⊢B A≡B =
   normal-types-unique-[conv↑] ⊢A ⊢B (completeEq A≡B)
 
@@ -1501,6 +1502,6 @@ normal-types-unique ⊢A ⊢B A≡B =
 
 normal-terms-unique :
   ⦃ not-ok : No-equality-reflection ⦄ →
-  Γ ⊢nf u ∷ A → Γ ⊢nf v ∷ A → Γ ⊢ u ≡ v ∷ A → u PE.≡ v
+  ∇ » Γ ⊢nf u ∷ A → ∇ » Γ ⊢nf v ∷ A → ∇ » Γ ⊢ u ≡ v ∷ A → u PE.≡ v
 normal-terms-unique ⊢u ⊢v u≡v =
   normal-terms-unique-[conv↑]∷ ⊢u ⊢v (completeEqTerm u≡v)

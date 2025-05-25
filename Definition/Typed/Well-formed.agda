@@ -4,6 +4,7 @@
 
 open import Definition.Typed.Restrictions
 open import Graded.Modality
+open import Tools.Nat
 
 module Definition.Typed.Well-formed
   {a} {M : Set a}
@@ -21,18 +22,22 @@ open import Definition.Typed.Properties.Admissible.Var R
 open import Definition.Typed.Properties.Well-formed R
 open import Definition.Typed.Stability.Primitive R
 open import Definition.Typed.Substitution.Primitive.Primitive R
-open import Definition.Typed.Weakening R
+open import Definition.Typed.Weakening R as W
+open import Definition.Typed.Weakening.Definition R
 
 open import Definition.Untyped M
 open import Definition.Untyped.Properties M
 
 open import Tools.Fin
 open import Tools.Function
+open import Tools.Nat
 open import Tools.Product as Σ
 import Tools.PropositionalEquality as PE
 open import Tools.Sum using (inj₂)
 
 private variable
+  ∇             : DCon (Term 0) _
+  α             : Nat
   x             : Fin _
   Γ Δ           : Con Term _
   A B t t₁ t₂ u : Term _
@@ -43,23 +48,41 @@ private variable
 
 opaque
 
-  -- A well-formedness lemma for _∷_∈_.
+  -- A well-formedness lemma for _↦∷_∈_.
 
-  wf-∷∈ : x ∷ A ∈ Γ → ⊢ Γ → Γ ⊢ A
+  wf-∷∈ : x ∷ A ∈ Γ → ∇ »⊢ Γ → ∇ » Γ ⊢ A
   wf-∷∈ here       (∙ ⊢A) = wk₁ ⊢A ⊢A
   wf-∷∈ (there x∈) (∙ ⊢B) = wk₁ ⊢B (wf-∷∈ x∈ (wf ⊢B))
 
+opaque
+
+  -- A well-formedness lemma for _↦_∷_∈_.
+
+  wf-↦∷∈ : α ↦ t ∷ A ∈ ∇ → » ∇ → ∇ » ε ⊢ t ∷ A
+  wf-↦∷∈ here        (∙ ⊢t) = defn-wkTerm (stepᵗ₁ ⊢t) ⊢t
+  wf-↦∷∈ (there α↦t) (∙ ⊢u) =
+    defn-wkTerm (stepᵗ₁ ⊢u) (wf-↦∷∈ α↦t (defn-wf (wfTerm ⊢u)))
+
 opaque mutual
+
+  -- A well-formedness lemma for _↦∷_∈_.
+
+  wf-↦∈ : α ↦∷ A ∈ ∇ → » ∇ → ∇ » ε ⊢ A
+  wf-↦∈ here        (∙ ⊢t) = defn-wk (stepᵗ₁ ⊢t) (wf-⊢∷ ⊢t)
+  wf-↦∈ (there α↦t) (∙ ⊢u) =
+    defn-wk (stepᵗ₁ ⊢u) (wf-↦∈ α↦t (defn-wf (wfTerm ⊢u)))
 
   -- A well-formedness lemma for _⊢_∷_.
 
-  wf-⊢∷ : Γ ⊢ t ∷ A → Γ ⊢ A
+  wf-⊢∷ : ∇ » Γ ⊢ t ∷ A → ∇ » Γ ⊢ A
   wf-⊢∷ = λ where
     (conv _ B≡A) →
       let _ , ⊢A = wf-⊢≡ B≡A in
       ⊢A
     (var ⊢Γ x∈) →
       wf-∷∈ x∈ ⊢Γ
+    (defn ⊢Γ α↦t PE.refl) →
+      W.wk (wk₀∷ʷ⊇ ⊢Γ) (wf-↦∈ α↦t (defn-wf ⊢Γ))
     (Uⱼ ⊢Γ) →
       Uⱼ ⊢Γ
     (ΠΣⱼ ⊢A _ _) →
@@ -102,7 +125,7 @@ opaque mutual
     (Jⱼ _ ⊢B _ ⊢v ⊢w) →
       subst-⊢ ⊢B $
       →⊢ˢʷ∷∙ (⊢ˢʷ∷-sgSubst ⊢v) $
-      PE.subst (_⊢_∷_ _ _)
+      PE.subst (_»_⊢_∷_ _ _ _)
         (PE.sym $
          PE.cong₃ Id (wk1-sgSubst _ _) (wk1-sgSubst _ _) PE.refl)
         ⊢w
@@ -114,7 +137,7 @@ opaque mutual
 
   -- A well-formedness lemma for _⊢_≡_.
 
-  wf-⊢≡ : Γ ⊢ A ≡ B → Γ ⊢ A × Γ ⊢ B
+  wf-⊢≡ : ∇ » Γ ⊢ A ≡ B → ∇ » Γ ⊢ A × ∇ » Γ ⊢ B
   wf-⊢≡ = λ where
     (refl ⊢A) →
       ⊢A , ⊢A
@@ -144,7 +167,7 @@ opaque mutual
 
   -- A well-formedness lemma for _⊢_≡_∷_.
 
-  wf-⊢≡∷ : Γ ⊢ t ≡ u ∷ A → (Γ ⊢ A) × Γ ⊢ t ∷ A × Γ ⊢ u ∷ A
+  wf-⊢≡∷ : ∇ » Γ ⊢ t ≡ u ∷ A → (∇ » Γ ⊢ A) × ∇ » Γ ⊢ t ∷ A × ∇ » Γ ⊢ u ∷ A
   wf-⊢≡∷ = λ where
     (refl ⊢t) →
       wf-⊢∷ ⊢t , ⊢t , ⊢t
@@ -161,6 +184,10 @@ opaque mutual
           _ , ⊢A        = wf-⊢≡ B≡A
       in
       ⊢A , conv ⊢t₁ B≡A , conv ⊢t₂ B≡A
+    (δ-red ⊢Γ α↦t PE.refl PE.refl) →
+      W.wk (wk₀∷ʷ⊇ ⊢Γ) (wf-↦∈ (↦∷∈⇒↦∈ α↦t) (defn-wf ⊢Γ)) ,
+      defn ⊢Γ (↦∷∈⇒↦∈ α↦t) PE.refl ,
+      wkTerm (wk₀∷ʷ⊇ ⊢Γ) (wf-↦∷∈ α↦t (defn-wf ⊢Γ))
     (ΠΣ-cong A₁≡A₂ B₁≡B₂ ok) →
       let _ , ⊢A₁ , ⊢A₂ = wf-⊢≡∷ A₁≡A₂
           _ , ⊢B₁ , ⊢B₂ = wf-⊢≡∷ B₁≡B₂
@@ -201,7 +228,7 @@ opaque mutual
     (Σ-β₂ ⊢B ⊢t₁ ⊢t₂ PE.refl ok) →
       let ⊢prod                = prodⱼ ⊢B ⊢t₁ ⊢t₂ ok
           [t]₀≡[fst[t,u]]₀     = ⊢ˢʷ≡∷-sgSubst ⊢t₁ (fstⱼ ⊢B ⊢prod)
-                                   (_⊢_≡_∷_.sym (⊢∙→⊢ (wf ⊢B)) $
+                                   (_»_⊢_≡_∷_.sym (⊢∙→⊢ (wf ⊢B)) $
                                     Σ-β₁ ⊢B ⊢t₁ ⊢t₂ PE.refl ok)
           _ , _ , ⊢[fst[t,u]]₀ = wf-⊢ˢʷ≡∷ [t]₀≡[fst[t,u]]₀
       in
@@ -239,8 +266,8 @@ opaque mutual
             →⊢ˢʷ∷∙ ⊢wk2-id $
             prodⱼ
               (subst-⊢ ⊢B (⊢ˢʷ∷-⇑ (subst-⊢ ⊢A ⊢wk2-id) ⊢wk2-id))
-              (PE.subst (_⊢_∷_ _ _) (wk[]≡[] 2) (var₁ ⊢B))
-              (PE.subst (_⊢_∷_ _ _)
+              (PE.subst (_»_⊢_∷_ _ _ _) (wk[]≡[] 2) (var₁ ⊢B))
+              (PE.subst (_»_⊢_∷_ _ _ _)
                  (PE.trans (PE.sym [1]↑²) $
                   PE.sym $ singleSubstComp _ _ B) $
                var₀ ⊢B)
@@ -250,7 +277,7 @@ opaque mutual
     (prodrec-β {A = C} ⊢C ⊢t ⊢u ⊢v PE.refl ok) →
       subst-⊢ ⊢C (⊢ˢʷ∷-sgSubst (prodⱼ (⊢∙→⊢ (wfTerm ⊢v)) ⊢t ⊢u ok)) ,
       prodrecⱼ ⊢C (prodⱼ (⊢∙→⊢ (wfTerm ⊢v)) ⊢t ⊢u ok) ⊢v ok ,
-      PE.subst (_⊢_∷_ _ _) ([1,0]↑²[,] C)
+      PE.subst (_»_⊢_∷_ _ _ _) ([1,0]↑²[,] C)
         (subst-⊢∷ ⊢v (→⊢ˢʷ∷∙ (⊢ˢʷ∷-sgSubst ⊢t) ⊢u))
     (emptyrec-cong A₁≡A₂ t₁≡t₂) →
       let ⊢A₁ , ⊢A₂     = wf-⊢≡ A₁≡A₂
@@ -311,7 +338,7 @@ opaque mutual
     (natrec-suc {A} ⊢t ⊢u ⊢v) →
       subst-⊢ (⊢∙→⊢ (wfTerm ⊢u)) (⊢ˢʷ∷-sgSubst (sucⱼ ⊢v)) ,
       natrecⱼ ⊢t ⊢u (sucⱼ ⊢v) ,
-      PE.subst (_⊢_∷_ _ _) (PE.sym $ substComp↑² A _)
+      PE.subst (_»_⊢_∷_ _ _ _) (PE.sym $ substComp↑² A _)
         (subst-⊢∷ ⊢u (→⊢ˢʷ∷∙ (⊢ˢʷ∷-sgSubst ⊢v) (natrecⱼ ⊢t ⊢u ⊢v)))
     (Id-cong A₁≡A₂ t₁≡t₂ u₁≡u₂) →
       let _ , ⊢A₁ , ⊢A₂ = wf-⊢≡∷ A₁≡A₂
@@ -331,25 +358,25 @@ opaque mutual
           _ , ⊢v₁ , ⊢v₂    = wf-⊢≡∷ v₁≡v₂
           _ , ⊢w₁ , ⊢w₂    = wf-⊢≡∷ w₁≡w₂
           A₁≡A₂′           = wkEq₁ ⊢A₂ A₁≡A₂
-          ⊢rfl             = PE.subst (_⊢_∷_ _ _)
+          ⊢rfl             = PE.subst (_»_⊢_∷_ _ _ _)
                                (PE.sym $
                                 PE.cong₃ Id (wk1-sgSubst _ _)
                                   (wk1-sgSubst _ _) PE.refl) $
                              rflⱼ ⊢t₁
           [v₁,w₁]≡[v₂,w₂]  = ⊢ˢʷ≡∷∙⇔ .proj₂
                                ( ⊢ˢʷ≡∷-sgSubst ⊢v₁ ⊢v₂ v₁≡v₂
-                               , PE.subst (_⊢_∷_ _ _)
+                               , PE.subst (_»_⊢_∷_ _ _ _)
                                    (PE.sym $
                                     PE.cong₃ Id (wk1-sgSubst _ _)
                                       (wk1-sgSubst _ _) PE.refl)
                                    ⊢w₁
-                               , PE.subst (_⊢_∷_ _ _)
+                               , PE.subst (_»_⊢_∷_ _ _ _)
                                    (PE.sym $
                                     PE.cong₃ Id (wk1-sgSubst _ _)
                                       (wk1-sgSubst _ _) PE.refl)
                                    (conv ⊢w₂ $
                                     Id-cong (refl ⊢A₁) (refl ⊢t₁) v₁≡v₂)
-                               , PE.subst (_⊢_≡_∷_ _ _ _)
+                               , PE.subst (_»_⊢_≡_∷_ _ _ _ _)
                                    (PE.sym $
                                     PE.cong₃ Id (wk1-sgSubst _ _)
                                       (wk1-sgSubst _ _) PE.refl)
@@ -374,7 +401,7 @@ opaque mutual
               ( ⊢ˢʷ≡∷-sgSubst ⊢t₁ ⊢t₂ t₁≡t₂
               , ⊢rfl
               , conv ⊢rfl
-                  (PE.subst₂ (_⊢_≡_ _)
+                  (PE.subst₂ (_»_⊢_≡_ _ _)
                      (PE.sym $
                       PE.cong₃ Id
                         (wk1-sgSubst _ _) (wk1-sgSubst _ _) PE.refl)
@@ -420,7 +447,7 @@ opaque mutual
       conv
         ([]-congⱼ ⊢A₂ (conv ⊢t₂ A₁≡A₂) (conv ⊢u₂ A₁≡A₂)
            (conv ⊢v₂ (Id-cong A₁≡A₂ t₁≡t₂ u₁≡u₂)) ok)
-        (_⊢_≡_.sym $
+        (_»_⊢_≡_.sym $
          Id-cong (Erased-cong ⊢A₁ A₁≡A₂) ([]-cong′ ⊢A₁ t₁≡t₂)
            ([]-cong′ ⊢A₁ u₁≡u₂))
     ([]-cong-β ⊢t PE.refl ok) →
@@ -438,7 +465,7 @@ opaque
 
   -- A well-formedness lemma for _⊢ˢ_≡_∷_.
 
-  wf-⊢ˢ≡∷ : ⊢ Γ → Δ ⊢ˢ σ₁ ≡ σ₂ ∷ Γ → Δ ⊢ˢ σ₁ ∷ Γ × Δ ⊢ˢ σ₂ ∷ Γ
+  wf-⊢ˢ≡∷ : ∇ »⊢ Γ → ∇ » Δ ⊢ˢ σ₁ ≡ σ₂ ∷ Γ → ∇ » Δ ⊢ˢ σ₁ ∷ Γ × ∇ » Δ ⊢ˢ σ₂ ∷ Γ
   wf-⊢ˢ≡∷ _      id              = id , id
   wf-⊢ˢ≡∷ (∙ ⊢A) (σ₁≡σ₂ , t₁≡t₂) =
     let ⊢σ₁ , ⊢σ₂     = wf-⊢ˢ≡∷ (wf ⊢A) σ₁≡σ₂

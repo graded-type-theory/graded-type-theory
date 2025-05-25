@@ -32,7 +32,8 @@ open import Tools.Relation
 
 private
   variable
-    n   : Nat
+    m n : Nat
+    ∇   : DCon (Term 0) m
     Γ   : Con Term n
     σ   : Subst _ _
     t u : Term n
@@ -42,7 +43,7 @@ opaque
   -- If there is some way to instantiate all the types in Γ, then Γ is
   -- consistent.
 
-  inhabited-consistent : ε ⊢ˢʷ σ ∷ Γ → Consistent Γ
+  inhabited-consistent : ∇ » ε ⊢ˢʷ σ ∷ Γ → Consistent ∇ Γ
   inhabited-consistent ⊢σ _ ⊢t = ¬Empty (subst-⊢∷ ⊢t ⊢σ)
 
 opaque
@@ -52,11 +53,11 @@ opaque
 
   zero≢suc :
     ⦃ ok : No-equality-reflection or-empty Γ ⦄ →
-    ¬ Γ ⊢ zero ≡ suc t ∷ ℕ
-  zero≢suc {Γ} {t} =
-    Γ ⊢ zero ≡ suc t ∷ ℕ                 →⟨ reducible-⊩≡∷ ⟩
-    (∃ λ l → Γ ⊩⟨ l ⟩ zero ≡ suc t ∷ ℕ)  →⟨ ⊩zero≡suc∷ℕ⇔ .proj₁ ∘→ proj₂ ⟩
-    ⊥                                    □
+    ¬ ∇ » Γ ⊢ zero ≡ suc t ∷ ℕ
+  zero≢suc {Γ} {∇} {t} =
+    ∇ » Γ ⊢ zero ≡ suc t ∷ ℕ                 →⟨ reducible-⊩≡∷ ⟩
+    (∃ λ l → ∇ » Γ ⊩⟨ l ⟩ zero ≡ suc t ∷ ℕ)  →⟨ ⊩zero≡suc∷ℕ⇔ .proj₁ ∘→ proj₂ ⟩
+    ⊥                                        □
 
 opaque
 
@@ -65,7 +66,7 @@ opaque
 
   zero≢one :
     ⦃ ok : No-equality-reflection or-empty Γ ⦄ →
-    ¬ Γ ⊢ zero ≡ suc zero ∷ ℕ
+    ¬ ∇ » Γ ⊢ zero ≡ suc zero ∷ ℕ
   zero≢one = zero≢suc
 
 opaque
@@ -75,18 +76,19 @@ opaque
 
   zero≡one :
     Equality-reflection →
-    ∃ λ (Γ : Con Term 1) → Γ ⊢ zero ≡ suc zero ∷ ℕ
-  zero≡one ok =
+    » ∇ →
+    ∃ λ (Γ : Con Term 1) → ∇ » Γ ⊢ zero ≡ suc zero ∷ ℕ
+  zero≡one ok »∇ =
     ε ∙ Id ℕ zero (suc zero) ,
-    equality-reflection′ ok (var₀ (Idⱼ′ (zeroⱼ ε) (sucⱼ (zeroⱼ ε))))
+    equality-reflection′ ok (var₀ (Idⱼ′ (zeroⱼ (ε »∇)) (sucⱼ (zeroⱼ (ε »∇)))))
 
 opaque
 
   -- A variant of zero≢suc: the identity type Id ℕ zero (suc t) is not
   -- inhabited in the empty context.
 
-  ¬-Id-ℕ-zero-suc : ¬ ε ⊢ u ∷ Id ℕ zero (suc t)
-  ¬-Id-ℕ-zero-suc {u} {t} =
-    ε ⊢ u ∷ Id ℕ zero (suc t)  →⟨ ε⊢∷Id→ε⊢≡∷ ⟩
-    ε ⊢ zero ≡ suc t ∷ ℕ       →⟨ zero≢suc ⦃ ok = ε ⦄ ⟩
-    ⊥                          □
+  ¬-Id-ℕ-zero-suc : ¬ ∇ » ε ⊢ u ∷ Id ℕ zero (suc t)
+  ¬-Id-ℕ-zero-suc {∇} {u} {t} =
+    ∇ » ε ⊢ u ∷ Id ℕ zero (suc t)  →⟨ ε⊢∷Id→ε⊢≡∷ ⟩
+    ∇ » ε ⊢ zero ≡ suc t ∷ ℕ       →⟨ zero≢suc ⦃ ok = ε ⦄ ⟩
+    ⊥                              □

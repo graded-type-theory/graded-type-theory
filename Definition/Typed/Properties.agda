@@ -4,6 +4,7 @@
 
 open import Definition.Typed.Restrictions
 open import Graded.Modality
+open import Tools.Nat
 
 module Definition.Typed.Properties
   {ℓ} {M : Set ℓ}

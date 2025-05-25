@@ -99,10 +99,9 @@ import Definition.Untyped.Erased.Eta
 import Definition.Untyped.Erased.No-eta
 import Definition.Untyped.Erased
 import Definition.Untyped.Bool.Erased
+import Definition.Untyped.Neutral
 import Graded.Derived.Unrestricted.Eta.Untyped
 import Definition.Typed.Variant
-import Definition.Untyped.Neutral
-import Definition.Untyped.Properties.Neutral
 
 ------------------------------------------------------------------------
 -- The type theory, along with some basic properties
@@ -117,6 +116,7 @@ import Definition.Typed.Properties.Well-formed
 import Definition.Typed.Inversion.Primitive
 import Definition.Typed.Properties.Admissible.Erased.Primitive
 import Definition.Typed.Weakening
+import Definition.Typed.Weakening.Definition
 import Definition.Typed.Stability.Primitive
 import Definition.Typed.Substitution.Primitive.Primitive
 import Definition.Typed.Well-formed
@@ -151,7 +151,7 @@ import Definition.Typed.EqRelInstance
 
 ------------------------------------------------------------------------
 -- The usage relation
-
+{-
 import Graded.Usage.Erased-matches
 import Graded.Usage.Restrictions
 import Graded.Usage
@@ -245,7 +245,7 @@ import Graded.Modality.Instances.Linear-or-affine.Good
 import Graded.Modality.Instances.Linearity.Bad
 import Graded.Modality.Instances.Linearity.Bad.No-dedicated-nr
 import Graded.Modality.Instances.Linearity.Good
-
+-}
 ------------------------------------------------------------------------
 -- Properties of the type theory
 
@@ -267,6 +267,7 @@ import Definition.LogicalRelation.Properties.Transitivity
 import Definition.LogicalRelation.Properties.Reduction
 import Definition.LogicalRelation.Properties
 import Definition.LogicalRelation.Weakening
+import Definition.LogicalRelation.Weakening.Definition
 import Definition.LogicalRelation.Hidden
 import Definition.LogicalRelation.Hidden.Restricted
 
@@ -276,6 +277,7 @@ import Definition.LogicalRelation.Substitution
 -- The fundamental lemma of the logical relations.
 import Definition.LogicalRelation.Substitution.Introductions.Var
 import Definition.LogicalRelation.Substitution.Introductions.Universe
+import Definition.LogicalRelation.Substitution.Introductions.Definition
 import Definition.LogicalRelation.Substitution.Introductions.Empty
 import Definition.LogicalRelation.Substitution.Introductions.Emptyrec
 import Definition.LogicalRelation.Substitution.Introductions.Unit
@@ -308,7 +310,7 @@ import Definition.Typed.Consequences.Inversion.Erased.Eta
 import Definition.Typed.Consequences.Inversion.Erased.No-eta
 import Definition.Typed.Consequences.Admissible
 import Definition.Typed.Consequences.Consistency
-import Graded.Derived.Unrestricted.Eta.Typed
+-- import Graded.Derived.Unrestricted.Eta.Typed
 import Definition.Typed.Consequences.NeTypeEq
 
 -- Algorithmic equality.
@@ -322,6 +324,7 @@ import Definition.Conversion.Conversion
 import Definition.Conversion.Symmetry
 import Definition.Conversion.Transitivity
 import Definition.Conversion.Weakening
+import Definition.Conversion.Weakening.Definition
 import Definition.Conversion.Lift
 import Definition.Conversion.Universe
 import Definition.Conversion.Decidable
@@ -348,7 +351,7 @@ import Definition.Typed.Decidable
 
 ------------------------------------------------------------------------
 -- Definitions related to type and usage restrictions
-
+{-
 import Graded.Restrictions
 
 ------------------------------------------------------------------------
@@ -498,3 +501,4 @@ import Application.NegativeOrErasedAxioms.Canonicity.ErasedMatches
 -- Type Theory with a Universe and Erasure, Formalized"
 
 import README
+-}

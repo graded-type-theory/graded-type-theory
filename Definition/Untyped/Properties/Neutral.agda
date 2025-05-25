@@ -3,17 +3,16 @@
 ------------------------------------------------------------------------
 
 open import Definition.Typed.Variant
+open import Tools.Nat
 
 module Definition.Untyped.Properties.Neutral
-  {a}
-  (M : Set a)
+  {a} (M : Set a)
   (type-variant : Type-variant)
   where
 
 open import Tools.Empty
 open import Tools.Fin
 open import Tools.Function
-open import Tools.Nat
 open import Tools.Product
 open import Tools.PropositionalEquality
 open import Tools.Relation

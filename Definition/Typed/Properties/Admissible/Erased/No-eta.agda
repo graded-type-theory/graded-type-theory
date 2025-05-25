@@ -29,6 +29,7 @@ open import Tools.Function
 open import Tools.Product
 
 private variable
+  ∇         : DCon (Term 0) _
   Γ         : Con Term _
   A B C t u : Term _
 
@@ -36,8 +37,8 @@ private variable
 
 Erased-β :
   Erasedʷ-allowed →
-  Γ ⊢ t ∷ A →
-  Γ ⊢ erased A [ t ] ≡ t ∷ A
+  ∇ » Γ ⊢ t ∷ A →
+  ∇ » Γ ⊢ erased A [ t ] ≡ t ∷ A
 Erased-β (Unit-ok , Σ-ok) ⊢t =
   fstʷ-β-≡ (Unitⱼ ⊢ΓA Unit-ok) ⊢t (starⱼ ⊢Γ Unit-ok) Σ-ok
   where
@@ -46,13 +47,13 @@ Erased-β (Unit-ok , Σ-ok) ⊢t =
 
 -- An elimination rule for Erased.
 
-erasedⱼ : Γ ⊢ t ∷ Erased A → Γ ⊢ erased A t ∷ A
+erasedⱼ : ∇ » Γ ⊢ t ∷ Erased A → ∇ » Γ ⊢ erased A t ∷ A
 erasedⱼ ⊢t = fstʷⱼ ⊢t
 
 -- A corresponding congruence rule.
 
 erased-cong :
-  Γ ⊢ A ≡ B → Γ ⊢ t ≡ u ∷ Erased A → Γ ⊢ erased A t ≡ erased B u ∷ A
+  ∇ » Γ ⊢ A ≡ B → ∇ » Γ ⊢ t ≡ u ∷ Erased A → ∇ » Γ ⊢ erased A t ≡ erased B u ∷ A
 erased-cong = fstʷ-cong
 
 opaque
@@ -61,14 +62,14 @@ opaque
   --
   -- TODO: Make it possible to replace the conclusion with
   --
-  --   Γ ⊢ t ∷ Erased A × Erased-allowed?
+  --   ∇ » Γ ⊢ t ∷ Erased A × Erased-allowed?
   --
   -- See also ¬-inversion-erased′ and ¬-inversion-erased in
   -- Definition.Typed.Consequences.Inversion.Erased.No-eta.
 
   inversion-erased :
-    Γ ⊢ erased C t ∷ A →
-    ∃₂ λ q B → Γ ⊢ t ∷ Σʷ 𝟘 , q ▷ A ▹ B × Σʷ-allowed 𝟘 q
+    ∇ » Γ ⊢ erased C t ∷ A →
+    ∃₂ λ q B → ∇ » Γ ⊢ t ∷ Σʷ 𝟘 , q ▷ A ▹ B × Σʷ-allowed 𝟘 q
   inversion-erased {C = C} {t} ⊢erased =
     case inversion-fstʷ ⊢erased of λ
       (q , B , ⊢t , A≡C) →

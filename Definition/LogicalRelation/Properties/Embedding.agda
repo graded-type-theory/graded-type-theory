@@ -24,7 +24,8 @@ open import Tools.Nat using (Nat)
 
 private
   variable
-    n       : Nat
+    m n     : Nat
+    ∇       : DCon (Term 0) m
     Γ       : Con Term n
     A B t u : Term n
     l₁ l₂   : Universe-level
@@ -34,9 +35,9 @@ opaque
   -- An embedding lemma for _⊩⟨_⟩_∷_/_.
 
   emb-≤-⊩∷ :
-    {⊩A : Γ ⊩⟨ l₁ ⟩ A} {p : l₁ ≤ᵘ l₂} →
-    Γ ⊩⟨ l₁ ⟩ t ∷ A / ⊩A →
-    Γ ⊩⟨ l₂ ⟩ t ∷ A / emb-≤-⊩ p ⊩A
+    {⊩A : ∇ » Γ ⊩⟨ l₁ ⟩ A} {p : l₁ ≤ᵘ l₂} →
+    ∇ » Γ ⊩⟨ l₁ ⟩ t ∷ A / ⊩A →
+    ∇ » Γ ⊩⟨ l₂ ⟩ t ∷ A / emb-≤-⊩ p ⊩A
   emb-≤-⊩∷ {⊩A} {p} = irrelevanceTerm ⊩A (emb-≤-⊩ p ⊩A)
 
 opaque
@@ -44,8 +45,8 @@ opaque
   -- An embedding lemma for _⊩⟨_⟩_≡_/_.
 
   emb-≤-⊩≡ :
-    {⊩A : Γ ⊩⟨ l₁ ⟩ A} {p : l₁ ≤ᵘ l₂} →
-    Γ ⊩⟨ l₁ ⟩ A ≡ B / ⊩A → Γ ⊩⟨ l₂ ⟩ A ≡ B / emb-≤-⊩ p ⊩A
+    {⊩A : ∇ » Γ ⊩⟨ l₁ ⟩ A} {p : l₁ ≤ᵘ l₂} →
+    ∇ » Γ ⊩⟨ l₁ ⟩ A ≡ B / ⊩A → ∇ » Γ ⊩⟨ l₂ ⟩ A ≡ B / emb-≤-⊩ p ⊩A
   emb-≤-⊩≡ {⊩A} {p} = irrelevanceEq ⊩A (emb-≤-⊩ p ⊩A)
 
 opaque
@@ -53,6 +54,6 @@ opaque
   -- An embedding lemma for _⊩⟨_⟩_≡_∷_/_.
 
   emb-≤-⊩≡∷ :
-    {⊩A : Γ ⊩⟨ l₁ ⟩ A} {p : l₁ ≤ᵘ l₂} →
-    Γ ⊩⟨ l₁ ⟩ t ≡ u ∷ A / ⊩A → Γ ⊩⟨ l₂ ⟩ t ≡ u ∷ A / emb-≤-⊩ p ⊩A
+    {⊩A : ∇ » Γ ⊩⟨ l₁ ⟩ A} {p : l₁ ≤ᵘ l₂} →
+    ∇ » Γ ⊩⟨ l₁ ⟩ t ≡ u ∷ A / ⊩A → ∇ » Γ ⊩⟨ l₂ ⟩ t ≡ u ∷ A / emb-≤-⊩ p ⊩A
   emb-≤-⊩≡∷ {⊩A} {p} = irrelevanceEqTerm ⊩A (emb-≤-⊩ p ⊩A)

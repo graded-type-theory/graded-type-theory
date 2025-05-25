@@ -12,6 +12,7 @@ module Definition.LogicalRelation.Substitution.Introductions
   (R : Type-restrictions 𝕄)
   where
 
+open import Definition.LogicalRelation.Substitution.Introductions.Definition R public
 open import Definition.LogicalRelation.Substitution.Introductions.Empty R public
 open import Definition.LogicalRelation.Substitution.Introductions.Emptyrec R public
 open import Definition.LogicalRelation.Substitution.Introductions.Identity R public

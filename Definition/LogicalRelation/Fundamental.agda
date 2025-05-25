@@ -23,6 +23,7 @@ open import Definition.Untyped.Properties M
 open import Definition.Typed R
 open import Definition.Typed.Properties R
 open import Definition.Typed.Substitution R
+open import Definition.Typed.Well-formed R
 open import Definition.LogicalRelation R
 open import Definition.LogicalRelation.Properties R
 open import Definition.LogicalRelation.Substitution R
@@ -39,23 +40,30 @@ import Tools.PropositionalEquality as PE
 
 private
   variable
-    m n : Nat
+    m n κ : Nat
+    ∇ : DCon (Term 0) κ
     Γ : Con Term n
     Δ : Con Term m
     σ σ₁ σ₂ σ′ : Subst m n
     A A₁ A₂ B t t₁ t₂ u : Term _
-    ⊩Γ : ⊩ᵛ _
+    ⊩Γ : _ »⊩ᵛ _
 
 opaque mutual
 
+  -- Fundamental theorem for definitions.
+  defn-valid : » ∇ → »ᵛ ∇
+  defn-valid ε = »ᵛε⇔ .proj₂ tt
+  defn-valid (∙ ⊢t) =
+    »ᵛ-∙-intro (defn-valid (defn-wf (wfTerm ⊢t))) (fundamental-⊩ᵛ∷ ⊢t .proj₂)
+
   -- Fundamental theorem for contexts.
-  valid : ⊢ Γ → ⊩ᵛ Γ
-  valid ε      = ⊩ᵛε⇔ .proj₂ _
+  valid : ∇ »⊢ Γ → ∇ »⊩ᵛ Γ
+  valid (ε »∇) = ⊩ᵛε⇔ .proj₂ »∇
   valid (∙ ⊢A) = ⊩ᵛ-∙-intro (fundamental-⊩ᵛ ⊢A .proj₂)
 
 
   -- Fundamental theorem for types.
-  fundamental-⊩ᵛ : Γ ⊢ A → ∃ λ l → Γ ⊩ᵛ⟨ l ⟩ A
+  fundamental-⊩ᵛ : ∇ » Γ ⊢ A → ∃ λ l → ∇ » Γ ⊩ᵛ⟨ l ⟩ A
   fundamental-⊩ᵛ (ℕⱼ ⊢Γ) =
     0 , ℕᵛ (valid ⊢Γ)
   fundamental-⊩ᵛ (Emptyⱼ x) =
@@ -75,7 +83,7 @@ opaque mutual
     _ , ⊩ᵛ∷U→⊩ᵛ (fundamental-⊩ᵛ∷ ⊢A .proj₂)
 
   -- Fundamental theorem for type equality.
-  fundamental-⊩ᵛ≡ : Γ ⊢ A ≡ B → ∃ λ l → Γ ⊩ᵛ⟨ l ⟩ A ≡ B
+  fundamental-⊩ᵛ≡ : ∇ » Γ ⊢ A ≡ B → ∃ λ l → ∇ » Γ ⊩ᵛ⟨ l ⟩ A ≡ B
   fundamental-⊩ᵛ≡ (univ A≡B) =
     let a = ⊩ᵛ≡∷U→⊩ᵛ≡ (proj₂ (fundamental-⊩ᵛ≡∷ A≡B))
     in _ , a
@@ -102,7 +110,7 @@ opaque mutual
                    (proj₂ (fundamental-⊩ᵛ≡∷ u₁≡u₂)))
 
   -- Fundamental theorem for terms.
-  fundamental-⊩ᵛ∷ : Γ ⊢ t ∷ A → ∃ λ l → Γ ⊩ᵛ⟨ l ⟩ t ∷ A
+  fundamental-⊩ᵛ∷ : ∇ » Γ ⊢ t ∷ A → ∃ λ l → ∇ » Γ ⊩ᵛ⟨ l ⟩ t ∷ A
   fundamental-⊩ᵛ∷ (ℕⱼ ⊢Γ) =
     1 , ℕᵗᵛ (valid ⊢Γ)
   fundamental-⊩ᵛ∷ (Emptyⱼ x) =
@@ -113,6 +121,8 @@ opaque mutual
     _ , ΠΣᵗᵛ ⊢ΠΣ (fundamental-⊩ᵛ∷ ⊢A .proj₂) (fundamental-⊩ᵛ∷ ⊢B .proj₂)
   fundamental-⊩ᵛ∷ (var ⊢Γ x∈Γ) =
     _ , varᵛ x∈Γ (valid ⊢Γ) .proj₂
+  fundamental-⊩ᵛ∷ (defn ⊢Γ α↦t PE.refl) =
+    _ , defnᵛ α↦t (defn-valid (defn-wf ⊢Γ)) (valid ⊢Γ) .proj₂
   fundamental-⊩ᵛ∷ (lamⱼ _ ⊢t ok) =
     let l₁ , ⊩t = fundamental-⊩ᵛ∷ ⊢t
         l₂ , ⊩A = wf-∙-⊩ᵛ (wf-⊩ᵛ∷ ⊩t)
@@ -181,7 +191,7 @@ opaque mutual
     _ , ⊩ᵛU∷U (valid ⊢Γ)
 
   -- Fundamental theorem for term equality.
-  fundamental-⊩ᵛ≡∷ : Γ ⊢ t ≡ u ∷ A → ∃ λ l → Γ ⊩ᵛ⟨ l ⟩ t ≡ u ∷ A
+  fundamental-⊩ᵛ≡∷ : ∇ » Γ ⊢ t ≡ u ∷ A → ∃ λ l → ∇ » Γ ⊩ᵛ⟨ l ⟩ t ≡ u ∷ A
   fundamental-⊩ᵛ≡∷ (refl ⊢t) =
     _ , refl-⊩ᵛ≡∷ (proj₂ (fundamental-⊩ᵛ∷ ⊢t))
   fundamental-⊩ᵛ≡∷ (sym _ t≡u) =
@@ -191,6 +201,8 @@ opaque mutual
     in l , trans-⊩ᵛ≡∷ (proj₂ (fundamental-⊩ᵛ≡∷ t≡u)) [u≡v]
   fundamental-⊩ᵛ≡∷ (conv t≡u A≡B) =
     _ , conv-⊩ᵛ≡∷ (proj₂ (fundamental-⊩ᵛ≡ A≡B)) (proj₂ (fundamental-⊩ᵛ≡∷ t≡u))
+  fundamental-⊩ᵛ≡∷ (δ-red ⊢Γ α↦t PE.refl PE.refl) =
+    _ , δ-redᵛ α↦t (defn-valid (defn-wf ⊢Γ)) (valid ⊢Γ) .proj₂
   fundamental-⊩ᵛ≡∷ ΠΣ≡ΠΣ@(ΠΣ-cong A₁≡A₂ B₁≡B₂ ok) =
       _
     , ΠΣ-congᵗᵛ ΠΣ≡ΠΣ (fundamental-⊩ᵛ≡∷ A₁≡A₂ .proj₂)
@@ -297,9 +309,9 @@ opaque
 
   -- Fundamental theorem for substitutions.
 
-  fundamental-⊩ˢ∷ : ⊢ Γ → Δ ⊢ˢʷ σ ∷ Γ → Δ ⊩ˢ σ ∷ Γ
-  fundamental-⊩ˢ∷ ε ⊢σ =
-    ⊩ˢ∷ε⇔ .proj₂ (⊢ˢʷ∷ε⇔ .proj₁ ⊢σ)
+  fundamental-⊩ˢ∷ : ∇ »⊢ Γ → ∇ » Δ ⊢ˢʷ σ ∷ Γ → ∇ » Δ ⊩ˢ σ ∷ Γ
+  fundamental-⊩ˢ∷ (ε »∇) ⊢σ =
+    ⊩ˢ∷ε⇔ .proj₂ (»∇ , ⊢ˢʷ∷ε⇔ .proj₁ ⊢σ)
   fundamental-⊩ˢ∷ (∙ ⊢A) ⊢σ =
     let ⊢σ₊ , ⊢σ₀ = ⊢ˢʷ∷∙⇔ .proj₁ ⊢σ in
     ⊩ˢ∷∙⇔′ .proj₂
@@ -312,9 +324,9 @@ opaque
 
   -- Fundamental theorem for substitution equality.
 
-  fundamental-⊩ˢ≡∷ : ⊢ Γ → Δ ⊢ˢʷ σ₁ ≡ σ₂ ∷ Γ → Δ ⊩ˢ σ₁ ≡ σ₂ ∷ Γ
-  fundamental-⊩ˢ≡∷ ε σ₁≡σ₂ =
-    ⊩ˢ≡∷ε⇔ .proj₂ (⊢ˢʷ≡∷ε⇔ .proj₁ σ₁≡σ₂)
+  fundamental-⊩ˢ≡∷ : ∇ »⊢ Γ → ∇ » Δ ⊢ˢʷ σ₁ ≡ σ₂ ∷ Γ → ∇ » Δ ⊩ˢ σ₁ ≡ σ₂ ∷ Γ
+  fundamental-⊩ˢ≡∷ (ε »∇) σ₁≡σ₂ =
+    ⊩ˢ≡∷ε⇔ .proj₂ (»∇ , ⊢ˢʷ≡∷ε⇔ .proj₁ σ₁≡σ₂)
   fundamental-⊩ˢ≡∷ (∙ ⊢A) σ₁≡σ₂ =
     let σ₁₊≡σ₂₊ , _ , _ , σ₁₀≡σ₂₀ = ⊢ˢʷ≡∷∙⇔ .proj₁ σ₁≡σ₂ in
     ⊩ˢ≡∷∙⇔′ .proj₂

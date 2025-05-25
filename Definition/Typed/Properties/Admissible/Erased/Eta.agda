@@ -32,6 +32,7 @@ import Tools.PropositionalEquality as PE
 open import Tools.Sum
 
 private variable
+  ∇       : DCon (Term 0) _
   Γ       : Con Term _
   A B t u : Term _
 
@@ -41,8 +42,8 @@ opaque
 
   Erased-β :
     Erasedˢ-allowed →
-    Γ ⊢ t ∷ A →
-    Γ ⊢ erased [ t ] ≡ t ∷ A
+    ∇ » Γ ⊢ t ∷ A →
+    ∇ » Γ ⊢ erased [ t ] ≡ t ∷ A
   Erased-β (Unit-ok , Σ-ok) ⊢t =
     let ⊢A = wf-⊢∷ ⊢t in
     Σ-β₁-≡ (Unitⱼ (∙ ⊢A) Unit-ok) ⊢t (starⱼ (wf ⊢A) Unit-ok) Σ-ok
@@ -51,14 +52,14 @@ opaque
 
   -- An elimination rule for Erased.
 
-  erasedⱼ : Γ ⊢ t ∷ Erased A → Γ ⊢ erased t ∷ A
+  erasedⱼ : ∇ » Γ ⊢ t ∷ Erased A → ∇ » Γ ⊢ erased t ∷ A
   erasedⱼ ⊢t = fstⱼ′ ⊢t
 
 opaque
 
   -- A corresponding congruence rule.
 
-  erased-cong : Γ ⊢ t ≡ u ∷ Erased A → Γ ⊢ erased t ≡ erased u ∷ A
+  erased-cong : ∇ » Γ ⊢ t ≡ u ∷ Erased A → ∇ » Γ ⊢ erased t ≡ erased u ∷ A
   erased-cong t≡u = fst-cong′ t≡u
 
 opaque
@@ -66,10 +67,10 @@ opaque
   -- A definitional η-rule for Erased.
 
   Erased-η-≡ :
-    Γ ⊢ t ∷ Erased A →
-    Γ ⊢ u ∷ Erased A →
-    Γ ⊢ erased t ≡ erased u ∷ A →
-    Γ ⊢ t ≡ u ∷ Erased A
+    ∇ » Γ ⊢ t ∷ Erased A →
+    ∇ » Γ ⊢ u ∷ Erased A →
+    ∇ » Γ ⊢ erased t ≡ erased u ∷ A →
+    ∇ » Γ ⊢ t ≡ u ∷ Erased A
   Erased-η-≡ ⊢t ⊢u t≡u =
     Σ-η′ ⊢t ⊢u t≡u (η-unit (sndⱼ′ ⊢t) (sndⱼ′ ⊢u) (inj₁ PE.refl))
 
@@ -78,8 +79,8 @@ opaque
   -- An instance of the η-rule.
 
   [erased] :
-    Γ ⊢ t ∷ Erased A →
-    Γ ⊢ [ erased t ] ≡ t ∷ Erased A
+    ∇ » Γ ⊢ t ∷ Erased A →
+    ∇ » Γ ⊢ [ erased t ] ≡ t ∷ Erased A
   [erased] ⊢t =
     let ⊢A , ⊢Unit , Σˢ-ok = inversion-ΠΣ (wf-⊢∷ ⊢t)
         Erased-ok          = inversion-Unit ⊢Unit , Σˢ-ok
@@ -93,14 +94,14 @@ opaque
   --
   -- TODO: Make it possible to replace the conclusion with
   --
-  --   Γ ⊢ t ∷ Erased A × Erased-allowed?
+  --   ∇ » Γ ⊢ t ∷ Erased A × Erased-allowed?
   --
   -- See also ¬-inversion-erased′ and ¬-inversion-erased in
   -- Definition.Typed.Consequences.Inversion.Erased.Eta.
 
   inversion-erased :
-    Γ ⊢ erased t ∷ A →
-    ∃₂ λ q B → Γ ⊢ t ∷ Σˢ 𝟘 , q ▷ A ▹ B × Σˢ-allowed 𝟘 q
+    ∇ » Γ ⊢ erased t ∷ A →
+    ∃₂ λ q B → ∇ » Γ ⊢ t ∷ Σˢ 𝟘 , q ▷ A ▹ B × Σˢ-allowed 𝟘 q
   inversion-erased ⊢erased =
     case inversion-fst ⊢erased of λ {
       (_ , C , q , _ , ⊢C , ⊢t , ≡B) →
@@ -108,5 +109,5 @@ opaque
       Σˢ-ok →
       q
     , C
-    , conv ⊢t (ΠΣ-cong (_⊢_≡_.sym ≡B) (refl ⊢C) Σˢ-ok)
+    , conv ⊢t (ΠΣ-cong (_»_⊢_≡_.sym ≡B) (refl ⊢C) Σˢ-ok)
     , Σˢ-ok }}

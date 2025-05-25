@@ -5,8 +5,7 @@
 open import Definition.Typed.Variant
 
 module Definition.Untyped.Normal-form
-  {a}
-  (M : Set a)
+  {a} (M : Set a)
   (type-variant : Type-variant)
   where
 
@@ -20,11 +19,12 @@ open import Tools.Nat
 open import Tools.Relation
 
 private variable
+  ∇                      : DCon _ _
   A B C c g k n t t′ u v : Term _
   p q r                  : M
   b                      : BinderMode
   s                      : Strength
-  l                      : Nat
+  l α                    : Nat
 
 mutual
 
@@ -73,7 +73,7 @@ mutual
 
 nfNeutral : NfNeutral n → Neutral n
 nfNeutral = λ where
-  (var _)                 → var _
+  (var x)                 → var x
   (∘ₙ n _)                → ∘ₙ (nfNeutral n)
   (fstₙ n)                → fstₙ (nfNeutral n)
   (sndₙ n)                → sndₙ (nfNeutral n)

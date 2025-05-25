@@ -32,7 +32,8 @@ open import Tools.Function
 
 private
   variable
-    n l l′ l″ : Nat
+    m n l l′ l″ : Nat
+    ∇ : DCon (Term 0) m
     Γ : Con Term n
     A B : Term _
 
@@ -41,7 +42,7 @@ private opaque
   -- A lemma used below.
 
   univEq′ :
-    (⊩U : Γ ⊩⟨ l ⟩U U l′) → Γ ⊩⟨ l ⟩ A ∷ U l′ / U-intr ⊩U → Γ ⊩⟨ l′ ⟩ A
+    (⊩U : ∇ » Γ ⊩⟨ l ⟩U U l′) → ∇ » Γ ⊩⟨ l ⟩ A ∷ U l′ / U-intr ⊩U → ∇ » Γ ⊩⟨ l′ ⟩ A
   univEq′ (noemb (Uᵣ _ l< (id _))) (Uₜ _ _ _ _ ⊩A) =
     ⊩<⇔⊩ l< .proj₁ ⊩A
   univEq′ (noemb (Uᵣ _ _ (U⇒ ⇨ _))) _ =
@@ -51,7 +52,7 @@ private opaque
 
 -- Reducible terms of type U are reducible types.
 univEq :
-  ∀ {l l′ A} ([U] : Γ ⊩⟨ l ⟩ U l′) → Γ ⊩⟨ l ⟩ A ∷ U l′ / [U] → Γ ⊩⟨ l′ ⟩ A
+  ∀ {l l′ A} ([U] : ∇ » Γ ⊩⟨ l ⟩ U l′) → ∇ » Γ ⊩⟨ l ⟩ A ∷ U l′ / [U] → ∇ » Γ ⊩⟨ l′ ⟩ A
 univEq [U] [A] =
   let Uel = U-elim [U]
   in univEq′ Uel (irrelevanceTerm [U] (U-intr Uel) [A])
@@ -63,8 +64,8 @@ private opaque
   -- A lemma used below.
 
   univEqEq′ :
-    (⊩U : Γ ⊩⟨ l ⟩U U l″) (⊩A : Γ ⊩⟨ l′ ⟩ A) →
-    Γ ⊩⟨ l ⟩ A ≡ B ∷ U l″ / U-intr ⊩U → Γ ⊩⟨ l′ ⟩ A ≡ B / ⊩A
+    (⊩U : ∇ » Γ ⊩⟨ l ⟩U U l″) (⊩A : ∇ » Γ ⊩⟨ l′ ⟩ A) →
+    ∇ » Γ ⊩⟨ l ⟩ A ≡ B ∷ U l″ / U-intr ⊩U → ∇ » Γ ⊩⟨ l′ ⟩ A ≡ B / ⊩A
   univEqEq′ (noemb (Uᵣ _ ≤ᵘ-refl _)) ⊩A (Uₜ₌ _ _ _ _ _ _ _ ⊩A′ _ A≡B) =
     irrelevanceEq ⊩A′ ⊩A A≡B
   univEqEq′
@@ -77,9 +78,9 @@ private opaque
 
 -- Reducible term equality of type U is reducible type equality.
 univEqEq :
-  (⊩U : Γ ⊩⟨ l ⟩ U l′) (⊩A : Γ ⊩⟨ l″ ⟩ A) →
-  Γ ⊩⟨ l ⟩ A ≡ B ∷ U l′ / ⊩U →
-  Γ ⊩⟨ l″ ⟩ A ≡ B / ⊩A
+  (⊩U : ∇ » Γ ⊩⟨ l ⟩ U l′) (⊩A : ∇ » Γ ⊩⟨ l″ ⟩ A) →
+  ∇ » Γ ⊩⟨ l ⟩ A ≡ B ∷ U l′ / ⊩U →
+  ∇ » Γ ⊩⟨ l″ ⟩ A ≡ B / ⊩A
 univEqEq ⊩U ⊩A A≡B =
   let ⊩U′ = U-elim ⊩U in
   univEqEq′ ⊩U′ ⊩A (irrelevanceEqTerm ⊩U (U-intr ⊩U′) A≡B)

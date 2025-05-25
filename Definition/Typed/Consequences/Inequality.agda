@@ -36,7 +36,8 @@ open import Tools.Sum using (inj₁; inj₂)
 
 private
   variable
-    n : Nat
+    m n : Nat
+    ∇ : DCon (Term 0) _
     Γ : Con Term _
     A B C D t u v : Term _
     p p′ q q′ : M
@@ -45,18 +46,18 @@ private
     l l₁ l₂ : Universe-level
 
 opaque
-  unfolding _⊩⟨_⟩_≡_
+  unfolding _»_⊩⟨_⟩_≡_
 
   A≢B :
     ⦃ ok : No-equality-reflection or-empty Γ ⦄
-    (_⊩′⟨_⟩A_ _⊩′⟨_⟩B_ : Con Term n → Universe-level → Term n → Set a)
-    (A-intr : ∀ {l} → Γ ⊩′⟨ l ⟩A A → Γ ⊩⟨ l ⟩ A)
-    (B-intr : ∀ {l} → Γ ⊩′⟨ l ⟩B B → Γ ⊩⟨ l ⟩ B) →
-    (∀ {l} → Γ ⊩⟨ l ⟩ A → ∃ λ l′ → Γ ⊩′⟨ l′ ⟩A A) →
-    (∀ {l} → Γ ⊩⟨ l ⟩ B → ∃ λ l′ → Γ ⊩′⟨ l′ ⟩B B) →
-    (∀ {l₁ l₂} {⊩A : Γ ⊩′⟨ l₁ ⟩A A} {⊩B : Γ ⊩′⟨ l₂ ⟩B B} →
-     ¬ ShapeView Γ l₁ l₂ A B (A-intr ⊩A) (B-intr ⊩B)) →
-    ¬ Γ ⊢ A ≡ B
+    (_»_⊩′⟨_⟩A_ _»_⊩′⟨_⟩B_ : DCon (Term 0) m → Con Term n → Universe-level → Term n → Set a)
+    (A-intr : ∀ {l} → ∇ » Γ ⊩′⟨ l ⟩A A → ∇ » Γ ⊩⟨ l ⟩ A)
+    (B-intr : ∀ {l} → ∇ » Γ ⊩′⟨ l ⟩B B → ∇ » Γ ⊩⟨ l ⟩ B) →
+    (∀ {l} → ∇ » Γ ⊩⟨ l ⟩ A → ∃ λ l′ → ∇ » Γ ⊩′⟨ l′ ⟩A A) →
+    (∀ {l} → ∇ » Γ ⊩⟨ l ⟩ B → ∃ λ l′ → ∇ » Γ ⊩′⟨ l′ ⟩B B) →
+    (∀ {l₁ l₂} {⊩A : ∇ » Γ ⊩′⟨ l₁ ⟩A A} {⊩B : ∇ » Γ ⊩′⟨ l₂ ⟩B B} →
+     ¬ ShapeView ∇ Γ l₁ l₂ A B (A-intr ⊩A) (B-intr ⊩B)) →
+    ¬ ∇ » Γ ⊢ A ≡ B
   A≢B _ _ A-intr B-intr A-elim B-elim A≢B′ A≡B =
     let _ , ⊩A , ⊩B , A≡B = reducible-⊩≡ A≡B
         _ , ⊩A′           = A-elim ⊩A
@@ -72,9 +73,9 @@ opaque
 
   U≢ℕ :
     ⦃ ok : No-equality-reflection or-empty Γ ⦄ →
-    ¬ Γ ⊢ U l ≡ ℕ
+    ¬ ∇ » Γ ⊢ U l ≡ ℕ
   U≢ℕ =
-    A≢B _⊩′⟨_⟩U_ (λ Γ _ A → Γ ⊩ℕ A) Uᵣ ℕᵣ
+    A≢B _»_⊩′⟨_⟩U_ (λ ∇ Γ _ A → ∇ » Γ ⊩ℕ A) Uᵣ ℕᵣ
       (extractMaybeEmb ∘→ U-elim)
       (extractMaybeEmb ∘→ ℕ-elim)
       (λ ())
@@ -86,9 +87,9 @@ opaque
 
   U≢Emptyⱼ :
     ⦃ ok : No-equality-reflection or-empty Γ ⦄ →
-    ¬ Γ ⊢ U l ≡ Empty
+    ¬ ∇ » Γ ⊢ U l ≡ Empty
   U≢Emptyⱼ =
-    A≢B _⊩′⟨_⟩U_ (λ Γ _ A → Γ ⊩Empty A) Uᵣ Emptyᵣ
+    A≢B _»_⊩′⟨_⟩U_ (λ ∇ Γ _ A → ∇ » Γ ⊩Empty A) Uᵣ Emptyᵣ
       (extractMaybeEmb ∘→ U-elim)
       (extractMaybeEmb ∘→ Empty-elim)
       (λ ())
@@ -100,9 +101,9 @@ opaque
 
   U≢Unitⱼ :
     ⦃ ok : No-equality-reflection or-empty Γ ⦄ →
-    ¬ Γ ⊢ U l₁ ≡ Unit s l₂
+    ¬ ∇ » Γ ⊢ U l₁ ≡ Unit s l₂
   U≢Unitⱼ {s} =
-    A≢B _⊩′⟨_⟩U_ _⊩Unit⟨_, s ⟩_ Uᵣ Unitᵣ
+    A≢B _»_⊩′⟨_⟩U_ _»_⊩Unit⟨_, s ⟩_ Uᵣ Unitᵣ
       (extractMaybeEmb ∘→ U-elim)
       (extractMaybeEmb ∘→ Unit-elim)
       (λ ())
@@ -114,9 +115,9 @@ opaque
 
   ℕ≢Emptyⱼ :
     ⦃ ok : No-equality-reflection or-empty Γ ⦄ →
-    ¬ Γ ⊢ ℕ ≡ Empty
+    ¬ ∇ » Γ ⊢ ℕ ≡ Empty
   ℕ≢Emptyⱼ =
-    A≢B (λ Γ _ A → Γ ⊩ℕ A) (λ Γ _ A → Γ ⊩Empty A) ℕᵣ Emptyᵣ
+    A≢B (λ ∇ Γ _ A → ∇ » Γ ⊩ℕ A) (λ ∇ Γ _ A → ∇ » Γ ⊩Empty A) ℕᵣ Emptyᵣ
       (extractMaybeEmb ∘→ ℕ-elim)
       (extractMaybeEmb ∘→ Empty-elim)
       (λ ())
@@ -131,12 +132,13 @@ opaque
 
   ℕ≡Empty :
     Equality-reflection →
-    ∃ λ (Γ : Con Term 1) → Γ ⊢ ℕ ≡ Empty
-  ℕ≡Empty ok =
+    » ∇ →
+    ∃ λ (Γ : Con Term 1) → ∇ » Γ ⊢ ℕ ≡ Empty
+  ℕ≡Empty ok »∇ =
     ε ∙ Id (U 0) ℕ Empty ,
     univ
       (equality-reflection′ ok $
-       var₀ (Idⱼ′ (ℕⱼ ε) (Emptyⱼ ε)))
+       var₀ (Idⱼ′ (ℕⱼ (ε »∇)) (Emptyⱼ (ε »∇))))
 
 opaque
 
@@ -145,9 +147,9 @@ opaque
 
   ℕ≢Unitⱼ :
     ⦃ ok : No-equality-reflection or-empty Γ ⦄ →
-    ¬ Γ ⊢ ℕ ≡ Unit s l
+    ¬ ∇ » Γ ⊢ ℕ ≡ Unit s l
   ℕ≢Unitⱼ {s} =
-    A≢B (λ Γ _ A → Γ ⊩ℕ A) _⊩Unit⟨_, s ⟩_ ℕᵣ Unitᵣ
+    A≢B (λ ∇ Γ _ A → ∇ » Γ ⊩ℕ A) _»_⊩Unit⟨_, s ⟩_ ℕᵣ Unitᵣ
       (extractMaybeEmb ∘→ ℕ-elim)
       (extractMaybeEmb ∘→ Unit-elim)
       (λ ())
@@ -159,9 +161,9 @@ opaque
 
   Empty≢Unitⱼ :
     ⦃ ok : No-equality-reflection or-empty Γ ⦄ →
-    ¬ Γ ⊢ Empty ≡ Unit s l
+    ¬ ∇ » Γ ⊢ Empty ≡ Unit s l
   Empty≢Unitⱼ {s} =
-    A≢B (λ Γ _ A → Γ ⊩Empty A) _⊩Unit⟨_, s ⟩_ Emptyᵣ Unitᵣ
+    A≢B (λ ∇ Γ _ A → ∇ » Γ ⊩Empty A) _»_⊩Unit⟨_, s ⟩_ Emptyᵣ Unitᵣ
       (extractMaybeEmb ∘→ Empty-elim)
       (extractMaybeEmb ∘→ Unit-elim)
       (λ ())
@@ -173,10 +175,10 @@ opaque
 
   U≢ΠΣⱼ :
     ⦃ ok : No-equality-reflection or-empty Γ ⦄ →
-    ¬ Γ ⊢ U l ≡ ΠΣ⟨ b ⟩ p , q ▷ A ▹ B
+    ¬ ∇ » Γ ⊢ U l ≡ ΠΣ⟨ b ⟩ p , q ▷ A ▹ B
   U≢ΠΣⱼ =
     let b = _ in
-    A≢B _⊩′⟨_⟩U_ _⊩′⟨_⟩B⟨ b ⟩_ Uᵣ (Bᵣ _)
+    A≢B _»_⊩′⟨_⟩U_ _»_⊩′⟨_⟩B⟨ b ⟩_ Uᵣ (Bᵣ _)
       (extractMaybeEmb ∘→ U-elim)
       (extractMaybeEmb ∘→ B-elim _)
       (λ ())
@@ -188,9 +190,9 @@ opaque
 
   U≢ne :
     ⦃ ok : No-equality-reflection or-empty Γ ⦄ →
-    Neutral A → ¬ Γ ⊢ U l ≡ A
+    Neutral A → ¬ ∇ » Γ ⊢ U l ≡ A
   U≢ne A-ne =
-    A≢B _⊩′⟨_⟩U_ (λ Γ _ A → Γ ⊩ne A) Uᵣ ne
+    A≢B _»_⊩′⟨_⟩U_ (λ ∇ Γ _ A → ∇ » Γ ⊩ne A) Uᵣ ne
       (extractMaybeEmb ∘→ U-elim)
       (extractMaybeEmb ∘→ ne-elim A-ne)
       (λ ())
@@ -202,10 +204,10 @@ opaque
 
   ℕ≢ΠΣⱼ :
     ⦃ ok : No-equality-reflection or-empty Γ ⦄ →
-    ¬ Γ ⊢ ℕ ≡ ΠΣ⟨ b ⟩ p , q ▷ A ▹ B
+    ¬ ∇ » Γ ⊢ ℕ ≡ ΠΣ⟨ b ⟩ p , q ▷ A ▹ B
   ℕ≢ΠΣⱼ =
     let b = _ in
-    A≢B (λ Γ _ A → Γ ⊩ℕ A) _⊩′⟨_⟩B⟨ b ⟩_ ℕᵣ (Bᵣ _)
+    A≢B (λ ∇ Γ _ A → ∇ » Γ ⊩ℕ A) _»_⊩′⟨_⟩B⟨ b ⟩_ ℕᵣ (Bᵣ _)
       (extractMaybeEmb ∘→ ℕ-elim)
       (extractMaybeEmb ∘→ B-elim _)
       (λ ())
@@ -217,10 +219,10 @@ opaque
 
   Empty≢ΠΣⱼ :
     ⦃ ok : No-equality-reflection or-empty Γ ⦄ →
-    ¬ Γ ⊢ Empty ≡ ΠΣ⟨ b ⟩ p , q ▷ A ▹ B
+    ¬ ∇ » Γ ⊢ Empty ≡ ΠΣ⟨ b ⟩ p , q ▷ A ▹ B
   Empty≢ΠΣⱼ =
     let b = _ in
-    A≢B (λ Γ _ A → Γ ⊩Empty A) _⊩′⟨_⟩B⟨ b ⟩_ Emptyᵣ (Bᵣ _)
+    A≢B (λ ∇ Γ _ A → ∇ » Γ ⊩Empty A) _»_⊩′⟨_⟩B⟨ b ⟩_ Emptyᵣ (Bᵣ _)
       (extractMaybeEmb ∘→ Empty-elim)
       (extractMaybeEmb ∘→ B-elim _)
       (λ ())
@@ -232,10 +234,10 @@ opaque
 
   Unit≢ΠΣⱼ :
     ⦃ ok : No-equality-reflection or-empty Γ ⦄ →
-    ¬ Γ ⊢ Unit s l ≡ ΠΣ⟨ b ⟩ p , q ▷ B ▹ C
+    ¬ ∇ » Γ ⊢ Unit s l ≡ ΠΣ⟨ b ⟩ p , q ▷ B ▹ C
   Unit≢ΠΣⱼ {s} =
     let b = _ in
-    A≢B _⊩Unit⟨_, s ⟩_ _⊩′⟨_⟩B⟨ b ⟩_ Unitᵣ (Bᵣ _)
+    A≢B _»_⊩Unit⟨_, s ⟩_ _»_⊩′⟨_⟩B⟨ b ⟩_ Unitᵣ (Bᵣ _)
       (extractMaybeEmb ∘→ Unit-elim)
       (extractMaybeEmb ∘→ B-elim _)
       (λ ())
@@ -247,9 +249,9 @@ opaque
 
   ℕ≢ne :
     ⦃ ok : No-equality-reflection or-empty Γ ⦄ →
-    Neutral A → ¬ Γ ⊢ ℕ ≡ A
+    Neutral A → ¬ ∇ » Γ ⊢ ℕ ≡ A
   ℕ≢ne A-ne =
-    A≢B (λ Γ _ A → Γ ⊩ℕ A) (λ Γ _ A → Γ ⊩ne A) ℕᵣ ne
+    A≢B (λ ∇ Γ _ A → ∇ » Γ ⊩ℕ A) (λ ∇ Γ _ A → ∇ » Γ ⊩ne A) ℕᵣ ne
       (extractMaybeEmb ∘→ ℕ-elim)
       (extractMaybeEmb ∘→ ne-elim A-ne)
       (λ ())
@@ -261,9 +263,9 @@ opaque
 
   Empty≢neⱼ :
     ⦃ ok : No-equality-reflection or-empty Γ ⦄ →
-    Neutral A → ¬ Γ ⊢ Empty ≡ A
+    Neutral A → ¬ ∇ » Γ ⊢ Empty ≡ A
   Empty≢neⱼ A-ne =
-    A≢B (λ Γ _ A → Γ ⊩Empty A) (λ Γ _ A → Γ ⊩ne A) Emptyᵣ ne
+    A≢B (λ ∇ Γ _ A → ∇ » Γ ⊩Empty A) (λ ∇ Γ _ A → ∇ » Γ ⊩ne A) Emptyᵣ ne
       (extractMaybeEmb ∘→ Empty-elim)
       (extractMaybeEmb ∘→ ne-elim A-ne)
       (λ ())
@@ -275,9 +277,9 @@ opaque
 
   Unit≢neⱼ :
     ⦃ ok : No-equality-reflection or-empty Γ ⦄ →
-    Neutral A → ¬ Γ ⊢ Unit s l ≡ A
+    Neutral A → ¬ ∇ » Γ ⊢ Unit s l ≡ A
   Unit≢neⱼ {s} A-ne =
-    A≢B _⊩Unit⟨_, s ⟩_ (λ Γ _ A → Γ ⊩ne A) Unitᵣ ne
+    A≢B _»_⊩Unit⟨_, s ⟩_ (λ ∇ Γ _ A → ∇ » Γ ⊩ne A) Unitᵣ ne
       (extractMaybeEmb ∘→ Unit-elim)
       (extractMaybeEmb ∘→ ne-elim A-ne)
       (λ ())
@@ -289,10 +291,10 @@ opaque
 
   ΠΣ≢ne :
     ⦃ ok : No-equality-reflection or-empty Γ ⦄ →
-    Neutral C → ¬ Γ ⊢ ΠΣ⟨ b ⟩ p , q ▷ A ▹ B ≡ C
+    Neutral C → ¬ ∇ » Γ ⊢ ΠΣ⟨ b ⟩ p , q ▷ A ▹ B ≡ C
   ΠΣ≢ne C-ne =
     let b = _ in
-    A≢B _⊩′⟨_⟩B⟨ b ⟩_ (λ Γ _ A → Γ ⊩ne A) (Bᵣ _) ne
+    A≢B _»_⊩′⟨_⟩B⟨ b ⟩_ (λ ∇ Γ _ A → ∇ » Γ ⊩ne A) (Bᵣ _) ne
       (extractMaybeEmb ∘→ B-elim _)
       (extractMaybeEmb ∘→ ne-elim C-ne)
       (λ ())
@@ -304,12 +306,12 @@ opaque
 
   Π≢Σⱼ :
     ⦃ ok : No-equality-reflection or-empty Γ ⦄ →
-    ¬ Γ ⊢ Π p , q ▷ A ▹ B ≡ Σ⟨ s ⟩ p′ , q′ ▷ C ▹ D
+    ¬ ∇ » Γ ⊢ Π p , q ▷ A ▹ B ≡ Σ⟨ s ⟩ p′ , q′ ▷ C ▹ D
   Π≢Σⱼ =
     let b₁ = _
         b₂ = _
     in
-    A≢B _⊩′⟨_⟩B⟨ b₁ ⟩_ _⊩′⟨_⟩B⟨ b₂ ⟩_ (Bᵣ _) (Bᵣ _)
+    A≢B _»_⊩′⟨_⟩B⟨ b₁ ⟩_ _»_⊩′⟨_⟩B⟨ b₂ ⟩_ (Bᵣ _) (Bᵣ _)
       (extractMaybeEmb ∘→ B-elim _)
       (extractMaybeEmb ∘→ B-elim _)
       (λ ())
@@ -321,12 +323,12 @@ opaque
 
   Σˢ≢Σʷⱼ :
     ⦃ ok : No-equality-reflection or-empty Γ ⦄ →
-    ¬ Γ ⊢ Σˢ p , q ▷ A ▹ B ≡ Σʷ p′ , q′ ▷ C ▹ D
+    ¬ ∇ » Γ ⊢ Σˢ p , q ▷ A ▹ B ≡ Σʷ p′ , q′ ▷ C ▹ D
   Σˢ≢Σʷⱼ =
     let b₁ = _
         b₂ = _
     in
-    A≢B _⊩′⟨_⟩B⟨ b₁ ⟩_ _⊩′⟨_⟩B⟨ b₂ ⟩_ (Bᵣ _) (Bᵣ _)
+    A≢B _»_⊩′⟨_⟩B⟨ b₁ ⟩_ _»_⊩′⟨_⟩B⟨ b₂ ⟩_ (Bᵣ _) (Bᵣ _)
       (extractMaybeEmb ∘→ B-elim _)
       (extractMaybeEmb ∘→ B-elim _)
       (λ ())
@@ -338,9 +340,9 @@ opaque
 
   Unitʷ≢Unitˢ :
     ⦃ ok : No-equality-reflection or-empty Γ ⦄ →
-    ¬ Γ ⊢ Unitʷ l₁ ≡ Unitˢ l₂
+    ¬ ∇ » Γ ⊢ Unitʷ l₁ ≡ Unitˢ l₂
   Unitʷ≢Unitˢ =
-    A≢B _⊩Unit⟨_, 𝕨 ⟩_ _⊩Unit⟨_, 𝕤 ⟩_ Unitᵣ Unitᵣ
+    A≢B _»_⊩Unit⟨_, 𝕨 ⟩_ _»_⊩Unit⟨_, 𝕤 ⟩_ Unitᵣ Unitᵣ
       (extractMaybeEmb ∘→ Unit-elim)
       (extractMaybeEmb ∘→ Unit-elim)
       (λ ())
@@ -352,9 +354,9 @@ opaque
 
   Id≢ne :
     ⦃ ok : No-equality-reflection or-empty Γ ⦄ →
-    Neutral B → ¬ Γ ⊢ Id A t u ≡ B
+    Neutral B → ¬ ∇ » Γ ⊢ Id A t u ≡ B
   Id≢ne B-ne =
-    A≢B _⊩′⟨_⟩Id_ (λ Γ _ A → Γ ⊩ne A) Idᵣ ne
+    A≢B _»_⊩′⟨_⟩Id_ (λ ∇ Γ _ A → ∇ » Γ ⊩ne A) Idᵣ ne
       (extractMaybeEmb ∘→ Id-elim)
       (extractMaybeEmb ∘→ ne-elim B-ne)
       (λ ())
@@ -366,9 +368,9 @@ opaque
 
   Id≢U :
     ⦃ ok : No-equality-reflection or-empty Γ ⦄ →
-    ¬ Γ ⊢ Id A t u ≡ U l
+    ¬ ∇ » Γ ⊢ Id A t u ≡ U l
   Id≢U =
-    A≢B _⊩′⟨_⟩Id_ _⊩′⟨_⟩U_ Idᵣ Uᵣ
+    A≢B _»_⊩′⟨_⟩Id_ _»_⊩′⟨_⟩U_ Idᵣ Uᵣ
       (extractMaybeEmb ∘→ Id-elim)
       (extractMaybeEmb ∘→ U-elim)
       (λ ())
@@ -380,9 +382,9 @@ opaque
 
   Id≢ℕ :
     ⦃ ok : No-equality-reflection or-empty Γ ⦄ →
-    ¬ Γ ⊢ Id A t u ≡ ℕ
+    ¬ ∇ » Γ ⊢ Id A t u ≡ ℕ
   Id≢ℕ =
-    A≢B _⊩′⟨_⟩Id_ (λ Γ _ A → Γ ⊩ℕ A) Idᵣ ℕᵣ
+    A≢B _»_⊩′⟨_⟩Id_ (λ ∇ Γ _ A → ∇ » Γ ⊩ℕ A) Idᵣ ℕᵣ
       (extractMaybeEmb ∘→ Id-elim)
       (extractMaybeEmb ∘→ ℕ-elim)
       (λ ())
@@ -394,9 +396,9 @@ opaque
 
   Id≢Unit :
     ⦃ ok : No-equality-reflection or-empty Γ ⦄ →
-    ¬ Γ ⊢ Id A t u ≡ Unit s l
+    ¬ ∇ » Γ ⊢ Id A t u ≡ Unit s l
   Id≢Unit {s} =
-    A≢B _⊩′⟨_⟩Id_ _⊩Unit⟨_, s ⟩_ Idᵣ Unitᵣ
+    A≢B _»_⊩′⟨_⟩Id_ _»_⊩Unit⟨_, s ⟩_ Idᵣ Unitᵣ
       (extractMaybeEmb ∘→ Id-elim)
       (extractMaybeEmb ∘→ Unit-elim)
       (λ ())
@@ -408,9 +410,9 @@ opaque
 
   Id≢Empty :
     ⦃ ok : No-equality-reflection or-empty Γ ⦄ →
-    ¬ Γ ⊢ Id A t u ≡ Empty
+    ¬ ∇ » Γ ⊢ Id A t u ≡ Empty
   Id≢Empty =
-    A≢B _⊩′⟨_⟩Id_ (λ Γ _ A → Γ ⊩Empty A) Idᵣ Emptyᵣ
+    A≢B _»_⊩′⟨_⟩Id_ (λ ∇ Γ _ A → ∇ » Γ ⊩Empty A) Idᵣ Emptyᵣ
       (extractMaybeEmb ∘→ Id-elim)
       (extractMaybeEmb ∘→ Empty-elim)
       (λ ())
@@ -422,10 +424,10 @@ opaque
 
   Id≢ΠΣ :
     ⦃ ok : No-equality-reflection or-empty Γ ⦄ →
-    ¬ Γ ⊢ Id A t u ≡ ΠΣ⟨ b ⟩ p , q ▷ B ▹ C
+    ¬ ∇ » Γ ⊢ Id A t u ≡ ΠΣ⟨ b ⟩ p , q ▷ B ▹ C
   Id≢ΠΣ =
     let b = _ in
-    A≢B _⊩′⟨_⟩Id_ _⊩′⟨_⟩B⟨ b ⟩_ Idᵣ (Bᵣ _)
+    A≢B _»_⊩′⟨_⟩Id_ _»_⊩′⟨_⟩B⟨ b ⟩_ Idᵣ (Bᵣ _)
       (extractMaybeEmb ∘→ Id-elim)
       (extractMaybeEmb ∘→ B-elim _)
       (λ ())
@@ -435,7 +437,7 @@ opaque
 
 No-η-equality→≢Π :
   ⦃ ok : No-equality-reflection or-empty Γ ⦄ →
-  No-η-equality A → Γ ⊢ A ≡ Π p , q ▷ B ▹ C → ⊥
+  No-η-equality A → ∇ » Γ ⊢ A ≡ Π p , q ▷ B ▹ C → ⊥
 No-η-equality→≢Π = λ where
   U.Uₙ         U≡Π     → U≢ΠΣⱼ U≡Π
   U.Σʷₙ        Σʷ≡Π    → Π≢Σⱼ (sym Σʷ≡Π)
@@ -450,7 +452,7 @@ No-η-equality→≢Π = λ where
 
 No-η-equality→≢Σˢ :
   ⦃ ok : No-equality-reflection or-empty Γ ⦄ →
-  No-η-equality A → Γ ⊢ A ≡ Σˢ p , q ▷ B ▹ C → ⊥
+  No-η-equality A → ∇ » Γ ⊢ A ≡ Σˢ p , q ▷ B ▹ C → ⊥
 No-η-equality→≢Σˢ = λ where
   U.Uₙ         U≡Σ     → U≢ΠΣⱼ U≡Σ
   U.Σʷₙ        Σʷ≡Σ    → Σˢ≢Σʷⱼ (sym Σʷ≡Σ)
@@ -465,7 +467,7 @@ No-η-equality→≢Σˢ = λ where
 
 No-η-equality→≢Unit :
   ⦃ ok : No-equality-reflection or-empty Γ ⦄ →
-  No-η-equality A → Γ ⊢ A ≡ Unit s l → ¬ Unit-with-η s
+  No-η-equality A → ∇ » Γ ⊢ A ≡ Unit s l → ¬ Unit-with-η s
 No-η-equality→≢Unit = λ where
   U.Uₙ            U≡Unit      _              → U≢Unitⱼ U≡Unit
   U.Σʷₙ           Σʷ≡Unit     _              → Unit≢ΠΣⱼ (sym Σʷ≡Unit)
@@ -484,7 +486,7 @@ No-η-equality→≢Unit = λ where
 whnf≢ne :
   ⦃ ok : No-equality-reflection or-empty Γ ⦄ →
   No-η-equality A → Whnf t → ¬ Neutral t → Neutral u →
-  ¬ Γ ⊢ t ≡ u ∷ A
+  ¬ ∇ » Γ ⊢ t ≡ u ∷ A
 whnf≢ne {Γ} {A} {t} {u} ¬-A-η t-whnf ¬-t-ne u-ne t≡u =
   case reducible-⊩≡∷ t≡u of λ
     (_ , t≡u) →
@@ -492,25 +494,25 @@ whnf≢ne {Γ} {A} {t} {u} ¬-A-η t-whnf ¬-t-ne u-ne t≡u =
     ⊩A →
   lemma ⊩A (⊩≡∷→⊩≡∷/ ⊩A t≡u)
   where
-  A⇒*no-η : Γ ⊢ A ⇒* B → No-η-equality B
+  A⇒*no-η : ∇ » Γ ⊢ A ⇒* B → No-η-equality B
   A⇒*no-η A⇒*B =
     case whnfRed* A⇒*B (U.No-η-equality→Whnf ¬-A-η) of λ {
       PE.refl →
     ¬-A-η }
 
-  ¬t⇒*ne : Γ ⊢ t ⇒* v ∷ B → ¬ Neutral v
+  ¬t⇒*ne : ∇ » Γ ⊢ t ⇒* v ∷ B → ¬ Neutral v
   ¬t⇒*ne t⇒*v v-ne =
     case whnfRed*Term t⇒*v t-whnf of λ {
       PE.refl →
     ¬-t-ne v-ne }
 
-  u⇒*ne : Γ ⊢ u ⇒* v ∷ B → Neutral v
+  u⇒*ne : ∇ » Γ ⊢ u ⇒* v ∷ B → Neutral v
   u⇒*ne u⇒*v =
     case whnfRed*Term u⇒*v (U.ne u-ne) of λ {
       PE.refl →
     u-ne }
 
-  lemma : ([A] : Γ ⊩⟨ l ⟩ A) → ¬ Γ ⊩⟨ l ⟩ t ≡ u ∷ A / [A]
+  lemma : ([A] : ∇ » Γ ⊩⟨ l ⟩ A) → ¬ ∇ » Γ ⊩⟨ l ⟩ t ≡ u ∷ A / [A]
   lemma = λ where
     (ℕᵣ _) (ℕₜ₌ _ _ _ u⇒*zero _ zeroᵣ) →
       U.zero≢ne (u⇒*ne u⇒*zero) PE.refl
@@ -526,7 +528,7 @@ whnf≢ne {Γ} {A} {t} {u} ¬-A-η t-whnf ¬-t-ne u-ne t≡u =
         (U.Unitʷₙ not-ok) → case [t≡u] of λ where
           (Unitₜ₌ʷ _ _ _ d′ _ starᵣ _) →
             U.star≢ne (u⇒*ne d′) PE.refl
-          (Unitₜ₌ʷ _ _ d _ _ (ne (neNfₜ₌ _ neK _ _)) _) →
+          (Unitₜ₌ʷ _ _ d _ _ (ne (neNfₜ₌ inc neK _ _)) _) →
             ¬t⇒*ne d neK
           (Unitₜ₌ˢ _ _ (inj₁ ()))
           (Unitₜ₌ˢ _ _ (inj₂ ok)) →
@@ -574,7 +576,7 @@ whnf≢ne {Γ} {A} {t} {u} ¬-A-η t-whnf ¬-t-ne u-ne t≡u =
 zero≢ne :
   ⦃ ok : No-equality-reflection or-empty Γ ⦄ →
   Neutral t →
-  ¬ Γ ⊢ zero ≡ t ∷ ℕ
+  ¬ ∇ » Γ ⊢ zero ≡ t ∷ ℕ
 zero≢ne = whnf≢ne U.ℕₙ U.zeroₙ (λ ())
 
 -- The term suc t is not definitionally equal (at type ℕ) to any
@@ -583,7 +585,7 @@ zero≢ne = whnf≢ne U.ℕₙ U.zeroₙ (λ ())
 suc≢ne :
   ⦃ ok : No-equality-reflection or-empty Γ ⦄ →
   Neutral u →
-  ¬ Γ ⊢ suc t ≡ u ∷ ℕ
+  ¬ ∇ » Γ ⊢ suc t ≡ u ∷ ℕ
 suc≢ne = whnf≢ne U.ℕₙ U.sucₙ (λ ())
 
 -- The term prodʷ p t u is not definitionally equal (at type
@@ -592,7 +594,7 @@ suc≢ne = whnf≢ne U.ℕₙ U.sucₙ (λ ())
 prodʷ≢ne :
   ⦃ ok : No-equality-reflection or-empty Γ ⦄ →
   Neutral v →
-  ¬ Γ ⊢ prodʷ p t u ≡ v ∷ Σʷ p , q ▷ A ▹ B
+  ¬ ∇ » Γ ⊢ prodʷ p t u ≡ v ∷ Σʷ p , q ▷ A ▹ B
 prodʷ≢ne = whnf≢ne U.Σʷₙ U.prodₙ (λ ())
 
 -- The term rfl is not definitionally equal (at type Id A t u) to any
@@ -601,5 +603,5 @@ prodʷ≢ne = whnf≢ne U.Σʷₙ U.prodₙ (λ ())
 rfl≢ne :
   ⦃ ok : No-equality-reflection or-empty Γ ⦄ →
   Neutral v →
-  ¬ Γ ⊢ rfl ≡ v ∷ Id A t u
+  ¬ ∇ » Γ ⊢ rfl ≡ v ∷ Id A t u
 rfl≢ne = whnf≢ne U.Idₙ U.rflₙ (λ ())

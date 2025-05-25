@@ -1,5 +1,5 @@
 ------------------------------------------------------------------------
--- An instance related to Neutrals-included
+-- An instance related to Var-included
 ------------------------------------------------------------------------
 
 open import Definition.Typed.EqualityRelation
@@ -25,6 +25,6 @@ instance
   -- A variant of included.
 
   included′ :
-    ⦃ inc : Neutrals-included ⦄ →
-    Neutrals-included or-empty Γ
+    ⦃ inc : Var-included ⦄ →
+    Var-included or-empty Γ
   included′ = included

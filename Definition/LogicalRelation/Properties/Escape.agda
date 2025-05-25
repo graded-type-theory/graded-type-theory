@@ -31,7 +31,8 @@ open import Tools.Product
 
 private
   variable
-    n : Nat
+    m n : Nat
+    ∇ : DCon (Term 0) m
     Γ : Con Term n
     A B t u : Term n
     l l′ : Universe-level
@@ -40,21 +41,21 @@ private
     p q : M
 
 -- Reducible types are well-formed.
-escape : ∀ {l A} → Γ ⊩⟨ l ⟩ A → Γ ⊢ A
+escape : ∀ {l A} → ∇ » Γ ⊩⟨ l ⟩ A → ∇ » Γ ⊢ A
 escape (Uᵣ′ _ _ D) = redFirst* D
 escape (ℕᵣ D) = redFirst* D
 escape (Emptyᵣ D) = redFirst* D
 escape (Unitᵣ (Unitₜ D _)) = redFirst* D
 escape (ne′ _ _ D _ _) = redFirst* D
 escape (Bᵣ′ _ _ _ D _ _ _ _ _) = redFirst* D
-escape (Idᵣ ⊩A) = redFirst* (_⊩ₗId_.⇒*Id ⊩A)
+escape (Idᵣ ⊩A) = redFirst* (_»_⊩ₗId_.⇒*Id ⊩A)
 escape (emb ≤ᵘ-refl A) = escape A
 escape (emb (≤ᵘ-step k) A) = escape (emb k A)
 
 -- Reducible terms are well-formed.
-escapeTerm : ∀ {l A t} → ([A] : Γ ⊩⟨ l ⟩ A)
-              → Γ ⊩⟨ l ⟩ t ∷ A / [A]
-              → Γ ⊢ t ∷ A
+escapeTerm : ∀ {l A t} → ([A] : ∇ » Γ ⊩⟨ l ⟩ A)
+              → ∇ » Γ ⊩⟨ l ⟩ t ∷ A / [A]
+              → ∇ » Γ ⊢ t ∷ A
 escapeTerm (Uᵣ′ _ _ D) (Uₜ _ d _ _ _) =
   conv (redFirst*Term d) (sym (subset* D))
 escapeTerm (ℕᵣ D) (ℕₜ _ d _ _) =
@@ -70,39 +71,39 @@ escapeTerm (Bᵣ′ BΠ! _ _ D _ _ _ _ _) (Πₜ _ d _ _ _ _) =
 escapeTerm (Bᵣ′ BΣ! _ _ D _ _ _ _ _) (Σₜ _ d _ _ _) =
   conv (redFirst*Term d) (sym (subset* D))
 escapeTerm (Idᵣ ⊩A) (_ , d , _) =
-  conv (redFirst*Term d) (sym (subset* (_⊩ₗId_.⇒*Id ⊩A)))
+  conv (redFirst*Term d) (sym (subset* (_»_⊩ₗId_.⇒*Id ⊩A)))
 escapeTerm (emb ≤ᵘ-refl A) t = escapeTerm A t
 escapeTerm (emb (≤ᵘ-step k) A) t = escapeTerm (emb k A) t
 
 -- Reducible type equality is contained in the equality relation.
 escapeEq :
-  (⊩A : Γ ⊩⟨ l ⟩ A) →
-  Γ ⊩⟨ l ⟩ A ≡ B / ⊩A →
-  Γ ⊢ A ≅ B
+  (⊩A : ∇ » Γ ⊩⟨ l ⟩ A) →
+  ∇ » Γ ⊩⟨ l ⟩ A ≡ B / ⊩A →
+  ∇ » Γ ⊢ A ≅ B
 
 -- Reducible term equality is contained in the equality relation.
 escapeTermEq :
-  (⊩A : Γ ⊩⟨ l ⟩ A) →
-  Γ ⊩⟨ l ⟩ t ≡ u ∷ A / ⊩A →
-  Γ ⊢ t ≅ u ∷ A
+  (⊩A : ∇ » Γ ⊩⟨ l ⟩ A) →
+  ∇ » Γ ⊩⟨ l ⟩ t ≡ u ∷ A / ⊩A →
+  ∇ » Γ ⊢ t ≅ u ∷ A
 
 -- If there is a well-formed equality between two identity types,
 -- then the corresponding reduced identity types are equal.
 Id≅Id :
-  {⊩A : Γ ⊩′⟨ l ⟩Id A}
-  (A≡B : Γ ⊩⟨ l ⟩ A ≡ B / Idᵣ ⊩A) →
-  let open _⊩ₗId_ ⊩A
-      open _⊩ₗId_≡_/_ A≡B
+  {⊩A : ∇ » Γ ⊩′⟨ l ⟩Id A}
+  (A≡B : ∇ » Γ ⊩⟨ l ⟩ A ≡ B / Idᵣ ⊩A) →
+  let open _»_⊩ₗId_ ⊩A
+      open _»_⊩ₗId_≡_/_ A≡B
   in
-  Γ ⊢ Id Ty lhs rhs ≅ Id Ty′ lhs′ rhs′
+  ∇ » Γ ⊢ Id Ty lhs rhs ≅ Id Ty′ lhs′ rhs′
 Id≅Id {⊩A = ⊩A} A≡B =
   ≅-Id-cong
     (escapeEq ⊩Ty Ty≡Ty′)
     (escapeTermEq ⊩Ty lhs≡lhs′)
     (escapeTermEq ⊩Ty rhs≡rhs′)
   where
-  open _⊩ₗId_ ⊩A
-  open _⊩ₗId_≡_/_ A≡B
+  open _»_⊩ₗId_ ⊩A
+  open _»_⊩ₗId_≡_/_ A≡B
 
 escapeEq (Uᵣ′ _ _ D) D₁ =
   ≅-red (D , Uₙ)  (D₁ , Uₙ) (≅-univ (≅-Urefl (wfEq (subset* D))))
@@ -117,7 +118,7 @@ escapeEq (ne′ _ _ D neK _) (ne₌ _ _ D′ neM K≡M) =
 escapeEq (Bᵣ′ W _ _ D _ _ _ _ _) (B₌ _ _ D′ A≡B _ _) =
   ≅-red (D , ⟦ W ⟧ₙ) (D′ , ⟦ W ⟧ₙ) A≡B
 escapeEq (Idᵣ ⊩A) A≡B =
-  ≅-red (_⊩ₗId_.⇒*Id ⊩A , Idₙ) (_⊩ₗId_≡_/_.⇒*Id′ A≡B , Idₙ) (Id≅Id A≡B)
+  ≅-red (_»_⊩ₗId_.⇒*Id ⊩A , Idₙ) (_»_⊩ₗId_≡_/_.⇒*Id′ A≡B , Idₙ) (Id≅Id A≡B)
 escapeEq (emb ≤ᵘ-refl A) A≡B = escapeEq A A≡B
 escapeEq (emb (≤ᵘ-step k) A) A≡B = escapeEq (emb k A) A≡B
 
@@ -146,7 +147,7 @@ escapeTermEq
 escapeTermEq
   (Bᵣ′ BΣ! _ _ D _ _ _ _ _) (Σₜ₌ _ _ d d′ pProd rProd p≅r _ _ _) =
   ≅ₜ-red (D , ΠΣₙ) (d , productWhnf pProd) (d′ , productWhnf rProd) p≅r
-escapeTermEq {Γ = Γ} (Idᵣ ⊩A) t≡u@(_ , _ , t⇒*t′ , u⇒*u′ , _) =
+escapeTermEq {∇ = ∇} {Γ = Γ} (Idᵣ ⊩A) t≡u@(_ , _ , t⇒*t′ , u⇒*u′ , _) =
   case ⊩Id≡∷-view-inhabited ⊩A t≡u of λ where
     (ne _ t′-n u′-n t′~u′) →
       lemma (ne t′-n) (ne u′-n) (~-to-≅ₜ t′~u′)
@@ -156,11 +157,11 @@ escapeTermEq {Γ = Γ} (Idᵣ ⊩A) t≡u@(_ , _ , t⇒*t′ , u⇒*u′ , _) =
                                                  (escapeEq ⊩Ty (reflEq ⊩Ty))
                                                  (escapeTermEq ⊩Ty (reflEqTerm ⊩Ty ⊩lhs))
                                                  (escapeTermEq ⊩Ty lhs≡rhs) ⟩
-         Γ ⊢ Id Ty lhs lhs ≅ Id Ty lhs rhs  →⟨ ≅-eq ⟩
-         Γ ⊢ Id Ty lhs lhs ≡ Id Ty lhs rhs  →⟨ ≅-conv (≅ₜ-rflrefl (escapeTerm ⊩Ty ⊩lhs)) ⟩
-         (Γ ⊢≅ rfl ∷ Id Ty lhs rhs)         □)
+         ∇ » Γ ⊢ Id Ty lhs lhs ≅ Id Ty lhs rhs  →⟨ ≅-eq ⟩
+         ∇ » Γ ⊢ Id Ty lhs lhs ≡ Id Ty lhs rhs  →⟨ ≅-conv (≅ₜ-rflrefl (escapeTerm ⊩Ty ⊩lhs)) ⟩
+         (∇ » Γ ⊢≅ rfl ∷ Id Ty lhs rhs)         □)
   where
-  open _⊩ₗId_ ⊩A
+  open _»_⊩ₗId_ ⊩A
   lemma = λ t′-whnf u′-whnf →
             ≅ₜ-red (⇒*Id , Idₙ) (t⇒*t′ , t′-whnf) (u⇒*u′ , u′-whnf)
 
@@ -172,7 +173,7 @@ opaque
   -- If a unit type is reducible, then that unit type is allowed.
 
   ⊩Unit→Unit-allowed :
-    Γ ⊩⟨ l′ ⟩ Unit s l → Unit-allowed s
+    ∇ » Γ ⊩⟨ l′ ⟩ Unit s l → Unit-allowed s
   ⊩Unit→Unit-allowed = inversion-Unit ∘→ escape
 
 opaque
@@ -181,6 +182,6 @@ opaque
   -- it is allowed.
 
   ⊩ΠΣ→ΠΣ-allowed :
-    Γ ⊩⟨ l ⟩ ΠΣ⟨ b ⟩ p , q ▷ A ▹ B →
+    ∇ » Γ ⊩⟨ l ⟩ ΠΣ⟨ b ⟩ p , q ▷ A ▹ B →
     ΠΣ-allowed b p q
   ⊩ΠΣ→ΠΣ-allowed = proj₂ ∘→ proj₂ ∘→ inversion-ΠΣ ∘→ escape

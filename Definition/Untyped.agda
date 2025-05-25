@@ -18,7 +18,7 @@ open import Definition.Untyped.NotParametrised public
 
 private
   variable
-    n m l : Nat
+    n m l α : Nat
     bs bs′ : List _
     ts ts′ : GenTs _ _ _
 
@@ -39,6 +39,37 @@ infix 25 _[_,_]₁₀
 infix 25 _[_]↑²
 infix 25 _[_][_]↑
 infix 24 _∙[_][_][_]
+infixl 24 _∙[_∷_]
+
+------------------------------------------------------------------------
+-- Definition contexts
+
+data DCon (𝕋 : Set a) : Nat → Set a where
+  ε       : DCon 𝕋 0
+  _∙[_∷_] : DCon 𝕋 n → 𝕋 → 𝕋 → DCon 𝕋 (1+ n)
+
+private variable
+  ∇ ∇′ : DCon _ _
+
+data _↦∷_∈_ {𝕋 : Set a} : Nat → 𝕋 → DCon 𝕋 n → Set a where
+  here  : ∀ {A t} {∇ : DCon 𝕋 n} → n ↦∷ A ∈ ∇ ∙[ t ∷ A ]
+  there : ∀ {A B u} → α ↦∷ A ∈ ∇ → α ↦∷ A ∈ ∇ ∙[ u ∷ B ]
+
+data _↦_∷_∈_ {𝕋 : Set a} : Nat → 𝕋 → 𝕋 → DCon 𝕋 n → Set a where
+  here  : ∀ {A t} {∇ : DCon 𝕋 n}      → n ↦ t ∷ A ∈ ∇ ∙[ t ∷ A ]
+  there : ∀ {A B t u} → α ↦ t ∷ A ∈ ∇ → α ↦ t ∷ A ∈ ∇ ∙[ u ∷ B ]
+
+-- Definition context extensions
+
+data DExt (𝕋 : Set a) : Nat → Nat → Set a where
+  id   : DExt 𝕋 n n
+  step : DExt 𝕋 m n → 𝕋 → 𝕋 → DExt 𝕋 (1+ m) n
+
+pattern step₁ A t = step id A t
+
+_•ᵈ_ : {𝕋 : Set a} → DExt 𝕋 m n → DExt 𝕋 n l → DExt 𝕋 m l
+id          •ᵈ ξ = ξ
+step ξ′ A t •ᵈ ξ = step (ξ′ •ᵈ ξ) A t
 
 ------------------------------------------------------------------------
 -- The syntax
@@ -48,6 +79,7 @@ infix 24 _∙[_][_][_]
 
 data Term (n : Nat) : Set a where
   var : (x : Fin n) → Term n
+  defn : (α : Nat) → Term n
   U : Universe-level → Term n
   ΠΣ⟨_⟩_,_▷_▹_ : (b : BinderMode) (p q : M) (A : Term n)
                (B : Term (1+ n)) → Term n
@@ -182,8 +214,9 @@ data Kind : (ns : List Nat) → Set a where
 -- with sub-term i binding nᵢ variables.
 
 data Term′ (n : Nat) : Set a where
-  var : (x : Fin n) → Term′ n
-  gen : {bs : List Nat} (k : Kind bs) (ts : GenTs Term′ n bs) → Term′ n
+  var  : (x : Fin n) → Term′ n
+  defn : (α : Nat) → Term′ n
+  gen  : {bs : List Nat} (k : Kind bs) (ts : GenTs Term′ n bs) → Term′ n
 
 private variable
   k k′ : Kind _
@@ -193,6 +226,8 @@ private variable
 toTerm : Term′ n → Term n
 toTerm (var x) =
   var x
+toTerm (defn α) =
+  defn α
 toTerm (gen (Ukind l) []) =
   U l
 toTerm (gen (Binderkind b p q) (A ∷ₜ B ∷ₜ [])) =
@@ -243,6 +278,8 @@ toTerm (gen (Boxcongkind s) (A ∷ₜ t ∷ₜ u ∷ₜ v ∷ₜ [])) =
 fromTerm : Term n → Term′ n
 fromTerm (var x) =
   var x
+fromTerm (defn α) =
+  defn α
 fromTerm (U l) =
   gen (Ukind l) []
 fromTerm (ΠΣ⟨ b ⟩ p , q ▷ A ▹ B) =
@@ -305,6 +342,7 @@ fromTerm ([]-cong s A t u v) =
 
 wk : (ρ : Wk m n) (t : Term n) → Term m
 wk ρ (var x) = var (wkVar ρ x)
+wk ρ (defn α) = defn α
 wk ρ (U l) = U l
 wk ρ (ΠΣ⟨ b ⟩ p , q ▷ A ▹ B) =
   ΠΣ⟨ b ⟩ p , q ▷ wk ρ A ▹ wk (lift ρ) B
@@ -346,6 +384,7 @@ mutual
 
   wk′ : (ρ : Wk m n) (t : Term′ n) → Term′ m
   wk′ ρ (var x) = var (wkVar ρ x)
+  wk′ ρ (defn α) = defn α
   wk′ ρ (gen k ts) = gen k (wkGen ρ ts)
 
 -- Adding one variable to the context requires wk1.
@@ -441,6 +480,11 @@ wkSubst : ∀ k → Subst m n → Subst (k + m) n
 wkSubst 0      = idᶠ
 wkSubst (1+ k) = wk1Subst ∘→ wkSubst k
 
+-- Substitution analogue to wk₀.
+
+wkSubst₀ : Subst n 0
+wkSubst₀ ()
+
 -- Lift a substitution.
 --
 -- If Γ ⊢ σ : Δ then Γ∙A ⊢ liftSubst σ : Δ∙A.
@@ -476,6 +520,7 @@ toSubst pr x = var (wkVar pr x)
 
 _[_] : (t : Term n) (σ : Subst m n) → Term m
 var x [ σ ] = σ x
+defn α [ σ ] = defn α
 U l [ σ ] = U l
 ΠΣ⟨ b ⟩ p , q ▷ A ▹ B [ σ ] =
   ΠΣ⟨ b ⟩ p , q ▷ A [ σ ] ▹ (B [ σ ⇑ ])
@@ -517,6 +562,7 @@ mutual
 
   _[_]′ : (t : Term′ n) (σ : Subst m n) → Term′ m
   var x [ σ ]′ = fromTerm (σ x)
+  defn α [ σ ]′ = defn α
   gen k ts [ σ ]′ = gen k (substGen σ ts)
 
 -- Extend a substitution by adding a term as

@@ -30,14 +30,15 @@ open import Tools.Sum using (inj₁; inj₂)
 
 private
   variable
-    n : Nat
+    m n : Nat
     l′ l : Universe-level
     A B t : Term _
+    ∇ : DCon (Term 0) m
     Γ : Con Term n
 
 reflNatural-prop : ∀ {n}
-                 → Natural-prop Γ n
-                 → [Natural]-prop Γ n n
+                 → Natural-prop ∇ Γ n
+                 → [Natural]-prop ∇ Γ n n
 reflNatural-prop (sucᵣ (ℕₜ n d t≡t prop)) =
   sucᵣ (ℕₜ₌ n n d d t≡t
             (reflNatural-prop prop))
@@ -45,31 +46,31 @@ reflNatural-prop zeroᵣ = zeroᵣ
 reflNatural-prop (ne (neNfₜ inc neK k≡k)) = ne (neNfₜ₌ inc neK neK k≡k)
 
 reflEmpty-prop : ∀ {n}
-                 → Empty-prop Γ n
-                 → [Empty]-prop Γ n n
+                 → Empty-prop ∇ Γ n
+                 → [Empty]-prop ∇ Γ n n
 reflEmpty-prop (ne (neNfₜ inc neK k≡k)) = ne (neNfₜ₌ inc neK neK k≡k)
 
 reflUnitʷ-prop : ∀ {t}
-               → Unit-prop Γ l 𝕨 t
-               → [Unitʷ]-prop Γ l t t
+               → Unit-prop ∇ Γ l 𝕨 t
+               → [Unitʷ]-prop ∇ Γ l t t
 reflUnitʷ-prop starᵣ = starᵣ
 reflUnitʷ-prop (ne (neNfₜ inc neK k≡k)) = ne (neNfₜ₌ inc neK neK k≡k)
 
 
 -- Reflexivity of reducible types.
-reflEq : ∀ {l A} ([A] : Γ ⊩⟨ l ⟩ A) → Γ ⊩⟨ l ⟩ A ≡ A / [A]
+reflEq : ∀ {l A} ([A] : ∇ » Γ ⊩⟨ l ⟩ A) → ∇ » Γ ⊩⟨ l ⟩ A ≡ A / [A]
 
 -- Reflexivity of reducible terms.
-reflEqTerm : ∀ {l A t} ([A] : Γ ⊩⟨ l ⟩ A)
-           → Γ ⊩⟨ l ⟩ t ∷ A / [A]
-           → Γ ⊩⟨ l ⟩ t ≡ t ∷ A / [A]
+reflEqTerm : ∀ {l A t} ([A] : ∇ » Γ ⊩⟨ l ⟩ A)
+           → ∇ » Γ ⊩⟨ l ⟩ t ∷ A / [A]
+           → ∇ » Γ ⊩⟨ l ⟩ t ≡ t ∷ A / [A]
 
 private
 
   -- A lemma used below.
 
   reflEq-⊩< :
-    (p : l′ <ᵘ l) (⊩A : Γ ⊩<⟨ p ⟩ A) → Γ ⊩⟨ l ⟩ A ≡ A / emb p ⊩A
+    (p : l′ <ᵘ l) (⊩A : ∇ » Γ ⊩<⟨ p ⟩ A) → ∇ » Γ ⊩⟨ l ⟩ A ≡ A / emb p ⊩A
   reflEq-⊩< ≤ᵘ-refl     = reflEq
   reflEq-⊩< (≤ᵘ-step p) = reflEq-⊩< p
 
@@ -80,8 +81,8 @@ reflEq (Unitᵣ (Unitₜ D _)) = D
 reflEq (ne′ inc _ D neK K≡K) = ne₌ inc _ D neK K≡K
 reflEq (Bᵣ′ _ _ _ D A≡A [F] [G] _ _) =
    B₌ _ _ D A≡A
-      (λ ρ → reflEq ([F] ρ))
-      (λ ρ [a] → reflEq ([G] ρ [a]))
+      (λ ξ⊇ ρ → reflEq ([F] ξ⊇ ρ))
+      (λ ξ⊇ ρ [a] → reflEq ([G] ξ⊇ ρ [a]))
 reflEq (Idᵣ ⊩A) = record
   { ⇒*Id′             = ⇒*Id
   ; Ty≡Ty′            = reflEq ⊩Ty
@@ -91,7 +92,7 @@ reflEq (Idᵣ ⊩A) = record
   ; lhs′≡rhs′→lhs≡rhs = idᶠ
   }
   where
-  open _⊩ₗId_ ⊩A
+  open _»_⊩ₗId_ ⊩A
 reflEq (emb p [A]) = reflEq-⊩< p [A]
 
 reflEqTerm (Uᵣ′ _ p _) (Uₜ A d A-type A≅A ⊩A) =
@@ -111,20 +112,20 @@ reflEqTerm (ne′ _ _ D neK K≡K) (neₜ k d (neNfₜ inc neK₁ k≡k)) =
 reflEqTerm
   (Bᵣ′ BΠ! _ _ _ _ [F] _ _ _) [t]@(Πₜ f d funcF f≡f [f] _) =
   Πₜ₌ f f d d funcF funcF f≡f [t] [t]
-      (λ ρ [a] → [f] ρ [a] [a] (reflEqTerm ([F] ρ) [a]))
+      (λ ξ⊇ ρ [a] → [f] ξ⊇ ρ [a] [a] (reflEqTerm ([F] ξ⊇ ρ) [a]))
 reflEqTerm
   (Bᵣ′ BΣˢ _ _ _ _ [F] [G] _ _)
   [t]@(Σₜ p d p≅p prodP ([fstp] , [sndp])) =
   Σₜ₌ p p d d prodP prodP p≅p [t] [t]
-      ([fstp] , [fstp] , reflEqTerm ([F] _) [fstp] ,
-       reflEqTerm ([G] _ [fstp]) [sndp])
+      ([fstp] , [fstp] , reflEqTerm ([F] _ _) [fstp] ,
+       reflEqTerm ([G] _ _ [fstp]) [sndp])
 reflEqTerm
   (Bᵣ′ BΣʷ _ _ _ _ [F] [G] _ _)
   [t]@(Σₜ p d p≅p prodₙ (PE.refl , [p₁] , [p₂] , PE.refl)) =
   Σₜ₌ p p d d prodₙ prodₙ p≅p [t] [t]
       (PE.refl , PE.refl , [p₁] , [p₁] , [p₂] , [p₂] ,
-        reflEqTerm ([F] _) [p₁] ,
-        reflEqTerm ([G] _ [p₁]) [p₂])
+        reflEqTerm ([F] _ _) [p₁] ,
+        reflEqTerm ([G] _ _ [p₁]) [p₂])
 reflEqTerm (Bᵣ′ BΣʷ _ _ _ _ _ _ _ _) [t]@(Σₜ p d p≅p (ne x) p~p) =
   Σₜ₌ p p d d (ne x) (ne x) p≅p [t] [t] p~p
 reflEqTerm (Idᵣ _) ⊩t =
@@ -135,7 +136,7 @@ reflEqTerm (Idᵣ _) ⊩t =
 reflEqTerm (emb p ⊩A) ⊩t = reflEqTerm-⊩< p ⊩A ⊩t
   where
   reflEqTerm-⊩< :
-    (p : l′ <ᵘ l) (⊩A : Γ ⊩<⟨ p ⟩ A) →
-    Γ ⊩⟨ l ⟩ t ∷ A / emb p ⊩A → Γ ⊩⟨ l ⟩ t ≡ t ∷ A / emb p ⊩A
+    (p : l′ <ᵘ l) (⊩A : ∇ » Γ ⊩<⟨ p ⟩ A) →
+    ∇ » Γ ⊩⟨ l ⟩ t ∷ A / emb p ⊩A → ∇ » Γ ⊩⟨ l ⟩ t ≡ t ∷ A / emb p ⊩A
   reflEqTerm-⊩< ≤ᵘ-refl     ⊩A = reflEqTerm ⊩A
   reflEqTerm-⊩< (≤ᵘ-step p) ⊩A = reflEqTerm-⊩< p ⊩A

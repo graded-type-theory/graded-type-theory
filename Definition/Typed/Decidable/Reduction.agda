@@ -17,6 +17,7 @@ module Definition.Typed.Decidable.Reduction
   (R : Type-restrictions 𝕄)
   (open Type-restrictions R)
   (_≟_ : Decidable (PE._≡_ {A = M}))
+  {m} {∇ : DCon (Term 0) m}
   {n} {Γ : Con Term n}
   ⦃ ok : No-equality-reflection or-empty Γ ⦄
   where
@@ -45,7 +46,7 @@ opaque
   -- It is decidable whether a well-formed type reduces to an
   -- application of U.
 
-  ⇒*U? : Γ ⊢ A → Dec (∃ λ l → Γ ⊢ A ⇒* U l)
+  ⇒*U? : ∇ » Γ ⊢ A → Dec (∃ λ l → ∇ » Γ ⊢ A ⇒* U l)
   ⇒*U? ⊢A =
     case whNorm ⊢A of λ
       (B , B-whnf , A⇒*B) →
@@ -75,7 +76,7 @@ private opaque
   -- A lemma used below.
 
   isΠΣ′ :
-    Γ ⊩⟨ l ⟩ A → Dec (∃₅ λ b p q B C → Γ ⊢ A ⇒* ΠΣ⟨ b ⟩ p , q ▷ B ▹ C)
+    ∇ » Γ ⊩⟨ l ⟩ A → Dec (∃₅ λ b p q B C → ∇ » Γ ⊢ A ⇒* ΠΣ⟨ b ⟩ p , q ▷ B ▹ C)
   isΠΣ′ (Uᵣ′ _ _ A⇒*U) =
     no λ (_ , _ , _ , _ , _ , A⇒*) →
     I.U≢ΠΣⱼ (trans (sym (subset* A⇒*U)) (subset* A⇒*))
@@ -98,7 +99,7 @@ private opaque
   isΠΣ′ (Idᵣ ⊩A) =
     no λ (_ , _ , _ , _ , _ , A⇒*Id) →
     I.Id≢ΠΣ $
-    trans (sym (subset* (_⊩ₗId_.⇒*Id ⊩A))) (subset* A⇒*Id)
+    trans (sym (subset* (_»_⊩ₗId_.⇒*Id ⊩A))) (subset* A⇒*Id)
   isΠΣ′ (emb ≤ᵘ-refl     ⊩A) = isΠΣ′ ⊩A
   isΠΣ′ (emb (≤ᵘ-step p) ⊩A) = isΠΣ′ (emb p ⊩A)
 
@@ -107,14 +108,14 @@ opaque
   -- It is decidable whether a well-formed type reduces to (or does
   -- not reduce to) either a Π-type or a Σ-type.
 
-  isΠΣ : Γ ⊢ A → Dec (∃₅ λ b p q B C → Γ ⊢ A ⇒* ΠΣ⟨ b ⟩ p , q ▷ B ▹ C)
+  isΠΣ : ∇ » Γ ⊢ A → Dec (∃₅ λ b p q B C → ∇ » Γ ⊢ A ⇒* ΠΣ⟨ b ⟩ p , q ▷ B ▹ C)
   isΠΣ ⊢A = isΠΣ′ (reducible-⊩ ⊢A .proj₂)
 
 opaque
 
   -- It is decidable whether a well-formed type reduces to a Π-type.
 
-  isΠ : Γ ⊢ A → Dec (∃₄ λ p q B C → Γ ⊢ A ⇒* Π p , q ▷ B ▹ C)
+  isΠ : ∇ » Γ ⊢ A → Dec (∃₄ λ p q B C → ∇ » Γ ⊢ A ⇒* Π p , q ▷ B ▹ C)
   isΠ ⊢A with isΠΣ ⊢A
   … | yes (BMΠ , rest)                   = yes rest
   … | yes (BMΣ _ , _ , _ , _ , _ , A⇒*Σ) =
@@ -126,7 +127,7 @@ opaque
 
   -- It is decidable whether a well-formed type reduces to a Σ-type.
 
-  isΣ : Γ ⊢ A → Dec (∃₅ λ s p q B C → Γ ⊢ A ⇒* Σ⟨ s ⟩ p , q ▷ B ▹ C)
+  isΣ : ∇ » Γ ⊢ A → Dec (∃₅ λ s p q B C → ∇ » Γ ⊢ A ⇒* Σ⟨ s ⟩ p , q ▷ B ▹ C)
   isΣ ⊢A with isΠΣ ⊢A
   … | yes (BMΣ _ , rest)               = yes (_ , rest)
   … | yes (BMΠ , _ , _ , _ , _ , A⇒*Π) =
@@ -139,7 +140,7 @@ opaque
   -- It is decidable whether a well-formed type reduces to a strong
   -- Σ-type.
 
-  isΣˢ : Γ ⊢ A → Dec (∃₄ λ p q B C → Γ ⊢ A ⇒* Σˢ p , q ▷ B ▹ C)
+  isΣˢ : ∇ » Γ ⊢ A → Dec (∃₄ λ p q B C → ∇ » Γ ⊢ A ⇒* Σˢ p , q ▷ B ▹ C)
   isΣˢ ⊢A with isΣ ⊢A
   … | yes (𝕤 , rest)                  = yes rest
   … | yes (𝕨 , _ , _ , _ , _ , A⇒*Σʷ) =
@@ -152,7 +153,7 @@ opaque
   -- It is decidable whether a well-formed type reduces to a weak
   -- Σ-type.
 
-  isΣʷ : Γ ⊢ A → Dec (∃₄ λ p q B C → Γ ⊢ A ⇒* Σʷ p , q ▷ B ▹ C)
+  isΣʷ : ∇ » Γ ⊢ A → Dec (∃₄ λ p q B C → ∇ » Γ ⊢ A ⇒* Σʷ p , q ▷ B ▹ C)
   isΣʷ ⊢A with isΣ ⊢A
   … | yes (𝕨 , rest)                  = yes rest
   … | yes (𝕤 , _ , _ , _ , _ , A⇒*Σˢ) =
@@ -165,14 +166,14 @@ opaque
   -- It is decidable whether a well-formed type reduces to an identity
   -- type.
 
-  is-Id : Γ ⊢ A → Dec (∃₃ λ B t u → Γ ⊢ A ⇒* Id B t u)
+  is-Id : ∇ » Γ ⊢ A → Dec (∃₃ λ B t u → ∇ » Γ ⊢ A ⇒* Id B t u)
   is-Id = helper ∘→ proj₂ ∘→ reducible-⊩
     where
-    helper : Γ ⊩⟨ l ⟩ A → Dec (∃₃ λ B t u → Γ ⊢ A ⇒* Id B t u)
+    helper : ∇ » Γ ⊩⟨ l ⟩ A → Dec (∃₃ λ B t u → ∇ » Γ ⊢ A ⇒* Id B t u)
     helper (Uᵣ ⊩U) =
       no λ (_ , _ , _ , A⇒*Id) →
         Id≢U $
-        trans (sym (subset* A⇒*Id)) (subset* (_⊩₁U_.⇒*U ⊩U))
+        trans (sym (subset* A⇒*Id)) (subset* (_»_⊩₁U_.⇒*U ⊩U))
     helper (ℕᵣ A⇒*ℕ) =
       no λ (_ , _ , _ , A⇒*Id) →
         Id≢ℕ (trans (sym (subset* A⇒*Id)) (subset* A⇒*ℕ))
@@ -183,18 +184,18 @@ opaque
       no λ (_ , _ , _ , A⇒*Id) →
         Id≢Unit $
         trans (sym (subset* A⇒*Id))
-          (subset* (_⊩Unit⟨_,_⟩_.⇒*-Unit ⊩Unit))
+          (subset* (_»_⊩Unit⟨_,_⟩_.⇒*-Unit ⊩Unit))
     helper (ne ⊩A) =
       no λ (_ , _ , _ , A⇒*Id) →
         I.Id≢ne neK $ trans (sym (subset* A⇒*Id)) (subset* D)
       where
-      open _⊩ne_ ⊩A
+      open _»_⊩ne_ ⊩A
     helper (Bᵣ (BM _ _ _) ⊩A) =
       no λ (_ , _ , _ , A⇒*Id) →
         I.Id≢ΠΣ $
-        trans (sym (subset* A⇒*Id)) (subset* (_⊩ₗB⟨_⟩_.D ⊩A))
+        trans (sym (subset* A⇒*Id)) (subset* (_»_⊩ₗB⟨_⟩_.D ⊩A))
     helper (Idᵣ ⊩A) = yes (_ , _ , _ , ⇒*Id)
       where
-      open _⊩ₗId_ ⊩A
+      open _»_⊩ₗId_ ⊩A
     helper (emb ≤ᵘ-refl     ⊩A) = helper ⊩A
     helper (emb (≤ᵘ-step p) ⊩A) = helper (emb p ⊩A)
