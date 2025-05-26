@@ -16,7 +16,7 @@ open import Definition.Untyped M
 open import Definition.Typed R
 
 open import Tools.Fin
-open import Tools.PropositionalEquality
+import Tools.PropositionalEquality as PE
 
 open import Definition.Typed.Properties.Admissible.Bool R public
 open import Definition.Typed.Properties.Admissible.Empty R public
@@ -35,9 +35,9 @@ open import Definition.Typed.Properties.Reduction R public
 open import Definition.Typed.Properties.Well-formed R public
 
 private variable
-  x   : Fin _
-  Γ   : Con Term _
-  A B : Term _
+  x             : Fin _
+  Γ             : Con Term _
+  A A′ B B′ t u : Term _
 
 ------------------------------------------------------------------------
 -- A lemma related to _∷_∈_
@@ -46,6 +46,78 @@ opaque
 
   -- If x ∷ A ∈ Γ and x ∷ B ∈ Γ both hold, then A is equal to B.
 
-  det∈ : x ∷ A ∈ Γ → x ∷ B ∈ Γ → A ≡ B
-  det∈ here      here      = refl
-  det∈ (there x) (there y) = cong wk1 (det∈ x y)
+  det∈ : x ∷ A ∈ Γ → x ∷ B ∈ Γ → A PE.≡ B
+  det∈ here      here      = PE.refl
+  det∈ (there x) (there y) = PE.cong wk1 (det∈ x y)
+
+------------------------------------------------------------------------
+-- Variants of type conversion for propositionally equal types
+
+opaque
+
+  -- Conversion for well-formed terms for propositionally equal types
+
+  ⊢∷-conv-PE : Γ ⊢ t ∷ A → A PE.≡ B → Γ ⊢ t ∷ B
+  ⊢∷-conv-PE ⊢t PE.refl = ⊢t
+
+opaque
+
+  -- Conversion for term equality for propositionally equal types
+
+  ⊢≡∷-conv-PE : Γ ⊢ t ≡ u ∷ A → A PE.≡ B → Γ ⊢ t ≡ u ∷ B
+  ⊢≡∷-conv-PE ⊢t≡u PE.refl = ⊢t≡u
+
+opaque
+
+  -- Conversion for term reduction for propositionally equal types
+
+  ⊢⇒∷-conv-PE : Γ ⊢ t ⇒ u ∷ A → A PE.≡ B → Γ ⊢ t ⇒ u ∷ B
+  ⊢⇒∷-conv-PE ⊢t⇒u PE.refl = ⊢t⇒u
+
+opaque
+
+  -- Conversion for term reduction for propositionally equal types
+
+  ⊢⇒*∷-conv-PE : Γ ⊢ t ⇒* u ∷ A → A PE.≡ B → Γ ⊢ t ⇒* u ∷ B
+  ⊢⇒*∷-conv-PE ⊢t⇒u PE.refl = ⊢t⇒u
+
+------------------------------------------------------------------------
+-- Congurence properties for typing judgments for propositional equality
+
+opaque
+
+  -- Congruence of well-formedness of types
+
+  ⊢-cong : Γ ⊢ A → A PE.≡ B → Γ ⊢ B
+  ⊢-cong ⊢A PE.refl = ⊢A
+
+
+opaque
+
+  -- Congruence of well-formedness of types
+
+  ⊢∷-cong : Γ ⊢ t ∷ A → t PE.≡ u → Γ ⊢ u ∷ A
+  ⊢∷-cong ⊢t PE.refl = ⊢t
+
+opaque
+
+  -- Congruence of type equality
+
+  ⊢≡-cong : Γ ⊢ A ≡ B → A PE.≡ A′ → B PE.≡ B′ → Γ ⊢ A′ ≡ B′
+  ⊢≡-cong ⊢A≡B PE.refl PE.refl = ⊢A≡B
+
+
+opaque
+
+  -- Congruence of type equality
+
+  ⊢≡-congˡ : Γ ⊢ A ≡ B → B PE.≡ B′ → Γ ⊢ A ≡ B′
+  ⊢≡-congˡ ⊢A≡B PE.refl = ⊢A≡B
+
+
+opaque
+
+  -- Congruence of type equality
+
+  ⊢≡-congʳ : Γ ⊢ A ≡ B → A PE.≡ A′ → Γ ⊢ A′ ≡ B
+  ⊢≡-congʳ ⊢A≡B PE.refl = ⊢A≡B
