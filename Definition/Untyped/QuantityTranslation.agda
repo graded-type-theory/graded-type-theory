@@ -357,7 +357,7 @@ private
     U₂.consSubst (U₂.sgSubst (tr-Term t)) (tr-Term u) x ≡
     tr-Subst (U₁.consSubst (U₁.sgSubst t) u) x
   [,]-lemma {t = t} {u = u} x =
-    U₂.consSubst (U₂.sgSubst (tr-Term t)) (tr-Term u) x   ≡⟨ UP₂.consSubst-cong tr-Subst-sgSubst x ⟩
+    U₂.consSubst (U₂.sgSubst (tr-Term t)) (tr-Term u) x   ≡⟨ UP₂.consSubst-cong refl tr-Subst-sgSubst x ⟩
     U₂.consSubst (tr-Subst (U₁.sgSubst t)) (tr-Term u) x  ≡⟨ tr-Subst-consSubst x ⟩
     tr-Subst (U₁.consSubst (U₁.sgSubst t) u) x            ∎
 
@@ -384,7 +384,7 @@ private
     U₂.consSubst (U₂.wk1Subst U₂.idSubst) (tr-Term t) x ≡
     tr-Subst (U₁.consSubst (U₁.wk1Subst U₁.idSubst) t) x
   []↑-lemma {t = t} x =
-    U₂.consSubst (U₂.wk1Subst U₂.idSubst) (tr-Term t) x             ≡⟨ UP₂.consSubst-cong tr-Subst-wk1Subst x ⟩
+    U₂.consSubst (U₂.wk1Subst U₂.idSubst) (tr-Term t) x             ≡⟨ UP₂.consSubst-cong refl tr-Subst-wk1Subst x ⟩
     U₂.consSubst (tr-Subst (U₁.wk1Subst U₁.idSubst)) (tr-Term t) x  ≡⟨ tr-Subst-consSubst x ⟩
     tr-Subst (U₁.consSubst (U₁.wk1Subst U₁.idSubst) t) x            ∎
 
@@ -409,10 +409,10 @@ private
     U₂.consSubst (U₂.wk1Subst (U₂.wk1Subst U₂.idSubst)) (tr-Term t) x ≡
     tr-Subst (U₁.consSubst (U₁.wk1Subst (U₁.wk1Subst U₁.idSubst)) t) x
   []↑²-lemma {t = t} x =
-    U₂.consSubst (U₂.wk1Subst (U₂.wk1Subst U₂.idSubst)) (tr-Term t) x   ≡⟨ UP₂.consSubst-cong (UP₂.wk1Subst-cong tr-Subst-wk1Subst) x ⟩
+    U₂.consSubst (U₂.wk1Subst (U₂.wk1Subst U₂.idSubst)) (tr-Term t) x   ≡⟨ UP₂.consSubst-cong refl (UP₂.wk1Subst-cong tr-Subst-wk1Subst) x ⟩
 
     U₂.consSubst (U₂.wk1Subst (tr-Subst (U₁.wk1Subst U₁.idSubst)))
-      (tr-Term t) x                                                     ≡⟨ UP₂.consSubst-cong tr-Subst-wk1Subst x ⟩
+      (tr-Term t) x                                                     ≡⟨ UP₂.consSubst-cong refl tr-Subst-wk1Subst x ⟩
 
     U₂.consSubst (tr-Subst (U₁.wk1Subst (U₁.wk1Subst U₁.idSubst)))
       (tr-Term t) x                                                     ≡⟨ tr-Subst-consSubst x ⟩

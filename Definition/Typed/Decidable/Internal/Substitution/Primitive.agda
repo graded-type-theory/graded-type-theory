@@ -200,7 +200,7 @@ opaque
     ⌜ cons (tailₛ σ) (headₛ σ) ⌝ˢ γ x PE.≡ ⌜ σ ⌝ˢ γ x
   ⌜cons-tailₛ-headₛ⌝ˢ {γ} σ x =
     ⌜ cons (tailₛ σ) (headₛ σ) ⌝ˢ γ x                      ≡⟨⟩
-    U.consSubst (⌜ tailₛ σ ⌝ˢ γ) (⌜ headₛ σ ⌝ γ) x         ≡⟨ consSubst-cong (⌜tailₛ⌝ˢ σ) x ⟩
+    U.consSubst (⌜ tailₛ σ ⌝ˢ γ) (⌜ headₛ σ ⌝ γ) x         ≡⟨ consSubst-cong PE.refl (⌜tailₛ⌝ˢ σ) x ⟩
     U.consSubst (U.tail (⌜ σ ⌝ˢ γ)) (⌜ headₛ σ ⌝ γ) x      ≡⟨ PE.cong (flip (U.consSubst _) x) (⌜headₛ⌝ σ) ⟩
     U.consSubst (U.tail (⌜ σ ⌝ˢ γ)) (U.head (⌜ σ ⌝ˢ γ)) x  ≡⟨ consSubst-η {σ = ⌜ σ ⌝ˢ _} _ ⟩
     ⌜ σ ⌝ˢ γ x                                             ∎

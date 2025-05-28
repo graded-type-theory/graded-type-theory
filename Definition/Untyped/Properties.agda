@@ -721,14 +721,16 @@ substVar-lifts eq 0 x           = eq x
 substVar-lifts eq (1+ n) x0     = refl
 substVar-lifts eq (1+ n) (x +1) = cong wk1 (substVar-lifts eq n x)
 
--- If σ = σ′ then consSubst σ t = consSubst σ′ t.
+opaque
 
-consSubst-cong :
-  ∀ {t} →
-  (∀ x → σ x ≡ σ′ x) →
-  ∀ x → consSubst σ t x ≡ consSubst σ′ t x
-consSubst-cong eq x0     = refl
-consSubst-cong eq (x +1) = eq x
+  -- A form of congruence for consSubst.
+
+  consSubst-cong :
+    t₁ ≡ t₂ →
+    (∀ x → σ₁ x ≡ σ₂ x) →
+    ∀ x → consSubst σ₁ t₁ x ≡ consSubst σ₂ t₂ x
+  consSubst-cong refl _  x0     = refl
+  consSubst-cong _    eq (x +1) = eq x
 
 opaque
 
@@ -1603,7 +1605,7 @@ doubleSubstComp : (A : Term (2+ n)) (t u : Term m) (σ : Subst m n)
                 ≡ A [ consSubst (consSubst σ t) u ]
 doubleSubstComp {n} A t u σ =
   A [ liftSubstn σ 2 ] [ t , u ]₁₀                 ≡⟨ doubleSubstComp′ A ⟩
-  A [ consSubst (consSubst (idSubst ₛ•ₛ σ) t) u ]  ≡⟨ flip substVar-to-subst A $ consSubst-cong $ consSubst-cong $ idSubst-ₛ•ₛˡ ⟩
+  A [ consSubst (consSubst (idSubst ₛ•ₛ σ) t) u ]  ≡⟨ flip substVar-to-subst A $ consSubst-cong refl $ consSubst-cong refl $ idSubst-ₛ•ₛˡ ⟩
   A [ consSubst (consSubst σ t) u ]                ∎
 
 head-tail-subst : ∀ t → t [ σ ] ≡ t [ consSubst (tail σ) (head σ) ]
@@ -3056,7 +3058,7 @@ opaque
     sgSubst (inline ξ t) x
   inline-Subst-sgSubst {ξ} {t} x =
     inline-Subst ξ (consSubst idSubst t) x             ≡⟨ inline-Subst-consSubst x ⟩
-    consSubst (inline-Subst ξ idSubst) (inline ξ t) x  ≡⟨ consSubst-cong inline-Subst-idSubst x ⟩
+    consSubst (inline-Subst ξ idSubst) (inline ξ t) x  ≡⟨ consSubst-cong refl inline-Subst-idSubst x ⟩
     consSubst idSubst (inline ξ t) x                   ∎
 
 opaque
@@ -3200,7 +3202,7 @@ opaque
     inline ξ (t [ u , v ]₁₀)                                 ≡⟨ inline-[] t ⟩
     inline ξ t [ inline-Subst ξ (consSubst (sgSubst u) v) ]  ≡⟨ (flip substVar-to-subst (inline _ t) λ x →
                                                                  trans (inline-Subst-consSubst x) $
-                                                                 consSubst-cong inline-Subst-sgSubst x) ⟩
+                                                                 consSubst-cong refl inline-Subst-sgSubst x) ⟩
     inline ξ t [ inline ξ u , inline ξ v ]₁₀                 ∎
 
 opaque
@@ -3214,7 +3216,7 @@ opaque
     inline ξ (t [ k ][ u ]↑)                                         ≡⟨ inline-[] t ⟩
     inline ξ t [ inline-Subst ξ (consSubst (wkSubst k idSubst) u) ]  ≡⟨ (flip substVar-to-subst (inline _ t) λ x →
                                                                          trans (inline-Subst-consSubst x) $
-                                                                         flip consSubst-cong x $ λ x →
+                                                                         flip (consSubst-cong refl) x $ λ x →
                                                                          trans (inline-Subst-wkSubst k x) $
                                                                          wkSubst-cong inline-Subst-idSubst x) ⟩
     inline ξ t [ k ][ inline ξ u ]↑                                  ∎
