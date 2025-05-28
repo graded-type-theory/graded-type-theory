@@ -2168,6 +2168,56 @@ opaque
 
 opaque
 
+  -- An application of _[_][_]↑ followed by an application of _[_] can
+  -- be expressed using a single application of _[_] in a certain way.
+
+  [][]↑-[] :
+    ∀ k {u} {σ : Subst m (k + n)} t →
+    t [ k ][ u ]↑ [ σ ] ≡ t [ consSubst (tail[ k ] σ) (u [ σ ]) ]
+  [][]↑-[] k {u} {σ} t =
+    t [ k ][ u ]↑ [ σ ]                          ≡⟨ substCompEq t ⟩
+
+    t [ σ ₛ•ₛ consSubst (wkSubst k idSubst) u ]  ≡˘⟨ (flip substVar-to-subst t λ where
+                                                        x0     → refl
+                                                        (_ +1) → tail[]≡ k _) ⟩
+    t [ consSubst (tail[ k ] σ) (u [ σ ]) ]      ∎
+
+private
+
+  -- An example of how [][]↑-[] can be used. See also [][]↑-[₀⇑]
+  -- below.
+
+  _ : ∀ t → t [ u ]↑ [ v ]₀ ≡ t [ u [ v ]₀ ]₀
+  _ = [][]↑-[] 1
+
+private
+
+  -- An example of how [][]↑-[] can be used.
+
+  _ : ∀ t → t [ u ]↑ [ v , w ]₁₀ ≡ t [ v , u [ v , w ]₁₀ ]₁₀
+  _ = [][]↑-[] 1
+
+private
+
+  -- An example of how [][]↑-[] can be used.
+
+  _ : ∀ t → t [ 2 ][ u ]↑ [ v , w ]₁₀ ≡ t [ u [ v , w ]₁₀ ]₀
+  _ = [][]↑-[] 2
+
+opaque
+
+  -- One can express _[_][_]↑ using some other operations.
+
+  [][]↑≡′ :
+    ∀ t → t [ k ][ u ]↑ ≡ t [ consSubst (tail[ k ] idSubst) u ]
+  [][]↑≡′ {k} {u} t =
+    t [ k ][ u ]↑                                        ≡˘⟨ subst-id _ ⟩
+    t [ k ][ u ]↑ [ idSubst ]                            ≡⟨ [][]↑-[] _ t ⟩
+    t [ consSubst (tail[ k ] idSubst) (u [ idSubst ]) ]  ≡⟨ substVar-to-subst (consSubst-cong (subst-id _) (λ _ → refl)) t ⟩
+    t [ consSubst (tail[ k ] idSubst) u ]                ∎
+
+opaque
+
   -- One can express _[_][_]↑ using some other operations.
 
   [][]↑≡ :
