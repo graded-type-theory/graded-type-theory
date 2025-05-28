@@ -40,8 +40,8 @@ open import Definition.Typed.Weakening.Definition R
 open import Definition.Typed.Well-formed R
 
 open import Definition.Untyped M
-open import Definition.Untyped.Neutral M type-variant
 open import Definition.Untyped.Properties M
+open import Definition.Untyped.Whnf M type-variant
 
 open import Tools.Fin
 open import Tools.Function
@@ -74,7 +74,7 @@ opaque
     (∇ » Γ ⊩⟨ l ⟩ Π p , q ▷ A ▹ B ×
      ∃ λ u →
      ∇ » Γ ⊢ t ⇒* u ∷ Π p , q ▷ A ▹ B ×
-     Function u ×
+     Functionₗ ∇ u ×
      ∇ » Γ ⊢≅ u ∷ Π p , q ▷ A ▹ B ×
      ∀ {κ′} {ξ : DExt _ κ′ _} {∇′ : DCon (Term 0) κ′} → ξ » ∇′ ⊇ ∇ →
      ∀ {m} {ρ : Wk m n} {Δ : Con Term m} {v₁ v₂} → ∇′ » ρ ∷ʷʳ Δ ⊇ Γ →
@@ -96,7 +96,7 @@ opaque
       ∇ » Γ ⊩⟨ l ⟩ t ∷ Π p , q ▷ A ▹ B / B-intr (BΠ p q) ⊩Π →
       ∃ λ u →
       ∇ » Γ ⊢ t ⇒* u ∷ Π p , q ▷ A ▹ B ×
-      Function u ×
+      Functionₗ ∇ u ×
       ∇ » Γ ⊢≅ u ∷ Π p , q ▷ A ▹ B ×
       ∀ {κ′} {ξ : DExt _ κ′ _} {∇′ : DCon (Term 0) κ′} → ξ » ∇′ ⊇ ∇ →
       ∀ {m} {ρ : Wk m n} {Δ : Con Term m} {v₁ v₂} → ∇′ » ρ ∷ʷʳ Δ ⊇ Γ →
@@ -124,7 +124,7 @@ opaque
         (PE.refl , PE.refl , _) →
       (∃ λ u →
        ∇ » Γ ⊢ t ⇒* u ∷ Π p , q ▷ A ▹ B ×
-       Function u ×
+       Functionₗ ∇ u ×
        ∇ » Γ ⊢≅ u ∷ Π p , q ▷ A ▹ B ×
        ∀ {κ′} {ξ : DExt _ κ′ _} {∇′ : DCon (Term 0) κ′} → ξ » ∇′ ⊇ ∇ →
        ∀ {m} {ρ : Wk m n} {Δ : Con Term m} {v₁ v₂} → ∇′ » ρ ∷ʷʳ Δ ⊇ Γ →
@@ -152,7 +152,7 @@ opaque
       (⊩Π : ∇ » Γ ⊩⟨ l′ ⟩B⟨ BΠ p q ⟩ Π p , q ▷ A ▹ B) →
       (∃ λ u →
        ∇ » Γ ⊢ t ⇒* u ∷ Π p , q ▷ A ▹ B ×
-       Function u ×
+       Functionₗ ∇ u ×
        ∇ » Γ ⊢≅ u ∷ Π p , q ▷ A ▹ B ×
        ∀ {κ′} {ξ : DExt _ κ′ _} {∇′ : DCon (Term 0) κ′} → ξ » ∇′ ⊇ ∇ →
        ∀ {m} {ρ : Wk m n} {Δ : Con Term m} {v₁ v₂} → ∇′ » ρ ∷ʷʳ Δ ⊇ Γ →
@@ -202,8 +202,8 @@ opaque
      ∃₂ λ u₁ u₂ →
      ∇ » Γ ⊢ t₁ ⇒* u₁ ∷ Π p , q ▷ A ▹ B ×
      ∇ » Γ ⊢ t₂ ⇒* u₂ ∷ Π p , q ▷ A ▹ B ×
-     Function u₁ ×
-     Function u₂ ×
+     Functionₗ ∇ u₁ ×
+     Functionₗ ∇ u₂ ×
      ∇ » Γ ⊢ u₁ ≅ u₂ ∷ Π p , q ▷ A ▹ B ×
      ∀ {κ′} {ξ : DExt _ κ′ _} {∇′ : DCon (Term 0) κ′} → ξ » ∇′ ⊇ ∇ →
      ∀ {m} {ρ : Wk m n} {Δ : Con Term m} {v₁ v₂} → ∇′ » ρ ∷ʷʳ Δ ⊇ Γ →
@@ -226,8 +226,8 @@ opaque
       ∃₂ λ u₁ u₂ →
       ∇ » Γ ⊢ t₁ ⇒* u₁ ∷ Π p , q ▷ A ▹ B ×
       ∇ » Γ ⊢ t₂ ⇒* u₂ ∷ Π p , q ▷ A ▹ B ×
-      Function u₁ ×
-      Function u₂ ×
+      Functionₗ ∇ u₁ ×
+      Functionₗ ∇ u₂ ×
       ∇ » Γ ⊢ u₁ ≅ u₂ ∷ Π p , q ▷ A ▹ B ×
       ∀ {κ′} {ξ : DExt _ κ′ _} {∇′ : DCon (Term 0) κ′} → ξ » ∇′ ⊇ ∇ →
       ∀ {m} {ρ : Wk m n} {Δ : Con Term m} {v₁ v₂} → ∇′ » ρ ∷ʷʳ Δ ⊇ Γ →
@@ -269,8 +269,8 @@ opaque
       (∃₂ λ u₁ u₂ →
        ∇ » Γ ⊢ t₁ ⇒* u₁ ∷ Π p , q ▷ A ▹ B ×
        ∇ » Γ ⊢ t₂ ⇒* u₂ ∷ Π p , q ▷ A ▹ B ×
-       Function u₁ ×
-       Function u₂ ×
+       Functionₗ ∇ u₁ ×
+       Functionₗ ∇ u₂ ×
        ∇ » Γ ⊢ u₁ ≅ u₂ ∷ Π p , q ▷ A ▹ B ×
        ∀ {κ′} {ξ : DExt _ κ′ _} {∇′ : DCon (Term 0) κ′} → ξ » ∇′ ⊇ ∇ →
        ∀ {m} {ρ : Wk m n} {Δ : Con Term m} {v₁ v₂} → ∇′ » ρ ∷ʷʳ Δ ⊇ Γ →
@@ -295,8 +295,8 @@ opaque
       (∃₂ λ u₁ u₂ →
        ∇ » Γ ⊢ t₁ ⇒* u₁ ∷ Π p , q ▷ A ▹ B ×
        ∇ » Γ ⊢ t₂ ⇒* u₂ ∷ Π p , q ▷ A ▹ B ×
-       Function u₁ ×
-       Function u₂ ×
+       Functionₗ ∇ u₁ ×
+       Functionₗ ∇ u₂ ×
        ∇ » Γ ⊢ u₁ ≅ u₂ ∷ Π p , q ▷ A ▹ B ×
        ∀ {κ′} {ξ : DExt _ κ′ _} {∇′ : DCon (Term 0) κ′} → ξ » ∇′ ⊇ ∇ →
        ∀ {m} {ρ : Wk m n} {Δ : Con Term m} {v₁ v₂} → ∇′ » ρ ∷ʷʳ Δ ⊇ Γ →
@@ -743,7 +743,7 @@ opaque
                  in
                  ≅-η-eq (wf-⊢≡∷ (subset*Term t₁[σ]⇒*u₁) .proj₂ .proj₂)
                    (wf-⊢≡∷ (subset*Term t₂[σ]⇒*u₂) .proj₂ .proj₂)
-                   u₁-fun u₂-fun
+                   (function↑ _ u₁-fun) (function↑ _ u₂-fun)
                    (PE.subst (_»_⊢_≅_∷_ _ _ _ _)
                       (idWkLiftSubstLemma _ B) $
                     escape-⊩≡∷ $

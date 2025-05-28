@@ -16,6 +16,7 @@ module Definition.Conversion.Conversion
 
 open import Definition.Untyped M
 open import Definition.Untyped.Neutral M type-variant
+open import Definition.Untyped.Whnf M type-variant
 open import Definition.Typed R
 open import Definition.Typed.EqRelInstance R
 open import Definition.Typed.EqualityRelation.Instance R
@@ -26,6 +27,7 @@ open import Definition.Typed.Syntactic R
 open import Definition.Conversion R
 open import Definition.Conversion.Soundness R
 open import Definition.Conversion.Stability R
+open import Definition.Conversion.Whnf R
 open import Definition.Typed.Consequences.Injectivity R
 open import Definition.Typed.Consequences.Equality R
 open import Definition.Typed.Consequences.Reduction R
@@ -62,7 +64,7 @@ mutual
   convConv↓Term′ :
     ∇ »⊢ Γ ≡ Δ →
     ∇ » Γ ⊢ A ≡ B →
-    Whnf B →
+    Whnf ∇ B →
     ∇ » Γ ⊢ t [conv↓] u ∷ A →
     ∇ » Δ ⊢ t [conv↓] u ∷ B
   convConv↓Term′ Γ≡Δ A≡B whnfB (ℕ-ins x) rewrite ℕ≡A A≡B whnfB =
@@ -79,7 +81,7 @@ mutual
            (stability~↓ Γ≡Δ x₂)
   convConv↓Term′ Γ≡Δ A≡B whnfB (ne-ins t u x x₁) =
     ne-ins (stabilityTerm Γ≡Δ (conv t A≡B)) (stabilityTerm Γ≡Δ (conv u A≡B))
-           (ne≡A x A≡B whnfB) (stability~↓ Γ≡Δ x₁)
+           (ne↑⁺ (ne≡A (ne↑ₗ x) A≡B whnfB)) (stability~↓ Γ≡Δ x₁)
   convConv↓Term′ Γ≡Δ A≡B whnfB (univ x x₁ x₂) rewrite U≡A A≡B whnfB =
     univ (stabilityTerm Γ≡Δ x) (stabilityTerm Γ≡Δ x₁) (stabilityConv↓ Γ≡Δ x₂)
   convConv↓Term′ Γ≡Δ A≡B whnfB (zero-refl x) rewrite ℕ≡A A≡B whnfB =
@@ -152,7 +154,7 @@ opaque
 
   convConv↓Term :
     ∇ » Γ ⊢ A ≡ B →
-    Whnf B →
+    Whnf ∇ B →
     ∇ » Γ ⊢ t [conv↓] u ∷ A →
     ∇ » Γ ⊢ t [conv↓] u ∷ B
   convConv↓Term A≡B = convConv↓Term′ (reflConEq (wfEq A≡B)) A≡B

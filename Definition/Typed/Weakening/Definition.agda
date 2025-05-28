@@ -15,6 +15,7 @@ open Type-restrictions R
 
 open import Definition.Untyped M
 open import Definition.Untyped.Neutral M type-variant
+open import Definition.Untyped.Whnf M type-variant
 
 open import Definition.Typed R
 open import Definition.Typed.Weakening R
@@ -28,20 +29,35 @@ private
     ∇ ∇′ ∇″ : DCon (Term 0) _
     Γ Δ : Con Term _
     t t′ A A′ : Term _
+    V : Set a
+    φ : Unfolding _
+    ω : Opacity _
     ξ ξ′ : DExt (Term 0) _ _
     ρ : Wk _ _
 
 ------------------------------------------------------------------------
 -- Well-typed definition context extensions
 
+data DWkStep (∇ : DCon (Term 0) n) (A : Term 0) (t : Term 0) : Opacity n → Set a where
+  opa : Opacity-allowed
+      → ∇ » ε ⊢ A
+      → φ » ∇′ ↜ ∇
+      → ∇′ » ε ⊢ t ∷ A
+      → DWkStep ∇ A t (opa φ)
+  tra : ∇ » ε ⊢ t ∷ A
+      → DWkStep ∇ A t tra
+
 data _»_⊇_ : DExt (Term 0) m n
            → DCon (Term 0) m → DCon (Term 0) n → Set a where
   id   : id » ∇ ⊇ ∇
   step : ξ » ∇′ ⊇ ∇
-       → ∇′ » ε ⊢ t ∷ A
-       → step ξ A t » ∇′ ∙[ t ∷ A ] ⊇ ∇
+       → DWkStep ∇′ A t ω
+       → step ξ ω A t » ∇′ ∙⟨ ω ⟩[ t ∷ A ] ⊇ ∇
 
-pattern stepᵗ₁ ⊢t = step id ⊢t
+pattern stepᵒ ξ⊇ ok ⊢A φ↜ ⊢t = step ξ⊇ (opa ok ⊢A φ↜ ⊢t)
+pattern stepᵗ ξ⊇ ⊢t = step ξ⊇ (tra ⊢t)
+pattern stepᵒ₁ ok ⊢A φ↜ ⊢t = stepᵒ id ok ⊢A φ↜ ⊢t
+pattern stepᵗ₁ ⊢t = stepᵗ id ⊢t
 
 -- Composition of well-typed definition context extensions.
 
@@ -54,8 +70,9 @@ opaque
   -- Well-formedness lemma for definition context extensions.
 
   wf-»⊇ : ξ » ∇′ ⊇ ∇ → » ∇ → » ∇′
-  wf-»⊇ id           »∇ = »∇
-  wf-»⊇ (step ξ⊇ ⊢t) »∇ = ∙ ⊢t
+  wf-»⊇ id                     »∇ = »∇
+  wf-»⊇ (stepᵒ ξ⊇ ok ⊢A φ↜ ⊢t) »∇ = ∙ᵒ⟨ ok , φ↜ ⟩[ ⊢t ∷ ⊢A ]
+  wf-»⊇ (stepᵗ ξ⊇ ⊢t)          »∇ = ∙ᵗ[ ⊢t ]
 
 ------------------------------------------------------------------------
 -- Weakening for properties of definitions
@@ -75,6 +92,14 @@ opaque
   there*-↦∷∈ : ξ » ∇′ ⊇ ∇ → α ↦ t ∷ A ∈ ∇ → α ↦ t ∷ A ∈ ∇′
   there*-↦∷∈ id          α↦t = α↦t
   there*-↦∷∈ (step ξ⊇ s) α↦t = there (there*-↦∷∈ ξ⊇ α↦t)
+
+opaque
+
+  -- A definition weakening lemma for the definition context.
+
+  there*-↦⊘∈ : ξ » ∇′ ⊇ ∇ → α ↦⊘∷ A ∈ ∇ → α ↦⊘∷ A ∈ ∇′
+  there*-↦⊘∈ id          α↦t = α↦t
+  there*-↦⊘∈ (step ξ⊇ s) α↦t = there (there*-↦⊘∈ ξ⊇ α↦t)
 
 ------------------------------------------------------------------------
 -- Weakening for typing derivations
@@ -440,16 +465,102 @@ opaque
   defn-wkRed*Term ξ⊇ (t⇒x ⇨ x⇒*t′) =
     defn-wkRedTerm ξ⊇ t⇒x ⇨ defn-wkRed*Term ξ⊇ x⇒*t′
 
+------------------------------------------------------------------------
+-- Weakening for WHNF properties
+
+opaque
+
+  -- A neutral term weakening lemma for the definition context.
+
+  defn-wkNeutral : ξ » ∇′ ⊇ ∇ → Neutral V ∇ t → Neutral V ∇′ t
+  defn-wkNeutral ξ⊇ (defn α↦⊘)     = defn (there*-↦⊘∈ ξ⊇ α↦⊘)
+  defn-wkNeutral ξ⊇ (var ok x)     = var ok x
+  defn-wkNeutral ξ⊇ (∘ₙ b)         = ∘ₙ (defn-wkNeutral ξ⊇ b)
+  defn-wkNeutral ξ⊇ (fstₙ b)       = fstₙ (defn-wkNeutral ξ⊇ b)
+  defn-wkNeutral ξ⊇ (sndₙ b)       = sndₙ (defn-wkNeutral ξ⊇ b)
+  defn-wkNeutral ξ⊇ (natrecₙ b)    = natrecₙ (defn-wkNeutral ξ⊇ b)
+  defn-wkNeutral ξ⊇ (prodrecₙ b)   = prodrecₙ (defn-wkNeutral ξ⊇ b)
+  defn-wkNeutral ξ⊇ (emptyrecₙ b)  = emptyrecₙ (defn-wkNeutral ξ⊇ b)
+  defn-wkNeutral ξ⊇ (unitrecₙ x b) = unitrecₙ x (defn-wkNeutral ξ⊇ b)
+  defn-wkNeutral ξ⊇ (Jₙ b)         = Jₙ (defn-wkNeutral ξ⊇ b)
+  defn-wkNeutral ξ⊇ (Kₙ b)         = Kₙ (defn-wkNeutral ξ⊇ b)
+  defn-wkNeutral ξ⊇ ([]-congₙ b)   = []-congₙ (defn-wkNeutral ξ⊇ b)
+
+opaque
+   
+  -- A WHNF weakening lemma for the definition context.
+
+  defn-wkWhnf : ξ » ∇′ ⊇ ∇ → Whnf ∇ t → Whnf ∇′ t
+  defn-wkWhnf ξ⊇ Uₙ     = Uₙ
+  defn-wkWhnf ξ⊇ ΠΣₙ    = ΠΣₙ
+  defn-wkWhnf ξ⊇ ℕₙ     = ℕₙ
+  defn-wkWhnf ξ⊇ Unitₙ  = Unitₙ
+  defn-wkWhnf ξ⊇ Emptyₙ = Emptyₙ
+  defn-wkWhnf ξ⊇ Idₙ    = Idₙ
+  defn-wkWhnf ξ⊇ lamₙ   = lamₙ
+  defn-wkWhnf ξ⊇ zeroₙ  = zeroₙ
+  defn-wkWhnf ξ⊇ sucₙ   = sucₙ
+  defn-wkWhnf ξ⊇ starₙ  = starₙ
+  defn-wkWhnf ξ⊇ prodₙ  = prodₙ
+  defn-wkWhnf ξ⊇ rflₙ   = rflₙ
+  defn-wkWhnf ξ⊇ (ne n) = ne (defn-wkNeutral ξ⊇ n)
+
+opaque
+
+  -- A WHNF view weakening lemma for the definition context.
+
+  defn-wkNatural : ξ » ∇′ ⊇ ∇ → Natural V ∇ t → Natural V ∇′ t
+  defn-wkNatural ξ⊇ sucₙ   = sucₙ
+  defn-wkNatural ξ⊇ zeroₙ  = zeroₙ
+  defn-wkNatural ξ⊇ (ne n) = ne (defn-wkNeutral ξ⊇ n)
+
+opaque
+
+  -- A WHNF view weakening lemma for the definition context.
+
+  defn-wkType : ξ » ∇′ ⊇ ∇ → Type V ∇ t → Type V ∇′ t
+  defn-wkType ξ⊇ Uₙ     = Uₙ
+  defn-wkType ξ⊇ ΠΣₙ    = ΠΣₙ
+  defn-wkType ξ⊇ ℕₙ     = ℕₙ
+  defn-wkType ξ⊇ Emptyₙ = Emptyₙ
+  defn-wkType ξ⊇ Unitₙ  = Unitₙ
+  defn-wkType ξ⊇ Idₙ    = Idₙ
+  defn-wkType ξ⊇ (ne n) = ne (defn-wkNeutral ξ⊇ n)
+
+opaque
+
+  -- A WHNF view weakening lemma for the definition context.
+
+  defn-wkFunction : ξ » ∇′ ⊇ ∇ → Function V ∇ t → Function V ∇′ t
+  defn-wkFunction ξ⊇ lamₙ   = lamₙ
+  defn-wkFunction ξ⊇ (ne n) = ne (defn-wkNeutral ξ⊇ n)
+
+opaque
+
+  -- A WHNF view weakening lemma for the definition context.
+
+  defn-wkProduct : ξ » ∇′ ⊇ ∇ → Product V ∇ t → Product V ∇′ t
+  defn-wkProduct ξ⊇ prodₙ  = prodₙ
+  defn-wkProduct ξ⊇ (ne n) = ne (defn-wkNeutral ξ⊇ n)
+
+opaque
+
+  -- A WHNF view weakening lemma for the definition context.
+
+  defn-wkIdentity : ξ » ∇′ ⊇ ∇ → Identity V ∇ t → Identity V ∇′ t
+  defn-wkIdentity ξ⊇ rflₙ   = rflₙ
+  defn-wkIdentity ξ⊇ (ne n) = ne (defn-wkNeutral ξ⊇ n)
+
 opaque
 
   -- A normalization weakening lemma for the definition context.
 
   defn-wkRed↘ : ξ » ∇′ ⊇ ∇ → ∇ » Γ ⊢ A ↘ A′ → ∇′ » Γ ⊢ A ↘ A′
-  defn-wkRed↘ ξ⊇ (A⇒*A′ , w) = defn-wkRed* ξ⊇ A⇒*A′ , w
+  defn-wkRed↘ ξ⊇ (A⇒*A′ , w) = defn-wkRed* ξ⊇ A⇒*A′ , defn-wkWhnf ξ⊇ w
 
 opaque
 
   -- A normalization weakening lemma for the definition context.
 
   defn-wkRed↘Term : ξ » ∇′ ⊇ ∇ → ∇ » Γ ⊢ t ↘ t′ ∷ A → ∇′ » Γ ⊢ t ↘ t′ ∷ A
-  defn-wkRed↘Term ξ⊇ (t⇒*t′ , w) = defn-wkRed*Term ξ⊇ t⇒*t′ , w
+  defn-wkRed↘Term ξ⊇ (t⇒*t′ , w) = defn-wkRed*Term ξ⊇ t⇒*t′ , defn-wkWhnf ξ⊇ w

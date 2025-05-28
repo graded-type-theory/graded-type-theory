@@ -34,6 +34,8 @@ opaque mutual
     ∇ » Γ ⊢ t ~ u ↑ A →
     ∇′ » Γ ⊢ t ~ u ↑ A
   defn-wk~↑ ξ⊇ (var-refl ⊢t eq) = var-refl (defn-wkTerm ξ⊇ ⊢t) eq
+  defn-wk~↑ ξ⊇ (defn-refl ⊢α α↦⊘ eq) =
+    defn-refl (defn-wkTerm ξ⊇ ⊢α) (there*-↦⊘∈ ξ⊇ α↦⊘) eq
   defn-wk~↑ ξ⊇ (app-cong t~ u<>) =
     app-cong (defn-wk~↓ ξ⊇ t~) (defn-wkConv↑Term ξ⊇ u<>)
   defn-wk~↑ ξ⊇ (fst-cong t~) = fst-cong (defn-wk~↓ ξ⊇ t~)
@@ -111,7 +113,10 @@ opaque mutual
   defn-wkConv↓Term ξ⊇ (Σʷ-ins ⊢t ⊢u t~u) =
     Σʷ-ins (defn-wkTerm ξ⊇ ⊢t) (defn-wkTerm ξ⊇ ⊢u) (defn-wk~↓ ξ⊇ t~u)
   defn-wkConv↓Term ξ⊇ (ne-ins ⊢t ⊢u neA t~u) =
-    ne-ins (defn-wkTerm ξ⊇ ⊢t) (defn-wkTerm ξ⊇ ⊢u) neA (defn-wk~↓ ξ⊇ t~u)
+    ne-ins (defn-wkTerm ξ⊇ ⊢t)
+           (defn-wkTerm ξ⊇ ⊢u)
+           (defn-wkNeutral ξ⊇ neA)
+           (defn-wk~↓ ξ⊇ t~u)
   defn-wkConv↓Term ξ⊇ (univ ⊢t ⊢u t<>u) =
     univ (defn-wkTerm ξ⊇ ⊢t) (defn-wkTerm ξ⊇ ⊢u) (defn-wkConv↓ ξ⊇ t<>u)
   defn-wkConv↓Term ξ⊇ (zero-refl ⊢Γ) = zero-refl (defn-wk′ ξ⊇ ⊢Γ)
@@ -125,16 +130,22 @@ opaque mutual
   defn-wkConv↓Term ξ⊇ (η-eq ⊢t ⊢u ft fu 0<>) =
     η-eq (defn-wkTerm ξ⊇ ⊢t)
          (defn-wkTerm ξ⊇ ⊢u)
-         ft fu
+         (defn-wkFunction ξ⊇ ft)
+         (defn-wkFunction ξ⊇ fu)
          (defn-wkConv↑Term ξ⊇ 0<>)
   defn-wkConv↓Term ξ⊇ (Σ-η ⊢t ⊢u pt pu fst<> snd<>) =
     Σ-η (defn-wkTerm ξ⊇ ⊢t)
         (defn-wkTerm ξ⊇ ⊢u)
-        pt pu
+        (defn-wkProduct ξ⊇ pt)
+        (defn-wkProduct ξ⊇ pu)
         (defn-wkConv↑Term ξ⊇ fst<>)
         (defn-wkConv↑Term ξ⊇ snd<>)
   defn-wkConv↓Term ξ⊇ (η-unit ⊢t ⊢u wt wu η) =
-    η-unit (defn-wkTerm ξ⊇ ⊢t) (defn-wkTerm ξ⊇ ⊢u) wt wu η
+    η-unit (defn-wkTerm ξ⊇ ⊢t)
+           (defn-wkTerm ξ⊇ ⊢u)
+           (defn-wkWhnf ξ⊇ wt)
+           (defn-wkWhnf ξ⊇ wu)
+           η
   defn-wkConv↓Term ξ⊇ (Id-ins ⊢t t~) =
     Id-ins (defn-wkTerm ξ⊇ ⊢t) (defn-wk~↓ ξ⊇ t~)
   defn-wkConv↓Term ξ⊇ (rfl-refl t≡) = rfl-refl (defn-wkEqTerm ξ⊇ t≡)

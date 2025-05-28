@@ -17,7 +17,7 @@ open EqRelSet {{...}}
 open Type-restrictions R
 
 open import Definition.Untyped M
-open import Definition.Untyped.Neutral M type-variant
+open import Definition.Untyped.Whnf M type-variant
 open import Definition.Typed R
 open import Definition.Typed.Properties R
 open import Definition.LogicalRelation R
@@ -115,13 +115,13 @@ opaque
              t≡u))
     , λ t≡u@(Emptyₜ₌ _ _ t⇒*t′ u⇒*u′ t′≅u′ prop) →
         case prop of λ where
-          (ne (neNfₜ₌ inc t′-ne u′-ne t′~u′)) →
+          (ne (neNfₜ₌ t′-ne u′-ne t′~u′)) →
             let ≅t′ , ≅u′ = wf-⊢≅∷ t′≅u′
                 ~t′ , ~u′ = wf-⊢~∷ t′~u′
             in
               ⊩Empty⇔ .proj₂ (wfEqTerm (subset*Term t⇒*t′))
-            , Emptyₜ _ t⇒*t′ ≅t′ (ne (neNfₜ inc t′-ne ~t′))
-            , Emptyₜ _ u⇒*u′ ≅u′ (ne (neNfₜ inc u′-ne ~u′))
+            , Emptyₜ _ t⇒*t′ ≅t′ (ne (neNfₜ t′-ne ~t′))
+            , Emptyₜ _ u⇒*u′ ≅u′ (ne (neNfₜ u′-ne ~u′))
             , t≡u
     where
     lemma :

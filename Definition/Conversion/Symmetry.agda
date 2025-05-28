@@ -15,7 +15,7 @@ module Definition.Conversion.Symmetry
   where
 
 open import Definition.Untyped M
-open import Definition.Untyped.Neutral M type-variant
+open import Definition.Untyped.Whnf M type-variant
 open import Definition.Typed R
 open import Definition.Typed.EqRelInstance R
 open import Definition.Typed.EqualityRelation.Instance R
@@ -46,7 +46,7 @@ private
     Γ Δ : Con Term n
 
 mutual
-  -- Symmetry of algorithmic equality of neutrals.
+  -- Symmetry of algorithmic equality of neutral terms.
   sym~↑ : ∀ {t u A} → ∇ »⊢ Γ ≡ Δ
         → ∇ » Γ ⊢ t ~ u ↑ A
         → ∃ λ B → ∇ » Γ ⊢ A ≡ B × ∇ » Δ ⊢ u ~ t ↑ B
@@ -55,6 +55,12 @@ mutual
     in  _ , refl ⊢A
      ,  var-refl (PE.subst (λ y → _ » _ ⊢ var y ∷ _) x≡y (stabilityTerm Γ≡Δ x))
                  (PE.sym x≡y)
+  sym~↑ Γ≡Δ (defn-refl α α↦⊘ α≡β) =
+    let ⊢A = syntacticTerm α
+    in  _ , refl ⊢A
+     ,  defn-refl (PE.subst (λ β → _ » _ ⊢ defn β ∷ _) α≡β (stabilityTerm Γ≡Δ α))
+                  (PE.subst (_↦⊘∷ _ ∈ _) α≡β α↦⊘)
+                  (PE.sym α≡β)
   sym~↑ Γ≡Δ (app-cong t~u x) =
     case contextConvSubst Γ≡Δ of λ {
       (⊢Γ , ⊢Δ , _) →
@@ -216,9 +222,9 @@ mutual
            (Id-cong ⊢A₁≡A₂ ⊢t₁≡t₂ ⊢u₁≡u₂))
         ok }}}}}}
 
-  -- Symmetry of algorithmic equality of neutrals of types in WHNF.
+  -- Symmetry of algorithmic equality of neutral terms with types in WHNF.
   sym~↓ : ∀ {t u A} → ∇ »⊢ Γ ≡ Δ → ∇ » Γ ⊢ t ~ u ↓ A
-         → ∃ λ B → Whnf B × ∇ » Γ ⊢ A ≡ B × ∇ » Δ ⊢ u ~ t ↓ B
+         → ∃ λ B → Whnf ∇ B × ∇ » Γ ⊢ A ≡ B × ∇ » Δ ⊢ u ~ t ↓ B
   sym~↓ Γ≡Δ ([~] A₁ (D , whnfA) k~l) =
     let B , A≡B , k~l′ = sym~↑ Γ≡Δ k~l
         _ , ⊢B = syntacticEq A≡B

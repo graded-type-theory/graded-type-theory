@@ -20,6 +20,7 @@ open import Definition.Typed R
 open import Definition.Typed.Properties R
 open import Definition.Untyped M
 open import Definition.Untyped.Neutral M type-variant
+open import Definition.Untyped.Whnf M type-variant
 
 open import Tools.Empty
 open import Tools.Fin
@@ -38,7 +39,7 @@ private variable
 -- variable x of type A is definitionally equal to is x.
 
 var-only-equal-to-itself :
-  No-η-equality A → Whnf t → ∇ » Γ ⊢ var x ≡ t ∷ A → var x PE.≡ t
+  No-η-equality ∇ A → Whnf ∇ t → ∇ » Γ ⊢ var x ≡ t ∷ A → var x PE.≡ t
 var-only-equal-to-itself =
   λ A-no-η t-whnf → [conv↑]∷-lemma A-no-η t-whnf ∘→ completeEqTerm
   where
@@ -52,7 +53,7 @@ var-only-equal-to-itself =
   [conv↓]-lemma (ne x≡A) = ~↓-lemma x≡A
 
   [conv↓]∷-lemma :
-    No-η-equality A → Whnf t → ∇ » Γ ⊢ var x [conv↓] t ∷ A → var x PE.≡ t
+    No-η-equality ∇ A → Whnf ∇ t → ∇ » Γ ⊢ var x [conv↓] t ∷ A → var x PE.≡ t
   [conv↓]∷-lemma = λ where
     _             _ (univ _ _ x≡t)             → [conv↓]-lemma x≡t
     _             _ (Σʷ-ins _ _ x≡t)           → ~↓-lemma x≡t
@@ -68,11 +69,11 @@ var-only-equal-to-itself =
     (neₙ ())      _ (η-unit _ _ _ _ _)
 
   [conv↑]∷-lemma :
-    No-η-equality A → Whnf t → ∇ » Γ ⊢ var x [conv↑] t ∷ A → var x PE.≡ t
+    No-η-equality ∇ A → Whnf ∇ t → ∇ » Γ ⊢ var x [conv↑] t ∷ A → var x PE.≡ t
   [conv↑]∷-lemma A-no-η t-whnf x≡t@record{} =
     case whnfRed* (D .proj₁) (No-η-equality→Whnf A-no-η) of λ {
       PE.refl →
-    case whnfRed*Term (d .proj₁) (ne (var _)) of λ {
+    case whnfRed*Term (d .proj₁) (ne (var⁺ _)) of λ {
       PE.refl →
     case whnfRed*Term (d′ .proj₁) t-whnf of λ {
       PE.refl →

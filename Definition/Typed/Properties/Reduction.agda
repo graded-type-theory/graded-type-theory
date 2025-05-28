@@ -25,6 +25,7 @@ open import Definition.Untyped M
 import Definition.Untyped.Erased 𝕄 as Erased
 open import Definition.Untyped.Neutral M type-variant
 open import Definition.Untyped.Properties M
+open import Definition.Untyped.Whnf M type-variant
 
 open import Tools.Empty
 open import Tools.Function
@@ -38,6 +39,7 @@ private variable
   ∇                               : DCon (Term 0) _
   Γ                               : Con Term _
   A A′ B B′ C t t′ u u′ v v₁ v₂ w : Term _
+  V                               : Set ℓ
   n α                             : Nat
   s                               : Strength
   p p′ q r                        : M
@@ -379,10 +381,10 @@ opaque
 
   -- Neutral terms do not reduce.
 
-  neRedTerm : ∇ » Γ ⊢ t ⇒ u ∷ A → ¬ Neutral t
+  neRedTerm : ∇ » Γ ⊢ t ⇒ u ∷ A → ¬ Neutral V ∇ t
   neRedTerm = λ where
     (conv d _)                → neRedTerm d
-    (δ-red _ α↦t _ _)         → λ ()
+    (δ-red _ α↦t _ _)         → λ { (defn α↦⊘) → exclusion-↦∈ α↦⊘ α↦t }
     (app-subst d _)           → neRedTerm d ∘→ inv-ne-∘
     (β-red _ _ _ _ _)         → (λ ()) ∘→ inv-ne-∘
     (natrec-subst _ _ d)      → neRedTerm d ∘→ inv-ne-natrec
@@ -409,7 +411,7 @@ opaque
 
   -- Neutral types do not reduce.
 
-  neRed : ∇ » Γ ⊢ A ⇒ B → ¬ Neutral A
+  neRed : ∇ » Γ ⊢ A ⇒ B → ¬ Neutral V ∇ A
   neRed (univ ⊢A) not = neRedTerm ⊢A not
 
 ------------------------------------------------------------------------
@@ -419,7 +421,7 @@ opaque
 
   -- WHNFs do not reduce.
 
-  whnfRedTerm : ∇ » Γ ⊢ t ⇒ u ∷ A → ¬ Whnf t
+  whnfRedTerm : ∇ » Γ ⊢ t ⇒ u ∷ A → ¬ Whnf ∇ t
   whnfRedTerm = λ where
     (conv d _)                → whnfRedTerm d
     (δ-red ⊢Γ α↦t A≡A′ t≡t′)  → λ { (ne b) → neRedTerm (δ-red ⊢Γ α↦t A≡A′ t≡t′) b }
@@ -450,7 +452,7 @@ opaque
 
   -- WHNFs do not reduce.
 
-  whnfRed : ∇ » Γ ⊢ A ⇒ B → ¬ Whnf A
+  whnfRed : ∇ » Γ ⊢ A ⇒ B → ¬ Whnf ∇ A
   whnfRed (univ x) w = whnfRedTerm x w
 
 opaque
@@ -458,7 +460,7 @@ opaque
   -- If a WHNF t reduces in zero or more steps to u, then t is equal
   -- to u.
 
-  whnfRed*Term : ∇ » Γ ⊢ t ⇒* u ∷ A → Whnf t → t PE.≡ u
+  whnfRed*Term : ∇ » Γ ⊢ t ⇒* u ∷ A → Whnf ∇ t → t PE.≡ u
   whnfRed*Term (id _)  _ = PE.refl
   whnfRed*Term (d ⇨ _) w = ⊥-elim (whnfRedTerm d w)
 
@@ -467,7 +469,7 @@ opaque
   -- If a WHNF A reduces in zero or more steps to B, then A is equal
   -- to B.
 
-  whnfRed* : ∇ » Γ ⊢ A ⇒* B → Whnf A → A PE.≡ B
+  whnfRed* : ∇ » Γ ⊢ A ⇒* B → Whnf ∇ A → A PE.≡ B
   whnfRed* (id x)  w = PE.refl
   whnfRed* (x ⇨ d) w = ⊥-elim (whnfRed x w)
 
@@ -659,7 +661,7 @@ opaque
   -- type Unit s l), then t is equal to star s l.
 
   no-η-expansion-Unit :
-    Whnf t → ∇ » Γ ⊢ t ⇒* star s l ∷ Unit s l → t PE.≡ star s l
+    Whnf ∇ t → ∇ » Γ ⊢ t ⇒* star s l ∷ Unit s l → t PE.≡ star s l
   no-η-expansion-Unit = flip whnfRed*Term
 
 opaque
@@ -669,7 +671,7 @@ opaque
   -- Σˢ p′ , q ▷ A ▹ B), then t is equal to prodˢ p u v.
 
   no-η-expansion-Σˢ :
-    Whnf t →
+    Whnf ∇ t →
     ∇ » Γ ⊢ t ⇒* prodˢ p u v ∷ Σˢ p′ , q ▷ A ▹ B →
     t PE.≡ prodˢ p u v
   no-η-expansion-Σˢ = flip whnfRed*Term

@@ -17,7 +17,7 @@ open import Definition.Typed.Variant
 
 open import Definition.Untyped M
 import Definition.Untyped.Erased 𝕄 as Erased
-open import Definition.Untyped.Neutral M type-variant
+open import Definition.Untyped.Whnf M type-variant
 
 open import Tools.Fin
 open import Tools.Nat
@@ -30,7 +30,9 @@ infix 24 ∙_
 private
   variable
     m n l l₁ l₂ α : Nat
-    ∇ : DCon (Term 0) _
+    ∇ ∇′ : DCon (Term 0) _
+    φ φ′ : Unfolding _
+    ω : Opacity _
     Γ : Con Term _
     A A₁ A₂ A′ B B₁ B₂ C E F F′ G H : Term _
     a f g n′ s s′ t t₁ t₂ t′ u u₁ u₂ u′ v v₁ v₂ v′ w w₁ w₂ w′ z z′ :
@@ -46,13 +48,36 @@ data _∷_∈_ : (x : Fin n) (A : Term n) (Γ : Con Term n) → Set ℓ where
   here  :                 x0 ∷ wk1 A ∈ Γ ∙ A
   there : x ∷ A ∈ Γ → (x +1) ∷ wk1 A ∈ Γ ∙ B
 
+-- Definition context unfolding relation
+
+_⊔ᵒᵗ_ : Unfolding n → Unfolding n → Unfolding n
+_⊔ᵒᵗ_ with unfolding-mode
+...      | explicit   = λ φ _ → φ
+...      | transitive = _⊔ᵒ_
+
+⊔ᵒᵗ-rec : ∀ {ℓ} {P : Unfolding n → Set ℓ} → P φ → P (φ ⊔ᵒ φ′) → P (φ ⊔ᵒᵗ φ′)
+⊔ᵒᵗ-rec d t with unfolding-mode
+...            | explicit   = d
+...            | transitive = t
+
+infix 4 _»_↜_
+
+data _»_↜_ : Unfolding n → DCon (Term 0) n → DCon (Term 0) n → Set ℓ where
+  ε   :                     ε   » ε                        ↜ ε
+  _⁰  : φ        » ∇′ ↜ ∇ → φ ⁰ » ∇′ ∙⟨ ω   ⟩[ t ∷ A ] ↜ ∇ ∙⟨ ω      ⟩[ t ∷ A ]
+  _¹ᵒ : φ ⊔ᵒᵗ φ′ » ∇′ ↜ ∇ → φ ¹ » ∇′ ∙⟨ tra ⟩[ t ∷ A ] ↜ ∇ ∙⟨ opa φ′ ⟩[ t ∷ A ]
+  _¹ᵗ : φ        » ∇′ ↜ ∇ → φ ¹ » ∇′ ∙⟨ tra ⟩[ t ∷ A ] ↜ ∇ ∙⟨ tra    ⟩[ t ∷ A ]
+
 
 mutual
   
   -- Well-formed definitions
   data »_ : DCon (Term 0) m → Set ℓ where
-    ε  : » ε
-    ∙_ : ∇ » ε ⊢ t ∷ A → » ∇ ∙[ t ∷ A ]
+    ε            : » ε
+    ∙ᵒ⟨_,_⟩[_∷_] : Opacity-allowed
+                 → φ » ∇′ ↜ ∇
+                 → ∇′ » ε ⊢ t ∷ A → ∇ » ε ⊢ A → » ∇ ∙⟨ opa φ ⟩[ t ∷ A ]
+    ∙ᵗ[_]        : ∇  » ε ⊢ t ∷ A → {- by WF -} » ∇ ∙⟨ tra   ⟩[ t ∷ A ]
 
   -- Well-formed context
   data _»⊢_ (∇ : DCon (Term 0) m) : Con Term n → Set ℓ where
@@ -528,11 +553,11 @@ data _»_⊢_⇒*_ (∇ : DCon (Term 0) m) (Γ : Con Term n) : Term n → Term n
 
 -- Type reduction to whnf
 _»_⊢_↘_ : (∇ : DCon (Term 0) m) (Γ : Con Term n) → Term n → Term n → Set ℓ
-∇ » Γ ⊢ A ↘ B = ∇ » Γ ⊢ A ⇒* B × Whnf B
+∇ » Γ ⊢ A ↘ B = ∇ » Γ ⊢ A ⇒* B × Whnf ∇ B
 
 -- Term reduction to whnf
 _»_⊢_↘_∷_ : (∇ : DCon (Term 0) m) (Γ : Con Term n) → Term n → Term n → Term n → Set ℓ
-∇ » Γ ⊢ t ↘ u ∷ A = ∇ » Γ ⊢ t ⇒* u ∷ A × Whnf u
+∇ » Γ ⊢ t ↘ u ∷ A = ∇ » Γ ⊢ t ⇒* u ∷ A × Whnf ∇ u
 
 -- A context Γ is consistent if the empty type is not inhabited in Γ.
 

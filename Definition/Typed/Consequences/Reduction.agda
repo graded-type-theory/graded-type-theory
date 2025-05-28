@@ -16,6 +16,7 @@ open Type-restrictions R
 open import Definition.Untyped M
 open import Definition.Untyped.Neutral M type-variant
 open import Definition.Untyped.Properties M
+open import Definition.Untyped.Whnf M type-variant
 open import Definition.Typed R
 open import Definition.Typed.Properties R
 open import Definition.Typed.EqRelInstance R
@@ -60,7 +61,8 @@ opaque
 
   red-U :
     ⦃ ok : No-equality-reflection or-empty Γ ⦄ →
-    ∇ » Γ ⊢ t ∷ U l → ∃ λ u → Type u × ∇ » Γ ⊢ t ⇒* u ∷ U l
+    ∇ » Γ ⊢ t ∷ U l → ∃ λ u →
+    Type No-equality-reflection ∇ u × ∇ » Γ ⊢ t ⇒* u ∷ U l
   red-U ⊢t =
     case ⊩∷U⇔ .proj₁ $ proj₂ $ reducible-⊩∷ ⊢t of λ
       (_ , _ , u , t⇒*u , u-type , _) →
@@ -73,10 +75,11 @@ opaque
 
   red-Empty :
     ⦃ ok : No-equality-reflection or-empty Γ ⦄ →
-    ∇ » Γ ⊢ t ∷ Empty → ∃ λ u → Neutral u × ∇ » Γ ⊢ t ⇒* u ∷ Empty
+    ∇ » Γ ⊢ t ∷ Empty → ∃ λ u →
+    Neutral No-equality-reflection ∇ u × ∇ » Γ ⊢ t ⇒* u ∷ Empty
   red-Empty ⊢t =
     case ⊩∷Empty⇔ .proj₁ $ proj₂ $ reducible-⊩∷ ⊢t of λ {
-      (Emptyₜ u t⇒*u _ (ne (neNfₜ _ u-ne _))) →
+      (Emptyₜ u t⇒*u _ (ne (neNfₜ u-ne _))) →
     u , u-ne , t⇒*u }
 
 opaque
@@ -86,14 +89,15 @@ opaque
 
   red-Unit :
     ⦃ ok : No-equality-reflection or-empty Γ ⦄ →
-    ∇ » Γ ⊢ t ∷ Unit s l → ∃ λ u → Star u × ∇ » Γ ⊢ t ⇒* u ∷ Unit s l
+    ∇ » Γ ⊢ t ∷ Unit s l → ∃ λ u →
+    Star No-equality-reflection ∇ u × ∇ » Γ ⊢ t ⇒* u ∷ Unit s l
   red-Unit ⊢t =
     case ⊩∷Unit⇔ .proj₁ $ proj₂ $ reducible-⊩∷ ⊢t of λ {
       (_ , _ , Unitₜ u t⇒*u _ rest) →
       u
     , (case rest of λ where
-         starᵣ                 → starₙ
-         (ne (neNfₜ _ u-ne _)) → ne u-ne)
+         starᵣ               → starₙ
+         (ne (neNfₜ u-ne _)) → ne u-ne)
     , t⇒*u }
 
 opaque
@@ -103,15 +107,16 @@ opaque
 
   red-ℕ :
     ⦃ ok : No-equality-reflection or-empty Γ ⦄ →
-    ∇ » Γ ⊢ t ∷ ℕ → ∃ λ u → Natural u × ∇ » Γ ⊢ t ⇒* u ∷ ℕ
+    ∇ » Γ ⊢ t ∷ ℕ → ∃ λ u →
+    Natural No-equality-reflection ∇ u × ∇ » Γ ⊢ t ⇒* u ∷ ℕ
   red-ℕ ⊢t =
     case ⊩∷ℕ⇔ .proj₁ $ proj₂ $ reducible-⊩∷ ⊢t of λ {
       (ℕₜ u t⇒*u _ rest) →
       u
     , (case rest of λ where
-         zeroᵣ                 → zeroₙ
-         (sucᵣ _)              → sucₙ
-         (ne (neNfₜ _ u-ne _)) → ne u-ne)
+         zeroᵣ               → zeroₙ
+         (sucᵣ _)            → sucₙ
+         (ne (neNfₜ u-ne _)) → ne u-ne)
     , t⇒*u }
 
 opaque
@@ -122,7 +127,8 @@ opaque
   red-Π :
     ⦃ ok : No-equality-reflection or-empty Γ ⦄ →
     ∇ » Γ ⊢ t ∷ Π p , q ▷ A ▹ B →
-    ∃ λ u → Function u × ∇ » Γ ⊢ t ⇒* u ∷ Π p , q ▷ A ▹ B
+    ∃ λ u → Function No-equality-reflection ∇ u ×
+            ∇ » Γ ⊢ t ⇒* u ∷ Π p , q ▷ A ▹ B
   red-Π ⊢t =
     case ⊩∷Π⇔ .proj₁ $ proj₂ $ reducible-⊩∷ ⊢t of λ
       (_ , u , t⇒*u , u-fun , _) →
@@ -136,7 +142,8 @@ opaque
   red-Σ :
     ⦃ ok : No-equality-reflection or-empty Γ ⦄ →
     ∇ » Γ ⊢ t ∷ Σ⟨ m ⟩ p , q ▷ A ▹ B →
-    ∃ λ u → Product u × ∇ » Γ ⊢ t ⇒* u ∷ Σ⟨ m ⟩ p , q ▷ A ▹ B
+    ∃ λ u → Product No-equality-reflection ∇ u ×
+            ∇ » Γ ⊢ t ⇒* u ∷ Σ⟨ m ⟩ p , q ▷ A ▹ B
   red-Σ {m = 𝕤} ⊢t =
     case ⊩∷Σˢ⇔ .proj₁ $ proj₂ $ reducible-⊩∷ ⊢t of λ
       (_ , u , t⇒*u , u-prod , _) →
@@ -154,24 +161,25 @@ opaque
   red-Id :
     ⦃ ok : No-equality-reflection or-empty Γ ⦄ →
     ∇ » Γ ⊢ t ∷ Id A u v →
-    ∃ λ w → Identity w × ∇ » Γ ⊢ t ⇒* w ∷ Id A u v
+    ∃ λ w → Identity No-equality-reflection ∇ w ×
+            ∇ » Γ ⊢ t ⇒* w ∷ Id A u v
   red-Id ⊢t =
     case ⊩∷Id⇔ .proj₁ $ proj₂ $ reducible-⊩∷ ⊢t of λ
       (w , t⇒*w , _ , _ , rest) →
       w
     , (case rest of λ where
-         (rflᵣ _)      → rflₙ
-         (ne _ w-ne _) → ne w-ne)
+         (rflᵣ _)    → rflₙ
+         (ne w-ne _) → ne w-ne)
     , t⇒*w
 
 -- Helper function where all reducible types can be reduced to WHNF.
 whNorm′ : ∀ {A l} ([A] : ∇ » Γ ⊩⟨ l ⟩ A)
-                → ∃ λ B → Whnf B × ∇ » Γ ⊢ A ⇒* B
+                → ∃ λ B → Whnf ∇ B × ∇ » Γ ⊢ A ⇒* B
 whNorm′ (Uᵣ′ l _ ⇒*U) = U l , Uₙ , ⇒*U
 whNorm′ (ℕᵣ D) = ℕ , ℕₙ , D
 whNorm′ (Emptyᵣ D) = Empty , Emptyₙ , D
 whNorm′ (Unitᵣ (Unitₜ D _)) = Unit! , Unitₙ , D
-whNorm′ (ne′ _ H D neH H≡H) = H , ne neH , D
+whNorm′ (ne′ H D neH H≡H) = H , ne-whnf neH , D
 whNorm′ (Πᵣ′ F G D _ _ _ _ _) = Π _ , _ ▷ F ▹ G , ΠΣₙ , D
 whNorm′ (Σᵣ′ F G D _ _ _ _ _) = Σ _ , _ ▷ F ▹ G , ΠΣₙ , D
 whNorm′ (Idᵣ ⊩Id) = _ , Idₙ , _»_⊩ₗId_.⇒*Id ⊩Id
@@ -184,7 +192,7 @@ opaque
 
   whNorm :
     ⦃ ok : No-equality-reflection or-empty Γ ⦄ →
-    ∇ » Γ ⊢ A → ∃ λ B → Whnf B × ∇ » Γ ⊢ A ⇒* B
+    ∇ » Γ ⊢ A → ∃ λ B → Whnf ∇ B × ∇ » Γ ⊢ A ⇒* B
   whNorm A = whNorm′ (reducible-⊩ A .proj₂)
 
 opaque
@@ -289,7 +297,7 @@ opaque
 
 -- Helper function where reducible all terms can be reduced to WHNF.
 whNormTerm′ : ∀ {a A l} ([A] : ∇ » Γ ⊩⟨ l ⟩ A) → ∇ » Γ ⊩⟨ l ⟩ a ∷ A / [A]
-                → ∃ λ b → Whnf b × ∇ » Γ ⊢ a ⇒* b ∷ A
+                → ∃ λ b → Whnf ∇ b × ∇ » Γ ⊢ a ⇒* b ∷ A
 whNormTerm′ (Uᵣ′ _ _ A⇒*U) (Uₜ C B⇒*C C-type C≅C ⊩B) =
     C , typeWhnf C-type , conv* B⇒*C (sym (subset* A⇒*U))
 whNormTerm′ (ℕᵣ x) (ℕₜ n d n≡n prop) =
@@ -297,11 +305,11 @@ whNormTerm′ (ℕᵣ x) (ℕₜ n d n≡n prop) =
   in  n , naturalWhnf natN , conv* d (sym (subset* x))
 whNormTerm′ (Emptyᵣ x) (Emptyₜ n d n≡n prop) =
   let emptyN = empty prop
-  in  n , ne emptyN , conv* d (sym (subset* x))
+  in  n , ne-whnf emptyN , conv* d (sym (subset* x))
 whNormTerm′ (Unitᵣ (Unitₜ x _)) (Unitₜ n d n≡n prop) =
   n , unit prop , conv* d (sym (subset* x))
-whNormTerm′ (ne (ne _ H D neH H≡H)) (neₜ k d (neNfₜ _ neH₁ k≡k)) =
-  k , ne neH₁ , conv* d (sym (subset* D))
+whNormTerm′ (ne (ne H D neH H≡H)) (neₜ k d (neNfₜ neH₁ k≡k)) =
+  k , ne-whnf neH₁ , conv* d (sym (subset* D))
 whNormTerm′ (Πᵣ′ _ _ D _ _ _ _ _) (Πₜ f d funcF _ _ _) =
   f , functionWhnf funcF , conv* d (sym (subset* D))
 whNormTerm′ (Σᵣ′ _ _ D _ _ _ _ _) (Σₜ p d _ pProd _) =
@@ -318,7 +326,7 @@ opaque
 
   whNormTerm :
     ⦃ ok : No-equality-reflection or-empty Γ ⦄ →
-    ∇ » Γ ⊢ t ∷ A → ∃ λ u → Whnf u × ∇ » Γ ⊢ t ⇒* u ∷ A
+    ∇ » Γ ⊢ t ∷ A → ∃ λ u → Whnf ∇ u × ∇ » Γ ⊢ t ⇒* u ∷ A
   whNormTerm ⊢t =
     case reducible-⊩∷ ⊢t of λ
       (_ , ⊩t) →
@@ -336,8 +344,8 @@ private opaque
     » ∇ →
     ∃₂ λ (Γ : Con Term 1) A →
       ∇ » Γ ⊢ A ∷ U 0 ×
-      (¬ ∃₂ λ Δ B → Whnf B × ∇ » Δ ⊢ A ⇒* B) ×
-      (¬ ∃₃ λ Δ B C → Whnf B × ∇ » Δ ⊢ A ⇒* B ∷ C)
+      (¬ ∃₂ λ Δ B → Whnf ∇ B × ∇ » Δ ⊢ A ⇒* B) ×
+      (¬ ∃₃ λ Δ B C → Whnf ∇ B × ∇ » Δ ⊢ A ⇒* B ∷ C)
   term-without-WHNF′ {p} {q} {∇} ok₁ ok₂ »∇ =
     ε ∙ Empty , Ω , ⊢Ω ,
     (λ (_ , _ , B-whnf , A⇒*B) → without-WHNF₁ B-whnf A⇒*B) ,
@@ -370,10 +378,10 @@ private opaque
     ⊢Ω : ∇ » ε ∙ Empty ⊢ Ω ∷ U 0
     ⊢Ω = conv ⊢ω (sym Π≡U) ∘ⱼ ⊢ω
 
-    ¬-Whnf-Ω : ¬ Whnf Ω
+    ¬-Whnf-Ω : ¬ Whnf ∇ Ω
     ¬-Whnf-Ω (ne (∘ₙ ()))
 
-    without-WHNF₁ : Whnf A → ¬ ∇ » Δ ⊢ Ω ⇒* A
+    without-WHNF₁ : Whnf ∇ A → ¬ ∇ » Δ ⊢ Ω ⇒* A
     without-WHNF₁ Whnf-Ω (id _)           = ¬-Whnf-Ω Whnf-Ω
     without-WHNF₁ Whnf-u (univ Ω⇒t ⇨ t⇒u) =
       case inv-⇒-∘ Ω⇒t of λ where
@@ -383,7 +391,7 @@ private opaque
             (_ , PE.refl) →
           without-WHNF₁ Whnf-u t⇒u }
 
-    without-WHNF₂ : Whnf A → ¬ ∇ » Δ ⊢ Ω ⇒* A ∷ B
+    without-WHNF₂ : Whnf ∇ A → ¬ ∇ » Δ ⊢ Ω ⇒* A ∷ B
     without-WHNF₂ Whnf-Ω (id _)      = ¬-Whnf-Ω Whnf-Ω
     without-WHNF₂ Whnf-u (Ω⇒t ⇨ t⇒u) =
       case inv-⇒-∘ Ω⇒t of λ where
@@ -404,7 +412,7 @@ opaque
     Π-allowed p q →
     » ∇ →
     ∃₂ λ (Γ : Con Term 1) A →
-      ∇ » Γ ⊢ A × ¬ ∃₂ λ Δ B → Whnf B × ∇ » Δ ⊢ A ⇒* B
+      ∇ » Γ ⊢ A × ¬ ∃₂ λ Δ B → Whnf ∇ B × ∇ » Δ ⊢ A ⇒* B
   type-without-WHNF ok₁ ok₂ »∇ =
     let _ , _ , ⊢A , hyp , _ = term-without-WHNF′ ok₁ ok₂ »∇ in
     _ , _ , univ ⊢A , hyp
@@ -420,7 +428,7 @@ opaque
     Π-allowed p q →
     » ∇ →
     ∃₃ λ (Γ : Con Term 1) t A →
-      ∇ » Γ ⊢ t ∷ A × ¬ ∃₃ λ Δ u B → Whnf u × ∇ » Δ ⊢ t ⇒* u ∷ B
+      ∇ » Γ ⊢ t ∷ A × ¬ ∃₃ λ Δ u B → Whnf ∇ u × ∇ » Δ ⊢ t ⇒* u ∷ B
   term-without-WHNF ok₁ ok₂ »∇ =
     let _ , _ , ⊢A , _ , hyp = term-without-WHNF′ ok₁ ok₂ »∇ in
     _ , _ , _ , ⊢A , hyp

@@ -17,7 +17,7 @@ open EqRelSet {{...}}
 open Type-restrictions R
 
 open import Definition.Untyped M hiding (Wk; K)
-open import Definition.Untyped.Neutral M type-variant
+open import Definition.Untyped.Whnf M type-variant
 open import Definition.Typed R
 open import Definition.Typed.Properties R
 -- The imported operator _,_ is not "supposed" to be used below, but
@@ -64,9 +64,9 @@ redSubst* D (Emptyᵣ D′) =
   Emptyᵣ (D ⇨* D′) , D′
 redSubst* D (Unitᵣ (Unitₜ D′ ok)) =
   Unitᵣ (Unitₜ (D ⇨* D′) ok) , D′
-redSubst* D (ne′ inc _ D′ neK K≡K) =
-    ne′ inc _ (D ⇨* D′) neK K≡K
-  , ne₌ inc _ D′ neK K≡K
+redSubst* D (ne′ _ D′ neK K≡K) =
+    ne′ _ (D ⇨* D′) neK K≡K
+  , ne₌ _ D′ neK K≡K
 redSubst*
   D (Bᵣ′ W F G D′ A≡A [F] [G] G-ext ok) =
     Bᵣ′ W F G (D ⇨* D′) A≡A [F] [G] G-ext ok
@@ -125,12 +125,12 @@ redSubst*Term t⇒u (Unitᵣ {s} (Unitₜ D _)) (Unitₜ n d n≡n prop) =
          (inj₁ η)                → Unitₜ₌ˢ ⊢t ⊢u η
          (inj₂ (PE.refl , no-η)) →
            Unitₜ₌ʷ n n d′ d n≡n (reflUnitʷ-prop prop) no-η)
-redSubst*Term t⇒u (ne′ _ _ D neK K≡K) (neₜ k d (neNfₜ inc neK₁ k≡k)) =
+redSubst*Term t⇒u (ne′ _ D neK K≡K) (neₜ k d (neNfₜ neK₁ k≡k)) =
   let A≡K = subset* D
       d′  = conv* t⇒u A≡K ⇨∷* d
   in
-    neₜ k d′ (neNfₜ inc neK₁ k≡k)
-  , neₜ₌ k k d′ d (neNfₜ₌ inc neK₁ neK₁ k≡k)
+    neₜ k d′ (neNfₜ neK₁ k≡k)
+  , neₜ₌ k k d′ d (neNfₜ₌ neK₁ neK₁ k≡k)
 redSubst*Term
   t⇒u (Πᵣ′ F G D A≡A [F] [G] G-ext _) [u]@(Πₜ f d funcF f≡f [f] [f]₁) =
   let d′   = conv* t⇒u (subset* D) ⇨∷* d
@@ -173,8 +173,8 @@ redSubst*Term
     ⊩t
   , ⊩Id≡∷ ⊩t ⊩u
       (case ⊩Id∷-view-inhabited ⊩u of λ where
-         (ne inc _ u′~u′) → inc , u′~u′
-         (rflᵣ _)         → _)
+         (ne _ u′~u′) → u′~u′
+         (rflᵣ _)     → _)
   where
   open _»_⊩ₗId_ ⊩A
 redSubst*Term t⇒u (emb ≤ᵘ-refl     ⊩A) = redSubst*Term t⇒u ⊩A
@@ -221,10 +221,10 @@ opaque
     case whrDet↘ (A⇒*Unit , Unitₙ) A⇒*B of λ
       B⇒*Unit →
     Unitᵣ (Unitₜ B⇒*Unit ok) , B⇒*Unit
-  redSubst*′ A⇒*B (ne′ inc C A⇒*C C-ne C≅C) =
-    case whrDet↘ (A⇒*C , ne C-ne) A⇒*B of λ
+  redSubst*′ A⇒*B (ne′ C A⇒*C C-ne C≅C) =
+    case whrDet↘ (A⇒*C , ne-whnf C-ne) A⇒*B of λ
       B⇒*C →
-    ne′ inc C B⇒*C C-ne C≅C , ne₌ inc C B⇒*C C-ne C≅C
+    ne′ C B⇒*C C-ne C≅C , ne₌ C B⇒*C C-ne C≅C
   redSubst*′ A⇒*B (Bᵣ′ W C D A⇒*ΠΣ ΠΣ≡ΠΣ ⊩C ⊩D D≡D ok) =
     case whrDet↘ (A⇒*ΠΣ , ⟦ W ⟧ₙ) A⇒*B of λ
       B⇒*ΠΣ →
@@ -274,7 +274,7 @@ opaque
       ℕₜ v u⇒*v v≅v v-ok
     , ℕₜ₌ v v t⇒*v u⇒*v v≅v (reflNatural-prop v-ok)
   redSubst*Term′ t⇒*u (Emptyᵣ A⇒*Empty) (Emptyₜ v t⇒*v v≅v v-ok) =
-    case whrDet↘Term (t⇒*v , ne (empty v-ok))
+    case whrDet↘Term (t⇒*v , ne-whnf (empty v-ok))
            (conv* t⇒*u (subset* A⇒*Empty)) of λ
       u⇒*v →
       Emptyₜ v u⇒*v v≅v v-ok
@@ -291,13 +291,13 @@ opaque
          (inj₂ (PE.refl , no-η)) →
            Unitₜ₌ʷ v v t⇒*v u⇒*v v≅v (reflUnitʷ-prop v-ok) no-η)
   redSubst*Term′
-    t⇒*u (ne′ _ B A⇒*B B-ne B≅B)
-      (neₜ v t⇒*v v-ok@(neNfₜ inc v-ne v~v)) =
-    case whrDet↘Term (t⇒*v , ne v-ne)
+    t⇒*u (ne′ B A⇒*B B-ne B≅B)
+      (neₜ v t⇒*v v-ok@(neNfₜ v-ne v~v)) =
+    case whrDet↘Term (t⇒*v , ne-whnf v-ne)
            (conv* t⇒*u (subset* A⇒*B)) of λ
       u⇒*v →
       neₜ v u⇒*v v-ok
-    , neₜ₌ v v t⇒*v u⇒*v (neNfₜ₌ inc v-ne v-ne v~v)
+    , neₜ₌ v v t⇒*v u⇒*v (neNfₜ₌ v-ne v-ne v~v)
   redSubst*Term′
     t⇒*u ⊩A@(Bᵣ′ BΠ! C D A⇒*Π Π≡Π ⊩C ⊩D D≡D ok)
     ⊩t@(v , t⇒*v , v-fun , v≅v , v∘≡v∘ , ⊩v∘) =

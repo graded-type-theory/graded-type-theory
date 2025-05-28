@@ -19,6 +19,7 @@ open Type-restrictions R
 open import Definition.Untyped M
 open import Definition.Untyped.Neutral M type-variant
 open import Definition.Untyped.Properties M
+open import Definition.Untyped.Whnf M type-variant
 open import Definition.Typed R
 open import Definition.Typed.Inversion R
 open import Definition.Typed.Properties R
@@ -377,8 +378,10 @@ opaque
       A₁[σ₁⇑]≡A₂[σ₂⇑] →
     case R.escape-⊩ $ ⊩ᵛ→⊩ˢ∷→⊩[] ⊩Unit ⊩σ₁ of λ
       ⊢Unit →
-    case wf-⊢≡ $ subst-⊢≡ ⊢A₁≡A₂ $
+    case subst-⊢≡ ⊢A₁≡A₂ $
          ⊢ˢʷ≡∷-⇑ (refl ⊢Unit) $ escape-⊩ˢ≡∷ σ₁≡σ₂ .proj₂ of λ
+      ⊢A₁[σ₁⇑]≡⊢A₂[σ₂⇑] →
+    case wf-⊢≡ ⊢A₁[σ₁⇑]≡⊢A₂[σ₂⇑] of λ
       (⊢A₁[σ₁⇑] , ⊢A₂[σ₂⇑]) →
     case (R.refl-⊩≡∷ $ R.→⊩∷ $
           ⊩star (escape-⊩ˢ∷ ⊩σ₁ .proj₁) $
@@ -461,7 +464,7 @@ opaque
             unitrec l p q A₂ (starʷ l) u₂ [ σ₂ ] ∷ A₂ [ t₂ ]₀ [ σ₂ ]         ⇐*⟨ unitrec⇒*₂ ⟩∎∷
             unitrec l p q A₂ t₂        u₂ [ σ₂ ]                             ∎
 
-          (ne (neNfₜ₌ inc t₁′-ne t₂′-ne t₁′~t₂′)) →
+          (ne (neNfₜ₌ t₁′-ne t₂′-ne t₁′~t₂′)) →
             ∇ » Δ ⊩⟨ l′ ⟩
               unitrec l p q (A₁ [ σ₁ ⇑ ]) (t₁ [ σ₁ ]) (u₁ [ σ₁ ]) ≡
               unitrec l p q (A₂ [ σ₂ ⇑ ]) (t₂ [ σ₂ ]) (u₂ [ σ₂ ]) ∷
@@ -470,18 +473,19 @@ opaque
                ∷ A₁ [ t₁ ]₀ [ σ₁ ]                                ⇒*⟨ unitrec⇒*₁ ⟩⊩∷∷
                                                                     ⟨ A₁[t₁]₀[σ₁]≡A₁[σ₁⇑][t₁′]₀ ⟩⊩∷
              unitrec l p q (A₁ [ σ₁ ⇑ ]) t₁′         (u₁ [ σ₁ ])
-               ∷ A₁ [ σ₁ ⇑ ] [ t₁′ ]₀                             ≡⟨ neutral-⊩≡∷ inc (wf-⊩≡ A₁[t₁]₀[σ₁]≡A₁[σ₁⇑][t₁′]₀ .proj₂)
+               ∷ A₁ [ σ₁ ⇑ ] [ t₁′ ]₀                             ≡⟨ neutral-⊩≡∷ (wf-⊩≡ A₁[t₁]₀[σ₁]≡A₁[σ₁⇑][t₁′]₀ .proj₂)
                                                                        (unitrecₙ no-η t₁′-ne) (unitrecₙ no-η t₂′-ne)
                                                                        (~-unitrec
-                                                                          (escape-⊩≡ $
-                                                                           R.⊩≡→ ⦃ inc = included ⦃ inc = inc ⦄ ⦄ A₁[σ₁⇑]≡A₂[σ₂⇑])
+                                                                          (with-inc-⊢≅ ⊢A₁[σ₁⇑]≡⊢A₂[σ₂⇑] $
+                                                                           escape-⊩≡ $
+                                                                           R.⊩≡→ ⦃ inc = included ⦄ A₁[σ₁⇑]≡A₂[σ₂⇑])
                                                                           t₁′~t₂′
                                                                           (PE.subst (_»_⊢_≅_∷_ _ _ _ _) (singleSubstLift A₁ _) $
                                                                            escape-⊩≡∷ (R.⊩≡∷→ $ u₁≡u₂ id σ₁≡σ₂))
                                                                           ok no-η) ⟩⊩∷∷⇐*
                                                                     ⟨ ≅-eq $ escape-⊩≡ $ R.⊩≡→ $
                                                                       ⊩ᵛ≡→⊩ˢ≡∷→⊩≡∷→⊩[⇑][]₀≡[⇑][]₀ A₁≡A₂ σ₁≡σ₂ $ R.→⊩≡∷ $
-                                                                      neutral-⊩≡∷ inc (R.⊩→ $ ⊩ᵛ→⊩ˢ∷→⊩[] ⊩Unit ⊩σ₁)
+                                                                      neutral-⊩≡∷ (R.⊩→ $ ⊩ᵛ→⊩ˢ∷→⊩[] ⊩Unit ⊩σ₁)
                                                                         t₁′-ne t₂′-ne t₁′~t₂′ ⟩⇒
                ∷ A₂ [ σ₂ ⇑ ] [ t₂′ ]₀                              ˘⟨ ⊢A₂[t₂]₀[σ₂]≡A₂[σ₂⇑][t₂′]₀ ⟩⇒
 

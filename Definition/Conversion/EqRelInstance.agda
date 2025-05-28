@@ -16,8 +16,8 @@ module Definition.Conversion.EqRelInstance
 
 open import Definition.Untyped M
 import Definition.Untyped.Erased 𝕄 as Erased
-open import Definition.Untyped.Neutral M type-variant
 open import Definition.Untyped.Properties M
+open import Definition.Untyped.Whnf M type-variant
 open import Definition.Typed R
 open import Definition.Typed.EqRelInstance R
   using () renaming (eqRelInstance to eqRelInstance′)
@@ -89,6 +89,14 @@ private module Lemmas where
   ~-var x =
     let ⊢A = syntacticTerm x
     in  ↑ (refl ⊢A) (var-refl x PE.refl)
+
+  ~-defn : ∀ {α A A′}
+         → ∇ » Γ ⊢ defn α ∷ A
+         → α ↦⊘∷ A′ ∈ ∇
+         → ∇ » Γ ⊢ defn α ~ defn α ∷ A
+  ~-defn α α↦⊘ =
+    let ⊢A = syntacticTerm α
+    in  ↑ (refl ⊢A) (defn-refl α α↦⊘ PE.refl)
 
   ~-app : ∀ {f g a b F G}
         → ∇ » Γ ⊢ f ~ g ∷ Π p , q ▷ F ▹ G
@@ -402,6 +410,7 @@ private opaque
     .Equality-relations.≅-Σ-η →
       λ x₂ x₃ x₄ x₅ x₆ x₇ → (liftConvTerm (Σ-η x₂ x₃ x₄ x₅ x₆ x₇))
     .Equality-relations.~-var → ~-var
+    .Equality-relations.~-defn → ~-defn
     .Equality-relations.~-app → ~-app
     .Equality-relations.~-fst →
       λ _ x₂ → ~-fst x₂

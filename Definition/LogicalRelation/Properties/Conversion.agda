@@ -17,8 +17,8 @@ open EqRelSet {{...}}
 open Type-restrictions R
 
 open import Definition.Untyped M hiding (Wk; K)
-open import Definition.Untyped.Neutral M type-variant
 open import Definition.Untyped.Properties M
+open import Definition.Untyped.Whnf M type-variant
 open import Definition.Typed R
 open import Definition.Typed.Properties R
 open import Definition.Typed.Well-formed R
@@ -56,12 +56,12 @@ mutual
       (_ , PE.refl) →
     ⊩t }
   convTermT₁
-    (ne (ne _ _ D neK K≡K) (ne _ K₁ D₁ neK₁ K≡K₁)) (ne₌ _ M D′ neM K≡M)
-    (neₜ k d (neNfₜ inc neK₂ k≡k)) =
+    (ne (ne _ D neK K≡K) (ne K₁ D₁ neK₁ K≡K₁)) (ne₌ M D′ neM K≡M)
+    (neₜ k d (neNfₜ neK₂ k≡k)) =
     let K≡K₁ = PE.subst (λ x → _ » _ ⊢ _ ≡ x)
-                        (whrDet* (D′ , ne neM) (D₁ , ne neK₁))
+                        (whrDet* (D′ , ne-whnf neM) (D₁ , ne-whnf neK₁))
                         (≅-eq K≡M)
-    in  neₜ k (conv* d K≡K₁) (neNfₜ inc neK₂ (~-conv k≡k K≡K₁))
+    in  neₜ k (conv* d K≡K₁) (neNfₜ neK₂ (~-conv k≡k K≡K₁))
   convTermT₁
     {∇ = ∇} {Γ = Γ}
     (Bᵥ (BΠ p q) (Bᵣ F G D A≡A [F] [G] G-ext _)
@@ -142,13 +142,13 @@ mutual
     (Bᵥ (BΣ 𝕨 p q) (Bᵣ F G D A≡A [F] [G] G-ext _)
        (Bᵣ F₁ G₁ D₁ A≡A₁ [F]₁ [G]₁ G-ext₁ _))
     (B₌ F′ G′ D′ A≡B [F≡F′] [G≡G′])
-    (Σₜ f d f≡f (ne x) (inc , f~f)) =
+    (Σₜ f d f≡f (ne x) f~f) =
     let ΣF₁G₁≡ΣF′G′       = whrDet* (D₁ , ΠΣₙ) (D′ , ΠΣₙ)
         ΣFG≡ΣF₁G₁ =
           PE.subst (λ x → ∇ » Γ ⊢ Σʷ p , q ▷ F ▹ G ≡ x) (PE.sym ΣF₁G₁≡ΣF′G′)
             (≅-eq A≡B)
     in  Σₜ f (conv* d ΣFG≡ΣF₁G₁) (≅-conv f≡f ΣFG≡ΣF₁G₁)
-          (ne x) (inc , ~-conv f~f ΣFG≡ΣF₁G₁)
+          (ne x) (~-conv f~f ΣFG≡ΣF₁G₁)
   convTermT₁ (Uᵥ (Uᵣ l1 l<1 D1) (Uᵣ l2 l<2 D2)) D (Uₜ A d typeA A≡A [t]) with whrDet* (D2 , Uₙ) (D , Uₙ)
   convTermT₁ (Uᵥ (Uᵣ l1 l<1 D1) (Uᵣ l2 l<2 D2)) D (Uₜ A d typeA A≡A [t])
         | PE.refl =
@@ -162,7 +162,7 @@ mutual
       _
     , conv* t⇒*u (≅-eq Id≅Id′)
     , (case ⊩Id∷-view-inhabited ⊩t of λ where
-         (ne inc u-n u~u) → ne u-n , inc , ~-conv u~u (≅-eq Id≅Id′)
+         (ne u-n u~u)     → ne u-n , ~-conv u~u (≅-eq Id≅Id′)
          (rflᵣ lhs≡rhs)   →
              rflₙ
            , convEqTerm₁ (_»_⊩ₗId_.⊩Ty ⊩A) (_»_⊩ₗId_.⊩Ty ⊩B) Ty≡Ty′
@@ -188,12 +188,12 @@ mutual
       (_ , PE.refl) →
     ⊩t }
   convTermT₂
-    (ne (ne _ _ D neK K≡K) (ne _ K₁ D₁ neK₁ K≡K₁)) (ne₌ _ M D′ neM K≡M)
-    (neₜ k d (neNfₜ inc neK₂ k≡k)) =
+    (ne (ne _ D neK K≡K) (ne K₁ D₁ neK₁ K≡K₁)) (ne₌ M D′ neM K≡M)
+    (neₜ k d (neNfₜ neK₂ k≡k)) =
     let K₁≡K = PE.subst (λ x → _ » _ ⊢ x ≡ _)
-                        (whrDet* (D′ , ne neM) (D₁ , ne neK₁))
+                        (whrDet* (D′ , ne-whnf neM) (D₁ , ne-whnf neK₁))
                         (sym (≅-eq K≡M))
-    in  neₜ k (conv* d K₁≡K) (neNfₜ inc neK₂ (~-conv k≡k K₁≡K))
+    in  neₜ k (conv* d K₁≡K) (neNfₜ neK₂ (~-conv k≡k K₁≡K))
   convTermT₂
     {∇ = ∇} {Γ = Γ}
     (Bᵥ (BΠ p q) (Bᵣ F G D A≡A [F] [G] G-ext _)
@@ -274,13 +274,13 @@ mutual
     (Bᵥ (BΣ 𝕨 p q) (Bᵣ F G D A≡A [F] [G] G-ext _)
        (Bᵣ F₁ G₁ D₁ A≡A₁ [F]₁ [G]₁ G-ext₁ _))
     (B₌ F′ G′ D′ A≡B [F≡F′] [G≡G′])
-    (Σₜ f d f≡f (ne x) (inc , f~f)) =
+    (Σₜ f d f≡f (ne x) f~f) =
     let ΣF₁G₁≡ΣF′G′       = whrDet* (D₁ , ΠΣₙ) (D′ , ΠΣₙ)
         ΣFG≡ΣF₁G₁ =
           PE.subst (λ x → ∇ » Γ ⊢ Σʷ p , q ▷ F ▹ G ≡ x) (PE.sym ΣF₁G₁≡ΣF′G′)
             (≅-eq A≡B)
     in  Σₜ f (conv* d (sym ΣFG≡ΣF₁G₁)) (≅-conv f≡f (sym ΣFG≡ΣF₁G₁))
-           (ne x) (inc , ~-conv f~f (sym ΣFG≡ΣF₁G₁))
+           (ne x) (~-conv f~f (sym ΣFG≡ΣF₁G₁))
   convTermT₂ (Uᵥ (Uᵣ l1 l<1 D1) (Uᵣ l2 l<2 D2)) D (Uₜ A d typeA A≡A [t]) with whrDet* (D2 , Uₙ) (D , Uₙ)
   convTermT₂ (Uᵥ (Uᵣ l1 l<1 D1) (Uᵣ l2 l<2 D2)) D (Uₜ A d typeA A≡A [t])
         | PE.refl =
@@ -294,8 +294,8 @@ mutual
       _
     , conv* t⇒*u (≅-eq (≅-sym Id≅Id′))
     , (case ⊩Id∷-view-inhabited ⊩t of λ where
-         (ne inc u-n u~u) →
-           ne u-n , inc , ~-conv u~u (sym (≅-eq Id≅Id′))
+         (ne u-n u~u) →
+           ne u-n , ~-conv u~u (sym (≅-eq Id≅Id′))
          (rflᵣ lhs≡rhs) →
              rflₙ
            , lhs′≡rhs′→lhs≡rhs
@@ -349,13 +349,13 @@ mutual
       (_ , PE.refl) →
     t≡u }
   convEqTermT₁
-    (ne (ne _ _ D neK K≡K) (ne _ K₁ D₁ neK₁ K≡K₁)) (ne₌ _ M D′ neM K≡M)
-    (neₜ₌ k m d d′ (neNfₜ₌ inc neK₂ neM₁ k≡m)) =
+    (ne (ne _ D neK K≡K) (ne K₁ D₁ neK₁ K≡K₁)) (ne₌ M D′ neM K≡M)
+    (neₜ₌ k m d d′ (neNfₜ₌ neK₂ neM₁ k≡m)) =
     let K≡K₁ = PE.subst (λ x → _ » _ ⊢ _ ≡ x)
-                        (whrDet* (D′ , ne neM) (D₁ , ne neK₁))
+                        (whrDet* (D′ , ne-whnf neM) (D₁ , ne-whnf neK₁))
                         (≅-eq K≡M)
     in  neₜ₌ k m (conv* d K≡K₁) (conv* d′ K≡K₁)
-          (neNfₜ₌ inc neK₂ neM₁ (~-conv k≡m K≡K₁))
+          (neNfₜ₌ neK₂ neM₁ (~-conv k≡m K≡K₁))
   convEqTermT₁
     {∇ = ∇} {Γ = Γ}
     (Bᵥ (BΠ p q) (Bᵣ F G D A≡A [F] [G] G-ext ok)
@@ -460,7 +460,7 @@ mutual
     (Bᵥ (BΣ 𝕨 p′ q) (Bᵣ F G D A≡A [F] [G] G-ext ok)
        (Bᵣ F₁ G₁ D₁ A≡A₁ [F]₁ [G]₁ G-ext₁ ok₁))
     (B₌ F′ G′ D′ A≡B [F≡F′] [G≡G′])
-    (Σₜ₌ p r d d′ (ne x) (ne y) p≅r [t] [u] (inc , p~r)) =
+    (Σₜ₌ p r d d′ (ne x) (ne y) p≅r [t] [u] p~r) =
     let [A] = Bᵣ′ BΣ! F G D A≡A [F] [G] G-ext ok
         [B] = Bᵣ′ BΣ! F₁ G₁ D₁ A≡A₁ [F]₁ [G]₁ G-ext₁ ok₁
         [A≡B] = B₌ F′ G′ D′ A≡B [F≡F′] [G≡G′]
@@ -472,7 +472,7 @@ mutual
     in  Σₜ₌ p r (conv* d ΣFG≡ΣF₁G₁) (conv* d′ ΣFG≡ΣF₁G₁)
             (ne x) (ne y) (≅-conv p≅r ΣFG≡ΣF₁G₁)
             (convTerm₁ [A] [B] [A≡B] [t]) (convTerm₁ [A] [B] [A≡B] [u])
-            (inc , p~r₁)
+            p~r₁
   convEqTermT₁
     (Bᵥ BΣʷ record{} _) _ (Σₜ₌ _ _ _ _ prodₙ (ne _) _ _ _ (lift ()))
   convEqTermT₁
@@ -494,8 +494,8 @@ mutual
     , conv* t⇒*t′ Id≡Id′
     , conv* u⇒*u′ Id≡Id′
     , (case ⊩Id≡∷-view-inhabited ⊩A t≡u of λ where
-         (ne inc t′-n u′-n t′~u′) →
-           ne t′-n , ne u′-n , inc , ~-conv t′~u′ Id≡Id′
+         (ne t′-n u′-n t′~u′) →
+           ne t′-n , ne u′-n , ~-conv t′~u′ Id≡Id′
          (rfl₌ lhs≡rhs) →
              rflₙ , rflₙ
            , convEqTerm₁ (_»_⊩ₗId_.⊩Ty ⊩A) (_»_⊩ₗId_.⊩Ty ⊩B) Ty≡Ty′
@@ -521,13 +521,13 @@ mutual
       (_ , PE.refl) →
     t≡u }
   convEqTermT₂
-    (ne (ne _ _ D neK K≡K) (ne _ K₁ D₁ neK₁ K≡K₁)) (ne₌ _ M D′ neM K≡M)
-    (neₜ₌ k m d d′ (neNfₜ₌ inc neK₂ neM₁ k≡m)) =
+    (ne (ne _ D neK K≡K) (ne K₁ D₁ neK₁ K≡K₁)) (ne₌ M D′ neM K≡M)
+    (neₜ₌ k m d d′ (neNfₜ₌ neK₂ neM₁ k≡m)) =
     let K₁≡K = PE.subst (λ x → _ » _ ⊢ x ≡ _)
-                        (whrDet* (D′ , ne neM) (D₁ , ne neK₁))
+                        (whrDet* (D′ , ne-whnf neM) (D₁ , ne-whnf neK₁))
                         (sym (≅-eq K≡M))
     in  neₜ₌ k m (conv* d K₁≡K) (conv* d′ K₁≡K)
-          (neNfₜ₌ inc neK₂ neM₁ (~-conv k≡m K₁≡K))
+          (neNfₜ₌ neK₂ neM₁ (~-conv k≡m K₁≡K))
   convEqTermT₂
     {∇ = ∇} {Γ = Γ}
     (Bᵥ (BΠ p q) (Bᵣ F G D A≡A [F] [G] G-ext ok)
@@ -632,7 +632,7 @@ mutual
     (Bᵥ (BΣ 𝕨 p′ q) (Bᵣ F G D A≡A [F] [G] G-ext ok)
        (Bᵣ F₁ G₁ D₁ A≡A₁ [F]₁ [G]₁ G-ext₁ ok₁))
     (B₌ F′ G′ D′ A≡B [F≡F′] [G≡G′])
-    (Σₜ₌ p r d d′ (ne x) (ne y) t≡u [t] [u] (inc , p~r₁)) =
+    (Σₜ₌ p r d d′ (ne x) (ne y) t≡u [t] [u] p~r₁) =
     let [A] = Bᵣ′ BΣ! F G D A≡A [F] [G] G-ext ok
         [B] = Bᵣ′ BΣ! F₁ G₁ D₁ A≡A₁ [F]₁ [G]₁ G-ext₁ ok₁
         [A≡B] = B₌ F′ G′ D′ A≡B [F≡F′] [G≡G′]
@@ -644,7 +644,7 @@ mutual
     in  Σₜ₌ p r (conv* d (sym ΣFG≡ΣF₁G₁)) (conv* d′ (sym ΣFG≡ΣF₁G₁))
             (ne x) (ne y) (≅-conv t≡u (sym ΣFG≡ΣF₁G₁))
             (convTerm₂ [A] [B] [A≡B] [t]) (convTerm₂ [A] [B] [A≡B] [u])
-            (inc , p~r)
+            p~r
   convEqTermT₂
     (Bᵥ BΣʷ _ record{}) _ (Σₜ₌ _ _ _ _ prodₙ (ne _) _ _ _ (lift ()))
   convEqTermT₂
@@ -666,8 +666,8 @@ mutual
     , conv* t⇒*t′ Id≡Id′
     , conv* u⇒*u′ Id≡Id′
     , (case ⊩Id≡∷-view-inhabited ⊩B t≡u of λ where
-         (ne inc t′-n u′-n t′~u′) →
-           ne t′-n , ne u′-n , inc , ~-conv t′~u′ Id≡Id′
+         (ne t′-n u′-n t′~u′) →
+           ne t′-n , ne u′-n , ~-conv t′~u′ Id≡Id′
          (rfl₌ lhs≡rhs) →
              rflₙ , rflₙ
            , lhs′≡rhs′→lhs≡rhs

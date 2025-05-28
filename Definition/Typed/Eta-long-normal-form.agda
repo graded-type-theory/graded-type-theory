@@ -34,6 +34,8 @@ open import Definition.Untyped M
 import Definition.Untyped.Erased 𝕄 as Erased
 open import Definition.Untyped.Neutral M type-variant
 open import Definition.Untyped.Normal-form M type-variant
+open import Definition.Untyped.Properties M
+open import Definition.Untyped.Whnf M type-variant
 
 open import Tools.Empty
 open import Tools.Fin
@@ -45,11 +47,12 @@ open import Tools.Relation
 open import Tools.Sum using (_⊎_; inj₁; inj₂)
 
 private variable
-  m n           : Nat
+  m n α         : Nat
   x             : Fin _
   ∇             : DCon _ _
   Γ Δ           : Con _ _
   A B C t u v w : Term _
+  V             : Set a
   b             : BinderMode
   s             : Strength
   l l₁ l₂       : Universe-level
@@ -130,7 +133,7 @@ mutual
              ∇ » Γ ⊢nf Id A t u ∷ U l
     rflₙ   : ∇ » Γ ⊢ t ∷ A →
              ∇ » Γ ⊢nf rfl ∷ Id A t t
-    neₙ    : No-η-equality A →
+    neₙ    : No-η-equality ∇ A →
              ∇ » Γ ⊢ne t ∷ A →
              ∇ » Γ ⊢nf t ∷ A
 
@@ -147,6 +150,9 @@ mutual
     varₙ      : ∇ »⊢ Γ →
                 x ∷ A ∈ Γ →
                 ∇ » Γ ⊢ne var x ∷ A
+    defnₙ     : ∇ »⊢ Γ →
+                α ↦⊘∷ A ∈ ∇ →
+                ∇ » Γ ⊢ne defn α ∷ wk wk₀ A
     ∘ₙ        : ∇ » Γ ⊢ne t ∷ Π p , q ▷ A ▹ B →
                 ∇ » Γ ⊢nf u ∷ A →
                 ∇ » Γ ⊢ne t ∘⟨ p ⟩ u ∷ B [ u ]₀
@@ -240,6 +246,7 @@ mutual
   ⊢ne∷→⊢∷ = λ where
     (convₙ ⊢t A≡B)           → conv (⊢ne∷→⊢∷ ⊢t) A≡B
     (varₙ ⊢Γ x∈)             → var ⊢Γ x∈
+    (defnₙ ⊢Γ α↦⊘)           → defn ⊢Γ (↦⊘∈⇒↦∈ α↦⊘) PE.refl
     (∘ₙ ⊢t ⊢u)               → ⊢ne∷→⊢∷ ⊢t ∘ⱼ ⊢nf∷→⊢∷ ⊢u
     (fstₙ ⊢B ⊢t)             → fstⱼ ⊢B (⊢ne∷→⊢∷ ⊢t)
     (sndₙ ⊢B ⊢t)             → sndⱼ ⊢B (⊢ne∷→⊢∷ ⊢t)
@@ -260,7 +267,7 @@ mutual
 
   -- If A is an η-long normal type, then A is normal.
 
-  ⊢nf→Nf : ∇ » Γ ⊢nf A → Nf A
+  ⊢nf→Nf : ∇ » Γ ⊢nf A → Nf ∇ A
   ⊢nf→Nf = λ where
     (Uₙ _)         → Uₙ
     (univₙ ⊢A)     → ⊢nf∷→Nf ⊢A
@@ -272,7 +279,7 @@ mutual
 
   -- If t is an η-long normal term, then t is normal.
 
-  ⊢nf∷→Nf : ∇ » Γ ⊢nf t ∷ A → Nf t
+  ⊢nf∷→Nf : ∇ » Γ ⊢nf t ∷ A → Nf ∇ t
   ⊢nf∷→Nf = λ where
     (convₙ ⊢t _)      → ⊢nf∷→Nf ⊢t
     (Uₙ _)            → Uₙ
@@ -291,10 +298,11 @@ mutual
 
   -- If ∇ » Γ ⊢ne t ∷ A holds, then t is "NfNeutral".
 
-  ⊢ne∷→NfNeutral : ∇ » Γ ⊢ne t ∷ A → NfNeutral t
+  ⊢ne∷→NfNeutral : ∇ » Γ ⊢ne t ∷ A → NfNeutral ∇ t
   ⊢ne∷→NfNeutral = λ where
     (convₙ ⊢t _)                 → ⊢ne∷→NfNeutral ⊢t
     (varₙ _ _)                   → var _
+    (defnₙ _ α↦⊘)                → defn α↦⊘
     (∘ₙ ⊢t ⊢u)                   → ∘ₙ (⊢ne∷→NfNeutral ⊢t) (⊢nf∷→Nf ⊢u)
     (fstₙ _ ⊢t)                  → fstₙ (⊢ne∷→NfNeutral ⊢t)
     (sndₙ _ ⊢t)                  → sndₙ (⊢ne∷→NfNeutral ⊢t)
@@ -423,6 +431,7 @@ mutual
         case inversion-var (stabilityTerm Γ≡Δ (var ⊢Γ x∷A∈Γ)) of λ {
           (B , x∷B∈Δ , A≡B) →
         convₙ (varₙ ⊢Δ x∷B∈Δ) (sym A≡B) }
+      (defnₙ ⊢Γ α↦⊘) → defnₙ ⊢Δ α↦⊘
       (∘ₙ ⊢t ⊢u) → ∘ₙ
         (⊢ne∷-stable Γ≡Δ ⊢t)
         (⊢nf∷-stable Γ≡Δ ⊢u)
@@ -1014,12 +1023,12 @@ opaque
 
 ⊢nf∷Π→Neutral→⊥ :
   ⦃ ok : No-equality-reflection or-empty Γ ⦄ →
-  ∇ » Γ ⊢nf t ∷ Π p , q ▷ A ▹ B → Neutral t → ⊥
+  ∇ » Γ ⊢nf t ∷ Π p , q ▷ A ▹ B → Neutral V ∇ t → ⊥
 ⊢nf∷Π→Neutral→⊥ {Γ} ⊢t =
   ⊢nf∷Π→Neutral→⊥′ ⊢t (refl (syntacticTerm (⊢nf∷→⊢∷ ⊢t)))
   where
   ⊢nf∷Π→Neutral→⊥′ :
-    ∇ » Γ ⊢nf t ∷ A → ∇ » Γ ⊢ A ≡ Π p , q ▷ B ▹ C → Neutral t → ⊥
+    ∇ » Γ ⊢nf t ∷ A → ∇ » Γ ⊢ A ≡ Π p , q ▷ B ▹ C → Neutral V ∇ t → ⊥
   ⊢nf∷Π→Neutral→⊥′ = λ where
     (convₙ ⊢t B≡A) A≡Σ t-ne →
       ⊢nf∷Π→Neutral→⊥′ ⊢t (trans B≡A A≡Σ) t-ne
@@ -1043,12 +1052,12 @@ opaque
 
 ⊢nf∷Σˢ→Neutral→⊥ :
   ⦃ ok : No-equality-reflection or-empty Γ ⦄ →
-  ∇ » Γ ⊢nf t ∷ Σˢ p , q ▷ A ▹ B → Neutral t → ⊥
+  ∇ » Γ ⊢nf t ∷ Σˢ p , q ▷ A ▹ B → Neutral V ∇ t → ⊥
 ⊢nf∷Σˢ→Neutral→⊥ {Γ} ⊢t =
   ⊢nf∷Σˢ→Neutral→⊥′ ⊢t (refl (syntacticTerm (⊢nf∷→⊢∷ ⊢t)))
   where
   ⊢nf∷Σˢ→Neutral→⊥′ :
-    ∇ » Γ ⊢nf t ∷ A → ∇ » Γ ⊢ A ≡ Σˢ p , q ▷ B ▹ C → Neutral t → ⊥
+    ∇ » Γ ⊢nf t ∷ A → ∇ » Γ ⊢ A ≡ Σˢ p , q ▷ B ▹ C → Neutral V ∇ t → ⊥
   ⊢nf∷Σˢ→Neutral→⊥′ = λ where
     (convₙ ⊢t B≡A) A≡Σ t-ne →
       ⊢nf∷Σˢ→Neutral→⊥′ ⊢t (trans B≡A A≡Σ) t-ne
@@ -1161,6 +1170,8 @@ mutual
     ∇ » Γ ⊢ u ~ v ↑ C → u PE.≡ v
   normal-or-neutral-terms-unique-~↑ ⊢u ⊢v = λ where
     (var-refl _ PE.refl) →
+      PE.refl
+    (defn-refl _ _ PE.refl) →
       PE.refl
     (app-cong t≡v u≡w) →
       case inversion-nf-ne-app ⊢u of λ {

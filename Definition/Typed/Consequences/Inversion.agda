@@ -16,7 +16,7 @@ module Definition.Typed.Consequences.Inversion
 open Type-restrictions R
 
 open import Definition.Untyped M
-open import Definition.Untyped.Neutral M type-variant
+open import Definition.Untyped.Whnf M type-variant
 open import Definition.Typed R
 open import Definition.Typed.EqRelInstance R
 open import Definition.Typed.Inversion R
@@ -149,7 +149,7 @@ opaque
 
   whnfProduct :
     ⦃ ok : No-equality-reflection or-empty Γ ⦄ →
-    ∇ » Γ ⊢ t ∷ Σ⟨ s ⟩ p , q ▷ A ▹ B → Whnf t → Product t
+    ∇ » Γ ⊢ t ∷ Σ⟨ s ⟩ p , q ▷ A ▹ B → Whnf ∇ t → Product⁺ ∇ t
   whnfProduct ⊢t = λ where
     prodₙ →
       prodₙ

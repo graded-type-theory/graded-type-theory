@@ -23,6 +23,7 @@ module Definition.Typed.Decidable.Reduction
   where
 
 open import Definition.Untyped.Neutral M type-variant as N
+open import Definition.Untyped.Whnf M type-variant
 open import Definition.Typed R
 open import Definition.Typed.Properties R
 open import Definition.Typed.EqRelInstance R
@@ -56,7 +57,7 @@ opaque
         no λ (l , A⇒*U) →
         not (_ , whrDet* (A⇒*U , Uₙ) (A⇒*B , B-whnf))
     where
-    is-U : Whnf B → Dec (∃ λ l → U l PE.≡ B)
+    is-U : Whnf ∇ B → Dec (∃ λ l → U l PE.≡ B)
     is-U Uₙ        = yes (_ , PE.refl)
     is-U ΠΣₙ       = no λ ()
     is-U ℕₙ        = no λ ()
@@ -89,7 +90,7 @@ private opaque
   isΠΣ′ (Unitᵣ (Unitₜ A⇒*Unit _)) =
     no λ (_ , _ , _ , _ , _ , A⇒*W) →
     Unit≢ΠΣⱼ (trans (sym (subset* A⇒*Unit)) (subset* A⇒*W))
-  isΠΣ′ (ne′ _ _ A⇒*B B-ne _) =
+  isΠΣ′ (ne′ _ A⇒*B B-ne _) =
     no λ (_ , _ , _ , _ , _ , A⇒*W) →
     I.ΠΣ≢ne B-ne (trans (sym (subset* A⇒*W)) (subset* A⇒*B))
   isΠΣ′ (Πᵣ′ _ _ A⇒*ΠΣ _ _ _ _ _) =

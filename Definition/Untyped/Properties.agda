@@ -26,6 +26,7 @@ private
     eq eq₁ eq₂ : _ ≡ _
     𝕋 : Set _
     ∇ ∇′ : DCon _ _
+    φ : Unfolding _
     A A₁ A₂ B₁ B₂ E F G H t t₁ t₂ u u₁ u₂ v v₁ v₂ w w₁ w₂ : Term _
     ρ ρ′ : Wk m n
     η : Wk n ℓ
@@ -46,9 +47,9 @@ opaque
 
 opaque
 
-  ↦∈⇒↦∷∈ : ∀ {A} → α ↦∷ A ∈ ∇ → ∃ λ t → α ↦ t ∷ A ∈ ∇
-  ↦∈⇒↦∷∈ here         = _ , here
-  ↦∈⇒↦∷∈ (there α↦∷A) = let t , α↦t = ↦∈⇒↦∷∈ α↦∷A in t , there α↦t
+  ↦⊘∈⇒↦∈ : ∀ {A} → α ↦⊘∷ A ∈ ∇ → α ↦∷ A ∈ ∇
+  ↦⊘∈⇒↦∈ here        = here
+  ↦⊘∈⇒↦∈ (there α↦⊘) = there (↦⊘∈⇒↦∈ α↦⊘)
 
 opaque
 
@@ -60,6 +61,11 @@ opaque
 
   scoped-↦∷∈ : ∀ {∇ : DCon 𝕋 n} {A t} → α ↦ t ∷ A ∈ ∇ → α < n
   scoped-↦∷∈ α↦t = scoped-↦∈ (↦∷∈⇒↦∈ α↦t)
+
+opaque
+
+  scoped-↦⊘∈ : ∀ {∇ : DCon 𝕋 n} {A} → α ↦⊘∷ A ∈ ∇ → α < n
+  scoped-↦⊘∈ α↦⊘ = scoped-↦∈ (↦⊘∈⇒↦∈ α↦⊘)
 
 opaque
 
@@ -77,6 +83,93 @@ opaque
   unique-↦∷∈ here        (there α↦u) refl = ⊥-elim (n≮n _ (scoped-↦∷∈ α↦u))
   unique-↦∷∈ (there α↦t) here        refl = ⊥-elim (n≮n _ (scoped-↦∷∈ α↦t))
   unique-↦∷∈ (there α↦t) (there β↦u) α≡β  = unique-↦∷∈ α↦t β↦u α≡β
+
+opaque
+
+  unique-↦⊘∈ : ∀ {A B} → α ↦⊘∷ A ∈ ∇ → β ↦⊘∷ B ∈ ∇ → α ≡ β → A ≡ B
+  unique-↦⊘∈ α↦⊘ β↦⊘ α≡β = unique-↦∈ (↦⊘∈⇒↦∈ α↦⊘) (↦⊘∈⇒↦∈ β↦⊘) α≡β
+
+opaque
+
+  coerce-↦∷∈ : ∀ {A B t} → α ↦∷ B ∈ ∇ → α ↦ t ∷ A ∈ ∇ → α ↦ t ∷ B ∈ ∇
+  coerce-↦∷∈ α↦∷B α↦t = subst (_ ↦ _ ∷_∈ _)
+                              (unique-↦∈ (↦∷∈⇒↦∈ α↦t) α↦∷B refl)
+                              α↦t
+
+opaque
+
+  coerce-↦⊘∈ : ∀ {A B} → α ↦∷ B ∈ ∇ → α ↦⊘∷ A ∈ ∇ → α ↦⊘∷ B ∈ ∇
+  coerce-↦⊘∈ α↦∷B α↦⊘ = subst (_ ↦⊘∷_∈ _)
+                              (unique-↦∈ (↦⊘∈⇒↦∈ α↦⊘) α↦∷B refl)
+                              α↦⊘
+
+opaque
+
+  dichotomy-↦∈ : ∀ {A} → α ↦∷ A ∈ ∇ → (∃ λ t → α ↦ t ∷ A ∈ ∇) ⊎ (α ↦⊘∷ A ∈ ∇)
+  dichotomy-↦∈ {∇ = ∇ ∙⟨ opa φ ⟩[ t ∷ A ]} here         = inj₂ here
+  dichotomy-↦∈ {∇ = ∇ ∙⟨ tra   ⟩[ t ∷ A ]} here         = inj₁ (t , here)
+  dichotomy-↦∈                             (there α↦∷A) =
+    case dichotomy-↦∈ α↦∷A of λ where
+      (inj₁ (t , α↦t)) → inj₁ (t , there α↦t)
+      (inj₂ α↦⊘)       → inj₂ (there α↦⊘)
+
+opaque
+
+  exclusion-↦∈ :
+    ∀ {A B t} → α ↦⊘∷ A ∈ ∇ → ¬ α ↦ t ∷ B ∈ ∇
+  exclusion-↦∈ here        (there α↦t) = n≮n _ (scoped-↦∷∈ α↦t)
+  exclusion-↦∈ (there α↦⊘) here        = n≮n _ (scoped-↦⊘∈ α↦⊘)
+  exclusion-↦∈ (there α↦⊘) (there α↦t) = exclusion-↦∈ α↦⊘ α↦t
+
+------------------------------------------------------------------------
+-- Properties of unfoldings
+
+opaque
+  
+  ones-⊔ᵒ : (φ : Unfolding n) → ones n ⊔ᵒ φ ≡ ones n
+  ones-⊔ᵒ ε     = refl
+  ones-⊔ᵒ (φ ⁰) = cong _¹ (ones-⊔ᵒ φ)
+  ones-⊔ᵒ (φ ¹) = cong _¹ (ones-⊔ᵒ φ)
+
+------------------------------------------------------------------------
+-- Properties of glassification
+
+opaque
+
+  glassify-↦∈ : ∀ {A} → α ↦∷ A ∈ ∇ → α ↦∷ A ∈ glassify ∇
+  glassify-↦∈ here         = here
+  glassify-↦∈ (there α↦∷A) = there (glassify-↦∈ α↦∷A)
+
+opaque
+
+  unglass-↦∈ : ∀ {A} → α ↦∷ A ∈ glassify ∇ → α ↦∷ A ∈ ∇
+  unglass-↦∈ {∇ = ε}                 ()
+  unglass-↦∈ {∇ = ∇ ∙⟨ ω ⟩[ t ∷ A ]} here         = here
+  unglass-↦∈ {∇ = ∇ ∙⟨ ω ⟩[ t ∷ A ]} (there α↦∷A) = there (unglass-↦∈ α↦∷A)
+
+opaque
+
+  glassify-↦∷∈ : ∀ {A t} → α ↦ t ∷ A ∈ ∇ → α ↦ t ∷ A ∈ glassify ∇
+  glassify-↦∷∈ here        = here
+  glassify-↦∷∈ (there α↦t) = there (glassify-↦∷∈ α↦t)
+
+opaque
+
+  glass-↦⊘∈ : ∀ {A} → ¬ α ↦⊘∷ A ∈ glassify ∇
+  glass-↦⊘∈ {∇ = ε}                 ()
+  glass-↦⊘∈ {∇ = ∇ ∙⟨ ω ⟩[ t ∷ A ]} (there α↦⊘) = glass-↦⊘∈ α↦⊘
+
+opaque
+
+  glass-↦∈ : ∀ {A} → α ↦∷ A ∈ glassify ∇ → ∃ λ t → α ↦ t ∷ A ∈ glassify ∇
+  glass-↦∈ α↦∷A = case dichotomy-↦∈ α↦∷A of λ where
+    (inj₁ ∃t)  → ∃t
+    (inj₂ α↦⊘) → ⊥-elim (glass-↦⊘∈ α↦⊘)
+
+opaque
+
+  glassify-↦∈′ : ∀ {A} → α ↦∷ A ∈ ∇ → ∃ λ t → α ↦ t ∷ A ∈ glassify ∇
+  glassify-↦∈′ = glass-↦∈ ∘→ glassify-↦∈
 
 ------------------------------------------------------------------------
 -- Properties of toTerm and fromTerm.
@@ -195,6 +288,55 @@ opaque
     cong₄ (λ A t u v → gen (Boxcongkind s) (A ∷ₜ t ∷ₜ u ∷ₜ v ∷ₜ []))
       (fromTerm∘toTerm A) (fromTerm∘toTerm t)
       (fromTerm∘toTerm u) (fromTerm∘toTerm v)
+
+------------------------------------------------------------------------
+-- No-confusion lemmas
+
+U≢B : ∀ W → U l PE.≢ ⟦ W ⟧ F ▹ G
+U≢B (BΠ p q) ()
+U≢B (BΣ m p q) ()
+
+U≢ΠΣ : ∀ b → U l PE.≢ ΠΣ⟨ b ⟩ p , q ▷ F ▹ G
+U≢ΠΣ BMΠ ()
+U≢ΠΣ (BMΣ s) ()
+
+ℕ≢B : ∀ W → ℕ PE.≢ ⟦ W ⟧ F ▹ G
+ℕ≢B (BΠ p q) ()
+ℕ≢B (BΣ m p q) ()
+
+ℕ≢ΠΣ : ∀ b → ℕ PE.≢ ΠΣ⟨ b ⟩ p , q ▷ F ▹ G
+ℕ≢ΠΣ BMΠ ()
+ℕ≢ΠΣ (BMΣ s) ()
+
+Empty≢B : ∀ W → Empty PE.≢ ⟦ W ⟧ F ▹ G
+Empty≢B (BΠ p q) ()
+Empty≢B (BΣ m p q) ()
+
+Empty≢ΠΣ : ∀ b → Empty PE.≢ ΠΣ⟨ b ⟩ p , q ▷ F ▹ G
+Empty≢ΠΣ BMΠ ()
+Empty≢ΠΣ (BMΣ _) ()
+
+Unit≢B : ∀ W → Unit s l PE.≢ ⟦ W ⟧ F ▹ G
+Unit≢B (BΠ p q) ()
+Unit≢B (BΣ m p q) ()
+
+Unit≢ΠΣ : ∀ b → Unit s l PE.≢ ΠΣ⟨ b ⟩ p , q ▷ F ▹ G
+Unit≢ΠΣ BMΠ ()
+Unit≢ΠΣ (BMΣ _) ()
+
+Id≢⟦⟧▷ : ∀ W → Id A t u PE.≢ ⟦ W ⟧ F ▹ G
+Id≢⟦⟧▷ (BΠ _ _)   ()
+Id≢⟦⟧▷ (BΣ _ _ _) ()
+
+Id≢ΠΣ : ∀ b → Id A t u PE.≢ ΠΣ⟨ b ⟩ p , q ▷ F ▹ G
+Id≢ΠΣ BMΠ     ()
+Id≢ΠΣ (BMΣ _) ()
+
+Π≢Σ : ∀ {m} → Π p₁ , q₁ ▷ F ▹ G PE.≢ Σ⟨ m ⟩ p₂ , q₂ ▷ H ▹ E
+Π≢Σ ()
+
+Σˢ≢Σʷ : Σˢ p₁ , q₁ ▷ F ▹ G PE.≢ Σʷ p₂ , q₂ ▷ H ▹ E
+Σˢ≢Σʷ ()
 
 ------------------------------------------------------------------------
 -- Weakening properties
@@ -2050,6 +2192,14 @@ opaque
   isNumeral? (J _ _ _ _ _ _ _ _) = no λ ()
   isNumeral? (K _ _ _ _ _ _) = no λ ()
   isNumeral? ([]-cong! _ _ _ _) = no λ ()
+
+opaque
+
+  -- Being a numeral is preserved under weakening
+
+  wk-numeral : Numeral t → Numeral (wk ρ t)
+  wk-numeral zeroₙ = zeroₙ
+  wk-numeral (sucₙ n) = sucₙ (wk-numeral n)
 
 opaque
 

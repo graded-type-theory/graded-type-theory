@@ -53,8 +53,15 @@ opaque mutual
   -- Fundamental theorem for definitions.
   defn-valid : » ∇ → »ᵛ ∇
   defn-valid ε = »ᵛε⇔ .proj₂ tt
-  defn-valid (∙ ⊢t) =
-    »ᵛ-∙-intro (defn-valid (defn-wf (wfTerm ⊢t))) (fundamental-⊩ᵛ∷ ⊢t .proj₂)
+  defn-valid ∙ᵒ⟨ ok , φ↜ ⟩[ ⊢t ∷ ⊢A ] =
+    »ᵛ-∙ᵒ-intro (defn-valid (defn-wf (wf ⊢A)))
+                ok
+                (fundamental-⊩ᵛ ⊢A .proj₂)
+                φ↜
+                (fundamental-⊩ᵛ∷ ⊢t .proj₂)
+  defn-valid ∙ᵗ[ ⊢t ] =
+    »ᵛ-∙ᵗ-intro (defn-valid (defn-wf (wfTerm ⊢t)))
+                (fundamental-⊩ᵛ∷ ⊢t .proj₂)
 
   -- Fundamental theorem for contexts.
   valid : ∇ »⊢ Γ → ∇ »⊩ᵛ Γ

@@ -89,6 +89,6 @@ opaque
 
   ¬-Id-ℕ-zero-suc : ¬ ∇ » ε ⊢ u ∷ Id ℕ zero (suc t)
   ¬-Id-ℕ-zero-suc {∇} {u} {t} =
-    ∇ » ε ⊢ u ∷ Id ℕ zero (suc t)  →⟨ ε⊢∷Id→ε⊢≡∷ ⟩
-    ∇ » ε ⊢ zero ≡ suc t ∷ ℕ       →⟨ zero≢suc ⦃ ok = ε ⦄ ⟩
-    ⊥                              □
+    ∇ » ε ⊢ u ∷ Id ℕ zero (suc t)      →⟨ ε⊢∷Id→ε⊢≡∷ ⟩
+    glassify ∇ » ε ⊢ zero ≡ suc t ∷ ℕ  →⟨ zero≢suc ⦃ ok = ε ⦄ ⟩
+    ⊥                                  □

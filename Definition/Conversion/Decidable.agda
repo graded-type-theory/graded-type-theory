@@ -21,7 +21,7 @@ open import Definition.Untyped M
 import Definition.Untyped.Erased 𝕄 as Erased
 open import Definition.Untyped.Neutral M type-variant
 open import Definition.Untyped.Properties M
-open import Definition.Untyped.Properties.Neutral M type-variant
+open import Definition.Untyped.Whnf M type-variant
 open import Definition.Typed R
 open import Definition.Typed.EqRelInstance R
 open import Definition.Typed.EqualityRelation.Instance R
@@ -45,7 +45,7 @@ open import Definition.Typed.Consequences.NeTypeEq R
 
 open import Tools.Fin
 open import Tools.Function
-open import Tools.Nat using (Nat)
+open import Tools.Nat using (Nat) renaming (_≟_ to _≟⁺_)
 open import Tools.Product
 open import Tools.Empty
 open import Tools.Sum using (inj₁; inj₂)
@@ -74,7 +74,7 @@ private opaque
   [conv↓]∷→∷ : ∇ » Γ ⊢ t [conv↓] u ∷ A → ∇ » Γ ⊢ t ∷ A
   [conv↓]∷→∷ = proj₁ ∘→ proj₂ ∘→ syntacticEqTerm ∘→ soundnessConv↓Term
 
-  ~↓→∷→Whnf×≡ : ∇ » Γ ⊢ t ~ u ↓ A → ∇ » Γ ⊢ t ∷ B → ∇ » Γ ⊢ B ≡ A × Whnf A
+  ~↓→∷→Whnf×≡ : ∇ » Γ ⊢ t ~ u ↓ A → ∇ » Γ ⊢ t ∷ B → ∇ » Γ ⊢ B ≡ A × Whnf ∇ A
   ~↓→∷→Whnf×≡ t~u ⊢t =
     let A-whnf , t-ne , _ = ne~↓ t~u in
     neTypeEq t-ne ⊢t (~↓→∷ t~u) , A-whnf
@@ -680,7 +680,7 @@ private opaque
 -- Public definitions
 
 mutual
-  -- Decidability of algorithmic equality of neutrals.
+  -- Decidability of algorithmic equality of neutral terms.
   dec~↑ : ∀ {k l R T k′ l′}
         → ∇ » Γ ⊢ k ~ k′ ↑ R → ∇ » Γ ⊢ l ~ l′ ↑ T
         → Dec (∃ λ A → ∇ » Γ ⊢ k ~ l ↑ A)
@@ -689,6 +689,11 @@ mutual
       (yes x≡y) → yes (_ , var-refl ⊢x x≡y)
       (no x≢y)  → no (x≢y ∘→ var-PE-injectivity ∘→ inv-~var ∘→ proj₂)
     (inj₂ (u≢var , _)) → no (u≢var ∘→ (_ ,_) ∘→ inv-var~ ∘→ proj₂)
+  dec~↑ (defn-refl {α} ⊢α α↦⊘ _) u~ = case inv-~-defn u~ of λ where
+    (inj₁ (β , _ , _ , PE.refl , _)) → case α ≟⁺ β of λ where
+      (yes α≡β) → yes (_ , defn-refl ⊢α α↦⊘ α≡β)
+      (no α≢β)  → no (α≢β ∘→ defn-PE-injectivity ∘→ inv-~defn ∘→ proj₂)
+    (inj₂ (u≢defn , _)) → no (u≢defn ∘→ (_ ,_) ∘→ inv-defn~ ∘→ proj₂)
   dec~↑ (app-cong t₁~ t₂≡) u~ = case inv-~-∘ u~ of λ where
     (inj₁
        (_ , _ , _ , _ , _ , _ , _ , _ , _ ,
@@ -810,7 +815,7 @@ mutual
         → Dec (∃ λ A → ∇ » Γ ⊢ k ~ l ↑ A)
   dec~↑′ Γ≡Δ k~k l~l = dec~↑ k~k (stability~↑ (symConEq Γ≡Δ) l~l)
 
-  -- Decidability of algorithmic equality of neutrals with types in WHNF.
+  -- Decidability of algorithmic equality of neutral terms with types in WHNF.
   dec~↓ : ∀ {k l R T k′ l′}
         → ∇ » Γ ⊢ k ~ k′ ↓ R → ∇ » Γ ⊢ l ~ l′ ↓ T
         → Dec (∃ λ A → ∇ » Γ ⊢ k ~ l ↓ A)
@@ -864,7 +869,8 @@ mutual
             no (¬A~B ∘→ (_ ,_) ∘→ proj₂ ∘→ inv-[conv↓]-ne A-ne)
       (inj₂ (¬-B-ne , _)) →
         no λ A≡B →
-        ¬-B-ne (ne~↓ (inv-[conv↓]-ne A-ne A≡B .proj₂) .proj₂ .proj₂)
+        ¬-B-ne $
+        ne~↓ (inv-[conv↓]-ne A-ne A≡B .proj₂) .proj₂ .proj₂
   decConv↓ U≡U@(U-refl {l = l₁} _) B≡ =
     case inv-[conv↓]-U′ B≡ of λ where
       (inj₁ (l₂ , PE.refl , _)) →
@@ -1127,7 +1133,7 @@ mutual
               inv-rfl~ rfl~
     (inj₂ (PE.refl , _)) →
       no λ rfl≡u →
-      ¬-Neutral-rfl $
+      flip rfl≢ne PE.refl $
       case inv-[conv↓]∷-Id rfl≡u of λ where
         (inj₁ (_ , _ , _ , t~rfl)) → ne~↓ t~rfl .proj₂ .proj₂
         (inj₂ (PE.refl , _))       → ne~↓ t~ .proj₂ .proj₁
@@ -1135,7 +1141,7 @@ mutual
     case inv-[conv↓]∷-Id u≡ of λ where
       (inj₁ (_ , _ , _ , u~)) →
         no λ rfl≡u →
-        ¬-Neutral-rfl $
+        flip rfl≢ne PE.refl $
         case inv-[conv↓]∷-Id rfl≡u of λ where
           (inj₁ (_ , _ , _ , rfl~u)) → ne~↓ rfl~u .proj₂ .proj₁
           (inj₂ (_ , PE.refl , _))   → ne~↓ u~ .proj₂ .proj₁

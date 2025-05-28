@@ -17,7 +17,6 @@ open EqRelSet {{...}}
 open Type-restrictions R
 
 open import Definition.Untyped Mod as U hiding (K)
-open import Definition.Untyped.Neutral Mod type-variant
 open import Definition.Untyped.Properties Mod
 open import Definition.Typed R
 open import Definition.Typed.Properties R

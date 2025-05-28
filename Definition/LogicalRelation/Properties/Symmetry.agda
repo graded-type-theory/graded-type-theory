@@ -17,8 +17,8 @@ open EqRelSet {{...}}
 open Type-restrictions R
 
 open import Definition.Untyped M hiding (K)
-open import Definition.Untyped.Neutral M type-variant
 open import Definition.Untyped.Properties M
+open import Definition.Untyped.Whnf M type-variant
 open import Definition.Typed R
 open import Definition.Typed.Properties R
 open import Definition.Typed.Weakening.Definition R
@@ -43,7 +43,7 @@ private
 symNeutralTerm : ∀ {t u A}
                → ∇ » Γ ⊩neNf t ≡ u ∷ A
                → ∇ » Γ ⊩neNf u ≡ t ∷ A
-symNeutralTerm (neNfₜ₌ inc neK neM k≡m) = neNfₜ₌ inc neM neK (~-sym k≡m)
+symNeutralTerm (neNfₜ₌ neK neM k≡m) = neNfₜ₌ neM neK (~-sym k≡m)
 
 symNatural-prop : ∀ {k k′}
                 → [Natural]-prop ∇ Γ k k′
@@ -92,9 +92,9 @@ symEqT (Unitᵥ (Unitₜ A⇒*Unit _) (Unitₜ B⇒*Unit₁ _)) B⇒*Unit₂ =
     (_ , PE.refl) →
   A⇒*Unit }
 symEqT
-  (ne (ne _ _ D neK K≡K) (ne _ K₁ D₁ neK₁ K≡K₁)) (ne₌ inc M D′ neM K≡M)
-  rewrite whrDet* (D′ , ne neM) (D₁ , ne neK₁) =
-  ne₌ inc _ D neK (≅-sym K≡M)
+  (ne (ne _ D neK K≡K) (ne K₁ D₁ neK₁ K≡K₁)) (ne₌ M D′ neM K≡M)
+  rewrite whrDet* (D′ , ne-whnf neM) (D₁ , ne-whnf neK₁) =
+  ne₌ _ D neK (≅-sym K≡M)
 symEqT
   {κ} {n} {∇ = ∇} {Γ = Γ} {l′ = l′}
   (Bᵥ W (Bᵣ F G D A≡A [F] [G] G-ext _)
@@ -165,7 +165,7 @@ symEqTerm (Unitᵣ _) (Unitₜ₌ˢ ⊢t ⊢u ok) =
   Unitₜ₌ˢ ⊢u ⊢t ok
 symEqTerm (Unitᵣ _) (Unitₜ₌ʷ k k′ d d′ k≡k′ prop ok) =
   Unitₜ₌ʷ k′ k d′ d (≅ₜ-sym k≡k′) (symUnit-prop prop) ok
-symEqTerm (ne′ _ _ D neK K≡K) (neₜ₌ k m d d′ nf) =
+symEqTerm (ne′ _ D neK K≡K) (neₜ₌ k m d d′ nf) =
   neₜ₌ m k d′ d (symNeutralTerm nf)
 symEqTerm (Bᵣ′ BΠ! F G D A≡A [F] [G] G-ext _)
           (Πₜ₌ f g d d′ funcF funcG f≡g [f] [g] [f≡g]) =
@@ -190,8 +190,8 @@ symEqTerm
          convEqTerm₁ ([G] _ _ [p₁]) ([G] _ _ [r₁]) [Gfstp≡Gfstr]
            (symEqTerm ([G] _ _ [p₁]) [snd≡]))
 symEqTerm (Bᵣ′ BΣʷ F G D A≡A [F] [G] G-ext _)
-          (Σₜ₌ p r d d′ (ne x) (ne y) p≅r [t] [u] (inc , p~r)) =
-  Σₜ₌ r p d′ d (ne y) (ne x) (≅ₜ-sym p≅r) [u] [t] (inc , ~-sym p~r)
+          (Σₜ₌ p r d d′ (ne x) (ne y) p≅r [t] [u] p~r) =
+  Σₜ₌ r p d′ d (ne y) (ne x) (≅ₜ-sym p≅r) [u] [t] (~-sym p~r)
 symEqTerm (Bᵣ′ BΣʷ _ _ _ _ _ _ _ _)
           (Σₜ₌ p r d d′ prodₙ (ne y) p≅r [t] [u] ())
 symEqTerm (Bᵣ′ BΣʷ _ _ _ _ _ _ _ _)
@@ -200,7 +200,7 @@ symEqTerm (Idᵣ ⊩A) t≡u =
   let ⊩t , ⊩u , _ = ⊩Id≡∷⁻¹ ⊩A t≡u in
   ⊩Id≡∷ ⊩u ⊩t
     (case ⊩Id≡∷-view-inhabited ⊩A t≡u of λ where
-       (ne inc _ _ t′~u′) → inc , ~-sym t′~u′
+       (ne _ _ t′~u′)     → ~-sym t′~u′
        (rfl₌ _)           → _)
 symEqTerm (emb ≤ᵘ-refl ⊩A)     = symEqTerm ⊩A
 symEqTerm (emb (≤ᵘ-step p) ⊩A) = symEqTerm (emb p ⊩A)

@@ -27,13 +27,15 @@ open import Definition.Typechecking.Decidable as
 
 open import Tools.Function
 open import Tools.Nat using (Nat)
+import Tools.PropositionalEquality as PE
 open import Tools.Product
 open import Tools.Relation as Dec
 
 private
   variable
     m n : Nat
-    ∇ : DCon (Term 0) m
+    ∇ ∇′ : DCon (Term 0) m
+    φ : Unfolding _
     Γ : Con Term n
     A t : Term n
 
@@ -70,20 +72,51 @@ decTermᵢ ⊢Γ t = Dec.map
   (λ { (A , ⊢t)  → _ , (proj₁ (proj₂ (completeness⇉ t ⊢t)))})
   (dec⇉ ⊢Γ t)
 
+-- Checkability of definition contexts is preserved under unfolding.
+
+unfold-Checkable : φ » ∇′ ↜ ∇ → CheckableDCon ∇ → CheckableDCon ∇′
+unfold-Checkable ε      ε                      = ε
+unfold-Checkable (φ ⁰)  (∇ ∙ᶜᵒ⟨ ok ⟩[ t ∷ A ]) = unfold-Checkable φ ∇ ∙ᶜᵒ⟨ ok ⟩[ t ∷ A ]
+unfold-Checkable (φ ⁰)  (∇ ∙ᶜᵗ[ t ∷ A ])       = unfold-Checkable φ ∇       ∙ᶜᵗ[ t ∷ A ]
+unfold-Checkable (φ ¹ᵒ) (∇ ∙ᶜᵒ⟨ ok ⟩[ t ∷ A ]) = unfold-Checkable φ ∇       ∙ᶜᵗ[ t ∷ A ]
+unfold-Checkable (φ ¹ᵗ) (∇ ∙ᶜᵗ[ t ∷ A ])       = unfold-Checkable φ ∇       ∙ᶜᵗ[ t ∷ A ]
+
 -- If ∇ is a checkable definition context, then » ∇ is decidable.
 
 decWfDCon : CheckableDCon ∇ → Dec (» ∇)
 decWfDCon ε = yes ε
-decWfDCon (∇ ∙[ t ∷ A ]) = case decWfDCon ∇ of λ where
-  (no not) → no λ where
-    (∙ ⊢t) → not (defn-wf (wfTerm ⊢t))
-  (yes »∇) → case dec (ε »∇) A of λ where
+decWfDCon {∇ = _ ∙⟨ opa φ ⟩[ _ ∷ _ ]} (∇ ∙ᶜᵒ⟨ ok ⟩[ t ∷ A ]) =
+  case decWfDCon ∇ of λ where
     (no not) → no λ where
-      (∙ ⊢t) → not (wf-⊢∷ ⊢t)
-    (yes ⊢A) → case decTermᶜ ⊢A t of λ where
+      ∙ᵒ⟨ _ , _ ⟩[ _ ∷ ⊢A ] → not (defn-wf (wf ⊢A))
+    (yes »∇) → case dec (ε »∇) A of λ where
       (no not) → no λ where
-        (∙ ⊢t) → not ⊢t
-      (yes ⊢t) → yes (∙ ⊢t)
+        ∙ᵒ⟨ _ , _ ⟩[ _ ∷ ⊢A ] → not ⊢A
+      (yes ⊢A) → let _ , φ↜ = total-»↜ φ _ in
+        case decWfDCon (unfold-Checkable φ↜ ∇) of λ where
+          (no not) → no λ where
+            ∙ᵒ⟨ _ , φ′↜ ⟩[ ⊢t ∷ _ ] → not $ defn-wf $ wfTerm $
+              PE.subst (_» ε ⊢ _ ∷ _) (unique-»↜ φ′↜ φ↜) ⊢t
+          (yes »∇′) → case dec (ε »∇′) A of λ where
+            (no not) → no λ where
+              ∙ᵒ⟨ _ , φ′↜ ⟩[ ⊢t ∷ _ ] → not $ wf-⊢∷ $
+                PE.subst (_» ε ⊢ _ ∷ _) (unique-»↜ φ′↜ φ↜) ⊢t
+            (yes ⊢A′) → case decTermᶜ ⊢A′ t of λ where
+              (no not) → no λ where
+                ∙ᵒ⟨ _ , φ′↜ ⟩[ ⊢t ∷ _ ] → not $
+                  PE.subst (_» ε ⊢ _ ∷ _) (unique-»↜ φ′↜ φ↜) ⊢t
+              (yes ⊢t) → yes ∙ᵒ⟨ ok , φ↜ ⟩[ ⊢t ∷ ⊢A ]
+decWfDCon (∇ ∙ᶜᵗ[ t ∷ A ]) =
+  case decWfDCon ∇ of λ where
+    (no not) → no λ where
+      ∙ᵗ[ ⊢t ] → not (defn-wf (wfTerm ⊢t))
+    (yes »∇) → case dec (ε »∇) A of λ where
+      (no not) → no λ where
+        ∙ᵗ[ ⊢t ] → not (wf-⊢∷ ⊢t)
+      (yes ⊢A) → case decTermᶜ ⊢A t of λ where
+        (no not) → no λ where
+          ∙ᵗ[ ⊢t ] → not ⊢t
+        (yes ⊢t) → yes ∙ᵗ[ ⊢t ]
 
 -- If » ∇ and Γ is a checkable context, then ∇ »⊢ Γ is decidable.
 

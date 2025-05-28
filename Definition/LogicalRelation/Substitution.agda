@@ -1419,7 +1419,7 @@ opaque
         , (with-inc-⊩≡∷ $
            refl-⊩≡∷ $
            neutral-⊩∷ (⊩ᵛ→⊩ˢ∷→⊩[] ⊩A $ wf-⊩ˢ≡∷ σ₁⇑₊≡σ₂⇑₊ .proj₁)
-             (var _) $
+             (varₗ′ _) $
            ~-var $
            _»_⊢_∷_.var (∙ ⊢A[σ₁] ⦃ inc = or-empty-1+→ ⦄) $
            PE.subst₂ (_∷_∈_ _) (PE.sym $ wk1Subst-wk1 A) PE.refl here)

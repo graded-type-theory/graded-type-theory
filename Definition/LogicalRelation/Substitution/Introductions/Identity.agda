@@ -40,6 +40,7 @@ open import Definition.Untyped M as U hiding (_[_])
 open import Definition.Untyped.Neutral M type-variant
 import Definition.Untyped.Erased
 open import Definition.Untyped.Properties M
+open import Definition.Untyped.Whnf M type-variant
 
 open import Tools.Empty
 open import Tools.Fin using (x0)
@@ -142,8 +143,7 @@ data ⊩Id∷-view′
        Term n → Set a where
   rflᵣ : ∇ » Γ ⊩⟨ l ⟩ t ≡ u ∷ A →
          ⊩Id∷-view′ ∇ Γ l A t u rfl
-  ne   : Var-included →
-         Neutral v →
+  ne   : Neutralₗ ∇ v →
          ∇ » Γ ⊢~ v ∷ Id A t u →
          ⊩Id∷-view′ ∇ Γ l A t u v
 
@@ -171,7 +171,7 @@ opaque
            Idᵣ (Idᵣ _ _ _ Id⇒*Id ⊩A ⊩t (irrelevanceTerm ⊩A′ ⊩A ⊩u))
          , ( w , v⇒*w
            , (case rest of λ where
-                (ne inc w-ne w~w)          → ne w-ne , inc , w~w
+                (ne w-ne w~w)              → ne w-ne , w~w
                 (rflᵣ (⊩A″ , _ , _ , t≡u)) →
                   rflₙ , irrelevanceEqTerm ⊩A″ ⊩A t≡u)
            ))
@@ -190,16 +190,16 @@ opaque
         w , v⇒*w , emb-⊩∷ (≤ᵘ-step ≤ᵘ-refl) ⊩t
       , emb-⊩∷ (≤ᵘ-step ≤ᵘ-refl) ⊩u
       , (case rest of λ where
-           (rflᵣ t≡u)        → rflᵣ (emb-⊩≡∷ (≤ᵘ-step ≤ᵘ-refl) t≡u)
-           (ne inc v-ne v~v) → ne inc v-ne v~v)
+           (rflᵣ t≡u)    → rflᵣ (emb-⊩≡∷ (≤ᵘ-step ≤ᵘ-refl) t≡u)
+           (ne v-ne v~v) → ne v-ne v~v)
     lemma (emb (≤ᵘ-step s) ⊩Id) ⊩v =
       case lemma (emb s ⊩Id) ⊩v of λ
         (w , v⇒*w , ⊩t , ⊩u , rest) →
         w , v⇒*w , emb-⊩∷ (≤ᵘ-step ≤ᵘ-refl) ⊩t
       , emb-⊩∷ (≤ᵘ-step ≤ᵘ-refl) ⊩u
       , (case rest of λ where
-           (rflᵣ t≡u)        → rflᵣ (emb-⊩≡∷ (≤ᵘ-step ≤ᵘ-refl) t≡u)
-           (ne inc v-ne v~v) → ne inc v-ne v~v)
+           (rflᵣ t≡u)    → rflᵣ (emb-⊩≡∷ (≤ᵘ-step ≤ᵘ-refl) t≡u)
+           (ne v-ne v~v) → ne v-ne v~v)
     lemma (noemb ⊩Id@record{}) ⊩v@(w , v⇒*w , _) =
       case whnfRed* ⇒*Id Idₙ of λ {
         PE.refl →
@@ -207,8 +207,8 @@ opaque
       , (⊩Ty , ⊩lhs)
       , (⊩Ty , ⊩rhs)
       , (case ⊩Id∷-view-inhabited ⊩v of λ where
-           (rflᵣ lhs≡rhs)    → rflᵣ (⊩Ty , ⊩lhs , ⊩rhs , lhs≡rhs)
-           (ne inc w-ne w~w) → ne inc w-ne w~w) }
+           (rflᵣ lhs≡rhs) → rflᵣ (⊩Ty , ⊩lhs , ⊩rhs , lhs≡rhs)
+           (ne w-ne w~w)  → ne w-ne w~w) }
       where
       open _»_⊩ₗId_ ⊩Id
 
@@ -217,13 +217,13 @@ opaque
   -- A variant of ⊩∷Id⇔.
 
   Identity→⊩∷Id⇔ :
-    Identity v →
+    Identityₗ ∇ v →
     ∇ » Γ ⊩⟨ l ⟩ v ∷ Id A t u ⇔
     (∇ » Γ ⊢ v ∷ Id A t u ×
      ∇ » Γ ⊩⟨ l ⟩ t ∷ A ×
      ∇ » Γ ⊩⟨ l ⟩ u ∷ A ×
      ⊩Id∷-view′ ∇ Γ l A t u v)
-  Identity→⊩∷Id⇔ {v} {∇} {Γ} {l} {A} {t} {u} v-id =
+  Identity→⊩∷Id⇔ {∇} {v} {Γ} {l} {A} {t} {u} v-id =
     ∇ » Γ ⊩⟨ l ⟩ v ∷ Id A t u     ⇔⟨ ⊩∷Id⇔ ⟩
 
     (∃ λ w →
@@ -425,8 +425,7 @@ data ⊩Id≡∷-view′
        Term n → Term n → Set a where
   rfl₌ : ∇ » Γ ⊩⟨ l ⟩ t ≡ u ∷ A →
          ⊩Id≡∷-view′ ∇ Γ l A t u rfl rfl
-  ne   : Var-included →
-         Neutral v → Neutral w →
+  ne   : Neutralₗ ∇ v → Neutralₗ ∇ w →
          ∇ » Γ ⊢ v ~ w ∷ Id A t u →
          ⊩Id≡∷-view′ ∇ Γ l A t u v w
 
@@ -454,12 +453,12 @@ opaque
            Id⇒*Id →
            Idᵣ (Idᵣ _ _ _ Id⇒*Id ⊩A ⊩t (irrelevanceTerm ⊩A′ ⊩A ⊩u))
          , (case rest of λ where
-              (ne inc v′-ne w′-ne v′~w′) →
+              (ne v′-ne w′-ne v′~w′) →
                 let ~v′ , ~w′ = wf-⊢~∷ v′~w′ in
-                  (v′ , v⇒*v′ , ne v′-ne , inc , ~v′)
-                , (w′ , w⇒*w′ , ne w′-ne , inc , ~w′)
+                  (v′ , v⇒*v′ , ne v′-ne , ~v′)
+                , (w′ , w⇒*w′ , ne w′-ne , ~w′)
                 , ( v′ , w′ , v⇒*v′ , w⇒*w′
-                  , ne v′-ne , ne w′-ne , inc , v′~w′
+                  , ne v′-ne , ne w′-ne , v′~w′
                   )
               (rfl₌ (⊩A″ , _ , _ , t≡u)) →
                 case irrelevanceEqTerm ⊩A″ ⊩A t≡u of λ
@@ -485,8 +484,8 @@ opaque
       , (case rest of λ where
            (rfl₌ t≡u) →
              rfl₌ (emb-⊩≡∷ (≤ᵘ-step ≤ᵘ-refl) t≡u)
-           (ne inc v′-ne w′-ne v′~w′) →
-             ne inc v′-ne w′-ne v′~w′)
+           (ne v′-ne w′-ne v′~w′) →
+             ne v′-ne w′-ne v′~w′)
     lemma (emb (≤ᵘ-step s) ⊩Id) v≡w =
       case lemma (emb s ⊩Id) v≡w of λ
         (v′ , w′ , v⇒*v′ , w⇒*w′ , ⊩t , ⊩u , rest) →
@@ -495,7 +494,7 @@ opaque
       , (case rest of λ where
            (rfl₌ t≡u) →
              rfl₌ (emb-⊩≡∷ (≤ᵘ-step ≤ᵘ-refl) t≡u)
-           (ne inc v′-ne w′-ne v′~w′) → ne inc v′-ne w′-ne v′~w′)
+           (ne v′-ne w′-ne v′~w′) → ne v′-ne w′-ne v′~w′)
     lemma (noemb ⊩Id@record{}) v≡w@(v′ , w′ , v⇒*v′ , w⇒*w′ , _) =
       case whnfRed* ⇒*Id Idₙ of λ {
         PE.refl →
@@ -503,8 +502,8 @@ opaque
       , (⊩Ty , ⊩lhs)
       , (⊩Ty , ⊩rhs)
       , (case ⊩Id≡∷-view-inhabited ⊩Id v≡w of λ where
-           (rfl₌ t≡u)                 → rfl₌ (⊩Ty , ⊩lhs , ⊩rhs , t≡u)
-           (ne inc v′-ne w′-ne v′~w′) → ne inc v′-ne w′-ne v′~w′) }
+           (rfl₌ t≡u)             → rfl₌ (⊩Ty , ⊩lhs , ⊩rhs , t≡u)
+           (ne v′-ne w′-ne v′~w′) → ne v′-ne w′-ne v′~w′) }
       where
       open _»_⊩ₗId_ ⊩Id
 
@@ -513,14 +512,14 @@ opaque
   -- A variant of ⊩≡∷Id⇔.
 
   Identity→⊩≡∷Id⇔ :
-    Identity v → Identity w →
+    Identityₗ ∇ v → Identityₗ ∇ w →
     ∇ » Γ ⊩⟨ l ⟩ v ≡ w ∷ Id A t u ⇔
     (∇ » Γ ⊢ v ∷ Id A t u ×
      ∇ » Γ ⊢ w ∷ Id A t u ×
      ∇ » Γ ⊩⟨ l ⟩ t ∷ A ×
      ∇ » Γ ⊩⟨ l ⟩ u ∷ A ×
      ⊩Id≡∷-view′ ∇ Γ l A t u v w)
-  Identity→⊩≡∷Id⇔ {v} {w} {∇} {Γ} {l} {A} {t} {u} v-id w-id =
+  Identity→⊩≡∷Id⇔ {∇} {v} {w} {Γ} {l} {A} {t} {u} v-id w-id =
     ∇ » Γ ⊩⟨ l ⟩ v ≡ w ∷ Id A t u    ⇔⟨ ⊩≡∷Id⇔ ⟩
 
     (∃₂ λ v′ w′ →
@@ -775,9 +774,13 @@ opaque
             (_ , _ , _ , _ , _ , _ , rest) →
           case rest of λ where
             (rfl₌ t[σ]≡u[σ]) → t[σ]≡u[σ]
-            (ne inc _ _ _) →
+            (ne v′-ne _ v′~v′) →
               ⊥-elim $
-              Equality-reflection-allowed→¬Var-included ok inc
+              case dichotomy-ne v′-ne of λ where
+                (inj₁ b) →
+                  let op = ne-opaque-ok (defn-wf (wfEqTerm (~-eq v′~v′))) b
+                  in  no-opaque-equality-reflection op ok
+                (inj₂ n) → Equality-reflection-allowed→¬Var-included ok n
       )
 
 ------------------------------------------------------------------------
@@ -850,9 +853,9 @@ opaque
         []-cong s A₂ t₂ u₂ rfl              ⇐*⟨ []-cong⇒*[]-cong₂ ⟩∎
         []-cong s A₂ t₂ u₂ v₂               ∎)
 
-      (ne inc v₁′-ne v₂′-ne v₁′~v₂′) →
+      (ne v₁′-ne v₂′-ne v₁′~v₂′) →
         []-cong s A₁ t₁ u₁ v₁                                  ⇒*⟨ []-cong⇒*[]-cong₁ ⟩⊩∷
-        []-cong s A₁ t₁ u₁ v₁′ ∷ Id (Erased A₁) [ t₁ ] [ u₁ ]  ≡⟨ neutral-⊩≡∷ inc (⊩Id⇔ .proj₂ (⊩[] ⊩t₁ , ⊩[] ⊩u₁))
+        []-cong s A₁ t₁ u₁ v₁′ ∷ Id (Erased A₁) [ t₁ ] [ u₁ ]  ≡⟨ neutral-⊩≡∷ (⊩Id⇔ .proj₂ (⊩[] ⊩t₁ , ⊩[] ⊩u₁))
                                                                     ([]-congₙ v₁′-ne) ([]-congₙ v₂′-ne)
                                                                     (~-[]-cong A₁≅A₂ t₁≅t₂ u₁≅u₂ v₁′~v₂′ ok) ⟩⊩∷∷⇐* (
                                                                  ⟨ ⊢Id≡Id ⟩⇒
@@ -989,7 +992,9 @@ opaque
       (⊩B₁ , ⊩B₂) →
     case conv-∙-⊩ᵛ Id≡Id ⊩B₂ of λ
       ⊩B₂ →
-    case wf-⊢≡ $ subst-⊢≡-⇑ ⊢B₁≡B₂ $ escape-⊩ˢ≡∷ σ₁≡σ₂ .proj₂ of λ
+    case subst-⊢≡-⇑ ⊢B₁≡B₂ $ escape-⊩ˢ≡∷ σ₁≡σ₂ .proj₂ of λ
+      ⊢B₁[σ₁⇑]≡B₂[σ₂⇑] →
+    case wf-⊢≡ ⊢B₁[σ₁⇑]≡B₂[σ₂⇑] of λ
       (⊢B₁[σ₁⇑] , ⊢B₂[σ₂⇑]) →
     case stability
            (refl-∙ $
@@ -1081,17 +1086,18 @@ opaque
            u₂ U.[ σ₂ ] ∷ B₂ U.[ σ₂ ⇑ ] [ rfl ]₀  ⇐⟨ K-β ⊢B₂[σ₂⇑] ⊢u₂[σ₂] ok ⟩∎∷
            K p A₂ t₂ B₂ u₂ rfl U.[ σ₂ ]          ∎)
 
-      (ne inc v₁′-ne v₂′-ne v₁′~v₂′) →
+      (ne v₁′-ne v₂′-ne v₁′~v₂′) →
         -- If v₁′ and v₂′ are equal neutral terms, then one can
         -- conclude by using the fact that the applications of K to
         -- v₁′ and v₂′ are equal neutral terms.
         lemma $
-        neutral-⊩≡∷ inc
+        neutral-⊩≡∷
           (wf-⊩≡ B₁[σ₁⇑][v₁′]₀≡B₂[σ₂⇑][v₂′]₀ .proj₁)
           (Kₙ v₁′-ne) (Kₙ v₂′-ne) $
         ~-K (R.escape-⊩≡ $ ⊩ᵛ≡→⊩ˢ≡∷→⊩[]≡[] A₁≡A₂ σ₁≡σ₂)
           (R.escape-⊩≡∷ $ ⊩ᵛ≡∷→⊩ˢ≡∷→⊩[]≡[]∷ t₁≡t₂ σ₁≡σ₂)
-          (R.escape-⊩≡ ⦃ inc = included ⦃ inc = inc ⦄ ⦄ $
+          (with-inc-⊢≅ ⊢B₁[σ₁⇑]≡B₂[σ₂⇑] $
+           R.escape-⊩≡ ⦃ inc = included ⦄ $
            ⊩ᵛ≡→⊩ˢ≡∷→⊩[⇑]≡[⇑] B₁≡B₂ σ₁≡σ₂)
           (escape-⊩≡∷ u₁[σ₁]≡u₂[σ₂]) v₁′~v₂′ ok
 
@@ -1249,10 +1255,12 @@ opaque
          ⊩ᵛ≡→⊩ˢ≡∷→⊩≡∷→⊩≡∷→⊩[⇑⇑][]₁₀≡[⇑⇑][]₁₀ B₁≡B₂ σ₁≡σ₂
            (R.→⊩≡∷ t₁[σ₁]≡t₂[σ₂]) rfl≡rfl of λ
       ⊢B₁[σ₁⇑⇑][t₁[σ₁],rfl]≡B₂[σ₂⇑⇑][t₂[σ₂],rfl] →
+    case subst-⊢≡-⇑ ⊢B₁≡B₂ ⊢σ₁≡σ₂ of λ
+      ⊢B₁[σ₁⇑²]≡B₂[σ₂⇑²] →
     case wf-⊢≡ $
          PE.subst₃ (_»_⊢_≡_ _)
            (PE.cong (_∙_ _) $ Id-wk1-wk1-0[⇑]≡ A₁ t₁) PE.refl PE.refl $
-         subst-⊢≡-⇑ ⊢B₁≡B₂ ⊢σ₁≡σ₂ of λ
+         ⊢B₁[σ₁⇑²]≡B₂[σ₂⇑²] of λ
       (⊢B₁[σ₁⇑²] , ⊢B₁[σ₂⇑²]) →
     case stability
            (refl-∙ ⊢A₁[σ₁]≡A₂[σ₂] ∙
@@ -1376,19 +1384,20 @@ opaque
 
            J p q A₂ t₂ B₂ u₂ v₂ rfl U.[ σ₂ ]                      ∎)
 
-      (ne inc w₁′-ne w₂′-ne w₁′~w₂′) →
+      (ne w₁′-ne w₂′-ne w₁′~w₂′) →
         -- If w₁′ and w₂′ are equal neutral terms, then one can
         -- conclude by using the fact that the applications of J to
         -- w₁′ and w₂′ are equal neutral terms.
         lemma $
-        neutral-⊩≡∷ inc
+        neutral-⊩≡∷
           (wf-⊩≡ B₁[σ₁⇑⇑][v₁[σ₁],w₁′]≡B₂[σ₂⇑⇑][v₂[σ₂],w₂′] .proj₁)
           (Jₙ w₁′-ne) (Jₙ w₂′-ne)
           (~-J A₁[σ₁]≅A₂[σ₂] (escape-⊩∷ ⊩t₁[σ₁])
              (escape-⊩≡∷ t₁[σ₁]≡t₂[σ₂])
              (PE.subst₃ (_»_⊢_≅_ _) (PE.cong (_∙_ _) $ Id-wk1-wk1-0[⇑]≡ A₁ t₁)
                 PE.refl PE.refl $
-              R.escape-⊩≡ ⦃ inc = included ⦃ inc = inc ⦄ ⦄ $
+              with-inc-⊢≅ ⊢B₁[σ₁⇑²]≡B₂[σ₂⇑²] $
+              R.escape-⊩≡ ⦃ inc = included ⦄ $
               ⊩ᵛ≡→⊩ˢ≡∷→⊩[⇑⇑]≡[⇑⇑] B₁≡B₂ σ₁≡σ₂)
              (escape-⊩≡∷ u₁[σ₁]≡u₂[σ₂])
              (escape-⊩≡∷ v₁[σ₁]≡v₂[σ₂]) w₁′~w₂′)

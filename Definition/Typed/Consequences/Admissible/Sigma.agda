@@ -219,7 +219,7 @@ prod-cong⁻¹ {s = 𝕨} = prod-cong⁻¹-Σʷ
   ¬fst,snd≡ :
     ¬ ε » Γ′ ⊢ prodʷ p (fstʷ p A′ t′) (sndʷ p q A′ B′ t′) ≡ t′ ∷
         Σʷ p , q ▷ A′ ▹ B′
-  ¬fst,snd≡ = prodʷ≢ne ⦃ ok = included ⦄ (var _)
+  ¬fst,snd≡ = prodʷ≢ne ⦃ ok = included ⦄ _ (var⁺ _)
 
 -- If Σʷ-allowed p q holds for some p and q, and equality reflection
 -- is not allowed, then a certain definitional η-rule for Σʷ, fstʷ and

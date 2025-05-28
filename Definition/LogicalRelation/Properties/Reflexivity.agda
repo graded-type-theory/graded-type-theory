@@ -16,7 +16,7 @@ module Definition.LogicalRelation.Properties.Reflexivity
 open Type-restrictions R
 
 open import Definition.Untyped M hiding (K)
-open import Definition.Untyped.Neutral M type-variant
+open import Definition.Untyped.Whnf M type-variant
 open import Definition.Typed R
 open import Definition.Typed.Properties R
 open import Definition.LogicalRelation R
@@ -43,18 +43,18 @@ reflNatural-prop (sucᵣ (ℕₜ n d t≡t prop)) =
   sucᵣ (ℕₜ₌ n n d d t≡t
             (reflNatural-prop prop))
 reflNatural-prop zeroᵣ = zeroᵣ
-reflNatural-prop (ne (neNfₜ inc neK k≡k)) = ne (neNfₜ₌ inc neK neK k≡k)
+reflNatural-prop (ne (neNfₜ neK k≡k)) = ne (neNfₜ₌ neK neK k≡k)
 
 reflEmpty-prop : ∀ {n}
                  → Empty-prop ∇ Γ n
                  → [Empty]-prop ∇ Γ n n
-reflEmpty-prop (ne (neNfₜ inc neK k≡k)) = ne (neNfₜ₌ inc neK neK k≡k)
+reflEmpty-prop (ne (neNfₜ neK k≡k)) = ne (neNfₜ₌ neK neK k≡k)
 
 reflUnitʷ-prop : ∀ {t}
                → Unit-prop ∇ Γ l 𝕨 t
                → [Unitʷ]-prop ∇ Γ l t t
 reflUnitʷ-prop starᵣ = starᵣ
-reflUnitʷ-prop (ne (neNfₜ inc neK k≡k)) = ne (neNfₜ₌ inc neK neK k≡k)
+reflUnitʷ-prop (ne (neNfₜ neK k≡k)) = ne (neNfₜ₌ neK neK k≡k)
 
 
 -- Reflexivity of reducible types.
@@ -78,7 +78,7 @@ reflEq (Uᵣ′ l′ l< ⊢Γ) = ⊢Γ
 reflEq (ℕᵣ D) = D
 reflEq (Emptyᵣ D) = D
 reflEq (Unitᵣ (Unitₜ D _)) = D
-reflEq (ne′ inc _ D neK K≡K) = ne₌ inc _ D neK K≡K
+reflEq (ne′ _ D neK K≡K) = ne₌ _ D neK K≡K
 reflEq (Bᵣ′ _ _ _ D A≡A [F] [G] _ _) =
    B₌ _ _ D A≡A
       (λ ξ⊇ ρ → reflEq ([F] ξ⊇ ρ))
@@ -107,8 +107,8 @@ reflEqTerm (Unitᵣ {s} D) (Unitₜ n d t≡t prop) =
     (inj₁ η)                → Unitₜ₌ˢ ⊢t ⊢t η
     (inj₂ (PE.refl , no-η)) →
       Unitₜ₌ʷ n n d d t≡t (reflUnitʷ-prop prop) no-η
-reflEqTerm (ne′ _ _ D neK K≡K) (neₜ k d (neNfₜ inc neK₁ k≡k)) =
-  neₜ₌ k k d d (neNfₜ₌ inc neK₁ neK₁ k≡k)
+reflEqTerm (ne′ _ D neK K≡K) (neₜ k d (neNfₜ neK₁ k≡k)) =
+  neₜ₌ k k d d (neNfₜ₌ neK₁ neK₁ k≡k)
 reflEqTerm
   (Bᵣ′ BΠ! _ _ _ _ [F] _ _ _) [t]@(Πₜ f d funcF f≡f [f] _) =
   Πₜ₌ f f d d funcF funcF f≡f [t] [t]
@@ -131,8 +131,8 @@ reflEqTerm (Bᵣ′ BΣʷ _ _ _ _ _ _ _ _) [t]@(Σₜ p d p≅p (ne x) p~p) =
 reflEqTerm (Idᵣ _) ⊩t =
   ⊩Id≡∷ ⊩t ⊩t
     (case ⊩Id∷-view-inhabited ⊩t of λ where
-       (rflᵣ _)         → _
-       (ne inc _ t′~t′) → inc , t′~t′)
+       (rflᵣ _)     → _
+       (ne _ t′~t′) → t′~t′)
 reflEqTerm (emb p ⊩A) ⊩t = reflEqTerm-⊩< p ⊩A ⊩t
   where
   reflEqTerm-⊩< :

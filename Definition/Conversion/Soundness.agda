@@ -15,7 +15,7 @@ module Definition.Conversion.Soundness
   where
 
 open import Definition.Untyped M
-open import Definition.Untyped.Neutral M type-variant
+open import Definition.Untyped.Whnf M type-variant
 open import Definition.Typed R
 open import Definition.Typed.EqRelInstance R
 open import Definition.Typed.EqualityRelation.Instance R
@@ -48,7 +48,10 @@ private
 mutual
   -- Algorithmic equality of neutrals is well-formed.
   soundness~↑ : ∀ {k l A} → ∇ » Γ ⊢ k ~ l ↑ A → ∇ » Γ ⊢ k ≡ l ∷ A
-  soundness~↑ (var-refl x x≡y) = PE.subst (λ y → _ » _ ⊢ _ ≡ var y ∷ _) x≡y (refl x)
+  soundness~↑ (var-refl x x≡y) =
+    PE.subst (λ y → _ » _ ⊢ _ ≡ var y ∷ _) x≡y (refl x)
+  soundness~↑ (defn-refl ⊢α α↦⊘ α≡β) =
+    PE.subst (λ β → _ » _ ⊢ _ ≡ defn β ∷ _) α≡β (refl ⊢α)
   soundness~↑ (app-cong k~l x₁) =
     app-cong (soundness~↓ k~l) (soundnessConv↑Term x₁)
   soundness~↑ (fst-cong x) =
@@ -163,9 +166,9 @@ mutual
     case soundness~↓ v₁~v₂ of λ {
       v₁≡v₂ →
     conv v₁≡v₂
-      (                                          $⟨ syntacticEqTerm v₁≡v₂ .proj₂ .proj₁ , ⊢v₁ ⟩
+      (                                                  $⟨ syntacticEqTerm v₁≡v₂ .proj₂ .proj₁ , ⊢v₁ ⟩
        ∇ » Γ ⊢ v₁ ∷ Id A′ t′ u′ × ∇ » Γ ⊢ v₁ ∷ Id A t u  →⟨ uncurry (neTypeEq (ne~↓ v₁~v₂ .proj₂ .proj₁)) ⟩
-       ∇ » Γ ⊢ Id A′ t′ u′ ≡ Id A t u                □) }
+       ∇ » Γ ⊢ Id A′ t′ u′ ≡ Id A t u                    □) }
   soundnessConv↓Term (rfl-refl t≡u) =
     refl (rflⱼ′ t≡u)
 

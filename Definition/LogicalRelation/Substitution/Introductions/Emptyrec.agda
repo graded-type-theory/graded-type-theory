@@ -79,9 +79,9 @@ opaque
     case R.escape-⊩ ⊩A₂[σ₂] of λ
       ⊢A₂[σ₂] →
     case rest of λ where
-      (ne (neNfₜ₌ inc t₁′-ne t₂′-ne t₁′~t₂′)) →
+      (ne (neNfₜ₌ t₁′-ne t₂′-ne t₁′~t₂′)) →
         emptyrec p (A₁ [ σ₁ ]) (t₁ [ σ₁ ]) ∷ A₁ [ σ₁ ] ⇒*⟨ emptyrec-subst* t₁[σ₁]⇒*t₁′ ⊢A₁[σ₁] ⟩⊩∷∷
-        emptyrec p (A₁ [ σ₁ ]) t₁′         ∷ A₁ [ σ₁ ] ≡⟨ neutral-⊩≡∷ inc (R.⊩→ ⊩A₁[σ₁])
+        emptyrec p (A₁ [ σ₁ ]) t₁′         ∷ A₁ [ σ₁ ] ≡⟨ neutral-⊩≡∷ (R.⊩→ ⊩A₁[σ₁])
                                                              (emptyrecₙ t₁′-ne) (emptyrecₙ t₂′-ne)
                                                              (~-emptyrec ⊢A₁[σ₁]≡A₂[σ₂] t₁′~t₂′) ⟩⊩∷∷⇐*
                                                          ⟨ ≅-eq ⊢A₁[σ₁]≡A₂[σ₂] ⟩⇒

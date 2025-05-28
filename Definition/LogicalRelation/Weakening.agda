@@ -19,6 +19,7 @@ open Type-restrictions R
 open import Definition.Untyped M as U hiding (wk; K)
 open import Definition.Untyped.Neutral M type-variant
 open import Definition.Untyped.Properties M
+open import Definition.Untyped.Whnf M type-variant
 open import Definition.Typed R
 open import Definition.Typed.Properties R
 open import Definition.Typed.Weakening R as T hiding (wk; wkEq; wkTerm; wkEqTerm)
@@ -43,17 +44,17 @@ private
     A B t t₁ t₂ u : Term m
     l : Universe-level
 
--- Weakening of neutrals in WHNF
+-- Weakening of neutral terms in WHNF
 
 wkTermNe : ∀ {k A} → ∇ » ρ ∷ʷ Δ ⊇ Γ
          → ∇ » Γ ⊩neNf k ∷ A → ∇ » Δ ⊩neNf U.wk ρ k ∷ U.wk ρ A
-wkTermNe {ρ} [ρ] (neNfₜ inc neK k≡k) =
-  neNfₜ inc (wkNeutral ρ neK) (~-wk [ρ] k≡k)
+wkTermNe {ρ} [ρ] (neNfₜ neK k≡k) =
+  neNfₜ (wkNeutral ρ neK) (~-wk [ρ] k≡k)
 
 wkEqTermNe : ∀ {k k′ A} → ∇ » ρ ∷ʷ Δ ⊇ Γ
            → ∇ » Γ ⊩neNf k ≡ k′ ∷ A → ∇ » Δ ⊩neNf U.wk ρ k ≡ U.wk ρ k′ ∷ U.wk ρ A
-wkEqTermNe {ρ} [ρ] (neNfₜ₌ inc neK neM k≡m) =
-  neNfₜ₌ inc (wkNeutral ρ neK) (wkNeutral ρ neM) (~-wk [ρ] k≡m)
+wkEqTermNe {ρ} [ρ] (neNfₜ₌ neK neM k≡m) =
+  neNfₜ₌ (wkNeutral ρ neK) (wkNeutral ρ neM) (~-wk [ρ] k≡m)
 
 -- Weakening of reducible natural numbers
 
@@ -85,19 +86,19 @@ mutual
                    → [Natural]-prop ∇ Δ (U.wk ρ n) (U.wk ρ n′)
   wk[Natural]-prop ρ (sucᵣ [n≡n′]) = sucᵣ (wkEqTermℕ ρ [n≡n′])
   wk[Natural]-prop ρ zeroᵣ = zeroᵣ
-  wk[Natural]-prop ρ (ne x) = ne (wkEqTermNe ρ x)
+  wk[Natural]-prop ρ (ne nf) = ne (wkEqTermNe ρ nf)
 
 -- Empty
 wkTermEmpty : ∀ {n} → ∇ » ρ ∷ʷ Δ ⊇ Γ
   → ∇ » Γ ⊩Empty n ∷Empty → ∇ » Δ ⊩Empty U.wk ρ n ∷Empty
-wkTermEmpty {ρ} [ρ] (Emptyₜ n d n≡n (ne prop)) =
+wkTermEmpty {ρ} [ρ] (Emptyₜ n d n≡n (ne nf)) =
   Emptyₜ (U.wk ρ n) (wkRed*Term [ρ] d) (≅ₜ-wk [ρ] n≡n)
-     (ne (wkTermNe [ρ] prop))
+     (ne (wkTermNe [ρ] nf))
 
 wk[Empty]-prop : ∀ {n n′} → ∇ » ρ ∷ʷ Δ ⊇ Γ
   → [Empty]-prop ∇ Γ n n′
   → [Empty]-prop ∇ Δ (U.wk ρ n) (U.wk ρ n′)
-wk[Empty]-prop ρ (ne x) = ne (wkEqTermNe ρ x)
+wk[Empty]-prop ρ (ne nf) = ne (wkEqTermNe ρ nf)
 
 wkEqTermEmpty : ∀ {t u} → ∇ » ρ ∷ʷ Δ ⊇ Γ
   → ∇ » Γ ⊩Empty t ≡ u ∷Empty
@@ -111,13 +112,13 @@ wkUnit-prop : ∀ {s t} → ∇ » ρ ∷ʷ Δ ⊇ Γ
             → Unit-prop ∇ Γ l s t
             → Unit-prop ∇ Δ l s (U.wk ρ t)
 wkUnit-prop [ρ] starᵣ = starᵣ
-wkUnit-prop [ρ] (ne x) = ne (wkTermNe [ρ] x)
+wkUnit-prop [ρ] (ne nf) = ne (wkTermNe [ρ] nf)
 
 wk[Unitʷ]-prop : ∀ {t u} → ∇ » ρ ∷ʷ Δ ⊇ Γ
                → [Unitʷ]-prop ∇ Γ l t u
                → [Unitʷ]-prop ∇ Δ l (U.wk ρ t) (U.wk ρ u)
 wk[Unitʷ]-prop [ρ] starᵣ = starᵣ
-wk[Unitʷ]-prop [ρ] (ne x) = ne (wkEqTermNe [ρ] x)
+wk[Unitʷ]-prop [ρ] (ne nf) = ne (wkEqTermNe [ρ] nf)
 
 wkTermUnit : ∀ {n s} → ∇ » ρ ∷ʷ Δ ⊇ Γ
            → ∇ » Γ ⊩Unit⟨ l , s ⟩ n ∷Unit → ∇ » Δ ⊩Unit⟨ l , s ⟩ U.wk ρ n ∷Unit
@@ -160,9 +161,9 @@ wk ρ (ℕᵣ D) = ℕᵣ (wkRed* (∷ʷʳ⊇→∷ʷ⊇ ρ) D)
 wk ρ (Emptyᵣ D) = Emptyᵣ (wkRed* (∷ʷʳ⊇→∷ʷ⊇ ρ) D)
 wk ρ (Unitᵣ (Unitₜ D ok)) =
   Unitᵣ (Unitₜ (wkRed* (∷ʷʳ⊇→∷ʷ⊇ ρ) D) ok)
-wk {ρ} [ρ] (ne′ inc _ D neK K≡K) =
+wk {ρ} [ρ] (ne′ _ D neK K≡K) =
   let [ρ] = ∷ʷʳ⊇→∷ʷ⊇ [ρ] in
-  ne′ inc (U.wk ρ _) (wkRed* [ρ] D) (wkNeutral ρ neK) (≅-wk [ρ] K≡K)
+  ne′ (U.wk ρ _) (wkRed* [ρ] D) (wkNeutral ρ neK) (≅-wk [ρ] K≡K)
 wk {κ} {m} {Δ} {Γ} {l} {A} {∇} {ρ} [ρ] (Πᵣ′ F G D A≡A [F] [G] G-ext ok) =
   let [ρ]′ = ∷ʷʳ⊇→∷ʷ⊇ [ρ]
       [F]′ : ∀ {κ′} {ξ : DExt _ κ′ κ} {∇′ : DCon (Term 0) κ′} ([ξ] : ξ » ∇′ ⊇ ∇)
@@ -262,10 +263,9 @@ wkEq ρ (Uᵣ′ l l< D) D′ = wkRed* (∷ʷʳ⊇→∷ʷ⊇ ρ) D′
 wkEq ρ (ℕᵣ D) A≡B = wkRed* (∷ʷʳ⊇→∷ʷ⊇ ρ) A≡B
 wkEq ρ (Emptyᵣ D) A≡B = wkRed* (∷ʷʳ⊇→∷ʷ⊇ ρ) A≡B
 wkEq ρ (Unitᵣ (Unitₜ D _)) A≡B = wkRed* (∷ʷʳ⊇→∷ʷ⊇ ρ) A≡B
-wkEq {ρ = ρ} [ρ] (ne′ _ _ _ _ _) (ne₌ inc M D′ neM K≡M) =
+wkEq {ρ = ρ} [ρ] (ne′ _ _ _ _) (ne₌ M D′ neM K≡M) =
   let [ρ] = ∷ʷʳ⊇→∷ʷ⊇ [ρ] in
-  ne₌ inc (U.wk ρ M) (wkRed* [ρ] D′) (wkNeutral ρ neM)
-    (≅-wk [ρ] K≡M)
+  ne₌ (U.wk ρ M) (wkRed* [ρ] D′) (wkNeutral ρ neM) (≅-wk [ρ] K≡M)
 wkEq
   {ρ}
   [ρ] (Πᵣ′ F G D A≡A [F] [G] G-ext _) (B₌ F′ G′ D′ A≡B [F≡F′] [G≡G′]) =
@@ -334,7 +334,7 @@ wkTerm {ρ} [ρ] (Uᵣ′ l ≤ᵘ-refl D) (Uₜ A d typeA A≡A [t]) =
 wkTerm ρ (ℕᵣ D) [t] = wkTermℕ (∷ʷʳ⊇→∷ʷ⊇ ρ) [t]
 wkTerm ρ (Emptyᵣ D) [t] = wkTermEmpty (∷ʷʳ⊇→∷ʷ⊇ ρ) [t]
 wkTerm ρ (Unitᵣ (Unitₜ D _)) [t] = wkTermUnit (∷ʷʳ⊇→∷ʷ⊇ ρ) [t]
-wkTerm {ρ} [ρ] (ne′ _ _ D neK K≡K) (neₜ k d nf) =
+wkTerm {ρ} [ρ] (ne′ _ D neK K≡K) (neₜ k d nf) =
   let [ρ] = ∷ʷʳ⊇→∷ʷ⊇ [ρ] in
   neₜ (U.wk ρ k) (wkRed*Term [ρ] d) (wkTermNe [ρ] nf)
 wkTerm
@@ -410,10 +410,10 @@ wkTerm {ρ} [ρ] [A]@(Bᵣ′ BΣʷ F G D A≡A [F] [G] G-ext _)
        [ρp₂]′ ,
      PE.refl)
 wkTerm {ρ} [ρ] [A]@(Bᵣ′ BΣʷ F G D A≡A [F] [G] G-ext _)
-       (Σₜ p d p≅p (ne x) (inc , p~p)) =
+       (Σₜ p d p≅p (ne x) p~p) =
   let [ρ]′ = ∷ʷʳ⊇→∷ʷ⊇ [ρ] in
   Σₜ (U.wk ρ p) (wkRed*Term [ρ]′ d) (≅ₜ-wk [ρ]′ p≅p)
-     (wkProduct ρ (ne x)) (inc , ~-wk [ρ]′ p~p)
+     (wkProduct ρ (ne x)) (~-wk [ρ]′ p~p)
 wkTerm
   {ρ} [ρ] [A]@(Bᵣ′ BΣˢ F G D A≡A [F] [G] G-ext _)
   (Σₜ p d p≅p pProd ([fst] , [snd])) =
@@ -457,8 +457,8 @@ wkTerm ρ∷⊇ (Idᵣ ⊩A) ⊩t@(_ , t⇒*u , _) =
     _
   , wkRed*Term ρ∷⊇′ t⇒*u
   , (case ⊩Id∷-view-inhabited ⊩t of λ where
-       (rflᵣ lhs≡rhs)   → rflₙ , wkEqTerm ρ∷⊇ ⊩Ty lhs≡rhs
-       (ne inc u-n u~u) → ne (wkNeutral _ u-n) , inc , ~-wk ρ∷⊇′ u~u)
+       (rflᵣ lhs≡rhs) → rflₙ , wkEqTerm ρ∷⊇ ⊩Ty lhs≡rhs
+       (ne u-n u~u)   → ne (wkNeutral _ u-n) , ~-wk ρ∷⊇′ u~u)
   where
   open _»_⊩ₗId_ ⊩A
 wkTerm ρ (emb ≤ᵘ-refl x) t = wkTerm ρ x t
@@ -484,7 +484,7 @@ wkEqTerm
 wkEqTerm ρ (ℕᵣ D) [t≡u] = wkEqTermℕ (∷ʷʳ⊇→∷ʷ⊇ ρ) [t≡u]
 wkEqTerm ρ (Emptyᵣ D) [t≡u] = wkEqTermEmpty (∷ʷʳ⊇→∷ʷ⊇ ρ) [t≡u]
 wkEqTerm ρ (Unitᵣ (Unitₜ D _)) [t≡u] = wkEqTermUnit (∷ʷʳ⊇→∷ʷ⊇ ρ) [t≡u]
-wkEqTerm {ρ} [ρ] (ne′ _ _ D neK K≡K) (neₜ₌ k m d d′ nf) =
+wkEqTerm {ρ} [ρ] (ne′ _ D neK K≡K) (neₜ₌ k m d d′ nf) =
   let [ρ]′ = ∷ʷʳ⊇→∷ʷ⊇ [ρ] in
   neₜ₌ (U.wk ρ k) (U.wk ρ m) (wkRed*Term [ρ]′ d)
     (wkRed*Term [ρ]′ d′) (wkEqTermNe [ρ]′ nf)
@@ -582,14 +582,14 @@ wkEqTerm {ρ} [ρ] [A]@(Bᵣ′ BΣʷ F G D A≡A [F] [G] G-ext ok)
            irrelevanceEqTerm [ρG]′
              (irrelevance′ (wk-comp-subst id ρ G) _) [ρsnd≡]′)
 wkEqTerm {ρ} [ρ] [A]@(Bᵣ′ BΣʷ F G D A≡A [F] [G] G-ext ok)
-         (Σₜ₌ p r d d′ (ne x) (ne y) p≅r [t] [u] (inc , p~r)) =
+         (Σₜ₌ p r d d′ (ne x) (ne y) p≅r [t] [u] p~r) =
   let [ρ]′ = ∷ʷʳ⊇→∷ʷ⊇ [ρ]
       [A] = Σᵣ′ F G D A≡A [F] [G] G-ext ok
   in  Σₜ₌ (U.wk ρ p) (U.wk ρ r)
           (wkRed*Term [ρ]′ d) (wkRed*Term [ρ]′ d′)
           (wkProduct ρ (ne x)) (wkProduct ρ (ne y))
           (≅ₜ-wk [ρ]′ p≅r) (wkTerm [ρ] [A] [t]) (wkTerm [ρ] [A] [u])
-          (inc , ~-wk [ρ]′ p~r)
+          (~-wk [ρ]′ p~r)
 wkEqTerm {ρ} [ρ] [A]@(Bᵣ′ BΣˢ F G D A≡A [F] [G] G-ext ok)
          (Σₜ₌ p r d d′ pProd rProd p≅r [t] [u] ([fstp] , [fstr] , [fst≡] , [snd≡])) =
   let [ρ]′ = ∷ʷʳ⊇→∷ʷ⊇ [ρ]
@@ -652,10 +652,9 @@ wkEqTerm ρ∷⊇ (Idᵣ ⊩A) t≡u@(_ , _ , t⇒*t′ , u⇒*u′ , _) =
        (rfl₌ lhs≡rhs) →
            rflₙ , rflₙ
          , wkEqTerm ρ∷⊇ ⊩Ty lhs≡rhs
-       (ne inc t′-n u′-n t′~u′) →
+       (ne t′-n u′-n t′~u′) →
            ne (wkNeutral _ t′-n)
          , ne (wkNeutral _ u′-n)
-         , inc
          , ~-wk ρ∷⊇′ t′~u′)
   where
   open _»_⊩ₗId_ ⊩A
@@ -665,5 +664,5 @@ wkEqTerm ρ (emb (≤ᵘ-step s) x) t≡u =
   in irrelevanceEqTerm (wk ρ (emb s x)) (wk ρ (emb (≤ᵘ-step s) x)) wkET′
 
 -- Impossible cases
-wkEqTerm _ (Bᵣ BΣʷ record{}) (Σₜ₌ _ _ _ _ prodₙ (ne _) _ _ _ ())
-wkEqTerm _ (Bᵣ BΣʷ record{}) (Σₜ₌ _ _ _ _ (ne _) prodₙ _ _ _ ())
+wkEqTerm _ (Bᵣ BΣʷ record{}) (Σₜ₌ _ _ _ _ prodₙ  (ne _) _ _ _ ())
+wkEqTerm _ (Bᵣ BΣʷ record{}) (Σₜ₌ _ _ _ _ (ne _) prodₙ  _ _ _ ())

@@ -15,7 +15,7 @@ module Definition.Typed.EqualityRelation
 open Type-restrictions R
 
 open import Definition.Untyped M
-open import Definition.Untyped.Neutral M type-variant
+open import Definition.Untyped.Whnf M type-variant
 import Definition.Untyped.Erased 𝕄 as Erased
 open import Definition.Untyped.Properties M
 open import Definition.Typed R
@@ -211,8 +211,8 @@ record Equality-relations
     ≅-η-eq : ∀ {f g F G}
            → ∇ » Γ ⊢ f ∷ Π p , q ▷ F ▹ G
            → ∇ » Γ ⊢ g ∷ Π p , q ▷ F ▹ G
-           → Function f
-           → Function g
+           → Function⁺ ∇ f
+           → Function⁺ ∇ g
            → ∇ » Γ ∙ F ⊢ wk1 f ∘⟨ p ⟩ var x0 ≅ wk1 g ∘⟨ p ⟩ var x0 ∷ G
            → ∇ » Γ ⊢ f ≅ g ∷ Π p , q ▷ F ▹ G
 
@@ -220,14 +220,20 @@ record Equality-relations
     ≅-Σ-η : ∀ {r s F G}
           → ∇ » Γ ⊢ r ∷ Σˢ p , q ▷ F ▹ G
           → ∇ » Γ ⊢ s ∷ Σˢ p , q ▷ F ▹ G
-          → Product r
-          → Product s
+          → Product⁺ ∇ r
+          → Product⁺ ∇ s
           → ∇ » Γ ⊢ fst p r ≅ fst p s ∷ F
           → ∇ » Γ ⊢ snd p r ≅ snd p s ∷ G [ fst p r ]₀
           → ∇ » Γ ⊢ r ≅ s ∷ Σˢ p , q ▷ F ▹ G
 
     -- Variable reflexivity
     ~-var : ∀ {x A} → ∇ » Γ ⊢ var x ∷ A → ∇ » Γ ⊢~ var x ∷ A
+
+    -- Definition reflexivity
+    ~-defn : ∀ {α A A′}
+           → ∇ » Γ ⊢ defn α ∷ A
+           → α ↦⊘∷ A′ ∈ ∇
+           → ∇ » Γ ⊢~ defn α ∷ A
 
     -- Application congruence
     ~-app : ∀ {a b f g F G}

@@ -21,7 +21,7 @@ open import Definition.Typed.Properties R
 open import Definition.Typed.Substitution.Primitive R
 open import Definition.Typed.Well-formed R
 open import Definition.Untyped M
-open import Definition.Untyped.Neutral M type-variant
+open import Definition.Untyped.Whnf M type-variant
 open import Definition.LogicalRelation R
 open import Definition.LogicalRelation.Hidden R
 open import Definition.LogicalRelation.Irrelevance R
@@ -87,7 +87,7 @@ opaque
   ⊩∷U⇔ :
     ∇ » Γ ⊩⟨ l ⟩ A ∷ U l′ ⇔
     (l′ <ᵘ l × ∇ » Γ ⊩⟨ l′ ⟩ A ×
-     ∃ λ B → ∇ » Γ ⊢ A ⇒* B ∷ U l′ × Type B × ∇ » Γ ⊢≅ B ∷ U l′)
+     ∃ λ B → ∇ » Γ ⊢ A ⇒* B ∷ U l′ × Typeₗ ∇ B × ∇ » Γ ⊢≅ B ∷ U l′)
   ⊩∷U⇔ =
       (λ (⊩U , ⊩A) →
          lemma (U-elim ⊩U) (irrelevanceTerm ⊩U (U-intr (U-elim ⊩U)) ⊩A))
@@ -99,7 +99,7 @@ opaque
       (⊩U : ∇ » Γ ⊩⟨ l ⟩U U l′) →
       ∇ » Γ ⊩⟨ l ⟩ A ∷ U l′ / U-intr ⊩U →
       (l′ <ᵘ l × ∇ » Γ ⊩⟨ l′ ⟩ A ×
-       ∃ λ B → ∇ » Γ ⊢ A ⇒* B ∷ U l′ × Type B × ∇ » Γ ⊢≅ B ∷ U l′)
+       ∃ λ B → ∇ » Γ ⊢ A ⇒* B ∷ U l′ × Typeₗ ∇ B × ∇ » Γ ⊢≅ B ∷ U l′)
     lemma (noemb (Uᵣ _ l′<l U⇒*U)) (Uₜ _ A⇒*B B-type B≅B ⊩A) =
       case U⇒*U→≡ U⇒*U of λ {
          PE.refl →
@@ -112,26 +112,26 @@ opaque
   -- A variant of ⊩∷U⇔.
 
   Type→⊩∷U⇔ :
-    Type A →
+    Typeₗ ∇ A →
     ∇ » Γ ⊩⟨ l ⟩ A ∷ U l′ ⇔
     (l′ <ᵘ l × (∇ » Γ ⊩⟨ l′ ⟩ A) × ∇ » Γ ⊢≅ A ∷ U l′)
-  Type→⊩∷U⇔ {A} {∇} {Γ} {l} {l′} A-type =
-    ∇ » Γ ⊩⟨ l ⟩ A ∷ U l′                                         ⇔⟨ ⊩∷U⇔ ⟩
+  Type→⊩∷U⇔ {∇} {A} {Γ} {l} {l′} A-type =
+    ∇ » Γ ⊩⟨ l ⟩ A ∷ U l′                                            ⇔⟨ ⊩∷U⇔ ⟩
 
     l′ <ᵘ l × (∇ » Γ ⊩⟨ l′ ⟩ A) ×
-    (∃ λ B → ∇ » Γ ⊢ A ⇒* B ∷ U l′ × Type B × ∇ » Γ ⊢≅ B ∷ U l′)  ⇔⟨ id⇔
-                                                                       ×-cong-⇔
-                                                                     id⇔
-                                                                       ×-cong-⇔
-                                                                     ( (λ (_ , A⇒*B , _ , B≅B) →
-                                                                         case whnfRed*Term A⇒*B (typeWhnf A-type) of λ {
-                                                                           PE.refl →
-                                                                         B≅B })
-                                                                     , (λ ≅A → _ , id (wf-⊢≡∷ (≅ₜ-eq ≅A) .proj₂ .proj₁) , A-type , ≅A)
-                                                                     )
-                                                                   ⟩
+    (∃ λ B → ∇ » Γ ⊢ A ⇒* B ∷ U l′ × Typeₗ ∇ B × ∇ » Γ ⊢≅ B ∷ U l′)  ⇔⟨ id⇔
+                                                                          ×-cong-⇔
+                                                                        id⇔
+                                                                          ×-cong-⇔
+                                                                        ( (λ (_ , A⇒*B , _ , B≅B) →
+                                                                            case whnfRed*Term A⇒*B (typeWhnf A-type) of λ {
+                                                                              PE.refl →
+                                                                            B≅B })
+                                                                        , (λ ≅A → _ , id (wf-⊢≡∷ (≅ₜ-eq ≅A) .proj₂ .proj₁) , A-type , ≅A)
+                                                                        )
+                                                                      ⟩
 
-    l′ <ᵘ l × (∇ » Γ ⊩⟨ l′ ⟩ A) × ∇ » Γ ⊢≅ A ∷ U l′               □⇔
+    l′ <ᵘ l × (∇ » Γ ⊩⟨ l′ ⟩ A) × ∇ » Γ ⊢≅ A ∷ U l′                  □⇔
 
 opaque
   unfolding _»_⊩⟨_⟩_≡_
@@ -175,8 +175,8 @@ opaque
      ∃₂ λ A′ B′ →
      ∇ » Γ ⊢ A ⇒* A′ ∷ U l′ ×
      ∇ » Γ ⊢ B ⇒* B′ ∷ U l′ ×
-     Type A′ ×
-     Type B′ ×
+     Typeₗ ∇ A′ ×
+     Typeₗ ∇ B′ ×
      ∇ » Γ ⊢ A′ ≅ B′ ∷ U l′)
   ⊩≡∷U⇔ =
       (λ (⊩U , _ , _ , A≡B) →
@@ -201,8 +201,8 @@ opaque
       ∃₂ λ A′ B′ →
       ∇ » Γ ⊢ A ⇒* A′ ∷ U l′ ×
       ∇ » Γ ⊢ B ⇒* B′ ∷ U l′ ×
-      Type A′ ×
-      Type B′ ×
+      Typeₗ ∇ A′ ×
+      Typeₗ ∇ B′ ×
       ∇ » Γ ⊢ A′ ≅ B′ ∷ U l′
     lemma
       (noemb (Uᵣ _ l′<l U⇒*U))
@@ -223,19 +223,19 @@ opaque
   -- A variant of ⊩≡∷U⇔.
 
   Type→⊩≡∷U⇔ :
-    Type A →
-    Type B →
+    Typeₗ ∇ A →
+    Typeₗ ∇ B →
     ∇ » Γ ⊩⟨ l ⟩ A ≡ B ∷ U l′ ⇔
     (l′ <ᵘ l × (∇ » Γ ⊩⟨ l′ ⟩ A ≡ B) × ∇ » Γ ⊢ A ≅ B ∷ U l′)
-  Type→⊩≡∷U⇔ {A} {B} {∇} {Γ} {l} {l′} A-type B-type =
+  Type→⊩≡∷U⇔ {∇} {A} {B} {Γ} {l} {l′} A-type B-type =
     ∇ » Γ ⊩⟨ l ⟩ A ≡ B ∷ U l′          ⇔⟨ ⊩≡∷U⇔ ⟩
 
     l′ <ᵘ l × (∇ » Γ ⊩⟨ l′ ⟩ A ≡ B) ×
     (∃₂ λ A′ B′ →
      ∇ » Γ ⊢ A ⇒* A′ ∷ U l′ ×
      ∇ » Γ ⊢ B ⇒* B′ ∷ U l′ ×
-     Type A′ ×
-     Type B′ ×
+     Typeₗ ∇ A′ ×
+     Typeₗ ∇ B′ ×
      ∇ » Γ ⊢ A′ ≅ B′ ∷ U l′)           ⇔⟨ (λ (l′<l , A≡B , A′ , B′ , DA , DB , A′-type , B′-type , A′≅B′) →
                                              case whnfRed*Term DA (typeWhnf A-type) of λ {
                                                PE.refl →

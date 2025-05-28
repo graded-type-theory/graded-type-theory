@@ -39,6 +39,7 @@ open import Definition.Typed.Well-formed R
 open import Definition.Untyped M
 open import Definition.Untyped.Neutral M type-variant
 open import Definition.Untyped.Properties M
+open import Definition.Untyped.Whnf M type-variant
 
 open import Tools.Empty
 open import Tools.Fin
@@ -52,7 +53,7 @@ open import Tools.Reasoning.PropositionalEquality
 private variable
   m n                                           : Nat
   ∇                                             : DCon (Term 0) _
-  Γ Δ Η                                         : Con Term _
+  Γ Δ                                           : Con Term _
   A B C C₁ C₂ t t₁ t₁₁ t₁₂ t₂ t₂₁ t₂₂ u u₁ u₂ v : Term _
   σ σ₁ σ₂                                       : Subst _ _
   p q q′ r                                      : M
@@ -73,8 +74,7 @@ data _»_⊩⟨_⟩_∷Σʷ_,_▷_▹_
     ∇ » Γ ⊩⟨ l ⟩ t₂ ∷ B [ t₁ ]₀ →
     ∇ » Γ ⊩⟨ l ⟩ prodʷ p t₁ t₂ ∷Σʷ p , q ▷ A ▹ B
   ne :
-    Var-included →
-    Neutral t →
+    Neutralₗ ∇ t →
     ∇ » Γ ⊢~ t ∷ Σʷ p , q ▷ A ▹ B →
     ∇ » Γ ⊩⟨ l ⟩ t ∷Σʷ p , q ▷ A ▹ B
 
@@ -82,10 +82,10 @@ opaque
 
   -- If ∇ » Γ ⊩⟨ l ⟩ t ∷Σʷ p , q ▷ A ▹ B holds, then t is a product.
 
-  ⊩∷Σʷ→Product : ∇ » Γ ⊩⟨ l ⟩ t ∷Σʷ p , q ▷ A ▹ B → Product t
+  ⊩∷Σʷ→Product : ∇ » Γ ⊩⟨ l ⟩ t ∷Σʷ p , q ▷ A ▹ B → Productₗ ∇ t
   ⊩∷Σʷ→Product = λ where
-    (prodₙ _ _)   → prodₙ
-    (ne _ t-ne _) → ne t-ne
+    (prodₙ _ _) → prodₙ
+    (ne t-ne _) → ne t-ne
 
 opaque
   unfolding _»_⊩⟨_⟩_∷_
@@ -124,8 +124,8 @@ opaque
            (prodₙ ⊩u₁ ⊩u₂) →
              prodₙ (emb-⊩∷ (≤ᵘ-step ≤ᵘ-refl) ⊩u₁)
                (emb-⊩∷ (≤ᵘ-step ≤ᵘ-refl) ⊩u₂)
-           (ne inc u-ne u~u) →
-             ne inc u-ne u~u)
+           (ne u-ne u~u) →
+             ne u-ne u~u)
     lemma₁ (emb (≤ᵘ-step l<) ⊩Σ) ⊩t =
       case lemma₁ (emb l< ⊩Σ) ⊩t of λ
         (u , t⇒*u , u≅u , u-val) →
@@ -134,8 +134,8 @@ opaque
            (prodₙ ⊩u₁ ⊩u₂) →
              prodₙ (emb-⊩∷ (≤ᵘ-step ≤ᵘ-refl) ⊩u₁)
                (emb-⊩∷ (≤ᵘ-step ≤ᵘ-refl) ⊩u₂)
-           (ne inc u-ne u~u) →
-             ne inc u-ne u~u)
+           (ne u-ne u~u) →
+             ne u-ne u~u)
     lemma₁
       {l} ⊩Σ@(noemb (Bᵣ _ _ Σ⇒*Σ _ ⊩wk-A ⊩wk-B _ _))
       (u , t⇒*u , u≅u , u-prod , rest) =
@@ -156,10 +156,7 @@ opaque
                (PE.subst (_»_⊩⟨_⟩_∷_ _ _ _ _)
                   (PE.cong _[ _ ]₀ $ wk-lift-id B)
                   (⊩wk-B id _ _ , ⊩u₂)) }
-           (ne u-ne , PE.refl) →
-             case rest of λ {
-               (inc , ~t) →
-             ne inc u-ne ~t }) }
+           (ne u-ne , PE.refl) → ne u-ne rest) }
 
     lemma₂ :
       (⊩Σ : ∇ » Γ ⊩⟨ l′ ⟩B⟨ BΣ 𝕨 p q ⟩ Σʷ p , q ▷ A ▹ B) →
@@ -188,8 +185,8 @@ opaque
                  (PE.subst (_»_⊩⟨_⟩_∷_ _ _ _ _)
                     (PE.sym $ PE.cong _[ _ ]₀ $ wk-lift-id B) ⊩u₂)
              , PE.refl
-           (ne inc u-ne ~u) →
-             ne u-ne , (inc , ~u)) }
+           (ne u-ne ~u) →
+             ne u-ne , ~u) }
 
 -- A type used to state ⊩≡∷Σʷ⇔.
 
@@ -203,9 +200,8 @@ data _»_⊩⟨_⟩_≡_∷Σʷ_,_▷_▹_
     ∇ » Γ ⊩⟨ l ⟩ t₁₂ ≡ t₂₂ ∷ B [ t₁₁ ]₀ →
     ∇ » Γ ⊩⟨ l ⟩ prodʷ p t₁₁ t₁₂ ≡ prodʷ p t₂₁ t₂₂ ∷Σʷ p , q ▷ A ▹ B
   ne :
-    Var-included →
-    Neutral t₁ →
-    Neutral t₂ →
+    Neutralₗ ∇ t₁ →
+    Neutralₗ ∇ t₂ →
     ∇ » Γ ⊢ t₁ ~ t₂ ∷ Σʷ p , q ▷ A ▹ B →
     ∇ » Γ ⊩⟨ l ⟩ t₁ ≡ t₂ ∷Σʷ p , q ▷ A ▹ B
 
@@ -248,8 +244,8 @@ opaque
            (prodₙ u₁₁≡u₂₁ u₁₂≡u₂₂) →
              prodₙ (emb-⊩≡∷ (≤ᵘ-step ≤ᵘ-refl) u₁₁≡u₂₁)
                (emb-⊩≡∷ (≤ᵘ-step ≤ᵘ-refl) u₁₂≡u₂₂)
-           (ne inc u₁-ne u₂-ne u₁~u₂) →
-             ne inc u₁-ne u₂-ne u₁~u₂)
+           (ne u₁-ne u₂-ne u₁~u₂) →
+             ne u₁-ne u₂-ne u₁~u₂)
     lemma₁ (emb (≤ᵘ-step l<) ⊩Σ) t₁≡t₂ =
       case lemma₁ (emb l< ⊩Σ) t₁≡t₂ of λ
         (u₁ , u₂ , t₁⇒*u₁ , t₂⇒*u₂ , u₁≅u₂ , u₁≡u₂) →
@@ -258,8 +254,8 @@ opaque
            (prodₙ u₁₁≡u₂₁ u₁₂≡u₂₂) →
              prodₙ (emb-⊩≡∷ (≤ᵘ-step ≤ᵘ-refl) u₁₁≡u₂₁)
                (emb-⊩≡∷ (≤ᵘ-step ≤ᵘ-refl) u₁₂≡u₂₂)
-           (ne inc u₁-ne u₂-ne u₁~u₂) →
-             ne inc u₁-ne u₂-ne u₁~u₂)
+           (ne u₁-ne u₂-ne u₁~u₂) →
+             ne u₁-ne u₂-ne u₁~u₂)
     lemma₁
       ⊩Σ@(noemb (Bᵣ _ _ Σ⇒*Σ _ ⊩wk-A ⊩wk-B wk-B≡wk-B _))
       (u₁ , u₂ , t₁⇒*u₁ , t₂⇒*u₂ , u₁≅u₂ , ⊩t₁ , ⊩t₂ ,
@@ -272,10 +268,7 @@ opaque
            (ne u₁-ne , PE.refl) →
              case PE.singleton u₂-prod of λ {
                (prodₙ    , PE.refl) → ⊥-elim (Lift.lower rest);
-               (ne u₂-ne , PE.refl) →
-             case rest of λ {
-               (inc , u₁~u₂) →
-             ne inc u₁-ne u₂-ne u₁~u₂ }}
+               (ne u₂-ne , PE.refl) → ne u₁-ne u₂-ne rest }
            (prodₙ , PE.refl) →
              case PE.singleton u₂-prod of λ {
                (ne _  , PE.refl) → ⊥-elim (Lift.lower rest);
@@ -295,10 +288,10 @@ opaque
                     (t₂⇒*u₂ , prodₙ) of λ {
                PE.refl →
              case ⊩u₁′ of λ {
-               (ne _ () _);
+               (ne () _);
                (prodₙ _ _) →
              case ⊩u₂′ of λ {
-               (ne _ () _);
+               (ne () _);
                (prodₙ _ _) →
              prodₙ
                (PE.subst (_»_⊩⟨_⟩_≡_∷_ _ _ _ _ _) (wk-id _)
@@ -354,8 +347,8 @@ opaque
                     prodₙ (level-⊩∷ ⊩A ⊩u₁₁)
                       (level-⊩∷ (⊩ΠΣ→⊩∷→⊩[]₀ ⊩Σ′ ⊩u₁₁) $
                        wf-⊩≡∷ u₁₂≡u₂₂ .proj₁)
-                  (ne inc u₁-ne _ u₁~u₂) →
-                    ne inc u₁-ne (wf-⊢~∷ u₁~u₂ .proj₁))
+                  (ne u₁-ne _ u₁~u₂) →
+                    ne u₁-ne (wf-⊢~∷ u₁~u₂ .proj₁))
              ) of λ
         ⊩t₁ →
       case ⊩∷→⊩∷/ ⊩Σ′ $
@@ -370,8 +363,8 @@ opaque
                       (conv-⊩∷
                          (⊩ΠΣ≡ΠΣ→⊩≡∷→⊩[]₀≡[]₀ (refl-⊩≡ ⊩Σ′) u₁₁≡u₂₁) $
                        wf-⊩≡∷ u₁₂≡u₂₂ .proj₂)
-                  (ne inc _ u₂-ne u₁~u₂) →
-                    ne inc u₂-ne (wf-⊢~∷ u₁~u₂ .proj₂))
+                  (ne _ u₂-ne u₁~u₂) →
+                    ne u₂-ne (wf-⊢~∷ u₁~u₂ .proj₂))
              ) of λ
         ⊩t₂ →
       _ » _ ⊩⟨ _ ⟩ _ ∷ _ / ⊩Σ′ × _ » _ ⊩⟨ _ ⟩ _ ∷ _ / ⊩Σ′ ×
@@ -403,8 +396,8 @@ opaque
                , ⊩≡∷→⊩≡∷/ (⊩wk-B id _ _)
                    (PE.subst (_»_⊩⟨_⟩_≡_∷_ _ _ _ _ _)
                       (PE.sym $ PE.cong _[ _ ]₀ $ wk-lift-id B) u₁₂≡u₂₂)
-             (ne inc u₁-ne u₂-ne u₁~u₂) →
-               ne u₁-ne , ne u₂-ne , (inc , u₁~u₂))
+             (ne u₁-ne u₂-ne u₁~u₂) →
+               ne u₁-ne , ne u₂-ne , u₁~u₂)
         ) }
 
 ------------------------------------------------------------------------
@@ -540,7 +533,9 @@ opaque
       (⊩C₁ , _) →
     case wf-⊩ˢ≡∷ σ₁≡σ₂ of λ
       (⊩σ₁ , _) →
-    case wf-⊢ˢʷ≡∷ (escape-⊩ˢ≡∷ σ₁≡σ₂ .proj₂) of λ
+    case escape-⊩ˢ≡∷ σ₁≡σ₂ .proj₂ of λ
+      ⊢σ₁≡σ₂ →
+    case wf-⊢ˢʷ≡∷ ⊢σ₁≡σ₂ of λ
       (_ , ⊢σ₁ , ⊢σ₂) →
     case subst-⊢-⇑ ⊢C₁ ⊢σ₁ of λ
       ⊢C₁[σ₁⇑] →
@@ -623,19 +618,17 @@ opaque
                                                                            ⟩∎∷
            prodrec r p q (C₂ [ σ₂ ⇑ ]) (prodʷ p v₂₁ v₂₂) (u₂ [ σ₂ ⇑ ⇑ ])  ∎
 
-         (ne inc v₁-ne v₂-ne v₁~v₂) →
-           let instance
-                 inc′ : Var-included or-empty Η
-                 inc′ = included ⦃ inc = inc ⦄
-           in
-           neutral-⊩≡∷ inc ⊩C₁[σ₁⇑][v₁]
+         (ne v₁-ne v₂-ne v₁~v₂) →
+           neutral-⊩≡∷ ⊩C₁[σ₁⇑][v₁]
              (prodrecₙ v₁-ne) (prodrecₙ v₂-ne) $
            ~-prodrec
-             (R.escape-⊩≡ $
+             (with-inc-⊢≅ (subst-⊢≡ ⊢C₁≡C₂ (⊢ˢʷ≡∷-⇑ (≅-eq (escape-⊩≡ ΣAB[σ₁]≡ΣAB[σ₂])) ⊢σ₁≡σ₂)) $
+              R.escape-⊩≡ ⦃ inc = included ⦄ $
               ⊩ᵛ≡→⊩ˢ≡∷→⊩[⇑]≡[⇑] C₁≡C₂ σ₁≡σ₂)
              v₁~v₂
              (PE.subst (_»_⊢_≅_∷_ _ _ _ _) (subst-β-prodrec C₁ _) $
-              R.escape-⊩≡∷ $
+              with-inc-⊢≅∷ (subst-⊢≡∷-⇑ ⊢u₁≡u₂ ⊢σ₁≡σ₂) $
+              R.escape-⊩≡∷ ⦃ inc = included ⦄ $
               ⊩ᵛ≡∷→⊩ˢ≡∷→⊩[⇑⇑]≡[⇑⇑]∷ u₁≡u₂ σ₁≡σ₂) ok)
     of λ
       lemma →

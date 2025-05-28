@@ -19,6 +19,7 @@ open Type-restrictions R
 open import Definition.Untyped M hiding (K)
 open import Definition.Untyped.Neutral M type-variant
 open import Definition.Untyped.Properties M
+open import Definition.Untyped.Whnf M type-variant
 open import Definition.Typed R
 open import Definition.Typed.Properties R
 open import Definition.LogicalRelation R
@@ -44,12 +45,12 @@ private
     A B Ty′ lhs′ rhs′ : Term _
     l                 : Universe-level
 
-transEqTermNe : ∀ {n n′ n″ A}
-              → ∇ » Γ ⊩neNf n  ≡ n′  ∷ A
-              → ∇ » Γ ⊩neNf n′ ≡ n″ ∷ A
-              → ∇ » Γ ⊩neNf n  ≡ n″ ∷ A
-transEqTermNe (neNfₜ₌ _ neK neM k≡m) (neNfₜ₌ inc neK₁ neM₁ k≡m₁) =
-  neNfₜ₌ inc neK neM₁ (~-trans k≡m k≡m₁)
+transEqTermNe : ∀ {t t′ t″ A}
+              → ∇ » Γ ⊩neNf t  ≡ t′ ∷ A
+              → ∇ » Γ ⊩neNf t′ ≡ t″ ∷ A
+              → ∇ » Γ ⊩neNf t  ≡ t″ ∷ A
+transEqTermNe (neNfₜ₌ neK neM k≡m) (neNfₜ₌ neK₁ neM₁ k≡m₁) =
+  neNfₜ₌ neK neM₁ (~-trans k≡m k≡m₁)
 
 mutual
   transEqTermℕ : ∀ {n n′ n″}
@@ -70,10 +71,10 @@ mutual
                     → [Natural]-prop ∇ Γ k′ k″
                     → [Natural]-prop ∇ Γ k k″
   transNatural-prop (sucᵣ x) (sucᵣ x₁) = sucᵣ (transEqTermℕ x x₁)
-  transNatural-prop (sucᵣ x) (ne (neNfₜ₌ _ () neM k≡m))
+  transNatural-prop (sucᵣ x) (ne (neNfₜ₌ () neM k≡m))
   transNatural-prop zeroᵣ prop₁ = prop₁
   transNatural-prop prop zeroᵣ = prop
-  transNatural-prop (ne (neNfₜ₌ _ neK () k≡m)) (sucᵣ x₃)
+  transNatural-prop (ne (neNfₜ₌ neK () k≡m)) (sucᵣ x₃)
   transNatural-prop (ne [k≡k′]) (ne [k′≡k″]) =
     ne (transEqTermNe [k≡k′] [k′≡k″])
 
@@ -91,8 +92,8 @@ transEqTermEmpty : ∀ {n n′ n″}
   → ∇ » Γ ⊩Empty n  ≡ n″ ∷Empty
 transEqTermEmpty
   (Emptyₜ₌ k _ d d′ t≡u prop) (Emptyₜ₌ _ k″ d₁ d″ t≡u₁ prop₁) =
-  let k₁Whnf = ne (proj₁ (esplit prop₁))
-      k′Whnf = ne (proj₂ (esplit prop))
+  let k₁Whnf = ne-whnf (proj₁ (esplit prop₁))
+      k′Whnf = ne-whnf (proj₂ (esplit prop))
       k₁≡k′ = whrDet*Term (d₁ , k₁Whnf) (d′ , k′Whnf)
       prop′ = PE.subst (λ x → [Empty]-prop _ _ x _) k₁≡k′ prop₁
   in Emptyₜ₌ k k″ d d″
@@ -104,8 +105,8 @@ transUnit-prop : ∀ {k k′ k″}
   → [Unitʷ]-prop ∇ Γ l k′ k″
   → [Unitʷ]-prop ∇ Γ l k k″
 transUnit-prop starᵣ eq = eq
+transUnit-prop (ne (neNfₜ₌ _ () _)) starᵣ
 transUnit-prop (ne [k≡k′]) (ne [k′≡k″]) = ne (transEqTermNe [k≡k′] [k′≡k″])
-transUnit-prop (ne (neNfₜ₌ _ _ () _)) starᵣ
 
 transEqTermUnit : ∀ {s n n′ n″}
   → ∇ » Γ ⊩Unit⟨ l , s ⟩ n  ≡ n′ ∷Unit
@@ -197,11 +198,11 @@ transEqT (Unitᵥ _ (Unitₜ B⇒*Unit₁ _) _) B⇒*Unit₂ C⇒*Unit =
     (_ , PE.refl) →
   C⇒*Unit }
 transEqT
-  (ne (ne _ _ D neK K≡K) (ne _ K₁ D₁ neK₁ _) (ne _ K₂ D₂ neK₂ _))
-  (ne₌ _ M D′ neM K≡M) (ne₌ inc M₁ D″ neM₁ K≡M₁)
-  rewrite whrDet* (D₁ , ne neK₁) (D′ , ne neM)
-        | whrDet* (D₂ , ne neK₂) (D″ , ne neM₁) =
-  ne₌ inc M₁ D″ neM₁ (≅-trans K≡M K≡M₁)
+  (ne (ne _ D neK K≡K) (ne K₁ D₁ neK₁ _) (ne K₂ D₂ neK₂ _))
+  (ne₌ M D′ neM K≡M) (ne₌ M₁ D″ neM₁ K≡M₁)
+  rewrite whrDet* (D₁ , ne-whnf neK₁) (D′ , ne-whnf neM)
+        | whrDet* (D₂ , ne-whnf neK₂) (D″ , ne-whnf neM₁) =
+  ne₌ M₁ D″ neM₁ (≅-trans K≡M K≡M₁)
 transEqT {n = n} {∇ = ∇} {Γ = Γ} {l = l} {l′ = l′} {l″ = l″}
          (Bᵥ W W′ W″ (Bᵣ F G D A≡A [F] [G] G-ext _)
                (Bᵣ F₁ G₁ D₁ A≡A₁ [F]₁ [G]₁ G-ext₁ _)
@@ -277,11 +278,11 @@ transEqTerm (ℕᵣ D) [t≡u] [u≡v] = transEqTermℕ [t≡u] [u≡v]
 transEqTerm (Emptyᵣ D) [t≡u] [u≡v] = transEqTermEmpty [t≡u] [u≡v]
 transEqTerm (Unitᵣ D) [t≡u] [u≡v] = transEqTermUnit [t≡u] [u≡v]
 transEqTerm
-  {n} (ne′ _ _ D neK K≡K) (neₜ₌ k m d d′ (neNfₜ₌ _ neK₁ neM k≡m))
-  (neₜ₌ k₁ m₁ d₁ d″ (neNfₜ₌ inc neK₂ neM₁ k≡m₁)) =
-  let k₁≡m = whrDet*Term (d₁ , ne neK₂) (d′ , ne neM)
+  {n} (ne′ _ D neK K≡K) (neₜ₌ k m d d′ (neNfₜ₌ neK₁ neM k≡m))
+  (neₜ₌ k₁ m₁ d₁ d″ (neNfₜ₌ neK₂ neM₁ k≡m₁)) =
+  let k₁≡m = whrDet*Term (d₁ , ne-whnf neK₂) (d′ , ne-whnf neM)
   in  neₜ₌ k m₁ d d″
-           (neNfₜ₌ inc neK₁ neM₁
+           (neNfₜ₌ neK₁ neM₁
                    (~-trans k≡m (PE.subst (λ (x : Term n) → _ » _ ⊢ x ~ _ ∷ _) k₁≡m k≡m₁)))
 transEqTerm (Bᵣ′ BΠ! F G D A≡A [F] [G] G-ext _)
             (Πₜ₌ f g d d′ funcF funcG f≡g [f] [g] [f≡g])
@@ -354,9 +355,9 @@ transEqTerm
          [p₁] , [r₁]′ , [p₂] , [r₂]′ , [p₁≡r′₁] , [p₂≡r′₂])
 transEqTerm
   {n = n} {∇ = ∇} {Γ = Γ} (Bᵣ′ (BΣ 𝕨 p′ q) F G D A≡A [F] [G] G-ext _)
-  (Σₜ₌ p r d d′ (ne x) (ne x₁) p≅r [t] [u] (_ , p~r))
-  (Σₜ₌ p₁ r₁ d₁ d₁′ (ne x₂) (ne x₃) p≅r₁ [t]₁ [u]₁ (inc , p₁~r₁)) =
-  let p₁≡r = whrDet*Term (d₁ , ne x₂) (d′ , ne x₁)
+  (Σₜ₌ p r d d′ (ne x) (ne x₁) p≅r [t] [u] p~r)
+  (Σₜ₌ p₁ r₁ d₁ d₁′ (ne x₂) (ne x₃) p≅r₁ [t]₁ [u]₁ p₁~r₁) =
+  let p₁≡r = whrDet*Term (d₁ , ne-whnf x₂) (d′ , ne-whnf x₁)
       p≅r₁ = ≅ₜ-trans p≅r
                 (PE.subst
                    (λ (x : Term n) → ∇ » Γ ⊢ x ≅ r₁ ∷ Σʷ p′ , q ▷ F ▹ G)
@@ -365,24 +366,24 @@ transEqTerm
                (PE.subst
                   (λ (x : Term n) → ∇ » Γ ⊢ x ~ _ ∷ Σʷ p′ , q ▷ F ▹ G)
                   p₁≡r p₁~r₁)
-  in  Σₜ₌ p r₁ d d₁′ (ne x) (ne x₃) p≅r₁ [t] [u]₁ (inc , p~r₁)
+  in  Σₜ₌ p r₁ d d₁′ (ne x) (ne x₃) p≅r₁ [t] [u]₁ p~r₁
 transEqTerm (Bᵣ′ BΣʷ _ _ _ _ _ _ _ _)
             (Σₜ₌ p r d d′ prodₙ prodₙ p≅r [t] [u] prop)
             (Σₜ₌ p₁ r₁ d₁ d₁′ (ne x) (ne x₁) p≅r₁ [t]₁ [u]₁ prop₁) =
-  ⊥-elim (prod≢ne x (whrDet*Term (d′ , prodₙ) (d₁ , ne x)))
+  ⊥-elim (prod≢ne x (whrDet*Term (d′ , prodₙ) (d₁ , ne-whnf x)))
 transEqTerm (Bᵣ′ BΣʷ _ _ _ _ _ _ _ _)
             (Σₜ₌ p r d d′ (ne x) (ne x₁) p≅r [t] [u] prop)
             (Σₜ₌ p₁ r₁ d₁ d₁′ prodₙ prodₙ p≅r₁ [t]₁ [u]₁ prop₁) =
-  ⊥-elim (prod≢ne x₁ (whrDet*Term (d₁ , prodₙ) (d′ , ne x₁)))
+  ⊥-elim (prod≢ne x₁ (whrDet*Term (d₁ , prodₙ) (d′ , ne-whnf x₁)))
 transEqTerm (Bᵣ′ BΣʷ _ _ _ _ _ _ _ _)
-            (Σₜ₌ p r d d′ prodₙ (ne x) p≅r [t] [u] (lift ()))
+            (Σₜ₌ p r d d′ prodₙ (ne y) p≅r [t] [u] (lift ()))
             (Σₜ₌ p₁ r₁ d₁ d₁′ pProd₁ rProd₁ p≅r₁ [t]₁ [u]₁ prop₁)
 transEqTerm (Bᵣ′ BΣʷ _ _ _ _ _ _ _ _)
             (Σₜ₌ p r d d′ (ne x) prodₙ p≅r [t] [u] (lift ()))
             (Σₜ₌ p₁ r₁ d₁ d₁′ pProd₁ rProd₁ p≅r₁ [t]₁ [u]₁ prop₁)
 transEqTerm (Bᵣ′ BΣʷ _ _ _ _ _ _ _ _)
             (Σₜ₌ p r d d′ pProd rProd p≅r [t] [u] prop)
-            (Σₜ₌ p₁ r₁ d₁ d₁′ prodₙ (ne x) p≅r₁ [t]₁ [u]₁ (lift ()))
+            (Σₜ₌ p₁ r₁ d₁ d₁′ prodₙ (ne y) p≅r₁ [t]₁ [u]₁ (lift ()))
 transEqTerm (Bᵣ′ BΣʷ _ _ _ _ _ _ _ _)
             (Σₜ₌ p r d d′ pProd rProd p≅r [t] [u] prop)
             (Σₜ₌ p₁ r₁ d₁ d₁′ (ne x) prodₙ p≅r₁ [t]₁ [u]₁ (lift ()))
@@ -399,15 +400,15 @@ transEqTerm
   in
   ⊩Id≡∷ ⊩t ⊩v
     (case ⊩Id≡∷-view-inhabited ⊩A t≡u of λ where
-       (ne _ _ u′-n t′~u′) → case ⊩Id≡∷-view-inhabited ⊩A u≡v of λ where
-         (ne inc _ _ u′~v′) → inc , ~-trans t′~u′ u′~v′
+       (ne _ u′-n t′~u′) → case ⊩Id≡∷-view-inhabited ⊩A u≡v of λ where
+         (ne _ _ u′~v′) → ~-trans t′~u′ u′~v′
          (rfl₌ _)       →
            ⊥-elim $ rfl≢ne u′-n $
-           whrDet*Term (u⇒*u″ , rflₙ) (u⇒*u′ , ne u′-n)
+           whrDet*Term (u⇒*u″ , rflₙ) (u⇒*u′ , ne-whnf u′-n)
        (rfl₌ _) → case ⊩Id≡∷-view-inhabited ⊩A u≡v of λ where
-         (rfl₌ _)        → _
-         (ne _ u″-n _ _) →
+         (rfl₌ _)      → _
+         (ne u″-n _ _) →
            ⊥-elim $ rfl≢ne u″-n $
-           whrDet*Term (u⇒*u′ , rflₙ) (u⇒*u″ , ne u″-n)) }
+           whrDet*Term (u⇒*u′ , rflₙ) (u⇒*u″ , ne-whnf u″-n)) }
 transEqTerm (emb ≤ᵘ-refl     ⊩A) = transEqTerm ⊩A
 transEqTerm (emb (≤ᵘ-step p) ⊩A) = transEqTerm (emb p ⊩A)

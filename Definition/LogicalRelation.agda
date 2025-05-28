@@ -19,6 +19,7 @@ open Type-restrictions R
 open import Definition.LogicalRelation.Weakening.Restricted R
 open import Definition.Untyped Mod as U hiding (K)
 open import Definition.Untyped.Neutral Mod type-variant
+open import Definition.Untyped.Whnf Mod type-variant
 open import Definition.Typed.Properties R
 open import Definition.Typed R
 -- The imported operator _,_ is not "supposed" to be used below, but
@@ -49,6 +50,30 @@ private
     ρ : Wk _ _
     s : Strength
 
+Neutralₗ : DCon (Term 0) κ → Term ℓ → Set a
+Neutralₗ = Neutral Var-included
+
+varₗ : ⦃ inc : Var-included ⦄ → ∀ x → Neutralₗ {ℓ = ℓ} ∇ (var x)
+varₗ ⦃ inc ⦄ = var inc
+
+varₗ′ :
+  ∀ {A} →
+  ⦃ inc : Var-included or-empty Γ ∙ A ⦄ →
+  ∀ x → Neutralₗ {ℓ = ℓ} ∇ (var x)
+varₗ′ ⦃ inc = possibly-nonempty ⦄ = varₗ
+
+Typeₗ : DCon (Term 0) κ → Term ℓ → Set a
+Typeₗ = Type Var-included
+
+Functionₗ : DCon (Term 0) κ → Term ℓ → Set a
+Functionₗ = Function Var-included
+
+Productₗ : DCon (Term 0) κ → Term ℓ → Set a
+Productₗ = Product Var-included
+
+Identityₗ : DCon (Term 0) κ → Term ℓ → Set a
+Identityₗ = Identity Var-included
+
 -- The different cases of the logical relation are spread out through out
 -- this file. This is due to them having different dependencies.
 
@@ -62,11 +87,10 @@ record _»_⊩ne_ (∇ : DCon (Term 0) κ) (Γ : Con Term ℓ) (A : Term ℓ) : 
   pattern
   constructor ne
   field
-    var-included : Var-included
-    K            : Term ℓ
-    D            : ∇ » Γ ⊢ A ⇒* K
-    neK          : Neutral K
-    K≡K          : ∇ » Γ ⊢≅ K
+    K   : Term ℓ
+    D   : ∇ » Γ ⊢ A ⇒* K
+    neK : Neutralₗ ∇ K
+    K≡K : ∇ » Γ ⊢≅ K
 
 -- Equality of neutral types
 record _»_⊩ne_≡_/_ (∇ : DCon (Term 0) κ) (Γ : Con Term ℓ) (A B : Term ℓ) ([A] : ∇ » Γ ⊩ne A) : Set a where
@@ -75,11 +99,10 @@ record _»_⊩ne_≡_/_ (∇ : DCon (Term 0) κ) (Γ : Con Term ℓ) (A B : Term
   constructor ne₌
   open _»_⊩ne_ [A]
   field
-    var-included : Var-included
-    M            : Term ℓ
-    D′           : ∇ » Γ ⊢ B ⇒* M
-    neM          : Neutral M
-    K≡M          : ∇ » Γ ⊢ K ≅ M
+    M   : Term ℓ
+    D′  : ∇ » Γ ⊢ B ⇒* M
+    neM : Neutralₗ ∇ M
+    K≡M : ∇ » Γ ⊢ K ≅ M
 
 -- Neutral term in WHNF
 record _»_⊩neNf_∷_ (∇ : DCon (Term 0) κ) (Γ : Con Term ℓ) (k A : Term ℓ) : Set a where
@@ -88,9 +111,8 @@ record _»_⊩neNf_∷_ (∇ : DCon (Term 0) κ) (Γ : Con Term ℓ) (k A : Term
   pattern
   constructor neNfₜ
   field
-    var-included : Var-included
-    neK          : Neutral k
-    k≡k          : ∇ » Γ ⊢~ k ∷ A
+    neK : Neutralₗ ∇ k
+    k≡k : ∇ » Γ ⊢~ k ∷ A
 
 -- Term of neutral type
 record _»_⊩ne_∷_/_ (∇ : DCon (Term 0) κ) (Γ : Con Term ℓ) (t A : Term ℓ) ([A] : ∇ » Γ ⊩ne A) : Set a where
@@ -111,10 +133,9 @@ record _»_⊩neNf_≡_∷_ (∇ : DCon (Term 0) κ) (Γ : Con Term ℓ) (k m A 
   pattern
   constructor neNfₜ₌
   field
-    var-included : Var-included
-    neK          : Neutral k
-    neM          : Neutral m
-    k≡m          : ∇ » Γ ⊢ k ~ m ∷ A
+    neK : Neutralₗ ∇ k
+    neM : Neutralₗ ∇ m
+    k≡m : ∇ » Γ ⊢ k ~ m ∷ A
 
 -- Term equality of neutral type
 record _»_⊩ne_≡_∷_/_ (∇ : DCon (Term 0) κ) (Γ : Con Term ℓ) (t u A : Term ℓ) ([A] : ∇ » Γ ⊩ne A) : Set a where
@@ -328,7 +349,7 @@ module LogRel
     field
       A     : Term ℓ
       d     : ∇ » Γ ⊢ t ⇒* A ∷ U l′
-      typeA : Type A
+      typeA : Typeₗ ∇ A
       A≡A   : ∇ » Γ ⊢≅ A ∷ U l′
       [t]   : ∇ » Γ ⊩ t
 
@@ -344,8 +365,8 @@ module LogRel
       A B   : Term ℓ
       d     : ∇ » Γ ⊢ t ⇒* A ∷ U l′
       d′    : ∇ » Γ ⊢ u ⇒* B ∷ U l′
-      typeA : Type A
-      typeB : Type B
+      typeA : Typeₗ ∇ A
+      typeB : Typeₗ ∇ B
       A≡B   : ∇ » Γ ⊢ A ≅ B ∷ U l′
       [t]   : ∇ » Γ ⊩ t
       [u]   : ∇ » Γ ⊩ u
@@ -413,7 +434,7 @@ module LogRel
                   (∇ : DCon (Term 0) κ) (Γ : Con Term ℓ) (t A : Term ℓ) ([A] : ∇ » Γ ⊩ₗB⟨ BΠ p q ⟩ A) → Set a
     _»_⊩ₗΠ_∷_/_ {κ} {ℓ} {p} {q} ∇ Γ t A (Bᵣ F G D A≡A [F] [G] G-ext _) =
       ∃ λ f → ∇ » Γ ⊢ t ⇒* f ∷ Π p , q ▷ F ▹ G
-            × Function f
+            × Functionₗ ∇ f
             × ∇ » Γ ⊢≅ f ∷ Π p , q ▷ F ▹ G
             × (∀ {κ′} {ξ : DExt _ κ′ κ} {∇′ : DCon (Term 0) κ′} ([ξ] : ξ » ∇′ ⊇ ∇)
               {m} {ρ : Wk m ℓ} {Δ : Con Term m} {a b} ([ρ] : ∇′ » ρ ∷ʷʳ Δ ⊇ Γ)
@@ -440,8 +461,8 @@ module LogRel
       {κ} {ℓ} {p} {q} ∇ Γ t u A [A]@(Bᵣ F G D A≡A [F] [G] G-ext _) =
       ∃₂ λ f g → ∇ » Γ ⊢ t ⇒* f ∷ Π p , q ▷ F ▹ G
                × ∇ » Γ ⊢ u ⇒* g ∷ Π p , q ▷ F ▹ G
-               × Function f
-               × Function g
+               × Functionₗ ∇ f
+               × Functionₗ ∇ g
                × ∇ » Γ ⊢ f ≅ g ∷ Π p , q ▷ F ▹ G
                × ∇ » Γ ⊩ₗΠ t ∷ A / [A]
                × ∇ » Γ ⊩ₗΠ u ∷ A / [A]
@@ -462,17 +483,17 @@ module LogRel
       [A]@(Bᵣ F G D A≡A [F] [G] G-ext _) =
       ∃ λ u → ∇ » Γ ⊢ t ⇒* u ∷ Σ⟨ m ⟩ p , q ▷ F ▹ G
             × ∇ » Γ ⊢≅ u ∷ Σ⟨ m ⟩ p , q ▷ F ▹ G
-            × Σ (Product u) λ pProd → Σ-prop m u ∇ Γ [A] pProd
+            × Σ (Productₗ ∇ u) λ pProd → Σ-prop m u ∇ Γ [A] pProd
 
     Σ-prop : ∀ {A p q} (m : Strength) (t : Term ℓ) (∇ : DCon (Term 0) κ) (Γ : Con Term ℓ)
-           → ([A] : ∇ » Γ ⊩ₗB⟨ BΣ m p q ⟩ A) → Product t → Set a
+           → ([A] : ∇ » Γ ⊩ₗB⟨ BΣ m p q ⟩ A) → Productₗ ∇ t → Set a
     Σ-prop {p = p} 𝕤 t ∇ Γ (Bᵣ F G D A≡A [F] [G] G-ext _) _ =
       let id-Γ = id (wfEq (≅-eq A≡A)) in
       Σ (∇ » Γ ⊩ₗ fst p t ∷ U.wk id F / [F] id id-Γ) λ [fst] →
       ∇ » Γ ⊩ₗ snd p t ∷ U.wk (lift id) G [ fst p t ]₀ / [G] id id-Γ [fst]
     Σ-prop
       {p = p} 𝕨 t ∇ Γ (Bᵣ F G D A≡A [F] [G] G-ext _)
-      (prodₙ {p = p′} {t = p₁} {u = p₂} {m = m}) =
+      (prodₙ {p = p′} {t = p₁} {u = p₂} {s = m}) =
            let id-Γ = id (wfEq (≅-eq A≡A)) in
            p PE.≡ p′ ×
            Σ (∇ » Γ ⊩ₗ p₁ ∷ U.wk id F / [F] id id-Γ) λ [p₁]
@@ -481,7 +502,6 @@ module LogRel
     Σ-prop
       {p = p} {q = q}
       𝕨 t ∇ Γ (Bᵣ F G D A≡A [F] [G] G-ext _) (ne x) =
-      Var-included ×
       ∇ » Γ ⊢~ t ∷ Σʷ p , q ▷ F ▹ G
 
     -- Term equality of Σ-type
@@ -496,13 +516,13 @@ module LogRel
                  × ∇ » Γ ⊢ t′ ≅ u′ ∷ Σ⟨ m ⟩ p , q ▷ F ▹ G
                  × ∇ » Γ ⊩ₗΣ t ∷ A / [A]
                  × ∇ » Γ ⊩ₗΣ u ∷ A / [A]
-                 × Σ (Product t′) λ pProd
-                 → Σ (Product u′) λ rProd
+                 × Σ (Productₗ ∇ t′) λ pProd
+                 → Σ (Productₗ ∇ u′) λ rProd
                  → [Σ]-prop m t′ u′ ∇ Γ [A] pProd rProd
 
     [Σ]-prop :
       ∀ {A p q} (m : Strength) (t r : Term ℓ) (∇ : DCon (Term 0) κ) (Γ : Con Term ℓ)
-      ([A] : ∇ » Γ ⊩ₗB⟨ BΣ m p q ⟩ A) → Product t → Product r → Set a
+      ([A] : ∇ » Γ ⊩ₗB⟨ BΣ m p q ⟩ A) → Productₗ ∇ t → Productₗ ∇ r → Set a
     [Σ]-prop {p = p} 𝕤 t r ∇ Γ (Bᵣ F G D A≡A [F] [G] G-ext _) _ _ =
       let id-Γ = id (wfEq (≅-eq A≡A)) in
       Σ (∇ » Γ ⊩ₗ fst p t ∷ U.wk id F / [F] id id-Γ) λ [fstp]
@@ -533,7 +553,6 @@ module LogRel
     [Σ]-prop
       {p = p} {q = q} 𝕨 t r ∇ Γ
       (Bᵣ F G D A≡A [F] [G] G-ext _) (ne x) (ne y) =
-        Var-included ×
         ∇ » Γ ⊢ t ~ r ∷ Σʷ p , q ▷ F ▹ G
 
     -- Reducibility for identity types.
@@ -585,10 +604,9 @@ module LogRel
     _»_⊩ₗId_∷_/_ : (∇ : DCon (Term 0) κ) (Γ : Con Term ℓ) (t A : Term ℓ) → ∇ » Γ ⊩ₗId A → Set a
     ∇ » Γ ⊩ₗId t ∷ A / ⊩A =
       ∃ λ u →
-      ∇ » Γ ⊢ t ⇒* u ∷ Id Ty lhs rhs × ∃ λ (u-id : Identity u) →
+      ∇ » Γ ⊢ t ⇒* u ∷ Id Ty lhs rhs × ∃ λ (u-id : Identityₗ ∇ u) →
       case u-id of λ where
-        (ne _) → Var-included ×
-                 ∇ » Γ ⊢~ u ∷ Id Ty lhs rhs
+        (ne _) → ∇ » Γ ⊢~ u ∷ Id Ty lhs rhs
         rflₙ   → ∇ » Γ ⊩ₗ lhs ≡ rhs ∷ Ty / ⊩Ty
       where
       open _»_⊩ₗId_ ⊩A
@@ -599,16 +617,15 @@ module LogRel
       ∃₂ λ t′ u′ →
       ∇ » Γ ⊢ t ⇒* t′ ∷ Id Ty lhs rhs ×
       ∇ » Γ ⊢ u ⇒* u′ ∷ Id Ty lhs rhs ×
-      ∃ λ (t′-id : Identity t′) →
-      ∃ λ (u′-id : Identity u′) →
+      ∃ λ (t′-id : Identityₗ ∇ t′) →
+      ∃ λ (u′-id : Identityₗ ∇ u′) →
       Identity-rec t′-id
         (Identity-rec u′-id
            (∇ » Γ ⊩ₗ lhs ≡ rhs ∷ Ty / ⊩Ty)
            (Lift _ ⊥))
         (Identity-rec u′-id
            (Lift _ ⊥)
-           (Var-included ×
-            ∇ » Γ ⊢ t′ ~ u′ ∷ Id Ty lhs rhs))
+           (∇ » Γ ⊢ t′ ~ u′ ∷ Id Ty lhs rhs))
       where
       open _»_⊩ₗId_ ⊩A
 
@@ -677,7 +694,7 @@ pattern Σₜ p d p≡p pProd prop =  p , d , p≡p , pProd , prop
 pattern Σₜ₌ p r d d′ pProd rProd p≅r [t] [u] prop = p , r , d , d′ , p≅r , [t] , [u] , pProd , rProd , prop
 
 pattern Uᵣ′ a b c = Uᵣ (Uᵣ a b c)
-pattern ne′ a b c d e = ne (ne a b c d e)
+pattern ne′ a b c d = ne (ne a b c d)
 pattern Bᵣ′ W a b c d e f g h = Bᵣ W (Bᵣ a b c d e f g h)
 pattern Πᵣ′ a b c d e f g h = Bᵣ′ BΠ! a b c d e f g h
 pattern Σᵣ′ a b c d e f g h = Bᵣ′ BΣ! a b c d e f g h
@@ -739,13 +756,12 @@ _»_⊩⟨_⟩_≡_∷_/_ :
 
 data ⊩Id∷-view
   {A : Term ℓ} (⊩A : ∇ » Γ ⊩′⟨ l ⟩Id A) :
-  ∀ t → Identity t → Set a where
+  ∀ t → Identityₗ ∇ t → Set a where
   rflᵣ : let open _»_⊩ₗId_ ⊩A in
          ∇ » Γ ⊩⟨ l ⟩ lhs ≡ rhs ∷ Ty / ⊩Ty →
          ⊩Id∷-view ⊩A rfl rflₙ
   ne   : let open _»_⊩ₗId_ ⊩A in
-         Var-included →
-         (u-n : Neutral u) →
+         (u-n : Neutralₗ ∇ u) →
          ∇ » Γ ⊢~ u ∷ Id Ty lhs rhs →
          ⊩Id∷-view ⊩A u (ne u-n)
 
@@ -756,18 +772,17 @@ data ⊩Id∷-view
   ((u , _ , u-id , _) : ∇ » Γ ⊩⟨ l ⟩ t ∷ A / Idᵣ ⊩A) →
   ⊩Id∷-view ⊩A u u-id
 ⊩Id∷-view-inhabited = λ where
-  (_ , _ , rflₙ , lhs≡rhs)     → rflᵣ lhs≡rhs
-  (_ , _ , ne u-n , inc , u~u) → ne inc u-n u~u
+  (_ , _ , rflₙ , lhs≡rhs) → rflᵣ lhs≡rhs
+  (_ , _ , ne u-n , u~u)   → ne u-n u~u
 
 -- A view of parts of _»_⊩ₗId_≡_∷_/_.
 
 data ⊩Id≡∷-view
   {Γ : Con Term ℓ} (lhs rhs {Ty} : Term ℓ) (⊩Ty : ∇ » Γ ⊩⟨ l ⟩ Ty) :
-  ∀ t → Identity t → ∀ u → Identity u → Set a where
+  ∀ t → Identityₗ ∇ t → ∀ u → Identityₗ ∇ u → Set a where
   rfl₌ : (lhs≡rhs : ∇ » Γ ⊩⟨ l ⟩ lhs ≡ rhs ∷ Ty / ⊩Ty) →
          ⊩Id≡∷-view lhs rhs ⊩Ty rfl rflₙ rfl rflₙ
-  ne   : Var-included →
-         (t′-n : Neutral t′) (u′-n : Neutral u′) →
+  ne   : (t′-n : Neutralₗ ∇ t′) (u′-n : Neutralₗ ∇ u′) →
          ∇ » Γ ⊢ t′ ~ u′ ∷ Id Ty lhs rhs →
          ⊩Id≡∷-view lhs rhs ⊩Ty t′ (ne t′-n) u′ (ne u′-n)
 
@@ -784,8 +799,8 @@ data ⊩Id≡∷-view
 ⊩Id≡∷-view-inhabited _ = λ where
   (_ , _ , _ , _ , rflₙ , rflₙ , lhs≡rhs) →
     rfl₌ lhs≡rhs
-  (_ , _ , _ , _ , ne t′-n , ne u′-n , inc , t′~u′) →
-    ne inc t′-n u′-n t′~u′
+  (_ , _ , _ , _ , ne t′-n , ne u′-n , t′~u′) →
+    ne t′-n u′-n t′~u′
   (_ , _ , _ , _ , rflₙ , ne _ , ())
   (_ , _ , _ , _ , ne _ , rflₙ , ())
 
@@ -802,18 +817,17 @@ data ⊩Id≡∷-view
        (Lift _ ⊥))
     (Identity-rec u′-id
        (Lift _ ⊥)
-       (Var-included ×
-        ∇ » Γ ⊢ t′ ~ u′ ∷ Id Ty lhs rhs)) →
+       (∇ » Γ ⊢ t′ ~ u′ ∷ Id Ty lhs rhs)) →
   ∇ » Γ ⊩⟨ l ⟩ t ≡ u ∷ A / Idᵣ ⊩A
 ⊩Id≡∷ ⊩t@(t′ , t⇒*t′ , t′-id , _) ⊩u@(u′ , u⇒*u′ , u′-id , _) rest =
     t′ , u′ , t⇒*t′ , u⇒*u′ , t′-id , u′-id
   , (case ⊩Id∷-view-inhabited ⊩t of λ where
        (rflᵣ lhs≡rhs) → case ⊩Id∷-view-inhabited ⊩u of λ where
-         (rflᵣ _)   → lhs≡rhs
-         (ne _ _ _) → case rest of λ ()
-       (ne _ _ _) → case ⊩Id∷-view-inhabited ⊩u of λ where
-         (rflᵣ _)   → case rest of λ ()
-         (ne _ _ _) → rest)
+         (rflᵣ _) → lhs≡rhs
+         (ne _ _) → case rest of λ ()
+       (ne _ _) → case ⊩Id∷-view-inhabited ⊩u of λ where
+         (rflᵣ _) → case rest of λ ()
+         (ne _ _) → rest)
 
 -- A kind of inverse of ⊩Id≡∷.
 
@@ -830,16 +844,15 @@ data ⊩Id≡∷-view
        (Lift _ ⊥))
     (Identity-rec u′-id
        (Lift _ ⊥)
-       (Var-included ×
-        ∇ » Γ ⊢ t′ ~ u′ ∷ Id Ty lhs rhs))
+       (∇ » Γ ⊢ t′ ~ u′ ∷ Id Ty lhs rhs))
 ⊩Id≡∷⁻¹ ⊩A t≡u@(t′ , u′ , t⇒*t′ , u⇒*u′ , t′-id , u′-id , rest) =
   case ⊩Id≡∷-view-inhabited ⊩A t≡u of λ where
     (rfl₌ lhs≡rhs) →
         (t′ , t⇒*t′ , t′-id , lhs≡rhs)
       , (u′ , u⇒*u′ , u′-id , lhs≡rhs)
       , _
-    (ne inc _ _ t′~u′) →
+    (ne _ _ t′~u′) →
       let ~t′ , ~u′ = wf-⊢~∷ t′~u′ in
-        (t′ , t⇒*t′ , t′-id , inc , ~t′)
-      , (u′ , u⇒*u′ , u′-id , inc , ~u′)
-      , inc , t′~u′
+        (t′ , t⇒*t′ , t′-id , ~t′)
+      , (u′ , u⇒*u′ , u′-id , ~u′)
+      , t′~u′

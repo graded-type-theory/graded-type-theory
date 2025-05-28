@@ -17,7 +17,7 @@ open EqRelSet {{...}}
 open Type-restrictions R
 
 open import Definition.Untyped M hiding (K)
-open import Definition.Untyped.Neutral M type-variant
+open import Definition.Untyped.Whnf M type-variant
 open import Definition.Typed R
 open import Definition.Typed.Inversion R
 open import Definition.Typed.Properties R
@@ -46,7 +46,7 @@ escape (Uᵣ′ _ _ D) = redFirst* D
 escape (ℕᵣ D) = redFirst* D
 escape (Emptyᵣ D) = redFirst* D
 escape (Unitᵣ (Unitₜ D _)) = redFirst* D
-escape (ne′ _ _ D _ _) = redFirst* D
+escape (ne′ _ D _ _) = redFirst* D
 escape (Bᵣ′ _ _ _ D _ _ _ _ _) = redFirst* D
 escape (Idᵣ ⊩A) = redFirst* (_»_⊩ₗId_.⇒*Id ⊩A)
 escape (emb ≤ᵘ-refl A) = escape A
@@ -64,7 +64,7 @@ escapeTerm (Emptyᵣ D) (Emptyₜ _ d _ _) =
   conv (redFirst*Term d) (sym (subset* D))
 escapeTerm (Unitᵣ (Unitₜ D _)) (Unitₜ _ d _ _) =
   conv (redFirst*Term d) (sym (subset* D))
-escapeTerm (ne′ _ _ D _ _) (neₜ _ d _) =
+escapeTerm (ne′ _ D _ _) (neₜ _ d _) =
   conv (redFirst*Term d) (sym (subset* D))
 escapeTerm (Bᵣ′ BΠ! _ _ D _ _ _ _ _) (Πₜ _ d _ _ _ _) =
   conv (redFirst*Term d) (sym (subset* D))
@@ -113,8 +113,8 @@ escapeEq (Emptyᵣ D) D′ =
   ≅-red (D , Emptyₙ) (D′ , Emptyₙ) (≅-Emptyrefl (wfEq (subset* D)))
 escapeEq (Unitᵣ (Unitₜ D ok)) D′ =
   ≅-red (D , Unitₙ) (D′ , Unitₙ) (≅-Unitrefl (wfEq (subset* D)) ok)
-escapeEq (ne′ _ _ D neK _) (ne₌ _ _ D′ neM K≡M) =
-  ≅-red (D , ne neK) (D′ , ne neM) K≡M
+escapeEq (ne′ _ D neK _) (ne₌ _ D′ neM K≡M) =
+  ≅-red (D , ne-whnf neK) (D′ , ne-whnf neM) K≡M
 escapeEq (Bᵣ′ W _ _ D _ _ _ _ _) (B₌ _ _ D′ A≡B _ _) =
   ≅-red (D , ⟦ W ⟧ₙ) (D′ , ⟦ W ⟧ₙ) A≡B
 escapeEq (Idᵣ ⊩A) A≡B =
@@ -129,8 +129,8 @@ escapeTermEq (ℕᵣ D) (ℕₜ₌ _ _ d d′ k≡k′ prop) =
   in  ≅ₜ-red (D , ℕₙ) (d , naturalWhnf natK)
         (d′ , naturalWhnf natK′) k≡k′
 escapeTermEq (Emptyᵣ D) (Emptyₜ₌ k k′ d d′ k≡k′ prop) =
-  let natK , natK′ = esplit prop
-  in  ≅ₜ-red (D , Emptyₙ) (d , ne natK) (d′ , ne natK′) k≡k′
+  let neK , neK′ = esplit prop
+  in  ≅ₜ-red (D , Emptyₙ) (d , ne-whnf neK) (d′ , ne-whnf neK′) k≡k′
 escapeTermEq (Unitᵣ (Unitₜ D _)) (Unitₜ₌ˢ ⊢t ⊢u ok) =
   let t≅u = ≅ₜ-η-unit ⊢t ⊢u ok
       A≡Unit = subset* D
@@ -138,8 +138,8 @@ escapeTermEq (Unitᵣ (Unitₜ D _)) (Unitₜ₌ˢ ⊢t ⊢u ok) =
 escapeTermEq (Unitᵣ (Unitₜ D _)) (Unitₜ₌ʷ _ _ d d′ k≡k′ prop _) =
   let whK , whK′ = usplit prop
   in  ≅ₜ-red (D , Unitₙ) (d , whK) (d′ , whK′) k≡k′
-escapeTermEq (ne′ _ _ D neK _) (neₜ₌ _ _ d d′ (neNfₜ₌ _ neT neU t≡u)) =
-  ≅ₜ-red (D , ne neK) (d , ne neT) (d′ , ne neU) (~-to-≅ₜ t≡u)
+escapeTermEq (ne′ _ D neK _) (neₜ₌ _ _ d d′ (neNfₜ₌ neT neU t≡u)) =
+  ≅ₜ-red (D , ne-whnf neK) (d , ne-whnf neT) (d′ , ne-whnf neU) (~-to-≅ₜ t≡u)
 escapeTermEq
   (Bᵣ′ BΠ! _ _ D _ _ _ _ _) (Πₜ₌ _ _ d d′ funcF funcG f≡g _ _ _) =
   ≅ₜ-red (D , ΠΣₙ) (d , functionWhnf funcF) (d′ , functionWhnf funcG)
@@ -149,8 +149,8 @@ escapeTermEq
   ≅ₜ-red (D , ΠΣₙ) (d , productWhnf pProd) (d′ , productWhnf rProd) p≅r
 escapeTermEq {∇ = ∇} {Γ = Γ} (Idᵣ ⊩A) t≡u@(_ , _ , t⇒*t′ , u⇒*u′ , _) =
   case ⊩Id≡∷-view-inhabited ⊩A t≡u of λ where
-    (ne _ t′-n u′-n t′~u′) →
-      lemma (ne t′-n) (ne u′-n) (~-to-≅ₜ t′~u′)
+    (ne t′-n u′-n t′~u′) →
+      lemma (ne-whnf t′-n) (ne-whnf u′-n) (~-to-≅ₜ t′~u′)
     (rfl₌ lhs≡rhs) →
       lemma rflₙ rflₙ
         (                                   $⟨ ≅-Id-cong

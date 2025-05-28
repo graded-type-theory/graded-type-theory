@@ -39,37 +39,74 @@ infix 25 _[_,_]₁₀
 infix 25 _[_]↑²
 infix 25 _[_][_]↑
 infix 24 _∙[_][_][_]
-infixl 24 _∙[_∷_]
+infixl 24 _∙⟨_⟩[_∷_]
+infixl 5 _⊔ᵒ_
 
 ------------------------------------------------------------------------
 -- Definition contexts
 
+-- Unfolding vectors
+
+data Unfolding : Nat -> Set where
+  ε  : Unfolding 0
+  _⁰ : Unfolding n → Unfolding (1+ n)
+  _¹ : Unfolding n → Unfolding (1+ n)
+
+_⊔ᵒ_ : Unfolding n → Unfolding n → Unfolding n
+ε    ⊔ᵒ ε     = ε
+uf ⁰ ⊔ᵒ uf′ ⁰ = (uf ⊔ᵒ uf′) ⁰
+uf ⁰ ⊔ᵒ uf′ ¹ = (uf ⊔ᵒ uf′) ¹
+uf ¹ ⊔ᵒ uf′ ⁰ = (uf ⊔ᵒ uf′) ¹
+uf ¹ ⊔ᵒ uf′ ¹ = (uf ⊔ᵒ uf′) ¹
+
+ones : (n : Nat) → Unfolding n
+ones 0      = ε
+ones (1+ n) = ones n ¹
+
+data Opacity (n : Nat) : Set where
+  opa : Unfolding n → Opacity n
+  tra : Opacity n
+
+-- Definition contexts
+
 data DCon (𝕋 : Set a) : Nat → Set a where
-  ε       : DCon 𝕋 0
-  _∙[_∷_] : DCon 𝕋 n → 𝕋 → 𝕋 → DCon 𝕋 (1+ n)
+  ε          : DCon 𝕋 0
+  _∙⟨_⟩[_∷_] : DCon 𝕋 n → Opacity n → 𝕋 → 𝕋 → DCon 𝕋 (1+ n)
 
 private variable
   ∇ ∇′ : DCon _ _
+  ω    : Opacity _
+  φ    : Unfolding _
 
 data _↦∷_∈_ {𝕋 : Set a} : Nat → 𝕋 → DCon 𝕋 n → Set a where
-  here  : ∀ {A t} {∇ : DCon 𝕋 n} → n ↦∷ A ∈ ∇ ∙[ t ∷ A ]
-  there : ∀ {A B u} → α ↦∷ A ∈ ∇ → α ↦∷ A ∈ ∇ ∙[ u ∷ B ]
+  here  : ∀ {A t} {∇ : DCon 𝕋 n} → n ↦∷ A ∈ ∇ ∙⟨ ω ⟩[ t ∷ A ]
+  there : ∀ {A B u} → α ↦∷ A ∈ ∇ → α ↦∷ A ∈ ∇ ∙⟨ ω ⟩[ u ∷ B ]
 
 data _↦_∷_∈_ {𝕋 : Set a} : Nat → 𝕋 → 𝕋 → DCon 𝕋 n → Set a where
-  here  : ∀ {A t} {∇ : DCon 𝕋 n}      → n ↦ t ∷ A ∈ ∇ ∙[ t ∷ A ]
-  there : ∀ {A B t u} → α ↦ t ∷ A ∈ ∇ → α ↦ t ∷ A ∈ ∇ ∙[ u ∷ B ]
+  here  : ∀ {A t} {∇ : DCon 𝕋 n}      → n ↦ t ∷ A ∈ ∇ ∙⟨ tra ⟩[ t ∷ A ]
+  there : ∀ {A B t u} → α ↦ t ∷ A ∈ ∇ → α ↦ t ∷ A ∈ ∇ ∙⟨ ω   ⟩[ u ∷ B ]
+
+data _↦⊘∷_∈_ {𝕋 : Set a} : Nat → 𝕋 → DCon 𝕋 n → Set a where
+  here  : ∀ {A t} {∇ : DCon 𝕋 n}  → n ↦⊘∷ A ∈ ∇ ∙⟨ opa φ ⟩[ t ∷ A ]
+  there : ∀ {A B u} → α ↦⊘∷ A ∈ ∇ → α ↦⊘∷ A ∈ ∇ ∙⟨ ω     ⟩[ u ∷ B ]
+
+-- Glassification
+
+glassify : {𝕋 : Set a} → DCon 𝕋 n → DCon 𝕋 n
+glassify ε                       = ε
+glassify (∇ ∙⟨ ω ⟩[ t ∷ A ]) = glassify ∇ ∙⟨ tra ⟩[ t ∷ A ]
 
 -- Definition context extensions
 
 data DExt (𝕋 : Set a) : Nat → Nat → Set a where
   id   : DExt 𝕋 n n
-  step : DExt 𝕋 m n → 𝕋 → 𝕋 → DExt 𝕋 (1+ m) n
+  step : DExt 𝕋 m n → Opacity m → 𝕋 → 𝕋 → DExt 𝕋 (1+ m) n
 
-pattern step₁ A t = step id A t
+pattern step₁ ω A t = step id ω A t
 
 _•ᵈ_ : {𝕋 : Set a} → DExt 𝕋 m n → DExt 𝕋 n l → DExt 𝕋 m l
-id          •ᵈ ξ = ξ
-step ξ′ A t •ᵈ ξ = step (ξ′ •ᵈ ξ) A t
+id            •ᵈ ξ = ξ
+step ξ′ ω A t •ᵈ ξ = step (ξ′ •ᵈ ξ) ω A t
 
 ------------------------------------------------------------------------
 -- The syntax

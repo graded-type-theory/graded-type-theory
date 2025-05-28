@@ -22,11 +22,16 @@ open import Definition.Typed.Consequences.Injectivity R
 open import Definition.Typed.Properties R
 open import Definition.Typed.Substitution R
 open import Definition.Typed.Syntactic R
+open import Definition.Typed.Weakening R as W
+open import Definition.Typed.Well-formed R
 
+open import Tools.Empty
 open import Tools.Function
+open import Tools.Level
 open import Tools.Nat
 open import Tools.Product
 import Tools.PropositionalEquality as PE
+open import Tools.Sum
 
 private
   variable
@@ -34,6 +39,7 @@ private
     ∇     : DCon (Term 0) m
     Γ     : Con Term n
     A B t : Term _
+    V     : Set a
 
 -- Helper function for the same variable instance of a context have equal types.
 varTypeEq′ : ∀ {n R T} → n ∷ R ∈ Γ → n ∷ T ∈ Γ → R PE.≡ T
@@ -48,8 +54,11 @@ varTypeEq A B x∷A x∷B rewrite varTypeEq′ x∷A x∷B = refl A
 
 neTypeEq :
   ⦃ ok : No-equality-reflection or-empty Γ ⦄ →
-  Neutral t → ∇ » Γ ⊢ t ∷ A → ∇ » Γ ⊢ t ∷ B → ∇ » Γ ⊢ A ≡ B
-neTypeEq (var x) (var x₁ x₂) (var x₃ x₄) =
+  Neutral V ∇ t → ∇ » Γ ⊢ t ∷ A → ∇ » Γ ⊢ t ∷ B → ∇ » Γ ⊢ A ≡ B
+neTypeEq (defn α↦⊘) (defn ⊢Γ α↦∷A PE.refl) (defn _ α↦∷B PE.refl) =
+  case unique-↦∈ α↦∷A α↦∷B PE.refl of λ where
+    PE.refl → refl (W.wk (wk₀∷ʷ⊇ ⊢Γ) (wf-↦∈ α↦∷A (defn-wf ⊢Γ)))
+neTypeEq (var ok x) (var x₁ x₂) (var x₃ x₄) =
   varTypeEq (syntacticTerm (var x₃ x₂)) (syntacticTerm (var x₃ x₄)) x₂ x₄
 neTypeEq (∘ₙ neT) (t∷A ∘ⱼ t∷A₁) (t∷B ∘ⱼ t∷B₁) with neTypeEq neT t∷A t∷B
 ... | q = ΠΣ-injectivity q .proj₂ .proj₁ (refl t∷A₁)

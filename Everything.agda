@@ -100,6 +100,7 @@ import Definition.Untyped.Erased.No-eta
 import Definition.Untyped.Erased
 import Definition.Untyped.Bool.Erased
 import Definition.Untyped.Neutral
+import Definition.Untyped.Whnf
 import Graded.Derived.Unrestricted.Eta.Untyped
 import Definition.Typed.Variant
 
@@ -113,6 +114,7 @@ import Definition.Typed.Reasoning.Type
 import Definition.Typed.Reasoning.Term.Primitive
 import Definition.Typed.Properties.Admissible.Var
 import Definition.Typed.Properties.Well-formed
+import Definition.Typed.Properties.Definition
 import Definition.Typed.Inversion.Primitive
 import Definition.Typed.Properties.Admissible.Erased.Primitive
 import Definition.Typed.Weakening
@@ -298,6 +300,7 @@ import Definition.LogicalRelation.Fundamental.Reducibility
 -- Some consequences of the fundamental lemma.
 import Definition.Typed.Consequences.Injectivity
 import Definition.Typed.Consequences.Inequality
+import Definition.Typed.Consequences.Unfolding
 import Definition.Typed.Consequences.Inversion
 import Definition.Typed.Consequences.Equality
 import Definition.Typed.Consequences.Canonicity

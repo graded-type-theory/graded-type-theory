@@ -24,6 +24,7 @@ private
   variable
     m n l l₁ l₂ α : Nat
     ∇ : DCon (Term 0) _
+    φ : Unfolding _
     Γ : Con Term n
     t u v w A B C₁ C₂ F G : Term n
     p q r p′ q′ : M
@@ -201,11 +202,16 @@ mutual
 -- CheckableDCon ∇ means that the types and terms in ∇ are checkable.
 
 data CheckableDCon : (∇ : DCon (Term 0) n) → Set a where
-  ε       : CheckableDCon ε
-  _∙[_∷_] : CheckableDCon ∇
-          → Checkable t
-          → Checkable-type A
-          → CheckableDCon (∇ ∙[ t ∷ A ])
+  ε            : CheckableDCon ε
+  _∙ᶜᵒ⟨_⟩[_∷_] : CheckableDCon ∇
+               → Opacity-allowed
+               → Checkable t
+               → Checkable-type A
+               → CheckableDCon (∇ ∙⟨ opa φ ⟩[ t ∷ A ])
+  _∙ᶜᵗ[_∷_]    : CheckableDCon ∇
+               → Checkable t
+               → Checkable-type A
+               → CheckableDCon (∇ ∙⟨ tra ⟩[ t ∷ A ])
 
 -- CheckableCon Γ means that the types in Γ are checkable.
 

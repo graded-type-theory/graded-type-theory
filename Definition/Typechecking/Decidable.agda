@@ -38,6 +38,7 @@ open import Definition.Typed.Decidable.Reduction R _≟_
 open import Definition.Untyped M as U
 open import Definition.Untyped.Neutral M type-variant
 open import Definition.Untyped.Properties M
+open import Definition.Untyped.Whnf M type-variant
 
 open import Tools.Fin
 open import Tools.Function
@@ -75,9 +76,9 @@ dec⇇-var x ⊢A =
 lookup-defn :
   (∇ : DCon (Term 0) m) →
   {α : Nat} → α <′ m → ∃ λ A → α ↦∷ A ∈ ∇
-lookup-defn ε              ()
-lookup-defn (∇ ∙[ t ∷ A ]) ≤′-refl       = A , here
-lookup-defn (∇ ∙[ t ∷ A ]) (≤′-step α<m) =
+lookup-defn ε                   ()
+lookup-defn (∇ ∙⟨ ω ⟩[ t ∷ A ]) ≤′-refl       = A , here
+lookup-defn (∇ ∙⟨ ω ⟩[ t ∷ A ]) (≤′-step α<m) =
   let A , α↦t = lookup-defn ∇ α<m
   in  A , there α↦t
 
@@ -606,7 +607,7 @@ mutual
         not
           ( _
           , U-norm
-              (B    ≡⟨ neTypeEq (var _) ⊢x (soundness⇉ ⊢Γ x .proj₂) ⟩⊢
+              (B    ≡⟨ neTypeEq (var⁺ _) ⊢x (soundness⇉ ⊢Γ x .proj₂) ⟩⊢
                C    ≡⟨ subset* ⇒*U ⟩⊢∎
                U l  ∎)
           , Uₙ

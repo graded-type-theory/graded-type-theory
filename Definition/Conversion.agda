@@ -16,6 +16,7 @@ open Type-restrictions R
 open import Definition.Untyped M
 import Definition.Untyped.Erased 𝕄 as Erased
 open import Definition.Untyped.Neutral M type-variant
+open import Definition.Untyped.Whnf M type-variant
 open import Definition.Typed R
 
 open import Tools.Fin
@@ -36,7 +37,7 @@ infix 10 _»_⊢_[conv↓]_∷_
 
 private
   variable
-    m n l : Nat
+    m n l α β : Nat
     ∇ : DCon (Term 0) m
     Γ : Con Term n
     A₁ A₂ B₁ B₂ C F G E : Term n
@@ -53,6 +54,12 @@ mutual
     var-refl      : ∇ » Γ ⊢ var x ∷ C
                   → x PE.≡ y
                   → ∇ » Γ ⊢ var x ~ var y ↑ C
+    
+    defn-refl     : ∀ {A}
+                  → ∇ » Γ ⊢ defn α ∷ C
+                  → α ↦⊘∷ A ∈ ∇
+                  → α PE.≡ β
+                  → ∇ » Γ ⊢ defn α ~ defn β ↑ C
 
     app-cong      : ∀ {A B}
                   → ∇ » Γ ⊢ t₁ ~ t₂ ↓ Π p , q ▷ A ▹ B
@@ -83,11 +90,11 @@ mutual
                   → ∇ » Γ ⊢ t₁ ~ t₂ ↓ Empty
                   → ∇ » Γ ⊢ emptyrec p A₁ t₁ ~ emptyrec p A₂ t₂ ↑ A₁
 
-    unitrec-cong : ∇ » Γ ∙ Unitʷ l ⊢ A₁ [conv↑] A₂
-                 → ∇ » Γ ⊢ t₁ ~ t₂ ↓ Unitʷ l
-                 → ∇ » Γ ⊢ u₁ [conv↑] u₂ ∷ A₁ [ starʷ l ]₀
-                 → ¬ Unitʷ-η
-                 → ∇ » Γ ⊢ unitrec l p q A₁ t₁ u₁ ~ unitrec l p q A₂ t₂ u₂ ↑
+    unitrec-cong  : ∇ » Γ ∙ Unitʷ l ⊢ A₁ [conv↑] A₂
+                  → ∇ » Γ ⊢ t₁ ~ t₂ ↓ Unitʷ l
+                  → ∇ » Γ ⊢ u₁ [conv↑] u₂ ∷ A₁ [ starʷ l ]₀
+                  → ¬ Unitʷ-η
+                  → ∇ » Γ ⊢ unitrec l p q A₁ t₁ u₁ ~ unitrec l p q A₂ t₂ u₂ ↑
                      A₁ [ t₁ ]₀
 
     J-cong        : ∇ » Γ ⊢ A₁ [conv↑] A₂
@@ -204,7 +211,7 @@ mutual
     ne-ins    : ∀ {A A′}
               → ∇ » Γ ⊢ t₁ ∷ A
               → ∇ » Γ ⊢ t₂ ∷ A
-              → Neutral A
+              → Neutral⁺ ∇ A
               → ∇ » Γ ⊢ t₁ ~ t₂ ↓ A′
               → ∇ » Γ ⊢ t₁ [conv↓] t₂ ∷ A
 
@@ -235,24 +242,24 @@ mutual
     η-eq      : ∀ {f g F G}
               → ∇ » Γ ⊢ f ∷ Π p , q ▷ F ▹ G
               → ∇ » Γ ⊢ g ∷ Π p , q ▷ F ▹ G
-              → Function f
-              → Function g
+              → Function⁺ ∇ f
+              → Function⁺ ∇ g
               → ∇ » Γ ∙ F ⊢ wk1 f ∘⟨ p ⟩ var x0 [conv↑] wk1 g ∘⟨ p ⟩ var x0 ∷ G
               → ∇ » Γ ⊢ f [conv↓] g ∷ Π p , q ▷ F ▹ G
 
     Σ-η       : ∀ {A B}
               → ∇ » Γ ⊢ t₁ ∷ Σˢ p , q ▷ A ▹ B
               → ∇ » Γ ⊢ t₂ ∷ Σˢ p , q ▷ A ▹ B
-              → Product t₁
-              → Product t₂
+              → Product⁺ ∇ t₁
+              → Product⁺ ∇ t₂
               → ∇ » Γ ⊢ fst p t₁ [conv↑] fst p t₂ ∷ A
               → ∇ » Γ ⊢ snd p t₁ [conv↑] snd p t₂ ∷ B [ fst p t₁ ]₀
               → ∇ » Γ ⊢ t₁ [conv↓] t₂ ∷ Σˢ p , q ▷ A ▹ B
 
     η-unit    : ∇ » Γ ⊢ t₁ ∷ Unit s l
               → ∇ » Γ ⊢ t₂ ∷ Unit s l
-              → Whnf t₁
-              → Whnf t₂
+              → Whnf ∇ t₁
+              → Whnf ∇ t₂
               → Unit-with-η s
               → ∇ » Γ ⊢ t₁ [conv↓] t₂ ∷ Unit s l
 

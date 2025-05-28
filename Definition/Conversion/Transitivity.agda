@@ -17,7 +17,6 @@ module Definition.Conversion.Transitivity
 open import Definition.Untyped M
 open import Definition.Untyped.Neutral M type-variant
 open import Definition.Untyped.Properties M
-open import Definition.Untyped.Properties.Neutral M type-variant
 open import Definition.Typed R
 open import Definition.Typed.EqRelInstance R
 open import Definition.Typed.EqualityRelation.Instance R
@@ -36,10 +35,10 @@ open import Definition.Typed.Consequences.Injectivity R
 import Definition.Typed.Consequences.Inequality R as WF
 open import Definition.Typed.Consequences.NeTypeEq R
 
+open import Tools.Empty
 open import Tools.Function
 open import Tools.Nat
 open import Tools.Product
-open import Tools.Empty
 import Tools.PropositionalEquality as PE
 open import Tools.Sum using (inj₁; inj₂)
 
@@ -52,7 +51,7 @@ private
     A t u v : Term _
 
 mutual
-  -- Transitivity of algorithmic equality of neutrals.
+  -- Transitivity of algorithmic equality of neutral terms.
   trans~↑ : ∀ {t u v A B}
          → ∇ » Γ ⊢ t ~ u ↑ A
          → ∇ » Γ ⊢ u ~ v ↑ B
@@ -60,9 +59,14 @@ mutual
          × ∇ » Γ ⊢ A ≡ B
   trans~↑ (var-refl x₁ x≡y) (var-refl x₂ x≡y₁) =
     var-refl x₁ (PE.trans x≡y x≡y₁)
-    , neTypeEq (var _) x₁
+    , neTypeEq (var⁺ _) x₁
                (PE.subst (λ x → _ » _ ⊢ var x ∷ _) (PE.sym x≡y)
                          x₂)
+  trans~↑ (defn-refl α α↦⊘ α≡β) (defn-refl β _ β≡γ) =
+    defn-refl α α↦⊘ (PE.trans α≡β β≡γ)
+    , neTypeEq (defn⁺ α↦⊘) α
+               (PE.subst (λ γ → _ » _ ⊢ defn γ ∷ _) (PE.sym α≡β)
+                         β)
   trans~↑ (app-cong t~u a<>b) (app-cong u~v b<>c) =
     let t~v , ΠFG≡ΠF′G′ = trans~↓ t~u u~v
         F≡F₁ , G≡G₁ , p≡p₄ , _ = ΠΣ-injectivity ΠFG≡ΠF′G′
@@ -173,7 +177,7 @@ mutual
         ([]-cong′ Erased-ok (soundnessConv↑Term t₁≡t₂))
         ([]-cong′ Erased-ok (soundnessConv↑Term u₁≡u₂)) }}
 
-  -- Transitivity of algorithmic equality of neutrals with types in WHNF.
+  -- Transitivity of algorithmic equality of neutral terms with types in WHNF.
   trans~↓ : ∀ {t u v A B}
           → ∇ » Γ ⊢ t ~ u ↓ A
           → ∇ » Γ ⊢ u ~ v ↓ B
@@ -304,12 +308,12 @@ mutual
       (inj₁ (_ , _ , _ , _ , u~v)) →
         Σʷ-ins ⊢t ⊢v (trans~↓ t~u u~v .proj₁)
       (inj₂ (_ , _ , _ , _ , PE.refl , _)) →
-        ⊥-elim $ ¬-Neutral-prod $ ne~↓ t~u .proj₂ .proj₂
+        ⊥-elim $ flip prod≢ne PE.refl $ ne~↓ t~u .proj₂ .proj₂
   transConv↓Term (prod-cong ⊢B t₁≡u₁ t₂≡u₂ ok) u≡v =
     let _ , _ , ⊢v = syntacticEqTerm (soundnessConv↓Term u≡v) in
     case inv-[conv↓]∷-Σʷ u≡v of λ where
       (inj₁ (_ , _ , _ , _ , u~v)) →
-        ⊥-elim $ ¬-Neutral-prod $ ne~↓ u~v .proj₂ .proj₁
+        ⊥-elim $ flip prod≢ne PE.refl $ ne~↓ u~v .proj₂ .proj₁
       (inj₂ (_ , _ , _ , _ , u≡prod , PE.refl , u₁≡v₁ , u₂≡v₂)) →
         case prod-PE-injectivity u≡prod of λ {
           (_ , _ , PE.refl , PE.refl) →
@@ -330,13 +334,13 @@ mutual
       (inj₁ (_ , inj₁ u~v)) →
         Unitʷ-ins no-η (trans~↓ t~u u~v .proj₁)
       (inj₁ (_ , inj₂ (PE.refl , _))) →
-        ⊥-elim $ ¬-Neutral-star $ ne~↓ t~u .proj₂ .proj₂
+        ⊥-elim $ flip star≢ne PE.refl $ ne~↓ t~u .proj₂ .proj₂
       (inj₂ (η , _)) →
         ⊥-elim (no-η η)
   transConv↓Term (starʷ-refl _ _ no-η) u≡v =
     case inv-[conv↓]∷-Unitʷ u≡v of λ where
       (inj₁ (_ , inj₁ u~v)) →
-        ⊥-elim $ ¬-Neutral-star $ ne~↓ u~v .proj₂ .proj₁
+        ⊥-elim $ flip star≢ne PE.refl $ ne~↓ u~v .proj₂ .proj₁
       (inj₁ (_ , inj₂ (_ , PE.refl))) →
         u≡v
       (inj₂ (η , _)) →
@@ -346,20 +350,20 @@ mutual
       (inj₁ u~v) →
         ℕ-ins (trans~↓ t~u u~v .proj₁)
       (inj₂ (inj₁ (PE.refl , _))) →
-        ⊥-elim $ ¬-Neutral-zero $ ne~↓ t~u .proj₂ .proj₂
+        ⊥-elim $ flip zero≢ne PE.refl $ ne~↓ t~u .proj₂ .proj₂
       (inj₂ (inj₂ (_ , _ , PE.refl , _))) →
-        ⊥-elim $ ¬-Neutral-suc $ ne~↓ t~u .proj₂ .proj₂
+        ⊥-elim $ flip suc≢ne PE.refl $ ne~↓ t~u .proj₂ .proj₂
   transConv↓Term (zero-refl _) u≡v =
     case inv-[conv↓]∷-ℕ u≡v of λ where
       (inj₁ u~v) →
-        ⊥-elim $ ¬-Neutral-zero $ ne~↓ u~v .proj₂ .proj₁
+        ⊥-elim $ flip zero≢ne PE.refl $ ne~↓ u~v .proj₂ .proj₁
       (inj₂ (inj₁ (_ , PE.refl))) →
         u≡v
       (inj₂ (inj₂ (_ , _ , () , _)))
   transConv↓Term (suc-cong t≡u) u≡v =
     case inv-[conv↓]∷-ℕ u≡v of λ where
       (inj₁ u~v) →
-        ⊥-elim $ ¬-Neutral-suc $ ne~↓ u~v .proj₂ .proj₁
+        ⊥-elim $ flip suc≢ne PE.refl $ ne~↓ u~v .proj₂ .proj₁
       (inj₂ (inj₁ (() , _)))
       (inj₂ (inj₂ (_ , _ , PE.refl , PE.refl , u≡v))) →
         suc-cong (transConvTerm t≡u u≡v)
@@ -368,11 +372,11 @@ mutual
       (inj₁ (_ , _ , _ , u~v)) →
         Id-ins ⊢t (trans~↓ t~u u~v .proj₁)
       (inj₂ (PE.refl , _)) →
-        ⊥-elim $ ¬-Neutral-rfl $ ne~↓ t~u .proj₂ .proj₂
+        ⊥-elim $ flip rfl≢ne PE.refl $ ne~↓ t~u .proj₂ .proj₂
   transConv↓Term t≡u@(rfl-refl _) u≡v =
     case inv-[conv↓]∷-Id u≡v of λ where
       (inj₁ (_ , _ , _ , u~v)) →
-        ⊥-elim $ ¬-Neutral-rfl $ ne~↓ u~v .proj₂ .proj₁
+        ⊥-elim $ flip rfl≢ne PE.refl $ ne~↓ u~v .proj₂ .proj₁
       (inj₂ (_ , PE.refl , _)) →
         t≡u
 

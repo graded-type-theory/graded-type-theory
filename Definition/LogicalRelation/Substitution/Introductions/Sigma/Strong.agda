@@ -37,8 +37,8 @@ open import Definition.Typed.Weakening.Definition R
 open import Definition.Typed.Well-formed R
 
 open import Definition.Untyped M
-open import Definition.Untyped.Neutral M type-variant
 open import Definition.Untyped.Properties M
+open import Definition.Untyped.Whnf M type-variant
 
 open import Tools.Function
 open import Tools.Product
@@ -65,7 +65,7 @@ opaque
     (∇ » Γ ⊩⟨ l ⟩ Σˢ p , q ▷ A ▹ B ×
      ∃ λ u →
      ∇ » Γ ⊢ t ⇒* u ∷ Σˢ p , q ▷ A ▹ B ×
-     Product u ×
+     Productₗ ∇ u ×
      ∇ » Γ ⊢≅ u ∷ Σˢ p , q ▷ A ▹ B ×
      ∇ » Γ ⊩⟨ l ⟩ fst p u ∷ A ×
      ∇ » Γ ⊩⟨ l ⟩ snd p u ∷ B [ fst p u ]₀)
@@ -84,7 +84,7 @@ opaque
       ∇ » Γ ⊩⟨ l ⟩ t ∷ Σˢ p , q ▷ A ▹ B / B-intr (BΣ 𝕤 p q) ⊩Σ →
       ∃ λ u →
       ∇ » Γ ⊢ t ⇒* u ∷ Σˢ p , q ▷ A ▹ B ×
-      Product u ×
+      Productₗ ∇ u ×
       ∇ » Γ ⊢≅ u ∷ Σˢ p , q ▷ A ▹ B ×
       ∇ » Γ ⊩⟨ l ⟩ fst p u ∷ A ×
       ∇ » Γ ⊩⟨ l ⟩ snd p u ∷ B [ fst p u ]₀
@@ -107,7 +107,7 @@ opaque
         (PE.refl , PE.refl , _) →
       (∃ λ u →
        ∇ » Γ ⊢ t ⇒* u ∷ Σˢ p , q ▷ A ▹ B ×
-       Product u ×
+       Productₗ ∇ u ×
        ∇ » Γ ⊢≅ u ∷ Σˢ p , q ▷ A ▹ B ×
        ∇ » Γ ⊩⟨ l ⟩ fst p u ∷ A ×
        ∇ » Γ ⊩⟨ l ⟩ snd p u ∷ B [ fst p u ]₀) ∋
@@ -121,7 +121,7 @@ opaque
       (⊩Σ : ∇ » Γ ⊩⟨ l′ ⟩B⟨ BΣ 𝕤 p q ⟩ Σˢ p , q ▷ A ▹ B) →
       (∃ λ u →
        ∇ » Γ ⊢ t ⇒* u ∷ Σˢ p , q ▷ A ▹ B ×
-       Product u ×
+       Productₗ ∇ u ×
        ∇ » Γ ⊢≅ u ∷ Σˢ p , q ▷ A ▹ B ×
        ∇ » Γ ⊩⟨ l ⟩ fst p u ∷ A ×
        ∇ » Γ ⊩⟨ l ⟩ snd p u ∷ B [ fst p u ]₀) →
@@ -153,8 +153,8 @@ opaque
      ∃₂ λ u₁ u₂ →
      ∇ » Γ ⊢ t₁ ⇒* u₁ ∷ Σˢ p , q ▷ A ▹ B ×
      ∇ » Γ ⊢ t₂ ⇒* u₂ ∷ Σˢ p , q ▷ A ▹ B ×
-     Product u₁ ×
-     Product u₂ ×
+     Productₗ ∇ u₁ ×
+     Productₗ ∇ u₂ ×
      ∇ » Γ ⊢ u₁ ≅ u₂ ∷ Σˢ p , q ▷ A ▹ B ×
      ∇ » Γ ⊩⟨ l ⟩ fst p u₁ ≡ fst p u₂ ∷ A ×
      ∇ » Γ ⊩⟨ l ⟩ snd p u₁ ≡ snd p u₂ ∷ B [ fst p u₁ ]₀)
@@ -174,8 +174,8 @@ opaque
       ∃₂ λ u₁ u₂ →
       ∇ » Γ ⊢ t₁ ⇒* u₁ ∷ Σˢ p , q ▷ A ▹ B ×
       ∇ » Γ ⊢ t₂ ⇒* u₂ ∷ Σˢ p , q ▷ A ▹ B ×
-      Product u₁ ×
-      Product u₂ ×
+      Productₗ ∇ u₁ ×
+      Productₗ ∇ u₂ ×
       ∇ » Γ ⊢ u₁ ≅ u₂ ∷ Σˢ p , q ▷ A ▹ B ×
       ∇ » Γ ⊩⟨ l ⟩ fst p u₁ ≡ fst p u₂ ∷ A ×
       ∇ » Γ ⊩⟨ l ⟩ snd p u₁ ≡ snd p u₂ ∷ B [ fst p u₁ ]₀
@@ -214,8 +214,8 @@ opaque
       (∃₂ λ u₁ u₂ →
        ∇ » Γ ⊢ t₁ ⇒* u₁ ∷ Σˢ p , q ▷ A ▹ B ×
        ∇ » Γ ⊢ t₂ ⇒* u₂ ∷ Σˢ p , q ▷ A ▹ B ×
-       Product u₁ ×
-       Product u₂ ×
+       Productₗ ∇ u₁ ×
+       Productₗ ∇ u₂ ×
        ∇ » Γ ⊢ u₁ ≅ u₂ ∷ Σˢ p , q ▷ A ▹ B ×
        ∇ » Γ ⊩⟨ l ⟩ fst p u₁ ≡ fst p u₂ ∷ A ×
        ∇ » Γ ⊩⟨ l ⟩ snd p u₁ ≡ snd p u₂ ∷ B [ fst p u₁ ]₀) ∋
@@ -243,8 +243,8 @@ opaque
       (∃₂ λ u₁ u₂ →
        ∇ » Γ ⊢ t₁ ⇒* u₁ ∷ Σˢ p , q ▷ A ▹ B ×
        ∇ » Γ ⊢ t₂ ⇒* u₂ ∷ Σˢ p , q ▷ A ▹ B ×
-       Product u₁ ×
-       Product u₂ ×
+       Productₗ ∇ u₁ ×
+       Productₗ ∇ u₂ ×
        ∇ » Γ ⊢ u₁ ≅ u₂ ∷ Σˢ p , q ▷ A ▹ B ×
        ∇ » Γ ⊩⟨ l ⟩ fst p u₁ ≡ fst p u₂ ∷ A ×
        ∇ » Γ ⊩⟨ l ⟩ snd p u₁ ≡ snd p u₂ ∷ B [ fst p u₁ ]₀) →
@@ -548,7 +548,7 @@ opaque
             , ≅-Σ-η
                 (wf-⊢≡∷ (subset*Term t₁[σ]⇒*u₁) .proj₂ .proj₂)
                 (wf-⊢≡∷ (subset*Term t₂[σ]⇒*u₂) .proj₂ .proj₂)
-                u₁-prod u₂-prod
+                (product↑ _ u₁-prod) (product↑ _ u₂-prod)
                 (escape-⊩≡∷ fst-u₁≡fst-u₂) (escape-⊩≡∷ snd-u₁≡snd-u₂)
             , fst-u₁≡fst-u₂ , snd-u₁≡snd-u₂
             )

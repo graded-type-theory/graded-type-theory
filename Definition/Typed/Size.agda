@@ -26,8 +26,9 @@ opaque mutual
   -- The size of a derivation.
 
   size-» : » ∇ → Size
-  size-» ε      = leaf
-  size-» (∙ ⊢t) = node (size-⊢∷ ⊢t)
+  size-» ε                        = leaf
+  size-» ∙ᵒ⟨ ok , φ↜ ⟩[ ⊢t ∷ ⊢A ] = size-⊢∷ ⊢t ⊕ size-⊢ ⊢A
+  size-»            ∙ᵗ[ ⊢t      ] = node (size-⊢∷ ⊢t)
 
   -- The size of a derivation.
 

@@ -18,8 +18,8 @@ open EqRelSet {{...}}
 open Type-restrictions R
 
 open import Definition.Untyped M hiding (Wk; K)
-open import Definition.Untyped.Neutral M type-variant
 open import Definition.Untyped.Properties M
+open import Definition.Untyped.Whnf M type-variant
 open import Definition.Typed R
 open import Definition.Typed.Properties R
 open import Definition.LogicalRelation R
@@ -98,9 +98,9 @@ mutual
       (_ , PE.refl) →
     A≡B }
   irrelevanceEqT
-    (ne (ne _ _ D neK _) (ne _ K₁ D₁ neK₁ K≡K₁)) (ne₌ inc M D′ neM K≡M)
-    rewrite whrDet* (D , ne neK) (D₁ , ne neK₁) =
-    ne₌ inc M D′ neM K≡M
+    (ne (ne _ D neK _) (ne K₁ D₁ neK₁ K≡K₁)) (ne₌ M D′ neM K≡M)
+    rewrite whrDet* (D , ne-whnf neK) (D₁ , ne-whnf neK₁) =
+    ne₌ M D′ neM K≡M
   irrelevanceEqT
     {∇ = ∇} {Γ = Γ}
     (Bᵥ W (Bᵣ F G D A≡A [F] [G] G-ext _)
@@ -188,9 +188,9 @@ mutual
       (_ , PE.refl) →
     ⊩t }
   irrelevanceTermT
-    (ne (ne _ _ D neK K≡K) (ne _ K₁ D₁ neK₁ K≡K₁)) (neₜ k d nf)
-    with whrDet* (D₁ , ne neK₁) (D , ne neK)
-  … | PE.refl = neₜ k d nf
+    (ne (ne _ D neK K≡K) (ne K₁ D₁ neK₁ K≡K₁)) (neₜ k d prop)
+    with whrDet* (D₁ , ne-whnf neK₁) (D , ne-whnf neK)
+  … | PE.refl = neₜ k d prop
   irrelevanceTermT
     {∇ = ∇} {Γ = Γ} {t = t}
     (Bᵥ BΠ! (Bᵣ F G D A≡A [F] [G] G-ext _)
@@ -250,11 +250,11 @@ mutual
     {∇ = ∇} {Γ = Γ} {t = t}
     (Bᵥ BΣʷ (Bᵣ F G D A≡A [F] [G] G-ext _)
        (Bᵣ F₁ G₁ D₁ A≡A₁ [F]₁ [G]₁ G-ext₁ _))
-    (Σₜ p d p≅p (ne x) (inc , p~p)) =
+    (Σₜ p d p≅p (ne x) p~p) =
     let ΣFG≡ΣF₁G₁       = whrDet* (D , ΠΣₙ) (D₁ , ΠΣₙ)
     in  Σₜ p (PE.subst (λ x → ∇ » Γ ⊢ t ⇒* p ∷ x) ΣFG≡ΣF₁G₁ d)
            (PE.subst (λ x →  ∇ » Γ ⊢≅ p ∷ x) ΣFG≡ΣF₁G₁ p≅p) (ne x)
-           (inc , PE.subst (λ x → ∇ » Γ ⊢~ p ∷ x) ΣFG≡ΣF₁G₁ p~p)
+           (PE.subst (λ x → ∇ » Γ ⊢~ p ∷ x) ΣFG≡ΣF₁G₁ p~p)
   irrelevanceTermT (Uᵥ (Uᵣ _ l<1 ⇒*U1) (Uᵣ _ l<2 ⇒*U2)) (Uₜ A d typeA A≡A [t]) with whrDet* (⇒*U1 , Uₙ) (⇒*U2 ,  Uₙ)
   irrelevanceTermT (Uᵥ (Uᵣ _ l<1 _) (Uᵣ _ l<2 _)) (Uₜ A d typeA A≡A [t])
     | PE.refl =
@@ -266,8 +266,8 @@ mutual
       _
     , t⇒*u
     , (case ⊩Id∷-view-inhabited ⊩t of λ where
-         (ne inc u-n u~u) → ne u-n , inc , u~u
-         (rflᵣ lhs≡rhs)   →
+         (ne u-n u~u)   → ne u-n , u~u
+         (rflᵣ lhs≡rhs) →
              rflₙ
            , irrelevanceEqTerm
                (_»_⊩ₗId_.⊩Ty ⊩A) (_»_⊩ₗId_.⊩Ty ⊩A′) lhs≡rhs) }
@@ -308,9 +308,9 @@ mutual
       (_ , PE.refl) →
     t≡u }
   irrelevanceEqTermT
-    (ne (ne _ _ D neK K≡K) (ne _ K₁ D₁ neK₁ K≡K₁)) (neₜ₌ k m d d′ nf)
-    with whrDet* (D₁ , ne neK₁) (D , ne neK)
-  … | PE.refl = neₜ₌ k m d d′ nf
+    (ne (ne _ D neK K≡K) (ne K₁ D₁ neK₁ K≡K₁)) (neₜ₌ k m d d′ prop)
+    with whrDet* (D₁ , ne-whnf neK₁) (D , ne-whnf neK)
+  … | PE.refl = neₜ₌ k m d d′ prop
   irrelevanceEqTermT
     {∇ = ∇} {Γ = Γ} {t = t} {u = u}
     (Bᵥ BΠ! x@(Bᵣ F G D A≡A [F] [G] G-ext _)
@@ -384,7 +384,7 @@ mutual
     {∇ = ∇} {Γ = Γ} {t = t} {u = u}
     (Bᵥ BΣʷ (Bᵣ F G D A≡A [F] [G] G-ext ok)
        (Bᵣ F₁ G₁ D₁ A≡A₁ [F]₁ [G]₁ G-ext₁ ok₁))
-    (Σₜ₌ p r d d′ (ne x) (ne y) p≅r [t] [u] (inc , p~r)) =
+    (Σₜ₌ p r d d′ (ne x) (ne y) p≅r [t] [u] p~r) =
     let ΣFG≡ΣF₁G₁       = whrDet* (D , ΠΣₙ) (D₁ , ΠΣₙ)
         F≡F₁ , G≡G₁ , _ = B-PE-injectivity BΣ! BΣ! ΣFG≡ΣF₁G₁
         [A]             = Bᵣ′ BΣ! F G D A≡A [F] [G] G-ext ok
@@ -395,7 +395,7 @@ mutual
             (PE.subst (λ x → ∇ » Γ ⊢ u ⇒* r ∷ x) ΣFG≡ΣF₁G₁ d′) (ne x) (ne y)
             (PE.subst (λ x → ∇ » Γ ⊢ p ≅ r ∷ x) ΣFG≡ΣF₁G₁ p≅r)
             (irrelevanceTerm [A] [A]₁ [t]) (irrelevanceTerm [A] [A]₁ [u])
-            (inc , p~r′)
+            p~r′
   irrelevanceEqTermT
     (Bᵥ BΣʷ record{} _) (Σₜ₌ _ _ _ _ prodₙ (ne _) _ _ _ (lift ()))
   irrelevanceEqTermT
@@ -413,8 +413,8 @@ mutual
       PE.refl →
       _ , _ , t⇒*t′ , u⇒*u′
     , (case ⊩Id≡∷-view-inhabited ⊩A t≡u of λ where
-         (ne inc t′-n u′-n t′~u′) →
-           ne t′-n , ne u′-n , inc , t′~u′
+         (ne t′-n u′-n t′~u′) →
+           ne t′-n , ne u′-n , t′~u′
          (rfl₌ lhs≡rhs) →
              rflₙ , rflₙ
            , irrelevanceEqTerm

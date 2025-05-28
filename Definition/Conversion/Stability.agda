@@ -42,6 +42,8 @@ mutual
               → ∇ » Δ ⊢ k ~ l ↑ A
   stability~↑ Γ≡Δ (var-refl x x≡y) =
     var-refl (stabilityTerm Γ≡Δ x) x≡y
+  stability~↑ Γ≡Δ (defn-refl α α↦⊘ α≡β) =
+    defn-refl (stabilityTerm Γ≡Δ α) α↦⊘ α≡β
   stability~↑ Γ≡Δ (app-cong k~l x) =
     app-cong (stability~↓ Γ≡Δ k~l) (stabilityConv↑Term Γ≡Δ x)
   stability~↑ Γ≡Δ (fst-cong p~r) =

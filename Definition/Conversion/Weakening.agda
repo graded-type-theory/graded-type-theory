@@ -17,6 +17,7 @@ module Definition.Conversion.Weakening
 open import Definition.Untyped M as U hiding (wk)
 open import Definition.Untyped.Neutral M type-variant
 open import Definition.Untyped.Properties M
+open import Definition.Untyped.Whnf M type-variant
 open import Definition.Typed R
 open import Definition.Typed.Inversion R
 open import Definition.Typed.Properties R
@@ -39,12 +40,14 @@ private
     p r : M
 
 mutual
-  -- Weakening of algorithmic equality of neutrals.
+  -- Weakening of algorithmic equality of neutral terms.
   wk~↑ : ∀ {t u A Γ Δ} ([ρ] : ∇ » ρ ∷ʷ Δ ⊇ Γ)
       → ∇ » Γ ⊢ t ~ u ↑ A
       → ∇ » Δ ⊢ U.wk ρ t ~ U.wk ρ u ↑ U.wk ρ A
   wk~↑ {ρ} [ρ] (var-refl x₁ x≡y) =
     var-refl (wkTerm [ρ] x₁) (PE.cong (wkVar ρ) x≡y)
+  wk~↑ {ρ} [ρ] (defn-refl α α↦⊘ α≡β) =
+    defn-refl (wkTerm [ρ] α) α↦⊘ α≡β
   wk~↑ ρ (app-cong {B} t~u x) =
     PE.subst (λ x → _ » _ ⊢ _ ~ _ ↑ x) (PE.sym (wk-β B))
              (app-cong (wk~↓ ρ t~u) (wkConv↑Term ρ x))
@@ -141,7 +144,7 @@ mutual
       (wkConv↑Term [ρ] u₁≡u₂) (wk~↓ [ρ] v₁~v₂) (wkEq [ρ] ≡Id)
       ok
 
-  -- Weakening of algorithmic equality of neutrals in WHNF.
+  -- Weakening of algorithmic equality of neutral terms in WHNF.
   wk~↓ : ∀ {t u A Γ Δ} ([ρ] : ∇ » ρ ∷ʷ Δ ⊇ Γ)
       → ∇ » Γ ⊢ t ~ u ↓ A
       → ∇ » Δ ⊢ U.wk ρ t ~ U.wk ρ u ↓ U.wk ρ A
