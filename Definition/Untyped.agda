@@ -570,6 +570,12 @@ head σ = σ x0
 tail : Subst m (1+ n) → Subst m n
 tail σ x = σ (x +1)
 
+-- A generalisation of tail.
+
+tail[_] : ∀ k → Subst m (k + n) → Subst m n
+tail[ 0    ] σ = σ
+tail[ 1+ k ] σ = tail[ k ] (tail σ)
+
 -- Substitution of a variable.
 --
 -- If Γ ⊢ σ : Δ then Γ ⊢ substVar σ x : (subst σ Δ)(x).

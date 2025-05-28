@@ -1428,6 +1428,23 @@ wk2-B : ∀ (W : BindingType) (F : Term n) (G : Term (1+ n))
 wk2-B (BΠ p q) F G = cong (Π p , q ▷ _ ▹_) (sym (wk-comp _ _ G))
 wk2-B (BΣ s p q) F G = cong (Σ⟨ s ⟩ p , q ▷ _ ▹_) (sym (wk-comp _ _ G))
 
+opaque
+
+  -- The function tail[_] could (up to pointwise equality) have been
+  -- defined using _ₛ•ₛ_, wkSubst and idSubst.
+
+  tail[]≡ :
+    ∀ k {σ : Subst m (k + n)} →
+    ∀ x → tail[ k ] σ x ≡ (σ ₛ•ₛ wkSubst k idSubst) x
+  tail[]≡ 0          _ = refl
+  tail[]≡ (1+ k) {σ} x =
+    tail[ k ] (tail σ) x                    ≡⟨ tail[]≡ k _ ⟩
+    (tail σ ₛ•ₛ wkSubst k idSubst) x        ≡⟨⟩
+    wkSubst k idSubst x [ tail σ ]          ≡˘⟨ wk1-tail (wkSubst k _ _) ⟩
+    wk1 (wkSubst k idSubst x) [ σ ]         ≡⟨⟩
+    (σ ₛ•ₛ wk1Subst (wkSubst k idSubst)) x  ≡⟨⟩
+    (σ ₛ•ₛ wkSubst (1+ k) idSubst) x        ∎
+
 step-sgSubst : ∀ (t : Term n) t′ → wk (step ρ) t [ t′ ]₀ ≡ wk ρ t
 step-sgSubst t t′ = trans (step-consSubst t) (subst-id _)
 
