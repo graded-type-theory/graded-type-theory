@@ -400,10 +400,10 @@ opaque
 
   Id-cong-Idʳ :
     Π-allowed p q →
-    Η ⊢ t ∷ Id (U l) A₂ A₁ →
-    Η ⊢ u ∷ Id A₁ t₁ (cast l A₂ A₁ t t₂) →
-    Η ⊢ v ∷ Id A₁ u₁ (cast l A₂ A₁ t u₂) →
+    Η ⊢ t ∷ Id (U l) A₁ A₂ →
+    Η ⊢ u ∷ Id A₁ t₁ (cast⁻¹ l A₁ A₂ t t₂) →
+    Η ⊢ v ∷ Id A₁ u₁ (cast⁻¹ l A₁ A₂ t u₂) →
     ∃ λ w → Η ⊢ w ∷ Id (U l) (Id A₁ t₁ u₁) (Id A₂ t₂ u₂)
   Id-cong-Idʳ ok ⊢t ⊢u ⊢v =
-    Id-cong-Idˡ ok (⊢symmetry ⊢t) (cast-right-left ⊢t ⊢u .proj₂)
-      (cast-right-left ⊢t ⊢v .proj₂)
+    Id-cong-Idˡ ok ⊢t (cast-right-left′ ⊢t ⊢u .proj₂)
+      (cast-right-left′ ⊢t ⊢v .proj₂)

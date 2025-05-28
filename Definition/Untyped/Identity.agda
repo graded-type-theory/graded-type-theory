@@ -171,6 +171,48 @@ opaque
 
 opaque
 
+  -- An inverse of cast.
+
+  cast⁻¹ : Term n → Term n → Term n → Term n → Term n → Term n
+  cast⁻¹ l A B t u =
+    cast l B A (symmetry (U l) A B t) u
+
+opaque
+  unfolding cast⁻¹
+
+  -- A substitution lemma for cast⁻¹.
+
+  cast⁻¹-[] :
+    cast⁻¹ l A B t u [ σ ] ≡
+    cast⁻¹ (l [ σ ]) (A [ σ ]) (B [ σ ]) (t [ σ ]) (u [ σ ])
+  cast⁻¹-[] {l} {A} {B} {t} {u} {σ} =
+    cast l B A (symmetry (U l) A B t) u [ σ ]                           ≡⟨ cast-[] ⟩
+
+    cast (l [ σ ]) (B [ σ ]) (A [ σ ]) (symmetry (U l) A B t [ σ ])
+      (u [ σ ])                                                         ≡⟨ PE.cong₂ (cast _ _ _) symmetry-[] refl ⟩
+
+    cast (l [ σ ]) (B [ σ ]) (A [ σ ])
+      (symmetry (U (l [ σ ])) (A [ σ ]) (B [ σ ]) (t [ σ ])) (u [ σ ])  ∎
+
+opaque
+
+  -- A weakening lemma for cast⁻¹.
+
+  wk-cast⁻¹ :
+    wk ρ (cast⁻¹ l A B t u) ≡
+    cast⁻¹ (wk ρ l) (wk ρ A) (wk ρ B) (wk ρ t) (wk ρ u)
+  wk-cast⁻¹ {ρ} {l} {A} {B} {t} {u} =
+    wk ρ (cast⁻¹ l A B t u)                                       ≡⟨ wk≡subst _ _ ⟩
+
+    cast⁻¹ l A B t u [ toSubst ρ ]                                ≡⟨ cast⁻¹-[] ⟩
+
+    cast⁻¹ (l [ toSubst ρ ]) (A [ toSubst ρ ]) (B [ toSubst ρ ])
+      (t [ toSubst ρ ]) (u [ toSubst ρ ])                         ≡˘⟨ cong₅ cast⁻¹ (wk≡subst _ _) (wk≡subst _ _) (wk≡subst _ _) (wk≡subst _ _)
+                                                                        (wk≡subst _ _) ⟩
+    cast⁻¹ (wk ρ l) (wk ρ A) (wk ρ B) (wk ρ t) (wk ρ u)           ∎
+
+opaque
+
   -- Congruence.
 
   cong :
