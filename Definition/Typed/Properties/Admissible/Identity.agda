@@ -43,11 +43,11 @@ import Tools.Vec as V
 open Definition.Typed.Properties.Admissible.Identity.Primitive R public
 
 private variable
-  m n                             : Nat
-  Η                               : Cons _ _
-  A₁ A₂ B₁ B₂ l t t₁ t₂ u u₁ u₂ v : Term _
-  p p′ p″ q q′ q″                 : M
-  b                               : BinderMode
+  m n                                       : Nat
+  Η                                         : Cons _ _
+  A A₁ A₂ B B₁ B₂ l l₁ l₂ t t₁ t₂ u u₁ u₂ v : Term _
+  p p′ p″ q q′ q″                           : M
+  b                                         : BinderMode
 
 ------------------------------------------------------------------------
 -- Some preservation lemmas
@@ -407,3 +407,113 @@ opaque
   Id-cong-Idʳ ok ⊢t ⊢u ⊢v =
     Id-cong-Idˡ ok ⊢t (cast-right-left′ ⊢t ⊢u .proj₂)
       (cast-right-left′ ⊢t ⊢v .proj₂)
+
+private opaque
+
+  -- The following code illustrates roughly how lam-cong-Id below is
+  -- defined.
+
+  lam-cong-Id′ :
+    ∀ {a b} →
+    Function-extensionality a b →
+    {A : Set a} {B : A → Set b} {t₁ t₂ : (x : A) → B x} →
+    (∀ x → t₁ x PE.≡ t₂ x) →
+    (λ x → t₁ x) PE.≡ (λ x → t₂ x)
+  lam-cong-Id′ fe t₁≡t₂ =
+    ext fe t₁≡t₂
+
+opaque
+  unfolding Funext Has-function-extensionality
+
+  -- Lambdas preserve propositional equality in a certain sense (for
+  -- allowed Π-types), assuming that a certain form of function
+  -- extensionality can be proved.
+
+  lam-cong-Id :
+    {Γ : Cons m n} →
+    Π-allowed p q →
+    Has-function-extensionality p q p′ q′ l₁ l₂ Γ →
+    Γ ⊢ l₂ ∷Level →
+    Γ ⊢ A ∷ U l₁ →
+    Γ »∙ A ⊢ B ∷ U (wk1 l₂) →
+    Γ »∙ A ⊢ t ∷ Id B t₁ t₂ →
+    ∃ λ u → Γ ⊢ u ∷ Id (Π p , q ▷ A ▹ B) (lam p t₁) (lam p t₂)
+  lam-cong-Id
+    {m} {n} {p} {q} {p′} {q′} {l₁} {l₂} {A} {B} {t} {t₁} {t₂} {Γ}
+    ok (ext , ⊢ext) ⊢l₂ ⊢A ⊢B ⊢t =
+    let ⊢l₁           = inversion-U-Level (wf-⊢∷ ⊢A)
+        _ , ⊢t₁ , ⊢t₂ = inversion-Id (wf-⊢∷ ⊢t)
+    in
+    _ ,
+    check-type-and-term-sound
+      γ′
+      (I.base nothing I.» I.base)
+      (xext I.∘⟨ xp ⟩ xA I.∘⟨ xp′ ⟩ I.lam xp nothing xB I.∘⟨ xp′ ⟩
+       I.lam xp nothing xt₁ I.∘⟨ xp′ ⟩ I.lam xp nothing xt₂ I.∘⟨ xp′ ⟩
+       I.lam xp nothing xt)
+      (I.Id (I.Π xp , xq ▷ xA ▹ xB) (I.lam xp nothing xt₁)
+         (I.lam xp nothing xt₂))
+      14
+      PE.refl
+      (λ where
+         .IC.constraints-wf             → ok L.∷ L.[]
+         .IC.metas-wf .IC.equalities-wf → L.[]
+         .IC.metas-wf .IC.bindings-wf   → λ where
+           (I.var! x0)       → ⊢l₁
+           (I.var! x1)       → ⊢l₂
+           (I.var! x2)       → ⊢A
+           (I.var! x3)       → ⊢B
+           (I.var! x4)       → ⊢t₁
+           (I.var! x5)       → ⊢t₂
+           (I.var! x6)       → ⊢t
+           (I.var! x7)       → ⊢ext
+           (I.var  not-x8 _))
+      (wfTerm ⊢A)
+      where
+      c′ : I.Constants
+      c′ .I.gs               = 4
+      c′ .I.ss               = 0
+      c′ .I.bms              = 0
+      c′ .I.ms               = 8
+      c′ .I.base-dcon-size   = m
+      c′ .I.base-con-size    = n
+      c′ .I.base-con-allowed = true
+      c′ .I.meta-con-size    =
+        n V.∷ n V.∷ n V.∷ 1+ n V.∷ 1+ n V.∷ 1+ n V.∷ 1+ n V.∷ n V.∷ V.ε
+
+      xp xp′ xq xq′ : I.Termᵍ 4
+      xp  = I.var x0
+      xp′ = I.var x1
+      xq  = I.var x2
+      xq′ = I.var x3
+
+      xl₁ xl₂ xA xext : I.Term c′ n
+      xl₁  = I.varᵐ x0
+      xl₂  = I.varᵐ x1
+      xA   = I.varᵐ x2
+      xext = I.varᵐ x7
+
+      xB xt₁ xt₂ xt : I.Term c′ (1+ n)
+      xB  = I.varᵐ x3
+      xt₁ = I.varᵐ x4
+      xt₂ = I.varᵐ x5
+      xt  = I.varᵐ x6
+
+      γ′ : I.Contexts c′
+      γ′ .I.grades              = p V.∷ p′ V.∷ q V.∷ q′ V.∷ V.ε
+      γ′ .I.strengths           = V.ε
+      γ′ .I.binder-modes        = V.ε
+      γ′ .I.⌜base⌝              = Γ
+      γ′ .I.constraints         = I.π-allowed xp xq L.∷ L.[]
+      γ′ .I.metas .I.equalities = L.[]
+      γ′ .I.metas .I.bindings   = λ where
+        (I.var! x0) → I.base , I.level l₁
+        (I.var! x1) → I.base , I.level l₂
+        (I.var! x2) → I.base , I.term A (I.U xl₁)
+        (I.var! x3) → I.base I.∙ xA , I.term B (I.U (IW.wk[ 1 ] xl₂))
+        (I.var! x4) → I.base I.∙ xA , I.term t₁ xB
+        (I.var! x5) → I.base I.∙ xA , I.term t₂ xB
+        (I.var! x6) → I.base I.∙ xA , I.term t (I.Id xB xt₁ xt₂)
+        (I.var! x7) →
+          I.base , I.term ext (Funextᵢ xp xq xp′ xq′ xl₁ xl₂)
+        (I.var not-x8 _)
