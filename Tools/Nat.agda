@@ -32,7 +32,7 @@ open Data.Nat.Properties
          ⊓-distribʳ-⊔; ⊔-distribʳ-⊓;
          ⊔-absorbs-⊓; ⊓-absorbs-⊔;
          ≤-refl; ≤-reflexive; ≤-trans; ≤-antisym; module ≤-Reasoning;
-         n≮n; ≤∧≢⇒<;
+         n≮0; n≮n; ≤∧≢⇒<;
          ≤⇒pred≤;
          +-mono-≤; m≤m+n; m≤n+m; m+n≤o⇒n≤o; 0<1+n; n≤1+n;
          *-mono-≤; m≤m*n; m≤n*m; m+1+n≰m;

@@ -40,6 +40,7 @@ open import Definition.Untyped.Neutral M type-variant
 open import Definition.Untyped.Properties M
 open import Definition.Untyped.Whnf M type-variant
 
+open import Tools.Empty
 open import Tools.Fin
 open import Tools.Function
 open import Tools.Nat hiding (_≟_)
@@ -76,7 +77,7 @@ dec⇇-var x ⊢A =
 lookup-defn :
   (∇ : DCon (Term 0) m) →
   {α : Nat} → α <′ m → ∃ λ A → α ↦∷ A ∈ ∇
-lookup-defn ε                   ()
+lookup-defn ε                   <0            = ⊥-elim (n≮0 (<′⇒< <0))
 lookup-defn (∇ ∙⟨ ω ⟩[ t ∷ A ]) ≤′-refl       = A , here
 lookup-defn (∇ ∙⟨ ω ⟩[ t ∷ A ]) (≤′-step α<m) =
   let A , α↦t = lookup-defn ∇ α<m
