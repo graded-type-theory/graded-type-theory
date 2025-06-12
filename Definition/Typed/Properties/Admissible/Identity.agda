@@ -11,6 +11,7 @@ module Definition.Typed.Properties.Admissible.Identity
   (R : Type-restrictions 𝕄)
   where
 
+open Modality 𝕄
 open Type-restrictions R
 
 open import Definition.Typed R
@@ -31,7 +32,7 @@ open Id.Internal R
 
 open import Tools.Bool
 open import Tools.Fin
-open import Tools.Function
+open import Tools.Function as F hiding (ext)
 open import Tools.Level
 import Tools.List as L
 open import Tools.Maybe
@@ -43,11 +44,11 @@ import Tools.Vec as V
 open Definition.Typed.Properties.Admissible.Identity.Primitive R public
 
 private variable
-  m n                                       : Nat
-  Η                                         : Cons _ _
-  A A₁ A₂ B B₁ B₂ l l₁ l₂ t t₁ t₂ u u₁ u₂ v : Term _
-  p p′ p″ q q′ q″                           : M
-  b                                         : BinderMode
+  m n                                           : Nat
+  Η                                             : Cons _ _
+  A A₁ A₂ B B₁ B₂ ext l l₁ l₂ t t₁ t₂ u u₁ u₂ v : Term _
+  p p′ p″ q q′ q″                               : M
+  b                                             : BinderMode
 
 ------------------------------------------------------------------------
 -- Some preservation lemmas
@@ -81,40 +82,69 @@ private opaque
           ((x : A₁) → B₁ x) PE.≡ ((x : A₂) → B₂ x))
        (λ {B₂} B₁≡B₂ →
           PE.cong (λ B → (x : A₁) → B x) {x = B₁} {y = B₂}
-            (ext {A = A₁} {P = λ _ → Set a} {f = B₁} {g = B₂} fe B₁≡B₂))
+            (F.ext {A = A₁} {P = λ _ → Set a} {f = B₁} {g = B₂}
+               fe B₁≡B₂))
        A₁≡A₂ B₁≡B₂
 
 opaque
-  unfolding Funext Has-function-extensionality cast cong subst
+  unfolding cast cong subst
+
+  -- A term used to state ⊢ΠΣ-cong-Idˡ.
+
+  ΠΣ-cong-Idˡ :
+    BinderMode → M → M → M → M → M → M → Term n → Term n → Term n →
+    Term (1+ n) → Term n → Term (1+ n) → Term n → Term (1+ n) → Term n
+  ΠΣ-cong-Idˡ b p q p′ q′ p″ q″ l ext A₁ B₁ A₂ B₂ t u =
+    J ω ω (U l) A₁
+      (Π p″ , q″ ▷ (Π p′ , q′ ▷ var x1 ▹ U (wk[ 3 ]′ l)) ▹
+       (Π p″ , q″ ▷
+         (Π p′ , q′ ▷ wk[ 3 ]′ A₁ ▹
+          Id (U (wk[ 4 ]′ l)) (B₁ [ 4 ][ var x0 ]↑)
+            (var x1 ∘⟨ p′ ⟩
+             cast (wk[ 4 ]′ l) (wk[ 4 ]′ A₁) (var x3) (var x2)
+               (var x0))) ▹
+       Id (U (wk[ 4 ]′ l)) (wk[ 4 ]′ (ΠΣ⟨ b ⟩ p , q ▷ A₁ ▹ B₁))
+         (ΠΣ⟨ b ⟩ p , q ▷ var x3 ▹ (var x2 ∘⟨ p′ ⟩ var x0))))
+      (lam p″ $ lam p″ $
+       cong ω (wk[ 2 ]′ (Π p′ , q′ ▷ A₁ ▹ U (wk1 l)))
+         (wk[ 2 ]′ (lam p′ B₁)) (var x1) (U (wk[ 2 ]′ l))
+         (ΠΣ⟨ b ⟩ p , q ▷ wk[ 3 ]′ A₁ ▹ (var x1 ∘⟨ p′ ⟩ var x0))
+         (wk[ 2 ]′
+            (ext ∘⟨ p′ ⟩ A₁ ∘⟨ p″ ⟩ lam p′ (U (wk1 l)) ∘⟨ p″ ⟩
+             lam p′ B₁) ∘⟨ p″ ⟩
+          var x1 ∘⟨ p″ ⟩ var x0))
+      A₂ t ∘⟨ p″ ⟩
+    lam p′ B₂ ∘⟨ p″ ⟩ lam p′ u
+
+opaque
+  unfolding Funext Is-function-extensionality ΠΣ-cong-Idˡ
 
   -- Allowed Π- and Σ-types preserve propositional equality in a
   -- certain sense, assuming that a certain form of function
   -- extensionality can be proved (and that certain Π-types are
   -- allowed).
 
-  ΠΣ-cong-Idˡ :
+  ⊢ΠΣ-cong-Idˡ :
     {Γ : Cons m n} →
     ΠΣ-allowed b p q →
     Π-allowed p′ q′ →
     Π-allowed p″ q″ →
-    Has-function-extensionality p′ q′ p″ q″ l (sucᵘ l) Γ →
+    Is-function-extensionality p′ q′ p″ q″ l (sucᵘ l) Γ ext →
     Γ »∙ A₂ ⊢ B₂ ∷ U (wk1 l) →
     Γ ⊢ t ∷ Id (U l) A₁ A₂ →
     Γ »∙ A₁ ⊢ u ∷
       Id (U (wk1 l)) B₁
         (B₂ [ cast (wk1 l) (wk1 A₁) (wk1 A₂) (wk1 t) (var x0) ]↑) →
-    ∃ λ v →
-      Γ ⊢ v ∷
-        Id (U l) (ΠΣ⟨ b ⟩ p , q ▷ A₁ ▹ B₁) (ΠΣ⟨ b ⟩ p , q ▷ A₂ ▹ B₂)
-  ΠΣ-cong-Idˡ
-    {m} {n} {b} {p} {q} {p′} {q′} {p″} {q″} {l}
-    {A₂} {B₂} {t} {A₁} {u} {B₁} {Γ}
-    ok₁ ok₂ ok₃ (funext , ⊢funext) ⊢B₂ ⊢t ⊢u =
+    Γ ⊢ ΠΣ-cong-Idˡ b p q p′ q′ p″ q″ l ext A₁ B₁ A₂ B₂ t u ∷
+      Id (U l) (ΠΣ⟨ b ⟩ p , q ▷ A₁ ▹ B₁) (ΠΣ⟨ b ⟩ p , q ▷ A₂ ▹ B₂)
+  ⊢ΠΣ-cong-Idˡ
+    {m} {n} {b} {p} {q} {p′} {q′} {p″} {q″}
+    {l} {ext} {A₂} {B₂} {t} {A₁} {u} {B₁} {Γ}
+    ok₁ ok₂ ok₃ ⊢ext ⊢B₂ ⊢t ⊢u =
     let _ , ⊢A₁ , ⊢A₂ = inversion-Id (wf-⊢∷ ⊢t)
         _ , ⊢B₁ , _   = inversion-Id (wf-⊢∷ ⊢u)
         ⊢l            = inversion-U-Level (wf-⊢∷ ⊢A₁)
     in
-    _ ,
     check-type-and-term-sound
       γ′
       (I.base nothing I.» I.base)
@@ -163,7 +193,7 @@ opaque
            (I.var! x4)       → ⊢B₂
            (I.var! x5)       → ⊢t
            (I.var! x6)       → ⊢u
-           (I.var! x7)       → ⊢funext
+           (I.var! x7)       → ⊢ext
            (I.var  not-x8 _))
       (wfTerm ⊢A₁)
       where
@@ -229,30 +259,43 @@ opaque
                         (IW.wk[ 1 ] (I.var x0)) (I.var x0)
                         (IW.wk[ 1 ] xA₂) (IW.wk[ 1 ] xt)))))
         (I.var! x7) →
-          I.base ,
-          I.term funext (Funextᵢ xp′ xq′ xp″ xq″ xl (I.sucᵘ xl))
+          I.base , I.term ext (Funextᵢ xp′ xq′ xp″ xq″ xl (I.sucᵘ xl))
         (I.var not-x8 _)
 
 opaque
+  unfolding ΠΣ-cong-Idˡ
 
-  -- A variant of ΠΣ-cong-Idˡ.
+  -- A term used to state ⊢ΠΣ-cong-Idʳ.
 
   ΠΣ-cong-Idʳ :
+    BinderMode → M → M → M → M → M → M → Term n → Term n → Term n →
+    Term (1+ n) → Term n → Term (1+ n) → Term n → Term (1+ n) → Term n
+  ΠΣ-cong-Idʳ b p q p′ q′ p″ q″ l ext A₁ B₁ A₂ B₂ t u =
+    symmetry (U l) (ΠΣ⟨ b ⟩ p , q ▷ A₂ ▹ B₂) (ΠΣ⟨ b ⟩ p , q ▷ A₁ ▹ B₁)
+      (ΠΣ-cong-Idˡ b p q p′ q′ p″ q″ l ext A₂ B₂ A₁ B₁ t
+         (symmetry (U (wk1 l))
+            (B₁ [ cast (wk1 l) (wk1 A₂) (wk1 A₁) (wk1 t) (var x0) ]↑) B₂
+            u))
+
+opaque
+  unfolding ΠΣ-cong-Idʳ
+
+  -- A variant of ⊢ΠΣ-cong-Idˡ.
+
+  ⊢ΠΣ-cong-Idʳ :
     ΠΣ-allowed b p q →
     Π-allowed p′ q′ →
     Π-allowed p″ q″ →
-    Has-function-extensionality p′ q′ p″ q″ l (sucᵘ l) Η →
+    Is-function-extensionality p′ q′ p″ q″ l (sucᵘ l) Η ext →
     Η »∙ A₁ ⊢ B₁ ∷ U (wk1 l) →
     Η ⊢ t ∷ Id (U l) A₂ A₁ →
     Η »∙ A₂ ⊢ u ∷
       Id (U (wk1 l))
         (B₁ [ cast (wk1 l) (wk1 A₂) (wk1 A₁) (wk1 t) (var x0) ]↑) B₂ →
-    ∃ λ v →
-      Η ⊢ v ∷
-        Id (U l) (ΠΣ⟨ b ⟩ p , q ▷ A₁ ▹ B₁) (ΠΣ⟨ b ⟩ p , q ▷ A₂ ▹ B₂)
-  ΠΣ-cong-Idʳ ok ok′ ok″ ext ⊢B₁ ⊢t ⊢u =
-    _ ,
-    ⊢symmetry (ΠΣ-cong-Idˡ ok ok′ ok″ ext ⊢B₁ ⊢t (⊢symmetry ⊢u) .proj₂)
+    Η ⊢ ΠΣ-cong-Idʳ b p q p′ q′ p″ q″ l ext A₁ B₁ A₂ B₂ t u ∷
+      Id (U l) (ΠΣ⟨ b ⟩ p , q ▷ A₁ ▹ B₁) (ΠΣ⟨ b ⟩ p , q ▷ A₂ ▹ B₂)
+  ⊢ΠΣ-cong-Idʳ ok ok′ ok″ ext ⊢B₁ ⊢t ⊢u =
+    ⊢symmetry (⊢ΠΣ-cong-Idˡ ok ok′ ok″ ext ⊢B₁ ⊢t (⊢symmetry ⊢u))
 
 private opaque
 
@@ -420,31 +463,42 @@ private opaque
     (∀ x → t₁ x PE.≡ t₂ x) →
     (λ x → t₁ x) PE.≡ (λ x → t₂ x)
   lam-cong-Id′ fe t₁≡t₂ =
-    ext fe t₁≡t₂
+    F.ext fe t₁≡t₂
 
 opaque
-  unfolding Funext Has-function-extensionality
+
+  -- A term used to state ⊢lam-cong-Id.
+
+  lam-cong-Id :
+    M → M → Term n → Term n → Term (1+ n) → Term (1+ n) → Term (1+ n) →
+    Term (1+ n) → Term n
+  lam-cong-Id p p′ ext A B t₁ t₂ t =
+    ext ∘⟨ p ⟩ A ∘⟨ p′ ⟩ lam p B ∘⟨ p′ ⟩ lam p t₁ ∘⟨ p′ ⟩
+    lam p t₂ ∘⟨ p′ ⟩ lam p t
+
+opaque
+  unfolding Funext Is-function-extensionality lam-cong-Id
 
   -- Lambdas preserve propositional equality in a certain sense (for
   -- allowed Π-types), assuming that a certain form of function
   -- extensionality can be proved.
 
-  lam-cong-Id :
+  ⊢lam-cong-Id :
     {Γ : Cons m n} →
     Π-allowed p q →
-    Has-function-extensionality p q p′ q′ l₁ l₂ Γ →
+    Is-function-extensionality p q p′ q′ l₁ l₂ Γ ext →
     Γ ⊢ l₂ ∷Level →
     Γ ⊢ A ∷ U l₁ →
     Γ »∙ A ⊢ B ∷ U (wk1 l₂) →
     Γ »∙ A ⊢ t ∷ Id B t₁ t₂ →
-    ∃ λ u → Γ ⊢ u ∷ Id (Π p , q ▷ A ▹ B) (lam p t₁) (lam p t₂)
-  lam-cong-Id
-    {m} {n} {p} {q} {p′} {q′} {l₁} {l₂} {A} {B} {t} {t₁} {t₂} {Γ}
-    ok (ext , ⊢ext) ⊢l₂ ⊢A ⊢B ⊢t =
+    Γ ⊢ lam-cong-Id p p′ ext A B t₁ t₂ t ∷
+      Id (Π p , q ▷ A ▹ B) (lam p t₁) (lam p t₂)
+  ⊢lam-cong-Id
+    {m} {n} {p} {q} {p′} {q′} {l₁} {l₂} {ext} {A} {B} {t} {t₁} {t₂} {Γ}
+    ok ⊢ext ⊢l₂ ⊢A ⊢B ⊢t =
     let ⊢l₁           = inversion-U-Level (wf-⊢∷ ⊢A)
         _ , ⊢t₁ , ⊢t₂ = inversion-Id (wf-⊢∷ ⊢t)
     in
-    _ ,
     check-type-and-term-sound
       γ′
       (I.base nothing I.» I.base)

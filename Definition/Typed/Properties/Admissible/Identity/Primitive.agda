@@ -1774,14 +1774,25 @@ opaque
 
 opaque
 
-  -- Has-function-extensionality p q l₁ l₂ Γ means that a certain
-  -- formulation of function extensionality holds for the context pair
-  -- Γ.
+  -- Is-function-extensionality p q p′ q′ l₁ l₂ Γ t means that t
+  -- implements a certain formulation of function extensionality for
+  -- the context pair Γ.
+
+  Is-function-extensionality :
+    M → M → M → M → Term n → Term n → Cons m n → Term n → Set a
+  Is-function-extensionality p q p′ q′ l₁ l₂ Γ t =
+    Γ ⊢ t ∷ Funext p q p′ q′ l₁ l₂
+
+opaque
+
+  -- Has-function-extensionality p q p′ q′ l₁ l₂ Γ means that a
+  -- certain formulation of function extensionality holds for the
+  -- context pair Γ.
 
   Has-function-extensionality :
     M → M → M → M → Term n → Term n → Cons m n → Set a
   Has-function-extensionality p q p′ q′ l₁ l₂ Γ =
-    ∃ λ t → Γ ⊢ t ∷ Funext p q p′ q′ l₁ l₂
+    ∃ (Is-function-extensionality p q p′ q′ l₁ l₂ Γ)
 
 opaque
 
@@ -1846,8 +1857,8 @@ private opaque
 
 opaque
   unfolding
-    Has-function-extensionality with-function-extensionality-assumption
-    Funext
+    Funext Has-function-extensionality Is-function-extensionality
+    with-function-extensionality-assumption
 
   -- If l₁ and l₂ are well-typed levels with respect to Η, and certain
   -- Π-types are allowed, then the context
@@ -1971,7 +1982,7 @@ opaque
       (wkLevel (ʷ⊇-drop (∙ univ (var₀ (⊢U ⊢l₁)))) ⊢l₂)
 
 opaque
-  unfolding Has-function-extensionality
+  unfolding Has-function-extensionality Is-function-extensionality
 
   -- In the presence of equality reflection
   -- Has-function-extensionality p q p′ q′ holds for all well-formed
