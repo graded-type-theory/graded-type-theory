@@ -619,6 +619,16 @@ wk1Subst-cong :
   ∀ x → wk1Subst σ x ≡ wk1Subst σ′ x
 wk1Subst-cong eq x = cong wk1 (eq x)
 
+opaque
+
+  -- A preservation lemma for wkSubst.
+
+  wkSubst-cong :
+    (∀ x → σ₁ x ≡ σ₂ x) →
+    ∀ x → wkSubst k σ₁ x ≡ wkSubst k σ₂ x
+  wkSubst-cong {k = 0}    σ₁≡σ₂ = σ₁≡σ₂
+  wkSubst-cong {k = 1+ _} σ₁≡σ₂ = wk1Subst-cong (wkSubst-cong σ₁≡σ₂)
+
 opaque mutual
 
   -- If  σ = σ′  then  t [ σ ]′ = t [ σ′ ]′.
