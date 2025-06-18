@@ -25,7 +25,7 @@ open import Tools.Product
 
 private
   variable
-    m n k α : Nat
+    m n n′ k α : Nat
     ∇ ∇′ ∇″ : DCon (Term 0) _
     Γ Δ : Con Term _
     t t′ A A′ : Term _
@@ -73,6 +73,19 @@ opaque
   wf-»⊇ id                     »∇ = »∇
   wf-»⊇ (stepᵒ ξ⊇ ok ⊢A φ↜ ⊢t) »∇ = ∙ᵒ⟨ ok , φ↜ ⟩[ ⊢t ∷ ⊢A ]
   wf-»⊇ (stepᵗ ξ⊇ ⊢t)          »∇ = ∙ᵗ[ ⊢t ]
+
+opaque
+
+  -- If ∇′ is an extension of ∇, then the length of ∇′ is at least as
+  -- large as the length of ∇.
+
+  ⊇→≤ :
+    {∇  : DCon (Term 0) n}
+    {∇′ : DCon (Term 0) n′} →
+    ξ » ∇′ ⊇ ∇ →
+    n ≤ n′
+  ⊇→≤ id            = ≤-refl
+  ⊇→≤ (step ∇′⊇∇ _) = ≤-trans (⊇→≤ ∇′⊇∇) (n≤1+n _)
 
 ------------------------------------------------------------------------
 -- Weakening for properties of definitions
