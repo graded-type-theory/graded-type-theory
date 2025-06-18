@@ -173,7 +173,7 @@ private module Lemmas where
         (sucᵘⱼ t)             PE.refl → fix (wfTerm-<ˢ t)
         (maxᵘⱼ t u)           PE.refl → fix (wfTerm-<ˢ t)
         (Uⱼ ⊢l)               PE.refl → fix (wfTerm-<ˢ ⊢l)
-        (ΠΣⱼ ⊢l₁ _ _ _ _)     PE.refl → fix (wfTerm-<ˢ ⊢l₁)
+        (ΠΣⱼ ⊢l _ _ _)        PE.refl → fix (wfTerm-<ˢ ⊢l)
         (lamⱼ _ ⊢t _)         PE.refl → fix (∙⊢∷→⊢-<ˢ ⊢t .proj₁)
         (⊢t ∘ⱼ _)             PE.refl → fix (wfTerm-<ˢ ⊢t)
         (prodⱼ _ ⊢t _ _)      PE.refl → fix (wfTerm-<ˢ ⊢t)
@@ -281,8 +281,8 @@ opaque
       fix (wfTerm-<ˢ ⊢l)
     wfEqTerm-<ˢ (U-cong l₁≡l₂) =
       fix (wfEqTerm-<ˢ l₁≡l₂)
-    wfEqTerm-<ˢ (ΠΣ-cong l₁ l₂ A≡B _ _) =
-      fix (wfTerm-<ˢ l₁)
+    wfEqTerm-<ˢ (ΠΣ-cong l A≡B _ _) =
+      fix (wfTerm-<ˢ l)
     wfEqTerm-<ˢ (app-cong t₁≡u₁ _) =
       fix (wfEqTerm-<ˢ t₁≡u₁)
     wfEqTerm-<ˢ (β-red _ _ ⊢u _ _) =

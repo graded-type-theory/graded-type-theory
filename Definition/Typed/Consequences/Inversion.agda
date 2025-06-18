@@ -184,7 +184,7 @@ opaque
     Uₙ →
       ⊥-elim (U≢ΠΣⱼ (sym (inversion-U ⊢t)))
     ΠΣₙ →
-      let _ , _ , _ , _ , _ , _ , Σ≡U , _ = inversion-ΠΣ-U ⊢t in
+      let _ , _ , _ , _ , Σ≡U , _ = inversion-ΠΣ-U ⊢t in
       ⊥-elim (U≢ΠΣⱼ (sym Σ≡U))
     ℕₙ →
       ⊥-elim (U≢ΠΣⱼ (sym (inversion-ℕ ⊢t)))
@@ -237,7 +237,7 @@ opaque
     Uₙ →
       ⊥-elim (U≢Unitⱼ (sym (inversion-U ⊢t)))
     ΠΣₙ →
-      let _ , _ , _ , _ , _ , _ , Σ≡U , _ = inversion-ΠΣ-U ⊢t in
+      let _ , _ , _ , _ , Σ≡U , _ = inversion-ΠΣ-U ⊢t in
       ⊥-elim (U≢Unitⱼ (sym Σ≡U))
     ℕₙ →
       ⊥-elim (U≢Unitⱼ (sym (inversion-ℕ ⊢t)))

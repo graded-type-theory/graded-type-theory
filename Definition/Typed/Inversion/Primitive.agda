@@ -258,19 +258,19 @@ opaque
 
   inversion-ΠΣ-⊢∷ :
     (⊢ΠΣ : Γ ⊢ ΠΣ⟨ b ⟩ p , q ▷ A ▹ B ∷ C) →
-    ∃₂ λ l₁ l₂ →
-    Γ ⊢ l₁ ∷ Level × Γ ⊢ l₂ ∷ Level ×
-    (∃ λ (⊢A : Γ ⊢ A ∷ U l₁) → size-⊢∷ ⊢A <ˢ size-⊢∷ ⊢ΠΣ) ×
-    (∃ λ (⊢B : Γ ∙ A ⊢ B ∷ U (wk1 l₂)) → size-⊢∷ ⊢B <ˢ size-⊢∷ ⊢ΠΣ) ×
-    Γ ⊢ C ≡ U (l₁ maxᵘ l₂) ×
+    ∃ λ l →
+    Γ ⊢ l ∷ Level ×
+    (∃ λ (⊢A : Γ ⊢ A ∷ U l) → size-⊢∷ ⊢A <ˢ size-⊢∷ ⊢ΠΣ) ×
+    (∃ λ (⊢B : Γ ∙ A ⊢ B ∷ U (wk1 l)) → size-⊢∷ ⊢B <ˢ size-⊢∷ ⊢ΠΣ) ×
+    Γ ⊢ C ≡ U l ×
     ΠΣ-allowed b p q
-  inversion-ΠΣ-⊢∷ (ΠΣⱼ ⊢l₁ ⊢l₂ ⊢A ⊢B ok) =
-    _ , _ , ⊢l₁ , ⊢l₂ , (⊢A , !) , (⊢B , !) , refl (Uⱼ (maxᵘⱼ ⊢l₁ ⊢l₂)) , ok
+  inversion-ΠΣ-⊢∷ (ΠΣⱼ ⊢l ⊢A ⊢B ok) =
+    _ , ⊢l , (⊢A , !) , (⊢B , !) , refl (Uⱼ ⊢l) , ok
   inversion-ΠΣ-⊢∷ (conv ⊢ΠΣ eq₁) =
-    let _ , _ , ⊢l₁ , ⊢l₂ , (⊢A , A<) , (⊢B , B<) , eq₂ , ok =
+    let _ , ⊢l , (⊢A , A<) , (⊢B , B<) , eq₂ , ok =
           inversion-ΠΣ-⊢∷ ⊢ΠΣ
     in
-    _ , _ , ⊢l₁ , ⊢l₂ , (⊢A , ↙ <ˢ→≤ˢ A<) , (⊢B , ↙ <ˢ→≤ˢ B<) ,
+    _ , ⊢l , (⊢A , ↙ <ˢ→≤ˢ A<) , (⊢B , ↙ <ˢ→≤ˢ B<) ,
     trans (sym eq₁) eq₂ , ok
 
 opaque
@@ -279,13 +279,13 @@ opaque
 
   inversion-ΠΣ-U :
     Γ ⊢ ΠΣ⟨ b ⟩ p , q ▷ A ▹ B ∷ C →
-    ∃₂ λ l₁ l₂ →
-      Γ ⊢ l₁ ∷ Level × Γ ⊢ l₂ ∷ Level ×
-      Γ ⊢ A ∷ U l₁ × Γ ∙ A ⊢ B ∷ U (wk1 l₂) × Γ ⊢ C ≡ U (l₁ maxᵘ l₂) ×
+    ∃ λ l →
+      Γ ⊢ l ∷ Level ×
+      Γ ⊢ A ∷ U l × Γ ∙ A ⊢ B ∷ U (wk1 l) × Γ ⊢ C ≡ U l ×
       ΠΣ-allowed b p q
   inversion-ΠΣ-U ⊢ΠΣ =
-    let _ , _ , ⊢l₁ , ⊢l₂ , (⊢A , _) , (⊢B , _) , C≡ , ok = inversion-ΠΣ-⊢∷ ⊢ΠΣ in
-    _ , _ , ⊢l₁ , ⊢l₂ , ⊢A , ⊢B , C≡ , ok
+    let _ , ⊢l , (⊢A , _) , (⊢B , _) , C≡ , ok = inversion-ΠΣ-⊢∷ ⊢ΠΣ in
+    _ , ⊢l , ⊢A , ⊢B , C≡ , ok
 
 opaque
   unfolding size-⊢
@@ -301,7 +301,7 @@ opaque
     let _ , (⊢A , A<) = ∙⊢→⊢-<ˢ ⊢B in
     (⊢A , <ˢ-trans A< !) , (⊢B , ↙ ◻) , ok
   inversion-ΠΣ-⊢ (univ ⊢ΠΣ) =
-    let _ , _ , _ , _ , (⊢A , A<) , (⊢B , B<) , _ , ok = inversion-ΠΣ-⊢∷ ⊢ΠΣ in
+    let _ , _ , (⊢A , A<) , (⊢B , B<) , _ , ok = inversion-ΠΣ-⊢∷ ⊢ΠΣ in
     (univ ⊢A , A< ↙⊕ ◻) , (univ ⊢B , B< ↙⊕ ◻) , ok
 
 opaque

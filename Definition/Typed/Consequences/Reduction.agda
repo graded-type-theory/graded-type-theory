@@ -375,12 +375,8 @@ private opaque
     Π≡U =
       _⊢_≡_.univ $
       ⊢∷Empty→⊢≡∷ ok₁ (var₀ (Emptyⱼ ε))
-        (conv
-          (ΠΣⱼ (sucᵘⱼ (zeroᵘⱼ ⊢Empty)) (sucᵘⱼ (zeroᵘⱼ ⊢Empty))
-            ⊢U (wkTerm₁ (univ ⊢U) ⊢U) ok₂)
-          (U-cong (trans
-            (maxᵘ-sucᵘ (zeroᵘⱼ ⊢Empty) (zeroᵘⱼ ⊢Empty))
-            (sucᵘ-cong (maxᵘ-zeroˡ (zeroᵘⱼ ⊢Empty))))))
+        (ΠΣⱼ (sucᵘⱼ (zeroᵘⱼ ⊢Empty))
+          ⊢U (wkTerm₁ (univ ⊢U) ⊢U) ok₂)
         ⊢U
 
     ω : Term 1

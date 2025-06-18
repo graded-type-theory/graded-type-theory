@@ -104,12 +104,11 @@ mutual
               → Unitʷ-allowed
               → Γ ⊢ unitrec p q l A t u ∷ A [ t ]₀
 
-    ΠΣⱼ       : Γ     ⊢ l₁ ∷ Level
-              → Γ     ⊢ l₂ ∷ Level
-              → Γ     ⊢ F ∷ U l₁
-              → Γ ∙ F ⊢ G ∷ U (wk1 l₂)
+    ΠΣⱼ       : Γ     ⊢ l ∷ Level
+              → Γ     ⊢ F ∷ U l
+              → Γ ∙ F ⊢ G ∷ U (wk1 l)
               → ΠΣ-allowed b p q
-              → Γ     ⊢ ΠΣ⟨ b ⟩ p , q ▷ F ▹ G ∷ U (l₁ maxᵘ l₂)
+              → Γ     ⊢ ΠΣ⟨ b ⟩ p , q ▷ F ▹ G ∷ U l
 
     lamⱼ      : Γ ∙ F ⊢ G
               → Γ ∙ F ⊢ t ∷ G
@@ -289,13 +288,12 @@ mutual
                   → Unitʷ-η
                   → Γ ⊢ unitrec p q l A t u ≡ u ∷ A [ t ]₀
 
-    ΠΣ-cong       : Γ     ⊢ l₁ ∷ Level
-                  → Γ     ⊢ l₂ ∷ Level
-                  → Γ     ⊢ F ≡ H ∷ U l₁
-                  → Γ ∙ F ⊢ G ≡ E ∷ U (wk1 l₂)
+    ΠΣ-cong       : Γ     ⊢ l ∷ Level
+                  → Γ     ⊢ F ≡ H ∷ U l
+                  → Γ ∙ F ⊢ G ≡ E ∷ U (wk1 l)
                   → ΠΣ-allowed b p q
                   → Γ     ⊢ ΠΣ⟨ b ⟩ p , q ▷ F ▹ G ≡
-                            ΠΣ⟨ b ⟩ p , q ▷ H ▹ E ∷ U (l₁ maxᵘ l₂)
+                            ΠΣ⟨ b ⟩ p , q ▷ H ▹ E ∷ U l
 
     app-cong      : ∀ {b}
                   → Γ ⊢ f ≡ g ∷ Π p , q ▷ F ▹ G

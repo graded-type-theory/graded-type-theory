@@ -287,8 +287,7 @@ opaque
     ℕ , ℕ , ℕ ,
     univ
       (equality-reflection′ ok₁ $
-       var₀ (Idⱼ′ (conv (ΠΣⱼ ⊢zeroᵘ ⊢zeroᵘ (ℕⱼ ε) (ℕⱼ (∙ ℕⱼ ε)) ok₂)
-         (U-cong (maxᵘ-zeroˡ ⊢zeroᵘ))) (ℕⱼ ε))) ,
+       var₀ (Idⱼ′ (ΠΣⱼ ⊢zeroᵘ (ℕⱼ ε) (ℕⱼ (∙ ℕⱼ ε)) ok₂) (ℕⱼ ε))) ,
     ℕₙ ,
     (λ ())
 

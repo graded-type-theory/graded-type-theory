@@ -70,8 +70,8 @@ opaque mutual
       wf-⊢∷ ⊢l
     (Uⱼ ⊢l) →
       Uⱼ (sucᵘⱼ ⊢l)
-    (ΠΣⱼ l₁ l₂ ⊢A _ _) →
-      Uⱼ (maxᵘⱼ l₁ l₂)
+    (ΠΣⱼ ⊢l ⊢A _ _) →
+      Uⱼ ⊢l
     (lamⱼ ⊢B _ ok) →
       ΠΣⱼ ⊢B ok
     (⊢t ∘ⱼ ⊢u) →
@@ -200,13 +200,13 @@ opaque mutual
     (U-cong l₁≡l₂) →
       let ⊢Level , ⊢l₁ , ⊢l₂ = wf-⊢≡∷ l₁≡l₂ in
       Uⱼ (sucᵘⱼ ⊢l₁) , Uⱼ ⊢l₁ , conv (Uⱼ ⊢l₂) (sym (U-cong (sucᵘ-cong l₁≡l₂)))
-    (ΠΣ-cong ⊢l₁ ⊢l₂ A₁≡A₂ B₁≡B₂ ok) →
+    (ΠΣ-cong ⊢l A₁≡A₂ B₁≡B₂ ok) →
       let _ , ⊢A₁ , ⊢A₂ = wf-⊢≡∷ A₁≡A₂
           _ , ⊢B₁ , ⊢B₂ = wf-⊢≡∷ B₁≡B₂
       in
-      Uⱼ (maxᵘⱼ ⊢l₁ ⊢l₂) ,
-      ΠΣⱼ ⊢l₁ ⊢l₂ ⊢A₁ ⊢B₁ ok ,
-      ΠΣⱼ ⊢l₁ ⊢l₂ ⊢A₂ (stability-⊢∷ refl-∙⟨ univ ⊢A₂ ∣ univ A₁≡A₂ ⟩ ⊢B₂) ok
+      Uⱼ ⊢l ,
+      ΠΣⱼ ⊢l ⊢A₁ ⊢B₁ ok ,
+      ΠΣⱼ ⊢l ⊢A₂ (stability-⊢∷ refl-∙⟨ univ ⊢A₂ ∣ univ A₁≡A₂ ⟩ ⊢B₂) ok
     (app-cong t₁≡t₂ u₁≡u₂) →
       let ⊢Π , ⊢t₁ , ⊢t₂ = wf-⊢≡∷ t₁≡t₂
           _ , ⊢u₁ , ⊢u₂  = wf-⊢≡∷ u₁≡u₂

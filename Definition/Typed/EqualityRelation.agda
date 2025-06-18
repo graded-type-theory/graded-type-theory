@@ -217,13 +217,12 @@ record Equality-relations
 
     ≅ₜ-ΠΣ-cong
               : ∀ {F G H E}
-              → Γ ⊢ l₁ ∷ Level
-              → Γ ⊢ l₂ ∷ Level
-              → Γ ⊢ F ≅ H ∷ U l₁
-              → Γ ∙ F ⊢ G ≅ E ∷ U (wk1 l₂)
+              → Γ ⊢ l ∷ Level
+              → Γ ⊢ F ≅ H ∷ U l
+              → Γ ∙ F ⊢ G ≅ E ∷ U (wk1 l)
               → ΠΣ-allowed bm p q
               → Γ ⊢ ΠΣ⟨ bm ⟩ p , q ▷ F ▹ G ≅ ΠΣ⟨ bm ⟩ p , q ▷ H ▹ E ∷
-                  U (l₁ maxᵘ l₂)
+                  U l
 
     -- Zero reflexivity
     ≅ₜ-zerorefl : ⊢ Γ → Γ ⊢≅ zero ∷ ℕ

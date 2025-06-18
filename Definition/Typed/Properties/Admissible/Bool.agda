@@ -68,9 +68,7 @@ opaque
     ⊢ Γ →
     Γ ⊢ Bool ∷ U zeroᵘ
   ⊢Bool∷U ⊢Γ =
-    conv
-      (ΠΣⱼ (zeroᵘⱼ ⊢Γ) (zeroᵘⱼ ⊢Γ) (ℕⱼ ⊢Γ) (⊢OK∷U (var₀ (ℕⱼ ⊢Γ))) Σ-ok)
-      (U-cong (maxᵘ-zeroʳ (zeroᵘⱼ ⊢Γ)))
+    ΠΣⱼ (zeroᵘⱼ ⊢Γ) (ℕⱼ ⊢Γ) (⊢OK∷U (var₀ (ℕⱼ ⊢Γ))) Σ-ok
 
 opaque
 

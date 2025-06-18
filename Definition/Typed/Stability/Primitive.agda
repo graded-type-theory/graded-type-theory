@@ -258,9 +258,9 @@ private module Inhabited where
         maxᵘⱼ (stability-⊢∷ Γ≡Δ ⊢t) (stability-⊢∷ Γ≡Δ ⊢u)
       (Uⱼ ⊢l) PE.refl →
         Uⱼ (stability-⊢∷ Γ≡Δ ⊢l)
-      (ΠΣⱼ l₁ l₂ ⊢A ⊢B ok) PE.refl →
+      (ΠΣⱼ l ⊢A ⊢B ok) PE.refl →
         let ⊢A′ = stability-⊢∷ Γ≡Δ ⊢A in
-        ΠΣⱼ (stability-⊢∷ Γ≡Δ l₁) (stability-⊢∷ Γ≡Δ l₂) ⊢A′ (stability-⊢∷ (Γ≡Δ ∙⟨ univ ⊢A′ ⟩) ⊢B) ok
+        ΠΣⱼ (stability-⊢∷ Γ≡Δ l) ⊢A′ (stability-⊢∷ (Γ≡Δ ∙⟨ univ ⊢A′ ⟩) ⊢B) ok
       (lamⱼ ⊢B ⊢t ok) PE.refl →
         let _ , (⊢A , A<) = ∙⊢∷→⊢-<ˢ ⊢t
             ⊢A′           = stability-⊢ Γ≡Δ ⊢A ⦃ lt = <ˢ-trans A< ! ⦄
@@ -394,12 +394,12 @@ private module Inhabited where
         maxᵘ-sub (stability-⊢∷ Γ≡Δ ⊢l)
       (U-cong l₁≡l₂) PE.refl →
         U-cong (stability-⊢≡∷ Γ≡Δ l₁≡l₂)
-      (ΠΣ-cong ⊢l₁ ⊢l₂ A₁≡A₂ B₁≡B₂ ok) PE.refl →
+      (ΠΣ-cong ⊢l A₁≡A₂ B₁≡B₂ ok) PE.refl →
         let _ , (⊢A₁ , A₁<) = ∙⊢≡∷→⊢-<ˢ B₁≡B₂
             ⊢A₁′            = stability-⊢ Γ≡Δ ⊢A₁
                                 ⦃ lt = <ˢ-trans A₁< ! ⦄
         in
-        ΠΣ-cong (stability-⊢∷ Γ≡Δ ⊢l₁) (stability-⊢∷ Γ≡Δ ⊢l₂)
+        ΠΣ-cong (stability-⊢∷ Γ≡Δ ⊢l)
           (stability-⊢≡∷ Γ≡Δ A₁≡A₂)
           (stability-⊢≡∷ (Γ≡Δ ∙⟨ ⊢A₁′ ⟩) B₁≡B₂) ok
       (app-cong t₁≡t₂ u₁≡u₂) PE.refl →

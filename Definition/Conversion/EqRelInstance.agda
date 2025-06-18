@@ -471,7 +471,7 @@ private opaque
     .Equality-relations.≅-ΠΣ-cong →
       λ x₁ x₂ ok → liftConv (ΠΣ-cong x₁ x₂ ok)
     .Equality-relations.≅ₜ-ΠΣ-cong →
-      λ l₁ l₂ x₁ x₂ ok →
+      λ l₁ x₁ x₂ ok →
         let _ , F∷U , H∷U = syntacticEqTerm (soundnessConv↑Term x₁)
             _ , G∷U , E∷U = syntacticEqTerm (soundnessConv↑Term x₂)
             ⊢Γ = wfTerm F∷U
@@ -481,8 +481,8 @@ private opaque
             E∷U′ = stabilityTerm (refl-∙ F≡H) E∷U
         in
         liftConvTerm $ univ
-          (ΠΣⱼ l₁ l₂ F∷U G∷U ok)
-          (ΠΣⱼ l₁ l₂ H∷U E∷U′ ok)
+          (ΠΣⱼ l₁ F∷U G∷U ok)
+          (ΠΣⱼ l₁ H∷U E∷U′ ok)
           (ΠΣ-cong F<>H G<>E ok)
     .Equality-relations.≅ₜ-zerorefl →
       liftConvTerm ∘ᶠ zero-refl

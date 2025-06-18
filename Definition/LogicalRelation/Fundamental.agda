@@ -116,8 +116,8 @@ opaque mutual
     _ , Emptyᵗᵛ (valid x)
   fundamental-⊩ᵛ∷ (Unitⱼ ⊢l ok) =
     _ , Unitᵗᵛ (fundamental-⊩ᵛ∷ ⊢l .proj₂) ok
-  fundamental-⊩ᵛ∷ ⊢ΠΣ@(ΠΣⱼ ⊢l₁ ⊢l₂ ⊢A ⊢B _) =
-    _ , ΠΣᵗᵛ ⊢ΠΣ (fundamental-⊩ᵛ∷ ⊢l₁ .proj₂) (fundamental-⊩ᵛ∷ ⊢l₂ .proj₂)
+  fundamental-⊩ᵛ∷ ⊢ΠΣ@(ΠΣⱼ ⊢l ⊢A ⊢B _) =
+    _ , ΠΣᵗᵛ ⊢ΠΣ (fundamental-⊩ᵛ∷ ⊢l .proj₂)
         (fundamental-⊩ᵛ∷ ⊢A .proj₂) (fundamental-⊩ᵛ∷ ⊢B .proj₂)
   fundamental-⊩ᵛ∷ (var ⊢Γ x∈Γ) =
     _ , varᵛ x∈Γ (valid ⊢Γ) .proj₂
@@ -223,11 +223,10 @@ opaque mutual
     _ , maxᵘ-subᵛ (fundamental-⊩ᵛ∷ ⊢l .proj₂)
   fundamental-⊩ᵛ≡∷ (U-cong l₁≡l₂) =
     _ , ⊩ᵛU≡U∷U (fundamental-⊩ᵛ≡∷ l₁≡l₂ .proj₂)
-  fundamental-⊩ᵛ≡∷ ΠΣ≡ΠΣ@(ΠΣ-cong ⊢l₁ ⊢l₂ A₁≡A₂ B₁≡B₂ ok) =
+  fundamental-⊩ᵛ≡∷ ΠΣ≡ΠΣ@(ΠΣ-cong ⊢l A₁≡A₂ B₁≡B₂ ok) =
       _
     , ΠΣ-congᵗᵛ ΠΣ≡ΠΣ
-        (fundamental-⊩ᵛ∷ ⊢l₁ .proj₂)
-        (fundamental-⊩ᵛ∷ ⊢l₂ .proj₂)
+        (fundamental-⊩ᵛ∷ ⊢l .proj₂)
         (fundamental-⊩ᵛ≡∷ A₁≡A₂ .proj₂)
         (fundamental-⊩ᵛ≡∷ B₁≡B₂ .proj₂)
   fundamental-⊩ᵛ≡∷ (Unit-cong l₁≡l₂ ok) =

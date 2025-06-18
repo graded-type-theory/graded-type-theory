@@ -903,11 +903,11 @@ private module Inhabited where
         maxᵘⱼ (subst-⊢∷ ⊢t ⊢σ) (subst-⊢∷ ⊢u ⊢σ)
       (Uⱼ ⊢l) PE.refl →
         Uⱼ (subst-⊢∷ ⊢l ⊢σ)
-      (ΠΣⱼ {l₂} ⊢l₁ ⊢l₂ ⊢A ⊢B ok) PE.refl →
+      (ΠΣⱼ {l} ⊢l ⊢A ⊢B ok) PE.refl →
         let ⊢A[σ] = subst-⊢∷ ⊢A ⊢σ in
-        ΠΣⱼ (subst-⊢∷ ⊢l₁ ⊢σ) (subst-⊢∷ ⊢l₂ ⊢σ) ⊢A[σ]
+        ΠΣⱼ (subst-⊢∷ ⊢l ⊢σ) ⊢A[σ]
           (PE.subst (λ x → _ ⊢ _ ∷ U x)
-            (wk1-liftSubst l₂)
+            (wk1-liftSubst l)
             (subst-⊢∷-⇑ ⊢B ⊢σ))
           ok
       (lamⱼ ⊢B ⊢t ok) PE.refl →
@@ -1015,15 +1015,15 @@ private module Inhabited where
         maxᵘ-cong (subst-⊢∷→⊢≡∷ ⊢t σ₁≡σ₂) (subst-⊢∷→⊢≡∷ ⊢u σ₁≡σ₂)
       (Uⱼ ⊢l) PE.refl →
         U-cong (subst-⊢∷→⊢≡∷ ⊢l σ₁≡σ₂)
-      (ΠΣⱼ {l₂} ⊢l₁ ⊢l₂ ⊢A ⊢B ok) PE.refl →
+      (ΠΣⱼ {l} ⊢l ⊢A ⊢B ok) PE.refl →
         let ⊢σ₁         = wf-⊢ˢʷ≡∷ σ₁≡σ₂ .proj₂ .proj₁
             ⊢A[σ₁]      = _⊢_.univ $
                           subst-⊢∷ ⊢A ⊢σ₁
             A[σ₁]≡A[σ₂] = subst-⊢∷→⊢≡∷ ⊢A σ₁≡σ₂
         in
-        ΠΣ-cong (subst-⊢∷ ⊢l₁ ⊢σ₁) (subst-⊢∷ ⊢l₂ ⊢σ₁) A[σ₁]≡A[σ₂]
+        ΠΣ-cong (subst-⊢∷ ⊢l ⊢σ₁) A[σ₁]≡A[σ₂]
           (PE.subst (λ x → _ ⊢ _ ≡ _ ∷ U x)
-            (wk1-liftSubst l₂)
+            (wk1-liftSubst l)
             (subst-⊢∷→⊢≡∷-⇑ ⊢B σ₁≡σ₂))
           ok
       (lamⱼ ⊢B ⊢t ok) PE.refl →
@@ -1233,13 +1233,13 @@ private module Inhabited where
           (sucᵘ-cong (subst-⊢∷→⊢≡∷ ⊢l σ₁≡σ₂))
       (U-cong l₁≡l₂) PE.refl →
         U-cong (subst-⊢≡∷ l₁≡l₂ σ₁≡σ₂)
-      (ΠΣ-cong {l₂} ⊢l₁ ⊢l₂ A₁≡A₂ B₁≡B₂ ok) PE.refl →
+      (ΠΣ-cong {l} ⊢l A₁≡A₂ B₁≡B₂ ok) PE.refl →
         let ⊢σ₁ = wf-⊢ˢʷ≡∷ σ₁≡σ₂ .proj₂ .proj₁
             _ , ⊢A₁ = ∙⊢≡∷→⊢-<ˢ B₁≡B₂
         in
-        ΠΣ-cong (subst-⊢∷ ⊢l₁ ⊢σ₁) (subst-⊢∷ ⊢l₂ ⊢σ₁) (subst-⊢≡∷ A₁≡A₂ σ₁≡σ₂)
+        ΠΣ-cong (subst-⊢∷ ⊢l ⊢σ₁) (subst-⊢≡∷ A₁≡A₂ σ₁≡σ₂)
           (PE.subst (λ x → _ ⊢ _ ≡ _ ∷ U x)
-            (wk1-liftSubst l₂)
+            (wk1-liftSubst l)
             (subst-⊢≡∷-⇑ B₁≡B₂ σ₁≡σ₂))
           ok
       (app-cong {G = B} t₁≡t₂ u₁≡u₂) PE.refl →

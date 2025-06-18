@@ -88,6 +88,7 @@ module _ (Erased-ok : Erased-allowed s) where
 
   -- An introduction rule for U.
 
+  {-
   Erasedⱼ-U : Γ ⊢ A ∷ U l → Γ ⊢ Erased A ∷ U l
   Erasedⱼ-U ⊢A = P′.Erasedⱼ-U (inversion-U-Level (wf-⊢∷ ⊢A)) ⊢A
 
@@ -99,6 +100,7 @@ module _ (Erased-ok : Erased-allowed s) where
   Erased-cong-U A≡B = P′.Erased-cong-U (inversion-U-Level (wf-⊢≡∷ A≡B .proj₁)) ⊢A A≡B
     where
     ⊢A = univ (syntacticEqTerm A≡B .proj₂ .proj₁)
+  -}
 
   -- An introduction rule for Erased.
 
@@ -160,12 +162,12 @@ opaque
   inversion-Erased-∷ :
     let open Erased s in
     Γ ⊢ Erased A ∷ B →
-    ∃₂ λ t u →
-      Γ ⊢ A ∷ U t × Erased-allowed s × Γ ⊢ B ≡ U (t maxᵘ u)
+    ∃ λ t →
+      Γ ⊢ A ∷ U t × Erased-allowed s × Γ ⊢ B ≡ U t
   inversion-Erased-∷ ⊢Erased =
     case inversion-ΠΣ-U ⊢Erased of λ {
-      (t , u , _ , _ , ⊢A , ⊢Unit , B≡ , Σˢ-ok) →
-    t , u , ⊢A , (inversion-Unit-allowed (univ ⊢Unit) , Σˢ-ok) , B≡ }
+      (t , _ , ⊢A , ⊢Unit , B≡ , Σˢ-ok) →
+    t , ⊢A , (inversion-Unit-allowed (univ ⊢Unit) , Σˢ-ok) , B≡ }
 
 opaque
 

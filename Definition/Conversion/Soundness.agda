@@ -347,21 +347,6 @@ mutual
   soundnessConv↓Term (rfl-refl t≡u) =
     refl (rflⱼ′ t≡u)
 
-  {-
-  private
-    open import Definition.LogicalRelation R
-    open import Definition.LogicalRelation.Properties R
-
-    strengthenRed : ∀ {A B t u} → Γ ∙ A ⊢ wk1 t ⇒ wk1 u ∷ wk1 B → Γ ⊢ t ⇒ u ∷ B
-    strengthenRed x = {! x !}
-
-    strengthen⊩LevelEq : ∀ {A t u} → Γ ∙ A ⊩Level wk1 t ≡ wk1 u ∷Level → Γ ⊩Level t ≡ u ∷Level
-    strengthen⊩LevelEq (Levelₜ₌ k k′ d d′ prop) = Levelₜ₌ _ _ {!   !} {!   !} {!   !}
-
-    strengthenLevelEq : ∀ {A t u} → Γ ∙ A ⊢ wk1 t ≡ wk1 u ∷ Level → Γ ⊢ t ≡ u ∷ Level
-    strengthenLevelEq wk1t≡wk1u = {!   !}
-  -}
-
   -- A variant of soundnessConv↓.
 
   soundnessConv↓-U :
@@ -405,19 +390,19 @@ mutual
     where
     open TyR
   soundnessConv↓-U {l₁} {l₂} ⊢ΠΣA₁A₂ ⊢ΠΣB₁B₂ (ΠΣ-cong A₁≡B₁ A₂≡B₂ ok) =
-    let l₃ , l₄ , ⊢l₃ , ⊢l₄ , ⊢A₁ , ⊢A₂ , U≡U₁ , _ = inversion-ΠΣ-U ⊢ΠΣA₁A₂
-        l₅ , l₆ , ⊢l₅ , ⊢l₆ , ⊢B₁ , ⊢B₂ , U≡U₂ , _ = inversion-ΠΣ-U ⊢ΠΣB₁B₂
-        A₁≡B₁ , l₃≡l₅            = soundnessConv↑-U ⊢A₁ ⊢B₁ A₁≡B₁
-        A₂≡B₂ , l₄≡l₆            =
+    let l₃ , ⊢l₃ , ⊢A₁ , ⊢A₂ , U≡U₁ , _ = inversion-ΠΣ-U ⊢ΠΣA₁A₂
+        l₄ , ⊢l₄ , ⊢B₁ , ⊢B₂ , U≡U₂ , _ = inversion-ΠΣ-U ⊢ΠΣB₁B₂
+        A₁≡B₁ , l₃≡l₄            = soundnessConv↑-U ⊢A₁ ⊢B₁ A₁≡B₁
+        A₂≡B₂ , _                =
           soundnessConv↑-U ⊢A₂
             (stabilityTerm (refl-∙ (sym (univ A₁≡B₁))) ⊢B₂) A₂≡B₂
     in
-      conv (ΠΣ-cong ⊢l₃ ⊢l₄ A₁≡B₁ A₂≡B₂ ok) (sym U≡U₁)
+      conv (ΠΣ-cong ⊢l₃ A₁≡B₁ A₂≡B₂ ok) (sym U≡U₁)
     , U-injectivity
-        (U l₁            ≡⟨ U≡U₁ ⟩⊢
-         U (l₃ maxᵘ l₄)  ≡⟨ U-cong (maxᵘ-cong l₃≡l₅ {! l₄≡l₆  !}) ⟩⊢
-         U (l₅ maxᵘ l₆)  ≡˘⟨ U≡U₂ ⟩⊢∎
-         U l₂            ∎)
+        (U l₁  ≡⟨ U≡U₁ ⟩⊢
+         U l₃  ≡⟨ U-cong l₃≡l₄ ⟩⊢
+         U l₄  ≡˘⟨ U≡U₂ ⟩⊢∎
+         U l₂  ∎)
     where
     open TyR
   soundnessConv↓-U {l₁} {l₂} ⊢Empty₁ ⊢Empty₂ (Empty-refl _) =
