@@ -1479,6 +1479,16 @@ opaque
 
 opaque
 
+  -- A variant of wk₀-subst.
+
+  wk₀-closed : {t : Term 0} → wk wk₀ t ≡ t
+  wk₀-closed {t} =
+    wk wk₀ t              ≡˘⟨ subst-id _ ⟩
+    wk wk₀ t [ idSubst ]  ≡⟨ wk₀-subst _ ⟩
+    t                     ∎
+
+opaque
+
   -- A version of the above property involving lifted weakenings and
   -- substitutions
 
