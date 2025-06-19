@@ -17,6 +17,7 @@ open import Definition.LogicalRelation.Substitution.Introductions.Empty R ⦃ eq
 open import Definition.LogicalRelation.Substitution.Introductions.Emptyrec R ⦃ eqrel ⦄  public
 open import Definition.LogicalRelation.Substitution.Introductions.Identity R ⦃ eqrel ⦄  public
 open import Definition.LogicalRelation.Substitution.Introductions.Level R ⦃ eqrel ⦄  public
+open import Definition.LogicalRelation.Substitution.Introductions.Lift R ⦃ eqrel ⦄  public
 open import Definition.LogicalRelation.Substitution.Introductions.Nat R ⦃ eqrel ⦄  public
 open import Definition.LogicalRelation.Substitution.Introductions.Pi R ⦃ eqrel ⦄  public
 open import Definition.LogicalRelation.Substitution.Introductions.Pi-Sigma R ⦃ eqrel ⦄  public

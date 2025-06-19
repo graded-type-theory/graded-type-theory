@@ -28,7 +28,7 @@ open import Tools.Nat
 open import Tools.Product
 import Tools.PropositionalEquality as PE
 
-open P public hiding (lam-cong; ⊢ˢʷ≡∷-⇑; ⊢ˢʷ≡∷-sgSubst)
+open P public hiding (lam-cong; lift-cong; ⊢ˢʷ≡∷-⇑; ⊢ˢʷ≡∷-sgSubst)
 
 private variable
   k n                                     : Nat

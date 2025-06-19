@@ -76,6 +76,10 @@ mutual
         F≡F₁ , G≡G₁ , p≡p₄ , _ = ΠΣ-injectivity ΠFG≡ΠF′G′
         a<>c = transConv↑Term F≡F₁ a<>b b<>c
     in  app-cong t~v a<>c , G≡G₁ (soundnessConv↑Term a<>b)
+  trans~↑ (lower-cong t~u) (lower-cong u~v) =
+    let t~v , Lift≡Lift = trans~↓ t~u u~v
+        _ , F≡F′ = Lift-injectivity Lift≡Lift
+    in  lower-cong t~v , F≡F′
   trans~↑ (fst-cong t~u) (fst-cong u~v) =
     let t~v , ΣFG≡ΣF′G′ = trans~↓ t~u u~v
         F≡F′ , _ , _ = ΠΣ-injectivity ΣFG≡ΣF′G′
@@ -243,6 +247,13 @@ mutual
     case inv-[conv↓]-U′ U≡C of λ where
       (inj₁ (_ , _ , PE.refl , PE.refl , y)) → U-cong (transConv↑Term (refl (syntacticEqTerm (soundnessConv↑Term x) .proj₁)) x y)
       (inj₂ (U≢U , _))               → ⊥-elim (U≢U (_ , PE.refl))
+  transConv↓ (Lift-cong l₁≡l₂ F↑G F≡G) Lift≡C =
+    case inv-[conv↓]-Lift′ Lift≡C of λ where
+      (inj₁
+         (_ , _ , _ , _ , _ , PE.refl , PE.refl , l₂≡l₃ , G↑H , G≡H)) →
+        Lift-cong (transConvTerm l₁≡l₂ l₂≡l₃) (transConv↑ F↑G G↑H) (trans F≡G {!   !})
+      (inj₂ (Lift≢Lift , _)) →
+        ⊥-elim (Lift≢Lift (_ , _ , PE.refl))
   transConv↓ (ΠΣ-cong A₁≡B₁ A₂≡B₂ ok) ΠΣ≡C =
     case inv-[conv↓]-ΠΣ′ ΠΣ≡C of λ where
       (inj₁

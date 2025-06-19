@@ -44,6 +44,9 @@ opaque
   ¬-Neutral-U : ¬ Neutral {n = n} (U l)
   ¬-Neutral-U ()
 
+  ¬-Neutral-Lift : ¬ Neutral {n = n} (Lift l A)
+  ¬-Neutral-Lift ()
+
   ¬-Neutral-ΠΣ : ¬ Neutral (ΠΣ⟨ b ⟩ p , q ▷ A ▹ B)
   ¬-Neutral-ΠΣ ()
 
@@ -99,6 +102,10 @@ opaque
       case subst-var {t = t} ≡u of λ {
         (x , refl , ≡t′) →
       var x }
+    lemma {t} (lowerₙ n) ≡u =
+      case subst-lower {t = t} ≡u of λ {
+        (inj₁ (_ , refl)) → var _ ;
+        (inj₂ (_ , refl , refl)) → lowerₙ (lemma n refl) }
     lemma {t} (∘ₙ n) ≡u =
       case subst-∘ {t = t} ≡u of λ {
         (inj₁ (_ , refl)) → var _ ;
@@ -197,6 +204,14 @@ opaque
       case subst-U {t = t} ≡u of λ where
         (inj₁ (x , refl)) → ne! (var x)
         (inj₂ (_ , refl , _)) → Uₙ
+    lemma ≡u Liftₙ =
+      case subst-Lift {t = t} ≡u of λ where
+        (inj₁ (x , refl)) → ne! (var x)
+        (inj₂ (_ , _ , refl , _)) → Liftₙ
+    lemma ≡u liftₙ =
+      case subst-lift {t = t} ≡u of λ where
+        (inj₁ (x , refl)) → ne! (var x)
+        (inj₂ (_ , _ , refl , _)) → liftₙ
     lemma ≡u ΠΣₙ =
       case subst-ΠΣ {t = t} ≡u of λ where
         (inj₁ (_ , refl)) → ne! (var _)
@@ -250,6 +265,7 @@ opaque
 
   NeutralAt→Neutral : NeutralAt x t → Neutral t
   NeutralAt→Neutral var = var _
+  NeutralAt→Neutral (lowerₙ n) = lowerₙ (NeutralAt→Neutral n)
   NeutralAt→Neutral (∘ₙ n) = ∘ₙ (NeutralAt→Neutral n)
   NeutralAt→Neutral (fstₙ n) = fstₙ (NeutralAt→Neutral n)
   NeutralAt→Neutral (sndₙ n) = sndₙ (NeutralAt→Neutral n)
@@ -268,6 +284,7 @@ opaque
 
   Neutral→NeutralAt : Neutral t → ∃ λ x → NeutralAt x t
   Neutral→NeutralAt (var x) = x , var
+  Neutral→NeutralAt (lowerₙ n) = _ , lowerₙ (Neutral→NeutralAt n .proj₂)
   Neutral→NeutralAt (∘ₙ n) = _ , ∘ₙ (Neutral→NeutralAt n .proj₂)
   Neutral→NeutralAt (fstₙ n) = _ , fstₙ (Neutral→NeutralAt n .proj₂)
   Neutral→NeutralAt (sndₙ n) = _ , sndₙ (Neutral→NeutralAt n .proj₂)

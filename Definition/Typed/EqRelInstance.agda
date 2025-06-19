@@ -65,6 +65,8 @@ private opaque
       .≅ₜ-maxᵘ-idem → λ a → maxᵘ-idem (⊢≡→⊢ a)
       .≅ₜ-maxᵘ-sub  → λ a → maxᵘ-sub (⊢≡→⊢ a)
       .≅ₜ-U-cong    → U-cong
+      .≅ₜ-Lift-cong → Lift-cong′
+      .≅-Lift-η     → Lift-η′
       .≅ₜ-ℕrefl     → refl ∘ᶠ ℕⱼ
       .≅ₜ-Emptyrefl → refl ∘ᶠ Emptyⱼ
       .≅ₜ-Unit-cong → Unit-cong
@@ -77,6 +79,7 @@ private opaque
       .≅-η-eq       → λ ⊢t ⊢u _ _ t0≡u0 → η-eq′ ⊢t ⊢u t0≡u0
       .≅-Σ-η        → λ ⊢t ⊢u _ _ fst≡ snd≡ → Σ-η′ ⊢t ⊢u fst≡ snd≡
       .~-var        → refl
+      .~-lower-cong → lower-cong
       .~-app        → app-cong
       .~-fst        → fst-cong
       .~-snd        → snd-cong

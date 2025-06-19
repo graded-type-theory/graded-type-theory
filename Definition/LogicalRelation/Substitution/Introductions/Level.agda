@@ -545,15 +545,15 @@ opaque
 opaque
 
   ≤ᵘ-maxᵘʳ :
-    {⊩t : Γ ⊩Level t ∷Level} →
+    {⊩t ⊩t′ : Γ ⊩Level t ∷Level} →
     {⊩u : Γ ⊩Level u ∷Level} →
-    ↑ᵘ ⊩t ≤ᵘ ↑ᵘ ⊩maxᵘ ⊩t ⊩u
-  ≤ᵘ-maxᵘʳ {⊩t} {⊩u} = PE.subst (↑ᵘ ⊩t ≤ᵘ_) (PE.sym $ ↑ᵘ-maxᵘ ⊩t ⊩u) ≤ᵘ⊔ᵘʳ
+    ↑ᵘ ⊩t ≤ᵘ ↑ᵘ ⊩maxᵘ ⊩t′ ⊩u
+  ≤ᵘ-maxᵘʳ {⊩t′} {⊩u} = PE.subst₂ (_≤ᵘ_) ↑ᵘ-irrelevance (PE.sym $ ↑ᵘ-maxᵘ ⊩t′ ⊩u) ≤ᵘ⊔ᵘʳ
 
 opaque
 
   ≤ᵘ-maxᵘˡ :
     {⊩t : Γ ⊩Level t ∷Level} →
-    {⊩u : Γ ⊩Level u ∷Level} →
-    ↑ᵘ ⊩u ≤ᵘ ↑ᵘ ⊩maxᵘ ⊩t ⊩u
-  ≤ᵘ-maxᵘˡ {⊩t} {⊩u} = PE.subst (↑ᵘ ⊩u ≤ᵘ_) (PE.sym $ ↑ᵘ-maxᵘ ⊩t ⊩u) ≤ᵘ⊔ᵘˡ
+    {⊩u ⊩u′ : Γ ⊩Level u ∷Level} →
+    ↑ᵘ ⊩u ≤ᵘ ↑ᵘ ⊩maxᵘ ⊩t ⊩u′
+  ≤ᵘ-maxᵘˡ {⊩t} {⊩u′} = PE.subst₂ (_≤ᵘ_) ↑ᵘ-irrelevance (PE.sym $ ↑ᵘ-maxᵘ ⊩t ⊩u′) ≤ᵘ⊔ᵘˡ

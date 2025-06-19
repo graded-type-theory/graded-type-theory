@@ -58,7 +58,7 @@ opaque
   Erasedⱼ-U ⊢l ⊢A∷U =
     -- conv (ΠΣⱼ ⊢l (zeroᵘⱼ (wfTerm ⊢l)) ⊢A∷U (Unitⱼ (zeroᵘⱼ (∙ univ ⊢A∷U)) Unit-ok) Σ-ok)
     --   (U-cong (maxᵘ-zeroʳ ⊢l))
-    ΠΣⱼ ⊢l ⊢A∷U {! Unitⱼ  !} {!    !}
+    ΠΣⱼ ⊢l ⊢A∷U ? ?
 
 -- A corresponding congruence rule.
 
@@ -70,7 +70,7 @@ Erased-cong-U :
 Erased-cong-U ⊢l ⊢A A≡B =
   -- conv (ΠΣ-cong ⊢l (zeroᵘⱼ (wf ⊢A)) A≡B (refl (Unitⱼ (zeroᵘⱼ (∙ ⊢A)) Unit-ok)) Σ-ok)
   --   (U-cong (maxᵘ-zeroʳ ⊢l))
-  {!   !}
+  ?
 -}
 
 -- An introduction rule for Erased.

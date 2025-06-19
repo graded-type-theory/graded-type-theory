@@ -211,6 +211,18 @@ private module Trans (l : Universe-level) (rec : ∀ {l′} → l′ <ᵘ l → 
     open _⊩ₗId_ ⊩A
 
   transEqT (Levelᵥ D D′ D″) A≡B B≡C = B≡C
+  transEqT
+    (Liftᵥ LiftA (Liftᵣ D₀ _ [F′] _ _) (Liftᵣ D₁ _ [F″] _ _))
+    (Lift₌ D k≡k′ F≡F′ A≡B)
+    (Lift₌ D′ k′≡k″ F′≡F″ B≡C)
+    = case whrDet* (D₀ , Liftₙ) (D , Liftₙ) of λ {
+        PE.refl →
+      case whrDet* (D₁ , Liftₙ) (D′ , Liftₙ) of λ {
+        PE.refl →
+      Lift₌ D′
+        (transEqTermLevel k≡k′ k′≡k″)
+        (transEq _ [F′] [F″] F≡F′ F′≡F″)
+        (≅-trans A≡B B≡C) }}
   transEqT (ℕᵥ D D′ D″) A≡B B≡C = B≡C
   transEqT (Emptyᵥ D D′ D″) A≡B B≡C = B≡C
   transEqT (Unitᵥ _ (Unitᵣ k′ _ _ B⇒*Unit₁ _) _) (Unit₌ _ B⇒*Unit₂ k≡k′) (Unit₌ _ C⇒*Unit k′≡k″) =
@@ -280,6 +292,13 @@ private module Trans (l : Universe-level) (rec : ∀ {l′} → l′ <ᵘ l → 
         (_⊩ₗId_≡_/_.rhs≡rhs′ B≡C)) }}
 
   transEqTerm (Levelᵣ D) [t≡u] [u≡v] = transEqTermLevel [t≡u] [u≡v]
+  transEqTerm
+    (Liftᵣ′ D [k] [F] _ A≡A)
+    (Liftₜ₌ _ _ t↘ u↘ t≡u)
+    (Liftₜ₌ _ _ u↘′ v↘ u≡v)
+    = case whrDet*Term u↘ u↘′ of λ {
+      PE.refl →
+    Liftₜ₌ _ _ t↘ v↘ (transEqTerm [F] t≡u u≡v) }
   transEqTerm (Uᵣ′ _ [k] k< D)
               (Uₜ₌ A B d d′ typeA typeB t≡u [t] [u] [t≡u])
               (Uₜ₌ A₁ B₁ d₁ d₁′ typeA₁ typeB₁ t≡u₁ [t]₁ [u]₁ [t≡u]₁) =

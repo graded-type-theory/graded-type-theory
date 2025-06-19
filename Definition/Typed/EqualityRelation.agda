@@ -24,7 +24,7 @@ open import Definition.Typed.Weakening R using (_∷ʷ_⊇_)
 
 open import Tools.Fin
 open import Tools.Function
-open import Tools.Level hiding (Level; _⊔_)
+open import Tools.Level hiding (Level; _⊔_; Lift)
 open import Tools.Nat
 open import Tools.Product
 import Tools.PropositionalEquality as PE
@@ -190,6 +190,19 @@ record Equality-relations
     -- Universe congruence
     ≅ₜ-U-cong : Γ ⊢ l ≅ k ∷ Level → Γ ⊢ U l ≅ U k ∷ U (sucᵘ l)
 
+    -- Lift congruence
+    ≅ₜ-Lift-cong
+      : Γ ⊢ l ≅ k ∷ Level
+      → Γ ⊢ A ≅ B ∷ U l₁
+      → Γ ⊢ Lift l A ≅ Lift k B ∷ U (l₁ maxᵘ l)
+
+    -- η for Lift
+    ≅-Lift-η : Γ ⊢ A ∷ U l₁
+             → Γ ⊢ t ∷ Lift k A
+             → Γ ⊢ u ∷ Lift k A
+             → Γ ⊢ lower t ≅ lower u ∷ A
+             → Γ ⊢ t ≅ u ∷ Lift k A
+
     -- Natural number type reflexivity
     ≅ₜ-ℕrefl : ⊢ Γ → Γ ⊢≅ ℕ ∷ U zeroᵘ
 
@@ -259,6 +272,11 @@ record Equality-relations
 
     -- Variable reflexivity
     ~-var : ∀ {x A} → Γ ⊢ var x ∷ A → Γ ⊢~ var x ∷ A
+
+    -- lower congruence
+    ~-lower-cong
+      : Γ ⊢ t ~ u ∷ Lift l₂ A
+      → Γ ⊢ lower t ~ lower u ∷ A
 
     -- Application congruence
     ~-app : ∀ {a b f g F G}
@@ -399,6 +417,16 @@ record Equality-relations
 
     ≅-U-cong : Γ ⊢ l ≅ k ∷ Level → Γ ⊢ U l ≅ U k
     ≅-U-cong l≡k = ≅-univ (≅ₜ-U-cong l≡k)
+
+  opaque
+
+    -- A variant of ≅ₜ-Lift-cong.
+
+    ≅-Lift-cong
+      : Γ ⊢ l ≅ k ∷ Level
+      → Γ ⊢ A ≅ B ∷ U l₁
+      → Γ ⊢ Lift l A ≅ Lift k B
+    ≅-Lift-cong l≡k A≡B = ≅-univ (≅ₜ-Lift-cong l≡k A≡B)
 
   opaque
 

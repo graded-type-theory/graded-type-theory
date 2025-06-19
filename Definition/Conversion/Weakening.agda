@@ -56,6 +56,8 @@ mutual
       → Δ ⊢ U.wk ρ t ~ U.wk ρ u ↑ U.wk ρ A
   wk~↑ {ρ} [ρ] (var-refl x₁ x≡y) =
     var-refl (wkTerm [ρ] x₁) (PE.cong (wkVar ρ) x≡y)
+  wk~↑ [ρ] (lower-cong x) =
+    lower-cong (wk~↓ [ρ] x)
   wk~↑ ρ (app-cong {B} t~u x) =
     PE.subst (λ x → _ ⊢ _ ~ _ ↑ x) (PE.sym (wk-β B))
              (app-cong (wk~↓ ρ t~u) (wkConv↑Term ρ x))
@@ -178,6 +180,8 @@ mutual
          → Δ ⊢ U.wk ρ A [conv↓] U.wk ρ B
   wkConv↓ ρ (Level-refl x) = Level-refl (wf-∷ʷ⊇ ρ)
   wkConv↓ ρ (U-cong x) = U-cong (wkConv↑Term ρ x)
+  wkConv↓ ρ (Lift-cong l₁≡l₂ F↑H F≡H) =
+    Lift-cong (wkConv↑Term ρ l₁≡l₂) (wkConv↑ ρ F↑H) (wkEqTerm ρ F≡H)
   wkConv↓ ρ (ℕ-refl x) = ℕ-refl (wf-∷ʷ⊇ ρ)
   wkConv↓ ρ (Empty-refl x) = Empty-refl (wf-∷ʷ⊇ ρ)
   wkConv↓ ρ (Unit-cong x ok) = Unit-cong (wkConv↑Term ρ x) ok
@@ -298,6 +302,8 @@ mutual
     ne-ins (wkTerm [ρ] t) (wkTerm [ρ] u) (wkNeutral ρ x) (wk~↓ [ρ] x₁)
   wkConv↓Term ρ (univ x x₁ x₂) =
     univ (wkTerm ρ x) (wkTerm ρ x₁) (wkConv↓ ρ x₂)
+  wkConv↓Term {ρ} [ρ] (Lift-η ⊢t ⊢u wt wu lower≡lower) =
+    Lift-η (wkTerm [ρ] ⊢t) (wkTerm [ρ] ⊢u) (wkWhnf ρ wt) (wkWhnf ρ wu) (wkConv↑Term [ρ] lower≡lower)
   wkConv↓Term ρ (zero-refl x) = zero-refl (wf-∷ʷ⊇ ρ)
   wkConv↓Term ρ (starʷ-cong x y ok no-η) = starʷ-cong (wkEqTerm ρ x) (wkEqTerm ρ y) ok no-η
   wkConv↓Term ρ (suc-cong t<>u) = suc-cong (wkConv↑Term ρ t<>u)

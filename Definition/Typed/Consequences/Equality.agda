@@ -110,6 +110,42 @@ opaque
 
 opaque
 
+  -- If the WHNF A is judgmentally equal to Lift l B, then A is
+  -- propositionally equal to Lift l B (given a certain assumption).
+
+  Lift≡A :
+    ⦃ ok : No-equality-reflection or-empty Γ ⦄ →
+    Γ ⊢ Lift l B ≡ A → Whnf A → ∃₂ λ k C → A PE.≡ Lift k C
+  Lift≡A {Γ} {l} {B} {A} Lift≡A A-whnf = $⟨ Lift≡A ⟩
+    Γ ⊢ Lift l B ≡ A                     →⟨ reducible-⊩≡ ⟩
+    (∃ λ l′ → Γ ⊩⟨ l′ ⟩ Lift l B ≡ A)    →⟨ (λ (_ , Lift≡A) → let _ , _ , _ , _ , D , _ = ⊩Lift≡⇔ .proj₁ Lift≡A in _ , _ , D) ⟩
+    (∃₂ λ k C → Γ ⊢ A ⇒* Lift k C)       →⟨ Σ.map idᶠ $ Σ.map idᶠ (flip whnfRed* A-whnf) ⟩
+    (∃₂ λ k C → A PE.≡ Lift k C)         □
+
+opaque
+
+  -- If equality reflection is allowed, then there is a WHNF A that is
+  -- judgementally equal to a Lift type but not propositionally
+  -- equal to any Lift type (given a certain assumption).
+
+  whnf≢Lift :
+    Equality-reflection →
+    Unitʷ-allowed →
+    ∃₄ λ (Γ : Con Term 1) (l : Term 1) (B : Term 1) (A : Term 1) →
+      Γ ⊢ Lift l B ≡ A × Whnf A × ¬ ∃₂ λ l B → A PE.≡ Lift l B
+  whnf≢Lift ok₁ ok₂ =
+    ε ∙ Id (U (zeroᵘ maxᵘ zeroᵘ)) (Lift zeroᵘ ℕ) (Unitʷ (zeroᵘ maxᵘ zeroᵘ)) ,
+    zeroᵘ ,
+    ℕ ,
+    Unitʷ (zeroᵘ maxᵘ zeroᵘ) ,
+    univ
+      (equality-reflection′ ok₁ $
+       var₀ (Idⱼ′ (Liftⱼ′ (zeroᵘⱼ ε) (ℕⱼ ε)) (Unitⱼ (maxᵘⱼ (zeroᵘⱼ ε) (zeroᵘⱼ ε)) ok₂))) ,
+    Unitₙ ,
+    (λ ())
+
+opaque
+
   -- If the WHNF A is judgmentally equal to ℕ, then A is
   -- propositionally equal to ℕ (given a certain assumption).
 

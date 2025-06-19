@@ -43,6 +43,16 @@ private variable
 
 opaque
 
+  -- An inversion lemma related to lower.
+
+  inv-⇒-lower :
+    Γ ⊢ lower t ⇒ u ∷ A →
+    (∃₂ λ t′ B → Γ ⊢ t ⇒ t′ ∷ B × u PE.≡ lower t′) ⊎
+    (∃₂ λ l₂ t′ → t PE.≡ lift l₂ t′ × u PE.≡ t′)
+  inv-⇒-lower (conv d _)       = inv-⇒-lower d
+  inv-⇒-lower (lower-subst x)  = inj₁ (_ , _ , x , PE.refl)
+  inv-⇒-lower (Lift-β x x₁ x₂) = inj₂ (_ , _ , PE.refl , PE.refl)
+
   -- An inversion lemma related to _∘⟨_⟩_.
 
   inv-⇒-∘ :
@@ -187,6 +197,8 @@ opaque
   subsetTerm (maxᵘ-sucᵘ ⊢l₁ ⊢l₂) = maxᵘ-sucᵘ ⊢l₁ ⊢l₂
   subsetTerm (maxᵘ-substˡ t⇒t′ ⊢u) = maxᵘ-cong (subsetTerm t⇒t′) (refl ⊢u)
   subsetTerm (maxᵘ-substʳ ⊢t u⇒u′) = maxᵘ-cong (refl (sucᵘⱼ ⊢t)) (subsetTerm u⇒u′)
+  subsetTerm (lower-subst x) = lower-cong (subsetTerm x)
+  subsetTerm (Lift-β x ⊢A x₁) = Lift-β x ⊢A x₁
   subsetTerm (natrec-subst z s n⇒n′) =
     natrec-cong (refl (⊢∙→⊢ (wfTerm s))) (refl z) (refl s)
       (subsetTerm n⇒n′)
@@ -387,6 +399,8 @@ opaque
     (maxᵘ-sucᵘ _ _)           → λ ()
     (maxᵘ-substˡ d _)         → λ ()
     (maxᵘ-substʳ _ d)         → λ ()
+    (lower-subst x)           → neRedTerm x ∘→ inv-ne-lower
+    (Lift-β x ⊢A x₁)          → (λ ()) ∘→ inv-ne-lower
     (app-subst d _)           → neRedTerm d ∘→ inv-ne-∘
     (β-red _ _ _ _ _)         → (λ ()) ∘→ inv-ne-∘
     (natrec-subst _ _ d)      → neRedTerm d ∘→ inv-ne-natrec
@@ -451,6 +465,8 @@ opaque
     (maxᵘ-sucᵘ _ _)           → λ { (ne (maxᵘˡₙ (ne ()))); (ne (maxᵘʳₙ (ne ()))); (ne! ()) }
     (maxᵘ-substˡ d _)         → λ { (ne (maxᵘˡₙ n)) → sneRedTerm d n; (ne (maxᵘʳₙ n)) → ¬sucᵘ⇒ d; (ne! ()) }
     (maxᵘ-substʳ _ d)         → λ { (ne (maxᵘˡₙ (ne ()))); (ne (maxᵘʳₙ n)) → sneRedTerm d n; (ne! ()) }
+    (lower-subst x)           → neRedTerm x ∘→ inv-whnf-lower
+    (Lift-β x x₁ x₂)          → (λ ()) ∘→ inv-whnf-lower
     (app-subst d _)           → neRedTerm d ∘→ inv-whnf-∘
     (β-red _ _ _ _ _)         → (λ ()) ∘→ inv-whnf-∘
     (natrec-subst _ _ d)      → neRedTerm d ∘→ inv-whnf-natrec
@@ -532,6 +548,14 @@ opaque
     (maxᵘ-substʳ _ d) (maxᵘ-zeroʳ _) → ⊥-elim (whnfRedTerm d zeroᵘₙ)
     (maxᵘ-substʳ _ d) (maxᵘ-sucᵘ _ _) → ⊥-elim (whnfRedTerm d sucᵘₙ)
     (maxᵘ-substʳ _ d) (maxᵘ-substˡ d′ _) → ⊥-elim (¬sucᵘ⇒ d′)
+    (lower-subst d) d′ →
+      case inv-⇒-lower d′ of λ where
+        (inj₁ (_ , _ , d′ , PE.refl)) → PE.cong lower (whrDetTerm d d′)
+        (inj₂ (_ , _ , PE.refl , PE.refl)) → ⊥-elim (whnfRedTerm d liftₙ)
+    (Lift-β x x₁ x₂) d′ →
+      case inv-⇒-lower d′ of λ where
+        (inj₁ (_ , _ , d′ , PE.refl)) → ⊥-elim (whnfRedTerm d′ liftₙ)
+        (inj₂ (_ , _ , PE.refl , PE.refl)) → PE.refl
     (app-subst d _) d′ →
       case inv-⇒-∘ d′ of λ where
         (inj₁ (_ , _ , d′ , PE.refl)) →
@@ -806,3 +830,16 @@ opaque
     Γ ⊢ sucᵘ t maxᵘ u ⇒* sucᵘ t maxᵘ u′ ∷ Level
   maxᵘ-substʳ* ⊢t (id ⊢u) = id (maxᵘⱼ (sucᵘⱼ ⊢t) ⊢u)
   maxᵘ-substʳ* ⊢t (d ⇨ u⇒*u′) = maxᵘ-substʳ ⊢t d ⇨ maxᵘ-substʳ* ⊢t u⇒*u′
+
+------------------------------------------------------------------------
+-- Some lemmas related to lower
+
+opaque
+
+  -- A variant of lower-subst.
+
+  lower-subst* :
+    Γ ⊢ t ⇒* t′ ∷ Lift u A →
+    Γ ⊢ lower t ⇒* lower t′ ∷ A
+  lower-subst* (id ⊢t) = id (lowerⱼ ⊢t)
+  lower-subst* (d ⇨ t⇒*t′) = lower-subst d ⇨ lower-subst* t⇒*t′

@@ -30,7 +30,7 @@ open import Definition.Untyped.Properties M
 
 open import Tools.Fin
 open import Tools.Function
-open import Tools.Level
+open import Tools.Level as L
 open import Tools.Nat using (Nat)
 open import Tools.Product as Σ
 import Tools.PropositionalEquality as PE
@@ -55,7 +55,7 @@ opaque mutual
   infix 4 ⊩ᵛ_
 
   ⊩ᵛ_ : Con Term n → Set a
-  ⊩ᵛ ε       = Lift _ ⊤
+  ⊩ᵛ ε       = L.Lift _ ⊤
   ⊩ᵛ (Γ ∙ A) = ∃ λ l → Γ ⊩ᵛ⟨ l ⟩ A
 
   -- Valid types.

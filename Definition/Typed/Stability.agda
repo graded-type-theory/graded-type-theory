@@ -246,6 +246,10 @@ opaque
     maxᵘ-substˡ (stabilityRedTerm Γ≡Δ t⇒t′) (stabilityTerm Γ≡Δ ⊢u)
   stabilityRedTerm Γ≡Δ (maxᵘ-substʳ ⊢t u⇒u′) =
     maxᵘ-substʳ (stabilityTerm Γ≡Δ ⊢t) (stabilityRedTerm Γ≡Δ u⇒u′)
+  stabilityRedTerm Γ≡Δ (lower-subst x) =
+    lower-subst (stabilityRedTerm Γ≡Δ x)
+  stabilityRedTerm Γ≡Δ (Lift-β x x₁ x₂) =
+    Lift-β (stabilityTerm Γ≡Δ x) (stabilityTerm Γ≡Δ x₁) (stabilityTerm Γ≡Δ x₂)
   stabilityRedTerm Γ≡Δ (app-subst d x) =
     app-subst (stabilityRedTerm Γ≡Δ d) (stabilityTerm Γ≡Δ x)
   stabilityRedTerm Γ≡Δ (fst-subst ⊢G t⇒) =

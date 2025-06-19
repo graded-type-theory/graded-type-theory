@@ -110,6 +110,19 @@ opaque mutual
     _ , sucᵘᵛ (fundamental-⊩ᵛ∷ ⊢l .proj₂)
   fundamental-⊩ᵛ∷ (maxᵘⱼ ⊢l₁ ⊢l₂) =
     _ , maxᵘᵛ (fundamental-⊩ᵛ∷ ⊢l₁ .proj₂) (fundamental-⊩ᵛ∷ ⊢l₂ .proj₂)
+  fundamental-⊩ᵛ∷ (Liftⱼ ⊢l₁ ⊢l₂ ⊢A) =
+    _ , Liftᵛ
+      (fundamental-⊩ᵛ∷ ⊢l₁ .proj₂)
+      (fundamental-⊩ᵛ∷ ⊢l₂ .proj₂)
+      (fundamental-⊩ᵛ∷ ⊢A .proj₂)
+  fundamental-⊩ᵛ∷ (liftⱼ ⊢l₁ ⊢l₂ ⊢A ⊢t) =
+    _ , liftᵛ
+      (fundamental-⊩ᵛ∷ ⊢l₁ .proj₂)
+      (fundamental-⊩ᵛ∷ ⊢l₂ .proj₂)
+      (fundamental-⊩ᵛ∷ ⊢A .proj₂)
+      (fundamental-⊩ᵛ∷ ⊢t .proj₂)
+  fundamental-⊩ᵛ∷ (lowerⱼ ⊢t) =
+    _ , lowerᵛ (fundamental-⊩ᵛ∷ ⊢t .proj₂)
   fundamental-⊩ᵛ∷ (ℕⱼ ⊢Γ) =
     _ , ℕᵗᵛ (valid ⊢Γ)
   fundamental-⊩ᵛ∷ (Emptyⱼ x) =
@@ -223,6 +236,25 @@ opaque mutual
     _ , maxᵘ-subᵛ (fundamental-⊩ᵛ∷ ⊢l .proj₂)
   fundamental-⊩ᵛ≡∷ (U-cong l₁≡l₂) =
     _ , ⊩ᵛU≡U∷U (fundamental-⊩ᵛ≡∷ l₁≡l₂ .proj₂)
+  fundamental-⊩ᵛ≡∷ (Lift-cong ⊢l₁ l₂≡l₂′ A≡B) =
+    _ , Lift-congᵛ
+      (fundamental-⊩ᵛ∷ ⊢l₁ .proj₂)
+      (fundamental-⊩ᵛ≡∷ l₂≡l₂′ .proj₂)
+      (fundamental-⊩ᵛ≡∷ A≡B .proj₂)
+  fundamental-⊩ᵛ≡∷ (lower-cong t≡u) = _ , lower-congᵛ (fundamental-⊩ᵛ≡∷ t≡u .proj₂)
+  fundamental-⊩ᵛ≡∷ (Lift-β ⊢l₂ ⊢A ⊢u) =
+    _ , Lift-βᵛ
+      (fundamental-⊩ᵛ∷ ⊢l₂ .proj₂)
+      (fundamental-⊩ᵛ∷ ⊢A .proj₂)
+      (fundamental-⊩ᵛ∷ ⊢u .proj₂)
+  fundamental-⊩ᵛ≡∷ (Lift-η ⊢l₁ ⊢l₂ ⊢A ⊢t ⊢u t≡u) =
+    _ , Lift-ηᵛ
+      (fundamental-⊩ᵛ∷ ⊢l₁ .proj₂)
+      (fundamental-⊩ᵛ∷ ⊢l₂ .proj₂)
+      (fundamental-⊩ᵛ∷ ⊢A .proj₂)
+      (fundamental-⊩ᵛ∷ ⊢t .proj₂)
+      (fundamental-⊩ᵛ∷ ⊢u .proj₂)
+      (fundamental-⊩ᵛ≡∷ t≡u .proj₂)
   fundamental-⊩ᵛ≡∷ ΠΣ≡ΠΣ@(ΠΣ-cong ⊢l A₁≡A₂ B₁≡B₂ ok) =
       _
     , ΠΣ-congᵗᵛ ΠΣ≡ΠΣ

@@ -31,7 +31,7 @@ private
     n : Nat
     Γ : Con Term _
     A A₁ A₂ A′ B B₁ B₂ C E F F′ G H : Term _
-    a f g l l₁ l₂ l₃ l′ n′ s s′ t t₁ t₂ t′ u u₁ u₂ u′ v v₁ v₂ v′ w w₁ w₂ w′ z z′ :
+    a f g l l₁ l₂ l₂′ l₃ l′ n′ s s′ t t₁ t₂ t′ u u₁ u₂ u′ v v₁ v₂ v′ w w₁ w₂ w′ z z′ :
       Term _
     σ σ′ : Subst _ _
     x : Fin _
@@ -89,6 +89,18 @@ mutual
 
     Uⱼ        : Γ ⊢ l ∷ Level
               → Γ ⊢ U l ∷ U (sucᵘ l)
+
+    Liftⱼ     : Γ ⊢ l₁ ∷ Level
+              → Γ ⊢ l₂ ∷ Level
+              → Γ ⊢ A ∷ U l₁
+              → Γ ⊢ Lift l₂ A ∷ U (l₁ maxᵘ l₂)
+    liftⱼ     : Γ ⊢ l₁ ∷ Level
+              → Γ ⊢ l₂ ∷ Level
+              → Γ ⊢ A ∷ U l₁
+              → Γ ⊢ t ∷ A
+              → Γ ⊢ lift l₂ t ∷ Lift l₂ A
+    lowerⱼ    : Γ ⊢ t ∷ Lift l₂ A
+              → Γ ⊢ lower t ∷ A
 
     Emptyⱼ    : ⊢ Γ → Γ ⊢ Empty ∷ U zeroᵘ
     emptyrecⱼ : Γ ⊢ A → Γ ⊢ t ∷ Empty → Γ ⊢ emptyrec p A t ∷ A
@@ -244,6 +256,24 @@ mutual
 
     U-cong        : Γ ⊢ l₁ ≡ l₂ ∷ Level
                   → Γ ⊢ U l₁ ≡ U l₂ ∷ U (sucᵘ l₁)
+
+    Lift-cong     : Γ ⊢ l₁ ∷ Level
+                  → Γ ⊢ l₂ ≡ l₂′ ∷ Level
+                  → Γ ⊢ A ≡ B ∷ U l₁
+                  → Γ ⊢ Lift l₂ A ≡ Lift l₂′ B ∷ U (l₁ maxᵘ l₂)
+    lower-cong    : Γ ⊢ t ≡ u ∷ Lift l₂ A
+                  → Γ ⊢ lower t ≡ lower u ∷ A
+    Lift-β        : Γ ⊢ l₂ ∷ Level
+                  → Γ ⊢ A ∷ U l₁
+                  → Γ ⊢ t ∷ A
+                  → Γ ⊢ lower (lift l₂ t) ≡ t ∷ A
+    Lift-η        : Γ ⊢ l₁ ∷ Level
+                  → Γ ⊢ l₂ ∷ Level
+                  → Γ ⊢ A ∷ U l₁
+                  → Γ ⊢ t ∷ Lift l₂ A
+                  → Γ ⊢ u ∷ Lift l₂ A
+                  → Γ ⊢ lower t ≡ lower u ∷ A
+                  → Γ ⊢ t ≡ u ∷ Lift l₂ A
 
     emptyrec-cong : Γ ⊢ A ≡ B
                   → Γ ⊢ t ≡ u ∷ Empty
@@ -452,6 +482,13 @@ data _⊢_⇒_∷_ (Γ : Con Term n) : Term n → Term n → Term n → Set ℓ 
   maxᵘ-sucᵘ      : Γ ⊢ l₁ ∷ Level
                  → Γ ⊢ l₂ ∷ Level
                  → Γ ⊢ sucᵘ l₁ maxᵘ sucᵘ l₂ ⇒ sucᵘ (l₁ maxᵘ l₂) ∷ Level
+
+  lower-subst    : Γ ⊢ t ⇒ u ∷ Lift l₂ A
+                 → Γ ⊢ lower t ⇒ lower u ∷ A
+  Lift-β         : Γ ⊢ l₂ ∷ Level
+                 → Γ ⊢ A ∷ U l₁
+                 → Γ ⊢ t ∷ A
+                 → Γ ⊢ lower (lift l₂ t) ⇒ t ∷ A
 
   emptyrec-subst : ∀ {n}
                  → Γ ⊢ A

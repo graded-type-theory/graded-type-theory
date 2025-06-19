@@ -48,7 +48,7 @@ private variable
   p q                        : M
 
 ------------------------------------------------------------------------
--- An admissible equality rule
+-- Some admissible equality rules
 
 opaque
 
@@ -84,6 +84,31 @@ opaque
       in
       PE.subst (_ ⊢ _ ≡ _ ∷_) (wkSingleSubstId _) $
       β-red (W.wk ρ ⊢B) (wkTerm ρ ⊢v) (var₀ ⊢A) PE.refl ok
+
+opaque
+
+  -- lift preserves definitional equality.
+  --
+  -- See also Definition.Typed.Properties.Admissible.Lift.lift-cong.
+
+  lift-cong :
+    ∀ {t u A l₁ l₂ l₂′} →
+    Γ ⊢ l₁ ∷ Level →
+    Γ ⊢ l₂ ∷ Level →
+    Γ ⊢ l₂′ ∷ Level →
+    Γ ⊢ l₂ ≡ l₂′ ∷ Level →
+    Γ ⊢ A ∷ U l₁ →
+    Γ ⊢ t ∷ A →
+    Γ ⊢ u ∷ A →
+    Γ ⊢ t ≡ u ∷ A →
+    Γ ⊢ lift l₂ t ≡ lift l₂′ u ∷ Lift l₂ A
+  lift-cong {t} {u} {l₂} {l₂′} ⊢l₁ ⊢l₂ ⊢l₂′ l₂≡l₂′ ⊢A ⊢t ⊢u t≡u =
+    Lift-η ⊢l₁ ⊢l₂ ⊢A (liftⱼ ⊢l₁ ⊢l₂ ⊢A ⊢t)
+      (conv (liftⱼ ⊢l₁ ⊢l₂′ ⊢A ⊢u) (sym (univ (Lift-cong ⊢l₁ l₂≡l₂′ (refl ⊢A)))))
+      (lower (lift l₂ t) ≡⟨ Lift-β ⊢l₂ ⊢A ⊢t ⟩⊢
+       t                 ≡⟨ t≡u ⟩⊢
+       u                 ≡⟨ sym (univ ⊢A) (Lift-β ⊢l₂′ ⊢A ⊢u) ⟩⊢∎
+       lower (lift l₂′ u) ∎)
 
 ------------------------------------------------------------------------
 -- Well-formed substitutions
@@ -903,6 +928,12 @@ private module Inhabited where
         maxᵘⱼ (subst-⊢∷ ⊢t ⊢σ) (subst-⊢∷ ⊢u ⊢σ)
       (Uⱼ ⊢l) PE.refl →
         Uⱼ (subst-⊢∷ ⊢l ⊢σ)
+      (Liftⱼ x x₁ x₂) PE.refl →
+        Liftⱼ (subst-⊢∷ x ⊢σ) (subst-⊢∷ x₁ ⊢σ) (subst-⊢∷ x₂ ⊢σ)
+      (liftⱼ ⊢l₁ x x₁ x₂) PE.refl →
+        liftⱼ (subst-⊢∷ ⊢l₁ ⊢σ) (subst-⊢∷ x ⊢σ) (subst-⊢∷ x₁ ⊢σ) (subst-⊢∷ x₂ ⊢σ)
+      (lowerⱼ x) PE.refl →
+        lowerⱼ (subst-⊢∷ x ⊢σ)
       (ΠΣⱼ {l} ⊢l ⊢A ⊢B ok) PE.refl →
         let ⊢A[σ] = subst-⊢∷ ⊢A ⊢σ in
         ΠΣⱼ (subst-⊢∷ ⊢l ⊢σ) ⊢A[σ]
@@ -1015,6 +1046,19 @@ private module Inhabited where
         maxᵘ-cong (subst-⊢∷→⊢≡∷ ⊢t σ₁≡σ₂) (subst-⊢∷→⊢≡∷ ⊢u σ₁≡σ₂)
       (Uⱼ ⊢l) PE.refl →
         U-cong (subst-⊢∷→⊢≡∷ ⊢l σ₁≡σ₂)
+      (Liftⱼ x x₁ x₂) PE.refl →
+        let ⊢σ₁ , ⊢σ₂ = wf-⊢ˢʷ≡∷ σ₁≡σ₂ .proj₂
+        in Lift-cong (subst-⊢∷ x ⊢σ₁) (subst-⊢∷→⊢≡∷ x₁ σ₁≡σ₂) (subst-⊢∷→⊢≡∷ x₂ σ₁≡σ₂)
+      (liftⱼ ⊢l₁ x x₁ x₂) PE.refl →
+        let ⊢σ₁ , ⊢σ₂ = wf-⊢ˢʷ≡∷ σ₁≡σ₂ .proj₂
+        in
+        lift-cong (subst-⊢∷ ⊢l₁ ⊢σ₁) (subst-⊢∷ x ⊢σ₁) (subst-⊢∷ x ⊢σ₂) (subst-⊢∷→⊢≡∷ x σ₁≡σ₂)
+          (subst-⊢∷ x₁ ⊢σ₁)
+          (subst-⊢∷ x₂ ⊢σ₁)
+          (conv (subst-⊢∷ x₂ ⊢σ₂) (sym (univ (subst-⊢∷→⊢≡∷ x₁ σ₁≡σ₂))))
+          (subst-⊢∷→⊢≡∷ x₂ σ₁≡σ₂)
+      (lowerⱼ x) PE.refl →
+        lower-cong (subst-⊢∷→⊢≡∷ x σ₁≡σ₂)
       (ΠΣⱼ {l} ⊢l ⊢A ⊢B ok) PE.refl →
         let ⊢σ₁         = wf-⊢ˢʷ≡∷ σ₁≡σ₂ .proj₂ .proj₁
             ⊢A[σ₁]      = _⊢_.univ $
@@ -1233,6 +1277,19 @@ private module Inhabited where
           (sucᵘ-cong (subst-⊢∷→⊢≡∷ ⊢l σ₁≡σ₂))
       (U-cong l₁≡l₂) PE.refl →
         U-cong (subst-⊢≡∷ l₁≡l₂ σ₁≡σ₂)
+      (Lift-cong x x₁ x₂) PE.refl →
+        let _ , ⊢σ₁ , ⊢σ₂ = wf-⊢ˢʷ≡∷ σ₁≡σ₂
+        in Lift-cong (subst-⊢∷ x ⊢σ₁) (subst-⊢≡∷ x₁ σ₁≡σ₂) (subst-⊢≡∷ x₂ σ₁≡σ₂)
+      (lower-cong x) PE.refl → lower-cong (subst-⊢≡∷ x σ₁≡σ₂)
+      (Lift-β x x₁ x₂) PE.refl →
+        let _ , ⊢σ₁ , ⊢σ₂ = wf-⊢ˢʷ≡∷ σ₁≡σ₂
+        in trans (Lift-β (subst-⊢∷ x ⊢σ₁) (subst-⊢∷ x₁ ⊢σ₁) (subst-⊢∷ x₂ ⊢σ₁)) (subst-⊢∷→⊢≡∷ x₂ σ₁≡σ₂)
+      (Lift-η ⊢l₁ x x₁ ⊢t ⊢u x₂) PE.refl →
+        let _ , ⊢σ₁ , ⊢σ₂ = wf-⊢ˢʷ≡∷ σ₁≡σ₂
+        in Lift-η (subst-⊢∷ ⊢l₁ ⊢σ₁) (subst-⊢∷ x ⊢σ₁) (subst-⊢∷ x₁ ⊢σ₁) (subst-⊢∷ ⊢t ⊢σ₁)
+          (conv (subst-⊢∷ ⊢u ⊢σ₂)
+            (sym (univ (Lift-cong (subst-⊢∷ ⊢l₁ ⊢σ₁) (subst-⊢∷→⊢≡∷ x σ₁≡σ₂) (subst-⊢∷→⊢≡∷ x₁ σ₁≡σ₂)))))
+          (subst-⊢≡∷ x₂ σ₁≡σ₂)
       (ΠΣ-cong {l} ⊢l A₁≡A₂ B₁≡B₂ ok) PE.refl →
         let ⊢σ₁ = wf-⊢ˢʷ≡∷ σ₁≡σ₂ .proj₂ .proj₁
             _ , ⊢A₁ = ∙⊢≡∷→⊢-<ˢ B₁≡B₂

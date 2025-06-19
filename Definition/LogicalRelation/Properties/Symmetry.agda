@@ -101,6 +101,10 @@ private module Sym (l : Universe-level) (rec : ∀ {l′} → l′ <ᵘ l → Sy
             → Γ ⊩⟨ l ⟩ u ≡ t ∷ A / [A]
 
   symEqT (Levelᵥ D D′) A≡B = D
+  symEqT (Liftᵥ (Liftᵣ D [k] [F] _ A≡A) (Liftᵣ D′ [k′] [F′] _ B≡B)) (Lift₌ D″ k≡k′ F≡F′ A≡B) =
+    case whrDet* (D′ , Liftₙ) (D″ , Liftₙ) of λ {
+      PE.refl →
+    Lift₌ D (symLevel k≡k′) (symEq [F] [F′] F≡F′) (≅-sym A≡B) }
   symEqT (ℕᵥ D D′) A≡B = D
   symEqT (Emptyᵥ D D′) A≡B = D
   symEqT (Unitᵥ (Unitᵣ _ _ _ A⇒*Unit _) (Unitᵣ _ _ _ B⇒*Unit₁ _)) (Unit₌ _ B⇒*Unit₂ k≡k′) =
@@ -169,6 +173,8 @@ private module Sym (l : Universe-level) (rec : ∀ {l′} → l′ <ᵘ l → Sy
     open _⊩ₗId_≡_/_ A≡B
 
   symEqTerm (Levelᵣ D) t≡u = symLevel t≡u
+  symEqTerm (Liftᵣ′ D [k] [F] _ A≡A) (Liftₜ₌ _ _ t↘ u↘ t≡u) =
+    Liftₜ₌ _ _ u↘ t↘ (symEqTerm [F] t≡u)
   symEqTerm (ℕᵣ D) (ℕₜ₌ k k′ d d′ t≡u prop) =
     ℕₜ₌ k′ k d′ d (≅ₜ-sym t≡u) (symNatural-prop prop)
   symEqTerm (Emptyᵣ D) (Emptyₜ₌ k k′ d d′ t≡u prop) =

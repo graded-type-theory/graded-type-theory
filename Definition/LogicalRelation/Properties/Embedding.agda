@@ -47,6 +47,7 @@ opaque
 
   emb-≤-⊩ p (Levelᵣ x) = Levelᵣ x
   emb-≤-⊩ p (Uᵣ′ k [k] k< A⇒) = Uᵣ′ k [k] (<ᵘ-≤ᵘ-trans k< p) A⇒
+  emb-≤-⊩ p (Liftᵣ′ D [k] [F] ⊢F A≡A) = Liftᵣ′ D [k] (emb-≤-⊩ p [F]) ⊢F A≡A
   emb-≤-⊩ p (ℕᵣ x) = ℕᵣ x
   emb-≤-⊩ p (Emptyᵣ x) = Emptyᵣ x
   emb-≤-⊩ p (Unitᵣ′ k [k] k≤ A⇒ ok) = Unitᵣ′ k [k] (≤ᵘ-trans k≤ p) A⇒ ok

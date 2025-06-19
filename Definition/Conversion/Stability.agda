@@ -50,6 +50,8 @@ mutual
               → Δ ⊢ k ~ l ↑ A
   stability~↑ Γ≡Δ (var-refl x x≡y) =
     var-refl (stabilityTerm Γ≡Δ x) x≡y
+  stability~↑ Γ≡Δ (lower-cong x) =
+    lower-cong (stability~↓ Γ≡Δ x)
   stability~↑ Γ≡Δ (app-cong k~l x) =
     app-cong (stability~↓ Γ≡Δ k~l) (stabilityConv↑Term Γ≡Δ x)
   stability~↑ Γ≡Δ (fst-cong p~r) =
@@ -134,6 +136,8 @@ mutual
     in  Level-refl ⊢Δ
   stabilityConv↓ Γ≡Δ (U-cong x) =
     U-cong (stabilityConv↑Term Γ≡Δ x)
+  stabilityConv↓ Γ≡Δ (Lift-cong l₁≡l₂ F↑H F≡H) =
+    Lift-cong (stabilityConv↑Term Γ≡Δ l₁≡l₂) (stabilityConv↑ Γ≡Δ F↑H) (stabilityEqTerm Γ≡Δ F≡H)
   stabilityConv↓ Γ≡Δ (ℕ-refl x) =
     let _ , ⊢Δ , _ = contextConvSubst Γ≡Δ
     in  ℕ-refl ⊢Δ
@@ -275,6 +279,8 @@ mutual
     ne-ins (stabilityTerm Γ≡Δ t) (stabilityTerm Γ≡Δ u) neN (stability~↓ Γ≡Δ x)
   stabilityConv↓Term Γ≡Δ (univ x x₁ x₂) =
     univ (stabilityTerm Γ≡Δ x) (stabilityTerm Γ≡Δ x₁) (stabilityConv↓ Γ≡Δ x₂)
+  stabilityConv↓Term Γ≡Δ (Lift-η ⊢t₁ ⊢t₂ w₁ w₂ lower≡lower) =
+    Lift-η (stabilityTerm Γ≡Δ ⊢t₁) (stabilityTerm Γ≡Δ ⊢t₂) w₁ w₂ (stabilityConv↑Term Γ≡Δ lower≡lower)
   stabilityConv↓Term Γ≡Δ (zero-refl x) =
     let _ , ⊢Δ , _ = contextConvSubst Γ≡Δ
     in  zero-refl ⊢Δ

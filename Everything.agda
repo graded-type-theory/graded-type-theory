@@ -271,6 +271,7 @@ import Definition.LogicalRelation.Substitution.Introductions.Universe
 import Definition.LogicalRelation.Substitution.Introductions.Empty
 import Definition.LogicalRelation.Substitution.Introductions.Emptyrec
 import Definition.LogicalRelation.Substitution.Introductions.Unit
+import Definition.LogicalRelation.Substitution.Introductions.Lift
 import Definition.LogicalRelation.Substitution.Introductions.Nat
 import Definition.LogicalRelation.Substitution.Introductions.Pi-Sigma
 import Definition.LogicalRelation.Substitution.Introductions.Pi

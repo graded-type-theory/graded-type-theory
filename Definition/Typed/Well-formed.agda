@@ -70,6 +70,13 @@ opaque mutual
       wf-⊢∷ ⊢l
     (Uⱼ ⊢l) →
       Uⱼ (sucᵘⱼ ⊢l)
+    (Liftⱼ x x₁ x₂) →
+      Uⱼ (maxᵘⱼ x x₁)
+    (liftⱼ ⊢l₁ x x₁ x₂) →
+      univ (Liftⱼ ⊢l₁ x x₁)
+    (lowerⱼ x) →
+      let _ , ⊢l₂ , ⊢A = inversion-Lift (wf-⊢∷ x)
+      in univ ⊢A
     (ΠΣⱼ ⊢l ⊢A _ _) →
       Uⱼ ⊢l
     (lamⱼ ⊢B _ ok) →
@@ -200,6 +207,21 @@ opaque mutual
     (U-cong l₁≡l₂) →
       let ⊢Level , ⊢l₁ , ⊢l₂ = wf-⊢≡∷ l₁≡l₂ in
       Uⱼ (sucᵘⱼ ⊢l₁) , Uⱼ ⊢l₁ , conv (Uⱼ ⊢l₂) (sym (U-cong (sucᵘ-cong l₁≡l₂)))
+    (Lift-cong x x₁ x₂) →
+      let ⊢Level , ⊢l₂ , ⊢l₂′ = wf-⊢≡∷ x₁
+          _ , ⊢A , ⊢B = wf-⊢≡∷ x₂
+      in
+      Uⱼ (maxᵘⱼ x ⊢l₂) ,
+      Liftⱼ x ⊢l₂ ⊢A ,
+      conv (Liftⱼ x ⊢l₂′ ⊢B) (U-cong (maxᵘ-cong (refl x) (sym ⊢Level x₁)))
+    (lower-cong x) →
+      let ⊢Lift , ⊢t , ⊢u = wf-⊢≡∷ x
+          _ , ⊢l₂ , ⊢A = inversion-Lift ⊢Lift
+      in univ ⊢A , lowerⱼ ⊢t , lowerⱼ ⊢u
+    (Lift-β x x₁ x₂) →
+      wf-⊢∷ x₂ , lowerⱼ (liftⱼ (inversion-U-Level (wf-⊢∷ x₁)) x x₁ x₂) , x₂
+    (Lift-η ⊢l₁ x x₁ ⊢t ⊢u x₂) →
+      univ (Liftⱼ ⊢l₁ x x₁) , ⊢t , ⊢u
     (ΠΣ-cong ⊢l A₁≡A₂ B₁≡B₂ ok) →
       let _ , ⊢A₁ , ⊢A₂ = wf-⊢≡∷ A₁≡A₂
           _ , ⊢B₁ , ⊢B₂ = wf-⊢≡∷ B₁≡B₂

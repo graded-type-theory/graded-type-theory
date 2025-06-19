@@ -258,6 +258,12 @@ private module Inhabited where
         maxᵘⱼ (stability-⊢∷ Γ≡Δ ⊢t) (stability-⊢∷ Γ≡Δ ⊢u)
       (Uⱼ ⊢l) PE.refl →
         Uⱼ (stability-⊢∷ Γ≡Δ ⊢l)
+      (Liftⱼ x x₁ x₂) PE.refl →
+        Liftⱼ (stability-⊢∷ Γ≡Δ x) (stability-⊢∷ Γ≡Δ x₁) (stability-⊢∷ Γ≡Δ x₂)
+      (liftⱼ ⊢l₁ x x₁ x₂) PE.refl →
+        liftⱼ (stability-⊢∷ Γ≡Δ ⊢l₁) (stability-⊢∷ Γ≡Δ x) (stability-⊢∷ Γ≡Δ x₁) (stability-⊢∷ Γ≡Δ x₂)
+      (lowerⱼ x) PE.refl →
+        lowerⱼ (stability-⊢∷ Γ≡Δ x)
       (ΠΣⱼ l ⊢A ⊢B ok) PE.refl →
         let ⊢A′ = stability-⊢∷ Γ≡Δ ⊢A in
         ΠΣⱼ (stability-⊢∷ Γ≡Δ l) ⊢A′ (stability-⊢∷ (Γ≡Δ ∙⟨ univ ⊢A′ ⟩) ⊢B) ok
@@ -394,6 +400,14 @@ private module Inhabited where
         maxᵘ-sub (stability-⊢∷ Γ≡Δ ⊢l)
       (U-cong l₁≡l₂) PE.refl →
         U-cong (stability-⊢≡∷ Γ≡Δ l₁≡l₂)
+      (Lift-cong x x₁ x₂) PE.refl →
+        Lift-cong (stability-⊢∷ Γ≡Δ x) (stability-⊢≡∷ Γ≡Δ x₁) (stability-⊢≡∷ Γ≡Δ x₂)
+      (lower-cong x) PE.refl →
+        lower-cong (stability-⊢≡∷ Γ≡Δ x)
+      (Lift-β x x₁ x₂) PE.refl →
+        Lift-β (stability-⊢∷ Γ≡Δ x) (stability-⊢∷ Γ≡Δ x₁) (stability-⊢∷ Γ≡Δ x₂)
+      (Lift-η ⊢l₁ x x₁ ⊢t ⊢u x₂) PE.refl →
+        Lift-η (stability-⊢∷ Γ≡Δ ⊢l₁) (stability-⊢∷ Γ≡Δ x) (stability-⊢∷ Γ≡Δ x₁) (stability-⊢∷ Γ≡Δ ⊢t) (stability-⊢∷ Γ≡Δ ⊢u) (stability-⊢≡∷ Γ≡Δ x₂)
       (ΠΣ-cong ⊢l A₁≡A₂ B₁≡B₂ ok) PE.refl →
         let _ , (⊢A₁ , A₁<) = ∙⊢≡∷→⊢-<ˢ B₁≡B₂
             ⊢A₁′            = stability-⊢ Γ≡Δ ⊢A₁

@@ -64,6 +64,13 @@ mutual
     in  _ , refl ⊢A
      ,  var-refl (PE.subst (λ y → _ ⊢ var y ∷ _) x≡y (stabilityTerm Γ≡Δ x))
                  (PE.sym x≡y)
+  sym~↑ Γ≡Δ (lower-cong t₁~t₂) =
+    case sym~↓ Γ≡Δ t₁~t₂ of λ
+      (C , whnfB , A≡B , t₂~t₁) →
+    case Lift≡A A≡B whnfB of λ {
+      (k , D , PE.refl) →
+    let _ , A≡D = Lift-injectivity A≡B
+    in _ , A≡D , lower-cong t₂~t₁ }
   sym~↑ Γ≡Δ (app-cong t~u x) =
     case contextConvSubst Γ≡Δ of λ {
       (⊢Γ , ⊢Δ , _) →
@@ -254,6 +261,8 @@ mutual
     in  Level-refl ⊢Δ
   symConv↓ Γ≡Δ (U-cong x) =
     U-cong (symConv↑Term Γ≡Δ x)
+  symConv↓ Γ≡Δ (Lift-cong l₁≡l₂ F↑H F≡H) =
+    Lift-cong (symConv↑Term Γ≡Δ l₁≡l₂) (symConv↑ Γ≡Δ F↑H) (stabilityEqTerm Γ≡Δ (sym′ F≡H))
   symConv↓ Γ≡Δ (ℕ-refl x) =
     let _ , ⊢Δ , _ = contextConvSubst Γ≡Δ
     in  ℕ-refl ⊢Δ
@@ -340,6 +349,8 @@ mutual
     in  ne-ins (stabilityTerm Γ≡Δ u) (stabilityTerm Γ≡Δ t) x u~t
   symConv↓Term Γ≡Δ (univ x x₁ x₂) =
     univ (stabilityTerm Γ≡Δ x₁) (stabilityTerm Γ≡Δ x) (symConv↓ Γ≡Δ x₂)
+  symConv↓Term Γ≡Δ (Lift-η ⊢t ⊢u wt wu lower≡lower) =
+    Lift-η (stabilityTerm Γ≡Δ ⊢u) (stabilityTerm Γ≡Δ ⊢t) wu wt (symConv↑Term Γ≡Δ lower≡lower)
   symConv↓Term Γ≡Δ (zero-refl x) =
     let _ , ⊢Δ , _ = contextConvSubst Γ≡Δ
     in  zero-refl ⊢Δ

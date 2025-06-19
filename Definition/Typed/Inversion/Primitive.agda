@@ -94,6 +94,26 @@ opaque
   inversion-U-Level (univ ⊢U) = inversion-U∷-Level ⊢U
 
 ------------------------------------------------------------------------
+-- Inversion for Lift
+
+opaque
+
+  inversion-Lift∷ : Γ ⊢ Lift t A ∷ B → ∃ λ k₁ → Γ ⊢ t ∷ Level × Γ ⊢ A ∷ U k₁ × Γ ⊢ B ≡ U (k₁ maxᵘ t)
+  inversion-Lift∷ (conv x x₁) =
+    let _ , ⊢t , ⊢A , B≡ = inversion-Lift∷ x
+    in _ , ⊢t , ⊢A , trans (sym x₁) B≡
+  inversion-Lift∷ (Liftⱼ x x₁ x₂) = _ , x₁ , x₂ , refl (Uⱼ (maxᵘⱼ x x₁))
+
+  inversion-Lift : Γ ⊢ Lift t A → ∃ λ k₁ → Γ ⊢ t ∷ Level × Γ ⊢ A ∷ U k₁
+  inversion-Lift (univ x) =
+    let _ , ⊢t , ⊢A , B≡ = inversion-Lift∷ x
+    in _ , ⊢t , ⊢A
+
+  inversion-lift : Γ ⊢ lift l t ∷ A → ∃ λ B → Γ ⊢ A ≡ Lift l B
+  inversion-lift (conv a x) = _ , trans (sym x) (inversion-lift a .proj₂)
+  inversion-lift (liftⱼ a a₁ a₂ a₃) = _ , refl (univ (Liftⱼ a a₁ a₂))
+
+------------------------------------------------------------------------
 -- Inversion for Empty
 
 opaque

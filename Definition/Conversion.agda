@@ -51,7 +51,7 @@ private
     n : Nat
     Γ : Con Term n
     A₁ A₂ B₁ B₂ C F G E : Term n
-    g h l l′ l₁ l₂ t t₁ t₂ t₃ u u₁ u₂ u₃ v v₁ v₂ w₁ w₂ : Term n
+    g h k l l′ l₁ l₂ t t₁ t₂ t₃ u u₁ u₂ u₃ v v₁ v₂ w₁ w₂ : Term n
     x y : Fin n
     p p′ p″ p₁ p₂ q q′ q″ q₁ q₂ r r′ : M
     b : BinderMode
@@ -64,6 +64,10 @@ mutual
     var-refl      : Γ ⊢ var x ∷ C
                   → x PE.≡ y
                   → Γ ⊢ var x ~ var y ↑ C
+
+    lower-cong    : ∀ {A}
+                  → Γ ⊢ t₁ ~ t₂ ↓ Lift k A
+                  → Γ ⊢ lower t₁ ~ lower t₂ ↑ A
 
     app-cong      : ∀ {A B}
                   → Γ ⊢ t₁ ~ t₂ ↓ Π p , q ▷ A ▹ B
@@ -174,6 +178,12 @@ mutual
 
     U-cong     : Γ ⊢ l₁ [conv↑] l₂ ∷ Level
                → Γ ⊢ U l₁ [conv↓] U l₂
+
+    Lift-cong  : ∀ {F H k₁}
+               → Γ ⊢ l₁ [conv↑] l₂ ∷ Level
+               → Γ ⊢ F [conv↑] H
+               → Γ ⊢ F ≡ H ∷ U k₁
+               → Γ ⊢ Lift l₁ F [conv↓] Lift l₂ H
 
     ℕ-refl     : ⊢ Γ → Γ ⊢ ℕ [conv↓] ℕ
 
@@ -353,6 +363,14 @@ mutual
               → Γ ⊢ B ∷ U l
               → Γ ⊢ A [conv↓] B
               → Γ ⊢ A [conv↓] B ∷ U l
+
+    Lift-η    : ∀ {A}
+              → Γ ⊢ t₁ ∷ Lift k A
+              → Γ ⊢ t₂ ∷ Lift k A
+              → Whnf t₁
+              → Whnf t₂
+              → Γ ⊢ lower t₁ [conv↑] lower t₂ ∷ A
+              → Γ ⊢ t₁ [conv↓] t₂ ∷ Lift k A
 
     zero-refl : ⊢ Γ → Γ ⊢ zero [conv↓] zero ∷ ℕ
 

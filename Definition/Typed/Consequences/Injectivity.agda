@@ -20,10 +20,10 @@ open import Definition.Untyped.Neutral M type-variant
 open import Definition.Typed R
 open import Definition.Typed.Properties R
 open import Definition.Typed.EqRelInstance R
-open import Definition.LogicalRelation.Hidden R
-open import Definition.LogicalRelation.Properties R
-open import Definition.LogicalRelation.Fundamental.Reducibility R
-open import Definition.LogicalRelation.Substitution.Introductions R
+open import Definition.LogicalRelation.Hidden R ⦃ eqRelInstance ⦄
+open import Definition.LogicalRelation.Properties R ⦃ eqRelInstance ⦄
+open import Definition.LogicalRelation.Fundamental.Reducibility R ⦃ eqRelInstance ⦄
+open import Definition.LogicalRelation.Substitution.Introductions R ⦃ eqRelInstance ⦄
 
 open import Tools.Function
 open import Tools.Nat using (Nat)
@@ -34,7 +34,7 @@ private
   variable
     n : Nat
     Γ : Con Term n
-    A₁ A₂ B₁ B₂ l l₁ l₂ t₁ t₂ u₁ u₂ : Term _
+    A A₁ A₂ B B₁ B₂ l l₁ l₂ t₁ t₂ u₁ u₂ : Term _
     p₁ p₂ q₁ q₂ : M
     b₁ b₂ : BinderMode
     s₁ s₂ : Strength
@@ -50,6 +50,18 @@ opaque
     case ⊩U≡U⇔ .proj₁ $ reducible-⊩≡ U≡U .proj₂ of λ
       (l₁≡l₂ , _) →
     escapeLevelEq l₁≡l₂
+
+opaque
+
+  -- A kind of injectivity for Lift.
+
+  Lift-injectivity :
+    ⦃ ok : No-equality-reflection or-empty Γ ⦄ →
+    Γ ⊢ Lift l₁ A ≡ Lift l₂ B → Γ ⊢ l₁ ≡ l₂ ∷ Level × Γ ⊢ A ≡ B
+  Lift-injectivity Lift≡Lift =
+    case ⊩Lift≡Lift⇔ .proj₁ $ reducible-⊩≡ Lift≡Lift .proj₂ of λ
+      (_ , _ , l₁≡l₂ , a , b , c) →
+    escapeLevelEq l₁≡l₂ , escape-⊩≡ a
 
 opaque
 

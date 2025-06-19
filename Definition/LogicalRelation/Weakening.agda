@@ -303,6 +303,9 @@ private module Weakening (l : Universe-level) (rec : ∀ {l′} → l′ <ᵘ l 
   wkTerm ⊩A ⊩t = wkEqTerm ⊩A ⊩t
 
   wk ρ (Levelᵣ D) = Levelᵣ (wkRed* (∷ʷʳ⊇→∷ʷ⊇ ρ) D)
+  wk ρ (Liftᵣ′ D [k] [F] ⊢A A≡A) =
+    let [ρ] = ∷ʷʳ⊇→∷ʷ⊇ ρ
+    in Liftᵣ′ (wkRed* [ρ] D) (wkTermLevel [ρ] [k]) (wk ρ [F]) (T.wkTerm [ρ] ⊢A) (≅-wk [ρ] A≡A)
   wk ρ (Uᵣ [A]) = Uᵣ (wkU (∷ʷʳ⊇→∷ʷ⊇ ρ) [A])
   wk ρ (ℕᵣ D) = ℕᵣ (wkRed* (∷ʷʳ⊇→∷ʷ⊇ ρ) D)
   wk ρ (Emptyᵣ D) = Emptyᵣ (wkRed* (∷ʷʳ⊇→∷ʷ⊇ ρ) D)
@@ -396,6 +399,9 @@ private module Weakening (l : Universe-level) (rec : ∀ {l′} → l′ <ᵘ l 
     open _⊩ₗId_ ⊩A
 
   wkEq ρ (Levelᵣ D) A≡B = wkRed* (∷ʷʳ⊇→∷ʷ⊇ ρ) A≡B
+  wkEq ρ (Liftᵣ′ D [k] [F] ⊢F A≡A) (Lift₌ D′ k≡k′ F≡F′ A≡B) =
+    let [ρ] = ∷ʷʳ⊇→∷ʷ⊇ ρ in
+    Lift₌ (wkRed* [ρ] D′) (wkEqTermLevel [ρ] k≡k′) (wkEq ρ [F] F≡F′) (≅-wk [ρ] A≡B)
   wkEq ρ (Uᵣ′ l [l] l< D) (U₌ k D′ l≡k) =
     let ρ = ∷ʷʳ⊇→∷ʷ⊇ ρ in
     U₌ (U.wk _ k) (wkRed* ρ D′) (wkEqTermLevel ρ l≡k)
@@ -473,6 +479,9 @@ private module Weakening (l : Universe-level) (rec : ∀ {l′} → l′ <ᵘ l 
           Rec.wk k< [ρ] (⊩<⇔⊩ k< .proj₁ [u]))
         (⊩<≡⇔⊩≡ p .proj₂ $ irrelevanceEq _ _ $
           Rec.wkEq k< [ρ] _ (⊩<≡⇔⊩≡ k< .proj₁ [t≡u]))
+  wkEqTerm ρ (Liftᵣ′ D [k] [F] _ A≡A) (Liftₜ₌ _ _ t↘ u↘ t≡u) =
+    let [ρ] = ∷ʷʳ⊇→∷ʷ⊇ ρ in
+    Liftₜ₌ _ _ (wkRed↘Term [ρ] t↘) (wkRed↘Term [ρ] u↘) (wkEqTerm ρ [F] t≡u)
   wkEqTerm ρ (ℕᵣ D) [t≡u] = wkEqTermℕ (∷ʷʳ⊇→∷ʷ⊇ ρ) [t≡u]
   wkEqTerm ρ (Emptyᵣ D) [t≡u] = wkEqTermEmpty (∷ʷʳ⊇→∷ʷ⊇ ρ) [t≡u]
   wkEqTerm ρ (Unitᵣ′ _ _ _ _ _) [t≡u] = wkEqTermUnit (∷ʷʳ⊇→∷ʷ⊇ ρ) [t≡u]

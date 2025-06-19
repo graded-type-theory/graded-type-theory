@@ -33,6 +33,9 @@ mutual
        → Γ ⊢ t ~ u ↑ A
        → Neutral t × Neutral u
   ne~↑ (var-refl x₁ x≡y) = var _ , var _
+  ne~↑ (lower-cong x) =
+    let _ , q , w = ne~↓ x
+    in lowerₙ q , lowerₙ w
   ne~↑ (app-cong x x₁) = let _ , q , w = ne~↓ x
                          in  ∘ₙ q , ∘ₙ w
   ne~↑ (fst-cong x) =
@@ -76,6 +79,7 @@ whnfConv↓ : ∀ {A B}
           → Whnf A × Whnf B
 whnfConv↓ (Level-refl x) = Levelₙ , Levelₙ
 whnfConv↓ (U-cong x) = Uₙ , Uₙ
+whnfConv↓ (Lift-cong _ _ _) = Liftₙ , Liftₙ
 whnfConv↓ (ℕ-refl x) = ℕₙ , ℕₙ
 whnfConv↓ (Empty-refl x) = Emptyₙ , Emptyₙ
 whnfConv↓ (Unit-cong x _) = Unitₙ , Unitₙ
@@ -112,6 +116,7 @@ whnfConv↓Term (ne-ins t u x x₁) =
   let _ , neT , neU = ne~↓ x₁
   in ne! x , ne! neT , ne! neU
 whnfConv↓Term (univ x x₁ x₂) = Uₙ , whnfConv↓ x₂
+whnfConv↓Term (Lift-η x x₁ w₁ w₂ x₂) = Liftₙ , w₁ , w₂
 whnfConv↓Term (zero-refl x) = ℕₙ , zeroₙ , zeroₙ
 whnfConv↓Term (starʷ-cong _ _ _ _) = Unitₙ , starₙ , starₙ
 whnfConv↓Term (suc-cong x) = ℕₙ , sucₙ , sucₙ

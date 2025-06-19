@@ -166,6 +166,7 @@ whNorm′ : ∀ {A l} ([A] : Γ ⊩⟨ l ⟩ A)
                 → ∃ λ B → Whnf B × Γ ⊢ A ⇒* B
 whNorm′ (Levelᵣ D) = Level , Levelₙ , D
 whNorm′ (Uᵣ′ l _ _ ⇒*U) = U l , Uₙ , ⇒*U
+whNorm′ (Liftᵣ′ D [k] [F] ⊢F A≡A) = Lift _ _ , Liftₙ , D
 whNorm′ (ℕᵣ D) = ℕ , ℕₙ , D
 whNorm′ (Emptyᵣ D) = Empty , Emptyₙ , D
 whNorm′ (Unitᵣ′ _ _ _ D _) = Unit! , Unitₙ , D
@@ -227,6 +228,11 @@ opaque
         ⊥-elim (U≢Level (proj₂ (inversion-sucᵘ ⊢sucᵘ)))
   … | _ , Uₙ , D =
     ⊥-elim (U≢ΠΣⱼ (trans (sym (subset* D)) A≡ΠΣ))
+  … | _ , Liftₙ , D =
+    ⊥-elim (Lift≢ΠΣⱼ (trans (sym (subset* D)) A≡ΠΣ))
+  … | _ , liftₙ , D =
+    case wf-⊢≡ (subset* D) of λ where
+      (fst₁ , univ x) → ⊥-elim (U≢Liftⱼ (inversion-lift x .proj₂))
   … | _ , ΠΣₙ , D =
     let B≡B′ , C≡C′ , C[]≡C′[] , p≡p′ , q≡q′ , b≡b′ =
           ΠΣ-injectivity′ (trans (sym A≡ΠΣ) (subset* D))
@@ -310,6 +316,8 @@ whNormTerm′ (Levelᵣ x) (Levelₜ₌ n n′ d d′ prop) =
 whNormTerm′ (Uᵣ′ _ _ _ A⇒*U) ⊩a =
   let Uₜ C B⇒*C C-type C≅C ⊩B = ⊩U∷U⇔⊩U≡∷U .proj₂ ⊩a in
   C , typeWhnf C-type , conv* B⇒*C (sym (subset* A⇒*U))
+whNormTerm′ (Liftᵣ′ D _ _ _ _) (Liftₜ₌ _ _ (t⇒* , wt) _ _) =
+  _ , wt , conv* t⇒* (sym (subset* D))
 whNormTerm′ (ℕᵣ x) ⊩a =
   let ℕₜ n d n≡n prop = ⊩ℕ∷ℕ⇔⊩ℕ≡∷ℕ .proj₂ ⊩a
       natN = natural prop

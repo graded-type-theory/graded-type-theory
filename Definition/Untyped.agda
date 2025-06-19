@@ -54,6 +54,9 @@ data Term (n : Nat) : Set a where
   sucᵘ : Term n → Term n
   _maxᵘ_ : Term n → Term n → Term n
   U : Term n → Term n
+  Lift : (l : Term n) (A : Term n) → Term n
+  lift : (l : Term n) (a : Term n) → Term n
+  lower : (a : Term n) → Term n
   Empty : Term n
   emptyrec : (p : M) (A t : Term n) → Term n
   Unit : Strength → Term n → Term n
@@ -159,6 +162,10 @@ data Kind : (ns : List Nat) → Set a where
 
   Ukind : Kind (0 ∷ [])
 
+  Liftkind : Kind (0 ∷ 0 ∷ [])
+  liftkind : Kind (0 ∷ 0 ∷ [])
+  lowerkind : Kind (0 ∷ [])
+
   Emptykind    : Kind []
   Emptyreckind : (p : M) → Kind (0 ∷ 0 ∷ [])
 
@@ -219,6 +226,12 @@ toTerm (gen Maxᵘkind (l₁ ∷ₜ l₂ ∷ₜ [])) =
   toTerm l₁ maxᵘ toTerm l₂
 toTerm (gen Ukind (l ∷ₜ [])) =
   U (toTerm l)
+toTerm (gen Liftkind (l ∷ₜ A ∷ₜ [])) =
+  Lift (toTerm l) (toTerm A)
+toTerm (gen liftkind (l ∷ₜ a ∷ₜ [])) =
+  lift (toTerm l) (toTerm a)
+toTerm (gen lowerkind (a ∷ₜ [])) =
+  lower (toTerm a)
 toTerm (gen (Binderkind b p q) (A ∷ₜ B ∷ₜ [])) =
   ΠΣ⟨ b ⟩ p , q ▷ (toTerm A) ▹ (toTerm B)
 toTerm (gen (Lamkind p) (t ∷ₜ [])) =
@@ -277,6 +290,12 @@ fromTerm (l₁ maxᵘ l₂) =
   gen Maxᵘkind (fromTerm l₁ ∷ₜ fromTerm l₂ ∷ₜ [])
 fromTerm (U l) =
   gen Ukind (fromTerm l ∷ₜ [])
+fromTerm (Lift l A) =
+  gen Liftkind (fromTerm l ∷ₜ fromTerm A ∷ₜ [])
+fromTerm (lift l a) =
+  gen liftkind (fromTerm l ∷ₜ fromTerm a ∷ₜ [])
+fromTerm (lower a) =
+  gen lowerkind (fromTerm a ∷ₜ [])
 fromTerm (ΠΣ⟨ b ⟩ p , q ▷ A ▹ B) =
   gen (Binderkind b p q) (fromTerm A ∷ₜ fromTerm B ∷ₜ [])
 fromTerm (lam p t) =
@@ -342,6 +361,9 @@ wk ρ zeroᵘ = zeroᵘ
 wk ρ (sucᵘ l) = sucᵘ (wk ρ l)
 wk ρ (l₁ maxᵘ l₂) = wk ρ l₁ maxᵘ wk ρ l₂
 wk ρ (U l) = U (wk ρ l)
+wk ρ (Lift l A) = Lift (wk ρ l) (wk ρ A)
+wk ρ (lift l a) = lift (wk ρ l) (wk ρ a)
+wk ρ (lower a) = lower (wk ρ a)
 wk ρ (ΠΣ⟨ b ⟩ p , q ▷ A ▹ B) =
   ΠΣ⟨ b ⟩ p , q ▷ wk ρ A ▹ wk (lift ρ) B
 wk ρ (lam p t) = lam p (wk (lift ρ) t)
@@ -517,6 +539,9 @@ zeroᵘ [ σ ] = zeroᵘ
 sucᵘ l [ σ ] = sucᵘ (l [ σ ])
 l₁ maxᵘ l₂ [ σ ] = (l₁ [ σ ]) maxᵘ (l₂ [ σ ])
 U l [ σ ] = U (l [ σ ])
+Lift l A [ σ ] = Lift (l [ σ ]) (A [ σ ])
+lift l a [ σ ] = lift (l [ σ ]) (a [ σ ])
+lower a [ σ ] = lower (a [ σ ])
 ΠΣ⟨ b ⟩ p , q ▷ A ▹ B [ σ ] =
   ΠΣ⟨ b ⟩ p , q ▷ A [ σ ] ▹ (B [ σ ⇑ ])
 lam p t [ σ ] = lam p (t [ σ ⇑ ])

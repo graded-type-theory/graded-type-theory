@@ -39,6 +39,7 @@ private variable
 
 data Neutral : Term n → Set a where
   var       : (x : Fin n) → Neutral (var x)
+  lowerₙ    : Neutral t   → Neutral (lower t)
   ∘ₙ        : Neutral t   → Neutral (t ∘⟨ p ⟩ u)
   fstₙ      : Neutral t   → Neutral (fst p t)
   sndₙ      : Neutral t   → Neutral (snd p t)
@@ -55,6 +56,7 @@ data Neutral : Term n → Set a where
 
 noClosedNe : {t : Term 0} → Neutral t → ⊥
 noClosedNe (var ())
+noClosedNe (lowerₙ net) = noClosedNe net
 noClosedNe (∘ₙ net) = noClosedNe net
 noClosedNe (fstₙ net) = noClosedNe net
 noClosedNe (sndₙ net) = noClosedNe net
@@ -89,6 +91,7 @@ data Whnf {n : Nat} : Term n → Set a where
   -- Type constructors are whnfs.
   Levelₙ : Whnf Level
   Uₙ     : Whnf (U l)
+  Liftₙ  : Whnf (Lift l A)
   ΠΣₙ    : Whnf (ΠΣ⟨ b ⟩ p , q ▷ A ▹ B)
   ℕₙ     : Whnf ℕ
   Unitₙ  : Whnf (Unit s l)
@@ -98,6 +101,7 @@ data Whnf {n : Nat} : Term n → Set a where
   -- Introductions are whnfs.
   zeroᵘₙ : Whnf zeroᵘ
   sucᵘₙ : Whnf (sucᵘ t)
+  liftₙ : Whnf (lift l t)
   lamₙ  : Whnf (lam p t)
   zeroₙ : Whnf zero
   sucₙ  : Whnf (suc t)
@@ -122,6 +126,9 @@ Level≢ne () PE.refl
 
 U≢ne : Neutral A → U l PE.≢ A
 U≢ne () PE.refl
+
+Lift≢ne : Neutral A → Lift l B PE.≢ A
+Lift≢ne () PE.refl
 
 ℕ≢ne : Neutral A → ℕ PE.≢ A
 ℕ≢ne () PE.refl
@@ -158,6 +165,14 @@ U≢B (BΣ m p q) ()
 U≢ΠΣ : ∀ b → U l PE.≢ ΠΣ⟨ b ⟩ p , q ▷ F ▹ G
 U≢ΠΣ BMΠ ()
 U≢ΠΣ (BMΣ s) ()
+
+Lift≢B : ∀ W → Lift l A PE.≢ ⟦ W ⟧ F ▹ G
+Lift≢B (BΠ p q) ()
+Lift≢B (BΣ m p q) ()
+
+Lift≢ΠΣ : ∀ b → Lift l A PE.≢ ΠΣ⟨ b ⟩ p , q ▷ F ▹ G
+Lift≢ΠΣ BMΠ ()
+Lift≢ΠΣ (BMΣ s) ()
 
 ℕ≢B : ∀ W → ℕ PE.≢ ⟦ W ⟧ F ▹ G
 ℕ≢B (BΠ p q) ()
@@ -240,6 +255,7 @@ data Natural {n : Nat} : Term n → Set a where
 data Type {n : Nat} : Term n → Set a where
   Levelₙ :             Type Level
   Uₙ     :             Type (U l)
+  Liftₙ  :             Type (Lift l A)
   ΠΣₙ    :             Type (ΠΣ⟨ b ⟩ p , q ▷ A ▹ B)
   ℕₙ     :             Type ℕ
   Emptyₙ :             Type Empty
@@ -296,6 +312,7 @@ naturalWhnf (ne x) = ne! x
 typeWhnf : Type A → Whnf A
 typeWhnf Levelₙ = Levelₙ
 typeWhnf Uₙ     = Uₙ
+typeWhnf Liftₙ  = Liftₙ
 typeWhnf ΠΣₙ    = ΠΣₙ
 typeWhnf ℕₙ     = ℕₙ
 typeWhnf Emptyₙ = Emptyₙ
@@ -361,6 +378,7 @@ No-η-equality→Whnf = λ where
 
 wkNeutral : ∀ ρ → Neutral t → Neutral {n = n} (wk ρ t)
 wkNeutral ρ (var n)             = var (wkVar ρ n)
+wkNeutral ρ (lowerₙ n)          = lowerₙ (wkNeutral ρ n)
 wkNeutral ρ (∘ₙ n)              = ∘ₙ (wkNeutral ρ n)
 wkNeutral ρ (fstₙ n)            = fstₙ (wkNeutral ρ n)
 wkNeutral ρ (sndₙ n)            = sndₙ (wkNeutral ρ n)
@@ -389,6 +407,7 @@ wkNatural ρ (ne x) = ne (wkNeutral ρ x)
 wkType : ∀ ρ → Type t → Type {n = n} (wk ρ t)
 wkType ρ Levelₙ = Levelₙ
 wkType ρ Uₙ     = Uₙ
+wkType ρ Liftₙ  = Liftₙ
 wkType ρ ΠΣₙ    = ΠΣₙ
 wkType ρ ℕₙ     = ℕₙ
 wkType ρ Emptyₙ = Emptyₙ
@@ -411,6 +430,8 @@ wkIdentity (ne n) = ne (wkNeutral _ n)
 wkWhnf : ∀ ρ → Whnf t → Whnf {n = n} (wk ρ t)
 wkWhnf ρ Levelₙ  = Levelₙ
 wkWhnf ρ Uₙ      = Uₙ
+wkWhnf ρ Liftₙ   = Liftₙ
+wkWhnf ρ liftₙ   = liftₙ
 wkWhnf ρ ΠΣₙ     = ΠΣₙ
 wkWhnf ρ ℕₙ      = ℕₙ
 wkWhnf ρ Emptyₙ  = Emptyₙ
@@ -428,6 +449,13 @@ wkWhnf ρ (ne x)  = ne (wkSemineutral ρ x)
 
 ------------------------------------------------------------------------
 -- Inversion lemmas for Neutral
+
+opaque
+
+  -- An inversion lemma for lower.
+
+  inv-ne-lower : Neutral (lower t) → Neutral t
+  inv-ne-lower (lowerₙ n) = n
 
 opaque
 
@@ -502,6 +530,13 @@ opaque
 
 ------------------------------------------------------------------------
 -- Inversion lemmas for Whnf
+
+opaque
+
+  -- An inversion lemma for lower.
+
+  inv-whnf-lower : Whnf (lower t) → Neutral t
+  inv-whnf-lower (ne! n) = inv-ne-lower n
 
 opaque
 
@@ -580,6 +615,7 @@ opaque
 
 data NeutralAt (x : Fin n) : Term n → Set a where
   var       : NeutralAt x (var x)
+  lowerₙ    : NeutralAt x t   → NeutralAt x (lower t)
   ∘ₙ        : NeutralAt x t   → NeutralAt x (t ∘⟨ p ⟩ u)
   fstₙ      : NeutralAt x t   → NeutralAt x (fst p t)
   sndₙ      : NeutralAt x t   → NeutralAt x (snd p t)

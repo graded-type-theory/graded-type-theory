@@ -31,7 +31,7 @@ open import Definition.Typed.Substitution R using (_,_)
 
 open import Tools.Empty
 open import Tools.Function
-open import Tools.Level hiding (Level; _⊔_)
+open import Tools.Level as L using (lsuc)
 open import Tools.Nat hiding (_<_; _≤_)
 open import Tools.Product
 import Tools.PropositionalEquality as PE
@@ -392,6 +392,7 @@ record LogRelKit : Set (lsuc a) where
   constructor Kit
   field
     _⊩U_ : Con Term ℓ → Term ℓ → Set a
+    _⊩Lift_ : Con Term ℓ → Term ℓ → Set a
     _⊩B⟨_⟩_ : (Γ : Con Term ℓ) (W : BindingType) → Term ℓ → Set a
     _⊩Id_ : Con Term ℓ → Term ℓ → Set a
 
@@ -452,9 +453,45 @@ module LogRel
       [u]   : Γ ⊩ u
       [t≡u] : Γ ⊩ t ≡ u / [t]
 
-
-
   mutual
+
+    -- Reducibility of Lift:
+
+    -- Lift type
+    record _⊩ₗLift_ (Γ : Con Term ℓ) (A : Term ℓ) : Set a where
+      inductive
+      no-eta-equality
+      pattern
+      constructor Liftᵣ
+      field
+        {k₁} {k₂} {F} : Term ℓ
+        ⇒*Lift : Γ ⊢ A ⇒* Lift k₂ F
+        [k₂]    : Γ ⊩Level k₂ ∷Level
+        [F]    : Γ ⊩ₗ F
+        ⊢F     : Γ ⊢ F ∷ U k₁
+        A≡A    : Γ ⊢≅ Lift k₂ F
+
+    -- Lift type equality
+    record _⊩ₗLift_≡_/_ (Γ : Con Term ℓ) (A B : Term ℓ) ([A] : Γ ⊩ₗLift A) : Set a where
+      inductive
+      no-eta-equality
+      pattern
+      constructor Lift₌
+      open _⊩ₗLift_ [A]
+      field
+        {k₂′} {F′} : Term ℓ
+        ⇒*Lift′ : Γ ⊢ B ⇒* Lift k₂′ F′
+        k≡k′ : Γ ⊩Level k₂ ≡ k₂′ ∷Level
+        F≡F′ : Γ ⊩ₗ F ≡ F′ / [F]
+        A≡B  : Γ ⊢ Lift k₂ F ≅ Lift k₂′ F′
+
+    -- Lift term equality
+    _⊩ₗLift_≡_∷_/_ : {ℓ : Nat} (Γ : Con Term ℓ) (t u A : Term ℓ) ([A] : Γ ⊩ₗLift A) → Set a
+    _⊩ₗLift_≡_∷_/_
+      {ℓ} Γ t u A [A]@(Liftᵣ {k₁} {k₂} {F} ⇒*Lift [k₂] [F] ⊢F A≡A) =
+      ∃₂ λ t′ u′ → Γ ⊢ t ↘ t′ ∷ Lift k₂ F
+                 × Γ ⊢ u ↘ u′ ∷ Lift k₂ F
+                 × Γ ⊩ₗ lower t′ ≡ lower u′ ∷ F / [F]
 
     -- Reducibility of Binding types (Π, Σ):
 
@@ -562,11 +599,11 @@ module LogRel
     [Σ]-prop
       𝕨 t r Γ (Bᵣ F G D A≡A [F] [G] G-ext _)
       (prodₙ {t = p₁} {u = p₂}) (ne y) =
-      Lift a ⊥
+      L.Lift a ⊥
     [Σ]-prop
       𝕨 t r Γ (Bᵣ F G D A≡A [F] [G] G-ext ok)
       (ne x) (prodₙ {t = r₁} {u = r₂}) =
-      Lift a ⊥
+      L.Lift a ⊥
     [Σ]-prop
       {p = p} {q = q} 𝕨 t r Γ
       (Bᵣ F G D A≡A [F] [G] G-ext _) (ne x) (ne y) =
@@ -629,9 +666,9 @@ module LogRel
       Identity-rec t′-id
         (Identity-rec u′-id
            (Γ ⊩ₗ lhs ≡ rhs ∷ Ty / ⊩Ty)
-           (Lift _ ⊥))
+           (L.Lift _ ⊥))
         (Identity-rec u′-id
-           (Lift _ ⊥)
+           (L.Lift _ ⊥)
            (Neutrals-included ×
             Γ ⊢ t′ ~ u′ ∷ Id Ty lhs rhs))
       where
@@ -641,6 +678,7 @@ module LogRel
     data _⊩ₗ_ (Γ : Con Term ℓ) : Term ℓ → Set a where
       Levelᵣ : ∀ {A} → Γ ⊩Level A → Γ ⊩ₗ A
       Uᵣ  : ∀ {A} → Γ ⊩₁U A → Γ ⊩ₗ A
+      Liftᵣ : ∀ {A} → Γ ⊩ₗLift A → Γ ⊩ₗ A
       ℕᵣ  : ∀ {A} → Γ ⊩ℕ A → Γ ⊩ₗ A
       Emptyᵣ : ∀ {A} → Γ ⊩Empty A → Γ ⊩ₗ A
       Unitᵣ : ∀ {A} {s : Strength} → Γ ⊩Unit⟨ l , s ⟩ A → Γ ⊩ₗ A
@@ -651,6 +689,7 @@ module LogRel
     _⊩ₗ_≡_/_ : (Γ : Con Term ℓ) (A B : Term ℓ) → Γ ⊩ₗ A → Set a
     Γ ⊩ₗ A ≡ B / Levelᵣ D = Γ ⊩Level A ≡ B
     Γ ⊩ₗ A ≡ B / Uᵣ ⊩A = Γ ⊩₁U≡ B / ⊩A ._⊩₁U_.k
+    Γ ⊩ₗ A ≡ B / Liftᵣ ⊩A = Γ ⊩ₗLift A ≡ B / ⊩A
     Γ ⊩ₗ A ≡ B / ℕᵣ D = Γ ⊩ℕ A ≡ B
     Γ ⊩ₗ A ≡ B / Emptyᵣ D = Γ ⊩Empty A ≡ B
     Γ ⊩ₗ A ≡ B / Unitᵣ {s = s} ⊩A = Γ ⊩Unit⟨ s ⟩ A ≡ B / ⊩A ._⊩Unit⟨_,_⟩_.k
@@ -664,6 +703,7 @@ module LogRel
     _⊩ₗ_≡_∷_/_ : (Γ : Con Term ℓ) (t u A : Term ℓ) → Γ ⊩ₗ A → Set a
     Γ ⊩ₗ t ≡ u ∷ A / Levelᵣ D = Γ ⊩Level t ≡ u ∷Level
     Γ ⊩ₗ t ≡ u ∷ A / Uᵣ ⊩A = Γ ⊩₁U t ≡ u ∷U/ ⊩A
+    Γ ⊩ₗ t ≡ u ∷ A / Liftᵣ ⊩A = Γ ⊩ₗLift t ≡ u ∷ A / ⊩A
     Γ ⊩ₗ t ≡ u ∷ A / ℕᵣ D = Γ ⊩ℕ t ≡ u ∷ℕ
     Γ ⊩ₗ t ≡ u ∷ A / Emptyᵣ D = Γ ⊩Empty t ≡ u ∷Empty
     Γ ⊩ₗ t ≡ u ∷ A / Unitᵣ {s = s} ⊩A = Γ ⊩Unit⟨ s ⟩ t ≡ u ∷Unit/ ⊩A ._⊩Unit⟨_,_⟩_.k
@@ -673,22 +713,25 @@ module LogRel
     Γ ⊩ₗ t ≡ u ∷ A / Idᵣ ⊩A = Γ ⊩ₗId t ≡ u ∷ A / ⊩A
 
     kit : LogRelKit
-    kit = Kit _⊩₁U_ _⊩ₗB⟨_⟩_ _⊩ₗId_
+    kit = Kit _⊩₁U_ _⊩ₗLift_ _⊩ₗB⟨_⟩_ _⊩ₗId_
               _⊩ₗ_ _⊩ₗ_≡_/_ _⊩ₗ_≡_∷_/_
 
 open LogRel public
   using
-    (Levelᵣ; Uᵣ; U₌; ℕᵣ; Emptyᵣ; Unitᵣ; ne; Bᵣ; B₌; Idᵣ; Id₌; Uₜ₌;
+    (Levelᵣ; Uᵣ; U₌; Liftᵣ; Lift₌; ℕᵣ; Emptyᵣ; Unitᵣ; ne; Bᵣ; B₌; Idᵣ; Id₌; Uₜ₌;
      module _⊩₁U_; module _⊩₁U≡_/_; module _⊩₁U_≡_∷U/_;
+     module _⊩ₗLift_; module _⊩ₗLift_≡_/_;
      module _⊩ₗB⟨_⟩_; module _⊩ₗB⟨_⟩_≡_/_;
      module _⊩ₗId_; module _⊩ₗId_≡_/_)
 
--- Patterns for the non-records of Π
+-- Patterns for the non-records
+pattern Liftₜ₌ a b c d e = a , b , c , d , e
 pattern Πₜ₌ f g d d′ funcF funcG f≡g [f≡g] = f , g , d , d′ , funcF , funcG , f≡g , [f≡g]
 pattern Σₜ₌ p r d d′ pProd rProd p≅r prop = p , r , d , d′ , p≅r , pProd , rProd , prop
 
 pattern Unitᵣ′ a b c d e = Unitᵣ (Unitᵣ a b c d e)
 pattern Uᵣ′ a b c d = Uᵣ (Uᵣ a b c d)
+pattern Liftᵣ′ {k₁} {k₂} {F} d e f g h = Liftᵣ (Liftᵣ {k₁} {k₂} {F} d e f g h)
 pattern ne′ a b c d e = ne (ne a b c d e)
 pattern Bᵣ′ W a b c d e f g h = Bᵣ W (Bᵣ a b c d e f g h)
 pattern Πᵣ′ a b c d e f g h = Bᵣ′ BΠ! a b c d e f g h
@@ -704,6 +747,9 @@ kit′ p = <ᵘ-recBuilder _ LogRel.kit _ p
 
 _⊩′⟨_⟩U_ : Con Term ℓ → Universe-level → Term ℓ → Set a
 Γ ⊩′⟨ l ⟩U A = Γ ⊩U A where open LogRelKit (kit l)
+
+_⊩′⟨_⟩Lift_ : Con Term ℓ → Universe-level → Term ℓ → Set a
+Γ ⊩′⟨ l ⟩Lift A = Γ ⊩Lift A where open LogRelKit (kit l)
 
 _⊩′⟨_⟩B⟨_⟩_ : Con Term ℓ → Universe-level → BindingType → Term ℓ → Set a
 Γ ⊩′⟨ l ⟩B⟨ W ⟩ A = Γ ⊩B⟨ W ⟩ A where open LogRelKit (kit l)
@@ -824,10 +870,10 @@ data ⊩Id≡∷-view
   ((u′ , _ , _ , _ , u′-id , _) : Γ ⊩⟨ l ⟩ u ∷ A / Idᵣ ⊩A) →
   Identity-rec t′-id
     (Identity-rec u′-id
-       (Lift _ ⊤)
-       (Lift _ ⊥))
+       (L.Lift _ ⊤)
+       (L.Lift _ ⊥))
     (Identity-rec u′-id
-       (Lift _ ⊥)
+       (L.Lift _ ⊥)
        (Neutrals-included ×
         Γ ⊢ t′ ~ u′ ∷ Id Ty lhs rhs)) →
   Γ ⊩⟨ l ⟩ t ≡ u ∷ A / Idᵣ ⊩A
@@ -853,10 +899,10 @@ data ⊩Id≡∷-view
   ∃ λ (⊩u@(u′ , _ , _ , _ , u′-id , _) : Γ ⊩⟨ l ⟩ u ∷ A / Idᵣ ⊩A) →
   Identity-rec t′-id
     (Identity-rec u′-id
-       (Lift _ ⊤)
-       (Lift _ ⊥))
+       (L.Lift _ ⊤)
+       (L.Lift _ ⊥))
     (Identity-rec u′-id
-       (Lift _ ⊥)
+       (L.Lift _ ⊥)
        (Neutrals-included ×
         Γ ⊢ t′ ~ u′ ∷ Id Ty lhs rhs))
 ⊩Id≡∷⁻¹ ⊩A t≡u@(t′ , u′ , t⇒*t′ , u⇒*u′ , t′-id , u′-id , rest) =

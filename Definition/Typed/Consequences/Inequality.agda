@@ -114,6 +114,66 @@ opaque
 
 opaque
 
+  -- Applications of U are not definitionally equal to applications of
+  -- Unit (given a certain assumption).
+
+  U≢Liftⱼ :
+    ⦃ ok : No-equality-reflection or-empty Γ ⦄ →
+    ¬ Γ ⊢ U l₁ ≡ Lift l₂ A
+  U≢Liftⱼ =
+    A≢B _⊩′⟨_⟩U_ _⊩′⟨_⟩Lift_ Uᵣ Liftᵣ
+      U-elim Lift-elim (λ ())
+
+opaque
+
+  -- Applications of Lift are not definitionally equal to Level (given a
+  -- certain assumption).
+
+  Lift≢Level :
+    ⦃ ok : No-equality-reflection or-empty Γ ⦄ →
+    ¬ Γ ⊢ Lift l A ≡ Level
+  Lift≢Level =
+    A≢B _⊩′⟨_⟩Lift_ (λ Γ _ A → Γ ⊩Level A) Liftᵣ Levelᵣ
+      Lift-elim Level-elim (λ ())
+
+opaque
+
+  -- Applications of Lift are not definitionally equal to ℕ (given a
+  -- certain assumption).
+
+  Lift≢ℕ :
+    ⦃ ok : No-equality-reflection or-empty Γ ⦄ →
+    ¬ Γ ⊢ Lift l A ≡ ℕ
+  Lift≢ℕ =
+    A≢B _⊩′⟨_⟩Lift_ (λ Γ _ A → Γ ⊩ℕ A) Liftᵣ ℕᵣ
+      Lift-elim ℕ-elim (λ ())
+
+opaque
+
+  -- Applications of Lift are not definitionally equal to Empty (given a
+  -- certain assumption).
+
+  Lift≢Emptyⱼ :
+    ⦃ ok : No-equality-reflection or-empty Γ ⦄ →
+    ¬ Γ ⊢ Lift l A ≡ Empty
+  Lift≢Emptyⱼ =
+    A≢B _⊩′⟨_⟩Lift_ (λ Γ _ A → Γ ⊩Empty A) Liftᵣ Emptyᵣ
+      Lift-elim Empty-elim (λ ())
+
+opaque
+
+  -- Applications of Lift are not definitionally equal to applications of
+  -- Unit (given a certain assumption).
+
+  Lift≢Unitⱼ :
+    ⦃ ok : No-equality-reflection or-empty Γ ⦄ →
+    ¬ Γ ⊢ Lift l₁ A ≡ Unit s l₂
+  Lift≢Unitⱼ {s} =
+    A≢B _⊩′⟨_⟩Lift_ _⊩Unit⟨_, s ⟩_ Liftᵣ Unitᵣ
+      Lift-elim Unit-elim (λ ())
+
+opaque
+
   -- ℕ and Empty are not definitionally equal (given a certain
   -- assumption).
 
@@ -226,6 +286,31 @@ opaque
   U≢ne A-ne =
     A≢B _⊩′⟨_⟩U_ (λ Γ _ A → Γ ⊩ne A) Uᵣ ne
       U-elim (ne-elim A-ne) (λ ())
+
+opaque
+
+  -- Applications of Lift are not definitionally equal to applications of
+  -- ΠΣ⟨_⟩_,_▷_▹_ (given a certain assumption).
+
+  Lift≢ΠΣⱼ :
+    ⦃ ok : No-equality-reflection or-empty Γ ⦄ →
+    ¬ Γ ⊢ Lift l C ≡ ΠΣ⟨ b ⟩ p , q ▷ A ▹ B
+  Lift≢ΠΣⱼ =
+    let b = _ in
+    A≢B _⊩′⟨_⟩Lift_ _⊩′⟨_⟩B⟨ b ⟩_ Liftᵣ (Bᵣ _)
+      Lift-elim B-elim (λ ())
+
+opaque
+
+  -- Applications of Lift are not definitionally equal to neutral terms
+  -- (given a certain assumption).
+
+  Lift≢ne :
+    ⦃ ok : No-equality-reflection or-empty Γ ⦄ →
+    Neutral A → ¬ Γ ⊢ Lift l C ≡ A
+  Lift≢ne A-ne =
+    A≢B _⊩′⟨_⟩Lift_ (λ Γ _ A → Γ ⊩ne A) Liftᵣ ne
+      Lift-elim (ne-elim A-ne) (λ ())
 
 opaque
 
@@ -530,7 +615,7 @@ whnf≢ne {Γ} {A} {t} {u} ¬-A-η t-whnf ¬-t-ne u-ne t≡u =
     whnf≢ne∷Level ¬sne () (maxᵘ-subᵣ x x₁)
     whnf≢ne∷Level ¬sne n (neLvl x) = ¬sne (nelsplit x .proj₁)
     whnf≢ne∷Level ¬sne n (sym x) = ne≢whnf∷Level ¬sne n x
-    whnf≢ne∷Level ¬sne n (trans x y) = {!   !}
+    whnf≢ne∷Level ¬sne n (trans x y) = ?
 
     ne≢whnf∷Level : ∀ {t u} → ¬ Semineutral t → Neutral u → ¬ [Level]-prop Γ u t
     ne≢whnf∷Level ¬sne () zeroᵘᵣ
@@ -538,7 +623,7 @@ whnf≢ne {Γ} {A} {t} {u} ¬-A-η t-whnf ¬-t-ne u-ne t≡u =
     ne≢whnf∷Level ¬sne () (maxᵘ-subᵣ x x₁)
     ne≢whnf∷Level ¬sne n (neLvl x) = ¬sne (nelsplit x .proj₂)
     ne≢whnf∷Level ¬sne n (sym x) = whnf≢ne∷Level ¬sne n x
-    ne≢whnf∷Level ¬sne n (trans x y) = {!   !}
+    ne≢whnf∷Level ¬sne n (trans x y) = ?
 
   lemma : ∀ {l} → ([A] : Γ ⊩⟨ l ⟩ A) → ¬ Γ ⊩⟨ l ⟩ t ≡ u ∷ A / [A]
   lemma = λ where

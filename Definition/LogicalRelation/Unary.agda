@@ -31,7 +31,7 @@ open import Definition.Untyped.Neutral M type-variant
 
 open import Tools.Empty
 open import Tools.Function
-open import Tools.Level
+open import Tools.Level as L
 open import Tools.Nat
 open import Tools.Product
 import Tools.PropositionalEquality as PE
@@ -559,9 +559,9 @@ opaque
     Identity-rec t-id
       (Identity-rec t-id′
          (Γ ⊩⟨ l ⟩ lhs ≡ rhs ∷ Ty / ⊩Ty)
-         (Lift _ ⊥))
+         (L.Lift _ ⊥))
       (Identity-rec t-id′
-         (Lift _ ⊥)
+         (L.Lift _ ⊥)
          (Neutrals-included ×
           Γ ⊢~ t ∷ Id Ty lhs rhs))
   ⊩Id∷-view⇔′ {Γ} {l} {A} {t} {⊩A} = lemma₁ _ , lemma₂ _ _
@@ -574,9 +574,9 @@ opaque
       Identity-rec t-id
         (Identity-rec t-id′
            (Γ ⊩⟨ l ⟩ lhs ≡ rhs ∷ Ty / ⊩Ty)
-           (Lift _ ⊥))
+           (L.Lift _ ⊥))
         (Identity-rec t-id′
-           (Lift _ ⊥)
+           (L.Lift _ ⊥)
            (Neutrals-included ×
             Γ ⊢~ t ∷ Id Ty lhs rhs))
     lemma₁ rflₙ    (rflᵣ lhs≡rhs) = lhs≡rhs
@@ -589,9 +589,9 @@ opaque
       Identity-rec t-id
         (Identity-rec t-id′
            (Γ ⊩⟨ l ⟩ lhs ≡ rhs ∷ Ty / ⊩Ty)
-           (Lift _ ⊥))
+           (L.Lift _ ⊥))
         (Identity-rec t-id′
-           (Lift _ ⊥)
+           (L.Lift _ ⊥)
            (Neutrals-included ×
             Γ ⊢~ t ∷ Id Ty lhs rhs)) →
       ⊩Id∷-view ⊩A t t-id
@@ -610,9 +610,9 @@ opaque
     Identity-rec t-id
       (Identity-rec t-id
          (Γ ⊩⟨ l ⟩ lhs ≡ rhs ∷ Ty / ⊩Ty)
-         (Lift _ ⊥))
+         (L.Lift _ ⊥))
       (Identity-rec t-id
-         (Lift _ ⊥)
+         (L.Lift _ ⊥)
          (Neutrals-included ×
           Γ ⊢~ t ∷ Id Ty lhs rhs))
   ⊩Id∷-view⇔ = ⊩Id∷-view⇔′

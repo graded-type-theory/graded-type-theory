@@ -183,6 +183,11 @@ opaque
       ⊥-elim (Level≢ΠΣⱼ (sym A≡Level))
     Uₙ →
       ⊥-elim (U≢ΠΣⱼ (sym (inversion-U ⊢t)))
+    Liftₙ →
+      let _ , _ , _ , B≡ = inversion-Lift∷ ⊢t
+      in ⊥-elim (U≢ΠΣⱼ (sym B≡))
+    liftₙ →
+      ⊥-elim (Lift≢ΠΣⱼ (sym (inversion-lift ⊢t .proj₂)))
     ΠΣₙ →
       let _ , _ , _ , _ , Σ≡U , _ = inversion-ΠΣ-U ⊢t in
       ⊥-elim (U≢ΠΣⱼ (sym Σ≡U))
@@ -236,6 +241,11 @@ opaque
       ⊥-elim (Level≢Unitⱼ (sym A≡Level))
     Uₙ →
       ⊥-elim (U≢Unitⱼ (sym (inversion-U ⊢t)))
+    Liftₙ →
+      let _ , _ , _ , B≡ = inversion-Lift∷ ⊢t
+      in ⊥-elim (U≢Unitⱼ (sym B≡))
+    liftₙ →
+      ⊥-elim (Lift≢Unitⱼ (sym (inversion-lift ⊢t .proj₂)))
     ΠΣₙ →
       let _ , _ , _ , _ , Σ≡U , _ = inversion-ΠΣ-U ⊢t in
       ⊥-elim (U≢Unitⱼ (sym Σ≡U))
