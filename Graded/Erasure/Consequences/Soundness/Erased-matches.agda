@@ -10,6 +10,7 @@ open import Graded.Erasure.Target as T using (Strictness)
 open import Graded.Modality
 import Graded.Mode
 import Graded.Restrictions
+import Graded.Usage
 open import Graded.Usage.Restrictions
 open import Tools.Bool
 open import Tools.Nat
@@ -24,17 +25,23 @@ module Graded.Erasure.Consequences.Soundness.Erased-matches
   (TR : Type-restrictions 𝕄)
   (open Type-restrictions TR)
   (UR : Usage-restrictions 𝕄)
+  (open Graded.Usage 𝕄 UR)
   (open Usage-restrictions UR)
-  {k : Nat}
+  {kᵈ k : Nat}
+  -- A definition context.
+  (∇ : DCon (Term 0) kᵈ)
   -- A context.
   (Δ : Con Term k)
+  -- Every definition in glassify ∇ is well-resourced.
+  (well-resourced : ▸[ 𝟙ᵐ ] (glassify ∇))
   -- If erased matches are allowed for emptyrec when the mode is 𝟙ᵐ,
-  -- then Δ is consistent with respect to a variant of the type system
-  -- for which η-equality is allowed for weak unit types.
+  -- then glassify ∇ and Δ are consistent with respect to a variant of
+  -- the type system for which η-equality is allowed for weak unit
+  -- types.
   (consistent :
      let open Definition.Typed (TR with-η-for-Unitʷ) in
      Emptyrec-allowed 𝟙ᵐ 𝟘 →
-     Consistent Δ)
+     Consistent (glassify ∇ » Δ))
   -- Certain erased matches are not allowed.
   (only-some-erased-matches : Only-some-erased-matches TR UR)
   -- Equality reflection is not allowed or Δ is empty.
@@ -51,7 +58,6 @@ open import Definition.Untyped.QuantityTranslation.Identity M
 
 open import Graded.Context 𝕄
 open import Graded.Modality.Morphism
-open import Graded.Usage 𝕄 UR
 
 import Graded.Erasure.Consequences.Soundness
 open import Graded.Erasure.Extraction 𝕄
@@ -63,7 +69,7 @@ open import Tools.PropositionalEquality as PE
 open import Tools.Sum
 
 private variable
-  Γ   : Con Term _
+  Γ   : Cons _ _
   A t : Term _
   s   : Strength
   l   : Universe-level
@@ -89,7 +95,8 @@ private
   module Soundness-η =
     Graded.Erasure.Consequences.Soundness.Soundness TR-η UR
       (record
-         { consistent                  = consistent
+         { well-resourced              = well-resourced
+         ; consistent                  = consistent
          ; closed-or-no-erased-matches =
              inj₁ $
              Only-some-erased-matches→No-erased-matches
@@ -110,14 +117,16 @@ opaque
   ⊢∷→⊢∷-η ⊢t =
     case Is-order-embedding.tr-morphism Is-order-embedding-id of λ
       (m : Is-morphism 𝕄 𝕄 idᶠ) →
-    subst₃ T-η._⊢_∷_ tr-Con-id tr-Term-id tr-Term-id $
+    subst₃ T-η._⊢_∷_ tr-Cons-id tr-Term-id tr-Term-id $
     QT.tr-⊢∷ TR TR-η idᶠ idᶠ m (Is-morphism→Is-Σ-morphism m)
       (record
-         { Unit-preserved = idᶠ
-         ; ΠΣ-preserved   =
+         { unfolding-mode-preserved = refl
+         ; Unit-preserved           = idᶠ
+         ; ΠΣ-preserved             =
              λ {b = b} →
                subst (flip (ΠΣ-allowed _) _) $
                PE.sym $ tr-BinderMode-id b
+         ; Opacity-preserved             = idᶠ
          ; K-preserved                   = idᶠ
          ; []-cong-preserved             = idᶠ
          ; Equality-reflection-preserved = idᶠ
@@ -133,8 +142,10 @@ opaque
   -- than unitrec-subst and unitrec-β.
 
   soundness-ℕ :
-    Δ ⊢ t ∷ ℕ → 𝟘ᶜ ▸[ 𝟙ᵐ ] t →
-    ∃ λ n → Δ SR-η.⊢ t ⇒ˢ* sucᵏ n ∷ℕ × erase str t ⇒ˢ⟨ str ⟩* T.sucᵏ n
+    glassify ∇ » Δ ⊢ t ∷ ℕ → 𝟘ᶜ ▸[ 𝟙ᵐ ] t →
+    ∃ λ n →
+    glassify ∇ » Δ SR-η.⊢ t ⇒ˢ* sucᵏ n ∷ℕ ×
+    eraseDCon str ∇ ⊢ erase str t ⇒ˢ⟨ str ⟩* T.sucᵏ n
   soundness-ℕ = Soundness-η.soundness-ℕ ∘→ ⊢∷→⊢∷-η
 
 opaque
@@ -146,6 +157,7 @@ opaque
   -- unitrec-subst and unitrec-β.
 
   soundness-Unit :
-    Δ ⊢ t ∷ Unit s l → 𝟘ᶜ ▸[ 𝟙ᵐ ] t →
-    Δ T-η.⊢ t ⇒* star s l ∷ Unit s l × erase str t T.⇒* T.star
+    glassify ∇ » Δ ⊢ t ∷ Unit s l → 𝟘ᶜ ▸[ 𝟙ᵐ ] t →
+    glassify ∇ » Δ T-η.⊢ t ⇒* star s l ∷ Unit s l ×
+    eraseDCon str ∇ T.⊢ erase str t ⇒* T.star
   soundness-Unit = Soundness-η.soundness-Unit ∘→ ⊢∷→⊢∷-η

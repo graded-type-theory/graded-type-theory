@@ -40,7 +40,7 @@ open import Tools.Relation
 open import Tools.Sum
 
 private variable
-  Γ       : Con Term _
+  Γ       : Cons _ _
   A B t u : Term _
   l       : Universe-level
 
@@ -166,7 +166,7 @@ inversion-Unrestricted-∷ ⊢Unrestricted =
 -- Another inversion lemma for Unrestricted.
 
 inversion-Unrestricted :
-  ⦃ ok : No-equality-reflection or-empty Γ ⦄ →
+  ⦃ ok : No-equality-reflection or-empty Γ .vars ⦄ →
   Γ ⊢ Unrestricted A → Γ ⊢ A
 inversion-Unrestricted (ΠΣⱼ ⊢Unit _)        = ⊢∙→⊢ (wf ⊢Unit)
 inversion-Unrestricted (univ ⊢Unrestricted) =
@@ -193,7 +193,7 @@ inversion-[] ⊢[] =
 -- Another inversion lemma for [_].
 
 inversion-[]′ :
-  ⦃ ok : No-equality-reflection or-empty Γ ⦄ →
+  ⦃ ok : No-equality-reflection or-empty Γ .vars ⦄ →
   Γ ⊢ [ t ] ∷ Unrestricted A → Γ ⊢ t ∷ A
 inversion-[]′ ⊢[] =
   case inversion-[] ⊢[] of
@@ -205,22 +205,22 @@ inversion-[]′ ⊢[] =
 -- A certain form of inversion for [_] does not hold.
 
 ¬-inversion-[]′ :
-  ¬ (∀ {n} {Γ : Con Term n} {t A : Term n} →
+  ¬ (∀ {n₁ n₂} {Γ : Cons n₁ n₂} {t A : Term n₂} →
      Γ ⊢ [ t ] ∷ A →
      ∃₃ λ B q l → Γ ⊢ t ∷ B × Γ ⊢ A ≡ Σˢ ω , q ▷ B ▹ Unitˢ l)
 ¬-inversion-[]′ inversion-[] = bad
   where
-  Γ′ = ε
+  Γ′ = ε » ε
   t′ = zero
   A′ = Σˢ ω , ω ▷ ℕ ▹ natrec 𝟙 𝟙 𝟙 (U 0) (Unitˢ 0) ℕ (var x0)
 
-  ⊢Γ′∙ℕ : ⊢ Γ′ ∙ ℕ
-  ⊢Γ′∙ℕ = ∙ ℕⱼ ε
+  ⊢Γ′∙ℕ : ⊢ Γ′ »∙ ℕ
+  ⊢Γ′∙ℕ = ∙ ℕⱼ (ε ε)
 
-  ⊢Γ′∙ℕ∙ℕ : ⊢ Γ′ ∙ ℕ ∙ ℕ
+  ⊢Γ′∙ℕ∙ℕ : ⊢ Γ′ »∙ ℕ »∙ ℕ
   ⊢Γ′∙ℕ∙ℕ = ∙ ℕⱼ ⊢Γ′∙ℕ
 
-  ⊢Γ′∙ℕ∙U : ⊢ Γ′ ∙ ℕ ∙ U 0
+  ⊢Γ′∙ℕ∙U : ⊢ Γ′ »∙ ℕ »∙ U 0
   ⊢Γ′∙ℕ∙U = ∙ Uⱼ ⊢Γ′∙ℕ
 
   ⊢[t′] : Γ′ ⊢ [ t′ ] ∷ A′
@@ -229,10 +229,10 @@ inversion-[]′ ⊢[] =
              (Unitⱼ ⊢Γ′∙ℕ Unit-ok)
              (ℕⱼ (∙ Uⱼ ⊢Γ′∙ℕ∙ℕ))
              (var ⊢Γ′∙ℕ here)))
-    (zeroⱼ ε)
-    (conv (starⱼ ε Unit-ok)
+    (zeroⱼ (ε ε))
+    (conv (starⱼ (ε ε) Unit-ok)
        (_⊢_≡_.sym $
-        univ (natrec-zero (Unitⱼ ε Unit-ok) (ℕⱼ ⊢Γ′∙ℕ∙U))))
+        univ (natrec-zero (Unitⱼ (ε ε) Unit-ok) (ℕⱼ ⊢Γ′∙ℕ∙U))))
     Σˢ-ok
 
   ℕ≡Unit : ∃ λ l → Γ′ ⊢ ℕ ≡ Unitˢ l
@@ -244,8 +244,8 @@ inversion-[]′ ⊢[] =
       _
     , _⊢_≡_.trans
         (_⊢_≡_.sym $ _⊢_≡_.univ $
-         natrec-suc (Unitⱼ ε Unit-ok) (ℕⱼ ⊢Γ′∙ℕ∙U) (zeroⱼ ε))
-        (≡Unit (refl (sucⱼ (zeroⱼ ε))))
+         natrec-suc (Unitⱼ (ε ε) Unit-ok) (ℕⱼ ⊢Γ′∙ℕ∙U) (zeroⱼ (ε ε)))
+        (≡Unit (refl (sucⱼ (zeroⱼ (ε ε)))))
 
   bad : ⊥
   bad = ℕ≢Unitⱼ ⦃ ok = ε ⦄ (ℕ≡Unit .proj₂)
@@ -253,7 +253,7 @@ inversion-[]′ ⊢[] =
 -- Another form of inversion for [] also does not hold.
 
 ¬-inversion-[] :
-  ¬ (∀ {n} {Γ : Con Term n} {t A : Term n} →
+  ¬ (∀ {n₁ n₂} {Γ : Cons n₁ n₂} {t A : Term n₂} →
      Γ ⊢ [ t ] ∷ A →
      ∃ λ B → Γ ⊢ t ∷ B × Γ ⊢ A ≡ Unrestricted B)
 ¬-inversion-[] inversion-[] =
@@ -279,27 +279,27 @@ inversion-unbox ⊢unbox =
 -- A certain form of inversion for unbox does not hold.
 
 ¬-inversion-unbox′ :
-  ¬ (∀ {n} {Γ : Con Term n} {t A : Term n} →
+  ¬ (∀ {n₁ n₂} {Γ : Cons n₁ n₂} {t A : Term n₂} →
      Γ ⊢ unbox t ∷ A →
      ∃₂ λ q l → Γ ⊢ t ∷ Σˢ ω , q ▷ A ▹ Unitˢ l)
 ¬-inversion-unbox′ inversion-unbox = bad
   where
-  Γ′ = ε
+  Γ′ = ε » ε
   t′ = prodˢ ω zero zero
   A′ = ℕ
 
-  ⊢Γ′∙ℕ : ⊢ Γ′ ∙ ℕ
-  ⊢Γ′∙ℕ = ∙ ℕⱼ ε
+  ⊢Γ′∙ℕ : ⊢ Γ′ »∙ ℕ
+  ⊢Γ′∙ℕ = ∙ ℕⱼ (ε ε)
 
   ⊢t′₁ : Γ′ ⊢ t′ ∷ Σ ω , ω ▷ ℕ ▹ ℕ
-  ⊢t′₁ = prodⱼ (ℕⱼ ⊢Γ′∙ℕ) (zeroⱼ ε) (zeroⱼ ε) Σˢ-ok
+  ⊢t′₁ = prodⱼ (ℕⱼ ⊢Γ′∙ℕ) (zeroⱼ (ε ε)) (zeroⱼ (ε ε)) Σˢ-ok
 
   ⊢unbox-t′ : Γ′ ⊢ unbox t′ ∷ A′
   ⊢unbox-t′ = fstⱼ (ℕⱼ ⊢Γ′∙ℕ) ⊢t′₁
 
   unbox-t′≡zero : Γ′ ⊢ unbox t′ ≡ zero ∷ A′
   unbox-t′≡zero =
-    Σ-β₁ (ℕⱼ ⊢Γ′∙ℕ) (zeroⱼ ε) (zeroⱼ ε) PE.refl Σˢ-ok
+    Σ-β₁ (ℕⱼ ⊢Γ′∙ℕ) (zeroⱼ (ε ε)) (zeroⱼ (ε ε)) PE.refl Σˢ-ok
 
   ⊢t′₂ : ∃₂ λ q l → Γ′ ⊢ t′ ∷ Σˢ ω , q ▷ A′ ▹ Unitˢ l
   ⊢t′₂ = inversion-unbox ⊢unbox-t′
@@ -333,7 +333,7 @@ inversion-unbox ⊢unbox =
 -- Another form of inversion for unbox also does not hold.
 
 ¬-inversion-unbox :
-  ¬ (∀ {n} {Γ : Con Term n} {t A : Term n} →
+  ¬ (∀ {n₁ n₂} {Γ : Cons n₁ n₂} {t A : Term n₂} →
      Γ ⊢ unbox t ∷ A →
      Γ ⊢ t ∷ Unrestricted A)
 ¬-inversion-unbox inversion-unbox =

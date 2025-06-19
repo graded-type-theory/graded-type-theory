@@ -28,10 +28,11 @@ open import Definition.Typed R
 open import Definition.Typed.Consequences.Injectivity R
 open import Definition.Typed.Properties R
 open import Definition.Typed.Reasoning.Type R
+open import Definition.Typed.Weakening.Definition R
 
 open import Definition.Untyped M
-open import Definition.Untyped.Neutral M type-variant
 open import Definition.Untyped.Properties M
+open import Definition.Untyped.Whnf M type-variant
 
 open import Tools.Function
 open import Tools.Nat
@@ -48,10 +49,10 @@ private
 -- Irrelevance of logical relation for erasure using a ShapeView
 
 irrelevanceTermSV : ∀ {l l′ t v A}
-                  → ([A] : Δ ⊩⟨ l ⟩ A)
-                    ([A]′ : Δ ⊩⟨ l′ ⟩ A)
+                  → ([A] : ts » Δ ⊩⟨ l ⟩ A)
+                    ([A]′ : ts » Δ ⊩⟨ l′ ⟩ A)
                   → t ®⟨ l ⟩ v ∷ A / [A]
-                  → ShapeView Δ l l′ A A [A] [A]′
+                  → ShapeView ts Δ l l′ A A [A] [A]′
                   → t ®⟨ l′ ⟩ v ∷ A / [A]′
 irrelevanceTermSV .(Uᵣ UA) .(Uᵣ UB) t®v (Uᵥ UA UB) = t®v
 irrelevanceTermSV .(ℕᵣ ℕA) .(ℕᵣ ℕB) t®v (ℕᵥ ℕA ℕB) = t®v
@@ -72,28 +73,30 @@ irrelevanceTermSV
 ... | PE.refl , PE.refl , _
        with is-𝟘? p
 ... | (yes p≡𝟘) = t®v .proj₁ , λ [a]′ →
-  let [a] = I.irrelevanceTerm ([F]₁ (id ⊢Δ)) ([F] (id ⊢Δ)) [a]′
+  let [a] = I.irrelevanceTerm ([F]₁ id (id ⊢Δ)) ([F] id (id ⊢Δ)) [a]′
       t®v′ = t®v .proj₂ [a]
-      SV′ = goodCasesRefl ([G] (id ⊢Δ) [a]) ([G]₁ (id ⊢Δ) [a]′)
-  in  irrelevanceTermSV ([G] (id ⊢Δ) [a]) ([G]₁ (id ⊢Δ) [a]′) t®v′ SV′
+      SV′ = goodCasesRefl ([G] id (id ⊢Δ) [a]) ([G]₁ id (id ⊢Δ) [a]′)
+  in  irrelevanceTermSV ([G] id (id ⊢Δ) [a]) ([G]₁ id (id ⊢Δ) [a]′) t®v′
+        SV′
 ... | (no p≢𝟘) = t®v .proj₁ , λ [a]′ a®w′ →
-  let [a] = I.irrelevanceTerm ([F]₁ (id ⊢Δ)) ([F] (id ⊢Δ)) [a]′
-      SV = goodCasesRefl ([F]₁ (id ⊢Δ)) ([F] (id ⊢Δ))
-      a®w = irrelevanceTermSV ([F]₁ (id ⊢Δ)) ([F] (id ⊢Δ)) a®w′ SV
+  let [a] = I.irrelevanceTerm ([F]₁ id (id ⊢Δ)) ([F] id (id ⊢Δ)) [a]′
+      SV = goodCasesRefl ([F]₁ id (id ⊢Δ)) ([F] id (id ⊢Δ))
+      a®w = irrelevanceTermSV ([F]₁ id (id ⊢Δ)) ([F] id (id ⊢Δ)) a®w′ SV
       t®v′ = t®v .proj₂ [a] a®w
-      SV′ = goodCasesRefl ([G] (id ⊢Δ) [a]) ([G]₁ (id ⊢Δ) [a]′)
-  in  irrelevanceTermSV ([G] (id ⊢Δ) [a]) ([G]₁ (id ⊢Δ) [a]′) t®v′ SV′
+      SV′ = goodCasesRefl ([G] id (id ⊢Δ) [a]) ([G]₁ id (id ⊢Δ) [a]′)
+  in  irrelevanceTermSV ([G] id (id ⊢Δ) [a]) ([G]₁ id (id ⊢Δ) [a]′) t®v′
+        SV′
 irrelevanceTermSV {v = v}
   [A] [A]′ (t₁ , t₂ , t⇒t′ , [t₁] , v₂ , t₂®v₂ , extra)
   (Bᵥ (BΣ _ p _) (Bᵣ F G D A≡A [F] [G] G-ext _)
      (Bᵣ F₁ G₁ D₁ A≡A₁ [F]₁ [G]₁ G-ext₁ _))
   with B-PE-injectivity BΣ! BΣ! (whrDet* (D , ΠΣₙ) (D₁ , ΠΣₙ))
 ... | PE.refl , PE.refl , _ =
-  let [F]′ = [F] (id ⊢Δ)
-      [F]₁′ = [F]₁ (id ⊢Δ)
+  let [F]′ = [F] id (id ⊢Δ)
+      [F]₁′ = [F]₁ id (id ⊢Δ)
       [t₁]′ = I.irrelevanceTerm [F]′ [F]₁′ [t₁]
-      [Gt₁] = [G] (id ⊢Δ) [t₁]
-      [Gt₁]₁ = [G]₁ (id ⊢Δ) [t₁]′
+      [Gt₁] = [G] id (id ⊢Δ) [t₁]
+      [Gt₁]₁ = [G]₁ id (id ⊢Δ) [t₁]′
       t₂®v₂′ = irrelevanceTermSV [Gt₁] [Gt₁]₁ t₂®v₂
                  (goodCasesRefl [Gt₁] [Gt₁]₁)
   in  t₁ , t₂ , t⇒t′ , [t₁]′ , v₂ , t₂®v₂′
@@ -121,8 +124,8 @@ irrelevanceTermSV _ _ () (ne record{} _)
 -- Irrelevance of logical relation for erasure
 
 irrelevanceTerm : ∀ {l l′ t v A}
-                → ([A] : Δ ⊩⟨ l ⟩ A)
-                  ([A]′ : Δ ⊩⟨ l′ ⟩ A)
+                → ([A] : ts » Δ ⊩⟨ l ⟩ A)
+                  ([A]′ : ts » Δ ⊩⟨ l′ ⟩ A)
                 → t ®⟨ l ⟩ v ∷ A / [A]
                 → t ®⟨ l′ ⟩ v ∷ A / [A]′
 irrelevanceTerm [A] [A]′ t®v =
@@ -132,8 +135,8 @@ irrelevanceTerm [A] [A]′ t®v =
 
 irrelevanceTerm′ : ∀ {l l′ t v A}
                  → A PE.≡ A′
-                 → ([A] : Δ ⊩⟨ l ⟩ A)
-                 → ([A]′ : Δ ⊩⟨ l′ ⟩ A′)
+                 → ([A] : ts » Δ ⊩⟨ l ⟩ A)
+                 → ([A]′ : ts » Δ ⊩⟨ l′ ⟩ A′)
                  → t ®⟨ l ⟩ v ∷ A / [A]
                  → t ®⟨ l′ ⟩ v ∷ A′ / [A]′
 irrelevanceTerm′ PE.refl [A] [A]′ t®v = irrelevanceTerm [A] [A]′ t®v

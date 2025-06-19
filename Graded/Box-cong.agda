@@ -33,12 +33,14 @@ open import Definition.Typed.Reasoning.Term TR
 open import Definition.Typed.Substitution TR
 open import Definition.Typed.Syntactic TR
 import Definition.Typed.Weakening TR as W
+import Definition.Typed.Weakening.Definition TR as WD
 open import Definition.Typed.Well-formed TR
 open import Definition.Untyped M as U
 import Definition.Untyped.Erased 𝕄 as Erased
 open import Definition.Untyped.Identity 𝕄
 open import Definition.Untyped.Neutral M type-variant
 open import Definition.Untyped.Properties M
+open import Definition.Untyped.Whnf M type-variant
 
 open import Graded.Context 𝕄
 open import Graded.Context.Properties 𝕄
@@ -69,7 +71,8 @@ open import Tools.Sum using (_⊎_; inj₁; inj₂)
 
 private variable
   n                                      : Nat
-  Γ                                      : Con Term _
+  Δ                                      : Con Term _
+  Γ                                      : Cons _ _
   A A₁ A₂ B t t₁ t₂ t′ u u₁ u₂ v v₁ v₂ w : Term _
   σ                                      : Subst _ _
   p q q₁ q₂ q₃ q₄                        : M
@@ -89,20 +92,22 @@ private opaque
 
   ⊢Id-2-1-0 :
     ⊢ Γ →
-    Γ ∙ U l ∙ var x0 ∙ var x1 ⊢ Id (var x2) (var x1) (var x0)
+    Γ »∙ U l »∙ var x0 »∙ var x1 ⊢ Id (var x2) (var x1) (var x0)
   ⊢Id-2-1-0 {Γ} ⊢Γ = Idⱼ′ (var₁ ⊢1) (var₀ ⊢1)
     where
-    ⊢1 : Γ ∙ U l ∙ var x0 ⊢ var x1
+    ⊢1 : Γ »∙ U l »∙ var x0 ⊢ var x1
     ⊢1 = univ (var₁ (univ (var₀ (Uⱼ ⊢Γ))))
 
   ⊢Id-4-3-0 :
+    ε »
     ε ∙ U l ∙ var x0 ∙ var x1 ∙ Id (var x2) (var x1) (var x0) ∙ var x3 ⊢
     Id (var x4) (var x3) (var x0)
   ⊢Id-4-3-0 = Idⱼ′ (var₃ ⊢3) (var₀ ⊢3)
     where
     ⊢3 :
-      ε ∙ U l ∙ var x0 ∙ var x1 ∙ Id (var x2) (var x1) (var x0) ⊢ var x3
-    ⊢3 = univ (var₃ (⊢Id-2-1-0 ε))
+      ε » ε ∙ U l ∙ var x0 ∙ var x1 ∙ Id (var x2) (var x1) (var x0) ⊢
+      var x3
+    ⊢3 = univ (var₃ (⊢Id-2-1-0 εε))
 
   Id-[]₀≡ :
     let open Erased s in
@@ -383,7 +388,7 @@ Has-[]-cong s m l q₁ q₂ q₃ q₄ =
   let open Erased s in
   ∃ λ ([]-cong : Term 0) →
   ε ▸[ m ] []-cong ×
-  ε ⊢ []-cong ∷
+  ε » ε ⊢ []-cong ∷
     Π 𝟘 , q₁ ▷ U l ▹
     Π 𝟘 , q₂ ▷ var x0 ▹
     Π 𝟘 , q₃ ▷ var x1 ▹
@@ -398,7 +403,7 @@ Has-computing-[]-cong :
 Has-computing-[]-cong s m l q₁ q₂ q₃ q₄ =
   let open Erased s in
   ∃ λ (([]-cong′ , _) : Has-[]-cong s m l q₁ q₂ q₃ q₄) →
-  ∀ n (Γ : Con Term n) (A t : Term n) →
+  ∀ m n (Γ : Cons m n) (A t : Term n) →
   Γ ⊢ A ∷ U l →
   Γ ⊢ t ∷ A →
   Γ ⊢ wk wk₀ []-cong′ ∘⟨ 𝟘 ⟩ A ∘⟨ 𝟘 ⟩ t ∘⟨ 𝟘 ⟩ t ∘⟨ 𝟘 ⟩ rfl ≡ rfl ∷
@@ -427,7 +432,7 @@ opaque
     Π-allowed 𝟘 q₄ →
     Has-computing-[]-cong s m l q₁ q₂ q₃ q₄
   []-cong⊎J⊎𝟘ᵐ⊎Trivial→[]-cong {s} {m} ok ok₁ ok₂ ok₃ ok₄ =
-    let ⊢[]-cong″ = ⊢[]-cong″ ok′ (var₀ (⊢Id-2-1-0 ε)) in
+    let ⊢[]-cong″ = ⊢[]-cong″ ok′ (var₀ (⊢Id-2-1-0 εε)) in
       ( []-cong′
       , (lamₘ $ lamₘ $ lamₘ $ lamₘ $
          sub (▸[]-cong″ ok′ var var var var) $ begin
@@ -435,12 +440,12 @@ opaque
            𝟘ᶜ           ∎)
       , lamⱼ′ ok₁ (lamⱼ′ ok₂ (lamⱼ′ ok₃ (lamⱼ′ ok₄ ⊢[]-cong″)))
       )
-    , λ _ _ A t ⊢A ⊢t →
+    , λ _ _ _ A t ⊢A ⊢t →
         wk wk₀ []-cong′ ∘⟨ 𝟘 ⟩ A ∘⟨ 𝟘 ⟩ t ∘⟨ 𝟘 ⟩ t ∘⟨ 𝟘 ⟩ rfl        ⇒*⟨ β-red-⇒₄′ ok₁ ok₂ ok₃ ok₄
                                                                            (W.wkTerm
                                                                               (W.liftʷ (W.lift (W.lift (W.lift W.wk₀∷⊇))) $
-                                                                               ⊢Id-2-1-0 (wfTerm ⊢A))
-                                                                              ⊢[]-cong″)
+                                                                               ⊢Id-2-1-0 (wfTerm ⊢A)) $
+                                                                            WD.defn-wkTerm (WD.»⊇ε (defn-wf (wfTerm ⊢A)) .proj₂) ⊢[]-cong″)
                                                                            ⊢A ⊢t ⊢t (rflⱼ ⊢t) ⟩⊢
         wk (liftn wk₀ 4)
           ([]-cong″ ok′ (var x3) (var x2) (var x1) (var x0))
@@ -544,7 +549,8 @@ opaque
            (lemma
               (lemma
                  (lemma
-                    (idSubst , ⊢ˢʷ∷-idSubst ε , _ , ▸[]-cong , ⊢[]-cong)
+                    (idSubst , ⊢ˢʷ∷-idSubst εε , _ , ▸[]-cong ,
+                     ⊢[]-cong)
                     ⊢A)
                  ⊢t)
               ⊢t)
@@ -552,15 +558,15 @@ opaque
       (_ , ⊢σ , _ , ▸t , ⊢t) →
     case red-Id ⦃ ok = included ⦄ ⊢t of λ where
       (_ , rflₙ , ⇒*rfl) →
-        case var-only-equal-to-itself (neₙ (var _)) (ne (var _)) $
+        case var-only-equal-to-itself (neₙ (var _ _)) (ne (var _ _)) $
              prod-cong⁻¹ ⦃ ok = included ⦄
                (inversion-rfl-Id ⦃ ok = included ⦄ $
                 wf-⊢≡∷ (subset*Term ⇒*rfl) .proj₂ .proj₂)
                .proj₂ .proj₁ of λ ()
       (_ , ne u-ne , t⇒*u) →
         neutral-not-well-resourced nem (λ _ → inhabited-consistent ⊢σ)
-          u-ne (wf-⊢≡∷ (subset*Term t⇒*u) .proj₂ .proj₂)
-          (usagePres*Term Unitʷ-η→ ▸t t⇒*u) }
+          PE.refl (ne→ _ u-ne) (wf-⊢≡∷ (subset*Term t⇒*u) .proj₂ .proj₂)
+          (usagePres*Term Unitʷ-η→ (λ ()) ▸t t⇒*u) }
     where
     A′ : Universe-level → Term 0
     A′ 0      = ℕ
@@ -571,22 +577,22 @@ opaque
     t″ 1      = ℕ
     t″ (2+ l) = U l
 
-    ⊢A : ε ⊢ A′ l ∷ U l
-    ⊢A {l = 0}    = ℕⱼ ε
-    ⊢A {l = 1+ _} = Uⱼ ε
+    ⊢A : ε » ε ⊢ A′ l ∷ U l
+    ⊢A {l = 0}    = ℕⱼ εε
+    ⊢A {l = 1+ _} = Uⱼ εε
 
-    ⊢t : ε ⊢ t″ l ∷ A′ l
-    ⊢t {l = 0}    = zeroⱼ ε
-    ⊢t {l = 1}    = ℕⱼ ε
-    ⊢t {l = 2+ _} = Uⱼ ε
+    ⊢t : ε » ε ⊢ t″ l ∷ A′ l
+    ⊢t {l = 0}    = zeroⱼ εε
+    ⊢t {l = 1}    = ℕⱼ εε
+    ⊢t {l = 2+ _} = Uⱼ εε
 
     lemma :
       ((σ , _) :
-       ∃ λ σ → ε ⊢ˢʷ σ ∷ Γ ×
-       ∃ λ t → 𝟘ᶜ ▸[ 𝟙ᵐ ] t × Γ ⊢ t ∷ Π 𝟘 , p ▷ A ▹ B) →
-      ε ⊢ u ∷ A [ σ ] →
-      (∃ λ σ → ε ⊢ˢʷ σ ∷ Γ ∙ A ×
-       ∃ λ t → 𝟘ᶜ ▸[ 𝟙ᵐ ] t × Γ ∙ A ⊢ t ∷ B)
+       ∃ λ σ → ε » ε ⊢ˢʷ σ ∷ Δ ×
+       ∃ λ t → 𝟘ᶜ ▸[ 𝟙ᵐ ] t × ε » Δ ⊢ t ∷ Π 𝟘 , p ▷ A ▹ B) →
+      ε » ε ⊢ u ∷ A [ σ ] →
+      (∃ λ σ → ε » ε ⊢ˢʷ σ ∷ Δ ∙ A ×
+       ∃ λ t → 𝟘ᶜ ▸[ 𝟙ᵐ ] t × ε » Δ ∙ A ⊢ t ∷ B)
     lemma (_ , ⊢σ , _ , ▸t , ⊢t) ⊢u =
         consSubst _ _
       , →⊢ˢʷ∷∙ ⊢σ ⊢u
@@ -594,12 +600,12 @@ opaque
            (_ , ne v-n , t⇒*v) →
              ⊥-elim $
              neutral-not-well-resourced nem
-               (λ _ → inhabited-consistent ⊢σ) v-n
+               (λ _ → inhabited-consistent ⊢σ) PE.refl (ne→ _ v-n)
                (wf-⊢≡∷ (subset*Term t⇒*v) .proj₂ .proj₂)
-               (usagePres*Term Unitʷ-η→ ▸t t⇒*v)
+               (usagePres*Term Unitʷ-η→ (λ ()) ▸t t⇒*v)
            (lam _ v , lamₙ , t⇒*lam) →
              case inv-usage-lam
-                    (usagePres*Term Unitʷ-η→ ▸t t⇒*lam) of λ {
+                    (usagePres*Term Unitʷ-η→ (λ ()) ▸t t⇒*lam) of λ {
                (invUsageLam ▸v 𝟘≤) →
              case inversion-lam-Π-no-equality-reflection
                     (wf-⊢≡∷ (subset*Term t⇒*lam) .proj₂ .proj₂) of λ {
@@ -619,7 +625,7 @@ Has-weaker-[]-cong s m l q₁ q₂ q₃ q₄ =
   let open Erased s in
   ∃ λ ([]-cong : Term 0) →
   ε ▸[ m ] []-cong ×
-  ε ⊢ []-cong ∷
+  ε » ε ⊢ []-cong ∷
     Π ω , q₁ ▷ U l ▹
     Π ω , q₂ ▷ var x0 ▹
     Π ω , q₃ ▷ var x1 ▹
@@ -633,7 +639,7 @@ Has-weaker-computing-[]-cong :
 Has-weaker-computing-[]-cong s m l q₁ q₂ q₃ q₄ =
   let open Erased s in
   ∃ λ (([]-cong′ , _) : Has-weaker-[]-cong s m l q₁ q₂ q₃ q₄) →
-  ∀ n (Γ : Con Term n) (A t : Term n) →
+  ∀ m n (Γ : Cons m n) (A t : Term n) →
   Γ ⊢ A ∷ U l →
   Γ ⊢ t ∷ A →
   Γ ⊢ wk wk₀ []-cong′ ∘⟨ ω ⟩ A ∘⟨ ω ⟩ t ∘⟨ ω ⟩ t ∘⟨ 𝟘 ⟩ rfl ≡ rfl ∷
@@ -657,7 +663,7 @@ private
          ∘⟨ 𝟘 ⟩ var x3 ∘⟨ 𝟘 ⟩ var x2 ∘⟨ 𝟘 ⟩ var x1 ∘⟨ 𝟘 ⟩ var x0
 
     ⊢[]-cong″ :
-      ε ∙ U l ∙ var x0 ∙ var x1 ∙ Id (var x2) (var x1) (var x0) ⊢
+      ε » ε ∙ U l ∙ var x0 ∙ var x1 ∙ Id (var x2) (var x1) (var x0) ⊢
         []-cong″ ∷ Id (Erased (var x3)) [ var x2 ] ([ var x1 ])
     ⊢[]-cong″ =
       flip _∘ⱼ_ (var₀ ⊢Id) $
@@ -666,8 +672,9 @@ private
       flip _∘ⱼ_ (var₃ ⊢Id) $
       W.wkTerm (W.wk₀∷ʷ⊇ (∙ ⊢Id)) ⊢[]-cong′
       where
-      ⊢Id : ε ∙ U l ∙ var x0 ∙ var x1 ⊢ Id (var x2) (var x1) (var x0)
-      ⊢Id = ⊢Id-2-1-0 ε
+      ⊢Id :
+        ε » ε ∙ U l ∙ var x0 ∙ var x1 ⊢ Id (var x2) (var x1) (var x0)
+      ⊢Id = ⊢Id-2-1-0 εε
 
     oks :
       Π-allowed ω q₁ × Π-allowed ω q₂ × Π-allowed ω q₃ × Π-allowed 𝟘 q₄
@@ -737,7 +744,7 @@ opaque
       open ≤ᶜ-reasoning
 
     ⊢[]-cong‴ :
-      ε ⊢ []-cong‴ ∷
+      ε » ε ⊢ []-cong‴ ∷
         Π ω , q₁ ▷ U l ▹
         Π ω , q₂ ▷ var x0 ▹
         Π ω , q₃ ▷ var x1 ▹
@@ -766,7 +773,7 @@ opaque
         ok₁ , ok₂ , ok₃ , ok₄ = oks
     in
       Has-[]-cong→Has-weaker-[]-cong hyp₁ hyp₂ hyp₃ has-[]-cong
-    , λ _ _ A t ⊢A ⊢t →
+    , λ _ _ _ A t ⊢A ⊢t →
         wk wk₀
           (lam ω $ lam ω $ lam ω $ lam 𝟘 $
            wk wk₀ []-cong′
@@ -774,8 +781,8 @@ opaque
           ∘⟨ ω ⟩ A ∘⟨ ω ⟩ t ∘⟨ ω ⟩ t ∘⟨ 𝟘 ⟩ rfl                        ⇒*⟨ β-red-⇒₄′ ok₁ ok₂ ok₃ ok₄
                                                                              (W.wkTerm
                                                                                 (W.liftʷ (W.lift (W.lift (W.lift W.wk₀∷⊇))) $
-                                                                                 ⊢Id-2-1-0 (wfTerm ⊢A))
-                                                                                ⊢[]-cong″)
+                                                                                 ⊢Id-2-1-0 (wfTerm ⊢A)) $
+                                                                                WD.defn-wkTerm (WD.»⊇ε (defn-wf (wfTerm ⊢A)) .proj₂) ⊢[]-cong″)
                                                                              ⊢A ⊢t ⊢t (rflⱼ ⊢t) ⟩⊢
         (wk (liftn wk₀ 4) (wk wk₀ []-cong′)
            [ consSubst (consSubst (consSubst (sgSubst A) t) t) rfl ])
@@ -788,7 +795,7 @@ opaque
                                                                           PE.trans (subst-wk []-cong′) $
                                                                           PE.sym $ wk≡subst _ _ ⟩⊢≡
 
-        wk wk₀ []-cong′ ∘⟨ 𝟘 ⟩ A ∘⟨ 𝟘 ⟩ t ∘⟨ 𝟘 ⟩ t ∘⟨ 𝟘 ⟩ rfl          ≡⟨ []-cong′≡ _ _ _ _ ⊢A ⊢t ⟩⊢∎
+        wk wk₀ []-cong′ ∘⟨ 𝟘 ⟩ A ∘⟨ 𝟘 ⟩ t ∘⟨ 𝟘 ⟩ t ∘⟨ 𝟘 ⟩ rfl          ≡⟨ []-cong′≡ _ _ _ _ _ ⊢A ⊢t ⟩⊢∎
 
         rfl                                                            ∎
 
@@ -817,7 +824,7 @@ private
     ⊢[]-cong″ :
       Π-allowed 𝟘 q₁ × Π-allowed 𝟘 q₂ ×
       Π-allowed 𝟘 q₃ × Π-allowed 𝟘 q₄ ×
-      ε ∙ U l ∙ var x0 ∙ var x1 ∙ Id (var x2) (var x1) (var x0) ⊢
+      ε » ε ∙ U l ∙ var x0 ∙ var x1 ∙ Id (var x2) (var x1) (var x0) ⊢
         []-cong″ ∷ Id (Erased (var x3)) [ var x2 ] ([ var x1 ])
     ⊢[]-cong″ =
         case inversion-ΠΣ $ syntacticTerm ⊢[]-cong′ of λ
@@ -830,7 +837,7 @@ private
           (_ , ⊢Id , ok₄) →
         case inversion-Erased $ inversion-Id ⊢Id .proj₁ of λ
           (_ , Erased-ok) →
-        case ⊢Id-2-1-0 ε of λ
+        case ⊢Id-2-1-0 εε of λ
           ⊢Id →
         case _⊢_.univ $ var₃ ⊢Id of λ
           ⊢3 →
@@ -840,9 +847,11 @@ private
           ⊢Erased-Erased-3 →
         case
           (∀ t →
-           ε ∙ U l ∙ var x0 ∙ var x1 ∙ Id (var x2) (var x1) (var x0) ⊢
+           ε »
+             ε ∙ U l ∙ var x0 ∙ var x1 ∙ Id (var x2) (var x1) (var x0) ⊢
              t ∷ var x3 →
-           ε ∙ U l ∙ var x0 ∙ var x1 ∙ Id (var x2) (var x1) (var x0) ⊢
+           ε »
+             ε ∙ U l ∙ var x0 ∙ var x1 ∙ Id (var x2) (var x1) (var x0) ⊢
              mapᴱ (Erased (var x4)) (erased (var x5) (var x0)) (var x0)
                [ [ [ t ] ] ]₀ ≡
              [ t ] ∷
@@ -908,7 +917,7 @@ opaque
     opaque
 
       ⊢[]-cong‴ :
-        ε ⊢ []-cong‴ ∷
+        ε » ε ⊢ []-cong‴ ∷
         Π 𝟘 , q₁ ▷ U l ▹
         Π 𝟘 , q₂ ▷ var x0 ▹
         Π 𝟘 , q₃ ▷ var x1 ▹
@@ -1095,12 +1104,12 @@ opaque
         open Tools.Reasoning.PropositionalEquality
 
     []-cong″-computes :
-      ∀ n (Γ : Con Term n) (A t : Term n) →
+      ∀ m n (Γ : Cons m n) (A t : Term n) →
       Γ ⊢ A ∷ U l →
       Γ ⊢ t ∷ A →
       Γ ⊢ wk wk₀ []-cong″ ∘⟨ 𝟘 ⟩ A ∘⟨ 𝟘 ⟩ t ∘⟨ 𝟘 ⟩ t ∘⟨ 𝟘 ⟩ rfl ≡ rfl ∷
         Id (Erased A) [ t ] ([ t ])
-    []-cong″-computes _ Γ A t ⊢A ⊢t =
+    []-cong″-computes _ _ Γ A t ⊢A ⊢t =
       let open Has-weaker-[]-cong→Has-[]-cong hyp₁ hyp₂ hyp₃ has-[]-cong
 
           ok₁ , ok₂ , ok₃ , ok₄ , ⊢[]-cong″ = ⊢[]-cong″
@@ -1119,8 +1128,8 @@ opaque
         Id (Erased A) [ t ] ([ t ])                                    ⇒*⟨ β-red-⇒₄′ ok₁ ok₂ ok₃ ok₄
                                                                              (W.wkTerm
                                                                                 (W.liftʷ (W.lift (W.lift (W.lift W.wk₀∷⊇))) $
-                                                                                 ⊢Id-2-1-0 (wfTerm ⊢A))
-                                                                                ⊢[]-cong″)
+                                                                                 ⊢Id-2-1-0 (wfTerm ⊢A)) $
+                                                                                WD.defn-wkTerm (WD.»⊇ε (defn-wf (wfTerm ⊢A)) .proj₂) ⊢[]-cong″)
                                                                              ⊢A ⊢t ⊢t (rflⱼ ⊢t) ⟩⊢∷
                                                                         ˘⟨ Id-cong (refl ⊢Erased-A) mapᴱ-lemma mapᴱ-lemma ⟩≡
       wk (liftn wk₀ 4)
@@ -1166,14 +1175,15 @@ opaque
                                                                                (PE.cong₂ (Π_,_▷_▹_ ω q₃) (wk1-sgSubst _ _) PE.refl) $
                                                                              flip _∘ⱼ_ ⊢[t] $
                                                                              flip _∘ⱼ_ ⊢Erased-A∷U $
-                                                                             W.wkTerm (W.wk₀∷ʷ⊇ (wfTerm ⊢A)) ⊢[]-cong′) $
+                                                                             W.wkTerm (W.wk₀∷ʷ⊇ (wfTerm ⊢A)) $
+                                                                             WD.defn-wkTerm (WD.»⊇ε (defn-wf (wfTerm ⊢A)) .proj₂) ⊢[]-cong′) $
                                                                           cong-≡ ⊢t ([]ⱼ Erased-ok (var₀ (univ ⊢A))) ⟩⊢
       cong 𝟘 (Erased (Erased A)) [ [ t ] ] [ [ t ] ] (Erased A)
         (mapᴱ (Erased (wk1 A)) (erased (wk2 A) (var x0)) (var x0))
         (wk wk₀ []-cong′ ∘⟨ ω ⟩ Erased A ∘⟨ ω ⟩ [ t ] ∘⟨ ω ⟩ [ t ]
            ∘⟨ 𝟘 ⟩ rfl)                                                 ≡⟨ cong-cong (refl ⊢Erased-Erased-A) (refl ⊢[[t]]) (refl ⊢[[t]])
                                                                             (refl ⊢Erased-A) (refl ⊢mapᴱ-0) $
-                                                                          []-cong′≡ _ _ _ _ ⊢Erased-A∷U ⊢[t] ⟩⊢
+                                                                          []-cong′≡ _ _ _ _ _ ⊢Erased-A∷U ⊢[t] ⟩⊢
       cong 𝟘 (Erased (Erased A)) [ [ t ] ] [ [ t ] ] (Erased A)
         (mapᴱ (Erased (wk1 A)) (erased (wk2 A) (var x0)) (var x0))
         rfl                                                            ⇒⟨ cong-⇒ ⊢[[t]] ⊢mapᴱ-0 ⟩⊢∎
@@ -1206,7 +1216,7 @@ opaque
       ⊢Erased-A∷U = Erasedⱼ-U Erased-ok ⊢A
 
       ⊢mapᴱ-0 :
-        Γ ∙ Erased (Erased A) ⊢
+        Γ »∙ Erased (Erased A) ⊢
           mapᴱ (Erased (wk1 A)) (erased (wk2 A) (var x0)) (var x0) ∷
           Erased (wk1 A)
       ⊢mapᴱ-0 =

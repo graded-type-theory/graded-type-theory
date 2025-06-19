@@ -35,7 +35,7 @@ open import Tools.Sum
 
 private
   variable
-    k n l : Nat
+    α k n l : Nat
     γ χ : Conₘ n
     p q r : M
     A B F t t′ u v z n' : Term n
@@ -97,6 +97,11 @@ inv-usage-var var = ≤ᶜ-refl
 inv-usage-var (sub γ▸x γ≤γ′) with inv-usage-var γ▸x
 ... | γ′≤δ = ≤ᶜ-trans γ≤γ′ γ′≤δ
 
+-- If γ ▸[ m ] defn α then γ ≤ᶜ 𝟘ᶜ.
+
+inv-usage-defn : γ ▸[ m ] defn α → γ ≤ᶜ 𝟘ᶜ
+inv-usage-defn defn            = ≤ᶜ-refl
+inv-usage-defn (sub ▸defn γ≤δ) = ≤ᶜ-trans γ≤δ (inv-usage-defn ▸defn)
 
 record InvUsageLam
          {n} (γ : Conₘ n) (m : Mode) (p : M) (t : Term (1+ n)) :

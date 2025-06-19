@@ -29,8 +29,10 @@ open import Graded.Modality.Properties.Subtraction semiring-with-meet
 open import Graded.Usage.Erased-matches
 
 open import Definition.Untyped M
+open import Definition.Untyped.Names-below M
 open import Definition.Untyped.Neutral M type-variant
 open import Definition.Untyped.Properties M
+open import Definition.Untyped.Whnf M type-variant
 
 open import Graded.Heap.Untyped type-variant UR
 
@@ -44,10 +46,12 @@ private variable
   y y′ : Ptr _
   x : Fin _
   c c′ : Entry _ _
+  ∇ : DCon (Term 0) _
   Γ : Con Term _
   e e′ : Elim _
   s : State _ _ _
   σ : Subst _ _
+  V : Set a
 
 ------------------------------------------------------------------------
 -- Properties of states
@@ -105,7 +109,7 @@ opaque
 
   -- Values are non-neutrals
 
-  Value→¬Neutral : Value t → ¬ Neutral t
+  Value→¬Neutral : Value t → ¬ Neutral⁺ ∇ t
   Value→¬Neutral lamᵥ ()
   Value→¬Neutral zeroᵥ ()
   Value→¬Neutral sucᵥ ()
@@ -127,7 +131,7 @@ opaque
 
   Value→Whnf :
     Value t →
-    Whnf t ⊎ ∃₆ λ l p q A u v → t ≡ unitrec l p q A u v × Unitʷ-η
+    Whnf ∇ t ⊎ ∃₆ λ l p q A u v → t ≡ unitrec l p q A u v × Unitʷ-η
   Value→Whnf lamᵥ = inj₁ lamₙ
   Value→Whnf zeroᵥ = inj₁ zeroₙ
   Value→Whnf sucᵥ = inj₁ sucₙ
@@ -618,7 +622,7 @@ opaque
   -- Applying a term to an eliminator becomes neutral only if the
   -- term is neutral.
 
-  ⦅⦆ᵉ-neutral : ∀ e → Neutral (⦅ e ⦆ᵉ t) → Neutral t
+  ⦅⦆ᵉ-neutral : ∀ e → Neutral V ∇ (⦅ e ⦆ᵉ t) → Neutral V ∇ t
   ⦅⦆ᵉ-neutral (∘ₑ p u ρ) (∘ₙ n) = n
   ⦅⦆ᵉ-neutral (fstₑ x) (fstₙ n) = n
   ⦅⦆ᵉ-neutral (sndₑ x) (sndₙ n) = n
@@ -841,12 +845,13 @@ opaque
   -- will still be neutral at the same variable after applying the heap
   -- substitution.
 
-  toSubstₕ-NeutralAt : (d : H ⊢ y ↦●)
-                     → NeutralAt y t
-                     → NeutralAt (toSubstₕ-erased H y d .proj₁) (t [ H ]ₕ)
-  toSubstₕ-NeutralAt d var with toSubstₕ-erased _ _ d
+  toSubstₕ-NeutralAt :
+    (d : H ⊢ y ↦●) →
+    NeutralAt V ∇ (inj₂ y) t →
+    NeutralAt V ∇ (inj₂ (toSubstₕ-erased H y d .proj₁)) (t [ H ]ₕ)
+  toSubstₕ-NeutralAt d (var ok) with toSubstₕ-erased _ _ d
   … | (x′ , ≡x′) =
-    subst (NeutralAt _) (sym ≡x′) var
+    subst (NeutralAt _ _ _) (sym ≡x′) (var ok)
   toSubstₕ-NeutralAt d (∘ₙ n) =
     ∘ₙ (toSubstₕ-NeutralAt d n)
   toSubstₕ-NeutralAt d (fstₙ n) =
@@ -874,3 +879,46 @@ opaque
 
   ⦅initial⦆≡ : ⦅ initial t ⦆ ≡ t
   ⦅initial⦆≡ = trans (erasedHeap-subst (wk id _)) (wk-id _)
+
+------------------------------------------------------------------------
+-- Some lemmas related to the No-names variants
+
+opaque
+
+  -- No-namesᵉ is closed under weakening.
+
+  No-namesᵉ-wk : No-namesᵉ e → No-namesᵉ (wkᵉ ρ e)
+  No-namesᵉ-wk (emptyrecₑ nn)           = emptyrecₑ nn
+  No-namesᵉ-wk (unitrecₑ nn₁ nn₂)       = unitrecₑ nn₁ nn₂
+  No-namesᵉ-wk (∘ₑ nn)                  = ∘ₑ nn
+  No-namesᵉ-wk fstₑ                     = fstₑ
+  No-namesᵉ-wk sndₑ                     = sndₑ
+  No-namesᵉ-wk (prodrecₑ nn₁ nn₂)       = prodrecₑ nn₁ nn₂
+  No-namesᵉ-wk sucₑ                     = sucₑ
+  No-namesᵉ-wk (natrecₑ nn₁ nn₂ nn₃)    = natrecₑ nn₁ nn₂ nn₃
+  No-namesᵉ-wk (Jₑ nn₁ nn₂ nn₃ nn₄ nn₅) = Jₑ nn₁ nn₂ nn₃ nn₄ nn₅
+  No-namesᵉ-wk (Kₑ nn₁ nn₂ nn₃ nn₄)     = Kₑ nn₁ nn₂ nn₃ nn₄
+  No-namesᵉ-wk ([]-congₑ nn₁ nn₂ nn₃)   = []-congₑ nn₁ nn₂ nn₃
+
+opaque
+
+  -- No-namesˢ is closed under weakening.
+
+  No-namesˢ-wk : No-namesˢ S → No-namesˢ (wkˢ ρ S)
+  No-namesˢ-wk ε             = ε
+  No-namesˢ-wk (e-nn ∙ S-nn) = No-namesᵉ-wk e-nn ∙ No-namesˢ-wk S-nn
+
+opaque
+
+  -- There are no names in erasedHeap n.
+
+  No-namesʰ-erasedHeap : No-namesʰ (erasedHeap n)
+  No-namesʰ-erasedHeap {n = 0}    = ε
+  No-namesʰ-erasedHeap {n = 1+ _} = No-namesʰ-erasedHeap ∙●
+
+opaque
+
+  -- If there are no names in t, then there are no names in initial t.
+
+  No-namesₛ-initial : No-names t → No-namesₛ (initial t)
+  No-namesₛ-initial t-nn = (No-namesʰ-erasedHeap , t-nn) , ε

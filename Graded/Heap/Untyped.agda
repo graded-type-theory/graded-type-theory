@@ -25,6 +25,8 @@ open import Tools.PropositionalEquality
 open import Tools.Relation
 
 open import Definition.Untyped M hiding (head)
+open import Definition.Untyped.Names-below M
+
 open import Graded.Mode
 open import Graded.Modality.Properties.Subtraction semiring-with-meet
 open import Graded.Modality.Nr-instances
@@ -33,7 +35,7 @@ open import Graded.Usage.Erased-matches
 private variable
   n n′ m m′ m″ n″ k : Nat
   Γ : Con Term _
-  t t₁ t₂ u v A B : Term _
+  t t₁ t₂ u v A B C : Term _
   x : Fin _
   p q r : M
   s : Strength
@@ -379,6 +381,53 @@ infix 28 ⦅_⦆
 
 initial : Term k → State k k k
 initial {k} t = ⟨ erasedHeap k , t , id , ε ⟩
+
+------------------------------------------------------------------------
+-- Variants of No-names
+
+-- No-namesʰ holds for a heap if it does not contain any names.
+
+data No-namesʰ : Heap k m → Set a where
+  ε   : No-namesʰ ε
+  _∙_ : No-namesʰ H → No-names t → No-namesʰ (H ∙ (p , t , ρ))
+  _∙● : No-namesʰ H → No-namesʰ (H ∙●)
+
+-- No-namesᵉ holds for an eliminator if it does not contain any names.
+
+data No-namesᵉ : Elim m → Set a where
+  emptyrecₑ : No-names A → No-namesᵉ (emptyrecₑ p A ρ)
+  unitrecₑ  : No-names A → No-names u → No-namesᵉ (unitrecₑ l p q A u ρ)
+  ∘ₑ        : No-names u → No-namesᵉ (∘ₑ p u ρ)
+  fstₑ      : No-namesᵉ {m = m} (fstₑ p)
+  sndₑ      : No-namesᵉ {m = m} (sndₑ p)
+  prodrecₑ  : No-names C → No-names u → No-namesᵉ (prodrecₑ r p q C u ρ)
+  sucₑ      : No-namesᵉ {m = m} sucₑ
+  natrecₑ   : No-names A → No-names t → No-names u →
+              No-namesᵉ (natrecₑ p q r A t u ρ)
+  Jₑ        : No-names A → No-names t → No-names B → No-names u →
+              No-names v → No-namesᵉ (Jₑ p q A t B u v ρ)
+  Kₑ        : No-names A → No-names t → No-names B → No-names u →
+              No-namesᵉ (Kₑ p A t B u ρ)
+  []-congₑ  : No-names A → No-names t → No-names u →
+              No-namesᵉ ([]-congₑ s A t u ρ)
+
+-- No-namesˢ holds for a stack if it does not contain any names.
+
+data No-namesˢ : Stack m → Set a where
+  ε   : No-namesˢ {m = m} ε
+  _∙_ : No-namesᵉ e → No-namesˢ S → No-namesˢ (e ∙ S)
+
+-- No-namesₛ′ holds for a state if there are no names in its heap or
+-- head term.
+
+No-namesₛ′ : State k m n → Set a
+No-namesₛ′ ⟨ H , t , _ , _ ⟩ = No-namesʰ H × No-names t
+
+-- No-namesₛ holds for a state if there are no names in its heap, head
+-- term or stack.
+
+No-namesₛ : State k m n → Set a
+No-namesₛ s@(⟨ _ , _ , _ , S ⟩) = No-namesₛ′ s × No-namesˢ S
 
 ------------------------------------------------------------------------
 -- Values and normal form head terms

@@ -15,10 +15,13 @@ module Graded.Heap.Typed.Properties
 open Type-restrictions TR
 
 open import Definition.Untyped M
+open import Definition.Untyped.Names-below M
 open import Definition.Untyped.Neutral M type-variant
 open import Definition.Untyped.Properties M
+open import Definition.Untyped.Whnf M type-variant
 open import Definition.Typed TR
 open import Definition.Typed.Inversion TR
+open import Definition.Typed.Names-below TR
 open import Definition.Typed.Properties TR
 open import Definition.Typed.Substitution TR
 open import Definition.Typed.Syntactic TR
@@ -33,27 +36,33 @@ open import Graded.Heap.Untyped.Properties type-variant UR
 open import Tools.Empty
 open import Tools.Fin
 open import Tools.Function
-open import Tools.Nat using (1+)
+open import Tools.Nat using (Nat; 1+)
 open import Tools.Product
 open import Tools.Relation
 import Tools.PropositionalEquality as PE
+open import Tools.Sum
 
 private variable
   H : Heap _ _
+  ∇ : DCon (Term 0) _
   Γ Δ : Con Term _
   t u A B : Term _
   l : Universe-level
   e : Elim _
   S : Stack _
   s : State _ _ _
+  n : Nat
   x : Fin _
+  y : Nat ⊎ Fin _
   ρ : Wk _ _
+  σ : Subst _ _
+  V : Set a
 
 opaque
 
   -- Typing of erased heaps
 
-  ⊢erasedHeap : ∀ {n} {Δ : Con Term n} → ⊢ Δ → Δ ⊢ʰ erasedHeap n ∷ Δ
+  ⊢erasedHeap : ∀ {n} {Δ : Con Term n} → ε »⊢ Δ → Δ ⊢ʰ erasedHeap n ∷ Δ
   ⊢erasedHeap {0} {(ε)} ⊢Δ = ε
   ⊢erasedHeap {n = 1+ n} {Δ = Δ ∙ A} (∙ ⊢A) =
     PE.subst (λ x → Δ ∙ x ⊢ʰ _ ∷ Δ ∙ A)
@@ -64,10 +73,10 @@ opaque
 
  -- Typing of the initial state
 
-  ⊢initial : Δ ⊢ t ∷ A → Δ ⊢ₛ initial t ∷ A
+  ⊢initial : ε » Δ ⊢ t ∷ A → Δ ⊢ₛ initial t ∷ A
   ⊢initial {Δ} {t} {A} ⊢t =
     ⊢ₛ (⊢erasedHeap (wfTerm ⊢t))
-      (PE.subst (Δ ⊢_∷ _) (lemma t) ⊢t) ε
+      (PE.subst (_ ⊢_∷ _) (lemma t) ⊢t) ε
     where
     lemma : ∀ {n} (t : Term n) → t PE.≡ wk id t [ erasedHeap _ ]ₕ
     lemma t = PE.sym (PE.trans (erasedHeap-subst (wk id t)) (wk-id t))
@@ -78,8 +87,8 @@ opaque
   -- well-typed under a heap substitution.
 
   ⊢⦅⦆ᵉ : Δ ⨾ H ⊢ᵉ e ⟨ t ⟩∷ A ↝ B
-      → Δ ⊢ t [ H ]ₕ ∷ A
-      → Δ ⊢ ⦅ e ⦆ᵉ t [ H ]ₕ ∷ B
+      → ε » Δ ⊢ t [ H ]ₕ ∷ A
+      → ε » Δ ⊢ ⦅ e ⦆ᵉ t [ H ]ₕ ∷ B
   ⊢⦅⦆ᵉ (∘ₑ ⊢u _) ⊢t =
     ⊢t ∘ⱼ ⊢u
   ⊢⦅⦆ᵉ (fstₑ _) ⊢t =
@@ -109,8 +118,8 @@ opaque
   -- well-typed under a heap substitution.
 
   ⊢⦅⦆ˢ : Δ ⨾ H ⊢ S ⟨ t ⟩∷ A ↝ B
-      → Δ ⊢ t [ H ]ₕ ∷ A
-      → Δ ⊢ ⦅ S ⦆ˢ t [ H ]ₕ ∷ B
+      → ε » Δ ⊢ t [ H ]ₕ ∷ A
+      → ε » Δ ⊢ ⦅ S ⦆ˢ t [ H ]ₕ ∷ B
   ⊢⦅⦆ˢ ε ⊢t = ⊢t
   ⊢⦅⦆ˢ {H} {S = e ∙ S} {t} (⊢e ∙ ⊢S) ⊢t =
     ⊢⦅⦆ˢ ⊢S (⊢⦅⦆ᵉ ⊢e ⊢t)
@@ -119,7 +128,7 @@ opaque
 
   -- Well-typed states are well-typed when translated into terms
 
-  ⊢⦅⦆ : Δ ⊢ₛ s ∷ A → Δ ⊢ ⦅ s ⦆ ∷ A
+  ⊢⦅⦆ : Δ ⊢ₛ s ∷ A → ε » Δ ⊢ ⦅ s ⦆ ∷ A
   ⊢⦅⦆ (⊢ₛ _ ⊢t ⊢S) = ⊢⦅⦆ˢ ⊢S ⊢t
 
 opaque
@@ -128,8 +137,8 @@ opaque
   -- heap substitutions.
 
   ⊢⦅⦆ᵉ-cong : Δ ⨾ H ⊢ᵉ e ⟨ t ⟩∷ A ↝ B
-           → Δ ⊢ t [ H ]ₕ ≡ u [ H ]ₕ ∷ A
-           → Δ ⊢ ⦅ e ⦆ᵉ t [ H ]ₕ ≡ ⦅ e ⦆ᵉ u [ H ]ₕ ∷ B
+           → ε » Δ ⊢ t [ H ]ₕ ≡ u [ H ]ₕ ∷ A
+           → ε » Δ ⊢ ⦅ e ⦆ᵉ t [ H ]ₕ ≡ ⦅ e ⦆ᵉ u [ H ]ₕ ∷ B
   ⊢⦅⦆ᵉ-cong (∘ₑ ⊢u _) t≡u =
     app-cong t≡u (refl ⊢u)
   ⊢⦅⦆ᵉ-cong (fstₑ _) t≡u =
@@ -165,8 +174,8 @@ opaque
   -- heap substitutions.
 
   ⊢⦅⦆ˢ-cong : Δ ⨾ H ⊢ S ⟨ t ⟩∷ A ↝ B
-           → Δ ⊢ t [ H ]ₕ ≡ u [ H ]ₕ ∷ A
-           → Δ ⊢ ⦅ S ⦆ˢ t [ H ]ₕ ≡ ⦅ S ⦆ˢ u [ H ]ₕ ∷ B
+           → ε » Δ ⊢ t [ H ]ₕ ≡ u [ H ]ₕ ∷ A
+           → ε » Δ ⊢ ⦅ S ⦆ˢ t [ H ]ₕ ≡ ⦅ S ⦆ˢ u [ H ]ₕ ∷ B
   ⊢⦅⦆ˢ-cong ε t≡u = t≡u
   ⊢⦅⦆ˢ-cong {H} {S = e ∙ S} (⊢e ∙ ⊢S) t≡u =
     ⊢⦅⦆ˢ-cong ⊢S (⊢⦅⦆ᵉ-cong ⊢e t≡u)
@@ -176,8 +185,8 @@ opaque
   -- Applying terms to eliminators respects reduction
 
   ⊢⦅⦆ᵉ-subst : Δ ⨾ H ⊢ᵉ e ⟨ t ⟩∷ A ↝ B
-            → Δ ⊢ t [ H ]ₕ ⇒ u [ H ]ₕ ∷ A
-            → Δ ⊢ ⦅ e ⦆ᵉ t [ H ]ₕ ⇒ ⦅ e ⦆ᵉ u [ H ]ₕ ∷ B
+            → ε » Δ ⊢ t [ H ]ₕ ⇒ u [ H ]ₕ ∷ A
+            → ε » Δ ⊢ ⦅ e ⦆ᵉ t [ H ]ₕ ⇒ ⦅ e ⦆ᵉ u [ H ]ₕ ∷ B
   ⊢⦅⦆ᵉ-subst (∘ₑ ⊢u _) d =
     app-subst d ⊢u
   ⊢⦅⦆ᵉ-subst (fstₑ _) d =
@@ -206,8 +215,8 @@ opaque
   -- Applying terms to stacks respects reduction
 
   ⊢⦅⦆ˢ-subst : Δ ⨾ H ⊢ S ⟨ t ⟩∷ A ↝ B
-            → Δ ⊢ (t [ H ]ₕ) ⇒ (u [ H ]ₕ) ∷ A
-            → Δ ⊢ ⦅ S ⦆ˢ t [ H ]ₕ ⇒ ⦅ S ⦆ˢ u [ H ]ₕ ∷ B
+            → ε » Δ ⊢ (t [ H ]ₕ) ⇒ (u [ H ]ₕ) ∷ A
+            → ε » Δ ⊢ ⦅ S ⦆ˢ t [ H ]ₕ ⇒ ⦅ S ⦆ˢ u [ H ]ₕ ∷ B
   ⊢⦅⦆ˢ-subst ε d = d
   ⊢⦅⦆ˢ-subst (⊢e ∙ ⊢S) d =
     ⊢⦅⦆ˢ-subst ⊢S (⊢⦅⦆ᵉ-subst ⊢e d)
@@ -217,7 +226,7 @@ opaque
   -- Conversion of the head term in eliminator typing
 
   ⊢ᵉ-convₜ : Δ ⨾ H ⊢ᵉ e ⟨ t ⟩∷ A ↝ B
-           → Δ ⊢ t [ H ]ₕ ≡ u [ H ]ₕ ∷ A
+           → ε » Δ ⊢ t [ H ]ₕ ≡ u [ H ]ₕ ∷ A
            → Δ ⨾ H ⊢ᵉ e ⟨ u ⟩∷ A ↝ B
   ⊢ᵉ-convₜ (∘ₑ {A} {B} ⊢v ⊢B) t≡u =
     ∘ₑ {A = A} {B} ⊢v ⊢B
@@ -242,7 +251,7 @@ opaque
       (⊢A , ⊢t , ⊢v) →
     case PE.subst (_ ⊢ _ ∷_) (PE.sym (subst-id _)) ⊢v of λ
       ⊢v′ →
-    case PE.subst (Δ ⊢ t [ H ]ₕ ≡ u [ H ]ₕ ∷_)
+    case PE.subst (_⊢_≡_∷_ _ _ _)
            (PE.sym (PE.cong₂ (λ A t → Id A t _)
              (wk1-sgSubst _ _) (wk1-sgSubst _ _))) t≡u of λ
       t≡u′ →
@@ -261,7 +270,7 @@ opaque
   -- Conversion of the head term in stack typing
 
   ⊢ˢ-convₜ : Δ ⨾ H ⊢ S ⟨ t ⟩∷ A ↝ B
-          → Δ ⊢ t [ H ]ₕ ≡ u [ H ]ₕ ∷ A
+          → ε » Δ ⊢ t [ H ]ₕ ≡ u [ H ]ₕ ∷ A
           → Δ ⨾ H ⊢ S ⟨ u ⟩∷ A ↝ B
   ⊢ˢ-convₜ ε t≡u = ε
   ⊢ˢ-convₜ (⊢e ∙ ⊢S) t≡u =
@@ -273,8 +282,8 @@ opaque
   -- neutral and the applied eliminator is also neutral.
 
   ⊢whnf⦅⦆ᵉ : Δ ⨾ H ⊢ᵉ e ⟨ u ⟩∷ A ↝ B
-          → Whnf (⦅ e ⦆ᵉ t)
-          → Neutral t × Neutral (⦅ e ⦆ᵉ t)
+          → Whnf ∇ (⦅ e ⦆ᵉ t)
+          → Neutral⁺ ∇ t × Neutral⁺ ∇ (⦅ e ⦆ᵉ t)
   ⊢whnf⦅⦆ᵉ (∘ₑ x x₁) (ne (∘ₙ n)) = n , ∘ₙ n
   ⊢whnf⦅⦆ᵉ (fstₑ _) (ne (fstₙ n)) = n , fstₙ n
   ⊢whnf⦅⦆ᵉ (sndₑ _) (ne (sndₙ n)) = n , sndₙ n
@@ -292,8 +301,8 @@ opaque
   -- If a term applied to a stack is in whnf then the term was in whnf.
 
   ⊢whnf⦅⦆ˢ : Δ ⨾ H ⊢ S ⟨ u ⟩∷ A ↝ B
-          → Whnf (⦅ S ⦆ˢ t)
-          → Whnf t
+          → Whnf ∇ (⦅ S ⦆ˢ t)
+          → Whnf ∇ t
   ⊢whnf⦅⦆ˢ ε w = w
   ⊢whnf⦅⦆ˢ (⊢e ∙ ⊢S) w =
     ne (⊢whnf⦅⦆ᵉ ⊢e (⊢whnf⦅⦆ˢ ⊢S w) .proj₁)
@@ -305,8 +314,8 @@ opaque
   -- was neutral and the applied stack is also neutral.
 
   ⊢whnf⦅⦆ˢ′ : Δ ⨾ H ⊢ e ∙ S ⟨ u ⟩∷ A ↝ B
-           → Whnf (⦅ e ∙ S ⦆ˢ t)
-           → Neutral t
+           → Whnf ∇ (⦅ e ∙ S ⦆ˢ t)
+           → Neutral⁺ ∇ t
   ⊢whnf⦅⦆ˢ′ (⊢e ∙ ⊢S) w =
     ⊢whnf⦅⦆ᵉ ⊢e (⊢whnf⦅⦆ˢ ⊢S w) .proj₁
 
@@ -316,8 +325,8 @@ opaque
   -- gives a term that is neutral at the same variable.
 
   ⊢⦅⦆ᵉ-NeutralAt : Δ ⨾ H ⊢ᵉ e ⟨ t ⟩∷ A ↝ B
-                → NeutralAt x t
-                → NeutralAt x (⦅ e ⦆ᵉ t)
+                → NeutralAt V ∇ y t
+                → NeutralAt V ∇ y (⦅ e ⦆ᵉ t)
   ⊢⦅⦆ᵉ-NeutralAt (∘ₑ _ _) n = ∘ₙ n
   ⊢⦅⦆ᵉ-NeutralAt (fstₑ _) n = fstₙ n
   ⊢⦅⦆ᵉ-NeutralAt (sndₑ _) n = sndₙ n
@@ -336,8 +345,8 @@ opaque
   -- gives a term that is neutral at the same variable.
 
   ⊢⦅⦆ˢ-NeutralAt : Δ ⨾ H ⊢ S ⟨ t ⟩∷ A ↝ B
-                → NeutralAt x t
-                → NeutralAt x (⦅ S ⦆ˢ t)
+                → NeutralAt V ∇ y t
+                → NeutralAt V ∇ y (⦅ S ⦆ˢ t)
   ⊢⦅⦆ˢ-NeutralAt ε n = n
   ⊢⦅⦆ˢ-NeutralAt (⊢e ∙ ⊢S) n =
     ⊢⦅⦆ˢ-NeutralAt ⊢S (⊢⦅⦆ᵉ-NeutralAt ⊢e n)
@@ -347,7 +356,9 @@ opaque
   -- In a constistent context, there is no well-typed stack and head of
   -- matching type containing emptyrec 𝟘
 
-  ⊢ˢemptyrec₀∉S : Consistent Δ → Δ ⨾ H ⊢ S ⟨ t ⟩∷ A ↝ B → Δ ⊢ t [ H ]ₕ ∷ A → emptyrec₀∈ S → ⊥
+  ⊢ˢemptyrec₀∉S :
+    Consistent (ε » Δ) → Δ ⨾ H ⊢ S ⟨ t ⟩∷ A ↝ B → ε » Δ ⊢ t [ H ]ₕ ∷ A →
+    emptyrec₀∈ S → ⊥
   ⊢ˢemptyrec₀∉S _          ε        _  ()
   ⊢ˢemptyrec₀∉S consistent (⊢e ∙ _) ⊢t here =
     case inversion-emptyrecₑ ⊢e of λ {
@@ -360,7 +371,8 @@ opaque
 
   -- A version of the property above for well-typed states
 
-  ⊢emptyrec₀∉S : Consistent Δ → Δ ⊢ₛ ⟨ H , t , ρ , S ⟩ ∷ A → emptyrec₀∈ S → ⊥
+  ⊢emptyrec₀∉S :
+    Consistent (ε » Δ) → Δ ⊢ₛ ⟨ H , t , ρ , S ⟩ ∷ A → emptyrec₀∈ S → ⊥
   ⊢emptyrec₀∉S consistent (⊢ₛ _ ⊢t ⊢S) x = ⊢ˢemptyrec₀∉S consistent ⊢S ⊢t x
 
 opaque
@@ -370,7 +382,7 @@ opaque
 
   hole-type-not-U :
     ⦃ ok : No-equality-reflection or-empty Γ ⦄ →
-    Δ ⨾ H ⊢ᵉ e ⟨ t ⟩∷ A ↝ B → ¬ Γ ⊢ A ≡ U l
+    Δ ⨾ H ⊢ᵉ e ⟨ t ⟩∷ A ↝ B → ¬ ε » Γ ⊢ A ≡ U l
   hole-type-not-U (∘ₑ _ _)         = U≢ΠΣⱼ ∘→ sym
   hole-type-not-U (fstₑ _)         = U≢ΠΣⱼ ∘→ sym
   hole-type-not-U (sndₑ _)         = U≢ΠΣⱼ ∘→ sym
@@ -382,3 +394,32 @@ opaque
   hole-type-not-U (Kₑ _ _ _)       = Id≢U
   hole-type-not-U ([]-congₑ _)     = Id≢U
   hole-type-not-U (conv ⊢e _)      = hole-type-not-U ⊢e
+
+private opaque
+
+  -- A variant of ⊢∷→Names<.
+
+  ⊢∷→Names<′ :
+    {∇ : DCon (Term 0) n} →
+    ∇ » Γ ⊢ wk ρ t [ σ ] ∷ A → Names< n t
+  ⊢∷→Names<′ = Names<-wk→ ∘→ Names<-[]→ ∘→ ⊢∷→Names<
+
+opaque
+
+  -- Well-formed heaps do not contain names.
+
+  ⊢ʰ→No-namesʰ : Δ ⊢ʰ H ∷ Γ → No-namesʰ H
+  ⊢ʰ→No-namesʰ ε =
+    ε
+  ⊢ʰ→No-namesʰ (⊢H ∙ ⊢t) =
+    ⊢ʰ→No-namesʰ ⊢H ∙ ⊢∷→Names<′ ⊢t
+  ⊢ʰ→No-namesʰ (⊢H ∙● ⊢A) =
+    ⊢ʰ→No-namesʰ ⊢H ∙●
+
+opaque
+
+  -- If Δ ⊢ₛ s ∷ A holds, then No-namesₛ′ s holds.
+
+  ⊢ₛ→No-namesₛ′ : Δ ⊢ₛ s ∷ A → No-namesₛ′ s
+  ⊢ₛ→No-namesₛ′ (⊢ₛ ⊢H ⊢t _) =
+    ⊢ʰ→No-namesʰ ⊢H , ⊢∷→Names<′ ⊢t

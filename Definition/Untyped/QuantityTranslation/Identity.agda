@@ -21,7 +21,9 @@ private variable
   k  : Kind _
   t  : Term _
   ts : GenTs _ _ _
-  Γ  : Con Term _
+  ∇  : DCon (Term 0) _
+  Δ  : Con Term _
+  Γ  : Cons _ _
   σ  : Subst _ _
   x  : Fin _
 
@@ -39,6 +41,7 @@ opaque
   -- The function tr-Kind is pointwise equal to an identity function.
 
   tr-Kind-id : tr-Kind k ≡ k
+  tr-Kind-id {k = Defnkind _}        = refl
   tr-Kind-id {k = Ukind _}           = refl
   tr-Kind-id {k = Binderkind b _ _}  = cong (flip (Binderkind _) _) $
                                        tr-BinderMode-id b
@@ -88,9 +91,25 @@ opaque
 
   -- The function tr-Con is pointwise equal to an identity function.
 
-  tr-Con-id : tr-Con Γ ≡ Γ
-  tr-Con-id {Γ = ε}     = refl
-  tr-Con-id {Γ = _ ∙ _} = cong₂ _∙_ tr-Con-id tr-Term-id
+  tr-Con-id : tr-Con Δ ≡ Δ
+  tr-Con-id {Δ = ε}     = refl
+  tr-Con-id {Δ = _ ∙ _} = cong₂ _∙_ tr-Con-id tr-Term-id
+
+opaque
+
+  -- The function tr-DCon is pointwise equal to an identity function.
+
+  tr-DCon-id : tr-DCon ∇ ≡ ∇
+  tr-DCon-id {∇ = ε}                 = refl
+  tr-DCon-id {∇ = _ ∙⟨ _ ⟩[ _ ∷ _ ]} =
+    cong₃ _∙⟨ _ ⟩[_∷_] tr-DCon-id tr-Term-id tr-Term-id
+
+opaque
+
+  -- The function tr-Cons is pointwise equal to an identity function.
+
+  tr-Cons-id : tr-Cons Γ ≡ Γ
+  tr-Cons-id = cong₂ _»_ tr-DCon-id tr-Con-id
 
 opaque
 

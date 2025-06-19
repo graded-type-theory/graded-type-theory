@@ -20,9 +20,10 @@ module Graded.Erasure.Consequences.Non-interference
   (UR : Usage-restrictions 𝕄)
   ⦃ 𝟘-well-behaved : Has-well-behaved-zero M semiring-with-meet ⦄
   ⦃ eqrel : EqRelSet TR ⦄
-  {k : Nat}
+  {kᵈ k : Nat}
+  {∇ : DCon (Term 0) kᵈ}
   {Δ : Con Term k}
-  (FA : Fundamental-assumptions TR UR Δ)
+  (FA : Fundamental-assumptions TR UR (glassify ∇ » Δ))
   {str : Strictness}
   where
 
@@ -42,19 +43,15 @@ open import Graded.Mode 𝕄
 
 open import Graded.Erasure.Extraction 𝕄
 open import Graded.Erasure.LogicalRelation.Assumptions TR
+open import Graded.Erasure.LogicalRelation.Fundamental TR UR
 
 private
 
   as : Assumptions
-  as = record
-    { ⊢Δ  = well-formed
-    ; inc = Fundamental-assumptions.inc FA
-    ; str = str
-    }
+  as = assumptions well-formed str
 
 open import Graded.Erasure.LogicalRelation as
 open import Graded.Erasure.LogicalRelation.Hidden as
-open import Graded.Erasure.LogicalRelation.Fundamental TR UR
 
 open Fundamental FA
 
@@ -71,21 +68,21 @@ private variable
 -- Note that some assumptions are given as module parameters.
 
 non-interference :
-  Γ ⊢ t ∷ ℕ → γ ▸[ 𝟙ᵐ ] t →
+  glassify ∇ » Γ ⊢ t ∷ ℕ → γ ▸[ 𝟙ᵐ ] t →
   ∀ {σ σ′} →
-  Δ ⊢ˢʷ σ ∷ Γ →
+  glassify ∇ » Δ ⊢ˢʷ σ ∷ Γ →
   σ ® σ′ ∷[ 𝟙ᵐ ] Γ ◂ γ →
   t [ σ ] ® erase str t T.[ σ′ ] ∷ℕ
 non-interference {Γ} {t} {γ} ⊢t ▸t {σ} {σ′} ⊢σ σ®σ′ =
-                                                   $⟨ fundamental ⊢t ▸t ⟩
+                                                                $⟨ fundamental ⊢t ▸t ⟩
 
-  γ ▸ Γ ⊩ʳ t ∷[ 𝟙ᵐ ] ℕ                             ⇔⟨ ▸⊩ʳ∷⇔ ⟩→
+  γ ▸ Γ ⊩ʳ t ∷[ 𝟙ᵐ ] ℕ                                          ⇔⟨ ▸⊩ʳ∷⇔ ⟩→
 
-  (∀ {σ σ′} → Δ ⊩ˢ σ ∷ Γ → σ ® σ′ ∷[ 𝟙ᵐ ] Γ ◂ γ →
-   t [ σ ] ® erase str t T.[ σ′ ] ∷ ℕ ◂ 𝟙)         →⟨ (λ hyp → hyp (F.fundamental-⊩ˢ∷ (wfTerm ⊢t) ⊢σ) σ®σ′) ⟩
+  (∀ {σ σ′} → glassify ∇ » Δ ⊩ˢ σ ∷ Γ → σ ® σ′ ∷[ 𝟙ᵐ ] Γ ◂ γ →
+   t [ σ ] ® erase str t T.[ σ′ ] ∷ ℕ ◂ 𝟙)                      →⟨ (λ hyp → hyp (F.fundamental-⊩ˢ∷ (wfTerm ⊢t) ⊢σ) σ®σ′) ⟩
 
-  t [ σ ] ® erase str t T.[ σ′ ] ∷ ℕ ◂ 𝟙           →⟨ ®∷→®∷◂ω non-trivial ⟩
+  t [ σ ] ® erase str t T.[ σ′ ] ∷ ℕ ◂ 𝟙                        →⟨ ®∷→®∷◂ω non-trivial ⟩
 
-  t [ σ ] ® erase str t T.[ σ′ ] ∷ ℕ               ⇔⟨ ®∷ℕ⇔ ⟩→
+  t [ σ ] ® erase str t T.[ σ′ ] ∷ ℕ                            ⇔⟨ ®∷ℕ⇔ ⟩→
 
-  t [ σ ] ® erase str t T.[ σ′ ] ∷ℕ                □
+  t [ σ ] ® erase str t T.[ σ′ ] ∷ℕ                             □

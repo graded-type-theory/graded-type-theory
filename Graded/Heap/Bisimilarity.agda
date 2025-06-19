@@ -19,9 +19,11 @@ open Usage-restrictions UR
 
 open import Tools.Empty
 open import Tools.Function
+open import Tools.Level
 open import Tools.Product
 open import Tools.PropositionalEquality as PE
 open import Tools.Sum
+open import Tools.Unit
 
 open import Graded.Heap.Untyped type-variant UR
 open import Graded.Heap.Untyped.Properties type-variant UR
@@ -39,7 +41,6 @@ open import Graded.Heap.Typed.Reduction UR TR
 open import Definition.Untyped M
 open import Definition.Untyped.Inversion M
 open import Definition.Untyped.Neutral M type-variant
-open import Definition.Untyped.Properties.Neutral M type-variant
 
 open import Definition.Typed TR
 open import Definition.Typed.Properties TR hiding (_⇨*_)
@@ -177,10 +178,11 @@ module _ (As : Assumptions) where
 
     -- Normalization for the tracking semantics
 
-    ▸normalize : ∀ {k m n} (s : State k m n) → ▸ s
-               → ∃₂ λ n′ (s′ : State _ _ n′) → Normal s′ × s ⇾ₑ* s′
-    ▸normalize s@record{} ▸s =
-      let (_ , record{} , n , d) = normalizeₛ s
+    ▸normalize :
+      ∀ {k m n} (s : State k m n) → No-namesₛ′ s → ▸ s →
+      ∃₂ λ n′ (s′ : State _ _ n′) → Normal s′ × s ⇾ₑ* s′
+    ▸normalize s@record{} s-nn ▸s =
+      let (_ , record{} , n , d) = normalizeₛ s s-nn
           _ , d′ , H~H′ = ⇢ₑ*→⇾ₑ* ~ʰ-refl ▸s d
       in  _ , _ , ~ʰ-Normal H~H′ n , d′
 
@@ -200,7 +202,7 @@ module _
 
   opaque
 
-    ⇾→⊢⇒ : Δ ⊢ₛ s ∷ A → s ⇾ s′ → Δ ⊢ ⦅ s ⦆ ⇒* ⦅ s′ ⦆ ∷ A
+    ⇾→⊢⇒ : Δ ⊢ₛ s ∷ A → s ⇾ s′ → ε » Δ ⊢ ⦅ s ⦆ ⇒* ⦅ s′ ⦆ ∷ A
     ⇾→⊢⇒ {s} ⊢s (⇾ₑ d) =
       subst (_ ⊢ _ ⇒*_∷ _) (⇾ₑ-⦅⦆-≡ d) (id (⊢⦅⦆ {s = s} ⊢s))
     ⇾→⊢⇒ ⊢s (⇒ᵥ d) =
@@ -208,7 +210,7 @@ module _
 
   opaque
 
-    ⇾*→⊢⇒* : Δ ⊢ₛ s ∷ A → s ⇾* s′ → Δ ⊢ ⦅ s ⦆ ⇒* ⦅ s′ ⦆ ∷ A
+    ⇾*→⊢⇒* : Δ ⊢ₛ s ∷ A → s ⇾* s′ → ε » Δ ⊢ ⦅ s ⦆ ⇒* ⦅ s′ ⦆ ∷ A
     ⇾*→⊢⇒* {s} ⊢s id = id (⊢⦅⦆ {s = s} ⊢s)
     ⇾*→⊢⇒* {s = record{}} ⊢s (_⇨_ {s₂ = record{}} x d) =
       ⇾→⊢⇒ ⊢s x ⇨∷* ⇾*→⊢⇒* (⊢ₛ-⇾ ⊢s x) d
@@ -216,7 +218,7 @@ module _
 
   opaque
 
-    ⊢⇒→⇒ᵥ : Δ ⊢ ⦅ s ⦆ ⇒ u ∷ A
+    ⊢⇒→⇒ᵥ : ε » Δ ⊢ ⦅ s ⦆ ⇒ u ∷ A
           → Normal s
           → Δ ⊢ₛ s ∷ B
           → ∃₃ λ m n (s′ : State _ m n) → s ⇒ᵥ s′ × u PE.≡ ⦅ s′ ⦆
@@ -231,7 +233,8 @@ module _
                   (_ , _ , _ , refl , refl , refl , refl) →
                 _ , _ , _ , unitrec-ηₕ η , lemma η d}
         where
-        lemma : Unitʷ-η → Δ ⊢ (unitrec l p q A u v) ⇒ w ∷ B → w PE.≡ v
+        lemma :
+          Unitʷ-η → ε » Δ ⊢ (unitrec l p q A u v) ⇒ w ∷ B → w PE.≡ v
         lemma η (conv d x) = lemma η d
         lemma η (unitrec-subst _ _ _ _ no-η) = ⊥-elim (no-η η)
         lemma η (unitrec-β _ _ _ no-η) = ⊥-elim (no-η η)
@@ -242,8 +245,8 @@ module _
       _ , _ , _ , d′ , whrDetTerm d (⇒ᵥ→⇒ ⊢s d′)
     ⊢⇒→⇒ᵥ d (var d′) ⊢s =
       let _ , _ , _ , _ , ⊢S = ⊢ₛ-inv ⊢s
-      in  ⊥-elim (neRedTerm d (NeutralAt→Neutral
-            (toSubstₕ-NeutralAt d′ (⊢⦅⦆ˢ-NeutralAt ⊢S var))))
+      in  ⊥-elim $ neRedTerm {V = Lift _ ⊤} d $ NeutralAt→Neutral $
+          toSubstₕ-NeutralAt d′ $ ⊢⦅⦆ˢ-NeutralAt ⊢S (var _)
 
 module _ (As : Assumptions) where
 
@@ -253,12 +256,12 @@ module _ (As : Assumptions) where
 
     ⊢⇒→⇾* :
       ⦃ ok : No-equality-reflection or-empty Δ ⦄ →
-      Δ ⊢ ⦅ s ⦆ ⇒ u ∷ A →
+      ε » Δ ⊢ ⦅ s ⦆ ⇒ u ∷ A →
       Δ ⊢ₛ s ∷ B →
       ▸ s →
       ∃₃ λ m n (s′ : State _ m n) → s ⇾* s′ × u PE.≡ ⦅ s′ ⦆
     ⊢⇒→⇾* {s} d ⊢s ▸s =
-      let _ , s′ , n , d′ = ▸normalize As s ▸s
+      let _ , s′ , n , d′ = ▸normalize As s (⊢ₛ→No-namesₛ′ ⊢s) ▸s
           d″ = PE.subst (_ ⊢_⇒ _ ∷ _) (⇾ₑ*-⦅⦆-≡ d′) d
           ⊢s′ = ⊢ₛ-⇾ₑ* ⊢s d′
           _ , _ , s″ , d‴ , u≡ = ⊢⇒→⇒ᵥ d″ n ⊢s′
@@ -268,7 +271,7 @@ module _ (As : Assumptions) where
 
     ⊢⇒*→⇾* :
       ⦃ ok : No-equality-reflection or-empty Δ ⦄ →
-      Δ ⊢ ⦅ s ⦆ ⇒* u ∷ A →
+      ε » Δ ⊢ ⦅ s ⦆ ⇒* u ∷ A →
       Δ ⊢ₛ s ∷ B →
       ▸ s →
       ∃₃ λ m n (s′ : State _ m n) → s ⇾* s′ × u PE.≡ ⦅ s′ ⦆

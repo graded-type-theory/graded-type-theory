@@ -113,6 +113,8 @@ module Is-morphism
     -- Preservation of _▸[_]_.
 
     tr-▸ : γ U₁.▸[ m ] t → tr-Conₘ γ U₂.▸[ tr-Mode m ] tr-Term t
+    tr-▸ defn =
+      sub defn tr-Conₘ-𝟘ᶜ-≤ᶜ
     tr-▸ Uₘ =
       sub Uₘ tr-Conₘ-𝟘ᶜ-≤ᶜ
     tr-▸ ℕₘ =
@@ -718,6 +720,8 @@ module Is-order-embedding
       lemma {m₁} m₁≳m₂ = λ where
         (var _) varᵤ →
           RS₁.varᵤ
+        (defn _) defnᵤ →
+          RS₁.defnᵤ
         Empty Emptyᵤ →
           RS₁.Emptyᵤ
         (emptyrec _ _ _) (emptyrecᵤ ok A t) →
@@ -874,13 +878,15 @@ module Is-order-embedding
     tr-▸⁻¹′ :
       ∀ t → γ′ U₂.▸[ m′ ] tr-Term t →
       m′ ≡ tr-Mode m → tr-Conₘ γ C₂.≤ᶜ γ′ → γ U₁.▸[ m ] t
-    tr-▸⁻¹′ {γ = γ} (U _) Uₘ refl ≤𝟘 = sub
-      Uₘ
+    tr-▸⁻¹′ {γ} (defn _) defn refl ≤𝟘 = sub
+      defn
       (begin
          γ      ≤⟨ tr-Conₘ-≤ᶜ-𝟘ᶜ-→-≤ᶜ-𝟘ᶜ ≤𝟘 ⟩
          C₁.𝟘ᶜ  ∎)
       where
       open CR₁
+    tr-▸⁻¹′ (U _) Uₘ refl ≤𝟘 =
+      sub Uₘ (tr-Conₘ-≤ᶜ-𝟘ᶜ-→-≤ᶜ-𝟘ᶜ ≤𝟘)
 
     tr-▸⁻¹′ Unit! Unitₘ refl ≤𝟘 =
       sub Unitₘ (tr-Conₘ-≤ᶜ-𝟘ᶜ-→-≤ᶜ-𝟘ᶜ ≤𝟘)

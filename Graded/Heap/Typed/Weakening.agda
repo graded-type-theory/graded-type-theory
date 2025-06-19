@@ -68,7 +68,7 @@ opaque
   wk-⊢ᵉ {ρ} {H} {Δ} {t} [ρ] (∘ₑ {ρ = ρ′} {u} {A} {B} {p} ⊢u ⊢B) =
     case wk-liftₕ 0 [ρ] u of λ
       u≡u′ →
-    case PE.subst (Δ ⊢_∷ _) u≡u′ ⊢u of λ
+    case PE.subst (_ ⊢_∷ _) u≡u′ ⊢u of λ
       ⊢u′ →
     subst (Δ ⨾ H ⊢ᵉ ∘ₑ p u (ρ • ρ′) ⟨ wk ρ t ⟩∷ _ ↝_)
       (cong (B [_]₀) (PE.sym u≡u′)) (∘ₑ ⊢u′ ⊢B)
@@ -83,9 +83,10 @@ opaque
       A≡A′ →
     case wk-liftₕ 2 [ρ] u of λ
       u≡u′ →
-    case PE.subst₂ (Δ ∙ _ ∙ _ ⊢_∷_) u≡u′ (cong (_[ _ ]↑²) A≡A′) ⊢u of λ
+    case PE.subst₂ (_ ⊢_∷_) u≡u′ (cong (_[ _ ]↑²) A≡A′)
+           ⊢u of λ
       ⊢u′ →
-    case PE.subst (λ x → Δ ∙ _ ⊢ x) A≡A′ ⊢A of λ
+    case PE.subst (_⊢_ _) A≡A′ ⊢A of λ
       ⊢A′ →
     subst (Δ ⨾ H ⊢ᵉ prodrecₑ r p q A u (ρ • ρ′) ⟨ wk ρ t ⟩∷ _ ↝_)
       (PE.sym (cong₂ _[_]₀ A≡A′ (wk-[]ₕ [ρ] t))) (prodrecₑ ⊢u′ ⊢A′)
@@ -98,7 +99,8 @@ opaque
       A≡A′ →
     case subst₂ (λ x y → _ ⊢ x ∷ y [ zero ]₀) z≡z′ A≡A′ ⊢z of λ
       ⊢z′ →
-    case subst₂ (λ x y → _ ∙ ℕ ∙ x ⊢ y ∷ x [ suc (var x1) ]↑²) A≡A′ s≡s′ ⊢s of λ
+    case subst₂ (λ x y → _ » _ ∙ _ ∙ x ⊢ y ∷ x [ suc (var x1) ]↑²)
+           A≡A′ s≡s′ ⊢s of λ
       ⊢s′ →
     subst₂ (λ x y → _ ⨾ H ⊢ᵉ _ ⟨ _ ⟩∷ ℕ ↝ x [ y ]₀)
       (PE.sym A≡A′) (PE.sym (wk-[]ₕ [ρ] t))
@@ -135,7 +137,7 @@ opaque
       B₊≡B′₊ →
     case subst₂ (_ ⊢_∷_) u≡u′ B₊≡B′₊ ⊢u of λ
       ⊢u′ →
-    case subst₃ (λ x y z → (_ ∙ x ∙ Id (wk1 x) (wk1 y) (var y0)) ⊢ z)
+    case subst₃ (λ x y z → _ » _ ∙ x ∙ Id (wk1 x) (wk1 y) _ ⊢ z)
            A≡A′ t≡t′ B≡B′ ⊢B of λ
       ⊢B′ →
     PE.subst₂ (Δ ⨾ H ⊢ᵉ Jₑ p q A t B u v (ρ • ρ′) ⟨ wk ρ w ⟩∷_↝_)
@@ -151,7 +153,7 @@ opaque
       Id≡Id′ →
     case subst₂ (_ ⊢_∷_) u≡u′ (cong (_[ rfl ]₀) B≡B′) ⊢u of λ
       ⊢u′ →
-    case subst₂ (λ x y → Δ ∙ x ⊢ y) Id≡Id′ B≡B′ ⊢B of λ
+    case subst₂ (λ x y → ε » Δ ∙ x ⊢ y) Id≡Id′ B≡B′ ⊢B of λ
       ⊢B′ →
     subst₂ (Δ ⨾ H ⊢ᵉ Kₑ p A t B u (ρ • ρ′) ⟨ wk ρ v ⟩∷_↝_)
       (PE.sym Id≡Id′) (PE.sym (cong₂ _[_]₀ B≡B′ (wk-[]ₕ [ρ] v)))

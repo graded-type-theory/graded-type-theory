@@ -4,6 +4,7 @@
 
 import Definition.Typed
 open import Definition.Typed.Restrictions
+import Definition.Untyped
 open import Graded.Erasure.LogicalRelation.Assumptions
 open import Graded.Modality
 import Graded.Mode
@@ -11,6 +12,7 @@ open import Graded.Usage.Restrictions
 
 module Graded.Erasure.LogicalRelation.Fundamental.Empty
   {a} {M : Set a}
+  (open Definition.Untyped M)
   {𝕄 : Modality M}
   (open Graded.Mode 𝕄)
   (open Modality 𝕄)
@@ -20,7 +22,7 @@ module Graded.Erasure.LogicalRelation.Fundamental.Empty
   (open Usage-restrictions UR)
   (as : Assumptions R)
   (open Assumptions as)
-  (consistent : Emptyrec-allowed 𝟙ᵐ 𝟘 → Consistent Δ)
+  (consistent : Emptyrec-allowed 𝟙ᵐ 𝟘 → Consistent (ts » Δ))
   ⦃ 𝟘-well-behaved : Has-well-behaved-zero M semiring-with-meet ⦄
   where
 
@@ -32,7 +34,6 @@ open import Graded.Erasure.Extraction 𝕄
 open import Definition.LogicalRelation.Substitution R
 open import Definition.Typed.Properties R
 open import Definition.Typed.Substitution R
-open import Definition.Untyped M
 
 open import Graded.Context 𝕄
 open import Graded.Context.Properties 𝕄
@@ -61,7 +62,7 @@ opaque
 
   -- Validity of Empty.
 
-  Emptyʳ : γ ▸ Γ ⊩ʳ Empty ∷[ m ] U 0
+  Emptyʳ : γ ▸ Γ ⊩ʳ Empty ∷[ m ∣ n ] U 0
   Emptyʳ =
     ▸⊩ʳ∷⇔ .proj₂ λ _ _ →
     ®∷→®∷◂ (®∷U⇔ .proj₂ (_ , ≤ᵘ-refl , Uᵣ (λ { refl → T.refl })))
@@ -72,12 +73,12 @@ opaque
 
   emptyrecʳ :
     Emptyrec-allowed m p →
-    Γ ⊢ t ∷ Empty →
-    γ ▸ Γ ⊩ʳ t ∷[ m ᵐ· p ] Empty →
-    p ·ᶜ γ ▸ Γ ⊩ʳ emptyrec p A t ∷[ m ] A
+    ts » Γ ⊢ t ∷ Empty →
+    γ ▸ Γ ⊩ʳ t ∷[ m ᵐ· p ∣ n ] Empty →
+    p ·ᶜ γ ▸ Γ ⊩ʳ emptyrec p A t ∷[ m ∣ n ] A
   emptyrecʳ {m = 𝟘ᵐ} _ _ _ =
     ▸⊩ʳ∷[𝟘ᵐ]
-  emptyrecʳ {m = 𝟙ᵐ} {p} {Γ} {t} {γ} ok ⊢t ⊩ʳt =
+  emptyrecʳ {m = 𝟙ᵐ} {p} {Γ} {t} {γ} {n} ok ⊢t ⊩ʳt =
     ▸⊩ʳ∷⇔ .proj₂ λ {σ = σ} {σ′ = σ′} ⊩σ σ®σ′ →
     case is-𝟘? p of λ where
       (yes refl) →
@@ -87,7 +88,7 @@ opaque
           𝟙ᵐ≡⌞p⌟ →
         case                                                  $⟨ σ®σ′ ⟩
 
-          σ ® σ′ ∷[ 𝟙ᵐ ] Γ ◂ p ·ᶜ γ                           →⟨ (subsumption-®∷[]◂ λ x →
+          σ ® σ′ ∷[ 𝟙ᵐ ∣ n ] Γ ◂ p ·ᶜ γ                       →⟨ (subsumption-®∷[∣]◂ λ x →
 
               (p ·ᶜ γ) ⟨ x ⟩ ≡ 𝟘                                    →⟨ ·ᶜ-zero-product-⟨⟩ γ ⟩
               p ≡ 𝟘 ⊎ γ ⟨ x ⟩ ≡ 𝟘                                   →⟨ (λ { (inj₁ p≡𝟘)    → ⊥-elim (p≢𝟘 p≡𝟘)
@@ -95,9 +96,9 @@ opaque
                                                                           }) ⟩
               γ ⟨ x ⟩ ≡ 𝟘                                           □) ⟩
 
-          σ ® σ′ ∷[ 𝟙ᵐ ] Γ ◂ γ                                ≡⟨ cong₃ (_®_∷[_]_◂_ _ _) 𝟙ᵐ≡⌞p⌟ refl refl ⟩→
+          σ ® σ′ ∷[ 𝟙ᵐ ∣ n ] Γ ◂ γ                            ≡⟨ cong₄ (_®_∷[_∣_]_◂_ _ _) 𝟙ᵐ≡⌞p⌟ refl refl refl ⟩→
 
-          σ ® σ′ ∷[ ⌞ p ⌟ ] Γ ◂ γ                             →⟨ ▸⊩ʳ∷⇔ .proj₁ ⊩ʳt ⊩σ ⟩
+          σ ® σ′ ∷[ ⌞ p ⌟ ∣ n ] Γ ◂ γ                         →⟨ ▸⊩ʳ∷⇔ .proj₁ ⊩ʳt ⊩σ ⟩
 
           t [ σ ] ® erase str t T.[ σ′ ] ∷ Empty ◂ ⌜ ⌞ p ⌟ ⌝  →⟨ ®∷→®∷◂ω (non-trivial ∘→ PE.trans (PE.cong ⌜_⌝ 𝟙ᵐ≡⌞p⌟)) ⟩
 

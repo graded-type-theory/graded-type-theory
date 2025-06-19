@@ -26,16 +26,17 @@ import Definition.LogicalRelation.Properties.Reduction R as R
 open import Definition.LogicalRelation.Weakening.Restricted R
 
 open import Definition.Untyped M as U
-open import Definition.Untyped.Neutral M type-variant
+open import Definition.Untyped.Whnf M type-variant
 open import Definition.Typed R
 open import Definition.Typed.Properties R
 open import Definition.Typed.Syntactic R
+open import Definition.Typed.Weakening.Definition R
 
 open import Definition.Untyped.Properties M as UP using (wk-id ; wk-lift-id)
 
 open import Graded.Erasure.Extraction.Properties 𝕄
 open import Graded.Erasure.LogicalRelation as
-open import Graded.Erasure.Target as T hiding (_⇒_; _⇒*_)
+open import Graded.Erasure.Target as T hiding (_⊢_⇒_; _⊢_⇒*_)
 open import Graded.Erasure.Target.Properties as TP
 open import Graded.Erasure.Target.Reasoning
 
@@ -54,12 +55,12 @@ private
     Γ : U.Con U.Term n
 
 -- Logical relation for erasure is preserved under a single reduction backwards on the source language term
--- If t′ ® v ∷ A and Δ ⊢ t ⇒ t′ ∷ A then t ® v ∷ A
 --
 -- Proof by induction on t′ ® v ∷ A
 
-sourceRedSubstTerm : ∀ {l} ([A] : Δ ⊩⟨ l ⟩ A) → t′ ®⟨ l ⟩ v ∷ A / [A]
-                   → Δ ⊢ t ⇒ t′ ∷ A → t ®⟨ l ⟩ v ∷ A / [A]
+sourceRedSubstTerm :
+  ∀ {l} ([A] : ts » Δ ⊩⟨ l ⟩ A) → t′ ®⟨ l ⟩ v ∷ A / [A] →
+  ts » Δ ⊢ t ⇒ t′ ∷ A → t ®⟨ l ⟩ v ∷ A / [A]
 sourceRedSubstTerm (Uᵣ _) (Uᵣ ⇒*↯) _ =
   Uᵣ ⇒*↯
 sourceRedSubstTerm (ℕᵣ D) (zeroᵣ t′⇒zero v⇒v′) t⇒t′ =
@@ -72,18 +73,22 @@ sourceRedSubstTerm (Bᵣ′ (BΠ p q) F G D A≡A [F] [G] G-ext _) t®v′ t⇒t
   with is-𝟘? p
 ... | yes PE.refl = t®v′ .proj₁ , λ {a = a} [a] →
   let t®v = t®v′ .proj₂ [a]
-      ⊢a = escapeTerm ([F] (id ⊢Δ)) [a]
-      ⊢a′ = PE.subst (Δ ⊢ a ∷_) (UP.wk-id F) ⊢a
+      ⊢a = escapeTerm ([F] id (id ⊢Δ)) [a]
+      ⊢a′ = PE.subst (_ » Δ ⊢ a ∷_) (UP.wk-id F) ⊢a
       t∘a⇒t′∘w′ = app-subst (conv t⇒t′ (subset* D)) ⊢a′
-      t∘a⇒t′∘w = PE.subst (_⊢_⇒_∷_ Δ _ _) (PE.cong (U._[ a ]₀) (PE.sym (UP.wk-lift-id G))) t∘a⇒t′∘w′
-  in  sourceRedSubstTerm ([G] (id ⊢Δ) [a]) t®v t∘a⇒t′∘w
+      t∘a⇒t′∘w = PE.subst (_⊢_⇒_∷_ _ _ _)
+                   (PE.cong (U._[ a ]₀) (PE.sym (UP.wk-lift-id G)))
+                   t∘a⇒t′∘w′
+  in  sourceRedSubstTerm ([G] id (id ⊢Δ) [a]) t®v t∘a⇒t′∘w
 ... | no p≢𝟘 = t®v′ .proj₁ , λ {a = a} [a] a®w →
   let t®v = t®v′ .proj₂ [a] a®w
-      ⊢a = escapeTerm ([F] (id ⊢Δ)) [a]
-      ⊢a′ = PE.subst (Δ ⊢ a ∷_) (UP.wk-id F) ⊢a
+      ⊢a = escapeTerm ([F] id (id ⊢Δ)) [a]
+      ⊢a′ = PE.subst (_ » Δ ⊢ a ∷_) (UP.wk-id F) ⊢a
       t∘a⇒t′∘w′ = app-subst (conv t⇒t′ (subset* D)) ⊢a′
-      t∘a⇒t′∘w = PE.subst (Δ ⊢ _ ⇒ _ ∷_) (PE.cong (U._[ a ]₀) (PE.sym (UP.wk-lift-id G))) t∘a⇒t′∘w′
-  in  sourceRedSubstTerm ([G] (id ⊢Δ) [a]) t®v t∘a⇒t′∘w
+      t∘a⇒t′∘w = PE.subst (_ » Δ ⊢ _ ⇒ _ ∷_)
+                   (PE.cong (U._[ a ]₀) (PE.sym (UP.wk-lift-id G)))
+                   t∘a⇒t′∘w′
+  in  sourceRedSubstTerm ([G] id (id ⊢Δ) [a]) t®v t∘a⇒t′∘w
 sourceRedSubstTerm
   (Bᵣ′ BΣ! F G D A≡A [F] [G] G-ext _)
   (t₁ , t₂ , t′⇒p , [t₁] , v₂ , t₂®v₂ , extra) t⇒t′ =
@@ -97,24 +102,24 @@ sourceRedSubstTerm (Emptyᵣ _)    ()
 
 
 -- Logical relation for erasure is preserved under reduction closure backwards on the source language term
--- If t′ ® v ∷ A and Δ ⊢ t ⇒* t′ ∷ A then t ® v ∷ A
 --
 -- Proof by induction on t′ ® v ∷ A
 
-sourceRedSubstTerm* : ∀ {l} ([A] : Δ ⊩⟨ l ⟩ A) → t′ ®⟨ l ⟩ v ∷ A / [A]
-                    → Δ ⊢ t ⇒* t′ ∷ A → t ®⟨ l ⟩ v ∷ A / [A]
+sourceRedSubstTerm* :
+  ∀ {l} ([A] : ts » Δ ⊩⟨ l ⟩ A) → t′ ®⟨ l ⟩ v ∷ A / [A] →
+  ts » Δ ⊢ t ⇒* t′ ∷ A → t ®⟨ l ⟩ v ∷ A / [A]
 sourceRedSubstTerm* [A] t′®v (id x) = t′®v
 sourceRedSubstTerm* [A] t′®v (x ⇨ t⇒t′) =
   sourceRedSubstTerm [A] (sourceRedSubstTerm* [A] t′®v t⇒t′) x
 
 
 -- Logical relation for erasure is preserved under a single reduction backwards on the target language term
--- If t ® v′ ∷ A and v ⇒ v′ then t ® v ∷ A
 --
 -- Proof by induction on t ® v′ ∷ A
 
-targetRedSubstTerm : ∀ {l} ([A] : Δ ⊩⟨ l ⟩ A) → t ®⟨ l ⟩ v′ ∷ A / [A]
-                   → v T.⇒ v′ → t ®⟨ l ⟩ v ∷ A / [A]
+targetRedSubstTerm :
+  ∀ {l} ([A] : ts » Δ ⊩⟨ l ⟩ A) → t ®⟨ l ⟩ v′ ∷ A / [A] →
+  vs T.⊢ v ⇒ v′ → t ®⟨ l ⟩ v ∷ A / [A]
 targetRedSubstTerm (Uᵣ _) (Uᵣ ⇒*↯) v⇒v′ = Uᵣ (T.trans v⇒v′ ∘→ ⇒*↯)
 targetRedSubstTerm (ℕᵣ x) (zeroᵣ t′⇒zero v′⇒zero) v⇒v′ = zeroᵣ t′⇒zero (trans v⇒v′ v′⇒zero)
 targetRedSubstTerm (ℕᵣ _) (sucᵣ t′⇒suc v′⇒suc num t®v) v⇒v′ =
@@ -125,19 +130,19 @@ targetRedSubstTerm
   with is-𝟘? p | Σ.map idᶠ (T.trans v⇒v′) ∘→ v′⇒*lam
 ... | yes PE.refl | v⇒*lam = v⇒*lam , λ {a = a} [a] →
   let t®v = t®v′ [a]
-      [G[a]] = [G] (id ⊢Δ) [a]
+      [G[a]] = [G] id (id ⊢Δ) [a]
   in  targetRedSubstTerm [G[a]] t®v (app-𝟘′-subst v⇒v′)
 ... | no p≢𝟘 | v⇒*lam = v⇒*lam , λ {a = a} [a] a®w →
   let t®v = t®v′ [a] a®w
       v∘w⇒v′∘w′ = T.app-subst v⇒v′
-      [G[a]] = [G] (id ⊢Δ) [a]
+      [G[a]] = [G] id (id ⊢Δ) [a]
   in  targetRedSubstTerm [G[a]] t®v v∘w⇒v′∘w′
 targetRedSubstTerm {A = A} {t = t} {v = v}
   [Σ]@(Bᵣ′ (BΣ _ p _) F G D A≡A [F] [G] G-ext _)
   (t₁ , t₂ , t⇒t′ , [t₁] , v₂ , t₂®v₂ , extra) v⇒v′ =
     t₁ , t₂ , t⇒t′ , [t₁] , v₂ , t₂®v₂ , extra′
   where
-  extra′ = Σ-®-elim (λ _ → Σ-® _ F ([F] (id ⊢Δ)) t₁ v v₂ p) extra
+  extra′ = Σ-®-elim (λ _ → Σ-® _ F ([F] id (id ⊢Δ)) t₁ v v₂ p) extra
                     (λ v′⇒v₂         → Σ-®-intro-𝟘 (trans v⇒v′ v′⇒v₂))
                     (λ v₁ v′⇒p t₁®v₁ → Σ-®-intro-ω v₁ (trans v⇒v′ v′⇒p) t₁®v₁)
 targetRedSubstTerm (Idᵣ _) (rflᵣ t⇒*rfl ⇒*↯) v⇒v′ =
@@ -150,45 +155,45 @@ targetRedSubstTerm (Emptyᵣ _)    ()
 
 -- Logical relation for erasure is preserved under reduction closure backwards
 -- on the target language term.
--- If t ® v′ ∷ A and v ⇒* v′ then t ® v ∷ A
 --
 -- Proof by induction on t ® v′ ∷ A
 
-targetRedSubstTerm* : ∀ {l} ([A] : Δ ⊩⟨ l ⟩ A) → t ®⟨ l ⟩ v′ ∷ A / [A]
-                    → v T.⇒* v′ → t ®⟨ l ⟩ v ∷ A / [A]
+targetRedSubstTerm* :
+  ∀ {l} ([A] : ts » Δ ⊩⟨ l ⟩ A) → t ®⟨ l ⟩ v′ ∷ A / [A] →
+  vs T.⊢ v ⇒* v′ → t ®⟨ l ⟩ v ∷ A / [A]
 targetRedSubstTerm* [A] t®v′ refl = t®v′
 targetRedSubstTerm* [A] t®v′ (trans x v⇒v′) =
   targetRedSubstTerm [A] (targetRedSubstTerm* [A] t®v′ v⇒v′) x
 
 
 -- Logical relation for erasure is preserved under reduction backwards
--- If t′ ® v′ ∷ A and Δ ⊢ t ⇒ t′ ∷ A and v ⇒ v′ then t ® v ∷ A
 --
 -- Proof by induction on t′ ® v′ ∷ A
 
-redSubstTerm : ∀ {l} ([A] : Δ ⊩⟨ l ⟩ A) → t′ ®⟨ l ⟩ v′ ∷ A / [A]
-             → Δ ⊢ t ⇒ t′ ∷ A → v T.⇒ v′ → t ®⟨ l ⟩ v ∷ A / [A]
+redSubstTerm :
+  ∀ {l} ([A] : ts » Δ ⊩⟨ l ⟩ A) → t′ ®⟨ l ⟩ v′ ∷ A / [A] →
+  ts » Δ ⊢ t ⇒ t′ ∷ A → vs T.⊢ v ⇒ v′ → t ®⟨ l ⟩ v ∷ A / [A]
 redSubstTerm [A] t′®v′ t⇒t′ v⇒v′ =
   targetRedSubstTerm [A] (sourceRedSubstTerm [A] t′®v′ t⇒t′) v⇒v′
 
 
 -- Logical relation for erasure is preserved under reduction closure backwards
--- If t′ ® v′ ∷ A and Δ ⊢ t ⇒* t′ ∷ A and v ⇒* v′ then t ® v ∷ A
 --
 -- Proof by induction on t′ ® v′ ∷ A
 
-redSubstTerm* : ∀ {l} ([A] : Δ ⊩⟨ l ⟩ A) → t′ ®⟨ l ⟩ v′ ∷ A / [A]
-              → Δ ⊢ t ⇒* t′ ∷ A → v T.⇒* v′ → t ®⟨ l ⟩ v ∷ A / [A]
+redSubstTerm* :
+  ∀ {l} ([A] : ts » Δ ⊩⟨ l ⟩ A) → t′ ®⟨ l ⟩ v′ ∷ A / [A] →
+  ts » Δ ⊢ t ⇒* t′ ∷ A → vs T.⊢ v ⇒* v′ → t ®⟨ l ⟩ v ∷ A / [A]
 redSubstTerm* [A] t′®v′ t⇒t′ v⇒v′ = targetRedSubstTerm* [A] (sourceRedSubstTerm* [A] t′®v′ t⇒t′) v⇒v′
 
 
 -- Logical relation for erasure is preserved under one reduction step on the source language term
--- If t ® v ∷ A and Δ ⊢ t ⇒ t′ ∷ A  then t′ ® v ∷ A
 --
 -- Proof by induction on t ® v ∷ A
 
-sourceRedSubstTerm′ : ∀ {l} ([A] : Δ ⊩⟨ l ⟩ A) → t ®⟨ l ⟩ v ∷ A / [A]
-                    → Δ ⊢ t ⇒ t′ ∷ A → t′ ®⟨ l ⟩ v ∷ A / [A]
+sourceRedSubstTerm′ :
+  ∀ {l} ([A] : ts » Δ ⊩⟨ l ⟩ A) → t ®⟨ l ⟩ v ∷ A / [A] →
+  ts » Δ ⊢ t ⇒ t′ ∷ A → t′ ®⟨ l ⟩ v ∷ A / [A]
 sourceRedSubstTerm′ (Uᵣ _) (Uᵣ ⇒*↯) _ =
   Uᵣ ⇒*↯
 sourceRedSubstTerm′ (ℕᵣ D) (zeroᵣ t⇒zero v⇒zero) t⇒t′
@@ -205,22 +210,22 @@ sourceRedSubstTerm′
   with is-𝟘? p
 ... | yes PE.refl = t®v′ .proj₁ , λ {a = a} [a] →
   let t®v = t®v′ .proj₂ [a]
-      ⊢a = escapeTerm ([F] (id ⊢Δ)) [a]
-      ⊢a′ = PE.subst (Δ ⊢ a ∷_) (UP.wk-id F) ⊢a
+      ⊢a = escapeTerm ([F] id (id ⊢Δ)) [a]
+      ⊢a′ = PE.subst (_ » Δ ⊢ a ∷_) (UP.wk-id F) ⊢a
       t∘a⇒t′∘a′ = app-subst (conv t⇒t′ (subset* D)) ⊢a′
-      t∘a⇒t′∘a = PE.subst (_⊢_⇒_∷_ Δ _ _)
+      t∘a⇒t′∘a = PE.subst (_⊢_⇒_∷_ _ _ _)
                           (PE.cong (U._[ a ]₀) (PE.sym (UP.wk-lift-id G)))
                           t∘a⇒t′∘a′
-  in  sourceRedSubstTerm′ ([G] (id ⊢Δ) [a]) t®v t∘a⇒t′∘a
+  in  sourceRedSubstTerm′ ([G] id (id ⊢Δ) [a]) t®v t∘a⇒t′∘a
 ... | no p≢𝟘 = t®v′ .proj₁ , λ {a = a} [a] a®w →
   let t®v = t®v′ .proj₂ [a] a®w
-      ⊢a = escapeTerm ([F] (id ⊢Δ)) [a]
-      ⊢a′ = PE.subst (Δ ⊢ a ∷_) (UP.wk-id F) ⊢a
+      ⊢a = escapeTerm ([F] id (id ⊢Δ)) [a]
+      ⊢a′ = PE.subst (_ » Δ ⊢ a ∷_) (UP.wk-id F) ⊢a
       t∘a⇒t′∘a′ = app-subst (conv t⇒t′ (subset* D)) ⊢a′
-      t∘a⇒t′∘a = PE.subst (_⊢_⇒_∷_ Δ _ _)
+      t∘a⇒t′∘a = PE.subst (_⊢_⇒_∷_ _ _ _)
                           (PE.cong (U._[ a ]₀) (PE.sym (UP.wk-lift-id G)))
                           t∘a⇒t′∘a′
-  in  sourceRedSubstTerm′ ([G] (id ⊢Δ) [a]) t®v t∘a⇒t′∘a
+  in  sourceRedSubstTerm′ ([G] id (id ⊢Δ) [a]) t®v t∘a⇒t′∘a
 sourceRedSubstTerm′
   (Bᵣ′ BΣ! F G D A≡A [F] [G] G-ext _)
   (t₁ , t₂ , t⇒p , [t₁] , v₂ , t₂®v₂ , extra) t⇒t′ =
@@ -240,12 +245,12 @@ sourceRedSubstTerm′ (Emptyᵣ _)    ()
 
 
 -- Logical relation for erasure is preserved under reduction closure on the source language term
--- If t ® v ∷ A and Δ ⊢ t ⇒* t′ ∷ A  then t′ ® v ∷ A
 --
 -- Proof by induction on t ® v ∷ A
 
-sourceRedSubstTerm*′ : ∀ {l} ([A] : Δ ⊩⟨ l ⟩ A) → t ®⟨ l ⟩ v ∷ A / [A]
-                     → Δ ⊢ t ⇒* t′ ∷ A → t′ ®⟨ l ⟩ v ∷ A / [A]
+sourceRedSubstTerm*′ :
+  ∀ {l} ([A] : ts » Δ ⊩⟨ l ⟩ A) → t ®⟨ l ⟩ v ∷ A / [A] →
+  ts » Δ ⊢ t ⇒* t′ ∷ A → t′ ®⟨ l ⟩ v ∷ A / [A]
 sourceRedSubstTerm*′ [A] t®v (id x) = t®v
 sourceRedSubstTerm*′ [A] t®v (x ⇨ t⇒t′) =
   sourceRedSubstTerm*′ [A] (sourceRedSubstTerm′ [A] t®v x) t⇒t′
@@ -255,17 +260,17 @@ private opaque
   -- Some lemmas used below.
 
   Π-lemma :
-    v T.⇒ v′ →
-    (∃ λ v″ → v T.⇒* T.lam v″) →
-    (∃ λ v″ → v′ T.⇒* T.lam v″)
+    vs T.⊢ v ⇒ v′ →
+    (∃ λ v″ → vs T.⊢ v ⇒* T.lam v″) →
+    (∃ λ v″ → vs T.⊢ v′ ⇒* T.lam v″)
   Π-lemma v⇒v′ (_ , v⇒*lam)
     with red*Det v⇒*lam (T.trans v⇒v′ T.refl)
   … | inj₁ lam⇒*v′ rewrite Value→⇒*→≡ T.lam lam⇒*v′ = _ , T.refl
   … | inj₂ v′⇒*lam = _ , v′⇒*lam
 
   ⇒*↯→⇒→⇒*↯ :
-    (str PE.≡ strict → v T.⇒* ↯) → v T.⇒ v′ →
-    str PE.≡ strict → v′ T.⇒* ↯
+    (str PE.≡ strict → vs T.⊢ v ⇒* ↯) → vs T.⊢ v ⇒ v′ →
+    str PE.≡ strict → vs T.⊢ v′ ⇒* ↯
   ⇒*↯→⇒→⇒*↯ {v′} v⇒*↯ v⇒v′ ≡strict =
     case red*Det (v⇒*↯ ≡strict) (T.trans v⇒v′ T.refl) of λ where
       (inj₂ v′⇒*↯) → v′⇒*↯
@@ -277,16 +282,16 @@ private opaque
 -- the target language term.
 
 targetRedSubstTerm*′ :
-  ∀ {l} ([A] : Δ ⊩⟨ l ⟩ A) → t ®⟨ l ⟩ v ∷ A / [A] →
-  v T.⇒* v′ → t ®⟨ l ⟩ v′ ∷ A / [A]
+  ∀ {l} ([A] : ts » Δ ⊩⟨ l ⟩ A) → t ®⟨ l ⟩ v ∷ A / [A] →
+  vs T.⊢ v ⇒* v′ → t ®⟨ l ⟩ v′ ∷ A / [A]
 
 -- Logical relation for erasure is preserved under one reduction step on the target language term
--- If t ® v ∷ A and v ⇒ v′  then t ® v′ ∷ A
 --
 -- Proof by induction on t ® v ∷ A
 
-targetRedSubstTerm′ : ∀ {l} ([A] : Δ ⊩⟨ l ⟩ A) → t ®⟨ l ⟩ v ∷ A / [A]
-                    → v T.⇒ v′ → t ®⟨ l ⟩ v′ ∷ A / [A]
+targetRedSubstTerm′ :
+  ∀ {l} ([A] : ts » Δ ⊩⟨ l ⟩ A) → t ®⟨ l ⟩ v ∷ A / [A] →
+  vs T.⊢ v ⇒ v′ → t ®⟨ l ⟩ v′ ∷ A / [A]
 targetRedSubstTerm′ (Uᵣ _) (Uᵣ v⇒*↯) v⇒v′ =
   Uᵣ (⇒*↯→⇒→⇒*↯ v⇒*↯ v⇒v′)
 targetRedSubstTerm′ (ℕᵣ x) (zeroᵣ x₁ v⇒zero) v⇒v′ with red*Det v⇒zero (T.trans v⇒v′ T.refl)
@@ -304,16 +309,16 @@ targetRedSubstTerm′
   with is-𝟘? p
 ... | yes PE.refl = Π-lemma v⇒v′ ∘→ t®v′ .proj₁ , λ [a] →
   let t®v = t®v′ .proj₂ [a]
-  in  targetRedSubstTerm′ ([G] (id ⊢Δ) [a]) t®v (app-𝟘′-subst v⇒v′)
+  in  targetRedSubstTerm′ ([G] id (id ⊢Δ) [a]) t®v (app-𝟘′-subst v⇒v′)
 ... | no p≢𝟘 = Π-lemma v⇒v′ ∘→ t®v′ .proj₁ , λ [a] a®w →
   let t®v = t®v′ .proj₂ [a] a®w
       v∘w⇒v′∘w = T.app-subst v⇒v′
-  in  targetRedSubstTerm′ ([G] (id ⊢Δ) [a]) t®v v∘w⇒v′∘w
+  in  targetRedSubstTerm′ ([G] id (id ⊢Δ) [a]) t®v v∘w⇒v′∘w
 targetRedSubstTerm′
   {v′ = v′}
   (Bᵣ′ (BΣ _ p _) F G D A≡A [F] [G] G-ext _)
   (t₁ , t₂ , t⇒t′ , [t₁] , v₂ , t₂®v₂ , extra) v⇒v′ =
-  let [Gt₁] = [G] (id ⊢Δ) [t₁]
+  let [Gt₁] = [G] id (id ⊢Δ) [t₁]
   in  t₁ , t₂ , t⇒t′ , [t₁]
       , Σ-®-elim
          (λ _ → ∃ λ v₂ → (t₂ ®⟨ _ ⟩ v₂ ∷ U.wk (lift id) G U.[ t₁ ]₀ / [Gt₁])
@@ -342,21 +347,21 @@ targetRedSubstTerm*′ [A] t®v (trans x v⇒v′) =
   targetRedSubstTerm*′ [A] (targetRedSubstTerm′ [A] t®v x) v⇒v′
 
 -- Logical relation for erasure is preserved under reduction
--- If t ® v ∷ A and Δ ⊢ t ⇒ t′ ∷ A and v ⇒ v′ then t′ ® v′ ∷ A
 --
 -- Proof by induction on t ® v ∷ A
 
-redSubstTerm′ : ∀ {l} ([A] : Δ ⊩⟨ l ⟩ A) → t ®⟨ l ⟩ v ∷ A / [A]
-              → Δ ⊢ t ⇒ t′ ∷ A → v T.⇒ v′ → t′ ®⟨ l ⟩ v′ ∷ A / [A]
+redSubstTerm′ :
+  ∀ {l} ([A] : ts » Δ ⊩⟨ l ⟩ A) → t ®⟨ l ⟩ v ∷ A / [A] →
+  ts » Δ ⊢ t ⇒ t′ ∷ A → vs T.⊢ v ⇒ v′ → t′ ®⟨ l ⟩ v′ ∷ A / [A]
 redSubstTerm′ [A] t®v t⇒t′ v⇒v′ =
   targetRedSubstTerm′ [A] (sourceRedSubstTerm′ [A] t®v t⇒t′) v⇒v′
 
 -- Logical relation for erasure is preserved under reduction closure
--- If t ® v ∷ A and Δ ⊢ t ⇒* t′ ∷ A and v ⇒* v′ then t′ ® v′ ∷ A
 --
 -- Proof by induction on t ® v ∷ A
 
-redSubstTerm*′ : ∀ {l} ([A] : Δ ⊩⟨ l ⟩ A) → t ®⟨ l ⟩ v ∷ A / [A]
-               → Δ ⊢ t ⇒* t′ ∷ A → v T.⇒* v′ → t′ ®⟨ l ⟩ v′ ∷ A / [A]
+redSubstTerm*′ :
+  ∀ {l} ([A] : ts » Δ ⊩⟨ l ⟩ A) → t ®⟨ l ⟩ v ∷ A / [A] →
+  ts » Δ ⊢ t ⇒* t′ ∷ A → vs T.⊢ v ⇒* v′ → t′ ®⟨ l ⟩ v′ ∷ A / [A]
 redSubstTerm*′ [A] t®v t⇒t′ v⇒v′ =
   targetRedSubstTerm*′ [A] (sourceRedSubstTerm*′ [A] t®v t⇒t′) v⇒v′

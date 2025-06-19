@@ -34,6 +34,7 @@ mutual
   wkVar-to-wk : (∀ x → wkVar ρ x ≡ wkVar ρ′ x)
               → ∀ (t : Term n) → wk ρ t ≡ wk ρ′ t
   wkVar-to-wk eq (var x) = cong var (eq x)
+  wkVar-to-wk _ (defn α) = refl
   wkVar-to-wk eq (lam t) = cong lam (wkVar-to-wk (wkVar-lift eq) t)
   wkVar-to-wk eq (t ∘⟨ _ ⟩ u) =
     cong₂ _∘⟨ _ ⟩_ (wkVar-to-wk eq t) (wkVar-to-wk eq u)
@@ -53,6 +54,7 @@ mutual
 mutual
   wk-id : (t : Term n) → wk id t ≡ t
   wk-id (var x) = refl
+  wk-id (defn _) = refl
   wk-id (lam t) = cong lam (trans (wkVar-to-wk wkVar-lift-id t) (wk-id t))
   wk-id (t ∘⟨ _ ⟩ u) = cong₂ _∘⟨ _ ⟩_ (wk-id t) (wk-id u)
   wk-id zero = refl
@@ -76,6 +78,7 @@ wk-lift-id t = trans (wkVar-to-wk wkVar-lift-id t) (wk-id t)
 mutual
   wk-comp : (ρ : Wk m ℓ) (ρ′ : Wk ℓ n) (t : Term n) → wk ρ (wk ρ′ t) ≡ wk (ρ • ρ′) t
   wk-comp ρ ρ′ (var x) = cong var (wkVar-comp ρ ρ′ x)
+  wk-comp _ _ (defn _) = refl
   wk-comp ρ ρ′ (lam t) = cong lam (wk-comp (lift ρ) (lift ρ′) t)
   wk-comp ρ ρ′ (t ∘⟨ _ ⟩ u) =
     cong₂ _∘⟨ _ ⟩_ (wk-comp ρ ρ′ t) (wk-comp ρ ρ′ u)
@@ -134,6 +137,9 @@ opaque
     HasX x (var (wkVar ρ z))                  →⟨ (λ { varₓ → refl }) ⟩
     x ≡ wkVar ρ z                             →⟨ (λ eq → _ , eq , varₓ) ⟩
     (∃ λ y → x ≡ wkVar ρ y × HasX y (var z))  □
+  HasX-wk→ {x} {ρ} {t = defn α} =
+    HasX x (defn α)                            →⟨ (λ ()) ⟩
+    (∃ λ y → x ≡ wkVar ρ y × HasX y (defn α))  □
   HasX-wk→ {x} {ρ} {t = lam t} =
     HasX x (lam (wk (lift ρ) t))                  →⟨ (λ { (lamₓ has) → has }) ⟩
     HasX (x +1) (wk (lift ρ) t)                   →⟨ HasX-wk→ ⟩

@@ -68,9 +68,11 @@ opaque
       (no-type-restrictions 𝕄₂ b₁ b₂)
       tr tr-Σ
   Are-preserving-type-restrictions-no-type-restrictions hyp = λ where
+      .unfolding-mode-preserved      → refl
       .Unitʷ-η-preserved ()
       .Unit-preserved                → _
       .ΠΣ-preserved                  → _
+      .Opacity-preserved             → lift ∘→ Lift.lower
       .K-preserved                   → lift ∘→ Lift.lower
       .[]-cong-preserved             → hyp
       .Equality-reflection-preserved → lift ∘→ Lift.lower
@@ -90,9 +92,11 @@ opaque
       (no-type-restrictions 𝕄₂ b₁ b₂)
       tr tr-Σ
   Are-reflecting-type-restrictions-no-type-restrictions hyp = λ where
+      .unfolding-mode-reflected      → refl
       .Unitʷ-η-reflected ()
       .Unit-reflected                → _
       .ΠΣ-reflected                  → _
+      .Opacity-reflected             → lift ∘→ Lift.lower
       .K-reflected                   → lift ∘→ Lift.lower
       .[]-cong-reflected             → ⊎.comm ∘→ hyp ∘→ ⊎.comm
       .Equality-reflection-reflected → lift ∘→ Lift.lower
@@ -114,12 +118,14 @@ Are-preserving-type-restrictions-equal-binder-quantities :
     tr tr
 Are-preserving-type-restrictions-equal-binder-quantities {tr = tr} r =
   record
-    { Unitʷ-η-preserved = R.Unitʷ-η-preserved
-    ; Unit-preserved    = R.Unit-preserved
-    ; ΠΣ-preserved      = λ {b = b} → λ where
+    { unfolding-mode-preserved = R.unfolding-mode-preserved
+    ; Unitʷ-η-preserved        = R.Unitʷ-η-preserved
+    ; Unit-preserved           = R.Unit-preserved
+    ; ΠΣ-preserved             = λ {b = b} → λ where
         (bn , refl) →
             R.ΠΣ-preserved bn
           , tr-BinderMode-one-function _ _ refl b
+    ; Opacity-preserved             = R.Opacity-preserved
     ; K-preserved                   = R.K-preserved
     ; []-cong-preserved             = R.[]-cong-preserved
     ; Equality-reflection-preserved = R.Equality-reflection-preserved
@@ -141,15 +147,17 @@ Are-reflecting-type-restrictions-equal-binder-quantities :
     tr tr
 Are-reflecting-type-restrictions-equal-binder-quantities
   {tr = tr} inj r = record
-  { Unitʷ-η-reflected = Unitʷ-η-reflected
-  ; Unit-reflected    = Unit-reflected
-  ; ΠΣ-reflected      =
+  { unfolding-mode-reflected = unfolding-mode-reflected
+  ; Unitʷ-η-reflected        = Unitʷ-η-reflected
+  ; Unit-reflected           = Unit-reflected
+  ; ΠΣ-reflected             =
       λ {b = b} {p = p} {q = q} (bn , eq) →
           ΠΣ-reflected bn
         , inj (
             tr p                     ≡˘⟨ tr-BinderMode-one-function _ _ refl b ⟩
             tr-BinderMode tr tr b p  ≡⟨ eq ⟩
             tr q                     ∎)
+  ; Opacity-reflected             = Opacity-reflected
   ; K-reflected                   = K-reflected
   ; []-cong-reflected             = []-cong-reflected
   ; Equality-reflection-reflected = Equality-reflection-reflected
@@ -171,10 +179,12 @@ Are-preserving-type-restrictions-second-ΠΣ-quantities-𝟘 :
     (second-ΠΣ-quantities-𝟘 𝕄₂ R₂)
     tr tr-Σ
 Are-preserving-type-restrictions-second-ΠΣ-quantities-𝟘 tr-𝟘 r = record
-  { Unitʷ-η-preserved = Unitʷ-η-preserved
-  ; Unit-preserved    = Unit-preserved
-  ; ΠΣ-preserved      = λ where
+  { unfolding-mode-preserved = unfolding-mode-preserved
+  ; Unitʷ-η-preserved        = Unitʷ-η-preserved
+  ; Unit-preserved           = Unit-preserved
+  ; ΠΣ-preserved             = λ where
       (b , refl) → ΠΣ-preserved b , tr-𝟘
+  ; Opacity-preserved             = Opacity-preserved
   ; K-preserved                   = K-preserved
   ; []-cong-preserved             = []-cong-preserved
   ; Equality-reflection-preserved = Equality-reflection-preserved
@@ -195,9 +205,11 @@ Are-reflecting-type-restrictions-second-ΠΣ-quantities-𝟘 :
     (second-ΠΣ-quantities-𝟘 𝕄₂ R₂)
     tr tr-Σ
 Are-reflecting-type-restrictions-second-ΠΣ-quantities-𝟘 tr-𝟘 r = record
-  { Unitʷ-η-reflected             = Unitʷ-η-reflected
+  { unfolding-mode-reflected      = unfolding-mode-reflected
+  ; Unitʷ-η-reflected             = Unitʷ-η-reflected
   ; Unit-reflected                = Unit-reflected
   ; ΠΣ-reflected                  = Σ.map ΠΣ-reflected tr-𝟘
+  ; Opacity-reflected             = Opacity-reflected
   ; K-reflected                   = K-reflected
   ; []-cong-reflected             = []-cong-reflected
   ; Equality-reflection-reflected = Equality-reflection-reflected
@@ -221,10 +233,12 @@ Are-preserving-type-restrictions-second-ΠΣ-quantities-𝟘-or-ω :
     tr tr-Σ
 Are-preserving-type-restrictions-second-ΠΣ-quantities-𝟘-or-ω
   {𝕄₁} {tr} {𝕄₂} {tr-Σ} tr-𝟘 tr-ω tr-Σ-ω r = record
-  { Unitʷ-η-preserved = Unitʷ-η-preserved
-  ; Unit-preserved    = Unit-preserved
-  ; ΠΣ-preserved      = λ {b = b} (bn , is-𝟘 , not-𝟘) →
+  { unfolding-mode-preserved = unfolding-mode-preserved
+  ; Unitʷ-η-preserved        = Unitʷ-η-preserved
+  ; Unit-preserved           = Unit-preserved
+  ; ΠΣ-preserved             = λ {b = b} (bn , is-𝟘 , not-𝟘) →
       ΠΣ-preserved bn , lemma₁ b is-𝟘 , lemma₃ b not-𝟘
+  ; Opacity-preserved             = Opacity-preserved
   ; K-preserved                   = K-preserved
   ; []-cong-preserved             = []-cong-preserved
   ; Equality-reflection-preserved = Equality-reflection-preserved
@@ -287,10 +301,12 @@ Are-reflecting-type-restrictions-second-ΠΣ-quantities-𝟘-or-ω :
     tr tr-Σ
 Are-reflecting-type-restrictions-second-ΠΣ-quantities-𝟘-or-ω
   {tr} {𝕄₂} {𝕄₁} {tr-Σ} tr-𝟘 tr-ω tr-Σ-ω r = record
-  { Unitʷ-η-reflected = Unitʷ-η-reflected
-  ; Unit-reflected    = Unit-reflected
-  ; ΠΣ-reflected      = λ {b = b} (bn , is-𝟘 , not-𝟘) →
+  { unfolding-mode-reflected = unfolding-mode-reflected
+  ; Unitʷ-η-reflected        = Unitʷ-η-reflected
+  ; Unit-reflected           = Unit-reflected
+  ; ΠΣ-reflected             = λ {b = b} (bn , is-𝟘 , not-𝟘) →
       ΠΣ-reflected bn , lemma₁ b is-𝟘 , lemma₂ b not-𝟘
+  ; Opacity-reflected             = Opacity-reflected
   ; K-reflected                   = K-reflected
   ; []-cong-reflected             = []-cong-reflected
   ; Equality-reflection-reflected = Equality-reflection-reflected
@@ -344,7 +360,9 @@ opaque
      (strong-types-restricted 𝕄₂ R₂)
      tr tr-Σ
  Are-preserving-type-restrictions-strong-types-restricted hyp r = record
-   { Unitʷ-η-preserved =
+   { unfolding-mode-preserved =
+       unfolding-mode-preserved
+   ; Unitʷ-η-preserved =
        Unitʷ-η-preserved
    ; Unit-preserved =
        Σ.map Unit-preserved idᶠ
@@ -352,6 +370,8 @@ opaque
        Σ.map ΠΣ-preserved λ where
          hyp′ refl → case hyp′ refl of λ where
            refl → hyp
+   ; Opacity-preserved =
+       Opacity-preserved
    ; K-preserved =
        K-preserved
    ; []-cong-preserved =
@@ -380,12 +400,16 @@ opaque
      tr tr-Σ
  Are-reflecting-type-restrictions-strong-types-restricted
    hyp₁ hyp₂ r = record
-   { Unitʷ-η-reflected =
+   { unfolding-mode-reflected =
+       unfolding-mode-reflected
+   ; Unitʷ-η-reflected =
        Unitʷ-η-reflected
    ; Unit-reflected =
        Σ.map Unit-reflected idᶠ
    ; ΠΣ-reflected =
        Σ.map ΠΣ-reflected (λ { hyp refl → hyp₁ (hyp refl) })
+   ; Opacity-reflected =
+       Opacity-reflected
    ; K-reflected =
        K-reflected
    ; []-cong-reflected = λ {s = s} → λ where
@@ -416,12 +440,16 @@ opaque
      (no-strong-types 𝕄₂ R₂)
      tr tr-Σ
  Are-preserving-type-restrictions-no-strong-types r = record
-   { Unitʷ-η-preserved =
+   { unfolding-mode-preserved =
+       unfolding-mode-preserved
+   ; Unitʷ-η-preserved =
        Unitʷ-η-preserved
    ; Unit-preserved =
        Σ.map Unit-preserved idᶠ
    ; ΠΣ-preserved =
        Σ.map ΠΣ-preserved (lift ∘→ Lift.lower)
+   ; Opacity-preserved =
+       Opacity-preserved
    ; K-preserved =
        K-preserved
    ; []-cong-preserved =
@@ -448,12 +476,16 @@ opaque
      (no-strong-types 𝕄₂ R₂)
      tr tr-Σ
  Are-reflecting-type-restrictions-no-strong-types hyp r = record
-   { Unitʷ-η-reflected =
+   { unfolding-mode-reflected =
+       unfolding-mode-reflected
+   ; Unitʷ-η-reflected =
        Unitʷ-η-reflected
    ; Unit-reflected =
        Σ.map Unit-reflected idᶠ
    ; ΠΣ-reflected =
        Σ.map ΠΣ-reflected (lift ∘→ Lift.lower)
+   ; Opacity-reflected =
+       Opacity-reflected
    ; K-reflected =
        K-reflected
    ; []-cong-reflected = λ {s = s} → λ where
@@ -482,9 +514,11 @@ Are-preserving-type-restrictions-no-erased-matches-TR :
     (no-erased-matches-TR 𝕄₂ s R₂)
     tr tr-Σ
 Are-preserving-type-restrictions-no-erased-matches-TR r = record
-  { Unitʷ-η-preserved             = Unitʷ-η-preserved
+  { unfolding-mode-preserved      = unfolding-mode-preserved
+  ; Unitʷ-η-preserved             = Unitʷ-η-preserved
   ; Unit-preserved                = Unit-preserved
   ; ΠΣ-preserved                  = ΠΣ-preserved
+  ; Opacity-preserved             = Opacity-preserved
   ; K-preserved                   = K-preserved
   ; []-cong-preserved             = Σ.map []-cong-preserved idᶠ
   ; Equality-reflection-preserved = Equality-reflection-preserved
@@ -506,11 +540,13 @@ Are-reflecting-type-restrictions-no-erased-matches-TR :
     (no-erased-matches-TR 𝕄₂ s R₂)
     tr tr-Σ
 Are-reflecting-type-restrictions-no-erased-matches-TR hyp r = record
-  { Unitʷ-η-reflected = Unitʷ-η-reflected
-  ; Unit-reflected    = Unit-reflected
-  ; ΠΣ-reflected      = ΠΣ-reflected
-  ; K-reflected       = K-reflected
-  ; []-cong-reflected = λ {s = s} → λ where
+  { unfolding-mode-reflected = unfolding-mode-reflected
+  ; Unitʷ-η-reflected        = Unitʷ-η-reflected
+  ; Unit-reflected           = Unit-reflected
+  ; ΠΣ-reflected             = ΠΣ-reflected
+  ; Opacity-reflected        = Opacity-reflected
+  ; K-reflected              = K-reflected
+  ; []-cong-reflected        = λ {s = s} → λ where
       (inj₁ (ok₂ , s≢)) →
         case []-cong-reflected (inj₁ ok₂) of λ where
           (inj₁ ok₁)      → inj₁ (ok₁ , s≢)
@@ -609,10 +645,12 @@ erasure→unit-preserves-second-ΠΣ-quantities-𝟘-or-ω :
     erasure→unit erasure→unit
 erasure→unit-preserves-second-ΠΣ-quantities-𝟘-or-ω r =
   record
-    { Unitʷ-η-preserved = Unitʷ-η-preserved
-    ; Unit-preserved    = Unit-preserved
-    ; ΠΣ-preserved      = λ (b , _) →
+    { unfolding-mode-preserved = unfolding-mode-preserved
+    ; Unitʷ-η-preserved        = Unitʷ-η-preserved
+    ; Unit-preserved           = Unit-preserved
+    ; ΠΣ-preserved             = λ (b , _) →
         ΠΣ-preserved b , (λ _ → refl) , (λ _ → refl)
+    ; Opacity-preserved             = Opacity-preserved
     ; K-preserved                   = K-preserved
     ; []-cong-preserved             = []-cong-preserved
     ; Equality-reflection-preserved = Equality-reflection-preserved

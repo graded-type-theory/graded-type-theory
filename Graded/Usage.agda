@@ -31,11 +31,11 @@ open import Tools.PropositionalEquality
 open import Tools.Relation
 open import Tools.Sum using (_⊎_)
 
-infix 10 _▸[_]_
+infix 10 _▸[_]_ ▸[_]_
 
 private
   variable
-    n l : Nat
+    α n l : Nat
     p q r : M
     γ γ′ γ₁ γ₂ γ₃ γ₄ γ₅ γ₆ δ η θ χ : Conₘ n
     A B F G : Term n
@@ -86,6 +86,7 @@ mutual
     ⦃ has-nr : Has-nr semiring-with-meet ⦄ →
     Term n → Mode → Conₘ n
   ⌈ var x ⌉ m = 𝟘ᶜ , x ≔ ⌜ m ⌝
+  ⌈ defn _ ⌉ _ = 𝟘ᶜ
   ⌈ U _ ⌉ _ = 𝟘ᶜ
   ⌈ ΠΣ⟨ _ ⟩ p , q ▷ F ▹ G ⌉ m = ⌈ F ⌉ (m ᵐ· p) +ᶜ tailₘ (⌈ G ⌉ m)
   ⌈ lam p t ⌉ m = tailₘ (⌈ t ⌉ m)
@@ -266,6 +267,8 @@ data _▸[_]_ {n : Nat} : (γ : Conₘ n) → Mode → Term n → Set a where
             → γ +ᶜ δ ▸[ m ] ΠΣ⟨ b ⟩ p , q ▷ F ▹ G
 
   var       : (𝟘ᶜ , x ≔ ⌜ m ⌝) ▸[ m ] var x
+
+  defn      : 𝟘ᶜ ▸[ m ] defn α
 
   lamₘ      : γ ∙ ⌜ m ⌝ · p ▸[ m ] t
             → γ ▸[ m ] lam p t
@@ -453,3 +456,9 @@ starₘ {s = 𝕤} =
   sub (starˢₘ λ _ → ≈ᶜ-refl)
       (≤ᶜ-reflexive (≈ᶜ-sym (·ᶜ-zeroʳ _)))
 starₘ {s = 𝕨} = starʷₘ
+
+-- A definition context is well-resourced if all its transparent
+-- definitions have well-resourced right-hand sides.
+
+▸[_]_ : Mode → DCon (Term 0) n → Set a
+▸[ m ] ∇ = ∀ {α t A} → α ↦ t ∷ A ∈ ∇ → ε ▸[ m ] t

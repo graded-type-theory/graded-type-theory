@@ -54,7 +54,7 @@ opaque
 
   _⊩⟨_⟩_ : Cons m n → Universe-level → Term n → Set a
   Γ ⊩⟨ l ⟩ A =
-    ⦃ inc : Var-included or-empty (Γ .vars) ⦄ → Γ L.⊩⟨ l ⟩ A
+    ⦃ inc : Var-included or-empty Γ .vars ⦄ → Γ L.⊩⟨ l ⟩ A
 
 opaque
 
@@ -64,7 +64,7 @@ opaque
 
   _⊩⟨_⟩_∷_ : Cons m n → Universe-level → Term n → Term n → Set a
   Γ ⊩⟨ l ⟩ t ∷ A =
-    ⦃ inc : Var-included or-empty (Γ .vars) ⦄ → Γ H.⊩⟨ l ⟩ t ∷ A
+    ⦃ inc : Var-included or-empty Γ .vars ⦄ → Γ H.⊩⟨ l ⟩ t ∷ A
 
 opaque
 
@@ -74,7 +74,7 @@ opaque
 
   _⊩⟨_⟩_≡_ : Cons m n → Universe-level → Term n → Term n → Set a
   Γ ⊩⟨ l ⟩ A ≡ B =
-    ⦃ inc : Var-included or-empty (Γ .vars) ⦄ → Γ H.⊩⟨ l ⟩ A ≡ B
+    ⦃ inc : Var-included or-empty Γ .vars ⦄ → Γ H.⊩⟨ l ⟩ A ≡ B
 
 opaque
 
@@ -85,7 +85,7 @@ opaque
   _⊩⟨_⟩_≡_∷_ :
     Cons m n → Universe-level → Term n → Term n → Term n → Set a
   Γ ⊩⟨ l ⟩ t ≡ u ∷ A =
-    ⦃ inc : Var-included or-empty (Γ .vars) ⦄ → Γ H.⊩⟨ l ⟩ t ≡ u ∷ A
+    ⦃ inc : Var-included or-empty Γ .vars ⦄ → Γ H.⊩⟨ l ⟩ t ≡ u ∷ A
 
 ------------------------------------------------------------------------
 -- Characterisation lemmas

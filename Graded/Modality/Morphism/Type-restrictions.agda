@@ -44,6 +44,10 @@ record Are-preserving-type-restrictions
     module R₂ = Type-restrictions R₂
 
   field
+    -- The flag R₁.unfolding-mode is equal to R₂.unfolding-mode.
+    unfolding-mode-preserved :
+      R₁.unfolding-mode ≡ R₂.unfolding-mode
+
     -- R₁.Unitʷ-η implies R₂.Unitʷ-η.
     Unitʷ-η-preserved :
       R₁.Unitʷ-η → R₂.Unitʷ-η
@@ -57,6 +61,10 @@ record Are-preserving-type-restrictions
     ΠΣ-preserved :
       R₁.ΠΣ-allowed b p q →
       R₂.ΠΣ-allowed b (tr-BinderMode tr tr-Σ b p) (tr q)
+
+    -- If R₁.Opacity-allowed holds, then R₂.Opacity-allowed holds.
+    Opacity-preserved :
+      R₁.Opacity-allowed → R₂.Opacity-allowed
 
     -- If R₁.K-allowed holds, then R₂.K-allowed holds.
     K-preserved :
@@ -87,6 +95,10 @@ record Are-reflecting-type-restrictions
     module R₂ = Type-restrictions R₂
 
   field
+    -- The flag R₁.unfolding-mode is equal to R₂.unfolding-mode.
+    unfolding-mode-reflected :
+      R₁.unfolding-mode ≡ R₂.unfolding-mode
+
     -- R₂.Unitʷ-η implies R₁.Unitʷ-η.
     Unitʷ-η-reflected :
       R₂.Unitʷ-η → R₁.Unitʷ-η
@@ -100,6 +112,10 @@ record Are-reflecting-type-restrictions
     ΠΣ-reflected :
       R₂.ΠΣ-allowed b (tr-BinderMode tr tr-Σ b p) (tr q) →
       R₁.ΠΣ-allowed b p q
+
+    -- If R₂.Opacity-allowed holds, then R₁.Opacity-allowed holds.
+    Opacity-reflected :
+      R₂.Opacity-allowed → R₁.Opacity-allowed
 
     -- If R₂.K-allowed holds, then R₁.K-allowed holds.
     K-reflected :
@@ -125,10 +141,12 @@ record Are-reflecting-type-restrictions
 Are-preserving-type-restrictions-id :
   Are-preserving-type-restrictions R R idᶠ idᶠ
 Are-preserving-type-restrictions-id {R = R} = λ where
+    .unfolding-mode-preserved      → refl
     .Unitʷ-η-preserved             → idᶠ
     .Unit-preserved                → idᶠ
     .ΠΣ-preserved {b = BMΠ}        → idᶠ
     .ΠΣ-preserved {b = BMΣ _}      → idᶠ
+    .Opacity-preserved             → idᶠ
     .K-preserved                   → idᶠ
     .[]-cong-preserved             → idᶠ
     .Equality-reflection-preserved → idᶠ
@@ -142,10 +160,12 @@ Are-preserving-type-restrictions-id {R = R} = λ where
 Are-reflecting-type-restrictions-id :
   Are-reflecting-type-restrictions R R idᶠ idᶠ
 Are-reflecting-type-restrictions-id {R = R} = λ where
+    .unfolding-mode-reflected      → refl
     .Unitʷ-η-reflected             → idᶠ
     .Unit-reflected                → idᶠ
     .ΠΣ-reflected {b = BMΠ}        → idᶠ
     .ΠΣ-reflected {b = BMΣ _}      → idᶠ
+    .Opacity-reflected             → idᶠ
     .K-reflected                   → idᶠ
     .[]-cong-reflected             → idᶠ
     .Equality-reflection-reflected → idᶠ
@@ -164,6 +184,8 @@ Are-preserving-type-restrictions-∘ :
   Are-preserving-type-restrictions
     R₁ R₃ (tr₁ ∘→ tr₂) (tr-Σ₁ ∘→ tr-Σ₂)
 Are-preserving-type-restrictions-∘ m₁ m₂ = λ where
+    .unfolding-mode-preserved →
+       trans M₂.unfolding-mode-preserved M₁.unfolding-mode-preserved
     .Unitʷ-η-preserved →
       M₁.Unitʷ-η-preserved ∘→ M₂.Unitʷ-η-preserved
     .Unit-preserved →
@@ -172,6 +194,8 @@ Are-preserving-type-restrictions-∘ m₁ m₂ = λ where
       M₁.ΠΣ-preserved ∘→ M₂.ΠΣ-preserved
     .ΠΣ-preserved {b = BMΣ _} →
       M₁.ΠΣ-preserved ∘→ M₂.ΠΣ-preserved
+    .Opacity-preserved →
+      M₁.Opacity-preserved ∘→ M₂.Opacity-preserved
     .K-preserved →
       M₁.K-preserved ∘→ M₂.K-preserved
     .[]-cong-preserved →
@@ -191,6 +215,8 @@ Are-reflecting-type-restrictions-∘ :
   Are-reflecting-type-restrictions R₁ R₂ tr₂ tr-Σ₂ →
   Are-reflecting-type-restrictions R₁ R₃ (tr₁ ∘→ tr₂) (tr-Σ₁ ∘→ tr-Σ₂)
 Are-reflecting-type-restrictions-∘ m₁ m₂ = λ where
+    .unfolding-mode-reflected →
+       trans M₂.unfolding-mode-reflected M₁.unfolding-mode-reflected
     .Unitʷ-η-reflected →
       M₂.Unitʷ-η-reflected ∘→ M₁.Unitʷ-η-reflected
     .Unit-reflected →
@@ -199,6 +225,8 @@ Are-reflecting-type-restrictions-∘ m₁ m₂ = λ where
       M₂.ΠΣ-reflected ∘→ M₁.ΠΣ-reflected
     .ΠΣ-reflected {b = BMΣ _} →
       M₂.ΠΣ-reflected ∘→ M₁.ΠΣ-reflected
+    .Opacity-reflected →
+      M₂.Opacity-reflected ∘→ M₁.Opacity-reflected
     .K-reflected →
       M₂.K-reflected ∘→ M₁.K-reflected
     .[]-cong-reflected →

@@ -41,6 +41,7 @@ private
 open import Tools.Empty
 open import Tools.Fin
 open import Tools.Function
+open import Tools.List using (List)
 open import Tools.Nat using (Nat; 1+; 2+)
 open import Tools.Product
 import Tools.PropositionalEquality as PE
@@ -56,6 +57,7 @@ open import Definition.Typed.Properties TR
 open import Definition.Typed.Substitution TR hiding (id)
 open import Definition.Typed.Syntactic TR
 import Definition.Typed.Weakening TR as W
+import Definition.Typed.Weakening.Definition TR as WD
 open import Definition.Untyped Erasure as U hiding (id; head)
 open import Definition.Untyped.Properties Erasure
 
@@ -83,7 +85,9 @@ open import Graded.Usage.Weakening EM UR
 
 private variable
   n       : Nat
-  Γ       : Con Term _
+  ∇       : DCon (Term 0) _
+  Γ       : Cons _ _
+  vs      : List (T.Term 0)
   A t u v : Term _
   γ       : Conₘ _
   l       : Universe-level
@@ -93,46 +97,47 @@ private
 
   -- Some lemmas used below.
 
-  ⊢ℕ : ⊢ ε ∙ ℕ
-  ⊢ℕ = ∙ ℕⱼ ε
+  ⊢ℕ : ε »⊢ ε ∙ ℕ
+  ⊢ℕ = ∙ ℕⱼ εε
 
-  ⊢U : ⊢ ε ∙ U l
-  ⊢U = ∙ Uⱼ ε
+  ⊢U : » ∇ → ∇ »⊢ ε ∙ U l
+  ⊢U »∇ = ∙ Uⱼ (ε »∇)
 
-  U⊢0 : ε ∙ U l ⊢ var x0
-  U⊢0 = univ (var ⊢U here)
+  U⊢0 : » ∇ → ∇ » ε ∙ U l ⊢ var x0
+  U⊢0 »∇ = univ (var (⊢U »∇) here)
 
-  ⊢U0 : ⊢ ε ∙ U l ∙ var x0
-  ⊢U0 = ∙ U⊢0
+  ⊢U0 : » ∇ → ∇ »⊢ ε ∙ U l ∙ var x0
+  ⊢U0 »∇ = ∙ U⊢0 »∇
 
-  U⊢id : ε ∙ U l ⊢ lam ω (var x0) ∷ Π ω , q ▷ var x0 ▹ var x1
-  U⊢id = lamⱼ′ Π-ω-ok (var ⊢U0 here)
+  U⊢id :
+    » ∇ → ∇ » ε ∙ U l ⊢ lam ω (var x0) ∷ Π ω , q ▷ var x0 ▹ var x1
+  U⊢id »∇ = lamⱼ′ Π-ω-ok (var (⊢U0 »∇) here)
 
-  ΓU⊢id : ⊢ Γ → Γ ∙ U l ⊢ lam ω (var x0) ∷ Π ω , q ▷ var x0 ▹ var x1
-  ΓU⊢id ε = U⊢id
+  ΓU⊢id : ⊢ Γ → Γ »∙ U l ⊢ lam ω (var x0) ∷ Π ω , q ▷ var x0 ▹ var x1
+  ΓU⊢id (ε »∇) = U⊢id »∇
   ΓU⊢id (∙ ⊢A) =
     W.wkTerm (W.liftʷ (W.step W.id) (Uⱼ (∙ ⊢A)))
              (ΓU⊢id (wf ⊢A))
 
-  U⊢ℕ : ε ∙ U l ⊢ ℕ
-  U⊢ℕ = ℕⱼ ⊢U
+  U⊢ℕ : » ∇ → ∇ » ε ∙ U l ⊢ ℕ
+  U⊢ℕ »∇ = ℕⱼ (⊢U »∇)
 
-  ⊢Uℕ : ⊢ ε ∙ U l ∙ ℕ
-  ⊢Uℕ = ∙ U⊢ℕ
+  ⊢Uℕ : ε »⊢ ε ∙ U l ∙ ℕ
+  ⊢Uℕ = ∙ U⊢ℕ ε
 
-  ⊢Uℕℕ : ⊢ ε ∙ U l ∙ ℕ ∙ ℕ
+  ⊢Uℕℕ : ε »⊢ ε ∙ U l ∙ ℕ ∙ ℕ
   ⊢Uℕℕ = ∙ ℕⱼ ⊢Uℕ
 
-  UℕℕU⊢3 : ε ∙ U l ∙ ℕ ∙ ℕ ∙ U l ⊢ var x3 ∷ U l
+  UℕℕU⊢3 : ε » ε ∙ U l ∙ ℕ ∙ ℕ ∙ U l ⊢ var x3 ∷ U l
   UℕℕU⊢3 = var₃ (Uⱼ ⊢Uℕℕ)
 
-  ⊢UℕℕU3 : ⊢ ε ∙ U l ∙ ℕ ∙ ℕ ∙ U l ∙ var x3
+  ⊢UℕℕU3 : ε »⊢ ε ∙ U l ∙ ℕ ∙ ℕ ∙ U l ∙ var x3
   ⊢UℕℕU3 = ∙ univ UℕℕU⊢3
 
-  ⊢ℕℕ : ⊢ ε ∙ ℕ ∙ ℕ
+  ⊢ℕℕ : ε »⊢ ε ∙ ℕ ∙ ℕ
   ⊢ℕℕ = ∙ ℕⱼ ⊢ℕ
 
-  ⊢ℕℕU : ⊢ ε ∙ ℕ ∙ ℕ ∙ U l
+  ⊢ℕℕU : ε »⊢ ε ∙ ℕ ∙ ℕ ∙ U l
   ⊢ℕℕU = ∙ Uⱼ ⊢ℕℕ
 
 ------------------------------------------------------------------------
@@ -162,10 +167,10 @@ id-x1-x0 = id ∘⟨ 𝟘 ⟩ var x1 ∘⟨ ω ⟩ var x0
 
 -- The term id-x0-x1 is well-typed (in a certain context)
 
-⊢id-x1-x0 : ε ∙ U l ∙ var x0 ⊢ id-x1-x0 ∷ var x1
+⊢id-x1-x0 : ε » ε ∙ U l ∙ var x0 ⊢ id-x1-x0 ∷ var x1
 ⊢id-x1-x0 = (⊢id ⊢Γ ∘ⱼ var ⊢Γ (there here)) ∘ⱼ var ⊢Γ here
   where
-  ⊢Γ = ∙ univ (var₀ (Uⱼ ε))
+  ⊢Γ = ∙ univ (var₀ (Uⱼ εε))
 
 -- The term id-x1-x0 is well-resourced (with respect to a specific
 -- usage context).
@@ -197,10 +202,10 @@ erase-non-strict-id-ℕ-zero :
   T.lam (T.var x0) T.∘⟨ non-strict ⟩ T.zero
 erase-non-strict-id-ℕ-zero = PE.refl
 
--- The term id-ℕ-zero is well-typed (in the empty context).
+-- The term id-ℕ-zero is well-typed (with respect to empty contexts).
 
-⊢id-ℕ-zero : ε ⊢ id-ℕ-zero ∷ ℕ
-⊢id-ℕ-zero = (⊢id ε ∘ⱼ ℕⱼ ε) ∘ⱼ zeroⱼ ε
+⊢id-ℕ-zero : ε » ε ⊢ id-ℕ-zero ∷ ℕ
+⊢id-ℕ-zero = (⊢id εε ∘ⱼ ℕⱼ εε) ∘ⱼ zeroⱼ εε
 
 -- The term id-ℕ-zero is well-resourced (with respect to the empty
 -- usage context).
@@ -210,17 +215,17 @@ erase-non-strict-id-ℕ-zero = PE.refl
 
 -- The term id-ℕ-zero reduces to zero.
 
-id-ℕ-zero⇒*zero : ε ⊢ id-ℕ-zero ⇒* zero ∷ ℕ
+id-ℕ-zero⇒*zero : ε » ε ⊢ id-ℕ-zero ⇒* zero ∷ ℕ
 id-ℕ-zero⇒*zero =
   app-subst
-    (β-red (ΠΣⱼ (univ (var ⊢U0 (there here))) Π-ω-ok) U⊢id (ℕⱼ ε)
-       PE.refl Π-𝟘-ok)
-    (zeroⱼ ε) ⇨
-  redMany (β-red (ℕⱼ ⊢ℕ) (var ⊢ℕ here) (zeroⱼ ε) PE.refl Π-ω-ok)
+    (β-red (ΠΣⱼ (univ (var (⊢U0 ε) (there here))) Π-ω-ok) (U⊢id ε)
+       (ℕⱼ εε) PE.refl Π-𝟘-ok)
+    (zeroⱼ εε) ⇨
+  redMany (β-red (ℕⱼ ⊢ℕ) (var ⊢ℕ here) (zeroⱼ εε) PE.refl Π-ω-ok)
 
 -- The erasure of id-ℕ-zero reduces to zero.
 
-erase-id-ℕ-zero⇒*zero : erase str id-ℕ-zero T.⇒* T.zero
+erase-id-ℕ-zero⇒*zero : vs T.⊢ erase str id-ℕ-zero ⇒* T.zero
 erase-id-ℕ-zero⇒*zero {str = strict} =
   T.trans (T.app-subst $ T.β-red T.↯) $
   T.trans (T.β-red $ TP.Value→Value⟨⟩ T.zero)
@@ -237,10 +242,10 @@ erase-id-ℕ-zero⇒*zero {str = non-strict} =
 id₀ : Term 0
 id₀ = lam 𝟘 (var x0)
 
--- The function id₀ is well-typed (in the empty context).
+-- The function id₀ is well-typed (with respect to empty contexts).
 
-⊢id₀ : ε ⊢ id₀ ∷ Π 𝟘 , p ▷ ℕ ▹ ℕ
-⊢id₀ = lamⱼ′ Π-𝟘-ok (var₀ (ℕⱼ ε))
+⊢id₀ : ε » ε ⊢ id₀ ∷ Π 𝟘 , p ▷ ℕ ▹ ℕ
+⊢id₀ = lamⱼ′ Π-𝟘-ok (var₀ (ℕⱼ εε))
 
 -- The function id₀ is not well-resourced.
 
@@ -270,10 +275,10 @@ erase-non-strict-id₀-zero :
   erase non-strict id₀-zero PE.≡ loop non-strict
 erase-non-strict-id₀-zero = PE.refl
 
--- The term id₀-zero is well-typed (in the empty context).
+-- The term id₀-zero is well-typed (with respect to empty contexts).
 
-⊢id₀-zero : ε ⊢ id₀-zero ∷ ℕ
-⊢id₀-zero = ⊢id₀ ∘ⱼ zeroⱼ ε
+⊢id₀-zero : ε » ε ⊢ id₀-zero ∷ ℕ
+⊢id₀-zero = ⊢id₀ ∘ⱼ zeroⱼ εε
 
 -- The term id₀-zero is not well-resourced.
 
@@ -285,13 +290,13 @@ erase-non-strict-id₀-zero = PE.refl
 
 -- The term id₀-zero reduces to zero.
 
-id₀-zero⇒*zero : ε ⊢ id₀-zero ⇒* zero ∷ ℕ
+id₀-zero⇒*zero : ε » ε ⊢ id₀-zero ⇒* zero ∷ ℕ
 id₀-zero⇒*zero =
-  redMany (β-red (ℕⱼ ⊢ℕ) (var ⊢ℕ here) (zeroⱼ ε) PE.refl Π-𝟘-ok)
+  redMany (β-red (ℕⱼ ⊢ℕ) (var ⊢ℕ here) (zeroⱼ εε) PE.refl Π-𝟘-ok)
 
 -- The erasure of id₀-zero reduces to loop?.
 
-erase-id₀-zero⇒*loop? : ∀ s → erase s id₀-zero T.⇒* loop? s
+erase-id₀-zero⇒*loop? : ∀ s → vs T.⊢ erase s id₀-zero ⇒* loop? s
 erase-id₀-zero⇒*loop? strict =
   T.trans (T.β-red T.↯) T.refl
 erase-id₀-zero⇒*loop? non-strict =
@@ -302,17 +307,17 @@ opaque
 
   -- The erasure of id₀-zero does not reduce to T.zero.
 
-  ¬erase-id₀-zero⇒*zero : ¬ erase str id₀-zero T.⇒* T.zero
-  ¬erase-id₀-zero⇒*zero {str = strict} =
-    erase strict id₀-zero T.⇒* T.zero  →⟨ TP.red*Det $ erase-id₀-zero⇒*loop? strict ⟩
-    T.↯ T.⇒* T.zero ⊎ T.zero T.⇒* T.↯  →⟨ ⊎.map TP.↯-noRed TP.zero-noRed ⟩
-    T.zero PE.≡ T.↯ ⊎ T.↯ PE.≡ T.zero  →⟨ (λ { (inj₁ ()); (inj₂ ()) }) ⟩
-    ⊥                                  □
-  ¬erase-id₀-zero⇒*zero {str = non-strict} =
-    erase non-strict id₀-zero T.⇒* T.zero                      →⟨ TP.red*Det $ erase-id₀-zero⇒*loop? _ ⟩
-    loop non-strict T.⇒* T.zero ⊎ T.zero T.⇒* loop non-strict  →⟨ ⊎.map (¬loop⇒* T.zero) TP.zero-noRed ⟩
-    ⊥ ⊎ loop non-strict PE.≡ T.zero                            →⟨ (λ { (inj₁ ()); (inj₂ ()) }) ⟩
-    ⊥                                                          □
+  ¬erase-id₀-zero⇒*zero : ¬ vs T.⊢ erase str id₀-zero ⇒* T.zero
+  ¬erase-id₀-zero⇒*zero {vs} {str = strict} =
+    vs T.⊢ erase strict id₀-zero ⇒* T.zero       →⟨ TP.red*Det $ erase-id₀-zero⇒*loop? strict ⟩
+    vs T.⊢ T.↯ ⇒* T.zero ⊎ vs T.⊢ T.zero ⇒* T.↯  →⟨ ⊎.map TP.↯-noRed TP.zero-noRed ⟩
+    T.zero PE.≡ T.↯ ⊎ T.↯ PE.≡ T.zero            →⟨ (λ { (inj₁ ()); (inj₂ ()) }) ⟩
+    ⊥                                            □
+  ¬erase-id₀-zero⇒*zero {vs} {str = non-strict} =
+    vs T.⊢ erase non-strict id₀-zero ⇒* T.zero                           →⟨ TP.red*Det $ erase-id₀-zero⇒*loop? _ ⟩
+    vs T.⊢ loop non-strict ⇒* T.zero ⊎ vs T.⊢ T.zero ⇒* loop non-strict  →⟨ ⊎.map (¬loop⇒* T.zero) TP.zero-noRed ⟩
+    ⊥ ⊎ loop non-strict PE.≡ T.zero                                      →⟨ (λ { (inj₁ ()); (inj₂ ()) }) ⟩
+    ⊥                                                                    □
 
 ------------------------------------------------------------------------
 -- A larger example, which makes use of the fact that uses in the
@@ -369,7 +374,7 @@ private
 
   -- A typing rule for Vec-body₂.
 
-  ⊢Vec-body₂ : ε ∙ U l ∙ ℕ ⊢ Vec-body₂ l ∷ U l
+  ⊢Vec-body₂ : ε » ε ∙ U l ∙ ℕ ⊢ Vec-body₂ l ∷ U l
   ⊢Vec-body₂ =
     natrecⱼ (Unitⱼ ⊢Uℕ Unit-ok)
       (PE.subst (_⊢_∷_ _ _) (PE.cong U ⊔ᵘ-idem) $
@@ -378,12 +383,12 @@ private
 
   -- A typing rule for Vec-body₁.
 
-  ⊢Vec-body₁ : ε ∙ U l ⊢ Vec-body₁ l ∷ Π ω , q ▷ ℕ ▹ U l
+  ⊢Vec-body₁ : ε » ε ∙ U l ⊢ Vec-body₁ l ∷ Π ω , q ▷ ℕ ▹ U l
   ⊢Vec-body₁ = lamⱼ′ Π-ω-ok ⊢Vec-body₂
 
 -- A typing rule for Vec.
 
-⊢Vec : ε ⊢ Vec l ∷ Π ω , q ▷ U l ▹ Π ω , q ▷ ℕ ▹ U l
+⊢Vec : ε » ε ⊢ Vec l ∷ Π ω , q ▷ U l ▹ Π ω , q ▷ ℕ ▹ U l
 ⊢Vec = lamⱼ′ Π-ω-ok ⊢Vec-body₁
 
 -- Some lemmas used below.
@@ -395,16 +400,22 @@ private module Vec-lemmas (⊢A : Γ ⊢ A ∷ U l) where
   ⊢Γ : ⊢ Γ
   ⊢Γ = wfTerm ⊢A
 
-  ⊢ΓA : ⊢ Γ ∙ A
+  »Γ : » Γ .defs
+  »Γ = defn-wf ⊢Γ
+
+  Γ⊇ε : ∃ λ ξ → ξ WD.» Γ .defs ⊇ ε
+  Γ⊇ε = WD.»⊇ε »Γ
+
+  ⊢ΓA : ⊢ Γ »∙ A
   ⊢ΓA = ∙ univ ⊢A
 
-  ⊢ΓAℕ : ⊢ Γ ∙ A ∙ ℕ
+  ⊢ΓAℕ : ⊢ Γ »∙ A »∙ ℕ
   ⊢ΓAℕ = ∙ ℕⱼ ⊢ΓA
 
-  ⊢Γℕ : ⊢ Γ ∙ ℕ
+  ⊢Γℕ : ⊢ Γ »∙ ℕ
   ⊢Γℕ = ∙ ℕⱼ ⊢Γ
 
-  Γℕ⊢U : Γ ∙ ℕ ⊢ U l
+  Γℕ⊢U : Γ »∙ ℕ ⊢ U l
   Γℕ⊢U = Uⱼ ⊢Γℕ
 
   wk2≡ :
@@ -450,36 +461,38 @@ private module Vec-lemmas (⊢A : Γ ⊢ A ∷ U l) where
       (wk1 (wk1 (wk1 A)) [ liftSubst (liftSubst (sgSubst u)) ])    ∎
 
   ΓℕU⊢A :
-    Γ ∙ ℕ ∙ U l ⊢
+    Γ »∙ ℕ »∙ U l ⊢
     wk1 (wk1 (wk1 A)) [ liftSubst (liftSubst (sgSubst t)) ] ∷ U l
   ΓℕU⊢A =
     PE.subst (_ ⊢_∷ _) (wk2≡ _) $
     W.wkTerm (W.stepʷ (W.step W.id) Γℕ⊢U) ⊢A
 
-  ⊢Vec-body₁′ : Γ ∙ U l ⊢ Vec-body₁ l ∷ Π ω , q ▷ ℕ ▹ U l
-  ⊢Vec-body₁′ = W.wkTerm
-    (W.liftʷ W.wk₀∷⊇ (Uⱼ ⊢Γ))
-    ⊢Vec-body₁
+  ⊢Vec-body₁′ : Γ »∙ U l ⊢ Vec-body₁ l ∷ Π ω , q ▷ ℕ ▹ U l
+  ⊢Vec-body₁′ =
+    W.wkTerm (W.liftʷ W.wk₀∷⊇ (Uⱼ ⊢Γ)) $
+    WD.defn-wkTerm (Γ⊇ε .proj₂) ⊢Vec-body₁
 
-  ⊢Vec-body₁″ : Γ ∙ A ∙ U l ⊢ Vec-body₁ l ∷ Π ω , q ▷ ℕ ▹ U l
-  ⊢Vec-body₁″ = W.wkTerm
-    (W.liftʷ (W.step W.wk₀∷⊇) (Uⱼ ⊢ΓA))
-    ⊢Vec-body₁
+  ⊢Vec-body₁″ : Γ »∙ A »∙ U l ⊢ Vec-body₁ l ∷ Π ω , q ▷ ℕ ▹ U l
+  ⊢Vec-body₁″ =
+    W.wkTerm
+      (W.liftʷ (W.step W.wk₀∷⊇) (Uⱼ ⊢ΓA)) $
+    WD.defn-wkTerm (Γ⊇ε .proj₂) ⊢Vec-body₁
 
   ⊢Vec-body₂′ :
-    Γ ∙ ℕ ⊢ Vec-body₂ l [ liftSubst (consSubst (toSubst wk₀) A) ] ∷ U l
+    Γ »∙ ℕ ⊢ Vec-body₂ l [ liftSubst (consSubst (toSubst wk₀) A) ] ∷ U l
   ⊢Vec-body₂′ = subst-⊢∷
     {σ = liftSubst (consSubst (toSubst wk₀) A)}
-    ⊢Vec-body₂
-    (⊢ˢʷ∷-⇑′ U⊢ℕ (→⊢ˢʷ∷∙ (⊢ˢʷ∷ε⇔ .proj₂ ⊢Γ) ⊢A))
+    (WD.defn-wkTerm (Γ⊇ε .proj₂) ⊢Vec-body₂)
+    (⊢ˢʷ∷-⇑′ (U⊢ℕ »Γ) (→⊢ˢʷ∷∙ (⊢ˢʷ∷ε⇔ .proj₂ ⊢Γ) ⊢A))
 
   ⊢Vec-body₂″ :
-    Γ ∙ A ∙ ℕ ⊢
+    Γ »∙ A »∙ ℕ ⊢
     Vec-body₂ l [ liftSubst (consSubst (toSubst wk₀) (wk1 A)) ] ∷ U l
   ⊢Vec-body₂″ = subst-⊢∷
     {σ = liftSubst (consSubst (toSubst wk₀) (wk1 A))}
-    ⊢Vec-body₂
-    (⊢ˢʷ∷-⇑′ U⊢ℕ (→⊢ˢʷ∷∙ (⊢ˢʷ∷ε⇔ .proj₂ ⊢ΓA) (W.wkTerm₁ (univ ⊢A) ⊢A)))
+    (WD.defn-wkTerm (Γ⊇ε .proj₂) ⊢Vec-body₂)
+    (⊢ˢʷ∷-⇑′ (U⊢ℕ »Γ) $
+     →⊢ˢʷ∷∙ (⊢ˢʷ∷ε⇔ .proj₂ ⊢ΓA) (W.wkTerm₁ (univ ⊢A) ⊢A))
 
 -- A computation rule for Vec.
 
@@ -580,13 +593,13 @@ private
 
   -- A typing rule for Non-zero-body.
 
-  ⊢Non-zero-body : ε ∙ ℕ ⊢ Non-zero-body ∷ U 0
+  ⊢Non-zero-body : ε » ε ∙ ℕ ⊢ Non-zero-body ∷ U 0
   ⊢Non-zero-body =
     natrecⱼ (Emptyⱼ ⊢ℕ) (Unitⱼ ⊢ℕℕU Unit-ok) (var ⊢ℕ here)
 
 -- A typing rule for Non-zero.
 
-⊢Non-zero : ε ⊢ Non-zero ∷ Π ω , q ▷ ℕ ▹ U 0
+⊢Non-zero : ε » ε ⊢ Non-zero ∷ Π ω , q ▷ ℕ ▹ U 0
 ⊢Non-zero = lamⱼ′ Π-ω-ok ⊢Non-zero-body
 
 -- A computation rule for Non-zero.
@@ -595,7 +608,9 @@ Non-zero∘zero⇒* :
   ⊢ Γ →
   Γ ⊢ wk wk₀ Non-zero ∘⟨ ω ⟩ zero ⇒* Empty ∷ U 0
 Non-zero∘zero⇒* ⊢Γ =
-  β-red (Uⱼ ⊢Γℕ) (W.wkTerm (W.liftʷ W.wk₀∷⊇ (ℕⱼ ⊢Γ)) ⊢Non-zero-body)
+  β-red (Uⱼ ⊢Γℕ)
+    (W.wkTerm (W.liftʷ W.wk₀∷⊇ (ℕⱼ ⊢Γ)) $
+     WD.defn-wkTerm (WD.»⊇ε (defn-wf ⊢Γ) .proj₂) ⊢Non-zero-body)
     (zeroⱼ ⊢Γ) PE.refl Π-ω-ok ⇨
   (redMany $
    natrec-zero (Emptyⱼ ⊢Γ) (Unitⱼ (∙ Uⱼ ⊢Γℕ) Unit-ok))
@@ -608,7 +623,9 @@ Non-zero∘suc⇒* :
   Γ ⊢ t ∷ ℕ →
   Γ ⊢ wk wk₀ Non-zero ∘⟨ ω ⟩ suc t ⇒* Unit s 0 ∷ U 0
 Non-zero∘suc⇒* ⊢t =
-  β-red (Uⱼ ⊢Γℕ) (W.wkTerm (W.liftʷ W.wk₀∷⊇ (ℕⱼ ⊢Γ)) ⊢Non-zero-body)
+  β-red (Uⱼ ⊢Γℕ)
+    (W.wkTerm (W.liftʷ W.wk₀∷⊇ (ℕⱼ ⊢Γ)) $
+     WD.defn-wkTerm (WD.»⊇ε (defn-wf ⊢Γ) .proj₂) ⊢Non-zero-body)
     (sucⱼ ⊢t) PE.refl Π-ω-ok ⇨
   (redMany $
    natrec-suc (Emptyⱼ ⊢Γ) (Unitⱼ (∙ Uⱼ ⊢Γℕ) Unit-ok) ⊢t)
@@ -724,7 +741,7 @@ opaque
 -- A typing rule for head.
 
 ⊢head :
-  ε ⊢
+  ε » ε ⊢
   head l ∷
   Π 𝟘 , p ▷ U l ▹
   Π ω , q ▷ ℕ ▹
@@ -752,29 +769,30 @@ opaque
     (var ⊢Uℕ here)
   where
   ⊢Vec-2-0 :
-    ε ∙ U l ∙ ℕ ∙ ℕ ⊢ wk wk₀ (Vec l) ∘⟨ ω ⟩ var x2 ∘⟨ ω ⟩ var x0 ∷ U l
+    ε » ε ∙ U l ∙ ℕ ∙ ℕ ⊢
+    wk wk₀ (Vec l) ∘⟨ ω ⟩ var x2 ∘⟨ ω ⟩ var x0 ∷ U l
   ⊢Vec-2-0 =
     (W.wkTerm (W.stepʷ (W.step (W.step W.id)) (ℕⱼ ⊢Uℕ)) ⊢Vec ∘ⱼ
      var ⊢Uℕℕ (there (there here))) ∘ⱼ
     var ⊢Uℕℕ here
 
   ⊢Vec-1-0 :
-    ε ∙ U l ∙ ℕ ⊢ wk wk₀ (Vec l) ∘⟨ ω ⟩ var x1 ∘⟨ ω ⟩ zero ∷ U l
+    ε » ε ∙ U l ∙ ℕ ⊢ wk wk₀ (Vec l) ∘⟨ ω ⟩ var x1 ∘⟨ ω ⟩ zero ∷ U l
   ⊢Vec-1-0 = substTerm ⊢Vec-2-0 (zeroⱼ ⊢Uℕ)
 
   ⊢Non-zero-0 :
-    ε ∙ U l ∙ ℕ ∙ ℕ ⊢ wk wk₀ Non-zero ∘⟨ ω ⟩ var x0 ∷ U 0
+    ε » ε ∙ U l ∙ ℕ ∙ ℕ ⊢ wk wk₀ Non-zero ∘⟨ ω ⟩ var x0 ∷ U 0
   ⊢Non-zero-0 =
     W.wkTerm (W.stepʷ (W.step (W.step W.id)) (ℕⱼ ⊢Uℕ)) ⊢Non-zero ∘ⱼ
     var ⊢Uℕℕ here
 
   ⊢Non-zero-1 :
-    ε ∙ U l ∙ ℕ ∙ ℕ ∙ wk wk₀ (Vec l) ∘⟨ ω ⟩ var x2 ∘⟨ ω ⟩ var x0 ⊢
+    ε » ε ∙ U l ∙ ℕ ∙ ℕ ∙ wk wk₀ (Vec l) ∘⟨ ω ⟩ var x2 ∘⟨ ω ⟩ var x0 ⊢
     wk wk₀ Non-zero ∘⟨ ω ⟩ var x1 ∷ U 0
   ⊢Non-zero-1 = W.wkTerm₁ (univ ⊢Vec-2-0) ⊢Non-zero-0
 
   ⊢Non-zero-zero :
-    ε ∙ U l ∙ ℕ ∙ wk wk₀ (Vec l) ∘⟨ ω ⟩ var x1 ∘⟨ ω ⟩ zero ⊢
+    ε » ε ∙ U l ∙ ℕ ∙ wk wk₀ (Vec l) ∘⟨ ω ⟩ var x1 ∘⟨ ω ⟩ zero ⊢
     wk wk₀ Non-zero ∘⟨ ω ⟩ zero ∷ U 0
   ⊢Non-zero-zero = subst-⊢∷
     ⊢Non-zero-1
@@ -784,7 +802,7 @@ opaque
   ⊢Uℕℕ∙Vec∙Non-zero = ∙ univ ⊢Non-zero-1
 
   Uℕℕ⊢ΠΠ∷U :
-    ε ∙ U l ∙ ℕ ∙ ℕ ⊢
+    ε » ε ∙ U l ∙ ℕ ∙ ℕ ⊢
     Π ω , q ▷ wk wk₀ (Vec l) ∘⟨ ω ⟩ var x2 ∘⟨ ω ⟩ var x0 ▹
       Π 𝟘 , p ▷ wk wk₀ Non-zero ∘⟨ ω ⟩ var x1 ▹ var x4 ∷
     U l
@@ -809,7 +827,7 @@ opaque
       Π 𝟘 , p ▷ wk wk₀ Non-zero ∘⟨ ω ⟩ var x1 ▹ var x4
 
   ⊢Vec-3-1+1 :
-    Uℕℕ∙ΠΠ ⊢ wk wk₀ (Vec l) ∘⟨ ω ⟩ var x3 ∘⟨ ω ⟩ suc (var x1) ∷ U l
+    ε » Uℕℕ∙ΠΠ ⊢ wk wk₀ (Vec l) ∘⟨ ω ⟩ var x3 ∘⟨ ω ⟩ suc (var x1) ∷ U l
   ⊢Vec-3-1+1 = subst-⊢∷
     ⊢Vec-2-0
     (⊢ˢʷ∷-wk1Subst (univ Uℕℕ⊢ΠΠ∷U) $
@@ -819,7 +837,7 @@ opaque
     Uℕℕ∙ΠΠ ∙ wk wk₀ (Vec l) ∘⟨ ω ⟩ var x3 ∘⟨ ω ⟩ suc (var x1)
 
   ⊢Non-zero-1+2 :
-    Uℕℕ∙ΠΠ∙Vec ⊢ wk wk₀ Non-zero ∘⟨ ω ⟩ suc (var x2) ∷ U 0
+    ε » Uℕℕ∙ΠΠ∙Vec ⊢ wk wk₀ Non-zero ∘⟨ ω ⟩ suc (var x2) ∷ U 0
   ⊢Non-zero-1+2 = subst-⊢∷
     ⊢Non-zero-0
     (⊢ˢʷ∷-wk1Subst (univ ⊢Vec-3-1+1) $
@@ -828,13 +846,13 @@ opaque
 
   Uℕℕ∙ΠΠ∙Vec∙Non-zero = Uℕℕ∙ΠΠ∙Vec ∙ wk wk₀ Non-zero ∘⟨ ω ⟩ suc (var x2)
 
-  ⊢5 : Uℕℕ∙ΠΠ∙Vec∙Non-zero ⊢ var x5 ∷ U l
+  ⊢5 : ε » Uℕℕ∙ΠΠ∙Vec∙Non-zero ⊢ var x5 ∷ U l
   ⊢5 = var₅ (univ ⊢Non-zero-1+2)
 
   Uℕℕ∙ΠΠ∙Vec∙Non-zero∙5 = Uℕℕ∙ΠΠ∙Vec∙Non-zero ∙ var x5
 
   ⊢Vec-6-4 :
-    Uℕℕ∙ΠΠ∙Vec∙Non-zero∙5 ⊢
+    ε » Uℕℕ∙ΠΠ∙Vec∙Non-zero∙5 ⊢
     wk wk₀ (Vec l) ∘⟨ ω ⟩ var x6 ∘⟨ ω ⟩ var x4 ∷ U l
   ⊢Vec-6-4 = W.wkTerm
     (W.stepʷ (W.step (W.step (W.step W.id))) (univ ⊢5))
@@ -852,18 +870,19 @@ opaque
 
 -- [0] is in η-long normal form.
 
-[0]-normal : ε ⊢nf [0] ∷ Vec 0 ∘⟨ ω ⟩ ℕ ∘⟨ ω ⟩ suc zero
+[0]-normal : ε » ε ⊢nf [0] ∷ Vec 0 ∘⟨ ω ⟩ ℕ ∘⟨ ω ⟩ suc zero
 [0]-normal =
   _⊢nf_∷_.convₙ
-    (prodₙ (Unitⱼ ⊢ℕ Unit-ok) (zeroₙ ε) (starₙ ε Unit-ok) Σˢ-ω-ok) $
+    (prodₙ (Unitⱼ ⊢ℕ Unit-ok) (zeroₙ εε) (starₙ εε Unit-ok) Σˢ-ω-ok) $
   _⊢_≡_.univ $
   sym′ $
-  _⊢_≡_∷_.trans (Vec∘suc≡ (ℕⱼ ε) (zeroⱼ ε)) $
-  ΠΣ-cong (refl (ℕⱼ ε)) (subset*Term (Vec∘zero⇒* (ℕⱼ (∙ ℕⱼ ε)))) Σˢ-ω-ok
+  _⊢_≡_∷_.trans (Vec∘suc≡ (ℕⱼ εε) (zeroⱼ εε)) $
+  ΠΣ-cong (refl (ℕⱼ εε)) (subset*Term (Vec∘zero⇒* (ℕⱼ (∙ ℕⱼ εε))))
+    Σˢ-ω-ok
 
 -- A typing rule for [0].
 
-⊢[0] : ε ⊢ [0] ∷ Vec 0 ∘⟨ ω ⟩ ℕ ∘⟨ ω ⟩ suc zero
+⊢[0] : ε » ε ⊢ [0] ∷ Vec 0 ∘⟨ ω ⟩ ℕ ∘⟨ ω ⟩ suc zero
 ⊢[0] = ⊢nf∷→⊢∷ [0]-normal
 
 -- An application of head 0 to [0] and some other arguments.
@@ -910,17 +929,17 @@ opaque
 
 -- The term head-[0] is well-typed.
 
-⊢head-[0] : ε ⊢ head-[0] ∷ ℕ
+⊢head-[0] : ε » ε ⊢ head-[0] ∷ ℕ
 ⊢head-[0] =
-  (((⊢head ∘ⱼ ℕⱼ ε) ∘ⱼ sucⱼ (zeroⱼ ε)) ∘ⱼ ⊢[0]) ∘ⱼ
-  conv (starⱼ ε Unit-ok)
+  (((⊢head ∘ⱼ ℕⱼ εε) ∘ⱼ sucⱼ (zeroⱼ εε)) ∘ⱼ ⊢[0]) ∘ⱼ
+  conv (starⱼ εε Unit-ok)
     (_⊢_≡_.univ $
      sym′ $
-     subset*Term (Non-zero∘suc⇒* (zeroⱼ ε)))
+     subset*Term (Non-zero∘suc⇒* (zeroⱼ εε)))
 
 -- The erasure of head-[0] reduces to T.zero.
 
-erase-head-[0]⇒*zero : erase str head-[0] T.⇒* T.zero
+erase-head-[0]⇒*zero : vs T.⊢ erase str head-[0] ⇒* T.zero
 erase-head-[0]⇒*zero {str = non-strict} =
   T.trans (T.app-subst $ T.β-red _) $
   T.trans (T.app-subst T.natrec-suc) $
@@ -946,9 +965,9 @@ erase-head-[0]⇒*zero {str = strict} =
 -- Note that this is proved using the fact that the (non-strict)
 -- erasure of head-[0] reduces to T.zero.
 
-head-[0]⇒*zero : ε ⊢ head-[0] ⇒* zero ∷ ℕ
+head-[0]⇒*zero : ε » ε ⊢ head-[0] ⇒* zero ∷ ℕ
 head-[0]⇒*zero =
-  case Soundness₀.soundness-ℕ
+  case Soundness₀.soundness-ℕ ε (λ ())
          T.non-strict ⊢head-[0] ▸head-[0] of λ where
     (0 , head-[0]⇒*zero , _) →
       S.⇒ˢ*zero∷ℕ→⇒*zero ⦃ ok = ε ⦄ head-[0]⇒*zero

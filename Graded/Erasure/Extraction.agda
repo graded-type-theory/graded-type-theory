@@ -13,6 +13,7 @@ open Modality 𝕄
 
 open import Tools.Bool
 open import Tools.Function
+open import Tools.List
 open import Tools.Nat using (Nat; 2+)
 open import Tools.Relation
 
@@ -87,6 +88,7 @@ mutual
     where
     erase″ : U.Term n → T.Term n
     erase″ (var x)                 = T.var x
+    erase″ (defn α)                = T.defn α
     erase″ (U _)                   = loop? s
     erase″ (ΠΣ⟨ _ ⟩ _ , _ ▷ _ ▹ _) = loop? s
     erase″ (U.lam p t)             = case remove of λ where
@@ -138,3 +140,17 @@ mutual
 
   eraseSubst′ : Bool → Strictness → U.Subst m n → T.Subst m n
   eraseSubst′ b s σ x = erase′ b s (σ x)
+
+opaque
+
+  -- A variant of eraseDCon (which is defined below).
+
+  eraseDCon′ : Bool → Strictness → DCon (U.Term 0) n → List (T.Term 0)
+  eraseDCon′ _ _   ε                    = []
+  eraseDCon′ b str (ts ∙⟨ _ ⟩[ t ∷ _ ]) =
+    eraseDCon′ b str ts ++ (erase′ b str t ∷ [])
+
+-- Extraction of definition contexts.
+
+eraseDCon : Strictness → DCon (U.Term 0) n → List (T.Term 0)
+eraseDCon s = eraseDCon′ (s == non-strict) s

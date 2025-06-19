@@ -30,16 +30,16 @@ private
 
   -- Some lemmas used below.
 
-  ⊢ℕ : ⊢ ε ∙ ℕ
-  ⊢ℕ  = ∙ ℕⱼ ε
+  ⊢ℕ : ε »⊢ ε ∙ ℕ
+  ⊢ℕ  = ∙ ℕⱼ (ε ε)
 
-  ⊢ℕℕ : ⊢ ε ∙ ℕ ∙ ℕ
+  ⊢ℕℕ : ε »⊢ ε ∙ ℕ ∙ ℕ
   ⊢ℕℕ = ∙ ℕⱼ ⊢ℕ
 
-  ⊢ℕℕℕ : ⊢ ε ∙ ℕ ∙ ℕ ∙ ℕ
+  ⊢ℕℕℕ : ε »⊢ ε ∙ ℕ ∙ ℕ ∙ ℕ
   ⊢ℕℕℕ = ∙ ℕⱼ ⊢ℕℕ
 
-  ⊢ℕℕℕℕ : ⊢ ε ∙ ℕ ∙ ℕ ∙ ℕ ∙ ℕ
+  ⊢ℕℕℕℕ : ε »⊢ ε ∙ ℕ ∙ ℕ ∙ ℕ ∙ ℕ
   ⊢ℕℕℕℕ = ∙ ℕⱼ ⊢ℕℕℕ
 
 -- A program that takes a natural number and adds it to itself:
@@ -59,7 +59,7 @@ double = lam 𝟙 (natrec 𝟘 𝟘 𝟙 ℕ (var x0) (suc (var x0)) (var x0))
 -- another linearity modality the term is not well-resourced, see
 -- Graded.Modality.Instances.Linearity.Good.¬▸double.
 
-⊢double : ε ⊢ double ∷ Π 𝟙 , 𝟘 ▷ ℕ ▹ ℕ
+⊢double : ε » ε ⊢ double ∷ Π 𝟙 , 𝟘 ▷ ℕ ▹ ℕ
 ⊢double =
   lamⱼ′ Π-𝟙-𝟘 $
   natrecⱼ (var ⊢ℕ here)
@@ -80,7 +80,7 @@ plus = lam 𝟙 $ lam 𝟙 $ natrec 𝟘 𝟘 𝟙 ℕ (var x0) (suc (var x0)) (
 -- another "linearity" modality the term is not well-resourced, see
 -- Graded.Modality.Instances.Linearity.Bad.¬▸plus.
 
-⊢plus : ε ⊢ plus ∷ Π 𝟙 , 𝟘 ▷ ℕ ▹ Π 𝟙 , 𝟘 ▷ ℕ ▹ ℕ
+⊢plus : ε » ε ⊢ plus ∷ Π 𝟙 , 𝟘 ▷ ℕ ▹ Π 𝟙 , 𝟘 ▷ ℕ ▹ ℕ
 ⊢plus =
   lamⱼ′ Π-𝟙-𝟘 $
   lamⱼ′ Π-𝟙-𝟘 $

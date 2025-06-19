@@ -62,8 +62,10 @@ open import Tools.Relation
 open import Tools.Sum using (_⊎_; inj₁; inj₂)
 
 private variable
-  n       : Nat
-  Γ       : Con Term _
+  m n     : Nat
+  ∇       : DCon (Term 0) _
+  Δ       : Con Term _
+  Γ       : Cons _ _
   q₁ q₂   : M
   s s₁ s₂ : Strength
   l       : Universe-level
@@ -76,7 +78,7 @@ private variable
 -- * is well-typed with respect to Γ, and
 -- * is well-resourced with respect to 𝟘ᶜ.
 
-Resurrectable : Strength → M → M → Con Term n → Term n → Set a
+Resurrectable : Strength → M → M → Cons m n → Term n → Set a
 Resurrectable s q₁ q₂ Γ A =
   ∃ λ t →
     𝟘ᶜ ▸[ 𝟙ᵐ ] t ×
@@ -185,25 +187,26 @@ opaque
     ⊢Unit₁ : Γ ⊢ Unit s₂ l
     ⊢Unit₁ = Unitⱼ ⊢Γ Unit-ok
 
-    ⊢Γ∙Unit : ⊢ Γ ∙ Unit s₂ l
+    ⊢Γ∙Unit : ⊢ Γ »∙ Unit s₂ l
     ⊢Γ∙Unit = ∙ ⊢Unit₁
 
-    ⊢Unit₂ : Γ ∙ Unit s₂ l ⊢ Unit s₂ l
+    ⊢Unit₂ : Γ »∙ Unit s₂ l ⊢ Unit s₂ l
     ⊢Unit₂ = Unitⱼ ⊢Γ∙Unit Unit-ok
 
 opaque
 
   -- If the modality's zero is well-behaved and Erased is allowed,
-  -- then ℕ is not resurrectable with respect to the empty context.
+  -- then ℕ is not resurrectable with respect to a well-resourced,
+  -- transparent definition context and an empty variable context.
 
   ¬-ℕ-resurrectable-ε :
     ⦃ 𝟘-well-behaved : Has-well-behaved-zero semiring-with-meet ⦄ →
     Erased-allowed s →
-    ¬ Resurrectable s q₁ q₂ ε ℕ
-  ¬-ℕ-resurrectable-ε ok (_ , ▸t , ⊢t) =
+    ▸[ 𝟙ᵐ ] glassify ∇ →
+    ¬ Resurrectable s q₁ q₂ (glassify ∇ » ε) ℕ
+  ¬-ℕ-resurrectable-ε {∇} ok ▸∇ (_ , ▸t , ⊢t) =
     -- By the fundamental theorem t is related to erase t.
-    case Fundamental.fundamentalErased-𝟙ᵐ
-           fundamental-assumptions₀ ⊢t ▸t of λ {
+    case Fundamental.fundamentalErased-𝟙ᵐ fas ⊢t ▸t of λ {
       t®erase-t →
 
     -- Let us first apply t to zero.
@@ -213,12 +216,14 @@ opaque
       (_ , t₁ , _ , _ , _ , t∘0⇒t₁,t₂ , erase-t∘↯⇒v₁,v₂ , t₁®v₁ , _) →
 
     -- The term t₁ is definitionally equal to zero.
-    case ε⊢∷Id→ε⊢≡∷ $
+    case PE.subst₄ _⊢_≡_∷_
+           (PE.cong (_» _) (glassify-idem _)) PE.refl PE.refl PE.refl $
+         ε⊢∷Id→ε⊢≡∷ $
          erasedⱼ $
          inversion-prod-Σ
            (syntacticEqTerm (subset*Term t∘0⇒t₁,t₂) .proj₂ .proj₂)
            .proj₂ .proj₁ of λ
-      (t₁≡0 : ε ⊢ t₁ ≡ zero ∷ ℕ) →
+      (t₁≡0 : glassify ∇ » ε ⊢ t₁ ≡ zero ∷ ℕ) →
 
     -- Either both of t₁ and v₁ reduce to zero, or both reduce to an
     -- application of suc.
@@ -240,13 +245,16 @@ opaque
            t∘1⇒t₁′,t₂′ , erase-t∘↯⇒v₁′,v₂′ , t₁′®v₁′ , _) →
 
         -- The term t₁′ is definitionally equal to suc zero.
-        case ε⊢∷Id→ε⊢≡∷ $
+        case PE.subst₄ _⊢_≡_∷_
+               (PE.cong (_» _) (glassify-idem _))
+               PE.refl PE.refl PE.refl $
+             ε⊢∷Id→ε⊢≡∷ $
              erasedⱼ $
              inversion-prod-Σ
                (syntacticEqTerm (subset*Term t∘1⇒t₁′,t₂′)
                   .proj₂ .proj₂)
                .proj₂ .proj₁ of λ
-          (t₁′≡1 : ε ⊢ t₁′ ≡ suc zero ∷ ℕ) →
+          (t₁′≡1 : glassify ∇ » ε ⊢ t₁′ ≡ suc zero ∷ ℕ) →
 
         -- Either both of t₁ and v₁′ reduce to zero, or both
         -- reduce to an application of suc.
@@ -278,7 +286,10 @@ opaque
               (inj₂ suc⇒zero) →
                 case TP.suc-noRed suc⇒zero of λ () }}}}
     where
-    open Fundamental-assumptions fundamental-assumptions₀
+    fas : Fundamental-assumptions (glassify ∇ » ε)
+    fas = fundamental-assumptions₀ (defn-wf (wfTerm ⊢t)) ▸∇
+
+    open Fundamental-assumptions fas
 
     as : Assumptions
     as = record { ⊢Δ = well-formed; inc = inc; str = T.non-strict }
@@ -291,11 +302,13 @@ opaque
   -- If 𝟘ᵐ is allowed, η-equality is not allowed for weak unit types
   -- unless a certain condition is satisfied, and []-cong is allowed
   -- for s (and another assumption holds if s is 𝕨), then ℕ is not
-  -- s-resurrectable with respect to any context that satisfies
+  -- s-resurrectable with respect to a well-resourced, transparent
+  -- definition context and a variable context that satisfy
   -- Fundamental-assumptions⁻.
   --
   -- Note that if []-cong is allowed, then (at the time of writing)
-  -- Fundamental-assumptions⁻ only holds for the empty context.
+  -- Fundamental-assumptions⁻ only holds for the empty variable
+  -- context.
 
   ¬-ℕ-resurrectable :
     ⦃ ok : T 𝟘ᵐ-allowed ⦄ →
@@ -305,10 +318,12 @@ opaque
     (s PE.≡ 𝕨 → Prodrec-allowed 𝟘ᵐ (𝟘 ∧ 𝟙) 𝟘 𝟘) →
     []-cong-allowed s →
     []-cong-allowed-mode s 𝟙ᵐ →
-    Fundamental-assumptions⁻ Γ →
-    ¬ Resurrectable s q₁ q₂ Γ ℕ
+    ▸[ 𝟙ᵐ ] glassify ∇ →
+    Fundamental-assumptions⁻ (glassify ∇ » Δ) →
+    ¬ Resurrectable s q₁ q₂ (glassify ∇ » Δ) ℕ
   ¬-ℕ-resurrectable
-    {Γ} ⦃ ok ⦄ Unitʷ-η→ P-ok []-cong-ok []-cong-ok′ as (_ , ▸t , ⊢t) =
+    {∇} {Δ} ⦃ ok ⦄
+    Unitʷ-η→ P-ok []-cong-ok []-cong-ok′ ▸∇ as (_ , ▸t , ⊢t) =
     -- By the fundamental theorem t is related to erase t.
     case Fundamental.fundamentalErased-𝟙ᵐ
            (record
@@ -326,13 +341,13 @@ opaque
 
     -- The term t₁ is definitionally equal to zero.
     case inv-usage-prod
-           (usagePres*Term Unitʷ-η→ (▸t ∘ₘ zeroₘ) t∘0⇒t₁,t₂) of λ {
+           (usagePres*Term Unitʷ-η→ ▸∇ (▸t ∘ₘ zeroₘ) t∘0⇒t₁,t₂) of λ {
       (invUsageProd ▸t₁ ▸t₂ _ _) →
     case Id→≡″ []-cong-ok []-cong-ok′ P-ok as ℕₘ (▸-𝟘 ▸t₁) zeroₘ (▸-𝟘 ▸t₂) $
          inversion-prod-Σ
            (syntacticEqTerm (subset*Term t∘0⇒t₁,t₂) .proj₂ .proj₂)
            .proj₂ .proj₁ of λ
-      (t₁≡0 : Γ ⊢ t₁ ≡ zero ∷ ℕ) →
+      (t₁≡0 : glassify ∇ » Δ ⊢ t₁ ≡ zero ∷ ℕ) →
 
     -- Either both of t₁ and v₁ reduce to zero, or both reduce to an
     -- application of suc.
@@ -355,7 +370,7 @@ opaque
 
         -- The term t₁′ is definitionally equal to suc zero.
         case inv-usage-prod
-               (usagePres*Term Unitʷ-η→ (▸t ∘ₘ sucₘ zeroₘ)
+               (usagePres*Term Unitʷ-η→ ▸∇ (▸t ∘ₘ sucₘ zeroₘ)
                   t∘1⇒t₁′,t₂′) of λ {
           (invUsageProd ▸t₁′ ▸t₂′ _ _) →
         case Id→≡″ []-cong-ok []-cong-ok′ P-ok as ℕₘ (▸-𝟘 ▸t₁′) (sucₘ zeroₘ)
@@ -364,7 +379,7 @@ opaque
                (syntacticEqTerm (subset*Term t∘1⇒t₁′,t₂′)
                   .proj₂ .proj₂)
                .proj₂ .proj₁ of λ
-          (t₁′≡1 : Γ ⊢ t₁′ ≡ suc zero ∷ ℕ) →
+          (t₁′≡1 : glassify ∇ » Δ ⊢ t₁′ ≡ suc zero ∷ ℕ) →
 
         -- Either both of t₁ and v₁′ reduce to zero, or both
         -- reduce to an application of suc.

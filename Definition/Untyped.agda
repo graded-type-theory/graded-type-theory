@@ -46,7 +46,12 @@ infix 24 _∙[_][_][_]
 -- The syntax
 
 -- The type of terms is parametrised by the number of free variables.
--- Variables are de Bruijn indices.
+-- Variables are de Bruijn indices, and names of definitions are de
+-- Bruijn levels. Terms are currently not parametrised by the number
+-- of names, but it might make sense to do so: currently a predicate
+-- Names< is used in parts of the development, and at least some uses
+-- of this predicate could presumably be avoided if terms were
+-- parametrised by the number of names.
 
 data Term (n : Nat) : Set a where
   var : (x : Fin n) → Term n

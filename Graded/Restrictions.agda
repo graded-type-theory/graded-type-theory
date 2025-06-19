@@ -48,22 +48,28 @@ private variable
 -- No type restrictions except that
 -- * if the modality is trivial, then []-cong is not allowed,
 -- * the K rule is allowed if and only if the first boolean is true,
--- * η-equality is not allowed for weak unit types, and
+-- * η-equality is not allowed for weak unit types,
+-- * opacity is allowed if and only if the second boolean is false,
+--   and
 -- * equality reflection is allowed if and only if the second boolean
 --   is true.
+-- Furthermore transitive unfolding is used.
 
 no-type-restrictions : Bool → Bool → Type-restrictions
 no-type-restrictions k equality-reflection = λ where
-    .Unit-allowed         → λ _ → Lift _ ⊤
-    .ΠΣ-allowed           → λ _ _ _ → Lift _ ⊤
-    .K-allowed            → Lift _ (T k)
-    .[]-cong-allowed      → λ _ → ¬ Trivial
-    .[]-cong→Erased       → _
-    .[]-cong→¬Trivial     → idᶠ
-    .Equality-reflection  → Lift _ (T equality-reflection)
-    .Equality-reflection? → Lift? (T? equality-reflection)
-    .type-variant         → λ where
-      .Type-variant.η-for-Unitʷ → false
+    .Unit-allowed                  → λ _ → Lift _ ⊤
+    .ΠΣ-allowed                    → λ _ _ _ → Lift _ ⊤
+    .Opacity-allowed               → Lift _ (¬ T equality-reflection)
+    .K-allowed                     → Lift _ (T k)
+    .[]-cong-allowed               → λ _ → ¬ Trivial
+    .[]-cong→Erased                → _
+    .[]-cong→¬Trivial              → idᶠ
+    .Equality-reflection           → Lift _ (T equality-reflection)
+    .Equality-reflection?          → Lift? (T? equality-reflection)
+    .no-opaque-equality-reflection → (_∘→ Lift.lower) ∘→ Lift.lower
+    .type-variant                  → λ where
+      .Type-variant.unfolding-mode → transitive
+      .Type-variant.η-for-Unitʷ    → false
   where
   open Type-restrictions
 

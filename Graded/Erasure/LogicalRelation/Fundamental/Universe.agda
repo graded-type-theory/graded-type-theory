@@ -26,6 +26,7 @@ open import Tools.Product
 import Tools.PropositionalEquality as PE
 
 private variable
+  n : Nat
   Γ : Con Term _
   γ : Conₘ _
   m : Mode
@@ -35,7 +36,7 @@ opaque
 
   -- Validity for U.
 
-  Uʳ : γ ▸ Γ ⊩ʳ U l ∷[ m ] U (1+ l)
+  Uʳ : γ ▸ Γ ⊩ʳ U l ∷[ m ∣ n ] U (1+ l)
   Uʳ =
     ▸⊩ʳ∷⇔ .proj₂ λ _ _ →
     ®∷→®∷◂ (®∷U⇔ .proj₂ (_ , ≤ᵘ-refl , Uᵣ (λ { PE.refl → T.refl })))

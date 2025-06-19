@@ -784,12 +784,14 @@ opaque
 
 opaque
 
-  -- There are three different reasons a well-resourced state can be Final:
+  -- There are four different reasons why a well-resourced state can
+  -- be Final:
   -- 1. It has a variable in head position pointing to a dummy entry
   --    in the heap and the stack multiplicity is 𝟘.
   -- 2. It has a value in head position, the stack is not empty and the
   --    top of the stack does not match the head.
   -- 3. It has a value in head position and the stack is empty.
+  -- 4. It has a name in head position.
 
   ▸Final-reasons :
     Supports-subtraction →
@@ -797,7 +799,8 @@ opaque
     Final (⟨_,_,_,_⟩ H t ρ S) →
     (∃ λ x → t ≡ var x × H ⊢ wkVar ρ x ↦● × ∣ S ∣ ≡ 𝟘) ⊎
     (∃₂ λ e S′ → S ≡ e ∙ S′ × Value t × (Matching t S → ⊥)) ⊎
-    Value t × S ≡ ε
+    Value t × S ≡ ε ⊎
+    (∃ λ α → t ≡ defn α)
   ▸Final-reasons {ρ} ok ▸s f =
     case Final-reasons _ f of λ where
       (inj₂ x) → inj₂ x
@@ -815,7 +818,7 @@ opaque
   -- A variant of the above property with the added assumption that
   -- there are no erased matches if the state is not closed.
 
-  -- Under this assumption there are three different reasons a wel-resourced
+  -- Under this assumption there are four reasons why a well-resourced
   -- state can be Final:
   -- 1. It has a variable in head position pointing to a dummy entry
   --    in the heap, the stack contains an erased emptyrec and erased uses
@@ -823,6 +826,7 @@ opaque
   -- 2. It has a value in head position, the stack is not empty and the
   --    top of the stack does not match the head.
   -- 3. It has a value in head position and the stack is empty.
+  -- 4. It has a name in head position.
 
   ▸Final-reasons′ :
     ∀ {k} {H : Heap k _} →
@@ -832,7 +836,8 @@ opaque
     Final (⟨_,_,_,_⟩ H t ρ S) →
     (∃ λ x → t ≡ var x × H ⊢ wkVar ρ x ↦● × emptyrec₀∈ S × Emptyrec-allowed 𝟙ᵐ 𝟘) ⊎
     (∃₂ λ e S′ → S ≡ e ∙ S′ × Value t × (Matching t S → ⊥)) ⊎
-    Value t × S ≡ ε
+    Value t × S ≡ ε ⊎
+    (∃ λ α → t ≡ defn α)
   ▸Final-reasons′ {ρ} ok nem ▸s f =
     let _ , _ , _ , _ , _ , ▸S , _ = ▸ₛ-inv ▸s in
     case ▸Final-reasons ok ▸s f of λ where
@@ -852,16 +857,19 @@ opaque
     s ⇘ ⟨ H , t , ρ , S ⟩ →
     (∃ λ x → t ≡ var x × H ⊢ wkVar ρ x ↦● × ∣ S ∣ ≡ 𝟘) ⊎
     (∃₂ λ e S′ → S ≡ e ∙ S′ × Value t × (Matching t S → ⊥)) ⊎
-    Value t × S ≡ ε
+    Value t × S ≡ ε ⊎
+    (∃ λ α → t ≡ defn α)
   ▸-⇘-reasons ok ▸s (d , f) =
     ▸Final-reasons ok (▸-⇾* ▸s d) f
 
 opaque
 
-  -- There are two different reasons a closed state can be Final:
+  -- There are three different reasons why a closed state can be
+  -- Final:
   -- 1. It has a value in head position, the stack is not empty and the
   --    top of the stack does not match the head.
   -- 2. It has a value in head position and the stack is empty.
+  -- 3. It has a name in head position.
 
   ▸Final-reasons-closed :
     {H : Heap 0 _} →
@@ -869,7 +877,8 @@ opaque
     ▸ ⟨ H , t , ρ , S ⟩ →
     Final (⟨_,_,_,_⟩ H t ρ S) →
     (∃₂ λ e S′ → S ≡ e ∙ S′ × Value t × (Matching t S → ⊥)) ⊎
-    Value t × S ≡ ε
+    Value t × S ≡ ε ⊎
+    (∃ λ α → t ≡ defn α)
   ▸Final-reasons-closed ok ▸s f =
     case ▸Final-reasons ok ▸s f of λ where
       (inj₁ (_ , _ , d , _)) → ⊥-elim (¬erased-heap→¬↦● d refl)

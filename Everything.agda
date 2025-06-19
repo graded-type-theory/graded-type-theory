@@ -155,15 +155,15 @@ import Definition.Typed.EqRelInstance
 
 ------------------------------------------------------------------------
 -- The usage relation
-{-
+
 import Graded.Usage.Erased-matches
 import Graded.Usage.Restrictions
 import Graded.Usage
+import Graded.Usage.Weakening
 import Graded.Usage.Inversion
 import Graded.Usage.Properties
 import Graded.Usage.Restrictions.Satisfied
 import Graded.Usage.Properties.Has-well-behaved-zero
-import Graded.Usage.Weakening
 import Graded.Usage.Decidable.Assumptions
 import Graded.Usage.Decidable
 
@@ -249,7 +249,7 @@ import Graded.Modality.Instances.Linear-or-affine.Good
 import Graded.Modality.Instances.Linearity.Bad
 import Graded.Modality.Instances.Linearity.Bad.No-dedicated-nr
 import Graded.Modality.Instances.Linearity.Good
--}
+
 ------------------------------------------------------------------------
 -- Properties of the type theory
 
@@ -315,7 +315,7 @@ import Definition.Typed.Consequences.Inversion.Erased.Eta
 import Definition.Typed.Consequences.Inversion.Erased.No-eta
 import Definition.Typed.Consequences.Admissible
 import Definition.Typed.Consequences.Consistency
--- import Graded.Derived.Unrestricted.Eta.Typed
+import Graded.Derived.Unrestricted.Eta.Typed
 import Definition.Typed.Consequences.NeTypeEq
 
 -- Algorithmic equality.
@@ -356,7 +356,7 @@ import Definition.Typed.Decidable
 
 ------------------------------------------------------------------------
 -- Definitions related to type and usage restrictions
-{-
+
 import Graded.Restrictions
 
 ------------------------------------------------------------------------
@@ -506,4 +506,3 @@ import Application.NegativeOrErasedAxioms.Canonicity.ErasedMatches
 -- Type Theory with a Universe and Erasure, Formalized"
 
 import README
--}

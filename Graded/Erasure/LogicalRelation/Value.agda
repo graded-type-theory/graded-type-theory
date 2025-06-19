@@ -41,13 +41,13 @@ opaque
   reduces-to-value :
     str ≡ strict →
     t ® u ∷ A →
-    ∃ λ v → T.Value v × u T.⇒* v
+    ∃ λ v → T.Value v × vs T.⊢ u ⇒* v
   reduces-to-value refl (_ , ⊩A , t®u) = helper ⊩A t®u
     where
     helper :
-      (⊩A : Δ ⊩⟨ l ⟩ A) →
+      (⊩A : ts » Δ ⊩⟨ l ⟩ A) →
       t ®⟨ l ⟩ u ∷ A / ⊩A →
-      ∃ λ v → T.Value v × u T.⇒* v
+      ∃ λ v → T.Value v × vs T.⊢ u ⇒* v
     helper = λ where
       (Uᵣ _)            (Uᵣ v⇒*↯)           → _ , T.↯    , v⇒*↯ refl
       (ℕᵣ _)            (zeroᵣ _ v⇒*zero)   → _ , T.zero , v⇒*zero
@@ -62,7 +62,7 @@ opaque
         Σ-®-elim _ more
           (λ u⇒*v₂ _ →
              Σ.map idᶠ (Σ.map idᶠ (red*concat u⇒*v₂)) $
-             helper (⊩B _ _) t₂®v₂)
+             helper (⊩B _ _ _) t₂®v₂)
           (λ _ u⇒*prod _ _ → _ , T.prod , u⇒*prod)
       (emb ≤ᵘ-refl     ⊩A) → helper ⊩A
       (emb (≤ᵘ-step p) ⊩A) → helper (emb p ⊩A)
@@ -75,7 +75,7 @@ opaque
   reduces-to-numeral :
     str ≡ strict →
     t ® u ∷ℕ →
-    ∃ λ v → T.Numeral v × u T.⇒* v
+    ∃ λ v → T.Numeral v × vs T.⊢ u ⇒* v
   reduces-to-numeral refl = λ where
     (zeroᵣ _ v⇒*zero)     → _ , T.zero    , v⇒*zero
     (sucᵣ _ v⇒*suc num _) → _ , T.suc num , v⇒*suc

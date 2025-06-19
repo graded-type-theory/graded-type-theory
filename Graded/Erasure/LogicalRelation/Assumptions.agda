@@ -18,12 +18,14 @@ open import Definition.Typed.EqualityRelation R
 open import Definition.Untyped M
 open import Definition.Untyped.Properties M
 
-open import Graded.Erasure.Target using (Strictness)
+open import Graded.Erasure.Target as T using (Strictness)
 
 open import Tools.Function
 open import Tools.Level
+open import Tools.List
 open import Tools.Nat
 open import Tools.Product
+open import Tools.PropositionalEquality
 
 record Assumptions : Set (lsuc a) where
   field
@@ -33,17 +35,26 @@ record Assumptions : Set (lsuc a) where
   open EqRelSet eqRelSet public
 
   field
+    -- The size of the definition context below.
+    {kᵈ} : Nat
+
     -- The size of the context below.
     {k} : Nat
 
-    -- A context.
+    -- A definition context.
+    {ts} : DCon (Term 0) kᵈ
+
+    -- A variable context.
     {Δ} : Con Term k
 
-    -- The context is well-formed.
-    ⊢Δ : ⊢ Δ
+    -- A definition context for the target language.
+    vs : List (T.Term 0)
 
-    -- Neutrals-included holds or Δ is empty.
-    ⦃ inc ⦄ : Neutrals-included or-empty Δ
+    -- The source contexts are well-formed.
+    ⊢Δ : ts »⊢ Δ
+
+    -- Var-included holds or Δ is empty.
+    ⦃ inc ⦄ : Var-included or-empty Δ
 
     -- Should applications be extracted to strict or non-strict
     -- applications?
@@ -58,5 +69,5 @@ record Assumptions : Set (lsuc a) where
     no-equality-reflection-or-empty =
       or-empty-map
         (No-equality-reflection⇔ .proj₂ ∘→
-         flip Equality-reflection-allowed→¬Neutrals-included)
+         flip Equality-reflection-allowed→¬Var-included)
         inc

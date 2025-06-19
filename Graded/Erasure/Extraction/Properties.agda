@@ -37,7 +37,8 @@ open import Tools.Bool
 open import Tools.Empty
 open import Tools.Fin
 open import Tools.Function
-open import Tools.Nat using (Nat; 1+) renaming (_+_ to _+ⁿ_)
+open import Tools.List
+open import Tools.Nat as Nat using (Nat; 1+) renaming (_+_ to _+ⁿ_)
 open import Tools.Product
 open import Tools.Relation
 open import Tools.Sum using (inj₁; inj₂)
@@ -49,9 +50,11 @@ import Tools.Reasoning.PropositionalEquality
 private
   variable
     b : Bool
-    m n : Nat
+    α m n : Nat
     t u A : U.Term n
     v₁ v₂ : T.Term n
+    ts : DCon (U.Term _) _
+    ∇ : List (T.Term n)
     σ : U.Subst m n
     σ′ : T.Subst m n
     ρ : Wk _ _
@@ -252,7 +255,7 @@ opaque
 
   -- A reduction lemma for app-𝟘′.
 
-  app-𝟘′-subst : v₁ T.⇒ v₂ → app-𝟘′ b s v₁ T.⇒ app-𝟘′ b s v₂
+  app-𝟘′-subst : ∇ T.⊢ v₁ ⇒ v₂ → ∇ T.⊢ app-𝟘′ b s v₁ ⇒ app-𝟘′ b s v₂
   app-𝟘′-subst {b = true}  v₁⇒v₂ = v₁⇒v₂
   app-𝟘′-subst {b = false} v₁⇒v₂ = app-subst v₁⇒v₂
 
@@ -261,6 +264,7 @@ opaque
 wk-erase-comm : (ρ : U.Wk m n) (t : U.Term n)
               → wk ρ (erase′ b s t) ≡ erase′ b s (U.wk ρ t)
 wk-erase-comm _ (var _) = refl
+wk-erase-comm _ (defn _) = refl
 wk-erase-comm {s} _ (U _) = wk-loop? s
 wk-erase-comm {s} _ (ΠΣ⟨ _ ⟩ _ , _ ▷ _ ▹ _) = wk-loop? s
 wk-erase-comm {b = true} {s} ρ (U.lam p t) with is-𝟘? p
@@ -392,6 +396,7 @@ subst-erase-comm :
   (σ : U.Subst m n) (t : U.Term n) →
   erase′ b s t T.[ eraseSubst′ b s σ ] ≡ erase′ b s (t U.[ σ ])
 subst-erase-comm σ (var x) = refl
+subst-erase-comm _ (defn _) = refl
 subst-erase-comm {s} _ (U _) = loop?-[] s
 subst-erase-comm {s} _ (ΠΣ⟨ _ ⟩ _ , _ ▷ _ ▹ _) = loop?-[] s
 subst-erase-comm {b = true} {s} σ (U.lam p t) with is-𝟘? p
@@ -537,6 +542,57 @@ erase-consSubst : (σ : U.Subst m n) (a : U.Term m) (t : T.Term (1+ n))
                 ≡ t T.[ eraseSubst′ b s (U.consSubst σ a) ]
 erase-consSubst σ a t = substVar-to-subst (erase-consSubst-var σ a) t
 
+opaque
+  unfolding eraseDCon′
+
+  -- Glassification does not affect the result of eraseDCon′.
+
+  eraseDCon-glassify :
+    {∇ : DCon (U.Term 0) n} →
+    eraseDCon′ b s (glassify ∇) ≡ eraseDCon′ b s ∇
+  eraseDCon-glassify {∇ = ε}                 = refl
+  eraseDCon-glassify {∇ = ∇ ∙⟨ _ ⟩[ _ ∷ _ ]} =
+    cong (_++ _) (eraseDCon-glassify {∇ = ∇})
+
+opaque
+  unfolding eraseDCon′
+
+  -- The length of eraseDCon′ b s ts is the length of ts.
+
+  length-eraseDCon :
+    (ts : DCon (U.Term 0) n) → length (eraseDCon′ b s ts) ≡ n
+  length-eraseDCon         ε                         = refl
+  length-eraseDCon {b} {s} (_∙⟨_⟩[_∷_] {n} ts _ t _) =
+    length (eraseDCon′ b s ts ++ erase′ b s t ∷ [])  ≡⟨ length-++ (eraseDCon′ _ _ ts) ⟩
+    length (eraseDCon′ b s ts) +ⁿ 1                  ≡˘⟨ Nat.+-comm 1 _ ⟩
+    1+ (length (eraseDCon′ b s ts))                  ≡⟨ cong 1+ (length-eraseDCon ts) ⟩
+    1+ n                                             ∎
+    where
+    open Tools.Reasoning.PropositionalEquality
+
+opaque
+  unfolding eraseDCon′
+
+  -- If α points to t in ts, then α points to erase′ b s t in
+  -- eraseDCon′ b s ts.
+
+  ↦erase∈eraseDCon :
+    α U.↦ t ∷ A ∈ ts → α ↦ erase′ b s t ∈ eraseDCon′ b s ts
+  ↦erase∈eraseDCon (there α↦t) = ↦∈++ (↦erase∈eraseDCon α↦t)
+  ↦erase∈eraseDCon (here {∇})  =
+    PE.subst₃ _↦_∈_ (length-eraseDCon ∇) refl refl length↦∈++∷
+
+opaque
+
+  -- If α points to t in glassify ts, then α points to erase′ b s t in
+  -- eraseDCon′ b s ts.
+
+  ↦erase∈eraseDCon′ :
+    α U.↦ t ∷ A ∈ glassify ts → α ↦ erase′ b s t ∈ eraseDCon′ b s ts
+  ↦erase∈eraseDCon′ =
+    PE.subst (_↦_∈_ _ _) eraseDCon-glassify ∘→
+    ↦erase∈eraseDCon
+
 module hasX (R : Usage-restrictions) where
 
   open MU R
@@ -552,6 +608,8 @@ module hasX (R : Usage-restrictions) where
 
   erased-hasX erased γ▸t@var varₓ =
     valid-var-usage γ▸t (var-usage-lookup erased)
+
+  erased-hasX _ defn ()
 
   erased-hasX {b = false} erased (lamₘ γ▸t) (lamₓ hasX) =
     erased-hasX (there erased) γ▸t hasX
@@ -717,7 +775,7 @@ module hasX (R : Usage-restrictions) where
     (natrec-no-nrₘ _ δ▸s _ _ _ _ _ fix)
     (natrecₓˢ hasX) =
     erased-hasX
-      (there $ there $ x◂𝟘∈γ+δˡ refl $ x◂𝟘∈γ≤δ erased fix)
+      (_◂_∈_.there $ there $ x◂𝟘∈γ+δˡ refl $ x◂𝟘∈γ≤δ erased fix)
       δ▸s hasX
   erased-hasX erased (natrecₘ _ _ η▸n _) (natrecₓⁿ hasX) =
     erased-hasX (◂𝟘∈nrᶜ₃ refl erased) η▸n hasX

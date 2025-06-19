@@ -24,7 +24,7 @@ module Application.NegativeOrErasedAxioms.Canonicity
   (UR : Usage-restrictions 𝕄)
   -- Erased matches are not allowed.
   (no-erased-matches : No-erased-matches TR UR)
-  {m} {Γ : Con Term m}
+  {m n} {Γ : Cons m n}
   (consistent : Consistent Γ)
   where
 
@@ -48,6 +48,8 @@ open import Graded.Erasure.SucRed TR
 
 open import Definition.Untyped.Neutral M type-variant
 open import Definition.Untyped.Normal-form M type-variant
+open import Definition.Untyped.Properties M
+open import Definition.Untyped.Whnf M type-variant
 
 open import Definition.Typed.EqRelInstance TR
 open import Definition.Typed.Inversion TR
@@ -55,6 +57,7 @@ open import Definition.Typed.Properties TR
 open import Definition.Typed.Syntactic TR
 open import Definition.Typed.Consequences.Inequality TR
 open import Definition.Typed.Consequences.Reduction TR
+import Definition.Typed.Weakening TR as W
 
 open import Definition.LogicalRelation TR
 open import Definition.LogicalRelation.Fundamental.Reducibility TR
@@ -72,14 +75,11 @@ open import Tools.Sum using (_⊎_; inj₁; inj₂)
 -- Preliminaries
 ---------------------------------------------------------------------------
 
-private
-  Ty  = Term
-  Cxt = Con Ty
-  variable
-    A B C : Term m
-    t u   : Term m
-    γ     : Conₘ m
-    l     : Universe-level
+private variable
+  A B C : Term n
+  t u   : Term n
+  γ     : Conₘ n
+  l     : Universe-level
 
 -- Main results
 ---------------------------------------------------------------------------
@@ -89,10 +89,10 @@ private
 -- negative type (given a certain assumption).
 
 neNeg :
-  ⦃ ok : No-equality-reflection or-empty Γ ⦄ →
-  Γ ⊢ u ∷ A → Neutral u → γ ▸[ 𝟙ᵐ ] u → NegativeErasedContext Γ γ →
-  NegativeType Γ A
-neNeg {γ = γ} (var ⊢Γ h) (var x) γ▸u nΓγ =
+  ⦃ ok : No-equality-reflection or-empty Γ .vars ⦄ →
+  Γ ⊢ u ∷ A → Neutral⁺ (Γ .defs) u → γ ▸[ 𝟙ᵐ ] u →
+  NegativeErasedContext Γ γ → NegativeType Γ A
+neNeg {γ} (var ⊢Γ h) (var _ x) γ▸u nΓγ =
   lookupNegative ⊢Γ nΓγ h
     (                              $⟨ γ▸u ⟩
      γ ▸[ 𝟙ᵐ ] var x               →⟨ inv-usage-var ⟩
@@ -105,6 +105,12 @@ neNeg {γ = γ} (var ⊢Γ h) (var x) γ▸u nΓγ =
      γ ⟨ x ⟩ ≢ 𝟘                   □)
   where
   open Tools.Reasoning.PartialOrder ≤-poset
+neNeg {γ} (defn {A′ = A₁} ⊢Γ α↦₁ PE.refl) (defn {A = A₂} α↦₂) _ =
+  NegativeErasedContext Γ γ            →⟨ negative-definition-context ⟩
+  NegativeDefinitionContext (Γ .defs)  →⟨ lookupOpaqueNegative α↦₂ (defn-wf ⊢Γ) ⟩
+  NegativeType (Γ .defs » ε) A₂        →⟨ wkNeg (W.wk₀∷ʷ⊇ ⊢Γ) ⟩
+  NegativeType Γ (wk wk₀ A₂)           ≡⟨ PE.cong (NegativeType _ ∘→ wk _) (unique-↦∈ (↦⊘∈⇒↦∈ α↦₂) α↦₁ PE.refl) ⟩→
+  NegativeType Γ (wk wk₀ A₁)           □
 neNeg {γ = γ}
   (_∘ⱼ_ {p = p} {q = q} {F = A} {G = B} {u = u} ⊢t ⊢u) (∘ₙ t-ne) γ▸tu =
   case inv-usage-app γ▸tu of λ {
@@ -255,12 +261,12 @@ neNeg (rflⱼ _)        ()
 -- context, and which is well-resourced (with respect to the mode 𝟙ᵐ),
 -- is a numeral (given a certain assumption).
 
-nfN : ⦃ ok : No-equality-reflection or-empty Γ ⦄
-    → (d : Γ ⊢ u ∷ A)
-    → (m : γ ▸[ 𝟙ᵐ ] u)
+nfN : ⦃ ok : No-equality-reflection or-empty Γ .vars ⦄
+    → Γ ⊢ u ∷ A
+    → γ ▸[ 𝟙ᵐ ] u
     → NegativeErasedContext Γ γ
-    → (n : Nf u)
-    → (c : Γ ⊢ A ≡ ℕ)
+    → Nf (Γ .defs) u
+    → Γ ⊢ A ≡ ℕ
     → Numeral u
 
 -- Case: neutrals. The type cannot be ℕ since it must be negative.
@@ -299,13 +305,16 @@ nfN (rflⱼ _)        _ _ rflₙ        c = ⊥-elim (Id≢ℕ c)
 -- Unitrec-allowed 𝟙ᵐ p q holds for some p and q, then p ≤ 𝟘 (and
 -- furthermore that equality reflection is not allowed or the context
 -- is empty).
+--
+-- It is also assumed that the definition context is well-resourced.
 
 module _
   (Unitʷ-η→ :
      ∀ {p q} →
      Unitʷ-η → Unitʷ-allowed → Unitrec-allowed 𝟙ᵐ p q →
      p ≤ 𝟘)
-  ⦃ ok : No-equality-reflection or-empty Γ ⦄
+  ⦃ ok : No-equality-reflection or-empty Γ .vars ⦄
+  (▸Γ : ▸[ 𝟙ᵐ ] Γ .defs)
   where
 
   -- Terms that have non-negative types reduce to non-neutral terms.
@@ -313,10 +322,10 @@ module _
   ¬NeutralNf :
     Γ ⊢ t ∷ A → γ ▸[ 𝟙ᵐ ] t →
     NegativeErasedContext Γ γ → (NegativeType Γ A → ⊥) →
-    ∃ λ u → Γ ⊢ t ↘ u ∷ A × (Neutral u → ⊥)
+    ∃ λ u → Γ ⊢ t ↘ u ∷ A × (Neutral⁺ (Γ .defs) u → ⊥)
   ¬NeutralNf ⊢t γ▸t nΓγ ¬negA =
     let u , whnfU , d = whNormTerm ⊢t
-        γ▸u = usagePres*Term Unitʷ-η→ γ▸t d
+        γ▸u = usagePres*Term Unitʷ-η→ ▸Γ γ▸t d
     in  u , (d , whnfU) ,
         λ x →
           ¬negA $
@@ -332,17 +341,18 @@ module _
     ∃ λ v → Numeral v × Γ ⊢ t ⇒ˢ* v ∷ℕ
   canonicityRed′ γ▸t nΓγ (ℕₜ _ d n≡n (sucᵣ x)) =
     let invUsageSuc δ▸n γ≤δ =
-          inv-usage-suc (usagePres*Term Unitʷ-η→ γ▸t d)
+          inv-usage-suc (usagePres*Term Unitʷ-η→ ▸Γ γ▸t d)
         v , numV , d′ = canonicityRed′ (sub δ▸n γ≤δ) nΓγ x
     in  suc v , sucₙ numV , ⇒ˢ*∷ℕ-trans (whred* d) (sucred* d′)
   canonicityRed′ _ _ (ℕₜ _ d _ zeroᵣ) =
     zero , zeroₙ , whred* d
-  canonicityRed′ γ▸t nΓγ (ℕₜ n d n≡n (ne (neNfₜ _ neK k≡k))) =
+  canonicityRed′ γ▸t nΓγ (ℕₜ _ d _ (ne (neNfₜ neK _))) =
     let u , d′ , ¬neU =
           ¬NeutralNf (redFirst*Term d) γ▸t nΓγ
             (flip ¬negℕ $ refl (ℕⱼ $ wfTerm $ redFirst*Term d))
     in  ⊥-elim $ ¬neU $
-        PE.subst Neutral (whrDet*Term (d , ne neK) d′) neK
+        PE.subst (Neutral⁺ _) (whrDet*Term (d , ne (ne→ _ neK)) d′) $
+        ne→ _ neK
 
   canonicityRed :
     Γ ⊢ t ∷ ℕ → γ ▸[ 𝟙ᵐ ] t → NegativeErasedContext Γ γ →
@@ -355,8 +365,9 @@ module _
   -- well-resourced with respect to 𝟘ᶜ.
 
   canonicityRed-𝟘ᶜ :
-    Γ ⊢ t ∷ ℕ → 𝟘ᶜ ▸[ 𝟙ᵐ ] t → ∃ λ u → Numeral u × Γ ⊢ t ⇒ˢ* u ∷ℕ
-  canonicityRed-𝟘ᶜ ⊢t 𝟘▸t = canonicityRed ⊢t 𝟘▸t erasedContext
+    Γ ⊢ t ∷ ℕ → 𝟘ᶜ ▸[ 𝟙ᵐ ] t → NegativeDefinitionContext (Γ .defs) →
+    ∃ λ u → Numeral u × Γ ⊢ t ⇒ˢ* u ∷ℕ
+  canonicityRed-𝟘ᶜ ⊢t 𝟘▸t = canonicityRed ⊢t 𝟘▸t ∘→ erasedContext
 
   -- Canonicity theorem: A term that has the type ℕ in a
   -- negative/erased context, and that is well-resourced (with respect
@@ -373,5 +384,6 @@ module _
   -- well-resourced with respect to 𝟘ᶜ.
 
   canonicityEq-𝟘ᶜ :
-    Γ ⊢ t ∷ ℕ → 𝟘ᶜ ▸[ 𝟙ᵐ ] t → ∃ λ u → Numeral u × Γ ⊢ t ≡ u ∷ ℕ
-  canonicityEq-𝟘ᶜ ⊢t 𝟘▸t = canonicityEq ⊢t 𝟘▸t erasedContext
+    Γ ⊢ t ∷ ℕ → 𝟘ᶜ ▸[ 𝟙ᵐ ] t → NegativeDefinitionContext (Γ .defs) →
+    ∃ λ u → Numeral u × Γ ⊢ t ≡ u ∷ ℕ
+  canonicityEq-𝟘ᶜ ⊢t 𝟘▸t = canonicityEq ⊢t 𝟘▸t ∘→ erasedContext
