@@ -67,7 +67,7 @@ private
 ▸Unrestricted {m = m} {γ = γ} mω≤𝟘 ▸A = sub
   (ΠΣₘ
      (▸-cong (PE.sym ᵐ·-identityʳ-ω) ▸A)
-     (sub Unitₘ
+     (sub (Unitₘ zeroᵘₘ)
         (let open Tools.Reasoning.PartialOrder ≤ᶜ-poset in begin
            𝟘ᶜ ∙ ⌜ m ⌝ · ω  ≤⟨ ≤ᶜ-refl ∙ mω≤𝟘 ⟩
            𝟘ᶜ              ∎)))
@@ -79,7 +79,7 @@ private
 
 ▸[] : γ ▸[ m ] t → ω ·ᶜ γ ▸[ m ] [ t ]
 ▸[] {γ = γ} {m = m} ▸t = sub
-  (prodˢₘ (▸-cong (PE.sym ᵐ·-identityʳ-ω) ▸t) starₘ)
+  (prodˢₘ (▸-cong (PE.sym ᵐ·-identityʳ-ω) ▸t) (starₘ zeroᵘₘ))
   (begin
      ω ·ᶜ γ        ≤⟨ ∧ᶜ-greatest-lower-bound ≤ᶜ-refl ω·ᶜ≤ᶜ𝟘ᶜ ⟩
      ω ·ᶜ γ ∧ᶜ 𝟘ᶜ  ∎)
@@ -107,7 +107,7 @@ inv-usage-Unrestricted {γ = γ} {m = m} ▸Unrestricted =
   case inv-usage-ΠΣ ▸Unrestricted of λ {
     (invUsageΠΣ {δ = δ} {η = η} ▸A ▸Unit γ≤) →
   case inv-usage-Unit ▸Unit of λ {
-    (η≤𝟘 ∙ mω≤𝟘) →
+    (η≤𝟘 ∙ mω≤𝟘 , _) →
       mω≤𝟘
     , sub (▸-cong ᵐ·-identityʳ-ω ▸A) (begin
        γ        ≤⟨ γ≤ ⟩

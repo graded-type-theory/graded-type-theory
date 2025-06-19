@@ -29,6 +29,9 @@ import Definition.LogicalRelation.Substitution.Introductions.Var TR as V
 
 import Definition.LogicalRelation.Fundamental TR as F
 
+open import Definition.Typed.Inversion TR
+open import Definition.Typed.Well-formed TR
+
 open import Graded.Context 𝕄
 open import Graded.Context.Properties 𝕄
 open import Graded.Modality.Nr-instances
@@ -43,6 +46,8 @@ open import Graded.Erasure.LogicalRelation.Assumptions TR
 open import Graded.Erasure.LogicalRelation.Fundamental.Assumptions TR UR
 import Graded.Erasure.LogicalRelation.Fundamental.Empty
 import Graded.Erasure.LogicalRelation.Fundamental.Identity
+import Graded.Erasure.LogicalRelation.Fundamental.Level
+import Graded.Erasure.LogicalRelation.Fundamental.Lift
 import Graded.Erasure.LogicalRelation.Fundamental.Nat
 import Graded.Erasure.LogicalRelation.Fundamental.Pi-Sigma
 import Graded.Erasure.LogicalRelation.Fundamental.Unit
@@ -141,6 +146,8 @@ module Fundamental
 
   open Graded.Erasure.LogicalRelation.Fundamental.Empty UR as consistent
   open Graded.Erasure.LogicalRelation.Fundamental.Identity as
+  open Graded.Erasure.LogicalRelation.Fundamental.Level as
+  open Graded.Erasure.LogicalRelation.Fundamental.Lift as
   open Graded.Erasure.LogicalRelation.Fundamental.Nat as
   open Graded.Erasure.LogicalRelation.Fundamental.Pi-Sigma UR as
   open Graded.Erasure.LogicalRelation.Fundamental.Unit as
@@ -164,16 +171,31 @@ module Fundamental
       γ ▸ Γ ⊩ʳ t ∷[ m ] A
     fundamental {m = 𝟘ᵐ} ⊢t _ =
       ▸⊩ʳ∷[𝟘ᵐ]
-    fundamental (Uⱼ _) _ =
-      Uʳ
-    fundamental (ΠΣⱼ _ _ _) _ =
-      ΠΣʳ
+    fundamental (Levelⱼ ⊢Γ) _ =
+      Levelʳ (zeroᵘⱼ ⊢Γ)
+    fundamental (zeroᵘⱼ _) _ =
+      zeroᵘʳ
+    fundamental (sucᵘⱼ _) _ =
+      sucᵘʳ
+    fundamental (maxᵘⱼ _ _) _ =
+      maxᵘʳ
+    fundamental (Uⱼ ⊢t) _ =
+      Uʳ ⊢t
+    fundamental (Liftⱼ ⊢l₁ ⊢l₂ _) _ =
+      Liftʳ (maxᵘⱼ ⊢l₁ ⊢l₂)
+    fundamental (liftⱼ ⊢t _ ⊢u) ▸lift =
+      let _ , ▸u = inv-usage-lift ▸lift in
+      liftʳ ⊢t ⊢u (fundamental ⊢u ▸u)
+    fundamental (lowerⱼ ⊢t) ▸lower =
+      lowerʳ (fundamental ⊢t (inv-usage-lower ▸lower))
+    fundamental (ΠΣⱼ ⊢t _ _ _) _ =
+      ΠΣʳ ⊢t
     fundamental (ℕⱼ _) _ =
       ℕʳ
     fundamental (Emptyⱼ _) _ =
       Emptyʳ
-    fundamental (Unitⱼ _ _) _ =
-      Unitʳ
+    fundamental (Unitⱼ ⊢t _) _ =
+      Unitʳ ⊢t
     fundamental (var _ x∈Γ) ▸x =
       fundamentalVar well-formed x∈Γ ▸x
     fundamental (lamⱼ _ ⊢t ok) ▸lam =
@@ -257,18 +279,18 @@ module Fundamental
         (invUsageEmptyrec ▸t _ ok γ≤pδ) →
       subsumption-▸⊩ʳ∷[]-≤ γ≤pδ $
       emptyrecʳ ok ⊢t (fundamental ⊢t ▸t)
-    fundamental (starⱼ _ ok) _ =
-      starʳ ok
-    fundamental {m = 𝟙ᵐ} (unitrecⱼ ⊢A ⊢t ⊢u ok) γ▸ur =
+    fundamental (starⱼ ⊢t ok) _ =
+      starʳ ⊢t ok
+    fundamental {m = 𝟙ᵐ} (unitrecⱼ _ ⊢A ⊢u ⊢v _) γ▸ur =
       case inv-usage-unitrec γ▸ur of λ
-        (invUsageUnitrec δ▸t η▸u _ ok′ γ≤pδ+η) →
-      subsumption-▸⊩ʳ∷[]-≤ γ≤pδ+η $
-      unitrecʳ ⊢A ⊢t ⊢u (fundamental ⊢t δ▸t) (fundamental ⊢u η▸u)
+        (invUsageUnitrec _ _ ▸u ▸v ok γ≤) →
+      subsumption-▸⊩ʳ∷[]-≤ γ≤ $
+      unitrecʳ ⊢A ⊢u ⊢v (fundamental ⊢u ▸u) (fundamental ⊢v ▸v)
         (λ p≡𝟘 → case closed-or-no-erased-matches of λ where
-           (inj₁ nem) → inj₂ (nem non-trivial .proj₂ .proj₁ ok′ p≡𝟘)
+           (inj₁ nem) → inj₂ (nem non-trivial .proj₂ .proj₁ ok p≡𝟘)
            (inj₂ k≡0) → inj₁ k≡0)
-    fundamental (Idⱼ _ _ _) _ =
-      Idʳ
+    fundamental (Idⱼ ⊢A _ _) _ =
+      Idʳ (inversion-U-Level (wf-⊢∷ ⊢A))
     fundamental (rflⱼ ⊢t) _ =
       rflʳ ⊢t
     fundamental {γ} {m = 𝟙ᵐ} (Jⱼ _ ⊢B ⊢u _ ⊢w) ▸J =

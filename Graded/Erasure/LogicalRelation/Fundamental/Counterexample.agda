@@ -132,9 +132,9 @@ negation-of-fundamental-lemma-with-erased-matches₁
   ¬t®t : ¬ t ® erase str t ∷ A
   ¬t®t t®t = case ®∷ℕ⇔ .proj₁ t®t of λ where
     (zeroᵣ t⇒* _) →
-      case whnfRed*Term t⇒* (ne (prodrecₙ (var _))) of λ ()
+      case whnfRed*Term t⇒* (ne! (prodrecₙ (var _))) of λ ()
     (sucᵣ t⇒* _ _ _) →
-      case whnfRed*Term t⇒* (ne (prodrecₙ (var _))) of λ ()
+      case whnfRed*Term t⇒* (ne! (prodrecₙ (var _))) of λ ()
 
 opaque
 
@@ -187,7 +187,7 @@ opaque
     ¬t®t t®t =
       case ®∷Id⇔ .proj₁ t®t of λ {
         (_ , rflᵣ t⇒* _) →
-      case whnfRed*Term t⇒* (ne ([]-congₙ (var _))) of λ () }
+      case whnfRed*Term t⇒* (ne! ([]-congₙ (var _))) of λ () }
 
 opaque
 
@@ -229,8 +229,10 @@ opaque
 
     ¬t®t : ¬ t ® erase str t ∷ A
     ¬t®t t®t = case ®∷ℕ⇔ .proj₁ t®t of λ where
-      (zeroᵣ t⇒* _)    → case whnfRed*Term t⇒* (ne (Jₙ (var _))) of λ ()
-      (sucᵣ t⇒* _ _ _) → case whnfRed*Term t⇒* (ne (Jₙ (var _))) of λ ()
+      (zeroᵣ t⇒* _) →
+        case whnfRed*Term t⇒* (ne! (Jₙ (var _))) of λ ()
+      (sucᵣ t⇒* _ _ _) →
+        case whnfRed*Term t⇒* (ne! (Jₙ (var _))) of λ ()
 
 opaque
 
@@ -273,8 +275,10 @@ opaque
 
     ¬t®t : ¬ t ® erase str t ∷ A
     ¬t®t t®t = case ®∷ℕ⇔ .proj₁ t®t of λ where
-      (zeroᵣ t⇒* _)    → case whnfRed*Term t⇒* (ne (Kₙ (var _))) of λ ()
-      (sucᵣ t⇒* _ _ _) → case whnfRed*Term t⇒* (ne (Kₙ (var _))) of λ ()
+      (zeroᵣ t⇒* _) →
+        case whnfRed*Term t⇒* (ne! (Kₙ (var _))) of λ ()
+      (sucᵣ t⇒* _ _ _) →
+        case whnfRed*Term t⇒* (ne! (Kₙ (var _))) of λ ()
 
 opaque
 
@@ -305,25 +309,25 @@ opaque
     ¬t®t $ ▸⊩ʳ∷[𝟙ᵐ]→®∷ $ hyp ⊢Δ consistent ⦃ inc = included ⦄ ⊢t ▸t
     where
     Δ : Con Term 1
-    Δ = ε ∙ Unitʷ 0
+    Δ = ε ∙ Unitʷ zeroᵘ
 
     t : Term 1
-    t = unitrec 0 𝟘 𝟘 ℕ (var x0) zero
+    t = unitrec 𝟘 𝟘 zeroᵘ ℕ (var x0) zero
 
     A : Term 1
     A = ℕ
 
     ⊢Δ : ⊢ Δ
-    ⊢Δ = ∙ Unitⱼ ε Unit-ok
+    ⊢Δ = ∙ Unitⱼ (zeroᵘⱼ ε) Unit-ok
 
     open LR ⊢Δ ⦃ inc = included ⦄ str ⇒*-is-reduction-relation
 
     ¬t®t : ¬ t ® erase str t ∷ A
     ¬t®t t®t = case ®∷ℕ⇔ .proj₁ t®t of λ where
       (zeroᵣ t⇒* _)    →
-        case whnfRed*Term t⇒* (ne (unitrecₙ no-η (var _))) of λ ()
+        case whnfRed*Term t⇒* (ne! (unitrecₙ no-η (var _))) of λ ()
       (sucᵣ t⇒* _ _ _) →
-        case whnfRed*Term t⇒* (ne (unitrecₙ no-η (var _))) of λ ()
+        case whnfRed*Term t⇒* (ne! (unitrecₙ no-η (var _))) of λ ()
 
 opaque
 
@@ -363,5 +367,7 @@ opaque
 
     ¬t®t : ¬ t ® erase str t ∷ A
     ¬t®t t®t = case ®∷ℕ⇔ .proj₁ t®t of λ where
-      (zeroᵣ t⇒* _)    → case whnfRed*Term t⇒* (ne (emptyrecₙ (var _))) of λ ()
-      (sucᵣ t⇒* _ _ _) → case whnfRed*Term t⇒* (ne (emptyrecₙ (var _))) of λ ()
+      (zeroᵣ t⇒* _) →
+        case whnfRed*Term t⇒* (ne! (emptyrecₙ (var _))) of λ ()
+      (sucᵣ t⇒* _ _ _) →
+        case whnfRed*Term t⇒* (ne! (emptyrecₙ (var _))) of λ ()

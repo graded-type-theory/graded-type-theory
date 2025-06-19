@@ -27,6 +27,7 @@ open import Definition.Typed.Stability TR
 open import Definition.Typed.Substitution.Primitive TR
 open import Definition.Typed.Syntactic TR
 open import Definition.Typed.Weakening TR
+open import Definition.Typed.Well-formed TR
 open import Definition.Untyped.Unit 𝕄
 
 open import Tools.Function
@@ -36,10 +37,10 @@ open import Tools.Relation
 open import Tools.Sum using (_⊎_; inj₁; inj₂)
 
 private variable
-  Γ                          : Con Term _
-  A A₁ A₂ l l₁ l₂ t t′ t₁ t₂ u u₁ u₂ : Term _
-  s                          : Strength
-  p q                        : M
+  Γ                                     : Con Term _
+  A A₁ A₂ l l′ l₁ l₂ t t′ t₁ t₂ u u₁ u₂ : Term _
+  s                                     : Strength
+  p q                                   : M
 
 ------------------------------------------------------------------------
 -- A definitional η-rule
@@ -136,20 +137,23 @@ opaque
   -- A generalisation of _⊢_⇒_∷_.unitrec-β.
 
   unitrec-β-⇒ :
+    Γ ⊢ l ≡ l′ ∷ Level →
     Γ ∙ Unitʷ l ⊢ A →
     Γ ⊢ t ∷ A [ starʷ l ]₀ →
-    Γ ⊢ unitrec p q l A (starʷ l) t ⇒ t ∷ A [ starʷ l ]₀
-  unitrec-β-⇒ ⊢A ⊢t =
-    case wf ⊢A of λ {
-      (∙ ⊢Unit) →
-    case inversion-Unit ⊢Unit of λ
-      (⊢l , Unit-ok) →
+    Γ ⊢ unitrec p q l A (starʷ l′) t ⇒ t ∷ A [ starʷ l ]₀
+  unitrec-β-⇒ l≡l′ ⊢A ⊢t =
+    let ⊢l , Unit-ok = inversion-Unit (⊢∙→⊢ (wf ⊢A))
+        _ , _ , ⊢l′  = wf-⊢≡∷ l≡l′
+    in
     case Unitʷ-η? of λ where
       (yes ok) →
-        unitrec-β-η ⊢l ⊢A (starⱼ ⊢l Unit-ok) ⊢t Unit-ok ok
+        conv
+          (unitrec-β-η ⊢l ⊢A
+             (conv (starⱼ ⊢l′ Unit-ok) (Unit-cong (sym′ l≡l′) Unit-ok))
+             ⊢t Unit-ok ok)
+          (substTypeEq (refl ⊢A) (sym′ (star-cong l≡l′ Unit-ok)))
       (no not-ok) →
-        unitrec-β ⊢l (refl ⊢l) ⊢A ⊢t Unit-ok not-ok }
-
+        unitrec-β ⊢l l≡l′ ⊢A ⊢t Unit-ok not-ok
 
 opaque
 
@@ -249,12 +253,13 @@ opaque
   -- A reduction rule for unitrec⟨_⟩.
 
   unitrec⟨⟩-β-⇒* :
+    (s PE.≡ 𝕨 → Γ ⊢ l ≡ l′ ∷ Level) →
     (s PE.≡ 𝕨 → Γ ∙ Unit s l ⊢ A) →
     Γ ⊢ t ∷ A [ star s l ]₀ →
-    Γ ⊢ unitrec⟨ s ⟩ p q l A (star s l) t ⇒* t ∷ A [ star s l ]₀
-  unitrec⟨⟩-β-⇒* {s = 𝕨} ⊢A ⊢t =
-    redMany $ unitrec-β-⇒ (⊢A PE.refl) ⊢t
-  unitrec⟨⟩-β-⇒* {s = 𝕤} ⊢A ⊢t =
+    Γ ⊢ unitrec⟨ s ⟩ p q l A (star s l′) t ⇒* t ∷ A [ star s l ]₀
+  unitrec⟨⟩-β-⇒* {s = 𝕨} l≡l′ ⊢A ⊢t =
+    redMany $ unitrec-β-⇒ (l≡l′ PE.refl) (⊢A PE.refl) ⊢t
+  unitrec⟨⟩-β-⇒* {s = 𝕤} _ _ ⊢t =
     id ⊢t
 
 opaque
@@ -262,11 +267,12 @@ opaque
   -- An equality rule for unitrec⟨_⟩.
 
   unitrec⟨⟩-β-≡ :
+    (s PE.≡ 𝕨 → Γ ⊢ l ≡ l′ ∷ Level) →
     (s PE.≡ 𝕨 → Γ ∙ Unit s l ⊢ A) →
     Γ ⊢ t ∷ A [ star s l ]₀ →
-    Γ ⊢ unitrec⟨ s ⟩ p q l A (star s l) t ≡ t ∷ A [ star s l ]₀
-  unitrec⟨⟩-β-≡ ⊢A ⊢t =
-    subset*Term (unitrec⟨⟩-β-⇒* ⊢A ⊢t)
+    Γ ⊢ unitrec⟨ s ⟩ p q l A (star s l′) t ≡ t ∷ A [ star s l ]₀
+  unitrec⟨⟩-β-≡ l≡l′ ⊢A ⊢t =
+    subset*Term (unitrec⟨⟩-β-⇒* l≡l′ ⊢A ⊢t)
 
 opaque
   unfolding unitrec⟨_⟩
@@ -297,16 +303,17 @@ opaque
   -- Another equality rule for unitrec⟨_⟩.
 
   unitrec⟨⟩-cong :
-    Γ ∙ Unit s l ⊢ A₁ ≡ A₂ →
-    Γ ⊢ t₁ ≡ t₂ ∷ Unit s l →
-    Γ ⊢ u₁ ≡ u₂ ∷ A₁ [ star s l ]₀ →
-    Γ ⊢ unitrec⟨ s ⟩ p q l A₁ t₁ u₁ ≡ unitrec⟨ s ⟩ p q l A₂ t₂ u₂ ∷
+    (s PE.≡ 𝕨 → Γ ⊢ l₁ ≡ l₂ ∷ Level) →
+    Γ ∙ Unit s l₁ ⊢ A₁ ≡ A₂ →
+    Γ ⊢ t₁ ≡ t₂ ∷ Unit s l₁ →
+    Γ ⊢ u₁ ≡ u₂ ∷ A₁ [ star s l₁ ]₀ →
+    Γ ⊢ unitrec⟨ s ⟩ p q l₁ A₁ t₁ u₁ ≡ unitrec⟨ s ⟩ p q l₂ A₂ t₂ u₂ ∷
       A₁ [ t₁ ]₀
-  unitrec⟨⟩-cong {s = 𝕨} A₁≡A₂ t₁≡t₂ u₁≡u₂ =
+  unitrec⟨⟩-cong {s = 𝕨} l₁≡l₂ A₁≡A₂ t₁≡t₂ u₁≡u₂ =
     case inversion-Unit (⊢∙→⊢ (wfEq A₁≡A₂)) of λ
       (⊢l , _) →
-    unitrec-cong′ (refl ⊢l) A₁≡A₂ t₁≡t₂ u₁≡u₂
-  unitrec⟨⟩-cong {s = 𝕤} A₁≡A₂ t₁≡t₂ u₁≡u₂ =
+    unitrec-cong′ (l₁≡l₂ PE.refl) A₁≡A₂ t₁≡t₂ u₁≡u₂
+  unitrec⟨⟩-cong {s = 𝕤} _ A₁≡A₂ t₁≡t₂ u₁≡u₂ =
     conv u₁≡u₂ $
     substTypeEq (refl (syntacticEq A₁≡A₂ .proj₁))
       (Unit-η-≡ (inj₁ PE.refl) $ syntacticEqTerm t₁≡t₂ .proj₂ .proj₁)

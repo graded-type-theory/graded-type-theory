@@ -30,9 +30,11 @@ open import Definition.Untyped.Properties M
 open import Definition.Untyped.Sigma 𝕄
 
 open import Tools.Empty
+open import Tools.Fin
 open import Tools.Function
 open import Tools.Product
 import Tools.PropositionalEquality as PE
+open import Tools.Reasoning.PropositionalEquality
 open import Tools.Relation
 
 open import Definition.Typed.Consequences.Inversion.Erased R 𝕨 public
@@ -46,7 +48,7 @@ opaque
     Erasedʷ-allowed →
     ¬ (∀ {n} {Γ : Con Term n} {t A : Term n} →
        Γ ⊢ erased A t ∷ A →
-       ∃₂ λ q l → Γ ⊢ t ∷ Σʷ 𝟘 , q ▷ A ▹ Unitʷ l)
+       ∃₂ λ q u → Γ ⊢ t ∷ Σʷ 𝟘 , q ▷ A ▹ Unitʷ (wk1 u))
   ¬-inversion-erased′ (Unit-ok , Σʷ-ok) inversion-erased = bad
     where
     Γ′ : Con Term 0
@@ -70,16 +72,18 @@ opaque
     erased-t′≡zero : Γ′ ⊢ erased A′ t′ ≡ zero ∷ A′
     erased-t′≡zero = fstʷ-β-≡ (ℕⱼ ⊢Γ′∙ℕ) (zeroⱼ ε) (zeroⱼ ε) Σʷ-ok
 
-    ⊢t′₂ : ∃₂ λ q l → Γ′ ⊢ t′ ∷ Σʷ 𝟘 , q ▷ A′ ▹ Unitʷ l
+    ⊢t′₂ : ∃₂ λ q u → Γ′ ⊢ t′ ∷ Σʷ 𝟘 , q ▷ A′ ▹ Unitʷ (wk1 u)
     ⊢t′₂ = inversion-erased ⊢erased-t′
 
     ⊢snd-t′ :
-      ∃ λ l → Γ′ ⊢ sndʷ 𝟘 (⊢t′₂ .proj₁) A′ (Unitʷ l) t′ ∷ Unitʷ l
-    ⊢snd-t′ = _ , sndʷⱼ (⊢t′₂ .proj₂ .proj₂)
+      ∃ λ u → Γ′ ⊢ sndʷ 𝟘 (⊢t′₂ .proj₁) A′ (Unitʷ (wk1 u)) t′ ∷ Unitʷ u
+    ⊢snd-t′ =
+      let _ , u , ⊢t′ = ⊢t′₂ in
+      u , PE.subst (_⊢_∷_ _ _) (wk1-sgSubst _ _) (sndʷⱼ ⊢t′)
 
     ℕ≡Unit : ∃ λ l → Γ′ ⊢ ℕ ≡ Unitʷ l
     ℕ≡Unit =
-      let l , ⊢snd-t′ = ⊢snd-t′ in
+      let u , ⊢snd-t′ = ⊢snd-t′ in
       case inversion-prodrec ⊢snd-t′ of
         λ (F , G , _ , _ , _ , _ , ⊢t′ , ⊢x₀ , Unit≡) →
       case inversion-var ⊢x₀ of λ {
@@ -101,10 +105,21 @@ opaque
                  (→⊢ˢʷ∷∙ (⊢ˢʷ∷-idSubst ε) $
                   PE.subst (_⊢_∷_ _ _) (PE.sym (subst-id F)) ⊢zero″)
                  (conv ⊢zero′ (sym G₀≡G′₀))
-      in case PE.subst (_⊢_≡_ _ _) (wk1-tail G)
-               (subst-⊢≡ Unit≡′ (refl-⊢ˢʷ≡∷ ⊢σ)) of
-        λ Unit≡″ →
-      l , sym (trans Unit≡″ (trans G₀≡G′₀ ≡ℕ′)) }
+      in
+      case PE.subst₂ (_⊢_≡_ _)
+             (PE.cong Unitʷ
+                (wk1 u [ fstʷ 𝟘 (wk1 A′) (var x0) ]↑
+                   [ prodʷ 𝟘 (var x1) (var x0) ]↑² [ zero , zero ]₁₀      ≡⟨ PE.cong _[ _ , _ ]₁₀ $ PE.cong _[ _ ]↑² $ wk1-[][]↑ {t = u} 1 ⟩
+
+                 wk1 u [ prodʷ 𝟘 (var x1) (var x0) ]↑² [ zero , zero ]₁₀  ≡⟨ PE.cong _[ _ , _ ]₁₀ $ wk1-[][]↑ {t = u} 2 ⟩
+
+                 wk[ 2 ] u [ zero , zero ]₁₀                              ≡⟨ wk2-[,] ⟩
+
+                 u                                                        ∎))
+             (wk1-tail G)
+             (subst-⊢≡ Unit≡′ (refl-⊢ˢʷ≡∷ ⊢σ)) of λ
+        Unit≡″ →
+      u , sym (trans Unit≡″ (trans G₀≡G′₀ ≡ℕ′)) }
 
     bad : ⊥
     bad = ℕ≢Unitⱼ ⦃ ok = ε ⦄ (ℕ≡Unit .proj₂)

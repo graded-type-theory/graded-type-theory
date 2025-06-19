@@ -973,7 +973,7 @@ opaque
                                                                                (Target-[₀⇑] 1) PE.refl (wk1-sgSubst _ _) ⟩⊢≡
 
     unitrec 𝟘 𝟘 zeroᵘ (Target 1 A (suc zero) [ var x0 ]) (starʷ zeroᵘ) t  ⇒⟨ PE.subst (_⊢_⇒_∷_ _ _ _) (PE.trans (Target-[₀⇑] 0) Target≡) $
-                                                                             unitrec-β-⇒
+                                                                             unitrec-β-⇒ (refl (zeroᵘⱼ ⊢Γ))
                                                                                (syntacticEq
                                                                                   (Target-lemma-1 PE.refl ([]ⱼ Erased-ok (var₀ ⊢Unitʷ))) .proj₁)
                                                                                (PE.subst (flip (_⊢_∷_ _) _) (wk-id _) $
@@ -1119,7 +1119,7 @@ opaque
                                                                                (Target-[₀⇑] 1) PE.refl (wk1-sgSubst _ _) ⟩⊢≡
 
     unitrec 𝟘 𝟘 zeroᵘ (Target 1 A zero [ var x0 ]) (starʷ zeroᵘ) u        ⇒⟨ PE.subst (_⊢_⇒_∷_ _ _ _) (PE.trans (Target-[₀⇑] 0) Target≡) $
-                                                                             unitrec-β-⇒
+                                                                             unitrec-β-⇒ (refl (zeroᵘⱼ ⊢Γ))
                                                                                (syntacticEq (Target-lemma-0 PE.refl ([]ⱼ Erased-ok (var₀ ⊢Unitʷ)))
                                                                                   .proj₁)
                                                                                (PE.subst (flip (_⊢_∷_ _) _) (wk-id _) $

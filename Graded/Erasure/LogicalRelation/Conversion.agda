@@ -59,18 +59,34 @@ convTermʳ′ : ∀ {l l′}
            → ShapeView Δ l l′ A B [A] [B]
            → t ®⟨ l ⟩ v ∷ A / [A]
            → t ®⟨ l′ ⟩ v ∷ B / [B]
+convTermʳ′ _ _ _ (Levelᵥ _ _) t®v = t®v
 convTermʳ′ _ _ A≡B (Uᵥ UA UB) t®v = t®v
 convTermʳ′ _ _ A≡B (ℕᵥ ℕA ℕB) t®v = t®v
 convTermʳ′
+  {A} {B} _ _ A≡B
+  (Liftᵥ (Liftᵣ {k₂ = t} {F = A′} A⇒*Lift _ ⊩A′)
+     (Liftᵣ {k₂ = u} {F = B′} B⇒*Lift _ ⊩B′))
+  t®v =
+  let _ , A′≡B′ =
+        Lift-injectivity
+          (Lift t A′  ≡˘⟨ subset* A⇒*Lift ⟩⊢
+           A          ≡⟨ A≡B ⟩⊢
+           B          ≡⟨ subset* B⇒*Lift ⟩⊢∎
+           Lift u B′  ∎)
+  in
+  convTermʳ′ ⊩A′ ⊩B′ A′≡B′
+    (goodCases ⊩A′ ⊩B′ (⊩≡→⊩≡/ ⊩A′ (reducible-⊩≡ A′≡B′ .proj₂))) t®v
+convTermʳ′
   {A} {B}
-  _ _ A≡B (Unitᵥ {s} (Unitᵣ l _ A⇒*Unit _) (Unitᵣ l′ _ B⇒*Unit _)) t®v =
+  _ _ A≡B (Unitᵥ {s} (Unitᵣ u _ _ A⇒*Unit _) (Unitᵣ v _ _ B⇒*Unit _))
+  (starᵣ t⇛⋆ u≡u′ v⇒*⋆) =
   case Unit-injectivity
-         (Unit s l  ≡˘⟨ subset* A⇒*Unit ⟩⊢
+         (Unit s u  ≡˘⟨ subset* A⇒*Unit ⟩⊢
           A         ≡⟨ A≡B ⟩⊢
           B         ≡⟨ subset* B⇒*Unit ⟩⊢∎
-          Unit s l′ ∎) of λ {
-    (_ , PE.refl) →
-  t®v }
+          Unit s v ∎) of λ {
+    (_ , u≡v) →
+  starᵣ t⇛⋆ (trans (sym′ u≡v) u≡u′) v⇒*⋆ }
 convTermʳ′
   [A] [B] A≡B
   (Bᵥ (BΠ p q) (Bᵣ F G A⇒Π A≡A [F] [G] G-ext _)

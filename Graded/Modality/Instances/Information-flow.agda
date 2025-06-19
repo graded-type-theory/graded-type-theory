@@ -21,7 +21,7 @@ open import Graded.Modality.Properties.Has-well-behaved-zero
 import Graded.Modality.Properties.Star as Star
 open import Graded.Modality.Variant lzero
 
-open import Definition.Untyped
+open import Definition.Untyped hiding (Level)
 
 open import Definition.Typed.Restrictions
 open import Graded.Usage.Restrictions

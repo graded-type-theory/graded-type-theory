@@ -183,7 +183,6 @@ import Graded.Derived.Sigma
 import Graded.Derived.Identity
 import Graded.Derived.Unit
 import Graded.Derived.Nat
-import Graded.Derived.Lift
 import Graded.Derived.Empty
 import Graded.Derived.Bool
 import Graded.Derived.Erased.Usage.Eta
@@ -295,7 +294,6 @@ import Definition.Typed.Consequences.Canonicity
 import Definition.Typed.Consequences.Reduction
 import Definition.Typed.Consequences.Admissible.Pi
 import Definition.Typed.Consequences.Admissible.Sigma
-import Definition.Typed.Consequences.Inversion.Lift
 import Definition.Typed.Consequences.Inversion.Erased
 import Definition.Typed.Consequences.Inversion.Erased.Eta
 import Definition.Typed.Consequences.Inversion.Erased.No-eta
@@ -422,6 +420,8 @@ import Graded.Erasure.LogicalRelation.Hidden
 import Graded.Erasure.LogicalRelation.Value
 
 -- The fundamental lemma of the logical relation for erasure.
+import Graded.Erasure.LogicalRelation.Fundamental.Level
+import Graded.Erasure.LogicalRelation.Fundamental.Lift
 import Graded.Erasure.LogicalRelation.Fundamental.Empty
 import Graded.Erasure.LogicalRelation.Fundamental.Nat
 import Graded.Erasure.LogicalRelation.Fundamental.Pi-Sigma

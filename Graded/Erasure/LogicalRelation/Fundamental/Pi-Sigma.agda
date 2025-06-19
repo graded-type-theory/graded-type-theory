@@ -94,10 +94,16 @@ opaque
 
   -- Validity of Π and Σ.
 
-  ΠΣʳ : γ ▸ Γ ⊩ʳ ΠΣ⟨ b ⟩ p , q ▷ A ▹ B ∷[ m ] U l
-  ΠΣʳ =
-    ▸⊩ʳ∷⇔ .proj₂ λ _ _ →
-    ®∷→®∷◂ (®∷U⇔ .proj₂ (_ , ≤ᵘ-refl , Uᵣ (λ { PE.refl → T.refl })))
+  ΠΣʳ :
+    Γ ⊢ t ∷ Level →
+    γ ▸ Γ ⊩ʳ ΠΣ⟨ b ⟩ p , q ▷ A ▹ B ∷[ m ] U t
+  ΠΣʳ ⊢t =
+    ▸⊩ʳ∷⇔ .proj₂ λ ⊩σ _ →
+    ®∷→®∷◂ $
+    ®∷U⇔ .proj₂
+      ( subst-⊢∷ ⊢t (escape-⊩ˢ∷ ⊩σ .proj₂)
+      , U/Levelᵣ (λ { PE.refl → T.refl })
+      )
 
 ------------------------------------------------------------------------
 -- Lemmas related to Π

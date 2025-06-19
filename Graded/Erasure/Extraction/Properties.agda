@@ -49,7 +49,7 @@ private
   variable
     b : Bool
     m n : Nat
-    t u A : U.Term n
+    A t u v : U.Term n
     v₁ v₂ : T.Term n
     σ : U.Subst m n
     σ′ : T.Subst m n
@@ -156,8 +156,8 @@ opaque
 opaque
 
   unitrec-𝟘 :
-    ∀ l q A → p PE.≡ 𝟘 →
-    erase′ b s (U.unitrec l p q A t u) PE.≡ erase′ b s u
+    ∀ t q A → p PE.≡ 𝟘 →
+    erase′ b s (U.unitrec p q t A u v) PE.≡ erase′ b s v
   unitrec-𝟘 {p} _ _ _ p≡𝟘 with is-𝟘? p
   … | yes _  = PE.refl
   … | no p≢𝟘 = ⊥-elim (p≢𝟘 p≡𝟘)
@@ -165,9 +165,9 @@ opaque
 opaque
 
   unitrec-ω :
-    ∀ l q A → p PE.≢ 𝟘 →
-    erase′ b s (U.unitrec l p q A t u) PE.≡
-    T.unitrec (erase′ b s t) (erase′ b s u)
+    ∀ t q A → p PE.≢ 𝟘 →
+    erase′ b s (U.unitrec p q t A u v) PE.≡
+    T.unitrec (erase′ b s u) (erase′ b s v)
   unitrec-ω {p} _ _ _ p≢𝟘 with is-𝟘? p
   … | yes p≡𝟘 = ⊥-elim (p≢𝟘 p≡𝟘)
   … | no _    = PE.refl
@@ -260,7 +260,14 @@ opaque
 wk-erase-comm : (ρ : U.Wk m n) (t : U.Term n)
               → wk ρ (erase′ b s t) ≡ erase′ b s (U.wk ρ t)
 wk-erase-comm _ (var _) = refl
+wk-erase-comm {s} _ Level = wk-loop? s
+wk-erase-comm {s} _ zeroᵘ = wk-loop? s
+wk-erase-comm {s} _ (sucᵘ _) = wk-loop? s
+wk-erase-comm {s} _ (_ maxᵘ _) = wk-loop? s
 wk-erase-comm {s} _ (U _) = wk-loop? s
+wk-erase-comm {s} _ (Lift _ _) = wk-loop? s
+wk-erase-comm ρ (lift _ u) = wk-erase-comm ρ u
+wk-erase-comm ρ (lower t) = wk-erase-comm ρ t
 wk-erase-comm {s} _ (ΠΣ⟨ _ ⟩ _ , _ ▷ _ ▹ _) = wk-loop? s
 wk-erase-comm {b = true} {s} ρ (U.lam p t) with is-𝟘? p
 ... | no _  = cong T.lam $ wk-erase-comm _ t
@@ -333,7 +340,7 @@ wk-erase-comm ρ (U.natrec p q r A z s n) =
                  (wk-erase-comm ρ n)
 wk-erase-comm {s} _ Unit! = wk-loop? s
 wk-erase-comm ρ U.star! = refl
-wk-erase-comm ρ (U.unitrec _ p _ _ t u)
+wk-erase-comm ρ (U.unitrec p _ _ _ t u)
   with is-𝟘? p
 ... | yes _ =
   wk-erase-comm _ u
@@ -391,7 +398,14 @@ subst-erase-comm :
   (σ : U.Subst m n) (t : U.Term n) →
   erase′ b s t T.[ eraseSubst′ b s σ ] ≡ erase′ b s (t U.[ σ ])
 subst-erase-comm σ (var x) = refl
+subst-erase-comm {s} _ Level = loop?-[] s
+subst-erase-comm {s} _ zeroᵘ = loop?-[] s
+subst-erase-comm {s} _ (sucᵘ _) = loop?-[] s
+subst-erase-comm {s} _ (_ maxᵘ _) = loop?-[] s
 subst-erase-comm {s} _ (U _) = loop?-[] s
+subst-erase-comm {s} _ (Lift _ _) = loop?-[] s
+subst-erase-comm σ (lift _ u) = subst-erase-comm σ u
+subst-erase-comm σ (lower t) = subst-erase-comm σ t
 subst-erase-comm {s} _ (ΠΣ⟨ _ ⟩ _ , _ ▷ _ ▹ _) = loop?-[] s
 subst-erase-comm {b = true} {s} σ (U.lam p t) with is-𝟘? p
 ... | no _ =
@@ -505,7 +519,7 @@ subst-erase-comm σ (U.natrec p q r A z s n) = cong₃ T.natrec
   (subst-erase-comm σ n)
 subst-erase-comm {s} _ Unit! = loop?-[] s
 subst-erase-comm σ U.star! = refl
-subst-erase-comm σ (U.unitrec _ p _ _ t u) with is-𝟘? p
+subst-erase-comm σ (U.unitrec p _ _ _ t u) with is-𝟘? p
 ... | yes _ =
   subst-erase-comm σ u
 ... | no _ =
@@ -553,6 +567,12 @@ module hasX (R : Usage-restrictions) where
 
   erased-hasX erased γ▸t@var varₓ =
     valid-var-usage γ▸t (var-usage-lookup erased)
+
+  erased-hasX erased (liftₘ _ ▸u) hasX =
+    erased-hasX erased ▸u hasX
+
+  erased-hasX erased (lowerₘ ▸t) hasX =
+    erased-hasX erased ▸t hasX
 
   erased-hasX {b = false} erased (lamₘ γ▸t) (lamₓ hasX) =
     erased-hasX (there erased) γ▸t hasX
@@ -758,15 +778,15 @@ module hasX (R : Usage-restrictions) where
   erased-hasX erased (K₀ₘ₂ _ _ _ _ ▸u _) hasX =
     erased-hasX erased ▸u hasX
 
-  erased-hasX erased (unitrecₘ {p = p} γ▸t δ▸u η▸A ok) hasX
+  erased-hasX erased (unitrecₘ {p} _ _ _ _ _) hasX
     with is-𝟘? p
-  erased-hasX erased (unitrecₘ _ δ▸u _ _) hasX | yes _ =
-    erased-hasX (x◂𝟘∈γ+δʳ refl erased) δ▸u hasX
-  erased-hasX erased (unitrecₘ {p = _} γ▸t δ▸u η▸A ok) (unitrecₓˡ hasX) | no p≢𝟘 =
+  erased-hasX erased (unitrecₘ _ _ _ ▸v _) hasX | yes _ =
+    erased-hasX (x◂𝟘∈γ+δʳ refl erased) ▸v hasX
+  erased-hasX erased (unitrecₘ _ _ ▸u _ _) (unitrecₓˡ hasX) | no p≢𝟘 =
     erased-hasX (x◂𝟘∈pγ refl p≢𝟘 (x◂𝟘∈γ+δˡ refl erased))
-                (▸-cong (≢𝟘→⌞⌟≡𝟙ᵐ p≢𝟘) γ▸t) hasX
-  erased-hasX erased (unitrecₘ {p = _} γ▸t δ▸u η▸A ok) (unitrecₓʳ hasX) | no _ =
-    erased-hasX (x◂𝟘∈γ+δʳ refl erased) δ▸u hasX
+                (▸-cong (≢𝟘→⌞⌟≡𝟙ᵐ p≢𝟘) ▸u) hasX
+  erased-hasX erased (unitrecₘ _ _ _ ▸v _) (unitrecₓʳ hasX) | no _ =
+    erased-hasX (x◂𝟘∈γ+δʳ refl erased) ▸v hasX
 
   erased-hasX _ (emptyrecₘ _ _ _) =
     loop-closed
@@ -774,16 +794,21 @@ module hasX (R : Usage-restrictions) where
   erased-hasX erased (sub δ▸t γ≤δ) hasX =
     erased-hasX (x◂𝟘∈γ≤δ erased γ≤δ) δ▸t hasX
 
-  erased-hasX {s} _ Uₘ                   = loop?-closed s
+  erased-hasX {s} _ Levelₘ               = loop?-closed s
+  erased-hasX {s} _ zeroᵘₘ               = loop?-closed s
+  erased-hasX {s} _ (sucᵘₘ _)            = loop?-closed s
+  erased-hasX {s} _ (maxᵘₘ _ _)          = loop?-closed s
+  erased-hasX {s} _ (Uₘ _)               = loop?-closed s
+  erased-hasX {s} _ (Liftₘ _ _)          = loop?-closed s
   erased-hasX {s} _ ℕₘ                   = loop?-closed s
   erased-hasX {s} _ Emptyₘ               = loop?-closed s
-  erased-hasX {s} _ Unitₘ                = loop?-closed s
+  erased-hasX {s} _ (Unitₘ _)            = loop?-closed s
   erased-hasX {s} _ (ΠΣₘ _ _)            = loop?-closed s
   erased-hasX {s} _ (Idₘ _ _ _ _)        = loop?-closed s
   erased-hasX {s} _ (Id₀ₘ _ _ _ _)       = loop?-closed s
   erased-hasX {s} _ rflₘ                 = loop?-closed s
   erased-hasX {s} _ ([]-congₘ _ _ _ _ _) = loop?-closed s
 
-  erased-hasX _ starʷₘ     ()
-  erased-hasX _ (starˢₘ _) ()
-  erased-hasX _ zeroₘ      ()
+  erased-hasX _ (starʷₘ _)   ()
+  erased-hasX _ (starˢₘ _ _) ()
+  erased-hasX _ zeroₘ        ()

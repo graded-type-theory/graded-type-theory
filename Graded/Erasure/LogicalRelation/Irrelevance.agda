@@ -24,6 +24,7 @@ open import Definition.LogicalRelation.ShapeView R
 open import Definition.LogicalRelation.Weakening.Restricted R
 import Definition.LogicalRelation.Irrelevance R as I
 
+open import Definition.Typed R
 open import Definition.Typed.Consequences.Injectivity R
 open import Definition.Typed.Properties R
 open import Definition.Typed.Reasoning.Type R
@@ -51,17 +52,24 @@ irrelevanceTermSV : ∀ {l l′ t v A}
                   → t ®⟨ l ⟩ v ∷ A / [A]
                   → ShapeView Δ l l′ A A [A] [A]′
                   → t ®⟨ l′ ⟩ v ∷ A / [A]′
+irrelevanceTermSV _ _ t®v (Levelᵥ _ _) =
+  t®v
 irrelevanceTermSV .(Uᵣ UA) .(Uᵣ UB) t®v (Uᵥ UA UB) = t®v
 irrelevanceTermSV .(ℕᵣ ℕA) .(ℕᵣ ℕB) t®v (ℕᵥ ℕA ℕB) = t®v
 irrelevanceTermSV
-  {A}
-  _ _ t®v (Unitᵥ {s} (Unitᵣ l _ A⇒*Unit₁ _) (Unitᵣ l′ _ A⇒*Unit₂ _)) =
+  _ _ t®v (Liftᵥ (Liftᵣ A⇒*Lift₁ _ ⊩B₁) (Liftᵣ A⇒*Lift₂ _ ⊩B₂)) =
+  case whrDet* (A⇒*Lift₁ , Liftₙ) (A⇒*Lift₂ , Liftₙ) of λ {
+    PE.refl →
+  irrelevanceTermSV _ _ t®v (goodCasesRefl ⊩B₁ ⊩B₂) }
+irrelevanceTermSV
+  {A} _ _ (starᵣ t⇛⋆ u≡u′ v⇒*⋆)
+  (Unitᵥ {s} (Unitᵣ u _ _ A⇒*Unit₁ _) (Unitᵣ v _ _ A⇒*Unit₂ _)) =
   case Unit-injectivity
-         (Unit s l  ≡˘⟨ subset* A⇒*Unit₁ ⟩⊢
+         (Unit s u  ≡˘⟨ subset* A⇒*Unit₁ ⟩⊢
           A         ≡⟨ subset* A⇒*Unit₂ ⟩⊢∎
-          Unit s l′ ∎) of λ {
-    (_ , PE.refl) →
-  t®v }
+          Unit s v  ∎) of λ {
+    (_ , u≡v) →
+  starᵣ t⇛⋆ (trans (sym′ u≡v) u≡u′) v⇒*⋆ }
 irrelevanceTermSV
   [A] [A]′ t®v
   (Bᵥ (BΠ p q) (Bᵣ F G D A≡A [F] [G] G-ext _)

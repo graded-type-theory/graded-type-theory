@@ -52,7 +52,7 @@ open import Tools.Bool
 open import Tools.Empty
 open import Tools.Fin
 open import Tools.Function
-open import Tools.Level
+import Tools.Level as L
 open import Tools.Nat using (Nat)
 open import Tools.Product as Σ
 open import Tools.PropositionalEquality as PE using (_≢_)
@@ -61,18 +61,18 @@ open import Tools.Relation
 open import Tools.Unit
 
 private variable
-  n              : Nat
-  Γ              : Con Term _
-  A B t t′ t₁ t₂ : Term _
-  v v′           : T.Term _
-  σ              : Subst _ _
-  σ′             : T.Subst _ _
-  γ δ            : Conₘ _
-  p q            : M
-  m              : Mode
-  s              : Strength
-  l l′           : Universe-level
-  ok             : T _
+  n                : Nat
+  Γ                : Con Term _
+  A B t t′ t₁ t₂ u : Term _
+  v v′             : T.Term _
+  σ                : Subst _ _
+  σ′               : T.Subst _ _
+  γ δ              : Conₘ _
+  p q              : M
+  m                : Mode
+  s                : Strength
+  l l′             : Universe-level
+  ok               : T _
 
 ------------------------------------------------------------------------
 -- The type former
@@ -91,24 +91,61 @@ opaque
 -- Some characterisation lemmas for _®_∷_
 
 opaque
-  unfolding _®_∷_ ⊩U⇔
+  unfolding _®_∷_
+
+  -- A characterisation lemma for Level.
+
+  ®∷Level⇔ :
+    t ® v ∷ Level ⇔ t ® v ∷U/Level
+  ®∷Level⇔ {t} {v} =
+    t ® v ∷ Level                                             ⇔⟨ id⇔ ⟩
+    (∃₂ λ l (⊩L : Δ ⊩⟨ l ⟩ Level) → t ®⟨ l ⟩ v ∷ Level / ⊩L)  ⇔⟨ (λ (l , ⊩L , t®v) →
+                                                                    irrelevanceTerm {l′ = 0ᵘ+ 0} ⊩L (Levelᵣ (Level-elim ⊩L)) t®v)
+                                                               , (λ t®v →
+                                                                    let ⊩L = ⊩Level⇔ .proj₂ ⊢Δ in
+                                                                    0ᵘ+ 0 , ⊩L , irrelevanceTerm {l = 0ᵘ+ 0} (Levelᵣ (Level-elim ⊩L)) ⊩L t®v)
+                                                               ⟩
+    t ® v ∷U/Level                                            □⇔
+
+opaque
+  unfolding _®_∷_
 
   -- A characterisation lemma for U.
 
-  ®∷U⇔ : t ® v ∷ U l ⇔ (∃ λ l′ → l <ᵘ l′ × t ® v ∷U)
-  ®∷U⇔ {t} {v} {l} =
-    t ® v ∷ U l                                              ⇔⟨ id⇔ ⟩
-    (∃₂ λ l′ (⊩U : Δ ⊩⟨ l′ ⟩ U l) → t ®⟨ l′ ⟩ v ∷ U l / ⊩U)  ⇔⟨ (λ (_ , ⊩U , t®v) →
-                                                                     _
-                                                                   , ⊩U⇔ .proj₁ ⊩U
-                                                                   , irrelevanceTerm ⊩U (Uᵣ (U-elim ⊩U)) t®v)
-                                                              , Σ.map idᶠ (Σ.map (⊩U⇔ .proj₂) idᶠ)
-                                                              ⟩
-    (∃ λ l′ → (l <ᵘ l′ × ⊢ Δ) × t ® v ∷U)                    ⇔⟨ (λ (_ , (l< , _) , t®v) → _ , l< , t®v)
-                                                              , (λ (_ , l< , t®v) → _ , (l< , ⊢Δ) , t®v)
-                                                              ⟩
-    (∃ λ l′ → l <ᵘ l′ × t ® v ∷U)                            □⇔
+  ®∷U⇔ :
+    t ® v ∷ U u ⇔
+    (Δ ⊢ u ∷ Level × t ® v ∷U/Level)
+  ®∷U⇔ {t} {v} {u} =
+    t ® v ∷ U u                                           ⇔⟨ id⇔ ⟩
+    (∃₂ λ l (⊩U : Δ ⊩⟨ l ⟩ U u) → t ®⟨ l ⟩ v ∷ U u / ⊩U)  ⇔⟨ (λ (_ , ⊩U , t®v) → (_ , ⊩U) , irrelevanceTerm ⊩U (Uᵣ (U-elim ⊩U)) t®v)
+                                                           , (λ ((_ , ⊩U) , t®v) → _ , ⊩U , irrelevanceTerm (Uᵣ (U-elim ⊩U)) ⊩U t®v)
+                                                           ⟩
+    (∃ λ l → Δ ⊩⟨ l ⟩ U u) × t ® v ∷U/Level               ⇔⟨ (escape-⊩ ∘→ proj₂ , reducible-⊩) ×-cong-⇔ id⇔ ⟩
+    (Δ ⊢ U u) × t ® v ∷U/Level                            ⇔⟨ (inversion-U-Level , Uⱼ) ×-cong-⇔ id⇔ ⟩
+    Δ ⊢ u ∷ Level × t ® v ∷U/Level                        □⇔
 
+opaque
+  unfolding _®_∷_ ⊩Lift⇔
+
+  -- A characterisation lemma for Lift.
+
+  ®∷Lift⇔ :
+    t ® v ∷ Lift u A ⇔
+    (Δ ⊩Level u ∷Level × lower t ® v ∷ A)
+  ®∷Lift⇔ {t} {v} {u} {A} =
+    t ® v ∷ Lift u A                                                ⇔⟨ id⇔ ⟩
+    (∃₂ λ l (⊩L : Δ ⊩⟨ l ⟩ Lift u A) → t ®⟨ l ⟩ v ∷ Lift u A / ⊩L)  ⇔⟨ (λ (l , ⊩L , t®v) →
+                                                                          let ⊩u , ⊩A = ⊩Lift⇔ .proj₁ ⊩L in
+                                                                          ⊩u , l , ⊩A ,
+                                                                          irrelevanceTerm ⊩L (Liftᵣ (Lift-elim (⊩Lift⇔ .proj₂ (⊩Lift⇔ .proj₁ ⊩L))))
+                                                                            t®v)
+                                                                     , (λ (⊩u , l , ⊩A , lower-t®v) →
+                                                                          l , ⊩Lift⇔ .proj₂ (⊩u , ⊩A) , lower-t®v)
+                                                                     ⟩
+    Δ ⊩Level u ∷Level ×
+    (∃₂ λ l (⊩A : Δ ⊩⟨ l ⟩ A) → lower t ®⟨ l ⟩ v ∷ A / ⊩A)          ⇔⟨ id⇔ ⟩
+
+    Δ ⊩Level u ∷Level × lower t ® v ∷ A                             □⇔
 
 opaque
   unfolding _®_∷_
@@ -118,7 +155,7 @@ opaque
   ®∷Empty⇔ : t ® v ∷ Empty ⇔ t ® v ∷Empty
   ®∷Empty⇔ =
       (λ (_ , ⊩Empty′ , t®v) →
-         irrelevanceTerm {l′ = 0} ⊩Empty′
+         irrelevanceTerm {l′ = 0ᵘ+ 0} ⊩Empty′
            (Emptyᵣ (Empty-elim ⊩Empty′)) t®v)
     , (λ ())
 
@@ -127,22 +164,22 @@ opaque
 
   -- A characterisation lemma for Unit.
 
-  ®∷Unit⇔ : t ® v ∷ Unit s l ⇔ t ® v ∷Unit⟨ s , l ⟩
-  ®∷Unit⇔ {l} =
-      (λ (_ , ⊩U , t®v) →
-         let ⊩U′ = ⊩Unit⇔ .proj₂ (≤ᵘ-refl , ⊩Unit⇔ .proj₁ ⊩U .proj₂) in
+  ®∷Unit⇔ :
+    t ® v ∷ Unit s u ⇔
+    (Δ ⊢ u ∷ Level × t ® v ∷Unit⟨ s , u ⟩)
+  ®∷Unit⇔ {u} =
+      (λ (l , ⊩U , t®v) →
+         inversion-Unit (escape-⊩ ⊩U) .proj₁ ,
          irrelevanceTerm ⊩U
-           (Unitᵣ (Unit-elim ⊩U′)) t®v)
-    , (λ t®v →
-           l
-         , ⊩Unit⇔ .proj₂
-             ( ≤ᵘ-refl
-             , ⊢Δ
-             , (case t®v of λ {
-                  (starᵣ t⇒* _) →
-                inversion-Unit (wf-⊢∷ (wf-⇛ t⇒* .proj₁)) })
-             )
-         , t®v)
+           (Unitᵣ (Unit-elim (⊩Unit⇔ .proj₂ (⊩Unit⇔ .proj₁ ⊩U)))) t®v)
+    , (λ (⊢u , t®v) →
+         let ok =
+               case t®v of λ {
+                 (starᵣ t⇛ _ _) →
+               inversion-Unit (wf-⊢∷ (wf-⇛ t⇛ .proj₁)) .proj₂ }
+             l , ⊩Unit = reducible-⊩ (Unitⱼ ⊢u ok)
+          in
+         l , ⊩Unit⇔ .proj₂ (⊩Unit⇔ .proj₁ ⊩Unit) , t®v)
 
 opaque
   unfolding _®_∷_ ⊩ℕ⇔
@@ -152,9 +189,9 @@ opaque
   ®∷ℕ⇔ : t ® v ∷ ℕ ⇔ t ® v ∷ℕ
   ®∷ℕ⇔ =
       (λ (_ , ⊩ℕ′ , t®v) →
-         irrelevanceTerm {l′ = 0} ⊩ℕ′
+         irrelevanceTerm {l′ = 0ᵘ+ 0} ⊩ℕ′
            (ℕᵣ (ℕ-elim ⊩ℕ′)) t®v)
-    , (λ t®v → 0 , ⊩ℕ⇔ .proj₂ ⊢Δ , t®v)
+    , (λ t®v → 0ᵘ+ 0 , ⊩ℕ⇔ .proj₂ ⊢Δ , t®v)
 
 opaque
   unfolding _®_∷_ ⊩Id⇔
@@ -478,7 +515,7 @@ opaque
 
   _®_∷[_]_◂_ :
     Subst k n → T.Subst k n → Mode → Con Term n → Conₘ n → Set a
-  _ ® _  ∷[ _ ] ε     ◂ ε     = Lift _ ⊤
+  _ ® _  ∷[ _ ] ε     ◂ ε     = L.Lift _ ⊤
   σ ® σ′ ∷[ m ] Γ ∙ A ◂ γ ∙ p =
     head σ ® T.head σ′ ∷ A [ tail σ ] ◂ ⌜ m ⌝ · p ×
     tail σ ® T.tail σ′ ∷[ m ] Γ ◂ γ
@@ -515,7 +552,7 @@ opaque
   ®∷[]ε◂ε⇔ : σ ® σ′ ∷[ m ] ε ◂ ε ⇔ ⊤
   ®∷[]ε◂ε⇔ {σ} {σ′} {m} =
     σ ® σ′ ∷[ m ] ε ◂ ε  ⇔⟨ id⇔ ⟩
-    Lift _ ⊤             ⇔⟨ _ ⟩
+    L.Lift _ ⊤           ⇔⟨ _ ⟩
     ⊤                    □⇔
 
 opaque

@@ -268,11 +268,14 @@ opaque
       (∙ ⊢Erased-A) →
     case inversion-Erased ⊢Erased-A of λ
       (_ , Unit-ok , _) →
+    let ⊢Unit =
+          Unitⱼ (zeroᵘⱼ (wfTerm (syntacticEqTerm t₁≡t₂ .proj₂ .proj₁)))
+            Unit-ok
+    in
     prodrec⟨⟩-cong B₁≡B₂ u₁≡u₂ $
     PE.subst (_⊢_≡_∷_ _ _ _) ([][]↑-[₀⇑] 0 B₁) $
-    unitrec⟨⟩-cong (erasedrec-lemma₁ B₁≡B₂)
-      (refl $ var₀ $
-       Unitⱼ (zeroᵘⱼ (wfTerm (syntacticEqTerm t₁≡t₂ .proj₂ .proj₁))) Unit-ok)
+    unitrec⟨⟩-cong (λ _ → refl (zeroᵘⱼ (∙ ⊢Unit)))
+      (erasedrec-lemma₁ B₁≡B₂) (refl (var₀ ⊢Unit))
       (erasedrec-lemma₂ B₁ Unit-ok t₁≡t₂) }
 
 opaque
@@ -331,7 +334,7 @@ opaque
                                                                                PE.cong₂ (prod _ _) (wk1-sgSubst _ _) PE.refl of λ
                                                                             lemma →
                                                                           PE.subst (_⊢_≡_∷_ _ _ _) lemma $
-                                                                          unitrec⟨⟩-β-≡
+                                                                          unitrec⟨⟩-β-≡ (λ _ → refl (zeroᵘⱼ ⊢Γ))
                                                                             (λ _ →
                                                                                ⊢[][]↑ ⊢B $
                                                                                PE.subst (_⊢_∷_ _ _) (wk[]≡[] 1) $
