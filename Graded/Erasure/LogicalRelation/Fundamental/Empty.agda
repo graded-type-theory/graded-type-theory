@@ -60,10 +60,10 @@ opaque
 
   -- Validity of Empty.
 
-  Emptyʳ : γ ▸ Γ ⊩ʳ Empty ∷[ m ] U 0
+  Emptyʳ : γ ▸ Γ ⊩ʳ Empty ∷[ m ] U zeroᵘ
   Emptyʳ =
     ▸⊩ʳ∷⇔ .proj₂ λ _ _ →
-    ®∷→®∷◂ (®∷U⇔ .proj₂ (_ , ≤ᵘ-refl , Uᵣ (λ { refl → T.refl })))
+    ®∷→®∷◂ (®∷U⇔ .proj₂ (zeroᵘⱼ ⊢Δ , U/Levelᵣ (λ { refl → T.refl })))
 
 opaque
 

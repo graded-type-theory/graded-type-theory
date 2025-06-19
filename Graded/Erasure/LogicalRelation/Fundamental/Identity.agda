@@ -69,10 +69,16 @@ opaque
 
   -- Validity of Id.
 
-  Idʳ : γ ▸ Γ ⊩ʳ Id A t u ∷[ m ] U l
-  Idʳ =
-    ▸⊩ʳ∷⇔ .proj₂ λ _ _ →
-    ®∷→®∷◂ (®∷U⇔ .proj₂ (_ , ≤ᵘ-refl , Uᵣ (λ { PE.refl → T.refl })))
+  Idʳ :
+    Γ ⊢ v ∷ Level →
+    γ ▸ Γ ⊩ʳ Id A t u ∷[ m ] U v
+  Idʳ ⊢v =
+    ▸⊩ʳ∷⇔ .proj₂ λ ⊩σ _ →
+    ®∷→®∷◂ $
+    ®∷U⇔ .proj₂
+      ( subst-⊢∷ ⊢v (escape-⊩ˢ∷ ⊩σ .proj₂)
+      , U/Levelᵣ (λ { PE.refl → T.refl })
+      )
 
 opaque
 

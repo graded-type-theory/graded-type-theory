@@ -984,8 +984,27 @@ mutual
     (Ψ : Substₘ m n) →
     Ψ ▶[ ⌞ γ ⌟ᶜ ] σ → γ ▸[ mo ] t → substₘ Ψ γ ▸[ mo ] t [ σ ]
 
-  substₘ-lemma Ψ _ Uₘ =
-    sub Uₘ (≤ᶜ-reflexive (<*-zeroˡ Ψ))
+  substₘ-lemma Ψ _ Levelₘ =
+    sub Levelₘ (≤ᶜ-reflexive (<*-zeroˡ Ψ))
+
+  substₘ-lemma Ψ _ zeroᵘₘ =
+    sub zeroᵘₘ (≤ᶜ-reflexive (<*-zeroˡ Ψ))
+
+  substₘ-lemma Ψ ▶σ (sucᵘₘ ▸t) =
+    sucᵘₘ (substₘ-lemma Ψ ▶σ ▸t)
+
+  substₘ-lemma Ψ ▶σ (maxᵘₘ {γ} {δ} ▸t ▸u) =
+    let ▶σ₁ = ▶-⌞+ᶜ⌟ˡ Ψ γ ▶σ
+        ▶σ₂ = ▶-⌞+ᶜ⌟ʳ Ψ γ ▶σ
+    in
+    sub (maxᵘₘ (substₘ-lemma Ψ ▶σ₁ ▸t) (substₘ-lemma Ψ ▶σ₂ ▸u)) (begin
+      (γ +ᶜ δ) <* Ψ     ≈⟨ <*-distrib-+ᶜ Ψ γ _ ⟩
+      γ <* Ψ +ᶜ δ <* Ψ  ∎)
+    where
+    open ≤ᶜ-reasoning
+
+  substₘ-lemma Ψ ▶σ (Uₘ ▸t) =
+    Uₘ (substₘ-lemma Ψ ▶σ ▸t)
 
   substₘ-lemma Ψ _ ℕₘ =
     sub ℕₘ (≤ᶜ-reflexive (<*-zeroˡ Ψ))
@@ -993,8 +1012,9 @@ mutual
   substₘ-lemma Ψ _ Emptyₘ =
     sub Emptyₘ (≤ᶜ-reflexive (<*-zeroˡ Ψ))
 
-  substₘ-lemma Ψ _ Unitₘ =
-    sub Unitₘ (≤ᶜ-reflexive (<*-zeroˡ Ψ))
+  substₘ-lemma Ψ ▶σ (Unitₘ ▸t) = sub
+    (Unitₘ (substₘ-lemma-𝟘ᵐ? Ψ ▶σ ▸t .proj₂))
+    (≤ᶜ-reflexive (<*-zeroˡ Ψ))
 
   substₘ-lemma Ψ Ψ▶σ (ΠΣₘ {γ = γ} {δ = δ} γ▸F δ▸G) = sub
     (ΠΣₘ (substₘ-lemma Ψ (▶-⌞+ᶜ⌟ˡ Ψ γ Ψ▶σ) γ▸F)
@@ -1269,34 +1289,39 @@ mutual
            p ·ᶜ γ <* Ψ    ≈⟨ ≡𝟘→·<*≈ᶜ·𝟘 {δ = γ} Ψ p≡𝟘 ⟩
            p ·ᶜ 𝟘ᶜ        ∎)
 
-  substₘ-lemma Ψ Ψ▶σ starʷₘ = sub
-    starʷₘ
+  substₘ-lemma Ψ ▶σ (starʷₘ ▸t) = sub
+    (starʷₘ (substₘ-lemma-𝟘ᵐ? Ψ ▶σ ▸t .proj₂))
     (≤ᶜ-reflexive (<*-zeroˡ Ψ))
 
-  substₘ-lemma Ψ _ (starˢₘ {γ = γ} prop) = sub
-    (starˢₘ (λ ns → ≈ᶜ-trans (≈ᶜ-sym (<*-zeroˡ Ψ)) (<*-cong Ψ (prop ns))))
+  substₘ-lemma Ψ ▶σ (starˢₘ {γ} prop ▸t) = sub
+    (starˢₘ
+       (λ ns → ≈ᶜ-trans (≈ᶜ-sym (<*-zeroˡ Ψ)) (<*-cong Ψ (prop ns)))
+       (substₘ-lemma-𝟘ᵐ? Ψ ▶σ ▸t .proj₂))
     (≤ᶜ-reflexive (<*-distrib-·ᶜ Ψ _ γ))
 
-  substₘ-lemma {mo = mo} Ψ Ψ▶σ (unitrecₘ {γ = γ} {p = p} {δ = δ} {η = η} γ▸t δ▸u η▸A ok) =
-    let ▸u = substₘ-lemma Ψ (▶-⌞+ᶜ⌟ʳ Ψ (_ ·ᶜ γ) Ψ▶σ) δ▸u
-        ▸A = substₘ-lemma-∙⌜𝟘ᵐ?⌝·▸[𝟘ᵐ?] Ψ Ψ▶σ η▸A .proj₂
+  substₘ-lemma
+    {mo} Ψ ▶σ (unitrecₘ {γ₃ = γ} {p} {γ₄ = δ} ▸t ▸A ▸u ▸v ok) =
+    let ▸v = substₘ-lemma Ψ (▶-⌞+ᶜ⌟ʳ Ψ (_ ·ᶜ γ) ▶σ) ▸v
+        ▸t = substₘ-lemma-𝟘ᵐ? Ψ ▶σ ▸t .proj₂
+        ▸A = substₘ-lemma-∙⌜𝟘ᵐ?⌝·▸[𝟘ᵐ?] Ψ ▶σ ▸A .proj₂
         le = begin
           (p ·ᶜ γ +ᶜ δ) <* Ψ       ≈⟨ <*-distrib-+ᶜ Ψ (p ·ᶜ γ) δ ⟩
           (p ·ᶜ γ) <* Ψ +ᶜ δ <* Ψ  ≈⟨ +ᶜ-congʳ (<*-distrib-·ᶜ Ψ p γ) ⟩
           p ·ᶜ γ <* Ψ +ᶜ δ <* Ψ    ∎
-    in  case ▶-⌞·⌟ Ψ γ (▶-⌞+ᶜ⌟ˡ Ψ (p ·ᶜ γ) Ψ▶σ) of λ where
+    in  case ▶-⌞·⌟ Ψ γ (▶-⌞+ᶜ⌟ˡ Ψ (p ·ᶜ γ) ▶σ) of λ where
       (inj₁ (p≡𝟘 , ok′)) →
-        let ▸t = ▸-cong (≡𝟘→𝟘ᵐ≡ᵐ· ⦃ ok = ok′ ⦄ mo p≡𝟘) (substₘ-lemma₀ ⦃ ok = ok′ ⦄ Ψ Ψ▶σ γ▸t)
-        in  sub (unitrecₘ ▸t ▸u ▸A ok)
+        let ▸u = ▸-cong (≡𝟘→𝟘ᵐ≡ᵐ· ⦃ ok = ok′ ⦄ mo p≡𝟘)
+                   (substₘ-lemma₀ ⦃ ok = ok′ ⦄ Ψ ▶σ ▸u)
+        in  sub (unitrecₘ ▸t ▸A ▸u ▸v ok)
                 (begin
                   (p ·ᶜ γ +ᶜ δ) <* Ψ     ≤⟨ le ⟩
                   p ·ᶜ γ <* Ψ +ᶜ δ <* Ψ  ≡⟨ cong (λ p → p ·ᶜ γ <* Ψ +ᶜ δ <* Ψ) p≡𝟘 ⟩
                   𝟘 ·ᶜ γ <* Ψ +ᶜ δ <* Ψ  ≈⟨ +ᶜ-congʳ (·ᶜ-zeroˡ _) ⟩
                   𝟘ᶜ +ᶜ δ <* Ψ           ≈˘⟨ +ᶜ-congʳ (·ᶜ-zeroʳ _) ⟩
                   p ·ᶜ 𝟘ᶜ +ᶜ δ <* Ψ ∎)
-      (inj₂ Ψ▶σ′) →
-        let ▸t = substₘ-lemma Ψ Ψ▶σ′ γ▸t
-        in  sub (unitrecₘ ▸t ▸u ▸A ok) le
+      (inj₂ ▶σ′) →
+        let ▸u = substₘ-lemma Ψ ▶σ′ ▸u
+        in  sub (unitrecₘ ▸t ▸A ▸u ▸v ok) le
     where
     open Tools.Reasoning.PartialOrder ≤ᶜ-poset
 

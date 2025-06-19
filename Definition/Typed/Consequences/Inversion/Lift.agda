@@ -29,9 +29,8 @@ import Tools.PropositionalEquality as PE
 
 private variable
   Γ     : Con Term _
-  A     : Term _
+  A t u : Term _
   s     : Strength
-  l₁ l₂ : Universe-level
 
 opaque
   unfolding Lift
@@ -39,20 +38,18 @@ opaque
   -- An inversion lemma for Lift.
 
   inversion-Lift-U :
-    Γ ⊢ Lift s l₁ A ∷ U l₂ →
+    Γ ⊢ Lift s t A ∷ U u →
     Lift-allowed s ×
-    (⦃ not-ok : No-equality-reflection ⦄ → l₁ ≤ᵘ l₂) ×
-    ∃ λ l → Γ ⊢ A ∷ U l ×
-      (⦃ ok : No-equality-reflection or-empty Γ ⦄ → l ≤ᵘ l₂)
-  inversion-Lift-U {l₁} ⊢Lift =
-    let l , l′ , ⊢A , ⊢Unit , U≡U₁ , ok₁ = inversion-ΠΣ-U ⊢Lift
-        U≡U₂ , ok₂                       = inversion-Unit-U ⊢Unit
-
-        l⊔l′≡l₂ = λ ok → PE.sym $ U-injectivity ⦃ ok = ok ⦄ U≡U₁
-        l′≡l₁   = λ ok → U-injectivity ⦃ ok = ok ⦄ U≡U₂
+    Γ ∙ A ⊢ wk1 t ∷ Level ×
+    ∃₂ λ v w → Γ ⊢ A ∷ U v ×
+      (⦃ ok : No-equality-reflection or-empty Γ ⦄ →
+       Γ ⊢ u ≡ v maxᵘ w ∷ Level) ×
+      (⦃ ok : No-equality-reflection ⦄ →
+       Γ ∙ A ⊢ wk1 w ≡ wk1 t ∷ Level)
+  inversion-Lift-U ⊢Lift =
+    let v , w , ⊢A , ⊢Unit , U≡U₁ , ok₁ = inversion-ΠΣ-U ⊢Lift
+        ⊢wk1-t , U≡U₂ , ok₂             = inversion-Unit-U ⊢Unit
     in
-      (ok₁ , ok₂)
-    , PE.subst₂ _≤ᵘ_ (l′≡l₁ included) (l⊔l′≡l₂ included) ≤ᵘ⊔ᵘˡ
-    , l
-    , ⊢A
-    , (λ ⦃ ok = ok ⦄ → PE.subst (l ≤ᵘ_) (l⊔l′≡l₂ ok) ≤ᵘ⊔ᵘʳ)
+      (ok₁ , ok₂) , ⊢wk1-t , v , w , ⊢A
+    , U-injectivity U≡U₁
+    , U-injectivity ⦃ ok = possibly-nonempty ⦄ U≡U₂

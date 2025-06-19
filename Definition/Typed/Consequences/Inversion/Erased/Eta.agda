@@ -20,6 +20,7 @@ open import Definition.Typed R
 open import Definition.Typed.Consequences.Inequality R
 open import Definition.Typed.Consequences.Injectivity R
 open import Definition.Typed.Inversion R
+open import Definition.Typed.Well-formed R
 
 open import Definition.Untyped M as U
 open import Definition.Untyped.Erased 𝕄 𝕤 hiding (erased)
@@ -42,7 +43,7 @@ opaque
     Erasedˢ-allowed →
     ¬ (∀ {n} {Γ : Con Term n} {t A : Term n} →
        Γ ⊢ erased t ∷ A →
-       ∃₂ λ q l → Γ ⊢ t ∷ Σˢ 𝟘 , q ▷ A ▹ Unitˢ l)
+       ∃₂ λ q u → Γ ⊢ t ∷ Σˢ 𝟘 , q ▷ A ▹ Unitˢ u)
   ¬-inversion-erased′ (Unit-ok , Σˢ-ok) inversion-erased = bad
     where
     Γ′ : Con Term 0
@@ -67,11 +68,16 @@ opaque
     erased-t′≡zero =
       Σ-β₁ (ℕⱼ ⊢Γ′∙ℕ) (zeroⱼ ε) (zeroⱼ ε) PE.refl Σˢ-ok
 
-    ⊢t′₂ : ∃₂ λ q l → Γ′ ⊢ t′ ∷ Σˢ 𝟘 , q ▷ A′ ▹ Unitˢ l
+    ⊢t′₂ : ∃₂ λ q u → Γ′ ⊢ t′ ∷ Σˢ 𝟘 , q ▷ A′ ▹ Unitˢ u
     ⊢t′₂ = inversion-erased ⊢erased-t′
 
     ⊢snd-t′ : ∃ λ l → Γ′ ⊢ snd 𝟘 t′ ∷ Unitˢ l
-    ⊢snd-t′ = _ , sndⱼ (Unitⱼ ⊢Γ′∙ℕ Unit-ok) (⊢t′₂ .proj₂ .proj₂)
+    ⊢snd-t′ =
+      let _ , _ , ⊢t′   = ⊢t′₂
+          _ , ⊢Unit , _ = inversion-ΠΣ (wf-⊢∷ ⊢t′)
+          ⊢u , _        = inversion-Unit ⊢Unit
+      in
+      _ , sndⱼ (Unitⱼ ⊢u Unit-ok) ⊢t′
 
     ℕ≡Unit : ∃ λ l → Γ′ ⊢ ℕ ≡ Unitˢ l
     ℕ≡Unit =

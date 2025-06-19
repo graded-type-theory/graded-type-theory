@@ -31,7 +31,7 @@ open import Tools.Nat as Nat using (Nat)
 open import Tools.Product
 open import Tools.Relation
 open import Tools.Empty
-import Tools.PropositionalEquality as PE
+open import Tools.PropositionalEquality as PE using (_≢_)
 open import Tools.Sum using (inj₁; inj₂)
 
 private
@@ -179,6 +179,18 @@ opaque
 
 opaque
 
+  -- Level is not definitionally equal to Empty (given a certain
+  -- assumption).
+
+  Level≢Empty :
+    ⦃ ok : No-equality-reflection or-empty Γ ⦄ →
+    ¬ Γ ⊢ Level ≡ Empty
+  Level≢Empty =
+    A≢B (λ Γ _ A → Γ ⊩Level A) (λ Γ _ A → Γ ⊩Empty A) Levelᵣ Emptyᵣ
+      Level-elim Empty-elim (λ ())
+
+opaque
+
   -- Level is not definitionally equal to applications of Unit (given
   -- a certain assumption).
 
@@ -201,6 +213,30 @@ opaque
     let b = _ in
     A≢B (λ Γ _ A → Γ ⊩Level A) _⊩′⟨_⟩B⟨ b ⟩_ Levelᵣ (Bᵣ _)
       Level-elim B-elim (λ ())
+
+opaque
+
+  -- Level is not definitionally equal to ℕ (given a certain
+  -- assumption).
+
+  Level≢ℕ :
+    ⦃ ok : No-equality-reflection or-empty Γ ⦄ →
+    ¬ Γ ⊢ Level ≡ ℕ
+  Level≢ℕ =
+    A≢B (λ Γ _ A → Γ ⊩Level A) (λ Γ _ A → Γ ⊩ℕ A) Levelᵣ ℕᵣ
+      Level-elim ℕ-elim (λ ())
+
+opaque
+
+  -- Level is not definitionally equal to applications of Id (given a
+  -- certain assumption).
+
+  Level≢Id :
+    ⦃ ok : No-equality-reflection or-empty Γ ⦄ →
+    ¬ Γ ⊢ Level ≡ Id A t u
+  Level≢Id =
+    A≢B (λ Γ _ A → Γ ⊩Level A) _⊩′⟨_⟩Id_ Levelᵣ Idᵣ
+      Level-elim Id-elim (λ ())
 
 opaque
 
@@ -480,22 +516,18 @@ No-η-equality→≢Unit = λ where
   (U.neₙ A-ne)    A≡Unit      _              → Unit≢neⱼ A-ne
                                                  (sym A≡Unit)
 
--- If A is a type without η-equality, then a non-semi-neutral WHNF is not
--- definitionally equal at type A to any neutral term (given a certain
--- assumption).
+-- If A is a type without η-equality (not definitionally equal to
+-- Level), then a non-semi-neutral WHNF is not definitionally equal at
+-- type A to any neutral term (given a certain assumption).
+--
+-- TODO: Can the assumption of type ¬ Γ ⊢ A ≡ Level be removed?
 
--- TODO: this is not straightforward any more because a neutral level
--- can be equal to a semineutral level (k ≡ k ⊔ k) and a semineutral
--- level can be equal to a non-semineutral level (k ⊔ sucᵘ k ≡ sucᵘ k),
--- but it should still be true (a neutral level can never be equal to
--- zeroᵘ or a successor level).
-
-{-
 whnf≢ne :
   ⦃ ok : No-equality-reflection or-empty Γ ⦄ →
-  No-η-equality A → Whnf t → ¬ Semineutral t → Neutral u →
+  No-η-equality A → ¬ Γ ⊢ A ≡ Level →
+  Whnf t → ¬ Semineutral t → Neutral u →
   ¬ Γ ⊢ t ≡ u ∷ A
-whnf≢ne {Γ} {A} {t} {u} ¬-A-η t-whnf ¬-t-ne u-ne t≡u =
+whnf≢ne {Γ} {A} {t} {u} ¬-A-η A≢Level t-whnf ¬-t-ne u-ne t≡u =
   case reducible-⊩≡∷ t≡u of λ
     (_ , t≡u) →
   case wf-⊩∷ $ wf-⊩≡∷ t≡u .proj₁ of λ
@@ -523,27 +555,10 @@ whnf≢ne {Γ} {A} {t} {u} ¬-A-η t-whnf ¬-t-ne u-ne t≡u =
       PE.refl →
     u-ne }
 
-  mutual
-    whnf≢ne∷Level : ∀ {t u} → ¬ Semineutral t → Neutral u → ¬ [Level]-prop Γ t u
-    whnf≢ne∷Level ¬sne () zeroᵘᵣ
-    whnf≢ne∷Level ¬sne () (sucᵘᵣ x)
-    whnf≢ne∷Level ¬sne () (maxᵘ-subᵣ x x₁)
-    whnf≢ne∷Level ¬sne n (neLvl x) = ¬sne (nelsplit x .proj₁)
-    whnf≢ne∷Level ¬sne n (sym x) = ne≢whnf∷Level ¬sne n x
-    whnf≢ne∷Level ¬sne n (trans x y) = {!   !}
-
-    ne≢whnf∷Level : ∀ {t u} → ¬ Semineutral t → Neutral u → ¬ [Level]-prop Γ u t
-    ne≢whnf∷Level ¬sne () zeroᵘᵣ
-    ne≢whnf∷Level ¬sne () (sucᵘᵣ x)
-    ne≢whnf∷Level ¬sne () (maxᵘ-subᵣ x x₁)
-    ne≢whnf∷Level ¬sne n (neLvl x) = ¬sne (nelsplit x .proj₂)
-    ne≢whnf∷Level ¬sne n (sym x) = whnf≢ne∷Level ¬sne n x
-    ne≢whnf∷Level ¬sne n (trans x y) = {!   !}
-
   lemma : ∀ {l} → ([A] : Γ ⊩⟨ l ⟩ A) → ¬ Γ ⊩⟨ l ⟩ t ≡ u ∷ A / [A]
   lemma = λ where
-    (Levelᵣ _) (Levelₜ₌ _ _ t⇒ u⇒ prop) →
-      whnf≢ne∷Level (¬t⇒*sne t⇒) (u⇒*ne u⇒) prop
+    (Levelᵣ A⇒*Level) (Levelₜ₌ _ _ t⇒ u⇒ prop) →
+      A≢Level (subset* A⇒*Level)
     (ℕᵣ _) (ℕₜ₌ _ _ _ u⇒*zero _ zeroᵣ) →
       U.zero≢ne (u⇒*ne u⇒*zero) PE.refl
     (ℕᵣ _) (ℕₜ₌ _ _ _ u⇒*suc _ (sucᵣ _)) →
@@ -605,7 +620,7 @@ zero≢ne :
   ⦃ ok : No-equality-reflection or-empty Γ ⦄ →
   Neutral t →
   ¬ Γ ⊢ zero ≡ t ∷ ℕ
-zero≢ne = whnf≢ne U.ℕₙ U.zeroₙ (λ { (U.ne ()) })
+zero≢ne = whnf≢ne U.ℕₙ (Level≢ℕ ∘→ sym) U.zeroₙ (λ { (U.ne ()) })
 
 -- The term suc t is not definitionally equal (at type ℕ) to any
 -- neutral term (given a certain assumption).
@@ -614,7 +629,7 @@ suc≢ne :
   ⦃ ok : No-equality-reflection or-empty Γ ⦄ →
   Neutral u →
   ¬ Γ ⊢ suc t ≡ u ∷ ℕ
-suc≢ne = whnf≢ne U.ℕₙ U.sucₙ (λ { (U.ne ()) })
+suc≢ne = whnf≢ne U.ℕₙ (Level≢ℕ ∘→ sym) U.sucₙ (λ { (U.ne ()) })
 
 -- The term starʷ l is not definitionally equal (at type Unitʷ l) to
 -- any neutral term (given certain assumptions).
@@ -624,7 +639,8 @@ starʷ≢ne :
   ¬ Unitʷ-η →
   Neutral t →
   ¬ Γ ⊢ starʷ l ≡ t ∷ Unitʷ l
-starʷ≢ne no-η = whnf≢ne (U.Unitʷₙ no-η) U.starₙ (λ { (U.ne ()) })
+starʷ≢ne no-η =
+  whnf≢ne (U.Unitʷₙ no-η) (Level≢Unitⱼ ∘→ sym) U.starₙ (λ { (U.ne ()) })
 
 -- The term prodʷ p t u is not definitionally equal (at type
 -- Σʷ p , q ▷ A ▹ B) to any neutral term (given a certain assumption).
@@ -633,7 +649,7 @@ prodʷ≢ne :
   ⦃ ok : No-equality-reflection or-empty Γ ⦄ →
   Neutral v →
   ¬ Γ ⊢ prodʷ p t u ≡ v ∷ Σʷ p , q ▷ A ▹ B
-prodʷ≢ne = whnf≢ne U.Σʷₙ U.prodₙ (λ { (U.ne ()) })
+prodʷ≢ne = whnf≢ne U.Σʷₙ (Level≢ΠΣⱼ ∘→ sym) U.prodₙ (λ { (U.ne ()) })
 
 -- The term rfl is not definitionally equal (at type Id A t u) to any
 -- neutral term (given a certain assumption).
@@ -642,5 +658,4 @@ rfl≢ne :
   ⦃ ok : No-equality-reflection or-empty Γ ⦄ →
   Neutral v →
   ¬ Γ ⊢ rfl ≡ v ∷ Id A t u
-rfl≢ne = whnf≢ne U.Idₙ U.rflₙ (λ { (U.ne ()) })
--}
+rfl≢ne = whnf≢ne U.Idₙ (Level≢Id ∘→ sym) U.rflₙ (λ { (U.ne ()) })

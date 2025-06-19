@@ -92,7 +92,7 @@ opaque
 
   ▸true : 𝟘ᶜ ▸[ m ] true {n = n}
   ▸true {m} =
-    sub (prodʷₘ (sucₘ zeroₘ) (▸[] starₘ)) $ begin
+    sub (prodʷₘ (sucₘ zeroₘ) (▸[] (starₘ zeroᵘₘ))) $ begin
       𝟘ᶜ             ≈˘⟨ ·ᶜ-zeroʳ _ ⟩
       𝟙 ·ᶜ 𝟘ᶜ        ≈˘⟨ +ᶜ-identityʳ _ ⟩
       𝟙 ·ᶜ 𝟘ᶜ +ᶜ 𝟘ᶜ  ∎
@@ -106,7 +106,7 @@ opaque
 
   ▸false : 𝟘ᶜ ▸[ m ] false {n = n}
   ▸false {m} =
-    sub (prodʷₘ zeroₘ (▸[] starₘ)) $ begin
+    sub (prodʷₘ zeroₘ (▸[] (starₘ zeroᵘₘ))) $ begin
       𝟘ᶜ             ≈˘⟨ ·ᶜ-zeroʳ _ ⟩
       𝟙 ·ᶜ 𝟘ᶜ        ≈˘⟨ +ᶜ-identityʳ _ ⟩
       𝟙 ·ᶜ 𝟘ᶜ +ᶜ 𝟘ᶜ  ∎
@@ -338,7 +338,7 @@ opaque
       wkConₘ (stepn id k) γ ▸[ m ]
         lam 𝟙
           (erasedrec p (Target (2+ k) A t (var x0))
-             (unitrec 0 𝟘 𝟘
+             (unitrec 𝟘 𝟘 zeroᵘ
                 (Target (3+ k) A (wk1 t) E.[ var x0 ]) (var x0)
                 (wk[ 2+ k ]′ u))
              (var x0))
@@ -361,7 +361,7 @@ opaque
                    wkConₘ (stepn id (2+ k)) γ₁ +ᶜ
                    (⌜ 𝟘ᵐ? ⌝ · p) ·ᶜ (𝟘ᶜ ∙ 𝟙)                          ∎))
            (sub
-              (unitrecₘ var (wkUsage (stepn id (2+ k)) ▸u)
+              (unitrecₘ zeroᵘₘ
                  (sub
                     (▸Target ▸A (wkUsage (step id) ▸t) (▸[] var) $
                      begin
@@ -377,7 +377,7 @@ opaque
 
                        wkConₘ (stepn id (3+ k)) γ₁ +ᶜ
                        (⌜ 𝟘ᵐ? ⌝ · p) ·ᶜ 𝟘ᶜ                        ∎))
-                 ok₄)
+                 var (wkUsage (stepn id (2+ k)) ▸u) ok₄)
               (begin
                  wkConₘ (stepn id (2+ k)) γ                            ≈˘⟨ +ᶜ-identityˡ _ ⟩
                  𝟘ᶜ +ᶜ wkConₘ (stepn id (2+ k)) γ                      ≈˘⟨ +ᶜ-congʳ (·ᶜ-zeroˡ _) ⟩

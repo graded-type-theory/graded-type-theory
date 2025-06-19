@@ -56,14 +56,14 @@ opaque
     γ ▸[ m ] t →
     nrᶜ OKᵍ 𝟘 𝟘ᶜ 𝟘ᶜ γ ▸[ m ] OK t
   ▸OK {m} ▸t =
-    ▸natcase Unitₘ
+    ▸natcase (Unitₘ zeroᵘₘ)
       (sub
-         (▸natcase Unitₘ
+         (▸natcase (Unitₘ zeroᵘₘ)
             (sub Emptyₘ $ begin
                𝟘ᶜ ∙ ⌜ m ⌝ · 𝟘  ≈⟨ ≈ᶜ-refl ∙ ·-zeroʳ _ ⟩
                𝟘ᶜ              ∎)
             var
-            (sub Uₘ $ begin
+            (sub (Uₘ zeroᵘₘ) $ begin
                𝟘ᶜ ∙ ⌜ 𝟘ᵐ? ⌝ · 𝟘  ≈⟨ ≈ᶜ-refl ∙ ·-zeroʳ _ ⟩
                𝟘ᶜ                ∎))
          (begin
@@ -71,7 +71,7 @@ opaque
             𝟘ᶜ ∙ nr 𝟘 𝟘 𝟘 𝟘 ⌜ m ⌝       ≈˘⟨ nrᶜ-𝟘ᶜ ∙ PE.refl ⟩
             nrᶜ 𝟘 𝟘 𝟘ᶜ 𝟘ᶜ (𝟘ᶜ ∙ ⌜ m ⌝)  ∎))
       ▸t
-      (sub Uₘ $ begin
+      (sub (Uₘ zeroᵘₘ) $ begin
          𝟘ᶜ ∙ ⌜ 𝟘ᵐ? ⌝ · 𝟘  ≈⟨ ≈ᶜ-refl ∙ ·-zeroʳ _ ⟩
          𝟘ᶜ                ∎)
     where
@@ -102,7 +102,7 @@ opaque
 
   ▸true : 𝟘ᶜ ▸[ m ] true {n = n}
   ▸true {m} =
-    sub (prodʷₘ (sucₘ zeroₘ) starₘ) $ begin
+    sub (prodʷₘ (sucₘ zeroₘ) (starₘ zeroᵘₘ)) $ begin
       𝟘ᶜ             ≈˘⟨ ·ᶜ-zeroʳ _ ⟩
       ω ·ᶜ 𝟘ᶜ        ≈˘⟨ +ᶜ-identityʳ _ ⟩
       ω ·ᶜ 𝟘ᶜ +ᶜ 𝟘ᶜ  ∎
@@ -116,7 +116,7 @@ opaque
 
   ▸false : 𝟘ᶜ ▸[ m ] false {n = n}
   ▸false {m} =
-    sub (prodʷₘ zeroₘ starₘ) $ begin
+    sub (prodʷₘ zeroₘ (starₘ zeroᵘₘ)) $ begin
       𝟘ᶜ             ≈˘⟨ ·ᶜ-zeroʳ _ ⟩
       ω ·ᶜ 𝟘ᶜ        ≈˘⟨ +ᶜ-identityʳ _ ⟩
       ω ·ᶜ 𝟘ᶜ +ᶜ 𝟘ᶜ  ∎
@@ -300,12 +300,12 @@ opaque
       γ ▸[ m ] u →
       wkConₘ (stepn id k) γ ▸[ m ]
         lam boolrecᵍ-Π
-          (unitrec 0 boolrecᵍ-Π p (Target (2+ k) A t (var x0)) (var x0)
-             (wk[ 1+ k ]′ u))
+          (unitrec boolrecᵍ-Π p zeroᵘ (Target (2+ k) A t (var x0))
+             (var x0) (wk[ 1+ k ]′ u))
     unitrec-lemma {k} {γ} ▸t ▸u =
       lamₘ $
       sub
-        (unitrecₘ var (wkUsage (stepn id (1+ k)) ▸u)
+        (unitrecₘ zeroᵘₘ
            (sub
               (▸Target ▸A ▸t var $ begin
                  ⌜ ⌞ ⌜ 𝟘ᵐ? ⌝ · p ⌟ ⌝ ·ᶜ (𝟘ᶜ ∙ 𝟙)        ≈⟨ ·ᶜ-zeroʳ _ ∙ ·-identityʳ _ ⟩
@@ -319,7 +319,7 @@ opaque
 
                  wkConₘ (stepn id (2+ k)) γ₁ +ᶜ
                  (⌜ 𝟘ᵐ? ⌝ · p) ·ᶜ (𝟘ᶜ ∙ 𝟙)                          ∎))
-           ok₂)
+           var (wkUsage (stepn id (1+ k)) ▸u) ok₂)
         (begin
            wkConₘ (stepn id k) γ ∙ ⌜ m ⌝ · boolrecᵍ-Π               ≈˘⟨ +ᶜ-identityˡ _ ∙ +-identityʳ _ ⟩
 

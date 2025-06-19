@@ -88,6 +88,10 @@ mutual
     erase″ : U.Term n → T.Term n
     erase″ (var x)                 = T.var x
     erase″ (U _)                   = loop? s
+    erase″ Level                   = loop? s
+    erase″ zeroᵘ                   = loop? s
+    erase″ (sucᵘ _)                = loop? s
+    erase″ (_ maxᵘ _)              = loop? s
     erase″ (ΠΣ⟨ _ ⟩ _ , _ ▷ _ ▹ _) = loop? s
     erase″ (U.lam p t)             = case remove of λ where
       false → T.lam (erase″ t)
@@ -116,7 +120,7 @@ mutual
       T.natrec (erase″ t) (erase″ u) (erase″ v)
     erase″ Unit!                 = loop? s
     erase″ U.star!               = T.star
-    erase″ (U.unitrec _ p _ _ t u) = case is-𝟘? p of λ where
+    erase″ (U.unitrec p _ _ _ t u) = case is-𝟘? p of λ where
       (no _)  → T.unitrec (erase″ t) (erase″ u)
       (yes _) → erase″ u
     erase″ Empty               = loop? s

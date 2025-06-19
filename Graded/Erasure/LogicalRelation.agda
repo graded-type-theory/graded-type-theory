@@ -27,17 +27,17 @@ open import Graded.Erasure.Extraction 𝕄
 
 open import Tools.Empty
 open import Tools.Function
-open import Tools.Level
+open import Tools.Level using (Lift; lift)
 open import Tools.Nat
 open import Tools.Product
-open import Tools.PropositionalEquality as PE using (_≡_)
+import Tools.PropositionalEquality as PE
 open import Tools.Relation
 
 
 private
   variable
     m n : Nat
-    A B t t₁ t′ u : U.Term n
+    A B t t₁ t′ u u′ : U.Term n
     v v₂ v′ w : T.Term n
     p : M
     l : Universe-level
@@ -46,13 +46,12 @@ private
 ------------------------------------------------------------------------
 -- The logical relation
 
--- In the non-strict setting terms of type U are related to all target
--- terms, and in the strict setting they are related to those terms
--- that reduce to ↯. (All types are erased by the extraction
--- function.)
+-- In the non-strict setting terms of type U or Level are related to
+-- all target terms, and in the strict setting they are related to
+-- those terms that reduce to ↯.
 
-data _®_∷U (t : U.Term k) (v : T.Term k) : Set a where
-  Uᵣ : (str ≡ strict → v ⇒* ↯) → t ® v ∷U
+data _®_∷U/Level (t : U.Term k) (v : T.Term k) : Set a where
+  U/Levelᵣ : (str PE.≡ strict → v ⇒* ↯) → t ® v ∷U/Level
 
 -- Terms of type ℕ are related if both reduce to zero or if both
 -- reduce to the successors of related terms (in the strict setting
@@ -72,10 +71,11 @@ data _®_∷Empty (t : U.Term k) (v : T.Term k) : Set a where
 -- Terms of type Unit are related if both reduce to star.
 
 data _®_∷Unit⟨_,_⟩
-  (t : U.Term k) (v : T.Term k) (s : Strength) (l : Universe-level) :
+  (t : U.Term k) (v : T.Term k) (s : Strength) (u : U.Term k) :
   Set a where
-  starᵣ : t ⇛ U.star s l ∷ Unit s l → v ⇒* T.star →
-          t ® v ∷Unit⟨ s , l ⟩
+  starᵣ : t ⇛ U.star s u′ ∷ Unit s u′ → Δ ⊢ u ≡ u′ ∷ Level →
+          v ⇒* T.star →
+          t ® v ∷Unit⟨ s , u ⟩
 
 -- Equality proofs are related in the non-strict setting if the source
 -- term reduces to rfl. In the strict setting the target term should
@@ -84,7 +84,7 @@ data _®_∷Unit⟨_,_⟩
 data _®_∷Id⟨_⟩⟨_⟩⟨_⟩
        (t : U.Term k) (v : T.Term k) (Ty lhs rhs : U.Term k) :
        Set a where
-  rflᵣ : t ⇛ U.rfl ∷ Id Ty lhs rhs → (str ≡ strict → v ⇒* ↯) →
+  rflᵣ : t ⇛ U.rfl ∷ Id Ty lhs rhs → (str PE.≡ strict → v ⇒* ↯) →
          t ® v ∷Id⟨ Ty ⟩⟨ lhs ⟩⟨ rhs ⟩
 
 mutual
@@ -94,15 +94,16 @@ mutual
 
   _®⟨_⟩_∷_/_ : (t : U.Term k) (l : Universe-level) (v : T.Term k)
                (A : U.Term k) ([A] : Δ ⊩⟨ l ⟩ A) → Set a
-  t ®⟨ l ⟩ v ∷ A / Uᵣ x              = t ® v ∷U
+  t ®⟨ l ⟩ v ∷ _ / Levelᵣ _          = t ® v ∷U/Level
+  t ®⟨ l ⟩ v ∷ _ / Uᵣ _              = t ® v ∷U/Level
   t ®⟨ l ⟩ v ∷ A / ℕᵣ x              = t ® v ∷ℕ
   t ®⟨ l ⟩ v ∷ A / Emptyᵣ x          = t ® v ∷Empty
-  t ®⟨ l ⟩ v ∷ A / Unitᵣ {s = s} ⊩A  = t ® v ∷Unit⟨ s , ⊩A ._⊩Unit⟨_,_⟩_.l′ ⟩
+  t ®⟨ l ⟩ v ∷ A / Unitᵣ {s} ⊩A      = t ® v ∷Unit⟨ s , ⊩A ._⊩Unit⟨_,_⟩_.k ⟩
   t ®⟨ l ⟩ v ∷ A / ne′ _ _ D neK K≡K = Lift a ⊥
 
   -- Π:
   t ®⟨ l ⟩ v ∷ A / Bᵣ′ (BΠ p q) F G D A≡A [F] [G] G-ext _ =
-    (str ≡ strict → ∃ λ v′ → v ⇒* T.lam v′) ×
+    (str PE.≡ strict → ∃ λ v′ → v ⇒* T.lam v′) ×
     (∀ {a} → ([a] : Δ ⊩⟨ l ⟩ a ∷ U.wk id F / [F] (id ⊢Δ)) →
      Π-® l F G t a v ([F] (id ⊢Δ)) ([G] (id ⊢Δ) [a]) p (is-𝟘? p))
 

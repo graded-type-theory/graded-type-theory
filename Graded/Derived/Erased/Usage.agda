@@ -67,7 +67,7 @@ opaque
   ▸Erased {γ} {m} ▸A = sub
     (ΠΣₘ
        (▸-cong (PE.sym (ᵐ·-zeroʳ m)) ▸A)
-       (sub Unitₘ
+       (sub (Unitₘ zeroᵘₘ)
           (let open Tools.Reasoning.PartialOrder ≤ᶜ-poset in begin
              𝟘ᶜ ∙ ⌜ m ⌝ · 𝟘  ≈⟨ ≈ᶜ-refl ∙ ·-zeroʳ _ ⟩
              𝟘ᶜ              ∎)))
@@ -83,13 +83,13 @@ opaque
     open Tools.Reasoning.PartialOrder (≤ᶜ-poset {n})
     lemma : ∀ s′ → s PE.≡ s′ → 𝟘ᶜ ▸[ m ] [ t ]
     lemma 𝕤 PE.refl = sub
-      (prodˢₘ (▸-cong (PE.sym (ᵐ·-zeroʳ m)) ▸t) starₘ)
+      (prodˢₘ (▸-cong (PE.sym (ᵐ·-zeroʳ m)) ▸t) (starₘ zeroᵘₘ))
       (begin
          𝟘ᶜ             ≈˘⟨ ∧ᶜ-idem _ ⟩
          𝟘ᶜ ∧ᶜ 𝟘ᶜ       ≈˘⟨ ∧ᶜ-congʳ (·ᶜ-zeroˡ _) ⟩
          𝟘 ·ᶜ γ ∧ᶜ 𝟘ᶜ  ∎)
     lemma 𝕨 PE.refl = sub
-      (prodʷₘ (▸-cong (PE.sym (ᵐ·-zeroʳ m)) ▸t) starₘ)
+      (prodʷₘ (▸-cong (PE.sym (ᵐ·-zeroʳ m)) ▸t) (starₘ zeroᵘₘ))
       (begin
          𝟘ᶜ             ≈˘⟨ +ᶜ-identityˡ _ ⟩
          𝟘ᶜ +ᶜ 𝟘ᶜ       ≈˘⟨ +ᶜ-congʳ (·ᶜ-zeroˡ _) ⟩
@@ -164,7 +164,7 @@ opaque
        (λ _ → ≤-refl)
        (λ { PE.refl → P-ok PE.refl })
        ▸B ▸u
-       (▸unitrec⟨⟩ U-ok
+       (▸unitrec⟨⟩ U-ok (λ _ → _ , zeroᵘₘ)
           (λ s≡𝕨 →
              let γ , ▸B = ▸B s≡𝕨 in
                γ ∙ 𝟘 ∙ 𝟘
@@ -564,7 +564,7 @@ opaque
       (invUsageΠΣ {δ = δ} {η = η} ▸A ▸Unit γ≤) →
     sub (▸-cong (ᵐ·-zeroʳ m) ▸A) $ begin
       γ        ≤⟨ γ≤ ⟩
-      δ +ᶜ η   ≤⟨ +ᶜ-monotoneʳ (tailₘ-monotone (inv-usage-Unit ▸Unit)) ⟩
+      δ +ᶜ η   ≤⟨ +ᶜ-monotoneʳ (tailₘ-monotone (inv-usage-Unit ▸Unit .proj₁)) ⟩
       δ +ᶜ 𝟘ᶜ  ≈⟨ +ᶜ-identityʳ _ ⟩
       δ        ∎ }
     where
@@ -592,7 +592,7 @@ opaque
       case inv-usage-prodʷ ▸[] of λ {
         (invUsageProdʷ {δ = δ} {η} ▸t ▸star γ≤) →
       case inv-usage-starʷ ▸star of λ
-        η≤𝟘 →
+        (η≤𝟘 , _) →
       (_ , ▸-cong (ᵐ·-zeroʳ m) ▸t)
       , (begin
           γ            ≤⟨ γ≤ ⟩

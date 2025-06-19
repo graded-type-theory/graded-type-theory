@@ -28,9 +28,11 @@ open import Definition.Typed TR
 open import Definition.Typed.Consequences.Consistency TR
 import Definition.Typed.Consequences.Canonicity TR as TC
 open import Definition.Typed.EqualityRelation
+open import Definition.Typed.Inversion TR
 open import Definition.Typed.Properties TR
 open import Definition.Typed.Reasoning.Term TR
 open import Definition.Typed.Substitution TR
+open import Definition.Typed.Well-formed TR
 
 open import Graded.Context 𝕄
 open import Graded.Derived.Erased.Usage 𝕄 UR
@@ -62,7 +64,7 @@ open import Tools.Nat using (Nat; 1+)
 open import Tools.Product
 import Tools.Reasoning.PartialOrder
 open import Tools.Relation
-open import Tools.PropositionalEquality as PE using (_≡_; _≢_)
+open import Tools.PropositionalEquality as PE using (_≢_)
 
 private
   variable
@@ -229,12 +231,19 @@ module _
       -- Note the assumptions of the local module Soundness.
 
       soundness-Unit :
-        Δ ⊢ t ∷ Unit s l → 𝟘ᶜ ▸[ 𝟙ᵐ ] t →
-        Δ ⊢ t ⇒* star s l ∷ Unit s l × erase str t T.⇒* T.star
+        Δ ⊢ t ∷ Unit s u → 𝟘ᶜ ▸[ 𝟙ᵐ ] t →
+        ∃ λ u′ →
+          Δ ⊢ t ⇒* star s u′ ∷ Unit s u ×
+          Δ ⊢ u ≡ u′ ∷ Level ×
+          erase str t T.⇒* T.star
       soundness-Unit ⊢t ▸t =
         case ®∷Unit⇔ .proj₁ $ fundamentalErased-𝟙ᵐ ⊢t ▸t of λ where
-          (starᵣ t⇒*star erase-t⇒*star) →
-            t⇒*star , erase-t⇒*star
+          (_ , starᵣ t⇒*star u≡u′ erase-t⇒*star) →
+            _ ,
+            conv* t⇒*star
+              (Unit-cong (sym′ u≡u′)
+                 (inversion-Unit (wf-⊢∷ ⊢t) .proj₂)) ,
+            u≡u′ , erase-t⇒*star
         where
         open L (wfTerm ⊢t)
 
@@ -284,8 +293,8 @@ soundness-ℕ-only-source-counterexample₁ {p = p} P-ok Σʷ-ok =
          𝟘ᶜ +ᶜ 𝟘ᶜ                     ≈˘⟨ +ᶜ-congʳ (·ᶜ-zeroˡ _) ⟩
          𝟘 ·ᶜ (𝟘ᶜ ∙ ⌜ ⌞ 𝟘 ⌟ ⌝) +ᶜ 𝟘ᶜ  ∎)
   , λ where
-      (0    , whred d ⇨ˢ _) → whnfRedTerm d (ne (prodrecₙ (var _)))
-      (1+ _ , whred d ⇨ˢ _) → whnfRedTerm d (ne (prodrecₙ (var _)))
+      (0    , whred d ⇨ˢ _) → whnfRedTerm d (ne! (prodrecₙ (var _)))
+      (1+ _ , whred d ⇨ˢ _) → whnfRedTerm d (ne! (prodrecₙ (var _)))
   where
   ε⊢ℕ = ℕⱼ ε
   ⊢εℕ = ∙ ε⊢ℕ
@@ -336,9 +345,9 @@ opaque
         (≤ᶜ-reflexive (≈ᶜ-sym ω·ᶜ+ᶜ⁵𝟘ᶜ))
     , (λ where
          (0 , whred J⇒ ⇨ˢ _) →
-           whnfRedTerm J⇒ (ne (Jₙ ([]-congₙ (var _))))
+           whnfRedTerm J⇒ (ne! (Jₙ ([]-congₙ (var _))))
          (1+ _ , whred J⇒ ⇨ˢ _) →
-           whnfRedTerm J⇒ (ne (Jₙ ([]-congₙ (var _))))) }
+           whnfRedTerm J⇒ (ne! (Jₙ ([]-congₙ (var _))))) }
 
 opaque
 
@@ -349,7 +358,7 @@ opaque
   -- assumption that the modality's zero is well-behaved).
 
   soundness-ℕ-only-source-counterexample₃ :
-    erased-matches-for-J 𝟙ᵐ ≡ not-none sem →
+    erased-matches-for-J 𝟙ᵐ PE.≡ not-none sem →
     let Δ = ε ∙ Id ℕ zero zero
         t = J 𝟘 𝟘 ℕ zero ℕ zero zero (var {n = 1} x0)
     in
@@ -369,8 +378,8 @@ opaque
            𝟘ᶜ               ≈˘⟨ ω·ᶜ+ᶜ²𝟘ᶜ ⟩
            ω ·ᶜ (𝟘ᶜ +ᶜ 𝟘ᶜ)  ∎)
     , (λ where
-         (0    , whred J⇒ ⇨ˢ _) → whnfRedTerm J⇒ (ne (Jₙ (var _)))
-         (1+ _ , whred J⇒ ⇨ˢ _) → whnfRedTerm J⇒ (ne (Jₙ (var _)))) }
+         (0    , whred J⇒ ⇨ˢ _) → whnfRedTerm J⇒ (ne! (Jₙ (var _)))
+         (1+ _ , whred J⇒ ⇨ˢ _) → whnfRedTerm J⇒ (ne! (Jₙ (var _)))) }
     where
     open Tools.Reasoning.PartialOrder ≤ᶜ-poset
 
@@ -385,7 +394,7 @@ opaque
 
   soundness-ℕ-only-source-counterexample₄ :
     K-allowed →
-    erased-matches-for-K 𝟙ᵐ ≡ not-none sem →
+    erased-matches-for-K 𝟙ᵐ PE.≡ not-none sem →
     let Δ = ε ∙ Id ℕ zero zero
         t = K 𝟘 ℕ zero ℕ zero (var {n = 1} x0)
     in
@@ -405,8 +414,8 @@ opaque
            𝟘ᶜ               ≈˘⟨ ω·ᶜ+ᶜ²𝟘ᶜ ⟩
            ω ·ᶜ (𝟘ᶜ +ᶜ 𝟘ᶜ)  ∎)
     , (λ where
-         (0    , whred K⇒ ⇨ˢ _) → whnfRedTerm K⇒ (ne (Kₙ (var _)))
-         (1+ _ , whred K⇒ ⇨ˢ _) → whnfRedTerm K⇒ (ne (Kₙ (var _)))) }
+         (0    , whred K⇒ ⇨ˢ _) → whnfRedTerm K⇒ (ne! (Kₙ (var _)))
+         (1+ _ , whred K⇒ ⇨ˢ _) → whnfRedTerm K⇒ (ne! (Kₙ (var _)))) }
     where
     open Tools.Reasoning.PartialOrder ≤ᶜ-poset
 
@@ -423,37 +432,36 @@ opaque
     Unitrec-allowed 𝟙ᵐ 𝟘 𝟘 →
     Unitʷ-allowed →
     ¬ Unitʷ-η →
-    let Δ = ε ∙ Unitʷ 0
-        t = unitrec 0 𝟘 𝟘 ℕ (var {n = 1} x0) zero
+    let Δ = ε ∙ Unitʷ zeroᵘ
+        t = unitrec 𝟘 𝟘 zeroᵘ ℕ (var {n = 1} x0) zero
     in
     Consistent Δ ×
     Δ ⊢ t ∷ ℕ ×
     𝟘ᶜ ▸[ 𝟙ᵐ ] t ×
     ¬ ∃ λ n → Δ ⊢ t ⇒ˢ* sucᵏ n ∷ℕ
   soundness-ℕ-only-source-counterexample₅ unitrec-ok Unit-ok no-η =
-    case Unitⱼ ε Unit-ok of λ
-      ⊢Unit →
-    case ∙ ⊢Unit of λ
-      ⊢∙Unit →
-      inhabited-consistent (⊢ˢʷ∷-sgSubst (starⱼ ε Unit-ok))
-    , unitrecⱼ (ℕⱼ (⊢∙Unit ∙[ flip Unitⱼ Unit-ok ])) (var₀ ⊢Unit)
-        (zeroⱼ ⊢∙Unit) Unit-ok
+    let ⊢Unit = Unitⱼ (zeroᵘⱼ ε) Unit-ok
+        ⊢0    = zeroᵘⱼ (∙ ⊢Unit)
+    in
+      inhabited-consistent (⊢ˢʷ∷-sgSubst (starⱼ (zeroᵘⱼ ε) Unit-ok))
+    , unitrecⱼ ⊢0 (ℕⱼ (∙ Unitⱼ ⊢0 Unit-ok)) (var₀ ⊢Unit)
+        (zeroⱼ (∙ ⊢Unit)) Unit-ok
     , sub
-        (unitrecₘ var zeroₘ
+        (unitrecₘ zeroᵘₘ
            (sub ℕₘ $
             let open Tools.Reasoning.PartialOrder ≤ᶜ-poset in begin
               𝟘ᶜ ∙ ⌜ 𝟘ᵐ? ⌝ · 𝟘  ≈⟨ ≈ᶜ-refl ∙ ·-zeroʳ _ ⟩
               𝟘ᶜ                ∎)
-           unitrec-ok)
+           var zeroₘ unitrec-ok)
         (let open Tools.Reasoning.PartialOrder ≤ᶜ-poset in begin
            𝟘ᶜ                                ≈˘⟨ ·ᶜ-zeroˡ _ ⟩
            𝟘 ·ᶜ (𝟘ᶜ , x0 ≔ ⌜ ⌞ 𝟘 ⌟ ⌝)        ≈˘⟨ +ᶜ-identityʳ _ ⟩
            𝟘 ·ᶜ (𝟘ᶜ , x0 ≔ ⌜ ⌞ 𝟘 ⌟ ⌝) +ᶜ 𝟘ᶜ  ∎)
     , (λ where
          (0 , whred unitrec⇒ ⇨ˢ _) →
-           whnfRedTerm unitrec⇒ (ne (unitrecₙ no-η (var _)))
+           whnfRedTerm unitrec⇒ (ne! (unitrecₙ no-η (var _)))
          (1+ _ , whred unitrec⇒ ⇨ˢ _) →
-           whnfRedTerm unitrec⇒ (ne (unitrecₙ no-η (var _))))
+           whnfRedTerm unitrec⇒ (ne! (unitrecₙ no-η (var _))))
 
 opaque
 
@@ -487,9 +495,9 @@ opaque
          𝟘 ·ᶜ (𝟘ᶜ , x0 ≔ ⌜ ⌞ 𝟘 ⌟ ⌝)  ∎)
     , (λ where
          (0 , whred emptyrec⇒ ⇨ˢ _) →
-           whnfRedTerm emptyrec⇒ (ne (emptyrecₙ (var _)))
+           whnfRedTerm emptyrec⇒ (ne! (emptyrecₙ (var _)))
          (1+ _ , whred emptyrec⇒ ⇨ˢ _) →
-           whnfRedTerm emptyrec⇒ (ne (emptyrecₙ (var _))))
+           whnfRedTerm emptyrec⇒ (ne! (emptyrecₙ (var _))))
     , ¬loop⇒ˢ* TP.Value-sucᵏ ∘→ proj₂
     where
     open ≤ᶜ-reasoning
@@ -687,28 +695,32 @@ opaque
   soundness-ℕ-only-target-not-counterexample₅ :
     Unitʷ-allowed →
     Run-time-canonicity-for str
-      (ε ∙ Unitʷ 0)
-      (unitrec 0 𝟘 𝟘 ℕ (var {n = 1} x0) zero)
+      (ε ∙ Unitʷ zeroᵘ)
+      (unitrec 𝟘 𝟘 zeroᵘ ℕ (var {n = 1} x0) zero)
   soundness-ℕ-only-target-not-counterexample₅ Unit-ok with is-𝟘? 𝟘
   … | no 𝟘≢𝟘 = ⊥-elim $ 𝟘≢𝟘 PE.refl
   … | yes _  =
       _
-    , subst ω (Unitʷ 0) (Id ℕ (unitrec 0 𝟘 𝟘 ℕ (var x0) zero) zero)
-        (starʷ 0) (var x0) (Unit-η 𝕨 0 ω (var x0)) rfl
+    , subst ω (Unitʷ zeroᵘ)
+        (Id ℕ (unitrec 𝟘 𝟘 zeroᵘ ℕ (var x0) zero) zero)
+        (starʷ zeroᵘ) (var x0) (Unit-η 𝕨 ω zeroᵘ (var x0)) rfl
     , ⊢subst
         (Idⱼ′
-           (unitrecⱼ (ℕⱼ (ε ∙[ ⊢Unitʷ ] ∙[ ⊢Unitʷ ] ∙[ ⊢Unitʷ ]))
+           (unitrecⱼ
+              (zeroᵘⱼ $
+               ∙ Unitⱼ (zeroᵘⱼ (∙ Unitⱼ (zeroᵘⱼ ε) Unit-ok)) Unit-ok)
+              (ℕⱼ (ε ∙[ ⊢Unitʷ ] ∙[ ⊢Unitʷ ] ∙[ ⊢Unitʷ ]))
               (var₀ (⊢Unitʷ (ε ∙[ ⊢Unitʷ ])))
               (zeroⱼ (ε ∙[ ⊢Unitʷ ] ∙[ ⊢Unitʷ ])) Unit-ok)
            (zeroⱼ (ε ∙[ ⊢Unitʷ ] ∙[ ⊢Unitʷ ])))
         (⊢Unit-η (var₀ (⊢Unitʷ ε)))
         (rflⱼ′
-           (unitrec 0 𝟘 𝟘 ℕ (starʷ 0) zero  ≡⟨ unitrec-β-≡ (ℕⱼ (ε ∙[ ⊢Unitʷ ] ∙[ ⊢Unitʷ ])) (zeroⱼ (ε ∙[ ⊢Unitʷ ])) ⟩⊢∎
-            zero                            ∎))
+           (unitrec 𝟘 𝟘 zeroᵘ ℕ (starʷ zeroᵘ) zero  ≡⟨ unitrec-β-≡ (ℕⱼ (ε ∙[ ⊢Unitʷ ] ∙[ ⊢Unitʷ ])) (zeroⱼ (ε ∙[ ⊢Unitʷ ])) ⟩⊢∎
+            zero                                    ∎))
     , refl-⇒ˢ⟨⟩*
     where
-    ⊢Unitʷ : ⊢ Γ → Γ ⊢ Unitʷ 0
-    ⊢Unitʷ ⊢Γ = Unitⱼ ⊢Γ Unit-ok
+    ⊢Unitʷ : ⊢ Γ → Γ ⊢ Unitʷ zeroᵘ
+    ⊢Unitʷ ⊢Γ = Unitⱼ (zeroᵘⱼ ⊢Γ) Unit-ok
 
 -- A variant of run-time canonicity that uses erase′ true instead of
 -- erase.

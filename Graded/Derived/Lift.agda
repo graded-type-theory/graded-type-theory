@@ -35,12 +35,11 @@ open import Tools.Product
 import Tools.PropositionalEquality as PE
 
 private variable
-  A t u  : Term _
-  s      : Strength
-  l      : Universe-level
-  γ δ η  : Conₘ _
-  m      : Mode
-  q r r′ : M
+  A t u v : Term _
+  s       : Strength
+  γ δ η   : Conₘ _
+  m       : Mode
+  q r r′  : M
 
 opaque
   unfolding Lift
@@ -48,11 +47,12 @@ opaque
   -- A usage lemma for Lift.
 
   ▸Lift :
+    δ ▸[ 𝟘ᵐ? ] t →
     γ ▸[ m ] A →
-    γ ▸[ m ] Lift s l A
-  ▸Lift {γ} {m} ▸A = sub
+    γ ▸[ m ] Lift s t A
+  ▸Lift {γ} {m} ▸t ▸A = sub
     (ΠΣₘ (▸-cong (PE.sym $ ᵐ·-identityʳ) ▸A) $
-     sub Unitₘ $ begin
+     sub (Unitₘ (wkUsage (step id) ▸t)) $ begin
        𝟘ᶜ ∙ ⌜ m ⌝ · 𝟘  ≈⟨ ≈ᶜ-refl ∙ ·-zeroʳ _ ⟩
        𝟘ᶜ              ∎)
     (begin
@@ -68,10 +68,11 @@ opaque
 
   ▸lift :
     (s PE.≡ 𝕤 → γ ≤ᶜ 𝟘ᶜ) →
-    γ ▸[ m ] t →
-    γ ▸[ m ] lift s l t
-  ▸lift {γ} ≤𝟘 ▸t =
-    prodₘ (▸-cong (PE.sym $ ᵐ·-identityʳ) ▸t) starₘ
+    δ ▸[ 𝟘ᵐ? ] t →
+    γ ▸[ m ] u →
+    γ ▸[ m ] lift s t u
+  ▸lift {γ} ≤𝟘 ▸t ▸u =
+    prodₘ (▸-cong (PE.sym $ ᵐ·-identityʳ) ▸u) (starₘ ▸t)
       (λ _ → begin
          γ             ≈˘⟨ ·ᶜ-identityˡ _ ⟩
          𝟙 ·ᶜ γ        ≈˘⟨ +ᶜ-identityʳ _ ⟩
@@ -94,13 +95,14 @@ opaque
     (s PE.≡ 𝕨 → r′ ≤ r) →
     (s PE.≡ 𝕨 → Prodrec-allowed m r 𝟙 q) →
     (s PE.≡ 𝕨 → Unitrec-allowed m r q) →
+    (s PE.≡ 𝕨 → ∃ λ γ → γ ▸[ 𝟘ᵐ? ] wk[ 2 ] t) →
     (s PE.≡ 𝕨 → ∃ λ γ → γ ∙ ⌜ 𝟘ᵐ? ⌝ · q ▸[ 𝟘ᵐ? ] A) →
-    δ ∙ ⌜ m ⌝ · r ▸[ m ] t →
-    η ▸[ m ᵐ· r ] u →
-    δ +ᶜ r′ ·ᶜ η ▸[ m ] liftrec r q s l A t u
-  ▸liftrec {m} {r} {q} {δ} mr≤𝟘 r′≤₁ r′≤₂ ok₁ ok₂ ▸A ▸t ▸u = sub
-    (▸prodrec⟨⟩ (λ _ _ → ≤-refl) r′≤₁ r′≤₂ ok₁ ▸A ▸u $
-     ▸unitrec⟨⟩ ok₂
+    δ ∙ ⌜ m ⌝ · r ▸[ m ] u →
+    η ▸[ m ᵐ· r ] v →
+    δ +ᶜ r′ ·ᶜ η ▸[ m ] liftrec r q s t A u v
+  ▸liftrec {m} {r} {q} {δ} mr≤𝟘 r′≤₁ r′≤₂ ok₁ ok₂ ▸t ▸A ▸u ▸v = sub
+    (▸prodrec⟨⟩ (λ _ _ → ≤-refl) r′≤₁ r′≤₂ ok₁ ▸A ▸v $
+     ▸unitrec⟨⟩ ok₂ ▸t
        (λ { PE.refl →
             let γ , ▸A = ▸A PE.refl in
               γ ∙ ⌜ 𝟘ᵐ? ⌝ · q ∙ 𝟘
@@ -159,7 +161,7 @@ opaque
           δ ∙ ⌜ m ⌝ · r · 𝟙 ∙ ⌜ m ⌝ · r  ≈⟨ ≈ᶜ-refl ∙ PE.cong (_ ·_) (·-identityʳ _) ∙ PE.refl ⟩
           δ ∙ ⌜ m ⌝ · r ∙ ⌜ m ⌝ · r      ≤⟨ ≤ᶜ-refl ∙ mr≤𝟘 s≡𝕤 ⟩
           δ ∙ ⌜ m ⌝ · r ∙ 𝟘              ∎)
-       (wkUsage _ ▸t))
+       (wkUsage _ ▸u))
     (≤ᶜ-reflexive (+ᶜ-comm _ _))
     where
     open ≤ᶜ-reasoning

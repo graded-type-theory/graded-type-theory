@@ -48,17 +48,55 @@ private variable
 infix 10 ⌈⌉▸[_]?_
 
 ⌈⌉▸[_]?_ : ∀ m (t : Term n) → (⌈ t ⌉ m ▸[ m ] t) ⊎ (∀ γ → ¬ γ ▸[ m ] t)
-⌈⌉▸[ m ]? U _     = inj₁ Uₘ
+⌈⌉▸[ m ]? Level = inj₁ Levelₘ
 
-⌈⌉▸[ m ]? ℕ       = inj₁ ℕₘ
+⌈⌉▸[ m ]? zeroᵘ = inj₁ zeroᵘₘ
 
-⌈⌉▸[ m ]? Unit!   = inj₁ Unitₘ
+⌈⌉▸[ m ]? sucᵘ t = case ⌈⌉▸[ m ]? t of λ where
+  (inj₁ ▸t)  → inj₁ (sucᵘₘ ▸t)
+  (inj₂ ¬▸t) → inj₂ λ _ ▸U →
+    case inv-usage-sucᵘ ▸U of λ (_ , _ , ▸t) →
+    ¬▸t _ ▸t
 
-⌈⌉▸[ m ]? Empty   = inj₁ Emptyₘ
+⌈⌉▸[ m ]? t maxᵘ u =
+  case ⌈⌉▸[ m ]? t ×-Dec-∀ ⌈⌉▸[ m ]? u of λ where
+  (inj₁ (▸t , ▸u)) → inj₁ (maxᵘₘ ▸t ▸u)
+  (inj₂ problem)   → inj₂ λ _ ▸maxᵘ →
+    let _ , _ , _ , ▸t , ▸u = inv-usage-maxᵘ ▸maxᵘ in
+    problem _ (▸t , ▸u)
 
-⌈⌉▸[ m ]? zero    = inj₁ zeroₘ
+⌈⌉▸[ m ]? U t = case ⌈⌉▸[ m ]? t of λ where
+  (inj₁ ▸t)  → inj₁ (Uₘ ▸t)
+  (inj₂ ¬▸t) → inj₂ λ _ ▸U →
+    case inv-usage-U ▸U of λ (_ , _ , ▸t) →
+    ¬▸t _ ▸t
 
-⌈⌉▸[ m ]? star!   = inj₁ starₘ
+⌈⌉▸[ m ]? ℕ =
+  inj₁ ℕₘ
+
+⌈⌉▸[ m ]? Unit _ t = case ⌈⌉▸[ 𝟘ᵐ? ]? t of λ where
+  (inj₁ ▸t)  → inj₁ (Unitₘ ▸t)
+  (inj₂ ¬▸t) → inj₂ λ _ ▸Unit →
+    case inv-usage-Unit ▸Unit of λ (_ , _ , ▸t) →
+    ¬▸t _ ▸t
+
+⌈⌉▸[ m ]? Empty =
+  inj₁ Emptyₘ
+
+⌈⌉▸[ m ]? zero =
+  inj₁ zeroₘ
+
+⌈⌉▸[ m ]? starʷ t = case ⌈⌉▸[ 𝟘ᵐ? ]? t of λ where
+  (inj₁ ▸t)  → inj₁ (starₘ ▸t)
+  (inj₂ ¬▸t) → inj₂ λ _ ▸star →
+    case inv-usage-starʷ ▸star of λ (_ , _ , ▸t) →
+    ¬▸t _ ▸t
+
+⌈⌉▸[ m ]? starˢ t = case ⌈⌉▸[ 𝟘ᵐ? ]? t of λ where
+  (inj₁ ▸t)  → inj₁ (starₘ ▸t)
+  (inj₂ ¬▸t) → inj₂ λ _ ▸star →
+    case inv-usage-starˢ ▸star of λ (invUsageStarˢ ▸t _ _) →
+    ¬▸t _ ▸t
 
 ⌈⌉▸[ m ]? var _   = inj₁ var
 
@@ -167,22 +205,22 @@ infix 10 ⌈⌉▸[_]?_
       let invUsageProdˢ ▸t ▸u _ = inv-usage-prodˢ ▸prod in
       problem _ (▸t , ▸u)
 
-⌈⌉▸[ m ]? unitrec _ p q A t u =
+⌈⌉▸[ m ]? unitrec p q t A u v =
   case Dec→Dec-∀ (Unitrec-allowed? m p q) ×-Dec-∀
-       ⌈⌉▸[ m ᵐ· p ]? t ×-Dec-∀ ⌈⌉▸[ m ]? u ×-Dec-∀
-       ⌈⌉▸[ 𝟘ᵐ? ]? A ×-Dec-∀
+       ⌈⌉▸[ 𝟘ᵐ? ]? t ×-Dec-∀ ⌈⌉▸[ 𝟘ᵐ? ]? A ×-Dec-∀
+       ⌈⌉▸[ m ᵐ· p ]? u ×-Dec-∀ ⌈⌉▸[ m ]? v ×-Dec-∀
        Dec→Dec-∀ (⌜ 𝟘ᵐ? ⌝ · q ≤? headₘ (⌈ A ⌉ 𝟘ᵐ?)) of λ where
-    (inj₁ (ok , ▸t , ▸u , ▸A , q≤)) →
+    (inj₁ (ok , ▸t , ▸A , ▸u , ▸v , q≤)) →
       let lemma = begin
             tailₘ (⌈ A ⌉ 𝟘ᵐ?) ∙ (⌜ 𝟘ᵐ? ⌝ · q)      ≤⟨ ≤ᶜ-refl ∙ q≤ ⟩
             tailₘ (⌈ A ⌉ 𝟘ᵐ?) ∙ headₘ (⌈ A ⌉ 𝟘ᵐ?)  ≡⟨ headₘ-tailₘ-correct _ ⟩
             ⌈ A ⌉ 𝟘ᵐ?                              ∎
       in
-      inj₁ (unitrecₘ ▸t ▸u (sub ▸A lemma) ok)
+      inj₁ (unitrecₘ ▸t (sub ▸A lemma) ▸u ▸v ok)
     (inj₂ problem) → inj₂ λ _ ▸ur →
-      let invUsageUnitrec ▸t ▸u ▸A ok _ = inv-usage-unitrec ▸ur in
+      let invUsageUnitrec ▸t ▸A ▸u ▸v ok _ = inv-usage-unitrec ▸ur in
       problem _
-        (ok , ▸t , ▸u , ▸A ,
+        (ok , ▸t , ▸A , ▸u , ▸v ,
          headₘ-monotone (usage-upper-bound no-sink-or-≤𝟘 ▸A))
   where
   open ≤ᶜ-reasoning

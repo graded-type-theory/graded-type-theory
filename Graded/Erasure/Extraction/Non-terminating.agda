@@ -84,16 +84,16 @@ private variable
 
 private module Lemmas (⊢Γ : ⊢ Γ) where opaque
 
-  Empty⊢ℕ∷U : Γ ∙ Empty ⊢ ℕ ∷ U 0
+  Empty⊢ℕ∷U : Γ ∙ Empty ⊢ ℕ ∷ U zeroᵘ
   Empty⊢ℕ∷U = ℕⱼ (⊢Γ ∙[ Emptyⱼ ])
 
   Empty⊢ℕ : Γ ∙ Empty ⊢ ℕ
   Empty⊢ℕ = univ Empty⊢ℕ∷U
 
-  Empty∙ℕ⊢ℕ∷U : Γ ∙ Empty ∙ ℕ ⊢ ℕ ∷ U 0
+  Empty∙ℕ⊢ℕ∷U : Γ ∙ Empty ∙ ℕ ⊢ ℕ ∷ U zeroᵘ
   Empty∙ℕ⊢ℕ∷U = ℕⱼ (⊢Γ ∙[ Emptyⱼ ] ∙[ ℕⱼ ])
 
-  Empty∙ℕ∙ℕ⊢ℕ∷U : Γ ∙ Empty ∙ ℕ ∙ ℕ ⊢ ℕ ∷ U 0
+  Empty∙ℕ∙ℕ⊢ℕ∷U : Γ ∙ Empty ∙ ℕ ∙ ℕ ⊢ ℕ ∷ U zeroᵘ
   Empty∙ℕ∙ℕ⊢ℕ∷U = ℕⱼ (⊢Γ ∙[ Emptyⱼ ] ∙[ ℕⱼ ] ∙[ ℕⱼ ])
 
 opaque
@@ -121,7 +121,7 @@ opaque
 
   cast : Term n → Term n → Term n → Term n → Term n
   cast t A B u =
-    subst 𝟙 (U 0) (var x0) A B (emptyrec 𝟘 (Id (U 0) A B) t) u
+    subst 𝟙 (U zeroᵘ) (var x0) A B (emptyrec 𝟘 (Id (U zeroᵘ) A B) t) u
 
 opaque
   unfolding cast subst
@@ -138,12 +138,13 @@ opaque
 
   ⊢cast :
     Γ ⊢ t ∷ Empty →
-    Γ ⊢ A ∷ U 0 →
-    Γ ⊢ B ∷ U 0 →
+    Γ ⊢ A ∷ U zeroᵘ →
+    Γ ⊢ B ∷ U zeroᵘ →
     Γ ⊢ u ∷ A →
     Γ ⊢ cast t A B u ∷ B
   ⊢cast ⊢t ⊢A ⊢B =
-    ⊢subst (univ $ var₀ $ Uⱼ (wfTerm ⊢t)) (emptyrecⱼ (Idⱼ′ ⊢A ⊢B) ⊢t)
+    ⊢subst (univ $ var₀ $ Uⱼ (zeroᵘⱼ (wfTerm ⊢t)))
+      (emptyrecⱼ (Idⱼ′ ⊢A ⊢B) ⊢t)
 
 opaque
   unfolding cast
@@ -158,13 +159,14 @@ opaque
     γ₄ ▸[ 𝟙ᵐ ] u →
     ω ·ᶜ (γ₂ +ᶜ γ₃ +ᶜ γ₄) ▸[ 𝟙ᵐ ] cast t A B u
   ▸cast {γ₁} {γ₂} {γ₃} {γ₄} ok ▸t ▸A ▸B ▸u =
-    sub (▸subst Uₘ
+    sub (▸subst (Uₘ zeroᵘₘ)
            (sub var $ begin
               𝟘ᶜ ∙ 𝟙 · 𝟙   ≈⟨ ≈ᶜ-refl ∙ ·-identityʳ _ ⟩
               𝟘ᶜ , x0 ≔ 𝟙  ∎)
            ▸A ▸B
            (emptyrecₘ (▸-cong (PE.sym ⌞𝟘⌟≡𝟘ᵐ?) ▸t)
-              (Idₘ-generalised Uₘ (▸-𝟘ᵐ? ▸A .proj₂) (▸-𝟘ᵐ? ▸B .proj₂)
+              (Idₘ-generalised (Uₘ zeroᵘₘ) (▸-𝟘ᵐ? ▸A .proj₂)
+                 (▸-𝟘ᵐ? ▸B .proj₂)
                  (λ _ → ∧ᶜ-decreasingˡ 𝟘ᶜ _)
                  (λ _ → ∧ᶜ-decreasingʳ _ _))
               ok)
@@ -228,9 +230,12 @@ opaque
     ⊢ Γ →
     Γ ∙ Empty ⊢ λx∙xx p ∷ Π (ω + ω) , p ▷ ℕ ▹ ℕ
   ⊢λx∙xx ω-ok ω+ω-ok ⊢Γ =
+    let ⊢0 = zeroᵘⱼ (∙ Empty⊢ℕ) in
     lamⱼ′ ω+ω-ok $
     ⊢cast (var₁ Empty⊢ℕ) Empty∙ℕ⊢ℕ∷U
-      (ΠΣⱼ Empty∙ℕ⊢ℕ∷U Empty∙ℕ∙ℕ⊢ℕ∷U ω-ok) (var₀ Empty⊢ℕ) ∘ⱼ
+      (conv (ΠΣⱼ ⊢0 ⊢0 Empty∙ℕ⊢ℕ∷U Empty∙ℕ∙ℕ⊢ℕ∷U ω-ok)
+         (U-cong (maxᵘ-zeroˡ ⊢0)))
+      (var₀ Empty⊢ℕ) ∘ⱼ
     var₀ Empty⊢ℕ
     where
     open Lemmas ⊢Γ
@@ -314,9 +319,12 @@ opaque
     ⊢ Γ →
     Γ ⊢ extracts-to-loop q ∷ Π 𝟘 , p ▷ Empty ▹ ℕ
   ⊢extracts-to-loop 𝟘-ok ω-ok ω+ω-ok ⊢Γ =
+    let ⊢0 = zeroᵘⱼ (∙ Emptyⱼ ⊢Γ) in
     lamⱼ′ 𝟘-ok $
     ⊢λx∙xx ω-ok ω+ω-ok ⊢Γ ∘ⱼ
-    ⊢cast (var₀ (Emptyⱼ ⊢Γ)) (ΠΣⱼ Empty⊢ℕ∷U Empty∙ℕ⊢ℕ∷U ω+ω-ok)
+    ⊢cast (var₀ (Emptyⱼ ⊢Γ))
+      (conv (ΠΣⱼ ⊢0 ⊢0 Empty⊢ℕ∷U Empty∙ℕ⊢ℕ∷U ω+ω-ok)
+         (U-cong (maxᵘ-zeroˡ ⊢0)))
       Empty⊢ℕ∷U (⊢λx∙xx ω-ok ω+ω-ok ⊢Γ)
     where
     open Lemmas ⊢Γ

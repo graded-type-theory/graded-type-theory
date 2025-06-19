@@ -421,6 +421,7 @@ import Graded.Erasure.LogicalRelation.Hidden
 import Graded.Erasure.LogicalRelation.Value
 
 -- The fundamental lemma of the logical relation for erasure.
+import Graded.Erasure.LogicalRelation.Fundamental.Level
 import Graded.Erasure.LogicalRelation.Fundamental.Empty
 import Graded.Erasure.LogicalRelation.Fundamental.Nat
 import Graded.Erasure.LogicalRelation.Fundamental.Pi-Sigma
