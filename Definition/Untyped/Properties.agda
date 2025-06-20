@@ -1540,31 +1540,24 @@ opaque
 
 opaque
 
-  -- wkSubst₀ is equivalent to weakening
+  -- The application of a substitution to a closed term amounts to the
+  -- same thing as weakening the term.
 
-  wkSubst₀-subst : (t : Term 0) → t [ wkSubst₀ {n} ] ≡ wk wk₀ t
-  wkSubst₀-subst {n = 0} t = begin
-    t [ wkSubst₀ ]  ≡⟨ substVar-to-subst (λ ()) t ⟩
-    t [ idSubst ]   ≡⟨ subst-id t ⟩
-    t               ≡˘⟨ wk-id t ⟩
-    wk wk₀ t        ∎
-  wkSubst₀-subst {n = 1+ n} t = begin
-    t [ wkSubst₀ ]           ≡⟨ substVar-to-subst (λ ()) t ⟩
-    t [ wk1Subst wkSubst₀ ]  ≡⟨ wk1Subst-wk1 t ⟩
-    wk1 (t [ wkSubst₀ ])     ≡⟨ cong wk1 (wkSubst₀-subst t) ⟩
-    wk1 (wk wk₀ t)           ≡⟨ wk₀-comp (step id) t ⟩
-    wk wk₀ t                 ∎
+  []≡wk-wk₀ : {σ : Subst n 0} (t : Term 0) → t [ σ ] ≡ wk wk₀ t
+  []≡wk-wk₀ {σ} t =
+    t [ σ ]            ≡⟨ substVar-to-subst (λ ()) t ⟩
+    t [ toSubst wk₀ ]  ≡˘⟨ wk≡subst _ _ ⟩
+    wk wk₀ t           ∎
 
 opaque
 
   -- Closed terms are invariant under substitution
 
   wk₀-subst-invariant : {σ : Subst m n} (t : Term 0) → wk wk₀ t [ σ ] ≡ wk wk₀ t
-  wk₀-subst-invariant {m} {n = 0} {σ} t = begin
-    wk wk₀ t [ σ ]         ≡⟨ substVar-to-subst (λ ()) (wk wk₀ t) ⟩
-    wk wk₀ t [ wkSubst₀ ]  ≡⟨ wkSubst₀-subst (wk wk₀ t) ⟩
-    wk wk₀ (wk wk₀ t)      ≡⟨ wk₀-comp wk₀ t ⟩
-    wk wk₀ t               ∎
+  wk₀-subst-invariant {n = 0} {σ} t = begin
+    wk wk₀ t [ σ ]     ≡⟨ []≡wk-wk₀ (wk wk₀ t) ⟩
+    wk wk₀ (wk wk₀ t)  ≡⟨ wk₀-comp wk₀ t ⟩
+    wk wk₀ t           ∎
   wk₀-subst-invariant {n = 1+ n} {σ} t = begin
     wk wk₀ t [ σ ]                            ≡⟨ head-tail-subst (wk wk₀ t) ⟩
     wk wk₀ t [ consSubst (tail σ) (head σ) ]  ≡⟨ step-consSubst t ⟩
