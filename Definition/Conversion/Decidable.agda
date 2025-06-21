@@ -140,6 +140,25 @@ private opaque
 
   -- A lemma used below.
 
+  dec~↑-lower-cong :
+    Γ ⊢ t ∷ Lift l A →
+    Dec (∃ λ C → Γ ⊢ t ~ u ↓ C) →
+    Dec (∃ λ C → Γ ⊢ lower t ~ lower u ↑ C)
+  dec~↑-lower-cong ⊢t (yes (_ , t~u)) =
+    yes $
+      case uncurry Lift≡A (~↓→∷→Whnf×≡ t~u ⊢t) of λ {
+        (_ , _ , PE.refl) →
+      _ , lower-cong t~u }
+  dec~↑-lower-cong _ (no not-equal) =
+    no λ (_ , lower-t~lower-u) →
+    case inv-lower~ lower-t~lower-u of λ {
+      (_ , _ , PE.refl , t~) →
+    not-equal (_ , t~) }
+
+private opaque
+
+  -- A lemma used below.
+
   dec~↑-app-cong :
     Γ ⊢ t₁ ∷ Π p₁ , q₁ ▷ A₁ ▹ B₁ →
     Γ ⊢ u₁ ∷ Π p₂ , q₂ ▷ A₂ ▹ B₂ →
@@ -693,6 +712,13 @@ mutual
       (yes x≡y) → yes (_ , var-refl ⊢x x≡y)
       (no x≢y)  → no (x≢y ∘→ var-PE-injectivity ∘→ inv-~var ∘→ proj₂)
     (inj₂ (u≢var , _)) → no (u≢var ∘→ (_ ,_) ∘→ inv-var~ ∘→ proj₂)
+  dec~↑ (lower-cong t′~) u~ = case inv-~-lower u~ of λ where
+    (inj₁ (_ , _ , _ , PE.refl , PE.refl , u′~)) →
+      dec~↑-lower-cong (~↓→∷ t′~) (dec~↓ t′~ u′~)
+    (inj₂ (u≢lower , _)) →
+      no λ (_ , t~u) →
+      let _ , _ , u≡lower , _ = inv-lower~ t~u in
+      u≢lower (_ , u≡lower)
   dec~↑ (app-cong t₁~ t₂≡) u~ = case inv-~-∘ u~ of λ where
     (inj₁
        (_ , _ , _ , _ , _ , _ , _ , _ , _ ,
@@ -881,6 +907,18 @@ mutual
     case inv-[conv↓]-Level′ B≡ of λ where
       (inj₁ (PE.refl , _)) → yes Level≡Level
       (inj₂ (B≢Level , _)) → no (B≢Level ∘→ inv-[conv↓]-Level)
+  decConv↓ (Lift-cong l₁≡l₂ A≡A′) B≡ =
+    case inv-[conv↓]-Lift′ B≡ of λ where
+      (inj₁ (_ , _ , _ , _ , PE.refl , PE.refl , l₂≡l₃ , A′≡A″)) →
+        case decConv↑Term l₁≡l₂ l₂≡l₃ ×-dec decConv↑ A≡A′ A′≡A″ of λ where
+          (yes (l₁≡l₃ , A≡A″)) → yes (Lift-cong l₁≡l₃ A≡A″)
+          (no not-both-equal) → no λ Lift≡Lift →
+            case inv-[conv↓]-Lift Lift≡Lift of λ {
+              (_ , _ , PE.refl , l₁≡l₃ , A≡A″) →
+            not-both-equal (l₁≡l₃ , A≡A″) }
+      (inj₂ (B≢Lift , _)) → no λ Lift≡B →
+        let _ , _ , B≡Lift , _ = inv-[conv↓]-Lift Lift≡B
+        in B≢Lift (_ , _ , B≡Lift)
   decConv↓ (U-cong {l₁ = l₁} x) B≡ =
     case inv-[conv↓]-U′ B≡ of λ where
       (inj₁ (l₃ , l₄ , PE.refl , PE.refl , y)) →
@@ -1035,6 +1073,13 @@ mutual
     case decConv↓ A≡ (inv-[conv↓]∷-U B≡) of λ where
       (yes A≡B) → yes (univ ⊢A ([conv↓]∷→∷ B≡) A≡B)
       (no A≢B)  → no (A≢B ∘→ inv-[conv↓]∷-U)
+  decConv↓Term (Lift-η ⊢t _ wt _ lt≡lt′) u≡ =
+    let ⊢u , _ , wu , _ , lu≡lu′ = inv-[conv↓]∷-Lift u≡
+    in case decConv↑Term lt≡lt′ lu≡lu′ of λ where
+      (yes lt≡lu) → yes (Lift-η ⊢t ⊢u wt wu lt≡lu)
+      (no lt≢lu) → no λ t≡u →
+        let _ , _ , _ , _ , lt≡lu = inv-[conv↓]∷-Lift t≡u
+        in lt≢lu lt≡lu
   decConv↓Term (η-eq ⊢t _ t-fun _ t0≡) u≡ =
     let u-fun , _ , u0≡ = inv-[conv↓]∷-Π u≡ in
     case decConv↑Term t0≡ u0≡ of λ where

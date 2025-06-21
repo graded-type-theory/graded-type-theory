@@ -136,8 +136,8 @@ mutual
     in  Level-refl ⊢Δ
   stabilityConv↓ Γ≡Δ (U-cong x) =
     U-cong (stabilityConv↑Term Γ≡Δ x)
-  stabilityConv↓ Γ≡Δ (Lift-cong l₁≡l₂ F↑H F≡H) =
-    Lift-cong (stabilityConv↑Term Γ≡Δ l₁≡l₂) (stabilityConv↑ Γ≡Δ F↑H) (stabilityEqTerm Γ≡Δ F≡H)
+  stabilityConv↓ Γ≡Δ (Lift-cong l₁≡l₂ F≡H) =
+    Lift-cong (stabilityConv↑Term Γ≡Δ l₁≡l₂) (stabilityConv↑ Γ≡Δ F≡H)
   stabilityConv↓ Γ≡Δ (ℕ-refl x) =
     let _ , ⊢Δ , _ = contextConvSubst Γ≡Δ
     in  ℕ-refl ⊢Δ

@@ -81,7 +81,7 @@ mutual
                → Γ ⊩⟨ l′ ⟩ t ≡ u ∷ B / [B]
   convEqTermT₁ (Levelᵥ D D′) A≡B t≡u = t≡u
   convEqTermT₁
-    (Liftᵥ (Liftᵣ D _ [F] _ _) (Liftᵣ D′ _ [F′] _ _))
+    (Liftᵥ (Liftᵣ D _ [F] _) (Liftᵣ D′ _ [F′] _))
     (Lift₌ D″ k≡k′ F≡F′ A≡B)
     (Liftₜ₌ _ _ t↘ u↘ t≡u)
     = case whrDet* (D″ , Liftₙ) (D′ , Liftₙ) of λ {
@@ -241,7 +241,7 @@ mutual
              → Γ ⊩⟨ l ⟩  t ≡ u ∷ A / [A]
   convEqTermT₂ (Levelᵥ D D′) A≡B t≡u = t≡u
   convEqTermT₂
-    (Liftᵥ (Liftᵣ D _ [F] _ _) (Liftᵣ D′ _ [F′] _ _))
+    (Liftᵥ (Liftᵣ D _ [F] _) (Liftᵣ D′ _ [F′] _))
     (Lift₌ D″ k≡k′ F≡F′ A≡B)
     (Liftₜ₌ _ _ t↘ u↘ t≡u)
     = case whrDet* (D″ , Liftₙ) (D′ , Liftₙ) of λ {

@@ -118,7 +118,7 @@ opaque
     Γ ⊢ Lift l B ≡ A → Whnf A → ∃₂ λ k C → A PE.≡ Lift k C
   Lift≡A {Γ} {l} {B} {A} Lift≡A A-whnf = $⟨ Lift≡A ⟩
     Γ ⊢ Lift l B ≡ A                     →⟨ reducible-⊩≡ ⟩
-    (∃ λ l′ → Γ ⊩⟨ l′ ⟩ Lift l B ≡ A)    →⟨ (λ (_ , Lift≡A) → let _ , _ , _ , _ , D , _ = ⊩Lift≡⇔ .proj₁ Lift≡A in _ , _ , D) ⟩
+    (∃ λ l′ → Γ ⊩⟨ l′ ⟩ Lift l B ≡ A)    →⟨ (λ (_ , Lift≡A) → let _ , _ , D , _ = ⊩Lift≡⇔ .proj₁ Lift≡A in _ , _ , D) ⟩
     (∃₂ λ k C → Γ ⊢ A ⇒* Lift k C)       →⟨ Σ.map idᶠ $ Σ.map idᶠ (flip whnfRed* A-whnf) ⟩
     (∃₂ λ k C → A PE.≡ Lift k C)         □
 

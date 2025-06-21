@@ -106,6 +106,13 @@ mutual
           syntacticEqTerm (conv (soundness~↑ t~u) (subset* B⇒*A))
     in
     univ ⊢t ⊢u (ne ([~] _ (B⇒*A , Uₙ) t~u))
+  lift~toConv↓′ (Liftᵣ′ D [k] [F] _) A′⇒*A ([~] _ (B⇒*A , A-whnf) t~u) =
+    case whrDet* (D , Liftₙ) (A′⇒*A , A-whnf) of λ {
+      PE.refl →
+    let t~u↓ = [~] _ (B⇒*A , Liftₙ) t~u
+        nt , nu = ne~↑ t~u
+        _ , ⊢t , ⊢u = syntacticEqTerm (soundness~↓ t~u↓)
+    in Lift-η ⊢t ⊢u (ne! nt) (ne! nu) (lift~toConv↑′ [F] (lower-cong t~u↓)) }
   lift~toConv↓′ (ℕᵣ D) D₁ ([~] A (D₂ , whnfB) k~l)
                 rewrite PE.sym (whrDet* (D , ℕₙ) (D₁ , whnfB)) =
     ℕ-ins ([~] A (D₂ , ℕₙ) k~l)

@@ -52,7 +52,7 @@ open import Tools.Bool
 open import Tools.Empty
 open import Tools.Fin
 open import Tools.Function
-open import Tools.Level hiding (Level)
+open import Tools.Level as L hiding (Level; Lift)
 open import Tools.Nat
 open import Tools.Product
 open import Tools.Sum
@@ -98,6 +98,20 @@ private module Lemmas where
   ~-var x =
     let ⊢A = syntacticTerm x
     in  ↑ (refl ⊢A) (var-refl x PE.refl)
+
+  ~-lower :
+    ∀ {p r l A} →
+    Γ ⊢ p ~ r ∷ Lift l A →
+    Γ ⊢ lower p ~ lower r ∷ A
+  ~-lower (↑ A≡B p~r) =
+    case syntacticEq A≡B of λ (_ , ⊢B) →
+    case whNorm ⊢B of λ (B′ , whnfB′ , D) →
+    case trans A≡B (subset* D) of λ Lift≡B′ →
+    case Lift≡A Lift≡B′ whnfB′ of λ where
+      (H , _ , PE.refl) →
+        case Lift-injectivity Lift≡B′ of λ where
+          (_ , F≡H) →
+            ↑ F≡H (lower-cong ([~] _ (D , whnfB′) p~r))
 
   ~-app : ∀ {f g a b F G}
         → Γ ⊢ f ~ g ∷ Π p , q ▷ F ▹ G
@@ -399,7 +413,7 @@ private opaque
   -- A lemma used below.
 
   equality-relations :
-    Equality-relations _⊢_[conv↑]_ _⊢_[conv↑]_∷_ _⊢_~_∷_ (Lift _ ⊤)
+    Equality-relations _⊢_[conv↑]_ _⊢_[conv↑]_∷_ _⊢_~_∷_ (L.Lift _ ⊤)
   equality-relations = let open Lemmas in λ where
     .Equality-relations.Neutrals-included? →
       yes (lift tt)
@@ -447,6 +461,18 @@ private opaque
         let ⊢l≡l′ = soundnessConv↑Term l≡l′
             ⊢Level , ⊢l , ⊢l′ = syntacticEqTerm ⊢l≡l′
         in liftConvTerm (univ (Uⱼ ⊢l) (conv (Uⱼ ⊢l′) (U-cong (sucᵘ-cong (sym ⊢Level ⊢l≡l′)))) (U-cong l≡l′))
+    .Equality-relations.≅-Lift-cong →
+      λ l₁≡l₂ A≡B → liftConv (Lift-cong l₁≡l₂ A≡B)
+    .Equality-relations.≅ₜ-Lift-cong →
+      λ l₁≡l₂ A≡B →
+        let ⊢U , ⊢A , ⊢B = syntacticEqTerm (soundnessConv↑Term A≡B)
+            _ , ⊢l₁ , ⊢l₂ = syntacticEqTerm (soundnessConv↑Term l₁≡l₂)
+            ⊢l = inversion-U-Level ⊢U
+        in liftConvTerm $ univ
+          (Liftⱼ ⊢l ⊢l₁ ⊢A)
+          (conv (Liftⱼ ⊢l ⊢l₂ ⊢B)
+            (sym (U-cong (maxᵘ-cong (refl ⊢l) (soundnessConv↑Term l₁≡l₂)))))
+          (Lift-cong l₁≡l₂ (univConv↑ A≡B))
     .Equality-relations.≅ₜ-ℕrefl →
       λ x → liftConvTerm (univ (ℕⱼ x) (ℕⱼ x) (ℕ-refl x))
     .Equality-relations.≅ₜ-Emptyrefl →
@@ -494,9 +520,12 @@ private opaque
       λ x₁ x₂ x₃ x₄ → liftConvTerm (prod-cong x₁ x₂ x₃ x₄)
     .Equality-relations.≅-η-eq →
       λ x₁ x₂ x₃ x₄ x₅ → liftConvTerm (η-eq x₁ x₂ x₃ x₄ x₅)
+    .Equality-relations.≅-Lift-η →
+      λ ⊢t ⊢u wt wu lt≡lu → liftConvTerm (Lift-η ⊢t ⊢u wt wu lt≡lu)
     .Equality-relations.≅-Σ-η →
       λ x₂ x₃ x₄ x₅ x₆ x₇ → (liftConvTerm (Σ-η x₂ x₃ x₄ x₅ x₆ x₇))
     .Equality-relations.~-var → ~-var
+    .Equality-relations.~-lower → ~-lower
     .Equality-relations.~-app → ~-app
     .Equality-relations.~-fst →
       λ _ x₂ → ~-fst x₂
@@ -539,7 +568,7 @@ instance
     .EqRelSet._⊢_≅_              → _⊢_[conv↑]_
     .EqRelSet._⊢_≅_∷_            → _⊢_[conv↑]_∷_
     .EqRelSet._⊢_~_∷_            → _⊢_~_∷_
-    .EqRelSet.Neutrals-included  → Lift _ ⊤
+    .EqRelSet.Neutrals-included  → L.Lift _ ⊤
     .EqRelSet.equality-relations → equality-relations
 
 open EqRelSet eqRelInstance public hiding (_⊢_~_∷_)
@@ -551,5 +580,5 @@ instance
 
   -- A variant of lift tt that is an instance.
 
-  lift-tt : Lift a ⊤
+  lift-tt : L.Lift a ⊤
   lift-tt = lift tt

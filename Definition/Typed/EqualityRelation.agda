@@ -191,15 +191,21 @@ record Equality-relations
     ≅ₜ-U-cong : Γ ⊢ l ≅ k ∷ Level → Γ ⊢ U l ≅ U k ∷ U (sucᵘ l)
 
     -- Lift congruence
+    ≅-Lift-cong
+      : Γ ⊢ l ≅ k ∷ Level
+      → Γ ⊢ A ≅ B
+      → Γ ⊢ Lift l A ≅ Lift k B
+
     ≅ₜ-Lift-cong
       : Γ ⊢ l ≅ k ∷ Level
       → Γ ⊢ A ≅ B ∷ U l₁
       → Γ ⊢ Lift l A ≅ Lift k B ∷ U (l₁ maxᵘ l)
 
     -- η for Lift
-    ≅-Lift-η : Γ ⊢ A ∷ U l₁
-             → Γ ⊢ t ∷ Lift k A
+    ≅-Lift-η : Γ ⊢ t ∷ Lift k A
              → Γ ⊢ u ∷ Lift k A
+             → Whnf t
+             → Whnf u
              → Γ ⊢ lower t ≅ lower u ∷ A
              → Γ ⊢ t ≅ u ∷ Lift k A
 
@@ -274,7 +280,7 @@ record Equality-relations
     ~-var : ∀ {x A} → Γ ⊢ var x ∷ A → Γ ⊢~ var x ∷ A
 
     -- lower congruence
-    ~-lower-cong
+    ~-lower
       : Γ ⊢ t ~ u ∷ Lift l₂ A
       → Γ ⊢ lower t ~ lower u ∷ A
 
@@ -417,16 +423,6 @@ record Equality-relations
 
     ≅-U-cong : Γ ⊢ l ≅ k ∷ Level → Γ ⊢ U l ≅ U k
     ≅-U-cong l≡k = ≅-univ (≅ₜ-U-cong l≡k)
-
-  opaque
-
-    -- A variant of ≅ₜ-Lift-cong.
-
-    ≅-Lift-cong
-      : Γ ⊢ l ≅ k ∷ Level
-      → Γ ⊢ A ≅ B ∷ U l₁
-      → Γ ⊢ Lift l A ≅ Lift k B
-    ≅-Lift-cong l≡k A≡B = ≅-univ (≅ₜ-Lift-cong l≡k A≡B)
 
   opaque
 

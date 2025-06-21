@@ -117,6 +117,42 @@ opaque
 
 opaque
 
+  -- A kind of inversion lemma for lower.
+
+  inv-~-lower :
+    Γ ⊢ t ~ u ↑ A →
+    (∃₃ λ l t′ u′ →
+     t PE.≡ lower t′ × u PE.≡ lower u′ ×
+     Γ ⊢ t′ ~ u′ ↓ Lift l A) ⊎
+    ¬ (∃ λ t′ → t PE.≡ lower t′) × ¬ (∃ λ u′ → u PE.≡ lower u′)
+  inv-~-lower = λ where
+    (lower-cong t′~u′) →
+      inj₁ (_ , _ , _ , PE.refl , PE.refl , t′~u′)
+    (var-refl _ _)             → inj₂ ((λ ()) , (λ ()))
+    (app-cong _ _)             → inj₂ ((λ ()) , (λ ()))
+    (fst-cong _)               → inj₂ ((λ ()) , (λ ()))
+    (snd-cong _)               → inj₂ ((λ ()) , (λ ()))
+    (prodrec-cong _ _ _)       → inj₂ ((λ ()) , (λ ()))
+    (emptyrec-cong _ _)        → inj₂ ((λ ()) , (λ ()))
+    (unitrec-cong _ _ _ _ _)   → inj₂ ((λ ()) , (λ ()))
+    (natrec-cong _ _ _ _)      → inj₂ ((λ ()) , (λ ()))
+    (J-cong _ _ _ _ _ _ _)     → inj₂ ((λ ()) , (λ ()))
+    (K-cong _ _ _ _ _ _ _)     → inj₂ ((λ ()) , (λ ()))
+    ([]-cong-cong _ _ _ _ _ _) → inj₂ ((λ ()) , (λ ()))
+
+opaque
+
+  -- Inversion for lower.
+
+  inv-lower~ :
+    Γ ⊢ lower t ~ u ↑ A →
+    ∃₂ λ l u′ →
+    u PE.≡ lower u′ ×
+    Γ ⊢ t ~ u′ ↓ Lift l A
+  inv-lower~ (lower-cong t~u′) = _ , _ , PE.refl , t~u′
+
+opaque
+
   -- Inversion for lam.
 
   inv-lam~ : ¬ Γ ⊢ lam p t ~ u ↑ A
@@ -901,7 +937,7 @@ opaque
   inv-[conv↓]-ne′ = λ where
     (ne A~B)        → inj₁ (_ , A~B)
     (U-cong _)      → inj₂ (¬-Neutral-U     , ¬-Neutral-U)
-    (Lift-cong _ _ _) → inj₂ (¬-Neutral-Lift , ¬-Neutral-Lift)
+    (Lift-cong _ _) → inj₂ (¬-Neutral-Lift , ¬-Neutral-Lift)
     (ΠΣ-cong _ _ _) → inj₂ (¬-Neutral-ΠΣ    , ¬-Neutral-ΠΣ)
     (Empty-refl _)  → inj₂ (¬-Neutral-Empty , ¬-Neutral-Empty)
     (Unit-cong _ _) → inj₂ (¬-Neutral-Unit  , ¬-Neutral-Unit)
@@ -937,7 +973,7 @@ opaque
         (_ , A-ne , B-ne) →
         (λ { (_ , PE.refl) → ¬-Neutral-U A-ne })
       , (λ { (_ , PE.refl) → ¬-Neutral-U B-ne })
-    (Lift-cong _ _ _) → inj₂ ((λ ()) , (λ ()))
+    (Lift-cong _ _) → inj₂ ((λ ()) , (λ ()))
     (ΠΣ-cong _ _ _) → inj₂ ((λ ()) , (λ ()))
     (Empty-refl _)  → inj₂ ((λ ()) , (λ ()))
     (Unit-cong _ _) → inj₂ ((λ ()) , (λ ()))
@@ -962,17 +998,16 @@ opaque
 
   inv-[conv↓]-Lift′ :
     Γ ⊢ A [conv↓] B →
-    (∃₅ λ l₁ k₁ k₂ A₁ B₁ →
+    (∃₄ λ k₁ k₂ A₁ B₁ →
      A PE.≡ Lift k₁ A₁ ×
      B PE.≡ Lift k₂ B₁ ×
      Γ ⊢ k₁ [conv↑] k₂ ∷ Level ×
-     (Γ ⊢ A₁ [conv↑] B₁) ×
-     Γ ⊢ A₁ ≡ B₁ ∷ U l₁) ⊎
+     (Γ ⊢ A₁ [conv↑] B₁)) ⊎
     ¬ (∃₂ λ k X → A PE.≡ Lift k X) ×
     ¬ (∃₂ λ k X → B PE.≡ Lift k X)
   inv-[conv↓]-Lift′ = λ where
-    (Lift-cong l₁≡l₂ F↑H F≡H) →
-      inj₁ (_ , _ , _ , _ , _ , PE.refl , PE.refl , l₁≡l₂ , F↑H , F≡H)
+    (Lift-cong l₁≡l₂ F≡H) →
+      inj₁ (_ , _ , _ , _ , PE.refl , PE.refl , l₁≡l₂ , F≡H)
     (ne A~B) →
       inj₂ $
       case ne~↓ A~B of λ
@@ -986,6 +1021,17 @@ opaque
     (ℕ-refl _)      → inj₂ ((λ ()) , (λ ()))
     (Level-refl _)  → inj₂ ((λ ()) , (λ ()))
     (Id-cong _ _ _) → inj₂ ((λ ()) , (λ ()))
+
+opaque
+
+  -- Inversion for Lift.
+
+  inv-[conv↓]-Lift :
+    Γ ⊢ Lift l₁ B [conv↓] A →
+    ∃₂ λ l₂ C → A PE.≡ Lift l₂ C × Γ ⊢ l₁ [conv↑] l₂ ∷ Level × Γ ⊢ B [conv↑] C
+  inv-[conv↓]-Lift Lift≡A = case inv-[conv↓]-Lift′ Lift≡A of λ where
+    (inj₁ (_ , _ , _ , _ , PE.refl , PE.refl , x , y)) → _ , _ , PE.refl , x , y
+    (inj₂ (no₁ , no₂)) → ⊥-elim (no₁ (_ , _ , PE.refl))
 
 opaque
 
@@ -1010,7 +1056,7 @@ opaque
         (λ { (_ , _ , _ , _ , _ , PE.refl) → ¬-Neutral-ΠΣ A-ne })
       , (λ { (_ , _ , _ , _ , _ , PE.refl) → ¬-Neutral-ΠΣ B-ne })
     (U-cong _)      → inj₂ ((λ ()) , (λ ()))
-    (Lift-cong _ _ _) → inj₂ ((λ ()) , (λ ()))
+    (Lift-cong _ _) → inj₂ ((λ ()) , (λ ()))
     (Empty-refl _)  → inj₂ ((λ ()) , (λ ()))
     (Unit-cong _ _) → inj₂ ((λ ()) , (λ ()))
     (ℕ-refl _)      → inj₂ ((λ ()) , (λ ()))
@@ -1048,7 +1094,7 @@ opaque
         (λ { PE.refl → ¬-Neutral-Empty A-ne })
       , (λ { PE.refl → ¬-Neutral-Empty B-ne })
     (U-cong _)      → inj₂ ((λ ()) , (λ ()))
-    (Lift-cong _ _ _) → inj₂ ((λ ()) , (λ ()))
+    (Lift-cong _ _) → inj₂ ((λ ()) , (λ ()))
     (ΠΣ-cong _ _ _) → inj₂ ((λ ()) , (λ ()))
     (Unit-cong _ _) → inj₂ ((λ ()) , (λ ()))
     (ℕ-refl _)      → inj₂ ((λ ()) , (λ ()))
@@ -1083,7 +1129,7 @@ opaque
         (λ { (_ , _ , PE.refl) → ¬-Neutral-Unit A-ne })
       , (λ { (_ , _ , PE.refl) → ¬-Neutral-Unit B-ne })
     (U-cong _)      → inj₂ ((λ ()) , (λ ()))
-    (Lift-cong _ _ _) → inj₂ ((λ ()) , (λ ()))
+    (Lift-cong _ _) → inj₂ ((λ ()) , (λ ()))
     (ΠΣ-cong _ _ _) → inj₂ ((λ ()) , (λ ()))
     (Empty-refl _)  → inj₂ ((λ ()) , (λ ()))
     (ℕ-refl _)      → inj₂ ((λ ()) , (λ ()))
@@ -1118,7 +1164,7 @@ opaque
         (λ { PE.refl → ¬-Neutral-Level A-ne })
       , (λ { PE.refl → ¬-Neutral-Level B-ne })
     (U-cong _)      → inj₂ ((λ ()) , (λ ()))
-    (Lift-cong _ _ _) → inj₂ ((λ ()) , (λ ()))
+    (Lift-cong _ _) → inj₂ ((λ ()) , (λ ()))
     (ΠΣ-cong _ _ _) → inj₂ ((λ ()) , (λ ()))
     (Empty-refl _)  → inj₂ ((λ ()) , (λ ()))
     (Unit-cong _ _) → inj₂ ((λ ()) , (λ ()))
@@ -1152,7 +1198,7 @@ opaque
         (λ { PE.refl → ¬-Neutral-ℕ A-ne })
       , (λ { PE.refl → ¬-Neutral-ℕ B-ne })
     (U-cong _)      → inj₂ ((λ ()) , (λ ()))
-    (Lift-cong _ _ _) → inj₂ ((λ ()) , (λ ()))
+    (Lift-cong _ _) → inj₂ ((λ ()) , (λ ()))
     (ΠΣ-cong _ _ _) → inj₂ ((λ ()) , (λ ()))
     (Empty-refl _)  → inj₂ ((λ ()) , (λ ()))
     (Unit-cong _ _) → inj₂ ((λ ()) , (λ ()))
@@ -1195,7 +1241,7 @@ opaque
         (λ { (_ , _ , _ , PE.refl) → ¬-Neutral-Id A-ne })
       , (λ { (_ , _ , _ , PE.refl) → ¬-Neutral-Id B-ne })
     (U-cong _)      → inj₂ ((λ ()) , (λ ()))
-    (Lift-cong _ _ _) → inj₂ ((λ ()) , (λ ()))
+    (Lift-cong _ _) → inj₂ ((λ ()) , (λ ()))
     (ΠΣ-cong _ _ _) → inj₂ ((λ ()) , (λ ()))
     (Empty-refl _)  → inj₂ ((λ ()) , (λ ()))
     (Unit-cong _ _) → inj₂ ((λ ()) , (λ ()))
@@ -1258,6 +1304,20 @@ opaque
     Γ ⊢ A [conv↓] B
   inv-[conv↓]∷-U (univ _ _ A≡B)    = A≡B
   inv-[conv↓]∷-U (ne-ins _ _ () _)
+
+opaque
+
+  -- Inversion for Lift.
+
+  inv-[conv↓]∷-Lift :
+    Γ ⊢ t [conv↓] u ∷ Lift l A →
+    Γ ⊢ t ∷ Lift l A ×
+    Γ ⊢ u ∷ Lift l A ×
+    Whnf t ×
+    Whnf u ×
+    Γ ⊢ lower t [conv↑] lower u ∷ A
+  inv-[conv↓]∷-Lift (Lift-η x x₁ x₂ x₃ x₄) = x , x₁ , x₂ , x₃ , x₄
+  inv-[conv↓]∷-Lift (ne-ins _ _ () _)
 
 opaque
 

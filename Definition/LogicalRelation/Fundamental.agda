@@ -51,6 +51,8 @@ opaque mutual
   fundamental-⊩ᵛ : Γ ⊢ A → ∃ λ l → Γ ⊩ᵛ⟨ l ⟩ A
   fundamental-⊩ᵛ (Levelⱼ ⊢Γ) =
     0ᵘ , Levelᵛ (valid ⊢Γ)
+  fundamental-⊩ᵛ (Liftⱼ ⊢l ⊢A) =
+    _ , Liftᵛ (fundamental-⊩ᵛ∷ ⊢l .proj₂) (fundamental-⊩ᵛ ⊢A .proj₂)
   fundamental-⊩ᵛ (ℕⱼ ⊢Γ) =
     0ᵘ , ℕᵛ (valid ⊢Γ)
   fundamental-⊩ᵛ (Emptyⱼ x) =
@@ -87,6 +89,8 @@ opaque mutual
     l₁ ⊔ᵘ l₂ , trans-⊩ᵛ≡ (emb-⊩ᵛ≡ ≤ᵘ⊔ᵘʳ A≡B) (emb-⊩ᵛ≡ ≤ᵘ⊔ᵘˡ B≡C)
   fundamental-⊩ᵛ≡ (U-cong l₁≡l₂) =
     _ , ⊩ᵛU≡U (fundamental-⊩ᵛ≡∷ l₁≡l₂ .proj₂)
+  fundamental-⊩ᵛ≡ (Lift-cong l₁≡l₂ A≡B) =
+    _ , Lift-congᵛ (fundamental-⊩ᵛ≡∷ l₁≡l₂ .proj₂) (fundamental-⊩ᵛ≡ A≡B .proj₂)
   fundamental-⊩ᵛ≡ ΠΣ≡ΠΣ@(ΠΣ-cong A₁≡A₂ B₁≡B₂ _) =
     let l₁ , A₁≡A₂ = fundamental-⊩ᵛ≡ A₁≡A₂
         l₂ , B₁≡B₂ = fundamental-⊩ᵛ≡ B₁≡B₂
@@ -111,15 +115,14 @@ opaque mutual
   fundamental-⊩ᵛ∷ (maxᵘⱼ ⊢l₁ ⊢l₂) =
     _ , maxᵘᵛ (fundamental-⊩ᵛ∷ ⊢l₁ .proj₂) (fundamental-⊩ᵛ∷ ⊢l₂ .proj₂)
   fundamental-⊩ᵛ∷ (Liftⱼ ⊢l₁ ⊢l₂ ⊢A) =
-    _ , Liftᵛ
+    _ , Liftᵗᵛ
       (fundamental-⊩ᵛ∷ ⊢l₁ .proj₂)
       (fundamental-⊩ᵛ∷ ⊢l₂ .proj₂)
       (fundamental-⊩ᵛ∷ ⊢A .proj₂)
-  fundamental-⊩ᵛ∷ (liftⱼ ⊢l₁ ⊢l₂ ⊢A ⊢t) =
+  fundamental-⊩ᵛ∷ (liftⱼ ⊢l₂ ⊢A ⊢t) =
     _ , liftᵛ
-      (fundamental-⊩ᵛ∷ ⊢l₁ .proj₂)
       (fundamental-⊩ᵛ∷ ⊢l₂ .proj₂)
-      (fundamental-⊩ᵛ∷ ⊢A .proj₂)
+      (fundamental-⊩ᵛ ⊢A .proj₂)
       (fundamental-⊩ᵛ∷ ⊢t .proj₂)
   fundamental-⊩ᵛ∷ (lowerⱼ ⊢t) =
     _ , lowerᵛ (fundamental-⊩ᵛ∷ ⊢t .proj₂)
@@ -237,7 +240,7 @@ opaque mutual
   fundamental-⊩ᵛ≡∷ (U-cong l₁≡l₂) =
     _ , ⊩ᵛU≡U∷U (fundamental-⊩ᵛ≡∷ l₁≡l₂ .proj₂)
   fundamental-⊩ᵛ≡∷ (Lift-cong ⊢l₁ l₂≡l₂′ A≡B) =
-    _ , Lift-congᵛ
+    _ , Lift-congᵗᵛ
       (fundamental-⊩ᵛ∷ ⊢l₁ .proj₂)
       (fundamental-⊩ᵛ≡∷ l₂≡l₂′ .proj₂)
       (fundamental-⊩ᵛ≡∷ A≡B .proj₂)
@@ -245,13 +248,12 @@ opaque mutual
   fundamental-⊩ᵛ≡∷ (Lift-β ⊢l₂ ⊢A ⊢u) =
     _ , Lift-βᵛ
       (fundamental-⊩ᵛ∷ ⊢l₂ .proj₂)
-      (fundamental-⊩ᵛ∷ ⊢A .proj₂)
+      (fundamental-⊩ᵛ ⊢A .proj₂)
       (fundamental-⊩ᵛ∷ ⊢u .proj₂)
-  fundamental-⊩ᵛ≡∷ (Lift-η ⊢l₁ ⊢l₂ ⊢A ⊢t ⊢u t≡u) =
+  fundamental-⊩ᵛ≡∷ (Lift-η ⊢l₂ ⊢A ⊢t ⊢u t≡u) =
     _ , Lift-ηᵛ
-      (fundamental-⊩ᵛ∷ ⊢l₁ .proj₂)
       (fundamental-⊩ᵛ∷ ⊢l₂ .proj₂)
-      (fundamental-⊩ᵛ∷ ⊢A .proj₂)
+      (fundamental-⊩ᵛ ⊢A .proj₂)
       (fundamental-⊩ᵛ∷ ⊢t .proj₂)
       (fundamental-⊩ᵛ∷ ⊢u .proj₂)
       (fundamental-⊩ᵛ≡∷ t≡u .proj₂)

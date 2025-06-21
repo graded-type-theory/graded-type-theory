@@ -166,7 +166,7 @@ whNorm′ : ∀ {A l} ([A] : Γ ⊩⟨ l ⟩ A)
                 → ∃ λ B → Whnf B × Γ ⊢ A ⇒* B
 whNorm′ (Levelᵣ D) = Level , Levelₙ , D
 whNorm′ (Uᵣ′ l _ _ ⇒*U) = U l , Uₙ , ⇒*U
-whNorm′ (Liftᵣ′ D [k] [F] ⊢F A≡A) = Lift _ _ , Liftₙ , D
+whNorm′ (Liftᵣ′ D [k] [F] A≡A) = Lift _ _ , Liftₙ , D
 whNorm′ (ℕᵣ D) = ℕ , ℕₙ , D
 whNorm′ (Emptyᵣ D) = Empty , Emptyₙ , D
 whNorm′ (Unitᵣ′ _ _ _ D _) = Unit! , Unitₙ , D
@@ -316,7 +316,7 @@ whNormTerm′ (Levelᵣ x) (Levelₜ₌ n n′ d d′ prop) =
 whNormTerm′ (Uᵣ′ _ _ _ A⇒*U) ⊩a =
   let Uₜ C B⇒*C C-type C≅C ⊩B = ⊩U∷U⇔⊩U≡∷U .proj₂ ⊩a in
   C , typeWhnf C-type , conv* B⇒*C (sym (subset* A⇒*U))
-whNormTerm′ (Liftᵣ′ D _ _ _ _) (Liftₜ₌ _ _ (t⇒* , wt) _ _) =
+whNormTerm′ (Liftᵣ′ D _ _ _) (Liftₜ₌ _ _ (t⇒* , wt) _ _) =
   _ , wt , conv* t⇒* (sym (subset* D))
 whNormTerm′ (ℕᵣ x) ⊩a =
   let ℕₜ n d n≡n prop = ⊩ℕ∷ℕ⇔⊩ℕ≡∷ℕ .proj₂ ⊩a

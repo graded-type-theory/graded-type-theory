@@ -34,6 +34,7 @@ opaque mutual
   size-⊢ (Levelⱼ ⊢Γ)    = node (size-⊢′ ⊢Γ)
   size-⊢ (Uⱼ ⊢l)        = node (size-⊢∷ ⊢l)
   size-⊢ (univ ⊢A)      = node (size-⊢∷ ⊢A)
+  size-⊢ (Liftⱼ ⊢l ⊢A)  = size-⊢∷ ⊢l ⊕ size-⊢ ⊢A
   size-⊢ (ΠΣⱼ ⊢B _)     = node (size-⊢ ⊢B)
   size-⊢ (Emptyⱼ ⊢Γ)    = node (size-⊢′ ⊢Γ)
   size-⊢ (Unitⱼ ⊢l _)   = node (size-⊢∷ ⊢l)
@@ -59,8 +60,8 @@ opaque mutual
     node (size-⊢∷ ⊢l)
   size-⊢∷ (Liftⱼ ⊢l₁ ⊢l₂ ⊢A) =
     size-⊢∷ ⊢l₁ ⊕ size-⊢∷ ⊢l₂ ⊕ size-⊢∷ ⊢A
-  size-⊢∷ (liftⱼ ⊢l₁ ⊢l₂ ⊢A ⊢t) =
-    size-⊢∷ ⊢l₁ ⊕ size-⊢∷ ⊢l₂ ⊕ size-⊢∷ ⊢A ⊕ size-⊢∷ ⊢t
+  size-⊢∷ (liftⱼ ⊢l₂ ⊢A ⊢t) =
+    size-⊢∷ ⊢l₂ ⊕ size-⊢ ⊢A ⊕ size-⊢∷ ⊢t
   size-⊢∷ (lowerⱼ ⊢t) =
     node (size-⊢∷ ⊢t)
   size-⊢∷ (ΠΣⱼ ⊢l ⊢A ⊢B _) =
@@ -120,6 +121,8 @@ opaque mutual
     size-⊢≡ A≡B ⊕ size-⊢≡ B≡C
   size-⊢≡ (U-cong l₁≡l₂) =
     node (size-⊢≡∷ l₁≡l₂)
+  size-⊢≡ (Lift-cong l₂≡l₂′ A≡B) =
+    size-⊢≡∷ l₂≡l₂′ ⊕ size-⊢≡ A≡B
   size-⊢≡ (ΠΣ-cong A₁≡B₁ A₂≡B₂ _) =
     size-⊢≡ A₁≡B₁ ⊕ size-⊢≡ A₂≡B₂
   size-⊢≡ (Unit-cong l₁≡l₂ ok) =
@@ -163,9 +166,9 @@ opaque mutual
   size-⊢≡∷ (lower-cong t≡u) =
     node (size-⊢≡∷ t≡u)
   size-⊢≡∷ (Lift-β ⊢l₂ ⊢A ⊢t) =
-    size-⊢∷ ⊢l₂ ⊕ size-⊢∷ ⊢A ⊕ size-⊢∷ ⊢t
-  size-⊢≡∷ (Lift-η ⊢l₁ ⊢l₂ ⊢A ⊢t ⊢u t≡u) =
-    size-⊢∷ ⊢l₁ ⊕ size-⊢∷ ⊢l₂ ⊕ size-⊢∷ ⊢A ⊕ size-⊢∷ ⊢t ⊕ size-⊢∷ ⊢u ⊕ size-⊢≡∷ t≡u
+    size-⊢∷ ⊢l₂ ⊕ size-⊢ ⊢A ⊕ size-⊢∷ ⊢t
+  size-⊢≡∷ (Lift-η ⊢l₂ ⊢A ⊢t ⊢u t≡u) =
+    size-⊢∷ ⊢l₂ ⊕ size-⊢ ⊢A ⊕ size-⊢∷ ⊢t ⊕ size-⊢∷ ⊢u ⊕ size-⊢≡∷ t≡u
   size-⊢≡∷ (ΠΣ-cong l A₁≡B₁ A₂≡B₂ _) =
     size-⊢∷ l ⊕ size-⊢≡∷ A₁≡B₁ ⊕ size-⊢≡∷ A₂≡B₂
   size-⊢≡∷ (app-cong t₁≡u₁ t₂≡u₂) =

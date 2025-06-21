@@ -179,10 +179,9 @@ mutual
     U-cong     : Γ ⊢ l₁ [conv↑] l₂ ∷ Level
                → Γ ⊢ U l₁ [conv↓] U l₂
 
-    Lift-cong  : ∀ {F H k₁}
+    Lift-cong  : ∀ {F H}
                → Γ ⊢ l₁ [conv↑] l₂ ∷ Level
                → Γ ⊢ F [conv↑] H
-               → Γ ⊢ F ≡ H ∷ U k₁
                → Γ ⊢ Lift l₁ F [conv↓] Lift l₂ H
 
     ℕ-refl     : ⊢ Γ → Γ ⊢ ℕ [conv↓] ℕ

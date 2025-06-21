@@ -92,22 +92,21 @@ opaque
   -- See also Definition.Typed.Properties.Admissible.Lift.lift-cong.
 
   lift-cong :
-    ∀ {t u A l₁ l₂ l₂′} →
-    Γ ⊢ l₁ ∷ Level →
+    ∀ {t u A l₂ l₂′} →
     Γ ⊢ l₂ ∷ Level →
     Γ ⊢ l₂′ ∷ Level →
     Γ ⊢ l₂ ≡ l₂′ ∷ Level →
-    Γ ⊢ A ∷ U l₁ →
+    Γ ⊢ A →
     Γ ⊢ t ∷ A →
     Γ ⊢ u ∷ A →
     Γ ⊢ t ≡ u ∷ A →
     Γ ⊢ lift l₂ t ≡ lift l₂′ u ∷ Lift l₂ A
-  lift-cong {t} {u} {l₂} {l₂′} ⊢l₁ ⊢l₂ ⊢l₂′ l₂≡l₂′ ⊢A ⊢t ⊢u t≡u =
-    Lift-η ⊢l₁ ⊢l₂ ⊢A (liftⱼ ⊢l₁ ⊢l₂ ⊢A ⊢t)
-      (conv (liftⱼ ⊢l₁ ⊢l₂′ ⊢A ⊢u) (sym (univ (Lift-cong ⊢l₁ l₂≡l₂′ (refl ⊢A)))))
-      (lower (lift l₂ t) ≡⟨ Lift-β ⊢l₂ ⊢A ⊢t ⟩⊢
-       t                 ≡⟨ t≡u ⟩⊢
-       u                 ≡⟨ sym (univ ⊢A) (Lift-β ⊢l₂′ ⊢A ⊢u) ⟩⊢∎
+  lift-cong {t} {u} {l₂} {l₂′} ⊢l₂ ⊢l₂′ l₂≡l₂′ ⊢A ⊢t ⊢u t≡u =
+    Lift-η ⊢l₂ ⊢A (liftⱼ ⊢l₂ ⊢A ⊢t)
+      (conv (liftⱼ ⊢l₂′ ⊢A ⊢u) (sym (Lift-cong l₂≡l₂′ (refl ⊢A))))
+      (lower (lift l₂ t)  ≡⟨ Lift-β ⊢l₂ ⊢A ⊢t ⟩⊢
+       t                  ≡⟨ t≡u ⟩⊢
+       u                  ≡⟨ sym ⊢A (Lift-β ⊢l₂′ ⊢A ⊢u) ⟩⊢∎
        lower (lift l₂′ u) ∎)
 
 ------------------------------------------------------------------------
@@ -827,6 +826,8 @@ private module Inhabited where
         Uⱼ (subst-⊢∷ ⊢l ⊢σ)
       (univ ⊢A) PE.refl →
         univ (subst-⊢∷ ⊢A ⊢σ)
+      (Liftⱼ ⊢l ⊢A) PE.refl →
+        Liftⱼ (subst-⊢∷ ⊢l ⊢σ) (subst-⊢ ⊢A ⊢σ)
       (ΠΣⱼ ⊢B ok) PE.refl →
         ΠΣⱼ (subst-⊢-⇑ ⊢B ⊢σ) ok
       (Emptyⱼ _) _ →
@@ -856,6 +857,8 @@ private module Inhabited where
         U-cong (subst-⊢∷→⊢≡∷ ⊢l σ₁≡σ₂)
       (univ ⊢A) PE.refl →
         univ (subst-⊢∷→⊢≡∷ ⊢A σ₁≡σ₂)
+      (Liftⱼ ⊢l ⊢A) PE.refl →
+        Lift-cong (subst-⊢∷→⊢≡∷ ⊢l σ₁≡σ₂) (subst-⊢→⊢≡ ⊢A σ₁≡σ₂)
       (ΠΣⱼ ⊢B ok) PE.refl →
         let _ , ⊢A = ∙⊢→⊢-<ˢ ⊢B in
         ΠΣ-cong (subst-⊢→⊢≡-<ˢ ⊢A σ₁≡σ₂) (subst-⊢→⊢≡-⇑ ⊢B σ₁≡σ₂) ok
@@ -893,6 +896,8 @@ private module Inhabited where
           (subst-⊢≡ A₂≡A₃ (refl-⊢ˢʷ≡∷ (wf-⊢ˢʷ≡∷ σ₁≡σ₂ .proj₂ .proj₂)))
       (U-cong l₁≡l₂) PE.refl →
         U-cong (subst-⊢≡∷ l₁≡l₂ σ₁≡σ₂)
+      (Lift-cong l₁≡l₂ A≡B) PE.refl →
+        Lift-cong (subst-⊢≡∷ l₁≡l₂ σ₁≡σ₂) (subst-⊢≡ A≡B σ₁≡σ₂)
       (ΠΣ-cong A₁≡A₂ B₁≡B₂ ok) PE.refl →
         ΠΣ-cong (subst-⊢≡ A₁≡A₂ σ₁≡σ₂) (subst-⊢≡-⇑ B₁≡B₂ σ₁≡σ₂) ok
       (Unit-cong l₁≡l₂ ok) PE.refl →
@@ -930,8 +935,8 @@ private module Inhabited where
         Uⱼ (subst-⊢∷ ⊢l ⊢σ)
       (Liftⱼ x x₁ x₂) PE.refl →
         Liftⱼ (subst-⊢∷ x ⊢σ) (subst-⊢∷ x₁ ⊢σ) (subst-⊢∷ x₂ ⊢σ)
-      (liftⱼ ⊢l₁ x x₁ x₂) PE.refl →
-        liftⱼ (subst-⊢∷ ⊢l₁ ⊢σ) (subst-⊢∷ x ⊢σ) (subst-⊢∷ x₁ ⊢σ) (subst-⊢∷ x₂ ⊢σ)
+      (liftⱼ x x₁ x₂) PE.refl →
+        liftⱼ (subst-⊢∷ x ⊢σ) (subst-⊢ x₁ ⊢σ) (subst-⊢∷ x₂ ⊢σ)
       (lowerⱼ x) PE.refl →
         lowerⱼ (subst-⊢∷ x ⊢σ)
       (ΠΣⱼ {l} ⊢l ⊢A ⊢B ok) PE.refl →
@@ -1049,13 +1054,13 @@ private module Inhabited where
       (Liftⱼ x x₁ x₂) PE.refl →
         let ⊢σ₁ , ⊢σ₂ = wf-⊢ˢʷ≡∷ σ₁≡σ₂ .proj₂
         in Lift-cong (subst-⊢∷ x ⊢σ₁) (subst-⊢∷→⊢≡∷ x₁ σ₁≡σ₂) (subst-⊢∷→⊢≡∷ x₂ σ₁≡σ₂)
-      (liftⱼ ⊢l₁ x x₁ x₂) PE.refl →
+      (liftⱼ x x₁ x₂) PE.refl →
         let ⊢σ₁ , ⊢σ₂ = wf-⊢ˢʷ≡∷ σ₁≡σ₂ .proj₂
         in
-        lift-cong (subst-⊢∷ ⊢l₁ ⊢σ₁) (subst-⊢∷ x ⊢σ₁) (subst-⊢∷ x ⊢σ₂) (subst-⊢∷→⊢≡∷ x σ₁≡σ₂)
-          (subst-⊢∷ x₁ ⊢σ₁)
+        lift-cong (subst-⊢∷ x ⊢σ₁) (subst-⊢∷ x ⊢σ₂) (subst-⊢∷→⊢≡∷ x σ₁≡σ₂)
+          (subst-⊢ x₁ ⊢σ₁)
           (subst-⊢∷ x₂ ⊢σ₁)
-          (conv (subst-⊢∷ x₂ ⊢σ₂) (sym (univ (subst-⊢∷→⊢≡∷ x₁ σ₁≡σ₂))))
+          (conv (subst-⊢∷ x₂ ⊢σ₂) (sym (subst-⊢→⊢≡ x₁ σ₁≡σ₂)))
           (subst-⊢∷→⊢≡∷ x₂ σ₁≡σ₂)
       (lowerⱼ x) PE.refl →
         lower-cong (subst-⊢∷→⊢≡∷ x σ₁≡σ₂)
@@ -1283,12 +1288,12 @@ private module Inhabited where
       (lower-cong x) PE.refl → lower-cong (subst-⊢≡∷ x σ₁≡σ₂)
       (Lift-β x x₁ x₂) PE.refl →
         let _ , ⊢σ₁ , ⊢σ₂ = wf-⊢ˢʷ≡∷ σ₁≡σ₂
-        in trans (Lift-β (subst-⊢∷ x ⊢σ₁) (subst-⊢∷ x₁ ⊢σ₁) (subst-⊢∷ x₂ ⊢σ₁)) (subst-⊢∷→⊢≡∷ x₂ σ₁≡σ₂)
-      (Lift-η ⊢l₁ x x₁ ⊢t ⊢u x₂) PE.refl →
+        in trans (Lift-β (subst-⊢∷ x ⊢σ₁) (subst-⊢ x₁ ⊢σ₁) (subst-⊢∷ x₂ ⊢σ₁)) (subst-⊢∷→⊢≡∷ x₂ σ₁≡σ₂)
+      (Lift-η x x₁ ⊢t ⊢u x₂) PE.refl →
         let _ , ⊢σ₁ , ⊢σ₂ = wf-⊢ˢʷ≡∷ σ₁≡σ₂
-        in Lift-η (subst-⊢∷ ⊢l₁ ⊢σ₁) (subst-⊢∷ x ⊢σ₁) (subst-⊢∷ x₁ ⊢σ₁) (subst-⊢∷ ⊢t ⊢σ₁)
+        in Lift-η (subst-⊢∷ x ⊢σ₁) (subst-⊢ x₁ ⊢σ₁) (subst-⊢∷ ⊢t ⊢σ₁)
           (conv (subst-⊢∷ ⊢u ⊢σ₂)
-            (sym (univ (Lift-cong (subst-⊢∷ ⊢l₁ ⊢σ₁) (subst-⊢∷→⊢≡∷ x σ₁≡σ₂) (subst-⊢∷→⊢≡∷ x₁ σ₁≡σ₂)))))
+            (sym (Lift-cong (subst-⊢∷→⊢≡∷ x σ₁≡σ₂) (subst-⊢→⊢≡ x₁ σ₁≡σ₂))))
           (subst-⊢≡∷ x₂ σ₁≡σ₂)
       (ΠΣ-cong {l} ⊢l A₁≡A₂ B₁≡B₂ ok) PE.refl →
         let ⊢σ₁ = wf-⊢ˢʷ≡∷ σ₁≡σ₂ .proj₂ .proj₁

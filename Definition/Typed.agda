@@ -57,6 +57,9 @@ mutual
            → Γ ⊢ U l
     univ   : Γ ⊢ A ∷ U l
            → Γ ⊢ A
+    Liftⱼ  : Γ ⊢ l₂ ∷ Level
+           → Γ ⊢ A
+           → Γ ⊢ Lift l₂ A
     Emptyⱼ : ⊢ Γ → Γ ⊢ Empty
     Unitⱼ  : Γ ⊢ l ∷ Level → Unit-allowed k → Γ ⊢ Unit k l
     ΠΣⱼ    : Γ ∙ F ⊢ G
@@ -94,9 +97,8 @@ mutual
               → Γ ⊢ l₂ ∷ Level
               → Γ ⊢ A ∷ U l₁
               → Γ ⊢ Lift l₂ A ∷ U (l₁ maxᵘ l₂)
-    liftⱼ     : Γ ⊢ l₁ ∷ Level
-              → Γ ⊢ l₂ ∷ Level
-              → Γ ⊢ A ∷ U l₁
+    liftⱼ     : Γ ⊢ l₂ ∷ Level
+              → Γ ⊢ A
               → Γ ⊢ t ∷ A
               → Γ ⊢ lift l₂ t ∷ Lift l₂ A
     lowerⱼ    : Γ ⊢ t ∷ Lift l₂ A
@@ -198,6 +200,10 @@ mutual
            → Γ ⊢ A ≡ B
     U-cong : Γ ⊢ l₁ ≡ l₂ ∷ Level
            → Γ ⊢ U l₁ ≡ U l₂
+    Lift-cong
+           : Γ ⊢ l₂ ≡ l₂′ ∷ Level
+           → Γ ⊢ A ≡ B
+           → Γ ⊢ Lift l₂ A ≡ Lift l₂′ B
     ΠΣ-cong
            : Γ     ⊢ F ≡ H
            → Γ ∙ F ⊢ G ≡ E
@@ -264,12 +270,11 @@ mutual
     lower-cong    : Γ ⊢ t ≡ u ∷ Lift l₂ A
                   → Γ ⊢ lower t ≡ lower u ∷ A
     Lift-β        : Γ ⊢ l₂ ∷ Level
-                  → Γ ⊢ A ∷ U l₁
+                  → Γ ⊢ A
                   → Γ ⊢ t ∷ A
                   → Γ ⊢ lower (lift l₂ t) ≡ t ∷ A
-    Lift-η        : Γ ⊢ l₁ ∷ Level
-                  → Γ ⊢ l₂ ∷ Level
-                  → Γ ⊢ A ∷ U l₁
+    Lift-η        : Γ ⊢ l₂ ∷ Level
+                  → Γ ⊢ A
                   → Γ ⊢ t ∷ Lift l₂ A
                   → Γ ⊢ u ∷ Lift l₂ A
                   → Γ ⊢ lower t ≡ lower u ∷ A
@@ -486,7 +491,7 @@ data _⊢_⇒_∷_ (Γ : Con Term n) : Term n → Term n → Term n → Set ℓ 
   lower-subst    : Γ ⊢ t ⇒ u ∷ Lift l₂ A
                  → Γ ⊢ lower t ⇒ lower u ∷ A
   Lift-β         : Γ ⊢ l₂ ∷ Level
-                 → Γ ⊢ A ∷ U l₁
+                 → Γ ⊢ A
                  → Γ ⊢ t ∷ A
                  → Γ ⊢ lower (lift l₂ t) ⇒ t ∷ A
 

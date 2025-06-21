@@ -53,7 +53,7 @@ opaque
   subst-⊢⇒∷ (lower-subst x) ⊢σ =
     lower-subst (subst-⊢⇒∷ x ⊢σ)
   subst-⊢⇒∷ (Lift-β x x₁ x₂) ⊢σ =
-    Lift-β (subst-⊢∷ x ⊢σ) (subst-⊢∷ x₁ ⊢σ) (subst-⊢∷ x₂ ⊢σ)
+    Lift-β (subst-⊢∷ x ⊢σ) (subst-⊢ x₁ ⊢σ) (subst-⊢∷ x₂ ⊢σ)
   subst-⊢⇒∷ (app-subst {G = B} t⇒u ⊢v) ⊢σ =
     PE.subst (_⊢_⇒_∷_ _ _ _) (PE.sym (singleSubstLift B _))
       (app-subst (subst-⊢⇒∷ t⇒u ⊢σ) (subst-⊢∷ ⊢v ⊢σ))

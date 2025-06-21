@@ -271,7 +271,7 @@ mutual
                        → ShapeView Γ l l′ A A p q
                        → Γ ⊩⟨ l ⟩ A ≡ B / p → Γ ⊩⟨ l′ ⟩ A ≡ B / q
   irrelevanceEqT (Levelᵥ D D′) A≡B = A≡B
-  irrelevanceEqT (Liftᵥ (Liftᵣ D1 _ _ _ _) (Liftᵣ D2 _ _ _ _)) [A≡B]
+  irrelevanceEqT (Liftᵥ (Liftᵣ D1 _ _ _) (Liftᵣ D2 _ _ _)) [A≡B]
     = case whrDet* (D1 , Liftₙ) (D2 , Liftₙ) of λ { PE.refl →
       Lift₌ ⇒*Lift′ k≡k′ (irrelevanceEq _ _ F≡F′) A≡B }
     where open _⊩ₗLift_≡_/_ [A≡B]
@@ -386,7 +386,7 @@ mutual
                            → Γ ⊩⟨ l ⟩ t ≡ u ∷ A / p → Γ ⊩⟨ l′ ⟩ t ≡ u ∷ A / q
   irrelevanceEqTermT (Levelᵥ D D′) t≡u = t≡u
   irrelevanceEqTermT
-    (Liftᵥ (Liftᵣ D1 _ [F] _ _) (Liftᵣ D2 _ [F]′ _ _))
+    (Liftᵥ (Liftᵣ D1 _ [F] _) (Liftᵣ D2 _ [F]′ _))
     (Liftₜ₌ _ _ d1 d2 t≡u) =
     case Lift-PE-injectivity (whrDet* (D1 , Liftₙ) (D2 , Liftₙ)) of λ {
       (PE.refl , PE.refl) →

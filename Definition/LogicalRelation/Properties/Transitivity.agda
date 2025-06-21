@@ -212,7 +212,7 @@ private module Trans (l : Universe-level) (rec : ∀ {l′} → l′ <ᵘ l → 
 
   transEqT (Levelᵥ D D′ D″) A≡B B≡C = B≡C
   transEqT
-    (Liftᵥ LiftA (Liftᵣ D₀ _ [F′] _ _) (Liftᵣ D₁ _ [F″] _ _))
+    (Liftᵥ LiftA (Liftᵣ D₀ _ [F′] _) (Liftᵣ D₁ _ [F″] _))
     (Lift₌ D k≡k′ F≡F′ A≡B)
     (Lift₌ D′ k′≡k″ F′≡F″ B≡C)
     = case whrDet* (D₀ , Liftₙ) (D , Liftₙ) of λ {
@@ -293,7 +293,7 @@ private module Trans (l : Universe-level) (rec : ∀ {l′} → l′ <ᵘ l → 
 
   transEqTerm (Levelᵣ D) [t≡u] [u≡v] = transEqTermLevel [t≡u] [u≡v]
   transEqTerm
-    (Liftᵣ′ D [k] [F] _ A≡A)
+    (Liftᵣ′ D [k] [F] A≡A)
     (Liftₜ₌ _ _ t↘ u↘ t≡u)
     (Liftₜ₌ _ _ u↘′ v↘ u≡v)
     = case whrDet*Term u↘ u↘′ of λ {

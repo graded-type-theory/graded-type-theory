@@ -247,11 +247,11 @@ mutual
     case inv-[conv↓]-U′ U≡C of λ where
       (inj₁ (_ , _ , PE.refl , PE.refl , y)) → U-cong (transConv↑Term (refl (syntacticEqTerm (soundnessConv↑Term x) .proj₁)) x y)
       (inj₂ (U≢U , _))               → ⊥-elim (U≢U (_ , PE.refl))
-  transConv↓ (Lift-cong l₁≡l₂ F↑G F≡G) Lift≡C =
+  transConv↓ (Lift-cong l₁≡l₂ F≡G) Lift≡C =
     case inv-[conv↓]-Lift′ Lift≡C of λ where
       (inj₁
-         (_ , _ , _ , _ , _ , PE.refl , PE.refl , l₂≡l₃ , G↑H , G≡H)) →
-        Lift-cong (transConvTerm l₁≡l₂ l₂≡l₃) (transConv↑ F↑G G↑H) (trans F≡G {!   !})
+         (_ , _ , _ , _ , PE.refl , PE.refl , l₂≡l₃ , G≡H)) →
+        Lift-cong (transConvTerm l₁≡l₂ l₂≡l₃) (transConv↑ F≡G G≡H)
       (inj₂ (Lift≢Lift , _)) →
         ⊥-elim (Lift≢Lift (_ , _ , PE.refl))
   transConv↓ (ΠΣ-cong A₁≡B₁ A₂≡B₂ ok) ΠΣ≡C =
@@ -374,6 +374,10 @@ mutual
   transConv↓Term (univ ⊢A ⊢B A≡B) B≡C =
     let _ , _ , ⊢C = syntacticEqTerm (soundnessConv↓Term B≡C) in
     univ ⊢A ⊢C (transConv↓ A≡B (inv-[conv↓]∷-U B≡C))
+  transConv↓Term (Lift-η ⊢t ⊢u wt wu t≡u) [u≡v] =
+    let _ , ⊢v , _ , wv , u≡v = inv-[conv↓]∷-Lift [u≡v]
+        ⊢A , _ , _ = syntacticEqTerm (soundnessConv↑Term t≡u)
+    in Lift-η ⊢t ⊢v wt wv (transConv↑Term (refl ⊢A) t≡u u≡v)
   transConv↓Term (η-eq ⊢t ⊢u t-fun u-fun t0≡u0) u≡v =
     let _ , v-fun , u0≡v0 = inv-[conv↓]∷-Π u≡v
         _ , _ , ⊢v        = syntacticEqTerm (soundnessConv↓Term u≡v)

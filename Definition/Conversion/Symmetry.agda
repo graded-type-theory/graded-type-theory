@@ -261,8 +261,8 @@ mutual
     in  Level-refl ⊢Δ
   symConv↓ Γ≡Δ (U-cong x) =
     U-cong (symConv↑Term Γ≡Δ x)
-  symConv↓ Γ≡Δ (Lift-cong l₁≡l₂ F↑H F≡H) =
-    Lift-cong (symConv↑Term Γ≡Δ l₁≡l₂) (symConv↑ Γ≡Δ F↑H) (stabilityEqTerm Γ≡Δ (sym′ F≡H))
+  symConv↓ Γ≡Δ (Lift-cong l₁≡l₂ F≡H) =
+    Lift-cong (symConv↑Term Γ≡Δ l₁≡l₂) (symConv↑ Γ≡Δ F≡H)
   symConv↓ Γ≡Δ (ℕ-refl x) =
     let _ , ⊢Δ , _ = contextConvSubst Γ≡Δ
     in  ℕ-refl ⊢Δ

@@ -292,6 +292,8 @@ private module Inhabited where
           Uⱼ (wkTerm ρ⊇ ⊢Δ l)
         (univ ⊢A) PE.refl →
           univ (wkTerm ρ⊇ ⊢Δ ⊢A)
+        (Liftⱼ ⊢l ⊢A) PE.refl →
+          Liftⱼ (wkTerm ρ⊇ ⊢Δ ⊢l) (wk ρ⊇ ⊢Δ ⊢A)
         (ΠΣⱼ ⊢B ok) PE.refl →
           let _ , (⊢A , A<) = ∙⊢→⊢-<ˢ ⊢B
               ⊢A′           = wk ρ⊇ ⊢Δ ⊢A ⦃ lt = <ˢ-trans A< ! ⦄
@@ -336,8 +338,8 @@ private module Inhabited where
           Uⱼ (wkTerm ρ⊇ ⊢Δ l)
         (Liftⱼ ⊢l₁ ⊢l₂ ⊢A) PE.refl →
           Liftⱼ (wkTerm ρ⊇ ⊢Δ ⊢l₁) (wkTerm ρ⊇ ⊢Δ ⊢l₂) (wkTerm ρ⊇ ⊢Δ ⊢A)
-        (liftⱼ ⊢l₁ ⊢l₂ ⊢A ⊢t) PE.refl →
-          liftⱼ (wkTerm ρ⊇ ⊢Δ ⊢l₁) (wkTerm ρ⊇ ⊢Δ ⊢l₂) (wkTerm ρ⊇ ⊢Δ ⊢A) (wkTerm ρ⊇ ⊢Δ ⊢t)
+        (liftⱼ ⊢l₂ ⊢A ⊢t) PE.refl →
+          liftⱼ (wkTerm ρ⊇ ⊢Δ ⊢l₂) (wk ρ⊇ ⊢Δ ⊢A) (wkTerm ρ⊇ ⊢Δ ⊢t)
         (lowerⱼ ⊢t) PE.refl →
           lowerⱼ (wkTerm ρ⊇ ⊢Δ ⊢t)
         (ΠΣⱼ l ⊢A ⊢B ok) PE.refl →
@@ -490,6 +492,8 @@ private module Inhabited where
           trans (wkEq ρ⊇ ⊢Δ A₁≡A₂) (wkEq ρ⊇ ⊢Δ A₂≡A₃)
         (U-cong l₁≡l₂) PE.refl →
           U-cong (wkEqTerm ρ⊇ ⊢Δ l₁≡l₂)
+        (Lift-cong l₁≡l₂ A≡B) PE.refl →
+          Lift-cong (wkEqTerm ρ⊇ ⊢Δ l₁≡l₂) (wkEq ρ⊇ ⊢Δ A≡B)
         (ΠΣ-cong A₁≡A₂ B₁≡B₂ ok) PE.refl →
           let _ , (⊢A₁ , A₁<) = ∙⊢≡→⊢-<ˢ B₁≡B₂
               ⊢A₁′            = wk ρ⊇ ⊢Δ ⊢A₁ ⦃ lt = <ˢ-trans A₁< ! ⦄
@@ -548,9 +552,9 @@ private module Inhabited where
         (lower-cong t≡u) PE.refl →
           lower-cong (wkEqTerm ρ⊇ ⊢Δ t≡u)
         (Lift-β ⊢l₂ ⊢A ⊢t) PE.refl →
-          Lift-β (wkTerm ρ⊇ ⊢Δ ⊢l₂) (wkTerm ρ⊇ ⊢Δ ⊢A) (wkTerm ρ⊇ ⊢Δ ⊢t)
-        (Lift-η ⊢l₁ ⊢l₂ ⊢A ⊢t ⊢u t≡u) PE.refl →
-          Lift-η (wkTerm ρ⊇ ⊢Δ ⊢l₁) (wkTerm ρ⊇ ⊢Δ ⊢l₂) (wkTerm ρ⊇ ⊢Δ ⊢A) (wkTerm ρ⊇ ⊢Δ ⊢t) (wkTerm ρ⊇ ⊢Δ ⊢u) (wkEqTerm ρ⊇ ⊢Δ t≡u)
+          Lift-β (wkTerm ρ⊇ ⊢Δ ⊢l₂) (wk ρ⊇ ⊢Δ ⊢A) (wkTerm ρ⊇ ⊢Δ ⊢t)
+        (Lift-η ⊢l₂ ⊢A ⊢t ⊢u t≡u) PE.refl →
+          Lift-η (wkTerm ρ⊇ ⊢Δ ⊢l₂) (wk ρ⊇ ⊢Δ ⊢A) (wkTerm ρ⊇ ⊢Δ ⊢t) (wkTerm ρ⊇ ⊢Δ ⊢u) (wkEqTerm ρ⊇ ⊢Δ t≡u)
         (ΠΣ-cong ⊢l A₁≡A₂ B₁≡B₂ ok) PE.refl →
           let _ , (⊢A₁ , A₁<) = ∙⊢≡∷→⊢-<ˢ B₁≡B₂
               ⊢A₁′            = wk ρ⊇ ⊢Δ ⊢A₁ ⦃ lt = <ˢ-trans A₁< ! ⦄
@@ -909,7 +913,7 @@ mutual
   wkRedTerm ρ (maxᵘ-substˡ t⇒t′ ⊢u) = maxᵘ-substˡ (wkRedTerm ρ t⇒t′) (wkTerm ρ ⊢u)
   wkRedTerm {ρ} [ρ] (maxᵘ-substʳ ⊢t u⇒u′) = maxᵘ-substʳ (wkTerm [ρ] ⊢t) (wkRedTerm [ρ] u⇒u′)
   wkRedTerm ρ (lower-subst x) = lower-subst (wkRedTerm ρ x)
-  wkRedTerm ρ (Lift-β x ⊢A x₁) = Lift-β (wkTerm ρ x) (wkTerm ρ ⊢A) (wkTerm ρ x₁)
+  wkRedTerm ρ (Lift-β x ⊢A x₁) = Lift-β (wkTerm ρ x) (wk ρ ⊢A) (wkTerm ρ x₁)
   wkRedTerm ρ (app-subst {G = B} t⇒u a) =
     PE.subst (λ x → _ ⊢ _ ⇒ _ ∷ x) (PE.sym (wk-β B))
              (app-subst (wkRedTerm ρ t⇒u) (wkTerm ρ a))

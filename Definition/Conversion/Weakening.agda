@@ -180,8 +180,8 @@ mutual
          → Δ ⊢ U.wk ρ A [conv↓] U.wk ρ B
   wkConv↓ ρ (Level-refl x) = Level-refl (wf-∷ʷ⊇ ρ)
   wkConv↓ ρ (U-cong x) = U-cong (wkConv↑Term ρ x)
-  wkConv↓ ρ (Lift-cong l₁≡l₂ F↑H F≡H) =
-    Lift-cong (wkConv↑Term ρ l₁≡l₂) (wkConv↑ ρ F↑H) (wkEqTerm ρ F≡H)
+  wkConv↓ ρ (Lift-cong l₁≡l₂ F≡H) =
+    Lift-cong (wkConv↑Term ρ l₁≡l₂) (wkConv↑ ρ F≡H)
   wkConv↓ ρ (ℕ-refl x) = ℕ-refl (wf-∷ʷ⊇ ρ)
   wkConv↓ ρ (Empty-refl x) = Empty-refl (wf-∷ʷ⊇ ρ)
   wkConv↓ ρ (Unit-cong x ok) = Unit-cong (wkConv↑Term ρ x) ok

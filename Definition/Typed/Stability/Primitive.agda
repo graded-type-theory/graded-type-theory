@@ -181,6 +181,8 @@ private module Inhabited where
         Uⱼ (stability-⊢∷ Γ≡Δ ⊢l)
       (univ ⊢A) PE.refl →
         univ (stability-⊢∷ Γ≡Δ ⊢A)
+      (Liftⱼ ⊢l ⊢A) PE.refl →
+        Liftⱼ (stability-⊢∷ Γ≡Δ ⊢l) (stability-⊢ Γ≡Δ ⊢A)
       (ΠΣⱼ ⊢B ok) PE.refl →
         let _ , (⊢A , A<) = ∙⊢→⊢-<ˢ ⊢B
             ⊢A′           = stability-⊢ Γ≡Δ ⊢A ⦃ lt = <ˢ-trans A< ! ⦄
@@ -218,6 +220,8 @@ private module Inhabited where
         univ (stability-⊢≡∷ Γ≡Δ A≡B)
       (U-cong l₁≡l₂) PE.refl →
         U-cong (stability-⊢≡∷ Γ≡Δ l₁≡l₂)
+      (Lift-cong l₁≡l₂ A≡B) PE.refl →
+        Lift-cong (stability-⊢≡∷ Γ≡Δ l₁≡l₂) (stability-⊢≡ Γ≡Δ A≡B)
       (ΠΣ-cong A₁≡B₁ A₂≡B₂ ok) PE.refl →
         let _ , (⊢A₁ , A₁<) = ∙⊢≡→⊢-<ˢ A₂≡B₂
             ⊢A₁′            = stability-⊢ Γ≡Δ ⊢A₁
@@ -260,8 +264,8 @@ private module Inhabited where
         Uⱼ (stability-⊢∷ Γ≡Δ ⊢l)
       (Liftⱼ x x₁ x₂) PE.refl →
         Liftⱼ (stability-⊢∷ Γ≡Δ x) (stability-⊢∷ Γ≡Δ x₁) (stability-⊢∷ Γ≡Δ x₂)
-      (liftⱼ ⊢l₁ x x₁ x₂) PE.refl →
-        liftⱼ (stability-⊢∷ Γ≡Δ ⊢l₁) (stability-⊢∷ Γ≡Δ x) (stability-⊢∷ Γ≡Δ x₁) (stability-⊢∷ Γ≡Δ x₂)
+      (liftⱼ x x₁ x₂) PE.refl →
+        liftⱼ (stability-⊢∷ Γ≡Δ x) (stability-⊢ Γ≡Δ x₁) (stability-⊢∷ Γ≡Δ x₂)
       (lowerⱼ x) PE.refl →
         lowerⱼ (stability-⊢∷ Γ≡Δ x)
       (ΠΣⱼ l ⊢A ⊢B ok) PE.refl →
@@ -405,9 +409,9 @@ private module Inhabited where
       (lower-cong x) PE.refl →
         lower-cong (stability-⊢≡∷ Γ≡Δ x)
       (Lift-β x x₁ x₂) PE.refl →
-        Lift-β (stability-⊢∷ Γ≡Δ x) (stability-⊢∷ Γ≡Δ x₁) (stability-⊢∷ Γ≡Δ x₂)
-      (Lift-η ⊢l₁ x x₁ ⊢t ⊢u x₂) PE.refl →
-        Lift-η (stability-⊢∷ Γ≡Δ ⊢l₁) (stability-⊢∷ Γ≡Δ x) (stability-⊢∷ Γ≡Δ x₁) (stability-⊢∷ Γ≡Δ ⊢t) (stability-⊢∷ Γ≡Δ ⊢u) (stability-⊢≡∷ Γ≡Δ x₂)
+        Lift-β (stability-⊢∷ Γ≡Δ x) (stability-⊢ Γ≡Δ x₁) (stability-⊢∷ Γ≡Δ x₂)
+      (Lift-η x x₁ ⊢t ⊢u x₂) PE.refl →
+        Lift-η (stability-⊢∷ Γ≡Δ x) (stability-⊢ Γ≡Δ x₁) (stability-⊢∷ Γ≡Δ ⊢t) (stability-⊢∷ Γ≡Δ ⊢u) (stability-⊢≡∷ Γ≡Δ x₂)
       (ΠΣ-cong ⊢l A₁≡A₂ B₁≡B₂ ok) PE.refl →
         let _ , (⊢A₁ , A₁<) = ∙⊢≡∷→⊢-<ˢ B₁≡B₂
             ⊢A₁′            = stability-⊢ Γ≡Δ ⊢A₁

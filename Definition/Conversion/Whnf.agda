@@ -79,7 +79,7 @@ whnfConv↓ : ∀ {A B}
           → Whnf A × Whnf B
 whnfConv↓ (Level-refl x) = Levelₙ , Levelₙ
 whnfConv↓ (U-cong x) = Uₙ , Uₙ
-whnfConv↓ (Lift-cong _ _ _) = Liftₙ , Liftₙ
+whnfConv↓ (Lift-cong _ _) = Liftₙ , Liftₙ
 whnfConv↓ (ℕ-refl x) = ℕₙ , ℕₙ
 whnfConv↓ (Empty-refl x) = Emptyₙ , Emptyₙ
 whnfConv↓ (Unit-cong x _) = Unitₙ , Unitₙ

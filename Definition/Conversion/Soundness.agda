@@ -161,8 +161,8 @@ mutual
   soundnessConv↓ : ∀ {A B} → Γ ⊢ A [conv↓] B → Γ ⊢ A ≡ B
   soundnessConv↓ (Level-refl ⊢Γ) = refl (Levelⱼ ⊢Γ)
   soundnessConv↓ (U-cong l₁≡l₂) = U-cong (soundnessConv↑Term l₁≡l₂)
-  soundnessConv↓ (Lift-cong l₁≡l₂ F↑H F≡H) =
-    univ (Lift-cong′ (soundnessConv↑Term l₁≡l₂) F≡H)
+  soundnessConv↓ (Lift-cong l₁≡l₂ F≡H) =
+    Lift-cong (soundnessConv↑Term l₁≡l₂) (soundnessConv↑ F≡H)
   soundnessConv↓ (ℕ-refl ⊢Γ) = refl (ℕⱼ ⊢Γ)
   soundnessConv↓ (Empty-refl ⊢Γ) = refl (Emptyⱼ ⊢Γ)
   soundnessConv↓ (Unit-cong l₁≡l₂ ok) = Unit-cong (soundnessConv↑Term l₁≡l₂) ok
@@ -325,8 +325,7 @@ mutual
   soundnessConv↓Term (univ ⊢A ⊢B A≡B) =
     soundnessConv↓-U ⊢A ⊢B A≡B .proj₁
   soundnessConv↓Term (Lift-η x x₁ x₂ x₃ x₄) =
-    let _ , ⊢k , ⊢A = inversion-Lift (wf-⊢∷ x)
-    in Lift-η′ ⊢A x x₁ (soundnessConv↑Term x₄)
+    Lift-η′ x x₁ (soundnessConv↑Term x₄)
   soundnessConv↓Term (zero-refl ⊢Γ) = refl (zeroⱼ ⊢Γ)
   soundnessConv↓Term (starʷ-cong l≡l₁ l₁≡l₂ ok _) =
     conv (star-cong l₁≡l₂ ok) (sym (Unit-cong l≡l₁ ok))
@@ -395,11 +394,11 @@ mutual
          U l₂        ∎)
     where
     open TyR
-  soundnessConv↓-U {l₁} {l₂} ⊢Lift₁ ⊢Lift₂ (Lift-cong {l₁ = l₃} {l₂ = l₄} {k₁} l₃≡l₄ F↑H F≡H) =
+  soundnessConv↓-U {l₁} {l₂} ⊢Lift₁ ⊢Lift₂ (Lift-cong {l₁ = l₃} {l₂ = l₄} l₃≡l₄ F≡H) =
     let k₁ , _ , ⊢F , U₁≡ = inversion-Lift∷ ⊢Lift₁
         k₂ , _ , ⊢H , U₂≡ = inversion-Lift∷ ⊢Lift₂
         l₃≡l₄ = soundnessConv↑Term l₃≡l₄
-        F≡H , k₁≡k₂ = soundnessConv↑-U ⊢F ⊢H F↑H
+        F≡H , k₁≡k₂ = soundnessConv↑-U ⊢F ⊢H F≡H
     in
       conv (Lift-cong′ l₃≡l₄ F≡H) (sym U₁≡)
     , U-injectivity
