@@ -38,6 +38,7 @@ open import Definition.Untyped M
 open import Definition.Untyped.Properties M
 open import Definition.Untyped.Neutral M type-variant as U
 
+open import Tools.Empty
 open import Tools.Fin
 open import Tools.Function
 open import Tools.Nat using (Nat; 1+)
@@ -50,8 +51,7 @@ private
     P : Set a
     n : Nat
     Γ : Con Term n
-    t u v w A B : Term n
-    l : Universe-level
+    l t u v w A B : Term n
     p q r : M
 
 dec⇉-var : (x : Fin n) → ∃ λ A → x ∷ A ∈ Γ
@@ -78,13 +78,19 @@ mutual
   dec-Checkable-type A = helper A (dec-Checkable A)
     where
     helper : (A : Term n) → Dec (Checkable A) → Dec (Checkable-type A)
+    helper (Lift l A) _ =
+      case dec-Checkable l ×-dec dec-Checkable-type A of λ where
+        (yes (l , A)) → yes (Liftᶜ l A)
+        (no not) → no λ where
+          (Liftᶜ l A) → not (l , A)
+          (checkᶜ (infᶜ (Liftᵢ l A))) → not (l , checkᶜ (infᶜ A))
     helper (ΠΣ⟨ b ⟩ p , q ▷ A ▹ B) _ =
       case dec-Checkable-type A ×-dec dec-Checkable-type B of λ where
         (yes (A , B)) → yes (ΠΣᶜ A B)
         (no not)      → no λ where
           (ΠΣᶜ A B)                 → not (A , B)
           (checkᶜ (infᶜ (ΠΣᵢ A B))) →
-            not (checkᶜ (infᶜ A) , checkᶜ (infᶜ B))
+            not (checkᶜ (infᶜ A) , checkᶜ B)
     helper (Id A t u) _ =
       case dec-Checkable-type A ×-dec dec-Checkable t ×-dec
            dec-Checkable u of λ where
@@ -94,6 +100,24 @@ mutual
           (checkᶜ (infᶜ (Idᵢ A t u))) → not (checkᶜ (infᶜ A) , t , u)
     helper A@(var _) = λ where
       (yes A)  → yes (checkᶜ A)
+      (no not) → no λ { (checkᶜ A) → not A }
+    helper Level = λ where
+      (yes A) → yes (checkᶜ A)
+      (no not) → no λ { (checkᶜ A) → not A }
+    helper zeroᵘ = λ where
+      (yes A) → yes (checkᶜ A)
+      (no not) → no λ { (checkᶜ A) → not A }
+    helper (sucᵘ _) = λ where
+      (yes A) → yes (checkᶜ A)
+      (no not) → no λ { (checkᶜ A) → not A }
+    helper (_ maxᵘ _) = λ where
+      (yes A) → yes (checkᶜ A)
+      (no not) → no λ { (checkᶜ A) → not A }
+    helper (lift _ _) = λ where
+      (yes A) → yes (checkᶜ A)
+      (no not) → no λ { (checkᶜ A) → not A }
+    helper (lower _) = λ where
+      (yes A) → yes (checkᶜ A)
       (no not) → no λ { (checkᶜ A) → not A }
     helper A@(U _) = λ where
       (yes A)  → yes (checkᶜ A)
@@ -161,10 +185,36 @@ mutual
   dec-Inferable : (t : Term n) → Dec (Inferable t)
   dec-Inferable (var _) =
     yes varᵢ
-  dec-Inferable (U _) =
-    yes Uᵢ
+  dec-Inferable Level =
+    yes Levelᵢ
+  dec-Inferable zeroᵘ =
+    yes zeroᵘᵢ
+  dec-Inferable (sucᵘ t) =
+    case dec-Checkable t of λ where
+      (yes t)  → yes (sucᵘᵢ t)
+      (no not) → no λ { (sucᵘᵢ t) → not t }
+  dec-Inferable (t maxᵘ u) =
+    case dec-Checkable t ×-dec dec-Checkable u of λ where
+      (yes (t , u))  → yes (maxᵘᵢ t u)
+      (no not) → no λ { (maxᵘᵢ t u) → not (t , u) }
+  dec-Inferable (U l) =
+    case dec-Checkable l of λ where
+      (yes l) → yes (Uᵢ l)
+      (no not) → no λ { (Uᵢ x) → not x }
+  dec-Inferable (Lift l A) =
+    case dec-Checkable l ×-dec dec-Inferable A of λ where
+      (yes (l , A)) → yes (Liftᵢ l A)
+      (no not) → no λ { (Liftᵢ l A) → not (l , A) }
+  dec-Inferable (lift l t) =
+    case dec-Checkable l ×-dec dec-Inferable t of λ where
+      (yes (l , t)) → yes (liftᵢ l t)
+      (no not) → no λ { (liftᵢ l t) → not (l , t) }
+  dec-Inferable (lower t) =
+    case dec-Inferable t of λ where
+      (yes t)  → yes (lowerᵢ t)
+      (no not) → no λ { (lowerᵢ t) → not t }
   dec-Inferable (ΠΣ⟨ b ⟩ p , q ▷ A ▹ B) =
-    case dec-Inferable A ×-dec dec-Inferable B of λ where
+    case dec-Inferable A ×-dec dec-Checkable B of λ where
       (yes (A , B)) → yes (ΠΣᵢ A B)
       (no not)      → no λ { (ΠΣᵢ A B) → not (A , B) }
   dec-Inferable (lam _ _) =
@@ -202,15 +252,19 @@ mutual
       (yes (A , t , u , v)) → yes (natrecᵢ A t u v)
       (no not)              →
         no λ { (natrecᵢ A t u v) → not (A , t , u , v) }
-  dec-Inferable Unit! =
-    yes Unitᵢ
-  dec-Inferable star! =
-    yes starᵢ
-  dec-Inferable (unitrec _ _ _ A t u) =
-    case dec-Checkable-type A ×-dec dec-Checkable t ×-dec
+  dec-Inferable (Unit _ l) =
+    case dec-Checkable l of λ where
+      (yes l) → yes (Unitᵢ l)
+      (no not) → no λ { (Unitᵢ l) → not l }
+  dec-Inferable (star _ l) =
+    case dec-Checkable l of λ where
+      (yes l) → yes (starᵢ l)
+      (no not) → no λ { (starᵢ l) → not l }
+  dec-Inferable (unitrec _ _ l A t u) =
+    case dec-Checkable l ×-dec dec-Checkable-type A ×-dec dec-Checkable t ×-dec
          dec-Checkable u of λ where
-      (yes (A , t , u)) → yes (unitrecᵢ A t u)
-      (no not)          → no λ { (unitrecᵢ A t u) → not (A , t , u) }
+      (yes (l , A , t , u)) → yes (unitrecᵢ l A t u)
+      (no not)          → no λ { (unitrecᵢ l A t u) → not (l , A , t , u) }
   dec-Inferable Empty =
     yes Emptyᵢ
   dec-Inferable (emptyrec p A t) =
@@ -268,7 +322,28 @@ mutual
     helper (var _) = λ where
       (yes t) → yes (infᶜ t)
       (no ¬t) → no λ { (infᶜ t) → ¬t t }
+    helper Level = λ where
+      (yes t) → yes (infᶜ t)
+      (no ¬t) → no λ { (infᶜ t) → ¬t t }
+    helper zeroᵘ = λ where
+      (yes t) → yes (infᶜ t)
+      (no ¬t) → no λ { (infᶜ t) → ¬t t }
+    helper (sucᵘ _) = λ where
+      (yes t) → yes (infᶜ t)
+      (no ¬t) → no λ { (infᶜ t) → ¬t t }
+    helper (_ maxᵘ _) = λ where
+      (yes t) → yes (infᶜ t)
+      (no ¬t) → no λ { (infᶜ t) → ¬t t }
     helper (U _) = λ where
+      (yes t) → yes (infᶜ t)
+      (no ¬t) → no λ { (infᶜ t) → ¬t t }
+    helper (Lift _ _) = λ where
+      (yes t) → yes (infᶜ t)
+      (no ¬t) → no λ { (infᶜ t) → ¬t t }
+    helper (lift _ _) = λ where
+      (yes t) → yes (infᶜ t)
+      (no ¬t) → no λ { (infᶜ t) → ¬t t }
+    helper (lower _) = λ where
       (yes t) → yes (infᶜ t)
       (no ¬t) → no λ { (infᶜ t) → ¬t t }
     helper (ΠΣ⟨ _ ⟩ _ , _ ▷ _ ▹ _) = λ where
@@ -395,6 +470,12 @@ mutual
     dec⇉Type-with-cont ⊢Γ A cont =
       dec⇉Type ⊢Γ A ×-dec′ cont ∘→ soundness⇇Type ⊢Γ
 
+    dec⇉-lower : ⊢ Γ → Inferable t → Dec (∃ λ A → Γ ⊢ lower t ⇉ A)
+    dec⇉-lower ⊢Γ t =
+      case (dec⇉-with-cont ⊢Γ t λ ⊢A _ → isLift ⊢A) of λ where
+        (yes ((_ , t) , (_ , _ , A))) → yes (_ , lowerᵢ t (A , Liftₙ))
+        (no not) → no λ { (_ , lowerᵢ t (A , _)) → not ((_ , t) , (_ , _ , A)) }
+
     dec⇉-app :
       ⊢ Γ → Inferable t → Checkable u →
       Dec (∃ λ A → Γ ⊢ t ∘⟨ p ⟩ u ⇉ A)
@@ -501,20 +582,21 @@ mutual
         (no not)      → no λ { (_ , emptyrecᵢ A t) → not (A , t) }
 
     dec⇉-unitrec :
-      ⊢ Γ → Checkable-type A → Checkable t → Checkable u →
-      Dec (∃ λ B → Γ ⊢ unitrec l p q A t u ⇉ B)
-    dec⇉-unitrec ⊢Γ A t u =
+      ⊢ Γ → Checkable l → Checkable-type A → Checkable t → Checkable u →
+      Dec (∃ λ B → Γ ⊢ unitrec p q l A t u ⇉ B)
+    dec⇉-unitrec ⊢Γ l A t u =
       case
-        (Unit-allowed? 𝕨 ×-dec′ λ ok →
-         let ⊢Unit = Unitⱼ ⊢Γ ok in
+        ((dec⇇ l (Levelⱼ ⊢Γ) ×-dec Unit-allowed? 𝕨) ×-dec′ λ (l , ok) →
+         let ⊢l = soundness⇇ l
+             ⊢Unit = Unitⱼ ⊢l ok in
          dec⇇Type-with-cont (∙ ⊢Unit) A λ ⊢A →
          dec⇇ t ⊢Unit ×-dec
-         dec⇇ u (substType ⊢A (starⱼ ⊢Γ ok)))
+         dec⇇ u (substType ⊢A (starⱼ ⊢l ok)))
         of λ where
-        (yes (_ , A , t , u)) → yes (_ , unitrecᵢ A t u)
+        (yes ((l , _) , A , t , u)) → yes (_ , unitrecᵢ l A t u)
         (no not)              →
-          no λ { (_ , unitrecᵢ A t u) →
-          not (⊢∷Unit→Unit-allowed (soundness⇇ t) , A , t , u) }
+          no λ { (_ , unitrecᵢ l A t u) →
+          not ((l , ⊢∷Unit→Unit-allowed (soundness⇇ t)) , A , t , u) }
 
     dec⇉-J :
       ⊢ Γ → Checkable-type A → Checkable t → Checkable-type B →
@@ -556,112 +638,145 @@ mutual
   -- Decidability of checking that an inferable term is a type
 
   dec⇉Type : ⊢ Γ → Inferable A → Dec (Γ ⊢ A ⇇Type)
-  dec⇉Type _ Uᵢ = yes Uᶜ
+  dec⇉Type ⊢Γ Levelᵢ = yes Levelᶜ
+  dec⇉Type ⊢Γ zeroᵘᵢ = no λ where
+    (univᶜ (infᶜ zeroᵘᵢ ≡U)) → U≢Level (sym ≡U)
+  dec⇉Type ⊢Γ (sucᵘᵢ x) = no λ where
+    (univᶜ (infᶜ (sucᵘᵢ _) ≡U)) → U≢Level (sym ≡U)
+  dec⇉Type ⊢Γ (maxᵘᵢ x y) = no λ where
+    (univᶜ (infᶜ (maxᵘᵢ _ _) ≡U)) → U≢Level (sym ≡U)
+  dec⇉Type ⊢Γ (Uᵢ l) =
+    case dec⇇ l (Levelⱼ ⊢Γ) of λ where
+      (yes l) → yes (Uᶜ l)
+      (no not) → no λ where
+        (Uᶜ l) → not l
+        (univᶜ (infᶜ (Uᵢ l) _)) → not l
+  dec⇉Type ⊢Γ (Liftᵢ l A) =
+    case dec⇇ l (Levelⱼ ⊢Γ) ×-dec dec⇉Type ⊢Γ A of λ where
+      (yes (l , A)) → yes (Liftᶜ l A)
+      (no not) → no λ where
+        (Liftᶜ l A) → not (l , A)
+        (univᶜ (infᶜ (Liftᵢ l A ↘U) _)) → not (l , univᶜ (infᶜ A (subset* (↘U .proj₁))))
+  dec⇉Type ⊢Γ (liftᵢ l t) = no λ where
+    (univᶜ (infᶜ (liftᵢ _ _) ≡U)) → U≢Liftⱼ (sym ≡U)
   dec⇉Type ⊢Γ (ΠΣᵢ {b} {p} {q} A B) =
     case
       (ΠΣ-allowed? b p q ×-dec
        dec⇉Type-with-cont ⊢Γ A λ ⊢A →
-       dec⇉Type (∙ ⊢A) B)
+       dec⇇Type′ (∙ ⊢A) B)
       of λ where
       (yes (ok , A , B)) → yes (ΠΣᶜ A B ok)
       (no not)           → no λ where
         (ΠΣᶜ A B ok)                   → not (ok , A , B)
-        (univᶜ (ΠΣᵢ A ↘U₁ B ↘U₂ ok) _) →
-          not (ok , univᶜ A ↘U₁ , univᶜ B ↘U₂)
+        (univᶜ (infᶜ (ΠΣᵢ A ↘U₁ B ok) _)) →
+          not (ok , univᶜ (infᶜ A (subset* (↘U₁ .proj₁))) , univᶜ B)
   dec⇉Type ⊢Γ (varᵢ {x}) =
     let B , x∷ = dec⇉-var x
         ⊢x     = var ⊢Γ x∷
     in
     case ↘U? (syntacticTerm ⊢x) of λ where
-      (yes (_ , A↘)) → yes (univᶜ (varᵢ x∷) A↘)
+      (yes (_ , A↘)) → yes (univᶜ (infᶜ (varᵢ x∷) (subset* (A↘ .proj₁))))
       (no not)       →
-        no λ { (univᶜ {B = C} {l} x (⇒*U , _)) →
+        no λ { (univᶜ {l} (infᶜ {A = C} x ≡U)) →
         not
           ( _
           , U-norm
               (B    ≡⟨ neTypeEq (var _) ⊢x (soundness⇉ ⊢Γ x .proj₂) ⟩⊢
-               C    ≡⟨ subset* ⇒*U ⟩⊢∎
+               C    ≡⟨ ≡U ⟩⊢∎
                U l  ∎)
+              .proj₂
           , Uₙ
           ) }
+  dec⇉Type ⊢Γ (lowerᵢ t) =
+    case
+      (Σ-dec (dec⇉-lower ⊢Γ t)
+         (λ (_ , lower-t₁) (_ , lower-t₂) →
+            case deterministic⇉ lower-t₁ lower-t₂ of λ { PE.refl → idᶠ })
+         λ (_ , lower-t) →
+       ≡U? (soundness⇉ ⊢Γ lower-t .proj₁))
+      of λ where
+      (yes ((_ , lower-t) , (_ , A))) → yes (univᶜ (infᶜ lower-t A))
+      (no not)                      →
+        no λ { (univᶜ (infᶜ lower-t A)) → not ((_ , lower-t) , (_ , A)) }
   dec⇉Type ⊢Γ (∘ᵢ t u) =
     case
       (Σ-dec (dec⇉-app ⊢Γ t u)
          (λ (_ , t∘u₁) (_ , t∘u₂) →
             case deterministic⇉ t∘u₁ t∘u₂ of λ { PE.refl → idᶠ })
          λ (_ , t∘u) →
-       ↘U? (soundness⇉ ⊢Γ t∘u .proj₁))
+       ≡U? (soundness⇉ ⊢Γ t∘u .proj₁))
       of λ where
-      (yes ((_ , t∘u) , (_ , A))) → yes (univᶜ t∘u A)
+      (yes ((_ , t∘u) , (_ , A))) → yes (univᶜ (infᶜ t∘u A))
       (no not)                    →
-        no λ { (univᶜ t∘u A) → not ((_ , t∘u) , (_ , A)) }
+        no λ { (univᶜ (infᶜ t∘u A)) → not ((_ , t∘u) , (_ , A)) }
   dec⇉Type ⊢Γ (fstᵢ t) =
     case
       (Σ-dec (dec⇉-fst ⊢Γ t)
          (λ (_ , fst-t₁) (_ , fst-t₂) →
             case deterministic⇉ fst-t₁ fst-t₂ of λ { PE.refl → idᶠ })
          λ (_ , fst-t) →
-       ↘U? (soundness⇉ ⊢Γ fst-t .proj₁))
+       ≡U? (soundness⇉ ⊢Γ fst-t .proj₁))
       of λ where
-      (yes ((_ , fst-t) , (_ , A))) → yes (univᶜ fst-t A)
+      (yes ((_ , fst-t) , (_ , A))) → yes (univᶜ (infᶜ fst-t A))
       (no not)                      →
-        no λ { (univᶜ fst-t A) → not ((_ , fst-t) , (_ , A)) }
+        no λ { (univᶜ (infᶜ fst-t A)) → not ((_ , fst-t) , (_ , A)) }
   dec⇉Type ⊢Γ (sndᵢ t) =
     case
       (Σ-dec (dec⇉-snd ⊢Γ t)
          (λ (_ , snd-t₁) (_ , snd-t₂) →
             case deterministic⇉ snd-t₁ snd-t₂ of λ { PE.refl → idᶠ })
          λ (_ , snd-t) →
-       ↘U? (soundness⇉ ⊢Γ snd-t .proj₁))
+       ≡U? (soundness⇉ ⊢Γ snd-t .proj₁))
       of λ where
-      (yes ((_ , snd-t) , (_ , A))) → yes (univᶜ snd-t A)
+      (yes ((_ , snd-t) , (_ , A))) → yes (univᶜ (infᶜ snd-t A))
       (no not)                      →
-        no λ { (univᶜ snd-t A) → not ((_ , snd-t) , (_ , A)) }
+        no λ { (univᶜ (infᶜ snd-t A)) → not ((_ , snd-t) , (_ , A)) }
   dec⇉Type ⊢Γ (prodrecᵢ B t u) =
     case
       (Σ-dec (dec⇉-prodrec ⊢Γ B t u)
          (λ (_ , pr₁) (_ , pr₂) →
             case deterministic⇉ pr₁ pr₂ of λ { PE.refl → idᶠ })
          λ (_ , pr) →
-       ↘U? (soundness⇉ ⊢Γ pr .proj₁))
+       ≡U? (soundness⇉ ⊢Γ pr .proj₁))
       of λ where
-      (yes ((_ , pr) , (_ , A))) → yes (univᶜ pr A)
+      (yes ((_ , pr) , (_ , A))) → yes (univᶜ (infᶜ pr A))
       (no not)                   →
-        no λ { (univᶜ pr A) → not ((_ , pr) , (_ , A)) }
+        no λ { (univᶜ (infᶜ pr A)) → not ((_ , pr) , (_ , A)) }
   dec⇉Type ⊢Γ ℕᵢ = yes ℕᶜ
   dec⇉Type ⊢Γ zeroᵢ = no λ where
-    (univᶜ zeroᵢ (⇒*U , _)) → U≢ℕ (sym (subset* ⇒*U))
+    (univᶜ (infᶜ zeroᵢ ≡U)) → U≢ℕ (sym ≡U)
   dec⇉Type ⊢Γ (sucᵢ x) = no λ where
-    (univᶜ (sucᵢ _) (⇒*U , _)) → U≢ℕ (sym (subset* ⇒*U))
+    (univᶜ (infᶜ (sucᵢ _) ≡U)) → U≢ℕ (sym ≡U)
   dec⇉Type ⊢Γ (natrecᵢ B t u v) =
     case
       (Σ-dec (dec⇉-natrec ⊢Γ B t u v)
          (λ (_ , nr₁) (_ , nr₂) →
             case deterministic⇉ nr₁ nr₂ of λ { PE.refl → idᶠ })
          λ (_ , nr) →
-       ↘U? (soundness⇉ ⊢Γ nr .proj₁))
+       ≡U? (soundness⇉ ⊢Γ nr .proj₁))
       of λ where
-      (yes ((_ , nr) , (_ , A))) → yes (univᶜ nr A)
+      (yes ((_ , nr) , (_ , A))) → yes (univᶜ (infᶜ nr A))
       (no not)                   →
-        no λ { (univᶜ nr A) → not ((_ , nr) , (_ , A)) }
-  dec⇉Type ⊢Γ (Unitᵢ {s = s}) = case Unit-allowed? s of λ where
-    (yes ok)    → yes (Unitᶜ ok)
-    (no not-ok) → no λ where
-      (Unitᶜ ok)           → not-ok ok
-      (univᶜ (Unitᵢ ok) _) → not-ok ok
-  dec⇉Type ⊢Γ starᵢ = no λ where
-    (univᶜ (starᵢ _) (⇒*U , _)) → U≢Unitⱼ (sym (subset* ⇒*U))
-  dec⇉Type ⊢Γ (unitrecᵢ B t u) =
+        no λ { (univᶜ (infᶜ nr A)) → not ((_ , nr) , (_ , A)) }
+  dec⇉Type ⊢Γ (Unitᵢ {s = s} l) =
+    case dec⇇ l (Levelⱼ ⊢Γ) ×-dec Unit-allowed? s of λ where
+      (yes (l , ok))    → yes (Unitᶜ l ok)
+      (no not-ok) → no λ where
+        (Unitᶜ l ok)           → not-ok (l , ok)
+        (univᶜ (infᶜ (Unitᵢ l ok) _)) → not-ok (l , ok)
+  dec⇉Type ⊢Γ (starᵢ l) = no λ where
+    (univᶜ (infᶜ (starᵢ _ _) ≡U)) → U≢Unitⱼ (sym ≡U)
+  dec⇉Type ⊢Γ (unitrecᵢ l B t u) =
     case
-      (Σ-dec (dec⇉-unitrec ⊢Γ B t u)
+      (Σ-dec (dec⇉-unitrec ⊢Γ l B t u)
          (λ (_ , ur₁) (_ , ur₂) →
             case deterministic⇉ ur₁ ur₂ of λ { PE.refl → idᶠ })
          λ (_ , ur) →
-       ↘U? (soundness⇉ ⊢Γ ur .proj₁))
+       ≡U? (soundness⇉ ⊢Γ ur .proj₁))
       of λ where
-      (yes ((_ , ur) , (_ , A))) → yes (univᶜ ur A)
+      (yes ((_ , ur) , (_ , A))) → yes (univᶜ (infᶜ ur A))
       (no not)                   →
-        no λ { (univᶜ ur A) → not ((_ , ur) , (_ , A)) }
+        no λ { (univᶜ (infᶜ ur A)) → not ((_ , ur) , (_ , A)) }
   dec⇉Type ⊢Γ Emptyᵢ = yes Emptyᶜ
   dec⇉Type ⊢Γ (emptyrecᵢ B t) =
     case
@@ -669,11 +784,11 @@ mutual
          (λ (_ , er₁) (_ , er₂) →
             case deterministic⇉ er₁ er₂ of λ { PE.refl → idᶠ })
          λ (_ , er) →
-       ↘U? (soundness⇉ ⊢Γ er .proj₁))
+       ≡U? (soundness⇉ ⊢Γ er .proj₁))
       of λ where
-      (yes ((_ , er) , (_ , A))) → yes (univᶜ er A)
+      (yes ((_ , er) , (_ , A))) → yes (univᶜ (infᶜ er A))
       (no not)                   →
-        no λ { (univᶜ er A) → not ((_ , er) , (_ , A)) }
+        no λ { (univᶜ (infᶜ er A)) → not ((_ , er) , (_ , A)) }
   dec⇉Type ⊢Γ (Idᵢ A t u) =
     case
       (dec⇉Type-with-cont ⊢Γ A λ ⊢A →
@@ -682,35 +797,42 @@ mutual
       (yes (A , t , u)) → yes (Idᶜ A t u)
       (no not)          → no λ where
         (Idᶜ A t u)              → not (A , t , u)
-        (univᶜ (Idᵢ A ↘U t u) _) → not (univᶜ A ↘U , t , u)
+        (univᶜ (infᶜ (Idᵢ A ↘U t u) _)) → not (univᶜ (infᶜ A (subset* (↘U .proj₁))) , t , u)
   dec⇉Type ⊢Γ (Jᵢ A t B u v w) =
     case
       (Σ-dec (dec⇉-J ⊢Γ A t B u v w)
          (λ (_ , J₁) (_ , J₂) →
             case deterministic⇉ J₁ J₂ of λ { PE.refl → idᶠ })
          λ (_ , J′) →
-       ↘U? (soundness⇉ ⊢Γ J′ .proj₁))
+       ≡U? (soundness⇉ ⊢Γ J′ .proj₁))
       of λ where
-      (yes ((_ , J′) , (_ , A))) → yes (univᶜ J′ A)
+      (yes ((_ , J′) , (_ , A))) → yes (univᶜ (infᶜ J′ A))
       (no not)                   →
-        no λ { (univᶜ J′ A) → not ((_ , J′) , (_ , A)) }
+        no λ { (univᶜ (infᶜ J′ A)) → not ((_ , J′) , (_ , A)) }
   dec⇉Type ⊢Γ (Kᵢ A t B u v) =
     case
       (Σ-dec (dec⇉-K ⊢Γ A t B u v)
          (λ (_ , K₁) (_ , K₂) →
             case deterministic⇉ K₁ K₂ of λ { PE.refl → idᶠ })
          λ (_ , K′) →
-       ↘U? (soundness⇉ ⊢Γ K′ .proj₁))
+       ≡U? (soundness⇉ ⊢Γ K′ .proj₁))
       of λ where
-      (yes ((_ , K′) , (_ , A))) → yes (univᶜ K′ A)
+      (yes ((_ , K′) , (_ , A))) → yes (univᶜ (infᶜ K′ A))
       (no not)                   →
-        no λ { (univᶜ K′ A) → not ((_ , K′) , (_ , A)) }
+        no λ { (univᶜ (infᶜ K′ A)) → not ((_ , K′) , (_ , A)) }
   dec⇉Type _ ([]-congᵢ _ _ _ _) =
-    no λ { (univᶜ ([]-congᵢ _ _ _ _ _) (⇒*U , _)) → Id≢U (subset* ⇒*U) }
+    no λ { (univᶜ (infᶜ ([]-congᵢ _ _ _ _ _) ≡U)) → Id≢U ≡U }
 
   -- It is decidable whether a checkable type is a type.
 
   dec⇇Type : ⊢ Γ → Checkable-type A → Dec (Γ ⊢ A ⇇Type)
+  dec⇇Type ⊢Γ (Liftᶜ l A) =
+    case dec⇇ l (Levelⱼ ⊢Γ) ×-dec dec⇇Type ⊢Γ A of λ where
+      (yes (l , A)) → yes (Liftᶜ l A)
+      (no not) → no λ where
+        (Liftᶜ l A) → not (l , A)
+        (univᶜ (infᶜ (Liftᵢ l A ↘U) x₁)) →
+          not (l , univᶜ (infᶜ A (subset* (↘U .proj₁))))
   dec⇇Type ⊢Γ (ΠΣᶜ {b} {p} {q} A B) =
     case
       (ΠΣ-allowed? b p q ×-dec
@@ -720,8 +842,8 @@ mutual
       (yes (ok , A , B)) → yes (ΠΣᶜ A B ok)
       (no not)           → no λ where
         (ΠΣᶜ A B ok)                   → not (ok , A , B)
-        (univᶜ (ΠΣᵢ A ↘U₁ B ↘U₂ ok) _) →
-          not (ok , univᶜ A ↘U₁ , univᶜ B ↘U₂)
+        (univᶜ (infᶜ (ΠΣᵢ A ↘U₁ B ok) _)) →
+          not (ok , univᶜ (infᶜ A (subset* (↘U₁ .proj₁))) , univᶜ B)
   dec⇇Type ⊢Γ (Idᶜ A t u) =
     case
       (dec⇇Type-with-cont ⊢Γ A λ ⊢A →
@@ -730,55 +852,86 @@ mutual
       (yes (A , t , u)) → yes (Idᶜ A t u)
       (no not)          → no λ where
         (Idᶜ A t u)              → not (A , t , u)
-        (univᶜ (Idᵢ A ↘U t u) _) → not (univᶜ A ↘U , t , u)
-  dec⇇Type {Γ} {A} ⊢Γ (checkᶜ A-c) = helper A-c
-    where
-    helper : Checkable A → Dec (Γ ⊢ A ⇇Type)
-    helper (lamᶜ _)    = no λ { (univᶜ () _) }
-    helper (prodᶜ _ _) = no λ { (univᶜ () _) }
-    helper rflᶜ        = no λ { (univᶜ () _) }
-    helper (infᶜ A)    = dec⇉Type ⊢Γ A
+        (univᶜ (infᶜ (Idᵢ A ↘U t u) _)) → not (univᶜ (infᶜ A (subset* (↘U .proj₁))) , t , u)
+  dec⇇Type {Γ} {A} ⊢Γ (checkᶜ A-c) = dec⇇Type′ ⊢Γ A-c
+
+  dec⇇Type′ : ⊢ Γ → Checkable A → Dec (Γ ⊢ A ⇇Type)
+  dec⇇Type′ ⊢Γ (lamᶜ _)    = no λ { (univᶜ (lamᶜ x x₁)) → ⊥-elim (U≢ΠΣⱼ (subset* (x .proj₁)))
+                             ; (univᶜ (infᶜ () x₁)) }
+  dec⇇Type′ ⊢Γ (prodᶜ _ _) = no λ { (univᶜ (prodᶜ x x₁ x₂)) → ⊥-elim (U≢ΠΣⱼ (subset* (x .proj₁)))
+                             ; (univᶜ (infᶜ () x₁)) }
+  dec⇇Type′ ⊢Γ rflᶜ        = no λ { (univᶜ (rflᶜ x x₁)) → ⊥-elim (Id≢U (sym (subset* (x .proj₁))))
+                             ; (univᶜ (infᶜ () x₁)) }
+  dec⇇Type′ ⊢Γ (infᶜ A)    = dec⇉Type ⊢Γ A
 
   -- Decidability of bi-directional type inference
 
   dec⇉ : ⊢ Γ → Inferable t → Dec (∃ λ A → Γ ⊢ t ⇉ A)
-  dec⇉ _ Uᵢ = yes (_ , Uᵢ)
+  dec⇉ ⊢Γ Levelᵢ = yes (U zeroᵘ , Levelᵢ)
+  dec⇉ ⊢Γ zeroᵘᵢ = yes (Level , zeroᵘᵢ)
+  dec⇉ ⊢Γ (sucᵘᵢ t) = case dec⇇ t (Levelⱼ ⊢Γ) of λ where
+    (yes t⇇Level) → yes (_ , sucᵘᵢ t⇇Level)
+    (no ¬t⇇Level) → no λ where
+      (_ , sucᵘᵢ x) → ¬t⇇Level x
+  dec⇉ ⊢Γ (maxᵘᵢ t u) =
+    case dec⇇ t (Levelⱼ ⊢Γ) ×-dec dec⇇ u (Levelⱼ ⊢Γ) of λ where
+      (yes (t⇇Level , u⇇Level)) → yes (_ , maxᵘᵢ t⇇Level u⇇Level)
+      (no not) → no λ where
+        (_ , maxᵘᵢ x y) → not (x , y)
+  dec⇉ ⊢Γ (Uᵢ l) =
+    case dec⇇ l (Levelⱼ ⊢Γ) of λ where
+      (yes l) → yes (_ , Uᵢ l)
+      (no not) → no λ { (_ , Uᵢ l) → not l }
+  dec⇉ ⊢Γ (Liftᵢ l A) =
+    case (dec⇇ l (Levelⱼ ⊢Γ) ×-dec dec⇉-with-cont ⊢Γ A λ ⊢A _ → ↘U? ⊢A) of λ where
+      (yes (l , (_ , A) , (_ , ↘U))) → yes (_ , Liftᵢ l A ↘U)
+      (no not) → no λ { (_ , Liftᵢ l A ↘U) → not (l , (_ , A) , (_ , ↘U)) }
+  dec⇉ ⊢Γ (liftᵢ l t) =
+    case dec⇇ l (Levelⱼ ⊢Γ) ×-dec dec⇉ ⊢Γ t of λ where
+      (yes (l , _ , t)) → yes (_ , liftᵢ l t)
+      (no not) → no λ { (_ , liftᵢ l t) → not (l , _ , t) }
   dec⇉ ⊢Γ (ΠΣᵢ {b} {p} {q} A B) =
     case
       (ΠΣ-allowed? b p q ×-dec
        dec⇉-with-cont ⊢Γ A λ ⊢C₁ ⊢A →
-       ↘U? ⊢C₁ ×-dec′ λ (_ , C₁⇒*U , _) →
-       let ⊢A = univ (conv ⊢A (subset* C₁⇒*U)) in
-       dec⇉-with-cont (∙ ⊢A) B λ ⊢C₂ _ →
-       ↘U? ⊢C₂)
+      Σ-dec (↘U? ⊢C₁)
+        (λ (l , C₁⇒*U , _) (l′ , C₁⇒*U′ , _) →
+          case whrDet* (C₁⇒*U , Uₙ) (C₁⇒*U′ , Uₙ) of λ {
+            PE.refl → idᶠ })
+        λ (l , C₁⇒*U , _) →
+      let ⊢A′ = univ (conv ⊢A (subset* C₁⇒*U)) in
+      dec⇇ B (wk₁ ⊢A′ (syntacticRed C₁⇒*U .proj₂)))
       of λ where
-      (yes (ok , (_ , A) , (_ , ↘U₁) , (_ , B) , (_ , ↘U₂))) →
-        yes (_ , ΠΣᵢ A ↘U₁ B ↘U₂ ok)
+      (yes (ok , (_ , A) , (_ , ↘U₁) , B)) →
+        yes (_ , ΠΣᵢ A ↘U₁ B ok)
       (no not) →
-        no λ { (_ , ΠΣᵢ A ↘U₁ B ↘U₂ ok) →
-        not (ok , (_ , A) , (_ , ↘U₁) , (_ , B) , (_ , ↘U₂)) }
+        no λ { (_ , ΠΣᵢ A ↘U₁ B ok) →
+        not (ok , (_ , A) , (_ , ↘U₁) , B) }
   dec⇉ ⊢Γ varᵢ = yes (_ , varᵢ (dec⇉-var _ .proj₂))
+  dec⇉ ⊢Γ (lowerᵢ t) = dec⇉-lower ⊢Γ t
   dec⇉ ⊢Γ (∘ᵢ t u) = dec⇉-app ⊢Γ t u
   dec⇉ ⊢Γ (fstᵢ t) = dec⇉-fst ⊢Γ t
   dec⇉ ⊢Γ (sndᵢ t) = dec⇉-snd ⊢Γ t
   dec⇉ ⊢Γ (prodrecᵢ A t u) = dec⇉-prodrec ⊢Γ A t u
-  dec⇉ ⊢Γ ℕᵢ = yes (U 0 , ℕᵢ)
+  dec⇉ ⊢Γ ℕᵢ = yes (U zeroᵘ , ℕᵢ)
   dec⇉ ⊢Γ zeroᵢ = yes (ℕ , zeroᵢ)
   dec⇉ ⊢Γ (sucᵢ t) = case dec⇇ t (ℕⱼ ⊢Γ) of λ where
     (yes t⇇ℕ) → yes (_ , sucᵢ t⇇ℕ)
     (no ¬t⇇ℕ) → no λ where
       (_ , sucᵢ x) → ¬t⇇ℕ x
   dec⇉ ⊢Γ (natrecᵢ A z s n) = dec⇉-natrec ⊢Γ A z s n
-  dec⇉ ⊢Γ (Unitᵢ {s} {l}) = case Unit-allowed? s of λ where
-    (yes ok)    → yes (U l , Unitᵢ ok)
-    (no not-ok) → no λ where
-      (_ , Unitᵢ ok) → not-ok ok
-  dec⇉ ⊢Γ (starᵢ {s = s}) = case Unit-allowed? s of λ where
-    (yes ok)    → yes (Unit! , starᵢ ok)
-    (no not-ok) → no λ where
-      (_ , starᵢ ok) → not-ok ok
-  dec⇉ ⊢Γ (unitrecᵢ A t u) = dec⇉-unitrec ⊢Γ A t u
-  dec⇉ ⊢Γ Emptyᵢ = yes (U 0 , Emptyᵢ)
+  dec⇉ ⊢Γ (Unitᵢ {s} l) =
+    case dec⇇ l (Levelⱼ ⊢Γ) ×-dec Unit-allowed? s of λ where
+      (yes (l , ok))    → yes (_ , Unitᵢ l ok)
+      (no not-ok) → no λ where
+        (_ , Unitᵢ l ok) → not-ok (l , ok)
+  dec⇉ ⊢Γ (starᵢ {s = s} l) =
+    case dec⇇ l (Levelⱼ ⊢Γ) ×-dec Unit-allowed? s of λ where
+      (yes (l , ok))    → yes (_ , starᵢ l ok)
+      (no not-ok) → no λ where
+        (_ , starᵢ l ok) → not-ok (l , ok)
+  dec⇉ ⊢Γ (unitrecᵢ l A t u) = dec⇉-unitrec ⊢Γ l A t u
+  dec⇉ ⊢Γ Emptyᵢ = yes (U zeroᵘ , Emptyᵢ)
   dec⇉ ⊢Γ (emptyrecᵢ A t) = dec⇉-emptyrec ⊢Γ A t
   dec⇉ ⊢Γ (Idᵢ A t u) =
     case

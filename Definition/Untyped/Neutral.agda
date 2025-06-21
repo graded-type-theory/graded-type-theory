@@ -124,6 +124,11 @@ pattern ne! x = ne (ne x)
 Level≢ne : Neutral A → Level PE.≢ A
 Level≢ne () PE.refl
 
+U≢sne : Semineutral A → U l PE.≢ A
+U≢sne (maxᵘˡₙ _) ()
+U≢sne (maxᵘʳₙ _) ()
+U≢sne (ne ()) PE.refl
+
 U≢ne : Neutral A → U l PE.≢ A
 U≢ne () PE.refl
 
@@ -211,6 +216,12 @@ Id≢ΠΣ (BMΣ _) ()
 
 Σˢ≢Σʷ : Σˢ p₁ , q₁ ▷ F ▹ G PE.≢ Σʷ p₂ , q₂ ▷ H ▹ E
 Σˢ≢Σʷ ()
+
+Id≢Level : Id A t u PE.≢ Level
+Id≢Level ()
+
+Id≢Lift : Id A t u PE.≢ Lift l B
+Id≢Lift ()
 
 zeroᵘ≢ne : Semineutral t → zeroᵘ PE.≢ t
 zeroᵘ≢ne n PE.refl = case n of λ { (ne ()) }

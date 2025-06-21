@@ -36,6 +36,9 @@ private variable
 -- If A is a type without η-equality, then the only WHNF that a
 -- variable x of type A is definitionally equal to is x.
 
+-- TODO this is not true any more because Γ ⊢ x ≡ x maxᵘ x ∷ Level
+
+{-
 var-only-equal-to-itself :
   No-η-equality A → Whnf t → Γ ⊢ var x ≡ t ∷ A → var x PE.≡ t
 var-only-equal-to-itself =
@@ -47,6 +50,9 @@ var-only-equal-to-itself =
   ~↓-lemma : Γ ⊢ var x ~ t ↓ A → var x PE.≡ t
   ~↓-lemma x≡t = ~↑-lemma (_⊢_~_↓_.k~l x≡t)
 
+  ~∷-lemma : Γ ⊢ var x ~ t ∷ A → var x PE.≡ t
+  ~∷-lemma (↑ A≡B k~↑l) = ~↑-lemma k~↑l
+
   [conv↓]-lemma : Γ ⊢ var x [conv↓] A → var x PE.≡ A
   [conv↓]-lemma (ne x≡A) = ~↓-lemma x≡A
 
@@ -54,27 +60,30 @@ var-only-equal-to-itself =
     No-η-equality A → Whnf t → Γ ⊢ var x [conv↓] t ∷ A → var x PE.≡ t
   [conv↓]∷-lemma = λ where
     _             _ (univ _ _ x≡t)             → [conv↓]-lemma x≡t
+    _             _ (Level-ins x≡t)            → {!   !}
     _             _ (Σʷ-ins _ _ x≡t)           → ~↓-lemma x≡t
     _             _ (Empty-ins x≡t)            → ~↓-lemma x≡t
-    _             _ (Unitʷ-ins _ x≡t)          → ~↓-lemma x≡t
+    _             _ (Unitʷ-ins _ x≡t)          → ~∷-lemma x≡t
     _             _ (ℕ-ins x≡t)                → ~↓-lemma x≡t
     _             _ (Id-ins _ x≡t)             → ~↓-lemma x≡t
     _             _ (ne-ins _ _ _ x≡t)         → ~↓-lemma x≡t
-    (Unitʷₙ no-η) _ (η-unit _ _ _ _ (inj₂ η))  → ⊥-elim (no-η η)
-    (Unitʷₙ _)    _ (η-unit _ _ _ _ (inj₁ ()))
+    (Unitʷₙ no-η) _ (η-unit _ _ _ _ _ _ (inj₂ η))  → ⊥-elim (no-η η)
+    (Unitʷₙ _)    _ (η-unit _ _ _ _ _ _ (inj₁ ()))
     (neₙ ())      _ (η-eq _ _ _ _ _)
     (neₙ ())      _ (Σ-η _ _ _ _ _ _)
-    (neₙ ())      _ (η-unit _ _ _ _ _)
+    (neₙ ())      _ (Lift-η _ _ _ _ _)
+    (neₙ ())      _ (η-unit _ _ _ _ _ _ _)
 
   [conv↑]∷-lemma :
     No-η-equality A → Whnf t → Γ ⊢ var x [conv↑] t ∷ A → var x PE.≡ t
   [conv↑]∷-lemma A-no-η t-whnf x≡t@record{} =
     case whnfRed* (D .proj₁) (No-η-equality→Whnf A-no-η) of λ {
       PE.refl →
-    case whnfRed*Term (d .proj₁) (ne (var _)) of λ {
+    case whnfRed*Term (d .proj₁) (ne! (var _)) of λ {
       PE.refl →
     case whnfRed*Term (d′ .proj₁) t-whnf of λ {
       PE.refl →
     [conv↓]∷-lemma A-no-η t-whnf t<>u }}}
     where
     open _⊢_[conv↑]_∷_ x≡t
+-}

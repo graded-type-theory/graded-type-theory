@@ -52,6 +52,19 @@ opaque
     a , b , trans (sym eq) c
 
 ------------------------------------------------------------------------
+-- Inversion for Lift
+
+opaque
+
+  -- Inversion for lower.
+
+  inversion-lower : Γ ⊢ lower t ∷ A → ∃₂ λ l B → Γ ⊢ t ∷ Lift l B × Γ ⊢ A ≡ B
+  inversion-lower (conv x x₁) =
+    let _ , _ , ⊢t , A≡B = inversion-lower x
+    in _ , _ , ⊢t , trans (sym x₁) A≡B
+  inversion-lower (lowerⱼ x) = _ , _ , x , refl (inversion-Lift (syntacticTerm x) .proj₂)
+
+------------------------------------------------------------------------
 -- Inversion for Unit
 
 opaque

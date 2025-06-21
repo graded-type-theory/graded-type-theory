@@ -22,9 +22,9 @@ open import Tools.Nat
 
 private
   variable
-    n l l₁ l₂ : Nat
+    n : Nat
     Γ : Con Term n
-    t u v w A B C₁ C₂ F G : Term n
+    l l₁ l₂ t u v w A B C C₁ C₂ F G : Term n
     p q r p′ q′ : M
     b : BinderMode
     s : Strength
@@ -34,34 +34,54 @@ private
 mutual
 
   data _⊢_⇇Type (Γ : Con Term n) : (A : Term n) → Set a where
-    Uᶜ : Γ ⊢ U l ⇇Type
+    Levelᶜ : Γ ⊢ Level ⇇Type
+    Uᶜ : Γ ⊢ l ⇇ Level → Γ ⊢ U l ⇇Type
+    Liftᶜ : Γ ⊢ l ⇇ Level
+          → Γ ⊢ A ⇇Type
+          → Γ ⊢ Lift l A ⇇Type
     ℕᶜ : Γ ⊢ ℕ ⇇Type
-    Unitᶜ : Unit-allowed s
+    Unitᶜ : Γ ⊢ l ⇇ Level
+          → Unit-allowed s
           → Γ ⊢ Unit s l ⇇Type
     Emptyᶜ : Γ ⊢ Empty ⇇Type
     ΠΣᶜ : Γ ⊢ F ⇇Type
-       → Γ ∙ F ⊢ G ⇇Type
-       → ΠΣ-allowed b p q
-       → Γ ⊢ ΠΣ⟨ b ⟩ p , q ▷ F ▹ G ⇇Type
+        → Γ ∙ F ⊢ G ⇇Type
+        → ΠΣ-allowed b p q
+        → Γ ⊢ ΠΣ⟨ b ⟩ p , q ▷ F ▹ G ⇇Type
     Idᶜ : Γ ⊢ A ⇇Type
         → Γ ⊢ t ⇇ A
         → Γ ⊢ u ⇇ A
         → Γ ⊢ Id A t u ⇇Type
-    univᶜ : Γ ⊢ A ⇉ B
-          → Γ ⊢ B ↘ U l
+    univᶜ : Γ ⊢ A ⇇ U l
           → Γ ⊢ A ⇇Type
 
   data _⊢_⇉_ (Γ : Con Term n) : (t A : Term n) → Set a where
-    Uᵢ : Γ ⊢ U l ⇉ U (1+ l)
+    Levelᵢ : Γ ⊢ Level ⇉ U zeroᵘ
+    zeroᵘᵢ : Γ ⊢ zeroᵘ ⇉ Level
+    sucᵘᵢ : Γ ⊢ t ⇇ Level
+          → Γ ⊢ sucᵘ t ⇉ Level
+    maxᵘᵢ : Γ ⊢ t ⇇ Level
+          → Γ ⊢ u ⇇ Level
+          → Γ ⊢ t maxᵘ u ⇉ Level
+    Uᵢ : Γ ⊢ l ⇇ Level → Γ ⊢ U l ⇉ U (sucᵘ l)
+    Liftᵢ : Γ ⊢ l₂ ⇇ Level
+          → Γ ⊢ A ⇉ C
+          → Γ ⊢ C ↘ U l₁
+          → Γ ⊢ Lift l₂ A ⇉ U (l₁ maxᵘ l₂)
+    liftᵢ : Γ ⊢ l ⇇ Level
+          → Γ ⊢ t ⇉ B
+          → Γ ⊢ lift l t ⇉ Lift l B
     ΠΣᵢ : Γ ⊢ A ⇉ C₁
-        → Γ ⊢ C₁ ↘ U l₁
-        → Γ ∙ A ⊢ B ⇉ C₂
-        → Γ ∙ A ⊢ C₂ ↘ U l₂
+        → Γ ⊢ C₁ ↘ U l
+        → Γ ∙ A ⊢ B ⇇ U (wk1 l)
         → ΠΣ-allowed b p q
-        → Γ ⊢ ΠΣ⟨ b ⟩ p , q ▷ A ▹ B ⇉ U (l₁ ⊔ᵘ l₂)
+        → Γ ⊢ ΠΣ⟨ b ⟩ p , q ▷ A ▹ B ⇉ U l
     varᵢ : ∀ {x}
          → x ∷ A ∈ Γ
          → Γ ⊢ var x ⇉ A
+    lowerᵢ : Γ ⊢ t ⇉ A
+           → Γ ⊢ A ↘ Lift l B
+           → Γ ⊢ lower t ⇉ B
     appᵢ : Γ ⊢ t ⇉ A
          → Γ ⊢ A ↘ Π p , q ▷ F ▹ G
          → Γ ⊢ u ⇇ F
@@ -77,7 +97,7 @@ mutual
              → Γ ⊢ B ↘ Σʷ p , q ▷ F ▹ G
              → Γ ∙ F ∙ G ⊢ u ⇇ (A [ prodʷ p (var x1) (var x0) ]↑²)
              → Γ ⊢ prodrec r p q′ A t u ⇉ A [ t ]₀
-    ℕᵢ : Γ ⊢ ℕ ⇉ U 0
+    ℕᵢ : Γ ⊢ ℕ ⇉ U zeroᵘ
     zeroᵢ : Γ ⊢ zero ⇉ ℕ
     sucᵢ : Γ ⊢ t ⇇ ℕ
          → Γ ⊢ suc t ⇉ ℕ
@@ -87,15 +107,18 @@ mutual
             → Γ ∙ ℕ ∙ A ⊢ s ⇇ A [ suc (var x1) ]↑²
             → Γ ⊢ n ⇇ ℕ
             → Γ ⊢ natrec p q r A z s n ⇉ A [ n ]₀
-    Unitᵢ : Unit-allowed s
+    Unitᵢ : Γ ⊢ l ⇇ Level
+          → Unit-allowed s
           → Γ ⊢ Unit s l ⇉ U l
-    starᵢ : Unit-allowed s
+    starᵢ : Γ ⊢ l ⇇ Level
+          → Unit-allowed s
           → Γ ⊢ star s l ⇉ Unit s l
-    unitrecᵢ : Γ ∙ Unitʷ l ⊢ A ⇇Type
+    unitrecᵢ : Γ ⊢ l ⇇ Level
+             → Γ ∙ Unitʷ l ⊢ A ⇇Type
              → Γ ⊢ t ⇇ Unitʷ l
              → Γ ⊢ u ⇇ A [ starʷ l ]₀
-             → Γ ⊢ unitrec l p q A t u ⇉ A [ t ]₀
-    Emptyᵢ : Γ ⊢ Empty ⇉ U 0
+             → Γ ⊢ unitrec p q l A t u ⇉ A [ t ]₀
+    Emptyᵢ : Γ ⊢ Empty ⇉ U zeroᵘ
     emptyrecᵢ : Γ ⊢ A ⇇Type
               → Γ ⊢ t ⇇ Empty
               → Γ ⊢ emptyrec p A t ⇉ A
@@ -148,6 +171,9 @@ mutual
   -- Checkable types.
 
   data Checkable-type {n : Nat} : Term n → Set a where
+    Liftᶜ  : Checkable l →
+             Checkable-type A →
+             Checkable-type (Lift l A)
     ΠΣᶜ    : Checkable-type A → Checkable-type B →
              Checkable-type (ΠΣ⟨ b ⟩ p , q ▷ A ▹ B)
     Idᶜ    : Checkable-type A → Checkable t → Checkable u →
@@ -157,9 +183,16 @@ mutual
   -- Inferable terms.
 
   data Inferable {n : Nat} : (Term n) → Set a where
-    Uᵢ : Inferable (U l)
-    ΠΣᵢ : Inferable A → Inferable B → Inferable (ΠΣ⟨ b ⟩ p , q ▷ A ▹ B)
+    Levelᵢ : Inferable Level
+    zeroᵘᵢ : Inferable zeroᵘ
+    sucᵘᵢ : Checkable t → Inferable (sucᵘ t)
+    maxᵘᵢ : Checkable t → Checkable u → Inferable (t maxᵘ u)
+    Uᵢ : Checkable l → Inferable (U l)
+    Liftᵢ : Checkable l → Inferable A → Inferable (Lift l A)
+    liftᵢ : Checkable l → Inferable t → Inferable (lift l t)
+    ΠΣᵢ : Inferable A → Checkable B → Inferable (ΠΣ⟨ b ⟩ p , q ▷ A ▹ B)
     varᵢ : ∀ {x} → Inferable (var x)
+    lowerᵢ : Inferable t → Inferable (lower t)
     ∘ᵢ : Inferable t → Checkable u → Inferable (t ∘⟨ p ⟩ u)
     fstᵢ : Inferable t → Inferable (fst p t)
     sndᵢ : Inferable t → Inferable (snd p t)
@@ -170,10 +203,10 @@ mutual
     sucᵢ : Checkable t → Inferable (suc t)
     natrecᵢ : Checkable-type A → Checkable t → Checkable u → Checkable v →
               Inferable (natrec p q r A t u v)
-    Unitᵢ : Inferable (Unit s l)
-    starᵢ : Inferable (star s l)
-    unitrecᵢ : Checkable-type A → Checkable t → Checkable u →
-               Inferable (unitrec l p q A t u)
+    Unitᵢ : Checkable l → Inferable (Unit s l)
+    starᵢ : Checkable l → Inferable (star s l)
+    unitrecᵢ : Checkable l → Checkable-type A → Checkable t → Checkable u →
+               Inferable (unitrec p q l A t u)
     Emptyᵢ : Inferable Empty
     emptyrecᵢ : Checkable-type A → Checkable t →
                 Inferable (emptyrec p A t)
@@ -205,14 +238,16 @@ mutual
   -- Γ ⊢ A ⇇Type implies that A is a checkable type.
 
   Checkable⇇Type : Γ ⊢ A ⇇Type → Checkable-type A
-  Checkable⇇Type Uᶜ          = checkᶜ (infᶜ Uᵢ)
+  Checkable⇇Type Levelᶜ      = checkᶜ (infᶜ Levelᵢ)
+  Checkable⇇Type (Liftᶜ l A) = Liftᶜ (Checkable⇇ l) (Checkable⇇Type A)
+  Checkable⇇Type (Uᶜ l)      = checkᶜ (infᶜ (Uᵢ (Checkable⇇ l)))
   Checkable⇇Type ℕᶜ          = checkᶜ (infᶜ ℕᵢ)
-  Checkable⇇Type (Unitᶜ _)   = checkᶜ (infᶜ Unitᵢ)
+  Checkable⇇Type (Unitᶜ l _) = checkᶜ (infᶜ (Unitᵢ (Checkable⇇ l)))
   Checkable⇇Type Emptyᶜ      = checkᶜ (infᶜ Emptyᵢ)
   Checkable⇇Type (ΠΣᶜ A B _) = ΠΣᶜ (Checkable⇇Type A) (Checkable⇇Type B)
   Checkable⇇Type (Idᶜ A t u) = Idᶜ (Checkable⇇Type A) (Checkable⇇ t)
                                  (Checkable⇇ u)
-  Checkable⇇Type (univᶜ A _) = checkᶜ (infᶜ (Inferable⇉ A))
+  Checkable⇇Type (univᶜ A) = checkᶜ (Checkable⇇ A)
 
   -- Γ ⊢ t ⇇ A implies that t is a checkable term.
 
@@ -225,8 +260,15 @@ mutual
   -- Γ ⊢ t ⇉ A implies that t is an inferable term.
 
   Inferable⇉ : Γ ⊢ t ⇉ A → Inferable t
-  Inferable⇉ Uᵢ = Uᵢ
-  Inferable⇉ (ΠΣᵢ A _ B _ _) = ΠΣᵢ (Inferable⇉ A) (Inferable⇉ B)
+  Inferable⇉ Levelᵢ = Levelᵢ
+  Inferable⇉ zeroᵘᵢ = zeroᵘᵢ
+  Inferable⇉ (sucᵘᵢ x) = sucᵘᵢ (Checkable⇇ x)
+  Inferable⇉ (maxᵘᵢ x x₁) = maxᵘᵢ (Checkable⇇ x) (Checkable⇇ x₁)
+  Inferable⇉ (Uᵢ l) = Uᵢ (Checkable⇇ l)
+  Inferable⇉ (Liftᵢ l A ↘U) = Liftᵢ (Checkable⇇ l) (Inferable⇉ A)
+  Inferable⇉ (liftᵢ l t) = liftᵢ (Checkable⇇ l) (Inferable⇉ t)
+  Inferable⇉ (lowerᵢ x y) = lowerᵢ (Inferable⇉ x)
+  Inferable⇉ (ΠΣᵢ A _ B _) = ΠΣᵢ (Inferable⇉ A) (Checkable⇇ B)
   Inferable⇉ (varᵢ x) = varᵢ
   Inferable⇉ (appᵢ t⇉A x x₁) = ∘ᵢ (Inferable⇉ t⇉A) (Checkable⇇ x₁)
   Inferable⇉ (fstᵢ t⇉A x) = fstᵢ (Inferable⇉ t⇉A)
@@ -237,9 +279,9 @@ mutual
   Inferable⇉ zeroᵢ = zeroᵢ
   Inferable⇉ (sucᵢ x) = sucᵢ (Checkable⇇ x)
   Inferable⇉ (natrecᵢ x x₁ x₂ x₃) = natrecᵢ (Checkable⇇Type x) (Checkable⇇ x₁) (Checkable⇇ x₂) (Checkable⇇ x₃)
-  Inferable⇉ (Unitᵢ _) = Unitᵢ
-  Inferable⇉ (starᵢ _) = starᵢ
-  Inferable⇉ (unitrecᵢ x x₁ x₂) = unitrecᵢ (Checkable⇇Type x) (Checkable⇇ x₁) (Checkable⇇ x₂)
+  Inferable⇉ (Unitᵢ l _) = Unitᵢ (Checkable⇇ l)
+  Inferable⇉ (starᵢ l _) = starᵢ (Checkable⇇ l)
+  Inferable⇉ (unitrecᵢ l x x₁ x₂) = unitrecᵢ (Checkable⇇ l) (Checkable⇇Type x) (Checkable⇇ x₁) (Checkable⇇ x₂)
   Inferable⇉ Emptyᵢ = Emptyᵢ
   Inferable⇉ (emptyrecᵢ x x₁) = emptyrecᵢ (Checkable⇇Type x) (Checkable⇇ x₁)
   Inferable⇉ (Idᵢ A _ t u) =

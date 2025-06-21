@@ -18,13 +18,14 @@ open import Definition.Typechecking R
 open import Definition.Typed R
 open import Definition.Typed.EqRelInstance R
 open import Definition.Typed.EqualityRelation.Instance R
-open import Definition.Typed.InverseUniv R
 open import Definition.Typed.Inversion R
 open import Definition.Typed.Properties R
 open import Definition.Typed.Stability R
 open import Definition.Typed.Substitution R
+open import Definition.Typed.Syntactic R
 import Definition.Typed.Weakening R as W
 open import Definition.Typed.Consequences.Inequality R
+open import Definition.Typed.Consequences.Injectivity R
 open import Definition.Typed.Consequences.Reduction R
 open import Definition.Untyped M
 open import Definition.Untyped.Neutral M type-variant
@@ -38,7 +39,10 @@ private
   variable
     n : Nat
     Γ : Con Term n
-    t u A B : Term n
+    l t u A B : Term n
+
+  univᶜ′ : (∃ λ A → Γ ⊢ t ⇉ A × Γ ⊢ U l ≡ A) → Γ ⊢ t ⇇Type
+  univᶜ′ (_ , t⇉ , U≡A) = univᶜ (infᶜ t⇉ (sym U≡A))
 
 -- Bi-directional type checking relations are complete with respect to
 -- their corresponding typing relations for Inferable/Checkable terms
@@ -49,6 +53,9 @@ mutual
   -- then Γ ⊢ A ⇇Type holds.
 
   completeness⇇Type : Checkable-type A → Γ ⊢ A → Γ ⊢ A ⇇Type
+  completeness⇇Type (Liftᶜ l A) ⊢A =
+    let ⊢l , ⊢A = inversion-Lift ⊢A in
+    Liftᶜ (completeness⇇ l ⊢l) (completeness⇇Type A ⊢A)
   completeness⇇Type (ΠΣᶜ B C) ⊢A =
     let ⊢B , ⊢C , ok = inversion-ΠΣ ⊢A in
     ΠΣᶜ (completeness⇇Type B ⊢B) (completeness⇇Type C ⊢C) ok
@@ -73,25 +80,114 @@ mutual
     let _ , _ , _ , _ , U≡Id = inversion-rfl ⊢A in
     ⊥-elim (Id≢U (sym U≡Id))
   completeness⇇Type′ (infᶜ A) ⊢A =
-    let _ , A , U≡ = completeness⇉ A (inverseUniv ⊢A .proj₂) in
-    univᶜ A (U-norm (sym U≡) , Uₙ)
+    completeness⇉Type A ⊢A
+
+  completeness⇉Type : Inferable A → Γ ⊢ A → Γ ⊢ A ⇇Type
+  completeness⇉Type Levelᵢ ⊢A =
+    Levelᶜ
+  completeness⇉Type zeroᵘᵢ (univ ⊢A) =
+    univᶜ′ (completeness⇉ zeroᵘᵢ ⊢A)
+  completeness⇉Type (sucᵘᵢ x) (univ ⊢A) =
+    univᶜ′ (completeness⇉ (sucᵘᵢ x) ⊢A)
+  completeness⇉Type (maxᵘᵢ x x₁) (univ ⊢A) =
+    univᶜ′ (completeness⇉ (maxᵘᵢ x x₁) ⊢A)
+  completeness⇉Type (Uᵢ x) ⊢A = Uᶜ (completeness⇇ x (inversion-U-Level ⊢A))
+  completeness⇉Type (Liftᵢ x x₁) ⊢A =
+    let ⊢l , ⊢A = inversion-Lift ⊢A
+    in Liftᶜ (completeness⇇ x ⊢l) (completeness⇉Type x₁ ⊢A)
+  completeness⇉Type (liftᵢ x x₁) (univ ⊢A) =
+    univᶜ′ (completeness⇉ (liftᵢ x x₁) ⊢A)
+  completeness⇉Type (ΠΣᵢ x x₁) ⊢A =
+    let ⊢A , ⊢B , ok = inversion-ΠΣ ⊢A
+    in ΠΣᶜ (completeness⇉Type x ⊢A) (completeness⇇Type′ x₁ ⊢B) ok
+  completeness⇉Type varᵢ (univ ⊢A) =
+    univᶜ′ (completeness⇉ varᵢ ⊢A)
+  completeness⇉Type (lowerᵢ x) (univ ⊢A) =
+    univᶜ′ (completeness⇉ (lowerᵢ x) ⊢A)
+  completeness⇉Type (∘ᵢ t u) (univ ⊢tu) =
+    univᶜ′ (completeness⇉ (∘ᵢ t u) ⊢tu)
+  completeness⇉Type (fstᵢ x) (univ ⊢A) =
+    univᶜ′ (completeness⇉ (fstᵢ x) ⊢A)
+  completeness⇉Type (sndᵢ x) (univ ⊢A) =
+    univᶜ′ (completeness⇉ (sndᵢ x) ⊢A)
+  completeness⇉Type (prodrecᵢ x x₁ x₂) (univ ⊢A) =
+    univᶜ′ (completeness⇉ (prodrecᵢ x x₁ x₂) ⊢A)
+  completeness⇉Type ℕᵢ ⊢A = ℕᶜ
+  completeness⇉Type zeroᵢ (univ ⊢A) =
+    univᶜ′ (completeness⇉ zeroᵢ ⊢A)
+  completeness⇉Type (sucᵢ x) (univ ⊢A) =
+    univᶜ′ (completeness⇉ (sucᵢ x) ⊢A)
+  completeness⇉Type (natrecᵢ x x₁ x₂ x₃) (univ ⊢A) =
+    univᶜ′ (completeness⇉ (natrecᵢ x x₁ x₂ x₃) ⊢A)
+  completeness⇉Type (Unitᵢ x) ⊢A =
+    let ⊢l , ok = inversion-Unit ⊢A
+    in Unitᶜ (completeness⇇ x ⊢l) ok
+  completeness⇉Type (starᵢ x) (univ ⊢A) =
+    univᶜ′ (completeness⇉ (starᵢ x) ⊢A)
+  completeness⇉Type (unitrecᵢ x x₁ x₂ x₃) (univ ⊢A) =
+    univᶜ′ (completeness⇉ (unitrecᵢ x x₁ x₂ x₃) ⊢A)
+  completeness⇉Type Emptyᵢ ⊢A = Emptyᶜ
+  completeness⇉Type (emptyrecᵢ x x₁) (univ ⊢A) =
+    univᶜ′ (completeness⇉ (emptyrecᵢ x x₁) ⊢A)
+  completeness⇉Type (Idᵢ x x₁ x₂) ⊢A =
+    let ⊢A , ⊢t , ⊢u = inversion-Id ⊢A
+    in Idᶜ (completeness⇉Type x ⊢A) (completeness⇇ x₁ ⊢t) (completeness⇇ x₂ ⊢u)
+  completeness⇉Type (Jᵢ x x₁ x₂ x₃ x₄ x₅) (univ ⊢A) =
+    univᶜ′ (completeness⇉ (Jᵢ x x₁ x₂ x₃ x₄ x₅) ⊢A)
+  completeness⇉Type (Kᵢ x x₁ x₂ x₃ x₄) (univ ⊢A) =
+    univᶜ′ (completeness⇉ (Kᵢ x x₁ x₂ x₃ x₄) ⊢A)
+  completeness⇉Type ([]-congᵢ x x₁ x₂ x₃) (univ ⊢A) =
+    univᶜ′ (completeness⇉ ([]-congᵢ x x₁ x₂ x₃) ⊢A)
 
   -- Completeness of type inference
 
   completeness⇉ : Inferable t → Γ ⊢ t ∷ A → ∃ λ B → Γ ⊢ t ⇉ B × Γ ⊢ A ≡ B
-  completeness⇉ Uᵢ ⊢t =
-    _ , Uᵢ , inversion-U ⊢t
+  completeness⇉ Levelᵢ ⊢t = _ , Levelᵢ , inversion-Level ⊢t
+  completeness⇉ zeroᵘᵢ ⊢t = _ , zeroᵘᵢ , inversion-zeroᵘ ⊢t
+  completeness⇉ (sucᵘᵢ t) ⊢t =
+    let ⊢t , A≡Level = inversion-sucᵘ ⊢t
+        t⇇Level = completeness⇇ t ⊢t
+    in  _ , sucᵘᵢ t⇇Level , A≡Level
+  completeness⇉ (maxᵘᵢ t u) ⊢t =
+    let ⊢t , ⊢u , A≡Level = inversion-maxᵘ ⊢t
+        t⇇Level = completeness⇇ t ⊢t
+        u⇇Level = completeness⇇ u ⊢u
+    in  _ , maxᵘᵢ t⇇Level u⇇Level , A≡Level
+  completeness⇉ (Uᵢ l) ⊢t =
+    _ , Uᵢ (completeness⇇ l (inversion-U∷-Level ⊢t)) , inversion-U ⊢t
+  completeness⇉ (Liftᵢ x x₁) ⊢t =
+    let _ , ⊢l , ⊢A , ≡U = inversion-Lift∷ ⊢t
+        _ , A⇉ , ≡B = completeness⇉ x₁ ⊢A
+        _ , ⇒U = U-norm (sym ≡B)
+    in _
+    , Liftᵢ (completeness⇇ x ⊢l) A⇉ (⇒U , Uₙ)
+    , trans ≡U (U-cong (maxᵘ-cong (U-injectivity (trans ≡B (subset* ⇒U))) (refl ⊢l)))
+  completeness⇉ (liftᵢ x x₁) ⊢t =
+    let _ , ⊢t , A≡Lift = inversion-lift ⊢t
+        ⊢l , ⊢B = inversion-Lift (syntacticEq A≡Lift .proj₂)
+        _ , t⇉ , ≡B = completeness⇉ x₁ ⊢t
+    in _
+    , liftᵢ (completeness⇇ x ⊢l) t⇉
+    , trans A≡Lift (Lift-cong (refl ⊢l) ≡B)
   completeness⇉ (ΠΣᵢ B C) ⊢ΠΣ =
     let _ , _ , ⊢B , ⊢C , A≡U , ok = inversion-ΠΣ-U ⊢ΠΣ
         _ , B⇉D , U≡D              = completeness⇉ B ⊢B
-        _ , C⇉E , U≡E              = completeness⇉ C ⊢C
+        _ , ⇒U = U-norm (sym U≡D)
+        U≡X = trans U≡D (subset* ⇒U)
+        C⇇E = completeness⇇ C (conv ⊢C (W.wkEq₁ (univ ⊢B) U≡X))
     in
       _
-    , ΠΣᵢ B⇉D (U-norm (sym U≡D) , Uₙ) C⇉E (U-norm (sym U≡E) , Uₙ) ok
-    , A≡U
+    , ΠΣᵢ B⇉D (⇒U , Uₙ) C⇇E ok
+    , trans A≡U U≡X
   completeness⇉ varᵢ ⊢t =
     let B , x∷B∈Γ , A≡B = inversion-var ⊢t
     in  _ , varᵢ x∷B∈Γ , A≡B
+  completeness⇉ (lowerᵢ x) ⊢t =
+    let _ , _ , ⊢t , U≡B = inversion-lower ⊢t
+        _ , t⇉ , Lift≡ = completeness⇉ x ⊢t
+        _ , _ , ⇒Lift = Lift-norm (sym Lift≡)
+        _ , eq = Lift-injectivity (trans Lift≡ (subset* ⇒Lift))
+    in _ , lowerᵢ t⇉ (⇒Lift , Liftₙ) , trans U≡B eq
   completeness⇉ (∘ᵢ t u) ⊢tu =
     let F , G , q , ⊢t , ⊢u , A≡Gu = inversion-app ⊢tu
         B , t⇉B , ΠFG≡B = completeness⇉ t ⊢t
@@ -133,24 +229,27 @@ mutual
         n⇇ℕ = completeness⇇ n ⊢n
         C⇇Type = completeness⇇Type C ⊢C
     in  _ , natrecᵢ C⇇Type z⇇C₀ s⇇C₊ n⇇ℕ , A≡Cn
-  completeness⇉ Unitᵢ ⊢t =
+  completeness⇉ (Unitᵢ l) ⊢t =
     case inversion-Unit-U ⊢t of λ {
-      (≡U , ok) →
-    _ , Unitᵢ ok , ≡U }
-  completeness⇉ starᵢ ⊢t =
+      (⊢l , ≡U , ok) →
+    _ , Unitᵢ (completeness⇇ l ⊢l) ok , ≡U }
+  completeness⇉ (starᵢ l) ⊢t =
     case inversion-star ⊢t of λ {
       (≡Unit , ok) →
-    _ , starᵢ ok , ≡Unit }
-  completeness⇉ (unitrecᵢ A t u) ⊢t =
+    let ⊢l , _ = inversion-Unit (syntacticEq ≡Unit .proj₂)
+    in _ , starᵢ (completeness⇇ l ⊢l) ok , ≡Unit }
+  completeness⇉ (unitrecᵢ l A t u) ⊢t =
     case inversion-unitrec ⊢t of λ {
       (⊢A , ⊢t , ⊢u , A≡Ct) →
+    case completeness⇇ l (inversion-Unit (syntacticTerm ⊢t) .proj₁) of λ
+      l⇇Level →
     case completeness⇇Type A ⊢A of λ
       A⇇Type →
     case completeness⇇ t ⊢t of λ
       t⇇Unit →
     case completeness⇇ u ⊢u of λ
       u⇇A₊ →
-    _ , unitrecᵢ A⇇Type t⇇Unit u⇇A₊ , A≡Ct }
+    _ , unitrecᵢ l⇇Level A⇇Type t⇇Unit u⇇A₊ , A≡Ct }
   completeness⇉ Emptyᵢ ⊢t = _ , Emptyᵢ , inversion-Empty ⊢t
   completeness⇉ (emptyrecᵢ C t) ⊢t =
     let ⊢C , ⊢t , A≡C = inversion-emptyrec ⊢t
@@ -160,11 +259,11 @@ mutual
   completeness⇉ (Idᵢ B t u) ⊢Id =
     let _ , ⊢B , ⊢t , ⊢u , A≡U = inversion-Id-U ⊢Id
         _ , B⇉C , U≡C          = completeness⇉ B ⊢B
+        _ , ⇒U = U-norm (sym U≡C)
     in
       _
-    , Idᵢ B⇉C (U-norm (sym U≡C) , Uₙ) (completeness⇇ t ⊢t)
-        (completeness⇇ u ⊢u)
-    , A≡U
+    , Idᵢ B⇉C (⇒U , Uₙ) (completeness⇇ t ⊢t) (completeness⇇ u ⊢u)
+    , trans A≡U (trans U≡C (subset* ⇒U))
   completeness⇉ (Jᵢ A t B u v w) ⊢J =
     case inversion-J ⊢J of λ {
       (⊢A , ⊢t , ⊢B , ⊢u , ⊢v , ⊢w , ≡B) →

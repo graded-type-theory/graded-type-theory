@@ -456,6 +456,18 @@ opaque
 
 opaque
 
+  -- Applications of Id are not definitionally equal to Level (given a
+  -- certain assumption).
+
+  Id≢Level :
+    ⦃ ok : No-equality-reflection or-empty Γ ⦄ →
+    ¬ Γ ⊢ Id A t u ≡ Level
+  Id≢Level =
+    A≢B _⊩′⟨_⟩Id_ (λ Γ _ A → Γ ⊩Level A) Idᵣ Levelᵣ
+      Id-elim Level-elim (λ ())
+
+opaque
+
   -- Applications of Id are not definitionally equal to applications
   -- of U (given a certain assumption).
 
@@ -465,6 +477,18 @@ opaque
   Id≢U =
     A≢B _⊩′⟨_⟩Id_ _⊩′⟨_⟩U_ Idᵣ Uᵣ
       Id-elim U-elim (λ ())
+
+opaque
+
+  -- Applications of Id are not definitionally equal to applications
+  -- of Lift (given a certain assumption).
+
+  Id≢Lift :
+    ⦃ ok : No-equality-reflection or-empty Γ ⦄ →
+    ¬ Γ ⊢ Id A t u ≡ Lift l B
+  Id≢Lift =
+    A≢B _⊩′⟨_⟩Id_ _⊩′⟨_⟩Lift_ Idᵣ Liftᵣ
+      Id-elim Lift-elim (λ ())
 
 opaque
 

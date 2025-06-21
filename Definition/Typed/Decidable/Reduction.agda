@@ -25,6 +25,7 @@ open import Definition.Untyped.Neutral M type-variant as N
 open import Definition.Typed R
 open import Definition.Typed.Properties R
 open import Definition.Typed.EqRelInstance R
+open import Definition.Typed.Consequences.Equality R
 open import Definition.Typed.Consequences.Inequality R as I
 open import Definition.Typed.Consequences.Reduction R
 open import Definition.LogicalRelation R
@@ -56,6 +57,11 @@ opaque
     where
     is-U : Whnf B → Dec (∃ λ l → U l PE.≡ B)
     is-U Uₙ        = yes (_ , PE.refl)
+    is-U Levelₙ    = no λ ()
+    is-U zeroᵘₙ    = no λ ()
+    is-U sucᵘₙ     = no λ ()
+    is-U Liftₙ     = no λ ()
+    is-U liftₙ     = no λ ()
     is-U ΠΣₙ       = no λ ()
     is-U ℕₙ        = no λ ()
     is-U Unitₙ     = no λ ()
@@ -67,7 +73,60 @@ opaque
     is-U starₙ     = no λ ()
     is-U prodₙ     = no λ ()
     is-U rflₙ      = no λ ()
-    is-U (ne B-ne) = no (N.U≢ne B-ne ∘→ proj₂)
+    is-U (ne B-ne) = no (N.U≢sne B-ne ∘→ proj₂)
+
+opaque
+
+  -- It is decidable whether a well-formed type is definitionally equal to an
+  -- application of U.
+
+  ≡U? : Γ ⊢ A → Dec (∃ λ l → Γ ⊢ A ≡ U l)
+  ≡U? ⊢A =
+    Dec-map
+      ((λ (_ , A⇒*U) → _ , subset* A⇒*U) , (λ (_ , A≡U) → U-norm A≡U))
+      (⇒*U? ⊢A)
+
+private opaque
+
+  -- A lemma used below.
+
+  isLift′ :
+    Γ ⊩⟨ l ⟩ A → Dec (∃₂ λ l B → Γ ⊢ A ⇒* Lift l B)
+  isLift′ (Levelᵣ A⇒*Level) =
+    no λ (_ , _ , A⇒*W) →
+    I.Lift≢Level (trans (sym (subset* A⇒*W)) (subset* A⇒*Level))
+  isLift′ (Uᵣ′ _ _ _ A⇒*U) =
+    no λ (_ , _ , A⇒*) →
+    I.U≢Liftⱼ (trans (sym (subset* A⇒*U)) (subset* A⇒*))
+  isLift′ (Liftᵣ′ D _ _ _) =
+    yes (_ , _ , D)
+  isLift′ (ℕᵣ A⇒*ℕ) =
+    no λ (_ , _ , A⇒*W) →
+    I.Lift≢ℕ (trans (sym (subset* A⇒*W)) (subset* A⇒*ℕ))
+  isLift′ (Emptyᵣ A⇒*Empty) =
+    no λ (_ , _ , A⇒*W) →
+    Lift≢Emptyⱼ (trans (sym (subset* A⇒*W)) (subset* A⇒*Empty))
+  isLift′ (Unitᵣ′ _ _ _ A⇒*Unit _) =
+    no λ (_ , _ , A⇒*W) →
+    Lift≢Unitⱼ (trans (sym (subset* A⇒*W)) (subset* A⇒*Unit))
+  isLift′ (ne′ _ _ A⇒*B B-ne _) =
+    no λ (_ , _ , A⇒*W) →
+    I.Lift≢ne B-ne (trans (sym (subset* A⇒*W)) (subset* A⇒*B))
+  isLift′ (Bᵣ′ (BM _ _ _) _ _ A⇒*B _ _ _ _ _) =
+    no λ (_ , _ , A⇒*W) →
+    Lift≢ΠΣⱼ (trans (sym (subset* A⇒*W)) (subset* A⇒*B))
+  isLift′ (Idᵣ ⊩A) =
+    no λ (_ , _ , A⇒*Id) →
+    I.Id≢Lift $
+    trans (sym (subset* (_⊩ₗId_.⇒*Id ⊩A))) (subset* A⇒*Id)
+
+opaque
+
+  -- It is decidable whether a well-formed type reduces to (or does
+  -- not reduce to) either a Π-type or a Σ-type.
+
+  isLift : Γ ⊢ A → Dec (∃₂ λ l B → Γ ⊢ A ⇒* Lift l B)
+  isLift ⊢A = isLift′ (reducible-⊩ ⊢A .proj₂)
 
 private opaque
 
@@ -75,16 +134,22 @@ private opaque
 
   isΠΣ′ :
     Γ ⊩⟨ l ⟩ A → Dec (∃₅ λ b p q B C → Γ ⊢ A ⇒* ΠΣ⟨ b ⟩ p , q ▷ B ▹ C)
-  isΠΣ′ (Uᵣ′ _ _ A⇒*U) =
+  isΠΣ′ (Levelᵣ A⇒*Level) =
+    no λ (_ , _ , _ , _ , _ , A⇒*W) →
+    I.Level≢ΠΣⱼ (trans (sym (subset* A⇒*Level)) (subset* A⇒*W))
+  isΠΣ′ (Uᵣ′ _ _ _ A⇒*U) =
     no λ (_ , _ , _ , _ , _ , A⇒*) →
     I.U≢ΠΣⱼ (trans (sym (subset* A⇒*U)) (subset* A⇒*))
+  isΠΣ′ (Liftᵣ′ D _ _ _) =
+    no λ (_ , _ , _ , _ , _ , A⇒*) →
+    I.Lift≢ΠΣⱼ (trans (sym (subset* D)) (subset* A⇒*))
   isΠΣ′ (ℕᵣ A⇒*ℕ) =
     no λ (_ , _ , _ , _ , _ , A⇒*W) →
     I.ℕ≢ΠΣⱼ (trans (sym (subset* A⇒*ℕ)) (subset* A⇒*W))
   isΠΣ′ (Emptyᵣ A⇒*Empty) =
     no λ (_ , _ , _ , _ , _ , A⇒*W) →
     Empty≢ΠΣⱼ (trans (sym (subset* A⇒*Empty)) (subset* A⇒*W))
-  isΠΣ′ (Unitᵣ′ _ _ A⇒*Unit _) =
+  isΠΣ′ (Unitᵣ′ _ _ _ A⇒*Unit _) =
     no λ (_ , _ , _ , _ , _ , A⇒*W) →
     Unit≢ΠΣⱼ (trans (sym (subset* A⇒*Unit)) (subset* A⇒*W))
   isΠΣ′ (ne′ _ _ A⇒*B B-ne _) =
@@ -166,10 +231,16 @@ opaque
   is-Id = helper ∘→ proj₂ ∘→ reducible-⊩
     where
     helper : Γ ⊩⟨ l ⟩ A → Dec (∃₃ λ B t u → Γ ⊢ A ⇒* Id B t u)
+    helper (Levelᵣ A⇒*Level) =
+      no λ (_ , _ , _ , A⇒*Id) →
+        I.Id≢Level (trans (sym (subset* A⇒*Id)) (subset* A⇒*Level))
     helper (Uᵣ ⊩U) =
       no λ (_ , _ , _ , A⇒*Id) →
         Id≢U $
         trans (sym (subset* A⇒*Id)) (subset* (_⊩₁U_.⇒*U ⊩U))
+    helper (Liftᵣ′ A⇒*Lift _ _ _) =
+      no λ (_ , _ , _ , A⇒*Id) →
+        I.Id≢Lift (trans (sym (subset* A⇒*Id)) (subset* A⇒*Lift))
     helper (ℕᵣ A⇒*ℕ) =
       no λ (_ , _ , _ , A⇒*Id) →
         Id≢ℕ (trans (sym (subset* A⇒*Id)) (subset* A⇒*ℕ))

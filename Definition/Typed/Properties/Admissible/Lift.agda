@@ -52,6 +52,13 @@ opaque
 
 opaque
 
+  liftⱼ′ : Γ ⊢ l₂ ∷ Level
+         → Γ ⊢ t ∷ A
+         → Γ ⊢ lift l₂ t ∷ Lift l₂ A
+  liftⱼ′ ⊢l₂ ⊢t = liftⱼ ⊢l₂ (wf-⊢∷ ⊢t) ⊢t
+
+opaque
+
   lift-cong :
     Γ ⊢ l₂ ≡ l₂′ ∷ Level →
     Γ ⊢ t ≡ u ∷ A →

@@ -203,6 +203,23 @@ opaque
 
 opaque
 
+  Lift-norm :
+    ⦃ ok : No-equality-reflection or-empty Γ ⦄ →
+    Γ ⊢ A ≡ Lift l B →
+    ∃₂ λ k C → Γ ⊢ A ⇒* Lift k C
+  Lift-norm {A} {l} {B} A≡Lift =
+    case whNorm (syntacticEq A≡Lift .proj₁) of λ
+      (A′ , A′-whnf , A⇒*A′) →
+    let Lift≡A′ =
+          Lift l B  ≡˘⟨ A≡Lift ⟩⊢
+          A         ≡⟨ subset* A⇒*A′ ⟩⊢∎
+          A′        ∎
+    in case Lift≡A Lift≡A′ A′-whnf of λ {
+      (_ , _ , PE.refl) →
+    _ , _ , A⇒*A′ }
+
+opaque
+
   -- If equality reflection is not allowed or the context is empty,
   -- and A is definitionally equal to ΠΣ⟨ b ⟩ p , q ▷ B ▹ C, then A
   -- reduces to ΠΣ⟨ b ⟩ p , q ▷ B′ ▹ C′, where B′ satisfies
@@ -232,7 +249,9 @@ opaque
     ⊥-elim (Lift≢ΠΣⱼ (trans (sym (subset* D)) A≡ΠΣ))
   … | _ , liftₙ , D =
     case wf-⊢≡ (subset* D) of λ where
-      (fst₁ , univ x) → ⊥-elim (U≢Liftⱼ (inversion-lift x .proj₂))
+      (fst₁ , univ x) →
+        let _ , _ , B≡Lift = inversion-lift x
+        in ⊥-elim (U≢Liftⱼ B≡Lift)
   … | _ , ΠΣₙ , D =
     let B≡B′ , C≡C′ , C[]≡C′[] , p≡p′ , q≡q′ , b≡b′ =
           ΠΣ-injectivity′ (trans (sym A≡ΠΣ) (subset* D))
