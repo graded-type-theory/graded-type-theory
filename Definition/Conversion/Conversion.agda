@@ -115,7 +115,7 @@ mutual
       (_ , PE.refl) →
     let ⊢Γ , ⊢Δ , _ = contextConvSubst Γ≡Δ
         _ , l≡k = Unit-injectivity A≡B
-    in starʷ-cong (stabilityEqTerm Γ≡Δ (trans (sym (Levelⱼ ⊢Γ) l≡k) x)) (stabilityEqTerm Γ≡Δ y) ok no-η }
+    in starʷ-cong (stabilityEqTerm Γ≡Δ (trans (sym (Levelⱼ ⊢Γ) l≡k) x)) (stabilityConv↑Term Γ≡Δ y) ok no-η }
   convConv↓Term′ Γ≡Δ A≡B whnfB (suc-cong x) rewrite ℕ≡A A≡B whnfB =
     suc-cong (stabilityConv↑Term Γ≡Δ x)
   convConv↓Term′ Γ≡Δ A≡B whnfB (prod-cong x₁ x₂ x₃ ok)

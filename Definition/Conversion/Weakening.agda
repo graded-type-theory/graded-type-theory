@@ -233,6 +233,8 @@ mutual
   wk-map-suc⁺ [ρ] (x L.∷ v) L.[] ()
   wk-map-suc⁺ [ρ] ((n , a) L.∷ v) ((n′ , a′) L.∷ v′) PE.refl = PE.cong (_ L.∷_) (wk-map-suc⁺ [ρ] v v′ PE.refl)
 
+  wkLevelPlus-cong-suc⁺ : ∀ ([ρ] : ρ ∷ʷ Δ ⊇ Γ) (a b : LevelPlus Γ) → a PE.≡ suc⁺ b → wkLevelPlus [ρ] a PE.≡ suc⁺ (wkLevelPlus [ρ] b)
+  wkLevelPlus-cong-suc⁺ [ρ] a b PE.refl = PE.refl
   wkLevelPlus-cong : ∀ ([ρ] : ρ ∷ʷ Δ ⊇ Γ) (a b : LevelPlus Γ) → a PE.≡ b → wkLevelPlus [ρ] a PE.≡ wkLevelPlus [ρ] b
   wkLevelPlus-cong [ρ] a b PE.refl = PE.refl
   wkLevelView-cong : ∀ ([ρ] : ρ ∷ʷ Δ ⊇ Γ) (a b : LevelView Γ) → a PE.≡ b → wkLevelView [ρ] a PE.≡ wkLevelView [ρ] b
@@ -246,14 +248,32 @@ mutual
     let a , b = L.∷-injective eq
     in PE.cong₂ L._∷_ (wkLevelPlus-cong [ρ] x x₁ a) (wk-maxᵛ [ρ] _ _ v″ b)
 
+  wk-maxᵛ-map-suc⁺ : ([ρ] : ρ ∷ʷ Δ ⊇ Γ) (v v′ v″ : LevelView Γ) → v PE.≡ maxᵛ (map-suc⁺ v′) v″ → wkLevelView [ρ] v PE.≡ maxᵛ (map-suc⁺ (wkLevelView [ρ] v′)) (wkLevelView [ρ] v″)
+  wk-maxᵛ-map-suc⁺ [ρ] L.[] L.[] v″ PE.refl = PE.refl
+  wk-maxᵛ-map-suc⁺ [ρ] L.[] (x L.∷ v′) v″ ()
+  wk-maxᵛ-map-suc⁺ [ρ] (x L.∷ v) L.[] v″ PE.refl = PE.refl
+  wk-maxᵛ-map-suc⁺ [ρ] (x L.∷ v) (x₁ L.∷ v′) v″ eq =
+    let a , b = L.∷-injective eq
+    in PE.cong₂ L._∷_ (wkLevelPlus-cong-suc⁺ [ρ] x x₁ a) (wk-maxᵛ-map-suc⁺ [ρ] _ _ v″ b)
+
+  wk-maxᵛ-sucᵛ : ([ρ] : ρ ∷ʷ Δ ⊇ Γ) (v v′ v″ : LevelView Γ) → v PE.≡ maxᵛ (sucᵛ v′) v″ → wkLevelView [ρ] v PE.≡ maxᵛ (sucᵛ (wkLevelView [ρ] v′)) (wkLevelView [ρ] v″)
+  wk-maxᵛ-sucᵛ [ρ] L.[] v′ v″ ()
+  wk-maxᵛ-sucᵛ [ρ] (x L.∷ v) v′ v″ eq =
+    let a , b = L.∷-injective eq
+    in PE.cong₂ L._∷_ (wkLevelPlus-cong [ρ] _ _ a) (wk-maxᵛ-map-suc⁺ [ρ] _ _ v″ b)
+
   wk-↑ᵛ : ([ρ] : ρ ∷ʷ Δ ⊇ Γ) → ∀ {t v} → Γ ⊢ t ↑ᵛ v → Δ ⊢ U.wk ρ t ↑ᵛ wkLevelView [ρ] v
   wk-↑ᵛ [ρ] ([↑]ᵛ d t↓v) = [↑]ᵛ (wkRed↘Term [ρ] d) (wk-↓ᵛ [ρ] t↓v)
 
   wk-↓ᵛ : ([ρ] : ρ ∷ʷ Δ ⊇ Γ) → ∀ {t v} → Γ ⊢ t ↓ᵛ v → Δ ⊢ U.wk ρ t ↓ᵛ wkLevelView [ρ] v
-  wk-↓ᵛ [ρ] (zeroᵘ-↓ᵛ x) = zeroᵘ-↓ᵛ (wf-∷ʷ⊇ [ρ])
-  wk-↓ᵛ [ρ] (sucᵘ-↓ᵛ {v} {v′} x₁ t≡u) = sucᵘ-↓ᵛ (wk-sucᵛ [ρ] v _ x₁) (wk-↑ᵛ [ρ] t≡u)
-  wk-↓ᵛ {ρ} [ρ] (maxᵘ-↓ᵛ {v} {v′} x x₁ t≡u t≡u₁) = maxᵘ-↓ᵛ (wkWhnf ρ x) (wk-maxᵛ [ρ] v v′ _ x₁) (wk-↑ᵛ [ρ] t≡u) (wk-↑ᵛ [ρ] t≡u₁)
-  wk-↓ᵛ [ρ] (ne-↓ᵛ [t′] x₁) = ne-↓ᵛ (wk~↓ [ρ] [t′]) (wkLevelView-cong [ρ] _ _ x₁)
+  wk-↓ᵛ [ρ] (zeroᵘₙ x) = zeroᵘₙ (wf-∷ʷ⊇ [ρ])
+  wk-↓ᵛ [ρ] (sucᵘₙ {v} {v′} x₁ t≡u) = sucᵘₙ (wk-sucᵛ [ρ] v _ x₁) (wk-↑ᵛ [ρ] t≡u)
+  wk-↓ᵛ [ρ] (neₙ x) = neₙ (wk-~ᵛ [ρ] x)
+
+  wk-~ᵛ : ([ρ] : ρ ∷ʷ Δ ⊇ Γ) → ∀ {t v} → Γ ⊢ t ~ᵛ v → Δ ⊢ U.wk ρ t ~ᵛ wkLevelView [ρ] v
+  wk-~ᵛ {ρ = ρ} [ρ] (maxᵘˡₙ {v′} {v″} x t~ u↑) = maxᵘˡₙ (wk-maxᵛ [ρ] _ v′ v″ x) (wk-~ᵛ [ρ] t~) (wk-↑ᵛ [ρ] u↑)
+  wk-~ᵛ {ρ = ρ} [ρ] (maxᵘʳₙ {v′} {v″} x t↑ u~) = maxᵘʳₙ (wk-maxᵛ-sucᵛ [ρ] _ v′ v″ x) (wk-↑ᵛ [ρ] t↑) (wk-~ᵛ [ρ] u~)
+  wk-~ᵛ {ρ = ρ} [ρ] (neₙ [t] x) = neₙ (wk~↓ [ρ] [t]) (wkLevelView-cong [ρ] _ _ x)
 
   wk-≡ⁿ : ([ρ] : ρ ∷ʷ Δ ⊇ Γ) → (t u : Term n) → ≡ⁿ Γ t u d → ≡ⁿ Δ (U.wk ρ t) (U.wk ρ u) d
   wk-≡ⁿ [ρ] t u (ne≡ x) = ne≡ (wk~↓ [ρ] x)
@@ -305,7 +325,8 @@ mutual
   wkConv↓Term {ρ} [ρ] (Lift-η ⊢t ⊢u wt wu lower≡lower) =
     Lift-η (wkTerm [ρ] ⊢t) (wkTerm [ρ] ⊢u) (wkWhnf ρ wt) (wkWhnf ρ wu) (wkConv↑Term [ρ] lower≡lower)
   wkConv↓Term ρ (zero-refl x) = zero-refl (wf-∷ʷ⊇ ρ)
-  wkConv↓Term ρ (starʷ-cong x y ok no-η) = starʷ-cong (wkEqTerm ρ x) (wkEqTerm ρ y) ok no-η
+  wkConv↓Term ρ (starʷ-cong x y ok no-η) =
+    starʷ-cong (wkEqTerm ρ x) (wkConv↑Term ρ y) ok no-η
   wkConv↓Term ρ (suc-cong t<>u) = suc-cong (wkConv↑Term ρ t<>u)
   wkConv↓Term ρ (prod-cong {G = G} x₁ x₂ x₃ ok) =
     let ⊢ρF = wk ρ (⊢∙→⊢ (wf x₁))

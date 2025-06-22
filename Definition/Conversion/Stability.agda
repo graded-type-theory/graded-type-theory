@@ -217,6 +217,8 @@ mutual
   stability-map-suc⁺ Γ≡Δ (x L.∷ v) L.[] ()
   stability-map-suc⁺ Γ≡Δ ((n , a) L.∷ v) ((n′ , a′) L.∷ v′) PE.refl = PE.cong (_ L.∷_) (stability-map-suc⁺ Γ≡Δ v v′ PE.refl)
 
+  stabilityLevelPlus-cong-suc⁺ : ∀ (Γ≡Δ : ⊢ Γ ≡ Δ) (a b : LevelPlus Γ) → a PE.≡ suc⁺ b → stabilityLevelPlus Γ≡Δ a PE.≡ suc⁺ (stabilityLevelPlus Γ≡Δ b)
+  stabilityLevelPlus-cong-suc⁺ Γ≡Δ a b PE.refl = PE.refl
   stabilityLevelPlus-cong : ∀ (Γ≡Δ : ⊢ Γ ≡ Δ) (a b : LevelPlus Γ) → a PE.≡ b → stabilityLevelPlus Γ≡Δ a PE.≡ stabilityLevelPlus Γ≡Δ b
   stabilityLevelPlus-cong Γ≡Δ a b PE.refl = PE.refl
   stabilityLevelView-cong : ∀ (Γ≡Δ : ⊢ Γ ≡ Δ) (a b : LevelView Γ) → a PE.≡ b → stabilityLevelView Γ≡Δ a PE.≡ stabilityLevelView Γ≡Δ b
@@ -230,6 +232,20 @@ mutual
     let a , b = L.∷-injective eq
     in PE.cong₂ L._∷_ (stabilityLevelPlus-cong Γ≡Δ x x₁ a) (stability-maxᵛ Γ≡Δ _ _ v″ b)
 
+  stability-maxᵛ-map-suc⁺ : (Γ≡Δ : ⊢ Γ ≡ Δ) (v v′ v″ : LevelView Γ) → v PE.≡ maxᵛ (map-suc⁺ v′) v″ → stabilityLevelView Γ≡Δ v PE.≡ maxᵛ (map-suc⁺ (stabilityLevelView Γ≡Δ v′)) (stabilityLevelView Γ≡Δ v″)
+  stability-maxᵛ-map-suc⁺ Γ≡Δ L.[] L.[] v″ PE.refl = PE.refl
+  stability-maxᵛ-map-suc⁺ Γ≡Δ L.[] (x L.∷ v′) v″ ()
+  stability-maxᵛ-map-suc⁺ Γ≡Δ (x L.∷ v) L.[] v″ PE.refl = PE.refl
+  stability-maxᵛ-map-suc⁺ Γ≡Δ (x L.∷ v) (x₁ L.∷ v′) v″ eq =
+    let a , b = L.∷-injective eq
+    in PE.cong₂ L._∷_ (stabilityLevelPlus-cong-suc⁺ Γ≡Δ x x₁ a) (stability-maxᵛ-map-suc⁺ Γ≡Δ _ _ v″ b)
+
+  stability-maxᵛ-sucᵛ : (Γ≡Δ : ⊢ Γ ≡ Δ) (v v′ v″ : LevelView Γ) → v PE.≡ maxᵛ (sucᵛ v′) v″ → stabilityLevelView Γ≡Δ v PE.≡ maxᵛ (sucᵛ (stabilityLevelView Γ≡Δ v′)) (stabilityLevelView Γ≡Δ v″)
+  stability-maxᵛ-sucᵛ Γ≡Δ L.[] v′ v″ ()
+  stability-maxᵛ-sucᵛ Γ≡Δ (x L.∷ v) v′ v″ eq =
+    let a , b = L.∷-injective eq
+    in PE.cong₂ L._∷_ (stabilityLevelPlus-cong Γ≡Δ x _ a) (stability-maxᵛ-map-suc⁺ Γ≡Δ v v′ v″ b)
+
   stability-↑ᵛ
     : ∀ {t} {v : LevelView Γ}
     → (Γ≡Δ : ⊢ Γ ≡ Δ)
@@ -242,13 +258,21 @@ mutual
     → (Γ≡Δ : ⊢ Γ ≡ Δ)
     → Γ ⊢ t ↓ᵛ v
     → Δ ⊢ t ↓ᵛ stabilityLevelView Γ≡Δ v
-  stability-↓ᵛ Γ≡Δ (zeroᵘ-↓ᵛ x) = zeroᵘ-↓ᵛ (contextConvSubst Γ≡Δ .proj₂ .proj₁)
-  stability-↓ᵛ {Γ} {Δ} Γ≡Δ (sucᵘ-↓ᵛ {v} {v′} y t≡v) =
-    sucᵘ-↓ᵛ (stability-sucᵛ Γ≡Δ _ _ y) (stability-↑ᵛ Γ≡Δ t≡v)
-  stability-↓ᵛ Γ≡Δ (maxᵘ-↓ᵛ {v′} {v″} w y t≡v t≡v₁) =
-    maxᵘ-↓ᵛ w (stability-maxᵛ Γ≡Δ _ v′ v″ y) (stability-↑ᵛ Γ≡Δ t≡v) (stability-↑ᵛ Γ≡Δ t≡v₁)
-  stability-↓ᵛ Γ≡Δ (ne-↓ᵛ [t′] x₁) =
-    ne-↓ᵛ (stability~↓ Γ≡Δ [t′]) (stabilityLevelView-cong Γ≡Δ _ _ x₁)
+  stability-↓ᵛ Γ≡Δ (zeroᵘₙ x) = zeroᵘₙ (contextConvSubst Γ≡Δ .proj₂ .proj₁)
+  stability-↓ᵛ Γ≡Δ (sucᵘₙ x t↑) = sucᵘₙ (stability-sucᵛ Γ≡Δ _ _ x) (stability-↑ᵛ Γ≡Δ t↑)
+  stability-↓ᵛ Γ≡Δ (neₙ x) = neₙ (stability-~ᵛ Γ≡Δ x)
+
+  stability-~ᵛ
+    : ∀ {t} {v : LevelView Γ}
+    → (Γ≡Δ : ⊢ Γ ≡ Δ)
+    → Γ ⊢ t ~ᵛ v
+    → Δ ⊢ t ~ᵛ stabilityLevelView Γ≡Δ v
+  stability-~ᵛ Γ≡Δ (maxᵘˡₙ {v′} {v″} x t~ u↑) =
+    maxᵘˡₙ (stability-maxᵛ Γ≡Δ _ v′ v″ x) (stability-~ᵛ Γ≡Δ t~) (stability-↑ᵛ Γ≡Δ u↑)
+  stability-~ᵛ Γ≡Δ (maxᵘʳₙ {v′} {v″} x t↑ u~) =
+    maxᵘʳₙ (stability-maxᵛ-sucᵛ Γ≡Δ _ v′ v″ x) (stability-↑ᵛ Γ≡Δ t↑) (stability-~ᵛ Γ≡Δ u~)
+  stability-~ᵛ Γ≡Δ (neₙ [t] x) =
+    neₙ (stability~↓ Γ≡Δ [t]) (stabilityLevelView-cong Γ≡Δ _ _ x)
 
   stabilityConv↓Level : ∀ {t u}
                      → ⊢ Γ ≡ Δ
@@ -286,7 +310,7 @@ mutual
     in  zero-refl ⊢Δ
   stabilityConv↓Term Γ≡Δ (starʷ-cong x y ok no-η) =
     let _ , ⊢Δ , _ = contextConvSubst Γ≡Δ
-    in  starʷ-cong (stabilityEqTerm Γ≡Δ x) (stabilityEqTerm Γ≡Δ y) ok no-η
+    in  starʷ-cong (stabilityEqTerm Γ≡Δ x) (stabilityConv↑Term Γ≡Δ y) ok no-η
   stabilityConv↓Term Γ≡Δ (suc-cong t<>u) = suc-cong (stabilityConv↑Term Γ≡Δ t<>u)
   stabilityConv↓Term Γ≡Δ (prod-cong x₁ x₂ x₃ ok) =
     prod-cong (stability (Γ≡Δ ∙ refl (⊢∙→⊢ (wf x₁))) x₁)

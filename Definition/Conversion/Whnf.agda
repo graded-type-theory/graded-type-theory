@@ -88,13 +88,19 @@ whnfConv↓ (ne x) = let _ , neA , neB = ne~↓ x
 whnfConv↓ (ΠΣ-cong _ _ _) = ΠΣₙ , ΠΣₙ
 whnfConv↓ (Id-cong _ _ _) = Idₙ , Idₙ
 
+whnfConv~ᵛ : ∀ {t v}
+           → Γ ⊢ t ~ᵛ v
+           → Semineutral t
+whnfConv~ᵛ (maxᵘˡₙ x x₁ x₂) = maxᵘˡₙ (whnfConv~ᵛ x₁)
+whnfConv~ᵛ (maxᵘʳₙ x x₁ x₂) = maxᵘʳₙ (whnfConv~ᵛ x₂)
+whnfConv~ᵛ (neₙ [t] x) = ne (ne~↓ [t] .proj₂ .proj₁)
+
 whnfConv↓ᵛ : ∀ {t v}
-              → Γ ⊢ t ↓ᵛ v
-              → Whnf t
-whnfConv↓ᵛ (zeroᵘ-↓ᵛ _) = zeroᵘₙ
-whnfConv↓ᵛ (sucᵘ-↓ᵛ x x₁) = sucᵘₙ
-whnfConv↓ᵛ (maxᵘ-↓ᵛ x x₁ x₂ x₃) = x
-whnfConv↓ᵛ (ne-↓ᵛ [t] x) = ne! (ne~↓ [t] .proj₂ .proj₁)
+           → Γ ⊢ t ↓ᵛ v
+           → Whnf t
+whnfConv↓ᵛ (zeroᵘₙ _) = zeroᵘₙ
+whnfConv↓ᵛ (sucᵘₙ x x₁) = sucᵘₙ
+whnfConv↓ᵛ (neₙ x) = ne (whnfConv~ᵛ x)
 
 -- Extraction of WHNF from algorithmic equality of terms in WHNF.
 whnfConv↓Term : ∀ {t u A}

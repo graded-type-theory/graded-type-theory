@@ -70,6 +70,13 @@ opaque
 
 opaque
 
+  Lift-β′ : Γ ⊢ l₂ ∷ Level
+          → Γ ⊢ t ∷ A
+          → Γ ⊢ lower (lift l₂ t) ≡ t ∷ A
+  Lift-β′ ⊢l₂ ⊢t = Lift-β ⊢l₂ (wf-⊢∷ ⊢t) ⊢t
+
+opaque
+
   Lift-η′ : Γ ⊢ t ∷ Lift l₂ A
           → Γ ⊢ u ∷ Lift l₂ A
           → Γ ⊢ lower t ≡ lower u ∷ A
@@ -77,3 +84,10 @@ opaque
   Lift-η′ ⊢t ⊢u lowert≡loweru =
     let ⊢l₂ , _ = inversion-Lift (wf-⊢∷ ⊢t)
     in Lift-η ⊢l₂ (wf-⊢≡∷ lowert≡loweru .proj₁) ⊢t ⊢u lowert≡loweru
+
+opaque
+
+  Lift-β⇒ : Γ ⊢ l₂ ∷ Level
+          → Γ ⊢ t ∷ A
+          → Γ ⊢ lower (lift l₂ t) ⇒ t ∷ A
+  Lift-β⇒ ⊢l₂ ⊢t = Lift-β ⊢l₂ (wf-⊢∷ ⊢t) ⊢t

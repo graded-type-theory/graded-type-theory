@@ -97,8 +97,7 @@ mutual
         [t] , [u] = wf~↓ t↓u
     in Level-ins ([↓]ˡ
       (neᵛ [t]) (neᵛ [u])
-      (ne-↓ᵛ [t] PE.refl)
-      (ne-↓ᵛ [u] PE.refl)
+      (neₙ (neₙ [t] PE.refl)) (neₙ (neₙ [u] PE.refl))
       (Any.here (≤-refl , ne≤ (ne≡ t↓u)) All.∷ All.[] , Any.here (≤-refl , ne≤ (ne≡' t↓u)) All.∷ All.[]))
   lift~toConv↓′ (Uᵣ′ _ _ _ A′⇒*U) A′⇒*A ([~] _ (B⇒*A , A-whnf) t~u)
     rewrite PE.sym (whrDet* (A′⇒*U , Uₙ) (A′⇒*A , A-whnf)) =

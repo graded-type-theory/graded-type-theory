@@ -1389,7 +1389,7 @@ opaque
     Γ ⊢ t [conv↓] u ∷ Unitʷ l →
     ¬ Unitʷ-η ×
     (Γ ⊢ t ~ u ∷ Unitʷ l ⊎
-     ∃₂ λ l₁ l₂ → t PE.≡ starʷ l₁ × u PE.≡ starʷ l₂ × Γ ⊢ l ≡ l₁ ∷ Level × Γ ⊢ l₁ ≡ l₂ ∷ Level) ⊎
+     ∃₂ λ l₁ l₂ → t PE.≡ starʷ l₁ × u PE.≡ starʷ l₂ × Γ ⊢ l ≡ l₁ ∷ Level × Γ ⊢ l₁ [conv↑] l₂ ∷ Level) ⊎
     Unitʷ-η × Whnf t × Whnf u
   inv-[conv↓]∷-Unitʷ (Unitʷ-ins no-η t~u) =
     inj₁ (no-η , inj₁ t~u)
@@ -1409,7 +1409,7 @@ opaque
     Unit-with-η s × Whnf t × Whnf u ⊎
     ¬ Unit-with-η s ×
     (Γ ⊢ t ~ u ∷ Unit s l ⊎
-     ∃₂ λ l₁ l₂ → t PE.≡ star s l₁ × u PE.≡ star s l₂ × Γ ⊢ l ≡ l₁ ∷ Level × Γ ⊢ l₁ ≡ l₂ ∷ Level)
+     ∃₂ λ l₁ l₂ → t PE.≡ star s l₁ × u PE.≡ star s l₂ × Γ ⊢ l ≡ l₁ ∷ Level × Γ ⊢ l₁ [conv↑] l₂ ∷ Level)
   inv-[conv↓]∷-Unit {s = 𝕤} t≡u =
     inj₁ (inj₁ PE.refl , inv-[conv↓]∷-Unitˢ t≡u)
   inv-[conv↓]∷-Unit {s = 𝕨} t≡u =

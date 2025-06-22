@@ -12,6 +12,7 @@ module Definition.Conversion.Level
   where
 
 open import Definition.Untyped M
+open import Definition.Untyped.Neutral M
 open import Definition.Conversion R
 open import Definition.Conversion.Whnf R
 open import Definition.Typed R
@@ -151,6 +152,9 @@ trans-≡ᵛ-≡≡ᵛ (a≤b , b≤a) b≡c = trans-≡≡ᵛ-≤ᵛ' (sym-≡�
 ≡≡ᵛ-map-suc⁺ P.[] = P.[]
 ≡≡ᵛ-map-suc⁺ ((x , y) P.∷ x₁) = (PE.cong 1+ x , y) P.∷ ≡≡ᵛ-map-suc⁺ x₁
 
+≡≡ᵛ-sucᵛ : ∀ {a b : LevelView Γ} → a ≡≡ᵛ b → sucᵛ a ≡≡ᵛ sucᵛ b
+≡≡ᵛ-sucᵛ eq = (PE.refl , zero) P.∷ ≡≡ᵛ-map-suc⁺ eq
+
 ≡≡ᵛ-maxᵛ : ∀ {a a′ b b′ : LevelView Γ} → a ≡≡ᵛ b → a′ ≡≡ᵛ b′ → maxᵛ a a′ ≡≡ᵛ maxᵛ b b′
 ≡≡ᵛ-maxᵛ = P.++⁺
 
@@ -161,24 +165,34 @@ mutual
       PE.refl →
     irrelevance-↓ᵛ t↓v t↓v₁ }
 
-  irrelevance-↓ᵛ : ∀ {t v v′} → Γ ⊢ t ↓ᵛ v → Γ ⊢ t ↓ᵛ v′ → v ≡≡ᵛ v′
-  irrelevance-↓ᵛ (zeroᵘ-↓ᵛ x) (zeroᵘ-↓ᵛ x₁) = P.[]
-  irrelevance-↓ᵛ (sucᵘ-↓ᵛ PE.refl x₁) (sucᵘ-↓ᵛ PE.refl x₃) =
-    (PE.refl , zero) P.∷ ≡≡ᵛ-map-suc⁺ (irrelevance-↑ᵛ x₁ x₃)
-  irrelevance-↓ᵛ (maxᵘ-↓ᵛ x PE.refl x₂ x₃) (maxᵘ-↓ᵛ x₄ PE.refl x₆ x₇) =
-    ≡≡ᵛ-maxᵛ (irrelevance-↑ᵛ x₂ x₆) (irrelevance-↑ᵛ x₃ x₇)
-  irrelevance-↓ᵛ (ne-↓ᵛ [t] PE.refl) (ne-↓ᵛ [t]₁ PE.refl) =
+  irrelevance-~ᵛ : ∀ {t v v′} → Γ ⊢ t ~ᵛ v → Γ ⊢ t ~ᵛ v′ → v ≡≡ᵛ v′
+  irrelevance-~ᵛ (maxᵘˡₙ PE.refl x₁ x₂) (maxᵘˡₙ PE.refl y x₄) =
+    ≡≡ᵛ-maxᵛ (irrelevance-~ᵛ x₁ y) (irrelevance-↑ᵛ x₂ x₄)
+  irrelevance-~ᵛ (maxᵘʳₙ PE.refl x₁ x₂) (maxᵘʳₙ PE.refl x₄ y) =
+    ≡≡ᵛ-maxᵛ (≡≡ᵛ-sucᵛ (irrelevance-↑ᵛ x₁ x₄)) (irrelevance-~ᵛ x₂ y)
+  irrelevance-~ᵛ (neₙ [t] PE.refl) (neₙ [t]₁ PE.refl) =
     (PE.refl , ne _ _) P.∷ P.[]
   -- Absurd cases
-  irrelevance-↓ᵛ (zeroᵘ-↓ᵛ x) (ne-↓ᵛ [t] x₁) = case ne~↓ [t] of λ ()
-  irrelevance-↓ᵛ (sucᵘ-↓ᵛ x x₁) (ne-↓ᵛ [t] x₂) = case ne~↓ [t] of λ ()
-  irrelevance-↓ᵛ (maxᵘ-↓ᵛ x x₁ x₂ x₃) (ne-↓ᵛ [t] x₄) = case ne~↓ [t] of λ ()
-  irrelevance-↓ᵛ (ne-↓ᵛ [t] x) (zeroᵘ-↓ᵛ x₁) = case ne~↓ [t] of λ ()
-  irrelevance-↓ᵛ (ne-↓ᵛ [t] x) (sucᵘ-↓ᵛ x₁ x₂) = case ne~↓ [t] of λ ()
-  irrelevance-↓ᵛ (ne-↓ᵛ [t] x) (maxᵘ-↓ᵛ x₁ x₂ x₃ x₄) = case ne~↓ [t] of λ ()
+  irrelevance-~ᵛ (maxᵘˡₙ _ x₁ x₂) (maxᵘʳₙ _ x₄ y) = case whnfConv~ᵛ x₁ of λ { (ne ()) }
+  irrelevance-~ᵛ (maxᵘˡₙ x x₁ x₂) (neₙ [t] x₃) = case ne~↓ [t] of λ ()
+  irrelevance-~ᵛ (maxᵘʳₙ x x₁ x₂) (maxᵘˡₙ x₃ y x₄) = case whnfConv~ᵛ y of λ { (ne ()) }
+  irrelevance-~ᵛ (maxᵘʳₙ x x₁ x₂) (neₙ [t] x₃) = case ne~↓ [t] of λ ()
+  irrelevance-~ᵛ (neₙ [t] x) (maxᵘˡₙ x₁ y x₂) = case ne~↓ [t] of λ ()
+  irrelevance-~ᵛ (neₙ [t] x) (maxᵘʳₙ x₁ x₂ y) = case ne~↓ [t] of λ ()
+
+  irrelevance-↓ᵛ : ∀ {t v v′} → Γ ⊢ t ↓ᵛ v → Γ ⊢ t ↓ᵛ v′ → v ≡≡ᵛ v′
+  irrelevance-↓ᵛ (zeroᵘₙ x) (zeroᵘₙ x₁) = P.[]
+  irrelevance-↓ᵛ (sucᵘₙ PE.refl x₁) (sucᵘₙ PE.refl x₃) =
+    ≡≡ᵛ-sucᵛ (irrelevance-↑ᵛ x₁ x₃)
+  irrelevance-↓ᵛ (neₙ x) (neₙ x₁) = irrelevance-~ᵛ x x₁
+  -- Absurd cases
+  irrelevance-↓ᵛ (zeroᵘₙ x) (neₙ x₁) = case whnfConv~ᵛ x₁ of λ { (ne ()) }
+  irrelevance-↓ᵛ (sucᵘₙ x x₁) (neₙ x₂) = case whnfConv~ᵛ x₂ of λ { (ne ()) }
+  irrelevance-↓ᵛ (neₙ x) (zeroᵘₙ x₁) = case whnfConv~ᵛ x of λ { (ne ()) }
+  irrelevance-↓ᵛ (neₙ x) (sucᵘₙ x₁ x₂) = case whnfConv~ᵛ x of λ { (ne ()) }
 
 zeroᵘrefl : ⊢ Γ → Γ ⊢ zeroᵘ [conv↓] zeroᵘ ∷Level
-zeroᵘrefl ⊢Γ = [↓]ˡ zeroᵛ zeroᵛ (zeroᵘ-↓ᵛ ⊢Γ) (zeroᵘ-↓ᵛ ⊢Γ) (≡ᵛ-refl zeroᵛ)
+zeroᵘrefl ⊢Γ = [↓]ˡ zeroᵛ zeroᵛ (zeroᵘₙ ⊢Γ) (zeroᵘₙ ⊢Γ) (≡ᵛ-refl zeroᵛ)
 
 ≤ᵛ-max-univ : ∀ {a b c : LevelView Γ} → ≤ᵛ d a c → ≤ᵛ d b c → ≤ᵛ d (maxᵛ a b) c
 ≤ᵛ-max-univ a≤c b≤c = All.++⁺ a≤c b≤c

@@ -432,7 +432,7 @@ mutual
       (inj₁ (_ , inj₁ u~v)) →
         ⊥-elim $ ¬-Neutral-star $ ne~∷ u~v .proj₁
       (inj₁ (_ , inj₂ (_ , _ , PE.refl , PE.refl , _ , z))) →
-        starʷ-cong x (trans y z) ok no-η
+        starʷ-cong x (transConvTerm y z) ok no-η
       (inj₂ (η , _)) →
         ⊥-elim (no-η η)
   transConv↓Term (ℕ-ins t~u) u≡v =

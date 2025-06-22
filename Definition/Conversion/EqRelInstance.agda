@@ -85,7 +85,7 @@ opaque
     let ⊢l≡l′ = soundnessConv↑Term l≡l′
         ⊢Level , ⊢l , ⊢l′ = syntacticEqTerm ⊢l≡l′
     in case Unit-with-η? s of λ where
-      (inj₂ (PE.refl , no-η)) → starʷ-cong (refl ⊢l) ⊢l≡l′ ok no-η
+      (inj₂ (PE.refl , no-η)) → starʷ-cong (refl ⊢l) l≡l′ ok no-η
       (inj₁ η)                →
         η-unit ⊢l (starⱼ ⊢l ok) (conv (starⱼ ⊢l′ ok) (Unit-cong (sym ⊢Level ⊢l≡l′) ok))
           starₙ starₙ ok η
@@ -334,35 +334,25 @@ private module Lemmas where
       PE.refl →
     let [↓]ˡ tᵛ uᵛ t≡ u≡ t≡u = inv-[conv↓]∷-Level t<>u
     in [↓]ˡ (sucᵛ tᵛ) (sucᵛ uᵛ)
-      (sucᵘ-↓ᵛ PE.refl ([↑]ᵛ d t≡))
-      (sucᵘ-↓ᵛ PE.refl ([↑]ᵛ d′ u≡))
+      (sucᵘₙ PE.refl ([↑]ᵛ d t≡))
+      (sucᵘₙ PE.refl ([↑]ᵛ d′ u≡))
       (≡ᵛ-suc t≡u) }
 
   maxᵘ-↑ᵛ : ∀ {v′ v″} → Γ ⊢ t ↑ᵛ v′ → Γ ⊢ u ↑ᵛ v″ → ∃ λ v → Γ ⊢ t maxᵘ u ↑ᵛ v × v ≡ᵛ maxᵛ v′ v″
   maxᵘ-↑ᵛ {v′} {v″} ([↑]ᵛ (t⇒ , tw) t↓) u↑@([↑]ᵛ (u⇒ , uw) u↓) =
     let ⊢u = redFirst*Term u⇒
     in case t↓ of λ where
-      (zeroᵘ-↓ᵛ _) → v″ , [↑]ᵛ (maxᵘ-substˡ* t⇒ ⊢u ⇨∷* (maxᵘ-zeroˡ ⊢u ⇨ u⇒) , uw) u↓ , ≡ᵛ-maxᵘ-zeroˡ
-      (sucᵘ-↓ᵛ {v′ = v₁} PE.refl t′↑) →
+      (zeroᵘₙ _) → v″ , [↑]ᵛ (maxᵘ-substˡ* t⇒ ⊢u ⇨∷* (maxᵘ-zeroˡ ⊢u ⇨ u⇒) , uw) u↓ , ≡ᵛ-maxᵘ-zeroˡ
+      (sucᵘₙ {v′ = v₁} PE.refl t′↑) →
         let ⊢t′ = wf↑ᵛ t′↑
         in case u↓ of λ where
-          (zeroᵘ-↓ᵛ _) → v′ , [↑]ᵛ (maxᵘ-substˡ* t⇒ ⊢u ⇨∷* (maxᵘ-substʳ* ⊢t′ u⇒ ⇨∷* redMany (maxᵘ-zeroʳ ⊢t′)) , sucᵘₙ) t↓ , sym-≡ᵛ ≡ᵛ-maxᵘ-zeroʳ
-          (sucᵘ-↓ᵛ PE.refl u′↑) →
+          (zeroᵘₙ _) → v′ , [↑]ᵛ (maxᵘ-substˡ* t⇒ ⊢u ⇨∷* (maxᵘ-substʳ* ⊢t′ u⇒ ⇨∷* redMany (maxᵘ-zeroʳ ⊢t′)) , sucᵘₙ) t↓ , sym-≡ᵛ ≡ᵛ-maxᵘ-zeroʳ
+          (sucᵘₙ PE.refl u′↑) →
             let ⊢u′ = wf↑ᵛ u′↑
                 a , a↑ , a≡ = maxᵘ-↑ᵛ t′↑ u′↑
-            in sucᵛ a , [↑]ᵛ (maxᵘ-substˡ* t⇒ ⊢u ⇨∷* (maxᵘ-substʳ* ⊢t′ u⇒ ⇨∷* redMany (maxᵘ-sucᵘ ⊢t′ ⊢u′)) , sucᵘₙ) (sucᵘ-↓ᵛ PE.refl a↑) , trans-≡ᵛ (≡ᵛ-suc a≡) ≡ᵛ-maxᵘ-sucᵘ
-          (maxᵘ-↓ᵛ (ne x) PE.refl u′↑ u″↑) →
-            let w = ne (maxᵘʳₙ x)
-            in maxᵛ v′ v″ , [↑]ᵛ (maxᵘ-substˡ* t⇒ ⊢u ⇨∷* maxᵘ-substʳ* ⊢t′ u⇒ , w) (maxᵘ-↓ᵛ w PE.refl (lift-↓ᵛ t↓) (lift-↓ᵛ u↓)) , ≡ᵛ-refl _
-          (ne-↓ᵛ [t] x) →
-            let w = ne (maxᵘʳₙ (ne (ne~↓ [t] .proj₂ .proj₁)))
-            in maxᵛ v′ v″ , [↑]ᵛ (maxᵘ-substˡ* t⇒ ⊢u ⇨∷* maxᵘ-substʳ* ⊢t′ u⇒ , w) (maxᵘ-↓ᵛ w PE.refl (lift-↓ᵛ t↓) (lift-↓ᵛ u↓)) , ≡ᵛ-refl _
-      (maxᵘ-↓ᵛ (ne x) x₁ x₂ x₃) →
-        let w = ne (maxᵘˡₙ x)
-        in maxᵛ v′ v″ , [↑]ᵛ (maxᵘ-substˡ* t⇒ ⊢u , w) (maxᵘ-↓ᵛ w PE.refl (lift-↓ᵛ t↓) u↑) , ≡ᵛ-refl _
-      (ne-↓ᵛ [t] x) →
-        let w = ne (maxᵘˡₙ (ne (ne~↓ [t] .proj₂ .proj₁)))
-        in maxᵛ v′ v″ , [↑]ᵛ (maxᵘ-substˡ* t⇒ ⊢u , w) (maxᵘ-↓ᵛ w PE.refl (lift-↓ᵛ t↓) u↑) , ≡ᵛ-refl _
+            in sucᵛ a , [↑]ᵛ (maxᵘ-substˡ* t⇒ ⊢u ⇨∷* (maxᵘ-substʳ* ⊢t′ u⇒ ⇨∷* redMany (maxᵘ-sucᵘ ⊢t′ ⊢u′)) , sucᵘₙ) (sucᵘₙ PE.refl a↑) , trans-≡ᵛ (≡ᵛ-suc a≡) ≡ᵛ-maxᵘ-sucᵘ
+          (neₙ x) → maxᵛ v′ v″ , [↑]ᵛ (maxᵘ-substˡ* t⇒ ⊢u ⇨∷* maxᵘ-substʳ* ⊢t′ u⇒ , ne (maxᵘʳₙ (whnfConv~ᵛ x))) (neₙ (maxᵘʳₙ PE.refl t′↑ x)) , ≡ᵛ-refl _
+      (neₙ x) → maxᵛ v′ v″ , [↑]ᵛ (maxᵘ-substˡ* t⇒ ⊢u , ne (maxᵘˡₙ (whnfConv~ᵛ x))) (neₙ (maxᵘˡₙ PE.refl x u↑)) , ≡ᵛ-refl _
 
   ≅ₜ-maxᵘ-cong : Γ ⊢ t [conv↑] u ∷Level → Γ ⊢ t′ [conv↑] u′ ∷Level → Γ ⊢ t maxᵘ t′ [conv↑] u maxᵘ u′ ∷Level
   ≅ₜ-maxᵘ-cong ([↑]ˡ tᵛ uᵛ t↑ u↑ t≡u) ([↑]ˡ tᵛ₁ uᵛ₁ t↑₁ u↑₁ t≡u₁) =
@@ -371,7 +361,7 @@ private module Lemmas where
     in [↑]ˡ [a] [b] a↑ b↑ (trans-≡ᵛ a≡ (trans-≡ᵛ (≡ᵛ-max t≡u t≡u₁) (sym-≡ᵛ b≡)))
 
   zeroᵘ-↑ᵛ : ⊢ Γ → Γ ⊢ zeroᵘ ↑ᵛ zeroᵛ
-  zeroᵘ-↑ᵛ ⊢Γ = [↑]ᵛ (id (zeroᵘⱼ ⊢Γ) , zeroᵘₙ) (zeroᵘ-↓ᵛ ⊢Γ)
+  zeroᵘ-↑ᵛ ⊢Γ = [↑]ᵛ (id (zeroᵘⱼ ⊢Γ) , zeroᵘₙ) (zeroᵘₙ ⊢Γ)
 
   ≅ₜ-maxᵘ-zeroʳ : Γ ⊢ t [conv↑] t ∷Level → Γ ⊢ t maxᵘ zeroᵘ [conv↑] t ∷Level
   ≅ₜ-maxᵘ-zeroʳ ([↑]ˡ v _ t↑ _ _) =
@@ -404,7 +394,7 @@ private module Lemmas where
 
   ≅ₜ-maxᵘ-sub : Γ ⊢ t [conv↑] t ∷Level →  Γ ⊢ t maxᵘ sucᵘ t [conv↑] sucᵘ t ∷Level
   ≅ₜ-maxᵘ-sub ([↑]ˡ tᵛ _ t↑ _ _) =
-    let t+1↑ = lift-↓ᵛ (sucᵘ-↓ᵛ PE.refl t↑)
+    let t+1↑ = lift-↓ᵛ (sucᵘₙ PE.refl t↑)
         ttᵛ , tt↑ , tt≡ = maxᵘ-↑ᵛ t↑ t+1↑
     in [↑]ˡ ttᵛ (sucᵛ tᵛ) tt↑ t+1↑ (trans-≡ᵛ tt≡ ≡ᵛ-maxᵘ-sub)
 

@@ -356,7 +356,11 @@ mutual
     in  zero-refl ⊢Δ
   symConv↓Term Γ≡Δ (starʷ-cong x y ok no-η) =
     let ⊢Γ , ⊢Δ , _ = contextConvSubst Γ≡Δ
-    in  starʷ-cong (stabilityEqTerm Γ≡Δ (trans x y)) (stabilityEqTerm Γ≡Δ (sym (Levelⱼ ⊢Γ) y)) ok no-η
+        l₁≡l₂ = soundnessConv↑Term y
+    in  starʷ-cong
+          (stabilityEqTerm Γ≡Δ (trans x l₁≡l₂))
+          (symConv↑Term Γ≡Δ y)
+          ok no-η
   symConv↓Term Γ≡Δ (suc-cong t<>u) = suc-cong (symConv↑Term Γ≡Δ t<>u)
   symConv↓Term Γ≡Δ (prod-cong x₁ x₂ x₃ ok) =
     let Δ⊢G = stability (Γ≡Δ ∙ refl (⊢∙→⊢ (wf x₁))) x₁

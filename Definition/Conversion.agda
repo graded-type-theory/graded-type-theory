@@ -283,26 +283,37 @@ mutual
   neᵛ t~t = L.[ 0 , ne t~t ]
 
   data _⊢_↓ᵛ_ (Γ : Con Term n) : Term n → LevelView Γ → Set a where
-    zeroᵘ-↓ᵛ
+    zeroᵘₙ
       : ⊢ Γ
       → Γ ⊢ zeroᵘ ↓ᵛ zeroᵛ
-    sucᵘ-↓ᵛ
+    sucᵘₙ
       : ∀ {t v v′}
       → v PE.≡ sucᵛ v′
       → Γ ⊢ t ↑ᵛ v′
       → Γ ⊢ sucᵘ t ↓ᵛ v
-    maxᵘ-↓ᵛ
+    neₙ
+      : ∀ {v}
+      → Γ ⊢ t ~ᵛ v
+      → Γ ⊢ t ↓ᵛ v
+
+  data _⊢_~ᵛ_ (Γ : Con Term n) : Term n → LevelView Γ → Set a where
+    maxᵘˡₙ
       : ∀ {t′ t″ v v′ v″}
-      → Whnf (t′ maxᵘ t″)
       → v PE.≡ maxᵛ v′ v″
-      → Γ ⊢ t′ ↑ᵛ v′
+      → Γ ⊢ t′ ~ᵛ v′
       → Γ ⊢ t″ ↑ᵛ v″
-      → Γ ⊢ t′ maxᵘ t″ ↓ᵛ v
-    ne-↓ᵛ
+      → Γ ⊢ t′ maxᵘ t″ ~ᵛ v
+    maxᵘʳₙ
+      : ∀ {t′ t″ v v′ v″}
+      → v PE.≡ maxᵛ (sucᵛ v′) v″
+      → Γ ⊢ t′ ↑ᵛ v′
+      → Γ ⊢ t″ ~ᵛ v″
+      → Γ ⊢ sucᵘ t′ maxᵘ t″ ~ᵛ v
+    neₙ
       : ∀ {t v}
       → ([t] : Γ ⊢ t ~ t ↓ Level)
       → v PE.≡ neᵛ [t]
-      → Γ ⊢ t ↓ᵛ v
+      → Γ ⊢ t ~ᵛ v
 
   record _⊢_[conv↑]_∷Level (Γ : Con Term n) (t u : Term n) : Set a where
     inductive
@@ -374,7 +385,7 @@ mutual
     zero-refl : ⊢ Γ → Γ ⊢ zero [conv↓] zero ∷ ℕ
 
     starʷ-cong : Γ ⊢ l ≡ l₁ ∷ Level
-               → Γ ⊢ l₁ ≡ l₂ ∷ Level
+               → Γ ⊢ l₁ [conv↑] l₂ ∷ Level
                → Unitʷ-allowed
                → ¬ Unitʷ-η
                → Γ ⊢ starʷ l₁ [conv↓] starʷ l₂ ∷ Unitʷ l

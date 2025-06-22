@@ -1168,10 +1168,17 @@ mutual
         yes (η-unit x ⊢t ([conv↓]∷→∷ u≡) t-whnf u-whnf ok η)
       (inj₂ (no-η , _)) → ⊥-elim (no-η η)
   decConv↓Term (starʷ-cong x y ok no-η) u≡ =
-    let ⊢Γ = wfEqTerm x
-    in case inv-[conv↓]∷-Unitʷ u≡ of λ where
+    case inv-[conv↓]∷-Unitʷ u≡ of λ where
       (inj₁ (_ , inj₂ (l₃ , l₄ , PE.refl , PE.refl , w , z))) →
-        yes (starʷ-cong x (trans (sym (Levelⱼ ⊢Γ) x) w) ok no-η)
+        case decConv↑Term y z of λ where
+          (yes l₁≡l₃) → yes (starʷ-cong x l₁≡l₃ ok no-η)
+          (no not) → no λ ⋆≡⋆ →
+            case inv-[conv↓]∷-Unitʷ ⋆≡⋆ of λ where
+              (inj₁ (_ , inj₂ (_ , _ , PE.refl , PE.refl , l≡l₁ , l₁≡l₃))) →
+                not l₁≡l₃
+              (inj₁ (_ , inj₁ (↑ _ ⋆~⋆))) →
+                ⊥-elim (inv-star~ ⋆~⋆)
+              (inj₂ (η , _)) → ⊥-elim (no-η η)
       (inj₁ (_ , inj₁ u~))            →
         no λ ⋆≡ → no-η (≡starʷ→~↓Unitʷ→Unitʷ-η u~ (symConv↓Term′ ⋆≡))
       (inj₂ (η , _)) → ⊥-elim (no-η η)
