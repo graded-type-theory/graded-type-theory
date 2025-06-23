@@ -242,6 +242,16 @@ import Graded.Modality.Instances.Set.Interval.Implementation
 import Graded.Modality.Instances.Relevancy
 
 ------------------------------------------------------------------------
+-- A combination of typing and usage
+
+-- A combination of typing and usage for the erasure modality with
+-- modes.
+
+import Graded.Modality.Instances.Erasure.Combined
+import Graded.Modality.Instances.Erasure.Combined.Equivalent
+import Graded.Modality.Instances.Erasure.Combined.Properties
+
+------------------------------------------------------------------------
 -- Properties of the type theory
 
 -- The logical relation for reducibility.
