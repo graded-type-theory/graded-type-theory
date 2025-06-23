@@ -181,14 +181,8 @@ opaque mutual
   -- If A is well-formed and well-resourced, then A is well-resourced.
 
   ⊢[]→▸ : γ ▸ Γ ⊢[ p ] A → γ ▸[ ⌞ p ⌟ ] A
-  ⊢[]→▸ (U ⊢Γ) =
-    sub Uₘ (greatest-elemᶜ _)
   ⊢[]→▸ (univ ⊢A) =
     ⊢∷[]→▸ ⊢A
-  ⊢[]→▸ (Empty ⊢Γ) =
-    sub Emptyₘ (greatest-elemᶜ _)
-  ⊢[]→▸ (Unit ok ⊢Γ) =
-    sub Unitₘ (greatest-elemᶜ _)
   ⊢[]→▸ {γ} {p} (ΠΣ {q} ok ⊢A ⊢B) =
     sub
       (ΠΣₘ (▸-cong (PE.sym ⌞⌟ᵐ·) (⊢[]→▸ ⊢A))
@@ -200,8 +194,6 @@ opaque mutual
          γ +ᶜ γ  ∎)
     where
     open ≤ᶜ-reasoning
-  ⊢[]→▸ (ℕ ⊢Γ) =
-    sub ℕₘ (greatest-elemᶜ _)
   ⊢[]→▸ {γ} (Id {δ} _ hyp ⊢A ⊢t ⊢u) with Id-erased?
   … | yes erased =
     sub (Id₀ₘ erased (⊢→▸? ⊢A) (⊢∷[]→▸? ⊢t) (⊢∷[]→▸? ⊢u))
@@ -537,18 +529,10 @@ opaque mutual
   -- If A is well-formed and well-resourced, then A is well-formed.
 
   ⊢[]→⊢ : γ ▸ Γ ⊢[ p ] A → Γ T.⊢ A
-  ⊢[]→⊢ (U ⊢Γ) =
-    Uⱼ (⊢→⊢ ⊢Γ)
   ⊢[]→⊢ (univ ⊢A) =
     univ (⊢∷[]→⊢∷ ⊢A)
-  ⊢[]→⊢ (Empty ⊢Γ) =
-    Emptyⱼ (⊢→⊢ ⊢Γ)
-  ⊢[]→⊢ (Unit ok ⊢Γ) =
-    Unitⱼ (⊢→⊢ ⊢Γ) ok
   ⊢[]→⊢ (ΠΣ ok _ ⊢B) =
     ΠΣⱼ (⊢[]→⊢ ⊢B) ok
-  ⊢[]→⊢ (ℕ ⊢Γ) =
-    ℕⱼ (⊢→⊢ ⊢Γ)
   ⊢[]→⊢ (Id _ _ _ ⊢t ⊢u) =
     Idⱼ′ (⊢∷[]→⊢∷ ⊢t) (⊢∷[]→⊢∷ ⊢u)
 
@@ -809,18 +793,18 @@ module _
         Γ C.⊢ A
       ⊢←⊢ₛ hyp = let open Variants hyp in λ where
         (Uⱼ ⊢Γ) PE.refl →
-          U (⊢←⊢′ ⊢Γ)
+          univ (U (⊢←⊢′ ⊢Γ))
         (univ ⊢A) PE.refl →
           univ (⊢∷←⊢∷ ⊢A)
         (Emptyⱼ ⊢Γ) PE.refl →
-          Empty (⊢←⊢′ ⊢Γ)
+          univ (Empty (⊢←⊢′ ⊢Γ))
         (Unitⱼ ⊢Γ ok) PE.refl →
-          Unit ok (⊢←⊢′ ⊢Γ)
+          univ (Unit ok (⊢←⊢′ ⊢Γ))
         (ΠΣⱼ ⊢B ok) PE.refl →
           let _ , ⊢A = ∙⊢→⊢-<ˢ ⊢B in
           ΠΣ ok (⊢←⊢-<ˢ ⊢A) (⊢←⊢ ⊢B)
         (ℕⱼ ⊢Γ) PE.refl →
-          ℕ (⊢←⊢′ ⊢Γ)
+          univ (ℕ (⊢←⊢′ ⊢Γ))
         (Idⱼ ⊢A ⊢t ⊢u) PE.refl →
           case Id-erased? of λ where
             (yes erased) →
@@ -1117,13 +1101,13 @@ module _
 
     ⊢[]←⊢▸ : Γ T.⊢ A → γ ▸[ ⌞ p ⌟ ] A → γ ▸ Γ ⊢[ p ] A
     ⊢[]←⊢▸ (Uⱼ ⊢Γ) _ =
-      U (⊢←⊢′ ⊢Γ)
+      univ (U (⊢←⊢′ ⊢Γ))
     ⊢[]←⊢▸ (univ ⊢A) ▸A =
       univ (⊢∷[]←⊢∷▸ ⊢A ▸A)
     ⊢[]←⊢▸ (Emptyⱼ ⊢Γ) _ =
-      Empty (⊢←⊢′ ⊢Γ)
+      univ (Empty (⊢←⊢′ ⊢Γ))
     ⊢[]←⊢▸ (Unitⱼ ⊢Γ ok) _ =
-      Unit ok (⊢←⊢′ ⊢Γ)
+      univ (Unit ok (⊢←⊢′ ⊢Γ))
     ⊢[]←⊢▸ {γ} {p} (ΠΣⱼ {q} ⊢B ok) ▸ΠΣ =
       let open ≤ᶜ-reasoning
           invUsageΠΣ {δ} {η} ▸A ▸B γ≤δ+η = inv-usage-ΠΣ ▸ΠΣ
@@ -1140,7 +1124,7 @@ module _
            δ +ᶜ η ∙ p         · q  ≤⟨ +ᶜ-decreasingʳ _ _ ∙ ·≤⌜⌞⌟⌝· ⟩
            η      ∙ ⌜ ⌞ p ⌟ ⌝ · q  ∎)
     ⊢[]←⊢▸ (ℕⱼ ⊢Γ) _ =
-      ℕ (⊢←⊢′ ⊢Γ)
+      univ (ℕ (⊢←⊢′ ⊢Γ))
     ⊢[]←⊢▸ {γ} (Idⱼ ⊢A ⊢t ⊢u) ▸Id =
       case inv-usage-Id ▸Id of λ where
         (invUsageId {δ} {η} not-erased _ ▸t ▸u γ≤δ+η) →

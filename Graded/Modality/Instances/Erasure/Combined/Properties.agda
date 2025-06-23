@@ -58,18 +58,10 @@ opaque mutual
   -- Subsumption for _▸_⊢[_]_.
 
   sub-⊢ : γ ▸ Γ ⊢[ p ] A → δ ≤ᶜ γ → δ ▸ Γ ⊢[ p ] A
-  sub-⊢ (U ⊢Γ) _ =
-    U ⊢Γ
   sub-⊢ (univ ⊢A) δ≤γ =
     univ (sub-⊢∷ ⊢A δ≤γ)
-  sub-⊢ (Empty ⊢Γ) _ =
-    Empty ⊢Γ
-  sub-⊢ (Unit ok ⊢Γ) _ =
-    Unit ok ⊢Γ
   sub-⊢ (ΠΣ ok ⊢A ⊢B) δ≤γ =
     ΠΣ ok (sub-⊢ ⊢A δ≤γ) (sub-⊢ ⊢B (δ≤γ ∙ ≤-refl))
-  sub-⊢ (ℕ ⊢Γ) _ =
-    ℕ ⊢Γ
   sub-⊢ {γ} {δ} (Id {δ = η} hyp₁ hyp₂ ⊢A ⊢t ⊢u) δ≤γ =
     case Id-erased? of λ where
       (yes erased) →

@@ -79,21 +79,12 @@ mutual
 
   data _▸_⊢[_]_ (γ : Conₘ n) (Γ : Con Term n) (r : Erasure) :
          Term n → Set where
-    U     : ⊢ Γ →
-            γ ▸ Γ ⊢[ r ] U l
     univ  : γ ▸ Γ ⊢ A ∷[ r ] U l →
             γ ▸ Γ ⊢[ r ] A
-    Empty : ⊢ Γ →
-            γ ▸ Γ ⊢[ r ] Empty
-    Unit  : Unit-allowed s →
-            ⊢ Γ →
-            γ ▸ Γ ⊢[ r ] Unit s l
     ΠΣ    : ΠΣ-allowed b p q →
             γ ▸ Γ ⊢[ r · p ] A →
             γ ∙ r · q ▸ Γ ∙ A ⊢[ r ] B →
             γ ▸ Γ ⊢[ r ] ΠΣ⟨ b ⟩ p , q ▷ A ▹ B
-    ℕ     : ⊢ Γ →
-            γ ▸ Γ ⊢[ r ] ℕ
     Id    : (Id-erased → δ PE.≡ 𝟘ᶜ × r′ PE.≡ 𝟘) →
             (¬ Id-erased → δ PE.≡ γ × r′ PE.≡ r) →
             Γ ⊢ A →
