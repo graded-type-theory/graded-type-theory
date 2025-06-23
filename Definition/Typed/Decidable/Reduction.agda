@@ -73,7 +73,7 @@ opaque
     is-U starₙ     = no λ ()
     is-U prodₙ     = no λ ()
     is-U rflₙ      = no λ ()
-    is-U (ne B-ne) = no (N.U≢sne B-ne ∘→ proj₂)
+    is-U (ne B-ne) = no (N.U≢neˡ B-ne ∘→ proj₂)
 
 opaque
 

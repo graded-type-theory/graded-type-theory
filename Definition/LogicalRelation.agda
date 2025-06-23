@@ -116,7 +116,7 @@ _⊩Level_≡_ : (Γ : Con Term ℓ) (A B : Term ℓ) → Set a
 Γ ⊩Level A ≡ B = Γ ⊢ B ⇒* Level
 
 mutual
-  -- Level term
+  -- Level terms
   record _⊩Level_∷Level (Γ : Con Term ℓ) (t : Term ℓ) : Set a where
     inductive
     no-eta-equality
@@ -127,12 +127,13 @@ mutual
       d : Γ ⊢ t ⇒* k ∷ Level
       prop : Level-prop Γ k
 
-  -- WHNF property of level term
+  -- WHNF property of level terms
   data Level-prop (Γ : Con Term ℓ) : (k : Term ℓ) → Set a where
     zeroᵘᵣ : Level-prop Γ zeroᵘ
     sucᵘᵣ  : ∀ {k} → Γ ⊩Level k ∷Level → Level-prop Γ (sucᵘ k)
     neLvl : ∀ {k} → neLevel-prop Γ k → Level-prop Γ k
 
+  -- Neutral property of level terms
   data neLevel-prop (Γ : Con Term ℓ) : (k : Term ℓ) → Set a where
     maxᵘˡᵣ
       : ∀ {k₁ k₂}
@@ -186,6 +187,7 @@ mutual
       → [Level]-prop Γ k′ k″
       → [Level]-prop Γ k k″
 
+  -- Neutral property of level term equality
   data [neLevel]-prop (Γ : Con Term ℓ) : (k k′ : Term ℓ) → Set a where
     maxᵘˡᵣ
       : ∀ {k₁ k₂ k₁′ k₂′}

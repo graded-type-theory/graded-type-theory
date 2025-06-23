@@ -49,15 +49,15 @@ mutual
     starₙ  : Nf l → Nf (star s l)
     rflₙ   : Nf rfl
 
-    ne     : NfSemineutral n → Nf n
+    ne     : NfNeutralˡ n → Nf n
 
   -- Neutral terms for which the "non-neutral parts" are in normal
   -- form.
 
-  data NfSemineutral {m : Nat} : Term m → Set a where
-    maxᵘˡₙ    : NfSemineutral t → Nf u → NfSemineutral (t maxᵘ u)
-    maxᵘʳₙ    : Nf t → NfSemineutral u → NfSemineutral (sucᵘ t maxᵘ u)
-    ne        : NfNeutral n → NfSemineutral n
+  data NfNeutralˡ {m : Nat} : Term m → Set a where
+    maxᵘˡₙ    : NfNeutralˡ t → Nf u → NfNeutralˡ (t maxᵘ u)
+    maxᵘʳₙ    : Nf t → NfNeutralˡ u → NfNeutralˡ (sucᵘ t maxᵘ u)
+    ne        : NfNeutral n → NfNeutralˡ n
 
   data NfNeutral {m : Nat} : Term m → Set a where
     var       : (x : Fin m) → NfNeutral (var x)
@@ -96,10 +96,10 @@ nfNeutral = λ where
   (Kₙ _ _ _ _ n)          → Kₙ (nfNeutral n)
   ([]-congₙ _ _ _ n)      → []-congₙ (nfNeutral n)
 
-nfSemineutral : NfSemineutral n → Semineutral n
-nfSemineutral (maxᵘˡₙ n x) = maxᵘˡₙ (nfSemineutral n)
-nfSemineutral (maxᵘʳₙ x n) = maxᵘʳₙ (nfSemineutral n)
-nfSemineutral (ne x) = ne (nfNeutral x)
+nfNeutralˡ : NfNeutralˡ n → Neutralˡ n
+nfNeutralˡ (maxᵘˡₙ n x) = maxᵘˡₙ (nfNeutralˡ n)
+nfNeutralˡ (maxᵘʳₙ x n) = maxᵘʳₙ (nfNeutralˡ n)
+nfNeutralˡ (ne x) = ne (nfNeutral x)
 
 -- Normal forms are in WHNF.
 
@@ -122,4 +122,4 @@ nfWhnf = λ where
   (sucₙ _)    → sucₙ
   (starₙ _)   → starₙ
   rflₙ        → rflₙ
-  (ne n)      → ne (nfSemineutral n)
+  (ne n)      → ne (nfNeutralˡ n)

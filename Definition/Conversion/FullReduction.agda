@@ -342,7 +342,7 @@ mutual
   fullRedTermConv~ᵛ :
     ∀ {tᵛ} →
     Γ ⊢ t ~ᵛ tᵛ →
-    ∃ λ u → Γ ⊢sne u ∷ Level × Γ ⊢ t ≡ u ∷ Level
+    ∃ λ u → Γ ⊢neˡ u ∷ Level × Γ ⊢ t ≡ u ∷ Level
   fullRedTermConv~ᵛ (maxᵘˡₙ x t~ u↑) =
     let t′ , ⊢t′ , t≡t′ = fullRedTermConv~ᵛ t~
         u′ , ⊢u′ , u≡u′ = fullRedTermConv↑ᵛ u↑

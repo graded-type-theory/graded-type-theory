@@ -15,7 +15,7 @@ open Type-restrictions R
 
 open import Definition.Untyped M
 open import Definition.Untyped.Neutral M type-variant as U
-  using (Neutral; Semineutral; No-η-equality; Whnf)
+  using (Neutral; Neutralˡ; No-η-equality; Whnf)
 open import Definition.Typed R
 open import Definition.Typed.EqRelInstance R
 open import Definition.Typed.Properties R
@@ -589,20 +589,20 @@ No-η-equality→≢Unit = λ where
   (U.neₙ A-ne)    A≡Unit      _              → Unit≢neⱼ A-ne
                                                  (sym A≡Unit)
 
--- If A is a type without η-equality, then a non-semi-neutral WHNF is not
+-- If A is a type without η-equality, then a non-neutral WHNF is not
 -- definitionally equal at type A to any neutral term (given a certain
 -- assumption).
 
--- TODO: this is not straightforward any more because a neutral level
--- can be equal to a semineutral level (k ≡ k ⊔ k) and a semineutral
--- level can be equal to a non-semineutral level (k ⊔ sucᵘ k ≡ sucᵘ k),
--- but it should still be true (a neutral level can never be equal to
+-- TODO: this is not straightforward any more because a neutral term
+-- can be equal to a neutral level (k ≡ k ⊔ k) and a neutral
+-- level can be equal to a non-neutral level (k ⊔ sucᵘ k ≡ sucᵘ k),
+-- but it should still be true (a neutral term can never be equal to
 -- zeroᵘ or a successor level).
 
 {-
 whnf≢ne :
   ⦃ ok : No-equality-reflection or-empty Γ ⦄ →
-  No-η-equality A → Whnf t → ¬ Semineutral t → Neutral u →
+  No-η-equality A → Whnf t → ¬ Neutralˡ t → Neutral u →
   ¬ Γ ⊢ t ≡ u ∷ A
 whnf≢ne {Γ} {A} {t} {u} ¬-A-η t-whnf ¬-t-ne u-ne t≡u =
   case reducible-⊩≡∷ t≡u of λ
@@ -617,14 +617,14 @@ whnf≢ne {Γ} {A} {t} {u} ¬-A-η t-whnf ¬-t-ne u-ne t≡u =
       PE.refl →
     ¬-A-η }
 
-  ¬t⇒*sne : Γ ⊢ t ⇒* v ∷ B → ¬ Semineutral v
-  ¬t⇒*sne t⇒*v v-ne =
+  ¬t⇒*neˡ : Γ ⊢ t ⇒* v ∷ B → ¬ Neutralˡ v
+  ¬t⇒*neˡ t⇒*v v-ne =
     case whnfRed*Term t⇒*v t-whnf of λ {
       PE.refl →
     ¬-t-ne v-ne }
 
   ¬t⇒*ne : Γ ⊢ t ⇒* v ∷ B → ¬ Neutral v
-  ¬t⇒*ne t⇒*v v-ne = ¬t⇒*sne t⇒*v (U.ne v-ne)
+  ¬t⇒*ne t⇒*v v-ne = ¬t⇒*neˡ t⇒*v (U.ne v-ne)
 
   u⇒*ne : Γ ⊢ u ⇒* v ∷ B → Neutral v
   u⇒*ne u⇒*v =
@@ -633,26 +633,26 @@ whnf≢ne {Γ} {A} {t} {u} ¬-A-η t-whnf ¬-t-ne u-ne t≡u =
     u-ne }
 
   mutual
-    whnf≢ne∷Level : ∀ {t u} → ¬ Semineutral t → Neutral u → ¬ [Level]-prop Γ t u
-    whnf≢ne∷Level ¬sne () zeroᵘᵣ
-    whnf≢ne∷Level ¬sne () (sucᵘᵣ x)
-    whnf≢ne∷Level ¬sne () (maxᵘ-subᵣ x x₁)
-    whnf≢ne∷Level ¬sne n (neLvl x) = ¬sne (nelsplit x .proj₁)
-    whnf≢ne∷Level ¬sne n (sym x) = ne≢whnf∷Level ¬sne n x
-    whnf≢ne∷Level ¬sne n (trans x y) = ?
+    whnf≢ne∷Level : ∀ {t u} → ¬ Neutralˡ t → Neutral u → ¬ [Level]-prop Γ t u
+    whnf≢ne∷Level ¬neˡ () zeroᵘᵣ
+    whnf≢ne∷Level ¬neˡ () (sucᵘᵣ x)
+    whnf≢ne∷Level ¬neˡ () (maxᵘ-subᵣ x x₁)
+    whnf≢ne∷Level ¬neˡ n (neLvl x) = ¬neˡ (nelsplit x .proj₁)
+    whnf≢ne∷Level ¬neˡ n (sym x) = ne≢whnf∷Level ¬neˡ n x
+    whnf≢ne∷Level ¬neˡ n (trans x y) = ?
 
-    ne≢whnf∷Level : ∀ {t u} → ¬ Semineutral t → Neutral u → ¬ [Level]-prop Γ u t
-    ne≢whnf∷Level ¬sne () zeroᵘᵣ
-    ne≢whnf∷Level ¬sne () (sucᵘᵣ x)
-    ne≢whnf∷Level ¬sne () (maxᵘ-subᵣ x x₁)
-    ne≢whnf∷Level ¬sne n (neLvl x) = ¬sne (nelsplit x .proj₂)
-    ne≢whnf∷Level ¬sne n (sym x) = whnf≢ne∷Level ¬sne n x
-    ne≢whnf∷Level ¬sne n (trans x y) = ?
+    ne≢whnf∷Level : ∀ {t u} → ¬ Neutralˡ t → Neutral u → ¬ [Level]-prop Γ u t
+    ne≢whnf∷Level ¬neˡ () zeroᵘᵣ
+    ne≢whnf∷Level ¬neˡ () (sucᵘᵣ x)
+    ne≢whnf∷Level ¬neˡ () (maxᵘ-subᵣ x x₁)
+    ne≢whnf∷Level ¬neˡ n (neLvl x) = ¬neˡ (nelsplit x .proj₂)
+    ne≢whnf∷Level ¬neˡ n (sym x) = whnf≢ne∷Level ¬neˡ n x
+    ne≢whnf∷Level ¬neˡ n (trans x y) = ?
 
   lemma : ∀ {l} → ([A] : Γ ⊩⟨ l ⟩ A) → ¬ Γ ⊩⟨ l ⟩ t ≡ u ∷ A / [A]
   lemma = λ where
     (Levelᵣ _) (Levelₜ₌ _ _ t⇒ u⇒ prop) →
-      whnf≢ne∷Level (¬t⇒*sne t⇒) (u⇒*ne u⇒) prop
+      whnf≢ne∷Level (¬t⇒*neˡ t⇒) (u⇒*ne u⇒) prop
     (ℕᵣ _) (ℕₜ₌ _ _ _ u⇒*zero _ zeroᵣ) →
       U.zero≢ne (u⇒*ne u⇒*zero) PE.refl
     (ℕᵣ _) (ℕₜ₌ _ _ _ u⇒*suc _ (sucᵣ _)) →

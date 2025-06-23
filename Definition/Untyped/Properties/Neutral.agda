@@ -159,13 +159,13 @@ opaque
 
 opaque
 
-  -- Terms that are semi-neutral after applying a substitution are semi-neutral
+  -- Terms that are neutral levels after applying a substitution are neutral levels
   -- before applying the substitution.
 
-  semineutral-subst : Semineutral (t [ σ ]) → Semineutral t
-  semineutral-subst n = lemma n refl
+  neutralˡ-subst : Neutralˡ (t [ σ ]) → Neutralˡ t
+  neutralˡ-subst n = lemma n refl
     where
-    lemma : Semineutral u → t [ σ ] ≡ u → Semineutral t
+    lemma : Neutralˡ u → t [ σ ] ≡ u → Neutralˡ t
     lemma {t} (maxᵘˡₙ n) ≡u =
       case subst-maxᵘ {t = t} ≡u of λ {
         (inj₁ (_ , refl)) → ne (var _);
@@ -257,7 +257,7 @@ opaque
         (inj₁ (_ , refl)) → ne! (var _)
         (inj₂ refl) → rflₙ
     lemma ≡u (ne n) =
-      ne (semineutral-subst (subst Semineutral (sym ≡u) n))
+      ne (neutralˡ-subst (subst Neutralˡ (sym ≡u) n))
 
 opaque
 

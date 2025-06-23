@@ -68,18 +68,24 @@ noClosedNe (Jₙ net) = noClosedNe net
 noClosedNe (Kₙ net) = noClosedNe net
 noClosedNe ([]-congₙ net) = noClosedNe net
 
-------------------------------------------------------------------------
--- Semi-neutral terms
+-- Neutral level expressions form a separate syntactic category:
+-- they are not ordinary neutrals because they are not reducible
+-- a priori: for example, if n is neutral, then n maxᵘ t is only
+-- reducible if t is, so that we can accurately reflect levels.
 
--- Neutral level expressions form a separate syntactic category which
--- we call "semi-neutral". They are not ordinary neutrals because they
--- may include parts in WHNF and thus are not included in the logical
--- relation a priori.
+data Neutralˡ : Term n → Set a where
+  maxᵘˡₙ : Neutralˡ t → Neutralˡ (t maxᵘ u)
+  maxᵘʳₙ : Neutralˡ u → Neutralˡ (sucᵘ t maxᵘ u)
 
-data Semineutral : Term n → Set a where
-  maxᵘˡₙ : Semineutral t → Semineutral (t maxᵘ u)
-  maxᵘʳₙ : Semineutral u → Semineutral (sucᵘ t maxᵘ u)
-  ne     : Neutral t → Semineutral t
+  -- Join-free neutral terms are neutral levels
+  ne     : Neutral t → Neutralˡ t
+
+-- There are no closed neutral level terms
+
+noClosedNeˡ : {t : Term 0} → Neutralˡ t → ⊥
+noClosedNeˡ (maxᵘˡₙ x) = noClosedNeˡ x
+noClosedNeˡ (maxᵘʳₙ x) = noClosedNeˡ x
+noClosedNeˡ (ne x) = noClosedNe x
 
 ------------------------------------------------------------------------
 -- Weak head normal forms (WHNFs)
@@ -109,8 +115,8 @@ data Whnf {n : Nat} : Term n → Set a where
   prodₙ : Whnf (prod s p t u)
   rflₙ  : Whnf rfl
 
-  -- Semi-neutrals are whnfs.
-  ne    : Semineutral t → Whnf t
+  -- Neutral levels are whnfs. Since neutrals are untyped, this includes all neutrals.
+  ne    : Neutralˡ t → Whnf t
 
 -- Neutrals are whnfs.
 pattern ne! x = ne (ne x)
@@ -124,10 +130,10 @@ pattern ne! x = ne (ne x)
 Level≢ne : Neutral A → Level PE.≢ A
 Level≢ne () PE.refl
 
-U≢sne : Semineutral A → U l PE.≢ A
-U≢sne (maxᵘˡₙ _) ()
-U≢sne (maxᵘʳₙ _) ()
-U≢sne (ne ()) PE.refl
+U≢neˡ : Neutralˡ A → U l PE.≢ A
+U≢neˡ (maxᵘˡₙ _) ()
+U≢neˡ (maxᵘʳₙ _) ()
+U≢neˡ (ne ()) PE.refl
 
 U≢ne : Neutral A → U l PE.≢ A
 U≢ne () PE.refl
@@ -223,10 +229,10 @@ Id≢Level ()
 Id≢Lift : Id A t u PE.≢ Lift l B
 Id≢Lift ()
 
-zeroᵘ≢ne : Semineutral t → zeroᵘ PE.≢ t
+zeroᵘ≢ne : Neutralˡ t → zeroᵘ PE.≢ t
 zeroᵘ≢ne n PE.refl = case n of λ { (ne ()) }
 
-sucᵘ≢ne : Semineutral t → sucᵘ u PE.≢ t
+sucᵘ≢ne : Neutralˡ t → sucᵘ u PE.≢ t
 sucᵘ≢ne n PE.refl = case n of λ { (ne ()) }
 
 sucᵘ≢zeroᵘ : sucᵘ t PE.≢ zeroᵘ
@@ -401,12 +407,12 @@ wkNeutral ρ (Jₙ n)              = Jₙ (wkNeutral ρ n)
 wkNeutral ρ (Kₙ n)              = Kₙ (wkNeutral ρ n)
 wkNeutral ρ ([]-congₙ n)        = []-congₙ (wkNeutral ρ n)
 
--- Weakening of a semi-neutral term.
+-- Weakening of a neutral level term.
 
-wkSemineutral : ∀ ρ → Semineutral t → Semineutral {n = n} (wk ρ t)
-wkSemineutral ρ (maxᵘˡₙ t) = maxᵘˡₙ (wkSemineutral ρ t)
-wkSemineutral ρ (maxᵘʳₙ t) = maxᵘʳₙ (wkSemineutral ρ t)
-wkSemineutral ρ (ne n)     = ne (wkNeutral ρ n)
+wkNeutralˡ : ∀ ρ → Neutralˡ t → Neutralˡ {n = n} (wk ρ t)
+wkNeutralˡ ρ (maxᵘˡₙ t) = maxᵘˡₙ (wkNeutralˡ ρ t)
+wkNeutralˡ ρ (maxᵘʳₙ t) = maxᵘʳₙ (wkNeutralˡ ρ t)
+wkNeutralˡ ρ (ne n)     = ne (wkNeutral ρ n)
 
 -- Weakening can be applied to our whnf views.
 
@@ -456,7 +462,7 @@ wkWhnf ρ zeroₙ   = zeroₙ
 wkWhnf ρ sucₙ    = sucₙ
 wkWhnf ρ starₙ   = starₙ
 wkWhnf ρ rflₙ    = rflₙ
-wkWhnf ρ (ne x)  = ne (wkSemineutral ρ x)
+wkWhnf ρ (ne x)  = ne (wkNeutralˡ ρ x)
 
 ------------------------------------------------------------------------
 -- Inversion lemmas for Neutral

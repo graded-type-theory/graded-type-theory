@@ -31,9 +31,9 @@ private variable
 
 opaque
 
-  -- If t satisfies neLevel-prop Γ, then it is semineutral.
+  -- If t satisfies neLevel-prop Γ, then it is a neutral level.
 
-  nelevel : neLevel-prop Γ t → Semineutral t
+  nelevel : neLevel-prop Γ t → Neutralˡ t
   nelevel (maxᵘˡᵣ x x₁) = maxᵘˡₙ (nelevel x)
   nelevel (maxᵘʳᵣ x x₁) = maxᵘʳₙ (nelevel x₁)
   nelevel (ne (neNfₜ₌ _ neK neM k≡m)) = ne neK
@@ -47,9 +47,9 @@ opaque
 
 opaque
 
-  -- If t and u satisfy [neLevel]-prop Γ, then they are semineutrals.
+  -- If t and u satisfy [neLevel]-prop Γ, then they are neutral levels.
 
-  nelsplit : [neLevel]-prop Γ t u → Semineutral t × Semineutral u
+  nelsplit : [neLevel]-prop Γ t u → Neutralˡ t × Neutralˡ u
   nelsplit (maxᵘˡᵣ t≡u x) = let a , b = nelsplit t≡u in maxᵘˡₙ a , maxᵘˡₙ b
   nelsplit (maxᵘʳᵣ x t≡u) = let a , b = nelsplit t≡u in maxᵘʳₙ a , maxᵘʳₙ b
   nelsplit (maxᵘ-zeroʳᵣ [u]) = let a = nelevel [u] in maxᵘˡₙ a , a

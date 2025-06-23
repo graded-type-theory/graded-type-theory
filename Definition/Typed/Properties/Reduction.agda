@@ -431,24 +431,24 @@ opaque
   neRed (univ x) N = neRedTerm x N
 
 ------------------------------------------------------------------------
--- Some lemmas related to semi-neutral terms
+-- Some lemmas related to neutral levels
 
 opaque
 
-  -- Semi-neutral terms do not reduce.
+  -- Neutral levels do not reduce.
 
-  sneRedTerm : Γ ⊢ t ⇒ u ∷ A → ¬ Semineutral t
-  sneRedTerm (conv d _) n = sneRedTerm d n
-  sneRedTerm (maxᵘ-substˡ d _) (maxᵘˡₙ n) = sneRedTerm d n
-  sneRedTerm (maxᵘ-zeroˡ _) (maxᵘˡₙ (ne ()))
-  sneRedTerm (maxᵘ-substʳ x x₁) (maxᵘˡₙ (ne ()))
-  sneRedTerm (maxᵘ-zeroʳ x) (maxᵘˡₙ (ne ()))
-  sneRedTerm (maxᵘ-sucᵘ x x₁) (maxᵘˡₙ (ne ()))
-  sneRedTerm (maxᵘ-substˡ d _) (maxᵘʳₙ _) = ¬sucᵘ⇒ d
-  sneRedTerm (maxᵘ-substʳ _ d) (maxᵘʳₙ n) = sneRedTerm d n
-  sneRedTerm (maxᵘ-zeroʳ _) (maxᵘʳₙ (ne ()))
-  sneRedTerm (maxᵘ-sucᵘ _ _) (maxᵘʳₙ (ne ()))
-  sneRedTerm d (ne n) = neRedTerm d n
+  neˡRedTerm : Γ ⊢ t ⇒ u ∷ A → ¬ Neutralˡ t
+  neˡRedTerm (conv d _) n = neˡRedTerm d n
+  neˡRedTerm (maxᵘ-substˡ d _) (maxᵘˡₙ n) = neˡRedTerm d n
+  neˡRedTerm (maxᵘ-zeroˡ _) (maxᵘˡₙ (ne ()))
+  neˡRedTerm (maxᵘ-substʳ x x₁) (maxᵘˡₙ (ne ()))
+  neˡRedTerm (maxᵘ-zeroʳ x) (maxᵘˡₙ (ne ()))
+  neˡRedTerm (maxᵘ-sucᵘ x x₁) (maxᵘˡₙ (ne ()))
+  neˡRedTerm (maxᵘ-substˡ d _) (maxᵘʳₙ _) = ¬sucᵘ⇒ d
+  neˡRedTerm (maxᵘ-substʳ _ d) (maxᵘʳₙ n) = neˡRedTerm d n
+  neˡRedTerm (maxᵘ-zeroʳ _) (maxᵘʳₙ (ne ()))
+  neˡRedTerm (maxᵘ-sucᵘ _ _) (maxᵘʳₙ (ne ()))
+  neˡRedTerm d (ne n) = neRedTerm d n
 
 ------------------------------------------------------------------------
 -- Some lemmas related to WHNFs
@@ -463,8 +463,8 @@ opaque
     (maxᵘ-zeroˡ _)            → λ { (ne (maxᵘˡₙ (ne ()))); (ne! ()) }
     (maxᵘ-zeroʳ _)            → λ { (ne (maxᵘˡₙ (ne ()))); (ne (maxᵘʳₙ (ne ()))); (ne! ()) }
     (maxᵘ-sucᵘ _ _)           → λ { (ne (maxᵘˡₙ (ne ()))); (ne (maxᵘʳₙ (ne ()))); (ne! ()) }
-    (maxᵘ-substˡ d _)         → λ { (ne (maxᵘˡₙ n)) → sneRedTerm d n; (ne (maxᵘʳₙ n)) → ¬sucᵘ⇒ d; (ne! ()) }
-    (maxᵘ-substʳ _ d)         → λ { (ne (maxᵘˡₙ (ne ()))); (ne (maxᵘʳₙ n)) → sneRedTerm d n; (ne! ()) }
+    (maxᵘ-substˡ d _)         → λ { (ne (maxᵘˡₙ n)) → neˡRedTerm d n; (ne (maxᵘʳₙ n)) → ¬sucᵘ⇒ d; (ne! ()) }
+    (maxᵘ-substʳ _ d)         → λ { (ne (maxᵘˡₙ (ne ()))); (ne (maxᵘʳₙ n)) → neˡRedTerm d n; (ne! ()) }
     (lower-subst x)           → neRedTerm x ∘→ inv-whnf-lower
     (Lift-β x x₁ x₂)          → (λ ()) ∘→ inv-whnf-lower
     (app-subst d _)           → neRedTerm d ∘→ inv-whnf-∘
