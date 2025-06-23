@@ -31,9 +31,10 @@ private variable
 --               bounds.
 
 data Natrec-mode : Set a where
-  Nr        : ⦃ Has-nr semiring-with-meet ⦄ → Natrec-mode
+  Nr        : ⦃ has-nr : Has-nr semiring-with-meet ⦄ → Natrec-mode
   No-nr     : Natrec-mode
-  No-nr-glb : ⦃ Has-well-behaved-GLBs semiring-with-meet ⦄ → Natrec-mode
+  No-nr-glb : ⦃ ok : Has-well-behaved-GLBs semiring-with-meet ⦄ →
+              Natrec-mode
 
 private variable
   nm : Natrec-mode
