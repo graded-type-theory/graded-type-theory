@@ -174,27 +174,24 @@ opaque mutual
     case J-view p q ⌞ r ⌟ of λ where
       (is-all ≡all) →
         case hyp₃ ≡all of λ {
-          (PE.refl , PE.refl , PE.refl , PE.refl , PE.refl , PE.refl) →
+          (PE.refl , PE.refl , PE.refl , PE.refl) →
         J (λ ≤some → case ≤ᵉᵐ→≡all→≡all ≤some ≡all of λ ())
           (λ ≡some _ _ → case PE.trans (PE.sym ≡some) ≡all of λ ())
-          (λ _ →
-             PE.refl , PE.refl , PE.refl , PE.refl , PE.refl , PE.refl)
+          (λ _ → PE.refl , PE.refl , PE.refl , PE.refl)
           ⊢A ⊢t ⊢B (sub-⊢∷ ⊢u δ≤γ) ⊢v ⊢w }
       (is-some-yes ≡some (PE.refl , PE.refl)) →
         case hyp₂ ≡some PE.refl PE.refl of λ {
-          (PE.refl , PE.refl , PE.refl , PE.refl , PE.refl , PE.refl) →
+          (PE.refl , PE.refl , PE.refl , PE.refl) →
         J (λ _ ¬[p≡𝟘×q≡𝟘] →
              ⊥-elim (¬[p≡𝟘×q≡𝟘] ≡some (PE.refl , PE.refl)))
-          (λ _ _ _ →
-             PE.refl , PE.refl , PE.refl , PE.refl , PE.refl , PE.refl)
+          (λ _ _ _ → PE.refl , PE.refl , PE.refl , PE.refl)
           (λ ≡all → case PE.trans (PE.sym ≡some) ≡all of λ ())
           ⊢A ⊢t (sub-⊢ ⊢B (δ≤γ ∙ ≤-refl ∙ ≤-refl)) (sub-⊢∷ ⊢u δ≤γ) ⊢v
           ⊢w }
       (is-other ≤some ¬[p≡𝟘×q≡𝟘]) →
         case hyp₁ ≤some ¬[p≡𝟘×q≡𝟘] of λ {
-          (PE.refl , PE.refl , PE.refl , PE.refl , PE.refl , PE.refl) →
-        J (λ _ _ →
-             PE.refl , PE.refl , PE.refl , PE.refl , PE.refl , PE.refl)
+          (PE.refl , PE.refl , PE.refl , PE.refl) →
+        J (λ _ _ → PE.refl , PE.refl , PE.refl , PE.refl)
           (λ ≡some p≡𝟘 q≡𝟘 → ⊥-elim (¬[p≡𝟘×q≡𝟘] ≡some (p≡𝟘 , q≡𝟘)))
           (λ ≡all → case ≤ᵉᵐ→≡all→≡all ≤some ≡all of λ ())
           ⊢A (sub-⊢∷ ⊢t δ≤γ) (sub-⊢ ⊢B (δ≤γ ∙ ≤-refl ∙ ≤-refl))
@@ -203,22 +200,22 @@ opaque mutual
     case K-view p ⌞ r ⌟ of λ where
       (is-all ≡all) →
         case hyp₃ ≡all of λ {
-          (PE.refl , PE.refl , PE.refl , PE.refl , PE.refl) →
+          (PE.refl , PE.refl , PE.refl , PE.refl) →
         K (λ ≤some → case ≤ᵉᵐ→≡all→≡all ≤some ≡all of λ ())
           (λ ≡some _ → case PE.trans (PE.sym ≡some) ≡all of λ ())
-          (λ _ → PE.refl , PE.refl , PE.refl , PE.refl , PE.refl)
+          (λ _ → PE.refl , PE.refl , PE.refl , PE.refl)
           ok ⊢A ⊢t ⊢B (sub-⊢∷ ⊢u δ≤γ) ⊢v }
       (is-some-yes ≡some PE.refl) →
         case hyp₂ ≡some PE.refl of λ {
-          (PE.refl , PE.refl , PE.refl , PE.refl , PE.refl) →
+          (PE.refl , PE.refl , PE.refl , PE.refl) →
         K (λ _ p≢𝟘 → ⊥-elim (p≢𝟘 ≡some PE.refl))
-          (λ _ _ → PE.refl , PE.refl , PE.refl , PE.refl , PE.refl)
+          (λ _ _ → PE.refl , PE.refl , PE.refl , PE.refl)
           (λ ≡all → case PE.trans (PE.sym ≡some) ≡all of λ ())
           ok ⊢A ⊢t (sub-⊢ ⊢B (δ≤γ ∙ ≤-refl)) (sub-⊢∷ ⊢u δ≤γ) ⊢v }
       (is-other ≤some p≢𝟘) →
         case hyp₁ ≤some p≢𝟘 of λ {
-          (PE.refl , PE.refl , PE.refl , PE.refl , PE.refl) →
-        K (λ _ _ → PE.refl , PE.refl , PE.refl , PE.refl , PE.refl)
+          (PE.refl , PE.refl , PE.refl , PE.refl) →
+        K (λ _ _ → PE.refl , PE.refl , PE.refl , PE.refl)
           (λ ≡some p≡𝟘 → ⊥-elim (p≢𝟘 ≡some p≡𝟘))
           (λ ≡all → case ≤ᵉᵐ→≡all→≡all ≤some ≡all of λ ())
           ok ⊢A (sub-⊢∷ ⊢t δ≤γ) (sub-⊢ ⊢B (δ≤γ ∙ ≤-refl))

@@ -185,45 +185,37 @@ mutual
     J        : (erased-matches-for-J ⌞ r ⌟ ≤ᵉᵐ some →
                 (erased-matches-for-J ⌞ r ⌟ PE.≡ some →
                  ¬ (p PE.≡ 𝟘 × q PE.≡ 𝟘)) →
-                p′ PE.≡ r · p × q′ PE.≡ r · q ×
-                δ₁ PE.≡ γ × δ₂ PE.≡ γ ×
+                δ₁ PE.≡ γ ∙ r · p ∙ r · q × δ₂ PE.≡ γ ×
                 r₁ PE.≡ r × r₂ PE.≡ r) →
                (erased-matches-for-J ⌞ r ⌟ PE.≡ some →
-                p PE.≡ 𝟘 →
-                q PE.≡ 𝟘 →
-                p′ PE.≡ 𝟘 × q′ PE.≡ 𝟘 ×
-                δ₁ PE.≡ γ × δ₂ PE.≡ 𝟘ᶜ ×
+                p PE.≡ 𝟘 → q PE.≡ 𝟘 →
+                δ₁ PE.≡ γ ∙ 𝟘 ∙ 𝟘 × δ₂ PE.≡ 𝟘ᶜ ×
                 r₁ PE.≡ r × r₂ PE.≡ 𝟘) →
                (erased-matches-for-J ⌞ r ⌟ PE.≡ all →
-                p′ PE.≡ 𝟘 × q′ PE.≡ 𝟘 ×
                 δ₁ PE.≡ 𝟘ᶜ × δ₂ PE.≡ 𝟘ᶜ ×
                 r₁ PE.≡ 𝟘 × r₂ PE.≡ 𝟘) →
                Γ ⊢ A →
                δ₂ ▸ Γ ⊢ t ∷[ r₂ ] A →
-               δ₁ ∙ p′ ∙ q′ ▸ Γ ∙ A ∙ Id (wk1 A) (wk1 t) (var x0)
-                 ⊢[ r₁ ] B →
+               δ₁ ▸ Γ ∙ A ∙ Id (wk1 A) (wk1 t) (var x0) ⊢[ r₁ ] B →
                γ ▸ Γ ⊢ u ∷[ r ] B [ t , rfl ]₁₀ →
                δ₂ ▸ Γ ⊢ v ∷[ r₂ ] A →
                δ₂ ▸ Γ ⊢ w ∷[ r₂ ] Id A t v →
                γ ▸ Γ ⊢ J p q A t B u v w ∷[ r ] B [ v , w ]₁₀
     K        : (erased-matches-for-K ⌞ r ⌟ ≤ᵉᵐ some →
                 (erased-matches-for-K ⌞ r ⌟ PE.≡ some → p PE.≢ 𝟘) →
-                p′ PE.≡ r · p ×
-                δ₁ PE.≡ γ × δ₂ PE.≡ γ ×
+                δ₁ PE.≡ γ ∙ r · p × δ₂ PE.≡ γ ×
                 r₁ PE.≡ r × r₂ PE.≡ r) →
                (erased-matches-for-K ⌞ r ⌟ PE.≡ some →
                 p PE.≡ 𝟘 →
-                p′ PE.≡ 𝟘 ×
-                δ₁ PE.≡ γ × δ₂ PE.≡ 𝟘ᶜ ×
+                δ₁ PE.≡ γ ∙ 𝟘 × δ₂ PE.≡ 𝟘ᶜ ×
                 r₁ PE.≡ r × r₂ PE.≡ 𝟘) →
                (erased-matches-for-K ⌞ r ⌟ PE.≡ all →
-                p′ PE.≡ 𝟘 ×
                 δ₁ PE.≡ 𝟘ᶜ × δ₂ PE.≡ 𝟘ᶜ ×
                 r₁ PE.≡ 𝟘 × r₂ PE.≡ 𝟘) →
                K-allowed →
                Γ ⊢ A →
                δ₂ ▸ Γ ⊢ t ∷[ r₂ ] A →
-               δ₁ ∙ p′ ▸ Γ ∙ Id A t t ⊢[ r₁ ] B →
+               δ₁ ▸ Γ ∙ Id A t t ⊢[ r₁ ] B →
                γ ▸ Γ ⊢ u ∷[ r ] B [ rfl ]₀ →
                δ₂ ▸ Γ ⊢ v ∷[ r₂ ] Id A t t →
                γ ▸ Γ ⊢ K p A t B u v ∷[ r ] B [ v ]₀

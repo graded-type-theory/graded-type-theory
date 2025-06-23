@@ -103,12 +103,11 @@ private opaque
     where
     open ≤ᶜ-reasoning
 
-  ≡𝟘→≡⌜𝟘ᵐ?⌝· : p PE.≡ 𝟘 → p PE.≡ ⌜ 𝟘ᵐ? ⌝ · q
-  ≡𝟘→≡⌜𝟘ᵐ?⌝· {p} {q} p≡𝟘 =
-    p            ≡⟨ p≡𝟘 ⟩
+  𝟘≡⌜𝟘ᵐ?⌝· : 𝟘 PE.≡ ⌜ 𝟘ᵐ? ⌝ · p
+  𝟘≡⌜𝟘ᵐ?⌝· {p} =
     𝟘            ≡⟨⟩
-    𝟘 · q        ≡˘⟨ M.·-congʳ (⌜𝟘ᵐ?⌝≡𝟘 _) ⟩
-    ⌜ 𝟘ᵐ? ⌝ · q  ∎
+    𝟘 · p        ≡˘⟨ M.·-congʳ (⌜𝟘ᵐ?⌝≡𝟘 _) ⟩
+    ⌜ 𝟘ᵐ? ⌝ · p  ∎
     where
     open Tools.Reasoning.PropositionalEquality
 
@@ -385,7 +384,7 @@ opaque mutual
     sub rflₘ (greatest-elemᶜ _)
   ⊢∷[]→▸
     {γ} {p}
-    (J {p = p′} {q} {p′ = p″} {q′} {r₁} {r₂} {B}
+    (J {p = p′} {q} {δ₁ = _ ∙ p″ ∙ q′} {r₁} {r₂} {B}
        hyp₁ hyp₂ hyp₃ ⊢A ⊢t ⊢B ⊢u ⊢v ⊢w) =
     let ▸A = ⊢→▸? ⊢A
         ▸t = ⊢∷[]→▸ ⊢t
@@ -396,56 +395,40 @@ opaque mutual
     in
     case J-view p′ q ⌞ p ⌟ of λ where
       (is-all ≡all) →
-        let p″≡𝟘 , q′≡𝟘 , δ₁≡𝟘 , δ₂≡𝟘 , r₁≡𝟘 , r₂≡𝟘 = hyp₃ ≡all in
+        case hyp₃ ≡all of λ {
+          (PE.refl , _ , PE.refl , PE.refl) →
         J₀ₘ₂ ≡all ▸A
-          (PE.subst₂ (_▸[_] _) δ₂≡𝟘 (≡𝟘→⌞⌟≡𝟘ᵐ? r₂≡𝟘) ▸t)
+          (PE.subst (flip (_▸[_]_ _) _) ⌞𝟘⌟≡𝟘ᵐ? ▸t)
           (PE.subst₂ (_▸[_] B)
-             (PE.cong₂ _∙_
-                (PE.cong₂ _∙_ δ₁≡𝟘 (≡𝟘→≡⌜𝟘ᵐ?⌝· p″≡𝟘))
-                (≡𝟘→≡⌜𝟘ᵐ?⌝· q′≡𝟘))
-             (≡𝟘→⌞⌟≡𝟘ᵐ? r₁≡𝟘)
+             (PE.cong₂ _∙_ (PE.cong (_∙_ _) 𝟘≡⌜𝟘ᵐ?⌝·) 𝟘≡⌜𝟘ᵐ?⌝·) ⌞𝟘⌟≡𝟘ᵐ?
              (⊢[]→▸ ⊢B))
-          ▸u (PE.subst₂ (_▸[_] _) δ₂≡𝟘 (≡𝟘→⌞⌟≡𝟘ᵐ? r₂≡𝟘) ▸v)
-          (PE.subst₂ (_▸[_] _) δ₂≡𝟘 (≡𝟘→⌞⌟≡𝟘ᵐ? r₂≡𝟘) ▸w)
+          ▸u (PE.subst (flip (_▸[_]_ _) _) ⌞𝟘⌟≡𝟘ᵐ? ▸v)
+          (PE.subst (flip (_▸[_]_ _) _) ⌞𝟘⌟≡𝟘ᵐ? ▸w) }
       (is-some-yes ≡some (p′≡𝟘 , q≡𝟘)) →
-        let p″≡𝟘 , q′≡𝟘 , δ₁≡γ , δ₂≡𝟘 , r₁≡p , r₂≡𝟘 =
-              hyp₂ ≡some p′≡𝟘 q≡𝟘
-        in
+        case hyp₂ ≡some p′≡𝟘 q≡𝟘 of λ {
+          (PE.refl , _ , PE.refl , PE.refl) →
         sub
           (J₀ₘ₁ ≡some p′≡𝟘 q≡𝟘 ▸A
-             (PE.subst₂ (_▸[_] _) δ₂≡𝟘 (≡𝟘→⌞⌟≡𝟘ᵐ? r₂≡𝟘) ▸t)
-             (PE.subst₂ (_▸[_] B)
-                (PE.cong₂ _∙_ (PE.cong₂ _∙_ δ₁≡γ p″≡𝟘) q′≡𝟘)
-                (PE.cong ⌞_⌟ r₁≡p)
-                ▸B)
-             ▸u (PE.subst₂ (_▸[_] _) δ₂≡𝟘 (≡𝟘→⌞⌟≡𝟘ᵐ? r₂≡𝟘) ▸v)
-             (PE.subst₂ (_▸[_] _) δ₂≡𝟘 (≡𝟘→⌞⌟≡𝟘ᵐ? r₂≡𝟘) ▸w))
-          (let open ≤ᶜ-reasoning in begin
+             (PE.subst (flip (_▸[_]_ _) _) ⌞𝟘⌟≡𝟘ᵐ? ▸t) ▸B ▸u
+             (PE.subst (flip (_▸[_]_ _) _) ⌞𝟘⌟≡𝟘ᵐ? ▸v)
+             (PE.subst (flip (_▸[_]_ _) _) ⌞𝟘⌟≡𝟘ᵐ? ▸w))
+          (begin
              γ              ≡˘⟨ +ᶜ-idem _ ⟩
              γ +ᶜ γ         ≈˘⟨ ·ᶜ-identityˡ _ ⟩
-             ω ·ᶜ (γ +ᶜ γ)  ∎)
+             ω ·ᶜ (γ +ᶜ γ)  ∎) }
       (is-other ≤some ¬[p′≡𝟘×q≡𝟘]) →
-        let p″≡pp′ , q′≡pq , δ₁≡γ , δ₂≡γ , r₁≡p , r₂≡p =
-              hyp₁ ≤some ¬[p′≡𝟘×q≡𝟘]
-        in
+        case hyp₁ ≤some ¬[p′≡𝟘×q≡𝟘] of λ {
+          (PE.refl , PE.refl , PE.refl , PE.refl) →
         sub
-          (Jₘ ≤some ¬[p′≡𝟘×q≡𝟘] ▸A
-             (PE.subst₂ (_▸[_] _) δ₂≡γ (PE.cong ⌞_⌟ r₂≡p) ▸t)
-             (let open Tools.Reasoning.PropositionalEquality in
-              PE.subst₂ (_▸[_] B)
-                (PE.cong₂ _∙_
-                   (PE.cong₂ _∙_ δ₁≡γ
-                      (p″              ≡⟨ p″≡pp′ ⟩
-                       p · p′          ≡˘⟨ M.·-congʳ (⌜⌞⌟⌝ _) ⟩
-                       ⌜ ⌞ p ⌟ ⌝ · p′  ∎))
-                   (q′             ≡⟨ q′≡pq ⟩
-                    p · q          ≡˘⟨ M.·-congʳ (⌜⌞⌟⌝ _) ⟩
-                    ⌜ ⌞ p ⌟ ⌝ · q  ∎))
-                (PE.cong ⌞_⌟ r₁≡p)
+          (Jₘ ≤some ¬[p′≡𝟘×q≡𝟘] ▸A ▸t
+             (PE.subst₂ (_▸[_] B)
+                (PE.sym $
+                 PE.cong₂ _∙_ (PE.cong (_∙_ _) (M.·-congʳ (⌜⌞⌟⌝ _)))
+                   (M.·-congʳ (⌜⌞⌟⌝ _)))
+                PE.refl
                 ▸B)
-             ▸u (PE.subst₂ (_▸[_] _) δ₂≡γ (PE.cong ⌞_⌟ r₂≡p) ▸v)
-             (PE.subst₂ (_▸[_] _) δ₂≡γ (PE.cong ⌞_⌟ r₂≡p) ▸w))
-          (let open ≤ᶜ-reasoning in begin
+             ▸u ▸v ▸w)
+          (begin
              γ                             ≡˘⟨ PE.trans
                                                  (PE.cong (_ +ᶜ_)
                                                     (PE.trans
@@ -455,10 +438,12 @@ opaque mutual
                                                      +ᶜ-idem _)) $
                                                +ᶜ-idem _ ⟩
              γ +ᶜ γ +ᶜ γ +ᶜ γ +ᶜ γ         ≈˘⟨ ·ᶜ-identityˡ _ ⟩
-             ω ·ᶜ (γ +ᶜ γ +ᶜ γ +ᶜ γ +ᶜ γ)  ∎)
+             ω ·ᶜ (γ +ᶜ γ +ᶜ γ +ᶜ γ +ᶜ γ)  ∎) }
+    where
+    open ≤ᶜ-reasoning
   ⊢∷[]→▸
     {γ} {p}
-    (K {p = p′} {p′ = p″} {r₁} {r₂} {B}
+    (K {p = p′} {δ₁ = _ ∙ p″} {r₁} {r₂} {B}
        hyp₁ hyp₂ hyp₃ _ ⊢A ⊢t ⊢B ⊢u ⊢v) =
     let ▸A = ⊢→▸? ⊢A
         ▸t = ⊢∷[]→▸ ⊢t
@@ -468,52 +453,44 @@ opaque mutual
     in
     case K-view p′ ⌞ p ⌟ of λ where
       (is-all ≡all) →
-        let p″≡𝟘 , δ₁≡𝟘 , δ₂≡𝟘 , r₁≡𝟘 , r₂≡𝟘 = hyp₃ ≡all in
+        case hyp₃ ≡all of λ {
+          (PE.refl , _ , PE.refl , PE.refl) →
         K₀ₘ₂ ≡all ▸A
-          (PE.subst₂ (_▸[_] _) δ₂≡𝟘 (≡𝟘→⌞⌟≡𝟘ᵐ? r₂≡𝟘) ▸t)
-          (PE.subst₂ (_▸[_] B)
-             (PE.cong₂ _∙_ δ₁≡𝟘 (≡𝟘→≡⌜𝟘ᵐ?⌝· p″≡𝟘))
-             (≡𝟘→⌞⌟≡𝟘ᵐ? r₁≡𝟘)
+          (PE.subst (flip (_▸[_]_ _) _) ⌞𝟘⌟≡𝟘ᵐ? ▸t)
+          (PE.subst₂ (_▸[_] B) (PE.cong (_∙_ _) 𝟘≡⌜𝟘ᵐ?⌝·) ⌞𝟘⌟≡𝟘ᵐ?
              (⊢[]→▸ ⊢B))
-          ▸u
-          (PE.subst₂ (_▸[_] _) δ₂≡𝟘 (≡𝟘→⌞⌟≡𝟘ᵐ? r₂≡𝟘) ▸v)
+          ▸u (PE.subst (flip (_▸[_]_ _) _) ⌞𝟘⌟≡𝟘ᵐ? ▸v) }
       (is-some-yes ≡some p′≡𝟘) →
-        let p″≡𝟘 , δ₁≡γ , δ₂≡𝟘 , r₁≡p , r₂≡𝟘 = hyp₂ ≡some p′≡𝟘 in
+        case hyp₂ ≡some p′≡𝟘 of λ {
+          (PE.refl , _ , PE.refl , PE.refl) →
         sub
           (K₀ₘ₁ ≡some p′≡𝟘 ▸A
-             (PE.subst₂ (_▸[_] _) δ₂≡𝟘 (≡𝟘→⌞⌟≡𝟘ᵐ? r₂≡𝟘) ▸t)
-             (PE.subst₂ (_▸[_] B)
-                (PE.cong₂ _∙_ δ₁≡γ p″≡𝟘) (PE.cong ⌞_⌟ r₁≡p)
-                (⊢[]→▸ ⊢B))
-             ▸u
-             (PE.subst₂ (_▸[_] _) δ₂≡𝟘 (≡𝟘→⌞⌟≡𝟘ᵐ? r₂≡𝟘) ▸v))
-          (let open ≤ᶜ-reasoning in begin
+             (PE.subst (flip (_▸[_]_ _) _) ⌞𝟘⌟≡𝟘ᵐ? ▸t) ▸B ▸u
+             (PE.subst (flip (_▸[_]_ _) _) ⌞𝟘⌟≡𝟘ᵐ? ▸v))
+          (begin
              γ              ≡˘⟨ +ᶜ-idem _ ⟩
              γ +ᶜ γ         ≈˘⟨ ·ᶜ-identityˡ _ ⟩
-             ω ·ᶜ (γ +ᶜ γ)  ∎)
+             ω ·ᶜ (γ +ᶜ γ)  ∎) }
       (is-other ≤some p′≢𝟘) →
-        let p″≡pp′ , δ₁≡γ , δ₂≡γ , r₁≡p , r₂≡p = hyp₁ ≤some p′≢𝟘 in
+        case hyp₁ ≤some p′≢𝟘 of λ {
+          (PE.refl , PE.refl , PE.refl , PE.refl) →
         sub
-          (Kₘ ≤some p′≢𝟘 ▸A
-             (PE.subst₂ (_▸[_] _) δ₂≡γ (PE.cong ⌞_⌟ r₂≡p) ▸t)
+          (Kₘ ≤some p′≢𝟘 ▸A ▸t
              (PE.subst₂ (_▸[_] B)
-                (PE.cong₂ _∙_ δ₁≡γ
-                   (let open Tools.Reasoning.PropositionalEquality in
-                    p″              ≡⟨ p″≡pp′ ⟩
-                    p · p′          ≡˘⟨ M.·-congʳ (⌜⌞⌟⌝ _) ⟩
-                    ⌜ ⌞ p ⌟ ⌝ · p′  ∎))
-                (PE.cong ⌞_⌟ r₁≡p)
+                (PE.sym $ PE.cong (_∙_ _) (M.·-congʳ (⌜⌞⌟⌝ _)))
+                PE.refl
                 ▸B)
-             ▸u (PE.subst₂ (_▸[_] _) δ₂≡γ (PE.cong ⌞_⌟ r₂≡p) ▸v))
-          (let open ≤ᶜ-reasoning in begin
+             ▸u ▸v)
+          (begin
              γ                        ≡˘⟨ PE.trans
                                             (PE.cong (_ +ᶜ_)
-                                               (PE.trans
-                                                  (PE.cong (_ +ᶜ_) (+ᶜ-idem _)) $
+                                               (PE.trans (PE.cong (_ +ᶜ_) (+ᶜ-idem _)) $
                                                 +ᶜ-idem _)) $
                                           +ᶜ-idem _ ⟩
              γ +ᶜ γ +ᶜ γ +ᶜ γ         ≈˘⟨ ·ᶜ-identityˡ _ ⟩
-             ω ·ᶜ (γ +ᶜ γ +ᶜ γ +ᶜ γ)  ∎)
+             ω ·ᶜ (γ +ᶜ γ +ᶜ γ +ᶜ γ)  ∎) }
+    where
+    open ≤ᶜ-reasoning
   ⊢∷[]→▸ ([]-cong _ ok ⊢A ⊢t ⊢u ⊢v) =
     sub ([]-congₘ (⊢→▸? ⊢A) (⊢∷[]→▸? ⊢t) (⊢∷[]→▸? ⊢u) (⊢∷[]→▸? ⊢v) ok)
       (greatest-elemᶜ _)
@@ -886,23 +863,17 @@ module _
               J (λ ≤some → case ≤ᵉᵐ→≡all→≡all ≤some ≡all of λ ())
                 (λ ≡some _ _ →
                    case PE.trans (PE.sym ≡some) ≡all of λ ())
-                (λ _ →
-                   PE.refl , PE.refl , PE.refl , PE.refl , PE.refl ,
-                   PE.refl)
+                (λ _ → PE.refl , PE.refl , PE.refl , PE.refl)
                 (⊢←⊢-<ˢ ⊢A) (⊢∷←⊢∷ ⊢t) (⊢←⊢ ⊢B) (⊢∷←⊢∷ ⊢u) (⊢∷←⊢∷ ⊢v)
                 (⊢∷←⊢∷ ⊢w)
             (is-some-yes ≡some p≡𝟘×q≡𝟘) →
               J (λ _ ¬[p≡𝟘×q≡𝟘] → ⊥-elim (¬[p≡𝟘×q≡𝟘] ≡some p≡𝟘×q≡𝟘))
-                (λ _ _ _ →
-                   PE.refl , PE.refl , PE.refl , PE.refl , PE.refl ,
-                   PE.refl)
+                (λ _ _ _ → PE.refl , PE.refl , PE.refl , PE.refl)
                 (λ ≡all → case PE.trans (PE.sym ≡some) ≡all of λ ())
                 (⊢←⊢-<ˢ ⊢A) (⊢∷←⊢∷ ⊢t) (⊢←⊢ ⊢B) (⊢∷←⊢∷ ⊢u) (⊢∷←⊢∷ ⊢v)
                 (⊢∷←⊢∷ ⊢w)
             (is-other ≤some ¬[p≡𝟘×q≡𝟘]) →
-              J (λ _ _ →
-                   PE.refl , PE.refl , PE.refl , PE.refl , PE.refl ,
-                   PE.refl)
+              J (λ _ _ → PE.refl , PE.refl , PE.refl , PE.refl)
                 (λ ≡some p≡𝟘 q≡𝟘 → ⊥-elim (¬[p≡𝟘×q≡𝟘] ≡some (p≡𝟘 , q≡𝟘)))
                 (λ ≡all → case ≤ᵉᵐ→≡all→≡all ≤some ≡all of λ ())
                 (⊢←⊢-<ˢ ⊢A) (⊢∷←⊢∷ ⊢t) (⊢←⊢ ⊢B) (⊢∷←⊢∷ ⊢u) (⊢∷←⊢∷ ⊢v)
@@ -915,19 +886,17 @@ module _
             (is-all ≡all) →
               K (λ ≤some → case ≤ᵉᵐ→≡all→≡all ≤some ≡all of λ ())
                 (λ ≡some _ → case PE.trans (PE.sym ≡some) ≡all of λ ())
-                (λ _ → PE.refl , PE.refl , PE.refl , PE.refl , PE.refl)
+                (λ _ → PE.refl , PE.refl , PE.refl , PE.refl)
                 ok (⊢←⊢-<ˢ ⊢A) (⊢∷←⊢∷-<ˢ ⊢t) (⊢←⊢ ⊢B) (⊢∷←⊢∷ ⊢u)
                 (⊢∷←⊢∷ ⊢v)
             (is-some-yes ≡some p≡𝟘) →
               K (λ _ p≢𝟘 → ⊥-elim (p≢𝟘 ≡some p≡𝟘))
-                (λ _ _ →
-                   PE.refl , PE.refl , PE.refl , PE.refl , PE.refl)
+                (λ _ _ → PE.refl , PE.refl , PE.refl , PE.refl)
                 (λ ≡all → case PE.trans (PE.sym ≡some) ≡all of λ ())
                 ok (⊢←⊢-<ˢ ⊢A) (⊢∷←⊢∷-<ˢ ⊢t) (⊢←⊢ ⊢B) (⊢∷←⊢∷ ⊢u)
                 (⊢∷←⊢∷ ⊢v)
             (is-other ≤some p≢𝟘) →
-              K (λ _ _ →
-                   PE.refl , PE.refl , PE.refl , PE.refl , PE.refl)
+              K (λ _ _ → PE.refl , PE.refl , PE.refl , PE.refl)
                 (λ ≡some p≡𝟘 → ⊥-elim (p≢𝟘 ≡some p≡𝟘))
                 (λ ≡all → case ≤ᵉᵐ→≡all→≡all ≤some ≡all of λ ())
                 ok (⊢←⊢-<ˢ ⊢A) (⊢∷←⊢∷-<ˢ ⊢t) (⊢←⊢ ⊢B) (⊢∷←⊢∷ ⊢u)
@@ -1405,9 +1374,7 @@ module _
                   γ₄ +ᶜ γ₅ +ᶜ γ₆  ≤⟨ +ᶜ-decreasingʳ _ _ ⟩
                   γ₅ +ᶜ γ₆        ∎
             in
-            J (λ _ _ →
-                 PE.refl , PE.refl , PE.refl , PE.refl , PE.refl ,
-                 PE.refl)
+            J (λ _ _ → PE.refl , PE.refl , PE.refl , PE.refl)
               (λ ≡some p≡𝟘 q≡𝟘 → ⊥-elim (¬[p≡𝟘×q≡𝟘] ≡some (p≡𝟘 , q≡𝟘)))
               (λ ≡all → case ≤ᵉᵐ→≡all→≡all ≤some ≡all of λ ())
               ⊢A
@@ -1445,9 +1412,7 @@ module _
             in
             J (λ _ ¬[p≡𝟘×q≡𝟘] →
                  ⊥-elim (¬[p≡𝟘×q≡𝟘] ≡some (PE.refl , PE.refl)))
-              (λ _ _ _ →
-                 PE.refl , PE.refl , PE.refl , PE.refl , PE.refl ,
-                 PE.refl)
+              (λ _ _ _ → PE.refl , PE.refl , PE.refl , PE.refl)
               (λ ≡all → case PE.trans (PE.sym ≡some) ≡all of λ ())
               ⊢A (⊢∷←⊢∷ ⊢t)
               (⊢[]←⊢▸ ⊢B $
@@ -1464,9 +1429,7 @@ module _
           (invUsageJ₀₂ ≡all _ _ _ ▸u _ _ γ≤) →
             J (λ ≤some → case ≤ᵉᵐ→≡all→≡all ≤some ≡all of λ ())
               (λ ≡some _ _ → case PE.trans (PE.sym ≡some) ≡all of λ ())
-              (λ _ →
-                 PE.refl , PE.refl , PE.refl , PE.refl , PE.refl ,
-                 PE.refl)
+              (λ _ → PE.refl , PE.refl , PE.refl , PE.refl)
               ⊢A (⊢∷←⊢∷ ⊢t) (⊢←⊢ ⊢B) (⊢∷[]←⊢∷▸ ⊢u (sub ▸u γ≤))
               (⊢∷←⊢∷ ⊢v) (⊢∷←⊢∷ ⊢w)
       (Kⱼ {p} ⊢B ⊢u ⊢v ok) ▸K →
@@ -1489,7 +1452,7 @@ module _
                   γ₃ +ᶜ γ₄ +ᶜ γ₅  ≤⟨ +ᶜ-decreasingʳ _ _ ⟩
                   γ₄ +ᶜ γ₅        ∎
             in
-            K (λ _ _ → PE.refl , PE.refl , PE.refl , PE.refl , PE.refl)
+            K (λ _ _ → PE.refl , PE.refl , PE.refl , PE.refl)
               (λ ≡some p≡𝟘 → ⊥-elim (p≢𝟘 ≡some p≡𝟘))
               (λ ≡all → case ≤ᵉᵐ→≡all→≡all ≤some ≡all of λ ())
               ok ⊢A
@@ -1520,7 +1483,7 @@ module _
                   γ₃ +ᶜ γ₄         ∎
             in
             K (λ _ p≢𝟘 → ⊥-elim (p≢𝟘 ≡some PE.refl))
-              (λ _ _ → PE.refl , PE.refl , PE.refl , PE.refl , PE.refl)
+              (λ _ _ → PE.refl , PE.refl , PE.refl , PE.refl)
               (λ ≡all → case PE.trans (PE.sym ≡some) ≡all of λ ())
               ok ⊢A (⊢∷←⊢∷ ⊢t)
               (⊢[]←⊢▸ ⊢B $
@@ -1537,7 +1500,7 @@ module _
           (invUsageK₀₂ ≡all _ _ _ ▸u _ γ≤) →
             K (λ ≤some → case ≤ᵉᵐ→≡all→≡all ≤some ≡all of λ ())
               (λ ≡some _ → case PE.trans (PE.sym ≡some) ≡all of λ ())
-              (λ _ → PE.refl , PE.refl , PE.refl , PE.refl , PE.refl)
+              (λ _ → PE.refl , PE.refl , PE.refl , PE.refl)
               ok ⊢A (⊢∷←⊢∷ ⊢t) (⊢←⊢ ⊢B) (⊢∷[]←⊢∷▸ ⊢u (sub ▸u γ≤))
               (⊢∷←⊢∷ ⊢v)
       ([]-congⱼ ⊢A ⊢t ⊢u ⊢v ok) ▸bc →
