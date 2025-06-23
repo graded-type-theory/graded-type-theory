@@ -14,17 +14,29 @@ module Definition.Typed.Properties.Admissible.Pi-Sigma
 open Type-restrictions R
 
 open import Definition.Untyped M
+open import Definition.Untyped.Properties M
 
 open import Definition.Typed R
 open import Definition.Typed.Inversion R
+open import Definition.Typed.Reasoning.Term R
+open import Definition.Typed.Substitution.Primitive R
+open import Definition.Typed.Weakening R
 open import Definition.Typed.Well-formed R
+open import Definition.Typed.Properties.Admissible.Equality R
+open import Definition.Typed.Properties.Admissible.Lift R
+open import Definition.Typed.Properties.Well-formed R
 
+open import Tools.Fin
+open import Tools.Function
+open import Tools.Nat
 open import Tools.Product
+import Tools.PropositionalEquality as PE
 
 private variable
-  Γ     : Con Term _
-  A B E F G H l : Term _
-  p q   : M
+  n     : Nat
+  Γ     : Con Term n
+  A A′ B B′ E F G H a f g l l₁ l₂ t u : Term n
+  p p′ q : M
   s     : Strength
   b     : BinderMode
 
@@ -47,3 +59,103 @@ opaque
            → Γ     ⊢ ΠΣ⟨ b ⟩ p , q ▷ F ▹ G ≡
                      ΠΣ⟨ b ⟩ p , q ▷ H ▹ E ∷ U l
   ΠΣ-cong′ F≡H G≡E ok = ΠΣ-cong (inversion-U-Level (wf-⊢≡∷ F≡H .proj₁)) F≡H G≡E ok
+
+------------------------------------------------------------------------
+-- Heterogeneous variants of Π and Σ that take types in different universes
+
+lower₀ : Term (1+ n) → Term (1+ n)
+lower₀ t = t [ lower (var x0) ]↑
+
+opaque
+
+  lower₀[lift]₀
+    : Γ ⊢ l ∷ Level
+    → Γ ∙ A ⊢ B
+    → Γ ⊢ u ∷ A
+    → Γ ⊢ lower₀ B [ lift l u ]₀ ≡ B [ u ]₀
+  lower₀[lift]₀ {B} ⊢l ⊢B ⊢u =
+    PE.subst (_ ⊢_≡ _) (PE.sym ([]↑-[]₀ B))
+      (substTypeEq (refl ⊢B) (Lift-β′ ⊢l ⊢u))
+
+opaque
+
+  lower₀[lift]₀∷
+    : Γ ⊢ l ∷ Level
+    → Γ ∙ A ⊢ t ∷ B
+    → Γ ⊢ u ∷ A
+    → Γ ⊢ lower₀ t [ lift l u ]₀ ≡ t [ u ]₀ ∷ B [ u ]₀
+  lower₀[lift]₀∷ {t} {B} ⊢l ⊢t ⊢u =
+    PE.subst (_ ⊢_≡ _ ∷ _) (PE.sym ([]↑-[]₀ t))
+      (sym′ (substTermEq (refl ⊢t) (sym′ (Lift-β′ ⊢l ⊢u))))
+
+opaque
+
+  lower₀Type
+    : Γ ⊢ l ∷ Level
+    → Γ ∙ A ⊢ B
+    → Γ ∙ Lift l A ⊢ lower₀ B
+  lower₀Type ⊢l ⊢B = subst-⊢ ⊢B
+    (⊢ˢʷ∷-[][]↑ (lowerⱼ (var (∙ Liftⱼ ⊢l (⊢∙→⊢ (wf ⊢B))) here)))
+
+opaque
+
+  lower₀Term
+    : Γ ⊢ l ∷ Level
+    → Γ ∙ A ⊢ t ∷ B
+    → Γ ∙ Lift l A ⊢ lower₀ t ∷ lower₀ B
+  lower₀Term ⊢l ⊢t = subst-⊢∷ ⊢t
+    (⊢ˢʷ∷-[][]↑ (lowerⱼ (var (∙ Liftⱼ ⊢l (⊢∙→⊢ (wfTerm ⊢t))) here)))
+
+opaque
+
+  lower₀TermEq
+    : Γ ⊢ l ∷ Level
+    → Γ ∙ A ⊢ t ≡ u ∷ B
+    → Γ ∙ Lift l A ⊢ lower₀ t ≡ lower₀ u ∷ lower₀ B
+  lower₀TermEq ⊢l t≡u = subst-⊢≡∷ t≡u
+    (refl-⊢ˢʷ≡∷ (⊢ˢʷ∷-[][]↑ (lowerⱼ (var (∙ Liftⱼ ⊢l (⊢∙→⊢ (wfEqTerm t≡u))) here))))
+
+ΠΣʰ : (b : BinderMode) (p q : M) (l₁ l₂ A : Term n) (B : Term (1+ n)) → Term n
+ΠΣʰ b p q l₁ l₂ A B = ΠΣ⟨ b ⟩ p , q ▷ Lift l₂ A ▹ Lift (wk1 l₁) (lower₀ B)
+
+Σʰ⟨_⟩ : (s : Strength) (p q : M) (l₁ l₂ A : Term n) (B : Term (1+ n)) → Term n
+Σʰ⟨ s ⟩ p q l₁ l₂ A B = ΠΣʰ (BMΣ s) p q l₁ l₂ A B
+
+Πʰ Σʰˢ Σʰʷ : (p q : M) (l₁ l₂ A : Term n) (B : Term (1+ n)) → Term n
+Πʰ p q l₁ l₂ A B = ΠΣʰ BMΠ p q l₁ l₂ A B
+Σʰˢ p q l₁ l₂ A B = ΠΣʰ (BMΣ 𝕤) p q l₁ l₂ A B
+Σʰʷ p q l₁ l₂ A B = ΠΣʰ (BMΣ 𝕨) p q l₁ l₂ A B
+
+opaque
+
+  ΠΣʰⱼ : Γ     ⊢ l₂ ∷ Level
+       → Γ     ⊢ A ∷ U l₁
+       → Γ ∙ A ⊢ B ∷ U (wk1 l₂)
+       → ΠΣ-allowed b p q
+       → Γ     ⊢ ΠΣʰ b p q l₁ l₂ A B ∷ U (l₁ maxᵘ l₂)
+  ΠΣʰⱼ ⊢l₂ ⊢A ⊢B ok =
+    let ⊢l₁ = inversion-U-Level (wf-⊢∷ ⊢A)
+    in ΠΣⱼ′
+        (Liftⱼ′ ⊢l₂ ⊢A)
+        (Liftⱼ-comm
+          (wkTerm₁ (Liftⱼ ⊢l₂ (univ ⊢A)) ⊢l₁)
+          (PE.subst (_⊢_∷_ _ _) wk[]′-[]↑ (lower₀Term ⊢l₂ ⊢B)))
+        ok
+
+opaque
+
+  ΠΣʰ-cong
+    : Γ     ⊢ l₂ ∷ Level
+    → Γ     ⊢ A ≡ A′ ∷ U l₁
+    → Γ ∙ A ⊢ B ≡ B′ ∷ U (wk1 l₂)
+    → ΠΣ-allowed b p q
+    → Γ     ⊢ ΠΣʰ b p q l₁ l₂ A B ≡ ΠΣʰ b p q l₁ l₂ A′ B′ ∷ U (l₁ maxᵘ l₂)
+  ΠΣʰ-cong ⊢l₂ A≡A′ B≡B′ ok =
+    let ⊢U , ⊢A , ⊢A′ = wf-⊢≡∷ A≡A′
+        ⊢l₁ = inversion-U-Level ⊢U
+    in ΠΣ-cong′
+        (Lift-cong′ (refl ⊢l₂) A≡A′)
+        (Lift-cong-comm
+          (refl (wkTerm₁ (Liftⱼ ⊢l₂ (univ ⊢A)) ⊢l₁))
+          (PE.subst (_⊢_≡_∷_ _ _ _) wk[]′-[]↑ (lower₀TermEq ⊢l₂ B≡B′)))
+        ok

@@ -1689,16 +1689,16 @@ opaque
 
 opaque
 
-  -- Applying _[ u ]↑ to a term that has been weakened at least two
-  -- steps amounts to the same thing as doing nothing.
+  -- Applying _[ u ]↑ to a term that has been weakened at least one
+  -- step amounts to the same thing as doing nothing.
 
-  wk[]′-[]↑ : wk[ 2+ k ]′ t [ u ]↑ ≡ wk[ 2+ k ]′ t
+  wk[]′-[]↑ : wk[ 1+ k ]′ t [ u ]↑ ≡ wk[ 1+ k ]′ t
   wk[]′-[]↑ {k} {t} {u} =
-    wk[ 2+ k ]′ t [ u ]↑                                     ≡⟨⟩
-    wk[ 2+ k ]′ t [ consSubst (wk1Subst idSubst) u ]         ≡⟨ subst-wk t ⟩
-    t [ consSubst (wk1Subst idSubst) u ₛ• stepn id (2+ k) ]  ≡⟨⟩
-    t [ toSubst (stepn id (2+ k)) ]                          ≡˘⟨ wk≡subst _ _ ⟩
-    wk[ 2+ k ]′ t                                            ∎
+    wk[ 1+ k ]′ t [ u ]↑                                     ≡⟨⟩
+    wk[ 1+ k ]′ t [ consSubst (wk1Subst idSubst) u ]         ≡⟨ subst-wk t ⟩
+    t [ consSubst (wk1Subst idSubst) u ₛ• stepn id (1+ k) ]  ≡⟨⟩
+    t [ toSubst (stepn id (1+ k)) ]                          ≡˘⟨ wk≡subst _ _ ⟩
+    wk[ 1+ k ]′ t                                            ∎
 
 opaque
 
