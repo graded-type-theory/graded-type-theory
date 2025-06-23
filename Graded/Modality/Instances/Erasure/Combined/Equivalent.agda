@@ -111,14 +111,6 @@ private opaque
     where
     open Tools.Reasoning.PropositionalEquality
 
-  ≡·→≡⌜⌞⌟⌝· : p PE.≡ q · r → p PE.≡ ⌜ ⌞ q ⌟ ⌝ · r
-  ≡·→≡⌜⌞⌟⌝· {p} {q} {r} p≡qr =
-    p              ≡⟨ p≡qr ⟩
-    q · r          ≡˘⟨ M.·-congʳ (⌜⌞⌟⌝ _) ⟩
-    ⌜ ⌞ q ⌟ ⌝ · r  ∎
-    where
-    open Tools.Reasoning.PropositionalEquality
-
   ≢𝟘→·ᶜ≤ᶜ : p PE.≢ 𝟘 → p ·ᶜ γ ≤ᶜ γ
   ≢𝟘→·ᶜ≤ᶜ {p} {γ} p≢𝟘 = begin
     p ·ᶜ γ  ≈⟨ ·ᶜ-congʳ (≢𝟘→≡ω p≢𝟘) ⟩
