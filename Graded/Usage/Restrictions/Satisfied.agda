@@ -41,7 +41,7 @@ private
   module CR {n} = Tools.Reasoning.PartialOrder (≤ᶜ-poset {n = n})
 
 private variable
-  l           : Nat
+  l n         : Nat
   x           : Fin _
   A B t u v w : Term _
   p q r       : M
@@ -808,6 +808,82 @@ opaque
   ▸[𝟘ᵐ]⇔ =
       (λ ▸t → ▸-𝟘ᵐ ▸t , ▸→Usage-restrictions-satisfied ▸t)
     , (λ (γ≤𝟘 , ok) → sub (Usage-restrictions-satisfied→▸[𝟘ᵐ] ok) γ≤𝟘)
+
+------------------------------------------------------------------------
+-- A lemma related to Usage-restrictions-satisfied 𝟘ᵐ[ ok ]
+
+opaque
+
+  -- If certain assumptions hold, then
+  -- Usage-restrictions-satisfied 𝟘ᵐ[ ok ] t always holds.
+
+  Usage-restrictions-satisfied-𝟘ᵐ :
+    (⦃ no-nr : Nr-not-available-GLB ⦄ →
+     ∀ r p → ∃ λ q → Greatest-lower-bound q (nrᵢ r 𝟙 p)) →
+    (∀ p → Emptyrec-allowed 𝟘ᵐ[ ok ] p) →
+    (∀ p q → Unitrec-allowed 𝟘ᵐ[ ok ] p q) →
+    (∀ r p q → Prodrec-allowed 𝟘ᵐ[ ok ] r p q) →
+    (∀ p → []-cong-allowed-mode p 𝟘ᵐ[ ok ]) →
+    Usage-restrictions-satisfied 𝟘ᵐ[ ok ] t
+  Usage-restrictions-satisfied-𝟘ᵐ {ok} glb er ur pr bc = lemma _
+    where
+    mutual
+      lemma? : Usage-restrictions-satisfied 𝟘ᵐ? t
+      lemma? =
+        subst (flip Usage-restrictions-satisfied _) (sym 𝟘ᵐ?≡𝟘ᵐ)
+          (lemma _)
+
+      lemma : (t : Term n) → Usage-restrictions-satisfied 𝟘ᵐ[ ok ] t
+      lemma (var _) =
+        varᵤ
+      lemma (U _) =
+        Uᵤ
+      lemma Empty =
+        Emptyᵤ
+      lemma (emptyrec _ _ _) =
+        emptyrecᵤ (er _) lemma? (lemma _)
+      lemma (Unit _ _) =
+        Unitᵤ
+      lemma (star _ _) =
+        starᵤ
+      lemma (unitrec _ _ _ _ _ _) =
+        unitrecᵤ (ur _ _) lemma? (lemma _) (lemma _)
+      lemma (ΠΣ⟨ _ ⟩ _ , _ ▷ _ ▹ _) =
+        ΠΣᵤ (lemma _) (lemma _)
+      lemma (lam _ _) =
+        lamᵤ (lemma _)
+      lemma (_ ∘⟨ _ ⟩ _) =
+        ∘ᵤ (lemma _) (lemma _)
+      lemma (prod _ _ _ _) =
+        prodᵤ (lemma _) (lemma _)
+      lemma (fst _ _) =
+        fstᵤ (lemma _)
+      lemma (snd _ _) =
+        sndᵤ (lemma _)
+      lemma (prodrec _ _ _ _ _ _) =
+        prodrecᵤ (pr _ _ _) lemma? (lemma _) (lemma _)
+      lemma ℕ =
+        ℕᵤ
+      lemma zero =
+        zeroᵤ
+      lemma (suc _) =
+        sucᵤ (lemma _)
+      lemma (natrec _ _ _ _ _ _ _) =
+        natrecᵤ (glb _ _) lemma? (lemma _) (lemma _) (lemma _)
+      lemma (Id _ _ _) with Id-erased?
+      … | yes erased =
+        Id₀ᵤ erased lemma? lemma? lemma?
+      … | no not-erased =
+        Idᵤ not-erased lemma? (lemma _) (lemma _)
+      lemma rfl =
+        rflᵤ
+      lemma (J _ _ _ _ _ _ _ _) =
+        Jᵤ-generalised lemma? (lemma _) (lemma _) (lemma _) (lemma _)
+          (lemma _)
+      lemma (K _ _ _ _ _ _) =
+        Kᵤ-generalised lemma? (lemma _) (lemma _) (lemma _) (lemma _)
+      lemma ([]-cong _ _ _ _ _) =
+        []-congᵤ (bc _) lemma? lemma? lemma? lemma?
 
 ------------------------------------------------------------------------
 -- Lemmas that apply if the modality is trivial
