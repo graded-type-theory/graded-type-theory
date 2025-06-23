@@ -87,6 +87,18 @@ opaque
   ·-comm ω 𝟘 = PE.refl
   ·-comm ω ω = PE.refl
 
+opaque
+
+  -- For the erasure modality, if 𝟘ᵐ is allowed, then ⌜ ⌞ p ⌟ ⌝ is
+  -- equal to p.
+
+  ⌜⌞⌟⌝ : T 𝟘ᵐ-allowed → ⌜ ⌞ p ⌟ ⌝ PE.≡ p
+  ⌜⌞⌟⌝ {p}     ok with ⌞ p ⌟ | ⌞⌟-view-total p
+  ⌜⌞⌟⌝         ok | _   | 𝟘ᵐ-not-allowed not-ok _ = ⊥-elim (not-ok ok)
+  ⌜⌞⌟⌝ {p = 𝟘} _  | _   | 𝟙ᵐ 𝟘≢𝟘 _                = ⊥-elim (𝟘≢𝟘 PE.refl)
+  ⌜⌞⌟⌝ {p = ω} _  | .𝟙ᵐ | 𝟙ᵐ _ PE.refl            = PE.refl
+  ⌜⌞⌟⌝         _  | .𝟘ᵐ | 𝟘ᵐ PE.refl PE.refl      = PE.refl
+
 -- ⊛ᵣ is a decreasing function on its first argument
 -- p ⊛ q ▷ r ≤ p
 
@@ -172,6 +184,30 @@ least-elemᶜ : (γ : Conₘ n) → 𝟙ᶜ ≤ᶜ γ
 least-elemᶜ ε = ε
 least-elemᶜ (γ ∙ p) = (least-elemᶜ γ) ∙ (least-elem p)
 
+opaque
+
+  -- Multiplication from the right is increasing.
+
+  ·-increasingʳ : p ≤ p · q
+  ·-increasingʳ {p = 𝟘} = PE.refl
+  ·-increasingʳ {p = ω} = PE.refl
+
+opaque
+
+  -- Multiplication from the left is increasing.
+
+  ·-increasingˡ : p ≤ q · p
+  ·-increasingˡ {q = 𝟘} = greatest-elem _
+  ·-increasingˡ {q = ω} = ≤-refl
+
+opaque
+
+  -- Multiplication from the left is increasing.
+
+  ·ᶜ-increasingˡ : γ ≤ᶜ p ·ᶜ γ
+  ·ᶜ-increasingˡ {γ = ε}     = ε
+  ·ᶜ-increasingˡ {γ = _ ∙ _} = ·ᶜ-increasingˡ ∙ ·-increasingˡ
+
 -- The functions _∧ᶜ_ and _+ᶜ_ are pointwise equivalent.
 
 ∧ᶜ≈ᶜ+ᶜ : γ ∧ᶜ δ ≈ᶜ γ +ᶜ δ
@@ -210,6 +246,20 @@ nr≡ {p = ω} {z = z} {s = s} {n = n} =
   z + s + n          ∎
   where
   open Tools.Reasoning.PropositionalEquality
+
+opaque
+
+  -- The nr function returns the sum of its last three arguments.
+
+  nrᶜ≈ᶜ : nrᶜ p r γ δ η ≈ᶜ γ +ᶜ δ +ᶜ η
+  nrᶜ≈ᶜ         {γ = ε}     {δ = ε}     {η = ε}     = ε
+  nrᶜ≈ᶜ {p} {r} {γ = _ ∙ z} {δ = _ ∙ s} {η = _ ∙ n} =
+    nrᶜ≈ᶜ ∙
+    (nr p r z s n  ≡⟨ nr≡ {r = r} {z = z} ⟩
+     z + s + n     ≡⟨ EM.+-assoc z _ _ ⟩
+     z + (s + n)   ∎)
+    where
+    open Tools.Reasoning.PropositionalEquality
 
 -- Division is correctly defined.
 
@@ -402,6 +452,18 @@ opaque
 
 opaque
 
+  -- There is only one lawful way to define the nr function for
+  -- erasure-semiring-with-meet.
+
+  nrᶜ-unique :
+    {has-nr : Has-nr erasure-semiring-with-meet} →
+    nrᶜ ⦃ has-nr = has-nr ⦄ p r γ δ η ≈ᶜ nrᶜ p r γ δ η
+  nrᶜ-unique {γ = ε}     {δ = ε}     {η = ε}              = ε
+  nrᶜ-unique {γ = _ ∙ _} {δ = _ ∙ _} {η = _ ∙ _} {has-nr} =
+    nrᶜ-unique ∙ nr-unique has-nr _ _ _ _ _
+
+opaque
+
   -- The nr function satisfies Linearity-like-nr-for-𝟙.
 
   nr-linearity-like-for-𝟙 :
@@ -525,6 +587,15 @@ opaque
         erasure-semiring-with-meet x
          (Semiring-with-meet.nrᵢ erasure-semiring-with-meet r z s)
   Erasure-nrᵢ-glb r z s = z ∧ s , Erasure-nrᵢ-glb-∧ r z s
+
+opaque
+
+  -- A variant of Erasure-nrᵢ-glb-∧ for grade contexts.
+
+  Erasure-nrᵢᶜ-glb-∧ᶜ : Greatest-lower-boundᶜ (γ ∧ᶜ δ) (nrᵢᶜ r γ δ)
+  Erasure-nrᵢᶜ-glb-∧ᶜ {γ = ε}     {δ = ε}     = ε-GLB
+  Erasure-nrᵢᶜ-glb-∧ᶜ {γ = _ ∙ _} {δ = _ ∙ _} =
+    GLBᶜ-pointwise′ Erasure-nrᵢᶜ-glb-∧ᶜ (Erasure-nrᵢ-glb-∧ _ _ _)
 
 opaque instance
 
