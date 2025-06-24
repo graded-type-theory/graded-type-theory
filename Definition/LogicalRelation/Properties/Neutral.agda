@@ -90,7 +90,7 @@ opaque
       in
       Levelₜ₌ _ _ (id (conv ⊢n A≡Level)) (id (conv ⊢n A≡Level))
         (neLvl (ne (neNfₜ₌ inc n-ne n-ne n~n′)))
-    neuTerm′ (Liftᵣ′ D [k] [F] _) =
+    neuTerm′ (Liftᵣ′ D [k] [F]) =
       let A≡Lift = subset* D
       in Liftₜ₌ _ _
         (id (conv ⊢n A≡Lift) , ne! n-ne)
@@ -202,7 +202,7 @@ opaque
       in
       Levelₜ₌ _ _ (id (conv ⊢n A≡Level)) (id (conv ⊢n′ A≡Level))
         (neLvl (ne (neNfₜ₌ inc n-ne n′-ne n~n′₁)))
-    neuEqTerm′ (Liftᵣ′ D [k] [F] _) =
+    neuEqTerm′ (Liftᵣ′ D [k] [F]) =
       let A≡Lift = subset* D
       in Liftₜ₌ _ _
         (id (conv ⊢n A≡Lift) , ne! n-ne)

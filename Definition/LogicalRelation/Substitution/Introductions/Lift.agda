@@ -63,19 +63,17 @@ opaque
 
   ⊩Lift⇔ :
     Γ ⊩⟨ l ⟩ Lift k A ⇔
-    (Γ ⊩Level k ∷Level ×
-     (Γ ⊩⟨ l ⟩ A) ×
-     Γ ⊢≅ Lift k A)
+    (Γ ⊩Level k ∷Level × Γ ⊩⟨ l ⟩ A)
   ⊩Lift⇔ =
       (λ ⊩Lift →
         case Lift-view ⊩Lift of λ {
-          (Liftᵣ (Liftᵣ Lift⇒*Lift [k] [A] A≡A)) →
+          (Liftᵣ (Liftᵣ Lift⇒*Lift [k] [A])) →
       case Lift-PE-injectivity $
            whnfRed* Lift⇒*Lift Liftₙ of λ {
         (PE.refl , PE.refl) →
-      [k] , [A] , A≡A }})
-    , (λ ([k] , [A] , A≡A) →
-         Liftᵣ′ (id (wf-⊢≡ (≅-eq A≡A) .proj₁)) [k] [A] A≡A)
+      [k] , [A] }})
+    , (λ ([k] , [A]) →
+         Liftᵣ′ (id (Liftⱼ (escapeLevel [k]) (escape [A]))) [k] [A])
 
 opaque
   unfolding _⊩⟨_⟩_≡_
@@ -87,33 +85,29 @@ opaque
     (∃₂ λ k′ A′ →
      (Γ ⊢ B ⇒* Lift k′ A′) ×
      Γ ⊩Level k ≡ k′ ∷Level ×
-     (Γ ⊩⟨ l ⟩ A ≡ A′) ×
-     (Γ ⊢ A) ×
-     (Γ ⊢ A′) ×
-     Γ ⊢ Lift k A ≅ Lift k′ A′)
+     Γ ⊩⟨ l ⟩ A ≡ A′)
   ⊩Lift≡⇔ {l} {k} {A} {B} =
       (λ (⊩Lift , [B] , Lift≡A) →
          case Lift-view ⊩Lift of λ {
-           (Liftᵣ (Liftᵣ Lift⇒*Lift [k] [A] A≡A)) →
+           (Liftᵣ (Liftᵣ Lift⇒*Lift [k] [A])) →
          case Lift-PE-injectivity $
               whnfRed* Lift⇒*Lift Liftₙ of λ {
            (PE.refl , PE.refl) →
          case Lift≡A of λ
-           (Lift₌ D′ k≡k′ A≡A′ A≡B) →
-         let _ , [F′] , _ = ⊩Lift⇔ .proj₁ (wf-⊩≡ (⊩-⇒* D′ [B]) .proj₂)
-         in _ , _ , D′ , k≡k′ , (_ , [F′] , A≡A′) , escape-⊩ [A] , escape-⊩ [F′] , A≡B }})
-    , (λ (k′ , A′ , D , k≡k′ , ([A] , [A′] , A≡A′) , ⊢A , ⊢B , A≡B) →
+           (Lift₌ D′ k≡k′ A≡A′) →
+         let _ , [F′] = ⊩Lift⇔ .proj₁ (wf-⊩≡ (⊩-⇒* D′ [B]) .proj₂)
+         in _ , _ , D′ , k≡k′ , (_ , [F′] , A≡A′) }})
+    , (λ (k′ , A′ , D , k≡k′ , ([A] , [A′] , A≡A′)) →
          let [k] , [k′] = wf-Level-eq k≡k′
-             A≡A , B≡B = wf-⊢≅ A≡B
-             ⊢LA , ⊢LB = wf-⊢≡ (≅-eq A≡B)
+             ⊢LA , ⊢LB = wf-⊢≡ (≅-eq (≅-Lift-cong (escapeLevelEq k≡k′) (escapeEq [A] A≡A′)))
              Liftk≡Liftk′
-              = Liftᵣ′ (id ⊢LA) [k] [A] A≡A
-              , Liftᵣ′ (id ⊢LB) [k′] [A′] B≡B
-              , Lift₌ (id ⊢LB) k≡k′ A≡A′ A≡B
+              = Liftᵣ′ (id ⊢LA) [k] [A]
+              , Liftᵣ′ (id ⊢LB) [k′] [A′]
+              , Lift₌ (id ⊢LB) k≡k′ A≡A′
          in sym-⊩≡
            (B          ⇒*⟨ D ⟩⊩
             Lift k′ A′ ≡˘⟨ Liftk≡Liftk′ ⟩⊩
-            Lift k A   ∎⟨ ⊩Lift⇔ .proj₂ ([k] , [A] , A≡A) ⟩⊩))
+            Lift k A   ∎⟨ ⊩Lift⇔ .proj₂ ([k] , [A]) ⟩⊩))
 
 opaque
 
@@ -122,18 +116,16 @@ opaque
   ⊩Lift≡Lift⇔ :
     Γ ⊩⟨ l ⟩ Lift k A ≡ Lift k′ A′ ⇔
     (Γ ⊩Level k ≡ k′ ∷Level ×
-     (Γ ⊩⟨ l ⟩ A ≡ A′) ×
-     (Γ ⊢ A) ×
-     (Γ ⊢ A′) ×
-     Γ ⊢ Lift k A ≅ Lift k′ A′)
+     Γ ⊩⟨ l ⟩ A ≡ A′)
   ⊩Lift≡Lift⇔ =
-    ( (λ (_ , _ , Lift⇒*Lift , k≡k′ , A≡A′ , ⊢A , ⊢A′ , A≡B) →
+    ( (λ (_ , _ , Lift⇒*Lift , k≡k′ , A≡A′) →
       case whnfRed* Lift⇒*Lift Liftₙ of λ {
         PE.refl →
-      k≡k′ , A≡A′ , ⊢A , ⊢A′ , A≡B })
-    , λ (k≡k′ , A≡A′ , ⊢A , ⊢A′ , A≡B) →
-      let _ , ⊢B = wf-⊢≡ (≅-eq A≡B)
-      in _ , _ , id ⊢B , k≡k′ , A≡A′ , ⊢A , ⊢A′ , A≡B)
+      k≡k′ , A≡A′ })
+    , λ (k≡k′ , A≡A′) →
+      let [k] , [k′] = wf-Level-eq k≡k′
+          [A] , [A′] = wf-⊩≡ A≡A′
+      in _ , _ , id (Liftⱼ (escapeLevel [k′]) (escape [A′])) , k≡k′ , A≡A′)
     ∘⇔ ⊩Lift≡⇔
 
 opaque
@@ -151,18 +143,17 @@ opaque
   ⊩≡∷Lift⇔ {t} {u} =
       (λ ([Lift] , t≡u) →
         case Lift-view [Lift] of λ {
-          (Liftᵣ (Liftᵣ Lift⇒*Lift [k] [A] A≡A)) →
+          (Liftᵣ (Liftᵣ Lift⇒*Lift [k] [A])) →
         case Lift-PE-injectivity $
              whnfRed* Lift⇒*Lift Liftₙ of λ {
           (PE.refl , PE.refl) →
         case t≡u of λ
           (Liftₜ₌ t′ u′ t↘ u↘ t≡u) →
         let [t≡u] = ⊩≡∷-intro [A] t≡u
-        in ⊩Lift⇔ .proj₂ ([k] , [A] , A≡A) , t′ , u′ , t↘ , u↘ , ⊩≡∷-intro [A] t≡u }})
+        in ⊩Lift⇔ .proj₂ ([k] , [A]) , t′ , u′ , t↘ , u↘ , ⊩≡∷-intro [A] t≡u }})
     , λ ([Lift] , _ , _ , t↘ , u↘ , t≡u) →
-      let [k] , [A] , A≡A = ⊩Lift⇔ .proj₁ [Lift]
-          ⊢Lift , _ = wf-⊢≡ (≅-eq A≡A)
-      in Liftᵣ′ (id ⊢Lift) [k] [A] A≡A , _ , _ , t↘ , u↘ , ⊩≡∷→⊩≡∷/ [A] t≡u
+      let [k] , [A] = ⊩Lift⇔ .proj₁ [Lift]
+      in Liftᵣ′ (id (Liftⱼ (escapeLevel [k]) (escape [A]))) [k] [A] , _ , _ , t↘ , u↘ , ⊩≡∷→⊩≡∷/ [A] t≡u
 
 ------------------------------------------------------------------------
 -- Lift
@@ -192,9 +183,6 @@ opaque
             , ⊩Lift≡Lift⇔ .proj₂
               ( k[σ₁]≡k′[σ₂]
               , emb-⊩≡ ≤ᵘ-maxᵘʳ A[σ₁]≡A′[σ₂]
-              , ⊢A[σ₁]
-              , ⊢A′[σ₂]
-              , ≅-Lift-cong (escapeLevelEq k[σ₁]≡k′[σ₂]) (escape-⊩≡ A[σ₁]≡A′[σ₂])
               )
             , ≅ₜ-Lift-cong (escapeLevelEq k[σ₁]≡k′[σ₂]) (escape-⊩≡∷ A[σ₁]≡A′[σ₂]∷U)
             )
@@ -218,9 +206,6 @@ opaque
           in ⊩Lift≡Lift⇔ .proj₂
             ( k[σ₁]≡k′[σ₂]
             , A[σ₁]≡A′[σ₂]
-            , ⊢A[σ₁]
-            , ⊢A′[σ₂]
-            , ≅-Lift-cong (escapeLevelEq k[σ₁]≡k′[σ₂]) (escape-⊩≡ A[σ₁]≡A′[σ₂])
             )
       )
 
@@ -258,7 +243,7 @@ opaque
     ⊩ᵛ⇔ʰ .proj₂
       ( ⊩Γ
       , λ σ₁≡σ₂ →
-        let _ , A[σ₁]≡A[σ₂] , _ = ⊩Lift≡Lift⇔ .proj₁ (Lift≡Lift σ₁≡σ₂)
+        let _ , A[σ₁]≡A[σ₂] = ⊩Lift≡Lift⇔ .proj₁ (Lift≡Lift σ₁≡σ₂)
         in A[σ₁]≡A[σ₂]
       )
 
@@ -396,7 +381,7 @@ opaque
   ⊩Lift-η {t} {u} ⊩k₂ ⊩A∷U ⊩t ⊩u lowert≡loweru =
     let ⊩Lift , t′ , _ , t↘ , _ , t≡t = ⊩≡∷Lift⇔ .proj₁ (refl-⊩≡∷ ⊩t)
         _ , u′ , _ , u↘ , _ , u≡u = ⊩≡∷Lift⇔ .proj₁ (refl-⊩≡∷ ⊩u)
-        _ , ⊩A , _ = ⊩Lift⇔ .proj₁ ⊩Lift
+        _ , ⊩A = ⊩Lift⇔ .proj₁ ⊩Lift
     in ⊩≡∷Lift⇔ .proj₂
       ( ⊩Lift
       , _ , _

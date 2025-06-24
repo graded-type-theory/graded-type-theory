@@ -470,7 +470,6 @@ module LogRel
         ⇒*Lift : Γ ⊢ A ⇒* Lift k₂ F
         [k₂]    : Γ ⊩Level k₂ ∷Level
         [F]    : Γ ⊩ₗ F
-        A≡A    : Γ ⊢≅ Lift k₂ F
 
     -- Lift type equality
     record _⊩ₗLift_≡_/_ (Γ : Con Term ℓ) (A B : Term ℓ) ([A] : Γ ⊩ₗLift A) : Set a where
@@ -484,12 +483,11 @@ module LogRel
         ⇒*Lift′ : Γ ⊢ B ⇒* Lift k₂′ F′
         k≡k′ : Γ ⊩Level k₂ ≡ k₂′ ∷Level
         F≡F′ : Γ ⊩ₗ F ≡ F′ / [F]
-        A≡B  : Γ ⊢ Lift k₂ F ≅ Lift k₂′ F′
 
     -- Lift term equality
     _⊩ₗLift_≡_∷_/_ : {ℓ : Nat} (Γ : Con Term ℓ) (t u A : Term ℓ) ([A] : Γ ⊩ₗLift A) → Set a
     _⊩ₗLift_≡_∷_/_
-      {ℓ} Γ t u A [A]@(Liftᵣ {k₂} {F} ⇒*Lift [k₂] [F] A≡A) =
+      {ℓ} Γ t u A [A]@(Liftᵣ {k₂} {F} ⇒*Lift [k₂] [F]) =
       ∃₂ λ t′ u′ → Γ ⊢ t ↘ t′ ∷ Lift k₂ F
                  × Γ ⊢ u ↘ u′ ∷ Lift k₂ F
                  × Γ ⊩ₗ lower t′ ≡ lower u′ ∷ F / [F]
@@ -732,7 +730,7 @@ pattern Σₜ₌ p r d d′ pProd rProd p≅r prop = p , r , d , d′ , p≅r , 
 
 pattern Unitᵣ′ a b c d e = Unitᵣ (Unitᵣ a b c d e)
 pattern Uᵣ′ a b c d = Uᵣ (Uᵣ a b c d)
-pattern Liftᵣ′ {k₂} {F} d e f g = Liftᵣ (Liftᵣ {k₂} {F} d e f g)
+pattern Liftᵣ′ {k₂} {F} d e f = Liftᵣ (Liftᵣ {k₂} {F} d e f)
 pattern ne′ a b c d e = ne (ne a b c d e)
 pattern Bᵣ′ W a b c d e f g h = Bᵣ W (Bᵣ a b c d e f g h)
 pattern Πᵣ′ a b c d e f g h = Bᵣ′ BΠ! a b c d e f g h

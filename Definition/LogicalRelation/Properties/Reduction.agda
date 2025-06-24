@@ -57,9 +57,9 @@ redSubst* : ∀ {A B : Term n} {l}
           → Γ ⊩⟨ l ⟩ A ≡ B / [A]
 redSubst* D (Levelᵣ D′) =
   Levelᵣ (D ⇨* D′) , D′
-redSubst* D (Liftᵣ′ D′ [k] [F] A≡A) =
-    Liftᵣ′ (D ⇨* D′) [k] [F] A≡A
-  , Lift₌ D′ (reflLevel [k]) (reflEq [F]) A≡A
+redSubst* D (Liftᵣ′ D′ [k] [F]) =
+    Liftᵣ′ (D ⇨* D′) [k] [F]
+  , Lift₌ D′ (reflLevel [k]) (reflEq [F])
 redSubst* D (Uᵣ′ l′ [l′] l< D′) =
   Uᵣ′ l′ [l′] l< (D ⇨* D′) , U₌ l′ D′ (reflLevel [l′])
 redSubst* D (ℕᵣ D′) =
@@ -97,7 +97,7 @@ opaque
   redSubst*Term t⇒u (Levelᵣ A⇒*Level) (Levelₜ₌ v v′ u⇒*v u⇒*v′ v≡v′) =
     let t⇒u′ = conv* t⇒u (subset* A⇒*Level) in
     Levelₜ₌ v v′ (t⇒u′ ⇨∷* u⇒*v) u⇒*v′ v≡v′
-  redSubst*Term t⇒u [A]@(Liftᵣ′ D [k] [F] A≡A) (Liftₜ₌ u′ _ u↘@(u⇒* , w) u↘′ u≡u) =
+  redSubst*Term t⇒u (Liftᵣ′ D [k] [F]) (Liftₜ₌ u′ _ u↘@(u⇒* , w) u↘′ u≡u) =
     case whrDet*Term u↘ u↘′ of λ {
       PE.refl →
     let t⇒u′ = conv* t⇒u (subset* D)
@@ -185,11 +185,11 @@ opaque
     case whrDet↘ (A⇒*Level , Levelₙ) A⇒*B of λ
       B⇒*Level →
     Levelᵣ B⇒*Level , B⇒*Level
-  redSubst*′ A⇒*B (Liftᵣ′ D [k] [F] A≡A) =
+  redSubst*′ A⇒*B (Liftᵣ′ D [k] [F]) =
     case whrDet↘ (D , Liftₙ) A⇒*B of λ
       B⇒*Lift →
-      Liftᵣ′ B⇒*Lift [k] [F] A≡A
-    , Lift₌ B⇒*Lift (reflLevel [k]) (reflEq [F]) A≡A
+      Liftᵣ′ B⇒*Lift [k] [F]
+    , Lift₌ B⇒*Lift (reflLevel [k]) (reflEq [F])
   redSubst*′ A⇒*B ⊩U@(Uᵣ′ l [l] l< D) =
     case whrDet↘ (D , Uₙ) A⇒*B of λ
       B⇒*U →
@@ -235,7 +235,7 @@ opaque
            (conv* t⇒*u (subset* A⇒*Level)) of λ
       u⇒*v′ →
     Levelₜ₌ v v′ t⇒*v u⇒*v′ v≡v′
-  redSubst*Term′ t⇒*u (Liftᵣ′ D _ _ _) (Liftₜ₌ t′ _ t↘@(t⇒* , w) t↘′ t≡t) =
+  redSubst*Term′ t⇒*u (Liftᵣ′ D _ _) (Liftₜ₌ t′ _ t↘@(t⇒* , w) t↘′ t≡t) =
     case whrDet*Term t↘ t↘′ of λ {
       PE.refl →
     case whrDet↘Term t↘ (conv* t⇒*u (subset* D)) of λ

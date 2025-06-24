@@ -45,7 +45,7 @@ reflEqTerm _ ⊩t = ⊩t
 reflEq : ∀ {l A} ([A] : Γ ⊩⟨ l ⟩ A) → Γ ⊩⟨ l ⟩ A ≡ A / [A]
 reflEq (Levelᵣ D) = D
 reflEq (Uᵣ′ k [k] k< A⇒*U) = U₌ k A⇒*U (reflLevel [k])
-reflEq (Liftᵣ′ D [k] [F] A≡A) = Lift₌ D (reflLevel [k]) (reflEq [F]) A≡A
+reflEq (Liftᵣ′ D [k] [F]) = Lift₌ D (reflLevel [k]) (reflEq [F])
 reflEq (ℕᵣ D) = D
 reflEq (Emptyᵣ D) = D
 reflEq (Unitᵣ′ k [k] _ D _) = Unit₌ k D (reflLevel [k])

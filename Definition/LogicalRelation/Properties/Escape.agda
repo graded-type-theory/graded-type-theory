@@ -45,7 +45,7 @@ private
 escape : ∀ {l A} → Γ ⊩⟨ l ⟩ A → Γ ⊢ A
 escape (Levelᵣ D) = redFirst* D
 escape (Uᵣ′ _ _ _ D) = redFirst* D
-escape (Liftᵣ′ D _ _ _) = redFirst* D
+escape (Liftᵣ′ D _ _) = redFirst* D
 escape (ℕᵣ D) = redFirst* D
 escape (Emptyᵣ D) = redFirst* D
 escape (Unitᵣ′ _ _ _ D _) = redFirst* D
@@ -93,8 +93,8 @@ escapeEq (Levelᵣ D) D′ =
   ≅-red (D , Levelₙ) (D′ , Levelₙ) (≅-Levelrefl (wf (redFirst* D)))
 escapeEq (Uᵣ′ _ _ _ D) (U₌ k′ D₁ k≡k′) =
   ≅-red (D , Uₙ) (D₁ , Uₙ) (≅-U-cong (escapeLevelEq k≡k′))
-escapeEq (Liftᵣ′ D _ _ _) (Lift₌ D′ k≡k′ F≡F′ A≡B) =
-  ≅-red (D , Liftₙ) (D′ , Liftₙ) A≡B
+escapeEq (Liftᵣ′ D _ _) (Lift₌ D′ k≡k′ F≡F′) =
+  ≅-red (D , Liftₙ) (D′ , Liftₙ) (≅-Lift-cong (escapeLevelEq k≡k′) (escapeEq _ F≡F′))
 escapeEq (ℕᵣ D) D′ =
   ≅-red (D , ℕₙ) (D′ , ℕₙ) (≅-ℕrefl (wf (redFirst* D)))
 escapeEq (Emptyᵣ D) D′ =
@@ -114,7 +114,7 @@ escapeTermEq (Levelᵣ D) (Levelₜ₌ k k′ d d′ prop) =
       (escape-[Level]-prop (wf (redFirst* D)) prop)
 escapeTermEq (Uᵣ′ _ _ _ D) (Uₜ₌ A B d d′ typeA typeB A≡B [A] [B] [A≡B]) =
   ≅ₜ-red (D , Uₙ) (d , typeWhnf typeA) (d′ , typeWhnf typeB)  A≡B
-escapeTermEq (Liftᵣ′ D _ [F] _) (Liftₜ₌ _ _ t↘@(t⇒* , wt) u↘@(u⇒* , wu) t≡u) =
+escapeTermEq (Liftᵣ′ D _ [F]) (Liftₜ₌ _ _ t↘@(t⇒* , wt) u↘@(u⇒* , wu) t≡u) =
   let _ , _ , ⊢t′ = wf-⊢≡∷ (subset*Term t⇒*)
       _ , _ , ⊢u′ = wf-⊢≡∷ (subset*Term u⇒*)
   in ≅ₜ-red (D , Liftₙ) t↘ u↘ (≅-Lift-η ⊢t′ ⊢u′ wt wu (escapeTermEq [F] t≡u))

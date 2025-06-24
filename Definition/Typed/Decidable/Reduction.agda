@@ -98,7 +98,7 @@ private opaque
   isLift′ (Uᵣ′ _ _ _ A⇒*U) =
     no λ (_ , _ , A⇒*) →
     I.U≢Liftⱼ (trans (sym (subset* A⇒*U)) (subset* A⇒*))
-  isLift′ (Liftᵣ′ D _ _ _) =
+  isLift′ (Liftᵣ′ D _ _) =
     yes (_ , _ , D)
   isLift′ (ℕᵣ A⇒*ℕ) =
     no λ (_ , _ , A⇒*W) →
@@ -140,7 +140,7 @@ private opaque
   isΠΣ′ (Uᵣ′ _ _ _ A⇒*U) =
     no λ (_ , _ , _ , _ , _ , A⇒*) →
     I.U≢ΠΣⱼ (trans (sym (subset* A⇒*U)) (subset* A⇒*))
-  isΠΣ′ (Liftᵣ′ D _ _ _) =
+  isΠΣ′ (Liftᵣ′ D _ _) =
     no λ (_ , _ , _ , _ , _ , A⇒*) →
     I.Lift≢ΠΣⱼ (trans (sym (subset* D)) (subset* A⇒*))
   isΠΣ′ (ℕᵣ A⇒*ℕ) =
@@ -238,7 +238,7 @@ opaque
       no λ (_ , _ , _ , A⇒*Id) →
         Id≢U $
         trans (sym (subset* A⇒*Id)) (subset* (_⊩₁U_.⇒*U ⊩U))
-    helper (Liftᵣ′ A⇒*Lift _ _ _) =
+    helper (Liftᵣ′ A⇒*Lift _ _) =
       no λ (_ , _ , _ , A⇒*Id) →
         I.Id≢Lift (trans (sym (subset* A⇒*Id)) (subset* A⇒*Lift))
     helper (ℕᵣ A⇒*ℕ) =

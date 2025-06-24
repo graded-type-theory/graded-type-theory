@@ -81,12 +81,12 @@ mutual
                → Γ ⊩⟨ l′ ⟩ t ≡ u ∷ B / [B]
   convEqTermT₁ (Levelᵥ D D′) A≡B t≡u = t≡u
   convEqTermT₁
-    (Liftᵥ (Liftᵣ D _ [F] _) (Liftᵣ D′ _ [F′] _))
-    (Lift₌ D″ k≡k′ F≡F′ A≡B)
+    (Liftᵥ (Liftᵣ D _ [F]) (Liftᵣ D′ _ [F′]))
+    (Lift₌ D″ k≡k′ F≡F′)
     (Liftₜ₌ _ _ t↘ u↘ t≡u)
     = case whrDet* (D″ , Liftₙ) (D′ , Liftₙ) of λ {
       PE.refl →
-    let Lift≡Lift = ≅-eq A≡B
+    let Lift≡Lift = ≅-eq (≅-Lift-cong (escapeLevelEq k≡k′) (escapeEq [F] F≡F′))
     in Liftₜ₌ _ _ (conv↘∷ t↘ Lift≡Lift) (conv↘∷ u↘ Lift≡Lift)
         (convEqTerm₁ [F] [F′] F≡F′ t≡u) }
   convEqTermT₁ (ℕᵥ D D′) A≡B t≡u = t≡u
@@ -241,12 +241,12 @@ mutual
              → Γ ⊩⟨ l ⟩  t ≡ u ∷ A / [A]
   convEqTermT₂ (Levelᵥ D D′) A≡B t≡u = t≡u
   convEqTermT₂
-    (Liftᵥ (Liftᵣ D _ [F] _) (Liftᵣ D′ _ [F′] _))
-    (Lift₌ D″ k≡k′ F≡F′ A≡B)
+    (Liftᵥ (Liftᵣ D _ [F]) (Liftᵣ D′ _ [F′]))
+    (Lift₌ D″ k≡k′ F≡F′)
     (Liftₜ₌ _ _ t↘ u↘ t≡u)
     = case whrDet* (D″ , Liftₙ) (D′ , Liftₙ) of λ {
       PE.refl →
-    let Lift≡Lift = sym (≅-eq A≡B)
+    let Lift≡Lift = sym (≅-eq (≅-Lift-cong (escapeLevelEq k≡k′) (escapeEq [F] F≡F′)))
     in Liftₜ₌ _ _ (conv↘∷ t↘ Lift≡Lift) (conv↘∷ u↘ Lift≡Lift)
         (convEqTerm₂ [F] [F′] F≡F′ t≡u) }
   convEqTermT₂ (ℕᵥ D D′) A≡B t≡u = t≡u
