@@ -83,7 +83,7 @@ mutual
             γ ▸ Γ ⊢[ r ] A
     ΠΣ    : ΠΣ-allowed b p q →
             γ ▸ Γ ⊢[ r · p ] A →
-            γ ∙ r · q ▸ Γ ∙ A ⊢[ r ] B →
+            γ ∙ q ▸ Γ ∙ A ⊢[ r ] B →
             γ ▸ Γ ⊢[ r ] ΠΣ⟨ b ⟩ p , q ▷ A ▹ B
     Id    : (Id-erased → δ PE.≡ 𝟘ᶜ × r′ PE.≡ 𝟘) →
             (¬ Id-erased → δ PE.≡ γ × r′ PE.≡ r) →
@@ -134,11 +134,11 @@ mutual
 
     ΠΣ       : ΠΣ-allowed b p q →
                γ ▸ Γ ⊢ A ∷[ r · p ] U l₁ →
-               γ ∙ r · q ▸ Γ ∙ A ⊢ B ∷[ r ] U l₂ →
+               γ ∙ q ▸ Γ ∙ A ⊢ B ∷[ r ] U l₂ →
                γ ▸ Γ ⊢ ΠΣ⟨ b ⟩ p , q ▷ A ▹ B ∷[ r ] U (l₁ ⊔ᵘ l₂)
 
     lam      : Π-allowed p q →
-               γ ∙ r · p ▸ Γ ∙ A ⊢ t ∷[ r ] B →
+               γ ∙ p ▸ Γ ∙ A ⊢ t ∷[ r ] B →
                γ ▸ Γ ⊢ lam p t ∷[ r ] Π p , q ▷ A ▹ B
     app      : γ ▸ Γ ⊢ t ∷[ r ] Π p , q ▷ A ▹ B →
                γ ▸ Γ ⊢ u ∷[ r · p ] A →
@@ -157,7 +157,7 @@ mutual
     prodrec  : Prodrec-allowed ⌞ o ⌟ r p q →
                Γ ∙ Σʷ p , q′ ▷ A ▹ B ⊢ C →
                γ ▸ Γ ⊢ t ∷[ o · r ] Σʷ p , q′ ▷ A ▹ B →
-               γ ∙ o · (r · p) ∙ o · r ▸ Γ ∙ A ∙ B ⊢ u ∷[ o ]
+               γ ∙ r · p ∙ r ▸ Γ ∙ A ∙ B ⊢ u ∷[ o ]
                  C [ prodʷ p (var x1) (var x0) ]↑² →
                γ ▸ Γ ⊢ prodrec r p q C t u ∷[ o ] C [ t ]₀
 
@@ -169,8 +169,7 @@ mutual
                γ ▸ Γ ⊢ suc t ∷[ p ] ℕ
     natrec   : Γ ∙ ℕ ⊢ A →
                γ ▸ Γ ⊢ t ∷[ o ] A [ zero ]₀ →
-               γ ∙ o · p ∙ o · r ▸ Γ ∙ ℕ ∙ A ⊢ u ∷[ o ]
-                 A [ suc (var x1) ]↑² →
+               γ ∙ p ∙ r ▸ Γ ∙ ℕ ∙ A ⊢ u ∷[ o ] A [ suc (var x1) ]↑² →
                γ ▸ Γ ⊢ v ∷[ o ] ℕ →
                γ ▸ Γ ⊢ natrec p q r A t u v ∷[ o ] A [ v ]₀
 
@@ -185,7 +184,7 @@ mutual
     J        : (erased-matches-for-J ⌞ r ⌟ ≤ᵉᵐ some →
                 (erased-matches-for-J ⌞ r ⌟ PE.≡ some →
                  ¬ (p PE.≡ 𝟘 × q PE.≡ 𝟘)) →
-                δ₁ PE.≡ γ ∙ r · p ∙ r · q × δ₂ PE.≡ γ ×
+                δ₁ PE.≡ γ ∙ p ∙ q × δ₂ PE.≡ γ ×
                 r₁ PE.≡ r × r₂ PE.≡ r) →
                (erased-matches-for-J ⌞ r ⌟ PE.≡ some →
                 p PE.≡ 𝟘 → q PE.≡ 𝟘 →
@@ -203,7 +202,7 @@ mutual
                γ ▸ Γ ⊢ J p q A t B u v w ∷[ r ] B [ v , w ]₁₀
     K        : (erased-matches-for-K ⌞ r ⌟ ≤ᵉᵐ some →
                 (erased-matches-for-K ⌞ r ⌟ PE.≡ some → p PE.≢ 𝟘) →
-                δ₁ PE.≡ γ ∙ r · p × δ₂ PE.≡ γ ×
+                δ₁ PE.≡ γ ∙ p × δ₂ PE.≡ γ ×
                 r₁ PE.≡ r × r₂ PE.≡ r) →
                (erased-matches-for-K ⌞ r ⌟ PE.≡ some →
                 p PE.≡ 𝟘 →

@@ -248,8 +248,8 @@ import Graded.Modality.Instances.Relevancy
 -- modes.
 
 import Graded.Modality.Instances.Erasure.Combined
-import Graded.Modality.Instances.Erasure.Combined.Equivalent
 import Graded.Modality.Instances.Erasure.Combined.Properties
+import Graded.Modality.Instances.Erasure.Combined.Equivalent
 
 ------------------------------------------------------------------------
 -- Properties of the type theory
