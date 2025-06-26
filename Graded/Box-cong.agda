@@ -120,9 +120,10 @@ private opaque
 opaque
 
   -- A variant of []-cong that can be used when erased matches are
-  -- available for J, when the mode is 𝟘ᵐ[ ok ], or when the modality
-  -- is trivial. Note that the lemmas in this section do not include
-  -- assumptions of the form "[]-cong-allowed s".
+  -- available for J and 𝟘ᵐ is allowed, when the mode is 𝟘ᵐ[ ok ], or
+  -- when the modality is trivial. Note that the lemmas in this
+  -- section do not include assumptions of the form
+  -- "[]-cong-allowed s".
 
   []-cong-J : Strength → Term n → Term n → Term n → Term n → Term n
   []-cong-J s A t u v =
@@ -137,29 +138,34 @@ opaque
 
   ▸[]-cong-J :
     erased-matches-for-J m PE.≡ not-none sem →
-    γ₁ ▸[ 𝟘ᵐ? ] A →
-    γ₂ ▸[ 𝟘ᵐ? ] t →
-    γ₃ ▸[ 𝟘ᵐ? ] u →
-    γ₄ ▸[ 𝟘ᵐ? ] v →
+    γ₁ ▸[ 𝟘ᵐ[ ok ] ] A →
+    γ₂ ▸[ 𝟘ᵐ[ ok ] ] t →
+    γ₃ ▸[ 𝟘ᵐ[ ok ] ] u →
+    γ₄ ▸[ 𝟘ᵐ[ ok ] ] v →
     𝟘ᶜ ▸[ m ] []-cong-J s A t u v
-  ▸[]-cong-J {m} {s} ≡not-none ▸A ▸t ▸u ▸v =
+  ▸[]-cong-J {m} {ok} {s} ≡not-none ▸A ▸t ▸u ▸v =
+    let ▸A = ▸-cong (PE.sym $ 𝟘ᵐ?≡𝟘ᵐ {ok = ok}) (▸-𝟘 ▸A)
+        ▸t = ▸-cong (PE.sym 𝟘ᵐ?≡𝟘ᵐ) ▸t
+        ▸u = ▸-cong (PE.sym 𝟘ᵐ?≡𝟘ᵐ) ▸u
+        ▸v = ▸-cong (PE.sym 𝟘ᵐ?≡𝟘ᵐ) ▸v
+    in
     case PE.singleton $ erased-matches-for-J m of λ where
       (not-none _ , ≡not-none) → sub
         (▸subst-𝟘 ≡not-none ▸A
            (Idₘ-generalised (▸Erased (wkUsage _ ▸A))
               (▸[] (wkUsage _ ▸t)) (▸[] var)
               (λ _ → ≤ᶜ-refl)
-              (λ _ →
-                 let open Tools.Reasoning.PartialOrder ≤ᶜ-poset in begin
-                   𝟘ᶜ        ≈˘⟨ +ᶜ-identityʳ _ ⟩
-                   𝟘ᶜ +ᶜ 𝟘ᶜ  ∎))
+              (λ _ → begin
+                 𝟘ᶜ                ≈˘⟨ ≈ᶜ-trans (+ᶜ-congˡ (+ᶜ-identityʳ _)) (+ᶜ-identityʳ _) ⟩
+                 𝟘ᶜ +ᶜ 𝟘ᶜ +ᶜ 𝟘ᶜ  ∎))
             ▸t ▸u ▸v rflₘ)
-        (let open Tools.Reasoning.PartialOrder ≤ᶜ-poset in begin
+        (begin
            𝟘ᶜ               ≈˘⟨ ω·ᶜ+ᶜ²𝟘ᶜ ⟩
            ω ·ᶜ (𝟘ᶜ +ᶜ 𝟘ᶜ)  ∎)
       (none , ≡none) →
         case PE.trans (PE.sym ≡not-none) ≡none of λ ()
     where
+    open ≤ᶜ-reasoning
     open ErasedU s
 
 opaque
@@ -173,7 +179,7 @@ opaque
     γ₃ ▸[ 𝟘ᵐ[ ok ] ] u →
     γ₄ ▸[ 𝟘ᵐ[ ok ] ] v →
     𝟘ᶜ ▸[ 𝟘ᵐ[ ok ] ] []-cong-J s A t u v
-  ▸[]-cong-J-𝟘ᵐ {s} ▸A ▸t ▸u ▸v =
+  ▸[]-cong-J-𝟘ᵐ {γ₁} {s} ▸A ▸t ▸u ▸v =
     case ▸-cong (PE.sym 𝟘ᵐ?≡𝟘ᵐ) ▸A of λ
       ▸A →
     ▸-𝟘 $
@@ -181,12 +187,14 @@ opaque
       (Idₘ-generalised (▸Erased (wkUsage (step id) ▸A))
          (▸[] (wkUsage (step id) (▸-cong (PE.sym 𝟘ᵐ?≡𝟘ᵐ) ▸t))) (▸[] var)
          (λ _ → begin
-            𝟘ᶜ ∙ 𝟘 · 𝟘  ≈⟨ ≈ᶜ-refl ∙ ·-zeroˡ _ ⟩
-            𝟘ᶜ          ∎)
+            γ₁ ∧ᶜ 𝟘ᶜ ∙ 𝟘 · 𝟘  ≈⟨ ≈ᶜ-refl ∙ ·-zeroˡ _ ⟩
+            γ₁ ∧ᶜ 𝟘ᶜ ∙ 𝟘      ≤⟨ ∧ᶜ-decreasingʳ _ _ ∙ ≤-refl ⟩
+            𝟘ᶜ                ∎)
          (λ _ → begin
-            𝟘ᶜ ∙ 𝟘 · 𝟘  ≈⟨ ≈ᶜ-refl ∙ ·-zeroˡ _ ⟩
-            𝟘ᶜ          ≈˘⟨ +ᶜ-identityʳ _ ⟩
-            𝟘ᶜ +ᶜ 𝟘ᶜ    ∎))
+            γ₁ ∧ᶜ 𝟘ᶜ ∙ 𝟘 · 𝟘      ≈⟨ ≈ᶜ-refl ∙ ·-zeroʳ _ ⟩
+            γ₁ ∧ᶜ 𝟘ᶜ ∙ 𝟘          ≤⟨ ∧ᶜ-decreasingˡ _ _ ∙ ≤-refl ⟩
+            γ₁ ∙ 𝟘                ≈˘⟨ ≈ᶜ-trans (+ᶜ-congˡ (+ᶜ-identityʳ _)) (+ᶜ-identityʳ _) ⟩
+            (γ₁ ∙ 𝟘) +ᶜ 𝟘ᶜ +ᶜ 𝟘ᶜ  ∎))
       ▸t ▸u ▸v rflₘ
     where
     open ErasedU s
@@ -410,14 +418,14 @@ opaque
   --
   -- * []-cong is allowed for s, or
   -- * Erased is allowed for s and
-  --   * erased matches are available for J, or
+  --   * erased matches are available for J and 𝟘ᵐ is allowed, or
   --   * m is 𝟘ᵐ, or
   --   * the modality is trivial.
 
   []-cong⊎J⊎𝟘ᵐ⊎Trivial→[]-cong :
     ([]-cong-allowed s × []-cong-allowed-mode s m) ⊎
     Erased-allowed s ×
-    (erased-matches-for-J m ≢ none ⊎
+    (erased-matches-for-J m ≢ none × T 𝟘ᵐ-allowed ⊎
      (∃ λ ok → m PE.≡ 𝟘ᵐ[ ok ]) ⊎
      Trivial) →
     Π-allowed 𝟘 q₁ →
@@ -460,7 +468,8 @@ opaque
     OK : Set a
     OK =
       ([]-cong-allowed s × []-cong-allowed-mode s m) ⊎
-      (∃ λ sem → erased-matches-for-J m PE.≡ not-none sem) ⊎
+      (∃ λ sem → erased-matches-for-J m PE.≡ not-none sem) ×
+        T 𝟘ᵐ-allowed ⊎
       (∃ λ ok → m PE.≡ 𝟘ᵐ[ ok ]) ⊎
       Trivial
 
@@ -469,10 +478,10 @@ opaque
       (inj₁ ok)                        → inj₁ ok
       (inj₂ (_ , inj₂ (inj₂ trivial))) → inj₂ (inj₂ (inj₂ trivial))
       (inj₂ (_ , inj₂ (inj₁ ok)))      → inj₂ (inj₂ (inj₁ ok))
-      (inj₂ (_ , inj₁ ≢none))          →
+      (inj₂ (_ , inj₁ (≢none , ok)))   →
         inj₂ $ inj₁ $
         case PE.singleton $ erased-matches-for-J m of λ where
-          (not-none _ , ≡not-none) → _ , ≡not-none
+          (not-none _ , ≡not-none) → (_ , ≡not-none) , ok
           (none       , ≡none)     → ⊥-elim $ ≢none ≡none
 
     []-cong″ : OK → Term n → Term n → Term n → Term n → Term n
@@ -486,10 +495,12 @@ opaque
       γ₃ ▸[ 𝟘ᵐ? ] u →
       γ₄ ▸[ 𝟘ᵐ? ] v →
       𝟘ᶜ ▸[ m ] []-cong″ ok A t u v
-    ▸[]-cong″ (inj₁ (_ , ok))               = λ ▸A ▸t ▸u ▸v →
+    ▸[]-cong″ (inj₁ (_ , ok)) ▸A ▸t ▸u ▸v =
       []-congₘ ▸A ▸t ▸u ▸v ok
-    ▸[]-cong″ (inj₂ (inj₁ (_ , ≡not-none))) = ▸[]-cong-J ≡not-none
-    ▸[]-cong″ (inj₂ (inj₂ (inj₁ (_ , PE.refl)))) = λ ▸A ▸t ▸u ▸v →
+    ▸[]-cong″ (inj₂ (inj₁ ((_ , ≡not-none) , ok))) ▸A ▸t ▸u ▸v =
+      ▸[]-cong-J {ok = ok} ≡not-none (▸-cong 𝟘ᵐ?≡𝟘ᵐ ▸A)
+        (▸-cong 𝟘ᵐ?≡𝟘ᵐ ▸t) (▸-cong 𝟘ᵐ?≡𝟘ᵐ ▸u) (▸-cong 𝟘ᵐ?≡𝟘ᵐ ▸v)
+    ▸[]-cong″ (inj₂ (inj₂ (inj₁ (_ , PE.refl)))) ▸A ▸t ▸u ▸v =
       ▸[]-cong-J-𝟘ᵐ (▸-cong 𝟘ᵐ?≡𝟘ᵐ ▸A) (▸-cong 𝟘ᵐ?≡𝟘ᵐ ▸t)
         (▸-cong 𝟘ᵐ?≡𝟘ᵐ ▸u) (▸-cong 𝟘ᵐ?≡𝟘ᵐ ▸v)
     ▸[]-cong″ (inj₂ (inj₂ (inj₂ trivial))) = ▸[]-cong-J-trivial trivial
@@ -921,8 +932,8 @@ opaque
       ▸[]-cong‴ =
         lamₘ $ lamₘ $ lamₘ $ lamₘ $
         sub
-          (▸cong (▸Erased (▸Erased var)) (▸[] (▸[] var))
-             (▸[] (▸[] var)) (▸Erased var)
+          (▸cong (▸Erased (▸Erased var)) (▸[] (▸[] var)) (▸[] (▸[] var))
+             (sub (▸Erased var) lemma)
              (sub
                 (▸mapᴱ′ (λ _ → trivial) (λ _ → trivial′) prodrec-ok
                    (λ _ → _ , ▸Erased var)
@@ -937,7 +948,7 @@ opaque
                    𝟘ᶜ ∙ ⌜ m ⌝ · 𝟘  ≈⟨ ≈ᶜ-refl ∙ ·-zeroʳ _ ⟩
                    𝟘ᶜ              ∎))
              (flip _∘ₘ_
-                (▸cong var var var (▸Erased var)
+                (▸cong var var var (sub (▸Erased var) lemma)
                    (sub (▸[] var) $ begin
                       𝟘ᶜ ∙ ⌜ m ᵐ· 𝟘 ⌝ · 𝟘  ≈⟨ ≈ᶜ-refl ∙ ·-zeroʳ _ ⟩
                       𝟘ᶜ                   ∎)
@@ -950,64 +961,62 @@ opaque
                                                                            (+ᶜ-cong
                                                                               (≈ᶜ-trans (·ᶜ-congʳ $ ·-zeroʳ _) $
                                                                                ·ᶜ-zeroˡ _)
-                                                                              (·ᶜ-zeroʳ _)) $
+                                                                              (≈ᶜ-trans (+ᶜ-identityˡ _) (·ᶜ-zeroʳ _))) $
                                                                          +ᶜ-identityʳ _ ⟩
                       (⌜ m ᵐ· 𝟘 ⌝ · 𝟘) ·ᶜ (𝟘ᶜ , x2 ≔ ⌜ m ᵐ· 𝟘 ⌝) +ᶜ
-                      (𝟙 + 𝟙) ·ᶜ 𝟘ᶜ                                  ∎)) $
+                      𝟘ᶜ +ᶜ (𝟙 + 𝟙) ·ᶜ 𝟘ᶜ                            ∎)) $
               flip _∘ₘ_ (▸[] var) $
               flip _∘ₘ_ (▸[] var) $
-              flip _∘ₘ_ (▸Erased var) $
+              flip _∘ₘ_ (sub (▸Erased var) lemma) $
               wkUsage wk₀ ▸[]-cong′)
              (λ _ → begin
                 𝟘ᶜ ∙ ⌜ m ⌝ · 𝟘  ≈⟨ ≈ᶜ-refl ∙ ·-zeroʳ _ ⟩
                 𝟘ᶜ              ∎)
              (λ _ → begin
-                𝟘ᶜ                                  ≈˘⟨ ≈ᶜ-trans (+ᶜ-cong (·ᶜ-zeroʳ _) (·ᶜ-zeroʳ _)) $
+                𝟘ᶜ                                  ≈˘⟨ ≈ᶜ-trans (+ᶜ-cong (·ᶜ-zeroʳ _) (≈ᶜ-trans (+ᶜ-identityˡ _) (·ᶜ-zeroʳ _))) $
                                                         +ᶜ-identityʳ _ ⟩
-                (⌜ m ⌝ · 𝟘) ·ᶜ 𝟘ᶜ +ᶜ (𝟙 + 𝟙) ·ᶜ 𝟘ᶜ  ∎)) $
+                (⌜ m ⌝ · 𝟘) ·ᶜ 𝟘ᶜ +ᶜ 𝟘ᶜ +ᶜ (𝟙 + 𝟙) ·ᶜ 𝟘ᶜ  ∎)) $
         (begin
            ε ∙ ⌜ m ⌝ · 𝟘 ∙ ⌜ m ⌝ · 𝟘 ∙ ⌜ m ⌝ · 𝟘 ∙ ⌜ m ⌝ · 𝟘       ≈⟨ ε ∙ ·-zeroʳ _ ∙ ·-zeroʳ _ ∙ ·-zeroʳ _ ∙ ·-zeroʳ _ ⟩
 
-           𝟘ᶜ                                                      ≤⟨ ε ∙ lemma₂ ∙ lemma₁ ∙ lemma₁ ∙ lemma₁ ⟩
-
-           ω ·ᶜ ω ·ᶜ (𝟘ᶜ , x3 ≔ ⌜ 𝟘ᵐ? ⌝)                           ≈˘⟨ ·ᶜ-congˡ $
-                                                                       ≈ᶜ-trans (+ᶜ-identityˡ _) $
-                                                                       ≈ᶜ-trans (+ᶜ-identityˡ _) $
-                                                                       ≈ᶜ-trans (+ᶜ-identityʳ _) $
-                                                                       ≈ᶜ-trans
-                                                                         (+ᶜ-cong
-                                                                            (≈ᶜ-trans
-                                                                               (+ᶜ-cong
-                                                                                  (≈ᶜ-trans (+ᶜ-cong (+ᶜ-identityˡ _) (·ᶜ-zeroʳ _)) $
-                                                                                   +ᶜ-identityʳ _)
-                                                                                  (·ᶜ-zeroʳ _)) $
-                                                                             +ᶜ-identityʳ _)
-                                                                            (·ᶜ-zeroˡ _)) $
-                                                                       +ᶜ-identityʳ _ ⟩
+           𝟘ᶜ                                                      ≈˘⟨ ≈ᶜ-trans
+                                                                         (·ᶜ-congˡ $
+                                                                          ≈ᶜ-trans (+ᶜ-identityˡ _) $
+                                                                          ≈ᶜ-trans (+ᶜ-identityˡ _) $
+                                                                          ≈ᶜ-trans (+ᶜ-identityʳ _) $
+                                                                          ≈ᶜ-trans
+                                                                            (+ᶜ-cong
+                                                                               (≈ᶜ-trans
+                                                                                  (+ᶜ-cong
+                                                                                     (≈ᶜ-trans (+ᶜ-cong (+ᶜ-identityˡ _) (·ᶜ-zeroʳ _)) $
+                                                                                      +ᶜ-identityʳ _)
+                                                                                     (·ᶜ-zeroʳ _)) $
+                                                                                +ᶜ-identityʳ _)
+                                                                               (·ᶜ-zeroˡ _)) $
+                                                                          ≈ᶜ-trans (+ᶜ-identityʳ _) $
+                                                                          ·ᶜ-zeroʳ _) $
+                                                                       ·ᶜ-zeroʳ _ ⟩
            ω ·ᶜ
            (𝟘ᶜ +ᶜ 𝟘ᶜ +ᶜ
-            ((((𝟘ᶜ +ᶜ ω ·ᶜ (𝟘ᶜ , x3 ≔ ⌜ 𝟘ᵐ? ⌝)) +ᶜ ω ·ᶜ 𝟘ᶜ) +ᶜ
-              ω ·ᶜ 𝟘ᶜ) +ᶜ
+            ((((𝟘ᶜ +ᶜ ω ·ᶜ 𝟘ᶜ) +ᶜ ω ·ᶜ 𝟘ᶜ) +ᶜ ω ·ᶜ 𝟘ᶜ) +ᶜ
              𝟘 ·ᶜ ω ·ᶜ
              ((𝟘ᶜ , x2 ≔ ⌜ m ᵐ· 𝟘 ⌝) +ᶜ (𝟘ᶜ , x1 ≔ ⌜ m ᵐ· 𝟘 ⌝) +ᶜ
               (𝟘ᶜ , x0 ≔ ⌜ m ᵐ· 𝟘 ⌝) +ᶜ 𝟘ᶜ)) +ᶜ
             𝟘ᶜ)                                                    ∎)
         where
+        open ≤ᶜ-reasoning
+
         trivial′ : ¬ T 𝟘ᵐ-allowed → p ≤ q
         trivial′ = ≡-trivial ∘→ trivial
 
-        lemma₁ : 𝟘 ≤ ω · ω · 𝟘
-        lemma₁ = begin
-          𝟘            ≡˘⟨ ·-zeroʳ _ ⟩
-          (ω · ω) · 𝟘  ≡⟨ ·-assoc _ _ _ ⟩
-          ω · ω · 𝟘    ∎
-          where
-          open Tools.Reasoning.PartialOrder ≤-poset
+        𝟘≤⌜𝟘ᵐ?⌝ : 𝟘 ≤ ⌜ 𝟘ᵐ? ⌝
+        𝟘≤⌜𝟘ᵐ?⌝ = 𝟘ᵐ?-elim (λ m → 𝟘 ≤ ⌜ m ⌝) ≤-refl trivial′
 
-        lemma₂ : 𝟘 ≤ ω · ω · ⌜ 𝟘ᵐ? ⌝
-        lemma₂ = 𝟘ᵐ?-elim (λ m → 𝟘 ≤ ω · ω · ⌜ m ⌝) lemma₁ trivial′
-
-        open ≤ᶜ-reasoning
+        lemma : 𝟘ᶜ {n = 4} ≤ᶜ 𝟘ᶜ , x3 ≔ ⌜ 𝟘ᵐ? ⌝
+        lemma = begin
+          𝟘ᶜ                 ≡⟨⟩
+          𝟘ᶜ , x3 ≔ 𝟘        ≤⟨ update-monotoneʳ {γ = 𝟘ᶜ} x3 𝟘≤⌜𝟘ᵐ?⌝ ⟩
+          𝟘ᶜ , x3 ≔ ⌜ 𝟘ᵐ? ⌝  ∎
 
 private opaque
 

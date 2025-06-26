@@ -129,11 +129,12 @@ wkUsage ρ (starˢₘ prop) =
 wkUsage ρ (unitrecₘ γ▸t δ▸u η▸A ok) =
   sub (unitrecₘ (wkUsage ρ γ▸t) (wkUsage ρ δ▸u) (wkUsage (lift ρ) η▸A) ok)
       (≤ᶜ-reflexive (≈ᶜ-trans (wk-+ᶜ ρ) (+ᶜ-congʳ (wk-·ᶜ ρ))))
-wkUsage ρ (Idₘ {δ = δ} {η = η} ok ▸A ▸t ▸u) = sub
+wkUsage ρ (Idₘ {γ} {δ} {η} ok ▸A ▸t ▸u) = sub
   (Idₘ ok (wkUsage _ ▸A) (wkUsage _ ▸t) (wkUsage _ ▸u))
   (begin
-     wkConₘ ρ (δ +ᶜ η)         ≈⟨ wk-+ᶜ ρ ⟩
-     wkConₘ ρ δ +ᶜ wkConₘ ρ η  ∎)
+     wkConₘ ρ (γ +ᶜ δ +ᶜ η)                  ≈⟨ wk-+ᶜ ρ ⟩
+     wkConₘ ρ γ +ᶜ wkConₘ ρ (δ +ᶜ η)         ≈⟨ +ᶜ-congˡ (wk-+ᶜ ρ) ⟩
+     wkConₘ ρ γ +ᶜ wkConₘ ρ δ +ᶜ wkConₘ ρ η  ∎)
   where
   open Tools.Reasoning.PartialOrder ≤ᶜ-poset
 wkUsage ρ (Id₀ₘ ok ▸A ▸t ▸u) =
@@ -366,11 +367,14 @@ wkUsage⁻¹ ▸t = wkUsage⁻¹′ ▸t refl
           (_ , _ , _ , refl , refl , refl , refl) →
         sub (unitrecₘ (wkUsage⁻¹ ▸t) (wkUsage⁻¹ ▸u) (wkUsage⁻¹ ▸A) ok)
             (≤ᶜ-reflexive (≈ᶜ-trans (wkConₘ⁻¹-+ᶜ ρ) (+ᶜ-congʳ (wkConₘ⁻¹-·ᶜ ρ)))) }
-      (Idₘ ok ▸A ▸t ▸u) eq →
+      (Idₘ {γ} {δ} {η} ok ▸A ▸t ▸u) eq →
         case wk-Id eq of λ {
           (_ , _ , _ , refl , refl , refl , refl) →
         sub (Idₘ ok (wkUsage⁻¹ ▸A) (wkUsage⁻¹ ▸t) (wkUsage⁻¹ ▸u)) $
-        ≤ᶜ-reflexive (wkConₘ⁻¹-+ᶜ ρ) }
+        begin
+          wkConₘ⁻¹ ρ (γ +ᶜ δ +ᶜ η)                      ≈⟨ wkConₘ⁻¹-+ᶜ ρ ⟩
+          wkConₘ⁻¹ ρ γ +ᶜ wkConₘ⁻¹ ρ (δ +ᶜ η)           ≈⟨ +ᶜ-congˡ (wkConₘ⁻¹-+ᶜ ρ) ⟩
+          wkConₘ⁻¹ ρ γ +ᶜ wkConₘ⁻¹ ρ δ +ᶜ wkConₘ⁻¹ ρ η  ∎ }
       (Id₀ₘ ok ▸A ▸t ▸u) eq →
         case wk-Id eq of λ {
           (_ , _ , _ , refl , refl , refl , refl) →

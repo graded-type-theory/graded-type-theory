@@ -328,10 +328,15 @@ module Is-morphism
             tr p C₂.·ᶜ tr-Conₘ γ C₂.+ᶜ tr-Conₘ δ  ∎)
       where
       open CR₂
-    tr-▸ (Idₘ ok ▸A ▸t ▸u) = sub
-      (Idₘ (ok ∘→ Id-erased-preserved .proj₂) (tr-▸[𝟘ᵐ?] ▸A) (tr-▸ ▸t)
+    tr-▸ (Idₘ {γ} {δ} {η} ok ▸A ▸t ▸u) = sub
+      (Idₘ (ok ∘→ Id-erased-preserved .proj₂) (tr-▸ ▸A) (tr-▸ ▸t)
          (tr-▸ ▸u))
-      (≤ᶜ-reflexive tr-Conₘ-+ᶜ)
+      (begin
+         tr-Conₘ (γ C₁.+ᶜ δ C₁.+ᶜ η)                ≈⟨ tr-Conₘ-+ᶜ ⟩
+         tr-Conₘ γ C₂.+ᶜ tr-Conₘ (δ C₁.+ᶜ η)        ≈⟨ +ᶜ-congˡ tr-Conₘ-+ᶜ ⟩
+         tr-Conₘ γ C₂.+ᶜ tr-Conₘ δ C₂.+ᶜ tr-Conₘ η  ∎)
+      where
+      open CR₂
     tr-▸ (Id₀ₘ ok ▸A ▸t ▸u) = sub
       (Id₀ₘ (Id-erased-preserved .proj₁ ok) (tr-▸[𝟘ᵐ?] ▸A)
          (tr-▸[𝟘ᵐ?] ▸t) (tr-▸[𝟘ᵐ?] ▸u))
@@ -797,7 +802,7 @@ module Is-order-embedding
           RS₁.Uᵤ
         (Id _ _ _) (Idᵤ not-erased A t u) →
           RS₁.Idᵤ (not-erased ∘→ Id-erased-preserved .proj₁)
-            (lemma-𝟘ᵐ?-𝟘ᵐ? A) (lemma m₁≳m₂ _ t) (lemma m₁≳m₂ _ u)
+            (lemma m₁≳m₂ _ A) (lemma m₁≳m₂ _ t) (lemma m₁≳m₂ _ u)
         (Id _ _ _) (Id₀ᵤ erased A t u) →
           RS₁.Id₀ᵤ (Id-erased-preserved .proj₂ erased) (lemma-𝟘ᵐ?-𝟘ᵐ? A)
             (lemma-𝟘ᵐ?-𝟘ᵐ? t) (lemma-𝟘ᵐ?-𝟘ᵐ? u)
@@ -1204,12 +1209,21 @@ module Is-order-embedding
       where
       open CR₁
 
-    tr-▸⁻¹′ (Id _ _ _) (Idₘ ok ▸A ▸t ▸u) refl γ≤δ+η =
-      case tr-Conₘ-≤ᶜ-+ᶜ γ≤δ+η of λ {
-        (_ , _ , ≤δ , ≤η , γ≤δ′+η′) → sub
-      (Idₘ (ok ∘→ Id-erased-preserved .proj₁) (tr-▸[𝟘ᵐ?]⁻¹ ▸A .proj₂)
-         (tr-▸⁻¹′ _ ▸t refl ≤δ) (tr-▸⁻¹′ _ ▸u refl ≤η))
-      γ≤δ′+η′ }
+    tr-▸⁻¹′
+      {γ} (Id _ _ _) (Idₘ {γ = δ} {δ = η} {η = θ} ok ▸A ▸t ▸u) refl
+      γ≤δ+η+θ =
+      let δ′ , χ  , ≤δ , ≤η+θ , γ≤δ′+χ  = tr-Conₘ-≤ᶜ-+ᶜ γ≤δ+η+θ
+          η′ , θ′ , ≤η , ≤θ   , χ≤η′+θ′ = tr-Conₘ-≤ᶜ-+ᶜ ≤η+θ
+      in
+      sub
+        (Idₘ (ok ∘→ Id-erased-preserved .proj₁) (tr-▸⁻¹′ _ ▸A refl ≤δ)
+           (tr-▸⁻¹′ _ ▸t refl ≤η) (tr-▸⁻¹′ _ ▸u refl ≤θ))
+        (begin
+           γ                     ≤⟨ γ≤δ′+χ ⟩
+           δ′ C₁.+ᶜ χ            ≤⟨ CP₁.+ᶜ-monotoneʳ χ≤η′+θ′ ⟩
+           δ′ C₁.+ᶜ η′ C₁.+ᶜ θ′  ∎)
+        where
+        open CR₁
 
     tr-▸⁻¹′ (Id _ _ _) (Id₀ₘ ok ▸A ▸t ▸u) refl ≤𝟘 = sub
       (Id₀ₘ (Id-erased-preserved .proj₂ ok) (tr-▸[𝟘ᵐ?]⁻¹ ▸A .proj₂)

@@ -125,7 +125,7 @@ data Usage-restrictions-satisfied {n} (m : Mode) : Term n → Set a where
     Usage-restrictions-satisfied m (U l)
   Idᵤ :
     ¬ Id-erased →
-    Usage-restrictions-satisfied 𝟘ᵐ? A →
+    Usage-restrictions-satisfied m A →
     Usage-restrictions-satisfied m t →
     Usage-restrictions-satisfied m u →
     Usage-restrictions-satisfied m (Id A t u)
@@ -376,7 +376,8 @@ opaque
     Uᵤ →
       Uᵤ
     (Idᵤ ok A t u) →
-      Idᵤ ok A (Usage-restrictions-satisfied-𝟙ᵐ→ t)
+      Idᵤ ok (Usage-restrictions-satisfied-𝟙ᵐ→ A)
+        (Usage-restrictions-satisfied-𝟙ᵐ→ t)
         (Usage-restrictions-satisfied-𝟙ᵐ→ u)
     (Id₀ᵤ ok A t u) →
       Id₀ᵤ ok A t u
@@ -694,12 +695,12 @@ opaque
           p ·ᶜ 𝟘ᶜ +ᶜ 𝟘ᶜ  ∎
       (Idᵤ not-erased A-ok t-ok u-ok) → sub
         (Idₘ not-erased
-           (lemma-𝟘ᵐ? A-ok)
+           (lemma A-ok)
            (lemma t-ok)
            (lemma u-ok))
         (begin
-           𝟘ᶜ        ≈˘⟨ +ᶜ-identityˡ _ ⟩
-           𝟘ᶜ +ᶜ 𝟘ᶜ  ∎)
+           𝟘ᶜ              ≈˘⟨ ≈ᶜ-trans (+ᶜ-identityˡ _) (+ᶜ-identityˡ _) ⟩
+           𝟘ᶜ +ᶜ 𝟘ᶜ +ᶜ 𝟘ᶜ  ∎)
       (Id₀ᵤ erased A-ok t-ok u-ok) →
         Id₀ₘ erased
           (lemma-𝟘ᵐ? A-ok)
@@ -874,7 +875,7 @@ opaque
       … | yes erased =
         Id₀ᵤ erased lemma? lemma? lemma?
       … | no not-erased =
-        Idᵤ not-erased lemma? (lemma _) (lemma _)
+        Idᵤ not-erased (lemma _) (lemma _) (lemma _)
       lemma rfl =
         rflᵤ
       lemma (J _ _ _ _ _ _ _ _) =

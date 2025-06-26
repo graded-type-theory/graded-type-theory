@@ -66,7 +66,11 @@ opaque mutual
     case Id-erased? of λ where
       (yes erased) →
         let η≡𝟘 , r′≡𝟘 = hyp₁ erased in
-        Id (λ _ → PE.refl , PE.refl) (⊥-elim ∘→ (_$ erased)) ⊢A
+        Id (λ _ → PE.refl , PE.refl) (⊥-elim ∘→ (_$ erased))
+          (PE.subst (_ ▸ _ ⊢[_] _) r′≡𝟘 $
+           sub-⊢ ⊢A $ begin
+             𝟘ᶜ  ≡˘⟨ η≡𝟘 ⟩
+             η   ∎)
           (PE.subst (_ ▸ _ ⊢ _ ∷[_] _) r′≡𝟘 $
            sub-⊢∷ ⊢t $ begin
              𝟘ᶜ  ≡˘⟨ η≡𝟘 ⟩
@@ -77,7 +81,12 @@ opaque mutual
              η   ∎)
       (no not-erased) →
         let η≡γ , r′≡p = hyp₂ not-erased in
-        Id (⊥-elim ∘→ not-erased) (λ _ → PE.refl , PE.refl) ⊢A
+        Id (⊥-elim ∘→ not-erased) (λ _ → PE.refl , PE.refl)
+          (PE.subst (_ ▸ _ ⊢[_] _) r′≡p $
+           sub-⊢ ⊢A $ begin
+             δ  ≤⟨ δ≤γ ⟩
+             γ  ≡˘⟨ η≡γ ⟩
+             η  ∎)
           (PE.subst (_ ▸ _ ⊢ _ ∷[_] _) r′≡p $
            sub-⊢∷ ⊢t $ begin
              δ  ≤⟨ δ≤γ ⟩
@@ -144,7 +153,11 @@ opaque mutual
     case Id-erased? of λ where
       (yes erased) →
         let η≡𝟘 , r′≡𝟘 = hyp₁ erased in
-        Id (λ _ → PE.refl , PE.refl) (⊥-elim ∘→ (_$ erased)) ⊢A
+        Id (λ _ → PE.refl , PE.refl) (⊥-elim ∘→ (_$ erased))
+          (PE.subst (_ ▸ _ ⊢ _ ∷[_] _) r′≡𝟘 $
+           sub-⊢∷ ⊢A $ begin
+             𝟘ᶜ  ≡˘⟨ η≡𝟘 ⟩
+             η   ∎)
           (PE.subst (_ ▸ _ ⊢ _ ∷[_] _) r′≡𝟘 $
            sub-⊢∷ ⊢t $ begin
              𝟘ᶜ  ≡˘⟨ η≡𝟘 ⟩
@@ -155,7 +168,12 @@ opaque mutual
              η   ∎)
       (no not-erased) →
         let η≡γ , r′≡p = hyp₂ not-erased in
-        Id (⊥-elim ∘→ not-erased) (λ _ → PE.refl , PE.refl) ⊢A
+        Id (⊥-elim ∘→ not-erased) (λ _ → PE.refl , PE.refl)
+          (PE.subst (_ ▸ _ ⊢ _ ∷[_] _) r′≡p $
+           sub-⊢∷ ⊢A $ begin
+             δ  ≤⟨ δ≤γ ⟩
+             γ  ≡˘⟨ η≡γ ⟩
+             η  ∎)
           (PE.subst (_ ▸ _ ⊢ _ ∷[_] _) r′≡p $
            sub-⊢∷ ⊢t $ begin
              δ  ≤⟨ δ≤γ ⟩

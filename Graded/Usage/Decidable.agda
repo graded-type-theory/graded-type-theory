@@ -288,7 +288,7 @@ infix 10 ⌈⌉▸[_]?_
         (invUsageId not-erased _ _ _ _) → not-erased erased
         (invUsageId₀ _ ▸A ▸t ▸u _)      → problem _ (▸A , ▸t , ▸u)
 … | no not-erased =
-  case ⌈⌉▸[ 𝟘ᵐ? ]? A ×-Dec-∀ ⌈⌉▸[ m ]? t ×-Dec-∀
+  case ⌈⌉▸[ m ]? A ×-Dec-∀ ⌈⌉▸[ m ]? t ×-Dec-∀
        ⌈⌉▸[ m ]? u of λ where
     (inj₁ (▸A , ▸t , ▸u)) → inj₁ (Idₘ not-erased ▸A ▸t ▸u)
     (inj₂ problem)        → inj₂ λ _ ▸Id →
