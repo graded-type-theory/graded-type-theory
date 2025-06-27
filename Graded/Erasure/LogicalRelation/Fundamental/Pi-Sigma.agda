@@ -135,7 +135,11 @@ opaque
              (I.ΠΣᵛ (ΠΣⱼ (wf-⊢∷ ⊢t) ok) (emb-⊩ᵛ ≤ᵘ⊔ᵘʳ ⊩A)
                 (emb-⊩ᵛ ≤ᵘ⊔ᵘˡ ⊩B))
              ⊩σ)
-      , (λ { PE.refl → _ , T.refl })
+      , (λ { PE.refl →
+             _ ,
+             (erase T.strict (lam p t) T.[ σ′ ]      ≡⟨ PE.cong T._[ _ ] $ lam-keep _ ⟩⇒
+              T.lam (erase T.strict t) T.[ σ′ ]      ≡⟨⟩⇒
+              T.lam (erase T.strict t T.[ σ′ T.⇑ ])  ∎⇒) })
       , λ t′ ⊢t′ →
           case reducible-⊩∷ ⊢t′ of λ
             (_ , ⊩t′) →
@@ -154,7 +158,7 @@ opaque
                      erase str t T.[ σ′ T.⇑ ] T.[ loop? str T.[ σ′ ] ]₀  ≡⟨ PE.cong (T._[_]₀ (erase _ t T.[ _ ])) $ loop?-[] _ ⟩⇒
                      erase str t T.[ σ′ T.⇑ ] T.[ loop? str ]₀           ∎⇒
                    (T.strict , PE.refl) →
-                     (erase str (lam 𝟘 t) T.[ σ′ ]) T.∘⟨ str ⟩ loop? str  ≡⟨ PE.cong₃ T._∘⟨_⟩_ (PE.cong₂ T._[_] (lam-𝟘-keep t) PE.refl)
+                     (erase str (lam 𝟘 t) T.[ σ′ ]) T.∘⟨ str ⟩ loop? str  ≡⟨ PE.cong₃ T._∘⟨_⟩_ (PE.cong₂ T._[_] (lam-keep t) PE.refl)
                                                                                PE.refl PE.refl ⟩⇒
                      (T.lam (erase str t) T.[ σ′ ]) T.∘⟨ str ⟩ loop? str  ⇒⟨ T.β-red T.↯ ⟩
                      erase str t T.[ σ′ T.⇑ ] T.[ loop? str ]₀            ∎⇒)

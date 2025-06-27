@@ -96,11 +96,12 @@ mutual
     erase″ (lift _ t)              = erase″ t
     erase″ (lower t)               = erase″ t
     erase″ (ΠΣ⟨ _ ⟩ _ , _ ▷ _ ▹ _) = loop? s
-    erase″ (U.lam p t)             = case remove of λ where
-      false → T.lam (erase″ t)
-      true  → case is-𝟘? p of λ where
-        (no _)  → T.lam (erase″ t)
-        (yes _) → erase″ t T.[ loop s ]₀
+    erase″ (U.lam p t)             = case is-𝟘? p of λ where
+      (no _)  → T.lam (erase″ t)
+      (yes _) →
+        if remove
+        then erase″ t T.[ loop s ]₀
+        else T.lam (erase″ t)
     erase″ (t U.∘⟨ p ⟩ u) = case is-𝟘? p of λ where
       (no _)  → erase″ t T.∘⟨ s ⟩ erase″ u
       (yes _) → app-𝟘′ remove s (erase″ t)

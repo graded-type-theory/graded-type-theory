@@ -193,19 +193,18 @@ opaque
   lam-≢𝟘 :
     ∀ b → p ≢ 𝟘 →
     erase′ b s (U.lam p t) ≡ T.lam (erase′ b s t)
-  lam-≢𝟘     false _   = refl
-  lam-≢𝟘 {p} true  p≢𝟘 with is-𝟘? p
-  … | no _    = refl
-  … | yes p≡𝟘 = ⊥-elim $ p≢𝟘 p≡𝟘
+  lam-≢𝟘 {p} _ _   with is-𝟘? p
+  lam-≢𝟘     _ _   | no _    = refl
+  lam-≢𝟘     _ p≢𝟘 | yes p≡𝟘 = ⊥-elim $ p≢𝟘 p≡𝟘
 
 opaque
 
-  lam-𝟘-keep :
+  lam-keep :
     (t : U.Term (1+ n)) →
-    erase′ false s (U.lam 𝟘 t) ≡ T.lam (erase′ false s t)
-  lam-𝟘-keep _ with is-𝟘? 𝟘
-  … | yes _  = refl
-  … | no 𝟘≢𝟘 = ⊥-elim $ 𝟘≢𝟘 refl
+    erase′ false s (U.lam p t) ≡ T.lam (erase′ false s t)
+  lam-keep {p} _ with is-𝟘? p
+  … | yes _ = refl
+  … | no _  = refl
 
 opaque
 
@@ -269,17 +268,18 @@ wk-erase-comm {s} _ (Lift _ _) = wk-loop? s
 wk-erase-comm ρ (lift _ u) = wk-erase-comm ρ u
 wk-erase-comm ρ (lower t) = wk-erase-comm ρ t
 wk-erase-comm {s} _ (ΠΣ⟨ _ ⟩ _ , _ ▷ _ ▹ _) = wk-loop? s
-wk-erase-comm {b = true} {s} ρ (U.lam p t) with is-𝟘? p
-... | no _  = cong T.lam $ wk-erase-comm _ t
-... | yes _ =
+wk-erase-comm _ (U.lam p _) with is-𝟘? p
+wk-erase-comm ρ (U.lam _ t) | no _ =
+  cong T.lam (wk-erase-comm (lift ρ) t)
+wk-erase-comm {b = false} ρ (U.lam p t) | yes _ =
+  cong T.lam (wk-erase-comm (lift ρ) t)
+wk-erase-comm {b = true} {s} ρ (U.lam p t) | yes _ =
   wk ρ (erase′ true s t T.[ loop s ]₀)                ≡⟨ wk-β (erase′ _ _ t) ⟩
   wk (lift ρ) (erase′ true s t) T.[ wk ρ (loop s) ]₀  ≡⟨ cong (wk _ (erase′ _ _ t) T.[_]₀) wk-loop ⟩
-  wk (lift ρ) (erase′ true s t) T.[ loop s ]₀         ≡⟨ cong T._[ _ ]₀ $ wk-erase-comm _ t ⟩
+  wk (lift ρ) (erase′ true s t) T.[ loop s ]₀         ≡⟨ cong T._[ _ ]₀ $ wk-erase-comm (lift ρ) t ⟩
   erase′ true s (U.wk (lift ρ) t) T.[ loop s ]₀       ∎
   where
   open Tools.Reasoning.PropositionalEquality
-wk-erase-comm {b = false} ρ (U.lam p t) =
-  cong T.lam (wk-erase-comm (lift ρ) t)
 wk-erase-comm ρ (t U.∘⟨ p ⟩ u) with is-𝟘? p
 wk-erase-comm {b = false} {s} _ (t U.∘⟨ _ ⟩ _) | yes _ =
   cong₂ T._∘⟨ _ ⟩_ (wk-erase-comm _ t) (wk-loop? s)
@@ -407,15 +407,15 @@ subst-erase-comm {s} _ (Lift _ _) = loop?-[] s
 subst-erase-comm σ (lift _ u) = subst-erase-comm σ u
 subst-erase-comm σ (lower t) = subst-erase-comm σ t
 subst-erase-comm {s} _ (ΠΣ⟨ _ ⟩ _ , _ ▷ _ ▹ _) = loop?-[] s
-subst-erase-comm {b = true} {s} σ (U.lam p t) with is-𝟘? p
-... | no _ =
+subst-erase-comm         _ (U.lam p _) with is-𝟘? p
+subst-erase-comm {b} {s} σ (U.lam _ t) | no _ =
   cong T.lam
-    (erase′ true s t T.[ liftSubst (eraseSubst′ true s σ) ]    ≡⟨ substVar-to-subst liftSubst-erase-comm (erase′ _ _ t) ⟩
-     erase′ true s t T.[ eraseSubst′ true s (U.liftSubst σ) ]  ≡⟨ subst-erase-comm _ t ⟩
-     erase′ true s (t U.[ U.liftSubst σ ])                     ∎)
+    (erase′ b s t T.[ liftSubst (eraseSubst′ b s σ) ]    ≡⟨ substVar-to-subst liftSubst-erase-comm (erase′ _ _ t) ⟩
+     erase′ b s t T.[ eraseSubst′ b s (U.liftSubst σ) ]  ≡⟨ subst-erase-comm _ t ⟩
+     erase′ b s (t U.[ U.liftSubst σ ])                  ∎)
   where
   open Tools.Reasoning.PropositionalEquality
-... | yes _ =
+subst-erase-comm {b = true} {s} σ (U.lam _ t) | yes _ =
   erase′ true s t T.[ loop s ]₀ T.[ (eraseSubst′ true s σ) ]            ≡⟨ singleSubstLift (erase′ _ _ t) _ ⟩
 
   erase′ true s t T.[ liftSubst (eraseSubst′ true s σ) ]
@@ -429,7 +429,7 @@ subst-erase-comm {b = true} {s} σ (U.lam p t) with is-𝟘? p
   erase′ true s (t U.[ U.liftSubst σ ]) T.[ loop s ]₀                   ∎
   where
   open Tools.Reasoning.PropositionalEquality
-subst-erase-comm {b = false} {s} σ (U.lam _ t) =
+subst-erase-comm {b = false} {s} σ (U.lam _ t) | yes _ =
   cong Term.lam
     (erase′ false s t T.[ liftSubst (eraseSubst′ false s σ) ]    ≡⟨ substVar-to-subst (liftSubsts-erase-comm 1) (erase′ _ _ t) ⟩
      erase′ false s t T.[ eraseSubst′ false s (U.liftSubst σ) ]  ≡⟨ subst-erase-comm _ t ⟩
@@ -574,14 +574,14 @@ module hasX (R : Usage-restrictions) where
   erased-hasX erased (lowerₘ ▸t) hasX =
     erased-hasX erased ▸t hasX
 
-  erased-hasX {b = false} erased (lamₘ γ▸t) (lamₓ hasX) =
+  erased-hasX _      (lamₘ {p} _)   _           with is-𝟘? p
+  erased-hasX erased (lamₘ     γ▸t) (lamₓ hasX) | no _ =
     erased-hasX (there erased) γ▸t hasX
-  erased-hasX {b = true} erased (lamₘ {p} γ▸t) hasX with is-𝟘? p
-  erased-hasX {b = true} {s} erased (lamₘ γ▸t) hasX | yes _ =
+  erased-hasX {b = false} erased (lamₘ γ▸t) (lamₓ hasX) | yes _ =
+    erased-hasX (there erased) γ▸t hasX
+  erased-hasX {b = true} erased (lamₘ γ▸t) hasX | yes _ =
     erased-hasX (there erased) γ▸t
       (HasX-[closed]₀→ loop-closed hasX)
-  erased-hasX {b = true} erased (lamₘ γ▸t) (lamₓ hasX) | no _ =
-    erased-hasX (there erased) γ▸t hasX
 
   erased-hasX erased (_∘ₘ_ {γ = γ} {δ = δ} {p = p} γ▸t δ▸u) hasX
     with is-𝟘? p
