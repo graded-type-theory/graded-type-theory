@@ -408,8 +408,8 @@ private module Inhabited where
         Lift-cong (stability-⊢∷ Γ≡Δ x) (stability-⊢≡∷ Γ≡Δ x₁) (stability-⊢≡∷ Γ≡Δ x₂)
       (lower-cong x) PE.refl →
         lower-cong (stability-⊢≡∷ Γ≡Δ x)
-      (Lift-β x x₁ x₂) PE.refl →
-        Lift-β (stability-⊢∷ Γ≡Δ x) (stability-⊢ Γ≡Δ x₁) (stability-⊢∷ Γ≡Δ x₂)
+      (Lift-β x₁ x₂) PE.refl →
+        Lift-β (stability-⊢ Γ≡Δ x₁) (stability-⊢∷ Γ≡Δ x₂)
       (Lift-η x x₁ ⊢t ⊢u x₂) PE.refl →
         Lift-η (stability-⊢∷ Γ≡Δ x) (stability-⊢ Γ≡Δ x₁) (stability-⊢∷ Γ≡Δ ⊢t) (stability-⊢∷ Γ≡Δ ⊢u) (stability-⊢≡∷ Γ≡Δ x₂)
       (ΠΣ-cong ⊢l A₁≡A₂ B₁≡B₂ ok) PE.refl →

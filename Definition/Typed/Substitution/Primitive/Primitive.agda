@@ -92,22 +92,20 @@ opaque
   -- See also Definition.Typed.Properties.Admissible.Lift.lift-cong.
 
   lift-cong :
-    ∀ {t u A l₂ l₂′} →
+    ∀ {t u A l₂} →
     Γ ⊢ l₂ ∷ Level →
-    Γ ⊢ l₂′ ∷ Level →
-    Γ ⊢ l₂ ≡ l₂′ ∷ Level →
     Γ ⊢ A →
     Γ ⊢ t ∷ A →
     Γ ⊢ u ∷ A →
     Γ ⊢ t ≡ u ∷ A →
-    Γ ⊢ lift l₂ t ≡ lift l₂′ u ∷ Lift l₂ A
-  lift-cong {t} {u} {l₂} {l₂′} ⊢l₂ ⊢l₂′ l₂≡l₂′ ⊢A ⊢t ⊢u t≡u =
+    Γ ⊢ lift t ≡ lift u ∷ Lift l₂ A
+  lift-cong {t} {u} {l₂} ⊢l₂ ⊢A ⊢t ⊢u t≡u =
     Lift-η ⊢l₂ ⊢A (liftⱼ ⊢l₂ ⊢A ⊢t)
-      (conv (liftⱼ ⊢l₂′ ⊢A ⊢u) (sym (Lift-cong l₂≡l₂′ (refl ⊢A))))
-      (lower (lift l₂ t)  ≡⟨ Lift-β ⊢l₂ ⊢A ⊢t ⟩⊢
+      (liftⱼ ⊢l₂ ⊢A ⊢u)
+      (lower (lift t)  ≡⟨ Lift-β ⊢A ⊢t ⟩⊢
        t                  ≡⟨ t≡u ⟩⊢
-       u                  ≡⟨ sym ⊢A (Lift-β ⊢l₂′ ⊢A ⊢u) ⟩⊢∎
-       lower (lift l₂′ u) ∎)
+       u                  ≡⟨ sym ⊢A (Lift-β ⊢A ⊢u) ⟩⊢∎
+       lower (lift u) ∎)
 
 ------------------------------------------------------------------------
 -- Well-formed substitutions
@@ -1057,7 +1055,7 @@ private module Inhabited where
       (liftⱼ x x₁ x₂) PE.refl →
         let ⊢σ₁ , ⊢σ₂ = wf-⊢ˢʷ≡∷ σ₁≡σ₂ .proj₂
         in
-        lift-cong (subst-⊢∷ x ⊢σ₁) (subst-⊢∷ x ⊢σ₂) (subst-⊢∷→⊢≡∷ x σ₁≡σ₂)
+        lift-cong (subst-⊢∷ x ⊢σ₁)
           (subst-⊢ x₁ ⊢σ₁)
           (subst-⊢∷ x₂ ⊢σ₁)
           (conv (subst-⊢∷ x₂ ⊢σ₂) (sym (subst-⊢→⊢≡ x₁ σ₁≡σ₂)))
@@ -1286,9 +1284,9 @@ private module Inhabited where
         let _ , ⊢σ₁ , ⊢σ₂ = wf-⊢ˢʷ≡∷ σ₁≡σ₂
         in Lift-cong (subst-⊢∷ x ⊢σ₁) (subst-⊢≡∷ x₁ σ₁≡σ₂) (subst-⊢≡∷ x₂ σ₁≡σ₂)
       (lower-cong x) PE.refl → lower-cong (subst-⊢≡∷ x σ₁≡σ₂)
-      (Lift-β x x₁ x₂) PE.refl →
+      (Lift-β x₁ x₂) PE.refl →
         let _ , ⊢σ₁ , ⊢σ₂ = wf-⊢ˢʷ≡∷ σ₁≡σ₂
-        in trans (Lift-β (subst-⊢∷ x ⊢σ₁) (subst-⊢ x₁ ⊢σ₁) (subst-⊢∷ x₂ ⊢σ₁)) (subst-⊢∷→⊢≡∷ x₂ σ₁≡σ₂)
+        in trans (Lift-β (subst-⊢ x₁ ⊢σ₁) (subst-⊢∷ x₂ ⊢σ₁)) (subst-⊢∷→⊢≡∷ x₂ σ₁≡σ₂)
       (Lift-η x x₁ ⊢t ⊢u x₂) PE.refl →
         let _ , ⊢σ₁ , ⊢σ₂ = wf-⊢ˢʷ≡∷ σ₁≡σ₂
         in Lift-η (subst-⊢∷ x ⊢σ₁) (subst-⊢ x₁ ⊢σ₁) (subst-⊢∷ ⊢t ⊢σ₁)

@@ -47,8 +47,8 @@ opaque
   toTerm∘fromTerm (U l) = cong U (toTerm∘fromTerm l)
   toTerm∘fromTerm (Lift l A) =
     cong₂ Lift (toTerm∘fromTerm l) (toTerm∘fromTerm A)
-  toTerm∘fromTerm (lift l a) =
-    cong₂ lift (toTerm∘fromTerm l) (toTerm∘fromTerm a)
+  toTerm∘fromTerm (lift a) =
+    cong lift (toTerm∘fromTerm a)
   toTerm∘fromTerm (lower a) =
     cong lower (toTerm∘fromTerm a)
   toTerm∘fromTerm (ΠΣ⟨ b ⟩ p , q ▷ A ▹ B) =
@@ -113,8 +113,8 @@ opaque
     cong (λ l → gen Ukind (l ∷ₜ [])) (fromTerm∘toTerm l)
   fromTerm∘toTerm (gen Liftkind (l ∷ₜ A ∷ₜ [])) =
     cong₂ (λ l A → gen Liftkind (l ∷ₜ A ∷ₜ [])) (fromTerm∘toTerm l) (fromTerm∘toTerm A)
-  fromTerm∘toTerm (gen liftkind (l ∷ₜ a ∷ₜ [])) =
-    cong₂ (λ l a → gen liftkind (l ∷ₜ a ∷ₜ [])) (fromTerm∘toTerm l) (fromTerm∘toTerm a)
+  fromTerm∘toTerm (gen liftkind (a ∷ₜ [])) =
+    cong (λ a → gen liftkind (a ∷ₜ [])) (fromTerm∘toTerm a)
   fromTerm∘toTerm (gen lowerkind (a ∷ₜ [])) =
     cong (λ a → gen lowerkind (a ∷ₜ [])) (fromTerm∘toTerm a)
   fromTerm∘toTerm (gen (Binderkind b p q) (A ∷ₜ B ∷ₜ [])) =
@@ -189,7 +189,7 @@ opaque
   wk≡wk′ (l₁ maxᵘ l₂) = cong₂ _maxᵘ_ (wk≡wk′ l₁) (wk≡wk′ l₂)
   wk≡wk′ (U l) = cong U (wk≡wk′ l)
   wk≡wk′ (Lift l A) = cong₂ Lift (wk≡wk′ l) (wk≡wk′ A)
-  wk≡wk′ (lift l a) = cong₂ lift (wk≡wk′ l) (wk≡wk′ a)
+  wk≡wk′ (lift a) = cong lift (wk≡wk′ a)
   wk≡wk′ (lower a) = cong lower (wk≡wk′ a)
   wk≡wk′ (ΠΣ⟨ b ⟩ p , q ▷ t ▹ t₁) =
     cong₂ (ΠΣ⟨ b ⟩ p , q ▷_▹_) (wk≡wk′ t) (wk≡wk′ t₁)
@@ -365,7 +365,7 @@ opaque
     cong₂ _maxᵘ_ (subst≡subst′ l₁) (subst≡subst′ l₂)
   subst≡subst′ (U l) = cong U (subst≡subst′ l)
   subst≡subst′ (Lift l A) = cong₂ Lift (subst≡subst′ l) (subst≡subst′ A)
-  subst≡subst′ (lift l a) = cong₂ lift (subst≡subst′ l) (subst≡subst′ a)
+  subst≡subst′ (lift a) = cong lift (subst≡subst′ a)
   subst≡subst′ (lower a) = cong lower (subst≡subst′ a)
   subst≡subst′ (ΠΣ⟨ b ⟩ p , q ▷ t ▹ t₁) =
     cong₂ (ΠΣ⟨ b ⟩ p , q ▷_▹_) (subst≡subst′ t) (subst≡subst′ t₁)
@@ -1991,7 +1991,7 @@ opaque
   isNumeral? (_ maxᵘ _) = no (λ ())
   isNumeral? (U n) = no (λ ())
   isNumeral? (Lift _ _) = no λ ()
-  isNumeral? (lift _ _) = no λ ()
+  isNumeral? (lift _) = no λ ()
   isNumeral? (lower _) = no λ ()
   isNumeral? ℕ = no λ ()
   isNumeral? Empty = no λ ()

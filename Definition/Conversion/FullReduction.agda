@@ -459,9 +459,9 @@ mutual
       case fullRedTermConv↑ lower≡lower of λ
         (t′ , t′-nf , lowert≡t′) →
       let ⊢t′ = (⊢nf∷→⊢∷ t′-nf)
-      in lift _ t′
-      , liftₙ {!   !} t′-nf
-      , Lift-η′ ⊢t (liftⱼ′ ⊢l ⊢t′) (trans lowert≡t′ (sym′ (Lift-β′ ⊢l ⊢t′)))
+      in lift t′
+      , liftₙ ⊢l t′-nf
+      , Lift-η′ ⊢t (liftⱼ′ ⊢l ⊢t′) (trans lowert≡t′ (sym′ (Lift-β′ ⊢t′)))
     (Σ-η {p} {q} {A} {B} ⊢t _ _ _ fst-t↑ snd-t↑) →
       case inversion-ΠΣ (syntacticTerm ⊢t) of λ {
         (_ , ⊢B , ok) →

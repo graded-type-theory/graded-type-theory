@@ -49,10 +49,6 @@ deterministic⇉ (Liftᵢ _ x ↘U₁) (Liftᵢ _ y ↘U₂) =
   case whrDet* ↘U₁ ↘U₂ of λ {
     PE.refl →
   PE.refl }}
-deterministic⇉ (liftᵢ _ x) (liftᵢ _ y) =
-  case deterministic⇉ x y of λ {
-    PE.refl →
-  PE.refl }
 deterministic⇉ (ΠΣᵢ A₁ C₁ B₁ _) (ΠΣᵢ A₂ C₂ B₂ _) =
   case deterministic⇉ A₁ A₂ of λ {
     PE.refl →

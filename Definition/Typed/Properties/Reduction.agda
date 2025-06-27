@@ -48,10 +48,10 @@ opaque
   inv-⇒-lower :
     Γ ⊢ lower t ⇒ u ∷ A →
     (∃₂ λ t′ B → Γ ⊢ t ⇒ t′ ∷ B × u PE.≡ lower t′) ⊎
-    (∃₂ λ l₂ t′ → t PE.≡ lift l₂ t′ × u PE.≡ t′)
-  inv-⇒-lower (conv d _)       = inv-⇒-lower d
-  inv-⇒-lower (lower-subst x)  = inj₁ (_ , _ , x , PE.refl)
-  inv-⇒-lower (Lift-β x x₁ x₂) = inj₂ (_ , _ , PE.refl , PE.refl)
+    (∃ λ t′ → t PE.≡ lift t′ × u PE.≡ t′)
+  inv-⇒-lower (conv d _)      = inv-⇒-lower d
+  inv-⇒-lower (lower-subst x) = inj₁ (_ , _ , x , PE.refl)
+  inv-⇒-lower (Lift-β x₁ x₂)  = inj₂ (_ , PE.refl , PE.refl)
 
   -- An inversion lemma related to _∘⟨_⟩_.
 
@@ -198,7 +198,7 @@ opaque
   subsetTerm (maxᵘ-substˡ t⇒t′ ⊢u) = maxᵘ-cong (subsetTerm t⇒t′) (refl ⊢u)
   subsetTerm (maxᵘ-substʳ ⊢t u⇒u′) = maxᵘ-cong (refl (sucᵘⱼ ⊢t)) (subsetTerm u⇒u′)
   subsetTerm (lower-subst x) = lower-cong (subsetTerm x)
-  subsetTerm (Lift-β x ⊢A x₁) = Lift-β x ⊢A x₁
+  subsetTerm (Lift-β ⊢A x₁) = Lift-β ⊢A x₁
   subsetTerm (natrec-subst z s n⇒n′) =
     natrec-cong (refl (⊢∙→⊢ (wfTerm s))) (refl z) (refl s)
       (subsetTerm n⇒n′)
@@ -400,7 +400,7 @@ opaque
     (maxᵘ-substˡ d _)         → λ ()
     (maxᵘ-substʳ _ d)         → λ ()
     (lower-subst x)           → neRedTerm x ∘→ inv-ne-lower
-    (Lift-β x ⊢A x₁)          → (λ ()) ∘→ inv-ne-lower
+    (Lift-β ⊢A x₁)            → (λ ()) ∘→ inv-ne-lower
     (app-subst d _)           → neRedTerm d ∘→ inv-ne-∘
     (β-red _ _ _ _ _)         → (λ ()) ∘→ inv-ne-∘
     (natrec-subst _ _ d)      → neRedTerm d ∘→ inv-ne-natrec
@@ -466,7 +466,7 @@ opaque
     (maxᵘ-substˡ d _)         → λ { (ne (maxᵘˡₙ n)) → neˡRedTerm d n; (ne (maxᵘʳₙ n)) → ¬sucᵘ⇒ d; (ne! ()) }
     (maxᵘ-substʳ _ d)         → λ { (ne (maxᵘˡₙ (ne ()))); (ne (maxᵘʳₙ n)) → neˡRedTerm d n; (ne! ()) }
     (lower-subst x)           → neRedTerm x ∘→ inv-whnf-lower
-    (Lift-β x x₁ x₂)          → (λ ()) ∘→ inv-whnf-lower
+    (Lift-β _ _)              → (λ ()) ∘→ inv-whnf-lower
     (app-subst d _)           → neRedTerm d ∘→ inv-whnf-∘
     (β-red _ _ _ _ _)         → (λ ()) ∘→ inv-whnf-∘
     (natrec-subst _ _ d)      → neRedTerm d ∘→ inv-whnf-natrec
@@ -551,11 +551,11 @@ opaque
     (lower-subst d) d′ →
       case inv-⇒-lower d′ of λ where
         (inj₁ (_ , _ , d′ , PE.refl)) → PE.cong lower (whrDetTerm d d′)
-        (inj₂ (_ , _ , PE.refl , PE.refl)) → ⊥-elim (whnfRedTerm d liftₙ)
-    (Lift-β x x₁ x₂) d′ →
+        (inj₂ (_ , PE.refl , PE.refl)) → ⊥-elim (whnfRedTerm d liftₙ)
+    (Lift-β x₁ x₂) d′ →
       case inv-⇒-lower d′ of λ where
         (inj₁ (_ , _ , d′ , PE.refl)) → ⊥-elim (whnfRedTerm d′ liftₙ)
-        (inj₂ (_ , _ , PE.refl , PE.refl)) → PE.refl
+        (inj₂ (_ , PE.refl , PE.refl)) → PE.refl
     (app-subst d _) d′ →
       case inv-⇒-∘ d′ of λ where
         (inj₁ (_ , _ , d′ , PE.refl)) →

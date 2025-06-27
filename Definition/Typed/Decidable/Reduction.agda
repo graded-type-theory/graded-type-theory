@@ -128,6 +128,11 @@ opaque
   isLift : Γ ⊢ A → Dec (∃₂ λ l B → Γ ⊢ A ⇒* Lift l B)
   isLift ⊢A = isLift′ (reducible-⊩ ⊢A .proj₂)
 
+opaque
+
+  ≡Lift? : Γ ⊢ A → Dec (∃₂ λ l B → Γ ⊢ A ≡ Lift l B)
+  ≡Lift? ⊢A = Dec-map ((λ (_ , _ , A⇒) → _ , _ , subset* A⇒) , (λ (_ , _ , A≡) → Lift-norm A≡)) (isLift ⊢A)
+
 private opaque
 
   -- A lemma used below.
@@ -171,6 +176,15 @@ opaque
 
   isΠΣ : Γ ⊢ A → Dec (∃₅ λ b p q B C → Γ ⊢ A ⇒* ΠΣ⟨ b ⟩ p , q ▷ B ▹ C)
   isΠΣ ⊢A = isΠΣ′ (reducible-⊩ ⊢A .proj₂)
+
+opaque
+
+  ≡ΠΣ? : Γ ⊢ A → Dec (∃₅ λ b p q B C → Γ ⊢ A ≡ ΠΣ⟨ b ⟩ p , q ▷ B ▹ C)
+  ≡ΠΣ? ⊢A = Dec-map
+    ( (λ (_ , _ , _ , _ , _ , A⇒) → _ , _ , _ , _ , _ , subset* A⇒)
+    , (λ (_ , _ , _ , _ , _ , A≡) → let _ , _ , A⇒ , _ = ΠΣNorm A≡ in _ , _ , _ , _ , _ , A⇒)
+    )
+    (isΠΣ ⊢A)
 
 opaque
 
@@ -264,3 +278,8 @@ opaque
     helper (Idᵣ ⊩A) = yes (_ , _ , _ , ⇒*Id)
       where
       open _⊩ₗId_ ⊩A
+
+opaque
+
+  ≡Id? : Γ ⊢ A → Dec (∃₃ λ B t u → Γ ⊢ A ≡ Id B t u)
+  ≡Id? ⊢A = Dec-map ((λ (_ , _ , _ , A⇒) → _ , _ , _ , subset* A⇒) , (λ (_ , _ , _ , A≡) → let _ , _ , _ , A⇒ , _ = Id-norm A≡ in _ , _ , _ , A⇒)) (is-Id ⊢A)

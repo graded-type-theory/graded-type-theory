@@ -69,24 +69,22 @@ lower₀ t = t [ lower (var x0) ]↑
 opaque
 
   lower₀[lift]₀
-    : Γ ⊢ l ∷ Level
-    → Γ ∙ A ⊢ B
+    : Γ ∙ A ⊢ B
     → Γ ⊢ u ∷ A
-    → Γ ⊢ lower₀ B [ lift l u ]₀ ≡ B [ u ]₀
-  lower₀[lift]₀ {B} ⊢l ⊢B ⊢u =
-    PE.subst (_ ⊢_≡ _) (PE.sym ([]↑-[]₀ B))
-      (substTypeEq (refl ⊢B) (Lift-β′ ⊢l ⊢u))
+    → Γ ⊢ lower₀ B [ lift u ]₀ ≡ B [ u ]₀
+  lower₀[lift]₀ {B} ⊢B ⊢u =
+    PE.subst₂ (_⊢_≡_ _) (PE.sym ([]↑-[]₀ B)) PE.refl
+      (substTypeEq (refl ⊢B) (Lift-β′ ⊢u))
 
 opaque
 
   lower₀[lift]₀∷
-    : Γ ⊢ l ∷ Level
-    → Γ ∙ A ⊢ t ∷ B
+    : Γ ∙ A ⊢ t ∷ B
     → Γ ⊢ u ∷ A
-    → Γ ⊢ lower₀ t [ lift l u ]₀ ≡ t [ u ]₀ ∷ B [ u ]₀
-  lower₀[lift]₀∷ {t} {B} ⊢l ⊢t ⊢u =
-    PE.subst (_ ⊢_≡ _ ∷ _) (PE.sym ([]↑-[]₀ t))
-      (sym′ (substTermEq (refl ⊢t) (sym′ (Lift-β′ ⊢l ⊢u))))
+    → Γ ⊢ lower₀ t [ lift u ]₀ ≡ t [ u ]₀ ∷ B [ u ]₀
+  lower₀[lift]₀∷ {t} {B} ⊢t ⊢u =
+    PE.subst₃ (_⊢_≡_∷_ _) (PE.sym ([]↑-[]₀ t)) PE.refl PE.refl
+      (sym′ (substTermEq (refl ⊢t) (sym′ (Lift-β′ ⊢u))))
 
 opaque
 

@@ -211,7 +211,7 @@ opaque
     lemma ≡u liftₙ =
       case subst-lift {t = t} ≡u of λ where
         (inj₁ (x , refl)) → ne! (var x)
-        (inj₂ (_ , _ , refl , _)) → liftₙ
+        (inj₂ (_ , refl , _)) → liftₙ
     lemma ≡u ΠΣₙ =
       case subst-ΠΣ {t = t} ≡u of λ where
         (inj₁ (_ , refl)) → ne! (var _)

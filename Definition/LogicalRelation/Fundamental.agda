@@ -245,9 +245,8 @@ opaque mutual
       (fundamental-⊩ᵛ≡∷ l₂≡l₂′ .proj₂)
       (fundamental-⊩ᵛ≡∷ A≡B .proj₂)
   fundamental-⊩ᵛ≡∷ (lower-cong t≡u) = _ , lower-congᵛ (fundamental-⊩ᵛ≡∷ t≡u .proj₂)
-  fundamental-⊩ᵛ≡∷ (Lift-β ⊢l₂ ⊢A ⊢u) =
+  fundamental-⊩ᵛ≡∷ (Lift-β ⊢A ⊢u) =
     _ , Lift-βᵛ
-      (fundamental-⊩ᵛ∷ ⊢l₂ .proj₂)
       (fundamental-⊩ᵛ ⊢A .proj₂)
       (fundamental-⊩ᵛ∷ ⊢u .proj₂)
   fundamental-⊩ᵛ≡∷ (Lift-η ⊢l₂ ⊢A ⊢t ⊢u t≡u) =

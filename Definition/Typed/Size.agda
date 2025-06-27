@@ -165,8 +165,8 @@ opaque mutual
     size-⊢∷ ⊢l₁ ⊕ size-⊢≡∷ l₂≡l₂′ ⊕ size-⊢≡∷ A≡B
   size-⊢≡∷ (lower-cong t≡u) =
     node (size-⊢≡∷ t≡u)
-  size-⊢≡∷ (Lift-β ⊢l₂ ⊢A ⊢t) =
-    size-⊢∷ ⊢l₂ ⊕ size-⊢ ⊢A ⊕ size-⊢∷ ⊢t
+  size-⊢≡∷ (Lift-β ⊢A ⊢t) =
+    size-⊢ ⊢A ⊕ size-⊢∷ ⊢t
   size-⊢≡∷ (Lift-η ⊢l₂ ⊢A ⊢t ⊢u t≡u) =
     size-⊢∷ ⊢l₂ ⊕ size-⊢ ⊢A ⊕ size-⊢∷ ⊢t ⊕ size-⊢∷ ⊢u ⊕ size-⊢≡∷ t≡u
   size-⊢≡∷ (ΠΣ-cong l A₁≡B₁ A₂≡B₂ _) =

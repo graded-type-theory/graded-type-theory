@@ -256,7 +256,7 @@ opaque
     Γ ⊩ᵛ⟨ l′ ⟩ k₂ ∷ Level →
     Γ ⊩ᵛ⟨ l″ ⟩ A →
     Γ ⊩ᵛ⟨ l‴ ⟩ t ∷ A →
-    Γ ⊩ᵛ⟨ ωᵘ ⟩ lift k₂ t ∷ Lift k₂ A
+    Γ ⊩ᵛ⟨ ωᵘ ⟩ lift t ∷ Lift k₂ A
   liftᵛ {k₂} {t} ⊩k₂ ⊩A ⊩t =
     let ⊩ᵛLift = emb-⊩ᵛ ≤ᵘ-ωᵘ (Liftᵛ ⊩k₂ ⊩A)
     in ⊩ᵛ∷⇔ʰ .proj₂
@@ -270,7 +270,7 @@ opaque
             ⊢t[σ₂] = conv (R.escape-⊩∷ $ ⊩ᵛ∷→⊩ˢ∷→⊩[]∷ ⊩t ⊩σ₂) (sym A[σ₁]≡A[σ₂])
             k₂[σ₁]≡k₂[σ₂] = ≅ₜ-eq (escapeLevelEq (⊩≡∷Level⇔ .proj₁ (R.⊩≡∷→ (⊩ᵛ≡∷→⊩ˢ≡∷→⊩[]≡[]∷ (refl-⊩ᵛ≡∷ ⊩k₂) σ₁≡σ₂))))
             _ , ⊢k₂[σ₁] , ⊢k₂[σ₂] = wf-⊢≡∷ k₂[σ₁]≡k₂[σ₂]
-            lift≡lift = lift-cong k₂[σ₁]≡k₂[σ₂] (≅ₜ-eq t[σ₁]≡t[σ₂])
+            lift≡lift = lift-cong ⊢k₂[σ₁] (≅ₜ-eq t[σ₁]≡t[σ₂])
             _ , ⊢lift₁ , ⊢lift₂ = wf-⊢≡∷ lift≡lift
         in ⊩≡∷Lift⇔ .proj₂
           ( (R.⊩→ $ ⊩ᵛ→⊩ˢ∷→⊩[] ⊩ᵛLift ⊩σ₁)
@@ -278,10 +278,10 @@ opaque
           , (id ⊢lift₁ , liftₙ)
           , (id ⊢lift₂ , liftₙ)
           , emb-⊩≡∷ ≤ᵘ-ωᵘ
-            (lower (lift (k₂ [ σ₁ ]) (t [ σ₁ ])) ⇒⟨ Lift-β ⊢k₂[σ₁] ⊢A[σ₁] ⊢t[σ₁] ⟩⊩∷
+            (lower (lift (t [ σ₁ ])) ⇒⟨ Lift-β ⊢A[σ₁] ⊢t[σ₁] ⟩⊩∷
              t [ σ₁ ] ≡⟨ R.⊩≡∷→ $ ⊩ᵛ≡∷→⊩ˢ≡∷→⊩[]≡[]∷ (refl-⊩ᵛ≡∷ ⊩t) σ₁≡σ₂ ⟩⊩∷⇐*
-             t [ σ₂ ] ⇐⟨ Lift-β ⊢k₂[σ₂] ⊢A[σ₁] ⊢t[σ₂] ⟩∎
-             lower (lift (k₂ [ σ₂ ]) (t [ σ₂ ])) ∎)
+             t [ σ₂ ] ⇐⟨ Lift-β ⊢A[σ₁] ⊢t[σ₂] ⟩∎
+             lower (lift (t [ σ₂ ])) ∎)
           )
       )
 
@@ -333,16 +333,15 @@ opaque
   -- Reducibility for Lift-β.
 
   ⊩Lift-β :
-    Γ ⊢ k ∷ Level →
     Γ ⊢ A →
     Γ ⊩⟨ l ⟩ t ∷ A →
-    Γ ⊩⟨ l ⟩ lower (lift k t) ≡ t ∷ A
-  ⊩Lift-β {k} {t} ⊢k ⊢A ⊩t =
+    Γ ⊩⟨ l ⟩ lower (lift t) ≡ t ∷ A
+  ⊩Lift-β {t} ⊢A ⊩t =
     case escape-⊩∷ ⊩t of λ
       ⊢t →
     ⊩∷-⇐*
-      (lower (lift k t)  ⇒⟨ Lift-β ⊢k ⊢A ⊢t ⟩
-       t                 ∎⟨ ⊢t ⟩⇒)
+      (lower (lift t)  ⇒⟨ Lift-β ⊢A ⊢t ⟩
+       t               ∎⟨ ⊢t ⟩⇒)
       ⊩t
 
 opaque
@@ -350,16 +349,14 @@ opaque
   -- Validity of Lift-β.
 
   Lift-βᵛ :
-    Γ ⊩ᵛ⟨ l ⟩ k ∷ Level →
     Γ ⊩ᵛ⟨ l′ ⟩ A →
     Γ ⊩ᵛ⟨ l″ ⟩ t ∷ A →
-    Γ ⊩ᵛ⟨ l″ ⟩ lower (lift k t) ≡ t ∷ A
-  Lift-βᵛ ⊩k ⊩A ⊩t =
+    Γ ⊩ᵛ⟨ l″ ⟩ lower (lift t) ≡ t ∷ A
+  Lift-βᵛ ⊩A ⊩t =
     ⊩ᵛ∷-⇐
       (λ ⊩σ →
         let _ , ⊢σ = escape-⊩ˢ∷ ⊩σ in
         Lift-β
-          (R.escape-⊩∷ $ ⊩ᵛ∷→⊩ˢ∷→⊩[]∷ ⊩k ⊩σ)
           (R.escape-⊩ $ ⊩ᵛ→⊩ˢ∷→⊩[] ⊩A ⊩σ)
           (R.escape-⊩∷ $ ⊩ᵛ∷→⊩ˢ∷→⊩[]∷ ⊩t ⊩σ))
       ⊩t

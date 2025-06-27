@@ -198,8 +198,8 @@ opaque
 ------------------------------------------------------------------------
 -- Heterogeneous variants of the typing rules for Π
 
-lamʰ : (p : M) (l₁ : Term n) (t : Term (1+ n)) → Term n
-lamʰ p l₁ t = lam p (lift (wk1 l₁) (lower₀ t))
+lamʰ : (p : M) (t : Term (1+ n)) → Term n
+lamʰ p t = lam p (lift (lower₀ t))
 
 opaque
 
@@ -209,13 +209,13 @@ opaque
     → Γ ∙ A ⊢ B
     → Γ ∙ A ⊢ t ∷ B
     → Π-allowed p q
-    → Γ     ⊢ lamʰ p l₁ t ∷ Πʰ p q l₁ l₂ A B
+    → Γ     ⊢ lamʰ p t ∷ Πʰ p q l₁ l₂ A B
   lamʰⱼ ⊢l₁ ⊢l₂ ⊢B ⊢t ok =
     let ⊢A = ⊢∙→⊢ (wf ⊢B)
     in lamⱼ′ ok (liftⱼ′ (wkTerm₁ (Liftⱼ ⊢l₂ ⊢A) ⊢l₁) (lower₀Term ⊢l₂ ⊢t))
 
 ∘ʰ : (p : M) (l₂ t u : Term n) → Term n
-∘ʰ p l₂ t u = lower (t ∘⟨ p ⟩ lift l₂ u)
+∘ʰ p l₂ t u = lower (t ∘⟨ p ⟩ lift u)
 
 opaque
 
@@ -227,7 +227,7 @@ opaque
     → Γ ⊢ ∘ʰ p l₂ t u ∷ B [ u ]₀
   ∘ʰⱼ ⊢l₂ ⊢B ⊢t ⊢u =
     let ⊢A = wf-⊢∷ ⊢u
-    in conv (lowerⱼ (⊢t ∘ⱼ liftⱼ ⊢l₂ ⊢A ⊢u)) (lower₀[lift]₀ ⊢l₂ ⊢B ⊢u)
+    in conv (lowerⱼ (⊢t ∘ⱼ liftⱼ ⊢l₂ ⊢A ⊢u)) (lower₀[lift]₀ ⊢B ⊢u)
 
 opaque
 
@@ -239,7 +239,7 @@ opaque
     → Γ     ⊢ a ∷ A
     → p PE.≡ p′
     → Π-allowed p q
-    → Γ     ⊢ ∘ʰ p′ l₂ (lamʰ p l₁ t) a ≡ t [ a ]₀ ∷ B [ a ]₀
+    → Γ     ⊢ ∘ʰ p′ l₂ (lamʰ p t) a ≡ t [ a ]₀ ∷ B [ a ]₀
   β-redʰ {l₁} {l₂} {A} {B} {t} {a} {p} ⊢l₁ ⊢l₂ ⊢B ⊢t ⊢a PE.refl ok =
     let ⊢A = wf-⊢∷ ⊢a
         ⊢LiftA = Liftⱼ ⊢l₂ ⊢A
@@ -250,12 +250,12 @@ opaque
         ⊢lower₀t = lower₀Term ⊢l₂ ⊢t
         ⊢liftlower₀t = liftⱼ′ ⊢wkl₁ ⊢lower₀t
     in
-    ∘ʰ p l₂ (lamʰ p l₁ t) a ≡⟨⟩⊢
-    lower (lam p (lift (wk1 l₁) (lower₀ t)) ∘⟨ p ⟩ lift l₂ a)
-      ≡⟨ lower-cong (conv (β-red ⊢LiftB ⊢liftlower₀t ⊢lifta PE.refl ok) (Lift-cong (refl (substTerm ⊢wkl₁ ⊢lifta)) (lower₀[lift]₀ ⊢l₂ ⊢B ⊢a))) ⟩⊢
-    lower (lift (wk1 l₁) (lower₀ t) [ lift l₂ a ]₀)
-      ≡⟨ lower-cong (lift-cong (PE.subst (_ ⊢_≡ _ ∷ _) (PE.sym (wk1-sgSubst l₁ _)) (refl ⊢l₁)) (lower₀[lift]₀∷ ⊢l₂ ⊢t ⊢a)) ⟩⊢
-    lower (lift l₁ (t [ a ]₀)) ⇒⟨ Lift-β⇒ ⊢l₁ (substTerm ⊢t ⊢a) ⟩⊢∎
+    ∘ʰ p l₂ (lamʰ p t) a ≡⟨⟩⊢
+    lower (lam p (lift (lower₀ t)) ∘⟨ p ⟩ lift a)
+      ≡⟨ lower-cong (conv (β-red ⊢LiftB ⊢liftlower₀t ⊢lifta PE.refl ok) (Lift-cong (refl (substTerm ⊢wkl₁ ⊢lifta)) (lower₀[lift]₀ ⊢B ⊢a))) ⟩⊢
+    lower (lift (lower₀ t) [ lift a ]₀)
+      ≡⟨ lower-cong (lift-cong ⊢l₁ (lower₀[lift]₀∷ ⊢t ⊢a)) ⟩⊢
+    lower (lift (t [ a ]₀)) ⇒⟨ Lift-β⇒ (substTerm ⊢t ⊢a) ⟩⊢∎
     t [ a ]₀ ∎
 
 opaque
@@ -275,11 +275,11 @@ opaque
         ⊢wkl₁ = wkTerm₁ ⊢LiftA ⊢l₁
         ⊢lower₀B = lower₀Type ⊢l₂ ⊢B
         ⊢LiftB = Liftⱼ ⊢wkl₁ ⊢lower₀B
-        thing = lower₀[lift]₀∷ ⊢l₂ (lowerⱼ (wkTerm₁ ⊢LiftA ⊢f ∘ⱼ var (∙ ⊢LiftA) here)) {!   !} -- wrong context
+        thing = lower₀[lift]₀∷ (lowerⱼ (wkTerm₁ ⊢LiftA ⊢f ∘ⱼ var (∙ ⊢LiftA) here)) {!   !} -- wrong context
     in η-eq′ ⊢f ⊢g $ Lift-η′
         (PE.subst (_⊢_∷_ _ _) (wkSingleSubstId _) (wkTerm₁ ⊢LiftA ⊢f ∘ⱼ var (∙ ⊢LiftA) here))
         (PE.subst (_⊢_∷_ _ _) (wkSingleSubstId _) (wkTerm₁ ⊢LiftA ⊢g ∘ⱼ var (∙ ⊢LiftA) here))
         (lower (wk1 f ∘⟨ p ⟩ var x0) ≡˘⟨ {! thing !} ⟩⊢
-         lower₀ (lower (wk1 f ∘⟨ p ⟩ lift (wk1 l₂) (var x0))) ≡⟨ lower₀TermEq ⊢l₂ f≡g ⟩⊢
-         lower₀ (lower (wk1 g ∘⟨ p ⟩ lift (wk1 l₂) (var x0))) ≡⟨ {!   !} ⟩⊢∎
+         lower₀ (lower (wk1 f ∘⟨ p ⟩ lift (var x0))) ≡⟨ lower₀TermEq ⊢l₂ f≡g ⟩⊢
+         lower₀ (lower (wk1 g ∘⟨ p ⟩ lift (var x0))) ≡⟨ {!   !} ⟩⊢∎
          lower (wk1 g ∘⟨ p ⟩ var x0) ∎)

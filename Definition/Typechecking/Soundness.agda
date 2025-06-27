@@ -73,10 +73,6 @@ mutual
         C≡U = subset* (↘U .proj₁)
         ⊢l₁ = inversion-U-Level (syntacticEq C≡U .proj₂)
     in Uⱼ (maxᵘⱼ ⊢l₁ ⊢l₂) , Liftⱼ′ ⊢l₂ (conv ⊢A C≡U)
-  soundness⇉ ⊢Γ (liftᵢ x y) =
-    let ⊢B , ⊢t = soundness⇉ ⊢Γ y
-        ⊢l = soundness⇇ x
-    in Liftⱼ ⊢l ⊢B , liftⱼ′ ⊢l ⊢t
   soundness⇉ ⊢Γ (ΠΣᵢ ⊢A (⇒*U₁ , _) ⊢B ok) =
     let _ , ⊢A = soundness⇉ ⊢Γ ⊢A
         ⊢A     = conv ⊢A (subset* ⇒*U₁)
@@ -182,6 +178,12 @@ mutual
     , []-congⱼ′ ok (soundness⇇ ⊢v)
 
   soundness⇇ : Γ ⊢ t ⇇ A → Γ ⊢ t ∷ A
+  soundness⇇ (liftᶜ A↘Lift t⇇B) =
+    let A≡Lift = subset* (A↘Lift .proj₁)
+        _ , ⊢Lift = syntacticEq A≡Lift
+        ⊢l , ⊢B = inversion-Lift ⊢Lift
+        ⊢t = soundness⇇ t⇇B
+    in conv (liftⱼ′ ⊢l ⊢t) (sym A≡Lift)
   soundness⇇ (lamᶜ A↘ΠFG t⇇G)=
     let A≡ΠFG = subset* (proj₁ A↘ΠFG)
         _ , ⊢ΠFG = syntacticEq A≡ΠFG
@@ -195,7 +197,7 @@ mutual
         ⊢t = soundness⇇ t⇇F
         ⊢u = soundness⇇ u⇇Gt
     in  conv (prodⱼ ⊢G ⊢t ⊢u ok) (sym A≡ΣFG)
-  soundness⇇ (rflᶜ (A⇒*Id , _) t≡u) =
-    conv (rflⱼ′ t≡u) (sym (subset* A⇒*Id))
+  soundness⇇ (rflᶜ (A↘Id , _) t≡u) =
+    conv (rflⱼ′ t≡u) (sym (subset* A↘Id))
   soundness⇇ (infᶜ t⇉B A≡B) =
     conv (soundness⇉ (wfEq A≡B) t⇉B .proj₂) A≡B

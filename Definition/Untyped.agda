@@ -55,7 +55,7 @@ data Term (n : Nat) : Set a where
   _maxᵘ_ : Term n → Term n → Term n
   U : Term n → Term n
   Lift : (l : Term n) (A : Term n) → Term n
-  lift : (l : Term n) (a : Term n) → Term n
+  lift : (a : Term n) → Term n
   lower : (a : Term n) → Term n
   Empty : Term n
   emptyrec : (p : M) (A t : Term n) → Term n
@@ -163,7 +163,7 @@ data Kind : (ns : List Nat) → Set a where
   Ukind : Kind (0 ∷ [])
 
   Liftkind : Kind (0 ∷ 0 ∷ [])
-  liftkind : Kind (0 ∷ 0 ∷ [])
+  liftkind : Kind (0 ∷ [])
   lowerkind : Kind (0 ∷ [])
 
   Emptykind    : Kind []
@@ -228,8 +228,8 @@ toTerm (gen Ukind (l ∷ₜ [])) =
   U (toTerm l)
 toTerm (gen Liftkind (l ∷ₜ A ∷ₜ [])) =
   Lift (toTerm l) (toTerm A)
-toTerm (gen liftkind (l ∷ₜ a ∷ₜ [])) =
-  lift (toTerm l) (toTerm a)
+toTerm (gen liftkind (a ∷ₜ [])) =
+  lift (toTerm a)
 toTerm (gen lowerkind (a ∷ₜ [])) =
   lower (toTerm a)
 toTerm (gen (Binderkind b p q) (A ∷ₜ B ∷ₜ [])) =
@@ -292,8 +292,8 @@ fromTerm (U l) =
   gen Ukind (fromTerm l ∷ₜ [])
 fromTerm (Lift l A) =
   gen Liftkind (fromTerm l ∷ₜ fromTerm A ∷ₜ [])
-fromTerm (lift l a) =
-  gen liftkind (fromTerm l ∷ₜ fromTerm a ∷ₜ [])
+fromTerm (lift a) =
+  gen liftkind (fromTerm a ∷ₜ [])
 fromTerm (lower a) =
   gen lowerkind (fromTerm a ∷ₜ [])
 fromTerm (ΠΣ⟨ b ⟩ p , q ▷ A ▹ B) =
@@ -362,7 +362,7 @@ wk ρ (sucᵘ l) = sucᵘ (wk ρ l)
 wk ρ (l₁ maxᵘ l₂) = wk ρ l₁ maxᵘ wk ρ l₂
 wk ρ (U l) = U (wk ρ l)
 wk ρ (Lift l A) = Lift (wk ρ l) (wk ρ A)
-wk ρ (lift l a) = lift (wk ρ l) (wk ρ a)
+wk ρ (lift a) = lift (wk ρ a)
 wk ρ (lower a) = lower (wk ρ a)
 wk ρ (ΠΣ⟨ b ⟩ p , q ▷ A ▹ B) =
   ΠΣ⟨ b ⟩ p , q ▷ wk ρ A ▹ wk (lift ρ) B
@@ -540,7 +540,7 @@ sucᵘ l [ σ ] = sucᵘ (l [ σ ])
 l₁ maxᵘ l₂ [ σ ] = (l₁ [ σ ]) maxᵘ (l₂ [ σ ])
 U l [ σ ] = U (l [ σ ])
 Lift l A [ σ ] = Lift (l [ σ ]) (A [ σ ])
-lift l a [ σ ] = lift (l [ σ ]) (a [ σ ])
+lift a [ σ ] = lift (a [ σ ])
 lower a [ σ ] = lower (a [ σ ])
 ΠΣ⟨ b ⟩ p , q ▷ A ▹ B [ σ ] =
   ΠΣ⟨ b ⟩ p , q ▷ A [ σ ] ▹ (B [ σ ⇑ ])

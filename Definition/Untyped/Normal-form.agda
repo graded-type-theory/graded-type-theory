@@ -35,7 +35,7 @@ mutual
     sucᵘₙ  : Nf t → Nf (sucᵘ t)
     Uₙ     : Nf l → Nf (U l)
     Liftₙ  : Nf l → Nf A → Nf (Lift l A)
-    liftₙ  : Nf l → Nf t → Nf (lift l t)
+    liftₙ  : Nf t → Nf (lift t)
     ΠΣₙ    : Nf A → Nf B → Nf (ΠΣ⟨ b ⟩ p , q ▷ A ▹ B)
     ℕₙ     : Nf ℕ
     Emptyₙ : Nf Empty
@@ -110,7 +110,7 @@ nfWhnf = λ where
   (sucᵘₙ _)   → sucᵘₙ
   (Uₙ _)      → Uₙ
   (Liftₙ _ _) → Liftₙ
-  (liftₙ _ _) → liftₙ
+  (liftₙ _)   → liftₙ
   (ΠΣₙ _ _)   → ΠΣₙ
   ℕₙ          → ℕₙ
   Emptyₙ      → Emptyₙ

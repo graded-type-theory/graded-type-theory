@@ -107,7 +107,7 @@ data Whnf {n : Nat} : Term n → Set a where
   -- Introductions are whnfs.
   zeroᵘₙ : Whnf zeroᵘ
   sucᵘₙ : Whnf (sucᵘ t)
-  liftₙ : Whnf (lift l t)
+  liftₙ : Whnf (lift t)
   lamₙ  : Whnf (lam p t)
   zeroₙ : Whnf zero
   sucₙ  : Whnf (suc t)

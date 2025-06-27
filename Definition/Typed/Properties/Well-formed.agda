@@ -290,8 +290,8 @@ opaque
       fix (wfTerm-<ˢ ⊢l₁)
     wfEqTerm-<ˢ (lower-cong t≡u) =
       fix (wfEqTerm-<ˢ t≡u)
-    wfEqTerm-<ˢ (Lift-β ⊢l₂ _ _) =
-      fix (wfTerm-<ˢ ⊢l₂)
+    wfEqTerm-<ˢ (Lift-β x _) =
+      fix (wf-<ˢ x)
     wfEqTerm-<ˢ (Lift-η x _ _ _ _) =
       fix (wfTerm-<ˢ x)
     wfEqTerm-<ˢ (ΠΣ-cong l A≡B _ _) =

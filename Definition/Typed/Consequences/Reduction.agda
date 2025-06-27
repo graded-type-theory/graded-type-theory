@@ -250,7 +250,7 @@ opaque
   … | _ , liftₙ , D =
     case wf-⊢≡ (subset* D) of λ where
       (fst₁ , univ x) →
-        let _ , _ , B≡Lift = inversion-lift x
+        let _ , _ , _ , B≡Lift = inversion-lift x
         in ⊥-elim (U≢Liftⱼ B≡Lift)
   … | _ , ΠΣₙ , D =
     let B≡B′ , C≡C′ , C[]≡C′[] , p≡p′ , q≡q′ , b≡b′ =

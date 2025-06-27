@@ -110,11 +110,11 @@ opaque
     in ⊢t , univ ⊢A
   inversion-Lift (Liftⱼ x x₁) = x , x₁
 
-  inversion-lift : Γ ⊢ lift l t ∷ A → ∃ λ B → Γ ⊢ t ∷ B × Γ ⊢ A ≡ Lift l B
+  inversion-lift : Γ ⊢ lift t ∷ A → ∃₂ λ l B → Γ ⊢ t ∷ B × Γ ⊢ A ≡ Lift l B
   inversion-lift (conv a x) =
-    let _ , ⊢t , A≡Lift = inversion-lift a
-    in _ , ⊢t , trans (sym x) A≡Lift
-  inversion-lift (liftⱼ a₁ a₂ a₃) = _ , a₃ , refl (Liftⱼ a₁ a₂)
+    let _ , _ , ⊢t , A≡Lift = inversion-lift a
+    in _ , _ , ⊢t , trans (sym x) A≡Lift
+  inversion-lift (liftⱼ a₁ a₂ a₃) = _ , _ , a₃ , refl (Liftⱼ a₁ a₂)
 
 ------------------------------------------------------------------------
 -- Inversion for Empty

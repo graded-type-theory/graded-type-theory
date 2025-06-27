@@ -68,9 +68,6 @@ mutual
           → Γ ⊢ A ⇉ C
           → Γ ⊢ C ↘ U l₁
           → Γ ⊢ Lift l₂ A ⇉ U (l₁ maxᵘ l₂)
-    liftᵢ : Γ ⊢ l ⇇ Level
-          → Γ ⊢ t ⇉ B
-          → Γ ⊢ lift l t ⇉ Lift l B
     ΠΣᵢ : Γ ⊢ A ⇉ C₁
         → Γ ⊢ C₁ ↘ U l
         → Γ ∙ A ⊢ B ⇇ U (wk1 l)
@@ -151,6 +148,9 @@ mutual
                  Id (Erased A) ([ t ]) ([ u ])
 
   data _⊢_⇇_ (Γ : Con Term n) : (t A : Term n) → Set a where
+    liftᶜ : Γ ⊢ A ↘ Lift l B
+          → Γ ⊢ t ⇇ B
+          → Γ ⊢ lift t ⇇ A
     lamᶜ : Γ ⊢ A ↘ Π p , q ▷ F ▹ G
          → Γ ∙ F ⊢ t ⇇ G
          → Γ ⊢ lam p t ⇇ A
@@ -189,7 +189,6 @@ mutual
     maxᵘᵢ : Checkable t → Checkable u → Inferable (t maxᵘ u)
     Uᵢ : Checkable l → Inferable (U l)
     Liftᵢ : Checkable l → Inferable A → Inferable (Lift l A)
-    liftᵢ : Checkable l → Inferable t → Inferable (lift l t)
     ΠΣᵢ : Inferable A → Checkable B → Inferable (ΠΣ⟨ b ⟩ p , q ▷ A ▹ B)
     varᵢ : ∀ {x} → Inferable (var x)
     lowerᵢ : Inferable t → Inferable (lower t)
@@ -222,6 +221,7 @@ mutual
   -- Checkable terms.
 
   data Checkable : (Term n) → Set a where
+    liftᶜ : Checkable t → Checkable (lift t)
     lamᶜ : Checkable t → Checkable (lam p t)
     prodᶜ : ∀ {m} → Checkable t → Checkable u → Checkable (prod m p t u)
     rflᶜ : Checkable {n = n} rfl
@@ -252,6 +252,7 @@ mutual
   -- Γ ⊢ t ⇇ A implies that t is a checkable term.
 
   Checkable⇇ : Γ ⊢ t ⇇ A → Checkable t
+  Checkable⇇ (liftᶜ x t⇇) = liftᶜ (Checkable⇇ t⇇)
   Checkable⇇ (lamᶜ x t⇇A) = lamᶜ (Checkable⇇ t⇇A)
   Checkable⇇ (prodᶜ x t⇇A t⇇A₁) = prodᶜ (Checkable⇇ t⇇A) (Checkable⇇ t⇇A₁)
   Checkable⇇ (rflᶜ _ _) = rflᶜ
@@ -266,7 +267,6 @@ mutual
   Inferable⇉ (maxᵘᵢ x x₁) = maxᵘᵢ (Checkable⇇ x) (Checkable⇇ x₁)
   Inferable⇉ (Uᵢ l) = Uᵢ (Checkable⇇ l)
   Inferable⇉ (Liftᵢ l A ↘U) = Liftᵢ (Checkable⇇ l) (Inferable⇉ A)
-  Inferable⇉ (liftᵢ l t) = liftᵢ (Checkable⇇ l) (Inferable⇉ t)
   Inferable⇉ (lowerᵢ x y) = lowerᵢ (Inferable⇉ x)
   Inferable⇉ (ΠΣᵢ A _ B _) = ΠΣᵢ (Inferable⇉ A) (Checkable⇇ B)
   Inferable⇉ (varᵢ x) = varᵢ

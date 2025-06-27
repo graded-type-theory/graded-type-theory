@@ -19,7 +19,6 @@ open import Definition.Conversion.Consequences.InverseUniv R
 open import Definition.Conversion.Soundness R
 
 open import Definition.Typed R
--- open import Definition.Typed.Consequences.Admissible R
 open import Definition.Typed.Consequences.Inequality R
 open import Definition.Typed.Consequences.Injectivity R
 open import Definition.Typed.Consequences.NeTypeEq R
@@ -110,9 +109,9 @@ mutual
     Liftₙ  : Γ ⊢nf l₂ ∷ Level →
              Γ ⊢nf A ∷ U l₁ →
              Γ ⊢nf Lift l₂ A ∷ U (l₁ maxᵘ l₂)
-    liftₙ  : Γ ⊢nf l₂ ∷ Level →
+    liftₙ  : Γ ⊢ l₂ ∷ Level →
              Γ ⊢nf t ∷ A →
-             Γ ⊢nf lift l₂ t ∷ Lift l₂ A
+             Γ ⊢nf lift t ∷ Lift l₂ A
     ΠΣₙ    : Γ ⊢nf A ∷ U l →
              Γ ∙ A ⊢nf B ∷ U (wk1 l) →
              ΠΣ-allowed b p q →
@@ -260,7 +259,7 @@ mutual
     (convₙ ⊢t A≡B)      → conv (⊢nf∷→⊢∷ ⊢t) A≡B
     (Uₙ ⊢l)             → Uⱼ (⊢nf∷→⊢∷ ⊢l)
     (Liftₙ ⊢l ⊢A)       → Liftⱼ′ (⊢nf∷→⊢∷ ⊢l) (⊢nf∷→⊢∷ ⊢A)
-    (liftₙ ⊢l ⊢t)       → liftⱼ′ (⊢nf∷→⊢∷ ⊢l) (⊢nf∷→⊢∷ ⊢t)
+    (liftₙ ⊢l ⊢t)       → liftⱼ′ ⊢l (⊢nf∷→⊢∷ ⊢t)
     (ΠΣₙ ⊢A ⊢B ok)      → ΠΣⱼ′ (⊢nf∷→⊢∷ ⊢A) (⊢nf∷→⊢∷ ⊢B) ok
     (lamₙ ⊢t ok)        → lamⱼ′ ok (⊢nf∷→⊢∷ ⊢t)
     (prodₙ ⊢B ⊢t ⊢u ok) → prodⱼ ⊢B (⊢nf∷→⊢∷ ⊢t) (⊢nf∷→⊢∷ ⊢u) ok
@@ -331,7 +330,7 @@ mutual
     (sucᵘₙ ⊢t)        → sucᵘₙ (⊢nf∷→Nf ⊢t)
     (Uₙ ⊢l)           → Uₙ (⊢nf∷→Nf ⊢l)
     (Liftₙ ⊢l ⊢A)     → Liftₙ (⊢nf∷→Nf ⊢l) (⊢nf∷→Nf ⊢A)
-    (liftₙ ⊢l ⊢t)     → liftₙ (⊢nf∷→Nf ⊢l) (⊢nf∷→Nf ⊢t)
+    (liftₙ ⊢l ⊢t)     → liftₙ (⊢nf∷→Nf ⊢t)
     (ΠΣₙ ⊢A ⊢B _)     → ΠΣₙ (⊢nf∷→Nf ⊢A) (⊢nf∷→Nf ⊢B)
     (lamₙ ⊢t _)       → lamₙ (⊢nf∷→Nf ⊢t)
     (prodₙ _ ⊢t ⊢u _) → prodₙ (⊢nf∷→Nf ⊢t) (⊢nf∷→Nf ⊢u)
@@ -456,7 +455,7 @@ mutual
         (⊢nf∷-stable Γ≡Δ ⊢t)
       (Uₙ ⊢l)       → Uₙ (⊢nf∷-stable Γ≡Δ ⊢l)
       (Liftₙ ⊢l ⊢A) → Liftₙ (⊢nf∷-stable Γ≡Δ ⊢l) (⊢nf∷-stable Γ≡Δ ⊢A)
-      (liftₙ ⊢l ⊢t) → liftₙ (⊢nf∷-stable Γ≡Δ ⊢l) (⊢nf∷-stable Γ≡Δ ⊢t)
+      (liftₙ ⊢l ⊢t) → liftₙ (stabilityTerm Γ≡Δ ⊢l) (⊢nf∷-stable Γ≡Δ ⊢t)
       (ΠΣₙ ⊢A ⊢B ok) → ΠΣₙ
         (⊢nf∷-stable Γ≡Δ ⊢A)
         (⊢nf∷-stable (Γ≡Δ ∙ refl (⊢nf→⊢ (univₙ ⊢A))) ⊢B)

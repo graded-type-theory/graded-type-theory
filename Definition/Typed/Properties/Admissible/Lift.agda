@@ -75,26 +75,24 @@ opaque
 
   liftⱼ′ : Γ ⊢ l₂ ∷ Level
          → Γ ⊢ t ∷ A
-         → Γ ⊢ lift l₂ t ∷ Lift l₂ A
+         → Γ ⊢ lift t ∷ Lift l₂ A
   liftⱼ′ ⊢l₂ ⊢t = liftⱼ ⊢l₂ (wf-⊢∷ ⊢t) ⊢t
 
 opaque
 
   lift-cong :
-    Γ ⊢ l₂ ≡ l₂′ ∷ Level →
+    Γ ⊢ l₂ ∷ Level →
     Γ ⊢ t ≡ u ∷ A →
-    Γ ⊢ lift l₂ t ≡ lift l₂′ u ∷ Lift l₂ A
-  lift-cong l₂≡l₂′ t≡u =
-    let _ , ⊢l₂ , ⊢l₂′ = wf-⊢≡∷ l₂≡l₂′
-        _ , ⊢t , ⊢u = wf-⊢≡∷ t≡u
-    in S.lift-cong ⊢l₂ ⊢l₂′ l₂≡l₂′ (wf-⊢≡∷ t≡u .proj₁) ⊢t ⊢u t≡u
+    Γ ⊢ lift t ≡ lift u ∷ Lift l₂ A
+  lift-cong ⊢l₂ t≡u =
+    let _ , ⊢t , ⊢u = wf-⊢≡∷ t≡u
+    in S.lift-cong ⊢l₂ (wf-⊢≡∷ t≡u .proj₁) ⊢t ⊢u t≡u
 
 opaque
 
-  Lift-β′ : Γ ⊢ l₂ ∷ Level
-          → Γ ⊢ t ∷ A
-          → Γ ⊢ lower (lift l₂ t) ≡ t ∷ A
-  Lift-β′ ⊢l₂ ⊢t = Lift-β ⊢l₂ (wf-⊢∷ ⊢t) ⊢t
+  Lift-β′ : Γ ⊢ t ∷ A
+          → Γ ⊢ lower (lift t) ≡ t ∷ A
+  Lift-β′ ⊢t = Lift-β (wf-⊢∷ ⊢t) ⊢t
 
 opaque
 
@@ -108,7 +106,6 @@ opaque
 
 opaque
 
-  Lift-β⇒ : Γ ⊢ l₂ ∷ Level
-          → Γ ⊢ t ∷ A
-          → Γ ⊢ lower (lift l₂ t) ⇒ t ∷ A
-  Lift-β⇒ ⊢l₂ ⊢t = Lift-β ⊢l₂ (wf-⊢∷ ⊢t) ⊢t
+  Lift-β⇒ : Γ ⊢ t ∷ A
+          → Γ ⊢ lower (lift t) ⇒ t ∷ A
+  Lift-β⇒ ⊢t = Lift-β (wf-⊢∷ ⊢t) ⊢t

@@ -30,6 +30,7 @@ open import Definition.Typed.Substitution R
 open import Definition.Typed.Syntactic R
 open import Definition.Typed.Weakening R as W
 open import Definition.Typed.Consequences.Inequality R
+open import Definition.Typed.Consequences.Injectivity R
 open import Definition.Typed.Consequences.NeTypeEq R
 open import Definition.Typed.Consequences.Reduction R
 open import Definition.Typed.Decidable.Equality R _≟_
@@ -113,7 +114,7 @@ mutual
     helper (_ maxᵘ _) = λ where
       (yes A) → yes (checkᶜ A)
       (no not) → no λ { (checkᶜ A) → not A }
-    helper (lift _ _) = λ where
+    helper (lift _) = λ where
       (yes A) → yes (checkᶜ A)
       (no not) → no λ { (checkᶜ A) → not A }
     helper (lower _) = λ where
@@ -205,10 +206,8 @@ mutual
     case dec-Checkable l ×-dec dec-Inferable A of λ where
       (yes (l , A)) → yes (Liftᵢ l A)
       (no not) → no λ { (Liftᵢ l A) → not (l , A) }
-  dec-Inferable (lift l t) =
-    case dec-Checkable l ×-dec dec-Inferable t of λ where
-      (yes (l , t)) → yes (liftᵢ l t)
-      (no not) → no λ { (liftᵢ l t) → not (l , t) }
+  dec-Inferable (lift t) =
+    no λ ()
   dec-Inferable (lower t) =
     case dec-Inferable t of λ where
       (yes t)  → yes (lowerᵢ t)
@@ -305,6 +304,12 @@ mutual
   dec-Checkable t = helper t (dec-Inferable t)
     where
     helper : (t : Term n) → Dec (Inferable t) → Dec (Checkable t)
+    helper (lift t) _ =
+      case dec-Checkable t of λ where
+        (yes t)  → yes (liftᶜ t)
+        (no not) → no λ where
+          (liftᶜ x) → not x
+          (infᶜ ())
     helper (lam _ t) _ =
       case dec-Checkable t of λ where
         (yes t)  → yes (lamᶜ t)
@@ -338,9 +343,6 @@ mutual
       (yes t) → yes (infᶜ t)
       (no ¬t) → no λ { (infᶜ t) → ¬t t }
     helper (Lift _ _) = λ where
-      (yes t) → yes (infᶜ t)
-      (no ¬t) → no λ { (infᶜ t) → ¬t t }
-    helper (lift _ _) = λ where
       (yes t) → yes (infᶜ t)
       (no ¬t) → no λ { (infᶜ t) → ¬t t }
     helper (lower _) = λ where
@@ -657,8 +659,6 @@ mutual
       (no not) → no λ where
         (Liftᶜ l A) → not (l , A)
         (univᶜ (infᶜ (Liftᵢ l A ↘U) _)) → not (l , univᶜ (infᶜ A (subset* (↘U .proj₁))))
-  dec⇉Type ⊢Γ (liftᵢ l t) = no λ where
-    (univᶜ (infᶜ (liftᵢ _ _) ≡U)) → U≢Liftⱼ (sym ≡U)
   dec⇉Type ⊢Γ (ΠΣᵢ {b} {p} {q} A B) =
     case
       (ΠΣ-allowed? b p q ×-dec
@@ -856,6 +856,8 @@ mutual
   dec⇇Type {Γ} {A} ⊢Γ (checkᶜ A-c) = dec⇇Type′ ⊢Γ A-c
 
   dec⇇Type′ : ⊢ Γ → Checkable A → Dec (Γ ⊢ A ⇇Type)
+  dec⇇Type′ ⊢Γ (liftᶜ _)   = no λ { (univᶜ (liftᶜ x x₁)) → ⊥-elim (U≢Liftⱼ (subset* (x .proj₁)))
+                             ; (univᶜ (infᶜ () x₁)) }
   dec⇇Type′ ⊢Γ (lamᶜ _)    = no λ { (univᶜ (lamᶜ x x₁)) → ⊥-elim (U≢ΠΣⱼ (subset* (x .proj₁)))
                              ; (univᶜ (infᶜ () x₁)) }
   dec⇇Type′ ⊢Γ (prodᶜ _ _) = no λ { (univᶜ (prodᶜ x x₁ x₂)) → ⊥-elim (U≢ΠΣⱼ (subset* (x .proj₁)))
@@ -886,10 +888,6 @@ mutual
     case (dec⇇ l (Levelⱼ ⊢Γ) ×-dec dec⇉-with-cont ⊢Γ A λ ⊢A _ → ↘U? ⊢A) of λ where
       (yes (l , (_ , A) , (_ , ↘U))) → yes (_ , Liftᵢ l A ↘U)
       (no not) → no λ { (_ , Liftᵢ l A ↘U) → not (l , (_ , A) , (_ , ↘U)) }
-  dec⇉ ⊢Γ (liftᵢ l t) =
-    case dec⇇ l (Levelⱼ ⊢Γ) ×-dec dec⇉ ⊢Γ t of λ where
-      (yes (l , _ , t)) → yes (_ , liftᵢ l t)
-      (no not) → no λ { (_ , liftᵢ l t) → not (l , _ , t) }
   dec⇉ ⊢Γ (ΠΣᵢ {b} {p} {q} A B) =
     case
       (ΠΣ-allowed? b p q ×-dec
@@ -962,6 +960,20 @@ mutual
   -- Decidability of bi-directional type checking
 
   dec⇇ : Checkable t → Γ ⊢ A → Dec (Γ ⊢ t ⇇ A)
+  dec⇇ (liftᶜ t) ⊢A =
+    case
+      (Σ-dec (isLift ⊢A)
+        (λ (_ , _ , A⇒) (_ , _ , A⇒′) →
+          case whrDet* (A⇒ , Liftₙ) (A⇒′ , Liftₙ) of λ {
+            PE.refl →
+          idᶠ })
+        λ (_ , _ , A⇒Lift) →
+        let ⊢l , ⊢B = inversion-Lift (syntacticRed A⇒Lift .proj₂) in
+        dec⇇ t ⊢B) of λ where
+      (yes ((_ , _ , A⇒Lift) , t)) → yes (liftᶜ (A⇒Lift , Liftₙ) t)
+      (no not) → no λ where
+        (liftᶜ x x₁) → not ((_ , _ , x .proj₁) , x₁)
+        (infᶜ () x₁)
   dec⇇ (lamᶜ {p} t) ⊢A =
     case
       (isΠΣ-with-cont ⊢A λ {b = b} {p = p′} _ ⊢C _ _ →
@@ -989,8 +1001,8 @@ mutual
       (yes ((_ , _ , _ , _ , _ , A) , PE.refl , PE.refl , t , u)) →
         yes (prodᶜ (A , ΠΣₙ) t u)
       (no not) → no λ where
-        (prodᶜ (A , _) t u) →
-          not ((_ , _ , _ , _ , _ , A) , PE.refl , PE.refl , t , u)
+        (prodᶜ A t u) →
+          not ((_ , _ , _ , _ , _ , A .proj₁) , PE.refl , PE.refl , t , u)
         (infᶜ () _)
   dec⇇ rflᶜ ⊢A =
     case
@@ -1006,7 +1018,7 @@ mutual
       (yes ((_ , _ , _ , A) , t≡u)) →
         yes (rflᶜ (A , Idₙ) t≡u)
       (no not) → no λ where
-        (rflᶜ (A , _) t≡u) → not ((_ , _ , _ , A) , t≡u)
+        (rflᶜ A t≡u) → not ((_ , _ , _ , A .proj₁) , t≡u)
         (infᶜ () _)
   dec⇇ (infᶜ t) ⊢A =
     case
@@ -1016,6 +1028,7 @@ mutual
       (yes ((_ , t) , B≡A)) → yes (infᶜ t B≡A)
       (no not) → no λ where
         (infᶜ t B≡A)  → not ((_ , t) , B≡A)
+        (liftᶜ _ _)   → case t of λ ()
         (lamᶜ _ _)    → case t of λ ()
         (prodᶜ _ _ _) → case t of λ ()
         (rflᶜ _ _)    → case t of λ ()

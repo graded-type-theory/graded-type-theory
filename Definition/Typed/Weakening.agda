@@ -551,8 +551,8 @@ private module Inhabited where
           Lift-cong (wkTerm ρ⊇ ⊢Δ ⊢l₁) (wkEqTerm ρ⊇ ⊢Δ l₂≡l₂′) (wkEqTerm ρ⊇ ⊢Δ A≡B)
         (lower-cong t≡u) PE.refl →
           lower-cong (wkEqTerm ρ⊇ ⊢Δ t≡u)
-        (Lift-β ⊢l₂ ⊢A ⊢t) PE.refl →
-          Lift-β (wkTerm ρ⊇ ⊢Δ ⊢l₂) (wk ρ⊇ ⊢Δ ⊢A) (wkTerm ρ⊇ ⊢Δ ⊢t)
+        (Lift-β ⊢A ⊢t) PE.refl →
+          Lift-β (wk ρ⊇ ⊢Δ ⊢A) (wkTerm ρ⊇ ⊢Δ ⊢t)
         (Lift-η ⊢l₂ ⊢A ⊢t ⊢u t≡u) PE.refl →
           Lift-η (wkTerm ρ⊇ ⊢Δ ⊢l₂) (wk ρ⊇ ⊢Δ ⊢A) (wkTerm ρ⊇ ⊢Δ ⊢t) (wkTerm ρ⊇ ⊢Δ ⊢u) (wkEqTerm ρ⊇ ⊢Δ t≡u)
         (ΠΣ-cong ⊢l A₁≡A₂ B₁≡B₂ ok) PE.refl →
@@ -913,7 +913,7 @@ mutual
   wkRedTerm ρ (maxᵘ-substˡ t⇒t′ ⊢u) = maxᵘ-substˡ (wkRedTerm ρ t⇒t′) (wkTerm ρ ⊢u)
   wkRedTerm {ρ} [ρ] (maxᵘ-substʳ ⊢t u⇒u′) = maxᵘ-substʳ (wkTerm [ρ] ⊢t) (wkRedTerm [ρ] u⇒u′)
   wkRedTerm ρ (lower-subst x) = lower-subst (wkRedTerm ρ x)
-  wkRedTerm ρ (Lift-β x ⊢A x₁) = Lift-β (wkTerm ρ x) (wk ρ ⊢A) (wkTerm ρ x₁)
+  wkRedTerm ρ (Lift-β ⊢A x₁) = Lift-β (wk ρ ⊢A) (wkTerm ρ x₁)
   wkRedTerm ρ (app-subst {G = B} t⇒u a) =
     PE.subst (λ x → _ ⊢ _ ⇒ _ ∷ x) (PE.sym (wk-β B))
              (app-subst (wkRedTerm ρ t⇒u) (wkTerm ρ a))

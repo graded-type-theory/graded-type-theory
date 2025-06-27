@@ -222,8 +222,8 @@ opaque mutual
       let ⊢Lift , ⊢t , ⊢u = wf-⊢≡∷ x
           ⊢l₂ , ⊢A = inversion-Lift ⊢Lift
       in ⊢A , lowerⱼ ⊢t , lowerⱼ ⊢u
-    (Lift-β x x₁ x₂) →
-      wf-⊢∷ x₂ , lowerⱼ (liftⱼ x x₁ x₂) , x₂
+    (Lift-β x₁ x₂) →
+      wf-⊢∷ x₂ , lowerⱼ (liftⱼ (zeroᵘⱼ (wf x₁)) x₁ x₂) , x₂
     (Lift-η x x₁ ⊢t ⊢u x₂) →
       Liftⱼ x x₁ , ⊢t , ⊢u
     (ΠΣ-cong ⊢l A₁≡A₂ B₁≡B₂ ok) →

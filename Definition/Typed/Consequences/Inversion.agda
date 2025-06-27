@@ -187,7 +187,7 @@ opaque
       let _ , _ , _ , B≡ = inversion-Lift∷ ⊢t
       in ⊥-elim (U≢ΠΣⱼ (sym B≡))
     liftₙ →
-      let _ , _ , B≡Lift = inversion-lift ⊢t
+      let _ , _ , _ , B≡Lift = inversion-lift ⊢t
       in ⊥-elim (Lift≢ΠΣⱼ (sym B≡Lift))
     ΠΣₙ →
       let _ , _ , _ , _ , Σ≡U , _ = inversion-ΠΣ-U ⊢t in
@@ -246,7 +246,7 @@ opaque
       let _ , _ , _ , B≡ = inversion-Lift∷ ⊢t
       in ⊥-elim (U≢Unitⱼ (sym B≡))
     liftₙ →
-      let _ , _ , B≡Lift = inversion-lift ⊢t
+      let _ , _ , _ , B≡Lift = inversion-lift ⊢t
       in ⊥-elim (Lift≢Unitⱼ (sym B≡Lift))
     ΠΣₙ →
       let _ , _ , _ , _ , Σ≡U , _ = inversion-ΠΣ-U ⊢t in

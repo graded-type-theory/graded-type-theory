@@ -70,6 +70,9 @@ mutual
   -- holds.
 
   completeness⇇Type′ : Checkable A → Γ ⊢ A → Γ ⊢ A ⇇Type
+  completeness⇇Type′ (liftᶜ _) (univ ⊢A) =
+    let _ , _ , _ , U≡Lift = inversion-lift ⊢A in
+    ⊥-elim (U≢Liftⱼ U≡Lift)
   completeness⇇Type′ (lamᶜ _) (univ ⊢A) =
     let _ , _ , _ , _ , _ , U≡Π , _ = inversion-lam ⊢A in
     ⊥-elim (U≢ΠΣⱼ U≡Π)
@@ -95,8 +98,6 @@ mutual
   completeness⇉Type (Liftᵢ x x₁) ⊢A =
     let ⊢l , ⊢A = inversion-Lift ⊢A
     in Liftᶜ (completeness⇇ x ⊢l) (completeness⇉Type x₁ ⊢A)
-  completeness⇉Type (liftᵢ x x₁) (univ ⊢A) =
-    univᶜ′ (completeness⇉ (liftᵢ x x₁) ⊢A)
   completeness⇉Type (ΠΣᵢ x x₁) ⊢A =
     let ⊢A , ⊢B , ok = inversion-ΠΣ ⊢A
     in ΠΣᶜ (completeness⇉Type x ⊢A) (completeness⇇Type′ x₁ ⊢B) ok
@@ -162,13 +163,6 @@ mutual
     in _
     , Liftᵢ (completeness⇇ x ⊢l) A⇉ (⇒U , Uₙ)
     , trans ≡U (U-cong (maxᵘ-cong (U-injectivity (trans ≡B (subset* ⇒U))) (refl ⊢l)))
-  completeness⇉ (liftᵢ x x₁) ⊢t =
-    let _ , ⊢t , A≡Lift = inversion-lift ⊢t
-        ⊢l , ⊢B = inversion-Lift (syntacticEq A≡Lift .proj₂)
-        _ , t⇉ , ≡B = completeness⇉ x₁ ⊢t
-    in _
-    , liftᵢ (completeness⇇ x ⊢l) t⇉
-    , trans A≡Lift (Lift-cong (refl ⊢l) ≡B)
   completeness⇉ (ΠΣᵢ B C) ⊢ΠΣ =
     let _ , _ , ⊢B , ⊢C , A≡U , ok = inversion-ΠΣ-U ⊢ΠΣ
         _ , B⇉D , U≡D              = completeness⇉ B ⊢B
@@ -291,6 +285,11 @@ mutual
   -- Completeness of type checking
 
   completeness⇇ : Checkable t → Γ ⊢ t ∷ A → Γ ⊢ t ⇇ A
+  completeness⇇ (liftᶜ t) ⊢t =
+    let _ , _ , x , A≡Lift = inversion-lift ⊢t
+        _ , _ , A⇒Lift = Lift-norm A≡Lift
+        t⇇ = completeness⇇ t (conv x (Lift-injectivity (trans (sym A≡Lift) (subset* A⇒Lift)) .proj₂))
+    in liftᶜ (A⇒Lift , Liftₙ) t⇇
   completeness⇇ (lamᶜ t) ⊢t =
     let F , G , q , _ , ⊢t , A≡ΠFG , _ = inversion-lam ⊢t
         F′ , G′ , A⇒ΠF′G′ , F≡F′ , G≡G′ , _ = ΠΣNorm A≡ΠFG
