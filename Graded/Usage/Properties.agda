@@ -296,14 +296,14 @@ opaque
     (λ ())
   ▸-𝟘 (sndₘ t) =
     sndₘ (▸-𝟘 t)
-  ▸-𝟘 (prodrecₘ {r} {p} t u A ok) = sub
+  ▸-𝟘 (prodrecₘ {r} {p} t u A _) = sub
     (prodrecₘ
        (▸-𝟘 t)
        (sub (▸-𝟘 u) $ begin
           𝟘ᶜ ∙ 𝟘 · r · p ∙ 𝟘 · r  ≈⟨ ≈ᶜ-refl ∙ ·-zeroˡ _ ∙ ·-zeroˡ _ ⟩
           𝟘ᶜ                      ∎)
        A
-       (Prodrec-allowed-·ᵐ ok))
+       _)
     (begin
        𝟘ᶜ             ≈˘⟨ ·ᶜ-zeroʳ _ ⟩
        r ·ᶜ 𝟘ᶜ        ≈˘⟨ +ᶜ-identityʳ _ ⟩
@@ -357,8 +357,8 @@ opaque
       x ·ᶜ 𝟘ᶜ +ᶜ 𝟘ᶜ ∎)
     where
     open CR
-  ▸-𝟘 (emptyrecₘ {p} e A ok) = sub
-    (emptyrecₘ (▸-𝟘 e) A (Emptyrec-allowed-·ᵐ ok))
+  ▸-𝟘 (emptyrecₘ {p} e A _) = sub
+    (emptyrecₘ (▸-𝟘 e) A _)
     (begin
        𝟘ᶜ       ≈˘⟨ ·ᶜ-zeroʳ _ ⟩
        p ·ᶜ 𝟘ᶜ  ∎)
@@ -373,8 +373,8 @@ opaque
        𝟘 ·ᶜ γ  ∎)
     where
     open CR
-  ▸-𝟘 (unitrecₘ {p} ▸t ▸u ▸A ok) = sub
-    (unitrecₘ (▸-𝟘 ▸t) (▸-𝟘 ▸u) ▸A (Unitrec-allowed-·ᵐ ok))
+  ▸-𝟘 (unitrecₘ {p} ▸t ▸u ▸A _) = sub
+    (unitrecₘ (▸-𝟘 ▸t) (▸-𝟘 ▸u) ▸A _)
     (begin
        𝟘ᶜ             ≈˘⟨ ·ᶜ-zeroʳ _ ⟩
        p ·ᶜ 𝟘ᶜ        ≈˘⟨ +ᶜ-identityʳ _ ⟩
@@ -417,8 +417,8 @@ opaque
     open CR
   ▸-𝟘 (K₀ₘ₂ _ ▸A ▸t ▸B ▸u ▸v) =
     ▸-𝟘-K ▸A ▸t ▸B ▸u ▸v
-  ▸-𝟘 ([]-congₘ ▸A ▸t ▸u ▸v ok) =
-    []-congₘ ▸A ▸t ▸u ▸v ([]-cong-allowed-·ᵐ ok)
+  ▸-𝟘 ([]-congₘ ▸A ▸t ▸u ▸v _) =
+    []-congₘ ▸A ▸t ▸u ▸v _
   ▸-𝟘 (sub γ▸t _) =
     ▸-𝟘 γ▸t
 

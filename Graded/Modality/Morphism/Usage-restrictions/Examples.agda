@@ -113,10 +113,10 @@ opaque
       .nr-preserving → hyp₂
       .no-nr-preserving → hyp₃
       .no-nr-glb-preserving → hyp₄
-      .Prodrec-preserved  → _
-      .Unitrec-preserved  → _
-      .Emptyrec-preserved → _
-      .[]-cong-preserved  → _
+      .Prodrec-𝟙ᵐ-preserved → _
+      .Unitrec-𝟙ᵐ-preserved → _
+      .Emptyrec-𝟙ᵐ-preserved → _
+      .[]-cong-𝟙ᵐ-preserved → _
     where
     open Are-preserving-usage-restrictions
 
@@ -157,10 +157,10 @@ opaque
       .nr-reflected                   → hyp₃
       .no-nr-reflected                → hyp₄
       .no-nr-glb-reflected            → hyp₅
-      .Prodrec-reflected              → _
-      .Unitrec-reflected              → _
-      .Emptyrec-reflected             → _
-      .[]-cong-reflected              → _
+      .Prodrec-𝟙ᵐ-reflected           → _
+      .Unitrec-𝟙ᵐ-reflected           → _
+      .Emptyrec-𝟙ᵐ-reflected          → _
+      .[]-cong-𝟙ᵐ-reflected           → _
       .erased-matches-for-J-reflected → _
       .erased-matches-for-K-reflected → _
     where
@@ -218,22 +218,22 @@ opaque
     ; nr-preserving = nr-preserving
     ; no-nr-preserving = no-nr-preserving
     ; no-nr-glb-preserving = no-nr-glb-preserving
-    ; Prodrec-preserved = λ {_ _} {r = r} m₁≈m₂ (p , ≢𝟘) →
-          Prodrec-preserved m₁≈m₂ p
-        , (λ 𝟙≢𝟘 ≡𝟙ᵐ → case hyp 𝟙≢𝟘 of λ where
+    ; Prodrec-𝟙ᵐ-preserved = λ {r = r} (p , ≢𝟘) →
+          Prodrec-𝟙ᵐ-preserved p
+        , (λ 𝟙≢𝟘 → case hyp 𝟙≢𝟘 of λ where
              (inj₁ (𝟙≢𝟘 , tr-≡-𝟘-→)) →
                tr r ≡ M₂.𝟘  →⟨ tr-≡-𝟘-→ ⟩
-               r ≡ M₁.𝟘     →⟨ ≢𝟘 𝟙≢𝟘 (≈ᵐ→≡𝟙ᵐ→≡𝟙ᵐ m₁≈m₂ ≡𝟙ᵐ) ⟩
+               r ≡ M₁.𝟘     →⟨ ≢𝟘 𝟙≢𝟘 ⟩
                ⊥            □
              (inj₂ ≢𝟘) →
                tr r ≡ M₂.𝟘  →⟨ ≢𝟘 ⟩
                ⊥            □)
-    ; Unitrec-preserved =
-        Unitrec-preserved
-    ; Emptyrec-preserved =
-        Emptyrec-preserved
-    ; []-cong-preserved =
-        []-cong-preserved
+    ; Unitrec-𝟙ᵐ-preserved =
+        Unitrec-𝟙ᵐ-preserved
+    ; Emptyrec-𝟙ᵐ-preserved =
+        Emptyrec-𝟙ᵐ-preserved
+    ; []-cong-𝟙ᵐ-preserved =
+        []-cong-𝟙ᵐ-preserved
     }
     where
     module M₁ = Modality 𝕄₁
@@ -265,22 +265,22 @@ opaque
     ; nr-reflected = nr-reflected
     ; no-nr-reflected = no-nr-reflected
     ; no-nr-glb-reflected = no-nr-glb-reflected
-    ; Prodrec-reflected = λ {_ _} {r = r} m₁≲m₂ (prodrec-ok , tr-r≢𝟘) →
-          Prodrec-reflected m₁≲m₂ prodrec-ok
-        , (λ non-trivial₁ m₁≡𝟙ᵐ →
-             case m₁≲m₂ of λ where
-               [ m₁≈m₂ ] →
-                 r ≡ M₁.𝟘     →⟨ hyp non-trivial₁ .proj₂ ⟩
-                 tr r ≡ M₂.𝟘  →⟨ tr-r≢𝟘 (hyp non-trivial₁ .proj₁) (≈ᵐ→≡𝟙ᵐ←≡𝟙ᵐ m₁≈m₂ m₁≡𝟙ᵐ) ⟩
-                 ⊥            □
-               (𝟙ᵐ≳𝟘ᵐ trivial₁) _ →
-                 non-trivial₁ trivial₁)
-    ; Unitrec-reflected =
-        Unitrec-reflected
-    ; Emptyrec-reflected =
-        Emptyrec-reflected
-    ; []-cong-reflected =
-        []-cong-reflected
+    ; Prodrec-𝟙ᵐ-reflected = λ {r = r} → λ where
+        (inj₁ (prodrec-ok , tr-r≢𝟘)) →
+            Prodrec-𝟙ᵐ-reflected (inj₁ prodrec-ok)
+          , (λ non-trivial₁ →
+               r ≡ M₁.𝟘     →⟨ hyp non-trivial₁ .proj₂ ⟩
+               tr r ≡ M₂.𝟘  →⟨ tr-r≢𝟘 (hyp non-trivial₁ .proj₁) ⟩
+               ⊥            □)
+        (inj₂ ok@(trivial₁ , _)) →
+            Prodrec-𝟙ᵐ-reflected (inj₂ ok)
+          , ⊥-elim ∘→ (_$ trivial₁)
+    ; Unitrec-𝟙ᵐ-reflected =
+        Unitrec-𝟙ᵐ-reflected
+    ; Emptyrec-𝟙ᵐ-reflected =
+        Emptyrec-𝟙ᵐ-reflected
+    ; []-cong-𝟙ᵐ-reflected =
+        []-cong-𝟙ᵐ-reflected
     ; erased-matches-for-J-reflected = λ where
         𝟙ᵐ → _
         𝟘ᵐ → erased-matches-for-J-reflected 𝟘ᵐ
@@ -337,26 +337,26 @@ Are-preserving-usage-restrictions-no-erased-matches-UR
   ; nr-preserving = UP.nr-preserving
   ; no-nr-preserving = UP.no-nr-preserving
   ; no-nr-glb-preserving = UP.no-nr-glb-preserving
-  ; Prodrec-preserved =
-      Are-preserving-usage-restrictions.Prodrec-preserved
+  ; Prodrec-𝟙ᵐ-preserved =
+      Are-preserving-usage-restrictions.Prodrec-𝟙ᵐ-preserved
         (Are-preserving-usage-restrictions-only-some-erased-matches
            hyp up)
-  ; Unitrec-preserved = λ {_ _} {p = p} m₁≈m₂ (P , η) →
-        UP.Unitrec-preserved m₁≈m₂ P
-      , (λ 𝟙≢𝟘 ≡𝟙ᵐ → case hyp 𝟙≢𝟘 of λ where
+  ; Unitrec-𝟙ᵐ-preserved = λ {p = p} (P , η) →
+        UP.Unitrec-𝟙ᵐ-preserved P
+      , (λ 𝟙≢𝟘 → case hyp 𝟙≢𝟘 of λ where
            (inj₁ (𝟙≢𝟘 , tr-≡-𝟘-→)) →
              tr p ≡ M₂.𝟘  →⟨ tr-≡-𝟘-→ ⟩
-             p ≡ M₁.𝟘     →⟨ η 𝟙≢𝟘 (≈ᵐ→≡𝟙ᵐ→≡𝟙ᵐ m₁≈m₂ ≡𝟙ᵐ) ⟩
+             p ≡ M₁.𝟘     →⟨ η 𝟙≢𝟘 ⟩
              TR₁.Unitʷ-η  →⟨ TP.Unitʷ-η-preserved ⟩
              TR₂.Unitʷ-η  □
            (inj₂ ≢𝟘) →
              tr p ≡ M₂.𝟘  →⟨ ≢𝟘 ⟩
              ⊥            →⟨ ⊥-elim ⟩
              TR₂.Unitʷ-η  □)
-  ; Emptyrec-preserved =
-      UP.Emptyrec-preserved
-  ; []-cong-preserved =
-      UP.[]-cong-preserved
+  ; Emptyrec-𝟙ᵐ-preserved =
+      UP.Emptyrec-𝟙ᵐ-preserved
+  ; []-cong-𝟙ᵐ-preserved =
+      UP.[]-cong-𝟙ᵐ-preserved
   }
   where
   module UP  = Are-preserving-usage-restrictions up
@@ -390,27 +390,27 @@ Are-reflecting-usage-restrictions-no-erased-matches-UR
   ; nr-reflected = UR.nr-reflected
   ; no-nr-reflected = UR.no-nr-reflected
   ; no-nr-glb-reflected = UR.no-nr-glb-reflected
-  ; Prodrec-reflected =
-      UR.Prodrec-reflected
-  ; Unitrec-reflected = λ {_ _} {p = p} m₁≲m₂ (unitrec-ok , tr-p≢𝟘) →
-        UR.Unitrec-reflected m₁≲m₂ unitrec-ok
-      , (λ non-trivial₁ m₁≡𝟙ᵐ →
-           case m₁≲m₂ of λ where
-             [ m₁≈m₂ ] →
-               p ≡ M₁.𝟘     →⟨ hyp non-trivial₁ .proj₂ ⟩
-               tr p ≡ M₂.𝟘  →⟨ tr-p≢𝟘 (hyp non-trivial₁ .proj₁) (≈ᵐ→≡𝟙ᵐ←≡𝟙ᵐ m₁≈m₂ m₁≡𝟙ᵐ) ⟩
-               TR₂.Unitʷ-η  →⟨ TR.Unitʷ-η-reflected ⟩
-               TR₁.Unitʷ-η  □
-             (𝟙ᵐ≳𝟘ᵐ trivial₁) _ →
-               ⊥-elim (non-trivial₁ trivial₁))
-  ; Emptyrec-reflected =
-      UR.Emptyrec-reflected
+  ; Prodrec-𝟙ᵐ-reflected =
+      UR.Prodrec-𝟙ᵐ-reflected
+  ; Unitrec-𝟙ᵐ-reflected = λ {p = p} → λ where
+      (inj₁ (unitrec-ok , tr-r≢𝟘)) →
+          UR.Unitrec-𝟙ᵐ-reflected (inj₁ unitrec-ok)
+        , (λ non-trivial₁ →
+             p ≡ M₁.𝟘     →⟨ hyp non-trivial₁ .proj₂ ⟩
+             tr p ≡ M₂.𝟘  →⟨ tr-r≢𝟘 (hyp non-trivial₁ .proj₁) ⟩
+             TR₂.Unitʷ-η  →⟨ TR.Unitʷ-η-reflected ⟩
+             TR₁.Unitʷ-η  □)
+      (inj₂ ok@(trivial₁ , _)) →
+          UR.Unitrec-𝟙ᵐ-reflected (inj₂ ok)
+        , ⊥-elim ∘→ (_$ trivial₁)
+  ; Emptyrec-𝟙ᵐ-reflected =
+      UR.Emptyrec-𝟙ᵐ-reflected
   ; erased-matches-for-J-reflected =
       UR.erased-matches-for-J-reflected
   ; erased-matches-for-K-reflected =
       UR.erased-matches-for-K-reflected
-  ; []-cong-reflected =
-      UR.[]-cong-reflected
+  ; []-cong-𝟙ᵐ-reflected =
+      UR.[]-cong-𝟙ᵐ-reflected
   }
   where
   module UR =
@@ -496,14 +496,14 @@ opaque
     ; nr-preserving = nr-preserving
     ; no-nr-preserving = no-nr-preserving
     ; no-nr-glb-preserving = no-nr-glb-preserving
-    ; Prodrec-preserved =
-        Prodrec-preserved
-    ; Unitrec-preserved =
-        Unitrec-preserved
-    ; Emptyrec-preserved =
-        Emptyrec-preserved
-    ; []-cong-preserved =
-        []-cong-preserved
+    ; Prodrec-𝟙ᵐ-preserved =
+        Prodrec-𝟙ᵐ-preserved
+    ; Unitrec-𝟙ᵐ-preserved =
+        Unitrec-𝟙ᵐ-preserved
+    ; Emptyrec-𝟙ᵐ-preserved =
+        Emptyrec-𝟙ᵐ-preserved
+    ; []-cong-𝟙ᵐ-preserved =
+        []-cong-𝟙ᵐ-preserved
     }
     where
     open Are-preserving-usage-restrictions r
@@ -529,14 +529,14 @@ opaque
     ; nr-reflected = nr-reflected
     ; no-nr-reflected = no-nr-reflected
     ; no-nr-glb-reflected = no-nr-glb-reflected
-    ; Prodrec-reflected =
-        Prodrec-reflected
-    ; Unitrec-reflected =
-        Unitrec-reflected
-    ; Emptyrec-reflected =
-        Emptyrec-reflected
-    ; []-cong-reflected =
-        []-cong-reflected
+    ; Prodrec-𝟙ᵐ-reflected =
+        Prodrec-𝟙ᵐ-reflected
+    ; Unitrec-𝟙ᵐ-reflected =
+        Unitrec-𝟙ᵐ-reflected
+    ; Emptyrec-𝟙ᵐ-reflected =
+        Emptyrec-𝟙ᵐ-reflected
+    ; []-cong-𝟙ᵐ-reflected =
+        []-cong-𝟙ᵐ-reflected
     ; erased-matches-for-J-reflected = λ where
         𝟘ᵐ → erased-matches-for-J-reflected 𝟘ᵐ
         𝟙ᵐ →
@@ -622,8 +622,8 @@ opaque
         (only-some-erased-matches 𝕄₂ (no-usage-restrictions 𝕄₂ nm₁ b₁ b₂))
         erasure→unit tr
   ¬-erasure→unit-reflects-only-some-erased-matches _ r =
-    Prodrec-reflected {p = 𝟘} {q = 𝟘} [ 𝟙ᵐ ] (_ , (λ tt≢tt _ → tt≢tt))
-      .proj₂ (λ ()) refl refl
+    Prodrec-𝟙ᵐ-reflected {p = 𝟘} {q = 𝟘} (inj₁ (_ , idᶠ))
+      .proj₂ (λ ()) refl
     where
     open Are-reflecting-usage-restrictions r
 
@@ -1049,8 +1049,8 @@ erasure→unit-preserves-no-erased-matches-UR =
       (no-erased-matches-UR 𝕄₂ TR₂ (no-usage-restrictions 𝕄₂ nm₂ b₁ b₂))
       erasure→unit tr
 ¬-erasure→unit-reflects-no-erased-matches-UR _ _ _ r =
-  Prodrec-reflected {p = 𝟘} {q = 𝟘} [ 𝟙ᵐ ] (_ , λ tt≢tt _ → tt≢tt)
-    .proj₂ (λ ()) refl refl
+  Prodrec-𝟙ᵐ-reflected {p = 𝟘} {q = 𝟘} (inj₁ (_ , idᶠ))
+    .proj₂ (λ ()) refl
   where
   open Are-reflecting-usage-restrictions r
 

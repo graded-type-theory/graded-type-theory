@@ -80,9 +80,9 @@ private variable
 
 All-properties-hold-for : Extended-modality a → Set a
 All-properties-hold-for M =
-  (∀ {m r p q} → Prodrec-allowed m r p q) ×
-  (∀ {m p q} → Unitrec-allowed m p q) ×
-  (∀ {m p} → Emptyrec-allowed m p) ×
+  (∀ {r p q} → Prodrec-allowed-𝟙ᵐ r p q) ×
+  (∀ {p q} → Unitrec-allowed-𝟙ᵐ p q) ×
+  (∀ {p} → Emptyrec-allowed-𝟙ᵐ p) ×
   ¬ Starˢ-sink ×
   ¬ Id-erased ×
   erased-matches-for-J 𝟙ᵐ ≡ some ×

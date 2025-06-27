@@ -895,8 +895,8 @@ opaque
   -- certain assumptions).
 
   Has-weaker-[]-cong→Has-[]-cong :
-    (¬ T 𝟘ᵐ-allowed → Trivial) →
-    (s PE.≡ 𝕨 → Prodrec-allowed 𝟘ᵐ? (𝟘 ∧ 𝟙) 𝟘 𝟘) →
+    (s PE.≡ 𝕨 → ¬ T 𝟘ᵐ-allowed → Trivial × Prodrec-allowed 𝟙ᵐ 𝟘 𝟘 𝟘) →
+    (s PE.≡ 𝕤 → ¬ T 𝟘ᵐ-allowed → 𝟘 ≤ 𝟙) →
     (Π-allowed ω q₁ → Π-allowed 𝟘 q₁) →
     (Π-allowed ω q₂ → Π-allowed 𝟘 q₂) →
     (Π-allowed ω q₃ → Π-allowed 𝟘 q₃) →
@@ -904,7 +904,7 @@ opaque
     Has-[]-cong s m l q₁ q₂ q₃ q₄
   Has-weaker-[]-cong→Has-[]-cong
     {s} {q₁} {q₂} {q₃} {m} {l} {q₄}
-    trivial prodrec-ok hyp₁ hyp₂ hyp₃ has-[]-cong@(_ , ▸[]-cong′ , _) =
+    trivial 𝟘≤𝟙 hyp₁ hyp₂ hyp₃ has-[]-cong@(_ , ▸[]-cong′ , _) =
     []-cong‴ , ▸[]-cong‴ , ⊢[]-cong‴
     where
     open Erased s
@@ -935,11 +935,9 @@ opaque
           (▸cong (▸Erased (▸Erased var)) (▸[] (▸[] var)) (▸[] (▸[] var))
              (sub (▸Erased var) lemma)
              (sub
-                (▸mapᴱ′ (λ _ → trivial) (λ _ → trivial′) prodrec-ok
-                   (λ _ → _ , ▸Erased var)
+                (▸mapᴱ′ trivial 𝟘≤𝟙 (λ _ → _ , ▸Erased var)
                    (sub
-                      (▸erased′ (λ _ → trivial) (λ _ → trivial′) var
-                         (λ _ → _ , var) prodrec-ok)
+                      (▸erased′ trivial 𝟘≤𝟙 var (λ _ → _ , var))
                       (begin
                          𝟘ᶜ ∙ ⌜ 𝟘ᵐ? ⌝ · 𝟘  ≈⟨ ≈ᶜ-refl ∙ ·-zeroʳ _ ⟩
                          𝟘ᶜ                ∎))
@@ -1006,11 +1004,11 @@ opaque
         where
         open ≤ᶜ-reasoning
 
-        trivial′ : ¬ T 𝟘ᵐ-allowed → p ≤ q
-        trivial′ = ≡-trivial ∘→ trivial
-
         𝟘≤⌜𝟘ᵐ?⌝ : 𝟘 ≤ ⌜ 𝟘ᵐ? ⌝
-        𝟘≤⌜𝟘ᵐ?⌝ = 𝟘ᵐ?-elim (λ m → 𝟘 ≤ ⌜ m ⌝) ≤-refl trivial′
+        𝟘≤⌜𝟘ᵐ?⌝ = 𝟘ᵐ?-elim (λ m → 𝟘 ≤ ⌜ m ⌝) ≤-refl
+          (case PE.singleton s of λ where
+             (𝕨 , PE.refl) → ≡-trivial ∘→ proj₁ ∘→ trivial PE.refl
+             (𝕤 , PE.refl) → 𝟘≤𝟙 PE.refl)
 
         lemma : 𝟘ᶜ {n = 4} ≤ᶜ 𝟘ᶜ , x3 ≔ ⌜ 𝟘ᵐ? ⌝
         lemma = begin
@@ -1058,8 +1056,8 @@ opaque
   -- Has-computing-[]-cong (given certain assumptions).
 
   Has-weaker-computing-[]-cong→Has-computing-[]-cong :
-    (¬ T 𝟘ᵐ-allowed → Trivial) →
-    (s PE.≡ 𝕨 → Prodrec-allowed 𝟘ᵐ? (𝟘 ∧ 𝟙) 𝟘 𝟘) →
+    (s PE.≡ 𝕨 → ¬ T 𝟘ᵐ-allowed → Trivial × Prodrec-allowed 𝟙ᵐ 𝟘 𝟘 𝟘) →
+    (s PE.≡ 𝕤 → ¬ T 𝟘ᵐ-allowed → 𝟘 ≤ 𝟙) →
     (Π-allowed ω q₁ → Π-allowed 𝟘 q₁) →
     (Π-allowed ω q₂ → Π-allowed 𝟘 q₂) →
     (Π-allowed ω q₃ → Π-allowed 𝟘 q₃) →
@@ -1067,7 +1065,7 @@ opaque
     Has-computing-[]-cong s m l q₁ q₂ q₃ q₄
   Has-weaker-computing-[]-cong→Has-computing-[]-cong
     {s} {q₁} {q₂} {q₃} {m} {l} {q₄}
-    trivial prodrec-ok hyp₁ hyp₂ hyp₃
+    trivial 𝟘≤𝟙 hyp₁ hyp₂ hyp₃
     (has-[]-cong@([]-cong′ , _ , ⊢[]-cong′) , []-cong′≡) =
     has-[]-cong′ , []-cong″-computes
     where
@@ -1076,7 +1074,7 @@ opaque
     has-[]-cong′ : Has-[]-cong s m l q₁ q₂ q₃ q₄
     has-[]-cong′ =
       Has-weaker-[]-cong→Has-[]-cong
-        trivial prodrec-ok hyp₁ hyp₂ hyp₃ has-[]-cong
+        trivial 𝟘≤𝟙 hyp₁ hyp₂ hyp₃ has-[]-cong
 
     []-cong″ : Term 0
     []-cong″ = has-[]-cong′ .proj₁
@@ -1251,8 +1249,10 @@ opaque
   -- A variant of ¬-[]-cong for Has-weaker-[]-cong.
 
   ¬-Has-weaker-[]-cong :
-    ⦃ not-ok : No-equality-reflection ⦄ →
-    (s PE.≡ 𝕨 → Prodrec-allowed 𝟘ᵐ[ ok ] (𝟘 ∧ 𝟙) 𝟘 𝟘) →
+    ⦃ not-ok : No-equality-reflection ⦄
+    ⦃ 𝟘-well-behaved : Has-well-behaved-zero semiring-with-meet ⦄ →
+    (s PE.≡ 𝕨 → ¬ T 𝟘ᵐ-allowed → Trivial × Prodrec-allowed 𝟙ᵐ 𝟘 𝟘 𝟘) →
+    (s PE.≡ 𝕤 → ¬ T 𝟘ᵐ-allowed → 𝟘 ≤ 𝟙) →
     (Π-allowed ω q₁ → Π-allowed 𝟘 q₁) →
     (Π-allowed ω q₂ → Π-allowed 𝟘 q₂) →
     (Π-allowed ω q₃ → Π-allowed 𝟘 q₃) →
@@ -1262,10 +1262,8 @@ opaque
      p ≤ 𝟘) →
     ¬ Has-weaker-[]-cong s 𝟙ᵐ l q₁ q₂ q₃ q₄
   ¬-Has-weaker-[]-cong
-    {s} {ok} {q₁} {q₂} {q₃} {l} {q₄}
-    prodrec-ok hyp₁ hyp₂ hyp₃ nem Unitʷ-η→ =
-    Has-weaker-[]-cong s 𝟙ᵐ l q₁ q₂ q₃ q₄  →⟨ Has-weaker-[]-cong→Has-[]-cong (⊥-elim ∘→ (_$ ok))
-                                                (PE.subst (λ m → Prodrec-allowed m _ _ _) (PE.sym 𝟘ᵐ?≡𝟘ᵐ) ∘→ prodrec-ok)
-                                                hyp₁ hyp₂ hyp₃ ⟩
-    Has-[]-cong s 𝟙ᵐ l q₁ q₂ q₃ q₄         →⟨ ¬-[]-cong ⦃ 𝟘-well-behaved = 𝟘-well-behaved ok ⦄ nem Unitʷ-η→ ⟩
+    {s} {q₁} {q₂} {q₃} {l} {q₄}
+    trivial 𝟘≤𝟙 hyp₁ hyp₂ hyp₃ nem Unitʷ-η→ =
+    Has-weaker-[]-cong s 𝟙ᵐ l q₁ q₂ q₃ q₄  →⟨ Has-weaker-[]-cong→Has-[]-cong trivial 𝟘≤𝟙 hyp₁ hyp₂ hyp₃ ⟩
+    Has-[]-cong s 𝟙ᵐ l q₁ q₂ q₃ q₄         →⟨ ¬-[]-cong nem Unitʷ-η→ ⟩
     ⊥                                      □

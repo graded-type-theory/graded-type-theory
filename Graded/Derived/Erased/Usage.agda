@@ -41,11 +41,11 @@ open import Tools.Empty
 open import Tools.Fin
 open import Tools.Function
 open import Tools.Product as Σ
-open import Tools.PropositionalEquality as PE using (_≡_)
+open import Tools.PropositionalEquality as PE using (_≡_; _≢_)
 import Tools.Reasoning.PartialOrder
 import Tools.Reasoning.PropositionalEquality
 open import Tools.Relation
-open import Tools.Sum using (inj₁; inj₂)
+open import Tools.Sum using (_⊎_; inj₁; inj₂)
 
 private variable
   A B t u v w             : Term _
@@ -101,17 +101,15 @@ opaque
   -- A usage rule for erased.
 
   ▸erased′ :
-    (s ≡ 𝕨 → ¬ T 𝟘ᵐ-allowed → Trivial) →
+    (s ≡ 𝕨 → ¬ T 𝟘ᵐ-allowed → Trivial × Prodrec-allowed 𝟙ᵐ 𝟘 𝟘 𝟘) →
     (s ≡ 𝕤 → ¬ T 𝟘ᵐ-allowed → 𝟘 ≤ 𝟙) →
     γ ▸[ 𝟘ᵐ? ] t →
     (s ≡ 𝕨 → ∃ λ δ → δ ▸[ 𝟘ᵐ? ] A) →
-    (s ≡ 𝕨 → Prodrec-allowed 𝟘ᵐ? (𝟘 ∧ 𝟙) 𝟘 𝟘) →
     𝟘ᶜ ▸[ 𝟘ᵐ? ] erased A t
-  ▸erased′ {γ} trivial 𝟘≤𝟙 ▸t ▸A ok =
+  ▸erased′ {γ} trivial 𝟘≤𝟙 ▸t ▸A =
     case PE.singleton s of λ where
       (𝕨 , PE.refl) →
         NoEta.▸erased′ (trivial PE.refl) ▸t (▸A PE.refl .proj₂)
-          (ok PE.refl)
       (𝕤 , PE.refl) →
         let open Tools.Reasoning.PartialOrder ≤ᶜ-poset in
         sub (Eta.▸erased′ (𝟘≤𝟙 PE.refl) ▸t) $
@@ -133,11 +131,10 @@ opaque
   ▸erased :
     γ ▸[ 𝟘ᵐ[ ok ] ] t →
     (s ≡ 𝕨 → ∃ λ δ → δ ▸[ 𝟘ᵐ[ ok ] ] A) →
-    (s ≡ 𝕨 → Prodrec-allowed 𝟘ᵐ[ ok ] (𝟘 ∧ 𝟙) 𝟘 𝟘) →
     𝟘ᶜ ▸[ 𝟘ᵐ[ ok ] ] erased A t
-  ▸erased ▸t ▸A ok = case PE.singleton s of λ where
+  ▸erased ▸t ▸A = case PE.singleton s of λ where
     (𝕤 , PE.refl) → Eta.▸erased ▸t
-    (𝕨 , PE.refl) → NoEta.▸erased ▸t (▸A PE.refl .proj₂) (ok PE.refl)
+    (𝕨 , PE.refl) → NoEta.▸erased ▸t (▸A PE.refl .proj₂)
 
 opaque
   unfolding erasedrec is-𝕨
@@ -283,7 +280,7 @@ opaque
   ▸Erased-η :
     (¬ T 𝟘ᵐ-allowed → Trivial) →
     (s ≡ 𝕨 → Prodrec-allowed m 𝟙 𝟘 𝟙) →
-    (s ≡ 𝕨 → Prodrec-allowed 𝟘ᵐ? (𝟘 ∧ 𝟙) 𝟘 𝟘) →
+    (s ≡ 𝕨 → ¬ T 𝟘ᵐ-allowed → Prodrec-allowed 𝟙ᵐ 𝟘 𝟘 𝟘) →
     (s ≡ 𝕨 → Unitrec-allowed m 𝟙 𝟙) →
     (s ≡ 𝕨 → ∃ λ γ → γ ▸[ 𝟘ᵐ? ] A) →
     δ ▸[ m ᵐ· is-𝕨 ] t →
@@ -294,9 +291,10 @@ opaque
             𝟘ᶜ
           , Idₘ-generalised (▸Erased (wkUsage _ (▸A′ s≡𝕨)))
               (▸[] $
-               ▸erased′ (λ _ → trivial)
+               ▸erased′
+                 (λ s≡𝕨 not-ok → trivial not-ok , P-ok₂ s≡𝕨 not-ok)
                  (λ s≡𝕤 → case PE.trans (PE.sym s≡𝕤) s≡𝕨 of λ ()) var
-                 (Σ.map _ (wkUsage _) ∘→ ▸A) P-ok₂)
+                 (Σ.map _ (wkUsage _) ∘→ ▸A))
               var
               (λ _ → 𝟘ᵐ?-elim
                  (λ m → 𝟘ᶜ ∙ ⌜ m ⌝ · 𝟙 ≤ᶜ 𝟘ᶜ)
@@ -330,16 +328,15 @@ opaque
   -- A usage rule for mapᴱ.
 
   ▸mapᴱ′ :
-    (s ≡ 𝕨 → ¬ T 𝟘ᵐ-allowed → Trivial) →
+    (s ≡ 𝕨 → ¬ T 𝟘ᵐ-allowed → Trivial × Prodrec-allowed 𝟙ᵐ 𝟘 𝟘 𝟘) →
     (s ≡ 𝕤 → ¬ T 𝟘ᵐ-allowed → 𝟘 ≤ 𝟙) →
-    (s ≡ 𝕨 → Prodrec-allowed 𝟘ᵐ? (𝟘 ∧ 𝟙) 𝟘 𝟘) →
     (s ≡ 𝕨 → ∃ λ γ₁ → γ₁ ▸[ 𝟘ᵐ? ] A) →
     γ₂ ∙ ⌜ 𝟘ᵐ? ⌝ · p ▸[ 𝟘ᵐ? ] t →
     γ₃ ▸[ 𝟘ᵐ? ] u →
     𝟘ᶜ ▸[ m ] mapᴱ A t u
-  ▸mapᴱ′ trivial 𝟘≤𝟙 ok ▸A ▸t ▸u =
+  ▸mapᴱ′ trivial 𝟘≤𝟙 ▸A ▸t ▸u =
     ▸[] $ sgSubstₘ-lemma₃ ▸t $
-    ▸erased′ trivial 𝟘≤𝟙 ▸u ▸A ok
+    ▸erased′ trivial 𝟘≤𝟙 ▸u ▸A
 
 opaque
   unfolding mapᴱ
@@ -347,14 +344,13 @@ opaque
   -- Another usage rule for mapᴱ.
 
   ▸mapᴱ :
-    (s ≡ 𝕨 → Prodrec-allowed 𝟘ᵐ? (𝟘 ∧ 𝟙) 𝟘 𝟘) →
     (s ≡ 𝕨 → ∃ λ γ₁ → γ₁ ▸[ 𝟘ᵐ[ ok ] ] A) →
     γ₂ ∙ 𝟘 ▸[ 𝟘ᵐ[ ok ] ] t →
     γ₃ ▸[ 𝟘ᵐ[ ok ] ] u →
     𝟘ᶜ ▸[ m ] mapᴱ A t u
-  ▸mapᴱ {ok} {γ₂} prodrec-ok ▸A ▸t ▸u =
+  ▸mapᴱ {ok} {γ₂} ▸A ▸t ▸u =
     ▸mapᴱ′ (λ _ → ⊥-elim ∘→ (_$ ok)) (λ _ → ⊥-elim ∘→ (_$ ok))
-      prodrec-ok (Σ.map _ (▸-cong (PE.sym 𝟘ᵐ?≡𝟘ᵐ)) ∘→ ▸A)
+      (Σ.map _ (▸-cong (PE.sym 𝟘ᵐ?≡𝟘ᵐ)) ∘→ ▸A)
       (▸-cong (PE.sym 𝟘ᵐ?≡𝟘ᵐ) $ sub ▸t $ begin
          γ₂ ∙ ⌜ 𝟘ᵐ? ⌝ · 𝟘  ≈⟨ ≈ᶜ-refl ∙ ·-zeroʳ _ ⟩
          γ₂ ∙ 𝟘            ∎)
@@ -368,8 +364,7 @@ opaque
   -- A usage rule for substᵉ.
 
   ▸substᵉ :
-    (s ≡ 𝕨 → Prodrec-allowed 𝟘ᵐ? (𝟘 ∧ 𝟙) 𝟘 𝟘) →
-    (s ≡ 𝕨 → ¬ T 𝟘ᵐ-allowed → Trivial) →
+    (s ≡ 𝕨 → ¬ T 𝟘ᵐ-allowed → Trivial × Prodrec-allowed 𝟙ᵐ 𝟘 𝟘 𝟘) →
     (s ≡ 𝕤 → ¬ T 𝟘ᵐ-allowed → 𝟘 ≤ 𝟙) →
     []-cong-allowed-mode s m →
     γ₁ ▸[ 𝟘ᵐ? ] A →
@@ -379,7 +374,7 @@ opaque
     γ₅ ▸[ 𝟘ᵐ? ] v →
     γ₆ ▸[ m ] w →
     ω ·ᶜ (γ₂ +ᶜ γ₆) ▸[ m ] substᵉ A B t u v w
-  ▸substᵉ {m} {γ₂} {γ₆} ok trivial 𝟘≤𝟙 ok′ ▸A ▸B ▸t ▸u ▸v ▸w = sub
+  ▸substᵉ {m} {γ₂} {γ₆} trivial 𝟘≤𝟙 ok ▸A ▸B ▸t ▸u ▸v ▸w = sub
     (▸subst (▸Erased ▸A)
        (sub
           (substₘ-lemma _
@@ -390,8 +385,8 @@ opaque
               wf-consSubstₘ (wf-wk1Substₘ _ _ wf-idSubstₘ) $
               sub
                 (▸-cong (PE.sym ⌞𝟘⌟≡𝟘ᵐ?) $
-                 ▸erased′ trivial 𝟘≤𝟙
-                   var (λ _ → _ , wkUsage (step id) ▸A) ok)
+                 ▸erased′ trivial 𝟘≤𝟙 var
+                   (λ _ → _ , wkUsage (step id) ▸A))
                 (let open Tools.Reasoning.PartialOrder ≤ᶜ-poset in begin
                    ⌜ ⌞ 𝟘 ⌟ ⌝ ·ᶜ 𝟘ᶜ  ≈⟨ ·ᶜ-zeroʳ _ ⟩
                    𝟘ᶜ               ∎))
@@ -403,7 +398,7 @@ opaque
              γ₂ <* wk1Substₘ idSubstₘ             ≈˘⟨ ≈ᶜ-trans (+ᶜ-congʳ $ ·ᶜ-zeroˡ _) $
                                                       +ᶜ-identityˡ _ ⟩
              𝟘 ·ᶜ 𝟘ᶜ +ᶜ γ₂ <* wk1Substₘ idSubstₘ  ∎))
-       (▸[] ▸t) (▸[] ▸u) ([]-congₘ ▸A ▸t ▸u ▸v ok′) ▸w)
+       (▸[] ▸t) (▸[] ▸u) ([]-congₘ ▸A ▸t ▸u ▸v ok) ▸w)
     (let open Tools.Reasoning.PartialOrder ≤ᶜ-poset in begin
        ω ·ᶜ (γ₂ +ᶜ γ₆)                    ≈˘⟨ ·ᶜ-congˡ $ +ᶜ-congˡ $
                                               ≈ᶜ-trans (+ᶜ-identityˡ _) $
@@ -417,8 +412,7 @@ opaque
   -- A usage rule for Jᵉ.
 
   ▸Jᵉ :
-    (s ≡ 𝕨 → Prodrec-allowed 𝟘ᵐ? (𝟘 ∧ 𝟙) 𝟘 𝟘) →
-    (s ≡ 𝕨 → ¬ T 𝟘ᵐ-allowed → Trivial) →
+    (s ≡ 𝕨 → ¬ T 𝟘ᵐ-allowed → Trivial × Prodrec-allowed 𝟙ᵐ 𝟘 𝟘 𝟘) →
     (s ≡ 𝕤 → ¬ T 𝟘ᵐ-allowed → 𝟘 ≤ 𝟙) →
     []-cong-allowed-mode s m →
     γ₁ ▸[ 𝟘ᵐ? ] A →
@@ -428,13 +422,13 @@ opaque
     γ₅ ▸[ 𝟘ᵐ? ] v →
     γ₆ ▸[ 𝟘ᵐ? ] w →
     ω ·ᶜ (γ₃ +ᶜ γ₄) ▸[ m ] Jᵉ A t B u v w
-  ▸Jᵉ {γ₁} {γ₂} {γ₃} {γ₅} {γ₆} ok trivial 𝟘≤𝟙 ok′ ▸A ▸t ▸B ▸u ▸v ▸w =
+  ▸Jᵉ {γ₁} {γ₂} {γ₃} {γ₅} {γ₆} trivial 𝟘≤𝟙 ok ▸A ▸t ▸B ▸u ▸v ▸w =
     case
       𝟘ᵐ?-elim (λ m → 𝟘 ≤ ⌜ m ⌝) ≤-refl
         (λ not-ok →
            case PE.singleton s of λ where
              (𝕤 , s≡𝕤) → 𝟘≤𝟙 s≡𝕤 not-ok
-             (𝕨 , s≡𝕨) → ≡-trivial $ trivial s≡𝕨 not-ok) of λ
+             (𝕨 , s≡𝕨) → ≡-trivial $ trivial s≡𝕨 not-ok .proj₁) of λ
       𝟘≤⌜𝟘ᵐ?⌝ →
     case
       (ΠΣₘ (▸-cong (PE.sym ᵐ·-zeroˡ) ▸A) $
@@ -459,18 +453,26 @@ opaque
                𝟘ᶜ ∧ᶜ 𝟘ᶜ       ≈˘⟨ ∧ᶜ-congʳ $ ·ᶜ-zeroˡ _ ⟩
                𝟘 ·ᶜ γ₂ ∧ᶜ 𝟘ᶜ  ∎)) of λ
       ▸t,rfl →
-    case
-      (λ s≡𝕨 →
-         𝟘ᵐ-allowed-elim (inj₁ ∘→ 𝟘ᵐ.𝟘≰𝟙)
-           (inj₂ ∘→ inj₁ ∘→ trivial s≡𝕨)) of λ
-      ok″ →
+    let ok′ : s ≡ 𝕨 → ¬ 𝟘 ≤ 𝟙 ⊎ Trivial ⊎ 𝟘ᵐ? ≢ 𝟙ᵐ
+        ok′ = λ s≡𝕨 →
+                𝟘ᵐ-allowed-elim (inj₁ ∘→ 𝟘ᵐ.𝟘≰𝟙)
+                  (inj₂ ∘→ inj₁ ∘→ proj₁ ∘→ trivial s≡𝕨)
+        ok″ : s ≡ 𝕨 → Prodrec-allowed 𝟘ᵐ? (𝟘 ∧ 𝟙) 𝟘 𝟘
+        ok″ = λ s≡𝕨 → 𝟘ᵐ?-elim
+                (λ m → Prodrec-allowed m (𝟘 ∧ 𝟙) 𝟘 𝟘)
+                _
+                (λ not-ok →
+                   let trivial , ok = trivial s≡𝕨 not-ok in
+                   PE.subst (λ p → Prodrec-allowed-𝟙ᵐ p 𝟘 𝟘)
+                     (≡-trivial trivial) ok)
+    in
     case
       (case PE.singleton s of λ where
          (𝕤 , s≡𝕤) → 𝟘≤𝟙 s≡𝕤
-         (𝕨 , s≡𝕨) → ≡-trivial ∘→ trivial s≡𝕨) ∘→
+         (𝕨 , s≡𝕨) → ≡-trivial ∘→ proj₁ ∘→ trivial s≡𝕨) ∘→
       𝟘ᵐ?≡𝟙ᵐ⇔ .proj₁ of λ
       𝟘≤𝟙′ →
-    ▸substᵉ ok trivial 𝟘≤𝟙 ok′ ▸Singleton
+    ▸substᵉ trivial 𝟘≤𝟙 ok ▸Singleton
       (sub
          (flip (substₘ-lemma _) ▸B $
           ▶-cong _
@@ -480,20 +482,20 @@ opaque
                (_ +1 +1) → PE.refl) $
           wf-consSubstₘ
             (wf-consSubstₘ (wf-wk1Substₘ _ _ wf-idSubstₘ) $
-             sub (▸fst⟨⟩ ok″ ok 𝟘≤𝟙′ var (λ _ → wkUsage _ ▸A))
+             sub (▸fst⟨⟩ ok′ ok″ 𝟘≤𝟙′ var (λ _ → wkUsage _ ▸A))
                (begin
                   ⌜ 𝟘ᵐ? ⌝ ·ᶜ (𝟘ᶜ ∙ 𝟘 ∧ 𝟙)  ≈⟨ ·ᶜ-zeroʳ _ ∙ ·[𝟘∧𝟙]≡𝟘∧ ⟩
                   𝟘ᶜ ∙ 𝟘 ∧ ⌜ 𝟘ᵐ? ⌝         ≈˘⟨ ∧ᶜ-idem _ ∙ PE.refl ⟩
                   𝟘ᶜ ∧ᶜ (𝟘ᶜ ∙ ⌜ 𝟘ᵐ? ⌝)     ∎)) $
           sub
-            (▸snd⟨⟩ ok″ ok var
+            (▸snd⟨⟩ ok′ ok″ var
                (λ _ →
                   Idₘ-generalised
                     (PE.subst (_▸[_]_ _ _) (PE.sym wk[]′-[]↑) $
                      wkUsage _ ▸A)
                     (PE.subst (_▸[_]_ _ _) (PE.sym wk[]′-[]↑) $
                      wkUsage _ ▸t)
-                    (▸fst⟨⟩ ok″ ok 𝟘≤𝟙′ var
+                    (▸fst⟨⟩ ok′ ok″ 𝟘≤𝟙′ var
                        (λ _ → wkUsage _ $ wkUsage _ ▸A))
                     (λ _ → begin
                        (((γ₁ +ᶜ γ₂) ∙ 𝟘) ∧ᶜ 𝟘ᶜ) ∙ ⌜ 𝟘ᵐ? ⌝ · 𝟘  ≈⟨ ≈ᶜ-refl ∙ ·-zeroʳ _ ⟩

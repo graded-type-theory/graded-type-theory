@@ -333,16 +333,14 @@ opaque
       varᵤ
     Emptyᵤ →
       Emptyᵤ
-    (emptyrecᵤ ok A t) →
-      emptyrecᵤ (Emptyrec-allowed-downwards-closed ok) A
-        (Usage-restrictions-satisfied-→𝟘ᵐ t)
+    (emptyrecᵤ _ A t) →
+      emptyrecᵤ _ A (Usage-restrictions-satisfied-→𝟘ᵐ t)
     Unitᵤ →
       Unitᵤ
     starᵤ →
       starᵤ
-    (unitrecᵤ ok A t u) →
-      unitrecᵤ (Unitrec-allowed-downwards-closed ok) A
-        (Usage-restrictions-satisfied-→𝟘ᵐ t)
+    (unitrecᵤ _ A t u) →
+      unitrecᵤ _ A (Usage-restrictions-satisfied-→𝟘ᵐ t)
         (Usage-restrictions-satisfied-→𝟘ᵐ u)
     (ΠΣᵤ A B) →
       ΠΣᵤ (Usage-restrictions-satisfied-→𝟘ᵐ A)
@@ -355,9 +353,8 @@ opaque
     (prodᵤ t u) →
       prodᵤ (Usage-restrictions-satisfied-→𝟘ᵐ t)
         (Usage-restrictions-satisfied-𝟙ᵐ→ u)
-    (prodrecᵤ ok A t u) →
-      prodrecᵤ (Prodrec-allowed-downwards-closed ok) A
-        (Usage-restrictions-satisfied-→𝟘ᵐ t)
+    (prodrecᵤ _ A t u) →
+      prodrecᵤ _ A (Usage-restrictions-satisfied-→𝟘ᵐ t)
         (Usage-restrictions-satisfied-𝟙ᵐ→ u)
     (fstᵤ t) →
       fstᵤ (Usage-restrictions-satisfied-𝟙ᵐ→ t)
@@ -427,8 +424,8 @@ opaque
     (K₀ᵤ₂ ≡all A t B u v) →
       K₀ᵤ₂ (≤ᵉᵐ→≡all→≡all erased-matches-for-K-≤ᵉᵐ ≡all) A t B
         (Usage-restrictions-satisfied-𝟙ᵐ→ u) v
-    ([]-congᵤ ok A t u v) →
-      []-congᵤ ([]-cong-allowed-mode-downwards-closed ok) A t u v
+    ([]-congᵤ _ A t u v) →
+      []-congᵤ _ A t u v
 
 opaque
 
@@ -815,18 +812,14 @@ opaque
 
 opaque
 
-  -- If certain assumptions hold, then
+  -- If a certain assumption holds, then
   -- Usage-restrictions-satisfied 𝟘ᵐ[ ok ] t always holds.
 
   Usage-restrictions-satisfied-𝟘ᵐ :
     (⦃ no-nr : Nr-not-available-GLB ⦄ →
      ∀ r p → ∃ λ q → Greatest-lower-bound q (nrᵢ r 𝟙 p)) →
-    (∀ p → Emptyrec-allowed 𝟘ᵐ[ ok ] p) →
-    (∀ p q → Unitrec-allowed 𝟘ᵐ[ ok ] p q) →
-    (∀ r p q → Prodrec-allowed 𝟘ᵐ[ ok ] r p q) →
-    (∀ p → []-cong-allowed-mode p 𝟘ᵐ[ ok ]) →
     Usage-restrictions-satisfied 𝟘ᵐ[ ok ] t
-  Usage-restrictions-satisfied-𝟘ᵐ {ok} glb er ur pr bc = lemma _
+  Usage-restrictions-satisfied-𝟘ᵐ {ok} glb = lemma _
     where
     mutual
       lemma? : Usage-restrictions-satisfied 𝟘ᵐ? t
@@ -842,13 +835,13 @@ opaque
       lemma Empty =
         Emptyᵤ
       lemma (emptyrec _ _ _) =
-        emptyrecᵤ (er _) lemma? (lemma _)
+        emptyrecᵤ _ lemma? (lemma _)
       lemma (Unit _ _) =
         Unitᵤ
       lemma (star _ _) =
         starᵤ
       lemma (unitrec _ _ _ _ _ _) =
-        unitrecᵤ (ur _ _) lemma? (lemma _) (lemma _)
+        unitrecᵤ _ lemma? (lemma _) (lemma _)
       lemma (ΠΣ⟨ _ ⟩ _ , _ ▷ _ ▹ _) =
         ΠΣᵤ (lemma _) (lemma _)
       lemma (lam _ _) =
@@ -862,7 +855,7 @@ opaque
       lemma (snd _ _) =
         sndᵤ (lemma _)
       lemma (prodrec _ _ _ _ _ _) =
-        prodrecᵤ (pr _ _ _) lemma? (lemma _) (lemma _)
+        prodrecᵤ _ lemma? (lemma _) (lemma _)
       lemma ℕ =
         ℕᵤ
       lemma zero =
@@ -884,7 +877,7 @@ opaque
       lemma (K _ _ _ _ _ _) =
         Kᵤ-generalised lemma? (lemma _) (lemma _) (lemma _) (lemma _)
       lemma ([]-cong _ _ _ _ _) =
-        []-congᵤ (bc _) lemma? lemma? lemma? lemma?
+        []-congᵤ _ lemma? lemma? lemma? lemma?
 
 ------------------------------------------------------------------------
 -- Lemmas that apply if the modality is trivial

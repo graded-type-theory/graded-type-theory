@@ -462,8 +462,8 @@ opaque
   -- soundness-ℕ without the following assumptions (for any
   -- strictness):
   --
-  -- * "if erased matches are allowed for emptyrec when the mode
-  --   is 𝟙ᵐ, then the context is consistent",
+  -- * "if erased matches are allowed for emptyrec, then the context
+  --   is consistent",
   -- * "erased matches are not allowed unless the context is empty",
   --   and
   -- * the assumption that the modality's zero is well-behaved.

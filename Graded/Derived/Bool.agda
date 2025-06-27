@@ -349,9 +349,9 @@ opaque
   ▸boolrec′
     {m} {γ₂} {γ₃} {γ₄} lin₀ lin₁ ok₁ ok₂ ok₃ ok₄ ▸A ▸t ▸u ▸v = sub
     (▸boolrec
-       (PE.subst₃ (Prodrec-allowed _)
+       (PE.subst₃ (Prodrec-allowed m)
           (PE.sym $ boolrecᵍ-pr≡ lin₀ lin₁) PE.refl PE.refl ok₁)
-       (PE.subst₂ (Unitrec-allowed _)
+       (PE.subst₂ (Unitrec-allowed m)
           (PE.sym $ boolrecᵍ-Π≡ lin₁) PE.refl ok₂)
        ok₃ ok₄ ▸A ▸t ▸u ▸v)
     (begin

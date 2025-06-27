@@ -83,9 +83,9 @@ private variable
 
 All-properties-hold-for : Extended-modality a → Set a
 All-properties-hold-for M =
-  (∀ {m r p q} → Prodrec-allowed m r p q ⇔ (m ≢ 𝟙ᵐ ⊎ r ≢ 𝟘 ⊎ Trivial)) ×
-  (∀ {m p q} → Unitrec-allowed m p q ⇔ (m ≢ 𝟙ᵐ ⊎ p ≢ 𝟘 ⊎ Trivial)) ×
-  (∀ {m p} → Emptyrec-allowed m p) ×
+  (∀ {r p q} → Prodrec-allowed-𝟙ᵐ r p q ⇔ (r ≢ 𝟘 ⊎ Trivial)) ×
+  (∀ {p q} → Unitrec-allowed-𝟙ᵐ p q ⇔ (p ≢ 𝟘 ⊎ Trivial)) ×
+  (∀ {p} → Emptyrec-allowed-𝟙ᵐ p) ×
   ¬ Starˢ-sink ×
   ¬ Id-erased ×
   erased-matches-for-J 𝟙ᵐ ≡ none ×
@@ -176,8 +176,8 @@ opaque
 
   All-properties-hold-for-Trivial : All-properties-hold-for Trivial
   All-properties-hold-for-Trivial =
-      ((λ _ → inj₂ (inj₂ refl)) , (λ _ → _ , ⊥-elim ∘→ (_$ refl)))
-    , ((λ _ → inj₂ (inj₂ refl)) , (λ _ → _ , ⊥-elim ∘→ (_$ refl)))
+      ((λ _ → inj₂ refl) , (λ _ → _ , ⊥-elim ∘→ (_$ refl)))
+    , ((λ _ → inj₂ refl) , (λ _ → _ , ⊥-elim ∘→ (_$ refl)))
     , _
     , (λ ())
     , (λ ())
@@ -229,22 +229,16 @@ opaque
 
   All-properties-hold-for-Erasure : All-properties-hold-for Erasure
   All-properties-hold-for-Erasure =
-      (λ where
-         {m = 𝟘ᵐ} → (λ _ → inj₁ (λ ())) , (λ _ → _ , (λ _ ()))
-         {m = 𝟙ᵐ} →
-             (λ (_ , r≢𝟘) → inj₂ (inj₁ (r≢𝟘 (λ ()) refl)))
-           , (λ where
-                (inj₁ 𝟙ᵐ≢𝟙ᵐ)      → ⊥-elim $ 𝟙ᵐ≢𝟙ᵐ refl
-                (inj₂ (inj₁ r≢𝟘)) → _ , (λ _ _ → r≢𝟘)
-                (inj₂ (inj₂ ()))))
-    , (λ where
-         {m = 𝟘ᵐ} → (λ _ → inj₁ (λ ())) , (λ _ → _ , (λ _ ()))
-         {m = 𝟙ᵐ} →
-             (λ (_ , r≢𝟘) → inj₂ (inj₁ (r≢𝟘 (λ ()) refl)))
-           , (λ where
-                (inj₁ 𝟙ᵐ≢𝟙ᵐ)      → ⊥-elim $ 𝟙ᵐ≢𝟙ᵐ refl
-                (inj₂ (inj₁ r≢𝟘)) → _ , (λ _ _ → r≢𝟘)
-                (inj₂ (inj₂ ()))))
+      ( (λ (_ , r≢𝟘) → inj₁ (r≢𝟘 (λ ())))
+      , (λ where
+           (inj₁ r≢𝟘) → _ , (λ _ → r≢𝟘)
+           (inj₂ ()))
+      )
+    , ( (λ (_ , r≢𝟘) → inj₁ (r≢𝟘 (λ ())))
+      , (λ where
+           (inj₁ r≢𝟘) → _ , (λ _ → r≢𝟘)
+           (inj₂ ()))
+      )
     , _
     , (λ ())
     , (λ ())
@@ -305,22 +299,16 @@ opaque
   All-properties-hold-for-Affine-types :
     All-properties-hold-for Affine-types
   All-properties-hold-for-Affine-types =
-      (λ where
-         {m = 𝟘ᵐ} → (λ _ → inj₁ (λ ())) , (λ _ → _ , (λ _ ()))
-         {m = 𝟙ᵐ} →
-             (λ (_ , r≢𝟘) → inj₂ (inj₁ (r≢𝟘 (λ ()) refl)))
-           , (λ where
-                (inj₁ 𝟙ᵐ≢𝟙ᵐ)      → ⊥-elim $ 𝟙ᵐ≢𝟙ᵐ refl
-                (inj₂ (inj₁ r≢𝟘)) → _ , (λ _ _ → r≢𝟘)
-                (inj₂ (inj₂ ()))))
-    , (λ where
-         {m = 𝟘ᵐ} → (λ _ → inj₁ (λ ())) , (λ _ → _ , (λ _ ()))
-         {m = 𝟙ᵐ} →
-             (λ (_ , r≢𝟘) → inj₂ (inj₁ (r≢𝟘 (λ ()) refl)))
-           , (λ where
-                (inj₁ 𝟙ᵐ≢𝟙ᵐ)      → ⊥-elim $ 𝟙ᵐ≢𝟙ᵐ refl
-                (inj₂ (inj₁ r≢𝟘)) → _ , (λ _ _ → r≢𝟘)
-                (inj₂ (inj₂ ()))))
+      ( (λ (_ , r≢𝟘) → inj₁ (r≢𝟘 (λ ())))
+      , (λ where
+           (inj₁ r≢𝟘) → _ , (λ _ → r≢𝟘)
+           (inj₂ ()))
+      )
+    , ( (λ (_ , r≢𝟘) → inj₁ (r≢𝟘 (λ ())))
+      , (λ where
+           (inj₁ r≢𝟘) → _ , (λ _ → r≢𝟘)
+           (inj₂ ()))
+      )
     , _
     , (λ ())
     , (λ ())
@@ -385,22 +373,16 @@ opaque
   All-properties-hold-for-Linearity :
     All-properties-hold-for Linearity
   All-properties-hold-for-Linearity =
-      (λ where
-         {m = 𝟘ᵐ} → (λ _ → inj₁ (λ ())) , (λ _ → _ , (λ _ ()))
-         {m = 𝟙ᵐ} →
-             (λ (_ , r≢𝟘) → inj₂ (inj₁ (r≢𝟘 (λ ()) refl)))
-           , (λ where
-                (inj₁ 𝟙ᵐ≢𝟙ᵐ)      → ⊥-elim $ 𝟙ᵐ≢𝟙ᵐ refl
-                (inj₂ (inj₁ r≢𝟘)) → _ , (λ _ _ → r≢𝟘)
-                (inj₂ (inj₂ ()))))
-    , (λ where
-         {m = 𝟘ᵐ} → (λ _ → inj₁ (λ ())) , (λ _ → _ , (λ _ ()))
-         {m = 𝟙ᵐ} →
-             (λ (_ , r≢𝟘) → inj₂ (inj₁ (r≢𝟘 (λ ()) refl)))
-           , (λ where
-                (inj₁ 𝟙ᵐ≢𝟙ᵐ)      → ⊥-elim $ 𝟙ᵐ≢𝟙ᵐ refl
-                (inj₂ (inj₁ r≢𝟘)) → _ , (λ _ _ → r≢𝟘)
-                (inj₂ (inj₂ ()))))
+      ( (λ (_ , r≢𝟘) → inj₁ (r≢𝟘 (λ ())))
+      , (λ where
+           (inj₁ r≢𝟘) → _ , (λ _ → r≢𝟘)
+           (inj₂ ()))
+      )
+    , ( (λ (_ , r≢𝟘) → inj₁ (r≢𝟘 (λ ())))
+      , (λ where
+           (inj₁ r≢𝟘) → _ , (λ _ → r≢𝟘)
+           (inj₂ ()))
+      )
     , _
     , (λ ())
     , (λ ())
@@ -466,22 +448,16 @@ opaque
   All-properties-hold-for-Linear-or-affine-types :
     All-properties-hold-for Linear-or-affine-types
   All-properties-hold-for-Linear-or-affine-types =
-      (λ where
-         {m = 𝟘ᵐ} → (λ _ → inj₁ (λ ())) , (λ _ → _ , (λ _ ()))
-         {m = 𝟙ᵐ} →
-             (λ (_ , r≢𝟘) → inj₂ (inj₁ (r≢𝟘 (λ ()) refl)))
-           , (λ where
-                (inj₁ 𝟙ᵐ≢𝟙ᵐ)      → ⊥-elim $ 𝟙ᵐ≢𝟙ᵐ refl
-                (inj₂ (inj₁ r≢𝟘)) → _ , (λ _ _ → r≢𝟘)
-                (inj₂ (inj₂ ()))))
-    , (λ where
-         {m = 𝟘ᵐ} → (λ _ → inj₁ (λ ())) , (λ _ → _ , (λ _ ()))
-         {m = 𝟙ᵐ} →
-             (λ (_ , r≢𝟘) → inj₂ (inj₁ (r≢𝟘 (λ ()) refl)))
-           , (λ where
-                (inj₁ 𝟙ᵐ≢𝟙ᵐ)      → ⊥-elim $ 𝟙ᵐ≢𝟙ᵐ refl
-                (inj₂ (inj₁ r≢𝟘)) → _ , (λ _ _ → r≢𝟘)
-                (inj₂ (inj₂ ()))))
+      ( (λ (_ , r≢𝟘) → inj₁ (r≢𝟘 (λ ())))
+      , (λ where
+           (inj₁ r≢𝟘) → _ , (λ _ → r≢𝟘)
+           (inj₂ ()))
+      )
+    , ( (λ (_ , r≢𝟘) → inj₁ (r≢𝟘 (λ ())))
+      , (λ where
+           (inj₁ r≢𝟘) → _ , (λ _ → r≢𝟘)
+           (inj₂ ()))
+      )
     , _
     , (λ ())
     , (λ ())
