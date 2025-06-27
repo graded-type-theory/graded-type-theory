@@ -250,6 +250,7 @@ import Graded.Modality.Instances.Relevancy
 import Graded.Modality.Instances.Erasure.Combined
 import Graded.Modality.Instances.Erasure.Combined.Properties
 import Graded.Modality.Instances.Erasure.Combined.Equivalent
+import Graded.Modality.Instances.Erasure.Combined.Erased
 
 ------------------------------------------------------------------------
 -- Properties of the type theory
