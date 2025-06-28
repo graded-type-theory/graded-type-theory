@@ -98,12 +98,11 @@ mutual
                   → Γ ⊢ t₁ ~ t₂ ↓ Empty
                   → Γ ⊢ emptyrec p A₁ t₁ ~ emptyrec p A₂ t₂ ↑ A₁
 
-    unitrec-cong : Γ ⊢ l₁ [conv↑] l₂ ∷ Level
-                 → Γ ∙ Unitʷ l₁ ⊢ A₁ [conv↑] A₂
-                 → Γ ⊢ t₁ ~ t₂ ∷ Unitʷ l₁
-                 → Γ ⊢ u₁ [conv↑] u₂ ∷ A₁ [ starʷ l₁ ]₀
+    unitrec-cong : Γ ∙ Unitʷ ⊢ A₁ [conv↑] A₂
+                 → Γ ⊢ t₁ ~ t₂ ∷ Unitʷ
+                 → Γ ⊢ u₁ [conv↑] u₂ ∷ A₁ [ starʷ ]₀
                  → ¬ Unitʷ-η
-                 → Γ ⊢ unitrec p q l₁ A₁ t₁ u₁ ~ unitrec p q l₂ A₂ t₂ u₂ ↑
+                 → Γ ⊢ unitrec p q A₁ t₁ u₁ ~ unitrec p q A₂ t₂ u₂ ↑
                      A₁ [ t₁ ]₀
 
     J-cong        : Γ ⊢ A₁ [conv↑] A₂
@@ -188,9 +187,9 @@ mutual
 
     Empty-refl : ⊢ Γ → Γ ⊢ Empty [conv↓] Empty
 
-    Unit-cong  : Γ ⊢ l₁ [conv↑] l₂ ∷ Level
+    Unit-refl  : ⊢ Γ
                → Unit-allowed s
-               → Γ ⊢ Unit s l₁ [conv↓] Unit s l₂
+               → Γ ⊢ Unit s [conv↓] Unit s
 
     ne         : Γ ⊢ A₁ ~ A₂ ↓ U l
                → Γ ⊢ A₁ [conv↓] A₂
@@ -352,8 +351,8 @@ mutual
               → Γ ⊢ t₁ [conv↓] t₂ ∷ Empty
 
     Unitʷ-ins : ¬ Unitʷ-η
-              → Γ ⊢ t₁ ~ t₂ ∷ Unitʷ l
-              → Γ ⊢ t₁ [conv↓] t₂ ∷ Unitʷ l
+              → Γ ⊢ t₁ ~ t₂ ∷ Unitʷ
+              → Γ ⊢ t₁ [conv↓] t₂ ∷ Unitʷ
 
     Σʷ-ins    : ∀ {A A′ B B′}
               → Γ ⊢ t₁ ∷ Σʷ p , q ▷ A ▹ B
@@ -384,11 +383,10 @@ mutual
 
     zero-refl : ⊢ Γ → Γ ⊢ zero [conv↓] zero ∷ ℕ
 
-    starʷ-cong : Γ ⊢ l ≡ l₁ ∷ Level
-               → Γ ⊢ l₁ [conv↑] l₂ ∷ Level
+    starʷ-refl : ⊢ Γ
                → Unitʷ-allowed
                → ¬ Unitʷ-η
-               → Γ ⊢ starʷ l₁ [conv↓] starʷ l₂ ∷ Unitʷ l
+               → Γ ⊢ starʷ [conv↓] starʷ ∷ Unitʷ
 
     suc-cong  : ∀ {m n}
               → Γ ⊢ m [conv↑] n ∷ ℕ
@@ -418,14 +416,13 @@ mutual
               → Γ ⊢ snd p t₁ [conv↑] snd p t₂ ∷ B [ fst p t₁ ]₀
               → Γ ⊢ t₁ [conv↓] t₂ ∷ Σˢ p , q ▷ A ▹ B
 
-    η-unit    : Γ ⊢ l ∷ Level
-              → Γ ⊢ t₁ ∷ Unit s l
-              → Γ ⊢ t₂ ∷ Unit s l
+    η-unit    : Γ ⊢ t₁ ∷ Unit s
+              → Γ ⊢ t₂ ∷ Unit s
               → Whnf t₁
               → Whnf t₂
               → Unit-allowed s
               → Unit-with-η s
-              → Γ ⊢ t₁ [conv↓] t₂ ∷ Unit s l
+              → Γ ⊢ t₁ [conv↓] t₂ ∷ Unit s
 
     Id-ins    : ∀ {A A′ t′ u′}
               → Γ ⊢ v₁ ∷ Id A t u

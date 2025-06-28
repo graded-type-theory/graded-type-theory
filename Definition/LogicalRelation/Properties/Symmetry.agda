@@ -54,13 +54,12 @@ symEmpty-prop : ∀ {k k′}
               → [Empty]-prop Γ k′ k
 symEmpty-prop (ne prop) = ne (symNeutralTerm prop)
 
-symUnit-prop′ : ∀ {k} → [Unit]-prop′ Γ k 𝕨 t u → [Unit]-prop′ Γ k 𝕨 u t
-symUnit-prop′ (starᵣ k≡k′ k′≡k″) = starᵣ (transEqTermLevel k≡k′ k′≡k″) (symLevel k′≡k″)
+symUnit-prop′ : [Unit]-prop′ Γ 𝕨 t u → [Unit]-prop′ Γ 𝕨 u t
+symUnit-prop′ starᵣ = starᵣ
 symUnit-prop′ (ne prop) = ne (symNeutralTerm prop)
 
-symUnit-prop : ∀ {k}
-             → [Unit]-prop Γ k s t u
-             → [Unit]-prop Γ k s u t
+symUnit-prop : [Unit]-prop Γ s t u
+             → [Unit]-prop Γ s u t
 symUnit-prop (Unitₜ₌ʷ prop no-η) = Unitₜ₌ʷ (symUnit-prop′ prop) no-η
 symUnit-prop (Unitₜ₌ˢ η)         = Unitₜ₌ˢ η
 
@@ -107,11 +106,8 @@ private module Sym (l : Universe-level) (rec : ∀ {l′} → l′ <ᵘ l → Sy
     Lift₌ D (symLevel k≡k′) (symEq [F] [F′] F≡F′) }
   symEqT (ℕᵥ D D′) A≡B = D
   symEqT (Emptyᵥ D D′) A≡B = D
-  symEqT (Unitᵥ (Unitᵣ _ _ _ A⇒*Unit _) (Unitᵣ _ _ _ B⇒*Unit₁ _)) (Unit₌ _ B⇒*Unit₂ k≡k′) =
-    case Unit-PE-injectivity $
-        whrDet* (B⇒*Unit₁ , Unitₙ) (B⇒*Unit₂ , Unitₙ) of λ {
-      (_ , PE.refl) →
-    Unit₌ _ A⇒*Unit (symLevel k≡k′) }
+  symEqT (Unitᵥ (Unitᵣ A⇒*Unit _) (Unitᵣ B⇒*Unit₁ _)) (Unit₌ B⇒*Unit₂) =
+    Unit₌ A⇒*Unit
   symEqT
     (ne (ne _ _ D neK K≡K) (ne _ K₁ D₁ neK₁ K≡K₁)) (ne₌ inc M D′ neM K≡M)
     rewrite whrDet* (D′ , ne! neM) (D₁ , ne! neK₁) =

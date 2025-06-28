@@ -117,19 +117,19 @@ opaque
       (subst-⊢∷ ⊢v ⊢σ)
   subst-⊢⇒∷ (emptyrec-subst ⊢A t₁⇒t₂) ⊢σ =
     emptyrec-subst (subst-⊢ ⊢A ⊢σ) (subst-⊢⇒∷ t₁⇒t₂ ⊢σ)
-  subst-⊢⇒∷ (unitrec-subst {A} ⊢l ⊢A ⊢u t₁⇒t₂ ok no-η) ⊢σ =
+  subst-⊢⇒∷ (unitrec-subst {A} ⊢A ⊢u t₁⇒t₂ ok no-η) ⊢σ =
     PE.subst (_⊢_⇒_∷_ _ _ _) (PE.sym $ singleSubstLift A _) $
-    unitrec-subst (subst-⊢∷ ⊢l ⊢σ) (subst-⊢-⇑ ⊢A ⊢σ)
+    unitrec-subst (subst-⊢-⇑ ⊢A ⊢σ)
       (PE.subst (_⊢_∷_ _ _) (singleSubstLift A _) (subst-⊢∷ ⊢u ⊢σ))
       (subst-⊢⇒∷ t₁⇒t₂ ⊢σ) ok no-η
-  subst-⊢⇒∷ (unitrec-β {A} ⊢l₁ l₁≡l₂ ⊢A ⊢t ok no-η) ⊢σ =
+  subst-⊢⇒∷ (unitrec-β {A} ⊢A ⊢t ok no-η) ⊢σ =
     PE.subst (_⊢_⇒_∷_ _ _ _) (PE.sym $ singleSubstLift A _) $
-    unitrec-β (subst-⊢∷ ⊢l₁ ⊢σ) (subst-⊢≡∷ l₁≡l₂ (refl-⊢ˢʷ≡∷ ⊢σ)) (subst-⊢-⇑ ⊢A ⊢σ)
+    unitrec-β (subst-⊢-⇑ ⊢A ⊢σ)
       (PE.subst (_⊢_∷_ _ _) (singleSubstLift A _) (subst-⊢∷ ⊢t ⊢σ)) ok
       no-η
-  subst-⊢⇒∷ (unitrec-β-η {A} ⊢l ⊢A ⊢t ⊢u ok η) ⊢σ =
+  subst-⊢⇒∷ (unitrec-β-η {A} ⊢A ⊢t ⊢u ok η) ⊢σ =
     PE.subst (_⊢_⇒_∷_ _ _ _) (PE.sym $ singleSubstLift A _) $
-    unitrec-β-η (subst-⊢∷ ⊢l ⊢σ) (subst-⊢-⇑ ⊢A ⊢σ) (subst-⊢∷ ⊢t ⊢σ)
+    unitrec-β-η (subst-⊢-⇑ ⊢A ⊢σ) (subst-⊢∷ ⊢t ⊢σ)
       (PE.subst (_⊢_∷_ _ _) (singleSubstLift A _) (subst-⊢∷ ⊢u ⊢σ)) ok η
   subst-⊢⇒∷ (J-subst {t} {A} {B} ⊢t ⊢B ⊢u ⊢v w₁⇒w₂) ⊢σ =
     PE.subst (_⊢_⇒_∷_ _ _ _) (PE.sym $ [,]-[]-commute B) $

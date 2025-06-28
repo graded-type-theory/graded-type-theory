@@ -81,9 +81,8 @@ mutual
     Empty-ins (stability~↓ Γ≡Δ x)
   convConv↓Term′ Γ≡Δ A≡B B-whnf (Unitʷ-ins ok t~u)
     = case Unit≡A A≡B B-whnf of λ {
-      (_ , PE.refl) →
-      let _ , l≡k = Unit-injectivity A≡B
-      in Unitʷ-ins ok (conv~∷ Γ≡Δ (Unit-cong l≡k (inversion-Unit-allowed (syntacticEq A≡B .proj₁))) t~u) }
+        PE.refl →
+      Unitʷ-ins ok (stability~∷ Γ≡Δ t~u) }
   convConv↓Term′ Γ≡Δ  A≡B whnfB (Σʷ-ins x x₁ x₂) with Σ≡A A≡B whnfB
   ... | _ , _ , PE.refl =
     Σʷ-ins (stabilityTerm Γ≡Δ (conv x A≡B))
@@ -110,12 +109,11 @@ mutual
   convConv↓Term′ Γ≡Δ A≡B whnfB (zero-refl x) rewrite ℕ≡A A≡B whnfB =
     let _ , ⊢Δ , _ = contextConvSubst Γ≡Δ
     in  zero-refl ⊢Δ
-  convConv↓Term′ Γ≡Δ A≡B whnfB (starʷ-cong x y ok no-η) =
+  convConv↓Term′ Γ≡Δ A≡B whnfB (starʷ-refl y ok no-η) =
     case Unit≡A A≡B whnfB of λ {
-      (_ , PE.refl) →
+      PE.refl →
     let ⊢Γ , ⊢Δ , _ = contextConvSubst Γ≡Δ
-        _ , l≡k = Unit-injectivity A≡B
-    in starʷ-cong (stabilityEqTerm Γ≡Δ (trans (sym (Levelⱼ ⊢Γ) l≡k) x)) (stabilityConv↑Term Γ≡Δ y) ok no-η }
+    in starʷ-refl ⊢Δ ok no-η }
   convConv↓Term′ Γ≡Δ A≡B whnfB (suc-cong x) rewrite ℕ≡A A≡B whnfB =
     suc-cong (stabilityConv↑Term Γ≡Δ x)
   convConv↓Term′ Γ≡Δ A≡B whnfB (prod-cong x₁ x₂ x₃ ok)
@@ -147,16 +145,12 @@ mutual
             rProd
             (convConv↑Term′ Γ≡Δ F≡ fstConv)
             (convConv↑Term′ Γ≡Δ (substTypeEq G≡ (refl ⊢fst)) sndConv)
-  convConv↓Term′ Γ≡Δ A≡B whnfB (η-unit ⊢l [t] [u] tUnit uUnit ok₁ ok₂) =
+  convConv↓Term′ Γ≡Δ A≡B whnfB (η-unit [t] [u] tUnit uUnit ok₁ ok₂) =
     case Unit≡A A≡B whnfB of λ {
-      (k , PE.refl) →
+      PE.refl →
     let [t] = stabilityTerm Γ≡Δ [t]
         [u] = stabilityTerm Γ≡Δ [u]
-        _ , l≡k = Unit-injectivity A≡B
-        Δ⊢l≡k = stabilityEqTerm Γ≡Δ l≡k
-        _ , _ , ⊢k = syntacticEqTerm Δ⊢l≡k
-        Unitl≡Unitk = Unit-cong Δ⊢l≡k ok₁
-    in η-unit ⊢k (conv [t] Unitl≡Unitk) (conv [u] Unitl≡Unitk) tUnit uUnit ok₁ ok₂ }
+    in η-unit [t] [u] tUnit uUnit ok₁ ok₂ }
   convConv↓Term′ Γ≡Δ Id-A-t-u≡B B-whnf (Id-ins ⊢v₁ v₁~v₂) =
     case Id≡Whnf Id-A-t-u≡B B-whnf of λ {
       (_ , _ , _ , PE.refl) →

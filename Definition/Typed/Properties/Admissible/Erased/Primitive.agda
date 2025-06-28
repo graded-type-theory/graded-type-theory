@@ -35,7 +35,7 @@ private variable
 -- A formation rule for Erased.
 
 Erasedⱼ : Γ ⊢ A → Γ ⊢ Erased A
-Erasedⱼ ⊢A = ΠΣⱼ (Unitⱼ (zeroᵘⱼ (∙ ⊢A)) Unit-ok) Σ-ok
+Erasedⱼ ⊢A = ΠΣⱼ (Unitⱼ (∙ ⊢A) Unit-ok) Σ-ok
 
 -- A corresponding congruence rule.
 
@@ -44,7 +44,7 @@ Erased-cong :
   Γ ⊢ A ≡ B →
   Γ ⊢ Erased A ≡ Erased B
 Erased-cong ⊢A A≡B =
-  ΠΣ-cong A≡B (refl (Unitⱼ (zeroᵘⱼ (∙ ⊢A)) Unit-ok)) Σ-ok
+  ΠΣ-cong A≡B (refl (Unitⱼ (∙ ⊢A) Unit-ok)) Σ-ok
 
 {-
 opaque
@@ -58,7 +58,7 @@ opaque
   Erasedⱼ-U ⊢l ⊢A∷U =
     -- conv (ΠΣⱼ ⊢l (zeroᵘⱼ (wfTerm ⊢l)) ⊢A∷U (Unitⱼ (zeroᵘⱼ (∙ univ ⊢A∷U)) Unit-ok) Σ-ok)
     --   (U-cong (maxᵘ-zeroʳ ⊢l))
-    ΠΣⱼ ⊢l ⊢A∷U ? ?
+    ΠΣⱼ ⊢l ⊢A∷U {!  needs heterogeneous ΠΣ !} {!   !}
 
 -- A corresponding congruence rule.
 
@@ -80,7 +80,7 @@ Erased-cong-U ⊢l ⊢A A≡B =
   Γ ⊢ t ∷ A →
   Γ ⊢ [ t ] ∷ Erased A
 []ⱼ ⊢A ⊢t =
-  prodⱼ (Unitⱼ (zeroᵘⱼ (∙ ⊢A)) Unit-ok) ⊢t (starⱼ (zeroᵘⱼ ⊢Γ) Unit-ok) Σ-ok
+  prodⱼ (Unitⱼ (∙ ⊢A) Unit-ok) ⊢t (starⱼ ⊢Γ Unit-ok) Σ-ok
   where
   ⊢Γ = wf ⊢A
 
@@ -91,5 +91,5 @@ Erased-cong-U ⊢l ⊢A A≡B =
   Γ ⊢ t ≡ u ∷ A →
   Γ ⊢ [ t ] ≡ [ u ] ∷ Erased A
 []-cong′ ⊢A t≡u =
-  prod-cong (Unitⱼ (zeroᵘⱼ (∙ ⊢A)) Unit-ok) t≡u (refl (starⱼ (zeroᵘⱼ (wf ⊢A)) Unit-ok))
+  prod-cong (Unitⱼ (∙ ⊢A) Unit-ok) t≡u (refl (starⱼ (wf ⊢A) Unit-ok))
     Σ-ok

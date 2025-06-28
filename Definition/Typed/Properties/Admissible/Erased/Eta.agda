@@ -45,7 +45,7 @@ opaque
     Γ ⊢ erased [ t ] ≡ t ∷ A
   Erased-β (Unit-ok , Σ-ok) ⊢t =
     let ⊢A = wf-⊢∷ ⊢t in
-    Σ-β₁-≡ (Unitⱼ (zeroᵘⱼ (∙ ⊢A)) Unit-ok) ⊢t (starⱼ (zeroᵘⱼ (wf ⊢A)) Unit-ok) Σ-ok
+    Σ-β₁-≡ (Unitⱼ (∙ ⊢A) Unit-ok) ⊢t (starⱼ (wf ⊢A) Unit-ok) Σ-ok
 
 opaque
 
@@ -73,9 +73,9 @@ opaque
   Erased-η-≡ ⊢t ⊢u t≡u =
     let ⊢Γ            = wfTerm ⊢t
         _ , ⊢Unit , _ = inversion-ΠΣ (wf-⊢∷ ⊢t)
-        Unit-ok       = inversion-Unit-allowed ⊢Unit
+        Unit-ok       = inversion-Unit ⊢Unit
     in
-    Σ-η′ ⊢t ⊢u t≡u (η-unit (zeroᵘⱼ ⊢Γ) (sndⱼ′ ⊢t) (sndⱼ′ ⊢u) Unit-ok (inj₁ PE.refl))
+    Σ-η′ ⊢t ⊢u t≡u (η-unit (sndⱼ′ ⊢t) (sndⱼ′ ⊢u) Unit-ok (inj₁ PE.refl))
 
 opaque
 
@@ -86,7 +86,7 @@ opaque
     Γ ⊢ [ erased t ] ≡ t ∷ Erased A
   [erased] ⊢t =
     let ⊢A , ⊢Unit , Σˢ-ok = inversion-ΠΣ (wf-⊢∷ ⊢t)
-        Erased-ok          = inversion-Unit-allowed ⊢Unit , Σˢ-ok
+        Erased-ok          = inversion-Unit ⊢Unit , Σˢ-ok
     in
     Erased-η-≡ (ET.[]ⱼ Erased-ok ⊢A (erasedⱼ ⊢t)) ⊢t $
     Erased-β Erased-ok (erasedⱼ ⊢t)

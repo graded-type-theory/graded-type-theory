@@ -147,10 +147,10 @@ opaque
 
   Unit-injectivity :
     ⦃ ok : No-equality-reflection or-empty Γ ⦄ →
-    Γ ⊢ Unit s₁ l₁ ≡ Unit s₂ l₂ →
-    s₁ PE.≡ s₂ × Γ ⊢ l₁ ≡ l₂ ∷ Level
-  Unit-injectivity {Γ} {s₁} {l₁} {s₂} {l₂} =
-    Γ ⊢ Unit s₁ l₁ ≡ Unit s₂ l₂                 →⟨ reducible-⊩≡ ⟩
-    (∃ λ l → Γ ⊩⟨ l ⟩ Unit s₁ l₁ ≡ Unit s₂ l₂)  →⟨ map idᶠ proj₂ ∘→ ⊩Unit≡Unit⇔ .proj₁ ∘→ proj₂ ⟩
-    (∃ λ l₁≡l₂ → Unit-allowed s₁ × s₁ PE.≡ s₂)  →⟨ (λ (l₁≡l₂ , _ , s₁≡s₂) → s₁≡s₂ , escapeLevelEq l₁≡l₂) ⟩
-    (s₁ PE.≡ s₂ × Γ ⊢ l₁ ≡ l₂ ∷ Level)          □
+    Γ ⊢ Unit s₁ ≡ Unit s₂ →
+    s₁ PE.≡ s₂
+  Unit-injectivity {Γ} {s₁} {s₂} =
+    Γ ⊢ Unit s₁ ≡ Unit s₂ →⟨ reducible-⊩≡ ⟩
+    (∃ λ l → Γ ⊩⟨ l ⟩ Unit s₁ ≡ Unit s₂) →⟨ ⊩Unit≡Unit⇔ .proj₁ ∘→ proj₂ ⟩
+    ⊢ Γ × Unit-allowed s₁ × s₁ PE.≡ s₂   →⟨ proj₂ ∘→ proj₂ ⟩
+    s₁ PE.≡ s₂                           □

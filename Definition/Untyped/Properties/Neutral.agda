@@ -59,10 +59,10 @@ opaque
   ¬-Neutral-Empty : ¬ Neutral {n = n} Empty
   ¬-Neutral-Empty ()
 
-  ¬-Neutral-Unit : ¬ Neutral {n = n} (Unit s l)
+  ¬-Neutral-Unit : ¬ Neutral {n = n} (Unit s)
   ¬-Neutral-Unit ()
 
-  ¬-Neutral-star : ¬ Neutral {n = n} (star s l)
+  ¬-Neutral-star : ¬ Neutral {n = n} (star s)
   ¬-Neutral-star ()
 
   ¬-Neutral-ℕ : ¬ Neutral {n = n} ℕ
@@ -139,7 +139,7 @@ opaque
     lemma {t} (unitrecₙ no-η n) ≡u =
       case subst-unitrec {t = t} ≡u of λ {
         (inj₁ (_ , refl)) → var _ ;
-        (inj₂ (_ , _ , _ , _ , refl , _ , _ , ≡t′ , _)) →
+        (inj₂ (_ , _ , _ , refl , _ , ≡t′ , _)) →
       unitrecₙ no-η (lemma n ≡t′) }
     lemma {t} (Jₙ n) ≡u =
       case subst-J {w = t} ≡u of λ {
@@ -223,7 +223,7 @@ opaque
     lemma ≡u Unitₙ =
       case subst-Unit {t = t} ≡u of λ where
         (inj₁ (_ , refl)) → ne! (var _)
-        (inj₂ (_ , refl , _)) → Unitₙ
+        (inj₂ refl) → Unitₙ
     lemma ≡u Emptyₙ =
       case subst-Empty {t = t} ≡u of λ where
         (inj₁ (_ , refl)) → ne! (var _)
@@ -247,7 +247,7 @@ opaque
     lemma ≡u starₙ =
       case subst-star {t = t} ≡u of λ where
         (inj₁ (_ , refl)) → ne! (var _)
-        (inj₂ (_ , refl , _)) → starₙ
+        (inj₂ refl) → starₙ
     lemma ≡u prodₙ =
       case subst-prod {t = t} ≡u of λ where
         (inj₁ (_ , refl)) → ne! (var _)

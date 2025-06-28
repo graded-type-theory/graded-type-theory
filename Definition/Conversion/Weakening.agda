@@ -96,7 +96,7 @@ mutual
                      u↓v)
   wk~↑ [ρ] (emptyrec-cong x t~u) =
     emptyrec-cong (wkConv↑ [ρ] x) (wk~↓ [ρ] t~u)
-  wk~↑ [ρ] (unitrec-cong {A₁} l₁≡l₂ x x₁ x₂ no-η) =
+  wk~↑ [ρ] (unitrec-cong {A₁} x x₁ x₂ no-η) =
     let k~l = wk~∷ [ρ] x₁
         ⊢Unit , _ = syntacticEqTerm (soundness~∷ k~l)
         u↑v = PE.subst (_⊢_[conv↑]_∷_ _ _ _)
@@ -104,7 +104,7 @@ mutual
                        (wkConv↑Term [ρ] x₂)
     in  PE.subst (_⊢_~_↑_ _ _ _)
                  (PE.sym (wk-β A₁))
-                 (unitrec-cong (wkConv↑Term [ρ] l₁≡l₂) (wkConv↑ (liftʷʷ [ρ] ⊢Unit) x) k~l u↑v
+                 (unitrec-cong (wkConv↑ (liftʷʷ [ρ] ⊢Unit) x) k~l u↑v
                     no-η)
   wk~↑
     {ρ} {Δ} [ρ]
@@ -184,7 +184,7 @@ mutual
     Lift-cong (wkConv↑Term ρ l₁≡l₂) (wkConv↑ ρ F≡H)
   wkConv↓ ρ (ℕ-refl x) = ℕ-refl (wf-∷ʷ⊇ ρ)
   wkConv↓ ρ (Empty-refl x) = Empty-refl (wf-∷ʷ⊇ ρ)
-  wkConv↓ ρ (Unit-cong x ok) = Unit-cong (wkConv↑Term ρ x) ok
+  wkConv↓ ρ (Unit-refl x ok) = Unit-refl (wf-∷ʷ⊇ ρ) ok
   wkConv↓ ρ (ne x) = ne (wk~↓ ρ x)
   wkConv↓ ρ (ΠΣ-cong A<>B A<>B₁ ok) =
     let ⊢ρF = wk ρ (syntacticEq (soundnessConv↑ A<>B) .proj₁) in
@@ -325,8 +325,8 @@ mutual
   wkConv↓Term {ρ} [ρ] (Lift-η ⊢t ⊢u wt wu lower≡lower) =
     Lift-η (wkTerm [ρ] ⊢t) (wkTerm [ρ] ⊢u) (wkWhnf ρ wt) (wkWhnf ρ wu) (wkConv↑Term [ρ] lower≡lower)
   wkConv↓Term ρ (zero-refl x) = zero-refl (wf-∷ʷ⊇ ρ)
-  wkConv↓Term ρ (starʷ-cong x y ok no-η) =
-    starʷ-cong (wkEqTerm ρ x) (wkConv↑Term ρ y) ok no-η
+  wkConv↓Term ρ (starʷ-refl y ok no-η) =
+    starʷ-refl (wf-∷ʷ⊇ ρ) ok no-η
   wkConv↓Term ρ (suc-cong t<>u) = suc-cong (wkConv↑Term ρ t<>u)
   wkConv↓Term ρ (prod-cong {G = G} x₁ x₂ x₃ ok) =
     let ⊢ρF = wk ρ (⊢∙→⊢ (wf x₁))
@@ -355,8 +355,8 @@ mutual
         (PE.subst (λ x → _ ⊢ _ [conv↑] _ ∷ x)
                   (wk-β B)
                   (wkConv↑Term [ρ] sndConv))
-  wkConv↓Term {ρ} [ρ] (η-unit ⊢l [t] [u] tWhnf uWhnf ok₁ ok₂) =
-    η-unit (wkTerm [ρ] ⊢l) (wkTerm [ρ] [t]) (wkTerm [ρ] [u])
+  wkConv↓Term {ρ} [ρ] (η-unit [t] [u] tWhnf uWhnf ok₁ ok₂) =
+    η-unit (wkTerm [ρ] [t]) (wkTerm [ρ] [u])
            (wkWhnf ρ tWhnf) (wkWhnf ρ uWhnf) ok₁ ok₂
   wkConv↓Term ρ (Id-ins ⊢v₁ v₁~v₂) =
     Id-ins (wkTerm ρ ⊢v₁) (wk~↓ ρ v₁~v₂)

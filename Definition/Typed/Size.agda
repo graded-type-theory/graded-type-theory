@@ -37,7 +37,7 @@ opaque mutual
   size-⊢ (Liftⱼ ⊢l ⊢A)  = size-⊢∷ ⊢l ⊕ size-⊢ ⊢A
   size-⊢ (ΠΣⱼ ⊢B _)     = node (size-⊢ ⊢B)
   size-⊢ (Emptyⱼ ⊢Γ)    = node (size-⊢′ ⊢Γ)
-  size-⊢ (Unitⱼ ⊢l _)   = node (size-⊢∷ ⊢l)
+  size-⊢ (Unitⱼ ⊢Γ _)   = node (size-⊢′ ⊢Γ)
   size-⊢ (ℕⱼ ⊢Γ)        = node (size-⊢′ ⊢Γ)
   size-⊢ (Idⱼ ⊢A ⊢t ⊢u) = size-⊢ ⊢A ⊕ size-⊢∷ ⊢t ⊕ size-⊢∷ ⊢u
 
@@ -82,12 +82,12 @@ opaque mutual
     node (size-⊢′ ⊢Γ)
   size-⊢∷ (emptyrecⱼ ⊢A ⊢t) =
     size-⊢ ⊢A ⊕ size-⊢∷ ⊢t
-  size-⊢∷ (Unitⱼ ⊢l _) =
-    node (size-⊢∷ ⊢l)
-  size-⊢∷ (starⱼ ⊢l _) =
-    node (size-⊢∷ ⊢l)
-  size-⊢∷ (unitrecⱼ ⊢l ⊢A ⊢t ⊢u _) =
-    size-⊢∷ ⊢l ⊕ size-⊢ ⊢A ⊕ size-⊢∷ ⊢t ⊕ size-⊢∷ ⊢u
+  size-⊢∷ (Unitⱼ ⊢Γ _) =
+    node (size-⊢′ ⊢Γ)
+  size-⊢∷ (starⱼ ⊢Γ _) =
+    node (size-⊢′ ⊢Γ)
+  size-⊢∷ (unitrecⱼ ⊢A ⊢t ⊢u _) =
+    size-⊢ ⊢A ⊕ size-⊢∷ ⊢t ⊕ size-⊢∷ ⊢u
   size-⊢∷ (ℕⱼ ⊢Γ) =
     node (size-⊢′ ⊢Γ)
   size-⊢∷ (zeroⱼ ⊢Γ) =
@@ -125,8 +125,6 @@ opaque mutual
     size-⊢≡∷ l₂≡l₂′ ⊕ size-⊢≡ A≡B
   size-⊢≡ (ΠΣ-cong A₁≡B₁ A₂≡B₂ _) =
     size-⊢≡ A₁≡B₁ ⊕ size-⊢≡ A₂≡B₂
-  size-⊢≡ (Unit-cong l₁≡l₂ ok) =
-    node (size-⊢≡∷ l₁≡l₂)
   size-⊢≡ (Id-cong A≡B t₁≡u₁ t₂≡u₂) =
     size-⊢≡ A≡B ⊕ size-⊢≡∷ t₁≡u₁ ⊕ size-⊢≡∷ t₂≡u₂
 
@@ -196,18 +194,14 @@ opaque mutual
     (size-⊢ ⊢C ⊕ size-⊢∷ ⊢t) ⊕ (size-⊢∷ ⊢u ⊕ size-⊢∷ ⊢v)
   size-⊢≡∷ (emptyrec-cong A≡B t≡u) =
     size-⊢≡ A≡B ⊕ size-⊢≡∷ t≡u
-  size-⊢≡∷ (Unit-cong l₁≡l₂ _) =
-    node (size-⊢≡∷ l₁≡l₂)
-  size-⊢≡∷ (star-cong l₁≡l₂ _) =
-    node (size-⊢≡∷ l₁≡l₂)
-  size-⊢≡∷ (unitrec-cong ⊢l₁ ⊢l₂ l₁≡l₂ A≡B t₁≡u₁ t₂≡u₂ _ _) =
-    size-⊢∷ ⊢l₁ ⊕ size-⊢∷ ⊢l₂ ⊕ size-⊢≡∷ l₁≡l₂ ⊕ size-⊢≡ A≡B ⊕ size-⊢≡∷ t₁≡u₁ ⊕ size-⊢≡∷ t₂≡u₂
-  size-⊢≡∷ (unitrec-β ⊢l ⊢A ⊢t _ _) =
-    size-⊢∷ ⊢l ⊕ size-⊢ ⊢A ⊕ size-⊢∷ ⊢t
-  size-⊢≡∷ (unitrec-β-η ⊢l ⊢A ⊢t ⊢u _ _) =
-    size-⊢∷ ⊢l ⊕ size-⊢ ⊢A ⊕ size-⊢∷ ⊢t ⊕ size-⊢∷ ⊢u
-  size-⊢≡∷ (η-unit ⊢l ⊢t ⊢u _ _) =
-    size-⊢∷ ⊢l ⊕ size-⊢∷ ⊢t ⊕ size-⊢∷ ⊢u
+  size-⊢≡∷ (unitrec-cong A≡B t₁≡u₁ t₂≡u₂ _ _) =
+    size-⊢≡ A≡B ⊕ size-⊢≡∷ t₁≡u₁ ⊕ size-⊢≡∷ t₂≡u₂
+  size-⊢≡∷ (unitrec-β ⊢A ⊢t _ _) =
+    size-⊢ ⊢A ⊕ size-⊢∷ ⊢t
+  size-⊢≡∷ (unitrec-β-η ⊢A ⊢t ⊢u _ _) =
+    size-⊢ ⊢A ⊕ size-⊢∷ ⊢t ⊕ size-⊢∷ ⊢u
+  size-⊢≡∷ (η-unit ⊢t ⊢u _ _) =
+    size-⊢∷ ⊢t ⊕ size-⊢∷ ⊢u
   size-⊢≡∷ (suc-cong t≡u) =
     node (size-⊢≡∷ t≡u)
   size-⊢≡∷ (natrec-cong A≡B t₁≡u₁ t₂≡u₂ t₃≡u₃) =

@@ -148,36 +148,29 @@ opaque
 
   -- Inversion for Unit.
 
-  inversion-Unit-U : Γ ⊢ Unit s t ∷ A → Γ ⊢ t ∷ Level × Γ ⊢ A ≡ U t × Unit-allowed s
-  inversion-Unit-U (Unitⱼ ⊢t ok)    = ⊢t , refl (Uⱼ ⊢t) , ok
+  inversion-Unit-U : Γ ⊢ Unit s ∷ A → Γ ⊢ A ≡ U zeroᵘ × Unit-allowed s
+  inversion-Unit-U (Unitⱼ ⊢Γ ok)    = refl (Uⱼ (zeroᵘⱼ ⊢Γ)) , ok
   inversion-Unit-U (conv ⊢Unit B≡A) =
-    let ⊢t , B≡U , ok = inversion-Unit-U ⊢Unit in
-    ⊢t , trans (sym B≡A) B≡U , ok
+    let B≡U , ok = inversion-Unit-U ⊢Unit in
+    trans (sym B≡A) B≡U , ok
 
 opaque
 
   -- Inversion for Unit.
 
-  inversion-Unit : Γ ⊢ Unit s t → Γ ⊢ t ∷ Level × Unit-allowed s
+  inversion-Unit : Γ ⊢ Unit s → Unit-allowed s
   inversion-Unit = λ where
-    (Unitⱼ ⊢t ok) → ⊢t , ok
+    (Unitⱼ _ ok) → ok
     (univ ⊢Unit) →
-      let ⊢t , Ul≡Ut , ok = inversion-Unit-U ⊢Unit in
-      ⊢t , ok
-
-opaque
-
-  -- Inversion for Unit.
-
-  inversion-Unit-allowed : Γ ⊢ Unit s t → Unit-allowed s
-  inversion-Unit-allowed = proj₂ ∘→ inversion-Unit
+      let _ , ok = inversion-Unit-U ⊢Unit in
+      ok
 
 opaque
 
   -- Inversion for star.
 
   inversion-star :
-    Γ ⊢ star s l ∷ A → Γ ⊢ A ≡ Unit s l × Unit-allowed s
+    Γ ⊢ star s ∷ A → Γ ⊢ A ≡ Unit s × Unit-allowed s
   inversion-star (starⱼ ⊢Γ ok)   = refl (Unitⱼ ⊢Γ ok) , ok
   inversion-star (conv ⊢star eq) =
     let a , b = inversion-star ⊢star in

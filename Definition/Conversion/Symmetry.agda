@@ -144,21 +144,20 @@ mutual
     in  _ , soundnessConv↑ x
     , emptyrec-cong (symConv↑ Γ≡Δ x)
                     (PE.subst (λ x₁ → _ ⊢ _ ~ _ ↓ x₁) B≡Empty u~t)
-  sym~↑ Γ≡Δ (unitrec-cong l₁≡l₂ F<>H k~l u<>v no-η) =
+  sym~↑ Γ≡Δ (unitrec-cong F<>H k~l u<>v no-η) =
     let k≡l = soundness~∷ k~l
         ⊢Unit = proj₁ (syntacticEqTerm k≡l)
-        ⊢l₁ , ok = inversion-Unit ⊢Unit
-        ⊢l₁≡l₂ = soundnessConv↑Term l₁≡l₂
-        Unit≡Unit = Unit-cong ⊢l₁≡l₂ ok
+        ok = inversion-Unit ⊢Unit
+        Unit≡Unit = refl ⊢Unit
         H<>F = symConv↑ (Γ≡Δ ∙ Unit≡Unit) F<>H
         ⊢Γ , ⊢Δ , _ = contextConvSubst Γ≡Δ
-        l~k = conv~∷ (reflConEq ⊢Δ) (stabilityEq Γ≡Δ Unit≡Unit) (sym~∷ Γ≡Δ k~l)
+        l~k = sym~∷ Γ≡Δ k~l
         v<>u = symConv↑Term Γ≡Δ u<>v
         ⊢F≡H = soundnessConv↑ F<>H
-        ⊢F₊≡H₊ = substTypeEq ⊢F≡H (star-cong ⊢l₁≡l₂ ok)
+        ⊢F₊≡H₊ = substTypeEq ⊢F≡H (refl (starⱼ ⊢Γ ok))
         ⊢Fk≡Hl = substTypeEq ⊢F≡H k≡l
         v<>u′ = convConv↑Term (stabilityEq Γ≡Δ ⊢F₊≡H₊) v<>u
-    in _ , ⊢Fk≡Hl , unitrec-cong (symConv↑Term Γ≡Δ l₁≡l₂) H<>F l~k v<>u′ no-η
+    in _ , ⊢Fk≡Hl , unitrec-cong H<>F l~k v<>u′ no-η
   sym~↑ Γ≡Δ (J-cong A₁≡A₂ t₁≡t₂ B₁≡B₂ u₁≡u₂ v₁≡v₂ w₁~w₂ C≡Id-t₁-v₁) =
     case sym~↓ Γ≡Δ w₁~w₂ of λ {
       (_ , _ , C≡D , w₂~w₁) →
@@ -269,8 +268,9 @@ mutual
   symConv↓ Γ≡Δ (Empty-refl x) =
     let _ , ⊢Δ , _ = contextConvSubst Γ≡Δ
     in  Empty-refl ⊢Δ
-  symConv↓ Γ≡Δ (Unit-cong x ok) =
-    Unit-cong (symConv↑Term Γ≡Δ x) ok
+  symConv↓ Γ≡Δ (Unit-refl x ok) =
+    let _ , ⊢Δ , _ = contextConvSubst Γ≡Δ
+    in  Unit-refl ⊢Δ ok
   symConv↓ Γ≡Δ (ne A~B) =
     let B , whnfB , U≡B , B~A = sym~↓ Γ≡Δ A~B
         B≡U = U≡A U≡B whnfB .proj₂
@@ -354,13 +354,9 @@ mutual
   symConv↓Term Γ≡Δ (zero-refl x) =
     let _ , ⊢Δ , _ = contextConvSubst Γ≡Δ
     in  zero-refl ⊢Δ
-  symConv↓Term Γ≡Δ (starʷ-cong x y ok no-η) =
+  symConv↓Term Γ≡Δ (starʷ-refl y ok no-η) =
     let ⊢Γ , ⊢Δ , _ = contextConvSubst Γ≡Δ
-        l₁≡l₂ = soundnessConv↑Term y
-    in  starʷ-cong
-          (stabilityEqTerm Γ≡Δ (trans x l₁≡l₂))
-          (symConv↑Term Γ≡Δ y)
-          ok no-η
+    in  starʷ-refl ⊢Δ ok no-η
   symConv↓Term Γ≡Δ (suc-cong t<>u) = suc-cong (symConv↑Term Γ≡Δ t<>u)
   symConv↓Term Γ≡Δ (prod-cong x₁ x₂ x₃ ok) =
     let Δ⊢G = stability (Γ≡Δ ∙ refl (⊢∙→⊢ (wf x₁))) x₁
@@ -383,11 +379,10 @@ mutual
                                                     (soundnessConv↑Term fstConv))
         Δsnd≡ = convConv↑Term ΔGfstt≡Gfstu Δsnd≡₁
     in  Σ-η Δ⊢r Δ⊢p rProd pProd Δfst≡ Δsnd≡
-  symConv↓Term Γ≡Δ (η-unit l [t] [u] tUnit uUnit ok₁ ok₂) =
+  symConv↓Term Γ≡Δ (η-unit [t] [u] tUnit uUnit ok₁ ok₂) =
     let [t] = stabilityTerm Γ≡Δ [t]
         [u] = stabilityTerm Γ≡Δ [u]
-        l = stabilityTerm Γ≡Δ l
-    in  η-unit l [u] [t] uUnit tUnit ok₁ ok₂
+    in  η-unit [u] [t] uUnit tUnit ok₁ ok₂
   symConv↓Term Γ≡Δ (Id-ins ⊢v₁ v₁~v₂) =
     case sym~↓ Γ≡Δ v₁~v₂ of λ {
       (_ , B-whnf , Id≡B , v₂~v₁) →

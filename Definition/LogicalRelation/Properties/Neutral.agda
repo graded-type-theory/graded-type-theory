@@ -117,7 +117,7 @@ opaque
       in
       ⊩Empty∷Empty⇔⊩Empty≡∷Empty .proj₁
         (Emptyₜ _ (id (conv ⊢n A≡Empty)) n≡n (ne (neNfₜ inc n-ne n~n′)))
-    neuTerm′ (Unitᵣ′ _ _ _ D _) =
+    neuTerm′ (Unitᵣ′ D _) =
       let A≡Unit  = subset* D
           n~n′ = ~-conv ~n A≡Unit
       in
@@ -235,7 +235,7 @@ opaque
       Emptyₜ₌ _ _ (id (conv ⊢n A≡Empty))
         (id (conv ⊢n′ A≡Empty)) n≡n′
         (ne (neNfₜ₌ inc n-ne n′-ne n~n′₁))
-    neuEqTerm′ (Unitᵣ {s} (Unitᵣ _ _ _ D _)) =
+    neuEqTerm′ (Unitᵣ {s} (Unitᵣ D _)) =
       let A≡Unit = subset* D
           n~n′₁ = ~-conv n~n′ A≡Unit
       in

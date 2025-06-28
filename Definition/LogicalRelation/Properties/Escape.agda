@@ -48,7 +48,7 @@ escape (Uᵣ′ _ _ _ D) = redFirst* D
 escape (Liftᵣ′ D _ _) = redFirst* D
 escape (ℕᵣ D) = redFirst* D
 escape (Emptyᵣ D) = redFirst* D
-escape (Unitᵣ′ _ _ _ D _) = redFirst* D
+escape (Unitᵣ′ D _) = redFirst* D
 escape (ne′ _ _ D _ _) = redFirst* D
 escape (Bᵣ′ _ _ _ D _ _ _ _ _) = redFirst* D
 escape (Idᵣ ⊩A) = redFirst* (_⊩ₗId_.⇒*Id ⊩A)
@@ -99,8 +99,8 @@ escapeEq (ℕᵣ D) D′ =
   ≅-red (D , ℕₙ) (D′ , ℕₙ) (≅-ℕrefl (wf (redFirst* D)))
 escapeEq (Emptyᵣ D) D′ =
   ≅-red (D , Emptyₙ) (D′ , Emptyₙ) (≅-Emptyrefl (wfEq (subset* D)))
-escapeEq (Unitᵣ′ _ _ _ D ok) (Unit₌ _ D′ k≡k′) =
-  ≅-red (D , Unitₙ) (D′ , Unitₙ) (≅-Unit-cong (escapeLevelEq k≡k′) ok)
+escapeEq (Unitᵣ′ D ok) (Unit₌ D′) =
+  ≅-red (D , Unitₙ) (D′ , Unitₙ) (≅-Unit-refl (wf (redFirst* D)) ok)
 escapeEq (ne′ _ _ D neK _) (ne₌ _ _ D′ neM K≡M) =
   ≅-red (D , ne! neK) (D′ , ne! neM) K≡M
 escapeEq (Bᵣ′ W _ _ D _ _ _ _ _) (B₌ _ _ D′ A≡B _ _) =
@@ -125,17 +125,14 @@ escapeTermEq (ℕᵣ D) (ℕₜ₌ _ _ d d′ k≡k′ prop) =
 escapeTermEq (Emptyᵣ D) (Emptyₜ₌ k k′ d d′ k≡k′ prop) =
   let natK , natK′ = esplit prop
   in  ≅ₜ-red (D , Emptyₙ) (d , ne! natK) (d′ , ne! natK′) k≡k′
-escapeTermEq (Unitᵣ′ k [k] k< D ok) (Unitₜ₌ _ _ d d′ prop) =
+escapeTermEq (Unitᵣ′ D ok) (Unitₜ₌ _ _ d d′ prop) =
   let _ , _ , ⊢t′ = wf-⊢≡∷ (subset*Term (d .proj₁))
       _ , _ , ⊢u′ = wf-⊢≡∷ (subset*Term (d′ .proj₁))
   in
   ≅ₜ-red (D , Unitₙ) d d′
     (case prop of λ where
-       (Unitₜ₌ˢ η) → ≅ₜ-η-unit (escapeLevel [k]) ⊢t′ ⊢u′ ok η
-       (Unitₜ₌ʷ (starᵣ k≡k′ k′≡k″) _) →
-         ≅-conv
-           (≅ₜ-star-cong (escapeLevelEq k′≡k″) ok)
-           (Unit-cong (≅ₜ-eq (≅ₜ-sym (escapeLevelEq k≡k′))) ok)
+       (Unitₜ₌ˢ η) → ≅ₜ-η-unit ⊢t′ ⊢u′ ok η
+       (Unitₜ₌ʷ starᵣ _) → ≅ₜ-star-refl (wf (redFirst* D)) ok
        (Unitₜ₌ʷ (ne (neNfₜ₌ _ _ _ t′~u′)) _) → ~-to-≅ₜ t′~u′)
 escapeTermEq (ne′ _ _ D neK _) (neₜ₌ _ _ d d′ (neNfₜ₌ _ neT neU t≡u)) =
   ≅ₜ-red (D , ne! neK) (d , ne! neT) (d′ , ne! neU) (~-to-≅ₜ t≡u)
@@ -169,8 +166,8 @@ opaque
   -- If a unit type is reducible, then that unit type is allowed.
 
   ⊩Unit→Unit-allowed :
-    Γ ⊩⟨ l′ ⟩ Unit s t → Unit-allowed s
-  ⊩Unit→Unit-allowed = inversion-Unit-allowed ∘→ escape
+    Γ ⊩⟨ l′ ⟩ Unit s → Unit-allowed s
+  ⊩Unit→Unit-allowed = inversion-Unit ∘→ escape
 
 opaque
 

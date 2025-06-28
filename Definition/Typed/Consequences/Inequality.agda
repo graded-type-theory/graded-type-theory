@@ -107,9 +107,9 @@ opaque
 
   U≢Unitⱼ :
     ⦃ ok : No-equality-reflection or-empty Γ ⦄ →
-    ¬ Γ ⊢ U l₁ ≡ Unit s l₂
+    ¬ Γ ⊢ U l ≡ Unit s
   U≢Unitⱼ {s} =
-    A≢B _⊩′⟨_⟩U_ _⊩Unit⟨_, s ⟩_ Uᵣ Unitᵣ
+    A≢B _⊩′⟨_⟩U_ (λ Γ _ A → Γ ⊩Unit⟨ s ⟩ A) Uᵣ Unitᵣ
       U-elim Unit-elim (λ ())
 
 opaque
@@ -167,9 +167,9 @@ opaque
 
   Lift≢Unitⱼ :
     ⦃ ok : No-equality-reflection or-empty Γ ⦄ →
-    ¬ Γ ⊢ Lift l₁ A ≡ Unit s l₂
+    ¬ Γ ⊢ Lift l A ≡ Unit s
   Lift≢Unitⱼ {s} =
-    A≢B _⊩′⟨_⟩Lift_ _⊩Unit⟨_, s ⟩_ Liftᵣ Unitᵣ
+    A≢B _⊩′⟨_⟩Lift_ (λ Γ _ A → Γ ⊩Unit⟨ s ⟩ A) Liftᵣ Unitᵣ
       Lift-elim Unit-elim (λ ())
 
 opaque
@@ -208,9 +208,9 @@ opaque
 
   ℕ≢Unitⱼ :
     ⦃ ok : No-equality-reflection or-empty Γ ⦄ →
-    ¬ Γ ⊢ ℕ ≡ Unit s l
+    ¬ Γ ⊢ ℕ ≡ Unit s
   ℕ≢Unitⱼ {s} =
-    A≢B (λ Γ _ A → Γ ⊩ℕ A) _⊩Unit⟨_, s ⟩_ ℕᵣ Unitᵣ
+    A≢B (λ Γ _ A → Γ ⊩ℕ A) (λ Γ _ A → Γ ⊩Unit⟨ s ⟩ A) ℕᵣ Unitᵣ
       ℕ-elim Unit-elim (λ ())
 
 opaque
@@ -220,9 +220,9 @@ opaque
 
   Empty≢Unitⱼ :
     ⦃ ok : No-equality-reflection or-empty Γ ⦄ →
-    ¬ Γ ⊢ Empty ≡ Unit s l
+    ¬ Γ ⊢ Empty ≡ Unit s
   Empty≢Unitⱼ {s} =
-    A≢B (λ Γ _ A → Γ ⊩Empty A) _⊩Unit⟨_, s ⟩_ Emptyᵣ Unitᵣ
+    A≢B (λ Γ _ A → Γ ⊩Empty A) (λ Γ _ A → Γ ⊩Unit⟨ s ⟩ A) Emptyᵣ Unitᵣ
       Empty-elim Unit-elim (λ ())
 
 opaque
@@ -256,9 +256,9 @@ opaque
 
   Level≢Unitⱼ :
     ⦃ ok : No-equality-reflection or-empty Γ ⦄ →
-    ¬ Γ ⊢ Level ≡ Unit s l
+    ¬ Γ ⊢ Level ≡ Unit s
   Level≢Unitⱼ {s} =
-    A≢B (λ Γ _ A → Γ ⊩Level A) _⊩Unit⟨_, s ⟩_ Levelᵣ Unitᵣ
+    A≢B (λ Γ _ A → Γ ⊩Level A) (λ Γ _ A → Γ ⊩Unit⟨ s ⟩ A) Levelᵣ Unitᵣ
       Level-elim Unit-elim (λ ())
 
 opaque
@@ -381,10 +381,10 @@ opaque
 
   Unit≢ΠΣⱼ :
     ⦃ ok : No-equality-reflection or-empty Γ ⦄ →
-    ¬ Γ ⊢ Unit s l ≡ ΠΣ⟨ b ⟩ p , q ▷ B ▹ C
+    ¬ Γ ⊢ Unit s ≡ ΠΣ⟨ b ⟩ p , q ▷ B ▹ C
   Unit≢ΠΣⱼ {s} =
     let b = _ in
-    A≢B _⊩Unit⟨_, s ⟩_ _⊩′⟨_⟩B⟨ b ⟩_ Unitᵣ (Bᵣ _)
+    A≢B (λ Γ _ A → Γ ⊩Unit⟨ s ⟩ A) _⊩′⟨_⟩B⟨ b ⟩_ Unitᵣ (Bᵣ _)
       Unit-elim B-elim (λ ())
 
 opaque
@@ -418,9 +418,9 @@ opaque
 
   Unit≢neⱼ :
     ⦃ ok : No-equality-reflection or-empty Γ ⦄ →
-    Neutral A → ¬ Γ ⊢ Unit s l ≡ A
+    Neutral A → ¬ Γ ⊢ Unit s ≡ A
   Unit≢neⱼ {s} A-ne =
-    A≢B _⊩Unit⟨_, s ⟩_ (λ Γ _ A → Γ ⊩ne A) Unitᵣ ne
+    A≢B (λ Γ _ A → Γ ⊩Unit⟨ s ⟩ A) (λ Γ _ A → Γ ⊩ne A) Unitᵣ ne
       Unit-elim (ne-elim A-ne) (λ ())
 
 opaque
@@ -473,9 +473,9 @@ opaque
 
   Unitʷ≢Unitˢ :
     ⦃ ok : No-equality-reflection or-empty Γ ⦄ →
-    ¬ Γ ⊢ Unitʷ l₁ ≡ Unitˢ l₂
+    ¬ Γ ⊢ Unitʷ ≡ Unitˢ
   Unitʷ≢Unitˢ =
-    A≢B _⊩Unit⟨_, 𝕨 ⟩_ _⊩Unit⟨_, 𝕤 ⟩_ Unitᵣ Unitᵣ
+    A≢B (λ Γ _ A → Γ ⊩Unit⟨ 𝕨 ⟩ A) (λ Γ _ A → Γ ⊩Unit⟨ 𝕤 ⟩ A) Unitᵣ Unitᵣ
       Unit-elim Unit-elim (λ ())
 
 opaque
@@ -545,9 +545,9 @@ opaque
 
   Id≢Unit :
     ⦃ ok : No-equality-reflection or-empty Γ ⦄ →
-    ¬ Γ ⊢ Id A t u ≡ Unit s l
+    ¬ Γ ⊢ Id A t u ≡ Unit s
   Id≢Unit {s} =
-    A≢B _⊩′⟨_⟩Id_ _⊩Unit⟨_, s ⟩_ Idᵣ Unitᵣ
+    A≢B _⊩′⟨_⟩Id_ (λ Γ _ A → Γ ⊩Unit⟨ s ⟩ A) Idᵣ Unitᵣ
       Id-elim Unit-elim (λ ())
 
 opaque
@@ -612,7 +612,7 @@ No-η-equality→≢Σˢ = λ where
 
 No-η-equality→≢Unit :
   ⦃ ok : No-equality-reflection or-empty Γ ⦄ →
-  No-η-equality A → Γ ⊢ A ≡ Unit s l → ¬ Unit-with-η s
+  No-η-equality A → Γ ⊢ A ≡ Unit s → ¬ Unit-with-η s
 No-η-equality→≢Unit = λ where
   U.Levelₙ        Level≡Unit  _              → Level≢Unitⱼ Level≡Unit
   U.Uₙ            U≡Unit      _              → U≢Unitⱼ U≡Unit
@@ -679,11 +679,11 @@ whnf≢ne {Γ} {A} {t} {u} ¬-A-η A≢Level t-whnf ¬-t-ne u-ne t≡u =
       ¬t⇒*ne t⇒*v v-ne
     (Emptyᵣ _) (Emptyₜ₌ _ _ t⇒*v _ _ (ne (neNfₜ₌ _ v-ne _ _))) →
       ¬t⇒*ne t⇒*v v-ne
-    (Unitᵣ′ _ _ _ A⇒*Unit _) (Unitₜ₌ _ _ (d , _) (d′ , _) prop) →
+    (Unitᵣ′ A⇒*Unit _) (Unitₜ₌ _ _ (d , _) (d′ , _) prop) →
       case A⇒*no-η A⇒*Unit of λ where
         (U.neₙ ())
         (U.Unitʷₙ no-η) → case prop of λ where
-          (Unitₜ₌ʷ (starᵣ _ _) _) →
+          (Unitₜ₌ʷ starᵣ _) →
             U.star≢ne (u⇒*ne d′) PE.refl
           (Unitₜ₌ʷ (ne (neNfₜ₌ _ neK _ _)) _) →
             ¬t⇒*ne d neK
@@ -752,7 +752,7 @@ starʷ≢ne :
   ⦃ ok : No-equality-reflection or-empty Γ ⦄ →
   ¬ Unitʷ-η →
   Neutral t →
-  ¬ Γ ⊢ starʷ l ≡ t ∷ Unitʷ l
+  ¬ Γ ⊢ starʷ ≡ t ∷ Unitʷ
 starʷ≢ne no-η =
   whnf≢ne (U.Unitʷₙ no-η) (Level≢Unitⱼ ∘→ sym) U.starₙ (λ { (U.ne ()) })
 

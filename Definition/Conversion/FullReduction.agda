@@ -152,9 +152,7 @@ mutual
          Γ ⊢ne emptyrec p A′ t′ ∷ A′  →⟨ flip _⊢ne_∷_.convₙ (sym A≡A′) ⟩
          Γ ⊢ne emptyrec p A′ t′ ∷ A   □)
       , emptyrec-cong A≡A′ t≡t′ }}
-    (unitrec-cong {A₁ = A} {t₁ = t} l↑ A↑ t∷ u↑ no-η) →
-      case fullRedTermConv↑ l↑ of λ {
-        (l′ , l′-nf , l≡l′) →
+    (unitrec-cong {A₁ = A} {t₁ = t} A↑ t∷ u↑ no-η) →
       case fullRedConv↑ A↑ of λ {
         (A′ , A′-nf , A≡A′) →
       case fullRedNe~∷ t∷ of λ {
@@ -162,16 +160,16 @@ mutual
       case fullRedTermConv↑ u↑ of λ {
         (u′ , u′-nf , u≡u′) →
       case inversion-Unit (syntacticEqTerm t≡t′ .proj₁) of λ {
-        (⊢l , ok) →
-        unitrec _ _ _ A′ t′ u′
+        ok →
+        unitrec _ _ A′ t′ u′
       , (                                           $⟨ u′-nf ⟩
-         Γ ⊢nf u′ ∷ A [ starʷ _ ]₀                  →⟨ flip _⊢nf_∷_.convₙ $
-                                                       substTypeEq A≡A′ (refl (starⱼ ⊢l ok)) ⟩
-         Γ ⊢nf u′ ∷ A′ [ starʷ _ ]₀                 →⟨ (λ ⊢u′ → unitrecₙ l′-nf (⊢nf-stable (refl-∙ (Unit-cong l≡l′ ok)) A′-nf) (convₙ t′-ne (Unit-cong l≡l′ ok)) (convₙ ⊢u′ (substTypeEq (refl (syntacticEq A≡A′ .proj₂)) (star-cong l≡l′ ok))) ok no-η) ⟩
-         Γ ⊢ne unitrec _ _ _ A′ t′ u′ ∷ A′ [ t′ ]₀  →⟨ flip _⊢ne_∷_.convₙ $ _⊢_≡_.sym $
+         Γ ⊢nf u′ ∷ A [ starʷ ]₀                  →⟨ flip _⊢nf_∷_.convₙ $
+                                                       substTypeEq A≡A′ (refl (starⱼ (wfEqTerm t≡t′) ok)) ⟩
+         Γ ⊢nf u′ ∷ A′ [ starʷ ]₀                 →⟨ (λ ⊢u′ → unitrecₙ A′-nf t′-ne ⊢u′ ok no-η) ⟩
+         Γ ⊢ne unitrec _ _ A′ t′ u′ ∷ A′ [ t′ ]₀  →⟨ flip _⊢ne_∷_.convₙ $ _⊢_≡_.sym $
                                                        substTypeEq A≡A′ t≡t′ ⟩
-         Γ ⊢ne unitrec _ _ _ A′ t′ u′ ∷ A [ t ]₀    □)
-      , unitrec-cong′ l≡l′ A≡A′ t≡t′ u≡u′ }}}}}
+         Γ ⊢ne unitrec _ _ A′ t′ u′ ∷ A [ t ]₀    □)
+      , unitrec-cong′ A≡A′ t≡t′ u≡u′ }}}}
     (J-cong A₁≡A₂ t₁≡t₂ B₁≡B₂ u₁≡u₂ v₁≡v₂ w₁~w₂ C≡Id-t₁-v₁) →
       case fullRedConv↑ A₁≡A₂ of λ {
         (A₁′ , ⊢A₁′ , A₁≡A₁′) →
@@ -280,9 +278,8 @@ mutual
       in Lift _ _ , Liftₙ ⊢l ⊢C , Lift-cong l₁≡l A≡C
     (ℕ-refl     ⊢Γ)    → ℕ     , ℕₙ     ⊢Γ , refl (ℕⱼ     ⊢Γ)
     (Empty-refl ⊢Γ)    → Empty , Emptyₙ ⊢Γ , refl (Emptyⱼ ⊢Γ)
-    (Unit-cong l₁≡l₂ ok) →
-      let l , ⊢l , l₁≡l = fullRedTermConv↑ l₁≡l₂
-      in Unit! , Unitₙ ⊢l ok , Unit-cong l₁≡l ok
+    (Unit-refl ⊢Γ ok) →
+      Unit! , Unitₙ ⊢Γ ok , refl (Unitⱼ ⊢Γ ok)
     (ne A~) →
       case fullRedNe~↓ A~ of λ {
         (B , B-ne , A≡B) →
@@ -421,12 +418,10 @@ mutual
       , inverseUnivEq ⊢A A≡B }
     (zero-refl ⊢Γ) →
       zero , zeroₙ ⊢Γ , refl (zeroⱼ ⊢Γ)
-    (starʷ-cong l≡l₁ l₁≡l₂ ok _) →
-      let k , ⊢k , l₁≡k = fullRedTermConv↑ l₁≡l₂
-          l≡k = trans l≡l₁ l₁≡k
-      in starʷ _
-      , convₙ (starₙ ⊢k ok) (sym (Unit-cong l≡k ok))
-      , conv (star-cong l₁≡k ok) (sym (Unit-cong l≡l₁ ok))
+    (starʷ-refl ⊢Γ ok _) →
+        starʷ
+      , starₙ ⊢Γ ok
+      , refl (starⱼ ⊢Γ ok)
     (suc-cong t↑) →
       case fullRedTermConv↑ t↑ of λ {
         (u , u-nf , t≡u) →
@@ -479,14 +474,14 @@ mutual
          Γ ⊢ t ≡ prodˢ p (fst p t) (snd p t) ∷ Σˢ p , q ▷ A ▹ B  →⟨ flip _⊢_≡_∷_.trans $
                                                                     prod-cong ⊢B fst-t≡u₁ snd-t≡u₂ ok ⟩
          Γ ⊢ t ≡ prodˢ p u₁ u₂ ∷ Σˢ p , q ▷ A ▹ B                □) }}}
-    (η-unit ⊢l ⊢t _ _ _ _ ok) →
-      case wfTerm ⊢l of λ {
+    (η-unit ⊢t _ _ _ _ ok) →
+      case wfTerm ⊢t of λ {
         ⊢Γ →
       case ⊢∷Unit→Unit-allowed ⊢t of λ {
         Unit-ok →
         star!
-      , starₙ {!   !} Unit-ok
-      , η-unit ⊢l ⊢t (starⱼ ⊢l Unit-ok) Unit-ok ok }}
+      , starₙ ⊢Γ Unit-ok
+      , η-unit ⊢t (starⱼ ⊢Γ Unit-ok) Unit-ok ok }}
     (Id-ins ⊢t t~u) →
       case fullRedNe~↓ t~u of λ {
         (v , ⊢v , t≡v) →

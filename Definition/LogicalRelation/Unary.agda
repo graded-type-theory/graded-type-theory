@@ -207,40 +207,40 @@ opaque
 
 -- A property for terms of unit type in WHNF.
 
-data Unit-prop′ (Γ : Con Term n) (k : Term n) (s : Strength) :
+data Unit-prop′ (Γ : Con Term n) (s : Strength) :
        Term n → Set a where
-  starᵣ : ∀ {k′} → Γ ⊩Level k ≡ k′ ∷Level → Unit-prop′ Γ k s (star s k′)
-  ne    : Γ ⊩neNf t ∷ Unit s k → Unit-prop′ Γ k s t
+  starᵣ : Unit-prop′ Γ s (star s)
+  ne    : Γ ⊩neNf t ∷ Unit s → Unit-prop′ Γ s t
 
 opaque
 
-  -- The relation Unit-prop′ Γ l s is pointwise logically equivalent
-  -- to the diagonal of [Unit]-prop′ Γ l s.
+  -- The relation Unit-prop′ Γ s is pointwise logically equivalent
+  -- to the diagonal of [Unit]-prop′ Γ s.
 
-  Unit-prop′⇔[Unit]-prop′ : ∀ {s k} → Unit-prop′ Γ k s t ⇔ [Unit]-prop′ Γ k s t t
-  Unit-prop′⇔[Unit]-prop′ {s} {k} =
+  Unit-prop′⇔[Unit]-prop′ : ∀ {s} → Unit-prop′ Γ s t ⇔ [Unit]-prop′ Γ s t t
+  Unit-prop′⇔[Unit]-prop′ {s} =
       (λ where
-         (starᵣ k≡k′) → starᵣ k≡k′ (reflLevel (wf-Level-eq k≡k′ .proj₂))
+         starᵣ → starᵣ
          (ne ⊩t) → ne (⊩neNf∷⇔⊩neNf≡∷ .proj₁ ⊩t))
     , flip lemma PE.refl
     where
-    lemma : [Unit]-prop′ Γ k s t t′ → t PE.≡ t′ → Unit-prop′ Γ k s t
-    lemma (starᵣ k≡k′ k′≡k″) _ = starᵣ k≡k′
+    lemma : [Unit]-prop′ Γ s t t′ → t PE.≡ t′ → Unit-prop′ Γ s t
+    lemma starᵣ _ = starᵣ
     lemma (ne ⊩t) PE.refl = ne (⊩neNf∷⇔⊩neNf≡∷ .proj₂ ⊩t)
 
 -- A property for terms of unit type in WHNF.
 
-data Unit-prop (Γ : Con Term n) (k : Term n) :
+data Unit-prop (Γ : Con Term n) :
        Strength → Term n → Set a where
-  Unitₜʷ : Unit-prop′ Γ k 𝕨 t → ¬ Unitʷ-η → Unit-prop Γ k 𝕨 t
-  Unitₜˢ : Unit-with-η s → Unit-prop Γ k s t
+  Unitₜʷ : Unit-prop′ Γ 𝕨 t → ¬ Unitʷ-η → Unit-prop Γ 𝕨 t
+  Unitₜˢ : Unit-with-η s → Unit-prop Γ s t
 
 opaque
 
   -- The relation Unit-prop is pointwise logically equivalent to the
   -- diagonal of [Unit]-prop.
 
-  Unit-prop⇔[Unit]-prop : ∀ {k} → Unit-prop Γ k s t ⇔ [Unit]-prop Γ k s t t
+  Unit-prop⇔[Unit]-prop : Unit-prop Γ s t ⇔ [Unit]-prop Γ s t t
   Unit-prop⇔[Unit]-prop =
       (λ where
          (Unitₜʷ prop no-η) →
@@ -256,9 +256,8 @@ opaque
   -- A "smart constructor" for Unit-prop.
 
   Unit-prop′→Unit-prop :
-    ∀ {k} →
-    Unit-prop′ Γ k s t →
-    Unit-prop Γ k s t
+    Unit-prop′ Γ s t →
+    Unit-prop Γ s t
   Unit-prop′→Unit-prop {s} prop =
     case Unit-with-η? s of λ where
       (inj₁ η)                → Unitₜˢ η
@@ -266,17 +265,17 @@ opaque
 
 -- Unary reducibility for terms of unit type.
 
-record _⊩Unit⟨_⟩_∷Unit/_
+record _⊩Unit⟨_⟩_∷Unit
          (Γ : Con Term n) (s : Strength)
-         (t k : Term n) :
+         (t : Term n) :
          Set a where
   no-eta-equality
   pattern
   constructor Unitₜ
   field
     u    : Term n
-    ↘u   : Γ ⊢ t ↘ u ∷ Unit s k
-    prop : Unit-prop Γ k s u
+    ↘u   : Γ ⊢ t ↘ u ∷ Unit s
+    prop : Unit-prop Γ s u
 
 opaque
 
@@ -284,14 +283,14 @@ opaque
   -- to the diagonal of _⊩Unit⟨_,_⟩_≡_∷Unit.
 
   ⊩Unit∷Unit⇔⊩Unit≡∷Unit :
-    ∀ {k} → Γ ⊩Unit⟨ s ⟩ t ∷Unit/ k ⇔ Γ ⊩Unit⟨ s ⟩ t ≡ t ∷Unit/ k
+    Γ ⊩Unit⟨ s ⟩ t ∷Unit ⇔ Γ ⊩Unit⟨ s ⟩ t ≡ t ∷Unit
   ⊩Unit∷Unit⇔⊩Unit≡∷Unit =
       (λ (Unitₜ _ ↘u prop) →
          Unitₜ₌ _ _ ↘u ↘u (Unit-prop⇔[Unit]-prop .proj₁ prop))
     , (λ (Unitₜ₌ _ _ ↘u ↘v prop) →
          Unitₜ _ ↘u
            (Unit-prop⇔[Unit]-prop .proj₂ $
-            PE.subst ([Unit]-prop _ _ _ _) (whrDet*Term ↘v ↘u) prop))
+            PE.subst ([Unit]-prop _ _ _) (whrDet*Term ↘v ↘u) prop))
 
 ------------------------------------------------------------------------
 -- Π

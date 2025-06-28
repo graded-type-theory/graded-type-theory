@@ -97,19 +97,18 @@ transEqTermEmpty
 
 -- Transitivity for [Unit]-prop′ Γ l 𝕨.
 transUnit-prop′ :
-  ∀ {l} →
-  [Unit]-prop′ Γ l 𝕨 t u →
-  [Unit]-prop′ Γ l 𝕨 u v →
-  [Unit]-prop′ Γ l 𝕨 t v
-transUnit-prop′ (starᵣ l≡k k≡k′) (starᵣ l≡k′ k′≡k″) = starᵣ l≡k (transEqTermLevel k≡k′ k′≡k″)
+  [Unit]-prop′ Γ 𝕨 t u →
+  [Unit]-prop′ Γ 𝕨 u v →
+  [Unit]-prop′ Γ 𝕨 t v
+transUnit-prop′ starᵣ starᵣ = starᵣ
 transUnit-prop′ (ne t≡u) (ne u≡v) = ne (transEqTermNe t≡u u≡v)
-transUnit-prop′ (starᵣ l≡k k≡k′) (ne (neNfₜ₌ _ () _ _))
-transUnit-prop′ (ne (neNfₜ₌ _ _ () _)) (starᵣ k≡k′ k′≡k″)
+transUnit-prop′ starᵣ (ne (neNfₜ₌ _ () _ _))
+transUnit-prop′ (ne (neNfₜ₌ _ _ () _)) starᵣ
 
-transUnit-prop : ∀ {l k k′ k″}
-  → [Unit]-prop Γ l s k k′
-  → [Unit]-prop Γ l s k′ k″
-  → [Unit]-prop Γ l s k k″
+transUnit-prop : ∀ {k k′ k″}
+  → [Unit]-prop Γ s k k′
+  → [Unit]-prop Γ s k′ k″
+  → [Unit]-prop Γ s k k″
 transUnit-prop (Unitₜ₌ʷ prop₁ no-η) (Unitₜ₌ʷ prop₂ _) =
   Unitₜ₌ʷ (transUnit-prop′ prop₁ prop₂) no-η
 transUnit-prop (Unitₜ₌ʷ _ no-η) (Unitₜ₌ˢ η) =
@@ -224,11 +223,8 @@ private module Trans (l : Universe-level) (rec : ∀ {l′} → l′ <ᵘ l → 
         (transEq _ [F′] [F″] F≡F′ F′≡F″) }}
   transEqT (ℕᵥ D D′ D″) A≡B B≡C = B≡C
   transEqT (Emptyᵥ D D′ D″) A≡B B≡C = B≡C
-  transEqT (Unitᵥ _ (Unitᵣ k′ _ _ B⇒*Unit₁ _) _) (Unit₌ _ B⇒*Unit₂ k≡k′) (Unit₌ _ C⇒*Unit k′≡k″) =
-    case Unit-PE-injectivity $
-        whrDet* (B⇒*Unit₁ , Unitₙ) (B⇒*Unit₂ , Unitₙ) of λ {
-      (_ , PE.refl) →
-    Unit₌ _ C⇒*Unit (transEqTermLevel k≡k′ k′≡k″) }
+  transEqT (Unitᵥ _ (Unitᵣ B⇒*Unit₁ _) _) (Unit₌ B⇒*Unit₂) (Unit₌ C⇒*Unit) =
+    Unit₌ C⇒*Unit
   transEqT
     (ne (ne _ _ D neK K≡K) (ne _ K₁ D₁ neK₁ _) (ne _ K₂ D₂ neK₂ _))
     (ne₌ _ M D′ neM K≡M) (ne₌ inc M₁ D″ neM₁ K≡M₁)

@@ -120,13 +120,13 @@ mutual
     univᶜ′ (completeness⇉ (sucᵢ x) ⊢A)
   completeness⇉Type (natrecᵢ x x₁ x₂ x₃) (univ ⊢A) =
     univᶜ′ (completeness⇉ (natrecᵢ x x₁ x₂ x₃) ⊢A)
-  completeness⇉Type (Unitᵢ x) ⊢A =
-    let ⊢l , ok = inversion-Unit ⊢A
-    in Unitᶜ (completeness⇇ x ⊢l) ok
-  completeness⇉Type (starᵢ x) (univ ⊢A) =
-    univᶜ′ (completeness⇉ (starᵢ x) ⊢A)
-  completeness⇉Type (unitrecᵢ x x₁ x₂ x₃) (univ ⊢A) =
-    univᶜ′ (completeness⇉ (unitrecᵢ x x₁ x₂ x₃) ⊢A)
+  completeness⇉Type Unitᵢ ⊢A =
+    let ok = inversion-Unit ⊢A
+    in Unitᶜ ok
+  completeness⇉Type starᵢ (univ ⊢A) =
+    univᶜ′ (completeness⇉ starᵢ ⊢A)
+  completeness⇉Type (unitrecᵢ x₁ x₂ x₃) (univ ⊢A) =
+    univᶜ′ (completeness⇉ (unitrecᵢ x₁ x₂ x₃) ⊢A)
   completeness⇉Type Emptyᵢ ⊢A = Emptyᶜ
   completeness⇉Type (emptyrecᵢ x x₁) (univ ⊢A) =
     univᶜ′ (completeness⇉ (emptyrecᵢ x x₁) ⊢A)
@@ -223,27 +223,24 @@ mutual
         n⇇ℕ = completeness⇇ n ⊢n
         C⇇Type = completeness⇇Type C ⊢C
     in  _ , natrecᵢ C⇇Type z⇇C₀ s⇇C₊ n⇇ℕ , A≡Cn
-  completeness⇉ (Unitᵢ l) ⊢t =
+  completeness⇉ Unitᵢ ⊢t =
     case inversion-Unit-U ⊢t of λ {
-      (⊢l , ≡U , ok) →
-    _ , Unitᵢ (completeness⇇ l ⊢l) ok , ≡U }
-  completeness⇉ (starᵢ l) ⊢t =
+      (≡U , ok) →
+    _ , Unitᵢ ok , ≡U }
+  completeness⇉ starᵢ ⊢t =
     case inversion-star ⊢t of λ {
       (≡Unit , ok) →
-    let ⊢l , _ = inversion-Unit (syntacticEq ≡Unit .proj₂)
-    in _ , starᵢ (completeness⇇ l ⊢l) ok , ≡Unit }
-  completeness⇉ (unitrecᵢ l A t u) ⊢t =
+    _ , starᵢ ok , ≡Unit }
+  completeness⇉ (unitrecᵢ A t u) ⊢t =
     case inversion-unitrec ⊢t of λ {
       (⊢A , ⊢t , ⊢u , A≡Ct) →
-    case completeness⇇ l (inversion-Unit (syntacticTerm ⊢t) .proj₁) of λ
-      l⇇Level →
     case completeness⇇Type A ⊢A of λ
       A⇇Type →
     case completeness⇇ t ⊢t of λ
       t⇇Unit →
     case completeness⇇ u ⊢u of λ
       u⇇A₊ →
-    _ , unitrecᵢ l⇇Level A⇇Type t⇇Unit u⇇A₊ , A≡Ct }
+    _ , unitrecᵢ A⇇Type t⇇Unit u⇇A₊ , A≡Ct }
   completeness⇉ Emptyᵢ ⊢t = _ , Emptyᵢ , inversion-Empty ⊢t
   completeness⇉ (emptyrecᵢ C t) ⊢t =
     let ⊢C , ⊢t , A≡C = inversion-emptyrec ⊢t

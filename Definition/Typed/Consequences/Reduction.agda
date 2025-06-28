@@ -85,10 +85,10 @@ opaque
 
   red-Unit :
     ⦃ ok : No-equality-reflection or-empty Γ ⦄ →
-    Γ ⊢ t ∷ Unit s l → ∃ λ u → Star u × Γ ⊢ t ⇒* u ∷ Unit s l
+    Γ ⊢ t ∷ Unit s → ∃ λ u → Star u × Γ ⊢ t ⇒* u ∷ Unit s
   red-Unit ⊢t =
     case ⊩∷Unit⇔ .proj₁ $ proj₂ $ reducible-⊩∷ ⊢t of λ
-      (_ , _ , _ , Unitₜ u (t⇒*u , u-whnf) _) →
+      (_ , Unitₜ u (t⇒*u , u-whnf) _) →
       u
     , whnfStar (wf-⊢≡∷ (subset*Term t⇒*u) .proj₂ .proj₂) u-whnf
     , t⇒*u
@@ -169,7 +169,7 @@ whNorm′ (Uᵣ′ l _ _ ⇒*U) = U l , Uₙ , ⇒*U
 whNorm′ (Liftᵣ′ D [k] [F]) = Lift _ _ , Liftₙ , D
 whNorm′ (ℕᵣ D) = ℕ , ℕₙ , D
 whNorm′ (Emptyᵣ D) = Empty , Emptyₙ , D
-whNorm′ (Unitᵣ′ _ _ _ D _) = Unit! , Unitₙ , D
+whNorm′ (Unitᵣ′ D _) = Unit! , Unitₙ , D
 whNorm′ (ne′ _ H D neH H≡H) = H , ne! neH , D
 whNorm′ (Πᵣ′ F G D _ _ _ _ _) = Π _ , _ ▷ F ▹ G , ΠΣₙ , D
 whNorm′ (Σᵣ′ F G D _ _ _ _ _) = Σ _ , _ ▷ F ▹ G , ΠΣₙ , D
@@ -345,7 +345,7 @@ whNormTerm′ (Emptyᵣ x) ⊩a =
   let Emptyₜ n d n≡n prop = ⊩Empty∷Empty⇔⊩Empty≡∷Empty .proj₂ ⊩a
       emptyN = empty prop
   in  n , ne! emptyN , conv* d (sym (subset* x))
-whNormTerm′ (Unitᵣ′ _ _ _ A⇒*Unit _) ⊩a =
+whNormTerm′ (Unitᵣ′ A⇒*Unit _) ⊩a =
   let Unitₜ t (a⇒*t , t-whnf) _ = ⊩Unit∷Unit⇔⊩Unit≡∷Unit .proj₂ ⊩a in
   t , t-whnf , conv* a⇒*t (sym (subset* A⇒*Unit))
 whNormTerm′ (ne (ne _ H D neH H≡H)) ⊩a =

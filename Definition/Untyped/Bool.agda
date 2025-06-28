@@ -310,8 +310,8 @@ opaque
 
   OK : Term n → Term n
   OK t =
-    natcase OKᵍ 𝟘 (U zeroᵘ) (Unitʷ zeroᵘ)
-      (natcase 𝟘 𝟘 (U zeroᵘ) (Unitʷ zeroᵘ) Empty (var x0)) t
+    natcase OKᵍ 𝟘 (U zeroᵘ) Unitʷ
+      (natcase 𝟘 𝟘 (U zeroᵘ) Unitʷ Empty (var x0)) t
 
 opaque
 
@@ -325,14 +325,14 @@ opaque
   -- The constructor true.
 
   true : Term n
-  true = prodʷ ω (suc zero) (starʷ zeroᵘ)
+  true = prodʷ ω (suc zero) starʷ
 
 opaque
 
   -- The constructor false.
 
   false : Term n
-  false = prodʷ ω zero (starʷ zeroᵘ)
+  false = prodʷ ω zero starʷ
 
 opaque
 
@@ -352,13 +352,13 @@ opaque
       (natcase boolrecᵍ-nc₂ (boolrecᵍ-nc₃ p)
          (Π boolrecᵍ-Π , p ▷ OK (var x0) ▹ Target 4 A (var x1) (var x0))
          (lam boolrecᵍ-Π $
-          unitrec boolrecᵍ-Π p zeroᵘ (Target 4 A zero (var x0))
+          unitrec boolrecᵍ-Π p (Target 4 A zero (var x0))
             (var x0) (wk[ 3 ]′ u))
          (natcase boolrecᵍ-nc₁ (boolrecᵍ-nc₃ p)
             (Π boolrecᵍ-Π , p ▷ OK (suc (var x0)) ▹
              Target 5 A (suc (var x1)) (var x0))
             (lam boolrecᵍ-Π $
-             unitrec boolrecᵍ-Π p zeroᵘ
+             unitrec boolrecᵍ-Π p
                (Target 5 A (suc zero) (var x0)) (var x0) (wk[ 4 ]′ t))
             (lam boolrecᵍ-Π $
              emptyrec-sink (Target 5 A (suc (suc (var x1))) (var x0))
@@ -506,13 +506,13 @@ opaque
       (natcase boolrecᵍ-nc₂ (boolrecᵍ-nc₃ p)
          (Π boolrecᵍ-Π , p ▷ OK (var x0) ▹ Target 4 A (var x1) (var x0))
          (lam boolrecᵍ-Π $
-          unitrec boolrecᵍ-Π p zeroᵘ (Target 4 A zero (var x0))
+          unitrec boolrecᵍ-Π p (Target 4 A zero (var x0))
             (var x0) (wk[ 3 ]′ u))
          (natcase boolrecᵍ-nc₁ (boolrecᵍ-nc₃ p)
             (Π boolrecᵍ-Π , p ▷ OK (suc (var x0)) ▹
              Target 5 A (suc (var x1)) (var x0))
             (lam boolrecᵍ-Π $
-             unitrec boolrecᵍ-Π p zeroᵘ
+             unitrec boolrecᵍ-Π p
                (Target 5 A (suc zero) (var x0)) (var x0) (wk[ 4 ]′ t))
             (lam boolrecᵍ-Π $
              emptyrec-sink (Target 5 A (suc (suc (var x1))) (var x0))
@@ -538,14 +538,14 @@ opaque
          (Π boolrecᵍ-Π , p ▷ OK (var x0) ▹
           (Target 4 A (var x1) (var x0) [ σ ⇑[ 4 ] ]))
          (lam boolrecᵍ-Π $
-          unitrec boolrecᵍ-Π p zeroᵘ
+          unitrec boolrecᵍ-Π p
             (Target 4 A zero (var x0) [ σ ⇑[ 4 ] ]) (var x0)
             (wk[ 3 ]′ u [ σ ⇑[ 3 ] ]))
          (natcase boolrecᵍ-nc₁ (boolrecᵍ-nc₃ p)
             (Π boolrecᵍ-Π , p ▷ OK (suc (var x0)) ▹
              (Target 5 A (suc (var x1)) (var x0) [ σ ⇑[ 5 ] ]))
             (lam boolrecᵍ-Π $
-             unitrec boolrecᵍ-Π p zeroᵘ
+             unitrec boolrecᵍ-Π p
                (Target 5 A (suc zero) (var x0) [ σ ⇑[ 5 ] ]) (var x0)
                (wk[ 4 ]′ t [ σ ⇑[ 4 ] ]))
             (lam boolrecᵍ-Π $
@@ -559,12 +559,12 @@ opaque
                                                                              cong₄ (natcase _ _)
                                                                                (cong (Π_,_▷_▹_ _ _ _) Target-[⇑])
                                                                                (cong (lam _) $
-                                                                                cong₃ (unitrec _ _ _)
+                                                                                cong₃ (unitrec _ _)
                                                                                   Target-[⇑] refl (wk[]′-[⇑] u))
                                                                                (cong₄ (natcase _ _)
                                                                                   (cong (Π_,_▷_▹_ _ _ _) Target-[⇑])
                                                                                   (cong (lam _) $
-                                                                                   cong₃ (unitrec _ _ _)
+                                                                                   cong₃ (unitrec _ _)
                                                                                      Target-[⇑] refl (wk[]′-[⇑] t))
                                                                                   (cong (lam _) $
                                                                                    cong₂ emptyrec-sink Target-[⇑] refl)
@@ -575,14 +575,14 @@ opaque
          (Π boolrecᵍ-Π , p ▷ OK (var x0) ▹
           Target 4 (A [ σ ⇑ ]) (var x1) (var x0))
          (lam boolrecᵍ-Π $
-          unitrec boolrecᵍ-Π p zeroᵘ
+          unitrec boolrecᵍ-Π p
             (Target 4 (A [ σ ⇑ ]) zero (var x0)) (var x0)
             (wk[ 3 ]′ (u [ σ ])))
          (natcase boolrecᵍ-nc₁ (boolrecᵍ-nc₃ p)
             (Π boolrecᵍ-Π , p ▷ OK (suc (var x0)) ▹
              Target 5 (A [ σ ⇑ ]) (suc (var x1)) (var x0))
             (lam boolrecᵍ-Π $
-             unitrec boolrecᵍ-Π p zeroᵘ
+             unitrec boolrecᵍ-Π p
                (Target 5 (A [ σ ⇑ ]) (suc zero) (var x0)) (var x0)
                (wk[ 4 ]′ (t [ σ ])))
             (lam boolrecᵍ-Π $

@@ -133,13 +133,13 @@ opaque
 
   inversion-star-Unit :
     ⦃ ok : No-equality-reflection or-empty Γ ⦄ →
-    Γ ⊢ star s₁ l₁ ∷ Unit s₂ l₂ →
-    s₁ PE.≡ s₂ × Γ ⊢ l₁ ≡ l₂ ∷ Level × Unit-allowed s₁
+    Γ ⊢ star s₁ ∷ Unit s₂ →
+    s₁ PE.≡ s₂ × Unit-allowed s₁
   inversion-star-Unit ⊢star =
     let Unit≡Unit , Unit-ok = inversion-star ⊢star
-        eq₁ , eq₂           = Unit-injectivity (sym Unit≡Unit)
+        eq = Unit-injectivity (sym Unit≡Unit)
     in
-    eq₁ , eq₂ , Unit-ok
+    eq , Unit-ok
 
 opaque
 
@@ -195,7 +195,7 @@ opaque
     ℕₙ →
       ⊥-elim (U≢ΠΣⱼ (sym (inversion-ℕ ⊢t)))
     Unitₙ →
-      ⊥-elim (U≢ΠΣⱼ (sym (inversion-Unit-U ⊢t .proj₂ .proj₁)))
+      ⊥-elim (U≢ΠΣⱼ (sym (inversion-Unit-U ⊢t .proj₁)))
     Emptyₙ →
       ⊥-elim (U≢ΠΣⱼ (sym (inversion-Empty ⊢t)))
     lamₙ →
@@ -221,7 +221,7 @@ opaque
 
   whnfStar :
     ⦃ ok : No-equality-reflection or-empty Γ ⦄ →
-    Γ ⊢ t ∷ Unit s l → Whnf t → Star t
+    Γ ⊢ t ∷ Unit s → Whnf t → Star t
   whnfStar ⊢t = λ where
     starₙ →
       starₙ
@@ -254,7 +254,7 @@ opaque
     ℕₙ →
       ⊥-elim (U≢Unitⱼ (sym (inversion-ℕ ⊢t)))
     Unitₙ →
-      ⊥-elim (U≢Unitⱼ (sym (inversion-Unit-U ⊢t .proj₂ .proj₁)))
+      ⊥-elim (U≢Unitⱼ (sym (inversion-Unit-U ⊢t .proj₁)))
     Emptyₙ →
       ⊥-elim (U≢Unitⱼ (sym (inversion-Empty ⊢t)))
     lamₙ →

@@ -190,8 +190,8 @@ private module Inhabited where
         ΠΣⱼ (stability-⊢ (Γ≡Δ ∙⟨ ⊢A′ ⟩) ⊢B) ok
       (Emptyⱼ _) _ →
         Emptyⱼ (wf-⊢≡ʳ Γ≡Δ)
-      (Unitⱼ ⊢l ok) PE.refl →
-        Unitⱼ (stability-⊢∷ Γ≡Δ ⊢l) ok
+      (Unitⱼ ⊢Γ ok) PE.refl →
+        Unitⱼ (wf-⊢≡ʳ Γ≡Δ) ok
       (ℕⱼ _) _ →
         ℕⱼ (wf-⊢≡ʳ Γ≡Δ)
       (Idⱼ ⊢A ⊢t ⊢u) PE.refl →
@@ -229,8 +229,6 @@ private module Inhabited where
         in
         ΠΣ-cong (stability-⊢≡ Γ≡Δ A₁≡B₁)
           (stability-⊢≡ (Γ≡Δ ∙⟨ ⊢A₁′ ⟩) A₂≡B₂) ok
-      (Unit-cong l₁≡l₂ ok) PE.refl →
-        Unit-cong (stability-⊢≡∷ Γ≡Δ l₁≡l₂) ok
       (Id-cong A≡B t₁≡u₁ t₂≡u₂) PE.refl →
         Id-cong (stability-⊢≡ Γ≡Δ A≡B) (stability-⊢≡∷ Γ≡Δ t₁≡u₁)
           (stability-⊢≡∷ Γ≡Δ t₂≡u₂)
@@ -309,13 +307,13 @@ private module Inhabited where
         Emptyⱼ (wf-⊢≡ʳ Γ≡Δ)
       (emptyrecⱼ ⊢A ⊢t) PE.refl →
         emptyrecⱼ (stability-⊢ Γ≡Δ ⊢A) (stability-⊢∷ Γ≡Δ ⊢t)
-      (Unitⱼ ⊢l ok) PE.refl →
-        Unitⱼ (stability-⊢∷ Γ≡Δ ⊢l) ok
-      (starⱼ ⊢l ok) PE.refl →
-        starⱼ (stability-⊢∷ Γ≡Δ ⊢l) ok
-      (unitrecⱼ ⊢l ⊢A ⊢t ⊢u ok) PE.refl →
-        unitrecⱼ (stability-⊢∷ Γ≡Δ ⊢l)
-          (stability-⊢ (Γ≡Δ ∙⟨ Unitⱼ (stability-⊢∷ Γ≡Δ ⊢l) ok ⟩) ⊢A)
+      (Unitⱼ ⊢Γ ok) PE.refl →
+        Unitⱼ (wf-⊢≡ʳ Γ≡Δ) ok
+      (starⱼ ⊢Γ ok) PE.refl →
+        starⱼ (wf-⊢≡ʳ Γ≡Δ) ok
+      (unitrecⱼ ⊢A ⊢t ⊢u ok) PE.refl →
+        unitrecⱼ
+          (stability-⊢ (Γ≡Δ ∙⟨ Unitⱼ (wf-⊢≡ʳ Γ≡Δ) ok ⟩) ⊢A)
           (stability-⊢∷ Γ≡Δ ⊢t) (stability-⊢∷ Γ≡Δ ⊢u) ok
       (ℕⱼ _) _ →
         ℕⱼ (wf-⊢≡ʳ Γ≡Δ)
@@ -494,27 +492,20 @@ private module Inhabited where
           (stability-⊢∷ (Γ≡Δ ∙⟨ ⊢A′ ⟩ ∙⟨ ⊢B′ ⟩) ⊢v) eq ok
       (emptyrec-cong A₁≡A₂ t₁≡t₂) PE.refl →
         emptyrec-cong (stability-⊢≡ Γ≡Δ A₁≡A₂) (stability-⊢≡∷ Γ≡Δ t₁≡t₂)
-      (Unit-cong l₁≡l₂ ok) PE.refl →
-        Unit-cong (stability-⊢≡∷ Γ≡Δ l₁≡l₂) ok
-      (star-cong l₁≡l₂ ok) PE.refl →
-        star-cong (stability-⊢≡∷ Γ≡Δ l₁≡l₂) ok
-      (unitrec-cong ⊢l₁ ⊢l₂ l₁≡l₂ A₁≡A₂ t₁≡t₂ u₁≡u₂ ok no-η) PE.refl →
-        let ⊢l₁′ = stability-⊢∷ Γ≡Δ ⊢l₁
-            ⊢l₂′ = stability-⊢∷ Γ≡Δ ⊢l₂
-        in unitrec-cong ⊢l₁′ ⊢l₂′
-          (stability-⊢≡∷ Γ≡Δ l₁≡l₂)
-          (stability-⊢≡ (Γ≡Δ ∙⟨ Unitⱼ ⊢l₁′ ok ⟩) A₁≡A₂)
+      (unitrec-cong A₁≡A₂ t₁≡t₂ u₁≡u₂ ok no-η) PE.refl →
+        unitrec-cong
+          (stability-⊢≡ (Γ≡Δ ∙⟨ Unitⱼ (wf-⊢≡ʳ Γ≡Δ) ok ⟩) A₁≡A₂)
           (stability-⊢≡∷ Γ≡Δ t₁≡t₂) (stability-⊢≡∷ Γ≡Δ u₁≡u₂) ok no-η
-      (unitrec-β ⊢l ⊢A ⊢t ok no-η) PE.refl →
-        unitrec-β (stability-⊢∷ Γ≡Δ ⊢l)
-          (stability-⊢ (Γ≡Δ ∙⟨ Unitⱼ (stability-⊢∷ Γ≡Δ ⊢l) ok ⟩) ⊢A)
+      (unitrec-β ⊢A ⊢t ok no-η) PE.refl →
+        unitrec-β
+          (stability-⊢ (Γ≡Δ ∙⟨ Unitⱼ (wf-⊢≡ʳ Γ≡Δ) ok ⟩) ⊢A)
           (stability-⊢∷ Γ≡Δ ⊢t) ok no-η
-      (unitrec-β-η ⊢l ⊢A ⊢t ⊢u ok no-η) PE.refl →
-        unitrec-β-η (stability-⊢∷ Γ≡Δ ⊢l)
-          (stability-⊢ (Γ≡Δ ∙⟨ Unitⱼ (stability-⊢∷ Γ≡Δ ⊢l) ok ⟩) ⊢A)
+      (unitrec-β-η ⊢A ⊢t ⊢u ok no-η) PE.refl →
+        unitrec-β-η
+          (stability-⊢ (Γ≡Δ ∙⟨ Unitⱼ (wf-⊢≡ʳ Γ≡Δ) ok ⟩) ⊢A)
           (stability-⊢∷ Γ≡Δ ⊢t) (stability-⊢∷ Γ≡Δ ⊢u) ok no-η
-      (η-unit ⊢l ⊢t₁ ⊢t₂ ok η) PE.refl →
-        η-unit (stability-⊢∷ Γ≡Δ ⊢l)
+      (η-unit ⊢t₁ ⊢t₂ ok η) PE.refl →
+        η-unit
           (stability-⊢∷ Γ≡Δ ⊢t₁) (stability-⊢∷ Γ≡Δ ⊢t₂) ok η
       (suc-cong t₁≡t₂) PE.refl →
         suc-cong (stability-⊢≡∷ Γ≡Δ t₁≡t₂)

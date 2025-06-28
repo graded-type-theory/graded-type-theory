@@ -73,10 +73,10 @@ opaque
   toTerm∘fromTerm (natrec p q r A z s n) =
     cong₄ (natrec p q r) (toTerm∘fromTerm A) (toTerm∘fromTerm z)
       (toTerm∘fromTerm s) (toTerm∘fromTerm n)
-  toTerm∘fromTerm (Unit s l) = cong (Unit s) (toTerm∘fromTerm l)
-  toTerm∘fromTerm (star s l) = cong (star s) (toTerm∘fromTerm l)
-  toTerm∘fromTerm (unitrec p q l A t u) =
-    cong₄ (unitrec p q) (toTerm∘fromTerm l) (toTerm∘fromTerm A)
+  toTerm∘fromTerm (Unit s) = refl
+  toTerm∘fromTerm (star s) = refl
+  toTerm∘fromTerm (unitrec p q A t u) =
+    cong₃ (unitrec p q) (toTerm∘fromTerm A)
       (toTerm∘fromTerm t) (toTerm∘fromTerm u)
   toTerm∘fromTerm Empty = refl
   toTerm∘fromTerm (emptyrec p A t) =
@@ -143,13 +143,13 @@ opaque
     cong₄ (λ A z s n → gen (Natreckind p q r) (A ∷ₜ z ∷ₜ s ∷ₜ n ∷ₜ []))
       (fromTerm∘toTerm A) (fromTerm∘toTerm z)
       (fromTerm∘toTerm s) (fromTerm∘toTerm n)
-  fromTerm∘toTerm (gen (Unitkind s) (l ∷ₜ [])) =
-    cong (λ l → gen (Unitkind s) (l ∷ₜ [])) (fromTerm∘toTerm l)
-  fromTerm∘toTerm (gen (Starkind s) (l ∷ₜ [])) =
-    cong (λ l → gen (Starkind s) (l ∷ₜ [])) (fromTerm∘toTerm l)
-  fromTerm∘toTerm (gen (Unitreckind p q) (l ∷ₜ A ∷ₜ t ∷ₜ u ∷ₜ [])) =
-    cong₄ (λ l A t u → gen (Unitreckind p q) (l ∷ₜ A ∷ₜ t ∷ₜ u ∷ₜ []))
-      (fromTerm∘toTerm l) (fromTerm∘toTerm A)
+  fromTerm∘toTerm (gen (Unitkind s) []) =
+    refl
+  fromTerm∘toTerm (gen (Starkind s) []) =
+    refl
+  fromTerm∘toTerm (gen (Unitreckind p q) (A ∷ₜ t ∷ₜ u ∷ₜ [])) =
+    cong₃ (λ A t u → gen (Unitreckind p q) (A ∷ₜ t ∷ₜ u ∷ₜ []))
+      (fromTerm∘toTerm A)
       (fromTerm∘toTerm t) (fromTerm∘toTerm u)
   fromTerm∘toTerm (gen Emptykind []) = refl
   fromTerm∘toTerm (gen (Emptyreckind p) (A ∷ₜ t ∷ₜ [])) =
@@ -205,10 +205,10 @@ opaque
   wk≡wk′ (suc t) = cong suc (wk≡wk′ t)
   wk≡wk′ (natrec p q r t t₁ t₂ t₃) =
     cong₄ (natrec p q r) (wk≡wk′ t) (wk≡wk′ t₁) (wk≡wk′ t₂) (wk≡wk′ t₃)
-  wk≡wk′ (Unit x l) = cong (Unit x) (wk≡wk′ l)
-  wk≡wk′ (star x l) = cong (star x) (wk≡wk′ l)
-  wk≡wk′ (unitrec p q l t t₁ t₂) =
-    cong₄ (unitrec p q) (wk≡wk′ l) (wk≡wk′ t) (wk≡wk′ t₁) (wk≡wk′ t₂)
+  wk≡wk′ (Unit x) = refl
+  wk≡wk′ (star x) = refl
+  wk≡wk′ (unitrec p q t t₁ t₂) =
+    cong₃ (unitrec p q) (wk≡wk′ t) (wk≡wk′ t₁) (wk≡wk′ t₂)
   wk≡wk′ Empty = refl
   wk≡wk′ (emptyrec p t t₁) =
     cong₂ (emptyrec p) (wk≡wk′ t) (wk≡wk′ t₁)
@@ -385,10 +385,10 @@ opaque
   subst≡subst′ (natrec p q r t t₁ t₂ t₃) =
     cong₄ (natrec p q r) (subst≡subst′ t)
       (subst≡subst′ t₁) (subst≡subst′ t₂) (subst≡subst′ t₃)
-  subst≡subst′ (Unit x l) = cong (Unit x) (subst≡subst′ l)
-  subst≡subst′ (star x l) = cong (star x) (subst≡subst′ l)
-  subst≡subst′ (unitrec p q l t t₁ t₂) =
-    cong₄ (unitrec p q) (subst≡subst′ l) (subst≡subst′ t)
+  subst≡subst′ (Unit x) = refl
+  subst≡subst′ (star x) = refl
+  subst≡subst′ (unitrec p q t t₁ t₂) =
+    cong₃ (unitrec p q) (subst≡subst′ t)
       (subst≡subst′ t₁) (subst≡subst′ t₂)
   subst≡subst′ Empty = refl
   subst≡subst′ (emptyrec p t t₁) =
@@ -1397,11 +1397,8 @@ opaque
   -- A lemma related to Unit.
 
   ≡Unit-wk1[]₀ :
-    Unit s l ≡ Unit s (wk1 l) [ t ]₀
-  ≡Unit-wk1[]₀ {s} {l} {t} =
-    Unit s l               ≡˘⟨ cong (Unit s) (wk1-sgSubst _ _) ⟩
-    Unit s (wk1 l [ t ]₀)  ≡⟨⟩
-    Unit s (wk1 l) [ t ]₀  ∎
+    Unit s ≡ Unit s [ t ]₀
+  ≡Unit-wk1[]₀ {s} {t} = refl
 
 opaque
 
@@ -2006,7 +2003,7 @@ opaque
   isNumeral? (prodrec _ _ _ _ _ _) = no λ ()
   isNumeral? (natrec _ _ _ _ _ _ _) = no λ ()
   isNumeral? star! = no λ ()
-  isNumeral? (unitrec _ _ _ _ _ _) = no λ ()
+  isNumeral? (unitrec _ _ _ _ _) = no λ ()
   isNumeral? (emptyrec _ _ _) = no λ ()
   isNumeral? rfl = no λ ()
   isNumeral? (J _ _ _ _ _ _ _ _) = no λ ()
@@ -2151,18 +2148,18 @@ emptyrec-PE-injectivity PE.refl = PE.refl , PE.refl , PE.refl
 -- The constructor Unit is injective.
 
 Unit-PE-injectivity :
-  _≡_ {A = Term n} (Unit s₁ l₁) (Unit s₂ l₂) →
-  s₁ ≡ s₂ × l₁ ≡ l₂
-Unit-PE-injectivity refl = refl , refl
+  _≡_ {A = Term n} (Unit s₁) (Unit s₂) →
+  s₁ ≡ s₂
+Unit-PE-injectivity refl = refl
 
 -- The constructor unitrec is injective.
 
 unitrec-PE-injectivity :
-  unitrec p₁ q₁ l₁ A₁ t₁ u₁ PE.≡ unitrec p₂ q₂ l₂ A₂ t₂ u₂ →
-  l₁ PE.≡ l₂ × p₁ PE.≡ p₂ × q₁ PE.≡ q₂ × A₁ PE.≡ A₂ × t₁ PE.≡ t₂ ×
+  unitrec p₁ q₁ A₁ t₁ u₁ PE.≡ unitrec p₂ q₂ A₂ t₂ u₂ →
+  p₁ PE.≡ p₂ × q₁ PE.≡ q₂ × A₁ PE.≡ A₂ × t₁ PE.≡ t₂ ×
   u₁ PE.≡ u₂
 unitrec-PE-injectivity PE.refl =
-  PE.refl , PE.refl , PE.refl , PE.refl , PE.refl , PE.refl
+  PE.refl , PE.refl , PE.refl , PE.refl , PE.refl
 
 -- The constructor suc is injective.
 

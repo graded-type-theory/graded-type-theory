@@ -91,16 +91,7 @@ mutual
         (convEqTerm₁ [F] [F′] F≡F′ t≡u) }
   convEqTermT₁ (ℕᵥ D D′) A≡B t≡u = t≡u
   convEqTermT₁ (Emptyᵥ D D′) A≡B t≡u = t≡u
-  convEqTermT₁ (Unitᵥ (Unitᵣ k _ _ _ _) (Unitᵣ k′ _ _ B⇒*Unit₁ ok)) (Unit₌ _ B⇒*Unit₂ k≡k′) (Unitₜ₌ u₁ u₂ ↘u₁ ↘u₂ prop) =
-    case Unit-PE-injectivity $
-         whrDet* (B⇒*Unit₁ , Unitₙ) (B⇒*Unit₂ , Unitₙ) of λ {
-      (_ , PE.refl) →
-    let Unit≡Unit = ≅-eq (≅-Unit-cong (escapeLevelEq k≡k′) ok) in
-    Unitₜ₌ u₁ u₂ (conv↘∷ ↘u₁ Unit≡Unit) (conv↘∷ ↘u₂ Unit≡Unit)
-      (case prop of λ {
-        (Unitₜ₌ʷ (starᵣ p q) ¬η) → Unitₜ₌ʷ (starᵣ (transEqTermLevel (symLevel k≡k′) p) q) ¬η ;
-        (Unitₜ₌ʷ (ne x) ¬η) → Unitₜ₌ʷ (ne (convEqTermNe Unit≡Unit x)) ¬η  ;
-        (Unitₜ₌ˢ η) → Unitₜ₌ˢ η }) }
+  convEqTermT₁ (Unitᵥ _ _) _ t≡u = t≡u
   convEqTermT₁
     (ne (ne _ _ D neK K≡K) (ne _ K₁ D₁ neK₁ K≡K₁)) (ne₌ _ M D′ neM K≡M)
     (neₜ₌ k m d d′ (neNfₜ₌ inc neK₂ neM₁ k≡m)) =
@@ -251,16 +242,7 @@ mutual
         (convEqTerm₂ [F] [F′] F≡F′ t≡u) }
   convEqTermT₂ (ℕᵥ D D′) A≡B t≡u = t≡u
   convEqTermT₂ (Emptyᵥ D D′) A≡B t≡u = t≡u
-  convEqTermT₂ (Unitᵥ (Unitᵣ k _ _ _ _) (Unitᵣ k′ _ _ B⇒*Unit₁ ok)) (Unit₌ _ B⇒*Unit₂ k≡k′) (Unitₜ₌ u₁ u₂ ↘u₁ ↘u₂ prop) =
-    case Unit-PE-injectivity $
-         whrDet* (B⇒*Unit₁ , Unitₙ) (B⇒*Unit₂ , Unitₙ) of λ {
-      (_ , PE.refl) →
-    let Unit≡Unit = sym (≅-eq (≅-Unit-cong (escapeLevelEq k≡k′) ok)) in
-    Unitₜ₌ u₁ u₂ (conv↘∷ ↘u₁ Unit≡Unit) (conv↘∷ ↘u₂ Unit≡Unit)
-      (case prop of λ {
-        (Unitₜ₌ʷ (starᵣ p q) ¬η) → Unitₜ₌ʷ (starᵣ (transEqTermLevel k≡k′ p) q) ¬η ;
-        (Unitₜ₌ʷ (ne x) ¬η) → Unitₜ₌ʷ (ne (convEqTermNe Unit≡Unit x)) ¬η  ;
-        (Unitₜ₌ˢ η) → Unitₜ₌ˢ η }) }
+  convEqTermT₂ (Unitᵥ _ _) _ t≡u = t≡u
   convEqTermT₂
     (ne (ne _ _ D neK K≡K) (ne _ K₁ D₁ neK₁ K≡K₁)) (ne₌ _ M D′ neM K≡M)
     (neₜ₌ k m d d′ (neNfₜ₌ inc neK₂ neM₁ k≡m)) =

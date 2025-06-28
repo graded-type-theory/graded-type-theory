@@ -48,7 +48,7 @@ reflEq (Uᵣ′ k [k] k< A⇒*U) = U₌ k A⇒*U (reflLevel [k])
 reflEq (Liftᵣ′ D [k] [F]) = Lift₌ D (reflLevel [k]) (reflEq [F])
 reflEq (ℕᵣ D) = D
 reflEq (Emptyᵣ D) = D
-reflEq (Unitᵣ′ k [k] _ D _) = Unit₌ k D (reflLevel [k])
+reflEq (Unitᵣ′ D _) = Unit₌ D
 reflEq (ne′ inc _ D neK K≡K) = ne₌ inc _ D neK K≡K
 reflEq (Bᵣ′ _ _ _ D A≡A [F] [G] _ _) =
    B₌ _ _ D A≡A

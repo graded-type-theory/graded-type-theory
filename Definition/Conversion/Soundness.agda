@@ -120,14 +120,12 @@ mutual
     in  prodrec-cong C≡E g≡h u≡v ok
   soundness~↑ (emptyrec-cong x₁ k~l) =
     emptyrec-cong (soundnessConv↑ x₁) (soundness~↓ k~l)
-  soundness~↑ (unitrec-cong y x x₁ x₂ no-η) =
-    let l₁≡l₂ = soundnessConv↑Term y
-        _ , ⊢l₁ , ⊢l₂ = syntacticEqTerm l₁≡l₂
-        F≡H = soundnessConv↑ x
+  soundness~↑ (unitrec-cong x x₁ x₂ no-η) =
+    let F≡H = soundnessConv↑ x
         k≡l = soundness~∷ x₁
         u≡v = soundnessConv↑Term x₂
-        ok = inversion-Unit-allowed (proj₁ (syntacticEqTerm k≡l))
-    in  unitrec-cong ⊢l₁ ⊢l₂ l₁≡l₂ F≡H k≡l u≡v ok no-η
+        ok = inversion-Unit (proj₁ (syntacticEqTerm k≡l))
+    in  unitrec-cong F≡H k≡l u≡v ok no-η
   soundness~↑ (J-cong A₁≡A₂ t₁≡t₂ B₁≡B₂ u₁≡u₂ v₁≡v₂ w₁~w₂ ≡Id) =
     case soundnessConv↑ A₁≡A₂ of λ {
       A₁≡A₂ →
@@ -165,7 +163,7 @@ mutual
     Lift-cong (soundnessConv↑Term l₁≡l₂) (soundnessConv↑ F≡H)
   soundnessConv↓ (ℕ-refl ⊢Γ) = refl (ℕⱼ ⊢Γ)
   soundnessConv↓ (Empty-refl ⊢Γ) = refl (Emptyⱼ ⊢Γ)
-  soundnessConv↓ (Unit-cong l₁≡l₂ ok) = Unit-cong (soundnessConv↑Term l₁≡l₂) ok
+  soundnessConv↓ (Unit-refl ⊢Γ ok) = refl (Unitⱼ ⊢Γ ok)
   soundnessConv↓ (ne x) = univ (soundness~↓ x)
   soundnessConv↓ (ΠΣ-cong A₁≡A₂ B₁≡B₂ ok) =
     ΠΣ-cong (soundnessConv↑ A₁≡A₂) (soundnessConv↑ B₁≡B₂) ok
@@ -349,8 +347,8 @@ mutual
   soundnessConv↓Term (Lift-η x x₁ x₂ x₃ x₄) =
     Lift-η′ x x₁ (soundnessConv↑Term x₄)
   soundnessConv↓Term (zero-refl ⊢Γ) = refl (zeroⱼ ⊢Γ)
-  soundnessConv↓Term (starʷ-cong l≡l₁ l₁≡l₂ ok _) =
-    conv (star-cong (soundnessConv↑Term l₁≡l₂) ok) (sym (Unit-cong l≡l₁ ok))
+  soundnessConv↓Term (starʷ-refl ⊢Γ ok _) =
+    refl (starⱼ ⊢Γ ok)
   soundnessConv↓Term (suc-cong c) = suc-cong (soundnessConv↑Term c)
   soundnessConv↓Term (prod-cong x₁ x₂ x₃ ok) =
     prod-cong x₁ (soundnessConv↑Term x₂)
@@ -361,8 +359,8 @@ mutual
     let fst≡ = soundnessConv↑Term fstConv
         snd≡ = soundnessConv↑Term sndConv
     in  Σ-η′ ⊢p ⊢r fst≡ snd≡
-  soundnessConv↓Term (η-unit ⊢l [a] [b] aUnit bUnit ok η) =
-    η-unit ⊢l [a] [b] ok η
+  soundnessConv↓Term (η-unit [a] [b] aUnit bUnit ok η) =
+    η-unit [a] [b] ok η
   soundnessConv↓Term
     {Γ} (Id-ins {v₁} {t} {u} {A} {A′} {t′} {u′} ⊢v₁ v₁~v₂) =
     case soundness~↓ v₁~v₂ of λ {
@@ -454,17 +452,15 @@ mutual
          U l₂    ∎)
     where
     open TyR
-  soundnessConv↓-U {l₁} {l₂} ⊢Unit₁ ⊢Unit₂ (Unit-cong {l₁ = l₃} {l₂ = l₄} l₃≡l₄ ok) =
-    let l₃≡l₄ = soundnessConv↑Term l₃≡l₄
-        ⊢l₃ , U≡U₁ , _ = inversion-Unit-U ⊢Unit₁
-        ⊢l₄ , U≡U₂ , _ = inversion-Unit-U ⊢Unit₂
+  soundnessConv↓-U {l₁} {l₂} ⊢Unit₁ ⊢Unit₂ (Unit-refl ⊢Γ ok) =
+    let U≡U₁ , _ = inversion-Unit-U ⊢Unit₁
+        U≡U₂ , _ = inversion-Unit-U ⊢Unit₂
     in
-      conv (Unit-cong l₃≡l₄ ok) (sym U≡U₁)
+      refl (conv (Unitⱼ ⊢Γ ok) (sym U≡U₁))
     , U-injectivity
-        (U l₁  ≡⟨ U≡U₁ ⟩⊢
-         U l₃  ≡⟨ U-cong l₃≡l₄ ⟩⊢
-         U l₄  ≡˘⟨ U≡U₂ ⟩⊢∎
-         U l₂  ∎)
+        (U l₁     ≡⟨ U≡U₁ ⟩⊢
+         U zeroᵘ  ≡˘⟨ U≡U₂ ⟩⊢∎
+         U l₂     ∎)
     where
     open TyR
   soundnessConv↓-U {l₁} {l₂} ⊢ℕ₁ ⊢ℕ₂ (ℕ-refl _) =

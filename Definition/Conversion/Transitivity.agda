@@ -125,20 +125,18 @@ mutual
         A<>C = transConv↑ A<>B B<>C
         t~v , _ = trans~↓  t~u u~v
     in  emptyrec-cong A<>C t~v , A≡B
-  trans~↑ (unitrec-cong x A<>B k~l u<>v no-η)
-    (unitrec-cong y B<>C l~m v<>w _) =
-    let l₁≡l₂ = soundnessConv↑Term x
-        k~m , ⊢Unit≡Unit = trans~∷ k~l l~m
+  trans~↑ (unitrec-cong A<>B k~l u<>v no-η)
+    (unitrec-cong B<>C l~m v<>w _) =
+    let k~m , ⊢Unit≡Unit = trans~∷ k~l l~m
         ⊢Unit = proj₁ (syntacticEq ⊢Unit≡Unit)
-        ok = inversion-Unit-allowed ⊢Unit
+        ok = inversion-Unit ⊢Unit
         ⊢Γ = wf ⊢Unit
-        l₁<>l₃ = transConvTerm x y
-        A<>C = transConv↑′ (refl-∙ (Unit-cong l₁≡l₂ ok)) A<>B B<>C
+        A<>C = transConv↑ A<>B B<>C
         A≡B = soundnessConv↑ A<>B
-        A₊≡B₊ = substTypeEq A≡B (star-cong l₁≡l₂ ok)
+        A₊≡B₊ = substTypeEq A≡B (refl (starⱼ ⊢Γ ok))
         Ak≡Bl = substTypeEq A≡B (soundness~∷ k~l)
         u<>w = transConv↑Term A₊≡B₊ u<>v v<>w
-    in  unitrec-cong l₁<>l₃ A<>C k~m u<>w no-η , Ak≡Bl
+    in  unitrec-cong A<>C k~m u<>w no-η , Ak≡Bl
   trans~↑ (J-cong A₁≡A₂ t₁≡t₂ B₁≡B₂ u₁≡u₂ v₁≡v₂ w₁~w₂ C₁≡Id-t₁-v₁)
     (J-cong A₂≡A₃ t₂≡t₃ B₂≡B₃ u₂≡u₃ v₂≡v₃ w₂~w₃ _) =
     case soundnessConv↑ A₁≡A₂ of λ {
@@ -267,12 +265,12 @@ mutual
     case inv-[conv↓]-Empty′ Empty≡C of λ where
       (inj₁ (PE.refl , PE.refl)) → Empty≡Empty
       (inj₂ (Empty≢Empty , _))   → ⊥-elim (Empty≢Empty PE.refl)
-  transConv↓ Unit≡Unit@(Unit-cong x ok) Unit≡C =
+  transConv↓ Unit≡Unit@(Unit-refl x ok) Unit≡C =
     case inv-[conv↓]-Unit′ Unit≡C of λ where
-      (inj₁ (_ , _ , _ , PE.refl , PE.refl , y)) →
-        Unit-cong (transConvTerm x y) ok
+      (inj₁ (_ , PE.refl , PE.refl)) →
+        Unit-refl x ok
       (inj₂ (Unit≢Unit , _))             →
-        ⊥-elim (Unit≢Unit (_ , _ , PE.refl))
+        ⊥-elim (Unit≢Unit (_ , PE.refl))
   transConv↓ ℕ≡ℕ@(ℕ-refl _) ℕ≡C =
     case inv-[conv↓]-ℕ′ ℕ≡C of λ where
       (inj₁ (PE.refl , PE.refl)) → ℕ≡ℕ
@@ -414,25 +412,25 @@ mutual
           ok }
   transConv↓Term (Empty-ins t~u) u≡v =
     Empty-ins (trans~↓ t~u (inv-[conv↓]∷-Empty u≡v) .proj₁)
-  transConv↓Term (η-unit x ⊢t _ t-whnf _ ok η) u≡v =
+  transConv↓Term (η-unit ⊢t _ t-whnf _ ok η) u≡v =
     let _ , _ , ⊢v = syntacticEqTerm (soundnessConv↓Term u≡v) in
     case inv-[conv↓]∷-Unit u≡v of λ where
-      (inj₁ (_ , _ , v-whnf)) → η-unit x ⊢t ⊢v t-whnf v-whnf ok η
+      (inj₁ (_ , _ , v-whnf)) → η-unit ⊢t ⊢v t-whnf v-whnf ok η
       (inj₂ (no-η , _))       → ⊥-elim (no-η η)
   transConv↓Term (Unitʷ-ins no-η t~u) u≡v =
     case inv-[conv↓]∷-Unitʷ u≡v of λ where
       (inj₁ (_ , inj₁ u~v)) →
         Unitʷ-ins no-η (trans~∷ t~u u~v .proj₁)
-      (inj₁ (_ , inj₂ (_ , _ , PE.refl , _ , _))) →
+      (inj₁ (_ , inj₂ (PE.refl , PE.refl))) →
         ⊥-elim $ ¬-Neutral-star $ ne~∷ t~u .proj₂
       (inj₂ (η , _)) →
         ⊥-elim (no-η η)
-  transConv↓Term (starʷ-cong x y ok no-η) u≡v =
+  transConv↓Term (starʷ-refl y ok no-η) u≡v =
     case inv-[conv↓]∷-Unitʷ u≡v of λ where
       (inj₁ (_ , inj₁ u~v)) →
         ⊥-elim $ ¬-Neutral-star $ ne~∷ u~v .proj₁
-      (inj₁ (_ , inj₂ (_ , _ , PE.refl , PE.refl , _ , z))) →
-        starʷ-cong x (transConvTerm y z) ok no-η
+      (inj₁ (_ , inj₂ (_ , PE.refl))) →
+        starʷ-refl y ok no-η
       (inj₂ (η , _)) →
         ⊥-elim (no-η η)
   transConv↓Term (ℕ-ins t~u) u≡v =

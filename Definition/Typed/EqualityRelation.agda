@@ -216,15 +216,14 @@ record Equality-relations
     ≅ₜ-Emptyrefl : ⊢ Γ → Γ ⊢≅ Empty ∷ U zeroᵘ
 
     -- Unit type congruence
-    ≅ₜ-Unit-cong : Γ ⊢ l ≅ l′ ∷ Level → Unit-allowed s → Γ ⊢ Unit s l ≅ Unit s l′ ∷ U l
+    ≅ₜ-Unit-refl : ⊢ Γ → Unit-allowed s → Γ ⊢≅ Unit s ∷ U zeroᵘ
 
     -- Unit η-equality
-    ≅ₜ-η-unit : Γ ⊢ l ∷ Level
-              → Γ ⊢ e ∷ Unit s l
-              → Γ ⊢ e′ ∷ Unit s l
+    ≅ₜ-η-unit : Γ ⊢ e ∷ Unit s
+              → Γ ⊢ e′ ∷ Unit s
               → Unit-allowed s
               → Unit-with-η s
-              → Γ ⊢ e ≅ e′ ∷ Unit s l
+              → Γ ⊢ e ≅ e′ ∷ Unit s
 
     -- Π- and Σ-congruence
 
@@ -325,22 +324,19 @@ record Equality-relations
 
     -- Weak unit type recursion congruence
     ~-unitrec : ∀ {A A′ t t′ u u′}
-              → Γ ⊢ l ∷ Level
-              → Γ ⊢ l′ ∷ Level
-              → Γ ⊢ l ≅ l′ ∷ Level
-              → Γ ∙ Unitʷ l ⊢ A ≅ A′
-              → Γ ⊢ t ~ t′ ∷ Unitʷ l
-              → Γ ⊢ u ≅ u′ ∷ A [ starʷ l ]₀
+              → Γ ∙ Unitʷ ⊢ A ≅ A′
+              → Γ ⊢ t ~ t′ ∷ Unitʷ
+              → Γ ⊢ u ≅ u′ ∷ A [ starʷ ]₀
               → Unitʷ-allowed
               → ¬ Unitʷ-η
-              → Γ ⊢ unitrec p q l A t u ~ unitrec p q l′ A′ t′ u′ ∷
+              → Γ ⊢ unitrec p q A t u ~ unitrec p q A′ t′ u′ ∷
                   A [ t ]₀
 
     -- Star congruence
-    ≅ₜ-star-cong
-      : Γ ⊢ l ≅ l′ ∷ Level
+    ≅ₜ-star-refl
+      : ⊢ Γ
       → Unit-allowed s
-      → Γ ⊢ star s l ≅ star s l′ ∷ Unit s l
+      → Γ ⊢≅ star s ∷ Unit s
 
     -- Id preserves "equality".
     ≅-Id-cong
@@ -428,8 +424,8 @@ record Equality-relations
 
     -- A variant of ≅ₜ-Unit-cong.
 
-    ≅-Unit-cong : Γ ⊢ l ≅ l′ ∷ Level → Unit-allowed s → Γ ⊢ Unit s l ≅ Unit s l′
-    ≅-Unit-cong l≡l′ ok = ≅-univ (≅ₜ-Unit-cong l≡l′ ok)
+    ≅-Unit-refl : ⊢ Γ → Unit-allowed s → Γ ⊢≅ Unit s
+    ≅-Unit-refl ⊢Γ ok = ≅-univ (≅ₜ-Unit-refl ⊢Γ ok)
 
   opaque
 

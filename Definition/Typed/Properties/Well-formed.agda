@@ -149,7 +149,7 @@ private module Lemmas where
         (Liftⱼ ⊢l _) PE.refl → fix (wfTerm-<ˢ ⊢l)
         (ΠΣⱼ ⊢B _)   PE.refl → fix (∙⊢→⊢-<ˢ ⊢B .proj₁)
         (Emptyⱼ ⊢Γ)  _       → ⊢Γ , !
-        (Unitⱼ ⊢l _) PE.refl → fix (wfTerm-<ˢ ⊢l)
+        (Unitⱼ ⊢Γ _) PE.refl → ⊢Γ , !
         (ℕⱼ ⊢Γ)      _       → ⊢Γ , !
         (Idⱼ ⊢A _ _) PE.refl → fix (wf-<ˢ ⊢A)
       where
@@ -186,9 +186,9 @@ private module Lemmas where
         (prodrecⱼ _ ⊢t _ _)   PE.refl → fix (wfTerm-<ˢ ⊢t)
         (Emptyⱼ ⊢Γ)           _       → ⊢Γ , !
         (emptyrecⱼ ⊢A _)      PE.refl → fix (wf-<ˢ ⊢A)
-        (Unitⱼ ⊢l _)          PE.refl → fix (wfTerm-<ˢ ⊢l)
-        (starⱼ ⊢l _)          PE.refl → fix (wfTerm-<ˢ ⊢l)
-        (unitrecⱼ ⊢l ⊢A ⊢t _ _)  PE.refl → fix (wfTerm-<ˢ ⊢t)
+        (Unitⱼ ⊢Γ _)          PE.refl → ⊢Γ , !
+        (starⱼ ⊢Γ _)          PE.refl → ⊢Γ , !
+        (unitrecⱼ ⊢A ⊢t _ _)  PE.refl → fix (wfTerm-<ˢ ⊢t)
         (ℕⱼ ⊢Γ)               _       → ⊢Γ , !
         (zeroⱼ ⊢Γ)            _       → ⊢Γ , !
         (sucⱼ n)              PE.refl → fix (wfTerm-<ˢ n)
@@ -249,7 +249,6 @@ opaque
     wfEq-<ˢ (U-cong l₁≡l₂)      = fix (wfEqTerm-<ˢ l₁≡l₂)
     wfEq-<ˢ (Lift-cong l₁≡l₂ _) = fix (wfEqTerm-<ˢ l₁≡l₂)
     wfEq-<ˢ (ΠΣ-cong A₁≡B₁ _ _) = fix (wfEq-<ˢ A₁≡B₁)
-    wfEq-<ˢ (Unit-cong l₁≡l₂ _) = fix (wfEqTerm-<ˢ l₁≡l₂)
     wfEq-<ˢ (Id-cong A≡B _ _)   = fix (wfEq-<ˢ A≡B)
 
     -- If there is a proof of type Γ ⊢ t ≡ u ∷ A, then there is a
@@ -320,18 +319,14 @@ opaque
       fix (wfTerm-<ˢ ⊢t)
     wfEqTerm-<ˢ (emptyrec-cong A≡B _) =
       fix (wfEq-<ˢ A≡B)
-    wfEqTerm-<ˢ (Unit-cong l₁≡l₂ _) =
-      fix (wfEqTerm-<ˢ l₁≡l₂)
-    wfEqTerm-<ˢ (star-cong l₁≡l₂ _) =
-      fix (wfEqTerm-<ˢ l₁≡l₂)
-    wfEqTerm-<ˢ (unitrec-cong _ _ _ _ t₁≡u₁ _ _ _) =
+    wfEqTerm-<ˢ (unitrec-cong _ t₁≡u₁ _ _ _) =
       fix (wfEqTerm-<ˢ t₁≡u₁)
-    wfEqTerm-<ˢ (unitrec-β _ _ ⊢t _ _) =
+    wfEqTerm-<ˢ (unitrec-β _ ⊢t _ _) =
       fix (wfTerm-<ˢ ⊢t)
-    wfEqTerm-<ˢ (unitrec-β-η _ _ ⊢t _ _ _) =
+    wfEqTerm-<ˢ (unitrec-β-η _ ⊢t _ _ _) =
       fix (wfTerm-<ˢ ⊢t)
-    wfEqTerm-<ˢ (η-unit ⊢l _ _ _ _) =
-      fix (wfTerm-<ˢ ⊢l)
+    wfEqTerm-<ˢ (η-unit x _ _ _) =
+      fix (wfTerm-<ˢ x)
     wfEqTerm-<ˢ (suc-cong t≡u) =
       fix (wfEqTerm-<ˢ t≡u)
     wfEqTerm-<ˢ (natrec-cong _ t₁≡u₁ _ _) =

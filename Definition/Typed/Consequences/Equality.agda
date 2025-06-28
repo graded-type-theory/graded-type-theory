@@ -87,11 +87,14 @@ opaque
     (∃ λ k → Γ ⊢ A ⇒* U k)        →⟨ Σ.map idᶠ (flip whnfRed* A-whnf) ⟩
     (∃ λ k → A PE.≡ U k)          □
 
+{-
 opaque
 
   -- If equality reflection is allowed, then there is a WHNF A that is
   -- judgementally equal to a universe but not propositionally
   -- equal to any universe (given a certain assumption).
+
+  -- TODO needs Lift
 
   whnf≢U :
     Equality-reflection →
@@ -99,14 +102,16 @@ opaque
     ∃₃ λ (Γ : Con Term 1) (l : Term 1) (A : Term 1) →
       Γ ⊢ U l ≡ A × Whnf A × ¬ ∃ λ l → A PE.≡ U l
   whnf≢U ok₁ ok₂ =
-    ε ∙ Id (U (sucᵘ zeroᵘ)) (U zeroᵘ) (Unitʷ (sucᵘ zeroᵘ)) ,
+    ε ∙ Id (U (sucᵘ zeroᵘ)) (U zeroᵘ) Unitʷ ,
     zeroᵘ ,
-    Unitʷ (sucᵘ zeroᵘ) ,
-    univ
-      (equality-reflection′ ok₁ $
-       var₀ (Idⱼ′ (Uⱼ (zeroᵘⱼ ε)) (Unitⱼ (sucᵘⱼ (zeroᵘⱼ ε)) ok₂))) ,
+    Unitʷ ,
+    univ (equality-reflection′ ok₁ $ var₀ (Idⱼ′ (Uⱼ (zeroᵘⱼ ε)) {!   !})) ,
+    -- univ
+    --   (equality-reflection′ ok₁ $
+    --    var₀ (Idⱼ′ (Uⱼ (zeroᵘⱼ ε)) (Unitⱼ ? ok₂))) ,
     Unitₙ ,
     (λ ())
+-}
 
 opaque
 
@@ -134,13 +139,13 @@ opaque
     ∃₄ λ (Γ : Con Term 1) (l : Term 1) (B : Term 1) (A : Term 1) →
       Γ ⊢ Lift l B ≡ A × Whnf A × ¬ ∃₂ λ l B → A PE.≡ Lift l B
   whnf≢Lift ok₁ ok₂ =
-    ε ∙ Id (U (zeroᵘ maxᵘ zeroᵘ)) (Lift zeroᵘ ℕ) (Unitʷ (zeroᵘ maxᵘ zeroᵘ)) ,
+    ε ∙ Id (U (zeroᵘ maxᵘ zeroᵘ)) (Lift zeroᵘ ℕ) Unitʷ ,
     zeroᵘ ,
     ℕ ,
-    Unitʷ (zeroᵘ maxᵘ zeroᵘ) ,
+    Unitʷ ,
     univ
       (equality-reflection′ ok₁ $
-       var₀ (Idⱼ′ (Liftⱼ′ (zeroᵘⱼ ε) (ℕⱼ ε)) (Unitⱼ (maxᵘⱼ (zeroᵘⱼ ε) (zeroᵘⱼ ε)) ok₂))) ,
+       var₀ (Idⱼ′ (Liftⱼ′ (zeroᵘⱼ ε) (ℕⱼ ε)) (conv (Unitⱼ ε ok₂) (U-cong (sym′ (maxᵘ-zeroˡ (zeroᵘⱼ ε))))))) ,
     Unitₙ ,
     (λ ())
 
@@ -218,16 +223,16 @@ opaque
 
   Unit≡A :
     ⦃ ok : No-equality-reflection or-empty Γ ⦄ →
-    Γ ⊢ Unit s l ≡ A → Whnf A → ∃ λ k → A PE.≡ Unit s k
-  Unit≡A {Γ} {s} {l} {A} Unit≡A A-whnf =
+    Γ ⊢ Unit s ≡ A → Whnf A → A PE.≡ Unit s
+  Unit≡A {Γ} {s} {A} Unit≡A A-whnf =
                                        $⟨ Unit≡A ⟩
-    Γ ⊢ Unit s l ≡ A                   →⟨ reducible-⊩≡ ⟩
-    (∃ λ l′ → Γ ⊩⟨ l′ ⟩ Unit s l ≡ A)  →⟨ (λ (_ , Unit≡A) →
+    Γ ⊢ Unit s ≡ A                   →⟨ reducible-⊩≡ ⟩
+    (∃ λ l′ → Γ ⊩⟨ l′ ⟩ Unit s ≡ A)  →⟨ (λ (_ , Unit≡A) →
                                             case ⊩Unit≡⇔ .proj₁ Unit≡A of λ {
-                                              (_ , _ , _ , Unit₌ k ⇒Unit _) →
-                                            k , ⇒Unit }) ⟩
-    (∃ λ k → Γ ⊢ A ⇒* Unit s k)        →⟨ Σ.map idᶠ (flip whnfRed* A-whnf) ⟩
-    (∃ λ k → A PE.≡ Unit s k)          □
+                                              (⇒Unit , ok) →
+                                            ⇒Unit }) ⟩
+    Γ ⊢ A ⇒* Unit s        →⟨ flip whnfRed* A-whnf ⟩
+    A PE.≡ Unit s          □
 
 opaque
 
@@ -239,16 +244,16 @@ opaque
     Equality-reflection →
     Unit-allowed s →
     ∃₃ λ (Γ : Con Term 1) (l : Term 1) (A : Term 1) →
-      Γ ⊢ Unit s l ≡ A × Whnf A ×
-      ¬ ∃₂ λ s l → A PE.≡ Unit s l
+      Γ ⊢ Unit s ≡ A × Whnf A ×
+      ¬ ∃ λ s → A PE.≡ Unit s
   whnf≢Unit {s} ok₁ ok₂ =
     let ⊢zeroᵘ = zeroᵘⱼ ε in
-    ε ∙ Id (U zeroᵘ) (Unit s zeroᵘ) (Id (Unit s zeroᵘ) (star s zeroᵘ) (star s zeroᵘ)) ,
+    ε ∙ Id (U zeroᵘ) (Unit s) (Id (Unit s) (star s) (star s)) ,
     zeroᵘ ,
-    Id (Unit s zeroᵘ) (star s zeroᵘ) (star s zeroᵘ) ,
+    Id (Unit s) (star s) (star s) ,
     univ
       (equality-reflection′ ok₁ $ var₀ $
-       Idⱼ′ (Unitⱼ ⊢zeroᵘ ok₂) $ Idⱼ (Unitⱼ ⊢zeroᵘ ok₂) (starⱼ ⊢zeroᵘ ok₂) (starⱼ ⊢zeroᵘ ok₂)) ,
+       Idⱼ′ (Unitⱼ ε ok₂) $ Idⱼ (Unitⱼ ε ok₂) (starⱼ ε ok₂) (starⱼ ε ok₂)) ,
     Idₙ ,
     (λ ())
 

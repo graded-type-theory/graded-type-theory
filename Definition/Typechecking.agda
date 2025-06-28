@@ -40,9 +40,8 @@ mutual
           → Γ ⊢ A ⇇Type
           → Γ ⊢ Lift l A ⇇Type
     ℕᶜ : Γ ⊢ ℕ ⇇Type
-    Unitᶜ : Γ ⊢ l ⇇ Level
-          → Unit-allowed s
-          → Γ ⊢ Unit s l ⇇Type
+    Unitᶜ : Unit-allowed s
+          → Γ ⊢ Unit s ⇇Type
     Emptyᶜ : Γ ⊢ Empty ⇇Type
     ΠΣᶜ : Γ ⊢ F ⇇Type
         → Γ ∙ F ⊢ G ⇇Type
@@ -104,17 +103,14 @@ mutual
             → Γ ∙ ℕ ∙ A ⊢ s ⇇ A [ suc (var x1) ]↑²
             → Γ ⊢ n ⇇ ℕ
             → Γ ⊢ natrec p q r A z s n ⇉ A [ n ]₀
-    Unitᵢ : Γ ⊢ l ⇇ Level
-          → Unit-allowed s
-          → Γ ⊢ Unit s l ⇉ U l
-    starᵢ : Γ ⊢ l ⇇ Level
-          → Unit-allowed s
-          → Γ ⊢ star s l ⇉ Unit s l
-    unitrecᵢ : Γ ⊢ l ⇇ Level
-             → Γ ∙ Unitʷ l ⊢ A ⇇Type
-             → Γ ⊢ t ⇇ Unitʷ l
-             → Γ ⊢ u ⇇ A [ starʷ l ]₀
-             → Γ ⊢ unitrec p q l A t u ⇉ A [ t ]₀
+    Unitᵢ : Unit-allowed s
+          → Γ ⊢ Unit s ⇉ U zeroᵘ
+    starᵢ : Unit-allowed s
+          → Γ ⊢ star s ⇉ Unit s
+    unitrecᵢ : Γ ∙ Unitʷ ⊢ A ⇇Type
+             → Γ ⊢ t ⇇ Unitʷ
+             → Γ ⊢ u ⇇ A [ starʷ ]₀
+             → Γ ⊢ unitrec p q A t u ⇉ A [ t ]₀
     Emptyᵢ : Γ ⊢ Empty ⇉ U zeroᵘ
     emptyrecᵢ : Γ ⊢ A ⇇Type
               → Γ ⊢ t ⇇ Empty
@@ -202,10 +198,10 @@ mutual
     sucᵢ : Checkable t → Inferable (suc t)
     natrecᵢ : Checkable-type A → Checkable t → Checkable u → Checkable v →
               Inferable (natrec p q r A t u v)
-    Unitᵢ : Checkable l → Inferable (Unit s l)
-    starᵢ : Checkable l → Inferable (star s l)
-    unitrecᵢ : Checkable l → Checkable-type A → Checkable t → Checkable u →
-               Inferable (unitrec p q l A t u)
+    Unitᵢ : Inferable (Unit s)
+    starᵢ : Inferable (star s)
+    unitrecᵢ : Checkable-type A → Checkable t → Checkable u →
+               Inferable (unitrec p q A t u)
     Emptyᵢ : Inferable Empty
     emptyrecᵢ : Checkable-type A → Checkable t →
                 Inferable (emptyrec p A t)
@@ -242,7 +238,7 @@ mutual
   Checkable⇇Type (Liftᶜ l A) = Liftᶜ (Checkable⇇ l) (Checkable⇇Type A)
   Checkable⇇Type (Uᶜ l)      = checkᶜ (infᶜ (Uᵢ (Checkable⇇ l)))
   Checkable⇇Type ℕᶜ          = checkᶜ (infᶜ ℕᵢ)
-  Checkable⇇Type (Unitᶜ l _) = checkᶜ (infᶜ (Unitᵢ (Checkable⇇ l)))
+  Checkable⇇Type (Unitᶜ _) = checkᶜ (infᶜ Unitᵢ)
   Checkable⇇Type Emptyᶜ      = checkᶜ (infᶜ Emptyᵢ)
   Checkable⇇Type (ΠΣᶜ A B _) = ΠΣᶜ (Checkable⇇Type A) (Checkable⇇Type B)
   Checkable⇇Type (Idᶜ A t u) = Idᶜ (Checkable⇇Type A) (Checkable⇇ t)
@@ -279,9 +275,9 @@ mutual
   Inferable⇉ zeroᵢ = zeroᵢ
   Inferable⇉ (sucᵢ x) = sucᵢ (Checkable⇇ x)
   Inferable⇉ (natrecᵢ x x₁ x₂ x₃) = natrecᵢ (Checkable⇇Type x) (Checkable⇇ x₁) (Checkable⇇ x₂) (Checkable⇇ x₃)
-  Inferable⇉ (Unitᵢ l _) = Unitᵢ (Checkable⇇ l)
-  Inferable⇉ (starᵢ l _) = starᵢ (Checkable⇇ l)
-  Inferable⇉ (unitrecᵢ l x x₁ x₂) = unitrecᵢ (Checkable⇇ l) (Checkable⇇Type x) (Checkable⇇ x₁) (Checkable⇇ x₂)
+  Inferable⇉ (Unitᵢ _) = Unitᵢ
+  Inferable⇉ (starᵢ _) = starᵢ
+  Inferable⇉ (unitrecᵢ x x₁ x₂) = unitrecᵢ (Checkable⇇Type x) (Checkable⇇ x₁) (Checkable⇇ x₂)
   Inferable⇉ Emptyᵢ = Emptyᵢ
   Inferable⇉ (emptyrecᵢ x x₁) = emptyrecᵢ (Checkable⇇Type x) (Checkable⇇ x₁)
   Inferable⇉ (Idᵢ A _ t u) =

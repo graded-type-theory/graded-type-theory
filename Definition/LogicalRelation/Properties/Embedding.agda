@@ -50,7 +50,7 @@ opaque
   emb-≤-⊩ p (Liftᵣ′ D [k] [F]) = Liftᵣ′ D [k] (emb-≤-⊩ p [F])
   emb-≤-⊩ p (ℕᵣ x) = ℕᵣ x
   emb-≤-⊩ p (Emptyᵣ x) = Emptyᵣ x
-  emb-≤-⊩ p (Unitᵣ′ k [k] k≤ A⇒ ok) = Unitᵣ′ k [k] (≤ᵘ-trans k≤ p) A⇒ ok
+  emb-≤-⊩ p (Unitᵣ′ A⇒ ok) = Unitᵣ′ A⇒ ok
   emb-≤-⊩ p (ne′ inc k D neK K≡K) = ne′ inc k D neK K≡K
   emb-≤-⊩ p (Bᵣ′ W F G D A≡A [F] [G] G-ext ok) = Bᵣ′ W F G D A≡A
     (λ [ρ] → emb-≤-⊩ p ([F] [ρ]))

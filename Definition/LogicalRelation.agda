@@ -328,52 +328,43 @@ record _⊩Empty_≡_∷Empty (Γ : Con Term ℓ) (t u : Term ℓ) : Set a where
 -- Reducibility of Unit
 
 -- Unit type
-record _⊩Unit⟨_,_⟩_
-  (Γ : Con Term ℓ) (l : Universe-level) (s : Strength) (A : Term ℓ) :
+record _⊩Unit⟨_⟩_
+  (Γ : Con Term ℓ) (s : Strength) (A : Term ℓ) :
   Set a where
   no-eta-equality
   pattern
   constructor Unitᵣ
   field
-    k       : Term ℓ
-    [k]     : Γ ⊩Level k ∷Level
-    k≤      : ↑ᵘ [k] ≤ᵘ l
-    ⇒*-Unit : Γ ⊢ A ⇒* Unit s k
+    ⇒*-Unit : Γ ⊢ A ⇒* Unit s
     ok      : Unit-allowed s
 
 -- Unit type equality
-record _⊩Unit⟨_⟩_≡_/_
-  (Γ : Con Term ℓ) (s : Strength) (A B : Term ℓ) (k : Term ℓ) :
+record _⊩Unit⟨_⟩_≡_
+  (Γ : Con Term ℓ) (s : Strength) (A B : Term ℓ) :
   Set a where
   no-eta-equality
   pattern
   constructor Unit₌
   field
-    k′       : Term ℓ
-    ⇒*-Unit′ : Γ ⊢ B ⇒* Unit s k′
-    k≡k′     : Γ ⊩Level k ≡ k′ ∷Level
+    ⇒*-Unit′ : Γ ⊢ B ⇒* Unit s
 
 -- Unit term equality
 
 data [Unit]-prop′
-       (Γ : Con Term ℓ) (k : Term ℓ) (s : Strength) :
+       (Γ : Con Term ℓ) (s : Strength) :
        Term ℓ → Term ℓ → Set a where
-  starᵣ :
-    ∀ {k′ k″} →
-    Γ ⊩Level k ≡ k′ ∷Level →
-    Γ ⊩Level k′ ≡ k″ ∷Level →
-    [Unit]-prop′ Γ k s (star s k′) (star s k″)
-  ne    : Γ ⊩neNf t ≡ u ∷ Unit s k → [Unit]-prop′ Γ k s t u
+  starᵣ : [Unit]-prop′ Γ s (star s) (star s)
+  ne    : Γ ⊩neNf t ≡ u ∷ Unit s → [Unit]-prop′ Γ s t u
 
 data [Unit]-prop
-       (Γ : Con Term ℓ) (k : Term ℓ) :
+       (Γ : Con Term ℓ) :
        Strength → Term ℓ → Term ℓ → Set a where
-  Unitₜ₌ʷ : [Unit]-prop′ Γ k 𝕨 t u → ¬ Unitʷ-η → [Unit]-prop Γ k 𝕨 t u
-  Unitₜ₌ˢ : Unit-with-η s → [Unit]-prop Γ k s t u
+  Unitₜ₌ʷ : [Unit]-prop′ Γ 𝕨 t u → ¬ Unitʷ-η → [Unit]-prop Γ 𝕨 t u
+  Unitₜ₌ˢ : Unit-with-η s → [Unit]-prop Γ s t u
 
-record _⊩Unit⟨_⟩_≡_∷Unit/_
+record _⊩Unit⟨_⟩_≡_∷Unit
          (Γ : Con Term ℓ) (s : Strength)
-         (t₁ t₂ k : Term ℓ) :
+         (t₁ t₂ : Term ℓ) :
          Set a where
   inductive
   no-eta-equality
@@ -381,9 +372,9 @@ record _⊩Unit⟨_⟩_≡_∷Unit/_
   constructor Unitₜ₌
   field
     u₁ u₂ : Term ℓ
-    ↘u₁   : Γ ⊢ t₁ ↘ u₁ ∷ Unit s k
-    ↘u₂   : Γ ⊢ t₂ ↘ u₂ ∷ Unit s k
-    prop  : [Unit]-prop Γ k s u₁ u₂
+    ↘u₁   : Γ ⊢ t₁ ↘ u₁ ∷ Unit s
+    ↘u₂   : Γ ⊢ t₂ ↘ u₂ ∷ Unit s
+    prop  : [Unit]-prop Γ s u₁ u₂
 
 
 -- Logical relation
@@ -680,7 +671,7 @@ module LogRel
       Liftᵣ : ∀ {A} → Γ ⊩ₗLift A → Γ ⊩ₗ A
       ℕᵣ  : ∀ {A} → Γ ⊩ℕ A → Γ ⊩ₗ A
       Emptyᵣ : ∀ {A} → Γ ⊩Empty A → Γ ⊩ₗ A
-      Unitᵣ : ∀ {A} {s : Strength} → Γ ⊩Unit⟨ l , s ⟩ A → Γ ⊩ₗ A
+      Unitᵣ : ∀ {A} {s : Strength} → Γ ⊩Unit⟨ s ⟩ A → Γ ⊩ₗ A
       ne  : ∀ {A} → Γ ⊩ne A → Γ ⊩ₗ A
       Bᵣ  : ∀ {A} W → Γ ⊩ₗB⟨ W ⟩ A → Γ ⊩ₗ A
       Idᵣ : ∀ {A} → Γ ⊩ₗId A → Γ ⊩ₗ A
@@ -691,7 +682,7 @@ module LogRel
     Γ ⊩ₗ A ≡ B / Liftᵣ ⊩A = Γ ⊩ₗLift A ≡ B / ⊩A
     Γ ⊩ₗ A ≡ B / ℕᵣ D = Γ ⊩ℕ A ≡ B
     Γ ⊩ₗ A ≡ B / Emptyᵣ D = Γ ⊩Empty A ≡ B
-    Γ ⊩ₗ A ≡ B / Unitᵣ {s = s} ⊩A = Γ ⊩Unit⟨ s ⟩ A ≡ B / ⊩A ._⊩Unit⟨_,_⟩_.k
+    Γ ⊩ₗ A ≡ B / Unitᵣ {s = s} ⊩A = Γ ⊩Unit⟨ s ⟩ A ≡ B
     Γ ⊩ₗ A ≡ B / ne neA = Γ ⊩ne A ≡ B / neA
     Γ ⊩ₗ A ≡ B / Bᵣ W BA = Γ ⊩ₗB⟨ W ⟩ A ≡ B / BA
     Γ ⊩ₗ A ≡ B / Idᵣ ⊩A = Γ ⊩ₗId A ≡ B / ⊩A
@@ -705,7 +696,7 @@ module LogRel
     Γ ⊩ₗ t ≡ u ∷ A / Liftᵣ ⊩A = Γ ⊩ₗLift t ≡ u ∷ A / ⊩A
     Γ ⊩ₗ t ≡ u ∷ A / ℕᵣ D = Γ ⊩ℕ t ≡ u ∷ℕ
     Γ ⊩ₗ t ≡ u ∷ A / Emptyᵣ D = Γ ⊩Empty t ≡ u ∷Empty
-    Γ ⊩ₗ t ≡ u ∷ A / Unitᵣ {s = s} ⊩A = Γ ⊩Unit⟨ s ⟩ t ≡ u ∷Unit/ ⊩A ._⊩Unit⟨_,_⟩_.k
+    Γ ⊩ₗ t ≡ u ∷ A / Unitᵣ {s = s} ⊩A = Γ ⊩Unit⟨ s ⟩ t ≡ u ∷Unit
     Γ ⊩ₗ t ≡ u ∷ A / ne neA = Γ ⊩ne t ≡ u ∷ A / neA
     Γ ⊩ₗ t ≡ u ∷ A / Bᵣ BΠ! ΠA = Γ ⊩ₗΠ t ≡ u ∷ A / ΠA
     Γ ⊩ₗ t ≡ u ∷ A / Bᵣ BΣ! ΣA  = Γ ⊩ₗΣ t ≡ u ∷ A / ΣA
@@ -728,7 +719,7 @@ pattern Liftₜ₌ a b c d e = a , b , c , d , e
 pattern Πₜ₌ f g d d′ funcF funcG f≡g [f≡g] = f , g , d , d′ , funcF , funcG , f≡g , [f≡g]
 pattern Σₜ₌ p r d d′ pProd rProd p≅r prop = p , r , d , d′ , p≅r , pProd , rProd , prop
 
-pattern Unitᵣ′ a b c d e = Unitᵣ (Unitᵣ a b c d e)
+pattern Unitᵣ′ a b = Unitᵣ (Unitᵣ a b)
 pattern Uᵣ′ a b c d = Uᵣ (Uᵣ a b c d)
 pattern Liftᵣ′ {k₂} {F} d e f = Liftᵣ (Liftᵣ {k₂} {F} d e f)
 pattern ne′ a b c d e = ne (ne a b c d e)
@@ -792,9 +783,8 @@ opaque
   -- A "smart constructor" for [Unit]-prop.
 
   [Unit]-prop′→[Unit]-prop :
-    ∀ {k} →
-    [Unit]-prop′ Γ k s t u →
-    [Unit]-prop Γ k s t u
+    [Unit]-prop′ Γ s t u →
+    [Unit]-prop Γ s t u
   [Unit]-prop′→[Unit]-prop {s} prop =
     case Unit-with-η? s of λ where
       (inj₁ η)                → Unitₜ₌ˢ η

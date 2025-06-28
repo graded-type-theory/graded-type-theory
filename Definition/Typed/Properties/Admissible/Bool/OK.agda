@@ -47,9 +47,9 @@ opaque
     Γ ⊢ OK t₁ ≡ OK t₂ ∷ U zeroᵘ
   OK-cong-U {Γ} t₁≡t₂ =
     natcase-cong (refl (Uⱼ (zeroᵘⱼ (∙ ⊢ℕ₁))))
-      (refl (Unitⱼ (zeroᵘⱼ ⊢Γ) Unitʷ-ok))
+      (refl (Unitⱼ ⊢Γ Unitʷ-ok))
       (refl $
-       ⊢natcase (Uⱼ (zeroᵘⱼ (∙ ⊢ℕ₂))) (Unitⱼ (zeroᵘⱼ (∙ ⊢ℕ₁)) Unitʷ-ok) (Emptyⱼ (∙ ⊢ℕ₂))
+       ⊢natcase (Uⱼ (zeroᵘⱼ (∙ ⊢ℕ₂))) (Unitⱼ (∙ ⊢ℕ₁) Unitʷ-ok) (Emptyⱼ (∙ ⊢ℕ₂))
          (var₀ ⊢ℕ₁))
       t₁≡t₂
     where
@@ -97,17 +97,17 @@ opaque
 
   OK-0≡ :
     ⊢ Γ →
-    Γ ⊢ OK zero ≡ Unitʷ zeroᵘ
+    Γ ⊢ OK zero ≡ Unitʷ
   OK-0≡ ⊢Γ =
     OK zero       ≡⟨⟩⊢
 
-    natcase OKᵍ 𝟘 (U zeroᵘ) (Unitʷ zeroᵘ)
-      (natcase 𝟘 𝟘 (U zeroᵘ) (Unitʷ zeroᵘ) Empty (var x0)) zero
+    natcase OKᵍ 𝟘 (U zeroᵘ) Unitʷ
+      (natcase 𝟘 𝟘 (U zeroᵘ) Unitʷ Empty (var x0)) zero
                   ≡⟨ univ $
-                      natcase-zero-≡ (Uⱼ (zeroᵘⱼ (⊢Γ ∙[ ℕⱼ ]))) (Unitⱼ (zeroᵘⱼ ⊢Γ) Unitʷ-ok) $
-                      ⊢natcase (Uⱼ (zeroᵘⱼ (⊢Γ ∙[ ℕⱼ ] ∙[ ℕⱼ ]))) (Unitⱼ (zeroᵘⱼ (⊢Γ ∙[ ℕⱼ ])) Unitʷ-ok)
+                      natcase-zero-≡ (Uⱼ (zeroᵘⱼ (⊢Γ ∙[ ℕⱼ ]))) (Unitⱼ ⊢Γ Unitʷ-ok) $
+                      ⊢natcase (Uⱼ (zeroᵘⱼ (⊢Γ ∙[ ℕⱼ ] ∙[ ℕⱼ ]))) (Unitⱼ (⊢Γ ∙[ ℕⱼ ]) Unitʷ-ok)
                         (Emptyⱼ (⊢Γ ∙[ ℕⱼ ] ∙[ ℕⱼ ])) (var₀ (ℕⱼ ⊢Γ)) ⟩⊢∎
-    Unitʷ zeroᵘ   ∎
+    Unitʷ ∎
 
 opaque
   unfolding OK
@@ -116,24 +116,24 @@ opaque
 
   OK-1≡ :
     ⊢ Γ →
-    Γ ⊢ OK (suc zero) ≡ Unitʷ zeroᵘ
+    Γ ⊢ OK (suc zero) ≡ Unitʷ
   OK-1≡ ⊢Γ =
     OK (suc zero)   ≡⟨⟩⊢
 
-    natcase OKᵍ 𝟘 (U zeroᵘ) (Unitʷ zeroᵘ)
-      (natcase 𝟘 𝟘 (U zeroᵘ) (Unitʷ zeroᵘ) Empty (var x0)) (suc zero)
+    natcase OKᵍ 𝟘 (U zeroᵘ) Unitʷ
+      (natcase 𝟘 𝟘 (U zeroᵘ) Unitʷ Empty (var x0)) (suc zero)
                     ≡⟨ PE.subst (_⊢_≡_ _ _) natcase-[] $
                         _⊢_≡_.univ $
-                        natcase-suc-≡ (Uⱼ (zeroᵘⱼ (⊢Γ ∙[ ℕⱼ ]))) (Unitⱼ (zeroᵘⱼ ⊢Γ) Unitʷ-ok)
-                          (⊢natcase (Uⱼ (zeroᵘⱼ (⊢Γ ∙[ ℕⱼ ] ∙[ ℕⱼ ]))) (Unitⱼ (zeroᵘⱼ (⊢Γ ∙[ ℕⱼ ])) Unitʷ-ok)
+                        natcase-suc-≡ (Uⱼ (zeroᵘⱼ (⊢Γ ∙[ ℕⱼ ]))) (Unitⱼ ⊢Γ Unitʷ-ok)
+                          (⊢natcase (Uⱼ (zeroᵘⱼ (⊢Γ ∙[ ℕⱼ ] ∙[ ℕⱼ ]))) (Unitⱼ (⊢Γ ∙[ ℕⱼ ]) Unitʷ-ok)
                               (Emptyⱼ (⊢Γ ∙[ ℕⱼ ] ∙[ ℕⱼ ])) (var₀ (ℕⱼ ⊢Γ)))
                           (zeroⱼ ⊢Γ) ⟩⊢
 
-    natcase 𝟘 𝟘 (U zeroᵘ) (Unitʷ zeroᵘ) Empty zero
+    natcase 𝟘 𝟘 (U zeroᵘ) Unitʷ Empty zero
                     ≡⟨ univ $
-                        natcase-zero-≡ (Uⱼ (zeroᵘⱼ (⊢Γ ∙[ ℕⱼ ]))) (Unitⱼ (zeroᵘⱼ ⊢Γ) Unitʷ-ok)
+                        natcase-zero-≡ (Uⱼ (zeroᵘⱼ (⊢Γ ∙[ ℕⱼ ]))) (Unitⱼ ⊢Γ Unitʷ-ok)
                           (Emptyⱼ (⊢Γ ∙[ ℕⱼ ])) ⟩⊢∎
-    Unitʷ zeroᵘ     ∎
+    Unitʷ ∎
 
 opaque
   unfolding OK
@@ -146,18 +146,18 @@ opaque
   OK-2+≡ {Γ} {t} ⊢t =
     OK (suc (suc t))      ≡⟨⟩⊢
 
-    natcase OKᵍ 𝟘 (U zeroᵘ) (Unitʷ zeroᵘ)
-      (natcase 𝟘 𝟘 (U zeroᵘ) (Unitʷ zeroᵘ) Empty (var x0)) (suc (suc t))
+    natcase OKᵍ 𝟘 (U zeroᵘ) Unitʷ
+      (natcase 𝟘 𝟘 (U zeroᵘ) Unitʷ Empty (var x0)) (suc (suc t))
                           ≡⟨ PE.subst (_⊢_≡_ _ _) natcase-[] $
                               _⊢_≡_.univ $
-                              natcase-suc-≡ (Uⱼ (zeroᵘⱼ (∙ ⊢ℕ₁))) (Unitⱼ (zeroᵘⱼ ⊢Γ) Unitʷ-ok)
-                                (⊢natcase (Uⱼ (zeroᵘⱼ (∙ ⊢ℕ₂))) (Unitⱼ (zeroᵘⱼ (∙ ⊢ℕ₁)) Unitʷ-ok)
+                              natcase-suc-≡ (Uⱼ (zeroᵘⱼ (∙ ⊢ℕ₁))) (Unitⱼ ⊢Γ Unitʷ-ok)
+                                (⊢natcase (Uⱼ (zeroᵘⱼ (∙ ⊢ℕ₂))) (Unitⱼ (∙ ⊢ℕ₁) Unitʷ-ok)
                                   (Emptyⱼ (∙ ⊢ℕ₂)) (var₀ ⊢ℕ₁))
                                 (sucⱼ ⊢t) ⟩⊢
 
-    natcase 𝟘 𝟘 (U zeroᵘ) (Unitʷ zeroᵘ) Empty (suc t)
+    natcase 𝟘 𝟘 (U zeroᵘ) Unitʷ Empty (suc t)
                           ≡⟨ univ $
-                              natcase-suc-≡ (Uⱼ (zeroᵘⱼ (∙ ⊢ℕ₁))) (Unitⱼ (zeroᵘⱼ ⊢Γ) Unitʷ-ok) (Emptyⱼ (∙ ⊢ℕ₁)) ⊢t ⟩⊢∎
+                              natcase-suc-≡ (Uⱼ (zeroᵘⱼ (∙ ⊢ℕ₁))) (Unitⱼ ⊢Γ Unitʷ-ok) (Emptyⱼ (∙ ⊢ℕ₁)) ⊢t ⟩⊢∎
     Empty                 ∎
     where
     ⊢Γ : ⊢ Γ

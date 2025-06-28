@@ -66,8 +66,8 @@ redSubst* D (ℕᵣ D′) =
   ℕᵣ (D ⇨* D′) , D′
 redSubst* D (Emptyᵣ D′) =
   Emptyᵣ (D ⇨* D′) , D′
-redSubst* D (Unitᵣ′ k [k] k≤ D′ ok) =
-  Unitᵣ′ k [k] k≤ (D ⇨* D′) ok , Unit₌ _ D′ (reflLevel [k])
+redSubst* D (Unitᵣ′ D′ ok) =
+  Unitᵣ′ (D ⇨* D′) ok , Unit₌ D′
 redSubst* D (ne′ inc _ D′ neK K≡K) =
     ne′ inc _ (D ⇨* D′) neK K≡K
   , ne₌ inc _ D′ neK K≡K
@@ -119,7 +119,7 @@ opaque
         t⇒u′ = conv* t⇒u (subset* D)
     in
     Emptyₜ₌ n n (t⇒u′ ⇨∷* d) d n≡n (Empty-prop⇔[Empty]-prop .proj₁ prop)
-  redSubst*Term t⇒u (Unitᵣ′ _ _ _ D _) ⊩u =
+  redSubst*Term t⇒u (Unitᵣ′ D _) ⊩u =
     case ⊩Unit∷Unit⇔⊩Unit≡∷Unit .proj₂ ⊩u of λ
       (Unitₜ v u↘v prop) →
     Unitₜ₌ v v (⇒*∷→↘∷→↘∷ (conv* t⇒u (subset* D)) u↘v) u↘v
@@ -202,10 +202,10 @@ opaque
     case whrDet↘ (A⇒*Empty , Emptyₙ) A⇒*B of λ
       B⇒*Empty →
     Emptyᵣ B⇒*Empty , B⇒*Empty
-  redSubst*′ A⇒*B (Unitᵣ′ k [k] k≤ A⇒*Unit ok) =
+  redSubst*′ A⇒*B (Unitᵣ′ A⇒*Unit ok) =
     case whrDet↘ (A⇒*Unit , Unitₙ) A⇒*B of λ
       B⇒*Unit →
-    Unitᵣ′ k [k] k≤ B⇒*Unit ok , Unit₌ _ B⇒*Unit (reflLevel [k])
+    Unitᵣ′ B⇒*Unit ok , Unit₌ B⇒*Unit
   redSubst*′ A⇒*B (ne′ inc C A⇒*C C-ne C≅C) =
     case whrDet↘ (A⇒*C , ne! C-ne) A⇒*B of λ
       B⇒*C →
@@ -262,7 +262,7 @@ opaque
            (conv* t⇒*u (subset* A⇒*Empty)) of λ
       u⇒*v →
     Emptyₜ₌ v v t⇒*v u⇒*v v≅v (Empty-prop⇔[Empty]-prop .proj₁ v-ok)
-  redSubst*Term′ t⇒*u (Unitᵣ′ _ _ _ A⇒*Unit _) ⊩t =
+  redSubst*Term′ t⇒*u (Unitᵣ′ A⇒*Unit _) ⊩t =
     case ⊩Unit∷Unit⇔⊩Unit≡∷Unit .proj₂ ⊩t of λ
       (Unitₜ v t↘v@(_ , v-whnf) prop) →
     Unitₜ₌ v v t↘v

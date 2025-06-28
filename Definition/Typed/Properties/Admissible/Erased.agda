@@ -167,7 +167,7 @@ opaque
   inversion-Erased-∷ ⊢Erased =
     case inversion-ΠΣ-U ⊢Erased of λ {
       (t , _ , ⊢A , ⊢Unit , B≡ , Σˢ-ok) →
-    t , ⊢A , (inversion-Unit-allowed (univ ⊢Unit) , Σˢ-ok) , B≡ }
+    t , ⊢A , (inversion-Unit (univ ⊢Unit) , Σˢ-ok) , B≡ }
 
 opaque
 
@@ -179,7 +179,7 @@ opaque
   inversion-Erased ⊢Erased =
     case inversion-ΠΣ ⊢Erased of λ {
       (⊢A , ⊢Unit , Σˢ-ok) →
-    ⊢A , inversion-Unit-allowed ⊢Unit , Σˢ-ok }
+    ⊢A , inversion-Unit ⊢Unit , Σˢ-ok }
 
 opaque
 
@@ -199,7 +199,7 @@ opaque
        Γ ⊢ t ∷ B ×
        (Unit-allowed s × Σ-allowed s 𝟘 q) ×
        Γ ⊢ A ≡ Σ⟨ s ⟩ 𝟘 , q ▷ B ▹ C ×
-       Γ ⊢ C [ t ]₀ ≡ Unit s zeroᵘ
+       Γ ⊢ C [ t ]₀ ≡ Unit s
   inversion-[] ⊢[] =
     case inversion-prod ⊢[] of λ {
       (B , C , q , ⊢B , _ , ⊢t , ⊢star , A≡ , Σˢ-ok) →
@@ -217,7 +217,7 @@ private opaque
   erasedrec-lemma₁ :
     let open Erased s in
     Γ ∙ Erased A₁ ⊢ B₁ ≡ B₂ →
-    Γ ∙ A₁ ∙ Unit s zeroᵘ ∙ Unit s zeroᵘ ⊢
+    Γ ∙ A₁ ∙ Unit s ∙ Unit s ⊢
       B₁ [ 3 ][ prod s 𝟘 (var x2) (var x0) ]↑ ≡
       B₂ [ 3 ][ prod s 𝟘 (var x2) (var x0) ]↑
   erasedrec-lemma₁ B₁≡B₂ =
@@ -225,13 +225,13 @@ private opaque
       (∙ ⊢Erased-A) →
     case inversion-Erased ⊢Erased-A of λ
       (⊢A , Unit-ok , Σ-ok) →
-    case Unitⱼ (zeroᵘⱼ (∙ Unitⱼ (zeroᵘⱼ (∙ ⊢A)) Unit-ok)) Unit-ok of λ
+    case Unitⱼ (∙ Unitⱼ (∙ ⊢A) Unit-ok) Unit-ok of λ
       ⊢Unit →
     case ⊢ˢʷ∷-wkSubst (∙ ⊢Unit) (⊢ˢʷ∷-idSubst (wf ⊢A)) of λ
       ⊢wk3 →
     [][]↑-cong B₁≡B₂ $ _⊢_≡_∷_.refl $
     prodⱼ
-      (Unitⱼ (zeroᵘⱼ (∙ subst-⊢ ⊢A ⊢wk3)) Unit-ok)
+      (Unitⱼ (∙ subst-⊢ ⊢A ⊢wk3) Unit-ok)
       (PE.subst (_⊢_∷_ _ _) (wk[]≡[] 3) $ var₂ ⊢Unit)
       (var₀ ⊢Unit) Σ-ok }
 
@@ -240,15 +240,15 @@ private opaque
     ∀ B →
     Unit-allowed s →
     Γ ∙ A ⊢ t₁ ≡ t₂ ∷ B [ [ var x0 ] ]↑ →
-    Γ ∙ A ∙ Unit s zeroᵘ ⊢ wk1 t₁ ≡ wk1 t₂ ∷
-      B [ 3 ][ prod s 𝟘 (var x2) (var x0) ]↑ [ star s zeroᵘ ]₀
+    Γ ∙ A ∙ Unit s ⊢ wk1 t₁ ≡ wk1 t₂ ∷
+      B [ 3 ][ prod s 𝟘 (var x2) (var x0) ]↑ [ star s ]₀
   erasedrec-lemma₂ {s} B Unit-ok t₁≡t₂ =
     flip (PE.subst (_⊢_≡_∷_ _ _ _))
-      (wkEqTerm₁ (Unitⱼ (zeroᵘⱼ (wfEqTerm t₁≡t₂)) Unit-ok) t₁≡t₂) $
+      (wkEqTerm₁ (Unitⱼ (wfEqTerm t₁≡t₂) Unit-ok) t₁≡t₂) $
     wk1 (B [ [ var x0 ] ]↑)                                     ≡⟨ wk[]′[][]↑ 1 B ⟩
     B [ 2 ][ wk1 [ var x0 ] ]↑                                  ≡⟨⟩
-    B [ 2 ][ prod s 𝟘 (var x1) (star s zeroᵘ) ]↑                ≡˘⟨ [][]↑-[₀⇑] 0 B ⟩
-    B [ 3 ][ prod s 𝟘 (var x2) (var x0) ]↑ [ star s zeroᵘ ]₀    ∎
+    B [ 2 ][ prod s 𝟘 (var x1) (star s) ]↑                ≡˘⟨ [][]↑-[₀⇑] 0 B ⟩
+    B [ 3 ][ prod s 𝟘 (var x2) (var x0) ]↑ [ star s ]₀    ∎
     where
     open Erased s
 
@@ -269,12 +269,12 @@ opaque
     case inversion-Erased ⊢Erased-A of λ
       (_ , Unit-ok , _) →
     let ⊢Unit =
-          Unitⱼ (zeroᵘⱼ (wfTerm (syntacticEqTerm t₁≡t₂ .proj₂ .proj₁)))
+          Unitⱼ (wfTerm (syntacticEqTerm t₁≡t₂ .proj₂ .proj₁))
             Unit-ok
     in
     prodrec⟨⟩-cong B₁≡B₂ u₁≡u₂ $
     PE.subst (_⊢_≡_∷_ _ _ _) ([][]↑-[₀⇑] 0 B₁) $
-    unitrec⟨⟩-cong (λ _ → refl (zeroᵘⱼ (∙ ⊢Unit)))
+    unitrec⟨⟩-cong
       (erasedrec-lemma₁ B₁≡B₂) (refl (var₀ ⊢Unit))
       (erasedrec-lemma₂ B₁ Unit-ok t₁≡t₂) }
 
@@ -310,35 +310,35 @@ opaque
     case inversion-Erased ⊢Erased-A of λ
       (⊢A , Unit-ok , Σ-ok) →
     let ⊢Γ = wf ⊢A in
-    case Unitⱼ (zeroᵘⱼ ⊢Γ) Unit-ok of λ
+    case Unitⱼ ⊢Γ Unit-ok of λ
       ⊢Unit →
-    case starⱼ (zeroᵘⱼ ⊢Γ) Unit-ok of λ
+    case starⱼ ⊢Γ Unit-ok of λ
       ⊢star →
     prodrec⟨ s ⟩ is-𝕨 𝟘 p B [ u ]
-      (unitrec⟨ s ⟩ 𝟙 p zeroᵘ (B [ 3 ][ prod s 𝟘 (var x2) (var x0) ]↑)
+      (unitrec⟨ s ⟩ 𝟙 p (B [ 3 ][ prod s 𝟘 (var x2) (var x0) ]↑)
         (var x0) (wk1 t))                                             ≡⟨ prodrec⟨⟩-β (λ _ → ⊢B) ⊢u ⊢star
                                                                            (PE.subst (_⊢_∷_ _ _) ([][]↑-[₀⇑] 0 B) $
                                                                             ⊢unitrec⟨⟩ (syntacticEq (erasedrec-lemma₁ (refl ⊢B)) .proj₁)
-                                                                              (var₀ $ Unitⱼ (zeroᵘⱼ (wfTerm ⊢t)) Unit-ok)
+                                                                              (var₀ $ Unitⱼ (wfTerm ⊢t) Unit-ok)
                                                                               (syntacticEqTerm (erasedrec-lemma₂ B Unit-ok (refl ⊢t))
                                                                                  .proj₂ .proj₁))
                                                                            (λ _ → Σ-ok) ⟩⊢
-    unitrec⟨ s ⟩ 𝟙 p zeroᵘ (B [ 3 ][ prod s 𝟘 (var x2) (var x0) ]↑)
+    unitrec⟨ s ⟩ 𝟙 p (B [ 3 ][ prod s 𝟘 (var x2) (var x0) ]↑)
       (var x0) (wk1 t)
-      [ u , star s zeroᵘ ]₁₀                                          ≡⟨ PE.trans unitrec⟨⟩-[] $
-                                                                         PE.cong₃ (unitrec⟨_⟩ _ _ _ _)
+      [ u , star s ]₁₀                                          ≡⟨ PE.trans unitrec⟨⟩-[] $
+                                                                         PE.cong₃ (unitrec⟨_⟩ _ _ _)
                                                                            ([][]↑-[,⇑] 1 B) PE.refl (wk1-tail t) ⟩⊢≡
-    unitrec⟨ s ⟩ 𝟙 p zeroᵘ (B [ prod s 𝟘 (wk1 u) (var x0) ]↑) (star s zeroᵘ)
+    unitrec⟨ s ⟩ 𝟙 p (B [ prod s 𝟘 (wk1 u) (var x0) ]↑) (star s)
       (t [ u ]₀)                                                      ≡⟨ (case PE.trans ([][]↑-[₀⇑] 0 B) $
                                                                                PE.cong (B U.[_]₀) $
                                                                                PE.cong₂ (prod _ _) (wk1-sgSubst _ _) PE.refl of λ
                                                                             lemma →
                                                                           PE.subst (_⊢_≡_∷_ _ _ _) lemma $
-                                                                          unitrec⟨⟩-β-≡ (λ _ → refl (zeroᵘⱼ ⊢Γ))
+                                                                          unitrec⟨⟩-β-≡
                                                                             (λ _ →
                                                                                ⊢[][]↑ ⊢B $
                                                                                PE.subst (_⊢_∷_ _ _) (wk[]≡[] 1) $
-                                                                               prodⱼ (Unitⱼ (zeroᵘⱼ (∙ (wk₁ ⊢Unit ⊢A))) Unit-ok) (wkTerm₁ ⊢Unit ⊢u)
+                                                                               prodⱼ (Unitⱼ (∙ (wk₁ ⊢Unit ⊢A)) Unit-ok) (wkTerm₁ ⊢Unit ⊢u)
                                                                                  (var₀ ⊢Unit) Σ-ok)
                                                                             (PE.subst (_⊢_∷_ _ _) (PE.trans ([]↑-[]₀ B) (PE.sym lemma)) $
                                                                              substTerm ⊢t ⊢u)) ⟩⊢∎

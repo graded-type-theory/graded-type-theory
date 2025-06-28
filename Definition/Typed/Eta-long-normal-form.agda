@@ -79,9 +79,9 @@ mutual
              Γ ⊢nf ΠΣ⟨ b ⟩ p , q ▷ A ▹ B
     Emptyₙ : ⊢ Γ →
              Γ ⊢nf Empty
-    Unitₙ  : Γ ⊢nf l ∷ Level →
+    Unitₙ  : ⊢ Γ →
              Unit-allowed s →
-             Γ ⊢nf Unit s l
+             Γ ⊢nf Unit s
     ℕₙ     : ⊢ Γ →
              Γ ⊢nf ℕ
     Idₙ    : Γ ⊢nf A →
@@ -126,12 +126,12 @@ mutual
              Γ ⊢nf prod s p t u ∷ Σ⟨ s ⟩ p , q ▷ A ▹ B
     Emptyₙ : ⊢ Γ →
              Γ ⊢nf Empty ∷ U zeroᵘ
-    Unitₙ  : Γ ⊢nf l ∷ Level →
+    Unitₙ  : ⊢ Γ →
              Unit-allowed s →
-             Γ ⊢nf Unit s l ∷ U l
-    starₙ  : Γ ⊢nf l ∷ Level →
+             Γ ⊢nf Unit s ∷ U zeroᵘ
+    starₙ  : ⊢ Γ →
              Unit-allowed s →
-             Γ ⊢nf star s l ∷ Unit s l
+             Γ ⊢nf star s ∷ Unit s
     ℕₙ     : ⊢ Γ →
              Γ ⊢nf ℕ ∷ U zeroᵘ
     zeroₙ  : ⊢ Γ →
@@ -200,13 +200,12 @@ mutual
                 Γ ∙ ℕ ∙ A ⊢nf u ∷ A [ suc (var x1) ]↑² →
                 Γ ⊢ne v ∷ ℕ →
                 Γ ⊢ne natrec p q r A t u v ∷ A [ v ]₀
-    unitrecₙ  : Γ ⊢nf l ∷ Level →
-                Γ ∙ Unitʷ l ⊢nf A →
-                Γ ⊢ne t ∷ Unitʷ l →
-                Γ ⊢nf u ∷ A [ starʷ l ]₀ →
+    unitrecₙ  : Γ ∙ Unitʷ ⊢nf A →
+                Γ ⊢ne t ∷ Unitʷ →
+                Γ ⊢nf u ∷ A [ starʷ ]₀ →
                 Unitʷ-allowed →
                 ¬ Unitʷ-η →
-                Γ ⊢ne unitrec p q l A t u ∷ A [ t ]₀
+                Γ ⊢ne unitrec p q A t u ∷ A [ t ]₀
     Jₙ        : Γ ⊢nf A →
                 Γ ⊢nf t ∷ A →
                 Γ ∙ A ∙ Id (wk1 A) (wk1 t) (var x0) ⊢nf B →
@@ -245,7 +244,7 @@ mutual
     (univₙ ⊢A)    → univ (⊢nf∷→⊢∷ ⊢A)
     (ΠΣₙ _ ⊢B ok) → ΠΣⱼ (⊢nf→⊢ ⊢B) ok
     (Emptyₙ ⊢Γ)   → Emptyⱼ ⊢Γ
-    (Unitₙ ⊢l ok) → Unitⱼ (⊢nf∷→⊢∷ ⊢l) ok
+    (Unitₙ ⊢Γ ok) → Unitⱼ ⊢Γ ok
     (ℕₙ ⊢Γ)       → ℕⱼ ⊢Γ
     (Idₙ _ ⊢t ⊢u) → Idⱼ′ (⊢nf∷→⊢∷ ⊢t) (⊢nf∷→⊢∷ ⊢u)
 
@@ -264,8 +263,8 @@ mutual
     (lamₙ ⊢t ok)        → lamⱼ′ ok (⊢nf∷→⊢∷ ⊢t)
     (prodₙ ⊢B ⊢t ⊢u ok) → prodⱼ ⊢B (⊢nf∷→⊢∷ ⊢t) (⊢nf∷→⊢∷ ⊢u) ok
     (Emptyₙ ⊢Γ)         → Emptyⱼ ⊢Γ
-    (Unitₙ ⊢l ok)       → Unitⱼ (⊢nf∷→⊢∷ ⊢l) ok
-    (starₙ ⊢l ok)       → starⱼ (⊢nf∷→⊢∷ ⊢l) ok
+    (Unitₙ ⊢Γ ok)       → Unitⱼ ⊢Γ ok
+    (starₙ ⊢Γ ok)       → starⱼ ⊢Γ ok
     (ℕₙ ⊢Γ)             → ℕⱼ ⊢Γ
     (zeroₙ ⊢Γ)          → zeroⱼ ⊢Γ
     (sucₙ ⊢t)           → sucⱼ (⊢nf∷→⊢∷ ⊢t)
@@ -296,7 +295,7 @@ mutual
     (emptyrecₙ ⊢A ⊢t)        → emptyrecⱼ (⊢nf→⊢ ⊢A) (⊢ne∷→⊢∷ ⊢t)
     (natrecₙ _ ⊢t ⊢u ⊢v)     → natrecⱼ (⊢nf∷→⊢∷ ⊢t) (⊢nf∷→⊢∷ ⊢u)
                                  (⊢ne∷→⊢∷ ⊢v)
-    (unitrecₙ ⊢l ⊢A ⊢t ⊢u ok _) → unitrecⱼ (⊢nf∷→⊢∷ ⊢l) (⊢nf→⊢ ⊢A) (⊢ne∷→⊢∷ ⊢t)
+    (unitrecₙ ⊢A ⊢t ⊢u ok _) → unitrecⱼ (⊢nf→⊢ ⊢A) (⊢ne∷→⊢∷ ⊢t)
                                  (⊢nf∷→⊢∷ ⊢u) ok
     (Jₙ _ ⊢t ⊢B ⊢u ⊢v ⊢w)    → Jⱼ (⊢nf∷→⊢∷ ⊢t) (⊢nf→⊢ ⊢B) (⊢nf∷→⊢∷ ⊢u)
                                  (⊢nf∷→⊢∷ ⊢v) (⊢ne∷→⊢∷ ⊢w)
@@ -316,7 +315,7 @@ mutual
     (Liftₙ ⊢l ⊢A)  → Liftₙ (⊢nf∷→Nf ⊢l) (⊢nf→Nf ⊢A)
     (ΠΣₙ ⊢A ⊢B _)  → ΠΣₙ (⊢nf→Nf ⊢A) (⊢nf→Nf ⊢B)
     (Emptyₙ _)     → Emptyₙ
-    (Unitₙ ⊢l _)   → Unitₙ (⊢nf∷→Nf ⊢l)
+    (Unitₙ ⊢Γ _)   → Unitₙ
     (ℕₙ _)         → ℕₙ
     (Idₙ ⊢A ⊢t ⊢u) → Idₙ (⊢nf→Nf ⊢A) (⊢nf∷→Nf ⊢t) (⊢nf∷→Nf ⊢u)
 
@@ -335,8 +334,8 @@ mutual
     (lamₙ ⊢t _)       → lamₙ (⊢nf∷→Nf ⊢t)
     (prodₙ _ ⊢t ⊢u _) → prodₙ (⊢nf∷→Nf ⊢t) (⊢nf∷→Nf ⊢u)
     (Emptyₙ _)        → Emptyₙ
-    (Unitₙ ⊢l _)      → Unitₙ (⊢nf∷→Nf ⊢l)
-    (starₙ ⊢l _)      → starₙ (⊢nf∷→Nf ⊢l)
+    (Unitₙ ⊢Γ _)      → Unitₙ
+    (starₙ ⊢Γ _)      → starₙ
     (ℕₙ _)            → ℕₙ
     (zeroₙ _)         → zeroₙ
     (sucₙ ⊢t)         → sucₙ (⊢nf∷→Nf ⊢t)
@@ -368,7 +367,7 @@ mutual
                                      (⊢ne∷→NfNeutral ⊢t)
     (natrecₙ ⊢A ⊢t ⊢u ⊢v)        → natrecₙ (⊢nf→Nf ⊢A) (⊢nf∷→Nf ⊢t)
                                      (⊢nf∷→Nf ⊢u) (⊢ne∷→NfNeutral ⊢v)
-    (unitrecₙ ⊢l ⊢A ⊢t ⊢u _ not-ok) → unitrecₙ not-ok (⊢nf→Nf ⊢A)
+    (unitrecₙ ⊢A ⊢t ⊢u _ not-ok) → unitrecₙ not-ok (⊢nf→Nf ⊢A)
                                      (⊢ne∷→NfNeutral ⊢t) (⊢nf∷→Nf ⊢u)
     (Jₙ ⊢A ⊢t ⊢B ⊢u ⊢v ⊢w)       → Jₙ (⊢nf→Nf ⊢A) (⊢nf∷→Nf ⊢t)
                                      (⊢nf→Nf ⊢B) (⊢nf∷→Nf ⊢u)
@@ -406,9 +405,9 @@ opaque
         (sym U≡U)
     (Emptyₙ ⊢Γ) ⊢Empty →
       convₙ (Emptyₙ ⊢Γ) (sym $ inversion-Empty ⊢Empty)
-    (Unitₙ ⊢l ok) ⊢Unit →
-      let _ , U≡U , _ = inversion-Unit-U ⊢Unit
-      in convₙ (Unitₙ ⊢l ok) (sym U≡U)
+    (Unitₙ ⊢Γ ok) ⊢Unit →
+      let U≡U , _ = inversion-Unit-U ⊢Unit
+      in convₙ (Unitₙ ⊢Γ ok) (sym U≡U)
     (ℕₙ ⊢Γ) ⊢ℕ →
       convₙ (ℕₙ ⊢Γ) (sym $ inversion-ℕ ⊢ℕ)
     (Idₙ ⊢A ⊢t ⊢u) ⊢Id →
@@ -433,7 +432,7 @@ mutual
       (ΠΣₙ ⊢A ⊢B ok) → ΠΣₙ (⊢nf-stable Γ≡Δ ⊢A)
                          (⊢nf-stable (Γ≡Δ ∙ refl (⊢nf→⊢ ⊢A)) ⊢B) ok
       (Emptyₙ ⊢Γ)    → Emptyₙ ⊢Δ
-      (Unitₙ ⊢l ok)  → Unitₙ (⊢nf∷-stable Γ≡Δ ⊢l) ok
+      (Unitₙ ⊢Γ ok)  → Unitₙ ⊢Δ ok
       (ℕₙ ⊢Γ)        → ℕₙ ⊢Δ
       (Idₙ ⊢A ⊢t ⊢u) → Idₙ (⊢nf-stable Γ≡Δ ⊢A) (⊢nf∷-stable Γ≡Δ ⊢t)
                          (⊢nf∷-stable Γ≡Δ ⊢u)
@@ -469,8 +468,8 @@ mutual
         (⊢nf∷-stable Γ≡Δ ⊢u)
         ok
       (Emptyₙ ⊢Γ)   → Emptyₙ ⊢Δ
-      (Unitₙ ⊢l ok) → Unitₙ (⊢nf∷-stable Γ≡Δ ⊢l) ok
-      (starₙ ⊢l ok) → starₙ (⊢nf∷-stable Γ≡Δ ⊢l) ok
+      (Unitₙ ⊢Γ ok) → Unitₙ ⊢Δ ok
+      (starₙ ⊢Γ ok) → starₙ ⊢Δ ok
       (ℕₙ ⊢Γ)       → ℕₙ ⊢Δ
       (zeroₙ ⊢Γ)    → zeroₙ ⊢Δ
       (sucₙ ⊢t)     → sucₙ
@@ -538,10 +537,9 @@ mutual
         (⊢nf∷-stable Γ≡Δ ⊢t)
         (⊢nf∷-stable (⊢Γℕ≡Δℕ ∙ refl (⊢nf→⊢ ⊢A)) ⊢u)
         (⊢ne∷-stable Γ≡Δ ⊢v) }
-      (unitrecₙ ⊢l ⊢A ⊢t ⊢u ok not-ok) →
-        case Γ≡Δ ∙ refl (Unitⱼ (⊢nf∷→⊢∷ ⊢l) ok) of λ {
+      (unitrecₙ ⊢A ⊢t ⊢u ok not-ok) →
+        case Γ≡Δ ∙ refl (Unitⱼ (wfTerm (⊢nf∷→⊢∷ ⊢u)) ok) of λ {
           ⊢Γ⊤≡Δ⊤ → unitrecₙ
-        (⊢nf∷-stable Γ≡Δ ⊢l)
         (⊢nf-stable ⊢Γ⊤≡Δ⊤ ⊢A)
         (⊢ne∷-stable Γ≡Δ ⊢t)
         (⊢nf∷-stable Γ≡Δ ⊢u) ok not-ok }
@@ -1076,44 +1074,41 @@ opaque
 opaque
 
   inversion-ne-unitrec :
-    Γ ⊢ne unitrec p q l A t u ∷ B →
-    Γ ⊢nf l ∷ Level ×
-    (Γ ∙ Unitʷ l ⊢nf A) ×
-    Γ ⊢ne t ∷ Unitʷ l ×
-    Γ ⊢nf u ∷ A [ starʷ l ]₀ ×
+    Γ ⊢ne unitrec p q A t u ∷ B →
+    (Γ ∙ Unitʷ ⊢nf A) ×
+    Γ ⊢ne t ∷ Unitʷ ×
+    Γ ⊢nf u ∷ A [ starʷ ]₀ ×
     Γ ⊢ B ≡ A [ t ]₀ ×
     ¬ Unitʷ-η
-  inversion-ne-unitrec (unitrecₙ ⊢l ⊢A ⊢t ⊢u _ not-ok) =
-    ⊢l , ⊢A , ⊢t , ⊢u , refl (substType (⊢nf→⊢ ⊢A) (⊢ne∷→⊢∷ ⊢t)) , not-ok
+  inversion-ne-unitrec (unitrecₙ ⊢A ⊢t ⊢u _ not-ok) =
+    ⊢A , ⊢t , ⊢u , refl (substType (⊢nf→⊢ ⊢A) (⊢ne∷→⊢∷ ⊢t)) , not-ok
   inversion-ne-unitrec (convₙ ⊢ur B≡C) =
     case inversion-ne-unitrec ⊢ur of λ {
-      (⊢l , ⊢A , ⊢t , ⊢u , B≡ , not-ok) →
-    ⊢l , ⊢A , ⊢t , ⊢u , trans (sym B≡C) B≡ , not-ok }
+      (⊢A , ⊢t , ⊢u , B≡ , not-ok) →
+    ⊢A , ⊢t , ⊢u , trans (sym B≡C) B≡ , not-ok }
 
 opaque
 
   inversion-nf-unitrec :
-    Γ ⊢nf unitrec p q l A t u ∷ B →
-    Γ ⊢nf l ∷ Level ×
-    (Γ ∙ Unitʷ l ⊢nf A) ×
-    Γ ⊢ne t ∷ Unitʷ l ×
-    Γ ⊢nf u ∷ A [ starʷ l ]₀ ×
+    Γ ⊢nf unitrec p q A t u ∷ B →
+    (Γ ∙ Unitʷ ⊢nf A) ×
+    Γ ⊢ne t ∷ Unitʷ ×
+    Γ ⊢nf u ∷ A [ starʷ ]₀ ×
     Γ ⊢ B ≡ A [ t ]₀ ×
     ¬ Unitʷ-η
   inversion-nf-unitrec (neₙ _ (neₙ ⊢ur)) = inversion-ne-unitrec ⊢ur
   inversion-nf-unitrec (convₙ ⊢ur B≡C) =
     case inversion-nf-unitrec ⊢ur of λ {
-      (⊢l , ⊢A , ⊢t , ⊢u , B≡ , not-ok) →
-    ⊢l , ⊢A , ⊢t , ⊢u , trans (sym B≡C) B≡ , not-ok }
+      (⊢A , ⊢t , ⊢u , B≡ , not-ok) →
+    ⊢A , ⊢t , ⊢u , trans (sym B≡C) B≡ , not-ok }
 
 opaque
 
   inversion-nf-ne-unitrec :
-    Γ ⊢nf unitrec p q l A t u ∷ B ⊎ Γ ⊢ne unitrec p q l A t u ∷ B →
-    Γ ⊢nf l ∷ Level ×
-    (Γ ∙ Unitʷ l ⊢nf A) ×
-    Γ ⊢ne t ∷ Unitʷ l ×
-    Γ ⊢nf u ∷ A [ starʷ l ]₀ ×
+    Γ ⊢nf unitrec p q A t u ∷ B ⊎ Γ ⊢ne unitrec p q A t u ∷ B →
+    (Γ ∙ Unitʷ ⊢nf A) ×
+    Γ ⊢ne t ∷ Unitʷ ×
+    Γ ⊢nf u ∷ A [ starʷ ]₀ ×
     Γ ⊢ B ≡ A [ t ]₀ ×
     ¬ Unitʷ-η
   inversion-nf-ne-unitrec (inj₁ ⊢ur) = inversion-nf-unitrec ⊢ur
@@ -1196,17 +1191,17 @@ opaque
 
 ⊢nf∷Unitˢ→≡starˢ :
   ⦃ ok : No-equality-reflection or-empty Γ ⦄ →
-  Unit-with-η s → Γ ⊢nf t ∷ Unit s l → Γ ⊢ t ≡ star s l ∷ Unit s l
+  Unit-with-η s → Γ ⊢nf t ∷ Unit s → Γ ⊢ t ≡ star s ∷ Unit s
 ⊢nf∷Unitˢ→≡starˢ {Γ} {s} ok ⊢t =
   ⊢nf∷Unitˢ→≡starˢ′ (refl (syntacticTerm (⊢nf∷→⊢∷ ⊢t))) ⊢t
   where
   ⊢nf∷Unitˢ→≡starˢ′ :
-    Γ ⊢ A ≡ Unit s l → Γ ⊢nf t ∷ A → Γ ⊢ t ≡ star s l ∷ Unit s l
+    Γ ⊢ A ≡ Unit s → Γ ⊢nf t ∷ A → Γ ⊢ t ≡ star s ∷ Unit s
   ⊢nf∷Unitˢ→≡starˢ′ A≡Unit = λ where
-    (starₙ _ ok)     →
+    (starₙ ⊢Γ ok)     →
       case Unit-injectivity A≡Unit of λ {
-        (PE.refl , l₁≡l) →
-      sym′ (star-cong (sym′ l₁≡l) ok) }
+        PE.refl →
+      refl (starⱼ ⊢Γ ok) }
     (convₙ ⊢t ≡A)   → ⊢nf∷Unitˢ→≡starˢ′ (trans ≡A A≡Unit) ⊢t
     (neₙ A-no-η _)  → ⊥-elim (No-η-equality→≢Unit A-no-η A≡Unit ok)
     (Levelₙ _)      → ⊥-elim (U≢Unitⱼ A≡Unit)

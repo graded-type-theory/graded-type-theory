@@ -98,10 +98,10 @@ opaque mutual
       ⊢A
     (starⱼ ⊢Γ ok) →
       Unitⱼ ⊢Γ ok
-    (unitrecⱼ ⊢l ⊢A ⊢t _ _) →
+    (unitrecⱼ ⊢A ⊢t _ _) →
       subst-⊢ ⊢A (⊢ˢʷ∷-sgSubst ⊢t)
     (Unitⱼ ⊢Γ _) →
-      Uⱼ ⊢Γ
+      Uⱼ (zeroᵘⱼ ⊢Γ)
     (ℕⱼ ⊢Γ) →
       Uⱼ (zeroᵘⱼ ⊢Γ)
     (zeroⱼ ⊢Γ) →
@@ -157,9 +157,6 @@ opaque mutual
       in
       ΠΣⱼ ⊢A₂ ok ,
       ΠΣⱼ (stability-⊢ refl-∙⟨ ⊢B₁ ∣ A₁≡B₁ ⟩ ⊢B₂) ok
-    (Unit-cong l₁≡l₂ ok) →
-      let _ , ⊢l₁ , ⊢l₂ = wf-⊢≡∷ l₁≡l₂ in
-      Unitⱼ ⊢l₁ ok , Unitⱼ ⊢l₂ ok
     (Id-cong A≡B t₁≡u₁ t₂≡u₂) →
       let ⊢A , ⊢B       = wf-⊢≡ A≡B
           _ , ⊢t₁ , ⊢u₁ = wf-⊢≡∷ t₁≡u₁
@@ -322,41 +319,35 @@ opaque mutual
           _ , ⊢t₁ , ⊢t₂ = wf-⊢≡∷ t₁≡t₂
       in
       ⊢A₁ , emptyrecⱼ ⊢A₁ ⊢t₁ , conv (emptyrecⱼ ⊢A₂ ⊢t₂) (sym A₁≡A₂)
-    (Unit-cong l₁≡l₂ ok) →
-      let ⊢Level , ⊢l₁ , ⊢l₂ = wf-⊢≡∷ l₁≡l₂ in
-      Uⱼ ⊢l₁ , Unitⱼ ⊢l₁ ok , conv (Unitⱼ ⊢l₂ ok) (sym (U-cong l₁≡l₂))
-    (star-cong l₁≡l₂ ok) →
-      let ⊢Level , ⊢l₁ , ⊢l₂ = wf-⊢≡∷ l₁≡l₂ in
-      Unitⱼ ⊢l₁ ok , starⱼ ⊢l₁ ok , conv (starⱼ ⊢l₂ ok) (sym (Unit-cong l₁≡l₂ ok))
-    (unitrec-cong ⊢l₁ ⊢l₂ l₁≡l₂ A₁≡A₂ t₁≡t₂ u₁≡u₂ ok _) →
+    (unitrec-cong A₁≡A₂ t₁≡t₂ u₁≡u₂ ok _) →
       let ⊢A₁ , ⊢A₂     = wf-⊢≡ A₁≡A₂
           _ , ⊢t₁ , ⊢t₂ = wf-⊢≡∷ t₁≡t₂
           _ , ⊢u₁ , ⊢u₂ = wf-⊢≡∷ u₁≡u₂
-          ⊢Γ            = wfTerm ⊢l₁
-          Unit≡         = Unit-cong l₁≡l₂ ok
+          ⊢Γ            = wfEqTerm t₁≡t₂
+          Unit≡         = refl (Unitⱼ ⊢Γ ok)
       in
       subst-⊢ ⊢A₁ (⊢ˢʷ∷-sgSubst ⊢t₁) ,
-      unitrecⱼ ⊢l₁ ⊢A₁ ⊢t₁ ⊢u₁ ok ,
+      unitrecⱼ ⊢A₁ ⊢t₁ ⊢u₁ ok ,
       conv
-        (unitrecⱼ ⊢l₂
-          (stability-⊢ (reflConEq ⊢Γ ∙⟨ Unitⱼ ⊢l₂ ok ∣ Unit≡ ⟩) ⊢A₂)
+        (unitrecⱼ
+          (stability-⊢ (reflConEq ⊢Γ ∙⟨ Unitⱼ ⊢Γ ok ∣ Unit≡ ⟩) ⊢A₂)
           (conv ⊢t₂ Unit≡)
           (conv ⊢u₂ $ subst-⊢≡ A₁≡A₂ $ ⊢ˢʷ≡∷-sgSubst
-            (starⱼ ⊢l₁ ok)
-            (conv (starⱼ ⊢l₂ ok) (sym Unit≡))
-            (star-cong l₁≡l₂ ok))
+            (starⱼ ⊢Γ ok)
+            (conv (starⱼ ⊢Γ ok) (sym Unit≡))
+            (refl (starⱼ ⊢Γ ok)))
           ok)
         (sym (subst-⊢≡ A₁≡A₂ (⊢ˢʷ≡∷-sgSubst ⊢t₁ ⊢t₂ t₁≡t₂)))
-    (unitrec-β ⊢l ⊢A ⊢t ok _) →
-      wf-⊢∷ ⊢t , unitrecⱼ ⊢l ⊢A (starⱼ ⊢l ok) ⊢t ok , ⊢t
-    (unitrec-β-η ⊢l ⊢A ⊢t ⊢u ok η) →
-      let ⊢star = starⱼ ⊢l ok in
+    (unitrec-β ⊢A ⊢t ok _) →
+      wf-⊢∷ ⊢t , unitrecⱼ ⊢A (starⱼ (wfTerm ⊢t) ok) ⊢t ok , ⊢t
+    (unitrec-β-η ⊢A ⊢t ⊢u ok η) →
+      let ⊢star = starⱼ (wfTerm ⊢t) ok in
       subst-⊢ ⊢A (⊢ˢʷ∷-sgSubst ⊢t) ,
-      unitrecⱼ ⊢l ⊢A ⊢t ⊢u ok ,
+      unitrecⱼ ⊢A ⊢t ⊢u ok ,
       conv ⊢u
         (subst-⊢≡ (refl ⊢A) $
-         ⊢ˢʷ≡∷-sgSubst ⊢star ⊢t (η-unit ⊢l ⊢star ⊢t ok (inj₂ η)))
-    (η-unit ⊢l ⊢t₁ ⊢t₂ ok _) →
+         ⊢ˢʷ≡∷-sgSubst ⊢star ⊢t (η-unit ⊢star ⊢t ok (inj₂ η)))
+    (η-unit ⊢t₁ ⊢t₂ ok _) →
       wf-⊢∷ ⊢t₁ , ⊢t₁ , ⊢t₂
     (suc-cong t₁≡t₂) →
       let ⊢ℕ , ⊢t₁ , ⊢t₂ = wf-⊢≡∷ t₁≡t₂ in

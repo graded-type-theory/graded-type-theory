@@ -79,15 +79,13 @@ private
 
 opaque
 
-  star-cong′ :
-    Γ ⊢ l [conv↑] l′ ∷ Level → Unit-allowed s → Γ ⊢ star s l [conv↓] star s l′ ∷ Unit s l
-  star-cong′ {s} l≡l′ ok =
-    let ⊢l≡l′ = soundnessConv↑Term l≡l′
-        ⊢Level , ⊢l , ⊢l′ = syntacticEqTerm ⊢l≡l′
-    in case Unit-with-η? s of λ where
-      (inj₂ (PE.refl , no-η)) → starʷ-cong (refl ⊢l) l≡l′ ok no-η
+  star-refl′ :
+    ⊢ Γ → Unit-allowed s → Γ ⊢ star s [conv↓] star s ∷ Unit s
+  star-refl′ {s} ⊢Γ ok =
+    case Unit-with-η? s of λ where
+      (inj₂ (PE.refl , no-η)) → starʷ-refl ⊢Γ ok no-η
       (inj₁ η)                →
-        η-unit ⊢l (starⱼ ⊢l ok) (conv (starⱼ ⊢l′ ok) (Unit-cong (sym ⊢Level ⊢l≡l′) ok))
+        η-unit (starⱼ ⊢Γ ok) (starⱼ ⊢Γ ok)
           starₙ starₙ ok η
 
 -- Properties of algorithmic equality of neutrals with injected conversion.
@@ -223,21 +221,18 @@ private module Lemmas where
           (emptyrec-cong x k~l′)
 
   ~-unitrec : ∀ {A A′ t t′ u u′}
-            → Γ ⊢ l ∷ Level
-            → Γ ⊢ l′ ∷ Level
-            → Γ ⊢ l [conv↑] l′ ∷ Level
-            → Γ ∙ Unitʷ l ⊢ A [conv↑] A′
-            → Γ ⊢ t ~ t′ ∷ Unitʷ l
-            → Γ ⊢ u [conv↑] u′ ∷ A [ starʷ l ]₀
+            → Γ ∙ Unitʷ ⊢ A [conv↑] A′
+            → Γ ⊢ t ~ t′ ∷ Unitʷ
+            → Γ ⊢ u [conv↑] u′ ∷ A [ starʷ ]₀
             → Unitʷ-allowed
             → ¬ Unitʷ-η
-            → Γ ⊢ unitrec p q l A t u ~ unitrec p q l′ A′ t′ u′ ∷
+            → Γ ⊢ unitrec p q A t u ~ unitrec p q A′ t′ u′ ∷
                 A [ t ]₀
-  ~-unitrec ⊢l ⊢l′ l≡l′ A<>A′ t~t′ u<>u′ ok no-η =
+  ~-unitrec A<>A′ t~t′ u<>u′ ok no-η =
     let ⊢A , _ = syntacticEq (soundnessConv↑ A<>A′)
         _ , ⊢t , _ = syntacticEqTerm (soundness~∷ t~t′)
     in ↑ (refl (substType ⊢A ⊢t))
-         (unitrec-cong l≡l′ A<>A′ t~t′ u<>u′ no-η)
+         (unitrec-cong A<>A′ t~t′ u<>u′ no-η)
 
   opaque
 
@@ -467,14 +462,12 @@ private opaque
       λ x → liftConvTerm (univ (ℕⱼ x) (ℕⱼ x) (ℕ-refl x))
     .Equality-relations.≅ₜ-Emptyrefl →
       λ x → liftConvTerm (univ (Emptyⱼ x) (Emptyⱼ x) (Empty-refl x))
-    .Equality-relations.≅ₜ-Unit-cong →
-      λ l≡l′ ok →
-        let ⊢l≡l′ = soundnessConv↑Term l≡l′
-            ⊢Level , ⊢l , ⊢l′ = syntacticEqTerm ⊢l≡l′
-        in liftConvTerm $
-        univ (Unitⱼ ⊢l ok) (conv (Unitⱼ ⊢l′ ok) (U-cong (sym ⊢Level ⊢l≡l′))) (Unit-cong l≡l′ ok)
+    .Equality-relations.≅ₜ-Unit-refl →
+      λ ⊢Γ ok →
+        liftConvTerm $
+        univ (Unitⱼ ⊢Γ ok) (Unitⱼ ⊢Γ ok) (Unit-refl ⊢Γ ok)
     .Equality-relations.≅ₜ-η-unit →
-      λ [l] [e] [e'] ok η →
+      λ [e] [e'] ok η →
         let u , uWhnf , uRed = whNormTerm [e]
             u' , u'Whnf , u'Red = whNormTerm [e']
             _ , _ , [u] = wf-⊢≡∷ (subset*Term uRed)
@@ -483,7 +476,7 @@ private opaque
               (id (syntacticTerm [e]) , Unitₙ)
               (uRed , uWhnf)
               (u'Red , u'Whnf)
-              (η-unit [l] [u] [u'] uWhnf u'Whnf ok η)
+              (η-unit [u] [u'] uWhnf u'Whnf ok η)
     .Equality-relations.≅-ΠΣ-cong →
       λ x₁ x₂ ok → liftConv (ΠΣ-cong x₁ x₂ ok)
     .Equality-relations.≅ₜ-ΠΣ-cong →
@@ -502,8 +495,8 @@ private opaque
           (ΠΣ-cong F<>H G<>E ok)
     .Equality-relations.≅ₜ-zerorefl →
       liftConvTerm ∘ᶠ zero-refl
-    .Equality-relations.≅ₜ-star-cong →
-      λ l≡l′ ok → liftConvTerm (star-cong′ l≡l′ ok)
+    .Equality-relations.≅ₜ-star-refl →
+      λ ⊢Γ ok → liftConvTerm (star-refl′ ⊢Γ ok)
     .Equality-relations.≅-suc-cong →
       liftConvTerm ∘ᶠ suc-cong
     .Equality-relations.≅-prod-cong →

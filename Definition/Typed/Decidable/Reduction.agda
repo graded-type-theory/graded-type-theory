@@ -106,7 +106,7 @@ private opaque
   isLift′ (Emptyᵣ A⇒*Empty) =
     no λ (_ , _ , A⇒*W) →
     Lift≢Emptyⱼ (trans (sym (subset* A⇒*W)) (subset* A⇒*Empty))
-  isLift′ (Unitᵣ′ _ _ _ A⇒*Unit _) =
+  isLift′ (Unitᵣ′ A⇒*Unit _) =
     no λ (_ , _ , A⇒*W) →
     Lift≢Unitⱼ (trans (sym (subset* A⇒*W)) (subset* A⇒*Unit))
   isLift′ (ne′ _ _ A⇒*B B-ne _) =
@@ -154,7 +154,7 @@ private opaque
   isΠΣ′ (Emptyᵣ A⇒*Empty) =
     no λ (_ , _ , _ , _ , _ , A⇒*W) →
     Empty≢ΠΣⱼ (trans (sym (subset* A⇒*Empty)) (subset* A⇒*W))
-  isΠΣ′ (Unitᵣ′ _ _ _ A⇒*Unit _) =
+  isΠΣ′ (Unitᵣ′ A⇒*Unit _) =
     no λ (_ , _ , _ , _ , _ , A⇒*W) →
     Unit≢ΠΣⱼ (trans (sym (subset* A⇒*Unit)) (subset* A⇒*W))
   isΠΣ′ (ne′ _ _ A⇒*B B-ne _) =
@@ -265,7 +265,7 @@ opaque
       no λ (_ , _ , _ , A⇒*Id) →
         Id≢Unit $
         trans (sym (subset* A⇒*Id))
-          (subset* (_⊩Unit⟨_,_⟩_.⇒*-Unit ⊩Unit))
+          (subset* (_⊩Unit⟨_⟩_.⇒*-Unit ⊩Unit))
     helper (ne ⊩A) =
       no λ (_ , _ , _ , A⇒*Id) →
         I.Id≢ne neK $ trans (sym (subset* A⇒*Id)) (subset* D)

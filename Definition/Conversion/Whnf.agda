@@ -51,7 +51,7 @@ mutual
     in  prodrecₙ gNe , prodrecₙ hNe
   ne~↑ (emptyrec-cong x x₁) = let _ , q , w = ne~↓ x₁
                               in emptyrecₙ q , emptyrecₙ w
-  ne~↑ (unitrec-cong _ _ k~l _ no-η) =
+  ne~↑ (unitrec-cong _ k~l _ no-η) =
     let kNe , lNe = ne~∷ k~l
     in  unitrecₙ no-η kNe , unitrecₙ no-η lNe
   ne~↑ (J-cong _ _ _ _ _ w₁~w₂ _) =
@@ -82,7 +82,7 @@ whnfConv↓ (U-cong x) = Uₙ , Uₙ
 whnfConv↓ (Lift-cong _ _) = Liftₙ , Liftₙ
 whnfConv↓ (ℕ-refl x) = ℕₙ , ℕₙ
 whnfConv↓ (Empty-refl x) = Emptyₙ , Emptyₙ
-whnfConv↓ (Unit-cong x _) = Unitₙ , Unitₙ
+whnfConv↓ (Unit-refl _ _) = Unitₙ , Unitₙ
 whnfConv↓ (ne x) = let _ , neA , neB = ne~↓ x
                    in  ne! neA , ne! neB
 whnfConv↓ (ΠΣ-cong _ _ _) = ΠΣₙ , ΠΣₙ
@@ -124,12 +124,12 @@ whnfConv↓Term (ne-ins t u x x₁) =
 whnfConv↓Term (univ x x₁ x₂) = Uₙ , whnfConv↓ x₂
 whnfConv↓Term (Lift-η x x₁ w₁ w₂ x₂) = Liftₙ , w₁ , w₂
 whnfConv↓Term (zero-refl x) = ℕₙ , zeroₙ , zeroₙ
-whnfConv↓Term (starʷ-cong _ _ _ _) = Unitₙ , starₙ , starₙ
+whnfConv↓Term (starʷ-refl _ _ _) = Unitₙ , starₙ , starₙ
 whnfConv↓Term (suc-cong x) = ℕₙ , sucₙ , sucₙ
 whnfConv↓Term (prod-cong _ _ _ _) = ΠΣₙ , prodₙ , prodₙ
 whnfConv↓Term (η-eq x₁ x₂ y y₁ x₃) = ΠΣₙ , functionWhnf y , functionWhnf y₁
 whnfConv↓Term (Σ-η _ _ pProd rProd _ _) = ΠΣₙ , productWhnf pProd , productWhnf rProd
-whnfConv↓Term (η-unit _ _ _ tWhnf uWhnf _ _) = Unitₙ , tWhnf , uWhnf
+whnfConv↓Term (η-unit _ _ tWhnf uWhnf _ _) = Unitₙ , tWhnf , uWhnf
 whnfConv↓Term (Id-ins _ v₁~v₂) =
   Idₙ , Σ.map ne! ne! (ne~↓ v₁~v₂ .proj₂)
 whnfConv↓Term (rfl-refl _) =

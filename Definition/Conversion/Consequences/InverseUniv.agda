@@ -105,14 +105,6 @@ opaque
          (inverseUnivEq′
             (inj₂ $ stabilityTerm (refl-∙ (sym A₁≡A₂)) ⊢B₂∷U) B₁≡B₂) ok)
       (sym U≡U)
-  inverseUnivEq′ (inj₁ ⊢A) (Unit-cong l₁≡l₂ ok) =
-    let ⊢l , U≡U , ok = inversion-Unit-U ⊢A
-    in conv (Unit-cong l₁≡l₂ ok) (sym U≡U)
-  inverseUnivEq′ (inj₂ ⊢B) (Unit-cong l₁≡l₂ ok) =
-    let ⊢l , U≡U , ok = inversion-Unit-U ⊢B
-    in conv
-        (Unit-cong l₁≡l₂ ok)
-        (trans (U-cong l₁≡l₂) (sym U≡U))
   inverseUnivEq′ (inj₁ ⊢Id) (Id-cong A₁≡A₂ t₁≡t₂ u₁≡u₂) =
     case inversion-Id-U ⊢Id of λ
       (_ , ⊢A₁∷U , _ , _ , U≡U) →

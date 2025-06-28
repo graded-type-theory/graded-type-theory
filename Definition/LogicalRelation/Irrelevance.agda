@@ -277,11 +277,8 @@ mutual
     where open _⊩ₗLift_≡_/_ [A≡B]
   irrelevanceEqT (ℕᵥ D D′) A≡B = A≡B
   irrelevanceEqT (Emptyᵥ D D′) A≡B = A≡B
-  irrelevanceEqT (Unitᵥ (Unitᵣ _ _ _ A⇒*Unit₁ _) (Unitᵣ _ _ _ A⇒*Unit₂ _)) (Unit₌ k′ D k≡k′) =
-    case Unit-PE-injectivity $
-         whrDet* (A⇒*Unit₁ , Unitₙ) (A⇒*Unit₂ , Unitₙ) of λ {
-      (_ , PE.refl) →
-    Unit₌ k′ D k≡k′ }
+  irrelevanceEqT (Unitᵥ (Unitᵣ A⇒*Unit₁ _) (Unitᵣ A⇒*Unit₂ _)) (Unit₌ D) =
+    Unit₌ D
   irrelevanceEqT
     (ne (ne _ _ D neK _) (ne _ K₁ D₁ neK₁ K≡K₁)) (ne₌ inc M D′ neM K≡M)
     rewrite whrDet* (D , ne! neK) (D₁ , ne! neK₁) =
@@ -393,11 +390,8 @@ mutual
     Liftₜ₌ _ _ d1 d2 (irrelevanceEqTerm [F] [F]′ t≡u) }
   irrelevanceEqTermT (ℕᵥ D D′) t≡u = t≡u
   irrelevanceEqTermT (Emptyᵥ D D′) t≡u = t≡u
-  irrelevanceEqTermT (Unitᵥ (Unitᵣ _ _ _ A⇒*Unit₁ _) (Unitᵣ _ _ _ A⇒*Unit₂ _)) t≡u =
-    case Unit-PE-injectivity $
-         whrDet* (A⇒*Unit₁ , Unitₙ) (A⇒*Unit₂ , Unitₙ) of λ {
-      (_ , PE.refl) →
-    t≡u }
+  irrelevanceEqTermT (Unitᵥ (Unitᵣ A⇒*Unit₁ _) (Unitᵣ A⇒*Unit₂ _)) t≡u =
+    t≡u
   irrelevanceEqTermT
     (ne (ne _ _ D neK K≡K) (ne _ K₁ D₁ neK₁ K≡K₁)) (neₜ₌ k m d d′ nf)
     with whrDet* (D₁ , ne! neK₁) (D , ne! neK)

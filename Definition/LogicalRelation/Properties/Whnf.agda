@@ -91,6 +91,6 @@ opaque
 
   -- If t and u satisfy [Unit]-prop′ Γ, then they are WHNFs.
 
-  usplit : ∀ {s k} → [Unit]-prop′ Γ k s t u → Whnf t × Whnf u
-  usplit (starᵣ _ _)                 = starₙ , starₙ
+  usplit : ∀ {s} → [Unit]-prop′ Γ s t u → Whnf t × Whnf u
+  usplit starᵣ                 = starₙ , starₙ
   usplit (ne (neNfₜ₌ _ t-ne u-ne _)) = ne! t-ne , ne! u-ne

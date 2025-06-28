@@ -71,23 +71,23 @@ opaque
 
   -- If a term has type Unit s l, then Unit-allowed s holds.
 
-  ⊢∷Unit→Unit-allowed : Γ ⊢ t ∷ Unit s l → Unit-allowed s
-  ⊢∷Unit→Unit-allowed {Γ} {t} {s} {l} =
-    Γ ⊢ t ∷ Unit s l  →⟨ syntacticTerm ⟩
-    Γ ⊢ Unit s l      →⟨ inversion-Unit-allowed ⟩
-    Unit-allowed s    □
+  ⊢∷Unit→Unit-allowed : Γ ⊢ t ∷ Unit s → Unit-allowed s
+  ⊢∷Unit→Unit-allowed {Γ} {t} {s} =
+    Γ ⊢ t ∷ Unit s  →⟨ syntacticTerm ⟩
+    Γ ⊢ Unit s      →⟨ inversion-Unit ⟩
+    Unit-allowed s  □
 
 opaque
 
   -- Inversion for unitrec.
 
   inversion-unitrec :
-    Γ ⊢ unitrec p q l A t u ∷ B →
-    (Γ ∙ Unitʷ l ⊢ A) ×
-    Γ ⊢ t ∷ Unitʷ l ×
-    Γ ⊢ u ∷ A [ starʷ l ]₀ ×
+    Γ ⊢ unitrec p q A t u ∷ B →
+    (Γ ∙ Unitʷ ⊢ A) ×
+    Γ ⊢ t ∷ Unitʷ ×
+    Γ ⊢ u ∷ A [ starʷ ]₀ ×
     Γ ⊢ B ≡ A [ t ]₀
-  inversion-unitrec (unitrecⱼ ⊢l ⊢A ⊢t ⊢u _) =
+  inversion-unitrec (unitrecⱼ ⊢A ⊢t ⊢u _) =
     ⊢A , ⊢t , ⊢u , refl (substType ⊢A ⊢t)
   inversion-unitrec (conv ⊢ur eq) =
     let a , b , c , d = inversion-unitrec ⊢ur

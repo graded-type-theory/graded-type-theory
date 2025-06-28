@@ -70,7 +70,7 @@ private opaque
       .≅-Lift-η     → λ ⊢t ⊢u _ _ lt≡lu → Lift-η′ ⊢t ⊢u lt≡lu
       .≅ₜ-ℕrefl     → refl ∘ᶠ ℕⱼ
       .≅ₜ-Emptyrefl → refl ∘ᶠ Emptyⱼ
-      .≅ₜ-Unit-cong → Unit-cong
+      .≅ₜ-Unit-refl → λ ⊢Γ ok → refl (Unitⱼ ⊢Γ ok)
       .≅ₜ-η-unit    → η-unit
       .≅-ΠΣ-cong    → ΠΣ-cong
       .≅ₜ-ΠΣ-cong   → ΠΣ-cong
@@ -88,7 +88,7 @@ private opaque
       .~-prodrec    → prodrec-cong
       .~-emptyrec   → emptyrec-cong
       .~-unitrec    → unitrec-cong
-      .≅ₜ-star-cong → star-cong
+      .≅ₜ-star-refl → λ ⊢Γ ok → refl (starⱼ ⊢Γ ok)
       .≅-Id-cong    → Id-cong
       .≅ₜ-Id-cong   → Id-cong
       .≅ₜ-rflrefl   → refl ∘ᶠ rflⱼ

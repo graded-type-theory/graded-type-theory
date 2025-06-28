@@ -55,10 +55,10 @@ opaque
   ⊩Erased ⊩A =
     ⊩ΠΣ⇔ .proj₂
       ( ≅-ΠΣ-cong (escape-⊩≡ $ refl-⊩≡ ⊩A)
-          (≅-Unit-cong (≅ₜ-zeroᵘrefl (∙ escape-⊩ ⊩A)) Unit-ok) Σ-ok
+          (≅-Unit-refl (∙ escape-⊩ ⊩A) Unit-ok) Σ-ok
       , λ ρ⊇ →
             wk-⊩ ρ⊇ ⊩A
-          , λ _ → refl-⊩≡ $ emb-⊩ zeroᵘ-≤ᵘ $ ⊩Unit (⊩zeroᵘ (wf-∷ʷʳ⊇ ρ⊇)) Unit-ok
+          , λ _ → refl-⊩≡ $ emb-⊩ 0≤ᵘ $ ⊩Unit (wf-∷ʷʳ⊇ ρ⊇) Unit-ok
       )
 
 opaque
@@ -75,11 +75,11 @@ opaque
       ( ⊩Erased ⊩A₁
       , ⊩Erased ⊩A₂
       , ≅-ΠΣ-cong (escape-⊩≡ A₁≡A₂)
-          (≅-Unit-cong (≅ₜ-zeroᵘrefl (∙ escape-⊩ ⊩A₁)) Unit-ok) Σ-ok
+          (≅-Unit-refl (∙ escape-⊩ ⊩A₁) Unit-ok) Σ-ok
       , PE.refl , PE.refl , PE.refl
       , λ ρ⊇ →
             wk-⊩≡ ρ⊇ A₁≡A₂
-          , λ _ → refl-⊩≡ $ emb-⊩ zeroᵘ-≤ᵘ $ ⊩Unit (⊩zeroᵘ (wf-∷ʷʳ⊇ ρ⊇)) Unit-ok
+          , λ _ → refl-⊩≡ $ emb-⊩ 0≤ᵘ $ ⊩Unit (wf-∷ʷʳ⊇ ρ⊇) Unit-ok
       )
 
 opaque
@@ -115,8 +115,8 @@ opaque
       ⊩A →
     case escape-⊩ ⊩A of λ
       ⊢A →
-    ⊩prod≡prod (Unitⱼ (zeroᵘⱼ (∙ ⊢A)) Unit-ok) (⊩Erased ⊩A) t≡u
-      (refl-⊩≡∷ (⊩star (⊩zeroᵘ (wf ⊢A)) Unit-ok))
+    ⊩prod≡prod (Unitⱼ (∙ ⊢A) Unit-ok) (⊩Erased ⊩A) t≡u
+      (refl-⊩≡∷ (⊩star (wf ⊢A) Unit-ok))
 
 opaque
 

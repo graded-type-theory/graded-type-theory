@@ -50,7 +50,7 @@ mutual
   soundness⇇Type ⊢Γ (Uᶜ x) = Uⱼ (soundness⇇ x)
   soundness⇇Type ⊢Γ (Liftᶜ x y) = Liftⱼ (soundness⇇ x) (soundness⇇Type ⊢Γ y)
   soundness⇇Type ⊢Γ ℕᶜ = ℕⱼ ⊢Γ
-  soundness⇇Type ⊢Γ (Unitᶜ x ok) = Unitⱼ (soundness⇇ x) ok
+  soundness⇇Type ⊢Γ (Unitᶜ ok) = Unitⱼ ⊢Γ ok
   soundness⇇Type ⊢Γ Emptyᶜ = Emptyⱼ ⊢Γ
   soundness⇇Type ⊢Γ (ΠΣᶜ ⊢A ⊢B ok) =
     ΠΣⱼ (soundness⇇Type (∙ soundness⇇Type ⊢Γ ⊢A) ⊢B) ok
@@ -126,19 +126,17 @@ mutual
         ⊢s = soundness⇇ s⇇A₊
         ⊢n = soundness⇇ n⇇ℕ
     in  substType ⊢A ⊢n , natrecⱼ ⊢z ⊢s ⊢n
-  soundness⇉ ⊢Γ (Unitᵢ x ok) =
-    let ⊢l = soundness⇇ x
-    in Uⱼ ⊢l , Unitⱼ ⊢l ok
-  soundness⇉ ⊢Γ (starᵢ x ok) =
-    let ⊢l = soundness⇇ x
-    in Unitⱼ ⊢l ok , starⱼ ⊢l ok
-  soundness⇉ _ (unitrecᵢ l⇇Level A⇇Type t⇇Unit u⇇A₊) =
+  soundness⇉ ⊢Γ (Unitᵢ ok) =
+    Uⱼ (zeroᵘⱼ ⊢Γ) , Unitⱼ ⊢Γ ok
+  soundness⇉ ⊢Γ (starᵢ ok) =
+    Unitⱼ ⊢Γ ok , starⱼ ⊢Γ ok
+  soundness⇉ _ (unitrecᵢ A⇇Type t⇇Unit u⇇A₊) =
     let ⊢t = soundness⇇ t⇇Unit
         ⊢Unit = syntacticTerm ⊢t
-        ⊢l , ok = inversion-Unit ⊢Unit
+        ok = inversion-Unit ⊢Unit
         ⊢A = soundness⇇Type (∙ ⊢Unit) A⇇Type
         ⊢u = soundness⇇ u⇇A₊
-    in  substType ⊢A ⊢t , unitrecⱼ ⊢l ⊢A ⊢t ⊢u ok
+    in  substType ⊢A ⊢t , unitrecⱼ ⊢A ⊢t ⊢u ok
   soundness⇉ ⊢Γ Emptyᵢ = Uⱼ (zeroᵘⱼ ⊢Γ) , (Emptyⱼ ⊢Γ)
   soundness⇉ ⊢Γ (emptyrecᵢ A⇇Type t⇇Empty) =
     let ⊢A = soundness⇇Type ⊢Γ A⇇Type

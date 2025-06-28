@@ -59,9 +59,9 @@ data Term (n : Nat) : Set a where
   lower : (a : Term n) → Term n
   Empty : Term n
   emptyrec : (p : M) (A t : Term n) → Term n
-  Unit : Strength → Term n → Term n
-  star : Strength → Term n → Term n
-  unitrec : (p q : M) → Term n → (A : Term (1+ n))
+  Unit : Strength → Term n
+  star : Strength → Term n
+  unitrec : (p q : M) → (A : Term (1+ n))
             (t u : Term n) → Term n
   ΠΣ⟨_⟩_,_▷_▹_ : (b : BinderMode) (p q : M) (A : Term n)
                (B : Term (1+ n)) → Term n
@@ -85,9 +85,9 @@ data Term (n : Nat) : Set a where
       Term n
   []-cong : Strength → (A t u v : Term n) → Term n
 
-pattern Unit! = Unit _ _
-pattern Unitʷ l = Unit 𝕨 l
-pattern Unitˢ l = Unit 𝕤 l
+pattern Unit! = Unit _
+pattern Unitʷ = Unit 𝕨
+pattern Unitˢ = Unit 𝕤
 
 pattern Π_,_▷_▹_ p q F G = ΠΣ⟨ BMΠ ⟩ p , q ▷ F ▹ G
 pattern Σˢ_,_▷_▹_ p q F G = ΠΣ⟨ BMΣ 𝕤 ⟩ p , q ▷ F ▹ G
@@ -101,9 +101,9 @@ pattern prodˢ p t u = prod 𝕤 p t u
 pattern prodʷ p t u = prod 𝕨 p t u
 pattern prod! t u = prod _ _ t u
 
-pattern star! = star _ _
-pattern starʷ l = star 𝕨 l
-pattern starˢ l = star 𝕤 l
+pattern star! = star _
+pattern starʷ = star 𝕨
+pattern starˢ = star 𝕤
 
 pattern []-cong! A t u v = []-cong _ A t u v
 pattern []-congʷ A t u v = []-cong 𝕨 A t u v
@@ -169,9 +169,9 @@ data Kind : (ns : List Nat) → Set a where
   Emptykind    : Kind []
   Emptyreckind : (p : M) → Kind (0 ∷ 0 ∷ [])
 
-  Unitkind : Strength → Kind (0 ∷ [])
-  Starkind : Strength → Kind (0 ∷ [])
-  Unitreckind : (p q : M) → Kind (0 ∷ 1 ∷ 0 ∷ 0 ∷ [])
+  Unitkind : Strength → Kind []
+  Starkind : Strength → Kind []
+  Unitreckind : (p q : M) → Kind (1 ∷ 0 ∷ 0 ∷ [])
 
   Binderkind : (b : BinderMode) (p q : M) → Kind (0 ∷ 1 ∷ [])
 
@@ -254,12 +254,12 @@ toTerm (gen Suckind (t ∷ₜ [])) =
   suc (toTerm t)
 toTerm (gen (Natreckind p q r) (A ∷ₜ z ∷ₜ s ∷ₜ n ∷ₜ [])) =
   natrec p q r (toTerm A) (toTerm z) (toTerm s) (toTerm n)
-toTerm (gen (Unitkind s) (l ∷ₜ [])) =
-  Unit s (toTerm l)
-toTerm (gen (Starkind s) (l ∷ₜ [])) =
-  star s (toTerm l)
-toTerm (gen (Unitreckind p q) (l ∷ₜ A ∷ₜ t ∷ₜ u ∷ₜ [])) =
-  unitrec p q (toTerm l) (toTerm A) (toTerm t) (toTerm u)
+toTerm (gen (Unitkind s) []) =
+  Unit s
+toTerm (gen (Starkind s) []) =
+  star s
+toTerm (gen (Unitreckind p q) (A ∷ₜ t ∷ₜ u ∷ₜ [])) =
+  unitrec p q (toTerm A) (toTerm t) (toTerm u)
 toTerm (gen Emptykind []) =
   Empty
 toTerm (gen (Emptyreckind p) (A ∷ₜ t ∷ₜ [])) =
@@ -320,13 +320,13 @@ fromTerm (suc t) =
 fromTerm (natrec p q r A z s n) =
   gen (Natreckind p q r)
     (fromTerm A ∷ₜ fromTerm z ∷ₜ fromTerm s ∷ₜ fromTerm n ∷ₜ [])
-fromTerm (Unit s l) =
-  gen (Unitkind s) (fromTerm l ∷ₜ [])
-fromTerm (star s l) =
-  gen (Starkind s) (fromTerm l ∷ₜ [])
-fromTerm (unitrec p q l A t u) =
+fromTerm (Unit s) =
+  gen (Unitkind s) []
+fromTerm (star s) =
+  gen (Starkind s) []
+fromTerm (unitrec p q A t u) =
   gen (Unitreckind p q)
-    (fromTerm l ∷ₜ fromTerm A ∷ₜ fromTerm t ∷ₜ fromTerm u ∷ₜ [])
+    (fromTerm A ∷ₜ fromTerm t ∷ₜ fromTerm u ∷ₜ [])
 fromTerm Empty =
   gen Emptykind []
 fromTerm (emptyrec p A t) =
@@ -378,10 +378,10 @@ wk ρ zero = zero
 wk ρ (suc t) = suc (wk ρ t)
 wk ρ (natrec p q r A z s n) =
   natrec p q r (wk (lift ρ) A) (wk ρ z) (wk (liftn ρ 2) s) (wk ρ n)
-wk ρ (Unit s l) = Unit s (wk ρ l)
-wk ρ (star s l) = star s (wk ρ l)
-wk ρ (unitrec p q l A t u) =
-  unitrec p q (wk ρ l) (wk (lift ρ) A) (wk ρ t) (wk ρ u)
+wk ρ (Unit s) = Unit s
+wk ρ (star s) = star s
+wk ρ (unitrec p q A t u) =
+  unitrec p q (wk (lift ρ) A) (wk ρ t) (wk ρ u)
 wk ρ Empty = Empty
 wk ρ (emptyrec p A t) = emptyrec p (wk ρ A) (wk ρ t)
 wk ρ (Id A t u) = Id (wk ρ A) (wk ρ t) (wk ρ u)
@@ -556,10 +556,10 @@ zero [ σ ] = zero
 suc t [ σ ] = suc (t [ σ ])
 natrec p q r A z s n [ σ ] =
   natrec p q r (A [ σ ⇑ ]) (z [ σ ]) (s [ σ ⇑[ 2 ] ]) (n [ σ ])
-Unit s l [ σ ] = Unit s (l [ σ ])
-star s l [ σ ] = star s (l [ σ ])
-unitrec p q l A t u [ σ ] =
-  unitrec p q (l [ σ ]) (A [ σ ⇑ ]) (t [ σ ]) (u [ σ ])
+Unit s [ σ ] = Unit s
+star s [ σ ] = star s
+unitrec p q A t u [ σ ] =
+  unitrec p q (A [ σ ⇑ ]) (t [ σ ]) (u [ σ ])
 Empty [ σ ] = Empty
 emptyrec p A t [ σ ] = emptyrec p (A [ σ ]) (t [ σ ])
 Id A t u [ σ ] = Id (A [ σ ]) (t [ σ ]) (u [ σ ])
