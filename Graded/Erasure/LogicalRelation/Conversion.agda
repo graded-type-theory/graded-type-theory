@@ -78,15 +78,9 @@ convTermʳ′
     (goodCases ⊩A′ ⊩B′ (⊩≡→⊩≡/ ⊩A′ (reducible-⊩≡ A′≡B′ .proj₂))) t®v
 convTermʳ′
   {A} {B}
-  _ _ A≡B (Unitᵥ {s} (Unitᵣ u _ _ A⇒*Unit _) (Unitᵣ v _ _ B⇒*Unit _))
-  (starᵣ t⇛⋆ u≡u′ v⇒*⋆) =
-  case Unit-injectivity
-         (Unit s u  ≡˘⟨ subset* A⇒*Unit ⟩⊢
-          A         ≡⟨ A≡B ⟩⊢
-          B         ≡⟨ subset* B⇒*Unit ⟩⊢∎
-          Unit s v ∎) of λ {
-    (_ , u≡v) →
-  starᵣ t⇛⋆ (trans (sym′ u≡v) u≡u′) v⇒*⋆ }
+  _ _ A≡B (Unitᵥ {s} (Unitᵣ A⇒*Unit _) (Unitᵣ B⇒*Unit _))
+  (starᵣ t⇛⋆ v⇒*⋆) =
+  starᵣ t⇛⋆ v⇒*⋆
 convTermʳ′
   [A] [B] A≡B
   (Bᵥ (BΠ p q) (Bᵣ F G A⇒Π A≡A [F] [G] G-ext _)

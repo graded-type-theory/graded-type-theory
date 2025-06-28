@@ -62,14 +62,9 @@ irrelevanceTermSV
     PE.refl →
   irrelevanceTermSV _ _ t®v (goodCasesRefl ⊩B₁ ⊩B₂) }
 irrelevanceTermSV
-  {A} _ _ (starᵣ t⇛⋆ u≡u′ v⇒*⋆)
-  (Unitᵥ {s} (Unitᵣ u _ _ A⇒*Unit₁ _) (Unitᵣ v _ _ A⇒*Unit₂ _)) =
-  case Unit-injectivity
-         (Unit s u  ≡˘⟨ subset* A⇒*Unit₁ ⟩⊢
-          A         ≡⟨ subset* A⇒*Unit₂ ⟩⊢∎
-          Unit s v  ∎) of λ {
-    (_ , u≡v) →
-  starᵣ t⇛⋆ (trans (sym′ u≡v) u≡u′) v⇒*⋆ }
+  {A} _ _ (starᵣ t⇛⋆ v⇒*⋆)
+  (Unitᵥ {s} (Unitᵣ A⇒*Unit₁ _) (Unitᵣ A⇒*Unit₂ _)) =
+  starᵣ t⇛⋆ v⇒*⋆
 irrelevanceTermSV
   [A] [A]′ t®v
   (Bᵥ (BΠ p q) (Bᵣ F G D A≡A [F] [G] G-ext _)

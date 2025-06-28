@@ -104,7 +104,7 @@ mutual
   ⌈ t maxᵘ u ⌉ m = ⌈ t ⌉ m +ᶜ ⌈ u ⌉ m
   ⌈ U _ ⌉ _ = 𝟘ᶜ
   ⌈ Lift _ A ⌉ m = ⌈ A ⌉ m
-  ⌈ lift _ u ⌉ m = ⌈ u ⌉ m
+  ⌈ lift u ⌉ m = ⌈ u ⌉ m
   ⌈ lower t ⌉ m = ⌈ t ⌉ m
   ⌈ ΠΣ⟨ _ ⟩ p , q ▷ F ▹ G ⌉ m = ⌈ F ⌉ (m ᵐ· p) +ᶜ tailₘ (⌈ G ⌉ m)
   ⌈ lam p t ⌉ m = tailₘ (⌈ t ⌉ m)
@@ -122,7 +122,7 @@ mutual
     ⌈⌉-natrec p r (⌈ z ⌉ m) (tailₘ (tailₘ (⌈ s ⌉ m))) (⌈ n ⌉ m)
   ⌈ Unit! ⌉ _ = 𝟘ᶜ
   ⌈ star! ⌉ _ = 𝟘ᶜ
-  ⌈ unitrec p _ _ _ t u ⌉ m = p ·ᶜ ⌈ t ⌉ (m ᵐ· p) +ᶜ ⌈ u ⌉ m
+  ⌈ unitrec p _ _ t u ⌉ m = p ·ᶜ ⌈ t ⌉ (m ᵐ· p) +ᶜ ⌈ u ⌉ m
   ⌈ Empty ⌉ _ = 𝟘ᶜ
   ⌈ emptyrec p _ t ⌉ m = p ·ᶜ ⌈ t ⌉ (m ᵐ· p)
   ⌈ Id _ t u ⌉ m = case Id-erased? of λ where
@@ -296,9 +296,8 @@ data _▸[_]_ {n : Nat} : (γ : Conₘ n) → Mode → Term n → Set a where
             → γ ▸[ m ] A
             → γ ▸[ m ] Lift t A
 
-  liftₘ     : δ ▸[ 𝟘ᵐ? ] t
-            → γ ▸[ m ] u
-            → γ ▸[ m ] lift t u
+  liftₘ     : γ ▸[ m ] u
+            → γ ▸[ m ] lift u
 
   lowerₘ    : γ ▸[ m ] t
             → γ ▸[ m ] lower t
@@ -310,23 +309,20 @@ data _▸[_]_ {n : Nat} : (γ : Conₘ n) → Mode → Term n → Set a where
             → Emptyrec-allowed m p
             → p ·ᶜ γ ▸[ m ] emptyrec p A t
 
-  Unitₘ     : γ ▸[ 𝟘ᵐ? ] t → 𝟘ᶜ ▸[ m ] Unit s t
+  Unitₘ     : 𝟘ᶜ ▸[ m ] Unit s
 
   -- If strong unit types are not allowed to be used as sinks, then γ
   -- must be 𝟘ᶜ.
   starˢₘ    : (¬ Starˢ-sink → 𝟘ᶜ ≈ᶜ γ)
-            → δ ▸[ 𝟘ᵐ? ] t
-            → ⌜ m ⌝ ·ᶜ γ ▸[ m ] starˢ t
+            → ⌜ m ⌝ ·ᶜ γ ▸[ m ] starˢ
 
-  starʷₘ    : γ ▸[ 𝟘ᵐ? ] t
-            → 𝟘ᶜ ▸[ m ] starʷ t
+  starʷₘ    : 𝟘ᶜ ▸[ m ] starʷ
 
-  unitrecₘ : γ₁ ▸[ 𝟘ᵐ? ] t
-           → γ₂ ∙ ⌜ 𝟘ᵐ? ⌝ · q ▸[ 𝟘ᵐ? ] A
+  unitrecₘ : γ₂ ∙ ⌜ 𝟘ᵐ? ⌝ · q ▸[ 𝟘ᵐ? ] A
            → γ₃ ▸[ m ᵐ· p ] u
            → γ₄ ▸[ m ] v
            → Unitrec-allowed m p q
-           → p ·ᶜ γ₃ +ᶜ γ₄ ▸[ m ] unitrec p q t A u v
+           → p ·ᶜ γ₃ +ᶜ γ₄ ▸[ m ] unitrec p q A u v
 
   ΠΣₘ       : γ ▸[ m ᵐ· p ] F
             → δ ∙ ⌜ m ⌝ · q ▸[ m ] G
@@ -539,9 +535,8 @@ _▸_ : (γ : Conₘ n) (t : Term n) → Set a
 γ ▸ t = γ ▸[ 𝟙ᵐ ] t
 
 starₘ :
-  γ ▸[ 𝟘ᵐ? ] t →
-  𝟘ᶜ {n} ▸[ m ] star s t
-starₘ {s = 𝕤} ▸t =
-  sub (starˢₘ (λ _ → ≈ᶜ-refl) ▸t)
+  𝟘ᶜ {n} ▸[ m ] star s
+starₘ {s = 𝕤} =
+  sub (starˢₘ (λ _ → ≈ᶜ-refl))
       (≤ᶜ-reflexive (≈ᶜ-sym (·ᶜ-zeroʳ _)))
-starₘ {s = 𝕨} ▸t = starʷₘ ▸t
+starₘ {s = 𝕨} = starʷₘ

@@ -70,12 +70,12 @@ data _®_∷Empty (t : U.Term k) (v : T.Term k) : Set a where
 
 -- Terms of type Unit are related if both reduce to star.
 
-data _®_∷Unit⟨_,_⟩
-  (t : U.Term k) (v : T.Term k) (s : Strength) (u : U.Term k) :
+data _®_∷Unit⟨_⟩
+  (t : U.Term k) (v : T.Term k) (s : Strength) :
   Set a where
-  starᵣ : t ⇛ U.star s u′ ∷ Unit s u′ → Δ ⊢ u ≡ u′ ∷ Level →
+  starᵣ : t ⇛ U.star s ∷ Unit s →
           v ⇒* T.star →
-          t ® v ∷Unit⟨ s , u ⟩
+          t ® v ∷Unit⟨ s ⟩
 
 -- Equality proofs are related in the non-strict setting if the source
 -- term reduces to rfl. In the strict setting the target term should
@@ -98,7 +98,7 @@ mutual
   t ®⟨ l ⟩ v ∷ _ / Uᵣ _              = t ® v ∷U/Level
   t ®⟨ l ⟩ v ∷ A / ℕᵣ x              = t ® v ∷ℕ
   t ®⟨ l ⟩ v ∷ A / Emptyᵣ x          = t ® v ∷Empty
-  t ®⟨ l ⟩ v ∷ A / Unitᵣ {s} ⊩A      = t ® v ∷Unit⟨ s , ⊩A ._⊩Unit⟨_,_⟩_.k ⟩
+  t ®⟨ l ⟩ v ∷ A / Unitᵣ {s} ⊩A      = t ® v ∷Unit⟨ s ⟩
   t ®⟨ l ⟩ v ∷ A / ne′ _ _ D neK K≡K = L.Lift a ⊥
 
   t ®⟨ l ⟩ v ∷ _ / Liftᵣ′ {F = A} _ _ ⊩A =

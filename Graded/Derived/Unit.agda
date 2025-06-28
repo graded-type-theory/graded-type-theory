@@ -47,17 +47,16 @@ opaque
 
   ▸unitrec⟨⟩ :
     (s ≡ 𝕨 → Unitrec-allowed m p q) →
-    (s ≡ 𝕨 → ∃ λ γ → γ ▸[ 𝟘ᵐ? ] t) →
     (s ≡ 𝕨 → ∃ λ γ → γ ∙ ⌜ 𝟘ᵐ? ⌝ · q ▸[ 𝟘ᵐ? ] A) →
     (s ≡ 𝕨 → ∃ λ δ → δ ▸[ m ᵐ· p ] u × θ ≤ᶜ p ·ᶜ δ +ᶜ η) →
     (s ≡ 𝕤 → θ ≤ᶜ η) →
     η ▸[ m ] v →
-    θ ▸[ m ] unitrec⟨ s ⟩ p q t A u v
-  ▸unitrec⟨⟩ {s = 𝕨} ok ▸t ▸A ▸u _ ▸v =
+    θ ▸[ m ] unitrec⟨ s ⟩ p q A u v
+  ▸unitrec⟨⟩ {s = 𝕨} ok ▸A ▸u _ ▸v =
     let _ , ▸u , θ≤pδ+η = ▸u refl in
-    sub (unitrecₘ (▸t refl .proj₂) (▸A refl .proj₂) ▸u ▸v (ok refl))
+    sub (unitrecₘ (▸A refl .proj₂) ▸u ▸v (ok refl))
       θ≤pδ+η
-  ▸unitrec⟨⟩ {s = 𝕤} _ _ _ _ θ≤η ▸u =
+  ▸unitrec⟨⟩ {s = 𝕤} _ _ _ θ≤η ▸u =
     sub ▸u (θ≤η refl)
 
 opaque
@@ -75,13 +74,13 @@ opaque
   -- A usage rule for Unit-η.
 
   ▸Unit-η :
+    ∀ {γ : Conₘ n} →
     (s ≡ 𝕨 → Unitrec-allowed m 𝟙 Unit-η-grade) →
-    (s ≡ 𝕨 → ∃ λ γ → γ ▸[ 𝟘ᵐ? ] t) →
     (s ≡ 𝕨 → γ ▸[ m ] u) →
     (s ≡ 𝕤 → γ ≤ᶜ 𝟘ᶜ) →
-    γ ▸[ m ] Unit-η s Unit-η-grade t u
-  ▸Unit-η {s} {t} {γ} ok ▸t ▸u ≤𝟘ᶜ =
-    ▸unitrec⟨⟩ ok ▸t (λ s≡𝕨 → 𝟘ᶜ , lemma s≡𝕨)
+    γ ▸[ m ] Unit-η s Unit-η-grade u
+  ▸Unit-η {n} {s} {γ} ok ▸u ≤𝟘ᶜ =
+    ▸unitrec⟨⟩ ok (λ s≡𝕨 → 𝟘ᶜ , lemma s≡𝕨)
       (λ s≡𝕨 →
            γ
          , ▸-cong (sym ᵐ·-identityʳ) (▸u s≡𝕨)
@@ -93,23 +92,18 @@ opaque
     where
     open ≤ᶜ-reasoning
 
-    ▸wk1-t : s ≡ 𝕨 → ∃ λ δ → δ ▸[ 𝟘ᵐ? ] wk1 t
-    ▸wk1-t s≡𝕨 = _ , wkUsage (step id) (▸t s≡𝕨 .proj₂)
-
     lemma :
       s ≡ 𝕨 →
       𝟘ᶜ ∙ ⌜ 𝟘ᵐ? ⌝ · Unit-η-grade ▸[ 𝟘ᵐ? ]
-        Id (Unit s (wk1 t)) (star s (wk1 t)) (var x0)
+        Id {n = 1+ n} (Unit s) (star s) (var x0)
     lemma refl with Id-erased?
     … | yes erased = sub
-      (Id₀ₘ erased (Unitₘ (▸wk1-t refl .proj₂))
-         (starₘ (▸wk1-t refl .proj₂)) var)
+      (Id₀ₘ erased Unitₘ starₘ var)
       (begin
          𝟘ᶜ ∙ ⌜ 𝟘ᵐ? ⌝ · 𝟘  ≈⟨ ≈ᶜ-refl ∙ ·-zeroʳ _ ⟩
          𝟘ᶜ                ∎)
     … | no not-erased = sub
-      (Idₘ not-erased (Unitₘ (▸wk1-t refl .proj₂))
-         (starₘ (▸wk1-t refl .proj₂)) var)
+      (Idₘ not-erased Unitₘ starₘ var)
       (begin
          𝟘ᶜ ∙ ⌜ 𝟘ᵐ? ⌝ · 𝟙      ≈⟨ ≈ᶜ-refl ∙ ·-identityʳ _ ⟩
          𝟘ᶜ ∙ ⌜ 𝟘ᵐ? ⌝          ≈˘⟨ +ᶜ-identityˡ _ ⟩
@@ -121,10 +115,9 @@ opaque
 
   ▸Unit-η′ :
     (s ≡ 𝕨 → Unitrec-allowed m 𝟙 Unit-η-grade) →
-    (s ≡ 𝕨 → ∃ λ γ → γ ▸[ 𝟘ᵐ? ] t) →
     (s ≡ 𝕨 → ∃ λ γ → γ ▸[ m ] u) →
-    ∃ λ γ → γ ▸[ m ] Unit-η s Unit-η-grade t u
-  ▸Unit-η′ {s = 𝕤} _ _ _ =
-    𝟘ᶜ , ▸Unit-η (λ ()) (λ ()) (λ ()) (λ _ → ≤ᶜ-refl)
-  ▸Unit-η′ {s = 𝕨} ok ▸t ▸u = case ▸u refl of λ where
-    (γ , ▸u) → γ , ▸Unit-η ok ▸t (λ _ → ▸u) (λ ())
+    ∃ λ γ → γ ▸[ m ] Unit-η s Unit-η-grade u
+  ▸Unit-η′ {s = 𝕤} _ _ =
+    𝟘ᶜ , ▸Unit-η (λ ()) (λ ()) (λ _ → ≤ᶜ-refl)
+  ▸Unit-η′ {s = 𝕨} ok ▸u = case ▸u refl of λ where
+    (γ , ▸u) → γ , ▸Unit-η ok (λ _ → ▸u) (λ ())

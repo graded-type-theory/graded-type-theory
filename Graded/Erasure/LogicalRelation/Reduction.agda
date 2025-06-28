@@ -68,11 +68,11 @@ sourceRedSubstTerm (ℕᵣ D) (zeroᵣ t′⇒zero v⇒v′) t⇒t′ =
 sourceRedSubstTerm (ℕᵣ ⇒*ℕ) (sucᵣ t′⇒suc v⇒v′ num t®v) t⇒t′ =
   sucᵣ (trans-⇛ (conv-⇛ t⇒t′ (subset* ⇒*ℕ)) t′⇒suc) v⇒v′ num t®v
 sourceRedSubstTerm
-  (Unitᵣ′ _ _ _ D ok) (starᵣ t′⇒star u≡u′ v⇒star) t⇒t′ =
+  (Unitᵣ′ D ok) (starᵣ t′⇒star v⇒star) t⇒t′ =
   starᵣ
-    (trans-⇛ (conv-⇛ t⇒t′ (trans (subset* D) (Unit-cong u≡u′ ok)))
+    (trans-⇛ (conv-⇛ t⇒t′ (subset* D))
        t′⇒star)
-    u≡u′ v⇒star
+    v⇒star
 sourceRedSubstTerm (Bᵣ′ (BΠ p q) F G D A≡A [F] [G] G-ext _) t®v′ t⇒t′
   with is-𝟘? p
 ... | yes PE.refl = t®v′ .proj₁ , λ {a = a} [a] →
@@ -119,8 +119,8 @@ targetRedSubstTerm (Liftᵣ′ _ _ ⊩A) t®v′ v⇒v′ =
 targetRedSubstTerm (ℕᵣ x) (zeroᵣ t′⇒zero v′⇒zero) v⇒v′ = zeroᵣ t′⇒zero (trans v⇒v′ v′⇒zero)
 targetRedSubstTerm (ℕᵣ _) (sucᵣ t′⇒suc v′⇒suc num t®v) v⇒v′ =
   sucᵣ t′⇒suc (trans v⇒v′ v′⇒suc) num t®v
-targetRedSubstTerm (Unitᵣ x) (starᵣ x₁ u≡u′ v′⇒star) v⇒v′ =
-  starᵣ x₁ u≡u′ (trans v⇒v′ v′⇒star)
+targetRedSubstTerm (Unitᵣ x) (starᵣ x₁ v′⇒star) v⇒v′ =
+  starᵣ x₁ (trans v⇒v′ v′⇒star)
 targetRedSubstTerm
   (Bᵣ′ (BΠ p q) F G D A≡A [F] [G] G-ext _) (v′⇒*lam , t®v′) v⇒v′
   with is-𝟘? p | Σ.map idᶠ (T.trans v⇒v′) ∘→ v′⇒*lam
@@ -198,10 +198,10 @@ sourceRedSubstTerm′ (ℕᵣ D) (sucᵣ t⇒suc v⇒suc num t®v) t⇒t′
   with whnf-⇛ t⇒suc sucₙ (conv-⇛ t⇒t′ (subset* D))
 ... | t′⇒suc = sucᵣ t′⇒suc v⇒suc num t®v
 sourceRedSubstTerm′
-  (Unitᵣ′ _ _ _ ⇒*Unit ok) (starᵣ t⇒star u≡u′ v⇒star) t⇒t′
+  (Unitᵣ′ ⇒*Unit ok) (starᵣ t⇒star v⇒star) t⇒t′
   with whnf-⇛ t⇒star starₙ
-         (conv-⇛ t⇒t′ (trans (subset* ⇒*Unit) (Unit-cong u≡u′ ok)))
-... | t′⇒star = starᵣ t′⇒star u≡u′ v⇒star
+         (conv-⇛ t⇒t′ (subset* ⇒*Unit))
+... | t′⇒star = starᵣ t′⇒star v⇒star
 sourceRedSubstTerm′
   (Bᵣ′ (BΠ p q) F G D A≡A [F] [G] G-ext _) t®v′ t⇒t′
   with is-𝟘? p
@@ -285,10 +285,10 @@ targetRedSubstTerm′ (ℕᵣ _) (sucᵣ t⇒suc v⇒suc num t®v) v⇒v′
   with red*Det v⇒suc (T.trans v⇒v′ T.refl)
 ... | inj₁ suc⇒* rewrite suc-noRed suc⇒* = sucᵣ t⇒suc T.refl num t®v
 ... | inj₂ ⇒*suc = sucᵣ t⇒suc ⇒*suc num t®v
-targetRedSubstTerm′ (Unitᵣ _) (starᵣ ⇛⋆ u≡u′ v⇒star) v⇒v′
+targetRedSubstTerm′ (Unitᵣ _) (starᵣ ⇛⋆ v⇒star) v⇒v′
   with red*Det v⇒star (T.trans v⇒v′ T.refl)
-... | inj₁ ⋆⇒v′ rewrite star-noRed ⋆⇒v′ = starᵣ ⇛⋆ u≡u′ T.refl
-... | inj₂ v′⇒⋆                         = starᵣ ⇛⋆ u≡u′ v′⇒⋆
+... | inj₁ ⋆⇒v′ rewrite star-noRed ⋆⇒v′ = starᵣ ⇛⋆ T.refl
+... | inj₂ v′⇒⋆                         = starᵣ ⇛⋆ v′⇒⋆
 targetRedSubstTerm′
   (Bᵣ′ (BΠ p q) F G D A≡A [F] [G] G-ext _) t®v′ v⇒v′
   with is-𝟘? p

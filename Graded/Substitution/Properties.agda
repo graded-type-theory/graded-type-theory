@@ -1010,8 +1010,8 @@ mutual
   substₘ-lemma Ψ ▶σ (Liftₘ ▸t ▸A) =
     Liftₘ (substₘ-lemma-𝟘ᵐ? Ψ ▶σ ▸t .proj₂) (substₘ-lemma Ψ ▶σ ▸A)
 
-  substₘ-lemma Ψ ▶σ (liftₘ ▸t ▸u) =
-    liftₘ (substₘ-lemma-𝟘ᵐ? Ψ ▶σ ▸t .proj₂) (substₘ-lemma Ψ ▶σ ▸u)
+  substₘ-lemma Ψ ▶σ (liftₘ ▸u) =
+    liftₘ (substₘ-lemma Ψ ▶σ ▸u)
 
   substₘ-lemma Ψ ▶σ (lowerₘ ▸t) =
     lowerₘ (substₘ-lemma Ψ ▶σ ▸t)
@@ -1022,8 +1022,8 @@ mutual
   substₘ-lemma Ψ _ Emptyₘ =
     sub Emptyₘ (≤ᶜ-reflexive (<*-zeroˡ Ψ))
 
-  substₘ-lemma Ψ ▶σ (Unitₘ ▸t) = sub
-    (Unitₘ (substₘ-lemma-𝟘ᵐ? Ψ ▶σ ▸t .proj₂))
+  substₘ-lemma Ψ ▶σ Unitₘ = sub
+    Unitₘ
     (≤ᶜ-reflexive (<*-zeroˡ Ψ))
 
   substₘ-lemma Ψ Ψ▶σ (ΠΣₘ {γ = γ} {δ = δ} γ▸F δ▸G) = sub
@@ -1299,20 +1299,18 @@ mutual
            p ·ᶜ γ <* Ψ    ≈⟨ ≡𝟘→·<*≈ᶜ·𝟘 {δ = γ} Ψ p≡𝟘 ⟩
            p ·ᶜ 𝟘ᶜ        ∎)
 
-  substₘ-lemma Ψ ▶σ (starʷₘ ▸t) = sub
-    (starʷₘ (substₘ-lemma-𝟘ᵐ? Ψ ▶σ ▸t .proj₂))
+  substₘ-lemma Ψ ▶σ starʷₘ = sub
+    starʷₘ
     (≤ᶜ-reflexive (<*-zeroˡ Ψ))
 
-  substₘ-lemma Ψ ▶σ (starˢₘ {γ} prop ▸t) = sub
+  substₘ-lemma Ψ ▶σ (starˢₘ {γ} prop) = sub
     (starˢₘ
-       (λ ns → ≈ᶜ-trans (≈ᶜ-sym (<*-zeroˡ Ψ)) (<*-cong Ψ (prop ns)))
-       (substₘ-lemma-𝟘ᵐ? Ψ ▶σ ▸t .proj₂))
+       (λ ns → ≈ᶜ-trans (≈ᶜ-sym (<*-zeroˡ Ψ)) (<*-cong Ψ (prop ns))))
     (≤ᶜ-reflexive (<*-distrib-·ᶜ Ψ _ γ))
 
   substₘ-lemma
-    {mo} Ψ ▶σ (unitrecₘ {γ₃ = γ} {p} {γ₄ = δ} ▸t ▸A ▸u ▸v ok) =
+    {mo} Ψ ▶σ (unitrecₘ {γ₃ = γ} {p} {γ₄ = δ} ▸A ▸u ▸v ok) =
     let ▸v = substₘ-lemma Ψ (▶-⌞+ᶜ⌟ʳ Ψ (_ ·ᶜ γ) ▶σ) ▸v
-        ▸t = substₘ-lemma-𝟘ᵐ? Ψ ▶σ ▸t .proj₂
         ▸A = substₘ-lemma-∙⌜𝟘ᵐ?⌝·▸[𝟘ᵐ?] Ψ ▶σ ▸A .proj₂
         le = begin
           (p ·ᶜ γ +ᶜ δ) <* Ψ       ≈⟨ <*-distrib-+ᶜ Ψ (p ·ᶜ γ) δ ⟩
@@ -1322,7 +1320,7 @@ mutual
       (inj₁ (p≡𝟘 , ok′)) →
         let ▸u = ▸-cong (≡𝟘→𝟘ᵐ≡ᵐ· ⦃ ok = ok′ ⦄ mo p≡𝟘)
                    (substₘ-lemma₀ ⦃ ok = ok′ ⦄ Ψ ▶σ ▸u)
-        in  sub (unitrecₘ ▸t ▸A ▸u ▸v ok)
+        in  sub (unitrecₘ ▸A ▸u ▸v ok)
                 (begin
                   (p ·ᶜ γ +ᶜ δ) <* Ψ     ≤⟨ le ⟩
                   p ·ᶜ γ <* Ψ +ᶜ δ <* Ψ  ≡⟨ cong (λ p → p ·ᶜ γ <* Ψ +ᶜ δ <* Ψ) p≡𝟘 ⟩
@@ -1331,7 +1329,7 @@ mutual
                   p ·ᶜ 𝟘ᶜ +ᶜ δ <* Ψ ∎)
       (inj₂ ▶σ′) →
         let ▸u = substₘ-lemma Ψ ▶σ′ ▸u
-        in  sub (unitrecₘ ▸t ▸A ▸u ▸v ok) le
+        in  sub (unitrecₘ ▸A ▸u ▸v ok) le
     where
     open Tools.Reasoning.PartialOrder ≤ᶜ-poset
 

@@ -184,7 +184,7 @@ module Fundamental
     fundamental (Liftⱼ ⊢l₁ ⊢l₂ _) _ =
       Liftʳ (maxᵘⱼ ⊢l₁ ⊢l₂)
     fundamental (liftⱼ ⊢t _ ⊢u) ▸lift =
-      let _ , ▸u = inv-usage-lift ▸lift in
+      let ▸u = inv-usage-lift ▸lift in
       liftʳ ⊢t ⊢u (fundamental ⊢u ▸u)
     fundamental (lowerⱼ ⊢t) ▸lower =
       lowerʳ (fundamental ⊢t (inv-usage-lower ▸lower))
@@ -194,8 +194,8 @@ module Fundamental
       ℕʳ
     fundamental (Emptyⱼ _) _ =
       Emptyʳ
-    fundamental (Unitⱼ ⊢t _) _ =
-      Unitʳ ⊢t
+    fundamental (Unitⱼ ⊢Γ _) _ =
+      Unitʳ
     fundamental (var _ x∈Γ) ▸x =
       fundamentalVar well-formed x∈Γ ▸x
     fundamental (lamⱼ _ ⊢t ok) ▸lam =
@@ -279,11 +279,11 @@ module Fundamental
         (invUsageEmptyrec ▸t _ ok γ≤pδ) →
       subsumption-▸⊩ʳ∷[]-≤ γ≤pδ $
       emptyrecʳ ok ⊢t (fundamental ⊢t ▸t)
-    fundamental (starⱼ ⊢t ok) _ =
-      starʳ ⊢t ok
-    fundamental {m = 𝟙ᵐ} (unitrecⱼ _ ⊢A ⊢u ⊢v _) γ▸ur =
+    fundamental (starⱼ ⊢Γ ok) _ =
+      starʳ ok
+    fundamental {m = 𝟙ᵐ} (unitrecⱼ ⊢A ⊢u ⊢v _) γ▸ur =
       case inv-usage-unitrec γ▸ur of λ
-        (invUsageUnitrec _ _ ▸u ▸v ok γ≤) →
+        (invUsageUnitrec _ ▸u ▸v ok γ≤) →
       subsumption-▸⊩ʳ∷[]-≤ γ≤ $
       unitrecʳ ⊢A ⊢u ⊢v (fundamental ⊢u ▸u) (fundamental ⊢v ▸v)
         (λ p≡𝟘 → case closed-or-no-erased-matches of λ where

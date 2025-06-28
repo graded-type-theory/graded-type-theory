@@ -93,7 +93,7 @@ mutual
     erase″ (sucᵘ _)                = loop? s
     erase″ (_ maxᵘ _)              = loop? s
     erase″ (Lift _ _)              = loop? s
-    erase″ (lift _ t)              = erase″ t
+    erase″ (lift t)                = erase″ t
     erase″ (lower t)               = erase″ t
     erase″ (ΠΣ⟨ _ ⟩ _ , _ ▷ _ ▹ _) = loop? s
     erase″ (U.lam p t)             = case is-𝟘? p of λ where
@@ -124,7 +124,7 @@ mutual
       T.natrec (erase″ t) (erase″ u) (erase″ v)
     erase″ Unit!                 = loop? s
     erase″ U.star!               = T.star
-    erase″ (U.unitrec p _ _ _ t u) = case is-𝟘? p of λ where
+    erase″ (U.unitrec p _ _ t u) = case is-𝟘? p of λ where
       (no _)  → T.unitrec (erase″ t) (erase″ u)
       (yes _) → erase″ u
     erase″ Empty               = loop? s

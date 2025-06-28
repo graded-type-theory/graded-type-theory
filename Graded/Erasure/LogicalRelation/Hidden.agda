@@ -165,21 +165,20 @@ opaque
   -- A characterisation lemma for Unit.
 
   ®∷Unit⇔ :
-    t ® v ∷ Unit s u ⇔
-    (Δ ⊢ u ∷ Level × t ® v ∷Unit⟨ s , u ⟩)
-  ®∷Unit⇔ {u} =
+    t ® v ∷ Unit s ⇔
+    t ® v ∷Unit⟨ s ⟩
+  ®∷Unit⇔ =
       (λ (l , ⊩U , t®v) →
-         inversion-Unit (escape-⊩ ⊩U) .proj₁ ,
-         irrelevanceTerm ⊩U
-           (Unitᵣ (Unit-elim (⊩Unit⇔ .proj₂ (⊩Unit⇔ .proj₁ ⊩U)))) t®v)
-    , (λ (⊢u , t®v) →
+         irrelevanceTerm {l′ = l} ⊩U
+           (Unitᵣ (Unit-elim {l = l} (⊩Unit⇔ .proj₂ (⊩Unit⇔ .proj₁ ⊩U)))) t®v)
+    , (λ t®v →
          let ok =
                case t®v of λ {
-                 (starᵣ t⇛ _ _) →
-               inversion-Unit (wf-⊢∷ (wf-⇛ t⇛ .proj₁)) .proj₂ }
-             l , ⊩Unit = reducible-⊩ (Unitⱼ ⊢u ok)
+                 (starᵣ t⇛ _) →
+               inversion-Unit (wf-⊢∷ (wf-⇛ t⇛ .proj₁)) }
+             l , ⊩Unit = reducible-⊩ (Unitⱼ ⊢Δ ok)
           in
-         l , ⊩Unit⇔ .proj₂ (⊩Unit⇔ .proj₁ ⊩Unit) , t®v)
+        l , ⊩Unit⇔ .proj₂ (⊢Δ , ok) , t®v)
 
 opaque
   unfolding _®_∷_ ⊩ℕ⇔

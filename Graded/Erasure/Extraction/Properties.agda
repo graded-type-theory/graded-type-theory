@@ -156,19 +156,19 @@ opaque
 opaque
 
   unitrec-𝟘 :
-    ∀ t q A → p PE.≡ 𝟘 →
-    erase′ b s (U.unitrec p q t A u v) PE.≡ erase′ b s v
-  unitrec-𝟘 {p} _ _ _ p≡𝟘 with is-𝟘? p
+    ∀ q A → p PE.≡ 𝟘 →
+    erase′ b s (U.unitrec p q A u v) PE.≡ erase′ b s v
+  unitrec-𝟘 {p} _ _ p≡𝟘 with is-𝟘? p
   … | yes _  = PE.refl
   … | no p≢𝟘 = ⊥-elim (p≢𝟘 p≡𝟘)
 
 opaque
 
   unitrec-ω :
-    ∀ t q A → p PE.≢ 𝟘 →
-    erase′ b s (U.unitrec p q t A u v) PE.≡
+    ∀ q A → p PE.≢ 𝟘 →
+    erase′ b s (U.unitrec p q A u v) PE.≡
     T.unitrec (erase′ b s u) (erase′ b s v)
-  unitrec-ω {p} _ _ _ p≢𝟘 with is-𝟘? p
+  unitrec-ω {p} _ _ p≢𝟘 with is-𝟘? p
   … | yes p≡𝟘 = ⊥-elim (p≢𝟘 p≡𝟘)
   … | no _    = PE.refl
 
@@ -265,7 +265,7 @@ wk-erase-comm {s} _ (sucᵘ _) = wk-loop? s
 wk-erase-comm {s} _ (_ maxᵘ _) = wk-loop? s
 wk-erase-comm {s} _ (U _) = wk-loop? s
 wk-erase-comm {s} _ (Lift _ _) = wk-loop? s
-wk-erase-comm ρ (lift _ u) = wk-erase-comm ρ u
+wk-erase-comm ρ (lift u) = wk-erase-comm ρ u
 wk-erase-comm ρ (lower t) = wk-erase-comm ρ t
 wk-erase-comm {s} _ (ΠΣ⟨ _ ⟩ _ , _ ▷ _ ▹ _) = wk-loop? s
 wk-erase-comm _ (U.lam p _) with is-𝟘? p
@@ -340,7 +340,7 @@ wk-erase-comm ρ (U.natrec p q r A z s n) =
                  (wk-erase-comm ρ n)
 wk-erase-comm {s} _ Unit! = wk-loop? s
 wk-erase-comm ρ U.star! = refl
-wk-erase-comm ρ (U.unitrec p _ _ _ t u)
+wk-erase-comm ρ (U.unitrec p _ _ t u)
   with is-𝟘? p
 ... | yes _ =
   wk-erase-comm _ u
@@ -404,7 +404,7 @@ subst-erase-comm {s} _ (sucᵘ _) = loop?-[] s
 subst-erase-comm {s} _ (_ maxᵘ _) = loop?-[] s
 subst-erase-comm {s} _ (U _) = loop?-[] s
 subst-erase-comm {s} _ (Lift _ _) = loop?-[] s
-subst-erase-comm σ (lift _ u) = subst-erase-comm σ u
+subst-erase-comm σ (lift u) = subst-erase-comm σ u
 subst-erase-comm σ (lower t) = subst-erase-comm σ t
 subst-erase-comm {s} _ (ΠΣ⟨ _ ⟩ _ , _ ▷ _ ▹ _) = loop?-[] s
 subst-erase-comm         _ (U.lam p _) with is-𝟘? p
@@ -519,7 +519,7 @@ subst-erase-comm σ (U.natrec p q r A z s n) = cong₃ T.natrec
   (subst-erase-comm σ n)
 subst-erase-comm {s} _ Unit! = loop?-[] s
 subst-erase-comm σ U.star! = refl
-subst-erase-comm σ (U.unitrec p _ _ _ t u) with is-𝟘? p
+subst-erase-comm σ (U.unitrec p _ _ t u) with is-𝟘? p
 ... | yes _ =
   subst-erase-comm σ u
 ... | no _ =
@@ -568,7 +568,7 @@ module hasX (R : Usage-restrictions) where
   erased-hasX erased γ▸t@var varₓ =
     valid-var-usage γ▸t (var-usage-lookup erased)
 
-  erased-hasX erased (liftₘ _ ▸u) hasX =
+  erased-hasX erased (liftₘ ▸u) hasX =
     erased-hasX erased ▸u hasX
 
   erased-hasX erased (lowerₘ ▸t) hasX =
@@ -778,14 +778,14 @@ module hasX (R : Usage-restrictions) where
   erased-hasX erased (K₀ₘ₂ _ _ _ _ ▸u _) hasX =
     erased-hasX erased ▸u hasX
 
-  erased-hasX erased (unitrecₘ {p} _ _ _ _ _) hasX
+  erased-hasX erased (unitrecₘ {p} _ _ _ _) hasX
     with is-𝟘? p
-  erased-hasX erased (unitrecₘ _ _ _ ▸v _) hasX | yes _ =
+  erased-hasX erased (unitrecₘ _ _ ▸v _) hasX | yes _ =
     erased-hasX (x◂𝟘∈γ+δʳ refl erased) ▸v hasX
-  erased-hasX erased (unitrecₘ _ _ ▸u _ _) (unitrecₓˡ hasX) | no p≢𝟘 =
+  erased-hasX erased (unitrecₘ _ ▸u _ _) (unitrecₓˡ hasX) | no p≢𝟘 =
     erased-hasX (x◂𝟘∈pγ refl p≢𝟘 (x◂𝟘∈γ+δˡ refl erased))
                 (▸-cong (≢𝟘→⌞⌟≡𝟙ᵐ p≢𝟘) ▸u) hasX
-  erased-hasX erased (unitrecₘ _ _ _ ▸v _) (unitrecₓʳ hasX) | no _ =
+  erased-hasX erased (unitrecₘ _ _ ▸v _) (unitrecₓʳ hasX) | no _ =
     erased-hasX (x◂𝟘∈γ+δʳ refl erased) ▸v hasX
 
   erased-hasX _ (emptyrecₘ _ _ _) =
@@ -802,13 +802,13 @@ module hasX (R : Usage-restrictions) where
   erased-hasX {s} _ (Liftₘ _ _)          = loop?-closed s
   erased-hasX {s} _ ℕₘ                   = loop?-closed s
   erased-hasX {s} _ Emptyₘ               = loop?-closed s
-  erased-hasX {s} _ (Unitₘ _)            = loop?-closed s
+  erased-hasX {s} _ Unitₘ                = loop?-closed s
   erased-hasX {s} _ (ΠΣₘ _ _)            = loop?-closed s
   erased-hasX {s} _ (Idₘ _ _ _ _)        = loop?-closed s
   erased-hasX {s} _ (Id₀ₘ _ _ _ _)       = loop?-closed s
   erased-hasX {s} _ rflₘ                 = loop?-closed s
   erased-hasX {s} _ ([]-congₘ _ _ _ _ _) = loop?-closed s
 
-  erased-hasX _ (starʷₘ _)   ()
-  erased-hasX _ (starˢₘ _ _) ()
-  erased-hasX _ zeroₘ        ()
+  erased-hasX _ starʷₘ     ()
+  erased-hasX _ (starˢₘ _) ()
+  erased-hasX _ zeroₘ      ()

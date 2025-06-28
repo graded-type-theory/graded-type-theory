@@ -231,19 +231,14 @@ module _
       -- Note the assumptions of the local module Soundness.
 
       soundness-Unit :
-        Δ ⊢ t ∷ Unit s u → 𝟘ᶜ ▸[ 𝟙ᵐ ] t →
-        ∃ λ u′ →
-          Δ ⊢ t ⇒* star s u′ ∷ Unit s u ×
-          Δ ⊢ u ≡ u′ ∷ Level ×
-          erase str t T.⇒* T.star
+        Δ ⊢ t ∷ Unit s → 𝟘ᶜ ▸[ 𝟙ᵐ ] t →
+        Δ ⊢ t ⇒* star s ∷ Unit s ×
+        erase str t T.⇒* T.star
       soundness-Unit ⊢t ▸t =
         case ®∷Unit⇔ .proj₁ $ fundamentalErased-𝟙ᵐ ⊢t ▸t of λ where
-          (_ , starᵣ t⇒*star u≡u′ erase-t⇒*star) →
-            _ ,
-            conv* t⇒*star
-              (Unit-cong (sym′ u≡u′)
-                 (inversion-Unit (wf-⊢∷ ⊢t) .proj₂)) ,
-            u≡u′ , erase-t⇒*star
+          (starᵣ t⇒*star erase-t⇒*star) →
+            t⇒*star ,
+            erase-t⇒*star
         where
         open L (wfTerm ⊢t)
 
@@ -432,22 +427,21 @@ opaque
     Unitrec-allowed 𝟙ᵐ 𝟘 𝟘 →
     Unitʷ-allowed →
     ¬ Unitʷ-η →
-    let Δ = ε ∙ Unitʷ zeroᵘ
-        t = unitrec 𝟘 𝟘 zeroᵘ ℕ (var {n = 1} x0) zero
+    let Δ = ε ∙ Unitʷ
+        t = unitrec 𝟘 𝟘 ℕ (var {n = 1} x0) zero
     in
     Consistent Δ ×
     Δ ⊢ t ∷ ℕ ×
     𝟘ᶜ ▸[ 𝟙ᵐ ] t ×
     ¬ ∃ λ n → Δ ⊢ t ⇒ˢ* sucᵏ n ∷ℕ
   soundness-ℕ-only-source-counterexample₅ unitrec-ok Unit-ok no-η =
-    let ⊢Unit = Unitⱼ (zeroᵘⱼ ε) Unit-ok
-        ⊢0    = zeroᵘⱼ (∙ ⊢Unit)
+    let ⊢Unit = Unitⱼ ε Unit-ok
     in
-      inhabited-consistent (⊢ˢʷ∷-sgSubst (starⱼ (zeroᵘⱼ ε) Unit-ok))
-    , unitrecⱼ ⊢0 (ℕⱼ (∙ Unitⱼ ⊢0 Unit-ok)) (var₀ ⊢Unit)
+      inhabited-consistent (⊢ˢʷ∷-sgSubst (starⱼ ε Unit-ok))
+    , unitrecⱼ (ℕⱼ (∙ Unitⱼ (∙ ⊢Unit) Unit-ok)) (var₀ ⊢Unit)
         (zeroⱼ (∙ ⊢Unit)) Unit-ok
     , sub
-        (unitrecₘ zeroᵘₘ
+        (unitrecₘ
            (sub ℕₘ $
             let open Tools.Reasoning.PartialOrder ≤ᶜ-poset in begin
               𝟘ᶜ ∙ ⌜ 𝟘ᵐ? ⌝ · 𝟘  ≈⟨ ≈ᶜ-refl ∙ ·-zeroʳ _ ⟩
@@ -695,32 +689,30 @@ opaque
   soundness-ℕ-only-target-not-counterexample₅ :
     Unitʷ-allowed →
     Run-time-canonicity-for str
-      (ε ∙ Unitʷ zeroᵘ)
-      (unitrec 𝟘 𝟘 zeroᵘ ℕ (var {n = 1} x0) zero)
+      (ε ∙ Unitʷ)
+      (unitrec 𝟘 𝟘 ℕ (var {n = 1} x0) zero)
   soundness-ℕ-only-target-not-counterexample₅ Unit-ok with is-𝟘? 𝟘
   … | no 𝟘≢𝟘 = ⊥-elim $ 𝟘≢𝟘 PE.refl
   … | yes _  =
       _
-    , subst ω (Unitʷ zeroᵘ)
-        (Id ℕ (unitrec 𝟘 𝟘 zeroᵘ ℕ (var x0) zero) zero)
-        (starʷ zeroᵘ) (var x0) (Unit-η 𝕨 ω zeroᵘ (var x0)) rfl
+    , subst ω Unitʷ
+        (Id ℕ (unitrec 𝟘 𝟘 ℕ (var x0) zero) zero)
+        starʷ (var x0) (Unit-η 𝕨 ω (var x0)) rfl
     , ⊢subst
         (Idⱼ′
            (unitrecⱼ
-              (zeroᵘⱼ $
-               ∙ Unitⱼ (zeroᵘⱼ (∙ Unitⱼ (zeroᵘⱼ ε) Unit-ok)) Unit-ok)
               (ℕⱼ (ε ∙[ ⊢Unitʷ ] ∙[ ⊢Unitʷ ] ∙[ ⊢Unitʷ ]))
               (var₀ (⊢Unitʷ (ε ∙[ ⊢Unitʷ ])))
               (zeroⱼ (ε ∙[ ⊢Unitʷ ] ∙[ ⊢Unitʷ ])) Unit-ok)
            (zeroⱼ (ε ∙[ ⊢Unitʷ ] ∙[ ⊢Unitʷ ])))
         (⊢Unit-η (var₀ (⊢Unitʷ ε)))
         (rflⱼ′
-           (unitrec 𝟘 𝟘 zeroᵘ ℕ (starʷ zeroᵘ) zero  ≡⟨ unitrec-β-≡ (ℕⱼ (ε ∙[ ⊢Unitʷ ] ∙[ ⊢Unitʷ ])) (zeroⱼ (ε ∙[ ⊢Unitʷ ])) ⟩⊢∎
-            zero                                    ∎))
+           (unitrec 𝟘 𝟘 ℕ starʷ zero  ≡⟨ unitrec-β-≡ (ℕⱼ (ε ∙[ ⊢Unitʷ ] ∙[ ⊢Unitʷ ])) (zeroⱼ (ε ∙[ ⊢Unitʷ ])) ⟩⊢∎
+            zero                      ∎))
     , refl-⇒ˢ⟨⟩*
     where
-    ⊢Unitʷ : ⊢ Γ → Γ ⊢ Unitʷ zeroᵘ
-    ⊢Unitʷ ⊢Γ = Unitⱼ (zeroᵘⱼ ⊢Γ) Unit-ok
+    ⊢Unitʷ : ⊢ Γ → Γ ⊢ Unitʷ
+    ⊢Unitʷ ⊢Γ = Unitⱼ ⊢Γ Unit-ok
 
 -- A variant of run-time canonicity that uses erase′ true instead of
 -- erase.
