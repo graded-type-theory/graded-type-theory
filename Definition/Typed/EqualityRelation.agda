@@ -517,7 +517,7 @@ record Equality-relations
       → Γ ⊢ t maxᵘ sucᵘ u ≅ sucᵘ u ∷ Level
     ≅ₜ-maxᵘ-sub′ ⊢≅t t⊔u≡u =
       let _ , ⊢t , _ = wf-⊢≡∷ (≅ₜ-eq ⊢≅t)
-          _ , _ , ⊢u = wf-⊢≡∷ (≅ₜ-eq t⊔u≡u)
+          _ , ⊢t⊔u , ⊢u = wf-⊢≡∷ (≅ₜ-eq t⊔u≡u)
           _ , ⊢≅u = wf-⊢≅∷ t⊔u≡u
       in
       -- t maxᵘ sucᵘ u

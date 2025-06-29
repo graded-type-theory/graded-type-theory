@@ -27,7 +27,7 @@ open import Definition.Typed.Reasoning.Reduction R
 open import Definition.Typed.Reasoning.Term R
 open import Definition.Typed.Substitution.Primitive R
 import Definition.Typed.Substitution.Primitive.Primitive R as S
-open import Definition.Typed.Weakening R
+open import Definition.Typed.Weakening R as W
 open import Definition.Typed.Well-formed R
 
 open import Tools.Fin
@@ -198,6 +198,8 @@ opaque
 ------------------------------------------------------------------------
 -- Heterogeneous variants of the typing rules for Π
 
+-- Heterogeneous λ-abstraction
+
 lamʰ : (p : M) (t : Term (1+ n)) → Term n
 lamʰ p t = lam p (lift (lower₀ t))
 
@@ -213,6 +215,8 @@ opaque
   lamʰⱼ ⊢l₁ ⊢l₂ ⊢B ⊢t ok =
     let ⊢A = ⊢∙→⊢ (wf ⊢B)
     in lamⱼ′ ok (liftⱼ′ (wkTerm₁ (Liftⱼ ⊢l₂ ⊢A) ⊢l₁) (lower₀Term ⊢l₂ ⊢t))
+
+-- Heterogeneous application
 
 ∘ʰ : (p : M) (l₂ t u : Term n) → Term n
 ∘ʰ p l₂ t u = lower (t ∘⟨ p ⟩ lift u)
@@ -230,6 +234,24 @@ opaque
     in conv (lowerⱼ (⊢t ∘ⱼ liftⱼ ⊢l₂ ⊢A ⊢u)) (lower₀[lift]₀ ⊢B ⊢u)
 
 opaque
+
+  -- Heterogeneous application congruence
+
+  app-congʰ
+    : Γ ⊢ l₂ ∷ Level
+    → Γ ∙ A ⊢ B
+    → Γ ⊢ f ≡ g ∷ Πʰ p q l₁ l₂ A B
+    → Γ ⊢ t ≡ u ∷ A
+    → Γ ⊢ ∘ʰ p l₂ f t ≡ ∘ʰ p l₂ g u ∷ B [ u ]₀
+  app-congʰ ⊢l₂ ⊢B f≡g t≡u =
+    let ⊢A , ⊢t , ⊢u = wf-⊢≡∷ t≡u
+    in conv
+      (lower-cong (app-cong f≡g (lift-cong ⊢l₂ t≡u)))
+      (trans (lower₀[lift]₀ ⊢B ⊢t) (substTypeEq (refl ⊢B) t≡u))
+
+opaque
+
+  -- Heterogeneous β-reduction
 
   β-redʰ
     : Γ ⊢ l₁ ∷ Level
@@ -252,13 +274,17 @@ opaque
     in
     ∘ʰ p l₂ (lamʰ p t) a ≡⟨⟩⊢
     lower (lam p (lift (lower₀ t)) ∘⟨ p ⟩ lift a)
-      ≡⟨ lower-cong (conv (β-red ⊢LiftB ⊢liftlower₀t ⊢lifta PE.refl ok) (Lift-cong (refl (substTerm ⊢wkl₁ ⊢lifta)) (lower₀[lift]₀ ⊢B ⊢a))) ⟩⊢
+      ≡⟨ lower-cong (conv
+          (β-red ⊢LiftB ⊢liftlower₀t ⊢lifta PE.refl ok)
+          (Lift-cong (refl (substTerm ⊢wkl₁ ⊢lifta)) (lower₀[lift]₀ ⊢B ⊢a))) ⟩⊢
     lower (lift (lower₀ t) [ lift a ]₀)
       ≡⟨ lower-cong (lift-cong ⊢l₁ (lower₀[lift]₀∷ ⊢t ⊢a)) ⟩⊢
     lower (lift (t [ a ]₀)) ⇒⟨ Lift-β⇒ (substTerm ⊢t ⊢a) ⟩⊢∎
     t [ a ]₀ ∎
 
 opaque
+
+  -- Heterogeneous η-rule
 
   η-eqʰ
     : Γ ⊢ l₁ ∷ Level
@@ -269,17 +295,33 @@ opaque
     → Γ ∙ A ⊢ ∘ʰ p (wk1 l₂) (wk1 f) (var x0) ≡ ∘ʰ p (wk1 l₂) (wk1 g) (var x0) ∷ B
     → Π-allowed p q
     → Γ     ⊢ f ≡ g ∷ Πʰ p q l₁ l₂ A B
-  η-eqʰ {l₁} {l₂} {A} {B} {f} {p} {g} ⊢l₁ ⊢l₂ ⊢B ⊢f ⊢g f≡g ok =
+  η-eqʰ {Γ} {l₁} {l₂} {A} {B} {f} {p} {q} {g} ⊢l₁ ⊢l₂ ⊢B ⊢f ⊢g f≡g ok =
     let ⊢A = ⊢∙→⊢ (wf ⊢B)
         ⊢LiftA = Liftⱼ ⊢l₂ ⊢A
-        ⊢wkl₁ = wkTerm₁ ⊢LiftA ⊢l₁
-        ⊢lower₀B = lower₀Type ⊢l₂ ⊢B
-        ⊢LiftB = Liftⱼ ⊢wkl₁ ⊢lower₀B
-        thing = lower₀[lift]₀∷ (lowerⱼ (wkTerm₁ ⊢LiftA ⊢f ∘ⱼ var (∙ ⊢LiftA) here)) {!   !} -- wrong context
+        ⊢x₀ = var (∙ ⊢LiftA) here
+        lemma
+          : ∀ {f}
+          → Γ ⊢ f ∷ Πʰ p q l₁ l₂ A B
+          → Γ ∙ Lift l₂ A ⊢ lower₀ (lower (wk1 f ∘⟨ p ⟩ lift (var x0)))
+                          ≡ lower (wk1 f ∘⟨ p ⟩ var x0) ∷ lower₀ B
+        lemma ⊢f =
+          conv
+            (lower-cong
+              (app-cong
+                (PE.subst₃ (_⊢_≡_∷_ _)
+                  (PE.sym (wk1-[][]↑ 1)) PE.refl PE.refl
+                  (refl (wkTerm₁ ⊢LiftA ⊢f)))
+                (sym′ (Lift-η-swap ⊢x₀ (refl (lowerⱼ ⊢x₀))))))
+            (PE.subst (_⊢_≡_ _ _) (wkSingleSubstId _)
+              (substTypeEq
+                (refl (W.wk
+                  (liftʷ (step id) (wk₁ ⊢LiftA ⊢LiftA))
+                  (lower₀Type ⊢l₂ ⊢B)))
+                (sym′ (Lift-η-swap ⊢x₀ (refl (lowerⱼ ⊢x₀))))))
     in η-eq′ ⊢f ⊢g $ Lift-η′
         (PE.subst (_⊢_∷_ _ _) (wkSingleSubstId _) (wkTerm₁ ⊢LiftA ⊢f ∘ⱼ var (∙ ⊢LiftA) here))
         (PE.subst (_⊢_∷_ _ _) (wkSingleSubstId _) (wkTerm₁ ⊢LiftA ⊢g ∘ⱼ var (∙ ⊢LiftA) here))
-        (lower (wk1 f ∘⟨ p ⟩ var x0) ≡˘⟨ {! thing !} ⟩⊢
+        (lower (wk1 f ∘⟨ p ⟩ var x0)                 ≡˘⟨ lemma ⊢f ⟩⊢
          lower₀ (lower (wk1 f ∘⟨ p ⟩ lift (var x0))) ≡⟨ lower₀TermEq ⊢l₂ f≡g ⟩⊢
-         lower₀ (lower (wk1 g ∘⟨ p ⟩ lift (var x0))) ≡⟨ {!   !} ⟩⊢∎
-         lower (wk1 g ∘⟨ p ⟩ var x0) ∎)
+         lower₀ (lower (wk1 g ∘⟨ p ⟩ lift (var x0))) ≡⟨ lemma ⊢g ⟩⊢∎
+         lower (wk1 g ∘⟨ p ⟩ var x0)                 ∎)

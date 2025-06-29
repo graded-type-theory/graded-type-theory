@@ -376,18 +376,18 @@ private module Lemmas where
     $ trans-≡ᵛ (≡ᵛ-max (≡ᵛ-refl _) (sym-≡ᵛ uv≡))
     $ sym-≡ᵛ t[uv]≡
 
-  ≅ₜ-maxᵘ-comm : Γ ⊢ t [conv↑] t ∷Level → Γ ⊢ u [conv↑] u ∷Level →  Γ ⊢ t maxᵘ u [conv↑] u maxᵘ t ∷Level
+  ≅ₜ-maxᵘ-comm : Γ ⊢ t [conv↑] t ∷Level → Γ ⊢ u [conv↑] u ∷Level → Γ ⊢ t maxᵘ u [conv↑] u maxᵘ t ∷Level
   ≅ₜ-maxᵘ-comm ([↑]ˡ tᵛ _ t↑ _ _) ([↑]ˡ uᵛ _ u↑ _ _) =
     let tuᵛ , tu↑ , tu≡ = maxᵘ-↑ᵛ t↑ u↑
         utᵛ , ut↑ , ut≡ = maxᵘ-↑ᵛ u↑ t↑
     in [↑]ˡ tuᵛ utᵛ tu↑ ut↑ (trans-≡ᵛ tu≡ (trans-≡ᵛ (≡ᵛ-maxᵘ-comm {a = tᵛ}) (sym-≡ᵛ ut≡)))
 
-  ≅ₜ-maxᵘ-idem : Γ ⊢ t [conv↑] t ∷Level →  Γ ⊢ t maxᵘ t [conv↑] t ∷Level
+  ≅ₜ-maxᵘ-idem : Γ ⊢ t [conv↑] t ∷Level → Γ ⊢ t maxᵘ t [conv↑] t ∷Level
   ≅ₜ-maxᵘ-idem ([↑]ˡ tᵛ _ t↑ _ _) =
     let ttᵛ , tt↑ , tt≡ = maxᵘ-↑ᵛ t↑ t↑
     in [↑]ˡ ttᵛ tᵛ tt↑ t↑ (trans-≡ᵛ tt≡ ≡ᵛ-maxᵘ-idem)
 
-  ≅ₜ-maxᵘ-sub : Γ ⊢ t [conv↑] t ∷Level →  Γ ⊢ t maxᵘ sucᵘ t [conv↑] sucᵘ t ∷Level
+  ≅ₜ-maxᵘ-sub : Γ ⊢ t [conv↑] t ∷Level → Γ ⊢ t maxᵘ sucᵘ t [conv↑] sucᵘ t ∷Level
   ≅ₜ-maxᵘ-sub ([↑]ˡ tᵛ _ t↑ _ _) =
     let t+1↑ = lift-↓ᵛ (sucᵘₙ PE.refl t↑)
         ttᵛ , tt↑ , tt≡ = maxᵘ-↑ᵛ t↑ t+1↑

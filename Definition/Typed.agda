@@ -631,6 +631,11 @@ _⊢_↘_ : (Γ : Con Term n) → Term n → Term n → Set ℓ
 _⊢_↘_∷_ : (Γ : Con Term n) → Term n → Term n → Term n → Set ℓ
 Γ ⊢ t ↘ u ∷ A = Γ ⊢ t ⇒* u ∷ A × Whnf u
 
+-- The natural order on levels
+
+_⊢_≤_∷Level : (Γ : Con Term n) (t u : Term n) → Set ℓ
+Γ ⊢ t ≤ u ∷Level = Γ ⊢ t maxᵘ u ≡ u ∷ Level
+
 -- A context Γ is consistent if the empty type is not inhabited in Γ.
 
 Consistent : Con Term n → Set ℓ

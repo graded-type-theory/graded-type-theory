@@ -17,7 +17,7 @@ module Definition.Conversion.Soundness
 open import Definition.Untyped M
 open import Definition.Untyped.Neutral M type-variant
 open import Definition.Typed R
-open import Definition.Typed.EqRelInstance R using (eqRelInstance; ≅ₜ-maxᵘ-sub′)
+open import Definition.Typed.EqRelInstance R using (eqRelInstance)
 open import Definition.Typed.EqualityRelation.Instance R
 open import Definition.Typed.Inversion R
 open import Definition.Typed.Properties R
@@ -51,45 +51,6 @@ private
     Γ     : Con Term n
     A B l₁ l₂ : Term _
     d : Bool
-
-_⊢_≤_∷Level : (Γ : Con Term n) (t u : Term n) → Set a
-Γ ⊢ t ≤ u ∷Level = Γ ⊢ t maxᵘ u ≡ u ∷ Level
-
-⊢≤-refl : ∀ {t u} → Γ ⊢ t ≡ u ∷ Level → Γ ⊢ t ≤ u ∷Level
-⊢≤-refl t≡u =
-  let _ , _ , ⊢u = syntacticEqTerm t≡u
-  in trans (maxᵘ-cong t≡u (refl ⊢u)) (maxᵘ-idem ⊢u)
-
-⊢sucᵘᵏ : ∀ {t k} → Γ ⊢ t ∷ Level → Γ ⊢ sucᵘᵏ k t ∷ Level
-⊢sucᵘᵏ {k = Nat.zero} ⊢t = ⊢t
-⊢sucᵘᵏ {k = 1+ k} ⊢t = sucᵘⱼ (⊢sucᵘᵏ ⊢t)
-
-maxᵘ-subᵏ : ∀ {t u k} → Γ ⊢ t ∷ Level → Γ ⊢ t ≤ u ∷Level → Γ ⊢ t ≤ sucᵘᵏ k u ∷Level
-maxᵘ-subᵏ {k = Nat.zero} ⊢t t≤u = t≤u
-maxᵘ-subᵏ {k = 1+ k} ⊢t t≤u = ≅ₜ-maxᵘ-sub′ (refl ⊢t) (maxᵘ-subᵏ ⊢t t≤u)
-
-≤-sucᵘᵏ : ∀ {t u n m} → Γ ⊢ t ∷ Level → n ≤ m → Γ ⊢ t ≤ u ∷Level → Γ ⊢ sucᵘᵏ n t ≤ sucᵘᵏ m u ∷Level
-≤-sucᵘᵏ ⊢t z≤n t≤u = maxᵘ-subᵏ (⊢sucᵘᵏ ⊢t) t≤u
-≤-sucᵘᵏ ⊢t (s≤s n≤m) t≤u =
-  let _ , _ , ⊢u = syntacticEqTerm t≤u
-  in trans (maxᵘ-sucᵘ (⊢sucᵘᵏ ⊢t) (⊢sucᵘᵏ ⊢u)) (sucᵘ-cong (≤-sucᵘᵏ ⊢t n≤m t≤u))
-
-≤-sucᵘ : ∀ {t u} → Γ ⊢ t ∷ Level → Γ ⊢ t ≤ u ∷Level → Γ ⊢ sucᵘ t ≤ sucᵘ u ∷Level
-≤-sucᵘ ⊢t t≤u =
-  let _ , _ , ⊢u = syntacticEqTerm t≤u
-  in trans (maxᵘ-sucᵘ ⊢t ⊢u) (sucᵘ-cong t≤u)
-
-maxᵘ-comm-assoc
-  : ∀ {t u v}
-  → Γ ⊢ t ∷ Level
-  → Γ ⊢ u ∷ Level
-  → Γ ⊢ v ∷ Level
-  → Γ ⊢ t maxᵘ (u maxᵘ v) ≡ u maxᵘ (t maxᵘ v) ∷ Level
-maxᵘ-comm-assoc ⊢t ⊢u ⊢v =
-  let ⊢Level = syntacticTerm ⊢t
-  in trans (sym′ (maxᵘ-assoc ⊢t ⊢u ⊢v))
-    (trans (maxᵘ-cong (maxᵘ-comm ⊢t ⊢u) (refl ⊢v))
-      (maxᵘ-assoc ⊢u ⊢t ⊢v))
 
 mutual
   -- Algorithmic equality of neutrals is well-formed.
@@ -260,15 +221,15 @@ mutual
     → ≤ᵃ d t u
     → Γ ⊢ LevelAtom→Term t ≤ LevelAtom→Term u ∷Level
   soundness-≤ᵃ ⊢Γ t u zeroᵘ≤ = maxᵘ-zeroˡ (⊢LevelAtom ⊢Γ u)
-  soundness-≤ᵃ ⊢Γ t u (ne≤ (ne≡ x)) = maxᵘ-subᵏ (⊢LevelAtom ⊢Γ t) (⊢≤-refl (soundness~↓ x))
-  soundness-≤ᵃ ⊢Γ t u (ne≤ (ne≡' x)) = maxᵘ-subᵏ (⊢LevelAtom ⊢Γ t) (⊢≤-refl (sym′ (soundness~↓ x)))
+  soundness-≤ᵃ ⊢Γ t u (ne≤ (ne≡ x)) = maxᵘ-subᵏ (⊢≤-refl (soundness~↓ x))
+  soundness-≤ᵃ ⊢Γ t u (ne≤ (ne≡' x)) = maxᵘ-subᵏ (⊢≤-refl (sym′ (soundness~↓ x)))
 
   soundness-≤⁺
     : ⊢ Γ
     → ∀ (t u : LevelPlus Γ)
     → ≤⁺ d t u
     → Γ ⊢ LevelPlus→Term t ≤ LevelPlus→Term u ∷Level
-  soundness-≤⁺ ⊢Γ (n , t) (m , u) (n≤m , t≤u) = ≤-sucᵘᵏ (⊢LevelAtom ⊢Γ t) n≤m (soundness-≤ᵃ ⊢Γ _ _ t≤u)
+  soundness-≤⁺ ⊢Γ (n , t) (m , u) (n≤m , t≤u) = ≤-sucᵘᵏ n≤m (soundness-≤ᵃ ⊢Γ _ _ t≤u)
 
   soundness-≤⁺ᵛ
     : ⊢ Γ

@@ -456,7 +456,7 @@ mutual
       let ⊢t′ = (⊢nf∷→⊢∷ t′-nf)
       in lift t′
       , liftₙ ⊢l t′-nf
-      , Lift-η′ ⊢t (liftⱼ′ ⊢l ⊢t′) (trans lowert≡t′ (sym′ (Lift-β′ ⊢t′)))
+      , Lift-η-swap ⊢t lowert≡t′
     (Σ-η {p} {q} {A} {B} ⊢t _ _ _ fst-t↑ snd-t↑) →
       case inversion-ΠΣ (syntacticTerm ⊢t) of λ {
         (_ , ⊢B , ok) →

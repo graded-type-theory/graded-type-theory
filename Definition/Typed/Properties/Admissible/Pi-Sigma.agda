@@ -19,12 +19,9 @@ open import Definition.Untyped.Properties M
 open import Definition.Typed R
 open import Definition.Typed.Inversion R
 open import Definition.Typed.Reasoning.Term R
-open import Definition.Typed.Substitution.Primitive R
 open import Definition.Typed.Weakening R
 open import Definition.Typed.Well-formed R
-open import Definition.Typed.Properties.Admissible.Equality R
 open import Definition.Typed.Properties.Admissible.Lift R
-open import Definition.Typed.Properties.Well-formed R
 
 open import Tools.Fin
 open import Tools.Function
@@ -35,7 +32,7 @@ import Tools.PropositionalEquality as PE
 private variable
   n     : Nat
   Γ     : Con Term n
-  A A′ B B′ E F G H a f g l l₁ l₂ t u : Term n
+  A A′ B B′ C E F G H a f g l l₁ l₂ t u : Term n
   p p′ q : M
   s     : Strength
   b     : BinderMode
@@ -62,56 +59,6 @@ opaque
 
 ------------------------------------------------------------------------
 -- Heterogeneous variants of Π and Σ that take types in different universes
-
-lower₀ : Term (1+ n) → Term (1+ n)
-lower₀ t = t [ lower (var x0) ]↑
-
-opaque
-
-  lower₀[lift]₀
-    : Γ ∙ A ⊢ B
-    → Γ ⊢ u ∷ A
-    → Γ ⊢ lower₀ B [ lift u ]₀ ≡ B [ u ]₀
-  lower₀[lift]₀ {B} ⊢B ⊢u =
-    PE.subst₂ (_⊢_≡_ _) (PE.sym ([]↑-[]₀ B)) PE.refl
-      (substTypeEq (refl ⊢B) (Lift-β′ ⊢u))
-
-opaque
-
-  lower₀[lift]₀∷
-    : Γ ∙ A ⊢ t ∷ B
-    → Γ ⊢ u ∷ A
-    → Γ ⊢ lower₀ t [ lift u ]₀ ≡ t [ u ]₀ ∷ B [ u ]₀
-  lower₀[lift]₀∷ {t} {B} ⊢t ⊢u =
-    PE.subst₃ (_⊢_≡_∷_ _) (PE.sym ([]↑-[]₀ t)) PE.refl PE.refl
-      (sym′ (substTermEq (refl ⊢t) (sym′ (Lift-β′ ⊢u))))
-
-opaque
-
-  lower₀Type
-    : Γ ⊢ l ∷ Level
-    → Γ ∙ A ⊢ B
-    → Γ ∙ Lift l A ⊢ lower₀ B
-  lower₀Type ⊢l ⊢B = subst-⊢ ⊢B
-    (⊢ˢʷ∷-[][]↑ (lowerⱼ (var (∙ Liftⱼ ⊢l (⊢∙→⊢ (wf ⊢B))) here)))
-
-opaque
-
-  lower₀Term
-    : Γ ⊢ l ∷ Level
-    → Γ ∙ A ⊢ t ∷ B
-    → Γ ∙ Lift l A ⊢ lower₀ t ∷ lower₀ B
-  lower₀Term ⊢l ⊢t = subst-⊢∷ ⊢t
-    (⊢ˢʷ∷-[][]↑ (lowerⱼ (var (∙ Liftⱼ ⊢l (⊢∙→⊢ (wfTerm ⊢t))) here)))
-
-opaque
-
-  lower₀TermEq
-    : Γ ⊢ l ∷ Level
-    → Γ ∙ A ⊢ t ≡ u ∷ B
-    → Γ ∙ Lift l A ⊢ lower₀ t ≡ lower₀ u ∷ lower₀ B
-  lower₀TermEq ⊢l t≡u = subst-⊢≡∷ t≡u
-    (refl-⊢ˢʷ≡∷ (⊢ˢʷ∷-[][]↑ (lowerⱼ (var (∙ Liftⱼ ⊢l (⊢∙→⊢ (wfEqTerm t≡u))) here))))
 
 ΠΣʰ : (b : BinderMode) (p q : M) (l₁ l₂ A : Term n) (B : Term (1+ n)) → Term n
 ΠΣʰ b p q l₁ l₂ A B = ΠΣ⟨ b ⟩ p , q ▷ Lift l₂ A ▹ Lift (wk1 l₁) (lower₀ B)

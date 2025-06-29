@@ -139,11 +139,16 @@ sucᵏ : (k : Nat) → Term n
 sucᵏ 0      = zero
 sucᵏ (1+ n) = suc (sucᵏ n)
 
+-- Iterated applications of sucᵘ.
+
+sucᵘᵏ : Nat → Term n → Term n
+sucᵘᵏ 0      t = t
+sucᵘᵏ (1+ k) t = sucᵘ (sucᵘᵏ k t)
+
 -- The canonical level term corresponding to the given natural number.
 
 ↓ᵘ_ : Nat → Term n
-↓ᵘ 0    = zeroᵘ
-↓ᵘ 1+ n = sucᵘ (↓ᵘ n)
+↓ᵘ k = sucᵘᵏ k zeroᵘ
 
 ------------------------------------------------------------------------
 -- An alternative syntax representation

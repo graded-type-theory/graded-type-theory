@@ -43,10 +43,6 @@ LevelAtom→Term : ∀ {Γ : Con Term n} → LevelAtom Γ → Term n
 LevelAtom→Term zeroᵘ = zeroᵘ
 LevelAtom→Term (ne {t} x) = t
 
-sucᵘᵏ : Nat → Term n → Term n
-sucᵘᵏ Nat.zero t = t
-sucᵘᵏ (1+ k) t = sucᵘ (sucᵘᵏ k t)
-
 LevelPlus→Term : ∀ {Γ : Con Term n} → LevelPlus Γ → Term n
 LevelPlus→Term (n , a) = sucᵘᵏ n (LevelAtom→Term a)
 
