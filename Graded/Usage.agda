@@ -370,9 +370,9 @@ data _▸[_]_ {n : Nat} : (γ : Conₘ n) → Mode → Term n → Set a where
   --   lemma Graded.Substitution.Properties.substₘ-lemma.
   --
   -- Note that this rule may not always be appropriate. See
-  -- Graded.Modality.Instances.Linearity.Bad.No-dedicated-nr,
-  -- Graded.Modality.Instances.Affine.Bad.No-dedicated-nr and
-  -- Graded.Modality.Instances.Linear-or-affine.Bad.No-dedicated-nr
+  -- Graded.Modality.Instances.Linearity.Examples.Bad.No-nr,
+  -- Graded.Modality.Instances.Affine.Examples.Bad.No-nr and
+  -- Graded.Modality.Instances.Linear-or-affine.Examples.Bad.No-nr
   -- for some examples.
   natrec-no-nrₘ :
             ∀ {n s} ⦃ no-nr : Nr-not-available ⦄

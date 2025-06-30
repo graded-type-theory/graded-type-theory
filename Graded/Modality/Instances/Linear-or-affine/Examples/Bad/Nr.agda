@@ -1,23 +1,18 @@
 ------------------------------------------------------------------------
--- Some examples related to the "bad" linear or affine types modality
+-- Some examples related to the linear or affine types modality with a
+-- "bad" nr function.
 ------------------------------------------------------------------------
 
 open import Tools.Level
-
-open import Definition.Typed.Restrictions
 
 open import Graded.Modality.Instances.Linear-or-affine
 open import Graded.Modality.Variant lzero
 open import Graded.Usage.Restrictions
 
-module Graded.Modality.Instances.Linear-or-affine.Bad
+module Graded.Modality.Instances.Linear-or-affine.Examples.Bad.Nr
   -- The modality variant.
   (variant : Modality-variant)
-  (TR : Type-restrictions (linear-or-affine variant))
-  (open Type-restrictions TR)
   (UR : Usage-restrictions (linear-or-affine variant))
-  -- It is assumed that "Π 𝟙 , 𝟘" is allowed.
-  (Π-𝟙-𝟘 : Π-allowed 𝟙 𝟘)
   where
 
 open import Tools.Function
@@ -48,11 +43,12 @@ private
 
 open import Graded.Context linear-or-affine′
 open import Graded.Context.Properties linear-or-affine′
-open import Graded.Modality.Instances.Examples TR Π-𝟙-𝟘
 open import Graded.Modality.Properties linear-or-affine′
 open import Graded.Mode linear-or-affine′
 open import Graded.Usage linear-or-affine′ UR′
 open import Graded.Usage.Inversion linear-or-affine′ UR′
+
+open import Definition.Untyped.Nat linear-or-affine′
 
 opaque
   unfolding bad-linear-or-affine-has-nr

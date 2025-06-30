@@ -353,7 +353,7 @@ opaque
   nrᵢ-GLB-dec : ∀ r z s → Dec (∃ λ p → Greatest-lower-bound p (nrᵢ r z s))
   nrᵢ-GLB-dec 0 z s = yes (_ , nrᵢ-𝟘-GLB)
   nrᵢ-GLB-dec r 0 0 = yes (_ , GLB-nrᵢ-𝟘)
-  nrᵢ-GLB-dec (1+ 0) (1+ z) 0 = yes (_ , nrᵢ-const-GLB)
+  nrᵢ-GLB-dec (1+ 0) (1+ z) 0 = yes (_ , nrᵢ-const-GLB₁)
   nrᵢ-GLB-dec (2+ r) (1+ z) 0 =
     no (λ (_ , p-glb) →
       case nrᵢ-GLB-inv _ _ _ p-glb of λ where
@@ -428,14 +428,14 @@ opaque
           case nrᵢ-GLB-inv r z₂ s₂ q-GLB of λ where
             (inj₁ ())
             (inj₂ (inj₁ (refl , refl))) →
-              _ , nrᵢ-const-GLB , +-monotone (p≤ 0) (q≤ 0)
+              _ , nrᵢ-const-GLB₁ , +-monotone (p≤ 0) (q≤ 0)
             (inj₂ (inj₂ (refl , refl))) →
-              _ , nrᵢ-const-GLB , +-monotone (p≤ 0) (q≤ 0)
+              _ , nrᵢ-const-GLB₁ , +-monotone (p≤ 0) (q≤ 0)
         (inj₂ (inj₂ (refl , refl))) →
           case nrᵢ-GLB-inv r z₂ s₂ q-GLB of λ where
             (inj₁ refl) → +-nrᵢ-GLB′ p-GLB q-GLB
             (inj₂ (inj₁ (refl , refl))) →
-              _ , nrᵢ-const-GLB , +-monotone (p≤ 0) (q≤ 0)
+              _ , nrᵢ-const-GLB₁ , +-monotone (p≤ 0) (q≤ 0)
             (inj₂ (inj₂ (refl , refl))) →
               _ , GLB-const nrᵢ-𝟘
                 , +-monotone (p≤ 0) (q≤ 0)

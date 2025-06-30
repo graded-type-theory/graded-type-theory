@@ -1,27 +1,23 @@
 ------------------------------------------------------------------------
--- Some examples related to the linear or affine types modality
+-- Some examples related to the linear or affine types modality with the
+-- usage rule for natrec using greatest lower bounds.
 ------------------------------------------------------------------------
 
 open import Tools.Level
-
-open import Definition.Typed.Restrictions
 
 open import Graded.Modality.Instances.Linear-or-affine
 open import Graded.Modality.Variant lzero
 open import Graded.Usage.Restrictions
 
-module Graded.Modality.Instances.Linear-or-affine.Good.Greatest-lower-bound
+module Graded.Modality.Instances.Linear-or-affine.Examples.Good.Greatest-lower-bound
   -- The modality variant.
   (variant : Modality-variant)
-  (TR : Type-restrictions (linear-or-affine variant))
-  (open Type-restrictions TR)
   (UR : Usage-restrictions (linear-or-affine variant))
-  -- It is assumed that "Π 𝟙 , 𝟘" is allowed.
-  (Π-𝟙-𝟘 : Π-allowed 𝟙 𝟘)
   where
 
+open import Tools.Fin
 open import Tools.Function
-open import Tools.Nat using (1+)
+open import Tools.Nat using (Nat; 1+)
 import Tools.Reasoning.PartialOrder
 open import Tools.Product
 open import Tools.PropositionalEquality
@@ -48,24 +44,24 @@ private
 
 open import Graded.Context linear-or-affine′
 open import Graded.Context.Properties linear-or-affine′
-open import Graded.Modality.Instances.Examples TR Π-𝟙-𝟘
+import Graded.Derived.Nat linear-or-affine′ UR′ as N
 open import Graded.Modality.Properties linear-or-affine′
+  hiding (nrᵢ-𝟘-GLB)
 open import Graded.Mode linear-or-affine′
 open import Graded.Usage linear-or-affine′ UR′
 open import Graded.Usage.Inversion linear-or-affine′ UR′
+open import Graded.Usage.Properties linear-or-affine′ UR′
+open import Graded.Usage.Weakening linear-or-affine′ UR′
 
-private
+open import Definition.Untyped Linear-or-affine
+open import Definition.Untyped.Nat linear-or-affine′
 
-  opaque
-
-    -- The greatest lower bound of nrᵢ 𝟙 𝟙 𝟘 is 𝟙.
-
-    𝟙-GLB : M.Greatest-lower-bound 𝟙 (M.nrᵢ 𝟙 𝟙 𝟘)
-    𝟙-GLB = ≤-reflexive ∘→ lemma , λ { 𝟘 q≤ → q≤ 0 ; 𝟙 q≤ → q≤ 0 ; ≤𝟙 q≤ → ≤-refl ; ≤ω q≤ → refl}
-      where
-      lemma : ∀ i → 𝟙 ≡ M.nrᵢ 𝟙 𝟙 𝟘 i
-      lemma 0 = refl
-      lemma (1+ i) rewrite sym (lemma i) = refl
+private variable
+  n : Nat
+  γ δ η : Conₘ _
+  t u : Term _
+  m : Mode
+  p : Linear-or-affine
 
 opaque
 
@@ -88,8 +84,8 @@ opaque
       (_ ∙ q″≤𝟘 ∙ _ ∙ _) →
     let _ , q′-GLB = GLBᶜ-pointwise q′-GLB′
         q′≤𝟙 = GLB-monotone (λ i → nrᵢ-monotone i p≤𝟙 (≤-trans q≤q″ q″≤𝟘))
-                 q′-GLB 𝟙-GLB
-        p′≡𝟙 = GLB-unique p′-GLB 𝟙-GLB
+                 q′-GLB nrᵢ-const-GLB₁
+        p′≡𝟙 = GLB-unique p′-GLB nrᵢ-const-GLB₁
     in case begin
       𝟙           ≤⟨ 𝟙≤ ⟩
       p′ · r + q′ ≤⟨ +-monotone (·-monotoneʳ {r = p′} r≤𝟙) q′≤𝟙 ⟩
@@ -102,17 +98,49 @@ opaque
 
 opaque
 
+  -- A usage rule for plus′
+
+  ▸plus′ :
+    γ ▸[ m ] t → δ ▸[ m ] u →
+    γ +ᶜ δ ▸[ m ] plus′ t u
+  ▸plus′ = N.▸plus′₂
+
+opaque
+
   -- The term plus is well-resourced.
 
   ▸plus : ε ▸[ 𝟙ᵐ ] plus
-  ▸plus =
-    lamₘ $
-    lamₘ $
-    natrec-no-nr-glbₘ var (sucₘ var) var
-      (sub ℕₘ $ begin
-       𝟘ᶜ ∙ ⌜ 𝟘ᵐ? ⌝ · 𝟘  ≈⟨ ≈ᶜ-refl ∙ M.·-zeroʳ ⌜ 𝟘ᵐ? ⌝ ⟩
-       𝟘ᶜ                ∎)
-      𝟙-GLB
-      (GLBᶜ-pointwise′ (GLBᶜ-pointwise′ ε-GLB GLB-nrᵢ-𝟘) 𝟙-GLB)
-    where
-    open Tools.Reasoning.PartialOrder ≤ᶜ-poset
+  ▸plus = N.▸plus
+
+opaque
+
+  -- A usage rule for f′.
+
+  ▸f′ :
+    γ ▸[ 𝟙ᵐ ] t →
+    δ ▸[ 𝟙ᵐ ] u →
+    γ +ᶜ δ ▸[ 𝟙ᵐ ] f′ t u
+  ▸f′ = N.▸f′₂
+
+opaque
+
+  -- The term f is well-resourced.
+
+  ▸f : ε ▸[ 𝟙ᵐ ] f
+  ▸f = N.▸f
+
+opaque
+
+  -- A usage rule for pred′
+
+  ▸pred′ :
+    γ ▸[ m ] t →
+    γ ▸[ m ] pred′ t
+  ▸pred′ = N.▸pred′₂
+
+opaque
+
+  -- A usage rule for pred
+
+  ▸pred : ε ▸[ 𝟙ᵐ ] pred
+  ▸pred = N.▸pred

@@ -362,19 +362,18 @@ import Graded.Restrictions
 ------------------------------------------------------------------------
 -- Some examples related to some modality instances
 
-import Graded.Modality.Instances.Examples
-import Graded.Modality.Instances.Affine.Bad
-import Graded.Modality.Instances.Affine.Bad.No-dedicated-nr
-import Graded.Modality.Instances.Affine.Good
-import Graded.Modality.Instances.Affine.Good.Greatest-lower-bound
-import Graded.Modality.Instances.Linear-or-affine.Bad
-import Graded.Modality.Instances.Linear-or-affine.Bad.No-dedicated-nr
-import Graded.Modality.Instances.Linear-or-affine.Good
-import Graded.Modality.Instances.Linear-or-affine.Good.Greatest-lower-bound
-import Graded.Modality.Instances.Linearity.Bad
-import Graded.Modality.Instances.Linearity.Bad.No-dedicated-nr
-import Graded.Modality.Instances.Linearity.Good
-import Graded.Modality.Instances.Linearity.Good.Greatest-lower-bound
+import Graded.Modality.Instances.Affine.Examples.Bad.Nr
+import Graded.Modality.Instances.Affine.Examples.Bad.No-nr
+import Graded.Modality.Instances.Affine.Examples.Good.Nr
+import Graded.Modality.Instances.Affine.Examples.Good.Greatest-lower-bound
+import Graded.Modality.Instances.Linear-or-affine.Examples.Bad.Nr
+import Graded.Modality.Instances.Linear-or-affine.Examples.Bad.No-nr
+import Graded.Modality.Instances.Linear-or-affine.Examples.Good.Nr
+import Graded.Modality.Instances.Linear-or-affine.Examples.Good.Greatest-lower-bound
+import Graded.Modality.Instances.Linearity.Examples.Bad.Nr
+import Graded.Modality.Instances.Linearity.Examples.Bad.No-nr
+import Graded.Modality.Instances.Linearity.Examples.Good.Nr
+import Graded.Modality.Instances.Linearity.Examples.Good.Greatest-lower-bound
 
 ------------------------------------------------------------------------
 -- Subject reduction for modalities

@@ -233,12 +233,12 @@ opaque
 
   -- The sequence nrᵢ 𝟙 z 𝟘 is constantly equal to z
 
-  nrᵢ-const : ∀ i → nrᵢ 𝟙 z 𝟘 i ≡ z
-  nrᵢ-const 0 = refl
-  nrᵢ-const {z} (1+ i) = begin
+  nrᵢ-const₁ : ∀ i → nrᵢ 𝟙 z 𝟘 i ≡ z
+  nrᵢ-const₁ 0 = refl
+  nrᵢ-const₁ {z} (1+ i) = begin
     𝟘 + 𝟙 · nrᵢ 𝟙 z 𝟘 i ≡⟨ +-identityˡ _ ⟩
     𝟙 · nrᵢ 𝟙 z 𝟘 i     ≡⟨ ·-identityˡ _ ⟩
-    nrᵢ 𝟙 z 𝟘 i         ≡⟨ nrᵢ-const i ⟩
+    nrᵢ 𝟙 z 𝟘 i         ≡⟨ nrᵢ-const₁ i ⟩
     z                    ∎
     where
     open RPe
@@ -247,8 +247,28 @@ opaque
 
   -- The greatest lower bound of the sequence nrᵢ 𝟙 z 𝟘 is z
 
-  nrᵢ-const-GLB : Greatest-lower-bound z (nrᵢ 𝟙 z 𝟘)
-  nrᵢ-const-GLB = GLB-const (λ i → trans (nrᵢ-const i) (sym (nrᵢ-const 0)))
+  nrᵢ-const-GLB₁ : Greatest-lower-bound z (nrᵢ 𝟙 z 𝟘)
+  nrᵢ-const-GLB₁ = GLB-const (λ i → trans (nrᵢ-const₁ i) (sym (nrᵢ-const₁ 0)))
+
+opaque
+
+  -- The sequence nrᵢ 𝟘 p p is constantly equal to p
+
+  nrᵢ-const₂ : ∀ i → nrᵢ 𝟘 p p i ≡ p
+  nrᵢ-const₂ 0 = refl
+  nrᵢ-const₂ {p} (1+ i) = begin
+    p + 𝟘 · nrᵢ 𝟘 p p i ≡⟨ +-congˡ (·-zeroˡ _) ⟩
+    p + 𝟘               ≡⟨ +-identityʳ _ ⟩
+    p                   ∎
+    where
+    open RPe
+
+opaque
+
+  -- The greatest lower bound of the sequence nrᵢ 𝟘 p p is p
+
+  nrᵢ-const-GLB₂ : Greatest-lower-bound p (nrᵢ 𝟘 p p)
+  nrᵢ-const-GLB₂ = GLB-const (λ i → trans (nrᵢ-const₂ i) (sym (nrᵢ-const₂ 0)))
 
 opaque
 
