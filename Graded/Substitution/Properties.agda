@@ -409,7 +409,7 @@ wf-sgSubstₘ {γ = γ} {mos = mos} _ (x +1) = sub
 wf-wk1Substₘ : (Ψ : Substₘ m n) (σ : Subst m n)
              → Ψ ▶[ mos ] σ → wk1Substₘ Ψ ▶[ mos ] wk1Subst σ
 wf-wk1Substₘ Ψ σ Ψ▶σ x =
-  sub (wkUsage (step id) (Ψ▶σ x)) (≤ᶜ-reflexive (wk1Substₘ-app Ψ (𝟘ᶜ , x ≔ _)))
+  sub-≈ᶜ (wkUsage (step id) (Ψ▶σ x)) (wk1Substₘ-app Ψ (𝟘ᶜ , x ≔ _))
 
 opaque
 
@@ -473,8 +473,8 @@ wf-tailSubstₘ :
   {Ψ : Substₘ m n} →
   (Ψ ⊙ γ) ▶[ mos ] σ → Ψ ▶[ tailᵐ mos ] tail σ
 wf-tailSubstₘ Ψ▶σ x =
-  sub (Ψ▶σ (x +1))
-      (≤ᶜ-reflexive (≈ᶜ-sym (≈ᶜ-trans (+ᶜ-congʳ (·ᶜ-zeroˡ _)) (+ᶜ-identityˡ _))))
+  sub-≈ᶜ (Ψ▶σ (x +1))
+    (≈ᶜ-sym (≈ᶜ-trans (+ᶜ-congʳ (·ᶜ-zeroˡ _)) (+ᶜ-identityˡ _)))
 
 -- A preservation lemma for _▶[_]_.
 
@@ -485,7 +485,7 @@ wf-tailSubstₘ Ψ▶σ x =
   PE.subst (λ mo → (𝟘ᶜ ∙ ⌜ mo ⌝) <* Ψ ▸[ mo ] _) (mos₁≡mos₂ x0) (Ψ▶ x0)
 ▶-cong {mos₁ = mos₁} {mos₂ = mos₂} (Ψ ⊙ γ) mos₁≡mos₂ Ψ⊙▶ (x +1) = sub
   (▶-cong Ψ (λ x → mos₁≡mos₂ (x +1))
-    (λ x → sub (Ψ⊙▶ (x +1)) (≤ᶜ-reflexive (≈ᶜ-sym (lemma mos₁ x))))
+    (λ x → sub-≈ᶜ (Ψ⊙▶ (x +1)) (≈ᶜ-sym (lemma mos₁ x)))
     x)
   (≤ᶜ-reflexive (lemma mos₂ x))
   where
@@ -503,7 +503,7 @@ wf-tailSubstₘ Ψ▶σ x =
   γ ≤ᶜ δ → Ψ ▶[ ⌞ γ ⌟ᶜ ] σ → Ψ ▶[ ⌞ δ ⌟ᶜ ] σ
 ▶-≤ Ψ γ≤δ Ψ▶ x = sub
   (▸-≤ (lookup-monotone _ γ≤δ)
-     (sub (Ψ▶ x) (≤ᶜ-reflexive (·ᶜ-<*-𝟘ᶜ,≔𝟙 Ψ))))
+     (sub-≈ᶜ (Ψ▶ x) (·ᶜ-<*-𝟘ᶜ,≔𝟙 Ψ)))
   (≤ᶜ-reflexive (≈ᶜ-sym (·ᶜ-<*-𝟘ᶜ,≔𝟙 Ψ)))
 
 -- A preservation lemma for _▶[_]_ that holds if 𝟘ᵐ is not allowed.
@@ -533,7 +533,7 @@ wf-tailSubstₘ Ψ▶σ x =
                                                                 (lookup-distrib-·ᶜ γ _ _) ⟩
                (𝟘ᶜ , x ≔ ⌜ ⌞ p ·ᶜ γ ⌟ᶜ x ⌝) <* Ψ         ∎))
        of λ where
-         (inj₂ ▸γx) → sub ▸γx (≤ᶜ-reflexive (≈ᶜ-sym (·ᶜ-<*-𝟘ᶜ,≔𝟙 Ψ)))
+         (inj₂ ▸γx) → sub-≈ᶜ ▸γx (≈ᶜ-sym (·ᶜ-<*-𝟘ᶜ,≔𝟙 Ψ))
          (inj₁ ▸p)  → lemma _ _ _ (≢𝟘→⌞⌟≡𝟙ᵐ p≢𝟘) ▸p)
   (λ not-ok → inj₂ (▶-without-𝟘ᵐ Ψ not-ok Ψ▶))
   where
@@ -650,7 +650,7 @@ wf-tailSubstₘ Ψ▶σ x =
   Ψ ▶[ ⌞ γ <* Φ ⌟ᶜ ] σ →
   Ψ ▶[ ⌞ (𝟘ᶜ , x ≔ γ ⟨ x ⟩) <* Φ ⌟ᶜ ] σ
 ▶-⌞<*⌟ {γ = γ} {x = x} Ψ {Φ = Φ} Ψ▶ y = sub
-  (▸-⌞<*⌟ {γ = γ} Φ (sub (Ψ▶ y) (≤ᶜ-reflexive (·ᶜ-<*-𝟘ᶜ,≔𝟙 Ψ))))
+  (▸-⌞<*⌟ {γ = γ} Φ (sub-≈ᶜ (Ψ▶ y) (·ᶜ-<*-𝟘ᶜ,≔𝟙 Ψ)))
   (≤ᶜ-reflexive (≈ᶜ-sym (·ᶜ-<*-𝟘ᶜ,≔𝟙 Ψ)))
 
 -- An inversion lemma for _▶[_]_ related to the meet operation.
@@ -985,27 +985,27 @@ mutual
     Ψ ▶[ ⌞ γ ⌟ᶜ ] σ → γ ▸[ mo ] t → substₘ Ψ γ ▸[ mo ] t [ σ ]
 
   substₘ-lemma Ψ _ Uₘ =
-    sub Uₘ (≤ᶜ-reflexive (<*-zeroˡ Ψ))
+    sub-≈ᶜ Uₘ (<*-zeroˡ Ψ)
 
   substₘ-lemma Ψ _ ℕₘ =
-    sub ℕₘ (≤ᶜ-reflexive (<*-zeroˡ Ψ))
+    sub-≈ᶜ ℕₘ (<*-zeroˡ Ψ)
 
   substₘ-lemma Ψ _ Emptyₘ =
-    sub Emptyₘ (≤ᶜ-reflexive (<*-zeroˡ Ψ))
+    sub-≈ᶜ Emptyₘ (<*-zeroˡ Ψ)
 
   substₘ-lemma Ψ _ Unitₘ =
-    sub Unitₘ (≤ᶜ-reflexive (<*-zeroˡ Ψ))
+    sub-≈ᶜ Unitₘ (<*-zeroˡ Ψ)
 
   substₘ-lemma Ψ Ψ▶σ (ΠΣₘ {γ = γ} {δ = δ} γ▸F δ▸G) = sub
     (ΠΣₘ (substₘ-lemma Ψ (▶-⌞+ᶜ⌟ˡ Ψ γ Ψ▶σ) γ▸F)
-       (sub (substₘ-lemma (liftSubstₘ Ψ)
+       (sub-≈ᶜ (substₘ-lemma (liftSubstₘ Ψ)
                (▶-cong (liftSubstₘ Ψ)
                   (λ where
                      (_ +1) → PE.refl
                      x0     → PE.refl)
                   (wf-liftSubstₘ (▶-⌞+ᶜ⌟ʳ Ψ γ Ψ▶σ)))
                δ▸G)
-          (≤ᶜ-reflexive (≈ᶜ-sym (liftSubstₘ-app Ψ δ _)))))
+          (≈ᶜ-sym (liftSubstₘ-app Ψ δ _))))
     (≤ᶜ-reflexive (<*-distrib-+ᶜ Ψ γ δ))
 
   substₘ-lemma {σ = σ} {mo = mo} Ψ Ψ▶σ (var {x = x}) = sub
@@ -1020,7 +1020,7 @@ mutual
        (𝟘ᶜ , x ≔ ⌜ ⌞ (𝟘ᶜ , x ≔ ⌜ mo ⌝) ⟨ x ⟩ ⌟ ⌝) <* Ψ  ∎)
 
   substₘ-lemma {mo = mo} Ψ Ψ▶σ (lamₘ {γ = γ} {p = p} γ▸t) = lamₘ
-    (sub (substₘ-lemma (liftSubstₘ Ψ)
+    (sub-≈ᶜ (substₘ-lemma (liftSubstₘ Ψ)
             (▶-cong (liftSubstₘ Ψ)
                (λ where
                   (_ +1) → PE.refl
@@ -1029,7 +1029,7 @@ mutual
                     ⌞ ⌜ mo ⌝ · p ⌟  ∎)
                (wf-liftSubstₘ Ψ▶σ))
             γ▸t)
-       (≤ᶜ-reflexive (≈ᶜ-sym (liftSubstₘ-app Ψ γ _))))
+       (≈ᶜ-sym (liftSubstₘ-app Ψ γ _)))
     where
     open Tools.Reasoning.PropositionalEquality
 
@@ -1148,7 +1148,7 @@ mutual
          r ·ᶜ θ +ᶜ δ <* Ψ         ∎)
 
   substₘ-lemma Ψ _ zeroₘ =
-    sub zeroₘ (≤ᶜ-reflexive (<*-zeroˡ Ψ))
+    sub-≈ᶜ zeroₘ (<*-zeroˡ Ψ)
 
   substₘ-lemma Ψ Ψ▶σ (sucₘ γ▸t) =
     sucₘ (substₘ-lemma Ψ Ψ▶σ γ▸t)
@@ -1666,8 +1666,8 @@ subst-calc-correct′ {mos} {σ} (Ψ ⊙ γ) Ψ▶σ x0 = sub
   where
   open Tools.Reasoning.PartialOrder ≤ᶜ-poset
 subst-calc-correct′ (Ψ ⊙ γ) Ψ▶σ (x +1) =
-  sub (subst-calc-correct′ Ψ (wf-tailSubstₘ Ψ▶σ) x)
-      (≤ᶜ-reflexive (≈ᶜ-trans (+ᶜ-congʳ (·ᶜ-zeroˡ _)) (+ᶜ-identityˡ _)))
+  sub-≈ᶜ (subst-calc-correct′ Ψ (wf-tailSubstₘ Ψ▶σ) x)
+    (≈ᶜ-trans (+ᶜ-congʳ (·ᶜ-zeroˡ _)) (+ᶜ-identityˡ _))
 
 -- If there is a dedicated nr function, and either strong unit types
 -- are not allowed to be used as sinks or 𝟘 is a greatest grade, then

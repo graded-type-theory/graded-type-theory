@@ -326,14 +326,14 @@ opaque
       inhabited-consistent (⊢ˢʷ∷-sgSubst (rflⱼ (zeroⱼ ε)))
     , Jⱼ′ (ℕⱼ (J-motive-context ([]ⱼ ([]-cong→Erased ok) (zeroⱼ ⊢Id))))
         (zeroⱼ ⊢Id) ([]-congⱼ′ ok (var ⊢Id here))
-    , sub
+    , sub-≈ᶜ
         (Jₘ-generalised (▸Erased s ℕₘ) (▸[] s zeroₘ)
            (let open Tools.Reasoning.PartialOrder ≤ᶜ-poset in
             sub ℕₘ $ begin
               𝟘ᶜ ∙ 𝟙 · 𝟘 ∙ 𝟙 · 𝟘  ≈⟨ ≈ᶜ-refl ∙ ·-zeroʳ _ ∙ ·-zeroʳ _ ⟩
               𝟘ᶜ                  ∎)
            zeroₘ (▸[] s zeroₘ) ([]-congₘ ℕₘ zeroₘ zeroₘ var ok′))
-        (≤ᶜ-reflexive (≈ᶜ-sym ω·ᶜ+ᶜ⁵𝟘ᶜ))
+        (≈ᶜ-sym ω·ᶜ+ᶜ⁵𝟘ᶜ)
     , (λ where
          (0 , whred J⇒ ⇨ˢ _) →
            whnfRedTerm J⇒ (ne (Jₙ ([]-congₙ (var _))))
