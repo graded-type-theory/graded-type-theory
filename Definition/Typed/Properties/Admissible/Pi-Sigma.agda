@@ -58,7 +58,8 @@ opaque
   ΠΣ-cong′ F≡H G≡E ok = ΠΣ-cong (inversion-U-Level (wf-⊢≡∷ F≡H .proj₁)) F≡H G≡E ok
 
 ------------------------------------------------------------------------
--- Heterogeneous variants of Π and Σ that take types in different universes
+-- Heterogeneous variants of Π and Σ that take types in different universes.
+-- See also Definition.Typed.Properties.Admissible.Pi.
 
 ΠΣʰ : (b : BinderMode) (p q : M) (l₁ l₂ A : Term n) (B : Term (1+ n)) → Term n
 ΠΣʰ b p q l₁ l₂ A B = ΠΣ⟨ b ⟩ p , q ▷ Lift l₂ A ▹ Lift (wk1 l₁) (lower₀ B)
