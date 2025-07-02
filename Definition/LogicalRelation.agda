@@ -253,21 +253,21 @@ abstract
 
 opaque mutual
 
-  ↑ᵘ′_ : Γ ⊩Level t ∷Level → Nat
-  ↑ᵘ′ [t] = ↑ᵘ′-prop ([t] ._⊩Level_∷Level.prop)
+  ↑ⁿ_ : Γ ⊩Level t ∷Level → Nat
+  ↑ⁿ [t] = ↑ⁿ-prop ([t] ._⊩Level_∷Level.prop)
 
-  ↑ᵘ′-prop : Level-prop Γ t → Nat
-  ↑ᵘ′-prop zeroᵘᵣ    = 0
-  ↑ᵘ′-prop (sucᵘᵣ k) = 1+ (↑ᵘ′ k)
-  ↑ᵘ′-prop (neLvl n) = ↑ᵘ′-neprop n
+  ↑ⁿ-prop : Level-prop Γ t → Nat
+  ↑ⁿ-prop zeroᵘᵣ    = 0
+  ↑ⁿ-prop (sucᵘᵣ k) = 1+ (↑ⁿ k)
+  ↑ⁿ-prop (neLvl n) = ↑ⁿ-neprop n
 
-  ↑ᵘ′-neprop : neLevel-prop Γ t → Nat
-  ↑ᵘ′-neprop (maxᵘˡᵣ x₁ x₂) = ↑ᵘ′-neprop x₁ ⊔ ↑ᵘ′ x₂
-  ↑ᵘ′-neprop (maxᵘʳᵣ x₁ x₂) = 1+ (↑ᵘ′ x₁) ⊔ ↑ᵘ′-neprop x₂
-  ↑ᵘ′-neprop (ne _)         = ↑ᵘ-neutral
+  ↑ⁿ-neprop : neLevel-prop Γ t → Nat
+  ↑ⁿ-neprop (maxᵘˡᵣ x₁ x₂) = ↑ⁿ-neprop x₁ ⊔ ↑ⁿ x₂
+  ↑ⁿ-neprop (maxᵘʳᵣ x₁ x₂) = 1+ (↑ⁿ x₁) ⊔ ↑ⁿ-neprop x₂
+  ↑ⁿ-neprop (ne _)         = ↑ᵘ-neutral
 
 ↑ᵘ_ : Γ ⊩Level t ∷Level → Universe-level
-↑ᵘ [t] = 0ᵘ+ ↑ᵘ′ [t]
+↑ᵘ [t] = 0ᵘ+ ↑ⁿ [t]
 
 -- Reducibility of natural numbers:
 

@@ -106,63 +106,63 @@ mutual
   wk[neLevel]-prop [ρ] (ne x) = ne (wkEqTermNe [ρ] x)
 
 opaque
-  unfolding ↑ᵘ′_
+  unfolding ↑ⁿ_
 
   -- Weakening preserves level reflection.
 
   mutual
-    wk-↑ᵘ′
+    wk-↑ⁿ
       : ([ρ] : ρ ∷ʷ Δ ⊇ Γ)
       → (t≡u : Γ ⊩Level t ∷Level)
       → (wk-t≡u′ : Δ ⊩Level t′ ∷Level)
       → t′ PE.≡ U.wk ρ t
-      → ↑ᵘ′ wk-t≡u′ PE.≡ ↑ᵘ′ t≡u
-    wk-↑ᵘ′ {ρ} [ρ] (Levelₜ t d prop) (Levelₜ t′ d′ prop′) PE.refl =
+      → ↑ⁿ wk-t≡u′ PE.≡ ↑ⁿ t≡u
+    wk-↑ⁿ {ρ} [ρ] (Levelₜ t d prop) (Levelₜ t′ d′ prop′) PE.refl =
       case whrDet*Term (d′ , level prop′) (wkRed*Term [ρ] d , wkWhnf ρ (level prop)) of λ {
         PE.refl →
-      wk-↑ᵘ′-prop [ρ] prop prop′ PE.refl }
+      wk-↑ⁿ-prop [ρ] prop prop′ PE.refl }
 
-    wk-↑ᵘ′-prop
+    wk-↑ⁿ-prop
       : ([ρ] : ρ ∷ʷ Δ ⊇ Γ)
       → (t≡u : Level-prop Γ t)
       → (wk-t≡u : Level-prop Δ t′)
       → t′ PE.≡ U.wk ρ t
-      → ↑ᵘ′-prop wk-t≡u PE.≡ ↑ᵘ′-prop t≡u
-    wk-↑ᵘ′-prop [ρ] zeroᵘᵣ y PE.refl = ↑ᵘ′-prop-zeroᵘ y
-    wk-↑ᵘ′-prop [ρ] (sucᵘᵣ x) y PE.refl =
-      let y₁ , y≡ = ↑ᵘ′-prop-sucᵘ y
-      in PE.trans y≡ (PE.cong 1+ (wk-↑ᵘ′ [ρ] x y₁ PE.refl))
-    wk-↑ᵘ′-prop [ρ] (neLvl x) zeroᵘᵣ p =
+      → ↑ⁿ-prop wk-t≡u PE.≡ ↑ⁿ-prop t≡u
+    wk-↑ⁿ-prop [ρ] zeroᵘᵣ y PE.refl = ↑ⁿ-prop-zeroᵘ y
+    wk-↑ⁿ-prop [ρ] (sucᵘᵣ x) y PE.refl =
+      let y₁ , y≡ = ↑ⁿ-prop-sucᵘ y
+      in PE.trans y≡ (PE.cong 1+ (wk-↑ⁿ [ρ] x y₁ PE.refl))
+    wk-↑ⁿ-prop [ρ] (neLvl x) zeroᵘᵣ p =
       case wk-zeroᵘ (PE.sym p) of λ { PE.refl →
       case nelevel x of λ { (ne ()) } }
-    wk-↑ᵘ′-prop [ρ] (neLvl x) (sucᵘᵣ _) p =
+    wk-↑ⁿ-prop [ρ] (neLvl x) (sucᵘᵣ _) p =
       case wk-sucᵘ (PE.sym p) of λ { (_ , PE.refl , PE.refl) →
       case nelevel x of λ { (ne ()) } }
-    wk-↑ᵘ′-prop [ρ] (neLvl x) (neLvl y) PE.refl = wk-↑ᵘ′-neprop [ρ] x y PE.refl
+    wk-↑ⁿ-prop [ρ] (neLvl x) (neLvl y) PE.refl = wk-↑ⁿ-neprop [ρ] x y PE.refl
 
-    wk-↑ᵘ′-neprop
+    wk-↑ⁿ-neprop
       : ([ρ] : ρ ∷ʷ Δ ⊇ Γ)
       → (t≡u : neLevel-prop Γ t)
       → (wk-t≡u : neLevel-prop Δ t′)
       → t′ PE.≡ U.wk ρ t
-      → ↑ᵘ′-neprop wk-t≡u PE.≡ ↑ᵘ′-neprop t≡u
-    wk-↑ᵘ′-neprop [ρ] (maxᵘˡᵣ t≡u x) (maxᵘˡᵣ wk-t≡u x₁) PE.refl =
-      PE.cong₂ _⊔_ (wk-↑ᵘ′-neprop [ρ] t≡u wk-t≡u PE.refl) (wk-↑ᵘ′ [ρ] x x₁ PE.refl)
-    wk-↑ᵘ′-neprop [ρ] (maxᵘʳᵣ x t≡u) (maxᵘʳᵣ x₁ wk-t≡u) PE.refl =
-      PE.cong₂ _⊔_ (PE.cong 1+ (wk-↑ᵘ′ [ρ] x x₁ PE.refl)) (wk-↑ᵘ′-neprop [ρ] t≡u wk-t≡u PE.refl)
-    wk-↑ᵘ′-neprop [ρ] (ne _) (ne _) PE.refl = PE.refl
-    wk-↑ᵘ′-neprop [ρ] (maxᵘˡᵣ t≡u x) (maxᵘʳᵣ x₁ wk-t≡u) p =
+      → ↑ⁿ-neprop wk-t≡u PE.≡ ↑ⁿ-neprop t≡u
+    wk-↑ⁿ-neprop [ρ] (maxᵘˡᵣ t≡u x) (maxᵘˡᵣ wk-t≡u x₁) PE.refl =
+      PE.cong₂ _⊔_ (wk-↑ⁿ-neprop [ρ] t≡u wk-t≡u PE.refl) (wk-↑ⁿ [ρ] x x₁ PE.refl)
+    wk-↑ⁿ-neprop [ρ] (maxᵘʳᵣ x t≡u) (maxᵘʳᵣ x₁ wk-t≡u) PE.refl =
+      PE.cong₂ _⊔_ (PE.cong 1+ (wk-↑ⁿ [ρ] x x₁ PE.refl)) (wk-↑ⁿ-neprop [ρ] t≡u wk-t≡u PE.refl)
+    wk-↑ⁿ-neprop [ρ] (ne _) (ne _) PE.refl = PE.refl
+    wk-↑ⁿ-neprop [ρ] (maxᵘˡᵣ t≡u x) (maxᵘʳᵣ x₁ wk-t≡u) p =
       case maxᵘ-PE-injectivity p of λ { (q , PE.refl) →
       case wk-sucᵘ (PE.sym q) of λ { (_ , PE.refl , PE.refl) →
       case nelevel t≡u of λ { (ne ()) } } }
-    wk-↑ᵘ′-neprop [ρ] (maxᵘˡᵣ t≡u x) (ne (neNfₜ₌ _ () neM k≡m)) PE.refl
-    wk-↑ᵘ′-neprop [ρ] (maxᵘʳᵣ x t≡u) (maxᵘˡᵣ wk-t≡u x₁) PE.refl =
+    wk-↑ⁿ-neprop [ρ] (maxᵘˡᵣ t≡u x) (ne (neNfₜ₌ _ () neM k≡m)) PE.refl
+    wk-↑ⁿ-neprop [ρ] (maxᵘʳᵣ x t≡u) (maxᵘˡᵣ wk-t≡u x₁) PE.refl =
       case nelevel wk-t≡u of λ { (ne ()) }
-    wk-↑ᵘ′-neprop [ρ] (maxᵘʳᵣ x t≡u) (ne (neNfₜ₌ _ () neM k≡m)) PE.refl
-    wk-↑ᵘ′-neprop [ρ] (ne (neNfₜ₌ _ neK _ _)) (maxᵘˡᵣ wk-t≡u x₁) p =
+    wk-↑ⁿ-neprop [ρ] (maxᵘʳᵣ x t≡u) (ne (neNfₜ₌ _ () neM k≡m)) PE.refl
+    wk-↑ⁿ-neprop [ρ] (ne (neNfₜ₌ _ neK _ _)) (maxᵘˡᵣ wk-t≡u x₁) p =
       case wk-maxᵘ (PE.sym p) of λ { (_ , _ , PE.refl , _ , _) →
       case neK of λ () }
-    wk-↑ᵘ′-neprop [ρ] (ne (neNfₜ₌ _ neK _ _)) (maxᵘʳᵣ x₁ wk-t≡u) p =
+    wk-↑ⁿ-neprop [ρ] (ne (neNfₜ₌ _ neK _ _)) (maxᵘʳᵣ x₁ wk-t≡u) p =
       case wk-maxᵘ (PE.sym p) of λ { (_ , _ , PE.refl , _ , _) →
       case neK of λ () }
 
@@ -172,7 +172,7 @@ opaque
     → {wk-t≡u′ : Δ ⊩Level t′ ∷Level}
     → t′ PE.≡ U.wk ρ t
     → ↑ᵘ wk-t≡u′ PE.≡ ↑ᵘ t≡u
-  wk-↑ᵘ [ρ] {t≡u} {wk-t≡u′} eq = PE.cong 0ᵘ+_ (wk-↑ᵘ′ [ρ] t≡u wk-t≡u′ eq)
+  wk-↑ᵘ [ρ] {t≡u} {wk-t≡u′} eq = PE.cong 0ᵘ+_ (wk-↑ⁿ [ρ] t≡u wk-t≡u′ eq)
 
 -- Weakening of reducible natural numbers
 

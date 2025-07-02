@@ -744,100 +744,100 @@ opaque
 -- Irrelevance of the reducibility proof for level reflection.
 
 opaque
-  unfolding ↑ᵘ′_
+  unfolding ↑ⁿ_
 
   mutual
-    ↑ᵘ′-irrelevance
+    ↑ⁿ-irrelevance
       : ∀ {t} ([t] : Γ ⊩Level t ∷Level) ([t]′ : Γ ⊩Level t ∷Level)
-      → ↑ᵘ′ [t] PE.≡ ↑ᵘ′ [t]′
-    ↑ᵘ′-irrelevance (Levelₜ _ t⇒ [t]) (Levelₜ _ t⇒′ [t]′) =
+      → ↑ⁿ [t] PE.≡ ↑ⁿ [t]′
+    ↑ⁿ-irrelevance (Levelₜ _ t⇒ [t]) (Levelₜ _ t⇒′ [t]′) =
       case whrDet*Term (t⇒ , level [t]) (t⇒′ , level [t]′) of λ {
         PE.refl →
-      ↑ᵘ′-prop-irrelevance [t] [t]′ }
+      ↑ⁿ-prop-irrelevance [t] [t]′ }
 
-    ↑ᵘ′-prop-irrelevance
+    ↑ⁿ-prop-irrelevance
       : ∀ {t} ([t] : Level-prop Γ t) ([t]′ : Level-prop Γ t)
-      → ↑ᵘ′-prop [t] PE.≡ ↑ᵘ′-prop [t]′
-    ↑ᵘ′-prop-irrelevance zeroᵘᵣ zeroᵘᵣ = PE.refl
-    ↑ᵘ′-prop-irrelevance (sucᵘᵣ x) (sucᵘᵣ y) = PE.cong 1+ (↑ᵘ′-irrelevance x y)
-    ↑ᵘ′-prop-irrelevance (neLvl x) (neLvl y) = ↑ᵘ′-neprop-irrelevance x y
-    ↑ᵘ′-prop-irrelevance zeroᵘᵣ (neLvl (ne (neNfₜ₌ _ () neM k≡m)))
-    ↑ᵘ′-prop-irrelevance (sucᵘᵣ x) (neLvl (ne (neNfₜ₌ _ () neM k≡m)))
-    ↑ᵘ′-prop-irrelevance (neLvl (ne (neNfₜ₌ _ () neM k≡m))) zeroᵘᵣ
-    ↑ᵘ′-prop-irrelevance (neLvl (ne (neNfₜ₌ _ () neM k≡m))) (sucᵘᵣ x₁)
+      → ↑ⁿ-prop [t] PE.≡ ↑ⁿ-prop [t]′
+    ↑ⁿ-prop-irrelevance zeroᵘᵣ zeroᵘᵣ = PE.refl
+    ↑ⁿ-prop-irrelevance (sucᵘᵣ x) (sucᵘᵣ y) = PE.cong 1+ (↑ⁿ-irrelevance x y)
+    ↑ⁿ-prop-irrelevance (neLvl x) (neLvl y) = ↑ⁿ-neprop-irrelevance x y
+    ↑ⁿ-prop-irrelevance zeroᵘᵣ (neLvl (ne (neNfₜ₌ _ () neM k≡m)))
+    ↑ⁿ-prop-irrelevance (sucᵘᵣ x) (neLvl (ne (neNfₜ₌ _ () neM k≡m)))
+    ↑ⁿ-prop-irrelevance (neLvl (ne (neNfₜ₌ _ () neM k≡m))) zeroᵘᵣ
+    ↑ⁿ-prop-irrelevance (neLvl (ne (neNfₜ₌ _ () neM k≡m))) (sucᵘᵣ x₁)
 
-    ↑ᵘ′-neprop-irrelevance
+    ↑ⁿ-neprop-irrelevance
       : ∀ {t} ([t] : neLevel-prop Γ t) ([t]′ : neLevel-prop Γ t)
-      → ↑ᵘ′-neprop [t] PE.≡ ↑ᵘ′-neprop [t]′
-    ↑ᵘ′-neprop-irrelevance (maxᵘˡᵣ x x₁) (maxᵘˡᵣ y x₂) =
-      PE.cong₂ _⊔_ (↑ᵘ′-neprop-irrelevance x y) (↑ᵘ′-irrelevance x₁ x₂)
-    ↑ᵘ′-neprop-irrelevance (maxᵘʳᵣ x x₁) (maxᵘʳᵣ x₂ y) =
-      PE.cong₂ _⊔_ (PE.cong 1+ (↑ᵘ′-irrelevance x x₂)) (↑ᵘ′-neprop-irrelevance x₁ y)
-    ↑ᵘ′-neprop-irrelevance (ne x) (ne x₁) = PE.refl
-    ↑ᵘ′-neprop-irrelevance (maxᵘˡᵣ x x₁) (maxᵘʳᵣ x₂ y) = case nelevel x of λ { (ne ()) }
-    ↑ᵘ′-neprop-irrelevance (maxᵘˡᵣ x x₁) (ne (neNfₜ₌ _ () neM k≡m))
-    ↑ᵘ′-neprop-irrelevance (maxᵘʳᵣ x x₁) (maxᵘˡᵣ y x₂) = case nelevel y of λ { (ne ()) }
-    ↑ᵘ′-neprop-irrelevance (maxᵘʳᵣ x x₁) (ne (neNfₜ₌ _ () neM k≡m))
-    ↑ᵘ′-neprop-irrelevance (ne (neNfₜ₌ _ () neM k≡m)) (maxᵘˡᵣ y x₁)
-    ↑ᵘ′-neprop-irrelevance (ne (neNfₜ₌ _ () neM k≡m)) (maxᵘʳᵣ x₁ y)
+      → ↑ⁿ-neprop [t] PE.≡ ↑ⁿ-neprop [t]′
+    ↑ⁿ-neprop-irrelevance (maxᵘˡᵣ x x₁) (maxᵘˡᵣ y x₂) =
+      PE.cong₂ _⊔_ (↑ⁿ-neprop-irrelevance x y) (↑ⁿ-irrelevance x₁ x₂)
+    ↑ⁿ-neprop-irrelevance (maxᵘʳᵣ x x₁) (maxᵘʳᵣ x₂ y) =
+      PE.cong₂ _⊔_ (PE.cong 1+ (↑ⁿ-irrelevance x x₂)) (↑ⁿ-neprop-irrelevance x₁ y)
+    ↑ⁿ-neprop-irrelevance (ne x) (ne x₁) = PE.refl
+    ↑ⁿ-neprop-irrelevance (maxᵘˡᵣ x x₁) (maxᵘʳᵣ x₂ y) = case nelevel x of λ { (ne ()) }
+    ↑ⁿ-neprop-irrelevance (maxᵘˡᵣ x x₁) (ne (neNfₜ₌ _ () neM k≡m))
+    ↑ⁿ-neprop-irrelevance (maxᵘʳᵣ x x₁) (maxᵘˡᵣ y x₂) = case nelevel y of λ { (ne ()) }
+    ↑ⁿ-neprop-irrelevance (maxᵘʳᵣ x x₁) (ne (neNfₜ₌ _ () neM k≡m))
+    ↑ⁿ-neprop-irrelevance (ne (neNfₜ₌ _ () neM k≡m)) (maxᵘˡᵣ y x₁)
+    ↑ⁿ-neprop-irrelevance (ne (neNfₜ₌ _ () neM k≡m)) (maxᵘʳᵣ x₁ y)
 
 ↑ᵘ-irrelevance
   : ∀ {t} {[t] : Γ ⊩Level t ∷Level} {[t]′ : Γ ⊩Level t ∷Level}
   → ↑ᵘ [t] PE.≡ ↑ᵘ [t]′
-↑ᵘ-irrelevance {[t]} {[t]′} = PE.cong 0ᵘ+_ (↑ᵘ′-irrelevance [t] [t]′)
+↑ᵘ-irrelevance {[t]} {[t]′} = PE.cong 0ᵘ+_ (↑ⁿ-irrelevance [t] [t]′)
 
 opaque
-  unfolding ↑ᵘ′_
+  unfolding ↑ⁿ_
 
   -- Level reflection sends zeroᵘ to 0ᵘ.
 
-  ↑ᵘ′-prop-zeroᵘ : ([0] : Level-prop Γ zeroᵘ) → ↑ᵘ′-prop [0] PE.≡ 0
-  ↑ᵘ′-prop-zeroᵘ zeroᵘᵣ = PE.refl
-  ↑ᵘ′-prop-zeroᵘ (neLvl n) = case nelevel n of λ { (ne ()) }
+  ↑ⁿ-prop-zeroᵘ : ([0] : Level-prop Γ zeroᵘ) → ↑ⁿ-prop [0] PE.≡ 0
+  ↑ⁿ-prop-zeroᵘ zeroᵘᵣ = PE.refl
+  ↑ⁿ-prop-zeroᵘ (neLvl n) = case nelevel n of λ { (ne ()) }
 
-  ↑ᵘ′-zeroᵘ : ([0] : Γ ⊩Level zeroᵘ ∷Level) → ↑ᵘ′ [0] PE.≡ 0
-  ↑ᵘ′-zeroᵘ (Levelₜ _ 0⇒ prop) with whnfRed*Term 0⇒ zeroᵘₙ
-  ... | PE.refl = ↑ᵘ′-prop-zeroᵘ prop
+  ↑ⁿ-zeroᵘ : ([0] : Γ ⊩Level zeroᵘ ∷Level) → ↑ⁿ [0] PE.≡ 0
+  ↑ⁿ-zeroᵘ (Levelₜ _ 0⇒ prop) with whnfRed*Term 0⇒ zeroᵘₙ
+  ... | PE.refl = ↑ⁿ-prop-zeroᵘ prop
 
   ↑ᵘ-zeroᵘ : ([0] : Γ ⊩Level zeroᵘ ∷Level) → ↑ᵘ [0] PE.≡ 0ᵘ
-  ↑ᵘ-zeroᵘ [0] = PE.cong 0ᵘ+_ (↑ᵘ′-zeroᵘ [0])
+  ↑ᵘ-zeroᵘ [0] = PE.cong 0ᵘ+_ (↑ⁿ-zeroᵘ [0])
 
 opaque
-  unfolding ↑ᵘ′_ ⊩sucᵘ
+  unfolding ↑ⁿ_ ⊩sucᵘ
 
   -- Level reflection sends sucᵘ to 1+.
 
-  ↑ᵘ′-prop-sucᵘ
+  ↑ⁿ-prop-sucᵘ
     : ∀ {t} ([t+1] : Level-prop Γ (sucᵘ t))
-    → ∃ λ ([t] : Γ ⊩Level t ∷Level) → ↑ᵘ′-prop [t+1] PE.≡ 1+ (↑ᵘ′ [t])
-  ↑ᵘ′-prop-sucᵘ (sucᵘᵣ x) = x , PE.refl
-  ↑ᵘ′-prop-sucᵘ (neLvl n) = case nelevel n of λ { (ne ()) }
+    → ∃ λ ([t] : Γ ⊩Level t ∷Level) → ↑ⁿ-prop [t+1] PE.≡ 1+ (↑ⁿ [t])
+  ↑ⁿ-prop-sucᵘ (sucᵘᵣ x) = x , PE.refl
+  ↑ⁿ-prop-sucᵘ (neLvl n) = case nelevel n of λ { (ne ()) }
 
-  ↑ᵘ′-sucᵘ
+  ↑ⁿ-sucᵘ
     : ∀ {t} ([t] : Γ ⊩Level t ∷Level) ([t+1] : Γ ⊩Level sucᵘ t ∷Level)
-    → ↑ᵘ′ [t+1] PE.≡ 1+ (↑ᵘ′ [t])
-  ↑ᵘ′-sucᵘ [t]@record{} [t+1] = ↑ᵘ′-irrelevance [t+1] (⊩sucᵘ [t])
+    → ↑ⁿ [t+1] PE.≡ 1+ (↑ⁿ [t])
+  ↑ⁿ-sucᵘ [t]@record{} [t+1] = ↑ⁿ-irrelevance [t+1] (⊩sucᵘ [t])
 
 opaque
-  unfolding ↑ᵘ′_ ⊩maxᵘ
+  unfolding ↑ⁿ_ ⊩maxᵘ
 
   -- Level reflection sends maxᵘ to ⊔ᵘ.
 
-  ↑ᵘ′-maxᵘ :
+  ↑ⁿ-maxᵘ :
     ([t] : Γ ⊩Level t ∷Level) →
     ([u] : Γ ⊩Level u ∷Level) →
-    ↑ᵘ′ ⊩maxᵘ [t] [u] PE.≡ ↑ᵘ′ [t] ⊔ ↑ᵘ′ [u]
-  ↑ᵘ′-maxᵘ [t]@(Levelₜ t′ t⇒ zeroᵘᵣ) [u]@(Levelₜ u′ u⇒ propu) = PE.refl
-  ↑ᵘ′-maxᵘ [t]@(Levelₜ t′ t⇒ (sucᵘᵣ x)) [u]@(Levelₜ u′ u⇒ zeroᵘᵣ) = PE.refl
-  ↑ᵘ′-maxᵘ [t]@(Levelₜ t′ t⇒ (sucᵘᵣ x)) [u]@(Levelₜ u′ u⇒ (sucᵘᵣ x₁)) = PE.cong 1+ (↑ᵘ′-maxᵘ x x₁)
-  ↑ᵘ′-maxᵘ [t]@(Levelₜ t′ t⇒ (sucᵘᵣ x)) [u]@(Levelₜ u′ u⇒ (neLvl x₁)) = PE.refl
-  ↑ᵘ′-maxᵘ [t]@(Levelₜ t′ t⇒ (neLvl x)) [u]@(Levelₜ u′ u⇒ propu) = PE.refl
+    ↑ⁿ ⊩maxᵘ [t] [u] PE.≡ ↑ⁿ [t] ⊔ ↑ⁿ [u]
+  ↑ⁿ-maxᵘ [t]@(Levelₜ t′ t⇒ zeroᵘᵣ) [u]@(Levelₜ u′ u⇒ propu) = PE.refl
+  ↑ⁿ-maxᵘ [t]@(Levelₜ t′ t⇒ (sucᵘᵣ x)) [u]@(Levelₜ u′ u⇒ zeroᵘᵣ) = PE.refl
+  ↑ⁿ-maxᵘ [t]@(Levelₜ t′ t⇒ (sucᵘᵣ x)) [u]@(Levelₜ u′ u⇒ (sucᵘᵣ x₁)) = PE.cong 1+ (↑ⁿ-maxᵘ x x₁)
+  ↑ⁿ-maxᵘ [t]@(Levelₜ t′ t⇒ (sucᵘᵣ x)) [u]@(Levelₜ u′ u⇒ (neLvl x₁)) = PE.refl
+  ↑ⁿ-maxᵘ [t]@(Levelₜ t′ t⇒ (neLvl x)) [u]@(Levelₜ u′ u⇒ propu) = PE.refl
 
   ↑ᵘ-maxᵘ :
     ([t] : Γ ⊩Level t ∷Level) →
     ([u] : Γ ⊩Level u ∷Level) →
     ↑ᵘ ⊩maxᵘ [t] [u] PE.≡ ↑ᵘ [t] ⊔ᵘ ↑ᵘ [u]
-  ↑ᵘ-maxᵘ [t] [u] = PE.cong 0ᵘ+_ (↑ᵘ′-maxᵘ [t] [u])
+  ↑ᵘ-maxᵘ [t] [u] = PE.cong 0ᵘ+_ (↑ⁿ-maxᵘ [t] [u])
 
 opaque
 
@@ -852,8 +852,8 @@ opaque
 
   <′-sucᵘ
     : ∀ {t} ([t] : Γ ⊩Level t ∷Level) ([t+1] : Γ ⊩Level sucᵘ t ∷Level)
-    → ↑ᵘ′ [t] <′ ↑ᵘ′ [t+1]
-  <′-sucᵘ [t] [t+1] = PE.subst (↑ᵘ′ [t] <′_) (PE.sym (↑ᵘ′-sucᵘ [t] [t+1])) ≤′-refl
+    → ↑ⁿ [t] <′ ↑ⁿ [t+1]
+  <′-sucᵘ [t] [t+1] = PE.subst (↑ⁿ [t] <′_) (PE.sym (↑ⁿ-sucᵘ [t] [t+1])) ≤′-refl
 
   <ᵘ-sucᵘ
     : ∀ {t} {[t] : Γ ⊩Level t ∷Level} {[t+1] : Γ ⊩Level sucᵘ t ∷Level}
@@ -879,150 +879,150 @@ opaque
 -- Level reflection preserves equality.
 
 opaque
-  unfolding ↑ᵘ′_ ⊩sucᵘ
+  unfolding ↑ⁿ_ ⊩sucᵘ
 
   mutual
-    ↑ᵘ′-cong
+    ↑ⁿ-cong
       : ∀ {t u} ([t] : Γ ⊩Level t ∷Level) ([u] : Γ ⊩Level u ∷Level)
       → Γ ⊩Level t ≡ u ∷Level
-      → ↑ᵘ′ [t] PE.≡ ↑ᵘ′ [u]
-    ↑ᵘ′-cong (Levelₜ _ t⇒ [t]) (Levelₜ _ u⇒ [u]) (Levelₜ₌ _ _ t⇒′ u⇒′ t≡u) =
+      → ↑ⁿ [t] PE.≡ ↑ⁿ [u]
+    ↑ⁿ-cong (Levelₜ _ t⇒ [t]) (Levelₜ _ u⇒ [u]) (Levelₜ₌ _ _ t⇒′ u⇒′ t≡u) =
       case whrDet*Term (t⇒ , level [t]) (t⇒′ , lsplit t≡u .proj₁) of λ {
         PE.refl →
       case whrDet*Term (u⇒ , level [u]) (u⇒′ , lsplit t≡u .proj₂) of λ {
         PE.refl →
-      ↑ᵘ′-prop-cong [t] [u] t≡u }}
+      ↑ⁿ-prop-cong [t] [u] t≡u }}
 
-    ↑ᵘ′-prop-cong
+    ↑ⁿ-prop-cong
       : ∀ {t u} ([t] : Level-prop Γ t) ([u] : Level-prop Γ u)
       → [Level]-prop Γ t u
-      → ↑ᵘ′-prop [t] PE.≡ ↑ᵘ′-prop [u]
-    ↑ᵘ′-prop-cong x y zeroᵘᵣ = PE.trans (↑ᵘ′-prop-zeroᵘ x) (PE.sym (↑ᵘ′-prop-zeroᵘ y))
-    ↑ᵘ′-prop-cong x y (sucᵘᵣ z) =
-      let x′ , x≡ = ↑ᵘ′-prop-sucᵘ x
-          y′ , y≡ = ↑ᵘ′-prop-sucᵘ y
-      in PE.trans x≡ $ PE.trans (PE.cong 1+ (↑ᵘ′-cong x′ y′ z)) $ PE.sym y≡
-    ↑ᵘ′-prop-cong (neLvl [t⊔1+u]) (sucᵘᵣ [u]@record{}) (maxᵘ-subᵣ {k = t} {k′ = u} [t] t⊔u≡u) =
+      → ↑ⁿ-prop [t] PE.≡ ↑ⁿ-prop [u]
+    ↑ⁿ-prop-cong x y zeroᵘᵣ = PE.trans (↑ⁿ-prop-zeroᵘ x) (PE.sym (↑ⁿ-prop-zeroᵘ y))
+    ↑ⁿ-prop-cong x y (sucᵘᵣ z) =
+      let x′ , x≡ = ↑ⁿ-prop-sucᵘ x
+          y′ , y≡ = ↑ⁿ-prop-sucᵘ y
+      in PE.trans x≡ $ PE.trans (PE.cong 1+ (↑ⁿ-cong x′ y′ z)) $ PE.sym y≡
+    ↑ⁿ-prop-cong (neLvl [t⊔1+u]) (sucᵘᵣ [u]@record{}) (maxᵘ-subᵣ {k = t} {k′ = u} [t] t⊔u≡u) =
       PE.trans
-        (↑ᵘ′-neprop-irrelevance [t⊔1+u] (maxᵘˡᵣ [t] (⊩sucᵘ [u])))
-        (m≤n⇒m⊔n≡n (m≤n⇒m≤1+n (m⊔n≡n⇒m≤n (↑ᵘ′-cong (⊩neLvl (maxᵘˡᵣ [t] [u])) [u] t⊔u≡u))))
-    ↑ᵘ′-prop-cong (neLvl x) (neLvl y) (neLvl z) = ↑ᵘ′-neprop-cong x y z
-    ↑ᵘ′-prop-cong x y (sym z) = PE.sym (↑ᵘ′-prop-cong y x z)
-    ↑ᵘ′-prop-cong x y (trans z z₁) =
+        (↑ⁿ-neprop-irrelevance [t⊔1+u] (maxᵘˡᵣ [t] (⊩sucᵘ [u])))
+        (m≤n⇒m⊔n≡n (m≤n⇒m≤1+n (m⊔n≡n⇒m≤n (↑ⁿ-cong (⊩neLvl (maxᵘˡᵣ [t] [u])) [u] t⊔u≡u))))
+    ↑ⁿ-prop-cong (neLvl x) (neLvl y) (neLvl z) = ↑ⁿ-neprop-cong x y z
+    ↑ⁿ-prop-cong x y (sym z) = PE.sym (↑ⁿ-prop-cong y x z)
+    ↑ⁿ-prop-cong x y (trans z z₁) =
       let _ , [k′] = wf-[Level]-prop z
-      in PE.trans (↑ᵘ′-prop-cong x [k′] z) (↑ᵘ′-prop-cong [k′] y z₁)
+      in PE.trans (↑ⁿ-prop-cong x [k′] z) (↑ⁿ-prop-cong [k′] y z₁)
     -- Absurd cases
-    ↑ᵘ′-prop-cong (neLvl x) (neLvl y) (maxᵘ-subᵣ _ _) = case nelevel y of λ { (ne ()) }
-    ↑ᵘ′-prop-cong zeroᵘᵣ y (neLvl n) = case nelsplit n .proj₁ of λ { (ne ()) }
-    ↑ᵘ′-prop-cong (sucᵘᵣ x) y (neLvl n) = case nelsplit n .proj₁ of λ { (ne ()) }
-    ↑ᵘ′-prop-cong (neLvl _) zeroᵘᵣ (neLvl n) = case nelsplit n .proj₂ of λ { (ne ()) }
-    ↑ᵘ′-prop-cong (neLvl _) (sucᵘᵣ _) (neLvl n) = case nelsplit n .proj₂ of λ { (ne ()) }
+    ↑ⁿ-prop-cong (neLvl x) (neLvl y) (maxᵘ-subᵣ _ _) = case nelevel y of λ { (ne ()) }
+    ↑ⁿ-prop-cong zeroᵘᵣ y (neLvl n) = case nelsplit n .proj₁ of λ { (ne ()) }
+    ↑ⁿ-prop-cong (sucᵘᵣ x) y (neLvl n) = case nelsplit n .proj₁ of λ { (ne ()) }
+    ↑ⁿ-prop-cong (neLvl _) zeroᵘᵣ (neLvl n) = case nelsplit n .proj₂ of λ { (ne ()) }
+    ↑ⁿ-prop-cong (neLvl _) (sucᵘᵣ _) (neLvl n) = case nelsplit n .proj₂ of λ { (ne ()) }
 
-    ↑ᵘ′-neprop-cong
+    ↑ⁿ-neprop-cong
       : ∀ {t u} ([t] : neLevel-prop Γ t) ([u] : neLevel-prop Γ u)
       → [neLevel]-prop Γ t u
-      → ↑ᵘ′-neprop [t] PE.≡ ↑ᵘ′-neprop [u]
-    ↑ᵘ′-neprop-cong (maxᵘˡᵣ x₄ x₅) (maxᵘˡᵣ y x₇) (maxᵘˡᵣ z x₃) =
-      PE.cong₂ _⊔_ (↑ᵘ′-neprop-cong x₄ y z) (↑ᵘ′-cong x₅ x₇ x₃)
-    ↑ᵘ′-neprop-cong (maxᵘʳᵣ x x₁) (maxᵘʳᵣ x₂ y) (maxᵘʳᵣ x₃ z) =
-      PE.cong₂ _⊔_ (PE.cong 1+ (↑ᵘ′-cong x x₂ x₃)) (↑ᵘ′-neprop-cong x₁ y z)
-    ↑ᵘ′-neprop-cong (maxᵘˡᵣ x x₁) y (maxᵘ-zeroʳᵣ x₂) =
-      PE.trans (PE.cong₂ _⊔_ (↑ᵘ′-neprop-irrelevance x y) (↑ᵘ′-zeroᵘ x₁)) (⊔-identityʳ _)
-    ↑ᵘ′-neprop-cong (ne x) (ne x₂) (ne x₁) = PE.refl
-    ↑ᵘ′-neprop-cong (maxᵘˡᵣ (maxᵘˡᵣ x x₅) x₃) (maxᵘˡᵣ y x₄) (maxᵘ-assoc¹ᵣ z x₁ x₂) =
+      → ↑ⁿ-neprop [t] PE.≡ ↑ⁿ-neprop [u]
+    ↑ⁿ-neprop-cong (maxᵘˡᵣ x₄ x₅) (maxᵘˡᵣ y x₇) (maxᵘˡᵣ z x₃) =
+      PE.cong₂ _⊔_ (↑ⁿ-neprop-cong x₄ y z) (↑ⁿ-cong x₅ x₇ x₃)
+    ↑ⁿ-neprop-cong (maxᵘʳᵣ x x₁) (maxᵘʳᵣ x₂ y) (maxᵘʳᵣ x₃ z) =
+      PE.cong₂ _⊔_ (PE.cong 1+ (↑ⁿ-cong x x₂ x₃)) (↑ⁿ-neprop-cong x₁ y z)
+    ↑ⁿ-neprop-cong (maxᵘˡᵣ x x₁) y (maxᵘ-zeroʳᵣ x₂) =
+      PE.trans (PE.cong₂ _⊔_ (↑ⁿ-neprop-irrelevance x y) (↑ⁿ-zeroᵘ x₁)) (⊔-identityʳ _)
+    ↑ⁿ-neprop-cong (ne x) (ne x₂) (ne x₁) = PE.refl
+    ↑ⁿ-neprop-cong (maxᵘˡᵣ (maxᵘˡᵣ x x₅) x₃) (maxᵘˡᵣ y x₄) (maxᵘ-assoc¹ᵣ z x₁ x₂) =
       PE.trans
-        (⊔-assoc (↑ᵘ′-neprop x) (↑ᵘ′ x₅) (↑ᵘ′ x₃))
-        (PE.cong₂ _⊔_ (↑ᵘ′-neprop-irrelevance x y) (PE.trans
-          (PE.sym (↑ᵘ′-maxᵘ x₅ x₃))
-          (↑ᵘ′-irrelevance (⊩maxᵘ x₅ x₃) x₄)))
-    ↑ᵘ′-neprop-cong (maxᵘˡᵣ (maxᵘʳᵣ x x₄) x₃) (maxᵘʳᵣ x₅ (maxᵘˡᵣ y x₆)) (maxᵘ-assoc²ᵣ x₁ z x₂) =
+        (⊔-assoc (↑ⁿ-neprop x) (↑ⁿ x₅) (↑ⁿ x₃))
+        (PE.cong₂ _⊔_ (↑ⁿ-neprop-irrelevance x y) (PE.trans
+          (PE.sym (↑ⁿ-maxᵘ x₅ x₃))
+          (↑ⁿ-irrelevance (⊩maxᵘ x₅ x₃) x₄)))
+    ↑ⁿ-neprop-cong (maxᵘˡᵣ (maxᵘʳᵣ x x₄) x₃) (maxᵘʳᵣ x₅ (maxᵘˡᵣ y x₆)) (maxᵘ-assoc²ᵣ x₁ z x₂) =
       PE.trans
-        (⊔-assoc (1+ (↑ᵘ′ x)) (↑ᵘ′-neprop x₄) (↑ᵘ′ x₃))
-        (PE.cong₂ _⊔_ (PE.cong 1+ (↑ᵘ′-irrelevance x x₅))
-          (PE.cong₂ _⊔_ (↑ᵘ′-neprop-irrelevance x₄ y)
-            (↑ᵘ′-irrelevance x₃ x₆)))
-    ↑ᵘ′-neprop-cong (maxᵘʳᵣ x x₃) (maxᵘʳᵣ x₄ (maxᵘʳᵣ x₅ y)) (maxᵘ-assoc³ᵣ x₁ x₂ z) =
+        (⊔-assoc (1+ (↑ⁿ x)) (↑ⁿ-neprop x₄) (↑ⁿ x₃))
+        (PE.cong₂ _⊔_ (PE.cong 1+ (↑ⁿ-irrelevance x x₅))
+          (PE.cong₂ _⊔_ (↑ⁿ-neprop-irrelevance x₄ y)
+            (↑ⁿ-irrelevance x₃ x₆)))
+    ↑ⁿ-neprop-cong (maxᵘʳᵣ x x₃) (maxᵘʳᵣ x₄ (maxᵘʳᵣ x₅ y)) (maxᵘ-assoc³ᵣ x₁ x₂ z) =
       PE.trans
         (PE.cong₂ _⊔_
-          (PE.cong 1+ (PE.trans (↑ᵘ′-irrelevance x (⊩maxᵘ x₄ x₅)) (↑ᵘ′-maxᵘ x₄ x₅)))
-          (↑ᵘ′-neprop-irrelevance x₃ y))
-        (⊔-assoc (1+ (↑ᵘ′ x₄)) (1+ (↑ᵘ′ x₅)) (↑ᵘ′-neprop y))
-    ↑ᵘ′-neprop-cong (maxᵘˡᵣ x x₁) (maxᵘˡᵣ y x₂) (maxᵘ-comm¹ᵣ z d w d′) =
+          (PE.cong 1+ (PE.trans (↑ⁿ-irrelevance x (⊩maxᵘ x₄ x₅)) (↑ⁿ-maxᵘ x₄ x₅)))
+          (↑ⁿ-neprop-irrelevance x₃ y))
+        (⊔-assoc (1+ (↑ⁿ x₄)) (1+ (↑ⁿ x₅)) (↑ⁿ-neprop y))
+    ↑ⁿ-neprop-cong (maxᵘˡᵣ x x₁) (maxᵘˡᵣ y x₂) (maxᵘ-comm¹ᵣ z d w d′) =
       PE.trans
-        (⊔-comm (↑ᵘ′-neprop x) (↑ᵘ′ x₁))
-        (PE.cong₂ _⊔_ (↑ᵘ′-cong x₁ (⊩neLvl y) d′) (↑ᵘ′-cong (⊩neLvl x) x₂ d))
-    ↑ᵘ′-neprop-cong (maxᵘʳᵣ x@record{} x₁) (maxᵘˡᵣ y x₂) (maxᵘ-comm²ᵣ z d w) =
+        (⊔-comm (↑ⁿ-neprop x) (↑ⁿ x₁))
+        (PE.cong₂ _⊔_ (↑ⁿ-cong x₁ (⊩neLvl y) d′) (↑ⁿ-cong (⊩neLvl x) x₂ d))
+    ↑ⁿ-neprop-cong (maxᵘʳᵣ x@record{} x₁) (maxᵘˡᵣ y x₂) (maxᵘ-comm²ᵣ z d w) =
       PE.trans
-        (⊔-comm (1+ (↑ᵘ′ x)) (↑ᵘ′-neprop x₁))
-        (PE.cong₂ _⊔_ (↑ᵘ′-neprop-irrelevance x₁ y) (↑ᵘ′-cong (⊩sucᵘ x) x₂ d))
-    ↑ᵘ′-neprop-cong (maxᵘˡᵣ x x₁) y (maxᵘ-idemᵣ z w) = PE.trans
+        (⊔-comm (1+ (↑ⁿ x)) (↑ⁿ-neprop x₁))
+        (PE.cong₂ _⊔_ (↑ⁿ-neprop-irrelevance x₁ y) (↑ⁿ-cong (⊩sucᵘ x) x₂ d))
+    ↑ⁿ-neprop-cong (maxᵘˡᵣ x x₁) y (maxᵘ-idemᵣ z w) = PE.trans
       (PE.cong₂ _⊔_
-        (↑ᵘ′-neprop-irrelevance x y)
-        (PE.sym (↑ᵘ′-cong (⊩neLvl y) x₁ w)))
-      (⊔-idem (↑ᵘ′-neprop y))
+        (↑ⁿ-neprop-irrelevance x y)
+        (PE.sym (↑ⁿ-cong (⊩neLvl y) x₁ w)))
+      (⊔-idem (↑ⁿ-neprop y))
     -- Absurd cases
-    ↑ᵘ′-neprop-cong (maxᵘˡᵣ _ _) (maxᵘʳᵣ _ _) (maxᵘˡᵣ z _) = case nelsplit z .proj₂ of λ { (ne ()) }
-    ↑ᵘ′-neprop-cong (maxᵘˡᵣ _ _) (ne (neNfₜ₌ _ () neM k≡m)) (maxᵘˡᵣ z x₃)
-    ↑ᵘ′-neprop-cong (maxᵘʳᵣ _ _) _ (maxᵘˡᵣ z _) = case nelsplit z .proj₁ of λ { (ne ()) }
-    ↑ᵘ′-neprop-cong (ne (neNfₜ₌ _ () neM k≡m)) _ (maxᵘˡᵣ _ _)
-    ↑ᵘ′-neprop-cong (maxᵘˡᵣ x _) _ (maxᵘʳᵣ _ _) = case nelevel x of λ { (ne ()) }
-    ↑ᵘ′-neprop-cong (maxᵘʳᵣ _ _) (maxᵘˡᵣ y _) (maxᵘʳᵣ _ _) = case nelevel y of λ { (ne ()) }
-    ↑ᵘ′-neprop-cong (maxᵘʳᵣ _ _) (ne (neNfₜ₌ _ () neM k≡m)) (maxᵘʳᵣ _ _)
-    ↑ᵘ′-neprop-cong (ne (neNfₜ₌ _ () neM k≡m)) _ (maxᵘʳᵣ _ _)
-    ↑ᵘ′-neprop-cong (maxᵘʳᵣ _ _) y (maxᵘ-zeroʳᵣ _) = case nelevel y of λ { (ne ()) }
-    ↑ᵘ′-neprop-cong (ne (neNfₜ₌ _ () neM k≡m)) _ (maxᵘ-zeroʳᵣ _)
-    ↑ᵘ′-neprop-cong (maxᵘˡᵣ _ _) _ (ne (neNfₜ₌ _ () neM k≡m))
-    ↑ᵘ′-neprop-cong (maxᵘʳᵣ _ _) _ (ne (neNfₜ₌ _ () neM k≡m))
-    ↑ᵘ′-neprop-cong (ne _) (maxᵘˡᵣ _ _) (ne (neNfₜ₌ _ neK () k≡m))
-    ↑ᵘ′-neprop-cong (ne _) (maxᵘʳᵣ _ _) (ne (neNfₜ₌ _ neK () k≡m))
-    ↑ᵘ′-neprop-cong (maxᵘˡᵣ (maxᵘʳᵣ x x₅) x₃) (maxᵘˡᵣ y x₄) (maxᵘ-assoc¹ᵣ z x₁ x₂) = case nelevel y of λ { (ne ()) }
-    ↑ᵘ′-neprop-cong (maxᵘˡᵣ (ne (neNfₜ₌ _ () neM k≡m)) x₃) (maxᵘˡᵣ y x₄) (maxᵘ-assoc¹ᵣ z x₁ x₂)
-    ↑ᵘ′-neprop-cong (maxᵘˡᵣ x x₃) (maxᵘʳᵣ x₄ y) (maxᵘ-assoc¹ᵣ z x₁ x₂) = case nelevel z of λ { (ne ()) }
-    ↑ᵘ′-neprop-cong (maxᵘˡᵣ x x₃) (ne (neNfₜ₌ _ () neM k≡m)) (maxᵘ-assoc¹ᵣ z x₁ x₂)
-    ↑ᵘ′-neprop-cong (ne (neNfₜ₌ _ () neM k≡m)) y (maxᵘ-assoc¹ᵣ z x₁ x₂)
-    ↑ᵘ′-neprop-cong (maxᵘˡᵣ (maxᵘˡᵣ x x₄) x₃) y (maxᵘ-assoc²ᵣ x₁ z x₂) = case nelevel x of λ { (ne ()) }
-    ↑ᵘ′-neprop-cong (maxᵘˡᵣ (maxᵘʳᵣ x x₄) x₃) (maxᵘˡᵣ y x₅) (maxᵘ-assoc²ᵣ x₁ z x₂) = case nelevel y of λ { (ne ()) }
-    ↑ᵘ′-neprop-cong (maxᵘˡᵣ (maxᵘʳᵣ x x₄) x₃) (maxᵘʳᵣ x₅ (maxᵘʳᵣ x₆ y)) (maxᵘ-assoc²ᵣ x₁ z x₂) = case nelevel x₄ of λ { (ne ()) }
-    ↑ᵘ′-neprop-cong (maxᵘˡᵣ (maxᵘʳᵣ x x₄) x₃) (maxᵘʳᵣ x₅ (ne (neNfₜ₌ _ () neM k≡m))) (maxᵘ-assoc²ᵣ x₁ z x₂)
-    ↑ᵘ′-neprop-cong (maxᵘˡᵣ (maxᵘʳᵣ x x₄) x₃) (ne (neNfₜ₌ _ () neM k≡m)) (maxᵘ-assoc²ᵣ x₁ z x₂)
-    ↑ᵘ′-neprop-cong (maxᵘˡᵣ (ne (neNfₜ₌ _ () neM k≡m)) x₃) y (maxᵘ-assoc²ᵣ x₁ z x₂)
-    ↑ᵘ′-neprop-cong (ne (neNfₜ₌ _ () neM k≡m)) y (maxᵘ-assoc²ᵣ x₁ z x₂)
-    ↑ᵘ′-neprop-cong (maxᵘˡᵣ x x₃) y (maxᵘ-assoc³ᵣ x₁ x₂ z) = case nelevel x of λ { (ne ()) }
-    ↑ᵘ′-neprop-cong (maxᵘʳᵣ x x₃) (maxᵘˡᵣ y x₄) (maxᵘ-assoc³ᵣ x₁ x₂ z) = case nelevel y of λ { (ne ()) }
-    ↑ᵘ′-neprop-cong (maxᵘʳᵣ x x₃) (maxᵘʳᵣ x₄ (maxᵘˡᵣ y x₅)) (maxᵘ-assoc³ᵣ x₁ x₂ z) = case nelevel y of λ { (ne ()) }
-    ↑ᵘ′-neprop-cong (maxᵘʳᵣ x x₃) (maxᵘʳᵣ x₄ (ne (neNfₜ₌ _ () neM k≡m))) (maxᵘ-assoc³ᵣ x₁ x₂ z)
-    ↑ᵘ′-neprop-cong (maxᵘʳᵣ x x₃) (ne (neNfₜ₌ _ () neM k≡m)) (maxᵘ-assoc³ᵣ x₁ x₂ z)
-    ↑ᵘ′-neprop-cong (ne (neNfₜ₌ _ () neM k≡m)) y (maxᵘ-assoc³ᵣ x₁ x₂ z)
-    ↑ᵘ′-neprop-cong (maxᵘˡᵣ x x₁) (maxᵘʳᵣ x₂ y) (maxᵘ-comm¹ᵣ z d w d′) = case nelevel w of λ { (ne ()) }
-    ↑ᵘ′-neprop-cong (maxᵘˡᵣ x x₁) (ne (neNfₜ₌ _ () neM k≡m)) (maxᵘ-comm¹ᵣ z d w d′)
-    ↑ᵘ′-neprop-cong (maxᵘʳᵣ x x₁) y (maxᵘ-comm¹ᵣ z d w d′) = case nelevel z of λ { (ne ()) }
-    ↑ᵘ′-neprop-cong (ne (neNfₜ₌ _ () neM k≡m)) y (maxᵘ-comm¹ᵣ z d w d′)
-    ↑ᵘ′-neprop-cong (maxᵘˡᵣ x x₁) y (maxᵘ-comm²ᵣ z d w) = case nelevel x of λ { (ne ()) }
-    ↑ᵘ′-neprop-cong (maxᵘʳᵣ x x₁) (maxᵘʳᵣ x₂ y) (maxᵘ-comm²ᵣ z d w) = case nelevel x₁ of λ { (ne ()) }
-    ↑ᵘ′-neprop-cong (maxᵘʳᵣ x x₁) (ne (neNfₜ₌ _ () neM k≡m)) (maxᵘ-comm²ᵣ z d w)
-    ↑ᵘ′-neprop-cong (ne (neNfₜ₌ _ () neM k≡m)) y (maxᵘ-comm²ᵣ z d w)
-    ↑ᵘ′-neprop-cong (maxᵘʳᵣ x x₁) y (maxᵘ-idemᵣ z w) = case nelevel y of λ { (ne ()) }
-    ↑ᵘ′-neprop-cong (ne (neNfₜ₌ _ () neM k≡m)) y (maxᵘ-idemᵣ z w)
+    ↑ⁿ-neprop-cong (maxᵘˡᵣ _ _) (maxᵘʳᵣ _ _) (maxᵘˡᵣ z _) = case nelsplit z .proj₂ of λ { (ne ()) }
+    ↑ⁿ-neprop-cong (maxᵘˡᵣ _ _) (ne (neNfₜ₌ _ () neM k≡m)) (maxᵘˡᵣ z x₃)
+    ↑ⁿ-neprop-cong (maxᵘʳᵣ _ _) _ (maxᵘˡᵣ z _) = case nelsplit z .proj₁ of λ { (ne ()) }
+    ↑ⁿ-neprop-cong (ne (neNfₜ₌ _ () neM k≡m)) _ (maxᵘˡᵣ _ _)
+    ↑ⁿ-neprop-cong (maxᵘˡᵣ x _) _ (maxᵘʳᵣ _ _) = case nelevel x of λ { (ne ()) }
+    ↑ⁿ-neprop-cong (maxᵘʳᵣ _ _) (maxᵘˡᵣ y _) (maxᵘʳᵣ _ _) = case nelevel y of λ { (ne ()) }
+    ↑ⁿ-neprop-cong (maxᵘʳᵣ _ _) (ne (neNfₜ₌ _ () neM k≡m)) (maxᵘʳᵣ _ _)
+    ↑ⁿ-neprop-cong (ne (neNfₜ₌ _ () neM k≡m)) _ (maxᵘʳᵣ _ _)
+    ↑ⁿ-neprop-cong (maxᵘʳᵣ _ _) y (maxᵘ-zeroʳᵣ _) = case nelevel y of λ { (ne ()) }
+    ↑ⁿ-neprop-cong (ne (neNfₜ₌ _ () neM k≡m)) _ (maxᵘ-zeroʳᵣ _)
+    ↑ⁿ-neprop-cong (maxᵘˡᵣ _ _) _ (ne (neNfₜ₌ _ () neM k≡m))
+    ↑ⁿ-neprop-cong (maxᵘʳᵣ _ _) _ (ne (neNfₜ₌ _ () neM k≡m))
+    ↑ⁿ-neprop-cong (ne _) (maxᵘˡᵣ _ _) (ne (neNfₜ₌ _ neK () k≡m))
+    ↑ⁿ-neprop-cong (ne _) (maxᵘʳᵣ _ _) (ne (neNfₜ₌ _ neK () k≡m))
+    ↑ⁿ-neprop-cong (maxᵘˡᵣ (maxᵘʳᵣ x x₅) x₃) (maxᵘˡᵣ y x₄) (maxᵘ-assoc¹ᵣ z x₁ x₂) = case nelevel y of λ { (ne ()) }
+    ↑ⁿ-neprop-cong (maxᵘˡᵣ (ne (neNfₜ₌ _ () neM k≡m)) x₃) (maxᵘˡᵣ y x₄) (maxᵘ-assoc¹ᵣ z x₁ x₂)
+    ↑ⁿ-neprop-cong (maxᵘˡᵣ x x₃) (maxᵘʳᵣ x₄ y) (maxᵘ-assoc¹ᵣ z x₁ x₂) = case nelevel z of λ { (ne ()) }
+    ↑ⁿ-neprop-cong (maxᵘˡᵣ x x₃) (ne (neNfₜ₌ _ () neM k≡m)) (maxᵘ-assoc¹ᵣ z x₁ x₂)
+    ↑ⁿ-neprop-cong (ne (neNfₜ₌ _ () neM k≡m)) y (maxᵘ-assoc¹ᵣ z x₁ x₂)
+    ↑ⁿ-neprop-cong (maxᵘˡᵣ (maxᵘˡᵣ x x₄) x₃) y (maxᵘ-assoc²ᵣ x₁ z x₂) = case nelevel x of λ { (ne ()) }
+    ↑ⁿ-neprop-cong (maxᵘˡᵣ (maxᵘʳᵣ x x₄) x₃) (maxᵘˡᵣ y x₅) (maxᵘ-assoc²ᵣ x₁ z x₂) = case nelevel y of λ { (ne ()) }
+    ↑ⁿ-neprop-cong (maxᵘˡᵣ (maxᵘʳᵣ x x₄) x₃) (maxᵘʳᵣ x₅ (maxᵘʳᵣ x₆ y)) (maxᵘ-assoc²ᵣ x₁ z x₂) = case nelevel x₄ of λ { (ne ()) }
+    ↑ⁿ-neprop-cong (maxᵘˡᵣ (maxᵘʳᵣ x x₄) x₃) (maxᵘʳᵣ x₅ (ne (neNfₜ₌ _ () neM k≡m))) (maxᵘ-assoc²ᵣ x₁ z x₂)
+    ↑ⁿ-neprop-cong (maxᵘˡᵣ (maxᵘʳᵣ x x₄) x₃) (ne (neNfₜ₌ _ () neM k≡m)) (maxᵘ-assoc²ᵣ x₁ z x₂)
+    ↑ⁿ-neprop-cong (maxᵘˡᵣ (ne (neNfₜ₌ _ () neM k≡m)) x₃) y (maxᵘ-assoc²ᵣ x₁ z x₂)
+    ↑ⁿ-neprop-cong (ne (neNfₜ₌ _ () neM k≡m)) y (maxᵘ-assoc²ᵣ x₁ z x₂)
+    ↑ⁿ-neprop-cong (maxᵘˡᵣ x x₃) y (maxᵘ-assoc³ᵣ x₁ x₂ z) = case nelevel x of λ { (ne ()) }
+    ↑ⁿ-neprop-cong (maxᵘʳᵣ x x₃) (maxᵘˡᵣ y x₄) (maxᵘ-assoc³ᵣ x₁ x₂ z) = case nelevel y of λ { (ne ()) }
+    ↑ⁿ-neprop-cong (maxᵘʳᵣ x x₃) (maxᵘʳᵣ x₄ (maxᵘˡᵣ y x₅)) (maxᵘ-assoc³ᵣ x₁ x₂ z) = case nelevel y of λ { (ne ()) }
+    ↑ⁿ-neprop-cong (maxᵘʳᵣ x x₃) (maxᵘʳᵣ x₄ (ne (neNfₜ₌ _ () neM k≡m))) (maxᵘ-assoc³ᵣ x₁ x₂ z)
+    ↑ⁿ-neprop-cong (maxᵘʳᵣ x x₃) (ne (neNfₜ₌ _ () neM k≡m)) (maxᵘ-assoc³ᵣ x₁ x₂ z)
+    ↑ⁿ-neprop-cong (ne (neNfₜ₌ _ () neM k≡m)) y (maxᵘ-assoc³ᵣ x₁ x₂ z)
+    ↑ⁿ-neprop-cong (maxᵘˡᵣ x x₁) (maxᵘʳᵣ x₂ y) (maxᵘ-comm¹ᵣ z d w d′) = case nelevel w of λ { (ne ()) }
+    ↑ⁿ-neprop-cong (maxᵘˡᵣ x x₁) (ne (neNfₜ₌ _ () neM k≡m)) (maxᵘ-comm¹ᵣ z d w d′)
+    ↑ⁿ-neprop-cong (maxᵘʳᵣ x x₁) y (maxᵘ-comm¹ᵣ z d w d′) = case nelevel z of λ { (ne ()) }
+    ↑ⁿ-neprop-cong (ne (neNfₜ₌ _ () neM k≡m)) y (maxᵘ-comm¹ᵣ z d w d′)
+    ↑ⁿ-neprop-cong (maxᵘˡᵣ x x₁) y (maxᵘ-comm²ᵣ z d w) = case nelevel x of λ { (ne ()) }
+    ↑ⁿ-neprop-cong (maxᵘʳᵣ x x₁) (maxᵘʳᵣ x₂ y) (maxᵘ-comm²ᵣ z d w) = case nelevel x₁ of λ { (ne ()) }
+    ↑ⁿ-neprop-cong (maxᵘʳᵣ x x₁) (ne (neNfₜ₌ _ () neM k≡m)) (maxᵘ-comm²ᵣ z d w)
+    ↑ⁿ-neprop-cong (ne (neNfₜ₌ _ () neM k≡m)) y (maxᵘ-comm²ᵣ z d w)
+    ↑ⁿ-neprop-cong (maxᵘʳᵣ x x₁) y (maxᵘ-idemᵣ z w) = case nelevel y of λ { (ne ()) }
+    ↑ⁿ-neprop-cong (ne (neNfₜ₌ _ () neM k≡m)) y (maxᵘ-idemᵣ z w)
 
 ↑ᵘ-cong
   : ∀ {t u} {[t] : Γ ⊩Level t ∷Level} {[u] : Γ ⊩Level u ∷Level}
   → Γ ⊩Level t ≡ u ∷Level
   → ↑ᵘ [t] PE.≡ ↑ᵘ [u]
-↑ᵘ-cong {[t]} {[u]} t≡u = PE.cong 0ᵘ+_ (↑ᵘ′-cong [t] [u] t≡u)
+↑ᵘ-cong {[t]} {[u]} t≡u = PE.cong 0ᵘ+_ (↑ⁿ-cong [t] [u] t≡u)
 
 -- Level reflection preserves inequality.
 
-↑ᵘ′-cong-≤
+↑ⁿ-cong-≤
   : ∀ {t u} {[t] : Γ ⊩Level t ∷Level} {[u] : Γ ⊩Level u ∷Level}
   → Γ ⊩Level t maxᵘ u ≡ u ∷Level
-  → ↑ᵘ′ [t] ≤ ↑ᵘ′ [u]
-↑ᵘ′-cong-≤ {[t]} {[u]} t≤u =
+  → ↑ⁿ [t] ≤ ↑ⁿ [u]
+↑ⁿ-cong-≤ {[t]} {[u]} t≤u =
   m⊔n≡n⇒m≤n
-    (PE.trans (PE.sym (↑ᵘ′-maxᵘ [t] [u]))
-      (↑ᵘ′-cong (⊩maxᵘ [t] [u]) [u] t≤u))
+    (PE.trans (PE.sym (↑ⁿ-maxᵘ [t] [u]))
+      (↑ⁿ-cong (⊩maxᵘ [t] [u]) [u] t≤u))
 
 ↑ᵘ-cong-≤
   : ∀ {t u} {[t] : Γ ⊩Level t ∷Level} {[u] : Γ ⊩Level u ∷Level}
   → Γ ⊩Level t maxᵘ u ≡ u ∷Level
   → ↑ᵘ [t] ≤ᵘ ↑ᵘ [u]
-↑ᵘ-cong-≤ t≤u = ≤ᵘ-nat (≤⇒≤′ (↑ᵘ′-cong-≤ t≤u))
+↑ᵘ-cong-≤ t≤u = ≤ᵘ-nat (≤⇒≤′ (↑ⁿ-cong-≤ t≤u))
