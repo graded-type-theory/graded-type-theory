@@ -140,151 +140,6 @@ mutual
                        (sym′ (subset*Term d′))))
          (sym (subset* D))
 
-  wf↑ᵛ : ∀ {t v} → Γ ⊢ t ↑ᵛ v → Γ ⊢ t ∷ Level
-  wf↑ᵛ ([↑]ᵛ (d , _) t↓v) = redFirst*Term d
-
-  wf↓ᵛ : ∀ {t v} → Γ ⊢ t ↓ᵛ v → Γ ⊢ t ∷ Level
-  wf↓ᵛ (zeroᵘₙ x) = zeroᵘⱼ x
-  wf↓ᵛ (sucᵘₙ x x₁) = sucᵘⱼ (wf↑ᵛ x₁)
-  wf↓ᵛ (neₙ x) = wf~ᵛ x
-
-  wf~ᵛ : ∀ {t v} → Γ ⊢ t ~ᵛ v → Γ ⊢ t ∷ Level
-  wf~ᵛ (maxᵘˡₙ x x₁ x₂) = maxᵘⱼ (wf~ᵛ x₁) (wf↑ᵛ x₂)
-  wf~ᵛ (maxᵘʳₙ x x₁ x₂) = maxᵘⱼ (sucᵘⱼ (wf↑ᵛ x₁)) (wf~ᵛ x₂)
-  wf~ᵛ (neₙ [t] x) = syntacticEqTerm (soundness~↓ [t]) .proj₂ .proj₁
-
-  ⊢LevelAtom : ⊢ Γ → (l : LevelAtom Γ) → Γ ⊢ LevelAtom→Term l ∷ Level
-  ⊢LevelAtom ⊢Γ zeroᵘ = zeroᵘⱼ ⊢Γ
-  ⊢LevelAtom ⊢Γ (ne t≡t) =
-    let _ , ⊢t , _ = syntacticEqTerm (soundness~↓ t≡t)
-    in ⊢t
-
-  ⊢LevelPlus : ⊢ Γ → (l : LevelPlus Γ) → Γ ⊢ LevelPlus→Term l ∷ Level
-  ⊢LevelPlus ⊢Γ (Nat.zero , l) = ⊢LevelAtom ⊢Γ l
-  ⊢LevelPlus ⊢Γ (1+ n , l) = sucᵘⱼ (⊢LevelPlus ⊢Γ (n , l))
-
-  ⊢LevelView : ⊢ Γ → (l : LevelView Γ) → Γ ⊢ LevelView→Term l ∷ Level
-  ⊢LevelView ⊢Γ L.[] = zeroᵘⱼ ⊢Γ
-  ⊢LevelView ⊢Γ (x L.∷ l) = maxᵘⱼ (⊢LevelPlus ⊢Γ x) (⊢LevelView ⊢Γ l)
-
-  ⊢suc⁺ : ⊢ Γ → (x : LevelPlus Γ) → Γ ⊢ LevelPlus→Term (suc⁺ x) ∷ Level
-  ⊢suc⁺ ⊢Γ (n , a) = sucᵘⱼ (⊢sucᵘᵏ (⊢LevelAtom ⊢Γ a))
-
-  ⊢map-suc⁺ : ⊢ Γ → (l : LevelView Γ) → Γ ⊢ LevelView→Term (map-suc⁺ l) ∷ Level
-  ⊢map-suc⁺ ⊢Γ L.[] = zeroᵘⱼ ⊢Γ
-  ⊢map-suc⁺ ⊢Γ (x L.∷ l) = maxᵘⱼ (⊢suc⁺ ⊢Γ x) (⊢map-suc⁺ ⊢Γ l)
-
-  LevelView→Term-suc : ⊢ Γ → (l : LevelView Γ) → Γ ⊢ sucᵘ (LevelView→Term l) ≡ LevelView→Term (sucᵛ l) ∷ Level
-  LevelView→Term-suc ⊢Γ L.[] = sym′ (maxᵘ-zeroʳ (sucᵘⱼ (zeroᵘⱼ ⊢Γ)))
-  LevelView→Term-suc ⊢Γ (x L.∷ l) =
-    trans (sym′ (maxᵘ-sucᵘ (⊢LevelPlus ⊢Γ x) (⊢LevelView ⊢Γ l)))
-      (trans (maxᵘ-cong (refl (sucᵘⱼ (⊢LevelPlus ⊢Γ x))) (LevelView→Term-suc ⊢Γ l))
-        (maxᵘ-comm-assoc (sucᵘⱼ (⊢LevelPlus ⊢Γ x)) (sucᵘⱼ (zeroᵘⱼ ⊢Γ)) (⊢map-suc⁺ ⊢Γ l)))
-
-  LevelView→Term-max : ⊢ Γ → (t u : LevelView Γ) → Γ ⊢ LevelView→Term t maxᵘ LevelView→Term u ≡ LevelView→Term (maxᵛ t u) ∷ Level
-  LevelView→Term-max ⊢Γ L.[] x = maxᵘ-zeroˡ (⊢LevelView ⊢Γ x)
-  LevelView→Term-max ⊢Γ (x L.∷ t) u = trans (maxᵘ-assoc (⊢LevelPlus ⊢Γ x) (⊢LevelView ⊢Γ t) (⊢LevelView ⊢Γ u)) (maxᵘ-cong (refl (⊢LevelPlus ⊢Γ x)) (LevelView→Term-max ⊢Γ t u))
-
-  LevelView→Term-max-map-suc⁺ : ⊢ Γ → (t u : LevelView Γ) → Γ ⊢ LevelView→Term (map-suc⁺ t) maxᵘ LevelView→Term u ≡ LevelView→Term (maxᵛ (map-suc⁺ t) u) ∷ Level
-  LevelView→Term-max-map-suc⁺ ⊢Γ L.[] u = maxᵘ-zeroˡ (⊢LevelView ⊢Γ u)
-  LevelView→Term-max-map-suc⁺ ⊢Γ (x L.∷ t) u = trans (maxᵘ-assoc (⊢suc⁺ ⊢Γ x) (⊢map-suc⁺ ⊢Γ t) (⊢LevelView ⊢Γ u)) (maxᵘ-cong (refl (⊢suc⁺ ⊢Γ x)) (LevelView→Term-max-map-suc⁺ ⊢Γ t u))
-
-  LevelView→Term-max-sucᵛ : ⊢ Γ → (t u : LevelView Γ) → Γ ⊢ LevelView→Term (sucᵛ t) maxᵘ LevelView→Term u ≡ LevelView→Term (maxᵛ (sucᵛ t) u) ∷ Level
-  LevelView→Term-max-sucᵛ ⊢Γ t u = trans (maxᵘ-assoc (sucᵘⱼ (zeroᵘⱼ ⊢Γ)) (⊢map-suc⁺ ⊢Γ t) (⊢LevelView ⊢Γ u)) (maxᵘ-cong (refl (sucᵘⱼ (zeroᵘⱼ ⊢Γ))) (LevelView→Term-max-map-suc⁺ ⊢Γ t u))
-
-  soundness↑ᵛ : ∀ {t} {v : LevelView Γ} → Γ ⊢ t ↑ᵛ v → Γ ⊢ t ≡ LevelView→Term v ∷ Level
-  soundness↑ᵛ ([↑]ᵛ (d , _) t↓v) = trans (subset*Term d) (soundness↓ᵛ t↓v)
-
-  soundness↓ᵛ : ∀ {t} {v : LevelView Γ} → Γ ⊢ t ↓ᵛ v → Γ ⊢ t ≡ LevelView→Term v ∷ Level
-  soundness↓ᵛ (zeroᵘₙ x) = refl (zeroᵘⱼ x)
-  soundness↓ᵛ (sucᵘₙ {v′} PE.refl t≡v) =
-    trans (sucᵘ-cong (soundness↑ᵛ t≡v))
-      (LevelView→Term-suc (wfTerm (wf↑ᵛ t≡v)) v′)
-  soundness↓ᵛ (neₙ x) = soundness~ᵛ x
-
-  soundness~ᵛ : ∀ {t} {v : LevelView Γ} → Γ ⊢ t ~ᵛ v → Γ ⊢ t ≡ LevelView→Term v ∷ Level
-  soundness~ᵛ (maxᵘˡₙ {v′} {v″} y t~ u↑) =
-    trans (maxᵘ-cong (soundness~ᵛ t~) (soundness↑ᵛ u↑))
-      (PE.subst (_ ⊢ _ ≡_∷ _) (PE.cong LevelView→Term (PE.sym y))
-        (LevelView→Term-max (wfTerm (wf~ᵛ t~)) v′ v″))
-  soundness~ᵛ (maxᵘʳₙ {v′} {v″} PE.refl t↑ u~) =
-    let ⊢Γ = wfTerm (wf↑ᵛ t↑)
-    in trans (maxᵘ-cong (sucᵘ-cong (soundness↑ᵛ t↑)) (soundness~ᵛ u~))
-        (trans (maxᵘ-cong (LevelView→Term-suc ⊢Γ v′) (refl (⊢LevelView ⊢Γ v″))) (LevelView→Term-max-sucᵛ ⊢Γ v′ v″))
-  soundness~ᵛ (neₙ [t′] PE.refl) =
-    let ⊢Level , ⊢t′ , _ = syntacticEqTerm (soundness~↓ [t′])
-    in sym′ (maxᵘ-zeroʳ ⊢t′)
-
-  soundness-≤ᵃ
-    : ⊢ Γ
-    → ∀ (t u : LevelAtom Γ)
-    → ≤ᵃ d t u
-    → Γ ⊢ LevelAtom→Term t ≤ LevelAtom→Term u ∷Level
-  soundness-≤ᵃ ⊢Γ t u zeroᵘ≤ = maxᵘ-zeroˡ (⊢LevelAtom ⊢Γ u)
-  soundness-≤ᵃ ⊢Γ t u (ne≤ (ne≡ x)) = maxᵘ-subᵏ (⊢≤-refl (soundness~↓ x))
-  soundness-≤ᵃ ⊢Γ t u (ne≤ (ne≡' x)) = maxᵘ-subᵏ (⊢≤-refl (sym′ (soundness~↓ x)))
-
-  soundness-≤⁺
-    : ⊢ Γ
-    → ∀ (t u : LevelPlus Γ)
-    → ≤⁺ d t u
-    → Γ ⊢ LevelPlus→Term t ≤ LevelPlus→Term u ∷Level
-  soundness-≤⁺ ⊢Γ (n , t) (m , u) (n≤m , t≤u) = ≤-sucᵘᵏ n≤m (soundness-≤ᵃ ⊢Γ _ _ t≤u)
-
-  soundness-≤⁺ᵛ
-    : ⊢ Γ
-    → ∀ (t : LevelPlus Γ) (u : LevelView Γ)
-    → ≤⁺ᵛ d t u
-    → Γ ⊢ LevelPlus→Term t ≤ LevelView→Term u ∷Level
-  soundness-≤⁺ᵛ ⊢Γ t (u L.∷ us) (Any.here px) =
-    let ⊢t = ⊢LevelPlus ⊢Γ t
-        ⊢u = ⊢LevelPlus ⊢Γ u
-        ⊢us = ⊢LevelView ⊢Γ us
-        ⊢Level = syntacticTerm ⊢t
-    in trans (sym′ (maxᵘ-assoc ⊢t ⊢u ⊢us))
-      (maxᵘ-cong (soundness-≤⁺ ⊢Γ _ _ px) (refl ⊢us))
-  soundness-≤⁺ᵛ ⊢Γ t (u L.∷ us) (Any.there x) =
-    let ⊢t = ⊢LevelPlus ⊢Γ t
-        ⊢u = ⊢LevelPlus ⊢Γ u
-        ⊢us = ⊢LevelView ⊢Γ us
-    in trans (maxᵘ-comm-assoc ⊢t ⊢u ⊢us)
-      (maxᵘ-cong (refl ⊢u) (soundness-≤⁺ᵛ ⊢Γ _ _ x))
-  soundness-≤⁺ᵛ ⊢Γ t L.[] ()
-
-  soundness-≤ᵛ
-    : ⊢ Γ
-    → ∀ (t u : LevelView Γ)
-    → ≤ᵛ d t u
-    → Γ ⊢ LevelView→Term t ≤ LevelView→Term u ∷Level
-  soundness-≤ᵛ ⊢Γ t u All.[] = maxᵘ-zeroˡ (⊢LevelView ⊢Γ u)
-  soundness-≤ᵛ ⊢Γ (t L.∷ ts) u (px All.∷ t≤u) =
-    let ⊢t = ⊢LevelPlus ⊢Γ t
-        ⊢ts = ⊢LevelView ⊢Γ ts
-        ⊢u = ⊢LevelView ⊢Γ u
-    in trans (maxᵘ-assoc ⊢t ⊢ts ⊢u)
-      (trans (maxᵘ-cong (refl ⊢t) (soundness-≤ᵛ ⊢Γ ts u t≤u))
-        (soundness-≤⁺ᵛ ⊢Γ t u px))
-
-  soundness-≡ᵛ
-    : ⊢ Γ
-    → ∀ (t u : LevelView Γ)
-    → t ≡ᵛ u
-    → Γ ⊢ LevelView→Term t ≡ LevelView→Term u ∷ Level
-  soundness-≡ᵛ ⊢Γ t u (t≤u , u≤t) =
-    trans (sym′ (soundness-≤ᵛ ⊢Γ u t u≤t))
-      (trans (maxᵘ-comm (⊢LevelView ⊢Γ u) (⊢LevelView ⊢Γ t))
-        (soundness-≤ᵛ ⊢Γ t u t≤u))
-
-  soundnessConv↓Level : ∀ {a b} → Γ ⊢ a [conv↓] b ∷Level → Γ ⊢ a ≡ b ∷ Level
-  soundnessConv↓Level ([↓]ˡ aᵛ bᵛ a≡ b≡ a≡b) =
-    let a≡ = soundness↓ᵛ a≡
-        b≡ = soundness↓ᵛ b≡
-        ⊢Level , _ , _ = syntacticEqTerm a≡
-        ⊢Γ = wf ⊢Level
-    in trans a≡
-        (trans (soundness-≡ᵛ ⊢Γ aᵛ bᵛ a≡b)
-          (sym′ b≡))
-
   -- Algorithmic equality of terms in WHNF is well-formed.
   soundnessConv↓Term : ∀ {a b A} → Γ ⊢ a [conv↓] b ∷ A → Γ ⊢ a ≡ b ∷ A
   soundnessConv↓Term (Level-ins x) = soundnessConv↓Level x
@@ -476,3 +331,160 @@ mutual
     , l₁≡l₂
     where
     open TmR
+
+  -- Algorithmic equality of levels is well-formed.
+
+  soundnessConv↓Level : ∀ {a b} → Γ ⊢ a [conv↓] b ∷Level → Γ ⊢ a ≡ b ∷ Level
+  soundnessConv↓Level ([↓]ˡ aᵛ bᵛ a≡ b≡ a≡b) =
+    let a≡ = soundness↓ᵛ a≡
+        b≡ = soundness↓ᵛ b≡
+        ⊢Level , _ , _ = syntacticEqTerm a≡
+        ⊢Γ = wf ⊢Level
+    in trans a≡
+        (trans (soundness-≡ᵛ ⊢Γ aᵛ bᵛ a≡b)
+          (sym′ b≡))
+
+  -- If t normalises to a level view, then t is well-formed.
+
+  wf↑ᵛ : ∀ {t v} → Γ ⊢ t ↑ᵛ v → Γ ⊢ t ∷ Level
+  wf↑ᵛ ([↑]ᵛ (d , _) t↓v) = redFirst*Term d
+
+  wf↓ᵛ : ∀ {t v} → Γ ⊢ t ↓ᵛ v → Γ ⊢ t ∷ Level
+  wf↓ᵛ (zeroᵘₙ x) = zeroᵘⱼ x
+  wf↓ᵛ (sucᵘₙ x x₁) = sucᵘⱼ (wf↑ᵛ x₁)
+  wf↓ᵛ (neₙ x) = wf~ᵛ x
+
+  wf~ᵛ : ∀ {t v} → Γ ⊢ t ~ᵛ v → Γ ⊢ t ∷ Level
+  wf~ᵛ (maxᵘˡₙ x x₁ x₂) = maxᵘⱼ (wf~ᵛ x₁) (wf↑ᵛ x₂)
+  wf~ᵛ (maxᵘʳₙ x x₁ x₂) = maxᵘⱼ (sucᵘⱼ (wf↑ᵛ x₁)) (wf~ᵛ x₂)
+  wf~ᵛ (neₙ [t] x) = syntacticEqTerm (soundness~↓ [t]) .proj₂ .proj₁
+
+  -- A level view in a well-formed context induces a well-formed level.
+
+  ⊢LevelAtom : ⊢ Γ → (l : LevelAtom Γ) → Γ ⊢ LevelAtom→Term l ∷ Level
+  ⊢LevelAtom ⊢Γ zeroᵘ = zeroᵘⱼ ⊢Γ
+  ⊢LevelAtom ⊢Γ (ne t≡t) =
+    let _ , ⊢t , _ = syntacticEqTerm (soundness~↓ t≡t)
+    in ⊢t
+
+  ⊢Level⁺ : ⊢ Γ → (l : Level⁺ Γ) → Γ ⊢ Level⁺→Term l ∷ Level
+  ⊢Level⁺ ⊢Γ (Nat.zero , l) = ⊢LevelAtom ⊢Γ l
+  ⊢Level⁺ ⊢Γ (1+ n , l) = sucᵘⱼ (⊢Level⁺ ⊢Γ (n , l))
+
+  ⊢Levels : ⊢ Γ → (l : Levels Γ) → Γ ⊢ Levels→Term l ∷ Level
+  ⊢Levels ⊢Γ L.[] = zeroᵘⱼ ⊢Γ
+  ⊢Levels ⊢Γ (x L.∷ l) = maxᵘⱼ (⊢Level⁺ ⊢Γ x) (⊢Levels ⊢Γ l)
+
+  ⊢suc⁺ : ⊢ Γ → (x : Level⁺ Γ) → Γ ⊢ Level⁺→Term (suc⁺ x) ∷ Level
+  ⊢suc⁺ ⊢Γ (n , a) = sucᵘⱼ (⊢sucᵘᵏ (⊢LevelAtom ⊢Γ a))
+
+  ⊢map-suc⁺ : ⊢ Γ → (l : Levels Γ) → Γ ⊢ Levels→Term (map-suc⁺ l) ∷ Level
+  ⊢map-suc⁺ ⊢Γ L.[] = zeroᵘⱼ ⊢Γ
+  ⊢map-suc⁺ ⊢Γ (x L.∷ l) = maxᵘⱼ (⊢suc⁺ ⊢Γ x) (⊢map-suc⁺ ⊢Γ l)
+
+  -- The reification of a level view commutes with the level operations.
+
+  Levels→Term-suc : ⊢ Γ → (l : Levels Γ) → Γ ⊢ sucᵘ (Levels→Term l) ≡ Levels→Term (sucᵛ l) ∷ Level
+  Levels→Term-suc ⊢Γ L.[] = sym′ (maxᵘ-zeroʳ (sucᵘⱼ (zeroᵘⱼ ⊢Γ)))
+  Levels→Term-suc ⊢Γ (x L.∷ l) =
+    trans (sym′ (maxᵘ-sucᵘ (⊢Level⁺ ⊢Γ x) (⊢Levels ⊢Γ l)))
+      (trans (maxᵘ-cong (refl (sucᵘⱼ (⊢Level⁺ ⊢Γ x))) (Levels→Term-suc ⊢Γ l))
+        (maxᵘ-comm-assoc (sucᵘⱼ (⊢Level⁺ ⊢Γ x)) (sucᵘⱼ (zeroᵘⱼ ⊢Γ)) (⊢map-suc⁺ ⊢Γ l)))
+
+  Levels→Term-max : ⊢ Γ → (t u : Levels Γ) → Γ ⊢ Levels→Term t maxᵘ Levels→Term u ≡ Levels→Term (maxᵛ t u) ∷ Level
+  Levels→Term-max ⊢Γ L.[] x = maxᵘ-zeroˡ (⊢Levels ⊢Γ x)
+  Levels→Term-max ⊢Γ (x L.∷ t) u = trans (maxᵘ-assoc (⊢Level⁺ ⊢Γ x) (⊢Levels ⊢Γ t) (⊢Levels ⊢Γ u)) (maxᵘ-cong (refl (⊢Level⁺ ⊢Γ x)) (Levels→Term-max ⊢Γ t u))
+
+  Levels→Term-max-map-suc⁺ : ⊢ Γ → (t u : Levels Γ) → Γ ⊢ Levels→Term (map-suc⁺ t) maxᵘ Levels→Term u ≡ Levels→Term (maxᵛ (map-suc⁺ t) u) ∷ Level
+  Levels→Term-max-map-suc⁺ ⊢Γ L.[] u = maxᵘ-zeroˡ (⊢Levels ⊢Γ u)
+  Levels→Term-max-map-suc⁺ ⊢Γ (x L.∷ t) u = trans (maxᵘ-assoc (⊢suc⁺ ⊢Γ x) (⊢map-suc⁺ ⊢Γ t) (⊢Levels ⊢Γ u)) (maxᵘ-cong (refl (⊢suc⁺ ⊢Γ x)) (Levels→Term-max-map-suc⁺ ⊢Γ t u))
+
+  Levels→Term-max-sucᵛ : ⊢ Γ → (t u : Levels Γ) → Γ ⊢ Levels→Term (sucᵛ t) maxᵘ Levels→Term u ≡ Levels→Term (maxᵛ (sucᵛ t) u) ∷ Level
+  Levels→Term-max-sucᵛ ⊢Γ t u = trans (maxᵘ-assoc (sucᵘⱼ (zeroᵘⱼ ⊢Γ)) (⊢map-suc⁺ ⊢Γ t) (⊢Levels ⊢Γ u)) (maxᵘ-cong (refl (sucᵘⱼ (zeroᵘⱼ ⊢Γ))) (Levels→Term-max-map-suc⁺ ⊢Γ t u))
+
+  -- If t normalises to a level view v, then t is equal to the reification of v.
+
+  soundness↑ᵛ : ∀ {t} {v : Levels Γ} → Γ ⊢ t ↑ᵛ v → Γ ⊢ t ≡ Levels→Term v ∷ Level
+  soundness↑ᵛ ([↑]ᵛ (d , _) t↓v) = trans (subset*Term d) (soundness↓ᵛ t↓v)
+
+  soundness↓ᵛ : ∀ {t} {v : Levels Γ} → Γ ⊢ t ↓ᵛ v → Γ ⊢ t ≡ Levels→Term v ∷ Level
+  soundness↓ᵛ (zeroᵘₙ x) = refl (zeroᵘⱼ x)
+  soundness↓ᵛ (sucᵘₙ {v′} PE.refl t≡v) =
+    trans (sucᵘ-cong (soundness↑ᵛ t≡v))
+      (Levels→Term-suc (wfTerm (wf↑ᵛ t≡v)) v′)
+  soundness↓ᵛ (neₙ x) = soundness~ᵛ x
+
+  soundness~ᵛ : ∀ {t} {v : Levels Γ} → Γ ⊢ t ~ᵛ v → Γ ⊢ t ≡ Levels→Term v ∷ Level
+  soundness~ᵛ (maxᵘˡₙ {v′} {v″} y t~ u↑) =
+    trans (maxᵘ-cong (soundness~ᵛ t~) (soundness↑ᵛ u↑))
+      (PE.subst (_ ⊢ _ ≡_∷ _) (PE.cong Levels→Term (PE.sym y))
+        (Levels→Term-max (wfTerm (wf~ᵛ t~)) v′ v″))
+  soundness~ᵛ (maxᵘʳₙ {v′} {v″} PE.refl t↑ u~) =
+    let ⊢Γ = wfTerm (wf↑ᵛ t↑)
+    in trans (maxᵘ-cong (sucᵘ-cong (soundness↑ᵛ t↑)) (soundness~ᵛ u~))
+        (trans (maxᵘ-cong (Levels→Term-suc ⊢Γ v′) (refl (⊢Levels ⊢Γ v″))) (Levels→Term-max-sucᵛ ⊢Γ v′ v″))
+  soundness~ᵛ (neₙ [t′] PE.refl) =
+    let ⊢Level , ⊢t′ , _ = syntacticEqTerm (soundness~↓ [t′])
+    in sym′ (maxᵘ-zeroʳ ⊢t′)
+
+  -- Comparison and equality of level views is sound with respect to reification.
+
+  soundness-≤ᵃ
+    : ⊢ Γ
+    → ∀ (t u : LevelAtom Γ)
+    → ≤ᵃ d t u
+    → Γ ⊢ LevelAtom→Term t ≤ LevelAtom→Term u ∷Level
+  soundness-≤ᵃ ⊢Γ t u zeroᵘ≤ = maxᵘ-zeroˡ (⊢LevelAtom ⊢Γ u)
+  soundness-≤ᵃ ⊢Γ t u (ne≤ (ne≡ x)) = maxᵘ-subᵏ (⊢≤-refl (soundness~↓ x))
+  soundness-≤ᵃ ⊢Γ t u (ne≤ (ne≡' x)) = maxᵘ-subᵏ (⊢≤-refl (sym′ (soundness~↓ x)))
+
+  soundness-≤⁺
+    : ⊢ Γ
+    → ∀ (t u : Level⁺ Γ)
+    → ≤⁺ d t u
+    → Γ ⊢ Level⁺→Term t ≤ Level⁺→Term u ∷Level
+  soundness-≤⁺ ⊢Γ (n , t) (m , u) (n≤m , t≤u) = ≤-sucᵘᵏ n≤m (soundness-≤ᵃ ⊢Γ _ _ t≤u)
+
+  soundness-≤⁺ᵛ
+    : ⊢ Γ
+    → ∀ (t : Level⁺ Γ) (u : Levels Γ)
+    → ≤⁺ᵛ d t u
+    → Γ ⊢ Level⁺→Term t ≤ Levels→Term u ∷Level
+  soundness-≤⁺ᵛ ⊢Γ t (u L.∷ us) (Any.here px) =
+    let ⊢t = ⊢Level⁺ ⊢Γ t
+        ⊢u = ⊢Level⁺ ⊢Γ u
+        ⊢us = ⊢Levels ⊢Γ us
+        ⊢Level = syntacticTerm ⊢t
+    in trans (sym′ (maxᵘ-assoc ⊢t ⊢u ⊢us))
+      (maxᵘ-cong (soundness-≤⁺ ⊢Γ _ _ px) (refl ⊢us))
+  soundness-≤⁺ᵛ ⊢Γ t (u L.∷ us) (Any.there x) =
+    let ⊢t = ⊢Level⁺ ⊢Γ t
+        ⊢u = ⊢Level⁺ ⊢Γ u
+        ⊢us = ⊢Levels ⊢Γ us
+    in trans (maxᵘ-comm-assoc ⊢t ⊢u ⊢us)
+      (maxᵘ-cong (refl ⊢u) (soundness-≤⁺ᵛ ⊢Γ _ _ x))
+  soundness-≤⁺ᵛ ⊢Γ t L.[] ()
+
+  soundness-≤ᵛ
+    : ⊢ Γ
+    → ∀ (t u : Levels Γ)
+    → ≤ᵛ d t u
+    → Γ ⊢ Levels→Term t ≤ Levels→Term u ∷Level
+  soundness-≤ᵛ ⊢Γ t u All.[] = maxᵘ-zeroˡ (⊢Levels ⊢Γ u)
+  soundness-≤ᵛ ⊢Γ (t L.∷ ts) u (px All.∷ t≤u) =
+    let ⊢t = ⊢Level⁺ ⊢Γ t
+        ⊢ts = ⊢Levels ⊢Γ ts
+        ⊢u = ⊢Levels ⊢Γ u
+    in trans (maxᵘ-assoc ⊢t ⊢ts ⊢u)
+      (trans (maxᵘ-cong (refl ⊢t) (soundness-≤ᵛ ⊢Γ ts u t≤u))
+        (soundness-≤⁺ᵛ ⊢Γ t u px))
+
+  soundness-≡ᵛ
+    : ⊢ Γ
+    → ∀ (t u : Levels Γ)
+    → t ≡ᵛ u
+    → Γ ⊢ Levels→Term t ≡ Levels→Term u ∷ Level
+  soundness-≡ᵛ ⊢Γ t u (t≤u , u≤t) =
+    trans (sym′ (soundness-≤ᵛ ⊢Γ u t u≤t))
+      (trans (maxᵘ-comm (⊢Levels ⊢Γ u) (⊢Levels ⊢Γ t))
+        (soundness-≤ᵛ ⊢Γ t u t≤u))

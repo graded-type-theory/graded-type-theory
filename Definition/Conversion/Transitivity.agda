@@ -304,60 +304,6 @@ mutual
              (convConv↓Term (sym B₁≡B₂) (whnfConv↓Term t<>u .proj₁) $
               PE.subst (_ ⊢_[conv↓] _ ∷ _) (whrDet*Term d₁ d₁′) t<>u₁))
 
-  trans-≡ⁿ : ∀ {t u v : Term n} → ≡ⁿ Γ t u false → ≡ⁿ Γ u v false → ≡ⁿ Γ t v false
-  trans-≡ⁿ (ne≡ x) (ne≡ y) = ne≡ (trans~↓ x y .proj₁)
-
-  trans-≤ᵃ : ∀ {t u v : LevelAtom Γ} → ≤ᵃ false t u → ≤ᵃ false u v → ≤ᵃ false t v
-  trans-≤ᵃ zeroᵘ≤ u≤v = zeroᵘ≤
-  trans-≤ᵃ (ne≤ t~u) (ne≤ u~v) = ne≤ (trans-≡ⁿ t~u u~v)
-
-  trans-≤⁺ : ∀ {t u v : LevelPlus Γ} → ≤⁺ false t u → ≤⁺ false u v → ≤⁺ false t v
-  trans-≤⁺ (n≤m , t≤u) (m≤o , u≤v) = ≤-trans n≤m m≤o , trans-≤ᵃ t≤u u≤v
-
-  trans-≤⁺-≤⁺ᵛ : ∀ {t u : LevelPlus Γ} {v : LevelView Γ} → ≤⁺ false t u → ≤⁺ᵛ false u v → ≤⁺ᵛ false t v
-  trans-≤⁺-≤⁺ᵛ t≤u (Any.here px) = Any.here (trans-≤⁺ t≤u px)
-  trans-≤⁺-≤⁺ᵛ t≤u (Any.there u≤v) = Any.there (trans-≤⁺-≤⁺ᵛ t≤u u≤v)
-
-  trans-≤⁺ᵛ-≤ᵛ : ∀ {t : LevelPlus Γ} {u v : LevelView Γ} → ≤⁺ᵛ false t u → ≤ᵛ false u v → ≤⁺ᵛ false t v
-  trans-≤⁺ᵛ-≤ᵛ (Any.here px) (px₁ All.∷ u≤v) = trans-≤⁺-≤⁺ᵛ px px₁
-  trans-≤⁺ᵛ-≤ᵛ (Any.there t≤u) (px All.∷ u≤v) = trans-≤⁺ᵛ-≤ᵛ t≤u u≤v
-
-  trans-≤ᵛ : ∀ {t u v : LevelView Γ} → ≤ᵛ false t u → ≤ᵛ false u v → ≤ᵛ false t v
-  trans-≤ᵛ All.[] u≤v = All.[]
-  trans-≤ᵛ (px All.∷ t≤u) u≤v = trans-≤⁺ᵛ-≤ᵛ px u≤v All.∷ trans-≤ᵛ t≤u u≤v
-
-  trans'-≡ⁿ : ∀ {t u v : Term n} → ≡ⁿ Γ t u true → ≡ⁿ Γ u v true → ≡ⁿ Γ t v true
-  trans'-≡ⁿ (ne≡' x) (ne≡' y) = ne≡' (trans~↓ y x .proj₁)
-
-  trans'-≤ᵃ : ∀ {t u v : LevelAtom Γ} → ≤ᵃ true t u → ≤ᵃ true u v → ≤ᵃ true t v
-  trans'-≤ᵃ zeroᵘ≤ u≤v = zeroᵘ≤
-  trans'-≤ᵃ (ne≤ t~u) (ne≤ u~v) = ne≤ (trans'-≡ⁿ t~u u~v)
-
-  trans'-≤⁺ : ∀ {t u v : LevelPlus Γ} → ≤⁺ true t u → ≤⁺ true u v → ≤⁺ true t v
-  trans'-≤⁺ (n≤m , t≤u) (m≤o , u≤v) = ≤-trans n≤m m≤o , trans'-≤ᵃ t≤u u≤v
-
-  trans'-≤⁺-≤⁺ᵛ : ∀ {t u : LevelPlus Γ} {v : LevelView Γ} → ≤⁺ true t u → ≤⁺ᵛ true u v → ≤⁺ᵛ true t v
-  trans'-≤⁺-≤⁺ᵛ t≤u (Any.here px) = Any.here (trans'-≤⁺ t≤u px)
-  trans'-≤⁺-≤⁺ᵛ t≤u (Any.there u≤v) = Any.there (trans'-≤⁺-≤⁺ᵛ t≤u u≤v)
-
-  trans'-≤⁺ᵛ-≤ᵛ : ∀ {t : LevelPlus Γ} {u v : LevelView Γ} → ≤⁺ᵛ true t u → ≤ᵛ true u v → ≤⁺ᵛ true t v
-  trans'-≤⁺ᵛ-≤ᵛ (Any.here px) (px₁ All.∷ u≤v) = trans'-≤⁺-≤⁺ᵛ px px₁
-  trans'-≤⁺ᵛ-≤ᵛ (Any.there t≤u) (px All.∷ u≤v) = trans'-≤⁺ᵛ-≤ᵛ t≤u u≤v
-
-  trans'-≤ᵛ : ∀ {t u v : LevelView Γ} → ≤ᵛ true t u → ≤ᵛ true u v → ≤ᵛ true t v
-  trans'-≤ᵛ All.[] u≤v = All.[]
-  trans'-≤ᵛ (px All.∷ t≤u) u≤v = trans'-≤⁺ᵛ-≤ᵛ px u≤v All.∷ trans'-≤ᵛ t≤u u≤v
-
-  trans-≡ᵛ : ∀ {t u v : LevelView Γ} → t ≡ᵛ u → u ≡ᵛ v → t ≡ᵛ v
-  trans-≡ᵛ (t≤u , u≤t) (u≤v , v≤u) = trans-≤ᵛ t≤u u≤v , trans'-≤ᵛ v≤u u≤t
-
-  transConv↓Level :
-    Γ ⊢ t [conv↓] u ∷Level →
-    Γ ⊢ u [conv↓] v ∷Level →
-    Γ ⊢ t [conv↓] v ∷Level
-  transConv↓Level ([↓]ˡ tᵛ uᵛ t≡ u≡ t≡u) ([↓]ˡ uᵛ′ vᵛ u≡′ v≡ u≡v) =
-    [↓]ˡ tᵛ vᵛ t≡ v≡ (trans-≡ᵛ t≡u (trans-≡≡ᵛ-≡ᵛ (irrelevance-↓ᵛ u≡ u≡′) u≡v))
-
   -- Transitivity for _⊢_[conv↓]_∷_.
   transConv↓Term :
     Γ ⊢ t [conv↓] u ∷ A →
@@ -477,6 +423,62 @@ mutual
     let t≡u = soundnessConv↑Term t<>u
         ⊢A , _ , _ = syntacticEqTerm t≡u
     in  transConv↑Term (refl ⊢A) t<>u u<>v
+
+  -- Transitivity of algorithmic equality of levels.
+
+  transConv↓Level :
+    Γ ⊢ t [conv↓] u ∷Level →
+    Γ ⊢ u [conv↓] v ∷Level →
+    Γ ⊢ t [conv↓] v ∷Level
+  transConv↓Level ([↓]ˡ tᵛ uᵛ t≡ u≡ t≡u) ([↓]ˡ uᵛ′ vᵛ u≡′ v≡ u≡v) =
+    [↓]ˡ tᵛ vᵛ t≡ v≡ (trans-≡ᵛ t≡u (trans-≡≡ᵛ-≡ᵛ (deterministic-↓ᵛ u≡ u≡′) u≡v))
+
+  trans-≡ⁿ : ∀ {t u v : Term n} → ≡ⁿ Γ t u false → ≡ⁿ Γ u v false → ≡ⁿ Γ t v false
+  trans-≡ⁿ (ne≡ x) (ne≡ y) = ne≡ (trans~↓ x y .proj₁)
+
+  trans-≤ᵃ : ∀ {t u v : LevelAtom Γ} → ≤ᵃ false t u → ≤ᵃ false u v → ≤ᵃ false t v
+  trans-≤ᵃ zeroᵘ≤ u≤v = zeroᵘ≤
+  trans-≤ᵃ (ne≤ t~u) (ne≤ u~v) = ne≤ (trans-≡ⁿ t~u u~v)
+
+  trans-≤⁺ : ∀ {t u v : Level⁺ Γ} → ≤⁺ false t u → ≤⁺ false u v → ≤⁺ false t v
+  trans-≤⁺ (n≤m , t≤u) (m≤o , u≤v) = ≤-trans n≤m m≤o , trans-≤ᵃ t≤u u≤v
+
+  trans-≤⁺-≤⁺ᵛ : ∀ {t u : Level⁺ Γ} {v : Levels Γ} → ≤⁺ false t u → ≤⁺ᵛ false u v → ≤⁺ᵛ false t v
+  trans-≤⁺-≤⁺ᵛ t≤u (Any.here px) = Any.here (trans-≤⁺ t≤u px)
+  trans-≤⁺-≤⁺ᵛ t≤u (Any.there u≤v) = Any.there (trans-≤⁺-≤⁺ᵛ t≤u u≤v)
+
+  trans-≤⁺ᵛ-≤ᵛ : ∀ {t : Level⁺ Γ} {u v : Levels Γ} → ≤⁺ᵛ false t u → ≤ᵛ false u v → ≤⁺ᵛ false t v
+  trans-≤⁺ᵛ-≤ᵛ (Any.here px) (px₁ All.∷ u≤v) = trans-≤⁺-≤⁺ᵛ px px₁
+  trans-≤⁺ᵛ-≤ᵛ (Any.there t≤u) (px All.∷ u≤v) = trans-≤⁺ᵛ-≤ᵛ t≤u u≤v
+
+  trans-≤ᵛ : ∀ {t u v : Levels Γ} → ≤ᵛ false t u → ≤ᵛ false u v → ≤ᵛ false t v
+  trans-≤ᵛ All.[] u≤v = All.[]
+  trans-≤ᵛ (px All.∷ t≤u) u≤v = trans-≤⁺ᵛ-≤ᵛ px u≤v All.∷ trans-≤ᵛ t≤u u≤v
+
+  trans'-≡ⁿ : ∀ {t u v : Term n} → ≡ⁿ Γ t u true → ≡ⁿ Γ u v true → ≡ⁿ Γ t v true
+  trans'-≡ⁿ (ne≡' x) (ne≡' y) = ne≡' (trans~↓ y x .proj₁)
+
+  trans'-≤ᵃ : ∀ {t u v : LevelAtom Γ} → ≤ᵃ true t u → ≤ᵃ true u v → ≤ᵃ true t v
+  trans'-≤ᵃ zeroᵘ≤ u≤v = zeroᵘ≤
+  trans'-≤ᵃ (ne≤ t~u) (ne≤ u~v) = ne≤ (trans'-≡ⁿ t~u u~v)
+
+  trans'-≤⁺ : ∀ {t u v : Level⁺ Γ} → ≤⁺ true t u → ≤⁺ true u v → ≤⁺ true t v
+  trans'-≤⁺ (n≤m , t≤u) (m≤o , u≤v) = ≤-trans n≤m m≤o , trans'-≤ᵃ t≤u u≤v
+
+  trans'-≤⁺-≤⁺ᵛ : ∀ {t u : Level⁺ Γ} {v : Levels Γ} → ≤⁺ true t u → ≤⁺ᵛ true u v → ≤⁺ᵛ true t v
+  trans'-≤⁺-≤⁺ᵛ t≤u (Any.here px) = Any.here (trans'-≤⁺ t≤u px)
+  trans'-≤⁺-≤⁺ᵛ t≤u (Any.there u≤v) = Any.there (trans'-≤⁺-≤⁺ᵛ t≤u u≤v)
+
+  trans'-≤⁺ᵛ-≤ᵛ : ∀ {t : Level⁺ Γ} {u v : Levels Γ} → ≤⁺ᵛ true t u → ≤ᵛ true u v → ≤⁺ᵛ true t v
+  trans'-≤⁺ᵛ-≤ᵛ (Any.here px) (px₁ All.∷ u≤v) = trans'-≤⁺-≤⁺ᵛ px px₁
+  trans'-≤⁺ᵛ-≤ᵛ (Any.there t≤u) (px All.∷ u≤v) = trans'-≤⁺ᵛ-≤ᵛ t≤u u≤v
+
+  trans'-≤ᵛ : ∀ {t u v : Levels Γ} → ≤ᵛ true t u → ≤ᵛ true u v → ≤ᵛ true t v
+  trans'-≤ᵛ All.[] u≤v = All.[]
+  trans'-≤ᵛ (px All.∷ t≤u) u≤v = trans'-≤⁺ᵛ-≤ᵛ px u≤v All.∷ trans'-≤ᵛ t≤u u≤v
+
+  trans-≡ᵛ : ∀ {t u v : Levels Γ} → t ≡ᵛ u → u ≡ᵛ v → t ≡ᵛ v
+  trans-≡ᵛ (t≤u , u≤t) (u≤v , v≤u) = trans-≤ᵛ t≤u u≤v , trans'-≤ᵛ v≤u u≤t
 
 -- Transitivity of algorithmic equality of types of the same context.
 transConv : ∀ {A B C}

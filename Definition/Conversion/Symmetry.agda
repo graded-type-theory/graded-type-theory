@@ -294,37 +294,6 @@ mutual
     [↑]ₜ B u′ t′ (stabilityRed↘ Γ≡Δ D) (stabilityRed↘Term Γ≡Δ d′)
          (stabilityRed↘Term Γ≡Δ d) (symConv↓Term Γ≡Δ t<>u)
 
-  sym~↓Level : ∀ {t u} → Γ ⊢ t ~ u ↓ Level → Γ ⊢ u ~ t ↓ Level
-  sym~↓Level t~u =
-    let B , whnfB , Level≡B , u~t = sym~↓ (reflConEq (wfEqTerm (soundness~↓ t~u))) t~u
-    in PE.subst (_⊢_~_↓_ _ _ _) (Level≡A Level≡B whnfB) u~t
-
-  sym-≡ⁿ : ∀ {t u : Term n} → ≡ⁿ Γ t u d → ≡ⁿ Γ t u (not d)
-  sym-≡ⁿ (ne≡ x) = ne≡' (sym~↓Level x)
-  sym-≡ⁿ (ne≡' x) = ne≡ (sym~↓Level x)
-
-  sym-≤ᵃ : ∀ {t u : LevelAtom Γ} → ≤ᵃ d t u → ≤ᵃ (not d) t u
-  sym-≤ᵃ zeroᵘ≤ = zeroᵘ≤
-  sym-≤ᵃ (ne≤ x) = ne≤ (sym-≡ⁿ x)
-
-  sym-≤⁺ : ∀ {t u : LevelPlus Γ} → ≤⁺ d t u → ≤⁺ (not d) t u
-  sym-≤⁺ (a , b) = a , sym-≤ᵃ b
-
-  sym-≤⁺ᵛ : ∀ {t} {u : LevelView Γ} → ≤⁺ᵛ d t u → ≤⁺ᵛ (not d) t u
-  sym-≤⁺ᵛ (Any.here px) = Any.here (sym-≤⁺ px)
-  sym-≤⁺ᵛ (Any.there x) = Any.there (sym-≤⁺ᵛ x)
-
-  sym-≤ᵛ : ∀ {t u : LevelView Γ} → ≤ᵛ d t u → ≤ᵛ (not d) t u
-  sym-≤ᵛ All.[] = All.[]
-  sym-≤ᵛ (px All.∷ x) = sym-≤⁺ᵛ px All.∷ sym-≤ᵛ x
-
-  sym-≡ᵛ : ∀ {t u : LevelView Γ} → t ≡ᵛ u → u ≡ᵛ t
-  sym-≡ᵛ (t≤u , u≤t) = sym-≤ᵛ u≤t , sym-≤ᵛ t≤u
-
-  symConv↓Level : ∀ {t u} → Γ ⊢ t [conv↓] u ∷Level → Γ ⊢ u [conv↓] t ∷Level
-  symConv↓Level ([↓]ˡ tᵛ uᵛ t≡ u≡ t≡u) =
-    [↓]ˡ uᵛ tᵛ u≡ t≡ (sym-≡ᵛ t≡u)
-
   -- Symmetry of algorithmic equality of terms in WHNF.
   symConv↓Term : ∀ {t u A} → ⊢ Γ ≡ Δ → Γ ⊢ t [conv↓] u ∷ A → Δ ⊢ u [conv↓] t ∷ A
   symConv↓Term Γ≡Δ (Level-ins t~u) =
@@ -395,6 +364,39 @@ mutual
     Id-ins (stabilityTerm Γ≡Δ (conv ⊢v₂ Id≡Id)) v₂~v₁ }}}}
   symConv↓Term Γ≡Δ (rfl-refl t≡u) =
     rfl-refl (stabilityEqTerm Γ≡Δ t≡u)
+
+  -- Symmetry of algorithmic equality of levels.
+
+  symConv↓Level : ∀ {t u} → Γ ⊢ t [conv↓] u ∷Level → Γ ⊢ u [conv↓] t ∷Level
+  symConv↓Level ([↓]ˡ tᵛ uᵛ t≡ u≡ t≡u) =
+    [↓]ˡ uᵛ tᵛ u≡ t≡ (sym-≡ᵛ t≡u)
+
+  sym~↓Level : ∀ {t u} → Γ ⊢ t ~ u ↓ Level → Γ ⊢ u ~ t ↓ Level
+  sym~↓Level t~u =
+    let B , whnfB , Level≡B , u~t = sym~↓ (reflConEq (wfEqTerm (soundness~↓ t~u))) t~u
+    in PE.subst (_⊢_~_↓_ _ _ _) (Level≡A Level≡B whnfB) u~t
+
+  sym-≡ⁿ : ∀ {t u : Term n} → ≡ⁿ Γ t u d → ≡ⁿ Γ t u (not d)
+  sym-≡ⁿ (ne≡ x) = ne≡' (sym~↓Level x)
+  sym-≡ⁿ (ne≡' x) = ne≡ (sym~↓Level x)
+
+  sym-≤ᵃ : ∀ {t u : LevelAtom Γ} → ≤ᵃ d t u → ≤ᵃ (not d) t u
+  sym-≤ᵃ zeroᵘ≤ = zeroᵘ≤
+  sym-≤ᵃ (ne≤ x) = ne≤ (sym-≡ⁿ x)
+
+  sym-≤⁺ : ∀ {t u : Level⁺ Γ} → ≤⁺ d t u → ≤⁺ (not d) t u
+  sym-≤⁺ (a , b) = a , sym-≤ᵃ b
+
+  sym-≤⁺ᵛ : ∀ {t} {u : Levels Γ} → ≤⁺ᵛ d t u → ≤⁺ᵛ (not d) t u
+  sym-≤⁺ᵛ (Any.here px) = Any.here (sym-≤⁺ px)
+  sym-≤⁺ᵛ (Any.there x) = Any.there (sym-≤⁺ᵛ x)
+
+  sym-≤ᵛ : ∀ {t u : Levels Γ} → ≤ᵛ d t u → ≤ᵛ (not d) t u
+  sym-≤ᵛ All.[] = All.[]
+  sym-≤ᵛ (px All.∷ x) = sym-≤⁺ᵛ px All.∷ sym-≤ᵛ x
+
+  sym-≡ᵛ : ∀ {t u : Levels Γ} → t ≡ᵛ u → u ≡ᵛ t
+  sym-≡ᵛ (t≤u , u≤t) = sym-≤ᵛ u≤t , sym-≤ᵛ t≤u
 
 symConv↓Term′ : ∀ {t u A} → Γ ⊢ t [conv↓] u ∷ A → Γ ⊢ u [conv↓] t ∷ A
 symConv↓Term′ tConvU =

@@ -218,126 +218,6 @@ mutual
       d′      : Γ ⊢ u ↘ u′ ∷ B
       t<>u    : Γ ⊢ t′ [conv↓] u′ ∷ B
 
-  data LevelAtom (Γ : Con Term n) : Set a where
-    zeroᵘ : LevelAtom Γ
-    ne : ∀ {t : Term n} → Γ ⊢ t ~ t ↓ Level → LevelAtom Γ
-
-  LevelPlus : Con Term n → Set a
-  LevelPlus Γ = Nat × LevelAtom Γ
-
-  LevelView : Con Term n → Set a
-  LevelView Γ = L.List (LevelPlus Γ)
-
-  data ≡ⁿ (Γ : Con Term n) (t u : Term n) : Bool → Set a where
-    ne≡ : Γ ⊢ t ~ u ↓ Level → ≡ⁿ Γ t u false
-    ne≡' : Γ ⊢ u ~ t ↓ Level → ≡ⁿ Γ t u true
-
-  data ≤ᵃ {Γ : Con Term n} (d : Bool) : LevelAtom Γ → LevelAtom Γ → Set a where
-    zeroᵘ≤ : ∀ {a} → ≤ᵃ d zeroᵘ a
-    ne≤
-      : ∀ {t u} {[t] : Γ ⊢ t ~ t ↓ Level} {[u] : Γ ⊢ u ~ u ↓ Level}
-      → ≡ⁿ Γ t u d
-      → ≤ᵃ d (ne [t]) (ne [u])
-
-  ≤⁺ : Bool → LevelPlus Γ → LevelPlus Γ → Set a
-  ≤⁺ d (n , a) (m , b) = n ≤ m × ≤ᵃ d a b
-
-  ≤⁺ᵛ : Bool → LevelPlus Γ → LevelView Γ → Set a
-  ≤⁺ᵛ d l l′ = Any.Any (≤⁺ d l) l′
-
-  ≤ᵛ : Bool → LevelView Γ → LevelView Γ → Set a
-  ≤ᵛ d l l′ = All.All (λ x → ≤⁺ᵛ d x l′) l
-
-  _≡ᵛ_ : LevelView Γ → LevelView Γ → Set a
-  l ≡ᵛ l′ = ≤ᵛ false l l′ × ≤ᵛ true l′ l
-
-  record _⊢_↑ᵛ_ (Γ : Con Term n) (t : Term n) (v : LevelView Γ) : Set a where
-    inductive
-    no-eta-equality
-    pattern
-    constructor [↑]ᵛ
-    field
-      {t′} : Term n
-      d    : Γ ⊢ t ↘ t′ ∷ Level
-      t↓v  : Γ ⊢ t′ ↓ᵛ v
-
-  zeroᵛ : LevelView Γ
-  zeroᵛ = L.[]
-
-  suc⁺ : LevelPlus Γ → LevelPlus Γ
-  suc⁺ (n , a) = 1+ n , a
-
-  -- Using L.map here results in termination problems in Definition.Conversion.Weakening
-  map-suc⁺ : LevelView Γ → LevelView Γ
-  map-suc⁺ L.[] = L.[]
-  map-suc⁺ (x L.∷ l) = suc⁺ x L.∷ map-suc⁺ l
-
-  sucᵛ : LevelView Γ → LevelView Γ
-  sucᵛ l = (1 , zeroᵘ) L.∷ map-suc⁺ l
-
-  maxᵛ : LevelView Γ → LevelView Γ → LevelView Γ
-  maxᵛ = L._++_
-
-  neᵛ : Γ ⊢ t ~ t ↓ Level → LevelView Γ
-  neᵛ t~t = L.[ 0 , ne t~t ]
-
-  data _⊢_↓ᵛ_ (Γ : Con Term n) : Term n → LevelView Γ → Set a where
-    zeroᵘₙ
-      : ⊢ Γ
-      → Γ ⊢ zeroᵘ ↓ᵛ zeroᵛ
-    sucᵘₙ
-      : ∀ {t v v′}
-      → v PE.≡ sucᵛ v′
-      → Γ ⊢ t ↑ᵛ v′
-      → Γ ⊢ sucᵘ t ↓ᵛ v
-    neₙ
-      : ∀ {v}
-      → Γ ⊢ t ~ᵛ v
-      → Γ ⊢ t ↓ᵛ v
-
-  data _⊢_~ᵛ_ (Γ : Con Term n) : Term n → LevelView Γ → Set a where
-    maxᵘˡₙ
-      : ∀ {t′ t″ v v′ v″}
-      → v PE.≡ maxᵛ v′ v″
-      → Γ ⊢ t′ ~ᵛ v′
-      → Γ ⊢ t″ ↑ᵛ v″
-      → Γ ⊢ t′ maxᵘ t″ ~ᵛ v
-    maxᵘʳₙ
-      : ∀ {t′ t″ v v′ v″}
-      → v PE.≡ maxᵛ (sucᵛ v′) v″
-      → Γ ⊢ t′ ↑ᵛ v′
-      → Γ ⊢ t″ ~ᵛ v″
-      → Γ ⊢ sucᵘ t′ maxᵘ t″ ~ᵛ v
-    neₙ
-      : ∀ {t v}
-      → ([t] : Γ ⊢ t ~ t ↓ Level)
-      → v PE.≡ neᵛ [t]
-      → Γ ⊢ t ~ᵛ v
-
-  record _⊢_[conv↑]_∷Level (Γ : Con Term n) (t u : Term n) : Set a where
-    inductive
-    no-eta-equality
-    pattern
-    constructor [↑]ˡ
-    field
-      tᵛ : LevelView Γ
-      uᵛ : LevelView Γ
-      t↑ : Γ ⊢ t ↑ᵛ tᵛ
-      u↑ : Γ ⊢ u ↑ᵛ uᵛ
-      t≡u : tᵛ ≡ᵛ uᵛ
-
-  record _⊢_[conv↓]_∷Level (Γ : Con Term n) (t u : Term n) : Set a where
-    inductive
-    no-eta-equality
-    pattern
-    constructor [↓]ˡ
-    field
-      tᵛ : LevelView Γ
-      uᵛ : LevelView Γ
-      t↓ : Γ ⊢ t ↓ᵛ tᵛ
-      u↓ : Γ ⊢ u ↓ᵛ uᵛ
-      t≡u : tᵛ ≡ᵛ uᵛ
-
   -- Term equality with types and terms in WHNF.
   data _⊢_[conv↓]_∷_ (Γ : Con Term n) : (t u A : Term n) → Set a where
 
@@ -432,6 +312,145 @@ mutual
     rfl-refl  : ∀ {A}
               → Γ ⊢ t ≡ u ∷ A
               → Γ ⊢ rfl [conv↓] rfl ∷ Id A t u
+
+  -- Level atoms and level views
+
+  data LevelAtom (Γ : Con Term n) : Set a where
+    zeroᵘ : LevelAtom Γ
+    ne : ∀ {t : Term n} → Γ ⊢ t ~ t ↓ Level → LevelAtom Γ
+
+  Level⁺ : Con Term n → Set a
+  Level⁺ Γ = Nat × LevelAtom Γ
+
+  Levels : Con Term n → Set a
+  Levels Γ = L.List (Level⁺ Γ)
+
+  -- Equality of level views.
+
+  _≡ᵛ_ : Levels Γ → Levels Γ → Set a
+  l ≡ᵛ l′ = ≤ᵛ false l l′ × ≤ᵛ true l′ l
+
+  -- Comparison of level views.
+  -- To make the termination checker happy in the proofs of e.g. decidability
+  -- and transitivity, this is parameterised by a boolean saying whether
+  -- to flip the conversion checking of atomic neutrals.
+
+  ≤ᵛ : Bool → Levels Γ → Levels Γ → Set a
+  ≤ᵛ d l l′ = All.All (λ x → ≤⁺ᵛ d x l′) l
+
+  ≤⁺ᵛ : Bool → Level⁺ Γ → Levels Γ → Set a
+  ≤⁺ᵛ d l l′ = Any.Any (≤⁺ d l) l′
+
+  ≤⁺ : Bool → Level⁺ Γ → Level⁺ Γ → Set a
+  ≤⁺ d (n , a) (m , b) = n ≤ m × ≤ᵃ d a b
+
+  data ≤ᵃ {Γ : Con Term n} (d : Bool) : LevelAtom Γ → LevelAtom Γ → Set a where
+    -- zeroᵘ is less than every level.
+    zeroᵘ≤ : ∀ {a} → ≤ᵃ d zeroᵘ a
+
+    -- For atomic neutrals n and m, n ≤ m iff n ≡ m.
+    ne≤
+      : ∀ {t u} {[t] : Γ ⊢ t ~ t ↓ Level} {[u] : Γ ⊢ u ~ u ↓ Level}
+      → ≡ⁿ Γ t u d
+      → ≤ᵃ d (ne [t]) (ne [u])
+
+  data ≡ⁿ (Γ : Con Term n) (t u : Term n) : Bool → Set a where
+    ne≡ : Γ ⊢ t ~ u ↓ Level → ≡ⁿ Γ t u false
+    ne≡' : Γ ⊢ u ~ t ↓ Level → ≡ⁿ Γ t u true
+
+  -- Operations on level views.
+
+  zeroᵛ : Levels Γ
+  zeroᵛ = L.[]
+
+  suc⁺ : Level⁺ Γ → Level⁺ Γ
+  suc⁺ (n , a) = 1+ n , a
+
+  -- Using L.map here results in termination problems in the proof of weakening.
+  map-suc⁺ : Levels Γ → Levels Γ
+  map-suc⁺ L.[] = L.[]
+  map-suc⁺ (x L.∷ l) = suc⁺ x L.∷ map-suc⁺ l
+
+  sucᵛ : Levels Γ → Levels Γ
+  sucᵛ l = (1 , zeroᵘ) L.∷ map-suc⁺ l
+
+  maxᵛ : Levels Γ → Levels Γ → Levels Γ
+  maxᵛ = L._++_
+
+  neᵛ : Γ ⊢ t ~ t ↓ Level → Levels Γ
+  neᵛ t~t = L.[ 0 , ne t~t ]
+
+  -- Normalisation of levels in whnf.
+  data _⊢_↓ᵛ_ (Γ : Con Term n) : Term n → Levels Γ → Set a where
+    zeroᵘₙ
+      : ⊢ Γ
+      → Γ ⊢ zeroᵘ ↓ᵛ zeroᵛ
+    sucᵘₙ
+      : ∀ {t v v′}
+      → v PE.≡ sucᵛ v′
+      → Γ ⊢ t ↑ᵛ v′
+      → Γ ⊢ sucᵘ t ↓ᵛ v
+    neₙ
+      : ∀ {v}
+      → Γ ⊢ t ~ᵛ v
+      → Γ ⊢ t ↓ᵛ v
+
+  -- Normalisation of neutral levels.
+  data _⊢_~ᵛ_ (Γ : Con Term n) : Term n → Levels Γ → Set a where
+    maxᵘˡₙ
+      : ∀ {t′ t″ v v′ v″}
+      → v PE.≡ maxᵛ v′ v″
+      → Γ ⊢ t′ ~ᵛ v′
+      → Γ ⊢ t″ ↑ᵛ v″
+      → Γ ⊢ t′ maxᵘ t″ ~ᵛ v
+    maxᵘʳₙ
+      : ∀ {t′ t″ v v′ v″}
+      → v PE.≡ maxᵛ (sucᵛ v′) v″
+      → Γ ⊢ t′ ↑ᵛ v′
+      → Γ ⊢ t″ ~ᵛ v″
+      → Γ ⊢ sucᵘ t′ maxᵘ t″ ~ᵛ v
+    neₙ
+      : ∀ {t v}
+      → ([t] : Γ ⊢ t ~ t ↓ Level)
+      → v PE.≡ neᵛ [t]
+      → Γ ⊢ t ~ᵛ v
+
+  -- Normalisation of levels.
+  record _⊢_↑ᵛ_ (Γ : Con Term n) (t : Term n) (v : Levels Γ) : Set a where
+    inductive
+    no-eta-equality
+    pattern
+    constructor [↑]ᵛ
+    field
+      {t′} : Term n
+      d    : Γ ⊢ t ↘ t′ ∷ Level
+      t↓v  : Γ ⊢ t′ ↓ᵛ v
+
+  -- Algorithmic equality of levels.
+  record _⊢_[conv↑]_∷Level (Γ : Con Term n) (t u : Term n) : Set a where
+    inductive
+    no-eta-equality
+    pattern
+    constructor [↑]ˡ
+    field
+      tᵛ : Levels Γ
+      uᵛ : Levels Γ
+      t↑ : Γ ⊢ t ↑ᵛ tᵛ
+      u↑ : Γ ⊢ u ↑ᵛ uᵛ
+      t≡u : tᵛ ≡ᵛ uᵛ
+
+  -- Algorithmic equality of levels in whnf.
+  record _⊢_[conv↓]_∷Level (Γ : Con Term n) (t u : Term n) : Set a where
+    inductive
+    no-eta-equality
+    pattern
+    constructor [↓]ˡ
+    field
+      tᵛ : Levels Γ
+      uᵛ : Levels Γ
+      t↓ : Γ ⊢ t ↓ᵛ tᵛ
+      u↓ : Γ ⊢ u ↓ᵛ uᵛ
+      t≡u : tᵛ ≡ᵛ uᵛ
 
 -- An inversion lemma for prod-cong.
 

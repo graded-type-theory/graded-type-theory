@@ -1002,58 +1002,6 @@ mutual
                 → Dec (Γ ⊢ t [conv↑] u ∷ A)
   decConv↑Term′ Γ≡Δ t u = decConv↑Term t (stabilityConv↑Term (symConEq Γ≡Δ) u)
 
-  _≡ⁿ?_ : {t u : Term n} → Γ ⊢ t ~ t ↓ Level → Γ ⊢ u ~ u ↓ Level → Dec (≡ⁿ Γ t u false)
-  _≡ⁿ?_ t u =
-    let _ , ⊢t , _ = syntacticEqTerm (soundness~↓ t)
-    in Dec-map ((λ (_ , x~y) → ne≡ (PE.subst (_ ⊢ _ ~ _ ↓_) (uncurry Level≡A (~↓→∷→Whnf×≡ x~y ⊢t)) x~y)) , λ { (ne≡ x) → _ , x }) (dec~↓ t u)
-  _≡ⁿ¿_ : {t u : Term n} → Γ ⊢ t ~ t ↓ Level → Γ ⊢ u ~ u ↓ Level → Dec (≡ⁿ Γ t u true)
-  _≡ⁿ¿_ t u =
-    let _ , ⊢u , _ = syntacticEqTerm (soundness~↓ u)
-    in Dec-map ((λ (_ , x~y) → ne≡' (PE.subst (_ ⊢ _ ~ _ ↓_) (uncurry Level≡A (~↓→∷→Whnf×≡ x~y ⊢u)) x~y)) , λ { (ne≡' x) → _ , x }) (dec~↓ u t)
-
-  _≤ᵃ?_ : (t u : LevelAtom Γ) → Dec (≤ᵃ false t u)
-  zeroᵘ ≤ᵃ? u = yes zeroᵘ≤
-  ne x ≤ᵃ? zeroᵘ = no λ ()
-  ne x ≤ᵃ? ne y = Dec-map (ne≤ , λ { (ne≤ x) → x }) (x ≡ⁿ? y)
-
-  _≤⁺?_ : (t u : LevelPlus Γ) → Dec (≤⁺ false t u)
-  (n , t) ≤⁺? (m , u) = n ≤? m ×-dec t ≤ᵃ? u
-
-  _≤⁺ᵛ?_ : (t : LevelPlus Γ) (u : LevelView Γ) → Dec (≤⁺ᵛ false t u)
-  t ≤⁺ᵛ? L.[] = no λ ()
-  t ≤⁺ᵛ? (x L.∷ u) = Dec-map (Any.fromSum , Any.toSum) (t ≤⁺? x ⊎-dec t ≤⁺ᵛ? u)
-
-  _≤ᵛ?_ : (t u : LevelView Γ) → Dec (≤ᵛ false t u)
-  L.[] ≤ᵛ? u = yes All.[]
-  (x L.∷ t) ≤ᵛ? u = Dec-map (uncurry All._∷_ , All.uncons) (x ≤⁺ᵛ? u ×-dec t ≤ᵛ? u)
-
-  _≤ᵃ¿_ : (t u : LevelAtom Γ) → Dec (≤ᵃ true t u)
-  zeroᵘ ≤ᵃ¿ u = yes zeroᵘ≤
-  ne x ≤ᵃ¿ zeroᵘ = no λ ()
-  ne x ≤ᵃ¿ ne y = Dec-map (ne≤ , λ { (ne≤ x) → x }) (x ≡ⁿ¿ y)
-
-  _≤⁺¿_ : (t u : LevelPlus Γ) → Dec (≤⁺ true t u)
-  (n , t) ≤⁺¿ (m , u) = n ≤? m ×-dec t ≤ᵃ¿ u
-
-  _≤⁺ᵛ¿_ : (t : LevelPlus Γ) (u : LevelView Γ) → Dec (≤⁺ᵛ true t u)
-  t ≤⁺ᵛ¿ L.[] = no λ ()
-  t ≤⁺ᵛ¿ (x L.∷ u) = Dec-map (Any.fromSum , Any.toSum) (t ≤⁺¿ x ⊎-dec t ≤⁺ᵛ¿ u)
-
-  _≤ᵛ¿_ : (t u : LevelView Γ) → Dec (≤ᵛ true t u)
-  L.[] ≤ᵛ¿ u = yes All.[]
-  (x L.∷ t) ≤ᵛ¿ u = Dec-map (uncurry All._∷_ , All.uncons) (x ≤⁺ᵛ¿ u ×-dec t ≤ᵛ¿ u)
-
-  _≡ᵛ?_ : (t u : LevelView Γ) → Dec (t ≡ᵛ u)
-  t ≡ᵛ? u = t ≤ᵛ? u ×-dec u ≤ᵛ¿ t
-
-  decConv↓Level : ∀ {t u t′ u′}
-               → Γ ⊢ t [conv↓] t′ ∷Level → Γ ⊢ u [conv↓] u′ ∷Level
-               → Dec (Γ ⊢ t [conv↓] u ∷Level)
-  decConv↓Level ([↓]ˡ tᵛ _ t≡ _ t≡t′) ([↓]ˡ uᵛ _ u≡ _ u≡u′) =
-    case tᵛ ≡ᵛ? uᵛ of λ where
-      (yes t≡u) → yes ([↓]ˡ tᵛ uᵛ t≡ u≡ t≡u)
-      (no t≢u) → no λ ([↓]ˡ tᵛ′ uᵛ′ t≡′ u≡′ t≡u) → t≢u (trans-≡≡ᵛ-≡ᵛ (irrelevance-↓ᵛ t≡ t≡′) (trans-≡ᵛ-≡≡ᵛ t≡u (irrelevance-↓ᵛ u≡′ u≡)))
-
   -- Decidability of algorithmic equality of terms in WHNF.
   decConv↓Term : ∀ {t u A t′ u′}
                → Γ ⊢ t [conv↓] t′ ∷ A → Γ ⊢ u [conv↓] u′ ∷ A
@@ -1262,3 +1210,62 @@ mutual
                 → Dec (Γ ⊢ t [conv↑] u ∷ A)
   decConv↑TermConv A≡B t u =
     decConv↑Term t (convConv↑Term (sym A≡B) u)
+
+  -- Decidability of algorithmic equality of levels.
+
+  decConv↓Level
+    : ∀ {t u t′ u′}
+    → Γ ⊢ t [conv↓] t′ ∷Level → Γ ⊢ u [conv↓] u′ ∷Level
+    → Dec (Γ ⊢ t [conv↓] u ∷Level)
+  decConv↓Level ([↓]ˡ tᵛ _ t≡ _ t≡t′) ([↓]ˡ uᵛ _ u≡ _ u≡u′) =
+    case tᵛ ≡ᵛ? uᵛ of λ where
+      (yes t≡u) → yes ([↓]ˡ tᵛ uᵛ t≡ u≡ t≡u)
+      (no t≢u) → no
+        λ ([↓]ˡ tᵛ′ uᵛ′ t≡′ u≡′ t≡u) → t≢u
+          (trans-≡≡ᵛ-≡ᵛ (deterministic-↓ᵛ t≡ t≡′)
+            (trans-≡ᵛ-≡≡ᵛ t≡u (deterministic-↓ᵛ u≡′ u≡)))
+
+  _≡ⁿ?_ : {t u : Term n} → Γ ⊢ t ~ t ↓ Level → Γ ⊢ u ~ u ↓ Level → Dec (≡ⁿ Γ t u false)
+  _≡ⁿ?_ t u =
+    let _ , ⊢t , _ = syntacticEqTerm (soundness~↓ t)
+    in Dec-map ((λ (_ , x~y) → ne≡ (PE.subst (_ ⊢ _ ~ _ ↓_) (uncurry Level≡A (~↓→∷→Whnf×≡ x~y ⊢t)) x~y)) , λ { (ne≡ x) → _ , x }) (dec~↓ t u)
+
+  _≡ⁿ¿_ : {t u : Term n} → Γ ⊢ t ~ t ↓ Level → Γ ⊢ u ~ u ↓ Level → Dec (≡ⁿ Γ t u true)
+  _≡ⁿ¿_ t u =
+    let _ , ⊢u , _ = syntacticEqTerm (soundness~↓ u)
+    in Dec-map ((λ (_ , x~y) → ne≡' (PE.subst (_ ⊢ _ ~ _ ↓_) (uncurry Level≡A (~↓→∷→Whnf×≡ x~y ⊢u)) x~y)) , λ { (ne≡' x) → _ , x }) (dec~↓ u t)
+
+  _≤ᵃ?_ : (t u : LevelAtom Γ) → Dec (≤ᵃ false t u)
+  zeroᵘ ≤ᵃ? u = yes zeroᵘ≤
+  ne x ≤ᵃ? zeroᵘ = no λ ()
+  ne x ≤ᵃ? ne y = Dec-map (ne≤ , λ { (ne≤ x) → x }) (x ≡ⁿ? y)
+
+  _≤ᵃ¿_ : (t u : LevelAtom Γ) → Dec (≤ᵃ true t u)
+  zeroᵘ ≤ᵃ¿ u = yes zeroᵘ≤
+  ne x ≤ᵃ¿ zeroᵘ = no λ ()
+  ne x ≤ᵃ¿ ne y = Dec-map (ne≤ , λ { (ne≤ x) → x }) (x ≡ⁿ¿ y)
+
+  _≤⁺?_ : (t u : Level⁺ Γ) → Dec (≤⁺ false t u)
+  (n , t) ≤⁺? (m , u) = n ≤? m ×-dec t ≤ᵃ? u
+
+  _≤⁺¿_ : (t u : Level⁺ Γ) → Dec (≤⁺ true t u)
+  (n , t) ≤⁺¿ (m , u) = n ≤? m ×-dec t ≤ᵃ¿ u
+
+  _≤⁺ᵛ?_ : (t : Level⁺ Γ) (u : Levels Γ) → Dec (≤⁺ᵛ false t u)
+  t ≤⁺ᵛ? L.[] = no λ ()
+  t ≤⁺ᵛ? (x L.∷ u) = Dec-map (Any.fromSum , Any.toSum) (t ≤⁺? x ⊎-dec t ≤⁺ᵛ? u)
+
+  _≤⁺ᵛ¿_ : (t : Level⁺ Γ) (u : Levels Γ) → Dec (≤⁺ᵛ true t u)
+  t ≤⁺ᵛ¿ L.[] = no λ ()
+  t ≤⁺ᵛ¿ (x L.∷ u) = Dec-map (Any.fromSum , Any.toSum) (t ≤⁺¿ x ⊎-dec t ≤⁺ᵛ¿ u)
+
+  _≤ᵛ?_ : (t u : Levels Γ) → Dec (≤ᵛ false t u)
+  L.[] ≤ᵛ? u = yes All.[]
+  (x L.∷ t) ≤ᵛ? u = Dec-map (uncurry All._∷_ , All.uncons) (x ≤⁺ᵛ? u ×-dec t ≤ᵛ? u)
+
+  _≤ᵛ¿_ : (t u : Levels Γ) → Dec (≤ᵛ true t u)
+  L.[] ≤ᵛ¿ u = yes All.[]
+  (x L.∷ t) ≤ᵛ¿ u = Dec-map (uncurry All._∷_ , All.uncons) (x ≤⁺ᵛ¿ u ×-dec t ≤ᵛ¿ u)
+
+  _≡ᵛ?_ : (t u : Levels Γ) → Dec (t ≡ᵛ u)
+  t ≡ᵛ? u = t ≤ᵛ? u ×-dec u ≤ᵛ¿ t

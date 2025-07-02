@@ -323,6 +323,9 @@ private module Lemmas where
         Γ ⊢ k ~ l ∷ A → Γ ⊢ k [conv↑] l ∷ A
   ~-to-conv (↑ x x₁) = convConv↑Term (sym x) (lift~toConv↑ x₁)
 
+  ≅ₜ-zeroᵘrefl : ⊢ Γ → Γ ⊢ zeroᵘ [conv↓] zeroᵘ ∷Level
+  ≅ₜ-zeroᵘrefl ⊢Γ = [↓]ˡ zeroᵛ zeroᵛ (zeroᵘₙ ⊢Γ) (zeroᵘₙ ⊢Γ) (≡ᵛ-refl zeroᵛ)
+
   ≅ₜ-sucᵘ-cong : Γ ⊢ t [conv↑] u ∷ Level → Γ ⊢ sucᵘ t [conv↓] sucᵘ u ∷Level
   ≅ₜ-sucᵘ-cong ([↑]ₜ B t′ u′ (D , _) d d′ t<>u) =
     case whnfRed* D Levelₙ of λ {
@@ -428,7 +431,7 @@ private opaque
     .Equality-relations.≅ₜ-Levelrefl →
       λ x → liftConvTerm (univ (Levelⱼ x) (Levelⱼ x) (Level-refl x))
     .Equality-relations.≅ₜ-zeroᵘrefl →
-      liftConvTerm ∘ᶠ Level-ins ∘ᶠ zeroᵘrefl
+      liftConvTerm ∘ᶠ Level-ins ∘ᶠ ≅ₜ-zeroᵘrefl
     .Equality-relations.≅ₜ-sucᵘ-cong →
       liftConvTerm ∘ᶠ Level-ins ∘ᶠ ≅ₜ-sucᵘ-cong
     .Equality-relations.≅ₜ-maxᵘ-cong → λ a b → inv-[conv↑]∷-Level⇔ .proj₂ (≅ₜ-maxᵘ-cong (inv-[conv↑]∷-Level⇔ .proj₁ a) (inv-[conv↑]∷-Level⇔ .proj₁ b))
