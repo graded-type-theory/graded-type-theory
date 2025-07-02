@@ -19,25 +19,19 @@ open Type-restrictions R
 open import Definition.LogicalRelation R ⦃ eqrel ⦄
 open import Definition.LogicalRelation.Hidden R ⦃ eqrel ⦄
 import Definition.LogicalRelation.Hidden.Restricted R ⦃ eqrel ⦄ as R
-open import Definition.LogicalRelation.Irrelevance R ⦃ eqrel ⦄
 open import Definition.LogicalRelation.Properties R ⦃ eqrel ⦄
 open import Definition.LogicalRelation.ShapeView R ⦃ eqrel ⦄
 open import Definition.LogicalRelation.Substitution R ⦃ eqrel ⦄
 
 open import Definition.Typed R
 open import Definition.Typed.Properties R
-open import Definition.Typed.Reasoning.Reduction R
-open import Definition.Typed.Well-formed R
 
 open import Definition.Untyped M
 open import Definition.Untyped.Neutral M type-variant
-open import Definition.Untyped.Properties M
 
 open import Tools.Empty
 open import Tools.Function
-open import Tools.Nat
 open import Tools.Product as Σ
-open import Tools.Sum
 import Tools.PropositionalEquality as PE
 
 private variable
@@ -155,35 +149,6 @@ opaque
     Γ ⊩⟨ l ⟩ t ≡ t ∷ Level            →⟨ ⊩sucᵘ≡sucᵘ∷Level ⟩
     Γ ⊩⟨ l ⟩ sucᵘ t ≡ sucᵘ t ∷ Level  ⇔˘⟨ ⊩∷⇔⊩≡∷ ⟩→
     Γ ⊩⟨ l ⟩ sucᵘ t ∷ Level           □
-
-opaque
-
-  private mutual
-    0≡t : ∀ {t} → [Level]-prop Γ zeroᵘ t → t PE.≡ zeroᵘ
-    0≡t zeroᵘᵣ = PE.refl
-    0≡t (sym x) = t≡0 x
-    0≡t (trans x y) = case 0≡t x of λ { PE.refl → 0≡t y }
-    0≡t (neLvl n) = case nelsplit n .proj₁ of λ { (ne ()) }
-
-    t≡0 : ∀ {t} → [Level]-prop Γ t zeroᵘ → t PE.≡ zeroᵘ
-    t≡0 zeroᵘᵣ = PE.refl
-    t≡0 (neLvl x) = case nelsplit x .proj₂ of λ { (ne ()) }
-    t≡0 (sym x) = 0≡t x
-    t≡0 (trans x y) = case t≡0 y of λ { PE.refl → t≡0 x }
-
-  -- A characterisation lemma for _⊩⟨_⟩ zeroᵘ ≡ sucᵘ _ ∷ Level
-
-  ⊩zeroᵘ≡sucᵘ∷Level⇔ : Γ ⊩⟨ l ⟩ zeroᵘ ≡ sucᵘ t ∷ Level ⇔ ⊥
-  ⊩zeroᵘ≡sucᵘ∷Level⇔ =
-      (λ zeroᵘ≡sucᵘ →
-         case ⊩≡∷Level⇔ .proj₁ zeroᵘ≡sucᵘ of λ {
-           (Levelₜ₌ _ _ zeroᵘ⇒* sucᵘ⇒* rest) →
-         case whnfRed*Term zeroᵘ⇒* zeroᵘₙ of λ {
-           PE.refl →
-         case whnfRed*Term sucᵘ⇒* sucᵘₙ of λ {
-           PE.refl →
-         sucᵘ≢zeroᵘ (0≡t rest) }}})
-    , ⊥-elim
 
 ------------------------------------------------------------------------
 -- Level
@@ -501,59 +466,3 @@ opaque
               ⊩t[σ₁] , ⊩t[σ₂] = wf-⊩≡∷ t[σ₁]≡t[σ₂]
           in trans-⊩≡∷ (⊩maxᵘ-sub∷Level ⊩t[σ₁]) (⊩sucᵘ≡sucᵘ∷Level t[σ₁]≡t[σ₂])
       )
-
-------------------------------------------------------------------------
--- Level reflection
-
-opaque
-  unfolding ↑ᵘ′_
-
-  -- Level reflection sends zeroᵘ to 0ᵘ.
-
-  ↑ᵘ-zeroᵘ : ([0] : Γ ⊩Level zeroᵘ ∷Level) → ↑ᵘ [0] PE.≡ 0ᵘ
-  ↑ᵘ-zeroᵘ [0] = PE.cong 0ᵘ+_ (↑ᵘ′-zeroᵘ [0])
-
-  -- zeroᵘ is the smallest level.
-
-  zeroᵘ-≤ᵘ : {[0] : Γ ⊩Level zeroᵘ ∷Level} → ↑ᵘ [0] ≤ᵘ l
-  zeroᵘ-≤ᵘ {l} {[0]} = PE.subst (_≤ᵘ l) (PE.sym (↑ᵘ-zeroᵘ [0])) 0≤ᵘ
-
-opaque
-  unfolding ↑ᵘ′_ ⊩sucᵘ
-
-  -- Level reflection sends sucᵘ to 1+.
-
-  ↑ᵘ′-sucᵘ
-    : ∀ {t} ([t] : Γ ⊩Level t ∷Level) ([t+1] : Γ ⊩Level sucᵘ t ∷Level)
-    → ↑ᵘ′ [t+1] PE.≡ 1+ (↑ᵘ′ [t])
-  ↑ᵘ′-sucᵘ [t]@record{} [t+1] = ↑ᵘ′-irrelevance [t+1] (⊩sucᵘ [t])
-
-  -- sucᵘ is inflationary.
-
-  <′-sucᵘ
-    : ∀ {t} ([t] : Γ ⊩Level t ∷Level) ([t+1] : Γ ⊩Level sucᵘ t ∷Level)
-    → ↑ᵘ′ [t] <′ ↑ᵘ′ [t+1]
-  <′-sucᵘ [t] [t+1] = PE.subst (↑ᵘ′ [t] <′_) (PE.sym (↑ᵘ′-sucᵘ [t] [t+1])) ≤′-refl
-
-  <ᵘ-sucᵘ
-    : ∀ {t} {[t] : Γ ⊩Level t ∷Level} {[t+1] : Γ ⊩Level sucᵘ t ∷Level}
-    → ↑ᵘ [t] <ᵘ ↑ᵘ [t+1]
-  <ᵘ-sucᵘ {[t]} {[t+1]} = <ᵘ-nat (<′-sucᵘ [t] [t+1])
-
--- t maxᵘ u is an upper bound of t and u.
-
-opaque
-
-  ≤ᵘ-maxᵘʳ :
-    {⊩t ⊩t′ : Γ ⊩Level t ∷Level} →
-    {⊩u : Γ ⊩Level u ∷Level} →
-    ↑ᵘ ⊩t ≤ᵘ ↑ᵘ ⊩maxᵘ ⊩t′ ⊩u
-  ≤ᵘ-maxᵘʳ {⊩t′} {⊩u} = PE.subst₂ (_≤ᵘ_) ↑ᵘ-irrelevance (PE.sym $ ↑ᵘ-maxᵘ ⊩t′ ⊩u) ≤ᵘ⊔ᵘʳ
-
-opaque
-
-  ≤ᵘ-maxᵘˡ :
-    {⊩t : Γ ⊩Level t ∷Level} →
-    {⊩u ⊩u′ : Γ ⊩Level u ∷Level} →
-    ↑ᵘ ⊩u ≤ᵘ ↑ᵘ ⊩maxᵘ ⊩t ⊩u′
-  ≤ᵘ-maxᵘˡ {⊩t} {⊩u′} = PE.subst₂ (_≤ᵘ_) ↑ᵘ-irrelevance (PE.sym $ ↑ᵘ-maxᵘ ⊩t ⊩u′) ≤ᵘ⊔ᵘˡ

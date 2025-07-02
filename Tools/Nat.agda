@@ -40,7 +40,7 @@ open Data.Nat.Properties
          m≤m⊔n; m≤n⊔m;
          m<n⊓o⇒m<n; m<n⊓o⇒m<o; ⊓-pres-m<;
          m⊓n≤m⊔n; m+n∸n≡m; m∸n+n≡m; ⊔-mono-<;
-         <⇒<′; <′⇒<; ≤′⇒≤; ≤′-trans; z≤′n)
+         <⇒<′; <′⇒<; ≤⇒≤′; ≤′⇒≤; ≤′-trans; z≤′n)
   renaming (suc-injective to 1+-injective;
             s≤′s to 1+≤′1+)
   public
