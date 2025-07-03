@@ -54,8 +54,10 @@ private
     n : Nat
     Γ : Con Term n
 
-wf~↓ : ∀ {t u} → Γ ⊢ t ~ u ↓ Level → Γ ⊢ t ~ t ↓ Level × Γ ⊢ u ~ u ↓ Level
-wf~↓ t~u =
+-- Some lemmas used below.
+
+wf~↓Level : ∀ {t u} → Γ ⊢ t ~ u ↓ Level → Γ ⊢ t ~ t ↓ Level × Γ ⊢ u ~ u ↓ Level
+wf~↓Level t~u =
     trans~↓ t~u (sym~↓Level t~u) .proj₁
   , trans~↓ (sym~↓Level t~u) t~u .proj₁
 
@@ -94,7 +96,7 @@ mutual
         ⊢Level , ⊢t , ⊢u = syntacticEqTerm t≡u
         ⊩t≡u = neNfₜ₌ no-equality-reflection nt nu t≡u
         t↓u = [~] A (D₂ , Levelₙ) t~u
-        [t] , [u] = wf~↓ t↓u
+        [t] , [u] = wf~↓Level t↓u
     in Level-ins ([↓]ˡ
       (neᵛ [t]) (neᵛ [u])
       (neₙ (neₙ [t] PE.refl)) (neₙ (neₙ [u] PE.refl))
