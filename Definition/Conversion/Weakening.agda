@@ -268,7 +268,7 @@ mutual
              → Δ ⊢ U.wk ρ t [conv↓] U.wk ρ u ∷Level
   wkConv↓Level {ρ = ρ} [ρ] ([↓]ˡ tᵛ uᵛ t≡ u≡ t≡u) =
     [↓]ˡ
-      (wkLevels [ρ] tᵛ) (wkLevels [ρ] uᵛ)
+      (wkLevelᵛ [ρ] tᵛ) (wkLevelᵛ [ρ] uᵛ)
       (wk-↓ᵛ [ρ] t≡)
       (wk-↓ᵛ [ρ] u≡)
       (wk-≡ᵛ [ρ] _ _ t≡u)
@@ -278,9 +278,9 @@ mutual
   wkLevelAtom [ρ] (ne x) = ne (wk~↓ [ρ] x)
   wkLevel⁺ : ρ ∷ʷ Δ ⊇ Γ → Level⁺ Γ → Level⁺ Δ
   wkLevel⁺ [ρ] (n , l) = n , wkLevelAtom [ρ] l
-  wkLevels : ρ ∷ʷ Δ ⊇ Γ → Levels Γ → Levels Δ
-  wkLevels [ρ] L.[] = L.[]
-  wkLevels [ρ] (x L.∷ xs) = wkLevel⁺ [ρ] x L.∷ wkLevels [ρ] xs
+  wkLevelᵛ : ρ ∷ʷ Δ ⊇ Γ → Levelᵛ Γ → Levelᵛ Δ
+  wkLevelᵛ [ρ] L.[] = L.[]
+  wkLevelᵛ [ρ] (x L.∷ xs) = wkLevel⁺ [ρ] x L.∷ wkLevelᵛ [ρ] xs
 
   wk-sucᵘᵏ : ∀ {t} k → sucᵘᵏ k (U.wk ρ t) PE.≡ U.wk ρ (sucᵘᵏ k t)
   wk-sucᵘᵏ (Nat.zero) = PE.refl
@@ -293,14 +293,14 @@ mutual
   wkLevel⁺→Term : ([ρ] : ρ ∷ʷ Δ ⊇ Γ) (t : Level⁺ Γ) → Level⁺→Term (wkLevel⁺ [ρ] t) PE.≡ U.wk ρ (Level⁺→Term t)
   wkLevel⁺→Term [ρ] (n , a) = PE.trans (PE.cong (sucᵘᵏ n) (wkLevelAtom→Term [ρ] a)) (wk-sucᵘᵏ n)
 
-  wkLevels→Term : ∀ {t} → ([ρ] : ρ ∷ʷ Δ ⊇ Γ) → Levels→Term (wkLevels [ρ] t) PE.≡ U.wk ρ (Levels→Term t)
-  wkLevels→Term {t = L.[]} [ρ] = PE.refl
-  wkLevels→Term {t = x L.∷ t} [ρ] = PE.cong₂ _maxᵘ_ (wkLevel⁺→Term [ρ] x) (wkLevels→Term [ρ])
+  wkLevelᵛ→Term : ∀ {t} → ([ρ] : ρ ∷ʷ Δ ⊇ Γ) → Levelᵛ→Term (wkLevelᵛ [ρ] t) PE.≡ U.wk ρ (Levelᵛ→Term t)
+  wkLevelᵛ→Term {t = L.[]} [ρ] = PE.refl
+  wkLevelᵛ→Term {t = x L.∷ t} [ρ] = PE.cong₂ _maxᵘ_ (wkLevel⁺→Term [ρ] x) (wkLevelᵛ→Term [ρ])
 
-  wk-sucᵛ : ([ρ] : ρ ∷ʷ Δ ⊇ Γ) → (v v′ : Levels Γ) → v PE.≡ sucᵛ v′ → wkLevels [ρ] v PE.≡ sucᵛ (wkLevels [ρ] v′)
+  wk-sucᵛ : ([ρ] : ρ ∷ʷ Δ ⊇ Γ) → (v v′ : Levelᵛ Γ) → v PE.≡ sucᵛ v′ → wkLevelᵛ [ρ] v PE.≡ sucᵛ (wkLevelᵛ [ρ] v′)
   wk-sucᵛ [ρ] v v′ PE.refl = PE.cong (_ L.∷_) (wk-map-suc⁺ [ρ] _ _ PE.refl)
 
-  wk-map-suc⁺ : ([ρ] : ρ ∷ʷ Δ ⊇ Γ) → (v v′ : Levels Γ) → v PE.≡ map-suc⁺ v′ → wkLevels [ρ] v PE.≡ map-suc⁺ (wkLevels [ρ] v′)
+  wk-map-suc⁺ : ([ρ] : ρ ∷ʷ Δ ⊇ Γ) → (v v′ : Levelᵛ Γ) → v PE.≡ map-suc⁺ v′ → wkLevelᵛ [ρ] v PE.≡ map-suc⁺ (wkLevelᵛ [ρ] v′)
   wk-map-suc⁺ [ρ] L.[] L.[] PE.refl = PE.refl
   wk-map-suc⁺ [ρ] L.[] (x L.∷ v′) ()
   wk-map-suc⁺ [ρ] (x L.∷ v) L.[] ()
@@ -311,10 +311,10 @@ mutual
 
   wkLevel⁺-cong : ∀ ([ρ] : ρ ∷ʷ Δ ⊇ Γ) (a b : Level⁺ Γ) → a PE.≡ b → wkLevel⁺ [ρ] a PE.≡ wkLevel⁺ [ρ] b
   wkLevel⁺-cong [ρ] a b PE.refl = PE.refl
-  wkLevels-cong : ∀ ([ρ] : ρ ∷ʷ Δ ⊇ Γ) (a b : Levels Γ) → a PE.≡ b → wkLevels [ρ] a PE.≡ wkLevels [ρ] b
-  wkLevels-cong [ρ] a b PE.refl = PE.refl
+  wkLevelᵛ-cong : ∀ ([ρ] : ρ ∷ʷ Δ ⊇ Γ) (a b : Levelᵛ Γ) → a PE.≡ b → wkLevelᵛ [ρ] a PE.≡ wkLevelᵛ [ρ] b
+  wkLevelᵛ-cong [ρ] a b PE.refl = PE.refl
 
-  wk-maxᵛ : ([ρ] : ρ ∷ʷ Δ ⊇ Γ) (v v′ v″ : Levels Γ) → v PE.≡ maxᵛ v′ v″ → wkLevels [ρ] v PE.≡ maxᵛ (wkLevels [ρ] v′) (wkLevels [ρ] v″)
+  wk-maxᵛ : ([ρ] : ρ ∷ʷ Δ ⊇ Γ) (v v′ v″ : Levelᵛ Γ) → v PE.≡ maxᵛ v′ v″ → wkLevelᵛ [ρ] v PE.≡ maxᵛ (wkLevelᵛ [ρ] v′) (wkLevelᵛ [ρ] v″)
   wk-maxᵛ [ρ] L.[] L.[] v″ PE.refl = PE.refl
   wk-maxᵛ [ρ] L.[] (x L.∷ v′) v″ ()
   wk-maxᵛ [ρ] (x L.∷ v) L.[] v″ PE.refl = PE.refl
@@ -322,7 +322,7 @@ mutual
     let a , b = L.∷-injective eq
     in PE.cong₂ L._∷_ (wkLevel⁺-cong [ρ] x x₁ a) (wk-maxᵛ [ρ] _ _ v″ b)
 
-  wk-maxᵛ-map-suc⁺ : ([ρ] : ρ ∷ʷ Δ ⊇ Γ) (v v′ v″ : Levels Γ) → v PE.≡ maxᵛ (map-suc⁺ v′) v″ → wkLevels [ρ] v PE.≡ maxᵛ (map-suc⁺ (wkLevels [ρ] v′)) (wkLevels [ρ] v″)
+  wk-maxᵛ-map-suc⁺ : ([ρ] : ρ ∷ʷ Δ ⊇ Γ) (v v′ v″ : Levelᵛ Γ) → v PE.≡ maxᵛ (map-suc⁺ v′) v″ → wkLevelᵛ [ρ] v PE.≡ maxᵛ (map-suc⁺ (wkLevelᵛ [ρ] v′)) (wkLevelᵛ [ρ] v″)
   wk-maxᵛ-map-suc⁺ [ρ] L.[] L.[] v″ PE.refl = PE.refl
   wk-maxᵛ-map-suc⁺ [ρ] L.[] (x L.∷ v′) v″ ()
   wk-maxᵛ-map-suc⁺ [ρ] (x L.∷ v) L.[] v″ PE.refl = PE.refl
@@ -330,24 +330,24 @@ mutual
     let a , b = L.∷-injective eq
     in PE.cong₂ L._∷_ (wkLevel⁺-cong-suc⁺ [ρ] x x₁ a) (wk-maxᵛ-map-suc⁺ [ρ] _ _ v″ b)
 
-  wk-maxᵛ-sucᵛ : ([ρ] : ρ ∷ʷ Δ ⊇ Γ) (v v′ v″ : Levels Γ) → v PE.≡ maxᵛ (sucᵛ v′) v″ → wkLevels [ρ] v PE.≡ maxᵛ (sucᵛ (wkLevels [ρ] v′)) (wkLevels [ρ] v″)
+  wk-maxᵛ-sucᵛ : ([ρ] : ρ ∷ʷ Δ ⊇ Γ) (v v′ v″ : Levelᵛ Γ) → v PE.≡ maxᵛ (sucᵛ v′) v″ → wkLevelᵛ [ρ] v PE.≡ maxᵛ (sucᵛ (wkLevelᵛ [ρ] v′)) (wkLevelᵛ [ρ] v″)
   wk-maxᵛ-sucᵛ [ρ] L.[] v′ v″ ()
   wk-maxᵛ-sucᵛ [ρ] (x L.∷ v) v′ v″ eq =
     let a , b = L.∷-injective eq
     in PE.cong₂ L._∷_ (wkLevel⁺-cong [ρ] _ _ a) (wk-maxᵛ-map-suc⁺ [ρ] _ _ v″ b)
 
-  wk-↑ᵛ : ([ρ] : ρ ∷ʷ Δ ⊇ Γ) → ∀ {t v} → Γ ⊢ t ↑ᵛ v → Δ ⊢ U.wk ρ t ↑ᵛ wkLevels [ρ] v
+  wk-↑ᵛ : ([ρ] : ρ ∷ʷ Δ ⊇ Γ) → ∀ {t v} → Γ ⊢ t ↑ᵛ v → Δ ⊢ U.wk ρ t ↑ᵛ wkLevelᵛ [ρ] v
   wk-↑ᵛ [ρ] ([↑]ᵛ d t↓v) = [↑]ᵛ (wkRed↘Term [ρ] d) (wk-↓ᵛ [ρ] t↓v)
 
-  wk-↓ᵛ : ([ρ] : ρ ∷ʷ Δ ⊇ Γ) → ∀ {t v} → Γ ⊢ t ↓ᵛ v → Δ ⊢ U.wk ρ t ↓ᵛ wkLevels [ρ] v
+  wk-↓ᵛ : ([ρ] : ρ ∷ʷ Δ ⊇ Γ) → ∀ {t v} → Γ ⊢ t ↓ᵛ v → Δ ⊢ U.wk ρ t ↓ᵛ wkLevelᵛ [ρ] v
   wk-↓ᵛ [ρ] (zeroᵘₙ x) = zeroᵘₙ (wf-∷ʷ⊇ [ρ])
   wk-↓ᵛ [ρ] (sucᵘₙ {v} {v′} x₁ t≡u) = sucᵘₙ (wk-sucᵛ [ρ] v _ x₁) (wk-↑ᵛ [ρ] t≡u)
   wk-↓ᵛ [ρ] (neₙ x) = neₙ (wk-~ᵛ [ρ] x)
 
-  wk-~ᵛ : ([ρ] : ρ ∷ʷ Δ ⊇ Γ) → ∀ {t v} → Γ ⊢ t ~ᵛ v → Δ ⊢ U.wk ρ t ~ᵛ wkLevels [ρ] v
+  wk-~ᵛ : ([ρ] : ρ ∷ʷ Δ ⊇ Γ) → ∀ {t v} → Γ ⊢ t ~ᵛ v → Δ ⊢ U.wk ρ t ~ᵛ wkLevelᵛ [ρ] v
   wk-~ᵛ {ρ = ρ} [ρ] (maxᵘˡₙ {v′} {v″} x t~ u↑) = maxᵘˡₙ (wk-maxᵛ [ρ] _ v′ v″ x) (wk-~ᵛ [ρ] t~) (wk-↑ᵛ [ρ] u↑)
   wk-~ᵛ {ρ = ρ} [ρ] (maxᵘʳₙ {v′} {v″} x t↑ u~) = maxᵘʳₙ (wk-maxᵛ-sucᵛ [ρ] _ v′ v″ x) (wk-↑ᵛ [ρ] t↑) (wk-~ᵛ [ρ] u~)
-  wk-~ᵛ {ρ = ρ} [ρ] (neₙ [t] x) = neₙ (wk~↓ [ρ] [t]) (wkLevels-cong [ρ] _ _ x)
+  wk-~ᵛ {ρ = ρ} [ρ] (neₙ [t] x) = neₙ (wk~↓ [ρ] [t]) (wkLevelᵛ-cong [ρ] _ _ x)
 
   wk-≡ⁿ : ([ρ] : ρ ∷ʷ Δ ⊇ Γ) → (t u : Term n) → ≡ⁿ Γ t u d → ≡ⁿ Δ (U.wk ρ t) (U.wk ρ u) d
   wk-≡ⁿ [ρ] t u (ne≡ x) = ne≡ (wk~↓ [ρ] x)
@@ -357,13 +357,13 @@ mutual
   wk-≤⁺ [ρ] t u (x , zeroᵘ≤) = x , zeroᵘ≤
   wk-≤⁺ [ρ] t u (x , ne≤ y) = x , ne≤ (wk-≡ⁿ [ρ] _ _ y)
 
-  wk-≤⁺ᵛ : ([ρ] : ρ ∷ʷ Δ ⊇ Γ) → (t : Level⁺ Γ) → (u : Levels Γ) → ≤⁺ᵛ d t u → ≤⁺ᵛ d (wkLevel⁺ [ρ] t) (wkLevels [ρ] u)
+  wk-≤⁺ᵛ : ([ρ] : ρ ∷ʷ Δ ⊇ Γ) → (t : Level⁺ Γ) → (u : Levelᵛ Γ) → ≤⁺ᵛ d t u → ≤⁺ᵛ d (wkLevel⁺ [ρ] t) (wkLevelᵛ [ρ] u)
   wk-≤⁺ᵛ [ρ] t u (Any.here px) = Any.here (wk-≤⁺ [ρ] _ _ px)
   wk-≤⁺ᵛ [ρ] t u (Any.there t≤u) = Any.there (wk-≤⁺ᵛ [ρ] _ _ t≤u)
 
-  wk-≤ᵛ : ([ρ] : ρ ∷ʷ Δ ⊇ Γ) → (t u : Levels Γ) → ≤ᵛ d t u → ≤ᵛ d (wkLevels [ρ] t) (wkLevels [ρ] u)
+  wk-≤ᵛ : ([ρ] : ρ ∷ʷ Δ ⊇ Γ) → (t u : Levelᵛ Γ) → ≤ᵛ d t u → ≤ᵛ d (wkLevelᵛ [ρ] t) (wkLevelᵛ [ρ] u)
   wk-≤ᵛ [ρ] t u All.[] = All.[]
   wk-≤ᵛ [ρ] t u (px All.∷ t≤u) = wk-≤⁺ᵛ [ρ] _ _ px All.∷ wk-≤ᵛ [ρ] _ _ t≤u
 
-  wk-≡ᵛ : ([ρ] : ρ ∷ʷ Δ ⊇ Γ) → (t u : Levels Γ) → t ≡ᵛ u → wkLevels [ρ] t ≡ᵛ wkLevels [ρ] u
+  wk-≡ᵛ : ([ρ] : ρ ∷ʷ Δ ⊇ Γ) → (t u : Levelᵛ Γ) → t ≡ᵛ u → wkLevelᵛ [ρ] t ≡ᵛ wkLevelᵛ [ρ] u
   wk-≡ᵛ [ρ] t u (t≤u , u≤t) = wk-≤ᵛ [ρ] t u t≤u , wk-≤ᵛ [ρ] u t u≤t

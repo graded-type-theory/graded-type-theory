@@ -443,15 +443,15 @@ mutual
   trans-≤⁺ : ∀ {t u v : Level⁺ Γ} → ≤⁺ false t u → ≤⁺ false u v → ≤⁺ false t v
   trans-≤⁺ (n≤m , t≤u) (m≤o , u≤v) = ≤-trans n≤m m≤o , trans-≤ᵃ t≤u u≤v
 
-  trans-≤⁺-≤⁺ᵛ : ∀ {t u : Level⁺ Γ} {v : Levels Γ} → ≤⁺ false t u → ≤⁺ᵛ false u v → ≤⁺ᵛ false t v
+  trans-≤⁺-≤⁺ᵛ : ∀ {t u : Level⁺ Γ} {v : Levelᵛ Γ} → ≤⁺ false t u → ≤⁺ᵛ false u v → ≤⁺ᵛ false t v
   trans-≤⁺-≤⁺ᵛ t≤u (Any.here px) = Any.here (trans-≤⁺ t≤u px)
   trans-≤⁺-≤⁺ᵛ t≤u (Any.there u≤v) = Any.there (trans-≤⁺-≤⁺ᵛ t≤u u≤v)
 
-  trans-≤⁺ᵛ-≤ᵛ : ∀ {t : Level⁺ Γ} {u v : Levels Γ} → ≤⁺ᵛ false t u → ≤ᵛ false u v → ≤⁺ᵛ false t v
+  trans-≤⁺ᵛ-≤ᵛ : ∀ {t : Level⁺ Γ} {u v : Levelᵛ Γ} → ≤⁺ᵛ false t u → ≤ᵛ false u v → ≤⁺ᵛ false t v
   trans-≤⁺ᵛ-≤ᵛ (Any.here px) (px₁ All.∷ u≤v) = trans-≤⁺-≤⁺ᵛ px px₁
   trans-≤⁺ᵛ-≤ᵛ (Any.there t≤u) (px All.∷ u≤v) = trans-≤⁺ᵛ-≤ᵛ t≤u u≤v
 
-  trans-≤ᵛ : ∀ {t u v : Levels Γ} → ≤ᵛ false t u → ≤ᵛ false u v → ≤ᵛ false t v
+  trans-≤ᵛ : ∀ {t u v : Levelᵛ Γ} → ≤ᵛ false t u → ≤ᵛ false u v → ≤ᵛ false t v
   trans-≤ᵛ All.[] u≤v = All.[]
   trans-≤ᵛ (px All.∷ t≤u) u≤v = trans-≤⁺ᵛ-≤ᵛ px u≤v All.∷ trans-≤ᵛ t≤u u≤v
 
@@ -465,19 +465,19 @@ mutual
   trans'-≤⁺ : ∀ {t u v : Level⁺ Γ} → ≤⁺ true t u → ≤⁺ true u v → ≤⁺ true t v
   trans'-≤⁺ (n≤m , t≤u) (m≤o , u≤v) = ≤-trans n≤m m≤o , trans'-≤ᵃ t≤u u≤v
 
-  trans'-≤⁺-≤⁺ᵛ : ∀ {t u : Level⁺ Γ} {v : Levels Γ} → ≤⁺ true t u → ≤⁺ᵛ true u v → ≤⁺ᵛ true t v
+  trans'-≤⁺-≤⁺ᵛ : ∀ {t u : Level⁺ Γ} {v : Levelᵛ Γ} → ≤⁺ true t u → ≤⁺ᵛ true u v → ≤⁺ᵛ true t v
   trans'-≤⁺-≤⁺ᵛ t≤u (Any.here px) = Any.here (trans'-≤⁺ t≤u px)
   trans'-≤⁺-≤⁺ᵛ t≤u (Any.there u≤v) = Any.there (trans'-≤⁺-≤⁺ᵛ t≤u u≤v)
 
-  trans'-≤⁺ᵛ-≤ᵛ : ∀ {t : Level⁺ Γ} {u v : Levels Γ} → ≤⁺ᵛ true t u → ≤ᵛ true u v → ≤⁺ᵛ true t v
+  trans'-≤⁺ᵛ-≤ᵛ : ∀ {t : Level⁺ Γ} {u v : Levelᵛ Γ} → ≤⁺ᵛ true t u → ≤ᵛ true u v → ≤⁺ᵛ true t v
   trans'-≤⁺ᵛ-≤ᵛ (Any.here px) (px₁ All.∷ u≤v) = trans'-≤⁺-≤⁺ᵛ px px₁
   trans'-≤⁺ᵛ-≤ᵛ (Any.there t≤u) (px All.∷ u≤v) = trans'-≤⁺ᵛ-≤ᵛ t≤u u≤v
 
-  trans'-≤ᵛ : ∀ {t u v : Levels Γ} → ≤ᵛ true t u → ≤ᵛ true u v → ≤ᵛ true t v
+  trans'-≤ᵛ : ∀ {t u v : Levelᵛ Γ} → ≤ᵛ true t u → ≤ᵛ true u v → ≤ᵛ true t v
   trans'-≤ᵛ All.[] u≤v = All.[]
   trans'-≤ᵛ (px All.∷ t≤u) u≤v = trans'-≤⁺ᵛ-≤ᵛ px u≤v All.∷ trans'-≤ᵛ t≤u u≤v
 
-  trans-≡ᵛ : ∀ {t u v : Levels Γ} → t ≡ᵛ u → u ≡ᵛ v → t ≡ᵛ v
+  trans-≡ᵛ : ∀ {t u v : Levelᵛ Γ} → t ≡ᵛ u → u ≡ᵛ v → t ≡ᵛ v
   trans-≡ᵛ (t≤u , u≤t) (u≤v , v≤u) = trans-≤ᵛ t≤u u≤v , trans'-≤ᵛ v≤u u≤t
 
 -- Transitivity of algorithmic equality of types of the same context.

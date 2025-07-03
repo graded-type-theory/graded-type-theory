@@ -387,15 +387,15 @@ mutual
   sym-≤⁺ : ∀ {t u : Level⁺ Γ} → ≤⁺ d t u → ≤⁺ (not d) t u
   sym-≤⁺ (a , b) = a , sym-≤ᵃ b
 
-  sym-≤⁺ᵛ : ∀ {t} {u : Levels Γ} → ≤⁺ᵛ d t u → ≤⁺ᵛ (not d) t u
+  sym-≤⁺ᵛ : ∀ {t} {u : Levelᵛ Γ} → ≤⁺ᵛ d t u → ≤⁺ᵛ (not d) t u
   sym-≤⁺ᵛ (Any.here px) = Any.here (sym-≤⁺ px)
   sym-≤⁺ᵛ (Any.there x) = Any.there (sym-≤⁺ᵛ x)
 
-  sym-≤ᵛ : ∀ {t u : Levels Γ} → ≤ᵛ d t u → ≤ᵛ (not d) t u
+  sym-≤ᵛ : ∀ {t u : Levelᵛ Γ} → ≤ᵛ d t u → ≤ᵛ (not d) t u
   sym-≤ᵛ All.[] = All.[]
   sym-≤ᵛ (px All.∷ x) = sym-≤⁺ᵛ px All.∷ sym-≤ᵛ x
 
-  sym-≡ᵛ : ∀ {t u : Levels Γ} → t ≡ᵛ u → u ≡ᵛ t
+  sym-≡ᵛ : ∀ {t u : Levelᵛ Γ} → t ≡ᵛ u → u ≡ᵛ t
   sym-≡ᵛ (t≤u , u≤t) = sym-≤ᵛ u≤t , sym-≤ᵛ t≤u
 
 symConv↓Term′ : ∀ {t u A} → Γ ⊢ t [conv↓] u ∷ A → Γ ⊢ u [conv↓] t ∷ A

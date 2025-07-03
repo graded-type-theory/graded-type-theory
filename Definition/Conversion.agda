@@ -322,12 +322,12 @@ mutual
   Level⁺ : Con Term n → Set a
   Level⁺ Γ = Nat × LevelAtom Γ
 
-  Levels : Con Term n → Set a
-  Levels Γ = L.List (Level⁺ Γ)
+  Levelᵛ : Con Term n → Set a
+  Levelᵛ Γ = L.List (Level⁺ Γ)
 
   -- Equality of level views.
 
-  _≡ᵛ_ : Levels Γ → Levels Γ → Set a
+  _≡ᵛ_ : Levelᵛ Γ → Levelᵛ Γ → Set a
   l ≡ᵛ l′ = ≤ᵛ false l l′ × ≤ᵛ true l′ l
 
   -- Comparison of level views.
@@ -335,10 +335,10 @@ mutual
   -- and transitivity, this is parameterised by a boolean saying whether
   -- to flip the conversion checking of atomic neutrals.
 
-  ≤ᵛ : Bool → Levels Γ → Levels Γ → Set a
+  ≤ᵛ : Bool → Levelᵛ Γ → Levelᵛ Γ → Set a
   ≤ᵛ d l l′ = All.All (λ x → ≤⁺ᵛ d x l′) l
 
-  ≤⁺ᵛ : Bool → Level⁺ Γ → Levels Γ → Set a
+  ≤⁺ᵛ : Bool → Level⁺ Γ → Levelᵛ Γ → Set a
   ≤⁺ᵛ d l l′ = Any.Any (≤⁺ d l) l′
 
   ≤⁺ : Bool → Level⁺ Γ → Level⁺ Γ → Set a
@@ -360,28 +360,28 @@ mutual
 
   -- Operations on level views.
 
-  zeroᵛ : Levels Γ
+  zeroᵛ : Levelᵛ Γ
   zeroᵛ = L.[]
 
   suc⁺ : Level⁺ Γ → Level⁺ Γ
   suc⁺ (n , a) = 1+ n , a
 
   -- Using L.map here results in termination problems in the proof of weakening.
-  map-suc⁺ : Levels Γ → Levels Γ
+  map-suc⁺ : Levelᵛ Γ → Levelᵛ Γ
   map-suc⁺ L.[] = L.[]
   map-suc⁺ (x L.∷ l) = suc⁺ x L.∷ map-suc⁺ l
 
-  sucᵛ : Levels Γ → Levels Γ
+  sucᵛ : Levelᵛ Γ → Levelᵛ Γ
   sucᵛ l = (1 , zeroᵘ) L.∷ map-suc⁺ l
 
-  maxᵛ : Levels Γ → Levels Γ → Levels Γ
+  maxᵛ : Levelᵛ Γ → Levelᵛ Γ → Levelᵛ Γ
   maxᵛ = L._++_
 
-  neᵛ : Γ ⊢ t ~ t ↓ Level → Levels Γ
+  neᵛ : Γ ⊢ t ~ t ↓ Level → Levelᵛ Γ
   neᵛ t~t = L.[ 0 , ne t~t ]
 
   -- Normalisation of levels in whnf.
-  data _⊢_↓ᵛ_ (Γ : Con Term n) : Term n → Levels Γ → Set a where
+  data _⊢_↓ᵛ_ (Γ : Con Term n) : Term n → Levelᵛ Γ → Set a where
     zeroᵘₙ
       : ⊢ Γ
       → Γ ⊢ zeroᵘ ↓ᵛ zeroᵛ
@@ -396,7 +396,7 @@ mutual
       → Γ ⊢ t ↓ᵛ v
 
   -- Normalisation of neutral levels.
-  data _⊢_~ᵛ_ (Γ : Con Term n) : Term n → Levels Γ → Set a where
+  data _⊢_~ᵛ_ (Γ : Con Term n) : Term n → Levelᵛ Γ → Set a where
     maxᵘˡₙ
       : ∀ {t′ t″ v v′ v″}
       → v PE.≡ maxᵛ v′ v″
@@ -416,7 +416,7 @@ mutual
       → Γ ⊢ t ~ᵛ v
 
   -- Normalisation of levels.
-  record _⊢_↑ᵛ_ (Γ : Con Term n) (t : Term n) (v : Levels Γ) : Set a where
+  record _⊢_↑ᵛ_ (Γ : Con Term n) (t : Term n) (v : Levelᵛ Γ) : Set a where
     inductive
     no-eta-equality
     pattern
@@ -433,8 +433,8 @@ mutual
     pattern
     constructor [↑]ˡ
     field
-      tᵛ : Levels Γ
-      uᵛ : Levels Γ
+      tᵛ : Levelᵛ Γ
+      uᵛ : Levelᵛ Γ
       t↑ : Γ ⊢ t ↑ᵛ tᵛ
       u↑ : Γ ⊢ u ↑ᵛ uᵛ
       t≡u : tᵛ ≡ᵛ uᵛ
@@ -446,8 +446,8 @@ mutual
     pattern
     constructor [↓]ˡ
     field
-      tᵛ : Levels Γ
-      uᵛ : Levels Γ
+      tᵛ : Levelᵛ Γ
+      uᵛ : Levelᵛ Γ
       t↓ : Γ ⊢ t ↓ᵛ tᵛ
       u↓ : Γ ⊢ u ↓ᵛ uᵛ
       t≡u : tᵛ ≡ᵛ uᵛ

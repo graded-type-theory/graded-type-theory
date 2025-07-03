@@ -1251,21 +1251,21 @@ mutual
   _≤⁺¿_ : (t u : Level⁺ Γ) → Dec (≤⁺ true t u)
   (n , t) ≤⁺¿ (m , u) = n ≤? m ×-dec t ≤ᵃ¿ u
 
-  _≤⁺ᵛ?_ : (t : Level⁺ Γ) (u : Levels Γ) → Dec (≤⁺ᵛ false t u)
+  _≤⁺ᵛ?_ : (t : Level⁺ Γ) (u : Levelᵛ Γ) → Dec (≤⁺ᵛ false t u)
   t ≤⁺ᵛ? L.[] = no λ ()
   t ≤⁺ᵛ? (x L.∷ u) = Dec-map (Any.fromSum , Any.toSum) (t ≤⁺? x ⊎-dec t ≤⁺ᵛ? u)
 
-  _≤⁺ᵛ¿_ : (t : Level⁺ Γ) (u : Levels Γ) → Dec (≤⁺ᵛ true t u)
+  _≤⁺ᵛ¿_ : (t : Level⁺ Γ) (u : Levelᵛ Γ) → Dec (≤⁺ᵛ true t u)
   t ≤⁺ᵛ¿ L.[] = no λ ()
   t ≤⁺ᵛ¿ (x L.∷ u) = Dec-map (Any.fromSum , Any.toSum) (t ≤⁺¿ x ⊎-dec t ≤⁺ᵛ¿ u)
 
-  _≤ᵛ?_ : (t u : Levels Γ) → Dec (≤ᵛ false t u)
+  _≤ᵛ?_ : (t u : Levelᵛ Γ) → Dec (≤ᵛ false t u)
   L.[] ≤ᵛ? u = yes All.[]
   (x L.∷ t) ≤ᵛ? u = Dec-map (uncurry All._∷_ , All.uncons) (x ≤⁺ᵛ? u ×-dec t ≤ᵛ? u)
 
-  _≤ᵛ¿_ : (t u : Levels Γ) → Dec (≤ᵛ true t u)
+  _≤ᵛ¿_ : (t u : Levelᵛ Γ) → Dec (≤ᵛ true t u)
   L.[] ≤ᵛ¿ u = yes All.[]
   (x L.∷ t) ≤ᵛ¿ u = Dec-map (uncurry All._∷_ , All.uncons) (x ≤⁺ᵛ¿ u ×-dec t ≤ᵛ¿ u)
 
-  _≡ᵛ?_ : (t u : Levels Γ) → Dec (t ≡ᵛ u)
+  _≡ᵛ?_ : (t u : Levelᵛ Γ) → Dec (t ≡ᵛ u)
   t ≡ᵛ? u = t ≤ᵛ? u ×-dec u ≤ᵛ¿ t
