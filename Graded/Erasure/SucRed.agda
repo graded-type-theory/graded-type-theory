@@ -19,12 +19,14 @@ open import Tools.Nat
 open import Tools.Product
 import Tools.PropositionalEquality as PE
 open import Tools.Relation
+open import Tools.Sum
 open import Tools.Unit
 
 open import Definition.Untyped M
 open import Definition.Typed R
 open import Definition.Typed.Consequences.Consistency R
 open import Definition.Typed.Properties R
+open import Definition.Typed.Well-formed R
 
 open import Graded.Erasure.Target as T
   using (Strictness; strict; non-strict)
@@ -114,6 +116,21 @@ subset*Termˢ (x ⇨ˢ d) = trans (subsetTermˢ x) (subset*Termˢ d)
   Γ ⊢ t ⇒ˢ* zero ∷ℕ → Γ ⊢ t ⇒* zero ∷ ℕ
 ⇒ˢ*zero∷ℕ→⇒*zero t⇒ =
   ⇒ˢ*∷ℕ≡zero→⇒* t⇒ (refl (zeroⱼ (wfEqTerm (subset*Termˢ t⇒))))
+
+opaque
+
+  -- If t reduces to u according to _⊢_⇒ˢ*_∷ℕ, then t reduces to
+  -- either u or an application of suc according to _⊢_⇒*_∷_.
+
+  ⇒ˢ*∷ℕ→⇒*⊎⇒*suc :
+    Γ ⊢ t ⇒ˢ* u ∷ℕ → Γ ⊢ t ⇒* u ∷ ℕ ⊎ ∃ λ v → Γ ⊢ t ⇒* suc v ∷ ℕ
+  ⇒ˢ*∷ℕ→⇒*⊎⇒*suc (id ⊢t)           = inj₁ (id ⊢t)
+  ⇒ˢ*∷ℕ→⇒*⊎⇒*suc (sucred t⇒v ⇨ˢ _) =
+    inj₂ (_ , id (sucⱼ (wf-⊢≡∷ (subsetTermˢ t⇒v) .proj₂ .proj₁)))
+  ⇒ˢ*∷ℕ→⇒*⊎⇒*suc (whred t⇒v ⇨ˢ v⇒*u) =
+    case ⇒ˢ*∷ℕ→⇒*⊎⇒*suc v⇒*u of λ where
+      (inj₁ v⇒*u)           → inj₁ (t⇒v ⇨ v⇒*u)
+      (inj₂ (_ , v⇒*suc-w)) → inj₂ (_ , t⇒v ⇨ v⇒*suc-w)
 
 ------------------------------------------------------------------------
 -- _⇒ˢ*_
@@ -233,6 +250,20 @@ suc⇒*suc {v = v} (T.trans v⇒ _) is-suc-v =
       case ⇒ˢ*suc→⇒*suc v′⇒*suc of λ {
         (_ , v′⇒*suc) →
       _ , T.trans (⇒ˢ≢suc→⇒ v⇒v′ not-suc) v′⇒*suc }
+
+opaque
+
+  -- If v reduces to w according to _⇒ˢ*_, then v reduces to either w
+  -- or an application of T.suc according to T._⇒*_.
+
+  ⇒ˢ*→⇒*⊎⇒*suc :
+    v ⇒ˢ* w → v T.⇒* w ⊎ ∃ λ w′ → v T.⇒* T.suc w′
+  ⇒ˢ*→⇒*⊎⇒*suc refl                      = inj₁ T.refl
+  ⇒ˢ*→⇒*⊎⇒*suc (trans (sucred _) _)      = inj₂ (_ , T.refl)
+  ⇒ˢ*→⇒*⊎⇒*suc (trans (whred v⇒v′) v′⇒w) =
+    case ⇒ˢ*→⇒*⊎⇒*suc v′⇒w of λ where
+      (inj₁ v′⇒w)         → inj₁ (T.trans v⇒v′ v′⇒w)
+      (inj₂ (_ , v′⇒suc)) → inj₂ (_ , T.trans v⇒v′ v′⇒suc)
 
 ------------------------------------------------------------------------
 -- _⇒ˢ⟨_⟩*_
