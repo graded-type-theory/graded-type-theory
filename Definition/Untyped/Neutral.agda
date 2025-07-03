@@ -242,6 +242,13 @@ Identity-rec :
 Identity-rec rflₙ   r n = r
 Identity-rec (ne _) r n = n
 
+opaque
+
+  -- Numerals satisfy the predicate Natural.
+
+  Numeral→Natural : Numeral t → Natural t
+  Numeral→Natural zeroₙ    = zeroₙ
+  Numeral→Natural (sucₙ _) = sucₙ
 
 -- These views classify only WHNFs: Natural, Type, Function, Product,
 -- Star and Identity are subsets of Whnf.
