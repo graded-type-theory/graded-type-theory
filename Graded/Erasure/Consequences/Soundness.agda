@@ -250,8 +250,9 @@ module _
 -- Σʷ-allowed p 𝟘 holds, then there is a counterexample to
 -- soundness-ℕ-only-source without the assumption "erased matches are
 -- not allowed unless the context is empty" (and without the
--- strictness argument as well as the assumption that the modality's
--- zero is well-behaved).
+-- strictness argument, the assumption that the modality's zero is
+-- well-behaved, and the assumption that Neutrals-included holds or
+-- the context is empty).
 
 soundness-ℕ-only-source-counterexample₁ :
   Prodrec-allowed 𝟙ᵐ 𝟘 p 𝟘 →
@@ -302,11 +303,12 @@ soundness-ℕ-only-source-counterexample₁ {p = p} P-ok Σʷ-ok =
 
 opaque
 
-  -- If []-cong-allowed and []-cong-allowed-mode 𝟙ᵐ hold, then there is
-  -- a counterexample to soundness-ℕ-only-source without the assumption
-  -- "erased matches are not allowed unless the context is empty" (and
-  -- without the strictness argument as well as the assumption that the
-  -- modality's zero is well-behaved).
+  -- If []-cong-allowed and []-cong-allowed-mode 𝟙ᵐ hold, then there
+  -- is a counterexample to soundness-ℕ-only-source without the
+  -- assumption "erased matches are not allowed unless the context is
+  -- empty" (and without the strictness argument, the assumption that
+  -- the modality's zero is well-behaved, and the assumption that
+  -- Neutrals-included holds or the context is empty).
 
   soundness-ℕ-only-source-counterexample₂ :
     []-cong-allowed s →
@@ -345,8 +347,9 @@ opaque
   -- If erased-matches-for-J 𝟙ᵐ is equal to not-none sem, then there
   -- is a counterexample to soundness-ℕ-only-source without the
   -- assumption "erased matches are not allowed unless the context is
-  -- empty" (and without the strictness argument as well as the
-  -- assumption that the modality's zero is well-behaved).
+  -- empty" (and without the strictness argument, the assumption that
+  -- the modality's zero is well-behaved, and the assumption that
+  -- Neutrals-included holds or the context is empty).
 
   soundness-ℕ-only-source-counterexample₃ :
     erased-matches-for-J 𝟙ᵐ ≡ not-none sem →
@@ -380,8 +383,9 @@ opaque
   -- not-none sem, then there is a counterexample to
   -- soundness-ℕ-only-source without the assumption "erased matches
   -- are not allowed unless the context is empty" (and without the
-  -- strictness argument as well as the assumption that the modality's
-  -- zero is well-behaved).
+  -- strictness argument, the assumption that the modality's zero is
+  -- well-behaved, and the assumption that Neutrals-included holds or
+  -- the context is empty).
 
   soundness-ℕ-only-source-counterexample₄ :
     K-allowed →
@@ -416,8 +420,9 @@ opaque
   -- is not allowed for weak unit types, then there is a
   -- counterexample to soundness-ℕ-only-source without the assumption
   -- "erased matches are not allowed unless the context is empty" (and
-  -- without the strictness argument as well as the assumption that
-  -- the modality's zero is well-behaved).
+  -- without the strictness argument, the assumption that the
+  -- modality's zero is well-behaved, and the assumption that
+  -- Neutrals-included holds or the context is empty).
 
   soundness-ℕ-only-source-counterexample₅ :
     Unitrec-allowed 𝟙ᵐ 𝟘 𝟘 →
@@ -465,7 +470,7 @@ opaque
   -- * "if erased matches are allowed for emptyrec, then the context
   --   is consistent",
   -- * "erased matches are not allowed unless the context is empty",
-  --   and
+  -- * "Neutrals-included holds or the context is empty", and
   -- * the assumption that the modality's zero is well-behaved.
   --
   -- Note that the counterexample does not make use of any erased
