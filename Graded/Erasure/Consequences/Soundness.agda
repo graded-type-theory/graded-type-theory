@@ -21,6 +21,8 @@ open import Definition.Untyped M
 import Definition.Untyped.Erased 𝕄 as Erased
 open import Definition.Untyped.Identity 𝕄
 open import Definition.Untyped.Neutral M type-variant
+open import Definition.Untyped.Omega M using (Ω)
+open import Definition.Untyped.Properties M
 open import Definition.Untyped.Sigma 𝕄
 open import Definition.Untyped.Unit 𝕄
 
@@ -34,10 +36,12 @@ open import Definition.Typed.Substitution TR
 
 open import Graded.Context 𝕄
 open import Graded.Derived.Erased.Usage 𝕄 UR
+open import Graded.Derived.Omega UR
 open import Graded.Usage 𝕄 UR
 open import Graded.Usage.Erased-matches
 open import Graded.Usage.Properties 𝕄 UR
 open import Graded.Context.Properties 𝕄
+open import Graded.Modality.Properties 𝕄
 open import Graded.Mode 𝕄
 
 open import Graded.Erasure.Target as T
@@ -46,6 +50,7 @@ import Graded.Erasure.Target.Properties as TP
 open import Graded.Erasure.Target.Reasoning
 open import Graded.Erasure.Extraction 𝕄
 open import Graded.Erasure.Extraction.Non-terminating TR UR
+open import Graded.Erasure.Extraction.Properties 𝕄
 open import Graded.Erasure.SucRed TR
 import Graded.Erasure.LogicalRelation
 open import Graded.Erasure.LogicalRelation.Assumptions TR
@@ -63,6 +68,7 @@ open import Tools.Product
 import Tools.Reasoning.PartialOrder
 open import Tools.Relation
 open import Tools.PropositionalEquality as PE using (_≡_; _≢_)
+open import Tools.Sum
 
 private
   variable
@@ -497,6 +503,56 @@ opaque
            whnfRedTerm emptyrec⇒ (ne (emptyrecₙ (var _))))
     , ¬loop⇒ˢ* TP.Value-sucᵏ ∘→ proj₂
     where
+    open ≤ᶜ-reasoning
+
+opaque
+
+  -- If equality reflection is allowed and Π p , q is allowed for some
+  -- grade p that satisfies p ≤ 1 + p, then there is a counterexample
+  -- to soundness-ℕ without the assumption "Neutrals-included holds or
+  -- the context is empty" (and without the strictness argument, the
+  -- assumption that the modality's zero is well-behaved, the
+  -- assumption "erased matches are not allowed unless the context is
+  -- empty", and the assumption "if erased matches are allowed for
+  -- emptyrec, then the context is consistent").
+
+  soundness-ℕ-counterexample₇ :
+    Equality-reflection →
+    Π-allowed p q →
+    p ≤ 𝟙 + p →
+    let Δ = ε ∙ Empty
+        t = Ω p
+    in
+    Δ ⊢ t ∷ ℕ ×
+    𝟘ᶜ ▸[ 𝟙ᵐ ] t ×
+    (¬ ∃ λ n → Δ ⊢ t ⇒ˢ* sucᵏ n ∷ℕ) ×
+    (¬ ∃ λ n → erase str t ⇒ˢ⟨ str ⟩* T.sucᵏ n)
+  soundness-ℕ-counterexample₇ {p} {str} ok Π-ok p≤𝟙+p =
+    (let ⊢E = Emptyⱼ ε in
+     ⊢Ω∷ ok Π-ok (var₀ ⊢E) (ℕⱼ (∙ ⊢E))) ,
+    ▸Ω (λ _ → p≤𝟙+p) ,
+    (λ (n , Ω⇒) → case ⇒ˢ*∷ℕ→⇒*⊎⇒*suc Ω⇒ of λ where
+       (inj₂ (_ , Ω⇒)) → Ω-does-not-reduce-to-WHNF-⊢∷ sucₙ Ω⇒
+       (inj₁ Ω⇒)       →
+         Ω-does-not-reduce-to-WHNF-⊢∷
+           (naturalWhnf (Numeral→Natural (sucᵏ-Numeral _))) Ω⇒) ,
+    (λ (n , erase-Ω⇒) → case PE.singleton str of λ where
+       (strict , PE.refl) →
+         erase-Ω-does-not-have-a-value TP.Value-sucᵏ erase-Ω⇒
+       (non-strict , PE.refl) → case ⇒ˢ*→⇒*⊎⇒*suc erase-Ω⇒ of λ where
+         (inj₂ (_ , erase-Ω⇒)) →
+           erase-Ω-does-not-have-a-value T.suc erase-Ω⇒
+         (inj₁ erase-Ω⇒) →
+           erase-Ω-does-not-have-a-value TP.Value-sucᵏ erase-Ω⇒)
+    where
+    lemma : ∀ m → p ≤ ⌜ m ⌝ + p
+    lemma 𝟙ᵐ = p≤𝟙+p
+    lemma 𝟘ᵐ = begin
+      p      ≡˘⟨ +-identityˡ _ ⟩
+      𝟘 + p  ∎
+      where
+      open Tools.Reasoning.PartialOrder ≤-poset
+
     open ≤ᶜ-reasoning
 
 -- Run-time canonicity for a given term with respect to a given
