@@ -99,6 +99,7 @@ import Definition.Untyped.Erased.Eta
 import Definition.Untyped.Erased.No-eta
 import Definition.Untyped.Erased
 import Definition.Untyped.Bool.Erased
+import Definition.Untyped.Omega
 import Graded.Derived.Unrestricted.Eta.Untyped
 import Definition.Typed.Variant
 import Definition.Untyped.Neutral
@@ -144,6 +145,7 @@ import Definition.Typed.Properties.Admissible.Lift
 import Definition.Typed.Properties.Admissible.Bool.OK
 import Definition.Typed.Properties.Admissible.Bool
 import Definition.Typed.Properties.Admissible.Bool.Erased
+import Definition.Typed.Properties.Admissible.Omega
 import Definition.Typed.Substitution
 import Definition.Typed.Properties
 import Definition.Typed.EqualityRelation
@@ -194,6 +196,7 @@ import Graded.Derived.Erased.Usage.No-eta
 import Graded.Derived.Erased.Usage
 import Graded.Derived.Bool.Erased
 import Graded.Derived.Unrestricted.Eta.Usage
+import Graded.Derived.Omega
 
 ------------------------------------------------------------------------
 -- Assumptions used to state the theorems in Graded.FullReduction
