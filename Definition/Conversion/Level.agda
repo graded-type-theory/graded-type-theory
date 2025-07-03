@@ -96,7 +96,7 @@ Levelᵛ→Term (l L.∷ xs) = Level⁺→Term l maxᵘ Levelᵛ→Term xs
 ≡ᵛ-max : ∀ {u u′ v v′ : Levelᵛ Γ} → u ≡ᵛ v → u′ ≡ᵛ v′ → maxᵛ u u′ ≡ᵛ maxᵛ v v′
 ≡ᵛ-max (u≤v , v≤u) (u′≤v′ , v′≤u′) = ≤ᵛ-max u≤v u′≤v′ , ≤ᵛ-max v≤u v′≤u′
 
--- Strict equality of level views.
+-- Syntactic equality of level views.
 
 data _≡≡ᵃ_ {Γ : Con Term n} : LevelAtom Γ → LevelAtom Γ → Set a where
   zero : zeroᵘ ≡≡ᵃ zeroᵘ
@@ -108,7 +108,7 @@ _≡≡⁺_ : Level⁺ Γ → Level⁺ Γ → Set a
 _≡≡ᵛ_ : Levelᵛ Γ → Levelᵛ Γ → Set a
 _≡≡ᵛ_ = P.Pointwise _≡≡⁺_
 
--- Symmetry of strict equality.
+-- Symmetry of syntactic equality.
 
 sym-≡≡ᵃ : ∀ {a b : LevelAtom Γ} → a ≡≡ᵃ b → b ≡≡ᵃ a
 sym-≡≡ᵃ zero = zero
@@ -120,7 +120,7 @@ sym-≡≡⁺ (n≡m , a≡b) = PE.sym n≡m , sym-≡≡ᵃ a≡b
 sym-≡≡ᵛ : ∀ {a b : Levelᵛ Γ} → a ≡≡ᵛ b → b ≡≡ᵛ a
 sym-≡≡ᵛ = P.symmetric sym-≡≡⁺
 
--- Transitivity of strict equality and weak equality.
+-- Transitivity of syntactic equality and weak equality.
 
 trans-≡≡ᵃ-≤ᵃ : ∀ {a b c : LevelAtom Γ} → a ≡≡ᵃ b → ≤ᵃ d b c → ≤ᵃ d a c
 trans-≡≡ᵃ-≤ᵃ zero zeroᵘ≤ = zeroᵘ≤
@@ -158,7 +158,7 @@ trans-≡≡ᵛ-≡ᵛ a≡b (b≤c , c≤b) = trans-≡≡ᵛ-≤ᵛ a≡b b≤
 trans-≡ᵛ-≡≡ᵛ : ∀ {a b c : Levelᵛ Γ} → a ≡ᵛ b → b ≡≡ᵛ c → a ≡ᵛ c
 trans-≡ᵛ-≡≡ᵛ (a≤b , b≤a) b≡c = trans-≡≡ᵛ-≤ᵛ' (sym-≡≡ᵛ b≡c) a≤b , trans-≡≡ᵛ-≤ᵛ (sym-≡≡ᵛ b≡c) b≤a
 
--- Congruence lemmas for strict equality.
+-- Congruence lemmas for syntactic equality.
 
 ≡≡ᵛ-map-suc⁺ : ∀ {a b : Levelᵛ Γ} → a ≡≡ᵛ b → map-suc⁺ a ≡≡ᵛ map-suc⁺ b
 ≡≡ᵛ-map-suc⁺ P.[] = P.[]
@@ -170,7 +170,7 @@ trans-≡ᵛ-≡≡ᵛ (a≤b , b≤a) b≡c = trans-≡≡ᵛ-≤ᵛ' (sym-≡�
 ≡≡ᵛ-maxᵛ : ∀ {a a′ b b′ : Levelᵛ Γ} → a ≡≡ᵛ b → a′ ≡≡ᵛ b′ → maxᵛ a a′ ≡≡ᵛ maxᵛ b b′
 ≡≡ᵛ-maxᵛ = P.++⁺
 
--- Level normalisation is deterministic up to strict equality.
+-- Level normalisation is deterministic up to syntactic equality.
 
 mutual
   deterministic-↑ᵛ : ∀ {t v v′} → Γ ⊢ t ↑ᵛ v → Γ ⊢ t ↑ᵛ v′ → v ≡≡ᵛ v′
