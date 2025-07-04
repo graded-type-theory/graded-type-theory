@@ -41,4 +41,4 @@ highlights:
 ### Dependencies ###
 
 This project is written in Agda. It has been tested to be working with
-Agda version 2.7.0.1 and its standard library version 2.1.
+Agda version 2.7.0.1 and its standard library version 2.2.
