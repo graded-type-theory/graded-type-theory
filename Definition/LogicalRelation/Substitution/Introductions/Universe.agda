@@ -320,7 +320,7 @@ opaque
   ⊩ᵛU≡U = ⊩ᵛ≡∷U→⊩ᵛ≡ ∘→ ⊩ᵛU≡U∷U
 
 ------------------------------------------------------------------------
--- Validity of Level
+-- Validity of Level, seen as a term former
 
 opaque
 

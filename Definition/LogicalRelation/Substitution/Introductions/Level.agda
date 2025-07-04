@@ -169,6 +169,10 @@ opaque
           Δ ⊩⟨ l ⟩ Level ≡ Level    □
       )
 
+-- The validity of Level seen as a term former is defined in
+-- Definition.LogicalRelation.Substitution.Introductions.Universe
+-- to avoid cyclic module dependencies.
+
 ------------------------------------------------------------------------
 -- The constructors zeroᵘ and sucᵘ
 
