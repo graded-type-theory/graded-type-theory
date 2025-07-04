@@ -216,7 +216,7 @@ transEqT {n = n} {Γ = Γ} {l = l} {l′ = l′} {l″ = l″}
        in  transEq ([G] ρ [a]) ([G]₁ ρ [a′]) ([G]₂ ρ [a″])
              ([G≡G′] ρ [a]) ([G≡G′]₁ ρ [a′])) }}
 transEqT (Uᵥ (Uᵣ l′ l< ⇒*U) (Uᵣ l′₁ l<₁ ⇒*U₁) (Uᵣ l′₂ l<₂ ⇒*U₂)) D D₁
-  rewrite whrDet* (⇒*U₁ , Uₙ) (D , Uₙ)  | whrDet* (⇒*U₂ , Uₙ) (D₁ , Uₙ) =
+  rewrite whrDet* (⇒*U₁ , Uₙ) (D , Uₙ) =
   D₁
 transEqT (Idᵥ ⊩A ⊩B@record{} ⊩C@record{}) A≡B B≡C =
   case whrDet* (_⊩ₗId_.⇒*Id ⊩B , Idₙ)
