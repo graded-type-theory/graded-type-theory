@@ -2,7 +2,7 @@
 -- Every well-formed type is a term in some universe
 ------------------------------------------------------------------------
 
--- This is no longer true with (the current implementation of)
+-- TODO: This is no longer true with (the current implementation of)
 -- universe polymorphism, because (l : Level) → U l is not in any universe.
 
 open import Definition.Typed.Restrictions
@@ -14,7 +14,6 @@ module Definition.Typed.InverseUniv
   (R : Type-restrictions 𝕄)
   where
 
-{-
 open import Definition.Untyped M
 open import Definition.Typed R
 open import Definition.Typed.Properties.Well-formed R
@@ -67,4 +66,3 @@ opaque
 
   ⊢⇒⇔⊢⇒∷U : Γ ⊢ A ⇒ B ⇔ ∃ λ l → Γ ⊢ A ⇒ B ∷ U l
   ⊢⇒⇔⊢⇒∷U = inverseUnivRed , univ ∘→ proj₂
--}

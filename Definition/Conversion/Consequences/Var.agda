@@ -38,7 +38,6 @@ private variable
 
 -- TODO this is not true any more because Γ ⊢ x ≡ x maxᵘ x ∷ Level
 
-{-
 var-only-equal-to-itself :
   No-η-equality A → Whnf t → Γ ⊢ var x ≡ t ∷ A → var x PE.≡ t
 var-only-equal-to-itself =
@@ -86,4 +85,3 @@ var-only-equal-to-itself =
     [conv↓]∷-lemma A-no-η t-whnf t<>u }}}
     where
     open _⊢_[conv↑]_∷_ x≡t
--}

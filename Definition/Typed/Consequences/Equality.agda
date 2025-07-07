@@ -87,14 +87,11 @@ opaque
     (∃ λ k → Γ ⊢ A ⇒* U k)        →⟨ Σ.map idᶠ (flip whnfRed* A-whnf) ⟩
     (∃ λ k → A PE.≡ U k)          □
 
-{-
 opaque
 
   -- If equality reflection is allowed, then there is a WHNF A that is
   -- judgementally equal to a universe but not propositionally
   -- equal to any universe (given a certain assumption).
-
-  -- TODO needs Lift
 
   whnf≢U :
     Equality-reflection →
@@ -102,16 +99,18 @@ opaque
     ∃₃ λ (Γ : Con Term 1) (l : Term 1) (A : Term 1) →
       Γ ⊢ U l ≡ A × Whnf A × ¬ ∃ λ l → A PE.≡ U l
   whnf≢U ok₁ ok₂ =
-    ε ∙ Id (U (sucᵘ zeroᵘ)) (U zeroᵘ) Unitʷ ,
+    ε ∙ Id (U (sucᵘ zeroᵘ)) (U zeroᵘ) (Lift (sucᵘ zeroᵘ) Empty) ,
     zeroᵘ ,
-    Unitʷ ,
-    univ (equality-reflection′ ok₁ $ var₀ (Idⱼ′ (Uⱼ (zeroᵘⱼ ε)) {!   !})) ,
-    -- univ
-    --   (equality-reflection′ ok₁ $
-    --    var₀ (Idⱼ′ (Uⱼ (zeroᵘⱼ ε)) (Unitⱼ ? ok₂))) ,
-    Unitₙ ,
+    Lift (sucᵘ zeroᵘ) Empty ,
+    univ
+      (equality-reflection′ ok₁ $
+       var₀ (Idⱼ′
+        (Uⱼ (zeroᵘⱼ ε))
+        (conv
+          (Liftⱼ′ (sucᵘⱼ (zeroᵘⱼ ε)) (Emptyⱼ ε))
+          (U-cong (maxᵘ-zeroˡ (sucᵘⱼ (zeroᵘⱼ ε))))))) ,
+    Liftₙ ,
     (λ ())
--}
 
 opaque
 
