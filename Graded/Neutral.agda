@@ -26,6 +26,7 @@ open import Definition.Untyped.Neutral M type-variant
 open import Graded.Context 𝕄
 open import Graded.Context.Properties 𝕄
 open import Graded.Erasure.Consequences.Soundness TR UR
+open import Graded.Erasure.Target using (non-strict)
 open import Graded.Modality.Properties 𝕄
 open import Graded.Mode 𝕄
 open import Graded.Restrictions 𝕄
@@ -287,3 +288,18 @@ opaque
     case soundness-ℕ-only-source-counterexample₅ ok₁ ok₂ no-η of λ {
       (consistent , ⊢t , ▸t , _) →
     _ , _ , _ , _ , consistent , unitrecₙ no-η (var _) , ⊢t , ▸t }
+
+opaque
+
+  -- If Emptyrec-allowed 𝟙ᵐ 𝟘 holds, then there is a well-typed,
+  -- well-resourced, neutral term in an erasable context.
+
+  neutral-well-resourced₆ :
+    Emptyrec-allowed 𝟙ᵐ 𝟘 →
+    ∃₄ λ n (Γ : Con Term n) (t A : Term n) →
+    Neutral t ×
+    Γ ⊢ t ∷ A ×
+    𝟘ᶜ ▸[ 𝟙ᵐ ] t
+  neutral-well-resourced₆ ok =
+    let ⊢t , ▸t , _ = soundness-ℕ-counterexample₆ {str = non-strict} ok in
+    _ , _ , _ , _ , emptyrecₙ (var _) , ⊢t , ▸t
