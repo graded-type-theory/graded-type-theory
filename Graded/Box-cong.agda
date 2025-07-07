@@ -420,20 +420,23 @@ opaque
   -- * Erased is allowed for s and
   --   * erased matches are available for J and 𝟘ᵐ is allowed, or
   --   * m is 𝟘ᵐ, or
-  --   * the modality is trivial.
+  --   * the modality is trivial, or
+  --   * equality reflection is allowed.
 
-  []-cong⊎J⊎𝟘ᵐ⊎Trivial→[]-cong :
+  []-cong⊎J⊎𝟘ᵐ⊎Trivial⊎Equality-reflection→[]-cong :
     ([]-cong-allowed s × []-cong-allowed-mode s m) ⊎
     Erased-allowed s ×
     (erased-matches-for-J m ≢ none × T 𝟘ᵐ-allowed ⊎
      (∃ λ ok → m PE.≡ 𝟘ᵐ[ ok ]) ⊎
-     Trivial) →
+     Trivial ⊎
+     Equality-reflection) →
     Π-allowed 𝟘 q₁ →
     Π-allowed 𝟘 q₂ →
     Π-allowed 𝟘 q₃ →
     Π-allowed 𝟘 q₄ →
     Has-computing-[]-cong s m l q₁ q₂ q₃ q₄
-  []-cong⊎J⊎𝟘ᵐ⊎Trivial→[]-cong {s} {m} ok ok₁ ok₂ ok₃ ok₄ =
+  []-cong⊎J⊎𝟘ᵐ⊎Trivial⊎Equality-reflection→[]-cong
+    {s} {m} ok ok₁ ok₂ ok₃ ok₄ =
     let ⊢[]-cong″ = ⊢[]-cong″ ok′ (var₀ (⊢Id-2-1-0 ε)) in
       ( []-cong′
       , (lamₘ $ lamₘ $ lamₘ $ lamₘ $
@@ -454,7 +457,7 @@ opaque
           [ consSubst (consSubst (consSubst (sgSubst A) t) t) rfl ]  ≡⟨ PE.trans (subst-wk ([]-cong″ ok′ _ _ _ _)) $
                                                                         []-cong″-[] ok′ ⟩⊢≡
 
-        []-cong″ ok′ A t t rfl                                       ⇒⟨ []-cong″-β-⇒ ok′ ⊢t ⟩⊢∎
+        []-cong″ ok′ A t t rfl                                       ⇒*⟨ []-cong″-β-⇒* ok′ ⊢t ⟩⊢∎
 
         rfl                                                          ∎
     where
@@ -468,6 +471,7 @@ opaque
     OK : Set a
     OK =
       ([]-cong-allowed s × []-cong-allowed-mode s m) ⊎
+      Equality-reflection ⊎
       (∃ λ sem → erased-matches-for-J m PE.≡ not-none sem) ×
         T 𝟘ᵐ-allowed ⊎
       (∃ λ ok → m PE.≡ 𝟘ᵐ[ ok ]) ⊎
@@ -475,18 +479,24 @@ opaque
 
     ok′ : OK
     ok′ = case ok of λ where
-      (inj₁ ok)                        → inj₁ ok
-      (inj₂ (_ , inj₂ (inj₂ trivial))) → inj₂ (inj₂ (inj₂ trivial))
-      (inj₂ (_ , inj₂ (inj₁ ok)))      → inj₂ (inj₂ (inj₁ ok))
-      (inj₂ (_ , inj₁ (≢none , ok)))   →
-        inj₂ $ inj₁ $
+      (inj₁ ok) →
+        inj₁ ok
+      (inj₂ (_ , inj₂ (inj₂ (inj₂ ok)))) →
+        inj₂ (inj₁ ok)
+      (inj₂ (_ , inj₂ (inj₂ (inj₁ trivial)))) →
+        inj₂ (inj₂ (inj₂ (inj₂ trivial)))
+      (inj₂ (_ , inj₂ (inj₁ ok))) →
+        inj₂ (inj₂ (inj₂ (inj₁ ok)))
+      (inj₂ (_ , inj₁ (≢none , ok))) →
+        inj₂ $ inj₂ $ inj₁ $
         case PE.singleton $ erased-matches-for-J m of λ where
           (not-none _ , ≡not-none) → (_ , ≡not-none) , ok
           (none       , ≡none)     → ⊥-elim $ ≢none ≡none
 
     []-cong″ : OK → Term n → Term n → Term n → Term n → Term n
-    []-cong″ (inj₁ _) = []-cong s
-    []-cong″ (inj₂ _) = []-cong-J s
+    []-cong″ (inj₁ _)        = []-cong s
+    []-cong″ (inj₂ (inj₁ _)) = λ _ _ _ _ → rfl
+    []-cong″ (inj₂ (inj₂ _)) = []-cong-J s
 
     ▸[]-cong″ :
       ∀ ok →
@@ -497,36 +507,46 @@ opaque
       𝟘ᶜ ▸[ m ] []-cong″ ok A t u v
     ▸[]-cong″ (inj₁ (_ , ok)) ▸A ▸t ▸u ▸v =
       []-congₘ ▸A ▸t ▸u ▸v ok
-    ▸[]-cong″ (inj₂ (inj₁ ((_ , ≡not-none) , ok))) ▸A ▸t ▸u ▸v =
+    ▸[]-cong″ (inj₂ (inj₁ ok)) _ _ _ _ =
+      rflₘ
+    ▸[]-cong″ (inj₂ (inj₂ (inj₁ ((_ , ≡not-none) , ok)))) ▸A ▸t ▸u ▸v =
       ▸[]-cong-J {ok = ok} ≡not-none (▸-cong 𝟘ᵐ?≡𝟘ᵐ ▸A)
         (▸-cong 𝟘ᵐ?≡𝟘ᵐ ▸t) (▸-cong 𝟘ᵐ?≡𝟘ᵐ ▸u) (▸-cong 𝟘ᵐ?≡𝟘ᵐ ▸v)
-    ▸[]-cong″ (inj₂ (inj₂ (inj₁ (_ , PE.refl)))) ▸A ▸t ▸u ▸v =
+    ▸[]-cong″ (inj₂ (inj₂ (inj₂ (inj₁ (_ , PE.refl))))) ▸A ▸t ▸u ▸v =
       ▸[]-cong-J-𝟘ᵐ (▸-cong 𝟘ᵐ?≡𝟘ᵐ ▸A) (▸-cong 𝟘ᵐ?≡𝟘ᵐ ▸t)
         (▸-cong 𝟘ᵐ?≡𝟘ᵐ ▸u) (▸-cong 𝟘ᵐ?≡𝟘ᵐ ▸v)
-    ▸[]-cong″ (inj₂ (inj₂ (inj₂ trivial))) = ▸[]-cong-J-trivial trivial
+    ▸[]-cong″ (inj₂ (inj₂ (inj₂ (inj₂ trivial)))) =
+      ▸[]-cong-J-trivial trivial
 
     ⊢[]-cong″ :
       let open Erased s in
       ∀ ok →
       Γ ⊢ v ∷ Id A t u →
       Γ ⊢ []-cong″ ok A t u v ∷ Id (Erased A) [ t ] ([ u ])
-    ⊢[]-cong″ (inj₁ (ok , _)) = []-congⱼ′ ok
-    ⊢[]-cong″ (inj₂ _)  = []-cong-Jⱼ Erased-ok
+    ⊢[]-cong″ (inj₁ (ok , _))  = []-congⱼ′ ok
+    ⊢[]-cong″ (inj₂ (inj₂ _))  = []-cong-Jⱼ Erased-ok
+    ⊢[]-cong″ (inj₂ (inj₁ ok)) = λ ⊢v →
+      []-cong-with-equality-reflection ok Erased-ok ⊢v
 
     []-cong″-[] :
       ∀ ok →
       []-cong″ ok A t u v [ σ ] PE.≡
       []-cong″ ok (A [ σ ]) (t [ σ ]) (u [ σ ]) (v [ σ ])
-    []-cong″-[] (inj₁ _) = PE.refl
-    []-cong″-[] (inj₂ _) = []-cong-J-[]
+    []-cong″-[] (inj₁ _)         = PE.refl
+    []-cong″-[] (inj₂ (inj₁ ok)) = PE.refl
+    []-cong″-[] (inj₂ (inj₂ _))  = []-cong-J-[]
 
-    []-cong″-β-⇒ :
+    []-cong″-β-⇒* :
       let open Erased s in
       ∀ ok →
       Γ ⊢ t ∷ A →
-      Γ ⊢ []-cong″ ok A t t rfl ⇒ rfl ∷ Id (Erased A) [ t ] ([ t ])
-    []-cong″-β-⇒ (inj₁ (ok , _)) ⊢t = []-cong-β-⇒ (refl ⊢t) ok
-    []-cong″-β-⇒ (inj₂ _)  ⊢t = []-cong-J-β-⇒ Erased-ok ⊢t
+      Γ ⊢ []-cong″ ok A t t rfl ⇒* rfl ∷ Id (Erased A) [ t ] ([ t ])
+    []-cong″-β-⇒* (inj₁ (ok , _))  ⊢t =
+      redMany ([]-cong-β-⇒ (refl ⊢t) ok)
+    []-cong″-β-⇒* (inj₂ (inj₂ _))  ⊢t =
+      redMany ([]-cong-J-β-⇒ Erased-ok ⊢t)
+    []-cong″-β-⇒* (inj₂ (inj₁ ok)) ⊢t =
+      id ([]-cong-with-equality-reflection ok Erased-ok (rflⱼ ⊢t))
 
     []-cong′ : Term 0
     []-cong′ =
