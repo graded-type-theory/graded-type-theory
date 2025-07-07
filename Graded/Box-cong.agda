@@ -569,28 +569,29 @@ opaque
      Unitʷ-η → Unitʷ-allowed → Unitrec-allowed 𝟙ᵐ p q →
      p ≤ 𝟘) →
     ¬ Has-[]-cong s 𝟙ᵐ l q₁ q₂ q₃ q₄
-  ¬-[]-cong nem Unitʷ-η→ (_ , ▸[]-cong , ⊢[]-cong) =
-    case lemma
-           (lemma
-              (lemma
-                 (lemma
-                    (idSubst , ⊢ˢʷ∷-idSubst ε , _ , ▸[]-cong , ⊢[]-cong)
-                    ⊢A)
-                 ⊢t)
-              ⊢t)
-           (rflⱼ ⊢t) of λ {
-      (_ , ⊢σ , _ , ▸t , ⊢t) →
-    case red-Id ⦃ ok = included ⦄ ⊢t of λ where
+  ¬-[]-cong nem Unitʷ-η→ (_ , hyp) =
+    let ▸[]-cong′ , ⊢[]-cong′ = lemma (lemma (lemma (lemma hyp))) in
+    case red-Id ⦃ ok = included ⦄ ⊢[]-cong′ of λ where
       (_ , rflₙ , ⇒*rfl) →
         case var-only-equal-to-itself (neₙ (var _)) (ne (var _)) $
              prod-cong⁻¹ ⦃ ok = included ⦄
                (inversion-rfl-Id ⦃ ok = included ⦄ $
                 wf-⊢≡∷ (subset*Term ⇒*rfl) .proj₂ .proj₂)
                .proj₂ .proj₁ of λ ()
-      (_ , ne u-ne , t⇒*u) →
-        neutral-not-well-resourced nem (λ _ → inhabited-consistent ⊢σ)
-          u-ne (wf-⊢≡∷ (subset*Term t⇒*u) .proj₂ .proj₂)
-          (usagePres*Term Unitʷ-η→ ▸t t⇒*u) }
+      (_ , ne u-ne , []-cong′⇒*u) →
+        neutral-not-well-resourced nem
+          (λ _ →
+             inhabited-consistent $
+             →⊢ˢʷ∷∙
+               {σ =
+                  consSubst
+                    (consSubst
+                       (consSubst (sgSubst (A′ _)) (t″ _)) (t″ _))
+                    rfl}
+               (→⊢ˢʷ∷∙ (→⊢ˢʷ∷∙ (→⊢ˢʷ∷∙ (⊢ˢʷ∷-idSubst ε) ⊢A) ⊢t) ⊢t)
+               (rflⱼ ⊢t))
+          u-ne (wf-⊢≡∷ (subset*Term []-cong′⇒*u) .proj₂ .proj₂)
+          (usagePres*Term Unitʷ-η→ ▸[]-cong′ []-cong′⇒*u)
     where
     A′ : Universe-level → Term 0
     A′ 0      = ℕ
@@ -610,33 +611,23 @@ opaque
     ⊢t {l = 1}    = ℕⱼ ε
     ⊢t {l = 2+ _} = Uⱼ ε
 
-    lemma :
-      ((σ , _) :
-       ∃ λ σ → ε ⊢ˢʷ σ ∷ Γ ×
-       ∃ λ t → 𝟘ᶜ ▸[ 𝟙ᵐ ] t × Γ ⊢ t ∷ Π 𝟘 , p ▷ A ▹ B) →
-      ε ⊢ u ∷ A [ σ ] →
-      (∃ λ σ → ε ⊢ˢʷ σ ∷ Γ ∙ A ×
-       ∃ λ t → 𝟘ᶜ ▸[ 𝟙ᵐ ] t × Γ ∙ A ⊢ t ∷ B)
-    lemma (_ , ⊢σ , _ , ▸t , ⊢t) ⊢u =
-        consSubst _ _
-      , →⊢ˢʷ∷∙ ⊢σ ⊢u
-      , (case red-Π ⦃ ok = included ⦄ ⊢t of λ where
-           (_ , ne v-n , t⇒*v) →
-             ⊥-elim $
-             neutral-not-well-resourced nem
-               (λ _ → inhabited-consistent ⊢σ) v-n
-               (wf-⊢≡∷ (subset*Term t⇒*v) .proj₂ .proj₂)
-               (usagePres*Term Unitʷ-η→ ▸t t⇒*v)
-           (lam _ v , lamₙ , t⇒*lam) →
-             case inv-usage-lam
-                    (usagePres*Term Unitʷ-η→ ▸t t⇒*lam) of λ {
-               (invUsageLam ▸v 𝟘≤) →
-             case inversion-lam-Π-no-equality-reflection
-                    (wf-⊢≡∷ (subset*Term t⇒*lam) .proj₂ .proj₂) of λ {
-               (⊢v , PE.refl , _) →
-               _
-             , sub ▸v (𝟘≤ ∙ ≤-reflexive (PE.sym (·-zeroʳ _)))
-             , ⊢v }})
+    opaque
+
+      lemma :
+        𝟘ᶜ ▸[ 𝟙ᵐ ] t × Γ ⊢ t ∷ Π 𝟘 , p ▷ A ▹ B →
+        let t0 = wk1 t ∘⟨ 𝟘 ⟩ var x0 in
+        𝟘ᶜ ▸[ 𝟙ᵐ ] t0 × Γ ∙ A ⊢ t0 ∷ B
+      lemma (▸t , ⊢t) =
+        let ⊢A , _ = inversion-ΠΣ (wf-⊢∷ ⊢t) in
+        sub (wkUsage (step id) ▸t ∘ₘ var)
+          (begin
+             𝟘ᶜ                           ≈˘⟨ ·ᶜ-zeroˡ _ ⟩
+             𝟘 ·ᶜ (𝟘ᶜ ∙ ⌜ ⌞ 𝟘 ⌟ ⌝)        ≈˘⟨ +ᶜ-identityˡ _ ⟩
+             𝟘ᶜ +ᶜ 𝟘 ·ᶜ (𝟘ᶜ ∙ ⌜ ⌞ 𝟘 ⌟ ⌝)  ∎) ,
+        PE.subst (_⊢_∷_ _ _) (wkSingleSubstId _)
+          (W.wkTerm₁ ⊢A ⊢t ∘ⱼ var₀ ⊢A)
+        where
+        open ≤ᶜ-reasoning
 
 ------------------------------------------------------------------------
 -- Has-weaker-[]-cong
