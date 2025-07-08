@@ -18,8 +18,8 @@ open Assumptions as
 open Type-restrictions R
 
 open import Definition.Typechecking R
-open import Definition.Typechecking.Soundness R
-open import Definition.Typechecking.Deterministic R
+open import Definition.Typechecking.Soundness R renaming (soundness⇉ to soundness⇉′)
+open import Definition.Typechecking.Deterministic R renaming (deterministic⇉ to deterministic⇉′)
 open import Definition.Typed R
 open import Definition.Typed.EqRelInstance R
 open import Definition.Typed.EqualityRelation.Instance R
@@ -45,6 +45,8 @@ open import Tools.Product as Σ
 import Tools.PropositionalEquality as PE
 open import Tools.Relation as Dec
 
+open import Tools.Debug using (trace)
+
 private
   variable
     P : Set a
@@ -54,15 +56,30 @@ private
     l : Universe-level
     p q r : M
 
-dec⇉-var : (x : Fin n) → ∃ λ A → x ∷ A ∈ Γ
-dec⇉-var {Γ = ε}     ()
-dec⇉-var {Γ = Γ ∙ A} x0     = _ , here
-dec⇉-var {Γ = Γ ∙ B} (x +1) =
-  let A , x∷A∈Γ = dec⇉-var x
+-- Debug printing versions
+
+private
+  deterministic⇉ : Γ ⊢ t ⇉ A → Γ ⊢ t ⇉ B → A PE.≡ B
+  deterministic⇉ Γ⊢t⇉A Γ⊢t⇉B = trace "deterministic⇉" $
+    deterministic⇉′ Γ⊢t⇉A Γ⊢t⇉B
+
+  soundness⇉ : ⊢ Γ → Γ ⊢ t ⇉ A → (Γ ⊢ A) × (Γ ⊢ t ∷ A)
+  soundness⇉ ⊢Γ Γ⊢t⇉A = trace "soundness⇉" $
+    soundness⇉′ ⊢Γ Γ⊢t⇉A
+
+dec⇉-var′ : (x : Fin n) → ∃ λ A → x ∷ A ∈ Γ
+dec⇉-var′ {Γ = ε}     ()
+dec⇉-var′ {Γ = Γ ∙ A} x0     = _ , here
+dec⇉-var′ {Γ = Γ ∙ B} (x +1) =
+  let A , x∷A∈Γ = dec⇉-var′ x
   in  _ , there x∷A∈Γ
 
+dec⇉-var : (x : Fin n) → ∃ λ A → x ∷ A ∈ Γ
+dec⇉-var x = trace "dec⇉-var" $
+  dec⇉-var′ x
+
 dec⇇-var : (x : Fin n) → Γ ⊢ A → Dec (Γ ⊢ var x ⇇ A)
-dec⇇-var x ⊢A =
+dec⇇-var x ⊢A = trace "dec⇇-var" $
   let B , x∷B∈Γ = dec⇉-var x
   in  case decEq (syntacticVar x∷B∈Γ (wf ⊢A)) ⊢A of λ where
     (yes B≡A) → yes (infᶜ (varᵢ x∷B∈Γ) B≡A)
@@ -341,7 +358,7 @@ private opaque
       (∃ λ ((b , p , q , B , C , _) :
             ∃₅ λ b p q B C → Γ ⊢ A ↘ ΠΣ⟨ b ⟩ p , q ▷ B ▹ C) →
        P b p q B C)
-  isΠΣ-with-cont {P} ⊢A cont =
+  isΠΣ-with-cont {P} ⊢A cont = trace "isΠΣ-with-cont" $
     Σ-dec
       (Dec.map
          (λ (_ , _ , _ , _ , _ , A⇒*ΠΣ) →
@@ -374,7 +391,7 @@ mutual
       {Γ : Con Term n} {P : Term n → Set a} →
       ⊢ Γ → Inferable t → (∀ {A} → Γ ⊢ A → Γ ⊢ t ∷ A → Dec (P A)) →
       Dec (Σ (∃ λ A → Γ ⊢ t ⇉ A) (P ∘→ proj₁))
-    dec⇉-with-cont ⊢Γ t cont =
+    dec⇉-with-cont ⊢Γ t cont = trace "dec⇉-with-cont" $
       Σ-dec (dec⇉ ⊢Γ t)
         (λ (_ , t₁) (_ , t₂) →
            case deterministic⇉ t₁ t₂ of λ { PE.refl → idᶠ })
@@ -382,7 +399,7 @@ mutual
 
     dec⇇-with-cont :
       Checkable t → Γ ⊢ A → (Γ ⊢ t ∷ A → Dec P) → Dec (Γ ⊢ t ⇇ A × P)
-    dec⇇-with-cont t ⊢A cont =
+    dec⇇-with-cont t ⊢A cont = trace "dec⇇-with-cont" $
       dec⇇ t ⊢A ×-dec′ cont ∘→ soundness⇇
 
     dec⇇Type-with-cont :
@@ -398,7 +415,7 @@ mutual
     dec⇉-app :
       ⊢ Γ → Inferable t → Checkable u →
       Dec (∃ λ A → Γ ⊢ t ∘⟨ p ⟩ u ⇉ A)
-    dec⇉-app {p} ⊢Γ t u =
+    dec⇉-app {p} ⊢Γ t u = trace "dec⇉-app" $
       case
         (dec⇉-with-cont ⊢Γ t λ ⊢A _ →
          isΠΣ-with-cont ⊢A λ {b = b} {p = p′} ⊢B _ _ _ →
@@ -568,7 +585,7 @@ mutual
         (ΠΣᶜ A B ok)                   → not (ok , A , B)
         (univᶜ (ΠΣᵢ A ↘U₁ B ↘U₂ ok) _) →
           not (ok , univᶜ A ↘U₁ , univᶜ B ↘U₂)
-  dec⇉Type ⊢Γ (varᵢ {x}) =
+  dec⇉Type ⊢Γ (varᵢ {x}) = trace "dec⇉-Type (var)" $
     let B , x∷ = dec⇉-var x
         ⊢x     = var ⊢Γ x∷
     in
@@ -742,7 +759,8 @@ mutual
   -- Decidability of bi-directional type inference
 
   dec⇉ : ⊢ Γ → Inferable t → Dec (∃ λ A → Γ ⊢ t ⇉ A)
-  dec⇉ _ Uᵢ = yes (_ , Uᵢ)
+  dec⇉ _ Uᵢ =
+    yes (_ , Uᵢ)
   dec⇉ ⊢Γ (ΠΣᵢ {b} {p} {q} A B) =
     case
       (ΠΣ-allowed? b p q ×-dec
@@ -757,7 +775,11 @@ mutual
       (no not) →
         no λ { (_ , ΠΣᵢ A ↘U₁ B ↘U₂ ok) →
         not (ok , (_ , A) , (_ , ↘U₁) , (_ , B) , (_ , ↘U₂)) }
-  dec⇉ ⊢Γ varᵢ = yes (_ , varᵢ (dec⇉-var _ .proj₂))
+  dec⇉ {Γ} ⊢Γ (varᵢ {x}) = trace "dec⇉ (var)" $
+    yes (x∈Γ .proj₁ , varᵢ (x∈Γ .proj₂))
+    where
+      x∈Γ : ∃ (λ A → x ∷ A ∈ Γ)
+      x∈Γ = dec⇉-var x
   dec⇉ ⊢Γ (∘ᵢ t u) = dec⇉-app ⊢Γ t u
   dec⇉ ⊢Γ (fstᵢ t) = dec⇉-fst ⊢Γ t
   dec⇉ ⊢Γ (sndᵢ t) = dec⇉-snd ⊢Γ t
@@ -809,7 +831,7 @@ mutual
   -- Decidability of bi-directional type checking
 
   dec⇇ : Checkable t → Γ ⊢ A → Dec (Γ ⊢ t ⇇ A)
-  dec⇇ (lamᶜ {p} t) ⊢A =
+  dec⇇ (lamᶜ {p} t) ⊢A = trace "dec⇇ (lam)" $
     case
       (isΠΣ-with-cont ⊢A λ {b = b} {p = p′} _ ⊢C _ _ →
        decBinderMode b BMΠ ×-dec p ≟ p′ ×-dec dec⇇ t ⊢C)
@@ -820,7 +842,7 @@ mutual
         (lamᶜ A t) →
           not ((_ , _ , _ , _ , _ , A) , PE.refl , PE.refl , t)
         (infᶜ () _)
-  dec⇇ (prodᶜ {p} {m = s} t u) ⊢A =
+  dec⇇ (prodᶜ {p} {m = s} t u) ⊢A = trace "dec⇇ (pair)" $
     case
       (Σ-dec (isΣ ⊢A)
          (λ (_ , _ , _ , _ , _ , A⇒*Σ₁) (_ , _ , _ , _ , _ , A⇒*Σ₂) →
@@ -855,7 +877,7 @@ mutual
       (no not) → no λ where
         (rflᶜ (A , _) t≡u) → not ((_ , _ , _ , A) , t≡u)
         (infᶜ () _)
-  dec⇇ (infᶜ t) ⊢A =
+  dec⇇ (infᶜ t) ⊢A = trace "dec⇇ (inferable)" $
     case
       (dec⇉-with-cont (wf ⊢A) t λ ⊢B _ →
        decEq ⊢B ⊢A)

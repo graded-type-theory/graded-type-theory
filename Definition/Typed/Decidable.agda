@@ -29,6 +29,8 @@ open import Tools.Nat using (Nat)
 open import Tools.Product
 open import Tools.Relation as Dec
 
+open import Tools.Debug using (trace)
+
 private
   variable
     n : Nat
@@ -48,13 +50,14 @@ dec ⊢Γ A =
 -- checkable, then Γ ⊢ t ∷ A is decidable.
 
 decTermᶜ : Γ ⊢ A → Checkable t → Dec (Γ ⊢ t ∷ A)
-decTermᶜ ⊢A t = Dec.map soundness⇇ (completeness⇇ t) (dec⇇ t ⊢A)
+decTermᶜ ⊢A t = trace "decTermᶜ" $
+  Dec.map soundness⇇ (completeness⇇ t) (dec⇇ t ⊢A)
 
 -- Type-checking for arbitrary checkable types: if Γ is well-formed
 -- and A and t are checkable, then Γ ⊢ t ∷ A is decidable.
 
 decTermTypeᶜ : ⊢ Γ → Checkable-type A → Checkable t → Dec (Γ ⊢ t ∷ A)
-decTermTypeᶜ ⊢Γ A t =
+decTermTypeᶜ ⊢Γ A t = trace "decTermTypeᶜ" $
   case dec ⊢Γ A of λ where
     (yes ⊢A) → decTermᶜ ⊢A t
     (no ¬⊢A) → no (¬⊢A ∘→ syntacticTerm)

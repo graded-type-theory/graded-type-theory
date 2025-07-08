@@ -16,9 +16,9 @@ open Type-restrictions R
 open import Definition.Typechecking R
 open import Definition.Typed R
 open import Definition.Typed.Inversion R
-open import Definition.Typed.Properties R
+open import Definition.Typed.Properties R renaming (wf to wf′)
 open import Definition.Typed.Substitution R
-open import Definition.Typed.Syntactic R
+open import Definition.Typed.Syntactic R renaming (syntacticEq to syntacticEq′)
 import Definition.Typed.Weakening R as W
 open import Definition.Untyped M
 open import Definition.Untyped.Properties M
@@ -28,19 +28,40 @@ open import Tools.Nat
 open import Tools.Product
 import Tools.PropositionalEquality as PE
 
+open import Tools.Debug using (trace)
+
 private
   variable
     n : Nat
     Γ : Con Term n
-    t A : Term n
+    t A B : Term n
+
+private
+  wf :  Γ ⊢ A → ⊢ Γ
+  wf Γ⊢A = trace "wf" $
+    wf′ Γ⊢A
+
+  syntacticEq : Γ ⊢ A ≡ B → Γ ⊢ A × Γ ⊢ B
+  syntacticEq x = trace "syntacticEq" $
+    syntacticEq′ x
+
+soundness⇉-var′ : ∀ {x} →  ⊢ Γ → x ∷ A ∈ Γ → (Γ ⊢ A) × (Γ ⊢ var x ∷ A)
+soundness⇉-var′ ε      ()
+soundness⇉-var′ (∙ ⊢A) here = trace "soundness⇉-var (here)" $
+  W.wk₁ ⊢A ⊢A , var₀ ⊢A
+soundness⇉-var′ (∙ ⊢B) (there {x = x} {A = A} {Γ} x∈Γ) = trace "soundness⇉-var (there)" $
+    W.wk₁ ⊢B ⊢A , var (∙ ⊢B) (there x∈Γ)
+  where
+     ⊢A : Γ ⊢ A
+     ⊢A = proj₁ (soundness⇉-var′ (wf ⊢B) x∈Γ)
+
+-- soundness⇉-var′ (∙ ⊢B) (there x) = trace "soundness⇉-var (there)" $
+--   let ⊢A , ⊢x = soundness⇉-var′ (wf ⊢B) x
+--   in  W.wk₁ ⊢B ⊢A , var (∙ ⊢B) (there x)
 
 soundness⇉-var : ∀ {x} →  ⊢ Γ → x ∷ A ∈ Γ → (Γ ⊢ A) × (Γ ⊢ var x ∷ A)
-soundness⇉-var ε      ()
-soundness⇉-var (∙ ⊢A) here =
-  W.wk₁ ⊢A ⊢A , var₀ ⊢A
-soundness⇉-var (∙ ⊢B) (there x) =
-  let ⊢A , ⊢x = soundness⇉-var (wf ⊢B) x
-  in  W.wk₁ ⊢B ⊢A , var (∙ ⊢B) (there x)
+soundness⇉-var ⊢Γ x∈Γ = trace "soundness⇉-var" $
+  soundness⇉-var′ ⊢Γ x∈Γ
 
 
 mutual
@@ -66,8 +87,9 @@ mutual
         ⊢B     = conv ⊢B (subset* ⇒*U₂)
     in
     Uⱼ ⊢Γ , ΠΣⱼ ⊢A ⊢B ok
-  soundness⇉ ⊢Γ (varᵢ x∷A∈Γ) = soundness⇉-var ⊢Γ x∷A∈Γ
-  soundness⇉ ⊢Γ (appᵢ t⇉A (A⇒ΠFG , _) u⇇F) =
+  soundness⇉ ⊢Γ (varᵢ x∷A∈Γ) = trace "soundness⇉ (var)" $
+    soundness⇉-var ⊢Γ x∷A∈Γ
+  soundness⇉ ⊢Γ (appᵢ t⇉A (A⇒ΠFG , _) u⇇F) = trace "soundness⇉ (app)" $
     let ⊢A , ⊢t = soundness⇉ ⊢Γ t⇉A
         A≡ΠFG = subset* A⇒ΠFG
         _ , ⊢ΠFG = syntacticEq A≡ΠFG
@@ -153,13 +175,13 @@ mutual
     , []-congⱼ′ ok (soundness⇇ ⊢v)
 
   soundness⇇ : Γ ⊢ t ⇇ A → Γ ⊢ t ∷ A
-  soundness⇇ (lamᶜ A↘ΠFG t⇇G)=
+  soundness⇇ (lamᶜ A↘ΠFG t⇇G) = trace "soundness⇇ (lam)" $
     let A≡ΠFG = subset* (proj₁ A↘ΠFG)
         _ , ⊢ΠFG = syntacticEq A≡ΠFG
         _ , ⊢G , ok = inversion-ΠΣ ⊢ΠFG
         ⊢t = soundness⇇ t⇇G
     in  conv (lamⱼ′ ok ⊢t) (sym A≡ΠFG)
-  soundness⇇ (prodᶜ A↘ΣFG t⇇F u⇇Gt) =
+  soundness⇇ (prodᶜ A↘ΣFG t⇇F u⇇Gt) = trace "soundness⇇ (pair)" $
     let A≡ΣFG = subset* (proj₁ A↘ΣFG)
         _ , ⊢ΣFG = syntacticEq A≡ΣFG
         _ , ⊢G , ok = inversion-ΠΣ ⊢ΣFG
@@ -168,5 +190,5 @@ mutual
     in  conv (prodⱼ ⊢G ⊢t ⊢u ok) (sym A≡ΣFG)
   soundness⇇ (rflᶜ (A⇒*Id , _) t≡u) =
     conv (rflⱼ′ t≡u) (sym (subset* A⇒*Id))
-  soundness⇇ (infᶜ t⇉B A≡B) =
+  soundness⇇ (infᶜ t⇉B A≡B) = trace "soundness⇇ (inferable)" $
     conv (soundness⇉ (wfEq A≡B) t⇉B .proj₂) A≡B

@@ -26,6 +26,9 @@ open import Definition.Conversion.Consequences.Completeness R
 
 open import Tools.Nat
 
+open import Tools.Function
+open import Tools.Debug using (trace)
+
 private
   variable
     n : Nat
@@ -33,12 +36,14 @@ private
 
 -- Decidability of conversion of well-formed types
 decEq : ∀ {A B} → Γ ⊢ A → Γ ⊢ B → Dec (Γ ⊢ A ≡ B)
-decEq ⊢A ⊢B = map soundnessConv↑ completeEq
+decEq ⊢A ⊢B = trace "decEq" $
+  map soundnessConv↑ completeEq
                   (decConv↑ (completeEq (refl ⊢A))
                             (completeEq (refl ⊢B)))
 
 -- Decidability of conversion of well-formed terms
 decEqTerm : ∀ {t u A} → Γ ⊢ t ∷ A → Γ ⊢ u ∷ A → Dec (Γ ⊢ t ≡ u ∷ A)
-decEqTerm ⊢t ⊢u = map soundnessConv↑Term completeEqTerm
+decEqTerm ⊢t ⊢u = trace "decEqTerm" $
+  map soundnessConv↑Term completeEqTerm
                       (decConv↑Term (completeEqTerm (refl ⊢t))
                                     (completeEqTerm (refl ⊢u)))

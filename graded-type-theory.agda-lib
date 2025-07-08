@@ -3,7 +3,7 @@ depend: standard-library
 include: .
 flags:
   --without-K
-  --safe
   --hidden-argument-puns
   --no-infer-absurd-clauses
   -WnoUnsupportedIndexedMatch
+--   --safe
