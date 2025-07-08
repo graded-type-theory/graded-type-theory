@@ -38,4 +38,4 @@ opaque
   Uʳ : γ ▸ Γ ⊩ʳ U l ∷[ m ] U (1+ l)
   Uʳ =
     ▸⊩ʳ∷⇔ .proj₂ λ _ _ →
-    ®∷→®∷◂ (®∷U⇔ .proj₂ (_ , ≤ᵘ-refl , Uᵣ (λ { PE.refl → T.refl })))
+    ®∷→®∷◂ (®∷U⇔ .proj₂ (Uᵣ (λ { PE.refl → T.refl })))

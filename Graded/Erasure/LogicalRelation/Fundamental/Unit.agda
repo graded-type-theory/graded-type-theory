@@ -39,17 +39,13 @@ open import Definition.Untyped.Properties M
 
 open import Definition.Typed R
 open import Definition.Typed.Consequences.Inequality R
+open import Definition.Typed.Consequences.Inversion R
+open import Definition.Typed.Consequences.Reduction R
+open import Definition.Typed.Inversion R
 open import Definition.Typed.Properties R
 open import Definition.Typed.Reasoning.Term R
 open import Definition.Typed.Substitution R
-
-open import Definition.LogicalRelation R
-open import Definition.LogicalRelation.Fundamental R
-open import Definition.LogicalRelation.Hidden R
-import Definition.LogicalRelation.Hidden.Restricted R as R
-open import Definition.LogicalRelation.Substitution R
-open import Definition.LogicalRelation.Substitution.Introductions.Unit R
-open import Definition.LogicalRelation.Unary R
+open import Definition.Typed.Syntactic R
 
 open import Graded.Context 𝕄
 open import Graded.Context.Properties 𝕄
@@ -82,7 +78,7 @@ opaque
   Unitʳ : γ ▸ Γ ⊩ʳ Unit s l ∷[ m ] U l
   Unitʳ =
     ▸⊩ʳ∷⇔ .proj₂ λ _ _ →
-    ®∷→®∷◂ (®∷U⇔ .proj₂ (_ , ≤ᵘ-refl , Uᵣ (λ { PE.refl → T.refl })))
+    ®∷→®∷◂ (®∷U⇔ .proj₂ (Uᵣ (λ { PE.refl → T.refl })))
 
 opaque
 
@@ -112,11 +108,7 @@ opaque
   unitrecʳ
     {Γ} {l} {A} {t} {u} {γ} {m = 𝟙ᵐ} {p} {δ} {q}
     ⊢A ⊢t ⊢u ⊩ʳt ⊩ʳu p≡𝟘→ =
-    ▸⊩ʳ∷⇔ .proj₂ λ {σ = σ} {σ′ = σ′} ⊩σ σ®σ′ →
-    case fundamental-⊩ᵛ ⊢A of λ
-      (_ , ⊩A) →
-    case fundamental-⊩ᵛ∷ ⊢t of λ
-      (_ , ⊩t) →
+    ▸⊩ʳ∷⇔ .proj₂ λ {σ = σ} {σ′ = σ′} ⊢σ σ®σ′ →
     case
       (λ p≢𝟘 →
          case PE.sym $ ≢𝟘→⌞⌟≡𝟙ᵐ p≢𝟘 of λ
@@ -133,7 +125,7 @@ opaque
 
          σ ® σ′ ∷[ 𝟙ᵐ ] Γ ◂ γ                                  ≡⟨ PE.cong₃ (_®_∷[_]_◂_ _ _) 𝟙ᵐ≡⌞p⌟ PE.refl PE.refl ⟩→
 
-         σ ® σ′ ∷[ ⌞ p ⌟ ] Γ ◂ γ                               →⟨ ▸⊩ʳ∷⇔ .proj₁ ⊩ʳt ⊩σ ⟩
+         σ ® σ′ ∷[ ⌞ p ⌟ ] Γ ◂ γ                               →⟨ ▸⊩ʳ∷⇔ .proj₁ ⊩ʳt ⊢σ ⟩
 
          t [ σ ] ® erase str t T.[ σ′ ] ∷ Unitʷ l ◂ ⌜ ⌞ p ⌟ ⌝  →⟨ ®∷→®∷◂ω (non-trivial ∘→ PE.trans (PE.cong ⌜_⌝ 𝟙ᵐ≡⌞p⌟)) ⟩
 
@@ -158,19 +150,22 @@ opaque
            erase str u T.[ σ′ ]                            ∎⇒ })
     of λ
       unitrec⇒u[σ′] →
+    case subst-⊢-⇑ ⊢A ⊢σ of λ
+      ⊢A[σ⇑] →
 
     case
-      (λ l′
-         (t[σ]≡⋆ : Δ ⊩⟨ l′ ⟩ t [ σ ] ≡ starʷ l ∷ Unitʷ l)
+      (λ
+         (t[σ]≡⋆ : Δ ⊢ t [ σ ] ≡ starʷ l ∷ Unitʷ l)
          unitrec⇛u[σ] →                                                   $⟨ σ®σ′ ⟩
 
          σ ® σ′ ∷[ 𝟙ᵐ ] Γ ◂ p ·ᶜ γ +ᶜ δ                                   →⟨ subsumption-®∷[]◂ (λ _ → proj₂ ∘→ +ᶜ-positive-⟨⟩ (_ ·ᶜ γ)) ⟩
 
-         σ ® σ′ ∷[ 𝟙ᵐ ] Γ ◂ δ                                             →⟨ ▸⊩ʳ∷⇔ .proj₁ ⊩ʳu ⊩σ ⟩
+         σ ® σ′ ∷[ 𝟙ᵐ ] Γ ◂ δ                                             →⟨ ▸⊩ʳ∷⇔ .proj₁ ⊩ʳu ⊢σ ⟩
 
-         u [ σ ] ® erase str u T.[ σ′ ] ∷ A [ starʷ l ]₀ [ σ ] ◂ 𝟙        →⟨ conv-®∷◂ $ R.⊩≡→ $
-                                                                             ⊩ᵛ≡→⊩≡∷→⊩ˢ≡∷→⊩[]₀[]≡[]₀[] (refl-⊩ᵛ≡ ⊩A)
-                                                                               (R.→⊩≡∷ $ sym-⊩≡∷ t[σ]≡⋆) (refl-⊩ˢ≡∷ ⊩σ) ⟩
+         u [ σ ] ® erase str u T.[ σ′ ] ∷ A [ starʷ l ]₀ [ σ ] ◂ 𝟙        →⟨ conv-®∷◂ $
+                                                                             PE.subst₂ (_⊢_≡_ _) (PE.sym $ singleSubstLift A _)
+                                                                               (PE.sym $ singleSubstLift A _) $
+                                                                             substTypeEq (refl ⊢A[σ⇑]) (sym′ t[σ]≡⋆) ⟩
 
          u [ σ ] ® erase str u T.[ σ′ ] ∷ A [ t ]₀ [ σ ] ◂ 𝟙              →⟨ ®∷◂-⇐* unitrec⇛u[σ] unitrec⇒u[σ′] ⟩
 
@@ -179,49 +174,41 @@ opaque
     of λ
       unitrec® →
 
-    case escape-⊩ˢ∷ ⊩σ of λ
-      (_ , ⊢σ) →
-    case subst-⊢-⇑ ⊢A ⊢σ of λ
-      ⊢A[σ⇑] →
-    case R.⊩∷→ $ ⊩ᵛ∷→⊩ˢ∷→⊩[]∷ ⊩t ⊩σ of λ
-      ⊩t[σ] →
     case PE.subst (_⊢_∷_ _ _) (singleSubstLift A _) $
          subst-⊢∷-⇑ ⊢u ⊢σ of λ
       ⊢u[σ] →
-
-    case ⊩∷Unit⇔ .proj₁ ⊩t[σ] of λ {
-      (_ , ok , Unitₜ t′ (t[σ]⇒t′ , _) prop) →
-
-    case prop of λ where
-      (Unitₜˢ η) →
-        unitrec® _
-          (⊩ᵛ≡∷⇔′ʰ .proj₁
-             (η-unitᵛ ⊩t (starᵛ (wf-⊩ᵛ (wf-⊩ᵛ∷ ⊩t)) ok) η)
-             .proj₂ .proj₂ ⊩σ)
+    case subst-⊢∷ ⊢t ⊢σ of λ
+      ⊢t[σ] →
+    case inversion-Unit (syntacticTerm ⊢t) of λ
+      ok →
+    case Unitʷ-η? of λ where
+      (yes η) →
+        unitrec® (η-unit ⊢t[σ] (starⱼ ⊢Δ ok) (inj₂ η))
           (                          ∷ A [ t ]₀ [ σ ]           ⟨ singleSubstLift A _ ⟩⇛≡
-           unitrec l p q A t u [ σ ] ∷ A [ σ ⇑ ] [ t [ σ ] ]₀  ⇒⟨ unitrec-β-η ⊢A[σ⇑] (escape-⊩∷ ⊩t[σ]) ⊢u[σ] ok
-                                                                    (Unit-with-η-𝕨→Unitʷ-η η) ⟩∎⇛∷
+           unitrec l p q A t u [ σ ] ∷ A [ σ ⇑ ] [ t [ σ ] ]₀  ⇒⟨ unitrec-β-η ⊢A[σ⇑] ⊢t[σ] ⊢u[σ] ok
+                                                                    (Unit-with-η-𝕨→Unitʷ-η (inj₂ η)) ⟩∎⇛∷
            u [ σ ]                                             ∎)
-
-      (Unitₜʷ rest no-η) → case rest of λ where
-        starᵣ →
-          unitrec® _ (⊩∷-⇐* t[σ]⇒t′ (⊩star ⊢Δ ok))
-            (                                  ∷ A [ t ]₀ [ σ ]            ⟨ singleSubstLift A _ ⟩⇛≡
-             unitrec l p q A t         u [ σ ] ∷ A [ σ ⇑ ] [ t [ σ ] ]₀  ⇒*⟨ unitrec-subst* t[σ]⇒t′ ⊢A[σ⇑] ⊢u[σ] no-η ⟩⇛∷
-                                                                           ⟨ substTypeEq (refl ⊢A[σ⇑]) (subset*Term t[σ]⇒t′) ⟩⇛
-             unitrec l p q A (starʷ l) u [ σ ] ∷ A [ σ ⇑ ] [ starʷ l ]₀  ⇒⟨ unitrec-β ⊢A[σ⇑] ⊢u[σ] ok no-η ⟩∎⇛∷
-             u [ σ ]                                                     ∎)
-
-        (ne (neNfₜ _ t′-ne _)) →
-          ⊥-elim $
-          case is-𝟘? p of λ where
-            (no p≢𝟘) →
-              case p≢𝟘→t[σ]®t[σ′] p≢𝟘 of λ {
-                (starᵣ t[σ]⇛⋆ _) →
-              starʷ≢ne no-η t′-ne
-                (starʷ l  ≡˘⟨ ⇛→⊢≡ t[σ]⇛⋆ ⟩⊢
-                 t [ σ ]  ⇒*⟨ t[σ]⇒t′ ⟩⊢∎
-                 t′       ∎) }
-            (yes p≡𝟘) → case p≡𝟘→ p≡𝟘 of λ where
-              (inj₁ ε) → noClosedNe t′-ne
-              (inj₂ η) → no-η η }
+      (no no-η) →
+        case red-Unit ⊢t[σ] of λ where
+          (_ , starₙ {s} , t[σ]⇒⋆) →
+            case inversion-star-Unit (syntacticRedTerm t[σ]⇒⋆ .proj₂ .proj₂) of λ {
+              (PE.refl , PE.refl , _) →
+            unitrec® (subset*Term t[σ]⇒⋆)
+              (                                  ∷ A [ t ]₀ [ σ ]            ⟨ singleSubstLift A _ ⟩⇛≡
+              unitrec l p q A t         u [ σ ] ∷ A [ σ ⇑ ] [ t [ σ ] ]₀  ⇒*⟨ unitrec-subst* t[σ]⇒⋆ ⊢A[σ⇑] ⊢u[σ] no-η ⟩⇛∷
+                                                                            ⟨ substTypeEq (refl ⊢A[σ⇑]) (subset*Term t[σ]⇒⋆) ⟩⇛
+              unitrec l p q A (starʷ l) u [ σ ] ∷ A [ σ ⇑ ] [ starʷ l ]₀  ⇒⟨ unitrec-β ⊢A[σ⇑] ⊢u[σ] ok no-η ⟩∎⇛∷
+              u [ σ ]                                                     ∎)}
+          (t′ , ne t′-ne , t[σ]⇒t′) →
+            ⊥-elim $
+            case is-𝟘? p of λ where
+              (no p≢𝟘) →
+                case p≢𝟘→t[σ]®t[σ′] p≢𝟘 of λ {
+                  (starᵣ t[σ]⇛⋆ _) →
+                starʷ≢ne no-η t′-ne
+                  (starʷ l  ≡˘⟨ ⇛→⊢≡ t[σ]⇛⋆ ⟩⊢
+                   t [ σ ]  ⇒*⟨ t[σ]⇒t′ ⟩⊢∎
+                   t′       ∎) }
+              (yes p≡𝟘) → case p≡𝟘→ p≡𝟘 of λ where
+                (inj₁ ε) → noClosedNe t′-ne
+                (inj₂ η) → no-η η

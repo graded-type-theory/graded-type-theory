@@ -22,19 +22,10 @@ open Type-restrictions R
 open import Definition.Typed R
 open import Definition.Typed.Consequences.Canonicity R
 open import Definition.Typed.Consequences.Inversion R
+open import Definition.Typed.Inversion R
 open import Definition.Typed.Properties R
 open import Definition.Typed.Substitution R
 open import Definition.Typed.Syntactic R
-
-open import Definition.LogicalRelation.Fundamental R
-open import
-  Definition.LogicalRelation.Fundamental.Reducibility.Restricted R
-open import Definition.LogicalRelation.Hidden R
-import Definition.LogicalRelation.Hidden.Restricted R as R
-open import Definition.LogicalRelation.Substitution R
-import Definition.LogicalRelation.Substitution.Introductions.Erased R
-  as IE
-open import Definition.LogicalRelation.Substitution.Introductions R
 
 open import Definition.Untyped M
 import Definition.Untyped.Erased 𝕄 as Erased
@@ -72,7 +63,7 @@ opaque
   Idʳ : γ ▸ Γ ⊩ʳ Id A t u ∷[ m ] U l
   Idʳ =
     ▸⊩ʳ∷⇔ .proj₂ λ _ _ →
-    ®∷→®∷◂ (®∷U⇔ .proj₂ (_ , ≤ᵘ-refl , Uᵣ (λ { PE.refl → T.refl })))
+    ®∷→®∷◂ (®∷U⇔ .proj₂ (Uᵣ (λ { PE.refl → T.refl })))
 
 opaque
 
@@ -82,16 +73,14 @@ opaque
     Γ ⊢ t ∷ A →
     γ ▸ Γ ⊩ʳ rfl ∷[ m ] Id A t t
   rflʳ ⊢t =
-    case fundamental-⊩ᵛ∷ ⊢t of λ
-      (_ , ⊩t) →
-    ▸⊩ʳ∷⇔ .proj₂ λ ⊩σ _ →
+    ▸⊩ʳ∷⇔ .proj₂ λ ⊢σ _ →
+    let ⊢σt = subst-⊢∷ ⊢t ⊢σ in
     ®∷→®∷◂ $
     ®∷Id⇔ .proj₂
-      ( R.escape-⊩ (⊩ᵛ→⊩ˢ∷→⊩[] (wf-⊩ᵛ∷ ⊩t) ⊩σ)
+      (syntacticTerm ⊢σt
       , rflᵣ
-          (rfl  ∎⟨ rflⱼ (R.escape-⊩∷ (⊩ᵛ∷→⊩ˢ∷→⊩[]∷ ⊩t ⊩σ)) ⟩⇛)
-          (λ { PE.refl → T.refl })
-      )
+          (rfl  ∎⟨ rflⱼ ⊢σt ⟩⇛)
+          (λ { PE.refl → T.refl }))
 
 opaque
 
@@ -104,22 +93,18 @@ opaque
     let open Erased s in
     γ ▸ Γ ⊩ʳ []-cong s A t u v ∷[ m ] Id (Erased A) [ t ] ([ u ])
   []-congʳ {v} {A} {t} {u} ε ⊢v ok =
-    case fundamental-⊩ᵛ∷ ⊢v of λ
-      (_ , ⊩v) →
-    case ⊩ᵛId⇔ .proj₁ (wf-⊩ᵛ∷ ⊩v) of λ
-      (⊩t , _) →
-    ▸⊩ʳ∷⇔ .proj₂ λ {σ = σ} ⊩σ _ →
+    ▸⊩ʳ∷⇔ .proj₂ λ {σ = σ} ⊢σ _ →
+    let ⊢σv = subst-⊢∷ ⊢v ⊢σ
+        ⊢σA , _ = inversion-Id (syntacticTerm ⊢σv)
+    in
     ®∷→®∷◂ $
     ®∷Id⇔ .proj₂
-      ( R.escape-⊩ (⊩ᵛ→⊩ˢ∷→⊩[] (Erasedᵛ (wf-⊩ᵛ∷ ⊩t)) ⊩σ)
+      ( Erasedⱼ ([]-cong→Erased ok) ⊢σA
       , rflᵣ
-          (([]-cong _ A t u v) [ σ ]  ⇒*⟨ ε⊢⇒*rfl∷Id $ []-congⱼ′ ok $ R.escape-⊩∷ $
-                                          ⊩ᵛ∷→⊩ˢ∷→⊩[]∷ ⊩v ⊩σ ⟩∎⇛
+          (([]-cong _ A t u v) [ σ ]  ⇒*⟨ ε⊢⇒*rfl∷Id $ []-congⱼ′ ok ⊢σv ⟩∎⇛
            rfl                        ∎)
           (λ { PE.refl → T.refl })
       )
-    where
-    open IE ([]-cong→Erased ok)
 
 opaque
 
@@ -139,21 +124,17 @@ opaque
   Kʳ
     {Γ} {A} {t} {B} {u} {v} {γ} {δ} {m = 𝟙ᵐ} {p}
     ⊢B ⊢u ⊢v ok γ≤δ ⊩ʳu ε⊎⊩ʳv =
-    ▸⊩ʳ∷⇔ .proj₂ λ {σ = σ} {σ′ = σ′} ⊩σ σ®σ′ →
-    case escape-⊩ˢ∷ ⊩σ of λ
-      (_ , ⊢σ) →
-    case fundamental-⊩ᵛ ⊢B of λ
-      (_ , ⊩B) →
+    ▸⊩ʳ∷⇔ .proj₂ λ {σ = σ} {σ′ = σ′} ⊢σ σ®σ′ →
+    case subst-⊢∷ ⊢v ⊢σ of λ
+      ⊢v[σ] →
     case subst-⊢-⇑ ⊢B ⊢σ of λ
       ⊢B[σ⇑] →
     case PE.subst (_⊢_∷_ _ _) (singleSubstLift B _) $
          subst-⊢∷ ⊢u ⊢σ of λ
       ⊢u[σ] →
-    case R.⊩∷→ $ ⊩ᵛ∷→⊩ˢ∷→⊩[]∷ (fundamental-⊩ᵛ∷ ⊢v .proj₂) ⊩σ of λ
-      ⊩v[σ] →
     case
       (case ε⊎⊩ʳv of λ where
-         (inj₁ ε) →                             $⟨ escape-⊩∷ ⊩v[σ] ⟩
+         (inj₁ ε) →                             $⟨ ⊢v[σ] ⟩
            ε ⊢ v [ σ ] ∷ Id A t t [ σ ]         →⟨ ε⊢⇒*rfl∷Id ⟩
            ε ⊢ v [ σ ] ⇒* rfl ∷ Id A t t [ σ ]  →⟨ ⇒*→⇛ ⟩
            v [ σ ] ⇛ rfl ∷ Id A t t [ σ ]       □
@@ -161,7 +142,7 @@ opaque
 
            σ ® σ′ ∷[ 𝟙ᵐ ] Γ ◂ γ                                 →⟨ subsumption-®∷[]◂ (λ _ → ≤ᶜ→⟨⟩≡𝟘→⟨⟩≡𝟘 γ≤η) ⟩
 
-           σ ® σ′ ∷[ 𝟙ᵐ ] Γ ◂ η                                 →⟨ ▸⊩ʳ∷⇔ .proj₁ ⊩ʳv ⊩σ ⟩
+           σ ® σ′ ∷[ 𝟙ᵐ ] Γ ◂ η                                 →⟨ ▸⊩ʳ∷⇔ .proj₁ ⊩ʳv ⊢σ ⟩
 
            v [ σ ] ® erase str v T.[ σ′ ] ∷ Id A t t [ σ ] ◂ 𝟙  →⟨ proj₂ ∘→ ®∷Id⇔ .proj₁ ∘→ ®∷→®∷◂ω non-trivial ⟩
 
@@ -171,6 +152,9 @@ opaque
            v [ σ ] ⇛ rfl ∷ Id A t t [ σ ]                       □)
     of λ
       v[σ]⇛rfl →
+    case PE.subst₂ (_⊢_≡_ _) (PE.sym (singleSubstLift B _)) (PE.sym (singleSubstLift B _)) $
+         substTypeEq (refl ⊢B[σ⇑]) (sym′ (⇛→⊢≡ v[σ]⇛rfl)) of λ
+      ⊢B[rfl]≡B[v] →
     case                  ∷ B [ v ]₀ [ σ ]           ⟨ singleSubstLift B _ ⟩⇛≡
       K p A t B u v [ σ ] ∷ B [ σ ⇑ ] [ v [ σ ] ]₀  ⇛⟨ K-⇛ ⊢B[σ⇑] ⊢u[σ] v[σ]⇛rfl ok ⟩∷
                                                      ⟨ substTypeEq (refl ⊢B[σ⇑]) (⇛→⊢≡ v[σ]⇛rfl) ⟩⇛
@@ -179,11 +163,8 @@ opaque
     of λ
       K⇛u[σ] →                                                       $⟨ σ®σ′ ⟩
     σ ® σ′ ∷[ 𝟙ᵐ ] Γ ◂ γ                                             →⟨ subsumption-®∷[]◂ (λ _ → ≤ᶜ→⟨⟩≡𝟘→⟨⟩≡𝟘 γ≤δ) ⟩
-    σ ® σ′ ∷[ 𝟙ᵐ ] Γ ◂ δ                                             →⟨ ▸⊩ʳ∷⇔ .proj₁ ⊩ʳu ⊩σ ⟩
-    u [ σ ] ® erase str u T.[ σ′ ] ∷ B [ rfl ]₀ [ σ ] ◂ 𝟙            →⟨ conv-®∷◂ $ R.⊩≡→ $
-                                                                        ⊩ᵛ≡→⊩≡∷→⊩ˢ≡∷→⊩[]₀[]≡[]₀[] (refl-⊩ᵛ≡ ⊩B)
-                                                                          (reducible-⊩≡∷ (sym′ (⇛→⊢≡ v[σ]⇛rfl)) .proj₂)
-                                                                          (refl-⊩ˢ≡∷ ⊩σ) ⟩
+    σ ® σ′ ∷[ 𝟙ᵐ ] Γ ◂ δ                                             →⟨ ▸⊩ʳ∷⇔ .proj₁ ⊩ʳu ⊢σ ⟩
+    u [ σ ] ® erase str u T.[ σ′ ] ∷ B [ rfl ]₀ [ σ ] ◂ 𝟙            →⟨ conv-®∷◂ ⊢B[rfl]≡B[v] ⟩
     u [ σ ] ® erase str u T.[ σ′ ] ∷ B [ v ]₀ [ σ ] ◂ 𝟙              →⟨ ®∷◂-⇐* K⇛u[σ] T.refl ⟩
     K p A t B u v [ σ ] ® erase str u T.[ σ′ ] ∷ B [ v ]₀ [ σ ] ◂ 𝟙  □
 
@@ -204,11 +185,7 @@ opaque
   Jʳ
     {Γ} {A} {t} {B} {u} {w} {v} {γ} {δ} {m = 𝟙ᵐ} {p} {q}
     ⊢B ⊢u ⊢w γ≤δ ⊩ʳu ε⊎⊩ʳw =
-    ▸⊩ʳ∷⇔ .proj₂ λ {σ = σ} {σ′ = σ′} ⊩σ σ®σ′ →
-    case escape-⊩ˢ∷ ⊩σ of λ
-      (_ , ⊢σ) →
-    case fundamental-⊩ᵛ ⊢B of λ
-      (_ , ⊩B) →
+    ▸⊩ʳ∷⇔ .proj₂ λ {σ = σ} {σ′ = σ′} ⊢σ σ®σ′ →
     case PE.subst₂ _⊢_ (PE.cong (_∙_ _) (Id-wk1-wk1-0[⇑]≡ A t))
            PE.refl $
          subst-⊢-⇑ ⊢B ⊢σ of λ
@@ -216,11 +193,11 @@ opaque
     case PE.subst (_⊢_∷_ _ _) ([,]-[]-commute B) $
          subst-⊢∷ ⊢u ⊢σ of λ
       ⊢u[σ] →
-    case R.⊩∷→ $ ⊩ᵛ∷→⊩ˢ∷→⊩[]∷ (fundamental-⊩ᵛ∷ ⊢w .proj₂) ⊩σ of λ
-      ⊩w[σ] →
+    case subst-⊢∷ ⊢w ⊢σ of λ
+      ⊢w[σ] →
     case
       (case ε⊎⊩ʳw of λ where
-         (inj₁ ε) →                             $⟨ escape-⊩∷ ⊩w[σ] ⟩
+         (inj₁ ε) →                             $⟨ ⊢w[σ] ⟩
            ε ⊢ w [ σ ] ∷ Id A t v [ σ ]         →⟨ ε⊢⇒*rfl∷Id ⟩
            ε ⊢ w [ σ ] ⇒* rfl ∷ Id A t v [ σ ]  →⟨ ⇒*→⇛ ⟩
            w [ σ ] ⇛ rfl ∷ Id A t v [ σ ]       □
@@ -228,7 +205,7 @@ opaque
 
            σ ® σ′ ∷[ 𝟙ᵐ ] Γ ◂ γ                                 →⟨ subsumption-®∷[]◂ (λ _ → ≤ᶜ→⟨⟩≡𝟘→⟨⟩≡𝟘 γ≤η) ⟩
 
-           σ ® σ′ ∷[ 𝟙ᵐ ] Γ ◂ η                                 →⟨ ▸⊩ʳ∷⇔ .proj₁ ⊩ʳw ⊩σ ⟩
+           σ ® σ′ ∷[ 𝟙ᵐ ] Γ ◂ η                                 →⟨ ▸⊩ʳ∷⇔ .proj₁ ⊩ʳw ⊢σ ⟩
 
            w [ σ ] ® erase str w T.[ σ′ ] ∷ Id A t v [ σ ] ◂ 𝟙  →⟨ proj₂ ∘→ ®∷Id⇔ .proj₁ ∘→ ®∷→®∷◂ω non-trivial ⟩
 
@@ -238,13 +215,20 @@ opaque
            w [ σ ] ⇛ rfl ∷ Id A t v [ σ ]                       □)
     of λ
       w[σ]⇛rfl →
+    case PE.subst (_⊢_≡_∷_ _ _ _) ≡Id-wk1-wk1-0[]₀ $ ⇛→⊢≡ w[σ]⇛rfl of λ
+      w[σ]≡rfl →
     case inversion-rfl-Id (wf-⇛ w[σ]⇛rfl .proj₂) of λ
       t[σ]≡v[σ] →
+    case PE.subst₂ (_⊢_≡_ _) (PE.sym ([,]-[]-commute B)) (PE.sym ([,]-[]-commute B)) $
+          substTypeEq₂ (refl ⊢B[σ⇑⇑]) t[σ]≡v[σ] $
+          conv (sym′ w[σ]≡rfl) $
+          substTypeEq (refl (⊢∙→⊢ (wf ⊢B[σ⇑⇑]))) (sym′ t[σ]≡v[σ])
+            of λ
+      ⊢B[t,rfl]≡B[v,w] →
     case                      ∷ B [ v , w ]₁₀ [ σ ]                   ⟨ [,]-[]-commute B ⟩⇛≡
       J p q A t B u v w [ σ ] ∷ B [ σ ⇑ ⇑ ] [ v [ σ ] , w [ σ ] ]₁₀  ⇛⟨ J-⇛ ⊢B[σ⇑⇑] ⊢u[σ] w[σ]⇛rfl ⟩∷
-                                                                      ⟨ substTypeEq₂ (refl ⊢B[σ⇑⇑]) (sym′ t[σ]≡v[σ]) $
-                                                                        PE.subst (_⊢_≡_∷_ _ _ _) ≡Id-wk1-wk1-0[]₀ $
-                                                                        ⇛→⊢≡ w[σ]⇛rfl ⟩⇛
+                                                                      ⟨ substTypeEq₂ (refl ⊢B[σ⇑⇑]) (sym′ t[σ]≡v[σ])
+                                                                        w[σ]≡rfl ⟩⇛
       J p q A t B u v rfl [ σ ] ∷ B [ σ ⇑ ⇑ ] [ t [ σ ] , rfl ]₁₀    ⇒⟨ J-β-⇒ t[σ]≡v[σ] ⊢B[σ⇑⇑] ⊢u[σ] ⟩∎⇛∷
       u [ σ ]                                                        ∎
     of λ
@@ -252,16 +236,9 @@ opaque
 
     σ ® σ′ ∷[ 𝟙ᵐ ] Γ ◂ γ                                        →⟨ subsumption-®∷[]◂ (λ _ → ≤ᶜ→⟨⟩≡𝟘→⟨⟩≡𝟘 γ≤δ) ⟩
 
-    σ ® σ′ ∷[ 𝟙ᵐ ] Γ ◂ δ                                        →⟨ ▸⊩ʳ∷⇔ .proj₁ ⊩ʳu ⊩σ ⟩
+    σ ® σ′ ∷[ 𝟙ᵐ ] Γ ◂ δ                                        →⟨ ▸⊩ʳ∷⇔ .proj₁ ⊩ʳu ⊢σ ⟩
 
-    u [ σ ] ® erase str u T.[ σ′ ] ∷ B [ t , rfl ]₁₀ [ σ ] ◂ 𝟙  →⟨ conv-®∷◂ $
-                                                                   sym-⊩≡ $ R.⊩≡→ $
-                                                                   ⊩ᵛ≡→⊩≡∷→⊩≡∷→⊩ˢ≡∷→⊩[]₁₀[]≡[]₁₀[] (refl-⊩ᵛ≡ ⊩B)
-                                                                     (R.sym-⊩≡∷ $ reducible-⊩≡∷ t[σ]≡v[σ] .proj₂)
-                                                                     (PE.subst (R._⊩⟨_⟩_≡_∷_ _ _ _ _)
-                                                                        (PE.cong₂ _[_] (≡Id-wk1-wk1-0[]₀ {A = A} {t = t}) PE.refl) $
-                                                                      reducible-⊩≡∷ (⇛→⊢≡ w[σ]⇛rfl) .proj₂)
-                                                                     (refl-⊩ˢ≡∷ ⊩σ) ⟩
+    u [ σ ] ® erase str u T.[ σ′ ] ∷ B [ t , rfl ]₁₀ [ σ ] ◂ 𝟙  →⟨ conv-®∷◂ ⊢B[t,rfl]≡B[v,w] ⟩
 
     u [ σ ] ® erase str u T.[ σ′ ] ∷ B [ v , w ]₁₀ [ σ ] ◂ 𝟙    →⟨ ®∷◂-⇐* J⇛u[σ] T.refl ⟩
 

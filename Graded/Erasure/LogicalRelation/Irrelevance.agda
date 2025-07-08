@@ -19,11 +19,7 @@ open Type-restrictions R
 
 open import Graded.Erasure.LogicalRelation as
 
-open import Definition.LogicalRelation R
-open import Definition.LogicalRelation.ShapeView R
-open import Definition.LogicalRelation.Weakening.Restricted R
-import Definition.LogicalRelation.Irrelevance R as I
-
+open import Definition.LogicalRelation.Simplified R
 open import Definition.Typed.Consequences.Injectivity R
 open import Definition.Typed.Properties R
 open import Definition.Typed.Reasoning.Type R
@@ -43,87 +39,82 @@ private
     n : Nat
     A′ : Term n
 
--- Irrelevance of logical relation for erasure using a ShapeView
+private opaque
 
-irrelevanceTermSV : ∀ {l l′ t v A}
-                  → ([A] : Δ ⊩⟨ l ⟩ A)
-                    ([A]′ : Δ ⊩⟨ l′ ⟩ A)
-                  → t ®⟨ l ⟩ v ∷ A / [A]
-                  → ShapeView Δ l l′ A A [A] [A]′
-                  → t ®⟨ l′ ⟩ v ∷ A / [A]′
-irrelevanceTermSV .(Uᵣ UA) .(Uᵣ UB) t®v (Uᵥ UA UB) = t®v
-irrelevanceTermSV .(ℕᵣ ℕA) .(ℕᵣ ℕB) t®v (ℕᵥ ℕA ℕB) = t®v
-irrelevanceTermSV
-  {A}
-  _ _ t®v (Unitᵥ {s} (Unitᵣ l _ A⇒*Unit₁ _) (Unitᵣ l′ _ A⇒*Unit₂ _)) =
-  case Unit-injectivity
-         (Unit s l  ≡˘⟨ subset* A⇒*Unit₁ ⟩⊢
-          A         ≡⟨ subset* A⇒*Unit₂ ⟩⊢∎
-          Unit s l′ ∎) of λ {
-    (_ , PE.refl) →
-  t®v }
-irrelevanceTermSV
-  [A] [A]′ t®v
-  (Bᵥ (BΠ p q) (Bᵣ F G D A≡A [F] [G] G-ext _)
-     (Bᵣ F₁ G₁ D₁ A≡A₁ [F]₁ [G]₁ G-ext₁ _))
+  -- Irrelevance of logical relation for erasure using a ShapeView
+
+  irrelevanceTermSV : ∀ {t v A}
+                    → {[A] : Δ ⊨ A}
+                      {[A]′ : Δ ⊨ A}
+                    → t ® v ∷ A / [A]
+                    → ShapeView Δ A A [A] [A]′
+                    → t ® v ∷ A / [A]′
+  irrelevanceTermSV t®v (Uᵥ UA UA′) = t®v
+  irrelevanceTermSV t®v (ℕᵥ ℕA ℕA′) = t®v
+  irrelevanceTermSV t®v (Emptyᵥ EmptyA EmptyA′) = t®v
+  irrelevanceTermSV {A} t®v
+    (Unitᵥ {s} (Unitᵣ l A⇒*Unit₁) (Unitᵣ l′ A⇒*Unit₂)) =
+    case Unit-injectivity
+           (Unit s l  ≡˘⟨ subset* A⇒*Unit₁ ⟩⊢
+            A         ≡⟨ subset* A⇒*Unit₂ ⟩⊢∎
+            Unit s l′ ∎) of λ {
+      (_ , PE.refl) →
+    t®v }
+  irrelevanceTermSV t®v (ne neA neA′) = t®v
+  irrelevanceTermSV
+    t®v
+    (Bᵥ BMΠ p q (Bᵣ F G D [F] [G])
+      (Bᵣ F₁ G₁ D₁ [F]₁ [G]₁))
        with B-PE-injectivity BΠ! BΠ! (whrDet* (D , ΠΣₙ) (D₁ , ΠΣₙ))
-... | PE.refl , PE.refl , _
-       with is-𝟘? p
-... | (yes p≡𝟘) = t®v .proj₁ , λ [a]′ →
-  let [a] = I.irrelevanceTerm ([F]₁ (id ⊢Δ)) ([F] (id ⊢Δ)) [a]′
-      t®v′ = t®v .proj₂ [a]
-      SV′ = goodCasesRefl ([G] (id ⊢Δ) [a]) ([G]₁ (id ⊢Δ) [a]′)
-  in  irrelevanceTermSV ([G] (id ⊢Δ) [a]) ([G]₁ (id ⊢Δ) [a]′) t®v′ SV′
-... | (no p≢𝟘) = t®v .proj₁ , λ [a]′ a®w′ →
-  let [a] = I.irrelevanceTerm ([F]₁ (id ⊢Δ)) ([F] (id ⊢Δ)) [a]′
-      SV = goodCasesRefl ([F]₁ (id ⊢Δ)) ([F] (id ⊢Δ))
-      a®w = irrelevanceTermSV ([F]₁ (id ⊢Δ)) ([F] (id ⊢Δ)) a®w′ SV
-      t®v′ = t®v .proj₂ [a] a®w
-      SV′ = goodCasesRefl ([G] (id ⊢Δ) [a]) ([G]₁ (id ⊢Δ) [a]′)
-  in  irrelevanceTermSV ([G] (id ⊢Δ) [a]) ([G]₁ (id ⊢Δ) [a]′) t®v′ SV′
-irrelevanceTermSV {v = v}
-  [A] [A]′ (t₁ , t₂ , t⇒t′ , [t₁] , v₂ , t₂®v₂ , extra)
-  (Bᵥ (BΣ _ p _) (Bᵣ F G D A≡A [F] [G] G-ext _)
-     (Bᵣ F₁ G₁ D₁ A≡A₁ [F]₁ [G]₁ G-ext₁ _))
-  with B-PE-injectivity BΣ! BΣ! (whrDet* (D , ΠΣₙ) (D₁ , ΠΣₙ))
-... | PE.refl , PE.refl , _ =
-  let [F]′ = [F] (id ⊢Δ)
-      [F]₁′ = [F]₁ (id ⊢Δ)
-      [t₁]′ = I.irrelevanceTerm [F]′ [F]₁′ [t₁]
-      [Gt₁] = [G] (id ⊢Δ) [t₁]
-      [Gt₁]₁ = [G]₁ (id ⊢Δ) [t₁]′
-      t₂®v₂′ = irrelevanceTermSV [Gt₁] [Gt₁]₁ t₂®v₂
-                 (goodCasesRefl [Gt₁] [Gt₁]₁)
-  in  t₁ , t₂ , t⇒t′ , [t₁]′ , v₂ , t₂®v₂′
-      , Σ-®-elim (λ _ → Σ-® _ _ [F]₁′ t₁ v v₂ p) extra
-                 Σ-®-intro-𝟘
-                 λ v₁ v⇒p t₁®v₁ p≢𝟘 →
-                   Σ-®-intro-ω v₁ v⇒p (irrelevanceTermSV [F]′ [F]₁′ t₁®v₁
-                               (goodCasesRefl [F]′ [F]₁′)) p≢𝟘
-irrelevanceTermSV _ _ t®v (Idᵥ ⊩A@record{} ⊩B) =
-  case whrDet* (_⊩ₗId_.⇒*Id ⊩A , Idₙ) (_⊩ₗId_.⇒*Id ⊩B , Idₙ) of λ {
-    PE.refl →
-  t®v }
--- Impossible cases
-irrelevanceTermSV _ _ () (Emptyᵥ _ _)
-irrelevanceTermSV _ _ () (ne record{} _)
+  ... | PE.refl , PE.refl , _
+         with is-𝟘? p
+  ... | (yes p≡𝟘) = t®v .proj₁ , λ ⊢a →
+    irrelevanceTermSV (t®v .proj₂ ⊢a)
+      (goodCasesRefl ([G] ⊢a) ([G]₁ ⊢a))
+  ... | (no p≢𝟘) = t®v .proj₁ , λ ⊢a a®w′ →
+    let a®w = irrelevanceTermSV a®w′ (goodCasesRefl [F]₁ [F])
+    in  irrelevanceTermSV (t®v .proj₂ ⊢a a®w)
+          (goodCasesRefl ([G] ⊢a) ([G]₁ ⊢a))
+  irrelevanceTermSV {v = v}
+    (t₁ , t₂ , t⇒t′ , ⊢t₁ , v₂ , t₂®v₂ , extra)
+    (Bᵥ (BMΣ _) p _ (Bᵣ F G D [F] [G])
+       (Bᵣ F₁ G₁ D₁ [F]₁ [G]₁))
+    with B-PE-injectivity BΣ! BΣ! (whrDet* (D , ΠΣₙ) (D₁ , ΠΣₙ))
+  ... | PE.refl , PE.refl , _ =
+    t₁ , t₂ , t⇒t′ , ⊢t₁ , v₂
+       , irrelevanceTermSV t₂®v₂
+           (goodCasesRefl ([G] ⊢t₁) ([G]₁ ⊢t₁))
+       , Σ-®-elim (λ _ → Σ-® _ [F]₁ t₁ v v₂ p) extra Σ-®-intro-𝟘
+           λ v₁ v⇒p t₁®v₁ p≢𝟘 →
+             Σ-®-intro-ω v₁ v⇒p
+               (irrelevanceTermSV t₁®v₁
+                 (goodCasesRefl [F] [F]₁))
+               p≢𝟘
+  irrelevanceTermSV t®v (Idᵥ ⊨A@record{} ⊨B) =
+    case whrDet* (_⊨Id_.⇒*Id ⊨A , Idₙ) (_⊨Id_.⇒*Id ⊨B , Idₙ) of λ {
+      PE.refl →
+    t®v }
 
--- Irrelevance of logical relation for erasure
+opaque
 
-irrelevanceTerm : ∀ {l l′ t v A}
-                → ([A] : Δ ⊩⟨ l ⟩ A)
-                  ([A]′ : Δ ⊩⟨ l′ ⟩ A)
-                → t ®⟨ l ⟩ v ∷ A / [A]
-                → t ®⟨ l′ ⟩ v ∷ A / [A]′
-irrelevanceTerm [A] [A]′ t®v =
-  irrelevanceTermSV [A] [A]′ t®v (goodCasesRefl [A] [A]′)
+  -- Irrelevance of logical relation for erasure
 
--- Irrelevance of logical relation for erasure with propositionally equal types
+  irrelevanceTerm : ∀ {t v A}
+                  → ([A] : Δ ⊨ A)
+                    ([A]′ : Δ ⊨ A)
+                  → t ® v ∷ A / [A]
+                  → t ® v ∷ A / [A]′
+  irrelevanceTerm [A] [A]′ t®v =
+    irrelevanceTermSV t®v (goodCasesRefl [A] [A]′)
 
-irrelevanceTerm′ : ∀ {l l′ t v A}
-                 → A PE.≡ A′
-                 → ([A] : Δ ⊩⟨ l ⟩ A)
-                 → ([A]′ : Δ ⊩⟨ l′ ⟩ A′)
-                 → t ®⟨ l ⟩ v ∷ A / [A]
-                 → t ®⟨ l′ ⟩ v ∷ A′ / [A]′
-irrelevanceTerm′ PE.refl [A] [A]′ t®v = irrelevanceTerm [A] [A]′ t®v
+opaque
+
+  -- Irrelevance of logical relation for erasure with propositionally equal types
+
+  irrelevanceTerm′ : ∀ {t v A}
+                   → A PE.≡ A′
+                   → ([A] : Δ ⊨ A)
+                   → ([A]′ : Δ ⊨ A′)
+                   → t ® v ∷ A / [A]
+                   → t ® v ∷ A′ / [A]′
+  irrelevanceTerm′ PE.refl [A] [A]′ t®v = irrelevanceTerm [A] [A]′ t®v
