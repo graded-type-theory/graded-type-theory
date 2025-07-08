@@ -298,6 +298,9 @@ import Definition.LogicalRelation.Fundamental
 import Definition.LogicalRelation.Fundamental.Reducibility.Restricted
 import Definition.LogicalRelation.Fundamental.Reducibility
 
+-- A simplified version of the logical relation for types
+import Definition.LogicalRelation.Simplified
+
 -- Some consequences of the fundamental lemma.
 import Definition.Typed.Consequences.Injectivity
 import Definition.Typed.Consequences.Inequality
