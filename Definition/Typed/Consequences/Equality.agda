@@ -108,7 +108,7 @@ opaque
         (Uⱼ (zeroᵘⱼ ε))
         (conv
           (Liftⱼ′ (sucᵘⱼ (zeroᵘⱼ ε)) (Emptyⱼ ε))
-          (U-cong (maxᵘ-zeroˡ (sucᵘⱼ (zeroᵘⱼ ε))))))) ,
+          (U-cong (supᵘ-zeroˡ (sucᵘⱼ (zeroᵘⱼ ε))))))) ,
     Liftₙ ,
     (λ ())
 
@@ -138,13 +138,13 @@ opaque
     ∃₄ λ (Γ : Con Term 1) (l : Term 1) (B : Term 1) (A : Term 1) →
       Γ ⊢ Lift l B ≡ A × Whnf A × ¬ ∃₂ λ l B → A PE.≡ Lift l B
   whnf≢Lift ok₁ ok₂ =
-    ε ∙ Id (U (zeroᵘ maxᵘ zeroᵘ)) (Lift zeroᵘ ℕ) Unitʷ ,
+    ε ∙ Id (U (zeroᵘ supᵘ zeroᵘ)) (Lift zeroᵘ ℕ) Unitʷ ,
     zeroᵘ ,
     ℕ ,
     Unitʷ ,
     univ
       (equality-reflection′ ok₁ $
-       var₀ (Idⱼ′ (Liftⱼ′ (zeroᵘⱼ ε) (ℕⱼ ε)) (conv (Unitⱼ ε ok₂) (U-cong (sym′ (maxᵘ-zeroˡ (zeroᵘⱼ ε))))))) ,
+       var₀ (Idⱼ′ (Liftⱼ′ (zeroᵘⱼ ε) (ℕⱼ ε)) (conv (Unitⱼ ε ok₂) (U-cong (sym′ (supᵘ-zeroˡ (zeroᵘⱼ ε))))))) ,
     Unitₙ ,
     (λ ())
 

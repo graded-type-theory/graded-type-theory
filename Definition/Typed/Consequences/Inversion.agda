@@ -168,11 +168,11 @@ opaque
       prodₙ
     (ne! t-ne) →
       ne t-ne
-    (ne (maxᵘˡₙ _)) →
-      let _ , _ , A≡Level = inversion-maxᵘ ⊢t in
+    (ne (supᵘˡₙ _)) →
+      let _ , _ , A≡Level = inversion-supᵘ ⊢t in
       ⊥-elim (Level≢ΠΣⱼ (sym A≡Level))
-    (ne (maxᵘʳₙ _)) →
-      let _ , _ , A≡Level = inversion-maxᵘ ⊢t in
+    (ne (supᵘʳₙ _)) →
+      let _ , _ , A≡Level = inversion-supᵘ ⊢t in
       ⊥-elim (Level≢ΠΣⱼ (sym A≡Level))
     Levelₙ →
       ⊥-elim (U≢ΠΣⱼ (sym (inversion-Level ⊢t)))
@@ -227,11 +227,11 @@ opaque
       starₙ
     (ne! t-ne) →
       ne t-ne
-    (ne (maxᵘˡₙ _)) →
-      let _ , _ , A≡Level = inversion-maxᵘ ⊢t in
+    (ne (supᵘˡₙ _)) →
+      let _ , _ , A≡Level = inversion-supᵘ ⊢t in
       ⊥-elim (Level≢Unitⱼ (sym A≡Level))
-    (ne (maxᵘʳₙ _)) →
-      let _ , _ , A≡Level = inversion-maxᵘ ⊢t in
+    (ne (supᵘʳₙ _)) →
+      let _ , _ , A≡Level = inversion-supᵘ ⊢t in
       ⊥-elim (Level≢Unitⱼ (sym A≡Level))
     Levelₙ →
       ⊥-elim (U≢Unitⱼ (sym (inversion-Level ⊢t)))

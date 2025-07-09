@@ -45,7 +45,7 @@ opaque
 
   Liftⱼ′ : Γ ⊢ l₂ ∷ Level
          → Γ ⊢ A ∷ U l₁
-         → Γ ⊢ Lift l₂ A ∷ U (l₁ maxᵘ l₂)
+         → Γ ⊢ Lift l₂ A ∷ U (l₁ supᵘ l₂)
   Liftⱼ′ ⊢l₂ ⊢A = Liftⱼ (inversion-U-Level (wf-⊢∷ ⊢A)) ⊢l₂ ⊢A
 
 opaque
@@ -62,16 +62,16 @@ opaque
   Liftⱼ-comm
     : Γ ⊢ l₂ ∷ Level
     → Γ ⊢ A ∷ U l₁
-    → Γ ⊢ Lift l₂ A ∷ U (l₂ maxᵘ l₁)
+    → Γ ⊢ Lift l₂ A ∷ U (l₂ supᵘ l₁)
   Liftⱼ-comm ⊢l₂ ⊢A =
     let ⊢l₁ = inversion-U-Level (wf-⊢∷ ⊢A)
-    in conv (Liftⱼ ⊢l₁ ⊢l₂ ⊢A) (U-cong (maxᵘ-comm ⊢l₁ ⊢l₂))
+    in conv (Liftⱼ ⊢l₁ ⊢l₂ ⊢A) (U-cong (supᵘ-comm ⊢l₁ ⊢l₂))
 
 opaque
 
   Lift-cong′ : Γ ⊢ l₂ ≡ l₂′ ∷ Level
              → Γ ⊢ A ≡ B ∷ U l₁
-             → Γ ⊢ Lift l₂ A ≡ Lift l₂′ B ∷ U (l₁ maxᵘ l₂)
+             → Γ ⊢ Lift l₂ A ≡ Lift l₂′ B ∷ U (l₁ supᵘ l₂)
   Lift-cong′ l₂≡l₂′ A≡B =
     Lift-cong (inversion-U-Level (wf-⊢≡∷ A≡B .proj₁)) l₂≡l₂′ A≡B
 
@@ -80,11 +80,11 @@ opaque
   Lift-cong-comm
     : Γ ⊢ l₂ ≡ l₂′ ∷ Level
     → Γ ⊢ A ≡ B ∷ U l₁
-    → Γ ⊢ Lift l₂ A ≡ Lift l₂′ B ∷ U (l₂ maxᵘ l₁)
+    → Γ ⊢ Lift l₂ A ≡ Lift l₂′ B ∷ U (l₂ supᵘ l₁)
   Lift-cong-comm l₂≡l₂′ A≡B =
     let ⊢l₁ = inversion-U-Level (wf-⊢≡∷ A≡B .proj₁)
         _ , ⊢l₂ , _ = wf-⊢≡∷ l₂≡l₂′
-    in conv (Lift-cong ⊢l₁ l₂≡l₂′ A≡B) (U-cong (maxᵘ-comm ⊢l₁ ⊢l₂))
+    in conv (Lift-cong ⊢l₁ l₂≡l₂′ A≡B) (U-cong (supᵘ-comm ⊢l₁ ⊢l₂))
 
 opaque
 

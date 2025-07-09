@@ -108,7 +108,7 @@ mutual
              Γ ⊢nf U l ∷ U (sucᵘ l)
     Liftₙ  : Γ ⊢nf l₂ ∷ Level →
              Γ ⊢nf A ∷ U l₁ →
-             Γ ⊢nf Lift l₂ A ∷ U (l₁ maxᵘ l₂)
+             Γ ⊢nf Lift l₂ A ∷ U (l₁ supᵘ l₂)
     liftₙ  : Γ ⊢ l₂ ∷ Level →
              Γ ⊢nf t ∷ A →
              Γ ⊢nf lift t ∷ Lift l₂ A
@@ -154,12 +154,12 @@ mutual
   infix 4 _⊢neˡ_∷_
 
   data _⊢neˡ_∷_ (Γ : Con Term n) : Term n → Term n → Set a where
-    maxᵘˡₙ : Γ ⊢neˡ t ∷ Level
+    supᵘˡₙ : Γ ⊢neˡ t ∷ Level
            → Γ ⊢nf u ∷ Level
-           → Γ ⊢neˡ t maxᵘ u ∷ Level
-    maxᵘʳₙ : Γ ⊢nf t ∷ Level
+           → Γ ⊢neˡ t supᵘ u ∷ Level
+    supᵘʳₙ : Γ ⊢nf t ∷ Level
            → Γ ⊢neˡ u ∷ Level
-           → Γ ⊢neˡ sucᵘ t maxᵘ u ∷ Level
+           → Γ ⊢neˡ sucᵘ t supᵘ u ∷ Level
     neₙ    : Γ ⊢ne t ∷ A
            → Γ ⊢neˡ t ∷ A
 
@@ -276,8 +276,8 @@ mutual
 
   ⊢neˡ∷→⊢∷ : Γ ⊢neˡ t ∷ A → Γ ⊢ t ∷ A
   ⊢neˡ∷→⊢∷ = λ where
-    (maxᵘˡₙ ⊢t ⊢u) → maxᵘⱼ (⊢neˡ∷→⊢∷ ⊢t) (⊢nf∷→⊢∷ ⊢u)
-    (maxᵘʳₙ ⊢t ⊢u) → maxᵘⱼ (sucᵘⱼ (⊢nf∷→⊢∷ ⊢t)) (⊢neˡ∷→⊢∷ ⊢u)
+    (supᵘˡₙ ⊢t ⊢u) → supᵘⱼ (⊢neˡ∷→⊢∷ ⊢t) (⊢nf∷→⊢∷ ⊢u)
+    (supᵘʳₙ ⊢t ⊢u) → supᵘⱼ (sucᵘⱼ (⊢nf∷→⊢∷ ⊢t)) (⊢neˡ∷→⊢∷ ⊢u)
     (neₙ x) → ⊢ne∷→⊢∷ x
 
   -- If Γ ⊢ne t ∷ A holds, then t is well-typed.
@@ -347,8 +347,8 @@ mutual
 
   ⊢neˡ∷→NfNeutralˡ : Γ ⊢neˡ t ∷ A → NfNeutralˡ t
   ⊢neˡ∷→NfNeutralˡ = λ where
-    (maxᵘˡₙ ⊢t ⊢u) → maxᵘˡₙ (⊢neˡ∷→NfNeutralˡ ⊢t) (⊢nf∷→Nf ⊢u)
-    (maxᵘʳₙ ⊢t ⊢u) → maxᵘʳₙ (⊢nf∷→Nf ⊢t) (⊢neˡ∷→NfNeutralˡ ⊢u)
+    (supᵘˡₙ ⊢t ⊢u) → supᵘˡₙ (⊢neˡ∷→NfNeutralˡ ⊢t) (⊢nf∷→Nf ⊢u)
+    (supᵘʳₙ ⊢t ⊢u) → supᵘʳₙ (⊢nf∷→Nf ⊢t) (⊢neˡ∷→NfNeutralˡ ⊢u)
     (neₙ x) → ne (⊢ne∷→NfNeutral x)
 
   -- If Γ ⊢ne t ∷ A holds, then t is "NfNeutral".
@@ -492,8 +492,8 @@ mutual
 
   ⊢neˡ∷-stable : ⊢ Γ ≡ Δ → Γ ⊢neˡ t ∷ A → Δ ⊢neˡ t ∷ A
   ⊢neˡ∷-stable Γ≡Δ = λ where
-      (maxᵘˡₙ ⊢t ⊢u) → maxᵘˡₙ (⊢neˡ∷-stable Γ≡Δ ⊢t) (⊢nf∷-stable Γ≡Δ ⊢u)
-      (maxᵘʳₙ ⊢t ⊢u) → maxᵘʳₙ (⊢nf∷-stable Γ≡Δ ⊢t) (⊢neˡ∷-stable Γ≡Δ ⊢u)
+      (supᵘˡₙ ⊢t ⊢u) → supᵘˡₙ (⊢neˡ∷-stable Γ≡Δ ⊢t) (⊢nf∷-stable Γ≡Δ ⊢u)
+      (supᵘʳₙ ⊢t ⊢u) → supᵘʳₙ (⊢nf∷-stable Γ≡Δ ⊢t) (⊢neˡ∷-stable Γ≡Δ ⊢u)
       (neₙ x)        → neₙ (⊢ne∷-stable Γ≡Δ x)
     where
     ⊢Δ = contextConvSubst Γ≡Δ .proj₂ .proj₁

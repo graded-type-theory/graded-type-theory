@@ -66,12 +66,12 @@ opaque
 
 opaque
 
-  -- Inversion for maxᵘ.
+  -- Inversion for supᵘ.
 
-  inversion-maxᵘ : Γ ⊢ t maxᵘ u ∷ A → Γ ⊢ t ∷ Level × Γ ⊢ u ∷ Level × Γ ⊢ A ≡ Level
-  inversion-maxᵘ (maxᵘⱼ ⊢t ⊢u)   = ⊢t , ⊢u , refl (Levelⱼ (wfTerm ⊢t))
-  inversion-maxᵘ (conv ⊢maxᵘ eq) =
-    let a , b , c = inversion-maxᵘ ⊢maxᵘ in
+  inversion-supᵘ : Γ ⊢ t supᵘ u ∷ A → Γ ⊢ t ∷ Level × Γ ⊢ u ∷ Level × Γ ⊢ A ≡ Level
+  inversion-supᵘ (supᵘⱼ ⊢t ⊢u)   = ⊢t , ⊢u , refl (Levelⱼ (wfTerm ⊢t))
+  inversion-supᵘ (conv ⊢supᵘ eq) =
+    let a , b , c = inversion-supᵘ ⊢supᵘ in
     a , b , trans (sym eq) c
 
 ------------------------------------------------------------------------
@@ -98,11 +98,11 @@ opaque
 
 opaque
 
-  inversion-Lift∷ : Γ ⊢ Lift t A ∷ B → ∃ λ k₁ → Γ ⊢ t ∷ Level × Γ ⊢ A ∷ U k₁ × Γ ⊢ B ≡ U (k₁ maxᵘ t)
+  inversion-Lift∷ : Γ ⊢ Lift t A ∷ B → ∃ λ k₁ → Γ ⊢ t ∷ Level × Γ ⊢ A ∷ U k₁ × Γ ⊢ B ≡ U (k₁ supᵘ t)
   inversion-Lift∷ (conv x x₁) =
     let _ , ⊢t , ⊢A , B≡ = inversion-Lift∷ x
     in _ , ⊢t , ⊢A , trans (sym x₁) B≡
-  inversion-Lift∷ (Liftⱼ x x₁ x₂) = _ , x₁ , x₂ , refl (Uⱼ (maxᵘⱼ x x₁))
+  inversion-Lift∷ (Liftⱼ x x₁ x₂) = _ , x₁ , x₂ , refl (Uⱼ (supᵘⱼ x x₁))
 
   inversion-Lift : Γ ⊢ Lift t A → Γ ⊢ t ∷ Level × Γ ⊢ A
   inversion-Lift (univ x) =

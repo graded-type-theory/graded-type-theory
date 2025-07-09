@@ -241,8 +241,8 @@ opaque
     zeroᵘₘ
   ▸-𝟘 (sucᵘₘ ▸t) =
     sucᵘₘ (▸-𝟘 ▸t)
-  ▸-𝟘 (maxᵘₘ t u) = sub
-    (maxᵘₘ (▸-𝟘 t) (▸-𝟘 u))
+  ▸-𝟘 (supᵘₘ t u) = sub
+    (supᵘₘ (▸-𝟘 t) (▸-𝟘 u))
     (begin
        𝟘ᶜ        ≈˘⟨ +ᶜ-identityʳ _ ⟩
        𝟘ᶜ +ᶜ 𝟘ᶜ  ∎)
@@ -542,7 +542,7 @@ opaque
   ≤ᶜ-refl
 ▸-𝟘ᵐ (sucᵘₘ ▸t) =
   ▸-𝟘ᵐ ▸t
-▸-𝟘ᵐ (maxᵘₘ {γ} {δ} ▸t ▸u) = begin
+▸-𝟘ᵐ (supᵘₘ {γ} {δ} ▸t ▸u) = begin
   γ +ᶜ δ    ≤⟨ +ᶜ-monotone (▸-𝟘ᵐ ▸t) (▸-𝟘ᵐ ▸u) ⟩
   𝟘ᶜ +ᶜ 𝟘ᶜ  ≈⟨ +ᶜ-identityˡ _ ⟩
   𝟘ᶜ        ∎
@@ -978,10 +978,10 @@ opaque
   Conₘ-interchange (sucᵘₘ ▸t) ▸sucᵘ x =
     sucᵘₘ (Conₘ-interchange ▸t (inv-usage-sucᵘ ▸sucᵘ) x)
 
-  Conₘ-interchange {δ = η} (maxᵘₘ {γ} {δ} γ▸t δ▸u) ▸maxᵘ x =
-    case inv-usage-maxᵘ ▸maxᵘ of λ
+  Conₘ-interchange {δ = η} (supᵘₘ {γ} {δ} γ▸t δ▸u) ▸supᵘ x =
+    case inv-usage-supᵘ ▸supᵘ of λ
       (γ′ , δ′ , η≤γ′+δ′ , γ′▸t , δ′▸u) → sub
-    (maxᵘₘ (Conₘ-interchange γ▸t γ′▸t x) (Conₘ-interchange δ▸u δ′▸u x))
+    (supᵘₘ (Conₘ-interchange γ▸t γ′▸t x) (Conₘ-interchange δ▸u δ′▸u x))
     (begin
        γ +ᶜ δ , x ≔ η ⟨ x ⟩                      ≤⟨ update-monotoneʳ _ $ lookup-monotone _ η≤γ′+δ′ ⟩
        γ +ᶜ δ , x ≔ (γ′ +ᶜ δ′) ⟨ x ⟩             ≡⟨ cong (_ , _ ≔_) $ lookup-distrib-+ᶜ γ′ _ _ ⟩
@@ -1777,7 +1777,7 @@ opaque
   ≈ᶜ-refl
 ⌈⌉-𝟘ᵐ (sucᵘ t) =
   ⌈⌉-𝟘ᵐ t
-⌈⌉-𝟘ᵐ {ok} (t maxᵘ u) = begin
+⌈⌉-𝟘ᵐ {ok} (t supᵘ u) = begin
   ⌈ t ⌉ 𝟘ᵐ[ ok ] +ᶜ ⌈ u ⌉ 𝟘ᵐ[ ok ]  ≈⟨ +ᶜ-cong (⌈⌉-𝟘ᵐ t) (⌈⌉-𝟘ᵐ u) ⟩
   𝟘ᶜ +ᶜ 𝟘ᶜ                          ≈⟨ +ᶜ-identityʳ _ ⟩
   𝟘ᶜ                                ∎
@@ -1972,7 +1972,7 @@ usage-upper-bound ⦃ ok ⦄ ok′ = usage-upper-bound′
     ≤ᶜ-refl
   usage-upper-bound′ (sucᵘₘ ▸t) =
     usage-upper-bound′ ▸t
-  usage-upper-bound′ (maxᵘₘ ▸t ▸u) =
+  usage-upper-bound′ (supᵘₘ ▸t ▸u) =
     +ᶜ-monotone (usage-upper-bound′ ▸t) (usage-upper-bound′ ▸u)
 
   usage-upper-bound′ (Uₘ ▸t) =
@@ -2184,7 +2184,7 @@ usage-inf :
 usage-inf Levelₘ = Levelₘ
 usage-inf zeroᵘₘ = zeroᵘₘ
 usage-inf (sucᵘₘ ▸t) = sucᵘₘ (usage-inf ▸t)
-usage-inf (maxᵘₘ ▸t ▸u) = maxᵘₘ (usage-inf ▸t) (usage-inf ▸u)
+usage-inf (supᵘₘ ▸t ▸u) = supᵘₘ (usage-inf ▸t) (usage-inf ▸u)
 usage-inf (Uₘ ▸t) = Uₘ (usage-inf ▸t)
 usage-inf (Liftₘ ▸t ▸A) = Liftₘ ▸t (usage-inf ▸A)
 usage-inf (liftₘ ▸u) = liftₘ (usage-inf ▸u)

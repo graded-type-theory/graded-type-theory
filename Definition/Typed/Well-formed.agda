@@ -66,12 +66,12 @@ opaque mutual
       Levelⱼ ⊢Γ
     (sucᵘⱼ ⊢l) →
       wf-⊢∷ ⊢l
-    (maxᵘⱼ ⊢l ⊢u) →
+    (supᵘⱼ ⊢l ⊢u) →
       wf-⊢∷ ⊢l
     (Uⱼ ⊢l) →
       Uⱼ (sucᵘⱼ ⊢l)
     (Liftⱼ x x₁ x₂) →
-      Uⱼ (maxᵘⱼ x x₁)
+      Uⱼ (supᵘⱼ x x₁)
     (liftⱼ x x₁ x₂) →
       Liftⱼ x x₁
     (lowerⱼ x) →
@@ -186,25 +186,25 @@ opaque mutual
     (sucᵘ-cong l₁≡l₂) →
       let ⊢Level , ⊢l₁ , ⊢l₂ = wf-⊢≡∷ l₁≡l₂ in
       ⊢Level , sucᵘⱼ ⊢l₁ , sucᵘⱼ ⊢l₂
-    (maxᵘ-cong t₁≡t₂ u₁≡u₂) →
+    (supᵘ-cong t₁≡t₂ u₁≡u₂) →
       let ⊢Level , ⊢t₁ , ⊢t₂ = wf-⊢≡∷ t₁≡t₂
           _ , ⊢u₁ , ⊢u₂ = wf-⊢≡∷ u₁≡u₂
       in
-      ⊢Level , maxᵘⱼ ⊢t₁ ⊢u₁ , maxᵘⱼ ⊢t₂ ⊢u₂
-    (maxᵘ-zeroˡ ⊢l) →
-      wf-⊢∷ ⊢l , maxᵘⱼ (zeroᵘⱼ (wfTerm ⊢l)) ⊢l , ⊢l
-    (maxᵘ-zeroʳ ⊢l) →
-      wf-⊢∷ ⊢l , maxᵘⱼ ⊢l (zeroᵘⱼ (wfTerm ⊢l)) , ⊢l
-    (maxᵘ-sucᵘ ⊢l₁ ⊢l₂) →
-      wf-⊢∷ ⊢l₁ , maxᵘⱼ (sucᵘⱼ ⊢l₁) (sucᵘⱼ ⊢l₂) , sucᵘⱼ (maxᵘⱼ ⊢l₁ ⊢l₂)
-    (maxᵘ-assoc ⊢l₁ ⊢l₂ ⊢l₃) →
-      wf-⊢∷ ⊢l₁ , maxᵘⱼ (maxᵘⱼ ⊢l₁ ⊢l₂) ⊢l₃ , maxᵘⱼ ⊢l₁ (maxᵘⱼ ⊢l₂ ⊢l₃)
-    (maxᵘ-comm ⊢l₁ ⊢l₂) →
-      wf-⊢∷ ⊢l₁ , maxᵘⱼ ⊢l₁ ⊢l₂ , maxᵘⱼ ⊢l₂ ⊢l₁
-    (maxᵘ-idem ⊢l) →
-      wf-⊢∷ ⊢l , maxᵘⱼ ⊢l ⊢l , ⊢l
-    (maxᵘ-sub ⊢l) →
-      wf-⊢∷ ⊢l , maxᵘⱼ ⊢l (sucᵘⱼ ⊢l) , (sucᵘⱼ ⊢l)
+      ⊢Level , supᵘⱼ ⊢t₁ ⊢u₁ , supᵘⱼ ⊢t₂ ⊢u₂
+    (supᵘ-zeroˡ ⊢l) →
+      wf-⊢∷ ⊢l , supᵘⱼ (zeroᵘⱼ (wfTerm ⊢l)) ⊢l , ⊢l
+    (supᵘ-zeroʳ ⊢l) →
+      wf-⊢∷ ⊢l , supᵘⱼ ⊢l (zeroᵘⱼ (wfTerm ⊢l)) , ⊢l
+    (supᵘ-sucᵘ ⊢l₁ ⊢l₂) →
+      wf-⊢∷ ⊢l₁ , supᵘⱼ (sucᵘⱼ ⊢l₁) (sucᵘⱼ ⊢l₂) , sucᵘⱼ (supᵘⱼ ⊢l₁ ⊢l₂)
+    (supᵘ-assoc ⊢l₁ ⊢l₂ ⊢l₃) →
+      wf-⊢∷ ⊢l₁ , supᵘⱼ (supᵘⱼ ⊢l₁ ⊢l₂) ⊢l₃ , supᵘⱼ ⊢l₁ (supᵘⱼ ⊢l₂ ⊢l₃)
+    (supᵘ-comm ⊢l₁ ⊢l₂) →
+      wf-⊢∷ ⊢l₁ , supᵘⱼ ⊢l₁ ⊢l₂ , supᵘⱼ ⊢l₂ ⊢l₁
+    (supᵘ-idem ⊢l) →
+      wf-⊢∷ ⊢l , supᵘⱼ ⊢l ⊢l , ⊢l
+    (supᵘ-sub ⊢l) →
+      wf-⊢∷ ⊢l , supᵘⱼ ⊢l (sucᵘⱼ ⊢l) , (sucᵘⱼ ⊢l)
     (U-cong l₁≡l₂) →
       let ⊢Level , ⊢l₁ , ⊢l₂ = wf-⊢≡∷ l₁≡l₂ in
       Uⱼ (sucᵘⱼ ⊢l₁) , Uⱼ ⊢l₁ , conv (Uⱼ ⊢l₂) (sym (U-cong (sucᵘ-cong l₁≡l₂)))
@@ -212,9 +212,9 @@ opaque mutual
       let ⊢Level , ⊢l₂ , ⊢l₂′ = wf-⊢≡∷ x₁
           _ , ⊢A , ⊢B = wf-⊢≡∷ x₂
       in
-      Uⱼ (maxᵘⱼ x ⊢l₂) ,
+      Uⱼ (supᵘⱼ x ⊢l₂) ,
       Liftⱼ x ⊢l₂ ⊢A ,
-      conv (Liftⱼ x ⊢l₂′ ⊢B) (U-cong (maxᵘ-cong (refl x) (sym ⊢Level x₁)))
+      conv (Liftⱼ x ⊢l₂′ ⊢B) (U-cong (supᵘ-cong (refl x) (sym ⊢Level x₁)))
     (lower-cong x) →
       let ⊢Lift , ⊢t , ⊢u = wf-⊢≡∷ x
           ⊢l₂ , ⊢A = inversion-Lift ⊢Lift

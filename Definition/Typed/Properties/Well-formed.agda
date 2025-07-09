@@ -172,7 +172,7 @@ private module Lemmas where
         (Levelⱼ ⊢Γ)           _       → ⊢Γ , !
         (zeroᵘⱼ ⊢Γ)           _       → ⊢Γ , !
         (sucᵘⱼ t)             PE.refl → fix (wfTerm-<ˢ t)
-        (maxᵘⱼ t u)           PE.refl → fix (wfTerm-<ˢ t)
+        (supᵘⱼ t u)           PE.refl → fix (wfTerm-<ˢ t)
         (Uⱼ ⊢l)               PE.refl → fix (wfTerm-<ˢ ⊢l)
         (Liftⱼ ⊢l₁ _ _)       PE.refl → fix (wfTerm-<ˢ ⊢l₁)
         (liftⱼ x _ _)         PE.refl → fix (wfTerm-<ˢ x)
@@ -267,21 +267,21 @@ opaque
       fix (wfEqTerm-<ˢ t≡u)
     wfEqTerm-<ˢ (sucᵘ-cong t≡u) =
       fix (wfEqTerm-<ˢ t≡u)
-    wfEqTerm-<ˢ (maxᵘ-cong t≡t' u≡u') =
+    wfEqTerm-<ˢ (supᵘ-cong t≡t' u≡u') =
       fix (wfEqTerm-<ˢ t≡t')
-    wfEqTerm-<ˢ (maxᵘ-zeroˡ l) =
+    wfEqTerm-<ˢ (supᵘ-zeroˡ l) =
       fix (wfTerm-<ˢ l)
-    wfEqTerm-<ˢ (maxᵘ-zeroʳ l) =
+    wfEqTerm-<ˢ (supᵘ-zeroʳ l) =
       fix (wfTerm-<ˢ l)
-    wfEqTerm-<ˢ (maxᵘ-sucᵘ l₁ l₂) =
+    wfEqTerm-<ˢ (supᵘ-sucᵘ l₁ l₂) =
       fix (wfTerm-<ˢ l₁)
-    wfEqTerm-<ˢ (maxᵘ-assoc l₁ l₂ l₃) =
+    wfEqTerm-<ˢ (supᵘ-assoc l₁ l₂ l₃) =
       fix (wfTerm-<ˢ l₁)
-    wfEqTerm-<ˢ (maxᵘ-comm l₁ l₂) =
+    wfEqTerm-<ˢ (supᵘ-comm l₁ l₂) =
       fix (wfTerm-<ˢ l₁)
-    wfEqTerm-<ˢ (maxᵘ-idem ⊢l) =
+    wfEqTerm-<ˢ (supᵘ-idem ⊢l) =
       fix (wfTerm-<ˢ ⊢l)
-    wfEqTerm-<ˢ (maxᵘ-sub ⊢l) =
+    wfEqTerm-<ˢ (supᵘ-sub ⊢l) =
       fix (wfTerm-<ˢ ⊢l)
     wfEqTerm-<ˢ (U-cong l₁≡l₂) =
       fix (wfEqTerm-<ˢ l₁≡l₂)

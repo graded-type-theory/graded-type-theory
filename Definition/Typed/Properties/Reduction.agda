@@ -192,11 +192,11 @@ opaque
   -- relation _⊢_≡_∷_.
 
   subsetTerm : Γ ⊢ t ⇒ u ∷ A → Γ ⊢ t ≡ u ∷ A
-  subsetTerm (maxᵘ-zeroˡ ⊢l) = maxᵘ-zeroˡ ⊢l
-  subsetTerm (maxᵘ-zeroʳ ⊢l) = maxᵘ-zeroʳ (sucᵘⱼ ⊢l)
-  subsetTerm (maxᵘ-sucᵘ ⊢l₁ ⊢l₂) = maxᵘ-sucᵘ ⊢l₁ ⊢l₂
-  subsetTerm (maxᵘ-substˡ t⇒t′ ⊢u) = maxᵘ-cong (subsetTerm t⇒t′) (refl ⊢u)
-  subsetTerm (maxᵘ-substʳ ⊢t u⇒u′) = maxᵘ-cong (refl (sucᵘⱼ ⊢t)) (subsetTerm u⇒u′)
+  subsetTerm (supᵘ-zeroˡ ⊢l) = supᵘ-zeroˡ ⊢l
+  subsetTerm (supᵘ-zeroʳ ⊢l) = supᵘ-zeroʳ (sucᵘⱼ ⊢l)
+  subsetTerm (supᵘ-sucᵘ ⊢l₁ ⊢l₂) = supᵘ-sucᵘ ⊢l₁ ⊢l₂
+  subsetTerm (supᵘ-substˡ t⇒t′ ⊢u) = supᵘ-cong (subsetTerm t⇒t′) (refl ⊢u)
+  subsetTerm (supᵘ-substʳ ⊢t u⇒u′) = supᵘ-cong (refl (sucᵘⱼ ⊢t)) (subsetTerm u⇒u′)
   subsetTerm (lower-subst x) = lower-cong (subsetTerm x)
   subsetTerm (Lift-β ⊢A x₁) = Lift-β ⊢A x₁
   subsetTerm (natrec-subst z s n⇒n′) =
@@ -391,11 +391,11 @@ opaque
   neRedTerm : Γ ⊢ t ⇒ u ∷ A → ¬ Neutral t
   neRedTerm = λ where
     (conv d _)                → neRedTerm d
-    (maxᵘ-zeroˡ _)            → λ ()
-    (maxᵘ-zeroʳ _)            → λ ()
-    (maxᵘ-sucᵘ _ _)           → λ ()
-    (maxᵘ-substˡ d _)         → λ ()
-    (maxᵘ-substʳ _ d)         → λ ()
+    (supᵘ-zeroˡ _)            → λ ()
+    (supᵘ-zeroʳ _)            → λ ()
+    (supᵘ-sucᵘ _ _)           → λ ()
+    (supᵘ-substˡ d _)         → λ ()
+    (supᵘ-substʳ _ d)         → λ ()
     (lower-subst x)           → neRedTerm x ∘→ inv-ne-lower
     (Lift-β ⊢A x₁)            → (λ ()) ∘→ inv-ne-lower
     (app-subst d _)           → neRedTerm d ∘→ inv-ne-∘
@@ -436,15 +436,15 @@ opaque
 
   neˡRedTerm : Γ ⊢ t ⇒ u ∷ A → ¬ Neutralˡ t
   neˡRedTerm (conv d _) n = neˡRedTerm d n
-  neˡRedTerm (maxᵘ-substˡ d _) (maxᵘˡₙ n) = neˡRedTerm d n
-  neˡRedTerm (maxᵘ-zeroˡ _) (maxᵘˡₙ (ne ()))
-  neˡRedTerm (maxᵘ-substʳ x x₁) (maxᵘˡₙ (ne ()))
-  neˡRedTerm (maxᵘ-zeroʳ x) (maxᵘˡₙ (ne ()))
-  neˡRedTerm (maxᵘ-sucᵘ x x₁) (maxᵘˡₙ (ne ()))
-  neˡRedTerm (maxᵘ-substˡ d _) (maxᵘʳₙ _) = ¬sucᵘ⇒ d
-  neˡRedTerm (maxᵘ-substʳ _ d) (maxᵘʳₙ n) = neˡRedTerm d n
-  neˡRedTerm (maxᵘ-zeroʳ _) (maxᵘʳₙ (ne ()))
-  neˡRedTerm (maxᵘ-sucᵘ _ _) (maxᵘʳₙ (ne ()))
+  neˡRedTerm (supᵘ-substˡ d _) (supᵘˡₙ n) = neˡRedTerm d n
+  neˡRedTerm (supᵘ-zeroˡ _) (supᵘˡₙ (ne ()))
+  neˡRedTerm (supᵘ-substʳ x x₁) (supᵘˡₙ (ne ()))
+  neˡRedTerm (supᵘ-zeroʳ x) (supᵘˡₙ (ne ()))
+  neˡRedTerm (supᵘ-sucᵘ x x₁) (supᵘˡₙ (ne ()))
+  neˡRedTerm (supᵘ-substˡ d _) (supᵘʳₙ _) = ¬sucᵘ⇒ d
+  neˡRedTerm (supᵘ-substʳ _ d) (supᵘʳₙ n) = neˡRedTerm d n
+  neˡRedTerm (supᵘ-zeroʳ _) (supᵘʳₙ (ne ()))
+  neˡRedTerm (supᵘ-sucᵘ _ _) (supᵘʳₙ (ne ()))
   neˡRedTerm d (ne n) = neRedTerm d n
 
 ------------------------------------------------------------------------
@@ -457,11 +457,11 @@ opaque
   whnfRedTerm : Γ ⊢ t ⇒ u ∷ A → ¬ Whnf t
   whnfRedTerm = λ where
     (conv d _)                → whnfRedTerm d
-    (maxᵘ-zeroˡ _)            → λ { (ne (maxᵘˡₙ (ne ()))); (ne! ()) }
-    (maxᵘ-zeroʳ _)            → λ { (ne (maxᵘˡₙ (ne ()))); (ne (maxᵘʳₙ (ne ()))); (ne! ()) }
-    (maxᵘ-sucᵘ _ _)           → λ { (ne (maxᵘˡₙ (ne ()))); (ne (maxᵘʳₙ (ne ()))); (ne! ()) }
-    (maxᵘ-substˡ d _)         → λ { (ne (maxᵘˡₙ n)) → neˡRedTerm d n; (ne (maxᵘʳₙ n)) → ¬sucᵘ⇒ d; (ne! ()) }
-    (maxᵘ-substʳ _ d)         → λ { (ne (maxᵘˡₙ (ne ()))); (ne (maxᵘʳₙ n)) → neˡRedTerm d n; (ne! ()) }
+    (supᵘ-zeroˡ _)            → λ { (ne (supᵘˡₙ (ne ()))); (ne! ()) }
+    (supᵘ-zeroʳ _)            → λ { (ne (supᵘˡₙ (ne ()))); (ne (supᵘʳₙ (ne ()))); (ne! ()) }
+    (supᵘ-sucᵘ _ _)           → λ { (ne (supᵘˡₙ (ne ()))); (ne (supᵘʳₙ (ne ()))); (ne! ()) }
+    (supᵘ-substˡ d _)         → λ { (ne (supᵘˡₙ n)) → neˡRedTerm d n; (ne (supᵘʳₙ n)) → ¬sucᵘ⇒ d; (ne! ()) }
+    (supᵘ-substʳ _ d)         → λ { (ne (supᵘˡₙ (ne ()))); (ne (supᵘʳₙ n)) → neˡRedTerm d n; (ne! ()) }
     (lower-subst x)           → neRedTerm x ∘→ inv-whnf-lower
     (Lift-β _ _)              → (λ ()) ∘→ inv-whnf-lower
     (app-subst d _)           → neRedTerm d ∘→ inv-whnf-∘
@@ -523,28 +523,28 @@ opaque
   whrDetTerm = λ where
     (conv d _) d′ →
       whrDetTerm d d′
-    (maxᵘ-zeroˡ _) (maxᵘ-zeroˡ _) → PE.refl
-    d@(maxᵘ-zeroˡ _) (conv d′ _) → whrDetTerm d d′
-    (maxᵘ-zeroˡ _) (maxᵘ-substˡ d _) → ⊥-elim (whnfRedTerm d zeroᵘₙ)
-    (maxᵘ-zeroʳ _) (maxᵘ-zeroʳ _) → PE.refl
-    d@(maxᵘ-zeroʳ _) (conv d′ _) → whrDetTerm d d′
-    (maxᵘ-zeroʳ _) (maxᵘ-substˡ d _) → ⊥-elim (¬sucᵘ⇒ d)
-    (maxᵘ-zeroʳ _) (maxᵘ-substʳ _ d) → ⊥-elim (whnfRedTerm d zeroᵘₙ)
-    (maxᵘ-sucᵘ _ _) (maxᵘ-sucᵘ _ _) → PE.refl
-    d@(maxᵘ-sucᵘ _ _) (conv d′ _) → whrDetTerm d d′
-    (maxᵘ-sucᵘ _ _) (maxᵘ-substˡ d _) → ⊥-elim (whnfRedTerm d sucᵘₙ)
-    (maxᵘ-sucᵘ _ _) (maxᵘ-substʳ _ d) → ⊥-elim (whnfRedTerm d sucᵘₙ)
-    (maxᵘ-substˡ d _) (maxᵘ-substˡ d′ _) → PE.cong (_maxᵘ _) (whrDetTerm d d′)
-    d@(maxᵘ-substˡ _ _) (conv d′ _) → whrDetTerm d d′
-    (maxᵘ-substˡ d _) (maxᵘ-zeroˡ _) → ⊥-elim (whnfRedTerm d zeroᵘₙ)
-    (maxᵘ-substˡ d _) (maxᵘ-zeroʳ _) → ⊥-elim (¬sucᵘ⇒ d)
-    (maxᵘ-substˡ d _) (maxᵘ-sucᵘ _ _) → ⊥-elim (whnfRedTerm d sucᵘₙ)
-    (maxᵘ-substˡ d _) (maxᵘ-substʳ _ d′) → ⊥-elim (¬sucᵘ⇒ d)
-    (maxᵘ-substʳ _ d) (maxᵘ-substʳ _ d′) → PE.cong (_ maxᵘ_) (whrDetTerm d d′)
-    d@(maxᵘ-substʳ _ _) (conv d′ _) → whrDetTerm d d′
-    (maxᵘ-substʳ _ d) (maxᵘ-zeroʳ _) → ⊥-elim (whnfRedTerm d zeroᵘₙ)
-    (maxᵘ-substʳ _ d) (maxᵘ-sucᵘ _ _) → ⊥-elim (whnfRedTerm d sucᵘₙ)
-    (maxᵘ-substʳ _ d) (maxᵘ-substˡ d′ _) → ⊥-elim (¬sucᵘ⇒ d′)
+    (supᵘ-zeroˡ _) (supᵘ-zeroˡ _) → PE.refl
+    d@(supᵘ-zeroˡ _) (conv d′ _) → whrDetTerm d d′
+    (supᵘ-zeroˡ _) (supᵘ-substˡ d _) → ⊥-elim (whnfRedTerm d zeroᵘₙ)
+    (supᵘ-zeroʳ _) (supᵘ-zeroʳ _) → PE.refl
+    d@(supᵘ-zeroʳ _) (conv d′ _) → whrDetTerm d d′
+    (supᵘ-zeroʳ _) (supᵘ-substˡ d _) → ⊥-elim (¬sucᵘ⇒ d)
+    (supᵘ-zeroʳ _) (supᵘ-substʳ _ d) → ⊥-elim (whnfRedTerm d zeroᵘₙ)
+    (supᵘ-sucᵘ _ _) (supᵘ-sucᵘ _ _) → PE.refl
+    d@(supᵘ-sucᵘ _ _) (conv d′ _) → whrDetTerm d d′
+    (supᵘ-sucᵘ _ _) (supᵘ-substˡ d _) → ⊥-elim (whnfRedTerm d sucᵘₙ)
+    (supᵘ-sucᵘ _ _) (supᵘ-substʳ _ d) → ⊥-elim (whnfRedTerm d sucᵘₙ)
+    (supᵘ-substˡ d _) (supᵘ-substˡ d′ _) → PE.cong (_supᵘ _) (whrDetTerm d d′)
+    d@(supᵘ-substˡ _ _) (conv d′ _) → whrDetTerm d d′
+    (supᵘ-substˡ d _) (supᵘ-zeroˡ _) → ⊥-elim (whnfRedTerm d zeroᵘₙ)
+    (supᵘ-substˡ d _) (supᵘ-zeroʳ _) → ⊥-elim (¬sucᵘ⇒ d)
+    (supᵘ-substˡ d _) (supᵘ-sucᵘ _ _) → ⊥-elim (whnfRedTerm d sucᵘₙ)
+    (supᵘ-substˡ d _) (supᵘ-substʳ _ d′) → ⊥-elim (¬sucᵘ⇒ d)
+    (supᵘ-substʳ _ d) (supᵘ-substʳ _ d′) → PE.cong (_ supᵘ_) (whrDetTerm d d′)
+    d@(supᵘ-substʳ _ _) (conv d′ _) → whrDetTerm d d′
+    (supᵘ-substʳ _ d) (supᵘ-zeroʳ _) → ⊥-elim (whnfRedTerm d zeroᵘₙ)
+    (supᵘ-substʳ _ d) (supᵘ-sucᵘ _ _) → ⊥-elim (whnfRedTerm d sucᵘₙ)
+    (supᵘ-substʳ _ d) (supᵘ-substˡ d′ _) → ⊥-elim (¬sucᵘ⇒ d′)
     (lower-subst d) d′ →
       case inv-⇒-lower d′ of λ where
         (inj₁ (_ , _ , d′ , PE.refl)) → PE.cong lower (whrDetTerm d d′)
@@ -804,29 +804,29 @@ opaque
   univ* (A⇒B ⇨ B⇒C) = univ A⇒B ⇨ univ* B⇒C
 
 ------------------------------------------------------------------------
--- Some lemmas related to maxᵘ
+-- Some lemmas related to supᵘ
 
 opaque
 
-  -- A variant of maxᵘ-substˡ.
+  -- A variant of supᵘ-substˡ.
 
-  maxᵘ-substˡ* :
+  supᵘ-substˡ* :
     Γ ⊢ t ⇒* t′ ∷ Level →
     Γ ⊢ u ∷ Level →
-    Γ ⊢ t maxᵘ u ⇒* t′ maxᵘ u ∷ Level
-  maxᵘ-substˡ* (id ⊢t) ⊢u = id (maxᵘⱼ ⊢t ⊢u)
-  maxᵘ-substˡ* (d ⇨ t⇒*t′) ⊢u = maxᵘ-substˡ d ⊢u ⇨ maxᵘ-substˡ* t⇒*t′ ⊢u
+    Γ ⊢ t supᵘ u ⇒* t′ supᵘ u ∷ Level
+  supᵘ-substˡ* (id ⊢t) ⊢u = id (supᵘⱼ ⊢t ⊢u)
+  supᵘ-substˡ* (d ⇨ t⇒*t′) ⊢u = supᵘ-substˡ d ⊢u ⇨ supᵘ-substˡ* t⇒*t′ ⊢u
 
 opaque
 
-  -- A variant of maxᵘ-substʳ.
+  -- A variant of supᵘ-substʳ.
 
-  maxᵘ-substʳ* :
+  supᵘ-substʳ* :
     Γ ⊢ t ∷ Level →
     Γ ⊢ u ⇒* u′ ∷ Level →
-    Γ ⊢ sucᵘ t maxᵘ u ⇒* sucᵘ t maxᵘ u′ ∷ Level
-  maxᵘ-substʳ* ⊢t (id ⊢u) = id (maxᵘⱼ (sucᵘⱼ ⊢t) ⊢u)
-  maxᵘ-substʳ* ⊢t (d ⇨ u⇒*u′) = maxᵘ-substʳ ⊢t d ⇨ maxᵘ-substʳ* ⊢t u⇒*u′
+    Γ ⊢ sucᵘ t supᵘ u ⇒* sucᵘ t supᵘ u′ ∷ Level
+  supᵘ-substʳ* ⊢t (id ⊢u) = id (supᵘⱼ (sucᵘⱼ ⊢t) ⊢u)
+  supᵘ-substʳ* ⊢t (d ⇨ u⇒*u′) = supᵘ-substʳ ⊢t d ⇨ supᵘ-substʳ* ⊢t u⇒*u′
 
 ------------------------------------------------------------------------
 -- Some lemmas related to lower

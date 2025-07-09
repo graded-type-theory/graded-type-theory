@@ -54,7 +54,7 @@ opaque mutual
     node (size-⊢′ ⊢Γ)
   size-⊢∷ (sucᵘⱼ ⊢t) =
     node (size-⊢∷ ⊢t)
-  size-⊢∷ (maxᵘⱼ ⊢t ⊢u) =
+  size-⊢∷ (supᵘⱼ ⊢t ⊢u) =
     size-⊢∷ ⊢t ⊕ size-⊢∷ ⊢u
   size-⊢∷ (Uⱼ ⊢l) =
     node (size-⊢∷ ⊢l)
@@ -141,21 +141,21 @@ opaque mutual
     size-⊢≡∷ t≡u ⊕ size-⊢≡ B≡A
   size-⊢≡∷ (sucᵘ-cong t≡u) =
     node (size-⊢≡∷ t≡u)
-  size-⊢≡∷ (maxᵘ-cong t≡t' u≡u') =
+  size-⊢≡∷ (supᵘ-cong t≡t' u≡u') =
     size-⊢≡∷ t≡t' ⊕ size-⊢≡∷ u≡u'
-  size-⊢≡∷ (maxᵘ-zeroˡ l) =
+  size-⊢≡∷ (supᵘ-zeroˡ l) =
     node (size-⊢∷ l)
-  size-⊢≡∷ (maxᵘ-zeroʳ l) =
+  size-⊢≡∷ (supᵘ-zeroʳ l) =
     node (size-⊢∷ l)
-  size-⊢≡∷ (maxᵘ-sucᵘ l₁ l₂) =
+  size-⊢≡∷ (supᵘ-sucᵘ l₁ l₂) =
     size-⊢∷ l₁ ⊕ size-⊢∷ l₂
-  size-⊢≡∷ (maxᵘ-assoc l₁ l₂ l₃) =
+  size-⊢≡∷ (supᵘ-assoc l₁ l₂ l₃) =
     size-⊢∷ l₁ ⊕ size-⊢∷ l₂ ⊕ size-⊢∷ l₃
-  size-⊢≡∷ (maxᵘ-comm l₁ l₂) =
+  size-⊢≡∷ (supᵘ-comm l₁ l₂) =
     size-⊢∷ l₁ ⊕ size-⊢∷ l₂
-  size-⊢≡∷ (maxᵘ-idem ⊢l) =
+  size-⊢≡∷ (supᵘ-idem ⊢l) =
     node (size-⊢∷ ⊢l)
-  size-⊢≡∷ (maxᵘ-sub ⊢l) =
+  size-⊢≡∷ (supᵘ-sub ⊢l) =
     node (size-⊢∷ ⊢l)
   size-⊢≡∷ (U-cong l₁≡l₂) =
     node (size-⊢≡∷ l₁≡l₂)

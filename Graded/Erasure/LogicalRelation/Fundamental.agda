@@ -177,12 +177,12 @@ module Fundamental
       zeroᵘʳ
     fundamental (sucᵘⱼ _) _ =
       sucᵘʳ
-    fundamental (maxᵘⱼ _ _) _ =
-      maxᵘʳ
+    fundamental (supᵘⱼ _ _) _ =
+      supᵘʳ
     fundamental (Uⱼ ⊢t) _ =
       Uʳ ⊢t
     fundamental (Liftⱼ ⊢l₁ ⊢l₂ _) _ =
-      Liftʳ (maxᵘⱼ ⊢l₁ ⊢l₂)
+      Liftʳ (supᵘⱼ ⊢l₁ ⊢l₂)
     fundamental (liftⱼ ⊢t _ ⊢u) ▸lift =
       let ▸u = inv-usage-lift ▸lift in
       liftʳ ⊢t ⊢u (fundamental ⊢u ▸u)

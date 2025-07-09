@@ -374,8 +374,8 @@ mutual
   sucᵛ : Levelᵛ Γ → Levelᵛ Γ
   sucᵛ l = (1 , zeroᵘ) L.∷ map-suc⁺ l
 
-  maxᵛ : Levelᵛ Γ → Levelᵛ Γ → Levelᵛ Γ
-  maxᵛ = L._++_
+  supᵛ : Levelᵛ Γ → Levelᵛ Γ → Levelᵛ Γ
+  supᵛ = L._++_
 
   neᵛ : Γ ⊢ t ~ t ↓ Level → Levelᵛ Γ
   neᵛ t~t = L.[ 0 , ne t~t ]
@@ -397,18 +397,18 @@ mutual
 
   -- Normalisation of neutral levels.
   data _⊢_~ᵛ_ (Γ : Con Term n) : Term n → Levelᵛ Γ → Set a where
-    maxᵘˡₙ
+    supᵘˡₙ
       : ∀ {t′ t″ v v′ v″}
-      → v PE.≡ maxᵛ v′ v″
+      → v PE.≡ supᵛ v′ v″
       → Γ ⊢ t′ ~ᵛ v′
       → Γ ⊢ t″ ↑ᵛ v″
-      → Γ ⊢ t′ maxᵘ t″ ~ᵛ v
-    maxᵘʳₙ
+      → Γ ⊢ t′ supᵘ t″ ~ᵛ v
+    supᵘʳₙ
       : ∀ {t′ t″ v v′ v″}
-      → v PE.≡ maxᵛ (sucᵛ v′) v″
+      → v PE.≡ supᵛ (sucᵛ v′) v″
       → Γ ⊢ t′ ↑ᵛ v′
       → Γ ⊢ t″ ~ᵛ v″
-      → Γ ⊢ sucᵘ t′ maxᵘ t″ ~ᵛ v
+      → Γ ⊢ sucᵘ t′ supᵘ t″ ~ᵛ v
     neₙ
       : ∀ {t v}
       → ([t] : Γ ⊢ t ~ t ↓ Level)

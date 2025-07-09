@@ -89,7 +89,7 @@ opaque
         ⊢k = inversion-U-Level (syntacticTerm ⊢A)
     in conv
         (Lift-cong′ l₁≡l₂ (inverseUnivEq′ (inj₂ ⊢A) A≡B))
-        (trans (U-cong (maxᵘ-cong (refl ⊢k) l₁≡l₂)) (sym U≡U))
+        (trans (U-cong (supᵘ-cong (refl ⊢k) l₁≡l₂)) (sym U≡U))
   inverseUnivEq′ (inj₁ ⊢ΠΣ) (ΠΣ-cong A₁≡A₂ B₁≡B₂ ok) =
     case inversion-ΠΣ-U ⊢ΠΣ of λ
       (_ , _ , ⊢A₁∷U , ⊢B₁∷U , U≡U , _) →

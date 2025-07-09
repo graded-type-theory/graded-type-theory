@@ -91,8 +91,8 @@ whnfConv↓ (Id-cong _ _ _) = Idₙ , Idₙ
 whnfConv~ᵛ : ∀ {t v}
            → Γ ⊢ t ~ᵛ v
            → Neutralˡ t
-whnfConv~ᵛ (maxᵘˡₙ x x₁ x₂) = maxᵘˡₙ (whnfConv~ᵛ x₁)
-whnfConv~ᵛ (maxᵘʳₙ x x₁ x₂) = maxᵘʳₙ (whnfConv~ᵛ x₂)
+whnfConv~ᵛ (supᵘˡₙ x x₁ x₂) = supᵘˡₙ (whnfConv~ᵛ x₁)
+whnfConv~ᵛ (supᵘʳₙ x x₁ x₂) = supᵘʳₙ (whnfConv~ᵛ x₂)
 whnfConv~ᵛ (neₙ [t] x) = ne (ne~↓ [t] .proj₂ .proj₁)
 
 whnfConv↓ᵛ : ∀ {t v}

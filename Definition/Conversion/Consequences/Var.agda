@@ -36,7 +36,7 @@ private variable
 -- If A is a type without η-equality, then the only WHNF that a
 -- variable x of type A is definitionally equal to is x.
 
--- TODO this is not true any more because Γ ⊢ x ≡ x maxᵘ x ∷ Level
+-- TODO this is not true any more because Γ ⊢ x ≡ x supᵘ x ∷ Level
 
 var-only-equal-to-itself :
   No-η-equality A → Whnf t → Γ ⊢ var x ≡ t ∷ A → var x PE.≡ t

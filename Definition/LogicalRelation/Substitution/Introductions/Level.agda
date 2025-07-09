@@ -225,120 +225,120 @@ opaque
     ⊩ᵛ∷⇔⊩ᵛ≡∷ .proj₂ $ sucᵘ-congᵛ (refl-⊩ᵛ≡∷ ⊩t)
 
 ------------------------------------------------------------------------
--- The operator maxᵘ
+-- The operator supᵘ
 
 opaque
 
-  -- Reducibility of equality preservation for maxᵘ.
+  -- Reducibility of equality preservation for supᵘ.
 
-  ⊩maxᵘ≡maxᵘ∷Level :
+  ⊩supᵘ≡supᵘ∷Level :
     Γ ⊩⟨ l ⟩ t₁ ≡ t₂ ∷ Level →
     Γ ⊩⟨ l′ ⟩ u₁ ≡ u₂ ∷ Level →
-    Γ ⊩⟨ l ⟩ t₁ maxᵘ u₁ ≡ t₂ maxᵘ u₂ ∷ Level
-  ⊩maxᵘ≡maxᵘ∷Level t₁≡t₂ u₁≡u₂ =
-    ⊩≡∷Level⇔ .proj₂ $ ⊩maxᵘ≡maxᵘ
+    Γ ⊩⟨ l ⟩ t₁ supᵘ u₁ ≡ t₂ supᵘ u₂ ∷ Level
+  ⊩supᵘ≡supᵘ∷Level t₁≡t₂ u₁≡u₂ =
+    ⊩≡∷Level⇔ .proj₂ $ ⊩supᵘ≡supᵘ
       (⊩≡∷Level⇔ .proj₁ t₁≡t₂)
       (⊩≡∷Level⇔ .proj₁ u₁≡u₂)
 
 opaque
 
-  -- Validity of equality preservation for maxᵘ.
+  -- Validity of equality preservation for supᵘ.
 
-  maxᵘ-congᵛ :
+  supᵘ-congᵛ :
     Γ ⊩ᵛ⟨ l ⟩ t₁ ≡ t₂ ∷ Level →
     Γ ⊩ᵛ⟨ l′ ⟩ u₁ ≡ u₂ ∷ Level →
-    Γ ⊩ᵛ⟨ l ⟩ t₁ maxᵘ u₁ ≡ t₂ maxᵘ u₂ ∷ Level
-  maxᵘ-congᵛ t₁≡t₂ u₁≡u₂ =
+    Γ ⊩ᵛ⟨ l ⟩ t₁ supᵘ u₁ ≡ t₂ supᵘ u₂ ∷ Level
+  supᵘ-congᵛ t₁≡t₂ u₁≡u₂ =
     ⊩ᵛ≡∷⇔ʰ .proj₂
       ( wf-⊩ᵛ∷ (wf-⊩ᵛ≡∷ t₁≡t₂ .proj₁)
-      , λ σ₁≡σ₂ → ⊩maxᵘ≡maxᵘ∷Level
+      , λ σ₁≡σ₂ → ⊩supᵘ≡supᵘ∷Level
           (R.⊩≡∷→ $ ⊩ᵛ≡∷→⊩ˢ≡∷→⊩[]≡[]∷ t₁≡t₂ σ₁≡σ₂)
           (R.⊩≡∷→ $ ⊩ᵛ≡∷→⊩ˢ≡∷→⊩[]≡[]∷ u₁≡u₂ σ₁≡σ₂)
       )
 
 opaque
 
-  -- Validity of maxᵘ.
+  -- Validity of supᵘ.
 
-  maxᵘᵛ :
+  supᵘᵛ :
     Γ ⊩ᵛ⟨ l ⟩ t ∷ Level →
     Γ ⊩ᵛ⟨ l′ ⟩ u ∷ Level →
-    Γ ⊩ᵛ⟨ l ⟩ t maxᵘ u ∷ Level
-  maxᵘᵛ ⊩t ⊩u = ⊩ᵛ∷⇔⊩ᵛ≡∷ .proj₂ $
-    maxᵘ-congᵛ (⊩ᵛ∷⇔⊩ᵛ≡∷ .proj₁ ⊩t) (⊩ᵛ∷⇔⊩ᵛ≡∷ .proj₁ ⊩u)
+    Γ ⊩ᵛ⟨ l ⟩ t supᵘ u ∷ Level
+  supᵘᵛ ⊩t ⊩u = ⊩ᵛ∷⇔⊩ᵛ≡∷ .proj₂ $
+    supᵘ-congᵛ (⊩ᵛ∷⇔⊩ᵛ≡∷ .proj₁ ⊩t) (⊩ᵛ∷⇔⊩ᵛ≡∷ .proj₁ ⊩u)
 
 opaque
 
-  -- Reducibility of maxᵘ-zeroˡ.
+  -- Reducibility of supᵘ-zeroˡ.
 
-  ⊩maxᵘ-zeroˡ :
+  ⊩supᵘ-zeroˡ :
     Γ ⊩⟨ l ⟩ t ∷ Level →
-    Γ ⊩⟨ l ⟩ zeroᵘ maxᵘ t ≡ t ∷ Level
-  ⊩maxᵘ-zeroˡ ⊩t = ⊩∷-⇐* (redMany (maxᵘ-zeroˡ (escape-⊩∷ ⊩t))) ⊩t
+    Γ ⊩⟨ l ⟩ zeroᵘ supᵘ t ≡ t ∷ Level
+  ⊩supᵘ-zeroˡ ⊩t = ⊩∷-⇐* (redMany (supᵘ-zeroˡ (escape-⊩∷ ⊩t))) ⊩t
 
 opaque
 
-  -- Validity of maxᵘ-zeroˡ.
+  -- Validity of supᵘ-zeroˡ.
 
-  maxᵘ-zeroˡᵛ :
+  supᵘ-zeroˡᵛ :
     Γ ⊩ᵛ⟨ l ⟩ t ∷ Level →
-    Γ ⊩ᵛ⟨ l ⟩ zeroᵘ maxᵘ t ≡ t ∷ Level
-  maxᵘ-zeroˡᵛ ⊩t =
+    Γ ⊩ᵛ⟨ l ⟩ zeroᵘ supᵘ t ≡ t ∷ Level
+  supᵘ-zeroˡᵛ ⊩t =
     ⊩ᵛ≡∷⇔ʰ .proj₂
       ( wf-⊩ᵛ∷ ⊩t
       , λ σ₁≡σ₂ →
           let t[σ₁]≡t[σ₂] = ⊩ᵛ∷⇔ʰ .proj₁ ⊩t .proj₂ σ₁≡σ₂
-          in trans-⊩≡∷ (⊩maxᵘ-zeroˡ (wf-⊩≡∷ t[σ₁]≡t[σ₂] .proj₁)) t[σ₁]≡t[σ₂]
+          in trans-⊩≡∷ (⊩supᵘ-zeroˡ (wf-⊩≡∷ t[σ₁]≡t[σ₂] .proj₁)) t[σ₁]≡t[σ₂]
       )
 
 opaque
 
-  -- Reducibility of maxᵘ-zeroʳ.
+  -- Reducibility of supᵘ-zeroʳ.
 
-  ⊩maxᵘ-zeroʳ∷Level :
+  ⊩supᵘ-zeroʳ∷Level :
     Γ ⊩⟨ l ⟩ t ∷ Level →
-    Γ ⊩⟨ l ⟩ t maxᵘ zeroᵘ ≡ t ∷ Level
-  ⊩maxᵘ-zeroʳ∷Level ⊩t = ⊩≡∷Level⇔ .proj₂ $
-    ⊩maxᵘ-zeroʳ (⊩∷Level⇔ .proj₁ ⊩t)
+    Γ ⊩⟨ l ⟩ t supᵘ zeroᵘ ≡ t ∷ Level
+  ⊩supᵘ-zeroʳ∷Level ⊩t = ⊩≡∷Level⇔ .proj₂ $
+    ⊩supᵘ-zeroʳ (⊩∷Level⇔ .proj₁ ⊩t)
 
 opaque
 
-  -- Validity of maxᵘ-zeroʳ.
+  -- Validity of supᵘ-zeroʳ.
 
-  maxᵘ-zeroʳᵛ :
+  supᵘ-zeroʳᵛ :
     Γ ⊩ᵛ⟨ l ⟩ t ∷ Level →
-    Γ ⊩ᵛ⟨ l ⟩ t maxᵘ zeroᵘ ≡ t ∷ Level
-  maxᵘ-zeroʳᵛ ⊩t =
+    Γ ⊩ᵛ⟨ l ⟩ t supᵘ zeroᵘ ≡ t ∷ Level
+  supᵘ-zeroʳᵛ ⊩t =
     ⊩ᵛ≡∷⇔ʰ .proj₂
       ( wf-⊩ᵛ∷ ⊩t
       , λ σ₁≡σ₂ →
           let t[σ₁]≡t[σ₂] = ⊩ᵛ∷⇔ʰ .proj₁ ⊩t .proj₂ σ₁≡σ₂
               ⊩t[σ₁] , ⊩t[σ₂] = wf-⊩≡∷ t[σ₁]≡t[σ₂]
-          in trans-⊩≡∷ (⊩maxᵘ-zeroʳ∷Level ⊩t[σ₁]) t[σ₁]≡t[σ₂]
+          in trans-⊩≡∷ (⊩supᵘ-zeroʳ∷Level ⊩t[σ₁]) t[σ₁]≡t[σ₂]
       )
 
 opaque
 
-  -- Reducibility of maxᵘ-sucᵘ.
+  -- Reducibility of supᵘ-sucᵘ.
 
-  ⊩maxᵘ-sucᵘ :
+  ⊩supᵘ-sucᵘ :
     Γ ⊩⟨ l ⟩ t ∷ Level →
     Γ ⊩⟨ l′ ⟩ u ∷ Level →
-    Γ ⊩⟨ l ⟩ sucᵘ t maxᵘ sucᵘ u ≡ sucᵘ (t maxᵘ u) ∷ Level
-  ⊩maxᵘ-sucᵘ ⊩t ⊩u = ⊩∷-⇐*
-    (redMany (maxᵘ-sucᵘ (escape-⊩∷ ⊩t) (escape-⊩∷ ⊩u)))
+    Γ ⊩⟨ l ⟩ sucᵘ t supᵘ sucᵘ u ≡ sucᵘ (t supᵘ u) ∷ Level
+  ⊩supᵘ-sucᵘ ⊩t ⊩u = ⊩∷-⇐*
+    (redMany (supᵘ-sucᵘ (escape-⊩∷ ⊩t) (escape-⊩∷ ⊩u)))
     (⊩sucᵘ∷Level $ ⊩∷⇔⊩≡∷ .proj₂ $
-      ⊩maxᵘ≡maxᵘ∷Level (refl-⊩≡∷ ⊩t) (refl-⊩≡∷ ⊩u))
+      ⊩supᵘ≡supᵘ∷Level (refl-⊩≡∷ ⊩t) (refl-⊩≡∷ ⊩u))
 
 opaque
 
-  -- Validity of maxᵘ-sucᵘ.
+  -- Validity of supᵘ-sucᵘ.
 
-  maxᵘ-sucᵘᵛ :
+  supᵘ-sucᵘᵛ :
     Γ ⊩ᵛ⟨ l ⟩ t ∷ Level →
     Γ ⊩ᵛ⟨ l′ ⟩ u ∷ Level →
-    Γ ⊩ᵛ⟨ l ⟩ sucᵘ t maxᵘ sucᵘ u ≡ sucᵘ (t maxᵘ u) ∷ Level
-  maxᵘ-sucᵘᵛ ⊩t ⊩u =
+    Γ ⊩ᵛ⟨ l ⟩ sucᵘ t supᵘ sucᵘ u ≡ sucᵘ (t supᵘ u) ∷ Level
+  supᵘ-sucᵘᵛ ⊩t ⊩u =
     ⊩ᵛ≡∷⇔ʰ .proj₂
       ( wf-⊩ᵛ∷ ⊩t
       , λ σ₁≡σ₂ →
@@ -347,32 +347,32 @@ opaque
               ⊩t[σ₁] , ⊩t[σ₂] = wf-⊩≡∷ t[σ₁]≡t[σ₂]
               ⊩u[σ₁] , ⊩u[σ₂] = wf-⊩≡∷ u[σ₁]≡u[σ₂]
           in trans-⊩≡∷
-            (⊩maxᵘ-sucᵘ ⊩t[σ₁] ⊩u[σ₁])
-            (⊩sucᵘ≡sucᵘ∷Level $ ⊩maxᵘ≡maxᵘ∷Level t[σ₁]≡t[σ₂] u[σ₁]≡u[σ₂])
+            (⊩supᵘ-sucᵘ ⊩t[σ₁] ⊩u[σ₁])
+            (⊩sucᵘ≡sucᵘ∷Level $ ⊩supᵘ≡supᵘ∷Level t[σ₁]≡t[σ₂] u[σ₁]≡u[σ₂])
       )
 
 opaque
 
-  -- Reducibility of maxᵘ-assoc.
+  -- Reducibility of supᵘ-assoc.
 
-  ⊩maxᵘ-assoc∷Level :
+  ⊩supᵘ-assoc∷Level :
     Γ ⊩⟨ l ⟩ t ∷ Level →
     Γ ⊩⟨ l′ ⟩ u ∷ Level →
     Γ ⊩⟨ l″ ⟩ v ∷ Level →
-    Γ ⊩⟨ l ⟩ (t maxᵘ u) maxᵘ v ≡ t maxᵘ (u maxᵘ v) ∷ Level
-  ⊩maxᵘ-assoc∷Level ⊩t ⊩u ⊩v = ⊩≡∷Level⇔ .proj₂ $
-    ⊩maxᵘ-assoc (⊩∷Level⇔ .proj₁ ⊩t) (⊩∷Level⇔ .proj₁ ⊩u) (⊩∷Level⇔ .proj₁ ⊩v)
+    Γ ⊩⟨ l ⟩ (t supᵘ u) supᵘ v ≡ t supᵘ (u supᵘ v) ∷ Level
+  ⊩supᵘ-assoc∷Level ⊩t ⊩u ⊩v = ⊩≡∷Level⇔ .proj₂ $
+    ⊩supᵘ-assoc (⊩∷Level⇔ .proj₁ ⊩t) (⊩∷Level⇔ .proj₁ ⊩u) (⊩∷Level⇔ .proj₁ ⊩v)
 
 opaque
 
-  -- Validity of maxᵘ-assoc.
+  -- Validity of supᵘ-assoc.
 
-  maxᵘ-assocᵛ :
+  supᵘ-assocᵛ :
     Γ ⊩ᵛ⟨ l ⟩ t ∷ Level →
     Γ ⊩ᵛ⟨ l′ ⟩ u ∷ Level →
     Γ ⊩ᵛ⟨ l″ ⟩ v ∷ Level →
-    Γ ⊩ᵛ⟨ l ⟩ (t maxᵘ u) maxᵘ v ≡ t maxᵘ (u maxᵘ v) ∷ Level
-  maxᵘ-assocᵛ ⊩t ⊩u ⊩v =
+    Γ ⊩ᵛ⟨ l ⟩ (t supᵘ u) supᵘ v ≡ t supᵘ (u supᵘ v) ∷ Level
+  supᵘ-assocᵛ ⊩t ⊩u ⊩v =
     ⊩ᵛ≡∷⇔ʰ .proj₂
       ( wf-⊩ᵛ∷ ⊩t
       , λ σ₁≡σ₂ →
@@ -383,30 +383,30 @@ opaque
               ⊩u[σ₁] , ⊩u[σ₂] = wf-⊩≡∷ u[σ₁]≡u[σ₂]
               ⊩v[σ₁] , ⊩v[σ₂] = wf-⊩≡∷ v[σ₁]≡v[σ₂]
           in trans-⊩≡∷
-            (⊩maxᵘ-assoc∷Level ⊩t[σ₁] ⊩u[σ₁] ⊩v[σ₁])
-            (⊩maxᵘ≡maxᵘ∷Level t[σ₁]≡t[σ₂] (⊩maxᵘ≡maxᵘ∷Level u[σ₁]≡u[σ₂] v[σ₁]≡v[σ₂]))
+            (⊩supᵘ-assoc∷Level ⊩t[σ₁] ⊩u[σ₁] ⊩v[σ₁])
+            (⊩supᵘ≡supᵘ∷Level t[σ₁]≡t[σ₂] (⊩supᵘ≡supᵘ∷Level u[σ₁]≡u[σ₂] v[σ₁]≡v[σ₂]))
       )
 
 opaque
 
-  -- Reducibility of maxᵘ-comm.
+  -- Reducibility of supᵘ-comm.
 
-  ⊩maxᵘ-comm∷Level :
+  ⊩supᵘ-comm∷Level :
     Γ ⊩⟨ l ⟩ t ∷ Level →
     Γ ⊩⟨ l′ ⟩ u ∷ Level →
-    Γ ⊩⟨ l ⟩ t maxᵘ u ≡ u maxᵘ t ∷ Level
-  ⊩maxᵘ-comm∷Level ⊩t ⊩u = ⊩≡∷Level⇔ .proj₂ $
-    ⊩maxᵘ-comm (⊩∷Level⇔ .proj₁ ⊩t) (⊩∷Level⇔ .proj₁ ⊩u)
+    Γ ⊩⟨ l ⟩ t supᵘ u ≡ u supᵘ t ∷ Level
+  ⊩supᵘ-comm∷Level ⊩t ⊩u = ⊩≡∷Level⇔ .proj₂ $
+    ⊩supᵘ-comm (⊩∷Level⇔ .proj₁ ⊩t) (⊩∷Level⇔ .proj₁ ⊩u)
 
 opaque
 
-  -- Validity of maxᵘ-comm.
+  -- Validity of supᵘ-comm.
 
-  maxᵘ-commᵛ :
+  supᵘ-commᵛ :
     Γ ⊩ᵛ⟨ l ⟩ t ∷ Level →
     Γ ⊩ᵛ⟨ l′ ⟩ u ∷ Level →
-    Γ ⊩ᵛ⟨ l ⟩ t maxᵘ u ≡ u maxᵘ t ∷ Level
-  maxᵘ-commᵛ ⊩t ⊩u =
+    Γ ⊩ᵛ⟨ l ⟩ t supᵘ u ≡ u supᵘ t ∷ Level
+  supᵘ-commᵛ ⊩t ⊩u =
     ⊩ᵛ≡∷⇔ʰ .proj₂
       ( wf-⊩ᵛ∷ ⊩t
       , λ σ₁≡σ₂ →
@@ -415,58 +415,58 @@ opaque
               ⊩t[σ₁] , ⊩t[σ₂] = wf-⊩≡∷ t[σ₁]≡t[σ₂]
               ⊩u[σ₁] , ⊩u[σ₂] = wf-⊩≡∷ u[σ₁]≡u[σ₂]
           in trans-⊩≡∷
-            (⊩maxᵘ≡maxᵘ∷Level t[σ₁]≡t[σ₂] u[σ₁]≡u[σ₂])
-            (⊩maxᵘ-comm∷Level ⊩t[σ₂] ⊩u[σ₂])
+            (⊩supᵘ≡supᵘ∷Level t[σ₁]≡t[σ₂] u[σ₁]≡u[σ₂])
+            (⊩supᵘ-comm∷Level ⊩t[σ₂] ⊩u[σ₂])
       )
 
 opaque
 
-  -- Reducibility of maxᵘ-idem.
+  -- Reducibility of supᵘ-idem.
 
-  ⊩maxᵘ-idem∷Level :
+  ⊩supᵘ-idem∷Level :
     Γ ⊩⟨ l ⟩ t ∷ Level →
-    Γ ⊩⟨ l ⟩ t maxᵘ t ≡ t ∷ Level
-  ⊩maxᵘ-idem∷Level ⊩t = ⊩≡∷Level⇔ .proj₂ $
-    ⊩maxᵘ-idem (⊩∷Level⇔ .proj₁ ⊩t)
+    Γ ⊩⟨ l ⟩ t supᵘ t ≡ t ∷ Level
+  ⊩supᵘ-idem∷Level ⊩t = ⊩≡∷Level⇔ .proj₂ $
+    ⊩supᵘ-idem (⊩∷Level⇔ .proj₁ ⊩t)
 
 opaque
 
-  -- Validity of maxᵘ-idem.
+  -- Validity of supᵘ-idem.
 
-  maxᵘ-idemᵛ :
+  supᵘ-idemᵛ :
     Γ ⊩ᵛ⟨ l ⟩ t ∷ Level →
-    Γ ⊩ᵛ⟨ l ⟩ t maxᵘ t ≡ t ∷ Level
-  maxᵘ-idemᵛ ⊩t =
+    Γ ⊩ᵛ⟨ l ⟩ t supᵘ t ≡ t ∷ Level
+  supᵘ-idemᵛ ⊩t =
     ⊩ᵛ≡∷⇔ʰ .proj₂
       ( wf-⊩ᵛ∷ ⊩t
       , λ σ₁≡σ₂ →
           let t[σ₁]≡t[σ₂] = ⊩ᵛ∷⇔ʰ .proj₁ ⊩t .proj₂ σ₁≡σ₂
               ⊩t[σ₁] , ⊩t[σ₂] = wf-⊩≡∷ t[σ₁]≡t[σ₂]
-          in trans-⊩≡∷ (⊩maxᵘ-idem∷Level ⊩t[σ₁]) t[σ₁]≡t[σ₂]
+          in trans-⊩≡∷ (⊩supᵘ-idem∷Level ⊩t[σ₁]) t[σ₁]≡t[σ₂]
       )
 
 opaque
 
-  -- Reducibility of maxᵘ-sub.
+  -- Reducibility of supᵘ-sub.
 
-  ⊩maxᵘ-sub∷Level :
+  ⊩supᵘ-sub∷Level :
     Γ ⊩⟨ l ⟩ t ∷ Level →
-    Γ ⊩⟨ l ⟩ t maxᵘ sucᵘ t ≡ sucᵘ t ∷ Level
-  ⊩maxᵘ-sub∷Level ⊩t = ⊩≡∷Level⇔ .proj₂ $
-    ⊩maxᵘ-sub (⊩∷Level⇔ .proj₁ ⊩t)
+    Γ ⊩⟨ l ⟩ t supᵘ sucᵘ t ≡ sucᵘ t ∷ Level
+  ⊩supᵘ-sub∷Level ⊩t = ⊩≡∷Level⇔ .proj₂ $
+    ⊩supᵘ-sub (⊩∷Level⇔ .proj₁ ⊩t)
 
 opaque
 
-  -- Validity of maxᵘ-sub.
+  -- Validity of supᵘ-sub.
 
-  maxᵘ-subᵛ :
+  supᵘ-subᵛ :
     Γ ⊩ᵛ⟨ l ⟩ t ∷ Level →
-    Γ ⊩ᵛ⟨ l ⟩ t maxᵘ sucᵘ t ≡ sucᵘ t ∷ Level
-  maxᵘ-subᵛ ⊩t =
+    Γ ⊩ᵛ⟨ l ⟩ t supᵘ sucᵘ t ≡ sucᵘ t ∷ Level
+  supᵘ-subᵛ ⊩t =
     ⊩ᵛ≡∷⇔ʰ .proj₂
       ( wf-⊩ᵛ∷ ⊩t
       , λ σ₁≡σ₂ →
           let t[σ₁]≡t[σ₂] = ⊩ᵛ∷⇔ʰ .proj₁ ⊩t .proj₂ σ₁≡σ₂
               ⊩t[σ₁] , ⊩t[σ₂] = wf-⊩≡∷ t[σ₁]≡t[σ₂]
-          in trans-⊩≡∷ (⊩maxᵘ-sub∷Level ⊩t[σ₁]) (⊩sucᵘ≡sucᵘ∷Level t[σ₁]≡t[σ₂])
+          in trans-⊩≡∷ (⊩supᵘ-sub∷Level ⊩t[σ₁]) (⊩sucᵘ≡sucᵘ∷Level t[σ₁]≡t[σ₂])
       )

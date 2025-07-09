@@ -86,9 +86,9 @@ mutual
               → Γ ⊢ zeroᵘ ∷ Level
     sucᵘⱼ     : Γ ⊢ l ∷ Level
               → Γ ⊢ sucᵘ l ∷ Level
-    maxᵘⱼ     : Γ ⊢ l₁ ∷ Level
+    supᵘⱼ     : Γ ⊢ l₁ ∷ Level
               → Γ ⊢ l₂ ∷ Level
-              → Γ ⊢ l₁ maxᵘ l₂ ∷ Level
+              → Γ ⊢ l₁ supᵘ l₂ ∷ Level
 
     Uⱼ        : Γ ⊢ l ∷ Level
               → Γ ⊢ U l ∷ U (sucᵘ l)
@@ -96,7 +96,7 @@ mutual
     Liftⱼ     : Γ ⊢ l₁ ∷ Level
               → Γ ⊢ l₂ ∷ Level
               → Γ ⊢ A ∷ U l₁
-              → Γ ⊢ Lift l₂ A ∷ U (l₁ maxᵘ l₂)
+              → Γ ⊢ Lift l₂ A ∷ U (l₁ supᵘ l₂)
     liftⱼ     : Γ ⊢ l₂ ∷ Level
               → Γ ⊢ A
               → Γ ⊢ t ∷ A
@@ -232,28 +232,28 @@ mutual
     sucᵘ-cong     : ∀ {t t'}
                   → Γ ⊢ t ≡ t' ∷ Level
                   → Γ ⊢ sucᵘ t ≡ sucᵘ t' ∷ Level
-    maxᵘ-cong     : ∀ {t t' u u'}
+    supᵘ-cong     : ∀ {t t' u u'}
                   → Γ ⊢ t ≡ t' ∷ Level
                   → Γ ⊢ u ≡ u' ∷ Level
-                  → Γ ⊢ t maxᵘ u ≡ t' maxᵘ u' ∷ Level
-    maxᵘ-zeroˡ    : Γ ⊢ l ∷ Level
-                  → Γ ⊢ zeroᵘ maxᵘ l ≡ l ∷ Level
-    maxᵘ-zeroʳ    : Γ ⊢ l ∷ Level
-                  → Γ ⊢ l maxᵘ zeroᵘ ≡ l ∷ Level
-    maxᵘ-sucᵘ     : Γ ⊢ l₁ ∷ Level
+                  → Γ ⊢ t supᵘ u ≡ t' supᵘ u' ∷ Level
+    supᵘ-zeroˡ    : Γ ⊢ l ∷ Level
+                  → Γ ⊢ zeroᵘ supᵘ l ≡ l ∷ Level
+    supᵘ-zeroʳ    : Γ ⊢ l ∷ Level
+                  → Γ ⊢ l supᵘ zeroᵘ ≡ l ∷ Level
+    supᵘ-sucᵘ     : Γ ⊢ l₁ ∷ Level
                   → Γ ⊢ l₂ ∷ Level
-                  → Γ ⊢ sucᵘ l₁ maxᵘ sucᵘ l₂ ≡ sucᵘ (l₁ maxᵘ l₂) ∷ Level
-    maxᵘ-assoc    : Γ ⊢ l₁ ∷ Level
+                  → Γ ⊢ sucᵘ l₁ supᵘ sucᵘ l₂ ≡ sucᵘ (l₁ supᵘ l₂) ∷ Level
+    supᵘ-assoc    : Γ ⊢ l₁ ∷ Level
                   → Γ ⊢ l₂ ∷ Level
                   → Γ ⊢ l₃ ∷ Level
-                  → Γ ⊢ (l₁ maxᵘ l₂) maxᵘ l₃ ≡ l₁ maxᵘ (l₂ maxᵘ l₃) ∷ Level
-    maxᵘ-comm     : Γ ⊢ l₁ ∷ Level
+                  → Γ ⊢ (l₁ supᵘ l₂) supᵘ l₃ ≡ l₁ supᵘ (l₂ supᵘ l₃) ∷ Level
+    supᵘ-comm     : Γ ⊢ l₁ ∷ Level
                   → Γ ⊢ l₂ ∷ Level
-                  → Γ ⊢ l₁ maxᵘ l₂ ≡ l₂ maxᵘ l₁ ∷ Level
-    maxᵘ-idem     : Γ ⊢ l ∷ Level
-                  → Γ ⊢ l maxᵘ l ≡ l ∷ Level
-    maxᵘ-sub      : Γ ⊢ l ∷ Level
-                  → Γ ⊢ l maxᵘ sucᵘ l ≡ sucᵘ l ∷ Level
+                  → Γ ⊢ l₁ supᵘ l₂ ≡ l₂ supᵘ l₁ ∷ Level
+    supᵘ-idem     : Γ ⊢ l ∷ Level
+                  → Γ ⊢ l supᵘ l ≡ l ∷ Level
+    supᵘ-sub      : Γ ⊢ l ∷ Level
+                  → Γ ⊢ l supᵘ sucᵘ l ≡ sucᵘ l ∷ Level
 
     U-cong        : Γ ⊢ l₁ ≡ l₂ ∷ Level
                   → Γ ⊢ U l₁ ≡ U l₂ ∷ U (sucᵘ l₁)
@@ -261,7 +261,7 @@ mutual
     Lift-cong     : Γ ⊢ l₁ ∷ Level
                   → Γ ⊢ l₂ ≡ l₂′ ∷ Level
                   → Γ ⊢ A ≡ B ∷ U l₁
-                  → Γ ⊢ Lift l₂ A ≡ Lift l₂′ B ∷ U (l₁ maxᵘ l₂)
+                  → Γ ⊢ Lift l₂ A ≡ Lift l₂′ B ∷ U (l₁ supᵘ l₂)
     lower-cong    : Γ ⊢ t ≡ u ∷ Lift l₂ A
                   → Γ ⊢ lower t ≡ lower u ∷ A
     Lift-β        : Γ ⊢ A
@@ -454,19 +454,19 @@ data _⊢_⇒_∷_ (Γ : Con Term n) : Term n → Term n → Term n → Set ℓ 
                  → Γ ⊢ A ≡ B
                  → Γ ⊢ t ⇒ u ∷ B
 
-  maxᵘ-substˡ    : Γ ⊢ t ⇒ t′ ∷ Level
+  supᵘ-substˡ    : Γ ⊢ t ⇒ t′ ∷ Level
                  → Γ ⊢ u ∷ Level
-                 → Γ ⊢ t maxᵘ u ⇒ t′ maxᵘ u ∷ Level
-  maxᵘ-substʳ    : Γ ⊢ t ∷ Level
+                 → Γ ⊢ t supᵘ u ⇒ t′ supᵘ u ∷ Level
+  supᵘ-substʳ    : Γ ⊢ t ∷ Level
                  → Γ ⊢ u ⇒ u′ ∷ Level
-                 → Γ ⊢ sucᵘ t maxᵘ u ⇒ sucᵘ t maxᵘ u′ ∷ Level
-  maxᵘ-zeroˡ     : Γ ⊢ l ∷ Level
-                 → Γ ⊢ zeroᵘ maxᵘ l ⇒ l ∷ Level
-  maxᵘ-zeroʳ     : Γ ⊢ l ∷ Level
-                 → Γ ⊢ sucᵘ l maxᵘ zeroᵘ ⇒ sucᵘ l ∷ Level
-  maxᵘ-sucᵘ      : Γ ⊢ l₁ ∷ Level
+                 → Γ ⊢ sucᵘ t supᵘ u ⇒ sucᵘ t supᵘ u′ ∷ Level
+  supᵘ-zeroˡ     : Γ ⊢ l ∷ Level
+                 → Γ ⊢ zeroᵘ supᵘ l ⇒ l ∷ Level
+  supᵘ-zeroʳ     : Γ ⊢ l ∷ Level
+                 → Γ ⊢ sucᵘ l supᵘ zeroᵘ ⇒ sucᵘ l ∷ Level
+  supᵘ-sucᵘ      : Γ ⊢ l₁ ∷ Level
                  → Γ ⊢ l₂ ∷ Level
-                 → Γ ⊢ sucᵘ l₁ maxᵘ sucᵘ l₂ ⇒ sucᵘ (l₁ maxᵘ l₂) ∷ Level
+                 → Γ ⊢ sucᵘ l₁ supᵘ sucᵘ l₂ ⇒ sucᵘ (l₁ supᵘ l₂) ∷ Level
 
   lower-subst    : Γ ⊢ t ⇒ u ∷ Lift l₂ A
                  → Γ ⊢ lower t ⇒ lower u ∷ A
@@ -634,7 +634,7 @@ _⊢_↘_∷_ : (Γ : Con Term n) → Term n → Term n → Term n → Set ℓ
 -- The natural order on levels
 
 _⊢_≤_∷Level : (Γ : Con Term n) (t u : Term n) → Set ℓ
-Γ ⊢ t ≤ u ∷Level = Γ ⊢ t maxᵘ u ≡ u ∷ Level
+Γ ⊢ t ≤ u ∷Level = Γ ⊢ t supᵘ u ≡ u ∷ Level
 
 -- A context Γ is consistent if the empty type is not inhabited in Γ.
 

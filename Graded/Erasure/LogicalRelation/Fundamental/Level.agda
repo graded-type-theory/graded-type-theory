@@ -73,11 +73,11 @@ opaque
 
 opaque
 
-  -- Validity for _maxᵘ_.
+  -- Validity for _supᵘ_.
 
-  maxᵘʳ :
-    γ ▸ Γ ⊩ʳ t maxᵘ u ∷[ m ] Level
-  maxᵘʳ =
+  supᵘʳ :
+    γ ▸ Γ ⊩ʳ t supᵘ u ∷[ m ] Level
+  supᵘʳ =
     ▸⊩ʳ∷⇔ .proj₂ λ ⊩σ _ →
     ®∷→®∷◂ $
     ®∷Level⇔ .proj₂ (U/Levelᵣ (λ { PE.refl → T.refl }))

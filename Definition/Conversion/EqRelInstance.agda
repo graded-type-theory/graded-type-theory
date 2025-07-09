@@ -336,65 +336,65 @@ private module Lemmas where
       (sucᵘₙ PE.refl ([↑]ᵛ d′ u≡))
       (≡ᵛ-suc t≡u) }
 
-  maxᵘ-↑ᵛ : ∀ {v′ v″} → Γ ⊢ t ↑ᵛ v′ → Γ ⊢ u ↑ᵛ v″ → ∃ λ v → Γ ⊢ t maxᵘ u ↑ᵛ v × v ≡ᵛ maxᵛ v′ v″
-  maxᵘ-↑ᵛ {v′} {v″} ([↑]ᵛ (t⇒ , tw) t↓) u↑@([↑]ᵛ (u⇒ , uw) u↓) =
+  supᵘ-↑ᵛ : ∀ {v′ v″} → Γ ⊢ t ↑ᵛ v′ → Γ ⊢ u ↑ᵛ v″ → ∃ λ v → Γ ⊢ t supᵘ u ↑ᵛ v × v ≡ᵛ supᵛ v′ v″
+  supᵘ-↑ᵛ {v′} {v″} ([↑]ᵛ (t⇒ , tw) t↓) u↑@([↑]ᵛ (u⇒ , uw) u↓) =
     let ⊢u = redFirst*Term u⇒
     in case t↓ of λ where
-      (zeroᵘₙ _) → v″ , [↑]ᵛ (maxᵘ-substˡ* t⇒ ⊢u ⇨∷* (maxᵘ-zeroˡ ⊢u ⇨ u⇒) , uw) u↓ , ≡ᵛ-maxᵘ-zeroˡ
+      (zeroᵘₙ _) → v″ , [↑]ᵛ (supᵘ-substˡ* t⇒ ⊢u ⇨∷* (supᵘ-zeroˡ ⊢u ⇨ u⇒) , uw) u↓ , ≡ᵛ-supᵘ-zeroˡ
       (sucᵘₙ {v′ = v₁} PE.refl t′↑) →
         let ⊢t′ = wf↑ᵛ t′↑
         in case u↓ of λ where
-          (zeroᵘₙ _) → v′ , [↑]ᵛ (maxᵘ-substˡ* t⇒ ⊢u ⇨∷* (maxᵘ-substʳ* ⊢t′ u⇒ ⇨∷* redMany (maxᵘ-zeroʳ ⊢t′)) , sucᵘₙ) t↓ , sym-≡ᵛ ≡ᵛ-maxᵘ-zeroʳ
+          (zeroᵘₙ _) → v′ , [↑]ᵛ (supᵘ-substˡ* t⇒ ⊢u ⇨∷* (supᵘ-substʳ* ⊢t′ u⇒ ⇨∷* redMany (supᵘ-zeroʳ ⊢t′)) , sucᵘₙ) t↓ , sym-≡ᵛ ≡ᵛ-supᵘ-zeroʳ
           (sucᵘₙ PE.refl u′↑) →
             let ⊢u′ = wf↑ᵛ u′↑
-                a , a↑ , a≡ = maxᵘ-↑ᵛ t′↑ u′↑
-            in sucᵛ a , [↑]ᵛ (maxᵘ-substˡ* t⇒ ⊢u ⇨∷* (maxᵘ-substʳ* ⊢t′ u⇒ ⇨∷* redMany (maxᵘ-sucᵘ ⊢t′ ⊢u′)) , sucᵘₙ) (sucᵘₙ PE.refl a↑) , trans-≡ᵛ (≡ᵛ-suc a≡) ≡ᵛ-maxᵘ-sucᵘ
-          (neₙ x) → maxᵛ v′ v″ , [↑]ᵛ (maxᵘ-substˡ* t⇒ ⊢u ⇨∷* maxᵘ-substʳ* ⊢t′ u⇒ , ne (maxᵘʳₙ (whnfConv~ᵛ x))) (neₙ (maxᵘʳₙ PE.refl t′↑ x)) , ≡ᵛ-refl _
-      (neₙ x) → maxᵛ v′ v″ , [↑]ᵛ (maxᵘ-substˡ* t⇒ ⊢u , ne (maxᵘˡₙ (whnfConv~ᵛ x))) (neₙ (maxᵘˡₙ PE.refl x u↑)) , ≡ᵛ-refl _
+                a , a↑ , a≡ = supᵘ-↑ᵛ t′↑ u′↑
+            in sucᵛ a , [↑]ᵛ (supᵘ-substˡ* t⇒ ⊢u ⇨∷* (supᵘ-substʳ* ⊢t′ u⇒ ⇨∷* redMany (supᵘ-sucᵘ ⊢t′ ⊢u′)) , sucᵘₙ) (sucᵘₙ PE.refl a↑) , trans-≡ᵛ (≡ᵛ-suc a≡) ≡ᵛ-supᵘ-sucᵘ
+          (neₙ x) → supᵛ v′ v″ , [↑]ᵛ (supᵘ-substˡ* t⇒ ⊢u ⇨∷* supᵘ-substʳ* ⊢t′ u⇒ , ne (supᵘʳₙ (whnfConv~ᵛ x))) (neₙ (supᵘʳₙ PE.refl t′↑ x)) , ≡ᵛ-refl _
+      (neₙ x) → supᵛ v′ v″ , [↑]ᵛ (supᵘ-substˡ* t⇒ ⊢u , ne (supᵘˡₙ (whnfConv~ᵛ x))) (neₙ (supᵘˡₙ PE.refl x u↑)) , ≡ᵛ-refl _
 
-  ≅ₜ-maxᵘ-cong : Γ ⊢ t [conv↑] u ∷Level → Γ ⊢ t′ [conv↑] u′ ∷Level → Γ ⊢ t maxᵘ t′ [conv↑] u maxᵘ u′ ∷Level
-  ≅ₜ-maxᵘ-cong ([↑]ˡ tᵛ uᵛ t↑ u↑ t≡u) ([↑]ˡ tᵛ₁ uᵛ₁ t↑₁ u↑₁ t≡u₁) =
-    let [a] , a↑ , a≡ = maxᵘ-↑ᵛ t↑ t↑₁
-        [b] , b↑ , b≡ = maxᵘ-↑ᵛ u↑ u↑₁
-    in [↑]ˡ [a] [b] a↑ b↑ (trans-≡ᵛ a≡ (trans-≡ᵛ (≡ᵛ-max t≡u t≡u₁) (sym-≡ᵛ b≡)))
+  ≅ₜ-supᵘ-cong : Γ ⊢ t [conv↑] u ∷Level → Γ ⊢ t′ [conv↑] u′ ∷Level → Γ ⊢ t supᵘ t′ [conv↑] u supᵘ u′ ∷Level
+  ≅ₜ-supᵘ-cong ([↑]ˡ tᵛ uᵛ t↑ u↑ t≡u) ([↑]ˡ tᵛ₁ uᵛ₁ t↑₁ u↑₁ t≡u₁) =
+    let [a] , a↑ , a≡ = supᵘ-↑ᵛ t↑ t↑₁
+        [b] , b↑ , b≡ = supᵘ-↑ᵛ u↑ u↑₁
+    in [↑]ˡ [a] [b] a↑ b↑ (trans-≡ᵛ a≡ (trans-≡ᵛ (≡ᵛ-sup t≡u t≡u₁) (sym-≡ᵛ b≡)))
 
   zeroᵘ-↑ᵛ : ⊢ Γ → Γ ⊢ zeroᵘ ↑ᵛ zeroᵛ
   zeroᵘ-↑ᵛ ⊢Γ = [↑]ᵛ (id (zeroᵘⱼ ⊢Γ) , zeroᵘₙ) (zeroᵘₙ ⊢Γ)
 
-  ≅ₜ-maxᵘ-zeroʳ : Γ ⊢ t [conv↑] t ∷Level → Γ ⊢ t maxᵘ zeroᵘ [conv↑] t ∷Level
-  ≅ₜ-maxᵘ-zeroʳ ([↑]ˡ v _ t↑ _ _) =
-    let v′ , x , y = maxᵘ-↑ᵛ t↑ (zeroᵘ-↑ᵛ (wfTerm (wf↑ᵛ t↑)))
-    in [↑]ˡ _ _ x t↑ (trans-≡ᵛ y ≡ᵛ-maxᵘ-zeroʳ)
+  ≅ₜ-supᵘ-zeroʳ : Γ ⊢ t [conv↑] t ∷Level → Γ ⊢ t supᵘ zeroᵘ [conv↑] t ∷Level
+  ≅ₜ-supᵘ-zeroʳ ([↑]ˡ v _ t↑ _ _) =
+    let v′ , x , y = supᵘ-↑ᵛ t↑ (zeroᵘ-↑ᵛ (wfTerm (wf↑ᵛ t↑)))
+    in [↑]ˡ _ _ x t↑ (trans-≡ᵛ y ≡ᵛ-supᵘ-zeroʳ)
 
-  ≅ₜ-maxᵘ-assoc : Γ ⊢ t [conv↑] t ∷Level → Γ ⊢ u [conv↑] u ∷Level → Γ ⊢ v [conv↑] v ∷Level → Γ ⊢ (t maxᵘ u) maxᵘ v [conv↑] t maxᵘ (u maxᵘ v) ∷Level
-  ≅ₜ-maxᵘ-assoc ([↑]ˡ tᵛ _ t↑ _ _) ([↑]ˡ uᵛ _ u↑ _ _) ([↑]ˡ vᵛ _ v↑ _ _) =
-    let tuᵛ , tu↑ , tu≡ = maxᵘ-↑ᵛ t↑ u↑
-        uvᵛ , uv↑ , uv≡ = maxᵘ-↑ᵛ u↑ v↑
-        [tu]vᵛ , [tu]v↑ , [tu]v≡ = maxᵘ-↑ᵛ tu↑ v↑
-        t[uv]ᵛ , t[uv]↑ , t[uv]≡ = maxᵘ-↑ᵛ t↑ uv↑
+  ≅ₜ-supᵘ-assoc : Γ ⊢ t [conv↑] t ∷Level → Γ ⊢ u [conv↑] u ∷Level → Γ ⊢ v [conv↑] v ∷Level → Γ ⊢ (t supᵘ u) supᵘ v [conv↑] t supᵘ (u supᵘ v) ∷Level
+  ≅ₜ-supᵘ-assoc ([↑]ˡ tᵛ _ t↑ _ _) ([↑]ˡ uᵛ _ u↑ _ _) ([↑]ˡ vᵛ _ v↑ _ _) =
+    let tuᵛ , tu↑ , tu≡ = supᵘ-↑ᵛ t↑ u↑
+        uvᵛ , uv↑ , uv≡ = supᵘ-↑ᵛ u↑ v↑
+        [tu]vᵛ , [tu]v↑ , [tu]v≡ = supᵘ-↑ᵛ tu↑ v↑
+        t[uv]ᵛ , t[uv]↑ , t[uv]≡ = supᵘ-↑ᵛ t↑ uv↑
     in [↑]ˡ [tu]vᵛ t[uv]ᵛ [tu]v↑ t[uv]↑
     $ trans-≡ᵛ [tu]v≡
-    $ trans-≡ᵛ (≡ᵛ-max tu≡ (≡ᵛ-refl _))
-    $ trans-≡ᵛ (≡ᵛ-maxᵘ-assoc {a = tᵛ} {b = uᵛ} {c = vᵛ})
-    $ trans-≡ᵛ (≡ᵛ-max (≡ᵛ-refl _) (sym-≡ᵛ uv≡))
+    $ trans-≡ᵛ (≡ᵛ-sup tu≡ (≡ᵛ-refl _))
+    $ trans-≡ᵛ (≡ᵛ-supᵘ-assoc {a = tᵛ} {b = uᵛ} {c = vᵛ})
+    $ trans-≡ᵛ (≡ᵛ-sup (≡ᵛ-refl _) (sym-≡ᵛ uv≡))
     $ sym-≡ᵛ t[uv]≡
 
-  ≅ₜ-maxᵘ-comm : Γ ⊢ t [conv↑] t ∷Level → Γ ⊢ u [conv↑] u ∷Level → Γ ⊢ t maxᵘ u [conv↑] u maxᵘ t ∷Level
-  ≅ₜ-maxᵘ-comm ([↑]ˡ tᵛ _ t↑ _ _) ([↑]ˡ uᵛ _ u↑ _ _) =
-    let tuᵛ , tu↑ , tu≡ = maxᵘ-↑ᵛ t↑ u↑
-        utᵛ , ut↑ , ut≡ = maxᵘ-↑ᵛ u↑ t↑
-    in [↑]ˡ tuᵛ utᵛ tu↑ ut↑ (trans-≡ᵛ tu≡ (trans-≡ᵛ (≡ᵛ-maxᵘ-comm {a = tᵛ}) (sym-≡ᵛ ut≡)))
+  ≅ₜ-supᵘ-comm : Γ ⊢ t [conv↑] t ∷Level → Γ ⊢ u [conv↑] u ∷Level → Γ ⊢ t supᵘ u [conv↑] u supᵘ t ∷Level
+  ≅ₜ-supᵘ-comm ([↑]ˡ tᵛ _ t↑ _ _) ([↑]ˡ uᵛ _ u↑ _ _) =
+    let tuᵛ , tu↑ , tu≡ = supᵘ-↑ᵛ t↑ u↑
+        utᵛ , ut↑ , ut≡ = supᵘ-↑ᵛ u↑ t↑
+    in [↑]ˡ tuᵛ utᵛ tu↑ ut↑ (trans-≡ᵛ tu≡ (trans-≡ᵛ (≡ᵛ-supᵘ-comm {a = tᵛ}) (sym-≡ᵛ ut≡)))
 
-  ≅ₜ-maxᵘ-idem : Γ ⊢ t [conv↑] t ∷Level → Γ ⊢ t maxᵘ t [conv↑] t ∷Level
-  ≅ₜ-maxᵘ-idem ([↑]ˡ tᵛ _ t↑ _ _) =
-    let ttᵛ , tt↑ , tt≡ = maxᵘ-↑ᵛ t↑ t↑
-    in [↑]ˡ ttᵛ tᵛ tt↑ t↑ (trans-≡ᵛ tt≡ ≡ᵛ-maxᵘ-idem)
+  ≅ₜ-supᵘ-idem : Γ ⊢ t [conv↑] t ∷Level → Γ ⊢ t supᵘ t [conv↑] t ∷Level
+  ≅ₜ-supᵘ-idem ([↑]ˡ tᵛ _ t↑ _ _) =
+    let ttᵛ , tt↑ , tt≡ = supᵘ-↑ᵛ t↑ t↑
+    in [↑]ˡ ttᵛ tᵛ tt↑ t↑ (trans-≡ᵛ tt≡ ≡ᵛ-supᵘ-idem)
 
-  ≅ₜ-maxᵘ-sub : Γ ⊢ t [conv↑] t ∷Level → Γ ⊢ t maxᵘ sucᵘ t [conv↑] sucᵘ t ∷Level
-  ≅ₜ-maxᵘ-sub ([↑]ˡ tᵛ _ t↑ _ _) =
+  ≅ₜ-supᵘ-sub : Γ ⊢ t [conv↑] t ∷Level → Γ ⊢ t supᵘ sucᵘ t [conv↑] sucᵘ t ∷Level
+  ≅ₜ-supᵘ-sub ([↑]ˡ tᵛ _ t↑ _ _) =
     let t+1↑ = lift-↓ᵛ (sucᵘₙ PE.refl t↑)
-        ttᵛ , tt↑ , tt≡ = maxᵘ-↑ᵛ t↑ t+1↑
-    in [↑]ˡ ttᵛ (sucᵛ tᵛ) tt↑ t+1↑ (trans-≡ᵛ tt≡ ≡ᵛ-maxᵘ-sub)
+        ttᵛ , tt↑ , tt≡ = supᵘ-↑ᵛ t↑ t+1↑
+    in [↑]ˡ ttᵛ (sucᵛ tᵛ) tt↑ t+1↑ (trans-≡ᵛ tt≡ ≡ᵛ-supᵘ-sub)
 
 private opaque
 
@@ -434,16 +434,16 @@ private opaque
       liftConvTerm ∘ᶠ Level-ins ∘ᶠ ≅ₜ-zeroᵘrefl
     .Equality-relations.≅ₜ-sucᵘ-cong →
       liftConvTerm ∘ᶠ Level-ins ∘ᶠ ≅ₜ-sucᵘ-cong
-    .Equality-relations.≅ₜ-maxᵘ-cong → λ a b → inv-[conv↑]∷-Level⇔ .proj₂ (≅ₜ-maxᵘ-cong (inv-[conv↑]∷-Level⇔ .proj₁ a) (inv-[conv↑]∷-Level⇔ .proj₁ b))
-    .Equality-relations.≅ₜ-maxᵘ-zeroʳ → λ a → inv-[conv↑]∷-Level⇔ .proj₂ (≅ₜ-maxᵘ-zeroʳ (inv-[conv↑]∷-Level⇔ .proj₁ a))
-    .Equality-relations.≅ₜ-maxᵘ-assoc →
-      λ a b c → inv-[conv↑]∷-Level⇔ .proj₂ (≅ₜ-maxᵘ-assoc (inv-[conv↑]∷-Level⇔ .proj₁ a) (inv-[conv↑]∷-Level⇔ .proj₁ b) (inv-[conv↑]∷-Level⇔ .proj₁ c))
-    .Equality-relations.≅ₜ-maxᵘ-comm →
-      λ a b → inv-[conv↑]∷-Level⇔ .proj₂ (≅ₜ-maxᵘ-comm (inv-[conv↑]∷-Level⇔ .proj₁ a) (inv-[conv↑]∷-Level⇔ .proj₁ b))
-    .Equality-relations.≅ₜ-maxᵘ-idem →
-      λ a → inv-[conv↑]∷-Level⇔ .proj₂ (≅ₜ-maxᵘ-idem (inv-[conv↑]∷-Level⇔ .proj₁ a))
-    .Equality-relations.≅ₜ-maxᵘ-sub →
-      λ a → inv-[conv↑]∷-Level⇔ .proj₂ (≅ₜ-maxᵘ-sub (inv-[conv↑]∷-Level⇔ .proj₁ a))
+    .Equality-relations.≅ₜ-supᵘ-cong → λ a b → inv-[conv↑]∷-Level⇔ .proj₂ (≅ₜ-supᵘ-cong (inv-[conv↑]∷-Level⇔ .proj₁ a) (inv-[conv↑]∷-Level⇔ .proj₁ b))
+    .Equality-relations.≅ₜ-supᵘ-zeroʳ → λ a → inv-[conv↑]∷-Level⇔ .proj₂ (≅ₜ-supᵘ-zeroʳ (inv-[conv↑]∷-Level⇔ .proj₁ a))
+    .Equality-relations.≅ₜ-supᵘ-assoc →
+      λ a b c → inv-[conv↑]∷-Level⇔ .proj₂ (≅ₜ-supᵘ-assoc (inv-[conv↑]∷-Level⇔ .proj₁ a) (inv-[conv↑]∷-Level⇔ .proj₁ b) (inv-[conv↑]∷-Level⇔ .proj₁ c))
+    .Equality-relations.≅ₜ-supᵘ-comm →
+      λ a b → inv-[conv↑]∷-Level⇔ .proj₂ (≅ₜ-supᵘ-comm (inv-[conv↑]∷-Level⇔ .proj₁ a) (inv-[conv↑]∷-Level⇔ .proj₁ b))
+    .Equality-relations.≅ₜ-supᵘ-idem →
+      λ a → inv-[conv↑]∷-Level⇔ .proj₂ (≅ₜ-supᵘ-idem (inv-[conv↑]∷-Level⇔ .proj₁ a))
+    .Equality-relations.≅ₜ-supᵘ-sub →
+      λ a → inv-[conv↑]∷-Level⇔ .proj₂ (≅ₜ-supᵘ-sub (inv-[conv↑]∷-Level⇔ .proj₁ a))
     .Equality-relations.≅ₜ-U-cong →
       λ l≡l′ →
         let ⊢l≡l′ = soundnessConv↑Term l≡l′
@@ -459,7 +459,7 @@ private opaque
         in liftConvTerm $ univ
           (Liftⱼ ⊢l ⊢l₁ ⊢A)
           (conv (Liftⱼ ⊢l ⊢l₂ ⊢B)
-            (sym (U-cong (maxᵘ-cong (refl ⊢l) (soundnessConv↑Term l₁≡l₂)))))
+            (sym (U-cong (supᵘ-cong (refl ⊢l) (soundnessConv↑Term l₁≡l₂)))))
           (Lift-cong l₁≡l₂ (univConv↑ A≡B))
     .Equality-relations.≅ₜ-ℕrefl →
       λ x → liftConvTerm (univ (ℕⱼ x) (ℕⱼ x) (ℕ-refl x))

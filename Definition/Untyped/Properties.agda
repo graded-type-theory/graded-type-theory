@@ -42,8 +42,8 @@ opaque
   toTerm∘fromTerm Level = refl
   toTerm∘fromTerm zeroᵘ = refl
   toTerm∘fromTerm (sucᵘ l) = cong sucᵘ (toTerm∘fromTerm l)
-  toTerm∘fromTerm (l₁ maxᵘ l₂) =
-    cong₂ _maxᵘ_ (toTerm∘fromTerm l₁) (toTerm∘fromTerm l₂)
+  toTerm∘fromTerm (l₁ supᵘ l₂) =
+    cong₂ _supᵘ_ (toTerm∘fromTerm l₁) (toTerm∘fromTerm l₂)
   toTerm∘fromTerm (U l) = cong U (toTerm∘fromTerm l)
   toTerm∘fromTerm (Lift l A) =
     cong₂ Lift (toTerm∘fromTerm l) (toTerm∘fromTerm A)
@@ -106,8 +106,8 @@ opaque
   fromTerm∘toTerm (gen Zeroᵘkind []) = refl
   fromTerm∘toTerm (gen Sucᵘkind (l ∷ₜ [])) =
     cong (λ l → gen Sucᵘkind (l ∷ₜ [])) (fromTerm∘toTerm l)
-  fromTerm∘toTerm (gen Maxᵘkind (l₁ ∷ₜ l₂ ∷ₜ [])) =
-    cong₂ (λ l₁ l₂ → gen Maxᵘkind (l₁ ∷ₜ l₂ ∷ₜ []))
+  fromTerm∘toTerm (gen Supᵘkind (l₁ ∷ₜ l₂ ∷ₜ [])) =
+    cong₂ (λ l₁ l₂ → gen Supᵘkind (l₁ ∷ₜ l₂ ∷ₜ []))
       (fromTerm∘toTerm l₁) (fromTerm∘toTerm l₂)
   fromTerm∘toTerm (gen Ukind (l ∷ₜ [])) =
     cong (λ l → gen Ukind (l ∷ₜ [])) (fromTerm∘toTerm l)
@@ -186,7 +186,7 @@ opaque
   wk≡wk′ Level = refl
   wk≡wk′ zeroᵘ = refl
   wk≡wk′ (sucᵘ l) = cong sucᵘ (wk≡wk′ l)
-  wk≡wk′ (l₁ maxᵘ l₂) = cong₂ _maxᵘ_ (wk≡wk′ l₁) (wk≡wk′ l₂)
+  wk≡wk′ (l₁ supᵘ l₂) = cong₂ _supᵘ_ (wk≡wk′ l₁) (wk≡wk′ l₂)
   wk≡wk′ (U l) = cong U (wk≡wk′ l)
   wk≡wk′ (Lift l A) = cong₂ Lift (wk≡wk′ l) (wk≡wk′ A)
   wk≡wk′ (lift a) = cong lift (wk≡wk′ a)
@@ -361,8 +361,8 @@ opaque
   subst≡subst′ Level = refl
   subst≡subst′ zeroᵘ = refl
   subst≡subst′ (sucᵘ l) = cong sucᵘ (subst≡subst′ l)
-  subst≡subst′ (l₁ maxᵘ l₂) =
-    cong₂ _maxᵘ_ (subst≡subst′ l₁) (subst≡subst′ l₂)
+  subst≡subst′ (l₁ supᵘ l₂) =
+    cong₂ _supᵘ_ (subst≡subst′ l₁) (subst≡subst′ l₂)
   subst≡subst′ (U l) = cong U (subst≡subst′ l)
   subst≡subst′ (Lift l A) = cong₂ Lift (subst≡subst′ l) (subst≡subst′ A)
   subst≡subst′ (lift a) = cong lift (subst≡subst′ a)
@@ -1985,7 +1985,7 @@ opaque
   isNumeral? Level = no (λ ())
   isNumeral? zeroᵘ = no (λ ())
   isNumeral? (sucᵘ _) = no (λ ())
-  isNumeral? (_ maxᵘ _) = no (λ ())
+  isNumeral? (_ supᵘ _) = no (λ ())
   isNumeral? (U n) = no (λ ())
   isNumeral? (Lift _ _) = no λ ()
   isNumeral? (lift _) = no λ ()
@@ -2071,10 +2071,10 @@ Lift-PE-injectivity PE.refl = PE.refl , PE.refl
 sucᵘ-PE-injectivity : sucᵘ t₁ PE.≡ sucᵘ t₂ → t₁ PE.≡ t₂
 sucᵘ-PE-injectivity PE.refl = PE.refl
 
--- The constructor maxᵘ is injective.
+-- The constructor supᵘ is injective.
 
-maxᵘ-PE-injectivity : t₁ maxᵘ u₁ PE.≡ t₂ maxᵘ u₂ → t₁ PE.≡ t₂ × u₁ PE.≡ u₂
-maxᵘ-PE-injectivity PE.refl = PE.refl , PE.refl
+supᵘ-PE-injectivity : t₁ supᵘ u₁ PE.≡ t₂ supᵘ u₂ → t₁ PE.≡ t₂ × u₁ PE.≡ u₂
+supᵘ-PE-injectivity PE.refl = PE.refl , PE.refl
 
 -- BΠ is injective.
 

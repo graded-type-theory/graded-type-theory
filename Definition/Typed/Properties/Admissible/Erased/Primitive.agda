@@ -57,7 +57,7 @@ opaque
     Γ ⊢ Erased A ∷ U l
   Erasedⱼ-U ⊢l ⊢A∷U =
     -- conv (ΠΣⱼ ⊢l (zeroᵘⱼ (wfTerm ⊢l)) ⊢A∷U (Unitⱼ (zeroᵘⱼ (∙ univ ⊢A∷U)) Unit-ok) Σ-ok)
-    --   (U-cong (maxᵘ-zeroʳ ⊢l))
+    --   (U-cong (supᵘ-zeroʳ ⊢l))
     ΠΣⱼ ⊢l ⊢A∷U {!  needs heterogeneous ΠΣ !} {!   !}
 
 -- A corresponding congruence rule.
@@ -69,7 +69,7 @@ Erased-cong-U :
   Γ ⊢ Erased A ≡ Erased B ∷ U l
 Erased-cong-U ⊢l ⊢A A≡B =
   -- conv (ΠΣ-cong ⊢l (zeroᵘⱼ (wf ⊢A)) A≡B (refl (Unitⱼ (zeroᵘⱼ (∙ ⊢A)) Unit-ok)) Σ-ok)
-  --   (U-cong (maxᵘ-zeroʳ ⊢l))
+  --   (U-cong (supᵘ-zeroʳ ⊢l))
   ?
 -}
 

@@ -332,8 +332,8 @@ private module Inhabited where
           zeroᵘⱼ ⊢Δ
         (sucᵘⱼ ⊢t) PE.refl →
           sucᵘⱼ (wkTerm ρ⊇ ⊢Δ ⊢t)
-        (maxᵘⱼ ⊢t ⊢u) PE.refl →
-          maxᵘⱼ (wkTerm ρ⊇ ⊢Δ ⊢t) (wkTerm ρ⊇ ⊢Δ ⊢u)
+        (supᵘⱼ ⊢t ⊢u) PE.refl →
+          supᵘⱼ (wkTerm ρ⊇ ⊢Δ ⊢t) (wkTerm ρ⊇ ⊢Δ ⊢u)
         (Uⱼ l) PE.refl →
           Uⱼ (wkTerm ρ⊇ ⊢Δ l)
         (Liftⱼ ⊢l₁ ⊢l₂ ⊢A) PE.refl →
@@ -527,22 +527,22 @@ private module Inhabited where
           conv (wkEqTerm ρ⊇ ⊢Δ t₁≡t₂) (wkEq ρ⊇ ⊢Δ B≡A)
         (sucᵘ-cong t₁≡t₂) PE.refl →
           sucᵘ-cong (wkEqTerm ρ⊇ ⊢Δ t₁≡t₂)
-        (maxᵘ-cong t₁≡t₂ u₁≡u₂) PE.refl →
-          maxᵘ-cong (wkEqTerm ρ⊇ ⊢Δ t₁≡t₂) (wkEqTerm ρ⊇ ⊢Δ u₁≡u₂)
-        (maxᵘ-zeroˡ l) PE.refl →
-          maxᵘ-zeroˡ (wkTerm ρ⊇ ⊢Δ l)
-        (maxᵘ-zeroʳ l) PE.refl →
-          maxᵘ-zeroʳ (wkTerm ρ⊇ ⊢Δ l)
-        (maxᵘ-sucᵘ l₁ l₂) PE.refl →
-          maxᵘ-sucᵘ (wkTerm ρ⊇ ⊢Δ l₁) (wkTerm ρ⊇ ⊢Δ l₂)
-        (maxᵘ-assoc l₁ l₂ l₃) PE.refl →
-          maxᵘ-assoc (wkTerm ρ⊇ ⊢Δ l₁) (wkTerm ρ⊇ ⊢Δ l₂) (wkTerm ρ⊇ ⊢Δ l₃)
-        (maxᵘ-comm l₁ l₂) PE.refl →
-          maxᵘ-comm (wkTerm ρ⊇ ⊢Δ l₁) (wkTerm ρ⊇ ⊢Δ l₂)
-        (maxᵘ-idem ⊢l) PE.refl →
-          maxᵘ-idem (wkTerm ρ⊇ ⊢Δ ⊢l)
-        (maxᵘ-sub ⊢l) PE.refl →
-          maxᵘ-sub (wkTerm ρ⊇ ⊢Δ ⊢l)
+        (supᵘ-cong t₁≡t₂ u₁≡u₂) PE.refl →
+          supᵘ-cong (wkEqTerm ρ⊇ ⊢Δ t₁≡t₂) (wkEqTerm ρ⊇ ⊢Δ u₁≡u₂)
+        (supᵘ-zeroˡ l) PE.refl →
+          supᵘ-zeroˡ (wkTerm ρ⊇ ⊢Δ l)
+        (supᵘ-zeroʳ l) PE.refl →
+          supᵘ-zeroʳ (wkTerm ρ⊇ ⊢Δ l)
+        (supᵘ-sucᵘ l₁ l₂) PE.refl →
+          supᵘ-sucᵘ (wkTerm ρ⊇ ⊢Δ l₁) (wkTerm ρ⊇ ⊢Δ l₂)
+        (supᵘ-assoc l₁ l₂ l₃) PE.refl →
+          supᵘ-assoc (wkTerm ρ⊇ ⊢Δ l₁) (wkTerm ρ⊇ ⊢Δ l₂) (wkTerm ρ⊇ ⊢Δ l₃)
+        (supᵘ-comm l₁ l₂) PE.refl →
+          supᵘ-comm (wkTerm ρ⊇ ⊢Δ l₁) (wkTerm ρ⊇ ⊢Δ l₂)
+        (supᵘ-idem ⊢l) PE.refl →
+          supᵘ-idem (wkTerm ρ⊇ ⊢Δ ⊢l)
+        (supᵘ-sub ⊢l) PE.refl →
+          supᵘ-sub (wkTerm ρ⊇ ⊢Δ ⊢l)
         (U-cong l₁≡l₂) PE.refl →
           U-cong (wkEqTerm ρ⊇ ⊢Δ l₁≡l₂)
         (Lift-cong ⊢l₁ l₂≡l₂′ A≡B) PE.refl →
@@ -897,11 +897,11 @@ mutual
   wkRedTerm :
     ρ ∷ʷ Δ ⊇ Γ → Γ ⊢ t ⇒ u ∷ A → Δ ⊢ U.wk ρ t ⇒ U.wk ρ u ∷ U.wk ρ A
   wkRedTerm ρ (conv t⇒u A≡B) = conv (wkRedTerm ρ t⇒u) (wkEq ρ A≡B)
-  wkRedTerm ρ (maxᵘ-zeroˡ ⊢l) = maxᵘ-zeroˡ (wkTerm ρ ⊢l)
-  wkRedTerm {ρ} [ρ] (maxᵘ-zeroʳ ⊢l) = maxᵘ-zeroʳ (wkTerm [ρ] ⊢l)
-  wkRedTerm ρ (maxᵘ-sucᵘ ⊢l₁ ⊢l₂) = maxᵘ-sucᵘ (wkTerm ρ ⊢l₁) (wkTerm ρ ⊢l₂)
-  wkRedTerm ρ (maxᵘ-substˡ t⇒t′ ⊢u) = maxᵘ-substˡ (wkRedTerm ρ t⇒t′) (wkTerm ρ ⊢u)
-  wkRedTerm {ρ} [ρ] (maxᵘ-substʳ ⊢t u⇒u′) = maxᵘ-substʳ (wkTerm [ρ] ⊢t) (wkRedTerm [ρ] u⇒u′)
+  wkRedTerm ρ (supᵘ-zeroˡ ⊢l) = supᵘ-zeroˡ (wkTerm ρ ⊢l)
+  wkRedTerm {ρ} [ρ] (supᵘ-zeroʳ ⊢l) = supᵘ-zeroʳ (wkTerm [ρ] ⊢l)
+  wkRedTerm ρ (supᵘ-sucᵘ ⊢l₁ ⊢l₂) = supᵘ-sucᵘ (wkTerm ρ ⊢l₁) (wkTerm ρ ⊢l₂)
+  wkRedTerm ρ (supᵘ-substˡ t⇒t′ ⊢u) = supᵘ-substˡ (wkRedTerm ρ t⇒t′) (wkTerm ρ ⊢u)
+  wkRedTerm {ρ} [ρ] (supᵘ-substʳ ⊢t u⇒u′) = supᵘ-substʳ (wkTerm [ρ] ⊢t) (wkRedTerm [ρ] u⇒u′)
   wkRedTerm ρ (lower-subst x) = lower-subst (wkRedTerm ρ x)
   wkRedTerm ρ (Lift-β ⊢A x₁) = Lift-β (wk ρ ⊢A) (wkTerm ρ x₁)
   wkRedTerm ρ (app-subst {G = B} t⇒u a) =

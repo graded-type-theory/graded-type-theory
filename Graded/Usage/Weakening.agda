@@ -60,8 +60,8 @@ wkUsage ρ zeroᵘₘ =
   PE.subst (_▸[ _ ] _) (PE.sym (wk-𝟘ᶜ ρ)) zeroᵘₘ
 wkUsage ρ (sucᵘₘ ▸t) =
   sucᵘₘ (wkUsage ρ ▸t)
-wkUsage ρ (maxᵘₘ ▸t ▸u) =
-  sub (maxᵘₘ (wkUsage ρ ▸t) (wkUsage ρ ▸u))
+wkUsage ρ (supᵘₘ ▸t ▸u) =
+  sub (supᵘₘ (wkUsage ρ ▸t) (wkUsage ρ ▸u))
     (≤ᶜ-reflexive (wk-+ᶜ ρ))
 wkUsage ρ (Uₘ ▸t) =
   PE.subst (_▸[ _ ] _) (PE.sym (wk-𝟘ᶜ ρ)) (Uₘ (wkUsage ρ ▸t))
@@ -258,10 +258,10 @@ wkUsage⁻¹ ▸t = wkUsage⁻¹′ ▸t refl
         case wk-sucᵘ eq of λ {
           (_ , refl , refl) →
         sucᵘₘ (wkUsage⁻¹ ▸t) }
-      (maxᵘₘ {γ} {δ} ▸t ▸u) eq →
-        case wk-maxᵘ eq of λ {
+      (supᵘₘ {γ} {δ} ▸t ▸u) eq →
+        case wk-supᵘ eq of λ {
           (_ , _ , refl , refl , refl) →
-        sub (maxᵘₘ (wkUsage⁻¹ ▸t) (wkUsage⁻¹ ▸u)) (begin
+        sub (supᵘₘ (wkUsage⁻¹ ▸t) (wkUsage⁻¹ ▸u)) (begin
           wkConₘ⁻¹ ρ (γ +ᶜ δ)           ≈⟨ wkConₘ⁻¹-+ᶜ ρ ⟩
           wkConₘ⁻¹ ρ γ +ᶜ wkConₘ⁻¹ ρ δ  ∎) }
       (Uₘ ▸t) eq →

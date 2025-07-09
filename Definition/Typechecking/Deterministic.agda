@@ -41,7 +41,7 @@ deterministic⇉ : Γ ⊢ t ⇉ A → Γ ⊢ t ⇉ B → A PE.≡ B
 deterministic⇉ Levelᵢ Levelᵢ = PE.refl
 deterministic⇉ zeroᵘᵢ zeroᵘᵢ = PE.refl
 deterministic⇉ (sucᵘᵢ _) (sucᵘᵢ _) = PE.refl
-deterministic⇉ (maxᵘᵢ _ _) (maxᵘᵢ _ _) = PE.refl
+deterministic⇉ (supᵘᵢ _ _) (supᵘᵢ _ _) = PE.refl
 deterministic⇉ (Uᵢ x) (Uᵢ y) = PE.refl
 deterministic⇉ (Liftᵢ _ x ↘U₁) (Liftᵢ _ y ↘U₂) =
   case deterministic⇉ x y of λ {

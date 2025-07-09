@@ -993,11 +993,11 @@ mutual
   substₘ-lemma Ψ ▶σ (sucᵘₘ ▸t) =
     sucᵘₘ (substₘ-lemma Ψ ▶σ ▸t)
 
-  substₘ-lemma Ψ ▶σ (maxᵘₘ {γ} {δ} ▸t ▸u) =
+  substₘ-lemma Ψ ▶σ (supᵘₘ {γ} {δ} ▸t ▸u) =
     let ▶σ₁ = ▶-⌞+ᶜ⌟ˡ Ψ γ ▶σ
         ▶σ₂ = ▶-⌞+ᶜ⌟ʳ Ψ γ ▶σ
     in
-    sub (maxᵘₘ (substₘ-lemma Ψ ▶σ₁ ▸t) (substₘ-lemma Ψ ▶σ₂ ▸u)) (begin
+    sub (supᵘₘ (substₘ-lemma Ψ ▶σ₁ ▸t) (substₘ-lemma Ψ ▶σ₂ ▸u)) (begin
       (γ +ᶜ δ) <* Ψ     ≈⟨ <*-distrib-+ᶜ Ψ γ _ ⟩
       γ <* Ψ +ᶜ δ <* Ψ  ∎)
     where

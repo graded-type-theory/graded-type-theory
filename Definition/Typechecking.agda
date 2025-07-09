@@ -59,14 +59,14 @@ mutual
     zeroᵘᵢ : Γ ⊢ zeroᵘ ⇉ Level
     sucᵘᵢ : Γ ⊢ t ⇇ Level
           → Γ ⊢ sucᵘ t ⇉ Level
-    maxᵘᵢ : Γ ⊢ t ⇇ Level
+    supᵘᵢ : Γ ⊢ t ⇇ Level
           → Γ ⊢ u ⇇ Level
-          → Γ ⊢ t maxᵘ u ⇉ Level
+          → Γ ⊢ t supᵘ u ⇉ Level
     Uᵢ : Γ ⊢ l ⇇ Level → Γ ⊢ U l ⇉ U (sucᵘ l)
     Liftᵢ : Γ ⊢ l₂ ⇇ Level
           → Γ ⊢ A ⇉ C
           → Γ ⊢ C ↘ U l₁
-          → Γ ⊢ Lift l₂ A ⇉ U (l₁ maxᵘ l₂)
+          → Γ ⊢ Lift l₂ A ⇉ U (l₁ supᵘ l₂)
     ΠΣᵢ : Γ ⊢ A ⇉ C₁
         → Γ ⊢ C₁ ↘ U l
         → Γ ∙ A ⊢ B ⇇ U (wk1 l)
@@ -182,7 +182,7 @@ mutual
     Levelᵢ : Inferable Level
     zeroᵘᵢ : Inferable zeroᵘ
     sucᵘᵢ : Checkable t → Inferable (sucᵘ t)
-    maxᵘᵢ : Checkable t → Checkable u → Inferable (t maxᵘ u)
+    supᵘᵢ : Checkable t → Checkable u → Inferable (t supᵘ u)
     Uᵢ : Checkable l → Inferable (U l)
     Liftᵢ : Checkable l → Inferable A → Inferable (Lift l A)
     ΠΣᵢ : Inferable A → Checkable B → Inferable (ΠΣ⟨ b ⟩ p , q ▷ A ▹ B)
@@ -260,7 +260,7 @@ mutual
   Inferable⇉ Levelᵢ = Levelᵢ
   Inferable⇉ zeroᵘᵢ = zeroᵘᵢ
   Inferable⇉ (sucᵘᵢ x) = sucᵘᵢ (Checkable⇇ x)
-  Inferable⇉ (maxᵘᵢ x x₁) = maxᵘᵢ (Checkable⇇ x) (Checkable⇇ x₁)
+  Inferable⇉ (supᵘᵢ x x₁) = supᵘᵢ (Checkable⇇ x) (Checkable⇇ x₁)
   Inferable⇉ (Uᵢ l) = Uᵢ (Checkable⇇ l)
   Inferable⇉ (Liftᵢ l A ↘U) = Liftᵢ (Checkable⇇ l) (Inferable⇉ A)
   Inferable⇉ (lowerᵢ x y) = lowerᵢ (Inferable⇉ x)

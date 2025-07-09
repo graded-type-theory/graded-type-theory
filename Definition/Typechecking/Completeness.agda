@@ -92,8 +92,8 @@ mutual
     univᶜ′ (completeness⇉ zeroᵘᵢ ⊢A)
   completeness⇉Type (sucᵘᵢ x) (univ ⊢A) =
     univᶜ′ (completeness⇉ (sucᵘᵢ x) ⊢A)
-  completeness⇉Type (maxᵘᵢ x x₁) (univ ⊢A) =
-    univᶜ′ (completeness⇉ (maxᵘᵢ x x₁) ⊢A)
+  completeness⇉Type (supᵘᵢ x x₁) (univ ⊢A) =
+    univᶜ′ (completeness⇉ (supᵘᵢ x x₁) ⊢A)
   completeness⇉Type (Uᵢ x) ⊢A = Uᶜ (completeness⇇ x (inversion-U-Level ⊢A))
   completeness⇉Type (Liftᵢ x x₁) ⊢A =
     let ⊢l , ⊢A = inversion-Lift ⊢A
@@ -149,11 +149,11 @@ mutual
     let ⊢t , A≡Level = inversion-sucᵘ ⊢t
         t⇇Level = completeness⇇ t ⊢t
     in  _ , sucᵘᵢ t⇇Level , A≡Level
-  completeness⇉ (maxᵘᵢ t u) ⊢t =
-    let ⊢t , ⊢u , A≡Level = inversion-maxᵘ ⊢t
+  completeness⇉ (supᵘᵢ t u) ⊢t =
+    let ⊢t , ⊢u , A≡Level = inversion-supᵘ ⊢t
         t⇇Level = completeness⇇ t ⊢t
         u⇇Level = completeness⇇ u ⊢u
-    in  _ , maxᵘᵢ t⇇Level u⇇Level , A≡Level
+    in  _ , supᵘᵢ t⇇Level u⇇Level , A≡Level
   completeness⇉ (Uᵢ l) ⊢t =
     _ , Uᵢ (completeness⇇ l (inversion-U∷-Level ⊢t)) , inversion-U ⊢t
   completeness⇉ (Liftᵢ x x₁) ⊢t =
@@ -162,7 +162,7 @@ mutual
         _ , ⇒U = U-norm (sym ≡B)
     in _
     , Liftᵢ (completeness⇇ x ⊢l) A⇉ (⇒U , Uₙ)
-    , trans ≡U (U-cong (maxᵘ-cong (U-injectivity (trans ≡B (subset* ⇒U))) (refl ⊢l)))
+    , trans ≡U (U-cong (supᵘ-cong (U-injectivity (trans ≡B (subset* ⇒U))) (refl ⊢l)))
   completeness⇉ (ΠΣᵢ B C) ⊢ΠΣ =
     let _ , _ , ⊢B , ⊢C , A≡U , ok = inversion-ΠΣ-U ⊢ΠΣ
         _ , B⇉D , U≡D              = completeness⇉ B ⊢B

@@ -63,14 +63,14 @@ inv-usage-sucᵘ : γ ▸[ m ] sucᵘ t → γ ▸[ m ] t
 inv-usage-sucᵘ (sucᵘₘ ▸t)       = ▸t
 inv-usage-sucᵘ (sub δ▸sucᵘ γ≤δ) = sub (inv-usage-sucᵘ δ▸sucᵘ) γ≤δ
 
--- A usage inversion lemma for _maxᵘ_.
+-- A usage inversion lemma for _supᵘ_.
 
-inv-usage-maxᵘ :
-  γ ▸[ m ] t maxᵘ u →
+inv-usage-supᵘ :
+  γ ▸[ m ] t supᵘ u →
   ∃₂ λ δ η → γ ≤ᶜ δ +ᶜ η × δ ▸[ m ] t × η ▸[ m ] u
-inv-usage-maxᵘ (maxᵘₘ ▸t ▸u)    = _ , _ , ≤ᶜ-refl , ▸t , ▸u
-inv-usage-maxᵘ (sub δ▸maxᵘ γ≤δ) =
-  let _ , _ , δ≤η+θ , η▸t , θ▸u = inv-usage-maxᵘ δ▸maxᵘ in
+inv-usage-supᵘ (supᵘₘ ▸t ▸u)    = _ , _ , ≤ᶜ-refl , ▸t , ▸u
+inv-usage-supᵘ (sub δ▸supᵘ γ≤δ) =
+  let _ , _ , δ≤η+θ , η▸t , θ▸u = inv-usage-supᵘ δ▸supᵘ in
   _ , _ , ≤ᶜ-trans γ≤δ δ≤η+θ , η▸t , θ▸u
 
 -- A usage inversion lemma for U.

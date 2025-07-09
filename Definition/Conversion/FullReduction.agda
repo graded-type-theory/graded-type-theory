@@ -340,14 +340,14 @@ mutual
     ∀ {tᵛ} →
     Γ ⊢ t ~ᵛ tᵛ →
     ∃ λ u → Γ ⊢neˡ u ∷ Level × Γ ⊢ t ≡ u ∷ Level
-  fullRedTermConv~ᵛ (maxᵘˡₙ x t~ u↑) =
+  fullRedTermConv~ᵛ (supᵘˡₙ x t~ u↑) =
     let t′ , ⊢t′ , t≡t′ = fullRedTermConv~ᵛ t~
         u′ , ⊢u′ , u≡u′ = fullRedTermConv↑ᵛ u↑
-    in _ , maxᵘˡₙ ⊢t′ ⊢u′ , maxᵘ-cong t≡t′ u≡u′
-  fullRedTermConv~ᵛ (maxᵘʳₙ x t↑ u~) =
+    in _ , supᵘˡₙ ⊢t′ ⊢u′ , supᵘ-cong t≡t′ u≡u′
+  fullRedTermConv~ᵛ (supᵘʳₙ x t↑ u~) =
     let t′ , ⊢t′ , t≡t′ = fullRedTermConv↑ᵛ t↑
         u′ , ⊢u′ , u≡u′ = fullRedTermConv~ᵛ u~
-    in _ , maxᵘʳₙ ⊢t′ ⊢u′ , maxᵘ-cong (sucᵘ-cong t≡t′) u≡u′
+    in _ , supᵘʳₙ ⊢t′ ⊢u′ , supᵘ-cong (sucᵘ-cong t≡t′) u≡u′
   fullRedTermConv~ᵛ (neₙ [t] x) =
     let u , ⊢u , t≡u = fullRedNe~↓ [t]
     in u , neₙ ⊢u , t≡u

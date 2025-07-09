@@ -32,7 +32,7 @@ infixl 30 _∘⟨_⟩_
 infixl 30 _∘_
 infix 30 ⟦_⟧_▹_
 infixl 30 _ₛ•ₛ_ _•ₛ_ _ₛ•_
-infixr 30 _maxᵘ_
+infixr 30 _supᵘ_
 infix 25 _[_]
 infix 25 _[_]₀
 infix 25 _[_]↑
@@ -52,7 +52,7 @@ data Term (n : Nat) : Set a where
   Level : Term n
   zeroᵘ : Term n
   sucᵘ : Term n → Term n
-  _maxᵘ_ : Term n → Term n → Term n
+  _supᵘ_ : Term n → Term n → Term n
   U : Term n → Term n
   Lift : (l : Term n) (A : Term n) → Term n
   lift : (a : Term n) → Term n
@@ -163,7 +163,7 @@ data Kind : (ns : List Nat) → Set a where
   Levelkind : Kind []
   Zeroᵘkind  : Kind []
   Sucᵘkind   : Kind (0 ∷ [])
-  Maxᵘkind   : Kind (0 ∷ 0 ∷ [])
+  Supᵘkind   : Kind (0 ∷ 0 ∷ [])
 
   Ukind : Kind (0 ∷ [])
 
@@ -227,8 +227,8 @@ toTerm (gen Zeroᵘkind []) =
   zeroᵘ
 toTerm (gen Sucᵘkind (l ∷ₜ [])) =
   sucᵘ (toTerm l)
-toTerm (gen Maxᵘkind (l₁ ∷ₜ l₂ ∷ₜ [])) =
-  toTerm l₁ maxᵘ toTerm l₂
+toTerm (gen Supᵘkind (l₁ ∷ₜ l₂ ∷ₜ [])) =
+  toTerm l₁ supᵘ toTerm l₂
 toTerm (gen Ukind (l ∷ₜ [])) =
   U (toTerm l)
 toTerm (gen Liftkind (l ∷ₜ A ∷ₜ [])) =
@@ -291,8 +291,8 @@ fromTerm zeroᵘ =
   gen Zeroᵘkind []
 fromTerm (sucᵘ l) =
   gen Sucᵘkind (fromTerm l ∷ₜ [])
-fromTerm (l₁ maxᵘ l₂) =
-  gen Maxᵘkind (fromTerm l₁ ∷ₜ fromTerm l₂ ∷ₜ [])
+fromTerm (l₁ supᵘ l₂) =
+  gen Supᵘkind (fromTerm l₁ ∷ₜ fromTerm l₂ ∷ₜ [])
 fromTerm (U l) =
   gen Ukind (fromTerm l ∷ₜ [])
 fromTerm (Lift l A) =
@@ -364,7 +364,7 @@ wk ρ (var x) = var (wkVar ρ x)
 wk ρ Level = Level
 wk ρ zeroᵘ = zeroᵘ
 wk ρ (sucᵘ l) = sucᵘ (wk ρ l)
-wk ρ (l₁ maxᵘ l₂) = wk ρ l₁ maxᵘ wk ρ l₂
+wk ρ (l₁ supᵘ l₂) = wk ρ l₁ supᵘ wk ρ l₂
 wk ρ (U l) = U (wk ρ l)
 wk ρ (Lift l A) = Lift (wk ρ l) (wk ρ A)
 wk ρ (lift a) = lift (wk ρ a)
@@ -542,7 +542,7 @@ var x [ σ ] = σ x
 Level [ σ ] = Level
 zeroᵘ [ σ ] = zeroᵘ
 sucᵘ l [ σ ] = sucᵘ (l [ σ ])
-l₁ maxᵘ l₂ [ σ ] = (l₁ [ σ ]) maxᵘ (l₂ [ σ ])
+l₁ supᵘ l₂ [ σ ] = (l₁ [ σ ]) supᵘ (l₂ [ σ ])
 U l [ σ ] = U (l [ σ ])
 Lift l A [ σ ] = Lift (l [ σ ]) (A [ σ ])
 lift a [ σ ] = lift (a [ σ ])

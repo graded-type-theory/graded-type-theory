@@ -78,7 +78,7 @@ opaque
        → Γ     ⊢ A ∷ U l₁
        → Γ ∙ A ⊢ B ∷ U (wk1 l₂)
        → ΠΣ-allowed b p q
-       → Γ     ⊢ ΠΣʰ b p q l₁ l₂ A B ∷ U (l₁ maxᵘ l₂)
+       → Γ     ⊢ ΠΣʰ b p q l₁ l₂ A B ∷ U (l₁ supᵘ l₂)
   ΠΣʰⱼ ⊢l₂ ⊢A ⊢B ok =
     let ⊢l₁ = inversion-U-Level (wf-⊢∷ ⊢A)
     in ΠΣⱼ′
@@ -95,7 +95,7 @@ opaque
     → Γ     ⊢ A ≡ A′ ∷ U l₁
     → Γ ∙ A ⊢ B ≡ B′ ∷ U (wk1 l₂)
     → ΠΣ-allowed b p q
-    → Γ     ⊢ ΠΣʰ b p q l₁ l₂ A B ≡ ΠΣʰ b p q l₁ l₂ A′ B′ ∷ U (l₁ maxᵘ l₂)
+    → Γ     ⊢ ΠΣʰ b p q l₁ l₂ A B ≡ ΠΣʰ b p q l₁ l₂ A′ B′ ∷ U (l₁ supᵘ l₂)
   ΠΣʰ-cong ⊢l₂ A≡A′ B≡B′ ok =
     let ⊢U , ⊢A , ⊢A′ = wf-⊢≡∷ A≡A′
         ⊢l₁ = inversion-U-Level ⊢U

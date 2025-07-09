@@ -248,7 +248,7 @@ mutual
 
   stabilityLevelᵛ→Term : ∀ {t} → (Γ≡Δ : ⊢ Γ ≡ Δ) → Levelᵛ→Term (stabilityLevelᵛ Γ≡Δ t) PE.≡ Levelᵛ→Term t
   stabilityLevelᵛ→Term {t = L.[]} Γ≡Δ = PE.refl
-  stabilityLevelᵛ→Term {t = x L.∷ t} Γ≡Δ = PE.cong₂ _maxᵘ_ (stabilityLevel⁺→Term Γ≡Δ x) (stabilityLevelᵛ→Term Γ≡Δ)
+  stabilityLevelᵛ→Term {t = x L.∷ t} Γ≡Δ = PE.cong₂ _supᵘ_ (stabilityLevel⁺→Term Γ≡Δ x) (stabilityLevelᵛ→Term Γ≡Δ)
 
   stability-≡ⁿ : (Γ≡Δ : ⊢ Γ ≡ Δ) → {t u : Term n} → ≡ⁿ Γ t u d → ≡ⁿ Δ t u d
   stability-≡ⁿ Γ≡Δ (ne≡ x) = ne≡ (stability~↓ Γ≡Δ x)
@@ -285,27 +285,27 @@ mutual
   stabilityLevelᵛ-cong : ∀ (Γ≡Δ : ⊢ Γ ≡ Δ) (a b : Levelᵛ Γ) → a PE.≡ b → stabilityLevelᵛ Γ≡Δ a PE.≡ stabilityLevelᵛ Γ≡Δ b
   stabilityLevelᵛ-cong Γ≡Δ a b PE.refl = PE.refl
 
-  stability-maxᵛ : (Γ≡Δ : ⊢ Γ ≡ Δ) (v v′ v″ : Levelᵛ Γ) → v PE.≡ maxᵛ v′ v″ → stabilityLevelᵛ Γ≡Δ v PE.≡ maxᵛ (stabilityLevelᵛ Γ≡Δ v′) (stabilityLevelᵛ Γ≡Δ v″)
-  stability-maxᵛ Γ≡Δ L.[] L.[] v″ PE.refl = PE.refl
-  stability-maxᵛ Γ≡Δ L.[] (x L.∷ v′) v″ ()
-  stability-maxᵛ Γ≡Δ (x L.∷ v) L.[] v″ PE.refl = PE.refl
-  stability-maxᵛ Γ≡Δ (x L.∷ v) (x₁ L.∷ v′) v″ eq =
+  stability-supᵛ : (Γ≡Δ : ⊢ Γ ≡ Δ) (v v′ v″ : Levelᵛ Γ) → v PE.≡ supᵛ v′ v″ → stabilityLevelᵛ Γ≡Δ v PE.≡ supᵛ (stabilityLevelᵛ Γ≡Δ v′) (stabilityLevelᵛ Γ≡Δ v″)
+  stability-supᵛ Γ≡Δ L.[] L.[] v″ PE.refl = PE.refl
+  stability-supᵛ Γ≡Δ L.[] (x L.∷ v′) v″ ()
+  stability-supᵛ Γ≡Δ (x L.∷ v) L.[] v″ PE.refl = PE.refl
+  stability-supᵛ Γ≡Δ (x L.∷ v) (x₁ L.∷ v′) v″ eq =
     let a , b = L.∷-injective eq
-    in PE.cong₂ L._∷_ (stabilityLevel⁺-cong Γ≡Δ x x₁ a) (stability-maxᵛ Γ≡Δ _ _ v″ b)
+    in PE.cong₂ L._∷_ (stabilityLevel⁺-cong Γ≡Δ x x₁ a) (stability-supᵛ Γ≡Δ _ _ v″ b)
 
-  stability-maxᵛ-map-suc⁺ : (Γ≡Δ : ⊢ Γ ≡ Δ) (v v′ v″ : Levelᵛ Γ) → v PE.≡ maxᵛ (map-suc⁺ v′) v″ → stabilityLevelᵛ Γ≡Δ v PE.≡ maxᵛ (map-suc⁺ (stabilityLevelᵛ Γ≡Δ v′)) (stabilityLevelᵛ Γ≡Δ v″)
-  stability-maxᵛ-map-suc⁺ Γ≡Δ L.[] L.[] v″ PE.refl = PE.refl
-  stability-maxᵛ-map-suc⁺ Γ≡Δ L.[] (x L.∷ v′) v″ ()
-  stability-maxᵛ-map-suc⁺ Γ≡Δ (x L.∷ v) L.[] v″ PE.refl = PE.refl
-  stability-maxᵛ-map-suc⁺ Γ≡Δ (x L.∷ v) (x₁ L.∷ v′) v″ eq =
+  stability-supᵛ-map-suc⁺ : (Γ≡Δ : ⊢ Γ ≡ Δ) (v v′ v″ : Levelᵛ Γ) → v PE.≡ supᵛ (map-suc⁺ v′) v″ → stabilityLevelᵛ Γ≡Δ v PE.≡ supᵛ (map-suc⁺ (stabilityLevelᵛ Γ≡Δ v′)) (stabilityLevelᵛ Γ≡Δ v″)
+  stability-supᵛ-map-suc⁺ Γ≡Δ L.[] L.[] v″ PE.refl = PE.refl
+  stability-supᵛ-map-suc⁺ Γ≡Δ L.[] (x L.∷ v′) v″ ()
+  stability-supᵛ-map-suc⁺ Γ≡Δ (x L.∷ v) L.[] v″ PE.refl = PE.refl
+  stability-supᵛ-map-suc⁺ Γ≡Δ (x L.∷ v) (x₁ L.∷ v′) v″ eq =
     let a , b = L.∷-injective eq
-    in PE.cong₂ L._∷_ (stabilityLevel⁺-cong-suc⁺ Γ≡Δ x x₁ a) (stability-maxᵛ-map-suc⁺ Γ≡Δ _ _ v″ b)
+    in PE.cong₂ L._∷_ (stabilityLevel⁺-cong-suc⁺ Γ≡Δ x x₁ a) (stability-supᵛ-map-suc⁺ Γ≡Δ _ _ v″ b)
 
-  stability-maxᵛ-sucᵛ : (Γ≡Δ : ⊢ Γ ≡ Δ) (v v′ v″ : Levelᵛ Γ) → v PE.≡ maxᵛ (sucᵛ v′) v″ → stabilityLevelᵛ Γ≡Δ v PE.≡ maxᵛ (sucᵛ (stabilityLevelᵛ Γ≡Δ v′)) (stabilityLevelᵛ Γ≡Δ v″)
-  stability-maxᵛ-sucᵛ Γ≡Δ L.[] v′ v″ ()
-  stability-maxᵛ-sucᵛ Γ≡Δ (x L.∷ v) v′ v″ eq =
+  stability-supᵛ-sucᵛ : (Γ≡Δ : ⊢ Γ ≡ Δ) (v v′ v″ : Levelᵛ Γ) → v PE.≡ supᵛ (sucᵛ v′) v″ → stabilityLevelᵛ Γ≡Δ v PE.≡ supᵛ (sucᵛ (stabilityLevelᵛ Γ≡Δ v′)) (stabilityLevelᵛ Γ≡Δ v″)
+  stability-supᵛ-sucᵛ Γ≡Δ L.[] v′ v″ ()
+  stability-supᵛ-sucᵛ Γ≡Δ (x L.∷ v) v′ v″ eq =
     let a , b = L.∷-injective eq
-    in PE.cong₂ L._∷_ (stabilityLevel⁺-cong Γ≡Δ x _ a) (stability-maxᵛ-map-suc⁺ Γ≡Δ v v′ v″ b)
+    in PE.cong₂ L._∷_ (stabilityLevel⁺-cong Γ≡Δ x _ a) (stability-supᵛ-map-suc⁺ Γ≡Δ v v′ v″ b)
 
   stability-↑ᵛ
     : ∀ {t} {v : Levelᵛ Γ}
@@ -328,9 +328,9 @@ mutual
     → (Γ≡Δ : ⊢ Γ ≡ Δ)
     → Γ ⊢ t ~ᵛ v
     → Δ ⊢ t ~ᵛ stabilityLevelᵛ Γ≡Δ v
-  stability-~ᵛ Γ≡Δ (maxᵘˡₙ {v′} {v″} x t~ u↑) =
-    maxᵘˡₙ (stability-maxᵛ Γ≡Δ _ v′ v″ x) (stability-~ᵛ Γ≡Δ t~) (stability-↑ᵛ Γ≡Δ u↑)
-  stability-~ᵛ Γ≡Δ (maxᵘʳₙ {v′} {v″} x t↑ u~) =
-    maxᵘʳₙ (stability-maxᵛ-sucᵛ Γ≡Δ _ v′ v″ x) (stability-↑ᵛ Γ≡Δ t↑) (stability-~ᵛ Γ≡Δ u~)
+  stability-~ᵛ Γ≡Δ (supᵘˡₙ {v′} {v″} x t~ u↑) =
+    supᵘˡₙ (stability-supᵛ Γ≡Δ _ v′ v″ x) (stability-~ᵛ Γ≡Δ t~) (stability-↑ᵛ Γ≡Δ u↑)
+  stability-~ᵛ Γ≡Δ (supᵘʳₙ {v′} {v″} x t↑ u~) =
+    supᵘʳₙ (stability-supᵛ-sucᵛ Γ≡Δ _ v′ v″ x) (stability-↑ᵛ Γ≡Δ t↑) (stability-~ᵛ Γ≡Δ u~)
   stability-~ᵛ Γ≡Δ (neₙ [t] x) =
     neₙ (stability~↓ Γ≡Δ [t]) (stabilityLevelᵛ-cong Γ≡Δ _ _ x)

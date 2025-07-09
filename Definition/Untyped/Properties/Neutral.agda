@@ -166,17 +166,17 @@ opaque
   neutralˡ-subst n = lemma n refl
     where
     lemma : Neutralˡ u → t [ σ ] ≡ u → Neutralˡ t
-    lemma {t} (maxᵘˡₙ n) ≡u =
-      case subst-maxᵘ {t = t} ≡u of λ {
+    lemma {t} (supᵘˡₙ n) ≡u =
+      case subst-supᵘ {t = t} ≡u of λ {
         (inj₁ (_ , refl)) → ne (var _);
-        (inj₂ (t₁ , t₂ , refl , ≡u₁ , ≡u₂)) → maxᵘˡₙ (lemma n ≡u₁) }
-    lemma {t} (maxᵘʳₙ n) ≡u =
-      case subst-maxᵘ {t = t} ≡u of λ {
+        (inj₂ (t₁ , t₂ , refl , ≡u₁ , ≡u₂)) → supᵘˡₙ (lemma n ≡u₁) }
+    lemma {t} (supᵘʳₙ n) ≡u =
+      case subst-supᵘ {t = t} ≡u of λ {
         (inj₁ (_ , refl)) → ne (var _);
         (inj₂ (t₁ , t₂ , refl , ≡u₁ , ≡u₂)) →
       case subst-sucᵘ {t = t₁} ≡u₁ of λ {
-        (inj₁ (i , refl)) → maxᵘˡₙ (ne (var _));
-        (inj₂ (_ , refl , _)) → maxᵘʳₙ (lemma n ≡u₂) }}
+        (inj₁ (i , refl)) → supᵘˡₙ (ne (var _));
+        (inj₂ (_ , refl , _)) → supᵘʳₙ (lemma n ≡u₂) }}
     lemma (ne n) ≡u = ne (neutral-subst (subst Neutral (sym ≡u) n))
 
 opaque

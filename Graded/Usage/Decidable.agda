@@ -57,10 +57,10 @@ infix 10 ⌈⌉▸[_]?_
   (inj₂ ¬▸t) → inj₂ λ _ ▸U →
     ¬▸t _ (inv-usage-sucᵘ ▸U)
 
-⌈⌉▸[ m ]? t maxᵘ u = case ⌈⌉▸[ m ]? t ×-Dec-∀ ⌈⌉▸[ m ]? u of λ where
-  (inj₁ (▸t , ▸u)) → inj₁ (maxᵘₘ ▸t ▸u)
-  (inj₂ problem)   → inj₂ λ _ ▸maxᵘ →
-    let _ , _ , _ , ▸t , ▸u = inv-usage-maxᵘ ▸maxᵘ in
+⌈⌉▸[ m ]? t supᵘ u = case ⌈⌉▸[ m ]? t ×-Dec-∀ ⌈⌉▸[ m ]? u of λ where
+  (inj₁ (▸t , ▸u)) → inj₁ (supᵘₘ ▸t ▸u)
+  (inj₂ problem)   → inj₂ λ _ ▸supᵘ →
+    let _ , _ , _ , ▸t , ▸u = inv-usage-supᵘ ▸supᵘ in
     problem _ (▸t , ▸u)
 
 ⌈⌉▸[ m ]? U t = case ⌈⌉▸[ 𝟘ᵐ? ]? t of λ where

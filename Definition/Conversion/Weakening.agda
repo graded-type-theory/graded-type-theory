@@ -295,7 +295,7 @@ mutual
 
   wkLevelᵛ→Term : ∀ {t} → ([ρ] : ρ ∷ʷ Δ ⊇ Γ) → Levelᵛ→Term (wkLevelᵛ [ρ] t) PE.≡ U.wk ρ (Levelᵛ→Term t)
   wkLevelᵛ→Term {t = L.[]} [ρ] = PE.refl
-  wkLevelᵛ→Term {t = x L.∷ t} [ρ] = PE.cong₂ _maxᵘ_ (wkLevel⁺→Term [ρ] x) (wkLevelᵛ→Term [ρ])
+  wkLevelᵛ→Term {t = x L.∷ t} [ρ] = PE.cong₂ _supᵘ_ (wkLevel⁺→Term [ρ] x) (wkLevelᵛ→Term [ρ])
 
   wk-sucᵛ : ([ρ] : ρ ∷ʷ Δ ⊇ Γ) → (v v′ : Levelᵛ Γ) → v PE.≡ sucᵛ v′ → wkLevelᵛ [ρ] v PE.≡ sucᵛ (wkLevelᵛ [ρ] v′)
   wk-sucᵛ [ρ] v v′ PE.refl = PE.cong (_ L.∷_) (wk-map-suc⁺ [ρ] _ _ PE.refl)
@@ -314,27 +314,27 @@ mutual
   wkLevelᵛ-cong : ∀ ([ρ] : ρ ∷ʷ Δ ⊇ Γ) (a b : Levelᵛ Γ) → a PE.≡ b → wkLevelᵛ [ρ] a PE.≡ wkLevelᵛ [ρ] b
   wkLevelᵛ-cong [ρ] a b PE.refl = PE.refl
 
-  wk-maxᵛ : ([ρ] : ρ ∷ʷ Δ ⊇ Γ) (v v′ v″ : Levelᵛ Γ) → v PE.≡ maxᵛ v′ v″ → wkLevelᵛ [ρ] v PE.≡ maxᵛ (wkLevelᵛ [ρ] v′) (wkLevelᵛ [ρ] v″)
-  wk-maxᵛ [ρ] L.[] L.[] v″ PE.refl = PE.refl
-  wk-maxᵛ [ρ] L.[] (x L.∷ v′) v″ ()
-  wk-maxᵛ [ρ] (x L.∷ v) L.[] v″ PE.refl = PE.refl
-  wk-maxᵛ [ρ] (x L.∷ v) (x₁ L.∷ v′) v″ eq =
+  wk-supᵛ : ([ρ] : ρ ∷ʷ Δ ⊇ Γ) (v v′ v″ : Levelᵛ Γ) → v PE.≡ supᵛ v′ v″ → wkLevelᵛ [ρ] v PE.≡ supᵛ (wkLevelᵛ [ρ] v′) (wkLevelᵛ [ρ] v″)
+  wk-supᵛ [ρ] L.[] L.[] v″ PE.refl = PE.refl
+  wk-supᵛ [ρ] L.[] (x L.∷ v′) v″ ()
+  wk-supᵛ [ρ] (x L.∷ v) L.[] v″ PE.refl = PE.refl
+  wk-supᵛ [ρ] (x L.∷ v) (x₁ L.∷ v′) v″ eq =
     let a , b = L.∷-injective eq
-    in PE.cong₂ L._∷_ (wkLevel⁺-cong [ρ] x x₁ a) (wk-maxᵛ [ρ] _ _ v″ b)
+    in PE.cong₂ L._∷_ (wkLevel⁺-cong [ρ] x x₁ a) (wk-supᵛ [ρ] _ _ v″ b)
 
-  wk-maxᵛ-map-suc⁺ : ([ρ] : ρ ∷ʷ Δ ⊇ Γ) (v v′ v″ : Levelᵛ Γ) → v PE.≡ maxᵛ (map-suc⁺ v′) v″ → wkLevelᵛ [ρ] v PE.≡ maxᵛ (map-suc⁺ (wkLevelᵛ [ρ] v′)) (wkLevelᵛ [ρ] v″)
-  wk-maxᵛ-map-suc⁺ [ρ] L.[] L.[] v″ PE.refl = PE.refl
-  wk-maxᵛ-map-suc⁺ [ρ] L.[] (x L.∷ v′) v″ ()
-  wk-maxᵛ-map-suc⁺ [ρ] (x L.∷ v) L.[] v″ PE.refl = PE.refl
-  wk-maxᵛ-map-suc⁺ [ρ] (x L.∷ v) (x₁ L.∷ v′) v″ eq =
+  wk-supᵛ-map-suc⁺ : ([ρ] : ρ ∷ʷ Δ ⊇ Γ) (v v′ v″ : Levelᵛ Γ) → v PE.≡ supᵛ (map-suc⁺ v′) v″ → wkLevelᵛ [ρ] v PE.≡ supᵛ (map-suc⁺ (wkLevelᵛ [ρ] v′)) (wkLevelᵛ [ρ] v″)
+  wk-supᵛ-map-suc⁺ [ρ] L.[] L.[] v″ PE.refl = PE.refl
+  wk-supᵛ-map-suc⁺ [ρ] L.[] (x L.∷ v′) v″ ()
+  wk-supᵛ-map-suc⁺ [ρ] (x L.∷ v) L.[] v″ PE.refl = PE.refl
+  wk-supᵛ-map-suc⁺ [ρ] (x L.∷ v) (x₁ L.∷ v′) v″ eq =
     let a , b = L.∷-injective eq
-    in PE.cong₂ L._∷_ (wkLevel⁺-cong-suc⁺ [ρ] x x₁ a) (wk-maxᵛ-map-suc⁺ [ρ] _ _ v″ b)
+    in PE.cong₂ L._∷_ (wkLevel⁺-cong-suc⁺ [ρ] x x₁ a) (wk-supᵛ-map-suc⁺ [ρ] _ _ v″ b)
 
-  wk-maxᵛ-sucᵛ : ([ρ] : ρ ∷ʷ Δ ⊇ Γ) (v v′ v″ : Levelᵛ Γ) → v PE.≡ maxᵛ (sucᵛ v′) v″ → wkLevelᵛ [ρ] v PE.≡ maxᵛ (sucᵛ (wkLevelᵛ [ρ] v′)) (wkLevelᵛ [ρ] v″)
-  wk-maxᵛ-sucᵛ [ρ] L.[] v′ v″ ()
-  wk-maxᵛ-sucᵛ [ρ] (x L.∷ v) v′ v″ eq =
+  wk-supᵛ-sucᵛ : ([ρ] : ρ ∷ʷ Δ ⊇ Γ) (v v′ v″ : Levelᵛ Γ) → v PE.≡ supᵛ (sucᵛ v′) v″ → wkLevelᵛ [ρ] v PE.≡ supᵛ (sucᵛ (wkLevelᵛ [ρ] v′)) (wkLevelᵛ [ρ] v″)
+  wk-supᵛ-sucᵛ [ρ] L.[] v′ v″ ()
+  wk-supᵛ-sucᵛ [ρ] (x L.∷ v) v′ v″ eq =
     let a , b = L.∷-injective eq
-    in PE.cong₂ L._∷_ (wkLevel⁺-cong [ρ] _ _ a) (wk-maxᵛ-map-suc⁺ [ρ] _ _ v″ b)
+    in PE.cong₂ L._∷_ (wkLevel⁺-cong [ρ] _ _ a) (wk-supᵛ-map-suc⁺ [ρ] _ _ v″ b)
 
   wk-↑ᵛ : ([ρ] : ρ ∷ʷ Δ ⊇ Γ) → ∀ {t v} → Γ ⊢ t ↑ᵛ v → Δ ⊢ U.wk ρ t ↑ᵛ wkLevelᵛ [ρ] v
   wk-↑ᵛ [ρ] ([↑]ᵛ d t↓v) = [↑]ᵛ (wkRed↘Term [ρ] d) (wk-↓ᵛ [ρ] t↓v)
@@ -345,8 +345,8 @@ mutual
   wk-↓ᵛ [ρ] (neₙ x) = neₙ (wk-~ᵛ [ρ] x)
 
   wk-~ᵛ : ([ρ] : ρ ∷ʷ Δ ⊇ Γ) → ∀ {t v} → Γ ⊢ t ~ᵛ v → Δ ⊢ U.wk ρ t ~ᵛ wkLevelᵛ [ρ] v
-  wk-~ᵛ {ρ = ρ} [ρ] (maxᵘˡₙ {v′} {v″} x t~ u↑) = maxᵘˡₙ (wk-maxᵛ [ρ] _ v′ v″ x) (wk-~ᵛ [ρ] t~) (wk-↑ᵛ [ρ] u↑)
-  wk-~ᵛ {ρ = ρ} [ρ] (maxᵘʳₙ {v′} {v″} x t↑ u~) = maxᵘʳₙ (wk-maxᵛ-sucᵛ [ρ] _ v′ v″ x) (wk-↑ᵛ [ρ] t↑) (wk-~ᵛ [ρ] u~)
+  wk-~ᵛ {ρ = ρ} [ρ] (supᵘˡₙ {v′} {v″} x t~ u↑) = supᵘˡₙ (wk-supᵛ [ρ] _ v′ v″ x) (wk-~ᵛ [ρ] t~) (wk-↑ᵛ [ρ] u↑)
+  wk-~ᵛ {ρ = ρ} [ρ] (supᵘʳₙ {v′} {v″} x t↑ u~) = supᵘʳₙ (wk-supᵛ-sucᵛ [ρ] _ v′ v″ x) (wk-↑ᵛ [ρ] t↑) (wk-~ᵛ [ρ] u~)
   wk-~ᵛ {ρ = ρ} [ρ] (neₙ [t] x) = neₙ (wk~↓ [ρ] [t]) (wkLevelᵛ-cong [ρ] _ _ x)
 
   wk-≡ⁿ : ([ρ] : ρ ∷ʷ Δ ⊇ Γ) → (t u : Term n) → ≡ⁿ Γ t u d → ≡ⁿ Δ (U.wk ρ t) (U.wk ρ u) d

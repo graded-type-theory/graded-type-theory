@@ -68,8 +68,8 @@ mutual
   wkneLevel-prop : ρ ∷ʷ Δ ⊇ Γ
                  → neLevel-prop Γ t
                  → neLevel-prop Δ (U.wk ρ t)
-  wkneLevel-prop [ρ] (maxᵘˡᵣ x y) = maxᵘˡᵣ (wkneLevel-prop [ρ] x) (wkTermLevel [ρ] y)
-  wkneLevel-prop [ρ] (maxᵘʳᵣ x y) = maxᵘʳᵣ (wkTermLevel [ρ] x) (wkneLevel-prop [ρ] y)
+  wkneLevel-prop [ρ] (supᵘˡᵣ x y) = supᵘˡᵣ (wkneLevel-prop [ρ] x) (wkTermLevel [ρ] y)
+  wkneLevel-prop [ρ] (supᵘʳᵣ x y) = supᵘʳᵣ (wkTermLevel [ρ] x) (wkneLevel-prop [ρ] y)
   wkneLevel-prop [ρ] (ne x) = ne (wkEqTermNe [ρ] x)
 
 mutual
@@ -87,22 +87,22 @@ mutual
   wk[Level]-prop ρ (sucᵘᵣ [t≡u]) = sucᵘᵣ (wkEqTermLevel ρ [t≡u])
   wk[Level]-prop ρ zeroᵘᵣ = zeroᵘᵣ
   wk[Level]-prop ρ (neLvl x) = neLvl (wk[neLevel]-prop ρ x)
-  wk[Level]-prop ρ (maxᵘ-subᵣ x y) = maxᵘ-subᵣ (wkneLevel-prop ρ x) (wkEqTermLevel ρ y)
+  wk[Level]-prop ρ (supᵘ-subᵣ x y) = supᵘ-subᵣ (wkneLevel-prop ρ x) (wkEqTermLevel ρ y)
   wk[Level]-prop [ρ] (sym u≡t) = sym (wk[Level]-prop [ρ] u≡t)
   wk[Level]-prop [ρ] (trans t≡u u≡v) = trans (wk[Level]-prop [ρ] t≡u) (wk[Level]-prop [ρ] u≡v)
 
   wk[neLevel]-prop : ρ ∷ʷ Δ ⊇ Γ
                    → [neLevel]-prop Γ t u
                    → [neLevel]-prop Δ (U.wk ρ t) (U.wk ρ u)
-  wk[neLevel]-prop [ρ] (maxᵘˡᵣ t≡u x) = maxᵘˡᵣ (wk[neLevel]-prop [ρ] t≡u) (wkEqTermLevel [ρ] x)
-  wk[neLevel]-prop [ρ] (maxᵘʳᵣ x t≡u) = maxᵘʳᵣ (wkEqTermLevel [ρ] x) (wk[neLevel]-prop [ρ] t≡u)
-  wk[neLevel]-prop [ρ] (maxᵘ-zeroʳᵣ [u]) = maxᵘ-zeroʳᵣ (wkneLevel-prop [ρ] [u])
-  wk[neLevel]-prop [ρ] (maxᵘ-assoc¹ᵣ x y z) = maxᵘ-assoc¹ᵣ (wkneLevel-prop [ρ] x) (wkTermLevel [ρ] y) (wkTermLevel [ρ] z)
-  wk[neLevel]-prop [ρ] (maxᵘ-assoc²ᵣ x y z) = maxᵘ-assoc²ᵣ (wkTermLevel [ρ] x) (wkneLevel-prop [ρ] y) (wkTermLevel [ρ] z)
-  wk[neLevel]-prop [ρ] (maxᵘ-assoc³ᵣ x y z) = maxᵘ-assoc³ᵣ (wkTermLevel [ρ] x) (wkTermLevel [ρ] y) (wkneLevel-prop [ρ] z)
-  wk[neLevel]-prop [ρ] (maxᵘ-comm¹ᵣ x x₁ x₂ x₃) = maxᵘ-comm¹ᵣ (wkneLevel-prop [ρ] x) (wkEqTermLevel [ρ] x₁) (wkneLevel-prop [ρ] x₂) (wkEqTermLevel [ρ] x₃)
-  wk[neLevel]-prop [ρ] (maxᵘ-comm²ᵣ x x₁ x₂) = maxᵘ-comm²ᵣ (wkTermLevel [ρ] x) (wkEqTermLevel [ρ] x₁) (wkneLevel-prop [ρ] x₂)
-  wk[neLevel]-prop [ρ] (maxᵘ-idemᵣ x y) = maxᵘ-idemᵣ (wkneLevel-prop [ρ] x) (wkEqTermLevel [ρ] y)
+  wk[neLevel]-prop [ρ] (supᵘˡᵣ t≡u x) = supᵘˡᵣ (wk[neLevel]-prop [ρ] t≡u) (wkEqTermLevel [ρ] x)
+  wk[neLevel]-prop [ρ] (supᵘʳᵣ x t≡u) = supᵘʳᵣ (wkEqTermLevel [ρ] x) (wk[neLevel]-prop [ρ] t≡u)
+  wk[neLevel]-prop [ρ] (supᵘ-zeroʳᵣ [u]) = supᵘ-zeroʳᵣ (wkneLevel-prop [ρ] [u])
+  wk[neLevel]-prop [ρ] (supᵘ-assoc¹ᵣ x y z) = supᵘ-assoc¹ᵣ (wkneLevel-prop [ρ] x) (wkTermLevel [ρ] y) (wkTermLevel [ρ] z)
+  wk[neLevel]-prop [ρ] (supᵘ-assoc²ᵣ x y z) = supᵘ-assoc²ᵣ (wkTermLevel [ρ] x) (wkneLevel-prop [ρ] y) (wkTermLevel [ρ] z)
+  wk[neLevel]-prop [ρ] (supᵘ-assoc³ᵣ x y z) = supᵘ-assoc³ᵣ (wkTermLevel [ρ] x) (wkTermLevel [ρ] y) (wkneLevel-prop [ρ] z)
+  wk[neLevel]-prop [ρ] (supᵘ-comm¹ᵣ x x₁ x₂ x₃) = supᵘ-comm¹ᵣ (wkneLevel-prop [ρ] x) (wkEqTermLevel [ρ] x₁) (wkneLevel-prop [ρ] x₂) (wkEqTermLevel [ρ] x₃)
+  wk[neLevel]-prop [ρ] (supᵘ-comm²ᵣ x x₁ x₂) = supᵘ-comm²ᵣ (wkTermLevel [ρ] x) (wkEqTermLevel [ρ] x₁) (wkneLevel-prop [ρ] x₂)
+  wk[neLevel]-prop [ρ] (supᵘ-idemᵣ x y) = supᵘ-idemᵣ (wkneLevel-prop [ρ] x) (wkEqTermLevel [ρ] y)
   wk[neLevel]-prop [ρ] (ne x) = ne (wkEqTermNe [ρ] x)
 
 opaque
@@ -146,24 +146,24 @@ opaque
       → (wk-t≡u : neLevel-prop Δ t′)
       → t′ PE.≡ U.wk ρ t
       → ↑ⁿ-neprop wk-t≡u PE.≡ ↑ⁿ-neprop t≡u
-    wk-↑ⁿ-neprop [ρ] (maxᵘˡᵣ t≡u x) (maxᵘˡᵣ wk-t≡u x₁) PE.refl =
+    wk-↑ⁿ-neprop [ρ] (supᵘˡᵣ t≡u x) (supᵘˡᵣ wk-t≡u x₁) PE.refl =
       PE.cong₂ _⊔_ (wk-↑ⁿ-neprop [ρ] t≡u wk-t≡u PE.refl) (wk-↑ⁿ [ρ] x x₁ PE.refl)
-    wk-↑ⁿ-neprop [ρ] (maxᵘʳᵣ x t≡u) (maxᵘʳᵣ x₁ wk-t≡u) PE.refl =
+    wk-↑ⁿ-neprop [ρ] (supᵘʳᵣ x t≡u) (supᵘʳᵣ x₁ wk-t≡u) PE.refl =
       PE.cong₂ _⊔_ (PE.cong 1+ (wk-↑ⁿ [ρ] x x₁ PE.refl)) (wk-↑ⁿ-neprop [ρ] t≡u wk-t≡u PE.refl)
     wk-↑ⁿ-neprop [ρ] (ne _) (ne _) PE.refl = PE.refl
-    wk-↑ⁿ-neprop [ρ] (maxᵘˡᵣ t≡u x) (maxᵘʳᵣ x₁ wk-t≡u) p =
-      case maxᵘ-PE-injectivity p of λ { (q , PE.refl) →
+    wk-↑ⁿ-neprop [ρ] (supᵘˡᵣ t≡u x) (supᵘʳᵣ x₁ wk-t≡u) p =
+      case supᵘ-PE-injectivity p of λ { (q , PE.refl) →
       case wk-sucᵘ (PE.sym q) of λ { (_ , PE.refl , PE.refl) →
       case nelevel t≡u of λ { (ne ()) } } }
-    wk-↑ⁿ-neprop [ρ] (maxᵘˡᵣ t≡u x) (ne (neNfₜ₌ _ () neM k≡m)) PE.refl
-    wk-↑ⁿ-neprop [ρ] (maxᵘʳᵣ x t≡u) (maxᵘˡᵣ wk-t≡u x₁) PE.refl =
+    wk-↑ⁿ-neprop [ρ] (supᵘˡᵣ t≡u x) (ne (neNfₜ₌ _ () neM k≡m)) PE.refl
+    wk-↑ⁿ-neprop [ρ] (supᵘʳᵣ x t≡u) (supᵘˡᵣ wk-t≡u x₁) PE.refl =
       case nelevel wk-t≡u of λ { (ne ()) }
-    wk-↑ⁿ-neprop [ρ] (maxᵘʳᵣ x t≡u) (ne (neNfₜ₌ _ () neM k≡m)) PE.refl
-    wk-↑ⁿ-neprop [ρ] (ne (neNfₜ₌ _ neK _ _)) (maxᵘˡᵣ wk-t≡u x₁) p =
-      case wk-maxᵘ (PE.sym p) of λ { (_ , _ , PE.refl , _ , _) →
+    wk-↑ⁿ-neprop [ρ] (supᵘʳᵣ x t≡u) (ne (neNfₜ₌ _ () neM k≡m)) PE.refl
+    wk-↑ⁿ-neprop [ρ] (ne (neNfₜ₌ _ neK _ _)) (supᵘˡᵣ wk-t≡u x₁) p =
+      case wk-supᵘ (PE.sym p) of λ { (_ , _ , PE.refl , _ , _) →
       case neK of λ () }
-    wk-↑ⁿ-neprop [ρ] (ne (neNfₜ₌ _ neK _ _)) (maxᵘʳᵣ x₁ wk-t≡u) p =
-      case wk-maxᵘ (PE.sym p) of λ { (_ , _ , PE.refl , _ , _) →
+    wk-↑ⁿ-neprop [ρ] (ne (neNfₜ₌ _ neK _ _)) (supᵘʳᵣ x₁ wk-t≡u) p =
+      case wk-supᵘ (PE.sym p) of λ { (_ , _ , PE.refl , _ , _) →
       case neK of λ () }
 
   wk-↑ᵘ

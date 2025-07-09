@@ -110,8 +110,8 @@ opaque mutual
     0ᵘ , zeroᵘᵛ (valid ⊢Γ)
   fundamental-⊩ᵛ∷ (sucᵘⱼ ⊢l) =
     _ , sucᵘᵛ (fundamental-⊩ᵛ∷ ⊢l .proj₂)
-  fundamental-⊩ᵛ∷ (maxᵘⱼ ⊢l₁ ⊢l₂) =
-    _ , maxᵘᵛ (fundamental-⊩ᵛ∷ ⊢l₁ .proj₂) (fundamental-⊩ᵛ∷ ⊢l₂ .proj₂)
+  fundamental-⊩ᵛ∷ (supᵘⱼ ⊢l₁ ⊢l₂) =
+    _ , supᵘᵛ (fundamental-⊩ᵛ∷ ⊢l₁ .proj₂) (fundamental-⊩ᵛ∷ ⊢l₂ .proj₂)
   fundamental-⊩ᵛ∷ (Liftⱼ ⊢l₁ ⊢l₂ ⊢A) =
     _ , Liftᵗᵛ
       (fundamental-⊩ᵛ∷ ⊢l₁ .proj₂)
@@ -216,25 +216,25 @@ opaque mutual
     _ , conv-⊩ᵛ≡∷ (proj₂ (fundamental-⊩ᵛ≡ A≡B)) (proj₂ (fundamental-⊩ᵛ≡∷ t≡u))
   fundamental-⊩ᵛ≡∷ (sucᵘ-cong l₁≡l₂) =
     _ , sucᵘ-congᵛ (fundamental-⊩ᵛ≡∷ l₁≡l₂ .proj₂)
-  fundamental-⊩ᵛ≡∷ (maxᵘ-cong l₁≡l₂ l₃≡l₄) =
-    _ , maxᵘ-congᵛ (fundamental-⊩ᵛ≡∷ l₁≡l₂ .proj₂) (fundamental-⊩ᵛ≡∷ l₃≡l₄ .proj₂)
-  fundamental-⊩ᵛ≡∷ (maxᵘ-zeroˡ ⊢l) =
-    _ , maxᵘ-zeroˡᵛ (fundamental-⊩ᵛ∷ ⊢l .proj₂)
-  fundamental-⊩ᵛ≡∷ (maxᵘ-zeroʳ ⊢l) =
-    _ , maxᵘ-zeroʳᵛ (fundamental-⊩ᵛ∷ ⊢l .proj₂)
-  fundamental-⊩ᵛ≡∷ (maxᵘ-sucᵘ ⊢l₁ ⊢l₂) =
-    _ , maxᵘ-sucᵘᵛ (fundamental-⊩ᵛ∷ ⊢l₁ .proj₂) (fundamental-⊩ᵛ∷ ⊢l₂ .proj₂)
-  fundamental-⊩ᵛ≡∷ (maxᵘ-assoc ⊢l₁ ⊢l₂ ⊢l₃) =
-    _ , maxᵘ-assocᵛ
+  fundamental-⊩ᵛ≡∷ (supᵘ-cong l₁≡l₂ l₃≡l₄) =
+    _ , supᵘ-congᵛ (fundamental-⊩ᵛ≡∷ l₁≡l₂ .proj₂) (fundamental-⊩ᵛ≡∷ l₃≡l₄ .proj₂)
+  fundamental-⊩ᵛ≡∷ (supᵘ-zeroˡ ⊢l) =
+    _ , supᵘ-zeroˡᵛ (fundamental-⊩ᵛ∷ ⊢l .proj₂)
+  fundamental-⊩ᵛ≡∷ (supᵘ-zeroʳ ⊢l) =
+    _ , supᵘ-zeroʳᵛ (fundamental-⊩ᵛ∷ ⊢l .proj₂)
+  fundamental-⊩ᵛ≡∷ (supᵘ-sucᵘ ⊢l₁ ⊢l₂) =
+    _ , supᵘ-sucᵘᵛ (fundamental-⊩ᵛ∷ ⊢l₁ .proj₂) (fundamental-⊩ᵛ∷ ⊢l₂ .proj₂)
+  fundamental-⊩ᵛ≡∷ (supᵘ-assoc ⊢l₁ ⊢l₂ ⊢l₃) =
+    _ , supᵘ-assocᵛ
       (fundamental-⊩ᵛ∷ ⊢l₁ .proj₂)
       (fundamental-⊩ᵛ∷ ⊢l₂ .proj₂)
       (fundamental-⊩ᵛ∷ ⊢l₃ .proj₂)
-  fundamental-⊩ᵛ≡∷ (maxᵘ-comm ⊢l₁ ⊢l₂) =
-    _ , maxᵘ-commᵛ (fundamental-⊩ᵛ∷ ⊢l₁ .proj₂) (fundamental-⊩ᵛ∷ ⊢l₂ .proj₂)
-  fundamental-⊩ᵛ≡∷ (maxᵘ-idem ⊢l) =
-    _ , maxᵘ-idemᵛ (fundamental-⊩ᵛ∷ ⊢l .proj₂)
-  fundamental-⊩ᵛ≡∷ (maxᵘ-sub ⊢l) =
-    _ , maxᵘ-subᵛ (fundamental-⊩ᵛ∷ ⊢l .proj₂)
+  fundamental-⊩ᵛ≡∷ (supᵘ-comm ⊢l₁ ⊢l₂) =
+    _ , supᵘ-commᵛ (fundamental-⊩ᵛ∷ ⊢l₁ .proj₂) (fundamental-⊩ᵛ∷ ⊢l₂ .proj₂)
+  fundamental-⊩ᵛ≡∷ (supᵘ-idem ⊢l) =
+    _ , supᵘ-idemᵛ (fundamental-⊩ᵛ∷ ⊢l .proj₂)
+  fundamental-⊩ᵛ≡∷ (supᵘ-sub ⊢l) =
+    _ , supᵘ-subᵛ (fundamental-⊩ᵛ∷ ⊢l .proj₂)
   fundamental-⊩ᵛ≡∷ (U-cong l₁≡l₂) =
     _ , ⊩ᵛU≡U∷U (fundamental-⊩ᵛ≡∷ l₁≡l₂ .proj₂)
   fundamental-⊩ᵛ≡∷ (Lift-cong ⊢l₁ l₂≡l₂′ A≡B) =

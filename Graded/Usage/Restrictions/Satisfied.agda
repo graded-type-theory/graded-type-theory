@@ -131,10 +131,10 @@ data Usage-restrictions-satisfied {n} (m : Mode) : Term n → Set a where
   sucᵘᵤ :
     Usage-restrictions-satisfied m t →
     Usage-restrictions-satisfied m (sucᵘ t)
-  maxᵘᵤ :
+  supᵘᵤ :
     Usage-restrictions-satisfied m t →
     Usage-restrictions-satisfied m u →
-    Usage-restrictions-satisfied m (t maxᵘ u)
+    Usage-restrictions-satisfied m (t supᵘ u)
   Uᵤ :
     Usage-restrictions-satisfied 𝟘ᵐ? t →
     Usage-restrictions-satisfied m (U t)
@@ -405,8 +405,8 @@ opaque
       zeroᵘᵤ
     (sucᵘᵤ t) →
       sucᵘᵤ (Usage-restrictions-satisfied-𝟙ᵐ→ t)
-    (maxᵘᵤ t u) →
-      maxᵘᵤ (Usage-restrictions-satisfied-𝟙ᵐ→ t)
+    (supᵘᵤ t u) →
+      supᵘᵤ (Usage-restrictions-satisfied-𝟙ᵐ→ t)
         (Usage-restrictions-satisfied-𝟙ᵐ→ u)
     (Uᵤ t) →
       Uᵤ t
@@ -564,8 +564,8 @@ opaque
       zeroᵘᵤ
     (sucᵘₘ ▸t) →
       sucᵘᵤ (▸→Usage-restrictions-satisfied ▸t)
-    (maxᵘₘ ▸t ▸u) →
-      maxᵘᵤ (▸→Usage-restrictions-satisfied ▸t)
+    (supᵘₘ ▸t ▸u) →
+      supᵘᵤ (▸→Usage-restrictions-satisfied ▸t)
         (▸→Usage-restrictions-satisfied ▸u)
     (Uₘ ▸t) →
       Uᵤ (▸→Usage-restrictions-satisfied ▸t)
@@ -838,8 +838,8 @@ opaque
         zeroᵘₘ
       (sucᵘᵤ t-ok) →
         sucᵘₘ (lemma t-ok)
-      (maxᵘᵤ t-ok u-ok) →
-        sub (maxᵘₘ (lemma t-ok) (lemma u-ok)) $ begin
+      (supᵘᵤ t-ok u-ok) →
+        sub (supᵘₘ (lemma t-ok) (lemma u-ok)) $ begin
           𝟘ᶜ        ≈˘⟨ +ᶜ-identityˡ _ ⟩
           𝟘ᶜ +ᶜ 𝟘ᶜ  ∎
       (Uᵤ t-ok) →
@@ -999,8 +999,8 @@ opaque
         sub zeroᵘₘ (≈ᶜ-trivial 𝟙≡𝟘)
       (sucᵘᵤ t-ok) →
         sucᵘₘ (lemma t-ok)
-      (maxᵘᵤ t-ok u-ok) →
-        sub (maxᵘₘ {γ = 𝟘ᶜ} {δ = 𝟘ᶜ} (lemma t-ok) (lemma u-ok))
+      (supᵘᵤ t-ok u-ok) →
+        sub (supᵘₘ {γ = 𝟘ᶜ} {δ = 𝟘ᶜ} (lemma t-ok) (lemma u-ok))
           (≈ᶜ-trivial 𝟙≡𝟘)
       (Uᵤ t-ok) →
         sub (Uₘ (lemma₀ t-ok)) (≈ᶜ-trivial 𝟙≡𝟘)

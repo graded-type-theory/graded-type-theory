@@ -58,12 +58,12 @@ private opaque
       .≅ₜ-Levelrefl → refl ∘ᶠ Levelⱼ
       .≅ₜ-zeroᵘrefl → refl ∘ᶠ zeroᵘⱼ
       .≅ₜ-sucᵘ-cong → sucᵘ-cong
-      .≅ₜ-maxᵘ-cong → maxᵘ-cong
-      .≅ₜ-maxᵘ-zeroʳ → maxᵘ-zeroʳ ∘ᶠ ⊢≡→⊢
-      .≅ₜ-maxᵘ-assoc → λ a b c → maxᵘ-assoc (⊢≡→⊢ a) (⊢≡→⊢ b) (⊢≡→⊢ c)
-      .≅ₜ-maxᵘ-comm → λ a b → maxᵘ-comm (⊢≡→⊢ a) (⊢≡→⊢ b)
-      .≅ₜ-maxᵘ-idem → λ a → maxᵘ-idem (⊢≡→⊢ a)
-      .≅ₜ-maxᵘ-sub  → λ a → maxᵘ-sub (⊢≡→⊢ a)
+      .≅ₜ-supᵘ-cong → supᵘ-cong
+      .≅ₜ-supᵘ-zeroʳ → supᵘ-zeroʳ ∘ᶠ ⊢≡→⊢
+      .≅ₜ-supᵘ-assoc → λ a b c → supᵘ-assoc (⊢≡→⊢ a) (⊢≡→⊢ b) (⊢≡→⊢ c)
+      .≅ₜ-supᵘ-comm → λ a b → supᵘ-comm (⊢≡→⊢ a) (⊢≡→⊢ b)
+      .≅ₜ-supᵘ-idem → λ a → supᵘ-idem (⊢≡→⊢ a)
+      .≅ₜ-supᵘ-sub  → λ a → supᵘ-sub (⊢≡→⊢ a)
       .≅ₜ-U-cong    → U-cong
       .≅-Lift-cong  → Lift-cong
       .≅ₜ-Lift-cong → Lift-cong′

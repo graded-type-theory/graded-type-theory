@@ -55,8 +55,8 @@ mutual
   -- form.
 
   data NfNeutralˡ {m : Nat} : Term m → Set a where
-    maxᵘˡₙ    : NfNeutralˡ t → Nf u → NfNeutralˡ (t maxᵘ u)
-    maxᵘʳₙ    : Nf t → NfNeutralˡ u → NfNeutralˡ (sucᵘ t maxᵘ u)
+    supᵘˡₙ    : NfNeutralˡ t → Nf u → NfNeutralˡ (t supᵘ u)
+    supᵘʳₙ    : Nf t → NfNeutralˡ u → NfNeutralˡ (sucᵘ t supᵘ u)
     ne        : NfNeutral n → NfNeutralˡ n
 
   data NfNeutral {m : Nat} : Term m → Set a where
@@ -97,8 +97,8 @@ nfNeutral = λ where
   ([]-congₙ _ _ _ n)      → []-congₙ (nfNeutral n)
 
 nfNeutralˡ : NfNeutralˡ n → Neutralˡ n
-nfNeutralˡ (maxᵘˡₙ n x) = maxᵘˡₙ (nfNeutralˡ n)
-nfNeutralˡ (maxᵘʳₙ x n) = maxᵘʳₙ (nfNeutralˡ n)
+nfNeutralˡ (supᵘˡₙ n x) = supᵘˡₙ (nfNeutralˡ n)
+nfNeutralˡ (supᵘʳₙ x n) = supᵘʳₙ (nfNeutralˡ n)
 nfNeutralˡ (ne x) = ne (nfNeutral x)
 
 -- Normal forms are in WHNF.

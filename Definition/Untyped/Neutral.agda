@@ -70,12 +70,12 @@ noClosedNe ([]-congₙ net) = noClosedNe net
 
 -- Neutral level expressions form a separate syntactic category:
 -- they are not ordinary neutrals because they are not reducible
--- a priori: for example, if n is neutral, then n maxᵘ t is only
+-- a priori: for example, if n is neutral, then n supᵘ t is only
 -- reducible if t is, so that we can accurately reflect levels.
 
 data Neutralˡ : Term n → Set a where
-  maxᵘˡₙ : Neutralˡ t → Neutralˡ (t maxᵘ u)
-  maxᵘʳₙ : Neutralˡ u → Neutralˡ (sucᵘ t maxᵘ u)
+  supᵘˡₙ : Neutralˡ t → Neutralˡ (t supᵘ u)
+  supᵘʳₙ : Neutralˡ u → Neutralˡ (sucᵘ t supᵘ u)
 
   -- Join-free neutral terms are neutral levels
   ne     : Neutral t → Neutralˡ t
@@ -83,8 +83,8 @@ data Neutralˡ : Term n → Set a where
 -- There are no closed neutral level terms
 
 noClosedNeˡ : {t : Term 0} → Neutralˡ t → ⊥
-noClosedNeˡ (maxᵘˡₙ x) = noClosedNeˡ x
-noClosedNeˡ (maxᵘʳₙ x) = noClosedNeˡ x
+noClosedNeˡ (supᵘˡₙ x) = noClosedNeˡ x
+noClosedNeˡ (supᵘʳₙ x) = noClosedNeˡ x
 noClosedNeˡ (ne x) = noClosedNe x
 
 ------------------------------------------------------------------------
@@ -131,8 +131,8 @@ Level≢ne : Neutral A → Level PE.≢ A
 Level≢ne () PE.refl
 
 U≢neˡ : Neutralˡ A → U l PE.≢ A
-U≢neˡ (maxᵘˡₙ _) ()
-U≢neˡ (maxᵘʳₙ _) ()
+U≢neˡ (supᵘˡₙ _) ()
+U≢neˡ (supᵘʳₙ _) ()
 U≢neˡ (ne ()) PE.refl
 
 U≢ne : Neutral A → U l PE.≢ A
@@ -410,8 +410,8 @@ wkNeutral ρ ([]-congₙ n)        = []-congₙ (wkNeutral ρ n)
 -- Weakening of a neutral level term.
 
 wkNeutralˡ : ∀ ρ → Neutralˡ t → Neutralˡ {n = n} (wk ρ t)
-wkNeutralˡ ρ (maxᵘˡₙ t) = maxᵘˡₙ (wkNeutralˡ ρ t)
-wkNeutralˡ ρ (maxᵘʳₙ t) = maxᵘʳₙ (wkNeutralˡ ρ t)
+wkNeutralˡ ρ (supᵘˡₙ t) = supᵘˡₙ (wkNeutralˡ ρ t)
+wkNeutralˡ ρ (supᵘʳₙ t) = supᵘʳₙ (wkNeutralˡ ρ t)
 wkNeutralˡ ρ (ne n)     = ne (wkNeutral ρ n)
 
 -- Weakening can be applied to our whnf views.

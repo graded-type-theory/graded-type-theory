@@ -34,8 +34,8 @@ opaque
   -- If t satisfies neLevel-prop Γ, then it is a neutral level.
 
   nelevel : neLevel-prop Γ t → Neutralˡ t
-  nelevel (maxᵘˡᵣ x x₁) = maxᵘˡₙ (nelevel x)
-  nelevel (maxᵘʳᵣ x x₁) = maxᵘʳₙ (nelevel x₁)
+  nelevel (supᵘˡᵣ x x₁) = supᵘˡₙ (nelevel x)
+  nelevel (supᵘʳᵣ x x₁) = supᵘʳₙ (nelevel x₁)
   nelevel (ne (neNfₜ₌ _ neK neM k≡m)) = ne neK
 
   -- If t satisfies Level-prop Γ, then it is a WHNF.
@@ -50,15 +50,15 @@ opaque
   -- If t and u satisfy [neLevel]-prop Γ, then they are neutral levels.
 
   nelsplit : [neLevel]-prop Γ t u → Neutralˡ t × Neutralˡ u
-  nelsplit (maxᵘˡᵣ t≡u x) = let a , b = nelsplit t≡u in maxᵘˡₙ a , maxᵘˡₙ b
-  nelsplit (maxᵘʳᵣ x t≡u) = let a , b = nelsplit t≡u in maxᵘʳₙ a , maxᵘʳₙ b
-  nelsplit (maxᵘ-zeroʳᵣ [u]) = let a = nelevel [u] in maxᵘˡₙ a , a
-  nelsplit (maxᵘ-assoc¹ᵣ x y z) = let a = nelevel x in maxᵘˡₙ (maxᵘˡₙ a) , maxᵘˡₙ a
-  nelsplit (maxᵘ-assoc²ᵣ x y z) = let a = nelevel y in maxᵘˡₙ (maxᵘʳₙ a) , maxᵘʳₙ (maxᵘˡₙ a)
-  nelsplit (maxᵘ-assoc³ᵣ x y z) = let a = nelevel z in maxᵘʳₙ a , maxᵘʳₙ (maxᵘʳₙ a)
-  nelsplit (maxᵘ-comm¹ᵣ x d y d′) = maxᵘˡₙ (nelevel x) , maxᵘˡₙ (nelevel y)
-  nelsplit (maxᵘ-comm²ᵣ x d y) = let u = nelevel y in maxᵘʳₙ u , maxᵘˡₙ u
-  nelsplit (maxᵘ-idemᵣ x y) = let n = nelevel x in maxᵘˡₙ n , n
+  nelsplit (supᵘˡᵣ t≡u x) = let a , b = nelsplit t≡u in supᵘˡₙ a , supᵘˡₙ b
+  nelsplit (supᵘʳᵣ x t≡u) = let a , b = nelsplit t≡u in supᵘʳₙ a , supᵘʳₙ b
+  nelsplit (supᵘ-zeroʳᵣ [u]) = let a = nelevel [u] in supᵘˡₙ a , a
+  nelsplit (supᵘ-assoc¹ᵣ x y z) = let a = nelevel x in supᵘˡₙ (supᵘˡₙ a) , supᵘˡₙ a
+  nelsplit (supᵘ-assoc²ᵣ x y z) = let a = nelevel y in supᵘˡₙ (supᵘʳₙ a) , supᵘʳₙ (supᵘˡₙ a)
+  nelsplit (supᵘ-assoc³ᵣ x y z) = let a = nelevel z in supᵘʳₙ a , supᵘʳₙ (supᵘʳₙ a)
+  nelsplit (supᵘ-comm¹ᵣ x d y d′) = supᵘˡₙ (nelevel x) , supᵘˡₙ (nelevel y)
+  nelsplit (supᵘ-comm²ᵣ x d y) = let u = nelevel y in supᵘʳₙ u , supᵘˡₙ u
+  nelsplit (supᵘ-idemᵣ x y) = let n = nelevel x in supᵘˡₙ n , n
   nelsplit (ne (neNfₜ₌ _ neK neM _)) = ne neK , ne neM
 
   -- If t and u satisfy [Level]-prop Γ, then they are WHNFs.
@@ -66,7 +66,7 @@ opaque
   lsplit : [Level]-prop Γ t u → Whnf t × Whnf u
   lsplit zeroᵘᵣ = zeroᵘₙ , zeroᵘₙ
   lsplit (sucᵘᵣ x) = sucᵘₙ , sucᵘₙ
-  lsplit (maxᵘ-subᵣ x _) = let a = nelevel x in ne (maxᵘˡₙ a) , sucᵘₙ
+  lsplit (supᵘ-subᵣ x _) = let a = nelevel x in ne (supᵘˡₙ a) , sucᵘₙ
   lsplit (neLvl x) = let a , b = nelsplit x in ne a , ne b
   lsplit (sym u≡t) = let a , b = lsplit u≡t in b , a
   lsplit (trans t≡u u≡v) = let a , _ = lsplit t≡u; _ , b = lsplit u≡v in a , b

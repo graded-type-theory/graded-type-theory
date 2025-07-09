@@ -256,8 +256,8 @@ private module Inhabited where
         zeroᵘⱼ (wf-⊢≡ʳ Γ≡Δ)
       (sucᵘⱼ ⊢t) PE.refl →
         sucᵘⱼ (stability-⊢∷ Γ≡Δ ⊢t)
-      (maxᵘⱼ ⊢t ⊢u) PE.refl →
-        maxᵘⱼ (stability-⊢∷ Γ≡Δ ⊢t) (stability-⊢∷ Γ≡Δ ⊢u)
+      (supᵘⱼ ⊢t ⊢u) PE.refl →
+        supᵘⱼ (stability-⊢∷ Γ≡Δ ⊢t) (stability-⊢∷ Γ≡Δ ⊢u)
       (Uⱼ ⊢l) PE.refl →
         Uⱼ (stability-⊢∷ Γ≡Δ ⊢l)
       (Liftⱼ x x₁ x₂) PE.refl →
@@ -384,22 +384,22 @@ private module Inhabited where
         conv (stability-⊢≡∷ Γ≡Δ t₁≡t₂) (stability-⊢≡ Γ≡Δ B≡A)
       (sucᵘ-cong t₁≡t₂) PE.refl →
         sucᵘ-cong (stability-⊢≡∷ Γ≡Δ t₁≡t₂)
-      (maxᵘ-cong t₁≡t₂ u₁≡u₂) PE.refl →
-        maxᵘ-cong (stability-⊢≡∷ Γ≡Δ t₁≡t₂) (stability-⊢≡∷ Γ≡Δ u₁≡u₂)
-      (maxᵘ-zeroˡ l) PE.refl →
-        maxᵘ-zeroˡ (stability-⊢∷ Γ≡Δ l)
-      (maxᵘ-zeroʳ l) PE.refl →
-        maxᵘ-zeroʳ (stability-⊢∷ Γ≡Δ l)
-      (maxᵘ-sucᵘ l₁ l₂) PE.refl →
-        maxᵘ-sucᵘ (stability-⊢∷ Γ≡Δ l₁) (stability-⊢∷ Γ≡Δ l₂)
-      (maxᵘ-assoc l₁ l₂ l₃) PE.refl →
-        maxᵘ-assoc (stability-⊢∷ Γ≡Δ l₁) (stability-⊢∷ Γ≡Δ l₂) (stability-⊢∷ Γ≡Δ l₃)
-      (maxᵘ-comm l₁ l₂) PE.refl →
-        maxᵘ-comm (stability-⊢∷ Γ≡Δ l₁) (stability-⊢∷ Γ≡Δ l₂)
-      (maxᵘ-idem ⊢l) PE.refl →
-        maxᵘ-idem (stability-⊢∷ Γ≡Δ ⊢l)
-      (maxᵘ-sub ⊢l) PE.refl →
-        maxᵘ-sub (stability-⊢∷ Γ≡Δ ⊢l)
+      (supᵘ-cong t₁≡t₂ u₁≡u₂) PE.refl →
+        supᵘ-cong (stability-⊢≡∷ Γ≡Δ t₁≡t₂) (stability-⊢≡∷ Γ≡Δ u₁≡u₂)
+      (supᵘ-zeroˡ l) PE.refl →
+        supᵘ-zeroˡ (stability-⊢∷ Γ≡Δ l)
+      (supᵘ-zeroʳ l) PE.refl →
+        supᵘ-zeroʳ (stability-⊢∷ Γ≡Δ l)
+      (supᵘ-sucᵘ l₁ l₂) PE.refl →
+        supᵘ-sucᵘ (stability-⊢∷ Γ≡Δ l₁) (stability-⊢∷ Γ≡Δ l₂)
+      (supᵘ-assoc l₁ l₂ l₃) PE.refl →
+        supᵘ-assoc (stability-⊢∷ Γ≡Δ l₁) (stability-⊢∷ Γ≡Δ l₂) (stability-⊢∷ Γ≡Δ l₃)
+      (supᵘ-comm l₁ l₂) PE.refl →
+        supᵘ-comm (stability-⊢∷ Γ≡Δ l₁) (stability-⊢∷ Γ≡Δ l₂)
+      (supᵘ-idem ⊢l) PE.refl →
+        supᵘ-idem (stability-⊢∷ Γ≡Δ ⊢l)
+      (supᵘ-sub ⊢l) PE.refl →
+        supᵘ-sub (stability-⊢∷ Γ≡Δ ⊢l)
       (U-cong l₁≡l₂) PE.refl →
         U-cong (stability-⊢≡∷ Γ≡Δ l₁≡l₂)
       (Lift-cong x x₁ x₂) PE.refl →

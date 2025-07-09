@@ -925,8 +925,8 @@ private module Inhabited where
         zeroᵘⱼ (wf-⊢ˢʷ∷ ⊢σ)
       (sucᵘⱼ ⊢t) PE.refl →
         sucᵘⱼ (subst-⊢∷ ⊢t ⊢σ)
-      (maxᵘⱼ ⊢t ⊢u) PE.refl →
-        maxᵘⱼ (subst-⊢∷ ⊢t ⊢σ) (subst-⊢∷ ⊢u ⊢σ)
+      (supᵘⱼ ⊢t ⊢u) PE.refl →
+        supᵘⱼ (subst-⊢∷ ⊢t ⊢σ) (subst-⊢∷ ⊢u ⊢σ)
       (Uⱼ ⊢l) PE.refl →
         Uⱼ (subst-⊢∷ ⊢l ⊢σ)
       (Liftⱼ x x₁ x₂) PE.refl →
@@ -1042,8 +1042,8 @@ private module Inhabited where
         refl (zeroᵘⱼ (wf-⊢ˢʷ≡∷ σ₁≡σ₂ .proj₁))
       (sucᵘⱼ ⊢t) PE.refl →
         sucᵘ-cong (subst-⊢∷→⊢≡∷ ⊢t σ₁≡σ₂)
-      (maxᵘⱼ ⊢t ⊢u) PE.refl →
-        maxᵘ-cong (subst-⊢∷→⊢≡∷ ⊢t σ₁≡σ₂) (subst-⊢∷→⊢≡∷ ⊢u σ₁≡σ₂)
+      (supᵘⱼ ⊢t ⊢u) PE.refl →
+        supᵘ-cong (subst-⊢∷→⊢≡∷ ⊢t σ₁≡σ₂) (subst-⊢∷→⊢≡∷ ⊢u σ₁≡σ₂)
       (Uⱼ ⊢l) PE.refl →
         U-cong (subst-⊢∷→⊢≡∷ ⊢l σ₁≡σ₂)
       (Liftⱼ x x₁ x₂) PE.refl →
@@ -1236,40 +1236,40 @@ private module Inhabited where
            refl-⊢ˢʷ≡∷ (wf-⊢ˢʷ≡∷ σ₁≡σ₂ .proj₂ .proj₁))
       (sucᵘ-cong t₁≡t₂) PE.refl →
         sucᵘ-cong (subst-⊢≡∷ t₁≡t₂ σ₁≡σ₂)
-      (maxᵘ-cong t₁≡t₂ u₁≡u₂) PE.refl →
-        maxᵘ-cong (subst-⊢≡∷ t₁≡t₂ σ₁≡σ₂) (subst-⊢≡∷ u₁≡u₂ σ₁≡σ₂)
-      (maxᵘ-zeroˡ ⊢l) PE.refl →
+      (supᵘ-cong t₁≡t₂ u₁≡u₂) PE.refl →
+        supᵘ-cong (subst-⊢≡∷ t₁≡t₂ σ₁≡σ₂) (subst-⊢≡∷ u₁≡u₂ σ₁≡σ₂)
+      (supᵘ-zeroˡ ⊢l) PE.refl →
         let _ , ⊢σ₁ , ⊢σ₂ = wf-⊢ˢʷ≡∷ σ₁≡σ₂
-        in trans (maxᵘ-zeroˡ (subst-⊢∷ ⊢l ⊢σ₁)) (subst-⊢∷→⊢≡∷ ⊢l σ₁≡σ₂)
-      (maxᵘ-zeroʳ ⊢l) PE.refl →
+        in trans (supᵘ-zeroˡ (subst-⊢∷ ⊢l ⊢σ₁)) (subst-⊢∷→⊢≡∷ ⊢l σ₁≡σ₂)
+      (supᵘ-zeroʳ ⊢l) PE.refl →
         let _ , ⊢σ₁ , ⊢σ₂ = wf-⊢ˢʷ≡∷ σ₁≡σ₂
-        in trans (maxᵘ-zeroʳ (subst-⊢∷ ⊢l ⊢σ₁)) (subst-⊢∷→⊢≡∷ ⊢l σ₁≡σ₂)
-      (maxᵘ-sucᵘ ⊢l₁ ⊢l₂) PE.refl →
-        let _ , ⊢σ₁ , ⊢σ₂ = wf-⊢ˢʷ≡∷ σ₁≡σ₂
-        in trans
-          (maxᵘ-sucᵘ (subst-⊢∷ ⊢l₁ ⊢σ₁) (subst-⊢∷ ⊢l₂ ⊢σ₁))
-          (sucᵘ-cong (maxᵘ-cong (subst-⊢∷→⊢≡∷ ⊢l₁ σ₁≡σ₂) (subst-⊢∷→⊢≡∷ ⊢l₂ σ₁≡σ₂)))
-      (maxᵘ-assoc ⊢l₁ ⊢l₂ ⊢l₃) PE.refl →
+        in trans (supᵘ-zeroʳ (subst-⊢∷ ⊢l ⊢σ₁)) (subst-⊢∷→⊢≡∷ ⊢l σ₁≡σ₂)
+      (supᵘ-sucᵘ ⊢l₁ ⊢l₂) PE.refl →
         let _ , ⊢σ₁ , ⊢σ₂ = wf-⊢ˢʷ≡∷ σ₁≡σ₂
         in trans
-          (maxᵘ-assoc (subst-⊢∷ ⊢l₁ ⊢σ₁) (subst-⊢∷ ⊢l₂ ⊢σ₁) (subst-⊢∷ ⊢l₃ ⊢σ₁))
-          (maxᵘ-cong (subst-⊢∷→⊢≡∷ ⊢l₁ σ₁≡σ₂)
-            (maxᵘ-cong (subst-⊢∷→⊢≡∷ ⊢l₂ σ₁≡σ₂)
+          (supᵘ-sucᵘ (subst-⊢∷ ⊢l₁ ⊢σ₁) (subst-⊢∷ ⊢l₂ ⊢σ₁))
+          (sucᵘ-cong (supᵘ-cong (subst-⊢∷→⊢≡∷ ⊢l₁ σ₁≡σ₂) (subst-⊢∷→⊢≡∷ ⊢l₂ σ₁≡σ₂)))
+      (supᵘ-assoc ⊢l₁ ⊢l₂ ⊢l₃) PE.refl →
+        let _ , ⊢σ₁ , ⊢σ₂ = wf-⊢ˢʷ≡∷ σ₁≡σ₂
+        in trans
+          (supᵘ-assoc (subst-⊢∷ ⊢l₁ ⊢σ₁) (subst-⊢∷ ⊢l₂ ⊢σ₁) (subst-⊢∷ ⊢l₃ ⊢σ₁))
+          (supᵘ-cong (subst-⊢∷→⊢≡∷ ⊢l₁ σ₁≡σ₂)
+            (supᵘ-cong (subst-⊢∷→⊢≡∷ ⊢l₂ σ₁≡σ₂)
               (subst-⊢∷→⊢≡∷ ⊢l₃ σ₁≡σ₂)))
-      (maxᵘ-comm ⊢l₁ ⊢l₂) PE.refl →
+      (supᵘ-comm ⊢l₁ ⊢l₂) PE.refl →
         let _ , ⊢σ₁ , ⊢σ₂ = wf-⊢ˢʷ≡∷ σ₁≡σ₂
         in trans
-          (maxᵘ-comm (subst-⊢∷ ⊢l₁ ⊢σ₁) (subst-⊢∷ ⊢l₂ ⊢σ₁))
-          (maxᵘ-cong (subst-⊢∷→⊢≡∷ ⊢l₂ σ₁≡σ₂) (subst-⊢∷→⊢≡∷ ⊢l₁ σ₁≡σ₂))
-      (maxᵘ-idem ⊢l) PE.refl →
+          (supᵘ-comm (subst-⊢∷ ⊢l₁ ⊢σ₁) (subst-⊢∷ ⊢l₂ ⊢σ₁))
+          (supᵘ-cong (subst-⊢∷→⊢≡∷ ⊢l₂ σ₁≡σ₂) (subst-⊢∷→⊢≡∷ ⊢l₁ σ₁≡σ₂))
+      (supᵘ-idem ⊢l) PE.refl →
         let _ , ⊢σ₁ , ⊢σ₂ = wf-⊢ˢʷ≡∷ σ₁≡σ₂
         in trans
-          (maxᵘ-idem (subst-⊢∷ ⊢l ⊢σ₁))
+          (supᵘ-idem (subst-⊢∷ ⊢l ⊢σ₁))
           (subst-⊢∷→⊢≡∷ ⊢l σ₁≡σ₂)
-      (maxᵘ-sub ⊢l) PE.refl →
+      (supᵘ-sub ⊢l) PE.refl →
         let _ , ⊢σ₁ , ⊢σ₂ = wf-⊢ˢʷ≡∷ σ₁≡σ₂
         in trans
-          (maxᵘ-sub (subst-⊢∷ ⊢l ⊢σ₁))
+          (supᵘ-sub (subst-⊢∷ ⊢l ⊢σ₁))
           (sucᵘ-cong (subst-⊢∷→⊢≡∷ ⊢l σ₁≡σ₂))
       (U-cong l₁≡l₂) PE.refl →
         U-cong (subst-⊢≡∷ l₁≡l₂ σ₁≡σ₂)

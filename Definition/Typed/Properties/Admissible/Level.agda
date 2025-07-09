@@ -37,7 +37,7 @@ private variable
 wf-⊢≤ : Γ ⊢ t ≤ u ∷Level → Γ ⊢ t ∷ Level × Γ ⊢ u ∷ Level
 wf-⊢≤ t≤u =
   let _ , ⊢t⊔u , ⊢u = syntacticEqTerm t≤u
-      ⊢t , _ = inversion-maxᵘ ⊢t⊔u
+      ⊢t , _ = inversion-supᵘ ⊢t⊔u
   in ⊢t , ⊢u
 
 -- The order on levels is reflexive
@@ -45,7 +45,7 @@ wf-⊢≤ t≤u =
 ⊢≤-refl : ∀ {t u} → Γ ⊢ t ≡ u ∷ Level → Γ ⊢ t ≤ u ∷Level
 ⊢≤-refl t≡u =
   let _ , _ , ⊢u = syntacticEqTerm t≡u
-  in trans (maxᵘ-cong t≡u (refl ⊢u)) (maxᵘ-idem ⊢u)
+  in trans (supᵘ-cong t≡u (refl ⊢u)) (supᵘ-idem ⊢u)
 
 -- The order on levels is transitive
 
@@ -58,10 +58,10 @@ wf-⊢≤ t≤u =
   let ⊢t , ⊢u = wf-⊢≤ t≤u
       _  , ⊢v = wf-⊢≤ u≤v
   in
-  t maxᵘ v          ≡˘⟨ maxᵘ-cong (refl ⊢t) u≤v ⟩⊢
-  t maxᵘ (u maxᵘ v) ≡˘⟨ maxᵘ-assoc ⊢t ⊢u ⊢v ⟩⊢
-  (t maxᵘ u) maxᵘ v ≡⟨ maxᵘ-cong t≤u (refl ⊢v) ⟩⊢
-  u maxᵘ v          ≡⟨ u≤v ⟩⊢∎
+  t supᵘ v          ≡˘⟨ supᵘ-cong (refl ⊢t) u≤v ⟩⊢
+  t supᵘ (u supᵘ v) ≡˘⟨ supᵘ-assoc ⊢t ⊢u ⊢v ⟩⊢
+  (t supᵘ u) supᵘ v ≡⟨ supᵘ-cong t≤u (refl ⊢v) ⟩⊢
+  u supᵘ v          ≡⟨ u≤v ⟩⊢∎
   v                 ∎
 
 -- The order on levels is antisymmetric
@@ -74,8 +74,8 @@ wf-⊢≤ t≤u =
 ⊢≤-antisymmetric {t} {u} t≤u u≤t =
   let ⊢t , ⊢u = wf-⊢≤ t≤u in
   t        ≡˘⟨ u≤t ⟩⊢
-  u maxᵘ t ≡⟨ maxᵘ-comm ⊢u ⊢t ⟩⊢
-  t maxᵘ u ≡⟨ t≤u ⟩⊢∎
+  u supᵘ t ≡⟨ supᵘ-comm ⊢u ⊢t ⟩⊢
+  t supᵘ u ≡⟨ t≤u ⟩⊢∎
   u        ∎
 
 -- A typing rule for sucᵘᵏ
@@ -84,31 +84,31 @@ wf-⊢≤ t≤u =
 ⊢sucᵘᵏ {k = 0} ⊢t = ⊢t
 ⊢sucᵘᵏ {k = 1+ k} ⊢t = sucᵘⱼ (⊢sucᵘᵏ ⊢t)
 
--- A variant of maxᵘ-sub.
+-- A variant of supᵘ-sub.
 --
 -- This is also proved in EqualityRelation but we can't import that
 -- without creating a dependency cycle...
 
-maxᵘ-sub′
+supᵘ-sub′
   : Γ ⊢ t ≤ u ∷Level
   → Γ ⊢ t ≤ sucᵘ u ∷Level
-maxᵘ-sub′ {t} {u} t≤u =
+supᵘ-sub′ {t} {u} t≤u =
   let ⊢t , ⊢u = wf-⊢≤ t≤u in
-  t maxᵘ sucᵘ u               ≡˘⟨ maxᵘ-cong (refl ⊢t) (trans (maxᵘ-sucᵘ ⊢t ⊢u) (sucᵘ-cong t≤u)) ⟩⊢
-  t maxᵘ (sucᵘ t maxᵘ sucᵘ u) ≡˘⟨ maxᵘ-assoc ⊢t (sucᵘⱼ ⊢t) (sucᵘⱼ ⊢u) ⟩⊢
-  (t maxᵘ sucᵘ t) maxᵘ sucᵘ u ≡⟨ maxᵘ-cong (maxᵘ-sub ⊢t) (refl (sucᵘⱼ ⊢u)) ⟩⊢
-  sucᵘ t maxᵘ sucᵘ u          ≡⟨ maxᵘ-sucᵘ ⊢t ⊢u ⟩⊢
-  sucᵘ (t maxᵘ u)             ≡⟨ sucᵘ-cong t≤u ⟩⊢∎
+  t supᵘ sucᵘ u               ≡˘⟨ supᵘ-cong (refl ⊢t) (trans (supᵘ-sucᵘ ⊢t ⊢u) (sucᵘ-cong t≤u)) ⟩⊢
+  t supᵘ (sucᵘ t supᵘ sucᵘ u) ≡˘⟨ supᵘ-assoc ⊢t (sucᵘⱼ ⊢t) (sucᵘⱼ ⊢u) ⟩⊢
+  (t supᵘ sucᵘ t) supᵘ sucᵘ u ≡⟨ supᵘ-cong (supᵘ-sub ⊢t) (refl (sucᵘⱼ ⊢u)) ⟩⊢
+  sucᵘ t supᵘ sucᵘ u          ≡⟨ supᵘ-sucᵘ ⊢t ⊢u ⟩⊢
+  sucᵘ (t supᵘ u)             ≡⟨ sucᵘ-cong t≤u ⟩⊢∎
   sucᵘ u                      ∎
 
 -- If t ≤ u, then t ≤ sucᵘᵏ k u
 
-maxᵘ-subᵏ
+supᵘ-subᵏ
   : ∀ {t u k}
   → Γ ⊢ t ≤ u ∷Level
   → Γ ⊢ t ≤ sucᵘᵏ k u ∷Level
-maxᵘ-subᵏ {k = 0} t≤u = t≤u
-maxᵘ-subᵏ {k = 1+ k} t≤u = maxᵘ-sub′ (maxᵘ-subᵏ t≤u)
+supᵘ-subᵏ {k = 0} t≤u = t≤u
+supᵘ-subᵏ {k = 1+ k} t≤u = supᵘ-sub′ (supᵘ-subᵏ t≤u)
 
 -- If t ≤ u, then sucᵘ t ≤ sucᵘ u
 
@@ -118,7 +118,7 @@ maxᵘ-subᵏ {k = 1+ k} t≤u = maxᵘ-sub′ (maxᵘ-subᵏ t≤u)
   → Γ ⊢ sucᵘ t ≤ sucᵘ u ∷Level
 ≤-sucᵘ t≤u =
   let ⊢t , ⊢u = wf-⊢≤ t≤u
-  in trans (maxᵘ-sucᵘ ⊢t ⊢u) (sucᵘ-cong t≤u)
+  in trans (supᵘ-sucᵘ ⊢t ⊢u) (sucᵘ-cong t≤u)
 
 -- If n ≤ m and t ≤ u, then sucᵘᵏ n t ≤ sucᵘᵏ m u
 
@@ -127,18 +127,18 @@ maxᵘ-subᵏ {k = 1+ k} t≤u = maxᵘ-sub′ (maxᵘ-subᵏ t≤u)
   → n ≤ m
   → Γ ⊢ t ≤ u ∷Level
   → Γ ⊢ sucᵘᵏ n t ≤ sucᵘᵏ m u ∷Level
-≤-sucᵘᵏ z≤n t≤u = maxᵘ-subᵏ t≤u
+≤-sucᵘᵏ z≤n t≤u = supᵘ-subᵏ t≤u
 ≤-sucᵘᵏ (s≤s n≤m) t≤u = ≤-sucᵘ (≤-sucᵘᵏ n≤m t≤u)
 
--- A variant of maxᵘ-comm
+-- A variant of supᵘ-comm
 
-maxᵘ-comm-assoc
+supᵘ-comm-assoc
   : ∀ {t u v}
   → Γ ⊢ t ∷ Level
   → Γ ⊢ u ∷ Level
   → Γ ⊢ v ∷ Level
-  → Γ ⊢ t maxᵘ (u maxᵘ v) ≡ u maxᵘ (t maxᵘ v) ∷ Level
-maxᵘ-comm-assoc ⊢t ⊢u ⊢v =
-  trans (sym′ (maxᵘ-assoc ⊢t ⊢u ⊢v))
-    (trans (maxᵘ-cong (maxᵘ-comm ⊢t ⊢u) (refl ⊢v))
-      (maxᵘ-assoc ⊢u ⊢t ⊢v))
+  → Γ ⊢ t supᵘ (u supᵘ v) ≡ u supᵘ (t supᵘ v) ∷ Level
+supᵘ-comm-assoc ⊢t ⊢u ⊢v =
+  trans (sym′ (supᵘ-assoc ⊢t ⊢u ⊢v))
+    (trans (supᵘ-cong (supᵘ-comm ⊢t ⊢u) (refl ⊢v))
+      (supᵘ-assoc ⊢u ⊢t ⊢v))

@@ -91,7 +91,7 @@ mutual
     erase″ Level                   = loop? s
     erase″ zeroᵘ                   = loop? s
     erase″ (sucᵘ _)                = loop? s
-    erase″ (_ maxᵘ _)              = loop? s
+    erase″ (_ supᵘ _)              = loop? s
     erase″ (Lift _ _)              = loop? s
     erase″ (lift t)                = erase″ t
     erase″ (lower t)               = erase″ t

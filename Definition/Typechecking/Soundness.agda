@@ -63,7 +63,7 @@ mutual
   soundness⇉ ⊢Γ Levelᵢ = Uⱼ (zeroᵘⱼ ⊢Γ) , Levelⱼ ⊢Γ
   soundness⇉ ⊢Γ zeroᵘᵢ = Levelⱼ ⊢Γ , zeroᵘⱼ ⊢Γ
   soundness⇉ ⊢Γ (sucᵘᵢ t⇇Level) = Levelⱼ ⊢Γ , sucᵘⱼ (soundness⇇ t⇇Level)
-  soundness⇉ ⊢Γ (maxᵘᵢ t⇇Level u⇇Level) = Levelⱼ ⊢Γ , maxᵘⱼ (soundness⇇ t⇇Level) (soundness⇇ u⇇Level)
+  soundness⇉ ⊢Γ (supᵘᵢ t⇇Level u⇇Level) = Levelⱼ ⊢Γ , supᵘⱼ (soundness⇇ t⇇Level) (soundness⇇ u⇇Level)
   soundness⇉ ⊢Γ (Uᵢ x) =
     let ⊢l = soundness⇇ x
     in Uⱼ (sucᵘⱼ ⊢l) , Uⱼ ⊢l
@@ -72,7 +72,7 @@ mutual
         ⊢l₂ = soundness⇇ x
         C≡U = subset* (↘U .proj₁)
         ⊢l₁ = inversion-U-Level (syntacticEq C≡U .proj₂)
-    in Uⱼ (maxᵘⱼ ⊢l₁ ⊢l₂) , Liftⱼ′ ⊢l₂ (conv ⊢A C≡U)
+    in Uⱼ (supᵘⱼ ⊢l₁ ⊢l₂) , Liftⱼ′ ⊢l₂ (conv ⊢A C≡U)
   soundness⇉ ⊢Γ (ΠΣᵢ ⊢A (⇒*U₁ , _) ⊢B ok) =
     let _ , ⊢A = soundness⇉ ⊢Γ ⊢A
         ⊢A     = conv ⊢A (subset* ⇒*U₁)

@@ -50,7 +50,7 @@ Level⁺→Term (n , a) = sucᵘᵏ n (LevelAtom→Term a)
 
 Levelᵛ→Term : ∀ {Γ : Con Term n} → Levelᵛ Γ → Term n
 Levelᵛ→Term L.[] = zeroᵘ
-Levelᵛ→Term (l L.∷ xs) = Level⁺→Term l maxᵘ Levelᵛ→Term xs
+Levelᵛ→Term (l L.∷ xs) = Level⁺→Term l supᵘ Levelᵛ→Term xs
 
 -- Reflexivity.
 
@@ -88,13 +88,13 @@ Levelᵛ→Term (l L.∷ xs) = Level⁺→Term l maxᵘ Levelᵛ→Term xs
 ≡ᵛ-suc : ∀ {u v : Levelᵛ Γ} → u ≡ᵛ v → sucᵛ u ≡ᵛ sucᵛ v
 ≡ᵛ-suc (u≤v , v≤u) = ≤ᵛ-suc u≤v , ≤ᵛ-suc v≤u
 
--- Congruence for level maximum.
+-- Congruence for level supremum.
 
-≤ᵛ-max : ∀ {u u′ v v′ : Levelᵛ Γ} → ≤ᵛ d u v → ≤ᵛ d u′ v′ → ≤ᵛ d (maxᵛ u u′) (maxᵛ v v′)
-≤ᵛ-max u≤v u′≤v′ = All.++⁺ (All.map Any.++⁺ˡ u≤v) (All.map (Any.++⁺ʳ _) u′≤v′)
+≤ᵛ-sup : ∀ {u u′ v v′ : Levelᵛ Γ} → ≤ᵛ d u v → ≤ᵛ d u′ v′ → ≤ᵛ d (supᵛ u u′) (supᵛ v v′)
+≤ᵛ-sup u≤v u′≤v′ = All.++⁺ (All.map Any.++⁺ˡ u≤v) (All.map (Any.++⁺ʳ _) u′≤v′)
 
-≡ᵛ-max : ∀ {u u′ v v′ : Levelᵛ Γ} → u ≡ᵛ v → u′ ≡ᵛ v′ → maxᵛ u u′ ≡ᵛ maxᵛ v v′
-≡ᵛ-max (u≤v , v≤u) (u′≤v′ , v′≤u′) = ≤ᵛ-max u≤v u′≤v′ , ≤ᵛ-max v≤u v′≤u′
+≡ᵛ-sup : ∀ {u u′ v v′ : Levelᵛ Γ} → u ≡ᵛ v → u′ ≡ᵛ v′ → supᵛ u u′ ≡ᵛ supᵛ v v′
+≡ᵛ-sup (u≤v , v≤u) (u′≤v′ , v′≤u′) = ≤ᵛ-sup u≤v u′≤v′ , ≤ᵛ-sup v≤u v′≤u′
 
 -- Syntactic equality of level views.
 
@@ -167,8 +167,8 @@ trans-≡ᵛ-≡≡ᵛ (a≤b , b≤a) b≡c = trans-≡≡ᵛ-≤ᵛ' (sym-≡�
 ≡≡ᵛ-sucᵛ : ∀ {a b : Levelᵛ Γ} → a ≡≡ᵛ b → sucᵛ a ≡≡ᵛ sucᵛ b
 ≡≡ᵛ-sucᵛ eq = (PE.refl , zero) P.∷ ≡≡ᵛ-map-suc⁺ eq
 
-≡≡ᵛ-maxᵛ : ∀ {a a′ b b′ : Levelᵛ Γ} → a ≡≡ᵛ b → a′ ≡≡ᵛ b′ → maxᵛ a a′ ≡≡ᵛ maxᵛ b b′
-≡≡ᵛ-maxᵛ = P.++⁺
+≡≡ᵛ-supᵛ : ∀ {a a′ b b′ : Levelᵛ Γ} → a ≡≡ᵛ b → a′ ≡≡ᵛ b′ → supᵛ a a′ ≡≡ᵛ supᵛ b b′
+≡≡ᵛ-supᵛ = P.++⁺
 
 -- Level normalisation is deterministic up to syntactic equality.
 
@@ -180,19 +180,19 @@ mutual
     deterministic-↓ᵛ t↓v t↓v₁ }
 
   deterministic-~ᵛ : ∀ {t v v′} → Γ ⊢ t ~ᵛ v → Γ ⊢ t ~ᵛ v′ → v ≡≡ᵛ v′
-  deterministic-~ᵛ (maxᵘˡₙ PE.refl x₁ x₂) (maxᵘˡₙ PE.refl y x₄) =
-    ≡≡ᵛ-maxᵛ (deterministic-~ᵛ x₁ y) (deterministic-↑ᵛ x₂ x₄)
-  deterministic-~ᵛ (maxᵘʳₙ PE.refl x₁ x₂) (maxᵘʳₙ PE.refl x₄ y) =
-    ≡≡ᵛ-maxᵛ (≡≡ᵛ-sucᵛ (deterministic-↑ᵛ x₁ x₄)) (deterministic-~ᵛ x₂ y)
+  deterministic-~ᵛ (supᵘˡₙ PE.refl x₁ x₂) (supᵘˡₙ PE.refl y x₄) =
+    ≡≡ᵛ-supᵛ (deterministic-~ᵛ x₁ y) (deterministic-↑ᵛ x₂ x₄)
+  deterministic-~ᵛ (supᵘʳₙ PE.refl x₁ x₂) (supᵘʳₙ PE.refl x₄ y) =
+    ≡≡ᵛ-supᵛ (≡≡ᵛ-sucᵛ (deterministic-↑ᵛ x₁ x₄)) (deterministic-~ᵛ x₂ y)
   deterministic-~ᵛ (neₙ [t] PE.refl) (neₙ [t]₁ PE.refl) =
     (PE.refl , ne _ _) P.∷ P.[]
   -- Absurd cases
-  deterministic-~ᵛ (maxᵘˡₙ _ x₁ x₂) (maxᵘʳₙ _ x₄ y) = case whnfConv~ᵛ x₁ of λ { (ne ()) }
-  deterministic-~ᵛ (maxᵘˡₙ x x₁ x₂) (neₙ [t] x₃) = case ne~↓ [t] of λ ()
-  deterministic-~ᵛ (maxᵘʳₙ x x₁ x₂) (maxᵘˡₙ x₃ y x₄) = case whnfConv~ᵛ y of λ { (ne ()) }
-  deterministic-~ᵛ (maxᵘʳₙ x x₁ x₂) (neₙ [t] x₃) = case ne~↓ [t] of λ ()
-  deterministic-~ᵛ (neₙ [t] x) (maxᵘˡₙ x₁ y x₂) = case ne~↓ [t] of λ ()
-  deterministic-~ᵛ (neₙ [t] x) (maxᵘʳₙ x₁ x₂ y) = case ne~↓ [t] of λ ()
+  deterministic-~ᵛ (supᵘˡₙ _ x₁ x₂) (supᵘʳₙ _ x₄ y) = case whnfConv~ᵛ x₁ of λ { (ne ()) }
+  deterministic-~ᵛ (supᵘˡₙ x x₁ x₂) (neₙ [t] x₃) = case ne~↓ [t] of λ ()
+  deterministic-~ᵛ (supᵘʳₙ x x₁ x₂) (supᵘˡₙ x₃ y x₄) = case whnfConv~ᵛ y of λ { (ne ()) }
+  deterministic-~ᵛ (supᵘʳₙ x x₁ x₂) (neₙ [t] x₃) = case ne~↓ [t] of λ ()
+  deterministic-~ᵛ (neₙ [t] x) (supᵘˡₙ x₁ y x₂) = case ne~↓ [t] of λ ()
+  deterministic-~ᵛ (neₙ [t] x) (supᵘʳₙ x₁ x₂ y) = case ne~↓ [t] of λ ()
 
   deterministic-↓ᵛ : ∀ {t v v′} → Γ ⊢ t ↓ᵛ v → Γ ⊢ t ↓ᵛ v′ → v ≡≡ᵛ v′
   deterministic-↓ᵛ (zeroᵘₙ x) (zeroᵘₙ x₁) = P.[]
@@ -207,54 +207,54 @@ mutual
 
 -- Properties of level comparison and equality.
 
-≤ᵛ-max-univ : ∀ {a b c : Levelᵛ Γ} → ≤ᵛ d a c → ≤ᵛ d b c → ≤ᵛ d (maxᵛ a b) c
-≤ᵛ-max-univ a≤c b≤c = All.++⁺ a≤c b≤c
+≤ᵛ-sup-univ : ∀ {a b c : Levelᵛ Γ} → ≤ᵛ d a c → ≤ᵛ d b c → ≤ᵛ d (supᵛ a b) c
+≤ᵛ-sup-univ a≤c b≤c = All.++⁺ a≤c b≤c
 
-≤ᵛ-maxˡ : ∀ {a b c : Levelᵛ Γ} → ≤ᵛ d c a → ≤ᵛ d c (maxᵛ a b)
-≤ᵛ-maxˡ = All.map Any.++⁺ˡ
+≤ᵛ-supˡ : ∀ {a b c : Levelᵛ Γ} → ≤ᵛ d c a → ≤ᵛ d c (supᵛ a b)
+≤ᵛ-supˡ = All.map Any.++⁺ˡ
 
-≤ᵛ-maxʳ : ∀ {a b c : Levelᵛ Γ} → ≤ᵛ d c b → ≤ᵛ d c (maxᵛ a b)
-≤ᵛ-maxʳ = All.map (Any.++⁺ʳ _)
+≤ᵛ-supʳ : ∀ {a b c : Levelᵛ Γ} → ≤ᵛ d c b → ≤ᵛ d c (supᵛ a b)
+≤ᵛ-supʳ = All.map (Any.++⁺ʳ _)
 
 ≤ᵛ-zero : ∀ {v : Levelᵛ Γ} → ≤ᵛ d zeroᵛ v
 ≤ᵛ-zero = All.[]
 
-≡ᵛ-maxᵘ-zeroˡ : ∀ {v : Levelᵛ Γ} → maxᵛ zeroᵛ v ≡ᵛ v
-≡ᵛ-maxᵘ-zeroˡ = ≤ᵛ-max-univ ≤ᵛ-zero (≤ᵛ-refl _) , ≤ᵛ-maxʳ (≤ᵛ-refl _)
+≡ᵛ-supᵘ-zeroˡ : ∀ {v : Levelᵛ Γ} → supᵛ zeroᵛ v ≡ᵛ v
+≡ᵛ-supᵘ-zeroˡ = ≤ᵛ-sup-univ ≤ᵛ-zero (≤ᵛ-refl _) , ≤ᵛ-supʳ (≤ᵛ-refl _)
 
-≡ᵛ-maxᵘ-zeroʳ : ∀ {v : Levelᵛ Γ} → maxᵛ v zeroᵛ ≡ᵛ v
-≡ᵛ-maxᵘ-zeroʳ = ≤ᵛ-max-univ (≤ᵛ-refl _) ≤ᵛ-zero , ≤ᵛ-maxˡ (≤ᵛ-refl _)
+≡ᵛ-supᵘ-zeroʳ : ∀ {v : Levelᵛ Γ} → supᵛ v zeroᵛ ≡ᵛ v
+≡ᵛ-supᵘ-zeroʳ = ≤ᵛ-sup-univ (≤ᵛ-refl _) ≤ᵛ-zero , ≤ᵛ-supˡ (≤ᵛ-refl _)
 
 ≤ᵛ-map-suc⁺-sucᵛ : ∀ {a : Levelᵛ Γ} → ≤ᵛ d (map-suc⁺ a) (sucᵛ a)
 ≤ᵛ-map-suc⁺-sucᵛ = All.map Any.there (≤ᵛ-refl _)
 
-≤ᵛ-maxᵘ-map-suc⁺ : ∀ {a b : Levelᵛ Γ} → ≤ᵛ d (maxᵛ (map-suc⁺ a) (map-suc⁺ b)) (maxᵛ (sucᵛ a) (sucᵛ b))
-≤ᵛ-maxᵘ-map-suc⁺ {a} {b} = ≤ᵛ-max-univ (≤ᵛ-maxˡ ≤ᵛ-map-suc⁺-sucᵛ) (≤ᵛ-maxʳ {a = sucᵛ a} (≤ᵛ-map-suc⁺-sucᵛ {a = b}))
+≤ᵛ-supᵘ-map-suc⁺ : ∀ {a b : Levelᵛ Γ} → ≤ᵛ d (supᵛ (map-suc⁺ a) (map-suc⁺ b)) (supᵛ (sucᵛ a) (sucᵛ b))
+≤ᵛ-supᵘ-map-suc⁺ {a} {b} = ≤ᵛ-sup-univ (≤ᵛ-supˡ ≤ᵛ-map-suc⁺-sucᵛ) (≤ᵛ-supʳ {a = sucᵛ a} (≤ᵛ-map-suc⁺-sucᵛ {a = b}))
 
-map-suc⁺-++ : ∀ {a b : Levelᵛ Γ} → map-suc⁺ (maxᵛ a b) PE.≡ maxᵛ (map-suc⁺ a) (map-suc⁺ b)
+map-suc⁺-++ : ∀ {a b : Levelᵛ Γ} → map-suc⁺ (supᵛ a b) PE.≡ supᵛ (map-suc⁺ a) (map-suc⁺ b)
 map-suc⁺-++ {a = L.[]} = PE.refl
 map-suc⁺-++ {a = x L.∷ a} = PE.cong (_ L.∷_) (map-suc⁺-++ {a = a})
 
-≤ᵛ-maxᵘ-sucᵘ : ∀ {a b : Levelᵛ Γ} → ≤ᵛ d (sucᵛ (maxᵛ a b)) (maxᵛ (sucᵛ a) (sucᵛ b))
-≤ᵛ-maxᵘ-sucᵘ {a} {b} = Any.here (≤⁺-refl _) All.∷ PE.subst (λ x → ≤ᵛ _ x (maxᵛ (sucᵛ a) (sucᵛ b))) (PE.sym (map-suc⁺-++ {a = a} {b})) ≤ᵛ-maxᵘ-map-suc⁺
+≤ᵛ-supᵘ-sucᵘ : ∀ {a b : Levelᵛ Γ} → ≤ᵛ d (sucᵛ (supᵛ a b)) (supᵛ (sucᵛ a) (sucᵛ b))
+≤ᵛ-supᵘ-sucᵘ {a} {b} = Any.here (≤⁺-refl _) All.∷ PE.subst (λ x → ≤ᵛ _ x (supᵛ (sucᵛ a) (sucᵛ b))) (PE.sym (map-suc⁺-++ {a = a} {b})) ≤ᵛ-supᵘ-map-suc⁺
 
-≡ᵛ-maxᵘ-sucᵘ : ∀ {a b : Levelᵛ Γ} → sucᵛ (maxᵛ a b) ≡ᵛ maxᵛ (sucᵛ a) (sucᵛ b)
-≡ᵛ-maxᵘ-sucᵘ = ≤ᵛ-maxᵘ-sucᵘ , ≤ᵛ-max-univ (≤ᵛ-suc (≤ᵛ-maxˡ (≤ᵛ-refl _))) (≤ᵛ-suc (≤ᵛ-maxʳ (≤ᵛ-refl _)))
+≡ᵛ-supᵘ-sucᵘ : ∀ {a b : Levelᵛ Γ} → sucᵛ (supᵛ a b) ≡ᵛ supᵛ (sucᵛ a) (sucᵛ b)
+≡ᵛ-supᵘ-sucᵘ = ≤ᵛ-supᵘ-sucᵘ , ≤ᵛ-sup-univ (≤ᵛ-suc (≤ᵛ-supˡ (≤ᵛ-refl _))) (≤ᵛ-suc (≤ᵛ-supʳ (≤ᵛ-refl _)))
 
-≡ᵛ-maxᵘ-assoc : ∀ {a b c : Levelᵛ Γ} → maxᵛ (maxᵛ a b) c ≡ᵛ maxᵛ a (maxᵛ b c)
-≡ᵛ-maxᵘ-assoc {a} {b} {c} = PE.subst (maxᵛ (maxᵛ a b) c ≡ᵛ_) (L.++-assoc a b c) (≡ᵛ-refl _)
+≡ᵛ-supᵘ-assoc : ∀ {a b c : Levelᵛ Γ} → supᵛ (supᵛ a b) c ≡ᵛ supᵛ a (supᵛ b c)
+≡ᵛ-supᵘ-assoc {a} {b} {c} = PE.subst (supᵛ (supᵛ a b) c ≡ᵛ_) (L.++-assoc a b c) (≡ᵛ-refl _)
 
-≤ᵛ-maxᵘ-comm : ∀ {a b : Levelᵛ Γ} → ≤ᵛ d (maxᵛ a b) (maxᵛ b a)
-≤ᵛ-maxᵘ-comm {a} {b} = All.map (Any.++-comm a b) (≤ᵛ-refl _)
+≤ᵛ-supᵘ-comm : ∀ {a b : Levelᵛ Γ} → ≤ᵛ d (supᵛ a b) (supᵛ b a)
+≤ᵛ-supᵘ-comm {a} {b} = All.map (Any.++-comm a b) (≤ᵛ-refl _)
 
-≡ᵛ-maxᵘ-comm : ∀ {a b : Levelᵛ Γ} → maxᵛ a b ≡ᵛ maxᵛ b a
-≡ᵛ-maxᵘ-comm {a} {b} = ≤ᵛ-maxᵘ-comm {a = a} , ≤ᵛ-maxᵘ-comm {a = b}
+≡ᵛ-supᵘ-comm : ∀ {a b : Levelᵛ Γ} → supᵛ a b ≡ᵛ supᵛ b a
+≡ᵛ-supᵘ-comm {a} {b} = ≤ᵛ-supᵘ-comm {a = a} , ≤ᵛ-supᵘ-comm {a = b}
 
-≤→max≡ : ∀ {a b : Levelᵛ Γ} → ≤ᵛ false a b → maxᵛ a b ≡ᵛ b
-≤→max≡ a≤b = ≤ᵛ-max-univ a≤b (≤ᵛ-refl _) , ≤ᵛ-maxʳ (≤ᵛ-refl _)
+≤→sup≡ : ∀ {a b : Levelᵛ Γ} → ≤ᵛ false a b → supᵛ a b ≡ᵛ b
+≤→sup≡ a≤b = ≤ᵛ-sup-univ a≤b (≤ᵛ-refl _) , ≤ᵛ-supʳ (≤ᵛ-refl _)
 
-≡ᵛ-maxᵘ-idem : ∀ {a : Levelᵛ Γ} → maxᵛ a a ≡ᵛ a
-≡ᵛ-maxᵘ-idem {a} = ≤→max≡ (≤ᵛ-refl _)
+≡ᵛ-supᵘ-idem : ∀ {a : Levelᵛ Γ} → supᵛ a a ≡ᵛ a
+≡ᵛ-supᵘ-idem {a} = ≤→sup≡ (≤ᵛ-refl _)
 
 a≤⁺suca : ∀ {a b : Level⁺ Γ} → ≤⁺ d a b → ≤⁺ d a (suc⁺ b)
 a≤⁺suca (n≤m , a≤b) = m≤n⇒m≤1+n n≤m , a≤b
@@ -269,5 +269,5 @@ a≤ᵛmap-suc⁺a = All.map a≤⁺ᵛmap-suc⁺a (≤ᵛ-refl _)
 a≤ᵛsuca : ∀ {a : Levelᵛ Γ} → ≤ᵛ d a (sucᵛ a)
 a≤ᵛsuca = All.map Any.there a≤ᵛmap-suc⁺a
 
-≡ᵛ-maxᵘ-sub : ∀ {a : Levelᵛ Γ} → maxᵛ a (sucᵛ a) ≡ᵛ sucᵛ a
-≡ᵛ-maxᵘ-sub {a} = ≤→max≡ a≤ᵛsuca
+≡ᵛ-supᵘ-sub : ∀ {a : Levelᵛ Γ} → supᵛ a (sucᵛ a) ≡ᵛ sucᵛ a
+≡ᵛ-supᵘ-sub {a} = ≤→sup≡ a≤ᵛsuca

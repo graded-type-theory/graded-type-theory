@@ -40,16 +40,16 @@ opaque
     Δ ⊢ t [ σ ] ⇒ u [ σ ] ∷ A [ σ ]
   subst-⊢⇒∷ (conv t⇒u B≡A) ⊢σ =
     conv (subst-⊢⇒∷ t⇒u ⊢σ) (subst-⊢≡ B≡A (refl-⊢ˢʷ≡∷ ⊢σ))
-  subst-⊢⇒∷ (maxᵘ-zeroˡ ⊢l) ⊢σ =
-    maxᵘ-zeroˡ (subst-⊢∷ ⊢l ⊢σ)
-  subst-⊢⇒∷ (maxᵘ-zeroʳ ⊢l) ⊢σ =
-    maxᵘ-zeroʳ (subst-⊢∷ ⊢l ⊢σ)
-  subst-⊢⇒∷ (maxᵘ-sucᵘ ⊢l ⊢u) ⊢σ =
-    maxᵘ-sucᵘ (subst-⊢∷ ⊢l ⊢σ) (subst-⊢∷ ⊢u ⊢σ)
-  subst-⊢⇒∷ (maxᵘ-substˡ l⇒l′ ⊢u) ⊢σ =
-    maxᵘ-substˡ (subst-⊢⇒∷ l⇒l′ ⊢σ) (subst-⊢∷ ⊢u ⊢σ)
-  subst-⊢⇒∷ (maxᵘ-substʳ ⊢l u⇒u′) ⊢σ =
-    maxᵘ-substʳ (subst-⊢∷ ⊢l ⊢σ) (subst-⊢⇒∷ u⇒u′ ⊢σ)
+  subst-⊢⇒∷ (supᵘ-zeroˡ ⊢l) ⊢σ =
+    supᵘ-zeroˡ (subst-⊢∷ ⊢l ⊢σ)
+  subst-⊢⇒∷ (supᵘ-zeroʳ ⊢l) ⊢σ =
+    supᵘ-zeroʳ (subst-⊢∷ ⊢l ⊢σ)
+  subst-⊢⇒∷ (supᵘ-sucᵘ ⊢l ⊢u) ⊢σ =
+    supᵘ-sucᵘ (subst-⊢∷ ⊢l ⊢σ) (subst-⊢∷ ⊢u ⊢σ)
+  subst-⊢⇒∷ (supᵘ-substˡ l⇒l′ ⊢u) ⊢σ =
+    supᵘ-substˡ (subst-⊢⇒∷ l⇒l′ ⊢σ) (subst-⊢∷ ⊢u ⊢σ)
+  subst-⊢⇒∷ (supᵘ-substʳ ⊢l u⇒u′) ⊢σ =
+    supᵘ-substʳ (subst-⊢∷ ⊢l ⊢σ) (subst-⊢⇒∷ u⇒u′ ⊢σ)
   subst-⊢⇒∷ (lower-subst x) ⊢σ =
     lower-subst (subst-⊢⇒∷ x ⊢σ)
   subst-⊢⇒∷ (Lift-β x₁ x₂) ⊢σ =

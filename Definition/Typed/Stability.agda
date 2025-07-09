@@ -236,16 +236,16 @@ opaque
   stabilityRedTerm : ⊢ Γ ≡ Δ → Γ ⊢ t ⇒ u ∷ A → Δ ⊢ t ⇒ u ∷ A
   stabilityRedTerm Γ≡Δ (conv d x) =
     conv (stabilityRedTerm Γ≡Δ d) (stabilityEq Γ≡Δ x)
-  stabilityRedTerm Γ≡Δ (maxᵘ-zeroˡ ⊢l) =
-    maxᵘ-zeroˡ (stabilityTerm Γ≡Δ ⊢l)
-  stabilityRedTerm Γ≡Δ (maxᵘ-zeroʳ ⊢l) =
-    maxᵘ-zeroʳ (stabilityTerm Γ≡Δ ⊢l)
-  stabilityRedTerm Γ≡Δ (maxᵘ-sucᵘ ⊢l₁ ⊢l₂) =
-    maxᵘ-sucᵘ (stabilityTerm Γ≡Δ ⊢l₁) (stabilityTerm Γ≡Δ ⊢l₂)
-  stabilityRedTerm Γ≡Δ (maxᵘ-substˡ t⇒t′ ⊢u) =
-    maxᵘ-substˡ (stabilityRedTerm Γ≡Δ t⇒t′) (stabilityTerm Γ≡Δ ⊢u)
-  stabilityRedTerm Γ≡Δ (maxᵘ-substʳ ⊢t u⇒u′) =
-    maxᵘ-substʳ (stabilityTerm Γ≡Δ ⊢t) (stabilityRedTerm Γ≡Δ u⇒u′)
+  stabilityRedTerm Γ≡Δ (supᵘ-zeroˡ ⊢l) =
+    supᵘ-zeroˡ (stabilityTerm Γ≡Δ ⊢l)
+  stabilityRedTerm Γ≡Δ (supᵘ-zeroʳ ⊢l) =
+    supᵘ-zeroʳ (stabilityTerm Γ≡Δ ⊢l)
+  stabilityRedTerm Γ≡Δ (supᵘ-sucᵘ ⊢l₁ ⊢l₂) =
+    supᵘ-sucᵘ (stabilityTerm Γ≡Δ ⊢l₁) (stabilityTerm Γ≡Δ ⊢l₂)
+  stabilityRedTerm Γ≡Δ (supᵘ-substˡ t⇒t′ ⊢u) =
+    supᵘ-substˡ (stabilityRedTerm Γ≡Δ t⇒t′) (stabilityTerm Γ≡Δ ⊢u)
+  stabilityRedTerm Γ≡Δ (supᵘ-substʳ ⊢t u⇒u′) =
+    supᵘ-substʳ (stabilityTerm Γ≡Δ ⊢t) (stabilityRedTerm Γ≡Δ u⇒u′)
   stabilityRedTerm Γ≡Δ (lower-subst x) =
     lower-subst (stabilityRedTerm Γ≡Δ x)
   stabilityRedTerm Γ≡Δ (Lift-β x₁ x₂) =

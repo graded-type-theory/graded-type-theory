@@ -92,7 +92,7 @@ opaque
       (ΠΣⱼ (zeroᵘⱼ ⊢Γ) (zeroᵘⱼ ⊢Γ) (ℕⱼ ⊢Γ)
         (Erasedⱼ-U Erased-ok (⊢OK∷U (var₀ (ℕⱼ ⊢Γ))))
         Σ-ok)
-      (U-cong (maxᵘ-zeroʳ (zeroᵘⱼ ⊢Γ)))
+      (U-cong (supᵘ-zeroʳ (zeroᵘⱼ ⊢Γ)))
 
 opaque
 

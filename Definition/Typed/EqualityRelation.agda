@@ -153,39 +153,39 @@ record Equality-relations
     -- Successor level congruence
     ≅ₜ-sucᵘ-cong : Γ ⊢ t ≅ u ∷ Level → Γ ⊢ sucᵘ t ≅ sucᵘ u ∷ Level
 
-    -- maxᵘ congruence
-    ≅ₜ-maxᵘ-cong
+    -- supᵘ congruence
+    ≅ₜ-supᵘ-cong
       : Γ ⊢ t₁ ≅ t₂ ∷ Level
       → Γ ⊢ u₁ ≅ u₂ ∷ Level
-      → Γ ⊢ t₁ maxᵘ u₁ ≅ t₂ maxᵘ u₂ ∷ Level
+      → Γ ⊢ t₁ supᵘ u₁ ≅ t₂ supᵘ u₂ ∷ Level
 
-    -- maxᵘ right identity
-    ≅ₜ-maxᵘ-zeroʳ
+    -- supᵘ right identity
+    ≅ₜ-supᵘ-zeroʳ
       : Γ ⊢≅ t ∷ Level
-      → Γ ⊢ t maxᵘ zeroᵘ ≅ t ∷ Level
+      → Γ ⊢ t supᵘ zeroᵘ ≅ t ∷ Level
 
-    -- maxᵘ associativity
-    ≅ₜ-maxᵘ-assoc
+    -- supᵘ associativity
+    ≅ₜ-supᵘ-assoc
       : Γ ⊢≅ t ∷ Level
       → Γ ⊢≅ u ∷ Level
       → Γ ⊢≅ v ∷ Level
-      → Γ ⊢ (t maxᵘ u) maxᵘ v ≅ t maxᵘ (u maxᵘ v) ∷ Level
+      → Γ ⊢ (t supᵘ u) supᵘ v ≅ t supᵘ (u supᵘ v) ∷ Level
 
-    -- maxᵘ commutativity
-    ≅ₜ-maxᵘ-comm
+    -- supᵘ commutativity
+    ≅ₜ-supᵘ-comm
       : Γ ⊢≅ t ∷ Level
       → Γ ⊢≅ u ∷ Level
-      → Γ ⊢ t maxᵘ u ≅ u maxᵘ t ∷ Level
+      → Γ ⊢ t supᵘ u ≅ u supᵘ t ∷ Level
 
-    -- maxᵘ idempotence
-    ≅ₜ-maxᵘ-idem
+    -- supᵘ idempotence
+    ≅ₜ-supᵘ-idem
       : Γ ⊢≅ t ∷ Level
-      → Γ ⊢ t maxᵘ t ≅ t ∷ Level
+      → Γ ⊢ t supᵘ t ≅ t ∷ Level
 
-    -- maxᵘ subsumption
-    ≅ₜ-maxᵘ-sub
+    -- supᵘ subsumption
+    ≅ₜ-supᵘ-sub
       : Γ ⊢≅ t ∷ Level
-      → Γ ⊢ t maxᵘ sucᵘ t ≅ sucᵘ t ∷ Level
+      → Γ ⊢ t supᵘ sucᵘ t ≅ sucᵘ t ∷ Level
 
     -- Universe congruence
     ≅ₜ-U-cong : Γ ⊢ l ≅ k ∷ Level → Γ ⊢ U l ≅ U k ∷ U (sucᵘ l)
@@ -199,7 +199,7 @@ record Equality-relations
     ≅ₜ-Lift-cong
       : Γ ⊢ l ≅ k ∷ Level
       → Γ ⊢ A ≅ B ∷ U l₁
-      → Γ ⊢ Lift l A ≅ Lift k B ∷ U (l₁ maxᵘ l)
+      → Γ ⊢ Lift l A ≅ Lift k B ∷ U (l₁ supᵘ l)
 
     -- η for Lift
     ≅-Lift-η : Γ ⊢ t ∷ Lift k A
@@ -492,45 +492,45 @@ record Equality-relations
 
   opaque
 
-    -- maxᵘ distributes over sucᵘ
+    -- supᵘ distributes over sucᵘ
 
-    ≅ₜ-maxᵘ-sucᵘ
+    ≅ₜ-supᵘ-sucᵘ
       : Γ ⊢≅ t ∷ Level
       → Γ ⊢≅ u ∷ Level
-      → Γ ⊢ sucᵘ t maxᵘ sucᵘ u ≅ sucᵘ (t maxᵘ u) ∷ Level
-    ≅ₜ-maxᵘ-sucᵘ ⊢≅t ⊢≅u =
+      → Γ ⊢ sucᵘ t supᵘ sucᵘ u ≅ sucᵘ (t supᵘ u) ∷ Level
+    ≅ₜ-supᵘ-sucᵘ ⊢≅t ⊢≅u =
       let ⊢Level , ⊢t , _ = wf-⊢≡∷ (≅ₜ-eq ⊢≅t)
           _ , ⊢u , _ = wf-⊢≡∷ (≅ₜ-eq ⊢≅u)
       in ≅ₜ-red
         (id ⊢Level , Levelₙ)
-        (redMany (maxᵘ-sucᵘ ⊢t ⊢u) , sucᵘₙ)
-        (id (sucᵘⱼ (maxᵘⱼ ⊢t ⊢u)) , sucᵘₙ)
-        (≅ₜ-sucᵘ-cong (≅ₜ-maxᵘ-cong ⊢≅t ⊢≅u))
+        (redMany (supᵘ-sucᵘ ⊢t ⊢u) , sucᵘₙ)
+        (id (sucᵘⱼ (supᵘⱼ ⊢t ⊢u)) , sucᵘₙ)
+        (≅ₜ-sucᵘ-cong (≅ₜ-supᵘ-cong ⊢≅t ⊢≅u))
 
   opaque
 
-    -- A variant of ≅ₜ-maxᵘ-sub.
+    -- A variant of ≅ₜ-supᵘ-sub.
 
-    ≅ₜ-maxᵘ-sub′
+    ≅ₜ-supᵘ-sub′
       : Γ ⊢≅ t ∷ Level
-      → Γ ⊢ t maxᵘ u ≅ u ∷ Level
-      → Γ ⊢ t maxᵘ sucᵘ u ≅ sucᵘ u ∷ Level
-    ≅ₜ-maxᵘ-sub′ ⊢≅t t⊔u≡u =
+      → Γ ⊢ t supᵘ u ≅ u ∷ Level
+      → Γ ⊢ t supᵘ sucᵘ u ≅ sucᵘ u ∷ Level
+    ≅ₜ-supᵘ-sub′ ⊢≅t t⊔u≡u =
       let _ , ⊢t , _ = wf-⊢≡∷ (≅ₜ-eq ⊢≅t)
           _ , ⊢t⊔u , ⊢u = wf-⊢≡∷ (≅ₜ-eq t⊔u≡u)
           _ , ⊢≅u = wf-⊢≅∷ t⊔u≡u
       in
-      -- t maxᵘ sucᵘ u
-        ≅ₜ-trans (≅ₜ-maxᵘ-cong ⊢≅t (≅ₜ-trans
+      -- t supᵘ sucᵘ u
+        ≅ₜ-trans (≅ₜ-supᵘ-cong ⊢≅t (≅ₜ-trans
           (≅ₜ-sucᵘ-cong (≅ₜ-sym t⊔u≡u))
-          (≅ₜ-sym (≅ₜ-maxᵘ-sucᵘ ⊢≅t ⊢≅u))))
-      -- t maxᵘ (sucᵘ t maxᵘ sucᵘ u)
-      $ ≅ₜ-trans (≅ₜ-sym (≅ₜ-maxᵘ-assoc ⊢≅t (≅ₜ-sucᵘ-cong ⊢≅t) (≅ₜ-sucᵘ-cong ⊢≅u)))
-      -- (t maxᵘ sucᵘ t) maxᵘ sucᵘ u
-      $ ≅ₜ-trans (≅ₜ-maxᵘ-cong (≅ₜ-maxᵘ-sub ⊢≅t) (≅ₜ-sucᵘ-cong ⊢≅u))
-      -- sucᵘ t maxᵘ sucᵘ u
-      $ ≅ₜ-trans (≅ₜ-maxᵘ-sucᵘ ⊢≅t ⊢≅u)
-      -- sucᵘ (t maxᵘ u)
+          (≅ₜ-sym (≅ₜ-supᵘ-sucᵘ ⊢≅t ⊢≅u))))
+      -- t supᵘ (sucᵘ t supᵘ sucᵘ u)
+      $ ≅ₜ-trans (≅ₜ-sym (≅ₜ-supᵘ-assoc ⊢≅t (≅ₜ-sucᵘ-cong ⊢≅t) (≅ₜ-sucᵘ-cong ⊢≅u)))
+      -- (t supᵘ sucᵘ t) supᵘ sucᵘ u
+      $ ≅ₜ-trans (≅ₜ-supᵘ-cong (≅ₜ-supᵘ-sub ⊢≅t) (≅ₜ-sucᵘ-cong ⊢≅u))
+      -- sucᵘ t supᵘ sucᵘ u
+      $ ≅ₜ-trans (≅ₜ-supᵘ-sucᵘ ⊢≅t ⊢≅u)
+      -- sucᵘ (t supᵘ u)
       $ ≅ₜ-sucᵘ-cong t⊔u≡u
       -- sucᵘ u
 

@@ -111,7 +111,7 @@ mutual
     helper (sucᵘ _) = λ where
       (yes A) → yes (checkᶜ A)
       (no not) → no λ { (checkᶜ A) → not A }
-    helper (_ maxᵘ _) = λ where
+    helper (_ supᵘ _) = λ where
       (yes A) → yes (checkᶜ A)
       (no not) → no λ { (checkᶜ A) → not A }
     helper (lift _) = λ where
@@ -194,10 +194,10 @@ mutual
     case dec-Checkable t of λ where
       (yes t)  → yes (sucᵘᵢ t)
       (no not) → no λ { (sucᵘᵢ t) → not t }
-  dec-Inferable (t maxᵘ u) =
+  dec-Inferable (t supᵘ u) =
     case dec-Checkable t ×-dec dec-Checkable u of λ where
-      (yes (t , u))  → yes (maxᵘᵢ t u)
-      (no not) → no λ { (maxᵘᵢ t u) → not (t , u) }
+      (yes (t , u))  → yes (supᵘᵢ t u)
+      (no not) → no λ { (supᵘᵢ t u) → not (t , u) }
   dec-Inferable (U l) =
     case dec-Checkable l of λ where
       (yes l) → yes (Uᵢ l)
@@ -332,7 +332,7 @@ mutual
     helper (sucᵘ _) = λ where
       (yes t) → yes (infᶜ t)
       (no ¬t) → no λ { (infᶜ t) → ¬t t }
-    helper (_ maxᵘ _) = λ where
+    helper (_ supᵘ _) = λ where
       (yes t) → yes (infᶜ t)
       (no ¬t) → no λ { (infᶜ t) → ¬t t }
     helper (U _) = λ where
@@ -640,8 +640,8 @@ mutual
     (univᶜ (infᶜ zeroᵘᵢ ≡U)) → U≢Level (sym ≡U)
   dec⇉Type ⊢Γ (sucᵘᵢ x) = no λ where
     (univᶜ (infᶜ (sucᵘᵢ _) ≡U)) → U≢Level (sym ≡U)
-  dec⇉Type ⊢Γ (maxᵘᵢ x y) = no λ where
-    (univᶜ (infᶜ (maxᵘᵢ _ _) ≡U)) → U≢Level (sym ≡U)
+  dec⇉Type ⊢Γ (supᵘᵢ x y) = no λ where
+    (univᶜ (infᶜ (supᵘᵢ _ _) ≡U)) → U≢Level (sym ≡U)
   dec⇉Type ⊢Γ (Uᵢ l) =
     case dec⇇ l (Levelⱼ ⊢Γ) of λ where
       (yes l) → yes (Uᶜ l)
@@ -870,11 +870,11 @@ mutual
     (yes t⇇Level) → yes (_ , sucᵘᵢ t⇇Level)
     (no ¬t⇇Level) → no λ where
       (_ , sucᵘᵢ x) → ¬t⇇Level x
-  dec⇉ ⊢Γ (maxᵘᵢ t u) =
+  dec⇉ ⊢Γ (supᵘᵢ t u) =
     case dec⇇ t (Levelⱼ ⊢Γ) ×-dec dec⇇ u (Levelⱼ ⊢Γ) of λ where
-      (yes (t⇇Level , u⇇Level)) → yes (_ , maxᵘᵢ t⇇Level u⇇Level)
+      (yes (t⇇Level , u⇇Level)) → yes (_ , supᵘᵢ t⇇Level u⇇Level)
       (no not) → no λ where
-        (_ , maxᵘᵢ x y) → not (x , y)
+        (_ , supᵘᵢ x y) → not (x , y)
   dec⇉ ⊢Γ (Uᵢ l) =
     case dec⇇ l (Levelⱼ ⊢Γ) of λ where
       (yes l) → yes (_ , Uᵢ l)

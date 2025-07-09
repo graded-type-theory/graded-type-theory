@@ -166,10 +166,10 @@ opaque
     Γ ⊩ᵛ⟨ l ⟩ k₁ ∷ Level →
     Γ ⊩ᵛ⟨ l′ ⟩ k ≡ k′ ∷ Level →
     Γ ⊩ᵛ⟨ l″ ⟩ A ≡ A′ ∷ U k₁ →
-    Γ ⊩ᵛ⟨ ωᵘ ⟩ Lift k A ≡ Lift k′ A′ ∷ U (k₁ maxᵘ k)
+    Γ ⊩ᵛ⟨ ωᵘ ⟩ Lift k A ≡ Lift k′ A′ ∷ U (k₁ supᵘ k)
   Lift-congᵗᵛ ⊩k₁ k≡k′ A≡A′ =
     ⊩ᵛ≡∷⇔ʰ .proj₂
-      ( ⊩ᵛU (maxᵘᵛ ⊩k₁ (wf-⊩ᵛ≡∷ k≡k′ .proj₁))
+      ( ⊩ᵛU (supᵘᵛ ⊩k₁ (wf-⊩ᵛ≡∷ k≡k′ .proj₁))
       , λ σ₁≡σ₂ →
           let k[σ₁]≡k′[σ₂] = ⊩≡∷Level⇔ .proj₁ $ R.⊩≡∷→ $ ⊩ᵛ≡∷→⊩ˢ≡∷→⊩[]≡[]∷ k≡k′ σ₁≡σ₂
               A[σ₁]≡A′[σ₂]∷U = R.⊩≡∷→ $ ⊩ᵛ≡∷→⊩ˢ≡∷→⊩[]≡[]∷ A≡A′ σ₁≡σ₂
@@ -179,10 +179,10 @@ opaque
               ⊩σ₁ = wf-⊩ˢ≡∷ σ₁≡σ₂ .proj₁
               ⊩k₁[σ₁] = ⊩∷Level⇔ .proj₁ $ R.⊩∷→ $ ⊩ᵛ∷→⊩ˢ∷→⊩[]∷ ⊩k₁ ⊩σ₁
           in Type→⊩≡∷U⇔ Liftₙ Liftₙ .proj₂
-            ( ⊩maxᵘ ⊩k₁[σ₁] ⊩k[σ₁] , <ᵘ-ωᵘ
+            ( ⊩supᵘ ⊩k₁[σ₁] ⊩k[σ₁] , <ᵘ-ωᵘ
             , ⊩Lift≡Lift⇔ .proj₂
               ( k[σ₁]≡k′[σ₂]
-              , emb-⊩≡ ≤ᵘ-maxᵘʳ A[σ₁]≡A′[σ₂]
+              , emb-⊩≡ ≤ᵘ-supᵘʳ A[σ₁]≡A′[σ₂]
               )
             , ≅ₜ-Lift-cong (escapeLevelEq k[σ₁]≡k′[σ₂]) (escape-⊩≡∷ A[σ₁]≡A′[σ₂]∷U)
             )
@@ -217,7 +217,7 @@ opaque
     Γ ⊩ᵛ⟨ l ⟩ k₁ ∷ Level →
     Γ ⊩ᵛ⟨ l′ ⟩ k ∷ Level →
     Γ ⊩ᵛ⟨ l″ ⟩ A ∷ U k₁ →
-    Γ ⊩ᵛ⟨ ωᵘ ⟩ Lift k A ∷ U (k₁ maxᵘ k)
+    Γ ⊩ᵛ⟨ ωᵘ ⟩ Lift k A ∷ U (k₁ supᵘ k)
   Liftᵗᵛ ⊩k₁ ⊩k ⊩A = ⊩ᵛ∷⇔⊩ᵛ≡∷ .proj₂
     (Lift-congᵗᵛ ⊩k₁ (refl-⊩ᵛ≡∷ ⊩k) (refl-⊩ᵛ≡∷ ⊩A))
 
