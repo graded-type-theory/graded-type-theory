@@ -158,11 +158,11 @@ _⊔ᵘ_ : (_ _ : Universe-level) → Universe-level
 infix 4 _≤ᵘ_
 
 data _≤ᵘ_ : Universe-level → Universe-level → Set where
-  ≤ᵘ-nat : ∀ {l l′} → l ≤′ l′ → 0ᵘ+ l ≤ᵘ 0ᵘ+ l′
+  ≤ᵘ-fin : ∀ {l l′} → l ≤′ l′ → 0ᵘ+ l ≤ᵘ 0ᵘ+ l′
   ≤ᵘ-ωᵘ  : ∀ {l} → l ≤ᵘ ωᵘ
 
 ≤ᵘ-refl : ∀ {l} → l ≤ᵘ l
-≤ᵘ-refl {0ᵘ+ x} = ≤ᵘ-nat ≤′-refl
+≤ᵘ-refl {0ᵘ+ x} = ≤ᵘ-fin ≤′-refl
 ≤ᵘ-refl {(ωᵘ)} = ≤ᵘ-ωᵘ
 
 -- Strict ordering of universe levels.
@@ -170,8 +170,8 @@ data _≤ᵘ_ : Universe-level → Universe-level → Set where
 infix 4 _<ᵘ_
 
 data _<ᵘ_ : Universe-level → Universe-level → Set where
-  <ᵘ-nat : ∀ {l l′} → l <′ l′ → 0ᵘ+ l <ᵘ 0ᵘ+ l′
+  <ᵘ-fin : ∀ {l l′} → l <′ l′ → 0ᵘ+ l <ᵘ 0ᵘ+ l′
   <ᵘ-ωᵘ  : ∀ {l} → 0ᵘ+ l <ᵘ ωᵘ
 
 0ᵘ<ᵘ1ᵘ : 0ᵘ <ᵘ 1ᵘ
-0ᵘ<ᵘ1ᵘ = <ᵘ-nat ≤′-refl
+0ᵘ<ᵘ1ᵘ = <ᵘ-fin ≤′-refl

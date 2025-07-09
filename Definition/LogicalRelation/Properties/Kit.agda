@@ -66,8 +66,8 @@ _⊩<⟨_⟩_≡_∷_/_ :
 -- Γ ⊩⟨ l₁ ⟩ A.
 
 ⊩<⇔⊩ : (p : l₁ <ᵘ l₂) → Γ ⊩<⟨ p ⟩ A ⇔ Γ ⊩⟨ l₁ ⟩ A
-⊩<⇔⊩ (<ᵘ-nat ≤′-refl)     = id⇔
-⊩<⇔⊩ (<ᵘ-nat (≤′-step p)) = ⊩<⇔⊩ (<ᵘ-nat p)
+⊩<⇔⊩ (<ᵘ-fin ≤′-refl)     = id⇔
+⊩<⇔⊩ (<ᵘ-fin (≤′-step p)) = ⊩<⇔⊩ (<ᵘ-fin p)
 ⊩<⇔⊩ <ᵘ-ωᵘ                = id⇔
 
 -- If p : l₁ <ᵘ l₂ and ⊩A : Γ ⊩<⟨ p ⟩ A, then Γ ⊩<⟨ p ⟩ A ≡ B / ⊩A is
@@ -76,8 +76,8 @@ _⊩<⟨_⟩_≡_∷_/_ :
 ⊩<≡⇔⊩≡ :
   (p : l₁ <ᵘ l₂) {⊩A : Γ ⊩<⟨ p ⟩ A} →
   Γ ⊩<⟨ p ⟩ A ≡ B / ⊩A ⇔ Γ ⊩⟨ l₁ ⟩ A ≡ B / ⊩<⇔⊩ p .proj₁ ⊩A
-⊩<≡⇔⊩≡ (<ᵘ-nat ≤′-refl)     = id⇔
-⊩<≡⇔⊩≡ (<ᵘ-nat (≤′-step p)) = ⊩<≡⇔⊩≡ (<ᵘ-nat p)
+⊩<≡⇔⊩≡ (<ᵘ-fin ≤′-refl)     = id⇔
+⊩<≡⇔⊩≡ (<ᵘ-fin (≤′-step p)) = ⊩<≡⇔⊩≡ (<ᵘ-fin p)
 ⊩<≡⇔⊩≡ <ᵘ-ωᵘ                = id⇔
 
 -- A variant of ⊩<≡⇔⊩≡.
@@ -85,8 +85,8 @@ _⊩<⟨_⟩_≡_∷_/_ :
 ⊩<≡⇔⊩≡′ :
   (p : l₁ <ᵘ l₂) {⊩A : Γ ⊩⟨ l₁ ⟩ A} →
   Γ ⊩<⟨ p ⟩ A ≡ B / ⊩<⇔⊩ p .proj₂ ⊩A ⇔ Γ ⊩⟨ l₁ ⟩ A ≡ B / ⊩A
-⊩<≡⇔⊩≡′ (<ᵘ-nat ≤′-refl)     = id⇔
-⊩<≡⇔⊩≡′ (<ᵘ-nat (≤′-step p)) = ⊩<≡⇔⊩≡′ (<ᵘ-nat p)
+⊩<≡⇔⊩≡′ (<ᵘ-fin ≤′-refl)     = id⇔
+⊩<≡⇔⊩≡′ (<ᵘ-fin (≤′-step p)) = ⊩<≡⇔⊩≡′ (<ᵘ-fin p)
 ⊩<≡⇔⊩≡′ <ᵘ-ωᵘ                = id⇔
 
 -- If p : l₁ <ᵘ l₂ and ⊩A : Γ ⊩<⟨ p ⟩ A, then Γ ⊩<⟨ p ⟩ t ∷ A / ⊩A is
@@ -95,8 +95,8 @@ _⊩<⟨_⟩_≡_∷_/_ :
 ⊩<∷⇔⊩∷ :
   (p : l₁ <ᵘ l₂) {⊩A : Γ ⊩<⟨ p ⟩ A} →
   Γ ⊩<⟨ p ⟩ t ∷ A / ⊩A ⇔ Γ ⊩⟨ l₁ ⟩ t ∷ A / ⊩<⇔⊩ p .proj₁ ⊩A
-⊩<∷⇔⊩∷ (<ᵘ-nat ≤′-refl)     = id⇔
-⊩<∷⇔⊩∷ (<ᵘ-nat (≤′-step p)) = ⊩<∷⇔⊩∷ (<ᵘ-nat p)
+⊩<∷⇔⊩∷ (<ᵘ-fin ≤′-refl)     = id⇔
+⊩<∷⇔⊩∷ (<ᵘ-fin (≤′-step p)) = ⊩<∷⇔⊩∷ (<ᵘ-fin p)
 ⊩<∷⇔⊩∷ <ᵘ-ωᵘ                = id⇔
 
 -- A variant of ⊩<∷⇔⊩∷.
@@ -104,8 +104,8 @@ _⊩<⟨_⟩_≡_∷_/_ :
 ⊩<∷⇔⊩∷′ :
   (p : l₁ <ᵘ l₂) {⊩A : Γ ⊩⟨ l₁ ⟩ A} →
   Γ ⊩<⟨ p ⟩ t ∷ A / ⊩<⇔⊩ p .proj₂ ⊩A ⇔ Γ ⊩⟨ l₁ ⟩ t ∷ A / ⊩A
-⊩<∷⇔⊩∷′ (<ᵘ-nat ≤′-refl)     = id⇔
-⊩<∷⇔⊩∷′ (<ᵘ-nat (≤′-step p)) = ⊩<∷⇔⊩∷′ (<ᵘ-nat p)
+⊩<∷⇔⊩∷′ (<ᵘ-fin ≤′-refl)     = id⇔
+⊩<∷⇔⊩∷′ (<ᵘ-fin (≤′-step p)) = ⊩<∷⇔⊩∷′ (<ᵘ-fin p)
 ⊩<∷⇔⊩∷′ <ᵘ-ωᵘ                = id⇔
 
 -- If p : l₁ <ᵘ l₂ and ⊩A : Γ ⊩<⟨ p ⟩ A, then Γ ⊩<⟨ p ⟩ t ≡ u ∷ A / ⊩A is
@@ -114,8 +114,8 @@ _⊩<⟨_⟩_≡_∷_/_ :
 ⊩<≡∷⇔⊩≡∷ :
   (p : l₁ <ᵘ l₂) {⊩A : Γ ⊩<⟨ p ⟩ A} →
   Γ ⊩<⟨ p ⟩ t ≡ u ∷ A / ⊩A ⇔ Γ ⊩⟨ l₁ ⟩ t ≡ u ∷ A / ⊩<⇔⊩ p .proj₁ ⊩A
-⊩<≡∷⇔⊩≡∷ (<ᵘ-nat ≤′-refl)     = id⇔
-⊩<≡∷⇔⊩≡∷ (<ᵘ-nat (≤′-step p)) = ⊩<≡∷⇔⊩≡∷ (<ᵘ-nat p)
+⊩<≡∷⇔⊩≡∷ (<ᵘ-fin ≤′-refl)     = id⇔
+⊩<≡∷⇔⊩≡∷ (<ᵘ-fin (≤′-step p)) = ⊩<≡∷⇔⊩≡∷ (<ᵘ-fin p)
 ⊩<≡∷⇔⊩≡∷ <ᵘ-ωᵘ                = id⇔
 
 -- A variant of ⊩<≡∷⇔⊩≡∷.
@@ -123,8 +123,8 @@ _⊩<⟨_⟩_≡_∷_/_ :
 ⊩<≡∷⇔⊩≡∷′ :
   (p : l₁ <ᵘ l₂) {⊩A : Γ ⊩⟨ l₁ ⟩ A} →
   Γ ⊩<⟨ p ⟩ t ≡ u ∷ A / ⊩<⇔⊩ p .proj₂ ⊩A ⇔ Γ ⊩⟨ l₁ ⟩ t ≡ u ∷ A / ⊩A
-⊩<≡∷⇔⊩≡∷′ (<ᵘ-nat ≤′-refl)     = id⇔
-⊩<≡∷⇔⊩≡∷′ (<ᵘ-nat (≤′-step p)) = ⊩<≡∷⇔⊩≡∷′ (<ᵘ-nat p)
+⊩<≡∷⇔⊩≡∷′ (<ᵘ-fin ≤′-refl)     = id⇔
+⊩<≡∷⇔⊩≡∷′ (<ᵘ-fin (≤′-step p)) = ⊩<≡∷⇔⊩≡∷′ (<ᵘ-fin p)
 ⊩<≡∷⇔⊩≡∷′ <ᵘ-ωᵘ                = id⇔
 
 opaque
@@ -132,8 +132,8 @@ opaque
   -- If p : l₁ <ᵘ l₂, then kit l₁ is equal to kit′ p.
 
   kit≡kit′ : (p : l₁ <ᵘ l₂) → kit l₁ PE.≡ kit′ p
-  kit≡kit′ (<ᵘ-nat ≤′-refl)     = PE.refl
-  kit≡kit′ (<ᵘ-nat (≤′-step p)) = kit≡kit′ (<ᵘ-nat p)
+  kit≡kit′ (<ᵘ-fin ≤′-refl)     = PE.refl
+  kit≡kit′ (<ᵘ-fin (≤′-step p)) = kit≡kit′ (<ᵘ-fin p)
   kit≡kit′ <ᵘ-ωᵘ                = PE.refl
 
 opaque

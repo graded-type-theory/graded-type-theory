@@ -171,7 +171,7 @@ opaque
   -- The level 0 is the lowest level.
 
   0≤ᵘ : 0ᵘ ≤ᵘ l
-  0≤ᵘ {0ᵘ+ x} = ≤ᵘ-nat z≤′n
+  0≤ᵘ {0ᵘ+ x} = ≤ᵘ-fin z≤′n
   0≤ᵘ {(ωᵘ)}  = ≤ᵘ-ωᵘ
 
 opaque
@@ -179,7 +179,7 @@ opaque
   -- The relation _≤ᵘ_ is transitive.
 
   ≤ᵘ-trans : l₁ ≤ᵘ l₂ → l₂ ≤ᵘ l₃ → l₁ ≤ᵘ l₃
-  ≤ᵘ-trans (≤ᵘ-nat p) (≤ᵘ-nat q) = ≤ᵘ-nat (≤′-trans p q)
+  ≤ᵘ-trans (≤ᵘ-fin p) (≤ᵘ-fin q) = ≤ᵘ-fin (≤′-trans p q)
   ≤ᵘ-trans _          ≤ᵘ-ωᵘ      = ≤ᵘ-ωᵘ
 
 opaque
@@ -187,15 +187,15 @@ opaque
   -- The relation _<ᵘ_ is transitive.
 
   <ᵘ-trans : l₁ <ᵘ l₂ → l₂ <ᵘ l₃ → l₁ <ᵘ l₃
-  <ᵘ-trans (<ᵘ-nat p) (<ᵘ-nat q) = <ᵘ-nat (<′-trans p q)
-  <ᵘ-trans (<ᵘ-nat _) <ᵘ-ωᵘ      = <ᵘ-ωᵘ
+  <ᵘ-trans (<ᵘ-fin p) (<ᵘ-fin q) = <ᵘ-fin (<′-trans p q)
+  <ᵘ-trans (<ᵘ-fin _) <ᵘ-ωᵘ      = <ᵘ-ωᵘ
   <ᵘ-trans <ᵘ-ωᵘ      ()
 
 opaque
 
   <ᵘ-≤ᵘ-trans : l₁ <ᵘ l₂ → l₂ ≤ᵘ l₃ → l₁ <ᵘ l₃
-  <ᵘ-≤ᵘ-trans (<ᵘ-nat p) (≤ᵘ-nat q) = <ᵘ-nat (≤′-trans p q)
-  <ᵘ-≤ᵘ-trans (<ᵘ-nat _) ≤ᵘ-ωᵘ      = <ᵘ-ωᵘ
+  <ᵘ-≤ᵘ-trans (<ᵘ-fin p) (≤ᵘ-fin q) = <ᵘ-fin (≤′-trans p q)
+  <ᵘ-≤ᵘ-trans (<ᵘ-fin _) ≤ᵘ-ωᵘ      = <ᵘ-ωᵘ
   <ᵘ-≤ᵘ-trans <ᵘ-ωᵘ      ≤ᵘ-ωᵘ      = <ᵘ-ωᵘ
 
 opaque
@@ -203,7 +203,7 @@ opaque
   -- The relation _<ᵘ_ is contained in _≤ᵘ_.
 
   <ᵘ→≤ᵘ : l₁ <ᵘ l₂ → l₁ ≤ᵘ l₂
-  <ᵘ→≤ᵘ (<ᵘ-nat p) = ≤ᵘ-nat (<′→≤′ p)
+  <ᵘ→≤ᵘ (<ᵘ-fin p) = ≤ᵘ-fin (<′→≤′ p)
   <ᵘ→≤ᵘ <ᵘ-ωᵘ      = ≤ᵘ-ωᵘ
 
 -- The relation _<ᵘ_ is well-founded.
@@ -212,8 +212,8 @@ private
   nat-accessible : ∀ n → Acc _<ᵘ_ (0ᵘ+ n)
   nat-accessible′ : ∀ n → WfRec _<ᵘ_ (Acc _<ᵘ_) (0ᵘ+ n)
   nat-accessible n = acc (nat-accessible′ n)
-  nat-accessible′ .(1+ n) (<ᵘ-nat {l = n} (≤′-refl)) = nat-accessible n
-  nat-accessible′ .(1+ n) (<ᵘ-nat (≤′-step {n} p)) = nat-accessible′ n (<ᵘ-nat p)
+  nat-accessible′ .(1+ n) (<ᵘ-fin {l = n} (≤′-refl)) = nat-accessible n
+  nat-accessible′ .(1+ n) (<ᵘ-fin (≤′-step {n} p)) = nat-accessible′ n (<ᵘ-fin p)
 
   ωᵘ-accessible′ : WfRec _<ᵘ_ (Acc _<ᵘ_) ωᵘ
   ωᵘ-accessible′ <ᵘ-ωᵘ = nat-accessible _
@@ -243,7 +243,7 @@ opaque
   -- The level l₁ is bounded by the maximum of l₁ and l₂.
 
   ≤ᵘ⊔ᵘʳ : l₁ ≤ᵘ l₁ ⊔ᵘ l₂
-  ≤ᵘ⊔ᵘʳ {0ᵘ+ l₁} {0ᵘ+ l₂} = ≤ᵘ-nat ≤′⊔ʳ
+  ≤ᵘ⊔ᵘʳ {0ᵘ+ l₁} {0ᵘ+ l₂} = ≤ᵘ-fin ≤′⊔ʳ
   ≤ᵘ⊔ᵘʳ {0ᵘ+ l₁} {(ωᵘ)}   = ≤ᵘ-ωᵘ
   ≤ᵘ⊔ᵘʳ {(ωᵘ)}            = ≤ᵘ-ωᵘ
 
@@ -252,7 +252,7 @@ opaque
   -- The level l₂ is bounded by the maximum of l₁ and l₂.
 
   ≤ᵘ⊔ᵘˡ : l₂ ≤ᵘ l₁ ⊔ᵘ l₂
-  ≤ᵘ⊔ᵘˡ {0ᵘ+ l₂} {0ᵘ+ l₁} = ≤ᵘ-nat ≤′⊔ˡ
+  ≤ᵘ⊔ᵘˡ {0ᵘ+ l₂} {0ᵘ+ l₁} = ≤ᵘ-fin ≤′⊔ˡ
   ≤ᵘ⊔ᵘˡ {(ωᵘ)}   {0ᵘ+ l₁} = ≤ᵘ-ωᵘ
   ≤ᵘ⊔ᵘˡ {(l₂)}   {(ωᵘ)}   = ≤ᵘ-ωᵘ
 
@@ -261,8 +261,8 @@ opaque
   -- The function _⊔ᵘ_ is monotone.
 
   ⊔ᵘ-mono : l₁ ≤ᵘ l₁′ → l₂ ≤ᵘ l₂′ → l₁ ⊔ᵘ l₂ ≤ᵘ l₁′ ⊔ᵘ l₂′
-  ⊔ᵘ-mono (≤ᵘ-nat l₁≤) (≤ᵘ-nat l₂≤) = ≤ᵘ-nat (⊔-mono l₁≤ l₂≤)
-  ⊔ᵘ-mono (≤ᵘ-nat l₁≤) ≤ᵘ-ωᵘ        = ≤ᵘ-ωᵘ
+  ⊔ᵘ-mono (≤ᵘ-fin l₁≤) (≤ᵘ-fin l₂≤) = ≤ᵘ-fin (⊔-mono l₁≤ l₂≤)
+  ⊔ᵘ-mono (≤ᵘ-fin l₁≤) ≤ᵘ-ωᵘ        = ≤ᵘ-ωᵘ
   ⊔ᵘ-mono ≤ᵘ-ωᵘ        l₂≤          = ≤ᵘ-ωᵘ
 
 opaque

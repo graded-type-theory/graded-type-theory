@@ -858,7 +858,7 @@ opaque
   <ᵘ-sucᵘ
     : ∀ {t} {[t] : Γ ⊩Level t ∷Level} {[t+1] : Γ ⊩Level sucᵘ t ∷Level}
     → ↑ᵘ [t] <ᵘ ↑ᵘ [t+1]
-  <ᵘ-sucᵘ {[t]} {[t+1]} = <ᵘ-nat (<′-sucᵘ [t] [t+1])
+  <ᵘ-sucᵘ {[t]} {[t+1]} = <ᵘ-fin (<′-sucᵘ [t] [t+1])
 
 opaque
 
@@ -1025,4 +1025,4 @@ opaque
   : ∀ {t u} {[t] : Γ ⊩Level t ∷Level} {[u] : Γ ⊩Level u ∷Level}
   → Γ ⊩Level t supᵘ u ≡ u ∷Level
   → ↑ᵘ [t] ≤ᵘ ↑ᵘ [u]
-↑ᵘ-cong-≤ t≤u = ≤ᵘ-nat (≤⇒≤′ (↑ⁿ-cong-≤ t≤u))
+↑ᵘ-cong-≤ t≤u = ≤ᵘ-fin (≤⇒≤′ (↑ⁿ-cong-≤ t≤u))
