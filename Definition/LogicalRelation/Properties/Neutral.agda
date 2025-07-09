@@ -1,5 +1,5 @@
 ------------------------------------------------------------------------
--- Neutral terms are in the logical relation (given some assumptions)
+-- Atomic neutral terms are in the logical relation (given some assumptions)
 ------------------------------------------------------------------------
 
 open import Definition.Typed.EqualityRelation
@@ -72,7 +72,7 @@ opaque
  unfolding ⊩Id∷⇔⊩Id≡∷
  mutual
 
-  -- Neutral reflexive terms are reducible (if Neutrals-included
+  -- Atomic neutral reflexive terms are reducible (if Neutrals-included
   -- holds).
 
   neuTerm :

@@ -34,7 +34,7 @@ private variable
 ------------------------------------------------------------------------
 -- Neutral terms
 
--- A term is neutral if it has a variable in head position.
+-- A term is (atomic) neutral if it has a variable in head position.
 -- The variable blocks reduction of such terms.
 
 data Neutral : Term n → Set a where
