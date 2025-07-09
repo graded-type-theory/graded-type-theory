@@ -15,7 +15,7 @@ module Graded.Erasure.LogicalRelation.Value
 
 open Assumptions as
 
-open import Definition.LogicalRelation R
+open import Definition.LogicalRelation.Simplified R
 open import Definition.Untyped M
 
 open import Graded.Erasure.LogicalRelation as
@@ -42,11 +42,11 @@ opaque
     str ≡ strict →
     t ® u ∷ A →
     ∃ λ v → T.Value v × u T.⇒* v
-  reduces-to-value refl (_ , ⊩A , t®u) = helper ⊩A t®u
+  reduces-to-value refl (⊨A , t®u) = helper ⊨A t®u
     where
     helper :
-      (⊩A : Δ ⊩⟨ l ⟩ A) →
-      t ®⟨ l ⟩ u ∷ A / ⊩A →
+      (⊨A : Δ ⊨ A) →
+      t ® u ∷ A / ⊨A →
       ∃ λ v → T.Value v × u T.⇒* v
     helper = λ where
       (Uᵣ _)            (Uᵣ v⇒*↯)           → _ , T.↯    , v⇒*↯ refl
@@ -56,13 +56,13 @@ opaque
       (Unitᵣ _)         (starᵣ _ v⇒*star)   → _ , T.star , v⇒*star
       (ne record{})     ()
       (Idᵣ _)           (rflᵣ _ v⇒*↯)       → _ , T.↯    , v⇒*↯ refl
-      (Bᵣ BΠ! record{}) (u⇒*lam , _)        → _ , T.lam  ,
+      (Bᵣ BMΠ _ _ record{}) (u⇒*lam , _)    → _ , T.lam  ,
                                               u⇒*lam refl .proj₂
-      (Bᵣ′ BΣ! _ _ _ _ _ ⊩B _ _) (_ , _ , _ , _ , _ , t₂®v₂ , more) →
+      (Bᵣ′ (BMΣ _) _ _ _ _ _ _ ⊨B) (_ , _ , _ , _ , _ , t₂®v₂ , more) →
         Σ-®-elim _ more
           (λ u⇒*v₂ _ →
              Σ.map idᶠ (Σ.map idᶠ (red*concat u⇒*v₂)) $
-             helper (⊩B _ _) t₂®v₂)
+             helper (⊨B _) t₂®v₂)
           (λ _ u⇒*prod _ _ → _ , T.prod , u⇒*prod)
 
 opaque

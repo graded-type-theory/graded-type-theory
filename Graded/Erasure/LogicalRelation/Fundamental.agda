@@ -24,11 +24,6 @@ open Definition.Untyped M
 open Definition.Typed TR
 open EqRelSet {{...}}
 
-import Definition.LogicalRelation.Properties TR as LP
-import Definition.LogicalRelation.Substitution.Introductions.Var TR as V
-
-import Definition.LogicalRelation.Fundamental TR as F
-
 open import Graded.Context 𝕄
 open import Graded.Context.Properties 𝕄
 open import Graded.Modality.Nr-instances
@@ -363,7 +358,7 @@ module Fundamental
            (inj₂ k≡0) → k≡0)
         ⊢v ok
     fundamental (conv ⊢t A≡B) γ▸t =
-      conv-▸⊩ʳ∷ (F.fundamental-⊩ᵛ≡ A≡B .proj₂) (fundamental ⊢t γ▸t)
+      conv-▸⊩ʳ∷ A≡B (fundamental ⊢t γ▸t)
 
   opaque
 

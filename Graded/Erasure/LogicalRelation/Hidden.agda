@@ -18,19 +18,13 @@ open Assumptions as
 open Modality 𝕄 hiding (_≤_; _<_)
 open Type-restrictions TR
 
-open import Definition.LogicalRelation TR as L
-open import Definition.LogicalRelation.Fundamental TR
-open import Definition.LogicalRelation.Fundamental.Reducibility TR
-open import Definition.LogicalRelation.Hidden TR
-import Definition.LogicalRelation.Irrelevance TR as IR
-open import Definition.LogicalRelation.ShapeView TR
-open import Definition.LogicalRelation.Substitution TR
-open import Definition.LogicalRelation.Substitution.Introductions TR
-open import Definition.LogicalRelation.Weakening.Restricted TR
+open import Definition.LogicalRelation.Simplified TR
 open import Definition.Typed TR
 open import Definition.Typed.Consequences.Inversion TR
 open import Definition.Typed.Inversion TR
 open import Definition.Typed.Properties TR
+open import Definition.Typed.Substitution TR
+open import Definition.Typed.Syntactic TR
 open import Definition.Typed.Well-formed TR
 open import Definition.Untyped M
 open import Definition.Untyped.Neutral M type-variant
@@ -79,36 +73,29 @@ private variable
 
 opaque
 
-  -- A variant of _®⟨_⟩_∷_/_.
+  -- A variant of _®_∷_/_.
 
   infix 19 _®_∷_
 
   _®_∷_ : Term k → T.Term k → Term k → Set a
   t ® v ∷ A =
-    ∃₂ λ l (⊩A : Δ ⊩⟨ l ⟩ A) → t ®⟨ l ⟩ v ∷ A / ⊩A
+    ∃ λ (⊨A : Δ ⊨ A) → t ® v ∷ A / ⊨A
 
 ------------------------------------------------------------------------
 -- Some characterisation lemmas for _®_∷_
 
 opaque
-  unfolding _®_∷_ ⊩U⇔
+  unfolding _®_∷_
 
   -- A characterisation lemma for U.
 
-  ®∷U⇔ : t ® v ∷ U l ⇔ (∃ λ l′ → l <ᵘ l′ × t ® v ∷U)
+  ®∷U⇔ : t ® v ∷ U l ⇔ t ® v ∷U
   ®∷U⇔ {t} {v} {l} =
-    t ® v ∷ U l                                              ⇔⟨ id⇔ ⟩
-    (∃₂ λ l′ (⊩U : Δ ⊩⟨ l′ ⟩ U l) → t ®⟨ l′ ⟩ v ∷ U l / ⊩U)  ⇔⟨ (λ (_ , ⊩U , t®v) →
-                                                                     _
-                                                                   , ⊩U⇔ .proj₁ ⊩U
-                                                                   , irrelevanceTerm ⊩U (Uᵣ (U-elim ⊩U)) t®v)
-                                                              , Σ.map idᶠ (Σ.map (⊩U⇔ .proj₂) idᶠ)
-                                                              ⟩
-    (∃ λ l′ → (l <ᵘ l′ × ⊢ Δ) × t ® v ∷U)                    ⇔⟨ (λ (_ , (l< , _) , t®v) → _ , l< , t®v)
-                                                              , (λ (_ , l< , t®v) → _ , (l< , ⊢Δ) , t®v)
-                                                              ⟩
-    (∃ λ l′ → l <ᵘ l′ × t ® v ∷U)                            □⇔
-
+    t ® v ∷ U l                               ⇔⟨ id⇔ ⟩
+    (∃ λ (⊩U : Δ ⊨ U l) → t ® v ∷ U l / ⊩U)  ⇔⟨ (λ (⊨U , t®v) → (irrelevanceTerm ⊨U) (U-intro ⊢Δ) t®v)
+                                               , (λ t®v → U-intro ⊢Δ , t®v)
+                                               ⟩
+    (t ® v ∷U)                                □⇔
 
 opaque
   unfolding _®_∷_
@@ -117,47 +104,42 @@ opaque
 
   ®∷Empty⇔ : t ® v ∷ Empty ⇔ t ® v ∷Empty
   ®∷Empty⇔ =
-      (λ (_ , ⊩Empty′ , t®v) →
-         irrelevanceTerm {l′ = 0} ⊩Empty′
-           (Emptyᵣ (Empty-elim ⊩Empty′)) t®v)
+    (λ (⊩Empty′ , t®v) →
+       irrelevanceTerm ⊩Empty′ (Empty-intro ⊢Δ) t®v)
     , (λ ())
 
 opaque
-  unfolding _®_∷_ ⊩Unit⇔ whrDet*
+  unfolding _®_∷_
 
   -- A characterisation lemma for Unit.
 
   ®∷Unit⇔ : t ® v ∷ Unit s l ⇔ t ® v ∷Unit⟨ s , l ⟩
-  ®∷Unit⇔ {l} =
-      (λ (_ , ⊩U , t®v) →
-         let ⊩U′ = ⊩Unit⇔ .proj₂ (≤ᵘ-refl , ⊩Unit⇔ .proj₁ ⊩U .proj₂) in
-         irrelevanceTerm ⊩U
-           (Unitᵣ (Unit-elim ⊩U′)) t®v)
-    , (λ t®v →
-           l
-         , ⊩Unit⇔ .proj₂
-             ( ≤ᵘ-refl
-             , ⊢Δ
-             , (case t®v of λ {
-                  (starᵣ t⇒* _) →
-                inversion-Unit (wf-⊢∷ (wf-⇛ t⇒* .proj₁)) })
-             )
-         , t®v)
+  ®∷Unit⇔ =
+      (λ (⊨Unit , t®v) →
+        irrelevanceTerm ⊨Unit
+          (Unit-intro ⊢Δ (inversion-Unit (⊨→⊢ ⊨Unit)))
+          t®v)
+         -- irrelevanceTerm ⊨Unit
+           -- (Unitᵣ {!Unit-elim ⊨Unit!}) t®v)
+    , (λ t®v → Unit-intro ⊢Δ (case t®v of λ {
+                   (starᵣ t⇒* _) →
+                   inversion-Unit (wf-⊢∷ (wf-⇛ t⇒* .proj₁)) })
+               , t®v)
 
 opaque
-  unfolding _®_∷_ ⊩ℕ⇔
+  unfolding _®_∷_
 
   -- A characterisation lemma for ℕ.
 
   ®∷ℕ⇔ : t ® v ∷ ℕ ⇔ t ® v ∷ℕ
   ®∷ℕ⇔ =
-      (λ (_ , ⊩ℕ′ , t®v) →
-         irrelevanceTerm {l′ = 0} ⊩ℕ′
-           (ℕᵣ (ℕ-elim ⊩ℕ′)) t®v)
-    , (λ t®v → 0 , ⊩ℕ⇔ .proj₂ ⊢Δ , t®v)
+      (λ (⊨ℕ′ , t®v) →
+         irrelevanceTerm ⊨ℕ′
+           (ℕ-intro ⊢Δ) t®v)
+    , (λ t®v → ℕ-intro ⊢Δ , t®v)
 
 opaque
-  unfolding _®_∷_ ⊩Id⇔
+  unfolding _®_∷_
 
   -- A characterisation lemma for Id.
 
@@ -165,29 +147,17 @@ opaque
     t ® v ∷ Id A t₁ t₂ ⇔
     (Δ ⊢ A × t ® v ∷Id⟨ A ⟩⟨ t₁ ⟩⟨ t₂ ⟩)
   ®∷Id⇔ =
-      (λ (_ , ⊩Id , t®v) →
-         case Id-elim ⊩Id of λ
-           ⊩Id′ →
-         case irrelevanceTerm ⊩Id (Idᵣ ⊩Id′) t®v of λ {
-           (rflᵣ t⇒* ⇒*↯) →
-           escape-⊩ (wf-⊩∷ $ ⊩Id⇔ .proj₁ ⊩Id .proj₁)
-         , rflᵣ (conv-⇛ t⇒* (sym (subset* (_⊩ₗId_.⇒*Id ⊩Id′))))
-             ⇒*↯ })
+      (λ (⊨Id , t®v) →
+        let ⊢A , ⊢t , ⊢u = inversion-Id (⊨→⊢ ⊨Id)
+        in  ⊢A , ((irrelevanceTerm ⊨Id) (Id-intro ⊢A ⊢t ⊢u) t®v))
     , (λ (⊢A , t®v) →
-         case reducible-⊩ ⊢A of λ
-           (l , ⊩A) →
-           l
-         , ⊩Id⇔ .proj₂
-             (case t®v of λ {
-                (rflᵣ t⇒* _) →
-              case inversion-Id (wf-⊢∷ (wf-⇛ t⇒* .proj₁)) of λ
-                (_ , ⊢t₁ , ⊢t₂) →
-                level-⊩∷ ⊩A (reducible-⊩∷ ⊢t₁ .proj₂)
-              , level-⊩∷ ⊩A (reducible-⊩∷ ⊢t₂ .proj₂) })
-         , t®v)
+         (case t®v of λ {
+           (rflᵣ t⇒* _) →
+         let ⊢A , ⊢t , ⊢u = inversion-Id (wf-⊢∷ (wf-⇛ t⇒* .proj₁))
+         in  Id-intro ⊢A ⊢t ⊢u , t®v}))
 
 opaque
-  unfolding _®_∷_ ⊩ΠΣ⇔
+  unfolding _®_∷_
 
   -- A characterisation lemma for Π.
 
@@ -201,74 +171,38 @@ opaque
        ∀ v′ → t′ ® v′ ∷ A →
        t ∘⟨ p ⟩ t′ ® v T.∘⟨ str ⟩ v′ ∷ B [ t′ ]₀)))
   ®∷Π⇔ {p} {B} =
-      (λ (_ , ⊩Π , t®v) →
-         case B-elim ⊩Π of λ {
-           ⊩Π′@record{} →
-         case irrelevanceTerm ⊩Π (Bᵣ _ ⊩Π′) t®v of λ
-           t®v →
-           escape-⊩ ⊩Π , t®v .proj₁
-         , λ t′ ⊢t′ →
-             case B-PE-injectivity (BΠ _ _) (BΠ _ _)
-                    (whnfRed* (_⊩ₗB⟨_⟩_.D ⊩Π′) ΠΣₙ) of λ {
-               (PE.refl , PE.refl , _) →
-             case reducible-⊩∷ $
-                  PE.subst (_⊢_∷_ _ _) (PE.sym $ wk-id _) ⊢t′ of λ
-               (_ , ⊩A , ⊩t′) →
-             case IR.irrelevanceTerm ⊩A (_⊩ₗB⟨_⟩_.[F] ⊩Π′ (id ⊢Δ))
-                    ⊩t′ of λ
-               ⊩t′ →
-             case PE.subst (_⊩⟨_⟩_ _ _)
-                    (PE.cong _[ _ ]₀ $ wk-lift-id B) $
-                  _⊩ₗB⟨_⟩_.[G] ⊩Π′ (id ⊢Δ) ⊩t′ of λ
-               ⊩B[t′] →
-               (λ { PE.refl →
-                    _ , ⊩B[t′]
-                  , irrelevanceTerm′ (PE.cong _[ t′ ]₀ $ wk-lift-id B)
-                      (_⊩ₗB⟨_⟩_.[G] ⊩Π′ (id ⊢Δ) ⊩t′) ⊩B[t′]
-                      (Π-®-𝟘 (is-𝟘? 𝟘) (t®v .proj₂ ⊩t′)) })
-             , (λ p≢𝟘 _ t′®v′ →
-                    _ , ⊩B[t′]
-                  , irrelevanceTerm′ (PE.cong _[ t′ ]₀ $ wk-lift-id B)
-                      (_⊩ₗB⟨_⟩_.[G] ⊩Π′ (id ⊢Δ) ⊩t′) ⊩B[t′]
-                      (Π-®-ω p≢𝟘 (is-𝟘? p) (t®v .proj₂ ⊩t′)
-                         (irrelevanceTerm′ (PE.sym $ wk-id _)
-                            (t′®v′ .proj₂ .proj₁)
-                            (_⊩ₗB⟨_⟩_.[F] ⊩Π′ (id ⊢Δ)) $
-                          t′®v′ .proj₂ .proj₂))) }})
-    , (λ (⊢Π , v⇒*lam , t®v) →
-           _
-         , ⊩ΠΣ⇔ .proj₂ (⊩ΠΣ⇔ .proj₁ (reducible-⊩ ⊢Π .proj₂))
-         , v⇒*lam
-         , λ ⊩t′ → lemma (is-𝟘? p) t®v ⊩t′)
-    where
-    lemma :
-      {⊩A : Δ ⊩⟨ l ⟩ _} {⊩B : Δ ⊩⟨ l ⟩ _}
-      (d : Dec (p PE.≡ 𝟘)) →
-      (∀ t′ → Δ ⊢ t′ ∷ A →
-       (p PE.≡ 𝟘 → t ∘⟨ 𝟘 ⟩ t′ ® app-𝟘 str v ∷ B [ t′ ]₀) ×
-       (p ≢ 𝟘 →
-        ∀ v′ → t′ ® v′ ∷ A →
-        t ∘⟨ p ⟩ t′ ® v T.∘⟨ str ⟩ v′ ∷ B [ t′ ]₀)) →
-      Δ ⊩⟨ l ⟩ t′ ∷ wk id A / ⊩A →
-      Π-® l A B t t′ v ⊩A ⊩B p d
-    lemma {⊩A} {⊩B} (yes PE.refl) t®v ⊩t′ =
-      case PE.subst (_⊩⟨_⟩_ _ _) (wk-id _) ⊩A of λ
-        ⊩A′ →
-      case t®v _ (PE.subst (_⊢_∷_ _ _) (wk-id _) $ escape-⊩∷ (⊩A , ⊩t′))
-             .proj₁ PE.refl of λ
-        (_ , ⊩B′ , tt′®v) →
-      irrelevanceTerm′ (PE.sym $ PE.cong _[ _ ]₀ $ wk-lift-id B) ⊩B′ ⊩B
-        tt′®v
-    lemma {⊩A} {⊩B} (no p≢𝟘) t®v ⊩t′ t′®v′ =
-      case PE.subst (_⊩⟨_⟩_ _ _) (wk-id _) ⊩A of λ
-        ⊩A′ →
-      case t®v _ (PE.subst (_⊢_∷_ _ _) (wk-id _) $ escape-⊩∷ (⊩A , ⊩t′))
-             .proj₂
-             p≢𝟘 _
-             (_ , ⊩A′ , irrelevanceTerm′ (wk-id _) ⊩A ⊩A′ t′®v′) of λ
-        (_ , ⊩B′ , tt′®vv′) →
-      irrelevanceTerm′ (PE.sym $ PE.cong _[ _ ]₀ $ wk-lift-id B) ⊩B′ ⊩B
-        tt′®vv′
+      (λ (⊨Π , t®v′) →
+        let ⊨A , ⊨B = ΠΣ-elim ⊨Π
+            ⊢Π = ⊨→⊢ ⊨Π
+            ⊢A , ⊢B , ok = inversion-ΠΣ ⊢Π
+            t®v = irrelevanceTerm ⊨Π (ΠΣ-intro′ ⊨A ⊨B ⊢B ok) t®v′
+        in  ⊢Π , t®v .proj₁
+          , λ t′ ⊢t′ →
+              (λ {PE.refl → ⊨B ⊢t′ , Π-®-𝟘 (is-𝟘? 𝟘) (t®v .proj₂ ⊢t′)})
+            , λ p≢𝟘 _ t′®v′ →
+                ⊨B ⊢t′
+              , Π-®-ω p≢𝟘 (is-𝟘? p) (t®v .proj₂ ⊢t′)
+                    (irrelevanceTerm (t′®v′ .proj₁)
+                      ⊨A (t′®v′ .proj₂)))
+      , (λ (⊢Π , v⇒*lam , t®v) →
+           ΠΣ-intro ⊢Π , v⇒*lam , λ ⊢t′ → lemma (is-𝟘? p) t®v ⊢t′)
+      where
+      lemma :
+        {⊨A : Δ ⊨ _} {⊨B : Δ ⊨ _}
+        (d : Dec (p PE.≡ 𝟘)) →
+        (∀ t′ → Δ ⊢ t′ ∷ A →
+         (p PE.≡ 𝟘 → t ∘⟨ 𝟘 ⟩ t′ ® app-𝟘 str v ∷ B [ t′ ]₀) ×
+         (p ≢ 𝟘 →
+          ∀ v′ → t′ ® v′ ∷ A →
+          t ∘⟨ p ⟩ t′ ® v T.∘⟨ str ⟩ v′ ∷ B [ t′ ]₀)) →
+        Δ ⊢ t′ ∷ A →
+        Π-® A B t t′ v ⊨A ⊨B p d
+      lemma {⊨B} (yes PE.refl) t®v ⊢t′ =
+        let ⊨B′ , tt′®v = t®v _ ⊢t′ .proj₁ PE.refl
+        in  irrelevanceTerm ⊨B′ ⊨B tt′®v
+      lemma {⊨B} (no p≢𝟘) t®v ⊢t′ t′®v′ =
+        let ⊨B′ , tt′®vv′ = t®v _ ⊢t′ .proj₂ p≢𝟘 _ (_ , t′®v′ )
+        in  irrelevanceTerm ⊨B′ ⊨B tt′®vv′
 
 opaque
 
@@ -324,7 +258,7 @@ opaque
     (∀ t′ → Δ ⊢ t′ ∷ A → t ∘⟨ 𝟘 ⟩ t′ ® app-𝟘 str v ∷ B [ t′ ]₀)  □⇔
 
 opaque
-  unfolding _®_∷_ ⊩ΠΣ⇔
+  unfolding _®_∷_
 
   -- A characterisation lemma for Σ.
 
@@ -337,62 +271,32 @@ opaque
      (p PE.≡ 𝟘 → v T.⇒* v₂) ×
      (p ≢ 𝟘 → ∃ λ v₁ → v T.⇒* T.prod v₁ v₂ × t₁ ® v₁ ∷ A))
   ®∷Σ⇔ {t} {v} {s} {p} {q} {A} {B} =
-      (λ (_ , ⊩Σ , t®v) →
-         case B-elim ⊩Σ of λ {
-           ⊩Σ′@record{} →
-         case irrelevanceTerm ⊩Σ (Bᵣ _ ⊩Σ′) t®v of λ
-           (t₁ , t₂ , t⇒ , ⊩t₁ , v₂ , t₂®v₂ , rest) →
-         case B-PE-injectivity (BΣ _ _ _) (BΣ _ _ _)
-                (whnfRed* (_⊩ₗB⟨_⟩_.D ⊩Σ′) ΠΣₙ) of λ {
-           (PE.refl , PE.refl , _) →
-         let ⊩wk-A     = _⊩ₗB⟨_⟩_.[F] ⊩Σ′ (id ⊢Δ)
-             ⊩wk-B[t₁] = _⊩ₗB⟨_⟩_.[G] ⊩Σ′ (id ⊢Δ) ⊩t₁
-         in
-         case PE.subst (_⊩⟨_⟩_ _ _) (wk-id _) ⊩wk-A of λ
-           ⊩A →
-         case PE.subst (_⊩⟨_⟩_ _ _) (PE.cong _[ t₁ ]₀ $ wk-lift-id B)
-                ⊩wk-B[t₁] of λ
-           ⊩B[t₁] →
-         (Δ ⊢ Σ⟨ s ⟩ p , q ▷ A ▹ B ×
-          ∃₃ λ t₁ t₂ v₂ →
-          t ⇛ prod s p t₁ t₂ ∷ Σ⟨ s ⟩ p , q ▷ A ▹ B ×
-          t₂ ® v₂ ∷ B [ t₁ ]₀ ×
-          (p PE.≡ 𝟘 → v T.⇒* v₂) ×
-          (p ≢ 𝟘 → ∃ λ v₁ → v T.⇒* T.prod v₁ v₂ × t₁ ® v₁ ∷ A)) ∋
-           escape-⊩ ⊩Σ , t₁ , t₂ , v₂ , t⇒
-         , ( _
-           , ⊩B[t₁]
-           , irrelevanceTerm′ (PE.cong _[ t₁ ]₀ $ wk-lift-id B)
-               ⊩wk-B[t₁] ⊩B[t₁] t₂®v₂
-           )
-         , (λ { PE.refl → Σ-®-𝟘 rest })
-         , (λ p≢𝟘 →
-              case Σ-®-ω p≢𝟘 rest of λ
-                (v₁ , v⇒ , t₁®v₁) →
-              v₁ , v⇒ ,
-              (_ , ⊩A , irrelevanceTerm′ (wk-id _) ⊩wk-A ⊩A t₁®v₁)) }})
-    , (λ (⊢Σ , _ , _ , v₂ , t⇒*prod , (_ , ⊩B , t₂®v₂) , hyp₁ , hyp₂) →
-         case ⊩ΠΣ⇔ .proj₁ (reducible-⊩ ⊢Σ .proj₂) of λ
-           ⊩Σ′@(_ , rest) →
-         let ⊩wk-A , wk-B≡wk-B = rest (id ⊢Δ) in
-         case inversion-prod-Σ (wf-⇛ t⇒*prod .proj₂) of λ
-           (⊢t₁ , _) →
-         case reducible-⊩∷ ⊢t₁ of λ
-           (_ , ⊩A , ⊩t₁) →
-         case IR.irrelevanceTerm′ (PE.sym $ wk-id _) ⊩A ⊩wk-A ⊩t₁ of λ
-           ⊩t₁ →
-           _ , ⊩ΠΣ⇔ .proj₂ ⊩Σ′ , _ , _ , t⇒*prod , ⊩t₁ , v₂
-         , irrelevanceTerm′ (PE.sym $ PE.cong _[ _ ]₀ $ wk-lift-id B)
-             ⊩B (wf-⊩≡ (wk-B≡wk-B (refl-⊩≡∷ (⊩wk-A , ⊩t₁))) .proj₁)
-             t₂®v₂
-         , (case is-𝟘? p of λ where
+      (λ (⊨Σ , t®v′) →
+        let ⊨A , ⊨B = ΠΣ-elim ⊨Σ
+            ⊢Σ = ⊨→⊢ ⊨Σ
+            ⊢A , ⊢B , ok = inversion-ΠΣ ⊢Σ
+            t₁ , t₂ , t⇒ , ⊢t₁ , v₂ , t₂®v₂ , rest = irrelevanceTerm ⊨Σ (ΠΣ-intro′ ⊨A ⊨B ⊢B ok) t®v′
+        in  ⊢Σ , t₁ , t₂ , v₂ , t⇒ , (_ , t₂®v₂)
+               , (λ { PE.refl → Σ-®-𝟘 rest })
+               , λ p≢𝟘 →
+                 let v₁ , v⇒ , t₁®v₁ = Σ-®-ω p≢𝟘 rest
+                 in  v₁ , v⇒ , _ , t₁®v₁)
+      , λ (⊢Σ , _ , _ , v₂ , t⇒*prod , (⊨B′ , t₂®v₂) , hyp₁ , hyp₂) →
+        let ⊢A , ⊢B , ok = inversion-ΠΣ ⊢Σ
+            ⊨A = ⊢→⊨ ⊢A
+            ⊨Σ = ΠΣ-intro′ ⊨A (λ ⊢t → ⊢→⊨ (substType ⊢B ⊢t)) ⊢B ok
+            ⊢t₁ = inversion-prod-Σ (wf-⇛ t⇒*prod .proj₂) .proj₁
+        in  ⊨Σ
+          , _ , _ , t⇒*prod , ⊢t₁ , _
+          , irrelevanceTerm _ (⊢→⊨ (substType ⊢B ⊢t₁)) t₂®v₂
+          , (case is-𝟘? p of λ where
               (yes PE.refl) → Σ-®-intro-𝟘 (hyp₁ PE.refl) PE.refl
-              (no p≢𝟘)      →
+              (no p≢𝟘) →
                 case hyp₂ p≢𝟘 of λ
-                  (v₁ , v⇒*prod , (_ , ⊩A′ , t₁®v₁)) →
-                Σ-®-intro-ω v₁ v⇒*prod
-                  (irrelevanceTerm′ (PE.sym $ wk-id _) ⊩A′ ⊩wk-A t₁®v₁)
-                  p≢𝟘))
+                    (v₁ , v⇒*prod , (⊨A′ , t₁®v₁)) →
+                  Σ-®-intro-ω v₁ v⇒*prod
+                    (irrelevanceTerm ⊨A′ ⊨A t₁®v₁)
+                    p≢𝟘)
 
 opaque
 
@@ -492,7 +396,7 @@ opaque
   _▸_⊩ʳ_∷[_]_ : Conₘ n → Con Term n → Term n → Mode → Term n → Set a
   γ ▸ Γ ⊩ʳ t ∷[ m ] A =
     ∀ {σ σ′} →
-    Δ ⊩ˢ σ ∷ Γ →
+    Δ ⊢ˢʷ σ ∷ Γ →
     σ ® σ′ ∷[ m ] Γ ◂ γ →
     t [ σ ] ® erase str t T.[ σ′ ] ∷ A [ σ ] ◂ ⌜ m ⌝
 
@@ -576,7 +480,7 @@ opaque
 
   ▸⊩ʳ∷⇔ :
     γ ▸ Γ ⊩ʳ t ∷[ m ] A ⇔
-    (∀ {σ σ′} → Δ ⊩ˢ σ ∷ Γ → σ ® σ′ ∷[ m ] Γ ◂ γ →
+    (∀ {σ σ′} → Δ ⊢ˢʷ σ ∷ Γ → σ ® σ′ ∷[ m ] Γ ◂ γ →
      t [ σ ] ® erase str t T.[ σ′ ] ∷ A [ σ ] ◂ ⌜ m ⌝)
   ▸⊩ʳ∷⇔ = id⇔
 
@@ -642,10 +546,10 @@ opaque
   subsumption-▸⊩ʳ∷[] {δ} {γ} {Γ} {t} {m} {A} hyp =
     γ ▸ Γ ⊩ʳ t ∷[ m ] A                                 ⇔⟨ ▸⊩ʳ∷⇔ ⟩→
 
-    (∀ {σ σ′} → Δ ⊩ˢ σ ∷ Γ → σ ® σ′ ∷[ m ] Γ ◂ γ →
+    (∀ {σ σ′} → Δ ⊢ˢʷ σ ∷ Γ → σ ® σ′ ∷[ m ] Γ ◂ γ →
      t [ σ ] ® erase str t T.[ σ′ ] ∷ A [ σ ] ◂ ⌜ m ⌝)  →⟨ (_∘→ subsumption-®∷[]◂ hyp) ∘→_ ⟩
 
-    (∀ {σ σ′} → Δ ⊩ˢ σ ∷ Γ → σ ® σ′ ∷[ m ] Γ ◂ δ →
+    (∀ {σ σ′} → Δ ⊢ˢʷ σ ∷ Γ → σ ® σ′ ∷[ m ] Γ ◂ δ →
      t [ σ ] ® erase str t T.[ σ′ ] ∷ A [ σ ] ◂ ⌜ m ⌝)  ⇔˘⟨ ▸⊩ʳ∷⇔ ⟩→
 
     δ ▸ Γ ⊩ʳ t ∷[ m ] A                                 □
@@ -730,8 +634,8 @@ opaque
   ▸⊩ʳ∷[]→®∷◂ {t} {m} {A} =
     𝟘ᶜ ▸ Δ ⊩ʳ t ∷[ m ] A                                                 ⇔⟨ ▸⊩ʳ∷⇔ ⟩→
 
-    (∀ {σ σ′} → Δ ⊩ˢ σ ∷ Δ → σ ® σ′ ∷[ m ] Δ ◂ 𝟘ᶜ →
-     t [ σ ] ® erase str t T.[ σ′ ] ∷ A [ σ ] ◂ ⌜ m ⌝)                   →⟨ (λ hyp → hyp (⊩ˢ∷-idSubst (valid ⊢Δ)) (®∷[]◂𝟘ᶜ)) ⟩
+    (∀ {σ σ′} → Δ ⊢ˢʷ σ ∷ Δ → σ ® σ′ ∷[ m ] Δ ◂ 𝟘ᶜ →
+     t [ σ ] ® erase str t T.[ σ′ ] ∷ A [ σ ] ◂ ⌜ m ⌝)                   →⟨ (λ hyp → hyp (⊢ˢʷ∷-idSubst ⊢Δ) (®∷[]◂𝟘ᶜ)) ⟩
 
     t [ idSubst ] ® erase str t T.[ T.idSubst ] ∷ A [ idSubst ] ◂ ⌜ m ⌝  ≡⟨ PE.cong₃ (λ t v A → t ® v ∷ A ◂ _)
                                                                               (subst-id _) (TP.subst-id _) (subst-id _) ⟩→
@@ -759,23 +663,21 @@ opaque
   -- Conversion for _®_∷_.
 
   conv-®∷ :
-    Δ ⊩⟨ l ⟩ A ≡ B →
+    Δ ⊢ A ≡ B →
     t ® v ∷ A →
     t ® v ∷ B
-  conv-®∷ A≡B (_ , ⊩A , t®v) =
-    case wf-⊩≡ A≡B of λ
-      (_ , ⊩B) →
-    _ , ⊩B , convTermʳ ⊩A ⊩B (≅-eq (escape-⊩≡ A≡B)) t®v
+  conv-®∷ A≡B (⊨A , t®v) =
+    _ , convTermʳ ⊨A (⊢→⊨ (syntacticEq A≡B .proj₂)) A≡B t®v
 
 opaque
 
   -- Conversion for _®_∷_◂_.
 
   conv-®∷◂ :
-    Δ ⊩⟨ l ⟩ A ≡ B →
+    Δ ⊢ A ≡ B →
     t ® v ∷ A ◂ p →
     t ® v ∷ B ◂ p
-  conv-®∷◂ {l} {A} {B} {t} {v} {p} A≡B =
+  conv-®∷◂ {A} {B} {t} {v} {p} A≡B =
     t ® v ∷ A ◂ p        ⇔⟨ ®∷◂⇔ ⟩→
     (p ≢ 𝟘 → t ® v ∷ A)  →⟨ conv-®∷ A≡B ∘→_ ⟩
     (p ≢ 𝟘 → t ® v ∷ B)  ⇔˘⟨ ®∷◂⇔ ⟩→
@@ -786,17 +688,17 @@ opaque
   -- Conversion for _▸_⊩ʳ_∷[_]_.
 
   conv-▸⊩ʳ∷ :
-    Γ ⊩ᵛ⟨ l ⟩ A ≡ B →
+    Γ ⊢ A ≡ B →
     γ ▸ Γ ⊩ʳ t ∷[ m ] A →
     γ ▸ Γ ⊩ʳ t ∷[ m ] B
-  conv-▸⊩ʳ∷ {Γ} {l} {A} {B} {γ} {t} {m} A≡B =
+  conv-▸⊩ʳ∷ {Γ} {A} {B} {γ} {t} {m} A≡B =
     γ ▸ Γ ⊩ʳ t ∷[ m ] A                                 ⇔⟨ ▸⊩ʳ∷⇔ ⟩→
 
-    (∀ {σ σ′} → Δ ⊩ˢ σ ∷ Γ → σ ® σ′ ∷[ m ] Γ ◂ γ →
-     t [ σ ] ® erase str t T.[ σ′ ] ∷ A [ σ ] ◂ ⌜ m ⌝)  →⟨ (λ hyp ⊩σ σ®σ′ →
-                                                              conv-®∷◂ (⊩ᵛ≡⇔′ʰ .proj₁ A≡B .proj₂ .proj₂ ⊩σ) $
-                                                              hyp ⊩σ σ®σ′) ⟩
-    (∀ {σ σ′} → Δ ⊩ˢ σ ∷ Γ → σ ® σ′ ∷[ m ] Γ ◂ γ →
+    (∀ {σ σ′} → Δ ⊢ˢʷ σ ∷ Γ → σ ® σ′ ∷[ m ] Γ ◂ γ →
+     t [ σ ] ® erase str t T.[ σ′ ] ∷ A [ σ ] ◂ ⌜ m ⌝)  →⟨ (λ hyp ⊢σ σ®σ′ →
+                                                              conv-®∷◂ (subst-⊢≡ A≡B (refl-⊢ˢʷ≡∷ ⊢σ)) $
+                                                              hyp ⊢σ σ®σ′) ⟩
+    (∀ {σ σ′} → Δ ⊢ˢʷ σ ∷ Γ → σ ® σ′ ∷[ m ] Γ ◂ γ →
      t [ σ ] ® erase str t T.[ σ′ ] ∷ B [ σ ] ◂ ⌜ m ⌝)  ⇔˘⟨ ▸⊩ʳ∷⇔ ⟩→
 
     γ ▸ Γ ⊩ʳ t ∷[ m ] B                                 □
@@ -813,8 +715,8 @@ opaque
     v T.⇒* v′ →
     t ® v ∷ A →
     t ® v′ ∷ A
-  ®∷-⇒* v⇒v′ (_ , ⊩A , t®v) =
-    _ , ⊩A , targetRedSubstTerm*′ ⊩A t®v v⇒v′
+  ®∷-⇒* v⇒v′ (⊨A , t®v) =
+    ⊨A , targetRedSubstTerm*′ ⊨A t®v v⇒v′
 
 opaque
   unfolding _®_∷_
@@ -826,8 +728,8 @@ opaque
     v T.⇒* v′ →
     t′ ® v′ ∷ A →
     t ® v ∷ A
-  ®∷-⇐* t⇒t′ v⇒v′ (_ , ⊩A , t′®v′) =
-    _ , ⊩A , redSubstTerm* ⊩A t′®v′ t⇒t′ v⇒v′
+  ®∷-⇐* t⇒t′ v⇒v′ (⊨A , t′®v′) =
+    ⊨A , redSubstTerm* ⊨A t′®v′ t⇒t′ v⇒v′
 
 opaque
   unfolding _®_∷_◂_

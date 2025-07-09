@@ -31,8 +31,6 @@ open Fundamental-assumptions FA
 open import Definition.Typed TR
 open import Definition.Typed.Properties TR
 open import Definition.Typed.Substitution TR
-import Definition.LogicalRelation.Fundamental TR as F
-open import Definition.LogicalRelation.Substitution TR
 
 open import Graded.Context 𝕄
 open import Graded.Usage 𝕄 UR
@@ -80,8 +78,8 @@ non-interference {Γ} {t} {γ} ⊢t ▸t {σ} {σ′} ⊢σ σ®σ′ =
 
   γ ▸ Γ ⊩ʳ t ∷[ 𝟙ᵐ ] ℕ                             ⇔⟨ ▸⊩ʳ∷⇔ ⟩→
 
-  (∀ {σ σ′} → Δ ⊩ˢ σ ∷ Γ → σ ® σ′ ∷[ 𝟙ᵐ ] Γ ◂ γ →
-   t [ σ ] ® erase str t T.[ σ′ ] ∷ ℕ ◂ 𝟙)         →⟨ (λ hyp → hyp (F.fundamental-⊩ˢ∷ (wfTerm ⊢t) ⊢σ) σ®σ′) ⟩
+  (∀ {σ σ′} → Δ ⊢ˢʷ σ ∷ Γ → σ ® σ′ ∷[ 𝟙ᵐ ] Γ ◂ γ →
+   t [ σ ] ® erase str t T.[ σ′ ] ∷ ℕ ◂ 𝟙)         →⟨ (λ hyp → hyp ⊢σ σ®σ′) ⟩
 
   t [ σ ] ® erase str t T.[ σ′ ] ∷ ℕ ◂ 𝟙           →⟨ ®∷→®∷◂ω non-trivial ⟩
 

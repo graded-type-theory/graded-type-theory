@@ -26,6 +26,7 @@ module README where
 import Definition.LogicalRelation
 import Definition.LogicalRelation.Fundamental
 import Definition.LogicalRelation.Fundamental.Reducibility
+import Definition.LogicalRelation.Simplified
 import Definition.LogicalRelation.Substitution
 import Definition.Typed
 import Definition.Typed.Consequences.Admissible
@@ -858,16 +859,14 @@ fundamentalReducibleTerm =
 
 -- Definition 6.5: The logical relation for erasure.
 --
--- In the paper the type level is written as a subscript instead of
--- within brackets.
---
--- For the Π and Σ cases some weakenings are applied to the types of
--- the domain and codomain (or first and second component). The reason
--- for this is that the reducibility relation inductively gives a
--- proof that these types are reducible under any weakenings. We do
--- not need to make use of this extra information, so we apply
--- identity weakenings.
---
+-- The definition of the logical relation has been changed from the
+-- paper. Instead of being defined using the logical relation for
+-- reducibility, it is defined using a simpler logical relation with
+-- fewer assumptions. Consequently, there is no longer any type level
+-- argument.
+
+_⊨_ = Definition.LogicalRelation.Simplified._⊨_
+
 -- For Σ-types the presentation is different from that in the paper to
 -- account for the possibility to erase the first component, which is
 -- added in Section 8. For the language treated in Section 6 one can
@@ -876,7 +875,7 @@ fundamentalReducibleTerm =
 -- In the paper we fix a well-formed, consistent context Δ₀. In the
 -- formalization this is partly implemented through module parameters.
 
-_®⟨_⟩_∷_/_ = Graded.Erasure.LogicalRelation._®⟨_⟩_∷_/_
+_®⟨_⟩_∷_/_ = Graded.Erasure.LogicalRelation._®_∷_/_
 
 -- The logical relation for natural numbers.
 --
