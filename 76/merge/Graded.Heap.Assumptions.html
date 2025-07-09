@@ -1,0 +1,75 @@
+<!DOCTYPE HTML>
+<html><head><meta charset="utf-8"><title>Graded.Heap.Assumptions</title><link rel="stylesheet" href="Agda.css"></head><body><pre class="Agda"><a id="1" class="Comment">------------------------------------------------------------------------</a>
+<a id="74" class="Comment">-- Assumptions used to prove some properties of the heap semantics.</a>
+<a id="142" class="Comment">-- In particular used for Bisimilarity, Termination and Soundness.</a>
+<a id="209" class="Comment">------------------------------------------------------------------------</a>
+
+<a id="283" class="Keyword">open</a> <a id="288" class="Keyword">import</a> <a id="295" href="Graded.Modality.html" class="Module">Graded.Modality</a>
+<a id="311" class="Keyword">open</a> <a id="316" class="Keyword">import</a> <a id="323" href="Graded.Usage.Restrictions.html" class="Module">Graded.Usage.Restrictions</a>
+<a id="349" class="Keyword">open</a> <a id="354" class="Keyword">import</a> <a id="361" href="Definition.Typed.Restrictions.html" class="Module">Definition.Typed.Restrictions</a>
+
+<a id="392" class="Keyword">module</a> <a id="399" href="Graded.Heap.Assumptions.html" class="Module">Graded.Heap.Assumptions</a>
+  <a id="425" class="Symbol">{</a><a id="426" href="Graded.Heap.Assumptions.html#426" class="Bound">a</a><a id="427" class="Symbol">}</a> <a id="429" class="Symbol">{</a><a id="430" href="Graded.Heap.Assumptions.html#430" class="Bound">M</a> <a id="432" class="Symbol">:</a> <a id="434" href="Agda.Primitive.html#388" class="Primitive">Set</a> <a id="438" href="Graded.Heap.Assumptions.html#426" class="Bound">a</a><a id="439" class="Symbol">}</a> <a id="441" class="Symbol">{</a><a id="442" href="Graded.Heap.Assumptions.html#442" class="Bound">𝕄</a> <a id="444" class="Symbol">:</a> <a id="446" href="Graded.Modality.html#9574" class="Record">Modality</a> <a id="455" href="Graded.Heap.Assumptions.html#430" class="Bound">M</a><a id="456" class="Symbol">}</a>
+  <a id="460" class="Symbol">(</a><a id="461" href="Graded.Heap.Assumptions.html#461" class="Bound">UR</a> <a id="464" class="Symbol">:</a> <a id="466" href="Graded.Usage.Restrictions.html#812" class="Record">Usage-restrictions</a> <a id="485" href="Graded.Heap.Assumptions.html#442" class="Bound">𝕄</a><a id="486" class="Symbol">)</a>
+  <a id="490" class="Symbol">(</a><a id="491" href="Graded.Heap.Assumptions.html#491" class="Bound">TR</a> <a id="494" class="Symbol">:</a> <a id="496" href="Definition.Typed.Restrictions.html#808" class="Record">Type-restrictions</a> <a id="514" href="Graded.Heap.Assumptions.html#442" class="Bound">𝕄</a><a id="515" class="Symbol">)</a>
+  <a id="519" class="Keyword">where</a>
+
+<a id="526" class="Keyword">open</a> <a id="531" href="Graded.Modality.html#9574" class="Module">Modality</a> <a id="540" href="Graded.Heap.Assumptions.html#442" class="Bound">𝕄</a>
+<a id="542" class="Keyword">open</a> <a id="547" href="Definition.Typed.Restrictions.html#808" class="Module">Type-restrictions</a> <a id="565" href="Graded.Heap.Assumptions.html#491" class="Bound">TR</a>
+<a id="568" class="Keyword">open</a> <a id="573" href="Graded.Usage.Restrictions.html#812" class="Module">Usage-restrictions</a> <a id="592" href="Graded.Heap.Assumptions.html#461" class="Bound">UR</a>
+
+<a id="596" class="Keyword">open</a> <a id="601" class="Keyword">import</a> <a id="608" href="Graded.Mode.html" class="Module">Graded.Mode</a> <a id="620" href="Graded.Heap.Assumptions.html#442" class="Bound">𝕄</a>
+<a id="622" class="Keyword">open</a> <a id="627" class="Keyword">import</a> <a id="634" href="Graded.Modality.Properties.Subtraction.html" class="Module">Graded.Modality.Properties.Subtraction</a> <a id="673" href="Graded.Modality.html#9715" class="Function">semiring-with-meet</a>
+<a id="692" class="Keyword">open</a> <a id="697" class="Keyword">import</a> <a id="704" href="Graded.Usage.Restrictions.Natrec.html" class="Module">Graded.Usage.Restrictions.Natrec</a> <a id="737" href="Graded.Heap.Assumptions.html#442" class="Bound">𝕄</a>
+
+<a id="740" class="Keyword">open</a> <a id="745" class="Keyword">import</a> <a id="752" href="Tools.Empty.html" class="Module">Tools.Empty</a>
+<a id="764" class="Keyword">open</a> <a id="769" class="Keyword">import</a> <a id="776" href="Tools.Function.html" class="Module">Tools.Function</a>
+<a id="791" class="Keyword">open</a> <a id="796" class="Keyword">import</a> <a id="803" href="Tools.Product.html" class="Module">Tools.Product</a>
+<a id="817" class="Keyword">open</a> <a id="822" class="Keyword">import</a> <a id="829" href="Tools.PropositionalEquality.html" class="Module">Tools.PropositionalEquality</a>
+<a id="857" class="Keyword">open</a> <a id="862" class="Keyword">import</a> <a id="869" href="Tools.Relation.html" class="Module">Tools.Relation</a>
+<a id="884" class="Keyword">open</a> <a id="889" class="Keyword">import</a> <a id="896" href="Tools.Sum.html" class="Module">Tools.Sum</a>
+
+<a id="907" class="Comment">-- Assumptions that are used to prove some bisimilarity properties</a>
+<a id="974" class="Comment">-- as well as some properties elsewhere that follow from them</a>
+
+<a id="1037" class="Keyword">record</a> <a id="Assumptions"></a><a id="1044" href="Graded.Heap.Assumptions.html#1044" class="Record">Assumptions</a> <a id="1056" class="Symbol">:</a> <a id="1058" href="Agda.Primitive.html#388" class="Primitive">Set</a> <a id="1062" href="Graded.Heap.Assumptions.html#426" class="Bound">a</a> <a id="1064" class="Keyword">where</a>
+  <a id="1072" class="Keyword">field</a>
+    <a id="1082" class="Comment">-- The modality supports subtraction.</a>
+    <a id="Assumptions.subtraction-ok"></a><a id="1124" href="Graded.Heap.Assumptions.html#1124" class="Field">subtraction-ok</a> <a id="1139" class="Symbol">:</a> <a id="1141" href="Graded.Modality.Properties.Subtraction.html#4752" class="Function">Supports-subtraction</a>
+    <a id="1166" class="Comment">-- An assumption related to the weak unit type when η-equality is</a>
+    <a id="1236" class="Comment">-- enabled.</a>
+    <a id="Assumptions.Unitʷ-η→"></a><a id="1252" href="Graded.Heap.Assumptions.html#1252" class="Field">Unitʷ-η→</a> <a id="1261" class="Symbol">:</a> <a id="1263" class="Symbol">∀</a> <a id="1265" class="Symbol">{</a><a id="1266" href="Graded.Heap.Assumptions.html#1266" class="Bound">p</a> <a id="1268" href="Graded.Heap.Assumptions.html#1268" class="Bound">q</a><a id="1269" class="Symbol">}</a> <a id="1271" class="Symbol">→</a> <a id="1273" href="Definition.Typed.Variant.html#795" class="Function">Unitʷ-η</a> <a id="1281" class="Symbol">→</a> <a id="1283" href="Graded.Usage.Restrictions.html#1430" class="Function">Unitrec-allowed</a> <a id="1299" href="Graded.Mode.html#1094" class="InductiveConstructor">𝟙ᵐ</a> <a id="1302" href="Graded.Heap.Assumptions.html#1266" class="Bound">p</a> <a id="1304" href="Graded.Heap.Assumptions.html#1268" class="Bound">q</a> <a id="1306" class="Symbol">→</a> <a id="1308" href="Graded.Heap.Assumptions.html#1266" class="Bound">p</a> <a id="1310" href="Graded.Modality.html#1384" class="Function Operator">≤</a> <a id="1312" href="Graded.Modality.html#945" class="Function">𝟘</a>
+    <a id="1318" class="Comment">-- Either the usage rule for natrec with an nr function is used</a>
+    <a id="1386" class="Comment">-- (in which case it is assumed to be factoring) or the usage rule</a>
+    <a id="1457" class="Comment">-- using greatest lower bounds is used.</a>
+    <a id="Assumptions.natrec-mode-ok"></a><a id="1501" href="Graded.Heap.Assumptions.html#1501" class="Field">natrec-mode-ok</a> <a id="1516" class="Symbol">:</a>
+      <a id="1524" class="Symbol">(</a><a id="1525" href="Agda.Builtin.Sigma.html#165" class="Record">Σ</a> <a id="1527" href="Graded.Usage.Restrictions.html#3510" class="Function">Nr-available</a> <a id="1540" class="Symbol">λ</a> <a id="1542" href="Graded.Heap.Assumptions.html#1542" class="Bound">has-nr</a> <a id="1549" class="Symbol">→</a>
+        <a id="1559" href="Graded.Modality.html#7252" class="Record">Is-factoring-nr</a> <a id="1575" href="Graded.Heap.Assumptions.html#430" class="Bound">M</a> <a id="1577" class="Symbol">(</a><a id="1578" href="Graded.Usage.Restrictions.Natrec.html#2200" class="Function">Natrec-mode-Has-nr</a> <a id="1597" href="Graded.Heap.Assumptions.html#1542" class="Bound">has-nr</a><a id="1603" class="Symbol">))</a> <a id="1606" href="Data.Sum.Base.html#625" class="Datatype Operator">⊎</a>
+      <a id="1614" href="Graded.Usage.Restrictions.html#3661" class="Function">Nr-not-available-GLB</a>
+
+  <a id="1638" class="Keyword">opaque</a>
+
+    <a id="1650" class="Comment">-- The usage rule without nr functions and without greatest lower</a>
+    <a id="1720" class="Comment">-- bounds is not used.</a>
+
+    <a id="Assumptions.¬Nr-not-available"></a><a id="1748" href="Graded.Heap.Assumptions.html#1748" class="Function">¬Nr-not-available</a> <a id="1766" class="Symbol">:</a> <a id="1768" href="Relation.Nullary.Negation.Core.html#658" class="Function Operator">¬</a> <a id="1770" href="Graded.Usage.Restrictions.html#3582" class="Function">Nr-not-available</a>
+    <a id="1791" href="Graded.Heap.Assumptions.html#1748" class="Function">¬Nr-not-available</a> <a id="1809" href="Graded.Heap.Assumptions.html#1809" class="Bound">x</a> <a id="1811" class="Symbol">=</a>
+      <a id="1819" href="Function.Base.html#4042" class="Function Operator">case</a> <a id="1824" href="Graded.Heap.Assumptions.html#1501" class="Field">natrec-mode-ok</a> <a id="1839" href="Function.Base.html#4042" class="Function Operator">of</a> <a id="1842" class="Symbol">λ</a> <a id="1844" class="Keyword">where</a>
+        <a id="1858" class="Symbol">(</a><a id="1859" href="Data.Sum.Base.html#675" class="InductiveConstructor">inj₁</a> <a id="1864" class="Symbol">(</a><a id="1865" href="Graded.Heap.Assumptions.html#1865" class="Bound">y</a> <a id="1867" href="Agda.Builtin.Sigma.html#235" class="InductiveConstructor Operator">,</a> <a id="1869" class="Symbol">_))</a> <a id="1873" class="Symbol">→</a> <a id="1875" href="Graded.Usage.Restrictions.Natrec.html#2865" class="Function">¬[Nr∧No-nr]</a> <a id="1887" href="Graded.Heap.Assumptions.html#1865" class="Bound">y</a> <a id="1889" href="Graded.Heap.Assumptions.html#1809" class="Bound">x</a>
+        <a id="1899" class="Symbol">(</a><a id="1900" href="Data.Sum.Base.html#700" class="InductiveConstructor">inj₂</a> <a id="1905" href="Graded.Heap.Assumptions.html#1905" class="Bound">y</a><a id="1906" class="Symbol">)</a> <a id="1908" class="Symbol">→</a> <a id="1910" href="Graded.Usage.Restrictions.Natrec.html#3089" class="Function">¬[No-nr∧No-nr-glb]</a> <a id="1929" href="Graded.Heap.Assumptions.html#1809" class="Bound">x</a> <a id="1931" href="Graded.Heap.Assumptions.html#1905" class="Bound">y</a>
+
+  <a id="1936" class="Keyword">opaque</a>
+
+    <a id="1948" class="Comment">-- If the usage rule for natrec with an nr function is used then</a>
+    <a id="2017" class="Comment">-- the nr funciton is factoring.</a>
+
+    <a id="Assumptions.factoring-nr"></a><a id="2055" href="Graded.Heap.Assumptions.html#2055" class="Function">factoring-nr</a> <a id="2068" class="Symbol">:</a>
+      <a id="2076" class="Symbol">⦃</a> <a id="2078" href="Graded.Heap.Assumptions.html#2078" class="Bound">has-nr</a> <a id="2085" class="Symbol">:</a> <a id="2087" href="Graded.Usage.Restrictions.html#3510" class="Function">Nr-available</a> <a id="2100" class="Symbol">⦄</a> <a id="2102" class="Symbol">→</a>
+      <a id="2110" href="Graded.Modality.html#7252" class="Record">Is-factoring-nr</a> <a id="2126" href="Graded.Heap.Assumptions.html#430" class="Bound">M</a> <a id="2128" class="Symbol">(</a><a id="2129" href="Graded.Usage.Restrictions.Natrec.html#2200" class="Function">Natrec-mode-Has-nr</a> <a id="2148" href="Graded.Heap.Assumptions.html#2078" class="Bound">has-nr</a><a id="2154" class="Symbol">)</a>
+    <a id="2160" href="Graded.Heap.Assumptions.html#2055" class="Function">factoring-nr</a> <a id="2173" class="Symbol">⦃</a> <a id="2175" href="Graded.Heap.Assumptions.html#2175" class="Bound">has-nr</a> <a id="2182" class="Symbol">⦄</a> <a id="2184" class="Symbol">=</a>
+      <a id="2192" href="Function.Base.html#4042" class="Function Operator">case</a> <a id="2197" href="Graded.Heap.Assumptions.html#1501" class="Field">natrec-mode-ok</a> <a id="2212" href="Function.Base.html#4042" class="Function Operator">of</a> <a id="2215" class="Symbol">λ</a> <a id="2217" class="Keyword">where</a>
+        <a id="2231" class="Symbol">(</a><a id="2232" href="Data.Sum.Base.html#675" class="InductiveConstructor">inj₁</a> <a id="2237" class="Symbol">(</a><a id="2238" href="Graded.Heap.Assumptions.html#2238" class="Bound">has-nr′</a> <a id="2246" href="Agda.Builtin.Sigma.html#235" class="InductiveConstructor Operator">,</a> <a id="2248" href="Graded.Heap.Assumptions.html#2248" class="Bound">factoring</a><a id="2257" class="Symbol">))</a> <a id="2260" class="Symbol">→</a>
+          <a id="2272" href="Function.Base.html#4042" class="Function Operator">case</a> <a id="2277" href="Graded.Usage.Restrictions.Natrec.html#2676" class="Function">Nr-available-propositional</a> <a id="2304" href="Graded.Heap.Assumptions.html#2175" class="Bound">has-nr</a> <a id="2311" href="Graded.Heap.Assumptions.html#2238" class="Bound">has-nr′</a> <a id="2319" href="Function.Base.html#4042" class="Function Operator">of</a> <a id="2322" class="Symbol">λ</a> <a id="2324" class="Keyword">where</a>
+            <a id="2342" href="Agda.Builtin.Equality.html#207" class="InductiveConstructor">refl</a> <a id="2347" class="Symbol">→</a> <a id="2349" href="Graded.Heap.Assumptions.html#2248" class="Bound">factoring</a>
+        <a id="2367" class="Symbol">(</a><a id="2368" href="Data.Sum.Base.html#700" class="InductiveConstructor">inj₂</a> <a id="2373" href="Graded.Heap.Assumptions.html#2373" class="Bound">no-nr</a><a id="2378" class="Symbol">)</a> <a id="2380" class="Symbol">→</a> <a id="2382" href="Data.Empty.html#1069" class="Function">⊥-elim</a> <a id="2389" class="Symbol">(</a><a id="2390" href="Graded.Usage.Restrictions.Natrec.html#2971" class="Function">¬[Nr∧No-nr-glb]</a> <a id="2406" href="Graded.Heap.Assumptions.html#2175" class="Bound">has-nr</a> <a id="2413" href="Graded.Heap.Assumptions.html#2373" class="Bound">no-nr</a><a id="2418" class="Symbol">)</a>
+</pre></body></html>
