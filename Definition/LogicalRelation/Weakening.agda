@@ -108,7 +108,7 @@ mutual
 opaque
   unfolding ↑ⁿ_
 
-  -- Weakening preserves level reflection.
+  -- Weakening preserves level realisation.
 
   mutual
     wk-↑ⁿ

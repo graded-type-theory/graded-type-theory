@@ -71,7 +71,7 @@ noClosedNe ([]-congₙ net) = noClosedNe net
 -- Neutral level expressions form a separate syntactic category:
 -- they are not ordinary neutrals because they are not reducible
 -- a priori: for example, if n is neutral, then n supᵘ t is only
--- reducible if t is, so that we can accurately reflect levels.
+-- reducible if t is, so that we can accurately extract level realisers.
 
 data Neutralˡ : Term n → Set a where
   supᵘˡₙ : Neutralˡ t → Neutralˡ (t supᵘ u)

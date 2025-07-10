@@ -739,9 +739,9 @@ opaque
     in transEqTermLevel (⊩supᵘ-congʳ [t₁] u₁≡u₂) (⊩supᵘ-congˡ t₁≡t₂ [u₂])
 
 ------------------------------------------------------------------------
--- Level reflection
+-- Level realisation
 
--- Irrelevance of the reducibility proof for level reflection.
+-- Irrelevance of the reducibility proof for level realisation.
 
 opaque
   unfolding ↑ⁿ_
@@ -789,7 +789,7 @@ opaque
 opaque
   unfolding ↑ⁿ_
 
-  -- Level reflection sends zeroᵘ to 0ᵘ.
+  -- Level realisation sends zeroᵘ to 0ᵘ.
 
   ↑ⁿ-prop-zeroᵘ : ([0] : Level-prop Γ zeroᵘ) → ↑ⁿ-prop [0] PE.≡ 0
   ↑ⁿ-prop-zeroᵘ zeroᵘᵣ = PE.refl
@@ -805,7 +805,7 @@ opaque
 opaque
   unfolding ↑ⁿ_ ⊩sucᵘ
 
-  -- Level reflection sends sucᵘ to 1+.
+  -- Level realisation sends sucᵘ to 1+.
 
   ↑ⁿ-prop-sucᵘ
     : ∀ {t} ([t+1] : Level-prop Γ (sucᵘ t))
@@ -821,7 +821,7 @@ opaque
 opaque
   unfolding ↑ⁿ_ ⊩supᵘ
 
-  -- Level reflection sends supᵘ to ⊔ᵘ.
+  -- Level realisation sends supᵘ to ⊔ᵘ.
 
   ↑ⁿ-supᵘ :
     ([t] : Γ ⊩Level t ∷Level) →
@@ -876,7 +876,7 @@ opaque
     ↑ᵘ ⊩u ≤ᵘ ↑ᵘ ⊩supᵘ ⊩t ⊩u′
   ≤ᵘ-supᵘˡ {⊩t} {⊩u′} = PE.subst₂ (_≤ᵘ_) ↑ᵘ-irrelevance (PE.sym $ ↑ᵘ-supᵘ ⊩t ⊩u′) ≤ᵘ⊔ᵘˡ
 
--- Level reflection preserves equality.
+-- Level realisation preserves equality.
 
 opaque
   unfolding ↑ⁿ_ ⊩sucᵘ
@@ -1010,7 +1010,7 @@ opaque
   → ↑ᵘ [t] PE.≡ ↑ᵘ [u]
 ↑ᵘ-cong {[t]} {[u]} t≡u = PE.cong 0ᵘ+_ (↑ⁿ-cong [t] [u] t≡u)
 
--- Level reflection preserves inequality.
+-- Level realisation preserves inequality.
 
 ↑ⁿ-cong-≤
   : ∀ {t u} {[t] : Γ ⊩Level t ∷Level} {[u] : Γ ⊩Level u ∷Level}

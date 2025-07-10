@@ -241,11 +241,11 @@ mutual
       → [neLevel]-prop Γ (t₁ supᵘ t₂) t₁
     ne : ∀ {k k′} → Γ ⊩neNf k ≡ k′ ∷ Level → [neLevel]-prop Γ k k′
 
--- Level reflection
+-- Level realisation
 
 abstract
 
-  -- The level that neutral levels are reflected as.
+  -- The level that neutral levels are realised as.
   -- This does not matter, so it can be kept abstract.
 
   ↑ᵘ-neutral : Nat
