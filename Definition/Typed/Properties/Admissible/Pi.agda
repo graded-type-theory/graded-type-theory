@@ -279,8 +279,10 @@ opaque
           (Lift-cong (refl (substTerm ⊢wkl₁ ⊢lifta)) (lower₀[lift]₀ ⊢B ⊢a))) ⟩⊢
     lower (lift (lower₀ t) [ lift a ]₀)
       ≡⟨ lower-cong (lift-cong ⊢l₁ (lower₀[lift]₀∷ ⊢t ⊢a)) ⟩⊢
-    lower (lift (t [ a ]₀)) ⇒⟨ Lift-β⇒ (substTerm ⊢t ⊢a) ⟩⊢∎
-    t [ a ]₀ ∎
+    lower (lift (t [ a ]₀))
+      ⇒⟨ Lift-β⇒ (substTerm ⊢t ⊢a) ⟩⊢∎
+    t [ a ]₀
+      ∎
 
 opaque
 

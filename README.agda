@@ -34,6 +34,7 @@ import Definition.Typed.Properties.Admissible.Level
 import Definition.Typed.Properties.Admissible.Lift
 import Definition.Typed.Properties.Admissible.Pi-Sigma
 import Definition.Typed.Properties.Admissible.Pi
+import Definition.Typed.Properties.Admissible.Sigma
 
 -- The logical relation.
 import Definition.LogicalRelation

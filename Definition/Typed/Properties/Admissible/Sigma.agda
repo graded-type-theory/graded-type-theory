@@ -19,11 +19,14 @@ open import Definition.Typed R
 open import Definition.Typed.Inversion R
 open import Definition.Typed.Properties.Admissible.Equality R
 open import Definition.Typed.Properties.Admissible.Identity R
+open import Definition.Typed.Properties.Admissible.Lift R
+open import Definition.Typed.Properties.Admissible.Pi-Sigma R
 open import Definition.Typed.Properties.Admissible.Var R
 open import Definition.Typed.Properties.Reduction R
 open import Definition.Typed.Properties.Well-formed R
 open import Definition.Typed.Reasoning.Reduction R
-open import Definition.Typed.Reasoning.Term R
+open import Definition.Typed.Reasoning.Term R as TmR
+import Definition.Typed.Reasoning.Type R as TyR
 open import Definition.Typed.Substitution.Primitive R
 open import Definition.Typed.Weakening R as W hiding (wk)
 open import Definition.Typed.Well-formed R
@@ -33,13 +36,15 @@ open import Definition.Untyped.Sigma 𝕄
 
 open import Tools.Fin
 open import Tools.Function
+open import Tools.Nat
 open import Tools.Product
 import Tools.PropositionalEquality as PE
 open import Tools.Reasoning.PropositionalEquality
 
 private variable
-  Γ                                         : Con Term _
-  A A₁ A₂ B B₁ B₂ C C₁ C₂ t t₁ t₂ u u₁ u₂ v : Term _
+  n                                         : Nat
+  Γ                                         : Con Term n
+  A A₁ A₂ B B₁ B₂ C C₁ C₂ t t₁ t₂ u u₁ u₂ v : Term n
   p q q′ r                                  : M
   s                                         : Strength
 
@@ -1271,3 +1276,156 @@ opaque
     case inversion-ΠΣ (wf-⊢∷ ⊢t) of λ
       (_ , _ , Σ-ok) →
     q , G , conv ⊢t (ΠΣ-cong (sym A≡F) (refl ⊢G) Σ-ok) , C≡A  }
+
+------------------------------------------------------------------------
+-- Heterogeneous variants of the typing rules for (strong) Σ
+
+-- Heterogeneous pairs
+
+prodʰ : (s : Strength) (p : M) (t u : Term n) → Term n
+prodʰ s p t u = prod s p (lift t) (lift u)
+
+prodʰˢ prodʰʷ : (p : M) (t u : Term n) → Term n
+prodʰˢ = prodʰ 𝕤
+prodʰʷ = prodʰ 𝕨
+
+opaque
+
+  prodʰⱼ
+    : ∀ {l₁ l₂ F G}
+    → Γ ⊢ l₁ ∷ Level
+    → Γ ⊢ l₂ ∷ Level
+    → Γ ∙ F ⊢ G
+    → Γ ⊢ t ∷ F
+    → Γ ⊢ u ∷ G [ t ]₀
+    → Σ-allowed s p q
+    → Γ ⊢ prodʰ s p t u ∷ Σʰ⟨ s ⟩ p q l₁ l₂ F G
+  prodʰⱼ ⊢l₁ ⊢l₂ ⊢G ⊢t ⊢u ok =
+    let ⊢F = ⊢∙→⊢ (wf ⊢G)
+        ⊢LiftF = Liftⱼ ⊢l₂ ⊢F
+        ⊢LiftG = Liftⱼ (wkTerm₁ ⊢LiftF ⊢l₁) (lower₀Type ⊢l₂ ⊢G)
+        ⊢liftt = liftⱼ′ ⊢l₂ ⊢t
+        ⊢liftu = liftⱼ′
+          (PE.subst (_ ⊢_∷ _) (PE.sym (wk1-sgSubst _ _)) ⊢l₁)
+          (conv ⊢u (sym (lower₀[lift]₀ ⊢G ⊢t)))
+    in prodⱼ ⊢LiftG ⊢liftt ⊢liftu ok
+
+-- Heterogeneous first projection
+
+fstʰ : (p : M) (t : Term n) → Term n
+fstʰ p t = lower (fst p t)
+
+opaque
+
+  fstʰⱼ
+    : ∀ {l₁ l₂ F G}
+    → Γ ∙ F ⊢ G
+    → Γ ⊢ t ∷ Σʰˢ p q l₁ l₂ F G
+    → Γ ⊢ fstʰ p t ∷ F
+  fstʰⱼ ⊢G ⊢t = lowerⱼ (fstⱼ′ ⊢t)
+
+-- Heterogeneous second projection
+
+sndʰ : (p : M) (t : Term n) → Term n
+sndʰ p t = lower (snd p t)
+
+opaque
+
+  sndʰⱼ
+    : ∀ {l₁ l₂ F G}
+    → Γ ∙ F ⊢ G
+    → Γ ⊢ t ∷ Σʰˢ p q l₁ l₂ F G
+    → Γ ⊢ sndʰ p t ∷ G [ fstʰ p t ]₀
+  sndʰⱼ {G} ⊢G ⊢t =
+    PE.subst (_⊢_∷_ _ _) ([]↑-[]₀ G) (lowerⱼ (sndⱼ′ ⊢t))
+
+opaque
+
+  -- Heterogeneous first β-rule
+
+  Σʰ-β₁
+    : ∀ {l₁ l₂ F G}
+    -- Note that l₁ and l₂ can be chosen arbitrarily.
+    → Γ ⊢ l₁ ∷ Level
+    → Γ ⊢ l₂ ∷ Level
+    → Γ ∙ F ⊢ G
+    → Γ ⊢ t ∷ F
+    → Γ ⊢ u ∷ G [ t ]₀
+    → Σˢ-allowed p q
+    → Γ ⊢ fstʰ p (prodʰˢ p t u) ≡ t ∷ F
+  Σʰ-β₁ {t} {u} {p} {q} ⊢l₁ ⊢l₂ ⊢G ⊢t ⊢u ok =
+    let ⊢F = ⊢∙→⊢ (wf ⊢G)
+        ⊢LiftF = Liftⱼ ⊢l₂ ⊢F
+        ⊢LiftG = Liftⱼ (wkTerm₁ ⊢LiftF ⊢l₁) (lower₀Type ⊢l₂ ⊢G)
+        ⊢liftt = liftⱼ′ ⊢l₂ ⊢t
+        ⊢liftu = liftⱼ′
+          (PE.subst (_ ⊢_∷ _) (PE.sym (wk1-sgSubst _ _)) ⊢l₁)
+          (conv ⊢u (sym (lower₀[lift]₀ ⊢G ⊢t)))
+    in
+    lower (fst p (prod 𝕤 p (lift t) (lift u)))
+      ≡⟨ lower-cong (Σ-β₁ ⊢LiftG ⊢liftt ⊢liftu PE.refl ok) ⟩⊢
+    lower (lift t)
+      ≡⟨ Lift-β′ ⊢t ⟩⊢∎
+    t ∎
+
+
+opaque
+
+  -- Heterogeneous second β-rule
+
+  Σʰ-β₂
+    : ∀ {l₁ l₂ F G}
+    -- Note that l₁ and l₂ can be chosen arbitrarily.
+    → Γ ⊢ l₁ ∷ Level
+    → Γ ⊢ l₂ ∷ Level
+    → Γ ∙ F ⊢ G
+    → Γ ⊢ t ∷ F
+    → Γ ⊢ u ∷ G [ t ]₀
+    → Σˢ-allowed p q
+    → Γ ⊢ sndʰ p (prodʰˢ p t u) ≡ u ∷ G [ fstʰ p (prodʰˢ p t u) ]₀
+  Σʰ-β₂ {t} {u} {p} {q} {G} ⊢l₁ ⊢l₂ ⊢G ⊢t ⊢u ok =
+    let ⊢F = ⊢∙→⊢ (wf ⊢G)
+        ⊢LiftF = Liftⱼ ⊢l₂ ⊢F
+        ⊢LiftG = Liftⱼ (wkTerm₁ ⊢LiftF ⊢l₁) (lower₀Type ⊢l₂ ⊢G)
+        ⊢liftt = liftⱼ′ ⊢l₂ ⊢t
+        ⊢liftu = liftⱼ′
+          (PE.subst (_ ⊢_∷ _) (PE.sym (wk1-sgSubst _ _)) ⊢l₁)
+          (conv ⊢u (sym (lower₀[lift]₀ ⊢G ⊢t)))
+    in
+    lower (snd p (prod 𝕤 p (lift t) (lift u)))
+      ≡⟨ PE.subst (_⊢_≡_∷_ _ _ _) ([]↑-[]₀ G) (lower-cong (Σ-β₂ ⊢LiftG ⊢liftt ⊢liftu PE.refl ok)) ⟩⊢
+    lower (lift u)
+      ≡⟨ Lift-β′ (conv ⊢u (substTypeEq (refl ⊢G) (sym′ (Σʰ-β₁ ⊢l₁ ⊢l₂ ⊢G ⊢t ⊢u ok)))) ⟩⊢∎
+    u ∎
+
+opaque
+
+  -- Heterogeneous η-rule
+
+  Σʰ-η
+    : ∀ {l₁ l₂ F G}
+    → Γ ⊢ l₁ ∷ Level
+    → Γ ⊢ l₂ ∷ Level
+    → Γ ∙ F ⊢ G
+    → Γ ⊢ t ∷ Σʰˢ p q l₁ l₂ F G
+    → Γ ⊢ u ∷ Σʰˢ p q l₁ l₂ F G
+    → Γ ⊢ fstʰ p t ≡ fstʰ p u ∷ F
+    → Γ ⊢ sndʰ p t ≡ sndʰ p u ∷ G [ fstʰ p t ]₀
+    → Σˢ-allowed p q
+    → Γ ⊢ t ≡ u ∷ Σʰˢ p q l₁ l₂ F G
+  Σʰ-η {t} {p} {u} {l₁} {G} ⊢l₁ ⊢l₂ ⊢G ⊢t ⊢u fstʰ≡fstʰ sndʰ≡sndʰ ok =
+    let
+      fst≡fst = Lift-η′ (fstⱼ′ ⊢t) (fstⱼ′ ⊢u) fstʰ≡fstʰ
+      LiftGu≡LiftGt =
+        Lift (wk1 l₁ [ fst p u ]₀) (lower₀ G [ fst p u ]₀)
+          TyR.≡⟨ PE.cong₂ Lift (wk1-sgSubst _ _) PE.refl ⟩⊢≡
+        Lift l₁ (lower₀ G [ fst p u ]₀)
+          TyR.≡˘⟨ Lift-cong (refl ⊢l₁) (substTypeEq (refl (lower₀Type ⊢l₂ ⊢G)) fst≡fst) ⟩⊢∎≡
+        Lift l₁ (lower₀ G [ fst p t ]₀)
+          ≡˘⟨ PE.cong₂ Lift (wk1-sgSubst _ _) PE.refl ⟩
+        Lift (wk1 l₁ [ fst p t ]₀) (lower₀ G [ fst p t ]₀)
+          ∎
+    in Σ-η′ ⊢t ⊢u
+        fst≡fst
+        (Lift-η′ (sndⱼ′ ⊢t) (conv (sndⱼ′ ⊢u) LiftGu≡LiftGt)
+          (PE.subst (_⊢_≡_∷_ _ _ _) (PE.sym ([]↑-[]₀ G)) sndʰ≡sndʰ))
