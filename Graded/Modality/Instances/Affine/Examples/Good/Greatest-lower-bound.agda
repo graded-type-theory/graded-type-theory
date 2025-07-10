@@ -1,24 +1,19 @@
 ------------------------------------------------------------------------
--- Some examples related to the affine types modality
+-- Some examples related to the affine types modality with the usage
+-- rule for natrec using greatest lower bounds.
 ------------------------------------------------------------------------
 
 open import Tools.Level
-
-open import Definition.Typed.Restrictions
 
 import Graded.Modality.Instances.Affine
 open import Graded.Modality.Variant lzero
 open import Graded.Usage.Restrictions
 
-module Graded.Modality.Instances.Affine.Good.Greatest-lower-bound
+module Graded.Modality.Instances.Affine.Examples.Good.Greatest-lower-bound
   -- The modality variant.
   (variant : Modality-variant)
   (open Graded.Modality.Instances.Affine variant)
-  (TR : Type-restrictions affineModality)
-  (open Type-restrictions TR)
   (UR : Usage-restrictions affineModality)
-  -- It is assumed that "Π 𝟙 , 𝟘" is allowed.
-  (Π-𝟙-𝟘 : Π-allowed 𝟙 𝟘)
   where
 
 open import Graded.Restrictions affineModality
@@ -35,8 +30,9 @@ private
     no-nr : Nr-not-available-GLB
     no-nr = No-nr-glb ⦃ zero-one-many-supports-glb-for-natrec ⦄
 
+open import Tools.Fin
 open import Tools.Function
-open import Tools.Nat using (1+)
+open import Tools.Nat using (Nat; 1+)
 import Tools.Reasoning.PartialOrder
 open import Tools.Product
 open import Tools.PropositionalEquality
@@ -44,24 +40,24 @@ open import Tools.Relation
 
 open import Graded.Context affineModality
 open import Graded.Context.Properties affineModality
-open import Graded.Modality.Instances.Examples TR Π-𝟙-𝟘
+import Graded.Derived.Nat affineModality UR′ as N
 open import Graded.Modality.Properties affineModality
+  hiding (nrᵢ-𝟘-GLB)
 open import Graded.Mode affineModality
 open import Graded.Usage affineModality UR′
 open import Graded.Usage.Inversion affineModality UR′
+open import Graded.Usage.Properties affineModality UR′
+open import Graded.Usage.Weakening affineModality UR′
 
-private
+open import Definition.Untyped Affine
+open import Definition.Untyped.Nat affineModality
 
-  opaque
-
-    -- The greatest lower bound of nrᵢ 𝟙 𝟙 𝟘 is 𝟙.
-
-    𝟙-GLB : M.Greatest-lower-bound 𝟙 (M.nrᵢ 𝟙 𝟙 𝟘)
-    𝟙-GLB = ≤-reflexive ∘→ lemma , λ { 𝟘 q≤ → q≤ 0 ; 𝟙 q≤ → q≤ 0 ; ω q≤ → ≤-refl}
-      where
-      lemma : ∀ i → 𝟙 ≡ M.nrᵢ 𝟙 𝟙 𝟘 i
-      lemma 0 = refl
-      lemma (1+ i) rewrite sym (lemma i) = refl
+private variable
+  n : Nat
+  γ δ η : Conₘ _
+  t u : Term _
+  m : Mode
+  p : Affine
 
 opaque
 
@@ -84,8 +80,8 @@ opaque
       (_ ∙ q″≤𝟘 ∙ _ ∙ _) →
     let _ , q′-GLB = GLBᶜ-pointwise q′-GLB′
         q′≤𝟙 = GLB-monotone (λ i → nrᵢ-monotone i p≤𝟙 (≤-trans q≤q″ q″≤𝟘))
-                 q′-GLB 𝟙-GLB
-        p′≡𝟙 = GLB-unique p′-GLB 𝟙-GLB
+                 q′-GLB nrᵢ-const-GLB₁
+        p′≡𝟙 = GLB-unique p′-GLB nrᵢ-const-GLB₁
     in case begin
       𝟙           ≤⟨ 𝟙≤ ⟩
       p′ · r + q′ ≤⟨ +-monotone (·-monotoneʳ r≤𝟙) q′≤𝟙 ⟩
@@ -95,20 +91,51 @@ opaque
     where
     open Tools.Reasoning.PartialOrder ≤-poset
 
+opaque
+
+  -- A usage rule for plus′
+
+  ▸plus′ :
+    γ ▸[ m ] t → δ ▸[ m ] u →
+    γ +ᶜ δ ▸[ m ] plus′ t u
+  ▸plus′ = N.▸plus′₂
 
 opaque
 
   -- The term plus is well-resourced.
 
   ▸plus : ε ▸[ 𝟙ᵐ ] plus
-  ▸plus =
-    lamₘ $
-    lamₘ $
-    natrec-no-nr-glbₘ var (sucₘ var) var
-      (sub ℕₘ $ begin
-       𝟘ᶜ ∙ ⌜ 𝟘ᵐ? ⌝ · 𝟘  ≈⟨ ≈ᶜ-refl ∙ M.·-zeroʳ _ ⟩
-       𝟘ᶜ                ∎)
-      𝟙-GLB
-      (GLBᶜ-pointwise′ (GLBᶜ-pointwise′ ε-GLB GLB-nrᵢ-𝟘) 𝟙-GLB)
-    where
-    open Tools.Reasoning.PartialOrder ≤ᶜ-poset
+  ▸plus = N.▸plus
+
+opaque
+
+  -- A usage rule for f′.
+
+  ▸f′ :
+    γ ▸[ 𝟙ᵐ ] t →
+    δ ▸[ 𝟙ᵐ ] u →
+    γ +ᶜ δ ▸[ 𝟙ᵐ ] f′ t u
+  ▸f′ = N.▸f′₂
+
+opaque
+
+  -- The term f is well-resourced.
+
+  ▸f : ε ▸[ 𝟙ᵐ ] f
+  ▸f = N.▸f
+
+opaque
+
+  -- A usage rule for pred′
+
+  ▸pred′ :
+    γ ▸[ m ] t →
+    γ ▸[ m ] pred′ t
+  ▸pred′ = N.▸pred′₂
+
+opaque
+
+  -- A usage rule for pred
+
+  ▸pred : ε ▸[ 𝟙ᵐ ] pred
+  ▸pred = N.▸pred

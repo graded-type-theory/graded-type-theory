@@ -27,7 +27,7 @@ import Tools.Reasoning.PartialOrder ≤-poset as RPo
 import Tools.Reasoning.PropositionalEquality as RPe
 
 private variable
-  p p′ q q′ r r′ z z′ s s′ n n′ : M
+  p p′ q q′ r r′ z z′ s s′ n n′ q₁ q₂ : M
 
 ------------------------------------------------------------------------
 -- Properties of nr functions
@@ -57,22 +57,34 @@ module _
   open Is-factoring-nr is-factoring-nr
   open Has-nr has-nr
 
-  -- An inequality for nr₂
+  opaque
 
-  nr₂≤ : nr₂ p r ≤ p + r · nr₂ p r
-  nr₂≤ {p} {r} = begin
-    nr₂ p r                              ≡˘⟨ ·-identityʳ _ ⟩
-    nr₂ p r · 𝟙                          ≡˘⟨ +-identityʳ _ ⟩
-    nr₂ p r · 𝟙 + 𝟘                      ≡˘⟨ +-congˡ nr-𝟘 ⟩
-    nr₂ p r · 𝟙 + nr p r 𝟘 𝟘 𝟘           ≡˘⟨ nr-factoring ⟩
-    nr p r 𝟘 𝟘 𝟙                         ≤⟨ nr-suc ⟩
-    𝟘 + p · 𝟙 + r · nr p r 𝟘 𝟘 𝟙         ≡⟨ +-identityˡ _ ⟩
-    p · 𝟙 + r · nr p r 𝟘 𝟘 𝟙             ≡⟨ +-cong (·-identityʳ _) (·-congˡ nr-factoring) ⟩
-    p + r · (nr₂ p r · 𝟙 + nr p r 𝟘 𝟘 𝟘) ≡⟨ +-congˡ (·-congˡ (+-cong (·-identityʳ _) nr-𝟘)) ⟩
-    p + r · (nr₂ p r + 𝟘)                ≡⟨ +-congˡ (·-congˡ (+-identityʳ _)) ⟩
-    p + r · nr₂ p r                      ∎
-    where
-    open RPo
+    -- The function nr₂ can be expressed using the function nr
+
+    nr₂≡ : nr₂ p r ≡ nr p r 𝟘 𝟘 𝟙
+    nr₂≡ {p} {r} = begin
+      nr₂ p r                     ≡˘⟨ +-identityʳ _ ⟩
+      nr₂ p r + 𝟘                 ≡˘⟨ +-cong (·-identityʳ _) nr-𝟘 ⟩
+      nr₂ p r · 𝟙 + nr p r 𝟘 𝟘 𝟘 ≡˘⟨ nr-factoring ⟩
+      nr p r 𝟘 𝟘 𝟙               ∎
+      where
+      open RPe
+
+  opaque
+
+    -- An inequality for nr₂
+
+    nr₂≤ : nr₂ p r ≤ p + r · nr₂ p r
+    nr₂≤ {p} {r} = begin
+      nr₂ p r                              ≡⟨ nr₂≡ ⟩
+      nr p r 𝟘 𝟘 𝟙                         ≤⟨ nr-suc ⟩
+      𝟘 + p · 𝟙 + r · nr p r 𝟘 𝟘 𝟙         ≡⟨ +-identityˡ _ ⟩
+      p · 𝟙 + r · nr p r 𝟘 𝟘 𝟙             ≡⟨ +-cong (·-identityʳ _) (·-congˡ nr-factoring) ⟩
+      p + r · (nr₂ p r · 𝟙 + nr p r 𝟘 𝟘 𝟘) ≡⟨ +-congˡ (·-congˡ (+-cong (·-identityʳ _) nr-𝟘)) ⟩
+      p + r · (nr₂ p r + 𝟘)                ≡⟨ +-congˡ (·-congˡ (+-identityʳ _)) ⟩
+      p + r · nr₂ p r                      ∎
+      where
+      open RPo
 
 ------------------------------------------------------------------------
 -- "Optimal" nr functions
@@ -170,6 +182,27 @@ opaque
 
 opaque
 
+  -- The greatest lower bound of nrᵢ r p q is the greatest solution to
+  -- the "characteristic inequalities" x ≤ p and x ≤ q + r · x.
+
+  ≤-nrᵢ-GLB :
+    ∀ {x y} → x ≤ p → x ≤ q + r · x →
+    Greatest-lower-bound y (nrᵢ r p q) →
+    x ≤ y
+  ≤-nrᵢ-GLB {p} {q} {r} {x} le₁ le₂ glb =
+    glb .proj₂ _ lemma
+    where
+    open RPo
+    lemma : ∀ i → x ≤ nrᵢ r p q i
+    lemma 0 = le₁
+    lemma (1+ i) = begin
+      x                   ≤⟨ le₂ ⟩
+      q + r · x           ≤⟨ +-monotoneʳ (·-monotoneʳ (lemma i)) ⟩
+      q + r · nrᵢ r p q i ≡⟨⟩
+      nrᵢ r p q (1+ i)    ∎
+
+opaque
+
   -- nrᵢ distributes over addition in a certain sense.
 
   nrᵢ-+ : ∀ i → nrᵢ r (p + p′) (q + q′) i ≡ nrᵢ r p q i + nrᵢ r p′ q′ i
@@ -200,12 +233,12 @@ opaque
 
   -- The sequence nrᵢ 𝟙 z 𝟘 is constantly equal to z
 
-  nrᵢ-const : ∀ i → nrᵢ 𝟙 z 𝟘 i ≡ z
-  nrᵢ-const 0 = refl
-  nrᵢ-const {z} (1+ i) = begin
+  nrᵢ-const₁ : ∀ i → nrᵢ 𝟙 z 𝟘 i ≡ z
+  nrᵢ-const₁ 0 = refl
+  nrᵢ-const₁ {z} (1+ i) = begin
     𝟘 + 𝟙 · nrᵢ 𝟙 z 𝟘 i ≡⟨ +-identityˡ _ ⟩
     𝟙 · nrᵢ 𝟙 z 𝟘 i     ≡⟨ ·-identityˡ _ ⟩
-    nrᵢ 𝟙 z 𝟘 i         ≡⟨ nrᵢ-const i ⟩
+    nrᵢ 𝟙 z 𝟘 i         ≡⟨ nrᵢ-const₁ i ⟩
     z                    ∎
     where
     open RPe
@@ -214,8 +247,28 @@ opaque
 
   -- The greatest lower bound of the sequence nrᵢ 𝟙 z 𝟘 is z
 
-  nrᵢ-const-GLB : Greatest-lower-bound z (nrᵢ 𝟙 z 𝟘)
-  nrᵢ-const-GLB = GLB-const (λ i → trans (nrᵢ-const i) (sym (nrᵢ-const 0)))
+  nrᵢ-const-GLB₁ : Greatest-lower-bound z (nrᵢ 𝟙 z 𝟘)
+  nrᵢ-const-GLB₁ = GLB-const (λ i → trans (nrᵢ-const₁ i) (sym (nrᵢ-const₁ 0)))
+
+opaque
+
+  -- The sequence nrᵢ 𝟘 p p is constantly equal to p
+
+  nrᵢ-const₂ : ∀ i → nrᵢ 𝟘 p p i ≡ p
+  nrᵢ-const₂ 0 = refl
+  nrᵢ-const₂ {p} (1+ i) = begin
+    p + 𝟘 · nrᵢ 𝟘 p p i ≡⟨ +-congˡ (·-zeroˡ _) ⟩
+    p + 𝟘               ≡⟨ +-identityʳ _ ⟩
+    p                   ∎
+    where
+    open RPe
+
+opaque
+
+  -- The greatest lower bound of the sequence nrᵢ 𝟘 p p is p
+
+  nrᵢ-const-GLB₂ : Greatest-lower-bound p (nrᵢ 𝟘 p p)
+  nrᵢ-const-GLB₂ = GLB-const (λ i → trans (nrᵢ-const₂ i) (sym (nrᵢ-const₂ 0)))
 
 opaque
 
@@ -239,20 +292,58 @@ opaque
   nr→nrᵢ-LB :
     (has-nr : Has-nr _ 𝕄) →
     let open Has-nr has-nr in
-    ∀ i → nr 𝟘 r z s 𝟘 ≤ nrᵢ r z s i
+    ∀ i → nr p r z s 𝟘 ≤ nrᵢ r z s i
   nr→nrᵢ-LB has-nr = lemma
     where
     open Has-nr has-nr
     open RPo
-    lemma : ∀ i → nr 𝟘 r z s 𝟘 ≤ nrᵢ r z s i
+    lemma : ∀ i → nr p r z s 𝟘 ≤ nrᵢ r z s i
     lemma 0 = nr-zero ≤-refl
-    lemma {r} {z} {s} (1+ i) = begin
-      nr 𝟘 r z s 𝟘 ≤⟨ nr-suc ⟩
-      s + 𝟘 · 𝟘 + r · nr 𝟘 r z s 𝟘 ≡⟨ +-congˡ (+-congʳ (·-zeroˡ _)) ⟩
-      s + 𝟘 + r · nr 𝟘 r z s 𝟘     ≡⟨ +-congˡ (+-identityˡ _) ⟩
-      s + r · nr 𝟘 r z s 𝟘         ≤⟨ +-monotoneʳ (·-monotoneʳ (lemma i)) ⟩
+    lemma {p} {r} {z} {s} (1+ i) = begin
+      nr p r z s 𝟘 ≤⟨ nr-suc ⟩
+      s + p · 𝟘 + r · nr p r z s 𝟘 ≡⟨ +-congˡ (+-congʳ (·-zeroʳ _)) ⟩
+      s + 𝟘 + r · nr p r z s 𝟘     ≡⟨ +-congˡ (+-identityˡ _) ⟩
+      s + r · nr p r z s 𝟘         ≤⟨ +-monotoneʳ (·-monotoneʳ (lemma i)) ⟩
       s + r · nrᵢ r z s i          ≡⟨⟩
       nrᵢ r z s (1+ i)             ∎
+
+opaque
+
+  -- A bound for factoring nr functions
+  --
+  -- Certain factoring nr functions are bounded by the grade used in the
+  -- usage rule for natrec using greatest lower bounds.
+  --
+  -- The assumption that nr₂ p r ≤ 𝟙 can, in some sense, be interpreted
+  -- as the natural number being used (at least) 𝟙 time(s) by matching.
+
+  factoring-nr-≤ :
+    (has-nr : Has-nr _ 𝕄)
+    (is-factoring-nr : Is-factoring-nr _ has-nr) →
+    Greatest-lower-bound q₁ (nrᵢ r 𝟙 p) →
+    Greatest-lower-bound q₂ (nrᵢ r z s) →
+    let open Has-nr has-nr
+        open Is-factoring-nr is-factoring-nr in
+    nr₂ p r ≤ 𝟙 →
+    nr p r z s n ≤ q₁ · n + q₂
+  factoring-nr-≤ {q₁} {r} {p} {q₂} {z} {s} {n}
+    has-nr is-factoring-nr q₁-glb q₂-glb nr₂≤𝟙 =
+    begin
+      nr p r z s n               ≈⟨ nr-factoring ⟩
+      nr₂ p r · n + nr p r z s 𝟘 ≤⟨ +-monotone (·-monotoneˡ (q₁-glb .proj₂ _ lemma))
+                                      (q₂-glb .proj₂ _ (nr→nrᵢ-LB has-nr)) ⟩
+      q₁ · n + q₂                ∎
+    where
+    open Has-nr has-nr
+    open Is-factoring-nr is-factoring-nr
+    open RPo
+    lemma : ∀ i → nr₂ p r ≤ nrᵢ r 𝟙 p i
+    lemma 0 = nr₂≤𝟙
+    lemma (1+ i) = begin
+      nr₂ p r             ≤⟨ nr₂≤ ⦃ has-nr = has-nr ⦄ ⦃ is-factoring-nr = is-factoring-nr ⦄ ⟩
+      p + r · nr₂ p r     ≤⟨ +-monotoneʳ (·-monotoneʳ (lemma i)) ⟩
+      p + r · nrᵢ r 𝟙 p i ≡⟨⟩
+      nrᵢ r 𝟙 p (1+ i)    ∎
 
 -- When all nrᵢ sequences has greater lower bounds an nr function can
 -- be defined.
@@ -410,3 +501,35 @@ module _
         nr₂ p r · n + (𝟘 + nr₃ r z s)           ≡˘⟨ +-congˡ (+-congʳ (·-zeroʳ _)) ⟩
         nr₂ p r · n + (nr₂ p r · 𝟘 + nr₃ r z s) ≡⟨⟩
         nr₂ p r · n + nr p r z s 𝟘              ∎
+
+  opaque
+    unfolding nrᵢ-GLB→nr
+
+    -- The nr function given by nrᵢ-GLB→nr is the
+    -- greatest factoring nr function given a certain assumption.
+    --
+    -- The assumption that nr₂ p r ≤ 𝟙 can, in some sense, be
+    -- interpreted as the natural number being used (at least) 𝟙 times
+    -- by matching.
+    --
+    -- Note that without this assumption there might not be a greatest
+    -- factoring nr function.
+    -- See Graded.Modality.Instances.Nat-plus-infinity.no-greatest-nrₑ
+
+    nrᵢ-GLB→nr-factoring-greatest :
+      (has-nr : Has-nr _ 𝕄)
+      (is-factoring-nr : Is-factoring-nr _ has-nr) →
+      ∀ p r z s n →
+      Is-factoring-nr.nr₂ is-factoring-nr p r ≤ 𝟙 →
+      Has-nr.nr has-nr p r z s n ≤ Has-nr.nr nrᵢ-GLB→nr p r z s n
+    nrᵢ-GLB→nr-factoring-greatest has-nr is-factoring-nr p r z s n nr₂≤𝟙 =
+      begin
+        nr″ p r z s n ≤⟨ factoring-nr-≤ has-nr is-factoring-nr
+                           (has-glb r 𝟙 p .proj₂) (has-glb r z s .proj₂)
+                           nr₂≤𝟙 ⟩
+        has-glb r 𝟙 p .proj₁ · n + has-glb r z s .proj₁ ≡⟨⟩
+        nr′ p r z s n ∎
+      where
+      open Has-nr nrᵢ-GLB→nr renaming (nr to nr′)
+      open Has-nr has-nr renaming (nr to nr″)
+      open RPo

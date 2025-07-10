@@ -1711,6 +1711,16 @@ opaque
     wk[ k ]′ (wk[ 2 ]′ t [ u , v ]₁₀)                         ≡⟨ cong wk[ _ ]′ wk₂-[,] ⟩
     wk[ k ]′ t                                                ∎
 
+opaque
+
+  -- A variant of wk2-tail using wk₂
+
+  wk₂-tail : (t : Term n) → wk₂ t [ σ ] ≡ t [ tail (tail σ) ]
+  wk₂-tail {σ} t = begin
+    wk₂ t [ σ ]         ≡˘⟨ cong _[ σ ] $ wk[]≡wk[]′ {k = 2} {t = t} ⟩
+    wk2 t [ σ ]         ≡⟨ wk2-tail t ⟩
+    t [ tail (tail σ) ] ∎
+
 ------------------------------------------------------------------------
 -- Some lemmas related to _[_][_]↑
 

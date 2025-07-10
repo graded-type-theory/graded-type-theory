@@ -568,6 +568,33 @@ opaque
   nrᵢᶜ-𝟘-GLB {γ = _ ∙ _} {δ = _ ∙ _} =
     GLBᶜ-pointwise′ nrᵢᶜ-𝟘-GLB nrᵢ-𝟘-GLB
 
+opaque
+
+  -- The greatest lower bound of the sequence nrᵢᶜ 𝟙 γ 𝟘ᶜ is γ
+
+  nrᵢᶜ-const-GLBᶜ₁ : Greatest-lower-boundᶜ γ (nrᵢᶜ 𝟙 γ 𝟘ᶜ)
+  nrᵢᶜ-const-GLBᶜ₁ {γ = ε} = ε-GLB
+  nrᵢᶜ-const-GLBᶜ₁ {γ = γ ∙ p} =
+    GLBᶜ-pointwise′ nrᵢᶜ-const-GLBᶜ₁ nrᵢ-const-GLB₁
+
+opaque
+
+  -- The greatest lower bound of the sequence nrᵢᶜ 𝟘 γ γ is γ
+
+  nrᵢᶜ-const-GLBᶜ₂ : Greatest-lower-boundᶜ γ (nrᵢᶜ 𝟘 γ γ)
+  nrᵢᶜ-const-GLBᶜ₂ {γ = ε} = ε-GLB
+  nrᵢᶜ-const-GLBᶜ₂ {γ = γ ∙ p} =
+    GLBᶜ-pointwise′ nrᵢᶜ-const-GLBᶜ₂ nrᵢ-const-GLB₂
+
+opaque
+
+  -- The greatest lower bound of the sequence nrᵢ r 𝟘ᶜ 𝟘ᶜ is 𝟘ᶜ.
+
+  GLBᶜ-nrᵢᶜ-𝟘ᶜ : Greatest-lower-boundᶜ (𝟘ᶜ {n = n}) (nrᵢᶜ r 𝟘ᶜ 𝟘ᶜ)
+  GLBᶜ-nrᵢᶜ-𝟘ᶜ {n = 0} = ε-GLB
+  GLBᶜ-nrᵢᶜ-𝟘ᶜ {n = 1+ n} =
+    GLBᶜ-pointwise′ GLBᶜ-nrᵢᶜ-𝟘ᶜ GLB-nrᵢ-𝟘
+
 -- Lifting the properties of Has-well-behaved-GLBs to contexts
 
 module _ ⦃ ok : Has-well-behaved-GLBs M semiring-with-meet ⦄ where

@@ -18,6 +18,7 @@ open import Graded.Context.Properties 𝕄
 open import Graded.Context.Weakening 𝕄
 open import Graded.Usage 𝕄 R
 open import Graded.Usage.Restrictions.Instance R
+open import Graded.Usage.Properties 𝕄 R
 open import Graded.Mode 𝕄
 open import Definition.Untyped M
 open import Definition.Untyped.Inversion M
@@ -61,32 +62,34 @@ wkUsage ρ Emptyₘ =
 wkUsage ρ Unitₘ =
   PE.subst (λ γ → γ ▸[ _ ] Unit!) (PE.sym (wk-𝟘ᶜ ρ)) Unitₘ
 wkUsage ρ (ΠΣₘ γ▸F δ▸G) =
-  sub (ΠΣₘ (wkUsage ρ γ▸F) (wkUsage (lift ρ) δ▸G))
-      (≤ᶜ-reflexive (wk-+ᶜ ρ))
+  sub-≈ᶜ (ΠΣₘ (wkUsage ρ γ▸F) (wkUsage (lift ρ) δ▸G))
+    (wk-+ᶜ ρ)
 wkUsage ρ var =
   PE.subst (λ γ → γ ▸[ _ ] wk ρ (var _)) (PE.sym (wkUsageVar ρ _)) var
 wkUsage ρ (lamₘ γ▸t) = lamₘ (wkUsage (lift ρ) γ▸t)
 wkUsage ρ (γ▸t ∘ₘ δ▸u) =
-  sub ((wkUsage ρ γ▸t) ∘ₘ (wkUsage ρ δ▸u))
-      (≤ᶜ-reflexive (≈ᶜ-trans (wk-+ᶜ ρ) (+ᶜ-congˡ (wk-·ᶜ ρ))))
+  sub-≈ᶜ ((wkUsage ρ γ▸t) ∘ₘ (wkUsage ρ δ▸u))
+    (≈ᶜ-trans (wk-+ᶜ ρ) (+ᶜ-congˡ (wk-·ᶜ ρ)))
 wkUsage ρ (prodʷₘ γ▸t δ▸u) =
-  sub (prodʷₘ (wkUsage ρ γ▸t) (wkUsage ρ δ▸u))
-      (≤ᶜ-reflexive (≈ᶜ-trans (wk-+ᶜ ρ) (+ᶜ-congʳ (wk-·ᶜ ρ))))
-wkUsage ρ (prodˢₘ γ▸t γ▸u) = sub
-  (prodˢₘ (wkUsage ρ γ▸t) (wkUsage ρ γ▸u))
-  (≤ᶜ-reflexive (≈ᶜ-trans (wk-∧ᶜ ρ) (∧ᶜ-congʳ (wk-·ᶜ ρ))))
+  sub-≈ᶜ (prodʷₘ (wkUsage ρ γ▸t) (wkUsage ρ δ▸u))
+    (≈ᶜ-trans (wk-+ᶜ ρ) (+ᶜ-congʳ (wk-·ᶜ ρ)))
+wkUsage ρ (prodˢₘ γ▸t γ▸u) =
+  sub-≈ᶜ (prodˢₘ (wkUsage ρ γ▸t) (wkUsage ρ γ▸u))
+    (≈ᶜ-trans (wk-∧ᶜ ρ) (∧ᶜ-congʳ (wk-·ᶜ ρ)))
 wkUsage ρ (fstₘ m γ▸t PE.refl ok) = fstₘ m (wkUsage ρ γ▸t) PE.refl ok
 wkUsage ρ (sndₘ γ▸t) = sndₘ (wkUsage ρ γ▸t)
 wkUsage ρ (prodrecₘ γ▸t δ▸u η▸A ok) =
-  sub (prodrecₘ (wkUsage ρ γ▸t) (wkUsage (liftn ρ 2) δ▸u)
-         (wkUsage (lift ρ) η▸A) ok)
-    (≤ᶜ-reflexive (≈ᶜ-trans (wk-+ᶜ ρ) (+ᶜ-congʳ (wk-·ᶜ ρ))))
+  sub-≈ᶜ (prodrecₘ (wkUsage ρ γ▸t) (wkUsage (liftn ρ 2) δ▸u)
+           (wkUsage (lift ρ) η▸A) ok)
+    (≈ᶜ-trans (wk-+ᶜ ρ) (+ᶜ-congʳ (wk-·ᶜ ρ)))
 wkUsage ρ zeroₘ =
   PE.subst (λ γ → γ ▸[ _ ] zero) (PE.sym (wk-𝟘ᶜ ρ)) zeroₘ
 wkUsage ρ (sucₘ γ▸t) = sucₘ (wkUsage ρ γ▸t)
 wkUsage ρ (natrecₘ γ▸z δ▸s η▸n θ▸A) =
-  sub (natrecₘ (wkUsage ρ γ▸z) (wkUsage (liftn ρ 2) δ▸s) (wkUsage ρ η▸n) (wkUsage (lift ρ) θ▸A))
-    (≤ᶜ-reflexive (wk-nrᶜ ρ))
+  sub-≈ᶜ
+    (natrecₘ (wkUsage ρ γ▸z) (wkUsage (liftn ρ 2) δ▸s)
+      (wkUsage ρ η▸n) (wkUsage (lift ρ) θ▸A))
+    (wk-nrᶜ ρ)
 wkUsage
   ρ
   (natrec-no-nrₘ {γ = γ} {δ = δ} {p = p} {r = r} {η = η} {χ = χ}
@@ -120,15 +123,15 @@ wkUsage ρ (natrec-no-nr-glbₘ {η} {χ} {x} ▸z ▸s ▸n ▸A x≤ χ≤) =
   where
   open Tools.Reasoning.PartialOrder ≤ᶜ-poset
 wkUsage ρ (emptyrecₘ γ▸t δ▸A ok) =
-  sub (emptyrecₘ (wkUsage ρ γ▸t) (wkUsage ρ δ▸A) ok)
-    (≤ᶜ-reflexive (wk-·ᶜ ρ))
+  sub-≈ᶜ (emptyrecₘ (wkUsage ρ γ▸t) (wkUsage ρ δ▸A) ok)
+    (wk-·ᶜ ρ)
 wkUsage ρ starʷₘ = subst (_▸[ _ ] _) (PE.sym (wk-𝟘ᶜ ρ)) starʷₘ
 wkUsage ρ (starˢₘ prop) =
-  sub (starˢₘ (λ ns → subst (λ γ → γ ≈ᶜ wkConₘ ρ _) (wk-𝟘ᶜ ρ) (wk-≈ᶜ ρ (prop ns))))
-      (≤ᶜ-reflexive (wk-·ᶜ ρ))
+  sub-≈ᶜ (starˢₘ (λ ns → subst (λ γ → γ ≈ᶜ wkConₘ ρ _) (wk-𝟘ᶜ ρ) (wk-≈ᶜ ρ (prop ns))))
+      (wk-·ᶜ ρ)
 wkUsage ρ (unitrecₘ γ▸t δ▸u η▸A ok) =
-  sub (unitrecₘ (wkUsage ρ γ▸t) (wkUsage ρ δ▸u) (wkUsage (lift ρ) η▸A) ok)
-      (≤ᶜ-reflexive (≈ᶜ-trans (wk-+ᶜ ρ) (+ᶜ-congʳ (wk-·ᶜ ρ))))
+  sub-≈ᶜ (unitrecₘ (wkUsage ρ γ▸t) (wkUsage ρ δ▸u) (wkUsage (lift ρ) η▸A) ok)
+      (≈ᶜ-trans (wk-+ᶜ ρ) (+ᶜ-congʳ (wk-·ᶜ ρ)))
 wkUsage ρ (Idₘ {δ = δ} {η = η} ok ▸A ▸t ▸u) = sub
   (Idₘ ok (wkUsage _ ▸A) (wkUsage _ ▸t) (wkUsage _ ▸u))
   (begin
@@ -228,19 +231,19 @@ wkUsage⁻¹ ▸t = wkUsage⁻¹′ ▸t refl
       Uₘ eq →
         case wk-U eq of λ {
           refl →
-        sub Uₘ (≤ᶜ-reflexive (wkConₘ⁻¹-𝟘ᶜ ρ)) }
+        sub-≈ᶜ Uₘ (wkConₘ⁻¹-𝟘ᶜ ρ) }
       ℕₘ eq →
         case wk-ℕ eq of λ {
           refl →
-        sub ℕₘ (≤ᶜ-reflexive (wkConₘ⁻¹-𝟘ᶜ ρ)) }
+        sub-≈ᶜ ℕₘ (wkConₘ⁻¹-𝟘ᶜ ρ) }
       Emptyₘ eq →
         case wk-Empty eq of λ {
           refl →
-        sub Emptyₘ (≤ᶜ-reflexive (wkConₘ⁻¹-𝟘ᶜ ρ)) }
+        sub-≈ᶜ Emptyₘ (wkConₘ⁻¹-𝟘ᶜ ρ) }
       Unitₘ eq →
         case wk-Unit eq of λ {
           refl →
-        sub Unitₘ (≤ᶜ-reflexive (wkConₘ⁻¹-𝟘ᶜ ρ)) }
+        sub-≈ᶜ Unitₘ (wkConₘ⁻¹-𝟘ᶜ ρ) }
       (ΠΣₘ ▸A ▸B) eq →
         case wk-ΠΣ eq of λ {
           (_ , _ , refl , refl , refl) →
@@ -248,7 +251,7 @@ wkUsage⁻¹ ▸t = wkUsage⁻¹′ ▸t refl
           ▸A →
         case wkUsage⁻¹ ▸B of λ {
           ▸B →
-        sub (ΠΣₘ ▸A ▸B) (≤ᶜ-reflexive (wkConₘ⁻¹-+ᶜ ρ)) }}}
+        sub-≈ᶜ (ΠΣₘ ▸A ▸B) (wkConₘ⁻¹-+ᶜ ρ) }}}
       (var {m = m}) eq →
         case wk-var eq of λ {
           (x , refl , refl) →
@@ -302,7 +305,7 @@ wkUsage⁻¹ ▸t = wkUsage⁻¹′ ▸t refl
       zeroₘ eq →
         case wk-zero eq of λ {
           refl →
-        sub zeroₘ (≤ᶜ-reflexive (wkConₘ⁻¹-𝟘ᶜ ρ)) }
+        sub-≈ᶜ zeroₘ (wkConₘ⁻¹-𝟘ᶜ ρ) }
       (sucₘ ▸t) eq →
         case wk-suc eq of λ {
           (_ , refl , refl) →
@@ -349,37 +352,37 @@ wkUsage⁻¹ ▸t = wkUsage⁻¹′ ▸t refl
       (emptyrecₘ ▸t ▸A ok) eq →
         case wk-emptyrec eq of λ {
           (_ , _ , refl , refl , refl) →
-        sub (emptyrecₘ (wkUsage⁻¹ ▸t) (wkUsage⁻¹ ▸A) ok)
-          (≤ᶜ-reflexive (wkConₘ⁻¹-·ᶜ ρ)) }
+        sub-≈ᶜ (emptyrecₘ (wkUsage⁻¹ ▸t) (wkUsage⁻¹ ▸A) ok)
+          (wkConₘ⁻¹-·ᶜ ρ) }
       starʷₘ eq →
         case wk-star eq of λ {
           refl →
-        sub starₘ (≤ᶜ-reflexive (wkConₘ⁻¹-𝟘ᶜ ρ)) }
+        sub-≈ᶜ starₘ (wkConₘ⁻¹-𝟘ᶜ ρ) }
       (starˢₘ prop) eq →
         case wk-star eq of λ {
           refl →
-        sub (starˢₘ (λ ns → ≈ᶜ-trans (≈ᶜ-sym (wkConₘ⁻¹-𝟘ᶜ ρ))
+        sub-≈ᶜ (starˢₘ (λ ns → ≈ᶜ-trans (≈ᶜ-sym (wkConₘ⁻¹-𝟘ᶜ ρ))
                                     (wkConₘ⁻¹-≈ᶜ ρ (prop ns))))
-            (≤ᶜ-reflexive (wkConₘ⁻¹-·ᶜ ρ))  }
+            (wkConₘ⁻¹-·ᶜ ρ)  }
       (unitrecₘ ▸t ▸u ▸A ok) eq →
         case wk-unitrec eq of λ {
           (_ , _ , _ , refl , refl , refl , refl) →
-        sub (unitrecₘ (wkUsage⁻¹ ▸t) (wkUsage⁻¹ ▸u) (wkUsage⁻¹ ▸A) ok)
-            (≤ᶜ-reflexive (≈ᶜ-trans (wkConₘ⁻¹-+ᶜ ρ) (+ᶜ-congʳ (wkConₘ⁻¹-·ᶜ ρ)))) }
+        sub-≈ᶜ (unitrecₘ (wkUsage⁻¹ ▸t) (wkUsage⁻¹ ▸u) (wkUsage⁻¹ ▸A) ok)
+            (≈ᶜ-trans (wkConₘ⁻¹-+ᶜ ρ) (+ᶜ-congʳ (wkConₘ⁻¹-·ᶜ ρ))) }
       (Idₘ ok ▸A ▸t ▸u) eq →
         case wk-Id eq of λ {
           (_ , _ , _ , refl , refl , refl , refl) →
-        sub (Idₘ ok (wkUsage⁻¹ ▸A) (wkUsage⁻¹ ▸t) (wkUsage⁻¹ ▸u)) $
-        ≤ᶜ-reflexive (wkConₘ⁻¹-+ᶜ ρ) }
+        sub-≈ᶜ (Idₘ ok (wkUsage⁻¹ ▸A) (wkUsage⁻¹ ▸t) (wkUsage⁻¹ ▸u)) $
+        wkConₘ⁻¹-+ᶜ ρ }
       (Id₀ₘ ok ▸A ▸t ▸u) eq →
         case wk-Id eq of λ {
           (_ , _ , _ , refl , refl , refl , refl) →
-        sub (Id₀ₘ ok (wkUsage⁻¹ ▸A) (wkUsage⁻¹ ▸t) (wkUsage⁻¹ ▸u)) $
-        ≤ᶜ-reflexive (wkConₘ⁻¹-𝟘ᶜ ρ) }
+        sub-≈ᶜ (Id₀ₘ ok (wkUsage⁻¹ ▸A) (wkUsage⁻¹ ▸t) (wkUsage⁻¹ ▸u)) $
+        wkConₘ⁻¹-𝟘ᶜ ρ }
       rflₘ eq →
         case wk-rfl eq of λ {
           refl →
-        sub rflₘ (≤ᶜ-reflexive (wkConₘ⁻¹-𝟘ᶜ ρ)) }
+        sub-≈ᶜ rflₘ (wkConₘ⁻¹-𝟘ᶜ ρ) }
       (Jₘ {γ₂} {γ₃} {γ₄} {γ₅} {γ₆} ok₁ ok₂ ▸A ▸t ▸B ▸u ▸t′ ▸v)
         eq →
         case wk-J eq of λ {

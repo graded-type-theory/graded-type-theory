@@ -37,6 +37,7 @@ import Definition.Typed.Decidable.Equality
 import Definition.Typed.Eta-long-normal-form
 import Definition.Typed.Inversion
 import Definition.Typed.Properties
+import Definition.Typed.Properties.Admissible.Nat
 import Definition.Typed.Restrictions
 import Definition.Typed.Substitution
 import Definition.Typed.Syntactic
@@ -63,22 +64,21 @@ import Graded.FullReduction
 import Graded.Heap.Soundness
 import Graded.Modality
 import Graded.Modality.Instances.Affine
-import Graded.Modality.Instances.Affine.Bad
-import Graded.Modality.Instances.Affine.Bad.No-dedicated-nr
-import Graded.Modality.Instances.Affine.Good
+import Graded.Modality.Instances.Affine.Examples.Bad.Nr
+import Graded.Modality.Instances.Affine.Examples.Bad.No-nr
+import Graded.Modality.Instances.Affine.Examples.Good.Nr
 import Graded.Modality.Instances.BoundedStar
 import Graded.Modality.Instances.Erasure.Modality
 import Graded.Modality.Instances.Erasure.Properties
-import Graded.Modality.Instances.Examples
 import Graded.Modality.Instances.Information-flow
 import Graded.Modality.Instances.Linear-or-affine
-import Graded.Modality.Instances.Linear-or-affine.Bad
-import Graded.Modality.Instances.Linear-or-affine.Bad.No-dedicated-nr
-import Graded.Modality.Instances.Linear-or-affine.Good
+import Graded.Modality.Instances.Linear-or-affine.Examples.Bad.Nr
+import Graded.Modality.Instances.Linear-or-affine.Examples.Bad.No-nr
+import Graded.Modality.Instances.Linear-or-affine.Examples.Good.Nr
 import Graded.Modality.Instances.Linearity
-import Graded.Modality.Instances.Linearity.Bad
-import Graded.Modality.Instances.Linearity.Bad.No-dedicated-nr
-import Graded.Modality.Instances.Linearity.Good
+import Graded.Modality.Instances.Linearity.Examples.Bad.Nr
+import Graded.Modality.Instances.Linearity.Examples.Bad.No-nr
+import Graded.Modality.Instances.Linearity.Examples.Good.Nr
 import Graded.Modality.Instances.LowerBounded
 import Graded.Modality.Instances.Nat-plus-infinity
 import Graded.Modality.Instances.Recursive
@@ -157,14 +157,19 @@ import Graded.Usage.Restrictions.Satisfied
 -- prove that a certain implementation of addition with a linear type
 -- is not well-resourced, even though that would arguably make sense.
 
-double-linear = Graded.Modality.Instances.Examples.⊢double
-double-ok₁    = Graded.Modality.Instances.Linearity.Bad.▸double
-double-ok₂    = Graded.Modality.Instances.Affine.Bad.▸double
-double-ok₃    = Graded.Modality.Instances.Linear-or-affine.Bad.▸double
+double-linear = Definition.Typed.Properties.Admissible.Nat.⊢double
+double-ok₁    =
+  Graded.Modality.Instances.Linearity.Examples.Bad.Nr.▸double
+double-ok₂    =
+  Graded.Modality.Instances.Affine.Examples.Bad.Nr.▸double
+double-ok₃    =
+  Graded.Modality.Instances.Linear-or-affine.Examples.Bad.Nr.▸double
 
-plus-linear  = Graded.Modality.Instances.Examples.⊢plus
-plus-not-ok₁ = Graded.Modality.Instances.Linearity.Bad.¬▸plus
-plus-not-ok₂ = Graded.Modality.Instances.Linear-or-affine.Bad.¬▸plus
+plus-linear  = Definition.Typed.Properties.Admissible.Nat.⊢plus
+plus-not-ok₁ =
+  Graded.Modality.Instances.Linearity.Examples.Bad.Nr.¬▸plus
+plus-not-ok₂ =
+  Graded.Modality.Instances.Linear-or-affine.Examples.Bad.Nr.¬▸plus
 
 -- In order to make the theory more flexible the natrec-star operator
 -- in the main usage rule for natrec has been replaced by an "nr
@@ -211,13 +216,16 @@ smaller      = Graded.Modality.Instances.Affine.alternative-greater
 
 -- The problems mentioned above do not affect the obtained modalities.
 
-double-not-ok₁ = Graded.Modality.Instances.Linearity.Good.¬▸double
-double-not-ok₂ = Graded.Modality.Instances.Affine.Good.¬▸double
+double-not-ok₁ =
+  Graded.Modality.Instances.Linearity.Examples.Good.Nr.¬▸double
+double-not-ok₂ =
+  Graded.Modality.Instances.Affine.Examples.Good.Nr.¬▸double
 double-not-ok₃ =
-  Graded.Modality.Instances.Linear-or-affine.Good.¬▸double
+  Graded.Modality.Instances.Linear-or-affine.Examples.Good.Nr.¬▸double
 
-plus-ok₁ = Graded.Modality.Instances.Linearity.Good.▸plus
-plus-ok₂ = Graded.Modality.Instances.Linear-or-affine.Good.▸plus
+plus-ok₁ = Graded.Modality.Instances.Linearity.Examples.Good.Nr.▸plus
+plus-ok₂ =
+  Graded.Modality.Instances.Linear-or-affine.Examples.Good.Nr.▸plus
 
 -- Additionally, some evidence that these modalities are "correct" is
 -- available in the form of a resource aware abstract machine that
@@ -269,16 +277,16 @@ Has-well-behaved-GLBs = Graded.Modality.Has-well-behaved-GLBs
 -- * The linear addition function is not well-resourced.
 
 double-ok₄ =
-  Graded.Modality.Instances.Linearity.Bad.No-dedicated-nr.▸double
+  Graded.Modality.Instances.Linearity.Examples.Bad.No-nr.▸double
 double-ok₅ =
-  Graded.Modality.Instances.Affine.Bad.No-dedicated-nr.▸double
+  Graded.Modality.Instances.Affine.Examples.Bad.No-nr.▸double
 double-ok₆ =
-  Graded.Modality.Instances.Linear-or-affine.Bad.No-dedicated-nr.▸double
+  Graded.Modality.Instances.Linear-or-affine.Examples.Bad.No-nr.▸double
 
 plus-not-ok₃ =
-  Graded.Modality.Instances.Linearity.Bad.No-dedicated-nr.¬▸plus
+  Graded.Modality.Instances.Linearity.Examples.Bad.No-nr.¬▸plus
 plus-not-ok₄ =
-  Graded.Modality.Instances.Linear-or-affine.Bad.No-dedicated-nr.¬▸plus
+  Graded.Modality.Instances.Linear-or-affine.Examples.Bad.No-nr.¬▸plus
 
 -- Thus this rule should perhaps not be used for linear or affine
 -- types.

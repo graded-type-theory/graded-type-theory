@@ -347,6 +347,13 @@ opaque
    where
    open ≤ᶜ-reasoning
 
+opaque
+
+  -- The inverse weakening step corresponds to the tail of the context
+
+  wkConₘ⁻¹-step : ∀ γ → wkConₘ⁻¹ (step ρ) γ ≈ᶜ wkConₘ⁻¹ ρ (tailₘ γ)
+  wkConₘ⁻¹-step (γ ∙ p) = ≈ᶜ-refl
+
 ------------------------------------------------------------------------
 -- Inversion properties for wkConₘ
 

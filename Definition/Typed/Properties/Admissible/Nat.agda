@@ -16,6 +16,7 @@ open import Definition.Untyped.Nat 𝕄
 open import Definition.Untyped.Properties M
 open import Definition.Typed R
 open import Definition.Typed.Properties.Admissible.Equality R
+open import Definition.Typed.Properties.Admissible.Pi R
 open import Definition.Typed.Properties.Admissible.Var R
 open import Definition.Typed.Properties.Reduction R
 open import Definition.Typed.Properties.Well-formed R
@@ -29,11 +30,27 @@ open import Tools.Function
 open import Tools.Product
 import Tools.PropositionalEquality as PE
 
+open Modality 𝕄
+open Type-restrictions R
+
 private
   variable
     Γ : Con Term _
     A A′ A₁ A₂ n n′ s s′ t t₁ t₂ u u₁ u₂ v v₁ v₂ z z′ : Term _
     p q r : M
+
+private
+
+  -- Some lemmas used below.
+
+  ⊢ℕ : ⊢ ε ∙ ℕ
+  ⊢ℕ  = ∙ ℕⱼ ε
+
+  ⊢ℕℕ : ⊢ ε ∙ ℕ ∙ ℕ
+  ⊢ℕℕ = ∙ ℕⱼ ⊢ℕ
+
+  ⊢ℕℕℕ : ⊢ ε ∙ ℕ ∙ ℕ ∙ ℕ
+  ⊢ℕℕℕ = ∙ ℕⱼ ⊢ℕℕ
 
 opaque
 
@@ -69,6 +86,96 @@ opaque
                                               (sym′ (subsetTerm v₁⇒v₃)) ⟩⇒
       natrec p q r A t u v₃ ∷ A [ v₃ ]₀  ⇒*⟨ natrec-subst* ⊢t ⊢u v₃⇒*v₂ ⟩∎∷
       natrec p q r A t u v₂              ∎
+
+opaque
+
+  -- A typing rule for double′
+
+  ⊢double′ : Γ ⊢ t ∷ ℕ → Γ ⊢ double′ t ∷ ℕ
+  ⊢double′ ⊢t =
+    natrecⱼ ⊢t (sucⱼ (var (∙ ℕⱼ (∙ syntacticTerm ⊢t)) here)) ⊢t
+
+opaque
+
+  -- The term double is well-typed.
+  --
+  -- Note that the term can be given a linear type.
+  --
+  -- With a certain "linearity" modality the term is also
+  -- well-resourced, see
+  -- Graded.Modality.Instances.Linearity.Examples.Bad.Nr.▸double.
+  -- However, with another linearity modality the term is not
+  -- well-resourced, see
+  -- Graded.Modality.Instances.Linearity.Examples.Good.Nr.¬▸double.
+
+  ⊢double : Π-allowed 𝟙 𝟘 → ε ⊢ double ∷ Π 𝟙 , 𝟘 ▷ ℕ ▹ ℕ
+  ⊢double Π-𝟙-𝟘 =
+    lamⱼ′ Π-𝟙-𝟘 $ ⊢double′ (var ⊢ℕ here)
+
+opaque
+
+  -- A typing rule for plus′.
+
+  ⊢plus′ : Γ ⊢ t ∷ ℕ → Γ ⊢ u ∷ ℕ → Γ ⊢ plus′ t u ∷ ℕ
+  ⊢plus′ ⊢t ⊢u = natrecⱼ ⊢t (sucⱼ (var₀ (ℕⱼ (∙ ℕⱼ (wfTerm ⊢t))))) ⊢u
+
+opaque
+
+  -- The term plus is well-typed.
+  --
+  -- With a certain linearity modality the term is also well-resourced,
+  -- see Graded.Modality.Instances.Linearity.Good.▸plus. However, with
+  -- another "linearity" modality the term is not well-resourced, see
+  -- Graded.Modality.Instances.Linearity.Examples.Bad.Nr.¬▸plus.
+
+  ⊢plus :  Π-allowed 𝟙 𝟘 → ε ⊢ plus ∷ Π 𝟙 , 𝟘 ▷ ℕ ▹ Π 𝟙 , 𝟘 ▷ ℕ ▹ ℕ
+  ⊢plus Π-𝟙-𝟘 =
+    lamⱼ′ Π-𝟙-𝟘 $
+    lamⱼ′ Π-𝟙-𝟘 $
+    ⊢plus′ (var ⊢ℕℕ here) (var ⊢ℕℕ (there here))
+
+opaque
+  unfolding f′
+
+  -- A typing rule for f′.
+
+  ⊢f′ : Γ ⊢ t ∷ ℕ → Γ ⊢ u ∷ ℕ → Γ ⊢ f′ t u ∷ ℕ
+  ⊢f′ ⊢t ⊢u =
+    let ⊢ℕ = ℕⱼ (∙ ℕⱼ (wfTerm ⊢t)) in
+    natrecⱼ ⊢t
+      (⊢plus′ (wkTerm (∷⊇→∷ʷ⊇ (step (step id)) (∙ ⊢ℕ)) ⊢t) (var₁ ⊢ℕ)) ⊢u
+
+opaque
+  unfolding f
+
+  -- A typing rule for f.
+
+  ⊢f :
+    Π-allowed 𝟙 p →
+    ε ⊢ f ∷ Π 𝟙 , p ▷ ℕ ▹ Π 𝟙 , p ▷ ℕ ▹ ℕ
+  ⊢f ok =
+    let ⊢ℕ = ℕⱼ ⊢ℕ in
+    lamⱼ′ ok $
+    lamⱼ′ ok $
+    ⊢f′ (var₁ ⊢ℕ) (var₀ ⊢ℕ)
+
+opaque
+
+  -- The typing rule for pred′.
+
+  ⊢pred′ : Γ ⊢ t ∷ ℕ → Γ ⊢ pred′ t ∷ ℕ
+  ⊢pred′ ⊢t =
+    natrecⱼ (zeroⱼ (wfTerm ⊢t))
+      (var (∙ ℕⱼ (∙ ℕⱼ (wfTerm ⊢t))) (there here))
+      ⊢t
+
+opaque
+
+  -- The term pred is well-typed.
+
+  ⊢pred : Π-allowed 𝟙 𝟘 → ε ⊢ pred ∷ Π 𝟙 , 𝟘 ▷ ℕ ▹ ℕ
+  ⊢pred Π-𝟙-𝟘 =
+    lamⱼ′ Π-𝟙-𝟘 $ ⊢pred′ (var ⊢ℕ here)
 
 ------------------------------------------------------------------------
 -- Lemmas related to natcase

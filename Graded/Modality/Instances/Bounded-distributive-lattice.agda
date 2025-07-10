@@ -11,6 +11,7 @@ open import Graded.Modality M
 import Graded.Modality.Instances.LowerBounded as L
 open import Graded.Modality.Variant a
 open import Graded.Modality.Properties.Subtraction
+import Graded.Modality.Properties.Star as Star
 
 open import Tools.Algebra M
 open import Tools.Bool using (T; false)
@@ -59,6 +60,16 @@ record Bounded-distributive-lattice : Set a where
 
     -- ⊤ is the greatest element.
     ≤⊤ : ∀ p → p ≤ ⊤
+
+  ∨-identityˡ : LeftIdentity ⊥ _∨_
+  ∨-identityˡ p =
+    ⊥ ∨ p        ≡⟨ cong (_∨ _) (⊥≤ _) ⟩
+    (⊥ ∧ p) ∨ p  ≡⟨ cong (_∨ _) (∧-comm _ _) ⟩
+    (p ∧ ⊥) ∨ p  ≡⟨ ∨-comm _ _ ⟩
+    p ∨ (p ∧ ⊥)  ≡⟨ ∨-absorbs-∧ _ _ ⟩
+    p            ∎
+    where
+    open Tools.Reasoning.PropositionalEquality
 
 -- Bounded, distributive lattices can be turned into "semirings with
 -- meet" (if equality with ⊤ is decidable).
@@ -119,14 +130,6 @@ semiring-with-meet bl@record{} is-⊤? = record
     p ∧ ⊤  ≡˘⟨ ≤⊤ _ ⟩
     p      ∎
 
-  ∨-identityˡ : LeftIdentity ⊥ _∨_
-  ∨-identityˡ p =
-    ⊥ ∨ p        ≡⟨ cong (_∨ _) (⊥≤ _) ⟩
-    (⊥ ∧ p) ∨ p  ≡⟨ cong (_∨ _) (∧-comm _ _) ⟩
-    (p ∧ ⊥) ∨ p  ≡⟨ ∨-comm _ _ ⟩
-    p ∨ (p ∧ ⊥)  ≡⟨ ∨-absorbs-∧ _ _ ⟩
-    p            ∎
-
   ∨-zeroˡ : LeftZero ⊤ _∨_
   ∨-zeroˡ p =
     ⊤ ∨ p        ≡⟨ cong (_ ∨_) (≤⊤ _) ⟩
@@ -155,6 +158,44 @@ has-star :
 has-star bl@record{} = L.has-star _ ⊥ ⊥≤
   where
   open Bounded-distributive-lattice bl
+
+opaque
+
+  -- One can define an nr function for bounded, distributive
+  -- lattices (if equality with ⊤ is decidable).
+
+  has-nr :
+    (bl : Bounded-distributive-lattice) →
+    let open Bounded-distributive-lattice bl in
+    {is-⊤? : (p : M) → Dec (p ≡ ⊤)} →
+    Has-nr (semiring-with-meet bl is-⊤?)
+  has-nr bl {is-⊤?} = Star.has-nr (semiring-with-meet bl is-⊤?) ⦃ has-star bl ⦄
+
+opaque
+  unfolding has-nr
+
+  -- The nr function defined (implicitly) by has-nr is given by meet of the
+  -- last three arguments.
+
+  nr≡∧ :
+    (bl : Bounded-distributive-lattice) →
+    let open Bounded-distributive-lattice bl in
+    {is-⊤? : (p : M) → Dec (p ≡ ⊤)} →
+    ∀ p r z s n →
+    Has-nr.nr (has-nr bl {is-⊤?}) p r z s n ≡ z ∧ s ∧ n
+  nr≡∧ bl@record{} {is-⊤?} p r z s n = begin
+     ⊥ ∨ ((z ∧ n) ∧ (s ∧ (p ∨ n))) ≡⟨ ∨-identityˡ _ ⟩
+     (z ∧ n) ∧ (s ∧ (p ∨ n))       ≡⟨ ∧-assoc _ _ _ ⟩
+     z ∧ (n ∧ s ∧ (p ∨ n))         ≡˘⟨ ∧-congˡ (∧-assoc _ _ _) ⟩
+     z ∧ (n ∧ s) ∧ (p ∨ n)         ≡⟨ ∧-congˡ (∧-congʳ (∧-comm _ _)) ⟩
+     z ∧ (s ∧ n) ∧ (p ∨ n)         ≡⟨ ∧-congˡ (∧-assoc _ _ _) ⟩
+     z ∧ s ∧ n ∧ (p ∨ n)           ≡⟨ ∧-congˡ (∧-congˡ (∧-congˡ (∨-comm _ _))) ⟩
+     z ∧ s ∧ n ∧ (n ∨ p)           ≡⟨ ∧-congˡ (∧-congˡ (absorptive .proj₂ n p)) ⟩
+     z ∧ s ∧ n                     ∎
+    where
+    open Bounded-distributive-lattice bl
+    open Tools.Reasoning.PropositionalEquality
+
 
 -- Bounded, distributive lattices for which equality with ⊤ is
 -- decidable can be turned into modalities (without 𝟘ᵐ).

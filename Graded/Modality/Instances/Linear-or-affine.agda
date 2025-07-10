@@ -1562,11 +1562,11 @@ opaque
   -- A (not very good) nr function based on the natrec-star operator
   -- defined above.
 
-  -- See Graded.Modality.Instances.Linear-or-affine.Bad for some
+  -- See Graded.Modality.Instances.Linear-or-affine.Examples.Bad.Nr for some
   -- examples that illustrate in what sense this nr function is not very
   -- good. The nr function below does not suffer from
   -- these problems (see
-  -- Graded.Modality.Instances.Linear-or-affine.Good).
+  -- Graded.Modality.Instances.Linear-or-affine.Examples.Good.Nr).
 
   bad-linear-or-affine-has-nr : Has-nr linear-or-affine-semiring-with-meet
   bad-linear-or-affine-has-nr =
@@ -5031,3 +5031,42 @@ opaque
                                            (GLB-unique p₂-glb (nr-nrᵢ-GLB r)) ⟩
         nr 𝟘 r z₁ s₁ 𝟘 + nr 𝟘 r z₂ s₂ 𝟘 ≤⟨ Has-nr.nr-+ linear-or-affine-has-nr {𝟘} {r} ⟩
         nr 𝟘 r (z₁ + z₂) (s₁ + s₂) 𝟘    ∎)
+
+opaque
+
+  -- The greatest lower bound for certain nrᵢ sequences
+
+  nrᵢ-𝟘-GLB :
+    let 𝕄 = linear-or-affine-semiring-with-meet in
+    ∀ p q → Semiring-with-meet.Greatest-lower-bound
+            𝕄 (p ∧ q) (Semiring-with-meet.nrᵢ 𝕄 𝟘 p q)
+  nrᵢ-𝟘-GLB p q = Natrec.nrᵢ-𝟘-GLB linear-or-affine-semiring-with-meet
+
+opaque
+
+  -- The greatest lower bound of certain nrᵢ sequences
+
+  nrᵢ-𝟙-GLB :
+    let 𝕄 = linear-or-affine-semiring-with-meet in
+    ∀ p q → Semiring-with-meet.Greatest-lower-bound
+            𝕄 (p + ≤ω · q) (Semiring-with-meet.nrᵢ 𝕄 𝟙 p q)
+  nrᵢ-𝟙-GLB p q =
+    GLB.GLB-congʳ linear-or-affine-semiring-with-meet
+      (Semiring-with-meet.+-comm linear-or-affine-semiring-with-meet (≤ω · q) p)
+      (nr-nrᵢ-GLB {z = p} {s = q} 𝟙)
+
+opaque
+
+  -- The greatest lower bound for certain nrᵢ sequences
+
+  nrᵢ-≤ω-GLB :
+    let 𝕄 = linear-or-affine-semiring-with-meet in
+    ∀ p q → Semiring-with-meet.Greatest-lower-bound
+            𝕄 (≤ω · (p + q)) (Semiring-with-meet.nrᵢ 𝕄 ≤ω p q)
+  nrᵢ-≤ω-GLB p q =
+    GLB.GLB-congʳ linear-or-affine-semiring-with-meet
+      (·-congˡ {x = ≤ω} (+-comm q p))
+      (nr-nrᵢ-GLB {z = p} {s = q} ≤ω)
+      where
+      open Semiring-with-meet linear-or-affine-semiring-with-meet
+        hiding (_·_; _+_)

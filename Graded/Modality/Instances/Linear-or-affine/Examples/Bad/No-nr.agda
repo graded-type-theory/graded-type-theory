@@ -6,21 +6,15 @@
 open import Tools.Bool using (T; T-not⇔¬-T)
 open import Tools.Level
 
-open import Definition.Typed.Restrictions
-
 open import Graded.Modality.Instances.Linear-or-affine
 open import Graded.Modality.Variant lzero
 open import Graded.Usage.Restrictions
 
-module Graded.Modality.Instances.Linear-or-affine.Bad.No-dedicated-nr
+module Graded.Modality.Instances.Linear-or-affine.Examples.Bad.No-nr
   -- The modality variant.
   (variant : Modality-variant)
-  (TR : Type-restrictions (linear-or-affine variant))
-  (open Type-restrictions TR)
   (UR : Usage-restrictions (linear-or-affine variant))
   (open Usage-restrictions UR)
-  -- It is assumed that "Π 𝟙 , 𝟘" is allowed.
-  (Π-𝟙-𝟘 : Π-allowed 𝟙 𝟘)
   -- There is no dedicated nr function.
   ⦃ no-nr : Nr-not-available ⦄
   where
@@ -47,11 +41,12 @@ private
 
 open import Graded.Context linear-or-affine′
 open import Graded.Context.Properties linear-or-affine′
-open import Graded.Modality.Instances.Examples TR Π-𝟙-𝟘
 open import Graded.Modality.Properties linear-or-affine′
 open import Graded.Mode linear-or-affine′
 open import Graded.Usage linear-or-affine′ UR
 open import Graded.Usage.Inversion linear-or-affine′ UR
+
+open import Definition.Untyped.Nat linear-or-affine′
 
 -- The term double is well-resourced (even though it can be given a
 -- linear type) if and only if 𝟘ᵐ is not allowed.

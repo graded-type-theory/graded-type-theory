@@ -19,7 +19,8 @@ open import Definition.Untyped M
 open import Definition.Untyped.Properties M
 
 open import Tools.Fin
-open import Tools.Nat
+open import Tools.Function
+open import Tools.Nat using (Nat; 1+)
 open import Tools.PropositionalEquality
 open import Tools.Reasoning.PropositionalEquality
 
@@ -29,6 +30,59 @@ private variable
   σ       : Subst _ _
   ρ       : Wk _ _
   p q     : M
+
+-- A term used to define double
+
+double′ : (t : Term n) → Term n
+double′ t = (natrec 𝟘 𝟘 𝟙 ℕ t (suc (var x0)) t)
+
+-- A program that takes a natural number and adds it to itself:
+-- λ n. n + n. This program should presumably not be seen as linear,
+-- because the variable "n" is used twice.
+
+double : Term 0
+double = lam 𝟙 (double′ (var x0))
+
+-- A term used to define plus
+
+plus′ : (t u : Term n) → Term n
+plus′ t u = natrec 𝟘 𝟘 𝟙 ℕ t (suc (var x0)) u
+
+-- A program that takes two natural numbers and adds them:
+-- λ m n. m + n. It might make sense to see this program as linear in
+-- both arguments.
+
+plus : Term 0
+plus = lam 𝟙 $ lam 𝟙 $ plus′ (var x0) (var x1)
+
+opaque
+
+  -- A term used to define f below.
+
+  f′ : Term n → Term n → Term n
+  f′ t u = natrec 𝟙 𝟘 𝟘 ℕ t (plus′ (wk₂ t) (var x1)) u
+
+opaque
+
+  -- An implementation of something like the following Agda code:
+  --
+  --   f : ℕ → ℕ → ℕ
+  --   f m zero    = m
+  --   f m (suc n) = m + n
+
+  f : Term 0
+  f = lam 𝟙 $ lam 𝟙 $ f′ (var x1) (var x0)
+
+-- A term used to define pred
+
+pred′ : Term n → Term n
+pred′ t = natrec 𝟙 𝟘 𝟘 ℕ zero (var x1) t
+
+-- A program that takes a natural numbers and returns its predecessor (truncated)
+-- It might make sense to see this program as linear.
+
+pred : Term 0
+pred = lam 𝟙 $ pred′ (var x0)
 
 opaque
 
