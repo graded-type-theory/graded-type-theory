@@ -2,7 +2,14 @@
 -- Code related to the paper "Normalisation for First-Class Universe Levels".
 --------------------------------------------------------------------------
 
--- See also the file README.md for a summary of the previous contributions
+-- Note: in order for the hyperlinks in the PDF to work, the `agda`
+-- directory should be placed in the same directory as the PDF: this
+-- file should have the path `agda/README.agda` relative to the PDF.
+-- You may also have to use a specific PDF viewer as not all viewers
+-- support links to local files; Evince (the GNOME Document Viewer)
+-- is known to work.
+--
+-- See also README.md for a summary of the previous contributions
 -- that this work builds upon.
 --
 -- The code depends on some libraries:

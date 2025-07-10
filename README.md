@@ -1,5 +1,7 @@
 # An Agda Formalization of a Graded Modal Type Theory with First-Class Universe Levels and Erasure
 
+See `README.agda` for more information about the code.
+
 This formalization originated as a fork of [logrel-mltt](https://github.com/mr-ohman/logrel-mltt).
 The original work consisted of the following contributions:
 
