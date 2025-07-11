@@ -71,7 +71,7 @@ private variable
   Γ                                      : Con Term _
   A A₁ A₂ B t t₁ t₂ t′ u u₁ u₂ v v₁ v₂ w : Term _
   σ                                      : Subst _ _
-  p q q₁ q₂ q₃ q₄                        : M
+  p q q₁ q₁′ q₂ q₂′ q₃ q₃′ q₄            : M
   γ₁ γ₂ γ₃ γ₄                            : Conₘ _
   m                                      : Mode
   s                                      : Strength
@@ -664,9 +664,9 @@ Has-weaker-computing-[]-cong s m l q₁ q₂ q₃ q₄ =
 
 private
   module Has-[]-cong→Has-weaker-[]-cong
-    (hyp₁ : Π-allowed 𝟘 q₁ → Π-allowed ω q₁)
-    (hyp₂ : Π-allowed 𝟘 q₂ → Π-allowed ω q₂)
-    (hyp₃ : Π-allowed 𝟘 q₃ → Π-allowed ω q₃)
+    (hyp₁ : Π-allowed 𝟘 q₁ → Π-allowed ω q₁′)
+    (hyp₂ : Π-allowed 𝟘 q₂ → Π-allowed ω q₂′)
+    (hyp₃ : Π-allowed 𝟘 q₃ → Π-allowed ω q₃′)
     (([]-cong′ , _ , ⊢[]-cong′) : Has-[]-cong s m l q₁ q₂ q₃ q₄)
     where
 
@@ -691,7 +691,8 @@ private
       ⊢Id = ⊢Id-2-1-0 ε
 
     oks :
-      Π-allowed ω q₁ × Π-allowed ω q₂ × Π-allowed ω q₃ × Π-allowed 𝟘 q₄
+      Π-allowed ω q₁′ × Π-allowed ω q₂′ × Π-allowed ω q₃′ ×
+      Π-allowed 𝟘 q₄
     oks =
       case inversion-ΠΣ $ syntacticTerm ⊢[]-cong′ of λ
         (_ , ⊢Π , ok₁) →
@@ -709,13 +710,13 @@ opaque
   -- assumptions).
 
   Has-[]-cong→Has-weaker-[]-cong :
-    (Π-allowed 𝟘 q₁ → Π-allowed ω q₁) →
-    (Π-allowed 𝟘 q₂ → Π-allowed ω q₂) →
-    (Π-allowed 𝟘 q₃ → Π-allowed ω q₃) →
+    (Π-allowed 𝟘 q₁ → Π-allowed ω q₁′) →
+    (Π-allowed 𝟘 q₂ → Π-allowed ω q₂′) →
+    (Π-allowed 𝟘 q₃ → Π-allowed ω q₃′) →
     Has-[]-cong s m l q₁ q₂ q₃ q₄ →
-    Has-weaker-[]-cong s m l q₁ q₂ q₃ q₄
+    Has-weaker-[]-cong s m l q₁′ q₂′ q₃′ q₄
   Has-[]-cong→Has-weaker-[]-cong
-    {q₁} {q₂} {q₃} {s} {m} {l} {q₄}
+    {q₁′} {q₂′} {q₃′} {s} {m} {l} {q₄}
     hyp₁ hyp₂ hyp₃ has-[]-cong@(_ , ▸[]-cong′ , _) =
     []-cong‴ , ▸[]-cong‴ , ⊢[]-cong‴
     where
@@ -759,10 +760,10 @@ opaque
 
     ⊢[]-cong‴ :
       ε ⊢ []-cong‴ ∷
-        Π ω , q₁ ▷ U l ▹
-        Π ω , q₂ ▷ var x0 ▹
-        Π ω , q₃ ▷ var x1 ▹
-        Π 𝟘 , q₄ ▷ Id (var x2) (var x1) (var x0) ▹
+        Π ω , q₁′ ▷ U l ▹
+        Π ω , q₂′ ▷ var x0 ▹
+        Π ω , q₃′ ▷ var x1 ▹
+        Π 𝟘 , q₄  ▷ Id (var x2) (var x1) (var x0) ▹
         Id (Erased (var x3)) ([ var x2 ]) ([ var x1 ])
     ⊢[]-cong‴ =
       let ok₁ , ok₂ , ok₃ , ok₄ = oks in
@@ -775,11 +776,11 @@ opaque
   -- Has-computing-[]-cong (given certain assumptions).
 
   Has-computing-[]-cong→Has-weaker-computing-[]-cong :
-    (Π-allowed 𝟘 q₁ → Π-allowed ω q₁) →
-    (Π-allowed 𝟘 q₂ → Π-allowed ω q₂) →
-    (Π-allowed 𝟘 q₃ → Π-allowed ω q₃) →
+    (Π-allowed 𝟘 q₁ → Π-allowed ω q₁′) →
+    (Π-allowed 𝟘 q₂ → Π-allowed ω q₂′) →
+    (Π-allowed 𝟘 q₃ → Π-allowed ω q₃′) →
     Has-computing-[]-cong s m l q₁ q₂ q₃ q₄ →
-    Has-weaker-computing-[]-cong s m l q₁ q₂ q₃ q₄
+    Has-weaker-computing-[]-cong s m l q₁′ q₂′ q₃′ q₄
   Has-computing-[]-cong→Has-weaker-computing-[]-cong
     hyp₁ hyp₂ hyp₃ (has-[]-cong@([]-cong′ , _ , _) , []-cong′≡) =
     let open Has-[]-cong→Has-weaker-[]-cong hyp₁ hyp₂ hyp₃ has-[]-cong
@@ -817,9 +818,9 @@ opaque
 
 private
   module Has-weaker-[]-cong→Has-[]-cong
-    (hyp₁ : Π-allowed ω q₁ → Π-allowed 𝟘 q₁)
-    (hyp₂ : Π-allowed ω q₂ → Π-allowed 𝟘 q₂)
-    (hyp₃ : Π-allowed ω q₃ → Π-allowed 𝟘 q₃)
+    (hyp₁ : Π-allowed ω q₁ → Π-allowed 𝟘 q₁′)
+    (hyp₂ : Π-allowed ω q₂ → Π-allowed 𝟘 q₂′)
+    (hyp₃ : Π-allowed ω q₃ → Π-allowed 𝟘 q₃′)
     (([]-cong′ , _ , ⊢[]-cong′) : Has-weaker-[]-cong s m l q₁ q₂ q₃ q₄)
     where
 
@@ -836,8 +837,8 @@ private
                     [ var x0 ] (var x0))
 
     ⊢[]-cong″ :
-      Π-allowed 𝟘 q₁ × Π-allowed 𝟘 q₂ ×
-      Π-allowed 𝟘 q₃ × Π-allowed 𝟘 q₄ ×
+      Π-allowed 𝟘 q₁′ × Π-allowed 𝟘 q₂′ ×
+      Π-allowed 𝟘 q₃′ × Π-allowed 𝟘 q₄ ×
       ε ∙ U l ∙ var x0 ∙ var x1 ∙ Id (var x2) (var x1) (var x0) ⊢
         []-cong″ ∷ Id (Erased (var x3)) [ var x2 ] ([ var x1 ])
     ⊢[]-cong″ =
@@ -908,13 +909,13 @@ opaque
   Has-weaker-[]-cong→Has-[]-cong :
     (s PE.≡ 𝕨 → ¬ T 𝟘ᵐ-allowed → Trivial × Prodrec-allowed 𝟙ᵐ 𝟘 𝟘 𝟘) →
     (s PE.≡ 𝕤 → ¬ T 𝟘ᵐ-allowed → 𝟘 ≤ 𝟙) →
-    (Π-allowed ω q₁ → Π-allowed 𝟘 q₁) →
-    (Π-allowed ω q₂ → Π-allowed 𝟘 q₂) →
-    (Π-allowed ω q₃ → Π-allowed 𝟘 q₃) →
+    (Π-allowed ω q₁ → Π-allowed 𝟘 q₁′) →
+    (Π-allowed ω q₂ → Π-allowed 𝟘 q₂′) →
+    (Π-allowed ω q₃ → Π-allowed 𝟘 q₃′) →
     Has-weaker-[]-cong s m l q₁ q₂ q₃ q₄ →
-    Has-[]-cong s m l q₁ q₂ q₃ q₄
+    Has-[]-cong s m l q₁′ q₂′ q₃′ q₄
   Has-weaker-[]-cong→Has-[]-cong
-    {s} {q₁} {q₂} {q₃} {m} {l} {q₄}
+    {s} {q₁′} {q₂′} {q₃′} {m} {l} {q₄}
     trivial 𝟘≤𝟙 hyp₁ hyp₂ hyp₃ has-[]-cong@(_ , ▸[]-cong′ , _) =
     []-cong‴ , ▸[]-cong‴ , ⊢[]-cong‴
     where
@@ -930,10 +931,10 @@ opaque
 
       ⊢[]-cong‴ :
         ε ⊢ []-cong‴ ∷
-        Π 𝟘 , q₁ ▷ U l ▹
-        Π 𝟘 , q₂ ▷ var x0 ▹
-        Π 𝟘 , q₃ ▷ var x1 ▹
-        Π 𝟘 , q₄ ▷ Id (var x2) (var x1) (var x0) ▹
+        Π 𝟘 , q₁′ ▷ U l ▹
+        Π 𝟘 , q₂′ ▷ var x0 ▹
+        Π 𝟘 , q₃′ ▷ var x1 ▹
+        Π 𝟘 , q₄  ▷ Id (var x2) (var x1) (var x0) ▹
         Id (Erased (var x3)) [ var x2 ] ([ var x1 ])
       ⊢[]-cong‴ =
         let ok₁ , ok₂ , ok₃ , ok₄ , ⊢[]-cong″ = ⊢[]-cong″ in
@@ -1069,20 +1070,20 @@ opaque
   Has-weaker-computing-[]-cong→Has-computing-[]-cong :
     (s PE.≡ 𝕨 → ¬ T 𝟘ᵐ-allowed → Trivial × Prodrec-allowed 𝟙ᵐ 𝟘 𝟘 𝟘) →
     (s PE.≡ 𝕤 → ¬ T 𝟘ᵐ-allowed → 𝟘 ≤ 𝟙) →
-    (Π-allowed ω q₁ → Π-allowed 𝟘 q₁) →
-    (Π-allowed ω q₂ → Π-allowed 𝟘 q₂) →
-    (Π-allowed ω q₃ → Π-allowed 𝟘 q₃) →
+    (Π-allowed ω q₁ → Π-allowed 𝟘 q₁′) →
+    (Π-allowed ω q₂ → Π-allowed 𝟘 q₂′) →
+    (Π-allowed ω q₃ → Π-allowed 𝟘 q₃′) →
     Has-weaker-computing-[]-cong s m l q₁ q₂ q₃ q₄ →
-    Has-computing-[]-cong s m l q₁ q₂ q₃ q₄
+    Has-computing-[]-cong s m l q₁′ q₂′ q₃′ q₄
   Has-weaker-computing-[]-cong→Has-computing-[]-cong
-    {s} {q₁} {q₂} {q₃} {m} {l} {q₄}
+    {s} {q₁′} {q₂′} {q₃} {q₃′} {m} {l} {q₄}
     trivial 𝟘≤𝟙 hyp₁ hyp₂ hyp₃
     (has-[]-cong@([]-cong′ , _ , ⊢[]-cong′) , []-cong′≡) =
     has-[]-cong′ , []-cong″-computes
     where
     open Erased s
 
-    has-[]-cong′ : Has-[]-cong s m l q₁ q₂ q₃ q₄
+    has-[]-cong′ : Has-[]-cong s m l q₁′ q₂′ q₃′ q₄
     has-[]-cong′ =
       Has-weaker-[]-cong→Has-[]-cong
         trivial 𝟘≤𝟙 hyp₁ hyp₂ hyp₃ has-[]-cong
@@ -1264,17 +1265,17 @@ opaque
     ⦃ 𝟘-well-behaved : Has-well-behaved-zero semiring-with-meet ⦄ →
     (s PE.≡ 𝕨 → ¬ T 𝟘ᵐ-allowed → Trivial × Prodrec-allowed 𝟙ᵐ 𝟘 𝟘 𝟘) →
     (s PE.≡ 𝕤 → ¬ T 𝟘ᵐ-allowed → 𝟘 ≤ 𝟙) →
-    (Π-allowed ω q₁ → Π-allowed 𝟘 q₁) →
-    (Π-allowed ω q₂ → Π-allowed 𝟘 q₂) →
-    (Π-allowed ω q₃ → Π-allowed 𝟘 q₃) →
+    (Π-allowed ω q₁ → Π-allowed 𝟘 q₁′) →
+    (Π-allowed ω q₂ → Π-allowed 𝟘 q₂′) →
+    (Π-allowed ω q₃ → Π-allowed 𝟘 q₃′) →
     No-erased-matches TR UR →
     (∀ {p q} →
      Unitʷ-η → Unitʷ-allowed → Unitrec-allowed 𝟙ᵐ p q →
      p ≤ 𝟘) →
     ¬ Has-weaker-[]-cong s 𝟙ᵐ l q₁ q₂ q₃ q₄
   ¬-Has-weaker-[]-cong
-    {s} {q₁} {q₂} {q₃} {l} {q₄}
+    {s} {q₁} {q₁′} {q₂} {q₂′} {q₃} {q₃′} {l} {q₄}
     trivial 𝟘≤𝟙 hyp₁ hyp₂ hyp₃ nem Unitʷ-η→ =
     Has-weaker-[]-cong s 𝟙ᵐ l q₁ q₂ q₃ q₄  →⟨ Has-weaker-[]-cong→Has-[]-cong trivial 𝟘≤𝟙 hyp₁ hyp₂ hyp₃ ⟩
-    Has-[]-cong s 𝟙ᵐ l q₁ q₂ q₃ q₄         →⟨ ¬-[]-cong nem Unitʷ-η→ ⟩
+    Has-[]-cong s 𝟙ᵐ l q₁′ q₂′ q₃′ q₄      →⟨ ¬-[]-cong nem Unitʷ-η→ ⟩
     ⊥                                      □
