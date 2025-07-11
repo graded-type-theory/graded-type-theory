@@ -1470,3 +1470,61 @@ opaque mutual
     ([]-congⱼ ⊢A ⊢t ⊢u ⊢v ok) ▸bc →
       let invUsage-[]-cong _ _ _ _ ok′ _ = inv-usage-[]-cong ▸bc in
       []-cong ok ok′ (⊢←⊢ ⊢A) (⊢∷←⊢∷ ⊢t) (⊢∷←⊢∷ ⊢u) (⊢∷←⊢∷ ⊢v)
+
+------------------------------------------------------------------------
+-- Logical equivalences
+
+opaque
+
+  -- A logical equivalence for "is a well-formed context".
+
+  ⊢⇔⊢ : C.⊢ Γ ⇔ T.⊢ Γ
+  ⊢⇔⊢ = ⊢→⊢ , ⊢←⊢′
+
+opaque
+
+  -- A logical equivalence for "is a well-formed type".
+
+  ⊢[]⇔⊢▸ : γ ▸ Γ ⊢[ p ] A ⇔ (Γ T.⊢ A × γ ▸[ ⌞ p ⌟ ] A)
+  ⊢[]⇔⊢▸ = (λ ⊢A → ⊢[]→⊢ ⊢A , ⊢[]→▸ ⊢A) , uncurry ⊢[]←⊢▸
+
+opaque
+
+  -- A variant of ⊢[]⇔⊢▸.
+
+  ⊢[]⇔⊢▸′ : γ ▸ Γ ⊢[ ⌜ m ⌝ ] A ⇔ (Γ T.⊢ A × γ ▸[ m ] A)
+  ⊢[]⇔⊢▸′ =
+    PE.subst (_⇔_ _)
+      (PE.cong (_×_ _) (PE.cong (flip (_▸[_]_ _) _) (⌞⌜⌝⌟ _)))
+      ⊢[]⇔⊢▸
+
+opaque
+
+  -- A logical equivalence for "are definitionally equal types".
+
+  ⊢≡⇔⊢≡ : Γ C.⊢ A₁ ≡ A₂ ⇔ Γ T.⊢ A₁ ≡ A₂
+  ⊢≡⇔⊢≡ = ⊢≡→⊢≡ , ⊢≡←⊢≡
+
+opaque
+
+  -- A logical equivalence for "is a well-typed term".
+
+  ⊢∷[]⇔⊢∷▸ : γ ▸ Γ ⊢ t ∷[ p ] A ⇔ (Γ T.⊢ t ∷ A × γ ▸[ ⌞ p ⌟ ] t)
+  ⊢∷[]⇔⊢∷▸ = (λ ⊢t → ⊢∷[]→⊢∷ ⊢t , ⊢∷[]→▸ ⊢t) , uncurry ⊢∷[]←⊢∷▸
+
+opaque
+
+  -- A variant of ⊢∷[]⇔⊢∷▸.
+
+  ⊢∷[]⇔⊢∷▸′ : γ ▸ Γ ⊢ t ∷[ ⌜ m ⌝ ] A ⇔ (Γ T.⊢ t ∷ A × γ ▸[ m ] t)
+  ⊢∷[]⇔⊢∷▸′ =
+    PE.subst (_⇔_ _)
+      (PE.cong (_×_ _) (PE.cong (flip (_▸[_]_ _) _) (⌞⌜⌝⌟ _)))
+      ⊢∷[]⇔⊢∷▸
+
+opaque
+
+  -- A logical equivalence for "are definitionally equal terms".
+
+  ⊢≡∷⇔⊢≡∷ : Γ C.⊢ t₁ ≡ t₂ ∷ A ⇔ Γ T.⊢ t₁ ≡ t₂ ∷ A
+  ⊢≡∷⇔⊢≡∷ = ⊢≡∷→⊢≡∷ , ⊢≡∷←⊢≡∷
