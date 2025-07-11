@@ -17,6 +17,9 @@
 -- * Agda's standard library, version 2.2.
 -- * The builtin modules that are shipped with Agda 2.7.0.1.
 --
+-- To type-check the code and generate HTML, after installing Agda and
+-- the standard library, run `agda --html README.agda`.
+--
 -- When HTML code is generated from this file code is also generated
 -- for the two libraries above, so URLs for their licences are
 -- included here. At the time of writing the licence texts can be
@@ -26,6 +29,9 @@
 -- * https://github.com/agda/agda/blob/v2.7.0.1/LICENSE
 
 module README where
+
+------------------------------------------------------------------------
+-- 2: A type theory with first-class universe levels
 
 -- Untyped syntax.
 import Definition.Untyped
@@ -43,10 +49,16 @@ import Definition.Typed.Properties.Admissible.Pi-Sigma
 import Definition.Typed.Properties.Admissible.Pi
 import Definition.Typed.Properties.Admissible.Sigma
 
+------------------------------------------------------------------------
+-- 3: A logical relation
+
 -- The logical relation.
 import Definition.LogicalRelation
 
--- Fundamental lemma.
+-- Validity.
+import Definition.LogicalRelation.Substitution
+
+-- The fundamental lemma.
 import Definition.LogicalRelation.Fundamental
 import Definition.LogicalRelation.Fundamental.Reducibility
 
@@ -59,6 +71,9 @@ import Definition.Typed.Consequences.Inversion
 import Definition.Typed.Consequences.Reduction
 import Definition.Typed.Consequences.Equality
 import Definition.Typed.Consequences.Inequality
+
+------------------------------------------------------------------------
+-- 4: Decidability of equality
 
 -- Algorithmic equality.
 import Definition.Conversion
@@ -74,6 +89,9 @@ import Definition.Typed.Decidable
 import Definition.Untyped.Normal-form
 import Definition.Typed.Eta-long-normal-form
 import Definition.Conversion.FullReduction
+
+------------------------------------------------------------------------
+-- 5: Erasing levels is safe
 
 -- The erasure modality.
 import Graded.Modality.Instances.Erasure
