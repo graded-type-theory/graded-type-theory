@@ -58,7 +58,7 @@ record Usage-restrictions : Set (lsuc a) where
     -- Should strong unit types act as "sinks"?
     starˢ-sink : Bool
 
-    -- Are most things erased in the usage rule for Id?
+    -- Is everything erased in the usage rule for Id?
     Id-erased : Set a
 
     -- Id-erased is decided.
