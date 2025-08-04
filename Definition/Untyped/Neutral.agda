@@ -15,6 +15,7 @@ open import Definition.Untyped M
 open import Definition.Untyped.Inversion M
 
 open import Tools.Empty
+open import Tools.Fin
 open import Tools.Function
 open import Tools.Level
 open import Tools.Nat
@@ -28,8 +29,10 @@ private
   variable
     p q r : M
     m n α l : Nat
+    x : Fin _
+    y : Nat ⊎ Fin _
     ∇ : DCon (Term 0) _
-    t u v w A B F G : Term _
+    t u v w A B C F G : Term _
     V V′ : Set a
     σ : Subst _ _
     s : Strength
@@ -294,3 +297,73 @@ opaque
   closed-ne (Jₙ b)            = Jₙ (closed-ne b)
   closed-ne (Kₙ b)            = Kₙ (closed-ne b)
   closed-ne ([]-congₙ b)      = []-congₙ (closed-ne b)
+
+------------------------------------------------------------------------
+-- An alternative representation of neutral terms
+
+-- NeutralAt V ∇ y t means that t is neutral and stuck on the name or
+-- variable y.
+
+data NeutralAt {m n} (V : Set a) (∇ : DCon (Term 0) m) :
+       Nat ⊎ Fin n → Term n → Set a where
+  defn      : α ↦⊘∷ A ∈ ∇ → NeutralAt V ∇ (inj₁ α) (defn α)
+  var       : V → NeutralAt V ∇ (inj₂ x) (var x)
+  ∘ₙ        : NeutralAt V ∇ y t → NeutralAt V ∇ y (t ∘⟨ p ⟩ u)
+  fstₙ      : NeutralAt V ∇ y t → NeutralAt V ∇ y (fst p t)
+  sndₙ      : NeutralAt V ∇ y t → NeutralAt V ∇ y (snd p t)
+  natrecₙ   : NeutralAt V ∇ y v → NeutralAt V ∇ y (natrec p q r A t u v)
+  prodrecₙ  : NeutralAt V ∇ y t → NeutralAt V ∇ y (prodrec r p q C t u)
+  emptyrecₙ : NeutralAt V ∇ y t → NeutralAt V ∇ y (emptyrec p A t)
+  unitrecₙ  : ¬ Unitʷ-η →
+              NeutralAt V ∇ y t → NeutralAt V ∇ y (unitrec l p q A t u)
+  Jₙ        : NeutralAt V ∇ y w → NeutralAt V ∇ y (J p q A t B u v w)
+  Kₙ        : NeutralAt V ∇ y v → NeutralAt V ∇ y (K p A t B u v)
+  []-congₙ  : NeutralAt V ∇ y v → NeutralAt V ∇ y ([]-cong s A t u v)
+
+opaque
+
+  -- Terms that are "NeutralAt x" are neutral
+
+  NeutralAt→Neutral : NeutralAt V ∇ y t → Neutral V ∇ t
+  NeutralAt→Neutral (defn α↦)      = defn α↦
+  NeutralAt→Neutral (var ok)       = var ok _
+  NeutralAt→Neutral (∘ₙ n)         = ∘ₙ (NeutralAt→Neutral n)
+  NeutralAt→Neutral (fstₙ n)       = fstₙ (NeutralAt→Neutral n)
+  NeutralAt→Neutral (sndₙ n)       = sndₙ (NeutralAt→Neutral n)
+  NeutralAt→Neutral (natrecₙ n)    = natrecₙ (NeutralAt→Neutral n)
+  NeutralAt→Neutral (prodrecₙ n)   = prodrecₙ (NeutralAt→Neutral n)
+  NeutralAt→Neutral (emptyrecₙ n)  = emptyrecₙ (NeutralAt→Neutral n)
+  NeutralAt→Neutral (unitrecₙ x n) = unitrecₙ x (NeutralAt→Neutral n)
+  NeutralAt→Neutral (Jₙ n)         = Jₙ (NeutralAt→Neutral n)
+  NeutralAt→Neutral (Kₙ n)         = Kₙ (NeutralAt→Neutral n)
+  NeutralAt→Neutral ([]-congₙ n)   = []-congₙ (NeutralAt→Neutral n)
+
+opaque
+
+  -- Neutral terms are "NeutralAt x" for some x
+
+  Neutral→NeutralAt : Neutral V ∇ t → ∃ λ y → NeutralAt V ∇ y t
+  Neutral→NeutralAt (defn α↦) =
+    _ , defn α↦
+  Neutral→NeutralAt (var ok x) =
+    _ , var ok
+  Neutral→NeutralAt (∘ₙ n) =
+    _ , ∘ₙ (Neutral→NeutralAt n .proj₂)
+  Neutral→NeutralAt (fstₙ n) =
+    _ , fstₙ (Neutral→NeutralAt n .proj₂)
+  Neutral→NeutralAt (sndₙ n) =
+    _ , sndₙ (Neutral→NeutralAt n .proj₂)
+  Neutral→NeutralAt (natrecₙ n) =
+    _ , natrecₙ (Neutral→NeutralAt n .proj₂)
+  Neutral→NeutralAt (prodrecₙ n) =
+    _ , prodrecₙ (Neutral→NeutralAt n .proj₂)
+  Neutral→NeutralAt (emptyrecₙ n) =
+    _ , emptyrecₙ (Neutral→NeutralAt n .proj₂)
+  Neutral→NeutralAt (unitrecₙ x n) =
+    _ , unitrecₙ x (Neutral→NeutralAt n .proj₂)
+  Neutral→NeutralAt (Jₙ n) =
+    _ , Jₙ (Neutral→NeutralAt n .proj₂)
+  Neutral→NeutralAt (Kₙ n) =
+    _ , Kₙ (Neutral→NeutralAt n .proj₂)
+  Neutral→NeutralAt ([]-congₙ n) =
+    _ , []-congₙ (Neutral→NeutralAt n .proj₂)
