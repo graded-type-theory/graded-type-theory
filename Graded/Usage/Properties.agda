@@ -411,6 +411,17 @@ opaque
 
 opaque
 
+  -- If a term is well-resourced with respect to ε and any mode, then
+  -- it is well-resourced with respect to ε and the mode 𝟘ᵐ?.
+
+  ε-▸-𝟘ᵐ? : ε ▸[ m ] t → ε ▸[ 𝟘ᵐ? ] t
+  ε-▸-𝟘ᵐ? ▸t =
+    case ▸-𝟘ᵐ? ▸t of λ {
+      (ε , ▸t) →
+    ▸t }
+
+opaque
+
   -- The relation _▸[_]_ respects multiplication (in a certain sense).
 
   ▸-· : γ ▸[ m ] t → ⌜ m′ ⌝ ·ᶜ γ ▸[ m′ ·ᵐ m ] t
