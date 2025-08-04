@@ -69,6 +69,7 @@ module Counterexample
     UR = no-usage-restrictions true true
 
   open Type-restrictions TR
+  open Usage-restrictions UR
 
   private instance
 
@@ -112,6 +113,10 @@ module Counterexample
     × γ PE.≡ 𝟘ᶜ
     × NegativeErasedContext Γ γ
     × Consistent Γ
+    × (∀ {p q} →
+       Unitʷ-η → Unitʷ-allowed → Unitrec-allowed 𝟙ᵐ p q →
+       M.𝟙 M.≤ M.𝟘 ⊎ p PE.≡ M.𝟘)
+    × No-equality-reflection or-empty Γ .vars
     × ((∃ λ u → Numeral u × Γ ⊢ t ≡ u ∷ ℕ) → ⊥)
     × ((∃ λ u → Numeral u × Γ ⊢ t ⇒ˢ* u ∷ℕ) → ⊥)
     × (∃ λ u → Γ ⊢ t ↘ u ∷ ℕ × Neutral⁺ (Γ .defs) u)
@@ -127,6 +132,8 @@ module Counterexample
     , ε ε ∙𝟘
     , inhabited-consistent
         (⊢ˢʷ∷-sgSubst (prodⱼ εℕ⊢ℕ (zeroⱼ εε) (zeroⱼ εε) _))
+    , (λ ())
+    , possibly-nonempty
     , (λ { (.zero , zeroₙ , t≡u) → lem (completeEqTerm t≡u)
          ; (.(suc _) , sucₙ numU , t≡u) → lem′ (completeEqTerm t≡u)
          })
@@ -210,6 +217,7 @@ not-canonicityEq :
    (∀ {p q} →
     Unitʷ-η → Unitʷ-allowed → Unitrec-allowed 𝟙ᵐ p q →
     𝟙 ≤ 𝟘 ⊎ p PE.≡ 𝟘) →
+   ⦃ ok : No-equality-reflection or-empty Γ .vars ⦄ →
    ▸[ 𝟙ᵐ ] Γ .defs →
    ∀ {t γ} → Γ ⊢ t ∷ ℕ → γ ▸[ 𝟙ᵐ ] t → NegativeErasedContext Γ γ →
    ∃ λ u → Numeral u × Γ ⊢ t ≡ u ∷ ℕ) →
@@ -217,5 +225,6 @@ not-canonicityEq :
 not-canonicityEq hyp =
   case Counterexample.cEx (nr-available-and-𝟘ᵐ-allowed-if true) of λ {
     (_ , _ , _ , _ , _ ,
-     ⊢t , ▸Γ , ▸t , _ , nec , con , not-numeral , _) →
-  not-numeral (hyp _ _ con (λ ()) ▸Γ ⊢t ▸t nec) }
+     ⊢t , ▸Γ , ▸t , _ , nec , con , ok₁ , ok₂ , not-numeral , _) →
+  not-numeral $
+  hyp _ _ con (λ {_} {q = q} → ok₁ {q = q}) ⦃ ok = ok₂ ⦄ ▸Γ ⊢t ▸t nec }
