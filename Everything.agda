@@ -114,7 +114,6 @@ import Definition.Typed.Reasoning.Type
 import Definition.Typed.Reasoning.Term.Primitive
 import Definition.Typed.Properties.Admissible.Var
 import Definition.Typed.Properties.Well-formed
-import Definition.Typed.Properties.Definition
 import Definition.Typed.Inversion.Primitive
 import Definition.Typed.Properties.Admissible.Erased.Primitive
 import Definition.Typed.Weakening
@@ -145,6 +144,7 @@ import Definition.Typed.Properties.Admissible.Lift
 import Definition.Typed.Properties.Admissible.Bool.OK
 import Definition.Typed.Properties.Admissible.Bool
 import Definition.Typed.Properties.Admissible.Bool.Erased
+import Definition.Typed.Properties.Definition
 import Definition.Typed.Substitution
 import Definition.Typed.Properties
 import Definition.Typed.EqualityRelation

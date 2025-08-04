@@ -14,8 +14,14 @@ module Definition.Typed.Properties.Definition
 open Type-restrictions R
 
 open import Definition.Typed R
+open import Definition.Typed.Properties.Admissible.Equality R
+open import Definition.Typed.Properties.Admissible.Identity R
+open import Definition.Typed.Properties.Admissible.Pi R
+open import Definition.Typed.Properties.Admissible.Sigma R
+open import Definition.Typed.Properties.Admissible.Unit R
 open import Definition.Typed.Properties.Well-formed R
 open import Definition.Typed.Variant
+open import Definition.Typed.Well-formed R
 
 open import Definition.Untyped M
 open import Definition.Untyped.Neutral M type-variant
@@ -35,7 +41,7 @@ private
     n α : Nat
     ∇ ∇′ ∇″ : DCon (Term 0) _
     Γ : Con Term _
-    t u A B : Term _
+    t u v w A B C : Term _
     V : Set a
     φ : Unfolding _
 
@@ -529,3 +535,292 @@ opaque
   glassify-⇒*∷ : ∇ » Γ ⊢ t ⇒* u ∷ A → glassify ∇ » Γ ⊢ t ⇒* u ∷ A
   glassify-⇒*∷ (id ⊢t)      = id (glassify-⊢∷ ⊢t)
   glassify-⇒*∷ (t⇒x ⇨ x⇒*u) = glassify-⇒∷ t⇒x ⇨ glassify-⇒*∷ x⇒*u
+
+------------------------------------------------------------------------
+-- Opaque[_∷_]
+
+-- A definition context with a single opaque definition of the given
+-- type (the second argument) that is equal to the given term (the
+-- first argument).
+
+Opaque[_∷_] : Term 0 → Term 0 → DCon (Term 0) 1
+Opaque[ t ∷ A ] = ε ∙⟨ opa ε ⟩[ t ∷ A ]
+
+opaque
+
+  -- There are no transparent definitions in Opaque[ u ∷ B ].
+
+  ¬↦∷∈Opaque : ¬ α ↦ t ∷ A ∈ Opaque[ u ∷ B ]
+  ¬↦∷∈Opaque (there ())
+
+opaque
+
+  -- If t has type A and opaque definitions are allowed, then
+  -- Opaque[ t ∷ A ] is well-formed.
+
+  »Opaque : Opacity-allowed → ε » ε ⊢ t ∷ A → » Opaque[ t ∷ A ]
+  »Opaque ok ⊢t = ∙ᵒ⟨ ok , ε ⟩[ ⊢t ∷ wf-⊢∷ ⊢t ]
+
+-- Below it is assumed that opaque definitions are allowed, and that
+-- there are three closed terms A, t and u that satisfy ε » ε ⊢ u ∷ A
+-- (there are no requirements on t).
+
+module _
+  (ok : Opacity-allowed)
+  {A t u : Term 0}
+  (⊢t : ε » ε ⊢ u ∷ A)
+  where
+
+  opaque mutual
+
+    -- If Γ is well-formed under Opaque[ t ∷ A ] and α points to B in
+    -- Opaque[ t ∷ A ], then defn α has type wk wk₀ B under
+    -- Opaque[ u ∷ A ] and Γ.
+
+    definition-irrelevant-defn :
+      Opaque[ t ∷ A ] »⊢ Γ → α ↦∷ B ∈ Opaque[ t ∷ A ] →
+      Opaque[ u ∷ A ] » Γ ⊢ defn α ∷ wk wk₀ B
+    definition-irrelevant-defn ⊢Γ here =
+      defn (definition-irrelevant-»⊢ ⊢Γ) here PE.refl
+    definition-irrelevant-defn ⊢Γ (there ())
+
+    -- Any context that is well-formed under Opaque[ t ∷ A ] is also
+    -- well-formed under Opaque[ u ∷ A ].
+
+    definition-irrelevant-»⊢ : Opaque[ t ∷ A ] »⊢ Γ → Opaque[ u ∷ A ] »⊢ Γ
+    definition-irrelevant-»⊢ (ε _)  = ε (»Opaque ok ⊢t)
+    definition-irrelevant-»⊢ (∙ ⊢A) = ∙ definition-irrelevant-⊢ ⊢A
+
+    -- Any type that is well-formed under Opaque[ t ∷ A ] is also
+    -- well-formed under Opaque[ u ∷ A ].
+
+    definition-irrelevant-⊢ :
+      Opaque[ t ∷ A ] » Γ ⊢ B → Opaque[ u ∷ A ] » Γ ⊢ B
+    definition-irrelevant-⊢ (Uⱼ ⊢Γ) =
+      Uⱼ (definition-irrelevant-»⊢ ⊢Γ)
+    definition-irrelevant-⊢ (univ ⊢A) =
+      univ (definition-irrelevant-⊢∷ ⊢A)
+    definition-irrelevant-⊢ (Emptyⱼ ⊢Γ) =
+      Emptyⱼ (definition-irrelevant-»⊢ ⊢Γ)
+    definition-irrelevant-⊢ (Unitⱼ ⊢Γ ok) =
+      Unitⱼ (definition-irrelevant-»⊢ ⊢Γ) ok
+    definition-irrelevant-⊢ (ΠΣⱼ ⊢A ok) =
+      ΠΣⱼ (definition-irrelevant-⊢ ⊢A) ok
+    definition-irrelevant-⊢ (ℕⱼ ⊢Γ) =
+      ℕⱼ (definition-irrelevant-»⊢ ⊢Γ)
+    definition-irrelevant-⊢ (Idⱼ ⊢A ⊢t ⊢u) =
+      Idⱼ (definition-irrelevant-⊢ ⊢A) (definition-irrelevant-⊢∷ ⊢t)
+        (definition-irrelevant-⊢∷ ⊢u)
+
+    -- Any term that is well-typed under Opaque[ t ∷ A ] is also
+    -- well-typed under Opaque[ u ∷ A ].
+
+    definition-irrelevant-⊢∷ :
+      Opaque[ t ∷ A ] » Γ ⊢ v ∷ B →
+      Opaque[ u ∷ A ] » Γ ⊢ v ∷ B
+    definition-irrelevant-⊢∷ (conv ⊢t B≡A) =
+      conv (definition-irrelevant-⊢∷ ⊢t) (definition-irrelevant-⊢≡ B≡A)
+    definition-irrelevant-⊢∷ (var ⊢Γ x∈) =
+      var (definition-irrelevant-»⊢ ⊢Γ) x∈
+    definition-irrelevant-⊢∷ (defn ⊢Γ α↦ PE.refl) =
+      definition-irrelevant-defn ⊢Γ α↦
+    definition-irrelevant-⊢∷ (Uⱼ ⊢Γ) =
+      Uⱼ (definition-irrelevant-»⊢ ⊢Γ)
+    definition-irrelevant-⊢∷ (Emptyⱼ ⊢Γ) =
+      Emptyⱼ (definition-irrelevant-»⊢ ⊢Γ)
+    definition-irrelevant-⊢∷ (emptyrecⱼ ⊢A ⊢t) =
+      emptyrecⱼ (definition-irrelevant-⊢ ⊢A)
+        (definition-irrelevant-⊢∷ ⊢t)
+    definition-irrelevant-⊢∷ (Unitⱼ ⊢Γ ok) =
+      Unitⱼ (definition-irrelevant-»⊢ ⊢Γ) ok
+    definition-irrelevant-⊢∷ (starⱼ ⊢Γ ok) =
+      starⱼ (definition-irrelevant-»⊢ ⊢Γ) ok
+    definition-irrelevant-⊢∷ (unitrecⱼ ⊢A ⊢t ⊢u ok) =
+      unitrecⱼ (definition-irrelevant-⊢ ⊢A) (definition-irrelevant-⊢∷ ⊢t)
+        (definition-irrelevant-⊢∷ ⊢u) ok
+    definition-irrelevant-⊢∷ (ΠΣⱼ ⊢A ⊢B ok) =
+      ΠΣⱼ (definition-irrelevant-⊢∷ ⊢A) (definition-irrelevant-⊢∷ ⊢B) ok
+    definition-irrelevant-⊢∷ (lamⱼ ⊢B ⊢t ok) =
+      lamⱼ (definition-irrelevant-⊢ ⊢B) (definition-irrelevant-⊢∷ ⊢t) ok
+    definition-irrelevant-⊢∷ (⊢t ∘ⱼ ⊢u) =
+      definition-irrelevant-⊢∷ ⊢t ∘ⱼ definition-irrelevant-⊢∷ ⊢u
+    definition-irrelevant-⊢∷ (prodⱼ ⊢B ⊢t ⊢u ok) =
+      prodⱼ (definition-irrelevant-⊢ ⊢B) (definition-irrelevant-⊢∷ ⊢t)
+        (definition-irrelevant-⊢∷ ⊢u) ok
+    definition-irrelevant-⊢∷ (fstⱼ ⊢B ⊢t) =
+      fstⱼ (definition-irrelevant-⊢ ⊢B) (definition-irrelevant-⊢∷ ⊢t)
+    definition-irrelevant-⊢∷ (sndⱼ ⊢B ⊢t) =
+      sndⱼ (definition-irrelevant-⊢ ⊢B) (definition-irrelevant-⊢∷ ⊢t)
+    definition-irrelevant-⊢∷ (prodrecⱼ ⊢A ⊢t ⊢u ok) =
+      prodrecⱼ (definition-irrelevant-⊢ ⊢A) (definition-irrelevant-⊢∷ ⊢t)
+        (definition-irrelevant-⊢∷ ⊢u) ok
+    definition-irrelevant-⊢∷ (ℕⱼ ⊢Γ) =
+      ℕⱼ (definition-irrelevant-»⊢ ⊢Γ)
+    definition-irrelevant-⊢∷ (zeroⱼ ⊢Γ) =
+      zeroⱼ (definition-irrelevant-»⊢ ⊢Γ)
+    definition-irrelevant-⊢∷ (sucⱼ ⊢t) =
+      sucⱼ (definition-irrelevant-⊢∷ ⊢t)
+    definition-irrelevant-⊢∷ (natrecⱼ ⊢t ⊢u ⊢v) =
+      natrecⱼ (definition-irrelevant-⊢∷ ⊢t)
+        (definition-irrelevant-⊢∷ ⊢u) (definition-irrelevant-⊢∷ ⊢v)
+    definition-irrelevant-⊢∷ (Idⱼ ⊢A ⊢t ⊢u) =
+      Idⱼ (definition-irrelevant-⊢∷ ⊢A) (definition-irrelevant-⊢∷ ⊢t)
+        (definition-irrelevant-⊢∷ ⊢u)
+    definition-irrelevant-⊢∷ (rflⱼ ⊢t) =
+      rflⱼ (definition-irrelevant-⊢∷ ⊢t)
+    definition-irrelevant-⊢∷ (Jⱼ _ ⊢B ⊢u _ ⊢w) =
+      Jⱼ′ (definition-irrelevant-⊢ ⊢B) (definition-irrelevant-⊢∷ ⊢u)
+        (definition-irrelevant-⊢∷ ⊢w)
+    definition-irrelevant-⊢∷ (Kⱼ ⊢B ⊢u ⊢v ok) =
+      Kⱼ (definition-irrelevant-⊢ ⊢B) (definition-irrelevant-⊢∷ ⊢u)
+        (definition-irrelevant-⊢∷ ⊢v) ok
+    definition-irrelevant-⊢∷ ([]-congⱼ _ _ _ ⊢v ok) =
+      []-congⱼ′ ok (definition-irrelevant-⊢∷ ⊢v)
+
+    -- Definitional equalities that hold under Opaque[ t ∷ A ] also
+    -- hold under Opaque[ u ∷ A ].
+
+    definition-irrelevant-⊢≡ :
+      Opaque[ t ∷ A ] » Γ ⊢ B ≡ C →
+      Opaque[ u ∷ A ] » Γ ⊢ B ≡ C
+    definition-irrelevant-⊢≡ = λ where
+      (refl ⊢A) →
+        refl (definition-irrelevant-⊢ ⊢A)
+      (sym B≡A) →
+        sym (definition-irrelevant-⊢≡ B≡A)
+      (trans A≡B B≡C) →
+        trans (definition-irrelevant-⊢≡ A≡B)
+          (definition-irrelevant-⊢≡ B≡C)
+      (univ A≡B) →
+        univ (definition-irrelevant-⊢≡∷ A≡B)
+      (ΠΣ-cong A₁≡B₁ A₂≡B₂ ok) →
+        ΠΣ-cong (definition-irrelevant-⊢≡ A₁≡B₁)
+          (definition-irrelevant-⊢≡ A₂≡B₂) ok
+      (Id-cong A≡B t₁≡u₁ t₂≡u₂) →
+        Id-cong (definition-irrelevant-⊢≡ A≡B)
+          (definition-irrelevant-⊢≡∷ t₁≡u₁)
+          (definition-irrelevant-⊢≡∷ t₂≡u₂)
+
+    -- Definitional equalities that hold under Opaque[ t ∷ A ] also
+    -- hold under Opaque[ u ∷ A ].
+
+    definition-irrelevant-⊢≡∷ :
+      Opaque[ t ∷ A ] » Γ ⊢ v ≡ w ∷ B →
+      Opaque[ u ∷ A ] » Γ ⊢ v ≡ w ∷ B
+    definition-irrelevant-⊢≡∷ = λ where
+      (refl ⊢t) →
+        refl (definition-irrelevant-⊢∷ ⊢t)
+      (sym _ t₂≡t₁) →
+        sym′ (definition-irrelevant-⊢≡∷ t₂≡t₁)
+      (trans t₁≡t₂ t₂≡t₃) →
+        trans (definition-irrelevant-⊢≡∷ t₁≡t₂)
+          (definition-irrelevant-⊢≡∷ t₂≡t₃)
+      (conv t₁≡t₂ B≡A) →
+        conv (definition-irrelevant-⊢≡∷ t₁≡t₂)
+          (definition-irrelevant-⊢≡ B≡A)
+      (δ-red _ α↦t _ _) →
+        ⊥-elim (¬↦∷∈Opaque α↦t)
+      (emptyrec-cong A₁≡A₂ t₁≡t₂) →
+        emptyrec-cong (definition-irrelevant-⊢≡ A₁≡A₂)
+         (definition-irrelevant-⊢≡∷ t₁≡t₂)
+      (unitrec-cong A₁≡A₂ t₁≡t₂ u₁≡u₂ _ _) →
+        unitrec-cong′ (definition-irrelevant-⊢≡ A₁≡A₂)
+          (definition-irrelevant-⊢≡∷ t₁≡t₂)
+          (definition-irrelevant-⊢≡∷ u₁≡u₂)
+      (unitrec-β ⊢A ⊢t _ _) →
+        unitrec-β-≡ (definition-irrelevant-⊢ ⊢A)
+          (definition-irrelevant-⊢∷ ⊢t)
+      (unitrec-β-η ⊢A ⊢t ⊢u _ η) →
+        unitrec-β-η-≡ (definition-irrelevant-⊢ ⊢A)
+          (definition-irrelevant-⊢∷ ⊢t) (definition-irrelevant-⊢∷ ⊢u) η
+      (η-unit ⊢t₁ ⊢t₂ ok) →
+        η-unit (definition-irrelevant-⊢∷ ⊢t₁)
+          (definition-irrelevant-⊢∷ ⊢t₂) ok
+      (ΠΣ-cong A₁≡A₂ B₁≡B₂ ok) →
+        ΠΣ-cong (definition-irrelevant-⊢≡∷ A₁≡A₂)
+          (definition-irrelevant-⊢≡∷ B₁≡B₂) ok
+      (app-cong t₁≡t₂ u₁≡u₂) →
+        app-cong (definition-irrelevant-⊢≡∷ t₁≡t₂)
+          (definition-irrelevant-⊢≡∷ u₁≡u₂)
+      (β-red _ ⊢t ⊢u PE.refl ok) →
+        β-red-≡ (definition-irrelevant-⊢∷ ⊢t)
+          (definition-irrelevant-⊢∷ ⊢u) ok
+      (η-eq ⊢B ⊢t₁ ⊢t₂ t₁0≡t₂0 ok) →
+        η-eq′ (definition-irrelevant-⊢∷ ⊢t₁)
+          (definition-irrelevant-⊢∷ ⊢t₂)
+          (definition-irrelevant-⊢≡∷ t₁0≡t₂0)
+      (fst-cong _ t₁≡t₂) →
+        fst-cong′ (definition-irrelevant-⊢≡∷ t₁≡t₂)
+      (Σ-β₁ ⊢B ⊢t₁ ⊢t₂ PE.refl ok) →
+        Σ-β₁-≡ (definition-irrelevant-⊢ ⊢B)
+          (definition-irrelevant-⊢∷ ⊢t₁) (definition-irrelevant-⊢∷ ⊢t₂)
+           ok
+      (snd-cong _ t₁≡t₂) →
+        snd-cong′ (definition-irrelevant-⊢≡∷ t₁≡t₂)
+      (Σ-β₂ ⊢B ⊢t₁ ⊢t₂ PE.refl ok) →
+        Σ-β₂-≡ (definition-irrelevant-⊢ ⊢B)
+          (definition-irrelevant-⊢∷ ⊢t₁) (definition-irrelevant-⊢∷ ⊢t₂)
+          ok
+      (Σ-η _ ⊢t₁ ⊢t₂ fst≡fst snd≡snd _) →
+        Σ-η′ (definition-irrelevant-⊢∷ ⊢t₁)
+          (definition-irrelevant-⊢∷ ⊢t₂)
+          (definition-irrelevant-⊢≡∷ fst≡fst)
+          (definition-irrelevant-⊢≡∷ snd≡snd)
+      (prod-cong ⊢B t₁≡t₂ u₁≡u₂ ok) →
+        prod-cong (definition-irrelevant-⊢ ⊢B)
+          (definition-irrelevant-⊢≡∷ t₁≡t₂)
+          (definition-irrelevant-⊢≡∷ u₁≡u₂) ok
+      (prodrec-cong C₁≡C₂ t₁≡t₂ u₁≡u₂ ok) →
+        prodrec-cong′ (definition-irrelevant-⊢≡ C₁≡C₂)
+          (definition-irrelevant-⊢≡∷ t₁≡t₂)
+          (definition-irrelevant-⊢≡∷ u₁≡u₂)
+      (prodrec-β ⊢C ⊢t ⊢u ⊢v PE.refl ok) →
+        prodrec-β-≡ (definition-irrelevant-⊢ ⊢C)
+          (definition-irrelevant-⊢∷ ⊢t) (definition-irrelevant-⊢∷ ⊢u)
+          (definition-irrelevant-⊢∷ ⊢v)
+      (suc-cong t₁≡t₂) →
+        suc-cong (definition-irrelevant-⊢≡∷ t₁≡t₂)
+      (natrec-cong A₁≡A₂ t₁≡t₂ u₁≡u₂ v₁≡v₂) →
+        natrec-cong (definition-irrelevant-⊢≡ A₁≡A₂)
+          (definition-irrelevant-⊢≡∷ t₁≡t₂)
+          (definition-irrelevant-⊢≡∷ u₁≡u₂)
+          (definition-irrelevant-⊢≡∷ v₁≡v₂)
+      (natrec-zero ⊢t ⊢u) →
+        natrec-zero (definition-irrelevant-⊢∷ ⊢t)
+          (definition-irrelevant-⊢∷ ⊢u)
+      (natrec-suc ⊢t ⊢u ⊢v) →
+        natrec-suc (definition-irrelevant-⊢∷ ⊢t)
+          (definition-irrelevant-⊢∷ ⊢u) (definition-irrelevant-⊢∷ ⊢v)
+      (Id-cong A₁≡A₂ t₁≡t₂ u₁≡u₂) →
+        Id-cong (definition-irrelevant-⊢≡∷ A₁≡A₂)
+          (definition-irrelevant-⊢≡∷ t₁≡t₂)
+          (definition-irrelevant-⊢≡∷ u₁≡u₂)
+      (J-cong A₁≡A₂ ⊢t₁ t₁≡t₂ B₁≡B₂ u₁≡u₂ v₁≡v₂ w₁≡w₂) →
+        J-cong′ (definition-irrelevant-⊢≡ A₁≡A₂)
+          (definition-irrelevant-⊢≡∷ t₁≡t₂)
+          (definition-irrelevant-⊢≡ B₁≡B₂)
+          (definition-irrelevant-⊢≡∷ u₁≡u₂)
+          (definition-irrelevant-⊢≡∷ v₁≡v₂)
+          (definition-irrelevant-⊢≡∷ w₁≡w₂)
+      (J-β ⊢t ⊢B ⊢u PE.refl) →
+        J-β-≡ (definition-irrelevant-⊢∷ ⊢t) (definition-irrelevant-⊢ ⊢B)
+          (definition-irrelevant-⊢∷ ⊢u)
+      (K-cong A₁≡A₂ t₁≡t₂ B₁≡B₂ u₁≡u₂ v₁≡v₂ ok) →
+        K-cong (definition-irrelevant-⊢≡ A₁≡A₂)
+          (definition-irrelevant-⊢≡∷ t₁≡t₂)
+          (definition-irrelevant-⊢≡ B₁≡B₂)
+          (definition-irrelevant-⊢≡∷ u₁≡u₂)
+          (definition-irrelevant-⊢≡∷ v₁≡v₂) ok
+      (K-β ⊢B ⊢u ok) →
+        K-β (definition-irrelevant-⊢ ⊢B) (definition-irrelevant-⊢∷ ⊢u)
+          ok
+      ([]-cong-cong A₁≡A₂ t₁≡t₂ u₁≡u₂ v₁≡v₂ ok) →
+        []-cong-cong (definition-irrelevant-⊢≡ A₁≡A₂)
+          (definition-irrelevant-⊢≡∷ t₁≡t₂)
+          (definition-irrelevant-⊢≡∷ u₁≡u₂)
+          (definition-irrelevant-⊢≡∷ v₁≡v₂) ok
+      ([]-cong-β ⊢t PE.refl ok) →
+        []-cong-β (definition-irrelevant-⊢∷ ⊢t) PE.refl ok
+      (equality-reflection ok ⊢Id ⊢v) →
+        equality-reflection ok (definition-irrelevant-⊢ ⊢Id)
+          (definition-irrelevant-⊢∷ ⊢v)
