@@ -241,6 +241,12 @@ glassify : {𝕋 : Set a} → DCon 𝕋 n → DCon 𝕋 n
 glassify ε                       = ε
 glassify (∇ ∙⟨ ω ⟩[ t ∷ A ]) = glassify ∇ ∙⟨ tra ⟩[ t ∷ A ]
 
+-- A definition context is transparent if it is equal to its own
+-- "glassification".
+
+Transparent : {𝕋 : Set a} → DCon 𝕋 n → Set a
+Transparent ∇ = ∇ ≡ glassify ∇
+
 -- Definition context extensions.
 
 data DExt (𝕋 : Set a) : Nat → Nat → Set a where
