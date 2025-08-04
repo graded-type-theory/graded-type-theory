@@ -234,7 +234,7 @@ opaque
 
   fromTerm∘toTerm : (t : Term′ n) → fromTerm (toTerm t) ≡ t
   fromTerm∘toTerm (var x) = refl
-  fromTerm∘toTerm (defn α) = refl
+  fromTerm∘toTerm (gen (Defnkind α) []) = refl
   fromTerm∘toTerm (gen (Ukind l) []) = refl
   fromTerm∘toTerm (gen (Binderkind b p q) (A ∷ₜ B ∷ₜ [])) =
     cong₂ (λ A B → gen (Binderkind b p q) (A ∷ₜ B ∷ₜ []))
@@ -392,7 +392,6 @@ opaque mutual
     (∀ x → wkVar ρ x ≡ wkVar ρ′ x) →
     ∀ (t : Term′ n) → wk′ ρ t ≡ wk′ ρ′ t
   wkVar-to-wk′ eq (var x)    = cong var (eq x)
-  wkVar-to-wk′ eq (defn α)   = refl
   wkVar-to-wk′ eq (gen k ts) = cong (gen k) (wkVar-to-wkGen eq ts)
 
   wkVar-to-wkGen :
@@ -424,7 +423,6 @@ opaque mutual
 
   wk′-id : (t : Term′ n) → wk′ id t ≡ t
   wk′-id (var x)    = refl
-  wk′-id (defn α)   = refl
   wk′-id (gen k ts) = cong (gen k) (wkGen-id ts)
 
   wkGen-id : ∀ {bs} ts → wkGen {m = n} {n} {bs} id ts ≡ ts
@@ -457,7 +455,6 @@ opaque mutual
     (ρ : Wk m ℓ) (ρ′ : Wk ℓ n) (t : Term′ n) →
     wk′ ρ (wk′ ρ′ t) ≡ wk′ (ρ • ρ′) t
   wk′-comp ρ ρ′ (var x) = cong var (wkVar-comp ρ ρ′ x)
-  wk′-comp ρ ρ′ (defn α) = refl
   wk′-comp ρ ρ′ (gen k ts) = cong (gen k) (wkGen-comp ρ ρ′ ts)
 
   wkGen-comp : (ρ : Wk m ℓ) (ρ′ : Wk ℓ n) → ∀ {bs} g
@@ -636,7 +633,6 @@ opaque mutual
   substVar-to-subst′ : ((x : Fin n) → σ x ≡ σ′ x)
                      → (t : Term′ n) → t [ σ ]′ ≡ t [ σ′ ]′
   substVar-to-subst′ eq (var x)    = cong fromTerm (eq x)
-  substVar-to-subst′ eq (defn α)   = refl
   substVar-to-subst′ eq (gen k ts) = cong (gen k) (substVar-to-substGen eq ts)
 
   substVar-to-substGen : ∀ {bs} → ((x : Fin n) → σ x ≡ σ′ x)
@@ -676,7 +672,6 @@ opaque mutual
 
   subst′-id : (t : Term′ n) → t [ idSubst ]′ ≡ t
   subst′-id (var x) = refl
-  subst′-id (defn α) = refl
   subst′-id (gen k ts) = cong (gen k) (substGen-id ts)
 
   substGen-id : ∀ {bs} ts → substGen {m = n} {n} {bs} idSubst ts ≡ ts
@@ -803,7 +798,6 @@ opaque mutual
     fromTerm (toTerm (wk′ ρ (fromTerm (σ x)))) ≡˘⟨ cong fromTerm (wk≡wk′ (σ x)) ⟩
     fromTerm (wk ρ (σ x))                      ≡⟨⟩
     (var x [ ρ •ₛ σ ]′)                        ∎
-  wk′-subst′ (defn α) = refl
   wk′-subst′ (gen k ts) = cong (gen k) (wkGen-substGen ts)
 
   wkGen-substGen : ∀ {bs} ts → wkGen ρ (substGen σ ts) ≡ substGen {bs = bs} (ρ •ₛ σ) ts
@@ -833,7 +827,6 @@ mutual
 
   subst′-wk′ : ∀ t → wk′ ρ t [ σ ]′ ≡ t [ σ ₛ• ρ ]′
   subst′-wk′ (var x) = refl
-  subst′-wk′ (defn α) = refl
   subst′-wk′ (gen k ts) = cong (gen k) (substGen-wkGen ts)
 
   substGen-wkGen : ∀ {bs} ts → substGen σ (wkGen ρ ts) ≡ substGen {bs = bs} (σ ₛ• ρ) ts
@@ -942,7 +935,6 @@ opaque mutual
     fromTerm (σ′ x) [ σ ]′                     ≡˘⟨ fromTerm∘toTerm _ ⟩
     fromTerm (toTerm (fromTerm (σ′ x) [ σ ]′)) ≡˘⟨ cong fromTerm (subst≡subst′ (σ′ x)) ⟩
     fromTerm (σ′ x [ σ ])                      ∎
-  subst′CompEq (defn α) = refl
   subst′CompEq (gen k ts) = cong (gen k) (substGenCompEq ts)
 
   substGenCompEq : ∀ {bs} ts

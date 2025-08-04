@@ -210,6 +210,8 @@ sucᵏ (1+ n) = suc (sucᵏ n)
 -- in the list).
 
 data Kind : (ns : List Nat) → Set a where
+  Defnkind : (α : Nat) → Kind []
+
   Ukind : Universe-level → Kind []
 
   Binderkind : (b : BinderMode) (p q : M) → Kind (0 ∷ 1 ∷ [])
@@ -252,7 +254,6 @@ data Kind : (ns : List Nat) → Set a where
 
 data Term′ (n : Nat) : Set a where
   var  : (x : Fin n) → Term′ n
-  defn : (α : Nat) → Term′ n
   gen  : {bs : List Nat} (k : Kind bs) (ts : GenTs Term′ n bs) → Term′ n
 
 private variable
@@ -263,7 +264,7 @@ private variable
 toTerm : Term′ n → Term n
 toTerm (var x) =
   var x
-toTerm (defn α) =
+toTerm (gen (Defnkind α) []) =
   defn α
 toTerm (gen (Ukind l) []) =
   U l
@@ -316,7 +317,7 @@ fromTerm : Term n → Term′ n
 fromTerm (var x) =
   var x
 fromTerm (defn α) =
-  defn α
+  gen (Defnkind α) []
 fromTerm (U l) =
   gen (Ukind l) []
 fromTerm (ΠΣ⟨ b ⟩ p , q ▷ A ▹ B) =
@@ -421,7 +422,6 @@ mutual
 
   wk′ : (ρ : Wk m n) (t : Term′ n) → Term′ m
   wk′ ρ (var x) = var (wkVar ρ x)
-  wk′ ρ (defn α) = defn α
   wk′ ρ (gen k ts) = gen k (wkGen ρ ts)
 
 -- Adding one variable to the context requires wk1.
@@ -599,7 +599,6 @@ mutual
 
   _[_]′ : (t : Term′ n) (σ : Subst m n) → Term′ m
   var x [ σ ]′ = fromTerm (σ x)
-  defn α [ σ ]′ = defn α
   gen k ts [ σ ]′ = gen k (substGen σ ts)
 
 -- Extend a substitution by adding a term as
