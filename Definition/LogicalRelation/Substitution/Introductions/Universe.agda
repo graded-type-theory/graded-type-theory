@@ -80,7 +80,7 @@ opaque
     lemma (emb (≤ᵘ-step p) ⊩U) = Σ.map ≤ᵘ-step idᶠ (lemma (emb p ⊩U))
 
 opaque
-  unfolding _»_⊩⟨_⟩_∷_
+  unfolding _⊩⟨_⟩_∷_
 
   -- A characterisation lemma for _⊩⟨_⟩_∷_.
 
@@ -134,7 +134,7 @@ opaque
     l′ <ᵘ l × (∇ » Γ ⊩⟨ l′ ⟩ A) × ∇ » Γ ⊢≅ A ∷ U l′                  □⇔
 
 opaque
-  unfolding _»_⊩⟨_⟩_≡_
+  unfolding _⊩⟨_⟩_≡_
 
   -- A characterisation lemma for _⊩⟨_⟩_≡_.
 
@@ -165,7 +165,7 @@ opaque
       Σ.map ≤ᵘ-step idᶠ (lemma (emb p ⊩U) A≡U)
 
 opaque
-  unfolding _»_⊩⟨_⟩_≡_ _»_⊩⟨_⟩_≡_∷_
+  unfolding _⊩⟨_⟩_≡_ _⊩⟨_⟩_≡_∷_
 
   -- A characterisation lemma for _⊩⟨_⟩_≡_∷_.
 

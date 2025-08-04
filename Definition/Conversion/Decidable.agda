@@ -147,11 +147,11 @@ private opaque
         yes $
         let _ , _ , C≡Π = ΠΣ≡Whnf Π≡C C-whnf in
           _
-        , PE.subst (flip (_»_⊢_~_↑_ _ _ _) _)
+        , PE.subst (flip (_⊢_~_↑_ _ _) _)
             (PE.cong (_ ∘⟨_⟩ _) p₁≡p₂)
-            (app-cong (PE.subst (_»_⊢_~_↓_ _ _ _ _) C≡Π t₁~u₁)
+            (app-cong (PE.subst (_⊢_~_↓_ _ _ _) C≡Π t₁~u₁)
                (convConv↑Term
-                  (ΠΣ-injectivity (PE.subst (_»_⊢_≡_ _ _ _) C≡Π Π≡C) .proj₁)
+                  (ΠΣ-injectivity (PE.subst (_⊢_≡_ _ _) C≡Π Π≡C) .proj₁)
                   t₂≡u₂))
       (no t₂≢u₂) →
         no λ (_ , t~u) →
@@ -162,14 +162,14 @@ private opaque
         in
         t₂≢u₂ $
         convConv↑Term (sym (ΠΣ-injectivity Π≡Π .proj₁)) $
-        PE.subst (flip (_»_⊢_[conv↑]_∷_ _ _ _) _) ≡u₂ t₂≡
+        PE.subst (flip (_⊢_[conv↑]_∷_ _ _) _) ≡u₂ t₂≡
   dec~↑-app-cong _ _ (no ¬t₁~u₁) _ =
     no λ (_ , t~u) →
     let _ , _ , _ , _ , _ , _ , u≡∘ , t₁~ , _ = inv-∘~ t~u
         _ , ≡u₁ , _                           =
           ∘-PE-injectivity (PE.sym u≡∘)
     in
-    ¬t₁~u₁ (_ , PE.subst (flip (_»_⊢_~_↓_ _ _ _) _) ≡u₁ t₁~)
+    ¬t₁~u₁ (_ , PE.subst (flip (_⊢_~_↓_ _ _) _) ≡u₁ t₁~)
 
 private opaque
 
@@ -182,7 +182,7 @@ private opaque
   dec~↑-fst-cong ⊢t (yes (PE.refl , _ , t~u)) =
     yes $
     let _ , _ , C≡Σ = uncurry ΠΣ≡Whnf (~↓→∷→Whnf×≡ t~u ⊢t) in
-    _ , fst-cong (PE.subst (_»_⊢_~_↓_ _ _ _ _) C≡Σ t~u)
+    _ , fst-cong (PE.subst (_⊢_~_↓_ _ _ _) C≡Σ t~u)
   dec~↑-fst-cong _ (no not-both-equal) =
     no λ (_ , fst-t~fst-u) →
     case inv-fst~ fst-t~fst-u of λ {
@@ -200,7 +200,7 @@ private opaque
   dec~↑-snd-cong ⊢t (yes (PE.refl , _ , t~u)) =
     yes $
     let _ , _ , C≡Σ = uncurry ΠΣ≡Whnf (~↓→∷→Whnf×≡ t~u ⊢t) in
-    _ , snd-cong (PE.subst (_»_⊢_~_↓_ _ _ _ _) C≡Σ t~u)
+    _ , snd-cong (PE.subst (_⊢_~_↓_ _ _ _) C≡Σ t~u)
   dec~↑-snd-cong _ (no not-both-equal) =
     no λ (_ , snd-t~snd-u) →
     case inv-snd~ snd-t~snd-u of λ {
@@ -248,7 +248,7 @@ private opaque
             ×-dec′ λ C₁≡C₂ →
           dec₃
             (symConEq ΓA₁B₁≡ΓA₂B₂)
-             (_»_⊢_≡_.sym $
+             (_⊢_≡_.sym $
               stabilityEq ΓA₁B₁≡ΓA₂B₂ $
               subst↑²TypeEq-prod (soundnessConv↑ C₁≡C₂))) of λ where
       (yes (C₁≡C₂ , u₁≡u₂)) →
@@ -273,9 +273,9 @@ private opaque
         in
         not-both-equal
           ( stabilityConv↑ (refl-∙ (neTypeEq t₁-ne (~↓→∷ t₁~) ⊢t₁))
-              (PE.subst (_»_⊢_[conv↑]_ _ _ _) ≡C₂ C₁≡)
+              (PE.subst (_⊢_[conv↑]_ _ _) ≡C₂ C₁≡)
           , stabilityConv↑Term (refl-∙ ≡A₁ ∙ ≡B₁)
-              (PE.subst (flip (_»_⊢_[conv↑]_∷_ _ _ _) _) ≡u₂ u₁≡)
+              (PE.subst (flip (_⊢_[conv↑]_∷_ _ _) _) ≡u₂ u₁≡)
           ) }
   dec~↑-prodrec-cong _ _ (no not-all-equal) _ _ =
     no λ (_ , pr~pr) →
@@ -287,7 +287,7 @@ private opaque
     not-all-equal
       ( r₁≡r₂
       , q′₁≡q′₂
-      , _ , PE.subst (flip (_»_⊢_~_↓_ _ _ _) _) ≡t₂ t₁~
+      , _ , PE.subst (flip (_⊢_~_↓_ _ _) _) ≡t₂ t₁~
       )
 
 private opaque
@@ -314,8 +314,8 @@ private opaque
     in
     not-all-equal
       ( p₁≡p₂
-      , PE.subst (_»_⊢_[conv↑]_ _ _ _) ≡A₂ A₁≡
-      , _ , PE.subst (flip (_»_⊢_~_↓_ _ _ _) _) ≡t₂ t₁~
+      , PE.subst (_⊢_[conv↑]_ _ _) ≡A₂ A₁≡
+      , _ , PE.subst (flip (_⊢_~_↓_ _ _) _) ≡t₂ t₁~
       )
 
 private opaque
@@ -341,14 +341,14 @@ private opaque
       (dec₁ (reflConEq (∙ syntacticTerm ⊢t₁)) ×-dec′ λ A₁≡A₂ →
        dec₂
          (substTypeEq (soundnessConv↑ A₁≡A₂) $
-          _»_⊢_≡_∷_.refl $
+          _⊢_≡_∷_.refl $
           starⱼ (wfTerm ⊢t₁) (⊢∷Unit→Unit-allowed ⊢t₁)))
       of λ where
       (yes (A₁≡A₂ , u₁≡u₂)) →
         yes $
         let B≡Unit = uncurry Unit≡A (~↓→∷→Whnf×≡ t₁~t₂ ⊢t₁) in
           _
-        , unitrec-cong A₁≡A₂ (PE.subst (_»_⊢_~_↓_ _ _ _ _) B≡Unit t₁~t₂)
+        , unitrec-cong A₁≡A₂ (PE.subst (_⊢_~_↓_ _ _ _) B≡Unit t₁~t₂)
             u₁≡u₂ no-η
       (no not-both-equal) →
         no λ (_ , ur~ur) →
@@ -358,8 +358,8 @@ private opaque
               unitrec-PE-injectivity (PE.sym ur≡ur)
         in
         not-both-equal
-          ( PE.subst (_»_⊢_[conv↑]_ _ _ _) ≡A₂ A₁≡
-          , PE.subst (flip (_»_⊢_[conv↑]_∷_ _ _ _) _) ≡u₂ u₁≡
+          ( PE.subst (_⊢_[conv↑]_ _ _) ≡A₂ A₁≡
+          , PE.subst (flip (_⊢_[conv↑]_∷_ _ _) _) ≡u₂ u₁≡
           )
   dec~↑-unitrec-cong _ _ (no not-all-equal) _ _ =
     no λ (_ , ur~ur) →
@@ -371,7 +371,7 @@ private opaque
       ( l₁≡l₂
       , p₁≡p₂
       , q₁≡q₂
-      , _ , PE.subst (flip (_»_⊢_~_↓_ _ _ _) _) ≡t₂ t₁~
+      , _ , PE.subst (flip (_⊢_~_↓_ _ _) _) ≡t₂ t₁~
       )
 
 private opaque
@@ -411,7 +411,7 @@ private opaque
         let B≡ℕ = uncurry ℕ≡A (~↓→∷→Whnf×≡ v₁~v₂ ⊢v₁) in
           _
         , natrec-cong A₁≡A₂ t₁≡t₂ u₁≡u₂
-            (PE.subst (_»_⊢_~_↓_ _ _ _ _) B≡ℕ v₁~v₂)
+            (PE.subst (_⊢_~_↓_ _ _ _) B≡ℕ v₁~v₂)
       (no not-both-equal) →
         no λ (_ , nr~nr) →
         let _ , _ , _ , _ , _ , nr≡nr , _ , t₁≡ , u₁≡ , _ =
@@ -420,8 +420,8 @@ private opaque
               natrec-PE-injectivity (PE.sym nr≡nr)
         in
         not-both-equal
-          ( PE.subst (flip (_»_⊢_[conv↑]_∷_ _ _ _) _) ≡t₂ t₁≡
-          , PE.subst (flip (_»_⊢_[conv↑]_∷_ _ _ _) _) ≡u₂ u₁≡
+          ( PE.subst (flip (_⊢_[conv↑]_∷_ _ _) _) ≡t₂ t₁≡
+          , PE.subst (flip (_⊢_[conv↑]_∷_ _ _) _) ≡u₂ u₁≡
           )
   dec~↑-natrec-cong _ (no not-all-equal) _ _ =
     no λ (_ , nr~nr) →
@@ -434,8 +434,8 @@ private opaque
       ( p₁≡p₂
       , q₁≡q₂
       , r₁≡r₂
-      , PE.subst (_»_⊢_[conv↑]_ _ _ _) ≡A₂ A₁≡
-      , _ , PE.subst (flip (_»_⊢_~_↓_ _ _ _) _) ≡v₂ v₁~
+      , PE.subst (_⊢_[conv↑]_ _ _) ≡A₂ A₁≡
+      , _ , PE.subst (flip (_⊢_~_↓_ _ _) _) ≡v₂ v₁~
       )
 
 private opaque
@@ -468,8 +468,8 @@ private opaque
     not-all-equal
       ( p₁≡p₂
       , q₁≡q₂
-      , PE.subst (_»_⊢_[conv↑]_ _ _ _) ≡A₂ A₁≡
-      , _ , PE.subst (flip (_»_⊢_~_↓_ _ _ _) _) ≡w₂ w₁~
+      , PE.subst (_⊢_[conv↑]_ _ _) ≡A₂ A₁≡
+      , _ , PE.subst (flip (_⊢_~_↓_ _ _) _) ≡w₂ w₁~
       )
   dec~↑-J-cong
     ⊢w₁ (yes (PE.refl , PE.refl , A₁≡A₂ , _ , w₁~w₂))
@@ -498,10 +498,10 @@ private opaque
               J-PE-injectivity (PE.sym J≡J)
         in
         not-all-equal
-          ( PE.subst (flip (_»_⊢_[conv↑]_∷_ _ _ _) _) ≡t₂ t₁≡
-          , PE.subst (_»_⊢_[conv↑]_ _ _ _) ≡B₂ B₁≡
-          , PE.subst (flip (_»_⊢_[conv↑]_∷_ _ _ _) _) ≡u₂ u₁≡
-          , PE.subst (flip (_»_⊢_[conv↑]_∷_ _ _ _) _) ≡v₂ v₁≡
+          ( PE.subst (flip (_⊢_[conv↑]_∷_ _ _) _) ≡t₂ t₁≡
+          , PE.subst (_⊢_[conv↑]_ _ _) ≡B₂ B₁≡
+          , PE.subst (flip (_⊢_[conv↑]_∷_ _ _) _) ≡u₂ u₁≡
+          , PE.subst (flip (_⊢_[conv↑]_∷_ _ _) _) ≡v₂ v₁≡
           )
 
 private opaque
@@ -529,8 +529,8 @@ private opaque
     in
     not-all-equal
       ( p₁≡p₂
-      , PE.subst (_»_⊢_[conv↑]_ _ _ _) ≡A₂ A₁≡
-      , _ , PE.subst (flip (_»_⊢_~_↓_ _ _ _) _) ≡v₂ v₁~
+      , PE.subst (_⊢_[conv↑]_ _ _) ≡A₂ A₁≡
+      , _ , PE.subst (flip (_⊢_~_↓_ _ _) _) ≡v₂ v₁~
       )
   dec~↑-K-cong
     ok ⊢v₁ (yes (PE.refl , A₁≡A₂ , _ , v₁~v₂)) dec₁ dec₂ dec₃ =
@@ -555,9 +555,9 @@ private opaque
             _ , _ , ≡t₂ , ≡B₂ , ≡u₂ , _ = K-PE-injectivity (PE.sym K≡K)
         in
         not-all-equal
-          ( PE.subst (flip (_»_⊢_[conv↑]_∷_ _ _ _) _) ≡t₂ t₁≡
-          , PE.subst (_»_⊢_[conv↑]_ _ _ _) ≡B₂ B₁≡
-          , PE.subst (flip (_»_⊢_[conv↑]_∷_ _ _ _) _) ≡u₂ u₁≡
+          ( PE.subst (flip (_⊢_[conv↑]_∷_ _ _) _) ≡t₂ t₁≡
+          , PE.subst (_⊢_[conv↑]_ _ _) ≡B₂ B₁≡
+          , PE.subst (flip (_⊢_[conv↑]_∷_ _ _) _) ≡u₂ u₁≡
           )
 
 private opaque
@@ -595,8 +595,8 @@ private opaque
               []-cong-PE-injectivity (PE.sym bc≡bc)
         in
         not-both-equal
-          ( PE.subst (flip (_»_⊢_[conv↑]_∷_ _ _ _) _) ≡t₂ t₁≡
-          , PE.subst (flip (_»_⊢_[conv↑]_∷_ _ _ _) _) ≡u₂ u₁≡
+          ( PE.subst (flip (_⊢_[conv↑]_∷_ _ _) _) ≡t₂ t₁≡
+          , PE.subst (flip (_⊢_[conv↑]_∷_ _ _) _) ≡u₂ u₁≡
           )
   dec~↑-[]-cong-cong _ _ (no not-all-equal) _ _ =
     no λ (_ , bc~bc) →
@@ -607,8 +607,8 @@ private opaque
     in
     not-all-equal
       ( s₁≡s₂
-      , PE.subst (_»_⊢_[conv↑]_ _ _ _) ≡A₂ A₁≡
-      , _ , PE.subst (flip (_»_⊢_~_↓_ _ _ _) _) ≡v₂ v₁~
+      , PE.subst (_⊢_[conv↑]_ _ _) ≡A₂ A₁≡
+      , _ , PE.subst (flip (_⊢_~_↓_ _ _) _) ≡v₂ v₁~
       )
 
 private opaque
@@ -632,7 +632,7 @@ private opaque
         let _ , _ , ΠΣ≡ΠΣ , _ , B₁≡ = inv-[conv↓]-ΠΣ ΠΣ≡ΠΣ
             _ , _ , _ , _ , ≡B₂     = ΠΣ-PE-injectivity (PE.sym ΠΣ≡ΠΣ)
         in
-        B₁≢B₂ (PE.subst (_»_⊢_[conv↑]_ _ _ _) ≡B₂ B₁≡)
+        B₁≢B₂ (PE.subst (_⊢_[conv↑]_ _ _) ≡B₂ B₁≡)
   decConv↓-ΠΣ _ (no not-all-equal) _ =
     no λ ΠΣ≡ΠΣ →
     let _ , _ , ΠΣ≡ΠΣ , A₁≡ , _         = inv-[conv↓]-ΠΣ ΠΣ≡ΠΣ
@@ -643,7 +643,7 @@ private opaque
       ( b₁≡b₂
       , p₁≡p₂
       , q₁≡q₂
-      , PE.subst (_»_⊢_[conv↑]_ _ _ _) ≡A₂ A₁≡
+      , PE.subst (_⊢_[conv↑]_ _ _) ≡A₂ A₁≡
       )
 
 private opaque
@@ -656,7 +656,7 @@ private opaque
     (∇ » Γ ⊢ A₂ ≡ A₁ → Dec (∇ » Γ ⊢ u₁ [conv↑] u₂ ∷ A₁)) →
     Dec (∇ » Γ ⊢ Id A₁ t₁ u₁ [conv↓] Id A₂ t₂ u₂)
   decConv↓-Id (yes A₁≡A₂) dec₁ dec₂ =
-    let A₂≡A₁ = _»_⊢_≡_.sym (soundnessConv↑ A₁≡A₂) in
+    let A₂≡A₁ = _⊢_≡_.sym (soundnessConv↑ A₁≡A₂) in
     case dec₁ A₂≡A₁ ×-dec dec₂ A₂≡A₁ of λ where
       (yes (t₁≡t₂ , u₁≡u₂)) → yes (Id-cong A₁≡A₂ t₁≡t₂ u₁≡u₂)
       (no not-both-equal)   →
@@ -666,15 +666,15 @@ private opaque
               Id-PE-injectivity (PE.sym Id≡Id)
         in
         not-both-equal
-          ( PE.subst (flip (_»_⊢_[conv↑]_∷_ _ _ _) _) ≡t₂ t₁≡
-          , PE.subst (flip (_»_⊢_[conv↑]_∷_ _ _ _) _) ≡u₂ u₁≡
+          ( PE.subst (flip (_⊢_[conv↑]_∷_ _ _) _) ≡t₂ t₁≡
+          , PE.subst (flip (_⊢_[conv↑]_∷_ _ _) _) ≡u₂ u₁≡
           )
   decConv↓-Id (no A₁≢A₂) _ _ =
     no λ Id≡Id →
     let _ , _ , _ , Id≡Id , A₁≡ , _ = inv-[conv↓]-Id Id≡Id
         ≡A₂ , _                     = Id-PE-injectivity (PE.sym Id≡Id)
     in
-    A₁≢A₂ (PE.subst (_»_⊢_[conv↑]_ _ _ _) ≡A₂ A₁≡)
+    A₁≢A₂ (PE.subst (_⊢_[conv↑]_ _ _) ≡A₂ A₁≡)
 
 ------------------------------------------------------------------------
 -- Public definitions
@@ -864,7 +864,7 @@ mutual
             let C-whnf , _ = ne~↓ A~B
                 U≡A′       = neTypeEq A-ne (~↓→∷ A~) (~↓→∷ A~B)
             in
-            PE.subst (_»_⊢_~_↓_ _ _ _ _) (U≡A U≡A′ C-whnf) A~B
+            PE.subst (_⊢_~_↓_ _ _ _) (U≡A U≡A′ C-whnf) A~B
           (no ¬A~B) →
             no (¬A~B ∘→ (_ ,_) ∘→ proj₂ ∘→ inv-[conv↓]-ne A-ne)
       (inj₂ (¬-B-ne , _)) →
@@ -943,9 +943,9 @@ mutual
     no (λ { ([↑]ₜ B₂ t‴ u‴ D₂ d₂ d‴ t<>u₂) →
         let B₂≡B₁ = whrDet* D₂ D₁
             t‴≡u′ = whrDet*Term d₂
-                      (PE.subst (_»_⊢_↘_∷_ _ _ _ _) (PE.sym B₂≡B₁) d)
+                      (PE.subst (_⊢_↘_∷_ _ _ _) (PE.sym B₂≡B₁) d)
             u‴≡u″ = whrDet*Term d‴
-                      (PE.subst (_»_⊢_↘_∷_ _ _ _ _) (PE.sym B₂≡B₁) d₁)
+                      (PE.subst (_⊢_↘_∷_ _ _ _) (PE.sym B₂≡B₁) d₁)
         in  ¬p (PE.subst₃ (λ x y z → _ » _ ⊢ x [conv↓] y ∷ z)
                           t‴≡u′ u‴≡u″ B₂≡B₁ t<>u₂)})
 
@@ -1000,7 +1000,7 @@ mutual
         (yes (_ , t~u)) →
           yes $
           Σʷ-ins ⊢t ([conv↓]∷→∷ u≡) $
-          PE.subst (_»_⊢_~_↓_ _ _ _ _)
+          PE.subst (_⊢_~_↓_ _ _ _)
             (uncurry Σ≡A (~↓→∷→Whnf×≡ t~u ⊢t) .proj₂ .proj₂) t~u
         (no ¬t~u) → no (¬t~u ∘→ [conv↓]∷Σʷ→~↓ t~)
     (inj₂ (_ , _ , _ , _ , PE.refl , _)) →
@@ -1032,7 +1032,7 @@ mutual
     case dec~↓ t~ (inv-[conv↓]∷-Empty u≡) of λ where
       (yes (_ , t~u)) →
         yes $ Empty-ins $
-        PE.subst (_»_⊢_~_↓_ _ _ _ _)
+        PE.subst (_⊢_~_↓_ _ _ _)
           (uncurry Empty≡A (~↓→∷→Whnf×≡ t~u (~↓→∷ t~))) t~u
       (no ¬t~u) → no (¬t~u ∘→ (_ ,_) ∘→ inv-[conv↓]∷-Empty)
   decConv↓Term (Unitʷ-ins no-η t~) u≡ =
@@ -1040,7 +1040,7 @@ mutual
       (inj₁ (_ , inj₁ u~)) → case dec~↓ t~ u~ of λ where
         (yes (_ , t~u)) →
           yes $ Unitʷ-ins no-η $
-          PE.subst (_»_⊢_~_↓_ _ _ _ _)
+          PE.subst (_⊢_~_↓_ _ _ _)
             (uncurry Unit≡A (~↓→∷→Whnf×≡ t~u (~↓→∷ t~))) t~u
         (no ¬t~u) →
           no λ t≡u →
@@ -1068,7 +1068,7 @@ mutual
     (inj₁ u~) → case dec~↓ t~ u~ of λ where
       (yes (A , t~u)) →
         yes $ ℕ-ins $
-        PE.subst (_»_⊢_~_↓_ _ _ _ _)
+        PE.subst (_⊢_~_↓_ _ _ _)
           (uncurry ℕ≡A (~↓→∷→Whnf×≡ t~u (~↓→∷ t~))) t~u
       (no ¬t~u) → no (¬t~u ∘→ (_ ,_) ∘→ [conv↓]∷ℕ→~↓ℕ t~)
     (inj₂ (inj₁ (PE.refl , _))) →
@@ -1120,7 +1120,7 @@ mutual
         (yes (_ , t~u)) →
           yes $
           Id-ins ⊢t $
-          PE.subst (_»_⊢_~_↓_ _ _ _ _)
+          PE.subst (_⊢_~_↓_ _ _ _)
             (uncurry Id≡Whnf (~↓→∷→Whnf×≡ t~u (~↓→∷ t~))
                .proj₂ .proj₂ .proj₂)
             t~u

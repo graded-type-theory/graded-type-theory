@@ -124,8 +124,8 @@ opaque
     OK (suc zero)                                              ≡⟨⟩⊢
 
     natcase OKᵍ 𝟘 (U 0) (Unitʷ 0)
-      (natcase 𝟘 𝟘 (U 0) (Unitʷ 0) Empty (var x0)) (suc zero)  ≡⟨ PE.subst (_»_⊢_≡_ _ _ _) natcase-[] $
-                                                                  _»_⊢_≡_.univ $
+      (natcase 𝟘 𝟘 (U 0) (Unitʷ 0) Empty (var x0)) (suc zero)  ≡⟨ PE.subst (_⊢_≡_ _ _) natcase-[] $
+                                                                  _⊢_≡_.univ $
                                                                   natcase-suc-≡ (Uⱼ (⊢Γ ∙[ ℕⱼ ])) (Unitⱼ ⊢Γ Unitʷ-ok)
                                                                     (⊢natcase (Uⱼ (⊢Γ ∙[ ℕⱼ ] ∙[ ℕⱼ ])) (Unitⱼ (⊢Γ ∙[ ℕⱼ ]) Unitʷ-ok)
                                                                        (Emptyⱼ (⊢Γ ∙[ ℕⱼ ] ∙[ ℕⱼ ])) (var₀ (ℕⱼ ⊢Γ)))
@@ -148,8 +148,8 @@ opaque
     OK (suc (suc t))                                              ≡⟨⟩⊢
 
     natcase OKᵍ 𝟘 (U 0) (Unitʷ 0)
-      (natcase 𝟘 𝟘 (U 0) (Unitʷ 0) Empty (var x0)) (suc (suc t))  ≡⟨ PE.subst (_»_⊢_≡_ _ _ _) natcase-[] $
-                                                                     _»_⊢_≡_.univ $
+      (natcase 𝟘 𝟘 (U 0) (Unitʷ 0) Empty (var x0)) (suc (suc t))  ≡⟨ PE.subst (_⊢_≡_ _ _) natcase-[] $
+                                                                     _⊢_≡_.univ $
                                                                      natcase-suc-≡ (Uⱼ (∙ ⊢ℕ₁)) (Unitⱼ ⊢Γ Unitʷ-ok)
                                                                        (⊢natcase (Uⱼ (∙ ⊢ℕ₂)) (Unitⱼ (∙ ⊢ℕ₁) Unitʷ-ok)
                                                                           (Emptyⱼ (∙ ⊢ℕ₂)) (var₀ ⊢ℕ₁))

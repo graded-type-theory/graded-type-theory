@@ -61,15 +61,15 @@ mutual
     let k₁Whnf = naturalWhnf (proj₁ (split prop₁))
         k′Whnf = naturalWhnf (proj₂ (split prop))
         k₁≡k′ = whrDet*Term (d₁ , k₁Whnf) (d′ , k′Whnf)
-        prop′ = PE.subst (λ x → [Natural]-prop _ _ x _) k₁≡k′ prop₁
+        prop′ = PE.subst (λ x → [Natural]-prop _ x _) k₁≡k′ prop₁
     in  ℕₜ₌ k k″ d d″
           (≅ₜ-trans t≡u (PE.subst (λ x → _ » _ ⊢ x ≅ _ ∷ _) k₁≡k′ t≡u₁))
           (transNatural-prop prop prop′)
 
   transNatural-prop : ∀ {k k′ k″}
-                    → [Natural]-prop ∇ Γ k k′
-                    → [Natural]-prop ∇ Γ k′ k″
-                    → [Natural]-prop ∇ Γ k k″
+                    → [Natural]-prop (∇ » Γ) k k′
+                    → [Natural]-prop (∇ » Γ) k′ k″
+                    → [Natural]-prop (∇ » Γ) k k″
   transNatural-prop (sucᵣ x) (sucᵣ x₁) = sucᵣ (transEqTermℕ x x₁)
   transNatural-prop (sucᵣ x) (ne (neNfₜ₌ () neM k≡m))
   transNatural-prop zeroᵣ prop₁ = prop₁
@@ -80,9 +80,9 @@ mutual
 
 -- Empty
 transEmpty-prop : ∀ {k k′ k″}
-  → [Empty]-prop ∇ Γ k k′
-  → [Empty]-prop ∇ Γ k′ k″
-  → [Empty]-prop ∇ Γ k k″
+  → [Empty]-prop (∇ » Γ) k k′
+  → [Empty]-prop (∇ » Γ) k′ k″
+  → [Empty]-prop (∇ » Γ) k k″
 transEmpty-prop (ne [k≡k′]) (ne [k′≡k″]) =
   ne (transEqTermNe [k≡k′] [k′≡k″])
 
@@ -95,15 +95,15 @@ transEqTermEmpty
   let k₁Whnf = ne-whnf (proj₁ (esplit prop₁))
       k′Whnf = ne-whnf (proj₂ (esplit prop))
       k₁≡k′ = whrDet*Term (d₁ , k₁Whnf) (d′ , k′Whnf)
-      prop′ = PE.subst (λ x → [Empty]-prop _ _ x _) k₁≡k′ prop₁
+      prop′ = PE.subst (λ x → [Empty]-prop _ x _) k₁≡k′ prop₁
   in Emptyₜ₌ k k″ d d″
        (≅ₜ-trans t≡u (PE.subst (λ x → _ » _ ⊢ x ≅ _ ∷ _) k₁≡k′ t≡u₁))
        (transEmpty-prop prop prop′)
 
 transUnit-prop : ∀ {k k′ k″}
-  → [Unitʷ]-prop ∇ Γ l k k′
-  → [Unitʷ]-prop ∇ Γ l k′ k″
-  → [Unitʷ]-prop ∇ Γ l k k″
+  → [Unitʷ]-prop (∇ » Γ) l k k′
+  → [Unitʷ]-prop (∇ » Γ) l k′ k″
+  → [Unitʷ]-prop (∇ » Γ) l k k″
 transUnit-prop starᵣ eq = eq
 transUnit-prop (ne (neNfₜ₌ _ () _)) starᵣ
 transUnit-prop (ne [k≡k′]) (ne [k′≡k″]) = ne (transEqTermNe [k≡k′] [k′≡k″])
@@ -119,7 +119,7 @@ transEqTermUnit
       whK′ = proj₂ (usplit prop)
       k″≡k′ = whrDet*Term (d″ , whK″) (d′ , whK′)
       k′≡k‴ = PE.subst (λ x → _ » _ ⊢ x ≅ _ ∷ _) k″≡k′ k″≡k‴
-      prop″ = PE.subst (λ x → [Unitʷ]-prop _ _ _ x _) k″≡k′ prop′
+      prop″ = PE.subst (λ x → [Unitʷ]-prop _ _ x _) k″≡k′ prop′
   in  Unitₜ₌ʷ k k‴ d d‴ (≅ₜ-trans k≡k′ k′≡k‴)
         (transUnit-prop prop prop″) ok
 transEqTermUnit (Unitₜ₌ˢ _ _ (inj₂ ok)) (Unitₜ₌ʷ _ _ _ _ _ _ not-ok) =
@@ -168,7 +168,7 @@ transEqTerm : {m n : Nat} → ∀ {∇ : DCon (Term 0) m} {Γ : Con Term n} {l A
 -- A variant of the constructor Id₌.
 Id₌′ :
   {⊩A : ∇ » Γ ⊩′⟨ l ⟩Id A} →
-  let open _»_⊩ₗId_ ⊩A in
+  let open _⊩ₗId_ ⊩A in
   ∇ » Γ ⊢ B ⇒* Id Ty′ lhs′ rhs′ →
   ∇ » Γ ⊩⟨ l ⟩ Ty ≡ Ty′ / ⊩Ty →
   ∇ » Γ ⊩⟨ l ⟩ lhs ≡ lhs′ ∷ Ty / ⊩Ty →
@@ -188,7 +188,7 @@ Id₌′ {⊩A = ⊩A} ⇒*Id′ Ty≡Ty′ lhs≡lhs′ rhs≡rhs′ = record
       symEqTerm ⊩Ty rhs≡rhs′
   }
   where
-  open _»_⊩ₗId_ ⊩A
+  open _⊩ₗId_ ⊩A
 
 transEqT (ℕᵥ D D′ D″) A≡B B≡C = B≡C
 transEqT (Emptyᵥ D D′ D″) A≡B B≡C = B≡C
@@ -226,36 +226,36 @@ transEqT (Uᵥ (Uᵣ l′ l< ⇒*U) (Uᵣ l′₁ l<₁ ⇒*U₁) (Uᵣ l′₂ 
   rewrite whrDet* (⇒*U₁ , Uₙ) (D , Uₙ)  | whrDet* (⇒*U₂ , Uₙ) (D₁ , Uₙ) =
   D₁
 transEqT (Idᵥ ⊩A ⊩B@record{} ⊩C@record{}) A≡B B≡C =
-  case whrDet* (_»_⊩ₗId_.⇒*Id ⊩B , Idₙ)
-         (_»_⊩ₗId_≡_/_.⇒*Id′ A≡B , Idₙ) of λ {
+  case whrDet* (_⊩ₗId_.⇒*Id ⊩B , Idₙ)
+         (_⊩ₗId_≡_/_.⇒*Id′ A≡B , Idₙ) of λ {
     PE.refl →
-  case whrDet* (_»_⊩ₗId_.⇒*Id ⊩C , Idₙ)
-         (_»_⊩ₗId_≡_/_.⇒*Id′ B≡C , Idₙ) of λ {
+  case whrDet* (_⊩ₗId_.⇒*Id ⊩C , Idₙ)
+         (_⊩ₗId_≡_/_.⇒*Id′ B≡C , Idₙ) of λ {
     PE.refl →
   Id₌′
-    (_»_⊩ₗId_≡_/_.⇒*Id′ B≡C)
+    (_⊩ₗId_≡_/_.⇒*Id′ B≡C)
     (transEq
-       (_»_⊩ₗId_.⊩Ty ⊩A)
-       (_»_⊩ₗId_.⊩Ty ⊩B)
-       (_»_⊩ₗId_.⊩Ty ⊩C)
-       (_»_⊩ₗId_≡_/_.Ty≡Ty′ A≡B)
-       (_»_⊩ₗId_≡_/_.Ty≡Ty′ B≡C))
+       (_⊩ₗId_.⊩Ty ⊩A)
+       (_⊩ₗId_.⊩Ty ⊩B)
+       (_⊩ₗId_.⊩Ty ⊩C)
+       (_⊩ₗId_≡_/_.Ty≡Ty′ A≡B)
+       (_⊩ₗId_≡_/_.Ty≡Ty′ B≡C))
     (transEqTerm
-       (_»_⊩ₗId_.⊩Ty ⊩A)
-       (_»_⊩ₗId_≡_/_.lhs≡lhs′ A≡B) $
+       (_⊩ₗId_.⊩Ty ⊩A)
+       (_⊩ₗId_≡_/_.lhs≡lhs′ A≡B) $
      convEqTerm₂
-       (_»_⊩ₗId_.⊩Ty ⊩A)
-       (_»_⊩ₗId_.⊩Ty ⊩B)
-       (_»_⊩ₗId_≡_/_.Ty≡Ty′ A≡B)
-       (_»_⊩ₗId_≡_/_.lhs≡lhs′ B≡C))
+       (_⊩ₗId_.⊩Ty ⊩A)
+       (_⊩ₗId_.⊩Ty ⊩B)
+       (_⊩ₗId_≡_/_.Ty≡Ty′ A≡B)
+       (_⊩ₗId_≡_/_.lhs≡lhs′ B≡C))
     (transEqTerm
-       (_»_⊩ₗId_.⊩Ty ⊩A)
-       (_»_⊩ₗId_≡_/_.rhs≡rhs′ A≡B) $
+       (_⊩ₗId_.⊩Ty ⊩A)
+       (_⊩ₗId_≡_/_.rhs≡rhs′ A≡B) $
      convEqTerm₂
-       (_»_⊩ₗId_.⊩Ty ⊩A)
-       (_»_⊩ₗId_.⊩Ty ⊩B)
-       (_»_⊩ₗId_≡_/_.Ty≡Ty′ A≡B)
-       (_»_⊩ₗId_≡_/_.rhs≡rhs′ B≡C)) }}
+       (_⊩ₗId_.⊩Ty ⊩A)
+       (_⊩ₗId_.⊩Ty ⊩B)
+       (_⊩ₗId_≡_/_.Ty≡Ty′ A≡B)
+       (_⊩ₗId_≡_/_.rhs≡rhs′ B≡C)) }}
 transEqT (embᵥ₁ ≤ᵘ-refl     A≡B≡C) = transEqT          A≡B≡C
 transEqT (embᵥ₁ (≤ᵘ-step p) A≡B≡C) = transEqT (embᵥ₁ p A≡B≡C)
 transEqT (embᵥ₂ ≤ᵘ-refl     A≡B≡C) = transEqT          A≡B≡C

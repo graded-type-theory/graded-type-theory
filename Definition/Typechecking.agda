@@ -35,117 +35,123 @@ private
 
 mutual
 
-  data _»_⊢_⇇Type (∇ : DCon (Term 0) m) (Γ : Con Term n) : (A : Term n) → Set a where
-    Uᶜ : ∇ » Γ ⊢ U l ⇇Type
-    ℕᶜ : ∇ » Γ ⊢ ℕ ⇇Type
-    Unitᶜ : Unit-allowed s
-          → ∇ » Γ ⊢ Unit s l ⇇Type
-    Emptyᶜ : ∇ » Γ ⊢ Empty ⇇Type
-    ΠΣᶜ : ∇ » Γ ⊢ F ⇇Type
-       → ∇ » Γ ∙ F ⊢ G ⇇Type
-       → ΠΣ-allowed b p q
-       → ∇ » Γ ⊢ ΠΣ⟨ b ⟩ p , q ▷ F ▹ G ⇇Type
-    Idᶜ : ∇ » Γ ⊢ A ⇇Type
-        → ∇ » Γ ⊢ t ⇇ A
-        → ∇ » Γ ⊢ u ⇇ A
-        → ∇ » Γ ⊢ Id A t u ⇇Type
-    univᶜ : ∇ » Γ ⊢ A ⇉ B
-          → ∇ » Γ ⊢ B ↘ U l
-          → ∇ » Γ ⊢ A ⇇Type
+  infix 4 _⊢_⇇Type
 
-  data _»_⊢_⇉_ (∇ : DCon (Term 0) m) (Γ : Con Term n) : (t A : Term n) → Set a where
-    Uᵢ : ∇ » Γ ⊢ U l ⇉ U (1+ l)
-    ΠΣᵢ : ∇ » Γ ⊢ A ⇉ C₁
-        → ∇ » Γ ⊢ C₁ ↘ U l₁
-        → ∇ » Γ ∙ A ⊢ B ⇉ C₂
-        → ∇ » Γ ∙ A ⊢ C₂ ↘ U l₂
+  data _⊢_⇇Type (Γ : Cons m n) : Term n → Set a where
+    Uᶜ : Γ ⊢ U l ⇇Type
+    ℕᶜ : Γ ⊢ ℕ ⇇Type
+    Unitᶜ : Unit-allowed s
+          → Γ ⊢ Unit s l ⇇Type
+    Emptyᶜ : Γ ⊢ Empty ⇇Type
+    ΠΣᶜ : Γ ⊢ F ⇇Type
+       → Γ »∙ F ⊢ G ⇇Type
+       → ΠΣ-allowed b p q
+       → Γ ⊢ ΠΣ⟨ b ⟩ p , q ▷ F ▹ G ⇇Type
+    Idᶜ : Γ ⊢ A ⇇Type
+        → Γ ⊢ t ⇇ A
+        → Γ ⊢ u ⇇ A
+        → Γ ⊢ Id A t u ⇇Type
+    univᶜ : Γ ⊢ A ⇉ B
+          → Γ ⊢ B ↘ U l
+          → Γ ⊢ A ⇇Type
+
+  infix 4 _⊢_⇉_
+
+  data _⊢_⇉_ (Γ : Cons m n) : (_ _ : Term n) → Set a where
+    Uᵢ : Γ ⊢ U l ⇉ U (1+ l)
+    ΠΣᵢ : Γ ⊢ A ⇉ C₁
+        → Γ ⊢ C₁ ↘ U l₁
+        → Γ »∙ A ⊢ B ⇉ C₂
+        → Γ »∙ A ⊢ C₂ ↘ U l₂
         → ΠΣ-allowed b p q
-        → ∇ » Γ ⊢ ΠΣ⟨ b ⟩ p , q ▷ A ▹ B ⇉ U (l₁ ⊔ᵘ l₂)
+        → Γ ⊢ ΠΣ⟨ b ⟩ p , q ▷ A ▹ B ⇉ U (l₁ ⊔ᵘ l₂)
     varᵢ : ∀ {x}
-         → x ∷ A ∈ Γ
-         → ∇ » Γ ⊢ var x ⇉ A
-    defnᵢ : α ↦∷ A ∈ ∇
-          → ∇ » Γ ⊢ defn α ⇉ wk wk₀ A
-    appᵢ : ∇ » Γ ⊢ t ⇉ A
-         → ∇ » Γ ⊢ A ↘ Π p , q ▷ F ▹ G
-         → ∇ » Γ ⊢ u ⇇ F
-         → ∇ » Γ ⊢ t ∘⟨ p ⟩ u ⇉ G [ u ]₀
-    fstᵢ : ∇ » Γ ⊢ t ⇉ A
-         → ∇ » Γ ⊢ A ↘ Σˢ p , q ▷ F ▹ G
-         → ∇ » Γ ⊢ fst p t ⇉ F
-    sndᵢ : ∇ » Γ ⊢ t ⇉ A
-         → ∇ » Γ ⊢ A ↘ Σˢ p , q ▷ F ▹ G
-         → ∇ » Γ ⊢ snd p t ⇉ G [ fst p t ]₀
-    prodrecᵢ : ∇ » Γ ∙ (Σʷ p , q ▷ F ▹ G) ⊢ A ⇇Type
-             → ∇ » Γ ⊢ t ⇉ B
-             → ∇ » Γ ⊢ B ↘ Σʷ p , q ▷ F ▹ G
-             → ∇ » Γ ∙ F ∙ G ⊢ u ⇇ (A [ prodʷ p (var x1) (var x0) ]↑²)
-             → ∇ » Γ ⊢ prodrec r p q′ A t u ⇉ A [ t ]₀
-    ℕᵢ : ∇ » Γ ⊢ ℕ ⇉ U 0
-    zeroᵢ : ∇ » Γ ⊢ zero ⇉ ℕ
-    sucᵢ : ∇ » Γ ⊢ t ⇇ ℕ
-         → ∇ » Γ ⊢ suc t ⇉ ℕ
+         → x ∷ A ∈ Γ .vars
+         → Γ ⊢ var x ⇉ A
+    defnᵢ : α ↦∷ A ∈ Γ .defs
+          → Γ ⊢ defn α ⇉ wk wk₀ A
+    appᵢ : Γ ⊢ t ⇉ A
+         → Γ ⊢ A ↘ Π p , q ▷ F ▹ G
+         → Γ ⊢ u ⇇ F
+         → Γ ⊢ t ∘⟨ p ⟩ u ⇉ G [ u ]₀
+    fstᵢ : Γ ⊢ t ⇉ A
+         → Γ ⊢ A ↘ Σˢ p , q ▷ F ▹ G
+         → Γ ⊢ fst p t ⇉ F
+    sndᵢ : Γ ⊢ t ⇉ A
+         → Γ ⊢ A ↘ Σˢ p , q ▷ F ▹ G
+         → Γ ⊢ snd p t ⇉ G [ fst p t ]₀
+    prodrecᵢ : Γ »∙ (Σʷ p , q ▷ F ▹ G) ⊢ A ⇇Type
+             → Γ ⊢ t ⇉ B
+             → Γ ⊢ B ↘ Σʷ p , q ▷ F ▹ G
+             → Γ »∙ F »∙ G ⊢ u ⇇ (A [ prodʷ p (var x1) (var x0) ]↑²)
+             → Γ ⊢ prodrec r p q′ A t u ⇉ A [ t ]₀
+    ℕᵢ : Γ ⊢ ℕ ⇉ U 0
+    zeroᵢ : Γ ⊢ zero ⇉ ℕ
+    sucᵢ : Γ ⊢ t ⇇ ℕ
+         → Γ ⊢ suc t ⇉ ℕ
     natrecᵢ : ∀ {z s n}
-            → ∇ » Γ ∙ ℕ ⊢ A ⇇Type
-            → ∇ » Γ ⊢ z ⇇ A [ zero ]₀
-            → ∇ » Γ ∙ ℕ ∙ A ⊢ s ⇇ A [ suc (var x1) ]↑²
-            → ∇ » Γ ⊢ n ⇇ ℕ
-            → ∇ » Γ ⊢ natrec p q r A z s n ⇉ A [ n ]₀
+            → Γ »∙ ℕ ⊢ A ⇇Type
+            → Γ ⊢ z ⇇ A [ zero ]₀
+            → Γ »∙ ℕ »∙ A ⊢ s ⇇ A [ suc (var x1) ]↑²
+            → Γ ⊢ n ⇇ ℕ
+            → Γ ⊢ natrec p q r A z s n ⇉ A [ n ]₀
     Unitᵢ : Unit-allowed s
-          → ∇ » Γ ⊢ Unit s l ⇉ U l
+          → Γ ⊢ Unit s l ⇉ U l
     starᵢ : Unit-allowed s
-          → ∇ » Γ ⊢ star s l ⇉ Unit s l
-    unitrecᵢ : ∇ » Γ ∙ Unitʷ l ⊢ A ⇇Type
-             → ∇ » Γ ⊢ t ⇇ Unitʷ l
-             → ∇ » Γ ⊢ u ⇇ A [ starʷ l ]₀
-             → ∇ » Γ ⊢ unitrec l p q A t u ⇉ A [ t ]₀
-    Emptyᵢ : ∇ » Γ ⊢ Empty ⇉ U 0
-    emptyrecᵢ : ∇ » Γ ⊢ A ⇇Type
-              → ∇ » Γ ⊢ t ⇇ Empty
-              → ∇ » Γ ⊢ emptyrec p A t ⇉ A
-    Idᵢ : ∇ » Γ ⊢ A ⇉ B
-        → ∇ » Γ ⊢ B ↘ U l
-        → ∇ » Γ ⊢ t ⇇ A
-        → ∇ » Γ ⊢ u ⇇ A
-        → ∇ » Γ ⊢ Id A t u ⇉ U l
-    Jᵢ : ∇ » Γ ⊢ A ⇇Type
-       → ∇ » Γ ⊢ t ⇇ A
-       → ∇ » Γ ∙ A ∙ Id (wk1 A) (wk1 t) (var x0) ⊢ B ⇇Type
-       → ∇ » Γ ⊢ u ⇇ B [ t , rfl ]₁₀
-       → ∇ » Γ ⊢ v ⇇ A
-       → ∇ » Γ ⊢ w ⇇ Id A t v
-       → ∇ » Γ ⊢ J p q A t B u v w ⇉ B [ v , w ]₁₀
-    Kᵢ : ∇ » Γ ⊢ A ⇇Type
-       → ∇ » Γ ⊢ t ⇇ A
-       → ∇ » Γ ∙ Id A t t ⊢ B ⇇Type
-       → ∇ » Γ ⊢ u ⇇ B [ rfl ]₀
-       → ∇ » Γ ⊢ v ⇇ Id A t t
+          → Γ ⊢ star s l ⇉ Unit s l
+    unitrecᵢ : Γ »∙ Unitʷ l ⊢ A ⇇Type
+             → Γ ⊢ t ⇇ Unitʷ l
+             → Γ ⊢ u ⇇ A [ starʷ l ]₀
+             → Γ ⊢ unitrec l p q A t u ⇉ A [ t ]₀
+    Emptyᵢ : Γ ⊢ Empty ⇉ U 0
+    emptyrecᵢ : Γ ⊢ A ⇇Type
+              → Γ ⊢ t ⇇ Empty
+              → Γ ⊢ emptyrec p A t ⇉ A
+    Idᵢ : Γ ⊢ A ⇉ B
+        → Γ ⊢ B ↘ U l
+        → Γ ⊢ t ⇇ A
+        → Γ ⊢ u ⇇ A
+        → Γ ⊢ Id A t u ⇉ U l
+    Jᵢ : Γ ⊢ A ⇇Type
+       → Γ ⊢ t ⇇ A
+       → Γ »∙ A »∙ Id (wk1 A) (wk1 t) (var x0) ⊢ B ⇇Type
+       → Γ ⊢ u ⇇ B [ t , rfl ]₁₀
+       → Γ ⊢ v ⇇ A
+       → Γ ⊢ w ⇇ Id A t v
+       → Γ ⊢ J p q A t B u v w ⇉ B [ v , w ]₁₀
+    Kᵢ : Γ ⊢ A ⇇Type
+       → Γ ⊢ t ⇇ A
+       → Γ »∙ Id A t t ⊢ B ⇇Type
+       → Γ ⊢ u ⇇ B [ rfl ]₀
+       → Γ ⊢ v ⇇ Id A t t
        → K-allowed
-       → ∇ » Γ ⊢ K p A t B u v ⇉ B [ v ]₀
-    []-congᵢ : ∇ » Γ ⊢ A ⇇Type
-             → ∇ » Γ ⊢ t ⇇ A
-             → ∇ » Γ ⊢ u ⇇ A
-             → ∇ » Γ ⊢ v ⇇ Id A t u
+       → Γ ⊢ K p A t B u v ⇉ B [ v ]₀
+    []-congᵢ : Γ ⊢ A ⇇Type
+             → Γ ⊢ t ⇇ A
+             → Γ ⊢ u ⇇ A
+             → Γ ⊢ v ⇇ Id A t u
              → []-cong-allowed s
              → let open Erased s in
-               ∇ » Γ ⊢ []-cong s A t u v ⇉
+               Γ ⊢ []-cong s A t u v ⇉
                  Id (Erased A) ([ t ]) ([ u ])
 
-  data _»_⊢_⇇_ (∇ : DCon (Term 0) m) (Γ : Con Term n) : (t A : Term n) → Set a where
-    lamᶜ : ∇ » Γ ⊢ A ↘ Π p , q ▷ F ▹ G
-         → ∇ » Γ ∙ F ⊢ t ⇇ G
-         → ∇ » Γ ⊢ lam p t ⇇ A
+  infix 4 _⊢_⇇_
+
+  data _⊢_⇇_ (Γ : Cons m n) : (_ _ : Term n) → Set a where
+    lamᶜ : Γ ⊢ A ↘ Π p , q ▷ F ▹ G
+         → Γ »∙ F ⊢ t ⇇ G
+         → Γ ⊢ lam p t ⇇ A
     prodᶜ : ∀ {m}
-          → ∇ » Γ ⊢ A ↘ Σ⟨ m ⟩ p , q ▷ F ▹ G
-          → ∇ » Γ ⊢ t ⇇ F
-          → ∇ » Γ ⊢ u ⇇ G [ t ]₀
-          → ∇ » Γ ⊢ prod m p t u ⇇ A
-    rflᶜ : ∇ » Γ ⊢ A ↘ Id B t u
-         → ∇ » Γ ⊢ t ≡ u ∷ B
-         → ∇ » Γ ⊢ rfl ⇇ A
-    infᶜ : ∇ » Γ ⊢ t ⇉ A
-         → ∇ » Γ ⊢ A ≡ B
-         → ∇ » Γ ⊢ t ⇇ B
+          → Γ ⊢ A ↘ Σ⟨ m ⟩ p , q ▷ F ▹ G
+          → Γ ⊢ t ⇇ F
+          → Γ ⊢ u ⇇ G [ t ]₀
+          → Γ ⊢ prod m p t u ⇇ A
+    rflᶜ : Γ ⊢ A ↘ Id B t u
+         → Γ ⊢ t ≡ u ∷ B
+         → Γ ⊢ rfl ⇇ A
+    infᶜ : Γ ⊢ t ⇉ A
+         → Γ ⊢ A ≡ B
+         → Γ ⊢ t ⇇ B
 
 mutual
 

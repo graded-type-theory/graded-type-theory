@@ -47,16 +47,16 @@ private
     l l₁ l₂ : Universe-level
 
 opaque
-  unfolding _»_⊩⟨_⟩_≡_
+  unfolding _⊩⟨_⟩_≡_
 
   A≢B :
     ⦃ ok : No-equality-reflection or-empty Γ ⦄
-    (_»_⊩′⟨_⟩A_ _»_⊩′⟨_⟩B_ : DCon (Term 0) m → Con Term n → Universe-level → Term n → Set a)
-    (A-intr : ∀ {l} → ∇ » Γ ⊩′⟨ l ⟩A A → ∇ » Γ ⊩⟨ l ⟩ A)
-    (B-intr : ∀ {l} → ∇ » Γ ⊩′⟨ l ⟩B B → ∇ » Γ ⊩⟨ l ⟩ B) →
-    (∀ {l} → ∇ » Γ ⊩⟨ l ⟩ A → ∃ λ l′ → ∇ » Γ ⊩′⟨ l′ ⟩A A) →
-    (∀ {l} → ∇ » Γ ⊩⟨ l ⟩ B → ∃ λ l′ → ∇ » Γ ⊩′⟨ l′ ⟩B B) →
-    (∀ {l₁ l₂} {⊩A : ∇ » Γ ⊩′⟨ l₁ ⟩A A} {⊩B : ∇ » Γ ⊩′⟨ l₂ ⟩B B} →
+    (_⊩′⟨_⟩A_ _⊩′⟨_⟩B_ : Cons m n → Universe-level → Term n → Set a)
+    (A-intr : ∀ {l} → (∇ » Γ) ⊩′⟨ l ⟩A A → ∇ » Γ ⊩⟨ l ⟩ A)
+    (B-intr : ∀ {l} → (∇ » Γ) ⊩′⟨ l ⟩B B → ∇ » Γ ⊩⟨ l ⟩ B) →
+    (∀ {l} → ∇ » Γ ⊩⟨ l ⟩ A → ∃ λ l′ → (∇ » Γ) ⊩′⟨ l′ ⟩A A) →
+    (∀ {l} → ∇ » Γ ⊩⟨ l ⟩ B → ∃ λ l′ → (∇ » Γ) ⊩′⟨ l′ ⟩B B) →
+    (∀ {l₁ l₂} {⊩A : (∇ » Γ) ⊩′⟨ l₁ ⟩A A} {⊩B : (∇ » Γ) ⊩′⟨ l₂ ⟩B B} →
      ¬ ShapeView ∇ Γ l₁ l₂ A B (A-intr ⊩A) (B-intr ⊩B)) →
     ¬ ∇ » Γ ⊢ A ≡ B
   A≢B _ _ A-intr B-intr A-elim B-elim A≢B′ A≡B =
@@ -76,7 +76,7 @@ opaque
     ⦃ ok : No-equality-reflection or-empty Γ ⦄ →
     ¬ ∇ » Γ ⊢ U l ≡ ℕ
   U≢ℕ =
-    A≢B _»_⊩′⟨_⟩U_ (λ ∇ Γ _ A → ∇ » Γ ⊩ℕ A) Uᵣ ℕᵣ
+    A≢B _⊩′⟨_⟩U_ (λ Γ _ A → Γ ⊩ℕ A) Uᵣ ℕᵣ
       (extractMaybeEmb ∘→ U-elim)
       (extractMaybeEmb ∘→ ℕ-elim)
       (λ ())
@@ -90,7 +90,7 @@ opaque
     ⦃ ok : No-equality-reflection or-empty Γ ⦄ →
     ¬ ∇ » Γ ⊢ U l ≡ Empty
   U≢Emptyⱼ =
-    A≢B _»_⊩′⟨_⟩U_ (λ ∇ Γ _ A → ∇ » Γ ⊩Empty A) Uᵣ Emptyᵣ
+    A≢B _⊩′⟨_⟩U_ (λ Γ _ A → Γ ⊩Empty A) Uᵣ Emptyᵣ
       (extractMaybeEmb ∘→ U-elim)
       (extractMaybeEmb ∘→ Empty-elim)
       (λ ())
@@ -104,7 +104,7 @@ opaque
     ⦃ ok : No-equality-reflection or-empty Γ ⦄ →
     ¬ ∇ » Γ ⊢ U l₁ ≡ Unit s l₂
   U≢Unitⱼ {s} =
-    A≢B _»_⊩′⟨_⟩U_ _»_⊩Unit⟨_, s ⟩_ Uᵣ Unitᵣ
+    A≢B _⊩′⟨_⟩U_ _⊩Unit⟨_, s ⟩_ Uᵣ Unitᵣ
       (extractMaybeEmb ∘→ U-elim)
       (extractMaybeEmb ∘→ Unit-elim)
       (λ ())
@@ -118,7 +118,7 @@ opaque
     ⦃ ok : No-equality-reflection or-empty Γ ⦄ →
     ¬ ∇ » Γ ⊢ ℕ ≡ Empty
   ℕ≢Emptyⱼ =
-    A≢B (λ ∇ Γ _ A → ∇ » Γ ⊩ℕ A) (λ ∇ Γ _ A → ∇ » Γ ⊩Empty A) ℕᵣ Emptyᵣ
+    A≢B (λ Γ _ A → Γ ⊩ℕ A) (λ Γ _ A → Γ ⊩Empty A) ℕᵣ Emptyᵣ
       (extractMaybeEmb ∘→ ℕ-elim)
       (extractMaybeEmb ∘→ Empty-elim)
       (λ ())
@@ -150,7 +150,7 @@ opaque
     ⦃ ok : No-equality-reflection or-empty Γ ⦄ →
     ¬ ∇ » Γ ⊢ ℕ ≡ Unit s l
   ℕ≢Unitⱼ {s} =
-    A≢B (λ ∇ Γ _ A → ∇ » Γ ⊩ℕ A) _»_⊩Unit⟨_, s ⟩_ ℕᵣ Unitᵣ
+    A≢B (λ Γ _ A → Γ ⊩ℕ A) _⊩Unit⟨_, s ⟩_ ℕᵣ Unitᵣ
       (extractMaybeEmb ∘→ ℕ-elim)
       (extractMaybeEmb ∘→ Unit-elim)
       (λ ())
@@ -164,7 +164,7 @@ opaque
     ⦃ ok : No-equality-reflection or-empty Γ ⦄ →
     ¬ ∇ » Γ ⊢ Empty ≡ Unit s l
   Empty≢Unitⱼ {s} =
-    A≢B (λ ∇ Γ _ A → ∇ » Γ ⊩Empty A) _»_⊩Unit⟨_, s ⟩_ Emptyᵣ Unitᵣ
+    A≢B (λ Γ _ A → Γ ⊩Empty A) _⊩Unit⟨_, s ⟩_ Emptyᵣ Unitᵣ
       (extractMaybeEmb ∘→ Empty-elim)
       (extractMaybeEmb ∘→ Unit-elim)
       (λ ())
@@ -179,7 +179,7 @@ opaque
     ¬ ∇ » Γ ⊢ U l ≡ ΠΣ⟨ b ⟩ p , q ▷ A ▹ B
   U≢ΠΣⱼ =
     let b = _ in
-    A≢B _»_⊩′⟨_⟩U_ _»_⊩′⟨_⟩B⟨ b ⟩_ Uᵣ (Bᵣ _)
+    A≢B _⊩′⟨_⟩U_ _⊩′⟨_⟩B⟨ b ⟩_ Uᵣ (Bᵣ _)
       (extractMaybeEmb ∘→ U-elim)
       (extractMaybeEmb ∘→ B-elim _)
       (λ ())
@@ -193,7 +193,7 @@ opaque
     ⦃ ok : No-equality-reflection or-empty Γ ⦄ →
     Neutral V ∇ A → ¬ ∇ » Γ ⊢ U l ≡ A
   U≢ne A-ne =
-    A≢B _»_⊩′⟨_⟩U_ (λ ∇ Γ _ A → ∇ » Γ ⊩ne A) Uᵣ ne
+    A≢B _⊩′⟨_⟩U_ (λ Γ _ A → Γ ⊩ne A) Uᵣ ne
       (extractMaybeEmb ∘→ U-elim)
       (extractMaybeEmb ∘→ ne-elim A-ne)
       (λ ())
@@ -208,7 +208,7 @@ opaque
     ¬ ∇ » Γ ⊢ ℕ ≡ ΠΣ⟨ b ⟩ p , q ▷ A ▹ B
   ℕ≢ΠΣⱼ =
     let b = _ in
-    A≢B (λ ∇ Γ _ A → ∇ » Γ ⊩ℕ A) _»_⊩′⟨_⟩B⟨ b ⟩_ ℕᵣ (Bᵣ _)
+    A≢B (λ Γ _ A → Γ ⊩ℕ A) _⊩′⟨_⟩B⟨ b ⟩_ ℕᵣ (Bᵣ _)
       (extractMaybeEmb ∘→ ℕ-elim)
       (extractMaybeEmb ∘→ B-elim _)
       (λ ())
@@ -223,7 +223,7 @@ opaque
     ¬ ∇ » Γ ⊢ Empty ≡ ΠΣ⟨ b ⟩ p , q ▷ A ▹ B
   Empty≢ΠΣⱼ =
     let b = _ in
-    A≢B (λ ∇ Γ _ A → ∇ » Γ ⊩Empty A) _»_⊩′⟨_⟩B⟨ b ⟩_ Emptyᵣ (Bᵣ _)
+    A≢B (λ Γ _ A → Γ ⊩Empty A) _⊩′⟨_⟩B⟨ b ⟩_ Emptyᵣ (Bᵣ _)
       (extractMaybeEmb ∘→ Empty-elim)
       (extractMaybeEmb ∘→ B-elim _)
       (λ ())
@@ -238,7 +238,7 @@ opaque
     ¬ ∇ » Γ ⊢ Unit s l ≡ ΠΣ⟨ b ⟩ p , q ▷ B ▹ C
   Unit≢ΠΣⱼ {s} =
     let b = _ in
-    A≢B _»_⊩Unit⟨_, s ⟩_ _»_⊩′⟨_⟩B⟨ b ⟩_ Unitᵣ (Bᵣ _)
+    A≢B _⊩Unit⟨_, s ⟩_ _⊩′⟨_⟩B⟨ b ⟩_ Unitᵣ (Bᵣ _)
       (extractMaybeEmb ∘→ Unit-elim)
       (extractMaybeEmb ∘→ B-elim _)
       (λ ())
@@ -252,7 +252,7 @@ opaque
     ⦃ ok : No-equality-reflection or-empty Γ ⦄ →
     Neutral V ∇ A → ¬ ∇ » Γ ⊢ ℕ ≡ A
   ℕ≢ne A-ne =
-    A≢B (λ ∇ Γ _ A → ∇ » Γ ⊩ℕ A) (λ ∇ Γ _ A → ∇ » Γ ⊩ne A) ℕᵣ ne
+    A≢B (λ Γ _ A → Γ ⊩ℕ A) (λ Γ _ A → Γ ⊩ne A) ℕᵣ ne
       (extractMaybeEmb ∘→ ℕ-elim)
       (extractMaybeEmb ∘→ ne-elim A-ne)
       (λ ())
@@ -266,7 +266,7 @@ opaque
     ⦃ ok : No-equality-reflection or-empty Γ ⦄ →
     Neutral V ∇ A → ¬ ∇ » Γ ⊢ Empty ≡ A
   Empty≢neⱼ A-ne =
-    A≢B (λ ∇ Γ _ A → ∇ » Γ ⊩Empty A) (λ ∇ Γ _ A → ∇ » Γ ⊩ne A) Emptyᵣ ne
+    A≢B (λ Γ _ A → Γ ⊩Empty A) (λ Γ _ A → Γ ⊩ne A) Emptyᵣ ne
       (extractMaybeEmb ∘→ Empty-elim)
       (extractMaybeEmb ∘→ ne-elim A-ne)
       (λ ())
@@ -280,7 +280,7 @@ opaque
     ⦃ ok : No-equality-reflection or-empty Γ ⦄ →
     Neutral V ∇ A → ¬ ∇ » Γ ⊢ Unit s l ≡ A
   Unit≢neⱼ {s} A-ne =
-    A≢B _»_⊩Unit⟨_, s ⟩_ (λ ∇ Γ _ A → ∇ » Γ ⊩ne A) Unitᵣ ne
+    A≢B _⊩Unit⟨_, s ⟩_ (λ Γ _ A → Γ ⊩ne A) Unitᵣ ne
       (extractMaybeEmb ∘→ Unit-elim)
       (extractMaybeEmb ∘→ ne-elim A-ne)
       (λ ())
@@ -295,7 +295,7 @@ opaque
     Neutral V ∇ C → ¬ ∇ » Γ ⊢ ΠΣ⟨ b ⟩ p , q ▷ A ▹ B ≡ C
   ΠΣ≢ne C-ne =
     let b = _ in
-    A≢B _»_⊩′⟨_⟩B⟨ b ⟩_ (λ ∇ Γ _ A → ∇ » Γ ⊩ne A) (Bᵣ _) ne
+    A≢B _⊩′⟨_⟩B⟨ b ⟩_ (λ Γ _ A → Γ ⊩ne A) (Bᵣ _) ne
       (extractMaybeEmb ∘→ B-elim _)
       (extractMaybeEmb ∘→ ne-elim C-ne)
       (λ ())
@@ -312,7 +312,7 @@ opaque
     let b₁ = _
         b₂ = _
     in
-    A≢B _»_⊩′⟨_⟩B⟨ b₁ ⟩_ _»_⊩′⟨_⟩B⟨ b₂ ⟩_ (Bᵣ _) (Bᵣ _)
+    A≢B _⊩′⟨_⟩B⟨ b₁ ⟩_ _⊩′⟨_⟩B⟨ b₂ ⟩_ (Bᵣ _) (Bᵣ _)
       (extractMaybeEmb ∘→ B-elim _)
       (extractMaybeEmb ∘→ B-elim _)
       (λ ())
@@ -329,7 +329,7 @@ opaque
     let b₁ = _
         b₂ = _
     in
-    A≢B _»_⊩′⟨_⟩B⟨ b₁ ⟩_ _»_⊩′⟨_⟩B⟨ b₂ ⟩_ (Bᵣ _) (Bᵣ _)
+    A≢B _⊩′⟨_⟩B⟨ b₁ ⟩_ _⊩′⟨_⟩B⟨ b₂ ⟩_ (Bᵣ _) (Bᵣ _)
       (extractMaybeEmb ∘→ B-elim _)
       (extractMaybeEmb ∘→ B-elim _)
       (λ ())
@@ -343,7 +343,7 @@ opaque
     ⦃ ok : No-equality-reflection or-empty Γ ⦄ →
     ¬ ∇ » Γ ⊢ Unitʷ l₁ ≡ Unitˢ l₂
   Unitʷ≢Unitˢ =
-    A≢B _»_⊩Unit⟨_, 𝕨 ⟩_ _»_⊩Unit⟨_, 𝕤 ⟩_ Unitᵣ Unitᵣ
+    A≢B _⊩Unit⟨_, 𝕨 ⟩_ _⊩Unit⟨_, 𝕤 ⟩_ Unitᵣ Unitᵣ
       (extractMaybeEmb ∘→ Unit-elim)
       (extractMaybeEmb ∘→ Unit-elim)
       (λ ())
@@ -357,7 +357,7 @@ opaque
     ⦃ ok : No-equality-reflection or-empty Γ ⦄ →
     Neutral V ∇ B → ¬ ∇ » Γ ⊢ Id A t u ≡ B
   Id≢ne B-ne =
-    A≢B _»_⊩′⟨_⟩Id_ (λ ∇ Γ _ A → ∇ » Γ ⊩ne A) Idᵣ ne
+    A≢B _⊩′⟨_⟩Id_ (λ Γ _ A → Γ ⊩ne A) Idᵣ ne
       (extractMaybeEmb ∘→ Id-elim)
       (extractMaybeEmb ∘→ ne-elim B-ne)
       (λ ())
@@ -371,7 +371,7 @@ opaque
     ⦃ ok : No-equality-reflection or-empty Γ ⦄ →
     ¬ ∇ » Γ ⊢ Id A t u ≡ U l
   Id≢U =
-    A≢B _»_⊩′⟨_⟩Id_ _»_⊩′⟨_⟩U_ Idᵣ Uᵣ
+    A≢B _⊩′⟨_⟩Id_ _⊩′⟨_⟩U_ Idᵣ Uᵣ
       (extractMaybeEmb ∘→ Id-elim)
       (extractMaybeEmb ∘→ U-elim)
       (λ ())
@@ -385,7 +385,7 @@ opaque
     ⦃ ok : No-equality-reflection or-empty Γ ⦄ →
     ¬ ∇ » Γ ⊢ Id A t u ≡ ℕ
   Id≢ℕ =
-    A≢B _»_⊩′⟨_⟩Id_ (λ ∇ Γ _ A → ∇ » Γ ⊩ℕ A) Idᵣ ℕᵣ
+    A≢B _⊩′⟨_⟩Id_ (λ Γ _ A → Γ ⊩ℕ A) Idᵣ ℕᵣ
       (extractMaybeEmb ∘→ Id-elim)
       (extractMaybeEmb ∘→ ℕ-elim)
       (λ ())
@@ -399,7 +399,7 @@ opaque
     ⦃ ok : No-equality-reflection or-empty Γ ⦄ →
     ¬ ∇ » Γ ⊢ Id A t u ≡ Unit s l
   Id≢Unit {s} =
-    A≢B _»_⊩′⟨_⟩Id_ _»_⊩Unit⟨_, s ⟩_ Idᵣ Unitᵣ
+    A≢B _⊩′⟨_⟩Id_ _⊩Unit⟨_, s ⟩_ Idᵣ Unitᵣ
       (extractMaybeEmb ∘→ Id-elim)
       (extractMaybeEmb ∘→ Unit-elim)
       (λ ())
@@ -413,7 +413,7 @@ opaque
     ⦃ ok : No-equality-reflection or-empty Γ ⦄ →
     ¬ ∇ » Γ ⊢ Id A t u ≡ Empty
   Id≢Empty =
-    A≢B _»_⊩′⟨_⟩Id_ (λ ∇ Γ _ A → ∇ » Γ ⊩Empty A) Idᵣ Emptyᵣ
+    A≢B _⊩′⟨_⟩Id_ (λ Γ _ A → Γ ⊩Empty A) Idᵣ Emptyᵣ
       (extractMaybeEmb ∘→ Id-elim)
       (extractMaybeEmb ∘→ Empty-elim)
       (λ ())
@@ -428,7 +428,7 @@ opaque
     ¬ ∇ » Γ ⊢ Id A t u ≡ ΠΣ⟨ b ⟩ p , q ▷ B ▹ C
   Id≢ΠΣ =
     let b = _ in
-    A≢B _»_⊩′⟨_⟩Id_ _»_⊩′⟨_⟩B⟨ b ⟩_ Idᵣ (Bᵣ _)
+    A≢B _⊩′⟨_⟩Id_ _⊩′⟨_⟩B⟨ b ⟩_ Idᵣ (Bᵣ _)
       (extractMaybeEmb ∘→ Id-elim)
       (extractMaybeEmb ∘→ B-elim _)
       (λ ())

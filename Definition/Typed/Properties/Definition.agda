@@ -200,7 +200,10 @@ opaque mutual
   glassify-» : » ∇ → » glassify ∇
   glassify-» ε = ε
   glassify-» ∙ᵒ⟨ ok , φ↜ ⟩[ ⊢t ∷ ⊢A ] =
-    ∙ᵗ[ PE.subst (_» _ ⊢ _ ∷ _) (glassify-factor φ↜) (glassify-⊢∷ ⊢t) ]
+    ∙ᵗ[ PE.subst₃ _⊢_∷_
+          (PE.cong (_» _) (glassify-factor φ↜)) PE.refl PE.refl
+          (glassify-⊢∷ ⊢t)
+      ]
   glassify-» ∙ᵗ[ ⊢t ] = ∙ᵗ[ glassify-⊢∷ ⊢t ]
 
   glassify-⊢′ : ∇ »⊢ Γ → glassify ∇ »⊢ Γ

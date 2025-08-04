@@ -30,15 +30,13 @@ open import Tools.Sum using (inj₁; inj₂)
 
 private
   variable
-    m n : Nat
     l′ l : Universe-level
     A B t : Term _
-    ∇ : DCon (Term 0) m
-    Γ : Con Term n
+    Γ : Cons _ _
 
 reflNatural-prop : ∀ {n}
-                 → Natural-prop ∇ Γ n
-                 → [Natural]-prop ∇ Γ n n
+                 → Natural-prop Γ n
+                 → [Natural]-prop Γ n n
 reflNatural-prop (sucᵣ (ℕₜ n d t≡t prop)) =
   sucᵣ (ℕₜ₌ n n d d t≡t
             (reflNatural-prop prop))
@@ -46,31 +44,31 @@ reflNatural-prop zeroᵣ = zeroᵣ
 reflNatural-prop (ne (neNfₜ neK k≡k)) = ne (neNfₜ₌ neK neK k≡k)
 
 reflEmpty-prop : ∀ {n}
-                 → Empty-prop ∇ Γ n
-                 → [Empty]-prop ∇ Γ n n
+                 → Empty-prop Γ n
+                 → [Empty]-prop Γ n n
 reflEmpty-prop (ne (neNfₜ neK k≡k)) = ne (neNfₜ₌ neK neK k≡k)
 
 reflUnitʷ-prop : ∀ {t}
-               → Unit-prop ∇ Γ l 𝕨 t
-               → [Unitʷ]-prop ∇ Γ l t t
+               → Unit-prop Γ l 𝕨 t
+               → [Unitʷ]-prop Γ l t t
 reflUnitʷ-prop starᵣ = starᵣ
 reflUnitʷ-prop (ne (neNfₜ neK k≡k)) = ne (neNfₜ₌ neK neK k≡k)
 
 
 -- Reflexivity of reducible types.
-reflEq : ∀ {l A} ([A] : ∇ » Γ ⊩⟨ l ⟩ A) → ∇ » Γ ⊩⟨ l ⟩ A ≡ A / [A]
+reflEq : ∀ {l A} ([A] : Γ ⊩⟨ l ⟩ A) → Γ ⊩⟨ l ⟩ A ≡ A / [A]
 
 -- Reflexivity of reducible terms.
-reflEqTerm : ∀ {l A t} ([A] : ∇ » Γ ⊩⟨ l ⟩ A)
-           → ∇ » Γ ⊩⟨ l ⟩ t ∷ A / [A]
-           → ∇ » Γ ⊩⟨ l ⟩ t ≡ t ∷ A / [A]
+reflEqTerm : ∀ {l A t} ([A] : Γ ⊩⟨ l ⟩ A)
+           → Γ ⊩⟨ l ⟩ t ∷ A / [A]
+           → Γ ⊩⟨ l ⟩ t ≡ t ∷ A / [A]
 
 private
 
   -- A lemma used below.
 
   reflEq-⊩< :
-    (p : l′ <ᵘ l) (⊩A : ∇ » Γ ⊩<⟨ p ⟩ A) → ∇ » Γ ⊩⟨ l ⟩ A ≡ A / emb p ⊩A
+    (p : l′ <ᵘ l) (⊩A : Γ ⊩<⟨ p ⟩ A) → Γ ⊩⟨ l ⟩ A ≡ A / emb p ⊩A
   reflEq-⊩< ≤ᵘ-refl     = reflEq
   reflEq-⊩< (≤ᵘ-step p) = reflEq-⊩< p
 
@@ -92,7 +90,7 @@ reflEq (Idᵣ ⊩A) = record
   ; lhs′≡rhs′→lhs≡rhs = idᶠ
   }
   where
-  open _»_⊩ₗId_ ⊩A
+  open _⊩ₗId_ ⊩A
 reflEq (emb p [A]) = reflEq-⊩< p [A]
 
 reflEqTerm (Uᵣ′ _ p _) (Uₜ A d A-type A≅A ⊩A) =
@@ -136,7 +134,7 @@ reflEqTerm (Idᵣ _) ⊩t =
 reflEqTerm (emb p ⊩A) ⊩t = reflEqTerm-⊩< p ⊩A ⊩t
   where
   reflEqTerm-⊩< :
-    (p : l′ <ᵘ l) (⊩A : ∇ » Γ ⊩<⟨ p ⟩ A) →
-    ∇ » Γ ⊩⟨ l ⟩ t ∷ A / emb p ⊩A → ∇ » Γ ⊩⟨ l ⟩ t ≡ t ∷ A / emb p ⊩A
+    (p : l′ <ᵘ l) (⊩A : Γ ⊩<⟨ p ⟩ A) →
+    Γ ⊩⟨ l ⟩ t ∷ A / emb p ⊩A → Γ ⊩⟨ l ⟩ t ≡ t ∷ A / emb p ⊩A
   reflEqTerm-⊩< ≤ᵘ-refl     ⊩A = reflEqTerm ⊩A
   reflEqTerm-⊩< (≤ᵘ-step p) ⊩A = reflEqTerm-⊩< p ⊩A

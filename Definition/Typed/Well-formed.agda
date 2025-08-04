@@ -130,7 +130,7 @@ opaque mutual
     (Jⱼ _ ⊢B _ ⊢v ⊢w) →
       subst-⊢ ⊢B $
       →⊢ˢʷ∷∙ (⊢ˢʷ∷-sgSubst ⊢v) $
-      PE.subst (_»_⊢_∷_ _ _ _)
+      PE.subst (_⊢_∷_ _ _)
         (PE.sym $
          PE.cong₃ Id (wk1-sgSubst _ _) (wk1-sgSubst _ _) PE.refl)
         ⊢w
@@ -233,7 +233,7 @@ opaque mutual
     (Σ-β₂ ⊢B ⊢t₁ ⊢t₂ PE.refl ok) →
       let ⊢prod                = prodⱼ ⊢B ⊢t₁ ⊢t₂ ok
           [t]₀≡[fst[t,u]]₀     = ⊢ˢʷ≡∷-sgSubst ⊢t₁ (fstⱼ ⊢B ⊢prod)
-                                   (_»_⊢_≡_∷_.sym (⊢∙→⊢ (wf ⊢B)) $
+                                   (_⊢_≡_∷_.sym (⊢∙→⊢ (wf ⊢B)) $
                                     Σ-β₁ ⊢B ⊢t₁ ⊢t₂ PE.refl ok)
           _ , _ , ⊢[fst[t,u]]₀ = wf-⊢ˢʷ≡∷ [t]₀≡[fst[t,u]]₀
       in
@@ -271,8 +271,8 @@ opaque mutual
             →⊢ˢʷ∷∙ ⊢wk2-id $
             prodⱼ
               (subst-⊢ ⊢B (⊢ˢʷ∷-⇑ (subst-⊢ ⊢A ⊢wk2-id) ⊢wk2-id))
-              (PE.subst (_»_⊢_∷_ _ _ _) (wk[]≡[] 2) (var₁ ⊢B))
-              (PE.subst (_»_⊢_∷_ _ _ _)
+              (PE.subst (_⊢_∷_ _ _) (wk[]≡[] 2) (var₁ ⊢B))
+              (PE.subst (_⊢_∷_ _ _)
                  (PE.trans (PE.sym [1]↑²) $
                   PE.sym $ singleSubstComp _ _ B) $
                var₀ ⊢B)
@@ -282,7 +282,7 @@ opaque mutual
     (prodrec-β {A = C} ⊢C ⊢t ⊢u ⊢v PE.refl ok) →
       subst-⊢ ⊢C (⊢ˢʷ∷-sgSubst (prodⱼ (⊢∙→⊢ (wfTerm ⊢v)) ⊢t ⊢u ok)) ,
       prodrecⱼ ⊢C (prodⱼ (⊢∙→⊢ (wfTerm ⊢v)) ⊢t ⊢u ok) ⊢v ok ,
-      PE.subst (_»_⊢_∷_ _ _ _) ([1,0]↑²[,] C)
+      PE.subst (_⊢_∷_ _ _) ([1,0]↑²[,] C)
         (subst-⊢∷ ⊢v (→⊢ˢʷ∷∙ (⊢ˢʷ∷-sgSubst ⊢t) ⊢u))
     (emptyrec-cong A₁≡A₂ t₁≡t₂) →
       let ⊢A₁ , ⊢A₂     = wf-⊢≡ A₁≡A₂
@@ -343,7 +343,7 @@ opaque mutual
     (natrec-suc {A} ⊢t ⊢u ⊢v) →
       subst-⊢ (⊢∙→⊢ (wfTerm ⊢u)) (⊢ˢʷ∷-sgSubst (sucⱼ ⊢v)) ,
       natrecⱼ ⊢t ⊢u (sucⱼ ⊢v) ,
-      PE.subst (_»_⊢_∷_ _ _ _) (PE.sym $ substComp↑² A _)
+      PE.subst (_⊢_∷_ _ _) (PE.sym $ substComp↑² A _)
         (subst-⊢∷ ⊢u (→⊢ˢʷ∷∙ (⊢ˢʷ∷-sgSubst ⊢v) (natrecⱼ ⊢t ⊢u ⊢v)))
     (Id-cong A₁≡A₂ t₁≡t₂ u₁≡u₂) →
       let _ , ⊢A₁ , ⊢A₂ = wf-⊢≡∷ A₁≡A₂
@@ -363,25 +363,25 @@ opaque mutual
           _ , ⊢v₁ , ⊢v₂    = wf-⊢≡∷ v₁≡v₂
           _ , ⊢w₁ , ⊢w₂    = wf-⊢≡∷ w₁≡w₂
           A₁≡A₂′           = wkEq₁ ⊢A₂ A₁≡A₂
-          ⊢rfl             = PE.subst (_»_⊢_∷_ _ _ _)
+          ⊢rfl             = PE.subst (_⊢_∷_ _ _)
                                (PE.sym $
                                 PE.cong₃ Id (wk1-sgSubst _ _)
                                   (wk1-sgSubst _ _) PE.refl) $
                              rflⱼ ⊢t₁
           [v₁,w₁]≡[v₂,w₂]  = ⊢ˢʷ≡∷∙⇔ .proj₂
                                ( ⊢ˢʷ≡∷-sgSubst ⊢v₁ ⊢v₂ v₁≡v₂
-                               , PE.subst (_»_⊢_∷_ _ _ _)
+                               , PE.subst (_⊢_∷_ _ _)
                                    (PE.sym $
                                     PE.cong₃ Id (wk1-sgSubst _ _)
                                       (wk1-sgSubst _ _) PE.refl)
                                    ⊢w₁
-                               , PE.subst (_»_⊢_∷_ _ _ _)
+                               , PE.subst (_⊢_∷_ _ _)
                                    (PE.sym $
                                     PE.cong₃ Id (wk1-sgSubst _ _)
                                       (wk1-sgSubst _ _) PE.refl)
                                    (conv ⊢w₂ $
                                     Id-cong (refl ⊢A₁) (refl ⊢t₁) v₁≡v₂)
-                               , PE.subst (_»_⊢_≡_∷_ _ _ _ _)
+                               , PE.subst (_⊢_≡_∷_ _ _ _)
                                    (PE.sym $
                                     PE.cong₃ Id (wk1-sgSubst _ _)
                                       (wk1-sgSubst _ _) PE.refl)
@@ -406,7 +406,7 @@ opaque mutual
               ( ⊢ˢʷ≡∷-sgSubst ⊢t₁ ⊢t₂ t₁≡t₂
               , ⊢rfl
               , conv ⊢rfl
-                  (PE.subst₂ (_»_⊢_≡_ _ _)
+                  (PE.subst₂ (_⊢_≡_ _)
                      (PE.sym $
                       PE.cong₃ Id
                         (wk1-sgSubst _ _) (wk1-sgSubst _ _) PE.refl)
@@ -452,7 +452,7 @@ opaque mutual
       conv
         ([]-congⱼ ⊢A₂ (conv ⊢t₂ A₁≡A₂) (conv ⊢u₂ A₁≡A₂)
            (conv ⊢v₂ (Id-cong A₁≡A₂ t₁≡t₂ u₁≡u₂)) ok)
-        (_»_⊢_≡_.sym $
+        (_⊢_≡_.sym $
          Id-cong (Erased-cong ⊢A₁ A₁≡A₂) ([]-cong′ ⊢A₁ t₁≡t₂)
            ([]-cong′ ⊢A₁ u₁≡u₂))
     ([]-cong-β ⊢t PE.refl ok) →

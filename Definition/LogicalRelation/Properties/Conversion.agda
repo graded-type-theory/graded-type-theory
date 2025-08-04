@@ -155,7 +155,7 @@ mutual
     Uₜ A (conv* d (refl (wf-⊢≡∷ (≅ₜ-eq A≡A) .proj₁))) typeA A≡A
       (irrelevance-⊩< l<1 l<2 [t])
   convTermT₁ (Idᵥ ⊩A ⊩B@record{}) A≡B ⊩t@(_ , t⇒*u , _) =
-    case whrDet* (_»_⊩ₗId_.⇒*Id ⊩B , Idₙ) (⇒*Id′ , Idₙ) of λ {
+    case whrDet* (_⊩ₗId_.⇒*Id ⊩B , Idₙ) (⇒*Id′ , Idₙ) of λ {
       PE.refl →
     case Id≅Id A≡B of λ {
       Id≅Id′ →
@@ -165,10 +165,10 @@ mutual
          (ne u-n u~u)     → ne u-n , ~-conv u~u (≅-eq Id≅Id′)
          (rflᵣ lhs≡rhs)   →
              rflₙ
-           , convEqTerm₁ (_»_⊩ₗId_.⊩Ty ⊩A) (_»_⊩ₗId_.⊩Ty ⊩B) Ty≡Ty′
+           , convEqTerm₁ (_⊩ₗId_.⊩Ty ⊩A) (_⊩ₗId_.⊩Ty ⊩B) Ty≡Ty′
                (lhs≡rhs→lhs′≡rhs′ lhs≡rhs)) }}
     where
-    open _»_⊩ₗId_≡_/_ A≡B
+    open _⊩ₗId_≡_/_ A≡B
   convTermT₁ (embᵥ₁ ≤ᵘ-refl     A≡B) = convTermT₁          A≡B
   convTermT₁ (embᵥ₁ (≤ᵘ-step p) A≡B) = convTermT₁ (embᵥ₁ p A≡B)
   convTermT₁ (embᵥ₂ ≤ᵘ-refl     A≡B) = convTermT₁          A≡B
@@ -287,7 +287,7 @@ mutual
     Uₜ A (conv* d (refl (wf-⊢≡∷ (≅ₜ-eq A≡A) .proj₁))) typeA A≡A
       (irrelevance-⊩< l<2 l<1 [t])
   convTermT₂ (Idᵥ ⊩A ⊩B@record{}) A≡B ⊩t@(_ , t⇒*u , _) =
-    case whrDet* (_»_⊩ₗId_.⇒*Id ⊩B , Idₙ) (⇒*Id′ , Idₙ) of λ {
+    case whrDet* (_⊩ₗId_.⇒*Id ⊩B , Idₙ) (⇒*Id′ , Idₙ) of λ {
       PE.refl →
     case Id≅Id A≡B of λ {
       Id≅Id′ →
@@ -299,10 +299,10 @@ mutual
          (rflᵣ lhs≡rhs) →
              rflₙ
            , lhs′≡rhs′→lhs≡rhs
-               (convEqTerm₂ (_»_⊩ₗId_.⊩Ty ⊩A) (_»_⊩ₗId_.⊩Ty ⊩B) Ty≡Ty′
+               (convEqTerm₂ (_⊩ₗId_.⊩Ty ⊩A) (_⊩ₗId_.⊩Ty ⊩B) Ty≡Ty′
                   lhs≡rhs)) }}
     where
-    open _»_⊩ₗId_≡_/_ A≡B
+    open _⊩ₗId_≡_/_ A≡B
   convTermT₂ (embᵥ₁ ≤ᵘ-refl     A≡B) = convTermT₂          A≡B
   convTermT₂ (embᵥ₁ (≤ᵘ-step p) A≡B) = convTermT₂ (embᵥ₁ p A≡B)
   convTermT₂ (embᵥ₂ ≤ᵘ-refl     A≡B) = convTermT₂          A≡B
@@ -486,7 +486,7 @@ mutual
       (irrelevance-⊩<≡ l<1 l<2 [t≡u])
   convEqTermT₁
     (Idᵥ ⊩A ⊩B@record{}) A≡B t≡u@(_ , _ , t⇒*t′ , u⇒*u′ , _) =
-    case whrDet* (_»_⊩ₗId_.⇒*Id ⊩B , Idₙ) (⇒*Id′ , Idₙ) of λ {
+    case whrDet* (_⊩ₗId_.⇒*Id ⊩B , Idₙ) (⇒*Id′ , Idₙ) of λ {
       PE.refl →
     case ≅-eq (Id≅Id A≡B) of λ {
       Id≡Id′ →
@@ -498,10 +498,10 @@ mutual
            ne t′-n , ne u′-n , ~-conv t′~u′ Id≡Id′
          (rfl₌ lhs≡rhs) →
              rflₙ , rflₙ
-           , convEqTerm₁ (_»_⊩ₗId_.⊩Ty ⊩A) (_»_⊩ₗId_.⊩Ty ⊩B) Ty≡Ty′
+           , convEqTerm₁ (_⊩ₗId_.⊩Ty ⊩A) (_⊩ₗId_.⊩Ty ⊩B) Ty≡Ty′
                (lhs≡rhs→lhs′≡rhs′ lhs≡rhs)) }}
     where
-    open _»_⊩ₗId_≡_/_ A≡B
+    open _⊩ₗId_≡_/_ A≡B
   convEqTermT₁ (embᵥ₁ ≤ᵘ-refl     A≡B) = convEqTermT₁          A≡B
   convEqTermT₁ (embᵥ₁ (≤ᵘ-step p) A≡B) = convEqTermT₁ (embᵥ₁ p A≡B)
   convEqTermT₁ (embᵥ₂ ≤ᵘ-refl     A≡B) = convEqTermT₁          A≡B
@@ -658,7 +658,7 @@ mutual
       (irrelevance-⊩<≡ l<2 l<1 [t≡u])
   convEqTermT₂
     (Idᵥ ⊩A ⊩B@record{}) A≡B t≡u@(_ , _ , t⇒*t′ , u⇒*u′ , _) =
-    case whrDet* (_»_⊩ₗId_.⇒*Id ⊩B , Idₙ) (⇒*Id′ , Idₙ) of λ {
+    case whrDet* (_⊩ₗId_.⇒*Id ⊩B , Idₙ) (⇒*Id′ , Idₙ) of λ {
       PE.refl →
     case ≅-eq (≅-sym (Id≅Id A≡B)) of λ {
       Id≡Id′ →
@@ -671,10 +671,10 @@ mutual
          (rfl₌ lhs≡rhs) →
              rflₙ , rflₙ
            , lhs′≡rhs′→lhs≡rhs
-               (convEqTerm₂ (_»_⊩ₗId_.⊩Ty ⊩A) (_»_⊩ₗId_.⊩Ty ⊩B) Ty≡Ty′
+               (convEqTerm₂ (_⊩ₗId_.⊩Ty ⊩A) (_⊩ₗId_.⊩Ty ⊩B) Ty≡Ty′
                   lhs≡rhs)) }}
     where
-    open _»_⊩ₗId_≡_/_ A≡B
+    open _⊩ₗId_≡_/_ A≡B
   convEqTermT₂ (embᵥ₁ ≤ᵘ-refl     A≡B) = convEqTermT₂          A≡B
   convEqTermT₂ (embᵥ₁ (≤ᵘ-step p) A≡B) = convEqTermT₂ (embᵥ₁ p A≡B)
   convEqTermT₂ (embᵥ₂ ≤ᵘ-refl     A≡B) = convEqTermT₂          A≡B

@@ -350,14 +350,14 @@ private opaque
       ⊢ΣAB →
     case inversion-ΠΣ ⊢ΣAB of λ
       (_ , ⊢B , _) →
-    PE.subst (_»_⊢_⇒*_∷_ _ _ _ _) ([]↑-[]₀ B) $
+    PE.subst (_⊢_⇒*_∷_ _ _ _) ([]↑-[]₀ B) $
     subst→subst* (snd p (var x0))
       (subst↑Type ⊢B (fstⱼ′ (var₀ ⊢ΣAB)))
       (λ ⊢u →
-         PE.subst (_»_⊢_∷_ _ _ _) (PE.sym $ []↑-[]₀ B) $
+         PE.subst (_⊢_∷_ _ _) (PE.sym $ []↑-[]₀ B) $
          sndⱼ′ ⊢u)
       (λ u₁⇒u₂ →
-         PE.subst (_»_⊢_⇒_∷_ _ _ _ _) (PE.sym $ []↑-[]₀ B) $
+         PE.subst (_⊢_⇒_∷_ _ _ _) (PE.sym $ []↑-[]₀ B) $
          snd-subst′ u₁⇒u₂)
       t⇒*u
 
@@ -451,7 +451,7 @@ opaque
     ∇ » Γ ⊢
       v [ t , u ]₁₀ ≡
       prodrecˢ p (prodˢ p t u) v ∷
-      C [ prodˢ p (var x1) (var x0) ]↑² [ t , u ]₁₀                          →⟨ PE.subst (_»_⊢_≡_∷_ _ _ _ _) ([1,0]↑²[,] C) ∘→ sym′ ⟩
+      C [ prodˢ p (var x1) (var x0) ]↑² [ t , u ]₁₀                          →⟨ PE.subst (_⊢_≡_∷_ _ _ _) ([1,0]↑²[,] C) ∘→ sym′ ⟩
 
     ∇ » Γ ⊢ prodrecˢ p (prodˢ p t u) v ≡ v [ t , u ]₁₀ ∷ C [ prodˢ p t u ]₀  □
 
@@ -580,7 +580,7 @@ private opaque
   1∷wk1[1,0] {∇} {Γ} {A} {B} {p} ⊢B =                                 $⟨ ⊢B ⟩
     ∇ » Γ ∙ A ⊢ B                                                     →⟨ ⊢wk2 ⟩
     ∇ » Γ ∙ A ∙ B ⊢ wk2 A                                             →⟨ refl ⟩
-    (∇ » Γ ∙ A ∙ B ⊢ wk2 A ≡ wk2 A)                                   →⟨ PE.subst (_»_⊢_≡_ _ _ _) (PE.sym $ wk1-[][]↑ 2) ⟩
+    (∇ » Γ ∙ A ∙ B ⊢ wk2 A ≡ wk2 A)                                   →⟨ PE.subst (_⊢_≡_ _ _) (PE.sym $ wk1-[][]↑ 2) ⟩
     (∇ » Γ ∙ A ∙ B ⊢ wk2 A ≡ wk1 A [ prodʷ p (var x1) (var x0) ]↑²)   →⟨ conv (var₁ ⊢B) ⟩
     (∇ » Γ ∙ A ∙ B ⊢ var x1 ∷ wk1 A [ prodʷ p (var x1) (var x0) ]↑²)  □
 
@@ -781,7 +781,7 @@ private opaque
       (∇ » Γ ∙ A ∙ B ⊢
          fstʷ p (wk2 A) (prodʷ p (var x1) (var x0)) ≡
          var x1 ∷
-         wk2 A)                                        →⟨ flip _»_⊢_≡_∷_.conv (⊢wk2≡ ⊢B) ∘→ sym′ ⟩
+         wk2 A)                                        →⟨ flip _⊢_≡_∷_.conv (⊢wk2≡ ⊢B) ∘→ sym′ ⟩
 
       (∇ » Γ ∙ A ∙ B ⊢
          var x1 ≡
@@ -954,8 +954,8 @@ opaque
                           W.wk (stepʷ (step id) ⊢B) ⊢A)
                          ⊢B
         ⊢B″          = W.wk (liftʷ (step id) (wk₁ ⊢ΣAB ⊢A)) ⊢B
-        ⊢₁           = PE.subst (_»_⊢_∷_ _ _ _) (wk-comp _ _ _) $ var₁ ⊢B
-        ⊢₀           = PE.subst (_»_⊢_∷_ _ _ _)
+        ⊢₁           = PE.subst (_⊢_∷_ _ _) (wk-comp _ _ _) $ var₁ ⊢B
+        ⊢₀           = PE.subst (_⊢_∷_ _ _)
                          (PE.sym $ wkSingleSubstWk1 B) $
                        var₀ ⊢B
         eq₁          =
@@ -975,7 +975,7 @@ opaque
 
           wk (lift (step (step id))) B                                     ∎
     in
-    PE.subst (_»_⊢_∷_ _ _ _)
+    PE.subst (_⊢_∷_ _ _)
       (Id (Σʷ p , q ▷ wk1 A ▹ wk (lift (step id)) B)
          (prodʷ p (fstʷ p (wk1 A) (var x0))
             (sndʷ p q (wk1 A) (wk (lift (step id)) B) (var x0)))
@@ -1027,7 +1027,7 @@ opaque
 
           prodʷ p (fstʷ p (wk (step (step id)) A) pair)
             (sndʷ p q (wk (step (step id)) A)
-               (wk (lift (step (step id))) B) pair)                  ≡⟨ PE.subst (_»_⊢_≡_∷_ _ _ _ _)
+               (wk (lift (step (step id))) B) pair)                  ≡⟨ PE.subst (_⊢_≡_∷_ _ _ _)
                                                                           (PE.sym $ PE.cong₂ (Σʷ _ , _ ▷_▹_) eq₁ eq₂) $
                                                                         prod-cong ⊢B′
                                                                           (fstʷ-β-≡ ⊢B′ ⊢₁ ⊢₀ ok)

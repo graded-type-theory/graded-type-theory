@@ -155,9 +155,9 @@ opaque
     in
     ⊢ˢʷ≡∷∙⇔ .proj₂
       ( ⊢ˢ≡∷-ₛ•ₛ σ₁₁≡σ₁₂ σ₂₁₊≡σ₂₂₊
-      , PE.subst (_»_⊢_∷_ _ _ _) (substCompEq A) (subst-⊢∷ ⊢σ₂₁₀ ⊢σ₁₁)
-      , PE.subst (_»_⊢_∷_ _ _ _) (substCompEq A) (subst-⊢∷ ⊢σ₂₂₀ ⊢σ₁₂)
-      , PE.subst (_»_⊢_≡_∷_ _ _ _ _) (substCompEq A) (subst-⊢≡∷ σ₂₁₀≡σ₂₂₀ σ₁₁≡σ₁₂)
+      , PE.subst (_⊢_∷_ _ _) (substCompEq A) (subst-⊢∷ ⊢σ₂₁₀ ⊢σ₁₁)
+      , PE.subst (_⊢_∷_ _ _) (substCompEq A) (subst-⊢∷ ⊢σ₂₂₀ ⊢σ₁₂)
+      , PE.subst (_⊢_≡_∷_ _ _ _) (substCompEq A) (subst-⊢≡∷ σ₂₁₀≡σ₂₂₀ σ₁₁≡σ₁₂)
       )
 
 opaque
@@ -186,9 +186,9 @@ opaque
     in
     ⊢ˢʷ≡∷∙⇔ .proj₂
       ( refl-⊢ˢʷ≡∷ (⊢ˢʷ∷-wkSubst ⊢Γ (⊢ˢʷ∷-idSubst (lemma k ⊢Γ)))
-      , PE.subst (_»_⊢_∷_ _ _ _) (wk[]≡[] k) ⊢t₁
-      , PE.subst (_»_⊢_∷_ _ _ _) (wk[]≡[] k) ⊢t₂
-      , PE.subst (_»_⊢_≡_∷_ _ _ _ _) (wk[]≡[] k) t₁≡t₂
+      , PE.subst (_⊢_∷_ _ _) (wk[]≡[] k) ⊢t₁
+      , PE.subst (_⊢_∷_ _ _) (wk[]≡[] k) ⊢t₂
+      , PE.subst (_⊢_≡_∷_ _ _ _) (wk[]≡[] k) t₁≡t₂
       )
     where
     lemma :
@@ -298,11 +298,11 @@ opaque
     let ⊢A , ⊢B , ok = inversion-ΠΣ (⊢∙→⊢ (wfEq C≡D))
         ⊢A′          = wk₁ ⊢A ⊢A
     in
-    subst-⊢≡ C≡D $ ⊢ˢʷ≡∷-[][]↑ $ _»_⊢_≡_∷_.refl $
+    subst-⊢≡ C≡D $ ⊢ˢʷ≡∷-[][]↑ $ _⊢_≡_∷_.refl $
     prodⱼ
       (wk (liftʷ (step id) (wk₁ ⊢B ⊢A′)) (wk (liftʷ (step id) ⊢A′) ⊢B))
       (var₁ ⊢B)
-      (PE.subst (_»_⊢_∷_ _ _ _)
+      (PE.subst (_⊢_∷_ _ _)
          (PE.trans (PE.cong wk1 $ PE.sym $ wkSingleSubstId _) $
           wk-β (U.wk _ B)) $
        var₀ ⊢B)
@@ -363,7 +363,7 @@ opaque
     ∇ » Γ ⊢ B₁ [ k ][ t₁ ]↑ ≡ B₂ [ k ][ t₂ ]↑
   [][]↑-cong {k} B₁≡B₂ =
     subst-⊢≡ B₁≡B₂ ∘→ ⊢ˢʷ≡∷-[][]↑ ∘→
-    PE.subst (_»_⊢_≡_∷_ _ _ _ _) (PE.sym $ wk[]≡[] k)
+    PE.subst (_⊢_≡_∷_ _ _ _) (PE.sym $ wk[]≡[] k)
 
 opaque
 

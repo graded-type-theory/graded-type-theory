@@ -53,7 +53,7 @@ opaque
       (_ , _ , _ , ⊢t , Erased-ok , Erased-A≡ , _) →
     case ΠΣ-injectivity Erased-A≡ of λ {
       (A≡ , _ , _ , PE.refl , _) →
-    conv ⊢t (_»_⊢_≡_.sym A≡) , Erased-ok }}
+    conv ⊢t (_⊢_≡_.sym A≡) , Erased-ok }}
 
 opaque
 
@@ -93,7 +93,7 @@ opaque
                (var ⊢Γ′∙ℕ here)))
       (zeroⱼ εε)
       (conv (starⱼ εε Unit-ok)
-         (_»_⊢_≡_.sym $
+         (_⊢_≡_.sym $
           univ (natrec-zero (Unitⱼ εε Unit-ok) (ℕⱼ ⊢Γ′∙ℕ∙U))))
       Σ-ok
 
@@ -104,7 +104,7 @@ opaque
       case ΠΣ-injectivity ⦃ ok = ε ⦄ A′≡ of
         λ (_ , ≡Unit , _ , _ , _) →
       trans
-        (_»_⊢_≡_.sym $ _»_⊢_≡_.univ $
+        (_⊢_≡_.sym $ _⊢_≡_.univ $
          natrec-suc (Unitⱼ εε Unit-ok) (ℕⱼ ⊢Γ′∙ℕ∙U) (zeroⱼ εε))
         (≡Unit (refl (sucⱼ (zeroⱼ εε))))
 

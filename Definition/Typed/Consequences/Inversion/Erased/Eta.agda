@@ -89,9 +89,9 @@ opaque
       case inversion-zero ⊢zero′ of
         λ ≡ℕ′ →
         l
-      , (_»_⊢_≡_.sym $
+      , (_⊢_≡_.sym $
          trans Unit≡ $
-         trans (G≡G′ (conv erased-t′≡zero (_»_⊢_≡_.sym (trans F≡F′ ≡ℕ))))
+         trans (G≡G′ (conv erased-t′≡zero (_⊢_≡_.sym (trans F≡F′ ≡ℕ))))
            ≡ℕ′)
 
     bad : ⊥

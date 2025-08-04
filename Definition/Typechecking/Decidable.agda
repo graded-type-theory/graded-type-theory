@@ -556,7 +556,7 @@ mutual
          dec⇇Type-with-cont (∙ Idⱼ′ (wkTerm₁ ⊢A ⊢t) (var₀ ⊢A)) B λ ⊢B →
          dec⇇ u
            (substType₂ ⊢B ⊢t $
-            PE.subst (_»_⊢_∷_ _ _ _) ≡Id-wk1-wk1-0[]₀ $
+            PE.subst (_⊢_∷_ _ _) ≡Id-wk1-wk1-0[]₀ $
             rflⱼ ⊢t) ×-dec
          dec⇇-with-cont v ⊢A λ ⊢v →
          dec⇇ w (Idⱼ′ ⊢t ⊢v))

@@ -52,7 +52,7 @@ opaque
     , (λ ⊢Γ → Emptyᵣ (id (Emptyⱼ ⊢Γ)))
 
 opaque
-  unfolding _»_⊩⟨_⟩_∷_ ⊩Empty⇔
+  unfolding _⊩⟨_⟩_∷_ ⊩Empty⇔
 
   -- A characterisation lemma for _⊩⟨_⟩_∷_.
 
@@ -74,7 +74,7 @@ opaque
     lemma (noemb _) ⊩t = ⊩t
 
 opaque
-  unfolding _»_⊩⟨_⟩_≡_
+  unfolding _⊩⟨_⟩_≡_
 
   -- A characterisation lemma for _⊩⟨_⟩_≡_.
 
@@ -102,7 +102,7 @@ opaque
     lemma (emb (≤ᵘ-step l<) ⊩A) A≡B = lemma (emb l< ⊩A) A≡B
 
 opaque
-  unfolding _»_⊩⟨_⟩_≡_∷_ ⊩Empty⇔
+  unfolding _⊩⟨_⟩_≡_∷_ ⊩Empty⇔
 
   -- A characterisation lemma for _⊩⟨_⟩_≡_∷_.
 

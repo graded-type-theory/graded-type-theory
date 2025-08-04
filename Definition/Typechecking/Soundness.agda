@@ -138,7 +138,7 @@ mutual
     case soundness⇇ ⊢w of λ {
       ⊢w →
       substType₂ ⊢B (soundness⇇ ⊢v)
-        (PE.subst (_»_⊢_∷_ _ _ _) ≡Id-wk1-wk1-0[]₀ ⊢w)
+        (PE.subst (_⊢_∷_ _ _) ≡Id-wk1-wk1-0[]₀ ⊢w)
     , Jⱼ′ ⊢B (soundness⇇ ⊢u) ⊢w }}}}
   soundness⇉ ⊢Γ (Kᵢ ⊢A ⊢t ⊢B ⊢u ⊢v ok) =
     case soundness⇇Type ⊢Γ ⊢A of λ {

@@ -95,16 +95,25 @@ decWfDCon {∇ = _ ∙⟨ opa φ ⟩[ _ ∷ _ ]} (∇ ∙ᶜᵒ⟨ ok ⟩[ t ∷
       (yes ⊢A) → let _ , φ↜ = total-»↜ φ _ in
         case decWfDCon (unfold-Checkable φ↜ ∇) of λ where
           (no not) → no λ where
-            ∙ᵒ⟨ _ , φ′↜ ⟩[ ⊢t ∷ _ ] → not $ defn-wf $ wfTerm $
-              PE.subst (_» ε ⊢ _ ∷ _) (unique-»↜ φ′↜ φ↜) ⊢t
+            ∙ᵒ⟨ _ , φ′↜ ⟩[ ⊢t ∷ _ ] →
+              not $ defn-wf $ wfTerm $
+              PE.subst₃ _⊢_∷_
+                (PE.cong (_» ε) (unique-»↜ φ′↜ φ↜)) PE.refl PE.refl
+                ⊢t
           (yes »∇′) → case dec (ε »∇′) A of λ where
             (no not) → no λ where
-              ∙ᵒ⟨ _ , φ′↜ ⟩[ ⊢t ∷ _ ] → not $ wf-⊢∷ $
-                PE.subst (_» ε ⊢ _ ∷ _) (unique-»↜ φ′↜ φ↜) ⊢t
+              ∙ᵒ⟨ _ , φ′↜ ⟩[ ⊢t ∷ _ ] →
+                not $ wf-⊢∷ $
+                PE.subst₃ _⊢_∷_
+                  (PE.cong (_» ε) (unique-»↜ φ′↜ φ↜)) PE.refl PE.refl
+                  ⊢t
             (yes ⊢A′) → case decTermᶜ ⊢A′ t of λ where
               (no not) → no λ where
-                ∙ᵒ⟨ _ , φ′↜ ⟩[ ⊢t ∷ _ ] → not $
-                  PE.subst (_» ε ⊢ _ ∷ _) (unique-»↜ φ′↜ φ↜) ⊢t
+                ∙ᵒ⟨ _ , φ′↜ ⟩[ ⊢t ∷ _ ] →
+                  not $
+                  PE.subst₃ _⊢_∷_
+                    (PE.cong (_» ε) (unique-»↜ φ′↜ φ↜)) PE.refl PE.refl
+                    ⊢t
               (yes ⊢t) → yes ∙ᵒ⟨ ok , φ↜ ⟩[ ⊢t ∷ ⊢A ]
 decWfDCon (∇ ∙ᶜᵗ[ t ∷ A ]) =
   case decWfDCon ∇ of λ where

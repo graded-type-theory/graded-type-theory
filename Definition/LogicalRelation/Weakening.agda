@@ -66,8 +66,8 @@ mutual
        (wkNatural-prop [ρ] prop)
 
   wkNatural-prop : ∀ {n} → ∇ » ρ ∷ʷ Δ ⊇ Γ
-                 → Natural-prop ∇ Γ n
-                 → Natural-prop ∇ Δ (U.wk ρ n)
+                 → Natural-prop (∇ » Γ) n
+                 → Natural-prop (∇ » Δ) (U.wk ρ n)
   wkNatural-prop ρ (sucᵣ n) = sucᵣ (wkTermℕ ρ n)
   wkNatural-prop ρ zeroᵣ = zeroᵣ
   wkNatural-prop ρ (ne nf) = ne (wkTermNe ρ nf)
@@ -82,8 +82,8 @@ mutual
         (wk[Natural]-prop [ρ] prop)
 
   wk[Natural]-prop : ∀ {n n′} → ∇ » ρ ∷ʷ Δ ⊇ Γ
-                   → [Natural]-prop ∇ Γ n n′
-                   → [Natural]-prop ∇ Δ (U.wk ρ n) (U.wk ρ n′)
+                   → [Natural]-prop (∇ » Γ) n n′
+                   → [Natural]-prop (∇ » Δ) (U.wk ρ n) (U.wk ρ n′)
   wk[Natural]-prop ρ (sucᵣ [n≡n′]) = sucᵣ (wkEqTermℕ ρ [n≡n′])
   wk[Natural]-prop ρ zeroᵣ = zeroᵣ
   wk[Natural]-prop ρ (ne nf) = ne (wkEqTermNe ρ nf)
@@ -96,8 +96,8 @@ wkTermEmpty {ρ} [ρ] (Emptyₜ n d n≡n (ne nf)) =
      (ne (wkTermNe [ρ] nf))
 
 wk[Empty]-prop : ∀ {n n′} → ∇ » ρ ∷ʷ Δ ⊇ Γ
-  → [Empty]-prop ∇ Γ n n′
-  → [Empty]-prop ∇ Δ (U.wk ρ n) (U.wk ρ n′)
+  → [Empty]-prop (∇ » Γ) n n′
+  → [Empty]-prop (∇ » Δ) (U.wk ρ n) (U.wk ρ n′)
 wk[Empty]-prop ρ (ne nf) = ne (wkEqTermNe ρ nf)
 
 wkEqTermEmpty : ∀ {t u} → ∇ » ρ ∷ʷ Δ ⊇ Γ
@@ -109,14 +109,14 @@ wkEqTermEmpty {ρ} [ρ] (Emptyₜ₌ k k′ d d′ t≡u prop) =
 
 -- Unit
 wkUnit-prop : ∀ {s t} → ∇ » ρ ∷ʷ Δ ⊇ Γ
-            → Unit-prop ∇ Γ l s t
-            → Unit-prop ∇ Δ l s (U.wk ρ t)
+            → Unit-prop (∇ » Γ) l s t
+            → Unit-prop (∇ » Δ) l s (U.wk ρ t)
 wkUnit-prop [ρ] starᵣ = starᵣ
 wkUnit-prop [ρ] (ne nf) = ne (wkTermNe [ρ] nf)
 
 wk[Unitʷ]-prop : ∀ {t u} → ∇ » ρ ∷ʷ Δ ⊇ Γ
-               → [Unitʷ]-prop ∇ Γ l t u
-               → [Unitʷ]-prop ∇ Δ l (U.wk ρ t) (U.wk ρ u)
+               → [Unitʷ]-prop (∇ » Γ) l t u
+               → [Unitʷ]-prop (∇ » Δ) l (U.wk ρ t) (U.wk ρ u)
 wk[Unitʷ]-prop [ρ] starᵣ = starᵣ
 wk[Unitʷ]-prop [ρ] (ne nf) = ne (wkEqTermNe [ρ] nf)
 
@@ -255,7 +255,7 @@ wk ρ∷⊇ (Idᵣ ⊩A) = Idᵣ (record
   ; ⊩rhs  = wkTerm ρ∷⊇ ⊩Ty ⊩rhs
   })
   where
-  open _»_⊩ₗId_ ⊩A
+  open _⊩ₗId_ ⊩A
 wk ρ (emb ≤ᵘ-refl x) = emb ≤ᵘ-refl (wk ρ x)
 wk ρ (emb (≤ᵘ-step l<) x) = emb-<-⊩ ≤ᵘ-refl (wk ρ (emb l< x))
 
@@ -315,8 +315,8 @@ wkEq ρ∷⊇ (Idᵣ ⊩A) A≡B = Id₌′
   (wkEqTerm ρ∷⊇ ⊩Ty lhs≡lhs′)
   (wkEqTerm ρ∷⊇ ⊩Ty rhs≡rhs′)
   where
-  open _»_⊩ₗId_ ⊩A
-  open _»_⊩ₗId_≡_/_ A≡B
+  open _⊩ₗId_ ⊩A
+  open _⊩ₗId_≡_/_ A≡B
 wkEq ρ (emb ≤ᵘ-refl x) A≡B = wkEq ρ x A≡B
 wkEq ρ (emb (≤ᵘ-step p) ⊩A) A≡B =
   let ⊩A′ = wk ρ (emb p ⊩A) in
@@ -460,7 +460,7 @@ wkTerm ρ∷⊇ (Idᵣ ⊩A) ⊩t@(_ , t⇒*u , _) =
        (rflᵣ lhs≡rhs) → rflₙ , wkEqTerm ρ∷⊇ ⊩Ty lhs≡rhs
        (ne u-n u~u)   → ne (wkNeutral _ u-n) , ~-wk ρ∷⊇′ u~u)
   where
-  open _»_⊩ₗId_ ⊩A
+  open _⊩ₗId_ ⊩A
 wkTerm ρ (emb ≤ᵘ-refl x) t = wkTerm ρ x t
 wkTerm ρ (emb (≤ᵘ-step l<) x) t =
   let wkn = wkTerm ρ (emb l< x) t
@@ -657,7 +657,7 @@ wkEqTerm ρ∷⊇ (Idᵣ ⊩A) t≡u@(_ , _ , t⇒*t′ , u⇒*u′ , _) =
          , ne (wkNeutral _ u′-n)
          , ~-wk ρ∷⊇′ t′~u′)
   where
-  open _»_⊩ₗId_ ⊩A
+  open _⊩ₗId_ ⊩A
 wkEqTerm ρ (emb ≤ᵘ-refl x) t≡u = wkEqTerm ρ x t≡u
 wkEqTerm ρ (emb (≤ᵘ-step s) x) t≡u =
   let wkET′ = wkEqTerm ρ (emb s x) t≡u

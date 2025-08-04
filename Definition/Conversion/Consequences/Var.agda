@@ -47,7 +47,7 @@ var-only-equal-to-itself =
   ~↑-lemma (var-refl _ PE.refl) = PE.refl
 
   ~↓-lemma : ∇ » Γ ⊢ var x ~ t ↓ A → var x PE.≡ t
-  ~↓-lemma x≡t = ~↑-lemma (_»_⊢_~_↓_.k~l x≡t)
+  ~↓-lemma x≡t = ~↑-lemma (_⊢_~_↓_.k~l x≡t)
 
   [conv↓]-lemma : ∇ » Γ ⊢ var x [conv↓] A → var x PE.≡ A
   [conv↓]-lemma (ne x≡A) = ~↓-lemma x≡A
@@ -79,4 +79,4 @@ var-only-equal-to-itself =
       PE.refl →
     [conv↓]∷-lemma A-no-η t-whnf t<>u }}}
     where
-    open _»_⊢_[conv↑]_∷_ x≡t
+    open _⊢_[conv↑]_∷_ x≡t

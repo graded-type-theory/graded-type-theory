@@ -40,18 +40,18 @@ private variable
 
 -- A variant of _⊩⟨_⟩_.
 
-infix 4 _»_⊩<⟨_⟩_
+infix 4 _⊩<⟨_⟩_
 
-_»_⊩<⟨_⟩_ : DCon (Term 0) m → Con Term n → l₁ <ᵘ l₂ → Term n → Set a
-∇ » Γ ⊩<⟨ p ⟩ A = LogRelKit._»_⊩_ (kit′ p) ∇ Γ A
+_⊩<⟨_⟩_ : Cons m n → l₁ <ᵘ l₂ → Term n → Set a
+Γ ⊩<⟨ p ⟩ A = LogRelKit._⊩_ (kit′ p) Γ A
 
 -- A variant of _⊩⟨_⟩_≡_/_.
 
-infix 4 _»_⊩<⟨_⟩_≡_/_
+infix 4 _⊩<⟨_⟩_≡_/_
 
-_»_⊩<⟨_⟩_≡_/_ :
-  (∇ : DCon (Term 0) m) (Γ : Con Term n) (p : l₁ <ᵘ l₂) (A _ : Term n) → ∇ » Γ ⊩<⟨ p ⟩ A → Set a
-∇ » Γ ⊩<⟨ p ⟩ A ≡ B / ⊩A = LogRelKit._»_⊩_≡_/_ (kit′ p) ∇ Γ A B ⊩A
+_⊩<⟨_⟩_≡_/_ :
+  (Γ : Cons m n) (p : l₁ <ᵘ l₂) (A _ : Term n) → Γ ⊩<⟨ p ⟩ A → Set a
+Γ ⊩<⟨ p ⟩ A ≡ B / ⊩A = LogRelKit._⊩_≡_/_ (kit′ p) Γ A B ⊩A
 
 -- If p : l₁ <ᵘ l₂, then ∇ » Γ ⊩<⟨ p ⟩ A is logically equivalent to
 -- ∇ » Γ ⊩⟨ l₁ ⟩ A.

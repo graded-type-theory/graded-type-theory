@@ -63,11 +63,11 @@ mutual
           wk (liftʷʷ [ρ] (ℕⱼ ⊢Δ))
             (proj₁ (syntacticEq (soundnessConv↑ x)))
     in
-    PE.subst (_»_⊢_~_↑_ _ _ _ _) (PE.sym (wk-β A₁)) $
+    PE.subst (_⊢_~_↑_ _ _ _) (PE.sym (wk-β A₁)) $
     natrec-cong (wkConv↑ (liftʷ (∷ʷ⊇→∷⊇ [ρ]) (ℕⱼ ⊢Δ)) x)
-      (PE.subst (_»_⊢_[conv↑]_∷_ _ _ _ _) (wk-β A₁) $
+      (PE.subst (_⊢_[conv↑]_∷_ _ _ _) (wk-β A₁) $
        wkConv↑Term [ρ] x₁)
-      (PE.subst (_»_⊢_[conv↑]_∷_ _ _ _ _) (wk-β-natrec _ A₁) $
+      (PE.subst (_⊢_[conv↑]_∷_ _ _ _) (wk-β-natrec _ A₁) $
        wkConv↑Term (liftʷ (lift (∷ʷ⊇→∷⊇ [ρ])) Δℕ⊢F) x₂)
       (wk~↓ [ρ] t~u)
   wk~↑
@@ -89,10 +89,10 @@ mutual
   wk~↑ [ρ] (unitrec-cong {A₁} x x₁ x₂ no-η) =
     let k~l = wk~↓ [ρ] x₁
         ⊢Unit , _ = syntacticEqTerm (soundness~↓ k~l)
-        u↑v = PE.subst (_»_⊢_[conv↑]_∷_ _ _ _ _)
+        u↑v = PE.subst (_⊢_[conv↑]_∷_ _ _ _)
                        (wk-β A₁)
                        (wkConv↑Term [ρ] x₂)
-    in  PE.subst (_»_⊢_~_↑_ _ _ _ _)
+    in  PE.subst (_⊢_~_↑_ _ _ _)
                  (PE.sym (wk-β A₁))
                  (unitrec-cong (wkConv↑ (liftʷʷ [ρ] ⊢Unit) x) k~l u↑v
                     no-η)
@@ -118,14 +118,14 @@ mutual
        wkConv↑
          (liftʷ (lift (∷ʷ⊇→∷⊇ [ρ])) $
           Idⱼ′
-            (PE.subst₂ (_»_⊢_∷_ _ _)
+            (PE.subst₂ (_⊢_∷_ _)
                (PE.sym $ lift-wk1 _ _)
                (PE.sym $ lift-wk1 _ _) $
              wkTerm (stepʷʷ [ρ] ⊢wk-ρ-A₁) ⊢t₁)
-            (PE.subst (_»_⊢_∷_ _ _ _) (wk1-wk≡lift-wk1 _ _) $
+            (PE.subst (_⊢_∷_ _ _) (wk1-wk≡lift-wk1 _ _) $
              var (∙ ⊢wk-ρ-A₁) here))
          B₁≡B₂)
-      (PE.subst (_»_⊢_[conv↑]_∷_ _ _ _ _) (wk-β-doubleSubst _ B₁ _ _) $
+      (PE.subst (_⊢_[conv↑]_∷_ _ _ _) (wk-β-doubleSubst _ B₁ _ _) $
        wkConv↑Term [ρ] u₁≡u₂)
       (wkConv↑Term [ρ] v₁≡v₂) (wk~↓ [ρ] w₁~w₂)
       (wkEq [ρ] ≡Id) }}}
@@ -136,7 +136,7 @@ mutual
       (PE.sym $ wk-β B₁) $
     K-cong (wkConv↑ [ρ] A₁≡A₂) (wkConv↑Term [ρ] t₁≡t₂)
       (wkConv↑ (liftʷʷ [ρ] (wk [ρ] (Idⱼ′ ⊢t₁ ⊢t₁))) B₁≡B₂)
-      (PE.subst (_»_⊢_[conv↑]_∷_ _ _ _ _) (wk-β B₁) $
+      (PE.subst (_⊢_[conv↑]_∷_ _ _ _) (wk-β B₁) $
        wkConv↑Term [ρ] u₁≡u₂)
       (wk~↓ [ρ] v₁~v₂) (wkEq [ρ] ≡Id) ok }
   wk~↑ [ρ] ([]-cong-cong A₁≡A₂ t₁≡t₂ u₁≡u₂ v₁~v₂ ≡Id ok) =

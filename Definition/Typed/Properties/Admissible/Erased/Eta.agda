@@ -109,5 +109,5 @@ opaque
       Σˢ-ok →
       q
     , C
-    , conv ⊢t (ΠΣ-cong (_»_⊢_≡_.sym ≡B) (refl ⊢C) Σˢ-ok)
+    , conv ⊢t (ΠΣ-cong (_⊢_≡_.sym ≡B) (refl ⊢C) Σˢ-ok)
     , Σˢ-ok }}

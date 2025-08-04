@@ -182,7 +182,7 @@ whNorm′ (Unitᵣ (Unitₜ D _)) = Unit! , Unitₙ , D
 whNorm′ (ne′ H D neH H≡H) = H , ne-whnf neH , D
 whNorm′ (Πᵣ′ F G D _ _ _ _ _) = Π _ , _ ▷ F ▹ G , ΠΣₙ , D
 whNorm′ (Σᵣ′ F G D _ _ _ _ _) = Σ _ , _ ▷ F ▹ G , ΠΣₙ , D
-whNorm′ (Idᵣ ⊩Id) = _ , Idₙ , _»_⊩ₗId_.⇒*Id ⊩Id
+whNorm′ (Idᵣ ⊩Id) = _ , Idₙ , _⊩ₗId_.⇒*Id ⊩Id
 whNorm′ (emb ≤ᵘ-refl     ⊩A) = whNorm′ ⊩A
 whNorm′ (emb (≤ᵘ-step p) ⊩A) = whNorm′ (emb p ⊩A)
 
@@ -210,7 +210,7 @@ opaque
           A    ≡⟨ subset* A⇒*B ⟩⊢∎
           B    ∎
     in
-    PE.subst (_»_⊢_⇒*_ _ _ _) (U≡A U≡B B-whnf) A⇒*B
+    PE.subst (_⊢_⇒*_ _ _) (U≡A U≡B B-whnf) A⇒*B
 
 opaque
 
@@ -316,7 +316,7 @@ whNormTerm′ (Σᵣ′ _ _ D _ _ _ _ _) (Σₜ p d _ pProd _) =
   p , productWhnf pProd , conv* d (sym (subset* D))
 whNormTerm′ (Idᵣ ⊩Id) (a′ , a⇒*a′ , a′-id , _) =
     a′ , identityWhnf a′-id
-  , conv* a⇒*a′ (sym (subset* (_»_⊩ₗId_.⇒*Id ⊩Id)))
+  , conv* a⇒*a′ (sym (subset* (_⊩ₗId_.⇒*Id ⊩Id)))
 whNormTerm′ (emb ≤ᵘ-refl     ⊩A) ⊩a = whNormTerm′ ⊩A ⊩a
 whNormTerm′ (emb (≤ᵘ-step p) ⊩A) ⊩a = whNormTerm′ (emb p ⊩A) ⊩a
 
@@ -356,7 +356,7 @@ private opaque
 
     Π≡U : ∇ » ε ∙ Empty ⊢ Π p , q ▷ U 0 ▹ U 0 ≡ U 0
     Π≡U =
-      _»_⊢_≡_.univ $
+      _⊢_≡_.univ $
       ⊢∷Empty→⊢≡∷ ok₁ (var₀ (Emptyⱼ (ε »∇)))
         (ΠΣⱼ ⊢U (wkTerm₁ (univ ⊢U) ⊢U) ok₂) ⊢U
 

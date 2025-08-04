@@ -64,144 +64,144 @@ private variable
 
 mutual
 
-  -- ∇ » Γ ⊢nf A holds if A is a type in η-long normal form (with respect
-  -- to the context Γ).
+  -- Γ ⊢nf A holds if A is a type in η-long normal form (with respect
+  -- to the context pair Γ).
 
-  infix 4 _»_⊢nf_
+  infix 4 _⊢nf_
 
-  data _»_⊢nf_ (∇ : DCon (Term 0) m) (Γ : Con Term n) : Term n → Set a where
-    Uₙ     : ∇ »⊢ Γ →
-             ∇ » Γ ⊢nf U l
-    univₙ  : ∇ » Γ ⊢nf A ∷ U l →
-             ∇ » Γ ⊢nf A
-    ΠΣₙ    : ∇ » Γ ⊢nf A →
-             ∇ » Γ ∙ A ⊢nf B →
+  data _⊢nf_ (Γ : Cons m n) : Term n → Set a where
+    Uₙ     : ⊢ Γ →
+             Γ ⊢nf U l
+    univₙ  : Γ ⊢nf A ∷ U l →
+             Γ ⊢nf A
+    ΠΣₙ    : Γ ⊢nf A →
+             Γ »∙ A ⊢nf B →
              ΠΣ-allowed b p q →
-             ∇ » Γ ⊢nf ΠΣ⟨ b ⟩ p , q ▷ A ▹ B
-    Emptyₙ : ∇ »⊢ Γ →
-             ∇ » Γ ⊢nf Empty
-    Unitₙ  : ∇ »⊢ Γ →
+             Γ ⊢nf ΠΣ⟨ b ⟩ p , q ▷ A ▹ B
+    Emptyₙ : ⊢ Γ →
+             Γ ⊢nf Empty
+    Unitₙ  : ⊢ Γ →
              Unit-allowed s →
-             ∇ » Γ ⊢nf Unit s l
-    ℕₙ     : ∇ »⊢ Γ →
-             ∇ » Γ ⊢nf ℕ
-    Idₙ    : ∇ » Γ ⊢nf A →
-             ∇ » Γ ⊢nf t ∷ A →
-             ∇ » Γ ⊢nf u ∷ A →
-             ∇ » Γ ⊢nf Id A t u
+             Γ ⊢nf Unit s l
+    ℕₙ     : ⊢ Γ →
+             Γ ⊢nf ℕ
+    Idₙ    : Γ ⊢nf A →
+             Γ ⊢nf t ∷ A →
+             Γ ⊢nf u ∷ A →
+             Γ ⊢nf Id A t u
 
-  -- ∇ » Γ ⊢nf t ∷ A holds if t is a term in η-long normal form (with
+  -- Γ ⊢nf t ∷ A holds if t is a term in η-long normal form (with
   -- respect to the context Γ and the type A).
 
-  infix 4 _»_⊢nf_∷_
+  infix 4 _⊢nf_∷_
 
-  data _»_⊢nf_∷_ (∇ : DCon (Term 0) m) (Γ : Con Term n) : Term n → Term n → Set a where
-    convₙ  : ∇ » Γ ⊢nf t ∷ A →
-             ∇ » Γ ⊢ A ≡ B →
-             ∇ » Γ ⊢nf t ∷ B
-    Uₙ     : ∇ »⊢ Γ →
-             ∇ » Γ ⊢nf U l ∷ U (1+ l)
-    ΠΣₙ    : ∇ » Γ ⊢nf A ∷ U l₁ →
-             ∇ » Γ ∙ A ⊢nf B ∷ U l₂ →
+  data _⊢nf_∷_ (Γ : Cons m n) : Term n → Term n → Set a where
+    convₙ  : Γ ⊢nf t ∷ A →
+             Γ ⊢ A ≡ B →
+             Γ ⊢nf t ∷ B
+    Uₙ     : ⊢ Γ →
+             Γ ⊢nf U l ∷ U (1+ l)
+    ΠΣₙ    : Γ ⊢nf A ∷ U l₁ →
+             Γ »∙ A ⊢nf B ∷ U l₂ →
              ΠΣ-allowed b p q →
-             ∇ » Γ ⊢nf ΠΣ⟨ b ⟩ p , q ▷ A ▹ B ∷ U (l₁ ⊔ᵘ l₂)
-    lamₙ   : ∇ » Γ ∙ A ⊢nf t ∷ B →
+             Γ ⊢nf ΠΣ⟨ b ⟩ p , q ▷ A ▹ B ∷ U (l₁ ⊔ᵘ l₂)
+    lamₙ   : Γ »∙ A ⊢nf t ∷ B →
              Π-allowed p q →
-             ∇ » Γ ⊢nf lam p t ∷ Π p , q ▷ A ▹ B
-    prodₙ  : ∇ » Γ ∙ A ⊢ B →
-             ∇ » Γ ⊢nf t ∷ A →
-             ∇ » Γ ⊢nf u ∷ B [ t ]₀ →
+             Γ ⊢nf lam p t ∷ Π p , q ▷ A ▹ B
+    prodₙ  : Γ »∙ A ⊢ B →
+             Γ ⊢nf t ∷ A →
+             Γ ⊢nf u ∷ B [ t ]₀ →
              Σ-allowed s p q →
-             ∇ » Γ ⊢nf prod s p t u ∷ Σ⟨ s ⟩ p , q ▷ A ▹ B
-    Emptyₙ : ∇ »⊢ Γ →
-             ∇ » Γ ⊢nf Empty ∷ U 0
-    Unitₙ  : ∇ »⊢ Γ →
+             Γ ⊢nf prod s p t u ∷ Σ⟨ s ⟩ p , q ▷ A ▹ B
+    Emptyₙ : ⊢ Γ →
+             Γ ⊢nf Empty ∷ U 0
+    Unitₙ  : ⊢ Γ →
              Unit-allowed s →
-             ∇ » Γ ⊢nf Unit s l ∷ U l
-    starₙ  : ∇ »⊢ Γ →
+             Γ ⊢nf Unit s l ∷ U l
+    starₙ  : ⊢ Γ →
              Unit-allowed s →
-             ∇ » Γ ⊢nf star s l ∷ Unit s l
-    ℕₙ     : ∇ »⊢ Γ →
-             ∇ » Γ ⊢nf ℕ ∷ U 0
-    zeroₙ  : ∇ »⊢ Γ →
-             ∇ » Γ ⊢nf zero ∷ ℕ
-    sucₙ   : ∇ » Γ ⊢nf t ∷ ℕ →
-             ∇ » Γ ⊢nf suc t ∷ ℕ
-    Idₙ    : ∇ » Γ ⊢nf A ∷ U l →
-             ∇ » Γ ⊢nf t ∷ A →
-             ∇ » Γ ⊢nf u ∷ A →
-             ∇ » Γ ⊢nf Id A t u ∷ U l
-    rflₙ   : ∇ » Γ ⊢ t ∷ A →
-             ∇ » Γ ⊢nf rfl ∷ Id A t t
-    neₙ    : No-η-equality ∇ A →
-             ∇ » Γ ⊢ne t ∷ A →
-             ∇ » Γ ⊢nf t ∷ A
+             Γ ⊢nf star s l ∷ Unit s l
+    ℕₙ     : ⊢ Γ →
+             Γ ⊢nf ℕ ∷ U 0
+    zeroₙ  : ⊢ Γ →
+             Γ ⊢nf zero ∷ ℕ
+    sucₙ   : Γ ⊢nf t ∷ ℕ →
+             Γ ⊢nf suc t ∷ ℕ
+    Idₙ    : Γ ⊢nf A ∷ U l →
+             Γ ⊢nf t ∷ A →
+             Γ ⊢nf u ∷ A →
+             Γ ⊢nf Id A t u ∷ U l
+    rflₙ   : Γ ⊢ t ∷ A →
+             Γ ⊢nf rfl ∷ Id A t t
+    neₙ    : No-η-equality (Γ .defs) A →
+             Γ ⊢ne t ∷ A →
+             Γ ⊢nf t ∷ A
 
-  -- ∇ » Γ ⊢ne t ∷ A holds if t is a neutral term (with respect to the
+  -- Γ ⊢ne t ∷ A holds if t is a neutral term (with respect to the
   -- context Γ and the type A) for which the "non-neutral parts" are
   -- in η-long normal form.
 
-  infix 4 _»_⊢ne_∷_
+  infix 4 _⊢ne_∷_
 
-  data _»_⊢ne_∷_ (∇ : DCon (Term 0) m) (Γ : Con Term n) : Term n → Term n → Set a where
-    convₙ     : ∇ » Γ ⊢ne t ∷ A →
-                ∇ » Γ ⊢ A ≡ B →
-                ∇ » Γ ⊢ne t ∷ B
-    varₙ      : ∇ »⊢ Γ →
-                x ∷ A ∈ Γ →
-                ∇ » Γ ⊢ne var x ∷ A
-    defnₙ     : ∇ »⊢ Γ →
-                α ↦⊘∷ A ∈ ∇ →
-                ∇ » Γ ⊢ne defn α ∷ wk wk₀ A
-    ∘ₙ        : ∇ » Γ ⊢ne t ∷ Π p , q ▷ A ▹ B →
-                ∇ » Γ ⊢nf u ∷ A →
-                ∇ » Γ ⊢ne t ∘⟨ p ⟩ u ∷ B [ u ]₀
-    fstₙ      : ∇ » Γ ∙ A ⊢ B →
-                ∇ » Γ ⊢ne t ∷ Σˢ p , q ▷ A ▹ B →
-                ∇ » Γ ⊢ne fst p t ∷ A
-    sndₙ      : ∇ » Γ ∙ A ⊢ B →
-                ∇ » Γ ⊢ne t ∷ Σˢ p , q ▷ A ▹ B →
-                ∇ » Γ ⊢ne snd p t ∷ B [ fst p t ]₀
-    prodrecₙ  : ∇ » Γ ∙ Σʷ p , q′ ▷ A ▹ B ⊢nf C →
-                ∇ » Γ ⊢ne t ∷ Σʷ p , q′ ▷ A ▹ B →
-                ∇ » Γ ∙ A ∙ B ⊢nf u ∷ C [ prodʷ p (var x1) (var x0) ]↑² →
+  data _⊢ne_∷_ (Γ : Cons m n) : Term n → Term n → Set a where
+    convₙ     : Γ ⊢ne t ∷ A →
+                Γ ⊢ A ≡ B →
+                Γ ⊢ne t ∷ B
+    varₙ      : ⊢ Γ →
+                x ∷ A ∈ Γ .vars →
+                Γ ⊢ne var x ∷ A
+    defnₙ     : ⊢ Γ →
+                α ↦⊘∷ A ∈ Γ .defs →
+                Γ ⊢ne defn α ∷ wk wk₀ A
+    ∘ₙ        : Γ ⊢ne t ∷ Π p , q ▷ A ▹ B →
+                Γ ⊢nf u ∷ A →
+                Γ ⊢ne t ∘⟨ p ⟩ u ∷ B [ u ]₀
+    fstₙ      : Γ »∙ A ⊢ B →
+                Γ ⊢ne t ∷ Σˢ p , q ▷ A ▹ B →
+                Γ ⊢ne fst p t ∷ A
+    sndₙ      : Γ »∙ A ⊢ B →
+                Γ ⊢ne t ∷ Σˢ p , q ▷ A ▹ B →
+                Γ ⊢ne snd p t ∷ B [ fst p t ]₀
+    prodrecₙ  : Γ »∙ Σʷ p , q′ ▷ A ▹ B ⊢nf C →
+                Γ ⊢ne t ∷ Σʷ p , q′ ▷ A ▹ B →
+                Γ »∙ A »∙ B ⊢nf u ∷ C [ prodʷ p (var x1) (var x0) ]↑² →
                 Σʷ-allowed p q′ →
-                ∇ » Γ ⊢ne prodrec r p q C t u ∷ C [ t ]₀
-    emptyrecₙ : ∇ » Γ ⊢nf A →
-                ∇ » Γ ⊢ne t ∷ Empty →
-                ∇ » Γ ⊢ne emptyrec p A t ∷ A
-    natrecₙ   : ∇ » Γ ∙ ℕ ⊢nf A →
-                ∇ » Γ ⊢nf t ∷ A [ zero ]₀ →
-                ∇ » Γ ∙ ℕ ∙ A ⊢nf u ∷ A [ suc (var x1) ]↑² →
-                ∇ » Γ ⊢ne v ∷ ℕ →
-                ∇ » Γ ⊢ne natrec p q r A t u v ∷ A [ v ]₀
-    unitrecₙ  : ∇ » Γ ∙ Unitʷ l ⊢nf A →
-                ∇ » Γ ⊢ne t ∷ Unitʷ l →
-                ∇ » Γ ⊢nf u ∷ A [ starʷ l ]₀ →
+                Γ ⊢ne prodrec r p q C t u ∷ C [ t ]₀
+    emptyrecₙ : Γ ⊢nf A →
+                Γ ⊢ne t ∷ Empty →
+                Γ ⊢ne emptyrec p A t ∷ A
+    natrecₙ   : Γ »∙ ℕ ⊢nf A →
+                Γ ⊢nf t ∷ A [ zero ]₀ →
+                Γ »∙ ℕ »∙ A ⊢nf u ∷ A [ suc (var x1) ]↑² →
+                Γ ⊢ne v ∷ ℕ →
+                Γ ⊢ne natrec p q r A t u v ∷ A [ v ]₀
+    unitrecₙ  : Γ »∙ Unitʷ l ⊢nf A →
+                Γ ⊢ne t ∷ Unitʷ l →
+                Γ ⊢nf u ∷ A [ starʷ l ]₀ →
                 Unitʷ-allowed →
                 ¬ Unitʷ-η →
-                ∇ » Γ ⊢ne unitrec l p q A t u ∷ A [ t ]₀
-    Jₙ        : ∇ » Γ ⊢nf A →
-                ∇ » Γ ⊢nf t ∷ A →
-                ∇ » Γ ∙ A ∙ Id (wk1 A) (wk1 t) (var x0) ⊢nf B →
-                ∇ » Γ ⊢nf u ∷ B [ t , rfl ]₁₀ →
-                ∇ » Γ ⊢nf v ∷ A →
-                ∇ » Γ ⊢ne w ∷ Id A t v →
-                ∇ » Γ ⊢ne J p q A t B u v w ∷ B [ v , w ]₁₀
-    Kₙ        : ∇ » Γ ⊢nf A →
-                ∇ » Γ ⊢nf t ∷ A →
-                ∇ » Γ ∙ Id A t t ⊢nf B →
-                ∇ » Γ ⊢nf u ∷ B [ rfl ]₀ →
-                ∇ » Γ ⊢ne v ∷ Id A t t →
+                Γ ⊢ne unitrec l p q A t u ∷ A [ t ]₀
+    Jₙ        : Γ ⊢nf A →
+                Γ ⊢nf t ∷ A →
+                Γ »∙ A »∙ Id (wk1 A) (wk1 t) (var x0) ⊢nf B →
+                Γ ⊢nf u ∷ B [ t , rfl ]₁₀ →
+                Γ ⊢nf v ∷ A →
+                Γ ⊢ne w ∷ Id A t v →
+                Γ ⊢ne J p q A t B u v w ∷ B [ v , w ]₁₀
+    Kₙ        : Γ ⊢nf A →
+                Γ ⊢nf t ∷ A →
+                Γ »∙ Id A t t ⊢nf B →
+                Γ ⊢nf u ∷ B [ rfl ]₀ →
+                Γ ⊢ne v ∷ Id A t t →
                 K-allowed →
-                ∇ » Γ ⊢ne K p A t B u v ∷ B [ v ]₀
-    []-congₙ  : ∇ » Γ ⊢nf A →
-                ∇ » Γ ⊢nf t ∷ A →
-                ∇ » Γ ⊢nf u ∷ A →
-                ∇ » Γ ⊢ne v ∷ Id A t u →
+                Γ ⊢ne K p A t B u v ∷ B [ v ]₀
+    []-congₙ  : Γ ⊢nf A →
+                Γ ⊢nf t ∷ A →
+                Γ ⊢nf u ∷ A →
+                Γ ⊢ne v ∷ Id A t u →
                 []-cong-allowed s →
                 let open Erased s in
-                ∇ » Γ ⊢ne []-cong s A t u v ∷
+                Γ ⊢ne []-cong s A t u v ∷
                   Id (Erased A) ([ t ]) ([ u ])
 
 ------------------------------------------------------------------------
@@ -338,7 +338,7 @@ opaque
     (Uₙ ⊢Γ) ⊢U →
       convₙ (Uₙ ⊢Γ) (sym $ inversion-U ⊢U)
     (univₙ ⊢A) ⊢A∷U →
-      PE.subst (_»_⊢nf_∷_ _ _ _)
+      PE.subst (_⊢nf_∷_ _ _)
         (PE.cong U $ universe-level-unique (⊢nf∷→⊢∷ ⊢A) ⊢A∷U) ⊢A
     (ΠΣₙ ⊢A ⊢B ok) ⊢ΠΣ →
       let _ , _ , ⊢A∷U , ⊢B∷U , U≡U , _ = inversion-ΠΣ-U ⊢ΠΣ in
@@ -1292,7 +1292,7 @@ mutual
               ⊢B₂)
            B₁≡B₂)
         (normal-terms-unique-[conv↑]∷ ⊢u₁
-           (convₙ ⊢u₂ $ _»_⊢_≡_.sym $
+           (convₙ ⊢u₂ $ _⊢_≡_.sym $
             J-motive-rfl-cong (soundnessConv↑ B₁≡B₂) ⊢t₁≡t₂)
            u₁≡u₂)
         (normal-terms-unique-[conv↑]∷
@@ -1317,7 +1317,7 @@ mutual
               ⊢B₂)
            B₁≡B₂)
         (normal-terms-unique-[conv↑]∷ ⊢u₁
-           (convₙ ⊢u₂ $ _»_⊢_≡_.sym $
+           (convₙ ⊢u₂ $ _⊢_≡_.sym $
             K-motive-rfl-cong (soundnessConv↑ B₁≡B₂))
            u₁≡u₂)
         (neutral-terms-unique-~↓ ⊢v₁ ⊢v₂ v₁~v₂) }}}

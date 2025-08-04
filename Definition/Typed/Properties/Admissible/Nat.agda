@@ -88,7 +88,7 @@ opaque
     ∇ » Γ ⊢ natcase p q A t u v ∷ A [ v ]₀
   ⊢natcase {A} ⊢A ⊢t ⊢u ⊢v =
     natrecⱼ ⊢t
-      (PE.subst (_»_⊢_∷_ _ _ _) (PE.sym $ [wk1]↑² A) $
+      (PE.subst (_⊢_∷_ _ _) (PE.sym $ [wk1]↑² A) $
        wkTerm₁ ⊢A ⊢u)
       ⊢v
 
@@ -104,7 +104,7 @@ opaque
     ∇ » Γ ⊢ natcase p q A t u zero ⇒ t ∷ A [ zero ]₀
   natcase-zero-⇒ {A} ⊢A ⊢t ⊢u =
     natrec-zero ⊢t
-      (PE.subst (_»_⊢_∷_ _ _ _) (PE.sym $ [wk1]↑² A) $
+      (PE.subst (_⊢_∷_ _ _) (PE.sym $ [wk1]↑² A) $
        wkTerm₁ ⊢A ⊢u)
 
 opaque
@@ -131,9 +131,9 @@ opaque
     ∇ » Γ ⊢ v ∷ ℕ →
     ∇ » Γ ⊢ natcase p q A t u (suc v) ⇒ u [ v ]₀ ∷ A [ suc v ]₀
   natcase-suc-⇒ {A} {u} ⊢A ⊢t ⊢u ⊢v =
-    PE.subst (flip (_»_⊢_⇒_∷_ _ _ _) _) (subst-wk u) $
+    PE.subst (flip (_⊢_⇒_∷_ _ _) _) (subst-wk u) $
     natrec-suc ⊢t
-      (PE.subst (_»_⊢_∷_ _ _ _) (PE.sym $ [wk1]↑² A) $
+      (PE.subst (_⊢_∷_ _ _) (PE.sym $ [wk1]↑² A) $
        wkTerm₁ ⊢A ⊢u)
       ⊢v
 
@@ -163,7 +163,7 @@ opaque
     ∇ » Γ ⊢ natcase p q A t u v₁ ⇒ natcase p q A t u v₂ ∷ A [ v₁ ]₀
   natcase-subst {A} ⊢A ⊢t ⊢u v₁⇒v₂ =
     natrec-subst ⊢t
-      (PE.subst (_»_⊢_∷_ _ _ _) (PE.sym $ [wk1]↑² A) $
+      (PE.subst (_⊢_∷_ _ _) (PE.sym $ [wk1]↑² A) $
        wkTerm₁ ⊢A ⊢u)
       v₁⇒v₂
 
@@ -182,7 +182,7 @@ opaque
     case syntacticEq A₁≡A₂ of λ
       (⊢A₁ , _) →
     natrec-cong A₁≡A₂ t₁≡t₂
-      (PE.subst (_»_⊢_≡_∷_ _ _ _ _) (PE.sym $ [wk1]↑² A₁) $
+      (PE.subst (_⊢_≡_∷_ _ _ _) (PE.sym $ [wk1]↑² A₁) $
        wkEqTerm₁ ⊢A₁ u₁≡u₂)
       v₁≡v₂
 
@@ -201,11 +201,11 @@ opaque
     ∇ » Γ ⊢ strict-const A₁ t₁ u₁ ≡ strict-const A₂ t₂ u₂ ∷ A₁
   strict-const-cong A₁≡A₂ t₁≡t₂ u₁≡u₂ =
     let A₁≡A₂′ = wkEq₁ (syntacticEqTerm u₁≡u₂ .proj₁) A₁≡A₂ in
-    PE.subst (_»_⊢_≡_∷_ _ _ _ _) (wk1-sgSubst _ _) $
+    PE.subst (_⊢_≡_∷_ _ _ _) (wk1-sgSubst _ _) $
     natrec-cong A₁≡A₂′
-      (PE.subst (_»_⊢_≡_∷_ _ _ _ _) (PE.sym $ wk1-sgSubst _ _) t₁≡t₂)
-      (_»_⊢_≡_∷_.refl $
-       PE.subst (_»_⊢_∷_ _ _ _) (PE.sym $ wk1-[][]↑ 2) $
+      (PE.subst (_⊢_≡_∷_ _ _ _) (PE.sym $ wk1-sgSubst _ _) t₁≡t₂)
+      (_⊢_≡_∷_.refl $
+       PE.subst (_⊢_∷_ _ _) (PE.sym $ wk1-[][]↑ 2) $
        var₀ (syntacticEq A₁≡A₂′ .proj₁))
       u₁≡u₂
 
@@ -220,10 +220,10 @@ opaque
     ∇ » Γ ⊢ strict-const A t u₁ ⇒ strict-const A t u₂ ∷ A
   strict-const-subst ⊢t u₁⇒u₂ =
     let ⊢A = wk₁ (ℕⱼ (wfTerm ⊢t)) (syntacticTerm ⊢t) in
-    PE.subst (_»_⊢_⇒_∷_ _ _ _ _) (wk1-sgSubst _ _) $
+    PE.subst (_⊢_⇒_∷_ _ _ _) (wk1-sgSubst _ _) $
     natrec-subst
-      (PE.subst (_»_⊢_∷_ _ _ _) (PE.sym $ wk1-sgSubst _ _) ⊢t)
-      (PE.subst (_»_⊢_∷_ _ _ _) (PE.sym $ wk1-[][]↑ 2) $
+      (PE.subst (_⊢_∷_ _ _) (PE.sym $ wk1-sgSubst _ _) ⊢t)
+      (PE.subst (_⊢_∷_ _ _) (PE.sym $ wk1-[][]↑ 2) $
        var₀ ⊢A)
       u₁⇒u₂
 
@@ -251,10 +251,10 @@ opaque
     ∇ » Γ ⊢ strict-const A t zero ⇒ t ∷ A
   strict-const-zero-⇒ ⊢t =
     let ⊢A = wk₁ (ℕⱼ (wfTerm ⊢t)) (syntacticTerm ⊢t) in
-    PE.subst (_»_⊢_⇒_∷_ _ _ _ _) (wk1-sgSubst _ _) $
+    PE.subst (_⊢_⇒_∷_ _ _ _) (wk1-sgSubst _ _) $
     natrec-zero
-      (PE.subst (_»_⊢_∷_ _ _ _) (PE.sym $ wk1-sgSubst _ _) ⊢t)
-      (PE.subst (_»_⊢_∷_ _ _ _) (PE.sym $ wk1-[][]↑ 2) $
+      (PE.subst (_⊢_∷_ _ _) (PE.sym $ wk1-sgSubst _ _) ⊢t)
+      (PE.subst (_⊢_∷_ _ _) (PE.sym $ wk1-[][]↑ 2) $
        var₀ ⊢A)
 
 opaque
@@ -278,10 +278,10 @@ opaque
     ∇ » Γ ⊢ strict-const A t (suc u) ⇒ strict-const A t u ∷ A
   strict-const-suc-⇒ ⊢t ⊢u =
     let ⊢A = wk₁ (syntacticTerm ⊢u) (syntacticTerm ⊢t) in
-    PE.subst (_»_⊢_⇒_∷_ _ _ _ _) (wk1-sgSubst _ _) $
+    PE.subst (_⊢_⇒_∷_ _ _ _) (wk1-sgSubst _ _) $
     natrec-suc
-      (PE.subst (_»_⊢_∷_ _ _ _) (PE.sym $ wk1-sgSubst _ _) ⊢t)
-      (PE.subst (_»_⊢_∷_ _ _ _) (PE.sym $ wk1-[][]↑ 2) $
+      (PE.subst (_⊢_∷_ _ _) (PE.sym $ wk1-sgSubst _ _) ⊢t)
+      (PE.subst (_⊢_∷_ _ _) (PE.sym $ wk1-[][]↑ 2) $
        var₀ ⊢A)
       ⊢u
 

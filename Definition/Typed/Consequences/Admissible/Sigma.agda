@@ -116,7 +116,7 @@ prod-cong⁻¹-Σˢ
                                                                         (substTypeEq (refl ⊢B)
                                                                            (fst-cong′ (sym′ prod≡prod)))))) ⟩
 
-    ∇ » Γ ⊢ u ≡ w ∷ B [ fst p (prodˢ p t u) ]₀            →⟨ flip _»_⊢_≡_∷_.conv (substTypeEq (refl ⊢B) fst-t,u≡t) ⟩
+    ∇ » Γ ⊢ u ≡ w ∷ B [ fst p (prodˢ p t u) ]₀            →⟨ flip _⊢_≡_∷_.conv (substTypeEq (refl ⊢B) fst-t,u≡t) ⟩
 
     ∇ » Γ ⊢ u ≡ w ∷ B [ t ]₀                              □
 
@@ -162,7 +162,7 @@ prod-cong⁻¹-Σʷ
                                                                                       (substTypeEq (refl ⊢B)
                                                                                          (fstʷ-cong (refl ⊢A) (sym′ prod≡prod)))))) ⟩
 
-    ∇ » Γ ⊢ u ≡ w ∷ B [ fstʷ p A (prodʷ p t u) ]₀                      →⟨ flip _»_⊢_≡_∷_.conv (substTypeEq (refl ⊢B) fst-t,u≡t) ⟩
+    ∇ » Γ ⊢ u ≡ w ∷ B [ fstʷ p A (prodʷ p t u) ]₀                      →⟨ flip _⊢_≡_∷_.conv (substTypeEq (refl ⊢B) fst-t,u≡t) ⟩
 
     ∇ » Γ ⊢ u ≡ w ∷ B [ t ]₀                                           □
 

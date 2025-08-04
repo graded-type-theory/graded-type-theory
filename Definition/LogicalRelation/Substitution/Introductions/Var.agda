@@ -73,7 +73,7 @@ opaque
               ((_ , _ , σ₁₀≡σ₂₀) , _) →
             R.level-⊩≡∷
               (⊩ᵛ→⊩ˢ∷→⊩[] (defn-wk-⊩ᵛ ξ⊇ ⊩wk1-A) (wf-⊩ˢ≡∷ σ₁≡σ₂ .proj₁))
-              (PE.subst (R._»_⊩⟨_⟩_≡_∷_ _ _ _ _ _) (PE.sym $ wk1-tail A)
+              (PE.subst (R._⊩⟨_⟩_≡_∷_ _ _ _ _) (PE.sym $ wk1-tail A)
                  σ₁₀≡σ₂₀)
         )
   varᵛ (there x∈Γ) ⊩Γ∙B =

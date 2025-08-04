@@ -100,7 +100,7 @@ mutual
           (convConv↑Term F[0]≡G[0] (symConv↑Term Γ≡Δ x₁))
           (convConv↑Term (sucCong′ F≡G)
              (symConv↑Term (Γ≡Δ ∙ refl (ℕⱼ ⊢Γ) ∙ soundnessConv↑ x) x₂))
-          (PE.subst (_»_⊢_~_↓_ _ _ _ _) B≡ℕ u~t)
+          (PE.subst (_⊢_~_↓_ _ _ _) B≡ℕ u~t)
   sym~↑ {Γ = Γ} {Δ = Δ} Γ≡Δ
     (prodrec-cong {F = F} {G = G} C↑E g~h u↑v) =
     case sym~↓ Γ≡Δ g~h of λ (B , whnfB , ⊢Σ≡B , h~g) →
@@ -289,7 +289,7 @@ mutual
   symConv↓Term Γ≡Δ (Unitʷ-ins ok t~u) =
     let B , whnfB , A≡B , u~t = sym~↓ Γ≡Δ t~u
         B≡Unit = Unit≡A A≡B whnfB
-    in  Unitʷ-ins ok (PE.subst (_»_⊢_~_↓_ _ _ _ _) B≡Unit u~t)
+    in  Unitʷ-ins ok (PE.subst (_⊢_~_↓_ _ _ _) B≡Unit u~t)
   symConv↓Term Γ≡Δ (Σʷ-ins t u t~u) =
     case sym~↓ Γ≡Δ t~u of λ (B , whnfB , A≡B , u~t) →
     case Σ≡A A≡B whnfB of λ where

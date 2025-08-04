@@ -57,7 +57,7 @@ opaque
     let ⊢Γ    = wfEq A₁≡A₂
         ⊢Unit = Unitⱼ ⊢Γ ok₁
     in
-    PE.subst (_»_⊢_≡_∷_ _ _ _ _) (wk1-sgSubst _ _) $
+    PE.subst (_⊢_≡_∷_ _ _ _) (wk1-sgSubst _ _) $
     app-cong
       (emptyrec-cong (ΠΣ-cong (refl ⊢Unit) (wkEq₁ ⊢Unit A₁≡A₂) ok₂)
          t₁≡t₂)

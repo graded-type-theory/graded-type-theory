@@ -99,9 +99,9 @@ opaque
       let ⊢σ : ε » Γ′ ⊢ˢʷ consSubst (sgSubst zero) zero ∷ (Γ′ ∙ F ∙ G)
           ⊢σ = →⊢ˢʷ∷∙
                  (→⊢ˢʷ∷∙ (⊢ˢʷ∷-idSubst εε) $
-                  PE.subst (_»_⊢_∷_ _ _ _) (PE.sym (subst-id F)) ⊢zero″)
+                  PE.subst (_⊢_∷_ _ _) (PE.sym (subst-id F)) ⊢zero″)
                  (conv ⊢zero′ (sym G₀≡G′₀))
-      in case PE.subst (_»_⊢_≡_ _ _ _) (wk1-tail G)
+      in case PE.subst (_⊢_≡_ _ _) (wk1-tail G)
                (subst-⊢≡ Unit≡′ (refl-⊢ˢʷ≡∷ ⊢σ)) of
         λ Unit≡″ →
       l , sym (trans Unit≡″ (trans G₀≡G′₀ ≡ℕ′)) }

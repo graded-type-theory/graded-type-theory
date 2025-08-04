@@ -62,7 +62,7 @@ private variable
 -- Some characterisation lemmas
 
 opaque
-  unfolding _»_⊩⟨_⟩_≡_ _»_⊩⟨_⟩_∷_ _»_⊩⟨_⟩_≡_∷_
+  unfolding _⊩⟨_⟩_≡_ _⊩⟨_⟩_∷_ _⊩⟨_⟩_≡_∷_
 
   -- A characterisation lemma for _⊩⟨_⟩_.
 
@@ -117,7 +117,7 @@ opaque
       , λ ξ⊇ ρ⊇ →
           case rest ξ⊇ ρ⊇ of λ
             (⊩A , B≡B) →
-            emb p (PE.subst (λ k → LogRelKit._»_⊩_ k _ _ _) (kit≡kit′ p) ⊩A)
+            emb p (PE.subst (λ k → LogRelKit._⊩_ k _ _) (kit≡kit′ p) ⊩A)
           , emb-⊩≡ (<ᵘ→≤ᵘ p) ∘→ B≡B ∘→ level-⊩≡∷ ⊩A
     lemma (noemb (Bᵣ _ _ ⇒*ΠΣ ΠΣ≅ΠΣ ⊩wk-A ⊩wk-B wk-B≡wk-B _)) =
       case B-PE-injectivity _ _ $ whnfRed* ⇒*ΠΣ ΠΣₙ of λ {
@@ -148,18 +148,18 @@ opaque
     let ⊢A , _ , ok  = inversion-ΠΣ (escape-⊩ ⊩ΠΣ)
         _ , hyp      = ⊩ΠΣ⇔ .proj₁ ⊩ΠΣ
         ⊩wk-id-A , _ = hyp id (id (wf ⊢A))
-        ⊩A           = PE.subst (_»_⊩⟨_⟩_ _ _ _) (wk-id _) ⊩wk-id-A
+        ⊩A           = PE.subst (_⊩⟨_⟩_ _ _) (wk-id _) ⊩wk-id-A
     in
         ok , ⊩A
       , (case hyp id (includedʷʳ (TW.stepʷ TW.id (escape-⊩ ⊩A))) of λ
            (⊩wk₁-A , wk-lift-step-id-B[]₀≡wk-lift-step-id-B[]₀) →
-         PE.subst (_»_⊩⟨_⟩_ _ _ _) (wkSingleSubstId _)
+         PE.subst (_⊩⟨_⟩_ _ _) (wkSingleSubstId _)
            (proj₁ $ wf-⊩≡ $
             wk-lift-step-id-B[]₀≡wk-lift-step-id-B[]₀ $
             refl-⊩≡∷ (⊩var here ⊩wk₁-A)))
 
 opaque
-  unfolding _»_⊩⟨_⟩_≡_ _»_⊩⟨_⟩_∷_ _»_⊩⟨_⟩_≡_∷_
+  unfolding _⊩⟨_⟩_≡_ _⊩⟨_⟩_∷_ _⊩⟨_⟩_≡_∷_
 
   -- A characterisation lemma for _⊩⟨_⟩_≡_.
 
@@ -337,13 +337,13 @@ opaque
         ok , ⊩A₁ , _ = ⊩ΠΣ→ ⊩ΠΣ₁
     in
       ok , b₁≡b₂ , p₁≡p₂ , q₁≡q₂
-    , PE.subst₂ (_»_⊩⟨_⟩_≡_ _ _ _) (wk-id _) (wk-id _)
+    , PE.subst₂ (_⊩⟨_⟩_≡_ _ _) (wk-id _) (wk-id _)
         (rest id (id (wfEq (≅-eq ΠΣ≅ΠΣ))) .proj₁)
     , let wk₁-A₁≡wk₁-A₂ ,
             wk-lift-step-id-B₁[]₀≡wk-lift-step-id-B₂[]₀ =
             rest id (includedʷʳ (TW.stepʷ TW.id (escape ⊩A₁)))
       in
-      PE.subst₂ (_»_⊩⟨_⟩_≡_ _ _ _) (wkSingleSubstId _) (wkSingleSubstId _)
+      PE.subst₂ (_⊩⟨_⟩_≡_ _ _) (wkSingleSubstId _) (wkSingleSubstId _)
         (wk-lift-step-id-B₁[]₀≡wk-lift-step-id-B₂[]₀ $
          ⊩var here (wf-⊩≡ wk₁-A₁≡wk₁-A₂ .proj₁))
 
@@ -369,17 +369,17 @@ opaque
       (ΠΣ≅ΠΣ , rest₁) →
     case wf (wf-⊢≡ (≅-eq ΠΣ≅ΠΣ) .proj₁) of λ
       ⊢Γ →
-    B₁ [ t₁ ]₀  ≡⟨ PE.subst₂ (_»_⊩⟨_⟩_≡_ _ _ _)
+    B₁ [ t₁ ]₀  ≡⟨ PE.subst₂ (_⊩⟨_⟩_≡_ _ _)
                      (PE.cong _[ _ ]₀ $ wk-lift-id B₁)
                      (PE.cong _[ _ ]₀ $ wk-lift-id B₁) $
                    rest₁ id (id ⊢Γ) .proj₂ $
-                   PE.subst (_»_⊩⟨_⟩_≡_∷_ _ _ _ _ _) (PE.sym $ wk-id _) $
+                   PE.subst (_⊩⟨_⟩_≡_∷_ _ _ _ _) (PE.sym $ wk-id _) $
                    level-⊩≡∷ ⊩A₁ t₁≡t₂ ⟩⊩
-    B₁ [ t₂ ]₀  ≡⟨ PE.subst₂ (_»_⊩⟨_⟩_≡_ _ _ _)
+    B₁ [ t₂ ]₀  ≡⟨ PE.subst₂ (_⊩⟨_⟩_≡_ _ _)
                      (PE.cong _[ _ ]₀ $ wk-lift-id B₁)
                      (PE.cong _[ _ ]₀ $ wk-lift-id B₂) $
                    rest id (id ⊢Γ) .proj₂ $
-                   PE.subst (_»_⊩⟨_⟩_∷_ _ _ _ _) (PE.sym $ wk-id _) $
+                   PE.subst (_⊩⟨_⟩_∷_ _ _ _) (PE.sym $ wk-id _) $
                    level-⊩∷ ⊩A₁ $
                    wf-⊩≡∷ t₁≡t₂ .proj₂ ⟩⊩∎
     B₂ [ t₂ ]₀  ∎
@@ -426,10 +426,10 @@ opaque
               ⊩B = defn-wk-⊩ᵛ ξ⊇ ⊩B
               ⊩σ = defn-wk-⊩ˢ∷ ξ⊇ ⊩σ
           in
-            PE.subst (_»_⊩⟨_⟩_ _ _ _) (PE.sym $ wk-subst A)
+            PE.subst (_⊩⟨_⟩_ _ _) (PE.sym $ wk-subst A)
               (R.⊩→ $ ⊩ᵛ→⊩ˢ∷→⊩[] ⊩A $ ⊩ˢ∷-•ₛ ρ⊇ ⊩σ)
           , λ t≡u →
-              PE.subst₂ (_»_⊩⟨_⟩_≡_ _ _ _)
+              PE.subst₂ (_⊩⟨_⟩_≡_ _ _)
                 (PE.sym $ singleSubstWkComp _ _ B)
                 (PE.sym $ singleSubstWkComp _ _ B) $
               R.⊩≡→ $
@@ -437,7 +437,7 @@ opaque
               ⊩ˢ≡∷∙⇔ .proj₂
                 ( ( _ , ⊩A
                   , (R.→⊩≡∷ $
-                     PE.subst (_»_⊩⟨_⟩_≡_∷_ _ _ _ _ _) (wk-subst A) t≡u)
+                     PE.subst (_⊩⟨_⟩_≡_∷_ _ _ _ _) (wk-subst A) t≡u)
                   )
                 , refl-⊩ˢ≡∷ (⊩ˢ∷-•ₛ ρ⊇ ⊩σ)
                 )
@@ -487,11 +487,11 @@ opaque
               B₁≡B₂ = defn-wk-⊩ᵛ≡ ξ⊇ B₁≡B₂
               σ₁≡σ₂ = defn-wk-⊩ˢ≡∷ ξ⊇ σ₁≡σ₂
           in
-            PE.subst₂ (_»_⊩⟨_⟩_≡_ _ _ _)
+            PE.subst₂ (_⊩⟨_⟩_≡_ _ _)
               (PE.sym $ wk-subst A₁) (PE.sym $ wk-subst A₂)
               (R.⊩≡→ $ ⊩ᵛ≡→⊩ˢ≡∷→⊩[]≡[] A₁≡A₂ $ ⊩ˢ≡∷-•ₛ ρ⊇ σ₁≡σ₂)
           , λ ⊩t →
-              PE.subst₂ (_»_⊩⟨_⟩_≡_ _ _ _)
+              PE.subst₂ (_⊩⟨_⟩_≡_ _ _)
                 (PE.sym $ singleSubstWkComp _ _ B₁)
                 (PE.sym $ singleSubstWkComp _ _ B₂) $
               R.⊩≡→ $
@@ -499,7 +499,7 @@ opaque
               ⊩ˢ≡∷∙⇔ .proj₂
                 ( ( _ , defn-wk-⊩ᵛ ξ⊇ ⊩A₁
                   , (R.refl-⊩≡∷ $
-                     PE.subst (R._»_⊩⟨_⟩_∷_ _ _ _ _) (wk-subst A₁) $
+                     PE.subst (R._⊩⟨_⟩_∷_ _ _ _) (wk-subst A₁) $
                      R.→⊩∷ ⊩t)
                   )
                 , ⊩ˢ≡∷-•ₛ ρ⊇ σ₁≡σ₂

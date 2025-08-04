@@ -100,7 +100,7 @@ private opaque
   isΠΣ′ (Idᵣ ⊩A) =
     no λ (_ , _ , _ , _ , _ , A⇒*Id) →
     I.Id≢ΠΣ $
-    trans (sym (subset* (_»_⊩ₗId_.⇒*Id ⊩A))) (subset* A⇒*Id)
+    trans (sym (subset* (_⊩ₗId_.⇒*Id ⊩A))) (subset* A⇒*Id)
   isΠΣ′ (emb ≤ᵘ-refl     ⊩A) = isΠΣ′ ⊩A
   isΠΣ′ (emb (≤ᵘ-step p) ⊩A) = isΠΣ′ (emb p ⊩A)
 
@@ -174,7 +174,7 @@ opaque
     helper (Uᵣ ⊩U) =
       no λ (_ , _ , _ , A⇒*Id) →
         Id≢U $
-        trans (sym (subset* A⇒*Id)) (subset* (_»_⊩₁U_.⇒*U ⊩U))
+        trans (sym (subset* A⇒*Id)) (subset* (_⊩₁U_.⇒*U ⊩U))
     helper (ℕᵣ A⇒*ℕ) =
       no λ (_ , _ , _ , A⇒*Id) →
         Id≢ℕ (trans (sym (subset* A⇒*Id)) (subset* A⇒*ℕ))
@@ -185,18 +185,18 @@ opaque
       no λ (_ , _ , _ , A⇒*Id) →
         Id≢Unit $
         trans (sym (subset* A⇒*Id))
-          (subset* (_»_⊩Unit⟨_,_⟩_.⇒*-Unit ⊩Unit))
+          (subset* (_⊩Unit⟨_,_⟩_.⇒*-Unit ⊩Unit))
     helper (ne ⊩A) =
       no λ (_ , _ , _ , A⇒*Id) →
         I.Id≢ne neK $ trans (sym (subset* A⇒*Id)) (subset* D)
       where
-      open _»_⊩ne_ ⊩A
+      open _⊩ne_ ⊩A
     helper (Bᵣ (BM _ _ _) ⊩A) =
       no λ (_ , _ , _ , A⇒*Id) →
         I.Id≢ΠΣ $
-        trans (sym (subset* A⇒*Id)) (subset* (_»_⊩ₗB⟨_⟩_.D ⊩A))
+        trans (sym (subset* A⇒*Id)) (subset* (_⊩ₗB⟨_⟩_.D ⊩A))
     helper (Idᵣ ⊩A) = yes (_ , _ , _ , ⇒*Id)
       where
-      open _»_⊩ₗId_ ⊩A
+      open _⊩ₗId_ ⊩A
     helper (emb ≤ᵘ-refl     ⊩A) = helper ⊩A
     helper (emb (≤ᵘ-step p) ⊩A) = helper (emb p ⊩A)

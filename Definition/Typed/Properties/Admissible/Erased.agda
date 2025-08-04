@@ -228,10 +228,10 @@ private opaque
       ⊢Unit →
     case ⊢ˢʷ∷-wkSubst (∙ ⊢Unit) (⊢ˢʷ∷-idSubst (wf ⊢A)) of λ
       ⊢wk3 →
-    [][]↑-cong B₁≡B₂ $ _»_⊢_≡_∷_.refl $
+    [][]↑-cong B₁≡B₂ $ _⊢_≡_∷_.refl $
     prodⱼ
       (Unitⱼ (∙ subst-⊢ ⊢A ⊢wk3) Unit-ok)
-      (PE.subst (_»_⊢_∷_ _ _ _) (wk[]≡[] 3) $ var₂ ⊢Unit)
+      (PE.subst (_⊢_∷_ _ _) (wk[]≡[] 3) $ var₂ ⊢Unit)
       (var₀ ⊢Unit) Σ-ok }
 
   erasedrec-lemma₂ :
@@ -242,7 +242,7 @@ private opaque
     ∇ » Γ ∙ A ∙ Unit s 0 ⊢ wk1 t₁ ≡ wk1 t₂ ∷
       B [ 3 ][ prod s 𝟘 (var x2) (var x0) ]↑ [ star s 0 ]₀
   erasedrec-lemma₂ {s} B Unit-ok t₁≡t₂ =
-    flip (PE.subst (_»_⊢_≡_∷_ _ _ _ _))
+    flip (PE.subst (_⊢_≡_∷_ _ _ _))
       (wkEqTerm₁ (Unitⱼ (wfEqTerm t₁≡t₂) Unit-ok) t₁≡t₂) $
     wk1 (B [ [ var x0 ] ]↑)                                     ≡⟨ wk[]′[][]↑ 1 B ⟩
     B [ 2 ][ wk1 [ var x0 ] ]↑                                  ≡⟨⟩
@@ -268,7 +268,7 @@ opaque
     case inversion-Erased ⊢Erased-A of λ
       (_ , Unit-ok , _) →
     prodrec⟨⟩-cong B₁≡B₂ u₁≡u₂ $
-    PE.subst (_»_⊢_≡_∷_ _ _ _ _) ([][]↑-[₀⇑] 0 B₁) $
+    PE.subst (_⊢_≡_∷_ _ _ _) ([][]↑-[₀⇑] 0 B₁) $
     unitrec⟨⟩-cong (erasedrec-lemma₁ B₁≡B₂)
       (refl $ var₀ $
        Unitⱼ (wfTerm (syntacticEqTerm t₁≡t₂ .proj₂ .proj₁)) Unit-ok)
@@ -311,7 +311,7 @@ opaque
     prodrec⟨ s ⟩ is-𝕨 𝟘 p B [ u ]
       (unitrec⟨ s ⟩ 0 𝟙 p (B [ 3 ][ prod s 𝟘 (var x2) (var x0) ]↑)
         (var x0) (wk1 t))                                             ≡⟨ prodrec⟨⟩-β (λ _ → ⊢B) ⊢u (starⱼ ⊢Γ Unit-ok)
-                                                                           (PE.subst (_»_⊢_∷_ _ _ _) ([][]↑-[₀⇑] 0 B) $
+                                                                           (PE.subst (_⊢_∷_ _ _) ([][]↑-[₀⇑] 0 B) $
                                                                             ⊢unitrec⟨⟩ (syntacticEq (erasedrec-lemma₁ (refl ⊢B)) .proj₁)
                                                                               (var₀ $ Unitⱼ (wfTerm ⊢t) Unit-ok)
                                                                               (syntacticEqTerm (erasedrec-lemma₂ B Unit-ok (refl ⊢t))
@@ -327,14 +327,14 @@ opaque
                                                                                PE.cong (B U.[_]₀) $
                                                                                PE.cong₂ (prod _ _) (wk1-sgSubst _ _) PE.refl of λ
                                                                             lemma →
-                                                                          PE.subst (_»_⊢_≡_∷_ _ _ _ _) lemma $
+                                                                          PE.subst (_⊢_≡_∷_ _ _ _) lemma $
                                                                           unitrec⟨⟩-β-≡
                                                                             (λ _ →
                                                                                ⊢[][]↑ ⊢B $
-                                                                               PE.subst (_»_⊢_∷_ _ _ _) (wk[]≡[] 1) $
+                                                                               PE.subst (_⊢_∷_ _ _) (wk[]≡[] 1) $
                                                                                prodⱼ (Unitⱼ (∙ (wk₁ ⊢Unit ⊢A)) Unit-ok) (wkTerm₁ ⊢Unit ⊢u)
                                                                                  (var₀ ⊢Unit) Σ-ok)
-                                                                            (PE.subst (_»_⊢_∷_ _ _ _) (PE.trans ([]↑-[]₀ B) (PE.sym lemma)) $
+                                                                            (PE.subst (_⊢_∷_ _ _) (PE.trans ([]↑-[]₀ B) (PE.sym lemma)) $
                                                                              substTerm ⊢t ⊢u)) ⟩⊢∎
     t [ u ]₀                                                          ∎ }
     where
@@ -358,7 +358,7 @@ opaque
       ⊢Erased-A →
     case inversion-Erased ⊢Erased-A of λ
       (⊢A , Erased-ok) →
-    PE.subst (_»_⊢_∷_ _ _ _)
+    PE.subst (_⊢_∷_ _ _)
       (PE.cong₃ Id
          (PE.cong Erased $ wk1-sgSubst _ _)
          (PE.cong [_] $
@@ -371,7 +371,7 @@ opaque
        []-cong′ Erased-ok
          (erased (wk1 A) (var x0) [ [ var x0 ] ]↑    ≡⟨ erased-[] ⟩⊢≡
           erased (wk1 A [ [ var x0 ] ]↑) [ var x0 ]  ≡⟨ Erased-β Erased-ok $
-                                                        PE.subst (_»_⊢_∷_ _ _ _)
+                                                        PE.subst (_⊢_∷_ _ _)
                                                           (PE.trans (wk≡subst _ _) $
                                                            PE.sym $ wk1-tail A) $
                                                         var₀ ⊢A ⟩⊢∎
@@ -399,7 +399,7 @@ opaque
     case inversion-Erased $ syntacticEqTerm u₁≡u₂ .proj₁ of λ
       (_ , ok) →
     []-cong′ ok $
-    PE.subst (_»_⊢_≡_∷_ _ _ _ _) (wk1-sgSubst _ _) $
+    PE.subst (_⊢_≡_∷_ _ _ _) (wk1-sgSubst _ _) $
     substTermEq t₁≡t₂ (erased-cong A₁≡A₂ u₁≡u₂)
 
 opaque
@@ -430,7 +430,7 @@ opaque
     ∇ » Γ ⊢ mapᴱ A t [ u ] ≡ [ t [ u ]₀ ] ∷ Erased B
   mapᴱ-β ok ⊢t ⊢u =
     []-cong′ ok $
-    PE.subst (_»_⊢_≡_∷_ _ _ _ _) (wk1-sgSubst _ _) $
+    PE.subst (_⊢_≡_∷_ _ _ _) (wk1-sgSubst _ _) $
     substTermEq (refl ⊢t) (Erased-β ok ⊢u)
 
 ------------------------------------------------------------------------
@@ -688,8 +688,8 @@ module _ (ok : []-cong-allowed s) where
               (wkEq (liftʷ (step (step id)) ⊢A₁′) (wkEq₁ ⊢A₁ A₁≡A₂))
               (wkEqTerm (liftʷ (step (step id)) ⊢A₁′)
                  (wkEqTerm₁ ⊢A₁ t₁≡t₂))
-              (_»_⊢_≡_∷_.refl $
-               PE.subst (_»_⊢_∷_ _ _ _) (wk1-wk≡lift-wk1 _ _) $
+              (_⊢_≡_∷_.refl $
+               PE.subst (_⊢_∷_ _ _) (wk1-wk≡lift-wk1 _ _) $
                var₀ ⊢A₁′))
            Σ-ok)
         (prod-cong
@@ -697,8 +697,8 @@ module _ (ok : []-cong-allowed s) where
               (J-motive-context-type ⊢t₁))
            (wkEqTerm (stepʷ (step id) (J-motive-context-type ⊢t₁))
               t₁≡t₂)
-           (_»_⊢_≡_∷_.refl $
-            PE.subst (_»_⊢_∷_ _ _ _)
+           (_⊢_≡_∷_.refl $
+            PE.subst (_⊢_∷_ _ _)
               (PE.cong₃ Id lemma₁ lemma₁ PE.refl) $
             rflⱼ $
             wkTerm (stepʷ (step id) (J-motive-context-type ⊢t₁)) ⊢t₁)
@@ -706,11 +706,11 @@ module _ (ok : []-cong-allowed s) where
         (prod-cong
            (W.wk (liftʷ (step (step id)) ⊢A₁′)
               (J-motive-context-type ⊢t₁))
-           (_»_⊢_≡_∷_.refl $
-            PE.subst (_»_⊢_∷_ _ _ _) wk[]≡wk[]′ $
+           (_⊢_≡_∷_.refl $
+            PE.subst (_⊢_∷_ _ _) wk[]≡wk[]′ $
             var₁ (J-motive-context-type ⊢t₁))
-           (_»_⊢_≡_∷_.refl $
-            PE.subst (_»_⊢_∷_ _ _ _)
+           (_⊢_≡_∷_.refl $
+            PE.subst (_⊢_∷_ _ _)
               (PE.cong₃ Id lemma₂ lemma₂ PE.refl) $
             var₀ (J-motive-context-type ⊢t₁))
            Σ-ok)
@@ -732,7 +732,7 @@ module _ (ok : []-cong-allowed s) where
           (prod s 𝟘 (var x1) (var x0))
         [ t , rfl ]₁₀
     lemma₇ ⊢t =
-      PE.subst (_»_⊢_∷_ _ _ _)
+      PE.subst (_⊢_∷_ _ _)
         (PE.sym $ PE.cong₃ Id
            (PE.cong₂ (Σ⟨_⟩_,_▷_▹_ s 𝟘 𝟘) wk₂-[,] $
             PE.cong₃ Id lemma₃ lemma₃ PE.refl)
@@ -740,7 +740,7 @@ module _ (ok : []-cong-allowed s) where
            PE.refl) $
       rflⱼ $
       prodⱼ (J-motive-context-type ⊢t) ⊢t
-        (PE.subst (_»_⊢_∷_ _ _ _)
+        (PE.subst (_⊢_∷_ _ _)
            (PE.sym $ PE.cong₃ Id
               (wk1-sgSubst _ _)
               (wk1-sgSubst _ _)
@@ -779,13 +779,13 @@ module _ (ok : []-cong-allowed s) where
       subst-⊢≡ B₁≡B₂ $
       →⊢ˢʷ≡∷∙ ⊢Id
         (⊢ˢʷ≡∷-[][]↑ (fst⟨⟩-cong A₁≡A₂′ $ refl (var₀ ⊢Singleton₁)))
-        (PE.subst (_»_⊢_≡_∷_ _ _ _ _)
+        (PE.subst (_⊢_≡_∷_ _ _ _)
            (PE.cong₃ Id (lemma₄ A₁) (lemma₄ t₁) PE.refl)
            (snd⟨⟩-cong A₁≡A₂′
               (Id-cong (wkEq (stepʷ (step id) ⊢A₁′) A₁≡A₂)
                  (wkEqTerm (stepʷ (step id) ⊢A₁′) t₁≡t₂)
-                 (refl (PE.subst (_»_⊢_∷_ _ _ _) wk[]≡wk[]′ $ var₀ ⊢A₁′))) $
-            PE.subst (_»_⊢_≡_∷_ _ _ _ _)
+                 (refl (PE.subst (_⊢_∷_ _ _) wk[]≡wk[]′ $ var₀ ⊢A₁′))) $
+            PE.subst (_⊢_≡_∷_ _ _ _)
               (PE.cong (Σ⟨_⟩_,_▷_▹_ s 𝟘 𝟘 (wk1 A₁)) $
                PE.cong₃ Id (lift-wk1 _ _) (lift-wk1 _ _) PE.refl) $
             refl (var₀ ⊢Singleton₁)))
@@ -819,7 +819,7 @@ module _ (ok : []-cong-allowed s) where
     lemma₉ {A} {t} {B} {v} {u} ⊢B ⊢v =
       case inversion-Id (syntacticTerm ⊢v) of λ
         (_ , ⊢t , ⊢u) →
-      case PE.subst (_»_⊢_∷_ _ _ _)
+      case PE.subst (_⊢_∷_ _ _)
              (PE.sym $ PE.cong₃ Id
                 (wk1-sgSubst _ _)
                 (wk1-sgSubst _ _)
@@ -893,8 +893,8 @@ module _ (ok : []-cong-allowed s) where
               Σ-ok)
            (lemma₈ A₁≡A₂ B₁≡B₂ t₁≡t₂)
            (prod-cong (J-motive-context-type ⊢t₁) t₁≡t₂
-              (_»_⊢_≡_∷_.refl $
-               PE.subst (_»_⊢_∷_ _ _ _)
+              (_⊢_≡_∷_.refl $
+               PE.subst (_⊢_∷_ _ _)
                  (PE.sym $ PE.cong₃ Id
                     (wk1-sgSubst _ _)
                     (wk1-sgSubst _ _)
@@ -902,14 +902,14 @@ module _ (ok : []-cong-allowed s) where
                rflⱼ ⊢t₁)
               Σ-ok)
            (prod-cong (J-motive-context-type ⊢t₁) v₁≡v₂
-              (PE.subst (_»_⊢_≡_∷_ _ _ _ _)
+              (PE.subst (_⊢_≡_∷_ _ _ _)
                  (PE.sym $ PE.cong₃ Id
                     (wk1-sgSubst _ _)
                     (wk1-sgSubst _ _)
                     PE.refl)
                  w₁≡w₂)
               Σ-ok)
-           (PE.subst (_»_⊢_≡_∷_ _ _ _ _)
+           (PE.subst (_⊢_≡_∷_ _ _ _)
               (PE.cong₃ Id wk₂-[,] wk₂-[,] PE.refl) $
             J-cong′ A₁≡A₂ t₁≡t₂ (lemma₆ A₁≡A₂ t₁≡t₂) (refl (lemma₇ ⊢t₁))
               v₁≡v₂ w₁≡w₂)
@@ -946,7 +946,7 @@ module _ (ok : []-cong-allowed s) where
     Jᵉ-⇒*′ {t} {t′} {A} {B} {u} t≡t′ ⊢B ⊢u =
       case syntacticEqTerm t≡t′ of λ
         (⊢A , ⊢t , _) →
-      case PE.subst (_»_⊢_∷_ _ _ _)
+      case PE.subst (_⊢_∷_ _ _)
              (PE.sym $ PE.cong₃ Id
                 (wk1-sgSubst _ _)
                 (wk1-sgSubst _ _)
@@ -972,24 +972,24 @@ module _ (ok : []-cong-allowed s) where
            (Id (wk₂ (Singleton A t)) (wk₂ (prod s 𝟘 t rfl))
               (prod s 𝟘 (var x1) (var x0)))
            rfl t′ rfl)
-        u                                                             ⇒⟨ _»_⊢_⇒_∷_.conv
+        u                                                             ⇒⟨ _⊢_⇒_∷_.conv
                                                                            (substᵉ-subst (lemma₈′ ⊢B ⊢t)
                                                                               (conv
-                                                                                 (PE.subst (_»_⊢_⇒_∷_ _ _ _ _)
+                                                                                 (PE.subst (_⊢_⇒_∷_ _ _ _)
                                                                                     (PE.cong₃ Id wk₂-[,] wk₂-[,] PE.refl) $
                                                                                   J-β-⇒ t≡t′ (lemma₆′ ⊢t) (lemma₇ ⊢t))
                                                                                   (Id-cong (refl ⊢Singleton)
                                                                                      (refl (prodⱼ (J-motive-context-type ⊢t) ⊢t ⊢rfl Σ-ok))
                                                                                      t,rfl≡t′,rfl))
                                                                               (conv ⊢u $ sym $ lemma₉ ⊢B (rflⱼ ⊢t))) $
-                                                                         _»_⊢_≡_.trans (lemma₉ ⊢B (rflⱼ′ t≡t′)) $
+                                                                         _⊢_≡_.trans (lemma₉ ⊢B (rflⱼ′ t≡t′)) $
                                                                          substTypeEq₂ (refl ⊢B) (sym′ t≡t′) $
-                                                                         PE.subst (_»_⊢_≡_∷_ _ _ _ _)
+                                                                         PE.subst (_⊢_≡_∷_ _ _ _)
                                                                            (PE.sym $ PE.cong₃ Id
                                                                               (wk1-sgSubst _ _)
                                                                               (wk1-sgSubst _ _)
                                                                               PE.refl) $
-                                                                         _»_⊢_≡_∷_.conv (refl (rflⱼ ⊢t)) $
+                                                                         _⊢_≡_∷_.conv (refl (rflⱼ ⊢t)) $
                                                                          Id-cong (refl ⊢A) (refl ⊢t) t≡t′ ⟩
       substᵉ
         (Singleton A t)

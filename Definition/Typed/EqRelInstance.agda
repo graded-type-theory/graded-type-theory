@@ -32,7 +32,7 @@ private opaque
   -- A lemma used below.
 
   equality-relations :
-    Equality-relations _»_⊢_≡_ _»_⊢_≡_∷_ _»_⊢_≡_∷_ No-equality-reflection
+    Equality-relations _⊢_≡_ _⊢_≡_∷_ _⊢_≡_∷_ No-equality-reflection
   equality-relations = λ where
       .Var-included? →
         No-equality-reflection?
@@ -100,9 +100,9 @@ instance
 
   eqRelInstance : EqRelSet
   eqRelInstance = λ where
-    .EqRelSet._»_⊢_≅_            → _»_⊢_≡_
-    .EqRelSet._»_⊢_≅_∷_          → _»_⊢_≡_∷_
-    .EqRelSet._»_⊢_~_∷_          → _»_⊢_≡_∷_
+    .EqRelSet._⊢_≅_              → _⊢_≡_
+    .EqRelSet._⊢_≅_∷_            → _⊢_≡_∷_
+    .EqRelSet._⊢_~_∷_            → _⊢_≡_∷_
     .EqRelSet.Var-included       → No-equality-reflection
     .EqRelSet.equality-relations → equality-relations
 

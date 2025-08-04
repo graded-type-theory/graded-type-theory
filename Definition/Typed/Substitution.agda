@@ -49,10 +49,10 @@ opaque
     PE.subst (_ » _ ⊢ _ ⇒_∷ _) (PE.sym (wk₀-subst-invariant _))
              (δ-red (wf-⊢ˢʷ∷ ⊢σ) α↦t (wk₀-subst-invariant _) PE.refl)
   subst-⊢⇒∷ (app-subst {G = B} t⇒u ⊢v) ⊢σ =
-    PE.subst (_»_⊢_⇒_∷_ _ _ _ _) (PE.sym (singleSubstLift B _))
+    PE.subst (_⊢_⇒_∷_ _ _ _) (PE.sym (singleSubstLift B _))
       (app-subst (subst-⊢⇒∷ t⇒u ⊢σ) (subst-⊢∷ ⊢v ⊢σ))
   subst-⊢⇒∷ (β-red {G = B} {t} ⊢B ⊢t ⊢u PE.refl ok) ⊢σ =
-    PE.subst₂ (_»_⊢_⇒_∷_ _ _ _)
+    PE.subst₂ (_⊢_⇒_∷_ _ _)
       (PE.sym (singleSubstLift t _))
       (PE.sym (singleSubstLift B _)) $
     β-red-⇒ (subst-⊢∷-⇑ ⊢t ⊢σ) (subst-⊢∷ ⊢u ⊢σ) ok
@@ -64,95 +64,95 @@ opaque
     snd-subst′ (subst-⊢⇒∷ t⇒u ⊢σ)
   subst-⊢⇒∷ (Σ-β₁ {G = B} ⊢B ⊢t ⊢u eq ok) ⊢σ =
     Σ-β₁ (subst-⊢-⇑ ⊢B ⊢σ) (subst-⊢∷ ⊢t ⊢σ)
-      (PE.subst (_»_⊢_∷_ _ _ _) (singleSubstLift B _) (subst-⊢∷ ⊢u ⊢σ))
+      (PE.subst (_⊢_∷_ _ _) (singleSubstLift B _) (subst-⊢∷ ⊢u ⊢σ))
       eq ok
   subst-⊢⇒∷ (Σ-β₂ {G = B} ⊢B ⊢t ⊢u eq ok) ⊢σ =
-    PE.subst (_»_⊢_⇒_∷_ _ _ _ _) (PE.sym $ singleSubstLift B _) $
+    PE.subst (_⊢_⇒_∷_ _ _ _) (PE.sym $ singleSubstLift B _) $
     Σ-β₂ (subst-⊢-⇑ ⊢B ⊢σ) (subst-⊢∷ ⊢t ⊢σ)
-      (PE.subst (_»_⊢_∷_ _ _ _) (singleSubstLift B _) (subst-⊢∷ ⊢u ⊢σ))
+      (PE.subst (_⊢_∷_ _ _) (singleSubstLift B _) (subst-⊢∷ ⊢u ⊢σ))
       eq ok
   subst-⊢⇒∷ (prodrec-subst {A = C} ⊢C ⊢u t₁⇒t₂ _) ⊢σ =
-    PE.subst (_»_⊢_⇒_∷_ _ _ _ _) (PE.sym $ singleSubstLift C _)
+    PE.subst (_⊢_⇒_∷_ _ _ _) (PE.sym $ singleSubstLift C _)
       (prodrec-subst′ (subst-⊢-⇑ ⊢C ⊢σ)
         (PE.subst (_ » _ ⊢ _ ∷_) (subst-β-prodrec C _) $
          subst-⊢∷-⇑ ⊢u ⊢σ)
         (subst-⊢⇒∷ t₁⇒t₂ ⊢σ))
   subst-⊢⇒∷
     (prodrec-β {G = B} {A = C} {u = v} ⊢C ⊢t ⊢u ⊢v PE.refl _) ⊢σ =
-    PE.subst₂ (_»_⊢_⇒_∷_ _ _ _)
+    PE.subst₂ (_⊢_⇒_∷_ _ _)
       (PE.sym $ [,]-[]-commute v)
       (PE.sym $ singleSubstLift C _) $
     prodrec-β-⇒ (subst-⊢-⇑ ⊢C ⊢σ) (subst-⊢∷ ⊢t ⊢σ)
-      (PE.subst (_»_⊢_∷_ _ _ _) (singleSubstLift B _) $
+      (PE.subst (_⊢_∷_ _ _) (singleSubstLift B _) $
        subst-⊢∷ ⊢u ⊢σ)
-      (PE.subst (_»_⊢_∷_ _ _ _) (subst-β-prodrec C _) $
+      (PE.subst (_⊢_∷_ _ _) (subst-β-prodrec C _) $
        subst-⊢∷-⇑ ⊢v ⊢σ)
   subst-⊢⇒∷ (natrec-subst {A} ⊢t ⊢u v₁⇒v₂) ⊢σ =
-    PE.subst (_»_⊢_⇒_∷_ _ _ _ _) (PE.sym $ singleSubstLift A _) $
+    PE.subst (_⊢_⇒_∷_ _ _ _) (PE.sym $ singleSubstLift A _) $
     natrec-subst
-      (PE.subst (_»_⊢_∷_ _ _ _) (singleSubstLift A _) (subst-⊢∷ ⊢t ⊢σ))
-      (PE.subst (_»_⊢_∷_ _ _ _) (natrecSucCase _ A) $
+      (PE.subst (_⊢_∷_ _ _) (singleSubstLift A _) (subst-⊢∷ ⊢t ⊢σ))
+      (PE.subst (_⊢_∷_ _ _) (natrecSucCase _ A) $
        subst-⊢∷-⇑ ⊢u ⊢σ)
       (subst-⊢⇒∷ v₁⇒v₂ ⊢σ)
   subst-⊢⇒∷ (natrec-zero {A} ⊢t ⊢u) ⊢σ =
-    PE.subst (_»_⊢_⇒_∷_ _ _ _ _) (PE.sym $ singleSubstLift A _) $
+    PE.subst (_⊢_⇒_∷_ _ _ _) (PE.sym $ singleSubstLift A _) $
     natrec-zero
-      (PE.subst (_»_⊢_∷_ _ _ _) (singleSubstLift A _) (subst-⊢∷ ⊢t ⊢σ))
-      (PE.subst (_»_⊢_∷_ _ _ _) (natrecSucCase _ A) $
+      (PE.subst (_⊢_∷_ _ _) (singleSubstLift A _) (subst-⊢∷ ⊢t ⊢σ))
+      (PE.subst (_⊢_∷_ _ _) (natrecSucCase _ A) $
        subst-⊢∷-⇑ ⊢u ⊢σ)
   subst-⊢⇒∷ (natrec-suc {A} {s = u} ⊢t ⊢u ⊢v) ⊢σ =
-    PE.subst₂ (_»_⊢_⇒_∷_ _ _ _)
+    PE.subst₂ (_⊢_⇒_∷_ _ _)
       (PE.sym $ [,]-[]-commute u)
       (PE.sym $ singleSubstLift A _) $
     natrec-suc
-      (PE.subst (_»_⊢_∷_ _ _ _) (singleSubstLift A _) (subst-⊢∷ ⊢t ⊢σ))
-      (PE.subst (_»_⊢_∷_ _ _ _) (natrecSucCase _ A) $
+      (PE.subst (_⊢_∷_ _ _) (singleSubstLift A _) (subst-⊢∷ ⊢t ⊢σ))
+      (PE.subst (_⊢_∷_ _ _) (natrecSucCase _ A) $
        subst-⊢∷-⇑ ⊢u ⊢σ)
       (subst-⊢∷ ⊢v ⊢σ)
   subst-⊢⇒∷ (emptyrec-subst ⊢A t₁⇒t₂) ⊢σ =
     emptyrec-subst (subst-⊢ ⊢A ⊢σ) (subst-⊢⇒∷ t₁⇒t₂ ⊢σ)
   subst-⊢⇒∷ (unitrec-subst {A} ⊢A ⊢u t₁⇒t₂ ok no-η) ⊢σ =
-    PE.subst (_»_⊢_⇒_∷_ _ _ _ _) (PE.sym $ singleSubstLift A _) $
+    PE.subst (_⊢_⇒_∷_ _ _ _) (PE.sym $ singleSubstLift A _) $
     unitrec-subst (subst-⊢-⇑ ⊢A ⊢σ)
-      (PE.subst (_»_⊢_∷_ _ _ _) (singleSubstLift A _) (subst-⊢∷ ⊢u ⊢σ))
+      (PE.subst (_⊢_∷_ _ _) (singleSubstLift A _) (subst-⊢∷ ⊢u ⊢σ))
       (subst-⊢⇒∷ t₁⇒t₂ ⊢σ) ok no-η
   subst-⊢⇒∷ (unitrec-β {A} ⊢A ⊢t ok no-η) ⊢σ =
-    PE.subst (_»_⊢_⇒_∷_ _ _ _ _) (PE.sym $ singleSubstLift A _) $
+    PE.subst (_⊢_⇒_∷_ _ _ _) (PE.sym $ singleSubstLift A _) $
     unitrec-β (subst-⊢-⇑ ⊢A ⊢σ)
-      (PE.subst (_»_⊢_∷_ _ _ _) (singleSubstLift A _) (subst-⊢∷ ⊢t ⊢σ)) ok
+      (PE.subst (_⊢_∷_ _ _) (singleSubstLift A _) (subst-⊢∷ ⊢t ⊢σ)) ok
       no-η
   subst-⊢⇒∷ (unitrec-β-η {A} ⊢A ⊢t ⊢u ok η) ⊢σ =
-    PE.subst (_»_⊢_⇒_∷_ _ _ _ _) (PE.sym $ singleSubstLift A _) $
+    PE.subst (_⊢_⇒_∷_ _ _ _) (PE.sym $ singleSubstLift A _) $
     unitrec-β-η (subst-⊢-⇑ ⊢A ⊢σ) (subst-⊢∷ ⊢t ⊢σ)
-      (PE.subst (_»_⊢_∷_ _ _ _) (singleSubstLift A _) (subst-⊢∷ ⊢u ⊢σ)) ok η
+      (PE.subst (_⊢_∷_ _ _) (singleSubstLift A _) (subst-⊢∷ ⊢u ⊢σ)) ok η
   subst-⊢⇒∷ (J-subst {t} {A} {B} ⊢t ⊢B ⊢u ⊢v w₁⇒w₂) ⊢σ =
-    PE.subst (_»_⊢_⇒_∷_ _ _ _ _) (PE.sym $ [,]-[]-commute B) $
+    PE.subst (_⊢_⇒_∷_ _ _ _) (PE.sym $ [,]-[]-commute B) $
     J-subst (subst-⊢∷ ⊢t ⊢σ)
-      (PE.subst (flip (_»_⊢_ _) _)
-         (PE.cong (_∙_ _) $
+      (PE.subst (flip _⊢_ _)
+         (PE.cong (_»∙_ _) $
           PE.cong₃ Id (wk1-liftSubst A) (wk1-liftSubst t) PE.refl) $
        subst-⊢-⇑ ⊢B ⊢σ)
-      (PE.subst (_»_⊢_∷_ _ _ _) ([,]-[]-commute B) (subst-⊢∷ ⊢u ⊢σ))
+      (PE.subst (_⊢_∷_ _ _) ([,]-[]-commute B) (subst-⊢∷ ⊢u ⊢σ))
       (subst-⊢∷ ⊢v ⊢σ) (subst-⊢⇒∷ w₁⇒w₂ ⊢σ)
   subst-⊢⇒∷ (K-subst {B} ⊢B ⊢u v₁⇒v₂ ok) ⊢σ =
-    PE.subst (_»_⊢_⇒_∷_ _ _ _ _) (PE.sym $ singleSubstLift B _) $
+    PE.subst (_⊢_⇒_∷_ _ _ _) (PE.sym $ singleSubstLift B _) $
     K-subst (subst-⊢-⇑ ⊢B ⊢σ)
-      (PE.subst (_»_⊢_∷_ _ _ _) (singleSubstLift B _) (subst-⊢∷ ⊢u ⊢σ))
+      (PE.subst (_⊢_∷_ _ _) (singleSubstLift B _) (subst-⊢∷ ⊢u ⊢σ))
       (subst-⊢⇒∷ v₁⇒v₂ ⊢σ) ok
   subst-⊢⇒∷ ([]-cong-subst _ _ _ v₁⇒v₂ ok) ⊢σ =
     []-cong-subst′ (subst-⊢⇒∷ v₁⇒v₂ ⊢σ) ok
   subst-⊢⇒∷ (J-β {t} {A} {B} _ _ t≡t′ ⊢B _ ⊢u) ⊢σ =
-    PE.subst (_»_⊢_⇒_∷_ _ _ _ _) (PE.sym $ [,]-[]-commute B) $
+    PE.subst (_⊢_⇒_∷_ _ _ _) (PE.sym $ [,]-[]-commute B) $
     J-β-⇒ (subst-⊢≡∷ t≡t′ (refl-⊢ˢʷ≡∷ ⊢σ))
-      (PE.subst (flip (_»_⊢_ _) _)
-         (PE.cong (_∙_ _) $
+      (PE.subst (flip _⊢_ _)
+         (PE.cong (_»∙_ _) $
           PE.cong₃ Id (wk1-liftSubst A) (wk1-liftSubst t) PE.refl) $
        subst-⊢-⇑ ⊢B ⊢σ)
-      (PE.subst (_»_⊢_∷_ _ _ _) ([,]-[]-commute B) (subst-⊢∷ ⊢u ⊢σ))
+      (PE.subst (_⊢_∷_ _ _) ([,]-[]-commute B) (subst-⊢∷ ⊢u ⊢σ))
   subst-⊢⇒∷ (K-β {B} ⊢B ⊢u ok) ⊢σ =
-    PE.subst (_»_⊢_⇒_∷_ _ _ _ _) (PE.sym $ singleSubstLift B _) $
+    PE.subst (_⊢_⇒_∷_ _ _ _) (PE.sym $ singleSubstLift B _) $
     K-β (subst-⊢-⇑ ⊢B ⊢σ)
-      (PE.subst (_»_⊢_∷_ _ _ _) (singleSubstLift B _) (subst-⊢∷ ⊢u ⊢σ)) ok
+      (PE.subst (_⊢_∷_ _ _) (singleSubstLift B _) (subst-⊢∷ ⊢u ⊢σ)) ok
   subst-⊢⇒∷ ([]-cong-β _ _ _ t≡t′ ok) ⊢σ =
     []-cong-β-⇒ (subst-⊢≡∷ t≡t′ (refl-⊢ˢʷ≡∷ ⊢σ)) ok
 

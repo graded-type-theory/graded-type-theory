@@ -56,7 +56,7 @@ private variable
 -- Some characterisation lemmas
 
 opaque
-  unfolding _»_⊩⟨_⟩_∷_
+  unfolding _⊩⟨_⟩_∷_
 
   -- A characterisation lemma for _⊩⟨_⟩_∷_.
 
@@ -112,9 +112,9 @@ opaque
        ∇ » Γ ⊩⟨ l ⟩ fst p u ∷ A ×
        ∇ » Γ ⊩⟨ l ⟩ snd p u ∷ B [ fst p u ]₀) ∋
         u , t⇒*u , u-prod , u≅u
-      , PE.subst (_»_⊩⟨_⟩_∷_ _ _ _ _) (wk-id _)
+      , PE.subst (_⊩⟨_⟩_∷_ _ _ _) (wk-id _)
           (⊩wk-A id _ , ⊩fst-u)
-      , PE.subst (_»_⊩⟨_⟩_∷_ _ _ _ _) (PE.cong _[ _ ]₀ $ wk-lift-id B)
+      , PE.subst (_⊩⟨_⟩_∷_ _ _ _) (PE.cong _[ _ ]₀ $ wk-lift-id B)
           (⊩wk-B id _ ⊩fst-u , ⊩snd-u) }
 
     lemma₂ :
@@ -137,13 +137,13 @@ opaque
       _ » _ ⊩⟨ _ ⟩ _ ∷ _ / B-intr _ ⊩Σ ∋
         u , t⇒*u , u-prod , u≅u
       , ⊩∷→⊩∷/ (⊩wk-A id _)
-          (PE.subst (_»_⊩⟨_⟩_∷_ _ _ _ _) (PE.sym $ wk-id _) ⊩fst-u)
+          (PE.subst (_⊩⟨_⟩_∷_ _ _ _) (PE.sym $ wk-id _) ⊩fst-u)
       , ⊩∷→⊩∷/ (⊩wk-B id _ _)
-          (PE.subst (_»_⊩⟨_⟩_∷_ _ _ _ _)
+          (PE.subst (_⊩⟨_⟩_∷_ _ _ _)
              (PE.sym $ PE.cong _[ _ ]₀ $ wk-lift-id B) ⊩snd-u) }
 
 opaque
-  unfolding _»_⊩⟨_⟩_≡_ _»_⊩⟨_⟩_≡_∷_
+  unfolding _⊩⟨_⟩_≡_ _⊩⟨_⟩_≡_∷_
 
   -- A characterisation lemma for _⊩⟨_⟩_≡_∷_.
 
@@ -220,12 +220,12 @@ opaque
        ∇ » Γ ⊩⟨ l ⟩ fst p u₁ ≡ fst p u₂ ∷ A ×
        ∇ » Γ ⊩⟨ l ⟩ snd p u₁ ≡ snd p u₂ ∷ B [ fst p u₁ ]₀) ∋
         u₁ , u₂ , t₁⇒*u₁ , t₂⇒*u₂ , u₁-prod , u₂-prod , u₁≅u₂
-      , PE.subst (_»_⊩⟨_⟩_≡_∷_ _ _ _ _ _) (wk-id _)
+      , PE.subst (_⊩⟨_⟩_≡_∷_ _ _ _ _) (wk-id _)
           (⊩wk-A id _ , ⊩fst-u₁ , ⊩fst-u₂ , fst≡fst)
-      , PE.subst (_»_⊩⟨_⟩_≡_∷_ _ _ _ _ _) (PE.cong _[ _ ]₀ $ wk-lift-id B)
+      , PE.subst (_⊩⟨_⟩_≡_∷_ _ _ _ _) (PE.cong _[ _ ]₀ $ wk-lift-id B)
           ( ⊩B[fst-u₁]
           , ⊩∷→⊩∷/ ⊩B[fst-u₁]
-              (PE.subst (_»_⊩⟨_⟩_∷_ _ _ _ _)
+              (PE.subst (_⊩⟨_⟩_∷_ _ _ _)
                  (PE.sym $ PE.cong _[ _ ]₀ $ wk-lift-id B) ⊩snd-u₁)
           , ⊩∷→⊩∷/ ⊩B[fst-u₁]
               (conv-⊩∷
@@ -233,7 +233,7 @@ opaque
                     ( ⊩B[fst-u₁] , ⊩wk-B id _ ⊩fst-u₂
                     , wk-B≡wk-B id _ ⊩fst-u₁ ⊩fst-u₂ fst≡fst
                     )) $
-               PE.subst (_»_⊩⟨_⟩_∷_ _ _ _ _)
+               PE.subst (_⊩⟨_⟩_∷_ _ _ _)
                  (PE.sym $ PE.cong _[ _ ]₀ $ wk-lift-id B) ⊩snd-u₂)
           , snd≡snd
           ) }}}
@@ -272,17 +272,17 @@ opaque
       case B-PE-injectivity _ _ $ whnfRed* Σ⇒*Σ ΠΣₙ of λ {
         (PE.refl , PE.refl , _) →
       case wf-⊩≡∷ $
-           level-⊩≡∷ (PE.subst (_»_⊩⟨_⟩_ _ _ _) (wk-id _) ⊩wk-id-A)
+           level-⊩≡∷ (PE.subst (_⊩⟨_⟩_ _ _) (wk-id _) ⊩wk-id-A)
              fst≡fst of λ
         (⊩fst-u₁ , ⊩fst-u₂) →
       case ⊩∷→⊩∷/ ⊩wk-id-A $
-           PE.subst (_»_⊩⟨_⟩_∷_ _ _ _ _) (PE.sym $ wk-id _) ⊩fst-u₁ of λ
+           PE.subst (_⊩⟨_⟩_∷_ _ _ _) (PE.sym $ wk-id _) ⊩fst-u₁ of λ
         ⊩fst-u₁′ →
       case ⊩∷→⊩∷/ ⊩wk-id-A $
-           PE.subst (_»_⊩⟨_⟩_∷_ _ _ _ _) (PE.sym $ wk-id _) ⊩fst-u₂ of λ
+           PE.subst (_⊩⟨_⟩_∷_ _ _ _) (PE.sym $ wk-id _) ⊩fst-u₂ of λ
         ⊩fst-u₂′ →
       case ⊩≡∷→⊩≡∷/ ⊩wk-id-A $
-           PE.subst (_»_⊩⟨_⟩_≡_∷_ _ _ _ _ _) (PE.sym $ wk-id _) fst≡fst of λ
+           PE.subst (_⊩⟨_⟩_≡_∷_ _ _ _ _) (PE.sym $ wk-id _) fst≡fst of λ
         fst≡fst′ →
       case wf-⊩≡∷ snd≡snd of λ
         (⊩snd-u₁ , ⊩snd-u₂) →
@@ -309,7 +309,7 @@ opaque
       , ( u₁ , u₂ , t₁⇒*u₁ , t₂⇒*u₂ , u₁≅u₂ , ⊩t₁ , ⊩t₂
         , u₁-prod , u₂-prod , ⊩fst-u₁′ , ⊩fst-u₂′ , fst≡fst′
         , ⊩≡∷→⊩≡∷/ (⊩wk-B id _ ⊩fst-u₁′)
-            (PE.subst (_»_⊩⟨_⟩_≡_∷_ _ _ _ _ _)
+            (PE.subst (_⊩⟨_⟩_≡_∷_ _ _ _ _)
                (PE.sym $ PE.cong _[ _ ] $ wk-lift-id B) snd≡snd)
         ) }
 
@@ -399,7 +399,7 @@ opaque
       (_ , _ , ⊩B) →
     ⊩ᵛ≡∷⇔ʰ .proj₂
       ( ⊩ᵛ→⊩ᵛ∷→⊩ᵛ[]₀ ⊩B (fstᵛ ⊩t₁)
-      , λ ξ⊇ → PE.subst (_»_⊩⟨_⟩_≡_∷_ _ _ _ _ _) (PE.sym $ singleSubstLift B _) ∘→
+      , λ ξ⊇ → PE.subst (_⊩⟨_⟩_≡_∷_ _ _ _ _) (PE.sym $ singleSubstLift B _) ∘→
                ⊩snd≡snd ∘→ R.⊩≡∷→ ∘→ ⊩ᵛ≡∷→⊩ˢ≡∷→⊩[]≡[]∷ (defn-wk-⊩ᵛ≡∷ ξ⊇ t₁≡t₂)
       )
 
@@ -451,7 +451,7 @@ opaque
          let _ , ⊢σ = escape-⊩ˢ∷ ⊩σ in
          Σ-β₁-⇒ (subst-⊢-⇑ (defn-wk ξ⊇ ⊢B) ⊢σ)
            (R.escape-⊩∷ $ ⊩ᵛ∷→⊩ˢ∷→⊩[]∷ (defn-wk-⊩ᵛ∷ ξ⊇ ⊩t) ⊩σ)
-           (PE.subst (_»_⊢_∷_ _ _ _) (singleSubstLift B _) $
+           (PE.subst (_⊢_∷_ _ _) (singleSubstLift B _) $
             subst-⊢∷-⇑ (defn-wkTerm ξ⊇ ⊢u) ⊢σ)
            ok)
       ⊩t
@@ -472,10 +472,10 @@ opaque
     ⊩ᵛ∷-⇐
       (λ ξ⊇ ⊩σ →
          let _ , ⊢σ = escape-⊩ˢ∷ ⊩σ in
-         PE.subst (_»_⊢_⇒_∷_ _ _ _ _) (PE.sym $ singleSubstLift B _) $
+         PE.subst (_⊢_⇒_∷_ _ _ _) (PE.sym $ singleSubstLift B _) $
          Σ-β₂-⇒ (subst-⊢-⇑ (defn-wk ξ⊇ ⊢B) ⊢σ)
            (R.escape-⊩∷ $ ⊩ᵛ∷→⊩ˢ∷→⊩[]∷ (defn-wk-⊩ᵛ∷ ξ⊇ ⊩t) ⊩σ)
-           (PE.subst (_»_⊢_∷_ _ _ _) (singleSubstLift B _) $
+           (PE.subst (_⊢_∷_ _ _) (singleSubstLift B _) $
             subst-⊢∷-⇑ (defn-wkTerm ξ⊇ ⊢u) ⊢σ)
            ok)
       (conv-⊩ᵛ∷
@@ -533,7 +533,7 @@ opaque
                                                              ⟨ R.⊩≡→ $
                                                                ⊩ᵛ≡→⊩ˢ≡∷→⊩≡∷→⊩[⇑][]₀≡[⇑][]₀ B≡B (refl-⊩ˢ≡∷ ⊩σ)
                                                                  (R.→⊩≡∷ fst-u₁≡fst-t₁[σ]) ⟩⊩∷
-            snd p t₁ [ σ ] ∷ B [ σ ⇑ ] [ fst p t₁ [ σ ] ]₀  ≡⟨ PE.subst (_»_⊩⟨_⟩_≡_∷_ _ _ _ _ _) (singleSubstLift B _) $
+            snd p t₁ [ σ ] ∷ B [ σ ⇑ ] [ fst p t₁ [ σ ] ]₀  ≡⟨ PE.subst (_⊩⟨_⟩_≡_∷_ _ _ _ _) (singleSubstLift B _) $
                                                                ⊩ᵛ≡∷⇔′ʰ .proj₁ snd-t₁≡snd-t₂ .proj₂ .proj₂ ξ⊇ ⊩σ ⟩⊩∷∷
                                                              ⟨ R.⊩≡→ $
                                                                ⊩ᵛ≡→⊩ˢ≡∷→⊩≡∷→⊩[⇑][]₀≡[⇑][]₀ B≡B (refl-⊩ˢ≡∷ ⊩σ) $
@@ -642,7 +642,7 @@ private opaque
     ⊩prodˢ≡prodˢ (subst-⊢-⇑ ⊢B (escape-⊩ˢ∷ ⊩σ₁ .proj₂))
       (⊩ΠΣ (ΠΣⱼ ⊢B ok) ⊩A ⊩B ⊩σ₁)
       (R.⊩≡∷→ $ ⊩ᵛ≡∷→⊩ˢ≡∷→⊩[]≡[]∷ t₁≡t₂ σ₁≡σ₂)
-      (PE.subst (_»_⊩⟨_⟩_≡_∷_ _ _ _ _ _) (singleSubstLift B _) $
+      (PE.subst (_⊩⟨_⟩_≡_∷_ _ _ _ _) (singleSubstLift B _) $
        R.⊩≡∷→ $ ⊩ᵛ≡∷→⊩ˢ≡∷→⊩[]≡[]∷ u₁≡u₂ σ₁≡σ₂)
 
 opaque

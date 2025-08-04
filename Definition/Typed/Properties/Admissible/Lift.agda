@@ -120,7 +120,7 @@ private opaque
         ⊢Unit            = Unitⱼ (∙ ⊢A) ok₂
         ⊢Unit′           = W.wk₁ ⊢Unit ⊢Unit
     in
-    PE.subst (_»_⊢_≡_∷_ _ _ _ _)
+    PE.subst (_⊢_≡_∷_ _ _ _)
       (B₁ [ consSubst (wkSubst 3 idSubst)
               (prod s 𝟙 (var x2) (var x0)) ]
           [ var x0 ]₀                         ≡⟨ substCompEq B₁ ⟩
@@ -138,13 +138,13 @@ private opaque
       (subst-⊢≡ B₁≡B₂ $ refl-⊢ˢʷ≡∷ $ ⊢ˢʷ∷-[][]↑ $
        prodⱼ
          (Unitⱼ
-            (∙ (PE.subst (_»_⊢_ _ _) (PE.sym wk[]≡wk[]′) $
+            (∙ (PE.subst (_⊢_ _) (PE.sym wk[]≡wk[]′) $
                 W.wk (W.stepʷ (W.step (W.step W.id)) ⊢Unit′) ⊢A))
             ok₂)
          (var₂ ⊢Unit′)
          (var₀ ⊢Unit′) ok₁)
       (refl (var₀ ⊢Unit)) $
-    PE.subst (_»_⊢_≡_∷_ _ _ _ _)
+    PE.subst (_⊢_≡_∷_ _ _ _)
       (wk1 (B₁ [ lift s l (var x0) ]↑)                                    ≡⟨⟩
 
        (wk1 $
@@ -230,11 +230,11 @@ opaque
         [ liftSubst (consSubst (consSubst idSubst u) (star s l)) ]
         [ star s l ]₀                                                     ≡⟨ unitrec⟨⟩-β-≡
                                                                                (λ _ →
-                                                                                  PE.subst (_»_⊢_ _ _) (PE.sym lemma₁) $
+                                                                                  PE.subst (_⊢_ _) (PE.sym lemma₁) $
                                                                                   subst↑Type ⊢B $
                                                                                   prodⱼ (W.wk₁ (W.wk₁ ⊢Unit ⊢A) (W.wk₁ ⊢Unit ⊢Unit))
                                                                                     (W.wkTerm₁ ⊢Unit ⊢u) (var₀ ⊢Unit) ok₁) $
-                                                                             PE.subst₂ (_»_⊢_∷_ _ _) (PE.sym lemma₄) (PE.sym lemma₃) $
+                                                                             PE.subst₂ (_⊢_∷_ _) (PE.sym lemma₄) (PE.sym lemma₃) $
                                                                              substTerm ⊢t ⊢u ⟩⊢∷∎≡
 
     wk1 t [ u , star s l ]₁₀                                              ≡⟨ lemma₄ ⟩

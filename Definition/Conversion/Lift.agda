@@ -145,7 +145,7 @@ mutual
         wkLiftId = PE.cong (λ x → x [ fst _ _ ]₀) (wk-lift-id G)
 
         wk[F] = [F] id (id ⊢Γ)
-        wkfst≡ = PE.subst (_»_⊢_≡_∷_ _ _ _ _) (PE.sym wkId)
+        wkfst≡ = PE.subst (_⊢_≡_∷_ _ _ _) (PE.sym wkId)
                    (fst-cong ⊢G (refl ⊢t))
         wk[fst] = neuTerm wk[F] (fstₙ (ne↑ₗ neT)) wkfst≡
         wk[Gfst] = [G] id (id ⊢Γ) wk[fst]
@@ -167,7 +167,7 @@ mutual
         _ , ⊢t , ⊢u = syntacticEqTerm (soundness~↓ t~u↓)
     in  Σʷ-ins ⊢t ⊢u t~u↓
   lift~toConv↓′ (Idᵣ ⊩A′) A′⇒*A t~u@([~] _ (_ , A-whnf) _) =
-    case whrDet* (_»_⊩ₗId_.⇒*Id ⊩A′ , Idₙ) (A′⇒*A , A-whnf) of λ {
+    case whrDet* (_⊩ₗId_.⇒*Id ⊩A′ , Idₙ) (A′⇒*A , A-whnf) of λ {
       PE.refl →
     case syntacticEqTerm (soundness~↓ t~u) .proj₂ .proj₁ of λ {
       ⊢t →

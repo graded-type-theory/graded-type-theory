@@ -88,7 +88,7 @@ opaque
            ))
 
 opaque
-  unfolding _»_⊩⟨_⟩_∷_
+  unfolding _⊩⟨_⟩_∷_
 
   -- A characterisation lemma for _⊩⟨_⟩_∷_.
 
@@ -98,7 +98,7 @@ opaque
          lemma (ℕ-elim ⊩ℕ)
            ((irrelevanceTerm ⊩ℕ) (ℕ-intr (ℕ-elim ⊩ℕ)) ⊩t))
     , (λ ⊩t →
-         ℕᵣ (id (ℕⱼ (wfEqTerm (subset*Term (_»_⊩ℕ_∷ℕ.d ⊩t))))) , ⊩t)
+         ℕᵣ (id (ℕⱼ (wfEqTerm (subset*Term (_⊩ℕ_∷ℕ.d ⊩t))))) , ⊩t)
     where
     lemma :
       (⊩A : ∇ » Γ ⊩⟨ l ⟩ℕ A) →
@@ -143,12 +143,12 @@ opaque
     ∇ » Γ ⊩ℕ t ∷ℕ           ⇔˘⟨ ⊩∷ℕ⇔ ⟩
     ∇ » Γ ⊩⟨ l ⟩ t ∷ ℕ      □⇔
     where
-    lemma : Natural-prop ∇ Γ (suc t) → ∇ » Γ ⊩ℕ t ∷ℕ
+    lemma : Natural-prop (∇ » Γ) (suc t) → ∇ » Γ ⊩ℕ t ∷ℕ
     lemma (sucᵣ ⊩t)         = ⊩t
     lemma (ne (neNfₜ () _))
 
 opaque
-  unfolding _»_⊩⟨_⟩_≡_
+  unfolding _⊩⟨_⟩_≡_
 
   -- A characterisation lemma for _⊩⟨_⟩_≡_.
 
@@ -192,7 +192,7 @@ opaque
            ))
 
 opaque
-  unfolding _»_⊩⟨_⟩_≡_∷_
+  unfolding _⊩⟨_⟩_≡_∷_
 
   -- A characterisation lemma for _⊩⟨_⟩_≡_∷_.
 
@@ -206,7 +206,7 @@ opaque
            ((irrelevanceTerm ⊩ℕ) (ℕ-intr (ℕ-elim ⊩ℕ)) ⊩u)
            ((irrelevanceEqTerm ⊩ℕ) (ℕ-intr (ℕ-elim ⊩ℕ)) t≡u))
     , (λ (⊩t , ⊩u , t≡u) →
-         ℕᵣ (id (ℕⱼ (wfEqTerm (subset*Term (_»_⊩ℕ_≡_∷ℕ.d t≡u)))))
+         ℕᵣ (id (ℕⱼ (wfEqTerm (subset*Term (_⊩ℕ_≡_∷ℕ.d t≡u)))))
        , ⊩t , ⊩u , t≡u)
     where
     lemma :
@@ -238,7 +238,7 @@ opaque
     ∇ » Γ ⊩⟨ l ⟩ t ≡ u ∷ ℕ
   ⊩suc≡suc∷ℕ⇔ {∇} {Γ} {l} {t} {u} =
     ∇ » Γ ⊩⟨ l ⟩ suc t ≡ suc u ∷ ℕ  ⇔⟨ ⊩≡∷ℕ⇔ ⟩
-    
+
     ∇ » Γ ⊩ℕ suc t ∷ℕ ×
     ∇ » Γ ⊩ℕ suc u ∷ℕ ×
     ∇ » Γ ⊩ℕ suc t ≡ suc u ∷ℕ       ⇔⟨ ⊩∷ℕ⇔ {l = l} ∘⇔ ⊩suc∷ℕ⇔ ∘⇔ sym⇔ ⊩∷ℕ⇔
@@ -246,14 +246,14 @@ opaque
                                        ⊩∷ℕ⇔ {l = l} ∘⇔ ⊩suc∷ℕ⇔ ∘⇔ sym⇔ ⊩∷ℕ⇔
                                          ×-cong-⇔
                                        (lemma₁ , lemma₂) ⟩
-    
+
     ∇ » Γ ⊩ℕ t ∷ℕ ×
     ∇ » Γ ⊩ℕ u ∷ℕ ×
     ∇ » Γ ⊩ℕ t ≡ u ∷ℕ               ⇔˘⟨ ⊩≡∷ℕ⇔ ⟩
-    
+
     ∇ » Γ ⊩⟨ l ⟩ t ≡ u ∷ ℕ          □⇔
     where
-    lemma₀ : [Natural]-prop ∇ Γ (suc t) (suc u) → ∇ » Γ ⊩ℕ t ≡ u ∷ℕ
+    lemma₀ : [Natural]-prop (∇ » Γ) (suc t) (suc u) → ∇ » Γ ⊩ℕ t ≡ u ∷ℕ
     lemma₀ (sucᵣ t≡u)           = t≡u
     lemma₀ (ne (neNfₜ₌ () _ _))
 
@@ -516,10 +516,10 @@ private opaque
          -- inductive hypothesis.
          (sucᵣ {n = v₁″} {n′ = v₂″} ⊩ℕ-v₁″≡v₂″) →
            case v₁′′-prop of λ {
-             (ne suc-ne) → case _»_⊩neNf_∷_.neK suc-ne of λ ();
+             (ne suc-ne) → case _⊩neNf_∷_.neK suc-ne of λ ();
              (sucᵣ ⊩ℕ-v₁″) →
            case v₂′′-prop of λ {
-             (ne suc-ne) → case _»_⊩neNf_∷_.neK suc-ne of λ ();
+             (ne suc-ne) → case _⊩neNf_∷_.neK suc-ne of λ ();
              (sucᵣ ⊩ℕ-v₂″) →
            case ⊩≡∷ℕ⇔ .proj₂ (⊩ℕ-v₁″ , ⊩ℕ-v₂″ , ⊩ℕ-v₁″≡v₂″) of λ
              v₁″≡v₂″ →
@@ -565,13 +565,13 @@ opaque
       (⊩σ₁ , ⊩σ₂) →
     case escape-⊩ˢ≡∷ σ₁≡σ₂ of λ
       (_ , ⊢σ₁≡σ₂) →
-    case PE.subst (_»_⊩⟨_⟩_≡_∷_ _ _ _ _ _) (singleSubstLift A₁ _) $
+    case PE.subst (_⊩⟨_⟩_≡_∷_ _ _ _ _) (singleSubstLift A₁ _) $
          R.⊩≡∷→ $ ⊩ᵛ≡∷→⊩ˢ≡∷→⊩[]≡[]∷ t₁≡t₂ σ₁≡σ₂ of λ
       t₁[σ₁]≡t₂[σ₂] →
     case ⊩≡∷ℕ⇔ .proj₁ $ R.⊩≡∷→ $
          ⊩ᵛ≡∷→⊩ˢ≡∷→⊩[]≡[]∷ v₁≡v₂ σ₁≡σ₂ of λ
       (⊩ℕ-v₁ , ⊩ℕ-v₂ , ⊩ℕ-v₁≡v₂) →
-    PE.subst (_»_⊩⟨_⟩_≡_∷_ _ _ _ _ _) (PE.sym $ singleSubstLift A₁ _) $
+    PE.subst (_⊩⟨_⟩_≡_∷_ _ _ _ _) (PE.sym $ singleSubstLift A₁ _) $
     ⊩natrec≡natrec′
       (with-inc-⊢≅ (subst-⊢≡-⇑ ⊢A₁≡A₂ ⊢σ₁≡σ₂) $
        R.escape-⊩≡ ⦃ inc = included ⦄ (⊩ᵛ≡→⊩ˢ≡∷→⊩[⇑]≡[⇑] A₁≡A₂ σ₁≡σ₂))
@@ -583,7 +583,7 @@ opaque
        R.→⊩≡∷)
       (R.⊩≡→ ∘→ ⊩ᵛ≡→⊩ˢ≡∷→⊩≡∷→⊩[⇑][]₀≡[⇑][]₀ A₁≡A₂ σ₁≡σ₂ ∘→ R.→⊩≡∷)
       (escape-⊩∷ $ wf-⊩≡∷ t₁[σ₁]≡t₂[σ₂] .proj₁)
-      (PE.subst (_»_⊢_∷_ _ _ _) (singleSubstLift A₂ _) $
+      (PE.subst (_⊢_∷_ _ _) (singleSubstLift A₂ _) $
        R.escape-⊩∷ $ ⊩ᵛ∷→⊩ˢ∷→⊩[]∷ ⊩t₂ ⊩σ₂)
       (level-⊩≡∷
          (wf-⊩≡
@@ -593,9 +593,9 @@ opaque
             .proj₁)
          t₁[σ₁]≡t₂[σ₂])
       (with-inc-⊢≅∷
-         (PE.subst (_»_⊢_≡_∷_ _ _ _ _) ([][]↑-commutes A₁) $
+         (PE.subst (_⊢_≡_∷_ _ _ _) ([][]↑-commutes A₁) $
           subst-⊢≡∷-⇑ ⊢u₁≡u₂ ⊢σ₁≡σ₂)
-         (PE.subst (_»_⊢_≅_∷_ _ _ _ _) (natrecSucCase _ A₁) $
+         (PE.subst (_⊢_≅_∷_ _ _ _) (natrecSucCase _ A₁) $
           R.escape-⊩≡∷ ⦃ inc = included ⦄ $
           ⊩ᵛ≡∷→⊩ˢ≡∷→⊩[⇑⇑]≡[⇑⇑]∷ u₁≡u₂ σ₁≡σ₂))
       (λ {v₁ = v₁} {v₂ = _} {w₁ = w₁} v₁≡v₂ w₁≡w₂ →
@@ -604,7 +604,7 @@ opaque
               (R.⊩≡→ $ ⊩ᵛ≡→⊩ˢ≡∷→⊩≡∷→⊩[⇑][]₀≡[⇑][]₀ A₁≡A₂ σ₁≡σ₂ $
                R.→⊩≡∷ $ ⊩suc≡suc v₁≡v₂)
               .proj₁) $
-         PE.subst (_»_⊩⟨_⟩_≡_∷_ _ _ _ _ _)
+         PE.subst (_⊩⟨_⟩_≡_∷_ _ _ _ _)
            (A₁ [ suc (var x1) ]↑² [ σ₁ ⇑ ⇑ ] [ v₁ , w₁ ]₁₀  ≡⟨ PE.cong _[ _ , _ ]₁₀ $ natrecSucCase _ A₁ ⟩
             A₁ [ σ₁ ⇑ ] [ suc (var x1) ]↑² [ v₁ , w₁ ]₁₀    ≡˘⟨ substComp↑² (A₁ [ _ ]) _ ⟩
             A₁ [ σ₁ ⇑ ] [ suc v₁ ]₀                         ∎) $
@@ -666,11 +666,11 @@ opaque
   natrec-zeroᵛ {A} ⊩t ⊢u =
     ⊩ᵛ∷-⇐
       (λ ξ⊇ ⊩σ →
-         PE.subst (_»_⊢_⇒_∷_ _ _ _ _) (PE.sym $ singleSubstLift A _) $
+         PE.subst (_⊢_⇒_∷_ _ _ _) (PE.sym $ singleSubstLift A _) $
          natrec-zero
-           (PE.subst (_»_⊢_∷_ _ _ _) (singleSubstLift A _) $
+           (PE.subst (_⊢_∷_ _ _) (singleSubstLift A _) $
             R.escape-⊩∷ $ ⊩ᵛ∷→⊩ˢ∷→⊩[]∷ (defn-wk-⊩ᵛ∷ ξ⊇ ⊩t) ⊩σ)
-           (PE.subst (_»_⊢_∷_ _ _ _) (natrecSucCase _ A) $
+           (PE.subst (_⊢_∷_ _ _) (natrecSucCase _ A) $
             subst-⊢∷-⇑ (defn-wkTerm ξ⊇ ⊢u) (escape-⊩ˢ∷ ⊩σ .proj₂)))
       ⊩t
 
@@ -689,13 +689,13 @@ opaque
   natrec-sucᵛ {A} {u} ⊩A ⊩t ⊢u ⊩u ⊩v =
     ⊩ᵛ∷-⇐
       (λ ξ⊇ ⊩σ →
-         PE.subst₂ (_»_⊢_⇒_∷_ _ _ _) (PE.sym $ [,]-[]-commute u)
+         PE.subst₂ (_⊢_⇒_∷_ _ _) (PE.sym $ [,]-[]-commute u)
            (PE.sym $ singleSubstLift A _) $
          natrec-suc
-           (PE.subst (_»_⊢_∷_ _ _ _) (singleSubstLift A _) $
+           (PE.subst (_⊢_∷_ _ _) (singleSubstLift A _) $
             R.escape-⊩∷ $ ⊩ᵛ∷→⊩ˢ∷→⊩[]∷ (defn-wk-⊩ᵛ∷ ξ⊇ ⊩t) ⊩σ)
-           (PE.subst (_»_⊢_∷_ _ _ _) (natrecSucCase _ A) $
+           (PE.subst (_⊢_∷_ _ _) (natrecSucCase _ A) $
             subst-⊢∷-⇑ (defn-wkTerm ξ⊇ ⊢u) (escape-⊩ˢ∷ ⊩σ .proj₂))
            (R.escape-⊩∷ $ ⊩ᵛ∷→⊩ˢ∷→⊩[]∷ (defn-wk-⊩ᵛ∷ ξ⊇ ⊩v) ⊩σ))
-      (PE.subst (_»_⊩ᵛ⟨_⟩_∷_ _ _ _ _) (PE.sym $ substComp↑² A _) $
+      (PE.subst (_⊩ᵛ⟨_⟩_∷_ _ _ _) (PE.sym $ substComp↑² A _) $
        ⊩ᵛ∷→⊩ᵛ∷→⊩ᵛ∷→⊩ᵛ[]₁₀∷ ⊩u ⊩v (natrecᵛ ⊩A ⊩t ⊢u ⊩u ⊩v))

@@ -71,15 +71,18 @@ private
     l : Universe-level
 
 -- Algorithmic equality of neutrals with injected conversion.
-record _»_⊢_~_∷_ (∇ : DCon (Term 0) κ) (Γ : Con Term n) (k l A : Term n) : Set a where
+
+infix 4 _⊢_~_∷_
+
+record _⊢_~_∷_ (Γ : Cons κ n) (k l A : Term n) : Set a where
   inductive
   no-eta-equality
   pattern
   constructor ↑
   field
     {B} : Term n
-    A≡B : ∇ » Γ ⊢ A ≡ B
-    k~↑l : ∇ » Γ ⊢ k ~ l ↑ B
+    A≡B : Γ ⊢ A ≡ B
+    k~↑l : Γ ⊢ k ~ l ↑ B
 
 -- Properties of algorithmic equality of neutrals with injected conversion.
 
@@ -178,7 +181,7 @@ private module Lemmas where
   ~-prodrec x₂ (↑ A≡B k~↑l) x₄ =
     case syntacticEq A≡B of λ (_ , ⊢B) →
     case whNorm ⊢B of λ (B′ , whnfB′ , D) →
-    case _»_⊢_≡_.trans A≡B (subset* D) of λ Σ≡Σ′ →
+    case _⊢_≡_.trans A≡B (subset* D) of λ Σ≡Σ′ →
     case Σ≡A (trans A≡B (subset* D)) whnfB′ of λ where
       (F′ , G′ , PE.refl) →
         case ΠΣ-injectivity-no-equality-reflection Σ≡Σ′ of λ where
@@ -246,7 +249,7 @@ private module Lemmas where
          substType₂ (syntacticEq (soundnessConv↑ B₁≡B₂) .proj₁)
            (syntacticEqTerm v₁≡v₃ .proj₂ .proj₁)
            (conv (syntacticEqTerm (soundness~↑ w₁~w₂) .proj₂ .proj₁) $
-            PE.subst (_»_⊢_≡_ _ _ _) ≡Id-wk1-wk1-0[]₀ $
+            PE.subst (_⊢_≡_ _ _) ≡Id-wk1-wk1-0[]₀ $
             sym Id-t₁-v₁≡C))
         (J-cong A₁≡A₂ t₁≡t₂ B₁≡B₂ u₁≡u₂ v₁≡v₂
            ([~] _ (C⇒*Id-t₃-v₃ , Idₙ) w₁~w₂)
@@ -265,7 +268,7 @@ private module Lemmas where
         (_ , _ , _ , C⇒*Id-t₃-t₄ , A₁≡A₃ , t₁≡t₃ , t₁≡t₄) →
       ↑ (refl $
          substType (syntacticEq (soundnessConv↑ B₁≡B₂) .proj₁) $
-         _»_⊢_∷_.conv
+         _⊢_∷_.conv
            (syntacticEqTerm (soundness~↑ v₁~v₂) .proj₂ .proj₁) $
          sym Id-t₁-t₁≡C)
         (K-cong A₁≡A₂ t₁≡t₂ B₁≡B₂ u₁≡u₂
@@ -284,7 +287,7 @@ private module Lemmas where
     ~-[]-cong A₁≡A₂ t₁≡t₂ u₁≡u₂ (↑ Id-t₁-u₁≡B v₁~v₂) ok =
       case Id-norm (sym Id-t₁-u₁≡B) of λ {
         (_ , _ , _ , B⇒*Id-t₃-u₃ , A₁≡A₃ , t₁≡t₃ , u₁≡u₃) →
-      ↑ (_»_⊢_≡_.refl $
+      ↑ (_⊢_≡_.refl $
          Idⱼ′
            ([]ⱼ ([]-cong→Erased ok)
               (syntacticEqTerm t₁≡t₃ .proj₂ .proj₁))
@@ -332,7 +335,7 @@ private opaque
   -- A lemma used below.
 
   equality-relations :
-    Equality-relations _»_⊢_[conv↑]_ _»_⊢_[conv↑]_∷_ _»_⊢_~_∷_ (Lift _ ⊤)
+    Equality-relations _⊢_[conv↑]_ _⊢_[conv↑]_∷_ _⊢_~_∷_ (Lift _ ⊤)
   equality-relations = let open Lemmas in λ where
     .Equality-relations.Var-included? →
       yes (lift tt)
@@ -450,13 +453,13 @@ instance
 
   eqRelInstance : EqRelSet
   eqRelInstance = λ where
-    .EqRelSet._»_⊢_≅_            → _»_⊢_[conv↑]_
-    .EqRelSet._»_⊢_≅_∷_          → _»_⊢_[conv↑]_∷_
-    .EqRelSet._»_⊢_~_∷_          → _»_⊢_~_∷_
+    .EqRelSet._⊢_≅_              → _⊢_[conv↑]_
+    .EqRelSet._⊢_≅_∷_            → _⊢_[conv↑]_∷_
+    .EqRelSet._⊢_~_∷_            → _⊢_~_∷_
     .EqRelSet.Var-included       → Lift _ ⊤
     .EqRelSet.equality-relations → equality-relations
 
-open EqRelSet eqRelInstance public hiding (_»_⊢_~_∷_)
+open EqRelSet eqRelInstance public hiding (_⊢_~_∷_)
 open Definition.Typed.EqualityRelation.Instance
        R ⦃ eq = eqRelInstance ⦄
   public

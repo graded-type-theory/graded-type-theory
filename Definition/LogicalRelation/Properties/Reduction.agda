@@ -80,7 +80,7 @@ redSubst* A⇒*B (Idᵣ ⊩B) =
       }
   , Id₌′ ⇒*Id (reflEq ⊩Ty) (reflEqTerm ⊩Ty ⊩lhs) (reflEqTerm ⊩Ty ⊩rhs)
   where
-  open _»_⊩ₗId_ ⊩B
+  open _⊩ₗId_ ⊩B
 redSubst* D (emb ≤ᵘ-refl x) with redSubst* D x
 redSubst* D (emb ≤ᵘ-refl x) | y , y₁ = emb ≤ᵘ-refl y , y₁
 redSubst* A⇒*B (emb (≤ᵘ-step p) ⊩B) =
@@ -176,7 +176,7 @@ redSubst*Term
          (ne _ u′~u′) → u′~u′
          (rflᵣ _)     → _)
   where
-  open _»_⊩ₗId_ ⊩A
+  open _⊩ₗId_ ⊩A
 redSubst*Term t⇒u (emb ≤ᵘ-refl     ⊩A) = redSubst*Term t⇒u ⊩A
 redSubst*Term t⇒u (emb (≤ᵘ-step p) ⊩A) = redSubst*Term t⇒u (emb p ⊩A)
 

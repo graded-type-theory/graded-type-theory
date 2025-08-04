@@ -56,20 +56,23 @@ opaque mutual
   defn-wkTermℕ ξ⊇ (ℕₜ n d n≡n prop) =
     ℕₜ n (defn-wkRed*Term ξ⊇ d) (≅ₜ-defn-wk ξ⊇ n≡n) (defn-wkNatural-prop ξ⊇ prop)
 
-  defn-wkNatural-prop : ξ » ∇′ ⊇ ∇ → Natural-prop ∇ Γ t → Natural-prop ∇′ Γ t
+  defn-wkNatural-prop :
+    ξ » ∇′ ⊇ ∇ → Natural-prop (∇ » Γ) t → Natural-prop (∇′ » Γ) t
   defn-wkNatural-prop ξ⊇ (sucᵣ n) = sucᵣ (defn-wkTermℕ ξ⊇ n)
   defn-wkNatural-prop ξ⊇ zeroᵣ    = zeroᵣ
   defn-wkNatural-prop ξ⊇ (ne nf)  = ne (defn-wkTermNe ξ⊇ nf)
 
 opaque
-  
-  defn-wkUnit-prop : ξ » ∇′ ⊇ ∇ → Unit-prop ∇ Γ l s t → Unit-prop ∇′ Γ l s t
+
+  defn-wkUnit-prop :
+    ξ » ∇′ ⊇ ∇ → Unit-prop (∇ » Γ) l s t → Unit-prop (∇′ » Γ) l s t
   defn-wkUnit-prop ξ⊇ starᵣ   = starᵣ
   defn-wkUnit-prop ξ⊇ (ne nf) = ne (defn-wkTermNe ξ⊇ nf)
 
 opaque
 
-  defn-wkEqTermNe : ξ » ∇′ ⊇ ∇ → ∇ » Γ ⊩neNf t ≡ u ∷ A → ∇′ » Γ ⊩neNf t ≡ u ∷ A
+  defn-wkEqTermNe :
+    ξ » ∇′ ⊇ ∇ → ∇ » Γ ⊩neNf t ≡ u ∷ A → ∇′ » Γ ⊩neNf t ≡ u ∷ A
   defn-wkEqTermNe ξ⊇ (neNfₜ₌ neK neM k≡m) =
     neNfₜ₌ (defn-wkNeutral ξ⊇ neK) (defn-wkNeutral ξ⊇ neM) (~-defn-wk ξ⊇ k≡m)
 
@@ -80,16 +83,18 @@ opaque mutual
     ℕₜ₌ k k′ (defn-wkRed*Term ξ⊇ d) (defn-wkRed*Term ξ⊇ d′)
         (≅ₜ-defn-wk ξ⊇ k≡k′) (defn-wk[Natural]-prop ξ⊇ prop)
 
-  defn-wk[Natural]-prop : ξ » ∇′ ⊇ ∇
-                        → [Natural]-prop ∇ Γ t u → [Natural]-prop ∇′ Γ t u
+  defn-wk[Natural]-prop :
+    ξ » ∇′ ⊇ ∇ →
+    [Natural]-prop (∇ » Γ) t u → [Natural]-prop (∇′ » Γ) t u
   defn-wk[Natural]-prop ξ⊇ (sucᵣ [n≡n′]) = sucᵣ (defn-wkEqTermℕ ξ⊇ [n≡n′])
   defn-wk[Natural]-prop ξ⊇ zeroᵣ         = zeroᵣ
   defn-wk[Natural]-prop ξ⊇ (ne nf)       = ne (defn-wkEqTermNe ξ⊇ nf)
 
 opaque
 
-  defn-wk[Unitʷ]-prop : ξ » ∇′ ⊇ ∇
-                      → [Unitʷ]-prop ∇ Γ l t u → [Unitʷ]-prop ∇′ Γ l t u
+  defn-wk[Unitʷ]-prop :
+    ξ » ∇′ ⊇ ∇ →
+    [Unitʷ]-prop (∇ » Γ) l t u → [Unitʷ]-prop (∇′ » Γ) l t u
   defn-wk[Unitʷ]-prop ξ⊇ starᵣ   = starᵣ
   defn-wk[Unitʷ]-prop ξ⊇ (ne nf) = ne (defn-wkEqTermNe ξ⊇ nf)
 
@@ -141,7 +146,7 @@ opaque mutual
     ; ⊩rhs = defn-wkTerm ξ⊇ ⊩Ty ⊩rhs
     })
     where
-    open _»_⊩ₗId_ ⊩A
+    open _⊩ₗId_ ⊩A
   defn-wk ξ⊇ (emb ≤ᵘ-refl [A]) = emb ≤ᵘ-refl (defn-wk ξ⊇ [A])
   defn-wk ξ⊇ (emb (≤ᵘ-step l<) [A]) = emb-<-⊩ ≤ᵘ-refl (defn-wk ξ⊇ (emb l< [A]))
 
@@ -166,7 +171,7 @@ opaque mutual
              (≅ₜ-defn-wk ξ⊇ n≡n)
              (ne (defn-wkTermNe ξ⊇ nf))
   defn-wkTerm ξ⊇ (Unitᵣ (Unitₜ D ok)) (Unitₜ n d n≡n prop) =
-    Unitₜ n (defn-wkRed*Term ξ⊇ d) 
+    Unitₜ n (defn-wkRed*Term ξ⊇ d)
             (≅ₜ-defn-wk ξ⊇ n≡n)
             (defn-wkUnit-prop ξ⊇ prop)
   defn-wkTerm ξ⊇ (ne′ K* D neK K≡K) (neₜ k d nf) =
@@ -217,7 +222,7 @@ opaque mutual
                   (ne b , u≡u) → ne (defn-wkNeutral ξ⊇ b) , ~-defn-wk ξ⊇ u≡u
     in  u , defn-wkRed*Term ξ⊇ d , prop′
     where
-    open _»_⊩ₗId_ ⊩A
+    open _⊩ₗId_ ⊩A
   defn-wkTerm ξ⊇ (emb ≤ᵘ-refl [A]) ⊩t = defn-wkTerm ξ⊇ [A] ⊩t
   defn-wkTerm ξ⊇ [A]@(emb (≤ᵘ-step l<) [A↓]) ⊩t =
     let [A]′ = emb l< [A↓] in
@@ -248,8 +253,8 @@ opaque mutual
          (defn-wkEqTerm ξ⊇ ⊩Ty lhs≡lhs′)
          (defn-wkEqTerm ξ⊇ ⊩Ty rhs≡rhs′)
     where
-    open _»_⊩ₗId_ ⊩A
-    open _»_⊩ₗId_≡_/_ A≡B
+    open _⊩ₗId_ ⊩A
+    open _⊩ₗId_≡_/_ A≡B
   defn-wkEq ξ⊇ (emb ≤ᵘ-refl [A]) A≡B = defn-wkEq ξ⊇ [A] A≡B
   defn-wkEq ξ⊇ [A]@(emb (≤ᵘ-step l<) [A↓]) A≡B =
     let [A]′ = emb l< [A↓] in
@@ -377,7 +382,7 @@ opaque mutual
                   (ne b , rflₙ , ())
     in  (t′ , u′ , defn-wkRed*Term ξ⊇ d , defn-wkRed*Term ξ⊇ d′ , prop′)
     where
-    open _»_⊩ₗId_ ⊩A
+    open _⊩ₗId_ ⊩A
   defn-wkEqTerm ξ⊇ (emb ≤ᵘ-refl [A]) t≡u = defn-wkEqTerm ξ⊇ [A] t≡u
   defn-wkEqTerm ξ⊇ [A]@(emb (≤ᵘ-step l<) [A↓]) t≡u =
     let [A]′ = emb l< [A↓] in

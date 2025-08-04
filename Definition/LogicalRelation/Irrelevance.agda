@@ -120,26 +120,26 @@ mutual
   irrelevanceEqT (Uᵥ (Uᵣ _ _ D1) (Uᵣ _ _ D2)) A≡B
     rewrite whrDet* (D1 , Uₙ) (D2 , Uₙ) = A≡B
   irrelevanceEqT (Idᵥ ⊩A@record{} ⊩A′) A≡B =
-    case whrDet* (_»_⊩ₗId_.⇒*Id ⊩A , Idₙ) (_»_⊩ₗId_.⇒*Id ⊩A′ , Idₙ) of λ {
+    case whrDet* (_⊩ₗId_.⇒*Id ⊩A , Idₙ) (_⊩ₗId_.⇒*Id ⊩A′ , Idₙ) of λ {
       PE.refl →
     record
       { ⇒*Id′    = ⇒*Id′
-      ; Ty≡Ty′   = irrelevanceEq (_»_⊩ₗId_.⊩Ty ⊩A) (_»_⊩ₗId_.⊩Ty ⊩A′) Ty≡Ty′
+      ; Ty≡Ty′   = irrelevanceEq (_⊩ₗId_.⊩Ty ⊩A) (_⊩ₗId_.⊩Ty ⊩A′) Ty≡Ty′
       ; lhs≡lhs′ =
-          irrelevanceEqTerm (_»_⊩ₗId_.⊩Ty ⊩A) (_»_⊩ₗId_.⊩Ty ⊩A′) lhs≡lhs′
+          irrelevanceEqTerm (_⊩ₗId_.⊩Ty ⊩A) (_⊩ₗId_.⊩Ty ⊩A′) lhs≡lhs′
       ; rhs≡rhs′ =
-          irrelevanceEqTerm (_»_⊩ₗId_.⊩Ty ⊩A) (_»_⊩ₗId_.⊩Ty ⊩A′) rhs≡rhs′
+          irrelevanceEqTerm (_⊩ₗId_.⊩Ty ⊩A) (_⊩ₗId_.⊩Ty ⊩A′) rhs≡rhs′
       ; lhs≡rhs→lhs′≡rhs′ =
-          irrelevanceEqTerm (_»_⊩ₗId_.⊩Ty ⊩A) (_»_⊩ₗId_.⊩Ty ⊩A′) ∘→
+          irrelevanceEqTerm (_⊩ₗId_.⊩Ty ⊩A) (_⊩ₗId_.⊩Ty ⊩A′) ∘→
           lhs≡rhs→lhs′≡rhs′ ∘→
-          irrelevanceEqTerm (_»_⊩ₗId_.⊩Ty ⊩A′) (_»_⊩ₗId_.⊩Ty ⊩A)
+          irrelevanceEqTerm (_⊩ₗId_.⊩Ty ⊩A′) (_⊩ₗId_.⊩Ty ⊩A)
       ; lhs′≡rhs′→lhs≡rhs =
-          irrelevanceEqTerm (_»_⊩ₗId_.⊩Ty ⊩A) (_»_⊩ₗId_.⊩Ty ⊩A′) ∘→
+          irrelevanceEqTerm (_⊩ₗId_.⊩Ty ⊩A) (_⊩ₗId_.⊩Ty ⊩A′) ∘→
           lhs′≡rhs′→lhs≡rhs ∘→
-          irrelevanceEqTerm (_»_⊩ₗId_.⊩Ty ⊩A′) (_»_⊩ₗId_.⊩Ty ⊩A)
+          irrelevanceEqTerm (_⊩ₗId_.⊩Ty ⊩A′) (_⊩ₗId_.⊩Ty ⊩A)
       } }
     where
-    open _»_⊩ₗId_≡_/_ A≡B
+    open _⊩ₗId_≡_/_ A≡B
   irrelevanceEqT (embᵥ₁ ≤ᵘ-refl     A≡A) = irrelevanceEqT          A≡A
   irrelevanceEqT (embᵥ₁ (≤ᵘ-step p) A≡A) = irrelevanceEqT (embᵥ₁ p A≡A)
   irrelevanceEqT (embᵥ₂ ≤ᵘ-refl     A≡A) = irrelevanceEqT          A≡A
@@ -261,7 +261,7 @@ mutual
     Uₜ A d typeA A≡A (irrelevance-⊩< l<1 l<2 [t])
 
   irrelevanceTermT (Idᵥ ⊩A@record{} ⊩A′) ⊩t@(_ , t⇒*u , _) =
-    case whrDet* (_»_⊩ₗId_.⇒*Id ⊩A , Idₙ) (_»_⊩ₗId_.⇒*Id ⊩A′ , Idₙ) of λ {
+    case whrDet* (_⊩ₗId_.⇒*Id ⊩A , Idₙ) (_⊩ₗId_.⇒*Id ⊩A′ , Idₙ) of λ {
       PE.refl →
       _
     , t⇒*u
@@ -270,7 +270,7 @@ mutual
          (rflᵣ lhs≡rhs) →
              rflₙ
            , irrelevanceEqTerm
-               (_»_⊩ₗId_.⊩Ty ⊩A) (_»_⊩ₗId_.⊩Ty ⊩A′) lhs≡rhs) }
+               (_⊩ₗId_.⊩Ty ⊩A) (_⊩ₗId_.⊩Ty ⊩A′) lhs≡rhs) }
   irrelevanceTermT (embᵥ₁ ≤ᵘ-refl     A≡A) = irrelevanceTermT          A≡A
   irrelevanceTermT (embᵥ₁ (≤ᵘ-step p) A≡A) = irrelevanceTermT (embᵥ₁ p A≡A)
   irrelevanceTermT (embᵥ₂ ≤ᵘ-refl     A≡A) = irrelevanceTermT          A≡A
@@ -409,7 +409,7 @@ mutual
       (irrelevance-⊩<≡ l<1 l<2 [t≡u])
   irrelevanceEqTermT
     (Idᵥ ⊩A@record{} ⊩A′) t≡u@(_ , _ , t⇒*t′ , u⇒*u′ , _) =
-    case whrDet* (_»_⊩ₗId_.⇒*Id ⊩A , Idₙ) (_»_⊩ₗId_.⇒*Id ⊩A′ , Idₙ) of λ {
+    case whrDet* (_⊩ₗId_.⇒*Id ⊩A , Idₙ) (_⊩ₗId_.⇒*Id ⊩A′ , Idₙ) of λ {
       PE.refl →
       _ , _ , t⇒*t′ , u⇒*u′
     , (case ⊩Id≡∷-view-inhabited ⊩A t≡u of λ where
@@ -418,7 +418,7 @@ mutual
          (rfl₌ lhs≡rhs) →
              rflₙ , rflₙ
            , irrelevanceEqTerm
-               (_»_⊩ₗId_.⊩Ty ⊩A) (_»_⊩ₗId_.⊩Ty ⊩A′) lhs≡rhs) }
+               (_⊩ₗId_.⊩Ty ⊩A) (_⊩ₗId_.⊩Ty ⊩A′) lhs≡rhs) }
   irrelevanceEqTermT (embᵥ₁ ≤ᵘ-refl     A≡A) = irrelevanceEqTermT          A≡A
   irrelevanceEqTermT (embᵥ₁ (≤ᵘ-step p) A≡A) = irrelevanceEqTermT (embᵥ₁ p A≡A)
   irrelevanceEqTermT (embᵥ₂ ≤ᵘ-refl     A≡A) = irrelevanceEqTermT          A≡A

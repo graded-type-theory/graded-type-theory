@@ -43,7 +43,7 @@ opaque
   -- If there is some way to instantiate all the types in Γ, then Γ is
   -- consistent.
 
-  inhabited-consistent : ∇ » ε ⊢ˢʷ σ ∷ Γ → Consistent ∇ Γ
+  inhabited-consistent : ∇ » ε ⊢ˢʷ σ ∷ Γ → Consistent (∇ » Γ)
   inhabited-consistent ⊢σ _ ⊢t = ¬Empty (subst-⊢∷ ⊢t ⊢σ)
 
 opaque

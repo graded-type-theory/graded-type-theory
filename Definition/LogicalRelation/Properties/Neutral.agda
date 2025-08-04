@@ -148,11 +148,11 @@ opaque mutual
           [F] = [F] _ _
           _ , ⊢G , _ = inversion-ΠΣ (wf-⊢≡ (≅-eq A≡A) .proj₁)
           [fst] = neuTerm [F] (fstₙ t-ne)
-                    (PE.subst (_»_⊢_~_∷_ _ _ _ _) (PE.sym (wk-id F))
+                    (PE.subst (_⊢_~_∷_ _ _ _) (PE.sym (wk-id F))
                        (~-fst ⊢G ~t))
           [Gfst] = [G] _ _ [fst]
           [snd] = neuTerm [Gfst] (sndₙ t-ne)
-                    (PE.subst (_»_⊢_~_∷_ _ _ _ _)
+                    (PE.subst (_⊢_~_∷_ _ _ _)
                        (PE.cong (λ x → x [ fst _ _ ]₀)
                           (PE.sym (wk-lift-id G)))
                        (~-snd ⊢G ~t))
@@ -169,7 +169,7 @@ opaque mutual
       case subset* ⇒*Id of λ {
         A≡Id → _ , id (conv ⊢t A≡Id) , ne t-ne , ~-conv ~t A≡Id }
       where
-      open _»_⊩ₗId_ ⊩A
+      open _⊩ₗId_ ⊩A
     neuTerm′ (emb ≤ᵘ-refl x) = neuTerm′ x
     neuTerm′ (emb (≤ᵘ-step l<) x) = neuTerm′ (emb l< x)
 
@@ -270,10 +270,10 @@ opaque mutual
           [F] = [F] _ _
           _ , ⊢G , _ = inversion-ΠΣ (wf-⊢≡ (≅-eq A≡A) .proj₁)
           [fstn] = neuTerm [F] (fstₙ t-ne)
-                     (PE.subst (_»_⊢_~_∷_ _ _ _ _) (PE.sym (wk-id F))
+                     (PE.subst (_⊢_~_∷_ _ _ _) (PE.sym (wk-id F))
                         (~-fst ⊢G t~tΣ))
           [fstn′] = neuTerm [F] (fstₙ t′-ne)
-                      (PE.subst (_»_⊢_~_∷_ _ _ _ _) (PE.sym (wk-id F))
+                      (PE.subst (_⊢_~_∷_ _ _ _) (PE.sym (wk-id F))
                          (~-fst ⊢G t′~t′Σ))
           [fstn≡fstn′] = neuEqTerm [F] (fstₙ t-ne) (fstₙ t′-ne)
                            (PE.subst
@@ -313,6 +313,6 @@ opaque mutual
         (neuTerm (Idᵣ ⊩A) t′-ne t′~t′)
         (~-conv t~t′ A≡Id)
       where
-      open _»_⊩ₗId_ ⊩A
+      open _⊩ₗId_ ⊩A
     neuEqTerm′ (emb ≤ᵘ-refl     ⊩A) = neuEqTerm′ ⊩A
     neuEqTerm′ (emb (≤ᵘ-step p) ⊩A) = neuEqTerm′ (emb p ⊩A)

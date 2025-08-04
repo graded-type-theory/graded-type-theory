@@ -305,6 +305,30 @@ fromTerm ([]-cong s A t u v) =
                 ∷ₜ fromTerm v ∷ₜ [])
 
 ------------------------------------------------------------------------
+-- Context pairs
+
+-- Pairs of definition contexts and variable contexts.
+
+infix 5 _»_
+
+record Cons (m n : Nat) : Set a where
+  constructor _»_
+  field
+    -- The definition context.
+    defs : DCon (Term 0) m
+    -- The variable context.
+    vars : Con Term n
+
+open Cons public
+
+-- A variant of Con._∙_ for Cons.
+
+infixl 24 _»∙_
+
+_»∙_ : Cons m n → Term n → Cons m (1+ n)
+(∇ » Γ) »∙ A = ∇ » Γ ∙ A
+
+------------------------------------------------------------------------
 -- Weakening
 
 -- Weakening of terms.

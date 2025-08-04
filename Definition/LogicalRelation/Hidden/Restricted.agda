@@ -50,84 +50,84 @@ opaque
 
   -- Reducible types.
 
-  infix 4 _»_⊩⟨_⟩_
+  infix 4 _⊩⟨_⟩_
 
-  _»_⊩⟨_⟩_ : DCon (Term 0) m → Con Term n → Universe-level → Term n → Set a
-  ∇ » Γ ⊩⟨ l ⟩ A =
-    ⦃ inc : Var-included or-empty Γ ⦄ → ∇ L.» Γ ⊩⟨ l ⟩ A
+  _⊩⟨_⟩_ : Cons m n → Universe-level → Term n → Set a
+  Γ ⊩⟨ l ⟩ A =
+    ⦃ inc : Var-included or-empty (Γ .vars) ⦄ → Γ L.⊩⟨ l ⟩ A
 
 opaque
 
   -- Reducible terms.
 
-  infix 4 _»_⊩⟨_⟩_∷_
+  infix 4 _⊩⟨_⟩_∷_
 
-  _»_⊩⟨_⟩_∷_ : DCon (Term 0) m → Con Term n → Universe-level → Term n → Term n → Set a
-  ∇ » Γ ⊩⟨ l ⟩ t ∷ A =
-    ⦃ inc : Var-included or-empty Γ ⦄ → ∇ H.» Γ ⊩⟨ l ⟩ t ∷ A
+  _⊩⟨_⟩_∷_ : Cons m n → Universe-level → Term n → Term n → Set a
+  Γ ⊩⟨ l ⟩ t ∷ A =
+    ⦃ inc : Var-included or-empty (Γ .vars) ⦄ → Γ H.⊩⟨ l ⟩ t ∷ A
 
 opaque
 
   -- Reducible type equality.
 
-  infix 4 _»_⊩⟨_⟩_≡_
+  infix 4 _⊩⟨_⟩_≡_
 
-  _»_⊩⟨_⟩_≡_ : DCon (Term 0) m → Con Term n → Universe-level → Term n → Term n → Set a
-  ∇ » Γ ⊩⟨ l ⟩ A ≡ B =
-    ⦃ inc : Var-included or-empty Γ ⦄ → ∇ H.» Γ ⊩⟨ l ⟩ A ≡ B
+  _⊩⟨_⟩_≡_ : Cons m n → Universe-level → Term n → Term n → Set a
+  Γ ⊩⟨ l ⟩ A ≡ B =
+    ⦃ inc : Var-included or-empty (Γ .vars) ⦄ → Γ H.⊩⟨ l ⟩ A ≡ B
 
 opaque
 
   -- Reducible term equality.
 
-  infix 4 _»_⊩⟨_⟩_≡_∷_
+  infix 4 _⊩⟨_⟩_≡_∷_
 
-  _»_⊩⟨_⟩_≡_∷_ :
-    DCon (Term 0) m → Con Term n → Universe-level → Term n → Term n → Term n → Set a
-  ∇ » Γ ⊩⟨ l ⟩ t ≡ u ∷ A =
-    ⦃ inc : Var-included or-empty Γ ⦄ → ∇ H.» Γ ⊩⟨ l ⟩ t ≡ u ∷ A
+  _⊩⟨_⟩_≡_∷_ :
+    Cons m n → Universe-level → Term n → Term n → Term n → Set a
+  Γ ⊩⟨ l ⟩ t ≡ u ∷ A =
+    ⦃ inc : Var-included or-empty (Γ .vars) ⦄ → Γ H.⊩⟨ l ⟩ t ≡ u ∷ A
 
 ------------------------------------------------------------------------
 -- Characterisation lemmas
 
 opaque
-  unfolding _»_⊩⟨_⟩_
+  unfolding _⊩⟨_⟩_
 
   -- A characterisation lemma for _⊩⟨_⟩_.
 
   ⊩⇔ :
     ∇ » Γ ⊩⟨ l ⟩ A ⇔
-    (⦃ inc : Var-included or-empty Γ ⦄ → ∇ L.» Γ ⊩⟨ l ⟩ A)
+    (⦃ inc : Var-included or-empty Γ ⦄ → ∇ » Γ L.⊩⟨ l ⟩ A)
   ⊩⇔ = id⇔
 
 opaque
-  unfolding _»_⊩⟨_⟩_∷_
+  unfolding _⊩⟨_⟩_∷_
 
   -- A characterisation lemma for _⊩⟨_⟩_∷_.
 
   ⊩∷⇔ :
     ∇ » Γ ⊩⟨ l ⟩ t ∷ A ⇔
-    (⦃ inc : Var-included or-empty Γ ⦄ → ∇ H.» Γ ⊩⟨ l ⟩ t ∷ A)
+    (⦃ inc : Var-included or-empty Γ ⦄ → ∇ » Γ H.⊩⟨ l ⟩ t ∷ A)
   ⊩∷⇔ = id⇔
 
 opaque
-  unfolding _»_⊩⟨_⟩_≡_
+  unfolding _⊩⟨_⟩_≡_
 
   -- A characterisation lemma for _⊩⟨_⟩_≡_.
 
   ⊩≡⇔ :
     ∇ » Γ ⊩⟨ l ⟩ A ≡ B ⇔
-    (⦃ inc : Var-included or-empty Γ ⦄ → ∇ H.» Γ ⊩⟨ l ⟩ A ≡ B)
+    (⦃ inc : Var-included or-empty Γ ⦄ → ∇ » Γ H.⊩⟨ l ⟩ A ≡ B)
   ⊩≡⇔ = id⇔
 
 opaque
-  unfolding _»_⊩⟨_⟩_≡_∷_
+  unfolding _⊩⟨_⟩_≡_∷_
 
   -- A characterisation lemma for _⊩⟨_⟩_≡_∷_.
 
   ⊩≡∷⇔ :
     ∇ » Γ ⊩⟨ l ⟩ t ≡ u ∷ A ⇔
-    (⦃ inc : Var-included or-empty Γ ⦄ → ∇ H.» Γ ⊩⟨ l ⟩ t ≡ u ∷ A)
+    (⦃ inc : Var-included or-empty Γ ⦄ → ∇ » Γ H.⊩⟨ l ⟩ t ≡ u ∷ A)
   ⊩≡∷⇔ = id⇔
 
 ------------------------------------------------------------------------
@@ -137,7 +137,7 @@ opaque
 
   -- A conversion function for _⊩⟨_⟩_.
 
-  →⊩ : ∇ L.» Γ ⊩⟨ l ⟩ A → ∇ » Γ ⊩⟨ l ⟩ A
+  →⊩ : ∇ » Γ L.⊩⟨ l ⟩ A → ∇ » Γ ⊩⟨ l ⟩ A
   →⊩ ⊩A = ⊩⇔ .proj₂ ⊩A
 
 opaque
@@ -146,14 +146,14 @@ opaque
 
   ⊩→ :
     ⦃ inc : Var-included or-empty Γ ⦄ →
-    ∇ » Γ ⊩⟨ l ⟩ A → ∇ L.» Γ ⊩⟨ l ⟩ A
+    ∇ » Γ ⊩⟨ l ⟩ A → ∇ » Γ L.⊩⟨ l ⟩ A
   ⊩→ ⊩A = ⊩⇔ .proj₁ ⊩A
 
 opaque
 
   -- A conversion function for _⊩⟨_⟩_∷_.
 
-  →⊩∷ : ∇ H.» Γ ⊩⟨ l ⟩ t ∷ A → ∇ » Γ ⊩⟨ l ⟩ t ∷ A
+  →⊩∷ : ∇ » Γ H.⊩⟨ l ⟩ t ∷ A → ∇ » Γ ⊩⟨ l ⟩ t ∷ A
   →⊩∷ ⊩t = ⊩∷⇔ .proj₂ ⊩t
 
 opaque
@@ -162,14 +162,14 @@ opaque
 
   ⊩∷→ :
     ⦃ inc : Var-included or-empty Γ ⦄ →
-    ∇ » Γ ⊩⟨ l ⟩ t ∷ A → ∇ H.» Γ ⊩⟨ l ⟩ t ∷ A
+    ∇ » Γ ⊩⟨ l ⟩ t ∷ A → ∇ » Γ H.⊩⟨ l ⟩ t ∷ A
   ⊩∷→ ⊩t = ⊩∷⇔ .proj₁ ⊩t
 
 opaque
 
   -- A conversion function for _⊩⟨_⟩_≡_.
 
-  →⊩≡ : ∇ H.» Γ ⊩⟨ l ⟩ A ≡ B → ∇ » Γ ⊩⟨ l ⟩ A ≡ B
+  →⊩≡ : ∇ » Γ H.⊩⟨ l ⟩ A ≡ B → ∇ » Γ ⊩⟨ l ⟩ A ≡ B
   →⊩≡ A≡B = ⊩≡⇔ .proj₂ A≡B
 
 opaque
@@ -178,14 +178,14 @@ opaque
 
   ⊩≡→ :
     ⦃ inc : Var-included or-empty Γ ⦄ →
-    ∇ » Γ ⊩⟨ l ⟩ A ≡ B → ∇ H.» Γ ⊩⟨ l ⟩ A ≡ B
+    ∇ » Γ ⊩⟨ l ⟩ A ≡ B → ∇ » Γ H.⊩⟨ l ⟩ A ≡ B
   ⊩≡→ A≡B = ⊩≡⇔ .proj₁ A≡B
 
 opaque
 
   -- A conversion function for _⊩⟨_⟩_≡_∷_.
 
-  →⊩≡∷ : ∇ H.» Γ ⊩⟨ l ⟩ t ≡ u ∷ A → ∇ » Γ ⊩⟨ l ⟩ t ≡ u ∷ A
+  →⊩≡∷ : ∇ » Γ H.⊩⟨ l ⟩ t ≡ u ∷ A → ∇ » Γ ⊩⟨ l ⟩ t ≡ u ∷ A
   →⊩≡∷ t≡u = ⊩≡∷⇔ .proj₂ t≡u
 
 opaque
@@ -194,14 +194,14 @@ opaque
 
   ⊩≡∷→ :
     ⦃ inc : Var-included or-empty Γ ⦄ →
-    ∇ » Γ ⊩⟨ l ⟩ t ≡ u ∷ A → ∇ H.» Γ ⊩⟨ l ⟩ t ≡ u ∷ A
+    ∇ » Γ ⊩⟨ l ⟩ t ≡ u ∷ A → ∇ » Γ H.⊩⟨ l ⟩ t ≡ u ∷ A
   ⊩≡∷→ t≡u = ⊩≡∷⇔ .proj₁ t≡u
 
 ------------------------------------------------------------------------
 -- Some utility functions
 
 opaque
-  unfolding _»_⊩⟨_⟩_
+  unfolding _⊩⟨_⟩_
 
   -- If one can prove ∇ » Γ ⊩⟨ l ⟩ A given Var-included or-empty Γ,
   -- then ∇ » Γ ⊩⟨ l ⟩ A holds.
@@ -212,7 +212,7 @@ opaque
   with-inc-⊩ f ⦃ inc ⦄ = f ⦃ inc = inc ⦄ ⦃ inc = inc ⦄
 
 opaque
-  unfolding _»_⊩⟨_⟩_∷_
+  unfolding _⊩⟨_⟩_∷_
 
   -- If one can prove ∇ » Γ ⊩⟨ l ⟩ t ∷ A given
   -- Var-included or-empty Γ, then ∇ » Γ ⊩⟨ l ⟩ t ∷ A holds.
@@ -223,7 +223,7 @@ opaque
   with-inc-⊩∷ f ⦃ inc ⦄ = f ⦃ inc = inc ⦄ ⦃ inc = inc ⦄
 
 opaque
-  unfolding _»_⊩⟨_⟩_≡_
+  unfolding _⊩⟨_⟩_≡_
 
   -- If one can prove ∇ » Γ ⊩⟨ l ⟩ A ≡ B given
   -- Var-included or-empty Γ, then ∇ » Γ ⊩⟨ l ⟩ A ≡ B holds.
@@ -234,7 +234,7 @@ opaque
   with-inc-⊩≡ f ⦃ inc ⦄ = f ⦃ inc = inc ⦄ ⦃ inc = inc ⦄
 
 opaque
-  unfolding _»_⊩⟨_⟩_≡_∷_
+  unfolding _⊩⟨_⟩_≡_∷_
 
   -- If one can prove ∇ » Γ ⊩⟨ l ⟩ t ≡ u ∷ A given
   -- Var-included or-empty Γ, then ∇ » Γ ⊩⟨ l ⟩ t ≡ u ∷ A holds.
@@ -248,7 +248,7 @@ opaque
 -- Reflexivity
 
 opaque
-  unfolding _»_⊩⟨_⟩_ _»_⊩⟨_⟩_≡_
+  unfolding _⊩⟨_⟩_ _⊩⟨_⟩_≡_
 
   -- Reflexivity for _⊩⟨_⟩_≡_.
 
@@ -258,7 +258,7 @@ opaque
   refl-⊩≡ ⊩A = H.refl-⊩≡ ⊩A
 
 opaque
-  unfolding _»_⊩⟨_⟩_∷_ _»_⊩⟨_⟩_≡_∷_
+  unfolding _⊩⟨_⟩_∷_ _⊩⟨_⟩_≡_∷_
 
   -- Reflexivity for _⊩⟨_⟩_≡_∷_.
 
@@ -271,7 +271,7 @@ opaque
 -- Symmetry
 
 opaque
-  unfolding _»_⊩⟨_⟩_≡_
+  unfolding _⊩⟨_⟩_≡_
 
   -- Symmetry for _⊩⟨_⟩_≡_.
 
@@ -281,7 +281,7 @@ opaque
   sym-⊩≡ A≡B = H.sym-⊩≡ A≡B
 
 opaque
-  unfolding _»_⊩⟨_⟩_≡_∷_
+  unfolding _⊩⟨_⟩_≡_∷_
 
   -- Symmetry for _⊩⟨_⟩_≡_∷_.
 
@@ -294,7 +294,7 @@ opaque
 -- Transitivity
 
 opaque
-  unfolding _»_⊩⟨_⟩_≡_
+  unfolding _⊩⟨_⟩_≡_
 
   -- Transitivity for _⊩⟨_⟩_≡_.
 
@@ -305,7 +305,7 @@ opaque
   trans-⊩≡ A≡B B≡C = H.trans-⊩≡ A≡B B≡C
 
 opaque
-  unfolding _»_⊩⟨_⟩_≡_∷_
+  unfolding _⊩⟨_⟩_≡_∷_
 
   -- Transitivity for _⊩⟨_⟩_≡_∷_.
 
@@ -319,7 +319,7 @@ opaque
 -- Well-formedness lemmas
 
 opaque
-  unfolding _»_⊩⟨_⟩_ _»_⊩⟨_⟩_∷_
+  unfolding _⊩⟨_⟩_ _⊩⟨_⟩_∷_
 
   -- A well-formedness lemma for _⊩⟨_⟩_∷_.
 
@@ -327,7 +327,7 @@ opaque
   wf-⊩∷ ⊩t = H.wf-⊩∷ ⊩t
 
 opaque
-  unfolding _»_⊩⟨_⟩_ _»_⊩⟨_⟩_≡_
+  unfolding _⊩⟨_⟩_ _⊩⟨_⟩_≡_
 
   -- A well-formedness lemma for _⊩⟨_⟩_≡_.
 
@@ -335,7 +335,7 @@ opaque
   wf-⊩≡ A≡B = H.wf-⊩≡ A≡B .proj₁ , H.wf-⊩≡ A≡B .proj₂
 
 opaque
-  unfolding _»_⊩⟨_⟩_∷_ _»_⊩⟨_⟩_≡_∷_
+  unfolding _⊩⟨_⟩_∷_ _⊩⟨_⟩_≡_∷_
 
   -- A well-formedness lemma for _⊩⟨_⟩_≡_∷_.
 
@@ -348,7 +348,7 @@ opaque
 -- Some characterisation lemmas
 
 opaque
-  unfolding _»_⊩⟨_⟩_ _»_⊩⟨_⟩_≡_
+  unfolding _⊩⟨_⟩_ _⊩⟨_⟩_≡_
 
   -- A characterisation lemma for _⊩⟨_⟩_.
 
@@ -356,7 +356,7 @@ opaque
   ⊩⇔⊩≡ = instance-Π-cong-⇔ H.⊩⇔⊩≡
 
 opaque
-  unfolding _»_⊩⟨_⟩_∷_ _»_⊩⟨_⟩_≡_∷_
+  unfolding _⊩⟨_⟩_∷_ _⊩⟨_⟩_≡_∷_
 
   -- A characterisation lemma for _⊩⟨_⟩_∷_.
 
@@ -367,7 +367,7 @@ opaque
 -- Changing type levels
 
 opaque
-  unfolding _»_⊩⟨_⟩_ _»_⊩⟨_⟩_≡_
+  unfolding _⊩⟨_⟩_ _⊩⟨_⟩_≡_
 
   -- Changing type levels for _⊩⟨_⟩_≡_.
 
@@ -379,7 +379,7 @@ opaque
   level-⊩≡ ⊩A ⊩B A≡B = H.level-⊩≡ ⊩A ⊩B A≡B
 
 opaque
-  unfolding _»_⊩⟨_⟩_ _»_⊩⟨_⟩_≡_∷_
+  unfolding _⊩⟨_⟩_ _⊩⟨_⟩_≡_∷_
 
   -- Changing type levels for _⊩⟨_⟩_≡_∷_.
 
@@ -404,7 +404,7 @@ opaque
 -- Conversion
 
 opaque
-  unfolding _»_⊩⟨_⟩_≡_ _»_⊩⟨_⟩_≡_∷_
+  unfolding _⊩⟨_⟩_≡_ _⊩⟨_⟩_≡_∷_
 
   -- Conversion for _⊩⟨_⟩_≡_∷_.
 
@@ -429,7 +429,7 @@ opaque
 -- Weakening
 
 opaque
-  unfolding _»_⊩⟨_⟩_≡_
+  unfolding _⊩⟨_⟩_≡_
 
   -- Weakening for _⊩⟨_⟩_≡_.
 
@@ -446,7 +446,7 @@ opaque
   wk-⊩ Δ⊇Γ = ⊩⇔⊩≡ .proj₂ ∘→ wk-⊩≡ Δ⊇Γ ∘→ ⊩⇔⊩≡ .proj₁
 
 opaque
-  unfolding _»_⊩⟨_⟩_≡_∷_
+  unfolding _⊩⟨_⟩_≡_∷_
 
   -- Weakening for _⊩⟨_⟩_≡_∷_.
 
@@ -464,7 +464,7 @@ opaque
   wk-⊩∷ Δ⊇Γ = ⊩∷⇔⊩≡∷ .proj₂ ∘→ wk-⊩≡∷ Δ⊇Γ ∘→ ⊩∷⇔⊩≡∷ .proj₁
 
 opaque
-  unfolding _»_⊩⟨_⟩_≡_
+  unfolding _⊩⟨_⟩_≡_
 
   -- Weakening of the definition context for _⊩⟨_⟩_≡_.
 
@@ -483,7 +483,7 @@ opaque
   defn-wk-⊩ ξ⊇ = ⊩⇔⊩≡ .proj₂ ∘→ defn-wk-⊩≡ ξ⊇ ∘→ ⊩⇔⊩≡ .proj₁
 
 opaque
-  unfolding _»_⊩⟨_⟩_≡_∷_
+  unfolding _⊩⟨_⟩_≡_∷_
 
   -- Weakening of the definition context for _⊩⟨_⟩_≡_∷_.
 
@@ -508,7 +508,7 @@ opaque
 -- Reduction
 
 opaque
-  unfolding _»_⊩⟨_⟩_ _»_⊩⟨_⟩_≡_
+  unfolding _⊩⟨_⟩_ _⊩⟨_⟩_≡_
 
   -- A reduction lemma for _⊩⟨_⟩_.
 
@@ -516,7 +516,7 @@ opaque
   ⊩-⇒* A⇒*B ⊩A = H.⊩-⇒* A⇒*B ⊩A
 
 opaque
-  unfolding _»_⊩⟨_⟩_∷_ _»_⊩⟨_⟩_≡_∷_
+  unfolding _⊩⟨_⟩_∷_ _⊩⟨_⟩_≡_∷_
 
   -- A reduction lemma for _⊩⟨_⟩_∷_.
 
@@ -530,7 +530,7 @@ opaque
 -- Expansion
 
 opaque
-  unfolding _»_⊩⟨_⟩_ _»_⊩⟨_⟩_≡_
+  unfolding _⊩⟨_⟩_ _⊩⟨_⟩_≡_
 
   -- An expansion lemma for _⊩⟨_⟩_.
 
@@ -538,7 +538,7 @@ opaque
   ⊩-⇐* A⇒*B ⊩B = H.⊩-⇐* A⇒*B ⊩B
 
 opaque
-  unfolding _»_⊩⟨_⟩_∷_ _»_⊩⟨_⟩_≡_∷_
+  unfolding _⊩⟨_⟩_∷_ _⊩⟨_⟩_≡_∷_
 
   -- An expansion lemma for _⊩⟨_⟩_∷_.
 
@@ -552,7 +552,7 @@ opaque
 -- Escape lemmas
 
 opaque
-  unfolding _»_⊩⟨_⟩_
+  unfolding _⊩⟨_⟩_
 
   -- An escape lemma for _⊩⟨_⟩_.
 
@@ -562,7 +562,7 @@ opaque
   escape-⊩ ⊩A = H.escape-⊩ ⊩A
 
 opaque
-  unfolding _»_⊩⟨_⟩_∷_
+  unfolding _⊩⟨_⟩_∷_
 
   -- An escape lemma for _⊩⟨_⟩_∷_.
 
@@ -572,7 +572,7 @@ opaque
   escape-⊩∷ ⊩t = H.escape-⊩∷ ⊩t
 
 opaque
-  unfolding _»_⊩⟨_⟩_≡_
+  unfolding _⊩⟨_⟩_≡_
 
   -- An escape lemma for _⊩⟨_⟩_≡_.
 
@@ -582,7 +582,7 @@ opaque
   escape-⊩≡ A≡B = H.escape-⊩≡ A≡B
 
 opaque
-  unfolding _»_⊩⟨_⟩_≡_∷_
+  unfolding _⊩⟨_⟩_≡_∷_
 
   -- An escape lemma for _⊩⟨_⟩_≡_∷_.
 
@@ -949,7 +949,7 @@ opaque
 -- Embedding
 
 opaque
-  unfolding _»_⊩⟨_⟩_
+  unfolding _⊩⟨_⟩_
 
   -- Embedding for _⊩⟨_⟩_.
 
@@ -960,7 +960,7 @@ opaque
   emb-⊩ p ⊩A = H.emb-⊩ p ⊩A
 
 opaque
-  unfolding _»_⊩⟨_⟩_≡_
+  unfolding _⊩⟨_⟩_≡_
 
   -- Embedding for _⊩⟨_⟩_≡_.
 
@@ -971,7 +971,7 @@ opaque
   emb-⊩≡ p A≡B = H.emb-⊩≡ p A≡B
 
 opaque
-  unfolding _»_⊩⟨_⟩_≡_∷_
+  unfolding _⊩⟨_⟩_≡_∷_
 
   -- Embedding for _⊩⟨_⟩_≡_∷_.
 
@@ -982,7 +982,7 @@ opaque
   emb-⊩≡∷ p t≡u = H.emb-⊩≡∷ p t≡u
 
 opaque
-  unfolding _»_⊩⟨_⟩_∷_
+  unfolding _⊩⟨_⟩_∷_
 
   -- Embedding for _⊩⟨_⟩_∷_.
 
@@ -996,7 +996,7 @@ opaque
 -- Neutral types and terms
 
 opaque
-  unfolding _»_⊩⟨_⟩_
+  unfolding _⊩⟨_⟩_
 
   -- Neutral types that satisfy certain properties are reducible.
 
@@ -1007,7 +1007,7 @@ opaque
   neutral-⊩ A-ne ≅A = H.neutral-⊩ A-ne ≅A
 
 opaque
-  unfolding _»_⊩⟨_⟩_ _»_⊩⟨_⟩_∷_
+  unfolding _⊩⟨_⟩_ _⊩⟨_⟩_∷_
 
   -- Neutral terms that satisfy certain properties are reducible.
 
@@ -1019,7 +1019,7 @@ opaque
   neutral-⊩∷ ⊩A t-ne ~t = H.neutral-⊩∷ ⊩A t-ne ~t
 
 opaque
-  unfolding _»_⊩⟨_⟩_ _»_⊩⟨_⟩_≡_
+  unfolding _⊩⟨_⟩_ _⊩⟨_⟩_≡_
 
   -- Reducible equality holds between neutral types that satisfy
   -- certain properties.
@@ -1034,7 +1034,7 @@ opaque
   neutral-⊩≡ ⊩A ⊩B A-ne B-ne A≅B = H.neutral-⊩≡ ⊩A ⊩B A-ne B-ne A≅B
 
 opaque
-  unfolding _»_⊩⟨_⟩_ _»_⊩⟨_⟩_≡_∷_
+  unfolding _⊩⟨_⟩_ _⊩⟨_⟩_≡_∷_
 
   -- Reducible equality holds between neutral terms that satisfy
   -- certain properties.
@@ -1056,7 +1056,7 @@ opaque
     ∇ » Γ ⊩⟨ l ⟩ A ⇔ (⦃ inc : Var-included or-empty Γ ⦄ → ∇ » Γ ⊢≅ A)
   ⊩ne⇔ {∇} {A} {Γ} {l} A-ne =
     ∇ » Γ ⊩⟨ l ⟩ A                                          ⇔⟨ ⊩⇔ ⟩
-    (⦃ inc : Var-included or-empty Γ ⦄ → ∇ L.» Γ ⊩⟨ l ⟩ A)  ⇔⟨ instance-Π-cong-⇔ $ H.⊩ne⇔ A-ne ⟩
+    (⦃ inc : Var-included or-empty Γ ⦄ → ∇ » Γ L.⊩⟨ l ⟩ A)  ⇔⟨ instance-Π-cong-⇔ $ H.⊩ne⇔ A-ne ⟩
     (⦃ inc : Var-included or-empty Γ ⦄ → ∇ » Γ ⊢≅ A)        □⇔
 
 opaque
@@ -1071,13 +1071,13 @@ opaque
   ⊩∷ne⇔ {∇} {A} {Γ} {l} {t} A-ne =
     ∇ » Γ ⊩⟨ l ⟩ t ∷ A                                            ⇔⟨ ⊩∷⇔ ⟩
 
-    (⦃ inc : Var-included or-empty Γ ⦄ → ∇ H.» Γ ⊩⟨ l ⟩ t ∷ A)    ⇔⟨ instance-Π-cong-⇔ $ H.⊩∷ne⇔ A-ne ⟩
+    (⦃ inc : Var-included or-empty Γ ⦄ → ∇ » Γ H.⊩⟨ l ⟩ t ∷ A)    ⇔⟨ instance-Π-cong-⇔ $ H.⊩∷ne⇔ A-ne ⟩
 
     (⦃ inc : Var-included or-empty Γ ⦄ → ∇ » Γ ⊢≅ A ×
      ∃ λ u → ∇ » Γ ⊢ t ⇒* u ∷ A × Neutralₗ ∇ u × ∇ » Γ ⊢~ u ∷ A)  □⇔
 
 opaque
-  unfolding _»_⊩⟨_⟩_≡_
+  unfolding _⊩⟨_⟩_≡_
 
   -- A characterisation lemma for _⊩⟨_⟩_≡_.
 
@@ -1089,7 +1089,7 @@ opaque
   ⊩ne≡⇔ {∇} {A} {Γ} {l} {B} A-ne =
     ∇ » Γ ⊩⟨ l ⟩ A ≡ B                                          ⇔⟨ ⊩≡⇔ ⟩
 
-    (⦃ inc : Var-included or-empty Γ ⦄ → ∇ H.» Γ ⊩⟨ l ⟩ A ≡ B)  ⇔⟨ instance-Π-cong-⇔ $ H.⊩ne≡⇔ A-ne ⟩
+    (⦃ inc : Var-included or-empty Γ ⦄ → ∇ » Γ H.⊩⟨ l ⟩ A ≡ B)  ⇔⟨ instance-Π-cong-⇔ $ H.⊩ne≡⇔ A-ne ⟩
 
     (⦃ inc : Var-included or-empty Γ ⦄ →
      ∃ λ C → Neutralₗ ∇ C × ∇ » Γ ⊢ B ⇒* C × ∇ » Γ ⊢ A ≅ C)     □⇔
@@ -1105,11 +1105,11 @@ opaque
     (⦃ inc : Var-included or-empty Γ ⦄ → ∇ » Γ ⊢ A ≅ B)
   ⊩ne≡ne⇔ {∇} {A} {B} {Γ} {l} A-ne B-ne =
     ∇ » Γ ⊩⟨ l ⟩ A ≡ B                                          ⇔⟨ ⊩≡⇔ ⟩
-    (⦃ inc : Var-included or-empty Γ ⦄ → ∇ H.» Γ ⊩⟨ l ⟩ A ≡ B)  ⇔⟨ instance-Π-cong-⇔ $ H.⊩ne≡ne⇔ A-ne B-ne ⟩
+    (⦃ inc : Var-included or-empty Γ ⦄ → ∇ » Γ H.⊩⟨ l ⟩ A ≡ B)  ⇔⟨ instance-Π-cong-⇔ $ H.⊩ne≡ne⇔ A-ne B-ne ⟩
     (⦃ inc : Var-included or-empty Γ ⦄ → ∇ » Γ ⊢ A ≅ B)         □⇔
 
 opaque
-  unfolding _»_⊩⟨_⟩_≡_∷_ ⊩ne⇔
+  unfolding _⊩⟨_⟩_≡_∷_ ⊩ne⇔
 
   -- A characterisation lemma for _⊩⟨_⟩_≡_∷_.
 
@@ -1120,5 +1120,5 @@ opaque
      ∇ » Γ ⊢≅ A ×
      ∃₂ λ u₁ u₂ →
      ∇ » Γ ⊢ t₁ ⇒* u₁ ∷ A × ∇ » Γ ⊢ t₂ ⇒* u₂ ∷ A ×
-     ∇ L.» Γ ⊩neNf u₁ ≡ u₂ ∷ A)
+     ∇ » Γ L.⊩neNf u₁ ≡ u₂ ∷ A)
   ⊩≡∷ne⇔ A-ne = (instance-Π-cong-⇔ $ H.⊩≡∷ne⇔ A-ne) ∘⇔ ⊩≡∷⇔

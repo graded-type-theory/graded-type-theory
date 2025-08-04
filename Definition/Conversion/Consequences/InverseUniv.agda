@@ -53,12 +53,12 @@ opaque
     ∇ » Γ ⊢ A ≡ B →
     ∇ » Γ ⊢ A ≡ B ∷ U l
   inverseUnivEq′ (inj₁ ⊢A) (univ A≡B) =
-    PE.subst (_»_⊢_≡_∷_ _ _ _ _)
+    PE.subst (_⊢_≡_∷_ _ _ _)
       (PE.sym $ PE.cong U $
        universe-level-unique ⊢A (syntacticEqTerm A≡B .proj₂ .proj₁))
       A≡B
   inverseUnivEq′ (inj₂ ⊢B) (univ A≡B) =
-    PE.subst (_»_⊢_≡_∷_ _ _ _ _)
+    PE.subst (_⊢_≡_∷_ _ _ _)
       (PE.sym $ PE.cong U $
        universe-level-unique ⊢B (syntacticEqTerm A≡B .proj₂ .proj₂))
       A≡B

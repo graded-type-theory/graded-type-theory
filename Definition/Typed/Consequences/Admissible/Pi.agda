@@ -105,7 +105,7 @@ opaque
                                 (Π≡Π (refl ⊢u))
         _ , ⊢lam″ , Π≡Π , _ = inversion-lam-Π ⊢lam′
         ⊢lam″               =
-          PE.subst₂ (_»_⊢_∷_ _ _)
+          PE.subst₂ (_⊢_∷_ _)
             (singleSubstComp _ _ (lam _ t))
             (singleSubstComp _ _ (Π _ , _ ▷ C ▹ D)) $
           conv (subst-⊢∷ ⊢lam″ (⊢ˢʷ∷-sgSubst ⊢v))
@@ -141,14 +141,14 @@ opaque
                                 (Π≡Π (refl ⊢u₁))
         _ , ⊢lam″ , Π≡Π , _ = inversion-lam-Π ⊢lam′
         ⊢lam″               =
-          PE.subst₂ (_»_⊢_∷_ _ _)
+          PE.subst₂ (_⊢_∷_ _)
             (singleSubstComp _ _ (lam _ (lam _ t)))
             (singleSubstComp _ _ (Π _ , _ ▷ C ▹ Π _ , _ ▷ D ▹ E)) $
           conv (subst-⊢∷ ⊢lam″ (⊢ˢʷ∷-sgSubst ⊢u₂))
             (Π≡Π (refl ⊢u₂))
         _ , ⊢lam‴ , Π≡Π , _ = inversion-lam-Π ⊢lam″
         ⊢lam‴ =
-          PE.subst₂ (_»_⊢_∷_ _ _)
+          PE.subst₂ (_⊢_∷_ _)
             (singleSubstComp _ _ (lam _ t))
             (singleSubstComp _ _ (Π _ , _ ▷ D ▹ E)) $
           conv (subst-⊢∷ ⊢lam‴ (⊢ˢʷ∷-sgSubst ⊢u₃))
@@ -178,7 +178,7 @@ opaque
       (⊢t , PE.refl , ok) →
     case wfTerm ⊢t of λ {
       (∙ ⊢A) →
-    PE.subst₂ (_»_⊢_⇒_∷_ _ _ _)
+    PE.subst₂ (_⊢_⇒_∷_ _ _)
       (wkSingleSubstId _)
       (wkSingleSubstId _)
       (β-red-⇒

@@ -46,21 +46,21 @@ symNeutralTerm : ∀ {t u A}
 symNeutralTerm (neNfₜ₌ neK neM k≡m) = neNfₜ₌ neM neK (~-sym k≡m)
 
 symNatural-prop : ∀ {k k′}
-                → [Natural]-prop ∇ Γ k k′
-                → [Natural]-prop ∇ Γ k′ k
+                → [Natural]-prop (∇ » Γ) k k′
+                → [Natural]-prop (∇ » Γ) k′ k
 symNatural-prop (sucᵣ (ℕₜ₌ k k′ d d′ t≡u prop)) =
   sucᵣ (ℕₜ₌ k′ k d′ d (≅ₜ-sym t≡u) (symNatural-prop prop))
 symNatural-prop zeroᵣ = zeroᵣ
 symNatural-prop (ne prop) = ne (symNeutralTerm prop)
 
 symEmpty-prop : ∀ {k k′}
-              → [Empty]-prop ∇ Γ k k′
-              → [Empty]-prop ∇ Γ k′ k
+              → [Empty]-prop (∇ » Γ) k k′
+              → [Empty]-prop (∇ » Γ) k′ k
 symEmpty-prop (ne prop) = ne (symNeutralTerm prop)
 
 symUnit-prop : ∀ {k k′}
-             → [Unitʷ]-prop ∇ Γ l k k′
-             → [Unitʷ]-prop ∇ Γ l k′ k
+             → [Unitʷ]-prop (∇ » Γ) l k k′
+             → [Unitʷ]-prop (∇ » Γ) l k′ k
 symUnit-prop starᵣ = starᵣ
 symUnit-prop (ne prop) = ne (symNeutralTerm prop)
 
@@ -111,7 +111,7 @@ symEqT
       [F₁≡F] {_} {_} {∇′} [ξ] {_} {ρ} {Δ} [ρ] =
         let ρF′≡ρF₁ ρ = PE.cong (wk ρ) (PE.sym F₁≡F′)
             [ρF′] {ρ} [ρ] =
-              PE.subst (∇′ » Δ ⊩⟨ l′ ⟩_ ∘→ wk ρ) F₁≡F′ ([F]₁ [ξ] [ρ])
+              PE.subst ((∇′ » Δ ⊩⟨ l′ ⟩_) ∘→ wk ρ) F₁≡F′ ([F]₁ [ξ] [ρ])
         in  irrelevanceEq′ {Γ = Δ} (ρF′≡ρF₁ ρ)
               ([ρF′] [ρ]) ([F]₁ [ξ] [ρ]) (symEq ([F] [ξ] [ρ]) ([ρF′] [ρ])
               ([F≡F′] [ξ] [ρ]))
@@ -129,29 +129,29 @@ symEqT
 symEqT (Uᵥ (Uᵣ l′ l< ⇒*U) (Uᵣ l′₁ l<₁ ⇒*U₁)) D with whrDet* (D , Uₙ) (⇒*U₁ , Uₙ)
 symEqT (Uᵥ (Uᵣ l′ l< ⇒*U) (Uᵣ l′₁ l<₁ ⇒*U₁)) D | PE.refl = ⇒*U
 symEqT (Idᵥ ⊩A ⊩B@record{}) A≡B =
-  case whrDet* (_»_⊩ₗId_.⇒*Id ⊩B , Idₙ)
-         (_»_⊩ₗId_≡_/_.⇒*Id′ A≡B , Idₙ) of λ {
+  case whrDet* (_⊩ₗId_.⇒*Id ⊩B , Idₙ)
+         (_⊩ₗId_≡_/_.⇒*Id′ A≡B , Idₙ) of λ {
     PE.refl →
   record
-    { ⇒*Id′    = _»_⊩ₗId_.⇒*Id ⊩A
-    ; Ty≡Ty′   = symEq (_»_⊩ₗId_.⊩Ty ⊩A) (_»_⊩ₗId_.⊩Ty ⊩B) Ty≡Ty′
+    { ⇒*Id′    = _⊩ₗId_.⇒*Id ⊩A
+    ; Ty≡Ty′   = symEq (_⊩ₗId_.⊩Ty ⊩A) (_⊩ₗId_.⊩Ty ⊩B) Ty≡Ty′
     ; lhs≡lhs′ =
-        convEqTerm₁ (_»_⊩ₗId_.⊩Ty ⊩A) (_»_⊩ₗId_.⊩Ty ⊩B) Ty≡Ty′ $
-        symEqTerm (_»_⊩ₗId_.⊩Ty ⊩A) lhs≡lhs′
+        convEqTerm₁ (_⊩ₗId_.⊩Ty ⊩A) (_⊩ₗId_.⊩Ty ⊩B) Ty≡Ty′ $
+        symEqTerm (_⊩ₗId_.⊩Ty ⊩A) lhs≡lhs′
     ; rhs≡rhs′ =
-        convEqTerm₁ (_»_⊩ₗId_.⊩Ty ⊩A) (_»_⊩ₗId_.⊩Ty ⊩B) Ty≡Ty′ $
-        symEqTerm (_»_⊩ₗId_.⊩Ty ⊩A) rhs≡rhs′
+        convEqTerm₁ (_⊩ₗId_.⊩Ty ⊩A) (_⊩ₗId_.⊩Ty ⊩B) Ty≡Ty′ $
+        symEqTerm (_⊩ₗId_.⊩Ty ⊩A) rhs≡rhs′
     ; lhs≡rhs→lhs′≡rhs′ =
-        convEqTerm₁ (_»_⊩ₗId_.⊩Ty ⊩A) (_»_⊩ₗId_.⊩Ty ⊩B) Ty≡Ty′ ∘→
+        convEqTerm₁ (_⊩ₗId_.⊩Ty ⊩A) (_⊩ₗId_.⊩Ty ⊩B) Ty≡Ty′ ∘→
         lhs′≡rhs′→lhs≡rhs ∘→
-        convEqTerm₂ (_»_⊩ₗId_.⊩Ty ⊩A) (_»_⊩ₗId_.⊩Ty ⊩B) Ty≡Ty′
+        convEqTerm₂ (_⊩ₗId_.⊩Ty ⊩A) (_⊩ₗId_.⊩Ty ⊩B) Ty≡Ty′
     ; lhs′≡rhs′→lhs≡rhs =
-        convEqTerm₁ (_»_⊩ₗId_.⊩Ty ⊩A) (_»_⊩ₗId_.⊩Ty ⊩B) Ty≡Ty′ ∘→
+        convEqTerm₁ (_⊩ₗId_.⊩Ty ⊩A) (_⊩ₗId_.⊩Ty ⊩B) Ty≡Ty′ ∘→
         lhs≡rhs→lhs′≡rhs′ ∘→
-        convEqTerm₂ (_»_⊩ₗId_.⊩Ty ⊩A) (_»_⊩ₗId_.⊩Ty ⊩B) Ty≡Ty′
+        convEqTerm₂ (_⊩ₗId_.⊩Ty ⊩A) (_⊩ₗId_.⊩Ty ⊩B) Ty≡Ty′
     } }
   where
-  open _»_⊩ₗId_≡_/_ A≡B
+  open _⊩ₗId_≡_/_ A≡B
 symEqT (embᵥ₁ ≤ᵘ-refl     A≡B) = symEqT          A≡B
 symEqT (embᵥ₁ (≤ᵘ-step p) A≡B) = symEqT (embᵥ₁ p A≡B)
 symEqT (embᵥ₂ ≤ᵘ-refl     A≡B) = symEqT          A≡B

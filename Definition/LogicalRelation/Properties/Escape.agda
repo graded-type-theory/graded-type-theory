@@ -48,7 +48,7 @@ escape (Emptyᵣ D) = redFirst* D
 escape (Unitᵣ (Unitₜ D _)) = redFirst* D
 escape (ne′ _ D _ _) = redFirst* D
 escape (Bᵣ′ _ _ _ D _ _ _ _ _) = redFirst* D
-escape (Idᵣ ⊩A) = redFirst* (_»_⊩ₗId_.⇒*Id ⊩A)
+escape (Idᵣ ⊩A) = redFirst* (_⊩ₗId_.⇒*Id ⊩A)
 escape (emb ≤ᵘ-refl A) = escape A
 escape (emb (≤ᵘ-step k) A) = escape (emb k A)
 
@@ -71,7 +71,7 @@ escapeTerm (Bᵣ′ BΠ! _ _ D _ _ _ _ _) (Πₜ _ d _ _ _ _) =
 escapeTerm (Bᵣ′ BΣ! _ _ D _ _ _ _ _) (Σₜ _ d _ _ _) =
   conv (redFirst*Term d) (sym (subset* D))
 escapeTerm (Idᵣ ⊩A) (_ , d , _) =
-  conv (redFirst*Term d) (sym (subset* (_»_⊩ₗId_.⇒*Id ⊩A)))
+  conv (redFirst*Term d) (sym (subset* (_⊩ₗId_.⇒*Id ⊩A)))
 escapeTerm (emb ≤ᵘ-refl A) t = escapeTerm A t
 escapeTerm (emb (≤ᵘ-step k) A) t = escapeTerm (emb k A) t
 
@@ -92,8 +92,8 @@ escapeTermEq :
 Id≅Id :
   {⊩A : ∇ » Γ ⊩′⟨ l ⟩Id A}
   (A≡B : ∇ » Γ ⊩⟨ l ⟩ A ≡ B / Idᵣ ⊩A) →
-  let open _»_⊩ₗId_ ⊩A
-      open _»_⊩ₗId_≡_/_ A≡B
+  let open _⊩ₗId_ ⊩A
+      open _⊩ₗId_≡_/_ A≡B
   in
   ∇ » Γ ⊢ Id Ty lhs rhs ≅ Id Ty′ lhs′ rhs′
 Id≅Id {⊩A = ⊩A} A≡B =
@@ -102,8 +102,8 @@ Id≅Id {⊩A = ⊩A} A≡B =
     (escapeTermEq ⊩Ty lhs≡lhs′)
     (escapeTermEq ⊩Ty rhs≡rhs′)
   where
-  open _»_⊩ₗId_ ⊩A
-  open _»_⊩ₗId_≡_/_ A≡B
+  open _⊩ₗId_ ⊩A
+  open _⊩ₗId_≡_/_ A≡B
 
 escapeEq (Uᵣ′ _ _ D) D₁ =
   ≅-red (D , Uₙ)  (D₁ , Uₙ) (≅-univ (≅-Urefl (wfEq (subset* D))))
@@ -118,7 +118,7 @@ escapeEq (ne′ _ D neK _) (ne₌ _ D′ neM K≡M) =
 escapeEq (Bᵣ′ W _ _ D _ _ _ _ _) (B₌ _ _ D′ A≡B _ _) =
   ≅-red (D , ⟦ W ⟧ₙ) (D′ , ⟦ W ⟧ₙ) A≡B
 escapeEq (Idᵣ ⊩A) A≡B =
-  ≅-red (_»_⊩ₗId_.⇒*Id ⊩A , Idₙ) (_»_⊩ₗId_≡_/_.⇒*Id′ A≡B , Idₙ) (Id≅Id A≡B)
+  ≅-red (_⊩ₗId_.⇒*Id ⊩A , Idₙ) (_⊩ₗId_≡_/_.⇒*Id′ A≡B , Idₙ) (Id≅Id A≡B)
 escapeEq (emb ≤ᵘ-refl A) A≡B = escapeEq A A≡B
 escapeEq (emb (≤ᵘ-step k) A) A≡B = escapeEq (emb k A) A≡B
 
@@ -161,7 +161,7 @@ escapeTermEq {∇ = ∇} {Γ = Γ} (Idᵣ ⊩A) t≡u@(_ , _ , t⇒*t′ , u⇒*
          ∇ » Γ ⊢ Id Ty lhs lhs ≡ Id Ty lhs rhs  →⟨ ≅-conv (≅ₜ-rflrefl (escapeTerm ⊩Ty ⊩lhs)) ⟩
          (∇ » Γ ⊢≅ rfl ∷ Id Ty lhs rhs)         □)
   where
-  open _»_⊩ₗId_ ⊩A
+  open _⊩ₗId_ ⊩A
   lemma = λ t′-whnf u′-whnf →
             ≅ₜ-red (⇒*Id , Idₙ) (t⇒*t′ , t′-whnf) (u⇒*u′ , u′-whnf)
 
