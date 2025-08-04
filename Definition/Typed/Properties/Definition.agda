@@ -14,34 +14,45 @@ module Definition.Typed.Properties.Definition
 open Type-restrictions R
 
 open import Definition.Typed R
+open import Definition.Typed.Inversion R
+open import Definition.Typed.Properties.Admissible.Empty R
 open import Definition.Typed.Properties.Admissible.Equality R
 open import Definition.Typed.Properties.Admissible.Identity R
+open import Definition.Typed.Properties.Admissible.Nat R
 open import Definition.Typed.Properties.Admissible.Pi R
 open import Definition.Typed.Properties.Admissible.Sigma R
 open import Definition.Typed.Properties.Admissible.Unit R
+open import Definition.Typed.Properties.Reduction R
 open import Definition.Typed.Properties.Well-formed R
 open import Definition.Typed.Variant
+open import Definition.Typed.Weakening R hiding (wk)
+open import Definition.Typed.Weakening.Definition R
 open import Definition.Typed.Well-formed R
 
 open import Definition.Untyped M
 open import Definition.Untyped.Neutral M type-variant
 open import Definition.Untyped.Properties M
+open import Definition.Untyped.Whnf M type-variant
 
 open import Tools.Empty
+open import Tools.Fin
 open import Tools.Function
 open import Tools.Level
 open import Tools.Nat
 open import Tools.Product
 import Tools.PropositionalEquality as PE
+open import Tools.Reasoning.PropositionalEquality
 open import Tools.Relation
 open import Tools.Sum
 
 private
   variable
-    n α : Nat
+    n n′ α : Nat
+    x : Fin _
     ∇ ∇′ ∇″ : DCon (Term 0) _
+    ξ : DExt (Term 0) _ _
     Γ : Con Term _
-    t u v w A B C : Term _
+    t t₁ t₂ u v w A B C : Term _
     V : Set a
     φ : Unfolding _
 
@@ -538,6 +549,824 @@ opaque
   glassify-⇒*∷ : ∇ » Γ ⊢ t ⇒* u ∷ A → glassify ∇ » Γ ⊢ t ⇒* u ∷ A
   glassify-⇒*∷ (id ⊢t)      = id (glassify-⊢∷ ⊢t)
   glassify-⇒*∷ (t⇒x ⇨ x⇒*u) = glassify-⇒∷ t⇒x ⇨ glassify-⇒*∷ x⇒*u
+
+------------------------------------------------------------------------
+-- Properties related to inlining of definitions
+
+opaque
+ unfolding inline
+ mutual
+
+  -- The result of inline-< is invariant under
+  -- "transparentification" of definition contexts.
+
+  inline-<-↜ :
+    φ » ∇′ ↜ ∇ → (α<n : α <′ n) →
+    inline-< ∇ α<n PE.≡ inline-< ∇′ α<n
+  inline-<-↜ ε α<n =
+    ⊥-elim (n≮0 (<′⇒< α<n))
+  inline-<-↜ (_⁰ {t} ∇′↜∇) (≤′-reflexive _) =
+    inline-↜ ∇′↜∇ t
+  inline-<-↜ (∇′↜∇ ⁰) (≤′-step α<n) =
+    inline-<-↜ ∇′↜∇ α<n
+  inline-<-↜ (_¹ᵒ {t} ∇′↜∇) (≤′-reflexive _) =
+    inline-↜ ∇′↜∇ t
+  inline-<-↜ (∇′↜∇ ¹ᵒ) (≤′-step α<n) =
+    inline-<-↜ ∇′↜∇ α<n
+  inline-<-↜ (_¹ᵗ {t} ∇′↜∇) (≤′-reflexive _) =
+    inline-↜ ∇′↜∇ t
+  inline-<-↜ (∇′↜∇ ¹ᵗ) (≤′-step α<n) =
+    inline-<-↜ ∇′↜∇ α<n
+
+  -- The result of inline-Nat is invariant under
+  -- "transparentification" of definition contexts.
+
+  inline-Nat-↜ :
+    {∇ ∇′ : DCon (Term 0) n} →
+    φ » ∇′ ↜ ∇ → inline-Nat ∇ α PE.≡ inline-Nat ∇′ α
+  inline-Nat-↜ {n} {α} ∇′↜∇ with α <′? n
+  … | yes α<n = inline-<-↜ ∇′↜∇ α<n
+  … | no _    = PE.refl
+
+  -- The result of inline is invariant under "transparentification" of
+  -- definition contexts.
+
+  inline-↜ :
+    φ » ∇′ ↜ ∇ →
+    (t : Term n) →
+    inline ∇ t PE.≡ inline ∇′ t
+  inline-↜ ∇′↜∇ (var _) =
+    PE.refl
+  inline-↜ ∇′↜∇ (defn _) =
+    PE.cong (wk _) (inline-Nat-↜ ∇′↜∇)
+  inline-↜ ∇′↜∇ (U _) =
+    PE.refl
+  inline-↜ ∇′↜∇ Empty =
+    PE.refl
+  inline-↜ ∇′↜∇ (emptyrec p A t) =
+    PE.cong₂ (emptyrec _) (inline-↜ ∇′↜∇ A) (inline-↜ ∇′↜∇ t)
+  inline-↜ ∇′↜∇ (Unit _ _) =
+    PE.refl
+  inline-↜ ∇′↜∇ (star _ _) =
+    PE.refl
+  inline-↜ ∇′↜∇ (unitrec _ _ _ A t u) =
+    PE.cong₃ (unitrec _ _ _) (inline-↜ ∇′↜∇ A) (inline-↜ ∇′↜∇ t) (inline-↜ ∇′↜∇ u)
+  inline-↜ ∇′↜∇ (ΠΣ⟨ _ ⟩ _ , _ ▷ A ▹ B) =
+    PE.cong₂ (ΠΣ⟨ _ ⟩ _ , _ ▷_▹_) (inline-↜ ∇′↜∇ A) (inline-↜ ∇′↜∇ B)
+  inline-↜ ∇′↜∇ (lam p t) =
+    PE.cong (lam _) (inline-↜ ∇′↜∇ t)
+  inline-↜ ∇′↜∇ (t ∘⟨ p ⟩ u) =
+    PE.cong₂ (_∘⟨ _ ⟩_) (inline-↜ ∇′↜∇ t) (inline-↜ ∇′↜∇ u)
+  inline-↜ ∇′↜∇ (prod s p t u) =
+    PE.cong₂ (prod _ _) (inline-↜ ∇′↜∇ t) (inline-↜ ∇′↜∇ u)
+  inline-↜ ∇′↜∇ (fst p t) =
+    PE.cong (fst _) (inline-↜ ∇′↜∇ t)
+  inline-↜ ∇′↜∇ (snd p t) =
+    PE.cong (snd _) (inline-↜ ∇′↜∇ t)
+  inline-↜ ∇′↜∇ (prodrec r p q A t u) =
+    PE.cong₃ (prodrec _ _ _) (inline-↜ ∇′↜∇ A) (inline-↜ ∇′↜∇ t) (inline-↜ ∇′↜∇ u)
+  inline-↜ ∇′↜∇ ℕ =
+    PE.refl
+  inline-↜ ∇′↜∇ zero =
+    PE.refl
+  inline-↜ ∇′↜∇ (suc t) =
+    PE.cong suc (inline-↜ ∇′↜∇ t)
+  inline-↜ ∇′↜∇ (natrec p q r A t u v) =
+    PE.cong₄ (natrec _ _ _) (inline-↜ ∇′↜∇ A) (inline-↜ ∇′↜∇ t) (inline-↜ ∇′↜∇ u)
+      (inline-↜ ∇′↜∇ v)
+  inline-↜ ∇′↜∇ (Id A t u) =
+    PE.cong₃ Id (inline-↜ ∇′↜∇ A) (inline-↜ ∇′↜∇ t) (inline-↜ ∇′↜∇ u)
+  inline-↜ ∇′↜∇ rfl =
+    PE.refl
+  inline-↜ ∇′↜∇ (J p q A t B u v w) =
+    PE.cong₆ (J _ _) (inline-↜ ∇′↜∇ A) (inline-↜ ∇′↜∇ t) (inline-↜ ∇′↜∇ B)
+      (inline-↜ ∇′↜∇ u) (inline-↜ ∇′↜∇ v) (inline-↜ ∇′↜∇ w)
+  inline-↜ ∇′↜∇ (K p A t B u v) =
+    PE.cong₅ (K _) (inline-↜ ∇′↜∇ A) (inline-↜ ∇′↜∇ t) (inline-↜ ∇′↜∇ B)
+      (inline-↜ ∇′↜∇ u) (inline-↜ ∇′↜∇ v)
+  inline-↜ ∇′↜∇ ([]-cong s A t u v) =
+    PE.cong₄ ([]-cong _) (inline-↜ ∇′↜∇ A) (inline-↜ ∇′↜∇ t) (inline-↜ ∇′↜∇ u)
+      (inline-↜ ∇′↜∇ v)
+
+opaque
+ unfolding inline
+ mutual
+
+  -- The result of inline-< is invariant under definition context
+  -- extension.
+
+  inline-<-⊇ :
+    {∇  : DCon (Term 0) n}
+    {∇′ : DCon (Term 0) n′} →
+    ξ » ∇′ ⊇ ∇ →
+    (α<n  : α <′ n)
+    (α<n′ : α <′ n′) →
+    inline-< ∇ α<n PE.≡ inline-< ∇′ α<n′
+  inline-<-⊇ {∇} id α<n α<n′ =
+    PE.cong (inline-< ∇) <′-propositional
+  inline-<-⊇ (step ∇′⊇∇ _) α<n ≤′-refl =
+    ⊥-elim (n≮n _ (≤-trans (<′⇒< α<n) (⊇→≤ ∇′⊇∇)))
+  inline-<-⊇ (step ∇′⊇∇ _) α<n (≤′-step α<n′) =
+    inline-<-⊇ ∇′⊇∇ α<n α<n′
+
+  -- The result of inline-Nat is invariant under definition context
+  -- extension (for names that are in scope).
+
+  inline-Nat-⊇ :
+    {∇  : DCon (Term 0) n}
+    {∇′ : DCon (Term 0) n′} →
+    ξ » ∇′ ⊇ ∇ →
+    α <′ n →
+    inline-Nat ∇ α PE.≡ inline-Nat ∇′ α
+  inline-Nat-⊇ {n} {n′} {α} ∇′⊇∇ α<n with α <′? n | α <′? n′
+  … | yes α<n | yes α<n′ = inline-<-⊇ ∇′⊇∇ α<n α<n′
+  … | no α≮n  | _        = ⊥-elim (α≮n α<n)
+  … | _       | no α≮n′  =
+    ⊥-elim (α≮n′ (<⇒<′ (≤-trans (<′⇒< α<n) (⊇→≤ ∇′⊇∇))))
+
+  -- The result of inline is invariant under definition context
+  -- extension (for well-formed types).
+
+  inline-⊇-⊢ :
+    ξ » ∇′ ⊇ ∇ →
+    ∇ » Γ ⊢ A →
+    inline ∇ A PE.≡ inline ∇′ A
+  inline-⊇-⊢ _ (Uⱼ _) =
+    PE.refl
+  inline-⊇-⊢ ∇′⊇∇ (univ ⊢A) =
+    inline-⊇-⊢∷ ∇′⊇∇ ⊢A
+  inline-⊇-⊢ _ (Emptyⱼ _) =
+    PE.refl
+  inline-⊇-⊢ _ (Unitⱼ _ _) =
+    PE.refl
+  inline-⊇-⊢ ∇′⊇∇ (ΠΣⱼ ⊢B _) =
+    PE.cong₂ (ΠΣ⟨ _ ⟩ _ , _ ▷_▹_) (inline-⊇-⊢ ∇′⊇∇ (⊢∙→⊢ (wf ⊢B)))
+      (inline-⊇-⊢ ∇′⊇∇ ⊢B)
+  inline-⊇-⊢ _ (ℕⱼ _) =
+    PE.refl
+  inline-⊇-⊢ ∇′⊇∇ (Idⱼ ⊢A ⊢t ⊢u) =
+    PE.cong₃ Id (inline-⊇-⊢ ∇′⊇∇ ⊢A) (inline-⊇-⊢∷ ∇′⊇∇ ⊢t)
+      (inline-⊇-⊢∷ ∇′⊇∇ ⊢u)
+
+  -- The result of inline is invariant under definition context
+  -- extension (for well-typed terms).
+
+  inline-⊇-⊢∷ :
+    ξ » ∇′ ⊇ ∇ →
+    ∇ » Γ ⊢ t ∷ A →
+    inline ∇ t PE.≡ inline ∇′ t
+  inline-⊇-⊢∷ ∇′⊇∇ (conv ⊢t _) =
+    inline-⊇-⊢∷ ∇′⊇∇ ⊢t
+  inline-⊇-⊢∷ _ (var _ _) =
+    PE.refl
+  inline-⊇-⊢∷ ∇′⊇∇ (defn _ α↦ _) =
+    PE.cong (wk _) $ inline-Nat-⊇ ∇′⊇∇ (<⇒<′ (scoped-↦∈ α↦))
+  inline-⊇-⊢∷ _ (Uⱼ _) =
+    PE.refl
+  inline-⊇-⊢∷ _ (Emptyⱼ _) =
+    PE.refl
+  inline-⊇-⊢∷ ∇′⊇∇ (emptyrecⱼ ⊢A ⊢t) =
+    PE.cong₂ (emptyrec _) (inline-⊇-⊢ ∇′⊇∇ ⊢A) (inline-⊇-⊢∷ ∇′⊇∇ ⊢t)
+  inline-⊇-⊢∷ _ (Unitⱼ _ _) =
+    PE.refl
+  inline-⊇-⊢∷ _ (starⱼ _ _) =
+    PE.refl
+  inline-⊇-⊢∷ ∇′⊇∇ (unitrecⱼ ⊢A ⊢t ⊢u _) =
+    PE.cong₃ (unitrec _ _ _) (inline-⊇-⊢ ∇′⊇∇ ⊢A) (inline-⊇-⊢∷ ∇′⊇∇ ⊢t)
+      (inline-⊇-⊢∷ ∇′⊇∇ ⊢u)
+  inline-⊇-⊢∷ ∇′⊇∇ (ΠΣⱼ ⊢A ⊢B _) =
+    PE.cong₂ (ΠΣ⟨ _ ⟩ _ , _ ▷_▹_) (inline-⊇-⊢∷ ∇′⊇∇ ⊢A)
+      (inline-⊇-⊢∷ ∇′⊇∇ ⊢B)
+  inline-⊇-⊢∷ ∇′⊇∇ (lamⱼ _ ⊢t _) =
+    PE.cong (lam _) (inline-⊇-⊢∷ ∇′⊇∇ ⊢t)
+  inline-⊇-⊢∷ ∇′⊇∇ (⊢t ∘ⱼ ⊢u) =
+    PE.cong₂ (_∘⟨ _ ⟩_) (inline-⊇-⊢∷ ∇′⊇∇ ⊢t) (inline-⊇-⊢∷ ∇′⊇∇ ⊢u)
+  inline-⊇-⊢∷ ∇′⊇∇ (prodⱼ _ ⊢t ⊢u _) =
+    PE.cong₂ (prod _ _) (inline-⊇-⊢∷ ∇′⊇∇ ⊢t) (inline-⊇-⊢∷ ∇′⊇∇ ⊢u)
+  inline-⊇-⊢∷ ∇′⊇∇ (fstⱼ _ ⊢t) =
+    PE.cong (fst _) (inline-⊇-⊢∷ ∇′⊇∇ ⊢t)
+  inline-⊇-⊢∷ ∇′⊇∇ (sndⱼ _ ⊢t) =
+    PE.cong (snd _) (inline-⊇-⊢∷ ∇′⊇∇ ⊢t)
+  inline-⊇-⊢∷ ∇′⊇∇ (prodrecⱼ ⊢A ⊢t ⊢u _) =
+    PE.cong₃ (prodrec _ _ _) (inline-⊇-⊢ ∇′⊇∇ ⊢A) (inline-⊇-⊢∷ ∇′⊇∇ ⊢t)
+      (inline-⊇-⊢∷ ∇′⊇∇ ⊢u)
+  inline-⊇-⊢∷ _ (ℕⱼ _) =
+    PE.refl
+  inline-⊇-⊢∷ _ (zeroⱼ _) =
+    PE.refl
+  inline-⊇-⊢∷ ∇′⊇∇ (sucⱼ ⊢t) =
+    PE.cong suc (inline-⊇-⊢∷ ∇′⊇∇ ⊢t)
+  inline-⊇-⊢∷ ∇′⊇∇ (natrecⱼ ⊢t ⊢u ⊢v) =
+    PE.cong₄ (natrec _ _ _) (inline-⊇-⊢ ∇′⊇∇ (⊢∙→⊢ (wfTerm ⊢u)))
+      (inline-⊇-⊢∷ ∇′⊇∇ ⊢t) (inline-⊇-⊢∷ ∇′⊇∇ ⊢u) (inline-⊇-⊢∷ ∇′⊇∇ ⊢v)
+  inline-⊇-⊢∷ ∇′⊇∇ (Idⱼ ⊢A ⊢t ⊢u) =
+    PE.cong₃ Id (inline-⊇-⊢∷ ∇′⊇∇ ⊢A) (inline-⊇-⊢∷ ∇′⊇∇ ⊢t)
+      (inline-⊇-⊢∷ ∇′⊇∇ ⊢u)
+  inline-⊇-⊢∷ _ (rflⱼ _) =
+    PE.refl
+  inline-⊇-⊢∷ ∇′⊇∇ (Jⱼ ⊢t ⊢B ⊢u ⊢v ⊢w) =
+    PE.cong₆ (J _ _) (inline-⊇-⊢ ∇′⊇∇ (wf-⊢∷ ⊢t)) (inline-⊇-⊢∷ ∇′⊇∇ ⊢t)
+      (inline-⊇-⊢ ∇′⊇∇ ⊢B) (inline-⊇-⊢∷ ∇′⊇∇ ⊢u) (inline-⊇-⊢∷ ∇′⊇∇ ⊢v)
+      (inline-⊇-⊢∷ ∇′⊇∇ ⊢w)
+  inline-⊇-⊢∷ ∇′⊇∇ (Kⱼ ⊢B ⊢u ⊢v _) =
+    let ⊢A , ⊢t , _ = inversion-Id (wf-⊢∷ ⊢v) in
+    PE.cong₅ (K _) (inline-⊇-⊢ ∇′⊇∇ ⊢A) (inline-⊇-⊢∷ ∇′⊇∇ ⊢t)
+      (inline-⊇-⊢ ∇′⊇∇ ⊢B) (inline-⊇-⊢∷ ∇′⊇∇ ⊢u) (inline-⊇-⊢∷ ∇′⊇∇ ⊢v)
+  inline-⊇-⊢∷ ∇′⊇∇ ([]-congⱼ ⊢A ⊢t ⊢u ⊢v _) =
+    PE.cong₄ ([]-cong _) (inline-⊇-⊢ ∇′⊇∇ ⊢A) (inline-⊇-⊢∷ ∇′⊇∇ ⊢t)
+      (inline-⊇-⊢∷ ∇′⊇∇ ⊢u) (inline-⊇-⊢∷ ∇′⊇∇ ⊢v)
+
+opaque
+  unfolding inline-Con
+
+  -- If x ∷ A ∈ Γ holds, then x ∷ inline ∇ A ∈ inline-Con ∇ Γ holds.
+
+  inline∈ : x ∷ A ∈ Γ → x ∷ inline ∇ A ∈ inline-Con ∇ Γ
+  inline∈ here =
+    PE.subst₂ (_∷_∈_ _) (wk-inline _) PE.refl here
+  inline∈ (there x∈) =
+    PE.subst₂ (_∷_∈_ _) (wk-inline _) PE.refl $
+    there (inline∈ x∈)
+
+opaque
+  unfolding inline
+
+  -- If α points to t, then inline-< ∇ α<n is propositionally equal to
+  -- inline ∇ t, given certain assumptions.
+
+  inline-<≡ :
+    {∇ : DCon (Term 0) n}
+    (α<n : α <′ n) →
+    » ∇ → α ↦ t ∷ A ∈ ∇ →
+    inline-< ∇ α<n PE.≡ inline ∇ t
+  inline-<≡ α<0 ε _ =
+    ⊥-elim (n≮0 (<′⇒< α<0))
+  inline-<≡ (≤′-reflexive _) (∙ᵗ[_] {∇} {t} {A} ⊢t) here =
+    inline ∇ t                      ≡⟨ inline-⊇-⊢∷ (stepᵗ₁ ⊢t) ⊢t ⟩
+    inline (∇ ∙⟨ tra ⟩[ t ∷ A ]) t  ∎
+  inline-<≡ ≤′-refl _ (there α∈) =
+    ⊥-elim (n≮n _ (scoped-↦∷∈ α∈))
+  inline-<≡ (≤′-step α<α) _ here =
+    ⊥-elim (n≮n _ (<′⇒< α<α))
+  inline-<≡
+    {t} (≤′-step α<n)
+    (∙ᵒ⟨_,_⟩[_∷_] {φ} {∇} {t = u} {A = B} ok ∇′↜∇ ⊢u ⊢B) (there α∈) =
+    let s = stepᵒ₁ ok ⊢B ∇′↜∇ ⊢u in
+    inline-< ∇ α<n                    ≡⟨ inline-<≡ α<n (defn-wf (wf ⊢B)) α∈ ⟩
+
+    inline ∇ t                        ≡⟨ inline-⊇-⊢∷ s $
+                                         PE.subst₂ (_⊢_∷_ _) wk₀-closed wk₀-closed $
+                                         wf-⊢≡∷ (δ-red (wf ⊢B) α∈ PE.refl PE.refl) .proj₂ .proj₂ ⟩
+    inline (∇ ∙⟨ opa φ ⟩[ u ∷ B ]) t  ∎
+  inline-<≡
+    {t} (≤′-step α<n) (∙ᵗ[_] {∇} {t = u} {A = B} ⊢t) (there α∈) =
+    let s = stepᵗ₁ ⊢t in
+    inline-< ∇ α<n                    ≡⟨ inline-<≡ α<n (defn-wf (wfTerm ⊢t)) α∈ ⟩
+
+    inline ∇ t                        ≡⟨ inline-⊇-⊢∷ s $
+                                         PE.subst₂ (_⊢_∷_ _) wk₀-closed wk₀-closed $
+                                         wf-⊢≡∷ (δ-red (wfTerm ⊢t) α∈ PE.refl PE.refl) .proj₂ .proj₂ ⟩
+    inline (∇ ∙⟨ tra ⟩[ u ∷ B ]) t  ∎
+
+opaque
+
+  -- If α points to t, then inline-Nat ∇ α is propositionally equal to
+  -- inline ∇ t, given certain assumptions.
+
+  inline-Nat≡ :
+    » ∇ → α ↦ t ∷ A ∈ ∇ →
+    inline-Nat ∇ α PE.≡ inline ∇ t
+  inline-Nat≡ {∇} {α} {t} »∇ α∈ =
+    inline-Nat ∇ α                     ≡⟨ <-inline-Nat (<⇒<′ (scoped-↦∷∈ α∈)) ⟩
+    inline-< ∇ (<⇒<′ (scoped-↦∷∈ α∈))  ≡⟨ inline-<≡ _ »∇ α∈ ⟩
+    inline ∇ t                         ∎
+
+opaque
+ unfolding inline inline-Con
+ mutual
+
+  -- The function inline-< produces well-typed terms, given
+  -- certain assumptions.
+
+  ⊢inline-<∷ :
+    {∇ : DCon (Term 0) n}
+    (α<n : α <′ n) →
+    » ∇ → α ↦∷ A ∈ ∇ →
+    ε » ε ⊢ inline-< ∇ α<n ∷ inline ∇ A
+  ⊢inline-<∷ α<0 ε _ =
+    ⊥-elim (n≮0 (<′⇒< α<0))
+  ⊢inline-<∷
+    (≤′-reflexive _) (∙ᵒ⟨_,_⟩[_∷_] {φ} {∇′} {∇} {t} {A} ok ∇′↜∇ ⊢t ⊢A)
+    here =
+    PE.subst₂ (_⊢_∷_ _)
+      (PE.sym $ inline-↜ ∇′↜∇ t)
+      (inline ∇′ A                       ≡˘⟨ inline-↜ ∇′↜∇ A ⟩
+       inline ∇ A                        ≡⟨ inline-⊇-⊢ (stepᵒ₁ ok ⊢A ∇′↜∇ ⊢t) ⊢A ⟩
+       inline (∇ ∙⟨ opa φ ⟩[ t ∷ A ]) A  ∎) $
+    ⊢inline∷ ⊢t
+  ⊢inline-<∷ (≤′-reflexive _) ∙ᵗ[ ⊢t ] here =
+    PE.subst (_⊢_∷_ _ _) (inline-⊇-⊢ (stepᵗ₁ ⊢t) (wf-⊢∷ ⊢t)) $
+    ⊢inline∷ ⊢t
+  ⊢inline-<∷ ≤′-refl _ (there α∈) =
+    ⊥-elim (n≮n _ (scoped-↦∈ α∈))
+  ⊢inline-<∷ (≤′-step α<α) _ here =
+    ⊥-elim (n≮n _ (<′⇒< α<α))
+  ⊢inline-<∷ (≤′-step α<n) ∙ᵒ⟨ ok , ∇′↜∇ ⟩[ ⊢t ∷ ⊢B ] (there α∈) =
+    PE.subst (_⊢_∷_ _ _)
+      (inline-⊇-⊢ (stepᵒ₁ ok ⊢B ∇′↜∇ ⊢t) $
+       PE.subst (_⊢_ _) wk₀-closed $
+       wf-⊢∷ (defn (wf ⊢B) α∈ PE.refl)) $
+    ⊢inline-<∷ α<n (defn-wf (wf ⊢B)) α∈
+  ⊢inline-<∷ (≤′-step α<n) ∙ᵗ[ ⊢t ] (there α∈) =
+    PE.subst (_⊢_∷_ _ _)
+      (inline-⊇-⊢ (stepᵗ₁ ⊢t) $
+       PE.subst (_⊢_ _) wk₀-closed $
+       wf-⊢∷ (defn (wfTerm ⊢t) α∈ PE.refl)) $
+    ⊢inline-<∷ α<n (defn-wf (wfTerm ⊢t)) α∈
+
+  -- The function inline-Nat produces well-typed terms, given certain
+  -- assumptions.
+
+  ⊢inline-Nat∷ :
+    » ∇ → α ↦∷ A ∈ ∇ →
+    ε » ε ⊢ inline-Nat ∇ α ∷ inline ∇ A
+  ⊢inline-Nat∷ »∇ α∈ =
+    PE.subst (flip (_⊢_∷_ _) _)
+      (PE.sym $ <-inline-Nat (<⇒<′ (scoped-↦∈ α∈))) $
+    ⊢inline-<∷ _ »∇ α∈
+
+  -- If α points to t, then inline-< ∇ α<n is definitionally equal to
+  -- inline ∇ t, given certain assumptions.
+
+  ⊢inline-<≡∷ :
+    {∇ : DCon (Term 0) n}
+    (α<n : α <′ n) →
+    » ∇ → α ↦ t ∷ A ∈ ∇ →
+    ε » ε ⊢ inline-< ∇ α<n ≡ inline ∇ t ∷ inline ∇ A
+  ⊢inline-<≡∷ α<n »∇ α↦t =
+    PE.subst₂ (_⊢_≡_∷_ _ _) (inline-<≡ α<n »∇ α↦t) PE.refl $
+    refl (⊢inline-<∷ α<n »∇ (↦∷∈⇒↦∈ α↦t))
+
+  -- If α points to t, then inline-Nat ∇ α is definitionally equal to
+  -- inline ∇ t, given certain assumptions.
+
+  ⊢inline-Nat≡∷ :
+    » ∇ → α ↦ t ∷ A ∈ ∇ →
+    ε » ε ⊢ inline-Nat ∇ α ≡ inline ∇ t ∷ inline ∇ A
+  ⊢inline-Nat≡∷ »∇ α∈ =
+    PE.subst₃ (_⊢_≡_∷_ _)
+      (PE.sym $ <-inline-Nat (<⇒<′ (scoped-↦∷∈ α∈))) PE.refl PE.refl $
+    ⊢inline-<≡∷ _ »∇ α∈
+
+  -- Inlining preserves context well-formedness.
+
+  ⊢inline-Con : ∇ »⊢ Γ → ε »⊢ inline-Con ∇ Γ
+  ⊢inline-Con (ε _)  = ε ε
+  ⊢inline-Con (∙ ⊢A) = ∙ ⊢inline ⊢A
+
+  -- Inlining preserves type well-formedness.
+
+  ⊢inline :
+    ∇ » Γ ⊢ A →
+    ε » inline-Con ∇ Γ ⊢ inline ∇ A
+  ⊢inline (Uⱼ ⊢Γ) =
+    Uⱼ (⊢inline-Con ⊢Γ)
+  ⊢inline (univ ⊢A) =
+    univ (⊢inline∷ ⊢A)
+  ⊢inline (Emptyⱼ ⊢Γ) =
+    Emptyⱼ (⊢inline-Con ⊢Γ)
+  ⊢inline (Unitⱼ ⊢Γ ok) =
+    Unitⱼ (⊢inline-Con ⊢Γ) ok
+  ⊢inline (ΠΣⱼ ⊢A ok) =
+    ΠΣⱼ (⊢inline ⊢A) ok
+  ⊢inline (ℕⱼ ⊢Γ) =
+    ℕⱼ (⊢inline-Con ⊢Γ)
+  ⊢inline (Idⱼ ⊢A ⊢t ⊢u) =
+    Idⱼ (⊢inline ⊢A) (⊢inline∷ ⊢t) (⊢inline∷ ⊢u)
+
+  -- Inlining preserves well-typedness.
+
+  ⊢inline∷ :
+    ∇ » Γ ⊢ t ∷ A →
+    ε » inline-Con ∇ Γ ⊢ inline ∇ t ∷ inline ∇ A
+  ⊢inline∷ (conv ⊢t B≡A) =
+    conv (⊢inline∷ ⊢t) (⊢inline≡inline B≡A)
+  ⊢inline∷ (var ⊢Γ x∈) =
+    var (⊢inline-Con ⊢Γ) (inline∈ x∈)
+  ⊢inline∷ (defn {A′} ⊢Γ α↦ PE.refl) =
+    PE.subst (_⊢_∷_ _ _) (wk-inline A′) $
+    wkTerm (wk₀∷ʷ⊇ (⊢inline-Con ⊢Γ)) (⊢inline-Nat∷ (defn-wf ⊢Γ) α↦)
+  ⊢inline∷ (Uⱼ ⊢Γ) =
+    Uⱼ (⊢inline-Con ⊢Γ)
+  ⊢inline∷ (Emptyⱼ ⊢Γ) =
+    Emptyⱼ (⊢inline-Con ⊢Γ)
+  ⊢inline∷ (emptyrecⱼ ⊢A ⊢t) =
+    emptyrecⱼ (⊢inline ⊢A) (⊢inline∷ ⊢t)
+  ⊢inline∷ (Unitⱼ ⊢Γ ok) =
+    Unitⱼ (⊢inline-Con ⊢Γ) ok
+  ⊢inline∷ (starⱼ ⊢Γ ok) =
+    starⱼ (⊢inline-Con ⊢Γ) ok
+  ⊢inline∷ (unitrecⱼ {A} ⊢A ⊢t ⊢u ok) =
+    PE.subst (_⊢_∷_ _ _) (PE.sym $ inline-[]₀ A) $
+    unitrecⱼ (⊢inline ⊢A) (⊢inline∷ ⊢t)
+      (PE.subst (_⊢_∷_ _ _) (inline-[]₀ A) (⊢inline∷ ⊢u)) ok
+  ⊢inline∷ (ΠΣⱼ ⊢A ⊢B ok) =
+    ΠΣⱼ (⊢inline∷ ⊢A) (⊢inline∷ ⊢B) ok
+  ⊢inline∷ (lamⱼ ⊢B ⊢t ok) =
+    lamⱼ (⊢inline ⊢B) (⊢inline∷ ⊢t) ok
+  ⊢inline∷ (_∘ⱼ_ {G = B} ⊢t ⊢u) =
+    PE.subst (_⊢_∷_ _ _) (PE.sym $ inline-[]₀ B) $
+    ⊢inline∷ ⊢t ∘ⱼ ⊢inline∷ ⊢u
+  ⊢inline∷ (prodⱼ {G = B} ⊢B ⊢t ⊢u ok) =
+    prodⱼ (⊢inline ⊢B) (⊢inline∷ ⊢t)
+      (PE.subst (_⊢_∷_ _ _) (inline-[]₀ B) (⊢inline∷ ⊢u)) ok
+  ⊢inline∷ (fstⱼ ⊢B ⊢t) =
+    fstⱼ (⊢inline ⊢B) (⊢inline∷ ⊢t)
+  ⊢inline∷ (sndⱼ {G = B} ⊢B ⊢t) =
+    PE.subst (_⊢_∷_ _ _) (PE.sym $ inline-[]₀ B) $
+    sndⱼ (⊢inline ⊢B) (⊢inline∷ ⊢t)
+  ⊢inline∷ (prodrecⱼ {A} ⊢A ⊢t ⊢u ok) =
+    PE.subst (_⊢_∷_ _ _) (PE.sym $ inline-[]₀ A) $
+    prodrecⱼ (⊢inline ⊢A) (⊢inline∷ ⊢t)
+      (PE.subst (_⊢_∷_ _ _) (inline-[][]↑ A) (⊢inline∷ ⊢u)) ok
+  ⊢inline∷ (ℕⱼ ⊢Γ) =
+    ℕⱼ (⊢inline-Con ⊢Γ)
+  ⊢inline∷ (zeroⱼ ⊢Γ) =
+    zeroⱼ (⊢inline-Con ⊢Γ)
+  ⊢inline∷ (sucⱼ ⊢t) =
+    sucⱼ (⊢inline∷ ⊢t)
+  ⊢inline∷ (natrecⱼ {A} ⊢t ⊢u ⊢v) =
+    PE.subst (_⊢_∷_ _ _) (PE.sym $ inline-[]₀ A) $
+    natrecⱼ (PE.subst (_⊢_∷_ _ _) (inline-[]₀ A) (⊢inline∷ ⊢t))
+      (PE.subst (_⊢_∷_ _ _) (inline-[][]↑ A) (⊢inline∷ ⊢u))
+      (⊢inline∷ ⊢v)
+  ⊢inline∷ (Idⱼ ⊢A ⊢t ⊢u) =
+    Idⱼ (⊢inline∷ ⊢A) (⊢inline∷ ⊢t) (⊢inline∷ ⊢u)
+  ⊢inline∷ (rflⱼ ⊢t) =
+    rflⱼ (⊢inline∷ ⊢t)
+  ⊢inline∷ (Jⱼ {t} {A} {B} _ ⊢B ⊢u _ ⊢w) =
+    PE.subst (_⊢_∷_ _ _) (PE.sym $ inline-[]₁₀ B) $
+    Jⱼ′
+      (PE.subst (flip _⊢_ _)
+         (PE.sym $ PE.cong (_»∙_ _) $
+          PE.cong₃ Id (wk-inline A) (wk-inline t) PE.refl) $
+       ⊢inline ⊢B)
+      (PE.subst (_⊢_∷_ _ _) (inline-[]₁₀ B) (⊢inline∷ ⊢u))
+      (⊢inline∷ ⊢w)
+  ⊢inline∷ (Kⱼ {B} ⊢B ⊢u ⊢v ok) =
+    PE.subst (_⊢_∷_ _ _) (PE.sym $ inline-[]₀ B) $
+    Kⱼ (⊢inline ⊢B)
+      (PE.subst (_⊢_∷_ _ _) (inline-[]₀ B) (⊢inline∷ ⊢u))
+      (⊢inline∷ ⊢v) ok
+  ⊢inline∷ ([]-congⱼ _ _ _ ⊢v ok) =
+    []-congⱼ′ ok (⊢inline∷ ⊢v)
+
+  -- Inlining preserves definitional equality.
+
+  ⊢inline≡inline :
+    ∇ » Γ ⊢ A ≡ B →
+    ε » inline-Con ∇ Γ ⊢ inline ∇ A ≡ inline ∇ B
+  ⊢inline≡inline = λ where
+    (refl ⊢A) →
+      refl (⊢inline ⊢A)
+    (sym B≡A) →
+      sym (⊢inline≡inline B≡A)
+    (trans A≡B B≡C) →
+      trans (⊢inline≡inline A≡B) (⊢inline≡inline B≡C)
+    (univ A≡B) →
+      univ (⊢inline≡inline∷ A≡B)
+    (ΠΣ-cong A₁≡B₁ A₂≡B₂ ok) →
+      ΠΣ-cong (⊢inline≡inline A₁≡B₁) (⊢inline≡inline A₂≡B₂) ok
+    (Id-cong A≡B t₁≡u₁ t₂≡u₂) →
+      Id-cong (⊢inline≡inline A≡B) (⊢inline≡inline∷ t₁≡u₁)
+        (⊢inline≡inline∷ t₂≡u₂)
+
+  -- Inlining preserves definitional equality.
+
+  ⊢inline≡inline∷ :
+    ∇ » Γ ⊢ t ≡ u ∷ A →
+    ε » inline-Con ∇ Γ ⊢ inline ∇ t ≡ inline ∇ u ∷ inline ∇ A
+  ⊢inline≡inline∷ = λ where
+    (refl ⊢t) →
+      refl (⊢inline∷ ⊢t)
+    (sym _ t₂≡t₁) →
+      sym′ (⊢inline≡inline∷ t₂≡t₁)
+    (trans t₁≡t₂ t₂≡t₃) →
+      trans (⊢inline≡inline∷ t₁≡t₂) (⊢inline≡inline∷ t₂≡t₃)
+    (conv t₁≡t₂ B≡A) →
+      conv (⊢inline≡inline∷ t₁≡t₂) (⊢inline≡inline B≡A)
+    (δ-red {t′ = t} {A′ = A} ⊢Γ α↦t PE.refl PE.refl) →
+      PE.subst₂ (_⊢_≡_∷_ _ _) (wk-inline t) (wk-inline A) $
+      wkEqTerm (wk₀∷ʷ⊇ (⊢inline-Con ⊢Γ)) $
+      ⊢inline-Nat≡∷ (defn-wf ⊢Γ) α↦t
+    (emptyrec-cong A₁≡A₂ t₁≡t₂) →
+      emptyrec-cong (⊢inline≡inline A₁≡A₂) (⊢inline≡inline∷ t₁≡t₂)
+    (unitrec-cong {A = A₁} A₁≡A₂ t₁≡t₂ u₁≡u₂ _ _) →
+      PE.subst (_⊢_≡_∷_ _ _ _) (PE.sym $ inline-[]₀ A₁) $
+      unitrec-cong′ (⊢inline≡inline A₁≡A₂) (⊢inline≡inline∷ t₁≡t₂)
+        (PE.subst (_⊢_≡_∷_ _ _ _) (inline-[]₀ A₁) $
+         ⊢inline≡inline∷ u₁≡u₂)
+    (unitrec-β {A} ⊢A ⊢t _ _) →
+      PE.subst (_⊢_≡_∷_ _ _ _) (PE.sym $ inline-[]₀ A) $
+      unitrec-β-≡ (⊢inline ⊢A)
+        (PE.subst (_⊢_∷_ _ _) (inline-[]₀ A) (⊢inline∷ ⊢t))
+    (unitrec-β-η {A} ⊢A ⊢t ⊢u _ η) →
+      PE.subst (_⊢_≡_∷_ _ _ _) (PE.sym $ inline-[]₀ A) $
+      unitrec-β-η-≡ (⊢inline ⊢A) (⊢inline∷ ⊢t)
+        (PE.subst (_⊢_∷_ _ _) (inline-[]₀ A) (⊢inline∷ ⊢u)) η
+    (η-unit ⊢t₁ ⊢t₂ ok) →
+      η-unit (⊢inline∷ ⊢t₁) (⊢inline∷ ⊢t₂) ok
+    (ΠΣ-cong A₁≡A₂ B₁≡B₂ ok) →
+      ΠΣ-cong (⊢inline≡inline∷ A₁≡A₂) (⊢inline≡inline∷ B₁≡B₂) ok
+    (app-cong {G = B} t₁≡t₂ u₁≡u₂) →
+      PE.subst (_⊢_≡_∷_ _ _ _) (PE.sym $ inline-[]₀ B) $
+      app-cong (⊢inline≡inline∷ t₁≡t₂) (⊢inline≡inline∷ u₁≡u₂)
+    (β-red {G = B} {t} _ ⊢t ⊢u PE.refl ok) →
+      PE.subst₂ (_⊢_≡_∷_ _ _)
+        (PE.sym $ inline-[]₀ t) (PE.sym $ inline-[]₀ B) $
+      β-red-≡ (⊢inline∷ ⊢t) (⊢inline∷ ⊢u) ok
+    (η-eq {f = t₁} {g = t₂} ⊢B ⊢t₁ ⊢t₂ t₁0≡t₂0 ok) →
+      η-eq′ (⊢inline∷ ⊢t₁) (⊢inline∷ ⊢t₂)
+        (PE.subst₃ (_⊢_≡_∷_ _)
+           (PE.cong (_∘⟨ _ ⟩ _) $ PE.sym $ wk-inline t₁)
+           (PE.cong (_∘⟨ _ ⟩ _) $ PE.sym $ wk-inline t₂) PE.refl $
+         ⊢inline≡inline∷ t₁0≡t₂0)
+    (fst-cong _ t₁≡t₂) →
+      fst-cong′ (⊢inline≡inline∷ t₁≡t₂)
+    (Σ-β₁ {G = B} ⊢B ⊢t₁ ⊢t₂ PE.refl ok) →
+      Σ-β₁-≡ (⊢inline ⊢B) (⊢inline∷ ⊢t₁)
+        (PE.subst (_⊢_∷_ _ _) (inline-[]₀ B) (⊢inline∷ ⊢t₂)) ok
+    (snd-cong {G = B} _ t₁≡t₂) →
+      PE.subst (_⊢_≡_∷_ _ _ _) (PE.sym $ inline-[]₀ B) $
+      snd-cong′ (⊢inline≡inline∷ t₁≡t₂)
+    (Σ-β₂ {G = B} ⊢B ⊢t₁ ⊢t₂ PE.refl ok) →
+      PE.subst (_⊢_≡_∷_ _ _ _) (PE.sym $ inline-[]₀ B) $
+      Σ-β₂-≡ (⊢inline ⊢B) (⊢inline∷ ⊢t₁)
+        (PE.subst (_⊢_∷_ _ _) (inline-[]₀ B) (⊢inline∷ ⊢t₂)) ok
+    (Σ-η {G = B} _ ⊢t₁ ⊢t₂ fst≡fst snd≡snd _) →
+      Σ-η′ (⊢inline∷ ⊢t₁) (⊢inline∷ ⊢t₂) (⊢inline≡inline∷ fst≡fst)
+        (PE.subst (_⊢_≡_∷_ _ _ _) (inline-[]₀ B) $
+         ⊢inline≡inline∷ snd≡snd)
+    (prod-cong {G = B} ⊢B t₁≡t₂ u₁≡u₂ ok) →
+      prod-cong (⊢inline ⊢B) (⊢inline≡inline∷ t₁≡t₂)
+        (PE.subst (_⊢_≡_∷_ _ _ _) (inline-[]₀ B) $
+         ⊢inline≡inline∷ u₁≡u₂)
+        ok
+    (prodrec-cong {G = B} {A = C₁} C₁≡C₂ t₁≡t₂ u₁≡u₂ ok) →
+      PE.subst (_⊢_≡_∷_ _ _ _) (PE.sym $ inline-[]₀ C₁) $
+      prodrec-cong′ (⊢inline≡inline C₁≡C₂) (⊢inline≡inline∷ t₁≡t₂)
+        (PE.subst (_⊢_≡_∷_ _ _ _) (inline-[][]↑ C₁) $
+         ⊢inline≡inline∷ u₁≡u₂)
+    (prodrec-β {G = B} {A = C} {u = v} ⊢C ⊢t ⊢u ⊢v PE.refl ok) →
+      PE.subst₂ (_⊢_≡_∷_ _ _)
+        (PE.sym $ inline-[]₁₀ v) (PE.sym $ inline-[]₀ C) $
+      prodrec-β-≡ (⊢inline ⊢C) (⊢inline∷ ⊢t)
+        (PE.subst (_⊢_∷_ _ _) (inline-[]₀ B) (⊢inline∷ ⊢u))
+        (PE.subst (_⊢_∷_ _ _) (inline-[][]↑ C) (⊢inline∷ ⊢v))
+    (suc-cong t₁≡t₂) →
+      suc-cong (⊢inline≡inline∷ t₁≡t₂)
+    (natrec-cong {A = A₁} A₁≡A₂ t₁≡t₂ u₁≡u₂ v₁≡v₂) →
+      PE.subst (_⊢_≡_∷_ _ _ _) (PE.sym $ inline-[]₀ A₁) $
+      natrec-cong (⊢inline≡inline A₁≡A₂)
+        (PE.subst (_⊢_≡_∷_ _ _ _) (inline-[]₀ A₁) $
+         ⊢inline≡inline∷ t₁≡t₂)
+        (PE.subst (_⊢_≡_∷_ _ _ _) (inline-[][]↑ A₁) $
+         ⊢inline≡inline∷ u₁≡u₂)
+        (⊢inline≡inline∷ v₁≡v₂)
+    (natrec-zero {A} ⊢t ⊢u) →
+      PE.subst (_⊢_≡_∷_ _ _ _) (PE.sym $ inline-[]₀ A) $
+      natrec-zero
+        (PE.subst (_⊢_∷_ _ _) (inline-[]₀ A) (⊢inline∷ ⊢t))
+        (PE.subst (_⊢_∷_ _ _) (inline-[][]↑ A) (⊢inline∷ ⊢u))
+    (natrec-suc {A} {s = u} ⊢t ⊢u ⊢v) →
+      PE.subst₂ (_⊢_≡_∷_ _ _)
+        (PE.sym $ inline-[]₁₀ u) (PE.sym $ inline-[]₀ A) $
+      natrec-suc (PE.subst (_⊢_∷_ _ _) (inline-[]₀ A) (⊢inline∷ ⊢t))
+        (PE.subst (_⊢_∷_ _ _) (inline-[][]↑ A) (⊢inline∷ ⊢u))
+        (⊢inline∷ ⊢v)
+    (Id-cong A₁≡A₂ t₁≡t₂ u₁≡u₂) →
+      Id-cong (⊢inline≡inline∷ A₁≡A₂) (⊢inline≡inline∷ t₁≡t₂)
+        (⊢inline≡inline∷ u₁≡u₂)
+    (J-cong {A₁} {t₁} {B₁} A₁≡A₂ ⊢t₁ t₁≡t₂ B₁≡B₂ u₁≡u₂ v₁≡v₂ w₁≡w₂) →
+      PE.subst (_⊢_≡_∷_ _ _ _) (PE.sym $ inline-[]₁₀ B₁) $
+      J-cong′ (⊢inline≡inline A₁≡A₂) (⊢inline≡inline∷ t₁≡t₂)
+        (PE.subst₃ _⊢_≡_
+           (PE.sym $ PE.cong (_»∙_ _) $
+            PE.cong₃ Id (wk-inline A₁) (wk-inline t₁) PE.refl)
+           PE.refl PE.refl $
+         ⊢inline≡inline B₁≡B₂)
+        (PE.subst (_⊢_≡_∷_ _ _ _) (inline-[]₁₀ B₁) $
+         ⊢inline≡inline∷ u₁≡u₂)
+        (⊢inline≡inline∷ v₁≡v₂) (⊢inline≡inline∷ w₁≡w₂)
+    (J-β {t} {A} {B} ⊢t ⊢B ⊢u PE.refl) →
+      PE.subst (_⊢_≡_∷_ _ _ _) (PE.sym $ inline-[]₁₀ B) $
+      J-β-≡ (⊢inline∷ ⊢t)
+        (PE.subst (flip _⊢_ _)
+           (PE.sym $ PE.cong (_»∙_ _) $
+            PE.cong₃ Id (wk-inline A) (wk-inline t) PE.refl) $
+         ⊢inline ⊢B)
+        (PE.subst (_⊢_∷_ _ _) (inline-[]₁₀ B) (⊢inline∷ ⊢u))
+    (K-cong {B₁} A₁≡A₂ t₁≡t₂ B₁≡B₂ u₁≡u₂ v₁≡v₂ ok) →
+      PE.subst (_⊢_≡_∷_ _ _ _) (PE.sym $ inline-[]₀ B₁) $
+      K-cong (⊢inline≡inline A₁≡A₂) (⊢inline≡inline∷ t₁≡t₂)
+        (⊢inline≡inline B₁≡B₂)
+        (PE.subst (_⊢_≡_∷_ _ _ _) (inline-[]₀ B₁) $
+         ⊢inline≡inline∷ u₁≡u₂)
+        (⊢inline≡inline∷ v₁≡v₂) ok
+    (K-β {B} ⊢B ⊢u ok) →
+      PE.subst (_⊢_≡_∷_ _ _ _) (PE.sym $ inline-[]₀ B) $
+      K-β (⊢inline ⊢B)
+        (PE.subst (_⊢_∷_ _ _) (inline-[]₀ B) (⊢inline∷ ⊢u)) ok
+    ([]-cong-cong A₁≡A₂ t₁≡t₂ u₁≡u₂ v₁≡v₂ ok) →
+      []-cong-cong (⊢inline≡inline A₁≡A₂) (⊢inline≡inline∷ t₁≡t₂)
+        (⊢inline≡inline∷ u₁≡u₂) (⊢inline≡inline∷ v₁≡v₂) ok
+    ([]-cong-β ⊢t PE.refl ok) →
+      []-cong-β (⊢inline∷ ⊢t) PE.refl ok
+    (equality-reflection ok ⊢Id ⊢v) →
+      equality-reflection ok (⊢inline ⊢Id) (⊢inline∷ ⊢v)
+
+opaque
+  unfolding inline inline-Con
+
+  -- Inlining preserves reduction.
+
+  ⊢inline⇒inline∷ :
+    ∇ » Γ ⊢ t₁ ⇒ t₂ ∷ A →
+    ε » inline-Con ∇ Γ ⊢ inline ∇ t₁ ⇒* inline ∇ t₂ ∷ inline ∇ A
+  ⊢inline⇒inline∷ (conv t₁⇒t₂ A≡B) =
+    conv* (⊢inline⇒inline∷ t₁⇒t₂) (⊢inline≡inline A≡B)
+  ⊢inline⇒inline∷
+    {∇} (δ-red {α} {t′ = t} {A′ = A} ⊢Γ α↦ PE.refl PE.refl) =
+    PE.subst₂ (_⊢_⇒*_∷_ _ _)
+      (inline ∇ (defn α)        ≡⟨⟩
+       wk wk₀ (inline-Nat ∇ α)  ≡⟨ PE.cong (wk _) $ inline-Nat≡ (defn-wf ⊢Γ) α↦ ⟩
+       wk wk₀ (inline ∇ t)      ≡⟨ wk-inline t ⟩
+       inline ∇ (wk wk₀ t)      ∎)
+      (wk-inline A) $
+    id $
+    wkTerm (wk₀∷ʷ⊇ (⊢inline-Con ⊢Γ))
+      (⊢inline-Nat∷ (defn-wf ⊢Γ) (↦∷∈⇒↦∈ α↦))
+  ⊢inline⇒inline∷ (emptyrec-subst ⊢A t₁⇒t₂) =
+    emptyrec-subst* (⊢inline⇒inline∷ t₁⇒t₂) (⊢inline ⊢A)
+  ⊢inline⇒inline∷ (unitrec-subst {A} ⊢A ⊢u t₁⇒t₂ _ no-η) =
+    PE.subst (_⊢_⇒*_∷_ _ _ _) (PE.sym $ inline-[]₀ A) $
+    unitrec-subst* (⊢inline⇒inline∷ t₁⇒t₂) (⊢inline ⊢A)
+      (PE.subst (_⊢_∷_ _ _) (inline-[]₀ A) (⊢inline∷ ⊢u))
+      no-η
+  ⊢inline⇒inline∷ (unitrec-β {A} ⊢A ⊢u _ _) =
+    redMany $
+    PE.subst (_⊢_⇒_∷_ _ _ _) (PE.sym $ inline-[]₀ A) $
+    unitrec-β-⇒ (⊢inline ⊢A)
+      (PE.subst (_⊢_∷_ _ _) (inline-[]₀ A) (⊢inline∷ ⊢u))
+  ⊢inline⇒inline∷ (unitrec-β-η {A} ⊢A ⊢t ⊢u _ η) =
+    redMany $
+    PE.subst (_⊢_⇒_∷_ _ _ _) (PE.sym $ inline-[]₀ A) $
+    unitrec-β-η-⇒ (⊢inline ⊢A) (⊢inline∷ ⊢t)
+      (PE.subst (_⊢_∷_ _ _) (inline-[]₀ A) (⊢inline∷ ⊢u)) η
+  ⊢inline⇒inline∷ (app-subst {G = B} t₁⇒t₂ ⊢u) =
+    PE.subst (_⊢_⇒*_∷_ _ _ _) (PE.sym $ inline-[]₀ B) $
+    app-subst* (⊢inline⇒inline∷ t₁⇒t₂) (⊢inline∷ ⊢u)
+  ⊢inline⇒inline∷ (β-red {G = B} {t} _ ⊢t ⊢u PE.refl ok) =
+    redMany $
+    PE.subst₂ (_⊢_⇒_∷_ _ _)
+      (PE.sym $ inline-[]₀ t) (PE.sym $ inline-[]₀ B) $
+    β-red-⇒ (⊢inline∷ ⊢t) (⊢inline∷ ⊢u) ok
+  ⊢inline⇒inline∷ (fst-subst _ t₁⇒t₂) =
+    fst-subst* (⊢inline⇒inline∷ t₁⇒t₂)
+  ⊢inline⇒inline∷ (Σ-β₁ {G = B} ⊢B ⊢t ⊢u PE.refl ok) =
+    redMany $
+    Σ-β₁-⇒ (⊢inline ⊢B) (⊢inline∷ ⊢t)
+      (PE.subst (_⊢_∷_ _ _) (inline-[]₀ B) (⊢inline∷ ⊢u)) ok
+  ⊢inline⇒inline∷ (snd-subst {G = B} _ t₁⇒t₂) =
+    PE.subst (_⊢_⇒*_∷_ _ _ _) (PE.sym $ inline-[]₀ B) $
+    snd-subst* (⊢inline⇒inline∷ t₁⇒t₂)
+  ⊢inline⇒inline∷ (Σ-β₂ {G = B} ⊢B ⊢t ⊢u PE.refl ok) =
+    redMany $
+    PE.subst (_⊢_⇒_∷_ _ _ _) (PE.sym $ inline-[]₀ B) $
+    Σ-β₂-⇒ (⊢inline ⊢B) (⊢inline∷ ⊢t)
+      (PE.subst (_⊢_∷_ _ _) (inline-[]₀ B) (⊢inline∷ ⊢u)) ok
+  ⊢inline⇒inline∷ (prodrec-subst {A = C} ⊢C ⊢u t₁⇒t₂ _) =
+    PE.subst (_⊢_⇒*_∷_ _ _ _) (PE.sym $ inline-[]₀ C) $
+    prodrec-subst* (⊢inline ⊢C) (⊢inline⇒inline∷ t₁⇒t₂)
+      (PE.subst (_⊢_∷_ _ _) (inline-[][]↑ C) (⊢inline∷ ⊢u))
+  ⊢inline⇒inline∷
+    (prodrec-β {G = B} {A = C} {u = v} ⊢C ⊢t ⊢u ⊢v PE.refl _) =
+    redMany $
+    PE.subst₂ (_⊢_⇒_∷_ _ _)
+      (PE.sym $ inline-[]₁₀ v) (PE.sym $ inline-[]₀ C) $
+    prodrec-β-⇒ (⊢inline ⊢C) (⊢inline∷ ⊢t)
+      (PE.subst (_⊢_∷_ _ _) (inline-[]₀ B) (⊢inline∷ ⊢u))
+      (PE.subst (_⊢_∷_ _ _) (inline-[][]↑ C) (⊢inline∷ ⊢v))
+  ⊢inline⇒inline∷ (natrec-subst {A} ⊢t ⊢u v₁⇒v₂) =
+    PE.subst (_⊢_⇒*_∷_ _ _ _) (PE.sym $ inline-[]₀ A) $
+    natrec-subst* (PE.subst (_⊢_∷_ _ _) (inline-[]₀ A) (⊢inline∷ ⊢t))
+      (PE.subst (_⊢_∷_ _ _) (inline-[][]↑ A) (⊢inline∷ ⊢u))
+      (⊢inline⇒inline∷ v₁⇒v₂)
+  ⊢inline⇒inline∷ (natrec-zero {A} ⊢t ⊢u) =
+    redMany $
+    PE.subst (_⊢_⇒_∷_ _ _ _) (PE.sym $ inline-[]₀ A) $
+    natrec-zero (PE.subst (_⊢_∷_ _ _) (inline-[]₀ A) (⊢inline∷ ⊢t))
+      (PE.subst (_⊢_∷_ _ _) (inline-[][]↑ A) (⊢inline∷ ⊢u))
+  ⊢inline⇒inline∷ (natrec-suc {A} {s = u} ⊢t ⊢u ⊢v) =
+    redMany $
+    PE.subst₂ (_⊢_⇒_∷_ _ _)
+      (PE.sym $ inline-[]₁₀ u) (PE.sym $ inline-[]₀ A) $
+    natrec-suc (PE.subst (_⊢_∷_ _ _) (inline-[]₀ A) (⊢inline∷ ⊢t))
+      (PE.subst (_⊢_∷_ _ _) (inline-[][]↑ A) (⊢inline∷ ⊢u))
+      (⊢inline∷ ⊢v)
+  ⊢inline⇒inline∷ (J-subst {t} {A} {B} ⊢t ⊢B ⊢u ⊢v w₁⇒w₂) =
+    PE.subst (_⊢_⇒*_∷_ _ _ _) (PE.sym $ inline-[]₁₀ B) $
+    J-subst*
+      (PE.subst₂ _⊢_
+         (PE.sym $ PE.cong (_»_ _) $ PE.cong (_∙_ _) $
+          PE.cong₃ Id (wk-inline A) (wk-inline t) PE.refl)
+         PE.refl $
+       ⊢inline ⊢B)
+      (PE.subst (_⊢_∷_ _ _) (inline-[]₁₀ B) (⊢inline∷ ⊢u))
+      (⊢inline⇒inline∷ w₁⇒w₂)
+  ⊢inline⇒inline∷ (J-β {t} {A} {B} ⊢t ⊢t′ t≡t′ ⊢B B[]≡B[] ⊢u) =
+    redMany $
+    PE.subst (_⊢_⇒_∷_ _ _ _) (PE.sym $ inline-[]₁₀ B) $
+    J-β-⇒ (⊢inline≡inline∷ t≡t′)
+      (PE.subst₂ _⊢_
+         (PE.sym $ PE.cong (_»_ _) $ PE.cong (_∙_ _) $
+          PE.cong₃ Id (wk-inline A) (wk-inline t) PE.refl)
+         PE.refl $
+       ⊢inline ⊢B)
+      (PE.subst (_⊢_∷_ _ _) (inline-[]₁₀ B) (⊢inline∷ ⊢u))
+  ⊢inline⇒inline∷ (K-subst {B} ⊢B ⊢u v₁⇒v₂ ok) =
+    PE.subst (_⊢_⇒*_∷_ _ _ _) (PE.sym $ inline-[]₀ B) $
+    K-subst* (⊢inline ⊢B)
+      (PE.subst (_⊢_∷_ _ _) (inline-[]₀ B) (⊢inline∷ ⊢u))
+      (⊢inline⇒inline∷ v₁⇒v₂) ok
+  ⊢inline⇒inline∷ (K-β {B} ⊢B ⊢u ok) =
+    redMany $
+    PE.subst (_⊢_⇒_∷_ _ _ _) (PE.sym $ inline-[]₀ B) $
+    K-β (⊢inline ⊢B) (PE.subst (_⊢_∷_ _ _) (inline-[]₀ B) (⊢inline∷ ⊢u))
+      ok
+  ⊢inline⇒inline∷ ([]-cong-subst _ _ _ v₁⇒v₂ ok) =
+    []-cong-subst* (⊢inline⇒inline∷ v₁⇒v₂) ok
+  ⊢inline⇒inline∷ ([]-cong-β _ _ _ t≡t′ ok) =
+    redMany $
+    []-cong-β-⇒ (⊢inline≡inline∷ t≡t′) ok
+
+opaque
+
+  -- Inlining preserves reduction.
+
+  ⊢inline⇒*inline∷ :
+    ∇ » Γ ⊢ t ⇒* u ∷ A →
+    ε » inline-Con ∇ Γ ⊢ inline ∇ t ⇒* inline ∇ u ∷ inline ∇ A
+  ⊢inline⇒*inline∷ (id ⊢t)      = id (⊢inline∷ ⊢t)
+  ⊢inline⇒*inline∷ (t⇒u ⇨ u⇒*v) =
+    ⊢inline⇒inline∷ t⇒u ⇨∷* ⊢inline⇒*inline∷ u⇒*v
+
+opaque
+  unfolding inline
+
+  -- Inlining preserves reduction.
+
+  ⊢inline⇒inline :
+    ∇ » Γ ⊢ A ⇒ B →
+    ε » inline-Con ∇ Γ ⊢ inline ∇ A ⇒* inline ∇ B
+  ⊢inline⇒inline (univ A⇒B) = univ* (⊢inline⇒inline∷ A⇒B)
+
+opaque
+
+  -- Inlining preserves reduction.
+
+  ⊢inline⇒*inline :
+    ∇ » Γ ⊢ A ⇒* B →
+    ε » inline-Con ∇ Γ ⊢ inline ∇ A ⇒* inline ∇ B
+  ⊢inline⇒*inline (id ⊢A)      = id (⊢inline ⊢A)
+  ⊢inline⇒*inline (A⇒B ⇨ B⇒*C) =
+    ⊢inline⇒inline A⇒B ⇨* ⊢inline⇒*inline B⇒*C
+
+opaque
+
+  -- Inlining preserves reduction for transparent contexts.
+
+  ⊢inline↘inline :
+    glassify ∇ » Γ ⊢ A ↘ B →
+    ε » inline-Con ∇ Γ ⊢ inline ∇ A ↘ inline ∇ B
+  ⊢inline↘inline (A⇒*B , B-whnf) =
+    PE.subst₃ _⊢_⇒*_ (PE.cong (_»_ _) $ inline-Con-glassify _)
+      (inline-glassify _) (inline-glassify _)
+      (⊢inline⇒*inline A⇒*B) ,
+    Whnf-inline B-whnf
+
+opaque
+
+  -- Inlining preserves reduction for transparent contexts.
+
+  ⊢inline↘inline∷ :
+    glassify ∇ » Γ ⊢ t ↘ u ∷ A →
+    ε » inline-Con ∇ Γ ⊢ inline ∇ t ↘ inline ∇ u ∷ inline ∇ A
+  ⊢inline↘inline∷ (t⇒*u , u-whnf) =
+    PE.subst₄ _⊢_⇒*_∷_ (PE.cong (_»_ _) $ inline-Con-glassify _)
+      (inline-glassify _) (inline-glassify _) (inline-glassify _)
+      (⊢inline⇒*inline∷ t⇒*u) ,
+    Whnf-inline u-whnf
 
 ------------------------------------------------------------------------
 -- Opaque[_∷_]

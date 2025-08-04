@@ -17,9 +17,10 @@ open _≤_ public
 open import Data.Nat.DivMod
 open Data.Nat.DivMod using (_/_; m/n*n≤m) public
 open import Data.Nat.Properties
-open import Data.Nat using (_<′_; ≤′-refl; ≤′-step; _≤′_) public
+open import Data.Nat using (_<′_; ≤′-reflexive; ≤′-refl; ≤′-step; _≤′_)
+  public
 open Data.Nat.Properties
-  using (_≟_; _<?_; ≤-total;
+  using (_≟_; _<?_; _<′?_; ≤-total;
          +-identityʳ; +-assoc; +-comm; +-0-isCommutativeMonoid; +-suc;
          +-cancelˡ-≡;
          *-identityˡ; *-identityʳ; *-assoc; *-comm; *-zeroʳ; *-cancelˡ-≡;
@@ -80,6 +81,20 @@ Nat-set {x = suc m} {y = suc n} {x = p}    {y = q}    =
   where
   lemma : (p : suc m ≡ suc n) → cong suc (cong pred p) ≡ p
   lemma refl = refl
+
+opaque
+
+  -- The type m <′ n is propositional.
+
+  <′-propositional : Is-proposition (m <′ n)
+  <′-propositional {x = ≤′-reflexive _} {y = ≤′-reflexive _} =
+    cong ≤′-reflexive Nat-set
+  <′-propositional {x = ≤′-refl} {y = ≤′-step q} =
+    ⊥-elim (n≮n _ (<′⇒< q))
+  <′-propositional {x = ≤′-step p} {y = ≤′-refl} =
+    ⊥-elim (n≮n _ (<′⇒< p))
+  <′-propositional {x = ≤′-step _} {y = ≤′-step _} =
+    cong ≤′-step <′-propositional
 
 -- The inequality m ⊓ n ≤ o holds if and only if either m ≤ o or n ≤ o
 -- holds.

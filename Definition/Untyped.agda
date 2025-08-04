@@ -4,12 +4,14 @@
 
 module Definition.Untyped {a} (M : Set a) where
 
+open import Tools.Empty
 open import Tools.Fin
 open import Tools.Function
 open import Tools.Nat
 open import Tools.Product
 open import Tools.List
 open import Tools.PropositionalEquality as PE hiding (subst)
+open import Tools.Relation
 
 -- Some definitions that do not depend on M are re-exported from
 -- Definition.Untyped.NotParametrised.
@@ -634,6 +636,103 @@ _∙[_][_][_] :
   Con Term m → ∀ k → Con Term (k + n) → Subst m n → Con Term (k + m)
 Δ ∙[ 0    ][ _     ][ _ ] = Δ
 Δ ∙[ 1+ k ][ Γ ∙ A ][ σ ] = Δ ∙[ k ][ Γ ][ σ ] ∙ A [ σ ⇑[ k ] ]
+
+------------------------------------------------------------------------
+-- Inlining of definitions
+
+opaque mutual
+
+  -- The term at the given position, with the definition context
+  -- inlined. Opacity is ignored.
+
+  inline-< : DCon (Term 0) n → m <′ n → Term 0
+  inline-< ε m<0 =
+    ⊥-elim (n≮0 (<′⇒< m<0))
+  inline-< (∇ ∙⟨ _ ⟩[ t ∷ _ ]) (≤′-reflexive _) =
+    inline ∇ t
+  inline-< (∇ ∙⟨ _ ⟩[ _ ∷ _ ]) (≤′-step m<n) =
+    inline-< ∇ m<n
+
+  -- The term at the given position, if any, with the definition
+  -- context inlined. If the number is out of bounds, then a dummy
+  -- term is returned. Opacity is ignored.
+
+  inline-Nat : DCon (Term 0) n → Nat → Term 0
+  inline-Nat {n} ∇ α =
+    case α <′? n of λ where
+      (yes α<n) → inline-< ∇ α<n
+      (no _)    → ℕ
+
+  -- Inlines all definitions (names that are out of bounds are
+  -- replaced by a dummy term). Opacity is ignored.
+
+  inline : DCon (Term 0) m → Term n → Term n
+  inline _ t@(var _) =
+    t
+  inline ∇ (defn α) =
+    wk wk₀ (inline-Nat ∇ α)
+  inline _ t@(U _) =
+    t
+  inline ∇ (ΠΣ⟨ b ⟩ p , q ▷ A ▹ B) =
+    ΠΣ⟨ b ⟩ p , q ▷ inline ∇ A ▹ inline ∇ B
+  inline ∇ (lam p t) =
+    lam p (inline ∇ t)
+  inline ∇ (t ∘⟨ p ⟩ u) =
+    inline ∇ t ∘⟨ p ⟩ inline ∇ u
+  inline ∇ (prod s p t u) =
+    prod s p (inline ∇ t) (inline ∇ u)
+  inline ∇ (fst p t) =
+    fst p (inline ∇ t)
+  inline ∇ (snd p t) =
+    snd p (inline ∇ t)
+  inline ∇ (prodrec r p q A t u) =
+    prodrec r p q (inline ∇ A) (inline ∇ t) (inline ∇ u)
+  inline _ t@ℕ =
+    t
+  inline _ t@zero =
+    t
+  inline ∇ (suc t) =
+    suc (inline ∇ t)
+  inline ∇ (natrec p q r A t u v) =
+    natrec p q r (inline ∇ A) (inline ∇ t) (inline ∇ u) (inline ∇ v)
+  inline _ t@(Unit _ _) =
+    t
+  inline _ t@(star _ _) =
+    t
+  inline ∇ (unitrec l p q A t u) =
+    unitrec l p q (inline ∇ A) (inline ∇ t) (inline ∇ u)
+  inline _ t@Empty =
+    t
+  inline ∇ (emptyrec p A t) =
+    emptyrec p (inline ∇ A) (inline ∇ t)
+  inline ∇ (Id A t u) =
+    Id (inline ∇ A) (inline ∇ t) (inline ∇ u)
+  inline _ t@rfl =
+    t
+  inline ∇ (J p q A t B u v w) =
+    J p q (inline ∇ A) (inline ∇ t) (inline ∇ B) (inline ∇ u)
+      (inline ∇ v) (inline ∇ w)
+  inline ∇ (K p A t B u v) =
+    K p (inline ∇ A) (inline ∇ t) (inline ∇ B) (inline ∇ u) (inline ∇ v)
+  inline ∇ ([]-cong s A t u v) =
+    []-cong s (inline ∇ A) (inline ∇ t) (inline ∇ u) (inline ∇ v)
+
+opaque
+
+  -- Inlines all definitions (names that are out of bounds are
+  -- replaced by a dummy term). Opacity is ignored.
+
+  inline-Con : DCon (Term 0) m → Con Term n → Con Term n
+  inline-Con _ ε       = ε
+  inline-Con ∇ (Γ ∙ A) = inline-Con ∇ Γ ∙ inline ∇ A
+
+opaque
+
+  -- Inlines all definitions (names that are out of bounds are
+  -- replaced by a dummy term). Opacity is ignored.
+
+  inline-Subst : DCon (Term 0) l → Subst m n → Subst m n
+  inline-Subst ∇ σ = inline ∇ ∘→ σ
 
 ------------------------------------------------------------------------
 -- Some inversion lemmas

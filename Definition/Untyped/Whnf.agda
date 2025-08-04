@@ -14,7 +14,9 @@ open Type-variant type-variant
 open import Definition.Untyped M
 open import Definition.Untyped.Inversion M
 open import Definition.Untyped.Neutral M type-variant
+open import Definition.Untyped.Properties M
 
+open import Tools.Empty
 open import Tools.Function
 open import Tools.Level
 open import Tools.Nat
@@ -495,3 +497,46 @@ opaque
         (inj₁ (x , refl)) → ne (var⁺ x)
         (inj₂ refl) → rflₙ
     lemma ≡u (ne b) = ne (ne⁺-subst ≡u b)
+
+------------------------------------------------------------------------
+-- WHNFs and inlining
+
+opaque
+  unfolding inline
+
+  -- If t is neutral under glassify ∇, then inline ∇ t is neutral.
+
+  Neutral-inline : Neutral V (glassify ∇) t → Neutral V ε (inline ∇ t)
+  Neutral-inline (defn α↦)            = ⊥-elim (glass-↦⊘∈ α↦)
+  Neutral-inline (var ok _)           = var ok _
+  Neutral-inline (∘ₙ t-ne)            = ∘ₙ (Neutral-inline t-ne)
+  Neutral-inline (fstₙ t-ne)          = fstₙ (Neutral-inline t-ne)
+  Neutral-inline (sndₙ t-ne)          = sndₙ (Neutral-inline t-ne)
+  Neutral-inline (natrecₙ t-ne)       = natrecₙ (Neutral-inline t-ne)
+  Neutral-inline (prodrecₙ t-ne)      = prodrecₙ (Neutral-inline t-ne)
+  Neutral-inline (emptyrecₙ t-ne)     = emptyrecₙ (Neutral-inline t-ne)
+  Neutral-inline (unitrecₙ no-η t-ne) = unitrecₙ no-η
+                                          (Neutral-inline t-ne)
+  Neutral-inline (Jₙ t-ne)            = Jₙ (Neutral-inline t-ne)
+  Neutral-inline (Kₙ t-ne)            = Kₙ (Neutral-inline t-ne)
+  Neutral-inline ([]-congₙ t-ne)      = []-congₙ (Neutral-inline t-ne)
+
+opaque
+  unfolding inline
+
+  -- If t is in WHNF under glassify ∇, then inline ∇ t is in WHNF.
+
+  Whnf-inline : Whnf (glassify ∇) t → Whnf ε (inline ∇ t)
+  Whnf-inline Uₙ        = Uₙ
+  Whnf-inline ΠΣₙ       = ΠΣₙ
+  Whnf-inline ℕₙ        = ℕₙ
+  Whnf-inline Unitₙ     = Unitₙ
+  Whnf-inline Emptyₙ    = Emptyₙ
+  Whnf-inline Idₙ       = Idₙ
+  Whnf-inline lamₙ      = lamₙ
+  Whnf-inline zeroₙ     = zeroₙ
+  Whnf-inline sucₙ      = sucₙ
+  Whnf-inline starₙ     = starₙ
+  Whnf-inline prodₙ     = prodₙ
+  Whnf-inline rflₙ      = rflₙ
+  Whnf-inline (ne t-ne) = ne (Neutral-inline t-ne)

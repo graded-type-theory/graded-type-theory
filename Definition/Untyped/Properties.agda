@@ -26,6 +26,7 @@ private
     eq eq₁ eq₂ : _ ≡ _
     𝕋 : Set _
     ∇ ∇′ : DCon _ _
+    Γ : Con Term _
     φ : Unfolding _
     A A₁ A₂ B₁ B₂ E F G H t t₁ t₂ u u₁ u₂ v v₁ v₂ w w₁ w₂ : Term _
     ρ ρ′ : Wk m n
@@ -2389,3 +2390,400 @@ K-PE-injectivity PE.refl =
   s₁ PE.≡ s₂ × A₁ PE.≡ A₂ × t₁ PE.≡ t₂ × u₁ PE.≡ u₂ × v₁ PE.≡ v₂
 []-cong-PE-injectivity PE.refl =
   PE.refl , PE.refl , PE.refl , PE.refl , PE.refl
+
+------------------------------------------------------------------------
+-- Properties related to inlining of definitions
+
+opaque
+  unfolding inline-Con
+
+  -- If A or-empty Γ holds, then A or-empty inline-Con ∇ Γ holds.
+
+  or-empty-inline-Con :
+    {A : Set a} ⦃ ok : A or-empty Γ ⦄ →
+    A or-empty inline-Con ∇ Γ
+  or-empty-inline-Con ⦃ ok = ε ⦄                 = ε
+  or-empty-inline-Con ⦃ ok = possibly-nonempty ⦄ = possibly-nonempty
+
+opaque
+  unfolding inline
+
+  -- The function inline ∇ commutes with wk ρ.
+
+  wk-inline : (t : Term n) → wk ρ (inline ∇ t) ≡ inline ∇ (wk ρ t)
+  wk-inline (var _) =
+    refl
+  wk-inline (defn _) =
+    wk₀-comp _ _
+  wk-inline (U _) =
+    refl
+  wk-inline Empty =
+    refl
+  wk-inline (emptyrec p A t) =
+    cong₂ (emptyrec _) (wk-inline A) (wk-inline t)
+  wk-inline (Unit _ _) =
+    refl
+  wk-inline (star _ _) =
+    refl
+  wk-inline (unitrec _ _ _ A t u) =
+    cong₃ (unitrec _ _ _) (wk-inline A) (wk-inline t) (wk-inline u)
+  wk-inline (ΠΣ⟨ _ ⟩ _ , _ ▷ A ▹ B) =
+    cong₂ (ΠΣ⟨ _ ⟩ _ , _ ▷_▹_) (wk-inline A) (wk-inline B)
+  wk-inline (lam p t) =
+    cong (lam _) (wk-inline t)
+  wk-inline (t ∘⟨ p ⟩ u) =
+    cong₂ (_∘⟨ _ ⟩_) (wk-inline t) (wk-inline u)
+  wk-inline (prod s p t u) =
+    cong₂ (prod _ _) (wk-inline t) (wk-inline u)
+  wk-inline (fst p t) =
+    cong (fst _) (wk-inline t)
+  wk-inline (snd p t) =
+    cong (snd _) (wk-inline t)
+  wk-inline (prodrec r p q A t u) =
+    cong₃ (prodrec _ _ _) (wk-inline A) (wk-inline t) (wk-inline u)
+  wk-inline ℕ =
+    refl
+  wk-inline zero =
+    refl
+  wk-inline (suc t) =
+    cong suc (wk-inline t)
+  wk-inline (natrec p q r A t u v) =
+    cong₄ (natrec _ _ _) (wk-inline A) (wk-inline t) (wk-inline u)
+      (wk-inline v)
+  wk-inline (Id A t u) =
+    cong₃ Id (wk-inline A) (wk-inline t) (wk-inline u)
+  wk-inline rfl =
+    refl
+  wk-inline (J p q A t B u v w) =
+    cong₆ (J _ _) (wk-inline A) (wk-inline t) (wk-inline B)
+      (wk-inline u) (wk-inline v) (wk-inline w)
+  wk-inline (K p A t B u v) =
+    cong₅ (K _) (wk-inline A) (wk-inline t) (wk-inline B) (wk-inline u)
+      (wk-inline v)
+  wk-inline ([]-cong s A t u v) =
+    cong₄ ([]-cong _) (wk-inline A) (wk-inline t) (wk-inline u)
+      (wk-inline v)
+
+opaque
+  unfolding inline inline-Subst
+
+  -- The function inline-Subst commutes (in a certain sense) with _⇑.
+
+  inline-Subst-⇑ :
+    (x : Fin (1+ n)) →
+    inline-Subst ∇ (σ ⇑) x ≡ (inline-Subst ∇ σ ⇑) x
+  inline-Subst-⇑ x0             = refl
+  inline-Subst-⇑ {∇} {σ} (x +1) =
+    inline ∇ (wk1 (σ x))  ≡˘⟨ wk-inline (σ _) ⟩
+    wk1 (inline ∇ (σ x))  ∎
+
+opaque
+
+  -- The function inline-Subst commutes (in a certain sense) with
+  -- _⇑[_].
+
+  inline-Subst-⇑[] :
+    ∀ m (x : Fin (m + n)) →
+    inline-Subst ∇ (σ ⇑[ m ]) x ≡ (inline-Subst ∇ σ ⇑[ m ]) x
+  inline-Subst-⇑[]         0      _ = refl
+  inline-Subst-⇑[] {∇} {σ} (1+ m) x =
+    inline-Subst ∇ (σ ⇑[ m ] ⇑) x    ≡⟨ inline-Subst-⇑ x ⟩
+    (inline-Subst ∇ (σ ⇑[ m ]) ⇑) x  ≡⟨ substVar-lift (inline-Subst-⇑[] m) x ⟩
+    (inline-Subst ∇ σ ⇑[ m ] ⇑) x    ∎
+
+opaque
+  unfolding inline-Subst
+
+  -- The function inline-Subst commutes (in a certain sense) with
+  -- consSubst.
+
+  inline-Subst-consSubst :
+    (x : Fin (1+ n)) →
+    inline-Subst ∇ (consSubst σ t) x ≡
+    consSubst (inline-Subst ∇ σ) (inline ∇ t) x
+  inline-Subst-consSubst x0     = refl
+  inline-Subst-consSubst (_ +1) = refl
+
+opaque
+  unfolding inline inline-Subst
+
+  -- The function inline-Subst commutes (in a certain sense) with
+  -- idSubst.
+
+  inline-Subst-idSubst :
+    (x : Fin n) →
+    inline-Subst ∇ idSubst x ≡ idSubst x
+  inline-Subst-idSubst _ = refl
+
+opaque
+
+  -- The function inline-Subst commutes (in a certain sense) with
+  -- sgSubst.
+
+  inline-Subst-sgSubst :
+    (x : Fin (1+ n)) →
+    inline-Subst ∇ (sgSubst t) x ≡
+    sgSubst (inline ∇ t) x
+  inline-Subst-sgSubst {∇} {t} x =
+    inline-Subst ∇ (consSubst idSubst t) x             ≡⟨ inline-Subst-consSubst x ⟩
+    consSubst (inline-Subst ∇ idSubst) (inline ∇ t) x  ≡⟨ consSubst-cong inline-Subst-idSubst x ⟩
+    consSubst idSubst (inline ∇ t) x                   ∎
+
+opaque
+  unfolding inline-Subst
+
+  -- The function inline-Subst commutes (in a certain sense) with
+  -- wk1Subst.
+
+  inline-Subst-wk1Subst :
+    (x : Fin (1+ n)) →
+    inline-Subst ∇ (wk1Subst σ) x ≡
+    wk1Subst (inline-Subst ∇ σ) x
+  inline-Subst-wk1Subst _ = sym $ wk-inline _
+
+opaque
+  unfolding inline-Subst
+
+  -- The function inline-Subst commutes (in a certain sense) with
+  -- wkSubst.
+
+  inline-Subst-wkSubst :
+    ∀ k (x : Fin n) →
+    inline-Subst ∇ (wkSubst k σ) x ≡
+    wkSubst k (inline-Subst ∇ σ) x
+  inline-Subst-wkSubst 0 _ =
+    refl
+  inline-Subst-wkSubst {∇} {σ} (1+ k) x =
+    inline ∇ (wk1 (wkSubst k σ x))        ≡˘⟨ wk-inline _ ⟩
+    wk1 (inline-Subst ∇ (wkSubst k σ) x)  ≡⟨ cong wk1 $ inline-Subst-wkSubst k _ ⟩
+    wk1 (wkSubst k (inline-Subst ∇ σ) x)  ∎
+
+opaque
+ unfolding inline inline-Subst
+ mutual
+
+  -- The function inline ∇ commutes (in a certain sense) with _[_].
+
+  inline-[] :
+    (t : Term n) →
+    inline ∇ (t [ σ ]) ≡ inline ∇ t [ inline-Subst ∇ σ ]
+  inline-[] (var _) =
+    refl
+  inline-[] (defn _) =
+    sym $ wk₀-subst-invariant _
+  inline-[] (U _) =
+    refl
+  inline-[] Empty =
+    refl
+  inline-[] (emptyrec _ A t) =
+    cong₂ (emptyrec _) (inline-[] A) (inline-[] t)
+  inline-[] (Unit _ _) =
+    refl
+  inline-[] (star _ _) =
+    refl
+  inline-[] (unitrec _ _ _ A t u) =
+    cong₃ (unitrec _ _ _) (inline-[⇑] 1 A) (inline-[] t) (inline-[] u)
+  inline-[] (ΠΣ⟨ _ ⟩ _ , _ ▷ A ▹ B) =
+    cong₂ (ΠΣ⟨ _ ⟩ _ , _ ▷_▹_) (inline-[] A) (inline-[⇑] 1 B)
+  inline-[] (lam _ t) =
+    cong (lam _) (inline-[⇑] 1 t)
+  inline-[] (t ∘⟨ _ ⟩ u) =
+    cong₂ (_∘⟨ _ ⟩_) (inline-[] t) (inline-[] u)
+  inline-[] (prod _ _ t u) =
+    cong₂ (prod _ _) (inline-[] t) (inline-[] u)
+  inline-[] (fst _ t) =
+    cong (fst _) (inline-[] t)
+  inline-[] (snd _ t) =
+    cong (snd _) (inline-[] t)
+  inline-[] (prodrec _ _ _ A t u) =
+    cong₃ (prodrec _ _ _) (inline-[⇑] 1 A) (inline-[] t)
+      (inline-[⇑] 2 u)
+  inline-[] ℕ =
+    refl
+  inline-[] zero =
+    refl
+  inline-[] (suc t) =
+    cong suc (inline-[] t)
+  inline-[] (natrec _ _ _ A t u v) =
+    cong₄ (natrec _ _ _) (inline-[⇑] 1 A) (inline-[] t) (inline-[⇑] 2 u)
+      (inline-[] v)
+  inline-[] (Id A t u) =
+    cong₃ Id (inline-[] A) (inline-[] t) (inline-[] u)
+  inline-[] rfl =
+    refl
+  inline-[] (J _ _ A t B u v w) =
+    cong₆ (J _ _) (inline-[] A) (inline-[] t) (inline-[⇑] 2 B)
+      (inline-[] u) (inline-[] v) (inline-[] w)
+  inline-[] (K _ A t B u v) =
+    cong₅ (K _) (inline-[] A) (inline-[] t) (inline-[⇑] 1 B)
+      (inline-[] u) (inline-[] v)
+  inline-[] ([]-cong _ A t u v) =
+    cong₄ ([]-cong _) (inline-[] A) (inline-[] t) (inline-[] u)
+      (inline-[] v)
+
+  -- A variant of inline-[].
+
+  inline-[⇑] :
+    ∀ m (t : Term (m + n)) →
+    inline ∇ (t [ σ ⇑[ m ] ]) ≡
+    inline ∇ t [ inline-Subst ∇ σ ⇑[ m ] ]
+  inline-[⇑] {∇} {σ} m t =
+    inline ∇ (t [ σ ⇑[ m ] ])                 ≡⟨ inline-[] t ⟩
+    inline ∇ t [ inline-Subst ∇ (σ ⇑[ m ]) ]  ≡⟨ substVar-to-subst (inline-Subst-⇑[] m) (inline _ t) ⟩
+    inline ∇ t [ inline-Subst ∇ σ ⇑[ m ] ]    ∎
+
+opaque
+
+  -- A variant of inline-[].
+
+  inline-[]₀ :
+    (t : Term (1+ n)) →
+    inline ∇ (t [ u ]₀) ≡ inline ∇ t [ inline ∇ u ]₀
+  inline-[]₀ {∇} {u} t =
+    inline ∇ (t [ u ]₀)                        ≡⟨ inline-[] t ⟩
+    inline ∇ t [ inline-Subst ∇ (sgSubst u) ]  ≡⟨ substVar-to-subst inline-Subst-sgSubst (inline _ t) ⟩
+    inline ∇ t [ inline ∇ u ]₀                 ∎
+
+opaque
+
+  -- A variant of inline-[].
+
+  inline-[]₁₀ :
+    (t : Term (2+ n)) →
+    inline ∇ (t [ u , v ]₁₀) ≡
+    inline ∇ t [ inline ∇ u , inline ∇ v ]₁₀
+  inline-[]₁₀ {∇} {u} {v} t =
+    inline ∇ (t [ u , v ]₁₀)                                 ≡⟨ inline-[] t ⟩
+    inline ∇ t [ inline-Subst ∇ (consSubst (sgSubst u) v) ]  ≡⟨ (flip substVar-to-subst (inline _ t) λ x →
+                                                                 trans (inline-Subst-consSubst x) $
+                                                                 consSubst-cong inline-Subst-sgSubst x) ⟩
+    inline ∇ t [ inline ∇ u , inline ∇ v ]₁₀                 ∎
+
+opaque
+
+  -- A variant of inline-[].
+
+  inline-[][]↑ :
+    (t : Term (1+ n)) →
+    inline ∇ (t [ k ][ u ]↑) ≡ inline ∇ t [ k ][ inline ∇ u ]↑
+  inline-[][]↑ {∇} {k} {u} t =
+    inline ∇ (t [ k ][ u ]↑)                                         ≡⟨ inline-[] t ⟩
+    inline ∇ t [ inline-Subst ∇ (consSubst (wkSubst k idSubst) u) ]  ≡⟨ (flip substVar-to-subst (inline _ t) λ x →
+                                                                         trans (inline-Subst-consSubst x) $
+                                                                         flip consSubst-cong x $ λ x →
+                                                                         trans (inline-Subst-wkSubst k x) $
+                                                                         wkSubst-cong inline-Subst-idSubst x) ⟩
+    inline ∇ t [ k ][ inline ∇ u ]↑                                  ∎
+
+opaque
+  unfolding inline-Nat
+
+  -- If α is in scope with respect to ∇, then inline-Nat ∇ α is equal
+  -- to an application of inline-< ∇.
+
+  <-inline-Nat :
+    {∇ : DCon (Term 0) n}
+    (α<n : α <′ n) →
+    inline-Nat ∇ α ≡ inline-< ∇ α<n
+  <-inline-Nat {n} {α} {∇} α<n with α <′? n
+  … | no α≮n = ⊥-elim (α≮n α<n)
+  … | yes _  = cong (inline-< ∇) <′-propositional
+
+------------------------------------------------------------------------
+-- Properties related to inlining and glassification
+
+opaque
+ unfolding inline
+ mutual
+
+  -- The result of inline-< is not affected by glassification.
+
+  inline-<-glassify :
+    (∇ : DCon (Term 0) n) (α<n : α <′ n) →
+    inline-< (glassify ∇) α<n ≡ inline-< ∇ α<n
+  inline-<-glassify ε m<0 =
+    ⊥-elim (n≮0 (<′⇒< m<0))
+  inline-<-glassify (_ ∙⟨ _ ⟩[ t ∷ _ ]) (≤′-reflexive _) =
+    inline-glassify t
+  inline-<-glassify (∇ ∙⟨ _ ⟩[ _ ∷ _ ]) (≤′-step m<n) =
+    inline-<-glassify ∇ m<n
+
+  -- The result of inline-Nat is not affected by glassification.
+
+  inline-Nat-glassify :
+    (∇ : DCon (Term 0) n) →
+    inline-Nat (glassify ∇) α ≡ inline-Nat ∇ α
+  inline-Nat-glassify {n} {α} ∇ with α <′? n
+  … | yes α<n = inline-<-glassify ∇ α<n
+  … | no _    = refl
+
+  -- The result of inline is not affected by glassification.
+
+  inline-glassify :
+    (t : Term n) → inline (glassify ∇) t ≡ inline ∇ t
+  inline-glassify (var _) =
+    refl
+  inline-glassify {∇} (defn _) =
+    cong (wk _) (inline-Nat-glassify ∇)
+  inline-glassify (U _) =
+    refl
+  inline-glassify Empty =
+    refl
+  inline-glassify (emptyrec p A t) =
+    cong₂ (emptyrec _) (inline-glassify A) (inline-glassify t)
+  inline-glassify (Unit _ _) =
+    refl
+  inline-glassify (star _ _) =
+    refl
+  inline-glassify (unitrec _ _ _ A t u) =
+    cong₃ (unitrec _ _ _) (inline-glassify A) (inline-glassify t)
+      (inline-glassify u)
+  inline-glassify (ΠΣ⟨ _ ⟩ _ , _ ▷ A ▹ B) =
+    cong₂ (ΠΣ⟨ _ ⟩ _ , _ ▷_▹_) (inline-glassify A) (inline-glassify B)
+  inline-glassify (lam p t) =
+    cong (lam _) (inline-glassify t)
+  inline-glassify (t ∘⟨ p ⟩ u) =
+    cong₂ (_∘⟨ _ ⟩_) (inline-glassify t) (inline-glassify u)
+  inline-glassify (prod s p t u) =
+    cong₂ (prod _ _) (inline-glassify t) (inline-glassify u)
+  inline-glassify (fst p t) =
+    cong (fst _) (inline-glassify t)
+  inline-glassify (snd p t) =
+    cong (snd _) (inline-glassify t)
+  inline-glassify (prodrec r p q A t u) =
+    cong₃ (prodrec _ _ _) (inline-glassify A) (inline-glassify t)
+      (inline-glassify u)
+  inline-glassify ℕ =
+    refl
+  inline-glassify zero =
+    refl
+  inline-glassify (suc t) =
+    cong suc (inline-glassify t)
+  inline-glassify (natrec p q r A t u v) =
+    cong₄ (natrec _ _ _) (inline-glassify A) (inline-glassify t)
+      (inline-glassify u) (inline-glassify v)
+  inline-glassify (Id A t u) =
+    cong₃ Id (inline-glassify A) (inline-glassify t) (inline-glassify u)
+  inline-glassify rfl =
+    refl
+  inline-glassify (J p q A t B u v w) =
+    cong₆ (J _ _) (inline-glassify A) (inline-glassify t)
+      (inline-glassify B) (inline-glassify u) (inline-glassify v)
+      (inline-glassify w)
+  inline-glassify (K p A t B u v) =
+    cong₅ (K _) (inline-glassify A) (inline-glassify t)
+      (inline-glassify B) (inline-glassify u) (inline-glassify v)
+  inline-glassify ([]-cong s A t u v) =
+    cong₄ ([]-cong _) (inline-glassify A) (inline-glassify t)
+      (inline-glassify u) (inline-glassify v)
+
+opaque
+  unfolding inline-Con
+
+  -- The result of inline-Con is not affected by glassification.
+
+  inline-Con-glassify :
+    (Γ : Con Term n) → inline-Con (glassify ∇) Γ ≡ inline-Con ∇ Γ
+  inline-Con-glassify ε       = refl
+  inline-Con-glassify (Γ ∙ A) =
+    cong₂ _∙_ (inline-Con-glassify _) (inline-glassify A)
