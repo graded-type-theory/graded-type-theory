@@ -97,7 +97,7 @@ opaque
   Unit≢ne () refl
 
 opaque
-  
+
   B≢ne : ∀ W → Neutral V ∇ A → ⟦ W ⟧ F ▹ G ≢ A
   B≢ne (BΠ p q)   () refl
   B≢ne (BΣ m p q) () refl
@@ -134,7 +134,7 @@ opaque
   rfl≢ne () refl
 
 opaque
-  
+
   star≢ne : Neutral V ∇ t → star s l ≢ t
   star≢ne () refl
 

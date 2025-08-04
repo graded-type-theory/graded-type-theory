@@ -125,7 +125,7 @@ opaque
 -- Properties of unfoldings
 
 opaque
-  
+
   ones-⊔ᵒ : (φ : Unfolding n) → ones n ⊔ᵒ φ ≡ ones n
   ones-⊔ᵒ ε     = refl
   ones-⊔ᵒ (φ ⁰) = cong _¹ (ones-⊔ᵒ φ)
@@ -1547,7 +1547,7 @@ opaque
     lemma (1+ k) (x +1) = cong wk1 (lemma k x)
 
 opaque
-  
+
   -- wkSubst₀ is equivalent to weakening
 
   wkSubst₀-subst : (t : Term 0) → t [ wkSubst₀ {n} ] ≡ wk wk₀ t

@@ -359,7 +359,7 @@ opaque
 opaque
 
   -- A reduction weakening lemma for the definition context.
-  
+
   defn-wkRedTerm : ξ » ∇′ ⊇ ∇ → ∇ » Γ ⊢ t ⇒ t′ ∷ A → ∇′ » Γ ⊢ t ⇒ t′ ∷ A
   defn-wkRedTerm ξ⊇ (conv t⇒t′ A≡A′) =
     conv (defn-wkRedTerm ξ⊇ t⇒t′) (defn-wkEq ξ⊇ A≡A′)
@@ -388,8 +388,8 @@ opaque
          eq ok
   defn-wkRedTerm ξ⊇ (prodrec-subst ⊢A ⊢a t⇒t′ ok) =
     prodrec-subst (defn-wk ξ⊇ ⊢A)
-                  (defn-wkTerm ξ⊇ ⊢a) 
-                  (defn-wkRedTerm ξ⊇ t⇒t′) 
+                  (defn-wkTerm ξ⊇ ⊢a)
+                  (defn-wkRedTerm ξ⊇ t⇒t′)
                   ok
   defn-wkRedTerm ξ⊇ (prodrec-β ⊢A ⊢t ⊢t₂ ⊢tᵣ eq ok) =
     prodrec-β (defn-wk ξ⊇ ⊢A)
@@ -500,7 +500,7 @@ opaque
   defn-wkNeutral ξ⊇ ([]-congₙ b)   = []-congₙ (defn-wkNeutral ξ⊇ b)
 
 opaque
-   
+
   -- A WHNF weakening lemma for the definition context.
 
   defn-wkWhnf : ξ » ∇′ ⊇ ∇ → Whnf ∇ t → Whnf ∇′ t

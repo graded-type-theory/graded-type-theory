@@ -418,7 +418,7 @@ opaque mutual
     equality-reflection ok (glassify-⊢ ⊢Id) (glassify-⊢∷ ⊢t)
 
 opaque
-  
+
   glassify-⇒∷ : ∇ » Γ ⊢ t ⇒ u ∷ A → glassify ∇ » Γ ⊢ t ⇒ u ∷ A
   glassify-⇒∷ (conv t⇒t′ A≡A′) =
     conv (glassify-⇒∷ t⇒t′) (glassify-⊢≡ A≡A′)
@@ -447,8 +447,8 @@ opaque
          eq ok
   glassify-⇒∷ (prodrec-subst ⊢A ⊢a t⇒t′ ok) =
     prodrec-subst (glassify-⊢ ⊢A)
-                  (glassify-⊢∷ ⊢a) 
-                  (glassify-⇒∷ t⇒t′) 
+                  (glassify-⊢∷ ⊢a)
+                  (glassify-⇒∷ t⇒t′)
                   ok
   glassify-⇒∷ (prodrec-β ⊢A ⊢t ⊢t₂ ⊢tᵣ eq ok) =
     prodrec-β (glassify-⊢ ⊢A)

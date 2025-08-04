@@ -52,7 +52,7 @@ private
 opaque
 
   -- Valid definition contexts.
-  
+
   »ᵛ_ : DCon (Term 0) n → Set a
   »ᵛ ε = Lift _ ⊤
   »ᵛ (∇ ∙⟨ opa φ ⟩[ t ∷ A ]) =
@@ -113,7 +113,7 @@ opaque
   »ᵛ-∙ᵗ-intro {l} »∇ ⊩t = »ᵛ∙ᵗ⇔ .proj₂ (»∇ , l , ⊩t)
 
 private instance
-  
+
   ε-inc : Var-included or-empty (ε {A = Term})
   ε-inc = ε
 
@@ -182,7 +182,7 @@ opaque
     ∃ λ l → ∇ » Γ ⊩ᵛ⟨ l ⟩ defn α ≡ wk wk₀ t ∷ wk wk₀ A
   δ-redᵛ {α} {t} {A} {∇} {Γ} α↦t »∇ ⊩Γ =
     let l , ⊩t = wf-↦∷∈ᵛ α↦t »∇
-        
+
         α⇒t : ∀ {κ′ ∇′} {ξ : DExt _ κ′ _} (ξ⊇ : ξ » ∇′ ⊇ ∇)
                 {m Δ} {σ : Subst m _} ⦃ inc : Var-included or-empty Δ ⦄
               → ∇′ » Δ ⊩ˢ σ ∷ Γ
@@ -199,7 +199,7 @@ opaque
 opaque
 
   -- Validity of definitions.
-  
+
   defnᵛ :
     α ↦∷ A ∈ ∇ →
     »ᵛ ∇ →
@@ -224,5 +224,5 @@ opaque
             in  refl-⊩≡∷ (PE.subst (_ » _ ⊩⟨ l ⟩ defn α ∷_)
                                    (PE.sym (wk₀-subst-invariant A))
                                    (neutral-⊩∷ ⊩ᴿA α-ne A~A))
-          
+
       in  l , ⊩ᵛ∷⇔ .proj₂ (wk-⊩ᵛ wk₀∷⊇ ⊩Γ ⊩A , α[]≡α[])
