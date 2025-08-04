@@ -18,6 +18,7 @@ open import Definition.Untyped.Neutral M type-variant
 open import Definition.Untyped.Whnf M type-variant
 
 open import Definition.Typed R
+open import Definition.Typed.Properties.Well-formed R
 open import Definition.Typed.Weakening R
 
 open import Tools.Nat
@@ -86,6 +87,23 @@ opaque
     n ≤ n′
   ⊇→≤ id            = ≤-refl
   ⊇→≤ (step ∇′⊇∇ _) = ≤-trans (⊇→≤ ∇′⊇∇) (n≤1+n _)
+
+opaque
+
+  -- If ∇ is well-formed, then ∇ is an extension of the empty
+  -- definition context.
+
+  »⊇ε :
+    » ∇ →
+    ∃ λ ξ → ξ » ∇ ⊇ ε
+  »⊇ε ε =
+    _ , id
+  »⊇ε ∙ᵗ[ ⊢t ] =
+    let _ , ∇⊇ = »⊇ε (defn-wf (wfTerm ⊢t)) in
+    _ , stepᵗ ∇⊇ ⊢t
+  »⊇ε ∙ᵒ⟨ ok , ∇′↜∇ ⟩[ ⊢t ∷ ⊢A ] =
+    let _ , ∇⊇ = »⊇ε (defn-wf (wf ⊢A)) in
+    _ , stepᵒ ∇⊇ ok ⊢A ∇′↜∇ ⊢t
 
 ------------------------------------------------------------------------
 -- Weakening for properties of definitions
