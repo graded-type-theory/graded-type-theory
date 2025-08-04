@@ -101,6 +101,7 @@ import Definition.Untyped.Erased
 import Definition.Untyped.Bool.Erased
 import Definition.Untyped.Neutral
 import Definition.Untyped.Whnf
+import Definition.Untyped.Names-below
 import Graded.Derived.Unrestricted.Eta.Untyped
 import Definition.Typed.Variant
 
@@ -147,6 +148,7 @@ import Definition.Typed.Properties.Admissible.Bool.Erased
 import Definition.Typed.Properties.Definition
 import Definition.Typed.Substitution
 import Definition.Typed.Properties
+import Definition.Typed.Names-below
 import Definition.Typed.EqualityRelation
 import Definition.Typed.EqualityRelation.Instance
 import Definition.Typed.EqRelInstance
