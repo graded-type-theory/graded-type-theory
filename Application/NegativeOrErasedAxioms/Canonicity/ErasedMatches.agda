@@ -1,6 +1,6 @@
 ------------------------------------------------------------------------
--- If erased matches are not allowed. Erased axioms do jeopardize
--- canonicity.
+-- If erased matches are allowed, then erased axioms do jeopardize
+-- canonicity
 ------------------------------------------------------------------------
 
 module Application.NegativeOrErasedAxioms.Canonicity.ErasedMatches where

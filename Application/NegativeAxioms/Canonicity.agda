@@ -55,8 +55,8 @@ private variable
 module Main {Γ : Cons m n} (nΓ : NegativeContext Γ)
             (consistent : Consistent Γ) where
 
-  -- Lemma: A neutral has negative type in a consistent
-  -- negative/erased context (given a certain assumption).
+  -- Lemma: A neutral has a negative type in a consistent, negative
+  -- context (given a certain assumption).
 
   neNeg :
     ⦃ ok : No-equality-reflection or-empty Γ .vars ⦄ →
