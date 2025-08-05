@@ -855,16 +855,6 @@ opaque
 opaque
 
   -- If there are no names in a given heap, then there are no names in
-  -- terms obtained from the heap via the _⊢_↦_ form of lookup.
-
-  No-names-⊢↦ : H ⊢ x ↦ (t , ρ) → No-namesʰ H → No-names t
-  No-names-⊢↦ here        (_ ∙ t-nn) = t-nn
-  No-names-⊢↦ (there x↦)  (H-nn ∙ _) = No-names-⊢↦ x↦ H-nn
-  No-names-⊢↦ (there● x↦) (H-nn ∙●)  = No-names-⊢↦ x↦ H-nn
-
-opaque
-
-  -- If there are no names in a given heap, then there are no names in
   -- terms or heaps obtained from the heap via the _⊢_↦[_]_⨾_ form of
   -- lookup.
 
@@ -878,7 +868,7 @@ opaque
   No-names-⊢↦[]⨾ (there● x↦) (H-nn ∙●) =
     Σ.map idᶠ _∙● (No-names-⊢↦[]⨾ x↦ H-nn)
 
--- No-namesₛ is preserved by various forms of reduction.
+-- No-namesₛ is preserved by several forms of reduction.
 
 opaque
 
@@ -915,28 +905,6 @@ opaque
 
 opaque
 
-  No-namesₛ-⇾ₑ* : s₁ ⇾ₑ* s₂ → No-namesₛ s₁ → No-namesₛ s₂
-  No-namesₛ-⇾ₑ* id                 = idᶠ
-  No-namesₛ-⇾ₑ* (s₁⇾ₑs₂ ⇨ s₂⇾ₑ*s₃) =
-    No-namesₛ-⇾ₑ* s₂⇾ₑ*s₃ ∘→ No-namesₛ-⇾ₑ s₁⇾ₑs₂
-
-opaque
-
-  No-namesₛ-⇢ₑ : s₁ ⇢ₑ s₂ → No-namesₛ s₁ → No-namesₛ s₂
-  No-namesₛ-⇢ₑ (var x↦) ((H-nn , var) , S-nn) =
-    (H-nn , No-names-⊢↦ x↦ H-nn) , S-nn
-  No-namesₛ-⇢ₑ (⇒ₑ s₁⇒ₑs₂) nn =
-    No-namesₛ-⇒ₑ s₁⇒ₑs₂ nn
-
-opaque
-
-  No-namesₛ-⇢ₑ* : s₁ ⇢ₑ* s₂ → No-namesₛ s₁ → No-namesₛ s₂
-  No-namesₛ-⇢ₑ* id                 = idᶠ
-  No-namesₛ-⇢ₑ* (s₁⇢ₑs₂ ⇨ s₂⇢ₑ*s₃) =
-    No-namesₛ-⇢ₑ* s₂⇢ₑ*s₃ ∘→ No-namesₛ-⇢ₑ s₁⇢ₑs₂
-
-opaque
-
   No-namesₛ-⇒ᵥ : s₁ ⇒ᵥ s₂ → No-namesₛ s₁ → No-namesₛ s₂
   No-namesₛ-⇒ᵥ lamₕ ((H-nn , lam nn₁) , ∘ₑ nn₂ ∙ S-nn) =
     (H-nn ∙ nn₂ , nn₁) , No-namesˢ-wk S-nn
@@ -966,30 +934,9 @@ opaque
 
 opaque
 
-  No-namesₛ-⇒ₙ : s₁ ⇒ₙ s₂ → No-namesₛ s₁ → No-namesₛ s₂
-  No-namesₛ-⇒ₙ (sucₕ _) ((H-nn , suc t-nn) , S-nn) =
-    (H-nn , t-nn) , sucₑ ∙ S-nn
-  No-namesₛ-⇒ₙ (numₕ _) ((H-nn , t-nn) , _ ∙ S-nn) =
-    (H-nn , suc t-nn) , S-nn
-
-opaque
-
   No-namesₛ-⇾ : s₁ ⇾ s₂ → No-namesₛ s₁ → No-namesₛ s₂
   No-namesₛ-⇾ (⇾ₑ s₁⇾ₑs₂) = No-namesₛ-⇾ₑ s₁⇾ₑs₂
   No-namesₛ-⇾ (⇒ᵥ s₁⇒ᵥs₂) = No-namesₛ-⇒ᵥ s₁⇒ᵥs₂
-
-opaque
-
-  No-namesₛ-↠ : s₁ ↠ s₂ → No-namesₛ s₁ → No-namesₛ s₂
-  No-namesₛ-↠ (⇾ₑ s₁⇾ₑs₂) = No-namesₛ-⇾ₑ s₁⇾ₑs₂
-  No-namesₛ-↠ (⇒ᵥ s₁⇒ᵥs₂) = No-namesₛ-⇒ᵥ s₁⇒ᵥs₂
-  No-namesₛ-↠ (⇒ₙ s₁⇒ₙs₂) = No-namesₛ-⇒ₙ s₁⇒ₙs₂
-
-opaque
-
-  No-namesₛ-⇢ : s₁ ⇢ s₂ → No-namesₛ s₁ → No-namesₛ s₂
-  No-namesₛ-⇢ (⇢ₑ s₁⇢ₑs₂) = No-namesₛ-⇢ₑ s₁⇢ₑs₂
-  No-namesₛ-⇢ (⇒ᵥ s₁⇒ᵥs₂) = No-namesₛ-⇒ᵥ s₁⇒ᵥs₂
 
 opaque
 
@@ -997,22 +944,3 @@ opaque
   No-namesₛ-⇾* id               = idᶠ
   No-namesₛ-⇾* (s₁⇾s₂ ⇨ s₂⇾*s₃) =
     No-namesₛ-⇾* s₂⇾*s₃ ∘→ No-namesₛ-⇾ s₁⇾s₂
-
-opaque
-
-  No-namesₛ-↠* : s₁ ↠* s₂ → No-namesₛ s₁ → No-namesₛ s₂
-  No-namesₛ-↠* id               = idᶠ
-  No-namesₛ-↠* (s₁↠s₂ ⇨ s₂↠*s₃) =
-    No-namesₛ-↠* s₂↠*s₃ ∘→ No-namesₛ-↠ s₁↠s₂
-
-opaque
-
-  No-namesₛ-⇢* : s₁ ⇢* s₂ → No-namesₛ s₁ → No-namesₛ s₂
-  No-namesₛ-⇢* id               = idᶠ
-  No-namesₛ-⇢* (s₁⇢s₂ ⇨ s₂⇢*s₃) =
-    No-namesₛ-⇢* s₂⇢*s₃ ∘→ No-namesₛ-⇢ s₁⇢s₂
-
-opaque
-
-  No-namesₛ-⇘ : s₁ ⇘ s₂ → No-namesₛ s₁ → No-namesₛ s₂
-  No-namesₛ-⇘ (s₁⇾*s₂ , _) = No-namesₛ-⇾* s₁⇾*s₂
