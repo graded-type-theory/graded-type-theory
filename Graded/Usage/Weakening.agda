@@ -202,6 +202,14 @@ wkUsage ρ ([]-congₘ ▸A ▸t ▸u ▸v ok) =
   open Tools.Reasoning.PropositionalEquality
 wkUsage ρ (sub γ▸t x) = sub (wkUsage ρ γ▸t) (wk-≤ᶜ ρ x)
 
+opaque
+
+  -- The result of weakening ε is 𝟘ᶜ.
+
+  wkConₘ-ε : wkConₘ ρ ε ≡ 𝟘ᶜ
+  wkConₘ-ε {ρ = id}     = refl
+  wkConₘ-ε {ρ = step _} = cong (_∙ _) wkConₘ-ε
+
 ------------------------------------------------------------------------
 -- Inversion lemmas
 
