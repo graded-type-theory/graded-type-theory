@@ -93,8 +93,8 @@ module IntroExample1 where
 
   infix 5 _≡ℚ_
 
-  sym-ℚ : ∀ {x y} → x ≡ℚ y → y ≡ℚ x
-  sym-ℚ p = {! insert proof here !}
+--  sym-ℚ : ∀ {x y} → x ≡ℚ y → y ≡ℚ x
+--  sym-ℚ p = {! insert proof here !}
 ```
 
 The "complex" example again, now with opaque definitions:
@@ -141,10 +141,10 @@ module IntroExample2 where
 
   infix 5 _≡ℚ_
 
-  opaque
-    unfolding _≡ℚ_
-    sym-ℚ : ∀ {x y} → x ≡ℚ y → y ≡ℚ x
-    sym-ℚ p = {! insert proof here !}
+--  opaque
+--    unfolding _≡ℚ_
+--    sym-ℚ : ∀ {x y} → x ≡ℚ y → y ≡ℚ x
+--    sym-ℚ p = {! insert proof here !}
 ```
 
 ## 3 Background
