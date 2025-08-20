@@ -67,11 +67,10 @@ opaque
 
 opaque
 
-  -- Canonicity for the empty type.
+  -- Canonicity for the empty type in glass contexts.
 
-  ¬Empty : ¬ ∇ » ε ⊢ t ∷ Empty
-  ¬Empty {t} =
-    ∇ » ε ⊢ t ∷ Empty               →⟨ glassify-⊢∷ ⟩
+  ¬Empty′ : ¬ glassify ∇ » ε ⊢ t ∷ Empty
+  ¬Empty′ {t} =
     glassify ∇ » ε ⊢ t ∷ Empty      →⟨ ⊩∷Empty⇔ .proj₁ ∘→ proj₂ ∘→ reducible-⊩∷ ⟩
     glassify ∇ » ε ⊩Empty t ∷Empty  →⟨ (λ { (Emptyₜ _ _ _ (ne (neNfₜ u-ne _))) →
                                             glass-closed-no-ne u-ne }) ⟩
@@ -79,10 +78,17 @@ opaque
 
 opaque
 
+  -- Canonicity for the empty type.
+
+  ¬Empty : ¬ ∇ » ε ⊢ t ∷ Empty
+  ¬Empty = ¬Empty′ ∘→ glassify-⊢∷
+
+opaque
+
   -- There can be no well-typed definition of the empty type.
 
-  ¬defn-Empty : » ∇ → ¬ α ↦ t ∷ Empty ∈ ∇
-  ¬defn-Empty »∇ α↦t = ¬Empty (wf-↦∷∈ α↦t »∇)
+  ¬defn-Empty : » ∇ → ¬ α ↦∷ Empty ∈ ∇
+  ¬defn-Empty »∇ α↦ = ¬Empty′ (wf-↦∷∈ (glassify-↦∈′ α↦ .proj₂) (glassify-» »∇))
 
 opaque
 
