@@ -28,7 +28,7 @@ Languages_, Volume 7, Issue ICFP, 2023
 ([doi:10.1145/3607862](https://doi.org/10.1145/3607862)).
 
 The present version of the code contains changes made after
-publication of the ICFP paper, see [README.agda](README.agda). Some
+publication of the ICFP paper, see [README.Graded-type-theory](README/Graded-type-theory.agda). Some
 highlights:
 
 - Identity types were added by Nils Anders Danielsson (@nad, 2023).
@@ -39,7 +39,8 @@ highlights:
   Kubánek (@nad and @kubaneko, 2024).
 
 - Top-level definitions and opacity were added by Nils Anders
-  Danielsson and Eve Geng (@nad and @phantamanta44, 2025).
+  Danielsson and Eve Geng (@nad and @phantamanta44, 2025); see
+  [README.Opaque-definitions](README/Opaque-definitions.agda) for more details.
 
 ### Dependencies ###
 
