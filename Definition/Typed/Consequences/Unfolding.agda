@@ -43,6 +43,33 @@ private
     V : Set a
     φ φ′ : Unfolding _
 
+opaque
+
+  -- If α has type A in ∇, then α has the same type in every
+  -- transparentisation of ∇.
+
+  unfold-↦∈ : φ » ∇′ ↜ ∇ → α ↦∷ A ∈ ∇ → α ↦∷ A ∈ ∇′
+  unfold-↦∈ ε       ()
+  unfold-↦∈ (φ↜ ⁰)  here         = here
+  unfold-↦∈ (φ↜ ¹ᵒ) here         = here
+  unfold-↦∈ (φ↜ ¹ᵗ) here         = here
+  unfold-↦∈ (φ↜ ⁰)  (there α↦∷A) = there (unfold-↦∈ φ↜ α↦∷A)
+  unfold-↦∈ (φ↜ ¹ᵒ) (there α↦∷A) = there (unfold-↦∈ φ↜ α↦∷A)
+  unfold-↦∈ (φ↜ ¹ᵗ) (there α↦∷A) = there (unfold-↦∈ φ↜ α↦∷A)
+
+opaque
+
+  -- If α has the body t and the type A in ∇, then α has the same body
+  -- and type in every transparentisation of ∇.
+
+  unfold-↦∷∈ : φ » ∇′ ↜ ∇ → α ↦ t ∷ A ∈ ∇ → α ↦ t ∷ A ∈ ∇′
+  unfold-↦∷∈ ε       ()
+  unfold-↦∷∈ (φ↜ ⁰)  here        = here
+  unfold-↦∷∈ (φ↜ ¹ᵗ) here        = here
+  unfold-↦∷∈ (φ↜ ⁰)  (there α↦t) = there (unfold-↦∷∈ φ↜ α↦t)
+  unfold-↦∷∈ (φ↜ ¹ᵒ) (there α↦t) = there (unfold-↦∷∈ φ↜ α↦t)
+  unfold-↦∷∈ (φ↜ ¹ᵗ) (there α↦t) = there (unfold-↦∷∈ φ↜ α↦t)
+
 module Explicit (mode-eq : unfolding-mode PE.≡ explicit) where
 
   private opaque
@@ -143,27 +170,6 @@ module Transitive (mode-eq : unfolding-mode PE.≡ transitive) where
       unjoin′ {φ′ = φ′ ¹} {φ = φ ¹} (φ′φ↜ ¹ᵒ) (φ↜ ¹ᵒ) =
         unjoin-»↜ (PE.subst (_» _ ↜ _) (PE.sym (a1[23] _ _ _)) φ′φ↜) φ↜ ¹ᵗ
       unjoin′ {φ′ = φ′ ¹} {φ = φ ¹} (φ′φ↜ ¹ᵗ) (φ↜ ¹ᵗ) = unjoin′ φ′φ↜ φ↜ ¹ᵗ
-
-  opaque
-
-    unfold-↦∈ : φ » ∇′ ↜ ∇ → α ↦∷ A ∈ ∇ → α ↦∷ A ∈ ∇′
-    unfold-↦∈ ε       ()
-    unfold-↦∈ (φ↜ ⁰)  here         = here
-    unfold-↦∈ (φ↜ ¹ᵒ) here         = here
-    unfold-↦∈ (φ↜ ¹ᵗ) here         = here
-    unfold-↦∈ (φ↜ ⁰)  (there α↦∷A) = there (unfold-↦∈ φ↜ α↦∷A)
-    unfold-↦∈ (φ↜ ¹ᵒ) (there α↦∷A) = there (unfold-↦∈ φ↜ α↦∷A)
-    unfold-↦∈ (φ↜ ¹ᵗ) (there α↦∷A) = there (unfold-↦∈ φ↜ α↦∷A)
-
-  opaque
-
-    unfold-↦∷∈ : φ » ∇′ ↜ ∇ → α ↦ t ∷ A ∈ ∇ → α ↦ t ∷ A ∈ ∇′
-    unfold-↦∷∈ ε       ()
-    unfold-↦∷∈ (φ↜ ⁰)  here        = here
-    unfold-↦∷∈ (φ↜ ¹ᵗ) here        = here
-    unfold-↦∷∈ (φ↜ ⁰)  (there α↦t) = there (unfold-↦∷∈ φ↜ α↦t)
-    unfold-↦∷∈ (φ↜ ¹ᵒ) (there α↦t) = there (unfold-↦∷∈ φ↜ α↦t)
-    unfold-↦∷∈ (φ↜ ¹ᵗ) (there α↦t) = there (unfold-↦∷∈ φ↜ α↦t)
 
   opaque mutual
 
