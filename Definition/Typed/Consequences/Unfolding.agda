@@ -70,6 +70,366 @@ opaque
   unfold-↦∷∈ (φ↜ ¹ᵒ) (there α↦t) = there (unfold-↦∷∈ φ↜ α↦t)
   unfold-↦∷∈ (φ↜ ¹ᵗ) (there α↦t) = there (unfold-↦∷∈ φ↜ α↦t)
 
+-- The following module is re-exported from the module Transitive
+-- below. It uses the assumption that ∇′ is a transparentisation of ∇
+-- that is well-formed whenever ∇ is.
+
+module Unconditional (φ↜ : φ » ∇′ ↜ ∇) (»∇′ : » ∇ → » ∇′) where
+
+  opaque mutual
+
+    -- Varible contexts that are well-formed under ∇ are well-formed
+    -- under ∇′.
+
+    unfold-⊢′ : ∇ »⊢ Γ → ∇′ »⊢ Γ
+    unfold-⊢′ (ε »∇) = ε (»∇′ »∇)
+    unfold-⊢′ (∙ ⊢A) = ∙ unfold-⊢ ⊢A
+
+    -- Types that are well-formed under ∇ are well-formed under ∇′.
+
+    unfold-⊢ : ∇ » Γ ⊢ A → ∇′ » Γ ⊢ A
+    unfold-⊢ (Uⱼ ⊢Γ) = Uⱼ (unfold-⊢′ ⊢Γ)
+    unfold-⊢ (ℕⱼ ⊢Γ) = ℕⱼ (unfold-⊢′ ⊢Γ)
+    unfold-⊢ (Emptyⱼ ⊢Γ) = Emptyⱼ (unfold-⊢′ ⊢Γ)
+    unfold-⊢ (Unitⱼ ⊢Γ ok) = Unitⱼ (unfold-⊢′ ⊢Γ) ok
+    unfold-⊢ (ΠΣⱼ ⊢A ok) = ΠΣⱼ (unfold-⊢ ⊢A) ok
+    unfold-⊢ (Idⱼ ⊢A ⊢t ⊢u) =
+      Idⱼ (unfold-⊢ ⊢A) (unfold-⊢∷ ⊢t) (unfold-⊢∷ ⊢u)
+    unfold-⊢ (univ ⊢A) = univ (unfold-⊢∷ ⊢A)
+
+    -- Terms that are well-formed under ∇ are well-formed under ∇′.
+
+    unfold-⊢∷ : ∇ » Γ ⊢ t ∷ A → ∇′ » Γ ⊢ t ∷ A
+    unfold-⊢∷ (Uⱼ ⊢Γ) = Uⱼ (unfold-⊢′ ⊢Γ)
+    unfold-⊢∷ (ΠΣⱼ ⊢t₁ ⊢t₂ ok) =
+      ΠΣⱼ (unfold-⊢∷ ⊢t₁) (unfold-⊢∷ ⊢t₂) ok
+    unfold-⊢∷ (ℕⱼ ⊢Γ) = ℕⱼ (unfold-⊢′ ⊢Γ)
+    unfold-⊢∷ (Emptyⱼ ⊢Γ) = Emptyⱼ (unfold-⊢′ ⊢Γ)
+    unfold-⊢∷ (Unitⱼ ⊢Γ ok) = Unitⱼ (unfold-⊢′ ⊢Γ) ok
+    unfold-⊢∷ (conv ⊢t A≡A′) =
+      conv (unfold-⊢∷ ⊢t) (unfold-⊢≡ A≡A′)
+    unfold-⊢∷ (var ⊢Γ x∈) = var (unfold-⊢′ ⊢Γ) x∈
+    unfold-⊢∷ (defn ⊢Γ α↦t A≡A′) =
+      defn (unfold-⊢′ ⊢Γ) (unfold-↦∈ φ↜ α↦t) A≡A′
+    unfold-⊢∷ (lamⱼ ⊢A ⊢t ok) =
+      lamⱼ (unfold-⊢ ⊢A) (unfold-⊢∷ ⊢t) ok
+    unfold-⊢∷ (⊢t₁ ∘ⱼ ⊢t₂) =
+      unfold-⊢∷ ⊢t₁ ∘ⱼ unfold-⊢∷ ⊢t₂
+    unfold-⊢∷ (prodⱼ ⊢A ⊢t₁ ⊢t₂ ok) =
+      prodⱼ (unfold-⊢ ⊢A)
+            (unfold-⊢∷ ⊢t₁)
+            (unfold-⊢∷ ⊢t₂)
+            ok
+    unfold-⊢∷ (fstⱼ ⊢A ⊢t) =
+      fstⱼ (unfold-⊢ ⊢A) (unfold-⊢∷ ⊢t)
+    unfold-⊢∷ (sndⱼ ⊢A ⊢t) =
+      sndⱼ (unfold-⊢ ⊢A) (unfold-⊢∷ ⊢t)
+    unfold-⊢∷ (prodrecⱼ ⊢A ⊢t ⊢t′ ok) =
+      prodrecⱼ (unfold-⊢ ⊢A)
+              (unfold-⊢∷ ⊢t)
+              (unfold-⊢∷ ⊢t′)
+              ok
+    unfold-⊢∷ (zeroⱼ ⊢Γ) = zeroⱼ (unfold-⊢′ ⊢Γ)
+    unfold-⊢∷ (sucⱼ ⊢t) = sucⱼ (unfold-⊢∷ ⊢t)
+    unfold-⊢∷ (natrecⱼ ⊢t₀ ⊢tₛ ⊢t) =
+      natrecⱼ (unfold-⊢∷ ⊢t₀)
+              (unfold-⊢∷ ⊢tₛ)
+              (unfold-⊢∷ ⊢t)
+    unfold-⊢∷ (emptyrecⱼ ⊢A ⊢t) =
+      emptyrecⱼ (unfold-⊢ ⊢A) (unfold-⊢∷ ⊢t)
+    unfold-⊢∷ (starⱼ ⊢Γ ok) = starⱼ (unfold-⊢′ ⊢Γ) ok
+    unfold-⊢∷ (unitrecⱼ ⊢A ⊢t ⊢t′ ok) =
+      unitrecⱼ (unfold-⊢ ⊢A)
+              (unfold-⊢∷ ⊢t)
+              (unfold-⊢∷ ⊢t′)
+              ok
+    unfold-⊢∷ (Idⱼ ⊢A ⊢t₁ ⊢t₂) =
+      Idⱼ (unfold-⊢∷ ⊢A)
+          (unfold-⊢∷ ⊢t₁)
+          (unfold-⊢∷ ⊢t₂)
+    unfold-⊢∷ (rflⱼ ⊢t) = rflⱼ (unfold-⊢∷ ⊢t)
+    unfold-⊢∷ (Jⱼ ⊢t ⊢A ⊢tᵣ ⊢t′ ⊢tₚ) =
+      Jⱼ (unfold-⊢∷ ⊢t)
+        (unfold-⊢ ⊢A)
+        (unfold-⊢∷ ⊢tᵣ)
+        (unfold-⊢∷ ⊢t′)
+        (unfold-⊢∷ ⊢tₚ)
+    unfold-⊢∷ (Kⱼ ⊢A ⊢tᵣ ⊢tₚ ok) =
+      Kⱼ (unfold-⊢ ⊢A)
+        (unfold-⊢∷ ⊢tᵣ)
+        (unfold-⊢∷ ⊢tₚ)
+        ok
+    unfold-⊢∷ ([]-congⱼ ⊢A ⊢t₁ ⊢t₂ ⊢tₚ ok) =
+      []-congⱼ (unfold-⊢ ⊢A)
+              (unfold-⊢∷ ⊢t₁)
+              (unfold-⊢∷ ⊢t₂)
+              (unfold-⊢∷ ⊢tₚ) ok
+
+    -- Type equalities that hold under ∇ hold under ∇′.
+
+    unfold-⊢≡ : ∇ » Γ ⊢ A ≡ B → ∇′ » Γ ⊢ A ≡ B
+    unfold-⊢≡ (univ A≡A′) = univ (unfold-⊢≡∷ A≡A′)
+    unfold-⊢≡ (refl ⊢A) = refl (unfold-⊢ ⊢A)
+    unfold-⊢≡ (sym A≡A′) = sym (unfold-⊢≡ A≡A′)
+    unfold-⊢≡ (trans A≡A′ A′≡A″) =
+      trans (unfold-⊢≡ A≡A′) (unfold-⊢≡ A′≡A″)
+    unfold-⊢≡ (ΠΣ-cong A₁≡A₂ B₁≡B₂ ok) =
+      ΠΣ-cong (unfold-⊢≡ A₁≡A₂) (unfold-⊢≡ B₁≡B₂) ok
+    unfold-⊢≡ (Id-cong A≡A′ t₁≡t₂ u₁≡u₂) =
+      Id-cong (unfold-⊢≡ A≡A′)
+              (unfold-⊢≡∷ t₁≡t₂)
+              (unfold-⊢≡∷ u₁≡u₂)
+
+    -- Term equalities that hold under ∇ hold under ∇′.
+
+    unfold-⊢≡∷ : ∇ » Γ ⊢ t ≡ u ∷ A → ∇′ » Γ ⊢ t ≡ u ∷ A
+    unfold-⊢≡∷ (refl ⊢t) = refl (unfold-⊢∷ ⊢t)
+    unfold-⊢≡∷ (sym ⊢A t≡t′) =
+      sym (unfold-⊢ ⊢A) (unfold-⊢≡∷ t≡t′)
+    unfold-⊢≡∷ (trans t≡t′ t′≡t″) =
+      trans (unfold-⊢≡∷ t≡t′) (unfold-⊢≡∷ t′≡t″)
+    unfold-⊢≡∷ (conv t≡t′ A≡A′) =
+      conv (unfold-⊢≡∷ t≡t′) (unfold-⊢≡ A≡A′)
+    unfold-⊢≡∷ (δ-red ⊢Γ α↦t A≡A′ t≡t′) =
+      δ-red (unfold-⊢′ ⊢Γ) (unfold-↦∷∈ φ↜ α↦t) A≡A′ t≡t′
+    unfold-⊢≡∷ (ΠΣ-cong t₁≡t₂ u₁≡u₂ ok) =
+      ΠΣ-cong (unfold-⊢≡∷ t₁≡t₂) (unfold-⊢≡∷ u₁≡u₂) ok
+    unfold-⊢≡∷ (app-cong t₁≡t₂ u₁≡u₂) =
+      app-cong (unfold-⊢≡∷ t₁≡t₂) (unfold-⊢≡∷ u₁≡u₂)
+    unfold-⊢≡∷ (β-red ⊢A ⊢t ⊢x eq ok) =
+      β-red (unfold-⊢ ⊢A)
+            (unfold-⊢∷ ⊢t)
+            (unfold-⊢∷ ⊢x)
+            eq ok
+    unfold-⊢≡∷ (η-eq ⊢A ⊢t ⊢t′ t≡t′ ok) =
+      η-eq (unfold-⊢ ⊢A)
+          (unfold-⊢∷ ⊢t)
+          (unfold-⊢∷ ⊢t′)
+          (unfold-⊢≡∷ t≡t′)
+          ok
+    unfold-⊢≡∷ (fst-cong ⊢A t≡t′) =
+      fst-cong (unfold-⊢ ⊢A) (unfold-⊢≡∷ t≡t′)
+    unfold-⊢≡∷ (snd-cong ⊢A t≡t′) =
+      snd-cong (unfold-⊢ ⊢A) (unfold-⊢≡∷ t≡t′)
+    unfold-⊢≡∷ (Σ-β₁ ⊢A ⊢t ⊢t′ eq ok) =
+      Σ-β₁ (unfold-⊢ ⊢A)
+          (unfold-⊢∷ ⊢t)
+          (unfold-⊢∷ ⊢t′)
+          eq ok
+    unfold-⊢≡∷ (Σ-β₂ ⊢A ⊢t ⊢t′ eq ok) =
+      Σ-β₂ (unfold-⊢ ⊢A)
+          (unfold-⊢∷ ⊢t)
+          (unfold-⊢∷ ⊢t′)
+          eq ok
+    unfold-⊢≡∷ (Σ-η ⊢A ⊢t ⊢t′ fst≡ snd≡ ok) =
+      Σ-η (unfold-⊢ ⊢A)
+          (unfold-⊢∷ ⊢t)
+          (unfold-⊢∷ ⊢t′)
+          (unfold-⊢≡∷ fst≡)
+          (unfold-⊢≡∷ snd≡)
+          ok
+    unfold-⊢≡∷ (prod-cong ⊢A t₁≡t₂ u₁≡u₂ ok) =
+      prod-cong (unfold-⊢ ⊢A)
+                (unfold-⊢≡∷ t₁≡t₂)
+                (unfold-⊢≡∷ u₁≡u₂)
+                ok
+    unfold-⊢≡∷ (prodrec-cong A≡A′ t₁≡t₂ u₁≡u₂ ok) =
+      prodrec-cong (unfold-⊢≡ A≡A′)
+                  (unfold-⊢≡∷ t₁≡t₂)
+                  (unfold-⊢≡∷ u₁≡u₂)
+                  ok
+    unfold-⊢≡∷ (prodrec-β ⊢A ⊢t₁ ⊢t₂ ⊢tᵣ eq ok) =
+      prodrec-β (unfold-⊢ ⊢A)
+                (unfold-⊢∷ ⊢t₁)
+                (unfold-⊢∷ ⊢t₂)
+                (unfold-⊢∷ ⊢tᵣ)
+                eq ok
+    unfold-⊢≡∷ (suc-cong t≡t′) =
+      suc-cong (unfold-⊢≡∷ t≡t′)
+    unfold-⊢≡∷ (natrec-cong A≡A′ 0≡ s≡ t≡t′) =
+      natrec-cong (unfold-⊢≡ A≡A′)
+                  (unfold-⊢≡∷ 0≡)
+                  (unfold-⊢≡∷ s≡)
+                  (unfold-⊢≡∷ t≡t′)
+    unfold-⊢≡∷ (natrec-zero ⊢t₀ ⊢tₛ) =
+      natrec-zero (unfold-⊢∷ ⊢t₀) (unfold-⊢∷ ⊢tₛ)
+    unfold-⊢≡∷ (natrec-suc ⊢t₀ ⊢tₛ ⊢t) =
+      natrec-suc (unfold-⊢∷ ⊢t₀)
+                (unfold-⊢∷ ⊢tₛ)
+                (unfold-⊢∷ ⊢t)
+    unfold-⊢≡∷ (emptyrec-cong A≡A′ t≡t′) =
+      emptyrec-cong (unfold-⊢≡ A≡A′) (unfold-⊢≡∷ t≡t′)
+    unfold-⊢≡∷ (unitrec-cong A≡A′ t≡t′ r≡ ok no-η) =
+      unitrec-cong (unfold-⊢≡ A≡A′)
+                  (unfold-⊢≡∷ t≡t′)
+                  (unfold-⊢≡∷ r≡)
+                  ok no-η
+    unfold-⊢≡∷ (unitrec-β ⊢A ⊢t ok no-η) =
+      unitrec-β (unfold-⊢ ⊢A) (unfold-⊢∷ ⊢t) ok no-η
+    unfold-⊢≡∷ (unitrec-β-η ⊢A ⊢t ⊢tᵣ ok η) =
+      unitrec-β-η (unfold-⊢ ⊢A)
+                  (unfold-⊢∷ ⊢t)
+                  (unfold-⊢∷ ⊢tᵣ)
+                  ok η
+    unfold-⊢≡∷ (η-unit ⊢t ⊢t′ η) =
+      η-unit (unfold-⊢∷ ⊢t) (unfold-⊢∷ ⊢t′) η
+    unfold-⊢≡∷ (Id-cong A≡A′ t₁≡t₂ u₁≡u₂) =
+      Id-cong (unfold-⊢≡∷ A≡A′)
+              (unfold-⊢≡∷ t₁≡t₂)
+              (unfold-⊢≡∷ u₁≡u₂)
+    unfold-⊢≡∷ (J-cong A≡A′ ⊢t t≡t′ B₁≡B₂ r≡ x≡ p≡) =
+      J-cong (unfold-⊢≡ A≡A′)
+            (unfold-⊢∷ ⊢t)
+            (unfold-⊢≡∷ t≡t′)
+            (unfold-⊢≡ B₁≡B₂)
+            (unfold-⊢≡∷ r≡)
+            (unfold-⊢≡∷ x≡)
+            (unfold-⊢≡∷ p≡)
+    unfold-⊢≡∷ (K-cong A≡A′ t≡t′ B₁≡B₂ r≡ p≡ ok) =
+      K-cong (unfold-⊢≡ A≡A′)
+            (unfold-⊢≡∷ t≡t′)
+            (unfold-⊢≡ B₁≡B₂)
+            (unfold-⊢≡∷ r≡)
+            (unfold-⊢≡∷ p≡)
+            ok
+    unfold-⊢≡∷ ([]-cong-cong A≡A′ t₁≡t₂ u₁≡u₂ p≡p′ ok) =
+      []-cong-cong (unfold-⊢≡ A≡A′)
+                  (unfold-⊢≡∷ t₁≡t₂)
+                  (unfold-⊢≡∷ u₁≡u₂)
+                  (unfold-⊢≡∷ p≡p′) ok
+    unfold-⊢≡∷ (J-β ⊢t ⊢A ⊢tᵣ eq) =
+      J-β (unfold-⊢∷ ⊢t)
+          (unfold-⊢ ⊢A)
+          (unfold-⊢∷ ⊢tᵣ)
+          eq
+    unfold-⊢≡∷ (K-β ⊢A ⊢t ok) =
+      K-β (unfold-⊢ ⊢A) (unfold-⊢∷ ⊢t) ok
+    unfold-⊢≡∷ ([]-cong-β ⊢t eq ok) =
+      []-cong-β (unfold-⊢∷ ⊢t) eq ok
+    unfold-⊢≡∷ (equality-reflection ok ⊢Id ⊢t) =
+      equality-reflection ok (unfold-⊢ ⊢Id) (unfold-⊢∷ ⊢t)
+
+  opaque
+
+    -- Reductions that hold under ∇ hold under ∇′.
+
+    unfold-⇒∷ : ∇ » Γ ⊢ t ⇒ u ∷ A → ∇′ » Γ ⊢ t ⇒ u ∷ A
+    unfold-⇒∷ (conv t⇒t′ A≡A′) =
+      conv (unfold-⇒∷ t⇒t′) (unfold-⊢≡ A≡A′)
+    unfold-⇒∷ (δ-red ⊢Γ α↦t A≡A′ T≡T′) =
+      δ-red (unfold-⊢′ ⊢Γ) (unfold-↦∷∈ φ↜ α↦t) A≡A′ T≡T′
+    unfold-⇒∷ (app-subst t⇒t′ ⊢a) =
+      app-subst (unfold-⇒∷ t⇒t′) (unfold-⊢∷ ⊢a)
+    unfold-⇒∷ (β-red ⊢A ⊢t ⊢x eq ok) =
+      β-red (unfold-⊢ ⊢A)
+            (unfold-⊢∷ ⊢t)
+            (unfold-⊢∷ ⊢x)
+            eq ok
+    unfold-⇒∷ (fst-subst ⊢A t⇒t′) =
+      fst-subst (unfold-⊢ ⊢A) (unfold-⇒∷ t⇒t′)
+    unfold-⇒∷ (snd-subst ⊢A t⇒t′) =
+      snd-subst (unfold-⊢ ⊢A) (unfold-⇒∷ t⇒t′)
+    unfold-⇒∷ (Σ-β₁ ⊢A ⊢t ⊢t′ eq ok) =
+      Σ-β₁ (unfold-⊢ ⊢A)
+          (unfold-⊢∷ ⊢t)
+          (unfold-⊢∷ ⊢t′)
+          eq ok
+    unfold-⇒∷ (Σ-β₂ ⊢A ⊢t ⊢t′ eq ok) =
+      Σ-β₂ (unfold-⊢ ⊢A)
+          (unfold-⊢∷ ⊢t)
+          (unfold-⊢∷ ⊢t′)
+          eq ok
+    unfold-⇒∷ (prodrec-subst ⊢A ⊢a t⇒t′ ok) =
+      prodrec-subst (unfold-⊢ ⊢A)
+                    (unfold-⊢∷ ⊢a)
+                    (unfold-⇒∷ t⇒t′)
+                    ok
+    unfold-⇒∷ (prodrec-β ⊢A ⊢t ⊢t₂ ⊢tᵣ eq ok) =
+      prodrec-β (unfold-⊢ ⊢A)
+                (unfold-⊢∷ ⊢t)
+                (unfold-⊢∷ ⊢t₂)
+                (unfold-⊢∷ ⊢tᵣ)
+                eq ok
+    unfold-⇒∷ (natrec-subst ⊢t₀ ⊢tₛ t⇒t′) =
+      natrec-subst (unfold-⊢∷ ⊢t₀)
+                  (unfold-⊢∷ ⊢tₛ)
+                  (unfold-⇒∷ t⇒t′)
+    unfold-⇒∷ (natrec-zero ⊢t₀ ⊢tₛ) =
+      natrec-zero (unfold-⊢∷ ⊢t₀) (unfold-⊢∷ ⊢tₛ)
+    unfold-⇒∷ (natrec-suc ⊢t₀ ⊢tₛ ⊢t) =
+      natrec-suc (unfold-⊢∷ ⊢t₀)
+                (unfold-⊢∷ ⊢tₛ)
+                (unfold-⊢∷ ⊢t)
+    unfold-⇒∷ (emptyrec-subst ⊢A t⇒t′) =
+      emptyrec-subst (unfold-⊢ ⊢A) (unfold-⇒∷ t⇒t′)
+    unfold-⇒∷ (unitrec-subst ⊢A ⊢a t⇒t′ ok no-η) =
+      unitrec-subst (unfold-⊢ ⊢A)
+                    (unfold-⊢∷ ⊢a)
+                    (unfold-⇒∷ t⇒t′)
+                    ok no-η
+    unfold-⇒∷ (unitrec-β ⊢A ⊢t ok no-η) =
+      unitrec-β (unfold-⊢ ⊢A) (unfold-⊢∷ ⊢t) ok no-η
+    unfold-⇒∷ (unitrec-β-η ⊢A ⊢t ⊢tᵣ ok η) =
+      unitrec-β-η (unfold-⊢ ⊢A)
+                  (unfold-⊢∷ ⊢t)
+                  (unfold-⊢∷ ⊢tᵣ)
+                  ok η
+    unfold-⇒∷ (J-subst ⊢t ⊢A ⊢r ⊢p w⇒w′) =
+      J-subst (unfold-⊢∷ ⊢t)
+              (unfold-⊢ ⊢A)
+              (unfold-⊢∷ ⊢r)
+              (unfold-⊢∷ ⊢p)
+              (unfold-⇒∷ w⇒w′)
+    unfold-⇒∷ (K-subst ⊢A ⊢r t⇒t′ ok) =
+      K-subst (unfold-⊢ ⊢A)
+              (unfold-⊢∷ ⊢r)
+              (unfold-⇒∷ t⇒t′)
+              ok
+    unfold-⇒∷ ([]-cong-subst ⊢A ⊢a ⊢a′ t⇒t′ ok) =
+      []-cong-subst (unfold-⊢ ⊢A)
+                    (unfold-⊢∷ ⊢a)
+                    (unfold-⊢∷ ⊢a′)
+                    (unfold-⇒∷ t⇒t′)
+                    ok
+    unfold-⇒∷ (J-β ⊢t ⊢t′ t≡t′ ⊢A A≡ ⊢tᵣ) =
+      J-β (unfold-⊢∷ ⊢t)
+          (unfold-⊢∷ ⊢t′)
+          (unfold-⊢≡∷ t≡t′)
+          (unfold-⊢ ⊢A)
+          (unfold-⊢≡ A≡)
+          (unfold-⊢∷ ⊢tᵣ)
+    unfold-⇒∷ (K-β ⊢A ⊢t ok) =
+      K-β (unfold-⊢ ⊢A) (unfold-⊢∷ ⊢t) ok
+    unfold-⇒∷ ([]-cong-β ⊢A ⊢t ⊢t′ t≡t′ ok) =
+      []-cong-β (unfold-⊢ ⊢A)
+                (unfold-⊢∷ ⊢t)
+                (unfold-⊢∷ ⊢t′)
+                (unfold-⊢≡∷ t≡t′)
+                ok
+
+  opaque
+
+    -- Reductions that hold under ∇ hold under ∇′.
+
+    unfold-⇒ : ∇ » Γ ⊢ A ⇒ B → ∇′ » Γ ⊢ A ⇒ B
+    unfold-⇒ (univ A⇒B) = univ (unfold-⇒∷ A⇒B)
+
+  opaque
+
+    -- Reductions that hold under ∇ hold under ∇′.
+
+    unfold-⇒* : ∇ » Γ ⊢ A ⇒* B → ∇′ » Γ ⊢ A ⇒* B
+    unfold-⇒* (id ⊢A)      = id (unfold-⊢ ⊢A)
+    unfold-⇒* (A⇒X ⇨ X⇒*B) = unfold-⇒ A⇒X ⇨ unfold-⇒* X⇒*B
+
+  opaque
+
+    -- Reductions that hold under ∇ hold under ∇′.
+
+    unfold-⇒*∷ : ∇ » Γ ⊢ t ⇒* u ∷ A → ∇′ » Γ ⊢ t ⇒* u ∷ A
+    unfold-⇒*∷ (id ⊢t)      = id (unfold-⊢∷ ⊢t)
+    unfold-⇒*∷ (t⇒x ⇨ x⇒*u) = unfold-⇒∷ t⇒x ⇨ unfold-⇒*∷ x⇒*u
+
 module Explicit (mode-eq : unfolding-mode PE.≡ explicit) where
 
   private opaque
@@ -171,348 +531,22 @@ module Transitive (mode-eq : unfolding-mode PE.≡ transitive) where
         unjoin-»↜ (PE.subst (_» _ ↜ _) (PE.sym (a1[23] _ _ _)) φ′φ↜) φ↜ ¹ᵗ
       unjoin′ {φ′ = φ′ ¹} {φ = φ ¹} (φ′φ↜ ¹ᵗ) (φ↜ ¹ᵗ) = unjoin′ φ′φ↜ φ↜ ¹ᵗ
 
-  opaque mutual
+  -- If ∇′ is a transparentisation of the well-formed definition
+  -- context ∇, then ∇′ is well-formed.
 
-    unfold-» : φ » ∇′ ↜ ∇ → » ∇ → » ∇′
-    unfold-» ε       ε                         = ε
-    unfold-» (φ↜ ⁰)  ∙ᵒ⟨ ok , φ′↜ ⟩[ ⊢t ∷ ⊢A ] =
-      let _ , φ″↜ = total-»↜ _ _
-      in  ∙ᵒ⟨ ok , φ″↜ ⟩[ unfold-⊢∷ (unjoin-»↜ (join-»↜ φ↜ φ″↜) φ′↜) ⊢t
-                        ∷ unfold-⊢ φ↜ ⊢A
-                        ]
-    unfold-» (φ↜ ¹ᵒ) ∙ᵒ⟨ ok , φ′↜ ⟩[ ⊢t ∷ ⊢A ] = ∙ᵗ[ unfold-⊢∷ (unjoin-»↜ φ↜ φ′↜) ⊢t ]
-    unfold-» (φ↜ ⁰)              ∙ᵗ[ ⊢t      ] = ∙ᵗ[ unfold-⊢∷ φ↜ ⊢t ]
-    unfold-» (φ↜ ¹ᵗ)             ∙ᵗ[ ⊢t      ] = ∙ᵗ[ unfold-⊢∷ φ↜ ⊢t ]
+  unfold-» : φ » ∇′ ↜ ∇ → » ∇ → » ∇′
 
-    unfold-⊢′ : φ » ∇′ ↜ ∇ → ∇ »⊢ Γ → ∇′ »⊢ Γ
-    unfold-⊢′ φ↜ (ε »∇) = ε (unfold-» φ↜ »∇)
-    unfold-⊢′ φ↜ (∙ ⊢A) = ∙ unfold-⊢ φ↜ ⊢A
+  -- Other preservation lemmas related to transparentisation.
 
-    unfold-⊢ : φ » ∇′ ↜ ∇ → ∇ » Γ ⊢ A → ∇′ » Γ ⊢ A
-    unfold-⊢ φ↜ (Uⱼ ⊢Γ) = Uⱼ (unfold-⊢′ φ↜ ⊢Γ)
-    unfold-⊢ φ↜ (ℕⱼ ⊢Γ) = ℕⱼ (unfold-⊢′ φ↜ ⊢Γ)
-    unfold-⊢ φ↜ (Emptyⱼ ⊢Γ) = Emptyⱼ (unfold-⊢′ φ↜ ⊢Γ)
-    unfold-⊢ φ↜ (Unitⱼ ⊢Γ ok) = Unitⱼ (unfold-⊢′ φ↜ ⊢Γ) ok
-    unfold-⊢ φ↜ (ΠΣⱼ ⊢A ok) = ΠΣⱼ (unfold-⊢ φ↜ ⊢A) ok
-    unfold-⊢ φ↜ (Idⱼ ⊢A ⊢t ⊢u) =
-      Idⱼ (unfold-⊢ φ↜ ⊢A) (unfold-⊢∷ φ↜ ⊢t) (unfold-⊢∷ φ↜ ⊢u)
-    unfold-⊢ φ↜ (univ ⊢A) = univ (unfold-⊢∷ φ↜ ⊢A)
+  module _ (φ» : φ » ∇′ ↜ ∇) where
+    open Unconditional φ» (unfold-» φ») public
 
-    unfold-⊢∷ : φ » ∇′ ↜ ∇ → ∇ » Γ ⊢ t ∷ A → ∇′ » Γ ⊢ t ∷ A
-    unfold-⊢∷ φ↜ (Uⱼ ⊢Γ) = Uⱼ (unfold-⊢′ φ↜ ⊢Γ)
-    unfold-⊢∷ φ↜ (ΠΣⱼ ⊢t₁ ⊢t₂ ok) =
-      ΠΣⱼ (unfold-⊢∷ φ↜ ⊢t₁) (unfold-⊢∷ φ↜ ⊢t₂) ok
-    unfold-⊢∷ φ↜ (ℕⱼ ⊢Γ) = ℕⱼ (unfold-⊢′ φ↜ ⊢Γ)
-    unfold-⊢∷ φ↜ (Emptyⱼ ⊢Γ) = Emptyⱼ (unfold-⊢′ φ↜ ⊢Γ)
-    unfold-⊢∷ φ↜ (Unitⱼ ⊢Γ ok) = Unitⱼ (unfold-⊢′ φ↜ ⊢Γ) ok
-    unfold-⊢∷ φ↜ (conv ⊢t A≡A′) =
-      conv (unfold-⊢∷ φ↜ ⊢t) (unfold-⊢≡ φ↜ A≡A′)
-    unfold-⊢∷ φ↜ (var ⊢Γ x∈) = var (unfold-⊢′ φ↜ ⊢Γ) x∈
-    unfold-⊢∷ φ↜ (defn ⊢Γ α↦t A≡A′) =
-      defn (unfold-⊢′ φ↜ ⊢Γ) (unfold-↦∈ φ↜ α↦t) A≡A′
-    unfold-⊢∷ φ↜ (lamⱼ ⊢A ⊢t ok) =
-      lamⱼ (unfold-⊢ φ↜ ⊢A) (unfold-⊢∷ φ↜ ⊢t) ok
-    unfold-⊢∷ φ↜ (⊢t₁ ∘ⱼ ⊢t₂) =
-      unfold-⊢∷ φ↜ ⊢t₁ ∘ⱼ unfold-⊢∷ φ↜ ⊢t₂
-    unfold-⊢∷ φ↜ (prodⱼ ⊢A ⊢t₁ ⊢t₂ ok) =
-      prodⱼ (unfold-⊢ φ↜ ⊢A)
-            (unfold-⊢∷ φ↜ ⊢t₁)
-            (unfold-⊢∷ φ↜ ⊢t₂)
-            ok
-    unfold-⊢∷ φ↜ (fstⱼ ⊢A ⊢t) =
-      fstⱼ (unfold-⊢ φ↜ ⊢A) (unfold-⊢∷ φ↜ ⊢t)
-    unfold-⊢∷ φ↜ (sndⱼ ⊢A ⊢t) =
-      sndⱼ (unfold-⊢ φ↜ ⊢A) (unfold-⊢∷ φ↜ ⊢t)
-    unfold-⊢∷ φ↜ (prodrecⱼ ⊢A ⊢t ⊢t′ ok) =
-      prodrecⱼ (unfold-⊢ φ↜ ⊢A)
-              (unfold-⊢∷ φ↜ ⊢t)
-              (unfold-⊢∷ φ↜ ⊢t′)
-              ok
-    unfold-⊢∷ φ↜ (zeroⱼ ⊢Γ) = zeroⱼ (unfold-⊢′ φ↜ ⊢Γ)
-    unfold-⊢∷ φ↜ (sucⱼ ⊢t) = sucⱼ (unfold-⊢∷ φ↜ ⊢t)
-    unfold-⊢∷ φ↜ (natrecⱼ ⊢t₀ ⊢tₛ ⊢t) =
-      natrecⱼ (unfold-⊢∷ φ↜ ⊢t₀)
-              (unfold-⊢∷ φ↜ ⊢tₛ)
-              (unfold-⊢∷ φ↜ ⊢t)
-    unfold-⊢∷ φ↜ (emptyrecⱼ ⊢A ⊢t) =
-      emptyrecⱼ (unfold-⊢ φ↜ ⊢A) (unfold-⊢∷ φ↜ ⊢t)
-    unfold-⊢∷ φ↜ (starⱼ ⊢Γ ok) = starⱼ (unfold-⊢′ φ↜ ⊢Γ) ok
-    unfold-⊢∷ φ↜ (unitrecⱼ ⊢A ⊢t ⊢t′ ok) =
-      unitrecⱼ (unfold-⊢ φ↜ ⊢A)
-              (unfold-⊢∷ φ↜ ⊢t)
-              (unfold-⊢∷ φ↜ ⊢t′)
-              ok
-    unfold-⊢∷ φ↜ (Idⱼ ⊢A ⊢t₁ ⊢t₂) =
-      Idⱼ (unfold-⊢∷ φ↜ ⊢A)
-          (unfold-⊢∷ φ↜ ⊢t₁)
-          (unfold-⊢∷ φ↜ ⊢t₂)
-    unfold-⊢∷ φ↜ (rflⱼ ⊢t) = rflⱼ (unfold-⊢∷ φ↜ ⊢t)
-    unfold-⊢∷ φ↜ (Jⱼ ⊢t ⊢A ⊢tᵣ ⊢t′ ⊢tₚ) =
-      Jⱼ (unfold-⊢∷ φ↜ ⊢t)
-        (unfold-⊢ φ↜ ⊢A)
-        (unfold-⊢∷ φ↜ ⊢tᵣ)
-        (unfold-⊢∷ φ↜ ⊢t′)
-        (unfold-⊢∷ φ↜ ⊢tₚ)
-    unfold-⊢∷ φ↜ (Kⱼ ⊢A ⊢tᵣ ⊢tₚ ok) =
-      Kⱼ (unfold-⊢ φ↜ ⊢A)
-        (unfold-⊢∷ φ↜ ⊢tᵣ)
-        (unfold-⊢∷ φ↜ ⊢tₚ)
-        ok
-    unfold-⊢∷ φ↜ ([]-congⱼ ⊢A ⊢t₁ ⊢t₂ ⊢tₚ ok) =
-      []-congⱼ (unfold-⊢ φ↜ ⊢A)
-              (unfold-⊢∷ φ↜ ⊢t₁)
-              (unfold-⊢∷ φ↜ ⊢t₂)
-              (unfold-⊢∷ φ↜ ⊢tₚ) ok
-
-    unfold-⊢≡ : φ » ∇′ ↜ ∇ → ∇ » Γ ⊢ A ≡ B → ∇′ » Γ ⊢ A ≡ B
-    unfold-⊢≡ φ↜ (univ A≡A′) = univ (unfold-⊢≡∷ φ↜ A≡A′)
-    unfold-⊢≡ φ↜ (refl ⊢A) = refl (unfold-⊢ φ↜ ⊢A)
-    unfold-⊢≡ φ↜ (sym A≡A′) = sym (unfold-⊢≡ φ↜ A≡A′)
-    unfold-⊢≡ φ↜ (trans A≡A′ A′≡A″) =
-      trans (unfold-⊢≡ φ↜ A≡A′) (unfold-⊢≡ φ↜ A′≡A″)
-    unfold-⊢≡ φ↜ (ΠΣ-cong A₁≡A₂ B₁≡B₂ ok) =
-      ΠΣ-cong (unfold-⊢≡ φ↜ A₁≡A₂) (unfold-⊢≡ φ↜ B₁≡B₂) ok
-    unfold-⊢≡ φ↜ (Id-cong A≡A′ t₁≡t₂ u₁≡u₂) =
-      Id-cong (unfold-⊢≡ φ↜ A≡A′)
-              (unfold-⊢≡∷ φ↜ t₁≡t₂)
-              (unfold-⊢≡∷ φ↜ u₁≡u₂)
-
-    unfold-⊢≡∷ : φ » ∇′ ↜ ∇ → ∇ » Γ ⊢ t ≡ u ∷ A → ∇′ » Γ ⊢ t ≡ u ∷ A
-    unfold-⊢≡∷ φ↜ (refl ⊢t) = refl (unfold-⊢∷ φ↜ ⊢t)
-    unfold-⊢≡∷ φ↜ (sym ⊢A t≡t′) =
-      sym (unfold-⊢ φ↜ ⊢A) (unfold-⊢≡∷ φ↜ t≡t′)
-    unfold-⊢≡∷ φ↜ (trans t≡t′ t′≡t″) =
-      trans (unfold-⊢≡∷ φ↜ t≡t′) (unfold-⊢≡∷ φ↜ t′≡t″)
-    unfold-⊢≡∷ φ↜ (conv t≡t′ A≡A′) =
-      conv (unfold-⊢≡∷ φ↜ t≡t′) (unfold-⊢≡ φ↜ A≡A′)
-    unfold-⊢≡∷ φ↜ (δ-red ⊢Γ α↦t A≡A′ t≡t′) =
-      δ-red (unfold-⊢′ φ↜ ⊢Γ) (unfold-↦∷∈ φ↜ α↦t) A≡A′ t≡t′
-    unfold-⊢≡∷ φ↜ (ΠΣ-cong t₁≡t₂ u₁≡u₂ ok) =
-      ΠΣ-cong (unfold-⊢≡∷ φ↜ t₁≡t₂) (unfold-⊢≡∷ φ↜ u₁≡u₂) ok
-    unfold-⊢≡∷ φ↜ (app-cong t₁≡t₂ u₁≡u₂) =
-      app-cong (unfold-⊢≡∷ φ↜ t₁≡t₂) (unfold-⊢≡∷ φ↜ u₁≡u₂)
-    unfold-⊢≡∷ φ↜ (β-red ⊢A ⊢t ⊢x eq ok) =
-      β-red (unfold-⊢ φ↜ ⊢A)
-            (unfold-⊢∷ φ↜ ⊢t)
-            (unfold-⊢∷ φ↜ ⊢x)
-            eq ok
-    unfold-⊢≡∷ φ↜ (η-eq ⊢A ⊢t ⊢t′ t≡t′ ok) =
-      η-eq (unfold-⊢ φ↜ ⊢A)
-          (unfold-⊢∷ φ↜ ⊢t)
-          (unfold-⊢∷ φ↜ ⊢t′)
-          (unfold-⊢≡∷ φ↜ t≡t′)
-          ok
-    unfold-⊢≡∷ φ↜ (fst-cong ⊢A t≡t′) =
-      fst-cong (unfold-⊢ φ↜ ⊢A) (unfold-⊢≡∷ φ↜ t≡t′)
-    unfold-⊢≡∷ φ↜ (snd-cong ⊢A t≡t′) =
-      snd-cong (unfold-⊢ φ↜ ⊢A) (unfold-⊢≡∷ φ↜ t≡t′)
-    unfold-⊢≡∷ φ↜ (Σ-β₁ ⊢A ⊢t ⊢t′ eq ok) =
-      Σ-β₁ (unfold-⊢ φ↜ ⊢A)
-          (unfold-⊢∷ φ↜ ⊢t)
-          (unfold-⊢∷ φ↜ ⊢t′)
-          eq ok
-    unfold-⊢≡∷ φ↜ (Σ-β₂ ⊢A ⊢t ⊢t′ eq ok) =
-      Σ-β₂ (unfold-⊢ φ↜ ⊢A)
-          (unfold-⊢∷ φ↜ ⊢t)
-          (unfold-⊢∷ φ↜ ⊢t′)
-          eq ok
-    unfold-⊢≡∷ φ↜ (Σ-η ⊢A ⊢t ⊢t′ fst≡ snd≡ ok) =
-      Σ-η (unfold-⊢ φ↜ ⊢A)
-          (unfold-⊢∷ φ↜ ⊢t)
-          (unfold-⊢∷ φ↜ ⊢t′)
-          (unfold-⊢≡∷ φ↜ fst≡)
-          (unfold-⊢≡∷ φ↜ snd≡)
-          ok
-    unfold-⊢≡∷ φ↜ (prod-cong ⊢A t₁≡t₂ u₁≡u₂ ok) =
-      prod-cong (unfold-⊢ φ↜ ⊢A)
-                (unfold-⊢≡∷ φ↜ t₁≡t₂)
-                (unfold-⊢≡∷ φ↜ u₁≡u₂)
-                ok
-    unfold-⊢≡∷ φ↜ (prodrec-cong A≡A′ t₁≡t₂ u₁≡u₂ ok) =
-      prodrec-cong (unfold-⊢≡ φ↜ A≡A′)
-                  (unfold-⊢≡∷ φ↜ t₁≡t₂)
-                  (unfold-⊢≡∷ φ↜ u₁≡u₂)
-                  ok
-    unfold-⊢≡∷ φ↜ (prodrec-β ⊢A ⊢t₁ ⊢t₂ ⊢tᵣ eq ok) =
-      prodrec-β (unfold-⊢ φ↜ ⊢A)
-                (unfold-⊢∷ φ↜ ⊢t₁)
-                (unfold-⊢∷ φ↜ ⊢t₂)
-                (unfold-⊢∷ φ↜ ⊢tᵣ)
-                eq ok
-    unfold-⊢≡∷ φ↜ (suc-cong t≡t′) =
-      suc-cong (unfold-⊢≡∷ φ↜ t≡t′)
-    unfold-⊢≡∷ φ↜ (natrec-cong A≡A′ 0≡ s≡ t≡t′) =
-      natrec-cong (unfold-⊢≡ φ↜ A≡A′)
-                  (unfold-⊢≡∷ φ↜ 0≡)
-                  (unfold-⊢≡∷ φ↜ s≡)
-                  (unfold-⊢≡∷ φ↜ t≡t′)
-    unfold-⊢≡∷ φ↜ (natrec-zero ⊢t₀ ⊢tₛ) =
-      natrec-zero (unfold-⊢∷ φ↜ ⊢t₀) (unfold-⊢∷ φ↜ ⊢tₛ)
-    unfold-⊢≡∷ φ↜ (natrec-suc ⊢t₀ ⊢tₛ ⊢t) =
-      natrec-suc (unfold-⊢∷ φ↜ ⊢t₀)
-                (unfold-⊢∷ φ↜ ⊢tₛ)
-                (unfold-⊢∷ φ↜ ⊢t)
-    unfold-⊢≡∷ φ↜ (emptyrec-cong A≡A′ t≡t′) =
-      emptyrec-cong (unfold-⊢≡ φ↜ A≡A′) (unfold-⊢≡∷ φ↜ t≡t′)
-    unfold-⊢≡∷ φ↜ (unitrec-cong A≡A′ t≡t′ r≡ ok no-η) =
-      unitrec-cong (unfold-⊢≡ φ↜ A≡A′)
-                  (unfold-⊢≡∷ φ↜ t≡t′)
-                  (unfold-⊢≡∷ φ↜ r≡)
-                  ok no-η
-    unfold-⊢≡∷ φ↜ (unitrec-β ⊢A ⊢t ok no-η) =
-      unitrec-β (unfold-⊢ φ↜ ⊢A) (unfold-⊢∷ φ↜ ⊢t) ok no-η
-    unfold-⊢≡∷ φ↜ (unitrec-β-η ⊢A ⊢t ⊢tᵣ ok η) =
-      unitrec-β-η (unfold-⊢ φ↜ ⊢A)
-                  (unfold-⊢∷ φ↜ ⊢t)
-                  (unfold-⊢∷ φ↜ ⊢tᵣ)
-                  ok η
-    unfold-⊢≡∷ φ↜ (η-unit ⊢t ⊢t′ η) =
-      η-unit (unfold-⊢∷ φ↜ ⊢t) (unfold-⊢∷ φ↜ ⊢t′) η
-    unfold-⊢≡∷ φ↜ (Id-cong A≡A′ t₁≡t₂ u₁≡u₂) =
-      Id-cong (unfold-⊢≡∷ φ↜ A≡A′)
-              (unfold-⊢≡∷ φ↜ t₁≡t₂)
-              (unfold-⊢≡∷ φ↜ u₁≡u₂)
-    unfold-⊢≡∷ φ↜ (J-cong A≡A′ ⊢t t≡t′ B₁≡B₂ r≡ x≡ p≡) =
-      J-cong (unfold-⊢≡ φ↜ A≡A′)
-            (unfold-⊢∷ φ↜ ⊢t)
-            (unfold-⊢≡∷ φ↜ t≡t′)
-            (unfold-⊢≡ φ↜ B₁≡B₂)
-            (unfold-⊢≡∷ φ↜ r≡)
-            (unfold-⊢≡∷ φ↜ x≡)
-            (unfold-⊢≡∷ φ↜ p≡)
-    unfold-⊢≡∷ φ↜ (K-cong A≡A′ t≡t′ B₁≡B₂ r≡ p≡ ok) =
-      K-cong (unfold-⊢≡ φ↜ A≡A′)
-            (unfold-⊢≡∷ φ↜ t≡t′)
-            (unfold-⊢≡ φ↜ B₁≡B₂)
-            (unfold-⊢≡∷ φ↜ r≡)
-            (unfold-⊢≡∷ φ↜ p≡)
-            ok
-    unfold-⊢≡∷ φ↜ ([]-cong-cong A≡A′ t₁≡t₂ u₁≡u₂ p≡p′ ok) =
-      []-cong-cong (unfold-⊢≡ φ↜ A≡A′)
-                  (unfold-⊢≡∷ φ↜ t₁≡t₂)
-                  (unfold-⊢≡∷ φ↜ u₁≡u₂)
-                  (unfold-⊢≡∷ φ↜ p≡p′) ok
-    unfold-⊢≡∷ φ↜ (J-β ⊢t ⊢A ⊢tᵣ eq) =
-      J-β (unfold-⊢∷ φ↜ ⊢t)
-          (unfold-⊢ φ↜ ⊢A)
-          (unfold-⊢∷ φ↜ ⊢tᵣ)
-          eq
-    unfold-⊢≡∷ φ↜ (K-β ⊢A ⊢t ok) =
-      K-β (unfold-⊢ φ↜ ⊢A) (unfold-⊢∷ φ↜ ⊢t) ok
-    unfold-⊢≡∷ φ↜ ([]-cong-β ⊢t eq ok) =
-      []-cong-β (unfold-⊢∷ φ↜ ⊢t) eq ok
-    unfold-⊢≡∷ φ↜ (equality-reflection ok ⊢Id ⊢t) =
-      equality-reflection ok (unfold-⊢ φ↜ ⊢Id) (unfold-⊢∷ φ↜ ⊢t)
-
-  opaque
-
-    unfold-⇒∷ : φ » ∇′ ↜ ∇ → ∇ » Γ ⊢ t ⇒ u ∷ A → ∇′ » Γ ⊢ t ⇒ u ∷ A
-    unfold-⇒∷ φ↜ (conv t⇒t′ A≡A′) =
-      conv (unfold-⇒∷ φ↜ t⇒t′) (unfold-⊢≡ φ↜ A≡A′)
-    unfold-⇒∷ φ↜ (δ-red ⊢Γ α↦t A≡A′ T≡T′) =
-      δ-red (unfold-⊢′ φ↜ ⊢Γ) (unfold-↦∷∈ φ↜ α↦t) A≡A′ T≡T′
-    unfold-⇒∷ φ↜ (app-subst t⇒t′ ⊢a) =
-      app-subst (unfold-⇒∷ φ↜ t⇒t′) (unfold-⊢∷ φ↜ ⊢a)
-    unfold-⇒∷ φ↜ (β-red ⊢A ⊢t ⊢x eq ok) =
-      β-red (unfold-⊢ φ↜ ⊢A)
-            (unfold-⊢∷ φ↜ ⊢t)
-            (unfold-⊢∷ φ↜ ⊢x)
-            eq ok
-    unfold-⇒∷ φ↜ (fst-subst ⊢A t⇒t′) =
-      fst-subst (unfold-⊢ φ↜ ⊢A) (unfold-⇒∷ φ↜ t⇒t′)
-    unfold-⇒∷ φ↜ (snd-subst ⊢A t⇒t′) =
-      snd-subst (unfold-⊢ φ↜ ⊢A) (unfold-⇒∷ φ↜ t⇒t′)
-    unfold-⇒∷ φ↜ (Σ-β₁ ⊢A ⊢t ⊢t′ eq ok) =
-      Σ-β₁ (unfold-⊢ φ↜ ⊢A)
-          (unfold-⊢∷ φ↜ ⊢t)
-          (unfold-⊢∷ φ↜ ⊢t′)
-          eq ok
-    unfold-⇒∷ φ↜ (Σ-β₂ ⊢A ⊢t ⊢t′ eq ok) =
-      Σ-β₂ (unfold-⊢ φ↜ ⊢A)
-          (unfold-⊢∷ φ↜ ⊢t)
-          (unfold-⊢∷ φ↜ ⊢t′)
-          eq ok
-    unfold-⇒∷ φ↜ (prodrec-subst ⊢A ⊢a t⇒t′ ok) =
-      prodrec-subst (unfold-⊢ φ↜ ⊢A)
-                    (unfold-⊢∷ φ↜ ⊢a)
-                    (unfold-⇒∷ φ↜ t⇒t′)
-                    ok
-    unfold-⇒∷ φ↜ (prodrec-β ⊢A ⊢t ⊢t₂ ⊢tᵣ eq ok) =
-      prodrec-β (unfold-⊢ φ↜ ⊢A)
-                (unfold-⊢∷ φ↜ ⊢t)
-                (unfold-⊢∷ φ↜ ⊢t₂)
-                (unfold-⊢∷ φ↜ ⊢tᵣ)
-                eq ok
-    unfold-⇒∷ φ↜ (natrec-subst ⊢t₀ ⊢tₛ t⇒t′) =
-      natrec-subst (unfold-⊢∷ φ↜ ⊢t₀)
-                  (unfold-⊢∷ φ↜ ⊢tₛ)
-                  (unfold-⇒∷ φ↜ t⇒t′)
-    unfold-⇒∷ φ↜ (natrec-zero ⊢t₀ ⊢tₛ) =
-      natrec-zero (unfold-⊢∷ φ↜ ⊢t₀) (unfold-⊢∷ φ↜ ⊢tₛ)
-    unfold-⇒∷ φ↜ (natrec-suc ⊢t₀ ⊢tₛ ⊢t) =
-      natrec-suc (unfold-⊢∷ φ↜ ⊢t₀)
-                (unfold-⊢∷ φ↜ ⊢tₛ)
-                (unfold-⊢∷ φ↜ ⊢t)
-    unfold-⇒∷ φ↜ (emptyrec-subst ⊢A t⇒t′) =
-      emptyrec-subst (unfold-⊢ φ↜ ⊢A) (unfold-⇒∷ φ↜ t⇒t′)
-    unfold-⇒∷ φ↜ (unitrec-subst ⊢A ⊢a t⇒t′ ok no-η) =
-      unitrec-subst (unfold-⊢ φ↜ ⊢A)
-                    (unfold-⊢∷ φ↜ ⊢a)
-                    (unfold-⇒∷ φ↜ t⇒t′)
-                    ok no-η
-    unfold-⇒∷ φ↜ (unitrec-β ⊢A ⊢t ok no-η) =
-      unitrec-β (unfold-⊢ φ↜ ⊢A) (unfold-⊢∷ φ↜ ⊢t) ok no-η
-    unfold-⇒∷ φ↜ (unitrec-β-η ⊢A ⊢t ⊢tᵣ ok η) =
-      unitrec-β-η (unfold-⊢ φ↜ ⊢A)
-                  (unfold-⊢∷ φ↜ ⊢t)
-                  (unfold-⊢∷ φ↜ ⊢tᵣ)
-                  ok η
-    unfold-⇒∷ φ↜ (J-subst ⊢t ⊢A ⊢r ⊢p w⇒w′) =
-      J-subst (unfold-⊢∷ φ↜ ⊢t)
-              (unfold-⊢ φ↜ ⊢A)
-              (unfold-⊢∷ φ↜ ⊢r)
-              (unfold-⊢∷ φ↜ ⊢p)
-              (unfold-⇒∷ φ↜ w⇒w′)
-    unfold-⇒∷ φ↜ (K-subst ⊢A ⊢r t⇒t′ ok) =
-      K-subst (unfold-⊢ φ↜ ⊢A)
-              (unfold-⊢∷ φ↜ ⊢r)
-              (unfold-⇒∷ φ↜ t⇒t′)
-              ok
-    unfold-⇒∷ φ↜ ([]-cong-subst ⊢A ⊢a ⊢a′ t⇒t′ ok) =
-      []-cong-subst (unfold-⊢ φ↜ ⊢A)
-                    (unfold-⊢∷ φ↜ ⊢a)
-                    (unfold-⊢∷ φ↜ ⊢a′)
-                    (unfold-⇒∷ φ↜ t⇒t′)
-                    ok
-    unfold-⇒∷ φ↜ (J-β ⊢t ⊢t′ t≡t′ ⊢A A≡ ⊢tᵣ) =
-      J-β (unfold-⊢∷ φ↜ ⊢t)
-          (unfold-⊢∷ φ↜ ⊢t′)
-          (unfold-⊢≡∷ φ↜ t≡t′)
-          (unfold-⊢ φ↜ ⊢A)
-          (unfold-⊢≡ φ↜ A≡)
-          (unfold-⊢∷ φ↜ ⊢tᵣ)
-    unfold-⇒∷ φ↜ (K-β ⊢A ⊢t ok) =
-      K-β (unfold-⊢ φ↜ ⊢A) (unfold-⊢∷ φ↜ ⊢t) ok
-    unfold-⇒∷ φ↜ ([]-cong-β ⊢A ⊢t ⊢t′ t≡t′ ok) =
-      []-cong-β (unfold-⊢ φ↜ ⊢A)
-                (unfold-⊢∷ φ↜ ⊢t)
-                (unfold-⊢∷ φ↜ ⊢t′)
-                (unfold-⊢≡∷ φ↜ t≡t′)
-                ok
-
-  opaque
-
-    unfold-⇒ : φ » ∇′ ↜ ∇ → ∇ » Γ ⊢ A ⇒ B → ∇′ » Γ ⊢ A ⇒ B
-    unfold-⇒ φ↜ (univ A⇒B) = univ (unfold-⇒∷ φ↜ A⇒B)
-
-  opaque
-
-    unfold-⇒* : φ » ∇′ ↜ ∇ → ∇ » Γ ⊢ A ⇒* B → ∇′ » Γ ⊢ A ⇒* B
-    unfold-⇒* φ↜ (id ⊢A)      = id (unfold-⊢ φ↜ ⊢A)
-    unfold-⇒* φ↜ (A⇒X ⇨ X⇒*B) = unfold-⇒ φ↜ A⇒X ⇨ unfold-⇒* φ↜ X⇒*B
-
-  opaque
-
-    unfold-⇒*∷ : φ » ∇′ ↜ ∇ → ∇ » Γ ⊢ t ⇒* u ∷ A → ∇′ » Γ ⊢ t ⇒* u ∷ A
-    unfold-⇒*∷ φ↜ (id ⊢t)      = id (unfold-⊢∷ φ↜ ⊢t)
-    unfold-⇒*∷ φ↜ (t⇒x ⇨ x⇒*u) = unfold-⇒∷ φ↜ t⇒x ⇨ unfold-⇒*∷ φ↜ x⇒*u
+  unfold-» ε       ε                         = ε
+  unfold-» (φ↜ ⁰)  ∙ᵒ⟨ ok , φ′↜ ⟩[ ⊢t ∷ ⊢A ] =
+    let _ , φ″↜ = total-»↜ _ _
+    in  ∙ᵒ⟨ ok , φ″↜ ⟩[ unfold-⊢∷ (unjoin-»↜ (join-»↜ φ↜ φ″↜) φ′↜) ⊢t
+                      ∷ unfold-⊢ φ↜ ⊢A
+                      ]
+  unfold-» (φ↜ ¹ᵒ) ∙ᵒ⟨ ok , φ′↜ ⟩[ ⊢t ∷ ⊢A ] = ∙ᵗ[ unfold-⊢∷ (unjoin-»↜ φ↜ φ′↜) ⊢t ]
+  unfold-» (φ↜ ⁰)              ∙ᵗ[ ⊢t      ] = ∙ᵗ[ unfold-⊢∷ φ↜ ⊢t ]
+  unfold-» (φ↜ ¹ᵗ)             ∙ᵗ[ ⊢t      ] = ∙ᵗ[ unfold-⊢∷ φ↜ ⊢t ]
