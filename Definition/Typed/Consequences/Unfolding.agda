@@ -44,7 +44,7 @@ private
     φ φ′ : Unfolding _
 
 module Explicit (mode-eq : unfolding-mode PE.≡ explicit) where
-  
+
   private opaque
 
     _! : φ » ∇′ ↜ ∇ → {φ′ : Unfolding n} → φ ⊔ᵒᵗ φ′ » ∇′ ↜ ∇
@@ -73,7 +73,7 @@ module Explicit (mode-eq : unfolding-mode PE.≡ explicit) where
       in  ∇ , ∇′ , ε ⁰ ¹ , (ε ⁰ !) ¹ᵒ , »∇ , not
 
 module Transitive (mode-eq : unfolding-mode PE.≡ transitive) where
-  
+
   private opaque
 
     ⊔ᵒᵗ-eq : (φ φ′ : Unfolding n) → φ ⊔ᵒᵗ φ′ PE.≡ φ ⊔ᵒ φ′
@@ -125,7 +125,7 @@ module Transitive (mode-eq : unfolding-mode PE.≡ transitive) where
         PE.subst (_» _ ↜ _) (a[13]2 _ _ _) (join-»↜ φ↜ φ′↜) ¹ᵒ
       join′ (φ↜ ¹ᵗ) (φ′↜ ⁰) = join′ φ↜ φ′↜ ¹ᵗ
       join′ (φ↜ ¹ᵗ) (φ′↜ ¹ᵗ) = join′ φ↜ φ′↜ ¹ᵗ
-    
+
   opaque
 
     unjoin-»↜ : φ′ ⊔ᵒᵗ φ » ∇″ ↜ ∇ → φ » ∇′ ↜ ∇ → φ′ » ∇″ ↜ ∇′
@@ -399,7 +399,7 @@ module Transitive (mode-eq : unfolding-mode PE.≡ transitive) where
       equality-reflection ok (unfold-⊢ φ↜ ⊢Id) (unfold-⊢∷ φ↜ ⊢t)
 
   opaque
-    
+
     unfold-⇒∷ : φ » ∇′ ↜ ∇ → ∇ » Γ ⊢ t ⇒ u ∷ A → ∇′ » Γ ⊢ t ⇒ u ∷ A
     unfold-⇒∷ φ↜ (conv t⇒t′ A≡A′) =
       conv (unfold-⇒∷ φ↜ t⇒t′) (unfold-⊢≡ φ↜ A≡A′)
@@ -428,8 +428,8 @@ module Transitive (mode-eq : unfolding-mode PE.≡ transitive) where
           eq ok
     unfold-⇒∷ φ↜ (prodrec-subst ⊢A ⊢a t⇒t′ ok) =
       prodrec-subst (unfold-⊢ φ↜ ⊢A)
-                    (unfold-⊢∷ φ↜ ⊢a) 
-                    (unfold-⇒∷ φ↜ t⇒t′) 
+                    (unfold-⊢∷ φ↜ ⊢a)
+                    (unfold-⇒∷ φ↜ t⇒t′)
                     ok
     unfold-⇒∷ φ↜ (prodrec-β ⊢A ⊢t ⊢t₂ ⊢tᵣ eq ok) =
       prodrec-β (unfold-⊢ φ↜ ⊢A)
