@@ -14,11 +14,14 @@ module Definition.Typed.Decidable
   where
 
 open Assumptions as
+open Type-restrictions R
 
 open import Definition.Untyped M
 open import Definition.Typed R
+open import Definition.Typed.Consequences.Unfolding R
 open import Definition.Typed.Properties R
 open import Definition.Typed.Syntactic R
+open import Definition.Typed.Variant
 open import Definition.Typed.Well-formed R
 open import Definition.Typechecking R
 open import Definition.Typechecking.Soundness R
@@ -82,32 +85,24 @@ unfold-Checkable (φ ¹ᵒ) (∇ ∙ᶜᵒ⟨ ok ⟩[ t ∷ A ]) = unfold-Checka
 unfold-Checkable (φ ¹ᵗ) (∇ ∙ᶜᵗ[ t ∷ A ])       = unfold-Checkable φ ∇       ∙ᶜᵗ[ t ∷ A ]
 
 -- If ∇ is a checkable definition context, then » ∇ is decidable.
+--
+-- If explicit unfolding is used, then there are *two* recursive calls
+-- to decWfDCon in the case for opaque definitions. However, if
+-- transitive unfolding is used, then there is only one such recursive
+-- call.
 
 decWfDCon : CheckableDCon ∇ → Dec (» ∇)
 decWfDCon ε = yes ε
 decWfDCon {∇ = _ ∙⟨ opa φ ⟩[ _ ∷ _ ]} (∇ ∙ᶜᵒ⟨ ok ⟩[ t ∷ A ]) =
-  case decWfDCon ∇ of λ where
+  case (decWfDCon ∇ ×-dec′ λ »∇ →
+        dec (ε »∇) A) of λ where
     (no not) → no λ where
-      ∙ᵒ⟨ _ , _ ⟩[ _ ∷ ⊢A ] → not (defn-wf (wf ⊢A))
-    (yes »∇) → case dec (ε »∇) A of λ where
-      (no not) → no λ where
-        ∙ᵒ⟨ _ , _ ⟩[ _ ∷ ⊢A ] → not ⊢A
-      (yes ⊢A) → let _ , φ↜ = total-»↜ φ _ in
-        case decWfDCon (unfold-Checkable φ↜ ∇) of λ where
-          (no not) → no λ where
-            ∙ᵒ⟨ _ , φ′↜ ⟩[ ⊢t ∷ _ ] →
-              not $ defn-wf $ wfTerm $
-              PE.subst₃ _⊢_∷_
-                (PE.cong (_» ε) (unique-»↜ φ′↜ φ↜)) PE.refl PE.refl
-                ⊢t
-          (yes »∇′) → case dec (ε »∇′) A of λ where
-            (no not) → no λ where
-              ∙ᵒ⟨ _ , φ′↜ ⟩[ ⊢t ∷ _ ] →
-                not $ wf-⊢∷ $
-                PE.subst₃ _⊢_∷_
-                  (PE.cong (_» ε) (unique-»↜ φ′↜ φ↜)) PE.refl PE.refl
-                  ⊢t
-            (yes ⊢A′) → case decTermᶜ ⊢A′ t of λ where
+      ∙ᵒ⟨ _ , _ ⟩[ _ ∷ ⊢A ] → not (defn-wf (wf ⊢A) , ⊢A)
+    (yes (»∇ , ⊢A)) →
+      let _ , φ↜ = total-»↜ φ _
+          cont   = λ »∇′ →
+            let ⊢A′ = Unconditional.unfold-⊢ φ↜ (λ _ → »∇′) ⊢A in
+            case decTermᶜ ⊢A′ t of λ where
               (no not) → no λ where
                 ∙ᵒ⟨ _ , φ′↜ ⟩[ ⊢t ∷ _ ] →
                   not $
@@ -115,17 +110,26 @@ decWfDCon {∇ = _ ∙⟨ opa φ ⟩[ _ ∷ _ ]} (∇ ∙ᶜᵒ⟨ ok ⟩[ t ∷
                     (PE.cong (_» ε) (unique-»↜ φ′↜ φ↜)) PE.refl PE.refl
                     ⊢t
               (yes ⊢t) → yes ∙ᵒ⟨ ok , φ↜ ⟩[ ⊢t ∷ ⊢A ]
+      in
+      case PE.singleton unfolding-mode of λ where
+        (transitive , ≡transitive) →
+          cont (Transitive.unfold-» ≡transitive φ↜ »∇)
+        (explicit , _) →
+          case decWfDCon (unfold-Checkable φ↜ ∇) of λ where
+            (no not) → no λ where
+              ∙ᵒ⟨ _ , φ′↜ ⟩[ ⊢t ∷ _ ] →
+                not $ defn-wf $ wfTerm $
+                PE.subst₃ _⊢_∷_
+                  (PE.cong (_» ε) (unique-»↜ φ′↜ φ↜)) PE.refl PE.refl
+                  ⊢t
+            (yes »∇′) → cont »∇′
 decWfDCon (∇ ∙ᶜᵗ[ t ∷ A ]) =
-  case decWfDCon ∇ of λ where
+  case (decWfDCon ∇ ×-dec′ λ »∇ →
+        dec (ε »∇) A ×-dec′ λ ⊢A →
+        decTermᶜ ⊢A t) of λ where
     (no not) → no λ where
-      ∙ᵗ[ ⊢t ] → not (defn-wf (wfTerm ⊢t))
-    (yes »∇) → case dec (ε »∇) A of λ where
-      (no not) → no λ where
-        ∙ᵗ[ ⊢t ] → not (wf-⊢∷ ⊢t)
-      (yes ⊢A) → case decTermᶜ ⊢A t of λ where
-        (no not) → no λ where
-          ∙ᵗ[ ⊢t ] → not ⊢t
-        (yes ⊢t) → yes ∙ᵗ[ ⊢t ]
+      ∙ᵗ[ ⊢t ] → not (defn-wf (wfTerm ⊢t) , wf-⊢∷ ⊢t , ⊢t)
+    (yes (_ , _ , ⊢t)) → yes ∙ᵗ[ ⊢t ]
 
 -- If » ∇ and Γ is a checkable context, then ∇ »⊢ Γ is decidable.
 
