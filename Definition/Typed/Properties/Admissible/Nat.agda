@@ -27,6 +27,7 @@ open import Definition.Typed.Weakening R
 
 open import Tools.Fin
 open import Tools.Function
+open import Tools.Nat using (Nat; 1+)
 open import Tools.Product
 import Tools.PropositionalEquality as PE
 
@@ -36,6 +37,7 @@ open Type-restrictions R
 private
   variable
     Γ : Cons _ _
+    k : Nat
     A A′ A₁ A₂ n n′ s s′ t t₁ t₂ u u₁ u₂ v v₁ v₂ z z′ : Term _
     p q r : M
 
@@ -68,6 +70,14 @@ opaque
   sucCong′ F≡G =
     let ⊢F , ⊢G = syntacticEq F≡G
     in subst↑²TypeEq F≡G (refl (sucⱼ (var (∙ ⊢G) (there here))))
+
+opaque
+
+  -- A typing rule for sucᵏ.
+
+  ⊢sucᵏ : ⊢ Γ → Γ ⊢ sucᵏ k ∷ ℕ
+  ⊢sucᵏ {k = 0} ⊢Γ = zeroⱼ ⊢Γ
+  ⊢sucᵏ {k = 1+ k} ⊢Γ = sucⱼ (⊢sucᵏ ⊢Γ)
 
 opaque
 
