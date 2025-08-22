@@ -88,6 +88,10 @@ import Definition.Untyped
 import Definition.Untyped.Inversion
 import Definition.Untyped.Properties.NotParametrised
 import Definition.Untyped.Properties
+import Definition.Typed.Variant
+import Definition.Untyped.Neutral
+import Definition.Untyped.Whnf
+import Definition.Untyped.Names-below
 import Definition.Untyped.Identity
 import Definition.Untyped.Sigma
 import Definition.Untyped.Unit
@@ -99,11 +103,7 @@ import Definition.Untyped.Erased.Eta
 import Definition.Untyped.Erased.No-eta
 import Definition.Untyped.Erased
 import Definition.Untyped.Bool.Erased
-import Definition.Untyped.Neutral
-import Definition.Untyped.Whnf
-import Definition.Untyped.Names-below
 import Graded.Derived.Unrestricted.Eta.Untyped
-import Definition.Typed.Variant
 
 ------------------------------------------------------------------------
 -- The type theory, along with some basic properties
@@ -302,7 +302,6 @@ import Definition.LogicalRelation.Fundamental.Reducibility
 -- Some consequences of the fundamental lemma.
 import Definition.Typed.Consequences.Injectivity
 import Definition.Typed.Consequences.Inequality
-import Definition.Typed.Consequences.Unfolding
 import Definition.Typed.Consequences.Inversion
 import Definition.Typed.Consequences.Equality
 import Definition.Typed.Consequences.Canonicity
@@ -317,6 +316,7 @@ import Definition.Typed.Consequences.Admissible
 import Definition.Typed.Consequences.Consistency
 import Graded.Derived.Unrestricted.Eta.Typed
 import Definition.Typed.Consequences.NeTypeEq
+import Definition.Typed.Consequences.Unfolding
 
 -- Algorithmic equality.
 import Definition.Conversion
