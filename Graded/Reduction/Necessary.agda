@@ -6,28 +6,23 @@
 open import Graded.Modality
 open import Graded.Usage.Restrictions
 open import Definition.Typed.Restrictions
-import Graded.Mode
 
 module Graded.Reduction.Necessary
   {a} {M : Set a}
   {𝕄 : Modality M}
   (TR : Type-restrictions 𝕄)
   (UR : Usage-restrictions 𝕄)
-  (open Type-restrictions TR)
-  (open Usage-restrictions UR)
-  (open Modality 𝕄)
-  (open Graded.Mode 𝕄)
-  (Unitʷ-η→ :
-     ∀ {p q} →
-     Unitʷ-η → Unitʷ-allowed → Unitrec-allowed 𝟙ᵐ p q →
-     p ≤ 𝟘)
   where
+
+open Type-restrictions TR
+open Usage-restrictions UR
+open Modality 𝕄
 
 open import Graded.Context 𝕄
 open import Graded.Context.Properties 𝕄
 open import Graded.Context.Weakening 𝕄
 open import Graded.Modality.Properties 𝕄
-open import Graded.Substitution 𝕄 UR
+open import Graded.Mode 𝕄
 open import Graded.Usage.Restrictions.Instance UR
 open import Graded.Usage.Restrictions.Natrec 𝕄
 import Graded.Reduction TR UR as R
@@ -43,21 +38,16 @@ open import Definition.Typed.Substitution TR
 open import Definition.Typed.Weakening TR as W hiding (wk)
 open import Definition.Untyped M
 open import Definition.Untyped.Properties M
-open import Definition.Untyped.Neutral M type-variant
-open import Definition.Untyped.Normal-form M type-variant
 
-open import Tools.Bool using (T; true; false)
-open import Tools.Empty
+open import Tools.Bool using (T)
 open import Tools.Fin
 open import Tools.Function
 open import Tools.Level
 open import Tools.Nat as N using (Nat; 1+; 2+; 3+)
 open import Tools.Product
-open import Tools.PropositionalEquality as PE using (_≢_)
-import Tools.Reasoning.PartialOrder
+import Tools.PropositionalEquality as PE
 import Tools.Reasoning.PropositionalEquality
 open import Tools.Relation
-open import Tools.Sum using (_⊎_; inj₁; inj₂)
 
 private variable
   n i : Nat
@@ -72,7 +62,8 @@ private variable
   x : Fin _
 
 ------------------------------------------------------------------------
--- "Arbitrary" usage relations satisfying some properties.
+-- "Arbitrary" usage relations satisfying some properties and ansatz for
+-- certain usage rules.
 
 -- A usage relation with some requirements
 
@@ -89,7 +80,6 @@ record Usage-relation : Set (lsuc a) where
 
   field
     -- "Usage rules"
-
     varₘ : (𝟘ᶜ , x ≔ ⌜ m ⌝) ▸[ m ] var x
     zeroₘ : 𝟘ᶜ {n = n} ▸[ m ] zero
     sucₘ : γ ▸[ m ] t → γ ▸[ m ] suc t
@@ -123,38 +113,6 @@ record Usage-relation : Set (lsuc a) where
     usagePresTerm :
       ▸[ m ] Γ .defs → γ ▸[ m ] t → Γ ⊢ t ⇒ u ∷ A → γ ▸[ m ] u
 
-opaque
-
-  -- The type Usage-relation is inhabited by the usual usage relation
-
-  ▸[]-Usage-relation : Usage-relation
-  ▸[]-Usage-relation = record
-    { _▸[_]_ = U._▸[_]_
-    ; varₘ = U.var
-    ; zeroₘ = U.zeroₘ
-    ; sucₘ = U.sucₘ
-    ; starʷₘ = U.starʷₘ
-    ; prodʷₘ = U.prodʷₘ
-    ; Uₘ = U.Uₘ
-    ; ℕₘ = U.ℕₘ
-    ; Unitʷₘ = U.Unitₘ
-    ; Σʷₘ = U.ΠΣₘ
-    ; sub = U.sub
-    ; inv-usage-var = UI.inv-usage-var
-    ; inv-usage-zero = UI.inv-usage-zero
-    ; inv-usage-suc = λ ▸t →
-      let UI.invUsageSuc ▸t′ γ≤ = UI.inv-usage-suc ▸t
-      in  _ , ▸t′ , γ≤
-    ; inv-usage-starʷ = UI.inv-usage-starʷ
-    ; inv-usage-prodʷ = λ ▸t →
-        let UI.invUsageProdʷ ▸t₁ ▸t₂ γ≤ = UI.inv-usage-prodʷ ▸t
-        in  _ , _ , ▸t₁ , ▸t₂ , γ≤
-    ; wkUsage = UW.wkUsage _
-    ; wkUsage⁻¹ = UW.wkUsage⁻¹
-    ; ▸-𝟘 = UP.▸-𝟘
-    ; usagePresTerm = R.usagePresTerm Unitʷ-η→
-    }
-
 -- A usage relation with a usage rule for natrec on a certain form.
 
 record Usage-relation-natrec₁ : Set (lsuc a) where
@@ -178,28 +136,6 @@ record Usage-relation-natrec₁ : Set (lsuc a) where
       δ₁ ▸[ m ] z × δ₂ ∙ ⌜ m ⌝ · p ∙ ⌜ m ⌝ · r ▸[ m ] s ×
       δ₃ ▸[ m ] k × δ₄ ∙ ⌜ 𝟘ᵐ? ⌝ · q ▸[ 𝟘ᵐ? ] A ×
       γ ≤ᶜ f p r ·ᶜ δ₃ +ᶜ g p r δ₁ δ₂
-
-opaque
-  unfolding ▸[]-Usage-relation
-
-  factoring-nr-Usage-relation :
-    ⦃ has-nr : Nr-available ⦄
-    ⦃ nr-factoring : Is-factoring-nr _ (Natrec-mode-Has-nr has-nr) ⦄ →
-    Usage-relation-natrec₁
-  factoring-nr-Usage-relation ⦃ has-nr ⦄ ⦃ nr-factoring ⦄ = record
-    { usage-relation = ▸[]-Usage-relation
-    ; f = nr₂
-    ; g = λ p r γ δ → nrᶜ p r γ δ 𝟘ᶜ
-    ; natrecₘ = λ {γ = γ} {δ = δ} {p = p} {r = r} {η = η} ▸z ▸s ▸n ▸A →
-        U.sub (U.natrecₘ ▸z ▸s ▸n ▸A)
-          (≤ᶜ-reflexive (≈ᶜ-sym nrᶜ-factoring))
-    ; inv-usage-natrec = λ ▸nr →
-        let δ₁ , δ₂ , δ₃ , δ₄ , ▸z , ▸s , ▸n , ▸A , γ≤ = UI.inv-usage-natrec-has-nr ▸nr
-        in  δ₁ , δ₂ , δ₃ , δ₄ , ▸z , ▸s , ▸n , ▸A
-               , ≤ᶜ-trans γ≤ (≤ᶜ-reflexive nrᶜ-factoring)
-    }
-    where
-    open Is-factoring-nr nr-factoring
 
 -- A usage relation with a usage rule for natrec on a certain form.
 -- This ansatz is similar to the one above but the function g does
@@ -242,6 +178,104 @@ opaque
     }
     where
     open Usage-relation-natrec₂ r
+
+-- A usage relation with a usage rule for unitrec on a certain form.
+
+record Usage-relation-unitrec : Set (lsuc a) where
+  no-eta-equality
+  field
+    usage-relation : Usage-relation
+
+  open Usage-relation usage-relation public
+  field
+    -- Anstaz for the usage rule for unitrec
+    f : M → M
+    g : M → Conₘ n → Conₘ n
+    h : Mode → M → Mode
+    unitrecₘ :
+      γ ▸[ h m p ] t → δ ▸[ m ] u →
+      η ∙ ⌜ 𝟘ᵐ? ⌝ · q ▸[ 𝟘ᵐ? ] A →
+      Unitrec-allowed m p q →
+      f p ·ᶜ γ +ᶜ g p δ ▸[ m ] unitrec l p q A t u
+
+------------------------------------------------------------------------
+-- Given certain assumptions, the usage relation satisfies the
+-- properties and ansatzes above.
+
+module _
+  -- The proof of subject reduction for the usage relation uses this
+  -- assumption:
+  (Unitʷ-η→ :
+     ∀ {p q} →
+     Unitʷ-η → Unitʷ-allowed → Unitrec-allowed 𝟙ᵐ p q →
+     p ≤ 𝟘)
+  where
+
+  opaque
+
+    -- The type Usage-relation is inhabited by the usual usage relation
+
+    ▸[]-Usage-relation : Usage-relation
+    ▸[]-Usage-relation = record
+      { _▸[_]_ = U._▸[_]_
+      ; varₘ = U.var
+      ; zeroₘ = U.zeroₘ
+      ; sucₘ = U.sucₘ
+      ; starʷₘ = U.starʷₘ
+      ; prodʷₘ = U.prodʷₘ
+      ; Uₘ = U.Uₘ
+      ; ℕₘ = U.ℕₘ
+      ; Unitʷₘ = U.Unitₘ
+      ; Σʷₘ = U.ΠΣₘ
+      ; sub = U.sub
+      ; inv-usage-var = UI.inv-usage-var
+      ; inv-usage-zero = UI.inv-usage-zero
+      ; inv-usage-suc = λ ▸t →
+        let UI.invUsageSuc ▸t′ γ≤ = UI.inv-usage-suc ▸t
+        in  _ , ▸t′ , γ≤
+      ; inv-usage-starʷ = UI.inv-usage-starʷ
+      ; inv-usage-prodʷ = λ ▸t →
+          let UI.invUsageProdʷ ▸t₁ ▸t₂ γ≤ = UI.inv-usage-prodʷ ▸t
+          in  _ , _ , ▸t₁ , ▸t₂ , γ≤
+      ; wkUsage = UW.wkUsage _
+      ; wkUsage⁻¹ = UW.wkUsage⁻¹
+      ; ▸-𝟘 = UP.▸-𝟘
+      ; usagePresTerm = R.usagePresTerm Unitʷ-η→
+      }
+
+  opaque
+    unfolding ▸[]-Usage-relation
+
+    ▸[]-factoring-nr-Usage-relation-natrec₁ :
+      ⦃ has-nr : Nr-available ⦄
+      ⦃ nr-factoring : Is-factoring-nr _ (Natrec-mode-Has-nr has-nr) ⦄ →
+      Usage-relation-natrec₁
+    ▸[]-factoring-nr-Usage-relation-natrec₁ ⦃ has-nr ⦄ ⦃ nr-factoring ⦄ = record
+      { usage-relation = ▸[]-Usage-relation
+      ; f = nr₂
+      ; g = λ p r γ δ → nrᶜ p r γ δ 𝟘ᶜ
+      ; natrecₘ = λ {γ = γ} {δ = δ} {p = p} {r = r} {η = η} ▸z ▸s ▸n ▸A →
+          U.sub (U.natrecₘ ▸z ▸s ▸n ▸A)
+            (≤ᶜ-reflexive (≈ᶜ-sym nrᶜ-factoring))
+      ; inv-usage-natrec = λ ▸nr →
+          let δ₁ , δ₂ , δ₃ , δ₄ , ▸z , ▸s , ▸n , ▸A , γ≤ = UI.inv-usage-natrec-has-nr ▸nr
+          in  δ₁ , δ₂ , δ₃ , δ₄ , ▸z , ▸s , ▸n , ▸A
+                 , ≤ᶜ-trans γ≤ (≤ᶜ-reflexive nrᶜ-factoring)
+      }
+      where
+      open Is-factoring-nr nr-factoring
+
+  opaque
+    unfolding ▸[]-Usage-relation
+
+    ▸[]-usage-relation-unitrec : Usage-relation-unitrec
+    ▸[]-usage-relation-unitrec = record
+      { usage-relation = ▸[]-Usage-relation
+      ; f = idᶠ
+      ; g = λ _ → idᶠ
+      ; h = _ᵐ·_
+      ; unitrecₘ = U.unitrecₘ
+      }
 
 ------------------------------------------------------------------------
 -- Some terms and lemmas used in proofs below.
@@ -1070,3 +1104,73 @@ module Natrec₂
   -- for this one.
 
   open Natrec₁ (Natrec₂→Natrec₁ usage-relation-natrec) Unit-ok Σ-ok public
+
+------------------------------------------------------------------------
+-- Usage properties that hold for "arbitrary" usage relations with a
+-- certain anstaz for the unitrec rule (and some type restrictions).
+
+module Unitrec
+  (usage-relation-unitrec : Usage-relation-unitrec)
+  -- Weak unit types are allowed
+  (Unit-ok : Unitʷ-allowed)
+  -- Certain Σ-types are allowed
+  (Σ-ok : ∀ {r} → Σʷ-allowed r 𝟘)
+  where
+
+  open Usage-relation-unitrec usage-relation-unitrec
+  open Usage usage-relation
+
+  private
+
+    opaque
+      unfolding Sink-allowed
+
+      -- The Sink type is allowed.
+
+      Sink-ok : Sink-allowed γ
+      Sink-ok {γ = ε} = Unit-ok
+      Sink-ok {γ = γ ∙ p} = Sink-ok {γ = γ} , Σ-ok
+
+    opaque
+
+      τ : M → Conₘ n → Term n
+      τ p δ = unitrec 0 p 𝟘 (wk1 (Sink Δᴺ δ)) (starʷ 0) (sink δ)
+
+    opaque
+      unfolding τ
+
+      ▸τ : Unitrec-allowed 𝟙ᵐ p 𝟘 → g p γ ▸[ 𝟙ᵐ ] τ p γ
+      ▸τ {p} {γ} ok =
+        let ▸A = sub (wkUsage ▸Sink-Δᴺ) (≤ᶜ-refl {γ = 𝟘ᶜ} ∙ ≤-reflexive (·-zeroʳ _))
+        in  sub (unitrecₘ starʷₘ (▸sink γ) ▸A ok) $ begin
+          g p γ              ≈˘⟨ +ᶜ-identityˡ _ ⟩
+          𝟘ᶜ +ᶜ g p γ        ≈˘⟨ +ᶜ-congʳ (·ᶜ-zeroʳ _) ⟩
+          f p ·ᶜ 𝟘ᶜ +ᶜ g p γ ∎
+        where
+        open ≤ᶜ-reasoning
+
+
+    opaque
+      unfolding τ
+
+      ▸τ→≤ : γ ▸[ m ] τ p δ → γ ≤ᶜ ⌜ m ⌝ ·ᶜ δ
+      ▸τ→≤ ▸ur =
+        let ⊢A = W.wk (stepʷ id (Unitⱼ ⊢Γᴺ Unit-ok)) (⊢-Sink ⊢Γᴺ Sink-ok)
+            ⊢u = ⊢∷-conv-PE (⊢∷-sink ⊢Γᴺ Sink-ok) (PE.sym (wk1-sgSubst _ _))
+        in  case Unitʷ-η? of λ where
+          (yes η) →
+            inv-usage-sink (usagePresTerm (λ ()) ▸ur (unitrec-β-η ⊢A (starⱼ ⊢Γᴺ Unit-ok) ⊢u Unit-ok η))
+          (no no-η) →
+            inv-usage-sink (usagePresTerm (λ ()) ▸ur (unitrec-β ⊢A ⊢u Unit-ok no-η))
+
+  opaque
+
+    -- The context g p γ is bounded from above by γ.
+
+    g-≤ : Unitrec-allowed 𝟙ᵐ p 𝟘 → g p γ ≤ᶜ γ
+    g-≤ {p} {γ} ok = begin
+      g p γ  ≤⟨ ▸τ→≤ (▸τ ok) ⟩
+      𝟙 ·ᶜ γ ≈⟨ ·ᶜ-identityˡ _ ⟩
+      γ      ∎
+      where
+      open ≤ᶜ-reasoning
