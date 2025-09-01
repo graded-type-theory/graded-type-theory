@@ -47,7 +47,8 @@ private
   variable
     m n : Nat
     ∇ : DCon (Term 0) m
-    Γ Δ : Con Term n
+    Δ Η : Con Term n
+    Γ : Cons m n
     σ σ₁ σ₂ : Subst _ _
     s s₁ s₂ : Strength
     l l′ l″ l‴ l₁ l₂ : Universe-level
@@ -63,8 +64,8 @@ opaque
   -- A characterisation lemma for _⊩⟨_⟩_.
 
   ⊩Unit⇔ :
-    ∇ » Γ ⊩⟨ l′ ⟩ Unit s l ⇔
-    (l ≤ᵘ l′ × ∇ »⊢ Γ × Unit-allowed s)
+    Γ ⊩⟨ l′ ⟩ Unit s l ⇔
+    (l ≤ᵘ l′ × ⊢ Γ × Unit-allowed s)
   ⊩Unit⇔ =
       (λ ⊩Unit → lemma (Unit-elim ⊩Unit))
     , (λ (l≤l′ , ⊢Γ , ok) →
@@ -72,8 +73,8 @@ opaque
          Unitᵣ (Unitₜ (id (Unitⱼ ⊢Γ ok)) ok))
     where
     lemma :
-      ∇ » Γ ⊩⟨ l′ ⟩Unit⟨ s ⟩ Unit s l →
-      l ≤ᵘ l′ × ∇ »⊢ Γ × Unit-allowed s
+      Γ ⊩⟨ l′ ⟩Unit⟨ s ⟩ Unit s l →
+      l ≤ᵘ l′ × ⊢ Γ × Unit-allowed s
     lemma (emb p ⊩Unit) =
       Σ.map (flip ≤ᵘ-trans (<ᵘ→≤ᵘ p)) idᶠ (lemma ⊩Unit)
     lemma (noemb (Unitₜ Unit⇒*Unit ok)) =
@@ -88,8 +89,8 @@ opaque
   -- A characterisation lemma for _⊩⟨_⟩_∷_.
 
   ⊩∷Unit⇔ :
-    ∇ » Γ ⊩⟨ l′ ⟩ t ∷ Unit s l ⇔
-    (l ≤ᵘ l′ × Unit-allowed s × ∇ » Γ ⊩Unit⟨ l , s ⟩ t ∷Unit)
+    Γ ⊩⟨ l′ ⟩ t ∷ Unit s l ⇔
+    (l ≤ᵘ l′ × Unit-allowed s × Γ ⊩Unit⟨ l , s ⟩ t ∷Unit)
   ⊩∷Unit⇔ =
       (λ (⊩Unit , ⊩t) →
          lemma₁ (Unit-elim ⊩Unit)
@@ -99,9 +100,9 @@ opaque
            (⊩Unit⇔ .proj₂ (≤ᵘ-refl , wfEqTerm (≅ₜ-eq ≅n) , ok) , ⊩t))
     where
     lemma₁ :
-      (⊩Unit : ∇ » Γ ⊩⟨ l′ ⟩Unit⟨ s ⟩ Unit s l) →
-      ∇ » Γ ⊩⟨ l′ ⟩ t ∷ Unit s l / Unit-intr ⊩Unit →
-      l ≤ᵘ l′ × Unit-allowed s × ∇ » Γ ⊩Unit⟨ l , s ⟩ t ∷Unit
+      (⊩Unit : Γ ⊩⟨ l′ ⟩Unit⟨ s ⟩ Unit s l) →
+      Γ ⊩⟨ l′ ⟩ t ∷ Unit s l / Unit-intr ⊩Unit →
+      l ≤ᵘ l′ × Unit-allowed s × Γ ⊩Unit⟨ l , s ⟩ t ∷Unit
     lemma₁ (emb ≤ᵘ-refl     ⊩Unit) = Σ.map ≤ᵘ-step idᶠ ∘→ lemma₁ ⊩Unit
     lemma₁ (emb (≤ᵘ-step p) ⊩Unit) =
       Σ.map ≤ᵘ-step idᶠ ∘→ lemma₁ (emb p ⊩Unit)
@@ -117,8 +118,8 @@ opaque
   -- A characterisation lemma for _⊩⟨_⟩_≡_.
 
   ⊩Unit≡⇔ :
-    ∇ » Γ ⊩⟨ l′ ⟩ Unit s l ≡ A ⇔
-    (l ≤ᵘ l′ × ∇ »⊢ Γ × Unit-allowed s × ∇ » Γ ⊩Unit⟨ l , s ⟩ Unit s l ≡ A)
+    Γ ⊩⟨ l′ ⟩ Unit s l ≡ A ⇔
+    (l ≤ᵘ l′ × ⊢ Γ × Unit-allowed s × Γ ⊩Unit⟨ l , s ⟩ Unit s l ≡ A)
   ⊩Unit≡⇔ {s} {l} {A} =
       (λ (⊩Unit₁ , _ , Unit₁≡Unit₂) →
          case Unit-elim ⊩Unit₁ of λ
@@ -131,9 +132,9 @@ opaque
             Unit s l  ∎⟨ ⊩Unit⇔ .proj₂ (l≤l′ , ⊢Γ , ok) ⟩⊩))
     where
     lemma :
-      (⊩Unit : ∇ » Γ ⊩⟨ l′ ⟩Unit⟨ s ⟩ Unit s l) →
-      ∇ » Γ ⊩⟨ l′ ⟩ Unit s l ≡ A / Unit-intr ⊩Unit →
-      l ≤ᵘ l′ × ∇ »⊢ Γ × Unit-allowed s × ∇ » Γ ⊩Unit⟨ l , s ⟩ Unit s l ≡ A
+      (⊩Unit : Γ ⊩⟨ l′ ⟩Unit⟨ s ⟩ Unit s l) →
+      Γ ⊩⟨ l′ ⟩ Unit s l ≡ A / Unit-intr ⊩Unit →
+      l ≤ᵘ l′ × ⊢ Γ × Unit-allowed s × Γ ⊩Unit⟨ l , s ⟩ Unit s l ≡ A
     lemma (emb ≤ᵘ-refl ⊩Unit) =
       Σ.map ≤ᵘ-step idᶠ ∘→ lemma ⊩Unit
     lemma (emb (≤ᵘ-step l<) ⊩Unit) =
@@ -151,15 +152,15 @@ opaque
   -- A characterisation lemma for _⊩⟨_⟩_≡_.
 
   ⊩Unit≡Unit⇔ :
-    ∇ » Γ ⊩⟨ l ⟩ Unit s₁ l₁ ≡ Unit s₂ l₂ ⇔
-    (l₁ ≤ᵘ l × ∇ »⊢ Γ × Unit-allowed s₁ × s₁ PE.≡ s₂ × l₁ PE.≡ l₂)
-  ⊩Unit≡Unit⇔ {∇} {Γ} {l} {s₁} {l₁} {s₂} {l₂} =
-    ∇ » Γ ⊩⟨ l ⟩ Unit s₁ l₁ ≡ Unit s₂ l₂                                   ⇔⟨ ⊩Unit≡⇔ ⟩
-    l₁ ≤ᵘ l × ∇ »⊢ Γ × Unit-allowed s₁ × ∇ » Γ ⊢ Unit s₂ l₂ ⇒* Unit s₁ l₁  ⇔⟨ (Σ-cong-⇔ λ _ → Σ-cong-⇔ λ ⊢Γ → Σ-cong-⇔ λ ok →
-                                                                                 Σ.map PE.sym PE.sym ∘→ Unit-PE-injectivity ∘→ flip whnfRed* Unitₙ
-                                                                               , (λ { (PE.refl , PE.refl) → id (Unitⱼ ⊢Γ ok) }))
-                                                                            ⟩
-    l₁ ≤ᵘ l × ∇ »⊢ Γ × Unit-allowed s₁ × s₁ PE.≡ s₂ × l₁ PE.≡ l₂           □⇔
+    Γ ⊩⟨ l ⟩ Unit s₁ l₁ ≡ Unit s₂ l₂ ⇔
+    (l₁ ≤ᵘ l × ⊢ Γ × Unit-allowed s₁ × s₁ PE.≡ s₂ × l₁ PE.≡ l₂)
+  ⊩Unit≡Unit⇔ {Γ} {l} {s₁} {l₁} {s₂} {l₂} =
+    Γ ⊩⟨ l ⟩ Unit s₁ l₁ ≡ Unit s₂ l₂                                ⇔⟨ ⊩Unit≡⇔ ⟩
+    l₁ ≤ᵘ l × ⊢ Γ × Unit-allowed s₁ × Γ ⊢ Unit s₂ l₂ ⇒* Unit s₁ l₁  ⇔⟨ (Σ-cong-⇔ λ _ → Σ-cong-⇔ λ ⊢Γ → Σ-cong-⇔ λ ok →
+                                                                          Σ.map PE.sym PE.sym ∘→ Unit-PE-injectivity ∘→ flip whnfRed* Unitₙ
+                                                                        , (λ { (PE.refl , PE.refl) → id (Unitⱼ ⊢Γ ok) }))
+                                                                     ⟩
+    l₁ ≤ᵘ l × ⊢ Γ × Unit-allowed s₁ × s₁ PE.≡ s₂ × l₁ PE.≡ l₂       □⇔
 
 opaque
   unfolding _⊩⟨_⟩_≡_∷_ ⊩Unit⇔
@@ -167,12 +168,12 @@ opaque
   -- A characterisation lemma for _⊩⟨_⟩_≡_∷_.
 
   ⊩≡∷Unit⇔ :
-    ∇ » Γ ⊩⟨ l′ ⟩ t ≡ u ∷ Unit s l ⇔
+    Γ ⊩⟨ l′ ⟩ t ≡ u ∷ Unit s l ⇔
     (l ≤ᵘ l′ ×
      Unit-allowed s ×
-     ∇ » Γ ⊩Unit⟨ l , s ⟩ t ∷Unit ×
-     ∇ » Γ ⊩Unit⟨ l , s ⟩ u ∷Unit ×
-     ∇ » Γ ⊩Unit⟨ l , s ⟩ t ≡ u ∷Unit)
+     Γ ⊩Unit⟨ l , s ⟩ t ∷Unit ×
+     Γ ⊩Unit⟨ l , s ⟩ u ∷Unit ×
+     Γ ⊩Unit⟨ l , s ⟩ t ≡ u ∷Unit)
   ⊩≡∷Unit⇔ {s} =
       (λ (⊩Unit , ⊩t , ⊩u , t≡u) →
          lemma (Unit-elim ⊩Unit)
@@ -190,15 +191,15 @@ opaque
          ⊩Unit⇔ .proj₂ (≤ᵘ-refl , ⊢Γ , ok) , ⊩t , ⊩u , t≡u)
     where
     lemma :
-      (⊩Unit : ∇ » Γ ⊩⟨ l′ ⟩Unit⟨ s ⟩ Unit s l) →
-      ∇ » Γ ⊩⟨ l′ ⟩ t ∷ Unit s l / Unit-intr ⊩Unit →
-      ∇ » Γ ⊩⟨ l′ ⟩ u ∷ Unit s l / Unit-intr ⊩Unit →
-      ∇ » Γ ⊩⟨ l′ ⟩ t ≡ u ∷ Unit s l / Unit-intr ⊩Unit →
+      (⊩Unit : Γ ⊩⟨ l′ ⟩Unit⟨ s ⟩ Unit s l) →
+      Γ ⊩⟨ l′ ⟩ t ∷ Unit s l / Unit-intr ⊩Unit →
+      Γ ⊩⟨ l′ ⟩ u ∷ Unit s l / Unit-intr ⊩Unit →
+      Γ ⊩⟨ l′ ⟩ t ≡ u ∷ Unit s l / Unit-intr ⊩Unit →
       l ≤ᵘ l′ ×
       Unit-allowed s ×
-      ∇ » Γ ⊩Unit⟨ l , s ⟩ t ∷Unit ×
-      ∇ » Γ ⊩Unit⟨ l , s ⟩ u ∷Unit ×
-      ∇ » Γ ⊩Unit⟨ l , s ⟩ t ≡ u ∷Unit
+      Γ ⊩Unit⟨ l , s ⟩ t ∷Unit ×
+      Γ ⊩Unit⟨ l , s ⟩ u ∷Unit ×
+      Γ ⊩Unit⟨ l , s ⟩ t ≡ u ∷Unit
     lemma (emb ≤ᵘ-refl ⊩Unit) ⊩t ⊩u t≡u =
       Σ.map ≤ᵘ-step idᶠ (lemma ⊩Unit ⊩t ⊩u t≡u)
     lemma (emb (≤ᵘ-step p) ⊩Unit) ⊩t ⊩u t≡u =
@@ -218,23 +219,23 @@ opaque
   -- certain assumption).
 
   ⊩ᵛUnit→Unit-allowed :
-    ⦃ inc : Var-included or-empty Γ ⦄ →
-    ∇ » Γ ⊩ᵛ⟨ l′ ⟩ Unit s l →
+    ⦃ inc : Var-included or-empty (Γ .vars) ⦄ →
+    Γ ⊩ᵛ⟨ l′ ⟩ Unit s l →
     Unit-allowed s
-  ⊩ᵛUnit→Unit-allowed {Γ} {∇} {l′} {s} {l} =
-    ∇ » Γ ⊩ᵛ⟨ l′ ⟩ Unit s l            →⟨ R.⊩→ ∘→ ⊩ᵛ→⊩ ⟩
-    ∇ » Γ ⊩⟨ l′ ⟩ Unit s l             ⇔⟨ ⊩Unit⇔ ⟩→
-    l ≤ᵘ l′ × ∇ »⊢ Γ × Unit-allowed s  →⟨ proj₂ ∘→ proj₂ ⟩
-    Unit-allowed s                     □
+  ⊩ᵛUnit→Unit-allowed {Γ} {l′} {s} {l} =
+    Γ ⊩ᵛ⟨ l′ ⟩ Unit s l             →⟨ R.⊩→ ∘→ ⊩ᵛ→⊩ ⟩
+    Γ ⊩⟨ l′ ⟩ Unit s l              ⇔⟨ ⊩Unit⇔ ⟩→
+    l ≤ᵘ l′ × ⊢ Γ × Unit-allowed s  →⟨ proj₂ ∘→ proj₂ ⟩
+    Unit-allowed s                  □
 
 opaque
 
   -- Reducibility for Unit.
 
   ⊩Unit :
-    ∇ »⊢ Γ →
+    ⊢ Γ →
     Unit-allowed s →
-    ∇ » Γ ⊩⟨ l ⟩ Unit s l
+    Γ ⊩⟨ l ⟩ Unit s l
   ⊩Unit ⊢Γ ok = ⊩Unit⇔ .proj₂ (≤ᵘ-refl , ⊢Γ , ok)
 
 opaque
@@ -242,17 +243,17 @@ opaque
   -- Validity for Unit, seen as a type former.
 
   Unitᵛ :
-    ∇ »⊩ᵛ Γ →
+    ⊩ᵛ Γ →
     Unit-allowed s →
-    ∇ » Γ ⊩ᵛ⟨ l ⟩ Unit s l
-  Unitᵛ {∇} {Γ} {s} {l} ⊩Γ ok =
+    Γ ⊩ᵛ⟨ l ⟩ Unit s l
+  Unitᵛ {Γ} {s} {l} ⊩Γ ok =
     ⊩ᵛ⇔ʰ .proj₂
       ( ⊩Γ
-      , λ {_} {∇′} {_} ξ⊇ {_} {Δ} {σ₁} {σ₂} →
-          ∇′ » Δ ⊩ˢ σ₁ ≡ σ₂ ∷ Γ              →⟨ proj₁ ∘→ escape-⊩ˢ≡∷ ⟩
-          ∇′ »⊢ Δ                            →⟨ flip ⊩Unit ok ⟩
-          (∇′ » Δ ⊩⟨ l ⟩ Unit s l)           →⟨ refl-⊩≡ ⟩
-          ∇′ » Δ ⊩⟨ l ⟩ Unit s l ≡ Unit s l  □
+      , λ {_} {∇} {_} ξ⊇ {_} {Δ} {σ₁} {σ₂} →
+          ∇ » Δ ⊩ˢ σ₁ ≡ σ₂ ∷ Γ .vars        →⟨ proj₁ ∘→ escape-⊩ˢ≡∷ ⟩
+          ∇ »⊢ Δ                            →⟨ flip ⊩Unit ok ⟩
+          (∇ » Δ ⊩⟨ l ⟩ Unit s l)           →⟨ refl-⊩≡ ⟩
+          ∇ » Δ ⊩⟨ l ⟩ Unit s l ≡ Unit s l  □
       )
 
 opaque
@@ -260,9 +261,9 @@ opaque
   -- Validity for Unit, seen as a term former.
 
   Unitᵗᵛ :
-    ∇ »⊩ᵛ Γ →
+    ⊩ᵛ Γ →
     Unit-allowed s →
-    ∇ » Γ ⊩ᵛ⟨ 1+ l ⟩ Unit s l ∷ U l
+    Γ ⊩ᵛ⟨ 1+ l ⟩ Unit s l ∷ U l
   Unitᵗᵛ ⊩Γ ok =
     ⊩ᵛ∷⇔ʰ .proj₂
       ( ⊩ᵛU ⊩Γ
@@ -281,9 +282,9 @@ opaque
   -- Reducibility for star.
 
   ⊩star :
-    ∇ »⊢ Γ →
+    ⊢ Γ →
     Unit-allowed s →
-    ∇ » Γ ⊩⟨ l ⟩ star s l ∷ Unit s l
+    Γ ⊩⟨ l ⟩ star s l ∷ Unit s l
   ⊩star ⊢Γ ok =
     ⊩∷Unit⇔ .proj₂
       ( ≤ᵘ-refl
@@ -296,17 +297,17 @@ opaque
   -- Validity of star.
 
   starᵛ :
-    ∇ »⊩ᵛ Γ →
+    ⊩ᵛ Γ →
     Unit-allowed s →
-    ∇ » Γ ⊩ᵛ⟨ l ⟩ star s l ∷ Unit s l
-  starᵛ {∇} {Γ} {s} {l} ⊩Γ ok =
+    Γ ⊩ᵛ⟨ l ⟩ star s l ∷ Unit s l
+  starᵛ {Γ} {s} {l} ⊩Γ ok =
     ⊩ᵛ∷⇔ʰ .proj₂
       ( Unitᵛ ⊩Γ ok
-      , λ {_} {∇′} {_} ξ⊇ {_} {Δ} {σ₁} {σ₂} →
-          ∇′ » Δ ⊩ˢ σ₁ ≡ σ₂ ∷ Γ                         →⟨ proj₁ ∘→ escape-⊩ˢ≡∷ ⟩
-          ∇′ »⊢ Δ                                       →⟨ flip ⊩star ok ⟩
-          ∇′ » Δ ⊩⟨ l ⟩ star s l ∷ Unit s l             →⟨ refl-⊩≡∷ ⟩
-          ∇′ » Δ ⊩⟨ l ⟩ star s l ≡ star s l ∷ Unit s l  □
+      , λ {_} {∇} {_} ξ⊇ {_} {Δ} {σ₁} {σ₂} →
+          ∇ » Δ ⊩ˢ σ₁ ≡ σ₂ ∷ Γ .vars                   →⟨ proj₁ ∘→ escape-⊩ˢ≡∷ ⟩
+          ∇ »⊢ Δ                                       →⟨ flip ⊩star ok ⟩
+          ∇ » Δ ⊩⟨ l ⟩ star s l ∷ Unit s l             →⟨ refl-⊩≡∷ ⟩
+          ∇ » Δ ⊩⟨ l ⟩ star s l ≡ star s l ∷ Unit s l  □
       )
 
 ------------------------------------------------------------------------
@@ -317,10 +318,10 @@ opaque
   -- Validity of η-unit.
 
   η-unitᵛ :
-    ∇ » Γ ⊩ᵛ⟨ l′ ⟩ t ∷ Unit s l →
-    ∇ » Γ ⊩ᵛ⟨ l″ ⟩ u ∷ Unit s l →
+    Γ ⊩ᵛ⟨ l′ ⟩ t ∷ Unit s l →
+    Γ ⊩ᵛ⟨ l″ ⟩ u ∷ Unit s l →
     Unit-with-η s →
-    ∇ » Γ ⊩ᵛ⟨ l′ ⟩ t ≡ u ∷ Unit s l
+    Γ ⊩ᵛ⟨ l′ ⟩ t ≡ u ∷ Unit s l
   η-unitᵛ ⊩t ⊩u η =
     ⊩ᵛ≡∷⇔ʰ .proj₂
       ( wf-⊩ᵛ∷ ⊩t
@@ -349,16 +350,16 @@ opaque
   -- Reducibility of equality between applications of unitrec.
 
   ⊩unitrec≡unitrec :
-    ∇ » Γ ∙ Unitʷ l ⊢ A₁ ≡ A₂ →
-    ∇ » Γ ∙ Unitʷ l ⊩ᵛ⟨ l′ ⟩ A₁ ≡ A₂ →
-    ∇ » Γ ⊩ᵛ⟨ l″ ⟩ t₁ ≡ t₂ ∷ Unitʷ l →
-    ∇ » Γ ⊩ᵛ⟨ l‴ ⟩ u₁ ≡ u₂ ∷ A₁ [ starʷ l ]₀ →
-    ⦃ inc : Var-included or-empty Δ ⦄ →
-    ∇ » Δ ⊩ˢ σ₁ ≡ σ₂ ∷ Γ →
-    ∇ » Δ ⊩⟨ l′ ⟩ unitrec l p q A₁ t₁ u₁ [ σ₁ ] ≡
+    ∇ » Δ ∙ Unitʷ l ⊢ A₁ ≡ A₂ →
+    ∇ » Δ ∙ Unitʷ l ⊩ᵛ⟨ l′ ⟩ A₁ ≡ A₂ →
+    ∇ » Δ ⊩ᵛ⟨ l″ ⟩ t₁ ≡ t₂ ∷ Unitʷ l →
+    ∇ » Δ ⊩ᵛ⟨ l‴ ⟩ u₁ ≡ u₂ ∷ A₁ [ starʷ l ]₀ →
+    ⦃ inc : Var-included or-empty Η ⦄ →
+    ∇ » Η ⊩ˢ σ₁ ≡ σ₂ ∷ Δ →
+    ∇ » Η ⊩⟨ l′ ⟩ unitrec l p q A₁ t₁ u₁ [ σ₁ ] ≡
       unitrec l p q A₂ t₂ u₂ [ σ₂ ] ∷ A₁ [ t₁ ]₀ [ σ₁ ]
   ⊩unitrec≡unitrec
-    {∇} {l} {A₁} {A₂} {l′} {t₁} {t₂} {u₁} {u₂} {Δ} {σ₁} {σ₂} {p} {q}
+    {∇} {l} {A₁} {A₂} {l′} {t₁} {t₂} {u₁} {u₂} {Η} {σ₁} {σ₂} {p} {q}
     ⊢A₁≡A₂ A₁≡A₂ t₁≡t₂ u₁≡u₂ σ₁≡σ₂ =
     case wf-⊩ᵛ≡ A₁≡A₂ of λ
       (⊩A₁ , ⊩A₂) →
@@ -465,7 +466,7 @@ opaque
             unitrec l p q A₂ t₂        u₂ [ σ₂ ]                             ∎
 
           (ne (neNfₜ₌ t₁′-ne t₂′-ne t₁′~t₂′)) →
-            ∇ » Δ ⊩⟨ l′ ⟩
+            ∇ » Η ⊩⟨ l′ ⟩
               unitrec l p q (A₁ [ σ₁ ⇑ ]) (t₁ [ σ₁ ]) (u₁ [ σ₁ ]) ≡
               unitrec l p q (A₂ [ σ₂ ⇑ ]) (t₂ [ σ₂ ]) (u₂ [ σ₂ ]) ∷
               A₁ [ t₁ ]₀ [ σ₁ ] ∋
@@ -499,11 +500,11 @@ opaque
   -- Validity of equality between applications of unitrec.
 
   unitrec-congᵛ :
-    ∇ » Γ ∙ Unitʷ l ⊢ A₁ ≡ A₂ →
-    ∇ » Γ ∙ Unitʷ l ⊩ᵛ⟨ l′ ⟩ A₁ ≡ A₂ →
-    ∇ » Γ ⊩ᵛ⟨ l″ ⟩ t₁ ≡ t₂ ∷ Unitʷ l →
-    ∇ » Γ ⊩ᵛ⟨ l‴ ⟩ u₁ ≡ u₂ ∷ A₁ [ starʷ l ]₀ →
-    ∇ » Γ ⊩ᵛ⟨ l′ ⟩ unitrec l p q A₁ t₁ u₁ ≡ unitrec l p q A₂ t₂ u₂ ∷
+    Γ »∙ Unitʷ l ⊢ A₁ ≡ A₂ →
+    Γ »∙ Unitʷ l ⊩ᵛ⟨ l′ ⟩ A₁ ≡ A₂ →
+    Γ ⊩ᵛ⟨ l″ ⟩ t₁ ≡ t₂ ∷ Unitʷ l →
+    Γ ⊩ᵛ⟨ l‴ ⟩ u₁ ≡ u₂ ∷ A₁ [ starʷ l ]₀ →
+    Γ ⊩ᵛ⟨ l′ ⟩ unitrec l p q A₁ t₁ u₁ ≡ unitrec l p q A₂ t₂ u₂ ∷
       A₁ [ t₁ ]₀
   unitrec-congᵛ ⊢A₁≡A₂ A₁≡A₂ t₁≡t₂ u₁≡u₂ =
     ⊩ᵛ≡∷⇔ʰ .proj₂
@@ -519,11 +520,11 @@ opaque
   -- Validity of unitrec.
 
   unitrecᵛ :
-    ∇ » Γ ∙ Unitʷ l ⊢ A →
-    ∇ » Γ ∙ Unitʷ l ⊩ᵛ⟨ l′ ⟩ A →
-    ∇ » Γ ⊩ᵛ⟨ l″ ⟩ t ∷ Unitʷ l →
-    ∇ » Γ ⊩ᵛ⟨ l‴ ⟩ u ∷ A [ starʷ l ]₀ →
-    ∇ » Γ ⊩ᵛ⟨ l′ ⟩ unitrec l p q A t u ∷ A [ t ]₀
+    Γ »∙ Unitʷ l ⊢ A →
+    Γ »∙ Unitʷ l ⊩ᵛ⟨ l′ ⟩ A →
+    Γ ⊩ᵛ⟨ l″ ⟩ t ∷ Unitʷ l →
+    Γ ⊩ᵛ⟨ l‴ ⟩ u ∷ A [ starʷ l ]₀ →
+    Γ ⊩ᵛ⟨ l′ ⟩ unitrec l p q A t u ∷ A [ t ]₀
   unitrecᵛ ⊢A ⊩A ⊩t ⊩u =
     ⊩ᵛ∷⇔⊩ᵛ≡∷ .proj₂ $
     unitrec-congᵛ (refl ⊢A) (refl-⊩ᵛ≡ ⊩A) (refl-⊩ᵛ≡∷ ⊩t) (refl-⊩ᵛ≡∷ ⊩u)
@@ -533,11 +534,11 @@ opaque
   -- Validity of the unitrec β rule.
 
   unitrec-βᵛ :
-    ∇ » Γ ∙ Unitʷ l ⊢ A →
-    ∇ » Γ ∙ Unitʷ l ⊩ᵛ⟨ l″ ⟩ A →
-    ∇ » Γ ⊩ᵛ⟨ l′ ⟩ t ∷ A [ starʷ l ]₀ →
+    Γ »∙ Unitʷ l ⊢ A →
+    Γ »∙ Unitʷ l ⊩ᵛ⟨ l″ ⟩ A →
+    Γ ⊩ᵛ⟨ l′ ⟩ t ∷ A [ starʷ l ]₀ →
     ¬ Unitʷ-η →
-    ∇ » Γ ⊩ᵛ⟨ l′ ⟩ unitrec l p q A (starʷ l) t ≡ t ∷ A [ starʷ l ]₀
+    Γ ⊩ᵛ⟨ l′ ⟩ unitrec l p q A (starʷ l) t ≡ t ∷ A [ starʷ l ]₀
   unitrec-βᵛ {A} ⊢A ⊩A ⊩t no-η =
     ⊩ᵛ∷-⇐
       (λ ξ⊇ ⊩σ →
@@ -558,12 +559,12 @@ opaque
   -- Validity of the rule called unitrec-β-η.
 
   unitrec-β-ηᵛ :
-    ∇ » Γ ∙ Unitʷ l ⊢ A →
-    ∇ » Γ ∙ Unitʷ l ⊩ᵛ⟨ l′ ⟩ A →
-    ∇ » Γ ⊩ᵛ⟨ l″ ⟩ t ∷ Unitʷ l →
-    ∇ » Γ ⊩ᵛ⟨ l‴ ⟩ u ∷ A [ starʷ l ]₀ →
+    Γ »∙ Unitʷ l ⊢ A →
+    Γ »∙ Unitʷ l ⊩ᵛ⟨ l′ ⟩ A →
+    Γ ⊩ᵛ⟨ l″ ⟩ t ∷ Unitʷ l →
+    Γ ⊩ᵛ⟨ l‴ ⟩ u ∷ A [ starʷ l ]₀ →
     Unitʷ-η →
-    ∇ » Γ ⊩ᵛ⟨ l′ ⟩ unitrec l p q A t u ≡ u ∷ A [ t ]₀
+    Γ ⊩ᵛ⟨ l′ ⟩ unitrec l p q A t u ≡ u ∷ A [ t ]₀
   unitrec-β-ηᵛ {A} ⊢A ⊩A ⊩t ⊩u η =
     let ⊢Unit = ⊢∙→⊢ (wf ⊢A)
         ok    = inversion-Unit ⊢Unit

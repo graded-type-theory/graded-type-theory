@@ -38,8 +38,7 @@ import Tools.PropositionalEquality as PE
 open import Tools.Reasoning.PropositionalEquality
 
 private variable
-  ∇                         : DCon (Term 0) _
-  Γ                         : Con Term _
+  Γ                         : Cons _ _
   A B B₁ B₂ t t₁ t₂ u u₁ u₂ : Term _
   s                         : Strength
   l l₁ l₂                   : Universe-level
@@ -60,8 +59,8 @@ opaque
 
   ⊢Lift :
     Lift-allowed s →
-    ∇ » Γ ⊢ A ∷ U l₁ →
-    ∇ » Γ ⊢ Lift s l₂ A ∷ U (l₁ ⊔ᵘ l₂)
+    Γ ⊢ A ∷ U l₁ →
+    Γ ⊢ Lift s l₂ A ∷ U (l₁ ⊔ᵘ l₂)
   ⊢Lift (ok₁ , ok₂) ⊢A =
     ΠΣⱼ ⊢A (Unitⱼ (∙ univ ⊢A) ok₂) ok₁
 
@@ -71,8 +70,8 @@ opaque
   -- An inversion lemma for Lift.
 
   inversion-Lift :
-    ∇ » Γ ⊢ Lift s l A →
-    Lift-allowed s × ∇ » Γ ⊢ A
+    Γ ⊢ Lift s l A →
+    Lift-allowed s × Γ ⊢ A
   inversion-Lift ⊢Lift =
     let ⊢A , ⊢Unit , ok = inversion-ΠΣ ⊢Lift in
     (ok , inversion-Unit ⊢Unit) , ⊢A
@@ -87,8 +86,8 @@ opaque
 
   ⊢lift :
     Lift-allowed s →
-    ∇ » Γ ⊢ t ∷ A →
-    ∇ » Γ ⊢ lift s l t ∷ Lift s l A
+    Γ ⊢ t ∷ A →
+    Γ ⊢ lift s l t ∷ Lift s l A
   ⊢lift (ok₁ , ok₂) ⊢t =
     let ⊢A = syntacticTerm ⊢t in
     prodⱼ (Unitⱼ (∙ ⊢A) ok₂) ⊢t (starⱼ (wf ⊢A) ok₂) ok₁
@@ -102,9 +101,9 @@ private opaque
   -- A lemma used below.
 
   liftrec-lemma :
-    ∇ » Γ ∙ Lift s l A ⊢ B₁ ≡ B₂ →
-    ∇ » Γ ∙ A ⊢ t₁ ≡ t₂ ∷ B₁ [ lift s l (var x0) ]↑ →
-    ∇ » Γ ∙ A ∙ Unit s l ⊢
+    Γ »∙ Lift s l A ⊢ B₁ ≡ B₂ →
+    Γ »∙ A ⊢ t₁ ≡ t₂ ∷ B₁ [ lift s l (var x0) ]↑ →
+    Γ »∙ A »∙ Unit s l ⊢
       unitrec⟨ s ⟩ l r q
         (B₁ [ consSubst (wkSubst 3 idSubst)
                 (prod s 𝟙 (var x2) (var x0)) ])
@@ -168,10 +167,10 @@ opaque
   -- An equality rule for liftrec.
 
   liftrec-cong :
-    ∇ » Γ ∙ Lift s l A ⊢ B₁ ≡ B₂ →
-    ∇ » Γ ∙ A ⊢ t₁ ≡ t₂ ∷ B₁ [ lift s l (var x0) ]↑ →
-    ∇ » Γ ⊢ u₁ ≡ u₂ ∷ Lift s l A →
-    ∇ » Γ ⊢ liftrec r q s l B₁ t₁ u₁ ≡ liftrec r q s l B₂ t₂ u₂ ∷ B₁ [ u₁ ]₀
+    Γ »∙ Lift s l A ⊢ B₁ ≡ B₂ →
+    Γ »∙ A ⊢ t₁ ≡ t₂ ∷ B₁ [ lift s l (var x0) ]↑ →
+    Γ ⊢ u₁ ≡ u₂ ∷ Lift s l A →
+    Γ ⊢ liftrec r q s l B₁ t₁ u₁ ≡ liftrec r q s l B₂ t₂ u₂ ∷ B₁ [ u₁ ]₀
   liftrec-cong B₁≡B₂ t₁≡t₂ u₁≡u₂ =
     prodrec⟨⟩-cong B₁≡B₂ u₁≡u₂ $
     liftrec-lemma B₁≡B₂ t₁≡t₂
@@ -181,10 +180,10 @@ opaque
   -- A typing rule for liftrec.
 
   ⊢liftrec :
-    ∇ » Γ ∙ Lift s l A ⊢ B →
-    ∇ » Γ ∙ A ⊢ t ∷ B [ lift s l (var x0) ]↑ →
-    ∇ » Γ ⊢ u ∷ Lift s l A →
-    ∇ » Γ ⊢ liftrec r q s l B t u ∷ B [ u ]₀
+    Γ »∙ Lift s l A ⊢ B →
+    Γ »∙ A ⊢ t ∷ B [ lift s l (var x0) ]↑ →
+    Γ ⊢ u ∷ Lift s l A →
+    Γ ⊢ liftrec r q s l B t u ∷ B [ u ]₀
   ⊢liftrec ⊢B ⊢t ⊢u =
     syntacticEqTerm
       (liftrec-cong (refl ⊢B) (refl ⊢t) (refl ⊢u))
@@ -196,10 +195,10 @@ opaque
   -- An equality rule for liftrec.
 
   liftrec-β :
-    ∇ » Γ ∙ Lift s l A ⊢ B →
-    ∇ » Γ ∙ A ⊢ t ∷ B [ lift s l (var x0) ]↑ →
-    ∇ » Γ ⊢ u ∷ A →
-    ∇ » Γ ⊢ liftrec r q s l B t (lift s l u) ≡ t [ u ]₀ ∷ B [ lift s l u ]₀
+    Γ »∙ Lift s l A ⊢ B →
+    Γ »∙ A ⊢ t ∷ B [ lift s l (var x0) ]↑ →
+    Γ ⊢ u ∷ A →
+    Γ ⊢ liftrec r q s l B t (lift s l u) ≡ t [ u ]₀ ∷ B [ lift s l u ]₀
   liftrec-β {s} {l} {B} {t} {u} {r} {q} ⊢B ⊢t ⊢u =
     let ⊢Γ               = wfTerm ⊢u
         (ok₁ , ok₂) , ⊢A = inversion-Lift (⊢∙→⊢ (wf ⊢B))

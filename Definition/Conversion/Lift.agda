@@ -44,16 +44,13 @@ open import Tools.Product
 import Tools.PropositionalEquality as PE
 open import Tools.Sum using (inj₁; inj₂)
 
-private
-  variable
-    m n : Nat
-    ∇ : DCon (Term 0) m
-    Γ : Con Term n
+private variable
+  Γ : Cons _ _
 
 -- Lifting of algorithmic equality of types from WHNF to generic types.
 liftConv : ∀ {A B}
-          → ∇ » Γ ⊢ A [conv↓] B
-          → ∇ » Γ ⊢ A [conv↑] B
+          → Γ ⊢ A [conv↓] B
+          → Γ ⊢ A [conv↑] B
 liftConv A<>B =
   let ⊢A , ⊢B = syntacticEq (soundnessConv↓ A<>B)
       whnfA , whnfB = whnfConv↓ A<>B
@@ -61,8 +58,8 @@ liftConv A<>B =
 
 -- Lifting of algorithmic equality of terms from WHNF to generic terms.
 liftConvTerm : ∀ {t u A}
-             → ∇ » Γ ⊢ t [conv↓] u ∷ A
-             → ∇ » Γ ⊢ t [conv↑] u ∷ A
+             → Γ ⊢ t [conv↓] u ∷ A
+             → Γ ⊢ t [conv↑] u ∷ A
 liftConvTerm t<>u =
   let ⊢A , ⊢t , ⊢u = syntacticEqTerm (soundnessConv↓Term t<>u)
       whnfA , whnfT , whnfU = whnfConv↓Term t<>u
@@ -71,10 +68,10 @@ liftConvTerm t<>u =
 mutual
   -- Helper function for lifting from neutral to generic terms in WHNF.
   lift~toConv↓′ : ∀ {t u A A′ l}
-                → ∇ » Γ ⊩⟨ l ⟩ A′
-                → ∇ » Γ ⊢ A′ ⇒* A
-                → ∇ » Γ ⊢ t ~ u ↓ A
-                → ∇ » Γ ⊢ t [conv↓] u ∷ A
+                → Γ ⊩⟨ l ⟩ A′
+                → Γ ⊢ A′ ⇒* A
+                → Γ ⊢ t ~ u ↓ A
+                → Γ ⊢ t [conv↓] u ∷ A
   lift~toConv↓′ (Uᵣ′ _ _ A′⇒*U) A′⇒*A ([~] _ (B⇒*A , A-whnf) t~u)
     rewrite PE.sym (whrDet* (A′⇒*U , Uₙ) (A′⇒*A , A-whnf)) =
     let _ , ⊢t , ⊢u =
@@ -126,7 +123,7 @@ mutual
         var0 = neuTerm ([F] id step-idʳ) (var no-equality-reflection x0) (refl (var₀ ⊢F))
         0≡0 = lift~toConv↑′ ([F] id step-idʳ) (var-refl (var₀ ⊢F) PE.refl)
     in  η-eq ⊢t ⊢u (ne (ne↑⁺ neT)) (ne (ne↑⁺ neU))
-          (PE.subst (λ x → _ » _ ⊢ _ [conv↑] _ ∷ x) (wkSingleSubstId _) $
+          (PE.subst (λ x → _ ⊢ _ [conv↑] _ ∷ x) (wkSingleSubstId _) $
            lift~toConv↑′ ([G] id step-idʳ var0) $
            app-cong (wk~↓ step-id ([~] A (D₂ , ΠΣₙ) k~l)) 0≡0)
   lift~toConv↓′
@@ -150,12 +147,12 @@ mutual
         wk[fst] = neuTerm wk[F] (fstₙ (ne↑ₗ neT)) wkfst≡
         wk[Gfst] = [G] id (id ⊢Γ) wk[fst]
 
-        wkfst~ = PE.subst (λ x → _ » _ ⊢ _ ~ _ ↑ x) (PE.sym wkId) (fst-cong t~u↓)
-        wksnd~ = PE.subst (λ x → _ » _ ⊢ _ ~ _ ↑ x) (PE.sym wkLiftId) (snd-cong t~u↓)
+        wkfst~ = PE.subst (λ x → _ ⊢ _ ~ _ ↑ x) (PE.sym wkId) (fst-cong t~u↓)
+        wksnd~ = PE.subst (λ x → _ ⊢ _ ~ _ ↑ x) (PE.sym wkLiftId) (snd-cong t~u↓)
     in  Σ-η ⊢t ⊢u (ne (ne↑⁺ neT)) (ne (ne↑⁺ neU))
-            (PE.subst (λ x → _ » _ ⊢ _ [conv↑] _ ∷ x) wkId
+            (PE.subst (λ x → _ ⊢ _ [conv↑] _ ∷ x) wkId
                       (lift~toConv↑′ wk[F] wkfst~))
-            (PE.subst (λ x → _ » _ ⊢ _ [conv↑] _ ∷ x) wkLiftId
+            (PE.subst (λ x → _ ⊢ _ [conv↑] _ ∷ x) wkLiftId
                       (lift~toConv↑′ wk[Gfst] wksnd~))
   lift~toConv↓′
     (Bᵣ′ BΣʷ F G D Σ≡Σ [F] [G] G-ext _) D₁
@@ -177,9 +174,9 @@ mutual
 
   -- Helper function for lifting from neutral to generic terms.
   lift~toConv↑′ : ∀ {t u A l}
-                → ∇ » Γ ⊩⟨ l ⟩ A
-                → ∇ » Γ ⊢ t ~ u ↑ A
-                → ∇ » Γ ⊢ t [conv↑] u ∷ A
+                → Γ ⊩⟨ l ⟩ A
+                → Γ ⊢ t ~ u ↑ A
+                → Γ ⊢ t [conv↑] u ∷ A
   lift~toConv↑′ [A] t~u =
     let B , whnfB , D = whNorm′ [A]
         t~u↓ = [~] _ (D , whnfB) t~u
@@ -190,8 +187,8 @@ mutual
 
 -- Lifting of algorithmic equality of terms from neutral to generic terms in WHNF.
 lift~toConv↓ : ∀ {t u A}
-             → ∇ » Γ ⊢ t ~ u ↓ A
-             → ∇ » Γ ⊢ t [conv↓] u ∷ A
+             → Γ ⊢ t ~ u ↓ A
+             → Γ ⊢ t [conv↓] u ∷ A
 lift~toConv↓ ([~] A₁ D@(D′ , _) k~l) =
   lift~toConv↓′
     (reducible-⊩ (syntacticRed D′ .proj₁) .proj₂) D′
@@ -199,8 +196,8 @@ lift~toConv↓ ([~] A₁ D@(D′ , _) k~l) =
 
 -- Lifting of algorithmic equality of terms from neutral to generic terms.
 lift~toConv↑ : ∀ {t u A}
-             → ∇ » Γ ⊢ t ~ u ↑ A
-             → ∇ » Γ ⊢ t [conv↑] u ∷ A
+             → Γ ⊢ t ~ u ↑ A
+             → Γ ⊢ t [conv↑] u ∷ A
 lift~toConv↑ t~u =
   lift~toConv↑′
     (reducible-⊩ (syntacticEqTerm (soundness~↑ t~u) .proj₁) .proj₂)

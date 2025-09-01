@@ -69,7 +69,7 @@ opaque
   lam-cong {∇} {Γ} {A} {B} {t} {u} {p} ⊢B ⊢t ⊢u t≡u ok =
     η-eq ⊢B (lamⱼ ⊢B ⊢t ok) (lamⱼ ⊢B ⊢u ok)
       (wk1 (lam p t) ∘⟨ p ⟩ var x0        ≡⟨ lemma ⊢t ⟩⊢
-       wk (lift (step id)) t [ var x0 ]₀  ≡⟨ PE.subst₂ (_ » _ ⊢_≡_∷ _) (PE.sym (wkSingleSubstId _)) (PE.sym (wkSingleSubstId _))
+       wk (lift (step id)) t [ var x0 ]₀  ≡⟨ PE.subst₂ (_ ⊢_≡_∷ _) (PE.sym (wkSingleSubstId _)) (PE.sym (wkSingleSubstId _))
                                              t≡u ⟩⊢
        wk (lift (step id)) u [ var x0 ]₀  ≡⟨ sym ⊢B (lemma ⊢u) ⟩⊢∎
        wk1 (lam p u) ∘⟨ p ⟩ var x0        ∎)
@@ -85,7 +85,7 @@ opaque
           ⊢A′ = wk₁ ⊢A ⊢A
           ρ   = liftʷ (step id) ⊢A′
       in
-      PE.subst (_ » _ ⊢ _ ≡ _ ∷_) (wkSingleSubstId _) $
+      PE.subst (_ ⊢ _ ≡ _ ∷_) (wkSingleSubstId _) $
       β-red (W.wk ρ ⊢B) (wkTerm ρ ⊢v) (var₀ ⊢A) PE.refl ok
 
 ------------------------------------------------------------------------

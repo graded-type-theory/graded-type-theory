@@ -37,8 +37,7 @@ open import Tools.Product
 import Tools.PropositionalEquality as PE
 
 private variable
-  ∇       : DCon (Term 0) _
-  Γ       : Con Term _
+  Γ       : Cons _ _
   t t₁ t₂ : Term _
 
 opaque
@@ -47,9 +46,9 @@ opaque
   -- An equality rule for OK.
 
   OK-cong-U :
-    ∇ » Γ ⊢ t₁ ≡ t₂ ∷ ℕ →
-    ∇ » Γ ⊢ OK t₁ ≡ OK t₂ ∷ U 0
-  OK-cong-U {∇} {Γ} t₁≡t₂ =
+    Γ ⊢ t₁ ≡ t₂ ∷ ℕ →
+    Γ ⊢ OK t₁ ≡ OK t₂ ∷ U 0
+  OK-cong-U {Γ} t₁≡t₂ =
     natcase-cong (refl (Uⱼ (∙ ⊢ℕ₁)))
       (refl (Unitⱼ ⊢Γ Unitʷ-ok))
       (refl $
@@ -57,13 +56,13 @@ opaque
          (var₀ ⊢ℕ₁))
       t₁≡t₂
     where
-    ⊢Γ : ∇ »⊢ Γ
+    ⊢Γ : ⊢ Γ
     ⊢Γ = wfEqTerm t₁≡t₂
 
-    ⊢ℕ₁ : ∇ » Γ ⊢ ℕ
+    ⊢ℕ₁ : Γ ⊢ ℕ
     ⊢ℕ₁ = ℕⱼ ⊢Γ
 
-    ⊢ℕ₂ : ∇ » Γ ∙ ℕ ⊢ ℕ
+    ⊢ℕ₂ : Γ »∙ ℕ ⊢ ℕ
     ⊢ℕ₂ = ℕⱼ (∙ ⊢ℕ₁)
 
 opaque
@@ -71,8 +70,8 @@ opaque
   -- An equality rule for OK.
 
   OK-cong :
-    ∇ » Γ ⊢ t₁ ≡ t₂ ∷ ℕ →
-    ∇ » Γ ⊢ OK t₁ ≡ OK t₂
+    Γ ⊢ t₁ ≡ t₂ ∷ ℕ →
+    Γ ⊢ OK t₁ ≡ OK t₂
   OK-cong = univ ∘→ OK-cong-U
 
 opaque
@@ -80,8 +79,8 @@ opaque
   -- A typing rule for OK.
 
   ⊢OK∷U :
-    ∇ » Γ ⊢ t ∷ ℕ →
-    ∇ » Γ ⊢ OK t ∷ U 0
+    Γ ⊢ t ∷ ℕ →
+    Γ ⊢ OK t ∷ U 0
   ⊢OK∷U ⊢t =
     syntacticEqTerm (OK-cong-U (refl ⊢t)) .proj₂ .proj₁
 
@@ -90,8 +89,8 @@ opaque
   -- A typing rule for OK.
 
   ⊢OK :
-    ∇ » Γ ⊢ t ∷ ℕ →
-    ∇ » Γ ⊢ OK t
+    Γ ⊢ t ∷ ℕ →
+    Γ ⊢ OK t
   ⊢OK = univ ∘→ ⊢OK∷U
 
 opaque
@@ -100,8 +99,8 @@ opaque
   -- An equality rule for OK.
 
   OK-0≡ :
-    ∇ »⊢ Γ →
-    ∇ » Γ ⊢ OK zero ≡ Unitʷ 0
+    ⊢ Γ →
+    Γ ⊢ OK zero ≡ Unitʷ 0
   OK-0≡ ⊢Γ =
     OK zero                                              ≡⟨⟩⊢
 
@@ -118,8 +117,8 @@ opaque
   -- An equality rule for OK.
 
   OK-1≡ :
-    ∇ »⊢ Γ →
-    ∇ » Γ ⊢ OK (suc zero) ≡ Unitʷ 0
+    ⊢ Γ →
+    Γ ⊢ OK (suc zero) ≡ Unitʷ 0
   OK-1≡ ⊢Γ =
     OK (suc zero)                                              ≡⟨⟩⊢
 
@@ -142,9 +141,9 @@ opaque
   -- An equality rule for OK.
 
   OK-2+≡ :
-    ∇ » Γ ⊢ t ∷ ℕ →
-    ∇ » Γ ⊢ OK (suc (suc t)) ≡ Empty
-  OK-2+≡ {∇} {Γ} {t} ⊢t =
+    Γ ⊢ t ∷ ℕ →
+    Γ ⊢ OK (suc (suc t)) ≡ Empty
+  OK-2+≡ {Γ} {t} ⊢t =
     OK (suc (suc t))                                              ≡⟨⟩⊢
 
     natcase OKᵍ 𝟘 (U 0) (Unitʷ 0)
@@ -159,11 +158,11 @@ opaque
                                                                      natcase-suc-≡ (Uⱼ (∙ ⊢ℕ₁)) (Unitⱼ ⊢Γ Unitʷ-ok) (Emptyⱼ (∙ ⊢ℕ₁)) ⊢t ⟩⊢∎
     Empty                                                         ∎
     where
-    ⊢Γ : ∇ »⊢ Γ
+    ⊢Γ : ⊢ Γ
     ⊢Γ = wfTerm ⊢t
 
-    ⊢ℕ₁ : ∇ » Γ ⊢ ℕ
+    ⊢ℕ₁ : Γ ⊢ ℕ
     ⊢ℕ₁ = ℕⱼ ⊢Γ
 
-    ⊢ℕ₂ : ∇ » Γ ∙ ℕ ⊢ ℕ
+    ⊢ℕ₂ : Γ »∙ ℕ ⊢ ℕ
     ⊢ℕ₂ = ℕⱼ (∙ ⊢ℕ₁)

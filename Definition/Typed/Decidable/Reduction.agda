@@ -17,9 +17,8 @@ module Definition.Typed.Decidable.Reduction
   (R : Type-restrictions 𝕄)
   (open Type-restrictions R)
   (_≟_ : Decidable (PE._≡_ {A = M}))
-  {m} {∇ : DCon (Term 0) m}
-  {n} {Γ : Con Term n}
-  ⦃ ok : No-equality-reflection or-empty Γ ⦄
+  {m n} {Γ : Cons m n}
+  ⦃ ok : No-equality-reflection or-empty (Γ .vars) ⦄
   where
 
 open import Definition.Untyped.Neutral M type-variant as N
@@ -47,7 +46,7 @@ opaque
   -- It is decidable whether a well-formed type reduces to an
   -- application of U.
 
-  ⇒*U? : ∇ » Γ ⊢ A → Dec (∃ λ l → ∇ » Γ ⊢ A ⇒* U l)
+  ⇒*U? : Γ ⊢ A → Dec (∃ λ l → Γ ⊢ A ⇒* U l)
   ⇒*U? ⊢A =
     case whNorm ⊢A of λ
       (B , B-whnf , A⇒*B) →
@@ -57,7 +56,7 @@ opaque
         no λ (l , A⇒*U) →
         not (_ , whrDet* (A⇒*U , Uₙ) (A⇒*B , B-whnf))
     where
-    is-U : Whnf ∇ B → Dec (∃ λ l → U l PE.≡ B)
+    is-U : Whnf (Γ .defs) B → Dec (∃ λ l → U l PE.≡ B)
     is-U Uₙ        = yes (_ , PE.refl)
     is-U ΠΣₙ       = no λ ()
     is-U ℕₙ        = no λ ()
@@ -77,7 +76,7 @@ private opaque
   -- A lemma used below.
 
   isΠΣ′ :
-    ∇ » Γ ⊩⟨ l ⟩ A → Dec (∃₅ λ b p q B C → ∇ » Γ ⊢ A ⇒* ΠΣ⟨ b ⟩ p , q ▷ B ▹ C)
+    Γ ⊩⟨ l ⟩ A → Dec (∃₅ λ b p q B C → Γ ⊢ A ⇒* ΠΣ⟨ b ⟩ p , q ▷ B ▹ C)
   isΠΣ′ (Uᵣ′ _ _ A⇒*U) =
     no λ (_ , _ , _ , _ , _ , A⇒*) →
     I.U≢ΠΣⱼ (trans (sym (subset* A⇒*U)) (subset* A⇒*))
@@ -109,14 +108,14 @@ opaque
   -- It is decidable whether a well-formed type reduces to (or does
   -- not reduce to) either a Π-type or a Σ-type.
 
-  isΠΣ : ∇ » Γ ⊢ A → Dec (∃₅ λ b p q B C → ∇ » Γ ⊢ A ⇒* ΠΣ⟨ b ⟩ p , q ▷ B ▹ C)
+  isΠΣ : Γ ⊢ A → Dec (∃₅ λ b p q B C → Γ ⊢ A ⇒* ΠΣ⟨ b ⟩ p , q ▷ B ▹ C)
   isΠΣ ⊢A = isΠΣ′ (reducible-⊩ ⊢A .proj₂)
 
 opaque
 
   -- It is decidable whether a well-formed type reduces to a Π-type.
 
-  isΠ : ∇ » Γ ⊢ A → Dec (∃₄ λ p q B C → ∇ » Γ ⊢ A ⇒* Π p , q ▷ B ▹ C)
+  isΠ : Γ ⊢ A → Dec (∃₄ λ p q B C → Γ ⊢ A ⇒* Π p , q ▷ B ▹ C)
   isΠ ⊢A with isΠΣ ⊢A
   … | yes (BMΠ , rest)                   = yes rest
   … | yes (BMΣ _ , _ , _ , _ , _ , A⇒*Σ) =
@@ -128,7 +127,7 @@ opaque
 
   -- It is decidable whether a well-formed type reduces to a Σ-type.
 
-  isΣ : ∇ » Γ ⊢ A → Dec (∃₅ λ s p q B C → ∇ » Γ ⊢ A ⇒* Σ⟨ s ⟩ p , q ▷ B ▹ C)
+  isΣ : Γ ⊢ A → Dec (∃₅ λ s p q B C → Γ ⊢ A ⇒* Σ⟨ s ⟩ p , q ▷ B ▹ C)
   isΣ ⊢A with isΠΣ ⊢A
   … | yes (BMΣ _ , rest)               = yes (_ , rest)
   … | yes (BMΠ , _ , _ , _ , _ , A⇒*Π) =
@@ -141,7 +140,7 @@ opaque
   -- It is decidable whether a well-formed type reduces to a strong
   -- Σ-type.
 
-  isΣˢ : ∇ » Γ ⊢ A → Dec (∃₄ λ p q B C → ∇ » Γ ⊢ A ⇒* Σˢ p , q ▷ B ▹ C)
+  isΣˢ : Γ ⊢ A → Dec (∃₄ λ p q B C → Γ ⊢ A ⇒* Σˢ p , q ▷ B ▹ C)
   isΣˢ ⊢A with isΣ ⊢A
   … | yes (𝕤 , rest)                  = yes rest
   … | yes (𝕨 , _ , _ , _ , _ , A⇒*Σʷ) =
@@ -154,7 +153,7 @@ opaque
   -- It is decidable whether a well-formed type reduces to a weak
   -- Σ-type.
 
-  isΣʷ : ∇ » Γ ⊢ A → Dec (∃₄ λ p q B C → ∇ » Γ ⊢ A ⇒* Σʷ p , q ▷ B ▹ C)
+  isΣʷ : Γ ⊢ A → Dec (∃₄ λ p q B C → Γ ⊢ A ⇒* Σʷ p , q ▷ B ▹ C)
   isΣʷ ⊢A with isΣ ⊢A
   … | yes (𝕨 , rest)                  = yes rest
   … | yes (𝕤 , _ , _ , _ , _ , A⇒*Σˢ) =
@@ -167,10 +166,10 @@ opaque
   -- It is decidable whether a well-formed type reduces to an identity
   -- type.
 
-  is-Id : ∇ » Γ ⊢ A → Dec (∃₃ λ B t u → ∇ » Γ ⊢ A ⇒* Id B t u)
+  is-Id : Γ ⊢ A → Dec (∃₃ λ B t u → Γ ⊢ A ⇒* Id B t u)
   is-Id = helper ∘→ proj₂ ∘→ reducible-⊩
     where
-    helper : ∇ » Γ ⊩⟨ l ⟩ A → Dec (∃₃ λ B t u → ∇ » Γ ⊢ A ⇒* Id B t u)
+    helper : Γ ⊩⟨ l ⟩ A → Dec (∃₃ λ B t u → Γ ⊢ A ⇒* Id B t u)
     helper (Uᵣ ⊩U) =
       no λ (_ , _ , _ , A⇒*Id) →
         Id≢U $

@@ -66,8 +66,7 @@ open import Graded.Mode 𝕄
 private
   variable
     n : Nat
-    ∇ : DCon (Term 0) n
-    Γ : Con Term n
+    Γ : Cons _ _
     A A′ t t′ : Term n
     p : M
     γ : Conₘ n
@@ -193,7 +192,7 @@ module _ (as : Full-reduction-assumptions) where
 
     fullRedNe :
       ⦃ not-ok : No-equality-reflection ⦄ →
-      (⊢t : ∇ » Γ ⊢ t ~ t′ ↑ A) → ▸[ m ] ∇ → γ ▸[ m ] t →
+      (⊢t : Γ ⊢ t ~ t′ ↑ A) → ▸[ m ] Γ .defs → γ ▸[ m ] t →
       γ ▸[ m ] FR.fullRedNe ⊢t .proj₁
     fullRedNe {Γ = Γ} = λ where
       (var-refl _ _) _ ▸x →
@@ -302,21 +301,21 @@ module _ (as : Full-reduction-assumptions) where
 
     fullRedNe~↓ :
       ⦃ not-ok : No-equality-reflection ⦄ →
-      (⊢t : ∇ » Γ ⊢ t ~ t′ ↓ A) → ▸[ m ] ∇ → γ ▸[ m ] t →
+      (⊢t : Γ ⊢ t ~ t′ ↓ A) → ▸[ m ] Γ .defs → γ ▸[ m ] t →
       γ ▸[ m ] FR.fullRedNe~↓ ⊢t .proj₁
     fullRedNe~↓ ([~] _ _ k~l) ▸∇ γ▸t =
       fullRedNe k~l ▸∇ γ▸t
 
     fullRedConv↑ :
       ⦃ not-ok : No-equality-reflection ⦄ →
-      (⊢A : ∇ » Γ ⊢ A [conv↑] A′) → ▸[ m ] ∇ → γ ▸[ m ] A →
+      (⊢A : Γ ⊢ A [conv↑] A′) → ▸[ m ] Γ .defs → γ ▸[ m ] A →
       γ ▸[ m ] FR.fullRedConv↑ ⊢A .proj₁
     fullRedConv↑ ([↑] _ _ (D , _) _ A′<>B′) ▸∇ γ▸A =
       fullRedConv↓ A′<>B′ ▸∇ (usagePres* Unitʷ-η→ ▸∇ γ▸A D)
 
     fullRedConv↓ :
       ⦃ not-ok : No-equality-reflection ⦄ →
-      (⊢A : ∇ » Γ ⊢ A [conv↓] A′) → ▸[ m ] ∇ → γ ▸[ m ] A →
+      (⊢A : Γ ⊢ A [conv↓] A′) → ▸[ m ] Γ .defs → γ ▸[ m ] A →
       γ ▸[ m ] FR.fullRedConv↓ ⊢A .proj₁
     fullRedConv↓ = λ where
       (U-refl     _)     _  ▸U    → ▸U
@@ -346,14 +345,14 @@ module _ (as : Full-reduction-assumptions) where
 
     fullRedTermConv↑ :
       ⦃ not-ok : No-equality-reflection ⦄ →
-      (⊢t : ∇ » Γ ⊢ t [conv↑] t′ ∷ A) → ▸[ m ] ∇ → γ ▸[ m ] t →
+      (⊢t : Γ ⊢ t [conv↑] t′ ∷ A) → ▸[ m ] Γ .defs → γ ▸[ m ] t →
       γ ▸[ m ] FR.fullRedTermConv↑ ⊢t .proj₁
     fullRedTermConv↑ ([↑]ₜ _ _ _ _ (d , _) _ t<>u) ▸∇ γ▸t =
       fullRedTermConv↓ t<>u ▸∇ (usagePres*Term Unitʷ-η→ ▸∇ γ▸t d)
 
     fullRedTermConv↓ :
       ⦃ not-ok : No-equality-reflection ⦄ →
-      (⊢t : ∇ » Γ ⊢ t [conv↓] t′ ∷ A) → ▸[ m ] ∇ → γ ▸[ m ] t →
+      (⊢t : Γ ⊢ t [conv↓] t′ ∷ A) → ▸[ m ] Γ .defs → γ ▸[ m ] t →
       γ ▸[ m ] FR.fullRedTermConv↓ ⊢t .proj₁
     fullRedTermConv↓ {Γ} {t} {m} {γ} = λ where
       (ℕ-ins t~)          ▸∇ ▸t     → fullRedNe~↓ t~ ▸∇ ▸t
@@ -410,8 +409,8 @@ module _ (as : Full-reduction-assumptions) where
 fullRed :
   ⦃ not-ok : No-equality-reflection ⦄ →
   Full-reduction-assumptions →
-  ∇ » Γ ⊢ A → ▸[ m ] ∇ → γ ▸[ m ] A →
-  ∃ λ B → ∇ » Γ ⊢nf B × ∇ » Γ ⊢ A ≡ B × γ ▸[ m ] B
+  Γ ⊢ A → ▸[ m ] Γ .defs → γ ▸[ m ] A →
+  ∃ λ B → Γ ⊢nf B × Γ ⊢ A ≡ B × γ ▸[ m ] B
 fullRed as ⊢A ▸∇ ▸A =
   let B , ⊢B , A≡B = FR.fullRedConv↑ A≡A in
   B , ⊢B , A≡B , fullRedConv↑ as A≡A ▸∇ ▸A
@@ -426,9 +425,9 @@ fullRed as ⊢A ▸∇ ▸A =
 
 Full-reduction-term : Set a
 Full-reduction-term =
-  ∀ {n₁ n₂} {∇ : DCon (Term 0) n₁} {Γ : Con Term n₂} {t A γ m} →
-  ∇ » Γ ⊢ t ∷ A → ▸[ m ] ∇ → γ ▸[ m ] t →
-  ∃ λ u → ∇ » Γ ⊢nf u ∷ A × ∇ » Γ ⊢ t ≡ u ∷ A × γ ▸[ m ] u
+  ∀ {n₁ n₂} {Γ : Cons n₁ n₂} {t A γ m} →
+  Γ ⊢ t ∷ A → ▸[ m ] Γ .defs → γ ▸[ m ] t →
+  ∃ λ u → Γ ⊢nf u ∷ A × Γ ⊢ t ≡ u ∷ A × γ ▸[ m ] u
 
 -- If a term is well-formed and well-resourced, then it is
 -- definitionally equal to a well-resourced term in η-long normal

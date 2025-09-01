@@ -39,7 +39,8 @@ private variable
   ∇             : DCon (Term 0) _
   α             : Nat
   x             : Fin _
-  Γ Δ           : Con Term _
+  Δ Η           : Con Term _
+  Γ             : Cons _ _
   A B t t₁ t₂ u : Term _
   σ₁ σ₂         : Subst _ _
 
@@ -50,7 +51,7 @@ opaque
 
   -- A well-formedness lemma for _↦∷_∈_.
 
-  wf-∷∈ : x ∷ A ∈ Γ → ∇ »⊢ Γ → ∇ » Γ ⊢ A
+  wf-∷∈ : x ∷ A ∈ Γ .vars → ⊢ Γ → Γ ⊢ A
   wf-∷∈ here       (∙ ⊢A) = wk₁ ⊢A ⊢A
   wf-∷∈ (there x∈) (∙ ⊢B) = wk₁ ⊢B (wf-∷∈ x∈ (wf ⊢B))
 
@@ -79,7 +80,7 @@ opaque mutual
 
   -- A well-formedness lemma for _⊢_∷_.
 
-  wf-⊢∷ : ∇ » Γ ⊢ t ∷ A → ∇ » Γ ⊢ A
+  wf-⊢∷ : Γ ⊢ t ∷ A → Γ ⊢ A
   wf-⊢∷ = λ where
     (conv _ B≡A) →
       let _ , ⊢A = wf-⊢≡ B≡A in
@@ -142,7 +143,7 @@ opaque mutual
 
   -- A well-formedness lemma for _⊢_≡_.
 
-  wf-⊢≡ : ∇ » Γ ⊢ A ≡ B → ∇ » Γ ⊢ A × ∇ » Γ ⊢ B
+  wf-⊢≡ : Γ ⊢ A ≡ B → Γ ⊢ A × Γ ⊢ B
   wf-⊢≡ = λ where
     (refl ⊢A) →
       ⊢A , ⊢A
@@ -172,7 +173,7 @@ opaque mutual
 
   -- A well-formedness lemma for _⊢_≡_∷_.
 
-  wf-⊢≡∷ : ∇ » Γ ⊢ t ≡ u ∷ A → (∇ » Γ ⊢ A) × ∇ » Γ ⊢ t ∷ A × ∇ » Γ ⊢ u ∷ A
+  wf-⊢≡∷ : Γ ⊢ t ≡ u ∷ A → (Γ ⊢ A) × Γ ⊢ t ∷ A × Γ ⊢ u ∷ A
   wf-⊢≡∷ = λ where
     (refl ⊢t) →
       wf-⊢∷ ⊢t , ⊢t , ⊢t
@@ -470,7 +471,8 @@ opaque
 
   -- A well-formedness lemma for _⊢ˢ_≡_∷_.
 
-  wf-⊢ˢ≡∷ : ∇ »⊢ Γ → ∇ » Δ ⊢ˢ σ₁ ≡ σ₂ ∷ Γ → ∇ » Δ ⊢ˢ σ₁ ∷ Γ × ∇ » Δ ⊢ˢ σ₂ ∷ Γ
+  wf-⊢ˢ≡∷ :
+    ∇ »⊢ Δ → ∇ » Η ⊢ˢ σ₁ ≡ σ₂ ∷ Δ → ∇ » Η ⊢ˢ σ₁ ∷ Δ × ∇ » Η ⊢ˢ σ₂ ∷ Δ
   wf-⊢ˢ≡∷ _      id              = id , id
   wf-⊢ˢ≡∷ (∙ ⊢A) (σ₁≡σ₂ , t₁≡t₂) =
     let ⊢σ₁ , ⊢σ₂     = wf-⊢ˢ≡∷ (wf ⊢A) σ₁≡σ₂

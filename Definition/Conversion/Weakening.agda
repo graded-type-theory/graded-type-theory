@@ -49,12 +49,12 @@ mutual
   wk~↑ {ρ} [ρ] (defn-refl α α↦⊘ α≡β) =
     defn-refl (wkTerm [ρ] α) α↦⊘ α≡β
   wk~↑ ρ (app-cong {B} t~u x) =
-    PE.subst (λ x → _ » _ ⊢ _ ~ _ ↑ x) (PE.sym (wk-β B))
+    PE.subst (λ x → _ ⊢ _ ~ _ ↑ x) (PE.sym (wk-β B))
              (app-cong (wk~↓ ρ t~u) (wkConv↑Term ρ x))
   wk~↑ ρ (fst-cong p~r) =
     fst-cong (wk~↓ ρ p~r)
   wk~↑ ρ (snd-cong {B} p~r) =
-    PE.subst (λ x → _ » _ ⊢ _ ~ _ ↑ x)
+    PE.subst (λ x → _ ⊢ _ ~ _ ↑ x)
              (PE.sym (wk-β B))
              (snd-cong (wk~↓ ρ p~r))
   wk~↑ [ρ] (natrec-cong {A₁} x x₁ x₂ t~u) =
@@ -76,10 +76,9 @@ mutual
     let ρg~ρh = wk~↓ [ρ] g~h
         ⊢ρΣ , _ , _ = syntacticEqTerm (soundness~↓ ρg~ρh)
         _ , ⊢ρG , _ = inversion-ΠΣ ⊢ρΣ
-        u↓v = PE.subst (λ x → _ » _ ⊢ U.wk (liftn ρ 2) u [conv↑] U.wk (liftn ρ 2) v ∷ x)
-                       (wk-β-prodrec ρ C)
-                       (wkConv↑Term (liftʷ (lift (∷ʷ⊇→∷⊇ [ρ])) ⊢ρG) x₁)
-    in  PE.subst  (λ x → _ » _ ⊢ U.wk ρ (prodrec _ _ _ C g u) ~
+        u↓v = PE.subst (_⊢_[conv↑]_∷_ _ _ _) (wk-β-prodrec ρ C)
+                (wkConv↑Term (liftʷ (lift (∷ʷ⊇→∷⊇ [ρ])) ⊢ρG) x₁)
+    in  PE.subst  (λ x → _ ⊢ U.wk ρ (prodrec _ _ _ C g u) ~
                            U.wk ρ (prodrec _ _ _ E h v) ↑ x)
                   (PE.sym (wk-β C))
                   (prodrec-cong (wkConv↑ (liftʷʷ [ρ] ⊢ρΣ) x) ρg~ρh
@@ -105,7 +104,7 @@ mutual
       ⊢t₁ →
     case wk [ρ] ⊢A₁ of λ {
       ⊢wk-ρ-A₁ →
-    PE.subst (_ » _ ⊢ J _ _ _ _ _ _ _ _ ~ _ ↑_)
+    PE.subst (_ ⊢ J _ _ _ _ _ _ _ _ ~ _ ↑_)
       (PE.sym $ wk-β-doubleSubst _ B₁ _ _) $
     J-cong (wkConv↑ [ρ] A₁≡A₂) (wkConv↑Term [ρ] t₁≡t₂)
       (PE.subst
@@ -132,7 +131,7 @@ mutual
   wk~↑ [ρ] (K-cong {B₁} A₁≡A₂ t₁≡t₂ B₁≡B₂ u₁≡u₂ v₁~v₂ ≡Id ok) =
     case syntacticEqTerm (soundnessConv↑Term t₁≡t₂) .proj₂ .proj₁ of λ {
       ⊢t₁ →
-    PE.subst (_ » _ ⊢ K _ _ _ _ _ _ ~ _ ↑_)
+    PE.subst (_ ⊢ K _ _ _ _ _ _ ~ _ ↑_)
       (PE.sym $ wk-β B₁) $
     K-cong (wkConv↑ [ρ] A₁≡A₂) (wkConv↑Term [ρ] t₁≡t₂)
       (wkConv↑ (liftʷʷ [ρ] (wk [ρ] (Idⱼ′ ⊢t₁ ⊢t₁))) B₁≡B₂)
@@ -207,7 +206,7 @@ mutual
     let ⊢ρF = wk ρ (⊢∙→⊢ (wf x₁))
         ⊢ρG = wk (liftʷʷ ρ ⊢ρF) x₁
     in  prod-cong ⊢ρG (wkConv↑Term ρ x₂)
-          (PE.subst (λ x → _ » _ ⊢ _ [conv↑] _ ∷ x) (wk-β G)
+          (PE.subst (λ x → _ ⊢ _ [conv↑] _ ∷ x) (wk-β G)
              (wkConv↑Term ρ x₃))
           ok
   wkConv↓Term {∇} {ρ} {Δ} [ρ] (η-eq {F = F} {G = G} x₁ x₂ y y₁ t<>u) =
@@ -227,7 +226,7 @@ mutual
         (wkProduct ρ pProd)
         (wkProduct ρ rProd)
         (wkConv↑Term [ρ] fstConv)
-        (PE.subst (λ x → _ » _ ⊢ _ [conv↑] _ ∷ x)
+        (PE.subst (λ x → _ ⊢ _ [conv↑] _ ∷ x)
                   (wk-β B)
                   (wkConv↑Term [ρ] sndConv))
   wkConv↓Term {ρ} [ρ] (η-unit [t] [u] tWhnf uWhnf ok) =

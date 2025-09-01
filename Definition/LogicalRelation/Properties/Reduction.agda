@@ -45,17 +45,16 @@ open import Tools.Sum using (inj₁; inj₂)
 private
   variable
     m n     : Nat
-    ∇       : DCon (Term 0) m
-    Γ       : Con Term n
+    Γ       : Cons m n
     A B t u : Term n
     l       : Universe-level
 
 -- Weak head expansion of reducible types.
 redSubst* : ∀ {A B : Term n} {l}
-          → ∇ » Γ ⊢ A ⇒* B
-          → ∇ » Γ ⊩⟨ l ⟩ B
-          → ∃ λ ([A] : ∇ » Γ ⊩⟨ l ⟩ A)
-          → ∇ » Γ ⊩⟨ l ⟩ A ≡ B / [A]
+          → Γ ⊢ A ⇒* B
+          → Γ ⊩⟨ l ⟩ B
+          → ∃ λ ([A] : Γ ⊩⟨ l ⟩ A)
+          → Γ ⊩⟨ l ⟩ A ≡ B / [A]
 redSubst* D (Uᵣ′ l′ l< D′) =
   Uᵣ′ l′ l< (D ⇨* D′) , D′
 redSubst* D (ℕᵣ D′) =
@@ -90,11 +89,11 @@ redSubst* A⇒*B (emb (≤ᵘ-step p) ⊩B) =
 
 -- Weak head expansion of reducible terms.
 redSubst*Term : ∀ {A : Term n} {t u l}
-              → ∇ » Γ ⊢ t ⇒* u ∷ A
-              → ([A] : ∇ » Γ ⊩⟨ l ⟩ A)
-              → ∇ » Γ ⊩⟨ l ⟩ u ∷ A / [A]
-              → ∇ » Γ ⊩⟨ l ⟩ t ∷ A / [A]
-              × ∇ » Γ ⊩⟨ l ⟩ t ≡ u ∷ A / [A]
+              → Γ ⊢ t ⇒* u ∷ A
+              → ([A] : Γ ⊩⟨ l ⟩ A)
+              → Γ ⊩⟨ l ⟩ u ∷ A / [A]
+              → Γ ⊩⟨ l ⟩ t ∷ A / [A]
+              × Γ ⊩⟨ l ⟩ t ≡ u ∷ A / [A]
 redSubst*Term t⇒u (Uᵣ′ l ≤ᵘ-refl D) (Uₜ A d typeA A≡A [u]) =
   let A≡K  = subset* D
       d′ = conv* t⇒u A≡K ⇨∷* d
@@ -163,8 +162,8 @@ redSubst*Term
       [u′] = Σₜ p d′ p≅p (ne x) p~p
   in  [u′] , Σₜ₌ p p d′ d (ne x) (ne x) p≅p [u′] [u] p~p
 redSubst*Term
-  {∇ = ∇} {Γ = Γ} {A = A} {t = t} {l = l} t⇒*u (Idᵣ ⊩A) ⊩u@(u′ , u⇒*u′ , rest) =
-  let ⊩t : ∇ » Γ ⊩⟨ l ⟩ t ∷ A / Idᵣ ⊩A
+  {Γ} {A} {t} {l} t⇒*u (Idᵣ ⊩A) ⊩u@(u′ , u⇒*u′ , rest) =
+  let ⊩t : Γ ⊩⟨ l ⟩ t ∷ A / Idᵣ ⊩A
       ⊩t =
           u′
         , conv* t⇒*u (subset* ⇒*Id) ⇨∷* u⇒*u′
@@ -182,19 +181,19 @@ redSubst*Term t⇒u (emb (≤ᵘ-step p) ⊩A) = redSubst*Term t⇒u (emb p ⊩A
 
 -- Weak head expansion of reducible types with single reduction step.
 redSubst : ∀ {A B : Term n} {l}
-         → ∇ » Γ ⊢ A ⇒ B
-         → ∇ » Γ ⊩⟨ l ⟩ B
-         → ∃ λ ([A] : ∇ » Γ ⊩⟨ l ⟩ A)
-         → ∇ » Γ ⊩⟨ l ⟩ A ≡ B / [A]
+         → Γ ⊢ A ⇒ B
+         → Γ ⊩⟨ l ⟩ B
+         → ∃ λ ([A] : Γ ⊩⟨ l ⟩ A)
+         → Γ ⊩⟨ l ⟩ A ≡ B / [A]
 redSubst A⇒B [B] = redSubst* (redMany-⊢ A⇒B) [B]
 
 -- Weak head expansion of reducible terms with single reduction step.
 redSubstTerm : ∀ {A t u : Term n} {l}
-             → ∇ » Γ ⊢ t ⇒ u ∷ A
-             → ([A] : ∇ » Γ ⊩⟨ l ⟩ A)
-             → ∇ » Γ ⊩⟨ l ⟩ u ∷ A / [A]
-             → ∇ » Γ ⊩⟨ l ⟩ t ∷ A / [A]
-             × ∇ » Γ ⊩⟨ l ⟩ t ≡ u ∷ A / [A]
+             → Γ ⊢ t ⇒ u ∷ A
+             → ([A] : Γ ⊩⟨ l ⟩ A)
+             → Γ ⊩⟨ l ⟩ u ∷ A / [A]
+             → Γ ⊩⟨ l ⟩ t ∷ A / [A]
+             × Γ ⊩⟨ l ⟩ t ≡ u ∷ A / [A]
 redSubstTerm t⇒u [A] [u] = redSubst*Term (redMany t⇒u) [A] [u]
 
 opaque
@@ -203,8 +202,8 @@ opaque
   -- to A.
 
   redSubst*′ :
-    ∇ » Γ ⊢ A ⇒* B → (⊩A : ∇ » Γ ⊩⟨ l ⟩ A) →
-    (∇ » Γ ⊩⟨ l ⟩ B) × ∇ » Γ ⊩⟨ l ⟩ A ≡ B / ⊩A
+    Γ ⊢ A ⇒* B → (⊩A : Γ ⊩⟨ l ⟩ A) →
+    (Γ ⊩⟨ l ⟩ B) × Γ ⊩⟨ l ⟩ A ≡ B / ⊩A
   redSubst*′ A⇒*B ⊩U@(Uᵣ′ l l< D) =
     case whrDet↘ (D , Uₙ) A⇒*B of λ
       B⇒*U →
@@ -252,8 +251,8 @@ opaque
   -- to t.
 
   redSubst*Term′ :
-    ∇ » Γ ⊢ t ⇒* u ∷ A → (⊩A : ∇ » Γ ⊩⟨ l ⟩ A) → ∇ » Γ ⊩⟨ l ⟩ t ∷ A / ⊩A →
-    ∇ » Γ ⊩⟨ l ⟩ u ∷ A / ⊩A × ∇ » Γ ⊩⟨ l ⟩ t ≡ u ∷ A / ⊩A
+    Γ ⊢ t ⇒* u ∷ A → (⊩A : Γ ⊩⟨ l ⟩ A) → Γ ⊩⟨ l ⟩ t ∷ A / ⊩A →
+    Γ ⊩⟨ l ⟩ u ∷ A / ⊩A × Γ ⊩⟨ l ⟩ t ≡ u ∷ A / ⊩A
   redSubst*Term′ t⇒*u ⊩U@(Uᵣ′ l ≤ᵘ-refl D) (Uₜ A t⇒*A A-type A≅A ⊩t) =
     case whrDet↘Term (t⇒*A , typeWhnf A-type)
            (conv* t⇒*u (subset* D)) of λ
@@ -305,7 +304,7 @@ opaque
            (conv* t⇒*u (subset* A⇒*Π)) of λ
       u⇒*v →
     case v , u⇒*v , v-fun , v≅v , v∘≡v∘ , ⊩v∘ of λ
-      (⊩u : _ » _ ⊩⟨ _ ⟩ _ ∷ _ / ⊩A) →
+      (⊩u : _ ⊩⟨ _ ⟩ _ ∷ _ / ⊩A) →
       ⊩u
     , ( v , v , t⇒*v , u⇒*v , v-fun , v-fun , v≅v , ⊩t , ⊩u
       , (λ _ _ _ → reflEqTerm (⊩D _ _ _) (⊩v∘ _ _ _))
@@ -317,7 +316,7 @@ opaque
            (conv* t⇒*u (subset* A⇒*Σ)) of λ
       u⇒*v →
     case v , u⇒*v , v≅v , v-prod , v-ok of λ
-      (⊩u : _ » _ ⊩⟨ _ ⟩ _ ∷ _ / ⊩A) →
+      (⊩u : _ ⊩⟨ _ ⟩ _ ∷ _ / ⊩A) →
       ⊩u
     , ( v , v , t⇒*v , u⇒*v , v≅v , ⊩t , ⊩u , v-prod , v-prod
       , (case PE.singleton s of λ where

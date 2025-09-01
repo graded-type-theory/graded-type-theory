@@ -41,9 +41,9 @@ opaque
 
   ¬-inversion-erased′ :
     Erasedˢ-allowed →
-    ¬ (∀ {m n} {∇ : DCon (Term 0) m} {Γ : Con Term n} {t A : Term n} →
-       ∇ » Γ ⊢ erased t ∷ A →
-       ∃₂ λ q l → ∇ » Γ ⊢ t ∷ Σˢ 𝟘 , q ▷ A ▹ Unitˢ l)
+    ¬ (∀ {m n} {Γ : Cons m n} {t A : Term n} →
+       Γ ⊢ erased t ∷ A →
+       ∃₂ λ q l → Γ ⊢ t ∷ Σˢ 𝟘 , q ▷ A ▹ Unitˢ l)
   ¬-inversion-erased′ (Unit-ok , Σˢ-ok) inversion-erased = bad
     where
     Γ′ : Con Term 0
@@ -104,9 +104,9 @@ opaque
 
   ¬-inversion-erased :
     Erasedˢ-allowed →
-    ¬ (∀ {m n} {∇ : DCon (Term 0) m} {Γ : Con Term n} {t A : Term n} →
-       ∇ » Γ ⊢ erased t ∷ A →
-       ∇ » Γ ⊢ t ∷ Erased A)
+    ¬ (∀ {m n} {Γ : Cons m n} {t A : Term n} →
+       Γ ⊢ erased t ∷ A →
+       Γ ⊢ t ∷ Erased A)
   ¬-inversion-erased Erased-ok inversion-erased =
     ¬-inversion-erased′ Erased-ok λ ⊢erased →
     _ , _ , inversion-erased ⊢erased

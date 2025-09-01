@@ -32,11 +32,11 @@ import Tools.PropositionalEquality as PE
 private
   variable
     m n : Nat
-    ∇ : DCon (Term 0) m
-    Γ : Con Term n
+    Γ : Cons m n
     t A : Term n
 
-soundness⇉-var : ∀ {x} →  ∇ »⊢ Γ → x ∷ A ∈ Γ → (∇ » Γ ⊢ A) × (∇ » Γ ⊢ var x ∷ A)
+soundness⇉-var :
+  ∀ {x} → ⊢ Γ → x ∷ A ∈ Γ .vars → (Γ ⊢ A) × (Γ ⊢ var x ∷ A)
 soundness⇉-var (ε »∇) ()
 soundness⇉-var (∙ ⊢A) here =
   W.wk₁ ⊢A ⊢A , var₀ ⊢A
@@ -47,7 +47,7 @@ soundness⇉-var (∙ ⊢B) (there x) =
 
 mutual
 
-  soundness⇇Type : ∇ »⊢ Γ → ∇ » Γ ⊢ A ⇇Type → ∇ » Γ ⊢ A
+  soundness⇇Type : ⊢ Γ → Γ ⊢ A ⇇Type → Γ ⊢ A
   soundness⇇Type ⊢Γ Uᶜ = Uⱼ ⊢Γ
   soundness⇇Type ⊢Γ ℕᶜ = ℕⱼ ⊢Γ
   soundness⇇Type ⊢Γ (Unitᶜ ok) = Unitⱼ ⊢Γ ok
@@ -59,7 +59,7 @@ mutual
   soundness⇇Type ⊢Γ (univᶜ ⊢A (A⇒*U , _)) =
     univ (conv (soundness⇉ ⊢Γ ⊢A .proj₂) (subset* A⇒*U))
 
-  soundness⇉ : ∇ »⊢ Γ → ∇ » Γ ⊢ t ⇉ A → (∇ » Γ ⊢ A) × (∇ » Γ ⊢ t ∷ A)
+  soundness⇉ : ⊢ Γ → Γ ⊢ t ⇉ A → (Γ ⊢ A) × (Γ ⊢ t ∷ A)
   soundness⇉ ⊢Γ Uᵢ = Uⱼ ⊢Γ , Uⱼ ⊢Γ
   soundness⇉ ⊢Γ (ΠΣᵢ ⊢A (⇒*U₁ , _) ⊢B (⇒*U₂ , _) ok) =
     let _ , ⊢A = soundness⇉ ⊢Γ ⊢A
@@ -156,7 +156,7 @@ mutual
         ([]ⱼ ([]-cong→Erased ok) (soundness⇇ ⊢u))
     , []-congⱼ′ ok (soundness⇇ ⊢v)
 
-  soundness⇇ : ∇ » Γ ⊢ t ⇇ A → ∇ » Γ ⊢ t ∷ A
+  soundness⇇ : Γ ⊢ t ⇇ A → Γ ⊢ t ∷ A
   soundness⇇ (lamᶜ A↘ΠFG t⇇G)=
     let A≡ΠFG = subset* (proj₁ A↘ΠFG)
         _ , ⊢ΠFG = syntacticEq A≡ΠFG

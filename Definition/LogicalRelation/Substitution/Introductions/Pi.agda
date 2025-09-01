@@ -53,7 +53,8 @@ open import Tools.Reasoning.PropositionalEquality
 private variable
   m n                 : Nat
   ∇                   : DCon (Term 0) _
-  Γ Δ Η               : Con Term _
+  Δ Η Φ               : Con Term _
+  Γ                   : Cons _ _
   A B t t₁ t₂ u u₁ u₂ : Term _
   ρ                   : Wk _ _
   σ σ₁ σ₂             : Subst _ _
@@ -70,18 +71,18 @@ opaque
 
   ⊩∷Π⇔ :
     {A : Term n} {B : Term (1+ n)} →
-    ∇ » Γ ⊩⟨ l ⟩ t ∷ Π p , q ▷ A ▹ B ⇔
-    (∇ » Γ ⊩⟨ l ⟩ Π p , q ▷ A ▹ B ×
+    ∇ » Δ ⊩⟨ l ⟩ t ∷ Π p , q ▷ A ▹ B ⇔
+    (∇ » Δ ⊩⟨ l ⟩ Π p , q ▷ A ▹ B ×
      ∃ λ u →
-     ∇ » Γ ⊢ t ⇒* u ∷ Π p , q ▷ A ▹ B ×
+     ∇ » Δ ⊢ t ⇒* u ∷ Π p , q ▷ A ▹ B ×
      Functionₗ ∇ u ×
-     ∇ » Γ ⊢≅ u ∷ Π p , q ▷ A ▹ B ×
+     ∇ » Δ ⊢≅ u ∷ Π p , q ▷ A ▹ B ×
      ∀ {κ′} {ξ : DExt _ κ′ _} {∇′ : DCon (Term 0) κ′} → ξ » ∇′ ⊇ ∇ →
-     ∀ {m} {ρ : Wk m n} {Δ : Con Term m} {v₁ v₂} → ∇′ » ρ ∷ʷʳ Δ ⊇ Γ →
-     ∇′ » Δ ⊩⟨ l ⟩ v₁ ≡ v₂ ∷ wk ρ A →
-     ∇′ » Δ ⊩⟨ l ⟩ wk ρ u ∘⟨ p ⟩ v₁ ≡ wk ρ u ∘⟨ p ⟩ v₂ ∷
+     ∀ {m} {ρ : Wk m n} {Η : Con Term m} {v₁ v₂} → ∇′ » ρ ∷ʷʳ Η ⊇ Δ →
+     ∇′ » Η ⊩⟨ l ⟩ v₁ ≡ v₂ ∷ wk ρ A →
+     ∇′ » Η ⊩⟨ l ⟩ wk ρ u ∘⟨ p ⟩ v₁ ≡ wk ρ u ∘⟨ p ⟩ v₂ ∷
        wk (lift ρ) B [ v₁ ]₀)
-  ⊩∷Π⇔ {n} {∇} {Γ} {t} {p} {q} {A} {B} =
+  ⊩∷Π⇔ {n} {∇} {Δ} {t} {p} {q} {A} {B} =
       (λ (⊩Π , ⊩t) →
          case B-elim _ ⊩Π of λ
            ⊩Π′ →
@@ -92,16 +93,16 @@ opaque
          B-intr _ ⊩Π′ , lemma₂ ≤ᵘ-refl ⊩Π′ rest)
     where
     lemma₁ :
-      (⊩Π : ∇ » Γ ⊩⟨ l ⟩B⟨ BΠ p q ⟩ Π p , q ▷ A ▹ B) →
-      ∇ » Γ ⊩⟨ l ⟩ t ∷ Π p , q ▷ A ▹ B / B-intr (BΠ p q) ⊩Π →
+      (⊩Π : ∇ » Δ ⊩⟨ l ⟩B⟨ BΠ p q ⟩ Π p , q ▷ A ▹ B) →
+      ∇ » Δ ⊩⟨ l ⟩ t ∷ Π p , q ▷ A ▹ B / B-intr (BΠ p q) ⊩Π →
       ∃ λ u →
-      ∇ » Γ ⊢ t ⇒* u ∷ Π p , q ▷ A ▹ B ×
+      ∇ » Δ ⊢ t ⇒* u ∷ Π p , q ▷ A ▹ B ×
       Functionₗ ∇ u ×
-      ∇ » Γ ⊢≅ u ∷ Π p , q ▷ A ▹ B ×
+      ∇ » Δ ⊢≅ u ∷ Π p , q ▷ A ▹ B ×
       ∀ {κ′} {ξ : DExt _ κ′ _} {∇′ : DCon (Term 0) κ′} → ξ » ∇′ ⊇ ∇ →
-      ∀ {m} {ρ : Wk m n} {Δ : Con Term m} {v₁ v₂} → ∇′ » ρ ∷ʷʳ Δ ⊇ Γ →
-      ∇′ » Δ ⊩⟨ l ⟩ v₁ ≡ v₂ ∷ wk ρ A →
-      ∇′ » Δ ⊩⟨ l ⟩ wk ρ u ∘⟨ p ⟩ v₁ ≡ wk ρ u ∘⟨ p ⟩ v₂ ∷
+      ∀ {m} {ρ : Wk m n} {Η : Con Term m} {v₁ v₂} → ∇′ » ρ ∷ʷʳ Η ⊇ Δ →
+      ∇′ » Η ⊩⟨ l ⟩ v₁ ≡ v₂ ∷ wk ρ A →
+      ∇′ » Η ⊩⟨ l ⟩ wk ρ u ∘⟨ p ⟩ v₁ ≡ wk ρ u ∘⟨ p ⟩ v₂ ∷
         wk (lift ρ) B [ v₁ ]₀
     lemma₁ (emb ≤ᵘ-refl ⊩Π) ⊩t =
       case lemma₁ ⊩Π  ⊩t  of λ
@@ -123,13 +124,13 @@ opaque
       case B-PE-injectivity _ _ $ whnfRed* Π⇒*Π ΠΣₙ of λ {
         (PE.refl , PE.refl , _) →
       (∃ λ u →
-       ∇ » Γ ⊢ t ⇒* u ∷ Π p , q ▷ A ▹ B ×
+       ∇ » Δ ⊢ t ⇒* u ∷ Π p , q ▷ A ▹ B ×
        Functionₗ ∇ u ×
-       ∇ » Γ ⊢≅ u ∷ Π p , q ▷ A ▹ B ×
+       ∇ » Δ ⊢≅ u ∷ Π p , q ▷ A ▹ B ×
        ∀ {κ′} {ξ : DExt _ κ′ _} {∇′ : DCon (Term 0) κ′} → ξ » ∇′ ⊇ ∇ →
-       ∀ {m} {ρ : Wk m n} {Δ : Con Term m} {v₁ v₂} → ∇′ » ρ ∷ʷʳ Δ ⊇ Γ →
-       ∇′ » Δ ⊩⟨ l ⟩ v₁ ≡ v₂ ∷ wk ρ A →
-       ∇′ » Δ ⊩⟨ l ⟩ wk ρ u ∘⟨ p ⟩ v₁ ≡ wk ρ u ∘⟨ p ⟩ v₂ ∷
+       ∀ {m} {ρ : Wk m n} {Η : Con Term m} {v₁ v₂} → ∇′ » ρ ∷ʷʳ Η ⊇ Δ →
+       ∇′ » Η ⊩⟨ l ⟩ v₁ ≡ v₂ ∷ wk ρ A →
+       ∇′ » Η ⊩⟨ l ⟩ wk ρ u ∘⟨ p ⟩ v₁ ≡ wk ρ u ∘⟨ p ⟩ v₂ ∷
          wk (lift ρ) B [ v₁ ]₀) ∋
         u , t⇒*u , u-fun , u≅u
       , λ ξ⊇ ρ⊇ (⊩wk-ρ-A , ⊩v , ⊩w , v≡w) →
@@ -149,17 +150,17 @@ opaque
 
     lemma₂ :
       l′ ≤ᵘ l →
-      (⊩Π : ∇ » Γ ⊩⟨ l′ ⟩B⟨ BΠ p q ⟩ Π p , q ▷ A ▹ B) →
+      (⊩Π : ∇ » Δ ⊩⟨ l′ ⟩B⟨ BΠ p q ⟩ Π p , q ▷ A ▹ B) →
       (∃ λ u →
-       ∇ » Γ ⊢ t ⇒* u ∷ Π p , q ▷ A ▹ B ×
+       ∇ » Δ ⊢ t ⇒* u ∷ Π p , q ▷ A ▹ B ×
        Functionₗ ∇ u ×
-       ∇ » Γ ⊢≅ u ∷ Π p , q ▷ A ▹ B ×
+       ∇ » Δ ⊢≅ u ∷ Π p , q ▷ A ▹ B ×
        ∀ {κ′} {ξ : DExt _ κ′ _} {∇′ : DCon (Term 0) κ′} → ξ » ∇′ ⊇ ∇ →
-       ∀ {m} {ρ : Wk m n} {Δ : Con Term m} {v₁ v₂} → ∇′ » ρ ∷ʷʳ Δ ⊇ Γ →
-       ∇′ » Δ ⊩⟨ l ⟩ v₁ ≡ v₂ ∷ wk ρ A →
-       ∇′ » Δ ⊩⟨ l ⟩ wk ρ u ∘⟨ p ⟩ v₁ ≡ wk ρ u ∘⟨ p ⟩ v₂ ∷
+       ∀ {m} {ρ : Wk m n} {Η : Con Term m} {v₁ v₂} → ∇′ » ρ ∷ʷʳ Η ⊇ Δ →
+       ∇′ » Η ⊩⟨ l ⟩ v₁ ≡ v₂ ∷ wk ρ A →
+       ∇′ » Η ⊩⟨ l ⟩ wk ρ u ∘⟨ p ⟩ v₁ ≡ wk ρ u ∘⟨ p ⟩ v₂ ∷
          wk (lift ρ) B [ v₁ ]₀) →
-      ∇ » Γ ⊩⟨ l′ ⟩ t ∷ Π p , q ▷ A ▹ B / B-intr (BΠ p q) ⊩Π
+      ∇ » Δ ⊩⟨ l′ ⟩ t ∷ Π p , q ▷ A ▹ B / B-intr (BΠ p q) ⊩Π
     lemma₂ l′≤l (emb l″<l′ ⊩Π) rest =
       irrelevanceTerm (B-intr _ ⊩Π) (B-intr _ (emb l″<l′ ⊩Π)) $
       lemma₂ (≤ᵘ-trans (<ᵘ→≤ᵘ l″<l′) l′≤l) ⊩Π rest
@@ -168,7 +169,7 @@ opaque
       (u , t⇒*u , u-fun , u≅u , rest) =
       case B-PE-injectivity _ _ $ whnfRed* Π⇒*Π ΠΣₙ of λ {
         (PE.refl , PE.refl , _) →
-      _ » _ ⊩⟨ _ ⟩ _ ∷ _ / B-intr _ ⊩Π ∋
+      _ ⊩⟨ _ ⟩ _ ∷ _ / B-intr _ ⊩Π ∋
         u , t⇒*u , u-fun , u≅u
       , (λ ξ⊇ ρ⊇ ⊩v₁ ⊩v₂ v₁≡v₂ →
            let ⊩wk-ρ-A = ⊩wk-A ξ⊇ ρ⊇ in
@@ -197,20 +198,20 @@ opaque
 
   ⊩≡∷Π⇔ :
     {A : Term n} {B : Term (1+ n)} →
-    ∇ » Γ ⊩⟨ l ⟩ t₁ ≡ t₂ ∷ Π p , q ▷ A ▹ B ⇔
-    (∇ » Γ ⊩⟨ l ⟩ Π p , q ▷ A ▹ B ×
+    ∇ » Δ ⊩⟨ l ⟩ t₁ ≡ t₂ ∷ Π p , q ▷ A ▹ B ⇔
+    (∇ » Δ ⊩⟨ l ⟩ Π p , q ▷ A ▹ B ×
      ∃₂ λ u₁ u₂ →
-     ∇ » Γ ⊢ t₁ ⇒* u₁ ∷ Π p , q ▷ A ▹ B ×
-     ∇ » Γ ⊢ t₂ ⇒* u₂ ∷ Π p , q ▷ A ▹ B ×
+     ∇ » Δ ⊢ t₁ ⇒* u₁ ∷ Π p , q ▷ A ▹ B ×
+     ∇ » Δ ⊢ t₂ ⇒* u₂ ∷ Π p , q ▷ A ▹ B ×
      Functionₗ ∇ u₁ ×
      Functionₗ ∇ u₂ ×
-     ∇ » Γ ⊢ u₁ ≅ u₂ ∷ Π p , q ▷ A ▹ B ×
+     ∇ » Δ ⊢ u₁ ≅ u₂ ∷ Π p , q ▷ A ▹ B ×
      ∀ {κ′} {ξ : DExt _ κ′ _} {∇′ : DCon (Term 0) κ′} → ξ » ∇′ ⊇ ∇ →
-     ∀ {m} {ρ : Wk m n} {Δ : Con Term m} {v₁ v₂} → ∇′ » ρ ∷ʷʳ Δ ⊇ Γ →
-     ∇′ » Δ ⊩⟨ l ⟩ v₁ ≡ v₂ ∷ wk ρ A →
-     ∇′ » Δ ⊩⟨ l ⟩ wk ρ u₁ ∘⟨ p ⟩ v₁ ≡ wk ρ u₂ ∘⟨ p ⟩ v₂ ∷
+     ∀ {m} {ρ : Wk m n} {Η : Con Term m} {v₁ v₂} → ∇′ » ρ ∷ʷʳ Η ⊇ Δ →
+     ∇′ » Η ⊩⟨ l ⟩ v₁ ≡ v₂ ∷ wk ρ A →
+     ∇′ » Η ⊩⟨ l ⟩ wk ρ u₁ ∘⟨ p ⟩ v₁ ≡ wk ρ u₂ ∘⟨ p ⟩ v₂ ∷
        wk (lift ρ) B [ v₁ ]₀)
-  ⊩≡∷Π⇔ {n} {∇} {Γ} {t₁} {t₂} {p} {q} {A} {B} =
+  ⊩≡∷Π⇔ {n} {∇} {Δ} {t₁} {t₂} {p} {q} {A} {B} =
       (λ (⊩Π , _ , _ , t₁≡t₂) →
          case B-elim _ ⊩Π of λ
            ⊩Π′ →
@@ -221,18 +222,18 @@ opaque
          B-intr _ ⊩Π′ , lemma₂ ≤ᵘ-refl ⊩Π′ rest)
     where
     lemma₁ :
-      (⊩Π : ∇ » Γ ⊩⟨ l ⟩B⟨ BΠ p q ⟩ Π p , q ▷ A ▹ B) →
-      ∇ » Γ ⊩⟨ l ⟩ t₁ ≡ t₂ ∷ Π p , q ▷ A ▹ B / B-intr (BΠ p q) ⊩Π →
+      (⊩Π : ∇ » Δ ⊩⟨ l ⟩B⟨ BΠ p q ⟩ Π p , q ▷ A ▹ B) →
+      ∇ » Δ ⊩⟨ l ⟩ t₁ ≡ t₂ ∷ Π p , q ▷ A ▹ B / B-intr (BΠ p q) ⊩Π →
       ∃₂ λ u₁ u₂ →
-      ∇ » Γ ⊢ t₁ ⇒* u₁ ∷ Π p , q ▷ A ▹ B ×
-      ∇ » Γ ⊢ t₂ ⇒* u₂ ∷ Π p , q ▷ A ▹ B ×
+      ∇ » Δ ⊢ t₁ ⇒* u₁ ∷ Π p , q ▷ A ▹ B ×
+      ∇ » Δ ⊢ t₂ ⇒* u₂ ∷ Π p , q ▷ A ▹ B ×
       Functionₗ ∇ u₁ ×
       Functionₗ ∇ u₂ ×
-      ∇ » Γ ⊢ u₁ ≅ u₂ ∷ Π p , q ▷ A ▹ B ×
+      ∇ » Δ ⊢ u₁ ≅ u₂ ∷ Π p , q ▷ A ▹ B ×
       ∀ {κ′} {ξ : DExt _ κ′ _} {∇′ : DCon (Term 0) κ′} → ξ » ∇′ ⊇ ∇ →
-      ∀ {m} {ρ : Wk m n} {Δ : Con Term m} {v₁ v₂} → ∇′ » ρ ∷ʷʳ Δ ⊇ Γ →
-      ∇′ » Δ ⊩⟨ l ⟩ v₁ ≡ v₂ ∷ wk ρ A →
-      ∇′ » Δ ⊩⟨ l ⟩ wk ρ u₁ ∘⟨ p ⟩ v₁ ≡ wk ρ u₂ ∘⟨ p ⟩ v₂ ∷
+      ∀ {m} {ρ : Wk m n} {Η : Con Term m} {v₁ v₂} → ∇′ » ρ ∷ʷʳ Η ⊇ Δ →
+      ∇′ » Η ⊩⟨ l ⟩ v₁ ≡ v₂ ∷ wk ρ A →
+      ∇′ » Η ⊩⟨ l ⟩ wk ρ u₁ ∘⟨ p ⟩ v₁ ≡ wk ρ u₂ ∘⟨ p ⟩ v₂ ∷
         wk (lift ρ) B [ v₁ ]₀
     lemma₁ (emb ≤ᵘ-refl ⊩Π) t₁≡t₂ =
       case lemma₁ ⊩Π t₁≡t₂ of λ
@@ -267,15 +268,15 @@ opaque
              (t₂⇒*u₂′ , functionWhnf u₂′-fun) of λ {
         PE.refl →
       (∃₂ λ u₁ u₂ →
-       ∇ » Γ ⊢ t₁ ⇒* u₁ ∷ Π p , q ▷ A ▹ B ×
-       ∇ » Γ ⊢ t₂ ⇒* u₂ ∷ Π p , q ▷ A ▹ B ×
+       ∇ » Δ ⊢ t₁ ⇒* u₁ ∷ Π p , q ▷ A ▹ B ×
+       ∇ » Δ ⊢ t₂ ⇒* u₂ ∷ Π p , q ▷ A ▹ B ×
        Functionₗ ∇ u₁ ×
        Functionₗ ∇ u₂ ×
-       ∇ » Γ ⊢ u₁ ≅ u₂ ∷ Π p , q ▷ A ▹ B ×
+       ∇ » Δ ⊢ u₁ ≅ u₂ ∷ Π p , q ▷ A ▹ B ×
        ∀ {κ′} {ξ : DExt _ κ′ _} {∇′ : DCon (Term 0) κ′} → ξ » ∇′ ⊇ ∇ →
-       ∀ {m} {ρ : Wk m n} {Δ : Con Term m} {v₁ v₂} → ∇′ » ρ ∷ʷʳ Δ ⊇ Γ →
-       ∇′ » Δ ⊩⟨ l ⟩ v₁ ≡ v₂ ∷ wk ρ A →
-       ∇′ » Δ ⊩⟨ l ⟩ wk ρ u₁ ∘⟨ p ⟩ v₁ ≡ wk ρ u₂ ∘⟨ p ⟩ v₂ ∷
+       ∀ {m} {ρ : Wk m n} {Η : Con Term m} {v₁ v₂} → ∇′ » ρ ∷ʷʳ Η ⊇ Δ →
+       ∇′ » Η ⊩⟨ l ⟩ v₁ ≡ v₂ ∷ wk ρ A →
+       ∇′ » Η ⊩⟨ l ⟩ wk ρ u₁ ∘⟨ p ⟩ v₁ ≡ wk ρ u₂ ∘⟨ p ⟩ v₂ ∷
          wk (lift ρ) B [ v₁ ]₀) ∋
         u₁ , u₂ , t₁⇒*u₁ , t₂⇒*u₂ , u₁-fun , u₂-fun , u₁≅u₂
       , λ {_ _ _} ξ⊇ {_} {ρ} {_} {v₁} {v₂} ρ⊇ v₁≡v₂ →
@@ -291,22 +292,22 @@ opaque
 
     lemma₂ :
       l′ ≤ᵘ l →
-      (⊩Π : ∇ » Γ ⊩⟨ l′ ⟩B⟨ BΠ p q ⟩ Π p , q ▷ A ▹ B) →
+      (⊩Π : ∇ » Δ ⊩⟨ l′ ⟩B⟨ BΠ p q ⟩ Π p , q ▷ A ▹ B) →
       (∃₂ λ u₁ u₂ →
-       ∇ » Γ ⊢ t₁ ⇒* u₁ ∷ Π p , q ▷ A ▹ B ×
-       ∇ » Γ ⊢ t₂ ⇒* u₂ ∷ Π p , q ▷ A ▹ B ×
+       ∇ » Δ ⊢ t₁ ⇒* u₁ ∷ Π p , q ▷ A ▹ B ×
+       ∇ » Δ ⊢ t₂ ⇒* u₂ ∷ Π p , q ▷ A ▹ B ×
        Functionₗ ∇ u₁ ×
        Functionₗ ∇ u₂ ×
-       ∇ » Γ ⊢ u₁ ≅ u₂ ∷ Π p , q ▷ A ▹ B ×
+       ∇ » Δ ⊢ u₁ ≅ u₂ ∷ Π p , q ▷ A ▹ B ×
        ∀ {κ′} {ξ : DExt _ κ′ _} {∇′ : DCon (Term 0) κ′} → ξ » ∇′ ⊇ ∇ →
-       ∀ {m} {ρ : Wk m n} {Δ : Con Term m} {v₁ v₂} → ∇′ » ρ ∷ʷʳ Δ ⊇ Γ →
-       ∇′ » Δ ⊩⟨ l ⟩ v₁ ≡ v₂ ∷ wk ρ A →
-       ∇′ » Δ ⊩⟨ l ⟩ wk ρ u₁ ∘⟨ p ⟩ v₁ ≡ wk ρ u₂ ∘⟨ p ⟩ v₂ ∷
+       ∀ {m} {ρ : Wk m n} {Η : Con Term m} {v₁ v₂} → ∇′ » ρ ∷ʷʳ Η ⊇ Δ →
+       ∇′ » Η ⊩⟨ l ⟩ v₁ ≡ v₂ ∷ wk ρ A →
+       ∇′ » Η ⊩⟨ l ⟩ wk ρ u₁ ∘⟨ p ⟩ v₁ ≡ wk ρ u₂ ∘⟨ p ⟩ v₂ ∷
          wk (lift ρ) B [ v₁ ]₀) →
       let ⊩Π′ = B-intr (BΠ p q) ⊩Π in
-      ∇ » Γ ⊩⟨ l′ ⟩ t₁ ∷ Π p , q ▷ A ▹ B / ⊩Π′ ×
-      ∇ » Γ ⊩⟨ l′ ⟩ t₂ ∷ Π p , q ▷ A ▹ B / ⊩Π′ ×
-      ∇ » Γ ⊩⟨ l′ ⟩ t₁ ≡ t₂ ∷ Π p , q ▷ A ▹ B / ⊩Π′
+      ∇ » Δ ⊩⟨ l′ ⟩ t₁ ∷ Π p , q ▷ A ▹ B / ⊩Π′ ×
+      ∇ » Δ ⊩⟨ l′ ⟩ t₂ ∷ Π p , q ▷ A ▹ B / ⊩Π′ ×
+      ∇ » Δ ⊩⟨ l′ ⟩ t₁ ≡ t₂ ∷ Π p , q ▷ A ▹ B / ⊩Π′
     lemma₂ l′≤l (emb l″<l′ ⊩Π) rest =
       let ⊩Π₁ = B-intr _ ⊩Π
           ⊩Π₂ = B-intr _ (emb l″<l′ ⊩Π)
@@ -354,8 +355,8 @@ opaque
                  wk ρ u₂ ∘⟨ p ⟩ v₂  ∎
              ) of λ
         ⊩t₂ →
-      _ » _ ⊩⟨ _ ⟩ _ ∷ _ / ⊩Π′ × _ » _ ⊩⟨ _ ⟩ _ ∷ _ / ⊩Π′ ×
-        _ » _ ⊩⟨ _ ⟩ _ ≡ _ ∷ _ / ⊩Π′ ∋
+      _ ⊩⟨ _ ⟩ _ ∷ _ / ⊩Π′ × _ ⊩⟨ _ ⟩ _ ∷ _ / ⊩Π′ ×
+        _ ⊩⟨ _ ⟩ _ ≡ _ ∷ _ / ⊩Π′ ∋
         ⊩t₁ , ⊩t₂
       , ( u₁ , u₂ , t₁⇒*u₁ , t₂⇒*u₂ , u₁-fun , u₂-fun , u₁≅u₂
         , ⊩t₁ , ⊩t₂
@@ -376,22 +377,22 @@ opaque
   ⊩lam≡lam :
     {σ₁ σ₂ : Subst m n} →
     Π-allowed p q →
-    ∇ » Γ ∙ A ⊢ t₁ ≡ t₂ ∷ B →
-    ∇ » Γ ⊩ᵛ⟨ l ⟩ A →
-    ∇ » Γ ∙ A ⊩ᵛ⟨ l ⟩ t₁ ≡ t₂ ∷ B →
-    ⦃ inc : Var-included or-empty Δ ⦄ →
-    ∇ » Δ ⊩ˢ σ₁ ≡ σ₂ ∷ Γ →
-    ∇ » Δ ⊩⟨ l ⟩ lam p t₁ [ σ₁ ] ≡ lam p t₂ [ σ₂ ] ∷
+    ∇ » Δ ∙ A ⊢ t₁ ≡ t₂ ∷ B →
+    ∇ » Δ ⊩ᵛ⟨ l ⟩ A →
+    ∇ » Δ ∙ A ⊩ᵛ⟨ l ⟩ t₁ ≡ t₂ ∷ B →
+    ⦃ inc : Var-included or-empty Η ⦄ →
+    ∇ » Η ⊩ˢ σ₁ ≡ σ₂ ∷ Δ →
+    ∇ » Η ⊩⟨ l ⟩ lam p t₁ [ σ₁ ] ≡ lam p t₂ [ σ₂ ] ∷
       (Π p , q ▷ A ▹ B) [ σ₁ ]
   ⊩lam≡lam
-    {m} {p} {∇} {A} {t₁} {t₂} {B} {l} {Δ} {σ₁} {σ₂}
+    {m} {p} {∇} {A} {t₁} {t₂} {B} {l} {Η} {σ₁} {σ₂}
     ok ⊢t₁≡t₂ ⊩A t₁≡t₂ σ₁≡σ₂ =
     case wf-⊢≡∷ ⊢t₁≡t₂ of λ
       (⊢B , ⊢t₁ , ⊢t₂) →
     case ⊢∙→⊢ (wf ⊢B) of λ
       ⊢A →
     case escape-⊩ˢ≡∷ σ₁≡σ₂ of λ
-      (⊢Δ , ⊢σ₁≡σ₂) →
+      (⊢Η , ⊢σ₁≡σ₂) →
     case wf-⊢ˢʷ≡∷ (⊢ˢʷ≡∷-⇑′ ⊢A ⊢σ₁≡σ₂) of λ
       (_ , ⊢σ₁⇑ , ⊢σ₂⇑) →
     case stability-⊢ˢʷ∷ˡ (refl-∙ (subst-⊢≡ (refl ⊢A) ⊢σ₁≡σ₂)) ⊢σ₂⇑ of λ
@@ -411,7 +412,7 @@ opaque
     case
       (∀ κ′ (ξ : DExt _ κ′ _) (∇′ : DCon (Term 0) κ′) → ξ » ∇′ ⊇ ∇ →
        ∀ k (ρ : Wk k m) (Ε : Con Term k) v₁ v₂ →
-       ∇′ » ρ ∷ʷʳ Ε ⊇ Δ →
+       ∇′ » ρ ∷ʷʳ Ε ⊇ Η →
        ∇′ » Ε ⊩⟨ l ⟩ v₁ ≡ v₂ ∷ wk ρ (A [ σ₁ ]) →
        ∇′ » Ε ⊩⟨ l ⟩ wk ρ (lam p t₁ [ σ₁ ]) ∘⟨ p ⟩ v₁ ≡
          wk ρ (lam p t₂ [ σ₂ ]) ∘⟨ p ⟩ v₂ ∷
@@ -480,7 +481,7 @@ opaque
       , lamₙ , lamₙ
       , with-inc-⊢≅∷ (subst-⊢≡∷ (lam-cong ⊢t₁≡t₂ ok) ⊢σ₁≡σ₂)
           (let instance
-                 inc : Var-included or-empty Η
+                 inc : Var-included or-empty Φ
                  inc = included
                step-id =
                  W.stepʷ W.id ⊢A[σ₁]
@@ -500,10 +501,10 @@ opaque
 
   lam-congᵛ :
     Π-allowed p q →
-    ∇ » Γ ∙ A ⊢ t₁ ≡ t₂ ∷ B →
-    ∇ » Γ ⊩ᵛ⟨ l ⟩ A →
-    ∇ » Γ ∙ A ⊩ᵛ⟨ l ⟩ t₁ ≡ t₂ ∷ B →
-    ∇ » Γ ⊩ᵛ⟨ l ⟩ lam p t₁ ≡ lam p t₂ ∷ Π p , q ▷ A ▹ B
+    Γ »∙ A ⊢ t₁ ≡ t₂ ∷ B →
+    Γ ⊩ᵛ⟨ l ⟩ A →
+    Γ »∙ A ⊩ᵛ⟨ l ⟩ t₁ ≡ t₂ ∷ B →
+    Γ ⊩ᵛ⟨ l ⟩ lam p t₁ ≡ lam p t₂ ∷ Π p , q ▷ A ▹ B
   lam-congᵛ ok ⊢t₁≡t₂ ⊩A t₁≡t₂ =
     ⊩ᵛ≡∷⇔ʰ .proj₂
       ( ΠΣᵛ (ΠΣⱼ (wf-⊢≡∷ ⊢t₁≡t₂ .proj₁) ok) ⊩A
@@ -520,10 +521,10 @@ opaque
 
   lamᵛ :
     Π-allowed p q →
-    ∇ » Γ ∙ A ⊢ t ∷ B →
-    ∇ » Γ ⊩ᵛ⟨ l ⟩ A →
-    ∇ » Γ ∙ A ⊩ᵛ⟨ l ⟩ t ∷ B →
-    ∇ » Γ ⊩ᵛ⟨ l ⟩ lam p t ∷ Π p , q ▷ A ▹ B
+    Γ »∙ A ⊢ t ∷ B →
+    Γ ⊩ᵛ⟨ l ⟩ A →
+    Γ »∙ A ⊩ᵛ⟨ l ⟩ t ∷ B →
+    Γ ⊩ᵛ⟨ l ⟩ lam p t ∷ Π p , q ▷ A ▹ B
   lamᵛ ok ⊢t ⊩A ⊩t =
     ⊩ᵛ∷⇔⊩ᵛ≡∷ .proj₂ $
     lam-congᵛ ok (refl ⊢t) ⊩A (refl-⊩ᵛ≡∷ ⊩t)
@@ -536,11 +537,11 @@ opaque
   -- Reducibility of equality between applications.
 
   ⊩∘≡∘ :
-    ∇ » Γ ⊩ᵛ⟨ l ⟩ t₁ ≡ t₂ ∷ Π p , q ▷ A ▹ B →
-    ∇ » Γ ⊩ᵛ⟨ l′ ⟩ u₁ ≡ u₂ ∷ A →
-    ⦃ inc : Var-included or-empty Δ ⦄ →
-    ∇ » Δ ⊩ˢ σ₁ ≡ σ₂ ∷ Γ →
-    ∇ » Δ ⊩⟨ l ⟩ (t₁ ∘⟨ p ⟩ u₁) [ σ₁ ] ≡ (t₂ ∘⟨ p ⟩ u₂) [ σ₂ ] ∷
+    ∇ » Δ ⊩ᵛ⟨ l ⟩ t₁ ≡ t₂ ∷ Π p , q ▷ A ▹ B →
+    ∇ » Δ ⊩ᵛ⟨ l′ ⟩ u₁ ≡ u₂ ∷ A →
+    ⦃ inc : Var-included or-empty Η ⦄ →
+    ∇ » Η ⊩ˢ σ₁ ≡ σ₂ ∷ Δ →
+    ∇ » Η ⊩⟨ l ⟩ (t₁ ∘⟨ p ⟩ u₁) [ σ₁ ] ≡ (t₂ ∘⟨ p ⟩ u₂) [ σ₂ ] ∷
       B [ u₁ ]₀ [ σ₁ ]
   ⊩∘≡∘ {t₁} {t₂} {p} {B} {u₁} {u₂} {σ₁} {σ₂} t₁≡t₂ u₁≡u₂ σ₁≡σ₂ =
     case ⊩ᵛ≡∷⇔″ .proj₁ t₁≡t₂ of λ
@@ -580,9 +581,9 @@ opaque
   -- Validity of equality preservation for application.
 
   ∘-congᵛ :
-    ∇ » Γ ⊩ᵛ⟨ l ⟩ t₁ ≡ t₂ ∷ Π p , q ▷ A ▹ B →
-    ∇ » Γ ⊩ᵛ⟨ l′ ⟩ u₁ ≡ u₂ ∷ A →
-    ∇ » Γ ⊩ᵛ⟨ l ⟩ t₁ ∘⟨ p ⟩ u₁ ≡ t₂ ∘⟨ p ⟩ u₂ ∷ B [ u₁ ]₀
+    Γ ⊩ᵛ⟨ l ⟩ t₁ ≡ t₂ ∷ Π p , q ▷ A ▹ B →
+    Γ ⊩ᵛ⟨ l′ ⟩ u₁ ≡ u₂ ∷ A →
+    Γ ⊩ᵛ⟨ l ⟩ t₁ ∘⟨ p ⟩ u₁ ≡ t₂ ∘⟨ p ⟩ u₂ ∷ B [ u₁ ]₀
   ∘-congᵛ t₁≡t₂ u₁≡u₂ =
     case ⊩ᵛΠΣ→ $ wf-⊩ᵛ∷ $ wf-⊩ᵛ≡∷ t₁≡t₂ .proj₁ of λ
       (_ , _ , ⊩B) →
@@ -596,9 +597,9 @@ opaque
   -- Validity of application.
 
   ∘ᵛ :
-    ∇ » Γ ⊩ᵛ⟨ l ⟩ t ∷ Π p , q ▷ A ▹ B →
-    ∇ » Γ ⊩ᵛ⟨ l′ ⟩ u ∷ A →
-    ∇ » Γ ⊩ᵛ⟨ l ⟩ t ∘⟨ p ⟩ u ∷ B [ u ]₀
+    Γ ⊩ᵛ⟨ l ⟩ t ∷ Π p , q ▷ A ▹ B →
+    Γ ⊩ᵛ⟨ l′ ⟩ u ∷ A →
+    Γ ⊩ᵛ⟨ l ⟩ t ∘⟨ p ⟩ u ∷ B [ u ]₀
   ∘ᵛ ⊩t ⊩u =
     ⊩ᵛ∷⇔⊩ᵛ≡∷ .proj₂ $
     ∘-congᵛ (refl-⊩ᵛ≡∷ ⊩t) (refl-⊩ᵛ≡∷ ⊩u)
@@ -612,10 +613,10 @@ opaque
 
   β-redᵛ :
     Π-allowed p q →
-    ∇ » Γ ∙ A ⊢ t ∷ B →
-    ∇ » Γ ∙ A ⊩ᵛ⟨ l ⟩ t ∷ B →
-    ∇ » Γ ⊩ᵛ⟨ l′ ⟩ u ∷ A →
-    ∇ » Γ ⊩ᵛ⟨ l ⟩ lam p t ∘⟨ p ⟩ u ≡ t [ u ]₀ ∷ B [ u ]₀
+    Γ »∙ A ⊢ t ∷ B →
+    Γ »∙ A ⊩ᵛ⟨ l ⟩ t ∷ B →
+    Γ ⊩ᵛ⟨ l′ ⟩ u ∷ A →
+    Γ ⊩ᵛ⟨ l ⟩ lam p t ∘⟨ p ⟩ u ≡ t [ u ]₀ ∷ B [ u ]₀
   β-redᵛ {t} {B} ok ⊢t ⊩t ⊩u =
     ⊩ᵛ∷-⇐
       (λ ξ⊇ ⊩σ →
@@ -646,15 +647,15 @@ opaque
   -- Validity of η-equality.
 
   η-eqᵛ :
-    ∇ » Γ ⊢ t₁ ∷ Π p , q ▷ A ▹ B →
-    ∇ » Γ ⊩ᵛ⟨ l ⟩ t₁ ∷ Π p , q ▷ A ▹ B →
-    ∇ » Γ ⊢ t₂ ∷ Π p , q ▷ A ▹ B →
-    ∇ » Γ ⊩ᵛ⟨ l′ ⟩ t₂ ∷ Π p , q ▷ A ▹ B →
-    ∇ » Γ ∙ A ⊢ wk1 t₁ ∘⟨ p ⟩ var x0 ≡ wk1 t₂ ∘⟨ p ⟩ var x0 ∷ B →
-    ∇ » Γ ∙ A ⊩ᵛ⟨ l″ ⟩ wk1 t₁ ∘⟨ p ⟩ var x0 ≡ wk1 t₂ ∘⟨ p ⟩ var x0 ∷ B →
-    ∇ » Γ ⊩ᵛ⟨ l ⟩ t₁ ≡ t₂ ∷ Π p , q ▷ A ▹ B
+    Γ ⊢ t₁ ∷ Π p , q ▷ A ▹ B →
+    Γ ⊩ᵛ⟨ l ⟩ t₁ ∷ Π p , q ▷ A ▹ B →
+    Γ ⊢ t₂ ∷ Π p , q ▷ A ▹ B →
+    Γ ⊩ᵛ⟨ l′ ⟩ t₂ ∷ Π p , q ▷ A ▹ B →
+    Γ »∙ A ⊢ wk1 t₁ ∘⟨ p ⟩ var x0 ≡ wk1 t₂ ∘⟨ p ⟩ var x0 ∷ B →
+    Γ »∙ A ⊩ᵛ⟨ l″ ⟩ wk1 t₁ ∘⟨ p ⟩ var x0 ≡ wk1 t₂ ∘⟨ p ⟩ var x0 ∷ B →
+    Γ ⊩ᵛ⟨ l ⟩ t₁ ≡ t₂ ∷ Π p , q ▷ A ▹ B
   η-eqᵛ
-    {∇} {t₁} {p} {A} {B} {l} {t₂}
+    {t₁} {p} {A} {B} {l} {t₂}
     ⊢t₁ ⊩t₁ ⊢t₂ ⊩t₂ ⊢wk1-t₁∘0≡wk1-t₂∘0 wk1-t₁∘0≡wk1-t₂∘0 =
     case wf-⊩ᵛ∷ ⊩t₁ of λ
       ⊩ΠAB →
@@ -663,7 +664,7 @@ opaque
     ⊩ᵛ≡∷⇔′ʰ .proj₂
       ( ⊩t₁
       , level-⊩ᵛ∷ ⊩ΠAB ⊩t₂
-      , λ {κ′} {∇′} {_} ξ⊇ {m} {Δ} {σ} ⊩σ →
+      , λ {κ′} {∇} {_} ξ⊇ {m} {Δ} {σ} ⊩σ →
           case ⊩ᵛ→⊩ˢ∷→⊩[] (defn-wk-⊩ᵛ ξ⊇ ⊩A) ⊩σ of λ
             ⊩A[σ] →
           case R.escape-⊩ ⊩A[σ] of λ
@@ -673,11 +674,11 @@ opaque
           case ⊩∷Π⇔ .proj₁ $ R.⊩∷→ $ ⊩ᵛ∷→⊩ˢ∷→⊩[]∷ (defn-wk-⊩ᵛ∷ ξ⊇ ⊩t₂) ⊩σ of λ
             (_ , u₂ , t₂[σ]⇒*u₂ , u₂-fun , _ , _) →
           case
-            (∀ κ″ (ξ′ : DExt _ κ″ κ′) (∇″ : DCon (Term 0) κ″) → ξ′ » ∇″ ⊇ ∇′ →
+            (∀ κ″ (ξ′ : DExt _ κ″ κ′) (∇′ : DCon (Term 0) κ″) → ξ′ » ∇′ ⊇ ∇ →
              ∀ k (ρ : Wk k m) (Ε : Con Term k) v₁ v₂ →
-             ∇″ » ρ ∷ʷʳ Ε ⊇ Δ →
-             ∇″ » Ε ⊩⟨ l ⟩ v₁ ≡ v₂ ∷ wk ρ (A [ σ ]) →
-             ∇″ » Ε ⊩⟨ l ⟩ wk ρ u₁ ∘⟨ p ⟩ v₁ ≡ wk ρ u₂ ∘⟨ p ⟩ v₂ ∷
+             ∇′ » ρ ∷ʷʳ Ε ⊇ Δ →
+             ∇′ » Ε ⊩⟨ l ⟩ v₁ ≡ v₂ ∷ wk ρ (A [ σ ]) →
+             ∇′ » Ε ⊩⟨ l ⟩ wk ρ u₁ ∘⟨ p ⟩ v₁ ≡ wk ρ u₂ ∘⟨ p ⟩ v₂ ∷
                wk (lift ρ) (B [ σ ⇑ ]) [ v₁ ]₀) ∋
             (λ _ _ _ ξ′⊇ _ ρ _ v₁ v₂ ρ⊇ v₁≡v₂ →
                let instance

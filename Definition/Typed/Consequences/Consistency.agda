@@ -36,16 +36,17 @@ private
   variable
     m n : Nat
     ∇   : DCon (Term 0) m
-    Γ   : Con Term n
+    Δ   : Con Term n
+    Γ   : Cons m n
     σ   : Subst _ _
     t u : Term n
 
 opaque
 
-  -- If there is some way to instantiate all the types in Γ, then Γ is
+  -- If there is some way to instantiate all the types in Δ, then Δ is
   -- consistent.
 
-  inhabited-consistent : ∇ » ε ⊢ˢʷ σ ∷ Γ → Consistent (∇ » Γ)
+  inhabited-consistent : ∇ » ε ⊢ˢʷ σ ∷ Δ → Consistent (∇ » Δ)
   inhabited-consistent ⊢σ _ ⊢t = ¬Empty (subst-⊢∷ ⊢t ⊢σ)
 
 opaque
@@ -54,12 +55,12 @@ opaque
   -- then zero is not definitionally equal to suc t.
 
   zero≢suc :
-    ⦃ ok : No-equality-reflection or-empty Γ ⦄ →
-    ¬ ∇ » Γ ⊢ zero ≡ suc t ∷ ℕ
-  zero≢suc {Γ} {∇} {t} =
-    ∇ » Γ ⊢ zero ≡ suc t ∷ ℕ                 →⟨ reducible-⊩≡∷ ⟩
-    (∃ λ l → ∇ » Γ ⊩⟨ l ⟩ zero ≡ suc t ∷ ℕ)  →⟨ ⊩zero≡suc∷ℕ⇔ .proj₁ ∘→ proj₂ ⟩
-    ⊥                                        □
+    ⦃ ok : No-equality-reflection or-empty (Γ .vars) ⦄ →
+    ¬ Γ ⊢ zero ≡ suc t ∷ ℕ
+  zero≢suc {Γ} {t} =
+    Γ ⊢ zero ≡ suc t ∷ ℕ                 →⟨ reducible-⊩≡∷ ⟩
+    (∃ λ l → Γ ⊩⟨ l ⟩ zero ≡ suc t ∷ ℕ)  →⟨ ⊩zero≡suc∷ℕ⇔ .proj₁ ∘→ proj₂ ⟩
+    ⊥                                    □
 
 opaque
 
@@ -67,8 +68,8 @@ opaque
   -- then zero is not definitionally equal to one.
 
   zero≢one :
-    ⦃ ok : No-equality-reflection or-empty Γ ⦄ →
-    ¬ ∇ » Γ ⊢ zero ≡ suc zero ∷ ℕ
+    ⦃ ok : No-equality-reflection or-empty (Γ .vars) ⦄ →
+    ¬ Γ ⊢ zero ≡ suc zero ∷ ℕ
   zero≢one = zero≢suc
 
 opaque
@@ -100,23 +101,23 @@ opaque
 
 opaque
 
-  -- If glassify ∇ and Γ are consistent, then ∇ and Γ are consistent.
+  -- If glassify ∇ and Δ are consistent, then ∇ and Δ are consistent.
 
   Consistent-glassify→Consistent :
-    Consistent (glassify ∇ » Γ) →
-    Consistent (∇ » Γ)
+    Consistent (glassify ∇ » Δ) →
+    Consistent (∇ » Δ)
   Consistent-glassify→Consistent consistent _ =
     consistent _ ∘→ glassify-⊢∷
 
 opaque
   unfolding inline
 
-  -- If ε and inline-Con ∇ Γ are consistent, then ∇ and Γ are
+  -- If ε and inline-Con ∇ Δ are consistent, then ∇ and Δ are
   -- consistent.
 
   Consistent-inline-Con→Consistent :
-    Consistent (ε » inline-Con ∇ Γ) →
-    Consistent (∇ » Γ)
+    Consistent (ε » inline-Con ∇ Δ) →
+    Consistent (∇ » Δ)
   Consistent-inline-Con→Consistent consistent _ =
     consistent _ ∘→ ⊢inline∷
 

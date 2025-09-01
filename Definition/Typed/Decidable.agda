@@ -39,38 +39,38 @@ private
     m n : Nat
     ∇ ∇′ : DCon (Term 0) m
     φ : Unfolding _
-    Γ : Con Term n
-    Δ : Cons m n
+    Δ : Con Term n
+    Γ : Cons m n
     A t : Term n
 
 -- Re-export decidability of type and term equality
 open import Definition.Typed.Decidable.Equality R _≟_ public
 
--- If Γ is well-formed and A is checkable, then ∇ » Γ ⊢ A is decidable.
+-- If Γ is well-formed and A is checkable, then Γ ⊢ A is decidable.
 
-dec : ∇ »⊢ Γ → Checkable-type A → Dec (∇ » Γ ⊢ A)
+dec : ⊢ Γ → Checkable-type A → Dec (Γ ⊢ A)
 dec ⊢Γ A =
   Dec.map (soundness⇇Type ⊢Γ) (completeness⇇Type A) (dec⇇Type ⊢Γ A)
 
--- Type-checking for well-formed types: if ∇ » Γ ⊢ A holds and t is
--- checkable, then ∇ » Γ ⊢ t ∷ A is decidable.
+-- Type-checking for well-formed types: if Γ ⊢ A holds and t is
+-- checkable, then Γ ⊢ t ∷ A is decidable.
 
-decTermᶜ : ∇ » Γ ⊢ A → Checkable t → Dec (∇ » Γ ⊢ t ∷ A)
+decTermᶜ : Γ ⊢ A → Checkable t → Dec (Γ ⊢ t ∷ A)
 decTermᶜ ⊢A t = Dec.map soundness⇇ (completeness⇇ t) (dec⇇ t ⊢A)
 
 -- Type-checking for arbitrary checkable types: if Γ is well-formed
--- and A and t are checkable, then ∇ » Γ ⊢ t ∷ A is decidable.
+-- and A and t are checkable, then Γ ⊢ t ∷ A is decidable.
 
-decTermTypeᶜ : ∇ »⊢ Γ → Checkable-type A → Checkable t → Dec (∇ » Γ ⊢ t ∷ A)
+decTermTypeᶜ : ⊢ Γ → Checkable-type A → Checkable t → Dec (Γ ⊢ t ∷ A)
 decTermTypeᶜ ⊢Γ A t =
   case dec ⊢Γ A of λ where
     (yes ⊢A) → decTermᶜ ⊢A t
     (no ¬⊢A) → no (¬⊢A ∘→ syntacticTerm)
 
 -- Type inference: if ⊢ Γ holds and t is inferable, then
--- ∃ λ A → ∇ » Γ ⊢ t ∷ A is decidable.
+-- ∃ λ A → Γ ⊢ t ∷ A is decidable.
 
-decTermᵢ : ∇ »⊢ Γ → Inferable t → Dec (∃ λ A → ∇ » Γ ⊢ t ∷ A)
+decTermᵢ : ⊢ Γ → Inferable t → Dec (∃ λ A → Γ ⊢ t ∷ A)
 decTermᵢ ⊢Γ t = Dec.map
   (λ { (A , t⇉A) → A , (proj₂ (soundness⇉ ⊢Γ t⇉A))})
   (λ { (A , ⊢t)  → _ , (proj₁ (proj₂ (completeness⇉ t ⊢t)))})
@@ -132,54 +132,54 @@ decWfDCon (∇ ∙ᶜᵗ[ t ∷ A ]) =
       ∙ᵗ[ ⊢t ] → not (defn-wf (wfTerm ⊢t) , wf-⊢∷ ⊢t , ⊢t)
     (yes (_ , _ , ⊢t)) → yes ∙ᵗ[ ⊢t ]
 
--- If » ∇ and Γ is a checkable context, then ∇ »⊢ Γ is decidable.
+-- If » ∇ and Δ is a checkable context, then ∇ »⊢ Δ is decidable.
 
-decWfCon : » ∇ → CheckableCon Γ → Dec (∇ »⊢ Γ)
+decWfCon : » ∇ → CheckableCon Δ → Dec (∇ »⊢ Δ)
 decWfCon »∇ ε = yes (ε »∇)
-decWfCon »∇ (Γ ∙ A) = case decWfCon »∇ Γ of λ where
-  (yes ⊢Γ) → case dec ⊢Γ A of λ where
+decWfCon »∇ (Δ ∙ A) = case decWfCon »∇ Δ of λ where
+  (yes ⊢Δ) → case dec ⊢Δ A of λ where
     (yes ⊢A) → yes (∙ ⊢A)
     (no ⊬A) → no λ where
       (∙ ⊢A) → ⊬A ⊢A
-  (no ⊬Γ) → no λ where
-    (∙ ⊢A) → ⊬Γ (wf ⊢A)
+  (no ⊬Δ) → no λ where
+    (∙ ⊢A) → ⊬Δ (wf ⊢A)
 
 opaque
   unfolding CheckableCons
 
-  -- If Δ is checkable, then ⊢ Δ is decidable.
+  -- If Γ is checkable, then ⊢ Γ is decidable.
 
-  decWfCons : CheckableCons Δ → Dec (⊢ Δ)
-  decWfCons (∇ , Δ) =
+  decWfCons : CheckableCons Γ → Dec (⊢ Γ)
+  decWfCons (∇ , Γ) =
     case decWfDCon ∇ of λ where
-      (no not) → no λ ⊢Δ → not (defn-wf ⊢Δ)
-      (yes »∇) → decWfCon »∇ Δ
+      (no not) → no λ ⊢Γ → not (defn-wf ⊢Γ)
+      (yes »∇) → decWfCon »∇ Γ
 
--- If Δ and A are checkable, then Δ ⊢ A is decidable.
+-- If Γ and A are checkable, then Γ ⊢ A is decidable.
 
 decConTypeᶜ :
-  CheckableCons Δ → Checkable-type A → Dec (Δ ⊢ A)
-decConTypeᶜ Δ A =
-  case decWfCons Δ of λ where
-    (yes ⊢Δ) → dec ⊢Δ A
-    (no ¬⊢Δ) → no (¬⊢Δ ∘→ wf)
+  CheckableCons Γ → Checkable-type A → Dec (Γ ⊢ A)
+decConTypeᶜ Γ A =
+  case decWfCons Γ of λ where
+    (yes ⊢Γ) → dec ⊢Γ A
+    (no ¬⊢Γ) → no (¬⊢Γ ∘→ wf)
 
--- Type-checking for arbitrary checkable contexts and types: if Δ, A
--- and t are checkable, then Δ ⊢ t ∷ A is decidable.
+-- Type-checking for arbitrary checkable contexts and types: if Γ, A
+-- and t are checkable, then Γ ⊢ t ∷ A is decidable.
 
 decConTermTypeᶜ :
-  CheckableCons Δ → Checkable-type A → Checkable t → Dec (Δ ⊢ t ∷ A)
-decConTermTypeᶜ Δ A t =
-  case decWfCons Δ of λ where
-    (yes ⊢Δ) → decTermTypeᶜ ⊢Δ A t
-    (no ¬⊢Δ) → no (¬⊢Δ ∘→ wfTerm)
+  CheckableCons Γ → Checkable-type A → Checkable t → Dec (Γ ⊢ t ∷ A)
+decConTermTypeᶜ Γ A t =
+  case decWfCons Γ of λ where
+    (yes ⊢Γ) → decTermTypeᶜ ⊢Γ A t
+    (no ¬⊢Γ) → no (¬⊢Γ ∘→ wfTerm)
 
--- Type inference for arbitrary checkable contexts: if Δ is checkable
--- and t is inferable, then ∃ λ A → Δ ⊢ t ∷ A is decidable.
+-- Type inference for arbitrary checkable contexts: if Γ is checkable
+-- and t is inferable, then ∃ λ A → Γ ⊢ t ∷ A is decidable.
 
 decConTermᵢ :
-  CheckableCons Δ → Inferable t → Dec (∃ λ A → Δ ⊢ t ∷ A)
-decConTermᵢ Δ t =
-  case decWfCons Δ of λ where
-    (yes ⊢Δ) → decTermᵢ ⊢Δ t
-    (no ¬⊢Δ) → no (¬⊢Δ ∘→ wfTerm ∘→ proj₂)
+  CheckableCons Γ → Inferable t → Dec (∃ λ A → Γ ⊢ t ∷ A)
+decConTermᵢ Γ t =
+  case decWfCons Γ of λ where
+    (yes ⊢Γ) → decTermᵢ ⊢Γ t
+    (no ¬⊢Γ) → no (¬⊢Γ ∘→ wfTerm ∘→ proj₂)

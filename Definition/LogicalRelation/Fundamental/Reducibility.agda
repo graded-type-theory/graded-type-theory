@@ -14,10 +14,9 @@ module Definition.LogicalRelation.Fundamental.Reducibility
   (R : Type-restrictions 𝕄)
   {{eqrel : EqRelSet R}}
   (open EqRelSet eqrel)
-  {κ} {∇ : DCon (Term 0) κ}
-  {n} {Γ : Con Term n}
-  -- Neutrals are included or Γ is empty.
-  ⦃ inc : Var-included or-empty Γ ⦄
+  {m n} {Γ : Cons m n}
+  -- Neutrals are included or Γ .vars is empty.
+  ⦃ inc : Var-included or-empty (Γ .vars) ⦄
   where
 
 open import Definition.Typed R
@@ -37,28 +36,28 @@ opaque
 
   -- Well-formed types are reducible.
 
-  reducible-⊩ : ∇ » Γ ⊢ A → ∃ λ l → ∇ » Γ ⊩⟨ l ⟩ A
+  reducible-⊩ : Γ ⊢ A → ∃ λ l → Γ ⊩⟨ l ⟩ A
   reducible-⊩ = Σ.map idᶠ R.⊩→ ∘→ RR.reducible-⊩
 
 opaque
 
   -- If A and B are definitionally equal (with respect to Γ), then
-  -- ∇ » Γ ⊩⟨ l ⟩ A ≡ B holds for some type level l.
+  -- Γ ⊩⟨ l ⟩ A ≡ B holds for some type level l.
 
-  reducible-⊩≡ : ∇ » Γ ⊢ A ≡ B → ∃ λ l → ∇ » Γ ⊩⟨ l ⟩ A ≡ B
+  reducible-⊩≡ : Γ ⊢ A ≡ B → ∃ λ l → Γ ⊩⟨ l ⟩ A ≡ B
   reducible-⊩≡ = Σ.map idᶠ R.⊩≡→ ∘→ RR.reducible-⊩≡
 
 opaque
 
   -- Well-formed terms are reducible.
 
-  reducible-⊩∷ : ∇ » Γ ⊢ t ∷ A → ∃ λ l → ∇ » Γ ⊩⟨ l ⟩ t ∷ A
+  reducible-⊩∷ : Γ ⊢ t ∷ A → ∃ λ l → Γ ⊩⟨ l ⟩ t ∷ A
   reducible-⊩∷ = Σ.map idᶠ R.⊩∷→ ∘→ RR.reducible-⊩∷
 
 opaque
 
   -- If t and u are definitionally equal (with respect to Γ and A),
-  -- then ∇ » Γ ⊩⟨ l ⟩ t ≡ u ∷ A holds for some type level l.
+  -- then Γ ⊩⟨ l ⟩ t ≡ u ∷ A holds for some type level l.
 
-  reducible-⊩≡∷ : ∇ » Γ ⊢ t ≡ u ∷ A → ∃ λ l → ∇ » Γ ⊩⟨ l ⟩ t ≡ u ∷ A
+  reducible-⊩≡∷ : Γ ⊢ t ≡ u ∷ A → ∃ λ l → Γ ⊩⟨ l ⟩ t ≡ u ∷ A
   reducible-⊩≡∷ = Σ.map idᶠ R.⊩≡∷→ ∘→ RR.reducible-⊩≡∷

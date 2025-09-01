@@ -43,13 +43,12 @@ open import Tools.Sum as ⊎
 private
   variable
     l α : Nat
-    ∇ : DCon (Term 0) _
-    Γ : Con Term _
+    Γ : Cons _ _
     t t′ A B : Term _
 
 opaque
 
-  neu : Neutralₗ ∇ A → ∇ » Γ ⊢≅ A → ∇ » Γ ⊩⟨ l ⟩ A
+  neu : Neutralₗ (Γ .defs) A → Γ ⊢≅ A → Γ ⊩⟨ l ⟩ A
   neu neA A≅A = ne′ _ (id (wf-⊢≡ (≅-eq A≅A) .proj₁)) neA A≅A
 
 opaque
@@ -57,21 +56,21 @@ opaque
   -- Neutral types that are equal are also reducibly equal.
 
   neuEq :
-    (⊩A : ∇ » Γ ⊩⟨ l ⟩ A) →
-    Neutralₗ ∇ A →
-    Neutralₗ ∇ B →
-    ∇ » Γ ⊢ A ≅ B →
-    ∇ » Γ ⊩⟨ l ⟩ A ≡ B / ⊩A
-  neuEq {∇} {Γ} {A} {B} [A] neA neB A~B =
+    (⊩A : Γ ⊩⟨ l ⟩ A) →
+    Neutralₗ (Γ .defs) A →
+    Neutralₗ (Γ .defs) B →
+    Γ ⊢ A ≅ B →
+    Γ ⊩⟨ l ⟩ A ≡ B / ⊩A
+  neuEq {Γ} {A} {B} [A] neA neB A~B =
     irrelevanceEq (ne-intr (ne-elim neA [A])) [A]
       (neuEq′ (ne-elim neA [A]))
     where
     neuEq′ :
-      (⊩A : ∇ » Γ ⊩⟨ l ⟩ne A) →
-      ∇ » Γ ⊩⟨ l ⟩ A ≡ B / ne-intr ⊩A
+      (⊩A : Γ ⊩⟨ l ⟩ne A) →
+      Γ ⊩⟨ l ⟩ A ≡ B / ne-intr ⊩A
     neuEq′ (noemb (ne _ D neK K≡K)) =
       ne₌ _ (id (wf-⊢≡ (≅-eq A~B) .proj₂)) neB
-          (PE.subst (λ x → _ » _ ⊢ x ≅ _) (whnfRed* D (ne-whnf neA)) A~B)
+          (PE.subst (λ x → _ ⊢ x ≅ _) (whnfRed* D (ne-whnf neA)) A~B)
     neuEq′ (emb ≤ᵘ-refl x) = neuEq′ x
     neuEq′ (emb (≤ᵘ-step p) x) = neuEq′ (emb p x)
 
@@ -80,16 +79,16 @@ opaque mutual
   -- Neutral reflexive terms are reducible.
 
   neuTerm :
-    (⊩A : ∇ » Γ ⊩⟨ l ⟩ A) →
-    Neutralₗ ∇ t →
-    ∇ » Γ ⊢~ t ∷ A →
-    ∇ » Γ ⊩⟨ l ⟩ t ∷ A / ⊩A
-  neuTerm {∇} {Γ} {A} {t} ⊩A t-ne ~t = neuTerm′ ⊩A
+    (⊩A : Γ ⊩⟨ l ⟩ A) →
+    Neutralₗ (Γ .defs) t →
+    Γ ⊢~ t ∷ A →
+    Γ ⊩⟨ l ⟩ t ∷ A / ⊩A
+  neuTerm {Γ} {A} {t} ⊩A t-ne ~t = neuTerm′ ⊩A
     where
-    ⊢t : ∇ » Γ ⊢ t ∷ A
+    ⊢t : Γ ⊢ t ∷ A
     ⊢t = wf-⊢≡∷ (~-eq ~t) .proj₂ .proj₁
 
-    neuTerm′ : (⊩A : ∇ » Γ ⊩⟨ l ⟩ A) → ∇ » Γ ⊩⟨ l ⟩ t ∷ A / ⊩A
+    neuTerm′ : (⊩A : Γ ⊩⟨ l ⟩ A) → Γ ⊩⟨ l ⟩ t ∷ A / ⊩A
     neuTerm′ (Uᵣ′ l ≤ᵘ-refl D) =
       let A≡U  = subset* D
           t≡t  = ~-to-≅ₜ (~-conv ~t A≡U)
@@ -176,25 +175,25 @@ opaque mutual
   -- "Neutrally equal" neutral terms are "reducibly equal".
 
   neuEqTerm :
-    (⊩A : ∇ » Γ ⊩⟨ l ⟩ A) →
-    Neutralₗ ∇ t →
-    Neutralₗ ∇ t′ →
-    ∇ » Γ ⊢ t ~ t′ ∷ A →
-    ∇ » Γ ⊩⟨ l ⟩ t ≡ t′ ∷ A / ⊩A
-  neuEqTerm {∇} {Γ} {A} {t} {t′} ⊩A t-ne t′-ne t~t′ = neuEqTerm′ ⊩A
+    (⊩A : Γ ⊩⟨ l ⟩ A) →
+    Neutralₗ (Γ .defs) t →
+    Neutralₗ (Γ .defs) t′ →
+    Γ ⊢ t ~ t′ ∷ A →
+    Γ ⊩⟨ l ⟩ t ≡ t′ ∷ A / ⊩A
+  neuEqTerm {Γ} {A} {t} {t′} ⊩A t-ne t′-ne t~t′ = neuEqTerm′ ⊩A
     where
-    t≡t′ : ∇ » Γ ⊢ t ≡ t′ ∷ A
+    t≡t′ : Γ ⊢ t ≡ t′ ∷ A
     t≡t′ = ~-eq t~t′
 
-    ⊢t : ∇ » Γ ⊢ t ∷ A
+    ⊢t : Γ ⊢ t ∷ A
     ⊢t = wf-⊢≡∷ t≡t′ .proj₂ .proj₁
 
-    ⊢t′ : ∇ » Γ ⊢ t′ ∷ A
+    ⊢t′ : Γ ⊢ t′ ∷ A
     ⊢t′ = wf-⊢≡∷ t≡t′ .proj₂ .proj₂
 
     neuEqTerm′ :
-      (⊩A : ∇ » Γ ⊩⟨ l ⟩ A) →
-      ∇ » Γ ⊩⟨ l ⟩ t ≡ t′ ∷ A / ⊩A
+      (⊩A : Γ ⊩⟨ l ⟩ A) →
+      Γ ⊩⟨ l ⟩ t ≡ t′ ∷ A / ⊩A
     neuEqTerm′ (Uᵣ′ l ≤ᵘ-refl D) =
       let A≡U = subset* D
           t~t′₁ = ~-conv t~t′ A≡U
@@ -277,13 +276,13 @@ opaque mutual
                          (~-fst ⊢G t′~t′Σ))
           [fstn≡fstn′] = neuEqTerm [F] (fstₙ t-ne) (fstₙ t′-ne)
                            (PE.subst
-                             (λ x → _ » _ ⊢ _ ~ _ ∷ x)
+                             (λ x → _ ⊢ _ ~ _ ∷ x)
                              (PE.sym (wk-id F))
                              (~-fst ⊢G t~t′Σ))
           [Gfstn] = [G] _ _ [fstn]
           [sndn≡sndn′] = neuEqTerm [Gfstn] (sndₙ t-ne) (sndₙ t′-ne)
             (PE.subst
-               (λ x → _ » _ ⊢ _ ~ _ ∷ x)
+               (λ x → _ ⊢ _ ~ _ ∷ x)
                (PE.cong (λ x → x [ fst _ _ ]₀) (PE.sym (wk-lift-id G)))
                (~-snd ⊢G t~t′Σ))
       in

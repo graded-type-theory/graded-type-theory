@@ -37,7 +37,8 @@ import Tools.PropositionalEquality as PE
 private variable
   m n               : Nat
   ∇ ∇′              : DCon (Term 0) _
-  Γ Δ               : Con Term _
+  Δ Η               : Con Term _
+  Γ                 : Cons _ _
   A B C t t₁ t₂ u v : Term _
   ξ                 : DExt (Term 0) _ _
   ρ                 : Wk _ _
@@ -96,8 +97,8 @@ opaque
   -- A characterisation lemma for _⊩⟨_⟩_.
 
   ⊩⇔ :
-    ∇ » Γ ⊩⟨ l ⟩ A ⇔
-    (⦃ inc : Var-included or-empty Γ ⦄ → ∇ » Γ L.⊩⟨ l ⟩ A)
+    Γ ⊩⟨ l ⟩ A ⇔
+    (⦃ inc : Var-included or-empty (Γ .vars) ⦄ → Γ L.⊩⟨ l ⟩ A)
   ⊩⇔ = id⇔
 
 opaque
@@ -106,8 +107,8 @@ opaque
   -- A characterisation lemma for _⊩⟨_⟩_∷_.
 
   ⊩∷⇔ :
-    ∇ » Γ ⊩⟨ l ⟩ t ∷ A ⇔
-    (⦃ inc : Var-included or-empty Γ ⦄ → ∇ » Γ H.⊩⟨ l ⟩ t ∷ A)
+    Γ ⊩⟨ l ⟩ t ∷ A ⇔
+    (⦃ inc : Var-included or-empty (Γ .vars) ⦄ → Γ H.⊩⟨ l ⟩ t ∷ A)
   ⊩∷⇔ = id⇔
 
 opaque
@@ -116,8 +117,8 @@ opaque
   -- A characterisation lemma for _⊩⟨_⟩_≡_.
 
   ⊩≡⇔ :
-    ∇ » Γ ⊩⟨ l ⟩ A ≡ B ⇔
-    (⦃ inc : Var-included or-empty Γ ⦄ → ∇ » Γ H.⊩⟨ l ⟩ A ≡ B)
+    Γ ⊩⟨ l ⟩ A ≡ B ⇔
+    (⦃ inc : Var-included or-empty (Γ .vars) ⦄ → Γ H.⊩⟨ l ⟩ A ≡ B)
   ⊩≡⇔ = id⇔
 
 opaque
@@ -126,8 +127,8 @@ opaque
   -- A characterisation lemma for _⊩⟨_⟩_≡_∷_.
 
   ⊩≡∷⇔ :
-    ∇ » Γ ⊩⟨ l ⟩ t ≡ u ∷ A ⇔
-    (⦃ inc : Var-included or-empty Γ ⦄ → ∇ » Γ H.⊩⟨ l ⟩ t ≡ u ∷ A)
+    Γ ⊩⟨ l ⟩ t ≡ u ∷ A ⇔
+    (⦃ inc : Var-included or-empty (Γ .vars) ⦄ → Γ H.⊩⟨ l ⟩ t ≡ u ∷ A)
   ⊩≡∷⇔ = id⇔
 
 ------------------------------------------------------------------------
@@ -137,7 +138,7 @@ opaque
 
   -- A conversion function for _⊩⟨_⟩_.
 
-  →⊩ : ∇ » Γ L.⊩⟨ l ⟩ A → ∇ » Γ ⊩⟨ l ⟩ A
+  →⊩ : Γ L.⊩⟨ l ⟩ A → Γ ⊩⟨ l ⟩ A
   →⊩ ⊩A = ⊩⇔ .proj₂ ⊩A
 
 opaque
@@ -145,15 +146,15 @@ opaque
   -- A conversion function for _⊩⟨_⟩_.
 
   ⊩→ :
-    ⦃ inc : Var-included or-empty Γ ⦄ →
-    ∇ » Γ ⊩⟨ l ⟩ A → ∇ » Γ L.⊩⟨ l ⟩ A
+    ⦃ inc : Var-included or-empty (Γ .vars) ⦄ →
+    Γ ⊩⟨ l ⟩ A → Γ L.⊩⟨ l ⟩ A
   ⊩→ ⊩A = ⊩⇔ .proj₁ ⊩A
 
 opaque
 
   -- A conversion function for _⊩⟨_⟩_∷_.
 
-  →⊩∷ : ∇ » Γ H.⊩⟨ l ⟩ t ∷ A → ∇ » Γ ⊩⟨ l ⟩ t ∷ A
+  →⊩∷ : Γ H.⊩⟨ l ⟩ t ∷ A → Γ ⊩⟨ l ⟩ t ∷ A
   →⊩∷ ⊩t = ⊩∷⇔ .proj₂ ⊩t
 
 opaque
@@ -161,15 +162,15 @@ opaque
   -- A conversion function for _⊩⟨_⟩_∷_.
 
   ⊩∷→ :
-    ⦃ inc : Var-included or-empty Γ ⦄ →
-    ∇ » Γ ⊩⟨ l ⟩ t ∷ A → ∇ » Γ H.⊩⟨ l ⟩ t ∷ A
+    ⦃ inc : Var-included or-empty (Γ .vars) ⦄ →
+    Γ ⊩⟨ l ⟩ t ∷ A → Γ H.⊩⟨ l ⟩ t ∷ A
   ⊩∷→ ⊩t = ⊩∷⇔ .proj₁ ⊩t
 
 opaque
 
   -- A conversion function for _⊩⟨_⟩_≡_.
 
-  →⊩≡ : ∇ » Γ H.⊩⟨ l ⟩ A ≡ B → ∇ » Γ ⊩⟨ l ⟩ A ≡ B
+  →⊩≡ : Γ H.⊩⟨ l ⟩ A ≡ B → Γ ⊩⟨ l ⟩ A ≡ B
   →⊩≡ A≡B = ⊩≡⇔ .proj₂ A≡B
 
 opaque
@@ -177,15 +178,15 @@ opaque
   -- A conversion function for _⊩⟨_⟩_≡_.
 
   ⊩≡→ :
-    ⦃ inc : Var-included or-empty Γ ⦄ →
-    ∇ » Γ ⊩⟨ l ⟩ A ≡ B → ∇ » Γ H.⊩⟨ l ⟩ A ≡ B
+    ⦃ inc : Var-included or-empty (Γ .vars) ⦄ →
+    Γ ⊩⟨ l ⟩ A ≡ B → Γ H.⊩⟨ l ⟩ A ≡ B
   ⊩≡→ A≡B = ⊩≡⇔ .proj₁ A≡B
 
 opaque
 
   -- A conversion function for _⊩⟨_⟩_≡_∷_.
 
-  →⊩≡∷ : ∇ » Γ H.⊩⟨ l ⟩ t ≡ u ∷ A → ∇ » Γ ⊩⟨ l ⟩ t ≡ u ∷ A
+  →⊩≡∷ : Γ H.⊩⟨ l ⟩ t ≡ u ∷ A → Γ ⊩⟨ l ⟩ t ≡ u ∷ A
   →⊩≡∷ t≡u = ⊩≡∷⇔ .proj₂ t≡u
 
 opaque
@@ -193,8 +194,8 @@ opaque
   -- A conversion function for _⊩⟨_⟩_≡_∷_.
 
   ⊩≡∷→ :
-    ⦃ inc : Var-included or-empty Γ ⦄ →
-    ∇ » Γ ⊩⟨ l ⟩ t ≡ u ∷ A → ∇ » Γ H.⊩⟨ l ⟩ t ≡ u ∷ A
+    ⦃ inc : Var-included or-empty (Γ .vars) ⦄ →
+    Γ ⊩⟨ l ⟩ t ≡ u ∷ A → Γ H.⊩⟨ l ⟩ t ≡ u ∷ A
   ⊩≡∷→ t≡u = ⊩≡∷⇔ .proj₁ t≡u
 
 ------------------------------------------------------------------------
@@ -203,45 +204,45 @@ opaque
 opaque
   unfolding _⊩⟨_⟩_
 
-  -- If one can prove ∇ » Γ ⊩⟨ l ⟩ A given Var-included or-empty Γ,
-  -- then ∇ » Γ ⊩⟨ l ⟩ A holds.
+  -- If one can prove Γ ⊩⟨ l ⟩ A given Var-included or-empty Γ, then
+  -- Γ ⊩⟨ l ⟩ A holds.
 
   with-inc-⊩ :
-    (⦃ inc : Var-included or-empty Γ ⦄ → ∇ » Γ ⊩⟨ l ⟩ A) →
-    ∇ » Γ ⊩⟨ l ⟩ A
+    (⦃ inc : Var-included or-empty (Γ .vars) ⦄ → Γ ⊩⟨ l ⟩ A) →
+    Γ ⊩⟨ l ⟩ A
   with-inc-⊩ f ⦃ inc ⦄ = f ⦃ inc = inc ⦄ ⦃ inc = inc ⦄
 
 opaque
   unfolding _⊩⟨_⟩_∷_
 
-  -- If one can prove ∇ » Γ ⊩⟨ l ⟩ t ∷ A given
-  -- Var-included or-empty Γ, then ∇ » Γ ⊩⟨ l ⟩ t ∷ A holds.
+  -- If one can prove Γ ⊩⟨ l ⟩ t ∷ A given Var-included or-empty Γ,
+  -- then Γ ⊩⟨ l ⟩ t ∷ A holds.
 
   with-inc-⊩∷ :
-    (⦃ inc : Var-included or-empty Γ ⦄ → ∇ » Γ ⊩⟨ l ⟩ t ∷ A) →
-    ∇ » Γ ⊩⟨ l ⟩ t ∷ A
+    (⦃ inc : Var-included or-empty (Γ .vars) ⦄ → Γ ⊩⟨ l ⟩ t ∷ A) →
+    Γ ⊩⟨ l ⟩ t ∷ A
   with-inc-⊩∷ f ⦃ inc ⦄ = f ⦃ inc = inc ⦄ ⦃ inc = inc ⦄
 
 opaque
   unfolding _⊩⟨_⟩_≡_
 
-  -- If one can prove ∇ » Γ ⊩⟨ l ⟩ A ≡ B given
-  -- Var-included or-empty Γ, then ∇ » Γ ⊩⟨ l ⟩ A ≡ B holds.
+  -- If one can prove Γ ⊩⟨ l ⟩ A ≡ B given Var-included or-empty Γ,
+  -- then Γ ⊩⟨ l ⟩ A ≡ B holds.
 
   with-inc-⊩≡ :
-    (⦃ inc : Var-included or-empty Γ ⦄ → ∇ » Γ ⊩⟨ l ⟩ A ≡ B) →
-    ∇ » Γ ⊩⟨ l ⟩ A ≡ B
+    (⦃ inc : Var-included or-empty (Γ .vars) ⦄ → Γ ⊩⟨ l ⟩ A ≡ B) →
+    Γ ⊩⟨ l ⟩ A ≡ B
   with-inc-⊩≡ f ⦃ inc ⦄ = f ⦃ inc = inc ⦄ ⦃ inc = inc ⦄
 
 opaque
   unfolding _⊩⟨_⟩_≡_∷_
 
-  -- If one can prove ∇ » Γ ⊩⟨ l ⟩ t ≡ u ∷ A given
-  -- Var-included or-empty Γ, then ∇ » Γ ⊩⟨ l ⟩ t ≡ u ∷ A holds.
+  -- If one can prove Γ ⊩⟨ l ⟩ t ≡ u ∷ A given
+  -- Var-included or-empty Γ, then Γ ⊩⟨ l ⟩ t ≡ u ∷ A holds.
 
   with-inc-⊩≡∷ :
-    (⦃ inc : Var-included or-empty Γ ⦄ → ∇ » Γ ⊩⟨ l ⟩ t ≡ u ∷ A) →
-    ∇ » Γ ⊩⟨ l ⟩ t ≡ u ∷ A
+    (⦃ inc : Var-included or-empty (Γ .vars) ⦄ → Γ ⊩⟨ l ⟩ t ≡ u ∷ A) →
+    Γ ⊩⟨ l ⟩ t ≡ u ∷ A
   with-inc-⊩≡∷ f ⦃ inc ⦄ = f ⦃ inc = inc ⦄ ⦃ inc = inc ⦄
 
 ------------------------------------------------------------------------
@@ -253,8 +254,8 @@ opaque
   -- Reflexivity for _⊩⟨_⟩_≡_.
 
   refl-⊩≡ :
-    ∇ » Γ ⊩⟨ l ⟩ A →
-    ∇ » Γ ⊩⟨ l ⟩ A ≡ A
+    Γ ⊩⟨ l ⟩ A →
+    Γ ⊩⟨ l ⟩ A ≡ A
   refl-⊩≡ ⊩A = H.refl-⊩≡ ⊩A
 
 opaque
@@ -263,8 +264,8 @@ opaque
   -- Reflexivity for _⊩⟨_⟩_≡_∷_.
 
   refl-⊩≡∷ :
-    ∇ » Γ ⊩⟨ l ⟩ t ∷ A →
-    ∇ » Γ ⊩⟨ l ⟩ t ≡ t ∷ A
+    Γ ⊩⟨ l ⟩ t ∷ A →
+    Γ ⊩⟨ l ⟩ t ≡ t ∷ A
   refl-⊩≡∷ ⊩t = H.refl-⊩≡∷ ⊩t
 
 ------------------------------------------------------------------------
@@ -276,8 +277,8 @@ opaque
   -- Symmetry for _⊩⟨_⟩_≡_.
 
   sym-⊩≡ :
-    ∇ » Γ ⊩⟨ l ⟩ A ≡ B →
-    ∇ » Γ ⊩⟨ l ⟩ B ≡ A
+    Γ ⊩⟨ l ⟩ A ≡ B →
+    Γ ⊩⟨ l ⟩ B ≡ A
   sym-⊩≡ A≡B = H.sym-⊩≡ A≡B
 
 opaque
@@ -286,8 +287,8 @@ opaque
   -- Symmetry for _⊩⟨_⟩_≡_∷_.
 
   sym-⊩≡∷ :
-    ∇ » Γ ⊩⟨ l ⟩ t ≡ u ∷ A →
-    ∇ » Γ ⊩⟨ l ⟩ u ≡ t ∷ A
+    Γ ⊩⟨ l ⟩ t ≡ u ∷ A →
+    Γ ⊩⟨ l ⟩ u ≡ t ∷ A
   sym-⊩≡∷ t≡u = H.sym-⊩≡∷ t≡u
 
 ------------------------------------------------------------------------
@@ -299,9 +300,9 @@ opaque
   -- Transitivity for _⊩⟨_⟩_≡_.
 
   trans-⊩≡ :
-    ∇ » Γ ⊩⟨ l ⟩ A ≡ B →
-    ∇ » Γ ⊩⟨ l ⟩ B ≡ C →
-    ∇ » Γ ⊩⟨ l ⟩ A ≡ C
+    Γ ⊩⟨ l ⟩ A ≡ B →
+    Γ ⊩⟨ l ⟩ B ≡ C →
+    Γ ⊩⟨ l ⟩ A ≡ C
   trans-⊩≡ A≡B B≡C = H.trans-⊩≡ A≡B B≡C
 
 opaque
@@ -310,9 +311,9 @@ opaque
   -- Transitivity for _⊩⟨_⟩_≡_∷_.
 
   trans-⊩≡∷ :
-    ∇ » Γ ⊩⟨ l′ ⟩ t ≡ u ∷ A →
-    ∇ » Γ ⊩⟨ l ⟩ u ≡ v ∷ A →
-    ∇ » Γ ⊩⟨ l ⟩ t ≡ v ∷ A
+    Γ ⊩⟨ l′ ⟩ t ≡ u ∷ A →
+    Γ ⊩⟨ l ⟩ u ≡ v ∷ A →
+    Γ ⊩⟨ l ⟩ t ≡ v ∷ A
   trans-⊩≡∷ t≡u u≡v = H.trans-⊩≡∷ t≡u u≡v
 
 ------------------------------------------------------------------------
@@ -323,7 +324,7 @@ opaque
 
   -- A well-formedness lemma for _⊩⟨_⟩_∷_.
 
-  wf-⊩∷ : ∇ » Γ ⊩⟨ l ⟩ t ∷ A → ∇ » Γ ⊩⟨ l ⟩ A
+  wf-⊩∷ : Γ ⊩⟨ l ⟩ t ∷ A → Γ ⊩⟨ l ⟩ A
   wf-⊩∷ ⊩t = H.wf-⊩∷ ⊩t
 
 opaque
@@ -331,7 +332,7 @@ opaque
 
   -- A well-formedness lemma for _⊩⟨_⟩_≡_.
 
-  wf-⊩≡ : ∇ » Γ ⊩⟨ l ⟩ A ≡ B → ∇ » Γ ⊩⟨ l ⟩ A × ∇ » Γ ⊩⟨ l ⟩ B
+  wf-⊩≡ : Γ ⊩⟨ l ⟩ A ≡ B → Γ ⊩⟨ l ⟩ A × Γ ⊩⟨ l ⟩ B
   wf-⊩≡ A≡B = H.wf-⊩≡ A≡B .proj₁ , H.wf-⊩≡ A≡B .proj₂
 
 opaque
@@ -340,8 +341,8 @@ opaque
   -- A well-formedness lemma for _⊩⟨_⟩_≡_∷_.
 
   wf-⊩≡∷ :
-    ∇ » Γ ⊩⟨ l ⟩ t ≡ u ∷ A →
-    ∇ » Γ ⊩⟨ l ⟩ t ∷ A × ∇ » Γ ⊩⟨ l ⟩ u ∷ A
+    Γ ⊩⟨ l ⟩ t ≡ u ∷ A →
+    Γ ⊩⟨ l ⟩ t ∷ A × Γ ⊩⟨ l ⟩ u ∷ A
   wf-⊩≡∷ t≡u = H.wf-⊩≡∷ t≡u .proj₁ , H.wf-⊩≡∷ t≡u .proj₂
 
 ------------------------------------------------------------------------
@@ -352,7 +353,7 @@ opaque
 
   -- A characterisation lemma for _⊩⟨_⟩_.
 
-  ⊩⇔⊩≡ : (∇ » Γ ⊩⟨ l ⟩ A) ⇔ ∇ » Γ ⊩⟨ l ⟩ A ≡ A
+  ⊩⇔⊩≡ : (Γ ⊩⟨ l ⟩ A) ⇔ Γ ⊩⟨ l ⟩ A ≡ A
   ⊩⇔⊩≡ = instance-Π-cong-⇔ H.⊩⇔⊩≡
 
 opaque
@@ -360,7 +361,7 @@ opaque
 
   -- A characterisation lemma for _⊩⟨_⟩_∷_.
 
-  ⊩∷⇔⊩≡∷ : ∇ » Γ ⊩⟨ l ⟩ t ∷ A ⇔ ∇ » Γ ⊩⟨ l ⟩ t ≡ t ∷ A
+  ⊩∷⇔⊩≡∷ : Γ ⊩⟨ l ⟩ t ∷ A ⇔ Γ ⊩⟨ l ⟩ t ≡ t ∷ A
   ⊩∷⇔⊩≡∷ = instance-Π-cong-⇔ H.⊩∷⇔⊩≡∷
 
 ------------------------------------------------------------------------
@@ -372,10 +373,10 @@ opaque
   -- Changing type levels for _⊩⟨_⟩_≡_.
 
   level-⊩≡ :
-    ∇ » Γ ⊩⟨ l ⟩ A →
-    ∇ » Γ ⊩⟨ l ⟩ B →
-    ∇ » Γ ⊩⟨ l′ ⟩ A ≡ B →
-    ∇ » Γ ⊩⟨ l ⟩ A ≡ B
+    Γ ⊩⟨ l ⟩ A →
+    Γ ⊩⟨ l ⟩ B →
+    Γ ⊩⟨ l′ ⟩ A ≡ B →
+    Γ ⊩⟨ l ⟩ A ≡ B
   level-⊩≡ ⊩A ⊩B A≡B = H.level-⊩≡ ⊩A ⊩B A≡B
 
 opaque
@@ -384,9 +385,9 @@ opaque
   -- Changing type levels for _⊩⟨_⟩_≡_∷_.
 
   level-⊩≡∷ :
-    ∇ » Γ ⊩⟨ l ⟩ A →
-    ∇ » Γ ⊩⟨ l′ ⟩ t ≡ u ∷ A →
-    ∇ » Γ ⊩⟨ l ⟩ t ≡ u ∷ A
+    Γ ⊩⟨ l ⟩ A →
+    Γ ⊩⟨ l′ ⟩ t ≡ u ∷ A →
+    Γ ⊩⟨ l ⟩ t ≡ u ∷ A
   level-⊩≡∷ ⊩A t≡u = H.level-⊩≡∷ ⊩A t≡u
 
 opaque
@@ -394,9 +395,9 @@ opaque
   -- Changing type levels for _⊩⟨_⟩_∷_.
 
   level-⊩∷ :
-    ∇ » Γ ⊩⟨ l ⟩ A →
-    ∇ » Γ ⊩⟨ l′ ⟩ t ∷ A →
-    ∇ » Γ ⊩⟨ l ⟩ t ∷ A
+    Γ ⊩⟨ l ⟩ A →
+    Γ ⊩⟨ l′ ⟩ t ∷ A →
+    Γ ⊩⟨ l ⟩ t ∷ A
   level-⊩∷ ⊩A =
     ⊩∷⇔⊩≡∷ .proj₂ ∘→ level-⊩≡∷ ⊩A ∘→ ⊩∷⇔⊩≡∷ .proj₁
 
@@ -409,9 +410,9 @@ opaque
   -- Conversion for _⊩⟨_⟩_≡_∷_.
 
   conv-⊩≡∷ :
-    ∇ » Γ ⊩⟨ l ⟩ A ≡ B →
-    ∇ » Γ ⊩⟨ l′ ⟩ t ≡ u ∷ A →
-    ∇ » Γ ⊩⟨ l ⟩ t ≡ u ∷ B
+    Γ ⊩⟨ l ⟩ A ≡ B →
+    Γ ⊩⟨ l′ ⟩ t ≡ u ∷ A →
+    Γ ⊩⟨ l ⟩ t ≡ u ∷ B
   conv-⊩≡∷ A≡B t≡u = H.conv-⊩≡∷ A≡B t≡u
 
 opaque
@@ -419,9 +420,9 @@ opaque
   -- Conversion for _⊩⟨_⟩_∷_.
 
   conv-⊩∷ :
-    ∇ » Γ ⊩⟨ l ⟩ A ≡ B →
-    ∇ » Γ ⊩⟨ l′ ⟩ t ∷ A →
-    ∇ » Γ ⊩⟨ l ⟩ t ∷ B
+    Γ ⊩⟨ l ⟩ A ≡ B →
+    Γ ⊩⟨ l′ ⟩ t ∷ A →
+    Γ ⊩⟨ l ⟩ t ∷ B
   conv-⊩∷ A≡B =
     ⊩∷⇔⊩≡∷ .proj₂ ∘→ conv-⊩≡∷ A≡B ∘→ ⊩∷⇔⊩≡∷ .proj₁
 
@@ -433,17 +434,18 @@ opaque
 
   -- Weakening for _⊩⟨_⟩_≡_.
 
-  wk-⊩≡ : ∇ » ρ ∷ʷ Δ ⊇ Γ → ∇ » Γ ⊩⟨ l ⟩ A ≡ B → ∇ » Δ ⊩⟨ l ⟩ wk ρ A ≡ wk ρ B
-  wk-⊩≡ Δ⊇Γ A≡B =
-    let Δ⊇Γ = ∷ʷ⊇→∷ʷʳ⊇ Δ⊇Γ in
-    H.wk-⊩≡ Δ⊇Γ $ A≡B ⦃ inc = wk-Var-included-or-empty→ Δ⊇Γ ⦄
+  wk-⊩≡ :
+    ∇ » ρ ∷ʷ Η ⊇ Δ → ∇ » Δ ⊩⟨ l ⟩ A ≡ B → ∇ » Η ⊩⟨ l ⟩ wk ρ A ≡ wk ρ B
+  wk-⊩≡ Η⊇Δ A≡B =
+    let Η⊇Δ = ∷ʷ⊇→∷ʷʳ⊇ Η⊇Δ in
+    H.wk-⊩≡ Η⊇Δ $ A≡B ⦃ inc = wk-Var-included-or-empty→ Η⊇Δ ⦄
 
 opaque
 
   -- Weakening for _⊩⟨_⟩_.
 
-  wk-⊩ : ∇ » ρ ∷ʷ Δ ⊇ Γ → ∇ » Γ ⊩⟨ l ⟩ A → ∇ » Δ ⊩⟨ l ⟩ wk ρ A
-  wk-⊩ Δ⊇Γ = ⊩⇔⊩≡ .proj₂ ∘→ wk-⊩≡ Δ⊇Γ ∘→ ⊩⇔⊩≡ .proj₁
+  wk-⊩ : ∇ » ρ ∷ʷ Η ⊇ Δ → ∇ » Δ ⊩⟨ l ⟩ A → ∇ » Η ⊩⟨ l ⟩ wk ρ A
+  wk-⊩ Η⊇Δ = ⊩⇔⊩≡ .proj₂ ∘→ wk-⊩≡ Η⊇Δ ∘→ ⊩⇔⊩≡ .proj₁
 
 opaque
   unfolding _⊩⟨_⟩_≡_∷_
@@ -451,17 +453,19 @@ opaque
   -- Weakening for _⊩⟨_⟩_≡_∷_.
 
   wk-⊩≡∷ :
-    ∇ » ρ ∷ʷ Δ ⊇ Γ → ∇ » Γ ⊩⟨ l ⟩ t ≡ u ∷ A → ∇ » Δ ⊩⟨ l ⟩ wk ρ t ≡ wk ρ u ∷ wk ρ A
-  wk-⊩≡∷ Δ⊇Γ t≡u =
-    let Δ⊇Γ = ∷ʷ⊇→∷ʷʳ⊇ Δ⊇Γ in
-    H.wk-⊩≡∷ Δ⊇Γ $ t≡u ⦃ inc = wk-Var-included-or-empty→ Δ⊇Γ ⦄
+    ∇ » ρ ∷ʷ Η ⊇ Δ → ∇ » Δ ⊩⟨ l ⟩ t ≡ u ∷ A →
+    ∇ » Η ⊩⟨ l ⟩ wk ρ t ≡ wk ρ u ∷ wk ρ A
+  wk-⊩≡∷ Η⊇Δ t≡u =
+    let Η⊇Δ = ∷ʷ⊇→∷ʷʳ⊇ Η⊇Δ in
+    H.wk-⊩≡∷ Η⊇Δ $ t≡u ⦃ inc = wk-Var-included-or-empty→ Η⊇Δ ⦄
 
 opaque
 
   -- Weakening for _⊩⟨_⟩_∷_.
 
-  wk-⊩∷ : ∇ » ρ ∷ʷ Δ ⊇ Γ → ∇ » Γ ⊩⟨ l ⟩ t ∷ A → ∇ » Δ ⊩⟨ l ⟩ wk ρ t ∷ wk ρ A
-  wk-⊩∷ Δ⊇Γ = ⊩∷⇔⊩≡∷ .proj₂ ∘→ wk-⊩≡∷ Δ⊇Γ ∘→ ⊩∷⇔⊩≡∷ .proj₁
+  wk-⊩∷ :
+    ∇ » ρ ∷ʷ Η ⊇ Δ → ∇ » Δ ⊩⟨ l ⟩ t ∷ A → ∇ » Η ⊩⟨ l ⟩ wk ρ t ∷ wk ρ A
+  wk-⊩∷ Η⊇Δ = ⊩∷⇔⊩≡∷ .proj₂ ∘→ wk-⊩≡∷ Η⊇Δ ∘→ ⊩∷⇔⊩≡∷ .proj₁
 
 opaque
   unfolding _⊩⟨_⟩_≡_
@@ -470,8 +474,8 @@ opaque
 
   defn-wk-⊩≡ :
     ξ » ∇′ ⊇ ∇ →
-    ∇ » Γ ⊩⟨ l ⟩ A ≡ B →
-    ∇′ » Γ ⊩⟨ l ⟩ A ≡ B
+    ∇ » Δ ⊩⟨ l ⟩ A ≡ B →
+    ∇′ » Δ ⊩⟨ l ⟩ A ≡ B
   defn-wk-⊩≡ ξ⊇ A≡B =
     with-inc-⊩≡ λ ⦃ inc ⦄ → (H.defn-wk-⊩≡ ξ⊇ (A≡B ⦃ inc ⦄))
 
@@ -479,7 +483,7 @@ opaque
 
   -- Weakening of the definition context for _⊩⟨_⟩_.
 
-  defn-wk-⊩ : ξ » ∇′ ⊇ ∇ → ∇ » Γ ⊩⟨ l ⟩ A → ∇′ » Γ ⊩⟨ l ⟩ A
+  defn-wk-⊩ : ξ » ∇′ ⊇ ∇ → ∇ » Δ ⊩⟨ l ⟩ A → ∇′ » Δ ⊩⟨ l ⟩ A
   defn-wk-⊩ ξ⊇ = ⊩⇔⊩≡ .proj₂ ∘→ defn-wk-⊩≡ ξ⊇ ∘→ ⊩⇔⊩≡ .proj₁
 
 opaque
@@ -489,8 +493,8 @@ opaque
 
   defn-wk-⊩≡∷ :
     ξ » ∇′ ⊇ ∇ →
-    ∇ » Γ ⊩⟨ l ⟩ t ≡ u ∷ A →
-    ∇′ » Γ ⊩⟨ l ⟩ t ≡ u ∷ A
+    ∇ » Δ ⊩⟨ l ⟩ t ≡ u ∷ A →
+    ∇′ » Δ ⊩⟨ l ⟩ t ≡ u ∷ A
   defn-wk-⊩≡∷ ξ⊇ t≡u =
     with-inc-⊩≡∷ λ ⦃ inc ⦄ → (H.defn-wk-⊩≡∷ ξ⊇ (t≡u ⦃ inc ⦄))
 
@@ -500,8 +504,8 @@ opaque
 
   defn-wk-⊩∷ :
     ξ » ∇′ ⊇ ∇ →
-    ∇ » Γ ⊩⟨ l ⟩ t ∷ A →
-    ∇′ » Γ ⊩⟨ l ⟩ t ∷ A
+    ∇ » Δ ⊩⟨ l ⟩ t ∷ A →
+    ∇′ » Δ ⊩⟨ l ⟩ t ∷ A
   defn-wk-⊩∷ ξ⊇ = ⊩∷⇔⊩≡∷ .proj₂ ∘→ defn-wk-⊩≡∷ ξ⊇ ∘→ ⊩∷⇔⊩≡∷ .proj₁
 
 ------------------------------------------------------------------------
@@ -512,7 +516,7 @@ opaque
 
   -- A reduction lemma for _⊩⟨_⟩_.
 
-  ⊩-⇒* : ∇ » Γ ⊢ A ⇒* B → ∇ » Γ ⊩⟨ l ⟩ A → ∇ » Γ ⊩⟨ l ⟩ A ≡ B
+  ⊩-⇒* : Γ ⊢ A ⇒* B → Γ ⊩⟨ l ⟩ A → Γ ⊩⟨ l ⟩ A ≡ B
   ⊩-⇒* A⇒*B ⊩A = H.⊩-⇒* A⇒*B ⊩A
 
 opaque
@@ -521,9 +525,9 @@ opaque
   -- A reduction lemma for _⊩⟨_⟩_∷_.
 
   ⊩∷-⇒* :
-    ∇ » Γ ⊢ t ⇒* u ∷ A →
-    ∇ » Γ ⊩⟨ l ⟩ t ∷ A →
-    ∇ » Γ ⊩⟨ l ⟩ t ≡ u ∷ A
+    Γ ⊢ t ⇒* u ∷ A →
+    Γ ⊩⟨ l ⟩ t ∷ A →
+    Γ ⊩⟨ l ⟩ t ≡ u ∷ A
   ⊩∷-⇒* t⇒*u ⊩t = H.⊩∷-⇒* t⇒*u ⊩t
 
 ------------------------------------------------------------------------
@@ -534,7 +538,7 @@ opaque
 
   -- An expansion lemma for _⊩⟨_⟩_.
 
-  ⊩-⇐* : ∇ » Γ ⊢ A ⇒* B → ∇ » Γ ⊩⟨ l ⟩ B → ∇ » Γ ⊩⟨ l ⟩ A ≡ B
+  ⊩-⇐* : Γ ⊢ A ⇒* B → Γ ⊩⟨ l ⟩ B → Γ ⊩⟨ l ⟩ A ≡ B
   ⊩-⇐* A⇒*B ⊩B = H.⊩-⇐* A⇒*B ⊩B
 
 opaque
@@ -543,9 +547,9 @@ opaque
   -- An expansion lemma for _⊩⟨_⟩_∷_.
 
   ⊩∷-⇐* :
-    ∇ » Γ ⊢ t ⇒* u ∷ A →
-    ∇ » Γ ⊩⟨ l ⟩ u ∷ A →
-    ∇ » Γ ⊩⟨ l ⟩ t ≡ u ∷ A
+    Γ ⊢ t ⇒* u ∷ A →
+    Γ ⊩⟨ l ⟩ u ∷ A →
+    Γ ⊩⟨ l ⟩ t ≡ u ∷ A
   ⊩∷-⇐* t⇒*u ⊩u = H.⊩∷-⇐* t⇒*u ⊩u
 
 ------------------------------------------------------------------------
@@ -557,8 +561,8 @@ opaque
   -- An escape lemma for _⊩⟨_⟩_.
 
   escape-⊩ :
-    ⦃ inc : Var-included or-empty Γ ⦄ →
-    ∇ » Γ ⊩⟨ l ⟩ A → ∇ » Γ ⊢ A
+    ⦃ inc : Var-included or-empty (Γ .vars) ⦄ →
+    Γ ⊩⟨ l ⟩ A → Γ ⊢ A
   escape-⊩ ⊩A = H.escape-⊩ ⊩A
 
 opaque
@@ -567,8 +571,8 @@ opaque
   -- An escape lemma for _⊩⟨_⟩_∷_.
 
   escape-⊩∷ :
-    ⦃ inc : Var-included or-empty Γ ⦄ →
-    ∇ » Γ ⊩⟨ l ⟩ t ∷ A → ∇ » Γ ⊢ t ∷ A
+    ⦃ inc : Var-included or-empty (Γ .vars) ⦄ →
+    Γ ⊩⟨ l ⟩ t ∷ A → Γ ⊢ t ∷ A
   escape-⊩∷ ⊩t = H.escape-⊩∷ ⊩t
 
 opaque
@@ -577,8 +581,8 @@ opaque
   -- An escape lemma for _⊩⟨_⟩_≡_.
 
   escape-⊩≡ :
-    ⦃ inc : Var-included or-empty Γ ⦄ →
-    ∇ » Γ ⊩⟨ l ⟩ A ≡ B → ∇ » Γ ⊢ A ≅ B
+    ⦃ inc : Var-included or-empty (Γ .vars) ⦄ →
+    Γ ⊩⟨ l ⟩ A ≡ B → Γ ⊢ A ≅ B
   escape-⊩≡ A≡B = H.escape-⊩≡ A≡B
 
 opaque
@@ -587,8 +591,8 @@ opaque
   -- An escape lemma for _⊩⟨_⟩_≡_∷_.
 
   escape-⊩≡∷ :
-    ⦃ inc : Var-included or-empty Γ ⦄ →
-    ∇ » Γ ⊩⟨ l ⟩ t ≡ u ∷ A → ∇ » Γ ⊢ t ≅ u ∷ A
+    ⦃ inc : Var-included or-empty (Γ .vars) ⦄ →
+    Γ ⊩⟨ l ⟩ t ≡ u ∷ A → Γ ⊢ t ≅ u ∷ A
   escape-⊩≡∷ t≡u = H.escape-⊩≡∷ t≡u
 
 ------------------------------------------------------------------------
@@ -607,82 +611,82 @@ opaque
     step-⊩≡ step-⊩≡˘ step-⊩≡≡ step-⊩≡≡˘ step-⊩≡⇒* step-⊩≡⇒ step-⊩≡⇐*
     step-⊩≡⇐ _≡⟨⟩⊩_ finally-⊩≡≡ finally-⊩≡≡˘ finally-⊩≡⇐* finally-⊩≡⇒*
 
-  step-⊩≡ : ∀ A → ∇ » Γ ⊩⟨ l ⟩ B ≡ C → ∇ » Γ ⊩⟨ l ⟩ A ≡ B → ∇ » Γ ⊩⟨ l ⟩ A ≡ C
+  step-⊩≡ : ∀ A → Γ ⊩⟨ l ⟩ B ≡ C → Γ ⊩⟨ l ⟩ A ≡ B → Γ ⊩⟨ l ⟩ A ≡ C
   step-⊩≡ _ = flip trans-⊩≡
 
   syntax step-⊩≡ A B≡C A≡B = A ≡⟨ A≡B ⟩⊩ B≡C
 
-  step-⊩≡˘ : ∀ A → ∇ » Γ ⊩⟨ l ⟩ B ≡ C → ∇ » Γ ⊩⟨ l ⟩ B ≡ A → ∇ » Γ ⊩⟨ l ⟩ A ≡ C
+  step-⊩≡˘ : ∀ A → Γ ⊩⟨ l ⟩ B ≡ C → Γ ⊩⟨ l ⟩ B ≡ A → Γ ⊩⟨ l ⟩ A ≡ C
   step-⊩≡˘ _ B≡C B≡A = trans-⊩≡ (sym-⊩≡ B≡A) B≡C
 
   syntax step-⊩≡˘ A B≡C B≡A = A ≡˘⟨ B≡A ⟩⊩ B≡C
 
-  step-⊩≡≡ : ∀ A → ∇ » Γ ⊩⟨ l ⟩ B ≡ C → A PE.≡ B → ∇ » Γ ⊩⟨ l ⟩ A ≡ C
+  step-⊩≡≡ : ∀ A → Γ ⊩⟨ l ⟩ B ≡ C → A PE.≡ B → Γ ⊩⟨ l ⟩ A ≡ C
   step-⊩≡≡ _ B≡C PE.refl = B≡C
 
   syntax step-⊩≡≡ A B≡C A≡B = A ≡⟨ A≡B ⟩⊩≡ B≡C
 
-  step-⊩≡≡˘ : ∀ A → ∇ » Γ ⊩⟨ l ⟩ B ≡ C → B PE.≡ A → ∇ » Γ ⊩⟨ l ⟩ A ≡ C
+  step-⊩≡≡˘ : ∀ A → Γ ⊩⟨ l ⟩ B ≡ C → B PE.≡ A → Γ ⊩⟨ l ⟩ A ≡ C
   step-⊩≡≡˘ _ B≡C PE.refl = B≡C
 
   syntax step-⊩≡≡˘ A B≡C B≡A = A ≡˘⟨ B≡A ⟩⊩≡ B≡C
 
-  step-⊩≡⇒* : ∀ A → ∇ » Γ ⊩⟨ l ⟩ B ≡ C → ∇ » Γ ⊢ A ⇒* B → ∇ » Γ ⊩⟨ l ⟩ A ≡ C
+  step-⊩≡⇒* : ∀ A → Γ ⊩⟨ l ⟩ B ≡ C → Γ ⊢ A ⇒* B → Γ ⊩⟨ l ⟩ A ≡ C
   step-⊩≡⇒* _ B≡C A⇒*B =
     trans-⊩≡ (⊩-⇐* A⇒*B (wf-⊩≡ B≡C .proj₁)) B≡C
 
   syntax step-⊩≡⇒* A B≡C A⇒*B = A ⇒*⟨ A⇒*B ⟩⊩ B≡C
 
-  step-⊩≡⇒ : ∀ A → ∇ » Γ ⊩⟨ l ⟩ B ≡ C → ∇ » Γ ⊢ A ⇒ B → ∇ » Γ ⊩⟨ l ⟩ A ≡ C
+  step-⊩≡⇒ : ∀ A → Γ ⊩⟨ l ⟩ B ≡ C → Γ ⊢ A ⇒ B → Γ ⊩⟨ l ⟩ A ≡ C
   step-⊩≡⇒ _ B≡C = step-⊩≡⇒* _ B≡C ∘→ redMany-⊢
 
   syntax step-⊩≡⇒ A B≡C A⇒B = A ⇒⟨ A⇒B ⟩⊩ B≡C
 
-  step-⊩≡⇐* : ∀ A → ∇ » Γ ⊩⟨ l ⟩ B ≡ C → ∇ » Γ ⊢ B ⇒* A → ∇ » Γ ⊩⟨ l ⟩ A ≡ C
+  step-⊩≡⇐* : ∀ A → Γ ⊩⟨ l ⟩ B ≡ C → Γ ⊢ B ⇒* A → Γ ⊩⟨ l ⟩ A ≡ C
   step-⊩≡⇐* _ B≡C B⇒*A =
     trans-⊩≡ (sym-⊩≡ (⊩-⇒* B⇒*A (wf-⊩≡ B≡C .proj₁))) B≡C
 
   syntax step-⊩≡⇐* A B≡C B⇒*A = A ⇐*⟨ B⇒*A ⟩⊩ B≡C
 
-  step-⊩≡⇐ : ∀ A → ∇ » Γ ⊩⟨ l ⟩ B ≡ C → ∇ » Γ ⊢ B ⇒ A → ∇ » Γ ⊩⟨ l ⟩ A ≡ C
+  step-⊩≡⇐ : ∀ A → Γ ⊩⟨ l ⟩ B ≡ C → Γ ⊢ B ⇒ A → Γ ⊩⟨ l ⟩ A ≡ C
   step-⊩≡⇐ _ B≡C = step-⊩≡⇐* _ B≡C ∘→ redMany-⊢
 
   syntax step-⊩≡⇐ A B≡C B⇒A = A ⇐⟨ B⇒A ⟩⊩ B≡C
 
-  _≡⟨⟩⊩_ : ∀ A → ∇ » Γ ⊩⟨ l ⟩ A ≡ B → ∇ » Γ ⊩⟨ l ⟩ A ≡ B
+  _≡⟨⟩⊩_ : ∀ A → Γ ⊩⟨ l ⟩ A ≡ B → Γ ⊩⟨ l ⟩ A ≡ B
   _ ≡⟨⟩⊩ A≡B = A≡B
 
-  _∎⟨_⟩⊩ : ∀ A → ∇ » Γ ⊩⟨ l ⟩ A → ∇ » Γ ⊩⟨ l ⟩ A ≡ A
+  _∎⟨_⟩⊩ : ∀ A → Γ ⊩⟨ l ⟩ A → Γ ⊩⟨ l ⟩ A ≡ A
   _ ∎⟨ ⊩A ⟩⊩ = refl-⊩≡ ⊩A
 
-  finally-⊩≡ : ∀ A B → ∇ » Γ ⊩⟨ l ⟩ A ≡ B → ∇ » Γ ⊩⟨ l ⟩ A ≡ B
+  finally-⊩≡ : ∀ A B → Γ ⊩⟨ l ⟩ A ≡ B → Γ ⊩⟨ l ⟩ A ≡ B
   finally-⊩≡ _ _ A≡B = A≡B
 
   syntax finally-⊩≡ A B A≡B = A ≡⟨ A≡B ⟩⊩∎ B ∎
 
-  finally-⊩≡˘ : ∀ A B → ∇ » Γ ⊩⟨ l ⟩ B ≡ A → ∇ » Γ ⊩⟨ l ⟩ A ≡ B
+  finally-⊩≡˘ : ∀ A B → Γ ⊩⟨ l ⟩ B ≡ A → Γ ⊩⟨ l ⟩ A ≡ B
   finally-⊩≡˘ _ _ A≡B = sym-⊩≡ A≡B
 
   syntax finally-⊩≡˘ A B B≡A = A ≡˘⟨ B≡A ⟩⊩∎ B ∎
 
-  finally-⊩≡≡ : ∀ A → B PE.≡ C → ∇ » Γ ⊩⟨ l ⟩ A ≡ B → ∇ » Γ ⊩⟨ l ⟩ A ≡ C
+  finally-⊩≡≡ : ∀ A → B PE.≡ C → Γ ⊩⟨ l ⟩ A ≡ B → Γ ⊩⟨ l ⟩ A ≡ C
   finally-⊩≡≡ _ PE.refl A≡B = A≡B
 
   syntax finally-⊩≡≡ A B≡C A≡B = A ≡⟨ A≡B ⟩⊩∎≡ B≡C
 
-  finally-⊩≡≡˘ : ∀ A → B PE.≡ C → ∇ » Γ ⊩⟨ l ⟩ B ≡ A → ∇ » Γ ⊩⟨ l ⟩ A ≡ C
+  finally-⊩≡≡˘ : ∀ A → B PE.≡ C → Γ ⊩⟨ l ⟩ B ≡ A → Γ ⊩⟨ l ⟩ A ≡ C
   finally-⊩≡≡˘ _ PE.refl B≡A = sym-⊩≡ B≡A
 
   syntax finally-⊩≡≡˘ A B≡C B≡A = A ≡˘⟨ B≡A ⟩⊩∎≡ B≡C
 
   finally-⊩≡⇐* :
-    ∀ A → ∇ » Γ ⊢ C ⇒* B → ∇ » Γ ⊩⟨ l ⟩ A ≡ B → ∇ » Γ ⊩⟨ l ⟩ A ≡ C
+    ∀ A → Γ ⊢ C ⇒* B → Γ ⊩⟨ l ⟩ A ≡ B → Γ ⊩⟨ l ⟩ A ≡ C
   finally-⊩≡⇐* _ C⇒*B A≡B =
     trans-⊩≡ A≡B (sym-⊩≡ (⊩-⇐* C⇒*B (wf-⊩≡ A≡B .proj₂)))
 
   syntax finally-⊩≡⇐* A C⇒*B A≡B = A ≡⟨ A≡B ⟩⊩⇐* C⇒*B
 
-  finally-⊩≡⇒* : ∀ A → ∇ » Γ ⊢ B ⇒* C → ∇ » Γ ⊩⟨ l ⟩ A ≡ B → ∇ » Γ ⊩⟨ l ⟩ A ≡ C
+  finally-⊩≡⇒* : ∀ A → Γ ⊢ B ⇒* C → Γ ⊩⟨ l ⟩ A ≡ B → Γ ⊩⟨ l ⟩ A ≡ C
   finally-⊩≡⇒* _ B⇒*C A≡B =
     case wf-⊩≡ A≡B of λ
       (_ , ⊩B) →
@@ -704,112 +708,112 @@ opaque
     finally-⊩≡∷⇐* finally-⊩≡∷⇒*
 
   step-⊩≡∷ :
-    ∀ t → ∇ » Γ ⊩⟨ l ⟩ u ≡ v ∷ A → ∇ » Γ ⊩⟨ l′ ⟩ t ≡ u ∷ A → ∇ » Γ ⊩⟨ l ⟩ t ≡ v ∷ A
+    ∀ t → Γ ⊩⟨ l ⟩ u ≡ v ∷ A → Γ ⊩⟨ l′ ⟩ t ≡ u ∷ A → Γ ⊩⟨ l ⟩ t ≡ v ∷ A
   step-⊩≡∷ _ = flip trans-⊩≡∷
 
   syntax step-⊩≡∷ t u≡v t≡u = t ≡⟨ t≡u ⟩⊩∷ u≡v
 
   step-⊩≡∷˘ :
-    ∀ t → ∇ » Γ ⊩⟨ l ⟩ u ≡ v ∷ A → ∇ » Γ ⊩⟨ l′ ⟩ u ≡ t ∷ A → ∇ » Γ ⊩⟨ l ⟩ t ≡ v ∷ A
+    ∀ t → Γ ⊩⟨ l ⟩ u ≡ v ∷ A → Γ ⊩⟨ l′ ⟩ u ≡ t ∷ A → Γ ⊩⟨ l ⟩ t ≡ v ∷ A
   step-⊩≡∷˘ _ u≡v u≡t = trans-⊩≡∷ (sym-⊩≡∷ u≡t) u≡v
 
   syntax step-⊩≡∷˘ t u≡v u≡t = t ≡˘⟨ u≡t ⟩⊩∷ u≡v
 
-  step-⊩≡∷≡ : ∀ t → ∇ » Γ ⊩⟨ l ⟩ u ≡ v ∷ A → t PE.≡ u → ∇ » Γ ⊩⟨ l ⟩ t ≡ v ∷ A
+  step-⊩≡∷≡ : ∀ t → Γ ⊩⟨ l ⟩ u ≡ v ∷ A → t PE.≡ u → Γ ⊩⟨ l ⟩ t ≡ v ∷ A
   step-⊩≡∷≡ _ u≡v PE.refl = u≡v
 
   syntax step-⊩≡∷≡ t u≡v t≡u = t ≡⟨ t≡u ⟩⊩∷≡ u≡v
 
-  step-⊩≡∷≡˘ : ∀ t → ∇ » Γ ⊩⟨ l ⟩ u ≡ v ∷ A → u PE.≡ t → ∇ » Γ ⊩⟨ l ⟩ t ≡ v ∷ A
+  step-⊩≡∷≡˘ : ∀ t → Γ ⊩⟨ l ⟩ u ≡ v ∷ A → u PE.≡ t → Γ ⊩⟨ l ⟩ t ≡ v ∷ A
   step-⊩≡∷≡˘ _ u≡v PE.refl = u≡v
 
   syntax step-⊩≡∷≡˘ t u≡v u≡t = t ≡˘⟨ u≡t ⟩⊩∷≡ u≡v
 
   step-⊩≡∷⇒* :
-    ∀ t → ∇ » Γ ⊩⟨ l ⟩ u ≡ v ∷ A → ∇ » Γ ⊢ t ⇒* u ∷ A → ∇ » Γ ⊩⟨ l ⟩ t ≡ v ∷ A
+    ∀ t → Γ ⊩⟨ l ⟩ u ≡ v ∷ A → Γ ⊢ t ⇒* u ∷ A → Γ ⊩⟨ l ⟩ t ≡ v ∷ A
   step-⊩≡∷⇒* _ u≡v t⇒*u =
     trans-⊩≡∷ (⊩∷-⇐* t⇒*u (wf-⊩≡∷ u≡v .proj₁)) u≡v
 
   syntax step-⊩≡∷⇒* t u≡v t⇒*u = t ⇒*⟨ t⇒*u ⟩⊩∷ u≡v
 
   step-⊩≡∷⇒ :
-    ∀ t → ∇ » Γ ⊩⟨ l ⟩ u ≡ v ∷ A → ∇ » Γ ⊢ t ⇒ u ∷ A → ∇ » Γ ⊩⟨ l ⟩ t ≡ v ∷ A
+    ∀ t → Γ ⊩⟨ l ⟩ u ≡ v ∷ A → Γ ⊢ t ⇒ u ∷ A → Γ ⊩⟨ l ⟩ t ≡ v ∷ A
   step-⊩≡∷⇒ _ u≡v = step-⊩≡∷⇒* _ u≡v ∘→ redMany
 
   syntax step-⊩≡∷⇒ t u≡v t⇒u = t ⇒⟨ t⇒u ⟩⊩∷ u≡v
 
   step-⊩≡∷⇐* :
-    ∀ t → ∇ » Γ ⊩⟨ l ⟩ u ≡ v ∷ A → ∇ » Γ ⊢ u ⇒* t ∷ A → ∇ » Γ ⊩⟨ l ⟩ t ≡ v ∷ A
+    ∀ t → Γ ⊩⟨ l ⟩ u ≡ v ∷ A → Γ ⊢ u ⇒* t ∷ A → Γ ⊩⟨ l ⟩ t ≡ v ∷ A
   step-⊩≡∷⇐* _ u≡v u⇒*t =
     trans-⊩≡∷ (sym-⊩≡∷ (⊩∷-⇒* u⇒*t (wf-⊩≡∷ u≡v .proj₁))) u≡v
 
   syntax step-⊩≡∷⇐* t u≡v u⇒*t = t ⇐*⟨ u⇒*t ⟩⊩∷ u≡v
 
   step-⊩≡∷⇐ :
-    ∀ t → ∇ » Γ ⊩⟨ l ⟩ u ≡ v ∷ A → ∇ » Γ ⊢ u ⇒ t ∷ A → ∇ » Γ ⊩⟨ l ⟩ t ≡ v ∷ A
+    ∀ t → Γ ⊩⟨ l ⟩ u ≡ v ∷ A → Γ ⊢ u ⇒ t ∷ A → Γ ⊩⟨ l ⟩ t ≡ v ∷ A
   step-⊩≡∷⇐ _ u≡v = step-⊩≡∷⇐* _ u≡v ∘→ redMany
 
   syntax step-⊩≡∷⇐ t u≡v u⇒t = t ⇐⟨ u⇒t ⟩⊩∷ u≡v
 
-  _≡⟨⟩⊩∷_ : ∀ t → ∇ » Γ ⊩⟨ l ⟩ t ≡ u ∷ A → ∇ » Γ ⊩⟨ l ⟩ t ≡ u ∷ A
+  _≡⟨⟩⊩∷_ : ∀ t → Γ ⊩⟨ l ⟩ t ≡ u ∷ A → Γ ⊩⟨ l ⟩ t ≡ u ∷ A
   _ ≡⟨⟩⊩∷ t≡u = t≡u
 
   step-⊩≡∷-conv :
-    ∇ » Γ ⊩⟨ l′ ⟩ t ≡ u ∷ B → ∇ » Γ ⊩⟨ l ⟩ A ≡ B → ∇ » Γ ⊩⟨ l ⟩ t ≡ u ∷ A
+    Γ ⊩⟨ l′ ⟩ t ≡ u ∷ B → Γ ⊩⟨ l ⟩ A ≡ B → Γ ⊩⟨ l ⟩ t ≡ u ∷ A
   step-⊩≡∷-conv t≡u A≡B = conv-⊩≡∷ (sym-⊩≡ A≡B) t≡u
 
   syntax step-⊩≡∷-conv t≡u A≡B = ⟨ A≡B ⟩⊩∷ t≡u
 
   step-⊩≡∷-conv˘ :
-    ∇ » Γ ⊩⟨ l′ ⟩ t ≡ u ∷ B → ∇ » Γ ⊩⟨ l ⟩ B ≡ A → ∇ » Γ ⊩⟨ l ⟩ t ≡ u ∷ A
+    Γ ⊩⟨ l′ ⟩ t ≡ u ∷ B → Γ ⊩⟨ l ⟩ B ≡ A → Γ ⊩⟨ l ⟩ t ≡ u ∷ A
   step-⊩≡∷-conv˘ t≡u B≡A = conv-⊩≡∷ B≡A t≡u
 
   syntax step-⊩≡∷-conv˘ t≡u B≡A = ˘⟨ B≡A ⟩⊩∷ t≡u
 
-  step-⊩≡∷-conv-≡ : ∇ » Γ ⊩⟨ l ⟩ t ≡ u ∷ B → A PE.≡ B → ∇ » Γ ⊩⟨ l ⟩ t ≡ u ∷ A
+  step-⊩≡∷-conv-≡ : Γ ⊩⟨ l ⟩ t ≡ u ∷ B → A PE.≡ B → Γ ⊩⟨ l ⟩ t ≡ u ∷ A
   step-⊩≡∷-conv-≡ t≡u PE.refl = t≡u
 
   syntax step-⊩≡∷-conv-≡ t≡u A≡B = ⟨ A≡B ⟩⊩∷≡ t≡u
 
-  step-⊩≡∷-conv-≡˘ : ∇ » Γ ⊩⟨ l ⟩ t ≡ u ∷ B → B PE.≡ A → ∇ » Γ ⊩⟨ l ⟩ t ≡ u ∷ A
+  step-⊩≡∷-conv-≡˘ : Γ ⊩⟨ l ⟩ t ≡ u ∷ B → B PE.≡ A → Γ ⊩⟨ l ⟩ t ≡ u ∷ A
   step-⊩≡∷-conv-≡˘ t≡u PE.refl = t≡u
 
   syntax step-⊩≡∷-conv-≡˘ t≡u B≡A = ˘⟨ B≡A ⟩⊩∷≡ t≡u
 
-  _∎⟨_⟩⊩∷ : ∀ t → ∇ » Γ ⊩⟨ l ⟩ t ∷ A → ∇ » Γ ⊩⟨ l ⟩ t ≡ t ∷ A
+  _∎⟨_⟩⊩∷ : ∀ t → Γ ⊩⟨ l ⟩ t ∷ A → Γ ⊩⟨ l ⟩ t ≡ t ∷ A
   _ ∎⟨ ⊩t ⟩⊩∷ = refl-⊩≡∷ ⊩t
 
-  finally-⊩≡∷ : ∀ t u → ∇ » Γ ⊩⟨ l ⟩ t ≡ u ∷ A → ∇ » Γ ⊩⟨ l ⟩ t ≡ u ∷ A
+  finally-⊩≡∷ : ∀ t u → Γ ⊩⟨ l ⟩ t ≡ u ∷ A → Γ ⊩⟨ l ⟩ t ≡ u ∷ A
   finally-⊩≡∷ _ _ t≡u = t≡u
 
   syntax finally-⊩≡∷ t u t≡u = t ≡⟨ t≡u ⟩⊩∷∎ u ∎
 
-  finally-⊩≡∷˘ : ∀ t u → ∇ » Γ ⊩⟨ l ⟩ u ≡ t ∷ A → ∇ » Γ ⊩⟨ l ⟩ t ≡ u ∷ A
+  finally-⊩≡∷˘ : ∀ t u → Γ ⊩⟨ l ⟩ u ≡ t ∷ A → Γ ⊩⟨ l ⟩ t ≡ u ∷ A
   finally-⊩≡∷˘ _ _ t≡u = sym-⊩≡∷ t≡u
 
   syntax finally-⊩≡∷˘ t u u≡t = t ≡˘⟨ u≡t ⟩⊩∷∎ u ∎
 
   finally-⊩≡∷≡ :
-    ∀ t → u PE.≡ v → ∇ » Γ ⊩⟨ l ⟩ t ≡ u ∷ A → ∇ » Γ ⊩⟨ l ⟩ t ≡ v ∷ A
+    ∀ t → u PE.≡ v → Γ ⊩⟨ l ⟩ t ≡ u ∷ A → Γ ⊩⟨ l ⟩ t ≡ v ∷ A
   finally-⊩≡∷≡ _ PE.refl t≡u = t≡u
 
   syntax finally-⊩≡∷≡ t u≡v t≡u = t ≡⟨ t≡u ⟩⊩∷∎≡ u≡v
 
   finally-⊩≡∷≡˘ :
-    ∀ t → u PE.≡ v → ∇ » Γ ⊩⟨ l ⟩ u ≡ t ∷ A → ∇ » Γ ⊩⟨ l ⟩ t ≡ v ∷ A
+    ∀ t → u PE.≡ v → Γ ⊩⟨ l ⟩ u ≡ t ∷ A → Γ ⊩⟨ l ⟩ t ≡ v ∷ A
   finally-⊩≡∷≡˘ _ PE.refl u≡t = sym-⊩≡∷ u≡t
 
   syntax finally-⊩≡∷≡˘ t u≡v u≡t = t ≡˘⟨ u≡t ⟩⊩∷∎≡ u≡v
 
   finally-⊩≡∷⇐* :
-    ∀ t → ∇ » Γ ⊢ v ⇒* u ∷ A → ∇ » Γ ⊩⟨ l ⟩ t ≡ u ∷ A → ∇ » Γ ⊩⟨ l ⟩ t ≡ v ∷ A
+    ∀ t → Γ ⊢ v ⇒* u ∷ A → Γ ⊩⟨ l ⟩ t ≡ u ∷ A → Γ ⊩⟨ l ⟩ t ≡ v ∷ A
   finally-⊩≡∷⇐* _ v⇒*u t≡u =
     trans-⊩≡∷ t≡u (sym-⊩≡∷ (⊩∷-⇐* v⇒*u (wf-⊩≡∷ t≡u .proj₂)))
 
   syntax finally-⊩≡∷⇐* t v⇒*u t≡u = t ≡⟨ t≡u ⟩⊩∷⇐* v⇒*u
 
   finally-⊩≡∷⇒* :
-    ∀ t → ∇ » Γ ⊢ u ⇒* v ∷ A → ∇ » Γ ⊩⟨ l ⟩ t ≡ u ∷ A → ∇ » Γ ⊩⟨ l ⟩ t ≡ v ∷ A
+    ∀ t → Γ ⊢ u ⇒* v ∷ A → Γ ⊩⟨ l ⟩ t ≡ u ∷ A → Γ ⊩⟨ l ⟩ t ≡ v ∷ A
   finally-⊩≡∷⇒* _ u⇒*v t≡u =
     case wf-⊩≡∷ t≡u of λ
       (_ , ⊩u) →
@@ -833,114 +837,114 @@ opaque
 
   step-⊩≡∷∷ :
     ∀ t A →
-    ∇ » Γ ⊩⟨ l ⟩ u ≡ v ∷ A → ∇ » Γ ⊩⟨ l′ ⟩ t ≡ u ∷ A → ∇ » Γ ⊩⟨ l ⟩ t ≡ v ∷ A
+    Γ ⊩⟨ l ⟩ u ≡ v ∷ A → Γ ⊩⟨ l′ ⟩ t ≡ u ∷ A → Γ ⊩⟨ l ⟩ t ≡ v ∷ A
   step-⊩≡∷∷ _ _ = step-⊩≡∷ _
 
   syntax step-⊩≡∷∷ t A u≡v t≡u = t ∷ A ≡⟨ t≡u ⟩⊩∷∷ u≡v
 
   step-⊩≡∷∷˘ :
     ∀ t A →
-    ∇ » Γ ⊩⟨ l ⟩ u ≡ v ∷ A → ∇ » Γ ⊩⟨ l′ ⟩ u ≡ t ∷ A → ∇ » Γ ⊩⟨ l ⟩ t ≡ v ∷ A
+    Γ ⊩⟨ l ⟩ u ≡ v ∷ A → Γ ⊩⟨ l′ ⟩ u ≡ t ∷ A → Γ ⊩⟨ l ⟩ t ≡ v ∷ A
   step-⊩≡∷∷˘ _ _ = step-⊩≡∷˘ _
 
   syntax step-⊩≡∷∷˘ t A u≡v u≡t = t ∷ A ≡˘⟨ u≡t ⟩⊩∷∷ u≡v
 
   step-⊩≡∷∷≡ :
-    ∀ t A → ∇ » Γ ⊩⟨ l ⟩ u ≡ v ∷ A → t PE.≡ u → ∇ » Γ ⊩⟨ l ⟩ t ≡ v ∷ A
+    ∀ t A → Γ ⊩⟨ l ⟩ u ≡ v ∷ A → t PE.≡ u → Γ ⊩⟨ l ⟩ t ≡ v ∷ A
   step-⊩≡∷∷≡ _ _ = step-⊩≡∷≡ _
 
   syntax step-⊩≡∷∷≡ t A u≡v t≡u = t ∷ A ≡⟨ t≡u ⟩⊩∷∷≡ u≡v
 
   step-⊩≡∷∷≡˘ :
-    ∀ t A → ∇ » Γ ⊩⟨ l ⟩ u ≡ v ∷ A → u PE.≡ t → ∇ » Γ ⊩⟨ l ⟩ t ≡ v ∷ A
+    ∀ t A → Γ ⊩⟨ l ⟩ u ≡ v ∷ A → u PE.≡ t → Γ ⊩⟨ l ⟩ t ≡ v ∷ A
   step-⊩≡∷∷≡˘ _ _ = step-⊩≡∷≡˘ _
 
   syntax step-⊩≡∷∷≡˘ t A u≡v u≡t = t ∷ A ≡˘⟨ u≡t ⟩⊩∷∷≡ u≡v
 
   step-⊩≡∷∷⇒* :
-    ∀ t A → ∇ » Γ ⊩⟨ l ⟩ u ≡ v ∷ A → ∇ » Γ ⊢ t ⇒* u ∷ A → ∇ » Γ ⊩⟨ l ⟩ t ≡ v ∷ A
+    ∀ t A → Γ ⊩⟨ l ⟩ u ≡ v ∷ A → Γ ⊢ t ⇒* u ∷ A → Γ ⊩⟨ l ⟩ t ≡ v ∷ A
   step-⊩≡∷∷⇒* _ _ = step-⊩≡∷⇒* _
 
   syntax step-⊩≡∷∷⇒* t A u≡v t⇒*u = t ∷ A ⇒*⟨ t⇒*u ⟩⊩∷∷ u≡v
 
   step-⊩≡∷∷⇒ :
-    ∀ t A → ∇ » Γ ⊩⟨ l ⟩ u ≡ v ∷ A → ∇ » Γ ⊢ t ⇒ u ∷ A → ∇ » Γ ⊩⟨ l ⟩ t ≡ v ∷ A
+    ∀ t A → Γ ⊩⟨ l ⟩ u ≡ v ∷ A → Γ ⊢ t ⇒ u ∷ A → Γ ⊩⟨ l ⟩ t ≡ v ∷ A
   step-⊩≡∷∷⇒ _ _ = step-⊩≡∷⇒ _
 
   syntax step-⊩≡∷∷⇒ t A u≡v t⇒u = t ∷ A ⇒⟨ t⇒u ⟩⊩∷∷ u≡v
 
   step-⊩≡∷∷⇐* :
-    ∀ t A → ∇ » Γ ⊩⟨ l ⟩ u ≡ v ∷ A → ∇ » Γ ⊢ u ⇒* t ∷ A → ∇ » Γ ⊩⟨ l ⟩ t ≡ v ∷ A
+    ∀ t A → Γ ⊩⟨ l ⟩ u ≡ v ∷ A → Γ ⊢ u ⇒* t ∷ A → Γ ⊩⟨ l ⟩ t ≡ v ∷ A
   step-⊩≡∷∷⇐* _ _ = step-⊩≡∷⇐* _
 
   syntax step-⊩≡∷∷⇐* t A u≡v u⇒*t = t ∷ A ⇐*⟨ u⇒*t ⟩⊩∷∷ u≡v
 
   step-⊩≡∷∷⇐ :
-    ∀ t A → ∇ » Γ ⊩⟨ l ⟩ u ≡ v ∷ A → ∇ » Γ ⊢ u ⇒ t ∷ A → ∇ » Γ ⊩⟨ l ⟩ t ≡ v ∷ A
+    ∀ t A → Γ ⊩⟨ l ⟩ u ≡ v ∷ A → Γ ⊢ u ⇒ t ∷ A → Γ ⊩⟨ l ⟩ t ≡ v ∷ A
   step-⊩≡∷∷⇐ _ _ = step-⊩≡∷⇐ _
 
   syntax step-⊩≡∷∷⇐ t A u≡v u⇒t ⊢t = t ∷ A ⇐⟨ u⇒t , ⊢t ⟩⊩∷∷ u≡v
 
-  _∷_≡⟨⟩⊩∷∷_ : ∀ t A → ∇ » Γ ⊩⟨ l ⟩ t ≡ u ∷ A → ∇ » Γ ⊩⟨ l ⟩ t ≡ u ∷ A
+  _∷_≡⟨⟩⊩∷∷_ : ∀ t A → Γ ⊩⟨ l ⟩ t ≡ u ∷ A → Γ ⊩⟨ l ⟩ t ≡ u ∷ A
   _ ∷ _ ≡⟨⟩⊩∷∷ t≡u = t≡u
 
   step-⊩≡∷∷-conv :
-    ∀ A → ∇ » Γ ⊩⟨ l′ ⟩ t ≡ u ∷ B → ∇ » Γ ⊩⟨ l ⟩ A ≡ B → ∇ » Γ ⊩⟨ l ⟩ t ≡ u ∷ A
+    ∀ A → Γ ⊩⟨ l′ ⟩ t ≡ u ∷ B → Γ ⊩⟨ l ⟩ A ≡ B → Γ ⊩⟨ l ⟩ t ≡ u ∷ A
   step-⊩≡∷∷-conv _ = step-⊩≡∷-conv
 
   syntax step-⊩≡∷∷-conv A t≡u A≡B = ∷ A ⟨ A≡B ⟩⊩∷∷ t≡u
 
   step-⊩≡∷∷-conv˘ :
-    ∀ A → ∇ » Γ ⊩⟨ l′ ⟩ t ≡ u ∷ B → ∇ » Γ ⊩⟨ l ⟩ B ≡ A → ∇ » Γ ⊩⟨ l ⟩ t ≡ u ∷ A
+    ∀ A → Γ ⊩⟨ l′ ⟩ t ≡ u ∷ B → Γ ⊩⟨ l ⟩ B ≡ A → Γ ⊩⟨ l ⟩ t ≡ u ∷ A
   step-⊩≡∷∷-conv˘ _ = step-⊩≡∷-conv˘
 
   syntax step-⊩≡∷∷-conv˘ A t≡u B≡A = ∷ A ˘⟨ B≡A ⟩⊩∷∷ t≡u
 
   step-⊩≡∷∷-conv-≡ :
-    ∀ A → ∇ » Γ ⊩⟨ l ⟩ t ≡ u ∷ B → A PE.≡ B → ∇ » Γ ⊩⟨ l ⟩ t ≡ u ∷ A
+    ∀ A → Γ ⊩⟨ l ⟩ t ≡ u ∷ B → A PE.≡ B → Γ ⊩⟨ l ⟩ t ≡ u ∷ A
   step-⊩≡∷∷-conv-≡ _ = step-⊩≡∷-conv-≡
 
   syntax step-⊩≡∷∷-conv-≡ A t≡u A≡B = ∷ A ⟨ A≡B ⟩⊩∷∷≡ t≡u
 
   step-⊩≡∷∷-conv-≡˘ :
-    ∀ A → ∇ » Γ ⊩⟨ l ⟩ t ≡ u ∷ B → B PE.≡ A → ∇ » Γ ⊩⟨ l ⟩ t ≡ u ∷ A
+    ∀ A → Γ ⊩⟨ l ⟩ t ≡ u ∷ B → B PE.≡ A → Γ ⊩⟨ l ⟩ t ≡ u ∷ A
   step-⊩≡∷∷-conv-≡˘ _ = step-⊩≡∷-conv-≡˘
 
   syntax step-⊩≡∷∷-conv-≡˘ A t≡u B≡A = ∷ A ˘⟨ B≡A ⟩⊩∷∷≡ t≡u
 
-  _∷_∎⟨_⟩⊩∷∷ : ∀ t A → ∇ » Γ ⊩⟨ l ⟩ t ∷ A → ∇ » Γ ⊩⟨ l ⟩ t ≡ t ∷ A
+  _∷_∎⟨_⟩⊩∷∷ : ∀ t A → Γ ⊩⟨ l ⟩ t ∷ A → Γ ⊩⟨ l ⟩ t ≡ t ∷ A
   _ ∷ _ ∎⟨ ⊩t ⟩⊩∷∷ = refl-⊩≡∷ ⊩t
 
-  finally-⊩≡∷∷ : ∀ t A u → ∇ » Γ ⊩⟨ l ⟩ t ≡ u ∷ A → ∇ » Γ ⊩⟨ l ⟩ t ≡ u ∷ A
+  finally-⊩≡∷∷ : ∀ t A u → Γ ⊩⟨ l ⟩ t ≡ u ∷ A → Γ ⊩⟨ l ⟩ t ≡ u ∷ A
   finally-⊩≡∷∷ _ _ _ t≡u = t≡u
 
   syntax finally-⊩≡∷∷ t A u t≡u = t ∷ A ≡⟨ t≡u ⟩⊩∷∎∷ u ∎
 
-  finally-⊩≡∷∷˘ : ∀ t A u → ∇ » Γ ⊩⟨ l ⟩ u ≡ t ∷ A → ∇ » Γ ⊩⟨ l ⟩ t ≡ u ∷ A
+  finally-⊩≡∷∷˘ : ∀ t A u → Γ ⊩⟨ l ⟩ u ≡ t ∷ A → Γ ⊩⟨ l ⟩ t ≡ u ∷ A
   finally-⊩≡∷∷˘ _ _ _ t≡u = sym-⊩≡∷ t≡u
 
   syntax finally-⊩≡∷∷˘ t A u u≡t = t ∷ A ≡˘⟨ u≡t ⟩⊩∷∎∷ u ∎
 
   finally-⊩≡∷∷≡ :
-    ∀ t A → u PE.≡ v → ∇ » Γ ⊩⟨ l ⟩ t ≡ u ∷ A → ∇ » Γ ⊩⟨ l ⟩ t ≡ v ∷ A
+    ∀ t A → u PE.≡ v → Γ ⊩⟨ l ⟩ t ≡ u ∷ A → Γ ⊩⟨ l ⟩ t ≡ v ∷ A
   finally-⊩≡∷∷≡ _ _ = finally-⊩≡∷≡ _
 
   syntax finally-⊩≡∷∷≡ t A u≡v t≡u = t ∷ A ≡⟨ t≡u ⟩⊩∷∎∷≡ u≡v
 
   finally-⊩≡∷∷≡˘ :
-    ∀ t A → u PE.≡ v → ∇ » Γ ⊩⟨ l ⟩ u ≡ t ∷ A → ∇ » Γ ⊩⟨ l ⟩ t ≡ v ∷ A
+    ∀ t A → u PE.≡ v → Γ ⊩⟨ l ⟩ u ≡ t ∷ A → Γ ⊩⟨ l ⟩ t ≡ v ∷ A
   finally-⊩≡∷∷≡˘ _ _ = finally-⊩≡∷≡˘ _
 
   syntax finally-⊩≡∷∷≡˘ t A u≡v u≡t = t ∷ A ≡˘⟨ u≡t ⟩⊩∷∎∷≡ u≡v
 
   finally-⊩≡∷∷⇐* :
-    ∀ t A → ∇ » Γ ⊢ v ⇒* u ∷ A → ∇ » Γ ⊩⟨ l ⟩ t ≡ u ∷ A → ∇ » Γ ⊩⟨ l ⟩ t ≡ v ∷ A
+    ∀ t A → Γ ⊢ v ⇒* u ∷ A → Γ ⊩⟨ l ⟩ t ≡ u ∷ A → Γ ⊩⟨ l ⟩ t ≡ v ∷ A
   finally-⊩≡∷∷⇐* _ _ = finally-⊩≡∷⇐* _
 
   syntax finally-⊩≡∷∷⇐* t A v⇒*u t≡u = t ∷ A ≡⟨ t≡u ⟩⊩∷∷⇐* v⇒*u
 
   finally-⊩≡∷∷⇒* :
-    ∀ t A → ∇ » Γ ⊢ u ⇒* v ∷ A → ∇ » Γ ⊩⟨ l ⟩ t ≡ u ∷ A → ∇ » Γ ⊩⟨ l ⟩ t ≡ v ∷ A
+    ∀ t A → Γ ⊢ u ⇒* v ∷ A → Γ ⊩⟨ l ⟩ t ≡ u ∷ A → Γ ⊩⟨ l ⟩ t ≡ v ∷ A
   finally-⊩≡∷∷⇒* _ _ = finally-⊩≡∷⇒* _
 
   syntax finally-⊩≡∷∷⇒* t A v⇒*u t≡u = t ∷ A ≡⟨ t≡u ⟩⊩∷∷⇒* v⇒*u
@@ -955,8 +959,8 @@ opaque
 
   emb-⊩ :
     l ≤ᵘ l′ →
-    ∇ » Γ ⊩⟨ l ⟩ A →
-    ∇ » Γ ⊩⟨ l′ ⟩ A
+    Γ ⊩⟨ l ⟩ A →
+    Γ ⊩⟨ l′ ⟩ A
   emb-⊩ p ⊩A = H.emb-⊩ p ⊩A
 
 opaque
@@ -966,8 +970,8 @@ opaque
 
   emb-⊩≡ :
     l ≤ᵘ l′ →
-    ∇ » Γ ⊩⟨ l ⟩ A ≡ B →
-    ∇ » Γ ⊩⟨ l′ ⟩ A ≡ B
+    Γ ⊩⟨ l ⟩ A ≡ B →
+    Γ ⊩⟨ l′ ⟩ A ≡ B
   emb-⊩≡ p A≡B = H.emb-⊩≡ p A≡B
 
 opaque
@@ -977,8 +981,8 @@ opaque
 
   emb-⊩≡∷ :
     l ≤ᵘ l′ →
-    ∇ » Γ ⊩⟨ l ⟩ t ≡ u ∷ A →
-    ∇ » Γ ⊩⟨ l′ ⟩ t ≡ u ∷ A
+    Γ ⊩⟨ l ⟩ t ≡ u ∷ A →
+    Γ ⊩⟨ l′ ⟩ t ≡ u ∷ A
   emb-⊩≡∷ p t≡u = H.emb-⊩≡∷ p t≡u
 
 opaque
@@ -988,8 +992,8 @@ opaque
 
   emb-⊩∷ :
     l ≤ᵘ l′ →
-    ∇ » Γ ⊩⟨ l ⟩ t ∷ A →
-    ∇ » Γ ⊩⟨ l′ ⟩ t ∷ A
+    Γ ⊩⟨ l ⟩ t ∷ A →
+    Γ ⊩⟨ l′ ⟩ t ∷ A
   emb-⊩∷ p ⊩t = H.emb-⊩∷ p ⊩t
 
 ------------------------------------------------------------------------
@@ -1001,9 +1005,9 @@ opaque
   -- Neutral types that satisfy certain properties are reducible.
 
   neutral-⊩ :
-    Neutralₗ ∇ A →
-    ∇ » Γ ⊢≅ A →
-    ∇ » Γ ⊩⟨ l ⟩ A
+    Neutralₗ (Γ .defs) A →
+    Γ ⊢≅ A →
+    Γ ⊩⟨ l ⟩ A
   neutral-⊩ A-ne ≅A = H.neutral-⊩ A-ne ≅A
 
 opaque
@@ -1012,10 +1016,10 @@ opaque
   -- Neutral terms that satisfy certain properties are reducible.
 
   neutral-⊩∷ :
-    ∇ » Γ ⊩⟨ l ⟩ A →
-    Neutralₗ ∇ t →
-    ∇ » Γ ⊢~ t ∷ A →
-    ∇ » Γ ⊩⟨ l ⟩ t ∷ A
+    Γ ⊩⟨ l ⟩ A →
+    Neutralₗ (Γ .defs) t →
+    Γ ⊢~ t ∷ A →
+    Γ ⊩⟨ l ⟩ t ∷ A
   neutral-⊩∷ ⊩A t-ne ~t = H.neutral-⊩∷ ⊩A t-ne ~t
 
 opaque
@@ -1025,12 +1029,12 @@ opaque
   -- certain properties.
 
   neutral-⊩≡ :
-    ∇ » Γ ⊩⟨ l ⟩ A →
-    ∇ » Γ ⊩⟨ l ⟩ B →
-    Neutralₗ ∇ A →
-    Neutralₗ ∇ B →
-    ∇ » Γ ⊢ A ≅ B →
-    ∇ » Γ ⊩⟨ l ⟩ A ≡ B
+    Γ ⊩⟨ l ⟩ A →
+    Γ ⊩⟨ l ⟩ B →
+    Neutralₗ (Γ .defs) A →
+    Neutralₗ (Γ .defs) B →
+    Γ ⊢ A ≅ B →
+    Γ ⊩⟨ l ⟩ A ≡ B
   neutral-⊩≡ ⊩A ⊩B A-ne B-ne A≅B = H.neutral-⊩≡ ⊩A ⊩B A-ne B-ne A≅B
 
 opaque
@@ -1040,11 +1044,11 @@ opaque
   -- certain properties.
 
   neutral-⊩≡∷ :
-    ∇ » Γ ⊩⟨ l ⟩ A →
-    Neutralₗ ∇ t →
-    Neutralₗ ∇ u →
-    ∇ » Γ ⊢ t ~ u ∷ A →
-    ∇ » Γ ⊩⟨ l ⟩ t ≡ u ∷ A
+    Γ ⊩⟨ l ⟩ A →
+    Neutralₗ (Γ .defs) t →
+    Neutralₗ (Γ .defs) u →
+    Γ ⊢ t ~ u ∷ A →
+    Γ ⊩⟨ l ⟩ t ≡ u ∷ A
   neutral-⊩≡∷ ⊩A t-ne u-ne t~u = H.neutral-⊩≡∷ ⊩A t-ne u-ne t~u
 
 opaque
@@ -1052,29 +1056,29 @@ opaque
   -- A characterisation lemma for _⊩⟨_⟩_.
 
   ⊩ne⇔ :
-    Neutralₗ ∇ A →
-    ∇ » Γ ⊩⟨ l ⟩ A ⇔ (⦃ inc : Var-included or-empty Γ ⦄ → ∇ » Γ ⊢≅ A)
-  ⊩ne⇔ {∇} {A} {Γ} {l} A-ne =
-    ∇ » Γ ⊩⟨ l ⟩ A                                          ⇔⟨ ⊩⇔ ⟩
-    (⦃ inc : Var-included or-empty Γ ⦄ → ∇ » Γ L.⊩⟨ l ⟩ A)  ⇔⟨ instance-Π-cong-⇔ $ H.⊩ne⇔ A-ne ⟩
-    (⦃ inc : Var-included or-empty Γ ⦄ → ∇ » Γ ⊢≅ A)        □⇔
+    Neutralₗ (Γ .defs) A →
+    Γ ⊩⟨ l ⟩ A ⇔ (⦃ inc : Var-included or-empty (Γ .vars) ⦄ → Γ ⊢≅ A)
+  ⊩ne⇔ {Γ} {A} {l} A-ne =
+    Γ ⊩⟨ l ⟩ A                                                  ⇔⟨ ⊩⇔ ⟩
+    (⦃ inc : Var-included or-empty (Γ .vars) ⦄ → Γ L.⊩⟨ l ⟩ A)  ⇔⟨ instance-Π-cong-⇔ $ H.⊩ne⇔ A-ne ⟩
+    (⦃ inc : Var-included or-empty (Γ .vars) ⦄ → Γ ⊢≅ A)        □⇔
 
 opaque
 
   -- A characterisation lemma for _⊩⟨_⟩_∷_.
 
   ⊩∷ne⇔ :
-    Neutralₗ ∇ A →
-    ∇ » Γ ⊩⟨ l ⟩ t ∷ A ⇔
-    (⦃ inc : Var-included or-empty Γ ⦄ →
-     ∇ » Γ ⊢≅ A × ∃ λ u → ∇ » Γ ⊢ t ⇒* u ∷ A × Neutralₗ ∇ u × ∇ » Γ ⊢~ u ∷ A)
-  ⊩∷ne⇔ {∇} {A} {Γ} {l} {t} A-ne =
-    ∇ » Γ ⊩⟨ l ⟩ t ∷ A                                            ⇔⟨ ⊩∷⇔ ⟩
+    Neutralₗ (Γ .defs) A →
+    Γ ⊩⟨ l ⟩ t ∷ A ⇔
+    (⦃ inc : Var-included or-empty (Γ .vars) ⦄ →
+     Γ ⊢≅ A × ∃ λ u → Γ ⊢ t ⇒* u ∷ A × Neutralₗ (Γ .defs) u × Γ ⊢~ u ∷ A)
+  ⊩∷ne⇔ {Γ} {A} {l} {t} A-ne =
+    Γ ⊩⟨ l ⟩ t ∷ A                                                  ⇔⟨ ⊩∷⇔ ⟩
 
-    (⦃ inc : Var-included or-empty Γ ⦄ → ∇ » Γ H.⊩⟨ l ⟩ t ∷ A)    ⇔⟨ instance-Π-cong-⇔ $ H.⊩∷ne⇔ A-ne ⟩
+    (⦃ inc : Var-included or-empty (Γ .vars) ⦄ → Γ H.⊩⟨ l ⟩ t ∷ A)  ⇔⟨ instance-Π-cong-⇔ $ H.⊩∷ne⇔ A-ne ⟩
 
-    (⦃ inc : Var-included or-empty Γ ⦄ → ∇ » Γ ⊢≅ A ×
-     ∃ λ u → ∇ » Γ ⊢ t ⇒* u ∷ A × Neutralₗ ∇ u × ∇ » Γ ⊢~ u ∷ A)  □⇔
+    (⦃ inc : Var-included or-empty (Γ .vars) ⦄ → Γ ⊢≅ A ×
+     ∃ λ u → Γ ⊢ t ⇒* u ∷ A × Neutralₗ (Γ .defs) u × Γ ⊢~ u ∷ A)    □⇔
 
 opaque
   unfolding _⊩⟨_⟩_≡_
@@ -1082,31 +1086,31 @@ opaque
   -- A characterisation lemma for _⊩⟨_⟩_≡_.
 
   ⊩ne≡⇔ :
-    Neutralₗ ∇ A →
-    ∇ » Γ ⊩⟨ l ⟩ A ≡ B ⇔
-    (⦃ inc : Var-included or-empty Γ ⦄ →
-     ∃ λ C → Neutralₗ ∇ C × ∇ » Γ ⊢ B ⇒* C × ∇ » Γ ⊢ A ≅ C)
-  ⊩ne≡⇔ {∇} {A} {Γ} {l} {B} A-ne =
-    ∇ » Γ ⊩⟨ l ⟩ A ≡ B                                          ⇔⟨ ⊩≡⇔ ⟩
+    Neutralₗ (Γ .defs) A →
+    Γ ⊩⟨ l ⟩ A ≡ B ⇔
+    (⦃ inc : Var-included or-empty (Γ .vars) ⦄ →
+     ∃ λ C → Neutralₗ (Γ .defs) C × Γ ⊢ B ⇒* C × Γ ⊢ A ≅ C)
+  ⊩ne≡⇔ {Γ} {A} {l} {B} A-ne =
+    Γ ⊩⟨ l ⟩ A ≡ B                                                  ⇔⟨ ⊩≡⇔ ⟩
 
-    (⦃ inc : Var-included or-empty Γ ⦄ → ∇ » Γ H.⊩⟨ l ⟩ A ≡ B)  ⇔⟨ instance-Π-cong-⇔ $ H.⊩ne≡⇔ A-ne ⟩
+    (⦃ inc : Var-included or-empty (Γ .vars) ⦄ → Γ H.⊩⟨ l ⟩ A ≡ B)  ⇔⟨ instance-Π-cong-⇔ $ H.⊩ne≡⇔ A-ne ⟩
 
-    (⦃ inc : Var-included or-empty Γ ⦄ →
-     ∃ λ C → Neutralₗ ∇ C × ∇ » Γ ⊢ B ⇒* C × ∇ » Γ ⊢ A ≅ C)     □⇔
+    (⦃ inc : Var-included or-empty (Γ .vars) ⦄ →
+     ∃ λ C → Neutralₗ (Γ .defs) C × Γ ⊢ B ⇒* C × Γ ⊢ A ≅ C)         □⇔
 
 opaque
 
   -- A characterisation lemma for _⊩⟨_⟩_≡_.
 
   ⊩ne≡ne⇔ :
-    Neutralₗ ∇ A →
-    Neutralₗ ∇ B →
-    ∇ » Γ ⊩⟨ l ⟩ A ≡ B ⇔
-    (⦃ inc : Var-included or-empty Γ ⦄ → ∇ » Γ ⊢ A ≅ B)
-  ⊩ne≡ne⇔ {∇} {A} {B} {Γ} {l} A-ne B-ne =
-    ∇ » Γ ⊩⟨ l ⟩ A ≡ B                                          ⇔⟨ ⊩≡⇔ ⟩
-    (⦃ inc : Var-included or-empty Γ ⦄ → ∇ » Γ H.⊩⟨ l ⟩ A ≡ B)  ⇔⟨ instance-Π-cong-⇔ $ H.⊩ne≡ne⇔ A-ne B-ne ⟩
-    (⦃ inc : Var-included or-empty Γ ⦄ → ∇ » Γ ⊢ A ≅ B)         □⇔
+    Neutralₗ (Γ .defs) A →
+    Neutralₗ (Γ .defs) B →
+    Γ ⊩⟨ l ⟩ A ≡ B ⇔
+    (⦃ inc : Var-included or-empty (Γ .vars) ⦄ → Γ ⊢ A ≅ B)
+  ⊩ne≡ne⇔ {Γ} {A} {B} {l} A-ne B-ne =
+    Γ ⊩⟨ l ⟩ A ≡ B                                                  ⇔⟨ ⊩≡⇔ ⟩
+    (⦃ inc : Var-included or-empty (Γ .vars) ⦄ → Γ H.⊩⟨ l ⟩ A ≡ B)  ⇔⟨ instance-Π-cong-⇔ $ H.⊩ne≡ne⇔ A-ne B-ne ⟩
+    (⦃ inc : Var-included or-empty (Γ .vars) ⦄ → Γ ⊢ A ≅ B)         □⇔
 
 opaque
   unfolding _⊩⟨_⟩_≡_∷_ ⊩ne⇔
@@ -1114,11 +1118,11 @@ opaque
   -- A characterisation lemma for _⊩⟨_⟩_≡_∷_.
 
   ⊩≡∷ne⇔ :
-    Neutralₗ ∇ A →
-    ∇ » Γ ⊩⟨ l ⟩ t₁ ≡ t₂ ∷ A ⇔
-    (⦃ inc : Var-included or-empty Γ ⦄ →
-     ∇ » Γ ⊢≅ A ×
+    Neutralₗ (Γ .defs) A →
+    Γ ⊩⟨ l ⟩ t₁ ≡ t₂ ∷ A ⇔
+    (⦃ inc : Var-included or-empty (Γ .vars) ⦄ →
+     Γ ⊢≅ A ×
      ∃₂ λ u₁ u₂ →
-     ∇ » Γ ⊢ t₁ ⇒* u₁ ∷ A × ∇ » Γ ⊢ t₂ ⇒* u₂ ∷ A ×
-     ∇ » Γ L.⊩neNf u₁ ≡ u₂ ∷ A)
+     Γ ⊢ t₁ ⇒* u₁ ∷ A × Γ ⊢ t₂ ⇒* u₂ ∷ A ×
+     Γ L.⊩neNf u₁ ≡ u₂ ∷ A)
   ⊩≡∷ne⇔ A-ne = (instance-Π-cong-⇔ $ H.⊩≡∷ne⇔ A-ne) ∘⇔ ⊩≡∷⇔

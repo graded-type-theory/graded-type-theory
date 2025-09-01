@@ -34,8 +34,7 @@ import Tools.PropositionalEquality as PE
 open import Tools.Relation
 
 private variable
-  ∇   : DCon (Term 0) _
-  Γ   : Con Term _
+  Γ   : Cons _ _
   A t : Term _
 
 opaque
@@ -45,9 +44,9 @@ opaque
   -- See also Definition.Typed.Inversion.inversion-[].
 
   inversion-[]′ :
-    ⦃ ok : No-equality-reflection or-empty Γ ⦄ →
-    ∇ » Γ ⊢ [ t ] ∷ Erased A →
-    ∇ » Γ ⊢ t ∷ A × Erased-allowed s
+    ⦃ ok : No-equality-reflection or-empty (Γ .vars) ⦄ →
+    Γ ⊢ [ t ] ∷ Erased A →
+    Γ ⊢ t ∷ A × Erased-allowed s
   inversion-[]′ ⊢[] =
     case inversion-[] ⊢[] of λ {
       (_ , _ , _ , ⊢t , Erased-ok , Erased-A≡ , _) →
@@ -62,9 +61,9 @@ opaque
 
   ¬-inversion-[]′ :
     Erased-allowed s →
-    ¬ (∀ {m n} {∇ : DCon (Term 0) m} {Γ : Con Term n} {t A : Term n} →
-       ∇ » Γ ⊢ [ t ] ∷ A →
-       ∃₂ λ B q → ∇ » Γ ⊢ t ∷ B × ∇ » Γ ⊢ A ≡ Σ⟨ s ⟩ 𝟘 , q ▷ B ▹ Unit s 0)
+    ¬ (∀ {m n} {Γ : Cons m n} {t A : Term n} →
+       Γ ⊢ [ t ] ∷ A →
+       ∃₂ λ B q → Γ ⊢ t ∷ B × Γ ⊢ A ≡ Σ⟨ s ⟩ 𝟘 , q ▷ B ▹ Unit s 0)
   ¬-inversion-[]′ (Unit-ok , Σ-ok) inversion-[] = bad
     where
     Γ′ : Con Term 0
@@ -118,9 +117,9 @@ opaque
 
   ¬-inversion-[] :
     Erased-allowed s →
-    ¬ (∀ {m n} {∇ : DCon (Term 0) m} {Γ : Con Term n} {t A : Term n} →
-       ∇ » Γ ⊢ [ t ] ∷ A →
-       ∃ λ B → ∇ » Γ ⊢ t ∷ B × ∇ » Γ ⊢ A ≡ Erased B)
+    ¬ (∀ {m n} {Γ : Cons m n} {t A : Term n} →
+       Γ ⊢ [ t ] ∷ A →
+       ∃ λ B → Γ ⊢ t ∷ B × Γ ⊢ A ≡ Erased B)
   ¬-inversion-[] Erased-ok inversion-[] =
     ¬-inversion-[]′ Erased-ok λ ⊢[] →
     case inversion-[] ⊢[] of λ {

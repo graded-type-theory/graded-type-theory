@@ -38,8 +38,7 @@ import Tools.PropositionalEquality as PE
 private
   variable
     m n  : Nat
-    ∇    : DCon (Term 0) m
-    Γ    : Con Term n
+    Γ    : Cons m n
     A B  : Term n
     l l′ : Universe-level
     k    : LogRelKit
@@ -51,27 +50,27 @@ private
 
   -- A lemma used below.
 
-  U⇒*U→≡ : ∇ » Γ ⊢ U l ⇒* U l′ → l PE.≡ l′
-  U⇒*U→≡ {∇} {Γ} {l} {l′} =
-    ∇ » Γ ⊢ U l ⇒* U l′  →⟨ flip whnfRed* Uₙ ⟩
-    U l PE.≡ U l′        →⟨ (λ { PE.refl → PE.refl }) ⟩
-    l PE.≡ l′            □
+  U⇒*U→≡ : Γ ⊢ U l ⇒* U l′ → l PE.≡ l′
+  U⇒*U→≡ {Γ} {l} {l′} =
+    Γ ⊢ U l ⇒* U l′  →⟨ flip whnfRed* Uₙ ⟩
+    U l PE.≡ U l′    →⟨ (λ { PE.refl → PE.refl }) ⟩
+    l PE.≡ l′        □
 
 opaque
 
   -- A characterisation lemma for _⊩⟨_⟩_.
 
   ⊩U⇔ :
-    ∇ » Γ ⊩⟨ l ⟩ U l′ ⇔
-    (l′ <ᵘ l × ∇ »⊢ Γ)
+    Γ ⊩⟨ l ⟩ U l′ ⇔
+    (l′ <ᵘ l × ⊢ Γ)
   ⊩U⇔ =
       lemma ∘→ U-elim
     , (λ (l′<l , ⊢Γ) →
         Uᵣ (Uᵣ _ l′<l (id (Uⱼ ⊢Γ))))
     where
     lemma :
-      ∇ » Γ ⊩⟨ l ⟩U U l′ →
-      l′ <ᵘ l × ∇ »⊢ Γ
+      Γ ⊩⟨ l ⟩U U l′ →
+      l′ <ᵘ l × ⊢ Γ
     lemma (noemb (Uᵣ _ l′<l U⇒*U)) =
       case U⇒*U→≡ U⇒*U of λ {
         PE.refl →
@@ -85,9 +84,9 @@ opaque
   -- A characterisation lemma for _⊩⟨_⟩_∷_.
 
   ⊩∷U⇔ :
-    ∇ » Γ ⊩⟨ l ⟩ A ∷ U l′ ⇔
-    (l′ <ᵘ l × ∇ » Γ ⊩⟨ l′ ⟩ A ×
-     ∃ λ B → ∇ » Γ ⊢ A ⇒* B ∷ U l′ × Typeₗ ∇ B × ∇ » Γ ⊢≅ B ∷ U l′)
+    Γ ⊩⟨ l ⟩ A ∷ U l′ ⇔
+    (l′ <ᵘ l × Γ ⊩⟨ l′ ⟩ A ×
+     ∃ λ B → Γ ⊢ A ⇒* B ∷ U l′ × Typeₗ (Γ .defs) B × Γ ⊢≅ B ∷ U l′)
   ⊩∷U⇔ =
       (λ (⊩U , ⊩A) →
          lemma (U-elim ⊩U) (irrelevanceTerm ⊩U (U-intr (U-elim ⊩U)) ⊩A))
@@ -96,10 +95,10 @@ opaque
          , Uₜ _ A⇒*B B-type B≅B (⊩<⇔⊩ l′<l .proj₂ ⊩A))
     where
     lemma :
-      (⊩U : ∇ » Γ ⊩⟨ l ⟩U U l′) →
-      ∇ » Γ ⊩⟨ l ⟩ A ∷ U l′ / U-intr ⊩U →
-      (l′ <ᵘ l × ∇ » Γ ⊩⟨ l′ ⟩ A ×
-       ∃ λ B → ∇ » Γ ⊢ A ⇒* B ∷ U l′ × Typeₗ ∇ B × ∇ » Γ ⊢≅ B ∷ U l′)
+      (⊩U : Γ ⊩⟨ l ⟩U U l′) →
+      Γ ⊩⟨ l ⟩ A ∷ U l′ / U-intr ⊩U →
+      (l′ <ᵘ l × Γ ⊩⟨ l′ ⟩ A ×
+       ∃ λ B → Γ ⊢ A ⇒* B ∷ U l′ × Typeₗ (Γ .defs) B × Γ ⊢≅ B ∷ U l′)
     lemma (noemb (Uᵣ _ l′<l U⇒*U)) (Uₜ _ A⇒*B B-type B≅B ⊩A) =
       case U⇒*U→≡ U⇒*U of λ {
          PE.refl →
@@ -112,14 +111,14 @@ opaque
   -- A variant of ⊩∷U⇔.
 
   Type→⊩∷U⇔ :
-    Typeₗ ∇ A →
-    ∇ » Γ ⊩⟨ l ⟩ A ∷ U l′ ⇔
-    (l′ <ᵘ l × (∇ » Γ ⊩⟨ l′ ⟩ A) × ∇ » Γ ⊢≅ A ∷ U l′)
-  Type→⊩∷U⇔ {∇} {A} {Γ} {l} {l′} A-type =
-    ∇ » Γ ⊩⟨ l ⟩ A ∷ U l′                                            ⇔⟨ ⊩∷U⇔ ⟩
+    Typeₗ (Γ .defs) A →
+    Γ ⊩⟨ l ⟩ A ∷ U l′ ⇔
+    (l′ <ᵘ l × (Γ ⊩⟨ l′ ⟩ A) × Γ ⊢≅ A ∷ U l′)
+  Type→⊩∷U⇔ {Γ} {A} {l} {l′} A-type =
+    Γ ⊩⟨ l ⟩ A ∷ U l′                                                ⇔⟨ ⊩∷U⇔ ⟩
 
-    l′ <ᵘ l × (∇ » Γ ⊩⟨ l′ ⟩ A) ×
-    (∃ λ B → ∇ » Γ ⊢ A ⇒* B ∷ U l′ × Typeₗ ∇ B × ∇ » Γ ⊢≅ B ∷ U l′)  ⇔⟨ id⇔
+    l′ <ᵘ l × (Γ ⊩⟨ l′ ⟩ A) ×
+    (∃ λ B → Γ ⊢ A ⇒* B ∷ U l′ × Typeₗ (Γ .defs) B × Γ ⊢≅ B ∷ U l′)  ⇔⟨ id⇔
                                                                           ×-cong-⇔
                                                                         id⇔
                                                                           ×-cong-⇔
@@ -131,7 +130,7 @@ opaque
                                                                         )
                                                                       ⟩
 
-    l′ <ᵘ l × (∇ » Γ ⊩⟨ l′ ⟩ A) × ∇ » Γ ⊢≅ A ∷ U l′                  □⇔
+    l′ <ᵘ l × (Γ ⊩⟨ l′ ⟩ A) × Γ ⊢≅ A ∷ U l′                          □⇔
 
 opaque
   unfolding _⊩⟨_⟩_≡_
@@ -139,8 +138,8 @@ opaque
   -- A characterisation lemma for _⊩⟨_⟩_≡_.
 
   ⊩U≡⇔ :
-    ∇ » Γ ⊩⟨ l ⟩ U l′ ≡ A ⇔
-    (l′ <ᵘ l × ∇ » Γ ⊢ A ⇒* U l′)
+    Γ ⊩⟨ l ⟩ U l′ ≡ A ⇔
+    (l′ <ᵘ l × Γ ⊢ A ⇒* U l′)
   ⊩U≡⇔ =
       (λ (⊩U , _ , U≡A) →
          lemma (U-elim ⊩U)
@@ -152,9 +151,9 @@ opaque
          , A⇒*U)
     where
     lemma :
-      (⊩U : ∇ » Γ ⊩⟨ l ⟩U U l′) →
-      ∇ » Γ ⊩⟨ l ⟩ U l′ ≡ A / U-intr ⊩U →
-      l′ <ᵘ l × ∇ » Γ ⊢ A ⇒* U l′
+      (⊩U : Γ ⊩⟨ l ⟩U U l′) →
+      Γ ⊩⟨ l ⟩ U l′ ≡ A / U-intr ⊩U →
+      l′ <ᵘ l × Γ ⊢ A ⇒* U l′
     lemma (noemb (Uᵣ _ p U⇒*U)) A≡U =
       case U⇒*U→≡ U⇒*U of λ {
         PE.refl →
@@ -170,14 +169,14 @@ opaque
   -- A characterisation lemma for _⊩⟨_⟩_≡_∷_.
 
   ⊩≡∷U⇔ :
-    ∇ » Γ ⊩⟨ l ⟩ A ≡ B ∷ U l′ ⇔
-    (l′ <ᵘ l × ∇ » Γ ⊩⟨ l′ ⟩ A ≡ B ×
+    Γ ⊩⟨ l ⟩ A ≡ B ∷ U l′ ⇔
+    (l′ <ᵘ l × Γ ⊩⟨ l′ ⟩ A ≡ B ×
      ∃₂ λ A′ B′ →
-     ∇ » Γ ⊢ A ⇒* A′ ∷ U l′ ×
-     ∇ » Γ ⊢ B ⇒* B′ ∷ U l′ ×
-     Typeₗ ∇ A′ ×
-     Typeₗ ∇ B′ ×
-     ∇ » Γ ⊢ A′ ≅ B′ ∷ U l′)
+     Γ ⊢ A ⇒* A′ ∷ U l′ ×
+     Γ ⊢ B ⇒* B′ ∷ U l′ ×
+     Typeₗ (Γ .defs) A′ ×
+     Typeₗ (Γ .defs) B′ ×
+     Γ ⊢ A′ ≅ B′ ∷ U l′)
   ⊩≡∷U⇔ =
       (λ (⊩U , _ , _ , A≡B) →
           lemma (U-elim ⊩U)
@@ -195,15 +194,15 @@ opaque
              (⊩<≡⇔⊩≡′ l′<l .proj₂ A≡B))
     where
     lemma :
-      (⊩U : ∇ » Γ ⊩⟨ l ⟩U U l′) →
-      ∇ » Γ ⊩⟨ l ⟩ A ≡ B ∷ U l′ / U-intr ⊩U →
-      l′ <ᵘ l × ∇ » Γ ⊩⟨ l′ ⟩ A ≡ B ×
+      (⊩U : Γ ⊩⟨ l ⟩U U l′) →
+      Γ ⊩⟨ l ⟩ A ≡ B ∷ U l′ / U-intr ⊩U →
+      l′ <ᵘ l × Γ ⊩⟨ l′ ⟩ A ≡ B ×
       ∃₂ λ A′ B′ →
-      ∇ » Γ ⊢ A ⇒* A′ ∷ U l′ ×
-      ∇ » Γ ⊢ B ⇒* B′ ∷ U l′ ×
-      Typeₗ ∇ A′ ×
-      Typeₗ ∇ B′ ×
-      ∇ » Γ ⊢ A′ ≅ B′ ∷ U l′
+      Γ ⊢ A ⇒* A′ ∷ U l′ ×
+      Γ ⊢ B ⇒* B′ ∷ U l′ ×
+      Typeₗ (Γ .defs) A′ ×
+      Typeₗ (Γ .defs) B′ ×
+      Γ ⊢ A′ ≅ B′ ∷ U l′
     lemma
       (noemb (Uᵣ _ l′<l U⇒*U))
       (Uₜ₌ _ _ A⇒*A′ B⇒*B′ A′-type B′-type A′≅B′ ⊩A ⊩B A≡B) =
@@ -223,32 +222,32 @@ opaque
   -- A variant of ⊩≡∷U⇔.
 
   Type→⊩≡∷U⇔ :
-    Typeₗ ∇ A →
-    Typeₗ ∇ B →
-    ∇ » Γ ⊩⟨ l ⟩ A ≡ B ∷ U l′ ⇔
-    (l′ <ᵘ l × (∇ » Γ ⊩⟨ l′ ⟩ A ≡ B) × ∇ » Γ ⊢ A ≅ B ∷ U l′)
-  Type→⊩≡∷U⇔ {∇} {A} {B} {Γ} {l} {l′} A-type B-type =
-    ∇ » Γ ⊩⟨ l ⟩ A ≡ B ∷ U l′          ⇔⟨ ⊩≡∷U⇔ ⟩
+    Typeₗ (Γ .defs) A →
+    Typeₗ (Γ .defs) B →
+    Γ ⊩⟨ l ⟩ A ≡ B ∷ U l′ ⇔
+    (l′ <ᵘ l × (Γ ⊩⟨ l′ ⟩ A ≡ B) × Γ ⊢ A ≅ B ∷ U l′)
+  Type→⊩≡∷U⇔ {Γ} {A} {B} {l} {l′} A-type B-type =
+    Γ ⊩⟨ l ⟩ A ≡ B ∷ U l′          ⇔⟨ ⊩≡∷U⇔ ⟩
 
-    l′ <ᵘ l × (∇ » Γ ⊩⟨ l′ ⟩ A ≡ B) ×
+    l′ <ᵘ l × (Γ ⊩⟨ l′ ⟩ A ≡ B) ×
     (∃₂ λ A′ B′ →
-     ∇ » Γ ⊢ A ⇒* A′ ∷ U l′ ×
-     ∇ » Γ ⊢ B ⇒* B′ ∷ U l′ ×
-     Typeₗ ∇ A′ ×
-     Typeₗ ∇ B′ ×
-     ∇ » Γ ⊢ A′ ≅ B′ ∷ U l′)           ⇔⟨ (λ (l′<l , A≡B , A′ , B′ , DA , DB , A′-type , B′-type , A′≅B′) →
-                                             case whnfRed*Term DA (typeWhnf A-type) of λ {
-                                               PE.refl →
-                                             case whnfRed*Term DB (typeWhnf B-type) of λ {
-                                               PE.refl →
-                                             (l′<l , A≡B , A′≅B′)}})
-                                        , (λ (l′<l , A≡B , A≅B) →
-                                             let _ , ⊢A , ⊢B = wf-⊢≡∷ (≅ₜ-eq A≅B) in
-                                               l′<l , A≡B , _ , _ , id ⊢A , id ⊢B
-                                             , A-type , B-type , A≅B)
-                                        ⟩
-    l′ <ᵘ l × (∇ » Γ ⊩⟨ l′ ⟩ A ≡ B) ×
-    ∇ » Γ ⊢ A ≅ B ∷ U l′               □⇔
+     Γ ⊢ A ⇒* A′ ∷ U l′ ×
+     Γ ⊢ B ⇒* B′ ∷ U l′ ×
+     Typeₗ (Γ .defs) A′ ×
+     Typeₗ (Γ .defs) B′ ×
+     Γ ⊢ A′ ≅ B′ ∷ U l′)           ⇔⟨ (λ (l′<l , A≡B , A′ , B′ , DA , DB , A′-type , B′-type , A′≅B′) →
+                                         case whnfRed*Term DA (typeWhnf A-type) of λ {
+                                           PE.refl →
+                                         case whnfRed*Term DB (typeWhnf B-type) of λ {
+                                           PE.refl →
+                                         (l′<l , A≡B , A′≅B′)}})
+                                    , (λ (l′<l , A≡B , A≅B) →
+                                         let _ , ⊢A , ⊢B = wf-⊢≡∷ (≅ₜ-eq A≅B) in
+                                           l′<l , A≡B , _ , _ , id ⊢A , id ⊢B
+                                         , A-type , B-type , A≅B)
+                                    ⟩
+    l′ <ᵘ l × (Γ ⊩⟨ l′ ⟩ A ≡ B) ×
+    Γ ⊢ A ≅ B ∷ U l′               □⇔
 
 ------------------------------------------------------------------------
 -- Validity
@@ -257,35 +256,35 @@ opaque
 
   -- Validity of U.
 
-  ⊩ᵛU : ∇ »⊩ᵛ Γ → ∇ » Γ ⊩ᵛ⟨ 1+ l ⟩ U l
-  ⊩ᵛU {∇} {Γ} {l} ⊩Γ =
+  ⊩ᵛU : ⊩ᵛ Γ → Γ ⊩ᵛ⟨ 1+ l ⟩ U l
+  ⊩ᵛU {Γ} {l} ⊩Γ =
     ⊩ᵛ⇔ʰ .proj₂
       ( ⊩Γ
-      , λ {_} {∇′} {_} ξ⊇ {_} {Δ} {σ₁} {σ₂} →
-          ∇′ » Δ ⊩ˢ σ₁ ≡ σ₂ ∷ Γ            →⟨ proj₁ ∘→ escape-⊩ˢ≡∷ ⟩
-          ∇′ »⊢ Δ                          →⟨ (λ ⊢Δ → ≤ᵘ-refl , id (Uⱼ ⊢Δ)) ⟩
-          l <ᵘ 1+ l × ∇′ » Δ ⊢ U l ⇒* U l  ⇔˘⟨ ⊩U≡⇔ ⟩→
-          ∇′ » Δ ⊩⟨ 1+ l ⟩ U l ≡ U l       □
+      , λ {_} {∇} {_} ξ⊇ {_} {Δ} {σ₁} {σ₂} →
+          ∇ » Δ ⊩ˢ σ₁ ≡ σ₂ ∷ Γ .vars      →⟨ proj₁ ∘→ escape-⊩ˢ≡∷ ⟩
+          ∇ »⊢ Δ                          →⟨ (λ ⊢Δ → ≤ᵘ-refl , id (Uⱼ ⊢Δ)) ⟩
+          l <ᵘ 1+ l × ∇ » Δ ⊢ U l ⇒* U l  ⇔˘⟨ ⊩U≡⇔ ⟩→
+          ∇ » Δ ⊩⟨ 1+ l ⟩ U l ≡ U l       □
       )
 
 opaque
 
   -- Validity of U, seen as a term former.
 
-  ⊩ᵛU∷U : ∇ »⊩ᵛ Γ → ∇ » Γ ⊩ᵛ⟨ 2+ l ⟩ U l ∷ U (1+ l)
-  ⊩ᵛU∷U {∇} {Γ} {l} ⊩Γ =
+  ⊩ᵛU∷U : ⊩ᵛ Γ → Γ ⊩ᵛ⟨ 2+ l ⟩ U l ∷ U (1+ l)
+  ⊩ᵛU∷U {Γ} {l} ⊩Γ =
     ⊩ᵛ∷⇔ʰ .proj₂
       ( ⊩ᵛU ⊩Γ
-      , λ {_} {∇′} {_} ξ⊇ {_} {Δ} {σ₁} {σ₂} →
-          ∇′ » Δ ⊩ˢ σ₁ ≡ σ₂ ∷ Γ                                             →⟨ proj₁ ∘→ escape-⊩ˢ≡∷ ⟩
+      , λ {_} {∇} {_} ξ⊇ {_} {Δ} {σ₁} {σ₂} →
+          ∇ » Δ ⊩ˢ σ₁ ≡ σ₂ ∷ Γ .vars                                      →⟨ proj₁ ∘→ escape-⊩ˢ≡∷ ⟩
 
-          ∇′ »⊢ Δ                                                           →⟨ (λ ⊢Δ → ≤ᵘ-refl , ⊩U⇔ .proj₂ (≤ᵘ-refl , ⊢Δ) , ≅-Urefl ⊢Δ) ⟩
+          ∇ »⊢ Δ                                                          →⟨ (λ ⊢Δ → ≤ᵘ-refl , ⊩U⇔ .proj₂ (≤ᵘ-refl , ⊢Δ) , ≅-Urefl ⊢Δ) ⟩
 
-          1+ l <ᵘ 2+ l × (∇′ » Δ ⊩⟨ 1+ l ⟩ U l) × ∇′ » Δ ⊢≅ U l ∷ U (1+ l)  →⟨ Type→⊩∷U⇔ Uₙ .proj₂ ⟩
+          1+ l <ᵘ 2+ l × (∇ » Δ ⊩⟨ 1+ l ⟩ U l) × ∇ » Δ ⊢≅ U l ∷ U (1+ l)  →⟨ Type→⊩∷U⇔ Uₙ .proj₂ ⟩
 
-          ∇′ » Δ ⊩⟨ 2+ l ⟩ U l ∷ U (1+ l)                                   →⟨ refl-⊩≡∷ ⟩
+          ∇ » Δ ⊩⟨ 2+ l ⟩ U l ∷ U (1+ l)                                  →⟨ refl-⊩≡∷ ⟩
 
-          ∇′ » Δ ⊩⟨ 2+ l ⟩ U l ≡ U l ∷ U (1+ l)                             □
+          ∇ » Δ ⊩⟨ 2+ l ⟩ U l ≡ U l ∷ U (1+ l)                            □
       )
 
 opaque
@@ -293,8 +292,8 @@ opaque
   -- Validity of one of the typing rules called univ.
 
   ⊩ᵛ≡∷U→⊩ᵛ≡ :
-    ∇ » Γ ⊩ᵛ⟨ l ⟩ A ≡ B ∷ U l′ →
-    ∇ » Γ ⊩ᵛ⟨ l′ ⟩ A ≡ B
+    Γ ⊩ᵛ⟨ l ⟩ A ≡ B ∷ U l′ →
+    Γ ⊩ᵛ⟨ l′ ⟩ A ≡ B
   ⊩ᵛ≡∷U→⊩ᵛ≡ A≡B∷U =
     case ⊩ᵛ≡∷⇔ʰ .proj₁ A≡B∷U of λ
       (⊩U , A≡B∷U) →
@@ -308,6 +307,6 @@ opaque
   -- Validity of another of the typing rules called univ.
 
   ⊩ᵛ∷U→⊩ᵛ :
-    ∇ » Γ ⊩ᵛ⟨ l ⟩ A ∷ U l′ →
-    ∇ » Γ ⊩ᵛ⟨ l′ ⟩ A
+    Γ ⊩ᵛ⟨ l ⟩ A ∷ U l′ →
+    Γ ⊩ᵛ⟨ l′ ⟩ A
   ⊩ᵛ∷U→⊩ᵛ = ⊩ᵛ⇔⊩ᵛ≡ .proj₂ ∘→ ⊩ᵛ≡∷U→⊩ᵛ≡ ∘→ ⊩ᵛ∷⇔⊩ᵛ≡∷ .proj₁

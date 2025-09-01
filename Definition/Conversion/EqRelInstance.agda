@@ -63,7 +63,8 @@ private
   variable
     m n κ : Nat
     ∇ : DCon (Term 0) κ
-    Γ : Con Term n
+    Η : Con Term _
+    Γ : Cons _ _
     A₁ A₂ B₁ B₂ t₁ t₂ u₁ u₂ v₁ v₂ w₁ w₂ : Term _
     ρ : Wk m n
     p p₁ p₂ p′ q q′ q₁ q₂ r r′ : M
@@ -88,23 +89,23 @@ record _⊢_~_∷_ (Γ : Cons κ n) (k l A : Term n) : Set a where
 
 private module Lemmas where
 
-  ~-var : ∀ {x A} → ∇ » Γ ⊢ var x ∷ A → ∇ » Γ ⊢ var x ~ var x ∷ A
+  ~-var : ∀ {x A} → Γ ⊢ var x ∷ A → Γ ⊢ var x ~ var x ∷ A
   ~-var x =
     let ⊢A = syntacticTerm x
     in  ↑ (refl ⊢A) (var-refl x PE.refl)
 
   ~-defn : ∀ {α A A′}
-         → ∇ » Γ ⊢ defn α ∷ A
-         → α ↦⊘∷ A′ ∈ ∇
-         → ∇ » Γ ⊢ defn α ~ defn α ∷ A
+         → Γ ⊢ defn α ∷ A
+         → α ↦⊘∷ A′ ∈ Γ .defs
+         → Γ ⊢ defn α ~ defn α ∷ A
   ~-defn α α↦⊘ =
     let ⊢A = syntacticTerm α
     in  ↑ (refl ⊢A) (defn-refl α α↦⊘ PE.refl)
 
   ~-app : ∀ {f g a b F G}
-        → ∇ » Γ ⊢ f ~ g ∷ Π p , q ▷ F ▹ G
-        → ∇ » Γ ⊢ a [conv↑] b ∷ F
-        → ∇ » Γ ⊢ f ∘⟨ p ⟩ a ~ g ∘⟨ p ⟩ b ∷ G [ a ]₀
+        → Γ ⊢ f ~ g ∷ Π p , q ▷ F ▹ G
+        → Γ ⊢ a [conv↑] b ∷ F
+        → Γ ⊢ f ∘⟨ p ⟩ a ~ g ∘⟨ p ⟩ b ∷ G [ a ]₀
   ~-app (↑ A≡B x) x₁ =
     let _ , ⊢B = syntacticEq A≡B
         B′ , whnfB′ , D = whNorm ⊢B
@@ -113,18 +114,18 @@ private module Lemmas where
     in
     case Π≡A ΠFG≡B′ whnfB′ of λ {
       (H , E , B≡ΠHE) →
-    case ΠΣ-injectivity (PE.subst (λ x → _ » _ ⊢ _ ≡ x) B≡ΠHE ΠFG≡B′) of λ {
+    case ΠΣ-injectivity (PE.subst (λ x → _ ⊢ _ ≡ x) B≡ΠHE ΠFG≡B′) of λ {
       (F≡H , G≡E , _ , _) →
     ↑ (G≡E (refl ⊢f))
       (app-cong
-         (PE.subst (λ x → _ » _ ⊢ _ ~ _ ↓ x) B≡ΠHE
+         (PE.subst (λ x → _ ⊢ _ ~ _ ↓ x) B≡ΠHE
             ([~] _ (D , whnfB′) x))
          (convConv↑Term F≡H x₁)) }}
 
   ~-fst :
     ∀ {p r F G} →
-    ∇ » Γ ⊢ p ~ r ∷ Σˢ p′ , q ▷ F ▹ G →
-    ∇ » Γ ⊢ fst p′ p ~ fst p′ r ∷ F
+    Γ ⊢ p ~ r ∷ Σˢ p′ , q ▷ F ▹ G →
+    Γ ⊢ fst p′ p ~ fst p′ r ∷ F
   ~-fst (↑ A≡B p~r) =
     case syntacticEq A≡B of λ (_ , ⊢B) →
     case whNorm ⊢B of λ (B′ , whnfB′ , D) →
@@ -137,8 +138,8 @@ private module Lemmas where
 
   ~-snd :
     ∀ {p r F G} →
-    ∇ » Γ ⊢ p ~ r ∷ Σ p′ , q ▷ F ▹ G →
-    ∇ » Γ ⊢ snd p′ p ~ snd p′ r ∷ G [ fst p′ p ]₀
+    Γ ⊢ p ~ r ∷ Σ p′ , q ▷ F ▹ G →
+    Γ ⊢ snd p′ p ~ snd p′ r ∷ G [ fst p′ p ]₀
   ~-snd (↑ A≡B p~r) =
     case syntacticEq A≡B of λ (⊢ΣFG , ⊢B) →
     case whNorm ⊢B of λ (B′ , whnfB′ , D) →
@@ -155,17 +156,17 @@ private module Lemmas where
             ↑ (G≡E (refl ⊢fst)) (snd-cong p~r↓)
 
   ~-natrec : ∀ {z z′ s s′ n n′ F F′}
-           → ∇ » (Γ ∙ ℕ) ⊢ F [conv↑] F′ →
-        ∇ » Γ ⊢ z [conv↑] z′ ∷ (F [ zero ]₀) →
-        ∇ » Γ ∙ ℕ ∙ F ⊢ s [conv↑] s′ ∷ F [ suc (var x1) ]↑² →
-        ∇ » Γ ⊢ n ~ n′ ∷ ℕ →
-        ∇ » Γ ⊢ natrec p q r F z s n ~ natrec p q r F′ z′ s′ n′ ∷ (F [ n ]₀)
+           → Γ »∙ ℕ ⊢ F [conv↑] F′ →
+        Γ ⊢ z [conv↑] z′ ∷ (F [ zero ]₀) →
+        Γ »∙ ℕ »∙ F ⊢ s [conv↑] s′ ∷ F [ suc (var x1) ]↑² →
+        Γ ⊢ n ~ n′ ∷ ℕ →
+        Γ ⊢ natrec p q r F z s n ~ natrec p q r F′ z′ s′ n′ ∷ (F [ n ]₀)
   ~-natrec x x₁ x₂ (↑ A≡B x₄) =
     let _ , ⊢B = syntacticEq A≡B
         B′ , whnfB′ , D = whNorm ⊢B
         ℕ≡B′ = trans A≡B (subset* D)
         B≡ℕ = ℕ≡A ℕ≡B′ whnfB′
-        k~l′ = PE.subst (λ x → _ » _ ⊢ _ ~ _ ↓ x) B≡ℕ
+        k~l′ = PE.subst (λ x → _ ⊢ _ ~ _ ↓ x) B≡ℕ
                         ([~] _ (D , whnfB′) x₄)
         ⊢F , _ = syntacticEq (soundnessConv↑ x)
         _ , ⊢n , _ = syntacticEqTerm (soundness~↓ k~l′)
@@ -174,10 +175,10 @@ private module Lemmas where
 
   ~-prodrec :
     ∀ {F G A A′ t t′ u u′} →
-    ∇ » Γ ∙ (Σʷ p , q ▷ F ▹ G) ⊢ A [conv↑] A′ →
-    ∇ » Γ ⊢ t ~ t′ ∷ (Σʷ p , q ▷ F ▹ G) →
-    ∇ » Γ ∙ F ∙ G ⊢ u [conv↑] u′ ∷ A [ prodʷ p (var x1) (var x0) ]↑² →
-    ∇ » Γ ⊢ prodrec r p q′ A t u ~ prodrec r p q′ A′ t′ u′ ∷ (A [ t ]₀)
+    Γ »∙ Σʷ p , q ▷ F ▹ G ⊢ A [conv↑] A′ →
+    Γ ⊢ t ~ t′ ∷ (Σʷ p , q ▷ F ▹ G) →
+    Γ »∙ F »∙ G ⊢ u [conv↑] u′ ∷ A [ prodʷ p (var x1) (var x0) ]↑² →
+    Γ ⊢ prodrec r p q′ A t u ~ prodrec r p q′ A′ t′ u′ ∷ (A [ t ]₀)
   ~-prodrec x₂ (↑ A≡B k~↑l) x₄ =
     case syntacticEq A≡B of λ (_ , ⊢B) →
     case whNorm ⊢B of λ (B′ , whnfB′ , D) →
@@ -195,15 +196,15 @@ private module Lemmas where
                  t~t′ (stabilityConv↑Term (refl-∙ F≡F′ ∙ G≡G′) x₄))
 
   ~-emptyrec : ∀ {n n′ F F′}
-           → ∇ » Γ ⊢ F [conv↑] F′ →
-        ∇ » Γ ⊢ n ~ n′ ∷ Empty →
-        ∇ » Γ ⊢ emptyrec p F n ~ emptyrec p F′ n′ ∷ F
+           → Γ ⊢ F [conv↑] F′ →
+        Γ ⊢ n ~ n′ ∷ Empty →
+        Γ ⊢ emptyrec p F n ~ emptyrec p F′ n′ ∷ F
   ~-emptyrec x (↑ A≡B x₄) =
     let _ , ⊢B = syntacticEq A≡B
         B′ , whnfB′ , D = whNorm ⊢B
         Empty≡B′ = trans A≡B (subset* D)
         B≡Empty = Empty≡A Empty≡B′ whnfB′
-        k~l′ = PE.subst (λ x → _ » _ ⊢ _ ~ _ ↓ x) B≡Empty
+        k~l′ = PE.subst (λ x → _ ⊢ _ ~ _ ↓ x) B≡Empty
                         ([~] _ (D , whnfB′) x₄)
         ⊢F , _ = syntacticEq (soundnessConv↑ x)
         _ , ⊢n , _ = syntacticEqTerm (soundness~↓ k~l′)
@@ -211,19 +212,19 @@ private module Lemmas where
           (emptyrec-cong x k~l′)
 
   ~-unitrec : ∀ {A A′ t t′ u u′}
-            → ∇ » Γ ∙ Unitʷ l ⊢ A [conv↑] A′
-            → ∇ » Γ ⊢ t ~ t′ ∷ Unitʷ l
-            → ∇ » Γ ⊢ u [conv↑] u′ ∷ A [ starʷ l ]₀
+            → Γ »∙ Unitʷ l ⊢ A [conv↑] A′
+            → Γ ⊢ t ~ t′ ∷ Unitʷ l
+            → Γ ⊢ u [conv↑] u′ ∷ A [ starʷ l ]₀
             → Unitʷ-allowed
             → ¬ Unitʷ-η
-            → ∇ » Γ ⊢ unitrec l p q A t u ~ unitrec l p q A′ t′ u′ ∷
+            → Γ ⊢ unitrec l p q A t u ~ unitrec l p q A′ t′ u′ ∷
                 A [ t ]₀
   ~-unitrec A<>A′ (↑ A≡B t~t′) u<>u′ ok no-η =
     let _ , ⊢B = syntacticEq A≡B
         B′ , whnfB′ , D = whNorm ⊢B
         Unit≡B′ = trans A≡B (subset* D)
         B≡Unit = Unit≡A Unit≡B′ whnfB′
-        t~t″ = PE.subst (λ x → _ » _ ⊢ _ ~ _ ↓ x) B≡Unit
+        t~t″ = PE.subst (λ x → _ ⊢ _ ~ _ ↓ x) B≡Unit
                         ([~] _ (D , whnfB′) t~t′)
         ⊢A , _ = syntacticEq (soundnessConv↑ A<>A′)
         _ , ⊢t , _ = syntacticEqTerm (soundness~↓ t~t″)
@@ -233,14 +234,14 @@ private module Lemmas where
   opaque
 
     ~-J :
-      ∇ » Γ ⊢ A₁ [conv↑] A₂ →
-      ∇ » Γ ⊢ t₁ ∷ A₁ →
-      ∇ » Γ ⊢ t₁ [conv↑] t₂ ∷ A₁ →
-      ∇ » Γ ∙ A₁ ∙ Id (wk1 A₁) (wk1 t₁) (var x0) ⊢ B₁ [conv↑] B₂ →
-      ∇ » Γ ⊢ u₁ [conv↑] u₂ ∷ B₁ [ t₁ , rfl ]₁₀ →
-      ∇ » Γ ⊢ v₁ [conv↑] v₂ ∷ A₁ →
-      ∇ » Γ ⊢ w₁ ~ w₂ ∷ Id A₁ t₁ v₁ →
-      ∇ » Γ ⊢ J p q A₁ t₁ B₁ u₁ v₁ w₁ ~ J p q A₂ t₂ B₂ u₂ v₂ w₂ ∷
+      Γ ⊢ A₁ [conv↑] A₂ →
+      Γ ⊢ t₁ ∷ A₁ →
+      Γ ⊢ t₁ [conv↑] t₂ ∷ A₁ →
+      Γ »∙ A₁ »∙ Id (wk1 A₁) (wk1 t₁) (var x0) ⊢ B₁ [conv↑] B₂ →
+      Γ ⊢ u₁ [conv↑] u₂ ∷ B₁ [ t₁ , rfl ]₁₀ →
+      Γ ⊢ v₁ [conv↑] v₂ ∷ A₁ →
+      Γ ⊢ w₁ ~ w₂ ∷ Id A₁ t₁ v₁ →
+      Γ ⊢ J p q A₁ t₁ B₁ u₁ v₁ w₁ ~ J p q A₂ t₂ B₂ u₂ v₂ w₂ ∷
         B₁ [ v₁ , w₁ ]₁₀
     ~-J A₁≡A₂ _ t₁≡t₂ B₁≡B₂ u₁≡u₂ v₁≡v₂ (↑ Id-t₁-v₁≡C w₁~w₂) =
       case Id-norm (sym Id-t₁-v₁≡C) of λ {
@@ -256,13 +257,13 @@ private module Lemmas where
            (trans (sym (subset* C⇒*Id-t₃-v₃)) (sym Id-t₁-v₁≡C))) }
 
     ~-K :
-      ∇ » Γ ⊢ A₁ [conv↑] A₂ →
-      ∇ » Γ ⊢ t₁ [conv↑] t₂ ∷ A₁ →
-      ∇ » Γ ∙ Id A₁ t₁ t₁ ⊢ B₁ [conv↑] B₂ →
-      ∇ » Γ ⊢ u₁ [conv↑] u₂ ∷ B₁ [ rfl ]₀ →
-      ∇ » Γ ⊢ v₁ ~ v₂ ∷ Id A₁ t₁ t₁ →
+      Γ ⊢ A₁ [conv↑] A₂ →
+      Γ ⊢ t₁ [conv↑] t₂ ∷ A₁ →
+      Γ »∙ Id A₁ t₁ t₁ ⊢ B₁ [conv↑] B₂ →
+      Γ ⊢ u₁ [conv↑] u₂ ∷ B₁ [ rfl ]₀ →
+      Γ ⊢ v₁ ~ v₂ ∷ Id A₁ t₁ t₁ →
       K-allowed →
-      ∇ » Γ ⊢ K p A₁ t₁ B₁ u₁ v₁ ~ K p A₂ t₂ B₂ u₂ v₂ ∷ B₁ [ v₁ ]₀
+      Γ ⊢ K p A₁ t₁ B₁ u₁ v₁ ~ K p A₂ t₂ B₂ u₂ v₂ ∷ B₁ [ v₁ ]₀
     ~-K A₁≡A₂ t₁≡t₂ B₁≡B₂ u₁≡u₂ (↑ Id-t₁-t₁≡C v₁~v₂) ok =
       case Id-norm (sym Id-t₁-t₁≡C) of λ {
         (_ , _ , _ , C⇒*Id-t₃-t₄ , A₁≡A₃ , t₁≡t₃ , t₁≡t₄) →
@@ -276,13 +277,13 @@ private module Lemmas where
            (trans (sym (subset* C⇒*Id-t₃-t₄)) (sym Id-t₁-t₁≡C)) ok) }
 
     ~-[]-cong :
-      ∇ » Γ ⊢ A₁ [conv↑] A₂ →
-      ∇ » Γ ⊢ t₁ [conv↑] t₂ ∷ A₁ →
-      ∇ » Γ ⊢ u₁ [conv↑] u₂ ∷ A₁ →
-      ∇ » Γ ⊢ v₁ ~ v₂ ∷ Id A₁ t₁ u₁ →
+      Γ ⊢ A₁ [conv↑] A₂ →
+      Γ ⊢ t₁ [conv↑] t₂ ∷ A₁ →
+      Γ ⊢ u₁ [conv↑] u₂ ∷ A₁ →
+      Γ ⊢ v₁ ~ v₂ ∷ Id A₁ t₁ u₁ →
       []-cong-allowed s →
       let open Erased s in
-      ∇ » Γ ⊢ []-cong s A₁ t₁ u₁ v₁ ~ []-cong s A₂ t₂ u₂ v₂ ∷
+      Γ ⊢ []-cong s A₁ t₁ u₁ v₁ ~ []-cong s A₂ t₂ u₂ v₂ ∷
         Id (Erased A₁) ([ t₁ ]) ([ u₁ ])
     ~-[]-cong A₁≡A₂ t₁≡t₂ u₁≡u₂ (↑ Id-t₁-u₁≡B v₁~v₂) ok =
       case Id-norm (sym Id-t₁-u₁≡B) of λ {
@@ -298,15 +299,15 @@ private module Lemmas where
            (trans (sym (subset* B⇒*Id-t₃-u₃)) (sym Id-t₁-u₁≡B))
            ok) }
 
-  ~-sym : ∀ {k l A} → ∇ » Γ ⊢ k ~ l ∷ A → ∇ » Γ ⊢ l ~ k ∷ A
+  ~-sym : ∀ {k l A} → Γ ⊢ k ~ l ∷ A → Γ ⊢ l ~ k ∷ A
   ~-sym (↑ A≡B x) =
     let ⊢Γ = wfEq A≡B
         B , A≡B′ , l~k = sym~↑ (reflConEq ⊢Γ) x
     in  ↑ (trans A≡B A≡B′) l~k
 
   ~-trans : ∀ {k l m A}
-          → ∇ » Γ ⊢ k ~ l ∷ A → ∇ » Γ ⊢ l ~ m ∷ A
-          → ∇ » Γ ⊢ k ~ m ∷ A
+          → Γ ⊢ k ~ l ∷ A → Γ ⊢ l ~ m ∷ A
+          → Γ ⊢ k ~ m ∷ A
   ~-trans (↑ x x₁) (↑ x₂ x₃) =
     let ⊢Γ = wfEq x
         k~m , _ = trans~↑ x₁ x₃
@@ -319,15 +320,15 @@ private module Lemmas where
 
   ~-defn-wk : ∀ {k l A} {ξ : DExt (Term 0) m n} {∇ ∇′} →
         ξ » ∇′ ⊇ ∇ →
-        ∇ » Γ ⊢ k ~ l ∷ A → ∇′ » Γ ⊢ k ~ l ∷ A
+        ∇ » Η ⊢ k ~ l ∷ A → ∇′ » Η ⊢ k ~ l ∷ A
   ~-defn-wk ξ⊇ (↑ A≡B k~l) = ↑ (defn-wkEq ξ⊇ A≡B) (defn-wk~↑ ξ⊇ k~l)
 
   ~-conv : ∀ {k l A B} →
-        ∇ » Γ ⊢ k ~ l ∷ A → ∇ » Γ ⊢ A ≡ B → ∇ » Γ ⊢ k ~ l ∷ B
+        Γ ⊢ k ~ l ∷ A → Γ ⊢ A ≡ B → Γ ⊢ k ~ l ∷ B
   ~-conv (↑ x x₁) x₂ = ↑ (trans (sym x₂) x) x₁
 
   ~-to-conv : ∀ {k l A} →
-        ∇ » Γ ⊢ k ~ l ∷ A → ∇ » Γ ⊢ k [conv↑] l ∷ A
+        Γ ⊢ k ~ l ∷ A → Γ ⊢ k [conv↑] l ∷ A
   ~-to-conv (↑ x x₁) = convConv↑Term (sym x) (lift~toConv↑ x₁)
 
 private opaque

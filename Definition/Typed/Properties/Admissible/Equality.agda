@@ -21,13 +21,12 @@ open import Definition.Typed.Well-formed R
 open import Tools.Product
 
 private variable
-  ∇     : DCon (Term 0) _
-  Γ     : Con Term _
+  Γ     : Cons _ _
   A t u : Term _
 
 opaque
 
   -- A variant of sym.
 
-  sym′ : ∇ » Γ ⊢ t ≡ u ∷ A → ∇ » Γ ⊢ u ≡ t ∷ A
+  sym′ : Γ ⊢ t ≡ u ∷ A → Γ ⊢ u ≡ t ∷ A
   sym′ t≡u = sym (wf-⊢≡∷ t≡u .proj₁) t≡u

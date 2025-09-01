@@ -39,19 +39,17 @@ import Tools.PropositionalEquality as PE
 
 private
   variable
-    m n   : Nat
-    ∇     : DCon (Term 0) m
-    Γ     : Con Term n
+    Γ     : Cons _ _
     A B   : Term _
     l₁ l₂ : Universe-level
 
 mutual
   -- Algorithmic equality of neutrals is well-formed.
-  soundness~↑ : ∀ {k l A} → ∇ » Γ ⊢ k ~ l ↑ A → ∇ » Γ ⊢ k ≡ l ∷ A
+  soundness~↑ : ∀ {k l A} → Γ ⊢ k ~ l ↑ A → Γ ⊢ k ≡ l ∷ A
   soundness~↑ (var-refl x x≡y) =
-    PE.subst (λ y → _ » _ ⊢ _ ≡ var y ∷ _) x≡y (refl x)
+    PE.subst (λ y → _ ⊢ _ ≡ var y ∷ _) x≡y (refl x)
   soundness~↑ (defn-refl ⊢α α↦⊘ α≡β) =
-    PE.subst (λ β → _ » _ ⊢ _ ≡ defn β ∷ _) α≡β (refl ⊢α)
+    PE.subst (λ β → _ ⊢ _ ≡ defn β ∷ _) α≡β (refl ⊢α)
   soundness~↑ (app-cong k~l x₁) =
     app-cong (soundness~↓ k~l) (soundnessConv↑Term x₁)
   soundness~↑ (fst-cong x) =
@@ -100,16 +98,16 @@ mutual
       (soundnessConv↑Term u₁≡u₂) (conv (soundness~↓ v₁~v₂) ≡Id) ok
 
   -- Algorithmic equality of neutrals in WHNF is well-formed.
-  soundness~↓ : ∀ {k l A} → ∇ » Γ ⊢ k ~ l ↓ A → ∇ » Γ ⊢ k ≡ l ∷ A
+  soundness~↓ : ∀ {k l A} → Γ ⊢ k ~ l ↓ A → Γ ⊢ k ≡ l ∷ A
   soundness~↓ ([~] A₁ (D , _) k~l) = conv (soundness~↑ k~l) (subset* D)
 
   -- Algorithmic equality of types is well-formed.
-  soundnessConv↑ : ∀ {A B} → ∇ » Γ ⊢ A [conv↑] B → ∇ » Γ ⊢ A ≡ B
+  soundnessConv↑ : ∀ {A B} → Γ ⊢ A [conv↑] B → Γ ⊢ A ≡ B
   soundnessConv↑ ([↑] _ _ (D , _) (D′ , _) A′<>B′) =
     trans (subset* D) (trans (soundnessConv↓ A′<>B′) (sym (subset* D′)))
 
   -- Algorithmic equality of types in WHNF is well-formed.
-  soundnessConv↓ : ∀ {A B} → ∇ » Γ ⊢ A [conv↓] B → ∇ » Γ ⊢ A ≡ B
+  soundnessConv↓ : ∀ {A B} → Γ ⊢ A [conv↓] B → Γ ⊢ A ≡ B
   soundnessConv↓ (U-refl ⊢Γ) = refl (Uⱼ ⊢Γ)
   soundnessConv↓ (ℕ-refl ⊢Γ) = refl (ℕⱼ ⊢Γ)
   soundnessConv↓ (Empty-refl ⊢Γ) = refl (Emptyⱼ ⊢Γ)
@@ -122,7 +120,7 @@ mutual
       (soundnessConv↑Term u₁≡u₂)
 
   -- Algorithmic equality of terms is well-formed.
-  soundnessConv↑Term : ∀ {a b A} → ∇ » Γ ⊢ a [conv↑] b ∷ A → ∇ » Γ ⊢ a ≡ b ∷ A
+  soundnessConv↑Term : ∀ {a b A} → Γ ⊢ a [conv↑] b ∷ A → Γ ⊢ a ≡ b ∷ A
   soundnessConv↑Term ([↑]ₜ B t′ u′ (D , _) (d , _) (d′ , _) t<>u) =
     conv (trans (subset*Term d)
                 (trans (soundnessConv↓Term t<>u)
@@ -130,7 +128,7 @@ mutual
          (sym (subset* D))
 
   -- Algorithmic equality of terms in WHNF is well-formed.
-  soundnessConv↓Term : ∀ {a b A} → ∇ » Γ ⊢ a [conv↓] b ∷ A → ∇ » Γ ⊢ a ≡ b ∷ A
+  soundnessConv↓Term : ∀ {a b A} → Γ ⊢ a [conv↓] b ∷ A → Γ ⊢ a ≡ b ∷ A
   soundnessConv↓Term (ℕ-ins x) = soundness~↓ x
   soundnessConv↓Term (Empty-ins x) = soundness~↓ x
   soundnessConv↓Term (Unitʷ-ins _ t~u) = soundness~↓ t~u
@@ -162,23 +160,23 @@ mutual
   soundnessConv↓Term (η-unit [a] [b] aUnit bUnit ok) =
     η-unit [a] [b] ok
   soundnessConv↓Term
-    {∇} {Γ} (Id-ins {v₁} {t} {u} {A} {A′} {t′} {u′} ⊢v₁ v₁~v₂) =
+    {Γ} (Id-ins {v₁} {t} {u} {A} {A′} {t′} {u′} ⊢v₁ v₁~v₂) =
     case soundness~↓ v₁~v₂ of λ {
       v₁≡v₂ →
     conv v₁≡v₂
-      (                                                  $⟨ syntacticEqTerm v₁≡v₂ .proj₂ .proj₁ , ⊢v₁ ⟩
-       ∇ » Γ ⊢ v₁ ∷ Id A′ t′ u′ × ∇ » Γ ⊢ v₁ ∷ Id A t u  →⟨ uncurry (neTypeEq (ne~↓ v₁~v₂ .proj₂ .proj₁)) ⟩
-       ∇ » Γ ⊢ Id A′ t′ u′ ≡ Id A t u                    □) }
+      (                                          $⟨ syntacticEqTerm v₁≡v₂ .proj₂ .proj₁ , ⊢v₁ ⟩
+       Γ ⊢ v₁ ∷ Id A′ t′ u′ × Γ ⊢ v₁ ∷ Id A t u  →⟨ uncurry (neTypeEq (ne~↓ v₁~v₂ .proj₂ .proj₁)) ⟩
+       Γ ⊢ Id A′ t′ u′ ≡ Id A t u                □) }
   soundnessConv↓Term (rfl-refl t≡u) =
     refl (rflⱼ′ t≡u)
 
   -- A variant of soundnessConv↓.
 
   soundnessConv↓-U :
-    ∇ » Γ ⊢ A ∷ U l₁ →
-    ∇ » Γ ⊢ B ∷ U l₂ →
-    ∇ » Γ ⊢ A [conv↓] B →
-    ∇ » Γ ⊢ A ≡ B ∷ U l₁ × l₁ PE.≡ l₂
+    Γ ⊢ A ∷ U l₁ →
+    Γ ⊢ B ∷ U l₂ →
+    Γ ⊢ A [conv↓] B →
+    Γ ⊢ A ≡ B ∷ U l₁ × l₁ PE.≡ l₂
   soundnessConv↓-U {l₁} {l₂} ⊢A ⊢B (ne {l} A~B) =
     let A≡B             = soundness~↓ A~B
         _ , A-ne , B-ne = ne~↓ A~B
@@ -262,8 +260,8 @@ mutual
   -- A variant of soundnessConv↑.
 
   soundnessConv↑-U :
-    ∇ » Γ ⊢ A ∷ U l₁ → ∇ » Γ ⊢ B ∷ U l₂ → ∇ » Γ ⊢ A [conv↑] B →
-    ∇ » Γ ⊢ A ≡ B ∷ U l₁ × l₁ PE.≡ l₂
+    Γ ⊢ A ∷ U l₁ → Γ ⊢ B ∷ U l₂ → Γ ⊢ A [conv↑] B →
+    Γ ⊢ A ≡ B ∷ U l₁ × l₁ PE.≡ l₂
   soundnessConv↑-U {A} {l₁} {B} {l₂} ⊢A ⊢B ([↑] A′ B′ A↘A′ B↘B′ A′≡B′) =
     let A″ , A″-type , A⇒*A″ = red-U ⊢A
         B″ , B″-type , B⇒*B″ = red-U ⊢B
@@ -272,8 +270,8 @@ mutual
         A′≡A″ = whrDet* A↘A′ (univ* A⇒*A″ , typeWhnf A″-type)
         B′≡B″ = whrDet* B↘B′ (univ* B⇒*B″ , typeWhnf B″-type)
         A′≡B′ , l₁≡l₂ =
-          soundnessConv↓-U (PE.subst (_ » _ ⊢_∷ _) (PE.sym A′≡A″) ⊢A″)
-            (PE.subst (_ » _ ⊢_∷ _) (PE.sym B′≡B″) ⊢B″) A′≡B′
+          soundnessConv↓-U (PE.subst (_ ⊢_∷ _) (PE.sym A′≡A″) ⊢A″)
+            (PE.subst (_ ⊢_∷ _) (PE.sym B′≡B″) ⊢B″) A′≡B′
     in
       (A          ⇒*⟨ A⇒*A″ ⟩⊢
        A″         ≡˘⟨ A′≡A″ ⟩⊢≡

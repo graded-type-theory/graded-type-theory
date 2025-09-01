@@ -46,7 +46,7 @@ opaque
   subst-⊢⇒∷ (conv t⇒u B≡A) ⊢σ =
     conv (subst-⊢⇒∷ t⇒u ⊢σ) (subst-⊢≡ B≡A (refl-⊢ˢʷ≡∷ ⊢σ))
   subst-⊢⇒∷ (δ-red ⊢Γ α↦t PE.refl PE.refl) ⊢σ =
-    PE.subst (_ » _ ⊢ _ ⇒_∷ _) (PE.sym (wk₀-subst-invariant _))
+    PE.subst (_ ⊢ _ ⇒_∷ _) (PE.sym (wk₀-subst-invariant _))
              (δ-red (wf-⊢ˢʷ∷ ⊢σ) α↦t (wk₀-subst-invariant _) PE.refl)
   subst-⊢⇒∷ (app-subst {G = B} t⇒u ⊢v) ⊢σ =
     PE.subst (_⊢_⇒_∷_ _ _ _) (PE.sym (singleSubstLift B _))
@@ -59,7 +59,7 @@ opaque
   subst-⊢⇒∷ (fst-subst _ t⇒u) ⊢σ =
     fst-subst′ (subst-⊢⇒∷ t⇒u ⊢σ)
   subst-⊢⇒∷ (snd-subst {G = B} _ t⇒u) ⊢σ =
-    PE.subst (_ » _ ⊢ _ ⇒ _ ∷_)
+    PE.subst (_ ⊢ _ ⇒ _ ∷_)
       (PE.sym (singleSubstLift B _)) $
     snd-subst′ (subst-⊢⇒∷ t⇒u ⊢σ)
   subst-⊢⇒∷ (Σ-β₁ {G = B} ⊢B ⊢t ⊢u eq ok) ⊢σ =
@@ -74,7 +74,7 @@ opaque
   subst-⊢⇒∷ (prodrec-subst {A = C} ⊢C ⊢u t₁⇒t₂ _) ⊢σ =
     PE.subst (_⊢_⇒_∷_ _ _ _) (PE.sym $ singleSubstLift C _)
       (prodrec-subst′ (subst-⊢-⇑ ⊢C ⊢σ)
-        (PE.subst (_ » _ ⊢ _ ∷_) (subst-β-prodrec C _) $
+        (PE.subst (_ ⊢ _ ∷_) (subst-β-prodrec C _) $
          subst-⊢∷-⇑ ⊢u ⊢σ)
         (subst-⊢⇒∷ t₁⇒t₂ ⊢σ))
   subst-⊢⇒∷

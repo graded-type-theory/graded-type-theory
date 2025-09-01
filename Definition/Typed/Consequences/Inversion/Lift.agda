@@ -28,8 +28,7 @@ open import Tools.Product
 import Tools.PropositionalEquality as PE
 
 private variable
-  ∇     : DCon (Term 0) _
-  Γ     : Con Term _
+  Γ     : Cons _ _
   A     : Term _
   s     : Strength
   l₁ l₂ : Universe-level
@@ -40,11 +39,11 @@ opaque
   -- An inversion lemma for Lift.
 
   inversion-Lift-U :
-    ∇ » Γ ⊢ Lift s l₁ A ∷ U l₂ →
+    Γ ⊢ Lift s l₁ A ∷ U l₂ →
     Lift-allowed s ×
     (⦃ not-ok : No-equality-reflection ⦄ → l₁ ≤ᵘ l₂) ×
-    ∃ λ l → ∇ » Γ ⊢ A ∷ U l ×
-      (⦃ ok : No-equality-reflection or-empty Γ ⦄ → l ≤ᵘ l₂)
+    ∃ λ l → Γ ⊢ A ∷ U l ×
+      (⦃ ok : No-equality-reflection or-empty (Γ .vars) ⦄ → l ≤ᵘ l₂)
   inversion-Lift-U {l₁} ⊢Lift =
     let l , l′ , ⊢A , ⊢Unit , U≡U₁ , ok₁ = inversion-ΠΣ-U ⊢Lift
         U≡U₂ , ok₂                       = inversion-Unit-U ⊢Unit

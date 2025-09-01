@@ -36,53 +36,51 @@ import Tools.PropositionalEquality as PE
 private
   variable
     m n κ : Nat
-    ∇     : DCon (Term 0) m
-    Γ     : Con Term n
+    Γ     : Cons m n
     l     : Universe-level
 
 symNeutralTerm : ∀ {t u A}
-               → ∇ » Γ ⊩neNf t ≡ u ∷ A
-               → ∇ » Γ ⊩neNf u ≡ t ∷ A
+               → Γ ⊩neNf t ≡ u ∷ A
+               → Γ ⊩neNf u ≡ t ∷ A
 symNeutralTerm (neNfₜ₌ neK neM k≡m) = neNfₜ₌ neM neK (~-sym k≡m)
 
 symNatural-prop : ∀ {k k′}
-                → [Natural]-prop (∇ » Γ) k k′
-                → [Natural]-prop (∇ » Γ) k′ k
+                → [Natural]-prop Γ k k′
+                → [Natural]-prop Γ k′ k
 symNatural-prop (sucᵣ (ℕₜ₌ k k′ d d′ t≡u prop)) =
   sucᵣ (ℕₜ₌ k′ k d′ d (≅ₜ-sym t≡u) (symNatural-prop prop))
 symNatural-prop zeroᵣ = zeroᵣ
 symNatural-prop (ne prop) = ne (symNeutralTerm prop)
 
 symEmpty-prop : ∀ {k k′}
-              → [Empty]-prop (∇ » Γ) k k′
-              → [Empty]-prop (∇ » Γ) k′ k
+              → [Empty]-prop Γ k k′
+              → [Empty]-prop Γ k′ k
 symEmpty-prop (ne prop) = ne (symNeutralTerm prop)
 
 symUnit-prop : ∀ {k k′}
-             → [Unitʷ]-prop (∇ » Γ) l k k′
-             → [Unitʷ]-prop (∇ » Γ) l k′ k
+             → [Unitʷ]-prop Γ l k k′
+             → [Unitʷ]-prop Γ l k′ k
 symUnit-prop starᵣ = starᵣ
 symUnit-prop (ne prop) = ne (symNeutralTerm prop)
 
 
 -- Helper function for symmetry of type equality using shape views.
 symEqT :
-  ∀ {∇ : DCon (Term 0) κ} {Γ : Con Term n} {A B l l′}
-    {[A] : ∇ » Γ ⊩⟨ l ⟩ A} {[B] : ∇ » Γ ⊩⟨ l′ ⟩ B} →
-  ShapeView (∇ » Γ) l l′ A B [A] [B] →
-  ∇ » Γ ⊩⟨ l  ⟩ A ≡ B / [A] →
-  ∇ » Γ ⊩⟨ l′ ⟩ B ≡ A / [B]
+  ∀ {Γ : Cons κ n} {A B l l′} {[A] : Γ ⊩⟨ l ⟩ A} {[B] : Γ ⊩⟨ l′ ⟩ B} →
+  ShapeView Γ l l′ A B [A] [B] →
+  Γ ⊩⟨ l  ⟩ A ≡ B / [A] →
+  Γ ⊩⟨ l′ ⟩ B ≡ A / [B]
 
 -- Symmetry of type equality.
-symEq : ∀ {A B l l′} ([A] : ∇ » Γ ⊩⟨ l ⟩ A) ([B] : ∇ » Γ ⊩⟨ l′ ⟩ B)
-      → ∇ » Γ ⊩⟨ l ⟩ A ≡ B / [A]
-      → ∇ » Γ ⊩⟨ l′ ⟩ B ≡ A / [B]
+symEq : ∀ {A B l l′} ([A] : Γ ⊩⟨ l ⟩ A) ([B] : Γ ⊩⟨ l′ ⟩ B)
+      → Γ ⊩⟨ l ⟩ A ≡ B / [A]
+      → Γ ⊩⟨ l′ ⟩ B ≡ A / [B]
 symEq [A] [B] A≡B = symEqT (goodCases [A] [B] A≡B) A≡B
 
 -- Symmetry of term equality.
-symEqTerm : ∀ {l A t u} ([A] : ∇ » Γ ⊩⟨ l ⟩ A)
-          → ∇ » Γ ⊩⟨ l ⟩ t ≡ u ∷ A / [A]
-          → ∇ » Γ ⊩⟨ l ⟩ u ≡ t ∷ A / [A]
+symEqTerm : ∀ {l A t u} ([A] : Γ ⊩⟨ l ⟩ A)
+          → Γ ⊩⟨ l ⟩ t ≡ u ∷ A / [A]
+          → Γ ⊩⟨ l ⟩ u ≡ t ∷ A / [A]
 
 symEqT (ℕᵥ D D′) A≡B = D
 symEqT (Emptyᵥ D D′) A≡B = D
@@ -96,32 +94,32 @@ symEqT
   rewrite whrDet* (D′ , ne-whnf neM) (D₁ , ne-whnf neK₁) =
   ne₌ _ D neK (≅-sym K≡M)
 symEqT
-  {κ} {n} {∇ = ∇} {Γ = Γ} {l′ = l′}
+  {κ} {n} {Γ} {l′}
   (Bᵥ W (Bᵣ F G D A≡A [F] [G] G-ext _)
      (Bᵣ F₁ G₁ D₁ A≡A₁ [F]₁ [G]₁ G-ext₁ _))
   (B₌ F′ G′ D′ A≡B [F≡F′] [G≡G′]) =
   let ΠF₁G₁≡ΠF′G′       = whrDet* (D₁ , ⟦ W ⟧ₙ) (D′ , ⟦ W ⟧ₙ)
       F₁≡F′ , G₁≡G′ , _ = B-PE-injectivity W W ΠF₁G₁≡ΠF′G′
       [F₁≡F] :
-        {κ′ : Nat} {ξ : DExt _ κ′ κ} {∇′ : DCon (Term 0) κ′}
-        ([ξ] : ξ » ∇′ ⊇ ∇) →
+        {κ′ : Nat} {ξ : DExt _ κ′ κ} {∇ : DCon (Term 0) κ′}
+        ([ξ] : ξ » ∇ ⊇ Γ .defs) →
         {ℓ : Nat} {ρ : Wk ℓ n} {Δ : Con Term ℓ}
-        ([ρ] : ∇′ » ρ ∷ʷʳ Δ ⊇ Γ) →
-        ∇′ » Δ ⊩⟨ l′ ⟩ (wk ρ F₁) ≡ (wk ρ F) / [F]₁ [ξ] [ρ]
-      [F₁≡F] {_} {_} {∇′} [ξ] {_} {ρ} {Δ} [ρ] =
+        ([ρ] : ∇ » ρ ∷ʷʳ Δ ⊇ Γ .vars) →
+        ∇ » Δ ⊩⟨ l′ ⟩ (wk ρ F₁) ≡ (wk ρ F) / [F]₁ [ξ] [ρ]
+      [F₁≡F] [ξ] {_} {ρ} {Δ} [ρ] =
         let ρF′≡ρF₁ ρ = PE.cong (wk ρ) (PE.sym F₁≡F′)
             [ρF′] {ρ} [ρ] =
-              PE.subst ((∇′ » Δ ⊩⟨ l′ ⟩_) ∘→ wk ρ) F₁≡F′ ([F]₁ [ξ] [ρ])
-        in  irrelevanceEq′ {Γ = Δ} (ρF′≡ρF₁ ρ)
+              PE.subst (_⊩⟨_⟩_ _ _ ∘→ wk ρ) F₁≡F′ ([F]₁ [ξ] [ρ])
+        in  irrelevanceEq′ (ρF′≡ρF₁ ρ)
               ([ρF′] [ρ]) ([F]₁ [ξ] [ρ]) (symEq ([F] [ξ] [ρ]) ([ρF′] [ρ])
               ([F≡F′] [ξ] [ρ]))
   in
   B₌ _ _ D
-    (≅-sym (PE.subst (∇ » Γ ⊢ ⟦ W ⟧ F ▹ G ≅_) (PE.sym ΠF₁G₁≡ΠF′G′) A≡B))
+    (≅-sym (PE.subst (_⊢_≅_ _ _) (PE.sym ΠF₁G₁≡ΠF′G′) A≡B))
     [F₁≡F]
-    (λ {_} {_} {∇′} [ξ] {_} {ρ} {Δ} {a} [ρ] [a] →
+    (λ {_} {_} {∇} [ξ] {_} {ρ} {Δ} {a} [ρ] [a] →
        let ρG′a≡ρG₁′a = PE.cong (_[ a ]₀ ∘→ wk (lift ρ)) (PE.sym G₁≡G′)
-           [ρG′a] = PE.subst (λ x → ∇′ » Δ ⊩⟨ l′ ⟩ wk (lift ρ) x [ a ]₀)
+           [ρG′a] = PE.subst (λ x → ∇ » Δ ⊩⟨ l′ ⟩ wk (lift ρ) x [ a ]₀)
                       G₁≡G′ ([G]₁ [ξ] [ρ] [a])
            [a]₁ = convTerm₁ ([F]₁ [ξ] [ρ]) ([F] [ξ] [ρ]) ([F₁≡F] [ξ] [ρ]) [a]
        in  irrelevanceEq′ ρG′a≡ρG₁′a [ρG′a] ([G]₁ [ξ] [ρ] [a])
@@ -208,9 +206,9 @@ symEqTerm
   (Uᵣ′ _ ≤ᵘ-refl _) (Uₜ₌ A B d d′ typeA typeB A≡B [t] [u] [t≡u]) =
     Uₜ₌ B A d′ d typeB typeA (≅ₜ-sym A≡B) [u] [t] (symEq [t] [u] [t≡u])
 symEqTerm
-  {∇} {Γ} {A} {t = B} {u = C} (Uᵣ′ l′ (≤ᵘ-step {n = l} p) A⇒*U) B≡C =
-                                                       $⟨ B≡C ⟩
-  ∇ » Γ ⊩⟨ 1+ l ⟩ B ≡ C ∷ A / Uᵣ′ l′ (≤ᵘ-step p) A⇒*U  →⟨ irrelevanceEqTerm (Uᵣ′ l′ (≤ᵘ-step p) A⇒*U) (Uᵣ′ l′ p A⇒*U) ⟩
-  ∇ » Γ ⊩⟨    l ⟩ B ≡ C ∷ A / Uᵣ′ l′ p A⇒*U            →⟨ symEqTerm (Uᵣ′ _ p A⇒*U) ⟩
-  ∇ » Γ ⊩⟨    l ⟩ C ≡ B ∷ A / Uᵣ′ l′ p A⇒*U            →⟨ irrelevanceEqTerm (Uᵣ′ l′ p A⇒*U) (Uᵣ′ l′ (≤ᵘ-step p) A⇒*U) ⟩
-  ∇ » Γ ⊩⟨ 1+ l ⟩ C ≡ B ∷ A / Uᵣ′ l′ (≤ᵘ-step p) A⇒*U  □
+  {Γ} {A} {t = B} {u = C} (Uᵣ′ l′ (≤ᵘ-step {n = l} p) A⇒*U) B≡C =
+                                                   $⟨ B≡C ⟩
+  Γ ⊩⟨ 1+ l ⟩ B ≡ C ∷ A / Uᵣ′ l′ (≤ᵘ-step p) A⇒*U  →⟨ irrelevanceEqTerm (Uᵣ′ l′ (≤ᵘ-step p) A⇒*U) (Uᵣ′ l′ p A⇒*U) ⟩
+  Γ ⊩⟨    l ⟩ B ≡ C ∷ A / Uᵣ′ l′ p A⇒*U            →⟨ symEqTerm (Uᵣ′ _ p A⇒*U) ⟩
+  Γ ⊩⟨    l ⟩ C ≡ B ∷ A / Uᵣ′ l′ p A⇒*U            →⟨ irrelevanceEqTerm (Uᵣ′ l′ p A⇒*U) (Uᵣ′ l′ (≤ᵘ-step p) A⇒*U) ⟩
+  Γ ⊩⟨ 1+ l ⟩ C ≡ B ∷ A / Uᵣ′ l′ (≤ᵘ-step p) A⇒*U  □

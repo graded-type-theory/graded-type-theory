@@ -38,16 +38,15 @@ private
   variable
     m n : Nat
     p q : M
-    ∇ : DCon (Term 0) m
-    Γ : Con Term n
+    Γ : Cons m n
 
 mutual
   -- Helper function for conversion of terms converting from left to right.
-  convTermT₁ : ∀ {l l′ A B t} {[A] : ∇ » Γ ⊩⟨ l ⟩ A} {[B] : ∇ » Γ ⊩⟨ l′ ⟩ B}
-             → ShapeView (∇ » Γ) l l′ A B [A] [B]
-             → ∇ » Γ ⊩⟨ l ⟩  A ≡ B / [A]
-             → ∇ » Γ ⊩⟨ l ⟩  t ∷ A / [A]
-             → ∇ » Γ ⊩⟨ l′ ⟩ t ∷ B / [B]
+  convTermT₁ : ∀ {l l′ A B t} {[A] : Γ ⊩⟨ l ⟩ A} {[B] : Γ ⊩⟨ l′ ⟩ B}
+             → ShapeView Γ l l′ A B [A] [B]
+             → Γ ⊩⟨ l ⟩  A ≡ B / [A]
+             → Γ ⊩⟨ l ⟩  t ∷ A / [A]
+             → Γ ⊩⟨ l′ ⟩ t ∷ B / [B]
   convTermT₁ (ℕᵥ D D′) A≡B t = t
   convTermT₁ (Emptyᵥ D D′) A≡B t = t
   convTermT₁ (Unitᵥ _ (Unitₜ B⇒*Unit₁ _)) B⇒*Unit₂ ⊩t =
@@ -58,19 +57,18 @@ mutual
   convTermT₁
     (ne (ne _ D neK K≡K) (ne K₁ D₁ neK₁ K≡K₁)) (ne₌ M D′ neM K≡M)
     (neₜ k d (neNfₜ neK₂ k≡k)) =
-    let K≡K₁ = PE.subst (λ x → _ » _ ⊢ _ ≡ x)
+    let K≡K₁ = PE.subst (λ x → _ ⊢ _ ≡ x)
                         (whrDet* (D′ , ne-whnf neM) (D₁ , ne-whnf neK₁))
                         (≅-eq K≡M)
     in  neₜ k (conv* d K≡K₁) (neNfₜ neK₂ (~-conv k≡k K≡K₁))
   convTermT₁
-    {∇ = ∇} {Γ = Γ}
     (Bᵥ (BΠ p q) (Bᵣ F G D A≡A [F] [G] G-ext _)
        (Bᵣ F₁ G₁ D₁ A≡A₁ [F]₁ [G]₁ G-ext₁ _))
     (B₌ F′ G′ D′ A≡B [F≡F′] [G≡G′])
     (Πₜ f d funcF f≡f [f] [f]₁) =
     let ΠF₁G₁≡ΠF′G′       = whrDet* (D₁ , ΠΣₙ) (D′ , ΠΣₙ)
         F₁≡F′ , G₁≡G′ , Π₁≡Π′ = B-PE-injectivity BΠ! BΠ! ΠF₁G₁≡ΠF′G′
-        ΠFG≡ΠF₁G₁ = PE.subst (λ x → ∇ » Γ ⊢ Π p , q ▷ F ▹ G ≡ x) (PE.sym ΠF₁G₁≡ΠF′G′)
+        ΠFG≡ΠF₁G₁ = PE.subst (_⊢_≡_ _ _) (PE.sym ΠF₁G₁≡ΠF′G′)
                              (≅-eq A≡B)
     in  Πₜ f (conv* d ΠFG≡ΠF₁G₁) funcF (≅-conv f≡f ΠFG≡ΠF₁G₁)
            (λ [ξ] {_} {ρ} [ρ] [a] [b] [a≡b] →
@@ -94,7 +92,7 @@ mutual
              in  convTerm₁ ([G] [ξ] [ρ] [a]₁) ([G]₁ [ξ] [ρ] [a]) [G≡G₁]
                    ([f]₁ [ξ] [ρ] [a]₁))
   convTermT₁
-    {∇ = ∇} {Γ = Γ} {l = l} {l′ = l′}
+    {Γ} {l}
     (Bᵥ (BΣ 𝕤 p q) (Bᵣ F G D A≡A [F] [G] G-ext _)
        (Bᵣ F₁ G₁ D₁ A≡A₁ [F]₁ [G]₁ G-ext₁ _))
     (B₌ F′ G′ D′ A≡B [F≡F′] [G≡G′])
@@ -102,51 +100,46 @@ mutual
     let ΣF₁G₁≡ΣF′G′       = whrDet* (D₁ , ΠΣₙ) (D′ , ΠΣₙ)
         F₁≡F′ , G₁≡G′ , _ = B-PE-injectivity BΣ! BΣ! ΣF₁G₁≡ΣF′G′
         ΣFG≡ΣF₁G₁ =
-          PE.subst (λ x → ∇ » Γ ⊢ Σˢ p , q ▷ F ▹ G ≡ x) (PE.sym ΣF₁G₁≡ΣF′G′)
+          PE.subst (_⊢_≡_ _ _) (PE.sym ΣF₁G₁≡ΣF′G′)
             (≅-eq A≡B)
-        F≡F₁ = PE.subst (λ x → ∇ » Γ ⊩⟨ l ⟩ wk id F ≡ wk id x / [F] _ _)
+        F≡F₁ = PE.subst (λ x → Γ ⊩⟨ l ⟩ wk id F ≡ wk id x / [F] _ _)
                  (PE.sym F₁≡F′) ([F≡F′] _ _)
         [f₁]₁ = convTerm₁ ([F] _ _) ([F]₁ _ _) F≡F₁ [f₁]
         G≡G₁ = PE.subst
                  (λ x →
-                    ∇ » Γ ⊩⟨ l ⟩ wk (lift id) G [ _ ]₀ ≡
+                    Γ ⊩⟨ l ⟩ wk (lift id) G [ _ ]₀ ≡
                       wk (lift id) x [ _ ]₀ / [G] _ _ [f₁])
                  (PE.sym G₁≡G′)
                  ([G≡G′] _ _ [f₁])
         [f₂]₁ = convTerm₁ ([G] _ _ [f₁]) ([G]₁ _ _ [f₁]₁) G≡G₁ [f₂]
     in  Σₜ f (conv* d ΣFG≡ΣF₁G₁) (≅-conv f≡f ΣFG≡ΣF₁G₁) pProd ([f₁]₁ , [f₂]₁)
   convTermT₁
-    {∇ = ∇} {Γ = Γ} {l = l} {l′ = l′}
+    {Γ} {l}
     (Bᵥ (BΣ 𝕨 p q) (Bᵣ F G D A≡A [F] [G] G-ext _)
        (Bᵣ F₁ G₁ D₁ A≡A₁ [F]₁ [G]₁ G-ext₁ _))
     (B₌ F′ G′ D′ A≡B [F≡F′] [G≡G′])
     (Σₜ f d f≡f prodₙ (PE.refl , [f₁] , [f₂] , PE.refl)) =
     let ΣF₁G₁≡ΣF′G′       = whrDet* (D₁ , ΠΣₙ) (D′ , ΠΣₙ)
         F₁≡F′ , G₁≡G′ , _ = B-PE-injectivity BΣ! BΣ! ΣF₁G₁≡ΣF′G′
-        ΣFG≡ΣF₁G₁ =
-          PE.subst (λ x → ∇ » Γ ⊢ Σʷ p , q ▷ F ▹ G ≡ x) (PE.sym ΣF₁G₁≡ΣF′G′)
-            (≅-eq A≡B)
-        F≡F₁ = PE.subst (λ x → ∇ » Γ ⊩⟨ l ⟩ wk id F ≡ wk id x / [F] _ _)
+        ΣFG≡ΣF₁G₁ = PE.subst (_⊢_≡_ _ _) (PE.sym ΣF₁G₁≡ΣF′G′) (≅-eq A≡B)
+        F≡F₁ = PE.subst (λ x → Γ ⊩⟨ l ⟩ wk id F ≡ wk id x / [F] _ _)
                  (PE.sym F₁≡F′) ([F≡F′] _ _)
         [f₁]₁ = convTerm₁ ([F] _ _) ([F]₁ _ _) F≡F₁ [f₁]
         G≡G₁ = PE.subst
                  (λ x →
-                    ∇ » Γ ⊩⟨ l ⟩ wk (lift id) G [ _ ]₀ ≡
+                    Γ ⊩⟨ l ⟩ wk (lift id) G [ _ ]₀ ≡
                       wk (lift id) x [ _ ]₀ / [G] _ _ [f₁])
                  (PE.sym G₁≡G′) ([G≡G′] _ _ [f₁])
         [f₂]₁ = convTerm₁ ([G] _ _ [f₁]) ([G]₁ _ _ [f₁]₁) G≡G₁ [f₂]
     in  Σₜ f (conv* d ΣFG≡ΣF₁G₁) (≅-conv f≡f ΣFG≡ΣF₁G₁) prodₙ
           (PE.refl , [f₁]₁ , [f₂]₁ , PE.refl)
   convTermT₁
-    {∇ = ∇} {Γ = Γ} {l = l} {l′ = l′}
     (Bᵥ (BΣ 𝕨 p q) (Bᵣ F G D A≡A [F] [G] G-ext _)
        (Bᵣ F₁ G₁ D₁ A≡A₁ [F]₁ [G]₁ G-ext₁ _))
     (B₌ F′ G′ D′ A≡B [F≡F′] [G≡G′])
     (Σₜ f d f≡f (ne x) f~f) =
     let ΣF₁G₁≡ΣF′G′       = whrDet* (D₁ , ΠΣₙ) (D′ , ΠΣₙ)
-        ΣFG≡ΣF₁G₁ =
-          PE.subst (λ x → ∇ » Γ ⊢ Σʷ p , q ▷ F ▹ G ≡ x) (PE.sym ΣF₁G₁≡ΣF′G′)
-            (≅-eq A≡B)
+        ΣFG≡ΣF₁G₁ = PE.subst (_⊢_≡_ _ _) (PE.sym ΣF₁G₁≡ΣF′G′) (≅-eq A≡B)
     in  Σₜ f (conv* d ΣFG≡ΣF₁G₁) (≅-conv f≡f ΣFG≡ΣF₁G₁)
           (ne x) (~-conv f~f ΣFG≡ΣF₁G₁)
   convTermT₁ (Uᵥ (Uᵣ l1 l<1 D1) (Uᵣ l2 l<2 D2)) D (Uₜ A d typeA A≡A [t]) with whrDet* (D2 , Uₙ) (D , Uₙ)
@@ -175,11 +168,11 @@ mutual
   convTermT₁ (embᵥ₂ (≤ᵘ-step p) A≡B) = convTermT₁ (embᵥ₂ p A≡B)
 
   -- Helper function for conversion of terms converting from right to left.
-  convTermT₂ : ∀ {l l′ A B t} {[A] : ∇ » Γ ⊩⟨ l ⟩ A} {[B] : ∇ » Γ ⊩⟨ l′ ⟩ B}
-           → ShapeView (∇ » Γ) l l′ A B [A] [B]
-           → ∇ » Γ ⊩⟨ l ⟩  A ≡ B / [A]
-           → ∇ » Γ ⊩⟨ l′ ⟩ t ∷ B / [B]
-           → ∇ » Γ ⊩⟨ l ⟩  t ∷ A / [A]
+  convTermT₂ : ∀ {l l′ A B t} {[A] : Γ ⊩⟨ l ⟩ A} {[B] : Γ ⊩⟨ l′ ⟩ B}
+           → ShapeView Γ l l′ A B [A] [B]
+           → Γ ⊩⟨ l ⟩  A ≡ B / [A]
+           → Γ ⊩⟨ l′ ⟩ t ∷ B / [B]
+           → Γ ⊩⟨ l ⟩  t ∷ A / [A]
   convTermT₂ (ℕᵥ D D′) A≡B t = t
   convTermT₂ (Emptyᵥ D D′) A≡B t = t
   convTermT₂ (Unitᵥ _ (Unitₜ B⇒*Unit₁ _)) B⇒*Unit₂ ⊩t =
@@ -190,20 +183,18 @@ mutual
   convTermT₂
     (ne (ne _ D neK K≡K) (ne K₁ D₁ neK₁ K≡K₁)) (ne₌ M D′ neM K≡M)
     (neₜ k d (neNfₜ neK₂ k≡k)) =
-    let K₁≡K = PE.subst (λ x → _ » _ ⊢ x ≡ _)
+    let K₁≡K = PE.subst (λ x → _ ⊢ x ≡ _)
                         (whrDet* (D′ , ne-whnf neM) (D₁ , ne-whnf neK₁))
                         (sym (≅-eq K≡M))
     in  neₜ k (conv* d K₁≡K) (neNfₜ neK₂ (~-conv k≡k K₁≡K))
   convTermT₂
-    {∇ = ∇} {Γ = Γ}
     (Bᵥ (BΠ p q) (Bᵣ F G D A≡A [F] [G] G-ext _)
        (Bᵣ F₁ G₁ D₁ A≡A₁ [F]₁ [G]₁ G-ext₁ _))
     (B₌ F′ G′ D′ A≡B [F≡F′] [G≡G′])
     (Πₜ f d funcF f≡f [f] [f]₁) =
     let ΠF₁G₁≡ΠF′G′       = whrDet* (D₁ , ΠΣₙ) (D′ , ΠΣₙ)
         F₁≡F′ , G₁≡G′ , _ = B-PE-injectivity BΠ! BΠ! ΠF₁G₁≡ΠF′G′
-        ΠFG≡ΠF₁G₁ = PE.subst (λ x → ∇ » Γ ⊢ Π p , q ▷ F ▹ G ≡ x)
-                             (PE.sym ΠF₁G₁≡ΠF′G′) (≅-eq A≡B)
+        ΠFG≡ΠF₁G₁ = PE.subst (_⊢_≡_ _ _) (PE.sym ΠF₁G₁≡ΠF′G′) (≅-eq A≡B)
     in  Πₜ f (conv* d (sym ΠFG≡ΠF₁G₁)) funcF (≅-conv f≡f (sym ΠFG≡ΠF₁G₁))
            (λ [ξ] {_} {ρ} [ρ] [a] [b] [a≡b] →
               let [F≡F₁] = irrelevanceEqR′ (PE.cong (wk ρ) (PE.sym F₁≡F′))
@@ -226,28 +217,26 @@ mutual
               in  convTerm₂ ([G] [ξ] [ρ] [a]) ([G]₁ [ξ] [ρ] [a]₁) [G≡G₁]
                     ([f]₁ [ξ] [ρ] [a]₁))
   convTermT₂
-    {∇ = ∇} {Γ = Γ} {l = l} {l′ = l′}
+    {Γ} {l}
     (Bᵥ (BΣ 𝕤 p q) (Bᵣ F G D A≡A [F] [G] G-ext _)
        (Bᵣ F₁ G₁ D₁ A≡A₁ [F]₁ [G]₁ G-ext₁ _))
     (B₌ F′ G′ D′ A≡B [F≡F′] [G≡G′])
     (Σₜ f d f≡f pProd ([f₁]₁ , [f₂]₁)) =
     let ΣF₁G₁≡ΣF′G′       = whrDet* (D₁ , ΠΣₙ) (D′ , ΠΣₙ)
         F₁≡F′ , G₁≡G′ , _ = B-PE-injectivity BΣ! BΣ! ΣF₁G₁≡ΣF′G′
-        ΣFG≡ΣF₁G₁ =
-          PE.subst (λ x → ∇ » Γ ⊢ Σˢ p , q ▷ F ▹ G ≡ x)
-            (PE.sym ΣF₁G₁≡ΣF′G′) (≅-eq A≡B)
-        F≡F₁ = PE.subst (λ x → ∇ » Γ ⊩⟨ l ⟩ wk id F ≡ wk id x / [F] _ _)
+        ΣFG≡ΣF₁G₁ = PE.subst (_⊢_≡_ _ _) (PE.sym ΣF₁G₁≡ΣF′G′) (≅-eq A≡B)
+        F≡F₁ = PE.subst (λ x → Γ ⊩⟨ l ⟩ wk id F ≡ wk id x / [F] _ _)
                  (PE.sym F₁≡F′) ([F≡F′] _ _)
         [f₁] = convTerm₂ ([F] _ _) ([F]₁ _ _) F≡F₁ [f₁]₁
         G≡G₁ = PE.subst
                  (λ x →
-                    ∇ » Γ ⊩⟨ l ⟩ wk (lift id) G [ _ ]₀ ≡
+                    Γ ⊩⟨ l ⟩ wk (lift id) G [ _ ]₀ ≡
                       wk (lift id) x [ _ ]₀ / [G] _ _ [f₁])
                  (PE.sym G₁≡G′) ([G≡G′] _ _ [f₁])
         [f₂] = convTerm₂ ([G] _ _ [f₁]) ([G]₁ _ _ [f₁]₁) G≡G₁ [f₂]₁
     in  Σₜ f (conv* d (sym ΣFG≡ΣF₁G₁)) (≅-conv f≡f (sym ΣFG≡ΣF₁G₁)) pProd ([f₁] , [f₂])
   convTermT₂
-    {∇ = ∇} {Γ = Γ} {l = l} {l′ = l′}
+    {Γ} {l}
     (Bᵥ (BΣ 𝕨 p q) (Bᵣ F G D A≡A [F] [G] G-ext _)
        (Bᵣ F₁ G₁ D₁ A≡A₁ [F]₁ [G]₁ G-ext₁ _))
     (B₌ F′ G′ D′ A≡B [F≡F′] [G≡G′])
@@ -255,30 +244,25 @@ mutual
        (PE.refl , [f₁]₁ , [f₂]₁ , PE.refl)) =
     let ΣF₁G₁≡ΣF′G′       = whrDet* (D₁ , ΠΣₙ) (D′ , ΠΣₙ)
         F₁≡F′ , G₁≡G′ , _ = B-PE-injectivity BΣ! BΣ! ΣF₁G₁≡ΣF′G′
-        ΣFG≡ΣF₁G₁ =
-          PE.subst (λ x → ∇ » Γ ⊢ Σʷ p , q ▷ F ▹ G ≡ x) (PE.sym ΣF₁G₁≡ΣF′G′)
-            (≅-eq A≡B)
-        F≡F₁ = PE.subst (λ x → ∇ » Γ ⊩⟨ l ⟩ wk id F ≡ wk id x / [F] _ _)
+        ΣFG≡ΣF₁G₁ = PE.subst (_⊢_≡_ _ _) (PE.sym ΣF₁G₁≡ΣF′G′) (≅-eq A≡B)
+        F≡F₁ = PE.subst (λ x → Γ ⊩⟨ l ⟩ wk id F ≡ wk id x / [F] _ _)
                  (PE.sym F₁≡F′) ([F≡F′] _ _)
         [f₁] = convTerm₂ ([F] _ _) ([F]₁ _ _) F≡F₁ [f₁]₁
         G≡G₁ = PE.subst
                  (λ x →
-                    ∇ » Γ ⊩⟨ l ⟩ wk (lift id) G [ f₁ ]₀ ≡
+                    Γ ⊩⟨ l ⟩ wk (lift id) G [ f₁ ]₀ ≡
                       wk (lift id) x [ f₁ ]₀ / [G] _ _ [f₁])
                  (PE.sym G₁≡G′) ([G≡G′] _ _ [f₁])
         [f₂] = convTerm₂ ([G] _ _ [f₁]) ([G]₁ _ _ [f₁]₁) G≡G₁ [f₂]₁
     in  Σₜ f (conv* d (sym ΣFG≡ΣF₁G₁)) (≅-conv f≡f (sym ΣFG≡ΣF₁G₁)) prodₙ
           (PE.refl , [f₁] , [f₂] , PE.refl)
   convTermT₂
-    {∇ = ∇} {Γ = Γ} {l = l} {l′ = l′}
     (Bᵥ (BΣ 𝕨 p q) (Bᵣ F G D A≡A [F] [G] G-ext _)
        (Bᵣ F₁ G₁ D₁ A≡A₁ [F]₁ [G]₁ G-ext₁ _))
     (B₌ F′ G′ D′ A≡B [F≡F′] [G≡G′])
     (Σₜ f d f≡f (ne x) f~f) =
     let ΣF₁G₁≡ΣF′G′       = whrDet* (D₁ , ΠΣₙ) (D′ , ΠΣₙ)
-        ΣFG≡ΣF₁G₁ =
-          PE.subst (λ x → ∇ » Γ ⊢ Σʷ p , q ▷ F ▹ G ≡ x) (PE.sym ΣF₁G₁≡ΣF′G′)
-            (≅-eq A≡B)
+        ΣFG≡ΣF₁G₁ = PE.subst (_⊢_≡_ _ _) (PE.sym ΣF₁G₁≡ΣF′G′) (≅-eq A≡B)
     in  Σₜ f (conv* d (sym ΣFG≡ΣF₁G₁)) (≅-conv f≡f (sym ΣFG≡ΣF₁G₁))
            (ne x) (~-conv f~f (sym ΣFG≡ΣF₁G₁))
   convTermT₂ (Uᵥ (Uᵣ l1 l<1 D1) (Uᵣ l2 l<2 D2)) D (Uₜ A d typeA A≡A [t]) with whrDet* (D2 , Uₙ) (D , Uₙ)
@@ -309,17 +293,17 @@ mutual
   convTermT₂ (embᵥ₂ (≤ᵘ-step p) A≡B) = convTermT₂ (embᵥ₂ p A≡B)
 
   -- Conversion of terms converting from left to right.
-  convTerm₁ : ∀ {A B t l l′} ([A] : ∇ » Γ ⊩⟨ l ⟩ A) ([B] : ∇ » Γ ⊩⟨ l′ ⟩ B)
-            → ∇ » Γ ⊩⟨ l ⟩  A ≡ B / [A]
-            → ∇ » Γ ⊩⟨ l ⟩  t ∷ A / [A]
-            → ∇ » Γ ⊩⟨ l′ ⟩ t ∷ B / [B]
+  convTerm₁ : ∀ {A B t l l′} ([A] : Γ ⊩⟨ l ⟩ A) ([B] : Γ ⊩⟨ l′ ⟩ B)
+            → Γ ⊩⟨ l ⟩  A ≡ B / [A]
+            → Γ ⊩⟨ l ⟩  t ∷ A / [A]
+            → Γ ⊩⟨ l′ ⟩ t ∷ B / [B]
   convTerm₁ [A] [B] A≡B t = convTermT₁ (goodCases [A] [B] A≡B) A≡B t
 
   -- Conversion of terms converting from right to left.
-  convTerm₂ : ∀ {A B t l l′} ([A] : ∇ » Γ ⊩⟨ l ⟩ A) ([B] : ∇ » Γ ⊩⟨ l′ ⟩ B)
-          → ∇ » Γ ⊩⟨ l ⟩  A ≡ B / [A]
-          → ∇ » Γ ⊩⟨ l′ ⟩ t ∷ B / [B]
-          → ∇ » Γ ⊩⟨ l ⟩  t ∷ A / [A]
+  convTerm₂ : ∀ {A B t l l′} ([A] : Γ ⊩⟨ l ⟩ A) ([B] : Γ ⊩⟨ l′ ⟩ B)
+          → Γ ⊩⟨ l ⟩  A ≡ B / [A]
+          → Γ ⊩⟨ l′ ⟩ t ∷ B / [B]
+          → Γ ⊩⟨ l ⟩  t ∷ A / [A]
   -- NOTE: this would be easier to define by mutual induction with symEq (which needs conversion),
   -- rather than by defining everything from scratch for both left-to-right and right-to-left,
   -- but with the mutual definition termination checking fails in Agda.
@@ -328,19 +312,19 @@ mutual
   -- Conversion of terms converting from right to left
   -- with some propositionally equal types.
   convTerm₂′ : ∀ {A B B′ t l l′} → B PE.≡ B′
-          → ([A] : ∇ » Γ ⊩⟨ l ⟩ A) ([B] : ∇ » Γ ⊩⟨ l′ ⟩ B)
-          → ∇ » Γ ⊩⟨ l ⟩  A ≡ B′ / [A]
-          → ∇ » Γ ⊩⟨ l′ ⟩ t ∷ B / [B]
-          → ∇ » Γ ⊩⟨ l ⟩  t ∷ A / [A]
+          → ([A] : Γ ⊩⟨ l ⟩ A) ([B] : Γ ⊩⟨ l′ ⟩ B)
+          → Γ ⊩⟨ l ⟩  A ≡ B′ / [A]
+          → Γ ⊩⟨ l′ ⟩ t ∷ B / [B]
+          → Γ ⊩⟨ l ⟩  t ∷ A / [A]
   convTerm₂′ PE.refl [A] [B] A≡B t = convTerm₂ [A] [B] A≡B t
 
 
   -- Helper function for conversion of term equality converting from left to right.
-  convEqTermT₁ : ∀ {l l′ A B t u} {[A] : ∇ » Γ ⊩⟨ l ⟩ A} {[B] : ∇ » Γ ⊩⟨ l′ ⟩ B}
-               → ShapeView (∇ » Γ) l l′ A B [A] [B]
-               → ∇ » Γ ⊩⟨ l ⟩  A ≡ B / [A]
-               → ∇ » Γ ⊩⟨ l ⟩  t ≡ u ∷ A / [A]
-               → ∇ » Γ ⊩⟨ l′ ⟩ t ≡ u ∷ B / [B]
+  convEqTermT₁ : ∀ {l l′ A B t u} {[A] : Γ ⊩⟨ l ⟩ A} {[B] : Γ ⊩⟨ l′ ⟩ B}
+               → ShapeView Γ l l′ A B [A] [B]
+               → Γ ⊩⟨ l ⟩  A ≡ B / [A]
+               → Γ ⊩⟨ l ⟩  t ≡ u ∷ A / [A]
+               → Γ ⊩⟨ l′ ⟩ t ≡ u ∷ B / [B]
   convEqTermT₁ (ℕᵥ D D′) A≡B t≡u = t≡u
   convEqTermT₁ (Emptyᵥ D D′) A≡B t≡u = t≡u
   convEqTermT₁ (Unitᵥ _ (Unitₜ B⇒*Unit₁ _)) B⇒*Unit₂ t≡u =
@@ -351,13 +335,12 @@ mutual
   convEqTermT₁
     (ne (ne _ D neK K≡K) (ne K₁ D₁ neK₁ K≡K₁)) (ne₌ M D′ neM K≡M)
     (neₜ₌ k m d d′ (neNfₜ₌ neK₂ neM₁ k≡m)) =
-    let K≡K₁ = PE.subst (λ x → _ » _ ⊢ _ ≡ x)
+    let K≡K₁ = PE.subst (λ x → _ ⊢ _ ≡ x)
                         (whrDet* (D′ , ne-whnf neM) (D₁ , ne-whnf neK₁))
                         (≅-eq K≡M)
     in  neₜ₌ k m (conv* d K≡K₁) (conv* d′ K≡K₁)
           (neNfₜ₌ neK₂ neM₁ (~-conv k≡m K≡K₁))
   convEqTermT₁
-    {∇ = ∇} {Γ = Γ}
     (Bᵥ (BΠ p q) (Bᵣ F G D A≡A [F] [G] G-ext ok)
        (Bᵣ F₁ G₁ D₁ A≡A₁ [F]₁ [G]₁ G-ext₁ ok₁))
     (B₌ F′ G′ D′ A≡B [F≡F′] [G≡G′])
@@ -366,8 +349,7 @@ mutual
         [B] = Bᵣ′ BΠ! F₁ G₁ D₁ A≡A₁ [F]₁ [G]₁ G-ext₁ ok₁
         [A≡B] = B₌ F′ G′ D′ A≡B [F≡F′] [G≡G′]
         ΠF₁G₁≡ΠF′G′ = whrDet* (D₁ , ΠΣₙ) (D′ , ΠΣₙ)
-        ΠFG≡ΠF₁G₁ = PE.subst (λ x → ∇ » Γ ⊢ Π p , q ▷ F ▹ G ≡ x)
-                             (PE.sym ΠF₁G₁≡ΠF′G′) (≅-eq A≡B)
+        ΠFG≡ΠF₁G₁ = PE.subst (_⊢_≡_ _ _) (PE.sym ΠF₁G₁≡ΠF′G′) (≅-eq A≡B)
     in  Πₜ₌ f g (conv* d ΠFG≡ΠF₁G₁) (conv* d′ ΠFG≡ΠF₁G₁)
             funcF funcG (≅-conv t≡u ΠFG≡ΠF₁G₁)
             (convTerm₁ [A] [B] [A≡B] [t]) (convTerm₁ [A] [B] [A≡B] [u])
@@ -384,7 +366,7 @@ mutual
                in  convEqTerm₁ ([G] [ξ] [ρ] [a]₁) ([G]₁ [ξ] [ρ] [a]) [G≡G₁]
                      ([t≡u] [ξ] [ρ] [a]₁))
   convEqTermT₁
-    {∇ = ∇} {Γ = Γ}
+    {Γ}
     (Bᵥ (BΣ 𝕤 p′ q) (Bᵣ F G D A≡A [F] [G] G-ext ok)
        (Bᵣ F₁ G₁ D₁ A≡A₁ [F]₁ [G]₁ G-ext₁ ok₁))
     (B₌ F′ G′ D′ A≡B [F≡F′] [G≡G′])
@@ -395,16 +377,15 @@ mutual
         [A≡B] = B₌ F′ G′ D′ A≡B [F≡F′] [G≡G′]
         ΣF₁G₁≡ΣF′G′       = whrDet* (D₁ , ΠΣₙ) (D′ , ΠΣₙ)
         F₁≡F′ , G₁≡G′ , _ = B-PE-injectivity BΣ! BΣ! ΣF₁G₁≡ΣF′G′
-        ΣFG≡ΣF₁G₁ = PE.subst (λ x → ∇ » Γ ⊢ Σˢ p′ , q ▷ F ▹ G ≡ x)
-                             (PE.sym ΣF₁G₁≡ΣF′G′) (≅-eq A≡B)
-        F≡F₁ = PE.subst (λ x → ∇ » Γ ⊩⟨ _ ⟩ wk id F ≡ wk id x / [F] _ _)
+        ΣFG≡ΣF₁G₁ = PE.subst (_⊢_≡_ _ _) (PE.sym ΣF₁G₁≡ΣF′G′) (≅-eq A≡B)
+        F≡F₁ = PE.subst (λ x → Γ ⊩⟨ _ ⟩ wk id F ≡ wk id x / [F] _ _)
                  (PE.sym F₁≡F′) ([F≡F′] _ _)
         [p₁]₁ = convTerm₁ ([F] _ _) ([F]₁ _ _) F≡F₁ [p₁]
         [r₁]₁ = convTerm₁ ([F] _ _) ([F]₁ _ _) F≡F₁ [r₁]
         [fst≡]₁ = convEqTerm₁ ([F] _ _) ([F]₁ _ _) F≡F₁ [fst≡]
         G≡G₁ = PE.subst
                  (λ x →
-                    ∇ » Γ ⊩⟨ _ ⟩ wk (lift id) G [ _ ]₀ ≡
+                    Γ ⊩⟨ _ ⟩ wk (lift id) G [ _ ]₀ ≡
                       wk (lift id) x [ _ ]₀ / [G] _ _ [p₁])
                  (PE.sym G₁≡G′) ([G≡G′] _ _ [p₁])
         [snd≡]₁ = convEqTerm₁ ([G] _ _ [p₁]) ([G]₁ _ _ [p₁]₁) G≡G₁ [snd≡]
@@ -413,7 +394,7 @@ mutual
             (convTerm₁ [A] [B] [A≡B] [t]) (convTerm₁ [A] [B] [A≡B] [u])
             ([p₁]₁ , [r₁]₁ , [fst≡]₁ , [snd≡]₁)
   convEqTermT₁
-    {∇ = ∇} {Γ = Γ}
+    {Γ}
     (Bᵥ (BΣ 𝕨 p′ q) (Bᵣ F G D A≡A [F] [G] G-ext ok)
        (Bᵣ F₁ G₁ D₁ A≡A₁ [F]₁ [G]₁ G-ext₁ ok₁))
     (B₌ F′ G′ D′ A≡B [F≡F′] [G≡G′])
@@ -425,18 +406,17 @@ mutual
         [A≡B] = B₌ F′ G′ D′ A≡B [F≡F′] [G≡G′]
         ΣF₁G₁≡ΣF′G′       = whrDet* (D₁ , ΠΣₙ) (D′ , ΠΣₙ)
         F₁≡F′ , G₁≡G′ , _ = B-PE-injectivity BΣ! BΣ! ΣF₁G₁≡ΣF′G′
-        ΣFG≡ΣF₁G₁ = PE.subst (λ x → ∇ » Γ ⊢ Σʷ p′ , q ▷ F ▹ G ≡ x)
-                             (PE.sym ΣF₁G₁≡ΣF′G′) (≅-eq A≡B)
-        F≡F₁ = PE.subst (λ x → ∇ » Γ ⊩⟨ _ ⟩ wk id F ≡ wk id x / [F] _ _)
+        ΣFG≡ΣF₁G₁ = PE.subst (_⊢_≡_ _ _) (PE.sym ΣF₁G₁≡ΣF′G′) (≅-eq A≡B)
+        F≡F₁ = PE.subst (λ x → Γ ⊩⟨ _ ⟩ wk id F ≡ wk id x / [F] _ _)
                  (PE.sym F₁≡F′) ([F≡F′] _ _)
         Gp≡G₁p = PE.subst
                    (λ x →
-                      ∇ » Γ ⊩⟨ _ ⟩ wk (lift id) G [ _ ]₀ ≡
+                      Γ ⊩⟨ _ ⟩ wk (lift id) G [ _ ]₀ ≡
                         wk (lift id) x [ _ ]₀ / [G] _ _ [p₁])
                    (PE.sym G₁≡G′) ([G≡G′] _ _ [p₁])
         Gr≡G₁r = PE.subst
                    (λ x →
-                      ∇ » Γ ⊩⟨ _ ⟩ wk (lift id) G [ _ ]₀ ≡
+                      Γ ⊩⟨ _ ⟩ wk (lift id) G [ _ ]₀ ≡
                         wk (lift id) x [ _ ]₀ / [G] _ _ [r₁])
                    (PE.sym G₁≡G′) ([G≡G′] _ _ [r₁])
         [p₁]₁ = convTerm₁ ([F] _ _) ([F]₁ _ _) F≡F₁ [p₁]
@@ -446,7 +426,7 @@ mutual
         [fst≡]₁ = convEqTerm₁ ([F] _ _) ([F]₁ _ _) F≡F₁ [fst≡]
         G≡G₁ = PE.subst
                  (λ x →
-                    ∇ » Γ ⊩⟨ _ ⟩ wk (lift id) G [ p₁ ]₀ ≡
+                    Γ ⊩⟨ _ ⟩ wk (lift id) G [ p₁ ]₀ ≡
                       wk (lift id) x [ p₁ ]₀ / [G] _ _ [p₁])
                  (PE.sym G₁≡G′) ([G≡G′] _ _ [p₁])
         [snd≡]₁ = convEqTerm₁ ([G] _ _ [p₁]) ([G]₁ _ _ [p₁]₁) G≡G₁ [snd≡]
@@ -456,7 +436,6 @@ mutual
             (PE.refl , PE.refl ,
              [p₁]₁ , [r₁]₁ , [p₂]₁ , [r₂]₁ , [fst≡]₁ , [snd≡]₁)
   convEqTermT₁
-    {∇ = ∇} {Γ = Γ}
     (Bᵥ (BΣ 𝕨 p′ q) (Bᵣ F G D A≡A [F] [G] G-ext ok)
        (Bᵣ F₁ G₁ D₁ A≡A₁ [F]₁ [G]₁ G-ext₁ ok₁))
     (B₌ F′ G′ D′ A≡B [F≡F′] [G≡G′])
@@ -466,8 +445,7 @@ mutual
         [A≡B] = B₌ F′ G′ D′ A≡B [F≡F′] [G≡G′]
         ΣF₁G₁≡ΣF′G′       = whrDet* (D₁ , ΠΣₙ) (D′ , ΠΣₙ)
         F₁≡F′ , G₁≡G′ , _ = B-PE-injectivity BΣ! BΣ! ΣF₁G₁≡ΣF′G′
-        ΣFG≡ΣF₁G₁ = PE.subst (λ x → ∇ » Γ ⊢ Σʷ p′ , q ▷ F ▹ G ≡ x)
-                             (PE.sym ΣF₁G₁≡ΣF′G′) (≅-eq A≡B)
+        ΣFG≡ΣF₁G₁ = PE.subst (_⊢_≡_ _ _) (PE.sym ΣF₁G₁≡ΣF′G′) (≅-eq A≡B)
         p~r₁ = ~-conv p~r ΣFG≡ΣF₁G₁
     in  Σₜ₌ p r (conv* d ΣFG≡ΣF₁G₁) (conv* d′ ΣFG≡ΣF₁G₁)
             (ne x) (ne y) (≅-conv p≅r ΣFG≡ΣF₁G₁)
@@ -508,11 +486,11 @@ mutual
   convEqTermT₁ (embᵥ₂ (≤ᵘ-step p) A≡B) = convEqTermT₁ (embᵥ₂ p A≡B)
 
   -- Helper function for conversion of term equality converting from right to left.
-  convEqTermT₂ : ∀ {l l′ A B t u} {[A] : ∇ » Γ ⊩⟨ l ⟩ A} {[B] : ∇ » Γ ⊩⟨ l′ ⟩ B}
-             → ShapeView (∇ » Γ) l l′ A B [A] [B]
-             → ∇ » Γ ⊩⟨ l ⟩  A ≡ B / [A]
-             → ∇ » Γ ⊩⟨ l′ ⟩ t ≡ u ∷ B / [B]
-             → ∇ » Γ ⊩⟨ l ⟩  t ≡ u ∷ A / [A]
+  convEqTermT₂ : ∀ {l l′ A B t u} {[A] : Γ ⊩⟨ l ⟩ A} {[B] : Γ ⊩⟨ l′ ⟩ B}
+             → ShapeView Γ l l′ A B [A] [B]
+             → Γ ⊩⟨ l ⟩  A ≡ B / [A]
+             → Γ ⊩⟨ l′ ⟩ t ≡ u ∷ B / [B]
+             → Γ ⊩⟨ l ⟩  t ≡ u ∷ A / [A]
   convEqTermT₂ (ℕᵥ D D′) A≡B t≡u = t≡u
   convEqTermT₂ (Emptyᵥ D D′) A≡B t≡u = t≡u
   convEqTermT₂ (Unitᵥ _ (Unitₜ B⇒*Unit₁ _)) B⇒*Unit₂ t≡u =
@@ -523,13 +501,12 @@ mutual
   convEqTermT₂
     (ne (ne _ D neK K≡K) (ne K₁ D₁ neK₁ K≡K₁)) (ne₌ M D′ neM K≡M)
     (neₜ₌ k m d d′ (neNfₜ₌ neK₂ neM₁ k≡m)) =
-    let K₁≡K = PE.subst (λ x → _ » _ ⊢ x ≡ _)
+    let K₁≡K = PE.subst (λ x → _ ⊢ x ≡ _)
                         (whrDet* (D′ , ne-whnf neM) (D₁ , ne-whnf neK₁))
                         (sym (≅-eq K≡M))
     in  neₜ₌ k m (conv* d K₁≡K) (conv* d′ K₁≡K)
           (neNfₜ₌ neK₂ neM₁ (~-conv k≡m K₁≡K))
   convEqTermT₂
-    {∇ = ∇} {Γ = Γ}
     (Bᵥ (BΠ p q) (Bᵣ F G D A≡A [F] [G] G-ext ok)
        (Bᵣ F₁ G₁ D₁ A≡A₁ [F]₁ [G]₁ G-ext₁ ok₁))
     (B₌ F′ G′ D′ A≡B [F≡F′] [G≡G′])
@@ -538,8 +515,7 @@ mutual
         [B] = Bᵣ′ BΠ! F₁ G₁ D₁ A≡A₁ [F]₁ [G]₁ G-ext₁ ok₁
         [A≡B] = B₌ F′ G′ D′ A≡B [F≡F′] [G≡G′]
         ΠF₁G₁≡ΠF′G′ = whrDet* (D₁ , ΠΣₙ) (D′ , ΠΣₙ)
-        ΠFG≡ΠF₁G₁ = PE.subst (λ x → ∇ » Γ ⊢ Π p , q ▷ F ▹ G ≡ x)
-                             (PE.sym ΠF₁G₁≡ΠF′G′) (≅-eq A≡B)
+        ΠFG≡ΠF₁G₁ = PE.subst (_⊢_≡_ _ _) (PE.sym ΠF₁G₁≡ΠF′G′) (≅-eq A≡B)
     in  Πₜ₌ f g (conv* d (sym ΠFG≡ΠF₁G₁)) (conv* d′ (sym ΠFG≡ΠF₁G₁))
             funcF funcG (≅-conv t≡u (sym ΠFG≡ΠF₁G₁))
             (convTerm₂ [A] [B] [A≡B] [t]) (convTerm₂ [A] [B] [A≡B] [u])
@@ -556,7 +532,7 @@ mutual
                in  convEqTerm₂ ([G] [ξ] [ρ] [a]) ([G]₁ [ξ] [ρ] [a]₁) [G≡G₁]
                      ([t≡u] [ξ] [ρ] [a]₁))
   convEqTermT₂
-    {∇ = ∇} {Γ = Γ}
+    {Γ}
     (Bᵥ (BΣ 𝕤 p′ q) (Bᵣ F G D A≡A [F] [G] G-ext ok)
        (Bᵣ F₁ G₁ D₁ A≡A₁ [F]₁ [G]₁ G-ext₁ ok₁))
     (B₌ F′ G′ D′ A≡B [F≡F′] [G≡G′])
@@ -567,16 +543,15 @@ mutual
         [A≡B] = B₌ F′ G′ D′ A≡B [F≡F′] [G≡G′]
         ΣF₁G₁≡ΣF′G′       = whrDet* (D₁ , ΠΣₙ) (D′ , ΠΣₙ)
         F₁≡F′ , G₁≡G′ , _ = B-PE-injectivity BΣ! BΣ! ΣF₁G₁≡ΣF′G′
-        ΣFG≡ΣF₁G₁ = PE.subst (λ x → ∇ » Γ ⊢ Σˢ p′ , q ▷ F ▹ G ≡ x)
-                             (PE.sym ΣF₁G₁≡ΣF′G′) (≅-eq A≡B)
-        F≡F₁ = PE.subst (λ x → ∇ » Γ ⊩⟨ _ ⟩ wk id F ≡ wk id x / [F] _ _)
+        ΣFG≡ΣF₁G₁ = PE.subst (_⊢_≡_ _ _) (PE.sym ΣF₁G₁≡ΣF′G′) (≅-eq A≡B)
+        F≡F₁ = PE.subst (λ x → Γ ⊩⟨ _ ⟩ wk id F ≡ wk id x / [F] _ _)
                  (PE.sym F₁≡F′) ([F≡F′] _ _)
         [p₁] = convTerm₂ ([F] _ _) ([F]₁ _ _) F≡F₁ [p₁]₁
         [r₁] = convTerm₂ ([F] _ _) ([F]₁ _ _) F≡F₁ [r₁]₁
         [fst≡] = convEqTerm₂ ([F] _ _) ([F]₁ _ _) F≡F₁ [fst≡]₁
         G≡G₁ = PE.subst
                  (λ x →
-                    ∇ » Γ ⊩⟨ _ ⟩ wk (lift id) G [ _ ]₀ ≡
+                    Γ ⊩⟨ _ ⟩ wk (lift id) G [ _ ]₀ ≡
                       wk (lift id) x [ _ ]₀ / [G] _ _ [p₁])
                  (PE.sym G₁≡G′) ([G≡G′] _ _ [p₁])
         [snd≡] = convEqTerm₂ ([G] _ _ [p₁]) ([G]₁ _ _ [p₁]₁) G≡G₁ [snd≡]₁
@@ -585,7 +560,7 @@ mutual
             (convTerm₂ [A] [B] [A≡B] [t]) (convTerm₂ [A] [B] [A≡B] [u])
             ([p₁] , [r₁] , [fst≡] , [snd≡])
   convEqTermT₂
-    {∇ = ∇} {Γ = Γ}
+    {Γ}
     (Bᵥ (BΣ 𝕨 p′ q) (Bᵣ F G D A≡A [F] [G] G-ext ok)
        (Bᵣ F₁ G₁ D₁ A≡A₁ [F]₁ [G]₁ G-ext₁ ok₁))
     (B₌ F′ G′ D′ A≡B [F≡F′] [G≡G′])
@@ -597,20 +572,19 @@ mutual
         [A≡B] = B₌ F′ G′ D′ A≡B [F≡F′] [G≡G′]
         ΣF₁G₁≡ΣF′G′       = whrDet* (D₁ , ΠΣₙ) (D′ , ΠΣₙ)
         F₁≡F′ , G₁≡G′ , _ = B-PE-injectivity BΣ! BΣ! ΣF₁G₁≡ΣF′G′
-        ΣFG≡ΣF₁G₁ = PE.subst (λ x → ∇ » Γ ⊢ Σʷ p′ , q ▷ F ▹ G ≡ x)
-                             (PE.sym ΣF₁G₁≡ΣF′G′) (≅-eq A≡B)
-        F≡F₁ = PE.subst (λ x → ∇ » Γ ⊩⟨ _ ⟩ wk id F ≡ wk id x / [F] _ _)
+        ΣFG≡ΣF₁G₁ = PE.subst (_⊢_≡_ _ _) (PE.sym ΣF₁G₁≡ΣF′G′) (≅-eq A≡B)
+        F≡F₁ = PE.subst (λ x → Γ ⊩⟨ _ ⟩ wk id F ≡ wk id x / [F] _ _)
                  (PE.sym F₁≡F′) ([F≡F′] _ _)
         [p₁] = convTerm₂ ([F] _ _) ([F]₁ _ _) F≡F₁ [p₁]₁
         [r₁] = convTerm₂ ([F] _ _) ([F]₁ _ _) F≡F₁ [r₁]₁
         Gp≡G₁p = PE.subst
                    (λ x →
-                      ∇ » Γ ⊩⟨ _ ⟩ wk (lift id) G [ _ ]₀ ≡
+                      Γ ⊩⟨ _ ⟩ wk (lift id) G [ _ ]₀ ≡
                         wk (lift id) x [ _ ]₀ / [G] _ _ [p₁])
                    (PE.sym G₁≡G′) ([G≡G′] _ _ [p₁])
         Gr≡G₁r = PE.subst
                    (λ x →
-                      ∇ » Γ ⊩⟨ _ ⟩ wk (lift id) G [ _ ]₀ ≡
+                      Γ ⊩⟨ _ ⟩ wk (lift id) G [ _ ]₀ ≡
                         wk (lift id) x [ _ ]₀ / [G] _ _ [r₁])
                    (PE.sym G₁≡G′) ([G≡G′] _ _ [r₁])
         [p₂] = convTerm₂ ([G] _ _ [p₁]) ([G]₁ _ _ [p₁]₁) Gp≡G₁p [p₂]₁
@@ -618,7 +592,7 @@ mutual
         [fst≡] = convEqTerm₂ ([F] _ _) ([F]₁ _ _) F≡F₁ [fst≡]₁
         G≡G₁ = PE.subst
                  (λ x →
-                    ∇ » Γ ⊩⟨ _ ⟩ wk (lift id) G [ p₁ ]₀ ≡
+                    Γ ⊩⟨ _ ⟩ wk (lift id) G [ p₁ ]₀ ≡
                       wk (lift id) x [ p₁ ]₀ / [G] _ _ [p₁])
                  (PE.sym G₁≡G′) ([G≡G′] _ _ [p₁])
         [snd≡] = convEqTerm₂ ([G] _ _ [p₁]) ([G]₁ _ _ [p₁]₁) G≡G₁ [snd≡]₁
@@ -628,7 +602,6 @@ mutual
             (PE.refl , PE.refl ,
              [p₁] , [r₁] , [p₂] , [r₂] , [fst≡] , [snd≡])
   convEqTermT₂
-    {∇ = ∇} {Γ = Γ}
     (Bᵥ (BΣ 𝕨 p′ q) (Bᵣ F G D A≡A [F] [G] G-ext ok)
        (Bᵣ F₁ G₁ D₁ A≡A₁ [F]₁ [G]₁ G-ext₁ ok₁))
     (B₌ F′ G′ D′ A≡B [F≡F′] [G≡G′])
@@ -638,8 +611,7 @@ mutual
         [A≡B] = B₌ F′ G′ D′ A≡B [F≡F′] [G≡G′]
         ΣF₁G₁≡ΣF′G′       = whrDet* (D₁ , ΠΣₙ) (D′ , ΠΣₙ)
         F₁≡F′ , G₁≡G′ , _ = B-PE-injectivity BΣ! BΣ! ΣF₁G₁≡ΣF′G′
-        ΣFG≡ΣF₁G₁ = PE.subst (λ x → ∇ » Γ ⊢ Σʷ p′ , q ▷ F ▹ G ≡ x)
-                             (PE.sym ΣF₁G₁≡ΣF′G′) (≅-eq A≡B)
+        ΣFG≡ΣF₁G₁ = PE.subst (_⊢_≡_ _ _) (PE.sym ΣF₁G₁≡ΣF′G′) (≅-eq A≡B)
         p~r = ~-conv p~r₁ (sym ΣFG≡ΣF₁G₁)
     in  Σₜ₌ p r (conv* d (sym ΣFG≡ΣF₁G₁)) (conv* d′ (sym ΣFG≡ΣF₁G₁))
             (ne x) (ne y) (≅-conv t≡u (sym ΣFG≡ΣF₁G₁))
@@ -681,15 +653,15 @@ mutual
   convEqTermT₂ (embᵥ₂ (≤ᵘ-step p) A≡B) = convEqTermT₂ (embᵥ₂ p A≡B)
 
   -- Conversion of term equality converting from left to right.
-  convEqTerm₁ : ∀ {l l′ A B t u} ([A] : ∇ » Γ ⊩⟨ l ⟩ A) ([B] : ∇ » Γ ⊩⟨ l′ ⟩ B)
-              → ∇ » Γ ⊩⟨ l ⟩  A ≡ B / [A]
-              → ∇ » Γ ⊩⟨ l ⟩  t ≡ u ∷ A / [A]
-              → ∇ » Γ ⊩⟨ l′ ⟩ t ≡ u ∷ B / [B]
+  convEqTerm₁ : ∀ {l l′ A B t u} ([A] : Γ ⊩⟨ l ⟩ A) ([B] : Γ ⊩⟨ l′ ⟩ B)
+              → Γ ⊩⟨ l ⟩  A ≡ B / [A]
+              → Γ ⊩⟨ l ⟩  t ≡ u ∷ A / [A]
+              → Γ ⊩⟨ l′ ⟩ t ≡ u ∷ B / [B]
   convEqTerm₁ [A] [B] A≡B t≡u = convEqTermT₁ (goodCases [A] [B] A≡B) A≡B t≡u
 
   -- Conversion of term equality converting from right to left.
-  convEqTerm₂ : ∀ {l l′ A B t u} ([A] : ∇ » Γ ⊩⟨ l ⟩ A) ([B] : ∇ » Γ ⊩⟨ l′ ⟩ B)
-            → ∇ » Γ ⊩⟨ l ⟩  A ≡ B / [A]
-            → ∇ » Γ ⊩⟨ l′ ⟩ t ≡ u ∷ B / [B]
-            → ∇ » Γ ⊩⟨ l ⟩  t ≡ u ∷ A / [A]
+  convEqTerm₂ : ∀ {l l′ A B t u} ([A] : Γ ⊩⟨ l ⟩ A) ([B] : Γ ⊩⟨ l′ ⟩ B)
+            → Γ ⊩⟨ l ⟩  A ≡ B / [A]
+            → Γ ⊩⟨ l′ ⟩ t ≡ u ∷ B / [B]
+            → Γ ⊩⟨ l ⟩  t ≡ u ∷ A / [A]
   convEqTerm₂ [A] [B] A≡B t≡u = convEqTermT₂ (goodCases [A] [B] A≡B) A≡B t≡u

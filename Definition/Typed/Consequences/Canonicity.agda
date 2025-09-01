@@ -31,7 +31,7 @@ open import Definition.LogicalRelation R
 open import Definition.LogicalRelation.Properties R
 open import Definition.LogicalRelation.Substitution.Introductions R
 open import Definition.LogicalRelation.Fundamental.Reducibility
-  R {∇ = glassify ∇} ⦃ inc = ε ⦄
+  R {Γ = glassify ∇ » ε} ⦃ inc = ε ⦄
 
 open import Tools.Empty
 open import Tools.Function

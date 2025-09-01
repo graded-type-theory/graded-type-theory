@@ -187,7 +187,7 @@ opaque
                 {m Δ} {σ : Subst m _} ⦃ inc : Var-included or-empty Δ ⦄
               → ∇′ » Δ ⊩ˢ σ ∷ Γ
               → ∇′ » Δ ⊢ defn α [ σ ] ⇒ wk wk₀ t [ σ ] ∷ wk wk₀ A [ σ ]
-        α⇒t ξ⊇ ⊩σ = PE.subst₂ (_ » _ ⊢ defn α ⇒_∷_)
+        α⇒t ξ⊇ ⊩σ = PE.subst₂ (_ ⊢ defn α ⇒_∷_)
                               (PE.sym (wk₀-subst-invariant t))
                               (PE.sym (wk₀-subst-invariant A))
                               (δ-red (escape-⊩ˢ∷ ⊩σ .proj₁)
@@ -221,7 +221,7 @@ opaque
                 α-ne = defn (there*-↦⊘∈ ξ⊇ α↦⊘)
                 A~A = ~-defn (defn ⊢Δ (there*-↦∈ ξ⊇ α↦∷) PE.refl)
                              (there*-↦⊘∈ ξ⊇ α↦⊘)
-            in  refl-⊩≡∷ (PE.subst (_ » _ ⊩⟨ l ⟩ defn α ∷_)
+            in  refl-⊩≡∷ (PE.subst (_ ⊩⟨ l ⟩ defn α ∷_)
                                    (PE.sym (wk₀-subst-invariant A))
                                    (neutral-⊩∷ ⊩ᴿA α-ne A~A))
 

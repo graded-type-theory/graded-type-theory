@@ -51,8 +51,7 @@ open import Tools.Sum using (_⊎_; inj₁; inj₂)
 private
   variable
     n : Nat
-    ∇ : DCon (Term 0) n
-    Γ : Con Term n
+    Γ : Cons _ _
     γ : Conₘ n
     t u A B : Term n
     m : Mode
@@ -75,8 +74,8 @@ opaque
     Unitʷ-allowed →
     Unitrec-allowed 𝟙ᵐ 𝟙 𝟘 →
     ¬ 𝟙 ≤ 𝟘 →
-    ¬ (∀ {n₁ n₂} {∇ : DCon (Term 0) n₁} {Γ : Con Term n₂} {γ m t u A} →
-       ▸[ m ] ∇ → γ ▸[ m ] t → ∇ » Γ ⊢ t ⇒ u ∷ A → γ ▸[ m ] u)
+    ¬ (∀ {n₁ n₂} {Γ : Cons n₁ n₂} {γ m t u A} →
+       ▸[ m ] Γ .defs → γ ▸[ m ] t → Γ ⊢ t ⇒ u ∷ A → γ ▸[ m ] u)
   no-subject-reduction η ok unitrec-ok 𝟙≰𝟘 subject-reduction =
     ¬▸u′ (subject-reduction (λ ()) ▸t′ t′⇒u′)
     where
@@ -145,7 +144,7 @@ module _
   -- and substitution lemmata for the usage relation.
 
   usagePresTerm :
-    ▸[ m ] ∇ → γ ▸[ m ] t → ∇ » Γ ⊢ t ⇒ u ∷ A → γ ▸[ m ] u
+    ▸[ m ] Γ .defs → γ ▸[ m ] t → Γ ⊢ t ⇒ u ∷ A → γ ▸[ m ] u
   usagePresTerm ▸∇ γ▸t (conv t⇒u x) = usagePresTerm ▸∇ γ▸t t⇒u
   usagePresTerm {γ} ▸∇ γ▸defn (δ-red _ α↦t′ PE.refl PE.refl) =
     sub (wkUsage wk₀ (▸∇ α↦t′)) $ begin
@@ -429,14 +428,14 @@ module _
   -- Type reduction preserves usage (for well-resourced definition
   -- contexts).
 
-  usagePres : ▸[ m ] ∇ → γ ▸[ m ] A → ∇ » Γ ⊢ A ⇒ B → γ ▸[ m ] B
+  usagePres : ▸[ m ] Γ .defs → γ ▸[ m ] A → Γ ⊢ A ⇒ B → γ ▸[ m ] B
   usagePres ▸∇ γ▸A (univ A⇒B) = usagePresTerm ▸∇ γ▸A A⇒B
 
   -- Multi-step term reduction preserves usage (for well-resourced
   -- definition contexts).
 
   usagePres*Term :
-    ▸[ m ] ∇ → γ ▸[ m ] t → ∇ » Γ ⊢ t ⇒* u ∷ A → γ ▸[ m ] u
+    ▸[ m ] Γ .defs → γ ▸[ m ] t → Γ ⊢ t ⇒* u ∷ A → γ ▸[ m ] u
   usagePres*Term _   γ▸t (id _)      = γ▸t
   usagePres*Term ▸∇ γ▸t (t⇒v ⇨ v⇒u) =
     usagePres*Term ▸∇ (usagePresTerm ▸∇ γ▸t t⇒v) v⇒u
@@ -444,7 +443,7 @@ module _
   -- Multi-step type reduction preserves usage (for well-resourced
   -- definition contexts).
 
-  usagePres* : ▸[ m ] ∇ → γ ▸[ m ] A → ∇ » Γ ⊢ A ⇒* B → γ ▸[ m ] B
+  usagePres* : ▸[ m ] Γ .defs → γ ▸[ m ] A → Γ ⊢ A ⇒* B → γ ▸[ m ] B
   usagePres* _   γ▸A (id _)      = γ▸A
   usagePres* ▸∇ γ▸A (A⇒C ⇨ C⇒B) =
     usagePres* ▸∇ (usagePres ▸∇ γ▸A A⇒C) C⇒B

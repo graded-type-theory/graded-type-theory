@@ -24,9 +24,10 @@ open import Tools.Product
 private
   variable
     m n l l₁ l₂ α : Nat
-    ∇ : DCon (Term 0) _
     φ : Unfolding _
-    Γ : Con Term n
+    ∇ : DCon (Term 0) m
+    Δ : Con Term n
+    Γ : Cons m n
     t u v w A B C₁ C₂ F G : Term n
     p q r p′ q′ : M
     b : BinderMode
@@ -220,11 +221,11 @@ data CheckableDCon : (∇ : DCon (Term 0) n) → Set a where
                → Checkable-type A
                → CheckableDCon (∇ ∙⟨ tra ⟩[ t ∷ A ])
 
--- CheckableCon Γ means that the types in Γ are checkable.
+-- CheckableCon Δ means that the types in Δ are checkable.
 
-data CheckableCon : (Γ : Con Term n) → Set a where
+data CheckableCon : Con Term n → Set a where
   ε   : CheckableCon ε
-  _∙_ : CheckableCon Γ → Checkable-type A → CheckableCon (Γ ∙ A)
+  _∙_ : CheckableCon Δ → Checkable-type A → CheckableCon (Δ ∙ A)
 
 opaque
 
@@ -236,9 +237,9 @@ opaque
 
 mutual
 
-  -- ∇ » Γ ⊢ A ⇇Type implies that A is a checkable type.
+  -- Γ ⊢ A ⇇Type implies that A is a checkable type.
 
-  Checkable⇇Type : ∇ » Γ ⊢ A ⇇Type → Checkable-type A
+  Checkable⇇Type : Γ ⊢ A ⇇Type → Checkable-type A
   Checkable⇇Type Uᶜ          = checkᶜ (infᶜ Uᵢ)
   Checkable⇇Type ℕᶜ          = checkᶜ (infᶜ ℕᵢ)
   Checkable⇇Type (Unitᶜ _)   = checkᶜ (infᶜ Unitᵢ)
@@ -248,17 +249,17 @@ mutual
                                  (Checkable⇇ u)
   Checkable⇇Type (univᶜ A _) = checkᶜ (infᶜ (Inferable⇉ A))
 
-  -- ∇ » Γ ⊢ t ⇇ A implies that t is a checkable term.
+  -- Γ ⊢ t ⇇ A implies that t is a checkable term.
 
-  Checkable⇇ : ∇ » Γ ⊢ t ⇇ A → Checkable t
+  Checkable⇇ : Γ ⊢ t ⇇ A → Checkable t
   Checkable⇇ (lamᶜ x t⇇A) = lamᶜ (Checkable⇇ t⇇A)
   Checkable⇇ (prodᶜ x t⇇A t⇇A₁) = prodᶜ (Checkable⇇ t⇇A) (Checkable⇇ t⇇A₁)
   Checkable⇇ (rflᶜ _ _) = rflᶜ
   Checkable⇇ (infᶜ x x₁) = infᶜ (Inferable⇉ x)
 
-  -- ∇ » Γ ⊢ t ⇉ A implies that t is an inferable term.
+  -- Γ ⊢ t ⇉ A implies that t is an inferable term.
 
-  Inferable⇉ : ∇ » Γ ⊢ t ⇉ A → Inferable t
+  Inferable⇉ : Γ ⊢ t ⇉ A → Inferable t
   Inferable⇉ Uᵢ = Uᵢ
   Inferable⇉ (ΠΣᵢ A _ B _ _) = ΠΣᵢ (Inferable⇉ A) (Inferable⇉ B)
   Inferable⇉ (varᵢ x) = varᵢ

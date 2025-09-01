@@ -36,8 +36,7 @@ import Tools.PropositionalEquality as PE
 private
   variable
     m n : Nat
-    ∇ : DCon (Term 0) m
-    Γ : Con Term n
+    Γ : Cons m n
     p p′ q : M
     s s′ s₁ s₂ : Strength
     l₁ l₂ : Universe-level
@@ -48,13 +47,13 @@ opaque
   -- A variant of inversion-lam.
 
   inversion-lam-Π′ :
-    ⦃ ok : No-equality-reflection or-empty Γ ⦄ →
-    ∇ » Γ ⊢ lam p′ t ∷ Π p , q ▷ A ▹ B →
+    ⦃ ok : No-equality-reflection or-empty (Γ .vars) ⦄ →
+    Γ ⊢ lam p′ t ∷ Π p , q ▷ A ▹ B →
     p PE.≡ p′ × Π-allowed p q ×
-    (⦃ not-ok : No-equality-reflection ⦄ → ∇ » Γ ∙ A ⊢ t ∷ B) ×
+    (⦃ not-ok : No-equality-reflection ⦄ → Γ »∙ A ⊢ t ∷ B) ×
     ∃ λ B′ →
-      ∇ » Γ ∙ A ⊢ t ∷ B′ ×
-      (∀ {u v} → ∇ » Γ ⊢ u ≡ v ∷ A → ∇ » Γ ⊢ B′ [ u ]₀ ≡ B [ v ]₀)
+      Γ »∙ A ⊢ t ∷ B′ ×
+      (∀ {u v} → Γ ⊢ u ≡ v ∷ A → Γ ⊢ B′ [ u ]₀ ≡ B [ v ]₀)
   inversion-lam-Π′ ⊢lam =
     case inversion-lam ⊢lam of λ
       (_ , _ , _ , _ , ⊢t , Π≡Π , ok) →
@@ -70,11 +69,11 @@ opaque
   -- A variant of inversion-lam.
 
   inversion-lam-Π :
-    ⦃ ok : No-equality-reflection or-empty Γ ⦄ →
-    ∇ » Γ ⊢ lam p′ t ∷ Π p , q ▷ A ▹ B →
+    ⦃ ok : No-equality-reflection or-empty (Γ .vars) ⦄ →
+    Γ ⊢ lam p′ t ∷ Π p , q ▷ A ▹ B →
     ∃ λ B′ →
-      ∇ » Γ ∙ A ⊢ t ∷ B′ ×
-      (∀ {u v} → ∇ » Γ ⊢ u ≡ v ∷ A → ∇ » Γ ⊢ B′ [ u ]₀ ≡ B [ v ]₀) ×
+      Γ »∙ A ⊢ t ∷ B′ ×
+      (∀ {u v} → Γ ⊢ u ≡ v ∷ A → Γ ⊢ B′ [ u ]₀ ≡ B [ v ]₀) ×
       p PE.≡ p′ × Π-allowed p q
   inversion-lam-Π ⊢lam =
     let p≡p′ , ok , _ , _ , ⊢t , B[]≡B′[] = inversion-lam-Π′ ⊢lam in
@@ -86,8 +85,8 @@ opaque
 
   inversion-lam-Π-no-equality-reflection :
     ⦃ ok : No-equality-reflection ⦄ →
-    ∇ » Γ ⊢ lam p′ t ∷ Π p , q ▷ A ▹ B →
-    ∇ » Γ ∙ A ⊢ t ∷ B × p PE.≡ p′ × Π-allowed p q
+    Γ ⊢ lam p′ t ∷ Π p , q ▷ A ▹ B →
+    Γ »∙ A ⊢ t ∷ B × p PE.≡ p′ × Π-allowed p q
   inversion-lam-Π-no-equality-reflection ⊢lam =
     let p≡p′ , ok , ⊢t , _ = inversion-lam-Π′ ⦃ ok = included ⦄ ⊢lam in
     ⊢t , p≡p′ , ok
@@ -97,9 +96,9 @@ opaque
   -- A variant of inversion-prod.
 
   inversion-prod-Σ :
-    ⦃ ok : No-equality-reflection or-empty Γ ⦄ →
-    ∇ » Γ ⊢ prod s′ p′ t u ∷ Σ⟨ s ⟩ p , q ▷ A ▹ B →
-    ∇ » Γ ⊢ t ∷ A × ∇ » Γ ⊢ u ∷ B [ t ]₀ ×
+    ⦃ ok : No-equality-reflection or-empty (Γ .vars) ⦄ →
+    Γ ⊢ prod s′ p′ t u ∷ Σ⟨ s ⟩ p , q ▷ A ▹ B →
+    Γ ⊢ t ∷ A × Γ ⊢ u ∷ B [ t ]₀ ×
     s PE.≡ s′ × p PE.≡ p′ × Σ-allowed s p q
   inversion-prod-Σ ⊢prod =
     case inversion-prod ⊢prod of λ {
@@ -119,8 +118,8 @@ opaque
   -- A variant of inversion-star.
 
   inversion-star-Unit :
-    ⦃ ok : No-equality-reflection or-empty Γ ⦄ →
-    ∇ » Γ ⊢ star s₁ l₁ ∷ Unit s₂ l₂ →
+    ⦃ ok : No-equality-reflection or-empty (Γ .vars) ⦄ →
+    Γ ⊢ star s₁ l₁ ∷ Unit s₂ l₂ →
     s₁ PE.≡ s₂ × l₁ PE.≡ l₂ × Unit-allowed s₁
   inversion-star-Unit ⊢star =
     let Unit≡Unit , Unit-ok = inversion-star ⊢star
@@ -133,9 +132,9 @@ opaque
   -- A variant of inversion-rfl.
 
   inversion-rfl-Id :
-    ⦃ ok : No-equality-reflection or-empty Γ ⦄ →
-    ∇ » Γ ⊢ rfl ∷ Id A t u →
-    ∇ » Γ ⊢ t ≡ u ∷ A
+    ⦃ ok : No-equality-reflection or-empty (Γ .vars) ⦄ →
+    Γ ⊢ rfl ∷ Id A t u →
+    Γ ⊢ t ≡ u ∷ A
   inversion-rfl-Id ⊢rfl =
     case inversion-rfl ⊢rfl of λ {
       (_ , _ , _ , _ , Id≡Id) →
@@ -148,8 +147,9 @@ opaque
   -- Inversion of products in WHNF.
 
   whnfProduct :
-    ⦃ ok : No-equality-reflection or-empty Γ ⦄ →
-    ∇ » Γ ⊢ t ∷ Σ⟨ s ⟩ p , q ▷ A ▹ B → Whnf ∇ t → Product⁺ ∇ t
+    ⦃ ok : No-equality-reflection or-empty (Γ .vars) ⦄ →
+    Γ ⊢ t ∷ Σ⟨ s ⟩ p , q ▷ A ▹ B → Whnf (Γ .defs) t →
+    Product⁺ (Γ .defs) t
   whnfProduct ⊢t = λ where
     prodₙ →
       prodₙ

@@ -34,8 +34,7 @@ open import Tools.Unit
 
 private variable
   l l₁ l₂ m n : Nat
-  ∇           : DCon (Term 0) _
-  Γ           : Con Term _
+  Γ           : Cons _ _
   A B         : Term _
 
 -- A variant of _⊩⟨_⟩_.
@@ -53,40 +52,40 @@ _⊩<⟨_⟩_≡_/_ :
   (Γ : Cons m n) (p : l₁ <ᵘ l₂) (A _ : Term n) → Γ ⊩<⟨ p ⟩ A → Set a
 Γ ⊩<⟨ p ⟩ A ≡ B / ⊩A = LogRelKit._⊩_≡_/_ (kit′ p) Γ A B ⊩A
 
--- If p : l₁ <ᵘ l₂, then ∇ » Γ ⊩<⟨ p ⟩ A is logically equivalent to
--- ∇ » Γ ⊩⟨ l₁ ⟩ A.
+-- If p : l₁ <ᵘ l₂, then Γ ⊩<⟨ p ⟩ A is logically equivalent to
+-- Γ ⊩⟨ l₁ ⟩ A.
 
-⊩<⇔⊩ : (p : l₁ <ᵘ l₂) → ∇ » Γ ⊩<⟨ p ⟩ A ⇔ ∇ » Γ ⊩⟨ l₁ ⟩ A
+⊩<⇔⊩ : (p : l₁ <ᵘ l₂) → Γ ⊩<⟨ p ⟩ A ⇔ Γ ⊩⟨ l₁ ⟩ A
 ⊩<⇔⊩ ≤ᵘ-refl     = id⇔
 ⊩<⇔⊩ (≤ᵘ-step p) = ⊩<⇔⊩ p
 
--- If p : l₁ <ᵘ l₂ and ⊩A : ∇ » Γ ⊩<⟨ p ⟩ A, then ∇ » Γ ⊩<⟨ p ⟩ A ≡ B / ⊩A is
--- logically equivalent to ∇ » Γ ⊩⟨ l₁ ⟩ A ≡ B / ⊩<⇔⊩ p .proj₁ ⊩A.
+-- If p : l₁ <ᵘ l₂ and ⊩A : Γ ⊩<⟨ p ⟩ A, then Γ ⊩<⟨ p ⟩ A ≡ B / ⊩A is
+-- logically equivalent to Γ ⊩⟨ l₁ ⟩ A ≡ B / ⊩<⇔⊩ p .proj₁ ⊩A.
 
 ⊩<≡⇔⊩≡ :
-  (p : l₁ <ᵘ l₂) {⊩A : ∇ » Γ ⊩<⟨ p ⟩ A} →
-  ∇ » Γ ⊩<⟨ p ⟩ A ≡ B / ⊩A ⇔ ∇ » Γ ⊩⟨ l₁ ⟩ A ≡ B / ⊩<⇔⊩ p .proj₁ ⊩A
+  (p : l₁ <ᵘ l₂) {⊩A : Γ ⊩<⟨ p ⟩ A} →
+  Γ ⊩<⟨ p ⟩ A ≡ B / ⊩A ⇔ Γ ⊩⟨ l₁ ⟩ A ≡ B / ⊩<⇔⊩ p .proj₁ ⊩A
 ⊩<≡⇔⊩≡ ≤ᵘ-refl     = id⇔
 ⊩<≡⇔⊩≡ (≤ᵘ-step p) = ⊩<≡⇔⊩≡ p
 
 -- A variant of ⊩<≡⇔⊩≡.
 
 ⊩<≡⇔⊩≡′ :
-  (p : l₁ <ᵘ l₂) {⊩A : ∇ » Γ ⊩⟨ l₁ ⟩ A} →
-  ∇ » Γ ⊩<⟨ p ⟩ A ≡ B / ⊩<⇔⊩ p .proj₂ ⊩A ⇔ ∇ » Γ ⊩⟨ l₁ ⟩ A ≡ B / ⊩A
+  (p : l₁ <ᵘ l₂) {⊩A : Γ ⊩⟨ l₁ ⟩ A} →
+  Γ ⊩<⟨ p ⟩ A ≡ B / ⊩<⇔⊩ p .proj₂ ⊩A ⇔ Γ ⊩⟨ l₁ ⟩ A ≡ B / ⊩A
 ⊩<≡⇔⊩≡′ ≤ᵘ-refl     = id⇔
 ⊩<≡⇔⊩≡′ (≤ᵘ-step p) = ⊩<≡⇔⊩≡′ p
 
--- If l₁ <ᵘ l₂, then ∇ » Γ ⊩⟨ l₁ ⟩ A is contained in ∇ » Γ ⊩⟨ l₂ ⟩ A.
+-- If l₁ <ᵘ l₂, then Γ ⊩⟨ l₁ ⟩ A is contained in Γ ⊩⟨ l₂ ⟩ A.
 
-emb-<-⊩ : l₁ <ᵘ l₂ → ∇ » Γ ⊩⟨ l₁ ⟩ A → ∇ » Γ ⊩⟨ l₂ ⟩ A
+emb-<-⊩ : l₁ <ᵘ l₂ → Γ ⊩⟨ l₁ ⟩ A → Γ ⊩⟨ l₂ ⟩ A
 emb-<-⊩ p = emb p ∘→ ⊩<⇔⊩ p .proj₂
 
 opaque
 
-  -- If l₁ ≤ᵘ l₂, then ∇ » Γ ⊩⟨ l₁ ⟩ A is contained in ∇ » Γ ⊩⟨ l₂ ⟩ A.
+  -- If l₁ ≤ᵘ l₂, then Γ ⊩⟨ l₁ ⟩ A is contained in Γ ⊩⟨ l₂ ⟩ A.
 
-  emb-≤-⊩ : l₁ ≤ᵘ l₂ → ∇ » Γ ⊩⟨ l₁ ⟩ A → ∇ » Γ ⊩⟨ l₂ ⟩ A
+  emb-≤-⊩ : l₁ ≤ᵘ l₂ → Γ ⊩⟨ l₁ ⟩ A → Γ ⊩⟨ l₂ ⟩ A
   emb-≤-⊩ ≤ᵘ-refl     = idᶠ
   emb-≤-⊩ (≤ᵘ-step p) = emb (1+≤ᵘ1+ p) ∘→ ⊩<⇔⊩ (1+≤ᵘ1+ p) .proj₂
 
@@ -103,7 +102,7 @@ opaque
   -- Irrelevance for _⊩<⟨_⟩_.
 
   irrelevance-⊩< :
-    (p : l <ᵘ l₁) (q : l <ᵘ l₂) → ∇ » Γ ⊩<⟨ p ⟩ A → ∇ » Γ ⊩<⟨ q ⟩ A
+    (p : l <ᵘ l₁) (q : l <ᵘ l₂) → Γ ⊩<⟨ p ⟩ A → Γ ⊩<⟨ q ⟩ A
   irrelevance-⊩<  ≤ᵘ-refl    ≤ᵘ-refl     = idᶠ
   irrelevance-⊩< p           (≤ᵘ-step q) = irrelevance-⊩< p q
   irrelevance-⊩< (≤ᵘ-step p) q           = irrelevance-⊩< p q
@@ -114,9 +113,9 @@ opaque
   -- One form of irrelevance for _⊩<⟨_⟩_≡_/_.
 
   irrelevance-⊩<≡ :
-    (p : l <ᵘ l₁) (q : l <ᵘ l₂) {⊩A : ∇ » Γ ⊩<⟨ p ⟩ A} →
-    ∇ » Γ ⊩<⟨ p ⟩ A ≡ B / ⊩A →
-    ∇ » Γ ⊩<⟨ q ⟩ A ≡ B / irrelevance-⊩< p q ⊩A
+    (p : l <ᵘ l₁) (q : l <ᵘ l₂) {⊩A : Γ ⊩<⟨ p ⟩ A} →
+    Γ ⊩<⟨ p ⟩ A ≡ B / ⊩A →
+    Γ ⊩<⟨ q ⟩ A ≡ B / irrelevance-⊩< p q ⊩A
   irrelevance-⊩<≡ ≤ᵘ-refl     ≤ᵘ-refl     = idᶠ
   irrelevance-⊩<≡ (≤ᵘ-step p) ≤ᵘ-refl     = irrelevance-⊩<≡ p ≤ᵘ-refl
   irrelevance-⊩<≡ ≤ᵘ-refl     (≤ᵘ-step q) = irrelevance-⊩<≡ ≤ᵘ-refl q

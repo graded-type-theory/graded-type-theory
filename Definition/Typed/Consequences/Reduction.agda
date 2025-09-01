@@ -47,7 +47,8 @@ open import Tools.Sum
 private
   variable
     ∇ : DCon (Term 0) _
-    Γ Δ : Con Term _
+    Δ : Con Term _
+    Γ : Cons _ _
     A B C t u v : Term _
     p q : M
     b : BinderMode
@@ -60,9 +61,9 @@ opaque
   -- type constructor or a neutral term (given a certain assumption).
 
   red-U :
-    ⦃ ok : No-equality-reflection or-empty Γ ⦄ →
-    ∇ » Γ ⊢ t ∷ U l → ∃ λ u →
-    Type No-equality-reflection ∇ u × ∇ » Γ ⊢ t ⇒* u ∷ U l
+    ⦃ ok : No-equality-reflection or-empty (Γ .vars) ⦄ →
+    Γ ⊢ t ∷ U l → ∃ λ u →
+    Type No-equality-reflection (Γ .defs) u × Γ ⊢ t ⇒* u ∷ U l
   red-U ⊢t =
     case ⊩∷U⇔ .proj₁ $ proj₂ $ reducible-⊩∷ ⊢t of λ
       (_ , _ , u , t⇒*u , u-type , _) →
@@ -74,9 +75,9 @@ opaque
   -- (given a certain assumption).
 
   red-Empty :
-    ⦃ ok : No-equality-reflection or-empty Γ ⦄ →
-    ∇ » Γ ⊢ t ∷ Empty → ∃ λ u →
-    Neutral No-equality-reflection ∇ u × ∇ » Γ ⊢ t ⇒* u ∷ Empty
+    ⦃ ok : No-equality-reflection or-empty (Γ .vars) ⦄ →
+    Γ ⊢ t ∷ Empty → ∃ λ u →
+    Neutral No-equality-reflection (Γ .defs) u × Γ ⊢ t ⇒* u ∷ Empty
   red-Empty ⊢t =
     case ⊩∷Empty⇔ .proj₁ $ proj₂ $ reducible-⊩∷ ⊢t of λ {
       (Emptyₜ u t⇒*u _ (ne (neNfₜ u-ne _))) →
@@ -88,9 +89,9 @@ opaque
   -- (given a certain assumption).
 
   red-Unit :
-    ⦃ ok : No-equality-reflection or-empty Γ ⦄ →
-    ∇ » Γ ⊢ t ∷ Unit s l → ∃ λ u →
-    Star No-equality-reflection ∇ u × ∇ » Γ ⊢ t ⇒* u ∷ Unit s l
+    ⦃ ok : No-equality-reflection or-empty (Γ .vars) ⦄ →
+    Γ ⊢ t ∷ Unit s l → ∃ λ u →
+    Star No-equality-reflection (Γ .defs) u × Γ ⊢ t ⇒* u ∷ Unit s l
   red-Unit ⊢t =
     case ⊩∷Unit⇔ .proj₁ $ proj₂ $ reducible-⊩∷ ⊢t of λ {
       (_ , _ , Unitₜ u t⇒*u _ rest) →
@@ -106,9 +107,9 @@ opaque
   -- suc, or a neutral term (given a certain assumption).
 
   red-ℕ :
-    ⦃ ok : No-equality-reflection or-empty Γ ⦄ →
-    ∇ » Γ ⊢ t ∷ ℕ → ∃ λ u →
-    Natural No-equality-reflection ∇ u × ∇ » Γ ⊢ t ⇒* u ∷ ℕ
+    ⦃ ok : No-equality-reflection or-empty (Γ .vars) ⦄ →
+    Γ ⊢ t ∷ ℕ → ∃ λ u →
+    Natural No-equality-reflection (Γ .defs) u × Γ ⊢ t ⇒* u ∷ ℕ
   red-ℕ ⊢t =
     case ⊩∷ℕ⇔ .proj₁ $ proj₂ $ reducible-⊩∷ ⊢t of λ {
       (ℕₜ u t⇒*u _ rest) →
@@ -125,10 +126,10 @@ opaque
   -- (given a certain assumption).
 
   red-Π :
-    ⦃ ok : No-equality-reflection or-empty Γ ⦄ →
-    ∇ » Γ ⊢ t ∷ Π p , q ▷ A ▹ B →
-    ∃ λ u → Function No-equality-reflection ∇ u ×
-            ∇ » Γ ⊢ t ⇒* u ∷ Π p , q ▷ A ▹ B
+    ⦃ ok : No-equality-reflection or-empty (Γ .vars) ⦄ →
+    Γ ⊢ t ∷ Π p , q ▷ A ▹ B →
+    ∃ λ u → Function No-equality-reflection (Γ .defs) u ×
+            Γ ⊢ t ⇒* u ∷ Π p , q ▷ A ▹ B
   red-Π ⊢t =
     case ⊩∷Π⇔ .proj₁ $ proj₂ $ reducible-⊩∷ ⊢t of λ
       (_ , u , t⇒*u , u-fun , _) →
@@ -140,10 +141,10 @@ opaque
   -- (given a certain assumption).
 
   red-Σ :
-    ⦃ ok : No-equality-reflection or-empty Γ ⦄ →
-    ∇ » Γ ⊢ t ∷ Σ⟨ m ⟩ p , q ▷ A ▹ B →
-    ∃ λ u → Product No-equality-reflection ∇ u ×
-            ∇ » Γ ⊢ t ⇒* u ∷ Σ⟨ m ⟩ p , q ▷ A ▹ B
+    ⦃ ok : No-equality-reflection or-empty (Γ .vars) ⦄ →
+    Γ ⊢ t ∷ Σ⟨ m ⟩ p , q ▷ A ▹ B →
+    ∃ λ u → Product No-equality-reflection (Γ .defs) u ×
+            Γ ⊢ t ⇒* u ∷ Σ⟨ m ⟩ p , q ▷ A ▹ B
   red-Σ {m = 𝕤} ⊢t =
     case ⊩∷Σˢ⇔ .proj₁ $ proj₂ $ reducible-⊩∷ ⊢t of λ
       (_ , u , t⇒*u , u-prod , _) →
@@ -159,10 +160,10 @@ opaque
   -- term (given a certain assumption).
 
   red-Id :
-    ⦃ ok : No-equality-reflection or-empty Γ ⦄ →
-    ∇ » Γ ⊢ t ∷ Id A u v →
-    ∃ λ w → Identity No-equality-reflection ∇ w ×
-            ∇ » Γ ⊢ t ⇒* w ∷ Id A u v
+    ⦃ ok : No-equality-reflection or-empty (Γ .vars) ⦄ →
+    Γ ⊢ t ∷ Id A u v →
+    ∃ λ w → Identity No-equality-reflection (Γ .defs) w ×
+            Γ ⊢ t ⇒* w ∷ Id A u v
   red-Id ⊢t =
     case ⊩∷Id⇔ .proj₁ $ proj₂ $ reducible-⊩∷ ⊢t of λ
       (w , t⇒*w , _ , _ , rest) →
@@ -173,8 +174,8 @@ opaque
     , t⇒*w
 
 -- Helper function where all reducible types can be reduced to WHNF.
-whNorm′ : ∀ {A l} ([A] : ∇ » Γ ⊩⟨ l ⟩ A)
-                → ∃ λ B → Whnf ∇ B × ∇ » Γ ⊢ A ⇒* B
+whNorm′ : ∀ {A l} ([A] : Γ ⊩⟨ l ⟩ A)
+                → ∃ λ B → Whnf (Γ .defs) B × Γ ⊢ A ⇒* B
 whNorm′ (Uᵣ′ l _ ⇒*U) = U l , Uₙ , ⇒*U
 whNorm′ (ℕᵣ D) = ℕ , ℕₙ , D
 whNorm′ (Emptyᵣ D) = Empty , Emptyₙ , D
@@ -191,8 +192,8 @@ opaque
   -- Well-formed types reduce to WHNF (given a certain assumption).
 
   whNorm :
-    ⦃ ok : No-equality-reflection or-empty Γ ⦄ →
-    ∇ » Γ ⊢ A → ∃ λ B → Whnf ∇ B × ∇ » Γ ⊢ A ⇒* B
+    ⦃ ok : No-equality-reflection or-empty (Γ .vars) ⦄ →
+    Γ ⊢ A → ∃ λ B → Whnf (Γ .defs) B × Γ ⊢ A ⇒* B
   whNorm A = whNorm′ (reducible-⊩ A .proj₂)
 
 opaque
@@ -201,8 +202,8 @@ opaque
   -- a certain assumption).
 
   U-norm :
-    ⦃ ok : No-equality-reflection or-empty Γ ⦄ →
-    ∇ » Γ ⊢ A ≡ U l → ∇ » Γ ⊢ A ⇒* U l
+    ⦃ ok : No-equality-reflection or-empty (Γ .vars) ⦄ →
+    Γ ⊢ A ≡ U l → Γ ⊢ A ⇒* U l
   U-norm {A} {l} A≡U =
     let B , B-whnf , A⇒*B = whNorm (syntacticEq A≡U .proj₁)
         U≡B               =
@@ -217,22 +218,22 @@ opaque
   -- If equality reflection is not allowed or the context is empty,
   -- and A is definitionally equal to ΠΣ⟨ b ⟩ p , q ▷ B ▹ C, then A
   -- reduces to ΠΣ⟨ b ⟩ p , q ▷ B′ ▹ C′, where B′ satisfies
-  -- ∇ » Γ ⊢ B ≡ B′, and C′ satisfies certain properties.
+  -- Γ ⊢ B ≡ B′, and C′ satisfies certain properties.
 
   ΠΣNorm :
-    ⦃ ok : No-equality-reflection or-empty Γ ⦄ →
-    ∇ » Γ ⊢ A ≡ ΠΣ⟨ b ⟩ p , q ▷ B ▹ C →
+    ⦃ ok : No-equality-reflection or-empty (Γ .vars) ⦄ →
+    Γ ⊢ A ≡ ΠΣ⟨ b ⟩ p , q ▷ B ▹ C →
     ∃₂ λ B′ C′ →
-      ∇ » Γ ⊢ A ⇒* ΠΣ⟨ b ⟩ p , q ▷ B′ ▹ C′ × ∇ » Γ ⊢ B ≡ B′ ×
-      (⦃ not-ok : No-equality-reflection ⦄ → ∇ » Γ ∙ B ⊢ C ≡ C′) ×
-      (∀ {t u} → ∇ » Γ ⊢ t ≡ u ∷ B → ∇ » Γ ⊢ C [ t ]₀ ≡ C′ [ u ]₀)
+      Γ ⊢ A ⇒* ΠΣ⟨ b ⟩ p , q ▷ B′ ▹ C′ × Γ ⊢ B ≡ B′ ×
+      (⦃ not-ok : No-equality-reflection ⦄ → Γ »∙ B ⊢ C ≡ C′) ×
+      (∀ {t u} → Γ ⊢ t ≡ u ∷ B → Γ ⊢ C [ t ]₀ ≡ C′ [ u ]₀)
   ΠΣNorm {A} A≡ΠΣ with whNorm (syntacticEq A≡ΠΣ .proj₁)
   … | _ , Uₙ , D =
     ⊥-elim (U≢ΠΣⱼ (trans (sym (subset* D)) A≡ΠΣ))
   … | _ , ΠΣₙ , D =
     let B≡B′ , C≡C′ , C[]≡C′[] , p≡p′ , q≡q′ , b≡b′ =
           ΠΣ-injectivity′ (trans (sym A≡ΠΣ) (subset* D))
-        D′ = PE.subst₃ (λ b p q → _ » _ ⊢ A ⇒* ΠΣ⟨ b ⟩ p , q ▷ _ ▹ _)
+        D′ = PE.subst₃ (λ b p q → _ ⊢ A ⇒* ΠΣ⟨ b ⟩ p , q ▷ _ ▹ _)
                (PE.sym b≡b′) (PE.sym p≡p′) (PE.sym q≡q′) D
     in
     _ , _ , D′ , B≡B′ , C≡C′ , C[]≡C′[]
@@ -282,10 +283,10 @@ opaque
   -- to B, t and u.
 
   Id-norm :
-    ⦃ ok : No-equality-reflection or-empty Γ ⦄ →
-    ∇ » Γ ⊢ A ≡ Id B t u →
-    ∃₃ λ B′ t′ u′ → (∇ » Γ ⊢ A ⇒* Id B′ t′ u′) ×
-    (∇ » Γ ⊢ B ≡ B′) × ∇ » Γ ⊢ t ≡ t′ ∷ B × ∇ » Γ ⊢ u ≡ u′ ∷ B
+    ⦃ ok : No-equality-reflection or-empty (Γ .vars) ⦄ →
+    Γ ⊢ A ≡ Id B t u →
+    ∃₃ λ B′ t′ u′ → (Γ ⊢ A ⇒* Id B′ t′ u′) ×
+    (Γ ⊢ B ≡ B′) × Γ ⊢ t ≡ t′ ∷ B × Γ ⊢ u ≡ u′ ∷ B
   Id-norm A≡Id =
     case whNorm (syntacticEq A≡Id .proj₁) of λ {
       (_ , A′-whnf , A⇒*A′) →
@@ -296,8 +297,8 @@ opaque
     _ , _ , _ , A⇒*A′ , Id-injectivity Id≡A′ }}}
 
 -- Helper function where reducible all terms can be reduced to WHNF.
-whNormTerm′ : ∀ {a A l} ([A] : ∇ » Γ ⊩⟨ l ⟩ A) → ∇ » Γ ⊩⟨ l ⟩ a ∷ A / [A]
-                → ∃ λ b → Whnf ∇ b × ∇ » Γ ⊢ a ⇒* b ∷ A
+whNormTerm′ : ∀ {a A l} ([A] : Γ ⊩⟨ l ⟩ A) → Γ ⊩⟨ l ⟩ a ∷ A / [A]
+                → ∃ λ b → Whnf (Γ .defs) b × Γ ⊢ a ⇒* b ∷ A
 whNormTerm′ (Uᵣ′ _ _ A⇒*U) (Uₜ C B⇒*C C-type C≅C ⊩B) =
     C , typeWhnf C-type , conv* B⇒*C (sym (subset* A⇒*U))
 whNormTerm′ (ℕᵣ x) (ℕₜ n d n≡n prop) =
@@ -325,8 +326,8 @@ opaque
   -- Well-formed terms reduce to WHNF (given a certain assumption).
 
   whNormTerm :
-    ⦃ ok : No-equality-reflection or-empty Γ ⦄ →
-    ∇ » Γ ⊢ t ∷ A → ∃ λ u → Whnf ∇ u × ∇ » Γ ⊢ t ⇒* u ∷ A
+    ⦃ ok : No-equality-reflection or-empty (Γ .vars) ⦄ →
+    Γ ⊢ t ∷ A → ∃ λ u → Whnf (Γ .defs) u × Γ ⊢ t ⇒* u ∷ A
   whNormTerm ⊢t =
     case reducible-⊩∷ ⊢t of λ
       (_ , ⊩t) →
