@@ -1,5 +1,5 @@
 ------------------------------------------------------------------------
--- An investigation into necessary assumptions for subject reduction
+-- An investigation into necessary properties for subject reduction
 -- to hold.
 ------------------------------------------------------------------------
 
@@ -33,6 +33,7 @@ import Graded.Usage.Weakening 𝕄 UR as UW
 
 open import Definition.Typed TR
 open import Definition.Typed.Properties TR
+open import Definition.Typed.Syntactic TR
 import Definition.Typed.Reasoning.Type TR as TEq
 open import Definition.Typed.Substitution TR
 open import Definition.Typed.Weakening TR as W hiding (wk)
@@ -191,12 +192,25 @@ record Usage-relation-unitrec : Set (lsuc a) where
     -- Anstaz for the usage rule for unitrec
     f : M → M
     g : M → Conₘ n → Conₘ n
-    h : Mode → M → Mode
     unitrecₘ :
-      γ ▸[ h m p ] t → δ ▸[ m ] u →
+      γ ▸[ m ᵐ· p ] t → δ ▸[ m ] u →
       η ∙ ⌜ 𝟘ᵐ? ⌝ · q ▸[ 𝟘ᵐ? ] A →
       Unitrec-allowed m p q →
       f p ·ᶜ γ +ᶜ g p δ ▸[ m ] unitrec l p q A t u
+
+record Usage-relation-prodrec : Set (lsuc a) where
+  no-eta-equality
+  field usage-relation : Usage-relation
+
+  open Usage-relation usage-relation public
+  field
+    f : (p r : M) (γ δ : Conₘ n) → Conₘ n
+    prodrecₘ :
+      γ ▸[ m ᵐ· r ] t →
+      δ ∙ ⌜ m ⌝ · r · p ∙ ⌜ m ⌝ · r ▸[ m ] u →
+      η ∙ ⌜ 𝟘ᵐ? ⌝ · q ▸[ 𝟘ᵐ? ] A →
+      Prodrec-allowed m r p q →
+      f p r γ δ ▸[ m ] prodrec r p q A t u
 
 ------------------------------------------------------------------------
 -- Given certain assumptions, the usage relation satisfies the
@@ -273,8 +287,17 @@ module _
       { usage-relation = ▸[]-Usage-relation
       ; f = idᶠ
       ; g = λ _ → idᶠ
-      ; h = _ᵐ·_
       ; unitrecₘ = U.unitrecₘ
+      }
+
+  opaque
+    unfolding ▸[]-Usage-relation
+
+    ▸[]-usage-relation-prodrec : Usage-relation-prodrec
+    ▸[]-usage-relation-prodrec = record
+      { usage-relation = ▸[]-Usage-relation
+      ; f = λ p r γ δ → r ·ᶜ γ +ᶜ δ
+      ; prodrecₘ = U.prodrecₘ
       }
 
 ------------------------------------------------------------------------
@@ -443,20 +466,27 @@ module Usage (usage : Usage-relation) where
 
   opaque
 
-    -- A usage rule for sink: sink γ is well-resourced under context γ
-    -- (at mode 𝟙ᵐ).
+    -- A usage rule for sink.
 
-    ▸sink : (γ : Conₘ n) → γ ▸[ 𝟙ᵐ ] sink γ
+    ▸sink : (γ : Conₘ n) → ⌜ m ⌝ ·ᶜ γ ▸[ m ] sink γ
     ▸sink ε =
       PE.subst (_▸[_]_ _ _) (PE.sym sink-ε-≡) starʷₘ
-    ▸sink (γ ∙ p) =
+    ▸sink {m} (γ ∙ p) =
       let open ≤ᶜ-reasoning
           ▸t = sub (prodʷₘ varₘ (wkUsage (▸sink γ))) $ begin
-            γ            ∙ p                      ≈˘⟨ +ᶜ-identityˡ _ ∙ ·⌜⌞⌟⌝ ⟩
-            𝟘ᶜ +ᶜ γ      ∙ p · ⌜ ⌞ p ⌟ ⌝          ≈˘⟨ +ᶜ-congʳ (·ᶜ-zeroʳ _) ∙ +-identityʳ _ ⟩
-            p ·ᶜ 𝟘ᶜ +ᶜ γ ∙ p · ⌜ ⌞ p ⌟ ⌝ + 𝟘      ≡⟨⟩
-            p ·ᶜ (𝟘ᶜ , x0 ≔ ⌜ ⌞ p ⌟ ⌝) +ᶜ (γ ∙ 𝟘) ∎
-      in  PE.subst (_▸[_]_ _ _) (PE.sym sink-∙-≡) ▸t
+            ⌜ m ⌝ ·ᶜ γ            ∙ ⌜ m ⌝ · p               ≈⟨ ≈ᶜ-refl ∙ ⌜⌝-·-comm m ⟩
+            ⌜ m ⌝ ·ᶜ γ            ∙ p · ⌜ m ⌝               ≈˘⟨ +ᶜ-identityˡ _ ∙ ·⌜ᵐ·⌝ m ⟩
+            𝟘ᶜ +ᶜ ⌜ m ⌝ ·ᶜ γ      ∙ p · ⌜ m ᵐ· p ⌝          ≈˘⟨ +ᶜ-congʳ (·ᶜ-zeroʳ _) ∙ +-identityʳ _ ⟩
+            p ·ᶜ 𝟘ᶜ +ᶜ ⌜ m ⌝ ·ᶜ γ ∙ p · ⌜ m ᵐ· p ⌝ + 𝟘      ≡⟨⟩
+            p ·ᶜ (𝟘ᶜ , x0 ≔ ⌜ m ᵐ· p ⌝) +ᶜ (⌜ m ⌝ ·ᶜ γ ∙ 𝟘) ∎
+      in  PE.subst (λ x → ⌜ m ⌝ ·ᶜ (γ ∙ p) ▸[ _ ] x) (PE.sym sink-∙-≡) ▸t
+
+  opaque
+
+    -- A usage rule for sink: sink γ is well-resourced under context γ at mode 𝟙ᵐ.
+
+    ▸¹sink : γ ▸[ 𝟙ᵐ ] sink γ
+    ▸¹sink = sub (▸sink _) (≤ᶜ-reflexive (≈ᶜ-sym (·ᶜ-identityˡ _)))
 
   opaque
 
@@ -765,7 +795,7 @@ module Natrec₁
       unfolding ζ
 
       ▸ζ : γ ▸[ 𝟙ᵐ ] ζ γ
-      ▸ζ = ▸sink _
+      ▸ζ = ▸¹sink
 
     opaque
       unfolding ζ
@@ -828,7 +858,7 @@ module Natrec₁
 
       ▸σ : δ ∙ ⌜ 𝟙ᵐ ⌝ · p ∙ ⌜ 𝟙ᵐ ⌝ · r ▸[ 𝟙ᵐ ] σ p r δ
       ▸σ {δ} {p} {r} =
-        sub (prodʷₘ varₘ (prodʷₘ varₘ (wkUsage (▸sink δ)))) $ begin
+        sub (prodʷₘ varₘ (prodʷₘ varₘ (wkUsage ▸¹sink))) $ begin
         δ                        ∙ 𝟙 · p                     ∙ 𝟙 · r                     ≈⟨ ≈ᶜ-refl ∙ ·-identityˡ _ ∙ ·-identityˡ _ ⟩
         δ                        ∙ p                         ∙ r                         ≈˘⟨ ≈ᶜ-refl ∙ ·⌜⌞⌟⌝ ∙ ·⌜⌞⌟⌝  ⟩
         δ                        ∙ p · ⌜ ⌞ p ⌟ ⌝             ∙ r · ⌜ ⌞ r ⌟ ⌝             ≈˘⟨ +ᶜ-identityˡ _ ∙ +-identityˡ _ ∙ +-identityʳ _ ⟩
@@ -1142,7 +1172,7 @@ module Unitrec
       ▸τ : Unitrec-allowed 𝟙ᵐ p 𝟘 → g p γ ▸[ 𝟙ᵐ ] τ p γ
       ▸τ {p} {γ} ok =
         let ▸A = sub (wkUsage ▸Sink-Δᴺ) (≤ᶜ-refl {γ = 𝟘ᶜ} ∙ ≤-reflexive (·-zeroʳ _))
-        in  sub (unitrecₘ starʷₘ (▸sink γ) ▸A ok) $ begin
+        in  sub (unitrecₘ starʷₘ ▸¹sink ▸A ok) $ begin
           g p γ              ≈˘⟨ +ᶜ-identityˡ _ ⟩
           𝟘ᶜ +ᶜ g p γ        ≈˘⟨ +ᶜ-congʳ (·ᶜ-zeroʳ _) ⟩
           f p ·ᶜ 𝟘ᶜ +ᶜ g p γ ∎
@@ -1172,5 +1202,279 @@ module Unitrec
       g p γ  ≤⟨ ▸τ→≤ (▸τ ok) ⟩
       𝟙 ·ᶜ γ ≈⟨ ·ᶜ-identityˡ _ ⟩
       γ      ∎
+      where
+      open ≤ᶜ-reasoning
+
+------------------------------------------------------------------------
+-- Usage properties that hold for "arbitrary" usage relations with a
+-- certain anstaz for the prodrec rule (and some type restrictions).
+
+module Prodrec
+  (usage-relation-prodrec : Usage-relation-prodrec)
+  -- Weak unit types are allowed
+  (Unit-ok : Unitʷ-allowed)
+  -- Certain Σ-types are allowed
+  (Σ-ok : ∀ {r} → Σʷ-allowed r 𝟘)
+  where
+
+  open Usage-relation-prodrec usage-relation-prodrec
+  open Usage usage-relation
+
+  private
+
+    opaque
+      unfolding Sink-allowed
+
+      -- The Sink type is allowed.
+
+      Sink-ok : Sink-allowed γ
+      Sink-ok {γ = ε} = Unit-ok
+      Sink-ok {γ = γ ∙ p} = Sink-ok {γ = γ} , Σ-ok
+
+    -- Some terms and lemmas used below.
+
+    opaque
+
+      π : M → Conₘ n → Term n
+      π p γ = prodʷ p zero (sink γ)
+
+    opaque
+      unfolding π
+
+      ⊢π : ⊢ Γ → Γ ⊢ π p γ ∷ Σʷ p , 𝟘 ▷ ℕ ▹ wk1 (Sink (Γ .vars) γ)
+      ⊢π ⊢Γ =
+        let ⊢Sink = W.wk (stepʷ id (ℕⱼ ⊢Γ)) (⊢-Sink ⊢Γ Sink-ok)
+            ⊢sink = ⊢∷-conv-PE (⊢∷-sink ⊢Γ Sink-ok) (PE.sym (wk1-sgSubst _ _))
+        in  prodⱼ ⊢Sink (zeroⱼ ⊢Γ) ⊢sink Σ-ok
+
+    opaque
+      unfolding π
+
+      ▸π : ⌜ m ⌝ ·ᶜ γ ▸[ m ] π p γ
+      ▸π {m} {γ} {p} = sub (prodʷₘ zeroₘ (▸sink γ)) $ begin
+        ⌜ m ⌝ ·ᶜ γ            ≈˘⟨ +ᶜ-identityˡ _ ⟩
+        𝟘ᶜ +ᶜ ⌜ m ⌝ ·ᶜ γ      ≈˘⟨ +ᶜ-congʳ (·ᶜ-zeroʳ _) ⟩
+        p ·ᶜ 𝟘ᶜ +ᶜ ⌜ m ⌝ ·ᶜ γ ∎
+        where
+        open ≤ᶜ-reasoning
+
+    opaque
+
+      α : (p r : M) → (γ δ : Conₘ n) → Term (1+ n)
+      α p r γ δ = Σʷ r , 𝟘 ▷ (Σʷ p , 𝟘 ▷ ℕ ▹ wk₂ (Sink Δᴺ γ)) ▹ wk₂ (Sink Δᴺ δ)
+
+    opaque
+      unfolding α
+
+      α[]↑²≡ :
+        α p r γ δ [ prodʷ p (var x1) (var x0) ]↑² PE.≡
+        Σʷ r , 𝟘 ▷ (Σʷ p , 𝟘 ▷ ℕ ▹ wk[ 3 ]′ (Sink Δᴺ γ)) ▹ wk[ 3 ]′ (Sink Δᴺ δ)
+      α[]↑²≡ {p} {r} {δ} =
+        PE.cong₂ (λ x y → Σʷ r , 𝟘 ▷ Σʷ p , 𝟘 ▷ ℕ ▹ x ▹ y)
+          lemma lemma
+        where
+        open Tools.Reasoning.PropositionalEquality
+        lemma : wk₂ A [ consSubst (wkSubst 2 idSubst) t ⇑ ] PE.≡ wk[ 3 ]′ A
+        lemma {A} {t} = begin
+          wk₂ A [ consSubst (wkSubst 2 idSubst) t ⇑ ]
+            ≡˘⟨ PE.cong (_[ consSubst (wkSubst 2 idSubst) t ⇑ ]) (wk[]≡wk[]′ {k = 2} {t = A}) ⟩
+          wk1 (wk1 A) [ consSubst (wkSubst 2 idSubst) t ⇑ ]
+            ≡⟨ wk[]-⇑[] {t = wk1 A} 1 ⟩
+          wk1 (wk1 A [ consSubst (wkSubst 2 idSubst) t ])
+            ≡⟨ PE.cong wk1 (wk1-tail A) ⟩
+          wk1 (A [ wkSubst 2 idSubst ])
+            ≡˘⟨ PE.cong wk1 (wk≡subst _ _) ⟩
+          wk1 (wk₂ A)
+            ≡⟨ wk-comp _ _ _ ⟩
+          wk[ 3 ]′ A ∎
+
+    opaque
+      unfolding α
+
+      ⊢α : Γᴺ ⊢ A → Γᴺ »∙ A ⊢ α p r γ δ
+      ⊢α ⊢A =
+        let ⊢Σ = ΠΣⱼ (W.wk (stepʷ (step id) (ℕⱼ (∙ ⊢A))) (⊢-Sink ⊢Γᴺ Sink-ok)) Σ-ok
+            ⊢Sink = W.wk (stepʷ (step id) ⊢Σ) (⊢-Sink ⊢Γᴺ Sink-ok)
+        in  ΠΣⱼ ⊢Sink Σ-ok
+
+    opaque
+      unfolding α
+
+      ▸α : 𝟘ᶜ ∙ ⌜ 𝟘ᵐ? ⌝ · 𝟘 ▸[ 𝟘ᵐ? ] α p r γ δ
+      ▸α {r} =
+        let ▸Sink₁ = sub (wkUsage ▸Sink-Δᴺ) $ begin
+              𝟘ᶜ ∙ ⌜ 𝟘ᵐ? ᵐ· r ⌝ · 𝟘 ≈⟨ ≈ᶜ-refl ∙ ·-zeroʳ _ ⟩
+              𝟘ᶜ ∙ 𝟘                ∎
+            ▸Sink₂ = sub (wkUsage ▸Sink-Δᴺ) $ begin
+              𝟘ᶜ ∙ ⌜ 𝟘ᵐ? ⌝ · 𝟘 ≈⟨ ≈ᶜ-refl ∙ ·-zeroʳ _ ⟩
+              𝟘ᶜ ∙ 𝟘           ∎
+        in  sub (Σʷₘ (Σʷₘ ℕₘ ▸Sink₁) ▸Sink₂) $ begin
+          𝟘ᶜ ∙ ⌜ 𝟘ᵐ? ⌝ · 𝟘 ≈⟨ ≈ᶜ-refl ∙ ·-zeroʳ _ ⟩
+          𝟘ᶜ               ≈˘⟨ +ᶜ-identityʳ _ ⟩
+          𝟘ᶜ +ᶜ 𝟘ᶜ         ≈˘⟨ +ᶜ-identityʳ _ ⟩
+          (𝟘ᶜ +ᶜ 𝟘ᶜ) +ᶜ 𝟘ᶜ ∎
+        where
+        open ≤ᶜ-reasoning
+
+    opaque
+
+      υ : (p r : M) → Conₘ n → Term (2+ n)
+      υ p r δ = prodʷ r (prodʷ p (var x1) (var x0)) (wk₂ (sink δ))
+
+    opaque
+      unfolding υ
+
+      υ≡ : υ p r δ PE.≡ prodʷ r (prodʷ p (var x1) (var x0)) (wk₂ (sink δ))
+      υ≡ = PE.refl
+
+    opaque
+
+      υ[,]≡ : υ p r δ [ t , u ]₁₀ PE.≡ prodʷ r (prodʷ p t u) (sink δ)
+      υ[,]≡ {p} {r} {δ} {t} {u} = begin
+        υ p r δ [ t , u ]₁₀
+          ≡⟨ PE.cong (_[ t , u ]₁₀) υ≡ ⟩
+        prodʷ r (prodʷ p t u) (wk₂ (sink δ) [ t , u ]₁₀)
+          ≡⟨ PE.cong (λ x → prodʷ r _ x) wk₂-[,] ⟩
+        prodʷ r (prodʷ p t u) (sink δ) ∎
+        where
+        open Tools.Reasoning.PropositionalEquality
+
+    opaque
+
+      ⊢υ :
+        Γᴺ »∙ wk1 (Sink Δᴺ γ) ⊢ υ p r δ ∷ α p r γ δ [ prodʷ p (var x1) (var x0) ]↑²
+      ⊢υ {γ} {p} {r} {δ} =
+        let ⊢Sinkγ = W.wk (stepʷ id (ℕⱼ ⊢Γᴺ)) (⊢-Sink ⊢Γᴺ Sink-ok)
+            ⊢Sinkγ′ = W.wk (stepʷ (step (step id)) (ℕⱼ (∙ ⊢Sinkγ))) (⊢-Sink ⊢Γᴺ Sink-ok)
+            ⊢Σ = ΠΣⱼ ⊢Sinkγ′ Σ-ok
+            ⊢Sinkδ = W.wk (stepʷ (step (step id)) ⊢Σ) (⊢-Sink ⊢Γᴺ Sink-ok)
+            ⊢x0 = ⊢∷-conv-PE (var₀ ⊢Sinkγ) (PE.trans wk[]≡wk[]′ (PE.sym (step-sgSubst (Sink Δᴺ γ) (var x1))))
+            ⊢t₁ = ⊢∷-conv-PE (prodⱼ ⊢Sinkγ′ (var₁ ⊢Sinkγ) ⊢x0 Σ-ok)
+                    (PE.cong (Σʷ p , 𝟘 ▷ ℕ ▹_) PE.refl)
+            ⊢t₂ = ⊢∷-conv-PE (wkTerm (stepʷ (step id) ⊢Sinkγ) (⊢∷-sink ⊢Γᴺ Sink-ok))
+                   (PE.sym (step-sgSubst (Sink Δᴺ δ) (prodʷ p (var x1) (var x0))))
+        in  ⊢∷-conv-PE (⊢∷-cong (prodⱼ ⊢Sinkδ ⊢t₁ ⊢t₂ Σ-ok) (PE.sym υ≡)) (PE.sym α[]↑²≡)
+
+    opaque
+      unfolding υ
+
+      ▸υ : δ ∙ ⌜ 𝟙ᵐ ⌝ · r · p ∙ ⌜ 𝟙ᵐ ⌝ · r ▸[ 𝟙ᵐ ] υ p r δ
+      ▸υ {δ} {r} {p} =
+        sub (prodʷₘ (prodʷₘ varₘ varₘ) (wkUsage ▸¹sink)) $ begin
+          δ ∙ 𝟙 · r · p ∙ 𝟙 · r
+            ≈⟨ ≈ᶜ-refl ∙ ·-identityˡ _ ∙ ·-identityˡ _ ⟩
+          δ ∙ r · p ∙ r
+            ≈˘⟨ +ᶜ-identityˡ _ ∙ +-identityʳ _ ∙ +-identityʳ _ ⟩
+          (𝟘ᶜ ∙ r · p ∙ r) +ᶜ (δ ∙ 𝟘 ∙ 𝟘)
+            ≈˘⟨ +ᶜ-congʳ (≈ᶜ-refl ∙ ·-congʳ ·⌜⌞⌟⌝ ∙ ·⌜⌞⌟⌝) ⟩
+          (𝟘ᶜ ∙ (r · ⌜ ⌞ r ⌟ ⌝) · p ∙ r · ⌜ ⌞ r ⌟ ⌝) +ᶜ (δ ∙ 𝟘 ∙ 𝟘)
+            ≈˘⟨ +ᶜ-congʳ (·ᶜ-zeroʳ _ ∙ PE.sym (·-assoc _ _ _) ∙ PE.refl) ⟩
+          r ·ᶜ (𝟘ᶜ ∙ ⌜ ⌞ r ⌟ ⌝ · p ∙ ⌜ ⌞ r ⌟ ⌝) +ᶜ (δ ∙ 𝟘 ∙ 𝟘)
+            ≈⟨ +ᶜ-congʳ (·ᶜ-congˡ (≈ᶜ-refl ∙ ⌜⌝-·-comm ⌞ r ⌟ ∙ PE.refl)) ⟩
+          r ·ᶜ (𝟘ᶜ ∙ p · ⌜ ⌞ r ⌟ ⌝ ∙ ⌜ ⌞ r ⌟ ⌝) +ᶜ (δ ∙ 𝟘 ∙ 𝟘)
+            ≈˘⟨ +ᶜ-congʳ (·ᶜ-congˡ (+ᶜ-identityˡ _ ∙ +-identityʳ _ ∙ +-identityˡ _)) ⟩
+          r ·ᶜ ((𝟘ᶜ ∙ p · ⌜ ⌞ r ⌟ ⌝ ∙ 𝟘) +ᶜ (𝟘ᶜ ∙ ⌜ ⌞ r ⌟ ⌝)) +ᶜ (δ ∙ 𝟘 ∙ 𝟘)
+            ≈˘⟨ +ᶜ-congʳ (·ᶜ-congˡ (+ᶜ-congʳ (·ᶜ-zeroʳ _ ∙ ·⌜ᵐ·⌝ ⌞ r ⌟ ∙ ·-zeroʳ _))) ⟩
+          r ·ᶜ (p ·ᶜ (𝟘ᶜ ∙ ⌜ ⌞ r ⌟ ᵐ· p ⌝ ∙ 𝟘) +ᶜ (𝟘ᶜ ∙ ⌜ ⌞ r ⌟ ⌝)) +ᶜ (δ ∙ 𝟘 ∙ 𝟘) ∎
+        where
+        open ≤ᶜ-reasoning
+
+    opaque
+      unfolding υ
+
+      inv-usage-υ[,] :
+        γ ▸[ m ] υ p r δ [ t , u ]₁₀ →
+        ∃₂ λ γ₁ γ₂ → γ₁ ▸[ (m ᵐ· r) ᵐ· p ] t × γ₂ ▸[ m ᵐ· r ] u ×
+         γ ≤ᶜ r ·ᶜ (p ·ᶜ γ₁ +ᶜ γ₂) +ᶜ ⌜ m ⌝ ·ᶜ δ
+      inv-usage-υ[,] {γ} {m} {p} {r} {δ} ▸υ[,] =
+        let ▸υ = PE.subst (λ x → γ ▸[ m ] x) υ[,]≡ ▸υ[,]
+            γ₁ , γ₂ , ▸υ′ , ▸δ , γ≤ = inv-usage-prodʷ ▸υ
+            γ₃ , γ₄ , ▸t , ▸u , γ₁≤ = inv-usage-prodʷ ▸υ′
+            open ≤ᶜ-reasoning
+        in  _ , _ , ▸t , ▸u , (begin
+          γ                                  ≤⟨ γ≤ ⟩
+          r ·ᶜ γ₁ +ᶜ γ₂                      ≤⟨ +ᶜ-monotone (·ᶜ-monotoneʳ γ₁≤)
+                                               (inv-usage-sink ▸δ) ⟩
+          r ·ᶜ (p ·ᶜ γ₃ +ᶜ γ₄) +ᶜ ⌜ m ⌝ ·ᶜ δ ∎)
+
+    opaque
+
+      τ : (p r : M) (γ δ : Conₘ n) → Term n
+      τ p r γ δ =
+        prodrec r p 𝟘
+          (α p r γ δ) (π p γ) (υ p r δ)
+
+    opaque
+      unfolding τ
+
+      ▸τ : Prodrec-allowed 𝟙ᵐ r p 𝟘 → f p r (⌜ ⌞ r ⌟ ⌝ ·ᶜ γ) δ ▸[ 𝟙ᵐ ] τ p r γ δ
+      ▸τ ok = prodrecₘ ▸π ▸υ ▸α ok
+
+    opaque
+      unfolding τ π
+
+      -- The context ⌜ m ⌝ ·ᶜ (r ·ᶜ γ +ᶜ δ) is an upper bound on valid contexts
+      -- for term τ p r γ δ.
+
+      ▸τ→≤ : η ▸[ m ] τ p r γ δ → η ≤ᶜ ⌜ m ⌝ ·ᶜ (r ·ᶜ γ +ᶜ δ)
+      ▸τ→≤ {η} {m} {p} {r} {γ} {δ} ▸pr =
+        let ⊢sink = ⊢∷-conv-PE (⊢∷-sink ⊢Γᴺ Sink-ok) (PE.sym (wk1-sgSubst _ zero))
+            ⊢Σ = ΠΣⱼ (W.wk (stepʷ id (ℕⱼ ⊢Γᴺ)) (⊢-Sink ⊢Γᴺ Sink-ok)) Σ-ok
+            ▸υ[,] = usagePresTerm (λ ()) ▸pr
+                      (prodrec-β-⇒ (⊢α ⊢Σ) (zeroⱼ ⊢Γᴺ) ⊢sink ⊢υ)
+            η₁ , η₂ , ▸0 , ▸γ , η≤ = inv-usage-υ[,] ▸υ[,]
+            open ≤ᶜ-reasoning
+        in  begin
+          η                                              ≤⟨ η≤ ⟩
+          r ·ᶜ (p ·ᶜ η₁ +ᶜ η₂) +ᶜ ⌜ m ⌝ ·ᶜ δ              ≤⟨ +ᶜ-monotoneˡ (·ᶜ-monotoneʳ (+ᶜ-monotone
+                                                             (·ᶜ-monotoneʳ (inv-usage-zero ▸0))
+                                                             (inv-usage-sink ▸γ))) ⟩
+          r ·ᶜ (p ·ᶜ 𝟘ᶜ +ᶜ ⌜ m ᵐ· r ⌝ ·ᶜ γ) +ᶜ ⌜ m ⌝ ·ᶜ δ ≈⟨ +ᶜ-congʳ (·ᶜ-congˡ (+ᶜ-congʳ (·ᶜ-zeroʳ _))) ⟩
+          r ·ᶜ (𝟘ᶜ +ᶜ ⌜ m ᵐ· r ⌝ ·ᶜ γ) +ᶜ ⌜ m ⌝ ·ᶜ δ      ≈⟨ +ᶜ-congʳ (·ᶜ-congˡ (+ᶜ-identityˡ _)) ⟩
+          r ·ᶜ (⌜ m ᵐ· r ⌝ ·ᶜ γ) +ᶜ ⌜ m ⌝ ·ᶜ δ            ≈˘⟨ +ᶜ-congʳ (·ᶜ-assoc _ _ _) ⟩
+          (r · ⌜ m ᵐ· r ⌝) ·ᶜ γ +ᶜ ⌜ m ⌝ ·ᶜ δ             ≈⟨ +ᶜ-congʳ (·ᶜ-congʳ (·⌜ᵐ·⌝ m)) ⟩
+          (r · ⌜ m ⌝) ·ᶜ γ +ᶜ ⌜ m ⌝ ·ᶜ δ                  ≈˘⟨ +ᶜ-congʳ (·ᶜ-congʳ (⌜⌝-·-comm m)) ⟩
+          (⌜ m ⌝ · r) ·ᶜ γ +ᶜ ⌜ m ⌝ ·ᶜ δ                  ≈⟨ +ᶜ-congʳ (·ᶜ-assoc _ _ _) ⟩
+          ⌜ m ⌝ ·ᶜ r ·ᶜ γ +ᶜ ⌜ m ⌝ ·ᶜ δ                   ≈˘⟨ ·ᶜ-distribˡ-+ᶜ _ _ _ ⟩
+          ⌜ m ⌝ ·ᶜ (r ·ᶜ γ +ᶜ δ)                          ∎
+
+  opaque
+
+    -- An inequality satisfied by the function f.
+
+    f-≤ : Prodrec-allowed 𝟙ᵐ r p 𝟘 → f p r (⌜ ⌞ r ⌟ ⌝ ·ᶜ γ) δ ≤ᶜ r ·ᶜ γ +ᶜ δ
+    f-≤ {r} {p} {γ} {δ} ok = begin
+      f p r (⌜ ⌞ r ⌟ ⌝ ·ᶜ γ) δ ≤⟨ ▸τ→≤ (▸τ ok) ⟩
+      𝟙 ·ᶜ (r ·ᶜ γ +ᶜ δ)       ≈⟨ ·ᶜ-identityˡ _ ⟩
+      r ·ᶜ γ +ᶜ δ              ∎
+      where
+      open ≤ᶜ-reasoning
+
+  opaque
+
+    -- When r is not equal to 𝟘 (when mode 𝟘ᵐ is allowed), the context given by the
+    -- ansatz is bounded by the one used in the "actual" usage rule for prodrec.
+
+    r≢𝟘→f-≤ : (T 𝟘ᵐ-allowed → r PE.≢ 𝟘) → Prodrec-allowed 𝟙ᵐ r p 𝟘 → f p r γ δ ≤ᶜ r ·ᶜ γ +ᶜ δ
+    r≢𝟘→f-≤ {r} {p} {γ} {δ} r≢𝟘 ok = begin
+      f p r γ δ                ≡˘⟨ PE.cong (λ x → f p r x δ) (≈ᶜ→≡ (·ᶜ-identityˡ _)) ⟩
+      f p r (𝟙 ·ᶜ γ) δ         ≡⟨⟩
+      f p r (⌜ 𝟙ᵐ ⌝ ·ᶜ γ) δ    ≡˘⟨ PE.cong (λ x → f p r (⌜ x ⌝ ·ᶜ γ) δ) (≢𝟘→⌞⌟≡𝟙ᵐ′ r≢𝟘) ⟩
+      f p r (⌜ ⌞ r ⌟ ⌝ ·ᶜ γ) δ ≤⟨ f-≤ ok ⟩
+      r ·ᶜ γ +ᶜ δ              ∎
+      where
+      open ≤ᶜ-reasoning
+
+  opaque
+
+    -- When r is equal to 𝟘, the context given by the ansatz is bounded by
+    -- the one used in the "actual" usage rule for prodrec when the context
+    -- for the pair is 𝟘ᶜ.
+
+    r≡𝟘→f-≤ : r PE.≡ 𝟘 → Prodrec-allowed 𝟙ᵐ r p 𝟘 → f p r 𝟘ᶜ δ ≤ᶜ r ·ᶜ 𝟘ᶜ +ᶜ δ
+    r≡𝟘→f-≤ {r} {p} {δ} r≡𝟘 ok = begin
+      f p r 𝟘ᶜ δ                ≡˘⟨ PE.cong (λ x → f p r x δ) (≈ᶜ→≡ (·ᶜ-zeroʳ _)) ⟩
+      f p r (⌜ ⌞ r ⌟ ⌝ ·ᶜ 𝟘ᶜ) δ ≤⟨ f-≤ ok ⟩
+      r ·ᶜ 𝟘ᶜ +ᶜ δ              ∎
       where
       open ≤ᶜ-reasoning
