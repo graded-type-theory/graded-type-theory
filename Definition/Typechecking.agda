@@ -19,6 +19,7 @@ open import Definition.Typed R
 
 open import Tools.Fin
 open import Tools.Nat
+open import Tools.Product
 
 private
   variable
@@ -224,6 +225,14 @@ data CheckableDCon : (∇ : DCon (Term 0) n) → Set a where
 data CheckableCon : (Γ : Con Term n) → Set a where
   ε   : CheckableCon ε
   _∙_ : CheckableCon Γ → Checkable-type A → CheckableCon (Γ ∙ A)
+
+opaque
+
+  -- CheckableCons Γ means that the types and terms in Γ are
+  -- checkable.
+
+  CheckableCons : Cons m n → Set a
+  CheckableCons (∇ » Γ) = CheckableDCon ∇ × CheckableCon Γ
 
 mutual
 
