@@ -44,7 +44,7 @@ private
 mutual
   -- Helper function for conversion of terms converting from left to right.
   convTermT₁ : ∀ {l l′ A B t} {[A] : ∇ » Γ ⊩⟨ l ⟩ A} {[B] : ∇ » Γ ⊩⟨ l′ ⟩ B}
-             → ShapeView ∇ Γ l l′ A B [A] [B]
+             → ShapeView (∇ » Γ) l l′ A B [A] [B]
              → ∇ » Γ ⊩⟨ l ⟩  A ≡ B / [A]
              → ∇ » Γ ⊩⟨ l ⟩  t ∷ A / [A]
              → ∇ » Γ ⊩⟨ l′ ⟩ t ∷ B / [B]
@@ -176,7 +176,7 @@ mutual
 
   -- Helper function for conversion of terms converting from right to left.
   convTermT₂ : ∀ {l l′ A B t} {[A] : ∇ » Γ ⊩⟨ l ⟩ A} {[B] : ∇ » Γ ⊩⟨ l′ ⟩ B}
-           → ShapeView ∇ Γ l l′ A B [A] [B]
+           → ShapeView (∇ » Γ) l l′ A B [A] [B]
            → ∇ » Γ ⊩⟨ l ⟩  A ≡ B / [A]
            → ∇ » Γ ⊩⟨ l′ ⟩ t ∷ B / [B]
            → ∇ » Γ ⊩⟨ l ⟩  t ∷ A / [A]
@@ -337,7 +337,7 @@ mutual
 
   -- Helper function for conversion of term equality converting from left to right.
   convEqTermT₁ : ∀ {l l′ A B t u} {[A] : ∇ » Γ ⊩⟨ l ⟩ A} {[B] : ∇ » Γ ⊩⟨ l′ ⟩ B}
-               → ShapeView ∇ Γ l l′ A B [A] [B]
+               → ShapeView (∇ » Γ) l l′ A B [A] [B]
                → ∇ » Γ ⊩⟨ l ⟩  A ≡ B / [A]
                → ∇ » Γ ⊩⟨ l ⟩  t ≡ u ∷ A / [A]
                → ∇ » Γ ⊩⟨ l′ ⟩ t ≡ u ∷ B / [B]
@@ -509,7 +509,7 @@ mutual
 
   -- Helper function for conversion of term equality converting from right to left.
   convEqTermT₂ : ∀ {l l′ A B t u} {[A] : ∇ » Γ ⊩⟨ l ⟩ A} {[B] : ∇ » Γ ⊩⟨ l′ ⟩ B}
-             → ShapeView ∇ Γ l l′ A B [A] [B]
+             → ShapeView (∇ » Γ) l l′ A B [A] [B]
              → ∇ » Γ ⊩⟨ l ⟩  A ≡ B / [A]
              → ∇ » Γ ⊩⟨ l′ ⟩ t ≡ u ∷ B / [B]
              → ∇ » Γ ⊩⟨ l ⟩  t ≡ u ∷ A / [A]

@@ -321,27 +321,28 @@ opaque
     lemma = flip ≤ᵘ-trans ≤ᵘ1+
 
 -- A view for constructor equality of types where embeddings are ignored
-data ShapeView (∇ : DCon (Term 0) m) (Γ : Con Term n) : ∀ l l′ A B
-                (p : ∇ » Γ ⊩⟨ l ⟩ A) (q : ∇ » Γ ⊩⟨ l′ ⟩ B) → Set a where
-  Uᵥ : ∀ {A B l l′} UA UB → ShapeView ∇ Γ l l′ A B (Uᵣ UA) (Uᵣ UB)
-  ℕᵥ : ∀ {A B l l′} ℕA ℕB → ShapeView ∇ Γ l l′ A B (ℕᵣ ℕA) (ℕᵣ ℕB)
-  Emptyᵥ : ∀ {A B l l′} EmptyA EmptyB → ShapeView ∇ Γ l l′ A B (Emptyᵣ EmptyA) (Emptyᵣ EmptyB)
-  Unitᵥ : ∀ {A B l l′ s} UnitA UnitB → ShapeView ∇ Γ l l′ A B (Unitᵣ {s = s} UnitA) (Unitᵣ {s = s} UnitB)
+data ShapeView (Γ : Cons m n) : ∀ l l′ A B
+                (p : Γ ⊩⟨ l ⟩ A) (q : Γ ⊩⟨ l′ ⟩ B) → Set a where
+  Uᵥ : ∀ {A B l l′} UA UB → ShapeView Γ l l′ A B (Uᵣ UA) (Uᵣ UB)
+  ℕᵥ : ∀ {A B l l′} ℕA ℕB → ShapeView Γ l l′ A B (ℕᵣ ℕA) (ℕᵣ ℕB)
+  Emptyᵥ : ∀ {A B l l′} EmptyA EmptyB → ShapeView Γ l l′ A B (Emptyᵣ EmptyA) (Emptyᵣ EmptyB)
+  Unitᵥ : ∀ {A B l l′ s} UnitA UnitB → ShapeView Γ l l′ A B (Unitᵣ {s = s} UnitA) (Unitᵣ {s = s} UnitB)
   ne : ∀ {A B l l′} neA neB
-     → ShapeView ∇ Γ l l′ A B (ne neA) (ne neB)
+     → ShapeView Γ l l′ A B (ne neA) (ne neB)
   Bᵥ : ∀ {A B l l′} W BA BB
-    → ShapeView ∇ Γ l l′ A B (Bᵣ W BA) (Bᵣ W BB)
-  Idᵥ : ∀ ⊩A ⊩B → ShapeView ∇ Γ l l′ A B (Idᵣ ⊩A) (Idᵣ ⊩B)
+    → ShapeView Γ l l′ A B (Bᵣ W BA) (Bᵣ W BB)
+  Idᵥ : ∀ ⊩A ⊩B → ShapeView Γ l l′ A B (Idᵣ ⊩A) (Idᵣ ⊩B)
   embᵥ₁ : ∀ p {⊩A ⊩B} →
-          ShapeView ∇ Γ l₁′ l₂ A B (⊩<⇔⊩ p .proj₁ ⊩A) ⊩B →
-          ShapeView ∇ Γ l₁ l₂ A B (emb p ⊩A) ⊩B
+          ShapeView Γ l₁′ l₂ A B (⊩<⇔⊩ p .proj₁ ⊩A) ⊩B →
+          ShapeView Γ l₁ l₂ A B (emb p ⊩A) ⊩B
   embᵥ₂ : ∀ p {⊩A ⊩B} →
-          ShapeView ∇ Γ l₁ l₂′ A B ⊩A (⊩<⇔⊩ p .proj₁ ⊩B) →
-          ShapeView ∇ Γ l₁ l₂ A B ⊩A (emb p ⊩B)
+          ShapeView Γ l₁ l₂′ A B ⊩A (⊩<⇔⊩ p .proj₁ ⊩B) →
+          ShapeView Γ l₁ l₂ A B ⊩A (emb p ⊩B)
 
 -- Construct a shape view from an equality (aptly named)
-goodCases : ∀ {l l′} ([A] : ∇ » Γ ⊩⟨ l ⟩ A) ([B] : ∇ » Γ ⊩⟨ l′ ⟩ B)
-          → ∇ » Γ ⊩⟨ l ⟩ A ≡ B / [A] → ShapeView ∇ Γ l l′ A B [A] [B]
+goodCases :
+  ∀ {l l′} ([A] : ∇ » Γ ⊩⟨ l ⟩ A) ([B] : ∇ » Γ ⊩⟨ l′ ⟩ B) →
+  ∇ » Γ ⊩⟨ l ⟩ A ≡ B / [A] → ShapeView (∇ » Γ) l l′ A B [A] [B]
 -- Diagonal cases
 goodCases (Uᵣ UA) (Uᵣ UB) A≡B = Uᵥ UA UB
 goodCases (ℕᵣ ℕA) (ℕᵣ ℕB) A≡B = ℕᵥ ℕA ℕB
@@ -363,7 +364,7 @@ goodCases {∇} {Γ} {B} ⊩A (emb p _) A≡B = embᵥ₂ p (lemma p)
   where
   lemma :
     (p : l <ᵘ l′) {⊩<B : ∇ » Γ ⊩<⟨ p ⟩ B} →
-    ShapeView _ _ _ _ _ _ ⊩A (⊩<⇔⊩ p .proj₁ ⊩<B)
+    ShapeView _ _ _ _ _ ⊩A (⊩<⇔⊩ p .proj₁ ⊩<B)
   lemma ≤ᵘ-refl     = goodCases _ _ A≡B
   lemma (≤ᵘ-step p) = lemma p
 goodCases {∇} {Γ} {A} {B} (emb p _) ⊩B A≡B = embᵥ₁ p (lemma p A≡B)
@@ -371,7 +372,7 @@ goodCases {∇} {Γ} {A} {B} (emb p _) ⊩B A≡B = embᵥ₁ p (lemma p A≡B)
   lemma :
     (p : l <ᵘ l′) {⊩<A : ∇ » Γ ⊩<⟨ p ⟩ A} →
     ∇ » Γ ⊩⟨ l′ ⟩ A ≡ B / emb p ⊩<A →
-    ShapeView _ _ _ _ _ _ (⊩<⇔⊩ p .proj₁ ⊩<A) ⊩B
+    ShapeView _ _ _ _ _ (⊩<⇔⊩ p .proj₁ ⊩<A) ⊩B
   lemma ≤ᵘ-refl     = goodCases _ _
   lemma (≤ᵘ-step p) = lemma p
 
@@ -500,45 +501,46 @@ goodCases (Idᵣ _) (Bᵣ _ ⊩B) A≡B =
   whrDet* (_⊩ₗId_≡_/_.⇒*Id′ A≡B , Idₙ) (_⊩ₗB⟨_⟩_.D ⊩B , ⟦ _ ⟧ₙ)
 
 -- Construct a shape view between two derivations of the same type
-goodCasesRefl : ∀ {l l′ A} ([A] : ∇ » Γ ⊩⟨ l ⟩ A) ([A′] : ∇ » Γ ⊩⟨ l′ ⟩ A)
-              → ShapeView ∇ Γ l l′ A A [A] [A′]
+goodCasesRefl :
+  ∀ {l l′ A} ([A] : ∇ » Γ ⊩⟨ l ⟩ A) ([A′] : ∇ » Γ ⊩⟨ l′ ⟩ A) →
+  ShapeView (∇ » Γ) l l′ A A [A] [A′]
 goodCasesRefl [A] [A′] = goodCases [A] [A′] (reflEq [A])
 
 
 -- A view for constructor equality between three types
-data ShapeView₃ (∇ : DCon (Term 0) m) (Γ : Con Term n) : ∀ l l′ l″ A B C
-                 (p : ∇ » Γ ⊩⟨ l  ⟩ A)
-                 (q : ∇ » Γ ⊩⟨ l′ ⟩ B)
-                 (r : ∇ » Γ ⊩⟨ l″ ⟩ C) → Set a where
-  Uᵥ : ∀ {A B C l l′ l″} UA UB UC → ShapeView₃ ∇ Γ l l′ l″ A B C (Uᵣ UA) (Uᵣ UB) (Uᵣ UC)
+data ShapeView₃ (Γ : Cons m n) : ∀ l l′ l″ A B C
+                 (p : Γ ⊩⟨ l  ⟩ A)
+                 (q : Γ ⊩⟨ l′ ⟩ B)
+                 (r : Γ ⊩⟨ l″ ⟩ C) → Set a where
+  Uᵥ : ∀ {A B C l l′ l″} UA UB UC → ShapeView₃ Γ l l′ l″ A B C (Uᵣ UA) (Uᵣ UB) (Uᵣ UC)
   ℕᵥ : ∀ {A B C l l′ l″} ℕA ℕB ℕC
-    → ShapeView₃ ∇ Γ l l′ l″ A B C (ℕᵣ ℕA) (ℕᵣ ℕB) (ℕᵣ ℕC)
+    → ShapeView₃ Γ l l′ l″ A B C (ℕᵣ ℕA) (ℕᵣ ℕB) (ℕᵣ ℕC)
   Emptyᵥ : ∀ {A B C l l′ l″} EmptyA EmptyB EmptyC
-    → ShapeView₃ ∇ Γ l l′ l″ A B C (Emptyᵣ EmptyA) (Emptyᵣ EmptyB) (Emptyᵣ EmptyC)
+    → ShapeView₃ Γ l l′ l″ A B C (Emptyᵣ EmptyA) (Emptyᵣ EmptyB) (Emptyᵣ EmptyC)
   Unitᵥ : ∀ {A B C l l′ l″ s} UnitA UnitB UnitC
-    → ShapeView₃ ∇ Γ l l′ l″ A B C (Unitᵣ {s = s} UnitA)
+    → ShapeView₃ Γ l l′ l″ A B C (Unitᵣ {s = s} UnitA)
                  (Unitᵣ {s = s} UnitB) (Unitᵣ {s = s} UnitC)
   ne : ∀ {A B C l l′ l″} neA neB neC
-     → ShapeView₃ ∇ Γ l l′ l″ A B C (ne neA) (ne neB) (ne neC)
+     → ShapeView₃ Γ l l′ l″ A B C (ne neA) (ne neB) (ne neC)
   Bᵥ : ∀ {A B C l l′ l″} W W′ W″ BA BB BC
-    → ShapeView₃ ∇ Γ l l′ l″ A B C (Bᵣ W BA) (Bᵣ W′ BB) (Bᵣ W″ BC)
+    → ShapeView₃ Γ l l′ l″ A B C (Bᵣ W BA) (Bᵣ W′ BB) (Bᵣ W″ BC)
   Idᵥ :
-    ∀ ⊩A ⊩B ⊩C → ShapeView₃ ∇ Γ l l′ l″ A B C (Idᵣ ⊩A) (Idᵣ ⊩B) (Idᵣ ⊩C)
+    ∀ ⊩A ⊩B ⊩C → ShapeView₃ Γ l l′ l″ A B C (Idᵣ ⊩A) (Idᵣ ⊩B) (Idᵣ ⊩C)
   embᵥ₁ : ∀ p {⊩A ⊩B ⊩C} →
-          ShapeView₃ ∇ Γ l₁′ l₂ l₃ A B C (⊩<⇔⊩ p .proj₁ ⊩A) ⊩B ⊩C →
-          ShapeView₃ ∇ Γ l₁ l₂ l₃ A B C (emb p ⊩A) ⊩B ⊩C
+          ShapeView₃ Γ l₁′ l₂ l₃ A B C (⊩<⇔⊩ p .proj₁ ⊩A) ⊩B ⊩C →
+          ShapeView₃ Γ l₁ l₂ l₃ A B C (emb p ⊩A) ⊩B ⊩C
   embᵥ₂ : ∀ p {⊩A ⊩B ⊩C} →
-          ShapeView₃ ∇ Γ l₁ l₂′ l₃ A B C ⊩A (⊩<⇔⊩ p .proj₁ ⊩B) ⊩C →
-          ShapeView₃ ∇ Γ l₁ l₂ l₃ A B C ⊩A (emb p ⊩B) ⊩C
+          ShapeView₃ Γ l₁ l₂′ l₃ A B C ⊩A (⊩<⇔⊩ p .proj₁ ⊩B) ⊩C →
+          ShapeView₃ Γ l₁ l₂ l₃ A B C ⊩A (emb p ⊩B) ⊩C
   embᵥ₃ : ∀ p {⊩A ⊩B ⊩C} →
-          ShapeView₃ ∇ Γ l₁ l₂ l₃′ A B C ⊩A ⊩B (⊩<⇔⊩ p .proj₁ ⊩C) →
-          ShapeView₃ ∇ Γ l₁ l₂ l₃ A B C ⊩A ⊩B (emb p ⊩C)
+          ShapeView₃ Γ l₁ l₂ l₃′ A B C ⊩A ⊩B (⊩<⇔⊩ p .proj₁ ⊩C) →
+          ShapeView₃ Γ l₁ l₂ l₃ A B C ⊩A ⊩B (emb p ⊩C)
 
 -- Combines two two-way views into a three-way view
 combine : ∀ {l l′ l″ l‴ A B C [A] [B] [B]′ [C]}
-        → ShapeView ∇ Γ l l′ A B [A] [B]
-        → ShapeView ∇ Γ l″ l‴ B C [B]′ [C]
-        → ShapeView₃ ∇ Γ l l′ l‴ A B C [A] [B] [C]
+        → ShapeView (∇ » Γ) l l′ A B [A] [B]
+        → ShapeView (∇ » Γ) l″ l‴ B C [B]′ [C]
+        → ShapeView₃ (∇ » Γ) l l′ l‴ A B C [A] [B] [C]
 -- Diagonal cases
 combine (Uᵥ UA₁ UB₁) (Uᵥ UA UB) = Uᵥ UA₁ UB₁ UB
 combine (ℕᵥ ℕA₁ ℕB₁) (ℕᵥ ℕA ℕB) = ℕᵥ ℕA₁ ℕB₁ ℕB

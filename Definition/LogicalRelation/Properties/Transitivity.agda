@@ -133,7 +133,7 @@ transEqTermUnit (Unitₜ₌ʷ _ _ _ _ _ _ _) (Unitₜ₌ˢ _ _ (inj₁ ()))
 -- Helper function for transitivity of type equality using shape views.
 transEqT : ∀ {m n} {∇ : DCon (Term 0) m} {Γ : Con Term n} {A B C l l′ l″}
            {[A] : ∇ » Γ ⊩⟨ l ⟩ A} {[B] : ∇ » Γ ⊩⟨ l′ ⟩ B} {[C] : ∇ » Γ ⊩⟨ l″ ⟩ C}
-         → ShapeView₃ ∇ Γ l l′ l″ A B C [A] [B] [C]
+         → ShapeView₃ (∇ » Γ) l l′ l″ A B C [A] [B] [C]
          → ∇ » Γ ⊩⟨ l ⟩  A ≡ B / [A]
          → ∇ » Γ ⊩⟨ l′ ⟩ B ≡ C / [B]
          → ∇ » Γ ⊩⟨ l ⟩  A ≡ C / [A]

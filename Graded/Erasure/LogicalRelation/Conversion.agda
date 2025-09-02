@@ -61,7 +61,7 @@ convTermʳ′ : ∀ {l l′}
            → ([A] : ts » Δ ⊩⟨ l ⟩ A)
              ([B] : ts » Δ ⊩⟨ l′ ⟩ B)
            → ts » Δ ⊢ A ≡ B
-           → ShapeView ts Δ l l′ A B [A] [B]
+           → ShapeView (ts » Δ) l l′ A B [A] [B]
            → t ®⟨ l ⟩ v ∷ A / [A]
            → t ®⟨ l′ ⟩ v ∷ B / [B]
 convTermʳ′ _ _ A≡B (Uᵥ UA UB) t®v = t®v

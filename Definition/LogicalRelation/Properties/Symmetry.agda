@@ -69,7 +69,7 @@ symUnit-prop (ne prop) = ne (symNeutralTerm prop)
 symEqT :
   ∀ {∇ : DCon (Term 0) κ} {Γ : Con Term n} {A B l l′}
     {[A] : ∇ » Γ ⊩⟨ l ⟩ A} {[B] : ∇ » Γ ⊩⟨ l′ ⟩ B} →
-  ShapeView ∇ Γ l l′ A B [A] [B] →
+  ShapeView (∇ » Γ) l l′ A B [A] [B] →
   ∇ » Γ ⊩⟨ l  ⟩ A ≡ B / [A] →
   ∇ » Γ ⊩⟨ l′ ⟩ B ≡ A / [B]
 

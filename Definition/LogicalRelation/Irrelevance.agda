@@ -72,7 +72,7 @@ mutual
 
   -- Helper for irrelevance of type equality using shape view
   irrelevanceEqT : ∀ {A B l l′} {p : ∇ » Γ ⊩⟨ l ⟩ A} {q : ∇ » Γ ⊩⟨ l′ ⟩ A}
-                       → ShapeView ∇ Γ l l′ A A p q
+                       → ShapeView (∇ » Γ) l l′ A A p q
                        → ∇ » Γ ⊩⟨ l ⟩ A ≡ B / p → ∇ » Γ ⊩⟨ l′ ⟩ A ≡ B / q
   irrelevanceEqT (ℕᵥ D D′) A≡B = A≡B
   irrelevanceEqT (Emptyᵥ D D′) A≡B = A≡B
@@ -151,7 +151,7 @@ mutual
 
   -- Helper for irrelevance of terms using shape view
   irrelevanceTermT : ∀ {A t l l′} {p : ∇ » Γ ⊩⟨ l ⟩ A} {q : ∇ » Γ ⊩⟨ l′ ⟩ A}
-                         → ShapeView ∇ Γ l l′ A A p q
+                         → ShapeView (∇ » Γ) l l′ A A p q
                          → ∇ » Γ ⊩⟨ l ⟩ t ∷ A / p → ∇ » Γ ⊩⟨ l′ ⟩ t ∷ A / q
   irrelevanceTermT (ℕᵥ D D′) t = t
   irrelevanceTermT (Emptyᵥ D D′) t = t
@@ -271,7 +271,7 @@ mutual
 
   -- Helper for irrelevance of term equality using shape view
   irrelevanceEqTermT : ∀ {A t u} {l l′} {p : ∇ » Γ ⊩⟨ l ⟩ A} {q : ∇ » Γ ⊩⟨ l′ ⟩ A}
-                           → ShapeView ∇ Γ l l′ A A p q
+                           → ShapeView (∇ » Γ) l l′ A A p q
                            → ∇ » Γ ⊩⟨ l ⟩ t ≡ u ∷ A / p → ∇ » Γ ⊩⟨ l′ ⟩ t ≡ u ∷ A / q
   irrelevanceEqTermT (ℕᵥ D D′) t≡u = t≡u
   irrelevanceEqTermT (Emptyᵥ D D′) t≡u = t≡u

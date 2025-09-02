@@ -57,7 +57,7 @@ opaque
     (∀ {l} → ∇ » Γ ⊩⟨ l ⟩ A → ∃ λ l′ → (∇ » Γ) ⊩′⟨ l′ ⟩A A) →
     (∀ {l} → ∇ » Γ ⊩⟨ l ⟩ B → ∃ λ l′ → (∇ » Γ) ⊩′⟨ l′ ⟩B B) →
     (∀ {l₁ l₂} {⊩A : (∇ » Γ) ⊩′⟨ l₁ ⟩A A} {⊩B : (∇ » Γ) ⊩′⟨ l₂ ⟩B B} →
-     ¬ ShapeView ∇ Γ l₁ l₂ A B (A-intr ⊩A) (B-intr ⊩B)) →
+     ¬ ShapeView (∇ » Γ) l₁ l₂ A B (A-intr ⊩A) (B-intr ⊩B)) →
     ¬ ∇ » Γ ⊢ A ≡ B
   A≢B _ _ A-intr B-intr A-elim B-elim A≢B′ A≡B =
     let _ , ⊩A , ⊩B , A≡B = reducible-⊩≡ A≡B

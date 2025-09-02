@@ -52,7 +52,7 @@ irrelevanceTermSV : ∀ {l l′ t v A}
                   → ([A] : ts » Δ ⊩⟨ l ⟩ A)
                     ([A]′ : ts » Δ ⊩⟨ l′ ⟩ A)
                   → t ®⟨ l ⟩ v ∷ A / [A]
-                  → ShapeView ts Δ l l′ A A [A] [A]′
+                  → ShapeView (ts » Δ) l l′ A A [A] [A]′
                   → t ®⟨ l′ ⟩ v ∷ A / [A]′
 irrelevanceTermSV .(Uᵣ UA) .(Uᵣ UB) t®v (Uᵥ UA UB) = t®v
 irrelevanceTermSV .(ℕᵣ ℕA) .(ℕᵣ ℕB) t®v (ℕᵥ ℕA ℕB) = t®v
