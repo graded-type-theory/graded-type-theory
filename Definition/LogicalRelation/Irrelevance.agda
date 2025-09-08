@@ -36,7 +36,7 @@ private
   variable
     m n : Nat
     ∇ : DCon (Term 0) m
-    Γ Γ′ : Con Term n
+    Γ : Con Term n
     A A′ B B′ C C′ : Term _
     l l′ : Universe-level
 
@@ -46,14 +46,6 @@ irrelevance′ : ∀ {A A′ l}
              → ∇ » Γ ⊩⟨ l ⟩ A
              → ∇ » Γ ⊩⟨ l ⟩ A′
 irrelevance′ PE.refl [A] = [A]
-
--- Irrelevance for propositionally equal types and contexts
-irrelevanceΓ′ : ∀ {l A A′}
-              → Γ PE.≡ Γ′
-              → A PE.≡ A′
-              → ∇ » Γ  ⊩⟨ l ⟩ A
-              → ∇ » Γ′ ⊩⟨ l ⟩ A′
-irrelevanceΓ′ PE.refl PE.refl [A] = [A]
 
 mutual
   -- Irrelevance for type equality
@@ -77,14 +69,6 @@ mutual
   irrelevanceEqR′ : ∀ {A B B′ l} (eqB : B PE.≡ B′) (p : ∇ » Γ ⊩⟨ l ⟩ A)
                   → ∇ » Γ ⊩⟨ l ⟩ A ≡ B / p → ∇ » Γ ⊩⟨ l ⟩ A ≡ B′ / p
   irrelevanceEqR′ PE.refl p A≡B = A≡B
-
-  -- Irrelevance for type equality with propositionally equal types
-  -- and contexts.
-  irrelevanceEq‴ :
-    A PE.≡ A′ → B PE.≡ B′ → Γ PE.≡ Γ′ →
-    (⊩A : ∇ » Γ ⊩⟨ l ⟩ A) (⊩A′ : ∇ » Γ′ ⊩⟨ l′ ⟩ A′) →
-    ∇ » Γ ⊩⟨ l ⟩ A ≡ B / ⊩A → ∇ » Γ′ ⊩⟨ l′ ⟩ A′ ≡ B′ / ⊩A′
-  irrelevanceEq‴ PE.refl PE.refl PE.refl = irrelevanceEq
 
   -- Helper for irrelevance of type equality using shape view
   irrelevanceEqT : ∀ {A B l l′} {p : ∇ » Γ ⊩⟨ l ⟩ A} {q : ∇ » Γ ⊩⟨ l′ ⟩ A}
@@ -164,17 +148,6 @@ mutual
                       (p : ∇ » Γ ⊩⟨ l ⟩ A) (q : ∇ » Γ ⊩⟨ l′ ⟩ A′)
                     → ∇ » Γ ⊩⟨ l ⟩ t ∷ A / p → ∇ » Γ ⊩⟨ l′ ⟩ t′ ∷ A′ / q
   irrelevanceTerm″ PE.refl PE.refl p q t = irrelevanceTerm p q t
-
-  -- Irrelevance for terms with propositionally equal types, terms and contexts
-  irrelevanceTermΓ″ : ∀ {l l′ A A′ t t′}
-                     → Γ PE.≡ Γ′
-                     → A PE.≡ A′
-                     → t PE.≡ t′
-                     → ([A]  : ∇ » Γ  ⊩⟨ l  ⟩ A)
-                       ([A′] : ∇ » Γ′ ⊩⟨ l′ ⟩ A′)
-                     → ∇ » Γ  ⊩⟨ l  ⟩ t ∷ A  / [A]
-                     → ∇ » Γ′ ⊩⟨ l′ ⟩ t′ ∷ A′ / [A′]
-  irrelevanceTermΓ″ PE.refl PE.refl PE.refl [A] [A′] [t] = irrelevanceTerm [A] [A′] [t]
 
   -- Helper for irrelevance of terms using shape view
   irrelevanceTermT : ∀ {A t l l′} {p : ∇ » Γ ⊩⟨ l ⟩ A} {q : ∇ » Γ ⊩⟨ l′ ⟩ A}
