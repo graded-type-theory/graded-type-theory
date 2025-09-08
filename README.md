@@ -38,4 +38,4 @@ The present work adds a universe hierarchy with first-class universe levels.
 ### Dependencies ###
 
 This project is written in Agda. It has been tested to be working with
-Agda version 2.7.0.1 and its standard library version 2.2.
+Agda version 2.8.0 and its standard library version 2.3.

@@ -14,8 +14,8 @@
 --
 -- The code depends on some libraries:
 --
--- * Agda's standard library, version 2.2.
--- * The builtin modules that are shipped with Agda 2.7.0.1.
+-- * Agda's standard library, version 2.3.
+-- * The builtin modules that are shipped with Agda 2.8.0.
 --
 -- To type-check the code and generate HTML, after installing Agda and
 -- the standard library, run `agda --html README.agda`.
@@ -25,8 +25,8 @@
 -- included here. At the time of writing the licence texts can be
 -- found at the following URLs:
 --
--- * https://github.com/agda/agda-stdlib/blob/v2.2/LICENCE
--- * https://github.com/agda/agda/blob/v2.7.0.1/LICENSE
+-- * https://github.com/agda/agda-stdlib/blob/v2.3/LICENCE
+-- * https://github.com/agda/agda/blob/v2.8.0/LICENSE
 
 module README where
 
