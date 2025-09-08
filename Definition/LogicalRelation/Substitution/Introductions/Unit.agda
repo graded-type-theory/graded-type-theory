@@ -118,7 +118,7 @@ opaque
 
   ⊩≡∷Unit⇔ :
     Γ ⊩⟨ l′ ⟩ t ≡ u ∷ Unit s l ⇔
-    (l ≤ᵘ l′ × Unit-allowed s × Γ ⊩Unit⟨ s ⟩ t ≡ u ∷Unit/ l)
+    (l ≤ᵘ l′ × Unit-allowed s × Γ ⊩Unit⟨ l , s ⟩ t ≡ u ∷Unit)
   ⊩≡∷Unit⇔ {s} =
       (λ (⊩Unit , t≡u) →
          case Unit-view ⊩Unit of λ {
@@ -139,12 +139,12 @@ opaque
 
   ⊩∷Unit⇔ :
     Γ ⊩⟨ l′ ⟩ t ∷ Unit s l ⇔
-    (l ≤ᵘ l′ × Unit-allowed s × Γ ⊩Unit⟨ s ⟩ t ∷Unit/ l)
+    (l ≤ᵘ l′ × Unit-allowed s × Γ ⊩Unit⟨ l , s ⟩ t ∷Unit)
   ⊩∷Unit⇔ {Γ} {l′} {t} {s} {l} =
-    Γ ⊩⟨ l′ ⟩ t ∷ Unit s l                                  ⇔⟨ ⊩∷⇔⊩≡∷ ⟩
-    Γ ⊩⟨ l′ ⟩ t ≡ t ∷ Unit s l                              ⇔⟨ ⊩≡∷Unit⇔ ⟩
-    l ≤ᵘ l′ × Unit-allowed s × Γ ⊩Unit⟨ s ⟩ t ≡ t ∷Unit/ l  ⇔˘⟨ (Σ-cong-⇔ λ _ → Σ-cong-⇔ λ _ → ⊩Unit∷Unit⇔⊩Unit≡∷Unit) ⟩
-    l ≤ᵘ l′ × Unit-allowed s × Γ ⊩Unit⟨ s ⟩ t ∷Unit/ l      □⇔
+    Γ ⊩⟨ l′ ⟩ t ∷ Unit s l                                   ⇔⟨ ⊩∷⇔⊩≡∷ ⟩
+    Γ ⊩⟨ l′ ⟩ t ≡ t ∷ Unit s l                               ⇔⟨ ⊩≡∷Unit⇔ ⟩
+    l ≤ᵘ l′ × Unit-allowed s × Γ ⊩Unit⟨ l , s ⟩ t ≡ t ∷Unit  ⇔˘⟨ (Σ-cong-⇔ λ _ → Σ-cong-⇔ λ _ → ⊩Unit∷Unit⇔⊩Unit≡∷Unit) ⟩
+    l ≤ᵘ l′ × Unit-allowed s × Γ ⊩Unit⟨ l , s ⟩ t ∷Unit      □⇔
 
 ------------------------------------------------------------------------
 -- Unit

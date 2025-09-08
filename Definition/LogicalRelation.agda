@@ -192,9 +192,9 @@ data [Unit]-prop
   Unitₜ₌ʷ : [Unitʷ]-prop Γ l′ t u → ¬ Unitʷ-η → [Unit]-prop Γ l′ 𝕨 t u
   Unitₜ₌ˢ : Unit-with-η s → [Unit]-prop Γ l′ s t u
 
-record _⊩Unit⟨_⟩_≡_∷Unit/_
-         (Γ : Con Term ℓ) (s : Strength)
-         (t₁ t₂ : Term ℓ) (l′ : Universe-level) :
+record _⊩Unit⟨_,_⟩_≡_∷Unit
+         (Γ : Con Term ℓ) (l : Universe-level) (s : Strength)
+         (t₁ t₂ : Term ℓ) :
          Set a where
   inductive
   no-eta-equality
@@ -202,9 +202,9 @@ record _⊩Unit⟨_⟩_≡_∷Unit/_
   constructor Unitₜ₌
   field
     u₁ u₂ : Term ℓ
-    ↘u₁   : Γ ⊢ t₁ ↘ u₁ ∷ Unit s l′
-    ↘u₂   : Γ ⊢ t₂ ↘ u₂ ∷ Unit s l′
-    prop  : [Unit]-prop Γ l′ s u₁ u₂
+    ↘u₁   : Γ ⊢ t₁ ↘ u₁ ∷ Unit s l
+    ↘u₂   : Γ ⊢ t₂ ↘ u₂ ∷ Unit s l
+    prop  : [Unit]-prop Γ l s u₁ u₂
 
 
 -- Logical relation
@@ -478,7 +478,8 @@ module LogRel
     Γ ⊩ₗ t ≡ u ∷ A / Uᵣ ⊩A = Γ ⊩₁U t ≡ u ∷U/ _⊩₁U_.l′< ⊩A
     Γ ⊩ₗ t ≡ u ∷ A / ℕᵣ D = Γ ⊩ℕ t ≡ u ∷ℕ
     Γ ⊩ₗ t ≡ u ∷ A / Emptyᵣ D = Γ ⊩Empty t ≡ u ∷Empty
-    Γ ⊩ₗ t ≡ u ∷ A / Unitᵣ {s = s} ⊩A = Γ ⊩Unit⟨ s ⟩ t ≡ u ∷Unit/ ⊩A ._⊩Unit⟨_,_⟩_.l′
+    Γ ⊩ₗ t ≡ u ∷ A / Unitᵣ {s} ⊩A =
+      Γ ⊩Unit⟨ ⊩A ._⊩Unit⟨_,_⟩_.l′ , s ⟩ t ≡ u ∷Unit
     Γ ⊩ₗ t ≡ u ∷ A / ne neA = Γ ⊩ne t ≡ u ∷ A / neA
     Γ ⊩ₗ t ≡ u ∷ A / Bᵣ BΠ! ΠA = Γ ⊩ₗΠ t ≡ u ∷ A / ΠA
     Γ ⊩ₗ t ≡ u ∷ A / Bᵣ BΣ! ΣA  = Γ ⊩ₗΣ t ≡ u ∷ A / ΣA
