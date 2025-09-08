@@ -173,6 +173,8 @@ i <ᵘ j = i <′ j
 -- Definition contexts
 
 -- Unfolding vectors.
+--
+-- Here "1" means "unfold".
 
 data Unfolding : Nat -> Set where
   ε  : Unfolding 0
@@ -199,7 +201,9 @@ ones (1+ n) = ones n ¹
 -- Opacity.
 
 data Opacity (n : Nat) : Set where
+  -- Opaque, with the given unfolding clause.
   opa : Unfolding n → Opacity n
+  -- Transparent.
   tra : Opacity n
 
 -- Definition contexts.

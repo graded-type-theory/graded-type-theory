@@ -60,6 +60,8 @@ _⊔ᵒᵗ_ with unfolding-mode
 ...            | explicit   = d
 ...            | transitive = t
 
+-- Transparentisation.
+
 infix 4 _»_↜_
 
 data _»_↜_ : Unfolding n → DCon (Term 0) n → DCon (Term 0) n → Set ℓ where
@@ -70,7 +72,7 @@ data _»_↜_ : Unfolding n → DCon (Term 0) n → DCon (Term 0) n → Set ℓ 
 
 mutual
 
-  -- Well-formed definitions.
+  -- Well-formed definition contexts.
 
   infix 4 »_
 
