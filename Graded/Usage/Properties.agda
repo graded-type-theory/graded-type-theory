@@ -1672,13 +1672,6 @@ opaque
     where
     open CR
 
-opaque
-
-  -- A variant of sub for equal contexts
-
-  sub-≈ᶜ : γ ▸[ m ] t → δ ≈ᶜ γ → δ ▸[ m ] t
-  sub-≈ᶜ ▸t δ≈γ = sub ▸t (≤ᶜ-reflexive δ≈γ)
-
 ------------------------------------------------------------------------
 -- Lemmas related to ⌈_⌉
 

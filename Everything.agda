@@ -159,11 +159,11 @@ import Graded.Usage.Restrictions.Natrec.Instance
 import Graded.Usage.Restrictions
 import Graded.Usage.Restrictions.Instance
 import Graded.Usage
+import Graded.Usage.Weakening
 import Graded.Usage.Inversion
 import Graded.Usage.Properties
 import Graded.Usage.Restrictions.Satisfied
 import Graded.Usage.Properties.Has-well-behaved-zero
-import Graded.Usage.Weakening
 import Graded.Usage.Decidable.Assumptions
 import Graded.Usage.Decidable
 

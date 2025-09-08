@@ -18,7 +18,6 @@ open import Graded.Context.Properties 𝕄
 open import Graded.Context.Weakening 𝕄
 open import Graded.Usage 𝕄 R
 open import Graded.Usage.Restrictions.Instance R
-open import Graded.Usage.Properties 𝕄 R
 open import Graded.Mode 𝕄
 open import Definition.Untyped M
 open import Definition.Untyped.Inversion M

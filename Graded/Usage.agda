@@ -506,8 +506,17 @@ data _▸[_]_ {n : Nat} : (γ : Conₘ n) → Mode → Term n → Set a where
 _▸_ : (γ : Conₘ n) (t : Term n) → Set a
 γ ▸ t = γ ▸[ 𝟙ᵐ ] t
 
-starₘ : 𝟘ᶜ {n} ▸[ m ] star s l
-starₘ {s = 𝕤} =
-  sub (starˢₘ λ _ → ≈ᶜ-refl)
-      (≤ᶜ-reflexive (≈ᶜ-sym (·ᶜ-zeroʳ _)))
-starₘ {s = 𝕨} = starʷₘ
+opaque
+
+  -- A variant of sub.
+
+  sub-≈ᶜ : γ ▸[ m ] t → δ ≈ᶜ γ → δ ▸[ m ] t
+  sub-≈ᶜ ▸t δ≈γ = sub ▸t (≤ᶜ-reflexive δ≈γ)
+
+opaque
+
+  -- A variant of starˢₘ and starʷₘ.
+
+  starₘ : 𝟘ᶜ {n = n} ▸[ m ] star s l
+  starₘ {s = 𝕤} = sub-≈ᶜ (starˢₘ λ _ → ≈ᶜ-refl) (≈ᶜ-sym (·ᶜ-zeroʳ _))
+  starₘ {s = 𝕨} = starʷₘ
