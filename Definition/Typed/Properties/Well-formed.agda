@@ -524,14 +524,14 @@ opaque
   unfolding size-⊢′
 
   -- If there is a proof of ⊢ Γ, then there is a proof of » Γ .defs
-  -- that is no larger than the first proof.
+  -- that is strictly smaller than the first proof.
 
-  ⊢→»-<ˢ : (⊢Γ : ⊢ Γ) → ∃ λ (»Γ : » Γ .defs) → size-» »Γ ≤ˢ size-⊢′ ⊢Γ
-  ⊢→»-<ˢ (ε »∇) = »∇ , ◻
-  ⊢→»-<ˢ (∙ ⊢A) = let ⊢Γ , Γ≤ = wf-≤ˢ ⊢A
-                      »∇ , ∇≤ = ⊢→»-<ˢ ⊢Γ
+  ⊢→»-<ˢ : (⊢Γ : ⊢ Γ) → ∃ λ (»Γ : » Γ .defs) → size-» »Γ <ˢ size-⊢′ ⊢Γ
+  ⊢→»-<ˢ (ε »∇) = »∇ , !
+  ⊢→»-<ˢ (∙ ⊢A) = let ⊢Γ , Γ< = wf-<ˢ ⊢A
+                      »∇ , ∇< = ⊢→»-<ˢ ⊢Γ
                   in
-                  »∇ , ↙ ≤ˢ-trans ∇≤ Γ≤
+                  »∇ , <ˢ-trans ∇< (<ˢ-trans Γ< !)
 
 opaque
 

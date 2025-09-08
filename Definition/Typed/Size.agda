@@ -33,7 +33,7 @@ opaque mutual
   -- The size of a derivation.
 
   size-⊢′ : ⊢ Γ → Size
-  size-⊢′ (ε »∇) = size-» »∇
+  size-⊢′ (ε »∇) = node (size-» »∇)
   size-⊢′ (∙ ⊢A) = node (size-⊢ ⊢A)
 
   -- The size of a derivation.
