@@ -298,9 +298,6 @@ import Definition.LogicalRelation.Fundamental
 import Definition.LogicalRelation.Fundamental.Reducibility.Restricted
 import Definition.LogicalRelation.Fundamental.Reducibility
 
--- A simplified version of the logical relation for types
-import Definition.LogicalRelation.Simplified
-
 -- Some consequences of the fundamental lemma.
 import Definition.Typed.Consequences.Injectivity
 import Definition.Typed.Consequences.Inequality
@@ -318,6 +315,9 @@ import Definition.Typed.Consequences.Admissible
 import Definition.Typed.Consequences.Consistency
 import Graded.Derived.Unrestricted.Eta.Typed
 import Definition.Typed.Consequences.NeTypeEq
+
+-- A simplified version of the logical relation for types
+import Definition.LogicalRelation.Simplified
 
 -- Algorithmic equality.
 import Definition.Conversion
