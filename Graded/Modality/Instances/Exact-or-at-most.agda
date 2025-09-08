@@ -743,7 +743,7 @@ opaque
   nr₃-suc (≈/≤1+ b (1+ m)) (≈/≤1+ b₁ m₁) 𝟘 = refl
   nr₃-suc (≈/≤1+ b (1+ m)) (≈/≤1+ b₁ m₁) (≈/≤1+ b₂ m₂) = refl
   nr₃-suc (≈/≤1+ b (1+ m)) (≈/≤1+ b₁ m₁) ∞ = refl
-  nr₃-suc (≈/≤1+ b (1+ m)) ∞ s rewrite +-comm s ∞ = refl
+  nr₃-suc (≈/≤1+ b (1+ m)) ∞ s = refl
   nr₃-suc ∞ 𝟘 𝟘 = refl
   nr₃-suc ∞ (≈/≤1+ b m) 𝟘 = refl
   nr₃-suc ∞ ∞ 𝟘 = refl

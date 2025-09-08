@@ -10,16 +10,16 @@
 --
 -- The code also depends on some libraries:
 --
--- * Agda's standard library, version 2.1.
--- * The builtin modules that are shipped with Agda 2.7.0.1.
+-- * Agda's standard library, version 2.3.
+-- * The builtin modules that are shipped with Agda 2.8.0.
 --
 -- When HTML code is generated from this file code is also generated
 -- for the two libraries above, so URLs for their licences are
 -- included here. At the time of writing the licence texts can be
 -- found at the following URLs:
 --
--- * https://github.com/agda/agda-stdlib/blob/v2.1/LICENCE
--- * https://github.com/agda/agda/blob/v2.7.0.1/LICENSE
+-- * https://github.com/agda/agda-stdlib/blob/v2.3/LICENCE
+-- * https://github.com/agda/agda/blob/v2.8.0/LICENSE
 
 module README where
 
