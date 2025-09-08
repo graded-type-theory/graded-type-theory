@@ -92,6 +92,13 @@ opaque mutual
      ∇ » Δ ⊩⟨ l ⟩ head σ₁ ≡ head σ₂ ∷ A [ tail σ₁ ]) ×
     ∇ » Δ ⊩ˢ tail σ₁ ≡ tail σ₂ ∷ Γ
 
+-- Valid context pairs.
+
+infix 4 ⊩ᵛ_
+
+⊩ᵛ_ : Cons m n → Set a
+⊩ᵛ (∇ » Γ) = ∇ »⊩ᵛ Γ
+
 opaque
 
   -- Valid substitutions.
