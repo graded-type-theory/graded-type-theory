@@ -531,8 +531,6 @@ private module Inhabited where
           supᵘ-cong (wkEqTerm ρ⊇ ⊢Δ t₁≡t₂) (wkEqTerm ρ⊇ ⊢Δ u₁≡u₂)
         (supᵘ-zeroˡ l) PE.refl →
           supᵘ-zeroˡ (wkTerm ρ⊇ ⊢Δ l)
-        (supᵘ-zeroʳ l) PE.refl →
-          supᵘ-zeroʳ (wkTerm ρ⊇ ⊢Δ l)
         (supᵘ-sucᵘ l₁ l₂) PE.refl →
           supᵘ-sucᵘ (wkTerm ρ⊇ ⊢Δ l₁) (wkTerm ρ⊇ ⊢Δ l₂)
         (supᵘ-assoc l₁ l₂ l₃) PE.refl →

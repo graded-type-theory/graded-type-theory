@@ -220,8 +220,6 @@ opaque mutual
     _ , supᵘ-congᵛ (fundamental-⊩ᵛ≡∷ l₁≡l₂ .proj₂) (fundamental-⊩ᵛ≡∷ l₃≡l₄ .proj₂)
   fundamental-⊩ᵛ≡∷ (supᵘ-zeroˡ ⊢l) =
     _ , supᵘ-zeroˡᵛ (fundamental-⊩ᵛ∷ ⊢l .proj₂)
-  fundamental-⊩ᵛ≡∷ (supᵘ-zeroʳ ⊢l) =
-    _ , supᵘ-zeroʳᵛ (fundamental-⊩ᵛ∷ ⊢l .proj₂)
   fundamental-⊩ᵛ≡∷ (supᵘ-sucᵘ ⊢l₁ ⊢l₂) =
     _ , supᵘ-sucᵘᵛ (fundamental-⊩ᵛ∷ ⊢l₁ .proj₂) (fundamental-⊩ᵛ∷ ⊢l₂ .proj₂)
   fundamental-⊩ᵛ≡∷ (supᵘ-assoc ⊢l₁ ⊢l₂ ⊢l₃) =

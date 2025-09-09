@@ -193,8 +193,6 @@ opaque mutual
       ⊢Level , supᵘⱼ ⊢t₁ ⊢u₁ , supᵘⱼ ⊢t₂ ⊢u₂
     (supᵘ-zeroˡ ⊢l) →
       wf-⊢∷ ⊢l , supᵘⱼ (zeroᵘⱼ (wfTerm ⊢l)) ⊢l , ⊢l
-    (supᵘ-zeroʳ ⊢l) →
-      wf-⊢∷ ⊢l , supᵘⱼ ⊢l (zeroᵘⱼ (wfTerm ⊢l)) , ⊢l
     (supᵘ-sucᵘ ⊢l₁ ⊢l₂) →
       wf-⊢∷ ⊢l₁ , supᵘⱼ (sucᵘⱼ ⊢l₁) (sucᵘⱼ ⊢l₂) , sucᵘⱼ (supᵘⱼ ⊢l₁ ⊢l₂)
     (supᵘ-assoc ⊢l₁ ⊢l₂ ⊢l₃) →

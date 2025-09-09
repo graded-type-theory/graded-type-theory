@@ -385,7 +385,7 @@ mutual
   -- The reification of a level view commutes with the level operations.
 
   Levelᵛ→Term-suc : ⊢ Γ → (l : Levelᵛ Γ) → Γ ⊢ sucᵘ (Levelᵛ→Term l) ≡ Levelᵛ→Term (sucᵛ l) ∷ Level
-  Levelᵛ→Term-suc ⊢Γ L.[] = sym′ (supᵘ-zeroʳ (sucᵘⱼ (zeroᵘⱼ ⊢Γ)))
+  Levelᵛ→Term-suc ⊢Γ L.[] = sym′ (supᵘ-zeroʳⱼ (sucᵘⱼ (zeroᵘⱼ ⊢Γ)))
   Levelᵛ→Term-suc ⊢Γ (x L.∷ l) =
     trans (sym′ (supᵘ-sucᵘ (⊢Level⁺ ⊢Γ x) (⊢Levelᵛ ⊢Γ l)))
       (trans (supᵘ-cong (refl (sucᵘⱼ (⊢Level⁺ ⊢Γ x))) (Levelᵛ→Term-suc ⊢Γ l))
@@ -425,7 +425,7 @@ mutual
         (trans (supᵘ-cong (Levelᵛ→Term-suc ⊢Γ v′) (refl (⊢Levelᵛ ⊢Γ v″))) (Levelᵛ→Term-sup-sucᵛ ⊢Γ v′ v″))
   soundness~ᵛ (neₙ [t′] PE.refl) =
     let ⊢Level , ⊢t′ , _ = syntacticEqTerm (soundness~↓ [t′])
-    in sym′ (supᵘ-zeroʳ ⊢t′)
+    in sym′ (supᵘ-zeroʳⱼ ⊢t′)
 
   -- Comparison and equality of level views is sound with respect to reification.
 

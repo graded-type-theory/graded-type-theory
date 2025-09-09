@@ -24,6 +24,7 @@ open import Definition.Typed.Properties.Admissible.Equality R public
 open import Definition.Typed.Properties.Admissible.Erased R public
 open import Definition.Typed.Properties.Admissible.Identity R public
 open import Definition.Typed.Properties.Admissible.Level R public
+open import Definition.Typed.Properties.Admissible.Level.Primitive R public
 open import Definition.Typed.Properties.Admissible.Lift R public
 open import Definition.Typed.Properties.Admissible.Nat R public
 open import Definition.Typed.Properties.Admissible.Pi-Sigma R public

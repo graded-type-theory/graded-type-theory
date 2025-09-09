@@ -145,8 +145,6 @@ opaque mutual
     size-⊢≡∷ t≡t' ⊕ size-⊢≡∷ u≡u'
   size-⊢≡∷ (supᵘ-zeroˡ l) =
     node (size-⊢∷ l)
-  size-⊢≡∷ (supᵘ-zeroʳ l) =
-    node (size-⊢∷ l)
   size-⊢≡∷ (supᵘ-sucᵘ l₁ l₂) =
     size-⊢∷ l₁ ⊕ size-⊢∷ l₂
   size-⊢≡∷ (supᵘ-assoc l₁ l₂ l₃) =

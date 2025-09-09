@@ -1241,9 +1241,6 @@ private module Inhabited where
       (supᵘ-zeroˡ ⊢l) PE.refl →
         let _ , ⊢σ₁ , ⊢σ₂ = wf-⊢ˢʷ≡∷ σ₁≡σ₂
         in trans (supᵘ-zeroˡ (subst-⊢∷ ⊢l ⊢σ₁)) (subst-⊢∷→⊢≡∷ ⊢l σ₁≡σ₂)
-      (supᵘ-zeroʳ ⊢l) PE.refl →
-        let _ , ⊢σ₁ , ⊢σ₂ = wf-⊢ˢʷ≡∷ σ₁≡σ₂
-        in trans (supᵘ-zeroʳ (subst-⊢∷ ⊢l ⊢σ₁)) (subst-⊢∷→⊢≡∷ ⊢l σ₁≡σ₂)
       (supᵘ-sucᵘ ⊢l₁ ⊢l₂) PE.refl →
         let _ , ⊢σ₁ , ⊢σ₂ = wf-⊢ˢʷ≡∷ σ₁≡σ₂
         in trans

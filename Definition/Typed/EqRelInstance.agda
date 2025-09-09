@@ -59,7 +59,7 @@ private opaque
       .≅ₜ-zeroᵘrefl → refl ∘ᶠ zeroᵘⱼ
       .≅ₜ-sucᵘ-cong → sucᵘ-cong
       .≅ₜ-supᵘ-cong → supᵘ-cong
-      .≅ₜ-supᵘ-zeroʳ → supᵘ-zeroʳ ∘ᶠ ⊢≡→⊢
+      .≅ₜ-supᵘ-zeroʳ → supᵘ-zeroʳⱼ ∘ᶠ ⊢≡→⊢
       .≅ₜ-supᵘ-assoc → λ a b c → supᵘ-assoc (⊢≡→⊢ a) (⊢≡→⊢ b) (⊢≡→⊢ c)
       .≅ₜ-supᵘ-comm → λ a b → supᵘ-comm (⊢≡→⊢ a) (⊢≡→⊢ b)
       .≅ₜ-supᵘ-idem → λ a → supᵘ-idem (⊢≡→⊢ a)

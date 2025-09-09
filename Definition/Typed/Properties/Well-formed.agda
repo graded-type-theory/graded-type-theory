@@ -271,8 +271,6 @@ opaque
       fix (wfEqTerm-<ˢ t≡t')
     wfEqTerm-<ˢ (supᵘ-zeroˡ l) =
       fix (wfTerm-<ˢ l)
-    wfEqTerm-<ˢ (supᵘ-zeroʳ l) =
-      fix (wfTerm-<ˢ l)
     wfEqTerm-<ˢ (supᵘ-sucᵘ l₁ l₂) =
       fix (wfTerm-<ˢ l₁)
     wfEqTerm-<ˢ (supᵘ-assoc l₁ l₂ l₃) =

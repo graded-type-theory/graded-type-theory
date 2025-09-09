@@ -388,8 +388,6 @@ private module Inhabited where
         supᵘ-cong (stability-⊢≡∷ Γ≡Δ t₁≡t₂) (stability-⊢≡∷ Γ≡Δ u₁≡u₂)
       (supᵘ-zeroˡ l) PE.refl →
         supᵘ-zeroˡ (stability-⊢∷ Γ≡Δ l)
-      (supᵘ-zeroʳ l) PE.refl →
-        supᵘ-zeroʳ (stability-⊢∷ Γ≡Δ l)
       (supᵘ-sucᵘ l₁ l₂) PE.refl →
         supᵘ-sucᵘ (stability-⊢∷ Γ≡Δ l₁) (stability-⊢∷ Γ≡Δ l₂)
       (supᵘ-assoc l₁ l₂ l₃) PE.refl →

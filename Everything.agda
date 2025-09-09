@@ -139,6 +139,7 @@ import Definition.Typed.Properties.Admissible.Erased.Eta
 import Definition.Typed.Properties.Admissible.Erased.No-eta
 import Definition.Typed.Properties.Admissible.Erased
 import Definition.Typed.Properties.Admissible.Level
+import Definition.Typed.Properties.Admissible.Level.Primitive
 import Definition.Typed.Properties.Admissible.Lift
 import Definition.Typed.Properties.Admissible.Bool.OK
 import Definition.Typed.Properties.Admissible.Bool

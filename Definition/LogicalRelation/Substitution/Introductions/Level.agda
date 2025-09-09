@@ -293,32 +293,6 @@ opaque
 
 opaque
 
-  -- Reducibility of supᵘ-zeroʳ.
-
-  ⊩supᵘ-zeroʳ∷Level :
-    Γ ⊩⟨ l ⟩ t ∷ Level →
-    Γ ⊩⟨ l ⟩ t supᵘ zeroᵘ ≡ t ∷ Level
-  ⊩supᵘ-zeroʳ∷Level ⊩t = ⊩≡∷Level⇔ .proj₂ $
-    ⊩supᵘ-zeroʳ (⊩∷Level⇔ .proj₁ ⊩t)
-
-opaque
-
-  -- Validity of supᵘ-zeroʳ.
-
-  supᵘ-zeroʳᵛ :
-    Γ ⊩ᵛ⟨ l ⟩ t ∷ Level →
-    Γ ⊩ᵛ⟨ l ⟩ t supᵘ zeroᵘ ≡ t ∷ Level
-  supᵘ-zeroʳᵛ ⊩t =
-    ⊩ᵛ≡∷⇔ʰ .proj₂
-      ( wf-⊩ᵛ∷ ⊩t
-      , λ σ₁≡σ₂ →
-          let t[σ₁]≡t[σ₂] = ⊩ᵛ∷⇔ʰ .proj₁ ⊩t .proj₂ σ₁≡σ₂
-              ⊩t[σ₁] , ⊩t[σ₂] = wf-⊩≡∷ t[σ₁]≡t[σ₂]
-          in trans-⊩≡∷ (⊩supᵘ-zeroʳ∷Level ⊩t[σ₁]) t[σ₁]≡t[σ₂]
-      )
-
-opaque
-
   -- Reducibility of supᵘ-sucᵘ.
 
   ⊩supᵘ-sucᵘ :

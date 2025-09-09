@@ -17,6 +17,7 @@ open import Definition.Typed R
 open import Definition.Typed.Inversion.Primitive R
 open import Definition.Typed.Properties.Admissible.Equality R
 import Definition.Typed.Properties.Admissible.Erased.Primitive R as EP
+open import Definition.Typed.Properties.Admissible.Level.Primitive R
 open import Definition.Typed.Properties.Well-formed R
 open import Definition.Typed.Reasoning.Term.Primitive R
 open import Definition.Typed.Well-formed R
@@ -193,7 +194,7 @@ opaque
 
   subsetTerm : Γ ⊢ t ⇒ u ∷ A → Γ ⊢ t ≡ u ∷ A
   subsetTerm (supᵘ-zeroˡ ⊢l) = supᵘ-zeroˡ ⊢l
-  subsetTerm (supᵘ-zeroʳ ⊢l) = supᵘ-zeroʳ (sucᵘⱼ ⊢l)
+  subsetTerm (supᵘ-zeroʳ ⊢l) = supᵘ-zeroʳⱼ (sucᵘⱼ ⊢l)
   subsetTerm (supᵘ-sucᵘ ⊢l₁ ⊢l₂) = supᵘ-sucᵘ ⊢l₁ ⊢l₂
   subsetTerm (supᵘ-substˡ t⇒t′ ⊢u) = supᵘ-cong (subsetTerm t⇒t′) (refl ⊢u)
   subsetTerm (supᵘ-substʳ ⊢t u⇒u′) = supᵘ-cong (refl (sucᵘⱼ ⊢t)) (subsetTerm u⇒u′)

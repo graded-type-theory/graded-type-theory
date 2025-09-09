@@ -238,8 +238,6 @@ mutual
                   → Γ ⊢ t supᵘ u ≡ t' supᵘ u' ∷ Level
     supᵘ-zeroˡ    : Γ ⊢ l ∷ Level
                   → Γ ⊢ zeroᵘ supᵘ l ≡ l ∷ Level
-    supᵘ-zeroʳ    : Γ ⊢ l ∷ Level
-                  → Γ ⊢ l supᵘ zeroᵘ ≡ l ∷ Level
     supᵘ-sucᵘ     : Γ ⊢ l₁ ∷ Level
                   → Γ ⊢ l₂ ∷ Level
                   → Γ ⊢ sucᵘ l₁ supᵘ sucᵘ l₂ ≡ sucᵘ (l₁ supᵘ l₂) ∷ Level
