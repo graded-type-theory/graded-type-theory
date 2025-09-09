@@ -27,6 +27,7 @@ open import Definition.Untyped.Properties M
 open import Graded.Context 𝕄
 open import Graded.Context.Properties 𝕄
 open import Graded.Erasure.Consequences.Soundness TR UR
+open import Graded.Erasure.Target using (non-strict)
 open import Graded.Modality.Properties 𝕄
 open import Graded.Mode 𝕄
 open import Graded.Restrictions 𝕄
@@ -208,103 +209,96 @@ opaque
   -- certain kinds of erased matches are allowed), and if additionally
   -- Σʷ-allowed p 𝟘 holds, then there is a term that is
   -- well-resourced, well-typed and neutral with respect to an
-  -- erasable variable context and a well-resourced, transparent
-  -- definition context that are jointly consistent.
+  -- erasable variable context and a transparent definition context
+  -- that are jointly consistent.
 
   neutral-well-resourced₁ :
     Prodrec-allowed 𝟙ᵐ 𝟘 p 𝟘 →
     Σʷ-allowed p 𝟘 →
     ∃₅ λ m n (Γ : Cons m n) (t A : Term n) →
     Consistent Γ ×
-    ▸[ 𝟙ᵐ ] Γ .defs ×
     Transparent (Γ .defs) ×
     Neutral⁺ (Γ .defs) t ×
     Γ ⊢ t ∷ A ×
     𝟘ᶜ ▸[ 𝟙ᵐ ] t
   neutral-well-resourced₁ ok₁ ok₂ =
     case soundness-ℕ-only-source-counterexample₁ ok₁ ok₂ of λ {
-      (consistent , ⊢t , ▸∇ , ▸t , _) →
-    _ , _ , _ , _ , _ ,
-    consistent , (λ {_ _ _} → ▸∇) , PE.refl , prodrecₙ (var _ _) , ⊢t ,
-    ▸t }
+      (consistent , ⊢t , _ , ▸t , _) →
+    _ , _ , _ , _ , _ , consistent , PE.refl , prodrecₙ (var _ _) , ⊢t , ▸t }
 
 opaque
 
   -- If []-cong is allowed, then there is a term that is
   -- well-resourced, well-typed and neutral with respect to an
-  -- erasable variable context and a well-resourced, transparent
-  -- definition context that are jointly consistent.
+  -- erasable variable context and a transparent definition context
+  -- that are jointly consistent.
 
   neutral-well-resourced₂ :
     []-cong-allowed s →
     []-cong-allowed-mode s 𝟙ᵐ →
     ∃₅ λ m n (Γ : Cons m n) (t A : Term n) →
     Consistent Γ ×
-    ▸[ 𝟙ᵐ ] Γ .defs ×
     Transparent (Γ .defs) ×
     Neutral⁺ (Γ .defs) t ×
     Γ ⊢ t ∷ A ×
     𝟘ᶜ ▸[ 𝟙ᵐ ] t
   neutral-well-resourced₂ ok ok′ =
     case soundness-ℕ-only-source-counterexample₂ ok ok′ of λ {
-      (consistent , ⊢t , ▸∇ , ▸t , _) →
+      (consistent , ⊢t , _ , ▸t , _) →
     _ , _ , _ , _ , _ ,
-    consistent , (λ {_ _ _} → ▸∇) , PE.refl , Jₙ ([]-congₙ (var _ _)) ,
-    ⊢t , ▸t }
+    consistent , PE.refl , Jₙ ([]-congₙ (var _ _)) , ⊢t , ▸t }
 
 opaque
 
   -- If erased-matches-for-J 𝟙ᵐ is equal to not-none sem, then there
   -- is a term that is well-resourced, well-typed and neutral with
-  -- respect to an erasable variable context and a well-resourced,
-  -- transparent definition context that are jointly consistent.
+  -- respect to an erasable variable context and a transparent
+  -- definition context that are jointly consistent.
 
   neutral-well-resourced₃ :
     erased-matches-for-J 𝟙ᵐ ≡ not-none sem →
     ∃₅ λ m n (Γ : Cons m n) (t A : Term n) →
     Consistent Γ ×
-    ▸[ 𝟙ᵐ ] Γ .defs ×
     Transparent (Γ .defs) ×
     Neutral⁺ (Γ .defs) t ×
     Γ ⊢ t ∷ A ×
     𝟘ᶜ ▸[ 𝟙ᵐ ] t
   neutral-well-resourced₃ ok =
     case soundness-ℕ-only-source-counterexample₃ ok of λ {
-      (consistent , ⊢t , ▸∇ , ▸t , _) →
+      (consistent , ⊢t , _ , ▸t , _) →
     _ , _ , _ , _ , _ ,
-    consistent , (λ {_ _ _} → ▸∇) , PE.refl , Jₙ (var _ _) , ⊢t , ▸t }
+    consistent , PE.refl , Jₙ (var _ _) , ⊢t , ▸t }
 
 opaque
 
   -- If the K rule is allowed and erased-matches-for-K 𝟙ᵐ is equal to
   -- not-none sem, then there is a term that is well-resourced,
   -- well-typed and neutral with respect to an erasable variable
-  -- context and a well-resourced, transparent definition context that
-  -- are jointly consistent.
+  -- context and a transparent definition context that are jointly
+  -- consistent.
 
   neutral-well-resourced₄ :
     K-allowed →
     erased-matches-for-K 𝟙ᵐ ≡ not-none sem →
     ∃₅ λ m n (Γ : Cons m n) (t A : Term n) →
     Consistent Γ ×
-    ▸[ 𝟙ᵐ ] Γ .defs ×
     Transparent (Γ .defs) ×
     Neutral⁺ (Γ .defs) t ×
     Γ ⊢ t ∷ A ×
     𝟘ᶜ ▸[ 𝟙ᵐ ] t
   neutral-well-resourced₄ ok₁ ok₂ =
     case soundness-ℕ-only-source-counterexample₄ ok₁ ok₂ of λ {
-      (consistent , ⊢t , ▸∇ , ▸t , _) →
+      (consistent , ⊢t , _ , ▸t , _) →
     _ , _ , _ , _ , _ ,
-    consistent , (λ {_ _ _} → ▸∇) , PE.refl , Kₙ (var _ _) , ⊢t , ▸t }
+    consistent , PE.refl , Kₙ (var _ _) , ⊢t , ▸t }
 
 opaque
 
   -- If Unitrec-allowed 𝟙ᵐ 𝟘 𝟘 and Unitʷ-allowed hold and η-equality
   -- is not allowed for weak unit types, then there is a term that is
   -- well-resourced, well-typed and neutral with respect to an
-  -- erasable variable context and a well-resourced, transparent
-  -- definition context that are jointly consistent.
+  -- erasable variable context and a transparent definition context
+  -- that are jointly consistent.
 
   neutral-well-resourced₅ :
     Unitrec-allowed 𝟙ᵐ 𝟘 𝟘 →
@@ -312,35 +306,54 @@ opaque
     ¬ Unitʷ-η →
     ∃₅ λ m n (Γ : Cons m n) (t A : Term n) →
     Consistent Γ ×
-    ▸[ 𝟙ᵐ ] Γ .defs ×
     Transparent (Γ .defs) ×
     Neutral⁺ (Γ .defs) t ×
     Γ ⊢ t ∷ A ×
     𝟘ᶜ ▸[ 𝟙ᵐ ] t
   neutral-well-resourced₅ ok₁ ok₂ no-η =
     case soundness-ℕ-only-source-counterexample₅ ok₁ ok₂ no-η of λ {
-      (consistent , ⊢t , ▸∇ , ▸t , _) →
+      (consistent , ⊢t , _ , ▸t , _) →
     _ , _ , _ , _ , _ ,
-    consistent , (λ {_ _ _} → ▸∇) , PE.refl , unitrecₙ no-η (var _ _) ,
-    ⊢t , ▸t }
+    consistent , PE.refl , unitrecₙ no-η (var _ _) , ⊢t , ▸t }
 
 opaque
 
   -- If opacity is allowed, then there is a term that is
   -- well-resourced, well-typed and neutral with respect to an
-  -- erasable variable context and a well-resourced definition context
-  -- that are jointly consistent.
+  -- erasable variable context and a definition context that are
+  -- jointly consistent.
 
   neutral-well-resourced₆ :
     Opacity-allowed →
     ∃₅ λ m n (Γ : Cons m n) (t A : Term n) →
     Consistent Γ ×
-    ▸[ 𝟙ᵐ ] Γ .defs ×
     Neutral⁺ (Γ .defs) t ×
     Γ ⊢ t ∷ A ×
     𝟘ᶜ ▸[ 𝟙ᵐ ] t
   neutral-well-resourced₆ ok =
     case soundness-ℕ-only-source-counterexample₇ ok of λ {
-      (consistent , _ , ⊢t , ▸∇ , ▸t , _) →
+      (consistent , _ , ⊢t , _ , ▸t , _) →
     _ , _ , _ , _ , _ ,
-    consistent , (λ {_ _ _} → ▸∇) , defn here , ⊢t , ▸t }
+    consistent , defn here , ⊢t , ▸t }
+
+opaque
+
+  -- If Emptyrec-allowed 𝟙ᵐ 𝟘 holds, then there is a term that is
+  -- well-resourced, well-typed and neutral with respect to an
+  -- erasable variable context and a well-resourced, transparent
+  -- definition context.
+
+  neutral-well-resourced₇ :
+    Emptyrec-allowed 𝟙ᵐ 𝟘 →
+    ∃₅ λ m n (Γ : Cons m n) (t A : Term n) →
+    ▸[ 𝟙ᵐ ] Γ .defs ×
+    Transparent (Γ .defs) ×
+    Neutral⁺ (Γ .defs) t ×
+    Γ ⊢ t ∷ A ×
+    𝟘ᶜ ▸[ 𝟙ᵐ ] t
+  neutral-well-resourced₇ ok =
+    let ⊢t , ▸∇ , ▸t , _ =
+          soundness-ℕ-counterexample₆ {str = non-strict} ok
+    in
+    _ , _ , _ , _ , _ , (λ {_ _ _} → ▸∇) , PE.refl ,
+    emptyrecₙ (var _ _) , ⊢t , ▸t

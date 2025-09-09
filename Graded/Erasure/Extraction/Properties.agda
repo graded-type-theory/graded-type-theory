@@ -23,6 +23,7 @@ open import Graded.Erasure.Target.Properties
 
 open import Definition.Untyped M as U
   hiding (Term; wk; _[_]; _[_,_]₁₀; liftSubst)
+open import Definition.Untyped.Omega M as O using (Ω)
 
 open import Graded.Context 𝕄
 open import Graded.Context.Properties 𝕄
@@ -51,7 +52,7 @@ private
     b : Bool
     α m n : Nat
     t u A : U.Term n
-    v₁ v₂ : T.Term n
+    v v₁ v₂ : T.Term n
     ts : DCon (U.Term _) _
     ∇ : List (T.Term n)
     σ : U.Subst m n
@@ -591,6 +592,53 @@ opaque
   ↦erase∈eraseDCon′ =
     PE.subst (_↦_∈_ _ _) eraseDCon-glassify ∘→
     ↦erase∈eraseDCon
+
+opaque
+  unfolding Ω O.ω loop
+
+  -- The term erase′ b s (Ω {n = n} p) does not reduce to a value.
+  --
+  -- Note that erase′ true s (Ω {n = n} 𝟘) could have been a value if
+  -- erasure had been defined differently for lambdas with erased
+  -- arguments in the "b = true" case: this term is (at the time of
+  -- writing) equal to loop s due to the use of loop s in
+  -- erase″ t T.[ loop s ]₀, but if this right-hand side had instead
+  -- been erase″ t T.[ zero ]₀, then the term would have been equal to
+  -- zero.
+
+  erase-Ω-does-not-have-a-value :
+    Value v → ¬ ∇ ⊢ erase′ b s (Ω {n = n} p) ⇒* v
+  erase-Ω-does-not-have-a-value {v} {∇} {b} {s} {p} v-value
+    with is-𝟘? p
+  … | no p≢𝟘 =
+    PE.subst (λ t → ¬ ∇ ⊢ t ∘⟨ s ⟩ t ⇒* v) (PE.sym $ lam-≢𝟘 b p≢𝟘) $
+    PE.subst (λ t → ¬ ∇ ⊢ lam t ∘⟨ s ⟩ lam t ⇒* v) (PE.sym $ ∘-≢𝟘 p≢𝟘) $
+    ¬loop⇒* v-value
+  erase-Ω-does-not-have-a-value {v} {∇} {b = true} {s} {p} v-value
+    | yes refl =
+    PE.subst (λ t → ¬ ∇ ⊢ t ⇒* v) (PE.sym lam-𝟘-remove) $
+    PE.subst (λ t → ¬ ∇ ⊢ t T.[ loop s ]₀ ⇒* v) (PE.sym ∘-𝟘) $
+    ¬loop⇒* v-value
+  erase-Ω-does-not-have-a-value {v} {∇} {b = false} {s} {p} v-value
+    | yes refl =
+    PE.subst (λ t → ¬ ∇ ⊢ lam t ∘⟨ s ⟩ loop? s ⇒* v) (PE.sym ∘-𝟘)
+      (lemma _)
+    where
+    lemma : ∀ s → ¬ ∇ ⊢ lam (var x0 ∘⟨ s ⟩ loop? s) ∘⟨ s ⟩ loop? s ⇒* v
+    lemma strict T.refl =
+      case v-value of λ ()
+    lemma strict (T.trans (app-subst ()) _)
+    lemma strict (T.trans (app-subst-arg _ ()) _)
+    lemma strict (T.trans (β-red _) T.refl) =
+      case v-value of λ ()
+    lemma strict (T.trans (β-red _) (T.trans (app-subst ()) _))
+    lemma strict (T.trans (β-red _) (T.trans (app-subst-arg _ ()) _))
+    lemma non-strict T.refl =
+      case v-value of λ ()
+    lemma non-strict (T.trans (app-subst ()) _)
+    lemma non-strict (T.trans (β-red _) loop∘loop⇒v) =
+      let _ , v′-value , loop⇒v′ = ∘⇒Value→⇒Value v-value loop∘loop⇒v in
+      ¬loop⇒* v′-value loop⇒v′
 
 module hasX (R : Usage-restrictions) where
 

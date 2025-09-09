@@ -119,9 +119,9 @@ mutual
   ⌈ unitrec _ p q A t u ⌉ m = p ·ᶜ ⌈ t ⌉ (m ᵐ· p) +ᶜ ⌈ u ⌉ m
   ⌈ Empty ⌉ _ = 𝟘ᶜ
   ⌈ emptyrec p _ t ⌉ m = p ·ᶜ ⌈ t ⌉ (m ᵐ· p)
-  ⌈ Id _ t u ⌉ m = case Id-erased? of λ where
+  ⌈ Id A t u ⌉ m = case Id-erased? of λ where
     (yes _) → 𝟘ᶜ
-    (no _)  → ⌈ t ⌉ m +ᶜ ⌈ u ⌉ m
+    (no _)  → ⌈ A ⌉ m +ᶜ ⌈ t ⌉ m +ᶜ ⌈ u ⌉ m
   ⌈ rfl ⌉ _ = 𝟘ᶜ
   ⌈ J p q _ t B u v w ⌉ m with J-view p q m
   … | is-all _        = ⌈ u ⌉ m
@@ -428,10 +428,10 @@ data _▸[_]_ {n : Nat} : (γ : Conₘ n) → Mode → Term n → Set a where
            → x ·ᶜ η +ᶜ χ ▸[ m ] natrec p q r A z s n
 
   Idₘ       : ¬ Id-erased
-            → γ ▸[ 𝟘ᵐ? ] A
+            → γ ▸[ m ] A
             → δ ▸[ m ] t
             → η ▸[ m ] u
-            → δ +ᶜ η ▸[ m ] Id A t u
+            → γ +ᶜ δ +ᶜ η ▸[ m ] Id A t u
 
   Id₀ₘ      : Id-erased
             → γ ▸[ 𝟘ᵐ? ] A

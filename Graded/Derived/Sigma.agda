@@ -656,11 +656,10 @@ inv-usage-fstʷ-𝟘ᵐ :
   γ ▸[ 𝟘ᵐ ] fstʷ p A t →
   ∃ λ δ →
     γ ≤ᶜ 𝟘ᶜ × 𝟘ᶜ ▸[ 𝟘ᵐ ] t ×
-    δ ▸[ 𝟘ᵐ ] A ×
-    Prodrec-allowed 𝟘ᵐ (𝟘 ∧ 𝟙) p 𝟘
+    δ ▸[ 𝟘ᵐ ] A
 inv-usage-fstʷ-𝟘ᵐ {γ = γ} ▸fstʷ =
   case inv-usage-fstʷ (inj₂ (inj₂ (λ ()))) ▸fstʷ of λ {
-    (η , _ , leq₁ , ▸t , ▸A , leq₂ , ok) →
+    (η , _ , leq₁ , ▸t , ▸A , leq₂ , _) →
   _ ,
   (begin
      γ        ≤⟨ leq₁ ⟩
@@ -670,7 +669,7 @@ inv-usage-fstʷ-𝟘ᵐ {γ = γ} ▸fstʷ =
   (sub (▸-· {m′ = 𝟘ᵐ} ▸t) $ begin
      𝟘ᶜ      ≈˘⟨ ·ᶜ-zeroˡ _ ⟩
      𝟘 ·ᶜ η  ∎) ,
-  ▸-cong 𝟘ᵐ?≡𝟘ᵐ ▸A , ok }
+  ▸-cong 𝟘ᵐ?≡𝟘ᵐ ▸A }
   where
   open Tools.Reasoning.PartialOrder ≤ᶜ-poset
 
@@ -734,18 +733,17 @@ fstʷₘ {m = m} {p = p} {γ = γ} {δ = δ} 𝟘≰𝟙⊎𝟙≡𝟘⊎≢𝟙
 
 fstʷₘ-𝟘ᵐ :
   ⦃ ok : T 𝟘ᵐ-allowed ⦄ →
-  Prodrec-allowed 𝟘ᵐ (𝟘 ∧ 𝟙) p 𝟘 →
   γ ▸[ 𝟘ᵐ ] t →
   δ ▸[ 𝟘ᵐ ] A →
   γ ▸[ 𝟘ᵐ ] fstʷ p A t
-fstʷₘ-𝟘ᵐ {p = p} {γ = γ} {δ = δ} ok ▸t ▸A = sub
+fstʷₘ-𝟘ᵐ {γ} {δ} {p} ▸t ▸A = sub
   (fstʷₘ
      (inj₂ (inj₂ (λ ())))
      (let open Tools.Reasoning.PartialOrder ≤-poset in begin
         𝟘 ∧ 𝟘 · p  ≡⟨ ∧-congˡ (·-zeroˡ _) ⟩
         𝟘 ∧ 𝟘      ≡⟨ ∧-idem _ ⟩
         𝟘          ∎)
-     ok
+     _
      ▸t
      (▸-cong (PE.sym 𝟘ᵐ?≡𝟘ᵐ) ▸A))
   (let open Tools.Reasoning.PartialOrder ≤ᶜ-poset in begin
@@ -881,11 +879,10 @@ inv-usage-sndʷ-𝟘ᵐ :
   γ ▸[ 𝟘ᵐ ] sndʷ p q A B t →
   ∃ λ δ →
     γ ≤ᶜ 𝟘ᶜ × 𝟘ᶜ ▸[ 𝟘ᵐ ] t ×
-    δ ∙ 𝟘 ▸[ 𝟘ᵐ ] B [ fstʷ p (wk1 A) (var x0) ]↑ ×
-    Prodrec-allowed 𝟘ᵐ (𝟘 ∧ 𝟙) p q
+    δ ∙ 𝟘 ▸[ 𝟘ᵐ ] B [ fstʷ p (wk1 A) (var x0) ]↑
 inv-usage-sndʷ-𝟘ᵐ {γ = γ} {q = q} ⦃ ok = 𝟘ᵐ-ok ⦄ B ▸sndʷ =
   case inv-usage-sndʷ (inj₂ (inj₂ (λ ()))) B ▸sndʷ of λ {
-    (η , δ , leq , ▸t , ▸B , ok) →
+    (η , δ , leq , ▸t , ▸B , _) →
     _
   , (let open Tools.Reasoning.PartialOrder ≤ᶜ-poset in begin
        γ        ≤⟨ leq ⟩
@@ -900,8 +897,7 @@ inv-usage-sndʷ-𝟘ᵐ {γ = γ} {q = q} ⦃ ok = 𝟘ᵐ-ok ⦄ B ▸sndʷ =
      sub (▸-cong 𝟘ᵐ?≡𝟘ᵐ ▸B) $ begin
        δ ∙ 𝟘            ≈˘⟨ ≈ᶜ-refl ∙ ·-zeroˡ _ ⟩
        δ ∙ 𝟘 · q        ≈˘⟨ ≈ᶜ-refl ∙ ·-congʳ (PE.cong ⌜_⌝ (𝟘ᵐ?≡𝟘ᵐ {ok = 𝟘ᵐ-ok})) ⟩
-       δ ∙ ⌜ 𝟘ᵐ? ⌝ · q  ∎)
-  , ok }
+       δ ∙ ⌜ 𝟘ᵐ? ⌝ · q  ∎) }
 
 ------------------------------------------------------------------------
 -- Usage lemmas for sndʷ
@@ -934,15 +930,14 @@ sndʷₘ {m = m} {p = p} {γ = γ} 𝟘≰𝟙⊎𝟙≡𝟘⊎≢𝟙ᵐ ok _ �
 
 sndʷₘ-𝟘ᵐ :
   ⦃ ok : T 𝟘ᵐ-allowed ⦄ →
-  Prodrec-allowed 𝟘ᵐ (𝟘 ∧ 𝟙) p q →
   ∀ B →
   γ ▸[ 𝟘ᵐ ] t →
   δ ∙ 𝟘 ▸[ 𝟘ᵐ ] B [ fstʷ p (wk1 A) (var x0) ]↑ →
   γ ▸[ 𝟘ᵐ ] sndʷ p q A B t
-sndʷₘ-𝟘ᵐ {p = p} {q = q} {γ = γ} {δ = δ} ⦃ ok = 𝟘ᵐ-ok ⦄ ok B ▸t ▸B = sub
+sndʷₘ-𝟘ᵐ {γ} {δ} {q} ⦃ ok = 𝟘ᵐ-ok ⦄ B ▸t ▸B = sub
   (sndʷₘ
      (inj₂ (inj₂ (λ ())))
-     ok
+     _
      B
      ▸t
      (let open Tools.Reasoning.PartialOrder ≤ᶜ-poset in

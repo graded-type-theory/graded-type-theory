@@ -300,14 +300,14 @@ opaque
     (λ ())
   ▸-𝟘 (sndₘ t) =
     sndₘ (▸-𝟘 t)
-  ▸-𝟘 (prodrecₘ {r} {p} t u A ok) = sub
+  ▸-𝟘 (prodrecₘ {r} {p} t u A _) = sub
     (prodrecₘ
        (▸-𝟘 t)
        (sub (▸-𝟘 u) $ begin
           𝟘ᶜ ∙ 𝟘 · r · p ∙ 𝟘 · r  ≈⟨ ≈ᶜ-refl ∙ ·-zeroˡ _ ∙ ·-zeroˡ _ ⟩
           𝟘ᶜ                      ∎)
        A
-       (Prodrec-allowed-·ᵐ ok))
+       _)
     (begin
        𝟘ᶜ             ≈˘⟨ ·ᶜ-zeroʳ _ ⟩
        r ·ᶜ 𝟘ᶜ        ≈˘⟨ +ᶜ-identityʳ _ ⟩
@@ -361,8 +361,8 @@ opaque
       x ·ᶜ 𝟘ᶜ +ᶜ 𝟘ᶜ ∎)
     where
     open CR
-  ▸-𝟘 (emptyrecₘ {p} e A ok) = sub
-    (emptyrecₘ (▸-𝟘 e) A (Emptyrec-allowed-·ᵐ ok))
+  ▸-𝟘 (emptyrecₘ {p} e A _) = sub
+    (emptyrecₘ (▸-𝟘 e) A _)
     (begin
        𝟘ᶜ       ≈˘⟨ ·ᶜ-zeroʳ _ ⟩
        p ·ᶜ 𝟘ᶜ  ∎)
@@ -377,8 +377,8 @@ opaque
        𝟘 ·ᶜ γ  ∎)
     where
     open CR
-  ▸-𝟘 (unitrecₘ {p} ▸t ▸u ▸A ok) = sub
-    (unitrecₘ (▸-𝟘 ▸t) (▸-𝟘 ▸u) ▸A (Unitrec-allowed-·ᵐ ok))
+  ▸-𝟘 (unitrecₘ {p} ▸t ▸u ▸A _) = sub
+    (unitrecₘ (▸-𝟘 ▸t) (▸-𝟘 ▸u) ▸A _)
     (begin
        𝟘ᶜ             ≈˘⟨ ·ᶜ-zeroʳ _ ⟩
        p ·ᶜ 𝟘ᶜ        ≈˘⟨ +ᶜ-identityʳ _ ⟩
@@ -386,10 +386,11 @@ opaque
     where
     open CR
   ▸-𝟘 (Idₘ ok ▸A ▸t ▸u) = sub
-    (Idₘ ok ▸A (▸-𝟘 ▸t) (▸-𝟘 ▸u))
+    (Idₘ ok (▸-𝟘 ▸A) (▸-𝟘 ▸t) (▸-𝟘 ▸u))
     (begin
-       𝟘ᶜ        ≈˘⟨ +ᶜ-identityʳ _ ⟩
-       𝟘ᶜ +ᶜ 𝟘ᶜ  ∎)
+       𝟘ᶜ              ≈˘⟨ +ᶜ-identityˡ _ ⟩
+       𝟘ᶜ +ᶜ 𝟘ᶜ        ≈˘⟨ +ᶜ-identityˡ _ ⟩
+       𝟘ᶜ +ᶜ 𝟘ᶜ +ᶜ 𝟘ᶜ  ∎)
     where
     open CR
   ▸-𝟘 (Id₀ₘ ok ▸A ▸t ▸u) =
@@ -420,8 +421,8 @@ opaque
     open CR
   ▸-𝟘 (K₀ₘ₂ _ ▸A ▸t ▸B ▸u ▸v) =
     ▸-𝟘-K ▸A ▸t ▸B ▸u ▸v
-  ▸-𝟘 ([]-congₘ ▸A ▸t ▸u ▸v ok) =
-    []-congₘ ▸A ▸t ▸u ▸v ([]-cong-allowed-·ᵐ ok)
+  ▸-𝟘 ([]-congₘ ▸A ▸t ▸u ▸v _) =
+    []-congₘ ▸A ▸t ▸u ▸v _
   ▸-𝟘 (sub γ▸t _) =
     ▸-𝟘 γ▸t
 
@@ -647,10 +648,10 @@ opaque
   𝟘ᶜ             ∎
   where
   open Tools.Reasoning.PartialOrder ≤ᶜ-poset
-▸-𝟘ᵐ (Idₘ {δ = δ} {η = η} _ _ δ▸ η▸) = begin
-  δ +ᶜ η    ≤⟨ +ᶜ-monotone (▸-𝟘ᵐ δ▸) (▸-𝟘ᵐ η▸) ⟩
-  𝟘ᶜ +ᶜ 𝟘ᶜ  ≈⟨ +ᶜ-identityʳ _ ⟩
-  𝟘ᶜ        ∎
+▸-𝟘ᵐ (Idₘ {γ} {δ} {η} _ γ▸ δ▸ η▸) = begin
+  γ +ᶜ δ +ᶜ η     ≤⟨ +ᶜ-monotone (▸-𝟘ᵐ γ▸) (+ᶜ-monotone (▸-𝟘ᵐ δ▸) (▸-𝟘ᵐ η▸)) ⟩
+  𝟘ᶜ +ᶜ 𝟘ᶜ +ᶜ 𝟘ᶜ  ≈⟨ ≈ᶜ-trans (+ᶜ-identityˡ _) (+ᶜ-identityˡ _) ⟩
+  𝟘ᶜ              ∎
   where
   open Tools.Reasoning.PartialOrder ≤ᶜ-poset
 ▸-𝟘ᵐ (Id₀ₘ _ _ _ _) =
@@ -1253,18 +1254,25 @@ opaque
     where
     open CR
 
-  Conₘ-interchange {δ = θ} (Idₘ {δ} {η} not-erased ▸A ▸t ▸u) ▸Id x =
+  Conₘ-interchange {δ = θ} (Idₘ {γ} {δ} {η} not-erased ▸A ▸t ▸u) ▸Id x =
     case inv-usage-Id ▸Id of λ where
       (invUsageId₀ erased _ _ _ _) →
         ⊥-elim $ not-erased erased
-      (invUsageId {δ = δ′} {η = η′} _ _ ▸t′ ▸u′ θ≤δ′+η′) → sub
-        (Idₘ not-erased ▸A (Conₘ-interchange ▸t ▸t′ x)
-           (Conₘ-interchange ▸u ▸u′ x))
-        (begin
-           δ +ᶜ η , x ≔ θ ⟨ x ⟩                      ≤⟨ update-monotoneʳ _ $ lookup-monotone _ θ≤δ′+η′ ⟩
-           δ +ᶜ η , x ≔ (δ′ +ᶜ η′) ⟨ x ⟩             ≡⟨ cong (_ , _ ≔_) $ lookup-distrib-+ᶜ δ′ _ _ ⟩
-           δ +ᶜ η , x ≔ δ′ ⟨ x ⟩ + η′ ⟨ x ⟩          ≡⟨ update-distrib-+ᶜ _ _ _ _ _ ⟩
-           (δ , x ≔ δ′ ⟨ x ⟩) +ᶜ (η , x ≔ η′ ⟨ x ⟩)  ∎)
+      (invUsageId {δ = γ′} {η = δ′} {θ = η′} _ ▸A′ ▸t′ ▸u′ θ≤γ′+δ′+η′) →
+        sub
+          (Idₘ not-erased (Conₘ-interchange ▸A ▸A′ x)
+             (Conₘ-interchange ▸t ▸t′ x) (Conₘ-interchange ▸u ▸u′ x))
+          (begin
+             γ +ᶜ δ +ᶜ η , x ≔ θ ⟨ x ⟩                         ≤⟨ update-monotoneʳ _ $ lookup-monotone _ θ≤γ′+δ′+η′ ⟩
+
+             γ +ᶜ δ +ᶜ η , x ≔ (γ′ +ᶜ δ′ +ᶜ η′) ⟨ x ⟩          ≡⟨ cong (_ , _ ≔_) $
+                                                                  PE.trans (lookup-distrib-+ᶜ γ′ _ _) $
+                                                                  PE.cong (_+_ _) $ lookup-distrib-+ᶜ δ′ _ _ ⟩
+
+             γ +ᶜ δ +ᶜ η , x ≔ γ′ ⟨ x ⟩ + δ′ ⟨ x ⟩ + η′ ⟨ x ⟩  ≡⟨ PE.trans (update-distrib-+ᶜ _ _ _ _ _) $
+                                                                  PE.cong (_+ᶜ_ _) $ update-distrib-+ᶜ _ _ _ _ _ ⟩
+             (γ , x ≔ γ′ ⟨ x ⟩) +ᶜ (δ , x ≔ δ′ ⟨ x ⟩) +ᶜ
+             (η , x ≔ η′ ⟨ x ⟩)                                ∎)
     where
     open CR
 
@@ -1489,24 +1497,26 @@ opaque
   -- A variant of Idₘ and Id₀ₘ.
 
   Idₘ-generalised :
-    γ₁ ▸[ 𝟘ᵐ? ] A →
+    γ₁ ▸[ m ] A →
     γ₂ ▸[ m ] t →
     γ₃ ▸[ m ] u →
     (Id-erased → δ ≤ᶜ 𝟘ᶜ) →
-    (¬ Id-erased → δ ≤ᶜ γ₂ +ᶜ γ₃) →
+    (¬ Id-erased → δ ≤ᶜ γ₁ +ᶜ γ₂ +ᶜ γ₃) →
     δ ▸[ m ] Id A t u
-  Idₘ-generalised {γ₂} {m} {γ₃} {δ} ▸A ▸t ▸u δ≤𝟘ᶜ δ≤γ₂+γ₃ =
+  Idₘ-generalised ▸A ▸t ▸u δ≤𝟘ᶜ δ≤γ₁+γ₂+γ₃ =
     case Id-erased? of λ where
       (no not-erased) →
-        sub (Idₘ not-erased ▸A ▸t ▸u) (δ≤γ₂+γ₃ not-erased)
+        sub (Idₘ not-erased ▸A ▸t ▸u) (δ≤γ₁+γ₂+γ₃ not-erased)
       (yes erased) → 𝟘ᵐ-allowed-elim
         (λ ok →
-           sub (Id₀ₘ erased ▸A (𝟘ᶜ▸[𝟘ᵐ?] ok ▸t) (𝟘ᶜ▸[𝟘ᵐ?] ok ▸u))
+           sub
+             (Id₀ₘ erased (𝟘ᶜ▸[𝟘ᵐ?] ok ▸A) (𝟘ᶜ▸[𝟘ᵐ?] ok ▸t)
+                (𝟘ᶜ▸[𝟘ᵐ?] ok ▸u))
              (δ≤𝟘ᶜ erased))
         (λ not-ok →
            sub
-             (Id₀ₘ erased ▸A (▸-without-𝟘ᵐ not-ok ▸t)
-                (▸-without-𝟘ᵐ not-ok ▸u))
+             (Id₀ₘ erased (▸-without-𝟘ᵐ not-ok ▸A)
+                (▸-without-𝟘ᵐ not-ok ▸t) (▸-without-𝟘ᵐ not-ok ▸u))
              (δ≤𝟘ᶜ erased))
 
 opaque
@@ -1820,12 +1830,12 @@ opaque
   𝟘ᶜ                   ∎
   where
   open Tools.Reasoning.Equivalence Conₘ-setoid
-⌈⌉-𝟘ᵐ {ok = ok} (Id _ t u) with Id-erased?
+⌈⌉-𝟘ᵐ {ok} (Id A t u) with Id-erased?
 … | yes _ = ≈ᶜ-refl
 … | no _  = begin
-  ⌈ t ⌉ 𝟘ᵐ[ ok ] +ᶜ ⌈ u ⌉ 𝟘ᵐ[ ok ]  ≈⟨ +ᶜ-cong (⌈⌉-𝟘ᵐ t) (⌈⌉-𝟘ᵐ u) ⟩
-  𝟘ᶜ +ᶜ 𝟘ᶜ                          ≈⟨ +ᶜ-identityˡ _ ⟩
-  𝟘ᶜ                                ∎
+  ⌈ A ⌉ 𝟘ᵐ[ ok ] +ᶜ ⌈ t ⌉ 𝟘ᵐ[ ok ] +ᶜ ⌈ u ⌉ 𝟘ᵐ[ ok ]  ≈⟨ +ᶜ-cong (⌈⌉-𝟘ᵐ A) (+ᶜ-cong (⌈⌉-𝟘ᵐ t) (⌈⌉-𝟘ᵐ u)) ⟩
+  𝟘ᶜ +ᶜ 𝟘ᶜ +ᶜ 𝟘ᶜ                                      ≈⟨ ≈ᶜ-trans (+ᶜ-identityˡ _) (+ᶜ-identityˡ _) ⟩
+  𝟘ᶜ                                                  ∎
   where
   open Tools.Reasoning.Equivalence Conₘ-setoid
 ⌈⌉-𝟘ᵐ rfl =
@@ -2001,12 +2011,13 @@ usage-upper-bound ⦃ ok ⦄ ok′ = usage-upper-bound′
     +ᶜ-monotone (·ᶜ-monotoneʳ (usage-upper-bound′ t))
       (usage-upper-bound′ u)
 
-  usage-upper-bound′ {m} (Idₘ {δ} {t} {η} {u} not-ok _ ▸t ▸u)
+  usage-upper-bound′ {m} (Idₘ {γ} {A} {δ} {t} {η} {u} not-ok ▸A ▸t ▸u)
     with Id-erased?
   … | yes ok = ⊥-elim (not-ok ok)
   … | no _   = begin
-    δ +ᶜ η              ≤⟨ +ᶜ-monotone (usage-upper-bound′ ▸t) (usage-upper-bound′ ▸u) ⟩
-    ⌈ t ⌉ m +ᶜ ⌈ u ⌉ m  ∎
+    γ +ᶜ δ +ᶜ η                    ≤⟨ +ᶜ-monotone (usage-upper-bound′ ▸A) $
+                                      +ᶜ-monotone (usage-upper-bound′ ▸t) (usage-upper-bound′ ▸u) ⟩
+    ⌈ A ⌉ m +ᶜ ⌈ t ⌉ m +ᶜ ⌈ u ⌉ m  ∎
     where
     open ≤ᶜ-reasoning
 
@@ -2166,7 +2177,7 @@ usage-inf (unitrecₘ γ▸t δ▸u η▸A ok) =
   unitrecₘ (usage-inf γ▸t) (usage-inf δ▸u) η▸A ok
 usage-inf (Idₘ not-ok ▸A ▸t ▸u) with Id-erased?
 … | yes ok = ⊥-elim (not-ok ok)
-… | no _   = Idₘ not-ok ▸A (usage-inf ▸t) (usage-inf ▸u)
+… | no _   = Idₘ not-ok (usage-inf ▸A) (usage-inf ▸t) (usage-inf ▸u)
 usage-inf (Id₀ₘ ok ▸A ▸t ▸u) with Id-erased?
 … | no not-ok = ⊥-elim (not-ok ok)
 … | yes _     = Id₀ₘ ok ▸A ▸t ▸u
@@ -2300,8 +2311,7 @@ opaque
     natrec-no-nr-glbₘ (▸inline ▸∇ ▸t) (▸inline ▸∇ ▸u) (▸inline ▸∇ ▸v)
       (▸inline (▸-𝟘ᵐ?-DCon ▸∇) ▸A) ok₁ ok₂
   ▸inline ▸∇ (Idₘ not-erased ▸A ▸t ▸u) =
-    Idₘ not-erased (▸inline (▸-𝟘ᵐ?-DCon ▸∇) ▸A) (▸inline ▸∇ ▸t)
-      (▸inline ▸∇ ▸u)
+    Idₘ not-erased (▸inline ▸∇ ▸A) (▸inline ▸∇ ▸t) (▸inline ▸∇ ▸u)
   ▸inline ▸∇ (Id₀ₘ erased ▸A ▸t ▸u) =
     Id₀ₘ erased (▸inline (▸-𝟘ᵐ?-DCon ▸∇) ▸A)
       (▸inline (▸-𝟘ᵐ?-DCon ▸∇) ▸t) (▸inline (▸-𝟘ᵐ?-DCon ▸∇) ▸u)

@@ -18,7 +18,7 @@ open import Tools.Sum
 private
   variable
     α k n : Nat
-    t t′ u u′ : Term n
+    t t′ u u′ v : Term n
     ∇ ∇′ : List (Term _)
     s : Strictness
 
@@ -74,6 +74,21 @@ opaque
   Value→¬⇒ suc  ()
   Value→¬⇒ star ()
   Value→¬⇒ ↯    ()
+
+opaque
+
+  -- If t ∘⟨ s ⟩ u reduces to a value, then t reduces to a value.
+
+  ∘⇒Value→⇒Value :
+    Value v → ∇ ⊢ t ∘⟨ s ⟩ u ⇒* v → ∃ λ v′ → Value v′ × ∇ ⊢ t ⇒* v′
+  ∘⇒Value→⇒Value ()      refl
+  ∘⇒Value→⇒Value v-value (trans (app-subst t⇒t′) t′u⇒v) =
+    let _ , v′-value , t′⇒v′ = ∘⇒Value→⇒Value v-value t′u⇒v in
+    _ , v′-value , trans t⇒t′ t′⇒v′
+  ∘⇒Value→⇒Value _ (trans (app-subst-arg t-value _) _) =
+    _ , t-value , refl
+  ∘⇒Value→⇒Value _ (trans (β-red _) _) =
+    _ , lam , refl
 
 opaque
 

@@ -196,7 +196,7 @@ module Is-morphism
 
             tr-Conₘ δ ∙ tr (Mo₁.⌜ m ⌝ M₁.· r M₁.· p) ∙
             tr (Mo₁.⌜ m ⌝ M₁.· r)                                  ∎))
-         (tr-∙▸[𝟘ᵐ?] ▸Q) (Prodrec-preserved ≈ᵐ-tr-Mode ok))
+         (tr-∙▸[𝟘ᵐ?] ▸Q) (Prodrec-preserved (≈ᵐ-tr-Mode {m = m}) ok))
       (begin
          tr-Conₘ (r C₁.·ᶜ γ C₁.+ᶜ δ)           ≈⟨ tr-Conₘ-+ᶜ ⟩
          tr-Conₘ (r C₁.·ᶜ γ) C₂.+ᶜ tr-Conₘ δ   ≈⟨ +ᶜ-congʳ tr-Conₘ-·ᶜ ⟩
@@ -295,7 +295,7 @@ module Is-morphism
       open CR₂
     tr-▸ (emptyrecₘ {m = m} ▸t ▸A ok) = sub
       (emptyrecₘ (▸-cong (tr-Mode-ᵐ· m BMΠ) (tr-▸ ▸t)) (tr-▸[𝟘ᵐ?] ▸A)
-         (Emptyrec-preserved ≈ᵐ-tr-Mode ok))
+         (Emptyrec-preserved (≈ᵐ-tr-Mode {m = m}) ok))
       (≤ᶜ-reflexive tr-Conₘ-·ᶜ)
     tr-▸ starʷₘ = sub starʷₘ tr-Conₘ-𝟘ᶜ-≤ᶜ
     tr-▸ {m = m} (starˢₘ {γ = γ} prop) =
@@ -323,17 +323,22 @@ module Is-morphism
 
     tr-▸ {m = m} (unitrecₘ {γ = γ} {p = p} {δ = δ} ▸t ▸u ▸A ok) =
       sub (unitrecₘ (▸-cong (tr-Mode-ᵐ· m BMΠ) (tr-▸ ▸t)) (tr-▸ ▸u)
-            (tr-∙▸[𝟘ᵐ?] ▸A) (Unitrec-preserved ≈ᵐ-tr-Mode ok))
+            (tr-∙▸[𝟘ᵐ?] ▸A) (Unitrec-preserved (≈ᵐ-tr-Mode {m = m}) ok))
           (begin
             tr-Conₘ (p C₁.·ᶜ γ C₁.+ᶜ δ)           ≈⟨ tr-Conₘ-+ᶜ ⟩
             tr-Conₘ (p C₁.·ᶜ γ) C₂.+ᶜ tr-Conₘ δ   ≈⟨ +ᶜ-congʳ tr-Conₘ-·ᶜ ⟩
             tr p C₂.·ᶜ tr-Conₘ γ C₂.+ᶜ tr-Conₘ δ  ∎)
       where
       open CR₂
-    tr-▸ (Idₘ ok ▸A ▸t ▸u) = sub
-      (Idₘ (ok ∘→ Id-erased-preserved .proj₂) (tr-▸[𝟘ᵐ?] ▸A) (tr-▸ ▸t)
+    tr-▸ (Idₘ {γ} {δ} {η} ok ▸A ▸t ▸u) = sub
+      (Idₘ (ok ∘→ Id-erased-preserved .proj₂) (tr-▸ ▸A) (tr-▸ ▸t)
          (tr-▸ ▸u))
-      (≤ᶜ-reflexive tr-Conₘ-+ᶜ)
+      (begin
+         tr-Conₘ (γ C₁.+ᶜ δ C₁.+ᶜ η)                ≈⟨ tr-Conₘ-+ᶜ ⟩
+         tr-Conₘ γ C₂.+ᶜ tr-Conₘ (δ C₁.+ᶜ η)        ≈⟨ +ᶜ-congˡ tr-Conₘ-+ᶜ ⟩
+         tr-Conₘ γ C₂.+ᶜ tr-Conₘ δ C₂.+ᶜ tr-Conₘ η  ∎)
+      where
+      open CR₂
     tr-▸ (Id₀ₘ ok ▸A ▸t ▸u) = sub
       (Id₀ₘ (Id-erased-preserved .proj₁ ok) (tr-▸[𝟘ᵐ?] ▸A)
          (tr-▸[𝟘ᵐ?] ▸t) (tr-▸[𝟘ᵐ?] ▸u))
@@ -481,10 +486,10 @@ module Is-morphism
       (≤ᵉᵐ→≡all→≡all (erased-matches-for-K-preserved ≈ᵐ-tr-Mode) ≡none)
       (tr-▸[𝟘ᵐ?] ▸A) (tr-▸[𝟘ᵐ?] ▸t) (tr-∙▸[𝟘ᵐ?] ▸B) (tr-▸ ▸u)
       (tr-▸[𝟘ᵐ?] ▸v)
-    tr-▸ ([]-congₘ ▸A ▸t ▸u ▸v ok) = sub
+    tr-▸ ([]-congₘ {m} ▸A ▸t ▸u ▸v ok) = sub
       ([]-congₘ (tr-▸[𝟘ᵐ?] ▸A) (tr-▸[𝟘ᵐ?] ▸t)
          (tr-▸[𝟘ᵐ?] ▸u) (tr-▸[𝟘ᵐ?] ▸v)
-         ([]-cong-preserved ≈ᵐ-tr-Mode ok))
+         ([]-cong-mode-preserved (≈ᵐ-tr-Mode {m = m}) ok))
       tr-Conₘ-𝟘ᶜ-≤ᶜ
     tr-▸ (sub ▸t γ≤δ) =
       sub (tr-▸ ▸t) (tr-Conₘ-monotone γ≤δ)
@@ -801,7 +806,7 @@ module Is-order-embedding
           RS₁.Uᵤ
         (Id _ _ _) (Idᵤ not-erased A t u) →
           RS₁.Idᵤ (not-erased ∘→ Id-erased-preserved .proj₁)
-            (lemma-𝟘ᵐ?-𝟘ᵐ? A) (lemma m₁≳m₂ _ t) (lemma m₁≳m₂ _ u)
+            (lemma m₁≳m₂ _ A) (lemma m₁≳m₂ _ t) (lemma m₁≳m₂ _ u)
         (Id _ _ _) (Id₀ᵤ erased A t u) →
           RS₁.Id₀ᵤ (Id-erased-preserved .proj₂ erased) (lemma-𝟘ᵐ?-𝟘ᵐ? A)
             (lemma-𝟘ᵐ?-𝟘ᵐ? t) (lemma-𝟘ᵐ?-𝟘ᵐ? u)
@@ -890,7 +895,7 @@ module Is-order-embedding
                 (lemma-𝟘ᵐ? m₁≳m₂ B) (lemma m₁≳m₂ _ u)
                 (lemma-𝟘ᵐ? m₁≳m₂ v)
         ([]-cong _ _ _ _ _) ([]-congᵤ ok A t u v) →
-          RS₁.[]-congᵤ ([]-cong-reflected m₁≳m₂ ok)
+          RS₁.[]-congᵤ ([]-cong-mode-reflected m₁≳m₂ ok)
             (lemma-𝟘ᵐ?-𝟘ᵐ? A) (lemma-𝟘ᵐ?-𝟘ᵐ? t)
             (lemma-𝟘ᵐ?-𝟘ᵐ? u) (lemma-𝟘ᵐ?-𝟘ᵐ? v)
 
@@ -1109,7 +1114,7 @@ module Is-order-embedding
               η ∙ Mo₂.⌜ tr-Mode m ⌝ M₂.· tr r M₂.· tr-Σ p ∙
               Mo₂.⌜ tr-Mode m ⌝ M₂.· tr r                    ∎)
            (tr-∙▸[𝟘ᵐ?]⁻¹ ▸Q .proj₂)
-           (Prodrec-reflected [ ≈ᵐ-tr-Mode ] ok))
+           (Prodrec-reflected [ ≈ᵐ-tr-Mode {m = m} ] ok))
         (let open CR₁ in begin
            γ                    ≤⟨ γ≤δ′+η′ ⟩
            δ′ C₁.+ᶜ η′          ≤⟨ CP₁.+ᶜ-monotoneˡ δ′≤rδ″ ⟩
@@ -1187,7 +1192,7 @@ module Is-order-embedding
       sub
         (emptyrecₘ (tr-▸⁻¹′ _ ▸t (sym (tr-Mode-ᵐ· m BMΠ)) δ′≤δ)
            (tr-▸[𝟘ᵐ?]⁻¹ ▸A .proj₂)
-           (Emptyrec-reflected [ ≈ᵐ-tr-Mode ] ok))
+           (Emptyrec-reflected [ ≈ᵐ-tr-Mode {m = m} ] ok))
         (begin
            γ           ≤⟨ γ≤pδ′ ⟩
            p C₁.·ᶜ δ′  ∎)
@@ -1202,7 +1207,7 @@ module Is-order-embedding
       sub
         (unitrecₘ (tr-▸⁻¹′ _ ▸t (sym (tr-Mode-ᵐ· m BMΠ)) δ″≤δ)
            (tr-▸⁻¹′ _ ▸u refl η′≤η) (tr-∙▸[𝟘ᵐ?]⁻¹ ▸A .proj₂)
-           (Unitrec-reflected [ ≈ᵐ-tr-Mode ] ok))
+           (Unitrec-reflected [ ≈ᵐ-tr-Mode {m = m} ] ok))
         (begin
           γ                    ≤⟨ γ≤δ′+η′ ⟩
           δ′ C₁.+ᶜ η′          ≤⟨ CP₁.+ᶜ-monotoneˡ δ′≤pδ″ ⟩
@@ -1210,12 +1215,21 @@ module Is-order-embedding
       where
       open CR₁
 
-    tr-▸⁻¹′ (Id _ _ _) (Idₘ ok ▸A ▸t ▸u) refl γ≤δ+η =
-      case tr-Conₘ-≤ᶜ-+ᶜ γ≤δ+η of λ {
-        (_ , _ , ≤δ , ≤η , γ≤δ′+η′) → sub
-      (Idₘ (ok ∘→ Id-erased-preserved .proj₁) (tr-▸[𝟘ᵐ?]⁻¹ ▸A .proj₂)
-         (tr-▸⁻¹′ _ ▸t refl ≤δ) (tr-▸⁻¹′ _ ▸u refl ≤η))
-      γ≤δ′+η′ }
+    tr-▸⁻¹′
+      {γ} (Id _ _ _) (Idₘ {γ = δ} {δ = η} {η = θ} ok ▸A ▸t ▸u) refl
+      γ≤δ+η+θ =
+      let δ′ , χ  , ≤δ , ≤η+θ , γ≤δ′+χ  = tr-Conₘ-≤ᶜ-+ᶜ γ≤δ+η+θ
+          η′ , θ′ , ≤η , ≤θ   , χ≤η′+θ′ = tr-Conₘ-≤ᶜ-+ᶜ ≤η+θ
+      in
+      sub
+        (Idₘ (ok ∘→ Id-erased-preserved .proj₁) (tr-▸⁻¹′ _ ▸A refl ≤δ)
+           (tr-▸⁻¹′ _ ▸t refl ≤η) (tr-▸⁻¹′ _ ▸u refl ≤θ))
+        (begin
+           γ                     ≤⟨ γ≤δ′+χ ⟩
+           δ′ C₁.+ᶜ χ            ≤⟨ CP₁.+ᶜ-monotoneʳ χ≤η′+θ′ ⟩
+           δ′ C₁.+ᶜ η′ C₁.+ᶜ θ′  ∎)
+        where
+        open CR₁
 
     tr-▸⁻¹′ (Id _ _ _) (Id₀ₘ ok ▸A ▸t ▸u) refl ≤𝟘 = sub
       (Id₀ₘ (Id-erased-preserved .proj₂ ok) (tr-▸[𝟘ᵐ?]⁻¹ ▸A .proj₂)
@@ -1323,10 +1337,11 @@ module Is-order-embedding
       (tr-∙▸[𝟘ᵐ?]⁻¹ ▸B .proj₂) (tr-▸⁻¹′ _ ▸u refl ≤γ′)
       (tr-▸[𝟘ᵐ?]⁻¹ ▸v .proj₂)
 
-    tr-▸⁻¹′ ([]-cong _ _ _ _ _) ([]-congₘ ▸A ▸t ▸u ▸v ok) refl ≤𝟘 = sub
+    tr-▸⁻¹′
+      {m} ([]-cong _ _ _ _ _) ([]-congₘ ▸A ▸t ▸u ▸v ok) refl ≤𝟘 = sub
       ([]-congₘ (tr-▸[𝟘ᵐ?]⁻¹ ▸A .proj₂) (tr-▸[𝟘ᵐ?]⁻¹ ▸t .proj₂)
          (tr-▸[𝟘ᵐ?]⁻¹ ▸u .proj₂) (tr-▸[𝟘ᵐ?]⁻¹ ▸v .proj₂)
-         ([]-cong-reflected [ ≈ᵐ-tr-Mode ] ok))
+         ([]-cong-mode-reflected [ ≈ᵐ-tr-Mode {m = m} ] ok))
       (tr-Conₘ-≤ᶜ-𝟘ᶜ-→-≤ᶜ-𝟘ᶜ ≤𝟘)
 
     tr-▸⁻¹′ {γ′ = γ′} {γ = γ} t (sub {γ = δ} ▸t γ′≤δ) refl γ≤γ′ =

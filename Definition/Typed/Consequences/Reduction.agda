@@ -15,6 +15,7 @@ open Type-restrictions R
 
 open import Definition.Untyped M
 open import Definition.Untyped.Neutral M type-variant
+open import Definition.Untyped.Omega M
 open import Definition.Untyped.Properties M
 open import Definition.Untyped.Whnf M type-variant
 open import Definition.Typed R
@@ -342,73 +343,6 @@ opaque
       ⊩A →
     whNormTerm′ ⊩A (⊩∷→⊩∷/ ⊩A ⊩t)
 
-private opaque
-
-  -- A lemma used below.
-
-  term-without-WHNF′ :
-    Equality-reflection →
-    Π-allowed p q →
-    » ∇ →
-    ∃₂ λ (Γ : Con Term 1) A →
-      ∇ » Γ ⊢ A ∷ U 0 ×
-      (¬ ∃₂ λ Δ B → Whnf ∇ B × ∇ » Δ ⊢ A ⇒* B) ×
-      (¬ ∃₃ λ Δ B C → Whnf ∇ B × ∇ » Δ ⊢ A ⇒* B ∷ C)
-  term-without-WHNF′ {p} {q} {∇} ok₁ ok₂ »∇ =
-    ε ∙ Empty , Ω , ⊢Ω ,
-    (λ (_ , _ , B-whnf , A⇒*B) → without-WHNF₁ B-whnf A⇒*B) ,
-    (λ (_ , _ , _ , B-whnf , A⇒*B) → without-WHNF₂ B-whnf A⇒*B)
-    where
-    ⊢U : ∇ » ε ∙ Empty ⊢ U 0 ∷ U 1
-    ⊢U = Uⱼ (∙ Emptyⱼ (ε »∇))
-
-    Π≡U : ∇ » ε ∙ Empty ⊢ Π p , q ▷ U 0 ▹ U 0 ≡ U 0
-    Π≡U =
-      _⊢_≡_.univ $
-      ⊢∷Empty→⊢≡∷ ok₁ (var₀ (Emptyⱼ (ε »∇)))
-        (ΠΣⱼ ⊢U (wkTerm₁ (univ ⊢U) ⊢U) ok₂) ⊢U
-
-    ω : Term 1
-    ω = lam p (var x0 ∘⟨ p ⟩ var x0)
-
-    Ω : Term 1
-    Ω = ω ∘⟨ p ⟩ ω
-
-    ⊢ω : ∇ » ε ∙ Empty ⊢ ω ∷ U 0
-    ⊢ω =
-      conv
-        (lamⱼ′ ok₂ $
-         conv (var₀ (univ ⊢U))
-           (sym (wkEq₁ (univ ⊢U) Π≡U)) ∘ⱼ
-         var₀ (univ ⊢U))
-        Π≡U
-
-    ⊢Ω : ∇ » ε ∙ Empty ⊢ Ω ∷ U 0
-    ⊢Ω = conv ⊢ω (sym Π≡U) ∘ⱼ ⊢ω
-
-    ¬-Whnf-Ω : ¬ Whnf ∇ Ω
-    ¬-Whnf-Ω (ne (∘ₙ ()))
-
-    without-WHNF₁ : Whnf ∇ A → ¬ ∇ » Δ ⊢ Ω ⇒* A
-    without-WHNF₁ Whnf-Ω (id _)           = ¬-Whnf-Ω Whnf-Ω
-    without-WHNF₁ Whnf-u (univ Ω⇒t ⇨ t⇒u) =
-      case inv-⇒-∘ Ω⇒t of λ where
-        (inj₁ (_ , _ , ω⇒ , PE.refl)) → ⊥-elim (whnfRedTerm ω⇒ lamₙ)
-        (inj₂ (_ , ω≡lam , PE.refl))  →
-          case lam-PE-injectivity ω≡lam of λ {
-            (_ , PE.refl) →
-          without-WHNF₁ Whnf-u t⇒u }
-
-    without-WHNF₂ : Whnf ∇ A → ¬ ∇ » Δ ⊢ Ω ⇒* A ∷ B
-    without-WHNF₂ Whnf-Ω (id _)      = ¬-Whnf-Ω Whnf-Ω
-    without-WHNF₂ Whnf-u (Ω⇒t ⇨ t⇒u) =
-      case inv-⇒-∘ Ω⇒t of λ where
-        (inj₁ (_ , _ , ω⇒ , PE.refl)) → ⊥-elim (whnfRedTerm ω⇒ lamₙ)
-        (inj₂ (_ , ω≡lam , PE.refl))  →
-          case lam-PE-injectivity ω≡lam of λ {
-            (_ , PE.refl) →
-          without-WHNF₂ Whnf-u t⇒u }
-
 opaque
 
   -- If equality reflection is allowed, then there is a well-formed
@@ -421,9 +355,11 @@ opaque
     » ∇ →
     ∃₂ λ (Γ : Con Term 1) A →
       ∇ » Γ ⊢ A × ¬ ∃₂ λ Δ B → Whnf ∇ B × ∇ » Δ ⊢ A ⇒* B
-  type-without-WHNF ok₁ ok₂ »∇ =
-    let _ , _ , ⊢A , hyp , _ = term-without-WHNF′ ok₁ ok₂ »∇ in
-    _ , _ , univ ⊢A , hyp
+  type-without-WHNF {p} ok₁ ok₂ »∇ =
+    let ⊢E = Emptyⱼ (ε »∇) in
+    ε ∙ Empty , Ω p , univ (⊢Ω∷ ok₁ ok₂ (var₀ ⊢E) (Uⱼ {l = 0} (∙ ⊢E))) ,
+    (λ (_ , _ , B-whnf , A⇒*B) →
+       Ω-does-not-reduce-to-WHNF-⊢ B-whnf A⇒*B)
 
 opaque
 
@@ -437,6 +373,8 @@ opaque
     » ∇ →
     ∃₃ λ (Γ : Con Term 1) t A →
       ∇ » Γ ⊢ t ∷ A × ¬ ∃₃ λ Δ u B → Whnf ∇ u × ∇ » Δ ⊢ t ⇒* u ∷ B
-  term-without-WHNF ok₁ ok₂ »∇ =
-    let _ , _ , ⊢A , _ , hyp = term-without-WHNF′ ok₁ ok₂ »∇ in
-    _ , _ , _ , ⊢A , hyp
+  term-without-WHNF {p} ok₁ ok₂ »∇ =
+    let ⊢E = Emptyⱼ (ε »∇) in
+    ε ∙ Empty , Ω p , Empty , ⊢Ω∷ ok₁ ok₂ (var₀ ⊢E) (Emptyⱼ (∙ ⊢E)) ,
+    (λ (_ , _ , _ , u-whnf , t⇒*u) →
+       Ω-does-not-reduce-to-WHNF-⊢∷ u-whnf t⇒*u)

@@ -103,6 +103,7 @@ import Definition.Untyped.Erased.Eta
 import Definition.Untyped.Erased.No-eta
 import Definition.Untyped.Erased
 import Definition.Untyped.Bool.Erased
+import Definition.Untyped.Omega
 import Graded.Derived.Unrestricted.Eta.Untyped
 
 ------------------------------------------------------------------------
@@ -146,6 +147,7 @@ import Definition.Typed.Properties.Admissible.Lift
 import Definition.Typed.Properties.Admissible.Bool.OK
 import Definition.Typed.Properties.Admissible.Bool
 import Definition.Typed.Properties.Admissible.Bool.Erased
+import Definition.Typed.Properties.Admissible.Omega
 import Definition.Typed.Properties.Definition
 import Definition.Typed.Substitution
 import Definition.Typed.Properties
@@ -198,6 +200,7 @@ import Graded.Derived.Erased.Usage.No-eta
 import Graded.Derived.Erased.Usage
 import Graded.Derived.Bool.Erased
 import Graded.Derived.Unrestricted.Eta.Usage
+import Graded.Derived.Omega
 
 ------------------------------------------------------------------------
 -- Assumptions used to state the theorems in Graded.FullReduction
@@ -252,8 +255,9 @@ import Graded.Modality.Instances.Relevancy
 -- modes.
 
 import Graded.Modality.Instances.Erasure.Combined
-import Graded.Modality.Instances.Erasure.Combined.Equivalent
 import Graded.Modality.Instances.Erasure.Combined.Properties
+import Graded.Modality.Instances.Erasure.Combined.Equivalent
+import Graded.Modality.Instances.Erasure.Combined.Erased
 
 ------------------------------------------------------------------------
 -- Properties of the type theory

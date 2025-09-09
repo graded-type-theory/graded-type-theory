@@ -327,7 +327,7 @@ module _ (as : Full-reduction-assumptions) where
       (Id-cong A↑ t↑ u↑) ▸∇ ▸Id →
         case inv-usage-Id ▸Id of λ where
           (invUsageId ok ▸A ▸t ▸u γ≤) →
-            sub (Idₘ ok (fullRedConv↑ A↑ (ε-▸-𝟘ᵐ? ∘→ ▸∇) ▸A)
+            sub (Idₘ ok (fullRedConv↑ A↑ ▸∇ ▸A)
                    (fullRedTermConv↑ t↑ ▸∇ ▸t)
                    (fullRedTermConv↑ u↑ ▸∇ ▸u))
               γ≤

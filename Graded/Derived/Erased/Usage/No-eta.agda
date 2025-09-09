@@ -50,37 +50,33 @@ opaque
   -- A usage rule for erased.
 
   ▸erased′ :
-    (¬ T 𝟘ᵐ-allowed → Trivial) →
+    (¬ T 𝟘ᵐ-allowed → Trivial × Prodrec-allowed 𝟙ᵐ 𝟘 𝟘 𝟘) →
     γ ▸[ 𝟘ᵐ? ] t →
     δ ▸[ 𝟘ᵐ? ] A →
-    Prodrec-allowed 𝟘ᵐ? (𝟘 ∧ 𝟙) 𝟘 𝟘 →
     𝟘ᶜ ▸[ 𝟘ᵐ? ] erased A t
   ▸erased′ {γ} {t} {δ} {A} hyp = 𝟘ᵐ?-elim
-    (λ m →
-       γ ▸[ m ] t → δ ▸[ m ] A → Prodrec-allowed m (𝟘 ∧ 𝟙) 𝟘 𝟘 →
-       𝟘ᶜ ▸[ m ] erased A t)
-    (λ ▸t ▸A ok → ▸-𝟘 (fstʷₘ-𝟘ᵐ ok ▸t ▸A))
-    (λ not-ok ▸t ▸A ok →
-       case hyp not-ok of λ
-         trivial → sub
-       (fstʷₘ-𝟙ᵐ (inj₂ trivial) (≡-trivial trivial) ok ▸t
-          (▸-cong (Mode-propositional-without-𝟘ᵐ not-ok) ▸A))
-       (≤ᶜ-reflexive (≈ᶜ-trivial trivial)))
+    (λ m → γ ▸[ m ] t → δ ▸[ m ] A → 𝟘ᶜ ▸[ m ] erased A t)
+    (λ ▸t ▸A → ▸-𝟘 (fstʷₘ-𝟘ᵐ ▸t ▸A))
+    (λ not-ok ▸t ▸A →
+       let (trivial , ok) = hyp not-ok in
+       sub
+         (fstʷₘ-𝟙ᵐ (inj₂ trivial) (≡-trivial trivial)
+            (PE.subst (λ p → Prodrec-allowed 𝟙ᵐ p 𝟘 𝟘)
+               (≡-trivial trivial) ok)
+            ▸t (▸-cong (Mode-propositional-without-𝟘ᵐ not-ok) ▸A))
+         (≤ᶜ-reflexive (≈ᶜ-trivial trivial)))
 
 -- Another usage rule for erased.
 
 ▸erased : γ ▸[ 𝟘ᵐ[ ok ] ] t →
           δ ▸[ 𝟘ᵐ[ ok ] ] A →
-          Prodrec-allowed 𝟘ᵐ[ ok ] (𝟘 ∧ 𝟙) 𝟘 𝟘 →
           𝟘ᶜ ▸[ 𝟘ᵐ[ ok ] ] erased A t
-▸erased {ok} ▸t ▸A P-ok =
+▸erased {ok} ▸t ▸A =
   ▸-cong 𝟘ᵐ?≡𝟘ᵐ $
   ▸erased′
     (⊥-elim ∘→ (_$ ok))
     (▸-cong (PE.sym 𝟘ᵐ?≡𝟘ᵐ) ▸t)
     (▸-cong (PE.sym 𝟘ᵐ?≡𝟘ᵐ) ▸A)
-    (PE.subst (λ m → Prodrec-allowed m (_ ∧ _) _ _) (PE.sym 𝟘ᵐ?≡𝟘ᵐ)
-       P-ok)
 
 ------------------------------------------------------------------------
 -- Inversion lemmas for usage

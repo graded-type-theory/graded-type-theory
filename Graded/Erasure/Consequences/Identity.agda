@@ -134,7 +134,6 @@ opaque
     ⦃ ok : T 𝟘ᵐ-allowed ⦄ →
     []-cong-allowed s₁ →
     []-cong-allowed-mode s₁ 𝟙ᵐ →
-    (s₂ PE.≡ 𝕨 → Prodrec-allowed 𝟘ᵐ (𝟘 ∧ 𝟙) 𝟘 𝟘) →
     Fundamental-assumptions⁻ (glassify ∇ » Γ) →
     γ₁ ▸[ 𝟘ᵐ ] A →
     γ₂ ▸[ 𝟘ᵐ ] t →
@@ -143,8 +142,8 @@ opaque
     glassify ∇ » Γ ⊢ v ∷ Erased.Erased s₂ (Id A t u) →
     glassify ∇ » Γ ⊢ t ≡ u ∷ A
   Id→≡″
-    {s₂} {∇} {Γ} {A} {γ₂} {t} {γ₃} {u} {v} ⦃ ok ⦄
-    []-cong-ok []-cong-ok′ P-ok as ▸A ▸t ▸u ▸v =
+    {∇} {Γ} {γ₁} {A} {γ₂} {t} {γ₃} {u} {v} {s₂} ⦃ ok ⦄
+    []-cong-ok []-cong-ok′ as ▸A ▸t ▸u ▸v =
     glassify ∇ » Γ ⊢ v ∷ Erased (Id A t u)           →⟨ erasedⱼ ⟩
     glassify ∇ » Γ ⊢ erased (Id A t u) v ∷ Id A t u  →⟨ Id→≡′ ⦃ 𝟘-well-behaved = 𝟘-well-behaved ok ⦄ []-cong-ok []-cong-ok′ as
                                                           (▸-cong (PE.sym 𝟘ᵐ?≡𝟘ᵐ) ▸A) (▸-cong (PE.sym 𝟘ᵐ?≡𝟘ᵐ) ▸t)
@@ -153,13 +152,12 @@ opaque
                                                            ▸erased s₂ ▸v
                                                              (λ _ →
                                                                   _
-                                                                , Idₘ-generalised (▸-cong (PE.sym 𝟘ᵐ?≡𝟘ᵐ) ▸A) ▸t ▸u
+                                                                , Idₘ-generalised ▸A ▸t ▸u
                                                                     (λ _ → begin
-                                                                       γ₂ +ᶜ γ₃  ≤⟨ +ᶜ-monotone (▸-𝟘ᵐ ▸t) (▸-𝟘ᵐ ▸u) ⟩
-                                                                       𝟘ᶜ +ᶜ 𝟘ᶜ  ≈⟨ +ᶜ-identityˡ _ ⟩
-                                                                       𝟘ᶜ        ∎)
-                                                                    (λ _ → ≤ᶜ-refl))
-                                                             P-ok) ⟩
+                                                                       γ₁ +ᶜ γ₂ +ᶜ γ₃  ≤⟨ +ᶜ-monotone (▸-𝟘ᵐ ▸A) (+ᶜ-monotone (▸-𝟘ᵐ ▸t) (▸-𝟘ᵐ ▸u)) ⟩
+                                                                       𝟘ᶜ +ᶜ 𝟘ᶜ +ᶜ 𝟘ᶜ  ≈⟨ ≈ᶜ-trans (+ᶜ-identityˡ _) (+ᶜ-identityˡ _) ⟩
+                                                                       𝟘ᶜ              ∎)
+                                                                    (λ _ → ≤ᶜ-refl))) ⟩
     glassify ∇ » Γ ⊢ t ≡ u ∷ A                       □
     where
     open Erased s₂

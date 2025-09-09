@@ -120,14 +120,15 @@ opaque
                                                                  hyp₁ not-ok erased) ⟩
                   𝟘ᶜ                                     ∎)
                (λ not-erased → begin
-                  𝟘ᶜ ∧ᶜ (𝟘ᶜ ∙ ⌜ 𝟘ᵐ? ⌝) ∙ (⌜ 𝟘ᵐ? ⌝ · q₂)       ≤⟨ ∧ᶜ-decreasingʳ _ _ ∙
-                                                                 𝟘ᵐ?-elim (λ m → ⌜ m ⌝ · q₂ ≤ ⌜ m ⌝)
-                                                                   (≤-reflexive (·-zeroˡ _))
-                                                                   (λ not-ok →
-                                                                      ≤-trans (≤-reflexive (·-identityˡ _)) $
-                                                                      hyp₂ not-ok not-erased) ⟩
-                  𝟘ᶜ ∙ ⌜ 𝟘ᵐ? ⌝ ∙ ⌜ 𝟘ᵐ? ⌝                      ≈˘⟨ +ᶜ-identityˡ _ ∙ +-identityʳ _ ⟩
-                  (𝟘ᶜ , x0 ≔ ⌜ 𝟘ᵐ? ⌝) +ᶜ (𝟘ᶜ , x1 ≔ ⌜ 𝟘ᵐ? ⌝)  ∎))
+                  𝟘ᶜ ∧ᶜ (𝟘ᶜ ∙ ⌜ 𝟘ᵐ? ⌝) ∙ (⌜ 𝟘ᵐ? ⌝ · q₂)             ≤⟨ ∧ᶜ-decreasingʳ _ _ ∙
+                                                                       𝟘ᵐ?-elim (λ m → ⌜ m ⌝ · q₂ ≤ ⌜ m ⌝)
+                                                                         (≤-reflexive (·-zeroˡ _))
+                                                                         (λ not-ok →
+                                                                            ≤-trans (≤-reflexive (·-identityˡ _)) $
+                                                                            hyp₂ not-ok not-erased) ⟩
+                  𝟘ᶜ ∙ ⌜ 𝟘ᵐ? ⌝ ∙ ⌜ 𝟘ᵐ? ⌝                            ≈˘⟨ +ᶜ-identityˡ _ ∙ +-identityʳ _ ⟩
+                  (𝟘ᶜ , x0 ≔ ⌜ 𝟘ᵐ? ⌝) +ᶜ (𝟘ᶜ , x1 ≔ ⌜ 𝟘ᵐ? ⌝)        ≈˘⟨ +ᶜ-identityˡ _ ⟩
+                  𝟘ᶜ +ᶜ (𝟘ᶜ , x0 ≔ ⌜ 𝟘ᵐ? ⌝) +ᶜ (𝟘ᶜ , x1 ≔ ⌜ 𝟘ᵐ? ⌝)  ∎))
             emptyrec-ok)
          (begin
             𝟘ᶜ ∙ 𝟙 · 𝟘                  ≈⟨ ≈ᶜ-refl ∙ ·-zeroʳ _ ⟩
@@ -154,7 +155,7 @@ opaque
     Σ-allowed s₁ 𝟙 q₂ →
     Erased-allowed s₁ →
     Unit-allowed s₂ →
-    (s₂ PE.≡ 𝕨 → Unitrec-allowed 𝟘ᵐ? 𝟙 Unit-η-grade) →
+    (s₂ PE.≡ 𝕨 → ¬ T 𝟘ᵐ-allowed → Unitrec-allowed 𝟙ᵐ 𝟙 Unit-η-grade) →
     ⊢ Γ →
     Resurrectable s₁ q₁ q₂ Γ (Unit s₂ l)
   Unit-resurrectable
@@ -162,7 +163,12 @@ opaque
       lam 𝟘
         (prod s₁ 𝟙 (star s₂ l) ([ Unit-η s₂ l Unit-η-grade (var x0) ]))
     , (lamₘ $
-       prodₘ starₘ (▸[] _ $ ▸Unit-η′ ur-ok (λ _ → _ , var) .proj₂)
+       prodₘ starₘ
+         (▸[] _ $
+          ▸Unit-η′
+            (𝟘ᵐ?-elim (λ m → Unitrec-allowed m _ Unit-η-grade) _ ∘→
+             ur-ok)
+            (λ _ → _ , var) .proj₂)
          (λ _ → begin
             𝟘ᶜ ∙ 𝟙 · 𝟘     ≈⟨ ≈ᶜ-refl ∙ ·-zeroʳ _ ⟩
             𝟘ᶜ             ≈˘⟨ ·ᶜ-identityˡ _ ⟩
@@ -300,10 +306,9 @@ opaque
 
   -- If 𝟘ᵐ is allowed, η-equality is not allowed for weak unit types
   -- unless a certain condition is satisfied, and []-cong is allowed
-  -- for s (and another assumption holds if s is 𝕨), then ℕ is not
-  -- s-resurrectable with respect to a well-resourced, transparent
-  -- definition context and a variable context that satisfy
-  -- Fundamental-assumptions⁻.
+  -- for s, then ℕ is not s-resurrectable with respect to a
+  -- well-resourced, transparent definition context and a variable
+  -- context that satisfy Fundamental-assumptions⁻.
   --
   -- Note that if []-cong is allowed, then (at the time of writing)
   -- Fundamental-assumptions⁻ only holds for the empty variable
@@ -314,15 +319,13 @@ opaque
     (∀ {p q} →
      Unitʷ-η → Unitʷ-allowed → Unitrec-allowed 𝟙ᵐ p q →
      p ≤ 𝟘) →
-    (s PE.≡ 𝕨 → Prodrec-allowed 𝟘ᵐ (𝟘 ∧ 𝟙) 𝟘 𝟘) →
     []-cong-allowed s →
     []-cong-allowed-mode s 𝟙ᵐ →
     ▸[ 𝟙ᵐ ] glassify ∇ →
     Fundamental-assumptions⁻ (glassify ∇ » Δ) →
     ¬ Resurrectable s q₁ q₂ (glassify ∇ » Δ) ℕ
   ¬-ℕ-resurrectable
-    {∇} {Δ} ⦃ ok ⦄
-    Unitʷ-η→ P-ok []-cong-ok []-cong-ok′ ▸∇ as (_ , ▸t , ⊢t) =
+    {∇} {Δ} ⦃ ok ⦄ Unitʷ-η→ []-cong-ok []-cong-ok′ ▸∇ as (_ , ▸t , ⊢t) =
     -- By the fundamental theorem t is related to erase t.
     case Fundamental.fundamentalErased-𝟙ᵐ
            (record
@@ -342,7 +345,7 @@ opaque
     case inv-usage-prod
            (usagePres*Term Unitʷ-η→ ▸∇ (▸t ∘ₘ zeroₘ) t∘0⇒t₁,t₂) of λ {
       (invUsageProd ▸t₁ ▸t₂ _ _) →
-    case Id→≡″ []-cong-ok []-cong-ok′ P-ok as ℕₘ (▸-𝟘 ▸t₁) zeroₘ (▸-𝟘 ▸t₂) $
+    case Id→≡″ []-cong-ok []-cong-ok′ as ℕₘ (▸-𝟘 ▸t₁) zeroₘ (▸-𝟘 ▸t₂) $
          inversion-prod-Σ
            (syntacticEqTerm (subset*Term t∘0⇒t₁,t₂) .proj₂ .proj₂)
            .proj₂ .proj₁ of λ
@@ -372,7 +375,7 @@ opaque
                (usagePres*Term Unitʷ-η→ ▸∇ (▸t ∘ₘ sucₘ zeroₘ)
                   t∘1⇒t₁′,t₂′) of λ {
           (invUsageProd ▸t₁′ ▸t₂′ _ _) →
-        case Id→≡″ []-cong-ok []-cong-ok′ P-ok as ℕₘ (▸-𝟘 ▸t₁′) (sucₘ zeroₘ)
+        case Id→≡″ []-cong-ok []-cong-ok′ as ℕₘ (▸-𝟘 ▸t₁′) (sucₘ zeroₘ)
                (▸-𝟘 ▸t₂′) $
              inversion-prod-Σ
                (syntacticEqTerm (subset*Term t∘1⇒t₁′,t₂′)
