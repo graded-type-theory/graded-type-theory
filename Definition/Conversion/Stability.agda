@@ -30,17 +30,20 @@ open import Tools.Product
 
 private
   variable
-    n : Nat
+    m n : Nat
+    ∇ : DCon (Term 0) m
     Γ Δ : Con Term n
 
 mutual
   -- Stability of algorithmic equality of neutrals.
   stability~↑ : ∀ {k l A}
-              → ⊢ Γ ≡ Δ
-              → Γ ⊢ k ~ l ↑ A
-              → Δ ⊢ k ~ l ↑ A
+              → ∇ »⊢ Γ ≡ Δ
+              → ∇ » Γ ⊢ k ~ l ↑ A
+              → ∇ » Δ ⊢ k ~ l ↑ A
   stability~↑ Γ≡Δ (var-refl x x≡y) =
     var-refl (stabilityTerm Γ≡Δ x) x≡y
+  stability~↑ Γ≡Δ (defn-refl α α↦⊘ α≡β) =
+    defn-refl (stabilityTerm Γ≡Δ α) α↦⊘ α≡β
   stability~↑ Γ≡Δ (app-cong k~l x) =
     app-cong (stability~↓ Γ≡Δ k~l) (stabilityConv↑Term Γ≡Δ x)
   stability~↑ Γ≡Δ (fst-cong p~r) =
@@ -93,26 +96,26 @@ mutual
 
   -- Stability of algorithmic equality of neutrals of types in WHNF.
   stability~↓ : ∀ {k l A}
-              → ⊢ Γ ≡ Δ
-              → Γ ⊢ k ~ l ↓ A
-              → Δ ⊢ k ~ l ↓ A
+              → ∇ »⊢ Γ ≡ Δ
+              → ∇ » Γ ⊢ k ~ l ↓ A
+              → ∇ » Δ ⊢ k ~ l ↓ A
   stability~↓ Γ≡Δ ([~] A (D , whnfA) k~l) =
     [~] A (stabilityRed* Γ≡Δ D , whnfA) (stability~↑ Γ≡Δ k~l)
 
   -- Stability of algorithmic equality of types.
   stabilityConv↑ : ∀ {A B}
-                 → ⊢ Γ ≡ Δ
-                 → Γ ⊢ A [conv↑] B
-                 → Δ ⊢ A [conv↑] B
+                 → ∇ »⊢ Γ ≡ Δ
+                 → ∇ » Γ ⊢ A [conv↑] B
+                 → ∇ » Δ ⊢ A [conv↑] B
   stabilityConv↑ Γ≡Δ ([↑] A′ B′ D D′ A′<>B′) =
     [↑] A′ B′ (stabilityRed↘ Γ≡Δ D) (stabilityRed↘ Γ≡Δ D′)
         (stabilityConv↓ Γ≡Δ A′<>B′)
 
   -- Stability of algorithmic equality of types in WHNF.
   stabilityConv↓ : ∀ {A B}
-                 → ⊢ Γ ≡ Δ
-                 → Γ ⊢ A [conv↓] B
-                 → Δ ⊢ A [conv↓] B
+                 → ∇ »⊢ Γ ≡ Δ
+                 → ∇ » Γ ⊢ A [conv↓] B
+                 → ∇ » Δ ⊢ A [conv↓] B
   stabilityConv↓ Γ≡Δ (U-refl x) =
     let _ , ⊢Δ , _ = contextConvSubst Γ≡Δ
     in  U-refl ⊢Δ
@@ -138,9 +141,9 @@ mutual
 
   -- Stability of algorithmic equality of terms.
   stabilityConv↑Term : ∀ {t u A}
-                     → ⊢ Γ ≡ Δ
-                     → Γ ⊢ t [conv↑] u ∷ A
-                     → Δ ⊢ t [conv↑] u ∷ A
+                     → ∇ »⊢ Γ ≡ Δ
+                     → ∇ » Γ ⊢ t [conv↑] u ∷ A
+                     → ∇ » Δ ⊢ t [conv↑] u ∷ A
   stabilityConv↑Term Γ≡Δ ([↑]ₜ B t′ u′ D d d′ t<>u) =
     [↑]ₜ B t′ u′ (stabilityRed↘ Γ≡Δ D) (stabilityRed↘Term Γ≡Δ d)
                  (stabilityRed↘Term Γ≡Δ d′)
@@ -148,9 +151,9 @@ mutual
 
   -- Stability of algorithmic equality of terms in WHNF.
   stabilityConv↓Term : ∀ {t u A}
-                     → ⊢ Γ ≡ Δ
-                     → Γ ⊢ t [conv↓] u ∷ A
-                     → Δ ⊢ t [conv↓] u ∷ A
+                     → ∇ »⊢ Γ ≡ Δ
+                     → ∇ » Γ ⊢ t [conv↓] u ∷ A
+                     → ∇ » Δ ⊢ t [conv↓] u ∷ A
   stabilityConv↓Term Γ≡Δ (ℕ-ins x) =
     ℕ-ins (stability~↓ Γ≡Δ x)
   stabilityConv↓Term Γ≡Δ (Empty-ins x) =

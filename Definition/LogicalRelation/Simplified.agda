@@ -17,6 +17,7 @@ open Type-restrictions R
 open import Definition.Untyped Mod
 open import Definition.Untyped.Neutral Mod type-variant
 open import Definition.Untyped.Properties Mod
+open import Definition.Untyped.Whnf Mod type-variant
 open import Definition.Typed R
 open import Definition.Typed.EqRelInstance R
 open import Definition.Typed.Properties R
@@ -24,6 +25,7 @@ open import Definition.Typed.Inversion R
 open import Definition.Typed.Substitution R
 open import Definition.Typed.Consequences.Inequality R as I
 open import Definition.Typed.Consequences.Injectivity R
+open import Definition.Typed.Weakening.Definition R
 open import Definition.LogicalRelation R
   hiding (Uᵣ′; Unitᵣ′; ne′; Bᵣ′)
 open import Definition.LogicalRelation.Hidden R
@@ -38,8 +40,8 @@ open import Tools.Product
 import Tools.PropositionalEquality as PE
 
 private variable
-  Γ : Con Term _
-  ℓ : Nat
+  Γ : Cons _ _
+  m n : Nat
   s : Strength
   t u A A′ B : Term _
   p q : Mod
@@ -49,7 +51,10 @@ private variable
 -- The logical relation and some auxilliary definitions
 
 -- Universe type
-record _⊨U_ (Γ : Con Term ℓ) (A : Term ℓ) : Set a where
+
+infix 4 _⊨U_
+
+record _⊨U_ (Γ : Cons m n) (A : Term n) : Set a where
   no-eta-equality
   pattern
   constructor Uᵣ
@@ -58,8 +63,11 @@ record _⊨U_ (Γ : Con Term ℓ) (A : Term ℓ) : Set a where
     ⇒*U : Γ ⊢ A ⇒* U l
 
 -- Unit type
+
+infix 4 _⊨Unit⟨_⟩_
+
 record _⊨Unit⟨_⟩_
-  (Γ : Con Term ℓ) (s : Strength) (A : Term ℓ) :
+  (Γ : Cons m n) (s : Strength) (A : Term n) :
   Set a where
   no-eta-equality
   pattern
@@ -69,46 +77,58 @@ record _⊨Unit⟨_⟩_
     ⇒*-Unit : Γ ⊢ A ⇒* Unit s l
 
 -- Neutral type
-record _⊨ne_ {ℓ : Nat} (Γ : Con Term ℓ) (A : Term ℓ) : Set a where
+
+infix 4 _⊨ne_
+
+record _⊨ne_ (Γ : Cons m n) (A : Term n) : Set a where
   no-eta-equality
   pattern
   constructor ne
   field
-    N                 : Term ℓ
+    N                 : Term n
     D                 : Γ ⊢ A ⇒* N
-    neN               : Neutral N
+    neN               : Neutralₗ (Γ .defs) N
 
 mutual
 
   -- ΠΣ-type
-  record _⊨ΠΣ⟨_,_,_⟩_ (Γ : Con Term ℓ) (b : BinderMode)
-                      (p q : Mod) (A : Term ℓ) : Set a where
+
+  infix 4 _⊨ΠΣ⟨_,_,_⟩_
+
+  record _⊨ΠΣ⟨_,_,_⟩_ (Γ : Cons m n) (b : BinderMode)
+                      (p q : Mod) (A : Term n) : Set a where
     inductive
     no-eta-equality
     pattern
     constructor Bᵣ
     field
-      F : Term ℓ
-      G : Term (1+ ℓ)
+      F : Term n
+      G : Term (1+ n)
       D : Γ ⊢ A ⇒* ΠΣ⟨ b ⟩ p , q ▷ F ▹ G
       [F] : Γ ⊨ F
       [G] : Γ ⊢ t ∷ F → Γ ⊨ G [ t ]₀
 
   -- Identity types.
-  record _⊨Id_ (Γ : Con Term ℓ) (A : Term ℓ) : Set a where
+
+  infix 4 _⊨Id_
+
+  record _⊨Id_ (Γ : Cons m n) (A : Term n) : Set a where
     inductive
     no-eta-equality
     pattern
     constructor Idᵣ
     field
-      Ty lhs rhs : Term ℓ
+      Ty lhs rhs : Term n
       ⇒*Id       : Γ ⊢ A ⇒* Id Ty lhs rhs
       ⊨Ty        : Γ ⊨ Ty
       ⊨lhs       : Γ ⊢ lhs ∷ Ty
       ⊨rhs       : Γ ⊢ rhs ∷ Ty
 
   -- The logical relation
-  data _⊨_ (Γ : Con Term ℓ) (A : Term ℓ) : Set a where
+
+  infix 4 _⊨_
+
+  data _⊨_ (Γ : Cons m n) (A : Term n) : Set a where
     Uᵣ     : Γ ⊨U A           → Γ ⊨ A
     ℕᵣ     : Γ ⊢ A ⇒* ℕ       → Γ ⊨ A
     Emptyᵣ : Γ ⊢ A ⇒* Empty   → Γ ⊨ A
@@ -143,15 +163,15 @@ opaque
 
   -- Types in the reducibility logical relation are in the relation.
 
-  ⊩→⊨ : ⦃ inc : Neutrals-included or-empty Γ ⦄ → Γ ⊩⟨ l ⟩ A → Γ ⊨ A
+  ⊩→⊨ : ⦃ inc : Var-included or-empty (Γ .vars) ⦄ → Γ ⊩⟨ l ⟩ A → Γ ⊨ A
   ⊩→⊨ (Uᵣ (Uᵣ l′ _ ⇒*U)) = Uᵣ′ l′ ⇒*U
   ⊩→⊨ (ℕᵣ x) = ℕᵣ x
   ⊩→⊨ (Emptyᵣ x) = Emptyᵣ x
   ⊩→⊨ (Unitᵣ (Unitᵣ l′ _ ⇒*-Unit ok)) = Unitᵣ (Unitᵣ l′ ⇒*-Unit)
-  ⊩→⊨ (ne (ne neutrals-included N D neN _)) = ne′ N D neN
+  ⊩→⊨ (ne (ne N D neN _)) = ne′ N D neN
   ⊩→⊨ (Bᵣ (BM b p q) (Bᵣ F G D A≡A [F] [G] G-ext ok)) =
     let ⊢Γ = wf (redFirst* D)
-        [F]′ = [F] (id ⊢Γ)
+        [F]′ = [F] id (id ⊢Γ)
     in  Bᵣ′ b p q F G D
          (PE.subst (_ ⊨_) (wk-id F) (⊩→⊨ [F]′))
          (λ ⊢t →
@@ -159,7 +179,7 @@ opaque
                _ , [t] = reducible-⊩∷ ⊢t′
                [t]′ = ⊩∷→⊩∷/ [F]′ [t]
            in  PE.subst (_ ⊨_) (PE.cong (_[ _ ]₀) (wk-lift-id G))
-                 (⊩→⊨ ([G] (id ⊢Γ) [t]′)))
+                 (⊩→⊨ ([G] id (id ⊢Γ) [t]′)))
   ⊩→⊨ (Idᵣ (Idᵣ Ty lhs rhs ⇒*Id ⊩Ty ⊩lhs ⊩rhs)) =
     Idᵣ′ Ty lhs rhs ⇒*Id (⊩→⊨ ⊩Ty)
       (escapeTerm ⊩Ty ⊩lhs) (escapeTerm ⊩Ty ⊩rhs)
@@ -168,13 +188,13 @@ opaque
 
   -- Well-formed types are in the relation
 
-  ⊢→⊨ : ⦃ inc : Neutrals-included or-empty Γ ⦄ → Γ ⊢ A → Γ ⊨ A
+  ⊢→⊨ : ⦃ inc : Var-included or-empty (Γ .vars) ⦄ → Γ ⊢ A → Γ ⊨ A
   ⊢→⊨ ⊢A = ⊩→⊨ (reducible-⊩ ⊢A .proj₂)
 
 ------------------------------------------------------------------------
 -- A ShapeView for the logical relation.
 
-data ShapeView (Γ : Con Term ℓ) : ∀ A A′ → Γ ⊨ A → Γ ⊨ A′ → Set a where
+data ShapeView (Γ : Cons m n) : ∀ A A′ → Γ ⊨ A → Γ ⊨ A′ → Set a where
   Uᵥ : ∀ UA UA′ → ShapeView Γ A A′ (Uᵣ UA) (Uᵣ UA′)
   ℕᵥ : ∀ ℕA ℕA′ → ShapeView Γ A A′ (ℕᵣ ℕA) (ℕᵣ ℕA′)
   Emptyᵥ : ∀ EmptyA EmptyA′ → ShapeView Γ A A′ (Emptyᵣ EmptyA) (Emptyᵣ EmptyA′)
@@ -187,7 +207,7 @@ opaque
 
   -- Definitionally equal types are in the ShapeView.
 
-  goodCases : ⦃ ok : No-equality-reflection or-empty Γ ⦄
+  goodCases : ⦃ ok : No-equality-reflection or-empty (Γ .vars) ⦄
             → ([A] : Γ ⊨ A) ([B] : Γ ⊨ B)
             → Γ ⊢ A ≡ B → ShapeView Γ A B [A] [B]
   goodCases (Uᵣ x) (Uᵣ x₁) A≡B = Uᵥ x x₁
@@ -316,7 +336,7 @@ opaque
   -- Two proofs that a type is in the relation are in the ShapeView.
 
   goodCasesRefl :
-    ⦃ ok : No-equality-reflection or-empty Γ ⦄ →
+    ⦃ ok : No-equality-reflection or-empty (Γ .vars) ⦄ →
     ([A] [A]′ : Γ ⊨ A) → ShapeView Γ A A [A] [A]′
   goodCasesRefl [A] [A]′ = goodCases [A] [A]′ (refl (⊨→⊢ [A]))
 
@@ -370,7 +390,7 @@ Unit-intro ⊢Γ ok = Unitᵣ′ _ (id (Unitⱼ ⊢Γ ok))
 -- An introduction lemma for Id.
 
 Id-intro :
-  ⦃ ok : No-equality-reflection or-empty Γ ⦄ →
+  ⦃ ok : No-equality-reflection or-empty (Γ .vars) ⦄ →
   Γ ⊢ A → Γ ⊢ t ∷ A → Γ ⊢ u ∷ A → Γ ⊨ Id A t u
 Id-intro ⊢A ⊢t ⊢u = Idᵣ′ _ _ _ (id (Idⱼ ⊢A ⊢t ⊢u)) (⊢→⊨ ⊢A) ⊢t ⊢u
 
@@ -379,7 +399,7 @@ Id-intro ⊢A ⊢t ⊢u = Idᵣ′ _ _ _ (id (Idⱼ ⊢A ⊢t ⊢u)) (⊢→⊨ 
 ΠΣ-intro′ :
   Γ ⊨ A →
   (∀ {t} → Γ ⊢ t ∷ A → Γ ⊨ B [ t ]₀) →
-  Γ ∙ A ⊢ B →
+  Γ »∙ A ⊢ B →
   ΠΣ-allowed b p q →
   Γ ⊨ (ΠΣ⟨ b ⟩ p , q ▷ A ▹ B)
 ΠΣ-intro′ ⊨A ⊨B ⊢B ok = Bᵣ′ _ _ _ _ _ (id (ΠΣⱼ ⊢B ok)) ⊨A ⊨B
@@ -387,7 +407,7 @@ Id-intro ⊢A ⊢t ⊢u = Idᵣ′ _ _ _ (id (Idⱼ ⊢A ⊢t ⊢u)) (⊢→⊨ 
 -- Another introduction lemma for ΠΣ.
 
 ΠΣ-intro :
-  ⦃ ok : No-equality-reflection or-empty Γ ⦄ →
+  ⦃ ok : No-equality-reflection or-empty (Γ .vars) ⦄ →
   Γ ⊢ ΠΣ⟨ b ⟩ p , q ▷ A ▹ B →
   Γ ⊨ ΠΣ⟨ b ⟩ p , q ▷ A ▹ B
 ΠΣ-intro ⊢Π =

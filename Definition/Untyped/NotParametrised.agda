@@ -13,9 +13,9 @@ open import Tools.Nat
 open import Tools.PropositionalEquality
 
 private variable
-  a   : Level
-  l n : Nat
-  P   : Nat → Set _
+  a       : Level
+  α l m n : Nat
+  P       : Nat → Set _
 
 ------------------------------------------------------------------------
 -- Definitions related to terms
@@ -168,3 +168,95 @@ infix 4 _<ᵘ_
 
 _<ᵘ_ : (_ _ : Universe-level) → Set
 i <ᵘ j = i <′ j
+
+------------------------------------------------------------------------
+-- Definition contexts
+
+-- Unfolding vectors.
+
+data Unfolding : Nat -> Set where
+  ε  : Unfolding 0
+  _⁰ : Unfolding n → Unfolding (1+ n)
+  _¹ : Unfolding n → Unfolding (1+ n)
+
+-- Merging of unfolding vectors.
+
+infixl 5 _⊔ᵒ_
+
+_⊔ᵒ_ : Unfolding n → Unfolding n → Unfolding n
+ε    ⊔ᵒ ε     = ε
+uf ⁰ ⊔ᵒ uf′ ⁰ = (uf ⊔ᵒ uf′) ⁰
+uf ⁰ ⊔ᵒ uf′ ¹ = (uf ⊔ᵒ uf′) ¹
+uf ¹ ⊔ᵒ uf′ ⁰ = (uf ⊔ᵒ uf′) ¹
+uf ¹ ⊔ᵒ uf′ ¹ = (uf ⊔ᵒ uf′) ¹
+
+-- A vector for unfolding everything.
+
+ones : (n : Nat) → Unfolding n
+ones 0      = ε
+ones (1+ n) = ones n ¹
+
+-- Opacity.
+
+data Opacity (n : Nat) : Set where
+  opa : Unfolding n → Opacity n
+  tra : Opacity n
+
+-- Definition contexts.
+
+infixl 24 _∙⟨_⟩[_∷_]
+
+data DCon (𝕋 : Set a) : Nat → Set a where
+  ε          : DCon 𝕋 0
+  _∙⟨_⟩[_∷_] : DCon 𝕋 n → Opacity n → 𝕋 → 𝕋 → DCon 𝕋 (1+ n)
+
+private variable
+  ∇ : DCon _ _
+  ω : Opacity _
+  φ : Unfolding _
+
+-- The type α ↦∷ A ∈ ∇ means that α has type A in ∇.
+
+data _↦∷_∈_ {𝕋 : Set a} : Nat → 𝕋 → DCon 𝕋 n → Set a where
+  here  : ∀ {A t} {∇ : DCon 𝕋 n} → n ↦∷ A ∈ ∇ ∙⟨ ω ⟩[ t ∷ A ]
+  there : ∀ {A B u} → α ↦∷ A ∈ ∇ → α ↦∷ A ∈ ∇ ∙⟨ ω ⟩[ u ∷ B ]
+
+-- The type α ↦ t ∷ A ∈ ∇ means that α is (transparently) equal to t
+-- of type A in ∇.
+
+data _↦_∷_∈_ {𝕋 : Set a} : Nat → 𝕋 → 𝕋 → DCon 𝕋 n → Set a where
+  here  : ∀ {A t} {∇ : DCon 𝕋 n}      → n ↦ t ∷ A ∈ ∇ ∙⟨ tra ⟩[ t ∷ A ]
+  there : ∀ {A B t u} → α ↦ t ∷ A ∈ ∇ → α ↦ t ∷ A ∈ ∇ ∙⟨ ω   ⟩[ u ∷ B ]
+
+-- The type α ↦⊘∷ A ∈ ∇ means that α is an opaque definition of type A
+-- in ∇.
+
+data _↦⊘∷_∈_ {𝕋 : Set a} : Nat → 𝕋 → DCon 𝕋 n → Set a where
+  here  : ∀ {A t} {∇ : DCon 𝕋 n}  → n ↦⊘∷ A ∈ ∇ ∙⟨ opa φ ⟩[ t ∷ A ]
+  there : ∀ {A B u} → α ↦⊘∷ A ∈ ∇ → α ↦⊘∷ A ∈ ∇ ∙⟨ ω     ⟩[ u ∷ B ]
+
+-- Glassification.
+
+glassify : {𝕋 : Set a} → DCon 𝕋 n → DCon 𝕋 n
+glassify ε                       = ε
+glassify (∇ ∙⟨ ω ⟩[ t ∷ A ]) = glassify ∇ ∙⟨ tra ⟩[ t ∷ A ]
+
+-- A definition context is transparent if it is equal to its own
+-- "glassification".
+
+Transparent : {𝕋 : Set a} → DCon 𝕋 n → Set a
+Transparent ∇ = ∇ ≡ glassify ∇
+
+-- Definition context extensions.
+
+data DExt (𝕋 : Set a) : Nat → Nat → Set a where
+  id   : DExt 𝕋 n n
+  step : DExt 𝕋 m n → Opacity m → 𝕋 → 𝕋 → DExt 𝕋 (1+ m) n
+
+pattern step₁ ω A t = step id ω A t
+
+-- Concatenation of definition context extensions.
+
+_•ᵈ_ : {𝕋 : Set a} → DExt 𝕋 m n → DExt 𝕋 n l → DExt 𝕋 m l
+id            •ᵈ ξ = ξ
+step ξ′ ω A t •ᵈ ξ = step (ξ′ •ᵈ ξ) ω A t

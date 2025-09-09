@@ -65,6 +65,8 @@ wkUsage ρ (ΠΣₘ γ▸F δ▸G) =
     (wk-+ᶜ ρ)
 wkUsage ρ var =
   PE.subst (λ γ → γ ▸[ _ ] wk ρ (var _)) (PE.sym (wkUsageVar ρ _)) var
+wkUsage ρ defn =
+  PE.subst (_▸[ _ ] _) (PE.sym (wk-𝟘ᶜ ρ)) defn
 wkUsage ρ (lamₘ γ▸t) = lamₘ (wkUsage (lift ρ) γ▸t)
 wkUsage ρ (γ▸t ∘ₘ δ▸u) =
   sub-≈ᶜ ((wkUsage ρ γ▸t) ∘ₘ (wkUsage ρ δ▸u))
@@ -213,6 +215,14 @@ wkUsage ρ ([]-congₘ ▸A ▸t ▸u ▸v ok) =
   open Tools.Reasoning.PropositionalEquality
 wkUsage ρ (sub γ▸t x) = sub (wkUsage ρ γ▸t) (wk-≤ᶜ ρ x)
 
+opaque
+
+  -- The result of weakening ε is 𝟘ᶜ.
+
+  wkConₘ-ε : wkConₘ ρ ε ≡ 𝟘ᶜ
+  wkConₘ-ε {ρ = id}     = refl
+  wkConₘ-ε {ρ = step _} = cong (_∙ _) wkConₘ-ε
+
 ------------------------------------------------------------------------
 -- Inversion lemmas
 
@@ -258,6 +268,10 @@ wkUsage⁻¹ ▸t = wkUsage⁻¹′ ▸t refl
           wkConₘ⁻¹ ρ (𝟘ᶜ , wkVar ρ x ≔ ⌜ m ⌝)  ≈⟨ wkConₘ⁻¹-,≔ ρ ⟩
           wkConₘ⁻¹ ρ 𝟘ᶜ , x ≔ ⌜ m ⌝            ≈⟨ update-congˡ (wkConₘ⁻¹-𝟘ᶜ ρ) ⟩
           𝟘ᶜ , x ≔ ⌜ m ⌝                       ∎) }
+      defn eq →
+        case wk-defn eq of λ {
+          refl →
+        sub defn (≤ᶜ-reflexive (wkConₘ⁻¹-𝟘ᶜ ρ)) }
       (lamₘ ▸t) eq →
         case wk-lam eq of λ {
           (_ , refl , refl) →

@@ -31,11 +31,11 @@ open import Tools.Product
 open import Tools.PropositionalEquality
 open import Tools.Relation
 
-infix 10 _▸[_]_
+infix 10 _▸[_]_ ▸[_]_
 
 private
   variable
-    n l : Nat
+    α n l : Nat
     p q r : M
     γ γ′ γ₁ γ₂ γ₃ γ₄ γ₅ γ₆ δ η θ χ : Conₘ n
     A B F G : Term n
@@ -98,6 +98,7 @@ mutual
     ⦃ ok : Natrec-mode-supports-usage-inference natrec-mode ⦄ →
     Term n → Mode → Conₘ n
   ⌈ var x ⌉ m = 𝟘ᶜ , x ≔ ⌜ m ⌝
+  ⌈ defn _ ⌉ _ = 𝟘ᶜ
   ⌈ U _ ⌉ _ = 𝟘ᶜ
   ⌈ ΠΣ⟨ _ ⟩ p , q ▷ F ▹ G ⌉ m = ⌈ F ⌉ (m ᵐ· p) +ᶜ tailₘ (⌈ G ⌉ m)
   ⌈ lam p t ⌉ m = tailₘ (⌈ t ⌉ m)
@@ -271,6 +272,8 @@ data _▸[_]_ {n : Nat} : (γ : Conₘ n) → Mode → Term n → Set a where
             → δ ▸[ m ] t
 
   var       : (𝟘ᶜ , x ≔ ⌜ m ⌝) ▸[ m ] var x
+
+  defn      : 𝟘ᶜ ▸[ m ] defn α
 
   Uₘ        : 𝟘ᶜ ▸[ m ] U l
 
@@ -506,6 +509,12 @@ data _▸[_]_ {n : Nat} : (γ : Conₘ n) → Mode → Term n → Set a where
 _▸_ : (γ : Conₘ n) (t : Term n) → Set a
 γ ▸ t = γ ▸[ 𝟙ᵐ ] t
 
+-- A definition context is well-resourced if all its transparent
+-- definitions have well-resourced right-hand sides.
+
+▸[_]_ : Mode → DCon (Term 0) n → Set a
+▸[ m ] ∇ = ∀ {α t A} → α ↦ t ∷ A ∈ ∇ → ε ▸[ m ] t
+
 opaque
 
   -- A variant of sub.
@@ -517,6 +526,6 @@ opaque
 
   -- A variant of starˢₘ and starʷₘ.
 
-  starₘ : 𝟘ᶜ {n = n} ▸[ m ] star s l
+  starₘ : 𝟘ᶜ {n} ▸[ m ] star s l
   starₘ {s = 𝕤} = sub-≈ᶜ (starˢₘ λ _ → ≈ᶜ-refl) (≈ᶜ-sym (·ᶜ-zeroʳ _))
   starₘ {s = 𝕨} = starʷₘ

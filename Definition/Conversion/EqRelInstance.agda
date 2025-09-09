@@ -16,8 +16,8 @@ module Definition.Conversion.EqRelInstance
 
 open import Definition.Untyped M
 import Definition.Untyped.Erased 𝕄 as Erased
-open import Definition.Untyped.Neutral M type-variant
 open import Definition.Untyped.Properties M
+open import Definition.Untyped.Whnf M type-variant
 open import Definition.Typed R
 open import Definition.Typed.EqRelInstance R
   using () renaming (eqRelInstance to eqRelInstance′)
@@ -27,7 +27,8 @@ open import Definition.Typed.Properties R
 open import Definition.Typed.Stability R
 open import Definition.Typed.Substitution R
 open import Definition.Typed.Syntactic R
-open import Definition.Typed.Weakening R using (_∷ʷ_⊇_; wkEq)
+open import Definition.Typed.Weakening R using (_»_∷ʷ_⊇_; wkEq)
+open import Definition.Typed.Weakening.Definition R
 open import Definition.Typed.Well-formed R
 open import Definition.Conversion R
 open import Definition.Conversion.Reduction R
@@ -39,6 +40,7 @@ open import Definition.Conversion.Conversion R
 open import Definition.Conversion.Symmetry R
 open import Definition.Conversion.Transitivity R
 open import Definition.Conversion.Weakening R
+open import Definition.Conversion.Weakening.Definition R
 open import Definition.Typed.EqualityRelation R
 import Definition.Typed.EqualityRelation.Instance
 open import Definition.Typed.Consequences.Injectivity R
@@ -57,8 +59,10 @@ open import Tools.Unit
 
 private
   variable
-    m n : Nat
-    Γ : Con Term n
+    m n κ : Nat
+    ∇ : DCon (Term 0) κ
+    Η : Con Term _
+    Γ : Cons _ _
     A₁ A₂ B₁ B₂ t₁ t₂ u₁ u₂ v₁ v₂ w₁ w₂ : Term _
     ρ : Wk m n
     p p₁ p₂ p′ q q′ q₁ q₂ r r′ : M
@@ -66,7 +70,10 @@ private
     l : Universe-level
 
 -- Algorithmic equality of neutrals with injected conversion.
-record _⊢_~_∷_ (Γ : Con Term n) (k l A : Term n) : Set a where
+
+infix 4 _⊢_~_∷_
+
+record _⊢_~_∷_ (Γ : Cons κ n) (k l A : Term n) : Set a where
   inductive
   no-eta-equality
   pattern
@@ -84,6 +91,14 @@ private module Lemmas where
   ~-var x =
     let ⊢A = syntacticTerm x
     in  ↑ (refl ⊢A) (var-refl x PE.refl)
+
+  ~-defn : ∀ {α A A′}
+         → Γ ⊢ defn α ∷ A
+         → α ↦⊘∷ A′ ∈ Γ .defs
+         → Γ ⊢ defn α ~ defn α ∷ A
+  ~-defn α α↦⊘ =
+    let ⊢A = syntacticTerm α
+    in  ↑ (refl ⊢A) (defn-refl α α↦⊘ PE.refl)
 
   ~-app : ∀ {f g a b F G}
         → Γ ⊢ f ~ g ∷ Π p , q ▷ F ▹ G
@@ -139,9 +154,9 @@ private module Lemmas where
             ↑ (G≡E (refl ⊢fst)) (snd-cong p~r↓)
 
   ~-natrec : ∀ {z z′ s s′ n n′ F F′}
-           → (Γ ∙ ℕ) ⊢ F [conv↑] F′ →
+           → Γ »∙ ℕ ⊢ F [conv↑] F′ →
         Γ ⊢ z [conv↑] z′ ∷ (F [ zero ]₀) →
-        Γ ∙ ℕ ∙ F ⊢ s [conv↑] s′ ∷ F [ suc (var x1) ]↑² →
+        Γ »∙ ℕ »∙ F ⊢ s [conv↑] s′ ∷ F [ suc (var x1) ]↑² →
         Γ ⊢ n ~ n′ ∷ ℕ →
         Γ ⊢ natrec p q r F z s n ~ natrec p q r F′ z′ s′ n′ ∷ (F [ n ]₀)
   ~-natrec x x₁ x₂ (↑ A≡B x₄) =
@@ -158,9 +173,9 @@ private module Lemmas where
 
   ~-prodrec :
     ∀ {F G A A′ t t′ u u′} →
-    Γ ∙ (Σʷ p , q ▷ F ▹ G) ⊢ A [conv↑] A′ →
+    Γ »∙ Σʷ p , q ▷ F ▹ G ⊢ A [conv↑] A′ →
     Γ ⊢ t ~ t′ ∷ (Σʷ p , q ▷ F ▹ G) →
-    Γ ∙ F ∙ G ⊢ u [conv↑] u′ ∷ A [ prodʷ p (var x1) (var x0) ]↑² →
+    Γ »∙ F »∙ G ⊢ u [conv↑] u′ ∷ A [ prodʷ p (var x1) (var x0) ]↑² →
     Γ ⊢ prodrec r p q′ A t u ~ prodrec r p q′ A′ t′ u′ ∷ (A [ t ]₀)
   ~-prodrec x₂ (↑ A≡B k~↑l) x₄ =
     case syntacticEq A≡B of λ (_ , ⊢B) →
@@ -195,7 +210,7 @@ private module Lemmas where
           (emptyrec-cong x k~l′)
 
   ~-unitrec : ∀ {A A′ t t′ u u′}
-            → Γ ∙ Unitʷ l ⊢ A [conv↑] A′
+            → Γ »∙ Unitʷ l ⊢ A [conv↑] A′
             → Γ ⊢ t ~ t′ ∷ Unitʷ l
             → Γ ⊢ u [conv↑] u′ ∷ A [ starʷ l ]₀
             → Unitʷ-allowed
@@ -220,7 +235,7 @@ private module Lemmas where
       Γ ⊢ A₁ [conv↑] A₂ →
       Γ ⊢ t₁ ∷ A₁ →
       Γ ⊢ t₁ [conv↑] t₂ ∷ A₁ →
-      Γ ∙ A₁ ∙ Id (wk1 A₁) (wk1 t₁) (var x0) ⊢ B₁ [conv↑] B₂ →
+      Γ »∙ A₁ »∙ Id (wk1 A₁) (wk1 t₁) (var x0) ⊢ B₁ [conv↑] B₂ →
       Γ ⊢ u₁ [conv↑] u₂ ∷ B₁ [ t₁ , rfl ]₁₀ →
       Γ ⊢ v₁ [conv↑] v₂ ∷ A₁ →
       Γ ⊢ w₁ ~ w₂ ∷ Id A₁ t₁ v₁ →
@@ -242,7 +257,7 @@ private module Lemmas where
     ~-K :
       Γ ⊢ A₁ [conv↑] A₂ →
       Γ ⊢ t₁ [conv↑] t₂ ∷ A₁ →
-      Γ ∙ Id A₁ t₁ t₁ ⊢ B₁ [conv↑] B₂ →
+      Γ »∙ Id A₁ t₁ t₁ ⊢ B₁ [conv↑] B₂ →
       Γ ⊢ u₁ [conv↑] u₂ ∷ B₁ [ rfl ]₀ →
       Γ ⊢ v₁ ~ v₂ ∷ Id A₁ t₁ t₁ →
       K-allowed →
@@ -297,9 +312,14 @@ private module Lemmas where
     in  ↑ x k~m
 
   ~-wk : ∀ {k l A} {ρ : Wk m n} {Γ Δ} →
-        ρ ∷ʷ Δ ⊇ Γ →
-        Γ ⊢ k ~ l ∷ A → Δ ⊢ wk ρ k ~ wk ρ l ∷ wk ρ A
+        ∇ » ρ ∷ʷ Δ ⊇ Γ →
+        ∇ » Γ ⊢ k ~ l ∷ A → ∇ » Δ ⊢ wk ρ k ~ wk ρ l ∷ wk ρ A
   ~-wk x (↑ x₂ x₃) = ↑ (wkEq x x₂) (wk~↑ x x₃)
+
+  ~-defn-wk : ∀ {k l A} {ξ : DExt (Term 0) m n} {∇ ∇′} →
+        ξ » ∇′ ⊇ ∇ →
+        ∇ » Η ⊢ k ~ l ∷ A → ∇′ » Η ⊢ k ~ l ∷ A
+  ~-defn-wk ξ⊇ (↑ A≡B k~l) = ↑ (defn-wkEq ξ⊇ A≡B) (defn-wk~↑ ξ⊇ k~l)
 
   ~-conv : ∀ {k l A B} →
         Γ ⊢ k ~ l ∷ A → Γ ⊢ A ≡ B → Γ ⊢ k ~ l ∷ B
@@ -316,34 +336,37 @@ private opaque
   equality-relations :
     Equality-relations _⊢_[conv↑]_ _⊢_[conv↑]_∷_ _⊢_~_∷_ (Lift _ ⊤)
   equality-relations = let open Lemmas in λ where
-    .Equality-relations.Neutrals-included? →
+    .Equality-relations.Var-included? →
       yes (lift tt)
-    .Equality-relations.Equality-reflection-allowed→¬Neutrals-included →
+    .Equality-relations.Equality-reflection-allowed→¬Var-included →
       λ ok _ → No-equality-reflection⇔ .proj₁ no-equality-reflection ok
-    .Equality-relations.⊢≡→⊢≅    → ⊥-elim ∘→ (_$ _)
-    .Equality-relations.⊢≡∷→⊢≅∷  → ⊥-elim ∘→ (_$ _)
-    .Equality-relations.~-to-≅ₜ  → ~-to-conv
-    .Equality-relations.≅-eq     → soundnessConv↑
-    .Equality-relations.≅ₜ-eq    → soundnessConv↑Term
-    .Equality-relations.≅-univ   → univConv↑
-    .Equality-relations.≅-sym    → symConv
-    .Equality-relations.≅ₜ-sym   → symConvTerm
-    .Equality-relations.~-sym    → ~-sym
-    .Equality-relations.≅-trans  → transConv
-    .Equality-relations.≅ₜ-trans → transConvTerm
-    .Equality-relations.~-trans  → ~-trans
-    .Equality-relations.≅-conv   → flip convConv↑Term
-    .Equality-relations.~-conv   → ~-conv
-    .Equality-relations.≅-wk     → wkConv↑
-    .Equality-relations.≅ₜ-wk    → wkConv↑Term
-    .Equality-relations.~-wk     → ~-wk
-    .Equality-relations.≅-red    →
+    .Equality-relations.⊢≡→⊢≅      → ⊥-elim ∘→ (_$ _)
+    .Equality-relations.⊢≡∷→⊢≅∷    → ⊥-elim ∘→ (_$ _)
+    .Equality-relations.~-to-≅ₜ    → ~-to-conv
+    .Equality-relations.≅-eq       → soundnessConv↑
+    .Equality-relations.≅ₜ-eq      → soundnessConv↑Term
+    .Equality-relations.≅-univ     → univConv↑
+    .Equality-relations.≅-sym      → symConv
+    .Equality-relations.≅ₜ-sym     → symConvTerm
+    .Equality-relations.~-sym      → ~-sym
+    .Equality-relations.≅-trans    → transConv
+    .Equality-relations.≅ₜ-trans   → transConvTerm
+    .Equality-relations.~-trans    → ~-trans
+    .Equality-relations.≅-conv     → flip convConv↑Term
+    .Equality-relations.~-conv     → ~-conv
+    .Equality-relations.≅-wk       → wkConv↑
+    .Equality-relations.≅ₜ-wk      → wkConv↑Term
+    .Equality-relations.~-wk       → ~-wk
+    .Equality-relations.≅-defn-wk  → defn-wkConv↑
+    .Equality-relations.≅ₜ-defn-wk → defn-wkConv↑Term
+    .Equality-relations.~-defn-wk  → ~-defn-wk
+    .Equality-relations.≅-red      →
       λ (A⇒* , _) (B⇒* , _) → reductionConv↑ A⇒* B⇒*
-    .Equality-relations.≅ₜ-red   →
+    .Equality-relations.≅ₜ-red     →
       λ (A⇒* , _) (t⇒* , _) (u⇒* , _) → reductionConv↑Term A⇒* t⇒* u⇒*
-    .Equality-relations.≅-Urefl  →
+    .Equality-relations.≅-Urefl    →
       λ ⊢Γ → liftConvTerm (univ (Uⱼ ⊢Γ) (Uⱼ ⊢Γ) (U-refl ⊢Γ))
-    .Equality-relations.≅ₜ-ℕrefl →
+    .Equality-relations.≅ₜ-ℕrefl   →
       λ x → liftConvTerm (univ (ℕⱼ x) (ℕⱼ x) (ℕ-refl x))
     .Equality-relations.≅ₜ-Emptyrefl →
       λ x → liftConvTerm (univ (Emptyⱼ x) (Emptyⱼ x) (Empty-refl x))
@@ -389,6 +412,7 @@ private opaque
     .Equality-relations.≅-Σ-η →
       λ x₂ x₃ x₄ x₅ x₆ x₇ → (liftConvTerm (Σ-η x₂ x₃ x₄ x₅ x₆ x₇))
     .Equality-relations.~-var → ~-var
+    .Equality-relations.~-defn → ~-defn
     .Equality-relations.~-app → ~-app
     .Equality-relations.~-fst →
       λ _ x₂ → ~-fst x₂
@@ -431,7 +455,7 @@ instance
     .EqRelSet._⊢_≅_              → _⊢_[conv↑]_
     .EqRelSet._⊢_≅_∷_            → _⊢_[conv↑]_∷_
     .EqRelSet._⊢_~_∷_            → _⊢_~_∷_
-    .EqRelSet.Neutrals-included  → Lift _ ⊤
+    .EqRelSet.Var-included       → Lift _ ⊤
     .EqRelSet.equality-relations → equality-relations
 
 open EqRelSet eqRelInstance public hiding (_⊢_~_∷_)

@@ -4,6 +4,7 @@
 
 open import Definition.Typed.Restrictions
 open import Graded.Modality
+open import Tools.Nat
 
 module Definition.Typed.Properties
   {ℓ} {M : Set ℓ}
@@ -31,12 +32,14 @@ open import Definition.Typed.Properties.Admissible.Pi R public
 open import Definition.Typed.Properties.Admissible.Sigma R public
 open import Definition.Typed.Properties.Admissible.Unit R public
 open import Definition.Typed.Properties.Admissible.Var R public
+open import Definition.Typed.Properties.Definition R public
 open import Definition.Typed.Properties.Reduction R public
 open import Definition.Typed.Properties.Well-formed R public
 
 private variable
   x             : Fin _
-  Γ             : Con Term _
+  Δ             : Con Term _
+  Γ             : Cons _ _
   A A′ B B′ t u : Term _
 
 ------------------------------------------------------------------------
@@ -44,9 +47,9 @@ private variable
 
 opaque
 
-  -- If x ∷ A ∈ Γ and x ∷ B ∈ Γ both hold, then A is equal to B.
+  -- If x ∷ A ∈ Δ and x ∷ B ∈ Δ both hold, then A is equal to B.
 
-  det∈ : x ∷ A ∈ Γ → x ∷ B ∈ Γ → A PE.≡ B
+  det∈ : x ∷ A ∈ Δ → x ∷ B ∈ Δ → A PE.≡ B
   det∈ here      here      = PE.refl
   det∈ (there x) (there y) = PE.cong wk1 (det∈ x y)
 

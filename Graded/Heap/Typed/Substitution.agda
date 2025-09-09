@@ -47,8 +47,8 @@ opaque mutual
 
   -- A well-formed heap is a well-formed substitution
 
-  ⊢ʰ→⊢ˢʷ : Δ ⊢ʰ H ∷ Γ → Δ ⊢ˢʷ toSubstₕ H ∷ Γ
-  ⊢ʰ→⊢ˢʷ ε = ⊢ˢʷ∷ε⇔ .proj₂ ε
+  ⊢ʰ→⊢ˢʷ : Δ ⊢ʰ H ∷ Γ → ε » Δ ⊢ˢʷ toSubstₕ H ∷ Γ
+  ⊢ʰ→⊢ˢʷ ε = ⊢ˢʷ∷ε⇔ .proj₂ εε
   ⊢ʰ→⊢ˢʷ (⊢H ∙ ⊢t) =
     →⊢ˢʷ∷∙ (⊢ʰ→⊢ˢʷ ⊢H) ⊢t
   ⊢ʰ→⊢ˢʷ (_∙●_ {Δ} {H} {A} ⊢H ⊢A) =
@@ -61,8 +61,8 @@ opaque mutual
 
   -- Well-formed contexts from well-formed heaps
 
-  wfHeap : Δ ⊢ʰ H ∷ Γ → ⊢ Δ
-  wfHeap {Δ = ε} ε = ε
+  wfHeap : Δ ⊢ʰ H ∷ Γ → ε »⊢ Δ
+  wfHeap {Δ = ε} ε = εε
   wfHeap (⊢H ∙ ⊢t) = wfHeap ⊢H
   wfHeap (⊢H ∙● ⊢A) =
     ∙ subst-⊢ ⊢A (⊢ʰ→⊢ˢʷ ⊢H)
@@ -72,7 +72,7 @@ opaque
   -- A well-formed type applied to a well-formed heap (as a substitution)
   -- is well-formed
 
-  substHeap : Δ ⊢ʰ H ∷ Γ → Γ ⊢ A → Δ ⊢ A [ H ]ₕ
+  substHeap : Δ ⊢ʰ H ∷ Γ → ε » Γ ⊢ A → ε » Δ ⊢ A [ H ]ₕ
   substHeap ⊢H ⊢A =
     subst-⊢ ⊢A (⊢ʰ→⊢ˢʷ ⊢H)
 
@@ -81,7 +81,8 @@ opaque
   -- A well-formed term applied to a well-formed heap (as a substitution)
   -- is well-formed
 
-  substHeapTerm : Δ ⊢ʰ H ∷ Γ → Γ ⊢ t ∷ A → Δ ⊢ t [ H ]ₕ ∷ A [ H ]ₕ
+  substHeapTerm :
+    Δ ⊢ʰ H ∷ Γ → ε » Γ ⊢ t ∷ A → ε » Δ ⊢ t [ H ]ₕ ∷ A [ H ]ₕ
   substHeapTerm ⊢H ⊢t =
     subst-⊢∷ ⊢t (⊢ʰ→⊢ˢʷ ⊢H)
 
@@ -90,7 +91,7 @@ opaque
   -- A well-formed type equality applied to a well-formed heap
   -- (as a substitution) is well-formed
 
-  substHeapEq : Δ ⊢ʰ H ∷ Γ → Γ ⊢ A ≡ B → Δ ⊢ A [ H ]ₕ ≡ B [ H ]ₕ
+  substHeapEq : Δ ⊢ʰ H ∷ Γ → ε » Γ ⊢ A ≡ B → ε » Δ ⊢ A [ H ]ₕ ≡ B [ H ]ₕ
   substHeapEq ⊢H ⊢A≡B =
     subst-⊢≡ ⊢A≡B (refl-⊢ˢʷ≡∷ (⊢ʰ→⊢ˢʷ ⊢H))
 
@@ -99,8 +100,8 @@ opaque
   -- A well-formed term equality  applied to a well-formed heap
   -- (as a substitution) is well-formed
 
-  substHeapEqTerm : Δ ⊢ʰ H ∷ Γ → Γ ⊢ t ≡ u ∷ A
-                  → Δ ⊢ t [ H ]ₕ ≡ u [ H ]ₕ ∷ A [ H ]ₕ
+  substHeapEqTerm : Δ ⊢ʰ H ∷ Γ → ε » Γ ⊢ t ≡ u ∷ A
+                  → ε » Δ ⊢ t [ H ]ₕ ≡ u [ H ]ₕ ∷ A [ H ]ₕ
   substHeapEqTerm ⊢H ⊢t≡u =
     subst-⊢≡∷ ⊢t≡u (refl-⊢ˢʷ≡∷ (⊢ʰ→⊢ˢʷ ⊢H))
 
@@ -108,7 +109,7 @@ opaque
 
   -- Applying a well-formed heap as a substitution to a reduction
 
-  substHeapRedTerm : Δ ⊢ʰ H ∷ Γ → Γ ⊢ t ⇒ u ∷ A
-                   → Δ ⊢ t [ H ]ₕ ⇒ u [ H ]ₕ ∷ A [ H ]ₕ
+  substHeapRedTerm : Δ ⊢ʰ H ∷ Γ → ε » Γ ⊢ t ⇒ u ∷ A
+                   → ε » Δ ⊢ t [ H ]ₕ ⇒ u [ H ]ₕ ∷ A [ H ]ₕ
   substHeapRedTerm ⊢H d =
     subst-⊢⇒∷ d (⊢ʰ→⊢ˢʷ ⊢H)

@@ -22,6 +22,7 @@ open import Definition.Typed.Properties.Well-formed R
 open import Definition.Typed.Reasoning.Term.Primitive R
 open import Definition.Typed.Size R
 open import Definition.Typed.Weakening R as W hiding (wk)
+open import Definition.Typed.Weakening.Definition R
 
 open import Definition.Untyped M
 open import Definition.Untyped.Properties M
@@ -38,11 +39,13 @@ open import Tools.Size.Instances
 open import Tools.Sum using (inj₂)
 
 private variable
-  k m n                      : Nat
+  ∇ ∇′                       : DCon (Term 0) _
+  k m n n′                   : Nat
   x                          : Fin _
   Γ Δ Η                      : Con Term _
   A A₁ A₂ B t t₁ t₂ u v      : Term _
   σ σ₁ σ₁₁ σ₁₂ σ₂ σ₂₁ σ₂₂ σ₃ : Subst _ _
+  ξ                          : DExt (Term 0) _ _
   ρ                          : Wk _ _
   s s₂                       : Size
   p q                        : M
@@ -57,13 +60,13 @@ opaque
   -- See also Definition.Typed.Properties.Admissible.Pi.lam-cong.
 
   lam-cong :
-    Γ ∙ A ⊢ B →
-    Γ ∙ A ⊢ t ∷ B →
-    Γ ∙ A ⊢ u ∷ B →
-    Γ ∙ A ⊢ t ≡ u ∷ B →
+    ∇ » Γ ∙ A ⊢ B →
+    ∇ » Γ ∙ A ⊢ t ∷ B →
+    ∇ » Γ ∙ A ⊢ u ∷ B →
+    ∇ » Γ ∙ A ⊢ t ≡ u ∷ B →
     Π-allowed p q →
-    Γ ⊢ lam p t ≡ lam p u ∷ Π p , q ▷ A ▹ B
-  lam-cong {Γ} {A} {B} {t} {u} {p} ⊢B ⊢t ⊢u t≡u ok =
+    ∇ » Γ ⊢ lam p t ≡ lam p u ∷ Π p , q ▷ A ▹ B
+  lam-cong {∇} {Γ} {A} {B} {t} {u} {p} ⊢B ⊢t ⊢u t≡u ok =
     η-eq ⊢B (lamⱼ ⊢B ⊢t ok) (lamⱼ ⊢B ⊢u ok)
       (wk1 (lam p t) ∘⟨ p ⟩ var x0        ≡⟨ lemma ⊢t ⟩⊢
        wk (lift (step id)) t [ var x0 ]₀  ≡⟨ PE.subst₂ (_ ⊢_≡_∷ _) (PE.sym (wkSingleSubstId _)) (PE.sym (wkSingleSubstId _))
@@ -73,8 +76,8 @@ opaque
       ok
     where
     lemma :
-      Γ ∙ A ⊢ v ∷ B →
-      Γ ∙ A ⊢
+      ∇ » Γ ∙ A ⊢ v ∷ B →
+      ∇ » Γ ∙ A ⊢
         wk1 (lam p v) ∘⟨ p ⟩ var x0 ≡
         wk (lift (step id)) v [ var x0 ]₀ ∷ B
     lemma ⊢v =
@@ -90,7 +93,9 @@ opaque
 
 -- Well-formed substitutions.
 
-data _⊢ˢ_∷_ (Δ : Con Term m) : Subst m n → Con Term n → Set a where
+infix 4 _⊢ˢ_∷_
+
+data _⊢ˢ_∷_ (Δ : Cons n′ m) : Subst m n → Con Term n → Set a where
   id  : Δ ⊢ˢ σ ∷ ε
   _,_ : Δ ⊢ˢ tail σ ∷ Γ →
         Δ ⊢  head σ ∷ A [ tail σ ] →
@@ -103,7 +108,7 @@ opaque
   -- A variant of _⊢ˢ_∷_. The letter W stands for "well-formed": the
   -- target context must be well-formed.
 
-  _⊢ˢʷ_∷_ : Con Term m → Subst m n → Con Term n → Set a
+  _⊢ˢʷ_∷_ : Cons n′ m → Subst m n → Con Term n → Set a
   Δ ⊢ˢʷ σ ∷ Γ = ⊢ Δ × Δ ⊢ˢ σ ∷ Γ
 
 opaque
@@ -111,7 +116,7 @@ opaque
 
   -- A characterisation lemma for _⊢ˢʷ_∷_.
 
-  ⊢ˢʷ∷⇔ : Δ ⊢ˢʷ σ ∷ Γ ⇔ (⊢ Δ × Δ ⊢ˢ σ ∷ Γ)
+  ⊢ˢʷ∷⇔ : ∇ » Δ ⊢ˢʷ σ ∷ Γ ⇔ (∇ »⊢ Δ × ∇ » Δ ⊢ˢ σ ∷ Γ)
   ⊢ˢʷ∷⇔ = id⇔
 
 opaque
@@ -119,7 +124,7 @@ opaque
 
   -- A characterisation lemma for _⊢ˢʷ_∷_.
 
-  ⊢ˢʷ∷ε⇔ : Δ ⊢ˢʷ σ ∷ ε ⇔ ⊢ Δ
+  ⊢ˢʷ∷ε⇔ : ∇ » Δ ⊢ˢʷ σ ∷ ε ⇔ ∇ »⊢ Δ
   ⊢ˢʷ∷ε⇔ = proj₁ , (_, id)
 
 opaque
@@ -128,8 +133,8 @@ opaque
   -- A characterisation lemma for _⊢ˢʷ_∷_.
 
   ⊢ˢʷ∷∙⇔ :
-    Δ ⊢ˢʷ σ ∷ Γ ∙ A ⇔
-    (Δ ⊢ˢʷ tail σ ∷ Γ × Δ ⊢ head σ ∷ A [ tail σ ])
+    ∇ » Δ ⊢ˢʷ σ ∷ Γ ∙ A ⇔
+    (∇ » Δ ⊢ˢʷ tail σ ∷ Γ × ∇ » Δ ⊢ head σ ∷ A [ tail σ ])
   ⊢ˢʷ∷∙⇔ =
     (λ { (⊢Δ , (⊢σ₊ , ⊢σ₀)) → (⊢Δ , ⊢σ₊) , ⊢σ₀ }) ,
     (λ ((⊢Δ , ⊢σ₊) , ⊢σ₀) → ⊢Δ , (⊢σ₊ , ⊢σ₀))
@@ -139,8 +144,8 @@ opaque
   -- An introduction lemma for _⊢ˢʷ_∷_.
 
   →⊢ˢʷ∷∙ :
-    Δ ⊢ˢʷ tail σ ∷ Γ → Δ ⊢ head σ ∷ A [ tail σ ] →
-    Δ ⊢ˢʷ σ ∷ Γ ∙ A
+    ∇ » Δ ⊢ˢʷ tail σ ∷ Γ → ∇ » Δ ⊢ head σ ∷ A [ tail σ ] →
+    ∇ » Δ ⊢ˢʷ σ ∷ Γ ∙ A
   →⊢ˢʷ∷∙ ⊢σ₊ ⊢σ₀ = ⊢ˢʷ∷∙⇔ .proj₂ (⊢σ₊ , ⊢σ₀)
 
 opaque
@@ -148,7 +153,7 @@ opaque
 
   -- A well-formedness lemma for _⊢ˢʷ_∷_.
 
-  wf-⊢ˢʷ∷ : Δ ⊢ˢʷ σ ∷ Γ → ⊢ Δ
+  wf-⊢ˢʷ∷ : ∇ » Δ ⊢ˢʷ σ ∷ Γ → ∇ »⊢ Δ
   wf-⊢ˢʷ∷ (⊢Δ , _) = ⊢Δ
 
 ------------------------------------------------------------------------
@@ -156,7 +161,9 @@ opaque
 
 -- Well-formed equality of substitutions.
 
-data _⊢ˢ_≡_∷_ (Δ : Con Term m) :
+infix 4 _⊢ˢ_≡_∷_
+
+data _⊢ˢ_≡_∷_ (Δ : Cons n′ m) :
        (_ _ : Subst m n) → Con Term n → Set a where
   id  : Δ ⊢ˢ σ₁ ≡ σ₂ ∷ ε
   _,_ : Δ ⊢ˢ tail σ₁ ≡ tail σ₂ ∷ Γ
@@ -169,7 +176,7 @@ opaque
 
   -- A variant of _⊢ˢ_≡_∷_.
 
-  _⊢ˢʷ_≡_∷_ : Con Term m → Subst m n → Subst m n → Con Term n → Set a
+  _⊢ˢʷ_≡_∷_ : Cons n′ m → Subst m n → Subst m n → Con Term n → Set a
   Δ ⊢ˢʷ σ₁ ≡ σ₂ ∷ Γ =
     ⊢ Δ × Δ ⊢ˢ σ₁ ∷ Γ × Δ ⊢ˢ σ₂ ∷ Γ × Δ ⊢ˢ σ₁ ≡ σ₂ ∷ Γ
 
@@ -179,8 +186,8 @@ opaque
   -- A characterisation lemma for _⊢ˢʷ_≡_∷_.
 
   ⊢ˢʷ≡∷⇔ :
-    Δ ⊢ˢʷ σ₁ ≡ σ₂ ∷ Γ ⇔
-    (⊢ Δ × Δ ⊢ˢ σ₁ ∷ Γ × Δ ⊢ˢ σ₂ ∷ Γ × Δ ⊢ˢ σ₁ ≡ σ₂ ∷ Γ)
+    ∇ » Δ ⊢ˢʷ σ₁ ≡ σ₂ ∷ Γ ⇔
+    (∇ »⊢ Δ × ∇ » Δ ⊢ˢ σ₁ ∷ Γ × ∇ » Δ ⊢ˢ σ₂ ∷ Γ × ∇ » Δ ⊢ˢ σ₁ ≡ σ₂ ∷ Γ)
   ⊢ˢʷ≡∷⇔ = id⇔
 
 opaque
@@ -188,7 +195,7 @@ opaque
 
   -- A characterisation lemma for _⊢ˢʷ_≡_∷_.
 
-  ⊢ˢʷ≡∷ε⇔ : Δ ⊢ˢʷ σ₁ ≡ σ₂ ∷ ε ⇔ ⊢ Δ
+  ⊢ˢʷ≡∷ε⇔ : ∇ » Δ ⊢ˢʷ σ₁ ≡ σ₂ ∷ ε ⇔ ∇ »⊢ Δ
   ⊢ˢʷ≡∷ε⇔ = proj₁ , (_, (id , id , id))
 
 opaque
@@ -197,11 +204,11 @@ opaque
   -- A characterisation lemma for _⊢ˢʷ_≡_∷_.
 
   ⊢ˢʷ≡∷∙⇔ :
-    Δ ⊢ˢʷ σ₁ ≡ σ₂ ∷ Γ ∙ A ⇔
-    (Δ ⊢ˢʷ tail σ₁ ≡ tail σ₂ ∷ Γ ×
-     Δ ⊢ head σ₁ ∷ A [ tail σ₁ ] ×
-     Δ ⊢ head σ₂ ∷ A [ tail σ₂ ] ×
-     Δ ⊢ head σ₁ ≡ head σ₂ ∷ A [ tail σ₁ ])
+    ∇ » Δ ⊢ˢʷ σ₁ ≡ σ₂ ∷ Γ ∙ A ⇔
+    (∇ » Δ ⊢ˢʷ tail σ₁ ≡ tail σ₂ ∷ Γ ×
+     ∇ » Δ ⊢ head σ₁ ∷ A [ tail σ₁ ] ×
+     ∇ » Δ ⊢ head σ₂ ∷ A [ tail σ₂ ] ×
+     ∇ » Δ ⊢ head σ₁ ≡ head σ₂ ∷ A [ tail σ₁ ])
   ⊢ˢʷ≡∷∙⇔ =
     (λ { (⊢Δ , (⊢σ₁₊ , ⊢σ₁₀) , (⊢σ₂₊ , ⊢σ₂₀) , (σ₁₊≡σ₂₊ , σ₁₀≡σ₂₀)) →
          (⊢Δ , (⊢σ₁₊ , ⊢σ₂₊ , σ₁₊≡σ₂₊)) , ⊢σ₁₀ , ⊢σ₂₀ , σ₁₀≡σ₂₀ }) ,
@@ -214,8 +221,8 @@ opaque
   -- A well-formedness lemma for _⊢ˢʷ_≡_∷_.
 
   wf-⊢ˢʷ≡∷ :
-    Δ ⊢ˢʷ σ₁ ≡ σ₂ ∷ Γ →
-    ⊢ Δ × Δ ⊢ˢʷ σ₁ ∷ Γ × Δ ⊢ˢʷ σ₂ ∷ Γ
+    ∇ » Δ ⊢ˢʷ σ₁ ≡ σ₂ ∷ Γ →
+    ∇ »⊢ Δ × ∇ » Δ ⊢ˢʷ σ₁ ∷ Γ × ∇ » Δ ⊢ˢʷ σ₂ ∷ Γ
   wf-⊢ˢʷ≡∷ (⊢Δ , ⊢σ₁ , ⊢σ₂ , _) =
     ⊢Δ , (⊢Δ , ⊢σ₁) , (⊢Δ , ⊢σ₂)
 
@@ -227,8 +234,8 @@ private opaque
   -- Reflexivity for _⊢ˢ_≡_∷_.
 
   refl-⊢ˢ≡∷ :
-    Δ ⊢ˢ σ ∷ Γ →
-    Δ ⊢ˢ σ ≡ σ ∷ Γ
+    ∇ » Δ ⊢ˢ σ ∷ Γ →
+    ∇ » Δ ⊢ˢ σ ≡ σ ∷ Γ
   refl-⊢ˢ≡∷ id        = id
   refl-⊢ˢ≡∷ (⊢σ , ⊢t) = refl-⊢ˢ≡∷ ⊢σ , refl ⊢t
 
@@ -238,8 +245,8 @@ opaque
   -- Reflexivity for _⊢ˢʷ_≡_∷_.
 
   refl-⊢ˢʷ≡∷ :
-    Δ ⊢ˢʷ σ ∷ Γ →
-    Δ ⊢ˢʷ σ ≡ σ ∷ Γ
+    ∇ » Δ ⊢ˢʷ σ ∷ Γ →
+    ∇ » Δ ⊢ˢʷ σ ≡ σ ∷ Γ
   refl-⊢ˢʷ≡∷ (⊢Δ , ⊢σ) = ⊢Δ , ⊢σ , ⊢σ , refl-⊢ˢ≡∷ ⊢σ
 
 opaque
@@ -247,7 +254,7 @@ opaque
   -- A lemma relating _⊢ˢʷ_∷_ and _⊢ˢʷ_≡_∷_.
 
   ⊢ˢʷ∷⇔⊢ˢʷ≡∷ :
-    Δ ⊢ˢʷ σ ∷ Γ ⇔ Δ ⊢ˢʷ σ ≡ σ ∷ Γ
+    ∇ » Δ ⊢ˢʷ σ ∷ Γ ⇔ ∇ » Δ ⊢ˢʷ σ ≡ σ ∷ Γ
   ⊢ˢʷ∷⇔⊢ˢʷ≡∷ = refl-⊢ˢʷ≡∷ , proj₁ ∘→ proj₂ ∘→ wf-⊢ˢʷ≡∷
 
 opaque
@@ -255,9 +262,9 @@ opaque
   -- A lemma related to _•ₛ_.
 
   ⊢ˢʷ≡∷-•ₛ :
-    ρ ∷ʷ Η ⊇ Δ →
-    Δ ⊢ˢʷ σ₁ ≡ σ₂ ∷ Γ →
-    Η ⊢ˢʷ ρ •ₛ σ₁ ≡ ρ •ₛ σ₂ ∷ Γ
+    ∇ » ρ ∷ʷ Η ⊇ Δ →
+    ∇ » Δ ⊢ˢʷ σ₁ ≡ σ₂ ∷ Γ →
+    ∇ » Η ⊢ˢʷ ρ •ₛ σ₁ ≡ ρ •ₛ σ₂ ∷ Γ
   ⊢ˢʷ≡∷-•ₛ {Γ = ε} ρ⊇ _ =
     ⊢ˢʷ≡∷ε⇔ .proj₂ (wf-∷ʷ⊇ ρ⊇)
   ⊢ˢʷ≡∷-•ₛ {Γ = _ ∙ A} ρ⊇ σ₁≡σ₂ =
@@ -274,9 +281,9 @@ opaque
   -- A lemma related to _•ₛ_.
 
   ⊢ˢʷ∷-•ₛ :
-    ρ ∷ʷ Η ⊇ Δ →
-    Δ ⊢ˢʷ σ ∷ Γ →
-    Η ⊢ˢʷ ρ •ₛ σ ∷ Γ
+    ∇ » ρ ∷ʷ Η ⊇ Δ →
+    ∇ » Δ ⊢ˢʷ σ ∷ Γ →
+    ∇ » Η ⊢ˢʷ ρ •ₛ σ ∷ Γ
   ⊢ˢʷ∷-•ₛ ρ⊇ =
     ⊢ˢʷ∷⇔⊢ˢʷ≡∷ .proj₂ ∘→ ⊢ˢʷ≡∷-•ₛ ρ⊇ ∘→ ⊢ˢʷ∷⇔⊢ˢʷ≡∷ .proj₁
 
@@ -285,9 +292,9 @@ opaque
   -- A lemma related to wk1Subst.
 
   ⊢ˢʷ∷-wk1Subst :
-    Δ ⊢ A →
-    Δ ⊢ˢʷ σ ∷ Γ →
-    Δ ∙ A ⊢ˢʷ wk1Subst σ ∷ Γ
+    ∇ » Δ ⊢ A →
+    ∇ » Δ ⊢ˢʷ σ ∷ Γ →
+    ∇ » Δ ∙ A ⊢ˢʷ wk1Subst σ ∷ Γ
   ⊢ˢʷ∷-wk1Subst ⊢A =
     ⊢ˢʷ∷-•ₛ (stepʷ id ⊢A)
 
@@ -296,9 +303,9 @@ opaque
   -- A lemma related to wk1Subst.
 
   ⊢ˢʷ≡∷-wk1Subst :
-    Δ ⊢ A →
-    Δ ⊢ˢʷ σ₁ ≡ σ₂ ∷ Γ →
-    Δ ∙ A ⊢ˢʷ wk1Subst σ₁ ≡ wk1Subst σ₂ ∷ Γ
+    ∇ » Δ ⊢ A →
+    ∇ » Δ ⊢ˢʷ σ₁ ≡ σ₂ ∷ Γ →
+    ∇ » Δ ∙ A ⊢ˢʷ wk1Subst σ₁ ≡ wk1Subst σ₂ ∷ Γ
   ⊢ˢʷ≡∷-wk1Subst ⊢A =
     ⊢ˢʷ≡∷-•ₛ (stepʷ id ⊢A)
 
@@ -307,9 +314,9 @@ opaque
   -- A lemma related to wkSubst.
 
   ⊢ˢʷ≡∷-wkSubst :
-    ⊢ Δ →
-    drop k Δ ⊢ˢʷ σ₁ ≡ σ₂ ∷ Γ →
-    Δ ⊢ˢʷ wkSubst k σ₁ ≡ wkSubst k σ₂ ∷ Γ
+    ∇ »⊢ Δ →
+    ∇ » drop k Δ ⊢ˢʷ σ₁ ≡ σ₂ ∷ Γ →
+    ∇ » Δ ⊢ˢʷ wkSubst k σ₁ ≡ wkSubst k σ₂ ∷ Γ
   ⊢ˢʷ≡∷-wkSubst {k = 0}    _      σ₁≡σ₂ = σ₁≡σ₂
   ⊢ˢʷ≡∷-wkSubst {k = 1+ _} (∙ ⊢A) σ₁≡σ₂ =
     ⊢ˢʷ≡∷-wk1Subst ⊢A (⊢ˢʷ≡∷-wkSubst (wf ⊢A) σ₁≡σ₂)
@@ -319,9 +326,9 @@ opaque
   -- A lemma related to wkSubst.
 
   ⊢ˢʷ∷-wkSubst :
-    ⊢ Δ →
-    drop k Δ ⊢ˢʷ σ ∷ Γ →
-    Δ ⊢ˢʷ wkSubst k σ ∷ Γ
+    ∇ »⊢ Δ →
+    ∇ » drop k Δ ⊢ˢʷ σ ∷ Γ →
+    ∇ » Δ ⊢ˢʷ wkSubst k σ ∷ Γ
   ⊢ˢʷ∷-wkSubst ⊢Δ =
     ⊢ˢʷ∷⇔⊢ˢʷ≡∷ .proj₂ ∘→ ⊢ˢʷ≡∷-wkSubst ⊢Δ ∘→ ⊢ˢʷ∷⇔⊢ˢʷ≡∷ .proj₁
 
@@ -330,10 +337,10 @@ opaque
   -- A lemma related to idSubst.
 
   ⊢ˢʷ∷-idSubst :
-    ⊢ Γ →
-    Γ ⊢ˢʷ idSubst ∷ Γ
-  ⊢ˢʷ∷-idSubst ε =
-    ⊢ˢʷ∷ε⇔ .proj₂ ε
+    ∇ »⊢ Γ →
+    ∇ » Γ ⊢ˢʷ idSubst ∷ Γ
+  ⊢ˢʷ∷-idSubst (ε »∇) =
+    ⊢ˢʷ∷ε⇔ .proj₂ (ε »∇)
   ⊢ˢʷ∷-idSubst (∙ ⊢A) =
     →⊢ˢʷ∷∙ (⊢ˢʷ∷-wk1Subst ⊢A (⊢ˢʷ∷-idSubst (wf ⊢A)))
       (PE.subst (_⊢_∷_ _ _) (wk1-tailId _) (var₀ ⊢A))
@@ -343,10 +350,10 @@ opaque
   -- A lemma related to sgSubst.
 
   ⊢ˢʷ≡∷-sgSubst :
-    Γ ⊢ t₁ ∷ A →
-    Γ ⊢ t₂ ∷ A →
-    Γ ⊢ t₁ ≡ t₂ ∷ A →
-    Γ ⊢ˢʷ sgSubst t₁ ≡ sgSubst t₂ ∷ Γ ∙ A
+    ∇ » Γ ⊢ t₁ ∷ A →
+    ∇ » Γ ⊢ t₂ ∷ A →
+    ∇ » Γ ⊢ t₁ ≡ t₂ ∷ A →
+    ∇ » Γ ⊢ˢʷ sgSubst t₁ ≡ sgSubst t₂ ∷ Γ ∙ A
   ⊢ˢʷ≡∷-sgSubst ⊢t₁ ⊢t₂ t₁≡t₂ =
     ⊢ˢʷ≡∷∙⇔ .proj₂
       ( refl-⊢ˢʷ≡∷ (⊢ˢʷ∷-idSubst (wfEqTerm t₁≡t₂))
@@ -360,8 +367,8 @@ opaque
   -- A lemma related to sgSubst.
 
   ⊢ˢʷ∷-sgSubst :
-    Γ ⊢ t ∷ A →
-    Γ ⊢ˢʷ sgSubst t ∷ Γ ∙ A
+    ∇ » Γ ⊢ t ∷ A →
+    ∇ » Γ ⊢ˢʷ sgSubst t ∷ Γ ∙ A
   ⊢ˢʷ∷-sgSubst ⊢t =
     ⊢ˢʷ∷⇔⊢ˢʷ≡∷ .proj₂ (⊢ˢʷ≡∷-sgSubst ⊢t ⊢t (refl ⊢t))
 
@@ -370,10 +377,10 @@ opaque
   -- A lemma related to _⇑.
 
   ⊢ˢʷ≡∷-⇑ :
-    Δ ⊢ A [ σ₁ ] →
-    Δ ⊢ A [ σ₁ ] ≡ A [ σ₂ ] →
-    Δ ⊢ˢʷ σ₁ ≡ σ₂ ∷ Γ →
-    Δ ∙ A [ σ₁ ] ⊢ˢʷ σ₁ ⇑ ≡ σ₂ ⇑ ∷ Γ ∙ A
+    ∇ » Δ ⊢ A [ σ₁ ] →
+    ∇ » Δ ⊢ A [ σ₁ ] ≡ A [ σ₂ ] →
+    ∇ » Δ ⊢ˢʷ σ₁ ≡ σ₂ ∷ Γ →
+    ∇ » Δ ∙ A [ σ₁ ] ⊢ˢʷ σ₁ ⇑ ≡ σ₂ ⇑ ∷ Γ ∙ A
   ⊢ˢʷ≡∷-⇑ {A} ⊢A[σ₁] A[σ₁]≡A[σ₂] σ₁≡σ₂ =
     let ⊢0 = PE.subst (_⊢_∷_ _ _) (PE.sym $ wk1Subst-wk1 A)
                (var₀ ⊢A[σ₁])
@@ -390,9 +397,9 @@ opaque
   -- A lemma related to _⇑.
 
   ⊢ˢʷ∷-⇑ :
-    Δ ⊢ A [ σ ] →
-    Δ ⊢ˢʷ σ ∷ Γ →
-    Δ ∙ A [ σ ] ⊢ˢʷ σ ⇑ ∷ Γ ∙ A
+    ∇ » Δ ⊢ A [ σ ] →
+    ∇ » Δ ⊢ˢʷ σ ∷ Γ →
+    ∇ » Δ ∙ A [ σ ] ⊢ˢʷ σ ⇑ ∷ Γ ∙ A
   ⊢ˢʷ∷-⇑ ⊢A[σ] =
     ⊢ˢʷ∷⇔⊢ˢʷ≡∷ .proj₂ ∘→ ⊢ˢʷ≡∷-⇑ ⊢A[σ] (refl ⊢A[σ]) ∘→
     ⊢ˢʷ∷⇔⊢ˢʷ≡∷ .proj₁
@@ -404,7 +411,7 @@ opaque
   cast-⊢ˢʷ≡∷ :
     (∀ x → σ₁₁ x PE.≡ σ₂₁ x) →
     (∀ x → σ₁₂ x PE.≡ σ₂₂ x) →
-    Δ ⊢ˢʷ σ₁₁ ≡ σ₁₂ ∷ Γ → Δ ⊢ˢʷ σ₂₁ ≡ σ₂₂ ∷ Γ
+    ∇ » Δ ⊢ˢʷ σ₁₁ ≡ σ₁₂ ∷ Γ → ∇ » Δ ⊢ˢʷ σ₂₁ ≡ σ₂₂ ∷ Γ
   cast-⊢ˢʷ≡∷ {Γ = ε} _ _ σ₁₁≡σ₁₂ =
     ⊢ˢʷ≡∷ε⇔ .proj₂ (⊢ˢʷ≡∷ε⇔ .proj₁ σ₁₁≡σ₁₂)
   cast-⊢ˢʷ≡∷ {Γ = _ ∙ A} σ₁₁≡σ₂₁ σ₁₂≡σ₂₂ σ₁₁≡σ₁₂ =
@@ -430,7 +437,7 @@ opaque
 
   cast-⊢ˢʷ∷ :
     (∀ x → σ₁ x PE.≡ σ₂ x) →
-    Δ ⊢ˢʷ σ₁ ∷ Γ → Δ ⊢ˢʷ σ₂ ∷ Γ
+    ∇ » Δ ⊢ˢʷ σ₁ ∷ Γ → ∇ » Δ ⊢ˢʷ σ₂ ∷ Γ
   cast-⊢ˢʷ∷ σ₁≡σ₂ =
     ⊢ˢʷ∷⇔⊢ˢʷ≡∷ .proj₂ ∘→ cast-⊢ˢʷ≡∷ σ₁≡σ₂ σ₁≡σ₂ ∘→ ⊢ˢʷ∷⇔⊢ˢʷ≡∷ .proj₁
 
@@ -439,10 +446,10 @@ opaque
   -- If ρ is a well-formed weakening, then toSubst ρ is a well-formed
   -- substitution.
 
-  ⊢ˢʷ-toSubst : ρ ∷ʷ Δ ⊇ Γ → Δ ⊢ˢʷ toSubst ρ ∷ Γ
-  ⊢ˢʷ-toSubst ρ⊇ = ⊢ˢʷ-toSubst′ (wf-∷ʷ⊇ ρ⊇) (∷ʷ⊇→∷⊇ ρ⊇)
+  ⊢ˢʷ-toSubst : ∇ » ρ ∷ʷ Δ ⊇ Γ → ∇ » Δ ⊢ˢʷ toSubst ρ ∷ Γ
+  ⊢ˢʷ-toSubst {∇} ρ⊇ = ⊢ˢʷ-toSubst′ (wf-∷ʷ⊇ ρ⊇) (∷ʷ⊇→∷⊇ ρ⊇)
     where
-    ⊢ˢʷ-toSubst′ : ⊢ Δ → ρ ∷ Δ ⊇ Γ → Δ ⊢ˢʷ toSubst ρ ∷ Γ
+    ⊢ˢʷ-toSubst′ : ∇ »⊢ Δ → ρ ∷ Δ ⊇ Γ → ∇ » Δ ⊢ˢʷ toSubst ρ ∷ Γ
     ⊢ˢʷ-toSubst′ ⊢Δ id =
       ⊢ˢʷ∷-idSubst ⊢Δ
     ⊢ˢʷ-toSubst′ (∙ ⊢A) (step ρ⊇) =
@@ -450,9 +457,26 @@ opaque
     ⊢ˢʷ-toSubst′ (∙ ⊢A) (lift ρ⊇) =
       cast-⊢ˢʷ∷ (PE.sym ∘→ toSubst-liftn 1) $
       PE.subst₃ _⊢ˢʷ_∷_
-        (PE.cong (_∙_ _) (PE.sym $ wk≡subst _ _)) PE.refl PE.refl $
+        (PE.cong (_»∙_ _) (PE.sym $ wk≡subst _ _)) PE.refl PE.refl $
       ⊢ˢʷ∷-⇑ (PE.subst (_⊢_ _) (wk≡subst _ _) ⊢A) $
       ⊢ˢʷ-toSubst′ (wf ⊢A) ρ⊇
+
+opaque
+
+  -- Well-typedness of substitutions is preserved by extension of the definition context.
+
+  defn-wkSubst : ξ » ∇′ ⊇ ∇ → ∇ » Δ ⊢ˢ σ ∷ Γ → ∇′ » Δ ⊢ˢ σ ∷ Γ
+  defn-wkSubst ξ⊇ id        = id
+  defn-wkSubst ξ⊇ (⊢σ , ⊢t) = defn-wkSubst ξ⊇ ⊢σ , defn-wkTerm ξ⊇ ⊢t
+
+opaque
+
+  -- Well-typedness of substitutions is preserved by extension of the definition context.
+
+  defn-wkSubstʷ : ξ » ∇′ ⊇ ∇ → ∇ » Δ ⊢ˢʷ σ ∷ Γ → ∇′ » Δ ⊢ˢʷ σ ∷ Γ
+  defn-wkSubstʷ ξ⊇ ⊢ˢʷσ =
+    let (⊢Δ , ⊢σ) = ⊢ˢʷ∷⇔ .proj₁ ⊢ˢʷσ
+    in  ⊢ˢʷ∷⇔ .proj₂ (defn-wk′ ξ⊇ ⊢Δ , defn-wkSubst ξ⊇ ⊢σ)
 
 ------------------------------------------------------------------------
 -- Substitution lemmas
@@ -461,7 +485,7 @@ opaque
 
   -- A substitution lemma for _∷_∈_.
 
-  subst-∷∈→⊢∷ : x ∷ A ∈ Γ → Δ ⊢ˢʷ σ ∷ Γ → Δ ⊢ σ x ∷ A [ σ ]
+  subst-∷∈→⊢∷ : x ∷ A ∈ Γ → ∇ » Δ ⊢ˢʷ σ ∷ Γ → ∇ » Δ ⊢ σ x ∷ A [ σ ]
   subst-∷∈→⊢∷ (here {A}) ⊢σ =
     PE.subst (_⊢_∷_ _ _) (PE.sym $ wk1-tail A) $
     ⊢ˢʷ∷∙⇔ .proj₁ ⊢σ .proj₂
@@ -474,7 +498,7 @@ opaque
   -- A substitution lemma for _∷_∈_.
 
   subst-∷∈→⊢≡∷ :
-    x ∷ A ∈ Γ → Δ ⊢ˢʷ σ₁ ≡ σ₂ ∷ Γ → Δ ⊢ σ₁ x ≡ σ₂ x ∷ A [ σ₁ ]
+    x ∷ A ∈ Γ → ∇ » Δ ⊢ˢʷ σ₁ ≡ σ₂ ∷ Γ → ∇ » Δ ⊢ σ₁ x ≡ σ₂ x ∷ A [ σ₁ ]
   subst-∷∈→⊢≡∷ (here {A}) σ₁≡σ₂ =
     PE.subst (_⊢_≡_∷_ _ _ _) (PE.sym $ wk1-tail A) $
     ⊢ˢʷ≡∷∙⇔ .proj₁ σ₁≡σ₂ .proj₂ .proj₂ .proj₂
@@ -492,40 +516,40 @@ private
     no-eta-equality
     field
       sym-⊢ˢʷ≡∷ :
-        (⊢Γ : ⊢ Γ) →
+        (⊢Γ : ∇ »⊢ Γ) →
         size-⊢′ ⊢Γ PE.≡ s →
-        Δ ⊢ˢʷ σ₁ ≡ σ₂ ∷ Γ →
-        Δ ⊢ˢʷ σ₂ ≡ σ₁ ∷ Γ
+        ∇ » Δ ⊢ˢʷ σ₁ ≡ σ₂ ∷ Γ →
+        ∇ » Δ ⊢ˢʷ σ₂ ≡ σ₁ ∷ Γ
       subst-⊢ :
-        Δ ⊢ˢʷ σ ∷ Γ →
-        (⊢A : Γ ⊢ A) →
+        ∇ » Δ ⊢ˢʷ σ ∷ Γ →
+        (⊢A : ∇ » Γ ⊢ A) →
         size-⊢ ⊢A PE.≡ s →
-        Δ ⊢ A [ σ ]
+        ∇ » Δ ⊢ A [ σ ]
       subst-⊢→⊢≡ :
-        Δ ⊢ˢʷ σ₁ ≡ σ₂ ∷ Γ →
-        (⊢A : Γ ⊢ A) →
+        ∇ » Δ ⊢ˢʷ σ₁ ≡ σ₂ ∷ Γ →
+        (⊢A : ∇ » Γ ⊢ A) →
         size-⊢ ⊢A PE.≡ s →
-        Δ ⊢ A [ σ₁ ] ≡ A [ σ₂ ]
+        ∇ » Δ ⊢ A [ σ₁ ] ≡ A [ σ₂ ]
       subst-⊢≡ :
-        Δ ⊢ˢʷ σ₁ ≡ σ₂ ∷ Γ →
-        (A₁≡A₂ : Γ ⊢ A₁ ≡ A₂) →
+        ∇ » Δ ⊢ˢʷ σ₁ ≡ σ₂ ∷ Γ →
+        (A₁≡A₂ : ∇ » Γ ⊢ A₁ ≡ A₂) →
         size-⊢≡ A₁≡A₂ PE.≡ s →
-        Δ ⊢ A₁ [ σ₁ ] ≡ A₂ [ σ₂ ]
+        ∇ » Δ ⊢ A₁ [ σ₁ ] ≡ A₂ [ σ₂ ]
       subst-⊢∷ :
-        Δ ⊢ˢʷ σ ∷ Γ →
-        (⊢t : Γ ⊢ t ∷ A) →
+        ∇ » Δ ⊢ˢʷ σ ∷ Γ →
+        (⊢t : ∇ » Γ ⊢ t ∷ A) →
         size-⊢∷ ⊢t PE.≡ s →
-        Δ ⊢ t [ σ ] ∷ A [ σ ]
+        ∇ » Δ ⊢ t [ σ ] ∷ A [ σ ]
       subst-⊢∷→⊢≡∷ :
-        Δ ⊢ˢʷ σ₁ ≡ σ₂ ∷ Γ →
-        (⊢t : Γ ⊢ t ∷ A) →
+        ∇ » Δ ⊢ˢʷ σ₁ ≡ σ₂ ∷ Γ →
+        (⊢t : ∇ » Γ ⊢ t ∷ A) →
         size-⊢∷ ⊢t PE.≡ s →
-        Δ ⊢ t [ σ₁ ] ≡ t [ σ₂ ] ∷ A [ σ₁ ]
+        ∇ » Δ ⊢ t [ σ₁ ] ≡ t [ σ₂ ] ∷ A [ σ₁ ]
       subst-⊢≡∷ :
-        Δ ⊢ˢʷ σ₁ ≡ σ₂ ∷ Γ →
-        (t₁≡t₂ : Γ ⊢ t₁ ≡ t₂ ∷ A) →
+        ∇ » Δ ⊢ˢʷ σ₁ ≡ σ₂ ∷ Γ →
+        (t₁≡t₂ : ∇ » Γ ⊢ t₁ ≡ t₂ ∷ A) →
         size-⊢≡∷ t₁≡t₂ PE.≡ s →
-        Δ ⊢ t₁ [ σ₁ ] ≡ t₂ [ σ₂ ] ∷ A [ σ₁ ]
+        ∇ » Δ ⊢ t₁ [ σ₁ ] ≡ t₂ [ σ₂ ] ∷ A [ σ₁ ]
 
 -- Variants of the fields of P, along with some derived lemmas.
 
@@ -536,49 +560,49 @@ private module Lemmas (hyp : ∀ {s₁} → s₁ <ˢ s₂ → P s₁) where
     -- Variants of the fields of P.
 
     sym-⊢ˢʷ≡∷ :
-      (⊢Γ : ⊢ Γ) →
+      (⊢Γ : ∇ »⊢ Γ) →
       ⦃ lt : size-⊢′ ⊢Γ <ˢ s₂ ⦄ →
-      Δ ⊢ˢʷ σ₁ ≡ σ₂ ∷ Γ →
-      Δ ⊢ˢʷ σ₂ ≡ σ₁ ∷ Γ
+      ∇ » Δ ⊢ˢʷ σ₁ ≡ σ₂ ∷ Γ →
+      ∇ » Δ ⊢ˢʷ σ₂ ≡ σ₁ ∷ Γ
     sym-⊢ˢʷ≡∷ ⊢Γ ⦃ lt ⦄ = P.sym-⊢ˢʷ≡∷ (hyp lt) ⊢Γ PE.refl
 
     subst-⊢ :
-      (⊢A : Γ ⊢ A)
+      (⊢A : ∇ » Γ ⊢ A)
       ⦃ lt : size-⊢ ⊢A <ˢ s₂ ⦄ →
-      Δ ⊢ˢʷ σ ∷ Γ → Δ ⊢ A [ σ ]
+      ∇ » Δ ⊢ˢʷ σ ∷ Γ → ∇ » Δ ⊢ A [ σ ]
     subst-⊢ ⊢A ⦃ lt ⦄ ⊢σ = P.subst-⊢ (hyp lt) ⊢σ ⊢A PE.refl
 
     subst-⊢→⊢≡ :
-      (⊢A : Γ ⊢ A)
+      (⊢A : ∇ » Γ ⊢ A)
       ⦃ lt : size-⊢ ⊢A <ˢ s₂ ⦄ →
-      Δ ⊢ˢʷ σ₁ ≡ σ₂ ∷ Γ → Δ ⊢ A [ σ₁ ] ≡ A [ σ₂ ]
+      ∇ » Δ ⊢ˢʷ σ₁ ≡ σ₂ ∷ Γ → ∇ » Δ ⊢ A [ σ₁ ] ≡ A [ σ₂ ]
     subst-⊢→⊢≡ ⊢A ⦃ lt ⦄ σ₁≡σ₂ = P.subst-⊢→⊢≡ (hyp lt) σ₁≡σ₂ ⊢A PE.refl
 
     subst-⊢≡ :
-      (A₁≡A₂ : Γ ⊢ A₁ ≡ A₂)
+      (A₁≡A₂ : ∇ » Γ ⊢ A₁ ≡ A₂)
       ⦃ lt : size-⊢≡ A₁≡A₂ <ˢ s₂ ⦄ →
-      Δ ⊢ˢʷ σ₁ ≡ σ₂ ∷ Γ → Δ ⊢ A₁ [ σ₁ ] ≡ A₂ [ σ₂ ]
+      ∇ » Δ ⊢ˢʷ σ₁ ≡ σ₂ ∷ Γ → ∇ » Δ ⊢ A₁ [ σ₁ ] ≡ A₂ [ σ₂ ]
     subst-⊢≡ A₁≡A₂ ⦃ lt ⦄ σ₁≡σ₂ =
       P.subst-⊢≡ (hyp lt) σ₁≡σ₂ A₁≡A₂ PE.refl
 
     subst-⊢∷ :
-      (⊢t : Γ ⊢ t ∷ A)
+      (⊢t : ∇ » Γ ⊢ t ∷ A)
       ⦃ lt : size-⊢∷ ⊢t <ˢ s₂ ⦄ →
-      Δ ⊢ˢʷ σ ∷ Γ → Δ ⊢ t [ σ ] ∷ A [ σ ]
+      ∇ » Δ ⊢ˢʷ σ ∷ Γ → ∇ » Δ ⊢ t [ σ ] ∷ A [ σ ]
     subst-⊢∷ ⊢t ⦃ lt ⦄ ⊢σ = P.subst-⊢∷ (hyp lt) ⊢σ ⊢t PE.refl
 
     subst-⊢∷→⊢≡∷ :
-      (⊢t : Γ ⊢ t ∷ A)
+      (⊢t : ∇ » Γ ⊢ t ∷ A)
       ⦃ lt : size-⊢∷ ⊢t <ˢ s₂ ⦄ →
-      Δ ⊢ˢʷ σ₁ ≡ σ₂ ∷ Γ → Δ ⊢ t [ σ₁ ] ≡ t [ σ₂ ] ∷ A [ σ₁ ]
+      ∇ » Δ ⊢ˢʷ σ₁ ≡ σ₂ ∷ Γ → ∇ » Δ ⊢ t [ σ₁ ] ≡ t [ σ₂ ] ∷ A [ σ₁ ]
     subst-⊢∷→⊢≡∷ ⊢t ⦃ lt ⦄ σ₁≡σ₂ =
       P.subst-⊢∷→⊢≡∷ (hyp lt) σ₁≡σ₂ ⊢t PE.refl
 
     subst-⊢≡∷ :
-      (t₁≡t₂ : Γ ⊢ t₁ ≡ t₂ ∷ A)
+      (t₁≡t₂ : ∇ » Γ ⊢ t₁ ≡ t₂ ∷ A)
       ⦃ lt : size-⊢≡∷ t₁≡t₂ <ˢ s₂ ⦄ →
-      Δ ⊢ˢʷ σ₁ ≡ σ₂ ∷ Γ →
-      Δ ⊢ t₁ [ σ₁ ] ≡ t₂ [ σ₂ ] ∷ A [ σ₁ ]
+      ∇ » Δ ⊢ˢʷ σ₁ ≡ σ₂ ∷ Γ →
+      ∇ » Δ ⊢ t₁ [ σ₁ ] ≡ t₂ [ σ₂ ] ∷ A [ σ₁ ]
     subst-⊢≡∷ t₁≡t₂ ⦃ lt ⦄ σ₁≡σ₂ =
       P.subst-⊢≡∷ (hyp lt) σ₁≡σ₂ t₁≡t₂ PE.refl
 
@@ -587,34 +611,34 @@ private module Lemmas (hyp : ∀ {s₁} → s₁ <ˢ s₂ → P s₁) where
     -- Variants of some of the variants.
 
     sym-⊢ˢʷ≡∷-<ˢ :
-      (∃ λ (⊢Γ : ⊢ Γ) → size-⊢′ ⊢Γ <ˢ s) →
+      (∃ λ (⊢Γ : ∇ »⊢ Γ) → size-⊢′ ⊢Γ <ˢ s) →
       ⦃ lt : s <ˢ s₂ ⦄ →
-      Δ ⊢ˢʷ σ₁ ≡ σ₂ ∷ Γ →
-      Δ ⊢ˢʷ σ₂ ≡ σ₁ ∷ Γ
+      ∇ » Δ ⊢ˢʷ σ₁ ≡ σ₂ ∷ Γ →
+      ∇ » Δ ⊢ˢʷ σ₂ ≡ σ₁ ∷ Γ
     sym-⊢ˢʷ≡∷-<ˢ (⊢Γ , lt) = sym-⊢ˢʷ≡∷ ⊢Γ ⦃ lt = <ˢ-trans lt ! ⦄
 
     subst-⊢-<ˢ :
-      (∃ λ (⊢A : Γ ⊢ A) → size-⊢ ⊢A <ˢ s) →
+      (∃ λ (⊢A : ∇ » Γ ⊢ A) → size-⊢ ⊢A <ˢ s) →
       ⦃ lt : s <ˢ s₂ ⦄ →
-      Δ ⊢ˢʷ σ ∷ Γ → Δ ⊢ A [ σ ]
+      ∇ » Δ ⊢ˢʷ σ ∷ Γ → ∇ » Δ ⊢ A [ σ ]
     subst-⊢-<ˢ (⊢A , lt) = subst-⊢ ⊢A ⦃ lt = <ˢ-trans lt ! ⦄
 
     subst-⊢→⊢≡-<ˢ :
-      (∃ λ (⊢A : Γ ⊢ A) → size-⊢ ⊢A <ˢ s) →
+      (∃ λ (⊢A : ∇ » Γ ⊢ A) → size-⊢ ⊢A <ˢ s) →
       ⦃ lt : s <ˢ s₂ ⦄ →
-      Δ ⊢ˢʷ σ₁ ≡ σ₂ ∷ Γ → Δ ⊢ A [ σ₁ ] ≡ A [ σ₂ ]
+      ∇ » Δ ⊢ˢʷ σ₁ ≡ σ₂ ∷ Γ → ∇ » Δ ⊢ A [ σ₁ ] ≡ A [ σ₂ ]
     subst-⊢→⊢≡-<ˢ (⊢A , lt) = subst-⊢→⊢≡ ⊢A ⦃ lt = <ˢ-trans lt ! ⦄
 
     subst-⊢∷-<ˢ :
-      (∃ λ (⊢t : Γ ⊢ t ∷ A) → size-⊢∷ ⊢t <ˢ s) →
+      (∃ λ (⊢t : ∇ » Γ ⊢ t ∷ A) → size-⊢∷ ⊢t <ˢ s) →
       ⦃ lt : s <ˢ s₂ ⦄ →
-      Δ ⊢ˢʷ σ ∷ Γ → Δ ⊢ t [ σ ] ∷ A [ σ ]
+      ∇ » Δ ⊢ˢʷ σ ∷ Γ → ∇ » Δ ⊢ t [ σ ] ∷ A [ σ ]
     subst-⊢∷-<ˢ (⊢t , lt) = subst-⊢∷ ⊢t ⦃ lt = <ˢ-trans lt ! ⦄
 
     subst-⊢∷→⊢≡∷-<ˢ :
-      (∃ λ (⊢t : Γ ⊢ t ∷ A) → size-⊢∷ ⊢t <ˢ s) →
+      (∃ λ (⊢t : ∇ » Γ ⊢ t ∷ A) → size-⊢∷ ⊢t <ˢ s) →
       ⦃ lt : s <ˢ s₂ ⦄ →
-      Δ ⊢ˢʷ σ₁ ≡ σ₂ ∷ Γ → Δ ⊢ t [ σ₁ ] ≡ t [ σ₂ ] ∷ A [ σ₁ ]
+      ∇ » Δ ⊢ˢʷ σ₁ ≡ σ₂ ∷ Γ → ∇ » Δ ⊢ t [ σ₁ ] ≡ t [ σ₂ ] ∷ A [ σ₁ ]
     subst-⊢∷→⊢≡∷-<ˢ (⊢t , lt) = subst-⊢∷→⊢≡∷ ⊢t ⦃ lt = <ˢ-trans lt ! ⦄
 
   opaque
@@ -622,10 +646,10 @@ private module Lemmas (hyp : ∀ {s₁} → s₁ <ˢ s₂ → P s₁) where
     -- A variant of ⊢ˢʷ∷-⇑.
 
     ⊢ˢʷ∷-⇑-<ˢ :
-      (∃ λ (⊢A : Γ ⊢ A) → size-⊢ ⊢A <ˢ s) →
+      (∃ λ (⊢A : ∇ » Γ ⊢ A) → size-⊢ ⊢A <ˢ s) →
       ⦃ lt : s <ˢ s₂ ⦄ →
-      Δ ⊢ˢʷ σ ∷ Γ →
-      Δ ∙ A [ σ ] ⊢ˢʷ σ ⇑ ∷ Γ ∙ A
+      ∇ » Δ ⊢ˢʷ σ ∷ Γ →
+      ∇ » Δ ∙ A [ σ ] ⊢ˢʷ σ ⇑ ∷ Γ ∙ A
     ⊢ˢʷ∷-⇑-<ˢ ⊢A ⊢σ = ⊢ˢʷ∷-⇑ (subst-⊢-<ˢ ⊢A ⊢σ) ⊢σ
 
   opaque
@@ -633,10 +657,10 @@ private module Lemmas (hyp : ∀ {s₁} → s₁ <ˢ s₂ → P s₁) where
     -- A variant of ⊢ˢʷ≡∷-⇑-<ˢ.
 
     ⊢ˢʷ≡∷-⇑-<ˢ :
-      (∃ λ (⊢A : Γ ⊢ A) → size-⊢ ⊢A <ˢ s) →
+      (∃ λ (⊢A : ∇ » Γ ⊢ A) → size-⊢ ⊢A <ˢ s) →
       ⦃ lt : s <ˢ s₂ ⦄ →
-      Δ ⊢ˢʷ σ₁ ≡ σ₂ ∷ Γ →
-      Δ ∙ A [ σ₁ ] ⊢ˢʷ σ₁ ⇑ ≡ σ₂ ⇑ ∷ Γ ∙ A
+      ∇ » Δ ⊢ˢʷ σ₁ ≡ σ₂ ∷ Γ →
+      ∇ » Δ ∙ A [ σ₁ ] ⊢ˢʷ σ₁ ⇑ ≡ σ₂ ⇑ ∷ Γ ∙ A
     ⊢ˢʷ≡∷-⇑-<ˢ ⊢A σ₁≡σ₂ =
       let _ , ⊢σ₁ , _ = wf-⊢ˢʷ≡∷ σ₁≡σ₂ in
       ⊢ˢʷ≡∷-⇑ (subst-⊢-<ˢ ⊢A ⊢σ₁) (subst-⊢→⊢≡-<ˢ ⊢A σ₁≡σ₂) σ₁≡σ₂
@@ -647,10 +671,10 @@ private module Lemmas (hyp : ∀ {s₁} → s₁ <ˢ s₂ → P s₁) where
     -- A variant of ⊢ˢʷ≡∷-⇑.
 
     ⊢ˢʷ≡∷-⇑[]-<ˢ :
-      (∃ λ (⊢Γ : ⊢ Γ) → size-⊢′ ⊢Γ <ˢ s) →
+      (∃ λ (⊢Γ : ∇ »⊢ Γ) → size-⊢′ ⊢Γ <ˢ s) →
       ⦃ lt : s <ˢ s₂ ⦄ →
-      Δ ⊢ˢʷ σ₁ ≡ σ₂ ∷ drop k Γ →
-      Δ ∙[ k ][ Γ ][ σ₁ ] ⊢ˢʷ σ₁ ⇑[ k ] ≡ σ₂ ⇑[ k ] ∷ Γ
+      ∇ » Δ ⊢ˢʷ σ₁ ≡ σ₂ ∷ drop k Γ →
+      ∇ » Δ ∙[ k ][ Γ ][ σ₁ ] ⊢ˢʷ σ₁ ⇑[ k ] ≡ σ₂ ⇑[ k ] ∷ Γ
     ⊢ˢʷ≡∷-⇑[]-<ˢ {k = 0}    (_ , _)     = idᶠ
     ⊢ˢʷ≡∷-⇑[]-<ˢ {k = 1+ _} (∙ ⊢A , lt) =
       let lt = ⊕≤ˢ→<ˢˡ (<ˢ→≤ˢ lt) in
@@ -662,10 +686,10 @@ private module Lemmas (hyp : ∀ {s₁} → s₁ <ˢ s₂ → P s₁) where
     -- A variant of ⊢ˢʷ∷-⇑.
 
     ⊢ˢʷ∷-⇑[]-<ˢ :
-      (∃ λ (⊢Γ : ⊢ Γ) → size-⊢′ ⊢Γ <ˢ s) →
+      (∃ λ (⊢Γ : ∇ »⊢ Γ) → size-⊢′ ⊢Γ <ˢ s) →
       ⦃ lt : s <ˢ s₂ ⦄ →
-      Δ ⊢ˢʷ σ ∷ drop k Γ →
-      Δ ∙[ k ][ Γ ][ σ ] ⊢ˢʷ σ ⇑[ k ] ∷ Γ
+      ∇ » Δ ⊢ˢʷ σ ∷ drop k Γ →
+      ∇ » Δ ∙[ k ][ Γ ][ σ ] ⊢ˢʷ σ ⇑[ k ] ∷ Γ
     ⊢ˢʷ∷-⇑[]-<ˢ ⊢Γ =
       ⊢ˢʷ∷⇔⊢ˢʷ≡∷ .proj₂ ∘→ ⊢ˢʷ≡∷-⇑[]-<ˢ ⊢Γ ∘→ ⊢ˢʷ∷⇔⊢ˢʷ≡∷ .proj₁
 
@@ -674,53 +698,53 @@ private module Lemmas (hyp : ∀ {s₁} → s₁ <ˢ s₂ → P s₁) where
     -- Some substitution lemmas that use ⊢ˢʷ∷-⇑[]-<ˢ or ⊢ˢʷ≡∷-⇑[]-<ˢ.
 
     subst-⊢-⇑ :
-      (⊢A : Γ ⊢ A)
+      (⊢A : ∇ » Γ ⊢ A)
       ⦃ lt : size-⊢ ⊢A <ˢ s₂ ⦄ →
-      Δ ⊢ˢʷ σ ∷ drop k Γ →
-      Δ ∙[ k ][ Γ ][ σ ] ⊢ A [ σ ⇑[ k ] ]
+      ∇ » Δ ⊢ˢʷ σ ∷ drop k Γ →
+      ∇ » Δ ∙[ k ][ Γ ][ σ ] ⊢ A [ σ ⇑[ k ] ]
     subst-⊢-⇑ ⊢A = subst-⊢ ⊢A ∘→ ⊢ˢʷ∷-⇑[]-<ˢ (wf-<ˢ ⊢A)
 
     subst-⊢→⊢≡-⇑ :
-      (⊢A : Γ ⊢ A)
+      (⊢A : ∇ » Γ ⊢ A)
       ⦃ lt : size-⊢ ⊢A <ˢ s₂ ⦄ →
-      Δ ⊢ˢʷ σ₁ ≡ σ₂ ∷ drop k Γ →
-      Δ ∙[ k ][ Γ ][ σ₁ ] ⊢ A [ σ₁ ⇑[ k ] ] ≡ A [ σ₂ ⇑[ k ] ]
+      ∇ » Δ ⊢ˢʷ σ₁ ≡ σ₂ ∷ drop k Γ →
+      ∇ » Δ ∙[ k ][ Γ ][ σ₁ ] ⊢ A [ σ₁ ⇑[ k ] ] ≡ A [ σ₂ ⇑[ k ] ]
     subst-⊢→⊢≡-⇑ ⊢A = subst-⊢→⊢≡ ⊢A ∘→ ⊢ˢʷ≡∷-⇑[]-<ˢ (wf-<ˢ ⊢A)
 
     subst-⊢→⊢≡-⇑-<ˢ :
-      (∃ λ (⊢A : Γ ⊢ A) → size-⊢ ⊢A <ˢ s) →
+      (∃ λ (⊢A : ∇ » Γ ⊢ A) → size-⊢ ⊢A <ˢ s) →
       ⦃ lt : s <ˢ s₂ ⦄ →
-      Δ ⊢ˢʷ σ₁ ≡ σ₂ ∷ drop k Γ →
-      Δ ∙[ k ][ Γ ][ σ₁ ] ⊢ A [ σ₁ ⇑[ k ] ] ≡ A [ σ₂ ⇑[ k ] ]
+      ∇ » Δ ⊢ˢʷ σ₁ ≡ σ₂ ∷ drop k Γ →
+      ∇ » Δ ∙[ k ][ Γ ][ σ₁ ] ⊢ A [ σ₁ ⇑[ k ] ] ≡ A [ σ₂ ⇑[ k ] ]
     subst-⊢→⊢≡-⇑-<ˢ (⊢A , lt) = subst-⊢→⊢≡-⇑ ⊢A ⦃ lt = <ˢ-trans lt ! ⦄
 
     subst-⊢≡-⇑ :
-      (A₁≡A₂ : Γ ⊢ A₁ ≡ A₂)
+      (A₁≡A₂ : ∇ » Γ ⊢ A₁ ≡ A₂)
       ⦃ lt : size-⊢≡ A₁≡A₂ <ˢ s₂ ⦄ →
-      Δ ⊢ˢʷ σ₁ ≡ σ₂ ∷ drop k Γ →
-      Δ ∙[ k ][ Γ ][ σ₁ ] ⊢ A₁ [ σ₁ ⇑[ k ] ] ≡ A₂ [ σ₂ ⇑[ k ] ]
+      ∇ » Δ ⊢ˢʷ σ₁ ≡ σ₂ ∷ drop k Γ →
+      ∇ » Δ ∙[ k ][ Γ ][ σ₁ ] ⊢ A₁ [ σ₁ ⇑[ k ] ] ≡ A₂ [ σ₂ ⇑[ k ] ]
     subst-⊢≡-⇑ A₁≡A₂ = subst-⊢≡ A₁≡A₂ ∘→ ⊢ˢʷ≡∷-⇑[]-<ˢ (wfEq-<ˢ A₁≡A₂)
 
     subst-⊢∷-⇑ :
-      (⊢t : Γ ⊢ t ∷ A)
+      (⊢t : ∇ » Γ ⊢ t ∷ A)
       ⦃ lt : size-⊢∷ ⊢t <ˢ s₂ ⦄ →
-      Δ ⊢ˢʷ σ ∷ drop k Γ →
-      Δ ∙[ k ][ Γ ][ σ ] ⊢ t [ σ ⇑[ k ] ] ∷ A [ σ ⇑[ k ] ]
+      ∇ » Δ ⊢ˢʷ σ ∷ drop k Γ →
+      ∇ » Δ ∙[ k ][ Γ ][ σ ] ⊢ t [ σ ⇑[ k ] ] ∷ A [ σ ⇑[ k ] ]
     subst-⊢∷-⇑ ⊢t = subst-⊢∷ ⊢t ∘→ ⊢ˢʷ∷-⇑[]-<ˢ (wfTerm-<ˢ ⊢t)
 
     subst-⊢∷→⊢≡∷-⇑ :
-      (⊢t : Γ ⊢ t ∷ A)
+      (⊢t : ∇ » Γ ⊢ t ∷ A)
       ⦃ lt : size-⊢∷ ⊢t <ˢ s₂ ⦄ →
-      Δ ⊢ˢʷ σ₁ ≡ σ₂ ∷ drop k Γ →
-      Δ ∙[ k ][ Γ ][ σ₁ ] ⊢ t [ σ₁ ⇑[ k ] ] ≡ t [ σ₂ ⇑[ k ] ] ∷
+      ∇ » Δ ⊢ˢʷ σ₁ ≡ σ₂ ∷ drop k Γ →
+      ∇ » Δ ∙[ k ][ Γ ][ σ₁ ] ⊢ t [ σ₁ ⇑[ k ] ] ≡ t [ σ₂ ⇑[ k ] ] ∷
         A [ σ₁ ⇑[ k ] ]
     subst-⊢∷→⊢≡∷-⇑ ⊢t = subst-⊢∷→⊢≡∷ ⊢t ∘→ ⊢ˢʷ≡∷-⇑[]-<ˢ (wfTerm-<ˢ ⊢t)
 
     subst-⊢≡∷-⇑ :
-      (t₁≡t₂ : Γ ⊢ t₁ ≡ t₂ ∷ A)
+      (t₁≡t₂ : ∇ » Γ ⊢ t₁ ≡ t₂ ∷ A)
       ⦃ lt : size-⊢≡∷ t₁≡t₂ <ˢ s₂ ⦄ →
-      Δ ⊢ˢʷ σ₁ ≡ σ₂ ∷ drop k Γ →
-      Δ ∙[ k ][ Γ ][ σ₁ ] ⊢ t₁ [ σ₁ ⇑[ k ] ] ≡ t₂ [ σ₂ ⇑[ k ] ] ∷
+      ∇ » Δ ⊢ˢʷ σ₁ ≡ σ₂ ∷ drop k Γ →
+      ∇ » Δ ∙[ k ][ Γ ][ σ₁ ] ⊢ t₁ [ σ₁ ⇑[ k ] ] ≡ t₂ [ σ₂ ⇑[ k ] ] ∷
         A [ σ₁ ⇑[ k ] ]
     subst-⊢≡∷-⇑ t₁≡t₂ =
       subst-⊢≡∷ t₁≡t₂ ∘→ ⊢ˢʷ≡∷-⇑[]-<ˢ (wfEqTerm-<ˢ t₁≡t₂)
@@ -730,10 +754,10 @@ private module Lemmas (hyp : ∀ {s₁} → s₁ <ˢ s₂ → P s₁) where
     -- A lemma related to consSubst.
 
     ⊢ˢʷ≡∷-consSubst-[] :
-      Δ ⊢ˢʷ σ₁ ≡ σ₂ ∷ Γ →
-      (⊢t : Γ ⊢ t ∷ A)
+      ∇ » Δ ⊢ˢʷ σ₁ ≡ σ₂ ∷ Γ →
+      (⊢t : ∇ » Γ ⊢ t ∷ A)
       ⦃ lt : size-⊢∷ ⊢t <ˢ s₂ ⦄ →
-      Δ ⊢ˢʷ consSubst σ₁ (t [ σ₁ ]) ≡ consSubst σ₂ (t [ σ₂ ]) ∷ Γ ∙ A
+      ∇ » Δ ⊢ˢʷ consSubst σ₁ (t [ σ₁ ]) ≡ consSubst σ₂ (t [ σ₂ ]) ∷ Γ ∙ A
     ⊢ˢʷ≡∷-consSubst-[] σ₁≡σ₂ ⊢t =
       let _ , ⊢σ₁ , ⊢σ₂ = wf-⊢ˢʷ≡∷ σ₁≡σ₂ in
       ⊢ˢʷ≡∷∙⇔ .proj₂
@@ -754,33 +778,33 @@ private module Inhabited where
 
     sym-⊢ˢʷ≡∷′ :
       (∀ {s₁} → s₁ <ˢ s₂ → P s₁) →
-      (⊢Γ : ⊢ Γ) →
+      (⊢Γ : ∇ »⊢ Γ) →
       size-⊢′ ⊢Γ PE.≡ s₂ →
-      Δ ⊢ˢʷ σ₁ ≡ σ₂ ∷ Γ →
-      Δ ⊢ˢʷ σ₂ ≡ σ₁ ∷ Γ
-    sym-⊢ˢʷ≡∷′ {Δ} {σ₁} {σ₂} _ ε _ =
-      Δ ⊢ˢʷ σ₁ ≡ σ₂ ∷ ε  ⇔⟨ ⊢ˢʷ≡∷ε⇔ ⟩→
-      ⊢ Δ                ⇔˘⟨ ⊢ˢʷ≡∷ε⇔ ⟩→
-      Δ ⊢ˢʷ σ₂ ≡ σ₁ ∷ ε  □
-    sym-⊢ˢʷ≡∷′ {Γ = Γ ∙ A} {Δ} {σ₁} {σ₂} hyp (∙ ⊢A) PE.refl =
+      ∇ » Δ ⊢ˢʷ σ₁ ≡ σ₂ ∷ Γ →
+      ∇ » Δ ⊢ˢʷ σ₂ ≡ σ₁ ∷ Γ
+    sym-⊢ˢʷ≡∷′ {∇} {Δ} {σ₁} {σ₂} _ (ε »∇) _ =
+      ∇ » Δ ⊢ˢʷ σ₁ ≡ σ₂ ∷ ε  ⇔⟨ ⊢ˢʷ≡∷ε⇔ ⟩→
+      ∇ »⊢ Δ                 ⇔˘⟨ ⊢ˢʷ≡∷ε⇔ ⟩→
+      ∇ » Δ ⊢ˢʷ σ₂ ≡ σ₁ ∷ ε  □
+    sym-⊢ˢʷ≡∷′ {∇} {Γ = Γ ∙ A} {Δ} {σ₁} {σ₂} hyp (∙ ⊢A) PE.refl =
       let ⊢Γ , Γ< = wf-<ˢ ⊢A in
 
-      Δ ⊢ˢʷ σ₁ ≡ σ₂ ∷ Γ ∙ A                    ⇔⟨ ⊢ˢʷ≡∷∙⇔ ⟩→
+      ∇ » Δ ⊢ˢʷ σ₁ ≡ σ₂ ∷ Γ ∙ A                    ⇔⟨ ⊢ˢʷ≡∷∙⇔ ⟩→
 
-      (Δ ⊢ˢʷ tail σ₁ ≡ tail σ₂ ∷ Γ ×
-       Δ ⊢ head σ₁ ∷ A [ tail σ₁ ] ×
-       Δ ⊢ head σ₂ ∷ A [ tail σ₂ ] ×
-       Δ ⊢ head σ₁ ≡ head σ₂ ∷ A [ tail σ₁ ])  →⟨ (λ (σ₁₊≡σ₂₊ , ⊢σ₁₀ , ⊢σ₂₀ , σ₁₀≡σ₂₀) →
-                                                     sym-⊢ˢʷ≡∷ ⊢Γ ⦃ lt = ↙ <ˢ→≤ˢ Γ< ⦄ σ₁₊≡σ₂₊ , ⊢σ₂₀ , ⊢σ₁₀ ,
-                                                     conv (sym (subst-⊢ ⊢A (wf-⊢ˢʷ≡∷ σ₁₊≡σ₂₊ .proj₂ .proj₁)) σ₁₀≡σ₂₀)
-                                                       (subst-⊢→⊢≡ ⊢A σ₁₊≡σ₂₊))
-                                                ⟩
-      (Δ ⊢ˢʷ tail σ₂ ≡ tail σ₁ ∷ Γ ×
-       Δ ⊢ head σ₂ ∷ A [ tail σ₂ ] ×
-       Δ ⊢ head σ₁ ∷ A [ tail σ₁ ] ×
-       Δ ⊢ head σ₂ ≡ head σ₁ ∷ A [ tail σ₂ ])  ⇔˘⟨ ⊢ˢʷ≡∷∙⇔ ⟩→
+      (∇ » Δ ⊢ˢʷ tail σ₁ ≡ tail σ₂ ∷ Γ ×
+       ∇ » Δ ⊢ head σ₁ ∷ A [ tail σ₁ ] ×
+       ∇ » Δ ⊢ head σ₂ ∷ A [ tail σ₂ ] ×
+       ∇ » Δ ⊢ head σ₁ ≡ head σ₂ ∷ A [ tail σ₁ ])  →⟨ (λ (σ₁₊≡σ₂₊ , ⊢σ₁₀ , ⊢σ₂₀ , σ₁₀≡σ₂₀) →
+                                                         sym-⊢ˢʷ≡∷ ⊢Γ ⦃ lt = ↙ <ˢ→≤ˢ Γ< ⦄ σ₁₊≡σ₂₊ , ⊢σ₂₀ , ⊢σ₁₀ ,
+                                                         conv (sym (subst-⊢ ⊢A (wf-⊢ˢʷ≡∷ σ₁₊≡σ₂₊ .proj₂ .proj₁)) σ₁₀≡σ₂₀)
+                                                           (subst-⊢→⊢≡ ⊢A σ₁₊≡σ₂₊))
+                                                    ⟩
+      (∇ » Δ ⊢ˢʷ tail σ₂ ≡ tail σ₁ ∷ Γ ×
+       ∇ » Δ ⊢ head σ₂ ∷ A [ tail σ₂ ] ×
+       ∇ » Δ ⊢ head σ₁ ∷ A [ tail σ₁ ] ×
+       ∇ » Δ ⊢ head σ₂ ≡ head σ₁ ∷ A [ tail σ₂ ])  ⇔˘⟨ ⊢ˢʷ≡∷∙⇔ ⟩→
 
-      Δ ⊢ˢʷ σ₂ ≡ σ₁ ∷ Γ ∙ A                    □
+      ∇ » Δ ⊢ˢʷ σ₂ ≡ σ₁ ∷ Γ ∙ A                    □
       where
       open Lemmas hyp
 
@@ -791,10 +815,10 @@ private module Inhabited where
 
     subst-⊢′ :
       (∀ {s₁} → s₁ <ˢ s₂ → P s₁) →
-      Δ ⊢ˢʷ σ ∷ Γ →
-      (⊢A : Γ ⊢ A) →
+      ∇ » Δ ⊢ˢʷ σ ∷ Γ →
+      (⊢A : ∇ » Γ ⊢ A) →
       size-⊢ ⊢A PE.≡ s₂ →
-      Δ ⊢ A [ σ ]
+      ∇ » Δ ⊢ A [ σ ]
     subst-⊢′ hyp ⊢σ = let open Lemmas hyp in λ where
       (Uⱼ _) _ →
         Uⱼ (wf-⊢ˢʷ∷ ⊢σ)
@@ -818,10 +842,10 @@ private module Inhabited where
 
     subst-⊢→⊢≡′ :
       (∀ {s₁} → s₁ <ˢ s₂ → P s₁) →
-      Δ ⊢ˢʷ σ₁ ≡ σ₂ ∷ Γ →
-      (⊢A : Γ ⊢ A) →
+      ∇ » Δ ⊢ˢʷ σ₁ ≡ σ₂ ∷ Γ →
+      (⊢A : ∇ » Γ ⊢ A) →
       size-⊢ ⊢A PE.≡ s₂ →
-      Δ ⊢ A [ σ₁ ] ≡ A [ σ₂ ]
+      ∇ » Δ ⊢ A [ σ₁ ] ≡ A [ σ₂ ]
     subst-⊢→⊢≡′ hyp σ₁≡σ₂ = let open Lemmas hyp in λ where
       (Uⱼ _) _ →
         refl (Uⱼ (wf-⊢ˢʷ≡∷ σ₁≡σ₂ .proj₁))
@@ -847,10 +871,10 @@ private module Inhabited where
 
     subst-⊢≡′ :
       (∀ {s₁} → s₁ <ˢ s₂ → P s₁) →
-      Δ ⊢ˢʷ σ₁ ≡ σ₂ ∷ Γ →
-      (A₁≡A₂ : Γ ⊢ A₁ ≡ A₂) →
+      ∇ » Δ ⊢ˢʷ σ₁ ≡ σ₂ ∷ Γ →
+      (A₁≡A₂ : ∇ » Γ ⊢ A₁ ≡ A₂) →
       size-⊢≡ A₁≡A₂ PE.≡ s₂ →
-      Δ ⊢ A₁ [ σ₁ ] ≡ A₂ [ σ₂ ]
+      ∇ » Δ ⊢ A₁ [ σ₁ ] ≡ A₂ [ σ₂ ]
     subst-⊢≡′ hyp σ₁≡σ₂ = let open Lemmas hyp in λ where
       (univ A₁≡A₂) PE.refl →
         univ (subst-⊢≡∷ A₁≡A₂ σ₁≡σ₂)
@@ -875,16 +899,18 @@ private module Inhabited where
 
     subst-⊢∷′ :
       (∀ {s₁} → s₁ <ˢ s₂ → P s₁) →
-      Δ ⊢ˢʷ σ ∷ Γ →
-      (⊢t : Γ ⊢ t ∷ A) →
+      ∇ » Δ ⊢ˢʷ σ ∷ Γ →
+      (⊢t : ∇ » Γ ⊢ t ∷ A) →
       size-⊢∷ ⊢t PE.≡ s₂ →
-      Δ ⊢ t [ σ ] ∷ A [ σ ]
-    subst-⊢∷′ hyp ⊢σ = let open Lemmas hyp in λ where
+      ∇ » Δ ⊢ t [ σ ] ∷ A [ σ ]
+    subst-⊢∷′ {∇} hyp ⊢σ = let open Lemmas hyp in λ where
       (conv ⊢t B≡A) PE.refl →
         conv (subst-⊢∷ ⊢t ⊢σ)
           (subst-⊢≡ B≡A (refl-⊢ˢʷ≡∷ ⊢σ))
       (var _ x∈) _ →
         subst-∷∈→⊢∷ x∈ ⊢σ
+      (defn ⊢Γ α↦t PE.refl) PE.refl →
+        defn (wf-⊢ˢʷ∷ ⊢σ) α↦t (wk₀-subst-invariant _)
       (Uⱼ _) _ →
         Uⱼ (wf-⊢ˢʷ∷ ⊢σ)
       (ΠΣⱼ ⊢A ⊢B ok) PE.refl →
@@ -892,22 +918,22 @@ private module Inhabited where
       (lamⱼ ⊢B ⊢t ok) PE.refl →
         lamⱼ (subst-⊢-⇑ ⊢B ⊢σ) (subst-⊢∷-⇑ ⊢t ⊢σ) ok
       (_∘ⱼ_ {G = B} ⊢t ⊢u) PE.refl →
-        PE.subst (_⊢_∷_ _ _) (PE.sym $ singleSubstLift B _)
+        PE.subst (∇ » _ ⊢ _ ∷_) (PE.sym $ singleSubstLift B _)
           (subst-⊢∷ ⊢t ⊢σ ∘ⱼ subst-⊢∷ ⊢u ⊢σ)
       (prodⱼ {G = B} ⊢B ⊢t ⊢u ok) PE.refl →
         prodⱼ (subst-⊢-⇑ ⊢B ⊢σ) (subst-⊢∷ ⊢t ⊢σ)
-          (PE.subst (_⊢_∷_ _ _) (singleSubstLift B _) $
+          (PE.subst (∇ » _ ⊢ _ ∷_) (singleSubstLift B _) $
            subst-⊢∷ ⊢u ⊢σ)
           ok
       (fstⱼ ⊢B ⊢t) PE.refl →
         fstⱼ (subst-⊢-⇑ ⊢B ⊢σ) (subst-⊢∷ ⊢t ⊢σ)
       (sndⱼ {G = B} ⊢B ⊢t) PE.refl →
-        PE.subst (_⊢_∷_ _ _) (PE.sym $ singleSubstLift B _) $
+        PE.subst (∇ » _ ⊢ _ ∷_) (PE.sym $ singleSubstLift B _) $
         sndⱼ (subst-⊢-⇑ ⊢B ⊢σ) (subst-⊢∷ ⊢t ⊢σ)
       (prodrecⱼ {A = C} ⊢C ⊢t ⊢u ok) PE.refl →
         PE.subst (_⊢_∷_ _ _) (PE.sym $ singleSubstLift C _) $
         prodrecⱼ (subst-⊢-⇑ ⊢C ⊢σ) (subst-⊢∷ ⊢t ⊢σ)
-          (PE.subst (_⊢_∷_ _ _) (subst-β-prodrec C _) $
+          (PE.subst (∇ » _ ⊢ _ ∷_) (subst-β-prodrec C _) $
            subst-⊢∷-⇑ ⊢u ⊢σ)
           ok
       (Emptyⱼ _) _ →
@@ -919,7 +945,7 @@ private module Inhabited where
       (unitrecⱼ {A} ⊢A ⊢t ⊢u ok) PE.refl →
         PE.subst (_⊢_∷_ _ _) (PE.sym $ singleSubstLift A _) $
         unitrecⱼ (subst-⊢-⇑ ⊢A ⊢σ) (subst-⊢∷ ⊢t ⊢σ)
-          (PE.subst (_⊢_∷_ _ _) (singleSubstLift A _) $
+          (PE.subst (∇ » _ ⊢ _ ∷_) (singleSubstLift A _) $
            subst-⊢∷ ⊢u ⊢σ)
           ok
       (Unitⱼ _ ok) _ →
@@ -946,11 +972,11 @@ private module Inhabited where
         PE.subst (_⊢_∷_ _ _) (PE.sym $ [,]-[]-commute B) $
         Jⱼ (subst-⊢∷ ⊢t ⊢σ)
           (PE.subst₂ _⊢_
-             (PE.cong (_∙_ _) $
+             (PE.cong (_»∙_ _) $
               PE.cong₃ Id (wk1-liftSubst A) (wk1-liftSubst t) PE.refl)
              PE.refl $
            subst-⊢-⇑ ⊢B ⊢σ)
-          (PE.subst (_⊢_∷_ _ _) ([,]-[]-commute B) $
+          (PE.subst (∇ » _ ⊢ _ ∷_) ([,]-[]-commute B) $
            subst-⊢∷ ⊢u ⊢σ)
           (subst-⊢∷ ⊢v ⊢σ) (subst-⊢∷ ⊢w ⊢σ)
       (Kⱼ {B} ⊢B ⊢u ⊢v ok) PE.refl →
@@ -970,17 +996,20 @@ private module Inhabited where
 
     subst-⊢∷→⊢≡∷′ :
       (∀ {s₁} → s₁ <ˢ s₂ → P s₁) →
-      Δ ⊢ˢʷ σ₁ ≡ σ₂ ∷ Γ →
-      (⊢t : Γ ⊢ t ∷ A) →
+      ∇ » Δ ⊢ˢʷ σ₁ ≡ σ₂ ∷ Γ →
+      (⊢t : ∇ » Γ ⊢ t ∷ A) →
       size-⊢∷ ⊢t PE.≡ s₂ →
-      Δ ⊢ t [ σ₁ ] ≡ t [ σ₂ ] ∷ A [ σ₁ ]
-    subst-⊢∷→⊢≡∷′ {σ₁} {σ₂} hyp σ₁≡σ₂ = let open Lemmas hyp in λ where
+      ∇ » Δ ⊢ t [ σ₁ ] ≡ t [ σ₂ ] ∷ A [ σ₁ ]
+    subst-⊢∷→⊢≡∷′ {∇} {σ₁} {σ₂} hyp σ₁≡σ₂ = let open Lemmas hyp in λ where
       (conv ⊢t B≡A) PE.refl →
         conv (subst-⊢∷→⊢≡∷ ⊢t σ₁≡σ₂)
           (subst-⊢≡ B≡A $
            refl-⊢ˢʷ≡∷ (wf-⊢ˢʷ≡∷ σ₁≡σ₂ .proj₂ .proj₁))
       (var _ x∈) _ →
         subst-∷∈→⊢≡∷ x∈ σ₁≡σ₂
+      (defn ⊢Γ α↦t PE.refl) PE.refl →
+        let ⊢Δ , _ , _ = wf-⊢ˢʷ≡∷ σ₁≡σ₂ in
+        refl (defn ⊢Δ α↦t (wk₀-subst-invariant _))
       (Uⱼ _) _ →
         refl (Uⱼ (wf-⊢ˢʷ≡∷ σ₁≡σ₂ .proj₁))
       (ΠΣⱼ ⊢A ⊢B ok) PE.refl →
@@ -1093,7 +1122,7 @@ private module Inhabited where
         J-cong (subst-⊢→⊢≡-<ˢ ⊢A σ₁≡σ₂) (subst-⊢∷ ⊢t ⊢σ₁)
           (subst-⊢∷→⊢≡∷ ⊢t σ₁≡σ₂)
           (PE.subst₃ _⊢_≡_
-             (PE.cong (_∙_ _) $
+             (PE.cong (_»∙_ _) $
               PE.cong₃ Id (wk1-liftSubst A) (wk1-liftSubst t) PE.refl)
              PE.refl PE.refl $
            subst-⊢→⊢≡-⇑ ⊢B σ₁≡σ₂)
@@ -1121,11 +1150,11 @@ private module Inhabited where
 
     subst-⊢≡∷′ :
       (∀ {s₁} → s₁ <ˢ s₂ → P s₁) →
-      Δ ⊢ˢʷ σ₁ ≡ σ₂ ∷ Γ →
-      (t₁≡t₂ : Γ ⊢ t₁ ≡ t₂ ∷ A) →
+      ∇ » Δ ⊢ˢʷ σ₁ ≡ σ₂ ∷ Γ →
+      (t₁≡t₂ : ∇ » Γ ⊢ t₁ ≡ t₂ ∷ A) →
       size-⊢≡∷ t₁≡t₂ PE.≡ s₂ →
-      Δ ⊢ t₁ [ σ₁ ] ≡ t₂ [ σ₂ ] ∷ A [ σ₁ ]
-    subst-⊢≡∷′ {σ₁} {σ₂} hyp σ₁≡σ₂ = let open Lemmas hyp in λ where
+      ∇ » Δ ⊢ t₁ [ σ₁ ] ≡ t₂ [ σ₂ ] ∷ A [ σ₁ ]
+    subst-⊢≡∷′ {∇} {σ₁} {σ₂} hyp σ₁≡σ₂ = let open Lemmas hyp in λ where
       (refl ⊢t) PE.refl →
         subst-⊢∷→⊢≡∷ ⊢t σ₁≡σ₂
       (sym ⊢A t₂≡t₁) PE.refl →
@@ -1145,6 +1174,9 @@ private module Inhabited where
         conv (subst-⊢≡∷ t₁≡t₂ σ₁≡σ₂)
           (subst-⊢≡ B≡A $
            refl-⊢ˢʷ≡∷ (wf-⊢ˢʷ≡∷ σ₁≡σ₂ .proj₂ .proj₁))
+      (δ-red ⊢Γ α↦t PE.refl PE.refl) PE.refl →
+        let ⊢Δ , _ , _ = wf-⊢ˢʷ≡∷ σ₁≡σ₂ in
+        δ-red ⊢Δ α↦t (wk₀-subst-invariant _) (wk₀-subst-invariant _)
       (ΠΣ-cong A₁≡A₂ B₁≡B₂ ok) PE.refl →
         ΠΣ-cong (subst-⊢≡∷ A₁≡A₂ σ₁≡σ₂) (subst-⊢≡∷-⇑ B₁≡B₂ σ₁≡σ₂) ok
       (app-cong {G = B} t₁≡t₂ u₁≡u₂) PE.refl →
@@ -1377,8 +1409,8 @@ private module Inhabited where
         PE.subst (_⊢_≡_∷_ _ _ _) (PE.sym $ [,]-[]-commute B₁) $
         J-cong (subst-⊢≡ A₁≡A₂ σ₁≡σ₂) (subst-⊢∷ ⊢t₁ ⊢σ₁)
           (subst-⊢≡∷ t₁≡t₂ σ₁≡σ₂)
-          (PE.subst₃ _⊢_≡_
-             (PE.cong (_∙_ _) $
+          (PE.subst₃ (_⊢_≡_)
+             (PE.cong (_»∙_ _) $
               PE.cong₃ Id (wk1-liftSubst A₁) (wk1-liftSubst t₁) PE.refl)
              PE.refl PE.refl $
            subst-⊢≡-⇑ B₁≡B₂ σ₁≡σ₂)
@@ -1390,7 +1422,7 @@ private module Inhabited where
         J p q A t B u t rfl [ σ₁ ]  ≡⟨ PE.subst (_⊢_≡_∷_ _ _ _) (PE.sym $ [,]-[]-commute B) $
                                        J-β (subst-⊢∷ ⊢t ⊢σ₁)
                                          (PE.subst₂ _⊢_
-                                            (PE.cong (_∙_ _) $
+                                            (PE.cong (_»∙_ _) $
                                              PE.cong₃ Id (wk1-liftSubst A) (wk1-liftSubst t) PE.refl)
                                             PE.refl $
                                           subst-⊢-⇑ ⊢B ⊢σ₁)
@@ -1460,14 +1492,14 @@ opaque
 
   -- A substitution lemma for _⊢_.
 
-  subst-⊢ : Γ ⊢ A → Δ ⊢ˢʷ σ ∷ Γ → Δ ⊢ A [ σ ]
+  subst-⊢ : ∇ » Γ ⊢ A → ∇ » Δ ⊢ˢʷ σ ∷ Γ → ∇ » Δ ⊢ A [ σ ]
   subst-⊢ ⊢A ⊢σ = P.subst-⊢ Inhabited.P-inhabited ⊢σ ⊢A PE.refl
 
 opaque
 
   -- A substitution lemma for _⊢_≡_.
 
-  subst-⊢≡ : Γ ⊢ A₁ ≡ A₂ → Δ ⊢ˢʷ σ₁ ≡ σ₂ ∷ Γ → Δ ⊢ A₁ [ σ₁ ] ≡ A₂ [ σ₂ ]
+  subst-⊢≡ : ∇ » Γ ⊢ A₁ ≡ A₂ → ∇ » Δ ⊢ˢʷ σ₁ ≡ σ₂ ∷ Γ → ∇ » Δ ⊢ A₁ [ σ₁ ] ≡ A₂ [ σ₂ ]
   subst-⊢≡ A₁≡A₂ σ₁≡σ₂ =
     P.subst-⊢≡ Inhabited.P-inhabited σ₁≡σ₂ A₁≡A₂ PE.refl
 
@@ -1475,7 +1507,7 @@ opaque
 
   -- A substitution lemma for _⊢_∷_.
 
-  subst-⊢∷ : Γ ⊢ t ∷ A → Δ ⊢ˢʷ σ ∷ Γ → Δ ⊢ t [ σ ] ∷ A [ σ ]
+  subst-⊢∷ : ∇ » Γ ⊢ t ∷ A → ∇ » Δ ⊢ˢʷ σ ∷ Γ → ∇ » Δ ⊢ t [ σ ] ∷ A [ σ ]
   subst-⊢∷ ⊢t ⊢σ = P.subst-⊢∷ Inhabited.P-inhabited ⊢σ ⊢t PE.refl
 
 opaque
@@ -1483,8 +1515,8 @@ opaque
   -- A substitution lemma for _⊢_≡_∷_.
 
   subst-⊢≡∷ :
-    Γ ⊢ t₁ ≡ t₂ ∷ A → Δ ⊢ˢʷ σ₁ ≡ σ₂ ∷ Γ →
-    Δ ⊢ t₁ [ σ₁ ] ≡ t₂ [ σ₂ ] ∷ A [ σ₁ ]
+    ∇ » Γ ⊢ t₁ ≡ t₂ ∷ A → ∇ » Δ ⊢ˢʷ σ₁ ≡ σ₂ ∷ Γ →
+    ∇ » Δ ⊢ t₁ [ σ₁ ] ≡ t₂ [ σ₂ ] ∷ A [ σ₁ ]
   subst-⊢≡∷ t₁≡t₂ σ₁≡σ₂ =
     P.subst-⊢≡∷ Inhabited.P-inhabited σ₁≡σ₂ t₁≡t₂ PE.refl
 
@@ -1493,7 +1525,7 @@ opaque
   -- A substitution lemma related to _⇑[_].
 
   subst-⊢-⇑ :
-    Γ ⊢ A → Δ ⊢ˢʷ σ ∷ drop k Γ → Δ ∙[ k ][ Γ ][ σ ] ⊢ A [ σ ⇑[ k ] ]
+    ∇ » Γ ⊢ A → ∇ » Δ ⊢ˢʷ σ ∷ drop k Γ → ∇ » Δ ∙[ k ][ Γ ][ σ ] ⊢ A [ σ ⇑[ k ] ]
   subst-⊢-⇑ ⊢A = L.subst-⊢-⇑ ⊢A ⦃ lt = ∃-<ˢ .proj₂ ⦄
 
 opaque
@@ -1501,8 +1533,8 @@ opaque
   -- A substitution lemma related to _⇑[_].
 
   subst-⊢∷-⇑ :
-    Γ ⊢ t ∷ A → Δ ⊢ˢʷ σ ∷ drop k Γ →
-    Δ ∙[ k ][ Γ ][ σ ] ⊢ t [ σ ⇑[ k ] ] ∷ A [ σ ⇑[ k ] ]
+    ∇ » Γ ⊢ t ∷ A → ∇ » Δ ⊢ˢʷ σ ∷ drop k Γ →
+    ∇ » Δ ∙[ k ][ Γ ][ σ ] ⊢ t [ σ ⇑[ k ] ] ∷ A [ σ ⇑[ k ] ]
   subst-⊢∷-⇑ ⊢t = L.subst-⊢∷-⇑ ⊢t ⦃ lt = ∃-<ˢ .proj₂ ⦄
 
 opaque
@@ -1510,8 +1542,8 @@ opaque
   -- A substitution lemma related to _⇑[_].
 
   subst-⊢≡-⇑ :
-    Γ ⊢ A ≡ B → Δ ⊢ˢʷ σ₁ ≡ σ₂ ∷ drop k Γ →
-    Δ ∙[ k ][ Γ ][ σ₁ ] ⊢ A [ σ₁ ⇑[ k ] ] ≡ B [ σ₂ ⇑[ k ] ]
+    ∇ » Γ ⊢ A ≡ B → ∇ » Δ ⊢ˢʷ σ₁ ≡ σ₂ ∷ drop k Γ →
+    ∇ » Δ ∙[ k ][ Γ ][ σ₁ ] ⊢ A [ σ₁ ⇑[ k ] ] ≡ B [ σ₂ ⇑[ k ] ]
   subst-⊢≡-⇑ A≡B = L.subst-⊢≡-⇑ A≡B ⦃ lt = ∃-<ˢ .proj₂ ⦄
 
 opaque
@@ -1519,8 +1551,8 @@ opaque
   -- A substitution lemma related to _⇑[_].
 
   subst-⊢≡∷-⇑ :
-    Γ ⊢ t ≡ u ∷ A → Δ ⊢ˢʷ σ₁ ≡ σ₂ ∷ drop k Γ →
-    Δ ∙[ k ][ Γ ][ σ₁ ] ⊢ t [ σ₁ ⇑[ k ] ] ≡ u [ σ₂ ⇑[ k ] ] ∷
+    ∇ » Γ ⊢ t ≡ u ∷ A → ∇ » Δ ⊢ˢʷ σ₁ ≡ σ₂ ∷ drop k Γ →
+    ∇ » Δ ∙[ k ][ Γ ][ σ₁ ] ⊢ t [ σ₁ ⇑[ k ] ] ≡ u [ σ₂ ⇑[ k ] ] ∷
       A [ σ₁ ⇑[ k ] ]
   subst-⊢≡∷-⇑ t≡u = L.subst-⊢≡∷-⇑ t≡u ⦃ lt = ∃-<ˢ .proj₂ ⦄
 
@@ -1532,9 +1564,9 @@ opaque
   -- Symmetry for _⊢ˢʷ_≡_∷_.
 
   sym-⊢ˢʷ≡∷ :
-    ⊢ Γ →
-    Δ ⊢ˢʷ σ₁ ≡ σ₂ ∷ Γ →
-    Δ ⊢ˢʷ σ₂ ≡ σ₁ ∷ Γ
+    ∇ »⊢ Γ →
+    ∇ » Δ ⊢ˢʷ σ₁ ≡ σ₂ ∷ Γ →
+    ∇ » Δ ⊢ˢʷ σ₂ ≡ σ₁ ∷ Γ
   sym-⊢ˢʷ≡∷ ⊢Γ = P.sym-⊢ˢʷ≡∷ Inhabited.P-inhabited ⊢Γ PE.refl
 
 opaque
@@ -1542,9 +1574,9 @@ opaque
   -- A variant of ⊢ˢʷ∷-⇑.
 
   ⊢ˢʷ∷-⇑′ :
-    Γ ⊢ A →
-    Δ ⊢ˢʷ σ ∷ Γ →
-    Δ ∙ A [ σ ] ⊢ˢʷ σ ⇑ ∷ Γ ∙ A
+    ∇ » Γ ⊢ A →
+    ∇ » Δ ⊢ˢʷ σ ∷ Γ →
+    ∇ » Δ ∙ A [ σ ] ⊢ˢʷ σ ⇑ ∷ Γ ∙ A
   ⊢ˢʷ∷-⇑′ ⊢A =
     L.⊢ˢʷ∷-⇑-<ˢ (⊢A , ∃-<ˢ .proj₂) ⦃ lt = ∃-<ˢ .proj₂ ⦄
 
@@ -1553,9 +1585,9 @@ opaque
   -- A variant of ⊢ˢʷ≡∷-⇑.
 
   ⊢ˢʷ≡∷-⇑′ :
-    Γ ⊢ A →
-    Δ ⊢ˢʷ σ₁ ≡ σ₂ ∷ Γ →
-    Δ ∙ A [ σ₁ ] ⊢ˢʷ σ₁ ⇑ ≡ σ₂ ⇑ ∷ Γ ∙ A
+    ∇ » Γ ⊢ A →
+    ∇ » Δ ⊢ˢʷ σ₁ ≡ σ₂ ∷ Γ →
+    ∇ » Δ ∙ A [ σ₁ ] ⊢ˢʷ σ₁ ⇑ ≡ σ₂ ⇑ ∷ Γ ∙ A
   ⊢ˢʷ≡∷-⇑′ ⊢A =
     L.⊢ˢʷ≡∷-⇑-<ˢ (⊢A , ∃-<ˢ .proj₂) ⦃ lt = ∃-<ˢ .proj₂ ⦄
 
@@ -1564,9 +1596,9 @@ opaque
   -- A variant of ⊢ˢʷ∷-⇑.
 
   ⊢ˢʷ∷-⇑[] :
-    ⊢ Γ →
-    Δ ⊢ˢʷ σ ∷ drop k Γ →
-    Δ ∙[ k ][ Γ ][ σ ] ⊢ˢʷ σ ⇑[ k ] ∷ Γ
+    ∇ »⊢ Γ →
+    ∇ » Δ ⊢ˢʷ σ ∷ drop k Γ →
+    ∇ » Δ ∙[ k ][ Γ ][ σ ] ⊢ˢʷ σ ⇑[ k ] ∷ Γ
   ⊢ˢʷ∷-⇑[] ⊢Γ =
     L.⊢ˢʷ∷-⇑[]-<ˢ (⊢Γ , ∃-<ˢ .proj₂) ⦃ lt = ∃-<ˢ .proj₂ ⦄
 
@@ -1575,8 +1607,8 @@ opaque
   -- A variant of ⊢ˢʷ≡∷-⇑.
 
   ⊢ˢʷ≡∷-⇑[] :
-    ⊢ Γ →
-    Δ ⊢ˢʷ σ₁ ≡ σ₂ ∷ drop k Γ →
-    Δ ∙[ k ][ Γ ][ σ₁ ] ⊢ˢʷ σ₁ ⇑[ k ] ≡ σ₂ ⇑[ k ] ∷ Γ
+    ∇ »⊢ Γ →
+    ∇ » Δ ⊢ˢʷ σ₁ ≡ σ₂ ∷ drop k Γ →
+    ∇ » Δ ∙[ k ][ Γ ][ σ₁ ] ⊢ˢʷ σ₁ ⇑[ k ] ≡ σ₂ ⇑[ k ] ∷ Γ
   ⊢ˢʷ≡∷-⇑[] ⊢Γ =
     L.⊢ˢʷ≡∷-⇑[]-<ˢ (⊢Γ , ∃-<ˢ .proj₂) ⦃ lt = ∃-<ˢ .proj₂ ⦄

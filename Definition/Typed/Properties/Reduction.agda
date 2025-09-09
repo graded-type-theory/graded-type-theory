@@ -24,17 +24,22 @@ open import Definition.Typed.Well-formed R
 open import Definition.Untyped M
 import Definition.Untyped.Erased 𝕄 as Erased
 open import Definition.Untyped.Neutral M type-variant
+open import Definition.Untyped.Properties M
+open import Definition.Untyped.Whnf M type-variant
 
 open import Tools.Empty
 open import Tools.Function
+open import Tools.Nat
 open import Tools.Product
 import Tools.PropositionalEquality as PE
 open import Tools.Relation
 open import Tools.Sum using (_⊎_; inj₁; inj₂)
 
 private variable
-  Γ                               : Con Term _
+  Γ                               : Cons _ _
   A A′ B B′ C t t′ u u′ v v₁ v₂ w : Term _
+  V                               : Set ℓ
+  n α                             : Nat
   s                               : Strength
   p p′ q r                        : M
   l                               : Universe-level
@@ -43,6 +48,14 @@ private variable
 -- Inversion lemmas related to _⊢_⇒_∷_
 
 opaque
+
+  -- An inversion lemma related to defn.
+
+  inv-⇒-defn :
+    Γ ⊢ defn α ⇒ t ∷ A →
+    (∃₂ λ t′ A′ → α ↦ t′ ∷ A′ ∈ Γ .defs × t PE.≡ wk (wk₀ {n = n}) t′)
+  inv-⇒-defn (conv d _)               = inv-⇒-defn d
+  inv-⇒-defn (δ-red ⊢Γ α↦t A≡A′ t≡t′) = _ , _ , α↦t , t≡t′
 
   -- An inversion lemma related to _∘⟨_⟩_.
 
@@ -189,6 +202,7 @@ opaque
     app-cong (subsetTerm t⇒u) (refl a)
   subsetTerm (β-red B t a p≡p′ ok) = β-red B t a p≡p′ ok
   subsetTerm (conv t⇒u A≡B) = conv (subsetTerm t⇒u) A≡B
+  subsetTerm (δ-red ⊢Γ α↦t A≡A′ t≡t′) = δ-red ⊢Γ α↦t A≡A′ t≡t′
   subsetTerm (fst-subst G x) = fst-cong G (subsetTerm x)
   subsetTerm (snd-subst G x) = snd-cong G (subsetTerm x)
   subsetTerm (prodrec-subst A u t⇒t′ ok) =
@@ -366,9 +380,10 @@ opaque
 
   -- Neutral terms do not reduce.
 
-  neRedTerm : Γ ⊢ t ⇒ u ∷ A → ¬ Neutral t
+  neRedTerm : Γ ⊢ t ⇒ u ∷ A → ¬ Neutral V (Γ .defs) t
   neRedTerm = λ where
     (conv d _)                → neRedTerm d
+    (δ-red _ α↦t _ _)         → λ { (defn α↦⊘) → exclusion-↦∈ α↦⊘ α↦t }
     (app-subst d _)           → neRedTerm d ∘→ inv-ne-∘
     (β-red _ _ _ _ _)         → (λ ()) ∘→ inv-ne-∘
     (natrec-subst _ _ d)      → neRedTerm d ∘→ inv-ne-natrec
@@ -395,8 +410,8 @@ opaque
 
   -- Neutral types do not reduce.
 
-  neRed : Γ ⊢ A ⇒ B → ¬ Neutral A
-  neRed (univ x) N = neRedTerm x N
+  neRed : Γ ⊢ A ⇒ B → ¬ Neutral V (Γ .defs) A
+  neRed (univ ⊢A) not = neRedTerm ⊢A not
 
 ------------------------------------------------------------------------
 -- Some lemmas related to WHNFs
@@ -405,9 +420,10 @@ opaque
 
   -- WHNFs do not reduce.
 
-  whnfRedTerm : Γ ⊢ t ⇒ u ∷ A → ¬ Whnf t
+  whnfRedTerm : Γ ⊢ t ⇒ u ∷ A → ¬ Whnf (Γ .defs) t
   whnfRedTerm = λ where
     (conv d _)                → whnfRedTerm d
+    (δ-red ⊢Γ α↦t A≡A′ t≡t′)  → λ { (ne b) → neRedTerm (δ-red ⊢Γ α↦t A≡A′ t≡t′) b }
     (app-subst d _)           → neRedTerm d ∘→ inv-whnf-∘
     (β-red _ _ _ _ _)         → (λ ()) ∘→ inv-whnf-∘
     (natrec-subst _ _ d)      → neRedTerm d ∘→ inv-whnf-natrec
@@ -435,7 +451,7 @@ opaque
 
   -- WHNFs do not reduce.
 
-  whnfRed : Γ ⊢ A ⇒ B → ¬ Whnf A
+  whnfRed : Γ ⊢ A ⇒ B → ¬ Whnf (Γ .defs) A
   whnfRed (univ x) w = whnfRedTerm x w
 
 opaque
@@ -443,7 +459,7 @@ opaque
   -- If a WHNF t reduces in zero or more steps to u, then t is equal
   -- to u.
 
-  whnfRed*Term : Γ ⊢ t ⇒* u ∷ A → Whnf t → t PE.≡ u
+  whnfRed*Term : Γ ⊢ t ⇒* u ∷ A → Whnf (Γ .defs) t → t PE.≡ u
   whnfRed*Term (id _)  _ = PE.refl
   whnfRed*Term (d ⇨ _) w = ⊥-elim (whnfRedTerm d w)
 
@@ -452,7 +468,7 @@ opaque
   -- If a WHNF A reduces in zero or more steps to B, then A is equal
   -- to B.
 
-  whnfRed* : Γ ⊢ A ⇒* B → Whnf A → A PE.≡ B
+  whnfRed* : Γ ⊢ A ⇒* B → Whnf (Γ .defs) A → A PE.≡ B
   whnfRed* (id x)  w = PE.refl
   whnfRed* (x ⇨ d) w = ⊥-elim (whnfRed x w)
 
@@ -467,6 +483,10 @@ opaque
   whrDetTerm = λ where
     (conv d _) d′ →
       whrDetTerm d d′
+    (δ-red ⊢Γ α↦u A≡A′ PE.refl) d′ →
+      case inv-⇒-defn d′ of λ where
+        (_ , _ , α↦u′ , PE.refl) →
+          PE.cong (wk wk₀) (proj₂ (unique-↦∷∈ α↦u α↦u′ PE.refl))
     (app-subst d _) d′ →
       case inv-⇒-∘ d′ of λ where
         (inj₁ (_ , _ , d′ , PE.refl)) →
@@ -640,7 +660,7 @@ opaque
   -- type Unit s l), then t is equal to star s l.
 
   no-η-expansion-Unit :
-    Whnf t → Γ ⊢ t ⇒* star s l ∷ Unit s l → t PE.≡ star s l
+    Whnf (Γ .defs) t → Γ ⊢ t ⇒* star s l ∷ Unit s l → t PE.≡ star s l
   no-η-expansion-Unit = flip whnfRed*Term
 
 opaque
@@ -650,7 +670,7 @@ opaque
   -- Σˢ p′ , q ▷ A ▹ B), then t is equal to prodˢ p u v.
 
   no-η-expansion-Σˢ :
-    Whnf t →
+    Whnf (Γ .defs) t →
     Γ ⊢ t ⇒* prodˢ p u v ∷ Σˢ p′ , q ▷ A ▹ B →
     t PE.≡ prodˢ p u v
   no-η-expansion-Σˢ = flip whnfRed*Term

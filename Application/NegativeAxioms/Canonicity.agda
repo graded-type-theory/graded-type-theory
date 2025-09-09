@@ -19,6 +19,8 @@ open import Graded.Erasure.SucRed R
 open import Definition.Untyped M
 open import Definition.Untyped.Neutral M type-variant
 open import Definition.Untyped.Normal-form M type-variant
+open import Definition.Untyped.Properties M
+open import Definition.Untyped.Whnf M type-variant
 open import Definition.Typed R
 open import Definition.Typed.Inversion R
 open import Definition.Typed.Properties R
@@ -26,6 +28,7 @@ open import Definition.Typed.Syntactic R
 open import Definition.Typed.EqRelInstance R
 open import Definition.Typed.Consequences.Inequality R
 open import Definition.Typed.Consequences.Reduction R
+import Definition.Typed.Weakening R as W
 
 open import Definition.LogicalRelation R
 open import Definition.LogicalRelation.Fundamental.Reducibility R
@@ -44,25 +47,29 @@ open import Tools.Product
 -- Preliminaries
 ---------------------------------------------------------------------------
 
-private
-  Ty  = Term
-  Cxt = Con Ty
-  variable
-    m  : Nat
-    Γ   : Con Term m
-    A B C : Term m
-    t u   : Term m
+private variable
+  m n   : Nat
+  Γ     : Cons _ _
+  A B C : Term _
+  t u   : Term _
 
-module Main {Γ : Con Term m} (nΓ : NegativeContext Γ)
+module Main {Γ : Cons m n} (nΓ : NegativeContext Γ)
             (consistent : Consistent Γ) where
 
-  -- Lemma: A neutral has negative type in a consistent
-  -- negative/erased context (given a certain assumption).
+  -- Lemma: A neutral has a negative type in a consistent, negative
+  -- context (given a certain assumption).
 
   neNeg :
-    ⦃ ok : No-equality-reflection or-empty Γ ⦄
-    (d : Γ ⊢ u ∷ A) (n : Neutral u) → NegativeType Γ A
-  neNeg (var ⊢Γ h          ) (var x      ) = lookupNegative ⊢Γ nΓ h
+    ⦃ ok : No-equality-reflection or-empty Γ .vars ⦄ →
+    Γ ⊢ u ∷ A → Neutral⁺ (Γ .defs) u → NegativeType Γ A
+  neNeg (var ⊢Γ x∈) (var _ _) =
+    lookupNegative ⊢Γ nΓ x∈
+  neNeg (defn ⊢Γ α↦₁ PE.refl) (defn α↦₂) =
+    PE.subst (NegativeType _ ∘→ wk _)
+      (unique-↦∈ (↦⊘∈⇒↦∈ α↦₂) α↦₁ PE.refl) $
+    wkNeg (W.wk₀∷ʷ⊇ ⊢Γ) $
+    lookupOpaqueNegative α↦₂ (defn-wf ⊢Γ)
+      (negative-definition-context nΓ)
   neNeg (d ∘ⱼ ⊢t           ) (∘ₙ n       ) =
     appNeg (neNeg d n) (refl (syntacticTerm d)) ⊢t
   neNeg (fstⱼ A⊢B d) (fstₙ n) =
@@ -104,10 +111,10 @@ module Main {Γ : Con Term m} (nΓ : NegativeContext Γ)
   -- Lemma: A normal form of type ℕ is a numeral in a consistent
   -- negative context (given a certain assumption).
 
-  nfN : ⦃ ok : No-equality-reflection or-empty Γ ⦄
-      → (d : Γ ⊢ u ∷ A)
-      → (n : Nf u)
-      → (c : Γ ⊢ A ≡ ℕ)
+  nfN : ⦃ ok : No-equality-reflection or-empty Γ .vars ⦄
+      → Γ ⊢ u ∷ A
+      → Nf (Γ .defs) u
+      → Γ ⊢ A ≡ ℕ
       → Numeral u
 
   -- Case: neutrals. The type cannot be ℕ since it must be negative.
@@ -142,9 +149,9 @@ module Main {Γ : Con Term m} (nΓ : NegativeContext Γ)
    -- certain assumption).
 
   ¬NeutralNf :
-    ⦃ ok : No-equality-reflection or-empty Γ ⦄ →
+    ⦃ ok : No-equality-reflection or-empty Γ .vars ⦄ →
     Γ ⊢ t ∷ A → (NegativeType Γ A → ⊥) →
-    ∃ λ u → Γ ⊢ t ↘ u ∷ A × (Neutral u → ⊥)
+    ∃ λ u → Γ ⊢ t ↘ u ∷ A × (Neutral⁺ (Γ .defs) u → ⊥)
   ¬NeutralNf ⊢t ¬negA =
     let u , whnfU , d = whNormTerm ⊢t
     in  u , (d , whnfU) ,
@@ -154,22 +161,23 @@ module Main {Γ : Con Term m} (nΓ : NegativeContext Γ)
   -- numeral under the ⇒ˢ* reduction (given a certain assumption).
 
   canonicityRed′ :
-    ⦃ ok : No-equality-reflection or-empty Γ ⦄ →
+    ⦃ ok : No-equality-reflection or-empty Γ .vars ⦄ →
     Γ ⊩ℕ t ∷ℕ → ∃ λ v → Numeral v × Γ ⊢ t ⇒ˢ* v ∷ℕ
   canonicityRed′ (ℕₜ _ d n≡n (sucᵣ x)) =
     let v , numV , d′ = canonicityRed′ x
     in  suc v , sucₙ numV , ⇒ˢ*∷ℕ-trans (whred* d) (sucred* d′)
   canonicityRed′ (ℕₜ _ d n≡n zeroᵣ) =
     zero , zeroₙ , whred* d
-  canonicityRed′ (ℕₜ n d n≡n (ne (neNfₜ _ neK k≡k))) =
+  canonicityRed′ (ℕₜ _ d _ (ne (neNfₜ neK _))) =
     let u , d′ , ¬neU =
           ¬NeutralNf (redFirst*Term d)
             (flip ¬negℕ $ refl (ℕⱼ $ wfTerm $ redFirst*Term d))
     in  ⊥-elim $ ¬neU $
-        PE.subst Neutral (whrDet*Term (d , ne neK) d′) neK
+        PE.subst (Neutral⁺ _) (whrDet*Term (d , ne (ne→ _ neK)) d′) $
+        ne→ _ neK
 
   canonicityRed :
-    ⦃ ok : No-equality-reflection or-empty Γ ⦄ →
+    ⦃ ok : No-equality-reflection or-empty Γ .vars ⦄ →
     Γ ⊢ t ∷ ℕ → ∃ λ u → Numeral u × Γ ⊢ t ⇒ˢ* u ∷ℕ
   canonicityRed =
     canonicityRed′ ∘→ ⊩∷ℕ⇔ .proj₁ ∘→ proj₂ ∘→ reducible-⊩∷
@@ -178,8 +186,8 @@ module Main {Γ : Con Term m} (nΓ : NegativeContext Γ)
   -- to a numeral (given a certain assumption).
 
   canonicityEq :
-    ⦃ ok : No-equality-reflection or-empty Γ ⦄ →
-    (⊢t : Γ ⊢ t ∷ ℕ) → ∃ λ u → Numeral u × Γ ⊢ t ≡ u ∷ ℕ
+    ⦃ ok : No-equality-reflection or-empty Γ .vars ⦄ →
+    Γ ⊢ t ∷ ℕ → ∃ λ u → Numeral u × Γ ⊢ t ≡ u ∷ ℕ
   canonicityEq ⊢t =
     let u , numU , d = canonicityRed ⊢t
     in  u , numU , subset*Termˢ d

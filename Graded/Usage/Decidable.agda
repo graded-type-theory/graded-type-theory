@@ -62,6 +62,8 @@ infix 10 ⌈⌉▸[_]?_
 
 ⌈⌉▸[ m ]? var _   = inj₁ var
 
+⌈⌉▸[ m ]? defn _  = inj₁ defn
+
 ⌈⌉▸[ m ]? snd _ t = case ⌈⌉▸[ m ]? t of λ where
   (inj₁ ▸t)  → inj₁ (sndₘ ▸t)
   (inj₂ ¬▸t) → inj₂ λ _ ▸snd →

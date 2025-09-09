@@ -27,14 +27,19 @@ open import Tools.Product
 open import Tools.PropositionalEquality as PE hiding (sym)
 
 open import Definition.Untyped M
-open import Definition.Untyped.Neutral M type-variant
+open import Definition.Untyped.Names-below M
+open import Definition.Untyped.Properties M
+open import Definition.Untyped.Whnf M type-variant
+
 open import Definition.Typed TR
 open import Definition.Typed.Consequences.Canonicity TR
 open import Definition.Typed.Consequences.Reduction TR
+open import Definition.Typed.Names-below TR
 open import Definition.Typed.Properties TR hiding (_⇨*_)
 
 open import Graded.Context 𝕄 hiding (_⟨_⟩)
 open import Graded.Usage 𝕄 UR
+open import Graded.Usage.Properties 𝕄 UR
 open import Graded.Mode 𝕄
 open import Graded.Restrictions 𝕄
 
@@ -58,6 +63,7 @@ private variable
   H H′ : Heap _ _
   ρ ρ′ : Wk _ _
   S S′ : Stack _
+  ∇ : DCon (Term 0) _
   Γ Δ : Con Term _
   s s′ : State _ _ _
   m : Mode
@@ -71,7 +77,7 @@ opaque
   ⊢▸Final-reasons :
     {Δ : Con Term k}
     ⦃ ok : No-equality-reflection or-empty Δ ⦄ →
-    (Emptyrec-allowed 𝟙ᵐ 𝟘 → Consistent Δ) →
+    (Emptyrec-allowed 𝟙ᵐ 𝟘 → Consistent (ε » Δ)) →
     (k ≢ 0 → No-erased-matches′ type-variant UR × Has-well-behaved-zero M semiring-with-meet) →
     Δ ⊢ₛ ⟨ H , t , ρ , S ⟩ ∷ A →
     ▸ ⟨ H , t , ρ , S ⟩ →
@@ -84,7 +90,13 @@ opaque
         ⊥-elim (⊢emptyrec₀∉S (consistent ok) ⊢s er∈S)
       (inj₂ (inj₁ (_ , _ , refl , v , ¬m))) →
         ⊥-elim (¬m (⊢Matching ∣S∣≡ ⊢s v))
-      (inj₂ (inj₂ x)) → x
+      (inj₂ (inj₂ (inj₁ x))) →
+        x
+      (inj₂ (inj₂ (inj₂ (_ , refl)))) →
+        case ⊢s of λ {
+          (⊢ₛ _ ⊢t _) →
+        case ⊢∷→Names< ⊢t of λ {
+          (defn ()) }}
 
 opaque
 
@@ -93,7 +105,7 @@ opaque
   ⊢▸-⇘-reasons :
     {Δ : Con Term k}
     ⦃ ok : No-equality-reflection or-empty Δ ⦄ →
-    (Emptyrec-allowed 𝟙ᵐ 𝟘 → Consistent Δ) →
+    (Emptyrec-allowed 𝟙ᵐ 𝟘 → Consistent (ε » Δ)) →
     (k ≢ 0 → No-erased-matches′ type-variant UR × Has-well-behaved-zero M semiring-with-meet) →
     Δ ⊢ₛ s ∷ A →
     ▸ s →
@@ -124,18 +136,20 @@ opaque
 
   ↘→⇘ :
     ⦃ ok : No-equality-reflection or-empty Δ ⦄ →
+    No-namesₛ s →
     Δ ⊢ₛ s ∷ B →
     ▸ s →
-    Δ ⊢ ⦅ s ⦆ ↘ u ∷ A →
+    ε » Δ ⊢ ⦅ s ⦆ ↘ u ∷ A →
     ∃₃ λ m n (s′ : State _ m n) → s ⇘ s′ × u ≡ ⦅ s′ ⦆
-  ↘→⇘ ⊢s ▸s (d , w) =
+  ↘→⇘ s-nn ⊢s ▸s (d , w) =
     let _ , _ , s′ , d₁ , u≡ = ⊢⇒*→⇾* As d ⊢s ▸s
         ▸s′ = ▸-⇾* ▸s d₁
-        _ , s″ , n , d₂ = ▸normalize As s′ ▸s′
+        _ , s″ , n , d₂ =
+          ▸normalize As s′ (→No-namesₛ′ (No-namesₛ-⇾* d₁ s-nn)) ▸s′
         d′ = d₁ ⇨* ⇾ₑ* d₂
         ⊢s″ = ⊢ₛ-⇾* ⊢s d′
         u≡′ = PE.trans u≡ (⇾ₑ*-⦅⦆-≡ d₂)
-        w′ = subst Whnf u≡′ w
+        w′ = subst (Whnf _) u≡′ w
     in  _ , _ , s″
           , (d′ , λ d″ → whnfRedTerm (⇒ᵥ→⇒ ⊢s″ (Normal-⇾→⇒ᵥ n d″)) w′)
           , u≡′
@@ -145,14 +159,15 @@ opaque
   whBisim :
     {Δ : Con Term k} →
     ⦃ ok : No-equality-reflection or-empty Δ ⦄ →
-    (Emptyrec-allowed 𝟙ᵐ 𝟘 → Consistent Δ) →
+    (Emptyrec-allowed 𝟙ᵐ 𝟘 → Consistent (ε » Δ)) →
     (k ≢ 0 → No-erased-matches′ type-variant UR × Has-well-behaved-zero M semiring-with-meet) →
+    No-namesₛ s →
     Δ ⊢ₛ s ∷ B →
     ▸ s →
-    Δ ⊢ ⦅ s ⦆ ↘ u ∷ A →
+    ε » Δ ⊢ ⦅ s ⦆ ↘ u ∷ A →
     ∃₅ λ m n H t (ρ : Wk m n) → s ⇘ ⟨ H , t , ρ , ε ⟩ × wk ρ t [ H ]ₕ ≡ u × Value t
-  whBisim {s = ⟨ H , t , ρ , S ⟩} consistent prop ⊢s ▸s d
-    with ↘→⇘ {s = ⟨ H , t , ρ , S ⟩} ⊢s ▸s d
+  whBisim {s = ⟨ H , t , ρ , S ⟩} consistent prop s-nn ⊢s ▸s d
+    with ↘→⇘ {s = ⟨ H , t , ρ , S ⟩} s-nn ⊢s ▸s d
   … |  _ , _ , ⟨ H′ , t′ , ρ′ , S′ ⟩ , d′ , u≡ =
     let v , S≡ε = ⊢▸-⇘-reasons consistent prop ⊢s ▸s d′
     in  _ , _ , H′ , t′ , ρ′ , lemma S≡ε d′ u≡ v
@@ -166,12 +181,13 @@ opaque
 opaque
 
   -- A variant of whBisim for closed states.
-  -- All well-typed and well-resourced states which evaluate to u "as
-  -- terms" with u in WHNF evaluate to some state with a value in head
-  -- position and an empty stack.
+  --
+  -- All well-typed and well-resourced states without names that
+  -- evaluate to a WHNF "as terms" evaluate to some state with a value
+  -- in head position and an empty stack.
 
   whBisim-closed :
-    ε ⊢ₛ s ∷ B → ▸ s → ε ⊢ ⦅ s ⦆ ↘ u ∷ A →
+    No-namesₛ s → ε ⊢ₛ s ∷ B → ▸ s → ε » ε ⊢ ⦅ s ⦆ ↘ u ∷ A →
     ∃₅ λ m n H t (ρ : Wk m n) → s ⇘ ⟨ H , t , ρ , ε ⟩ ×
     wk ρ t [ H ]ₕ ≡ u × Value t
   whBisim-closed =
@@ -180,65 +196,130 @@ opaque
 
 opaque
 
-  whBisim-initial :
+  whBisim-initial-ε :
     {Δ : Con Term k} →
     ⦃ ok : No-equality-reflection or-empty Δ ⦄ →
-    (Emptyrec-allowed 𝟙ᵐ 𝟘 → Consistent Δ) →
-    (k ≢ 0 → No-erased-matches′ type-variant UR × Has-well-behaved-zero M semiring-with-meet) →
+    (Emptyrec-allowed 𝟙ᵐ 𝟘 → Consistent (ε » Δ)) →
+    (k ≢ 0 →
+     No-erased-matches′ type-variant UR ×
+     Has-well-behaved-zero M semiring-with-meet) →
     𝟘ᶜ ▸ t →
-    Δ ⊢ t ↘ u ∷ A →
+    ε » Δ ⊢ t ↘ u ∷ A →
     ∃₅ λ m n H u′ (ρ : Wk m n) → initial t ⇘ ⟨ H , u′ , ρ , ε ⟩ × wk ρ u′ [ H ]ₕ ≡ u × Value u′
-  whBisim-initial consistent prop ▸t d =
-    whBisim consistent prop (⊢initial (redFirst*Term (d .proj₁)))
-      (▸initial ▸t) (PE.subst (_ ⊢_↘ _ ∷ _) (PE.sym ⦅initial⦆≡) d)
+  whBisim-initial-ε consistent prop ▸t d =
+    let ⊢t = redFirst*Term (d .proj₁) in
+    whBisim consistent prop (No-namesₛ-initial (⊢∷→Names< ⊢t))
+      (⊢initial ⊢t) (▸initial ▸t)
+      (PE.subst (_ ⊢_↘ _ ∷ _) (PE.sym ⦅initial⦆≡) d)
+
+opaque
+
+  -- A variant of whBisim-initial-ε without the restriction that the
+  -- definition context must be empty.
+
+  whBisim-initial :
+    {Γ : Con Term k} →
+    ⦃ ok : No-equality-reflection or-empty Γ ⦄ →
+    (Emptyrec-allowed 𝟙ᵐ 𝟘 → Consistent (ε » inline-Con ∇ Γ)) →
+    (k ≢ 0 →
+     No-erased-matches′ type-variant UR ×
+     Has-well-behaved-zero M semiring-with-meet) →
+    ▸[ 𝟙ᵐ ] glassify ∇ →
+    𝟘ᶜ ▸ t →
+    glassify ∇ » Γ ⊢ t ↘ u ∷ A →
+    ∃₅ λ m n H u′ (ρ : Wk m n) →
+    initial (inline ∇ t) ⇘ ⟨ H , u′ , ρ , ε ⟩ ×
+    wk ρ u′ [ H ]ₕ ≡ inline ∇ u × Value u′
+  whBisim-initial {∇} {Γ} consistent nem ▸∇ ▸t t↘u =
+    whBisim-initial-ε ⦃ ok = or-empty-inline-Con ⦄ consistent nem
+      (▸inline ▸∇ ▸t) (⊢inline↘inline∷ t↘u)
 
 opaque
 
   ⊢▸-⇘ :
     {Δ : Con Term k} →
     ⦃ ok : No-equality-reflection or-empty Δ ⦄ →
-    (Emptyrec-allowed 𝟙ᵐ 𝟘 → Consistent Δ) →
+    (Emptyrec-allowed 𝟙ᵐ 𝟘 → Consistent (ε » Δ)) →
     (k ≢ 0 → No-erased-matches′ type-variant UR × Has-well-behaved-zero M semiring-with-meet) →
+    No-namesₛ s →
     Δ ⊢ₛ s ∷ B →
     ▸ s →
     ∃₅ λ m n H t (ρ : Wk m n) → s ⇘ ⟨ H , t , ρ , ε ⟩ × Value t
-  ⊢▸-⇘ {s = ⟨ H , t , ρ , S ⟩} consistent prop ⊢s ▸s =
+  ⊢▸-⇘ {s = ⟨ H , t , ρ , S ⟩} consistent prop s-nn ⊢s ▸s =
     let u , w , d = whNormTerm (⊢⦅⦆ {s = ⟨ H , t , ρ , S ⟩} ⊢s)
         _ , _ , H′ , t′ , ρ′ , d′ , _ , v =
-          whBisim {s = ⟨ H , t , ρ , S ⟩} consistent prop ⊢s ▸s (d , w)
+          whBisim consistent prop s-nn ⊢s ▸s (d , w)
     in  _ , _ , H′ , t′ , ρ′ , d′ , v
 
 opaque
 
   -- A variant of the above for closed states.
   --
-  -- All well-typed and well-resourced states evaluate to a state with
-  -- a value in head position and an empty stack but not further.
+  -- All well-typed and well-resourced states without names evaluate
+  -- to a state with a value in head position and an empty stack.
 
   ⊢▸-⇘-closed :
-    ε ⊢ₛ s ∷ B → ▸ s →
+    No-namesₛ s → ε ⊢ₛ s ∷ B → ▸ s →
     ∃₅ λ m n H t (ρ : Wk m n) → s ⇘ ⟨ H , t , ρ , ε ⟩ × Value t
   ⊢▸-⇘-closed ⊢s ▸s =
     ⊢▸-⇘ ⦃ ε ⦄ (λ _ _ → ¬Empty)
       (λ 0≢0 → ⊥-elim (0≢0 refl)) ⊢s ▸s
 
+
 opaque
+
+  initial-⇘-ε :
+    {Δ : Con Term k} →
+    ⦃ ok : No-equality-reflection or-empty Δ ⦄ →
+    (Emptyrec-allowed 𝟙ᵐ 𝟘 → Consistent (ε » Δ)) →
+    (k ≢ 0 →
+     No-erased-matches′ type-variant UR ×
+     Has-well-behaved-zero M semiring-with-meet) →
+    ε » Δ ⊢ t ∷ A → 𝟘ᶜ ▸ t →
+    ∃₅ λ m n H u (ρ : Wk m n)→ initial t ⇘ ⟨ H , u , ρ , ε ⟩ × Value u
+  initial-⇘-ε consistent prop ⊢t ▸t =
+    ⊢▸-⇘ consistent prop (No-namesₛ-initial (⊢∷→Names< ⊢t))
+      (⊢initial ⊢t) (▸initial ▸t)
+
+opaque
+
+  -- A variant of initial-⇘-ε without the restriction that the
+  -- definition context must be empty.
 
   initial-⇘ :
     {Δ : Con Term k} →
     ⦃ ok : No-equality-reflection or-empty Δ ⦄ →
-    (Emptyrec-allowed 𝟙ᵐ 𝟘 → Consistent Δ) →
-    (k ≢ 0 → No-erased-matches′ type-variant UR × Has-well-behaved-zero M semiring-with-meet) →
-    Δ ⊢ t ∷ A → 𝟘ᶜ ▸ t →
-    ∃₅ λ m n H u (ρ : Wk m n)→ initial t ⇘ ⟨ H , u , ρ , ε ⟩ × Value u
-  initial-⇘ consistent prop ⊢t ▸t =
-    ⊢▸-⇘ consistent prop (⊢initial ⊢t) (▸initial ▸t)
+    (Emptyrec-allowed 𝟙ᵐ 𝟘 → Consistent (ε » inline-Con ∇ Δ)) →
+    (k ≢ 0 →
+     No-erased-matches′ type-variant UR ×
+     Has-well-behaved-zero M semiring-with-meet) →
+    ∇ » Δ ⊢ t ∷ A →
+    ▸[ 𝟙ᵐ ] glassify ∇ →
+    𝟘ᶜ ▸ t →
+    ∃₅ λ m n H u (ρ : Wk m n) →
+    initial (inline ∇ t) ⇘ ⟨ H , u , ρ , ε ⟩ × Value u
+  initial-⇘ consistent prop ⊢t ▸∇ ▸t =
+    initial-⇘-ε ⦃ ok = or-empty-inline-Con ⦄ consistent prop
+      (⊢inline∷ ⊢t) (▸inline ▸∇ ▸t)
 
 opaque
 
-  initial-⇘-closed :
-    ε ⊢ t ∷ A → ε ▸ t →
-    ∃₅ λ m n H u (ρ : Wk m n) → initial t ⇘ ⟨ H , u , ρ , ε ⟩ × Value u
-  initial-⇘-closed ⊢t ▸t =
-    initial-⇘ ⦃ ok = ε ⦄
+  initial-⇘-closed-ε :
+    ε » ε ⊢ t ∷ A → ε ▸ t →
+    ∃₅ λ m n H u (ρ : Wk m n)→ initial t ⇘ ⟨ H , u , ρ , ε ⟩ × Value u
+  initial-⇘-closed-ε ⊢t ▸t =
+    initial-⇘-ε ⦃ ok = ε ⦄
       (λ _ _ → ¬Empty) (λ 0≢0 → ⊥-elim (0≢0 refl)) ⊢t ▸t
+
+opaque
+  unfolding inline-Con
+
+  -- A variant of initial-⇘-closed-ε without the restriction that the
+  -- definition context must be empty.
+
+  initial-⇘-closed :
+    ∇ » ε ⊢ t ∷ A → ▸[ 𝟙ᵐ ] glassify ∇ → ε ▸ t →
+    ∃₅ λ m n H u (ρ : Wk m n) →
+    initial (inline ∇ t) ⇘ ⟨ H , u , ρ , ε ⟩ × Value u
+  initial-⇘-closed ⊢t ▸∇ ▸t =
+    initial-⇘-closed-ε (⊢inline∷ ⊢t) (▸inline ▸∇ ▸t)

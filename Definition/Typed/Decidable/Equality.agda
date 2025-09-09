@@ -28,8 +28,8 @@ open import Tools.Nat
 
 private
   variable
-    n : Nat
-    Γ : Con Term n
+    m n : Nat
+    Γ : Cons m n
 
 -- Decidability of conversion of well-formed types
 decEq : ∀ {A B} → Γ ⊢ A → Γ ⊢ B → Dec (Γ ⊢ A ≡ B)

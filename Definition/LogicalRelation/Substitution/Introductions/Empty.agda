@@ -17,7 +17,7 @@ open EqRelSet {{...}}
 open Type-restrictions R
 
 open import Definition.Untyped M
-open import Definition.Untyped.Neutral M type-variant
+open import Definition.Untyped.Whnf M type-variant
 open import Definition.Typed R
 open import Definition.Typed.Properties R
 open import Definition.LogicalRelation R
@@ -33,7 +33,7 @@ open import Tools.Function
 open import Tools.Product
 
 private variable
-  Γ Δ : Con Term _
+  Γ : Cons _ _
   A B t u : Term _
   l : Universe-level
 
@@ -82,9 +82,7 @@ opaque
           (Emptyᵣ _) →
         t≡u })
     , λ t≡u@(Emptyₜ₌ _ _ t⇒*t′ u⇒*u′ t′≅u′ prop) →
-        case prop of λ {
-          (ne (neNfₜ₌ inc t′-ne u′-ne t′~u′)) →
-        ⊩Empty⇔ .proj₂ (wfEqTerm (subset*Term t⇒*t′)) , t≡u }
+        ⊩Empty⇔ .proj₂ (wfEqTerm (subset*Term t⇒*t′)) , t≡u
 
 opaque
 
@@ -113,14 +111,14 @@ opaque
   -- Validity for Empty, seen as a type formerr.
 
   Emptyᵛ : ⊩ᵛ Γ → Γ ⊩ᵛ⟨ l ⟩ Empty
-  Emptyᵛ {Γ} {l} ⊩Γ =
+  Emptyᵛ {Γ = _ » Γ} {l} ⊩Γ =
     ⊩ᵛ⇔ʰ .proj₂
       ( ⊩Γ
-      , λ {_} {Δ = Δ} {σ₁ = σ₁} {σ₂ = σ₂} →
-          Δ ⊩ˢ σ₁ ≡ σ₂ ∷ Γ        →⟨ proj₁ ∘→ escape-⊩ˢ≡∷ ⟩
-          ⊢ Δ                     ⇔˘⟨ ⊩Empty⇔ ⟩→
-          (Δ ⊩⟨ l ⟩ Empty)        →⟨ refl-⊩≡ ⟩
-          Δ ⊩⟨ l ⟩ Empty ≡ Empty  □
+      , λ {_} {∇′ = ∇} {_} ξ⊇ {_} {Η = Δ} {σ₁ = σ₁} {σ₂ = σ₂} →
+          ∇ » Δ ⊩ˢ σ₁ ≡ σ₂ ∷ Γ        →⟨ proj₁ ∘→ escape-⊩ˢ≡∷ ⟩
+          ∇ »⊢ Δ                      ⇔˘⟨ ⊩Empty⇔ ⟩→
+          (∇ » Δ ⊩⟨ l ⟩ Empty)        →⟨ refl-⊩≡ ⟩
+          ∇ » Δ ⊩⟨ l ⟩ Empty ≡ Empty  □
       )
 
 opaque
@@ -131,7 +129,7 @@ opaque
   Emptyᵗᵛ ⊩Γ =
     ⊩ᵛ∷⇔ʰ .proj₂
       ( ⊩ᵛU ⊩Γ
-      , λ σ₁≡σ₂ →
+      , λ ξ⊇ σ₁≡σ₂ →
           case escape-⊩ˢ≡∷ σ₁≡σ₂ of λ
             (⊢Δ , _) →
           Type→⊩≡∷U⇔ Emptyₙ Emptyₙ .proj₂

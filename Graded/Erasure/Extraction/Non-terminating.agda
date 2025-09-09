@@ -64,6 +64,7 @@ open import Tools.Bool using (Bool; true)
 open import Tools.Empty
 open import Tools.Fin
 open import Tools.Function
+open import Tools.List using (List)
 open import Tools.Nat using (Nat; 1+)
 open import Tools.Product
 open import Tools.PropositionalEquality as PE using (_≡_; _≢_)
@@ -73,27 +74,28 @@ open import Tools.Relation
 private variable
   b           : Bool
   n           : Nat
-  Γ           : Con Term _
+  Γ           : Cons _ _
   A B t u     : Term _
   γ₁ γ₂ γ₃ γ₄ : Conₘ _
   p q         : M
   v           : T.Term _
+  vs          : List (T.Term _)
   s           : Strictness
 
 -- Some lemmas used below.
 
 private module Lemmas (⊢Γ : ⊢ Γ) where opaque
 
-  Empty⊢ℕ∷U : Γ ∙ Empty ⊢ ℕ ∷ U 0
+  Empty⊢ℕ∷U : Γ »∙ Empty ⊢ ℕ ∷ U 0
   Empty⊢ℕ∷U = ℕⱼ (⊢Γ ∙[ Emptyⱼ ])
 
-  Empty⊢ℕ : Γ ∙ Empty ⊢ ℕ
+  Empty⊢ℕ : Γ »∙ Empty ⊢ ℕ
   Empty⊢ℕ = univ Empty⊢ℕ∷U
 
-  Empty∙ℕ⊢ℕ∷U : Γ ∙ Empty ∙ ℕ ⊢ ℕ ∷ U 0
+  Empty∙ℕ⊢ℕ∷U : Γ »∙ Empty »∙ ℕ ⊢ ℕ ∷ U 0
   Empty∙ℕ⊢ℕ∷U = ℕⱼ (⊢Γ ∙[ Emptyⱼ ] ∙[ ℕⱼ ])
 
-  Empty∙ℕ∙ℕ⊢ℕ∷U : Γ ∙ Empty ∙ ℕ ∙ ℕ ⊢ ℕ ∷ U 0
+  Empty∙ℕ∙ℕ⊢ℕ∷U : Γ »∙ Empty »∙ ℕ »∙ ℕ ⊢ ℕ ∷ U 0
   Empty∙ℕ∙ℕ⊢ℕ∷U = ℕⱼ (⊢Γ ∙[ Emptyⱼ ] ∙[ ℕⱼ ] ∙[ ℕⱼ ])
 
 opaque
@@ -226,7 +228,7 @@ opaque
     Π-allowed ω p →
     Π-allowed (ω + ω) p →
     ⊢ Γ →
-    Γ ∙ Empty ⊢ λx∙xx p ∷ Π (ω + ω) , p ▷ ℕ ▹ ℕ
+    Γ »∙ Empty ⊢ λx∙xx p ∷ Π (ω + ω) , p ▷ ℕ ▹ ℕ
   ⊢λx∙xx ω-ok ω+ω-ok ⊢Γ =
     lamⱼ′ ω+ω-ok $
     ⊢cast (var₁ Empty⊢ℕ) Empty∙ℕ⊢ℕ∷U
@@ -391,18 +393,18 @@ opaque
   loops-does-not-reduce-to-a-value :
     ⦃ 𝟘-well-behaved : Has-well-behaved-zero M semiring-with-meet ⦄ →
     T.Value v →
-    ¬ erase′ true strict (loops p) T.⇒* v
-  loops-does-not-reduce-to-a-value {v} {p} v-value =
-    erase′ true strict (loops p) T.⇒* v            ≡⟨ PE.cong (T._⇒* _) erase-loops ⟩→
-    T.lam T.zero T.∘⟨ strict ⟩ loop strict T.⇒* v  →⟨ helper ⟩
-    ⊥                                              □
+    ¬ vs T.⊢ erase′ true strict (loops p) ⇒* v
+  loops-does-not-reduce-to-a-value {v} {vs} {p} v-value =
+    vs T.⊢ erase′ true strict (loops p) ⇒* v            ≡⟨ PE.cong (_ T.⊢_⇒* _) erase-loops ⟩→
+    vs T.⊢ T.lam T.zero T.∘⟨ strict ⟩ loop strict ⇒* v  →⟨ helper ⟩
+    ⊥                                                   □
     where
-    helper : ¬ T.lam T.zero T.∘⟨ strict ⟩ loop s T.⇒* v
+    helper : ¬ vs T.⊢ T.lam T.zero T.∘⟨ strict ⟩ loop s ⇒* v
     helper T.refl =
       case v-value of λ ()
     helper (T.trans (T.app-subst ())     _)
     helper (T.trans (T.β-red loop-value) _) =
-      ¬loop⇒* loop-value T.refl
+      ¬loop⇒* loop-value (T.refl {∇ = List.[]})
     helper (T.trans (T.app-subst-arg _ loop⇒) ⇒*v)
       rewrite redDet _ loop⇒ loop⇒loop =
       helper ⇒*v

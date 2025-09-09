@@ -1,6 +1,6 @@
 ------------------------------------------------------------------------
--- If erased matches are not allowed. Erased axioms do jeopardize
--- canonicity.
+-- If erased matches are allowed, then erased axioms do jeopardize
+-- canonicity
 ------------------------------------------------------------------------
 
 module Application.NegativeOrErasedAxioms.Canonicity.ErasedMatches where
@@ -14,6 +14,7 @@ open import Tools.Nat using (Nat)
 open import Tools.Product
 import Tools.PropositionalEquality as PE
 open import Tools.Sum using (_⊎_)
+open import Tools.Unit
 
 import Application.NegativeOrErasedAxioms.NegativeOrErasedContext
 
@@ -27,6 +28,7 @@ open import Definition.Typed.Restrictions
 import Definition.Typed.Substitution
 import Definition.Untyped
 import Definition.Untyped.Neutral
+import Definition.Untyped.Whnf
 
 import Graded.Context
 import Graded.Context.Properties
@@ -68,6 +70,7 @@ module Counterexample
     UR = no-usage-restrictions Nr true true
 
   open Type-restrictions TR
+  open Usage-restrictions UR
 
   private instance
 
@@ -87,6 +90,7 @@ module Counterexample
   open Definition.Typed.Substitution TR
   open Definition.Untyped Erasure
   open Definition.Untyped.Neutral Erasure type-variant
+  open Definition.Untyped.Whnf Erasure type-variant
 
   open Graded.Context 𝕄
   open Graded.Context.Properties 𝕄
@@ -103,41 +107,50 @@ module Counterexample
   -- erased eliminations are allowed.
 
   cEx :
-    ∃₄ λ (m : Nat) (Γ : Con Term m) (γ : Conₘ m) (t : Term m)
+    ∃₅ λ (m n : Nat) (Γ : Cons m n) (γ : Conₘ n) (t : Term n)
     → Γ ⊢ t ∷ ℕ
+    × ▸[ 𝟙ᵐ ] Γ .defs
     × γ ▸[ 𝟙ᵐ ] t
     × γ PE.≡ 𝟘ᶜ
     × NegativeErasedContext Γ γ
     × Consistent Γ
+    × (∀ {p q} →
+       Unitʷ-η → Unitʷ-allowed → Unitrec-allowed 𝟙ᵐ p q →
+       M.𝟙 M.≤ M.𝟘 ⊎ p PE.≡ M.𝟘)
+    × No-equality-reflection or-empty Γ .vars
     × ((∃ λ u → Numeral u × Γ ⊢ t ≡ u ∷ ℕ) → ⊥)
     × ((∃ λ u → Numeral u × Γ ⊢ t ⇒ˢ* u ∷ℕ) → ⊥)
-    × (∃ λ u → Γ ⊢ t ↘ u ∷ ℕ × Neutral u)
+    × (∃ λ u → Γ ⊢ t ↘ u ∷ ℕ × Neutral⁺ (Γ .defs) u)
   cEx =
       _
-    , ε ∙ (Σʷ ω , 𝟘 ▷ ℕ ▹ ℕ) , _ , prodrec 𝟘 ω 𝟘 ℕ (var x0) zero
+    , _
+    , ε » ε ∙ (Σʷ ω , 𝟘 ▷ ℕ ▹ ℕ) , _ , prodrec 𝟘 ω 𝟘 ℕ (var x0) zero
     , ⊢prodrec
+    , (λ ())
     , prodrecₘ {η = 𝟘ᶜ} var zeroₘ
         (sub ℕₘ (≤ᶜ-refl ∙ ≤-reflexive (M.·-zeroʳ _))) _
     , PE.refl
-    , ε ∙𝟘
+    , ε ε ∙𝟘
     , inhabited-consistent
-        (⊢ˢʷ∷-sgSubst (prodⱼ εℕ⊢ℕ (zeroⱼ ε) (zeroⱼ ε) _))
+        (⊢ˢʷ∷-sgSubst (prodⱼ εℕ⊢ℕ (zeroⱼ εε) (zeroⱼ εε) _))
+    , (λ ())
+    , possibly-nonempty
     , (λ { (.zero , zeroₙ , t≡u) → lem (completeEqTerm t≡u)
          ; (.(suc _) , sucₙ numU , t≡u) → lem′ (completeEqTerm t≡u)
          })
     , (λ where
-         (u , numU , whred x ⇨ˢ d) → neRedTerm x (prodrecₙ (var x0))
+         (u , numU , whred x ⇨ˢ d) → neRedTerm x (prodrecₙ (var tt x0))
          (_ , ()   , id _))
     , (_ , (id ⊢prodrec , ne neutral) , neutral)
     where
     open E
 
     lem :
-      ε ∙ (Σʷ ω , 𝟘 ▷ ℕ ▹ ℕ) ⊢
+      ε » ε ∙ Σʷ ω , 𝟘 ▷ ℕ ▹ ℕ ⊢
         prodrec 𝟘 ω 𝟘 ℕ (var x0) zero [conv↑] zero ∷ ℕ →
       ⊥
     lem ([↑]ₜ _ _ _ (D , _) (d , _) (d′ , _) prodrec-0-zero≡zero) =
-      case whnfRed*Term d (ne (prodrecₙ (var x0))) of λ {
+      case whnfRed*Term d (ne (prodrecₙ (var _ x0))) of λ {
         PE.refl →
       case whnfRed*Term d′ zeroₙ of λ {
         PE.refl →
@@ -148,11 +161,11 @@ module Counterexample
          (ne-ins _ _ _ ([~] _ _ ())) }}}
 
     lem′ :
-      ε ∙ (Σʷ ω , 𝟘 ▷ ℕ ▹ ℕ) ⊢
+      ε » ε ∙ Σʷ ω , 𝟘 ▷ ℕ ▹ ℕ ⊢
         prodrec 𝟘 ω 𝟘 ℕ (var x0) zero [conv↑] suc t ∷ ℕ →
       ⊥
     lem′ ([↑]ₜ _ _ _ (D , _) (d , _) (d′ , _) prodrec-0-zero≡suc) =
-      case whnfRed*Term d (ne (prodrecₙ (var x0))) of λ {
+      case whnfRed*Term d (ne (prodrecₙ (var _ x0))) of λ {
         PE.refl →
       case whnfRed*Term d′ sucₙ of λ {
         PE.refl →
@@ -162,7 +175,7 @@ module Counterexample
          (ℕ-ins ([~] _ _ ()))
          (ne-ins _ _ _ ([~] _ _ ())) }}}
 
-    ⊢εℕ = ∙ ℕⱼ ε
+    ⊢εℕ = ∙ ℕⱼ εε
     εℕ⊢ℕ = ℕⱼ ⊢εℕ
     ε⊢Σ = ΠΣⱼ εℕ⊢ℕ _
     ⊢εΣ = ∙ ε⊢Σ
@@ -173,7 +186,7 @@ module Counterexample
     εΣΣ⊢ℕ = ℕⱼ ⊢εΣΣ
     ⊢εΣℕℕ = ∙ εΣℕ⊢ℕ
     ⊢prodrec = prodrecⱼ {r = 𝟘} εΣΣ⊢ℕ (var₀ ε⊢Σ) (zeroⱼ ⊢εΣℕℕ) _
-    neutral = prodrecₙ (var _)
+    neutral = prodrecₙ (var _ _)
 
 -- If one drops the assumption about erased matches from the statement
 -- of Application.NegativeOrErasedAxioms.Canonicity.canonicityEq, then
@@ -200,15 +213,19 @@ not-canonicityEq :
    let open Usage-restrictions UR
        open Graded.Usage 𝕄 UR
    in
-   ∀ {m} {Γ : Con Term m} →
+   ∀ {m n} {Γ : Cons m n} →
    Consistent Γ →
    (∀ {p q} →
     Unitʷ-η → Unitʷ-allowed → Unitrec-allowed 𝟙ᵐ p q →
     𝟙 ≤ 𝟘 ⊎ p PE.≡ 𝟘) →
+   ⦃ ok : No-equality-reflection or-empty Γ .vars ⦄ →
+   ▸[ 𝟙ᵐ ] Γ .defs →
    ∀ {t γ} → Γ ⊢ t ∷ ℕ → γ ▸[ 𝟙ᵐ ] t → NegativeErasedContext Γ γ →
    ∃ λ u → Numeral u × Γ ⊢ t ≡ u ∷ ℕ) →
   ⊥
 not-canonicityEq hyp =
   case Counterexample.cEx (𝟘ᵐ-allowed-if true) of λ {
-    (_ , _ , _ , _ , ⊢t , ▸t , _ , nec , con , not-numeral , _) →
-  not-numeral (hyp _ _ con (λ ()) ⊢t ▸t nec) }
+    (_ , _ , _ , _ , _ ,
+     ⊢t , ▸Γ , ▸t , _ , nec , con , ok₁ , ok₂ , not-numeral , _) →
+  not-numeral $
+  hyp _ _ con (λ {q = q} → ok₁ {q = q}) ⦃ ok = ok₂ ⦄ ▸Γ ⊢t ▸t nec }

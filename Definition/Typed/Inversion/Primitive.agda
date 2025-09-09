@@ -21,14 +21,17 @@ open import Definition.Typed.Size R
 
 open import Definition.Untyped M
 
+open import Tools.Fin
 open import Tools.Function
 open import Tools.Nat
+import Tools.PropositionalEquality as PE
 open import Tools.Product
 open import Tools.Size
 open import Tools.Size.Instances
 
 private variable
-  Γ         : Con Term _
+  α         : Nat
+  Γ         : Cons _ _
   A B C t u : Term _
   b         : BinderMode
   l         : Universe-level
@@ -46,6 +49,9 @@ opaque
   inversion-U : Γ ⊢ U l ∷ A → Γ ⊢ A ≡ U (1+ l)
   inversion-U (Uⱼ ⊢Γ)       = refl (Uⱼ ⊢Γ)
   inversion-U (conv ⊢U B≡A) = trans (sym B≡A) (inversion-U ⊢U)
+
+------------------------------------------------------------------------
+-- Inversion for U
 
 ------------------------------------------------------------------------
 -- Inversion for Empty
@@ -108,7 +114,7 @@ opaque
     trans (sym eq) a , b
 
 ------------------------------------------------------------------------
--- Inversion for ℕ
+-- Inversion for ℕ
 
 opaque
 
@@ -221,7 +227,7 @@ opaque
     (⊢ΠΣ : Γ ⊢ ΠΣ⟨ b ⟩ p , q ▷ A ▹ B ∷ C) →
     ∃₂ λ l₁ l₂ →
     (∃ λ (⊢A : Γ ⊢ A ∷ U l₁) → size-⊢∷ ⊢A <ˢ size-⊢∷ ⊢ΠΣ) ×
-    (∃ λ (⊢B : Γ ∙ A ⊢ B ∷ U l₂) → size-⊢∷ ⊢B <ˢ size-⊢∷ ⊢ΠΣ) ×
+    (∃ λ (⊢B : Γ »∙ A ⊢ B ∷ U l₂) → size-⊢∷ ⊢B <ˢ size-⊢∷ ⊢ΠΣ) ×
     Γ ⊢ C ≡ U (l₁ ⊔ᵘ l₂) ×
     ΠΣ-allowed b p q
   inversion-ΠΣ-⊢∷ (ΠΣⱼ ⊢A ⊢B ok) =
@@ -240,7 +246,7 @@ opaque
   inversion-ΠΣ-U :
     Γ ⊢ ΠΣ⟨ b ⟩ p , q ▷ A ▹ B ∷ C →
     ∃₂ λ l₁ l₂ →
-      Γ ⊢ A ∷ U l₁ × Γ ∙ A ⊢ B ∷ U l₂ × Γ ⊢ C ≡ U (l₁ ⊔ᵘ l₂) ×
+      Γ ⊢ A ∷ U l₁ × Γ »∙ A ⊢ B ∷ U l₂ × Γ ⊢ C ≡ U (l₁ ⊔ᵘ l₂) ×
       ΠΣ-allowed b p q
   inversion-ΠΣ-U ⊢ΠΣ =
     let _ , _ , (⊢A , _) , (⊢B , _) , C≡ , ok = inversion-ΠΣ-⊢∷ ⊢ΠΣ in
@@ -254,7 +260,7 @@ opaque
   inversion-ΠΣ-⊢ :
     (⊢ΠΣ : Γ ⊢ ΠΣ⟨ b ⟩ p , q ▷ A ▹ B) →
     (∃ λ (⊢A : Γ ⊢ A) → size-⊢ ⊢A <ˢ size-⊢ ⊢ΠΣ) ×
-    (∃ λ (⊢B : Γ ∙ A ⊢ B) → size-⊢ ⊢B <ˢ size-⊢ ⊢ΠΣ) ×
+    (∃ λ (⊢B : Γ »∙ A ⊢ B) → size-⊢ ⊢B <ˢ size-⊢ ⊢ΠΣ) ×
     ΠΣ-allowed b p q
   inversion-ΠΣ-⊢ (ΠΣⱼ ⊢B ok) =
     let _ , (⊢A , A<) = ∙⊢→⊢-<ˢ ⊢B in
@@ -271,7 +277,7 @@ opaque
   inversion-ΠΣ-⊢-<ˢ :
     (∃ λ (⊢ΠΣ : Γ ⊢ ΠΣ⟨ b ⟩ p , q ▷ A ▹ B) → size-⊢ ⊢ΠΣ <ˢ sz) →
     (∃ λ (⊢A : Γ ⊢ A) → size-⊢ ⊢A <ˢ sz) ×
-    (∃ λ (⊢B : Γ ∙ A ⊢ B) → size-⊢ ⊢B <ˢ sz) ×
+    (∃ λ (⊢B : Γ »∙ A ⊢ B) → size-⊢ ⊢B <ˢ sz) ×
     ΠΣ-allowed b p q
   inversion-ΠΣ-⊢-<ˢ (⊢ΠΣ , lt) =
     let (⊢A , A<) , (⊢B , B<) , ok = inversion-ΠΣ-⊢ ⊢ΠΣ in
@@ -283,7 +289,7 @@ opaque
 
   inversion-ΠΣ :
     Γ ⊢ ΠΣ⟨ b ⟩ p , q ▷ A ▹ B →
-    Γ ⊢ A × Γ ∙ A ⊢ B × ΠΣ-allowed b p q
+    Γ ⊢ A × Γ »∙ A ⊢ B × ΠΣ-allowed b p q
   inversion-ΠΣ ⊢ΠΣ =
     let (⊢A , _) , (⊢B , _) , ok = inversion-ΠΣ-⊢ ⊢ΠΣ in
     ⊢A , ⊢B , ok
@@ -295,7 +301,7 @@ opaque
   inversion-prod :
     Γ ⊢ prod s p t u ∷ A →
     ∃₃ λ B C q →
-      (Γ ⊢ B) × (Γ ∙ B ⊢ C) ×
+      (Γ ⊢ B) × (Γ »∙ B ⊢ C) ×
       Γ ⊢ t ∷ B × Γ ⊢ u ∷ C [ t ]₀ ×
       Γ ⊢ A ≡ Σ⟨ s ⟩ p , q ▷ B ▹ C ×
       Σ-allowed s p q
@@ -312,7 +318,7 @@ opaque
   inversion-fst :
     Γ ⊢ fst p t ∷ A →
     ∃₃ λ B C q →
-      (Γ ⊢ B) × (Γ ∙ B ⊢ C) ×
+      (Γ ⊢ B) × (Γ »∙ B ⊢ C) ×
       Γ ⊢ t ∷ Σˢ p , q ▷ B ▹ C ×
       Γ ⊢ A ≡ B
   inversion-fst (fstⱼ ⊢C ⊢t) =

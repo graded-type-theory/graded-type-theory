@@ -40,7 +40,7 @@ opaque
 
   ¬-inversion-erased′ :
     Erasedˢ-allowed →
-    ¬ (∀ {n} {Γ : Con Term n} {t A : Term n} →
+    ¬ (∀ {m n} {Γ : Cons m n} {t A : Term n} →
        Γ ⊢ erased t ∷ A →
        ∃₂ λ q l → Γ ⊢ t ∷ Σˢ 𝟘 , q ▷ A ▹ Unitˢ l)
   ¬-inversion-erased′ (Unit-ok , Σˢ-ok) inversion-erased = bad
@@ -54,26 +54,26 @@ opaque
     A′ : Term 0
     A′ = ℕ
 
-    ⊢Γ′∙ℕ : ⊢ Γ′ ∙ ℕ
-    ⊢Γ′∙ℕ = ∙ ℕⱼ ε
+    ⊢Γ′∙ℕ : ε »⊢ Γ′ ∙ ℕ
+    ⊢Γ′∙ℕ = ∙ ℕⱼ εε
 
-    ⊢t′₁ : Γ′ ⊢ t′ ∷ Σˢ 𝟘 , 𝟘 ▷ ℕ ▹ ℕ
-    ⊢t′₁ = prodⱼ (ℕⱼ ⊢Γ′∙ℕ) (zeroⱼ ε) (zeroⱼ ε) Σˢ-ok
+    ⊢t′₁ : ε » Γ′ ⊢ t′ ∷ Σˢ 𝟘 , 𝟘 ▷ ℕ ▹ ℕ
+    ⊢t′₁ = prodⱼ (ℕⱼ ⊢Γ′∙ℕ) (zeroⱼ εε) (zeroⱼ εε) Σˢ-ok
 
-    ⊢erased-t′ : Γ′ ⊢ erased t′ ∷ A′
+    ⊢erased-t′ : ε » Γ′ ⊢ erased t′ ∷ A′
     ⊢erased-t′ = fstⱼ (ℕⱼ ⊢Γ′∙ℕ) ⊢t′₁
 
-    erased-t′≡zero : Γ′ ⊢ erased t′ ≡ zero ∷ A′
+    erased-t′≡zero : ε » Γ′ ⊢ erased t′ ≡ zero ∷ A′
     erased-t′≡zero =
-      Σ-β₁ (ℕⱼ ⊢Γ′∙ℕ) (zeroⱼ ε) (zeroⱼ ε) PE.refl Σˢ-ok
+      Σ-β₁ (ℕⱼ ⊢Γ′∙ℕ) (zeroⱼ εε) (zeroⱼ εε) PE.refl Σˢ-ok
 
-    ⊢t′₂ : ∃₂ λ q l → Γ′ ⊢ t′ ∷ Σˢ 𝟘 , q ▷ A′ ▹ Unitˢ l
+    ⊢t′₂ : ∃₂ λ q l → ε » Γ′ ⊢ t′ ∷ Σˢ 𝟘 , q ▷ A′ ▹ Unitˢ l
     ⊢t′₂ = inversion-erased ⊢erased-t′
 
-    ⊢snd-t′ : ∃ λ l → Γ′ ⊢ snd 𝟘 t′ ∷ Unitˢ l
+    ⊢snd-t′ : ∃ λ l → ε » Γ′ ⊢ snd 𝟘 t′ ∷ Unitˢ l
     ⊢snd-t′ = _ , sndⱼ (Unitⱼ ⊢Γ′∙ℕ Unit-ok) (⊢t′₂ .proj₂ .proj₂)
 
-    ℕ≡Unit : ∃ λ l → Γ′ ⊢ ℕ ≡ Unitˢ l
+    ℕ≡Unit : ∃ λ l → ε » Γ′ ⊢ ℕ ≡ Unitˢ l
     ℕ≡Unit =
       case ⊢snd-t′ of λ
         (l , ⊢snd-t′) →
@@ -103,7 +103,7 @@ opaque
 
   ¬-inversion-erased :
     Erasedˢ-allowed →
-    ¬ (∀ {n} {Γ : Con Term n} {t A : Term n} →
+    ¬ (∀ {m n} {Γ : Cons m n} {t A : Term n} →
        Γ ⊢ erased t ∷ A →
        Γ ⊢ t ∷ Erased A)
   ¬-inversion-erased Erased-ok inversion-erased =

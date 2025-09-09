@@ -30,7 +30,8 @@ open import Definition.Typed.Stability R
 open import Definition.Typed.Substitution R
 open import Definition.Typed.Syntactic R
 open import Definition.Untyped M
-open import Definition.Untyped.Neutral M type-variant
+open import Definition.Untyped.Properties M
+open import Definition.Untyped.Whnf M type-variant
 
 open import Tools.Fin
 open import Tools.Function
@@ -38,7 +39,8 @@ open import Tools.Product
 import Tools.PropositionalEquality as PE
 
 private variable
-  Γ    : Con Term _
+  ∇    : DCon (Term 0) _
+  Γ    : Cons _ _
   A A′ : Term _
   t t′ : Term _
   s    : Strength
@@ -50,13 +52,19 @@ mutual
   fullRedNe :
     Γ ⊢ t ~ t′ ↑ A →
     ∃ λ u → Γ ⊢ne u ∷ A × Γ ⊢ t ≡ u ∷ A
-  fullRedNe {Γ = Γ} = λ where
+  fullRedNe {Γ} = λ where
     (var-refl {x = x} ⊢x _) →
       case inversion-var ⊢x of λ {
         (_ , x∈ , A≡B) →
         var x
       , convₙ (varₙ (wfEq A≡B) x∈) (sym A≡B)
       , refl ⊢x }
+    (defn-refl {α = α} ⊢α α↦⊘ _) →
+      case inversion-defn ⊢α of λ {
+        (A′ , α↦∷A , A≡A′) →
+        defn α
+      , convₙ (defnₙ (wfEq A≡A′) (coerce-↦⊘∈ α↦∷A α↦⊘)) (sym A≡A′)
+      , refl ⊢α }
     (app-cong {u₁ = u} {B} t~ u↑) →
       case fullRedNe~↓ t~ of λ {
         (t′ , t′-ne , t≡t′) →
@@ -104,10 +112,10 @@ mutual
         ⊢Γ →
         natrec p q r A′ t′ u′ v′
       , (                                             $⟨ u′-nf ⟩
-         Γ ∙ ℕ ∙ A ⊢nf u′ ∷ A [ suc (var x1) ]↑²      →⟨ ⊢nf∷-stable (refl-∙ A≡A′) ⟩
-         Γ ∙ ℕ ∙ A′ ⊢nf u′ ∷ A [ suc (var x1) ]↑²     →⟨ flip _⊢nf_∷_.convₙ $
+         Γ »∙ ℕ »∙ A ⊢nf u′ ∷ A [ suc (var x1) ]↑²    →⟨ ⊢nf∷-stable (refl-∙ A≡A′) ⟩
+         Γ »∙ ℕ »∙ A′ ⊢nf u′ ∷ A [ suc (var x1) ]↑²   →⟨ flip _⊢nf_∷_.convₙ $
                                                          subst↑²TypeEq A≡A′ (refl (sucⱼ (var₁ ⊢A′))) ⟩
-         Γ ∙ ℕ ∙ A′ ⊢nf u′ ∷ A′ [ suc (var x1) ]↑²    →⟨ (λ hyp → natrecₙ
+         Γ »∙ ℕ »∙ A′ ⊢nf u′ ∷ A′ [ suc (var x1) ]↑²  →⟨ (λ hyp → natrecₙ
                                                             A′-nf
                                                             (convₙ t′-nf (substTypeEq A≡A′ (refl (zeroⱼ ⊢Γ))))
                                                             hyp
@@ -128,13 +136,13 @@ mutual
       case inversion-ΠΣ (syntacticEqTerm u≡u′ .proj₁) of λ {
         (_ , _ , ok) →
         prodrec r p q C′ u′ v′
-      , (                                                       $⟨ v′-nf ⟩
-         Γ ∙ A ∙ B ⊢nf v′ ∷ C [ prodʷ p (var x1) (var x0) ]↑²   →⟨ flip _⊢nf_∷_.convₙ $
-                                                                   subst↑²TypeEq-prod C≡C′ ⟩
-         Γ ∙ A ∙ B ⊢nf v′ ∷ C′ [ prodʷ p (var x1) (var x0) ]↑²  →⟨ flip (prodrecₙ C′-nf u′-ne) ok ⟩
-         Γ ⊢ne prodrec r p q C′ u′ v′ ∷ C′ [ u′ ]₀              →⟨ flip _⊢ne_∷_.convₙ $ _⊢_≡_.sym $
-                                                                   substTypeEq C≡C′ u≡u′ ⟩
-         Γ ⊢ne prodrec r p q C′ u′ v′ ∷ C [ u ]₀                □)
+      , (                                                         $⟨ v′-nf ⟩
+         Γ »∙ A »∙ B ⊢nf v′ ∷ C [ prodʷ p (var x1) (var x0) ]↑²   →⟨ flip _⊢nf_∷_.convₙ $
+                                                                     subst↑²TypeEq-prod C≡C′ ⟩
+         Γ »∙ A »∙ B ⊢nf v′ ∷ C′ [ prodʷ p (var x1) (var x0) ]↑²  →⟨ flip (prodrecₙ C′-nf u′-ne) ok ⟩
+         Γ ⊢ne prodrec r p q C′ u′ v′ ∷ C′ [ u′ ]₀                →⟨ flip _⊢ne_∷_.convₙ $ _⊢_≡_.sym $
+                                                                     substTypeEq C≡C′ u≡u′ ⟩
+         Γ ⊢ne prodrec r p q C′ u′ v′ ∷ C [ u ]₀                  □)
       , prodrec-cong C≡C′ u≡u′ v≡v′ ok }}}}
     (emptyrec-cong {A₁ = A} {p} A↑ t~) →
       case fullRedConv↑ A↑ of λ {
@@ -298,7 +306,7 @@ mutual
   fullRedTermConv↓ :
     Γ ⊢ t [conv↓] t′ ∷ A →
     ∃ λ u → Γ ⊢nf u ∷ A × Γ ⊢ t ≡ u ∷ A
-  fullRedTermConv↓ {Γ = Γ} {t = t} = λ where
+  fullRedTermConv↓ {Γ} {t} = λ where
     (ℕ-ins t~) →
       case fullRedNe~↓ t~ of λ {
         (u , u-nf , t≡u) →

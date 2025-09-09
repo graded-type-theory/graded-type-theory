@@ -21,6 +21,7 @@ open import Definition.Untyped.Neutral M type-variant
 import Definition.Typed.Weakening R as T
 open import Definition.Typed.Properties R
 open import Definition.Typed.Reasoning.Reduction R
+open import Definition.Typed.Weakening.Definition R
 open import Definition.LogicalRelation R
 open import Definition.LogicalRelation.Hidden R
 import Definition.LogicalRelation.Hidden.Restricted R as R
@@ -35,7 +36,9 @@ import Tools.PropositionalEquality as PE
 
 private
   variable
-    Γ Δ : Con Term _
+    ∇ : DCon (Term 0) _
+    Δ Η : Con Term _
+    Γ : Cons _ _
     A A₁ A₂ t t₁ t₂ : Term _
     l l′ : Universe-level
     σ σ₁ σ₂ : Subst _ _
@@ -50,11 +53,11 @@ opaque
   -- Reducibility of equality between applications of emptyrec.
 
   ⊩emptyrec≡emptyrec :
-    Γ ⊩ᵛ⟨ l ⟩ A₁ ≡ A₂ →
-    Γ ⊩ᵛ⟨ l′ ⟩ t₁ ≡ t₂ ∷ Empty →
-    ⦃ inc : Neutrals-included or-empty Δ ⦄ →
-    Δ ⊩ˢ σ₁ ≡ σ₂ ∷ Γ →
-    Δ ⊩⟨ l ⟩ emptyrec p A₁ t₁ [ σ₁ ] ≡ emptyrec p A₂ t₂ [ σ₂ ] ∷ A₁ [ σ₁ ]
+    ∇ » Δ ⊩ᵛ⟨ l ⟩ A₁ ≡ A₂ →
+    ∇ » Δ ⊩ᵛ⟨ l′ ⟩ t₁ ≡ t₂ ∷ Empty →
+    ⦃ inc : Var-included or-empty Η ⦄ →
+    ∇ » Η ⊩ˢ σ₁ ≡ σ₂ ∷ Δ →
+    ∇ » Η ⊩⟨ l ⟩ emptyrec p A₁ t₁ [ σ₁ ] ≡ emptyrec p A₂ t₂ [ σ₂ ] ∷ A₁ [ σ₁ ]
   ⊩emptyrec≡emptyrec
     {A₁} {A₂} {t₁} {t₂} {σ₁} {σ₂} {p} A₁≡A₂ t₁≡t₂ σ₁≡σ₂ =
     case ⊩ᵛ≡→⊩ˢ≡∷→⊩[]≡[] A₁≡A₂ of λ
@@ -74,9 +77,9 @@ opaque
     case R.escape-⊩ ⊩A₂[σ₂] of λ
       ⊢A₂[σ₂] →
     case rest of λ where
-      (ne (neNfₜ₌ inc t₁′-ne t₂′-ne t₁′~t₂′)) →
+      (ne (neNfₜ₌ t₁′-ne t₂′-ne t₁′~t₂′)) →
         emptyrec p (A₁ [ σ₁ ]) (t₁ [ σ₁ ]) ∷ A₁ [ σ₁ ] ⇒*⟨ emptyrec-subst* t₁[σ₁]⇒*t₁′ ⊢A₁[σ₁] ⟩⊩∷∷
-        emptyrec p (A₁ [ σ₁ ]) t₁′         ∷ A₁ [ σ₁ ] ≡⟨ neutral-⊩≡∷ inc (R.⊩→ ⊩A₁[σ₁])
+        emptyrec p (A₁ [ σ₁ ]) t₁′         ∷ A₁ [ σ₁ ] ≡⟨ neutral-⊩≡∷ (R.⊩→ ⊩A₁[σ₁])
                                                              (emptyrecₙ t₁′-ne) (emptyrecₙ t₂′-ne)
                                                              (~-emptyrec ⊢A₁[σ₁]≡A₂[σ₂] t₁′~t₂′) ⟩⊩∷∷⇐*
                                                          ⟨ ≅-eq ⊢A₁[σ₁]≡A₂[σ₂] ⟩⇒
@@ -94,7 +97,8 @@ opaque
   emptyrec-congᵛ A₁≡A₂ t₁≡t₂ =
     ⊩ᵛ≡∷⇔ʰ .proj₂
       ( wf-⊩ᵛ≡ A₁≡A₂ .proj₁
-      , ⊩emptyrec≡emptyrec A₁≡A₂ t₁≡t₂
+      , λ ξ⊇ → ⊩emptyrec≡emptyrec (defn-wk-⊩ᵛ≡ ξ⊇ A₁≡A₂)
+                                  (defn-wk-⊩ᵛ≡∷ ξ⊇ t₁≡t₂)
       )
 
 opaque

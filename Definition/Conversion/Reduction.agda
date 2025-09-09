@@ -19,10 +19,8 @@ open import Definition.Conversion R
 open import Tools.Nat
 open import Tools.Product
 
-private
-  variable
-    n : Nat
-    Γ : Con Term n
+private variable
+  Γ : Cons _ _
 
 -- Weak head expansion of algorithmic equality of types.
 reductionConv↑ : ∀ {A A′ B B′}

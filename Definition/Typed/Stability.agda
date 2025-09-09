@@ -28,7 +28,8 @@ open import Tools.Nat
 open import Tools.Product as Σ
 
 private variable
-  n       : Nat
+  ∇       : DCon (Term 0) _
+  m n     : Nat
   Γ Δ Η   : Con Term _
   A B t u : Term _
   σ σ₁ σ₂ : Subst _ _
@@ -37,15 +38,18 @@ private variable
 
 infixl 24 _∙_
 
-data ⊢_≡_ : (_ _ : Con Term n) → Set a where
-  ε   : ⊢ ε ≡ ε
-  _∙_ : ⊢ Γ ≡ Δ → Γ ⊢ A ≡ B → ⊢ Γ ∙ A ≡ Δ ∙ B
+data _»⊢_≡_ : DCon (Term 0) m → (_ _ : Con Term n) → Set a where
+  ε   : ∇ »⊢ ε → ∇ »⊢ ε ≡ ε
+  _∙_ : ∇ »⊢ Γ ≡ Δ → ∇ » Γ ⊢ A ≡ B → ∇ »⊢ Γ ∙ A ≡ Δ ∙ B
+
+_»⊢ᵖ_≡_ : DCon (Term 0) m → Con Term n → Con Term n → Set a
+_»⊢ᵖ_≡_ = S._»⊢_≡_
 
 private opaque
 
   -- A variant of S._∙⟨_∣_⟩.
 
-  _∙⟨_⟩′ : S.⊢ Γ ≡ Δ → Γ ⊢ A ≡ B → S.⊢ Γ ∙ A ≡ Δ ∙ B
+  _∙⟨_⟩′ : ∇ »⊢ᵖ Γ ≡ Δ → ∇ » Γ ⊢ A ≡ B → ∇ »⊢ᵖ Γ ∙ A ≡ Δ ∙ B
   Γ≡Δ ∙⟨ A≡B ⟩′ =
     Γ≡Δ
       S.∙⟨ S.stability-⊢ Γ≡Δ (wf-⊢≡ A≡B .proj₂)
@@ -56,23 +60,23 @@ private opaque
 
   -- Symmetry for S.⊢_≡_.
 
-  symConEq′ : S.⊢ Γ ≡ Δ → S.⊢ Δ ≡ Γ
-  symConEq′ S.ε                  = S.ε
+  symConEq′ : ∇ »⊢ᵖ Γ ≡ Δ → ∇ »⊢ᵖ Δ ≡ Γ
+  symConEq′ (S.ε ⊢ε)             = S.ε ⊢ε
   symConEq′ (Γ≡Δ S.∙⟨ _ ∣ A≡B ⟩) = symConEq′ Γ≡Δ ∙⟨ sym A≡B ⟩′
 
 private opaque
 
   -- ⊢ Γ ≡ Δ is logically equivalent to S.⊢ Γ ≡ Δ.
 
-  ⊢≡⇔⊢≡ : ⊢ Γ ≡ Δ ⇔ S.⊢ Γ ≡ Δ
+  ⊢≡⇔⊢≡ : ∇ »⊢ Γ ≡ Δ ⇔ ∇ »⊢ᵖ Γ ≡ Δ
   ⊢≡⇔⊢≡ = to , from
     where
-    to : ⊢ Γ ≡ Δ → S.⊢ Γ ≡ Δ
-    to ε           = S.ε
+    to : ∇ »⊢ Γ ≡ Δ → ∇ »⊢ᵖ Γ ≡ Δ
+    to (ε ⊢ε)      = S.ε ⊢ε
     to (Γ≡Δ ∙ A≡B) = to Γ≡Δ ∙⟨ A≡B ⟩′
 
-    from : S.⊢ Γ ≡ Δ → ⊢ Γ ≡ Δ
-    from S.ε                  = ε
+    from : ∇ »⊢ᵖ Γ ≡ Δ → ∇ »⊢ Γ ≡ Δ
+    from (S.ε ⊢ε)             = ε ⊢ε
     from (Γ≡Δ S.∙⟨ _ ∣ A≡B ⟩) =
       from Γ≡Δ ∙ S.stability-⊢≡ (symConEq′ Γ≡Δ) A≡B
 
@@ -80,64 +84,64 @@ opaque
 
   -- Reflexivity for ⊢_≡_.
 
-  reflConEq : ⊢ Γ → ⊢ Γ ≡ Γ
+  reflConEq : ∇ »⊢ Γ → ∇ »⊢ Γ ≡ Γ
   reflConEq = ⊢≡⇔⊢≡ .proj₂ ∘→ S.reflConEq
 
 opaque
 
   -- Symmetry for ⊢_≡_.
 
-  symConEq : ⊢ Γ ≡ Δ → ⊢ Δ ≡ Γ
+  symConEq : ∇ »⊢ Γ ≡ Δ → ∇ »⊢ Δ ≡ Γ
   symConEq = ⊢≡⇔⊢≡ .proj₂ ∘→ symConEq′ ∘→ ⊢≡⇔⊢≡ .proj₁
 
 opaque
 
   -- A variant of _∙_.
 
-  refl-∙ : Γ ⊢ A ≡ B → ⊢ Γ ∙ A ≡ Γ ∙ B
+  refl-∙ : ∇ » Γ ⊢ A ≡ B → ∇ »⊢ Γ ∙ A ≡ Γ ∙ B
   refl-∙ A≡B = reflConEq (wfEq A≡B) ∙ A≡B
 
 private opaque
 
   -- A well-formedness lemma for ⊢_≡_.
 
-  wf-⊢≡ˡ : ⊢ Γ ≡ Δ → ⊢ Γ
-  wf-⊢≡ˡ ε           = ε
+  wf-⊢≡ˡ : ∇ »⊢ Γ ≡ Δ → ∇ »⊢ Γ
+  wf-⊢≡ˡ (ε ⊢ε)      = ε (defn-wf ⊢ε)
   wf-⊢≡ˡ (Γ≡Δ ∙ A≡B) = ∙ wf-⊢≡ A≡B .proj₁
 
 opaque
 
   -- Stability for _⊢_.
 
-  stability : ⊢ Γ ≡ Δ → Γ ⊢ A → Δ ⊢ A
+  stability : ∇ »⊢ Γ ≡ Δ → ∇ » Γ ⊢ A → ∇ » Δ ⊢ A
   stability = S.stability-⊢ ∘→ ⊢≡⇔⊢≡ .proj₁
 
 opaque
 
   -- Stability for _⊢_≡_.
 
-  stabilityEq : ⊢ Γ ≡ Δ → Γ ⊢ A ≡ B → Δ ⊢ A ≡ B
+  stabilityEq : ∇ »⊢ Γ ≡ Δ → ∇ » Γ ⊢ A ≡ B → ∇ » Δ ⊢ A ≡ B
   stabilityEq = S.stability-⊢≡ ∘→ ⊢≡⇔⊢≡ .proj₁
 
 opaque
 
   -- Stability for _⊢_∷_.
 
-  stabilityTerm : ⊢ Γ ≡ Δ → Γ ⊢ t ∷ A → Δ ⊢ t ∷ A
+  stabilityTerm : ∇ »⊢ Γ ≡ Δ → ∇ » Γ ⊢ t ∷ A → ∇ » Δ ⊢ t ∷ A
   stabilityTerm = S.stability-⊢∷ ∘→ ⊢≡⇔⊢≡ .proj₁
 
 opaque
 
   -- Stability for _⊢_≡_∷_.
 
-  stabilityEqTerm : ⊢ Γ ≡ Δ → Γ ⊢ t ≡ u ∷ A → Δ ⊢ t ≡ u ∷ A
+  stabilityEqTerm : ∇ »⊢ Γ ≡ Δ → ∇ » Γ ⊢ t ≡ u ∷ A → ∇ » Δ ⊢ t ≡ u ∷ A
   stabilityEqTerm = S.stability-⊢≡∷ ∘→ ⊢≡⇔⊢≡ .proj₁
 
 opaque
 
   -- Stability for _⊢ˢ_∷_.
 
-  stability-⊢ˢ∷ˡ : ⊢ Δ ≡ Η → Δ ⊢ˢ σ ∷ Γ → Η ⊢ˢ σ ∷ Γ
+  stability-⊢ˢ∷ˡ : ∇ »⊢ Δ ≡ Η → ∇ » Δ ⊢ˢ σ ∷ Γ → ∇ » Η ⊢ˢ σ ∷ Γ
   stability-⊢ˢ∷ˡ _   id        = id
   stability-⊢ˢ∷ˡ Δ≡Η (⊢σ , ⊢t) =
     stability-⊢ˢ∷ˡ Δ≡Η ⊢σ , stabilityTerm Δ≡Η ⊢t
@@ -146,7 +150,7 @@ opaque
 
   -- Stability for _⊢ˢ_∷_.
 
-  stability-⊢ˢʷ∷ˡ : ⊢ Δ ≡ Η → Δ ⊢ˢʷ σ ∷ Γ → Η ⊢ˢʷ σ ∷ Γ
+  stability-⊢ˢʷ∷ˡ : ∇ »⊢ Δ ≡ Η → ∇ » Δ ⊢ˢʷ σ ∷ Γ → ∇ » Η ⊢ˢʷ σ ∷ Γ
   stability-⊢ˢʷ∷ˡ Δ≡Η =
     ⊢ˢʷ∷⇔ .proj₂ ∘→
     Σ.map (λ _ → S.wf-⊢≡ʳ (⊢≡⇔⊢≡ .proj₁ Δ≡Η)) (stability-⊢ˢ∷ˡ Δ≡Η) ∘→
@@ -156,7 +160,7 @@ opaque
 
   -- A well-formedness lemma for ⊢_≡_.
 
-  contextConvSubst : ⊢ Γ ≡ Δ → ⊢ Γ × ⊢ Δ × Δ ⊢ˢʷ idSubst ∷ Γ
+  contextConvSubst : ∇ »⊢ Γ ≡ Δ → ∇ »⊢ Γ × ∇ »⊢ Δ × ∇ » Δ ⊢ˢʷ idSubst ∷ Γ
   contextConvSubst Γ≡Δ =
     let ⊢Γ  = wf-⊢≡ˡ Γ≡Δ
         ⊢id = stability-⊢ˢʷ∷ˡ Γ≡Δ (⊢ˢʷ∷-idSubst ⊢Γ)
@@ -167,8 +171,8 @@ opaque
 
   -- Stability for _⊢ˢ_∷_.
 
-  stability-⊢ˢ∷ʳ : ⊢ Γ ≡ Δ → Η ⊢ˢ σ ∷ Γ → Η ⊢ˢ σ ∷ Δ
-  stability-⊢ˢ∷ʳ ε           ⊢σ        = ⊢σ
+  stability-⊢ˢ∷ʳ : ∇ »⊢ Γ ≡ Δ → ∇ » Η ⊢ˢ σ ∷ Γ → ∇ » Η ⊢ˢ σ ∷ Δ
+  stability-⊢ˢ∷ʳ (ε »∇)      ⊢σ        = ⊢σ
   stability-⊢ˢ∷ʳ (Γ≡Δ ∙ A≡B) (⊢σ , ⊢t) =
     stability-⊢ˢ∷ʳ Γ≡Δ ⊢σ ,
     conv ⊢t (subst-⊢≡ A≡B (refl-⊢ˢʷ≡∷ (⊢ˢʷ∷⇔ .proj₂ (wfTerm ⊢t , ⊢σ))))
@@ -177,7 +181,7 @@ opaque
 
   -- Stability for _⊢ˢʷ_∷_.
 
-  stability-⊢ˢʷ∷ʳ : ⊢ Γ ≡ Δ → Η ⊢ˢʷ σ ∷ Γ → Η ⊢ˢʷ σ ∷ Δ
+  stability-⊢ˢʷ∷ʳ : ∇ »⊢ Γ ≡ Δ → ∇ » Η ⊢ˢʷ σ ∷ Γ → ∇ » Η ⊢ˢʷ σ ∷ Δ
   stability-⊢ˢʷ∷ʳ Γ≡Δ =
     ⊢ˢʷ∷⇔ .proj₂ ∘→
     Σ.map idᶠ (stability-⊢ˢ∷ʳ Γ≡Δ) ∘→
@@ -187,7 +191,7 @@ opaque
 
   -- Stability for _⊢ˢ_≡_∷_.
 
-  stability-⊢ˢ≡∷ˡ : ⊢ Δ ≡ Η → Δ ⊢ˢ σ₁ ≡ σ₂ ∷ Γ → Η ⊢ˢ σ₁ ≡ σ₂ ∷ Γ
+  stability-⊢ˢ≡∷ˡ : ∇ »⊢ Δ ≡ Η → ∇ » Δ ⊢ˢ σ₁ ≡ σ₂ ∷ Γ → ∇ » Η ⊢ˢ σ₁ ≡ σ₂ ∷ Γ
   stability-⊢ˢ≡∷ˡ _   id              = id
   stability-⊢ˢ≡∷ˡ Δ≡Η (σ₁≡σ₂ , t₁≡t₂) =
     stability-⊢ˢ≡∷ˡ Δ≡Η σ₁≡σ₂ , stabilityEqTerm Δ≡Η t₁≡t₂
@@ -196,7 +200,7 @@ opaque
 
   -- Stability for _⊢ˢʷ_≡_∷_.
 
-  stability-⊢ˢʷ≡∷ˡ : ⊢ Δ ≡ Η → Δ ⊢ˢʷ σ₁ ≡ σ₂ ∷ Γ → Η ⊢ˢʷ σ₁ ≡ σ₂ ∷ Γ
+  stability-⊢ˢʷ≡∷ˡ : ∇ »⊢ Δ ≡ Η → ∇ » Δ ⊢ˢʷ σ₁ ≡ σ₂ ∷ Γ → ∇ » Η ⊢ˢʷ σ₁ ≡ σ₂ ∷ Γ
   stability-⊢ˢʷ≡∷ˡ Δ≡Η =
     ⊢ˢʷ≡∷⇔ .proj₂ ∘→
     Σ.map (λ _ → contextConvSubst Δ≡Η .proj₂ .proj₁)
@@ -208,8 +212,8 @@ opaque
 
   -- Stability for _⊢ˢ_≡_∷_.
 
-  stability-⊢ˢ≡∷ʳ : ⊢ Γ ≡ Δ → Η ⊢ˢ σ₁ ≡ σ₂ ∷ Γ → Η ⊢ˢ σ₁ ≡ σ₂ ∷ Δ
-  stability-⊢ˢ≡∷ʳ ε           σ₁≡σ₂           = σ₁≡σ₂
+  stability-⊢ˢ≡∷ʳ : ∇ »⊢ Γ ≡ Δ → ∇ » Η ⊢ˢ σ₁ ≡ σ₂ ∷ Γ → ∇ » Η ⊢ˢ σ₁ ≡ σ₂ ∷ Δ
+  stability-⊢ˢ≡∷ʳ (ε ⊢∇)      σ₁≡σ₂           = σ₁≡σ₂
   stability-⊢ˢ≡∷ʳ (Γ≡Δ ∙ A≡B) (σ₁≡σ₂ , t₁≡t₂) =
     let ⊢σ₁ , _ = wf-⊢ˢ≡∷ (wfEq A≡B) σ₁≡σ₂
         ⊢σ₁     = ⊢ˢʷ∷⇔ .proj₂ (wfEqTerm t₁≡t₂ , ⊢σ₁)
@@ -221,7 +225,7 @@ opaque
 
   -- Stability for _⊢ˢʷ_≡_∷_.
 
-  stability-⊢ˢʷ≡∷ʳ : ⊢ Γ ≡ Δ → Η ⊢ˢʷ σ₁ ≡ σ₂ ∷ Γ → Η ⊢ˢʷ σ₁ ≡ σ₂ ∷ Δ
+  stability-⊢ˢʷ≡∷ʳ : ∇ »⊢ Γ ≡ Δ → ∇ » Η ⊢ˢʷ σ₁ ≡ σ₂ ∷ Γ → ∇ » Η ⊢ˢʷ σ₁ ≡ σ₂ ∷ Δ
   stability-⊢ˢʷ≡∷ʳ Γ≡Δ =
     ⊢ˢʷ≡∷⇔ .proj₂ ∘→
     Σ.map idᶠ
@@ -233,9 +237,11 @@ opaque
 
   -- Stability for _⊢_⇒_∷_.
 
-  stabilityRedTerm : ⊢ Γ ≡ Δ → Γ ⊢ t ⇒ u ∷ A → Δ ⊢ t ⇒ u ∷ A
+  stabilityRedTerm : ∇ »⊢ Γ ≡ Δ → ∇ » Γ ⊢ t ⇒ u ∷ A → ∇ » Δ ⊢ t ⇒ u ∷ A
   stabilityRedTerm Γ≡Δ (conv d x) =
     conv (stabilityRedTerm Γ≡Δ d) (stabilityEq Γ≡Δ x)
+  stabilityRedTerm Γ≡Δ (δ-red ⊢Γ α↦t A≡A′ t≡t′) =
+    δ-red (S.wf-⊢≡ʳ (⊢≡⇔⊢≡ .proj₁ Γ≡Δ)) α↦t A≡A′ t≡t′
   stabilityRedTerm Γ≡Δ (app-subst d x) =
     app-subst (stabilityRedTerm Γ≡Δ d) (stabilityTerm Γ≡Δ x)
   stabilityRedTerm Γ≡Δ (fst-subst ⊢G t⇒) =
@@ -335,14 +341,14 @@ opaque
 
   -- Stability for _⊢_⇒_.
 
-  stabilityRed : ⊢ Γ ≡ Δ → Γ ⊢ A ⇒ B → Δ ⊢ A ⇒ B
+  stabilityRed : ∇ »⊢ Γ ≡ Δ → ∇ » Γ ⊢ A ⇒ B → ∇ » Δ ⊢ A ⇒ B
   stabilityRed Γ≡Δ (univ x) = univ (stabilityRedTerm Γ≡Δ x)
 
 opaque
 
   -- Stability for _⊢_⇒*_.
 
-  stabilityRed* : ⊢ Γ ≡ Δ → Γ ⊢ A ⇒* B → Δ ⊢ A ⇒* B
+  stabilityRed* : ∇ »⊢ Γ ≡ Δ → ∇ » Γ ⊢ A ⇒* B → ∇ » Δ ⊢ A ⇒* B
   stabilityRed* Γ≡Δ (id x) = id (stability Γ≡Δ x)
   stabilityRed* Γ≡Δ (x ⇨ D) = stabilityRed Γ≡Δ x ⇨ stabilityRed* Γ≡Δ D
 
@@ -350,7 +356,7 @@ opaque
 
   -- Stability for _⊢_⇒*_∷_.
 
-  stabilityRed*Term : ⊢ Γ ≡ Δ → Γ ⊢ t ⇒* u ∷ A → Δ ⊢ t ⇒* u ∷ A
+  stabilityRed*Term : ∇ »⊢ Γ ≡ Δ → ∇ » Γ ⊢ t ⇒* u ∷ A → ∇ » Δ ⊢ t ⇒* u ∷ A
   stabilityRed*Term Γ≡Δ (id x) = id (stabilityTerm Γ≡Δ x)
   stabilityRed*Term Γ≡Δ (x ⇨ d) =
     stabilityRedTerm Γ≡Δ x ⇨ stabilityRed*Term Γ≡Δ d
@@ -359,12 +365,12 @@ opaque
 
   -- Stability for _⊢_↘_.
 
-  stabilityRed↘ : ⊢ Γ ≡ Δ → Γ ⊢ A ↘ B → Δ ⊢ A ↘ B
+  stabilityRed↘ : ∇ »⊢ Γ ≡ Δ → ∇ » Γ ⊢ A ↘ B → ∇ » Δ ⊢ A ↘ B
   stabilityRed↘ Γ≡Δ = Σ.map (stabilityRed* Γ≡Δ) idᶠ
 
 opaque
 
   -- Stability for _⊢_↘_∷_.
 
-  stabilityRed↘Term : ⊢ Γ ≡ Δ → Γ ⊢ t ↘ u ∷ A → Δ ⊢ t ↘ u ∷ A
+  stabilityRed↘Term : ∇ »⊢ Γ ≡ Δ → ∇ » Γ ⊢ t ↘ u ∷ A → ∇ » Δ ⊢ t ↘ u ∷ A
   stabilityRed↘Term Γ≡Δ = Σ.map (stabilityRed*Term Γ≡Δ) idᶠ

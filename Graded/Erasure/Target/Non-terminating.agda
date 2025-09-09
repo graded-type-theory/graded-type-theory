@@ -12,6 +12,7 @@ open import Graded.Erasure.Target.Properties
 open import Tools.Empty
 open import Tools.Fin
 open import Tools.Function
+open import Tools.List
 open import Tools.Nat
 open import Tools.Product
 open import Tools.PropositionalEquality
@@ -21,6 +22,7 @@ private variable
   n   : Nat
   x   : Fin _
   t v : Term _
+  ∇   : List (Term _)
   s   : Strictness
   ρ   : Wk _ _
   σ   : Subst _ _
@@ -41,14 +43,14 @@ opaque
 
   -- The term loop s reduces in one step to itself.
 
-  loop⇒loop : (Term n ∋ loop s) ⇒ loop s
+  loop⇒loop : ∇ ⊢ Term n ∋ loop s ⇒ loop s
   loop⇒loop = β-red (Value→Value⟨⟩ lam)
 
 opaque
 
   -- The term loop s only reduces to terms that can reduce further.
 
-  loop-reduces-forever : loop s ⇒* t → ∃ λ u → t ⇒ u
+  loop-reduces-forever : ∇ ⊢ loop s ⇒* t → ∃ λ u → ∇ ⊢ t ⇒ u
   loop-reduces-forever refl =
     _ , loop⇒loop
   loop-reduces-forever (trans nt⇒t t⇒*u)
@@ -59,11 +61,11 @@ opaque
 
   -- The term loop s does not reduce to a value.
 
-  ¬loop⇒* : Value v → ¬ loop s ⇒* v
-  ¬loop⇒* {v} {s} v-val =
-    loop s ⇒* v        →⟨ loop-reduces-forever ⟩
-    (∃ λ v′ → v ⇒ v′)  →⟨ Value→¬⇒ v-val ∘→ proj₂ ⟩
-    ⊥                  □
+  ¬loop⇒* : Value v → ¬ ∇ ⊢ loop s ⇒* v
+  ¬loop⇒* {v} {∇} {s} v-val =
+    ∇ ⊢ loop s ⇒* v        →⟨ loop-reduces-forever ⟩
+    (∃ λ v′ → ∇ ⊢ v ⇒ v′)  →⟨ Value→¬⇒ v-val ∘→ proj₂ ⟩
+    ⊥                      □
 
 opaque
   unfolding loop

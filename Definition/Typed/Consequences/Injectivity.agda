@@ -15,7 +15,7 @@ open Type-restrictions R
 
 open import Definition.Untyped M hiding (wk)
 import Definition.Untyped M as U
-open import Definition.Untyped.Neutral M type-variant
+open import Definition.Untyped.Whnf M type-variant
 
 open import Definition.Typed R
 open import Definition.Typed.Properties R
@@ -31,8 +31,8 @@ import Tools.PropositionalEquality as PE
 
 private
   variable
-    n : Nat
-    Γ : Con Term n
+    m n : Nat
+    Γ : Cons m n
     A₁ A₂ B₁ B₂ t₁ t₂ u₁ u₂ : Term _
     p₁ p₂ q₁ q₂ : M
     b₁ b₂ : BinderMode
@@ -44,7 +44,7 @@ opaque
   -- A kind of injectivity for U.
 
   U-injectivity :
-    ⦃ ok : No-equality-reflection or-empty Γ ⦄ →
+    ⦃ ok : No-equality-reflection or-empty (Γ .vars) ⦄ →
     Γ ⊢ U l₁ ≡ U l₂ → l₁ PE.≡ l₂
   U-injectivity U≡U =
     case ⊩U≡⇔ .proj₁ $ reducible-⊩≡ U≡U .proj₂ of λ
@@ -58,10 +58,10 @@ opaque
   -- A kind of injectivity for Π and Σ.
 
   ΠΣ-injectivity′ :
-    ⦃ ok : No-equality-reflection or-empty Γ ⦄ →
+    ⦃ ok : No-equality-reflection or-empty (Γ .vars) ⦄ →
     Γ ⊢ ΠΣ⟨ b₁ ⟩ p₁ , q₁ ▷ A₁ ▹ B₁ ≡ ΠΣ⟨ b₂ ⟩ p₂ , q₂ ▷ A₂ ▹ B₂ →
     Γ ⊢ A₁ ≡ A₂ ×
-    (⦃ not-ok : No-equality-reflection ⦄ → Γ ∙ A₁ ⊢ B₁ ≡ B₂) ×
+    (⦃ not-ok : No-equality-reflection ⦄ → Γ »∙ A₁ ⊢ B₁ ≡ B₂) ×
     (∀ {t₁ t₂} → Γ ⊢ t₁ ≡ t₂ ∷ A₁ → Γ ⊢ B₁ [ t₁ ]₀ ≡ B₂ [ t₂ ]₀) ×
     p₁ PE.≡ p₂ × q₁ PE.≡ q₂ × b₁ PE.≡ b₂
   ΠΣ-injectivity′ ΠΣ≡ΠΣ =
@@ -78,7 +78,7 @@ opaque
   -- A kind of injectivity for Π and Σ.
 
   ΠΣ-injectivity :
-    ⦃ ok : No-equality-reflection or-empty Γ ⦄ →
+    ⦃ ok : No-equality-reflection or-empty (Γ .vars) ⦄ →
     Γ ⊢ ΠΣ⟨ b₁ ⟩ p₁ , q₁ ▷ A₁ ▹ B₁ ≡ ΠΣ⟨ b₂ ⟩ p₂ , q₂ ▷ A₂ ▹ B₂ →
     Γ ⊢ A₁ ≡ A₂ ×
     (∀ {t₁ t₂} → Γ ⊢ t₁ ≡ t₂ ∷ A₁ → Γ ⊢ B₁ [ t₁ ]₀ ≡ B₂ [ t₂ ]₀) ×
@@ -96,7 +96,7 @@ opaque
   ΠΣ-injectivity-no-equality-reflection :
     ⦃ not-ok : No-equality-reflection ⦄ →
     Γ ⊢ ΠΣ⟨ b₁ ⟩ p₁ , q₁ ▷ A₁ ▹ B₁ ≡ ΠΣ⟨ b₂ ⟩ p₂ , q₂ ▷ A₂ ▹ B₂ →
-    Γ ⊢ A₁ ≡ A₂ × Γ ∙ A₁ ⊢ B₁ ≡ B₂ ×
+    Γ ⊢ A₁ ≡ A₂ × Γ »∙ A₁ ⊢ B₁ ≡ B₂ ×
     p₁ PE.≡ p₂ × q₁ PE.≡ q₂ × b₁ PE.≡ b₂
   ΠΣ-injectivity-no-equality-reflection ΠΣ≡ΠΣ =
     let A₁≡A₂ , B₁≡B₂ , _ , p₁≡p₂ , q₁≡q₂ , b₁≡b₂ =
@@ -109,7 +109,7 @@ opaque
   -- Injectivity of Id.
 
   Id-injectivity :
-    ⦃ ok : No-equality-reflection or-empty Γ ⦄ →
+    ⦃ ok : No-equality-reflection or-empty (Γ .vars) ⦄ →
     Γ ⊢ Id A₁ t₁ u₁ ≡ Id A₂ t₂ u₂ →
     (Γ ⊢ A₁ ≡ A₂) × Γ ⊢ t₁ ≡ t₂ ∷ A₁ × Γ ⊢ u₁ ≡ u₂ ∷ A₁
   Id-injectivity Id≡Id =
@@ -122,7 +122,7 @@ opaque
   -- Injectivity of suc.
 
   suc-injectivity :
-    ⦃ ok : No-equality-reflection or-empty Γ ⦄ →
+    ⦃ ok : No-equality-reflection or-empty (Γ .vars) ⦄ →
     Γ ⊢ suc t₁ ≡ suc t₂ ∷ ℕ →
     Γ ⊢ t₁ ≡ t₂ ∷ ℕ
   suc-injectivity {Γ} {t₁} {t₂} =
@@ -136,7 +136,7 @@ opaque
   -- Injectivity of Unit.
 
   Unit-injectivity :
-    ⦃ ok : No-equality-reflection or-empty Γ ⦄ →
+    ⦃ ok : No-equality-reflection or-empty (Γ .vars) ⦄ →
     Γ ⊢ Unit s₁ l₁ ≡ Unit s₂ l₂ →
     s₁ PE.≡ s₂ × l₁ PE.≡ l₂
   Unit-injectivity {Γ} {s₁} {l₁} {s₂} {l₂} =

@@ -25,7 +25,7 @@ open import Tools.Size
 open import Tools.Size.Instances
 
 private variable
-  Γ           : Con Term _
+  Γ           : Cons _ _
   A B C D t u : Term _
   l           : Nat
   s s₁ s₂     : Size
@@ -81,11 +81,11 @@ private module Variants (hyp : ∀ {s₁} → s₁ <ˢ s₂ → P s₁) where
   opaque
     unfolding size-⊢′
 
-    -- If there is a proof of ⊢ Γ ∙ A, then there are strictly smaller
-    -- proofs of ⊢ Γ and Γ ⊢ A.
+    -- If there is a proof of ⊢ Γ »∙ A, then there are strictly
+    -- smaller proofs of ⊢ Γ and Γ ⊢ A.
 
     ⊢∙→⊢-<ˢ :
-      (⊢Γ∙A : ⊢ Γ ∙ A) →
+      (⊢Γ∙A : ⊢ Γ »∙ A) →
       ⦃ leq : size-⊢′ ⊢Γ∙A ≤ˢ s₂ ⦄ →
       (∃ λ (⊢Γ : ⊢ Γ) → size-⊢′ ⊢Γ <ˢ size-⊢′ ⊢Γ∙A) ×
       (∃ λ (⊢A : Γ ⊢ A) → size-⊢ ⊢A <ˢ size-⊢′ ⊢Γ∙A)
@@ -95,11 +95,11 @@ private module Variants (hyp : ∀ {s₁} → s₁ <ˢ s₂ → P s₁) where
 
   opaque
 
-    -- If there is a proof of Γ ∙ A ⊢ B, then there are strictly
+    -- If there is a proof of Γ »∙ A ⊢ B, then there are strictly
     -- smaller proofs of ⊢ Γ and Γ ⊢ A.
 
     ∙⊢→⊢-<ˢ :
-      (⊢B : Γ ∙ A ⊢ B) →
+      (⊢B : Γ »∙ A ⊢ B) →
       ⦃ lt : size-⊢ ⊢B <ˢ s₂ ⦄ →
       (∃ λ (⊢Γ : ⊢ Γ) → size-⊢′ ⊢Γ <ˢ size-⊢ ⊢B) ×
       (∃ λ (⊢A : Γ ⊢ A) → size-⊢ ⊢A <ˢ size-⊢ ⊢B)
@@ -112,11 +112,11 @@ private module Variants (hyp : ∀ {s₁} → s₁ <ˢ s₂ → P s₁) where
 
   opaque
 
-    -- If there is a proof of Γ ∙ A ⊢ t ∷ B, then there are strictly
+    -- If there is a proof of Γ »∙ A ⊢ t ∷ B, then there are strictly
     -- smaller proofs of ⊢ Γ and Γ ⊢ A.
 
     ∙⊢∷→⊢-<ˢ :
-      (⊢t : Γ ∙ A ⊢ t ∷ B) →
+      (⊢t : Γ »∙ A ⊢ t ∷ B) →
       ⦃ lt : size-⊢∷ ⊢t <ˢ s₂ ⦄ →
       (∃ λ (⊢Γ : ⊢ Γ) → size-⊢′ ⊢Γ <ˢ size-⊢∷ ⊢t) ×
       (∃ λ (⊢A : Γ ⊢ A) → size-⊢ ⊢A <ˢ size-⊢∷ ⊢t)
@@ -167,6 +167,7 @@ private module Lemmas where
     wfTerm-<ˢ′ hyp = λ where
         (conv ⊢t _)           PE.refl → fix (wfTerm-<ˢ ⊢t)
         (var ⊢Γ _)            _       → ⊢Γ , !
+        (defn ⊢Γ _ _)         _       → ⊢Γ , !
         (Uⱼ ⊢Γ)               _       → ⊢Γ , !
         (ΠΣⱼ ⊢A _ _)          PE.refl → fix (wfTerm-<ˢ ⊢A)
         (lamⱼ _ ⊢t _)         PE.refl → fix (∙⊢∷→⊢-<ˢ ⊢t .proj₁)
@@ -254,6 +255,8 @@ opaque
       fix (wfEqTerm-<ˢ t≡u)
     wfEqTerm-<ˢ (conv t≡u _) =
       fix (wfEqTerm-<ˢ t≡u)
+    wfEqTerm-<ˢ (δ-red ⊢Γ _ _ _) =
+      ⊢Γ , !
     wfEqTerm-<ˢ (ΠΣ-cong A≡B _ _) =
       fix (wfEqTerm-<ˢ A≡B)
     wfEqTerm-<ˢ (app-cong t₁≡u₁ _) =
@@ -380,11 +383,11 @@ opaque
 
 opaque
 
-  -- If there is a proof of ⊢ Γ ∙ A, then there are strictly smaller
+  -- If there is a proof of ⊢ Γ »∙ A, then there are strictly smaller
   -- proofs of ⊢ Γ and Γ ⊢ A.
 
   ⊢∙→⊢-<ˢ :
-    (⊢Γ∙A : ⊢ Γ ∙ A) →
+    (⊢Γ∙A : ⊢ Γ »∙ A) →
     (∃ λ (⊢Γ : ⊢ Γ) → size-⊢′ ⊢Γ <ˢ size-⊢′ ⊢Γ∙A) ×
     (∃ λ (⊢A : Γ ⊢ A) → size-⊢ ⊢A <ˢ size-⊢′ ⊢Γ∙A)
   ⊢∙→⊢-<ˢ ⊢Γ∙A =
@@ -392,18 +395,18 @@ opaque
 
 opaque
 
-  -- If ⊢ Γ ∙ A holds, then Γ ⊢ A also holds.
+  -- If ⊢ Γ »∙ A holds, then Γ ⊢ A also holds.
 
-  ⊢∙→⊢ : ⊢ Γ ∙ A → Γ ⊢ A
+  ⊢∙→⊢ : ⊢ Γ »∙ A → Γ ⊢ A
   ⊢∙→⊢ = proj₁ ∘→ proj₂ ∘→ ⊢∙→⊢-<ˢ
 
 opaque
 
-  -- If there is a proof of Γ ∙ A ⊢ B, then there are strictly
+  -- If there is a proof of Γ »∙ A ⊢ B, then there are strictly
   -- smaller proofs of ⊢ Γ and Γ ⊢ A.
 
   ∙⊢→⊢-<ˢ :
-    (⊢B : Γ ∙ A ⊢ B) →
+    (⊢B : Γ »∙ A ⊢ B) →
     (∃ λ (⊢Γ : ⊢ Γ) → size-⊢′ ⊢Γ <ˢ size-⊢ ⊢B) ×
     (∃ λ (⊢A : Γ ⊢ A) → size-⊢ ⊢A <ˢ size-⊢ ⊢B)
   ∙⊢→⊢-<ˢ ⊢B =
@@ -412,11 +415,11 @@ opaque
 
 opaque
 
-  -- If there is a proof of Γ ∙ A ⊢ t ∷ B, then there are strictly
+  -- If there is a proof of Γ »∙ A ⊢ t ∷ B, then there are strictly
   -- smaller proofs of ⊢ Γ and Γ ⊢ A.
 
   ∙⊢∷→⊢-<ˢ :
-    (⊢t : Γ ∙ A ⊢ t ∷ B) →
+    (⊢t : Γ »∙ A ⊢ t ∷ B) →
     (∃ λ (⊢Γ : ⊢ Γ) → size-⊢′ ⊢Γ <ˢ size-⊢∷ ⊢t) ×
     (∃ λ (⊢A : Γ ⊢ A) → size-⊢ ⊢A <ˢ size-⊢∷ ⊢t)
   ∙⊢∷→⊢-<ˢ ⊢t =
@@ -425,11 +428,11 @@ opaque
 
 opaque
 
-  -- If there is a proof of Γ ∙ A ⊢ B ≡ C, then there are strictly
+  -- If there is a proof of Γ »∙ A ⊢ B ≡ C, then there are strictly
   -- smaller proofs of ⊢ Γ and Γ ⊢ A.
 
   ∙⊢≡→⊢-<ˢ :
-    (B≡C : Γ ∙ A ⊢ B ≡ C) →
+    (B≡C : Γ »∙ A ⊢ B ≡ C) →
     (∃ λ (⊢Γ : ⊢ Γ) → size-⊢′ ⊢Γ <ˢ size-⊢≡ B≡C) ×
     (∃ λ (⊢A : Γ ⊢ A) → size-⊢ ⊢A <ˢ size-⊢≡ B≡C)
   ∙⊢≡→⊢-<ˢ B≡C =
@@ -440,11 +443,11 @@ opaque
 
 opaque
 
-  -- If there is a proof of Γ ∙ A ⊢ t ≡ u ∷ B, then there are strictly
-  -- smaller proofs of ⊢ Γ and Γ ⊢ A.
+  -- If there is a proof of Γ »∙ A ⊢ t ≡ u ∷ B, then there are
+  -- strictly smaller proofs of ⊢ Γ and Γ ⊢ A.
 
   ∙⊢≡∷→⊢-<ˢ :
-    (t≡u : Γ ∙ A ⊢ t ≡ u ∷ B) →
+    (t≡u : Γ »∙ A ⊢ t ≡ u ∷ B) →
     (∃ λ (⊢Γ : ⊢ Γ) → size-⊢′ ⊢Γ <ˢ size-⊢≡∷ t≡u) ×
     (∃ λ (⊢A : Γ ⊢ A) → size-⊢ ⊢A <ˢ size-⊢≡∷ t≡u)
   ∙⊢≡∷→⊢-<ˢ t≡u =
@@ -455,14 +458,14 @@ opaque
 
 opaque
 
-  -- If there is a proof of Γ ∙ A ∙ B ⊢ C, then there are strictly
-  -- smaller proofs of ⊢ Γ, Γ ⊢ A and Γ ∙ A ⊢ B.
+  -- If there is a proof of Γ »∙ A »∙ B ⊢ C, then there are strictly
+  -- smaller proofs of ⊢ Γ, Γ ⊢ A and Γ »∙ A ⊢ B.
 
   ∙∙⊢→⊢-<ˢ :
-    (⊢C : Γ ∙ A ∙ B ⊢ C) →
+    (⊢C : Γ »∙ A »∙ B ⊢ C) →
     (∃ λ (⊢Γ : ⊢ Γ) → size-⊢′ ⊢Γ <ˢ size-⊢ ⊢C) ×
     (∃ λ (⊢A : Γ ⊢ A) → size-⊢ ⊢A <ˢ size-⊢ ⊢C) ×
-    (∃ λ (⊢B : Γ ∙ A ⊢ B) → size-⊢ ⊢B <ˢ size-⊢ ⊢C)
+    (∃ λ (⊢B : Γ »∙ A ⊢ B) → size-⊢ ⊢B <ˢ size-⊢ ⊢C)
   ∙∙⊢→⊢-<ˢ ⊢C =
     let (⊢Γ∙A , Γ∙A<) , (⊢B , B<) = ∙⊢→⊢-<ˢ ⊢C
         (⊢Γ , Γ<) , (⊢A , A<)     = ⊢∙→⊢-<ˢ ⊢Γ∙A
@@ -471,14 +474,14 @@ opaque
 
 opaque
 
-  -- If there is a proof of Γ ∙ A ∙ B ⊢ t ∷ C, then there are strictly
-  -- smaller proofs of ⊢ Γ, Γ ⊢ A and Γ ∙ A ⊢ B.
+  -- If there is a proof of Γ »∙ A »∙ B ⊢ t ∷ C, then there are
+  -- strictly smaller proofs of ⊢ Γ, Γ ⊢ A and Γ »∙ A ⊢ B.
 
   ∙∙⊢∷→⊢-<ˢ :
-    (⊢t : Γ ∙ A ∙ B ⊢ t ∷ C) →
+    (⊢t : Γ »∙ A »∙ B ⊢ t ∷ C) →
     (∃ λ (⊢Γ : ⊢ Γ) → size-⊢′ ⊢Γ <ˢ size-⊢∷ ⊢t) ×
     (∃ λ (⊢A : Γ ⊢ A) → size-⊢ ⊢A <ˢ size-⊢∷ ⊢t) ×
-    (∃ λ (⊢B : Γ ∙ A ⊢ B) → size-⊢ ⊢B <ˢ size-⊢∷ ⊢t)
+    (∃ λ (⊢B : Γ »∙ A ⊢ B) → size-⊢ ⊢B <ˢ size-⊢∷ ⊢t)
   ∙∙⊢∷→⊢-<ˢ ⊢t =
     let (⊢Γ∙A , Γ∙A<) , (⊢B , B<) = ∙⊢∷→⊢-<ˢ ⊢t
         (⊢Γ , Γ<) , (⊢A , A<)     = ⊢∙→⊢-<ˢ ⊢Γ∙A
@@ -487,14 +490,14 @@ opaque
 
 opaque
 
-  -- If there is a proof of Γ ∙ A ∙ B ⊢ C ≡ D, then there are strictly
-  -- smaller proofs of ⊢ Γ, Γ ⊢ A and Γ ∙ A ⊢ B.
+  -- If there is a proof of Γ »∙ A »∙ B ⊢ C ≡ D, then there are
+  -- strictly smaller proofs of ⊢ Γ, Γ ⊢ A and Γ »∙ A ⊢ B.
 
   ∙∙⊢≡→⊢-<ˢ :
-    (C≡D : Γ ∙ A ∙ B ⊢ C ≡ D) →
+    (C≡D : Γ »∙ A »∙ B ⊢ C ≡ D) →
     (∃ λ (⊢Γ : ⊢ Γ) → size-⊢′ ⊢Γ <ˢ size-⊢≡ C≡D) ×
     (∃ λ (⊢A : Γ ⊢ A) → size-⊢ ⊢A <ˢ size-⊢≡ C≡D) ×
-    (∃ λ (⊢B : Γ ∙ A ⊢ B) → size-⊢ ⊢B <ˢ size-⊢≡ C≡D)
+    (∃ λ (⊢B : Γ »∙ A ⊢ B) → size-⊢ ⊢B <ˢ size-⊢≡ C≡D)
   ∙∙⊢≡→⊢-<ˢ C≡D =
     let (⊢Γ∙A , Γ∙A<) , (⊢B , B<) = ∙⊢≡→⊢-<ˢ C≡D
         (⊢Γ , Γ<) , (⊢A , A<)     = ⊢∙→⊢-<ˢ ⊢Γ∙A
@@ -503,19 +506,40 @@ opaque
 
 opaque
 
-  -- If there is a proof of Γ ∙ A ∙ B ⊢ t ≡ u ∷ C, then there are
-  -- strictly smaller proofs of ⊢ Γ, Γ ⊢ A and Γ ∙ A ⊢ B.
+  -- If there is a proof of Γ »∙ A »∙ B ⊢ t ≡ u ∷ C, then there are
+  -- strictly smaller proofs of ⊢ Γ, Γ ⊢ A and Γ »∙ A ⊢ B.
 
   ∙∙⊢≡∷→⊢-<ˢ :
-    (t≡u : Γ ∙ A ∙ B ⊢ t ≡ u ∷ C) →
+    (t≡u : Γ »∙ A »∙ B ⊢ t ≡ u ∷ C) →
     (∃ λ (⊢Γ : ⊢ Γ) → size-⊢′ ⊢Γ <ˢ size-⊢≡∷ t≡u) ×
     (∃ λ (⊢A : Γ ⊢ A) → size-⊢ ⊢A <ˢ size-⊢≡∷ t≡u) ×
-    (∃ λ (⊢B : Γ ∙ A ⊢ B) → size-⊢ ⊢B <ˢ size-⊢≡∷ t≡u)
+    (∃ λ (⊢B : Γ »∙ A ⊢ B) → size-⊢ ⊢B <ˢ size-⊢≡∷ t≡u)
   ∙∙⊢≡∷→⊢-<ˢ t≡u =
     let (⊢Γ∙A , Γ∙A<) , (⊢B , B<) = ∙⊢≡∷→⊢-<ˢ t≡u
         (⊢Γ , Γ<) , (⊢A , A<)     = ⊢∙→⊢-<ˢ ⊢Γ∙A
     in
     (⊢Γ , <ˢ-trans Γ< Γ∙A<) , (⊢A , <ˢ-trans A< Γ∙A<) , (⊢B , B<)
+
+opaque
+  unfolding size-⊢′
+
+  -- If there is a proof of ⊢ Γ, then there is a proof of » Γ .defs
+  -- that is strictly smaller than the first proof.
+
+  ⊢→»-<ˢ : (⊢Γ : ⊢ Γ) → ∃ λ (»Γ : » Γ .defs) → size-» »Γ <ˢ size-⊢′ ⊢Γ
+  ⊢→»-<ˢ (ε »∇) = »∇ , !
+  ⊢→»-<ˢ (∙ ⊢A) = let ⊢Γ , Γ< = wf-<ˢ ⊢A
+                      »∇ , ∇< = ⊢→»-<ˢ ⊢Γ
+                  in
+                  »∇ , <ˢ-trans ∇< (<ˢ-trans Γ< !)
+
+opaque
+
+  -- If a context pair is well-formed, then the definition context is
+  -- well-formed.
+
+  defn-wf : ⊢ Γ → » Γ .defs
+  defn-wf = proj₁ ∘→ ⊢→»-<ˢ
 
 opaque
 
@@ -524,10 +548,10 @@ opaque
 
   infixl 24 _∙[_]
 
-  _∙[_] : ⊢ Γ → (⊢ Γ → Γ ⊢ A) → ⊢ Γ ∙ A
+  _∙[_] : ⊢ Γ → (⊢ Γ → Γ ⊢ A) → ⊢ Γ »∙ A
   ⊢Γ ∙[ f ] = ∙ f ⊢Γ
 
 -- An example of how _∙[_] can be used.
 
-_ : ⊢ ε ∙ ℕ ∙ U l ∙ Empty
-_ = ε ∙[ ℕⱼ ] ∙[ Uⱼ ] ∙[ Emptyⱼ ]
+_ : ε »⊢ ε ∙ ℕ ∙ U l ∙ Empty
+_ = εε ∙[ ℕⱼ ] ∙[ Uⱼ ] ∙[ Emptyⱼ ]

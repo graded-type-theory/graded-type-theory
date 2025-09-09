@@ -20,6 +20,7 @@ open import Definition.Typed.Properties R
 open import Definition.Typed.Substitution R
 open import Definition.Typed.Syntactic R
 import Definition.Typed.Weakening R as W
+open import Definition.Typed.Well-formed R
 open import Definition.Untyped M
 open import Definition.Untyped.Properties M
 
@@ -30,12 +31,13 @@ import Tools.PropositionalEquality as PE
 
 private
   variable
-    n : Nat
-    Γ : Con Term n
+    m n : Nat
+    Γ : Cons m n
     t A : Term n
 
-soundness⇉-var : ∀ {x} →  ⊢ Γ → x ∷ A ∈ Γ → (Γ ⊢ A) × (Γ ⊢ var x ∷ A)
-soundness⇉-var ε      ()
+soundness⇉-var :
+  ∀ {x} → ⊢ Γ → x ∷ A ∈ Γ .vars → (Γ ⊢ A) × (Γ ⊢ var x ∷ A)
+soundness⇉-var (ε »∇) ()
 soundness⇉-var (∙ ⊢A) here =
   W.wk₁ ⊢A ⊢A , var₀ ⊢A
 soundness⇉-var (∙ ⊢B) (there x) =
@@ -67,6 +69,8 @@ mutual
     in
     Uⱼ ⊢Γ , ΠΣⱼ ⊢A ⊢B ok
   soundness⇉ ⊢Γ (varᵢ x∷A∈Γ) = soundness⇉-var ⊢Γ x∷A∈Γ
+  soundness⇉ ⊢Γ (defnᵢ α↦t) =
+    W.wk (W.wk₀∷ʷ⊇ ⊢Γ) (wf-↦∈ α↦t (defn-wf ⊢Γ)) , defn ⊢Γ α↦t PE.refl
   soundness⇉ ⊢Γ (appᵢ t⇉A (A⇒ΠFG , _) u⇇F) =
     let ⊢A , ⊢t = soundness⇉ ⊢Γ t⇉A
         A≡ΠFG = subset* A⇒ΠFG

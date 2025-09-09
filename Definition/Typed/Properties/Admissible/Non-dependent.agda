@@ -31,7 +31,7 @@ open import Tools.Product
 import Tools.PropositionalEquality as PE
 
 private variable
-  Γ                                         : Con Term _
+  Γ                                         : Cons _ _
   A A₁ A₂ B B₁ B₂ C C₁ C₂ t t₁ t₂ u u₁ u₂ v : Term _
   b                                         : BinderMode
   s                                         : Strength
@@ -102,7 +102,7 @@ opaque
 
   lam-cong-⟶ :
     Π-allowed p 𝟘 →
-    Γ ∙ A ⊢ t₁ ≡ t₂ ∷ wk1 B →
+    Γ »∙ A ⊢ t₁ ≡ t₂ ∷ wk1 B →
     Γ ⊢ lam p t₁ ≡ lam p t₂ ∷ A ⟶[ p ] B
   lam-cong-⟶ = flip lam-cong
 
@@ -112,7 +112,7 @@ opaque
 
   ⊢lam-⟶ :
     Π-allowed p 𝟘 →
-    Γ ∙ A ⊢ t ∷ wk1 B →
+    Γ »∙ A ⊢ t ∷ wk1 B →
     Γ ⊢ lam p t ∷ A ⟶[ p ] B
   ⊢lam-⟶ ok ⊢t = wf-⊢≡∷ (lam-cong-⟶ ok (refl ⊢t)) .proj₂ .proj₁
 
@@ -173,7 +173,7 @@ opaque
 
   β-red-⟶-⇒ :
     Π-allowed p 𝟘 →
-    Γ ∙ A ⊢ t ∷ wk1 B →
+    Γ »∙ A ⊢ t ∷ wk1 B →
     Γ ⊢ u ∷ A →
     Γ ⊢ lam p t ∘⟨ p ⟩ u ⇒ t [ u ]₀ ∷ B
   β-red-⟶-⇒ ok ⊢t ⊢u =
@@ -186,7 +186,7 @@ opaque
 
   β-red-⟶-≡ :
     Π-allowed p 𝟘 →
-    Γ ∙ A ⊢ t ∷ wk1 B →
+    Γ »∙ A ⊢ t ∷ wk1 B →
     Γ ⊢ u ∷ A →
     Γ ⊢ lam p t ∘⟨ p ⟩ u ≡ t [ u ]₀ ∷ B
   β-red-⟶-≡ ok ⊢t ⊢u =
@@ -200,7 +200,7 @@ opaque
   η-eq-⟶ :
     Γ ⊢ t₁ ∷ A ⟶[ p ] B →
     Γ ⊢ t₂ ∷ A ⟶[ p ] B →
-    Γ ∙ A ⊢ wk1 t₁ ∘⟨ p ⟩ var x0 ≡ wk1 t₂ ∘⟨ p ⟩ var x0 ∷ wk1 B →
+    Γ »∙ A ⊢ wk1 t₁ ∘⟨ p ⟩ var x0 ≡ wk1 t₂ ∘⟨ p ⟩ var x0 ∷ wk1 B →
     Γ ⊢ t₁ ≡ t₂ ∷ A ⟶[ p ] B
   η-eq-⟶ = η-eq′
 
@@ -396,9 +396,9 @@ opaque
   -- An equality rule for prodrec.
 
   prodrec-cong-⟶ :
-    Γ ∙ A ×ʷ[ p ] B ⊢ C₁ ≡ C₂ →
+    Γ »∙ A ×ʷ[ p ] B ⊢ C₁ ≡ C₂ →
     Γ ⊢ t₁ ≡ t₂ ∷ A ×ʷ[ p ] B →
-    Γ ∙ A ∙ wk1 B ⊢ u₁ ≡ u₂ ∷ C₁ [ prodʷ p (var x1) (var x0) ]↑² →
+    Γ »∙ A »∙ wk1 B ⊢ u₁ ≡ u₂ ∷ C₁ [ prodʷ p (var x1) (var x0) ]↑² →
     Γ ⊢ prodrec r p q C₁ t₁ u₁ ≡ prodrec r p q C₂ t₂ u₂ ∷ C₁ [ t₁ ]₀
   prodrec-cong-⟶ = prodrec-cong′
 
@@ -407,9 +407,9 @@ opaque
   -- A typing rule prodrec.
 
   ⊢prodrec-⟶ :
-    Γ ∙ A ×ʷ[ p ] B ⊢ C →
+    Γ »∙ A ×ʷ[ p ] B ⊢ C →
     Γ ⊢ t ∷ A ×ʷ[ p ] B →
-    Γ ∙ A ∙ wk1 B ⊢ u ∷ C [ prodʷ p (var x1) (var x0) ]↑² →
+    Γ »∙ A »∙ wk1 B ⊢ u ∷ C [ prodʷ p (var x1) (var x0) ]↑² →
     Γ ⊢ prodrec r p q C t u ∷ C [ t ]₀
   ⊢prodrec-⟶ ⊢C ⊢t ⊢u =
     wf-⊢≡∷ (prodrec-cong-⟶ (refl ⊢C) (refl ⊢t) (refl ⊢u)) .proj₂ .proj₁
@@ -420,9 +420,9 @@ opaque
   -- A variant of prodrec-subst.
 
   prodrec-subst-⟶ :
-    Γ ∙ A ×ʷ[ p ] B ⊢ C →
+    Γ »∙ A ×ʷ[ p ] B ⊢ C →
     Γ ⊢ t₁ ⇒ t₂ ∷ A ×ʷ[ p ] B →
-    Γ ∙ A ∙ wk1 B ⊢ u ∷ C [ prodʷ p (var x1) (var x0) ]↑² →
+    Γ »∙ A »∙ wk1 B ⊢ u ∷ C [ prodʷ p (var x1) (var x0) ]↑² →
     Γ ⊢ prodrec r p q C t₁ u ⇒ prodrec r p q C t₂ u ∷ C [ t₁ ]₀
   prodrec-subst-⟶ = flip ∘→ prodrec-subst′
 
@@ -432,9 +432,9 @@ opaque
   -- A variant of prodrec-subst*.
 
   prodrec-subst*-⟶ :
-    Γ ∙ A ×ʷ[ p ] B ⊢ C →
+    Γ »∙ A ×ʷ[ p ] B ⊢ C →
     Γ ⊢ t₁ ⇒* t₂ ∷ A ×ʷ[ p ] B →
-    Γ ∙ A ∙ wk1 B ⊢ u ∷ C [ prodʷ p (var x1) (var x0) ]↑² →
+    Γ »∙ A »∙ wk1 B ⊢ u ∷ C [ prodʷ p (var x1) (var x0) ]↑² →
     Γ ⊢ prodrec r p q C t₁ u ⇒* prodrec r p q C t₂ u ∷ C [ t₁ ]₀
   prodrec-subst*-⟶ = prodrec-subst*
 
@@ -444,10 +444,10 @@ opaque
   -- A variant of the reduction rule prodrec-β.
 
   prodrec-β-⟶-⇒ :
-    Γ ∙ A ×ʷ[ p ] B ⊢ C →
+    Γ »∙ A ×ʷ[ p ] B ⊢ C →
     Γ ⊢ t ∷ A →
     Γ ⊢ u ∷ B →
-    Γ ∙ A ∙ wk1 B ⊢ v ∷ C [ prodʷ p (var x1) (var x0) ]↑² →
+    Γ »∙ A »∙ wk1 B ⊢ v ∷ C [ prodʷ p (var x1) (var x0) ]↑² →
     Γ ⊢ prodrec r p q C (prodʷ p t u) v ⇒ v [ t , u ]₁₀ ∷
       C [ prodʷ p t u ]₀
   prodrec-β-⟶-⇒ ⊢C ⊢t ⊢u ⊢v =
@@ -459,10 +459,10 @@ opaque
   -- A variant of the equality rule prodrec-β.
 
   prodrec-β-⟶-≡ :
-    Γ ∙ A ×ʷ[ p ] B ⊢ C →
+    Γ »∙ A ×ʷ[ p ] B ⊢ C →
     Γ ⊢ t ∷ A →
     Γ ⊢ u ∷ B →
-    Γ ∙ A ∙ wk1 B ⊢ v ∷ C [ prodʷ p (var x1) (var x0) ]↑² →
+    Γ »∙ A »∙ wk1 B ⊢ v ∷ C [ prodʷ p (var x1) (var x0) ]↑² →
     Γ ⊢ prodrec r p q C (prodʷ p t u) v ≡ v [ t , u ]₁₀ ∷
       C [ prodʷ p t u ]₀
   prodrec-β-⟶-≡ ⊢C ⊢t ⊢u ⊢v =

@@ -41,13 +41,13 @@ opaque
   reduces-to-value :
     str ≡ strict →
     t ® u ∷ A →
-    ∃ λ v → T.Value v × u T.⇒* v
+    ∃ λ v → T.Value v × vs T.⊢ u ⇒* v
   reduces-to-value refl (⊨A , t®u) = helper ⊨A t®u
     where
     helper :
-      (⊨A : Δ ⊨ A) →
+      (⊨A : ts » Δ ⊨ A) →
       t ® u ∷ A / ⊨A →
-      ∃ λ v → T.Value v × u T.⇒* v
+      ∃ λ v → T.Value v × vs T.⊢ u ⇒* v
     helper = λ where
       (Uᵣ _)            (Uᵣ v⇒*↯)           → _ , T.↯    , v⇒*↯ refl
       (ℕᵣ _)            (zeroᵣ _ v⇒*zero)   → _ , T.zero , v⇒*zero
@@ -73,7 +73,7 @@ opaque
   reduces-to-numeral :
     str ≡ strict →
     t ® u ∷ℕ →
-    ∃ λ v → T.Numeral v × u T.⇒* v
+    ∃ λ v → T.Numeral v × vs T.⊢ u ⇒* v
   reduces-to-numeral refl = λ where
     (zeroᵣ _ v⇒*zero)     → _ , T.zero    , v⇒*zero
     (sucᵣ _ v⇒*suc num _) → _ , T.suc num , v⇒*suc

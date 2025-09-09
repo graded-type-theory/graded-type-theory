@@ -32,7 +32,7 @@ import Tools.PropositionalEquality as PE
 open import Tools.Sum
 
 private variable
-  Γ       : Con Term _
+  Γ       : Cons _ _
   A B t u : Term _
 
 opaque

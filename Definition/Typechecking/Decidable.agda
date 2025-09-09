@@ -29,18 +29,21 @@ open import Definition.Typed.Reasoning.Type R
 open import Definition.Typed.Substitution R
 open import Definition.Typed.Syntactic R
 open import Definition.Typed.Weakening R as W
+open import Definition.Typed.Well-formed R
 open import Definition.Typed.Consequences.Inequality R
 open import Definition.Typed.Consequences.NeTypeEq R
 open import Definition.Typed.Consequences.Reduction R
 open import Definition.Typed.Decidable.Equality R _≟_
 open import Definition.Typed.Decidable.Reduction R _≟_
-open import Definition.Untyped M
+open import Definition.Untyped M as U
+open import Definition.Untyped.Neutral M type-variant
 open import Definition.Untyped.Properties M
-open import Definition.Untyped.Neutral M type-variant as U
+open import Definition.Untyped.Whnf M type-variant
 
+open import Tools.Empty
 open import Tools.Fin
 open import Tools.Function
-open import Tools.Nat using (Nat; 1+)
+open import Tools.Nat hiding (_≟_)
 open import Tools.Product as Σ
 import Tools.PropositionalEquality as PE
 open import Tools.Relation as Dec
@@ -48,18 +51,19 @@ open import Tools.Relation as Dec
 private
   variable
     P : Set a
-    n : Nat
-    Γ : Con Term n
+    m n : Nat
+    Δ : Con Term n
+    Γ : Cons m n
     t u v w A B : Term n
     l : Universe-level
     p q r : M
 
-dec⇉-var : (x : Fin n) → ∃ λ A → x ∷ A ∈ Γ
-dec⇉-var {Γ = ε}     ()
-dec⇉-var {Γ = Γ ∙ A} x0     = _ , here
-dec⇉-var {Γ = Γ ∙ B} (x +1) =
-  let A , x∷A∈Γ = dec⇉-var x
-  in  _ , there x∷A∈Γ
+dec⇉-var : (x : Fin n) → ∃ λ A → x ∷ A ∈ Δ
+dec⇉-var {Δ = ε}     ()
+dec⇉-var {Δ = Δ ∙ A} x0     = _ , here
+dec⇉-var {Δ = Δ ∙ B} (x +1) =
+  let A , x∷A∈Δ = dec⇉-var x
+  in  _ , there x∷A∈Δ
 
 dec⇇-var : (x : Fin n) → Γ ⊢ A → Dec (Γ ⊢ var x ⇇ A)
 dec⇇-var x ⊢A =
@@ -69,6 +73,23 @@ dec⇇-var x ⊢A =
     (no B≢A) → no λ where
       (infᶜ (varᵢ x) x₁) → case det∈ x x∷B∈Γ of λ where
         PE.refl → B≢A x₁
+
+lookup-defn :
+  (∇ : DCon (Term 0) m) →
+  {α : Nat} → α <′ m → ∃ λ A → α ↦∷ A ∈ ∇
+lookup-defn ε                   <0            = ⊥-elim (n≮0 (<′⇒< <0))
+lookup-defn (∇ ∙⟨ ω ⟩[ t ∷ A ]) ≤′-refl       = A , here
+lookup-defn (∇ ∙⟨ ω ⟩[ t ∷ A ]) (≤′-step α<m) =
+  let A , α↦t = lookup-defn ∇ α<m
+  in  A , there α↦t
+
+dec⇉-defn :
+  (∇ : DCon (Term 0) m) →
+  (α : Nat) → Dec (∃ λ A → α ↦∷ A ∈ ∇)
+dec⇉-defn {m} ∇ α =
+  case α <? m of λ where
+    (yes α<m) → yes (lookup-defn ∇ (<⇒<′ α<m))
+    (no α≮m)  → no λ (A , α↦t) → α≮m (scoped-↦∈ α↦t)
 
 mutual
 
@@ -93,6 +114,9 @@ mutual
           (Idᶜ A t u)                 → not (A , t , u)
           (checkᶜ (infᶜ (Idᵢ A t u))) → not (checkᶜ (infᶜ A) , t , u)
     helper A@(var _) = λ where
+      (yes A)  → yes (checkᶜ A)
+      (no not) → no λ { (checkᶜ A) → not A }
+    helper A@(defn _) = λ where
       (yes A)  → yes (checkᶜ A)
       (no not) → no λ { (checkᶜ A) → not A }
     helper A@(U _) = λ where
@@ -161,6 +185,8 @@ mutual
   dec-Inferable : (t : Term n) → Dec (Inferable t)
   dec-Inferable (var _) =
     yes varᵢ
+  dec-Inferable (defn _) =
+    yes defnᵢ
   dec-Inferable (U _) =
     yes Uᵢ
   dec-Inferable (ΠΣ⟨ b ⟩ p , q ▷ A ▹ B) =
@@ -268,6 +294,9 @@ mutual
     helper (var _) = λ where
       (yes t) → yes (infᶜ t)
       (no ¬t) → no λ { (infᶜ t) → ¬t t }
+    helper (defn _) = λ where
+      (yes t) → yes (infᶜ t)
+      (no ¬t) → no λ { (infᶜ t) → ¬t t }
     helper (U _) = λ where
       (yes t) → yes (infᶜ t)
       (no ¬t) → no λ { (infᶜ t) → ¬t t }
@@ -331,11 +360,10 @@ private opaque
   -- A variant of isΠΣ.
 
   isΠΣ-with-cont :
-    {Γ : Con Term n}
     {P : BinderMode → M → M → Term n → Term (1+ n) → Set a} →
     Γ ⊢ A →
     (∀ {b p q B C} →
-     Γ ⊢ B → Γ ∙ B ⊢ C → ΠΣ-allowed b p q →
+     Γ ⊢ B → Γ »∙ B ⊢ C → ΠΣ-allowed b p q →
      Γ ⊢ A ↘ ΠΣ⟨ b ⟩ p , q ▷ B ▹ C → Dec (P b p q B C)) →
     Dec
       (∃ λ ((b , p , q , B , C , _) :
@@ -371,7 +399,7 @@ mutual
     -- Some lemmas used below.
 
     dec⇉-with-cont :
-      {Γ : Con Term n} {P : Term n → Set a} →
+      {P : Term n → Set a} →
       ⊢ Γ → Inferable t → (∀ {A} → Γ ⊢ A → Γ ⊢ t ∷ A → Dec (P A)) →
       Dec (Σ (∃ λ A → Γ ⊢ t ⇉ A) (P ∘→ proj₁))
     dec⇉-with-cont ⊢Γ t cont =
@@ -478,7 +506,7 @@ mutual
          dec⇇Type-with-cont (∙ ΠΣⱼ ⊢D ok) A λ ⊢A →
          dec⇇ u
            (subst↑²Type-prod
-              (PE.subst (λ b → _ ∙ ΠΣ⟨ b ⟩ _ , _ ▷ _ ▹ _ ⊢ _) b≡ ⊢A)))
+              (PE.subst (λ b → _ » _ ∙ ΠΣ⟨ b ⟩ _ , _ ▷ _ ▹ _ ⊢ _) b≡ ⊢A)))
         of λ where
         (yes
            ((_ , t) , (_ , _ , _ , _ , _ , A↘) ,
@@ -579,11 +607,22 @@ mutual
         not
           ( _
           , U-norm
-              (B    ≡⟨ neTypeEq (var _) ⊢x (soundness⇉ ⊢Γ x .proj₂) ⟩⊢
+              (B    ≡⟨ neTypeEq (var⁺ _) ⊢x (soundness⇉ ⊢Γ x .proj₂) ⟩⊢
                C    ≡⟨ subset* ⇒*U ⟩⊢∎
                U l  ∎)
           , Uₙ
           ) }
+  dec⇉Type {Γ} ⊢Γ (defnᵢ {α}) =
+    case dec⇉-defn (Γ .defs) α of λ where
+      (no not)        → no λ{ (univᶜ (defnᵢ α↦t) A↘) → not (_ , α↦t) }
+      (yes (A , α↦t)) →
+        case ↘U? (W.wk (wk₀∷ʷ⊇ ⊢Γ) (wf-↦∈ α↦t (defn-wf ⊢Γ))) of λ where
+          (yes (_ , A↘)) → yes (univᶜ (defnᵢ α↦t) A↘)
+          (no not)       → no λ where
+            (univᶜ (defnᵢ α↦t′) A′↘) → not $
+              _ , PE.subst (λ T → _ ⊢ U.wk wk₀ T ↘ U _)
+                           (unique-↦∈ α↦t′ α↦t PE.refl)
+                           A′↘
   dec⇉Type ⊢Γ (∘ᵢ t u) =
     case
       (Σ-dec (dec⇉-app ⊢Γ t u)
@@ -758,6 +797,10 @@ mutual
         no λ { (_ , ΠΣᵢ A ↘U₁ B ↘U₂ ok) →
         not (ok , (_ , A) , (_ , ↘U₁) , (_ , B) , (_ , ↘U₂)) }
   dec⇉ ⊢Γ varᵢ = yes (_ , varᵢ (dec⇉-var _ .proj₂))
+  dec⇉ {Γ} ⊢Γ (defnᵢ {α}) =
+    case dec⇉-defn (Γ .defs) α of λ where
+      (yes (A , α↦t)) → yes (U.wk wk₀ A , defnᵢ α↦t)
+      (no not)        → no λ{ (_ , defnᵢ α↦t) → not (_ , α↦t) }
   dec⇉ ⊢Γ (∘ᵢ t u) = dec⇉-app ⊢Γ t u
   dec⇉ ⊢Γ (fstᵢ t) = dec⇉-fst ⊢Γ t
   dec⇉ ⊢Γ (sndᵢ t) = dec⇉-snd ⊢Γ t

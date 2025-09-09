@@ -33,7 +33,7 @@ open import Tools.Product
 open import Tools.Relation
 
 private variable
-  Γ             : Con _ _
+  Γ             : Cons _ _
   A B C t u v w : Term _
   p q q′ r      : M
   s             : Strength
@@ -46,10 +46,10 @@ opaque
   -- A variant of the reduction rule prodrec-β.
 
   prodrec-β-⇒₁ :
-    ⦃ ok : No-equality-reflection or-empty Γ ⦄ →
-    Γ ∙ (Σʷ p , q′ ▷ A ▹ B) ⊢ C →
+    ⦃ ok : No-equality-reflection or-empty (Γ .vars) ⦄ →
+    Γ »∙ (Σʷ p , q′ ▷ A ▹ B) ⊢ C →
     Γ ⊢ prodʷ p t u ∷ Σʷ p , q′ ▷ A ▹ B →
-    Γ ∙ A ∙ B ⊢ v ∷ C [ prodʷ p (var x1) (var x0) ]↑² →
+    Γ »∙ A »∙ B ⊢ v ∷ C [ prodʷ p (var x1) (var x0) ]↑² →
     Γ ⊢ prodrec r p q C (prodʷ p t u) v ⇒ v [ t , u ]₁₀ ∷
       C [ prodʷ p t u ]₀
   prodrec-β-⇒₁ ⊢C ⊢p ⊢v =
@@ -66,10 +66,10 @@ opaque
   -- A variant of the equality rule prodrec-β.
 
   prodrec-β-≡₁ :
-    ⦃ ok : No-equality-reflection or-empty Γ ⦄ →
-    Γ ∙ (Σʷ p , q′ ▷ A ▹ B) ⊢ C →
+    ⦃ ok : No-equality-reflection or-empty (Γ .vars) ⦄ →
+    Γ »∙ (Σʷ p , q′ ▷ A ▹ B) ⊢ C →
     Γ ⊢ prodʷ p t u ∷ Σʷ p , q′ ▷ A ▹ B →
-    Γ ∙ A ∙ B ⊢ v ∷ C [ prodʷ p (var x1) (var x0) ]↑² →
+    Γ »∙ A »∙ B ⊢ v ∷ C [ prodʷ p (var x1) (var x0) ]↑² →
     Γ ⊢ prodrec r p q C (prodʷ p t u) v ≡ v [ t , u ]₁₀ ∷
       C [ prodʷ p t u ]₀
   prodrec-β-≡₁ ⊢C ⊢p ⊢v =
@@ -78,13 +78,11 @@ opaque
 -- An "inverse" of prod-cong for Σˢ.
 
 prod-cong⁻¹-Σˢ :
-  ⦃ ok : No-equality-reflection or-empty Γ ⦄ →
+  ⦃ ok : No-equality-reflection or-empty (Γ .vars) ⦄ →
   Γ ⊢ prodˢ p t u ≡ prodˢ p v w ∷ Σˢ p , q ▷ A ▹ B →
-  (Γ ∙ A ⊢ B) × Γ ⊢ t ≡ v ∷ A × Γ ⊢ u ≡ w ∷ B [ t ]₀ ×
+  (Γ »∙ A ⊢ B) × Γ ⊢ t ≡ v ∷ A × Γ ⊢ u ≡ w ∷ B [ t ]₀ ×
   Σˢ-allowed p q
-prod-cong⁻¹-Σˢ
-  {Γ = Γ} {p = p} {t = t} {u = u} {v = v} {w = w}
-  {q = q} {A = A} {B = B} prod≡prod =
+prod-cong⁻¹-Σˢ {Γ} {p} {t} {u} {v} {w} {q} {A} {B} prod≡prod =
   ⊢B , t≡v , u≡w , ok
   where
   ⊢ΣAB = syntacticEqTerm prod≡prod .proj₁
@@ -108,27 +106,25 @@ prod-cong⁻¹-Σˢ
     Γ ⊢ prodˢ p t u ≡ prodˢ p v w ∷ Σˢ p , q ▷ A ▹ B  →⟨ snd-cong′ ⟩
 
     Γ ⊢ snd p (prodˢ p t u) ≡ snd p (prodˢ p v w) ∷
-      B [ fst p (prodˢ p t u) ]₀                       →⟨ (λ hyp → trans
+      B [ fst p (prodˢ p t u) ]₀                      →⟨ (λ hyp → trans
                                                             (sym′ (Σ-β₂-≡ ⊢B ⊢t ⊢u ok))
-                                                               (trans hyp
-                                                                  (conv (Σ-β₂-≡ ⊢B ⊢v ⊢w ok)
-                                                                     (substTypeEq (refl ⊢B)
-                                                                        (fst-cong′ (sym′ prod≡prod)))))) ⟩
+                                                            (trans hyp
+                                                               (conv (Σ-β₂-≡ ⊢B ⊢v ⊢w ok)
+                                                                  (substTypeEq (refl ⊢B)
+                                                                     (fst-cong′ (sym′ prod≡prod)))))) ⟩
 
-    Γ ⊢ u ≡ w ∷ B [ fst p (prodˢ p t u) ]₀             →⟨ flip _⊢_≡_∷_.conv (substTypeEq (refl ⊢B) fst-t,u≡t) ⟩
+    Γ ⊢ u ≡ w ∷ B [ fst p (prodˢ p t u) ]₀            →⟨ flip _⊢_≡_∷_.conv (substTypeEq (refl ⊢B) fst-t,u≡t) ⟩
 
-    Γ ⊢ u ≡ w ∷ B [ t ]₀                               □
+    Γ ⊢ u ≡ w ∷ B [ t ]₀                              □
 
 -- An "inverse" of prod-cong for Σʷ.
 
 prod-cong⁻¹-Σʷ :
-  ⦃ ok : No-equality-reflection or-empty Γ ⦄ →
+  ⦃ ok : No-equality-reflection or-empty (Γ .vars) ⦄ →
   Γ ⊢ prodʷ p t u ≡ prodʷ p v w ∷ Σʷ p , q ▷ A ▹ B →
-  (Γ ∙ A ⊢ B) × Γ ⊢ t ≡ v ∷ A × Γ ⊢ u ≡ w ∷ B [ t ]₀ ×
+  (Γ »∙ A ⊢ B) × Γ ⊢ t ≡ v ∷ A × Γ ⊢ u ≡ w ∷ B [ t ]₀ ×
   Σʷ-allowed p q
-prod-cong⁻¹-Σʷ
-  {Γ = Γ} {p = p} {t = t} {u = u} {v = v} {w = w}
-  {q = q} {A = A} {B = B} prod≡prod =
+prod-cong⁻¹-Σʷ {Γ} {p} {t} {u} {v} {w} {q} {A} {B} prod≡prod =
   ⊢B , t≡v , u≡w , ok
   where
   ⊢ΣAB = syntacticEqTerm prod≡prod .proj₁
@@ -156,10 +152,10 @@ prod-cong⁻¹-Σʷ
     Γ ⊢ sndʷ p q A B (prodʷ p t u) ≡ sndʷ p q A B (prodʷ p v w) ∷
       B [ fstʷ p A (prodʷ p t u) ]₀                                →⟨ (λ hyp → trans
                                                                          (sym′ (sndʷ-β-≡ ⊢B ⊢t ⊢u ok))
-                                                                            (trans hyp
-                                                                               (conv (sndʷ-β-≡ ⊢B ⊢v ⊢w ok)
-                                                                                  (substTypeEq (refl ⊢B)
-                                                                                     (fstʷ-cong (refl ⊢A) (sym′ prod≡prod)))))) ⟩
+                                                                         (trans hyp
+                                                                            (conv (sndʷ-β-≡ ⊢B ⊢v ⊢w ok)
+                                                                               (substTypeEq (refl ⊢B)
+                                                                                  (fstʷ-cong (refl ⊢A) (sym′ prod≡prod)))))) ⟩
 
     Γ ⊢ u ≡ w ∷ B [ fstʷ p A (prodʷ p t u) ]₀                      →⟨ flip _⊢_≡_∷_.conv (substTypeEq (refl ⊢B) fst-t,u≡t) ⟩
 
@@ -168,9 +164,9 @@ prod-cong⁻¹-Σʷ
 -- An "inverse" of prod-cong.
 
 prod-cong⁻¹ :
-  ⦃ ok : No-equality-reflection or-empty Γ ⦄ →
+  ⦃ ok : No-equality-reflection or-empty (Γ .vars) ⦄ →
   Γ ⊢ prod s p t u ≡ prod s p v w ∷ Σ⟨ s ⟩ p , q ▷ A ▹ B →
-  (Γ ∙ A ⊢ B) × Γ ⊢ t ≡ v ∷ A × Γ ⊢ u ≡ w ∷ B [ t ]₀ ×
+  (Γ »∙ A ⊢ B) × Γ ⊢ t ≡ v ∷ A × Γ ⊢ u ≡ w ∷ B [ t ]₀ ×
   Σ-allowed s p q
 prod-cong⁻¹ {s = 𝕤} = prod-cong⁻¹-Σˢ
 prod-cong⁻¹ {s = 𝕨} = prod-cong⁻¹-Σʷ
@@ -188,7 +184,7 @@ prod-cong⁻¹ {s = 𝕨} = prod-cong⁻¹-Σʷ
 ¬-Σʷ-η-prodʷ-fstʷ-sndʷ :
   ⦃ not-ok : No-equality-reflection ⦄ →
   Σʷ-allowed p q →
-  ¬ (∀ {n} {Γ : Con Term n} {t A B} →
+  ¬ (∀ {m n} {Γ : Cons m n} {t A B} →
      Γ ⊢ t ∷ Σʷ p , q ▷ A ▹ B →
      Γ ⊢ prodʷ p (fstʷ p A t) (sndʷ p q A B t) ≡ t ∷ Σʷ p , q ▷ A ▹ B)
 ¬-Σʷ-η-prodʷ-fstʷ-sndʷ {p = p} {q = q} Σ-ok hyp = ¬fst,snd≡ fst,snd≡
@@ -201,24 +197,24 @@ prod-cong⁻¹ {s = 𝕨} = prod-cong⁻¹-Σʷ
   t′ : Term 1
   t′ = var x0
 
-  ⊢Γ : ⊢ Γ′
-  ⊢Γ = ∙ ΠΣⱼ (ℕⱼ (∙ ℕⱼ ε)) Σ-ok
+  ⊢Γ : ε »⊢ Γ′
+  ⊢Γ = ∙ ΠΣⱼ (ℕⱼ (∙ ℕⱼ εε)) Σ-ok
 
-  ⊢B : Γ′ ∙ A′ ⊢ B′
+  ⊢B : ε » Γ′ ∙ A′ ⊢ B′
   ⊢B = ℕⱼ (∙ ℕⱼ ⊢Γ)
 
-  ⊢t : Γ′ ⊢ t′ ∷ Σʷ p , q ▷ A′ ▹ B′
+  ⊢t : ε » Γ′ ⊢ t′ ∷ Σʷ p , q ▷ A′ ▹ B′
   ⊢t = var ⊢Γ here
 
   fst,snd≡ :
-    Γ′ ⊢ prodʷ p (fstʷ p A′ t′) (sndʷ p q A′ B′ t′) ≡ t′ ∷
+    ε » Γ′ ⊢ prodʷ p (fstʷ p A′ t′) (sndʷ p q A′ B′ t′) ≡ t′ ∷
       Σʷ p , q ▷ A′ ▹ B′
   fst,snd≡ = hyp ⊢t
 
   ¬fst,snd≡ :
-    ¬ Γ′ ⊢ prodʷ p (fstʷ p A′ t′) (sndʷ p q A′ B′ t′) ≡ t′ ∷
+    ¬ ε » Γ′ ⊢ prodʷ p (fstʷ p A′ t′) (sndʷ p q A′ B′ t′) ≡ t′ ∷
         Σʷ p , q ▷ A′ ▹ B′
-  ¬fst,snd≡ = prodʷ≢ne ⦃ ok = included ⦄ (var _)
+  ¬fst,snd≡ = prodʷ≢ne ⦃ ok = included ⦄ _ (var⁺ _)
 
 -- If Σʷ-allowed p q holds for some p and q, and equality reflection
 -- is not allowed, then a certain definitional η-rule for Σʷ, fstʷ and
@@ -227,7 +223,7 @@ prod-cong⁻¹ {s = 𝕨} = prod-cong⁻¹-Σʷ
 ¬-Σʷ-η :
   ⦃ not-ok : No-equality-reflection ⦄ →
   Σʷ-allowed p q →
-  ¬ (∀ {n} {Γ : Con Term n} {t A B u} →
+  ¬ (∀ {m n} {Γ : Cons m n} {t A B u} →
      Γ ⊢ t ∷ Σʷ p , q ▷ A ▹ B →
      Γ ⊢ u ∷ Σʷ p , q ▷ A ▹ B →
      Γ ⊢ fstʷ p A t ≡ fstʷ p A u ∷ A →

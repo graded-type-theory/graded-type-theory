@@ -36,6 +36,7 @@ import Graded.Erasure.Target.Reasoning
 open import Definition.Untyped M
 open import Definition.Untyped.Neutral M type-variant
 open import Definition.Untyped.Properties M
+open import Definition.Untyped.Whnf M type-variant
 
 open import Definition.Typed R
 open import Definition.Typed.Consequences.Inequality R
@@ -75,7 +76,7 @@ opaque
 
   -- Validity of Unit.
 
-  Unitʳ : γ ▸ Γ ⊩ʳ Unit s l ∷[ m ] U l
+  Unitʳ : γ ▸ Γ ⊩ʳ Unit s l ∷[ m ∣ n ] U l
   Unitʳ =
     ▸⊩ʳ∷⇔ .proj₂ λ _ _ →
     ®∷→®∷◂ (®∷U⇔ .proj₂ (Uᵣ (λ { PE.refl → T.refl })))
@@ -86,7 +87,7 @@ opaque
 
   starʳ :
     Unit-allowed s →
-    γ ▸ Γ ⊩ʳ star s l ∷[ m ] Unit s l
+    γ ▸ Γ ⊩ʳ star s l ∷[ m ∣ n ] Unit s l
   starʳ ok =
     ▸⊩ʳ∷⇔ .proj₂ λ _ _ →
     ®∷→®∷◂ (®∷Unit⇔ .proj₂ (starᵣ (⇒*→⇛ (id (starⱼ ⊢Δ ok))) T.refl))
@@ -96,17 +97,17 @@ opaque
   -- Validity of unitrec.
 
   unitrecʳ :
-    Γ ∙ Unitʷ l ⊢ A →
-    Γ ⊢ t ∷ Unitʷ l →
-    Γ ⊢ u ∷ A [ starʷ l ]₀ →
-    γ ▸ Γ ⊩ʳ t ∷[ m ᵐ· p ] Unitʷ l →
-    δ ▸ Γ ⊩ʳ u ∷[ m ] A [ starʷ l ]₀ →
-    (p PE.≡ 𝟘 → Empty-con Δ ⊎ Unitʷ-η) →
-    p ·ᶜ γ +ᶜ δ ▸ Γ ⊩ʳ unitrec l p q A t u ∷[ m ] A [ t ]₀
+    ts » Γ ∙ Unitʷ l ⊢ A →
+    ts » Γ ⊢ t ∷ Unitʷ l →
+    ts » Γ ⊢ u ∷ A [ starʷ l ]₀ →
+    γ ▸ Γ ⊩ʳ t ∷[ m ᵐ· p ∣ n ] Unitʷ l →
+    δ ▸ Γ ⊩ʳ u ∷[ m ∣ n ] A [ starʷ l ]₀ →
+    (p PE.≡ 𝟘 → Empty-con Δ × Transparent ts ⊎ Unitʷ-η) →
+    p ·ᶜ γ +ᶜ δ ▸ Γ ⊩ʳ unitrec l p q A t u ∷[ m ∣ n ] A [ t ]₀
   unitrecʳ {m = 𝟘ᵐ} _ _ _ _ _ _ =
     ▸⊩ʳ∷[𝟘ᵐ]
   unitrecʳ
-    {Γ} {l} {A} {t} {u} {γ} {m = 𝟙ᵐ} {p} {δ} {q}
+    {Γ} {l} {A} {t} {u} {γ} {m = 𝟙ᵐ} {p} {n} {δ} {q}
     ⊢A ⊢t ⊢u ⊩ʳt ⊩ʳu p≡𝟘→ =
     ▸⊩ʳ∷⇔ .proj₂ λ {σ = σ} {σ′ = σ′} ⊢σ σ®σ′ →
     case
@@ -114,7 +115,7 @@ opaque
          case PE.sym $ ≢𝟘→⌞⌟≡𝟙ᵐ p≢𝟘 of λ
            𝟙ᵐ≡⌞p⌟ →                                            $⟨ σ®σ′ ⟩
 
-         σ ® σ′ ∷[ 𝟙ᵐ ] Γ ◂ p ·ᶜ γ +ᶜ δ                        →⟨ (subsumption-®∷[]◂ λ x →
+         σ ® σ′ ∷[ 𝟙ᵐ ∣ n ] Γ ◂ p ·ᶜ γ +ᶜ δ                    →⟨ (subsumption-®∷[∣]◂ λ x →
 
            (p ·ᶜ γ +ᶜ δ) ⟨ x ⟩ PE.≡ 𝟘                                →⟨ proj₁ ∘→ +ᶜ-positive-⟨⟩ (_ ·ᶜ γ) ⟩
            (p ·ᶜ γ) ⟨ x ⟩ PE.≡ 𝟘                                     →⟨ ·ᶜ-zero-product-⟨⟩ γ ⟩
@@ -123,9 +124,9 @@ opaque
                                                                            }) ⟩
            γ ⟨ x ⟩ PE.≡ 𝟘                                            □) ⟩
 
-         σ ® σ′ ∷[ 𝟙ᵐ ] Γ ◂ γ                                  ≡⟨ PE.cong₃ (_®_∷[_]_◂_ _ _) 𝟙ᵐ≡⌞p⌟ PE.refl PE.refl ⟩→
+         σ ® σ′ ∷[ 𝟙ᵐ ∣ n ] Γ ◂ γ                              ≡⟨ PE.cong₄ (_®_∷[_∣_]_◂_ _ _) 𝟙ᵐ≡⌞p⌟ PE.refl PE.refl PE.refl ⟩→
 
-         σ ® σ′ ∷[ ⌞ p ⌟ ] Γ ◂ γ                               →⟨ ▸⊩ʳ∷⇔ .proj₁ ⊩ʳt ⊢σ ⟩
+         σ ® σ′ ∷[ ⌞ p ⌟ ∣ n ] Γ ◂ γ                           →⟨ ▸⊩ʳ∷⇔ .proj₁ ⊩ʳt ⊢σ ⟩
 
          t [ σ ] ® erase str t T.[ σ′ ] ∷ Unitʷ l ◂ ⌜ ⌞ p ⌟ ⌝  →⟨ ®∷→®∷◂ω (non-trivial ∘→ PE.trans (PE.cong ⌜_⌝ 𝟙ᵐ≡⌞p⌟)) ⟩
 
@@ -155,12 +156,12 @@ opaque
 
     case
       (λ
-         (t[σ]≡⋆ : Δ ⊢ t [ σ ] ≡ starʷ l ∷ Unitʷ l)
+         (t[σ]≡⋆ : ts » Δ ⊢ t [ σ ] ≡ starʷ l ∷ Unitʷ l)
          unitrec⇛u[σ] →                                                   $⟨ σ®σ′ ⟩
 
-         σ ® σ′ ∷[ 𝟙ᵐ ] Γ ◂ p ·ᶜ γ +ᶜ δ                                   →⟨ subsumption-®∷[]◂ (λ _ → proj₂ ∘→ +ᶜ-positive-⟨⟩ (_ ·ᶜ γ)) ⟩
+         σ ® σ′ ∷[ 𝟙ᵐ ∣ n ] Γ ◂ p ·ᶜ γ +ᶜ δ                               →⟨ subsumption-®∷[∣]◂ (λ _ → proj₂ ∘→ +ᶜ-positive-⟨⟩ (_ ·ᶜ γ)) ⟩
 
-         σ ® σ′ ∷[ 𝟙ᵐ ] Γ ◂ δ                                             →⟨ ▸⊩ʳ∷⇔ .proj₁ ⊩ʳu ⊢σ ⟩
+         σ ® σ′ ∷[ 𝟙ᵐ ∣ n ] Γ ◂ δ                                         →⟨ ▸⊩ʳ∷⇔ .proj₁ ⊩ʳu ⊢σ ⟩
 
          u [ σ ] ® erase str u T.[ σ′ ] ∷ A [ starʷ l ]₀ [ σ ] ◂ 𝟙        →⟨ conv-®∷◂ $
                                                                              PE.subst₂ (_⊢_≡_ _) (PE.sym $ singleSubstLift A _)
@@ -205,10 +206,12 @@ opaque
               (no p≢𝟘) →
                 case p≢𝟘→t[σ]®t[σ′] p≢𝟘 of λ {
                   (starᵣ t[σ]⇛⋆ _) →
-                starʷ≢ne no-η t′-ne
+                starʷ≢ne no-η idᶠ t′-ne
                   (starʷ l  ≡˘⟨ ⇛→⊢≡ t[σ]⇛⋆ ⟩⊢
                    t [ σ ]  ⇒*⟨ t[σ]⇒t′ ⟩⊢∎
                    t′       ∎) }
               (yes p≡𝟘) → case p≡𝟘→ p≡𝟘 of λ where
-                (inj₁ ε) → noClosedNe t′-ne
-                (inj₂ η) → no-η η
+                (inj₂ η)        → no-η η
+                (inj₁ (ε , tr)) →
+                  glass-closed-no-ne $
+                  PE.subst (flip (Neutral _) _) tr t′-ne

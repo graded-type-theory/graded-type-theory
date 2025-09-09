@@ -26,8 +26,8 @@ open import Tools.Nat using (Nat)
 
 private
   variable
-    n       : Nat
-    Γ       : Con Term n
+    m n     : Nat
+    Γ       : Cons m n
     A B t u : Term n
     l₁ l₂   : Universe-level
 
@@ -49,14 +49,16 @@ opaque
   emb-≤-⊩ p (ℕᵣ x) = ℕᵣ x
   emb-≤-⊩ p (Emptyᵣ x) = Emptyᵣ x
   emb-≤-⊩ p (Unitᵣ′ l′ l′≤ A⇒ ok) = Unitᵣ′ l′ (≤ᵘ-trans l′≤ p) A⇒ ok
-  emb-≤-⊩ p (ne′ inc k D neK K≡K) = ne′ inc k D neK K≡K
+  emb-≤-⊩ p (ne′ k D neK K≡K) = ne′ k D neK K≡K
   emb-≤-⊩ p (Bᵣ′ W F G D A≡A [F] [G] G-ext ok) = Bᵣ′ W F G D A≡A
-    (λ [ρ] → emb-≤-⊩ p ([F] [ρ]))
-    (λ [ρ] [a] → emb-≤-⊩ p ([G] [ρ] (irrelevanceTerm (emb-≤-⊩ p ([F] [ρ])) ([F] [ρ]) [a])))
-    (λ [ρ] [a] [b] a≡b → irrelevanceEq _ _ $ G-ext [ρ]
-        (irrelevanceTerm (emb-≤-⊩ p ([F] [ρ])) ([F] [ρ]) [a])
-        (irrelevanceTerm (emb-≤-⊩ p ([F] [ρ])) ([F] [ρ]) [b])
-        (irrelevanceEqTerm (emb-≤-⊩ p ([F] [ρ])) ([F] [ρ]) a≡b))
+    (λ [ξ] [ρ] → emb-≤-⊩ p ([F] [ξ] [ρ]))
+    (λ [ξ] [ρ] [a] →
+       emb-≤-⊩ p $ [G] [ξ] [ρ] $
+       irrelevanceTerm (emb-≤-⊩ p ([F] [ξ] [ρ])) ([F] [ξ] [ρ]) [a])
+    (λ [ξ] [ρ] [a] [b] a≡b → irrelevanceEq _ _ $ G-ext [ξ] [ρ]
+        (irrelevanceTerm (emb-≤-⊩ p ([F] [ξ] [ρ])) ([F] [ξ] [ρ]) [a])
+        (irrelevanceTerm (emb-≤-⊩ p ([F] [ξ] [ρ])) ([F] [ξ] [ρ]) [b])
+        (irrelevanceEqTerm (emb-≤-⊩ p ([F] [ξ] [ρ])) ([F] [ξ] [ρ]) a≡b))
     ok
   emb-≤-⊩ p (Idᵣ (Idᵣ Ty lhs rhs ⇒*Id ⊩Ty ⊩lhs ⊩rhs)) =
     Idᵣ (Idᵣ Ty lhs rhs ⇒*Id (emb-≤-⊩ p ⊩Ty) (emb-≤-⊩∷ {⊩A = ⊩Ty} ⊩lhs) (emb-≤-⊩∷ {⊩A = ⊩Ty} ⊩rhs))

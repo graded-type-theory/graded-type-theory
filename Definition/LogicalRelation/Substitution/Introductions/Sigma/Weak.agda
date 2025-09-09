@@ -33,11 +33,13 @@ open import Definition.Typed.Properties R
 open import Definition.Typed.Reasoning.Reduction R
 open import Definition.Typed.Substitution R
 import Definition.Typed.Weakening R as W
+open import Definition.Typed.Weakening.Definition R
 open import Definition.Typed.Well-formed R
 
 open import Definition.Untyped M
 open import Definition.Untyped.Neutral M type-variant
 open import Definition.Untyped.Properties M
+open import Definition.Untyped.Whnf M type-variant
 
 open import Tools.Empty
 open import Tools.Fin
@@ -49,8 +51,10 @@ import Tools.PropositionalEquality as PE
 open import Tools.Reasoning.PropositionalEquality
 
 private variable
-  n                                             : Nat
-  Γ Δ Η                                         : Con Term _
+  m n                                           : Nat
+  ∇                                             : DCon (Term 0) _
+  Δ Η                                           : Con Term _
+  Γ                                             : Cons _ _
   A B C C₁ C₂ t t₁ t₁₁ t₁₂ t₂ t₂₁ t₂₂ u u₁ u₂ v : Term _
   σ σ₁ σ₂                                       : Subst _ _
   p q q′ r                                      : M
@@ -64,16 +68,15 @@ private variable
 infix 4 _⊩⟨_⟩_≡_∷Σʷ_,_▷_▹_
 
 data _⊩⟨_⟩_≡_∷Σʷ_,_▷_▹_
-       (Γ : Con Term n) (l : Universe-level) :
+       (Γ : Cons m n) (l : Universe-level) :
        Term n → Term n → M → M → Term n → Term (1+ n) → Set a where
   prodₙ :
     Γ ⊩⟨ l ⟩ t₁₁ ≡ t₂₁ ∷ A →
     Γ ⊩⟨ l ⟩ t₁₂ ≡ t₂₂ ∷ B [ t₁₁ ]₀ →
     Γ ⊩⟨ l ⟩ prodʷ p t₁₁ t₁₂ ≡ prodʷ p t₂₁ t₂₂ ∷Σʷ p , q ▷ A ▹ B
   ne :
-    Neutrals-included →
-    Neutral t₁ →
-    Neutral t₂ →
+    Neutralₗ (Γ .defs) t₁ →
+    Neutralₗ (Γ .defs) t₂ →
     Γ ⊢ t₁ ~ t₂ ∷ Σʷ p , q ▷ A ▹ B →
     Γ ⊩⟨ l ⟩ t₁ ≡ t₂ ∷Σʷ p , q ▷ A ▹ B
 
@@ -83,10 +86,11 @@ opaque
   -- products.
 
   ⊩≡∷Σʷ→Product :
-    Γ ⊩⟨ l ⟩ t ≡ u ∷Σʷ p , q ▷ A ▹ B → Product t × Product u
+    Γ ⊩⟨ l ⟩ t ≡ u ∷Σʷ p , q ▷ A ▹ B →
+    Productₗ (Γ .defs) t × Productₗ (Γ .defs) u
   ⊩≡∷Σʷ→Product = λ where
-    (prodₙ _ _)        → prodₙ , prodₙ
-    (ne _ t-ne u-ne _) → ne t-ne , ne u-ne
+    (prodₙ _ _)      → prodₙ , prodₙ
+    (ne t-ne u-ne _) → ne t-ne , ne u-ne
 
 opaque
   unfolding _⊩⟨_⟩_≡_∷_
@@ -116,9 +120,7 @@ opaque
                 case PE.singleton u₂-prod of λ {
                   (prodₙ    , PE.refl) → ⊥-elim (Lift.lower rest);
                   (ne u₂-ne , PE.refl) →
-                case rest of λ {
-                  (inc , u₁~u₂) →
-                ne inc u₁-ne u₂-ne u₁~u₂ }}
+                ne u₁-ne u₂-ne rest }
               (prodₙ , PE.refl) →
                 case PE.singleton u₂-prod of λ {
                   (ne _  , PE.refl) → ⊥-elim (Lift.lower rest);
@@ -128,10 +130,10 @@ opaque
                    _ , _ , u₁₁≡u₂₁ , u₁₂≡u₂₂) →
                 prodₙ
                   (PE.subst (_⊩⟨_⟩_≡_∷_ _ _ _ _) (wk-id _)
-                     (⊩wk-A _ , u₁₁≡u₂₁))
+                     (⊩wk-A _ _ , u₁₁≡u₂₁))
                   (PE.subst (_⊩⟨_⟩_≡_∷_ _ _ _ _)
                      (PE.cong _[ _ ]₀ $ wk-lift-id B)
-                     (⊩wk-B _ _ , u₁₂≡u₂₂)) }}) }})
+                     (⊩wk-B _ _ _ , u₁₂≡u₂₂)) }}) }})
     , (λ (⊩Σ , rest) →
          case B-view ⊩Σ of λ {
            (Bᵣ ⊩Σ@(Bᵣ _ _ Σ⇒*Σ _ ⊩wk-A ⊩wk-B _ _)) →
@@ -151,33 +153,32 @@ opaque
                 case wf-⊩≡∷ u₁₁≡u₂₁ of λ
                   (⊩u₁₁ , ⊩u₂₁) →
                   prodₙ , prodₙ , PE.refl , PE.refl , PE.refl , PE.refl
-                , ⊩∷→⊩∷/ (⊩wk-A _)
+                , ⊩∷→⊩∷/ (⊩wk-A _ _)
                     (PE.subst (_⊩⟨_⟩_∷_ _ _ _) (PE.sym $ wk-id _) ⊩u₁₁)
-                , ⊩∷→⊩∷/ (⊩wk-A _)
+                , ⊩∷→⊩∷/ (⊩wk-A _ _)
                     (PE.subst (_⊩⟨_⟩_∷_ _ _ _) (PE.sym $ wk-id _) ⊩u₂₁)
-                , ⊩≡∷→⊩≡∷/ (⊩wk-A _)
+                , ⊩≡∷→⊩≡∷/ (⊩wk-A _ _)
                     (PE.subst (_⊩⟨_⟩_≡_∷_ _ _ _ _) (PE.sym $ wk-id _)
                        u₁₁≡u₂₁)
-                , ⊩≡∷→⊩≡∷/ (⊩wk-B _ _)
+                , ⊩≡∷→⊩≡∷/ (⊩wk-B _ _ _)
                     (PE.subst (_⊩⟨_⟩_≡_∷_ _ _ _ _)
                        (PE.sym $ PE.cong _[ _ ]₀ $ wk-lift-id B) u₁₂≡u₂₂)
-              (ne inc u₁-ne u₂-ne u₁~u₂) →
-                ne u₁-ne , ne u₂-ne , (inc , u₁~u₂))) }})
+              (ne u₁-ne u₂-ne u₁~u₂) →
+                ne u₁-ne , ne u₂-ne , u₁~u₂)) }})
 
 -- A type used to state ⊩∷Σʷ⇔.
 
 infix 4 _⊩⟨_⟩_∷Σʷ_,_▷_▹_
 
 data _⊩⟨_⟩_∷Σʷ_,_▷_▹_
-       (Γ : Con Term n) (l : Universe-level) :
+       (Γ : Cons m n) (l : Universe-level) :
        Term n → M → M → Term n → Term (1+ n) → Set a where
   prodₙ :
     Γ ⊩⟨ l ⟩ t₁ ∷ A →
     Γ ⊩⟨ l ⟩ t₂ ∷ B [ t₁ ]₀ →
     Γ ⊩⟨ l ⟩ prodʷ p t₁ t₂ ∷Σʷ p , q ▷ A ▹ B
   ne :
-    Neutrals-included →
-    Neutral t →
+    Neutralₗ (Γ .defs) t →
     Γ ⊢~ t ∷ Σʷ p , q ▷ A ▹ B →
     Γ ⊩⟨ l ⟩ t ∷Σʷ p , q ▷ A ▹ B
 
@@ -190,8 +191,8 @@ opaque
     Γ ⊩⟨ l ⟩ t ∷Σʷ p , q ▷ A ▹ B ⇔ Γ ⊩⟨ l ⟩ t ≡ t ∷Σʷ p , q ▷ A ▹ B
   ⊩∷Σʷ⇔⊩≡∷Σʷ =
       (λ where
-         (prodₙ ⊩t₁ ⊩t₂)  → prodₙ (refl-⊩≡∷ ⊩t₁) (refl-⊩≡∷ ⊩t₂)
-         (ne inc t-ne ~t) → ne inc t-ne t-ne ~t)
+         (prodₙ ⊩t₁ ⊩t₂) → prodₙ (refl-⊩≡∷ ⊩t₁) (refl-⊩≡∷ ⊩t₂)
+         (ne t-ne ~t)    → ne t-ne t-ne ~t)
     , flip lemma PE.refl
     where
     lemma :
@@ -199,13 +200,13 @@ opaque
       Γ ⊩⟨ l ⟩ t ∷Σʷ p , q ▷ A ▹ B
     lemma (prodₙ t₁≡u₁ t₂≡u₂) _ =
       prodₙ (wf-⊩≡∷ t₁≡u₁ .proj₁) (wf-⊩≡∷ t₂≡u₂ .proj₁)
-    lemma (ne inc t-ne _ ~t) PE.refl = ne inc t-ne ~t
+    lemma (ne t-ne _ ~t) PE.refl = ne t-ne ~t
 
 opaque
 
   -- If Γ ⊩⟨ l ⟩ t ∷Σʷ p , q ▷ A ▹ B holds, then t is a product.
 
-  ⊩∷Σʷ→Product : Γ ⊩⟨ l ⟩ t ∷Σʷ p , q ▷ A ▹ B → Product t
+  ⊩∷Σʷ→Product : Γ ⊩⟨ l ⟩ t ∷Σʷ p , q ▷ A ▹ B → Productₗ (Γ .defs) t
   ⊩∷Σʷ→Product = proj₁ ∘→ ⊩≡∷Σʷ→Product ∘→ ⊩∷Σʷ⇔⊩≡∷Σʷ .proj₁
 
 opaque
@@ -253,7 +254,7 @@ opaque
   -- Reducibility of equality between applications of prodʷ.
 
   ⊩prodʷ≡prodʷ :
-    Γ ∙ A ⊢ B →
+    Γ »∙ A ⊢ B →
     Γ ⊩⟨ l ⟩ Σʷ p , q ▷ A ▹ B →
     Γ ⊩⟨ l′ ⟩ t₁ ≡ t₂ ∷ A →
     Γ ⊩⟨ l″ ⟩ u₁ ≡ u₂ ∷ B [ t₁ ]₀ →
@@ -283,13 +284,13 @@ private opaque
 
   ⊩prodʷ[]≡prodʷ[] :
     Σʷ-allowed p q →
-    Γ ∙ A ⊢ B →
-    Γ ∙ A ⊩ᵛ⟨ l ⟩ B →
-    Γ ⊩ᵛ⟨ l ⟩ t₁ ≡ t₂ ∷ A →
-    Γ ⊩ᵛ⟨ l′ ⟩ u₁ ≡ u₂ ∷ B [ t₁ ]₀ →
-    ⦃ inc : Neutrals-included or-empty Δ ⦄ →
-    Δ ⊩ˢ σ₁ ≡ σ₂ ∷ Γ →
-    Δ ⊩⟨ l ⟩ prodʷ p t₁ u₁ [ σ₁ ] ≡ prodʷ p t₂ u₂ [ σ₂ ] ∷
+    ∇ » Δ ∙ A ⊢ B →
+    ∇ » Δ ∙ A ⊩ᵛ⟨ l ⟩ B →
+    ∇ » Δ ⊩ᵛ⟨ l ⟩ t₁ ≡ t₂ ∷ A →
+    ∇ » Δ ⊩ᵛ⟨ l′ ⟩ u₁ ≡ u₂ ∷ B [ t₁ ]₀ →
+    ⦃ inc : Var-included or-empty Η ⦄ →
+    ∇ » Η ⊩ˢ σ₁ ≡ σ₂ ∷ Δ →
+    ∇ » Η ⊩⟨ l ⟩ prodʷ p t₁ u₁ [ σ₁ ] ≡ prodʷ p t₂ u₂ [ σ₂ ] ∷
       (Σʷ p , q ▷ A ▹ B) [ σ₁ ]
   ⊩prodʷ[]≡prodʷ[] {B} ok ⊢B ⊩B t₁≡t₂ u₁≡u₂ σ₁≡σ₂ =
     case wf-⊩ᵛ∷ $ wf-⊩ᵛ≡∷ t₁≡t₂ .proj₁ of λ
@@ -309,15 +310,19 @@ opaque
 
   prodʷ-congᵛ :
     Σʷ-allowed p q →
-    Γ ∙ A ⊢ B →
-    Γ ∙ A ⊩ᵛ⟨ l ⟩ B →
+    Γ »∙ A ⊢ B →
+    Γ »∙ A ⊩ᵛ⟨ l ⟩ B →
     Γ ⊩ᵛ⟨ l ⟩ t₁ ≡ t₂ ∷ A →
     Γ ⊩ᵛ⟨ l′ ⟩ u₁ ≡ u₂ ∷ B [ t₁ ]₀ →
     Γ ⊩ᵛ⟨ l ⟩ prodʷ p t₁ u₁ ≡ prodʷ p t₂ u₂ ∷ Σʷ p , q ▷ A ▹ B
   prodʷ-congᵛ ok ⊢B ⊩B t₁≡t₂ u₁≡u₂ =
     ⊩ᵛ≡∷⇔ʰ .proj₂
       ( ΠΣᵛ (ΠΣⱼ ⊢B ok) (wf-⊩ᵛ∷ $ wf-⊩ᵛ≡∷ t₁≡t₂ .proj₁) ⊩B
-      , ⊩prodʷ[]≡prodʷ[] ok ⊢B ⊩B t₁≡t₂ u₁≡u₂
+      , λ ξ⊇ → ⊩prodʷ[]≡prodʷ[] ok
+                                (defn-wk ξ⊇ ⊢B)
+                                (defn-wk-⊩ᵛ ξ⊇ ⊩B)
+                                (defn-wk-⊩ᵛ≡∷ ξ⊇ t₁≡t₂)
+                                (defn-wk-⊩ᵛ≡∷ ξ⊇ u₁≡u₂)
       )
 
 opaque
@@ -326,8 +331,8 @@ opaque
 
   prodʷᵛ :
     Σʷ-allowed p q →
-    Γ ∙ A ⊢ B →
-    Γ ∙ A ⊩ᵛ⟨ l ⟩ B →
+    Γ »∙ A ⊢ B →
+    Γ »∙ A ⊩ᵛ⟨ l ⟩ B →
     Γ ⊩ᵛ⟨ l ⟩ t ∷ A →
     Γ ⊩ᵛ⟨ l′ ⟩ u ∷ B [ t ]₀ →
     Γ ⊩ᵛ⟨ l ⟩ prodʷ p t u ∷ Σʷ p , q ▷ A ▹ B
@@ -356,25 +361,27 @@ opaque
   -- Reducibility of equality between applications of prodrec.
 
   ⊩prodrec≡prodrec :
-    Γ ∙ Σʷ p , q′ ▷ A ▹ B ⊢ C₁ ≡ C₂ →
-    Γ ∙ Σʷ p , q′ ▷ A ▹ B ⊩ᵛ⟨ l ⟩ C₁ ≡ C₂ →
-    Γ ⊩ᵛ⟨ l′ ⟩ t₁ ≡ t₂ ∷ Σʷ p , q′ ▷ A ▹ B →
-    Γ ∙ A ∙ B ⊢ u₁ ≡ u₂ ∷ C₁ [ prodʷ p (var x1) (var x0) ]↑² →
-    Γ ∙ A ∙ B ⊩ᵛ⟨ l″ ⟩ u₁ ≡ u₂ ∷ C₁ [ prodʷ p (var x1) (var x0) ]↑² →
-    ⦃ inc : Neutrals-included or-empty Δ ⦄ →
-    Δ ⊩ˢ σ₁ ≡ σ₂ ∷ Γ →
-    Δ ⊩⟨ l ⟩ prodrec r p q C₁ t₁ u₁ [ σ₁ ] ≡
+    ∇ » Δ ∙ Σʷ p , q′ ▷ A ▹ B ⊢ C₁ ≡ C₂ →
+    ∇ » Δ ∙ Σʷ p , q′ ▷ A ▹ B ⊩ᵛ⟨ l ⟩ C₁ ≡ C₂ →
+    ∇ » Δ ⊩ᵛ⟨ l′ ⟩ t₁ ≡ t₂ ∷ Σʷ p , q′ ▷ A ▹ B →
+    ∇ » Δ ∙ A ∙ B ⊢ u₁ ≡ u₂ ∷ C₁ [ prodʷ p (var x1) (var x0) ]↑² →
+    ∇ » Δ ∙ A ∙ B ⊩ᵛ⟨ l″ ⟩ u₁ ≡ u₂ ∷ C₁ [ prodʷ p (var x1) (var x0) ]↑² →
+    ⦃ inc : Var-included or-empty Η ⦄ →
+    ∇ » Η ⊩ˢ σ₁ ≡ σ₂ ∷ Δ →
+    ∇ » Η ⊩⟨ l ⟩ prodrec r p q C₁ t₁ u₁ [ σ₁ ] ≡
       prodrec r p q C₂ t₂ u₂ [ σ₂ ] ∷ C₁ [ t₁ ]₀ [ σ₁ ]
   ⊩prodrec≡prodrec
-    {p} {q′} {A} {B} {C₁} {C₂} {l} {t₁} {t₂} {u₁} {u₂} {Δ} {σ₁} {σ₂} {r}
-    {q} ⊢C₁≡C₂ C₁≡C₂ t₁≡t₂ ⊢u₁≡u₂ u₁≡u₂ σ₁≡σ₂ =
+    {∇} {p} {q′} {A} {B} {C₁} {C₂} {l} {t₁} {t₂} {u₁} {u₂} {Η} {σ₁} {σ₂}
+    {r} {q} ⊢C₁≡C₂ C₁≡C₂ t₁≡t₂ ⊢u₁≡u₂ u₁≡u₂ σ₁≡σ₂ =
     case wf-⊢≡ ⊢C₁≡C₂ of λ
       (⊢C₁ , ⊢C₂) →
     case wf-⊩ᵛ≡ C₁≡C₂ of λ
       (⊩C₁ , _) →
     case wf-⊩ˢ≡∷ σ₁≡σ₂ of λ
       (⊩σ₁ , _) →
-    case wf-⊢ˢʷ≡∷ (escape-⊩ˢ≡∷ σ₁≡σ₂ .proj₂) of λ
+    case escape-⊩ˢ≡∷ σ₁≡σ₂ .proj₂ of λ
+      ⊢σ₁≡σ₂ →
+    case wf-⊢ˢʷ≡∷ ⊢σ₁≡σ₂ of λ
       (_ , ⊢σ₁ , ⊢σ₂) →
     case subst-⊢-⇑ ⊢C₁ ⊢σ₁ of λ
       ⊢C₁[σ₁⇑] →
@@ -425,7 +432,7 @@ opaque
     case ≅-eq $ escape-⊩≡ C₁[σ₁⇑][v₁]≡C₂[σ₂⇑][v₂] of λ
       C₁[σ₁⇑][v₁]≡C₂[σ₂⇑][v₂] →
     case
-      Δ ⊩⟨ l ⟩ prodrec r p q (C₁ [ σ₁ ⇑ ]) v₁ (u₁ [ σ₁ ⇑ ⇑ ]) ≡
+      ∇ » Η ⊩⟨ l ⟩ prodrec r p q (C₁ [ σ₁ ⇑ ]) v₁ (u₁ [ σ₁ ⇑ ⇑ ]) ≡
         prodrec r p q (C₂ [ σ₂ ⇑ ]) v₂ (u₂ [ σ₂ ⇑ ⇑ ]) ∷
         C₁ [ σ₁ ⇑ ] [ v₁ ]₀ ∋
       (case v₁≡v₂∷Σʷ of λ where
@@ -457,19 +464,17 @@ opaque
                                                                            ⟩∎∷
            prodrec r p q (C₂ [ σ₂ ⇑ ]) (prodʷ p v₂₁ v₂₂) (u₂ [ σ₂ ⇑ ⇑ ])  ∎
 
-         (ne inc v₁-ne v₂-ne v₁~v₂) →
-           let instance
-                 inc′ : Neutrals-included or-empty Η
-                 inc′ = included ⦃ inc = inc ⦄
-           in
-           neutral-⊩≡∷ inc ⊩C₁[σ₁⇑][v₁]
+         (ne v₁-ne v₂-ne v₁~v₂) →
+           neutral-⊩≡∷ ⊩C₁[σ₁⇑][v₁]
              (prodrecₙ v₁-ne) (prodrecₙ v₂-ne) $
            ~-prodrec
-             (R.escape-⊩≡ $
+             (with-inc-⊢≅ (subst-⊢≡ ⊢C₁≡C₂ (⊢ˢʷ≡∷-⇑ (≅-eq (escape-⊩≡ ΣAB[σ₁]≡ΣAB[σ₂])) ⊢σ₁≡σ₂)) $
+              R.escape-⊩≡ ⦃ inc = included ⦄ $
               ⊩ᵛ≡→⊩ˢ≡∷→⊩[⇑]≡[⇑] C₁≡C₂ σ₁≡σ₂)
              v₁~v₂
              (PE.subst (_⊢_≅_∷_ _ _ _) (subst-β-prodrec C₁ _) $
-              R.escape-⊩≡∷ $
+              with-inc-⊢≅∷ (subst-⊢≡∷-⇑ ⊢u₁≡u₂ ⊢σ₁≡σ₂) $
+              R.escape-⊩≡∷ ⦃ inc = included ⦄ $
               ⊩ᵛ≡∷→⊩ˢ≡∷→⊩[⇑⇑]≡[⇑⇑]∷ u₁≡u₂ σ₁≡σ₂) ok)
     of λ
       lemma →
@@ -493,17 +498,21 @@ opaque
   -- Validity of equality preservation for prodrec.
 
   prodrec-congᵛ :
-    Γ ∙ Σʷ p , q′ ▷ A ▹ B ⊢ C₁ ≡ C₂ →
-    Γ ∙ Σʷ p , q′ ▷ A ▹ B ⊩ᵛ⟨ l ⟩ C₁ ≡ C₂ →
+    Γ »∙ Σʷ p , q′ ▷ A ▹ B ⊢ C₁ ≡ C₂ →
+    Γ »∙ Σʷ p , q′ ▷ A ▹ B ⊩ᵛ⟨ l ⟩ C₁ ≡ C₂ →
     Γ ⊩ᵛ⟨ l′ ⟩ t₁ ≡ t₂ ∷ Σʷ p , q′ ▷ A ▹ B →
-    Γ ∙ A ∙ B ⊢ u₁ ≡ u₂ ∷ C₁ [ prodʷ p (var x1) (var x0) ]↑² →
-    Γ ∙ A ∙ B ⊩ᵛ⟨ l″ ⟩ u₁ ≡ u₂ ∷ C₁ [ prodʷ p (var x1) (var x0) ]↑² →
+    Γ »∙ A »∙ B ⊢ u₁ ≡ u₂ ∷ C₁ [ prodʷ p (var x1) (var x0) ]↑² →
+    Γ »∙ A »∙ B ⊩ᵛ⟨ l″ ⟩ u₁ ≡ u₂ ∷ C₁ [ prodʷ p (var x1) (var x0) ]↑² →
     Γ ⊩ᵛ⟨ l ⟩ prodrec r p q C₁ t₁ u₁ ≡ prodrec r p q C₂ t₂ u₂ ∷
       C₁ [ t₁ ]₀
   prodrec-congᵛ ⊢C₁≡C₂ C₁≡C₂ t₁≡t₂ ⊢u₁≡u₂ u₁≡u₂ =
     ⊩ᵛ≡∷⇔ʰ .proj₂
       ( ⊩ᵛ→⊩ᵛ∷→⊩ᵛ[]₀ (wf-⊩ᵛ≡ C₁≡C₂ .proj₁) (wf-⊩ᵛ≡∷ t₁≡t₂ .proj₁)
-      , ⊩prodrec≡prodrec ⊢C₁≡C₂ C₁≡C₂ t₁≡t₂ ⊢u₁≡u₂ u₁≡u₂
+      , λ ξ⊇ → ⊩prodrec≡prodrec (defn-wkEq ξ⊇ ⊢C₁≡C₂)
+                                (defn-wk-⊩ᵛ≡ ξ⊇ C₁≡C₂)
+                                (defn-wk-⊩ᵛ≡∷ ξ⊇ t₁≡t₂)
+                                (defn-wkEqTerm ξ⊇ ⊢u₁≡u₂)
+                                (defn-wk-⊩ᵛ≡∷ ξ⊇ u₁≡u₂)
       )
 
 opaque
@@ -511,11 +520,11 @@ opaque
   -- Validity of prodrec.
 
   prodrecᵛ :
-    Γ ∙ Σʷ p , q′ ▷ A ▹ B ⊢ C →
-    Γ ∙ Σʷ p , q′ ▷ A ▹ B ⊩ᵛ⟨ l ⟩ C →
+    Γ »∙ Σʷ p , q′ ▷ A ▹ B ⊢ C →
+    Γ »∙ Σʷ p , q′ ▷ A ▹ B ⊩ᵛ⟨ l ⟩ C →
     Γ ⊩ᵛ⟨ l′ ⟩ t ∷ Σʷ p , q′ ▷ A ▹ B →
-    Γ ∙ A ∙ B ⊢ u ∷ C [ prodʷ p (var x1) (var x0) ]↑² →
-    Γ ∙ A ∙ B ⊩ᵛ⟨ l″ ⟩ u ∷ C [ prodʷ p (var x1) (var x0) ]↑² →
+    Γ »∙ A »∙ B ⊢ u ∷ C [ prodʷ p (var x1) (var x0) ]↑² →
+    Γ »∙ A »∙ B ⊩ᵛ⟨ l″ ⟩ u ∷ C [ prodʷ p (var x1) (var x0) ]↑² →
     Γ ⊩ᵛ⟨ l ⟩ prodrec r p q C t u ∷ C [ t ]₀
   prodrecᵛ ⊢C ⊩C ⊩t ⊢u ⊩u =
     ⊩ᵛ∷⇔⊩ᵛ≡∷ .proj₂ $
@@ -527,17 +536,23 @@ opaque
   -- Validity of prodrec-β.
 
   prodrec-βᵛ :
-    Γ ∙ Σʷ p , q′ ▷ A ▹ B ⊢ C →
+    Γ »∙ Σʷ p , q′ ▷ A ▹ B ⊢ C →
     Γ ⊩ᵛ⟨ l″ ⟩ t ∷ A →
     Γ ⊩ᵛ⟨ l‴ ⟩ u ∷ B [ t ]₀ →
-    Γ ∙ A ∙ B ⊢ v ∷ C [ prodʷ p (var x1) (var x0) ]↑² →
-    Γ ∙ A ∙ B ⊩ᵛ⟨ l ⟩ v ∷ C [ prodʷ p (var x1) (var x0) ]↑² →
+    Γ »∙ A »∙ B ⊢ v ∷ C [ prodʷ p (var x1) (var x0) ]↑² →
+    Γ »∙ A »∙ B ⊩ᵛ⟨ l ⟩ v ∷ C [ prodʷ p (var x1) (var x0) ]↑² →
     Γ ⊩ᵛ⟨ l ⟩ prodrec r p q C (prodʷ p t u) v ≡ v [ t , u ]₁₀ ∷
       C [ prodʷ p t u ]₀
   prodrec-βᵛ {B} {C} {v} ⊢C ⊩t ⊩u ⊢v ⊩v =
     ⊩ᵛ∷-⇐
-      (λ ⊩σ →
-         let _ , ⊢σ = escape-⊩ˢ∷ ⊩σ in
+      (λ ξ⊇ ⊩σ →
+         let _ , ⊢σ = escape-⊩ˢ∷ ⊩σ
+             ⊢C = defn-wk ξ⊇ ⊢C
+             ⊩t = defn-wk-⊩ᵛ∷ ξ⊇ ⊩t
+             ⊩u = defn-wk-⊩ᵛ∷ ξ⊇ ⊩u
+             ⊢v = defn-wkTerm ξ⊇ ⊢v
+             ⊩v = defn-wk-⊩ᵛ∷ ξ⊇ ⊩v
+         in
          PE.subst₂ (_⊢_⇒_∷_ _ _) (PE.sym $ [,]-[]-commute v)
            (PE.sym $ singleSubstLift C _) $
          prodrec-β-⇒ (subst-⊢-⇑ ⊢C ⊢σ)

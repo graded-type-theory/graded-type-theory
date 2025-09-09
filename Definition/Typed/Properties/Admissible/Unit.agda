@@ -33,7 +33,7 @@ open import Tools.Relation
 open import Tools.Sum using (_⊎_; inj₁; inj₂)
 
 private variable
-  Γ                          : Con Term _
+  Γ                          : Cons _ _
   A A₁ A₂ t t′ t₁ t₂ u u₁ u₂ : Term _
   s                          : Strength
   l                          : Universe-level
@@ -61,7 +61,7 @@ opaque
   -- A variant of unitrecⱼ.
 
   unitrecⱼ′ :
-    Γ ∙ Unitʷ l ⊢ A →
+    Γ »∙ Unitʷ l ⊢ A →
     Γ ⊢ t ∷ Unitʷ l →
     Γ ⊢ u ∷ A [ starʷ l ]₀ →
     Γ ⊢ unitrec l p q A t u ∷ A [ t ]₀
@@ -73,7 +73,7 @@ opaque
   -- A generalisation of unitrec-cong.
 
   unitrec-cong′ :
-    Γ ∙ Unitʷ l ⊢ A₁ ≡ A₂ →
+    Γ »∙ Unitʷ l ⊢ A₁ ≡ A₂ →
     Γ ⊢ t₁ ≡ t₂ ∷ Unitʷ l →
     Γ ⊢ u₁ ≡ u₂ ∷ A₁ [ starʷ l ]₀ →
     Γ ⊢ unitrec l p q A₁ t₁ u₁ ≡ unitrec l p q A₂ t₂ u₂ ∷ A₁ [ t₁ ]₀
@@ -103,7 +103,7 @@ opaque
   -- A generalisation of _⊢_≡_∷_.unitrec-β.
 
   unitrec-β-≡ :
-    Γ ∙ Unitʷ l ⊢ A →
+    Γ »∙ Unitʷ l ⊢ A →
     Γ ⊢ t ∷ A [ starʷ l ]₀ →
     Γ ⊢ unitrec l p q A (starʷ l) t ≡ t ∷ A [ starʷ l ]₀
   unitrec-β-≡ ⊢A ⊢t =
@@ -122,7 +122,7 @@ opaque
   -- A generalisation of _⊢_⇒_∷_.unitrec-β.
 
   unitrec-β-⇒ :
-    Γ ∙ Unitʷ l ⊢ A →
+    Γ »∙ Unitʷ l ⊢ A →
     Γ ⊢ t ∷ A [ starʷ l ]₀ →
     Γ ⊢ unitrec l p q A (starʷ l) t ⇒ t ∷ A [ starʷ l ]₀
   unitrec-β-⇒ ⊢A ⊢t =
@@ -142,7 +142,7 @@ opaque
   -- A variant of _⊢_≡_∷_.unitrec-β-η.
 
   unitrec-β-η-≡ :
-    Γ ∙ Unitʷ l ⊢ A →
+    Γ »∙ Unitʷ l ⊢ A →
     Γ ⊢ t ∷ Unitʷ l →
     Γ ⊢ u ∷ A [ starʷ l ]₀ →
     Unitʷ-η →
@@ -155,7 +155,7 @@ opaque
   -- A variant of _⊢_⇒_∷_.unitrec-β-η.
 
   unitrec-β-η-⇒ :
-    Γ ∙ Unitʷ l ⊢ A →
+    Γ »∙ Unitʷ l ⊢ A →
     Γ ⊢ t ∷ Unitʷ l →
     Γ ⊢ u ∷ A [ starʷ l ]₀ →
     Unitʷ-η →
@@ -168,7 +168,7 @@ opaque
   -- A variant of unitrec-subst
 
   unitrec-subst′ :
-    Γ ∙ Unitʷ l ⊢ A →
+    Γ »∙ Unitʷ l ⊢ A →
     Γ ⊢ u ∷ A [ starʷ l ]₀ →
     Γ ⊢ t₁ ⇒ t₂ ∷ Unitʷ l →
     ¬ Unitʷ-η →
@@ -183,7 +183,7 @@ opaque
 
   unitrec-subst* :
     Γ ⊢ t ⇒* t′ ∷ Unitʷ l →
-    Γ ∙ Unitʷ l ⊢ A →
+    Γ »∙ Unitʷ l ⊢ A →
     Γ ⊢ u ∷ A [ starʷ l ]₀ →
     ¬ Unitʷ-η →
     Γ ⊢ unitrec l p q A t u ⇒* unitrec l p q A t′ u ∷ A [ t ]₀
@@ -204,7 +204,7 @@ opaque
   -- A typing rule for unitrec⟨_⟩.
 
   ⊢unitrec⟨⟩ :
-    Γ ∙ Unit s l ⊢ A →
+    Γ »∙ Unit s l ⊢ A →
     Γ ⊢ t ∷ Unit s l →
     Γ ⊢ u ∷ A [ star s l ]₀ →
     Γ ⊢ unitrec⟨ s ⟩ l p q A t u ∷ A [ t ]₀
@@ -219,7 +219,7 @@ opaque
   -- A reduction rule for unitrec⟨_⟩.
 
   unitrec⟨⟩-β-⇒* :
-    (s PE.≡ 𝕨 → Γ ∙ Unit s l ⊢ A) →
+    (s PE.≡ 𝕨 → Γ »∙ Unit s l ⊢ A) →
     Γ ⊢ t ∷ A [ star s l ]₀ →
     Γ ⊢ unitrec⟨ s ⟩ l p q A (star s l) t ⇒* t ∷ A [ star s l ]₀
   unitrec⟨⟩-β-⇒* {s = 𝕨} ⊢A ⊢t =
@@ -232,7 +232,7 @@ opaque
   -- An equality rule for unitrec⟨_⟩.
 
   unitrec⟨⟩-β-≡ :
-    (s PE.≡ 𝕨 → Γ ∙ Unit s l ⊢ A) →
+    (s PE.≡ 𝕨 → Γ »∙ Unit s l ⊢ A) →
     Γ ⊢ t ∷ A [ star s l ]₀ →
     Γ ⊢ unitrec⟨ s ⟩ l p q A (star s l) t ≡ t ∷ A [ star s l ]₀
   unitrec⟨⟩-β-≡ ⊢A ⊢t =
@@ -244,7 +244,7 @@ opaque
   -- Another reduction rule for unitrec⟨_⟩.
 
   unitrec⟨⟩-subst :
-    Γ ∙ Unit s l ⊢ A →
+    Γ »∙ Unit s l ⊢ A →
     Γ ⊢ u ∷ A [ star s l ]₀ →
     Γ ⊢ t₁ ⇒ t₂ ∷ Unit s l →
     s PE.≡ 𝕤 ⊎ ¬ Unitʷ-η →
@@ -267,7 +267,7 @@ opaque
   -- Another equality rule for unitrec⟨_⟩.
 
   unitrec⟨⟩-cong :
-    Γ ∙ Unit s l ⊢ A₁ ≡ A₂ →
+    Γ »∙ Unit s l ⊢ A₁ ≡ A₂ →
     Γ ⊢ t₁ ≡ t₂ ∷ Unit s l →
     Γ ⊢ u₁ ≡ u₂ ∷ A₁ [ star s l ]₀ →
     Γ ⊢ unitrec⟨ s ⟩ l p q A₁ t₁ u₁ ≡ unitrec⟨ s ⟩ l p q A₂ t₂ u₂ ∷

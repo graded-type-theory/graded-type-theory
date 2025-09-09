@@ -46,8 +46,11 @@ open import Tools.Reasoning.PropositionalEquality
 open Definition.Typed.Properties.Admissible.Identity.Primitive R public
 
 private variable
-  n                                                    : Nat
-  Γ Γ₁ Γ₂                                              : Con Term _
+  ∇                                                    : DCon (Term 0) _
+  m n                                                  : Nat
+  Δ Δ₁ Δ₂                                              : Con Term _
+  Γ                                                    : Cons _ _
+  Η                                                    : Cons _ _
   A A₁ A₁₁ A₁₂ A₂ A₂₁ A₂₂ A′ B B₁ B₂ C
     eq eq₁ eq₁₁ eq₁₂ eq₂ eq₂₁ eq₂₂
     t t₁ t₁₁ t₁₂ t₂ t₂₁ t₂₂ t′ u u₁ u₁₁ u₁₂ u₂ u₂₁ u₂₂
@@ -81,7 +84,7 @@ opaque
   -- A variant of the typing rule for J.
 
   Jⱼ′ :
-    Γ ∙ A ∙ Id (wk1 A) (wk1 t) (var x0) ⊢ B →
+    Γ »∙ A »∙ Id (wk1 A) (wk1 t) (var x0) ⊢ B →
     Γ ⊢ u ∷ B [ t , rfl ]₁₀ →
     Γ ⊢ w ∷ Id A t v →
     Γ ⊢ J p q A t B u v w ∷ B [ v , w ]₁₀
@@ -97,7 +100,7 @@ opaque
   J-cong′ :
     Γ ⊢ A₁ ≡ A₂ →
     Γ ⊢ t₁ ≡ t₂ ∷ A₁ →
-    Γ ∙ A₁ ∙ Id (wk1 A₁) (wk1 t₁) (var x0) ⊢ B₁ ≡ B₂ →
+    Γ »∙ A₁ »∙ Id (wk1 A₁) (wk1 t₁) (var x0) ⊢ B₁ ≡ B₂ →
     Γ ⊢ u₁ ≡ u₂ ∷ B₁ [ t₁ , rfl ]₁₀ →
     Γ ⊢ v₁ ≡ v₂ ∷ A₁ →
     Γ ⊢ w₁ ≡ w₂ ∷ Id A₁ t₁ v₁ →
@@ -112,7 +115,7 @@ opaque
 
   J-β-≡ :
     Γ ⊢ t ∷ A →
-    Γ ∙ A ∙ Id (wk1 A) (wk1 t) (var x0) ⊢ B →
+    Γ »∙ A »∙ Id (wk1 A) (wk1 t) (var x0) ⊢ B →
     Γ ⊢ u ∷ B [ t , rfl ]₁₀ →
     Γ ⊢ J p q A t B u t rfl ≡ u ∷ B [ t , rfl ]₁₀
   J-β-≡ {Γ} {t} {A} ⊢t ⊢B ⊢u =
@@ -121,7 +124,7 @@ opaque
     -- If a strengthening lemma is proved then one can perhaps drop
     -- the first argument of J-β-≡.
 
-    _ : Γ ∙ A ⊢ wk1 t ∷ wk1 A
+    _ : Γ »∙ A ⊢ wk1 t ∷ wk1 A
     _ =
       case wf ⊢B of λ {
         (∙ ⊢Id) →
@@ -134,7 +137,7 @@ opaque
   -- A variant of J-subst.
 
   J-subst′ :
-    Γ ∙ A ∙ Id (wk1 A) (wk1 t) (var x0) ⊢ B →
+    Γ »∙ A »∙ Id (wk1 A) (wk1 t) (var x0) ⊢ B →
     Γ ⊢ u ∷ B [ t , rfl ]₁₀ →
     Γ ⊢ w₁ ⇒ w₂ ∷ Id A t v →
     Γ ⊢ J p q A t B u v w₁ ⇒ J p q A t B u v w₂ ∷ B [ v , w₁ ]₁₀
@@ -148,7 +151,7 @@ opaque
   -- A variant of J-subst for _⊢_⇒*_∷_.
 
   J-subst* :
-    Γ ∙ A ∙ Id (wk1 A) (wk1 t) (var x0) ⊢ B →
+    Γ »∙ A »∙ Id (wk1 A) (wk1 t) (var x0) ⊢ B →
     Γ ⊢ u ∷ B [ t , rfl ]₁₀ →
     Γ ⊢ w₁ ⇒* w₂ ∷ Id A t v →
     Γ ⊢ J p q A t B u v w₁ ⇒* J p q A t B u v w₂ ∷ B [ v , w₁ ]₁₀
@@ -172,7 +175,7 @@ opaque
   -- A lemma related to the type of an application of J.
 
   J-result :
-    Γ ∙ A ∙ Id (wk1 A) (wk1 t) (var x0) ⊢ B →
+    Γ »∙ A »∙ Id (wk1 A) (wk1 t) (var x0) ⊢ B →
     Γ ⊢ w ∷ Id A t v →
     Γ ⊢ B [ v , w ]₁₀
   J-result ⊢B ⊢w =
@@ -185,7 +188,7 @@ opaque
   -- A lemma related to the type of an application of J.
 
   J-result-cong :
-    Γ ∙ A₁ ∙ Id (wk1 A₁) (wk1 t₁) (var x0) ⊢ B₁ ≡ B₂ →
+    Γ »∙ A₁ »∙ Id (wk1 A₁) (wk1 t₁) (var x0) ⊢ B₁ ≡ B₂ →
     Γ ⊢ v₁ ≡ v₂ ∷ A₁ →
     Γ ⊢ w₁ ≡ w₂ ∷ Id A₁ t₁ v₁ →
     Γ ⊢ B₁ [ v₁ , w₁ ]₁₀ ≡ B₂ [ v₂ , w₂ ]₁₀
@@ -198,7 +201,7 @@ opaque
   -- A lemma related to the type of one of the assumptions of J.
 
   J-motive-rfl-cong :
-    Γ ∙ A₁ ∙ Id (wk1 A₁) (wk1 t₁) (var x0) ⊢ B₁ ≡ B₂ →
+    Γ »∙ A₁ »∙ Id (wk1 A₁) (wk1 t₁) (var x0) ⊢ B₁ ≡ B₂ →
     Γ ⊢ t₁ ≡ t₂ ∷ A₁ →
     Γ ⊢ B₁ [ t₁ , rfl ]₁₀ ≡ B₂ [ t₂ , rfl ]₁₀
   J-motive-rfl-cong B₁≡B₂ t₁≡t₂ =
@@ -211,7 +214,7 @@ opaque
 
   J-β-⇒ :
     Γ ⊢ t ≡ t′ ∷ A →
-    Γ ∙ A ∙ Id (wk1 A) (wk1 t) (var x0) ⊢ B →
+    Γ »∙ A »∙ Id (wk1 A) (wk1 t) (var x0) ⊢ B →
     Γ ⊢ u ∷ B [ t , rfl ]₁₀ →
     Γ ⊢ J p q A t B u t′ rfl ⇒ u ∷ B [ t , rfl ]₁₀
   J-β-⇒ t≡t′ ⊢B =
@@ -225,7 +228,7 @@ opaque
 
   J-motive-context-type :
     Γ ⊢ t ∷ A →
-    Γ ∙ A ⊢ Id (wk1 A) (wk1 t) (var x0)
+    Γ »∙ A ⊢ Id (wk1 A) (wk1 t) (var x0)
   J-motive-context-type ⊢t =
     case syntacticTerm ⊢t of λ {
       ⊢A →
@@ -237,7 +240,7 @@ opaque
 
   J-motive-context :
     Γ ⊢ t ∷ A →
-    ⊢ Γ ∙ A ∙ Id (wk1 A) (wk1 t) (var x0)
+    ⊢ Γ »∙ A »∙ Id (wk1 A) (wk1 t) (var x0)
   J-motive-context ⊢t = ∙ J-motive-context-type ⊢t
 
 opaque
@@ -247,7 +250,7 @@ opaque
   J-motive-context-cong″ :
     Γ ⊢ A₁ ≡ A₂ →
     Γ ⊢ t₁ ≡ t₂ ∷ A₁ →
-    Γ ∙ A₁ ⊢
+    Γ »∙ A₁ ⊢
       Id (wk1 A₁) (wk1 t₁) (var x0) ≡
       Id (wk1 A₂) (wk1 t₂) (var x0)
   J-motive-context-cong″ A₁≡A₂ t₁≡t₂ =
@@ -259,23 +262,23 @@ opaque
   -- A variant of the previous lemma.
 
   J-motive-context-cong :
-    ⊢ Γ₁ ≡ Γ₂ →
-    Γ₁ ⊢ A₁ ≡ A₂ →
-    Γ₁ ⊢ t₁ ≡ t₂ ∷ A₁ →
-    ⊢ Γ₁ ∙ A₁ ∙ Id (wk1 A₁) (wk1 t₁) (var x0) ≡
-      Γ₂ ∙ A₂ ∙ Id (wk1 A₂) (wk1 t₂) (var x0)
-  J-motive-context-cong Γ₁≡Γ₂ A₁≡A₂ t₁≡t₂ =
-    Γ₁≡Γ₂ ∙ A₁≡A₂ ∙ J-motive-context-cong″ A₁≡A₂ t₁≡t₂
+    ∇ »⊢ Δ₁ ≡ Δ₂ →
+    ∇ » Δ₁ ⊢ A₁ ≡ A₂ →
+    ∇ » Δ₁ ⊢ t₁ ≡ t₂ ∷ A₁ →
+    ∇ »⊢ Δ₁ ∙ A₁ ∙ Id (wk1 A₁) (wk1 t₁) (var x0) ≡
+      Δ₂ ∙ A₂ ∙ Id (wk1 A₂) (wk1 t₂) (var x0)
+  J-motive-context-cong Δ₁≡Δ₂ A₁≡A₂ t₁≡t₂ =
+    Δ₁≡Δ₂ ∙ A₁≡A₂ ∙ J-motive-context-cong″ A₁≡A₂ t₁≡t₂
 
 opaque
 
   -- A variant of the previous lemma.
 
   J-motive-context-cong′ :
-    Γ ⊢ A₁ ≡ A₂ →
-    Γ ⊢ t₁ ≡ t₂ ∷ A₁ →
-    ⊢ Γ ∙ A₁ ∙ Id (wk1 A₁) (wk1 t₁) (var x0) ≡
-      Γ ∙ A₂ ∙ Id (wk1 A₂) (wk1 t₂) (var x0)
+    ∇ » Δ ⊢ A₁ ≡ A₂ →
+    ∇ » Δ ⊢ t₁ ≡ t₂ ∷ A₁ →
+    ∇ »⊢ Δ ∙ A₁ ∙ Id (wk1 A₁) (wk1 t₁) (var x0) ≡
+      Δ ∙ A₂ ∙ Id (wk1 A₂) (wk1 t₂) (var x0)
   J-motive-context-cong′ A₁≡A₂ =
     J-motive-context-cong (reflConEq (wfEq A₁≡A₂)) A₁≡A₂
 
@@ -287,7 +290,7 @@ opaque
   -- A variant of K-subst for _⊢_⇒*_∷_.
 
   K-subst* :
-    Γ ∙ Id A t t ⊢ B →
+    Γ »∙ Id A t t ⊢ B →
     Γ ⊢ u ∷ B [ rfl ]₀ →
     Γ ⊢ v₁ ⇒* v₂ ∷ Id A t t →
     K-allowed →
@@ -306,7 +309,7 @@ opaque
   -- A lemma related to the type of one of the assumptions of K.
 
   K-motive-rfl-cong :
-    Γ ∙ Id A₁ t₁ t₁ ⊢ B₁ ≡ B₂ →
+    Γ »∙ Id A₁ t₁ t₁ ⊢ B₁ ≡ B₂ →
     Γ ⊢ B₁ [ rfl ]₀ ≡ B₂ [ rfl ]₀
   K-motive-rfl-cong B₁≡B₂ =
     case wfEq B₁≡B₂ of λ {
@@ -324,7 +327,7 @@ opaque
 
   -- A lemma related to the context of one of the assumptions of K.
 
-  K-motive-context : Γ ⊢ t ∷ A → ⊢ Γ ∙ Id A t t
+  K-motive-context : Γ ⊢ t ∷ A → ⊢ Γ »∙ Id A t t
   K-motive-context ⊢t = ∙ K-motive-context-type ⊢t
 
 opaque
@@ -343,21 +346,21 @@ opaque
   -- A variant of the previous lemma.
 
   K-motive-context-cong :
-    ⊢ Γ₁ ≡ Γ₂ →
-    Γ₁ ⊢ A₁ ≡ A₂ →
-    Γ₁ ⊢ t₁ ≡ t₂ ∷ A₁ →
-    ⊢ Γ₁ ∙ Id A₁ t₁ t₁ ≡ Γ₂ ∙ Id A₂ t₂ t₂
-  K-motive-context-cong Γ₁≡Γ₂ A₁≡A₂ t₁≡t₂ =
-    Γ₁≡Γ₂ ∙ K-motive-context-cong″ A₁≡A₂ t₁≡t₂
+    ∇ »⊢ Δ₁ ≡ Δ₂ →
+    ∇ » Δ₁ ⊢ A₁ ≡ A₂ →
+    ∇ » Δ₁ ⊢ t₁ ≡ t₂ ∷ A₁ →
+    ∇ »⊢ Δ₁ ∙ Id A₁ t₁ t₁ ≡ Δ₂ ∙ Id A₂ t₂ t₂
+  K-motive-context-cong Δ₁≡Δ₂ A₁≡A₂ t₁≡t₂ =
+    Δ₁≡Δ₂ ∙ K-motive-context-cong″ A₁≡A₂ t₁≡t₂
 
 opaque
 
   -- A variant of the previous lemma.
 
   K-motive-context-cong′ :
-    Γ ⊢ A₁ ≡ A₂ →
-    Γ ⊢ t₁ ≡ t₂ ∷ A₁ →
-    ⊢ Γ ∙ Id A₁ t₁ t₁ ≡ Γ ∙ Id A₂ t₂ t₂
+    ∇ » Δ ⊢ A₁ ≡ A₂ →
+    ∇ » Δ ⊢ t₁ ≡ t₂ ∷ A₁ →
+    ∇ »⊢ Δ ∙ Id A₁ t₁ t₁ ≡ Δ ∙ Id A₂ t₂ t₂
   K-motive-context-cong′ A₁≡A₂ =
     K-motive-context-cong (reflConEq (wfEq A₁≡A₂)) A₁≡A₂
 
@@ -445,7 +448,7 @@ opaque
   -- A typing rule for subst.
 
   ⊢subst :
-    Γ ∙ A ⊢ B →
+    Γ »∙ A ⊢ B →
     Γ ⊢ v ∷ Id A t u →
     Γ ⊢ w ∷ B [ t ]₀ →
     Γ ⊢ subst p A B t u v w ∷ B [ u ]₀
@@ -463,7 +466,7 @@ opaque
   -- A reduction rule for subst.
 
   subst-⇒′ :
-    Γ ∙ A ⊢ B →
+    Γ »∙ A ⊢ B →
     Γ ⊢ t ≡ t′ ∷ A →
     Γ ⊢ u ∷ B [ t ]₀ →
     Γ ⊢ subst p A B t t′ rfl u ⇒ u ∷ B [ t ]₀
@@ -479,7 +482,7 @@ opaque
   -- Another reduction rule for subst.
 
   subst-⇒ :
-    Γ ∙ A ⊢ B →
+    Γ »∙ A ⊢ B →
     Γ ⊢ t ∷ A →
     Γ ⊢ u ∷ B [ t ]₀ →
     Γ ⊢ subst p A B t t rfl u ⇒ u ∷ B [ t ]₀
@@ -490,7 +493,7 @@ opaque
   -- An equality rule for subst.
 
   subst-≡ :
-    Γ ∙ A ⊢ B →
+    Γ »∙ A ⊢ B →
     Γ ⊢ t ∷ A →
     Γ ⊢ u ∷ B [ t ]₀ →
     Γ ⊢ subst p A B t t rfl u ≡ u ∷ B [ t ]₀
@@ -504,7 +507,7 @@ opaque
 
   subst-cong :
     Γ ⊢ A₁ ≡ A₂ →
-    Γ ∙ A₁ ⊢ B₁ ≡ B₂ →
+    Γ »∙ A₁ ⊢ B₁ ≡ B₂ →
     Γ ⊢ t₁ ≡ t₂ ∷ A₁ →
     Γ ⊢ u₁ ≡ u₂ ∷ A₁ →
     Γ ⊢ v₁ ≡ v₂ ∷ Id A₁ t₁ u₁ →
@@ -526,7 +529,7 @@ opaque
   -- A reduction rule for subst.
 
   subst-subst :
-    Γ ∙ A ⊢ B →
+    Γ »∙ A ⊢ B →
     Γ ⊢ v₁ ⇒ v₂ ∷ Id A t u →
     Γ ⊢ w ∷ B [ t ]₀ →
     Γ ⊢ subst p A B t u v₁ w ⇒ subst p A B t u v₂ w ∷ B [ u ]₀
@@ -542,7 +545,7 @@ opaque
   -- A reduction rule for subst.
 
   subst-subst* :
-    Γ ∙ A ⊢ B →
+    Γ »∙ A ⊢ B →
     Γ ⊢ v₁ ⇒* v₂ ∷ Id A t u →
     Γ ⊢ w ∷ B [ t ]₀ →
     Γ ⊢ subst p A B t u v₁ w ⇒* subst p A B t u v₂ w ∷ B [ u ]₀
@@ -557,7 +560,7 @@ opaque
   -- An inversion lemma for subst.
   --
   -- If a suitable form of strengthening is proved, then it should be
-  -- easy to add Γ ∙ A ⊢ B to the result.
+  -- easy to add Γ »∙ A ⊢ B to the result.
 
   inversion-subst :
     Γ ⊢ subst p A B t u v w ∷ C →
@@ -892,7 +895,7 @@ opaque
   -- A typing rule for cong.
 
   ⊢cong :
-    Γ ∙ A ⊢ v ∷ wk1 B →
+    Γ »∙ A ⊢ v ∷ wk1 B →
     Γ ⊢ w ∷ Id A t u →
     Γ ⊢ cong p A t u B v w ∷ Id B (v [ t ]₀) (v [ u ]₀)
   ⊢cong ⊢v ⊢w =
@@ -920,7 +923,7 @@ opaque
     Γ ⊢ t₁ ≡ t₂ ∷ A₁ →
     Γ ⊢ u₁ ≡ u₂ ∷ A₁ →
     Γ ⊢ B₁ ≡ B₂ →
-    Γ ∙ A₁ ⊢ v₁ ≡ v₂ ∷ wk1 B₁ →
+    Γ »∙ A₁ ⊢ v₁ ≡ v₂ ∷ wk1 B₁ →
     Γ ⊢ w₁ ≡ w₂ ∷ Id A₁ t₁ u₁ →
     Γ ⊢ cong p A₁ t₁ u₁ B₁ v₁ w₁ ≡ cong p A₂ t₂ u₂ B₂ v₂ w₂ ∷
       Id B₁ (v₁ [ t₁ ]₀) (v₁ [ u₁ ]₀)
@@ -950,7 +953,7 @@ opaque
 
   cong-⇒ :
     Γ ⊢ t ∷ A →
-    Γ ∙ A ⊢ u ∷ wk1 B →
+    Γ »∙ A ⊢ u ∷ wk1 B →
     Γ ⊢ cong p A t t B u rfl ⇒ rfl ∷ Id B (u [ t ]₀) (u [ t ]₀)
   cong-⇒ ⊢t ⊢u =
     PE.subst (_⊢_⇒_∷_ _ _ _)
@@ -972,7 +975,7 @@ opaque
 
   cong-≡ :
     Γ ⊢ t ∷ A →
-    Γ ∙ A ⊢ u ∷ wk1 B →
+    Γ »∙ A ⊢ u ∷ wk1 B →
     Γ ⊢ cong p A t t B u rfl ≡ rfl ∷ Id B (u [ t ]₀) (u [ t ]₀)
   cong-≡ ⊢t ⊢u =
     subsetTerm (cong-⇒ ⊢t ⊢u)
@@ -983,7 +986,7 @@ opaque
   -- A reduction rule for cong.
 
   cong-subst :
-    Γ ∙ A ⊢ v ∷ wk1 B →
+    Γ »∙ A ⊢ v ∷ wk1 B →
     Γ ⊢ w₁ ⇒ w₂ ∷ Id A t u →
     Γ ⊢ cong p A t u B v w₁ ⇒ cong p A t u B v w₂ ∷
       Id B (v [ t ]₀) (v [ u ]₀)
@@ -1007,7 +1010,7 @@ opaque
   -- A reduction rule for cong.
 
   cong-subst* :
-    Γ ∙ A ⊢ v ∷ wk1 B →
+    Γ »∙ A ⊢ v ∷ wk1 B →
     Γ ⊢ w₁ ⇒* w₂ ∷ Id A t u →
     Γ ⊢ cong p A t u B v w₁ ⇒* cong p A t u B v w₂ ∷
       Id B (v [ t ]₀) (v [ u ]₀)
@@ -1032,7 +1035,7 @@ opaque
     Γ ⊢ t₂₁ ≡ t₂₂ ∷ A₂₁ →
     Γ ⊢ u₂₁ ≡ u₂₂ ∷ A₂₁ →
     Γ ⊢ B₁ ≡ B₂ →
-    Γ ∙ A₁₁ ∙ wk1 A₂₁ ⊢ v₁ ≡ v₂ ∷ wk[ 2 ]′ B₁ →
+    Γ »∙ A₁₁ »∙ wk1 A₂₁ ⊢ v₁ ≡ v₂ ∷ wk[ 2 ]′ B₁ →
     Γ ⊢ w₁₁ ≡ w₁₂ ∷ Id A₁₁ t₁₁ u₁₁ →
     Γ ⊢ w₂₁ ≡ w₂₂ ∷ Id A₂₁ t₂₁ u₂₁ →
     Γ ⊢ cong₂ p A₁₁ t₁₁ u₁₁ A₂₁ t₂₁ u₂₁ B₁ v₁ w₁₁ w₂₁ ≡
@@ -1057,8 +1060,8 @@ opaque
             (singleSubstComp _ _ v₁) (singleSubstComp _ _ v₁)) $
        cong-cong A₂₁≡A₂₂ t₂₁≡t₂₂ u₂₁≡u₂₂ B₁≡B₂
          (PE.subst₄ _⊢_≡_∷_
-            (PE.cong (_∙_ _) (wk1-sgSubst _ _)) PE.refl PE.refl
-            wk[+1]′-[₀⇑]≡ $
+            (PE.cong (_»_ _) (PE.cong (_∙_ _) (wk1-sgSubst _ _)))
+            PE.refl PE.refl wk[+1]′-[₀⇑]≡ $
           subst-⊢≡∷-⇑ v₁≡v₂ (⊢ˢʷ≡∷-sgSubst u₁₁≡u₁₂))
          w₂₁≡w₂₂)
       where
@@ -1076,7 +1079,7 @@ opaque
   -- A typing rule for cong₂.
 
   ⊢cong₂ :
-    Γ ∙ A₁ ∙ wk1 A₂ ⊢ v ∷ wk[ 2 ]′ B →
+    Γ »∙ A₁ »∙ wk1 A₂ ⊢ v ∷ wk[ 2 ]′ B →
     Γ ⊢ w₁ ∷ Id A₁ t₁ u₁ →
     Γ ⊢ w₂ ∷ Id A₂ t₂ u₂ →
     Γ ⊢ cong₂ p A₁ t₁ u₁ A₂ t₂ u₂ B v w₁ w₂ ∷
@@ -1103,7 +1106,7 @@ opaque
   cong₂-β :
     Γ ⊢ t₁ ∷ A₁ →
     Γ ⊢ t₂ ∷ A₂ →
-    Γ ∙ A₁ ∙ wk1 A₂ ⊢ u ∷ wk[ 2 ]′ B →
+    Γ »∙ A₁ »∙ wk1 A₂ ⊢ u ∷ wk[ 2 ]′ B →
     Γ ⊢ cong₂ p A₁ t₁ t₁ A₂ t₂ t₂ B u rfl rfl ≡ rfl ∷
       Id B (u [ t₁ , t₂ ]₁₀) (u [ t₁ , t₂ ]₁₀)
   cong₂-β {t₁} {A₁} {t₂} {A₂} {u} {B} {p} ⊢t₁ ⊢t₂ ⊢u =
@@ -1128,7 +1131,8 @@ opaque
                                                                                      (singleSubstComp _ _ u) (singleSubstComp _ _ u)) $
                                                                                 cong-≡ ⊢t₂
                                                                                   (PE.subst₃ _⊢_∷_
-                                                                                     (PE.cong (_∙_ _) (wk1-sgSubst _ _)) PE.refl wk[+1]′-[₀⇑]≡ $
+                                                                                     (PE.cong (_»_ _) (PE.cong (_∙_ _) (wk1-sgSubst _ _)))
+                                                                                     PE.refl wk[+1]′-[₀⇑]≡ $
                                                                                    subst-⊢∷-⇑ ⊢u (⊢ˢʷ∷-sgSubst ⊢t₁))) ⟩⊢
     transitivity B (u [ t₁ , t₂ ]₁₀) (u [ t₁ , t₂ ]₁₀)
       (u [ t₁ , t₂ ]₁₀) rfl rfl                                           ≡⟨ transitivity-≡ (rflⱼ ⊢u[,]) ⟩⊢∎
@@ -1276,7 +1280,8 @@ opaque
   cast-right-left :
     Γ ⊢ u ∷ Id (U l) A₁ A₂ →
     Γ ⊢ v ∷ Id A₂ t₁ (cast l A₁ A₂ u t₂) →
-    ∃ λ v → Γ ⊢ v ∷ Id A₁ (cast l A₂ A₁ (symmetry (U l) A₁ A₂ u) t₁) t₂
+    ∃ λ v →
+      Γ ⊢ v ∷ Id A₁ (cast l A₂ A₁ (symmetry (U l) A₁ A₂ u) t₁) t₂
   cast-right-left {u} {l} {A₁} {A₂} {t₁} {t₂} ⊢u ⊢v =
     let ⊢A₂ , _ , ⊢cast-t₂  = inversion-Id (wf-⊢∷ ⊢v)
         _ , _ , _ , ⊢t₂ , _ = inversion-cast ⊢cast-t₂
@@ -1458,10 +1463,11 @@ opaque
 opaque
 
   -- Has-function-extensionality p q l₁ l₂ Γ means that a certain
-  -- formulation of function extensionality holds for the context Γ.
+  -- formulation of function extensionality holds for the context pair
+  -- Γ.
 
   Has-function-extensionality :
-    M → M → Universe-level → Universe-level → Con Term n → Set a
+    M → M → Universe-level → Universe-level → Cons m n → Set a
   Has-function-extensionality p q l₁ l₂ Γ =
     ∃ λ t →
     Γ ⊢ t ∷
@@ -1479,14 +1485,14 @@ opaque
 
 opaque
 
-  -- Extends the context with the assumption that a certain instance
-  -- of function extensionality holds.
+  -- Extends the context pair with the assumption that a certain
+  -- instance of function extensionality holds.
 
   with-function-extensionality-assumption :
     M → M → Universe-level → Universe-level →
-    Con Term n → Con Term (1+ n)
+    Cons m n → Cons m (1+ n)
   with-function-extensionality-assumption p q l₁ l₂ Γ =
-    Γ ∙
+    Γ »∙
     Π p , q ▷ U l₁ ▹
     Π p , q ▷ (Π p , q ▷ var x0 ▹ U l₂) ▹
     let Π-type = Π p , q ▷ var x1 ▹ (var x1 ∘⟨ p ⟩ var x0) in
@@ -1505,24 +1511,24 @@ private opaque
 
   ⊢Π3Id :
     Π-allowed p q →
-    ⊢ Γ →
-    Γ ∙ U l₁ ∙ Π p , q ▷ var x0 ▹ U l₂ ∙
-    Π p , q ▷ var x1 ▹ (var x1 ∘⟨ p ⟩ var x0) ∙
+    ⊢ Η →
+    Η »∙ U l₁ »∙ Π p , q ▷ var x0 ▹ U l₂ »∙
+    Π p , q ▷ var x1 ▹ (var x1 ∘⟨ p ⟩ var x0) »∙
     Π p , q ▷ var x2 ▹ (var x2 ∘⟨ p ⟩ var x0) ⊢
     Π p , q ▷ var x3 ▹
     Id (var x3 ∘⟨ p ⟩ var x0)
       (var x2 ∘⟨ p ⟩ var x0) (var x1 ∘⟨ p ⟩ var x0)
-  ⊢Π3Id {p} {q} {Γ} ok ⊢Γ =
+  ⊢Π3Id {p} {q} {Η} ok ⊢Η =
     flip _⊢_.ΠΣⱼ ok $
     Idⱼ′ (var₂ ⊢3 ∘ⱼ var₀ ⊢3) (var₁ ⊢3 ∘ⱼ var₀ ⊢3)
     where
-    ⊢1 : Γ ∙ U l₁ ∙ Π p , q ▷ var x0 ▹ U l₂ ⊢ var x1
+    ⊢1 : Η »∙ U l₁ »∙ Π p , q ▷ var x0 ▹ U l₂ ⊢ var x1
     ⊢1 =
       _⊢_.univ $ var₁ $ flip _⊢_.ΠΣⱼ ok $
-      Uⱼ (∙ univ (var₀ (Uⱼ ⊢Γ)))
+      Uⱼ (∙ univ (var₀ (Uⱼ ⊢Η)))
 
     ⊢2 :
-      Γ ∙ U l₁ ∙ Π p , q ▷ var x0 ▹ U l₂ ∙
+      Η »∙ U l₁ »∙ Π p , q ▷ var x0 ▹ U l₂ »∙
       Π p , q ▷ var x1 ▹ (var x1 ∘⟨ p ⟩ var x0) ⊢
       var x2
     ⊢2 =
@@ -1530,8 +1536,8 @@ private opaque
       univ (var₁ ⊢1 ∘ⱼ var₀ ⊢1)
 
     ⊢3 :
-      Γ ∙ U l₁ ∙ Π p , q ▷ var x0 ▹ U l₂ ∙
-      Π p , q ▷ var x1 ▹ (var x1 ∘⟨ p ⟩ var x0) ∙
+      Η »∙ U l₁ »∙ Π p , q ▷ var x0 ▹ U l₂ »∙
+      Π p , q ▷ var x1 ▹ (var x1 ∘⟨ p ⟩ var x0) »∙
       Π p , q ▷ var x2 ▹ (var x2 ∘⟨ p ⟩ var x0) ⊢
       var x3
     ⊢3 =
@@ -1542,19 +1548,19 @@ opaque
   unfolding
     Has-function-extensionality with-function-extensionality-assumption
 
-  -- If Γ is a well-formed context and certain Π-types are allowed,
-  -- then the context
-  -- with-function-extensionality-assumption p q l₁ l₂ Γ satisfies
+  -- If Η is a well-formed context pair and certain Π-types are
+  -- allowed, then the context
+  -- with-function-extensionality-assumption p q l₁ l₂ Η satisfies
   -- Has-function-extensionality p q l₁ l₂.
 
   Has-function-extensionality-with-function-extensionality-assumption :
     Π-allowed p q →
-    ⊢ Γ →
+    ⊢ Η →
     Has-function-extensionality p q l₁ l₂
-      (with-function-extensionality-assumption p q l₁ l₂ Γ)
+      (with-function-extensionality-assumption p q l₁ l₂ Η)
   Has-function-extensionality-with-function-extensionality-assumption
-    ok ⊢Γ =
-    let ⊢Π3Id = ⊢Π3Id ok ⊢Γ in
+    ok ⊢Η =
+    let ⊢Π3Id = ⊢Π3Id ok ⊢Η in
     var x0 ,
     (var₀ $
      flip _⊢_.ΠΣⱼ ok $ flip _⊢_.ΠΣⱼ ok $ flip _⊢_.ΠΣⱼ ok $
@@ -1599,7 +1605,7 @@ opaque
     Equality-reflection →
     Γ ⊢ t ∷ Π p , q ▷ A ▹ B →
     Γ ⊢ u ∷ Π p , q ▷ A ▹ B →
-    Γ ∙ A ⊢ v ∷ Id B (wk1 t ∘⟨ p ⟩ var x0) (wk1 u ∘⟨ p ⟩ var x0) →
+    Γ »∙ A ⊢ v ∷ Id B (wk1 t ∘⟨ p ⟩ var x0) (wk1 u ∘⟨ p ⟩ var x0) →
     Γ ⊢ rfl ∷ Id (Π p , q ▷ A ▹ B) t u
   function-extensionality-∙ ok ⊢t ⊢u ⊢v =
     rflⱼ′ $ η-eq′ ⊢t ⊢u $ equality-reflection′ ok ⊢v
@@ -1631,15 +1637,15 @@ opaque
 
   -- In the presence of equality reflection
   -- Has-function-extensionality p q holds for every well-formed
-  -- context (assuming that Π-allowed p q holds).
+  -- context pair (assuming that Π-allowed p q holds).
 
   has-function-extensionality :
     Equality-reflection →
     Π-allowed p q →
-    ⊢ Γ →
-    Has-function-extensionality p q l₁ l₂ Γ
-  has-function-extensionality {p} ok Π-ok ⊢Γ =
-    let ⊢Π3Id = ⊢Π3Id Π-ok ⊢Γ in
+    ⊢ Η →
+    Has-function-extensionality p q l₁ l₂ Η
+  has-function-extensionality {p} ok Π-ok ⊢Η =
+    let ⊢Π3Id = ⊢Π3Id Π-ok ⊢Η in
     lam p (lam p (lam p (lam p (lam p rfl)))) ,
     (lamⱼ′ Π-ok $ lamⱼ′ Π-ok $ lamⱼ′ Π-ok $ lamⱼ′ Π-ok $ lamⱼ′ Π-ok $
      function-extensionality-Π ok (var₂ ⊢Π3Id) (var₁ ⊢Π3Id)
@@ -1746,13 +1752,13 @@ opaque
   -- extensionality can be proved (and that some Π-type is allowed).
 
   ΠΣ-cong-Idˡ :
-    {Γ : Con Term n} →
+    {Γ : Cons m n} →
     ΠΣ-allowed b p q →
     Π-allowed p′ q′ →
     Has-function-extensionality p′ q′ l₁ (1+ l₂) Γ →
-    Γ ∙ A₂ ⊢ B₂ ∷ U l₂ →
+    Γ »∙ A₂ ⊢ B₂ ∷ U l₂ →
     Γ ⊢ t ∷ Id (U l₁) A₁ A₂ →
-    Γ ∙ A₁ ⊢ u ∷
+    Γ »∙ A₁ ⊢ u ∷
       Id (U l₂) B₁
         (B₂ [ cast l₁ (wk1 A₁) (wk1 A₂) (wk1 t) (var x0) ]↑) →
     ∃ λ v →
@@ -1773,22 +1779,22 @@ opaque
       ⊢A₂ = inversion-Id (wf-⊢∷ ⊢t) .proj₂ .proj₂
 
     opaque
-      ⊢B₁ : Γ ∙ A₁ ⊢ B₁ ∷ U l₂
+      ⊢B₁ : Γ »∙ A₁ ⊢ B₁ ∷ U l₂
       ⊢B₁ = inversion-Id (wf-⊢∷ ⊢u) .proj₂ .proj₁
 
     opaque
-      ∙⊢Id : Γ ∙ U l₁ ⊢ Id (U l₁) (wk1 A₁) (var x0)
+      ∙⊢Id : Γ »∙ U l₁ ⊢ Id (U l₁) (wk1 A₁) (var x0)
       ∙⊢Id = Idⱼ′ (wkTerm₁ (wf-⊢∷ ⊢A₁) ⊢A₁) (var₀ (wf-⊢∷ ⊢A₁))
 
     opaque
       ∙²⊢ΠU :
-        Γ ∙ U l₁ ∙ Id (U l₁) (wk1 A₁) (var x0) ⊢
+        Γ »∙ U l₁ »∙ Id (U l₁) (wk1 A₁) (var x0) ⊢
         Π p′ , q′ ▷ var x1 ▹ U l₂
       ∙²⊢ΠU = ΠΣⱼ (Uⱼ (∙ univ (var₁ ∙⊢Id))) ok′
 
     opaque
       ∙³⊢A₁ :
-        Γ ∙ U l₁ ∙ Id (U l₁) (wk1 A₁) (var x0) ∙
+        Γ »∙ U l₁ »∙ Id (U l₁) (wk1 A₁) (var x0) »∙
         Π p′ , q′ ▷ var x1 ▹ U l₂ ⊢
         wk[ 3 ] A₁
       ∙³⊢A₁ =
@@ -1805,10 +1811,10 @@ opaque
       ⊢ΠId :
         {k : Nat} {Δ : Con Term (k N.+ n)}
         {C D t : Term (1+ (k N.+ n))} →
-        drop k Δ PE.≡ Γ →
-        Δ ∙ wk[ k ] A₁ ⊢ C ∷ Π p′ , q′ ▷ D ▹ U l₂ →
-        Δ ∙ wk[ k ] A₁ ⊢ t ∷ Id (U l₁) (wk[ 1+ k ]′ A₁) D →
-        Δ ⊢ ΠId k C D t
+        drop k Δ PE.≡ Γ .vars →
+        Γ .defs » Δ ∙ wk[ k ] A₁ ⊢ C ∷ Π p′ , q′ ▷ D ▹ U l₂ →
+        Γ .defs » Δ ∙ wk[ k ] A₁ ⊢ t ∷ Id (U l₁) (wk[ 1+ k ]′ A₁) D →
+        Γ .defs » Δ ⊢ ΠId k C D t
       ⊢ΠId {k} {Δ} PE.refl ⊢C ⊢t =
         flip _⊢_.ΠΣⱼ ok′ $
         Idⱼ′ (subst-⊢∷ ⊢B₁ (⊢ˢʷ∷-[][]↑ (var₀ (univ ⊢wk[k]A₁∷))))
@@ -1817,7 +1823,7 @@ opaque
              (PE.subst (_⊢_∷_ _ _) wk[]≡wk[]′ $
               var₀ (univ ⊢wk[k]A₁∷)))
         where
-        ⊢wk[k]A₁∷ : Δ ⊢ wk[ k ] A₁ ∷ U l₁
+        ⊢wk[k]A₁∷ : Γ .defs » Δ ⊢ wk[ k ] A₁ ∷ U l₁
         ⊢wk[k]A₁∷ =
           PE.subst₂ (_⊢_∷_ _) (PE.sym wk[]≡wk[]′) PE.refl $
           wkTerm (ʷ⊇-drop (wf (⊢∙→⊢ (wf (wf-⊢∷ ⊢C))))) ⊢A₁
@@ -1832,7 +1838,7 @@ opaque
           (wkTerm₁ (univ ⊢A₁) ⊢t)
 
     opaque
-      ΠId-lam⊢A₂ : Γ ∙ ΠId-lam ⊢ wk1 A₂ ∷ U l₁
+      ΠId-lam⊢A₂ : Γ »∙ ΠId-lam ⊢ wk1 A₂ ∷ U l₁
       ΠId-lam⊢A₂ = wkTerm₁ ⊢ΠId-lam ⊢A₂
 
     ΠId-1 : Term (3+ n)
@@ -1840,7 +1846,7 @@ opaque
 
     opaque
       ⊢ΠId-1 :
-        Γ ∙ U l₁ ∙ Id (U l₁) (wk1 A₁) (var x0) ∙
+        Γ »∙ U l₁ »∙ Id (U l₁) (wk1 A₁) (var x0) »∙
         Π p′ , q′ ▷ var x1 ▹ U l₂ ⊢
         ΠId-1
       ⊢ΠId-1 =
@@ -1851,7 +1857,7 @@ opaque
 
     opaque
       ⊢ΠId-1[] :
-        Γ ∙ Π p′ , q′ ▷ A₁ ▹ U l₂ ⊢
+        Γ »∙ Π p′ , q′ ▷ A₁ ▹ U l₂ ⊢
         ΠId-1 [ consSubst (sgSubst A₁) rfl ⇑ ]
       ⊢ΠId-1[] =
         subst-⊢ ⊢ΠId-1 $
@@ -1862,34 +1868,34 @@ opaque
         rflⱼ ⊢A₁
 
     opaque
-      ∙⊢A₁ : Γ ∙ Π p′ , q′ ▷ A₁ ▹ U l₂ ⊢ wk1 A₁ ∷ U l₁
+      ∙⊢A₁ : Γ »∙ Π p′ , q′ ▷ A₁ ▹ U l₂ ⊢ wk1 A₁ ∷ U l₁
       ∙⊢A₁ = wkTerm₁ (ΠΣⱼ (Uⱼ (∙ univ ⊢A₁)) ok′) ⊢A₁
 
     opaque
       ∙²⊢A₁ :
-        Γ ∙ ΠΣ⟨ BMΠ ⟩ p′ , q′ ▷ A₁ ▹ U l₂ ∙
+        Γ »∙ ΠΣ⟨ BMΠ ⟩ p′ , q′ ▷ A₁ ▹ U l₂ »∙
         ΠId-1 [ consSubst (sgSubst A₁) rfl ⇑ ] ⊢
         wk[ 2 ]′ A₁ ∷ U l₁
       ∙²⊢A₁ = wkTerm (stepʷ ⊇-drop ⊢ΠId-1[]) ⊢A₁
 
     opaque
       ∙³⊢U₂ :
-        Γ ∙ ΠΣ⟨ BMΠ ⟩ p′ , q′ ▷ A₁ ▹ U l₂ ∙
-        ΠId-1 [ consSubst (sgSubst A₁) rfl ⇑ ] ∙ wk[ 2 ]′ A₁ ⊢
+        Γ »∙ ΠΣ⟨ BMΠ ⟩ p′ , q′ ▷ A₁ ▹ U l₂ »∙
+        ΠId-1 [ consSubst (sgSubst A₁) rfl ⇑ ] »∙ wk[ 2 ]′ A₁ ⊢
         U l₂ ∷ U (1+ l₂)
       ∙³⊢U₂ = Uⱼ (∙ univ ∙²⊢A₁)
 
     opaque
       ∙³⊢A₁′ :
-        Γ ∙ ΠΣ⟨ BMΠ ⟩ p′ , q′ ▷ A₁ ▹ U l₂ ∙
-        ΠId-1 [ consSubst (sgSubst A₁) rfl ⇑ ] ∙ wk[ 2 ]′ A₁ ⊢
+        Γ »∙ ΠΣ⟨ BMΠ ⟩ p′ , q′ ▷ A₁ ▹ U l₂ »∙
+        ΠId-1 [ consSubst (sgSubst A₁) rfl ⇑ ] »∙ wk[ 2 ]′ A₁ ⊢
         wk[ 3 ]′ A₁ ∷ U l₁
       ∙³⊢A₁′ = wkTerm (stepʷ ⊇-drop (univ ∙²⊢A₁)) ⊢A₁
 
     opaque
       ∙³⊢A₁″ :
-        Γ ∙ ΠΣ⟨ BMΠ ⟩ p′ , q′ ▷ A₁ ▹ U l₂ ∙
-        ΠId-1 [ consSubst (sgSubst A₁) rfl ⇑ ] ∙
+        Γ »∙ ΠΣ⟨ BMΠ ⟩ p′ , q′ ▷ A₁ ▹ U l₂ »∙
+        ΠId-1 [ consSubst (sgSubst A₁) rfl ⇑ ] »∙
         ΠΣ⟨ BMΠ ⟩ p′ , q′ ▷ wk[ 2 ]′ A₁ ▹ U l₂ ⊢
         wk[ 3 ]′ A₁ ∷ U l₁
       ∙³⊢A₁″ = wkTerm (stepʷ ⊇-drop (univ (ΠΣⱼ ∙²⊢A₁ ∙³⊢U₂ ok′))) ⊢A₁
@@ -1903,8 +1909,8 @@ opaque
 
     opaque
       ⊢Π20 :
-        Γ ∙ U l₁ ∙ Id (U l₁) (wk1 A₁) (var x0) ∙
-        Π p′ , q′ ▷ var x1 ▹ U l₂ ∙ ΠId-1 ⊢
+        Γ »∙ U l₁ »∙ Id (U l₁) (wk1 A₁) (var x0) »∙
+        Π p′ , q′ ▷ var x1 ▹ U l₂ »∙ ΠId-1 ⊢
         ΠΣ⟨ b ⟩ p , q ▷ var x3 ▹ (var x2 ∘⟨ p′ ⟩ var x0) ∷
         wk[ 4 ]′ (U (l₁ ⊔ᵘ l₂))
       ⊢Π20 =
@@ -1913,7 +1919,7 @@ opaque
 
     opaque
       ⊢Π20′ :
-        Γ ∙ Π p′ , q′ ▷ A₁ ▹ U l₂ ∙
+        Γ »∙ Π p′ , q′ ▷ A₁ ▹ U l₂ »∙
         ΠId-1 [ consSubst (sgSubst A₁) rfl ⇑ ] ⊢
         ΠΣ⟨ b ⟩ p , q ▷ wk[ 2 ]′ A₁ ▹ (var x2 ∘⟨ p′ ⟩ var x0) ∷
         U (l₁ ⊔ᵘ l₂)
@@ -1926,8 +1932,8 @@ opaque
 
     opaque
       ⊢Π10 :
-        Γ ∙ Π p′ , q′ ▷ A₁ ▹ U l₂ ∙
-        ΠId-1 [ consSubst (sgSubst A₁) rfl ⇑ ] ∙
+        Γ »∙ Π p′ , q′ ▷ A₁ ▹ U l₂ »∙
+        ΠId-1 [ consSubst (sgSubst A₁) rfl ⇑ ] »∙
         wk[ 2 ]′ (Π p′ , q′ ▷ A₁ ▹ U l₂) ⊢
         ΠΣ⟨ b ⟩ p , q ▷ wk[ 3 ]′ A₁ ▹ (var x1 ∘⟨ p′ ⟩ var x0) ∷
         U (l₁ ⊔ᵘ l₂)
@@ -1939,27 +1945,27 @@ opaque
           ok
 
     opaque
-      ⊢Motive : Γ ∙ U l₁ ∙ Id (U l₁) (wk1 A₁) (var x0) ⊢ Motive
+      ⊢Motive : Γ »∙ U l₁ »∙ Id (U l₁) (wk1 A₁) (var x0) ⊢ Motive
       ⊢Motive =
         flip _⊢_.ΠΣⱼ ok′ $
         flip _⊢_.ΠΣⱼ ok′ $
         Idⱼ′ (wkTerm (ʷ⊇-drop (∙ ⊢ΠId-1)) (ΠΣⱼ ⊢A₁ ⊢B₁ ok)) ⊢Π20
 
     opaque
-      ⊢U≡λU0 : Γ ∙ A₁ ⊢ U l₂ ≡ lam p′ (U l₂) ∘⟨ p′ ⟩ var x0 ∷ U (1+ l₂)
+      ⊢U≡λU0 : Γ »∙ A₁ ⊢ U l₂ ≡ lam p′ (U l₂) ∘⟨ p′ ⟩ var x0 ∷ U (1+ l₂)
       ⊢U≡λU0 =
         sym′ $
         β-red-≡ (Uⱼ (∙ wk₁ (univ ⊢A₁) (univ ⊢A₁))) (var₀ (univ ⊢A₁)) ok′
 
     opaque
       ⊢10 :
-        Γ ∙ Π p′ , q′ ▷ A₁ ▹ U l₂ ∙ wk1 A₁ ⊢
+        Γ »∙ Π p′ , q′ ▷ A₁ ▹ U l₂ »∙ wk1 A₁ ⊢
         var x1 ∘⟨ p′ ⟩ var x0 ∷ U l₂
       ⊢10 = var₁ (univ ∙⊢A₁) ∘ⱼ var₀ (univ ∙⊢A₁)
 
     opaque
       ⊢ΠId′ :
-        Γ ∙ Π p′ , q′ ▷ A₁ ▹ U l₂ ⊢
+        Γ »∙ Π p′ , q′ ▷ A₁ ▹ U l₂ ⊢
         Π p′ , q′ ▷ wk1 A₁ ▹
         Id (U l₂) (B₁ [ 2 ][ var x0 ]↑) (var x1 ∘⟨ p′ ⟩ var x0)
       ⊢ΠId′ =
@@ -1968,7 +1974,7 @@ opaque
 
     opaque
       ∙²⊢A₁′ :
-        Γ ∙ Π p′ , q′ ▷ A₁ ▹ U l₂ ∙
+        Γ »∙ Π p′ , q′ ▷ A₁ ▹ U l₂ »∙
         Π p′ , q′ ▷ wk1 A₁ ▹
           Id (U l₂) (B₁ [ 2 ][ var x0 ]↑) (var x1 ∘⟨ p′ ⟩ var x0) ⊢
         wk[ 2 ]′ A₁ ∷ U l₁
@@ -2018,7 +2024,8 @@ opaque
                                                                                       sym′ $
                                                                                       β-red-≡
                                                                                         (PE.subst₃ _⊢_∷_
-                                                                                           (PE.cong (_∙_ _) (PE.sym wk[]≡wk[]′)) PE.refl PE.refl $
+                                                                                           (PE.cong (_»_ _) (PE.cong (_∙_ _) (PE.sym wk[]≡wk[]′)))
+                                                                                           PE.refl PE.refl $
                                                                                          wkTerm
                                                                                            (liftʷ ⊇-drop $
                                                                                             univ (wkTerm (stepʷ ⊇-drop (univ ∙⊢A₁)) ⊢A₁))
@@ -2099,7 +2106,7 @@ opaque
 
     opaque
       ⊢ext∘⁴ :
-        Γ ∙ ΠΣ⟨ BMΠ ⟩ p′ , q′ ▷ A₁ ▹ U l₂ ∙
+        Γ »∙ ΠΣ⟨ BMΠ ⟩ p′ , q′ ▷ A₁ ▹ U l₂ »∙
         ΠId-1 [ consSubst (sgSubst A₁) rfl ⇑ ] ⊢
         wk[ 2 ]′ ext∘³ ∘⟨ p′ ⟩ var x1 ∷
         Π p′ , q′ ▷
@@ -2150,7 +2157,7 @@ opaque
 
     opaque
       ⊢ext∘⁵ :
-        Γ ∙ ΠΣ⟨ BMΠ ⟩ p′ , q′ ▷ A₁ ▹ U l₂ ∙
+        Γ »∙ ΠΣ⟨ BMΠ ⟩ p′ , q′ ▷ A₁ ▹ U l₂ »∙
         ΠId-1 [ consSubst (sgSubst A₁) rfl ⇑ ] ⊢
         wk[ 2 ]′ ext∘³ ∘⟨ p′ ⟩ var x1 ∘⟨ p′ ⟩ var x0 ∷
         Id (wk[ 2 ]′ (ΠΣ⟨ BMΠ ⟩ p′ , q′ ▷ A₁ ▹ U l₂))
@@ -2191,7 +2198,8 @@ opaque
                                                                           (Id-cong
                                                                              (refl ∙³⊢U₂)
                                                                              (_⊢_≡_∷_.refl $ subst-⊢∷ ⊢B₁ $ ⊢ˢʷ∷-[][]↑ $
-                                                                              PE.subst₃ _⊢_∷_ (PE.cong (_∙_ _) wk[]≡wk[]′) PE.refl PE.refl $
+                                                                              PE.subst₃ _⊢_∷_
+                                                                                (PE.cong (_»_ _) (PE.cong (_∙_ _) wk[]≡wk[]′)) PE.refl PE.refl $
                                                                               var₀ (PE.subst (_⊢_ _) (PE.sym wk[]≡wk[]′) (univ ∙²⊢A₁)))
                                                                              (app-cong
                                                                                 (refl (var₂ (univ ∙²⊢A₁)))
@@ -2235,7 +2243,8 @@ opaque
                                                                                  PE.refl $
                                                                                β-red-≡
                                                                                  (PE.subst₃ _⊢_∷_
-                                                                                    (PE.cong (_∙_ _) $ PE.sym $ wk-comp _ _ _) PE.refl PE.refl $
+                                                                                    (PE.cong (_»_ _) (PE.cong (_∙_ _) $ PE.sym $ wk-comp _ _ _))
+                                                                                    PE.refl PE.refl $
                                                                                   wkTerm (liftʷ ⊇-drop (univ ∙³⊢A₁′)) ⊢B₁)
                                                                                  (var₀ (univ ∙²⊢A₁)) ok′)
                                                                               ok)
@@ -2398,14 +2407,14 @@ opaque
   ΠΣ-cong-Idʳ :
     ΠΣ-allowed b p q →
     Π-allowed p′ q′ →
-    Has-function-extensionality p′ q′ l₁ (1+ l₂) Γ →
-    Γ ∙ A₁ ⊢ B₁ ∷ U l₂ →
-    Γ ⊢ t ∷ Id (U l₁) A₂ A₁ →
-    Γ ∙ A₂ ⊢ u ∷
+    Has-function-extensionality p′ q′ l₁ (1+ l₂) Η →
+    Η »∙ A₁ ⊢ B₁ ∷ U l₂ →
+    Η ⊢ t ∷ Id (U l₁) A₂ A₁ →
+    Η »∙ A₂ ⊢ u ∷
       Id (U l₂) (B₁ [ cast l₁ (wk1 A₂) (wk1 A₁) (wk1 t) (var x0) ]↑)
         B₂ →
     ∃ λ v →
-      Γ ⊢ v ∷
+      Η ⊢ v ∷
         Id (U (l₁ ⊔ᵘ l₂)) (ΠΣ⟨ b ⟩ p , q ▷ A₁ ▹ B₁)
           (ΠΣ⟨ b ⟩ p , q ▷ A₂ ▹ B₂)
   ΠΣ-cong-Idʳ ok ok′ ext ⊢B₁ ⊢t ⊢u =
@@ -2438,7 +2447,7 @@ opaque
   -- that some Π-type is allowed).
 
   Id-cong-Idˡ :
-    {Γ : Con Term n} →
+    {Γ : Cons m n} →
     Π-allowed p q →
     Γ ⊢ t ∷ Id (U l) A₁ A₂ →
     Γ ⊢ u ∷ Id A₂ (cast l A₁ A₂ t t₁) t₂ →
@@ -2478,20 +2487,20 @@ opaque
       ⊢U = wf-⊢∷ ⊢A₁
 
     opaque
-      ⊢Id-U-0 : Γ ∙ U l ⊢ Id (U l) (wk1 A₁) (var x0)
+      ⊢Id-U-0 : Γ »∙ U l ⊢ Id (U l) (wk1 A₁) (var x0)
       ⊢Id-U-0 = Idⱼ′ (wkTerm₁ ⊢U ⊢A₁) (var₀ ⊢U)
 
     opaque
-      ⊢1 : Γ ∙ U l ∙ Id (U l) (wk1 A₁) (var x0) ⊢ var x1
+      ⊢1 : Γ »∙ U l »∙ Id (U l) (wk1 A₁) (var x0) ⊢ var x1
       ⊢1 = univ (var₁ ⊢Id-U-0)
 
     opaque
-      ⊢2 : Γ ∙ U l ∙ Id (U l) (wk1 A₁) (var x0) ∙ var x1 ⊢ var x2
+      ⊢2 : Γ »∙ U l »∙ Id (U l) (wk1 A₁) (var x0) »∙ var x1 ⊢ var x2
       ⊢2 = univ (var₂ ⊢1)
 
     opaque
       ⊢Id-3-cast-1 :
-        Γ ∙ U l ∙ Id (U l) (wk1 A₁) (var x0) ∙ var x1 ∙ var x2 ⊢
+        Γ »∙ U l »∙ Id (U l) (wk1 A₁) (var x0) »∙ var x1 »∙ var x2 ⊢
         Id (var x3)
           (cast l (wk[ 4 ]′ A₁) (var x3) (var x2) (wk[ 4 ]′ t₁))
           (var x1)
@@ -2506,7 +2515,7 @@ opaque
 
     opaque
       ⊢Id-4-cast-1 :
-        Γ ∙ U l ∙ Id (U l) (wk1 A₁) (var x0) ∙ var x1 ∙ var x2 ∙
+        Γ »∙ U l »∙ Id (U l) (wk1 A₁) (var x0) »∙ var x1 »∙ var x2 »∙
         Id (var x3)
           (cast l (wk[ 4 ]′ A₁) (var x3) (var x2) (wk[ 4 ]′ t₁))
           (var x1) ⊢
@@ -2537,7 +2546,7 @@ opaque
       Id (U l) (wk[ 6 ]′ (Id A₁ t₁ u₁)) (Id (var x5) (var x3) (var x2))
 
     opaque
-      ⊢Motive : Γ ∙ U l ∙ Id (U l) (wk1 A₁) (var x0) ⊢ Motive
+      ⊢Motive : Γ »∙ U l »∙ Id (U l) (wk1 A₁) (var x0) ⊢ Motive
       ⊢Motive =
         flip _⊢_.ΠΣⱼ ok $ flip _⊢_.ΠΣⱼ ok $
         flip _⊢_.ΠΣⱼ ok $ flip _⊢_.ΠΣⱼ ok $
@@ -2547,11 +2556,12 @@ opaque
              (var₂ ⊢Id-4-cast-1))
 
     opaque
-      ⊢A₁′ : Γ ∙ A₁ ⊢ wk1 A₁
+      ⊢A₁′ : Γ »∙ A₁ ⊢ wk1 A₁
       ⊢A₁′ = wk₁ (univ ⊢A₁) (univ ⊢A₁)
 
     opaque
-      ⊢Id-1 : Γ ∙ A₁ ∙ wk1 A₁ ⊢ Id (wk[ 2 ]′ A₁) (wk[ 2 ]′ t₁) (var x1)
+      ⊢Id-1 :
+        Γ »∙ A₁ »∙ wk1 A₁ ⊢ Id (wk[ 2 ]′ A₁) (wk[ 2 ]′ t₁) (var x1)
       ⊢Id-1 =
         Idⱼ′
           (wkTerm (ʷ⊇-drop (∙ ⊢A₁′)) ⊢t₁)
@@ -2560,7 +2570,7 @@ opaque
 
     opaque
       ⊢Id-1′ :
-        Γ ∙ A₁ ∙ wk1 A₁ ∙ Id (wk[ 2 ]′ A₁) (wk[ 2 ]′ t₁) (var x1) ⊢
+        Γ »∙ A₁ »∙ wk1 A₁ »∙ Id (wk[ 2 ]′ A₁) (wk[ 2 ]′ t₁) (var x1) ⊢
         Id (wk[ 3 ]′ A₁) (wk[ 3 ]′ u₁) (var x1)
       ⊢Id-1′ =
         Idⱼ′
@@ -2570,7 +2580,7 @@ opaque
 
     opaque
       ⊢A₁″ :
-        Γ ∙ A₁ ∙ wk1 A₁ ∙ Id (wk[ 2 ]′ A₁) (wk[ 2 ]′ t₁) (var x1) ∙
+        Γ »∙ A₁ »∙ wk1 A₁ »∙ Id (wk[ 2 ]′ A₁) (wk[ 2 ]′ t₁) (var x1) »∙
         Id (wk[ 3 ]′ A₁) (wk[ 3 ]′ u₁) (var x1) ⊢
         wk[ 4 ]′ A₁
       ⊢A₁″ =
@@ -2578,22 +2588,22 @@ opaque
 
     opaque
       ⊢A₁‴ :
-        Γ ∙ A₁ ∙ wk1 A₁ ∙ Id (wk[ 2 ]′ A₁) (wk[ 2 ]′ t₁) (var x1) ∙
-        Id (wk[ 3 ]′ A₁) (wk[ 3 ]′ u₁) (var x1) ∙ wk[ 4 ]′ A₁ ⊢
+        Γ »∙ A₁ »∙ wk1 A₁ »∙ Id (wk[ 2 ]′ A₁) (wk[ 2 ]′ t₁) (var x1) »∙
+        Id (wk[ 3 ]′ A₁) (wk[ 3 ]′ u₁) (var x1) »∙ wk[ 4 ]′ A₁ ⊢
         wk[ 5 ]′ A₁
       ⊢A₁‴ =
         univ $ wkTerm (ʷ⊇-drop (∙ ⊢A₁″)) ⊢A₁
 
     opaque
       ⊢Id-1-0 :
-        Γ ∙ A₁ ∙ wk1 A₁ ∙
-        Id (wk[ 2 ]′ A₁) (wk[ 2 ]′ t₁) (var x1) ∙
-        Id (wk[ 3 ]′ A₁) (wk[ 3 ]′ u₁) (var x1) ∙
-        wk[ 4 ]′ A₁ ∙ wk1 (wk[ 4 ]′ A₁) ⊢
+        Γ »∙ A₁ »∙ wk1 A₁ »∙
+        Id (wk[ 2 ]′ A₁) (wk[ 2 ]′ t₁) (var x1) »∙
+        Id (wk[ 3 ]′ A₁) (wk[ 3 ]′ u₁) (var x1) »∙
+        wk[ 4 ]′ A₁ »∙ wk1 (wk[ 4 ]′ A₁) ⊢
         Id (wk[ 6 ]′ A₁) (var x1) (var x0) ∷ U l
       ⊢Id-1-0 =
         PE.subst₃ _⊢_∷_
-          (PE.cong (_∙_ _) $ wk[]-wk[]′-comp 1)
+          (PE.cong (_»_ _) (PE.cong (_∙_ _) $ wk[]-wk[]′-comp 1))
           PE.refl PE.refl $
         Idⱼ
           (wkTerm (ʷ⊇-drop (∙ ⊢A₁‴)) ⊢A₁)
@@ -2604,8 +2614,8 @@ opaque
 
     opaque
       ⊢1′ :
-        Γ ∙ A₁ ∙ wk1 A₁ ∙
-        Id (wk[ 2 ]′ A₁) (wk[ 2 ]′ t₁) (var x1) ∙
+        Γ »∙ A₁ »∙ wk1 A₁ »∙
+        Id (wk[ 2 ]′ A₁) (wk[ 2 ]′ t₁) (var x1) »∙
         Id (wk[ 3 ]′ A₁) (wk[ 3 ]′ u₁) (var x1) ⊢
         var x1 ∷ Id (wk[ 4 ]′ A₁) (wk[ 4 ]′ t₁) (var x3)
       ⊢1′ =
@@ -2617,8 +2627,8 @@ opaque
 
     opaque
       ⊢0 :
-        Γ ∙ A₁ ∙ wk1 A₁ ∙
-        Id (wk[ 2 ]′ A₁) (wk[ 2 ]′ t₁) (var x1) ∙
+        Γ »∙ A₁ »∙ wk1 A₁ »∙
+        Id (wk[ 2 ]′ A₁) (wk[ 2 ]′ t₁) (var x1) »∙
         Id (wk[ 3 ]′ A₁) (wk[ 3 ]′ u₁) (var x1) ⊢
         var x0 ∷ Id (wk[ 4 ]′ A₁) (wk[ 4 ]′ u₁) (var x2)
       ⊢0 =
@@ -2830,10 +2840,10 @@ opaque
 
   Id-cong-Idʳ :
     Π-allowed p q →
-    Γ ⊢ t ∷ Id (U l) A₂ A₁ →
-    Γ ⊢ u ∷ Id A₁ t₁ (cast l A₂ A₁ t t₂) →
-    Γ ⊢ v ∷ Id A₁ u₁ (cast l A₂ A₁ t u₂) →
-    ∃ λ w → Γ ⊢ w ∷ Id (U l) (Id A₁ t₁ u₁) (Id A₂ t₂ u₂)
+    Η ⊢ t ∷ Id (U l) A₂ A₁ →
+    Η ⊢ u ∷ Id A₁ t₁ (cast l A₂ A₁ t t₂) →
+    Η ⊢ v ∷ Id A₁ u₁ (cast l A₂ A₁ t u₂) →
+    ∃ λ w → Η ⊢ w ∷ Id (U l) (Id A₁ t₁ u₁) (Id A₂ t₂ u₂)
   Id-cong-Idʳ ok ⊢t ⊢u ⊢v =
     Id-cong-Idˡ ok (⊢symmetry ⊢t) (cast-right-left ⊢t ⊢u .proj₂)
       (cast-right-left ⊢t ⊢v .proj₂)

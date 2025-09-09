@@ -27,7 +27,7 @@ import Definition.Typed.Weakening R as W
 open import Definition.Typed.Consequences.Inequality R
 open import Definition.Typed.Consequences.Reduction R
 open import Definition.Untyped M
-open import Definition.Untyped.Neutral M type-variant
+open import Definition.Untyped.Whnf M type-variant
 
 open import Tools.Empty
 open import Tools.Function
@@ -36,8 +36,8 @@ open import Tools.Product
 
 private
   variable
-    n : Nat
-    Γ : Con Term n
+    m n : Nat
+    Γ : Cons m n
     t u A B : Term n
 
 -- Bi-directional type checking relations are complete with respect to
@@ -78,7 +78,8 @@ mutual
 
   -- Completeness of type inference
 
-  completeness⇉ : Inferable t → Γ ⊢ t ∷ A → ∃ λ B → Γ ⊢ t ⇉ B × Γ ⊢ A ≡ B
+  completeness⇉ :
+    Inferable t → Γ ⊢ t ∷ A → ∃ λ B → Γ ⊢ t ⇉ B × Γ ⊢ A ≡ B
   completeness⇉ Uᵢ ⊢t =
     _ , Uᵢ , inversion-U ⊢t
   completeness⇉ (ΠΣᵢ B C) ⊢ΠΣ =
@@ -92,6 +93,9 @@ mutual
   completeness⇉ varᵢ ⊢t =
     let B , x∷B∈Γ , A≡B = inversion-var ⊢t
     in  _ , varᵢ x∷B∈Γ , A≡B
+  completeness⇉ defnᵢ ⊢α =
+    let A′ , α↦∷A′ , A≡wkA′ = inversion-defn ⊢α
+    in  wk wk₀ A′ , defnᵢ α↦∷A′ , A≡wkA′
   completeness⇉ (∘ᵢ t u) ⊢tu =
     let F , G , q , ⊢t , ⊢u , A≡Gu = inversion-app ⊢tu
         B , t⇉B , ΠFG≡B = completeness⇉ t ⊢t

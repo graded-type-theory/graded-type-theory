@@ -26,10 +26,11 @@ open import Tools.Fin
 open import Tools.Function
 open import Tools.Nat using (Nat; 1+; 2+; Nat-set)
 open import Tools.PropositionalEquality
-open import Tools.Product
+open import Tools.Product as Σ
 open import Tools.Sum
 
 open import Definition.Untyped M
+open import Definition.Untyped.Names-below M
 
 open import Graded.Heap.Untyped type-variant UR factoring-nr
 open import Graded.Heap.Untyped.Properties type-variant UR factoring-nr
@@ -40,12 +41,12 @@ open import Graded.Modality.Properties.Subtraction semiring-with-meet
 private variable
   m n m′ n′ m″ n″ k : Nat
   t t′ u A : Term _
-  H H′ H″ H‴ : Heap _ _
+  H H′ H″ H‴ H₁ H₂ : Heap _ _
   ρ ρ′ ρ″ : Wk _ _
   c : Cont _
   S S′ S″ : Stack _
   p p′ q r r′ : M
-  s s′ s″ : State _ _ _
+  s s′ s″ s₁ s₂ : State _ _ _
   e : Entryₘ _ _
   x x′ : Fin _
 
@@ -794,8 +795,8 @@ opaque
 
 opaque
 
-  -- A kind of inversion lemma for Final
-  -- There are three different reasons a state can be Final:
+  -- A kind of inversion lemma for Final.
+  -- There are four different reasons why a state can be Final:
   -- 1. It has a variable in head position but lookup does not succeed
   --    (for the number of copies matching the current stack
   --    multiplicity).
@@ -803,15 +804,18 @@ opaque
   --    is not the case that the head matches the stack and that the
   --    stack multiplicity does not exist.
   -- 3. It has a value in head position and the stack is empty.
+  -- 4. It has a name in head position.
 
   Final-reasons :
       ∀ t → Final ⟨ H , t , ρ , S ⟩ →
       (∃ λ x → t ≡ var x ×
          (∀ {p n H′} {c : Entry _ n} → ∣ S ∣≡ p → H ⊢ wkVar ρ x ↦[ p ] c ⨾ H′ → ⊥)) ⊎
       (∃₂ λ e S′ → S ≡ e ∙ S′ × Value t × ¬ (Matching t S × ∃ ∣ S ∣≡_)) ⊎
-      Value t × S ≡ ε
+      Value t × S ≡ ε ⊎
+      (∃ λ α → t ≡ defn α)
 
   Final-reasons = λ where
+      (defn _) _ → inj₂ (inj₂ (inj₂ (_ , refl)))
       (var x) ¬d → inj₁ (_ , refl , λ x y → ¬d (⇾ₑ (var x y)))
       (U x) ¬d → inj₂ (lemma Uᵥ ¬d)
       (ΠΣ⟨ b ⟩ p , q ▷ t ▹ t₁) ¬d → inj₂ (lemma ΠΣᵥ ¬d)
@@ -872,8 +876,9 @@ opaque
           ¬d (⇒ᵥ unitrec-ηₕ x)
         lemma : ∀ {S : Stack m} → Value t → Final ⟨ H , t , ρ , S ⟩ →
                 (∃₂ λ e S′ → S ≡ e ∙ S′ × Value t × ¬ (Matching t S × ∃ ∣ S ∣≡_)) ⊎
-                Value t × S ≡ ε
-        lemma {S = ε} v _ = inj₂ (v , refl)
+                Value t × S ≡ ε ⊎
+                (∃ λ α → t ≡ defn α)
+        lemma {S = ε} v _ = inj₂ (inj₁ (v , refl))
         lemma {S = e ∙ S} v ¬d = inj₁ (_ , _ , refl , v , lemma′ v ¬d)
 
   opaque
@@ -885,7 +890,8 @@ opaque
       (∃ λ x → t ≡ var x ×
          (∀ {p n H′} {c : Entry _ n} → ∣ S ∣≡ p → H ⊢ wkVar ρ x ↦[ p ] c ⨾ H′ → ⊥)) ⊎
       (∃₂ λ e S′ → S ≡ e ∙ S′ × Value t × ¬ (Matching t S × (∃ ∣ S ∣≡_))) ⊎
-      Value t × S ≡ ε
+      Value t × S ≡ ε ⊎
+      (∃ λ α → t ≡ defn α)
     ⇘-reasons (d , ¬d) = Final-reasons _ ¬d
 
 opaque
@@ -894,13 +900,15 @@ opaque
   -- the stack implies that the usage rule for natrec with an nr function
   -- is used.
   --
-  -- In this case there are three different reasons a state can be Final:
+  -- In this case there are four different reasons why a state can be
+  -- Final:
   -- 1. It has a variable in head position but lookup does not succeed
   --    (for the number of copies matching the current stack
   --    multiplicity).
   -- 2. It has a value in head position, the stack is not empty and the
   --    head does not match the stack.
   -- 3. It has a value in head position and the stack is empty.
+  -- 4. It has a name in head position.
 
   nr∉-Final-reasons :
       ∀ t → (∀ {p r} → natrec p , r ∈ S → Nr-available) →
@@ -908,7 +916,8 @@ opaque
       (∃ λ x → t ≡ var x ×
          (∀ {p n H′} {c : Entry _ n} → ∣ S ∣≡ p → H ⊢ wkVar ρ x ↦[ p ] c ⨾ H′ → ⊥)) ⊎
       (∃₂ λ e S′ → S ≡ e ∙ S′ × Value t × ¬ Matching t S) ⊎
-      Value t × S ≡ ε
+      Value t × S ≡ ε ⊎
+      (∃ λ α → t ≡ defn α)
   nr∉-Final-reasons t has-nr ¬d =
     case Final-reasons t ¬d of λ where
       (inj₁ x) → inj₁ x
@@ -921,13 +930,15 @@ opaque
   -- A variant of the above where the stack is assumed to not contain
   -- any natrecₑ tokens.
   --
-  -- In this case there are three different reasons a state can be Final:
+  -- In this case there are four different reasons why a state can be
+  -- Final:
   -- 1. It has a variable in head position but lookup does not succeed
   --    (for the number of copies matching the current stack
   --    multiplicity).
   -- 2. It has a value in head position, the stack is not empty and the
   --    head does not match the stack.
   -- 3. It has a value in head position and the stack is empty.
+  -- 4. It has a name in head position.
 
   nr∉-Final-reasons′ :
       ∀ t → (∀ {p r} → natrec p , r ∈ S → ⊥) →
@@ -935,7 +946,8 @@ opaque
       (∃ λ x → t ≡ var x ×
          (∀ {p n H′} {c : Entry _ n} → ∣ S ∣≡ p → H ⊢ wkVar ρ x ↦[ p ] c ⨾ H′ → ⊥)) ⊎
       (∃₂ λ e S′ → S ≡ e ∙ S′ × Value t × ¬ Matching t S) ⊎
-      Value t × S ≡ ε
+      Value t × S ≡ ε ⊎
+      (∃ λ α → t ≡ defn α)
   nr∉-Final-reasons′ t nr∉ ¬d =
     nr∉-Final-reasons t (⊥-elim ∘→ nr∉) ¬d
 
@@ -974,3 +986,108 @@ opaque
     let _ , _ , _ , d′ = ⇾ₑ-inv-var d
     in  ⊥-elim (¬↦∧↦● (↦[]→↦ d′) x)
   Normal-⇾→⇒ᵥ (var _) (⇒ᵥ ())
+
+------------------------------------------------------------------------
+-- Some properties related to the No-names variants
+
+opaque
+
+  -- No-namesₛ implies No-namesₛ′.
+
+  →No-namesₛ′ : No-namesₛ s → No-namesₛ′ s
+  →No-namesₛ′ {s = ⟨ _ , _ , _ , _ ⟩} = proj₁
+
+opaque
+
+  -- If there are no names in a given heap, then there are no names in
+  -- terms or heaps obtained from the heap via the _⊢_↦[_]_⨾_ form of
+  -- lookup.
+
+  No-names-⊢↦[]⨾ :
+    H₁ ⊢ x ↦[ p ] t , ρ ⨾ H₂ → No-namesʰ H₁ →
+    No-names t × No-namesʰ H₂
+  No-names-⊢↦[]⨾ (here _) (H-nn ∙ t-nn) =
+    t-nn , H-nn ∙ t-nn
+  No-names-⊢↦[]⨾ (there x↦)  (H-nn ∙ t-nn) =
+    Σ.map idᶠ (_∙ t-nn) (No-names-⊢↦[]⨾ x↦ H-nn)
+  No-names-⊢↦[]⨾ (there● x↦) (H-nn ∙●) =
+    Σ.map idᶠ _∙● (No-names-⊢↦[]⨾ x↦ H-nn)
+
+-- No-namesₛ is preserved by several forms of reduction.
+
+opaque
+
+  No-namesₛ-⇒ₑ : s₁ ⇒ₑ s₂ → No-namesₛ s₁ → No-namesₛ s₂
+  No-namesₛ-⇒ₑ appₕ ((H-nn , app nn₁ nn₂) , S-nn) =
+    (H-nn , nn₁) , ∘ₑ nn₂ ∙ S-nn
+  No-namesₛ-⇒ₑ fstₕ ((H-nn , fst nn) , S-nn) =
+    (H-nn , nn) , fstₑ ∙ S-nn
+  No-namesₛ-⇒ₑ sndₕ ((H-nn , snd nn) , S-nn) =
+    (H-nn , nn) , sndₑ ∙ S-nn
+  No-namesₛ-⇒ₑ prodrecₕ ((H-nn , prodrec nn₁ nn₂ nn₃) , S-nn) =
+    (H-nn , nn₂) , prodrecₑ nn₁ nn₃ ∙ S-nn
+  No-namesₛ-⇒ₑ natrecₕ ((H-nn , natrec nn₁ nn₂ nn₃ nn₄) , S-nn) =
+    (H-nn , nn₄) , natrecₑ nn₁ nn₂ nn₃ ∙ S-nn
+  No-namesₛ-⇒ₑ (unitrecₕ _) ((H-nn , unitrec nn₁ nn₂ nn₃) , S-nn) =
+    (H-nn , nn₂) , unitrecₑ nn₁ nn₃ ∙ S-nn
+  No-namesₛ-⇒ₑ emptyrecₕ ((H-nn , emptyrec nn₁ nn₂) , S-nn) =
+    (H-nn , nn₂) , emptyrecₑ nn₁ ∙ S-nn
+  No-namesₛ-⇒ₑ Jₕ ((H-nn , J nn₁ nn₂ nn₃ nn₄ nn₅ nn₆) , S-nn) =
+    (H-nn , nn₆) , Jₑ nn₁ nn₂ nn₃ nn₄ nn₅ ∙ S-nn
+  No-namesₛ-⇒ₑ Kₕ ((H-nn , K nn₁ nn₂ nn₃ nn₄ nn₅) , S-nn) =
+    (H-nn , nn₅) , Kₑ nn₁ nn₂ nn₃ nn₄ ∙ S-nn
+  No-namesₛ-⇒ₑ []-congₕ ((H-nn , []-cong nn₁ nn₂ nn₃ nn₄) , S-nn) =
+    (H-nn , nn₄) , []-congₑ nn₁ nn₂ nn₃ ∙ S-nn
+
+opaque
+
+  No-namesₛ-⇾ₑ : s₁ ⇾ₑ s₂ → No-namesₛ s₁ → No-namesₛ s₂
+  No-namesₛ-⇾ₑ (var _ x↦) ((H-nn , var) , S-nn) =
+    let t-nn , H′-nn = No-names-⊢↦[]⨾ x↦ H-nn in
+    (H′-nn , t-nn) , S-nn
+  No-namesₛ-⇾ₑ (⇒ₑ s₁⇒ₑs₂) nn =
+    No-namesₛ-⇒ₑ s₁⇒ₑs₂ nn
+
+opaque
+
+  No-namesₛ-⇒ᵥ : s₁ ⇒ᵥ s₂ → No-namesₛ s₁ → No-namesₛ s₂
+  No-namesₛ-⇒ᵥ (lamₕ _) ((H-nn , lam nn₁) , ∘ₑ nn₂ ∙ S-nn) =
+    (H-nn ∙ nn₂ , nn₁) , No-namesˢ-wk S-nn
+  No-namesₛ-⇒ᵥ prodˢₕ₁ ((H-nn , prod nn _) , _ ∙ S-nn) =
+    (H-nn , nn) , S-nn
+  No-namesₛ-⇒ᵥ prodˢₕ₂ ((H-nn , prod _ nn) , _ ∙ S-nn) =
+    (H-nn , nn) , S-nn
+  No-namesₛ-⇒ᵥ
+    (prodʷₕ _) ((H-nn , prod nn₁ nn₂) , prodrecₑ _ nn₃ ∙ S-nn) =
+    (H-nn ∙ nn₁ ∙ nn₂ , nn₃) , No-namesˢ-wk S-nn
+  No-namesₛ-⇒ᵥ zeroₕ ((H-nn , _) , natrecₑ _ nn _ ∙ S-nn) =
+    (H-nn , nn) , S-nn
+  No-namesₛ-⇒ᵥ
+    (sucₕ _ _) ((H-nn , suc nn₁) , natrecₑ nn₂ nn₃ nn₄ ∙ S-nn) =
+    (H-nn ∙ nn₁ ∙
+       natrec (Names<-wk nn₂) (Names<-wk nn₃) (Names<-wk nn₄) var ,
+     nn₄) ,
+    No-namesˢ-wk S-nn
+  No-namesₛ-⇒ᵥ starʷₕ ((H-nn , _) , unitrecₑ _ nn ∙ S-nn) =
+    (H-nn , nn) , S-nn
+  No-namesₛ-⇒ᵥ (unitrec-ηₕ _) ((H-nn , unitrec _ _ nn) , S-nn) =
+    (H-nn , nn) , S-nn
+  No-namesₛ-⇒ᵥ rflₕⱼ ((H-nn , _) , Jₑ _ _ _ nn _ ∙ S-nn) =
+    (H-nn , nn) , S-nn
+  No-namesₛ-⇒ᵥ rflₕₖ ((H-nn , _) , Kₑ _ _ _ nn ∙ S-nn) =
+    (H-nn , nn) , S-nn
+  No-namesₛ-⇒ᵥ rflₕₑ ((H-nn , _) , _ ∙ S-nn) =
+    (H-nn , rfl) , S-nn
+
+opaque
+
+  No-namesₛ-⇾ : s₁ ⇾ s₂ → No-namesₛ s₁ → No-namesₛ s₂
+  No-namesₛ-⇾ (⇾ₑ s₁⇾ₑs₂) = No-namesₛ-⇾ₑ s₁⇾ₑs₂
+  No-namesₛ-⇾ (⇒ᵥ s₁⇒ᵥs₂) = No-namesₛ-⇒ᵥ s₁⇒ᵥs₂
+
+opaque
+
+  No-namesₛ-⇾* : s₁ ⇾* s₂ → No-namesₛ s₁ → No-namesₛ s₂
+  No-namesₛ-⇾* id               = idᶠ
+  No-namesₛ-⇾* (s₁⇾s₂ ⇨ s₂⇾*s₃) =
+    No-namesₛ-⇾* s₂⇾*s₃ ∘→ No-namesₛ-⇾ s₁⇾s₂

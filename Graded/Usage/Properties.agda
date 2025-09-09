@@ -21,6 +21,7 @@ open import Graded.Usage 𝕄 R
 open import Graded.Usage.Inversion 𝕄 R
 open import Graded.Usage.Erased-matches
 open import Graded.Usage.Restrictions.Natrec 𝕄
+open import Graded.Usage.Weakening 𝕄 R
 open import Graded.Modality.Nr-instances
 open import Graded.Modality.Properties 𝕄
 open import Graded.Mode 𝕄
@@ -33,7 +34,7 @@ open import Tools.Bool using (Bool; T)
 open import Tools.Empty
 open import Tools.Fin
 open import Tools.Function
-open import Tools.Nat using (Nat; 1+)
+open import Tools.Nat as N using (Nat; 1+; _<′_)
 open import Tools.Product
 open import Tools.PropositionalEquality as PE
 open import Tools.Relation
@@ -47,7 +48,8 @@ private
 
 private
   variable
-    n l : Nat
+    α n l : Nat
+    ∇ : DCon (Term 0) n
     Γ : Con Term n
     A B F t u v w : Term n
     G : Term (1+ n)
@@ -259,6 +261,8 @@ opaque
        𝟘ᶜ , x ≔ 𝟘  ∎)
     where
     open CR
+  ▸-𝟘 defn =
+    defn
   ▸-𝟘 (lamₘ {p} t) = lamₘ
     (sub (▸-𝟘 t) $ begin
        𝟘ᶜ ∙ 𝟘 · p  ≈⟨ ≈ᶜ-refl ∙ ·-zeroˡ _ ⟩
@@ -423,6 +427,24 @@ opaque
 
 opaque
 
+  -- If a term is well-resourced with respect to ε and any mode, then
+  -- it is well-resourced with respect to ε and the mode 𝟘ᵐ?.
+
+  ε-▸-𝟘ᵐ? : ε ▸[ m ] t → ε ▸[ 𝟘ᵐ? ] t
+  ε-▸-𝟘ᵐ? ▸t =
+    case ▸-𝟘ᵐ? ▸t of λ {
+      (ε , ▸t) →
+    ▸t }
+
+opaque
+
+  -- A variant of ε-▸-𝟘ᵐ?.
+
+  ▸-𝟘ᵐ?-DCon : ▸[ m ] ∇ → ▸[ 𝟘ᵐ? ] ∇
+  ▸-𝟘ᵐ?-DCon ▸∇ = ε-▸-𝟘ᵐ? ∘→ ▸∇
+
+opaque
+
   -- The relation _▸[_]_ respects multiplication (in a certain sense).
 
   ▸-· : γ ▸[ m ] t → ⌜ m′ ⌝ ·ᶜ γ ▸[ m′ ·ᵐ m ] t
@@ -450,6 +472,13 @@ opaque
     ▸-·
     where
     open Tools.Reasoning.PropositionalEquality
+
+opaque
+
+  -- A variant of ▸-ᵐ·.
+
+  ▸-ᵐ·-DCon : ▸[ m ] ∇ → ▸[ m ᵐ· p ] ∇
+  ▸-ᵐ·-DCon ▸∇ = ▸-ᵐ· ∘→ ▸∇
 
 -- The relation _▸[_]_ respects multiplication (in a certain sense).
 
@@ -536,6 +565,8 @@ opaque
   𝟘ᶜ          ∎
   where
   open Tools.Reasoning.PartialOrder ≤ᶜ-poset
+▸-𝟘ᵐ defn =
+  ≤ᶜ-refl
 ▸-𝟘ᵐ (lamₘ γ▸) =
   tailₘ-monotone (▸-𝟘ᵐ γ▸)
 ▸-𝟘ᵐ (_∘ₘ_ {γ = γ} {δ = δ} {p = p} γ▸ δ▸) = begin
@@ -917,6 +948,15 @@ opaque
        𝟘ᶜ , y ≔ ⌜ m ⌝ , x ≔ δ ⟨ x ⟩                 ≤⟨ update-monotoneʳ _ $ lookup-monotone _ $ inv-usage-var ▸var ⟩
        𝟘ᶜ , y ≔ ⌜ m ⌝ , x ≔ (𝟘ᶜ , y ≔ ⌜ m ⌝) ⟨ x ⟩  ≡⟨ update-self _ _ ⟩
        𝟘ᶜ , y ≔ ⌜ m ⌝                               ∎)
+    where
+    open CR
+
+  Conₘ-interchange {δ} defn ▸defn x = sub
+    defn
+    (begin
+       𝟘ᶜ , x ≔ δ ⟨ x ⟩   ≤⟨ update-monotoneʳ _ $ lookup-monotone _ $ inv-usage-defn ▸defn ⟩
+       𝟘ᶜ , x ≔ 𝟘ᶜ ⟨ x ⟩  ≡⟨ update-self _ _ ⟩
+       𝟘ᶜ                 ∎)
     where
     open CR
 
@@ -1685,6 +1725,8 @@ opaque
   𝟘ᶜ          ∎
   where
   open Tools.Reasoning.Equivalence Conₘ-setoid
+⌈⌉-𝟘ᵐ (defn _) =
+  ≈ᶜ-refl
 ⌈⌉-𝟘ᵐ (U _) =
   ≈ᶜ-refl
 ⌈⌉-𝟘ᵐ {ok = ok} (ΠΣ⟨ _ ⟩ _ , _ ▷ F ▹ G) = begin
@@ -1873,6 +1915,8 @@ usage-upper-bound ⦃ ok ⦄ ok′ = usage-upper-bound′
                        (tailₘ-cong (usage-upper-bound′ ▸G)))
 
   usage-upper-bound′ var = ≤ᶜ-refl
+
+  usage-upper-bound′ defn = ≤ᶜ-refl
 
   usage-upper-bound′ (lamₘ {t = t} ▸t) =
     subst (_ ≈ᶜ_) (tailₘ-distrib-∧ᶜ (_ ∙ _) (⌈ t ⌉ _))
@@ -2065,6 +2109,7 @@ usage-inf Unitₘ = Unitₘ
 usage-inf (ΠΣₘ {G = G} γ▸F δ▸G) =
   ΠΣₘ (usage-inf γ▸F) (Conₘ-interchange₁ (usage-inf δ▸G) δ▸G)
 usage-inf var = var
+usage-inf defn = defn
 usage-inf (lamₘ {p = p} {t = t} γ▸t) =
   lamₘ (Conₘ-interchange₁ (usage-inf γ▸t) γ▸t)
 usage-inf (γ▸t ∘ₘ γ▸t₁) = usage-inf γ▸t ∘ₘ usage-inf γ▸t₁
@@ -2166,20 +2211,143 @@ usage-inf ([]-congₘ ▸A ▸t ▸u ▸v ok) =
 usage-inf (sub γ▸t x) = usage-inf γ▸t
 
 ------------------------------------------------------------------------
+-- Inlining
+
+opaque
+ unfolding inline
+ mutual
+
+  -- If glassify ∇ is well-resourced, then inline-< ∇ α<n is
+  -- well-resourced.
+
+  ▸inline-< :
+    {∇ : DCon (Term 0) n} (α<n : α <′ n) →
+    ▸[ m ] glassify ∇ → ε ▸[ m ] inline-< ∇ α<n
+  ▸inline-< {∇ = ε} m<0 _ =
+    ⊥-elim (N.n≮0 (N.<′⇒< m<0))
+  ▸inline-< {∇ = _ ∙⟨ _ ⟩[ _ ∷ _ ]} (N.≤′-reflexive _) ▸∇ =
+    ▸inline (▸∇ ∘→ there) (▸∇ here)
+  ▸inline-< {∇ = _ ∙⟨ _ ⟩[ _ ∷ _ ]} (N.≤′-step m<n) ▸∇ =
+    ▸inline-< m<n (▸∇ ∘→ there)
+
+  -- If glassify ∇ is well-resourced, then inline-Nat ∇ α is
+  -- well-resourced.
+
+  ▸inline-Nat :
+    {∇ : DCon (Term 0) n} →
+    ▸[ m ] glassify ∇ → ε ▸[ m ] inline-Nat ∇ α
+  ▸inline-Nat {n} {α} {∇} ▸∇ with α N.<′? n
+  … | yes α<n = ▸inline-< α<n ▸∇
+  … | no _    = ℕₘ
+
+  -- If glassify ∇ and t are well-resourced, then inline ∇ t is
+  -- well-resourced.
+
+  ▸inline : ▸[ m ] glassify ∇ → γ ▸[ m ] t → γ ▸[ m ] inline ∇ t
+  ▸inline ▸∇ (sub ▸t γ≤δ) =
+    sub (▸inline ▸∇ ▸t) γ≤δ
+  ▸inline _ var =
+    var
+  ▸inline ▸∇ defn =
+    PE.subst (_▸[ _ ] _) wkConₘ-ε $
+    wkUsage _ (▸inline-Nat ▸∇)
+  ▸inline _ Uₘ =
+    Uₘ
+  ▸inline _ Emptyₘ =
+    Emptyₘ
+  ▸inline ▸∇ (emptyrecₘ ▸A ▸t ok) =
+    emptyrecₘ (▸inline (▸-ᵐ·-DCon ▸∇) ▸A) (▸inline (▸-𝟘ᵐ?-DCon ▸∇) ▸t)
+      ok
+  ▸inline _ Unitₘ =
+    Unitₘ
+  ▸inline _ starʷₘ =
+    starʷₘ
+  ▸inline _ (starˢₘ ok) =
+    starˢₘ ok
+  ▸inline ▸∇ (unitrecₘ ▸t ▸u ▸A ok) =
+    unitrecₘ (▸inline (▸-ᵐ·-DCon ▸∇) ▸t) (▸inline ▸∇ ▸u)
+      (▸inline (▸-𝟘ᵐ?-DCon ▸∇) ▸A) ok
+  ▸inline ▸∇ (ΠΣₘ ▸A ▸B) =
+    ΠΣₘ (▸inline (▸-ᵐ·-DCon ▸∇) ▸A) (▸inline ▸∇ ▸B)
+  ▸inline ▸∇ (lamₘ ▸t) =
+    lamₘ (▸inline ▸∇ ▸t)
+  ▸inline ▸∇ (▸t ∘ₘ ▸u) =
+    ▸inline ▸∇ ▸t ∘ₘ ▸inline (▸-ᵐ·-DCon ▸∇) ▸u
+  ▸inline ▸∇ (prodˢₘ ▸t ▸u) =
+    prodˢₘ (▸inline (▸-ᵐ·-DCon ▸∇) ▸t) (▸inline ▸∇ ▸u)
+  ▸inline ▸∇ (fstₘ m ▸t refl ok) =
+    fstₘ m (▸inline ▸∇ ▸t) refl ok
+  ▸inline ▸∇ (sndₘ ▸t) =
+    sndₘ (▸inline ▸∇ ▸t)
+  ▸inline ▸∇ (prodʷₘ ▸t ▸u) =
+    prodʷₘ (▸inline (▸-ᵐ·-DCon ▸∇) ▸t) (▸inline ▸∇ ▸u)
+  ▸inline ▸∇ (prodrecₘ ▸t ▸u ▸A ok) =
+    prodrecₘ (▸inline (▸-ᵐ·-DCon ▸∇) ▸t) (▸inline ▸∇ ▸u)
+      (▸inline (▸-𝟘ᵐ?-DCon ▸∇) ▸A) ok
+  ▸inline _ ℕₘ =
+    ℕₘ
+  ▸inline _ zeroₘ =
+    zeroₘ
+  ▸inline ▸∇ (sucₘ ▸t) =
+    sucₘ (▸inline ▸∇ ▸t)
+  ▸inline ▸∇ (natrecₘ ▸t ▸u ▸v ▸A) =
+    natrecₘ (▸inline ▸∇ ▸t) (▸inline ▸∇ ▸u) (▸inline ▸∇ ▸v)
+      (▸inline (▸-𝟘ᵐ?-DCon ▸∇) ▸A)
+  ▸inline ▸∇ (natrec-no-nrₘ ▸t ▸u ▸v ▸A ok₁ ok₂ ok₃ ok₄) =
+    natrec-no-nrₘ (▸inline ▸∇ ▸t) (▸inline ▸∇ ▸u) (▸inline ▸∇ ▸v)
+      (▸inline (▸-𝟘ᵐ?-DCon ▸∇) ▸A) ok₁ ok₂ ok₃ ok₄
+  ▸inline ▸∇ (natrec-no-nr-glbₘ ▸t ▸u ▸v ▸A ok₁ ok₂) =
+    natrec-no-nr-glbₘ (▸inline ▸∇ ▸t) (▸inline ▸∇ ▸u) (▸inline ▸∇ ▸v)
+      (▸inline (▸-𝟘ᵐ?-DCon ▸∇) ▸A) ok₁ ok₂
+  ▸inline ▸∇ (Idₘ not-erased ▸A ▸t ▸u) =
+    Idₘ not-erased (▸inline (▸-𝟘ᵐ?-DCon ▸∇) ▸A) (▸inline ▸∇ ▸t)
+      (▸inline ▸∇ ▸u)
+  ▸inline ▸∇ (Id₀ₘ erased ▸A ▸t ▸u) =
+    Id₀ₘ erased (▸inline (▸-𝟘ᵐ?-DCon ▸∇) ▸A)
+      (▸inline (▸-𝟘ᵐ?-DCon ▸∇) ▸t) (▸inline (▸-𝟘ᵐ?-DCon ▸∇) ▸u)
+  ▸inline _ rflₘ =
+    rflₘ
+  ▸inline ▸∇ (Jₘ ok₁ ok₂ ▸A ▸t ▸B ▸u ▸v ▸w) =
+    Jₘ ok₁ ok₂ (▸inline (▸-𝟘ᵐ?-DCon ▸∇) ▸A) (▸inline ▸∇ ▸t)
+      (▸inline ▸∇ ▸B) (▸inline ▸∇ ▸u) (▸inline ▸∇ ▸v) (▸inline ▸∇ ▸w)
+  ▸inline ▸∇ (J₀ₘ₁ ok₁ ok₂ ok₃ ▸A ▸t ▸B ▸u ▸v ▸w) =
+    J₀ₘ₁ ok₁ ok₂ ok₃ (▸inline (▸-𝟘ᵐ?-DCon ▸∇) ▸A)
+      (▸inline (▸-𝟘ᵐ?-DCon ▸∇) ▸t) (▸inline ▸∇ ▸B) (▸inline ▸∇ ▸u)
+      (▸inline (▸-𝟘ᵐ?-DCon ▸∇) ▸v) (▸inline (▸-𝟘ᵐ?-DCon ▸∇) ▸w)
+  ▸inline ▸∇ (J₀ₘ₂ ok ▸A ▸t ▸B ▸u ▸v ▸w) =
+    J₀ₘ₂ ok (▸inline (▸-𝟘ᵐ?-DCon ▸∇) ▸A) (▸inline (▸-𝟘ᵐ?-DCon ▸∇) ▸t)
+      (▸inline (▸-𝟘ᵐ?-DCon ▸∇) ▸B) (▸inline ▸∇ ▸u)
+      (▸inline (▸-𝟘ᵐ?-DCon ▸∇) ▸v) (▸inline (▸-𝟘ᵐ?-DCon ▸∇) ▸w)
+  ▸inline ▸∇ (Kₘ ok₁ ok₂ ▸A ▸t ▸B ▸u ▸v) =
+    Kₘ ok₁ ok₂ (▸inline (▸-𝟘ᵐ?-DCon ▸∇) ▸A) (▸inline ▸∇ ▸t)
+      (▸inline ▸∇ ▸B) (▸inline ▸∇ ▸u) (▸inline ▸∇ ▸v)
+  ▸inline ▸∇ (K₀ₘ₁ ok₁ ok₂ ▸A ▸t ▸B ▸u ▸v) =
+    K₀ₘ₁ ok₁ ok₂ (▸inline (▸-𝟘ᵐ?-DCon ▸∇) ▸A)
+      (▸inline (▸-𝟘ᵐ?-DCon ▸∇) ▸t) (▸inline ▸∇ ▸B) (▸inline ▸∇ ▸u)
+      (▸inline (▸-𝟘ᵐ?-DCon ▸∇) ▸v)
+  ▸inline ▸∇ (K₀ₘ₂ ok ▸A ▸t ▸B ▸u ▸v) =
+    K₀ₘ₂ ok (▸inline (▸-𝟘ᵐ?-DCon ▸∇) ▸A) (▸inline (▸-𝟘ᵐ?-DCon ▸∇) ▸t)
+      (▸inline (▸-𝟘ᵐ?-DCon ▸∇) ▸B) (▸inline ▸∇ ▸u)
+      (▸inline (▸-𝟘ᵐ?-DCon ▸∇) ▸v)
+  ▸inline ▸∇ ([]-congₘ ▸A ▸t ▸u ▸v ok) =
+    []-congₘ (▸inline (▸-𝟘ᵐ?-DCon ▸∇) ▸A) (▸inline (▸-𝟘ᵐ?-DCon ▸∇) ▸t)
+      (▸inline (▸-𝟘ᵐ?-DCon ▸∇) ▸u) (▸inline (▸-𝟘ᵐ?-DCon ▸∇) ▸v) ok
+
+------------------------------------------------------------------------
 -- A negative result
 
 module _ (TR : Type-restrictions) where
 
   open Definition.Typed TR
 
-  -- It is always the case that Γ ⊢ t ∷ A implies Γ ⊢ A (see
-  -- Definition.Typed.Syntactic.syntacticTerm), but if Γ ⊢ t ∷ A and
+  -- It is always the case that ∇ » Γ ⊢ t ∷ A implies ∇ » Γ ⊢ A (see
+  -- Definition.Typed.Well-formed.wf-⊢∷), but if ε » Γ ⊢ t ∷ A and
   -- γ ▸[ 𝟙ᵐ ] t always imply γ ▸[ 𝟙ᵐ ] A, then the modality is
   -- trivial.
 
   ▸-term→▸-type :
     (∀ {n} {Γ : Con Term n} {t A : Term n} {γ : Conₘ n} →
-       Γ ⊢ t ∷ A → γ ▸[ 𝟙ᵐ ] t → γ ▸[ 𝟙ᵐ ] A) →
+       ε » Γ ⊢ t ∷ A → γ ▸[ 𝟙ᵐ ] t → γ ▸[ 𝟙ᵐ ] A) →
     Trivial
   ▸-term→▸-type hyp =
     case inv-usage-var (hyp ⊢t ▸t) of λ {
@@ -2191,13 +2359,13 @@ module _ (TR : Type-restrictions) where
     A′ = var x1
     γ′ = ε ∙ 𝟘 ∙ 𝟙
 
-    ⊢U : ⊢ ε ∙ U 0
-    ⊢U = ∙ Uⱼ ε
+    ⊢U : ε »⊢ ε ∙ U 0
+    ⊢U = ∙ Uⱼ (ε ε)
 
-    ⊢Γ : ⊢ Γ′
+    ⊢Γ : ε »⊢ Γ′
     ⊢Γ = ∙ univ (var ⊢U here)
 
-    ⊢t : Γ′ ⊢ t′ ∷ A′
+    ⊢t : ε » Γ′ ⊢ t′ ∷ A′
     ⊢t = var ⊢Γ here
 
     ▸t : γ′ ▸[ 𝟙ᵐ ] t′

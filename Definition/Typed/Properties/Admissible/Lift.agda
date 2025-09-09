@@ -38,7 +38,7 @@ import Tools.PropositionalEquality as PE
 open import Tools.Reasoning.PropositionalEquality
 
 private variable
-  Γ                         : Con Term _
+  Γ                         : Cons _ _
   A B B₁ B₂ t t₁ t₂ u u₁ u₂ : Term _
   s                         : Strength
   l l₁ l₂                   : Universe-level
@@ -101,9 +101,9 @@ private opaque
   -- A lemma used below.
 
   liftrec-lemma :
-    Γ ∙ Lift s l A ⊢ B₁ ≡ B₂ →
-    Γ ∙ A ⊢ t₁ ≡ t₂ ∷ B₁ [ lift s l (var x0) ]↑ →
-    Γ ∙ A ∙ Unit s l ⊢
+    Γ »∙ Lift s l A ⊢ B₁ ≡ B₂ →
+    Γ »∙ A ⊢ t₁ ≡ t₂ ∷ B₁ [ lift s l (var x0) ]↑ →
+    Γ »∙ A »∙ Unit s l ⊢
       unitrec⟨ s ⟩ l r q
         (B₁ [ consSubst (wkSubst 3 idSubst)
                 (prod s 𝟙 (var x2) (var x0)) ])
@@ -167,8 +167,8 @@ opaque
   -- An equality rule for liftrec.
 
   liftrec-cong :
-    Γ ∙ Lift s l A ⊢ B₁ ≡ B₂ →
-    Γ ∙ A ⊢ t₁ ≡ t₂ ∷ B₁ [ lift s l (var x0) ]↑ →
+    Γ »∙ Lift s l A ⊢ B₁ ≡ B₂ →
+    Γ »∙ A ⊢ t₁ ≡ t₂ ∷ B₁ [ lift s l (var x0) ]↑ →
     Γ ⊢ u₁ ≡ u₂ ∷ Lift s l A →
     Γ ⊢ liftrec r q s l B₁ t₁ u₁ ≡ liftrec r q s l B₂ t₂ u₂ ∷ B₁ [ u₁ ]₀
   liftrec-cong B₁≡B₂ t₁≡t₂ u₁≡u₂ =
@@ -180,8 +180,8 @@ opaque
   -- A typing rule for liftrec.
 
   ⊢liftrec :
-    Γ ∙ Lift s l A ⊢ B →
-    Γ ∙ A ⊢ t ∷ B [ lift s l (var x0) ]↑ →
+    Γ »∙ Lift s l A ⊢ B →
+    Γ »∙ A ⊢ t ∷ B [ lift s l (var x0) ]↑ →
     Γ ⊢ u ∷ Lift s l A →
     Γ ⊢ liftrec r q s l B t u ∷ B [ u ]₀
   ⊢liftrec ⊢B ⊢t ⊢u =
@@ -195,8 +195,8 @@ opaque
   -- An equality rule for liftrec.
 
   liftrec-β :
-    Γ ∙ Lift s l A ⊢ B →
-    Γ ∙ A ⊢ t ∷ B [ lift s l (var x0) ]↑ →
+    Γ »∙ Lift s l A ⊢ B →
+    Γ »∙ A ⊢ t ∷ B [ lift s l (var x0) ]↑ →
     Γ ⊢ u ∷ A →
     Γ ⊢ liftrec r q s l B t (lift s l u) ≡ t [ u ]₀ ∷ B [ lift s l u ]₀
   liftrec-β {s} {l} {B} {t} {u} {r} {q} ⊢B ⊢t ⊢u =

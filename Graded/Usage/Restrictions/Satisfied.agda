@@ -41,7 +41,7 @@ private
   module CR {n} = Tools.Reasoning.PartialOrder (≤ᶜ-poset {n = n})
 
 private variable
-  l n         : Nat
+  α l n       : Nat
   x           : Fin _
   A B t u v w : Term _
   p q r       : M
@@ -62,6 +62,8 @@ private variable
 data Usage-restrictions-satisfied {n} (m : Mode) : Term n → Set a where
   varᵤ :
     Usage-restrictions-satisfied m (var x)
+  defnᵤ :
+    Usage-restrictions-satisfied m (defn α)
   Emptyᵤ :
     Usage-restrictions-satisfied m Empty
   emptyrecᵤ :
@@ -331,6 +333,8 @@ opaque
   Usage-restrictions-satisfied-𝟙ᵐ→ {m = 𝟘ᵐ[ ok ]} = λ where
     varᵤ →
       varᵤ
+    defnᵤ →
+      defnᵤ
     Emptyᵤ →
       Emptyᵤ
     (emptyrecᵤ ok A t) →
@@ -453,6 +457,8 @@ opaque
   ▸→Usage-restrictions-satisfied = λ where
     var →
       varᵤ
+    defn →
+      defnᵤ
     Emptyₘ →
       Emptyᵤ
     (emptyrecₘ ▸t ▸A ok) →
@@ -774,6 +780,8 @@ opaque
         sub var $ begin
           𝟘ᶜ          ≡˘⟨ 𝟘ᶜ,≔𝟘 ⟩
           𝟘ᶜ , x ≔ 𝟘  ∎
+      defnᵤ →
+        defn
       Uᵤ →
         Uₘ
       ℕᵤ →
@@ -836,6 +844,8 @@ opaque
       lemma : (t : Term n) → Usage-restrictions-satisfied 𝟘ᵐ[ ok ] t
       lemma (var _) =
         varᵤ
+      lemma (defn _) =
+        defnᵤ
       lemma (U _) =
         Uᵤ
       lemma Empty =
@@ -995,6 +1005,8 @@ opaque
           (≈ᶜ-trivial 𝟙≡𝟘)
       varᵤ →
         sub var (≈ᶜ-trivial 𝟙≡𝟘)
+      defnᵤ →
+        sub defn (≈ᶜ-trivial 𝟙≡𝟘)
       Uᵤ →
         sub Uₘ (≈ᶜ-trivial 𝟙≡𝟘)
       ℕᵤ →

@@ -26,15 +26,15 @@ open import Tools.Product
 import Tools.PropositionalEquality as PE
 
 private variable
-  l l₁ l₂ n : Nat
-  Γ         : Con Term _
-  A B       : Term _
+  l l₁ l₂ m n : Nat
+  Γ           : Cons _ _
+  A B         : Term _
 
 -- A variant of _⊩⟨_⟩_.
 
 infix 4 _⊩<⟨_⟩_
 
-_⊩<⟨_⟩_ : Con Term n → l₁ <ᵘ l₂ → Term n → Set a
+_⊩<⟨_⟩_ : Cons m n → l₁ <ᵘ l₂ → Term n → Set a
 Γ ⊩<⟨ p ⟩ A = LogRelKit._⊩_ (kit′ p) Γ A
 
 -- A variant of _⊩⟨_⟩_≡_/_.
@@ -42,7 +42,7 @@ _⊩<⟨_⟩_ : Con Term n → l₁ <ᵘ l₂ → Term n → Set a
 infix 4 _⊩<⟨_⟩_≡_/_
 
 _⊩<⟨_⟩_≡_/_ :
-  (Γ : Con Term n) (p : l₁ <ᵘ l₂) (A _ : Term n) → Γ ⊩<⟨ p ⟩ A → Set a
+  (Γ : Cons m n) (p : l₁ <ᵘ l₂) (A _ : Term n) → Γ ⊩<⟨ p ⟩ A → Set a
 Γ ⊩<⟨ p ⟩ A ≡ B / ⊩A = LogRelKit._⊩_≡_/_ (kit′ p) Γ A B ⊩A
 
 -- If p : l₁ <ᵘ l₂, then Γ ⊩<⟨ p ⟩ A is logically equivalent to

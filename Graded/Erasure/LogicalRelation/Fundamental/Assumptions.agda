@@ -24,36 +24,43 @@ open Usage-restrictions UR
 open import Definition.Untyped M
 open import Definition.Typed TR
 open import Definition.Typed.Consequences.Consistency TR
+open import Definition.Typed.Properties TR
 open import Definition.Typed.Substitution TR
 
 open import Graded.Mode 𝕄
+open import Graded.Usage 𝕄 UR
 open import Graded.Restrictions 𝕄
 
 open import Tools.Nat
 open import Tools.Sum
 
 private variable
-  k : Nat
+  k kᵈ : Nat
+  ∇    : DCon (Term 0) _
 
 -- A cut-down variant of Fundamental-assumptions (which is defined
 -- below).
 
-record Fundamental-assumptions⁻ (Δ : Con Term k) : Set a where
+record Fundamental-assumptions⁻ (Δ : Cons kᵈ k) : Set a where
   no-eta-equality
   field
+    -- Every definition in Δ is well-resourced.
+    well-resourced : ▸[ 𝟙ᵐ ] (Δ .defs)
     -- If erased matches are allowed for emptyrec when the mode is 𝟙ᵐ,
-    -- then the context is consistent.
+    -- then the contexts in Δ consistent.
     consistent : Emptyrec-allowed 𝟙ᵐ 𝟘 → Consistent Δ
-    -- Erased matches are not allowed unless the context is empty.
-    closed-or-no-erased-matches : No-erased-matches TR UR ⊎ Empty-con Δ
+    -- Erased matches are not allowed unless the variable context is
+    -- empty.
+    closed-or-no-erased-matches :
+      No-erased-matches TR UR ⊎ Empty-con (Δ .vars)
     instance
-      -- Neutrals-included holds or the context is empty.
-      ⦃ inc ⦄ : Neutrals-included or-empty Δ
+      -- Var-included holds or the variable context is empty.
+      ⦃ inc ⦄ : Var-included or-empty Δ .vars
 
 -- The fundamental lemma is proved under the assumption that a given
--- context Δ satisfies the following assumptions.
+-- context pair Δ satisfies the following assumptions.
 
-record Fundamental-assumptions (Δ : Con Term k) : Set a where
+record Fundamental-assumptions (Δ : Cons kᵈ k) : Set a where
   no-eta-equality
   field
     -- The context is well-formed.
@@ -63,21 +70,26 @@ record Fundamental-assumptions (Δ : Con Term k) : Set a where
 
   open Fundamental-assumptions⁻ other-assumptions public
 
--- Fundamental-assumptions⁻ holds unconditionally for empty contexts.
+-- Fundamental-assumptions⁻ holds for an empty variable context if the
+-- definition context is well-formed and well-resourced.
 
-fundamental-assumptions⁻₀ : Fundamental-assumptions⁻ ε
-fundamental-assumptions⁻₀ = record
-  { consistent                  = λ _ →
+fundamental-assumptions⁻₀ :
+  » ∇ → ▸[ 𝟙ᵐ ] ∇ → Fundamental-assumptions⁻ (∇ » ε)
+fundamental-assumptions⁻₀ ≫∇ ▸∇ = record
+  { well-resourced              = ▸∇
+  ; consistent                  = λ _ →
                                     inhabited-consistent
-                                      (⊢ˢʷ∷-idSubst ε)
+                                      (⊢ˢʷ∷-idSubst (ε ≫∇))
   ; closed-or-no-erased-matches = inj₂ ε
   ; inc                         = ε
   }
 
--- Fundamental-assumptions holds unconditionally for empty contexts.
+-- Fundamental-assumptions holds for an empty variable context if the
+-- definition context is well-formed and well-resourced.
 
-fundamental-assumptions₀ : Fundamental-assumptions ε
-fundamental-assumptions₀ = record
-  { well-formed       = ε
-  ; other-assumptions = fundamental-assumptions⁻₀
+fundamental-assumptions₀ :
+  » ∇ → ▸[ 𝟙ᵐ ] ∇ → Fundamental-assumptions (∇ » ε)
+fundamental-assumptions₀ ≫∇ ▸∇ = record
+  { well-formed       = ε ≫∇
+  ; other-assumptions = fundamental-assumptions⁻₀ ≫∇ ▸∇
   }

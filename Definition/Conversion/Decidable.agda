@@ -21,7 +21,7 @@ open import Definition.Untyped M
 import Definition.Untyped.Erased 𝕄 as Erased
 open import Definition.Untyped.Neutral M type-variant
 open import Definition.Untyped.Properties M
-open import Definition.Untyped.Properties.Neutral M type-variant
+open import Definition.Untyped.Whnf M type-variant
 open import Definition.Typed R
 open import Definition.Typed.EqRelInstance R
 open import Definition.Typed.EqualityRelation.Instance R
@@ -45,15 +45,17 @@ open import Definition.Typed.Consequences.NeTypeEq R
 
 open import Tools.Fin
 open import Tools.Function
-open import Tools.Nat using (Nat)
+open import Tools.Nat using (Nat) renaming (_≟_ to _≟⁺_)
 open import Tools.Product
 open import Tools.Empty
 open import Tools.Sum using (inj₁; inj₂)
 
 private
   variable
-    ℓ : Nat
-    Γ Δ : Con Term ℓ
+    κ ℓ : Nat
+    ∇ : DCon (Term 0) κ
+    Δ Η : Con Term ℓ
+    Γ : Cons _ _
     A A₁ A₂ A′ B B₁ B₂ B′ C₁ C₂ t t₁ t₂ t′ u u₁ u₂ v₁ v₂ w₁ w₂ : Term _
     b₁ b₂ : BinderMode
     s₁ s₂ : Strength
@@ -73,7 +75,7 @@ private opaque
   [conv↓]∷→∷ : Γ ⊢ t [conv↓] u ∷ A → Γ ⊢ t ∷ A
   [conv↓]∷→∷ = proj₁ ∘→ proj₂ ∘→ syntacticEqTerm ∘→ soundnessConv↓Term
 
-  ~↓→∷→Whnf×≡ : Γ ⊢ t ~ u ↓ A → Γ ⊢ t ∷ B → Γ ⊢ B ≡ A × Whnf A
+  ~↓→∷→Whnf×≡ : Γ ⊢ t ~ u ↓ A → Γ ⊢ t ∷ B → Γ ⊢ B ≡ A × Whnf (Γ .defs) A
   ~↓→∷→Whnf×≡ t~u ⊢t =
     let A-whnf , t-ne , _ = ne~↓ t~u in
     neTypeEq t-ne ⊢t (~↓→∷ t~u) , A-whnf
@@ -211,22 +213,22 @@ private opaque
   -- A lemma used below.
 
   dec~↑-prodrec-cong :
-    Γ ⊢ t₁ ∷ Σʷ p₁ , q₁ ▷ A₁ ▹ B₁ →
-    Γ ⊢ t₂ ∷ Σʷ p₂ , q₂ ▷ A₂ ▹ B₂ →
+    ∇ » Δ ⊢ t₁ ∷ Σʷ p₁ , q₁ ▷ A₁ ▹ B₁ →
+    ∇ » Δ ⊢ t₂ ∷ Σʷ p₂ , q₂ ▷ A₂ ▹ B₂ →
     Dec
       (r₁ PE.≡ r₂ × q′₁ PE.≡ q′₂ ×
-       ∃ λ D → Γ ⊢ t₁ ~ t₂ ↓ D) →
-    (⊢ Γ ∙ Σʷ p₁ , q₁ ▷ A₁ ▹ B₁ ≡ Γ ∙ Σʷ p₂ , q₂ ▷ A₂ ▹ B₂ →
-     Dec (Γ ∙ Σʷ p₁ , q₁ ▷ A₁ ▹ B₁ ⊢ C₁ [conv↑] C₂)) →
-    (⊢ Γ ∙ A₂ ∙ B₂ ≡ Γ ∙ A₁ ∙ B₁ →
-     Γ ∙ A₂ ∙ B₂ ⊢ C₂ [ prodʷ p₂ (var x1) (var x0) ]↑² ≡
+       ∃ λ D → ∇ » Δ ⊢ t₁ ~ t₂ ↓ D) →
+    (∇ »⊢ Δ ∙ Σʷ p₁ , q₁ ▷ A₁ ▹ B₁ ≡ Δ ∙ Σʷ p₂ , q₂ ▷ A₂ ▹ B₂ →
+     Dec (∇ » Δ ∙ Σʷ p₁ , q₁ ▷ A₁ ▹ B₁ ⊢ C₁ [conv↑] C₂)) →
+    (∇ »⊢ Δ ∙ A₂ ∙ B₂ ≡ Δ ∙ A₁ ∙ B₁ →
+     ∇ » Δ ∙ A₂ ∙ B₂ ⊢ C₂ [ prodʷ p₂ (var x1) (var x0) ]↑² ≡
        C₁ [ prodʷ p₁ (var x1) (var x0) ]↑² →
      Dec
-       (Γ ∙ A₁ ∙ B₁ ⊢ u₁ [conv↑] u₂ ∷
+       (∇ » Δ ∙ A₁ ∙ B₁ ⊢ u₁ [conv↑] u₂ ∷
           C₁ [ prodʷ p₁ (var x1) (var x0) ]↑²)) →
     Dec
       (∃ λ D →
-       Γ ⊢ prodrec r₁ p₁ q′₁ C₁ t₁ u₁ ~ prodrec r₂ p₂ q′₂ C₂ t₂ u₂ ↑ D)
+       ∇ » Δ ⊢ prodrec r₁ p₁ q′₁ C₁ t₁ u₁ ~ prodrec r₂ p₂ q′₂ C₂ t₂ u₂ ↑ D)
   dec~↑-prodrec-cong
     {p₁} {q₁} {A₁} {B₁} {p₂} {q₂} {A₂} {B₂}
     ⊢t₁ ⊢t₂ (yes (PE.refl , PE.refl , D , t₁~t₂)) dec₁ dec₃ =
@@ -239,16 +241,16 @@ private opaque
           Σʷ p₂ , q₂ ▷ A₂ ▹ B₂  ∎
         A₁≡A₂ , B₁≡B₂ , p₁≡p₂ , _ =
           ΠΣ-injectivity-no-equality-reflection Σ₁≡Σ₂
-        ΓA₁B₁≡ΓA₂B₂ = refl-∙ A₁≡A₂ ⊢_≡_.∙ B₁≡B₂
+        ΔA₁B₁≡ΔA₂B₂ = refl-∙ A₁≡A₂ _»⊢_≡_.∙ B₁≡B₂
     in
     case p₁≡p₂ of λ {
       PE.refl →
     case (dec₁ (refl-∙ Σ₁≡Σ₂)
             ×-dec′ λ C₁≡C₂ →
           dec₃
-            (symConEq ΓA₁B₁≡ΓA₂B₂)
+            (symConEq ΔA₁B₁≡ΔA₂B₂)
              (_⊢_≡_.sym $
-              stabilityEq ΓA₁B₁≡ΓA₂B₂ $
+              stabilityEq ΔA₁B₁≡ΔA₂B₂ $
               subst↑²TypeEq-prod (soundnessConv↑ C₁≡C₂))) of λ where
       (yes (C₁≡C₂ , u₁≡u₂)) →
         yes $
@@ -323,17 +325,17 @@ private opaque
 
   dec~↑-unitrec-cong :
     ¬ Unitʷ-η →
-    Γ ⊢ t₁ ∷ Unitʷ l₁ →
+    ∇ » Δ ⊢ t₁ ∷ Unitʷ l₁ →
     Dec
       (l₁ PE.≡ l₂ × p₁ PE.≡ p₂ × q₁ PE.≡ q₂ ×
-       ∃ λ B → Γ ⊢ t₁ ~ t₂ ↓ B) →
-    (⊢ Γ ∙ Unitʷ l₁ ≡ Γ ∙ Unitʷ l₂ →
-     Dec (Γ ∙ Unitʷ l₁ ⊢ A₁ [conv↑] A₂)) →
-    (Γ ⊢ A₁ [ starʷ l₁ ]₀ ≡ A₂ [ starʷ l₂ ]₀ →
-     Dec (Γ ⊢ u₁ [conv↑] u₂ ∷ A₁ [ starʷ l₁ ]₀)) →
+       ∃ λ B → ∇ » Δ ⊢ t₁ ~ t₂ ↓ B) →
+    (∇ »⊢ Δ ∙ Unitʷ l₁ ≡ Δ ∙ Unitʷ l₂ →
+     Dec (∇ » Δ ∙ Unitʷ l₁ ⊢ A₁ [conv↑] A₂)) →
+    (∇ » Δ ⊢ A₁ [ starʷ l₁ ]₀ ≡ A₂ [ starʷ l₂ ]₀ →
+     Dec (∇ » Δ ⊢ u₁ [conv↑] u₂ ∷ A₁ [ starʷ l₁ ]₀)) →
     Dec
       (∃ λ B →
-       Γ ⊢ unitrec l₁ p₁ q₁ A₁ t₁ u₁ ~ unitrec l₂ p₂ q₂ A₂ t₂ u₂ ↑ B)
+       ∇ » Δ ⊢ unitrec l₁ p₁ q₁ A₁ t₁ u₁ ~ unitrec l₂ p₂ q₂ A₂ t₂ u₂ ↑ B)
   dec~↑-unitrec-cong
     no-η ⊢t₁ (yes (PE.refl , PE.refl , PE.refl , _ , t₁~t₂)) dec₁ dec₂ =
     case
@@ -378,32 +380,32 @@ private opaque
   -- A lemma used below.
 
   dec~↑-natrec-cong :
-    Γ ⊢ v₁ ∷ ℕ →
+    ∇ » Δ ⊢ v₁ ∷ ℕ →
     Dec
       (p₁ PE.≡ p₂ × q₁ PE.≡ q₂ × r₁ PE.≡ r₂ ×
-       Γ ∙ ℕ ⊢ A₁ [conv↑] A₂ ×
-       ∃ λ B → Γ ⊢ v₁ ~ v₂ ↓ B) →
-    (Γ ⊢ A₁ [ zero ]₀ ≡ A₂ [ zero ]₀ →
-     Dec (Γ ⊢ t₁ [conv↑] t₂ ∷ A₁ [ zero ]₀)) →
-    (⊢ Γ ∙ ℕ ∙ A₂ ≡ Γ ∙ ℕ ∙ A₁ →
-     Γ ∙ ℕ ∙ A₂ ⊢ A₂ [ suc (var x1) ]↑² ≡ A₁ [ suc (var x1) ]↑² →
-     Dec (Γ ∙ ℕ ∙ A₁ ⊢ u₁ [conv↑] u₂ ∷ A₁ [ suc (var x1) ]↑²)) →
+       ∇ » Δ ∙ ℕ ⊢ A₁ [conv↑] A₂ ×
+       ∃ λ B → ∇ » Δ ⊢ v₁ ~ v₂ ↓ B) →
+    (∇ » Δ ⊢ A₁ [ zero ]₀ ≡ A₂ [ zero ]₀ →
+     Dec (∇ » Δ ⊢ t₁ [conv↑] t₂ ∷ A₁ [ zero ]₀)) →
+    (∇ »⊢ Δ ∙ ℕ ∙ A₂ ≡ Δ ∙ ℕ ∙ A₁ →
+     ∇ » Δ ∙ ℕ ∙ A₂ ⊢ A₂ [ suc (var x1) ]↑² ≡ A₁ [ suc (var x1) ]↑² →
+     Dec (∇ » Δ ∙ ℕ ∙ A₁ ⊢ u₁ [conv↑] u₂ ∷ A₁ [ suc (var x1) ]↑²)) →
     Dec
       (∃ λ B →
-       Γ ⊢ natrec p₁ q₁ r₁ A₁ t₁ u₁ v₁ ~
+       ∇ » Δ ⊢ natrec p₁ q₁ r₁ A₁ t₁ u₁ v₁ ~
          natrec p₂ q₂ r₂ A₂ t₂ u₂ v₂ ↑ B)
   dec~↑-natrec-cong
     ⊢v₁ (yes (PE.refl , PE.refl , PE.refl , A₁≡A₂ , _ , v₁~v₂)) dec₁
     dec₂ =
     case
       (let A₁≡A₂     = soundnessConv↑ A₁≡A₂
-           ⊢Γ        = wfTerm ⊢v₁
-           ΓℕA₁≡ΓℕA₂ = refl-∙ (sym A₁≡A₂)
+           ⊢Δ        = wfTerm ⊢v₁
+           ΔℕA₁≡ΔℕA₂ = refl-∙ (sym A₁≡A₂)
        in
-       dec₁ (substTypeEq A₁≡A₂ (refl (zeroⱼ ⊢Γ)))
+       dec₁ (substTypeEq A₁≡A₂ (refl (zeroⱼ ⊢Δ)))
          ×-dec
-       dec₂ ΓℕA₁≡ΓℕA₂
-         (stabilityEq (symConEq ΓℕA₁≡ΓℕA₂) $ sym $ sucCong A₁≡A₂))
+       dec₂ ΔℕA₁≡ΔℕA₂
+         (stabilityEq (symConEq ΔℕA₁≡ΔℕA₂) $ sym $ sucCong A₁≡A₂))
       of λ where
       (yes (t₁≡t₂ , u₁≡u₂)) →
         yes $
@@ -442,21 +444,21 @@ private opaque
   -- A lemma used below.
 
   dec~↑-J-cong :
-    Γ ⊢ w₁ ∷ Id A₁ t₁ v₁ →
+    ∇ » Δ ⊢ w₁ ∷ Id A₁ t₁ v₁ →
     Dec
       (p₁ PE.≡ p₂ × q₁ PE.≡ q₂ ×
-       Γ ⊢ A₁ [conv↑] A₂ ×
-       ∃ λ C → Γ ⊢ w₁ ~ w₂ ↓ C) →
-    (Γ ⊢ A₁ ≡ A₂ → Dec (Γ ⊢ t₁ [conv↑] t₂ ∷ A₁)) →
-    (⊢ Γ ∙ A₁ ∙ Id (wk1 A₁) (wk1 t₁) (var x0) ≡
-       Γ ∙ A₂ ∙ Id (wk1 A₂) (wk1 t₂) (var x0) →
-     Dec (Γ ∙ A₁ ∙ Id (wk1 A₁) (wk1 t₁) (var x0) ⊢ B₁ [conv↑] B₂)) →
-    (Γ ⊢ B₁ [ t₁ , rfl ]₁₀ ≡ B₂ [ t₂ , rfl ]₁₀ →
-     Dec (Γ ⊢ u₁ [conv↑] u₂ ∷ B₁ [ t₁ , rfl ]₁₀)) →
-    (Γ ⊢ A₁ ≡ A₂ → Dec (Γ ⊢ v₁ [conv↑] v₂ ∷ A₁)) →
+       ∇ » Δ ⊢ A₁ [conv↑] A₂ ×
+       ∃ λ C → ∇ » Δ ⊢ w₁ ~ w₂ ↓ C) →
+    (∇ » Δ ⊢ A₁ ≡ A₂ → Dec (∇ » Δ ⊢ t₁ [conv↑] t₂ ∷ A₁)) →
+    (∇ »⊢ Δ ∙ A₁ ∙ Id (wk1 A₁) (wk1 t₁) (var x0) ≡
+       Δ ∙ A₂ ∙ Id (wk1 A₂) (wk1 t₂) (var x0) →
+     Dec (∇ » Δ ∙ A₁ ∙ Id (wk1 A₁) (wk1 t₁) (var x0) ⊢ B₁ [conv↑] B₂)) →
+    (∇ » Δ ⊢ B₁ [ t₁ , rfl ]₁₀ ≡ B₂ [ t₂ , rfl ]₁₀ →
+     Dec (∇ » Δ ⊢ u₁ [conv↑] u₂ ∷ B₁ [ t₁ , rfl ]₁₀)) →
+    (∇ » Δ ⊢ A₁ ≡ A₂ → Dec (∇ » Δ ⊢ v₁ [conv↑] v₂ ∷ A₁)) →
     Dec
       (∃ λ C →
-       Γ ⊢ J p₁ q₁ A₁ t₁ B₁ u₁ v₁ w₁ ~ J p₂ q₂ A₂ t₂ B₂ u₂ v₂ w₂ ↑ C)
+       ∇ » Δ ⊢ J p₁ q₁ A₁ t₁ B₁ u₁ v₁ w₁ ~ J p₂ q₂ A₂ t₂ B₂ u₂ v₂ w₂ ↑ C)
   dec~↑-J-cong _ (no not-all-equal) _ _ _ _ =
     no λ (_ , J~J) →
     let _ , _ , _ , _ , _ , _ , _ , _ , J≡J , A₁≡ , _ , _ , _ , _ ,
@@ -509,17 +511,17 @@ private opaque
 
   dec~↑-K-cong :
     K-allowed →
-    Γ ⊢ v₁ ∷ Id A₁ t₁ t₁ →
+    ∇ » Δ ⊢ v₁ ∷ Id A₁ t₁ t₁ →
     Dec
       (p₁ PE.≡ p₂ ×
-       Γ ⊢ A₁ [conv↑] A₂ ×
-       ∃ λ C → Γ ⊢ v₁ ~ v₂ ↓ C) →
-    (Γ ⊢ A₁ ≡ A₂ → Dec (Γ ⊢ t₁ [conv↑] t₂ ∷ A₁)) →
-    (⊢ Γ ∙ Id A₁ t₁ t₁ ≡ Γ ∙ Id A₂ t₂ t₂ →
-     Dec (Γ ∙ Id A₁ t₁ t₁ ⊢ B₁ [conv↑] B₂)) →
-    (Γ ⊢ B₁ [ rfl ]₀ ≡ B₂ [ rfl ]₀ →
-     Dec (Γ ⊢ u₁ [conv↑] u₂ ∷ B₁ [ rfl ]₀)) →
-    Dec (∃ λ C → Γ ⊢ K p₁ A₁ t₁ B₁ u₁ v₁ ~ K p₂ A₂ t₂ B₂ u₂ v₂ ↑ C)
+       ∇ » Δ ⊢ A₁ [conv↑] A₂ ×
+       ∃ λ C → ∇ » Δ ⊢ v₁ ~ v₂ ↓ C) →
+    (∇ » Δ ⊢ A₁ ≡ A₂ → Dec (∇ » Δ ⊢ t₁ [conv↑] t₂ ∷ A₁)) →
+    (∇ »⊢ Δ ∙ Id A₁ t₁ t₁ ≡ Δ ∙ Id A₂ t₂ t₂ →
+     Dec (∇ » Δ ∙ Id A₁ t₁ t₁ ⊢ B₁ [conv↑] B₂)) →
+    (∇ » Δ ⊢ B₁ [ rfl ]₀ ≡ B₂ [ rfl ]₀ →
+     Dec (∇ » Δ ⊢ u₁ [conv↑] u₂ ∷ B₁ [ rfl ]₀)) →
+    Dec (∃ λ C → ∇ » Δ ⊢ K p₁ A₁ t₁ B₁ u₁ v₁ ~ K p₂ A₂ t₂ B₂ u₂ v₂ ↑ C)
   dec~↑-K-cong _ _ (no not-all-equal) _ _ _ =
     no λ (_ , K~K) →
     let _ , _ , _ , _ , _ , _ , _ , K≡K , A₁≡ , _ , _ , _ , v₁~ , _ =
@@ -618,10 +620,10 @@ private opaque
     ΠΣ-allowed b₁ p₁ q₁ →
     Dec
       (b₁ PE.≡ b₂ × p₁ PE.≡ p₂ × q₁ PE.≡ q₂ ×
-       Γ ⊢ A₁ [conv↑] A₂) →
-    (⊢ Γ ∙ A₁ ≡ Γ ∙ A₂ → Dec (Γ ∙ A₁ ⊢ B₁ [conv↑] B₂)) →
+       ∇ » Δ ⊢ A₁ [conv↑] A₂) →
+    (∇ »⊢ Δ ∙ A₁ ≡ Δ ∙ A₂ → Dec (∇ » Δ ∙ A₁ ⊢ B₁ [conv↑] B₂)) →
     Dec
-      (Γ ⊢ ΠΣ⟨ b₁ ⟩ p₁ , q₁ ▷ A₁ ▹ B₁ [conv↓]
+      (∇ » Δ ⊢ ΠΣ⟨ b₁ ⟩ p₁ , q₁ ▷ A₁ ▹ B₁ [conv↓]
          ΠΣ⟨ b₂ ⟩ p₂ , q₂ ▷ A₂ ▹ B₂)
   decConv↓-ΠΣ ok (yes (PE.refl , PE.refl , PE.refl , A₁≡A₂)) dec =
     case dec (refl-∙ (soundnessConv↑ A₁≡A₂)) of λ where
@@ -679,7 +681,7 @@ private opaque
 -- Public definitions
 
 mutual
-  -- Decidability of algorithmic equality of neutrals.
+  -- Decidability of algorithmic equality of neutral terms.
   dec~↑ : ∀ {k l R T k′ l′}
         → Γ ⊢ k ~ k′ ↑ R → Γ ⊢ l ~ l′ ↑ T
         → Dec (∃ λ A → Γ ⊢ k ~ l ↑ A)
@@ -688,6 +690,11 @@ mutual
       (yes x≡y) → yes (_ , var-refl ⊢x x≡y)
       (no x≢y)  → no (x≢y ∘→ var-PE-injectivity ∘→ inv-~var ∘→ proj₂)
     (inj₂ (u≢var , _)) → no (u≢var ∘→ (_ ,_) ∘→ inv-var~ ∘→ proj₂)
+  dec~↑ (defn-refl {α} ⊢α α↦⊘ _) u~ = case inv-~-defn u~ of λ where
+    (inj₁ (β , _ , _ , PE.refl , _)) → case α ≟⁺ β of λ where
+      (yes α≡β) → yes (_ , defn-refl ⊢α α↦⊘ α≡β)
+      (no α≢β)  → no (α≢β ∘→ defn-PE-injectivity ∘→ inv-~defn ∘→ proj₂)
+    (inj₂ (u≢defn , _)) → no (u≢defn ∘→ (_ ,_) ∘→ inv-defn~ ∘→ proj₂)
   dec~↑ (app-cong t₁~ t₂≡) u~ = case inv-~-∘ u~ of λ where
     (inj₁
        (_ , _ , _ , _ , _ , _ , _ , _ , _ ,
@@ -804,12 +811,12 @@ mutual
         u≢bc (_ , _ , _ , _ , _ , u≡bc)
 
   dec~↑′ : ∀ {k l R T}
-        → ⊢ Γ ≡ Δ
-        → Γ ⊢ k ~ k ↑ R → Δ ⊢ l ~ l ↑ T
-        → Dec (∃ λ A → Γ ⊢ k ~ l ↑ A)
-  dec~↑′ Γ≡Δ k~k l~l = dec~↑ k~k (stability~↑ (symConEq Γ≡Δ) l~l)
+        → ∇ »⊢ Δ ≡ Η
+        → ∇ » Δ ⊢ k ~ k ↑ R → ∇ » Η ⊢ l ~ l ↑ T
+        → Dec (∃ λ A → ∇ » Δ ⊢ k ~ l ↑ A)
+  dec~↑′ Δ≡Η k~k l~l = dec~↑ k~k (stability~↑ (symConEq Δ≡Η) l~l)
 
-  -- Decidability of algorithmic equality of neutrals with types in WHNF.
+  -- Decidability of algorithmic equality of neutral terms with types in WHNF.
   dec~↓ : ∀ {k l R T k′ l′}
         → Γ ⊢ k ~ k′ ↓ R → Γ ⊢ l ~ l′ ↓ T
         → Dec (∃ λ A → Γ ⊢ k ~ l ↓ A)
@@ -836,13 +843,14 @@ mutual
     no (λ { ([↑] A‴ B‴ D₂ D‴ A′<>B‴) →
         let A‴≡B′ = whrDet* D₂ D
             B‴≡B″ = whrDet* D‴ D₁
-        in  ¬p (PE.subst₂ (λ x y → _ ⊢ x [conv↓] y) A‴≡B′ B‴≡B″ A′<>B‴) })
+        in
+        ¬p (PE.subst₂ (λ x y → _ ⊢ x [conv↓] y) A‴≡B′ B‴≡B″ A′<>B‴) })
 
   decConv↑′ : ∀ {A B A′ B′}
-            → ⊢ Γ ≡ Δ
-            → Γ ⊢ A [conv↑] A′ → Δ ⊢ B [conv↑] B′
-            → Dec (Γ ⊢ A [conv↑] B)
-  decConv↑′ Γ≡Δ A B = decConv↑ A (stabilityConv↑ (symConEq Γ≡Δ) B)
+            → ∇ »⊢ Δ ≡ Η
+            → ∇ » Δ ⊢ A [conv↑] A′ → ∇ » Η ⊢ B [conv↑] B′
+            → Dec (∇ » Δ ⊢ A [conv↑] B)
+  decConv↑′ Δ≡Η A B = decConv↑ A (stabilityConv↑ (symConEq Δ≡Η) B)
 
   -- Decidability of algorithmic equality of types in WHNF.
   decConv↓ : ∀ {A B A′ B′}
@@ -863,7 +871,8 @@ mutual
             no (¬A~B ∘→ (_ ,_) ∘→ proj₂ ∘→ inv-[conv↓]-ne A-ne)
       (inj₂ (¬-B-ne , _)) →
         no λ A≡B →
-        ¬-B-ne (ne~↓ (inv-[conv↓]-ne A-ne A≡B .proj₂) .proj₂ .proj₂)
+        ¬-B-ne $
+        ne~↓ (inv-[conv↓]-ne A-ne A≡B .proj₂) .proj₂ .proj₂
   decConv↓ U≡U@(U-refl {l = l₁} _) B≡ =
     case inv-[conv↓]-U′ B≡ of λ where
       (inj₁ (l₂ , PE.refl , _)) →
@@ -943,10 +952,11 @@ mutual
                           t‴≡u′ u‴≡u″ B₂≡B₁ t<>u₂)})
 
   decConv↑Term′ : ∀ {t u A}
-                → ⊢ Γ ≡ Δ
-                → Γ ⊢ t [conv↑] t ∷ A → Δ ⊢ u [conv↑] u ∷ A
-                → Dec (Γ ⊢ t [conv↑] u ∷ A)
-  decConv↑Term′ Γ≡Δ t u = decConv↑Term t (stabilityConv↑Term (symConEq Γ≡Δ) u)
+                → ∇ »⊢ Δ ≡ Η
+                → ∇ » Δ ⊢ t [conv↑] t ∷ A → ∇ » Η ⊢ u [conv↑] u ∷ A
+                → Dec (∇ » Δ ⊢ t [conv↑] u ∷ A)
+  decConv↑Term′ Δ≡Η t u =
+    decConv↑Term t (stabilityConv↑Term (symConEq Δ≡Η) u)
 
   -- Decidability of algorithmic equality of terms in WHNF.
   decConv↓Term : ∀ {t u A t′ u′}
@@ -1126,7 +1136,7 @@ mutual
               inv-rfl~ rfl~
     (inj₂ (PE.refl , _)) →
       no λ rfl≡u →
-      ¬-Neutral-rfl $
+      flip rfl≢ne PE.refl $
       case inv-[conv↓]∷-Id rfl≡u of λ where
         (inj₁ (_ , _ , _ , t~rfl)) → ne~↓ t~rfl .proj₂ .proj₂
         (inj₂ (PE.refl , _))       → ne~↓ t~ .proj₂ .proj₁
@@ -1134,7 +1144,7 @@ mutual
     case inv-[conv↓]∷-Id u≡ of λ where
       (inj₁ (_ , _ , _ , u~)) →
         no λ rfl≡u →
-        ¬-Neutral-rfl $
+        flip rfl≢ne PE.refl $
         case inv-[conv↓]∷-Id rfl≡u of λ where
           (inj₁ (_ , _ , _ , rfl~u)) → ne~↓ rfl~u .proj₂ .proj₁
           (inj₂ (_ , PE.refl , _))   → ne~↓ u~ .proj₂ .proj₁

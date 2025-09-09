@@ -28,7 +28,7 @@ open import Definition.Typed R
 open import Definition.Untyped M
 
 private variable
-  Γ                   : Con Term _
+  Γ                   : Cons _ _
   A B t t₁ t₂ u u₁ u₂ : Term _
   p q                 : M
   l l′ l″             : Universe-level
@@ -39,7 +39,7 @@ opaque
   -- Reducibility of equality between applications of prod.
 
   ⊩prod≡prod :
-    Γ ∙ A ⊢ B →
+    Γ »∙ A ⊢ B →
     Γ ⊩⟨ l ⟩ Σ⟨ s ⟩ p , q ▷ A ▹ B →
     Γ ⊩⟨ l′ ⟩ t₁ ≡ t₂ ∷ A →
     Γ ⊩⟨ l″ ⟩ u₁ ≡ u₂ ∷ B [ t₁ ]₀ →
@@ -53,8 +53,8 @@ opaque
 
   prod-congᵛ :
     Σ-allowed s p q →
-    Γ ∙ A ⊢ B →
-    Γ ∙ A ⊩ᵛ⟨ l ⟩ B →
+    Γ »∙ A ⊢ B →
+    Γ »∙ A ⊩ᵛ⟨ l ⟩ B →
     Γ ⊩ᵛ⟨ l ⟩ t₁ ≡ t₂ ∷ A →
     Γ ⊩ᵛ⟨ l′ ⟩ u₁ ≡ u₂ ∷ B [ t₁ ]₀ →
     Γ ⊩ᵛ⟨ l ⟩ prod s p t₁ u₁ ≡ prod s p t₂ u₂ ∷ Σ⟨ s ⟩ p , q ▷ A ▹ B
@@ -67,8 +67,8 @@ opaque
 
   prodᵛ :
     Σ-allowed s p q →
-    Γ ∙ A ⊢ B →
-    Γ ∙ A ⊩ᵛ⟨ l ⟩ B →
+    Γ »∙ A ⊢ B →
+    Γ »∙ A ⊩ᵛ⟨ l ⟩ B →
     Γ ⊩ᵛ⟨ l ⟩ t ∷ A →
     Γ ⊩ᵛ⟨ l′ ⟩ u ∷ B [ t ]₀ →
     Γ ⊩ᵛ⟨ l ⟩ prod s p t u ∷ Σ⟨ s ⟩ p , q ▷ A ▹ B

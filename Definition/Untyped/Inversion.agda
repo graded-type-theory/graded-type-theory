@@ -15,6 +15,7 @@ open import Tools.Sum
 private variable
   l              : Nat
   x              : Fin _
+  α              : Nat
   ρ              : Wk _ _
   A B t t′ u v w : Term _
   p q r          : M
@@ -28,6 +29,7 @@ wk-var :
   wk ρ t ≡ var x →
   ∃ λ x′ → t ≡ var x′ × wkVar ρ x′ ≡ x
 wk-var {t = var _}                 refl = _ , refl , refl
+wk-var {t = defn _}                ()
 wk-var {t = U _}                   ()
 wk-var {t = ΠΣ⟨ _ ⟩ _ , _ ▷ _ ▹ _} ()
 wk-var {t = lam _ _}               ()
@@ -55,6 +57,7 @@ subst-var :
   t [ σ ] ≡ var x →
   ∃ λ x′ → t ≡ var x′ ×  σ x′ ≡ var x
 subst-var {t = var _}                 eq = _ , refl , eq
+subst-var {t = defn _}                ()
 subst-var {t = U _}                   ()
 subst-var {t = ΠΣ⟨ _ ⟩ _ , _ ▷ _ ▹ _} ()
 subst-var {t = lam _ _}               ()
@@ -78,11 +81,66 @@ subst-var {t = J _ _ _ _ _ _ _ _}     ()
 subst-var {t = K _ _ _ _ _ _}         ()
 subst-var {t = []-cong _ _ _ _ _}     ()
 
+-- Inversion for defn.
+
+wk-defn : wk ρ t ≡ defn α → t ≡ defn α
+wk-defn {t = defn α}                refl = refl
+wk-defn {t = var _}                 ()
+wk-defn {t = U _}                   ()
+wk-defn {t = ΠΣ⟨ _ ⟩ _ , _ ▷ _ ▹ _} ()
+wk-defn {t = lam _ _}               ()
+wk-defn {t = _ ∘⟨ _ ⟩ _}            ()
+wk-defn {t = prod _ _ _ _}          ()
+wk-defn {t = fst _ _}               ()
+wk-defn {t = snd _ _}               ()
+wk-defn {t = prodrec _ _ _ _ _ _}   ()
+wk-defn {t = Empty}                 ()
+wk-defn {t = emptyrec _ _ _}        ()
+wk-defn {t = Unit _ _}              ()
+wk-defn {t = star _ _}              ()
+wk-defn {t = unitrec _ _ _ _ _ _}   ()
+wk-defn {t = ℕ}                     ()
+wk-defn {t = zero}                  ()
+wk-defn {t = suc _}                 ()
+wk-defn {t = natrec _ _ _ _ _ _ _}  ()
+wk-defn {t = Id _ _ _}              ()
+wk-defn {t = rfl}                   ()
+wk-defn {t = J _ _ _ _ _ _ _ _}     ()
+wk-defn {t = K _ _ _ _ _ _}         ()
+wk-defn {t = []-cong _ _ _ _ _}     ()
+
+subst-defn : t [ σ ] ≡ defn α → (∃ λ x → t ≡ var x) ⊎ t ≡ defn α
+subst-defn {t = var _}                 _    = inj₁ (_ , refl)
+subst-defn {t = defn α}                refl = inj₂ refl
+subst-defn {t = U _}                   ()
+subst-defn {t = ΠΣ⟨ _ ⟩ _ , _ ▷ _ ▹ _} ()
+subst-defn {t = lam _ _}               ()
+subst-defn {t = _ ∘⟨ _ ⟩ _}            ()
+subst-defn {t = prod _ _ _ _}          ()
+subst-defn {t = fst _ _}               ()
+subst-defn {t = snd _ _}               ()
+subst-defn {t = prodrec _ _ _ _ _ _}   ()
+subst-defn {t = Empty}                 ()
+subst-defn {t = emptyrec _ _ _}        ()
+subst-defn {t = Unit _ _}              ()
+subst-defn {t = star _ _}              ()
+subst-defn {t = unitrec _ _ _ _ _ _}   ()
+subst-defn {t = ℕ}                     ()
+subst-defn {t = zero}                  ()
+subst-defn {t = suc _}                 ()
+subst-defn {t = natrec _ _ _ _ _ _ _}  ()
+subst-defn {t = Id _ _ _}              ()
+subst-defn {t = rfl}                   ()
+subst-defn {t = J _ _ _ _ _ _ _ _}     ()
+subst-defn {t = K _ _ _ _ _ _}         ()
+subst-defn {t = []-cong _ _ _ _ _}     ()
+
 -- Inversion for U.
 
 wk-U : wk ρ t ≡ U l → t ≡ U l
 wk-U {t = U l}                   refl = refl
 wk-U {t = var _}                 ()
+wk-U {t = defn _}                ()
 wk-U {t = ΠΣ⟨ _ ⟩ _ , _ ▷ _ ▹ _} ()
 wk-U {t = lam _ _}               ()
 wk-U {t = _ ∘⟨ _ ⟩ _}            ()
@@ -108,6 +166,7 @@ wk-U {t = []-cong _ _ _ _ _}     ()
 subst-U : t [ σ ] ≡ U l → (∃ λ x → t ≡ var x) ⊎ t ≡ U l
 subst-U {t = var _}                 _    = inj₁ (_ , refl)
 subst-U {t = U _}                   refl = inj₂ refl
+subst-U {t = defn _}                ()
 subst-U {t = ΠΣ⟨ _ ⟩ _ , _ ▷ _ ▹ _} ()
 subst-U {t = lam _ _}               ()
 subst-U {t = _ ∘⟨ _ ⟩ _}            ()
@@ -140,6 +199,7 @@ wk-ΠΣ :
 wk-ΠΣ {t = ΠΣ⟨ _ ⟩ _ , _ ▷ _ ▹ _} refl =
   _ , _ , refl , refl , refl
 wk-ΠΣ {t = var _}                ()
+wk-ΠΣ {t = defn _}               ()
 wk-ΠΣ {t = U _}                  ()
 wk-ΠΣ {t = lam _ _}              ()
 wk-ΠΣ {t = _ ∘⟨ _ ⟩ _}           ()
@@ -172,6 +232,7 @@ subst-ΠΣ {t = var _} _ =
   inj₁ (_ , refl)
 subst-ΠΣ {t = ΠΣ⟨ _ ⟩ _ , _ ▷ _ ▹ _} refl =
   inj₂ (_ , _ , refl , refl , refl)
+subst-ΠΣ {t = defn _}               ()
 subst-ΠΣ {t = U _}                  ()
 subst-ΠΣ {t = lam _ _}              ()
 subst-ΠΣ {t = _ ∘⟨ _ ⟩ _}           ()
@@ -201,6 +262,7 @@ wk-lam :
   ∃ λ u′ → t ≡ lam p u′ × wk (lift ρ) u′ ≡ u
 wk-lam {t = lam _ _}               refl = _ , refl , refl
 wk-lam {t = var _}                 ()
+wk-lam {t = defn _}                ()
 wk-lam {t = U _}                   ()
 wk-lam {t = ΠΣ⟨ _ ⟩ _ , _ ▷ _ ▹ _} ()
 wk-lam {t = _ ∘⟨ _ ⟩ _}            ()
@@ -229,6 +291,7 @@ subst-lam :
   ∃ λ u′ → t ≡ lam p u′ × u′ [ liftSubst σ ] ≡ u
 subst-lam {t = var x}                 _    = inj₁ (_ , refl)
 subst-lam {t = lam _ _}               refl = inj₂ (_ , refl , refl)
+subst-lam {t = defn _}                ()
 subst-lam {t = U _}                   ()
 subst-lam {t = ΠΣ⟨ _ ⟩ _ , _ ▷ _ ▹ _} ()
 subst-lam {t = _ ∘⟨ _ ⟩ _}            ()
@@ -258,6 +321,7 @@ wk-∘ :
   ∃₂ λ u′ v′ → t ≡ u′ ∘⟨ p ⟩ v′ × wk ρ u′ ≡ u × wk ρ v′ ≡ v
 wk-∘ {t = _ ∘⟨ _ ⟩ _}            refl = _ , _ , refl , refl , refl
 wk-∘ {t = var _}                 ()
+wk-∘ {t = defn _}                ()
 wk-∘ {t = U _}                   ()
 wk-∘ {t = ΠΣ⟨ _ ⟩ _ , _ ▷ _ ▹ _} ()
 wk-∘ {t = lam _ _}               ()
@@ -287,6 +351,7 @@ subst-∘ :
 subst-∘ {t = var x} _    = inj₁ (_ , refl)
 subst-∘ {t = _ ∘ _} refl =
   inj₂ (_ , _ , refl , refl , refl)
+subst-∘ {t = defn _}                ()
 subst-∘ {t = U _}                   ()
 subst-∘ {t = ΠΣ⟨ _ ⟩ _ , _ ▷ _ ▹ _} ()
 subst-∘ {t = lam _ _}               ()
@@ -316,6 +381,7 @@ wk-prod :
   ∃₂ λ u′ v′ → t ≡ prod s p u′ v′ × wk ρ u′ ≡ u × wk ρ v′ ≡ v
 wk-prod {t = prod _ _ _ _}          refl = _ , _ , refl , refl , refl
 wk-prod {t = var _}                 ()
+wk-prod {t = defn _}                ()
 wk-prod {t = U _}                   ()
 wk-prod {t = ΠΣ⟨ _ ⟩ _ , _ ▷ _ ▹ _} ()
 wk-prod {t = lam _ _}               ()
@@ -346,6 +412,7 @@ subst-prod {t = var _} _ =
   inj₁ (_ , refl)
 subst-prod {t = prod _ _ _ _} refl =
   inj₂ (_ , _ , refl , refl , refl)
+subst-prod {t = defn _}                ()
 subst-prod {t = U _}                   ()
 subst-prod {t = ΠΣ⟨ _ ⟩ _ , _ ▷ _ ▹ _} ()
 subst-prod {t = lam _ _}               ()
@@ -375,6 +442,7 @@ wk-fst :
   ∃ λ u′ → t ≡ fst p u′ × wk ρ u′ ≡ u
 wk-fst {t = fst _ _}               refl = _ , refl , refl
 wk-fst {t = var _}                 ()
+wk-fst {t = defn _}                ()
 wk-fst {t = U _}                   ()
 wk-fst {t = ΠΣ⟨ _ ⟩ _ , _ ▷ _ ▹ _} ()
 wk-fst {t = lam _ _}               ()
@@ -403,6 +471,7 @@ subst-fst :
   ∃ λ u′ → t ≡ fst p u′ × u′ [ σ ] ≡ u
 subst-fst {t = var _}                 _    = inj₁ (_ , refl)
 subst-fst {t = fst _ _}               refl = inj₂ (_ , refl , refl)
+subst-fst {t = defn _}                ()
 subst-fst {t = U _}                   ()
 subst-fst {t = ΠΣ⟨ _ ⟩ _ , _ ▷ _ ▹ _} ()
 subst-fst {t = lam _ _}               ()
@@ -432,6 +501,7 @@ wk-snd :
   ∃ λ u′ → t ≡ snd p u′ × wk ρ u′ ≡ u
 wk-snd {t = snd _ _}               refl = _ , refl , refl
 wk-snd {t = var _}                 ()
+wk-snd {t = defn _}                ()
 wk-snd {t = U _}                   ()
 wk-snd {t = ΠΣ⟨ _ ⟩ _ , _ ▷ _ ▹ _} ()
 wk-snd {t = lam _ _}               ()
@@ -460,6 +530,7 @@ subst-snd :
   ∃ λ u′ → t ≡ snd p u′ × u′ [ σ ] ≡ u
 subst-snd {t = var _}                 _    = inj₁ (_ , refl)
 subst-snd {t = snd _ _}               refl = inj₂ (_ , refl , refl)
+subst-snd {t = defn _}                ()
 subst-snd {t = U _}                   ()
 subst-snd {t = ΠΣ⟨ _ ⟩ _ , _ ▷ _ ▹ _} ()
 subst-snd {t = lam _ _}               ()
@@ -492,6 +563,7 @@ wk-prodrec :
 wk-prodrec {t = prodrec _ _ _ _ _ _} refl =
   _ , _ , _ , refl , refl , refl , refl
 wk-prodrec {t = var _}                 ()
+wk-prodrec {t = defn _}                ()
 wk-prodrec {t = U _}                   ()
 wk-prodrec {t = ΠΣ⟨ _ ⟩ _ , _ ▷ _ ▹ _} ()
 wk-prodrec {t = lam _ _}               ()
@@ -524,6 +596,7 @@ subst-prodrec {t = var _} _ =
   inj₁ (_ , refl)
 subst-prodrec {t = prodrec _ _ _ _ _ _} refl =
   inj₂ (_ , _ , _ , refl , refl , refl , refl)
+subst-prodrec {t = defn _}                ()
 subst-prodrec {t = U _}                   ()
 subst-prodrec {t = ΠΣ⟨ _ ⟩ _ , _ ▷ _ ▹ _} ()
 subst-prodrec {t = lam _ _}               ()
@@ -551,6 +624,7 @@ subst-prodrec {t = []-cong _ _ _ _ _}     ()
 wk-Unit : wk ρ t ≡ Unit s l → t ≡ Unit s l
 wk-Unit {t = Unit!}                 refl = refl
 wk-Unit {t = var _}                 ()
+wk-Unit {t = defn _}                ()
 wk-Unit {t = U _}                   ()
 wk-Unit {t = ΠΣ⟨ _ ⟩ _ , _ ▷ _ ▹ _} ()
 wk-Unit {t = lam _ _}               ()
@@ -577,6 +651,7 @@ subst-Unit : t [ σ ] ≡ Unit s l →
              (∃ λ x → t ≡ var x) ⊎ t ≡ Unit s l
 subst-Unit {t = var _}                 _    = inj₁ (_ , refl)
 subst-Unit {t = Unit!}                 refl = inj₂ refl
+subst-Unit {t = defn _}                ()
 subst-Unit {t = U _}                   ()
 subst-Unit {t = ΠΣ⟨ _ ⟩ _ , _ ▷ _ ▹ _} ()
 subst-Unit {t = lam _ _}               ()
@@ -604,6 +679,7 @@ subst-Unit {t = []-cong _ _ _ _ _}     ()
 wk-star : wk ρ t ≡ star s l → t ≡ star s l
 wk-star {t = star!}                 refl = refl
 wk-star {t = var _}                 ()
+wk-star {t = defn _}                ()
 wk-star {t = U _}                   ()
 wk-star {t = ΠΣ⟨ _ ⟩ _ , _ ▷ _ ▹ _} ()
 wk-star {t = lam _ _}               ()
@@ -630,6 +706,7 @@ subst-star : t [ σ ] ≡ star s l →
             (∃ λ x → t ≡ var x) ⊎ t ≡ star s l
 subst-star {t = var _}                 _    = inj₁ (_ , refl)
 subst-star {t = star!}                 refl = inj₂ refl
+subst-star {t = defn _}                ()
 subst-star {t = U _}                   ()
 subst-star {t = ΠΣ⟨ _ ⟩ _ , _ ▷ _ ▹ _} ()
 subst-star {t = lam _ _}               ()
@@ -662,6 +739,7 @@ wk-unitrec :
 wk-unitrec {t = unitrec _ _ _ _ _ _} refl =
   _ , _ , _ , refl , refl , refl , refl
 wk-unitrec {t = var _}                 ()
+wk-unitrec {t = defn _}                ()
 wk-unitrec {t = U _}                   ()
 wk-unitrec {t = ΠΣ⟨ _ ⟩ _ , _ ▷ _ ▹ _} ()
 wk-unitrec {t = lam _ _}               ()
@@ -694,6 +772,7 @@ subst-unitrec {t = var _} _ =
   inj₁ (_ , refl)
 subst-unitrec {t = unitrec _ _ _ _ _ _} refl =
   inj₂ (_ , _ , _ , refl , refl , refl , refl)
+subst-unitrec {t = defn _}                ()
 subst-unitrec {t = U _}                   ()
 subst-unitrec {t = ΠΣ⟨ _ ⟩ _ , _ ▷ _ ▹ _} ()
 subst-unitrec {t = lam _ _}               ()
@@ -721,6 +800,7 @@ subst-unitrec {t = []-cong _ _ _ _ _}     ()
 wk-Empty : wk ρ t ≡ Empty → t ≡ Empty
 wk-Empty {t = Empty}                 refl = refl
 wk-Empty {t = var _}                 ()
+wk-Empty {t = defn _}                ()
 wk-Empty {t = U _}                   ()
 wk-Empty {t = ΠΣ⟨ _ ⟩ _ , _ ▷ _ ▹ _} ()
 wk-Empty {t = lam _ _}               ()
@@ -747,6 +827,7 @@ subst-Empty : t [ σ ] ≡ Empty →
               (∃ λ x → t ≡ var x) ⊎ t ≡ Empty
 subst-Empty {t = var _}                 _    = inj₁ (_ , refl)
 subst-Empty {t = Empty}                 refl = inj₂ refl
+subst-Empty {t = defn _}                ()
 subst-Empty {t = U _}                   ()
 subst-Empty {t = ΠΣ⟨ _ ⟩ _ , _ ▷ _ ▹ _} ()
 subst-Empty {t = lam _ _}               ()
@@ -777,6 +858,7 @@ wk-emptyrec :
 wk-emptyrec {t = emptyrec _ _ _} refl =
   _ , _ , refl , refl , refl
 wk-emptyrec {t = var _}                 ()
+wk-emptyrec {t = defn _}                ()
 wk-emptyrec {t = U _}                   ()
 wk-emptyrec {t = ΠΣ⟨ _ ⟩ _ , _ ▷ _ ▹ _} ()
 wk-emptyrec {t = lam _ _}               ()
@@ -807,6 +889,7 @@ subst-emptyrec {t = var _} _ =
   inj₁ (_ , refl)
 subst-emptyrec {t = emptyrec _ _ _} refl =
   inj₂ (_ , _ , refl , refl , refl)
+subst-emptyrec {t = defn _}                ()
 subst-emptyrec {t = U _}                   ()
 subst-emptyrec {t = ΠΣ⟨ _ ⟩ _ , _ ▷ _ ▹ _} ()
 subst-emptyrec {t = lam _ _}               ()
@@ -834,6 +917,7 @@ subst-emptyrec {t = []-cong _ _ _ _ _}     ()
 wk-ℕ : wk ρ t ≡ ℕ → t ≡ ℕ
 wk-ℕ {t = ℕ}                     refl = refl
 wk-ℕ {t = var _}                 ()
+wk-ℕ {t = defn _}                ()
 wk-ℕ {t = U _}                   ()
 wk-ℕ {t = ΠΣ⟨ _ ⟩ _ , _ ▷ _ ▹ _} ()
 wk-ℕ {t = lam _ _}               ()
@@ -859,6 +943,7 @@ wk-ℕ {t = []-cong _ _ _ _ _}     ()
 subst-ℕ : t [ σ ] ≡ ℕ → (∃ λ x → t ≡ var x) ⊎ t ≡ ℕ
 subst-ℕ {t = var _}                 _    = inj₁ (_ , refl)
 subst-ℕ {t = ℕ}                     refl = inj₂ refl
+subst-ℕ {t = defn _}                ()
 subst-ℕ {t = U _}                   ()
 subst-ℕ {t = ΠΣ⟨ _ ⟩ _ , _ ▷ _ ▹ _} ()
 subst-ℕ {t = lam _ _}               ()
@@ -886,6 +971,7 @@ subst-ℕ {t = []-cong _ _ _ _ _}     ()
 wk-zero : wk ρ t ≡ zero → t ≡ zero
 wk-zero {t = zero}                  refl = refl
 wk-zero {t = var _}                 ()
+wk-zero {t = defn _}                ()
 wk-zero {t = U _}                   ()
 wk-zero {t = ΠΣ⟨ _ ⟩ _ , _ ▷ _ ▹ _} ()
 wk-zero {t = lam _ _}               ()
@@ -911,6 +997,7 @@ wk-zero {t = []-cong _ _ _ _ _}     ()
 subst-zero : t [ σ ] ≡ zero → (∃ λ x → t ≡ var x) ⊎ t ≡ zero
 subst-zero {t = var _}                 _    = inj₁ (_ , refl)
 subst-zero {t = zero}                  refl = inj₂ refl
+subst-zero {t = defn _}                ()
 subst-zero {t = U _}                   ()
 subst-zero {t = ΠΣ⟨ _ ⟩ _ , _ ▷ _ ▹ _} ()
 subst-zero {t = lam _ _}               ()
@@ -940,6 +1027,7 @@ wk-suc :
   ∃ λ u′ → t ≡ suc u′ × wk ρ u′ ≡ u
 wk-suc {t = suc _}                 refl = _ , refl , refl
 wk-suc {t = var _}                 ()
+wk-suc {t = defn _}                ()
 wk-suc {t = U _}                   ()
 wk-suc {t = ΠΣ⟨ _ ⟩ _ , _ ▷ _ ▹ _} ()
 wk-suc {t = lam _ _}               ()
@@ -967,6 +1055,7 @@ subst-suc :
   (∃ λ x → t ≡ var x) ⊎ ∃ λ u′ → t ≡ suc u′ × u′ [ σ ] ≡ u
 subst-suc {t = var _}                 _    = inj₁ (_ , refl)
 subst-suc {t = suc _}                 refl = inj₂ (_ , refl , refl)
+subst-suc {t = defn _}                ()
 subst-suc {t = U _}                   ()
 subst-suc {t = ΠΣ⟨ _ ⟩ _ , _ ▷ _ ▹ _} ()
 subst-suc {t = lam _ _}               ()
@@ -1000,6 +1089,7 @@ wk-natrec :
 wk-natrec {t = natrec _ _ _ _ _ _ _} refl =
   _ , _ , _ , _ , refl , refl , refl , refl , refl
 wk-natrec {t = var _}                 ()
+wk-natrec {t = defn _}                ()
 wk-natrec {t = U _}                   ()
 wk-natrec {t = ΠΣ⟨ _ ⟩ _ , _ ▷ _ ▹ _} ()
 wk-natrec {t = lam _ _}               ()
@@ -1033,6 +1123,7 @@ subst-natrec {t = var _} _ =
   inj₁ (_ , refl)
 subst-natrec {t = natrec _ _ _ _ _ _ _} refl =
   inj₂ (_ , _ , _ , _ , refl , refl , refl , refl , refl)
+subst-natrec {t = defn _}                ()
 subst-natrec {t = U _}                   ()
 subst-natrec {t = ΠΣ⟨ _ ⟩ _ , _ ▷ _ ▹ _} ()
 subst-natrec {t = lam _ _}               ()
@@ -1065,6 +1156,7 @@ wk-Id :
 wk-Id {v = Id _ _ _} refl =
   _ , _ , _ , refl , refl , refl , refl
 wk-Id {v = var _}                 ()
+wk-Id {v = defn _}                ()
 wk-Id {v = U _}                   ()
 wk-Id {v = ΠΣ⟨ _ ⟩ _ , _ ▷ _ ▹ _} ()
 wk-Id {v = lam _ _}               ()
@@ -1097,6 +1189,7 @@ subst-Id {v = var _} _ =
   inj₁ (_ , refl)
 subst-Id {v = Id _ _ _} refl =
   inj₂ (_ , _ , _ , refl , refl , refl , refl)
+subst-Id {v = defn _}                ()
 subst-Id {v = U _}                   ()
 subst-Id {v = ΠΣ⟨ _ ⟩ _ , _ ▷ _ ▹ _} ()
 subst-Id {v = lam _ _}               ()
@@ -1124,6 +1217,7 @@ subst-Id {v = []-cong _ _ _ _ _}     ()
 wk-rfl : wk ρ t ≡ rfl → t ≡ rfl
 wk-rfl {t = rfl}                   refl = refl
 wk-rfl {t = var _}                 ()
+wk-rfl {t = defn _}                ()
 wk-rfl {t = U _}                   ()
 wk-rfl {t = ΠΣ⟨ _ ⟩ _ , _ ▷ _ ▹ _} ()
 wk-rfl {t = lam _ _}               ()
@@ -1149,6 +1243,7 @@ wk-rfl {t = []-cong _ _ _ _ _}     ()
 subst-rfl : t [ σ ] ≡ rfl → (∃ λ x → t ≡ var x) ⊎ t ≡ rfl
 subst-rfl {t = var x}                 _    = inj₁ (_ , refl)
 subst-rfl {t = rfl}                   refl = inj₂ refl
+subst-rfl {t = defn _}                ()
 subst-rfl {t = U _}                   ()
 subst-rfl {t = ΠΣ⟨ _ ⟩ _ , _ ▷ _ ▹ _} ()
 subst-rfl {t = lam _ _}               ()
@@ -1182,6 +1277,7 @@ wk-J :
 wk-J {w = J _ _ _ _ _ _ _ _} refl =
   _ , _ , _ , _ , _ , _ , refl , refl , refl , refl , refl , refl , refl
 wk-J {w = var _}                 ()
+wk-J {w = defn _}                ()
 wk-J {w = U _}                   ()
 wk-J {w = ΠΣ⟨ _ ⟩ _ , _ ▷ _ ▹ _} ()
 wk-J {w = lam _ _}               ()
@@ -1215,6 +1311,7 @@ subst-J {w = var _} _ =
   inj₁ (_ , refl)
 subst-J {w = J _ _ _ _ _ _ _ _} refl =
   inj₂ (_ , _ , _ , _ , _ , _ , refl , refl , refl , refl , refl , refl , refl)
+subst-J {w = defn _}                ()
 subst-J {w = U _}                   ()
 subst-J {w = ΠΣ⟨ _ ⟩ _ , _ ▷ _ ▹ _} ()
 subst-J {w = lam _ _}               ()
@@ -1248,6 +1345,7 @@ wk-K :
 wk-K {w = K _ _ _ _ _ _} refl =
   _ , _ , _ , _ , _ , refl , refl , refl , refl , refl , refl
 wk-K {w = var _}                 ()
+wk-K {w = defn _}                ()
 wk-K {w = U _}                   ()
 wk-K {w = ΠΣ⟨ _ ⟩ _ , _ ▷ _ ▹ _} ()
 wk-K {w = lam _ _}               ()
@@ -1281,6 +1379,7 @@ subst-K {w = var _} _ =
   inj₁ (_ , refl)
 subst-K {w = K _ _ _ _ _ _} refl =
   inj₂ (_ , _ , _ , _ , _ , refl , refl , refl , refl , refl , refl)
+subst-K {w = defn _}                ()
 subst-K {w = U _}                   ()
 subst-K {w = ΠΣ⟨ _ ⟩ _ , _ ▷ _ ▹ _} ()
 subst-K {w = lam _ _}               ()
@@ -1313,6 +1412,7 @@ wk-[]-cong :
 wk-[]-cong {w = []-cong _ _ _ _ _} refl =
   _ , _ , _ , _ , refl , refl , refl , refl , refl
 wk-[]-cong {w = var _}                 ()
+wk-[]-cong {w = defn _}                ()
 wk-[]-cong {w = U _}                   ()
 wk-[]-cong {w = ΠΣ⟨ _ ⟩ _ , _ ▷ _ ▹ _} ()
 wk-[]-cong {w = lam _ _}               ()
@@ -1345,6 +1445,7 @@ subst-[]-cong {w = var _} _ =
   inj₁ (_ , refl)
 subst-[]-cong {w = []-cong _ _ _ _ _} refl =
   inj₂ (_ , _ , _ , _ , refl , refl , refl , refl , refl)
+subst-[]-cong {w = defn _}                ()
 subst-[]-cong {w = U _}                   ()
 subst-[]-cong {w = ΠΣ⟨ _ ⟩ _ , _ ▷ _ ▹ _} ()
 subst-[]-cong {w = lam _ _}               ()

@@ -38,7 +38,7 @@ import Tools.PropositionalEquality as PE
 open import Tools.Reasoning.PropositionalEquality
 
 private variable
-  Γ                                         : Con Term _
+  Γ                                         : Cons _ _
   A A₁ A₂ B B₁ B₂ C C₁ C₂ t t₁ t₂ u u₁ u₂ v : Term _
   p q q′ r                                  : M
   s                                         : Strength
@@ -87,9 +87,9 @@ opaque
   -- A variant of prodrecⱼ.
 
   prodrecⱼ′ :
-    Γ ∙ Σʷ p , q′ ▷ A ▹ B ⊢ C →
+    Γ »∙ Σʷ p , q′ ▷ A ▹ B ⊢ C →
     Γ ⊢ t ∷ Σʷ p , q′ ▷ A ▹ B →
-    Γ ∙ A ∙ B ⊢ u ∷ C [ prodʷ p (var x1) (var x0) ]↑² →
+    Γ »∙ A »∙ B ⊢ u ∷ C [ prodʷ p (var x1) (var x0) ]↑² →
     Γ ⊢ prodrec r p q C t u ∷ C [ t ]₀
   prodrecⱼ′ ⊢C ⊢t ⊢u =
     let _ , _ , ok = inversion-ΠΣ (wf-⊢∷ ⊢t) in
@@ -173,8 +173,8 @@ opaque
   -- A variant of prodrec-subst.
 
   prodrec-subst′ :
-    Γ ∙ (Σʷ p , q′ ▷ A ▹ B) ⊢ C →
-    Γ ∙ A ∙ B ⊢ u ∷ C [ prodʷ p (var x1) (var x0) ]↑² →
+    Γ »∙ Σʷ p , q′ ▷ A ▹ B ⊢ C →
+    Γ »∙ A »∙ B ⊢ u ∷ C [ prodʷ p (var x1) (var x0) ]↑² →
     Γ ⊢ t₁ ⇒ t₂ ∷ Σʷ p , q′ ▷ A ▹ B →
     Γ ⊢ prodrec r p q C t₁ u ⇒ prodrec r p q C t₂ u ∷ C [ t₁ ]₀
   prodrec-subst′ ⊢C ⊢u t₁⇒t₂ =
@@ -186,9 +186,9 @@ opaque
   -- A variant of prodrec-subst for _⊢_⇒*_∷_.
 
   prodrec-subst* :
-    Γ ∙ Σʷ p , q ▷ A ▹ B ⊢ C →
+    Γ »∙ Σʷ p , q ▷ A ▹ B ⊢ C →
     Γ ⊢ t₁ ⇒* t₂ ∷ Σʷ p , q ▷ A ▹ B →
-    Γ ∙ A ∙ B ⊢ u ∷ C [ prodʷ p (var x1) (var x0) ]↑² →
+    Γ »∙ A »∙ B ⊢ u ∷ C [ prodʷ p (var x1) (var x0) ]↑² →
     Γ ⊢ prodrec r p q′ C t₁ u ⇒* prodrec r p q′ C t₂ u ∷ C [ t₁ ]₀
   prodrec-subst* ⊢C t₁⇒*t₂ ⊢u =
     case t₁⇒*t₂ of λ where
@@ -203,9 +203,9 @@ opaque
   -- A variant of prodrec-cong.
 
   prodrec-cong′ :
-    Γ ∙ (Σʷ p , q′ ▷ A ▹ B) ⊢ C₁ ≡ C₂ →
+    Γ »∙ Σʷ p , q′ ▷ A ▹ B ⊢ C₁ ≡ C₂ →
     Γ ⊢ t₁ ≡ t₂ ∷ Σʷ p , q′ ▷ A ▹ B →
-    Γ ∙ A ∙ B ⊢ u₁ ≡ u₂ ∷ C₁ [ prodʷ p (var x1) (var x0) ]↑² →
+    Γ »∙ A »∙ B ⊢ u₁ ≡ u₂ ∷ C₁ [ prodʷ p (var x1) (var x0) ]↑² →
     Γ ⊢ prodrec r p q C₁ t₁ u₁ ≡ prodrec r p q C₂ t₂ u₂ ∷ C₁ [ t₁ ]₀
   prodrec-cong′ C₁≡C₂ t₁≡t₂ u₁≡u₂ =
     let _ , _ , ok = inversion-ΠΣ (wf-⊢≡∷ t₁≡t₂ .proj₁) in
@@ -216,7 +216,7 @@ opaque
   -- A variant of the reduction rule Σ-β₁.
 
   Σ-β₁-⇒ :
-    Γ ∙ A ⊢ B →
+    Γ »∙ A ⊢ B →
     Γ ⊢ t ∷ A →
     Γ ⊢ u ∷ B [ t ]₀ →
     Σˢ-allowed p q →
@@ -229,7 +229,7 @@ opaque
   -- A variant of the equality rule Σ-β₁.
 
   Σ-β₁-≡ :
-    Γ ∙ A ⊢ B →
+    Γ »∙ A ⊢ B →
     Γ ⊢ t ∷ A →
     Γ ⊢ u ∷ B [ t ]₀ →
     Σˢ-allowed p q →
@@ -242,7 +242,7 @@ opaque
   -- A variant of the reduction rule Σ-β₂.
 
   Σ-β₂-⇒ :
-    Γ ∙ A ⊢ B →
+    Γ »∙ A ⊢ B →
     Γ ⊢ t ∷ A →
     Γ ⊢ u ∷ B [ t ]₀ →
     Σˢ-allowed p q →
@@ -255,7 +255,7 @@ opaque
   -- A variant of the equality rule Σ-β₂.
 
   Σ-β₂-≡ :
-    Γ ∙ A ⊢ B →
+    Γ »∙ A ⊢ B →
     Γ ⊢ t ∷ A →
     Γ ⊢ u ∷ B [ t ]₀ →
     Σˢ-allowed p q →
@@ -268,10 +268,10 @@ opaque
   -- A variant of the reduction rule prodrec-β.
 
   prodrec-β-⇒ :
-    Γ ∙ Σʷ p , q′ ▷ A ▹ B ⊢ C →
+    Γ »∙ Σʷ p , q′ ▷ A ▹ B ⊢ C →
     Γ ⊢ t ∷ A →
     Γ ⊢ u ∷ B [ t ]₀ →
-    Γ ∙ A ∙ B ⊢ v ∷ C [ prodʷ p (var x1) (var x0) ]↑² →
+    Γ »∙ A »∙ B ⊢ v ∷ C [ prodʷ p (var x1) (var x0) ]↑² →
     Γ ⊢ prodrec r p q C (prodʷ p t u) v ⇒ v [ t , u ]₁₀ ∷
       C [ prodʷ p t u ]₀
   prodrec-β-⇒ ⊢C ⊢t ⊢u ⊢v =
@@ -283,10 +283,10 @@ opaque
   -- A variant of the equality rule prodrec-β.
 
   prodrec-β-≡ :
-    Γ ∙ Σʷ p , q′ ▷ A ▹ B ⊢ C →
+    Γ »∙ Σʷ p , q′ ▷ A ▹ B ⊢ C →
     Γ ⊢ t ∷ A →
     Γ ⊢ u ∷ B [ t ]₀ →
-    Γ ∙ A ∙ B ⊢ v ∷ C [ prodʷ p (var x1) (var x0) ]↑² →
+    Γ »∙ A »∙ B ⊢ v ∷ C [ prodʷ p (var x1) (var x0) ]↑² →
     Γ ⊢ prodrec r p q C (prodʷ p t u) v ≡ v [ t , u ]₁₀ ∷
       C [ prodʷ p t u ]₀
   prodrec-β-≡ ⊢C ⊢t ⊢u ⊢v =
@@ -316,7 +316,7 @@ private opaque
 
   subst→subst* :
     ∀ t →
-    Γ ∙ A ⊢ B →
+    Γ »∙ A ⊢ B →
     (∀ {u} →
      Γ ⊢ u ∷ A →
      Γ ⊢ t [ u ]₀ ∷ B [ u ]₀) →
@@ -381,7 +381,7 @@ private opaque
   -- A lemma used below.
 
   ⊢[1,0]↑²[fst,snd]≡ :
-    Γ ∙ (Σˢ p , q ▷ A ▹ B) ⊢ C →
+    Γ »∙ Σˢ p , q ▷ A ▹ B ⊢ C →
     Γ ⊢ t ∷ Σˢ p , q ▷ A ▹ B →
     Γ ⊢
       C [ prodˢ p (var x1) (var x0) ]↑² [ fst p t , snd p t ]₁₀ ≡
@@ -401,9 +401,9 @@ opaque
   -- A typing rule for prodrecˢ.
 
   prodrecˢⱼ :
-    Γ ∙ (Σˢ p , q ▷ A ▹ B) ⊢ C →
+    Γ »∙ Σˢ p , q ▷ A ▹ B ⊢ C →
     Γ ⊢ t ∷ Σˢ p , q ▷ A ▹ B →
-    Γ ∙ A ∙ B ⊢ u ∷ C [ prodˢ p (var x1) (var x0) ]↑² →
+    Γ »∙ A »∙ B ⊢ u ∷ C [ prodˢ p (var x1) (var x0) ]↑² →
     Γ ⊢ prodrecˢ p t u ∷ C [ t ]₀
   prodrecˢⱼ {Γ} {p} {q} {A} {B} {C} {t} {u} ⊢C ⊢t ⊢u =           $⟨ fstⱼ′ ⊢t , sndⱼ′ ⊢t ⟩
 
@@ -412,7 +412,7 @@ opaque
 
     Γ ⊢ˢʷ
       consSubst (consSubst idSubst (fst p t)) (snd p t) ∷
-      Γ ∙ A ∙ B                                                  →⟨ subst-⊢∷ ⊢u ⟩
+      Γ .vars ∙ A ∙ B                                            →⟨ subst-⊢∷ ⊢u ⟩
 
     Γ ⊢
       prodrecˢ p t u ∷
@@ -428,7 +428,7 @@ opaque
     ∀ C →
     Γ ⊢ t ∷ A →
     Γ ⊢ u ∷ B [ t ]₀ →
-    Γ ∙ A ∙ B ⊢ v ∷ C [ prodˢ p (var x1) (var x0) ]↑² →
+    Γ »∙ A »∙ B ⊢ v ∷ C [ prodˢ p (var x1) (var x0) ]↑² →
     Σˢ-allowed p q′ →
     Γ ⊢ prodrecˢ p (prodˢ p t u) v ≡ v [ t , u ]₁₀ ∷ C [ prodˢ p t u ]₀
   prodrecˢ-β {Γ} {t} {A} {u} {B} {v} {p} C ⊢t ⊢u ⊢v ok =
@@ -445,7 +445,7 @@ opaque
       consSubst (consSubst idSubst t) u ≡
       consSubst (consSubst idSubst (fst p (prodˢ p t u)))
         (snd p (prodˢ p t u)) ∷
-      Γ ∙ A ∙ B                                                          →⟨ subst-⊢≡∷ (refl ⊢v) ⟩
+      Γ .vars ∙ A ∙ B                                                    →⟨ subst-⊢≡∷ (refl ⊢v) ⟩
 
     Γ ⊢
       v [ t , u ]₁₀ ≡
@@ -459,9 +459,9 @@ opaque
   -- Another equality rule for prodrecˢ.
 
   prodrecˢ-cong :
-    Γ ∙ (Σˢ p , q ▷ A ▹ B) ⊢ C →
+    Γ »∙ Σˢ p , q ▷ A ▹ B ⊢ C →
     Γ ⊢ t₁ ≡ t₂ ∷ Σˢ p , q ▷ A ▹ B →
-    Γ ∙ A ∙ B ⊢ u₁ ≡ u₂ ∷ C [ prodˢ p (var x1) (var x0) ]↑² →
+    Γ »∙ A »∙ B ⊢ u₁ ≡ u₂ ∷ C [ prodˢ p (var x1) (var x0) ]↑² →
     Γ ⊢ prodrecˢ p t₁ u₁ ≡ prodrecˢ p t₂ u₂ ∷ C [ t₁ ]₀
   prodrecˢ-cong
     {Γ} {p} {q} {A} {B} {C} {t₁} {t₂} {u₁} {u₂} ⊢C t₁≡t₂ u₁≡u₂ =
@@ -475,7 +475,7 @@ opaque
     Γ ⊢ˢʷ
       consSubst (consSubst idSubst (fst p t₁)) (snd p t₁) ≡
       consSubst (consSubst idSubst (fst p t₂)) (snd p t₂) ∷
-      Γ ∙ A ∙ B                                                    →⟨ subst-⊢≡∷ u₁≡u₂ ⟩
+      Γ .vars ∙ A ∙ B                                              →⟨ subst-⊢≡∷ u₁≡u₂ ⟩
 
     Γ ⊢
       prodrecˢ p t₁ u₁ ≡
@@ -488,14 +488,14 @@ opaque
 -- prodrecˢ. One might have hoped that the following rules should
 -- hold:
 --
---   Γ ∙ (Σˢ p , q ▷ A ▹ B) ⊢ C →
+--   Γ »∙ Σˢ p , q ▷ A ▹ B ⊢ C →
 --   Γ ⊢ t ∷ A →
 --   Γ ⊢ u ∷ B [ t ]₀ →
---   Γ ∙ A ∙ B ⊢ v ∷ C [ prodˢ p (var x1) (var x0) ]↑² →
+--   Γ »∙ A »∙ B ⊢ v ∷ C [ prodˢ p (var x1) (var x0) ]↑² →
 --   Γ ⊢ prodrecˢ p (prodˢ p t u) v ⇒ v [ t , u ]₁₀ ∷ C [ prodˢ p t u ]₀
 --
---   Γ ∙ (Σˢ p , q ▷ A ▹ B) ⊢ C →
---   Γ ∙ A ∙ B ⊢ u ∷ C [ prodʷ p (var x1) (var x0) ]↑² →
+--   Γ »∙ Σˢ p , q ▷ A ▹ B ⊢ C →
+--   Γ »∙ A »∙ B ⊢ u ∷ C [ prodʷ p (var x1) (var x0) ]↑² →
 --   Γ ⊢ t₁ ⇒ t₂ ∷ Σʷ p , q ▷ A ▹ B →
 --   Γ ⊢ prodrecˢ p t₁ u ⇒ prodrecˢ p t₂ u ∷ C [ t₁ ]₀
 --
@@ -512,15 +512,15 @@ private opaque
   -- Some lemmas used below.
 
   Σ⊢wk1 :
-    Γ ∙ A ⊢ B →
+    Γ »∙ A ⊢ B →
     Σʷ-allowed p q →
-    Γ ∙ (Σʷ p , q ▷ A ▹ B) ⊢ wk1 A
+    Γ »∙ Σʷ p , q ▷ A ▹ B ⊢ wk1 A
   Σ⊢wk1 ⊢B ok =
     W.wk₁ (ΠΣⱼ ⊢B ok) (⊢∙→⊢ (wf ⊢B))
 
   ⊢wk2 :
-    Γ ∙ A ⊢ B →
-    Γ ∙ A ∙ B ⊢ wk2 A
+    Γ »∙ A ⊢ B →
+    Γ »∙ A »∙ B ⊢ wk2 A
   ⊢wk2 ⊢B =
     let ⊢A = ⊢∙→⊢ (wf ⊢B) in
     W.wk₁ ⊢B (W.wk₁ ⊢A ⊢A)
@@ -529,42 +529,42 @@ private opaque
     Γ ⊢ A →
     Γ ⊢ wk1 A [ t ]₀ ≡ A
   ⊢wk1[]≡ {Γ} {A} {t} =
-    Γ ⊢ A                  →⟨ refl ⟩
-    (Γ ⊢ A ≡ A)            →⟨ PE.subst (_ ⊢_≡ _) (PE.sym (wk1-sgSubst _ _)) ⟩
+    Γ ⊢ A                   →⟨ refl ⟩
+    (Γ ⊢ A ≡ A)             →⟨ PE.subst (_ ⊢_≡ _) (PE.sym (wk1-sgSubst _ _)) ⟩
     (Γ ⊢ wk1 A [ t ]₀ ≡ A)  □
 
   ⊢wk1≡ :
     Γ ⊢ A →
     Γ ⊢ B →
-    Γ ∙ A ⊢ wk1 B ≡ B [ wk1Subst idSubst ]
+    Γ »∙ A ⊢ wk1 B ≡ B [ wk1Subst idSubst ]
   ⊢wk1≡ {Γ} {A} {B} ⊢A =
-    Γ ⊢ B                                         →⟨ W.wk₁ ⊢A ⟩
-    Γ ∙ A ⊢ wk1 B                                 →⟨ refl ⟩
-    (Γ ∙ A ⊢ wk1 B ≡ wk1 B)                       →⟨ PE.subst₂ (_ ⊢_≡_) PE.refl (wk[]≡[] 1) ⟩
-    (Γ ∙ A ⊢ wk1 B ≡ B [ wk1Subst idSubst ])  □
+    Γ ⊢ B                                      →⟨ W.wk₁ ⊢A ⟩
+    Γ »∙ A ⊢ wk1 B                             →⟨ refl ⟩
+    (Γ »∙ A ⊢ wk1 B ≡ wk1 B)                   →⟨ PE.subst₂ (_ ⊢_≡_) PE.refl (wk[]≡[] 1) ⟩
+    (Γ »∙ A ⊢ wk1 B ≡ B [ wk1Subst idSubst ])  □
 
   ⊢wk2≡ :
-    Γ ∙ A ⊢ B →
-    Γ ∙ A ∙ B ⊢ wk2 A ≡ A [ wkSubst 2 idSubst ]
+    Γ »∙ A ⊢ B →
+    Γ »∙ A »∙ B ⊢ wk2 A ≡ A [ wkSubst 2 idSubst ]
   ⊢wk2≡ {Γ} {A} {B} =
-    Γ ∙ A ⊢ B                                      →⟨ ⊢wk2 ⟩
-    Γ ∙ A ∙ B ⊢ wk2 A                              →⟨ refl ⟩
-    (Γ ∙ A ∙ B ⊢ wk2 A ≡ wk2 A)                    →⟨ PE.subst₂ (_ ⊢_≡_) PE.refl (wk[]≡[] 2) ⟩
-    (Γ ∙ A ∙ B ⊢ wk2 A ≡ A [ wkSubst 2 idSubst ])  □
+    Γ »∙ A ⊢ B                                       →⟨ ⊢wk2 ⟩
+    Γ »∙ A »∙ B ⊢ wk2 A                              →⟨ refl ⟩
+    (Γ »∙ A »∙ B ⊢ wk2 A ≡ wk2 A)                    →⟨ PE.subst₂ (_⊢_≡_ _) PE.refl (wk[]≡[] 2) ⟩
+    (Γ »∙ A »∙ B ⊢ wk2 A ≡ A [ wkSubst 2 idSubst ])  □
 
   ⊢ˢʷwk1Subst-idSubst :
     Γ ⊢ A →
-    Γ ∙ A ⊢ˢʷ wk1Subst idSubst ∷ Γ
-  ⊢ˢʷwk1Subst-idSubst {Γ} {A} ⊢A =  $⟨ ⊢ˢʷ∷-idSubst (wf ⊢A) ⟩
-    Γ ⊢ˢʷ idSubst ∷ Γ               →⟨ ⊢ˢʷ∷-wk1Subst ⊢A ⟩
-    Γ ∙ A ⊢ˢʷ wk1Subst idSubst ∷ Γ  □
+    Γ »∙ A ⊢ˢʷ wk1Subst idSubst ∷ Γ .vars
+  ⊢ˢʷwk1Subst-idSubst {Γ} {A} ⊢A =         $⟨ ⊢ˢʷ∷-idSubst (wf ⊢A) ⟩
+    Γ ⊢ˢʷ idSubst ∷ Γ .vars                →⟨ ⊢ˢʷ∷-wk1Subst ⊢A ⟩
+    Γ »∙ A ⊢ˢʷ wk1Subst idSubst ∷ Γ .vars  □
 
   ⊢ˢʷwkSubst-2-idSubst :
-    Γ ∙ A ⊢ B →
-    Γ ∙ A ∙ B ⊢ˢʷ wkSubst 2 idSubst ∷ Γ
-  ⊢ˢʷwkSubst-2-idSubst {Γ} {A} {B} ⊢B =  $⟨ ⊢ˢʷwk1Subst-idSubst (⊢∙→⊢ (wf ⊢B)) ⟩
-    Γ ∙ A ⊢ˢʷ wk1Subst idSubst ∷ Γ       →⟨ ⊢ˢʷ∷-wk1Subst ⊢B ⟩
-    Γ ∙ A ∙ B ⊢ˢʷ wkSubst 2 idSubst ∷ Γ  □
+    Γ »∙ A ⊢ B →
+    Γ »∙ A »∙ B ⊢ˢʷ wkSubst 2 idSubst ∷ Γ .vars
+  ⊢ˢʷwkSubst-2-idSubst {Γ} {A} {B} ⊢B =          $⟨ ⊢ˢʷwk1Subst-idSubst (⊢∙→⊢ (wf ⊢B)) ⟩
+    Γ »∙ A ⊢ˢʷ wk1Subst idSubst ∷ Γ .vars        →⟨ ⊢ˢʷ∷-wk1Subst ⊢B ⟩
+    Γ »∙ A »∙ B ⊢ˢʷ wkSubst 2 idSubst ∷ Γ .vars  □
 
 ------------------------------------------------------------------------
 -- Typing rules for fstʷ
@@ -574,14 +574,14 @@ private opaque
   -- A lemma used below.
 
   1∷wk1[1,0] :
-    Γ ∙ A ⊢ B →
-    Γ ∙ A ∙ B ⊢ var x1 ∷ wk1 A [ prodʷ p (var x1) (var x0) ]↑²
-  1∷wk1[1,0] {Γ} {A} {B} {p} ⊢B =                                 $⟨ ⊢B ⟩
-    Γ ∙ A ⊢ B                                                     →⟨ ⊢wk2 ⟩
-    Γ ∙ A ∙ B ⊢ wk2 A                                             →⟨ refl ⟩
-    (Γ ∙ A ∙ B ⊢ wk2 A ≡ wk2 A)                                   →⟨ PE.subst (_⊢_≡_ _ _) (PE.sym $ wk1-[][]↑ 2) ⟩
-    (Γ ∙ A ∙ B ⊢ wk2 A ≡ wk1 A [ prodʷ p (var x1) (var x0) ]↑²)   →⟨ conv (var₁ ⊢B) ⟩
-    (Γ ∙ A ∙ B ⊢ var x1 ∷ wk1 A [ prodʷ p (var x1) (var x0) ]↑²)  □
+    Γ »∙ A ⊢ B →
+    Γ »∙ A »∙ B ⊢ var x1 ∷ wk1 A [ prodʷ p (var x1) (var x0) ]↑²
+  1∷wk1[1,0] {Γ} {A} {B} {p} ⊢B =                                   $⟨ ⊢B ⟩
+    Γ »∙ A ⊢ B                                                      →⟨ ⊢wk2 ⟩
+    Γ »∙ A »∙ B ⊢ wk2 A                                             →⟨ refl ⟩
+    (Γ »∙ A »∙ B ⊢ wk2 A ≡ wk2 A)                                   →⟨ PE.subst (_⊢_≡_ _ _) (PE.sym $ wk1-[][]↑ 2) ⟩
+    (Γ »∙ A »∙ B ⊢ wk2 A ≡ wk1 A [ prodʷ p (var x1) (var x0) ]↑²)   →⟨ conv (var₁ ⊢B) ⟩
+    (Γ »∙ A »∙ B ⊢ var x1 ∷ wk1 A [ prodʷ p (var x1) (var x0) ]↑²)  □
 
 opaque
 
@@ -591,32 +591,32 @@ opaque
     Γ ⊢ t ∷ Σʷ p , q ▷ A ▹ B →
     Γ ⊢ fstʷ p A t ∷ A
   fstʷⱼ {Γ} {t} {p} {q} {A} {B} ⊢t =
-    let ⊢A , ⊢B , ok = inversion-ΠΣ (wf-⊢∷ ⊢t) in               $⟨ Σ⊢wk1 ⊢B ok , 1∷wk1[1,0] ⊢B ⟩
+    let ⊢A , ⊢B , ok = inversion-ΠΣ (wf-⊢∷ ⊢t) in                 $⟨ Σ⊢wk1 ⊢B ok , 1∷wk1[1,0] ⊢B ⟩
 
-    (Γ ∙ (Σʷ p , q ▷ A ▹ B) ⊢ wk1 A) ×
-    Γ ∙ A ∙ B ⊢ var x1 ∷ wk1 A [ prodʷ p (var x1) (var x0) ]↑²  →⟨ (λ (hyp₁ , hyp₂) → prodrecⱼ′ hyp₁ ⊢t hyp₂) ⟩
+    (Γ »∙ Σʷ p , q ▷ A ▹ B ⊢ wk1 A) ×
+    Γ »∙ A »∙ B ⊢ var x1 ∷ wk1 A [ prodʷ p (var x1) (var x0) ]↑²  →⟨ (λ (hyp₁ , hyp₂) → prodrecⱼ′ hyp₁ ⊢t hyp₂) ⟩
 
-    Γ ⊢ fstʷ p A t ∷ wk1 A [ t ]₀                               →⟨ flip conv (⊢wk1[]≡ ⊢A) ⟩
+    Γ ⊢ fstʷ p A t ∷ wk1 A [ t ]₀                                 →⟨ flip conv (⊢wk1[]≡ ⊢A) ⟩
 
-    Γ ⊢ fstʷ p A t ∷ A                                          □
+    Γ ⊢ fstʷ p A t ∷ A                                            □
 
 opaque
 
   -- A reduction rule for fstʷ.
 
   fstʷ-β-⇒ :
-    Γ ∙ A ⊢ B →
+    Γ »∙ A ⊢ B →
     Γ ⊢ t ∷ A →
     Γ ⊢ u ∷ B [ t ]₀ →
     Σʷ-allowed p q →
     Γ ⊢ fstʷ p A (prodʷ p t u) ⇒ t ∷ A
-  fstʷ-β-⇒ {Γ} {A} {B} {t} {u} {p} {q} ⊢B ⊢t ⊢u ok =             $⟨ Σ⊢wk1 ⊢B ok , 1∷wk1[1,0] ⊢B ⟩
-    (Γ ∙ (Σʷ p , q ▷ A ▹ B) ⊢ wk1 A) ×
-    Γ ∙ A ∙ B ⊢ var x1 ∷ wk1 A [ prodʷ p (var x1) (var x0) ]↑²   →⟨ (λ (hyp₁ , hyp₂) → prodrec-β-⇒ hyp₁ ⊢t ⊢u hyp₂) ⟩
+  fstʷ-β-⇒ {Γ} {A} {B} {t} {u} {p} {q} ⊢B ⊢t ⊢u ok =              $⟨ Σ⊢wk1 ⊢B ok , 1∷wk1[1,0] ⊢B ⟩
+    (Γ »∙ Σʷ p , q ▷ A ▹ B ⊢ wk1 A) ×
+    Γ »∙ A »∙ B ⊢ var x1 ∷ wk1 A [ prodʷ p (var x1) (var x0) ]↑²  →⟨ (λ (hyp₁ , hyp₂) → prodrec-β-⇒ hyp₁ ⊢t ⊢u hyp₂) ⟩
 
-    Γ ⊢ fstʷ p A (prodʷ p t u) ⇒ t ∷ wk1 A [ prodʷ p t u ]₀      →⟨ flip conv (⊢wk1[]≡ (wf-⊢∷ ⊢t)) ⟩
+    Γ ⊢ fstʷ p A (prodʷ p t u) ⇒ t ∷ wk1 A [ prodʷ p t u ]₀       →⟨ flip conv (⊢wk1[]≡ (wf-⊢∷ ⊢t)) ⟩
 
-    Γ ⊢ fstʷ p A (prodʷ p t u) ⇒ t ∷ A                           □
+    Γ ⊢ fstʷ p A (prodʷ p t u) ⇒ t ∷ A                            □
 
 opaque
 
@@ -628,21 +628,21 @@ opaque
   fstʷ-subst {Γ} {t₁} {t₂} {p} {q} {A} {B} t₁⇒t₂ =
     let ⊢A , ⊢B , ok =
           inversion-ΠΣ (wf-⊢≡∷ (subsetTerm t₁⇒t₂) .proj₁)
-    in                                                           $⟨ Σ⊢wk1 ⊢B ok , 1∷wk1[1,0] ⊢B ⟩
+    in                                                            $⟨ Σ⊢wk1 ⊢B ok , 1∷wk1[1,0] ⊢B ⟩
 
-    (Γ ∙ (Σʷ p , q ▷ A ▹ B) ⊢ wk1 A) ×
-    Γ ∙ A ∙ B ⊢ var x1 ∷ wk1 A [ prodʷ p (var x1) (var x0) ]↑²   →⟨ (λ (hyp₁ , hyp₂) → prodrec-subst′ hyp₁ hyp₂ t₁⇒t₂) ⟩
+    (Γ »∙ Σʷ p , q ▷ A ▹ B ⊢ wk1 A) ×
+    Γ »∙ A »∙ B ⊢ var x1 ∷ wk1 A [ prodʷ p (var x1) (var x0) ]↑²  →⟨ (λ (hyp₁ , hyp₂) → prodrec-subst′ hyp₁ hyp₂ t₁⇒t₂) ⟩
 
-    Γ ⊢ fstʷ p A t₁ ⇒ fstʷ p A t₂ ∷ wk1 A [ t₁ ]₀                →⟨ flip conv (⊢wk1[]≡ ⊢A) ⟩
+    Γ ⊢ fstʷ p A t₁ ⇒ fstʷ p A t₂ ∷ wk1 A [ t₁ ]₀                 →⟨ flip conv (⊢wk1[]≡ ⊢A) ⟩
 
-    Γ ⊢ fstʷ p A t₁ ⇒ fstʷ p A t₂ ∷ A                            □
+    Γ ⊢ fstʷ p A t₁ ⇒ fstʷ p A t₂ ∷ A                             □
 
 opaque
 
   -- An equality rule for fstʷ.
 
   fstʷ-β-≡ :
-    Γ ∙ A ⊢ B →
+    Γ »∙ A ⊢ B →
     Γ ⊢ t ∷ A →
     Γ ⊢ u ∷ B [ t ]₀ →
     Σʷ-allowed p q →
@@ -658,15 +658,15 @@ opaque
     Γ ⊢ t₁ ≡ t₂ ∷ Σʷ p , q ▷ A₁ ▹ B₁ →
     Γ ⊢ fstʷ p A₁ t₁ ≡ fstʷ p A₂ t₂ ∷ A₁
   fstʷ-cong {Γ} {A₁} {A₂} {t₁} {t₂} {p} {q} {B₁} A₁≡A₂ t₁≡t₂ =
-    let ⊢A₁ , ⊢B₁ , ok = inversion-ΠΣ (wf-⊢≡∷ t₁≡t₂ .proj₁) in     $⟨ W.wkEq₁ (ΠΣⱼ ⊢B₁ ok) A₁≡A₂
-                                                                    , 1∷wk1[1,0] ⊢B₁
-                                                                    ⟩
-    (Γ ∙ (Σʷ p , q ▷ A₁ ▹ B₁) ⊢ wk1 A₁ ≡ wk1 A₂) ×
-    Γ ∙ A₁ ∙ B₁ ⊢ var x1 ∷ wk1 A₁ [ prodʷ p (var x1) (var x0) ]↑²  →⟨ (λ (hyp₁ , hyp₂) → prodrec-cong′ hyp₁ t₁≡t₂ (refl hyp₂)) ⟩
+    let ⊢A₁ , ⊢B₁ , ok = inversion-ΠΣ (wf-⊢≡∷ t₁≡t₂ .proj₁) in       $⟨ W.wkEq₁ (ΠΣⱼ ⊢B₁ ok) A₁≡A₂
+                                                                      , 1∷wk1[1,0] ⊢B₁
+                                                                      ⟩
+    (Γ »∙ Σʷ p , q ▷ A₁ ▹ B₁ ⊢ wk1 A₁ ≡ wk1 A₂) ×
+    Γ »∙ A₁ »∙ B₁ ⊢ var x1 ∷ wk1 A₁ [ prodʷ p (var x1) (var x0) ]↑²  →⟨ (λ (hyp₁ , hyp₂) → prodrec-cong′ hyp₁ t₁≡t₂ (refl hyp₂)) ⟩
 
-    Γ ⊢ fstʷ p A₁ t₁ ≡ fstʷ p A₂ t₂ ∷ wk1 A₁ [ t₁ ]₀               →⟨ flip conv (⊢wk1[]≡ ⊢A₁) ⟩
+    Γ ⊢ fstʷ p A₁ t₁ ≡ fstʷ p A₂ t₂ ∷ wk1 A₁ [ t₁ ]₀                 →⟨ flip conv (⊢wk1[]≡ ⊢A₁) ⟩
 
-    Γ ⊢ fstʷ p A₁ t₁ ≡ fstʷ p A₂ t₂ ∷ A₁                           □
+    Γ ⊢ fstʷ p A₁ t₁ ≡ fstʷ p A₂ t₂ ∷ A₁                             □
 
 ------------------------------------------------------------------------
 -- Some private lemmas related to fstʷ
@@ -738,108 +738,108 @@ private opaque
     B [ fstʷ p (wk1 (wk1 A)) (prodʷ p (var x1) (var x0)) ]↑²           ∎
 
   ⊢≡[fstʷ-0]↑[1,0]↑² :
-    Γ ∙ A ⊢ B →
+    Γ »∙ A ⊢ B →
     Σʷ-allowed p q →
-    Γ ∙ A ∙ B ⊢
+    Γ »∙ A »∙ B ⊢
       wk1 B ≡
       B [ fstʷ p (wk1 A) (var x0) ]↑ [ prodʷ p (var x1) (var x0) ]↑²
   ⊢≡[fstʷ-0]↑[1,0]↑² {Γ} {A} {B} {p} ⊢B ok =                          $⟨ →⊢ˢʷ≡∷∙ (⊢∙→⊢ (wf ⊢B)) (refl-⊢ˢʷ≡∷ (⊢ˢʷwkSubst-2-idSubst ⊢B)) lemma ⟩
-    Γ ∙ A ∙ B ⊢ˢʷ
+    Γ »∙ A »∙ B ⊢ˢʷ
       consSubst (wkSubst 2 idSubst) (var x1) ≡
       consSubst (wkSubst 2 idSubst)
         (fstʷ p (wk2 A) (prodʷ p (var x1) (var x0))) ∷
-      Γ ∙ A                                                           →⟨ subst-⊢≡ (refl ⊢B) ⟩
+      Γ .vars ∙ A                                                     →⟨ subst-⊢≡ (refl ⊢B) ⟩
 
-    Γ ∙ A ∙ B ⊢
+    Γ »∙ A »∙ B ⊢
       B [ var x1 ]↑² ≡
-      B [ fstʷ p (wk2 A) (prodʷ p (var x1) (var x0)) ]↑²              →⟨ PE.subst₂ (_ ⊢_≡_) [1]↑² (PE.sym $ [fstʷ-0]↑[1,0]↑² B) ⟩
+      B [ fstʷ p (wk2 A) (prodʷ p (var x1) (var x0)) ]↑²              →⟨ PE.subst₂ (_⊢_≡_ _) [1]↑² (PE.sym $ [fstʷ-0]↑[1,0]↑² B) ⟩
 
-    Γ ∙ A ∙ B ⊢
+    Γ »∙ A »∙ B ⊢
       wk1 B ≡
       B [ fstʷ p (wk1 A) (var x0) ]↑ [ prodʷ p (var x1) (var x0) ]↑²  □
     where
     lemma :
-      Γ ∙ A ∙ B ⊢
+      Γ »∙ A »∙ B ⊢
         var x1 ≡
         fstʷ p (wk1 (wk1 A)) (prodʷ p (var x1) (var x0)) ∷
         A [ wkSubst 2 idSubst ]
     lemma =                                            $⟨ W.wk₁ ⊢B ⊢B ⟩
 
-      (Γ ∙ A ∙ B ⊢ wk1 B)                              →⟨ refl ⟩
+      (Γ »∙ A »∙ B ⊢ wk1 B)                            →⟨ refl ⟩
 
-      Γ ∙ A ∙ B ⊢ wk1 B ≡ wk1 B                        →⟨ PE.subst₂ (_ ⊢_≡_) PE.refl (PE.sym (wk1-sgSubst (wk1 B) _)) ⟩
+      Γ »∙ A »∙ B ⊢ wk1 B ≡ wk1 B                      →⟨ PE.subst₂ (_⊢_≡_ _) PE.refl (PE.sym (wk1-sgSubst (wk1 B) _)) ⟩
 
-      Γ ∙ A ∙ B ⊢ wk1 B ≡ wk2 B [ var x1 ]₀            →⟨ conv (var₀ ⊢B) ⟩
+      Γ »∙ A »∙ B ⊢ wk1 B ≡ wk2 B [ var x1 ]₀          →⟨ conv (var₀ ⊢B) ⟩
 
-      (Γ ∙ A ∙ B ⊢ var x0 ∷ wk2 B [ var x1 ]₀)         →⟨ (λ ⊢0 → ⊢wk2 (⊢wk2 ⊢B) , var₁ ⊢B , ⊢0) ⟩
+      (Γ »∙ A »∙ B ⊢ var x0 ∷ wk2 B [ var x1 ]₀)       →⟨ (λ ⊢0 → ⊢wk2 (⊢wk2 ⊢B) , var₁ ⊢B , ⊢0) ⟩
 
-      (Γ ∙ A ∙ B ∙ wk2 A ⊢ wk2 B) ×
-      (Γ ∙ A ∙ B ⊢ var x1 ∷ wk2 A) ×
-      (Γ ∙ A ∙ B ⊢ var x0 ∷ wk2 B [ var x1 ]₀)         →⟨ (λ (⊢B , ⊢1 , ⊢0) → fstʷ-β-≡ ⊢B ⊢1 ⊢0 ok) ⟩
+      (Γ »∙ A »∙ B »∙ wk2 A ⊢ wk2 B) ×
+      (Γ »∙ A »∙ B ⊢ var x1 ∷ wk2 A) ×
+      (Γ »∙ A »∙ B ⊢ var x0 ∷ wk2 B [ var x1 ]₀)       →⟨ (λ (⊢B , ⊢1 , ⊢0) → fstʷ-β-≡ ⊢B ⊢1 ⊢0 ok) ⟩
 
-      (Γ ∙ A ∙ B ⊢
+      (Γ »∙ A »∙ B ⊢
          fstʷ p (wk2 A) (prodʷ p (var x1) (var x0)) ≡
          var x1 ∷
          wk2 A)                                        →⟨ flip _⊢_≡_∷_.conv (⊢wk2≡ ⊢B) ∘→ sym′ ⟩
 
-      (Γ ∙ A ∙ B ⊢
+      (Γ »∙ A »∙ B ⊢
          var x1 ≡
          fstʷ p (wk2 A) (prodʷ p (var x1) (var x0)) ∷
          A [ wkSubst 2 idSubst ])                      □
 
   ⊢[fstʷ-0]↑≡[fstʷ-0]↑ :
     Γ ⊢ A₁ ≡ A₂ →
-    Γ ∙ A₁ ⊢ B₁ ≡ B₂ →
+    Γ »∙ A₁ ⊢ B₁ ≡ B₂ →
     Σʷ-allowed p q →
-    Γ ∙ (Σʷ p , q ▷ A₁ ▹ B₁) ⊢
+    Γ »∙ Σʷ p , q ▷ A₁ ▹ B₁ ⊢
       B₁ [ fstʷ p (wk1 A₁) (var x0) ]↑ ≡
       B₂ [ fstʷ p (wk1 A₂) (var x0) ]↑
   ⊢[fstʷ-0]↑≡[fstʷ-0]↑ {Γ} {A₁} {A₂} {B₁} {B₂} {p} {q} A₁≡A₂ B₁≡B₂ ok =
     let ⊢ΣA₁B₁ = ΠΣⱼ (wf-⊢≡ B₁≡B₂ .proj₁) ok in                  $⟨ refl (var₀ ⊢ΣA₁B₁) ⟩
 
-    Γ ∙ (Σʷ p , q ▷ A₁ ▹ B₁) ⊢
+    Γ »∙ Σʷ p , q ▷ A₁ ▹ B₁ ⊢
       var x0 ≡
       var x0 ∷
       wk1 (Σʷ p , q ▷ A₁ ▹ B₁)                                   →⟨ fstʷ-cong (W.wkEq (W.stepʷ id ⊢ΣA₁B₁) A₁≡A₂) ⟩
 
-    Γ ∙ (Σʷ p , q ▷ A₁ ▹ B₁) ⊢
+    Γ »∙ Σʷ p , q ▷ A₁ ▹ B₁ ⊢
       fstʷ p (wk1 A₁) (var x0) ≡
       fstʷ p (wk1 A₂) (var x0) ∷
       wk1 A₁                                                     →⟨ flip conv (⊢wk1≡ ⊢ΣA₁B₁ (wf-⊢≡ A₁≡A₂ .proj₁)) ⟩
 
-    Γ ∙ (Σʷ p , q ▷ A₁ ▹ B₁) ⊢
+    Γ »∙ Σʷ p , q ▷ A₁ ▹ B₁ ⊢
       fstʷ p (wk1 A₁) (var x0) ≡
       fstʷ p (wk1 A₂) (var x0) ∷
       A₁ [ wk1Subst idSubst ]                                    →⟨ →⊢ˢʷ≡∷∙ (wf-⊢≡ A₁≡A₂ .proj₁)
                                                                       (refl-⊢ˢʷ≡∷ (⊢ˢʷwk1Subst-idSubst ⊢ΣA₁B₁)) ⟩
-    Γ ∙ (Σʷ p , q ▷ A₁ ▹ B₁) ⊢ˢʷ
+    Γ »∙ Σʷ p , q ▷ A₁ ▹ B₁ ⊢ˢʷ
       consSubst (wk1Subst idSubst) (fstʷ p (wk1 A₁) (var x0)) ≡
       consSubst (wk1Subst idSubst) (fstʷ p (wk1 A₂) (var x0)) ∷
-      Γ ∙ A₁                                                     →⟨ subst-⊢≡ B₁≡B₂ ⟩
+      Γ .vars ∙ A₁                                               →⟨ subst-⊢≡ B₁≡B₂ ⟩
 
-    Γ ∙ (Σʷ p , q ▷ A₁ ▹ B₁) ⊢
+    Γ »∙ Σʷ p , q ▷ A₁ ▹ B₁ ⊢
       B₁ [ fstʷ p (wk1 A₁) (var x0) ]↑ ≡
       B₂ [ fstʷ p (wk1 A₂) (var x0) ]↑                           □
 
   ⊢[fstʷ-0]↑ :
-    Γ ∙ A ⊢ B →
+    Γ »∙ A ⊢ B →
     Σʷ-allowed p q →
-    Γ ∙ (Σʷ p , q ▷ A ▹ B) ⊢ B [ fstʷ p (wk1 A) (var x0) ]↑
+    Γ »∙ Σʷ p , q ▷ A ▹ B ⊢ B [ fstʷ p (wk1 A) (var x0) ]↑
   ⊢[fstʷ-0]↑ ⊢B ok =
     wf-⊢≡ (⊢[fstʷ-0]↑≡[fstʷ-0]↑ (refl (⊢∙→⊢ (wf ⊢B))) (refl ⊢B) ok)
       .proj₁
 
   ⊢0∷[fstʷ-0]↑[1,0]↑² :
-    Γ ∙ A ⊢ B →
+    Γ »∙ A ⊢ B →
     Σʷ-allowed p q →
-    Γ ∙ A ∙ B ⊢
+    Γ »∙ A »∙ B ⊢
       var x0 ∷
       B [ fstʷ p (wk1 A) (var x0) ]↑ [ prodʷ p (var x1) (var x0) ]↑²
   ⊢0∷[fstʷ-0]↑[1,0]↑² {Γ} {A} {B} {p} ⊢B ok =                         $⟨ var₀ ⊢B ⟩
 
-    Γ ∙ A ∙ B ⊢ var x0 ∷ wk1 B                                        →⟨ flip conv (⊢≡[fstʷ-0]↑[1,0]↑² ⊢B ok) ⟩
+    Γ »∙ A »∙ B ⊢ var x0 ∷ wk1 B                                      →⟨ flip _⊢_∷_.conv (⊢≡[fstʷ-0]↑[1,0]↑² ⊢B ok) ⟩
 
-    Γ ∙ A ∙ B ⊢
+    Γ »∙ A »∙ B ⊢
       var x0 ∷
       B [ fstʷ p (wk1 A) (var x0) ]↑ [ prodʷ p (var x1) (var x0) ]↑²  □
 
@@ -864,12 +864,13 @@ opaque
   -- A reduction rule for sndʷ.
 
   sndʷ-β-⇒ :
-    Γ ∙ A ⊢ B →
+    Γ »∙ A ⊢ B →
     Γ ⊢ t ∷ A →
     Γ ⊢ u ∷ B [ t ]₀ →
     Σʷ-allowed p q →
     Γ ⊢ sndʷ p q A B (prodʷ p t u) ⇒ u ∷ B [ fstʷ p A (prodʷ p t u) ]₀
-  sndʷ-β-⇒ {Γ} {A} {B} {t} {u} {p} {q} ⊢B ⊢t ⊢u ok =   $⟨ prodrec-β (⊢[fstʷ-0]↑ {q = q} ⊢B ok)
+  sndʷ-β-⇒ {Γ} {A} {B} {t} {u} {p} {q} ⊢B ⊢t ⊢u ok =
+                                                       $⟨ prodrec-β (⊢[fstʷ-0]↑ {q = q} ⊢B ok)
                                                             ⊢t ⊢u (⊢0∷[fstʷ-0]↑[1,0]↑² ⊢B ok) PE.refl ok ⟩
     Γ ⊢ sndʷ p q A B (prodʷ p t u) ⇒ u ∷
       B [ fstʷ p (wk1 A) (var x0) ]↑ [ prodʷ p t u ]₀  →⟨ flip conv (⊢≡[fstʷ] (prodⱼ ⊢B ⊢t ⊢u ok)) ⟩
@@ -887,20 +888,19 @@ opaque
   sndʷ-subst {Γ} {t₁} {t₂} {p} {q} {A} {B} t₁⇒t₂ =
     let _ , ⊢t₁ , _ = wf-⊢≡∷ (subsetTerm t₁⇒t₂)
         _ , ⊢B , ok = inversion-ΠΣ (wf-⊢∷ ⊢t₁)
-    in
-                                              $⟨ prodrec-subst′ (⊢[fstʷ-0]↑ ⊢B ok) (⊢0∷[fstʷ-0]↑[1,0]↑² ⊢B ok) t₁⇒t₂ ⟩
+    in                                           $⟨ prodrec-subst′ (⊢[fstʷ-0]↑ ⊢B ok) (⊢0∷[fstʷ-0]↑[1,0]↑² ⊢B ok) t₁⇒t₂ ⟩
     Γ ⊢ sndʷ p q A B t₁ ⇒ sndʷ p q A B t₂ ∷
-      B [ fstʷ p (wk1 A) (var x0) ]↑ [ t₁ ]₀  →⟨ flip conv (⊢≡[fstʷ] ⊢t₁) ⟩
+      B [ fstʷ p (wk1 A) (var x0) ]↑ [ t₁ ]₀     →⟨ flip conv (⊢≡[fstʷ] ⊢t₁) ⟩
 
     Γ ⊢ sndʷ p q A B t₁ ⇒ sndʷ p q A B t₂ ∷
-      B [ fstʷ p A t₁ ]₀                      □
+      B [ fstʷ p A t₁ ]₀                         □
 
 opaque
 
   -- An equality rule for sndʷ.
 
   sndʷ-β-≡ :
-    Γ ∙ A ⊢ B →
+    Γ »∙ A ⊢ B →
     Γ ⊢ t ∷ A →
     Γ ⊢ u ∷ B [ t ]₀ →
     Σʷ-allowed p q →
@@ -913,7 +913,7 @@ opaque
 
   sndʷ-cong :
     Γ ⊢ A₁ ≡ A₂ →
-    Γ ∙ A₁ ⊢ B₁ ≡ B₂ →
+    Γ »∙ A₁ ⊢ B₁ ≡ B₂ →
     Γ ⊢ t₁ ≡ t₂ ∷ Σʷ p , q ▷ A₁ ▹ B₁ →
     Γ ⊢ sndʷ p q A₁ B₁ t₁ ≡ sndʷ p q A₂ B₂ t₂ ∷ B₁ [ fstʷ p A₁ t₁ ]₀
   sndʷ-cong
@@ -1044,9 +1044,9 @@ opaque
   -- A typing rule for prodrec⟨_⟩.
 
   ⊢prodrec⟨⟩ :
-    Γ ∙ (Σ⟨ s ⟩ p , q′ ▷ A ▹ B) ⊢ C →
+    Γ »∙ Σ⟨ s ⟩ p , q′ ▷ A ▹ B ⊢ C →
     Γ ⊢ t ∷ Σ⟨ s ⟩ p , q′ ▷ A ▹ B →
-    Γ ∙ A ∙ B ⊢ u ∷ C [ prod s p (var x1) (var x0) ]↑² →
+    Γ »∙ A »∙ B ⊢ u ∷ C [ prod s p (var x1) (var x0) ]↑² →
     Γ ⊢ prodrec⟨ s ⟩ r p q C t u ∷ C [ t ]₀
   ⊢prodrec⟨⟩ {s = 𝕨} = prodrecⱼ′
   ⊢prodrec⟨⟩ {s = 𝕤} = prodrecˢⱼ
@@ -1057,10 +1057,10 @@ opaque
   -- An equality rule for prodrec⟨_⟩.
 
   prodrec⟨⟩-β :
-    (s PE.≡ 𝕨 → Γ ∙ (Σ⟨ s ⟩ p , q′ ▷ A ▹ B) ⊢ C) →
+    (s PE.≡ 𝕨 → Γ »∙ Σ⟨ s ⟩ p , q′ ▷ A ▹ B ⊢ C) →
     Γ ⊢ t ∷ A →
     Γ ⊢ u ∷ B [ t ]₀ →
-    Γ ∙ A ∙ B ⊢ v ∷ C [ prod s p (var x1) (var x0) ]↑² →
+    Γ »∙ A »∙ B ⊢ v ∷ C [ prod s p (var x1) (var x0) ]↑² →
     (s PE.≡ 𝕤 → Σ-allowed s p q′) →
     Γ ⊢ prodrec⟨ s ⟩ r p q C (prod s p t u) v ≡ v [ t , u ]₁₀ ∷
       C [ prod s p t u ]₀
@@ -1075,9 +1075,9 @@ opaque
   -- Another equality rule for prodrec⟨_⟩.
 
   prodrec⟨⟩-cong :
-    Γ ∙ (Σ⟨ s ⟩ p , q′ ▷ A ▹ B) ⊢ C₁ ≡ C₂ →
+    Γ »∙ Σ⟨ s ⟩ p , q′ ▷ A ▹ B ⊢ C₁ ≡ C₂ →
     Γ ⊢ t₁ ≡ t₂ ∷ Σ⟨ s ⟩ p , q′ ▷ A ▹ B →
-    Γ ∙ A ∙ B ⊢ u₁ ≡ u₂ ∷ C₁ [ prod s p (var x1) (var x0) ]↑² →
+    Γ »∙ A »∙ B ⊢ u₁ ≡ u₂ ∷ C₁ [ prod s p (var x1) (var x0) ]↑² →
     Γ ⊢ prodrec⟨ s ⟩ r p q C₁ t₁ u₁ ≡
       prodrec⟨ s ⟩ r p q C₂ t₂ u₂ ∷ C₁ [ t₁ ]₀
   prodrec⟨⟩-cong {s = 𝕨} = prodrec-cong′
@@ -1103,7 +1103,7 @@ opaque
   -- A reduction rule for fst⟨_⟩.
 
   fst⟨⟩-β-⇒ :
-    Γ ∙ A ⊢ B →
+    Γ »∙ A ⊢ B →
     Γ ⊢ t ∷ A →
     Γ ⊢ u ∷ B [ t ]₀ →
     Σ-allowed s p q →
@@ -1128,7 +1128,7 @@ opaque
   -- An equality rule for fst⟨_⟩.
 
   fst⟨⟩-β-≡ :
-    Γ ∙ A ⊢ B →
+    Γ »∙ A ⊢ B →
     Γ ⊢ t ∷ A →
     Γ ⊢ u ∷ B [ t ]₀ →
     Σ-allowed s p q →
@@ -1168,7 +1168,7 @@ opaque
   -- A reduction rule for snd⟨_⟩.
 
   snd⟨⟩-β-⇒ :
-    Γ ∙ A ⊢ B →
+    Γ »∙ A ⊢ B →
     Γ ⊢ t ∷ A →
     Γ ⊢ u ∷ B [ t ]₀ →
     Σ-allowed s p q →
@@ -1195,7 +1195,7 @@ opaque
   -- An equality rule for snd⟨_⟩.
 
   snd⟨⟩-β-≡ :
-    Γ ∙ A ⊢ B →
+    Γ »∙ A ⊢ B →
     Γ ⊢ t ∷ A →
     Γ ⊢ u ∷ B [ t ]₀ →
     Σ-allowed s p q →
@@ -1211,7 +1211,7 @@ opaque
 
   snd⟨⟩-cong :
     Γ ⊢ A₁ ≡ A₂ →
-    Γ ∙ A₁ ⊢ B₁ ≡ B₂ →
+    Γ »∙ A₁ ⊢ B₁ ≡ B₂ →
     Γ ⊢ t₁ ≡ t₂ ∷ Σ⟨ s ⟩ p , q ▷ A₁ ▹ B₁ →
     Γ ⊢ snd⟨ s ⟩ p q A₁ B₁ t₁ ≡ snd⟨ s ⟩ p q A₂ B₂ t₂ ∷
       B₁ [ fst⟨ s ⟩ p A₁ t₁ ]₀

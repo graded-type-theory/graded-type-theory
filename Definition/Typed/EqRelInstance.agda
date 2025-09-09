@@ -17,6 +17,7 @@ open Type-restrictions R
 open import Definition.Typed R
 open import Definition.Typed.Properties R
 open import Definition.Typed.Weakening R
+open import Definition.Typed.Weakening.Definition R
 open import Definition.Typed.EqualityRelation R
 import Definition.Typed.EqualityRelation.Instance
 
@@ -30,9 +31,9 @@ private opaque
   equality-relations :
     Equality-relations _⊢_≡_ _⊢_≡_∷_ _⊢_≡_∷_ No-equality-reflection
   equality-relations = λ where
-      .Neutrals-included? →
+      .Var-included? →
         No-equality-reflection?
-      .Equality-reflection-allowed→¬Neutrals-included →
+      .Equality-reflection-allowed→¬Var-included →
         λ { ok (no-equality-reflection not-ok) → not-ok ok }
       .⊢≡→⊢≅        → λ _ → idᶠ
       .⊢≡∷→⊢≅∷      → λ _ → idᶠ
@@ -51,6 +52,9 @@ private opaque
       .≅-wk         → wkEq
       .≅ₜ-wk        → wkEqTerm
       .~-wk         → wkEqTerm
+      .≅-defn-wk    → defn-wkEq
+      .≅ₜ-defn-wk   → defn-wkEqTerm
+      .~-defn-wk    → defn-wkEqTerm
       .≅-red        → λ (A⇒* , _) (B⇒* , _) → reduction A⇒* B⇒*
       .≅ₜ-red       → λ (A⇒* , _) (t⇒* , _) (u⇒* , _) →
                         reductionₜ A⇒* t⇒* u⇒*
@@ -67,6 +71,7 @@ private opaque
       .≅-η-eq       → λ ⊢t ⊢u _ _ t0≡u0 → η-eq′ ⊢t ⊢u t0≡u0
       .≅-Σ-η        → λ ⊢t ⊢u _ _ fst≡ snd≡ → Σ-η′ ⊢t ⊢u fst≡ snd≡
       .~-var        → refl
+      .~-defn       → λ ⊢α _ → refl ⊢α
       .~-app        → app-cong
       .~-fst        → fst-cong
       .~-snd        → snd-cong
@@ -95,7 +100,7 @@ instance
     .EqRelSet._⊢_≅_              → _⊢_≡_
     .EqRelSet._⊢_≅_∷_            → _⊢_≡_∷_
     .EqRelSet._⊢_~_∷_            → _⊢_≡_∷_
-    .EqRelSet.Neutrals-included  → No-equality-reflection
+    .EqRelSet.Var-included       → No-equality-reflection
     .EqRelSet.equality-relations → equality-relations
 
 open EqRelSet eqRelInstance public

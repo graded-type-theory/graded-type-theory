@@ -34,7 +34,7 @@ open import Tools.Product
 import Tools.PropositionalEquality as PE
 
 private variable
-  Γ       : Con Term _
+  Γ       : Cons _ _
   t t₁ t₂ : Term _
 
 opaque
@@ -59,7 +59,7 @@ opaque
     ⊢ℕ₁ : Γ ⊢ ℕ
     ⊢ℕ₁ = ℕⱼ ⊢Γ
 
-    ⊢ℕ₂ : Γ ∙ ℕ ⊢ ℕ
+    ⊢ℕ₂ : Γ »∙ ℕ ⊢ ℕ
     ⊢ℕ₂ = ℕⱼ (∙ ⊢ℕ₁)
 
 opaque
@@ -161,5 +161,5 @@ opaque
     ⊢ℕ₁ : Γ ⊢ ℕ
     ⊢ℕ₁ = ℕⱼ ⊢Γ
 
-    ⊢ℕ₂ : Γ ∙ ℕ ⊢ ℕ
+    ⊢ℕ₂ : Γ »∙ ℕ ⊢ ℕ
     ⊢ℕ₂ = ℕⱼ (∙ ⊢ℕ₁)

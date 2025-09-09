@@ -15,10 +15,11 @@ module Definition.Typed.EqualityRelation
 open Type-restrictions R
 
 open import Definition.Untyped M
+open import Definition.Untyped.Whnf M type-variant
 import Definition.Untyped.Erased 𝕄 as Erased
-open import Definition.Untyped.Neutral M type-variant
 open import Definition.Typed R
-open import Definition.Typed.Weakening R using (_∷ʷ_⊇_)
+open import Definition.Typed.Weakening R using (_»_∷ʷ_⊇_)
+open import Definition.Typed.Weakening.Definition R
 
 open import Tools.Fin
 open import Tools.Function
@@ -31,9 +32,12 @@ open import Tools.Relation
 private
   variable
     p q q′ r : M
-    n n′ l l₁ l₂ : Nat
-    Γ : Con Term n
-    Δ : Con Term n′
+    δ n n′ l l₁ l₂ : Nat
+    ∇ : DCon (Term 0) n
+    ∇′ : DCon (Term 0) n′
+    Γ : Cons _ _
+    Δ Η : Con _ _
+    ξ : DExt (Term 0) n′ n
     ρ : Wk n′ n
     A A₁ A₂ A′ B B₁ B₂ B′ C : Term n
     a a′ b b′ e e′ : Term n
@@ -47,48 +51,54 @@ private
 
 record Equality-relations
   -- Equality of types.
-  (_⊢_≅_ : ∀ {n} → Con Term n → (_ _ : Term n) → Set ℓ)
+  (_⊢_≅_ : ∀ {δ n} → Cons δ n → (_ _ : Term n) → Set ℓ)
   -- Equality of terms.
-  (_⊢_≅_∷_ : ∀ {n} → Con Term n → (_ _ _ : Term n) → Set ℓ)
+  (_⊢_≅_∷_ : ∀ {δ n} → Cons δ n → (_ _ _ : Term n) → Set ℓ)
   -- Equality of neutral terms.
-  (_⊢_~_∷_ : ∀ {n} → Con Term n → (t u A : Term n) → Set ℓ)
+  (_⊢_~_∷_ : ∀ {δ n} → Cons δ n → (t u A : Term n) → Set ℓ)
   -- Are neutral cases included in the logical relation?
-  (Neutrals-included : Set ℓ) :
+  (Var-included : Set ℓ) :
   Set ℓ where
   no-eta-equality
 
   -- A variant of _⊢_≅_.
 
-  _⊢≅_ : Con Term n → Term n → Set ℓ
+  infix 4 _⊢≅_
+
+  _⊢≅_ : Cons δ n → Term n → Set ℓ
   Γ ⊢≅ A = Γ ⊢ A ≅ A
 
   -- A variant of _⊢_≅_∷_.
 
-  _⊢≅_∷_ : Con Term n → Term n → Term n → Set ℓ
+  infix 4 _⊢≅_∷_
+
+  _⊢≅_∷_ : Cons δ n → Term n → Term n → Set ℓ
   Γ ⊢≅ t ∷ A = Γ ⊢ t ≅ t ∷ A
 
   -- A variant of _⊢_~_∷_.
 
-  _⊢~_∷_ : Con Term n → Term n → Term n → Set ℓ
+  infix 4 _⊢~_∷_
+
+  _⊢~_∷_ : Cons δ n → Term n → Term n → Set ℓ
   Γ ⊢~ t ∷ A = Γ ⊢ t ~ t ∷ A
 
   field
-    -- Neutrals-included is decided.
-    Neutrals-included? : Dec Neutrals-included
+    -- Var-included is decided.
+    Var-included? : Dec Var-included
 
-    -- If Equality-reflection-allowed holds, then Neutrals-included
+    -- If Equality-reflection-allowed holds, then Var-included
     -- does not hold.
-    Equality-reflection-allowed→¬Neutrals-included :
-      Equality-reflection → ¬ Neutrals-included
+    Equality-reflection-allowed→¬Var-included :
+      Equality-reflection → ¬ Var-included
 
-    -- If Neutrals-included does not hold, then definitional equality
+    -- If Var-included does not hold, then definitional equality
     -- for types and terms is contained in _⊢_≅_ and _⊢_≅_∷_,
     -- respectively.
     ⊢≡→⊢≅ :
-      ¬ Neutrals-included →
+      ¬ Var-included →
       Γ ⊢ A ≡ B → Γ ⊢ A ≅ B
     ⊢≡∷→⊢≅∷ :
-      ¬ Neutrals-included →
+      ¬ Var-included →
       Γ ⊢ t ≡ u ∷ A → Γ ⊢ t ≅ u ∷ A
 
     -- Generic equality compatibility
@@ -120,15 +130,26 @@ record Equality-relations
     ~-conv : Γ ⊢ t ~ u ∷ A → Γ ⊢ A ≡ B → Γ ⊢ t ~ u ∷ B
 
     -- Weakening
-    ≅-wk  : ρ ∷ʷ Δ ⊇ Γ
-          → Γ ⊢ A ≅ B
-          → Δ ⊢ wk ρ A ≅ wk ρ B
-    ≅ₜ-wk : ρ ∷ʷ Δ ⊇ Γ
-          → Γ ⊢ t ≅ u ∷ A
-          → Δ ⊢ wk ρ t ≅ wk ρ u ∷ wk ρ A
-    ~-wk  : ρ ∷ʷ Δ ⊇ Γ
-          → Γ ⊢ t ~ u ∷ A
-          → Δ ⊢ wk ρ t ~ wk ρ u ∷ wk ρ A
+    ≅-wk  : ∇ » ρ ∷ʷ Η ⊇ Δ
+          → (∇ » Δ) ⊢ A ≅ B
+          → (∇ » Η) ⊢ wk ρ A ≅ wk ρ B
+    ≅ₜ-wk : ∇ » ρ ∷ʷ Η ⊇ Δ
+          → (∇ » Δ) ⊢ t ≅ u ∷ A
+          → (∇ » Η) ⊢ wk ρ t ≅ wk ρ u ∷ wk ρ A
+    ~-wk  : ∇ » ρ ∷ʷ Η ⊇ Δ
+          → (∇ » Δ) ⊢ t ~ u ∷ A
+          → (∇ » Η) ⊢ wk ρ t ~ wk ρ u ∷ wk ρ A
+
+    -- Definitional weakening
+    ≅-defn-wk  : ξ » ∇′ ⊇ ∇
+               → (∇ » Δ) ⊢ A ≅ B
+               → (∇′ » Δ) ⊢ A ≅ B
+    ≅ₜ-defn-wk : ξ » ∇′ ⊇ ∇
+               → (∇ » Δ) ⊢ t ≅ u ∷ A
+               → (∇′ » Δ) ⊢ t ≅ u ∷ A
+    ~-defn-wk  : ξ » ∇′ ⊇ ∇
+               → (∇ » Δ) ⊢ t ~ u ∷ A
+               → (∇′ » Δ) ⊢ t ~ u ∷ A
 
     -- Weak head expansion
     ≅-red : Γ ⊢ A ↘ A′
@@ -164,14 +185,14 @@ record Equality-relations
 
     ≅-ΠΣ-cong : ∀ {F G H E}
               → Γ ⊢ F ≅ H
-              → Γ ∙ F ⊢ G ≅ E
+              → Γ »∙ F ⊢ G ≅ E
               → ΠΣ-allowed bm p q
               → Γ ⊢ ΠΣ⟨ bm ⟩ p , q ▷ F ▹ G ≅ ΠΣ⟨ bm ⟩ p , q ▷ H ▹ E
 
     ≅ₜ-ΠΣ-cong
               : ∀ {F G H E}
               → Γ ⊢ F ≅ H ∷ U l₁
-              → Γ ∙ F ⊢ G ≅ E ∷ U l₂
+              → Γ »∙ F ⊢ G ≅ E ∷ U l₂
               → ΠΣ-allowed bm p q
               → Γ ⊢ ΠΣ⟨ bm ⟩ p , q ▷ F ▹ G ≅ ΠΣ⟨ bm ⟩ p , q ▷ H ▹ E ∷
                   U (l₁ ⊔ᵘ l₂)
@@ -184,7 +205,7 @@ record Equality-relations
 
     -- Product congruence
     ≅-prod-cong : ∀ {F G t t′ u u′}
-                → Γ ∙ F ⊢ G
+                → Γ »∙ F ⊢ G
                 → Γ ⊢ t ≅ t′ ∷ F
                 → Γ ⊢ u ≅ u′ ∷ G [ t ]₀
                 → Σʷ-allowed p q
@@ -194,23 +215,29 @@ record Equality-relations
     ≅-η-eq : ∀ {f g F G}
            → Γ ⊢ f ∷ Π p , q ▷ F ▹ G
            → Γ ⊢ g ∷ Π p , q ▷ F ▹ G
-           → Function f
-           → Function g
-           → Γ ∙ F ⊢ wk1 f ∘⟨ p ⟩ var x0 ≅ wk1 g ∘⟨ p ⟩ var x0 ∷ G
+           → Function⁺ (Γ .defs) f
+           → Function⁺ (Γ .defs) g
+           → Γ »∙ F ⊢ wk1 f ∘⟨ p ⟩ var x0 ≅ wk1 g ∘⟨ p ⟩ var x0 ∷ G
            → Γ ⊢ f ≅ g ∷ Π p , q ▷ F ▹ G
 
     -- η for product types
     ≅-Σ-η : ∀ {r s F G}
           → Γ ⊢ r ∷ Σˢ p , q ▷ F ▹ G
           → Γ ⊢ s ∷ Σˢ p , q ▷ F ▹ G
-          → Product r
-          → Product s
+          → Product⁺ (Γ .defs) r
+          → Product⁺ (Γ .defs) s
           → Γ ⊢ fst p r ≅ fst p s ∷ F
           → Γ ⊢ snd p r ≅ snd p s ∷ G [ fst p r ]₀
           → Γ ⊢ r ≅ s ∷ Σˢ p , q ▷ F ▹ G
 
     -- Variable reflexivity
     ~-var : ∀ {x A} → Γ ⊢ var x ∷ A → Γ ⊢~ var x ∷ A
+
+    -- Definition reflexivity
+    ~-defn : ∀ {α A A′}
+           → Γ ⊢ defn α ∷ A
+           → α ↦⊘∷ A′ ∈ Γ .defs
+           → Γ ⊢~ defn α ∷ A
 
     -- Application congruence
     ~-app : ∀ {a b f g F G}
@@ -220,30 +247,32 @@ record Equality-relations
 
     -- Product projections congruence
     ~-fst : ∀ {r s F G}
-          → Γ ∙ F ⊢ G
+          → Γ »∙ F ⊢ G
           → Γ ⊢ r ~ s ∷ Σˢ p , q ▷ F ▹ G
           → Γ ⊢ fst p r ~ fst p s ∷ F
 
     ~-snd : ∀ {r s F G}
-          → Γ ∙ F ⊢ G
+          → Γ »∙ F ⊢ G
           → Γ ⊢ r ~ s ∷ Σˢ p , q ▷ F ▹ G
           → Γ ⊢ snd p r ~ snd p s ∷ G [ fst p r ]₀
 
     -- Natural recursion congruence
     ~-natrec : ∀ {z z′ s s′ n n′ F F′}
-             → Γ ∙ ℕ     ⊢ F ≅ F′
-             → Γ         ⊢ z ≅ z′ ∷ F [ zero ]₀
-             → Γ ∙ ℕ ∙ F ⊢ s ≅ s′ ∷ F [ suc (var x1) ]↑²
-             → Γ         ⊢ n ~ n′ ∷ ℕ
-             → Γ         ⊢ natrec p q r F z s n ~ natrec p q r F′ z′ s′ n′ ∷ F [ n ]₀
+             → Γ »∙ ℕ ⊢ F ≅ F′
+             → Γ ⊢ z ≅ z′ ∷ F [ zero ]₀
+             → Γ »∙ ℕ »∙ F ⊢ s ≅ s′ ∷ F [ suc (var x1) ]↑²
+             → Γ ⊢ n ~ n′ ∷ ℕ
+             → Γ ⊢ natrec p q r F z s n ~ natrec p q r F′ z′ s′ n′ ∷
+                 F [ n ]₀
 
     -- Product recursion congruence
     ~-prodrec : ∀ {F G A A′ t t′ u u′}
-             → Γ ∙ (Σʷ p , q ▷ F ▹ G) ⊢ A ≅ A′
-             → Γ                      ⊢ t ~ t′ ∷ Σʷ p , q ▷ F ▹ G
-             → Γ ∙ F ∙ G              ⊢ u ≅ u′ ∷ A [ prodʷ p (var x1) (var x0) ]↑²
+             → Γ »∙ Σʷ p , q ▷ F ▹ G ⊢ A ≅ A′
+             → Γ ⊢ t ~ t′ ∷ Σʷ p , q ▷ F ▹ G
+             → Γ »∙ F »∙ G ⊢ u ≅ u′ ∷ A [ prodʷ p (var x1) (var x0) ]↑²
              → Σʷ-allowed p q
-             → Γ                      ⊢ prodrec r p q′ A t u ~ prodrec r p q′ A′ t′ u′ ∷ A [ t ]₀
+             → Γ ⊢ prodrec r p q′ A t u ~ prodrec r p q′ A′ t′ u′ ∷
+                 A [ t ]₀
 
     -- Empty recursion congruence
     ~-emptyrec : ∀ {n n′ F F′}
@@ -253,7 +282,7 @@ record Equality-relations
 
     -- Weak unit type recursion congruence
     ~-unitrec : ∀ {A A′ t t′ u u′}
-              → Γ ∙ Unitʷ l ⊢ A ≅ A′
+              → Γ »∙ Unitʷ l ⊢ A ≅ A′
               → Γ ⊢ t ~ t′ ∷ Unitʷ l
               → Γ ⊢ u ≅ u′ ∷ A [ starʷ l ]₀
               → Unitʷ-allowed
@@ -262,8 +291,7 @@ record Equality-relations
                   A [ t ]₀
 
     -- Star reflexivity
-    ≅ₜ-starrefl :
-      ⊢ Γ → Unit-allowed s → Γ ⊢≅ star s l ∷ Unit s l
+    ≅ₜ-starrefl : ⊢ Γ → Unit-allowed s → Γ ⊢≅ star s l ∷ Unit s l
 
     -- Id preserves "equality".
     ≅-Id-cong
@@ -285,7 +313,7 @@ record Equality-relations
       : Γ ⊢ A₁ ≅ A₂
       → Γ ⊢ t₁ ∷ A₁
       → Γ ⊢ t₁ ≅ t₂ ∷ A₁
-      → Γ ∙ A₁ ∙ Id (wk1 A₁) (wk1 t₁) (var x0) ⊢ B₁ ≅ B₂
+      → Γ »∙ A₁ »∙ Id (wk1 A₁) (wk1 t₁) (var x0) ⊢ B₁ ≅ B₂
       → Γ ⊢ u₁ ≅ u₂ ∷ B₁ [ t₁ , rfl ]₁₀
       → Γ ⊢ v₁ ≅ v₂ ∷ A₁
       → Γ ⊢ w₁ ~ w₂ ∷ Id A₁ t₁ v₁
@@ -296,7 +324,7 @@ record Equality-relations
     ~-K
       : Γ ⊢ A₁ ≅ A₂
       → Γ ⊢ t₁ ≅ t₂ ∷ A₁
-      → Γ ∙ Id A₁ t₁ t₁ ⊢ B₁ ≅ B₂
+      → Γ »∙ Id A₁ t₁ t₁ ⊢ B₁ ≅ B₂
       → Γ ⊢ u₁ ≅ u₂ ∷ B₁ [ rfl ]₀
       → Γ ⊢ v₁ ~ v₂ ∷ Id A₁ t₁ t₁
       → K-allowed
@@ -315,9 +343,13 @@ record Equality-relations
           Id (Erased A₁) ([ t₁ ]) ([ u₁ ])
 
 
+  -- Composition of judgemental conversion and generic equality compatibility
+  ~-eq : ∀ {k l A} → Γ ⊢ k ~ l ∷ A → Γ ⊢ k ≡ l ∷ A
+  ~-eq = ≅ₜ-eq ∘→ ~-to-≅ₜ
+
   -- Composition of universe and generic equality compatibility
   ~-to-≅ : ∀ {k l l′} → Γ ⊢ k ~ l ∷ U l′ → Γ ⊢ k ≅ l
-  ~-to-≅ k~l = ≅-univ (~-to-≅ₜ k~l)
+  ~-to-≅ = ≅-univ ∘→ ~-to-≅ₜ
 
   opaque
 
@@ -372,34 +404,35 @@ record Equality-relations
     -- A variant of possibly-nonempty.
 
     included :
-      ⦃ inc : Neutrals-included ⦄ → Neutrals-included or-empty Γ
+      {Γ : Con Term n} ⦃ inc : Var-included ⦄ →
+      Var-included or-empty Γ
     included ⦃ inc ⦄ = possibly-nonempty ⦃ ok = inc ⦄
 
   opaque
 
-    -- If Γ ⊢ A ≡ B holds, then one can assume Neutrals-included when
+    -- If Γ ⊢ A ≡ B holds, then one can assume Var-included when
     -- proving Γ ⊢ A ≅ B.
 
     with-inc-⊢≅ :
       Γ ⊢ A ≡ B →
-      (⦃ inc : Neutrals-included ⦄ → Γ ⊢ A ≅ B) →
+      (⦃ inc : Var-included ⦄ → Γ ⊢ A ≅ B) →
       Γ ⊢ A ≅ B
     with-inc-⊢≅ A≡B A≅B =
-      case Neutrals-included? of λ where
+      case Var-included? of λ where
         (yes inc) → A≅B ⦃ inc = inc ⦄
         (no ni)   → ⊢≡→⊢≅ ni A≡B
 
   opaque
 
-    -- If Γ ⊢ t ≡ u ∷ A holds, then one can assume Neutrals-included
-    -- when proving Γ ⊢ t ≅ u ∷ A.
+    -- If Γ ⊢ t ≡ u ∷ A holds, then one can assume Var-included when
+    -- proving Γ ⊢ t ≅ u ∷ A.
 
     with-inc-⊢≅∷ :
       Γ ⊢ t ≡ u ∷ A →
-      (⦃ inc : Neutrals-included ⦄ → Γ ⊢ t ≅ u ∷ A) →
+      (⦃ inc : Var-included ⦄ → Γ ⊢ t ≅ u ∷ A) →
       Γ ⊢ t ≅ u ∷ A
     with-inc-⊢≅∷ t≡u t≅u =
-      case Neutrals-included? of λ where
+      case Var-included? of λ where
         (yes inc) → t≅u ⦃ inc = inc ⦄
         (no ni)   → ⊢≡∷→⊢≅∷ ni t≡u
 
@@ -410,28 +443,29 @@ record Equality-relations
 
 record EqRelSet : Set (lsuc ℓ) where
   no-eta-equality
+  infix 4 _⊢_≅_ _⊢_≅_∷_ _⊢_~_∷_
   field
     ---------------
     -- Relations --
     ---------------
 
     -- Equality of types
-    _⊢_≅_   : Con Term n → (A B : Term n)   → Set ℓ
+    _⊢_≅_   : Cons δ n → (A B : Term n)   → Set ℓ
 
     -- Equality of terms
-    _⊢_≅_∷_ : Con Term n → (t u A : Term n) → Set ℓ
+    _⊢_≅_∷_ : Cons δ n → (t u A : Term n) → Set ℓ
 
     -- Equality of neutral terms
-    _⊢_~_∷_ : Con Term n → (t u A : Term n) → Set ℓ
+    _⊢_~_∷_ : Cons δ n → (t u A : Term n) → Set ℓ
 
     -- Are neutral cases included in the logical relation?
-    Neutrals-included : Set ℓ
+    Var-included : Set ℓ
 
     ----------------
     -- Properties --
     ----------------
 
     equality-relations :
-      Equality-relations _⊢_≅_ _⊢_≅_∷_ _⊢_~_∷_ Neutrals-included
+      Equality-relations _⊢_≅_ _⊢_≅_∷_ _⊢_~_∷_ Var-included
 
   open Equality-relations equality-relations public

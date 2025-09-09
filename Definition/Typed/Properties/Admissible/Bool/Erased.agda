@@ -55,7 +55,9 @@ open import Tools.Reasoning.PropositionalEquality
 
 private variable
   k                                 : Nat
-  Γ Δ                               : Con Term _
+  ∇                                 : DCon (Term 0) _
+  Δ                                 : Con Term _
+  Γ                                 : Cons _ _
   A A₁ A₂ B t t₁ t₂ u u₁ u₂ v v₁ v₂ : Term _
   p                                 : M
 
@@ -147,10 +149,10 @@ opaque
   -- An equality rule for Target.
 
   Target-cong :
-    drop k Γ ∙ Bool ⊢ A₁ ≡ A₂ →
-    Γ ⊢ t₁ ≡ t₂ ∷ ℕ →
-    Γ ⊢ u₁ ≡ u₂ ∷ Erased (OK t₁) →
-    Γ ⊢ Target k A₁ t₁ u₁ ≡ Target k A₂ t₂ u₂
+    ∇ » drop k Δ ∙ Bool ⊢ A₁ ≡ A₂ →
+    ∇ » Δ ⊢ t₁ ≡ t₂ ∷ ℕ →
+    ∇ » Δ ⊢ u₁ ≡ u₂ ∷ Erased (OK t₁) →
+    ∇ » Δ ⊢ Target k A₁ t₁ u₁ ≡ Target k A₂ t₂ u₂
   Target-cong A₁≡A₂ t₁≡t₂ u₁≡u₂ =
     [][]↑-cong A₁≡A₂ $
     PE.subst (_⊢_≡_∷_ _ _ _)
@@ -165,10 +167,10 @@ private opaque
   -- A variant of Target-cong.
 
   Target-cong′ :
-    drop k Γ ∙ Bool ⊢ A₁ ≡ A₂ →
-    Γ ⊢ t ∷ ℕ →
-    Γ ⊢ u ∷ Erased (OK t) →
-    Γ ⊢ Target k A₁ t u ≡ Target k A₂ t u
+    ∇ » drop k Δ ∙ Bool ⊢ A₁ ≡ A₂ →
+    ∇ » Δ ⊢ t ∷ ℕ →
+    ∇ » Δ ⊢ u ∷ Erased (OK t) →
+    ∇ » Δ ⊢ Target k A₁ t u ≡ Target k A₂ t u
   Target-cong′ A₁≡A₂ ⊢t ⊢u =
     Target-cong A₁≡A₂ (refl ⊢t) (refl ⊢u)
 
@@ -177,10 +179,10 @@ opaque
   -- A typing rule for Target.
 
   ⊢Target :
-    drop k Γ ∙ Bool ⊢ A →
-    Γ ⊢ t ∷ ℕ →
-    Γ ⊢ u ∷ Erased (OK t) →
-    Γ ⊢ Target k A t u
+    ∇ » drop k Δ ∙ Bool ⊢ A →
+    ∇ » Δ ⊢ t ∷ ℕ →
+    ∇ » Δ ⊢ u ∷ Erased (OK t) →
+    ∇ » Δ ⊢ Target k A t u
   ⊢Target ⊢A ⊢t ⊢u =
     syntacticEq (Target-cong′ (refl ⊢A) ⊢t ⊢u) .proj₁
 
@@ -194,7 +196,7 @@ private
     (Π-ok : Π-allowed 𝟙 p)
     (Π-𝟙-𝟘-ok : Π-allowed 𝟙 𝟘)
     (Unitˢ-ok : Unitˢ-allowed)
-    (A₁≡A₂ : Γ ∙ Bool ⊢ A₁ ≡ A₂)
+    (A₁≡A₂ : Γ »∙ Bool ⊢ A₁ ≡ A₂)
     (t₁≡t₂ : Γ ⊢ t₁ ≡ t₂ ∷ A₁ [ true ]₀)
     (u₁≡u₂ : Γ ⊢ u₁ ≡ u₂ ∷ A₁ [ false ]₀)
     where
@@ -222,9 +224,9 @@ private
     opaque
 
       Π-lemma :
-        drop k Δ PE.≡ Γ →
-        Δ ∙ ℕ ⊢ t ∷ ℕ →
-        Δ ∙ ℕ ⊢
+        drop k Δ PE.≡ Γ .vars →
+        Γ .defs » Δ ∙ ℕ ⊢ t ∷ ℕ →
+        Γ .defs » Δ ∙ ℕ ⊢
           Π 𝟙 , p ▷ Erased (OK t) ▹ Target (2+ k) A₁ (wk1 t) (var x0) ≡
           Π 𝟙 , p ▷ Erased (OK t) ▹ Target (2+ k) A₂ (wk1 t) (var x0)
       Π-lemma PE.refl ⊢t =
@@ -261,9 +263,9 @@ private
     opaque
 
       Target-lemma-0 :
-        drop k Δ PE.≡ Γ →
-        Δ ∙ B ⊢ t ∷ Erased (Unitʷ 0) →
-        Δ ∙ B ⊢
+        drop k Δ PE.≡ Γ .vars →
+        Γ .defs » Δ ∙ B ⊢ t ∷ Erased (Unitʷ 0) →
+        Γ .defs » Δ ∙ B ⊢
           Target (1+ k) A₁ zero t ≡
           Target (1+ k) A₂ zero t
       Target-lemma-0 PE.refl ⊢t =
@@ -274,9 +276,9 @@ private
     opaque
 
       Target-lemma-1 :
-        drop k Δ PE.≡ Γ →
-        Δ ∙ B ⊢ t ∷ Erased (Unitʷ 0) →
-        Δ ∙ B ⊢
+        drop k Δ PE.≡ Γ .vars →
+        Γ .defs » Δ ∙ B ⊢ t ∷ Erased (Unitʷ 0) →
+        Γ .defs » Δ ∙ B ⊢
           Target (1+ k) A₁ (suc zero) t ≡
           Target (1+ k) A₂ (suc zero) t
       Target-lemma-1 PE.refl ⊢t =
@@ -288,9 +290,9 @@ private
       unfolding true
 
       wk-t₁≡wk-t₂ :
-        drop k Δ PE.≡ Γ →
-        ⊢ Δ →
-        Δ ⊢ wk[ k ]′ t₁ ≡ wk[ k ]′ t₂ ∷
+        drop k Δ PE.≡ Γ .vars →
+        Γ .defs »⊢ Δ →
+        Γ .defs » Δ ⊢ wk[ k ]′ t₁ ≡ wk[ k ]′ t₂ ∷
           Target (1+ k) A₁ (suc zero) [ var x0 ] [ starʷ 0 ]₀
       wk-t₁≡wk-t₂ PE.refl ⊢Δ =
         PE.subst (_⊢_≡_∷_ _ _ _)
@@ -301,9 +303,9 @@ private
       unfolding false
 
       wk-u₁≡wk-u₂ :
-        drop k Δ PE.≡ Γ →
-        ⊢ Δ →
-        Δ ⊢ wk[ k ]′ u₁ ≡ wk[ k ]′ u₂ ∷
+        drop k Δ PE.≡ Γ .vars →
+        Γ .defs »⊢ Δ →
+        Γ .defs » Δ ⊢ wk[ k ]′ u₁ ≡ wk[ k ]′ u₂ ∷
           Target (1+ k) A₁ zero [ var x0 ] [ starʷ 0 ]₀
       wk-u₁≡wk-u₂ PE.refl ⊢Δ =
         PE.subst (_⊢_≡_∷_ _ _ _)
@@ -313,9 +315,9 @@ private
     opaque
 
       unitrec-lemma-0 :
-        drop k Δ PE.≡ Γ →
-        ⊢ Δ →
-        Δ ∙ Unitʷ 0 ⊢
+        drop k Δ PE.≡ Γ .vars →
+        Γ .defs »⊢ Δ →
+        Γ .defs » Δ ∙ Unitʷ 0 ⊢
           unitrec 0 𝟘 𝟘 (Target (2+ k) A₁ zero [ var x0 ])
             (var x0) (wk[ 1+ k ]′ u₁) ≡
           unitrec 0 𝟘 𝟘 (Target (2+ k) A₂ zero [ var x0 ])
@@ -334,9 +336,9 @@ private
     opaque
 
       unitrec-lemma-1 :
-        drop k Δ PE.≡ Γ →
-        ⊢ Δ →
-        Δ ∙ Unitʷ 0 ⊢
+        drop k Δ PE.≡ Γ .vars →
+        Γ .defs »⊢ Δ →
+        Γ .defs » Δ ∙ Unitʷ 0 ⊢
           unitrec 0 𝟘 𝟘 (Target (2+ k) A₁ (suc zero) [ var x0 ])
             (var x0) (wk[ 1+ k ]′ t₁) ≡
           unitrec 0 𝟘 𝟘 (Target (2+ k) A₂ (suc zero) [ var x0 ])
@@ -355,9 +357,9 @@ private
     opaque
 
       erasedrec-lemma-0 :
-        drop k Δ PE.≡ Γ →
-        Δ ⊢ B ≡ Erased (Unitʷ 0) →
-        Δ ∙ B ⊢
+        drop k Δ PE.≡ Γ .vars →
+        Γ .defs » Δ ⊢ B ≡ Erased (Unitʷ 0) →
+        Γ .defs » Δ ∙ B ⊢
           erasedrec p (Target (2+ k) A₁ zero (var x0))
             (unitrec 0 𝟘 𝟘 (Target (3+ k) A₁ zero [ var x0 ]) (var x0)
                (wk[ 2+ k ]′ u₁))
@@ -377,9 +379,9 @@ private
     opaque
 
       erasedrec-lemma-1 :
-        drop k Δ PE.≡ Γ →
-        Δ ⊢ B ≡ Erased (Unitʷ 0) →
-        Δ ∙ B ⊢
+        drop k Δ PE.≡ Γ .vars →
+        Γ .defs » Δ ⊢ B ≡ Erased (Unitʷ 0) →
+        Γ .defs » Δ ∙ B ⊢
           erasedrec p (Target (2+ k) A₁ (suc zero) (var x0))
             (unitrec 0 𝟘 𝟘 (Target (3+ k) A₁ (suc zero) [ var x0 ])
                (var x0) (wk[ 2+ k ]′ t₁))
@@ -399,9 +401,9 @@ private
     opaque
 
       lam-lemma-0 :
-        drop k Δ PE.≡ Γ →
-        ⊢ Δ →
-        Δ ⊢
+        drop k Δ PE.≡ Γ .vars →
+        Γ .defs »⊢ Δ →
+        Γ .defs » Δ ⊢
           lam 𝟙
             (erasedrec p (Target (2+ k) A₁ zero (var x0))
                (unitrec 0 𝟘 𝟘 (Target (3+ k) A₁ zero [ var x0 ])
@@ -418,7 +420,7 @@ private
       lam-lemma-0 ≡Γ ⊢Δ =
         flip lam-cong Π-ok $
         PE.subst₄ _⊢_≡_∷_
-          (PE.cong (_∙_ _) $ PE.sym (PE.cong Erased B.OK-[]))
+          (PE.cong (_»∙_ _) $ PE.sym (PE.cong Erased B.OK-[]))
           PE.refl PE.refl
           (PE.trans (Target-[₀⇑] 0) $ PE.sym $ Target-[₀⇑] 1) $
         erasedrec-lemma-0 ≡Γ (Erased-cong Erased-ok (OK-0≡ ⊢Δ))
@@ -426,9 +428,9 @@ private
     opaque
 
       lam-lemma-1 :
-        drop k Δ PE.≡ Γ →
-        ⊢ Δ →
-        Δ ⊢
+        drop k Δ PE.≡ Γ .vars →
+        Γ .defs »⊢ Δ →
+        Γ .defs » Δ ⊢
           lam 𝟙
             (erasedrec p (Target (2+ k) A₁ (suc zero) (var x0))
                (unitrec 0 𝟘 𝟘 (Target (3+ k) A₁ (suc zero) [ var x0 ])
@@ -445,7 +447,7 @@ private
       lam-lemma-1 ≡Γ ⊢Δ =
         flip lam-cong Π-ok $
         PE.subst₄ _⊢_≡_∷_
-          (PE.cong (_∙_ _) (PE.sym (PE.cong Erased B.OK-[])))
+          (PE.cong (_»∙_ _) (PE.sym (PE.cong Erased B.OK-[])))
           PE.refl PE.refl
           (PE.trans (Target-[₀⇑] 0) $ PE.sym $ Target-[₀⇑] 1) $
         erasedrec-lemma-1 ≡Γ (Erased-cong Erased-ok (OK-1≡ ⊢Δ))
@@ -453,9 +455,9 @@ private
     opaque
 
       lam-lemma-2+ :
-        drop k Δ PE.≡ Γ →
-        ⊢ Δ →
-        Δ ∙ ℕ ⊢
+        drop k Δ PE.≡ Γ .vars →
+        Γ .defs »⊢ Δ →
+        Γ .defs » Δ ∙ ℕ ⊢
           lam 𝟙
             (erasedrec p
                (Target (3+ k) A₁ (suc (suc (var x2))) (var x0))
@@ -481,7 +483,7 @@ private
         in
         flip lam-cong Π-ok $
         PE.subst₄ _⊢_≡_∷_
-          (PE.cong (_∙_ _) $ PE.sym $ PE.cong Erased B.OK-[])
+          (PE.cong (_»∙_ _) $ PE.sym $ PE.cong Erased B.OK-[])
           PE.refl PE.refl
           (PE.trans (Target-[₀⇑] 0) $ PE.sym $ Target-[↑⇑] 1) $
         erasedrec-cong
@@ -503,9 +505,9 @@ private
     opaque
 
       natcase-lemma :
-        drop k Δ PE.≡ Γ →
-        ⊢ Δ →
-        Δ ∙ ℕ ⊢
+        drop k Δ PE.≡ Γ .vars →
+        Γ .defs »⊢ Δ →
+        Γ .defs » Δ ∙ ℕ ⊢
           natcase boolrecᵍ-nc₁ (Boolᵍ + p)
             (Π 𝟙 , p ▷ Erased (OK (suc (var x0))) ▹
              Target (3+ k) A₁ (suc (var x1)) (var x0))
@@ -559,7 +561,7 @@ private
       unfolding boolrec
 
       natcase-natcase-lemma :
-        Γ ∙ ℕ ∙ Erased (OK (var x0)) ⊢
+        Γ »∙ ℕ »∙ Erased (OK (var x0)) ⊢
           natcase boolrecᵍ-nc₂ (Boolᵍ + p)
             (Π 𝟙 , p ▷ Erased (OK (var x0)) ▹
              Target 4 A₁ (var x1) (var x0))
@@ -731,7 +733,7 @@ opaque
     Π-allowed 𝟙 p →
     Π-allowed 𝟙 𝟘 →
     Unitˢ-allowed →
-    Γ ∙ Bool ⊢ A₁ ≡ A₂ →
+    Γ »∙ Bool ⊢ A₁ ≡ A₂ →
     Γ ⊢ t₁ ≡ t₂ ∷ A₁ [ true ]₀ →
     Γ ⊢ u₁ ≡ u₂ ∷ A₁ [ false ]₀ →
     Γ ⊢ v₁ ≡ v₂ ∷ Bool →
@@ -749,7 +751,7 @@ opaque
     Π-allowed 𝟙 p →
     Π-allowed 𝟙 𝟘 →
     Unitˢ-allowed →
-    Γ ∙ Bool ⊢ A →
+    Γ »∙ Bool ⊢ A →
     Γ ⊢ t ∷ A [ true ]₀ →
     Γ ⊢ u ∷ A [ false ]₀ →
     Γ ⊢ v ∷ Bool →
@@ -769,7 +771,7 @@ opaque
     Π-allowed 𝟙 p →
     Π-allowed 𝟙 𝟘 →
     Unitˢ-allowed →
-    Γ ∙ Bool ⊢ A →
+    Γ »∙ Bool ⊢ A →
     Γ ⊢ t ∷ A [ true ]₀ →
     Γ ⊢ u ∷ A [ false ]₀ →
     Γ ⊢ boolrec p A t u true ≡ t ∷ A [ true ]₀
@@ -981,7 +983,7 @@ opaque
     Π-allowed 𝟙 p →
     Π-allowed 𝟙 𝟘 →
     Unitˢ-allowed →
-    Γ ∙ Bool ⊢ A →
+    Γ »∙ Bool ⊢ A →
     Γ ⊢ t ∷ A [ true ]₀ →
     Γ ⊢ u ∷ A [ false ]₀ →
     Γ ⊢ boolrec p A t u false ≡ u ∷ A [ false ]₀

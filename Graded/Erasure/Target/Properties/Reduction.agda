@@ -8,53 +8,58 @@ open import Graded.Erasure.Target
 
 open import Tools.Empty
 open import Tools.Function
+open import Tools.List
 open import Tools.Nat
+open import Tools.Product
 import Tools.PropositionalEquality as PE
 open import Tools.Relation
 open import Tools.Sum
 
 private
   variable
-    k n : Nat
+    α k n : Nat
     t t′ u u′ : Term n
+    ∇ ∇′ : List (Term _)
     s : Strictness
 
 -- Reduction properties
 
 -- Concatenation of reduction closure
 
-red*concat : t ⇒* t′ → t′ ⇒* u → t ⇒* u
+red*concat : ∇ ⊢ t ⇒* t′ → ∇ ⊢ t′ ⇒* u → ∇ ⊢ t ⇒* u
 red*concat refl t′⇒*u = t′⇒*u
 red*concat (trans x t⇒*t′) t′⇒*u = trans x (red*concat t⇒*t′ t′⇒*u)
 
 -- Closure of substitution reductions
 
-app-subst* : t ⇒* t′ → t ∘⟨ s ⟩ u ⇒* t′ ∘⟨ s ⟩ u
+app-subst* : ∇ ⊢ t ⇒* t′ → ∇ ⊢ t ∘⟨ s ⟩ u ⇒* t′ ∘⟨ s ⟩ u
 app-subst* refl = refl
 app-subst* (trans x t⇒*t′) = trans (app-subst x) (app-subst* t⇒*t′)
 
-app-subst*-arg : Value t → u ⇒* u′ → t ∘⟨ strict ⟩ u ⇒* t ∘⟨ strict ⟩ u′
+app-subst*-arg :
+  Value t → ∇ ⊢ u ⇒* u′ → ∇ ⊢ t ∘⟨ strict ⟩ u ⇒* t ∘⟨ strict ⟩ u′
 app-subst*-arg _   refl                = refl
 app-subst*-arg val (trans u⇒u′ u′⇒*u″) =
   trans (app-subst-arg val u⇒u′) (app-subst*-arg val u′⇒*u″)
 
-fst-subst* : t ⇒* t′ → fst t ⇒* fst t′
+fst-subst* : ∇ ⊢ t ⇒* t′ → ∇ ⊢ fst t ⇒* fst t′
 fst-subst* refl = refl
 fst-subst* (trans x t⇒*t′) = trans (fst-subst x) (fst-subst* t⇒*t′)
 
-snd-subst* : t ⇒* t′ → snd t ⇒* snd t′
+snd-subst* : ∇ ⊢ t ⇒* t′ → ∇ ⊢ snd t ⇒* snd t′
 snd-subst* refl = refl
 snd-subst* (trans x t⇒*t′) = trans (snd-subst x) (snd-subst* t⇒*t′)
 
-natrec-subst* : ∀ {z s} → t ⇒* t′ → natrec z s t ⇒* natrec z s t′
+natrec-subst* :
+  ∀ {z s} → ∇ ⊢ t ⇒* t′ → ∇ ⊢ natrec z s t ⇒* natrec z s t′
 natrec-subst* refl = refl
 natrec-subst* (trans x t⇒t′) = trans (natrec-subst x) (natrec-subst* t⇒t′)
 
-prodrec-subst* : t ⇒* t′ → prodrec t u ⇒* prodrec t′ u
+prodrec-subst* : ∇ ⊢ t ⇒* t′ → ∇ ⊢ prodrec t u ⇒* prodrec t′ u
 prodrec-subst* refl = refl
 prodrec-subst* (trans x t⇒t′) = trans (prodrec-subst x) (prodrec-subst* t⇒t′)
 
-unitrec-subst* : t ⇒* t′ → unitrec t u ⇒* unitrec t′ u
+unitrec-subst* : ∇ ⊢ t ⇒* t′ → ∇ ⊢ unitrec t u ⇒* unitrec t′ u
 unitrec-subst* refl = refl
 unitrec-subst* (trans x d) = trans (unitrec-subst x) (unitrec-subst* d)
 
@@ -62,7 +67,7 @@ unitrec-subst* (trans x d) = trans (unitrec-subst x) (unitrec-subst* d)
 
 opaque
 
-  Value→¬⇒ : Value t → ¬ t ⇒ u
+  Value→¬⇒ : Value t → ¬ ∇ ⊢ t ⇒ u
   Value→¬⇒ lam  ()
   Value→¬⇒ prod ()
   Value→¬⇒ zero ()
@@ -72,10 +77,36 @@ opaque
 
 opaque
 
+  -- List indexing is deterministic.
+
+  ↦∈-deterministic : α ↦ t ∈ ∇ → α ↦ u ∈ ∇ → t PE.≡ u
+  ↦∈-deterministic here       here       = PE.refl
+  ↦∈-deterministic (there t∈) (there u∈) = ↦∈-deterministic t∈ u∈
+
+opaque
+
+  -- If α points to t in ∇, then α points to t in ∇ ++ ∇′.
+
+  ↦∈++ : α ↦ t ∈ ∇ → α ↦ t ∈ (∇ ++ ∇′)
+  ↦∈++ here        = here
+  ↦∈++ (there α↦t) = there (↦∈++ α↦t)
+
+opaque
+
+  -- The number length ∇ points to t in ∇ ++ t ∷ ∇′.
+
+  length↦∈++∷ : length ∇ ↦ t ∈ (∇ ++ t ∷ ∇′)
+  length↦∈++∷ {∇ = []}    = here
+  length↦∈++∷ {∇ = _ ∷ _} = there length↦∈++∷
+
+opaque
+
   -- Reduction is deterministic.
 
-  redDet : (u : Term n) → u ⇒ t → u ⇒ t′ → t PE.≡ t′
+  redDet : (u : Term n) → ∇ ⊢ u ⇒ t → ∇ ⊢ u ⇒ t′ → t PE.≡ t′
   redDet _ = λ where
+    (δ-red α↦t) → λ where
+      (δ-red α↦t′) → PE.cong (wk _) $ ↦∈-deterministic α↦t α↦t′
     (app-subst p) → λ where
       (app-subst q)       → PE.cong (_∘⟨ _ ⟩ _) $ redDet _ p q
       (app-subst-arg v _) → ⊥-elim $ Value→¬⇒ v p
@@ -127,7 +158,7 @@ opaque
 -- (there is only one reduction path)
 -- If a ⇒* b and a ⇒* c then b ⇒* c or c ⇒* b
 
-red*Det : u ⇒* t → u ⇒* t′ → (t ⇒* t′) ⊎ (t′ ⇒* t)
+red*Det : ∇ ⊢ u ⇒* t → ∇ ⊢ u ⇒* t′ → (∇ ⊢ t ⇒* t′) ⊎ (∇ ⊢ t′ ⇒* t)
 red*Det refl refl = inj₁ refl
 red*Det refl (trans x u⇒t′) = inj₁ (trans x u⇒t′)
 red*Det (trans x u⇒t) refl = inj₂ (trans x u⇒t)
@@ -136,29 +167,29 @@ red*Det {u = u} (trans x u⇒t) (trans x₁ u⇒t′)
 
 -- Non-reducible terms
 
-↯-noRed : ↯ ⇒* t → t PE.≡ ↯
+↯-noRed : ∇ ⊢ ↯ ⇒* t → t PE.≡ ↯
 ↯-noRed refl         = PE.refl
 ↯-noRed (trans () _)
 
-zero-noRed : zero ⇒* t → t PE.≡ zero
+zero-noRed : ∇ ⊢ zero ⇒* t → t PE.≡ zero
 zero-noRed refl         = PE.refl
 zero-noRed (trans () _)
 
-suc-noRed : suc t ⇒* t′ → t′ PE.≡ suc t
+suc-noRed : ∇ ⊢ suc t ⇒* t′ → t′ PE.≡ suc t
 suc-noRed refl         = PE.refl
 suc-noRed (trans () _)
 
-prod-noRed : prod t t′ ⇒* u → u PE.≡ prod t t′
+prod-noRed : ∇ ⊢ prod t t′ ⇒* u → u PE.≡ prod t t′
 prod-noRed refl         = PE.refl
 prod-noRed (trans () _)
 
-star-noRed : star ⇒* t → t PE.≡ star
+star-noRed : ∇ ⊢ star ⇒* t → t PE.≡ star
 star-noRed refl         = PE.refl
 star-noRed (trans () _)
 
 opaque
 
-  Value→⇒*→≡ : Value t → t ⇒* u → u PE.≡ t
+  Value→⇒*→≡ : Value t → ∇ ⊢ t ⇒* u → u PE.≡ t
   Value→⇒*→≡ = λ where
     lam  refl          → PE.refl
     prod refl          → PE.refl

@@ -46,12 +46,11 @@ private
 private opaque
 
   -- Conversion of logical relation for erasure using ShapeView
-  -- If t ® v ∷ A and Δ ⊩ A ≡ B then t ® v ∷ B
 
-  convTermʳ′ : {[A] : Δ ⊨ A}
-               {[B] : Δ ⊨ B}
-             → Δ ⊢ A ≡ B
-             → ShapeView Δ A B [A] [B]
+  convTermʳ′ : {[A] : ts » Δ ⊨ A}
+               {[B] : ts » Δ ⊨ B}
+             → ts » Δ ⊢ A ≡ B
+             → ShapeView (ts » Δ) A B [A] [B]
              → t ® v ∷ A / [A]
              → t ® v ∷ B / [B]
   convTermʳ′ A≡B (Uᵥ UA UB) t®v = t®v
@@ -123,12 +122,11 @@ private opaque
 opaque
 
   -- Conversion of logical relation for erasure
-  -- If t ® v ∷ A and Δ ⊢ A ≡ B then t ® v ∷ B
 
   convTermʳ : ∀ {A B t v}
-            → ([A] : Δ ⊨ A)
-              ([B] : Δ ⊨ B)
-            → Δ ⊢ A ≡ B
+            → ([A] : ts » Δ ⊨ A)
+              ([B] : ts » Δ ⊨ B)
+            → ts » Δ ⊢ A ≡ B
             → t ® v ∷ A / [A]
             → t ® v ∷ B / [B]
   convTermʳ [A] [B] A≡B t®v =

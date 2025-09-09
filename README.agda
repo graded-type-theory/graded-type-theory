@@ -10,16 +10,16 @@
 --
 -- The code also depends on some libraries:
 --
--- * Agda's standard library, version 2.1.
--- * The builtin modules that are shipped with Agda 2.7.0.1.
+-- * Agda's standard library, version 2.3.
+-- * The builtin modules that are shipped with Agda 2.8.0.
 --
 -- When HTML code is generated from this file code is also generated
 -- for the two libraries above, so URLs for their licences are
 -- included here. At the time of writing the licence texts can be
 -- found at the following URLs:
 --
--- * https://github.com/agda/agda-stdlib/blob/v2.1/LICENCE
--- * https://github.com/agda/agda/blob/v2.7.0.1/LICENSE
+-- * https://github.com/agda/agda-stdlib/blob/v2.3/LICENCE
+-- * https://github.com/agda/agda/blob/v2.8.0/LICENSE
 
 module README where
 
@@ -120,6 +120,9 @@ import Graded.Usage.Restrictions.Satisfied
 --
 -- * Universe levels have been added. Instead of a single universe
 --   there is now a countably infinite universe hierarchy.
+--
+-- * Top-level definitions with optional support for opacity have been
+--   added.
 --
 -- * Instead of a single strong unit type there is now one such type
 --   in each universe, and such types can now optionally be used as
@@ -798,8 +801,8 @@ target = Graded.Erasure.Target.Term
 
 -- The reduction relation of the target language.
 
-_⇒_  = Graded.Erasure.Target._⇒_
-_⇒*_ = Graded.Erasure.Target._⇒*_
+_⇒_  = Graded.Erasure.Target._⊢_⇒_
+_⇒*_ = Graded.Erasure.Target._⊢_⇒*_
 
 -- Definition 6.3: The extraction function.
 --
@@ -901,7 +904,7 @@ _⊩′ˢ_∷_ = Definition.LogicalRelation.Substitution._⊩ˢ_∷_
 
 -- Valid contexts.
 
-⊩′ᵛ_ = Definition.LogicalRelation.Substitution.⊩ᵛ_
+⊩′ᵛ_ = Definition.LogicalRelation.Substitution._»⊩ᵛ_
 
 -- Valid types.
 --
@@ -936,7 +939,7 @@ Theorem-6-8 = Graded.Erasure.LogicalRelation.Reduction.redSubstTerm*
 -- Theorem 6.9: Subsumption for the logical relation.
 
 Theorem-6-9a =
-  Graded.Erasure.LogicalRelation.Hidden.subsumption-®∷[]◂
+  Graded.Erasure.LogicalRelation.Hidden.subsumption-®∷[∣]◂
 Theorem-6-9b =
   Graded.Erasure.LogicalRelation.Hidden.subsumption-▸⊩ʳ∷[]
 
@@ -965,8 +968,8 @@ Theorem-6-12 =
 
 _⊢_⇒ˢ_∷ℕ  = Graded.Erasure.SucRed._⊢_⇒ˢ_∷ℕ
 _⊢_⇒ˢ*_∷ℕ = Graded.Erasure.SucRed._⊢_⇒ˢ*_∷ℕ
-_⇒ˢ_      = Graded.Erasure.SucRed._⇒ˢ_
-_⇒ˢ*_     = Graded.Erasure.SucRed._⇒ˢ*_
+_⇒ˢ_      = Graded.Erasure.SucRed._⊢_⇒ˢ_
+_⇒ˢ*_     = Graded.Erasure.SucRed._⊢_⇒ˢ*_
 
 -- Theorem 6.13: Soundness of the extraction function.
 --
@@ -1277,7 +1280,7 @@ _⊩ℕ_≡_ = Definition.LogicalRelation._⊩ℕ_≡_∷ℕ
 
 -- Definition A.6: Validity of contexts.
 
-⊩ᵛ_ = Definition.LogicalRelation.Substitution.⊩ᵛ_
+⊩ᵛ_ = Definition.LogicalRelation.Substitution._»⊩ᵛ_
 
 -- Definition A.7: Validity of substitutions and equality of valid
 -- substitutions.

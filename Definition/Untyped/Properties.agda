@@ -8,27 +8,168 @@ module Definition.Untyped.Properties {a} (M : Set a) where
 open import Definition.Untyped M
 open import Definition.Untyped.Properties.NotParametrised public
 
+open import Tools.Empty
 open import Tools.Fin
 open import Tools.Function
 open import Tools.Nat
-open import Tools.Relation
 open import Tools.Product
 open import Tools.PropositionalEquality as PE
 open import Tools.Reasoning.PropositionalEquality
+open import Tools.Relation
+open import Tools.Sum
 
 private
   variable
-    j k k₁ k₂ ℓ m n o : Nat
+    j k k₁ k₂ ℓ m n o α β : Nat
     x x₁ x₂ : Fin _
     eq eq₁ eq₂ : _ ≡ _
-    A A₁ A₂ B₁ B₂ t t₁ t₂ u u₁ u₂ v v₁ v₂ w w₁ w₂ : Term _
+    𝕋 : Set _
+    ∇ ∇′ : DCon _ _
+    Γ : Con Term _
+    φ : Unfolding _
+    A A₁ A₂ B₁ B₂ E F G H t t₁ t₂ u u₁ u₂ v v₁ v₂ w w₁ w₂ : Term _
     ρ ρ′ : Wk m n
     η : Wk n ℓ
     σ σ₁ σ₂ σ′ : Subst m n
     p p₁ p₂ q q₁ q₂ r r₁ r₂ : M
     s s₁ s₂ : Strength
     b₁ b₂ : BinderMode
-    l₁ l₂ : Universe-level
+    l l₁ l₂ : Universe-level
+
+------------------------------------------------------------------------
+-- Properties of definition contexts
+
+opaque
+
+  ↦∷∈⇒↦∈ : ∀ {A t} → α ↦ t ∷ A ∈ ∇ → α ↦∷ A ∈ ∇
+  ↦∷∈⇒↦∈ here        = here
+  ↦∷∈⇒↦∈ (there α↦t) = there (↦∷∈⇒↦∈ α↦t)
+
+opaque
+
+  ↦⊘∈⇒↦∈ : ∀ {A} → α ↦⊘∷ A ∈ ∇ → α ↦∷ A ∈ ∇
+  ↦⊘∈⇒↦∈ here        = here
+  ↦⊘∈⇒↦∈ (there α↦⊘) = there (↦⊘∈⇒↦∈ α↦⊘)
+
+opaque
+
+  scoped-↦∈ : ∀ {∇ : DCon 𝕋 n} {A} → α ↦∷ A ∈ ∇ → α < n
+  scoped-↦∈ here         = s≤s ≤-refl
+  scoped-↦∈ (there α↦∷A) = s≤s (≤⇒pred≤ (scoped-↦∈ α↦∷A))
+
+opaque
+
+  scoped-↦∷∈ : ∀ {∇ : DCon 𝕋 n} {A t} → α ↦ t ∷ A ∈ ∇ → α < n
+  scoped-↦∷∈ α↦t = scoped-↦∈ (↦∷∈⇒↦∈ α↦t)
+
+opaque
+
+  scoped-↦⊘∈ : ∀ {∇ : DCon 𝕋 n} {A} → α ↦⊘∷ A ∈ ∇ → α < n
+  scoped-↦⊘∈ α↦⊘ = scoped-↦∈ (↦⊘∈⇒↦∈ α↦⊘)
+
+opaque
+
+  unique-↦∈ : ∀ {A B} → α ↦∷ A ∈ ∇ → β ↦∷ B ∈ ∇ → α ≡ β → A ≡ B
+  unique-↦∈ here        here        _    = refl
+  unique-↦∈ here        (there α↦u) refl = ⊥-elim (n≮n _ (scoped-↦∈ α↦u))
+  unique-↦∈ (there α↦t) here        refl = ⊥-elim (n≮n _ (scoped-↦∈ α↦t))
+  unique-↦∈ (there α↦t) (there β↦u) α≡β  = unique-↦∈ α↦t β↦u α≡β
+
+opaque
+
+  unique-↦∷∈ :
+    ∀ {A B t u} → α ↦ t ∷ A ∈ ∇ → β ↦ u ∷ B ∈ ∇ → α ≡ β → A ≡ B × t ≡ u
+  unique-↦∷∈ here        here        _    = refl , refl
+  unique-↦∷∈ here        (there α↦u) refl = ⊥-elim (n≮n _ (scoped-↦∷∈ α↦u))
+  unique-↦∷∈ (there α↦t) here        refl = ⊥-elim (n≮n _ (scoped-↦∷∈ α↦t))
+  unique-↦∷∈ (there α↦t) (there β↦u) α≡β  = unique-↦∷∈ α↦t β↦u α≡β
+
+opaque
+
+  unique-↦⊘∈ : ∀ {A B} → α ↦⊘∷ A ∈ ∇ → β ↦⊘∷ B ∈ ∇ → α ≡ β → A ≡ B
+  unique-↦⊘∈ α↦⊘ β↦⊘ α≡β = unique-↦∈ (↦⊘∈⇒↦∈ α↦⊘) (↦⊘∈⇒↦∈ β↦⊘) α≡β
+
+opaque
+
+  coerce-↦∷∈ : ∀ {A B t} → α ↦∷ B ∈ ∇ → α ↦ t ∷ A ∈ ∇ → α ↦ t ∷ B ∈ ∇
+  coerce-↦∷∈ α↦∷B α↦t = subst (_ ↦ _ ∷_∈ _)
+                              (unique-↦∈ (↦∷∈⇒↦∈ α↦t) α↦∷B refl)
+                              α↦t
+
+opaque
+
+  coerce-↦⊘∈ : ∀ {A B} → α ↦∷ B ∈ ∇ → α ↦⊘∷ A ∈ ∇ → α ↦⊘∷ B ∈ ∇
+  coerce-↦⊘∈ α↦∷B α↦⊘ = subst (_ ↦⊘∷_∈ _)
+                              (unique-↦∈ (↦⊘∈⇒↦∈ α↦⊘) α↦∷B refl)
+                              α↦⊘
+
+opaque
+
+  dichotomy-↦∈ : ∀ {A} → α ↦∷ A ∈ ∇ → (∃ λ t → α ↦ t ∷ A ∈ ∇) ⊎ (α ↦⊘∷ A ∈ ∇)
+  dichotomy-↦∈ {∇ = ∇ ∙⟨ opa φ ⟩[ t ∷ A ]} here         = inj₂ here
+  dichotomy-↦∈ {∇ = ∇ ∙⟨ tra   ⟩[ t ∷ A ]} here         = inj₁ (t , here)
+  dichotomy-↦∈                             (there α↦∷A) =
+    case dichotomy-↦∈ α↦∷A of λ where
+      (inj₁ (t , α↦t)) → inj₁ (t , there α↦t)
+      (inj₂ α↦⊘)       → inj₂ (there α↦⊘)
+
+opaque
+
+  exclusion-↦∈ :
+    ∀ {A B t} → α ↦⊘∷ A ∈ ∇ → ¬ α ↦ t ∷ B ∈ ∇
+  exclusion-↦∈ here        (there α↦t) = n≮n _ (scoped-↦∷∈ α↦t)
+  exclusion-↦∈ (there α↦⊘) here        = n≮n _ (scoped-↦⊘∈ α↦⊘)
+  exclusion-↦∈ (there α↦⊘) (there α↦t) = exclusion-↦∈ α↦⊘ α↦t
+
+------------------------------------------------------------------------
+-- Properties of unfoldings
+
+opaque
+
+  ones-⊔ᵒ : (φ : Unfolding n) → ones n ⊔ᵒ φ ≡ ones n
+  ones-⊔ᵒ ε     = refl
+  ones-⊔ᵒ (φ ⁰) = cong _¹ (ones-⊔ᵒ φ)
+  ones-⊔ᵒ (φ ¹) = cong _¹ (ones-⊔ᵒ φ)
+
+------------------------------------------------------------------------
+-- Properties of glassification
+
+opaque
+
+  glassify-↦∈ : ∀ {A} → α ↦∷ A ∈ ∇ → α ↦∷ A ∈ glassify ∇
+  glassify-↦∈ here         = here
+  glassify-↦∈ (there α↦∷A) = there (glassify-↦∈ α↦∷A)
+
+opaque
+
+  unglass-↦∈ : ∀ {A} → α ↦∷ A ∈ glassify ∇ → α ↦∷ A ∈ ∇
+  unglass-↦∈ {∇ = ε}                 ()
+  unglass-↦∈ {∇ = ∇ ∙⟨ ω ⟩[ t ∷ A ]} here         = here
+  unglass-↦∈ {∇ = ∇ ∙⟨ ω ⟩[ t ∷ A ]} (there α↦∷A) = there (unglass-↦∈ α↦∷A)
+
+opaque
+
+  glassify-↦∷∈ : ∀ {A t} → α ↦ t ∷ A ∈ ∇ → α ↦ t ∷ A ∈ glassify ∇
+  glassify-↦∷∈ here        = here
+  glassify-↦∷∈ (there α↦t) = there (glassify-↦∷∈ α↦t)
+
+opaque
+
+  glass-↦⊘∈ : ∀ {A} → ¬ α ↦⊘∷ A ∈ glassify ∇
+  glass-↦⊘∈ {∇ = ε}                 ()
+  glass-↦⊘∈ {∇ = ∇ ∙⟨ ω ⟩[ t ∷ A ]} (there α↦⊘) = glass-↦⊘∈ α↦⊘
+
+opaque
+
+  glass-↦∈ : ∀ {A} → α ↦∷ A ∈ glassify ∇ → ∃ λ t → α ↦ t ∷ A ∈ glassify ∇
+  glass-↦∈ α↦∷A = case dichotomy-↦∈ α↦∷A of λ where
+    (inj₁ ∃t)  → ∃t
+    (inj₂ α↦⊘) → ⊥-elim (glass-↦⊘∈ α↦⊘)
+
+opaque
+
+  glassify-↦∈′ : ∀ {A} → α ↦∷ A ∈ ∇ → ∃ λ t → α ↦ t ∷ A ∈ glassify ∇
+  glassify-↦∈′ = glass-↦∈ ∘→ glassify-↦∈
 
 ------------------------------------------------------------------------
 -- Properties of toTerm and fromTerm.
@@ -40,6 +181,7 @@ opaque
 
   toTerm∘fromTerm : (t : Term n) → toTerm (fromTerm t) ≡ t
   toTerm∘fromTerm (var x) = refl
+  toTerm∘fromTerm (defn α) = refl
   toTerm∘fromTerm (U l) = refl
   toTerm∘fromTerm (ΠΣ⟨ b ⟩ p , q ▷ A ▹ B) =
     cong₂ (ΠΣ⟨ b ⟩ p , q ▷_▹_) (toTerm∘fromTerm A) (toTerm∘fromTerm B)
@@ -92,6 +234,7 @@ opaque
 
   fromTerm∘toTerm : (t : Term′ n) → fromTerm (toTerm t) ≡ t
   fromTerm∘toTerm (var x) = refl
+  fromTerm∘toTerm (gen (Defnkind α) []) = refl
   fromTerm∘toTerm (gen (Ukind l) []) = refl
   fromTerm∘toTerm (gen (Binderkind b p q) (A ∷ₜ B ∷ₜ [])) =
     cong₂ (λ A B → gen (Binderkind b p q) (A ∷ₜ B ∷ₜ []))
@@ -147,6 +290,55 @@ opaque
       (fromTerm∘toTerm u) (fromTerm∘toTerm v)
 
 ------------------------------------------------------------------------
+-- No-confusion lemmas
+
+U≢B : ∀ W → U l PE.≢ ⟦ W ⟧ F ▹ G
+U≢B (BΠ p q) ()
+U≢B (BΣ m p q) ()
+
+U≢ΠΣ : ∀ b → U l PE.≢ ΠΣ⟨ b ⟩ p , q ▷ F ▹ G
+U≢ΠΣ BMΠ ()
+U≢ΠΣ (BMΣ s) ()
+
+ℕ≢B : ∀ W → ℕ PE.≢ ⟦ W ⟧ F ▹ G
+ℕ≢B (BΠ p q) ()
+ℕ≢B (BΣ m p q) ()
+
+ℕ≢ΠΣ : ∀ b → ℕ PE.≢ ΠΣ⟨ b ⟩ p , q ▷ F ▹ G
+ℕ≢ΠΣ BMΠ ()
+ℕ≢ΠΣ (BMΣ s) ()
+
+Empty≢B : ∀ W → Empty PE.≢ ⟦ W ⟧ F ▹ G
+Empty≢B (BΠ p q) ()
+Empty≢B (BΣ m p q) ()
+
+Empty≢ΠΣ : ∀ b → Empty PE.≢ ΠΣ⟨ b ⟩ p , q ▷ F ▹ G
+Empty≢ΠΣ BMΠ ()
+Empty≢ΠΣ (BMΣ _) ()
+
+Unit≢B : ∀ W → Unit s l PE.≢ ⟦ W ⟧ F ▹ G
+Unit≢B (BΠ p q) ()
+Unit≢B (BΣ m p q) ()
+
+Unit≢ΠΣ : ∀ b → Unit s l PE.≢ ΠΣ⟨ b ⟩ p , q ▷ F ▹ G
+Unit≢ΠΣ BMΠ ()
+Unit≢ΠΣ (BMΣ _) ()
+
+Id≢⟦⟧▷ : ∀ W → Id A t u PE.≢ ⟦ W ⟧ F ▹ G
+Id≢⟦⟧▷ (BΠ _ _)   ()
+Id≢⟦⟧▷ (BΣ _ _ _) ()
+
+Id≢ΠΣ : ∀ b → Id A t u PE.≢ ΠΣ⟨ b ⟩ p , q ▷ F ▹ G
+Id≢ΠΣ BMΠ     ()
+Id≢ΠΣ (BMΣ _) ()
+
+Π≢Σ : ∀ {m} → Π p₁ , q₁ ▷ F ▹ G PE.≢ Σ⟨ m ⟩ p₂ , q₂ ▷ H ▹ E
+Π≢Σ ()
+
+Σˢ≢Σʷ : Σˢ p₁ , q₁ ▷ F ▹ G PE.≢ Σʷ p₂ , q₂ ▷ H ▹ E
+Σˢ≢Σʷ ()
+
+------------------------------------------------------------------------
 -- Weakening properties
 
 opaque
@@ -156,6 +348,7 @@ opaque
 
   wk≡wk′ : ∀ t → wk ρ t ≡ toTerm (wk′ ρ (fromTerm t))
   wk≡wk′ (var x) = refl
+  wk≡wk′ (defn α) = refl
   wk≡wk′ (U x) = refl
   wk≡wk′ (ΠΣ⟨ b ⟩ p , q ▷ t ▹ t₁) =
     cong₂ (ΠΣ⟨ b ⟩ p , q ▷_▹_) (wk≡wk′ t) (wk≡wk′ t₁)
@@ -229,7 +422,7 @@ opaque mutual
   -- id is the identity renaming for the alternative term representation
 
   wk′-id : (t : Term′ n) → wk′ id t ≡ t
-  wk′-id (var x)   = refl
+  wk′-id (var x)    = refl
   wk′-id (gen k ts) = cong (gen k) (wkGen-id ts)
 
   wkGen-id : ∀ {bs} ts → wkGen {m = n} {n} {bs} id ts ≡ ts
@@ -298,6 +491,22 @@ opaque
   •-idʳ (lift ρ) = refl
 
 
+opaque
+
+  -- wk₀ is invariant under further weakenings
+
+  wk₀-invariant : (ρ : Wk m n) → ρ • wk₀ ≡ wk₀
+  wk₀-invariant id       = refl
+  wk₀-invariant (step ρ) = cong step (wk₀-invariant ρ)
+  wk₀-invariant (lift ρ) = cong step (wk₀-invariant ρ)
+
+  wk₀-comp : (ρ : Wk m n) (t : Term 0) → wk ρ (wk wk₀ t) ≡ wk wk₀ t
+  wk₀-comp ρ t = begin
+    wk ρ (wk wk₀ t) ≡⟨ wk-comp ρ wk₀ t ⟩
+    wk (ρ • wk₀) t  ≡⟨ cong (λ w → wk w t) (wk₀-invariant ρ) ⟩
+    wk wk₀ t        ∎
+
+
 -- The following lemmata are variations on the equality
 --
 --   wk1 ∘ ρ = lift ρ ∘ wk1.
@@ -324,6 +533,7 @@ opaque
 
   subst≡subst′ : ∀ t → t [ σ ] ≡ toTerm (fromTerm t [ σ ]′)
   subst≡subst′ (var x) = sym (toTerm∘fromTerm _)
+  subst≡subst′ (defn α) = refl
   subst≡subst′ (U x) = refl
   subst≡subst′ (ΠΣ⟨ b ⟩ p , q ▷ t ▹ t₁) =
     cong₂ (ΠΣ⟨ b ⟩ p , q ▷_▹_) (subst≡subst′ t) (subst≡subst′ t₁)
@@ -405,6 +615,16 @@ wk1Subst-cong :
   (∀ x → σ x ≡ σ′ x) →
   ∀ x → wk1Subst σ x ≡ wk1Subst σ′ x
 wk1Subst-cong eq x = cong wk1 (eq x)
+
+opaque
+
+  -- A preservation lemma for wkSubst.
+
+  wkSubst-cong :
+    (∀ x → σ₁ x ≡ σ₂ x) →
+    ∀ x → wkSubst k σ₁ x ≡ wkSubst k σ₂ x
+  wkSubst-cong {k = 0}    σ₁≡σ₂ = σ₁≡σ₂
+  wkSubst-cong {k = 1+ _} σ₁≡σ₂ = wk1Subst-cong (wkSubst-cong σ₁≡σ₂)
 
 opaque mutual
 
@@ -1261,6 +1481,16 @@ opaque
 
 opaque
 
+  -- A variant of wk₀-subst.
+
+  wk₀-closed : {t : Term 0} → wk wk₀ t ≡ t
+  wk₀-closed {t} =
+    wk wk₀ t              ≡˘⟨ subst-id _ ⟩
+    wk wk₀ t [ idSubst ]  ≡⟨ wk₀-subst _ ⟩
+    t                     ∎
+
+opaque
+
   -- A version of the above property involving lifted weakenings and
   -- substitutions
 
@@ -1307,6 +1537,32 @@ opaque
     lemma 0 x = refl
     lemma (1+ k) x0 = refl
     lemma (1+ k) (x +1) = cong wk1 (lemma k x)
+
+opaque
+
+  -- The application of a substitution to a closed term amounts to the
+  -- same thing as weakening the term.
+
+  []≡wk-wk₀ : {σ : Subst n 0} (t : Term 0) → t [ σ ] ≡ wk wk₀ t
+  []≡wk-wk₀ {σ} t =
+    t [ σ ]            ≡⟨ substVar-to-subst (λ ()) t ⟩
+    t [ toSubst wk₀ ]  ≡˘⟨ wk≡subst _ _ ⟩
+    wk wk₀ t           ∎
+
+opaque
+
+  -- Closed terms are invariant under substitution
+
+  wk₀-subst-invariant : {σ : Subst m n} (t : Term 0) → wk wk₀ t [ σ ] ≡ wk wk₀ t
+  wk₀-subst-invariant {n = 0} {σ} t = begin
+    wk wk₀ t [ σ ]     ≡⟨ []≡wk-wk₀ (wk wk₀ t) ⟩
+    wk wk₀ (wk wk₀ t)  ≡⟨ wk₀-comp wk₀ t ⟩
+    wk wk₀ t           ∎
+  wk₀-subst-invariant {n = 1+ n} {σ} t = begin
+    wk wk₀ t [ σ ]                            ≡⟨ head-tail-subst (wk wk₀ t) ⟩
+    wk wk₀ t [ consSubst (tail σ) (head σ) ]  ≡⟨ step-consSubst t ⟩
+    wk wk₀ t [ tail σ ]                       ≡⟨ wk₀-subst-invariant t ⟩
+    wk wk₀ t                                  ∎
 
 opaque
 
@@ -2021,6 +2277,7 @@ opaque
       (yes n) → yes (sucₙ n)
       (no ¬n) → no (λ { (sucₙ n) → ¬n n})
   isNumeral? (var x) = no (λ ())
+  isNumeral? (defn α) = no (λ ())
   isNumeral? (U _) = no (λ ())
   isNumeral? ℕ = no λ ()
   isNumeral? Empty = no λ ()
@@ -2041,6 +2298,14 @@ opaque
   isNumeral? (J _ _ _ _ _ _ _ _) = no λ ()
   isNumeral? (K _ _ _ _ _ _) = no λ ()
   isNumeral? ([]-cong! _ _ _ _) = no λ ()
+
+opaque
+
+  -- Being a numeral is preserved under weakening
+
+  wk-numeral : Numeral t → Numeral (wk ρ t)
+  wk-numeral zeroₙ = zeroₙ
+  wk-numeral (sucₙ n) = sucₙ (wk-numeral n)
 
 opaque
 
@@ -2090,19 +2355,24 @@ opaque
 
 -- BΠ is injective.
 
-BΠ-PE-injectivity : BΠ p₁ q₁ PE.≡ BΠ p₂ q₂ → p₁ PE.≡ p₂ × q₁ PE.≡ q₂
+BΠ-PE-injectivity : BM BMΠ p₁ q₁ PE.≡ BM BMΠ p₂ q₂ → p₁ PE.≡ p₂ × q₁ PE.≡ q₂ -- Cannot use BΠ here because of #5054
 BΠ-PE-injectivity PE.refl = PE.refl , PE.refl
 
 -- BΣ is injective.
 
 BΣ-PE-injectivity :
-  BΣ s₁ p₁ q₁ PE.≡ BΣ s₂ p₂ q₂ → p₁ PE.≡ p₂ × q₁ PE.≡ q₂ × s₁ PE.≡ s₂
+  BM (BMΣ s₁) p₁ q₁ PE.≡ BM (BMΣ s₂) p₂ q₂ → p₁ PE.≡ p₂ × q₁ PE.≡ q₂ × s₁ PE.≡ s₂ -- As above, for BΣ
 BΣ-PE-injectivity PE.refl = PE.refl , PE.refl , PE.refl
 
 -- The constructor var is injective.
 
 var-PE-injectivity : Term.var {n = n} x₁ PE.≡ var x₂ → x₁ PE.≡ x₂
 var-PE-injectivity PE.refl = PE.refl
+
+-- The constructor defn is injective.
+
+defn-PE-injectivity : Term.defn {n = n} α PE.≡ defn β → α PE.≡ β
+defn-PE-injectivity PE.refl = PE.refl
 
 -- ΠΣ⟨_⟩_,_▷_▹_ is injective.
 
@@ -2220,3 +2490,400 @@ K-PE-injectivity PE.refl =
   s₁ PE.≡ s₂ × A₁ PE.≡ A₂ × t₁ PE.≡ t₂ × u₁ PE.≡ u₂ × v₁ PE.≡ v₂
 []-cong-PE-injectivity PE.refl =
   PE.refl , PE.refl , PE.refl , PE.refl , PE.refl
+
+------------------------------------------------------------------------
+-- Properties related to inlining of definitions
+
+opaque
+  unfolding inline-Con
+
+  -- If A or-empty Γ holds, then A or-empty inline-Con ∇ Γ holds.
+
+  or-empty-inline-Con :
+    {A : Set a} ⦃ ok : A or-empty Γ ⦄ →
+    A or-empty inline-Con ∇ Γ
+  or-empty-inline-Con ⦃ ok = ε ⦄                 = ε
+  or-empty-inline-Con ⦃ ok = possibly-nonempty ⦄ = possibly-nonempty
+
+opaque
+  unfolding inline
+
+  -- The function inline ∇ commutes with wk ρ.
+
+  wk-inline : (t : Term n) → wk ρ (inline ∇ t) ≡ inline ∇ (wk ρ t)
+  wk-inline (var _) =
+    refl
+  wk-inline (defn _) =
+    wk₀-comp _ _
+  wk-inline (U _) =
+    refl
+  wk-inline Empty =
+    refl
+  wk-inline (emptyrec p A t) =
+    cong₂ (emptyrec _) (wk-inline A) (wk-inline t)
+  wk-inline (Unit _ _) =
+    refl
+  wk-inline (star _ _) =
+    refl
+  wk-inline (unitrec _ _ _ A t u) =
+    cong₃ (unitrec _ _ _) (wk-inline A) (wk-inline t) (wk-inline u)
+  wk-inline (ΠΣ⟨ _ ⟩ _ , _ ▷ A ▹ B) =
+    cong₂ (ΠΣ⟨ _ ⟩ _ , _ ▷_▹_) (wk-inline A) (wk-inline B)
+  wk-inline (lam p t) =
+    cong (lam _) (wk-inline t)
+  wk-inline (t ∘⟨ p ⟩ u) =
+    cong₂ (_∘⟨ _ ⟩_) (wk-inline t) (wk-inline u)
+  wk-inline (prod s p t u) =
+    cong₂ (prod _ _) (wk-inline t) (wk-inline u)
+  wk-inline (fst p t) =
+    cong (fst _) (wk-inline t)
+  wk-inline (snd p t) =
+    cong (snd _) (wk-inline t)
+  wk-inline (prodrec r p q A t u) =
+    cong₃ (prodrec _ _ _) (wk-inline A) (wk-inline t) (wk-inline u)
+  wk-inline ℕ =
+    refl
+  wk-inline zero =
+    refl
+  wk-inline (suc t) =
+    cong suc (wk-inline t)
+  wk-inline (natrec p q r A t u v) =
+    cong₄ (natrec _ _ _) (wk-inline A) (wk-inline t) (wk-inline u)
+      (wk-inline v)
+  wk-inline (Id A t u) =
+    cong₃ Id (wk-inline A) (wk-inline t) (wk-inline u)
+  wk-inline rfl =
+    refl
+  wk-inline (J p q A t B u v w) =
+    cong₆ (J _ _) (wk-inline A) (wk-inline t) (wk-inline B)
+      (wk-inline u) (wk-inline v) (wk-inline w)
+  wk-inline (K p A t B u v) =
+    cong₅ (K _) (wk-inline A) (wk-inline t) (wk-inline B) (wk-inline u)
+      (wk-inline v)
+  wk-inline ([]-cong s A t u v) =
+    cong₄ ([]-cong _) (wk-inline A) (wk-inline t) (wk-inline u)
+      (wk-inline v)
+
+opaque
+  unfolding inline inline-Subst
+
+  -- The function inline-Subst commutes (in a certain sense) with _⇑.
+
+  inline-Subst-⇑ :
+    (x : Fin (1+ n)) →
+    inline-Subst ∇ (σ ⇑) x ≡ (inline-Subst ∇ σ ⇑) x
+  inline-Subst-⇑ x0             = refl
+  inline-Subst-⇑ {∇} {σ} (x +1) =
+    inline ∇ (wk1 (σ x))  ≡˘⟨ wk-inline (σ _) ⟩
+    wk1 (inline ∇ (σ x))  ∎
+
+opaque
+
+  -- The function inline-Subst commutes (in a certain sense) with
+  -- _⇑[_].
+
+  inline-Subst-⇑[] :
+    ∀ m (x : Fin (m + n)) →
+    inline-Subst ∇ (σ ⇑[ m ]) x ≡ (inline-Subst ∇ σ ⇑[ m ]) x
+  inline-Subst-⇑[]         0      _ = refl
+  inline-Subst-⇑[] {∇} {σ} (1+ m) x =
+    inline-Subst ∇ (σ ⇑[ m ] ⇑) x    ≡⟨ inline-Subst-⇑ x ⟩
+    (inline-Subst ∇ (σ ⇑[ m ]) ⇑) x  ≡⟨ substVar-lift (inline-Subst-⇑[] m) x ⟩
+    (inline-Subst ∇ σ ⇑[ m ] ⇑) x    ∎
+
+opaque
+  unfolding inline-Subst
+
+  -- The function inline-Subst commutes (in a certain sense) with
+  -- consSubst.
+
+  inline-Subst-consSubst :
+    (x : Fin (1+ n)) →
+    inline-Subst ∇ (consSubst σ t) x ≡
+    consSubst (inline-Subst ∇ σ) (inline ∇ t) x
+  inline-Subst-consSubst x0     = refl
+  inline-Subst-consSubst (_ +1) = refl
+
+opaque
+  unfolding inline inline-Subst
+
+  -- The function inline-Subst commutes (in a certain sense) with
+  -- idSubst.
+
+  inline-Subst-idSubst :
+    (x : Fin n) →
+    inline-Subst ∇ idSubst x ≡ idSubst x
+  inline-Subst-idSubst _ = refl
+
+opaque
+
+  -- The function inline-Subst commutes (in a certain sense) with
+  -- sgSubst.
+
+  inline-Subst-sgSubst :
+    (x : Fin (1+ n)) →
+    inline-Subst ∇ (sgSubst t) x ≡
+    sgSubst (inline ∇ t) x
+  inline-Subst-sgSubst {∇} {t} x =
+    inline-Subst ∇ (consSubst idSubst t) x             ≡⟨ inline-Subst-consSubst x ⟩
+    consSubst (inline-Subst ∇ idSubst) (inline ∇ t) x  ≡⟨ consSubst-cong inline-Subst-idSubst x ⟩
+    consSubst idSubst (inline ∇ t) x                   ∎
+
+opaque
+  unfolding inline-Subst
+
+  -- The function inline-Subst commutes (in a certain sense) with
+  -- wk1Subst.
+
+  inline-Subst-wk1Subst :
+    (x : Fin (1+ n)) →
+    inline-Subst ∇ (wk1Subst σ) x ≡
+    wk1Subst (inline-Subst ∇ σ) x
+  inline-Subst-wk1Subst _ = sym $ wk-inline _
+
+opaque
+  unfolding inline-Subst
+
+  -- The function inline-Subst commutes (in a certain sense) with
+  -- wkSubst.
+
+  inline-Subst-wkSubst :
+    ∀ k (x : Fin n) →
+    inline-Subst ∇ (wkSubst k σ) x ≡
+    wkSubst k (inline-Subst ∇ σ) x
+  inline-Subst-wkSubst 0 _ =
+    refl
+  inline-Subst-wkSubst {∇} {σ} (1+ k) x =
+    inline ∇ (wk1 (wkSubst k σ x))        ≡˘⟨ wk-inline _ ⟩
+    wk1 (inline-Subst ∇ (wkSubst k σ) x)  ≡⟨ cong wk1 $ inline-Subst-wkSubst k _ ⟩
+    wk1 (wkSubst k (inline-Subst ∇ σ) x)  ∎
+
+opaque
+ unfolding inline inline-Subst
+ mutual
+
+  -- The function inline ∇ commutes (in a certain sense) with _[_].
+
+  inline-[] :
+    (t : Term n) →
+    inline ∇ (t [ σ ]) ≡ inline ∇ t [ inline-Subst ∇ σ ]
+  inline-[] (var _) =
+    refl
+  inline-[] (defn _) =
+    sym $ wk₀-subst-invariant _
+  inline-[] (U _) =
+    refl
+  inline-[] Empty =
+    refl
+  inline-[] (emptyrec _ A t) =
+    cong₂ (emptyrec _) (inline-[] A) (inline-[] t)
+  inline-[] (Unit _ _) =
+    refl
+  inline-[] (star _ _) =
+    refl
+  inline-[] (unitrec _ _ _ A t u) =
+    cong₃ (unitrec _ _ _) (inline-[⇑] 1 A) (inline-[] t) (inline-[] u)
+  inline-[] (ΠΣ⟨ _ ⟩ _ , _ ▷ A ▹ B) =
+    cong₂ (ΠΣ⟨ _ ⟩ _ , _ ▷_▹_) (inline-[] A) (inline-[⇑] 1 B)
+  inline-[] (lam _ t) =
+    cong (lam _) (inline-[⇑] 1 t)
+  inline-[] (t ∘⟨ _ ⟩ u) =
+    cong₂ (_∘⟨ _ ⟩_) (inline-[] t) (inline-[] u)
+  inline-[] (prod _ _ t u) =
+    cong₂ (prod _ _) (inline-[] t) (inline-[] u)
+  inline-[] (fst _ t) =
+    cong (fst _) (inline-[] t)
+  inline-[] (snd _ t) =
+    cong (snd _) (inline-[] t)
+  inline-[] (prodrec _ _ _ A t u) =
+    cong₃ (prodrec _ _ _) (inline-[⇑] 1 A) (inline-[] t)
+      (inline-[⇑] 2 u)
+  inline-[] ℕ =
+    refl
+  inline-[] zero =
+    refl
+  inline-[] (suc t) =
+    cong suc (inline-[] t)
+  inline-[] (natrec _ _ _ A t u v) =
+    cong₄ (natrec _ _ _) (inline-[⇑] 1 A) (inline-[] t) (inline-[⇑] 2 u)
+      (inline-[] v)
+  inline-[] (Id A t u) =
+    cong₃ Id (inline-[] A) (inline-[] t) (inline-[] u)
+  inline-[] rfl =
+    refl
+  inline-[] (J _ _ A t B u v w) =
+    cong₆ (J _ _) (inline-[] A) (inline-[] t) (inline-[⇑] 2 B)
+      (inline-[] u) (inline-[] v) (inline-[] w)
+  inline-[] (K _ A t B u v) =
+    cong₅ (K _) (inline-[] A) (inline-[] t) (inline-[⇑] 1 B)
+      (inline-[] u) (inline-[] v)
+  inline-[] ([]-cong _ A t u v) =
+    cong₄ ([]-cong _) (inline-[] A) (inline-[] t) (inline-[] u)
+      (inline-[] v)
+
+  -- A variant of inline-[].
+
+  inline-[⇑] :
+    ∀ m (t : Term (m + n)) →
+    inline ∇ (t [ σ ⇑[ m ] ]) ≡
+    inline ∇ t [ inline-Subst ∇ σ ⇑[ m ] ]
+  inline-[⇑] {∇} {σ} m t =
+    inline ∇ (t [ σ ⇑[ m ] ])                 ≡⟨ inline-[] t ⟩
+    inline ∇ t [ inline-Subst ∇ (σ ⇑[ m ]) ]  ≡⟨ substVar-to-subst (inline-Subst-⇑[] m) (inline _ t) ⟩
+    inline ∇ t [ inline-Subst ∇ σ ⇑[ m ] ]    ∎
+
+opaque
+
+  -- A variant of inline-[].
+
+  inline-[]₀ :
+    (t : Term (1+ n)) →
+    inline ∇ (t [ u ]₀) ≡ inline ∇ t [ inline ∇ u ]₀
+  inline-[]₀ {∇} {u} t =
+    inline ∇ (t [ u ]₀)                        ≡⟨ inline-[] t ⟩
+    inline ∇ t [ inline-Subst ∇ (sgSubst u) ]  ≡⟨ substVar-to-subst inline-Subst-sgSubst (inline _ t) ⟩
+    inline ∇ t [ inline ∇ u ]₀                 ∎
+
+opaque
+
+  -- A variant of inline-[].
+
+  inline-[]₁₀ :
+    (t : Term (2+ n)) →
+    inline ∇ (t [ u , v ]₁₀) ≡
+    inline ∇ t [ inline ∇ u , inline ∇ v ]₁₀
+  inline-[]₁₀ {∇} {u} {v} t =
+    inline ∇ (t [ u , v ]₁₀)                                 ≡⟨ inline-[] t ⟩
+    inline ∇ t [ inline-Subst ∇ (consSubst (sgSubst u) v) ]  ≡⟨ (flip substVar-to-subst (inline _ t) λ x →
+                                                                 trans (inline-Subst-consSubst x) $
+                                                                 consSubst-cong inline-Subst-sgSubst x) ⟩
+    inline ∇ t [ inline ∇ u , inline ∇ v ]₁₀                 ∎
+
+opaque
+
+  -- A variant of inline-[].
+
+  inline-[][]↑ :
+    (t : Term (1+ n)) →
+    inline ∇ (t [ k ][ u ]↑) ≡ inline ∇ t [ k ][ inline ∇ u ]↑
+  inline-[][]↑ {∇} {k} {u} t =
+    inline ∇ (t [ k ][ u ]↑)                                         ≡⟨ inline-[] t ⟩
+    inline ∇ t [ inline-Subst ∇ (consSubst (wkSubst k idSubst) u) ]  ≡⟨ (flip substVar-to-subst (inline _ t) λ x →
+                                                                         trans (inline-Subst-consSubst x) $
+                                                                         flip consSubst-cong x $ λ x →
+                                                                         trans (inline-Subst-wkSubst k x) $
+                                                                         wkSubst-cong inline-Subst-idSubst x) ⟩
+    inline ∇ t [ k ][ inline ∇ u ]↑                                  ∎
+
+opaque
+  unfolding inline-Nat
+
+  -- If α is in scope with respect to ∇, then inline-Nat ∇ α is equal
+  -- to an application of inline-< ∇.
+
+  <-inline-Nat :
+    {∇ : DCon (Term 0) n}
+    (α<n : α <′ n) →
+    inline-Nat ∇ α ≡ inline-< ∇ α<n
+  <-inline-Nat {n} {α} {∇} α<n with α <′? n
+  … | no α≮n = ⊥-elim (α≮n α<n)
+  … | yes _  = cong (inline-< ∇) <′-propositional
+
+------------------------------------------------------------------------
+-- Properties related to inlining and glassification
+
+opaque
+ unfolding inline
+ mutual
+
+  -- The result of inline-< is not affected by glassification.
+
+  inline-<-glassify :
+    (∇ : DCon (Term 0) n) (α<n : α <′ n) →
+    inline-< (glassify ∇) α<n ≡ inline-< ∇ α<n
+  inline-<-glassify ε m<0 =
+    ⊥-elim (n≮0 (<′⇒< m<0))
+  inline-<-glassify (_ ∙⟨ _ ⟩[ t ∷ _ ]) (≤′-reflexive _) =
+    inline-glassify t
+  inline-<-glassify (∇ ∙⟨ _ ⟩[ _ ∷ _ ]) (≤′-step m<n) =
+    inline-<-glassify ∇ m<n
+
+  -- The result of inline-Nat is not affected by glassification.
+
+  inline-Nat-glassify :
+    (∇ : DCon (Term 0) n) →
+    inline-Nat (glassify ∇) α ≡ inline-Nat ∇ α
+  inline-Nat-glassify {n} {α} ∇ with α <′? n
+  … | yes α<n = inline-<-glassify ∇ α<n
+  … | no _    = refl
+
+  -- The result of inline is not affected by glassification.
+
+  inline-glassify :
+    (t : Term n) → inline (glassify ∇) t ≡ inline ∇ t
+  inline-glassify (var _) =
+    refl
+  inline-glassify {∇} (defn _) =
+    cong (wk _) (inline-Nat-glassify ∇)
+  inline-glassify (U _) =
+    refl
+  inline-glassify Empty =
+    refl
+  inline-glassify (emptyrec p A t) =
+    cong₂ (emptyrec _) (inline-glassify A) (inline-glassify t)
+  inline-glassify (Unit _ _) =
+    refl
+  inline-glassify (star _ _) =
+    refl
+  inline-glassify (unitrec _ _ _ A t u) =
+    cong₃ (unitrec _ _ _) (inline-glassify A) (inline-glassify t)
+      (inline-glassify u)
+  inline-glassify (ΠΣ⟨ _ ⟩ _ , _ ▷ A ▹ B) =
+    cong₂ (ΠΣ⟨ _ ⟩ _ , _ ▷_▹_) (inline-glassify A) (inline-glassify B)
+  inline-glassify (lam p t) =
+    cong (lam _) (inline-glassify t)
+  inline-glassify (t ∘⟨ p ⟩ u) =
+    cong₂ (_∘⟨ _ ⟩_) (inline-glassify t) (inline-glassify u)
+  inline-glassify (prod s p t u) =
+    cong₂ (prod _ _) (inline-glassify t) (inline-glassify u)
+  inline-glassify (fst p t) =
+    cong (fst _) (inline-glassify t)
+  inline-glassify (snd p t) =
+    cong (snd _) (inline-glassify t)
+  inline-glassify (prodrec r p q A t u) =
+    cong₃ (prodrec _ _ _) (inline-glassify A) (inline-glassify t)
+      (inline-glassify u)
+  inline-glassify ℕ =
+    refl
+  inline-glassify zero =
+    refl
+  inline-glassify (suc t) =
+    cong suc (inline-glassify t)
+  inline-glassify (natrec p q r A t u v) =
+    cong₄ (natrec _ _ _) (inline-glassify A) (inline-glassify t)
+      (inline-glassify u) (inline-glassify v)
+  inline-glassify (Id A t u) =
+    cong₃ Id (inline-glassify A) (inline-glassify t) (inline-glassify u)
+  inline-glassify rfl =
+    refl
+  inline-glassify (J p q A t B u v w) =
+    cong₆ (J _ _) (inline-glassify A) (inline-glassify t)
+      (inline-glassify B) (inline-glassify u) (inline-glassify v)
+      (inline-glassify w)
+  inline-glassify (K p A t B u v) =
+    cong₅ (K _) (inline-glassify A) (inline-glassify t)
+      (inline-glassify B) (inline-glassify u) (inline-glassify v)
+  inline-glassify ([]-cong s A t u v) =
+    cong₄ ([]-cong _) (inline-glassify A) (inline-glassify t)
+      (inline-glassify u) (inline-glassify v)
+
+opaque
+  unfolding inline-Con
+
+  -- The result of inline-Con is not affected by glassification.
+
+  inline-Con-glassify :
+    (Γ : Con Term n) → inline-Con (glassify ∇) Γ ≡ inline-Con ∇ Γ
+  inline-Con-glassify ε       = refl
+  inline-Con-glassify (Γ ∙ A) =
+    cong₂ _∙_ (inline-Con-glassify _) (inline-glassify A)

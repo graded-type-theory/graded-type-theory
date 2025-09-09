@@ -29,7 +29,7 @@ open import Tools.Nat
 import Tools.PropositionalEquality as PE
 
 private variable
-  Γ       : Con Term _
+  Γ       : Cons _ _
   A B t u : Term _
   l       : Nat
 

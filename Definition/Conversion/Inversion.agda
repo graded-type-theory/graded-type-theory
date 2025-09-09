@@ -22,23 +22,27 @@ open import Definition.Conversion.Whnf R
 
 open import Definition.Typed R
 open import Definition.Untyped M
-import Definition.Untyped.Erased 𝕄 as Erased
 open import Definition.Untyped.Neutral M type-variant
-open import Definition.Untyped.Properties.Neutral M type-variant
+import Definition.Untyped.Erased 𝕄 as Erased
+open import Definition.Untyped.Whnf M type-variant
 
 open import Tools.Empty
 open import Tools.Function
 open import Tools.Fin
+open import Tools.Nat
 open import Tools.Product
 import Tools.PropositionalEquality as PE
 open import Tools.Relation
 open import Tools.Sum
 
 private variable
+  α β                                                   : Nat
   x y                                                   : Fin _
-  Γ                                                     : Con Term _
+  ∇                                                     : DCon (Term 0) _
+  Γ                                                     : Cons _ _
   A A₁ A₂ B B₁ B₂ C C₁ C₂ t t₁ t₂ t₃ t₄ u u₁ u₂ u₃ u₄ v
     w                                                   : Term _
+  V                                                     : Set a
   b                                                     : BinderMode
   s                                                     : Strength
   l                                                     : Universe-level
@@ -57,6 +61,7 @@ opaque
     ¬ (∃ λ x → t PE.≡ var x) × ¬ (∃ λ x → u PE.≡ var x)
   inv-~-var = λ where
     (var-refl _ PE.refl)       → inj₁ (_ , PE.refl , PE.refl)
+    (defn-refl _ _ _)          → inj₂ ((λ ()) , (λ ()))
     (app-cong _ _)             → inj₂ ((λ ()) , (λ ()))
     (fst-cong _)               → inj₂ ((λ ()) , (λ ()))
     (snd-cong _)               → inj₂ ((λ ()) , (λ ()))
@@ -85,6 +90,46 @@ opaque
     Γ ⊢ t ~ var y ↑ A →
     t PE.≡ var y
   inv-~var (var-refl _ PE.refl) = PE.refl
+
+opaque
+
+  -- A kind of inversion lemma for var.
+
+  inv-~-defn :
+    Γ ⊢ t ~ u ↑ A →
+    (∃₂ λ α A → α ↦⊘∷ A ∈ Γ .defs × t PE.≡ defn α × u PE.≡ defn α) ⊎
+    ¬ (∃ λ α → t PE.≡ defn α) × ¬ (∃ λ α → u PE.≡ defn α)
+  inv-~-defn = λ where
+    (defn-refl _ α↦⊘ PE.refl)  → inj₁ (_ , _ , α↦⊘ , PE.refl , PE.refl)
+    (var-refl _ _)             → inj₂ ((λ ()) , (λ ()))
+    (app-cong _ _)             → inj₂ ((λ ()) , (λ ()))
+    (fst-cong _)               → inj₂ ((λ ()) , (λ ()))
+    (snd-cong _)               → inj₂ ((λ ()) , (λ ()))
+    (prodrec-cong _ _ _)       → inj₂ ((λ ()) , (λ ()))
+    (emptyrec-cong _ _)        → inj₂ ((λ ()) , (λ ()))
+    (unitrec-cong _ _ _ _)     → inj₂ ((λ ()) , (λ ()))
+    (natrec-cong _ _ _ _)      → inj₂ ((λ ()) , (λ ()))
+    (J-cong _ _ _ _ _ _ _)     → inj₂ ((λ ()) , (λ ()))
+    (K-cong _ _ _ _ _ _ _)     → inj₂ ((λ ()) , (λ ()))
+    ([]-cong-cong _ _ _ _ _ _) → inj₂ ((λ ()) , (λ ()))
+
+opaque
+
+  -- Inversion for defn.
+
+  inv-defn~ :
+    Γ ⊢ defn α ~ u ↑ A →
+    u PE.≡ defn α
+  inv-defn~ (defn-refl _ _ PE.refl) = PE.refl
+
+opaque
+
+  -- Inversion for defn.
+
+  inv-~defn :
+    Γ ⊢ t ~ defn β ↑ A →
+    t PE.≡ defn β
+  inv-~defn (defn-refl _ _ PE.refl) = PE.refl
 
 opaque
 
@@ -146,6 +191,7 @@ opaque
       _ , _ , _ , _ , _ , _ , _ , _ ,
       PE.refl , PE.refl , PE.refl , t₁~u₁ , t₂≡u₂
     (var-refl _ _)             → inj₂ ((λ ()) , (λ ()))
+    (defn-refl _ _ _)          → inj₂ ((λ ()) , (λ ()))
     (fst-cong _)               → inj₂ ((λ ()) , (λ ()))
     (snd-cong _)               → inj₂ ((λ ()) , (λ ()))
     (prodrec-cong _ _ _)       → inj₂ ((λ ()) , (λ ()))
@@ -212,6 +258,7 @@ opaque
     (fst-cong t′~u′) →
       inj₁ (_ , _ , _ , _ , _ , PE.refl , PE.refl , t′~u′)
     (var-refl _ _)             → inj₂ ((λ ()) , (λ ()))
+    (defn-refl _ _ _)          → inj₂ ((λ ()) , (λ ()))
     (app-cong _ _)             → inj₂ ((λ ()) , (λ ()))
     (snd-cong _)               → inj₂ ((λ ()) , (λ ()))
     (prodrec-cong _ _ _)       → inj₂ ((λ ()) , (λ ()))
@@ -258,6 +305,7 @@ opaque
     (snd-cong t′~u′) →
       inj₁ (_ , _ , _ , _ , _ , _ , PE.refl , PE.refl , PE.refl , t′~u′)
     (var-refl _ _)             → inj₂ ((λ ()) , (λ ()))
+    (defn-refl _ _ _)          → inj₂ ((λ ()) , (λ ()))
     (app-cong _ _)             → inj₂ ((λ ()) , (λ ()))
     (fst-cong _)               → inj₂ ((λ ()) , (λ ()))
     (prodrec-cong _ _ _)       → inj₂ ((λ ()) , (λ ()))
@@ -302,9 +350,9 @@ opaque
      A PE.≡ B [ t₁ ]₀ ×
      t PE.≡ prodrec r p q′ B t₁ t₂ ×
      u PE.≡ prodrec r p q′ C u₁ u₂ ×
-     (Γ ∙ Σʷ p , q ▷ A₁ ▹ A₂ ⊢ B [conv↑] C) ×
+     (Γ »∙ Σʷ p , q ▷ A₁ ▹ A₂ ⊢ B [conv↑] C) ×
      Γ ⊢ t₁ ~ u₁ ↓ Σʷ p , q ▷ A₁ ▹ A₂ ×
-     Γ ∙ A₁ ∙ A₂ ⊢ t₂ [conv↑] u₂ ∷ B [ prodʷ p (var x1) (var x0) ]↑²) ⊎
+     Γ »∙ A₁ »∙ A₂ ⊢ t₂ [conv↑] u₂ ∷ B [ prodʷ p (var x1) (var x0) ]↑²) ⊎
     ¬ (∃₆ λ r p q′ B t₁ t₂ → t PE.≡ prodrec r p q′ B t₁ t₂) ×
     ¬ (∃₆ λ r p q′ C u₁ u₂ → u PE.≡ prodrec r p q′ C u₁ u₂)
   inv-~-prodrec = λ where
@@ -313,6 +361,7 @@ opaque
       _ , _ , _ , _ , _ , _ , _ , _ , _ , _ , _ , _ ,
       PE.refl , PE.refl , PE.refl , B≡C , t₁~u₁ , t₂≡u₂
     (var-refl _ _)             → inj₂ ((λ ()) , (λ ()))
+    (defn-refl _ _ _)          → inj₂ ((λ ()) , (λ ()))
     (app-cong _ _)             → inj₂ ((λ ()) , (λ ()))
     (fst-cong _)               → inj₂ ((λ ()) , (λ ()))
     (snd-cong _)               → inj₂ ((λ ()) , (λ ()))
@@ -332,9 +381,9 @@ opaque
     ∃₆ λ q′ A₁ A₂ C u₁ u₂ →
     A PE.≡ B [ t₁ ]₀ ×
     u PE.≡ prodrec r p q C u₁ u₂ ×
-    (Γ ∙ Σʷ p , q′ ▷ A₁ ▹ A₂ ⊢ B [conv↑] C) ×
+    (Γ »∙ Σʷ p , q′ ▷ A₁ ▹ A₂ ⊢ B [conv↑] C) ×
     Γ ⊢ t₁ ~ u₁ ↓ Σʷ p , q′ ▷ A₁ ▹ A₂ ×
-    Γ ∙ A₁ ∙ A₂ ⊢ t₂ [conv↑] u₂ ∷ B [ prodʷ p (var x1) (var x0) ]↑²
+    Γ »∙ A₁ »∙ A₂ ⊢ t₂ [conv↑] u₂ ∷ B [ prodʷ p (var x1) (var x0) ]↑²
   inv-prodrec~ (prodrec-cong B≡C t₁~u₁ t₂≡u₂) =
      _ , _ , _ , _ , _ , _ , PE.refl , PE.refl , B≡C , t₁~u₁ , t₂≡u₂
 
@@ -347,9 +396,9 @@ opaque
     ∃₆ λ q′ A₁ A₂ B t₁ t₂ →
     A PE.≡ B [ t₁ ]₀ ×
     t PE.≡ prodrec r p q B t₁ t₂ ×
-    (Γ ∙ Σʷ p , q′ ▷ A₁ ▹ A₂ ⊢ B [conv↑] C) ×
+    (Γ »∙ Σʷ p , q′ ▷ A₁ ▹ A₂ ⊢ B [conv↑] C) ×
     Γ ⊢ t₁ ~ u₁ ↓ Σʷ p , q′ ▷ A₁ ▹ A₂ ×
-    Γ ∙ A₁ ∙ A₂ ⊢ t₂ [conv↑] u₂ ∷ B [ prodʷ p (var x1) (var x0) ]↑²
+    Γ »∙ A₁ »∙ A₂ ⊢ t₂ [conv↑] u₂ ∷ B [ prodʷ p (var x1) (var x0) ]↑²
   inv-~prodrec (prodrec-cong B≡C t₁~u₁ t₂≡u₂) =
      _ , _ , _ , _ , _ , _ , PE.refl , PE.refl , B≡C , t₁~u₁ , t₂≡u₂
 
@@ -383,6 +432,7 @@ opaque
     (emptyrec-cong A≡B t′~u′) →
       inj₁ (_ , _ , _ , _ , PE.refl , PE.refl , A≡B , t′~u′)
     (var-refl _ _)             → inj₂ ((λ ()) , (λ ()))
+    (defn-refl _ _ _)          → inj₂ ((λ ()) , (λ ()))
     (app-cong _ _)             → inj₂ ((λ ()) , (λ ()))
     (fst-cong _)               → inj₂ ((λ ()) , (λ ()))
     (snd-cong _)               → inj₂ ((λ ()) , (λ ()))
@@ -458,7 +508,7 @@ opaque
      A PE.≡ B [ t₁ ]₀ ×
      t PE.≡ unitrec l p q B t₁ t₂ ×
      u PE.≡ unitrec l p q C u₁ u₂ ×
-     (Γ ∙ Unitʷ l ⊢ B [conv↑] C) ×
+     (Γ »∙ Unitʷ l ⊢ B [conv↑] C) ×
      Γ ⊢ t₁ ~ u₁ ↓ Unitʷ l ×
      Γ ⊢ t₂ [conv↑] u₂ ∷ B [ starʷ l ]₀ ×
      ¬ Unitʷ-η) ⊎
@@ -470,6 +520,7 @@ opaque
       _ , _ , _ , _ , _ , _ , _ , _ , _ ,
       PE.refl , PE.refl , PE.refl , B≡C , t₁~u₁ , t₂≡u₂ , no-η
     (var-refl _ _)             → inj₂ ((λ ()) , (λ ()))
+    (defn-refl _ _ _)          → inj₂ ((λ ()) , (λ ()))
     (app-cong _ _)             → inj₂ ((λ ()) , (λ ()))
     (fst-cong _)               → inj₂ ((λ ()) , (λ ()))
     (snd-cong _)               → inj₂ ((λ ()) , (λ ()))
@@ -489,7 +540,7 @@ opaque
     ∃₃ λ C u₁ u₂ →
     A PE.≡ B [ t₁ ]₀ ×
     u PE.≡ unitrec l p q C u₁ u₂ ×
-    (Γ ∙ Unitʷ l ⊢ B [conv↑] C) ×
+    (Γ »∙ Unitʷ l ⊢ B [conv↑] C) ×
     Γ ⊢ t₁ ~ u₁ ↓ Unitʷ l ×
     Γ ⊢ t₂ [conv↑] u₂ ∷ B [ starʷ l ]₀ ×
     ¬ Unitʷ-η
@@ -505,7 +556,7 @@ opaque
     ∃₃ λ B t₁ t₂ →
     A PE.≡ B [ t₁ ]₀ ×
     t PE.≡ unitrec l p q B t₁ t₂ ×
-    (Γ ∙ Unitʷ l ⊢ B [conv↑] C) ×
+    (Γ »∙ Unitʷ l ⊢ B [conv↑] C) ×
     Γ ⊢ t₁ ~ u₁ ↓ Unitʷ l ×
     Γ ⊢ t₂ [conv↑] u₂ ∷ B [ starʷ l ]₀ ×
     ¬ Unitʷ-η
@@ -564,9 +615,9 @@ opaque
      A PE.≡ B [ t₃ ]₀ ×
      t PE.≡ natrec p q r B t₁ t₂ t₃ ×
      u PE.≡ natrec p q r C u₁ u₂ u₃ ×
-     (Γ ∙ ℕ ⊢ B [conv↑] C) ×
+     (Γ »∙ ℕ ⊢ B [conv↑] C) ×
      Γ ⊢ t₁ [conv↑] u₁ ∷ B [ zero ]₀ ×
-     Γ ∙ ℕ ∙ B ⊢ t₂ [conv↑] u₂ ∷ B [ suc (var x1) ]↑² ×
+     Γ »∙ ℕ »∙ B ⊢ t₂ [conv↑] u₂ ∷ B [ suc (var x1) ]↑² ×
      Γ ⊢ t₃ ~ u₃ ↓ ℕ) ⊎
     ¬ (∃₇ λ p q r B t₁ t₂ t₃ → t PE.≡ natrec p q r B t₁ t₂ t₃) ×
     ¬ (∃₇ λ p q r C u₁ u₂ u₃ → u PE.≡ natrec p q r C u₁ u₂ u₃)
@@ -576,6 +627,7 @@ opaque
       _ , _ , _ , _ , _ , _ , _ , _ , _ , _ , _ ,
       PE.refl , PE.refl , PE.refl , B≡C , t₁≡u₁ , t₂≡u₂ , t₃~u₃
     (var-refl _ _)             → inj₂ ((λ ()) , (λ ()))
+    (defn-refl _ _ _)          → inj₂ ((λ ()) , (λ ()))
     (app-cong _ _)             → inj₂ ((λ ()) , (λ ()))
     (fst-cong _)               → inj₂ ((λ ()) , (λ ()))
     (snd-cong _)               → inj₂ ((λ ()) , (λ ()))
@@ -595,9 +647,9 @@ opaque
     ∃₄ λ C u₁ u₂ u₃ →
     A PE.≡ B [ t₃ ]₀ ×
     u PE.≡ natrec p q r C u₁ u₂ u₃ ×
-    (Γ ∙ ℕ ⊢ B [conv↑] C) ×
+    (Γ »∙ ℕ ⊢ B [conv↑] C) ×
     Γ ⊢ t₁ [conv↑] u₁ ∷ B [ zero ]₀ ×
-    Γ ∙ ℕ ∙ B ⊢ t₂ [conv↑] u₂ ∷ B [ suc (var x1) ]↑² ×
+    Γ »∙ ℕ »∙ B ⊢ t₂ [conv↑] u₂ ∷ B [ suc (var x1) ]↑² ×
     Γ ⊢ t₃ ~ u₃ ↓ ℕ
   inv-natrec~ (natrec-cong B≡C t₁≡u₁ t₂≡u₂ t₃~u₃) =
     _ , _ , _ , _ , PE.refl , PE.refl , B≡C , t₁≡u₁ , t₂≡u₂ , t₃~u₃
@@ -611,9 +663,9 @@ opaque
     ∃₄ λ B t₁ t₂ t₃ →
     A PE.≡ B [ t₃ ]₀ ×
     t PE.≡ natrec p q r B t₁ t₂ t₃ ×
-    (Γ ∙ ℕ ⊢ B [conv↑] C) ×
+    (Γ »∙ ℕ ⊢ B [conv↑] C) ×
     Γ ⊢ t₁ [conv↑] u₁ ∷ B [ zero ]₀ ×
-    Γ ∙ ℕ ∙ B ⊢ t₂ [conv↑] u₂ ∷ B [ suc (var x1) ]↑² ×
+    Γ »∙ ℕ »∙ B ⊢ t₂ [conv↑] u₂ ∷ B [ suc (var x1) ]↑² ×
     Γ ⊢ t₃ ~ u₃ ↓ ℕ
   inv-~natrec (natrec-cong B≡C t₁≡u₁ t₂≡u₂ t₃~u₃) =
     _ , _ , _ , _ , PE.refl , PE.refl , B≡C , t₁≡u₁ , t₂≡u₂ , t₃~u₃
@@ -658,7 +710,7 @@ opaque
      u PE.≡ J p q C₁ u₁ C₂ u₂ u₃ u₄ ×
      (Γ ⊢ B₁ [conv↑] C₁) ×
      Γ ⊢ t₁ [conv↑] u₁ ∷ B₁ ×
-     (Γ ∙ B₁ ∙ Id (wk1 B₁) (wk1 t₁) (var x0) ⊢ B₂ [conv↑] C₂) ×
+     (Γ »∙ B₁ »∙ Id (wk1 B₁) (wk1 t₁) (var x0) ⊢ B₂ [conv↑] C₂) ×
      Γ ⊢ t₂ [conv↑] u₂ ∷ B₂ [ t₁ , rfl ]₁₀ ×
      Γ ⊢ t₃ [conv↑] u₃ ∷ B₁ ×
      Γ ⊢ t₄ ~ u₄ ↓ D ×
@@ -672,6 +724,7 @@ opaque
       PE.refl , PE.refl , PE.refl ,
       B₁≡C₁ , t₁≡u₁ , B₂≡C₂ , t₂≡u₂ , t₃≡u₃ , t₄~u₄ , D≡Id
     (var-refl _ _)             → inj₂ ((λ ()) , (λ ()))
+    (defn-refl _ _ _)          → inj₂ ((λ ()) , (λ ()))
     (app-cong _ _)             → inj₂ ((λ ()) , (λ ()))
     (fst-cong _)               → inj₂ ((λ ()) , (λ ()))
     (snd-cong _)               → inj₂ ((λ ()) , (λ ()))
@@ -693,7 +746,7 @@ opaque
     u PE.≡ J p q C₁ u₁ C₂ u₂ u₃ u₄ ×
     (Γ ⊢ B₁ [conv↑] C₁) ×
     Γ ⊢ t₁ [conv↑] u₁ ∷ B₁ ×
-    (Γ ∙ B₁ ∙ Id (wk1 B₁) (wk1 t₁) (var x0) ⊢ B₂ [conv↑] C₂) ×
+    (Γ »∙ B₁ »∙ Id (wk1 B₁) (wk1 t₁) (var x0) ⊢ B₂ [conv↑] C₂) ×
     Γ ⊢ t₂ [conv↑] u₂ ∷ B₂ [ t₁ , rfl ]₁₀ ×
     Γ ⊢ t₃ [conv↑] u₃ ∷ B₁ ×
     Γ ⊢ t₄ ~ u₄ ↓ D ×
@@ -713,7 +766,7 @@ opaque
     t PE.≡ J p q B₁ t₁ B₂ t₂ t₃ t₄ ×
     (Γ ⊢ B₁ [conv↑] C₁) ×
     Γ ⊢ t₁ [conv↑] u₁ ∷ B₁ ×
-    (Γ ∙ B₁ ∙ Id (wk1 B₁) (wk1 t₁) (var x0) ⊢ B₂ [conv↑] C₂) ×
+    (Γ »∙ B₁ »∙ Id (wk1 B₁) (wk1 t₁) (var x0) ⊢ B₂ [conv↑] C₂) ×
     Γ ⊢ t₂ [conv↑] u₂ ∷ B₂ [ t₁ , rfl ]₁₀ ×
     Γ ⊢ t₃ [conv↑] u₃ ∷ B₁ ×
     Γ ⊢ t₄ ~ u₄ ↓ D ×
@@ -734,7 +787,7 @@ opaque
      u PE.≡ K p C₁ u₁ C₂ u₂ u₃ ×
      (Γ ⊢ B₁ [conv↑] C₁) ×
      Γ ⊢ t₁ [conv↑] u₁ ∷ B₁ ×
-     (Γ ∙ Id B₁ t₁ t₁ ⊢ B₂ [conv↑] C₂) ×
+     (Γ »∙ Id B₁ t₁ t₁ ⊢ B₂ [conv↑] C₂) ×
      Γ ⊢ t₂ [conv↑] u₂ ∷ B₂ [ rfl ]₀ ×
      Γ ⊢ t₃ ~ u₃ ↓ D ×
      Γ ⊢ D ≡ Id B₁ t₁ t₁ ×
@@ -748,6 +801,7 @@ opaque
       PE.refl , PE.refl , PE.refl ,
       B₁≡C₁ , t₁≡u₁ , B₂≡C₂ , t₂≡u₂ , t₃~u₃ , D≡Id , ok
     (var-refl _ _)             → inj₂ ((λ ()) , (λ ()))
+    (defn-refl _ _ _)          → inj₂ ((λ ()) , (λ ()))
     (app-cong _ _)             → inj₂ ((λ ()) , (λ ()))
     (fst-cong _)               → inj₂ ((λ ()) , (λ ()))
     (snd-cong _)               → inj₂ ((λ ()) , (λ ()))
@@ -769,7 +823,7 @@ opaque
     u PE.≡ K p C₁ u₁ C₂ u₂ u₃ ×
     (Γ ⊢ B₁ [conv↑] C₁) ×
     Γ ⊢ t₁ [conv↑] u₁ ∷ B₁ ×
-    (Γ ∙ Id B₁ t₁ t₁ ⊢ B₂ [conv↑] C₂) ×
+    (Γ »∙ Id B₁ t₁ t₁ ⊢ B₂ [conv↑] C₂) ×
     Γ ⊢ t₂ [conv↑] u₂ ∷ B₂ [ rfl ]₀ ×
     Γ ⊢ t₃ ~ u₃ ↓ D ×
     Γ ⊢ D ≡ Id B₁ t₁ t₁ ×
@@ -789,7 +843,7 @@ opaque
     t PE.≡ K p B₁ t₁ B₂ t₂ t₃ ×
     (Γ ⊢ B₁ [conv↑] C₁) ×
     Γ ⊢ t₁ [conv↑] u₁ ∷ B₁ ×
-    (Γ ∙ Id B₁ t₁ t₁ ⊢ B₂ [conv↑] C₂) ×
+    (Γ »∙ Id B₁ t₁ t₁ ⊢ B₂ [conv↑] C₂) ×
     Γ ⊢ t₂ [conv↑] u₂ ∷ B₂ [ rfl ]₀ ×
     Γ ⊢ t₃ ~ u₃ ↓ D ×
     Γ ⊢ D ≡ Id B₁ t₁ t₁ ×
@@ -824,6 +878,7 @@ opaque
       PE.refl , PE.refl , PE.refl ,
       B≡C , t₁≡u₁ , t₂≡u₂ , t₃~u₃ , D≡Id , ok
     (var-refl _ _)         → inj₂ ((λ ()) , (λ ()))
+    (defn-refl _ _ _)      → inj₂ ((λ ()) , (λ ()))
     (app-cong _ _)         → inj₂ ((λ ()) , (λ ()))
     (fst-cong _)           → inj₂ ((λ ()) , (λ ()))
     (snd-cong _)           → inj₂ ((λ ()) , (λ ()))
@@ -883,22 +938,28 @@ opaque
 
   inv-[conv↓]-ne′ :
     Γ ⊢ A [conv↓] B →
-    (∃ λ l → Γ ⊢ A ~ B ↓ U l) ⊎ ¬ Neutral A × ¬ Neutral B
-  inv-[conv↓]-ne′ = λ where
-    (ne A~B)        → inj₁ (_ , A~B)
-    (U-refl _)      → inj₂ (¬-Neutral-U     , ¬-Neutral-U)
-    (ΠΣ-cong _ _ _) → inj₂ (¬-Neutral-ΠΣ    , ¬-Neutral-ΠΣ)
-    (Empty-refl _)  → inj₂ (¬-Neutral-Empty , ¬-Neutral-Empty)
-    (Unit-refl _ _) → inj₂ (¬-Neutral-Unit  , ¬-Neutral-Unit)
-    (ℕ-refl _)      → inj₂ (¬-Neutral-ℕ     , ¬-Neutral-ℕ)
-    (Id-cong _ _ _) → inj₂ (¬-Neutral-Id    , ¬-Neutral-Id)
+    (∃ λ l → Γ ⊢ A ~ B ↓ U l) ⊎
+    ¬ Neutral V (Γ .defs) A × ¬ Neutral V (Γ .defs) B
+  inv-[conv↓]-ne′ =
+    let l : ∀ {n} {T : Term n}
+            → (∀ {X} → Neutral V ∇ X → T PE.≢ X) → ¬ Neutral V ∇ T
+        l T≠ne T-ne = T≠ne T-ne PE.refl
+    in  λ where
+          (ne A~B)        → inj₁ (_ , A~B)
+          (U-refl _)      → inj₂ (l U≢ne      , l U≢ne)
+          (ΠΣ-cong _ _ _) → inj₂ (l (ΠΣ≢ne _) , l (ΠΣ≢ne _))
+          (Empty-refl _)  → inj₂ (l Empty≢ne  , l Empty≢ne)
+          (Unit-refl _ _) → inj₂ (l Unit≢ne   , l Unit≢ne)
+          (ℕ-refl _)      → inj₂ (l ℕ≢ne      , l ℕ≢ne)
+          (Id-cong _ _ _) → inj₂ (l Id≢ne     , l Id≢ne)
+
 
 opaque
 
   -- Inversion for neutral terms.
 
   inv-[conv↓]-ne :
-    Neutral A →
+    Neutral V (Γ .defs) A →
     Γ ⊢ A [conv↓] B →
     ∃ λ l → Γ ⊢ A ~ B ↓ U l
   inv-[conv↓]-ne A-ne A≡B = case inv-[conv↓]-ne′ A≡B of λ where
@@ -919,8 +980,8 @@ opaque
       inj₂ $
       case ne~↓ A~B of λ
         (_ , A-ne , B-ne) →
-        (λ { (_ , PE.refl) → ¬-Neutral-U A-ne })
-      , (λ { (_ , PE.refl) → ¬-Neutral-U B-ne })
+        (λ { (_ , PE.refl) → U≢ne A-ne PE.refl })
+      , (λ { (_ , PE.refl) → U≢ne B-ne PE.refl })
     (ΠΣ-cong _ _ _) → inj₂ ((λ ()) , (λ ()))
     (Empty-refl _)  → inj₂ ((λ ()) , (λ ()))
     (Unit-refl _ _) → inj₂ ((λ ()) , (λ ()))
@@ -947,7 +1008,7 @@ opaque
     (∃₇ λ b p q A₁ A₂ B₁ B₂ →
      A PE.≡ ΠΣ⟨ b ⟩ p , q ▷ A₁ ▹ A₂ ×
      B PE.≡ ΠΣ⟨ b ⟩ p , q ▷ B₁ ▹ B₂ ×
-     Γ ⊢ A₁ [conv↑] B₁ × Γ ∙ A₁ ⊢ A₂ [conv↑] B₂) ⊎
+     Γ ⊢ A₁ [conv↑] B₁ × Γ »∙ A₁ ⊢ A₂ [conv↑] B₂) ⊎
     ¬ (∃₅ λ b p q A₁ A₂ → A PE.≡ ΠΣ⟨ b ⟩ p , q ▷ A₁ ▹ A₂) ×
     ¬ (∃₅ λ b p q B₁ B₂ → B PE.≡ ΠΣ⟨ b ⟩ p , q ▷ B₁ ▹ B₂)
   inv-[conv↓]-ΠΣ′ = λ where
@@ -958,8 +1019,8 @@ opaque
       inj₂ $
       case ne~↓ A~B of λ
         (_ , A-ne , B-ne) →
-        (λ { (_ , _ , _ , _ , _ , PE.refl) → ¬-Neutral-ΠΣ A-ne })
-      , (λ { (_ , _ , _ , _ , _ , PE.refl) → ¬-Neutral-ΠΣ B-ne })
+        (λ { (b , _ , _ , _ , _ , PE.refl) → ΠΣ≢ne b A-ne PE.refl })
+      , (λ { (b , _ , _ , _ , _ , PE.refl) → ΠΣ≢ne b B-ne PE.refl })
     (U-refl _)      → inj₂ ((λ ()) , (λ ()))
     (Empty-refl _)  → inj₂ ((λ ()) , (λ ()))
     (Unit-refl _ _) → inj₂ ((λ ()) , (λ ()))
@@ -974,7 +1035,7 @@ opaque
     Γ ⊢ ΠΣ⟨ b ⟩ p , q ▷ A₁ ▹ A₂ [conv↓] B →
     ∃₂ λ B₁ B₂ →
     B PE.≡ ΠΣ⟨ b ⟩ p , q ▷ B₁ ▹ B₂ ×
-    Γ ⊢ A₁ [conv↑] B₁ × Γ ∙ A₁ ⊢ A₂ [conv↑] B₂
+    Γ ⊢ A₁ [conv↑] B₁ × Γ »∙ A₁ ⊢ A₂ [conv↑] B₂
   inv-[conv↓]-ΠΣ ΠΣ≡A = case inv-[conv↓]-ΠΣ′ ΠΣ≡A of λ where
     (inj₁ (_ , _ , _ , _ , _ , _ , _ , PE.refl , rest)) →
       _ , _ , rest
@@ -994,8 +1055,8 @@ opaque
       inj₂ $
       case ne~↓ A~B of λ
         (_ , A-ne , B-ne) →
-        (λ { PE.refl → ¬-Neutral-Empty A-ne })
-      , (λ { PE.refl → ¬-Neutral-Empty B-ne })
+        (λ { PE.refl → Empty≢ne A-ne PE.refl })
+      , (λ { PE.refl → Empty≢ne B-ne PE.refl })
     (U-refl _)      → inj₂ ((λ ()) , (λ ()))
     (ΠΣ-cong _ _ _) → inj₂ ((λ ()) , (λ ()))
     (Unit-refl _ _) → inj₂ ((λ ()) , (λ ()))
@@ -1027,8 +1088,8 @@ opaque
       inj₂ $
       case ne~↓ A~B of λ
         (_ , A-ne , B-ne) →
-        (λ { (_ , _ , PE.refl) → ¬-Neutral-Unit A-ne })
-      , (λ { (_ , _ , PE.refl) → ¬-Neutral-Unit B-ne })
+        (λ { (_ , _ , PE.refl) → Unit≢ne A-ne PE.refl })
+      , (λ { (_ , _ , PE.refl) → Unit≢ne B-ne PE.refl })
     (U-refl _)      → inj₂ ((λ ()) , (λ ()))
     (ΠΣ-cong _ _ _) → inj₂ ((λ ()) , (λ ()))
     (Empty-refl _)  → inj₂ ((λ ()) , (λ ()))
@@ -1060,8 +1121,8 @@ opaque
       inj₂ $
       case ne~↓ A~B of λ
         (_ , A-ne , B-ne) →
-        (λ { PE.refl → ¬-Neutral-ℕ A-ne })
-      , (λ { PE.refl → ¬-Neutral-ℕ B-ne })
+        (λ { PE.refl → ℕ≢ne A-ne PE.refl })
+      , (λ { PE.refl → ℕ≢ne B-ne PE.refl })
     (U-refl _)      → inj₂ ((λ ()) , (λ ()))
     (ΠΣ-cong _ _ _) → inj₂ ((λ ()) , (λ ()))
     (Empty-refl _)  → inj₂ ((λ ()) , (λ ()))
@@ -1101,8 +1162,8 @@ opaque
       inj₂ $
       case ne~↓ A~B of λ
         (_ , A-ne , B-ne) →
-        (λ { (_ , _ , _ , PE.refl) → ¬-Neutral-Id A-ne })
-      , (λ { (_ , _ , _ , PE.refl) → ¬-Neutral-Id B-ne })
+        (λ { (_ , _ , _ , PE.refl) → Id≢ne A-ne PE.refl })
+      , (λ { (_ , _ , _ , PE.refl) → Id≢ne B-ne PE.refl })
     (U-refl _)      → inj₂ ((λ ()) , (λ ()))
     (ΠΣ-cong _ _ _) → inj₂ ((λ ()) , (λ ()))
     (Empty-refl _)  → inj₂ ((λ ()) , (λ ()))
@@ -1134,25 +1195,25 @@ opaque
   -- Inversion for neutral types.
 
   inv-[conv↓]∷-ne :
-    Neutral A →
+    Neutral V (Γ .defs) A →
     Γ ⊢ t [conv↓] u ∷ A →
     ∃ λ A → Γ ⊢ t ~ u ↓ A
   inv-[conv↓]∷-ne A-ne = λ where
     (ne-ins _ _ _ t~u)  → _ , t~u
-    (univ _ _ _)        → ⊥-elim (¬-Neutral-U     A-ne)
-    (η-eq _ _ _ _ _)    → ⊥-elim (¬-Neutral-ΠΣ    A-ne)
-    (Σ-η _ _ _ _ _ _)   → ⊥-elim (¬-Neutral-ΠΣ    A-ne)
-    (Σʷ-ins _ _ _)      → ⊥-elim (¬-Neutral-ΠΣ    A-ne)
-    (prod-cong _ _ _ _) → ⊥-elim (¬-Neutral-ΠΣ    A-ne)
-    (Empty-ins _)       → ⊥-elim (¬-Neutral-Empty A-ne)
-    (Unitʷ-ins _ _)     → ⊥-elim (¬-Neutral-Unit  A-ne)
-    (η-unit _ _ _ _ _)  → ⊥-elim (¬-Neutral-Unit  A-ne)
-    (starʷ-refl _ _ _)  → ⊥-elim (¬-Neutral-Unit  A-ne)
-    (ℕ-ins _)           → ⊥-elim (¬-Neutral-ℕ     A-ne)
-    (zero-refl _)       → ⊥-elim (¬-Neutral-ℕ     A-ne)
-    (suc-cong _)        → ⊥-elim (¬-Neutral-ℕ     A-ne)
-    (Id-ins _ _)        → ⊥-elim (¬-Neutral-Id    A-ne)
-    (rfl-refl _)        → ⊥-elim (¬-Neutral-Id    A-ne)
+    (univ _ _ _)        → ⊥-elim (U≢ne     A-ne PE.refl)
+    (η-eq _ _ _ _ _)    → ⊥-elim (ΠΣ≢ne    _ A-ne PE.refl)
+    (Σ-η _ _ _ _ _ _)   → ⊥-elim (ΠΣ≢ne    _ A-ne PE.refl)
+    (Σʷ-ins _ _ _)      → ⊥-elim (ΠΣ≢ne    _ A-ne PE.refl)
+    (prod-cong _ _ _ _) → ⊥-elim (ΠΣ≢ne    _ A-ne PE.refl)
+    (Empty-ins _)       → ⊥-elim (Empty≢ne A-ne PE.refl)
+    (Unitʷ-ins _ _)     → ⊥-elim (Unit≢ne  A-ne PE.refl)
+    (η-unit _ _ _ _ _)  → ⊥-elim (Unit≢ne  A-ne PE.refl)
+    (starʷ-refl _ _ _)  → ⊥-elim (Unit≢ne  A-ne PE.refl)
+    (ℕ-ins _)           → ⊥-elim (ℕ≢ne     A-ne PE.refl)
+    (zero-refl _)       → ⊥-elim (ℕ≢ne     A-ne PE.refl)
+    (suc-cong _)        → ⊥-elim (ℕ≢ne     A-ne PE.refl)
+    (Id-ins _ _)        → ⊥-elim (Id≢ne    A-ne PE.refl)
+    (rfl-refl _)        → ⊥-elim (Id≢ne    A-ne PE.refl)
 
 opaque
 
@@ -1170,8 +1231,8 @@ opaque
 
   inv-[conv↓]∷-Π :
     Γ ⊢ t [conv↓] u ∷ Π p , q ▷ A ▹ B →
-    Function t × Function u ×
-    Γ ∙ A ⊢ wk1 t ∘⟨ p ⟩ var x0 [conv↑] wk1 u ∘⟨ p ⟩ var x0 ∷ B
+    Function⁺ (Γ .defs) t × Function⁺ (Γ .defs) u ×
+    Γ »∙ A ⊢ wk1 t ∘⟨ p ⟩ var x0 [conv↑] wk1 u ∘⟨ p ⟩ var x0 ∷ B
   inv-[conv↓]∷-Π (η-eq _ _ t-fun u-fun t0≡u0) = t-fun , u-fun , t0≡u0
   inv-[conv↓]∷-Π (ne-ins _ _ () _)
 
@@ -1181,7 +1242,7 @@ opaque
 
   inv-[conv↓]∷-Σˢ :
     Γ ⊢ t [conv↓] u ∷ Σˢ p , q ▷ A ▹ B →
-    Product t × Product u ×
+    Product⁺ (Γ .defs) t × Product⁺ (Γ .defs) u ×
     Γ ⊢ fst p t [conv↑] fst p u ∷ A ×
     Γ ⊢ snd p t [conv↑] snd p u ∷ B [ fst p t ]₀
   inv-[conv↓]∷-Σˢ (Σ-η _ _ t-prod u-prod fst≡fst snd≡snd) =
@@ -1222,7 +1283,7 @@ opaque
 
   inv-[conv↓]∷-Unitˢ :
     Γ ⊢ t [conv↓] u ∷ Unitˢ l →
-    Whnf t × Whnf u
+    Whnf (Γ .defs) t × Whnf (Γ .defs) u
   inv-[conv↓]∷-Unitˢ (η-unit _ _ t-whnf u-whnf _) = t-whnf , u-whnf
   inv-[conv↓]∷-Unitˢ (ne-ins _ _ () _)
 
@@ -1235,7 +1296,7 @@ opaque
     ¬ Unitʷ-η ×
     (Γ ⊢ t ~ u ↓ Unitʷ l ⊎
      t PE.≡ starʷ l × u PE.≡ starʷ l) ⊎
-    Unitʷ-η × Whnf t × Whnf u
+    Unitʷ-η × Whnf (Γ .defs) t × Whnf (Γ .defs) u
   inv-[conv↓]∷-Unitʷ (Unitʷ-ins no-η t~u) =
     inj₁ (no-η , inj₁ t~u)
   inv-[conv↓]∷-Unitʷ (starʷ-refl _ _ no-η) =
@@ -1251,7 +1312,7 @@ opaque
 
   inv-[conv↓]∷-Unit :
     Γ ⊢ t [conv↓] u ∷ Unit s l →
-    Unit-with-η s × Whnf t × Whnf u ⊎
+    Unit-with-η s × Whnf (Γ .defs) t × Whnf (Γ .defs) u ⊎
     ¬ Unit-with-η s ×
     (Γ ⊢ t ~ u ↓ Unit s l ⊎
      t PE.≡ star s l × u PE.≡ star s l)

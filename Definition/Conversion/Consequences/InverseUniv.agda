@@ -30,7 +30,7 @@ open import Tools.Product
 import Tools.PropositionalEquality as PE
 
 private variable
-  Γ       : Con Term _
+  Γ       : Cons _ _
   A B     : Term _
   l l₁ l₂ : Universe-level
 

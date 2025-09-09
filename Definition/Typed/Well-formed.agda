@@ -4,6 +4,7 @@
 
 open import Definition.Typed.Restrictions
 open import Graded.Modality
+open import Tools.Nat
 
 module Definition.Typed.Well-formed
   {a} {M : Set a}
@@ -21,20 +22,25 @@ open import Definition.Typed.Properties.Admissible.Var R
 open import Definition.Typed.Properties.Well-formed R
 open import Definition.Typed.Stability.Primitive R
 open import Definition.Typed.Substitution.Primitive.Primitive R
-open import Definition.Typed.Weakening R
+open import Definition.Typed.Weakening R as W
+open import Definition.Typed.Weakening.Definition R
 
 open import Definition.Untyped M
 open import Definition.Untyped.Properties M
 
 open import Tools.Fin
 open import Tools.Function
+open import Tools.Nat
 open import Tools.Product as Σ
 import Tools.PropositionalEquality as PE
 open import Tools.Sum using (inj₂)
 
 private variable
+  ∇             : DCon (Term 0) _
+  α             : Nat
   x             : Fin _
-  Γ Δ           : Con Term _
+  Δ Η           : Con Term _
+  Γ             : Cons _ _
   A B t t₁ t₂ u : Term _
   σ₁ σ₂         : Subst _ _
 
@@ -43,13 +49,34 @@ private variable
 
 opaque
 
-  -- A well-formedness lemma for _∷_∈_.
+  -- A well-formedness lemma for _↦∷_∈_.
 
-  wf-∷∈ : x ∷ A ∈ Γ → ⊢ Γ → Γ ⊢ A
+  wf-∷∈ : x ∷ A ∈ Γ .vars → ⊢ Γ → Γ ⊢ A
   wf-∷∈ here       (∙ ⊢A) = wk₁ ⊢A ⊢A
   wf-∷∈ (there x∈) (∙ ⊢B) = wk₁ ⊢B (wf-∷∈ x∈ (wf ⊢B))
 
+opaque
+
+  -- A well-formedness lemma for _↦_∷_∈_.
+
+  wf-↦∷∈ : α ↦ t ∷ A ∈ ∇ → » ∇ → ∇ » ε ⊢ t ∷ A
+  wf-↦∷∈ here                   ∙ᵗ[ ⊢t      ] = defn-wkTerm (stepᵗ₁ ⊢t) ⊢t
+  wf-↦∷∈ (there α↦t) ∙ᵒ⟨ ok , φ↜ ⟩[ ⊢u ∷ ⊢B ] =
+    defn-wkTerm (stepᵒ₁ ok ⊢B φ↜ ⊢u) (wf-↦∷∈ α↦t (defn-wf (wf ⊢B)))
+  wf-↦∷∈ (there α↦t)            ∙ᵗ[ ⊢u      ] =
+    defn-wkTerm (stepᵗ₁ ⊢u) (wf-↦∷∈ α↦t (defn-wf (wfTerm ⊢u)))
+
 opaque mutual
+
+  -- A well-formedness lemma for _↦∷_∈_.
+
+  wf-↦∈ : α ↦∷ A ∈ ∇ → » ∇ → ∇ » ε ⊢ A
+  wf-↦∈ here        ∙ᵒ⟨ ok , φ↜ ⟩[ ⊢t ∷ ⊢A ] = defn-wk (stepᵒ₁ ok ⊢A φ↜ ⊢t) ⊢A
+  wf-↦∈ here                   ∙ᵗ[ ⊢t      ] = defn-wk (stepᵗ₁ ⊢t) (wf-⊢∷ ⊢t)
+  wf-↦∈ (there α↦t) ∙ᵒ⟨ ok , φ↜ ⟩[ ⊢u ∷ ⊢B ] =
+    defn-wk (stepᵒ₁ ok ⊢B φ↜ ⊢u) (wf-↦∈ α↦t (defn-wf (wf ⊢B)))
+  wf-↦∈ (there α↦t)            ∙ᵗ[ ⊢u      ] =
+    defn-wk (stepᵗ₁ ⊢u) (wf-↦∈ α↦t (defn-wf (wfTerm ⊢u)))
 
   -- A well-formedness lemma for _⊢_∷_.
 
@@ -60,6 +87,8 @@ opaque mutual
       ⊢A
     (var ⊢Γ x∈) →
       wf-∷∈ x∈ ⊢Γ
+    (defn ⊢Γ α↦t PE.refl) →
+      W.wk (wk₀∷ʷ⊇ ⊢Γ) (wf-↦∈ α↦t (defn-wf ⊢Γ))
     (Uⱼ ⊢Γ) →
       Uⱼ ⊢Γ
     (ΠΣⱼ ⊢A _ _) →
@@ -161,6 +190,10 @@ opaque mutual
           _ , ⊢A        = wf-⊢≡ B≡A
       in
       ⊢A , conv ⊢t₁ B≡A , conv ⊢t₂ B≡A
+    (δ-red ⊢Γ α↦t PE.refl PE.refl) →
+      W.wk (wk₀∷ʷ⊇ ⊢Γ) (wf-↦∈ (↦∷∈⇒↦∈ α↦t) (defn-wf ⊢Γ)) ,
+      defn ⊢Γ (↦∷∈⇒↦∈ α↦t) PE.refl ,
+      wkTerm (wk₀∷ʷ⊇ ⊢Γ) (wf-↦∷∈ α↦t (defn-wf ⊢Γ))
     (ΠΣ-cong A₁≡A₂ B₁≡B₂ ok) →
       let _ , ⊢A₁ , ⊢A₂ = wf-⊢≡∷ A₁≡A₂
           _ , ⊢B₁ , ⊢B₂ = wf-⊢≡∷ B₁≡B₂
@@ -438,7 +471,8 @@ opaque
 
   -- A well-formedness lemma for _⊢ˢ_≡_∷_.
 
-  wf-⊢ˢ≡∷ : ⊢ Γ → Δ ⊢ˢ σ₁ ≡ σ₂ ∷ Γ → Δ ⊢ˢ σ₁ ∷ Γ × Δ ⊢ˢ σ₂ ∷ Γ
+  wf-⊢ˢ≡∷ :
+    ∇ »⊢ Δ → ∇ » Η ⊢ˢ σ₁ ≡ σ₂ ∷ Δ → ∇ » Η ⊢ˢ σ₁ ∷ Δ × ∇ » Η ⊢ˢ σ₂ ∷ Δ
   wf-⊢ˢ≡∷ _      id              = id , id
   wf-⊢ˢ≡∷ (∙ ⊢A) (σ₁≡σ₂ , t₁≡t₂) =
     let ⊢σ₁ , ⊢σ₂     = wf-⊢ˢ≡∷ (wf ⊢A) σ₁≡σ₂

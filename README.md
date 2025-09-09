@@ -38,7 +38,10 @@ highlights:
 - A universe hierarchy was added by Nils Anders Danielsson and Ondřej
   Kubánek (@nad and @kubaneko, 2024).
 
+- Top-level definitions and opacity were added by Nils Anders
+  Danielsson and Eve Geng (@nad and @phantamanta44, 2025).
+
 ### Dependencies ###
 
 This project is written in Agda. It has been tested to be working with
-Agda version 2.7.0.1 and its standard library version 2.1.
+Agda version 2.8.0 and its standard library version 2.3.

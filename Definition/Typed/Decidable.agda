@@ -14,11 +14,15 @@ module Definition.Typed.Decidable
   where
 
 open Assumptions as
+open Type-restrictions R
 
 open import Definition.Untyped M
 open import Definition.Typed R
+open import Definition.Typed.Consequences.Unfolding R
 open import Definition.Typed.Properties R
 open import Definition.Typed.Syntactic R
+open import Definition.Typed.Variant
+open import Definition.Typed.Well-formed R
 open import Definition.Typechecking R
 open import Definition.Typechecking.Soundness R
 open import Definition.Typechecking.Completeness R
@@ -26,13 +30,17 @@ open import Definition.Typechecking.Decidable as
 
 open import Tools.Function
 open import Tools.Nat using (Nat)
+import Tools.PropositionalEquality as PE
 open import Tools.Product
 open import Tools.Relation as Dec
 
 private
   variable
-    n : Nat
-    Γ : Con Term n
+    m n : Nat
+    ∇ ∇′ : DCon (Term 0) m
+    φ : Unfolding _
+    Δ : Con Term n
+    Γ : Cons m n
     A t : Term n
 
 -- Re-export decidability of type and term equality
@@ -68,23 +76,91 @@ decTermᵢ ⊢Γ t = Dec.map
   (λ { (A , ⊢t)  → _ , (proj₁ (proj₂ (completeness⇉ t ⊢t)))})
   (dec⇉ ⊢Γ t)
 
--- If Γ is a checkable context, then ⊢ Γ is decidable.
+-- Checkability of definition contexts is preserved under unfolding.
 
-decWfCon : CheckableCon Γ → Dec (⊢ Γ)
-decWfCon ε = yes ε
-decWfCon (Γ ∙ A) = case decWfCon Γ of λ where
-  (yes ⊢Γ) → case dec ⊢Γ A of λ where
+unfold-Checkable : φ » ∇′ ↜ ∇ → CheckableDCon ∇ → CheckableDCon ∇′
+unfold-Checkable ε      ε                      = ε
+unfold-Checkable (φ ⁰)  (∇ ∙ᶜᵒ⟨ ok ⟩[ t ∷ A ]) = unfold-Checkable φ ∇ ∙ᶜᵒ⟨ ok ⟩[ t ∷ A ]
+unfold-Checkable (φ ⁰)  (∇ ∙ᶜᵗ[ t ∷ A ])       = unfold-Checkable φ ∇       ∙ᶜᵗ[ t ∷ A ]
+unfold-Checkable (φ ¹ᵒ) (∇ ∙ᶜᵒ⟨ ok ⟩[ t ∷ A ]) = unfold-Checkable φ ∇       ∙ᶜᵗ[ t ∷ A ]
+unfold-Checkable (φ ¹ᵗ) (∇ ∙ᶜᵗ[ t ∷ A ])       = unfold-Checkable φ ∇       ∙ᶜᵗ[ t ∷ A ]
+
+-- If ∇ is a checkable definition context, then » ∇ is decidable.
+--
+-- If explicit unfolding is used, then there are *two* recursive calls
+-- to decWfDCon in the case for opaque definitions. However, if
+-- transitive unfolding is used, then there is only one such recursive
+-- call.
+
+decWfDCon : CheckableDCon ∇ → Dec (» ∇)
+decWfDCon ε = yes ε
+decWfDCon {∇ = _ ∙⟨ opa φ ⟩[ _ ∷ _ ]} (∇ ∙ᶜᵒ⟨ ok ⟩[ t ∷ A ]) =
+  case (decWfDCon ∇ ×-dec′ λ »∇ →
+        dec (ε »∇) A) of λ where
+    (no not) → no λ where
+      ∙ᵒ⟨ _ , _ ⟩[ _ ∷ ⊢A ] → not (defn-wf (wf ⊢A) , ⊢A)
+    (yes (»∇ , ⊢A)) →
+      let _ , φ↜ = total-»↜ φ _
+          cont   = λ »∇′ →
+            let ⊢A′ = Unconditional.unfold-⊢ φ↜ (λ _ → »∇′) ⊢A in
+            case decTermᶜ ⊢A′ t of λ where
+              (no not) → no λ where
+                ∙ᵒ⟨ _ , φ′↜ ⟩[ ⊢t ∷ _ ] →
+                  not $
+                  PE.subst₃ _⊢_∷_
+                    (PE.cong (_» ε) (unique-»↜ φ′↜ φ↜)) PE.refl PE.refl
+                    ⊢t
+              (yes ⊢t) → yes ∙ᵒ⟨ ok , φ↜ ⟩[ ⊢t ∷ ⊢A ]
+      in
+      case PE.singleton unfolding-mode of λ where
+        (transitive , ≡transitive) →
+          cont (Transitive.unfold-» ≡transitive φ↜ »∇)
+        (explicit , _) →
+          case decWfDCon (unfold-Checkable φ↜ ∇) of λ where
+            (no not) → no λ where
+              ∙ᵒ⟨ _ , φ′↜ ⟩[ ⊢t ∷ _ ] →
+                not $ defn-wf $ wfTerm $
+                PE.subst₃ _⊢_∷_
+                  (PE.cong (_» ε) (unique-»↜ φ′↜ φ↜)) PE.refl PE.refl
+                  ⊢t
+            (yes »∇′) → cont »∇′
+decWfDCon (∇ ∙ᶜᵗ[ t ∷ A ]) =
+  case (decWfDCon ∇ ×-dec′ λ »∇ →
+        dec (ε »∇) A ×-dec′ λ ⊢A →
+        decTermᶜ ⊢A t) of λ where
+    (no not) → no λ where
+      ∙ᵗ[ ⊢t ] → not (defn-wf (wfTerm ⊢t) , wf-⊢∷ ⊢t , ⊢t)
+    (yes (_ , _ , ⊢t)) → yes ∙ᵗ[ ⊢t ]
+
+-- If » ∇ and Δ is a checkable context, then ∇ »⊢ Δ is decidable.
+
+decWfCon : » ∇ → CheckableCon Δ → Dec (∇ »⊢ Δ)
+decWfCon »∇ ε = yes (ε »∇)
+decWfCon »∇ (Δ ∙ A) = case decWfCon »∇ Δ of λ where
+  (yes ⊢Δ) → case dec ⊢Δ A of λ where
     (yes ⊢A) → yes (∙ ⊢A)
     (no ⊬A) → no λ where
       (∙ ⊢A) → ⊬A ⊢A
-  (no ⊬Γ) → no λ where
-    (∙ ⊢A) → ⊬Γ (wf ⊢A)
+  (no ⊬Δ) → no λ where
+    (∙ ⊢A) → ⊬Δ (wf ⊢A)
+
+opaque
+  unfolding CheckableCons
+
+  -- If Γ is checkable, then ⊢ Γ is decidable.
+
+  decWfCons : CheckableCons Γ → Dec (⊢ Γ)
+  decWfCons (∇ , Γ) =
+    case decWfDCon ∇ of λ where
+      (no not) → no λ ⊢Γ → not (defn-wf ⊢Γ)
+      (yes »∇) → decWfCon »∇ Γ
 
 -- If Γ and A are checkable, then Γ ⊢ A is decidable.
 
-decConTypeᶜ : CheckableCon Γ → Checkable-type A → Dec (Γ ⊢ A)
+decConTypeᶜ :
+  CheckableCons Γ → Checkable-type A → Dec (Γ ⊢ A)
 decConTypeᶜ Γ A =
-  case decWfCon Γ of λ where
+  case decWfCons Γ of λ where
     (yes ⊢Γ) → dec ⊢Γ A
     (no ¬⊢Γ) → no (¬⊢Γ ∘→ wf)
 
@@ -92,17 +168,18 @@ decConTypeᶜ Γ A =
 -- and t are checkable, then Γ ⊢ t ∷ A is decidable.
 
 decConTermTypeᶜ :
-  CheckableCon Γ → Checkable-type A → Checkable t → Dec (Γ ⊢ t ∷ A)
+  CheckableCons Γ → Checkable-type A → Checkable t → Dec (Γ ⊢ t ∷ A)
 decConTermTypeᶜ Γ A t =
-  case decWfCon Γ of λ where
+  case decWfCons Γ of λ where
     (yes ⊢Γ) → decTermTypeᶜ ⊢Γ A t
     (no ¬⊢Γ) → no (¬⊢Γ ∘→ wfTerm)
 
 -- Type inference for arbitrary checkable contexts: if Γ is checkable
 -- and t is inferable, then ∃ λ A → Γ ⊢ t ∷ A is decidable.
 
-decConTermᵢ : CheckableCon Γ → Inferable t → Dec (∃ λ A → Γ ⊢ t ∷ A)
+decConTermᵢ :
+  CheckableCons Γ → Inferable t → Dec (∃ λ A → Γ ⊢ t ∷ A)
 decConTermᵢ Γ t =
-  case decWfCon Γ of λ where
+  case decWfCons Γ of λ where
     (yes ⊢Γ) → decTermᵢ ⊢Γ t
     (no ¬⊢Γ) → no (¬⊢Γ ∘→ wfTerm ∘→ proj₂)

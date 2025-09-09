@@ -31,8 +31,10 @@ import Tools.PropositionalEquality as PE
 open P public hiding (lam-cong; ⊢ˢʷ≡∷-⇑; ⊢ˢʷ≡∷-sgSubst)
 
 private variable
+  ∇                                             : DCon (Term 0) _
   k n                                           : Nat
-  Γ Δ Η                                         : Con Term _
+  Δ Η Φ                                         : Con Term _
+  Γ                                             : Cons _ _
   A B B₁ B₂ C C₁ C₂ D E t t₁ t₂ u u₁ u₂ v v₁ v₂ : Term _
   σ σ₁ σ₁₁ σ₁₂ σ₂ σ₂₁ σ₂₂ σ₃                    : Subst _ _
   s                                             : Strength
@@ -46,49 +48,50 @@ opaque
   -- A variant of ⊢ˢʷ≡∷⇔.
 
   ⊢ˢʷ≡∷⇔′ :
-    ⊢ Γ → Δ ⊢ˢʷ σ₁ ≡ σ₂ ∷ Γ ⇔ (⊢ Δ × Δ ⊢ˢ σ₁ ≡ σ₂ ∷ Γ)
-  ⊢ˢʷ≡∷⇔′ {Γ} {Δ} {σ₁} {σ₂} ⊢Γ =
-    Δ ⊢ˢʷ σ₁ ≡ σ₂ ∷ Γ                                   ⇔⟨ ⊢ˢʷ≡∷⇔ ⟩
-    ⊢ Δ × Δ ⊢ˢ σ₁ ∷ Γ × Δ ⊢ˢ σ₂ ∷ Γ × Δ ⊢ˢ σ₁ ≡ σ₂ ∷ Γ  ⇔⟨ (λ (⊢Δ , _ , _ , σ₁≡σ₂) → ⊢Δ , σ₁≡σ₂)
-                                                         , (λ (⊢Δ , σ₁≡σ₂) →
-                                                              let ⊢σ₁ , ⊢σ₂ = wf-⊢ˢ≡∷ ⊢Γ σ₁≡σ₂ in
-                                                              ⊢Δ , ⊢σ₁ , ⊢σ₂ , σ₁≡σ₂)
-                                                         ⟩
-    ⊢ Δ × Δ ⊢ˢ σ₁ ≡ σ₂ ∷ Γ                              □⇔
+    ∇ »⊢ Δ → ∇ » Η ⊢ˢʷ σ₁ ≡ σ₂ ∷ Δ ⇔ (∇ »⊢ Η × ∇ » Η ⊢ˢ σ₁ ≡ σ₂ ∷ Δ)
+  ⊢ˢʷ≡∷⇔′ {∇} {Δ} {Η} {σ₁} {σ₂} ⊢Δ =
+    ∇ » Η ⊢ˢʷ σ₁ ≡ σ₂ ∷ Δ                                              ⇔⟨ ⊢ˢʷ≡∷⇔ ⟩
+    ∇ »⊢ Η × ∇ » Η ⊢ˢ σ₁ ∷ Δ × ∇ » Η ⊢ˢ σ₂ ∷ Δ × ∇ » Η ⊢ˢ σ₁ ≡ σ₂ ∷ Δ  ⇔⟨ (λ (⊢Η , _ , _ , σ₁≡σ₂) → ⊢Η , σ₁≡σ₂)
+                                                                        , (λ (⊢Η , σ₁≡σ₂) →
+                                                                              let ⊢σ₁ , ⊢σ₂ = wf-⊢ˢ≡∷ ⊢Δ σ₁≡σ₂ in
+                                                                              ⊢Η , ⊢σ₁ , ⊢σ₂ , σ₁≡σ₂)
+                                                                        ⟩
+    ∇ »⊢ Η × ∇ » Η ⊢ˢ σ₁ ≡ σ₂ ∷ Δ                                      □⇔
 
 opaque
 
   -- A variant of ⊢ˢʷ≡∷∙⇔.
 
   ⊢ˢʷ≡∷∙⇔′ :
-    Γ ⊢ A →
-    Δ ⊢ˢʷ σ₁ ≡ σ₂ ∷ Γ ∙ A ⇔
-    (Δ ⊢ˢʷ tail σ₁ ≡ tail σ₂ ∷ Γ ×
-     Δ ⊢ head σ₁ ≡ head σ₂ ∷ A [ tail σ₁ ])
-  ⊢ˢʷ≡∷∙⇔′ {Γ} {A} {Δ} {σ₁} {σ₂} ⊢A =
-    Δ ⊢ˢʷ σ₁ ≡ σ₂ ∷ Γ ∙ A                                                ⇔⟨ ⊢ˢʷ≡∷∙⇔ ⟩
+    ∇ » Δ ⊢ A →
+    ∇ » Η ⊢ˢʷ σ₁ ≡ σ₂ ∷ Δ ∙ A ⇔
+    (∇ » Η ⊢ˢʷ tail σ₁ ≡ tail σ₂ ∷ Δ ×
+     ∇ » Η ⊢ head σ₁ ≡ head σ₂ ∷ A [ tail σ₁ ])
+  ⊢ˢʷ≡∷∙⇔′ {∇} {Δ} {A} {Η} {σ₁} {σ₂} ⊢A =
+    ∇ » Η ⊢ˢʷ σ₁ ≡ σ₂ ∷ Δ ∙ A                    ⇔⟨ ⊢ˢʷ≡∷∙⇔ ⟩
 
-    Δ ⊢ˢʷ tail σ₁ ≡ tail σ₂ ∷ Γ ×
-    Δ ⊢ head σ₁ ∷ A [ tail σ₁ ] ×
-    Δ ⊢ head σ₂ ∷ A [ tail σ₂ ] ×
-    Δ ⊢ head σ₁ ≡ head σ₂ ∷ A [ tail σ₁ ]                                ⇔⟨ (λ (σ₁₊≡σ₂₊ , _ , _ , σ₁₀≡σ₂₀) →
-                                                                               σ₁₊≡σ₂₊ , σ₁₀≡σ₂₀)
-                                                                          , (λ (σ₁₊≡σ₂₊ , σ₁₀≡σ₂₀) →
-                                                                               let _ , ⊢σ₁₀ , ⊢σ₂₀ = wf-⊢≡∷ σ₁₀≡σ₂₀ in
-                                                                               σ₁₊≡σ₂₊ , ⊢σ₁₀ , conv ⊢σ₂₀ (subst-⊢≡ (refl ⊢A) σ₁₊≡σ₂₊) , σ₁₀≡σ₂₀)
-                                                                          ⟩
+    ∇ » Η ⊢ˢʷ tail σ₁ ≡ tail σ₂ ∷ Δ ×
+    ∇ » Η ⊢ head σ₁ ∷ A [ tail σ₁ ] ×
+    ∇ » Η ⊢ head σ₂ ∷ A [ tail σ₂ ] ×
+    ∇ » Η ⊢ head σ₁ ≡ head σ₂ ∷ A [ tail σ₁ ]    ⇔⟨ (λ (σ₁₊≡σ₂₊ , _ , _ , σ₁₀≡σ₂₀) →
+                                                        σ₁₊≡σ₂₊ , σ₁₀≡σ₂₀)
+                                                  , (λ (σ₁₊≡σ₂₊ , σ₁₀≡σ₂₀) →
+                                                        let _ , ⊢σ₁₀ , ⊢σ₂₀ = wf-⊢≡∷ σ₁₀≡σ₂₀ in
+                                                        σ₁₊≡σ₂₊ , ⊢σ₁₀ , conv ⊢σ₂₀ (subst-⊢≡ (refl ⊢A) σ₁₊≡σ₂₊) , σ₁₀≡σ₂₀)
+                                                  ⟩
 
-    Δ ⊢ˢʷ tail σ₁ ≡ tail σ₂ ∷ Γ × Δ ⊢ head σ₁ ≡ head σ₂ ∷ A [ tail σ₁ ]  □⇔
+    ∇ » Η ⊢ˢʷ tail σ₁ ≡ tail σ₂ ∷ Δ ×
+      ∇ » Η ⊢ head σ₁ ≡ head σ₂ ∷ A [ tail σ₁ ]  □⇔
 
 opaque
 
   -- An introduction lemma for _⊢ˢʷ_≡_∷_.
 
   →⊢ˢʷ≡∷∙ :
-    Γ ⊢ A →
-    Δ ⊢ˢʷ tail σ₁ ≡ tail σ₂ ∷ Γ →
-    Δ ⊢ head σ₁ ≡ head σ₂ ∷ A [ tail σ₁ ] →
-    Δ ⊢ˢʷ σ₁ ≡ σ₂ ∷ Γ ∙ A
+    ∇ » Δ ⊢ A →
+    ∇ » Η ⊢ˢʷ tail σ₁ ≡ tail σ₂ ∷ Δ →
+    ∇ » Η ⊢ head σ₁ ≡ head σ₂ ∷ A [ tail σ₁ ] →
+    ∇ » Η ⊢ˢʷ σ₁ ≡ σ₂ ∷ Δ ∙ A
   →⊢ˢʷ≡∷∙ ⊢A σ₁₊≡σ₂₊ σ₁₀≡σ₂₀ =
     ⊢ˢʷ≡∷∙⇔′ ⊢A .proj₂ (σ₁₊≡σ₂₊ , σ₁₀≡σ₂₀)
 
@@ -97,29 +100,29 @@ opaque
   -- Transitivity for _⊢ˢʷ_≡_∷_.
 
   trans-⊢ˢʷ :
-    ⊢ Γ →
-    Δ ⊢ˢʷ σ₁ ≡ σ₂ ∷ Γ →
-    Δ ⊢ˢʷ σ₂ ≡ σ₃ ∷ Γ →
-    Δ ⊢ˢʷ σ₁ ≡ σ₃ ∷ Γ
-  trans-⊢ˢʷ ε σ₁≡σ₂ _ =
+    ∇ »⊢ Δ →
+    ∇ » Η ⊢ˢʷ σ₁ ≡ σ₂ ∷ Δ →
+    ∇ » Η ⊢ˢʷ σ₂ ≡ σ₃ ∷ Δ →
+    ∇ » Η ⊢ˢʷ σ₁ ≡ σ₃ ∷ Δ
+  trans-⊢ˢʷ (ε »∇) σ₁≡σ₂ _ =
     ⊢ˢʷ≡∷ε⇔ .proj₂ (⊢ˢʷ≡∷ε⇔ .proj₁ σ₁≡σ₂)
   trans-⊢ˢʷ (∙ ⊢A) σ₁≡σ₂ σ₂≡σ₃ =
-    let ⊢Γ                = wf ⊢A
+    let ⊢Δ                = wf ⊢A
         σ₁₊≡σ₂₊ , σ₁₀≡σ₂₀ = ⊢ˢʷ≡∷∙⇔′ ⊢A .proj₁ σ₁≡σ₂
         σ₂₊≡σ₃₊ , σ₂₀≡σ₃₀ = ⊢ˢʷ≡∷∙⇔′ ⊢A .proj₁ σ₂≡σ₃
     in
-    →⊢ˢʷ≡∷∙ ⊢A (trans-⊢ˢʷ ⊢Γ σ₁₊≡σ₂₊ σ₂₊≡σ₃₊)
+    →⊢ˢʷ≡∷∙ ⊢A (trans-⊢ˢʷ ⊢Δ σ₁₊≡σ₂₊ σ₂₊≡σ₃₊)
       (trans σ₁₀≡σ₂₀
-         (conv σ₂₀≡σ₃₀ (subst-⊢≡ (refl ⊢A) (sym-⊢ˢʷ≡∷ ⊢Γ σ₁₊≡σ₂₊))))
+         (conv σ₂₀≡σ₃₀ (subst-⊢≡ (refl ⊢A) (sym-⊢ˢʷ≡∷ ⊢Δ σ₁₊≡σ₂₊))))
 
 opaque
 
   -- A lemma related to _⇑.
 
   ⊢ˢʷ≡∷-⇑ :
-    Δ ⊢ A [ σ₁ ] ≡ A [ σ₂ ] →
-    Δ ⊢ˢʷ σ₁ ≡ σ₂ ∷ Γ →
-    Δ ∙ A [ σ₁ ] ⊢ˢʷ σ₁ ⇑ ≡ σ₂ ⇑ ∷ Γ ∙ A
+    ∇ » Η ⊢ A [ σ₁ ] ≡ A [ σ₂ ] →
+    ∇ » Η ⊢ˢʷ σ₁ ≡ σ₂ ∷ Δ →
+    ∇ » Η ∙ A [ σ₁ ] ⊢ˢʷ σ₁ ⇑ ≡ σ₂ ⇑ ∷ Δ ∙ A
   ⊢ˢʷ≡∷-⇑ A[σ₁]≡A[σ₂] =
     P.⊢ˢʷ≡∷-⇑ (wf-⊢≡ A[σ₁]≡A[σ₂] .proj₁) A[σ₁]≡A[σ₂]
 
@@ -131,8 +134,8 @@ opaque
   -- which is re-exported from this module.
 
   ⊢ˢʷ≡∷-sgSubst :
-    Γ ⊢ t₁ ≡ t₂ ∷ A →
-    Γ ⊢ˢʷ sgSubst t₁ ≡ sgSubst t₂ ∷ Γ ∙ A
+    ∇ » Δ ⊢ t₁ ≡ t₂ ∷ A →
+    ∇ » Δ ⊢ˢʷ sgSubst t₁ ≡ sgSubst t₂ ∷ Δ ∙ A
   ⊢ˢʷ≡∷-sgSubst t₁≡t₂ =
     let _ , ⊢t₁ , ⊢t₂ = wf-⊢≡∷ t₁≡t₂ in
     P.⊢ˢʷ≡∷-sgSubst ⊢t₁ ⊢t₂ t₁≡t₂
@@ -142,12 +145,12 @@ opaque
   -- A lemma related to _ₛ•ₛ_.
 
   ⊢ˢ≡∷-ₛ•ₛ :
-    Η ⊢ˢʷ σ₁₁ ≡ σ₁₂ ∷ Δ →
-    Δ ⊢ˢʷ σ₂₁ ≡ σ₂₂ ∷ Γ →
-    Η ⊢ˢʷ σ₁₁ ₛ•ₛ σ₂₁ ≡ σ₁₂ ₛ•ₛ σ₂₂ ∷ Γ
-  ⊢ˢ≡∷-ₛ•ₛ {Γ = ε} σ₁₁≡σ₁₂ _ =
+    ∇ » Φ ⊢ˢʷ σ₁₁ ≡ σ₁₂ ∷ Η →
+    ∇ » Η ⊢ˢʷ σ₂₁ ≡ σ₂₂ ∷ Δ →
+    ∇ » Φ ⊢ˢʷ σ₁₁ ₛ•ₛ σ₂₁ ≡ σ₁₂ ₛ•ₛ σ₂₂ ∷ Δ
+  ⊢ˢ≡∷-ₛ•ₛ {Δ = ε} σ₁₁≡σ₁₂ _ =
     ⊢ˢʷ≡∷ε⇔ .proj₂ (wf-⊢ˢʷ≡∷ σ₁₁≡σ₁₂ .proj₁)
-  ⊢ˢ≡∷-ₛ•ₛ {Γ = _ ∙ A} σ₁₁≡σ₁₂ σ₂₁≡σ₂₂ =
+  ⊢ˢ≡∷-ₛ•ₛ {Δ = _ ∙ A} σ₁₁≡σ₁₂ σ₂₁≡σ₂₂ =
     let _ , ⊢σ₁₁ , ⊢σ₁₂                       = wf-⊢ˢʷ≡∷ σ₁₁≡σ₁₂
         σ₂₁₊≡σ₂₂₊ , ⊢σ₂₁₀ , ⊢σ₂₂₀ , σ₂₁₀≡σ₂₂₀ = ⊢ˢʷ≡∷∙⇔ .proj₁ σ₂₁≡σ₂₂
     in
@@ -163,9 +166,9 @@ opaque
   -- A lemma related to _ₛ•ₛ_.
 
   ⊢ˢ∷-ₛ•ₛ :
-    Η ⊢ˢʷ σ₁ ∷ Δ →
-    Δ ⊢ˢʷ σ₂ ∷ Γ →
-    Η ⊢ˢʷ σ₁ ₛ•ₛ σ₂ ∷ Γ
+    ∇ » Φ ⊢ˢʷ σ₁ ∷ Η →
+    ∇ » Η ⊢ˢʷ σ₂ ∷ Δ →
+    ∇ » Φ ⊢ˢʷ σ₁ ₛ•ₛ σ₂ ∷ Δ
   ⊢ˢ∷-ₛ•ₛ ⊢σ₁ ⊢σ₂ =
     ⊢ˢʷ∷⇔⊢ˢʷ≡∷ .proj₂
       (⊢ˢ≡∷-ₛ•ₛ (⊢ˢʷ∷⇔⊢ˢʷ≡∷ .proj₁ ⊢σ₁) (⊢ˢʷ∷⇔⊢ˢʷ≡∷ .proj₁ ⊢σ₂))
@@ -175,24 +178,24 @@ opaque
   -- A lemma related to _[_][_]↑.
 
   ⊢ˢʷ≡∷-[][]↑ :
-    Γ ⊢ t₁ ≡ t₂ ∷ wk[ k ] A →
-    Γ ⊢ˢʷ consSubst (wkSubst k idSubst) t₁ ≡
-      consSubst (wkSubst k idSubst) t₂ ∷ drop k Γ ∙ A
+    ∇ » Δ ⊢ t₁ ≡ t₂ ∷ wk[ k ] A →
+    ∇ » Δ ⊢ˢʷ consSubst (wkSubst k idSubst) t₁ ≡
+      consSubst (wkSubst k idSubst) t₂ ∷ drop k Δ ∙ A
   ⊢ˢʷ≡∷-[][]↑ {k} t₁≡t₂ =
     let _ , ⊢t₁ , ⊢t₂ = wf-⊢≡∷ t₁≡t₂
-        ⊢Γ            = wfEqTerm t₁≡t₂
+        ⊢Δ            = wfEqTerm t₁≡t₂
     in
     ⊢ˢʷ≡∷∙⇔ .proj₂
-      ( refl-⊢ˢʷ≡∷ (⊢ˢʷ∷-wkSubst ⊢Γ (⊢ˢʷ∷-idSubst (lemma k ⊢Γ)))
+      ( refl-⊢ˢʷ≡∷ (⊢ˢʷ∷-wkSubst ⊢Δ (⊢ˢʷ∷-idSubst (lemma k ⊢Δ)))
       , PE.subst (_⊢_∷_ _ _) (wk[]≡[] k) ⊢t₁
       , PE.subst (_⊢_∷_ _ _) (wk[]≡[] k) ⊢t₂
       , PE.subst (_⊢_≡_∷_ _ _ _) (wk[]≡[] k) t₁≡t₂
       )
     where
     lemma :
-      ∀ k {Γ : Con Term (k + n)} →
-      ⊢ Γ → ⊢ drop k Γ
-    lemma 0      ⊢Γ     = ⊢Γ
+      ∀ k {Δ : Con Term (k + n)} →
+      ∇ »⊢ Δ → ∇ »⊢ drop k Δ
+    lemma 0      ⊢Δ     = ⊢Δ
     lemma (1+ k) (∙ ⊢A) = lemma k (wf ⊢A)
 
 opaque
@@ -200,8 +203,8 @@ opaque
   -- A lemma related to _[_][_]↑.
 
   ⊢ˢʷ∷-[][]↑ :
-    Γ ⊢ t ∷ wk[ k ] A →
-    Γ ⊢ˢʷ consSubst (wkSubst k idSubst) t ∷ drop k Γ ∙ A
+    ∇ » Δ ⊢ t ∷ wk[ k ] A →
+    ∇ » Δ ⊢ˢʷ consSubst (wkSubst k idSubst) t ∷ drop k Δ ∙ A
   ⊢ˢʷ∷-[][]↑ = ⊢ˢʷ∷⇔⊢ˢʷ≡∷ .proj₂ ∘→ ⊢ˢʷ≡∷-[][]↑ ∘→ refl
 
 ------------------------------------------------------------------------
@@ -211,21 +214,21 @@ opaque
 
   -- A substitution lemma for _⊢_.
 
-  substType : Γ ∙ A ⊢ B → Γ ⊢ t ∷ A → Γ ⊢ B [ t ]₀
+  substType : Γ »∙ A ⊢ B → Γ ⊢ t ∷ A → Γ ⊢ B [ t ]₀
   substType ⊢B = subst-⊢ ⊢B ∘→ ⊢ˢʷ∷-sgSubst
 
 opaque
 
   -- A substitution lemma for _⊢_≡_.
 
-  substTypeEq : Γ ∙ A ⊢ B ≡ C → Γ ⊢ t ≡ u ∷ A → Γ ⊢ B [ t ]₀ ≡ C [ u ]₀
+  substTypeEq : Γ »∙ A ⊢ B ≡ C → Γ ⊢ t ≡ u ∷ A → Γ ⊢ B [ t ]₀ ≡ C [ u ]₀
   substTypeEq ⊢B = subst-⊢≡ ⊢B ∘→ ⊢ˢʷ≡∷-sgSubst
 
 opaque
 
   -- A substitution lemma for _⊢_∷_.
 
-  substTerm : Γ ∙ A ⊢ t ∷ B → Γ ⊢ u ∷ A → Γ ⊢ t [ u ]₀ ∷ B [ u ]₀
+  substTerm : Γ »∙ A ⊢ t ∷ B → Γ ⊢ u ∷ A → Γ ⊢ t [ u ]₀ ∷ B [ u ]₀
   substTerm ⊢B = subst-⊢∷ ⊢B ∘→ ⊢ˢʷ∷-sgSubst
 
 opaque
@@ -233,7 +236,7 @@ opaque
   -- A substitution lemma for _⊢_≡_∷_.
 
   substTermEq :
-    Γ ∙ A ⊢ t₁ ≡ t₂ ∷ B → Γ ⊢ u₁ ≡ u₂ ∷ A →
+    Γ »∙ A ⊢ t₁ ≡ t₂ ∷ B → Γ ⊢ u₁ ≡ u₂ ∷ A →
     Γ ⊢ t₁ [ u₁ ]₀ ≡ t₂ [ u₂ ]₀ ∷ B [ u₁ ]₀
   substTermEq t₁≡t₂ = subst-⊢≡∷ t₁≡t₂ ∘→ ⊢ˢʷ≡∷-sgSubst
 
@@ -250,7 +253,7 @@ opaque
 
   -- A substitution lemma related to _[_]↑.
 
-  subst↑Type : Γ ∙ B ⊢ C → Γ ∙ A ⊢ t ∷ wk1 B → Γ ∙ A ⊢ C [ t ]↑
+  subst↑Type : Γ »∙ B ⊢ C → Γ »∙ A ⊢ t ∷ wk1 B → Γ »∙ A ⊢ C [ t ]↑
   subst↑Type ⊢C = subst-⊢ ⊢C ∘→ ⊢ˢʷ∷-[][]↑
 
 opaque
@@ -258,9 +261,9 @@ opaque
   -- A substitution lemma related to _[_]↑.
 
   subst↑TypeEq :
-    Γ ∙ A ⊢ B ≡ C →
-    Γ ∙ A ⊢ t ≡ u ∷ wk1 A →
-    Γ ∙ A ⊢ B [ t ]↑ ≡ C [ u ]↑
+    Γ »∙ A ⊢ B ≡ C →
+    Γ »∙ A ⊢ t ≡ u ∷ wk1 A →
+    Γ »∙ A ⊢ B [ t ]↑ ≡ C [ u ]↑
   subst↑TypeEq B≡C = subst-⊢≡ B≡C ∘→ ⊢ˢʷ≡∷-[][]↑
 
 opaque
@@ -268,9 +271,9 @@ opaque
   -- A substitution lemma related to _[_]↑².
 
   subst↑²Type :
-    Γ ∙ A ⊢ B →
-    Γ ∙ C ∙ D ⊢ t ∷ wk2 A →
-    Γ ∙ C ∙ D ⊢ B [ t ]↑²
+    Γ »∙ A ⊢ B →
+    Γ »∙ C »∙ D ⊢ t ∷ wk2 A →
+    Γ »∙ C »∙ D ⊢ B [ t ]↑²
   subst↑²Type ⊢B = subst-⊢ ⊢B ∘→ ⊢ˢʷ∷-[][]↑
 
 opaque
@@ -278,9 +281,9 @@ opaque
   -- A substitution lemma related to _[_]↑².
 
   subst↑²TypeEq :
-    Γ ∙ A ⊢ B ≡ C →
-    Γ ∙ D ∙ E ⊢ t ≡ u ∷ wk2 A →
-    Γ ∙ D ∙ E ⊢ B [ t ]↑² ≡ C [ u ]↑²
+    Γ »∙ A ⊢ B ≡ C →
+    Γ »∙ D »∙ E ⊢ t ≡ u ∷ wk2 A →
+    Γ »∙ D »∙ E ⊢ B [ t ]↑² ≡ C [ u ]↑²
   subst↑²TypeEq B≡C = subst-⊢≡ B≡C ∘→ ⊢ˢʷ≡∷-[][]↑
 
 opaque
@@ -288,8 +291,8 @@ opaque
   -- A substitution lemma related to _[_]↑².
 
   subst↑²TypeEq-prod :
-    Γ ∙ Σ⟨ s ⟩ p , q ▷ A ▹ B ⊢ C ≡ D →
-    Γ ∙ A ∙ B ⊢
+    Γ »∙ Σ⟨ s ⟩ p , q ▷ A ▹ B ⊢ C ≡ D →
+    Γ »∙ A »∙ B ⊢
       C [ prod s p (var x1) (var x0) ]↑² ≡
       D [ prod s p (var x1) (var x0) ]↑²
   subst↑²TypeEq-prod {B} C≡D =
@@ -311,8 +314,8 @@ opaque
   -- A substitution lemma related to _[_]↑².
 
   subst↑²Type-prod :
-    Γ ∙ Σ⟨ s ⟩ p , q ▷ A ▹ B ⊢ C →
-    Γ ∙ A ∙ B ⊢ C [ prod s p (var x1) (var x0) ]↑²
+    Γ »∙ Σ⟨ s ⟩ p , q ▷ A ▹ B ⊢ C →
+    Γ »∙ A »∙ B ⊢ C [ prod s p (var x1) (var x0) ]↑²
   subst↑²Type-prod = proj₁ ∘→ wf-⊢≡ ∘→ subst↑²TypeEq-prod ∘→ refl
 
 opaque
@@ -320,7 +323,7 @@ opaque
   -- A variant of substType for _[_,_]₁₀.
 
   substType₂ :
-    Γ ∙ A ∙ B ⊢ C →
+    Γ »∙ A »∙ B ⊢ C →
     Γ ⊢ t ∷ A →
     Γ ⊢ u ∷ B [ t ]₀ →
     Γ ⊢ C [ t , u ]₁₀
@@ -332,7 +335,7 @@ opaque
   -- A variant of substTypeEq for _[_,_]₁₀.
 
   substTypeEq₂ :
-    Γ ∙ A ∙ B ⊢ C₁ ≡ C₂ →
+    Γ »∙ A »∙ B ⊢ C₁ ≡ C₂ →
     Γ ⊢ t₁ ≡ t₂ ∷ A →
     Γ ⊢ u₁ ≡ u₂ ∷ B [ t₁ ]₀ →
     Γ ⊢ C₁ [ t₁ , u₁ ]₁₀ ≡ C₂ [ t₂ , u₂ ]₁₀
@@ -346,7 +349,7 @@ opaque
   -- A variant of substTerm for _[_,_]₁₀.
 
   substTerm₂ :
-    Γ ∙ A ∙ B ⊢ t ∷ C → Γ ⊢ u ∷ A → Γ ⊢ v ∷ B [ u ]₀ →
+    Γ »∙ A »∙ B ⊢ t ∷ C → Γ ⊢ u ∷ A → Γ ⊢ v ∷ B [ u ]₀ →
     Γ ⊢ t [ u , v ]₁₀ ∷ C [ u , v ]₁₀
   substTerm₂ ⊢t ⊢u ⊢v =
     subst-⊢∷ ⊢t (→⊢ˢʷ∷∙ (⊢ˢʷ∷-sgSubst ⊢u) ⊢v)
@@ -356,7 +359,7 @@ opaque
   -- A variant of substTermEq for _[_,_]₁₀.
 
   substTermEq₂ :
-    Γ ∙ A ∙ B ⊢ t₁ ≡ t₂ ∷ C →
+    Γ »∙ A »∙ B ⊢ t₁ ≡ t₂ ∷ C →
     Γ ⊢ u₁ ≡ u₂ ∷ A →
     Γ ⊢ v₁ ≡ v₂ ∷ B [ u₁ ]₀ →
     Γ ⊢ t₁ [ u₁ , v₁ ]₁₀ ≡ t₂ [ u₂ , v₂ ]₁₀ ∷ C [ u₁ , v₁ ]₁₀
@@ -369,9 +372,9 @@ opaque
   -- A variant of substTypeEq for _[_][_]↑.
 
   [][]↑-cong :
-    drop k Γ ∙ A ⊢ B₁ ≡ B₂ →
-    Γ ⊢ t₁ ≡ t₂ ∷ A [ wkSubst k idSubst ] →
-    Γ ⊢ B₁ [ k ][ t₁ ]↑ ≡ B₂ [ k ][ t₂ ]↑
+    ∇ » drop k Δ ∙ A ⊢ B₁ ≡ B₂ →
+    ∇ » Δ ⊢ t₁ ≡ t₂ ∷ A [ wkSubst k idSubst ] →
+    ∇ » Δ ⊢ B₁ [ k ][ t₁ ]↑ ≡ B₂ [ k ][ t₂ ]↑
   [][]↑-cong {k} B₁≡B₂ =
     subst-⊢≡ B₁≡B₂ ∘→ ⊢ˢʷ≡∷-[][]↑ ∘→
     PE.subst (_⊢_≡_∷_ _ _ _) (PE.sym $ wk[]≡[] k)
@@ -381,8 +384,8 @@ opaque
   -- A variant of substType for _[_][_]↑.
 
   ⊢[][]↑ :
-    drop k Γ ∙ A ⊢ B →
-    Γ ⊢ t ∷ A [ wkSubst k idSubst ] →
-    Γ ⊢ B [ k ][ t ]↑
+    ∇ » drop k Δ ∙ A ⊢ B →
+    ∇ » Δ ⊢ t ∷ A [ wkSubst k idSubst ] →
+    ∇ » Δ ⊢ B [ k ][ t ]↑
   ⊢[][]↑ ⊢B ⊢t =
     wf-⊢≡ ([][]↑-cong (refl ⊢B) (refl ⊢t)) .proj₁

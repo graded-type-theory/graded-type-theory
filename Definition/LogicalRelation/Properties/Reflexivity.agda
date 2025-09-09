@@ -16,7 +16,6 @@ module Definition.LogicalRelation.Properties.Reflexivity
 open Type-restrictions R
 
 open import Definition.Untyped M hiding (K)
-open import Definition.Untyped.Neutral M type-variant
 open import Definition.Typed.Properties R
 open import Definition.LogicalRelation R
 open import Definition.LogicalRelation.Properties.Kit R
@@ -29,10 +28,9 @@ open import Tools.Sum using (inj₁; inj₂)
 
 private
   variable
-    n : Nat
     l′ l : Universe-level
     A B t : Term _
-    Γ : Con Term n
+    Γ : Cons _ _
 
 
 -- Reflexivity of reducible terms.
@@ -47,11 +45,11 @@ reflEq (Uᵣ′ l′ l< ⊢Γ) = ⊢Γ
 reflEq (ℕᵣ D) = D
 reflEq (Emptyᵣ D) = D
 reflEq (Unitᵣ′ _ _ D _) = D
-reflEq (ne′ inc _ D neK K≡K) = ne₌ inc _ D neK K≡K
+reflEq (ne′ _ D neK K≡K) = ne₌ _ D neK K≡K
 reflEq (Bᵣ′ _ _ _ D A≡A [F] [G] _ _) =
    B₌ _ _ D A≡A
-      (λ ρ → reflEq ([F] ρ))
-      (λ ρ [a] → reflEq ([G] ρ [a]))
+      (λ ξ⊇ ρ → reflEq ([F] ξ⊇ ρ))
+      (λ ξ⊇ ρ [a] → reflEq ([G] ξ⊇ ρ [a]))
 reflEq (Idᵣ ⊩A) = record
   { ⇒*Id′             = ⇒*Id
   ; Ty≡Ty′            = reflEq ⊩Ty

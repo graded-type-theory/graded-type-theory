@@ -16,7 +16,7 @@ module Definition.Typed.Consequences.Inversion
 open Type-restrictions R
 
 open import Definition.Untyped M
-open import Definition.Untyped.Neutral M type-variant
+open import Definition.Untyped.Whnf M type-variant
 open import Definition.Typed R
 open import Definition.Typed.EqRelInstance R
 open import Definition.Typed.Inversion R
@@ -26,16 +26,16 @@ open import Definition.Typed.Stability R
 open import Definition.Typed.Consequences.Injectivity R
 open import Definition.Typed.Consequences.Inequality R as I
 
+open import Tools.Empty using (⊥; ⊥-elim)
 open import Tools.Function
 open import Tools.Nat
 open import Tools.Product
 import Tools.PropositionalEquality as PE
-open import Tools.Empty using (⊥; ⊥-elim)
 
 private
   variable
-    n : Nat
-    Γ : Con Term n
+    m n : Nat
+    Γ : Cons m n
     p p′ q : M
     s s′ s₁ s₂ : Strength
     l l₁ l₂ : Universe-level
@@ -46,12 +46,12 @@ opaque
   -- A variant of inversion-lam.
 
   inversion-lam-Π′ :
-    ⦃ ok : No-equality-reflection or-empty Γ ⦄ →
+    ⦃ ok : No-equality-reflection or-empty (Γ .vars) ⦄ →
     Γ ⊢ lam p′ t ∷ Π p , q ▷ A ▹ B →
     p PE.≡ p′ × Π-allowed p q ×
-    (⦃ not-ok : No-equality-reflection ⦄ → Γ ∙ A ⊢ t ∷ B) ×
+    (⦃ not-ok : No-equality-reflection ⦄ → Γ »∙ A ⊢ t ∷ B) ×
     ∃ λ B′ →
-      Γ ∙ A ⊢ t ∷ B′ ×
+      Γ »∙ A ⊢ t ∷ B′ ×
       (∀ {u v} → Γ ⊢ u ≡ v ∷ A → Γ ⊢ B′ [ u ]₀ ≡ B [ v ]₀)
   inversion-lam-Π′ ⊢lam =
     case inversion-lam ⊢lam of λ
@@ -68,10 +68,10 @@ opaque
   -- A variant of inversion-lam.
 
   inversion-lam-Π :
-    ⦃ ok : No-equality-reflection or-empty Γ ⦄ →
+    ⦃ ok : No-equality-reflection or-empty (Γ .vars) ⦄ →
     Γ ⊢ lam p′ t ∷ Π p , q ▷ A ▹ B →
     ∃ λ B′ →
-      Γ ∙ A ⊢ t ∷ B′ ×
+      Γ »∙ A ⊢ t ∷ B′ ×
       (∀ {u v} → Γ ⊢ u ≡ v ∷ A → Γ ⊢ B′ [ u ]₀ ≡ B [ v ]₀) ×
       p PE.≡ p′ × Π-allowed p q
   inversion-lam-Π ⊢lam =
@@ -85,7 +85,7 @@ opaque
   inversion-lam-Π-no-equality-reflection :
     ⦃ ok : No-equality-reflection ⦄ →
     Γ ⊢ lam p′ t ∷ Π p , q ▷ A ▹ B →
-    Γ ∙ A ⊢ t ∷ B × p PE.≡ p′ × Π-allowed p q
+    Γ »∙ A ⊢ t ∷ B × p PE.≡ p′ × Π-allowed p q
   inversion-lam-Π-no-equality-reflection ⊢lam =
     let p≡p′ , ok , ⊢t , _ = inversion-lam-Π′ ⦃ ok = included ⦄ ⊢lam in
     ⊢t , p≡p′ , ok
@@ -95,9 +95,9 @@ opaque
   -- Inversion for an application to a lambda
 
   inversion-lam-app :
-    ⦃ ok : No-equality-reflection or-empty Γ ⦄ →
+    ⦃ ok : No-equality-reflection or-empty (Γ .vars) ⦄ →
     Γ ⊢ lam p t ∘⟨ q ⟩ u ∷ A →
-    ∃₄ λ B C D r → Γ ∙ B ⊢ t ∷ D ×
+    ∃₄ λ B C D r → Γ »∙ B ⊢ t ∷ D ×
     Γ ⊢ u ∷ B × Γ ⊢ A ≡ C [ u ]₀ ×
     (∀ {v w} → Γ ⊢ v ≡ w ∷ B → Γ ⊢ D [ v ]₀ ≡ C [ w ]₀) ×
     q PE.≡ p × Π-allowed q r
@@ -111,7 +111,7 @@ opaque
   -- A variant of inversion-prod.
 
   inversion-prod-Σ :
-    ⦃ ok : No-equality-reflection or-empty Γ ⦄ →
+    ⦃ ok : No-equality-reflection or-empty (Γ .vars) ⦄ →
     Γ ⊢ prod s′ p′ t u ∷ Σ⟨ s ⟩ p , q ▷ A ▹ B →
     Γ ⊢ t ∷ A × Γ ⊢ u ∷ B [ t ]₀ ×
     s PE.≡ s′ × p PE.≡ p′ × Σ-allowed s p q
@@ -133,7 +133,7 @@ opaque
   -- A variant of inversion-star.
 
   inversion-star-Unit :
-    ⦃ ok : No-equality-reflection or-empty Γ ⦄ →
+    ⦃ ok : No-equality-reflection or-empty (Γ .vars) ⦄ →
     Γ ⊢ star s₁ l₁ ∷ Unit s₂ l₂ →
     s₁ PE.≡ s₂ × l₁ PE.≡ l₂ × Unit-allowed s₁
   inversion-star-Unit ⊢star =
@@ -147,7 +147,7 @@ opaque
   -- A variant of inversion-rfl.
 
   inversion-rfl-Id :
-    ⦃ ok : No-equality-reflection or-empty Γ ⦄ →
+    ⦃ ok : No-equality-reflection or-empty (Γ .vars) ⦄ →
     Γ ⊢ rfl ∷ Id A t u →
     Γ ⊢ t ≡ u ∷ A
   inversion-rfl-Id ⊢rfl =
@@ -162,8 +162,9 @@ opaque
   -- Inversion of products in WHNF.
 
   whnfProduct :
-    ⦃ ok : No-equality-reflection or-empty Γ ⦄ →
-    Γ ⊢ t ∷ Σ⟨ s ⟩ p , q ▷ A ▹ B → Whnf t → Product t
+    ⦃ ok : No-equality-reflection or-empty (Γ .vars) ⦄ →
+    Γ ⊢ t ∷ Σ⟨ s ⟩ p , q ▷ A ▹ B → Whnf (Γ .defs) t →
+    Product⁺ (Γ .defs) t
   whnfProduct ⊢t = λ where
     prodₙ →
       prodₙ
@@ -202,8 +203,8 @@ opaque
   -- Inversion for terms of unit type in WHNF.
 
   whnfStar :
-    ⦃ ok : No-equality-reflection or-empty Γ ⦄ →
-    Γ ⊢ t ∷ Unit s l → Whnf t → Star t
+    ⦃ ok : No-equality-reflection or-empty (Γ .vars) ⦄ →
+    Γ ⊢ t ∷ Unit s l → Whnf (Γ .defs) t → Star⁺ (Γ .defs) t
   whnfStar ⊢t = λ where
     starₙ →
       starₙ

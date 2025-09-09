@@ -23,7 +23,7 @@ open import Definition.LogicalRelation.Substitution R
 open import Tools.Product
 
 private variable
-  Γ       : Con Term _
+  Γ       : Cons _ _
   A B t u : Term _
 
 opaque

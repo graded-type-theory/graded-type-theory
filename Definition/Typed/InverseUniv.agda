@@ -22,8 +22,8 @@ open import Tools.Product
 
 private
   variable
-    n   : Nat
-    Γ   : Con Term n
+    m n : Nat
+    Γ   : Cons m n
     A B : Term n
 
 opaque

@@ -34,7 +34,7 @@ import Tools.PropositionalEquality as PE
 open import Tools.Relation
 
 private variable
-  Γ   : Con Term _
+  Γ   : Cons _ _
   A t : Term _
 
 opaque
@@ -44,7 +44,7 @@ opaque
   -- See also Definition.Typed.Inversion.inversion-[].
 
   inversion-[]′ :
-    ⦃ ok : No-equality-reflection or-empty Γ ⦄ →
+    ⦃ ok : No-equality-reflection or-empty (Γ .vars) ⦄ →
     Γ ⊢ [ t ] ∷ Erased A →
     Γ ⊢ t ∷ A × Erased-allowed s
   inversion-[]′ ⊢[] =
@@ -61,7 +61,7 @@ opaque
 
   ¬-inversion-[]′ :
     Erased-allowed s →
-    ¬ (∀ {n} {Γ : Con Term n} {t A : Term n} →
+    ¬ (∀ {m n} {Γ : Cons m n} {t A : Term n} →
        Γ ⊢ [ t ] ∷ A →
        ∃₂ λ B q → Γ ⊢ t ∷ B × Γ ⊢ A ≡ Σ⟨ s ⟩ 𝟘 , q ▷ B ▹ Unit s 0)
   ¬-inversion-[]′ (Unit-ok , Σ-ok) inversion-[] = bad
@@ -75,28 +75,28 @@ opaque
     A′ : Term 0
     A′ = Σ 𝟘 , 𝟘 ▷ ℕ ▹ natrec 𝟙 𝟙 𝟙 (U 0) Unit! ℕ (var x0)
 
-    ⊢Γ′∙ℕ : ⊢ Γ′ ∙ ℕ
-    ⊢Γ′∙ℕ = ∙ ℕⱼ ε
+    ⊢Γ′∙ℕ : ε »⊢ Γ′ ∙ ℕ
+    ⊢Γ′∙ℕ = ∙ ℕⱼ εε
 
-    ⊢Γ′∙ℕ∙ℕ : ⊢ Γ′ ∙ ℕ ∙ ℕ
+    ⊢Γ′∙ℕ∙ℕ : ε »⊢ Γ′ ∙ ℕ ∙ ℕ
     ⊢Γ′∙ℕ∙ℕ = ∙ ℕⱼ ⊢Γ′∙ℕ
 
-    ⊢Γ′∙ℕ∙U : ⊢ Γ′ ∙ ℕ ∙ U 0
+    ⊢Γ′∙ℕ∙U : ε »⊢ Γ′ ∙ ℕ ∙ U 0
     ⊢Γ′∙ℕ∙U = ∙ Uⱼ ⊢Γ′∙ℕ
 
-    ⊢[t′] : Γ′ ⊢ [ t′ ] ∷ A′
+    ⊢[t′] : ε » Γ′ ⊢ [ t′ ] ∷ A′
     ⊢[t′] = prodⱼ
       (univ (natrecⱼ
                (Unitⱼ ⊢Γ′∙ℕ Unit-ok)
                (ℕⱼ (∙ Uⱼ ⊢Γ′∙ℕ∙ℕ))
                (var ⊢Γ′∙ℕ here)))
-      (zeroⱼ ε)
-      (conv (starⱼ ε Unit-ok)
+      (zeroⱼ εε)
+      (conv (starⱼ εε Unit-ok)
          (_⊢_≡_.sym $
-          univ (natrec-zero (Unitⱼ ε Unit-ok) (ℕⱼ ⊢Γ′∙ℕ∙U))))
+          univ (natrec-zero (Unitⱼ εε Unit-ok) (ℕⱼ ⊢Γ′∙ℕ∙U))))
       Σ-ok
 
-    ℕ≡Unit : Γ′ ⊢ ℕ ≡ Unit s 0
+    ℕ≡Unit : ε » Γ′ ⊢ ℕ ≡ Unit s 0
     ℕ≡Unit =
       case inversion-[] ⊢[t′] of
         λ (_ , _ , _ , A′≡) →
@@ -104,8 +104,8 @@ opaque
         λ (_ , ≡Unit , _ , _ , _) →
       trans
         (_⊢_≡_.sym $ _⊢_≡_.univ $
-         natrec-suc (Unitⱼ ε Unit-ok) (ℕⱼ ⊢Γ′∙ℕ∙U) (zeroⱼ ε))
-        (≡Unit (refl (sucⱼ (zeroⱼ ε))))
+         natrec-suc (Unitⱼ εε Unit-ok) (ℕⱼ ⊢Γ′∙ℕ∙U) (zeroⱼ εε))
+        (≡Unit (refl (sucⱼ (zeroⱼ εε))))
 
     bad : ⊥
     bad = ℕ≢Unitⱼ ⦃ ok = ε ⦄ ℕ≡Unit
@@ -117,7 +117,7 @@ opaque
 
   ¬-inversion-[] :
     Erased-allowed s →
-    ¬ (∀ {n} {Γ : Con Term n} {t A : Term n} →
+    ¬ (∀ {m n} {Γ : Cons m n} {t A : Term n} →
        Γ ⊢ [ t ] ∷ A →
        ∃ λ B → Γ ⊢ t ∷ B × Γ ⊢ A ≡ Erased B)
   ¬-inversion-[] Erased-ok inversion-[] =

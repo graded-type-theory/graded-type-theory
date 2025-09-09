@@ -24,9 +24,11 @@ open import Definition.LogicalRelation.Weakening.Restricted R
 
 open import Definition.Typed R
 open import Definition.Typed.Properties R
+open import Definition.Typed.Weakening.Definition R
 
 open import Definition.Untyped M hiding (K)
 open import Definition.Untyped.Neutral M type-variant
+open import Definition.Untyped.Whnf M type-variant
 
 open import Tools.Empty
 open import Tools.Function
@@ -38,14 +40,14 @@ open import Tools.Relation
 open import Tools.Sum
 
 private variable
-  n              : Nat
-  Γ              : Con Term _
+  m n            : Nat
+  Γ              : Cons _ _
   A B t t₁ t₂ t′ : Term _
   l l′           : Universe-level
   l′<l           : _ <ᵘ _
   s              : Strength
-  t-prod t-prod′ : Product _
-  t-id           : Identity _
+  t-prod t-prod′ : Product _ _ _
+  t-id           : Identity _ _ _
   p q            : M
 
 ------------------------------------------------------------------------
@@ -53,14 +55,15 @@ private variable
 
 -- Unary reducibility for neutral terms.
 
-record _⊩neNf_∷_ (Γ : Con Term n) (k A : Term n) : Set a where
+infix 4 _⊩neNf_∷_
+
+record _⊩neNf_∷_ (Γ : Cons m n) (k A : Term n) : Set a where
   no-eta-equality
   pattern
   constructor neNfₜ
   field
-    neutrals-included : Neutrals-included
-    neK               : Neutral k
-    k≡k               : Γ ⊢~ k ∷ A
+    neK : Neutralₗ (Γ .defs) k
+    k≡k : Γ ⊢~ k ∷ A
 
 opaque
 
@@ -70,13 +73,15 @@ opaque
   ⊩neNf∷⇔⊩neNf≡∷ : Γ ⊩neNf t ∷ B ⇔ Γ ⊩neNf t ≡ t ∷ B
   ⊩neNf∷⇔⊩neNf≡∷ =
       (λ where
-         (neNfₜ a b c) → neNfₜ₌ a b b c)
+         (neNfₜ a b) → neNfₜ₌ a a b)
     , (λ where
-         (neNfₜ₌ a b _ c) → neNfₜ a b c)
+         (neNfₜ₌ a _ b) → neNfₜ a b)
 
 -- Unary reducibility for terms that reduce to neutral terms.
 
-record _⊩ne_∷_/_ (Γ : Con Term n) (t A : Term n) (⊩A : Γ ⊩ne A) :
+infix 4 _⊩ne_∷_/_
+
+record _⊩ne_∷_/_ (Γ : Cons m n) (t A : Term n) (⊩A : Γ ⊩ne A) :
          Set a where
   no-eta-equality
   pattern
@@ -97,18 +102,21 @@ opaque
       (λ where
          (neₜ _ t⇒u ⊩u) → neₜ₌ _ _ t⇒u t⇒u (⊩neNf∷⇔⊩neNf≡∷ .proj₁ ⊩u))
     , (λ where
-         (neₜ₌ _ _ t⇒u t⇒v u≡v@(neNfₜ₌ _ u-ne v-ne _)) →
+         (neₜ₌ _ _ t⇒u t⇒v u≡v@(neNfₜ₌ u-ne v-ne _)) →
            neₜ _ t⇒u
              (⊩neNf∷⇔⊩neNf≡∷ .proj₂ $
               PE.subst (flip (_⊩neNf_≡_∷_ _ _) _)
-                (whrDet*Term (t⇒v , ne v-ne) (t⇒u , ne u-ne)) u≡v))
+                (whrDet*Term (t⇒v , ne-whnf v-ne) (t⇒u , ne-whnf u-ne))
+                u≡v))
 
 ------------------------------------------------------------------------
 -- U
 
 -- Unary reducibility for universe terms.
 
-record _⊩U_∷U/_ (Γ : Con Term n) (t : Term n) (l′<l : l′ <ᵘ l) :
+infix 4 _⊩U_∷U/_
+
+record _⊩U_∷U/_ (Γ : Cons m n) (t : Term n) (l′<l : l′ <ᵘ l) :
          Set a where
   no-eta-equality
   pattern
@@ -117,7 +125,7 @@ record _⊩U_∷U/_ (Γ : Con Term n) (t : Term n) (l′<l : l′ <ᵘ l) :
   field
     C      : Term n
     ⇒*C    : Γ ⊢ t ⇒* C ∷ U l′
-    C-type : Type C
+    C-type : Typeₗ (Γ .defs) C
     ≅C     : Γ ⊢≅ C ∷ U l′
     ⊩t     : Γ ⊩ t
 
@@ -146,7 +154,7 @@ opaque
 
 -- A property for terms of the empty type in WHNF.
 
-data Empty-prop (Γ : Con Term n) (t : Term n) : Set a where
+data Empty-prop (Γ : Cons m n) (t : Term n) : Set a where
   ne : Γ ⊩neNf t ∷ Empty → Empty-prop Γ t
 
 opaque
@@ -164,12 +172,14 @@ opaque
   -- If t satisfies Empty-prop Γ, then t is a neutral term (a specific
   -- kind of WHNF).
 
-  empty : Empty-prop Γ t → Neutral t
-  empty (ne (neNfₜ _ t-ne _)) = t-ne
+  empty : Empty-prop Γ t → Neutralₗ (Γ .defs) t
+  empty (ne (neNfₜ t-ne _)) = t-ne
 
 -- Unary reducibility for terms of the empty type.
 
-record _⊩Empty_∷Empty (Γ : Con Term n) (t : Term n) : Set a where
+infix 4 _⊩Empty_∷Empty
+
+record _⊩Empty_∷Empty (Γ : Cons m n) (t : Term n) : Set a where
   no-eta-equality
   pattern
   constructor Emptyₜ
@@ -193,7 +203,8 @@ opaque
     , (λ where
          (Emptyₜ₌ u v t⇒u t⇒v u≅v u-v-prop) →
            let u-ne , v-ne = esplit u-v-prop
-               v≡u         = whrDet*Term (t⇒v , ne v-ne) (t⇒u , ne u-ne)
+               v≡u         = whrDet*Term (t⇒v , ne-whnf v-ne)
+                               (t⇒u , ne-whnf u-ne)
            in
            Emptyₜ _ t⇒u (PE.subst (flip (_⊢_≅_∷_ _ _) _) v≡u u≅v)
              (Empty-prop⇔[Empty]-prop .proj₂ $
@@ -204,7 +215,7 @@ opaque
 
 -- A property for terms of unit type in WHNF.
 
-data Unit-prop′ (Γ : Con Term n) (l : Universe-level) (s : Strength) :
+data Unit-prop′ (Γ : Cons m n) (l : Universe-level) (s : Strength) :
        Term n → Set a where
   starᵣ : Unit-prop′ Γ l s (star s l)
   ne    : Γ ⊩neNf t ∷ Unit s l → Unit-prop′ Γ l s t
@@ -227,7 +238,7 @@ opaque
 
 -- A property for terms of unit type in WHNF.
 
-data Unit-prop (Γ : Con Term n) (l : Universe-level) :
+data Unit-prop (Γ : Cons m n) (l : Universe-level) :
        Strength → Term n → Set a where
   Unitₜʷ : Unit-prop′ Γ l 𝕨 t → ¬ Unitʷ-η → Unit-prop Γ l 𝕨 t
   Unitₜˢ : Unit-with-η s → Unit-prop Γ l s t
@@ -262,8 +273,10 @@ opaque
 
 -- Unary reducibility for terms of unit type.
 
+infix 4 _⊩Unit⟨_,_⟩_∷Unit
+
 record _⊩Unit⟨_,_⟩_∷Unit
-         (Γ : Con Term n) (l : Universe-level) (s : Strength)
+         (Γ : Cons m n) (l : Universe-level) (s : Strength)
          (t : Term n) :
          Set a where
   no-eta-equality
@@ -294,7 +307,9 @@ opaque
 
 -- Unary term reducibility for Π-types.
 
-record _⊩⟨_⟩Π_∷_/_ (Γ : Con Term n) (l : Universe-level) (t A : Term n)
+infix 4 _⊩⟨_⟩Π_∷_/_
+
+record _⊩⟨_⟩Π_∷_/_ (Γ : Cons m n) (l : Universe-level) (t A : Term n)
          (⊩A : Γ ⊩′⟨ l ⟩B⟨ BΠ p q ⟩ A) :
          Set a where
   no-eta-equality
@@ -304,15 +319,17 @@ record _⊩⟨_⟩Π_∷_/_ (Γ : Con Term n) (l : Universe-level) (t A : Term n
   field
     u     : Term n
     ⇒*u   : Γ ⊢ t ⇒* u ∷ Π p , q ▷ F ▹ G
-    u-fun : Function u
+    u-fun : Functionₗ (Γ .defs) u
     ≅u    : Γ ⊢≅ u ∷ Π p , q ▷ F ▹ G
-    ⊩u    : ∀ {m} {ρ : Wk m n} {Δ : Con Term m} {v w}
-            (Δ⊇Γ : ρ ∷ʷʳ Δ ⊇ Γ)
-            (⊩v : Δ ⊩⟨ l ⟩ v ∷ wk ρ F / [F] Δ⊇Γ) →
-            Δ ⊩⟨ l ⟩ w ∷ wk ρ F / [F] Δ⊇Γ →
-            Δ ⊩⟨ l ⟩ v ≡ w ∷ wk ρ F / [F] Δ⊇Γ →
-            Δ ⊩⟨ l ⟩ wk ρ u ∘⟨ p ⟩ v ≡ wk ρ u ∘⟨ p ⟩ w ∷
-              wk (lift ρ) G [ v ]₀ / [G] Δ⊇Γ ⊩v
+    ⊩u    : ∀ {m′} {ξ : DExt _ m′ m} {∇ : DCon (Term 0) m′}
+            (∇⊇Γ : ξ » ∇ ⊇ Γ .defs)
+            {n′} {ρ : Wk n′ n} {Δ : Con Term n′} {v w}
+            (Δ⊇Γ : ∇ » ρ ∷ʷʳ Δ ⊇ Γ .vars)
+            (⊩v : ∇ » Δ ⊩⟨ l ⟩ v ∷ wk ρ F / [F] ∇⊇Γ Δ⊇Γ) →
+            ∇ » Δ ⊩⟨ l ⟩ w ∷ wk ρ F / [F] ∇⊇Γ Δ⊇Γ →
+            ∇ » Δ ⊩⟨ l ⟩ v ≡ w ∷ wk ρ F / [F] ∇⊇Γ Δ⊇Γ →
+            ∇ » Δ ⊩⟨ l ⟩ wk ρ u ∘⟨ p ⟩ v ≡ wk ρ u ∘⟨ p ⟩ w ∷
+              wk (lift ρ) G [ v ]₀ / [G] ∇⊇Γ Δ⊇Γ ⊩v
 
 opaque
 
@@ -330,38 +347,37 @@ opaque
          case whrDet*Term (t⇒u , functionWhnf u-fun)
                 (t⇒v , functionWhnf v-fun) of λ {
            PE.refl →
-         Πₜ _ t⇒u u-fun u≅v (λ {_ _ _ _} → u≡v) })
+         Πₜ _ t⇒u u-fun u≅v u≡v })
 
 ------------------------------------------------------------------------
 -- Σ
 
 -- A property for terms of Σ-type in WHNF.
 
-data Σ-prop (Γ : Con Term n) :
-  (t : Term n) (s : Strength) → Product t →
+data Σ-prop (Γ : Cons m n) :
+  (t : Term n) (s : Strength) → Productₗ (Γ .defs) t →
   Γ ⊩′⟨ l ⟩B⟨ BΣ s p q ⟩ A → Set a where
   𝕤 :
     {⊩A : Γ ⊩′⟨ l ⟩B⟨ BΣ 𝕤 p q ⟩ A} →
     let open _⊩ₗB⟨_⟩_ ⊩A
         id-Γ = id (wfEq (≅-eq A≡A))
     in
-    (t-prod : Product t) →
-    (⊩fst : Γ ⊩⟨ l ⟩ fst p t ∷ wk id F / [F] id-Γ) →
-    Γ ⊩⟨ l ⟩ snd p t ∷ wk (lift id) G [ fst p t ]₀ / [G] id-Γ ⊩fst →
+    (t-prod : Productₗ (Γ .defs) t) →
+    (⊩fst : Γ ⊩⟨ l ⟩ fst p t ∷ wk id F / [F] id id-Γ) →
+    Γ ⊩⟨ l ⟩ snd p t ∷ wk (lift id) G [ fst p t ]₀ / [G] id id-Γ ⊩fst →
     Σ-prop Γ t 𝕤 t-prod ⊩A
   𝕨-prodₙ :
     {⊩A : Γ ⊩′⟨ l ⟩B⟨ BΣ 𝕨 p q ⟩ A} →
     let open _⊩ₗB⟨_⟩_ ⊩A
         id-Γ = id (wfEq (≅-eq A≡A))
     in
-    (⊩t₁ : Γ ⊩⟨ l ⟩ t₁ ∷ wk id F / [F] id-Γ) →
-    Γ ⊩⟨ l ⟩ t₂ ∷ wk (lift id) G [ t₁ ]₀ / [G] id-Γ ⊩t₁ →
+    (⊩t₁ : Γ ⊩⟨ l ⟩ t₁ ∷ wk id F / [F] id id-Γ) →
+    Γ ⊩⟨ l ⟩ t₂ ∷ wk (lift id) G [ t₁ ]₀ / [G] id id-Γ ⊩t₁ →
     Σ-prop Γ (prodʷ p t₁ t₂) 𝕨 prodₙ ⊩A
   𝕨-ne :
     {⊩A : Γ ⊩′⟨ l ⟩B⟨ BΣ 𝕨 p q ⟩ A} →
     let open _⊩ₗB⟨_⟩_ ⊩A in
-    Neutrals-included →
-    (t-ne : Neutral t) →
+    (t-ne : Neutralₗ (Γ .defs) t) →
     Γ ⊢~ t ∷ Σʷ p , q ▷ F ▹ G →
     Σ-prop Γ t 𝕨 (ne t-ne) ⊩A
 
@@ -381,8 +397,8 @@ opaque
       𝕨 prodₙ prodₙ record{}
       (PE.refl , PE.refl , PE.refl , _ , ⊩t₁ , _ , _ , ⊩t₂) =
       𝕨-prodₙ ⊩t₁ ⊩t₂
-    [Σ]-prop→Σ-prop 𝕨 (ne t-ne) (ne _) record{} (inc , ~t) =
-      𝕨-ne inc t-ne ~t
+    [Σ]-prop→Σ-prop 𝕨 (ne t-ne) (ne _) record{} ~t =
+      𝕨-ne t-ne ~t
     [Σ]-prop→Σ-prop 𝕨 prodₙ  (ne _) record{} ()
     [Σ]-prop→Σ-prop 𝕨 (ne _) prodₙ  record{} ()
 
@@ -396,10 +412,10 @@ opaque
     Σ-prop→[Σ]-prop record{} prodₙ (𝕨-prodₙ ⊩t₁ ⊩t₂) =
       PE.refl , PE.refl , PE.refl , PE.refl ,
       ⊩t₁ , ⊩t₁ , ⊩t₁ , ⊩t₂
-    Σ-prop→[Σ]-prop record{} (ne _) (𝕨-ne inc _ ~t) =
-      inc , ~t
+    Σ-prop→[Σ]-prop record{} (ne _) (𝕨-ne _ ~t) =
+      ~t
     Σ-prop→[Σ]-prop record{} (ne ()) (𝕨-prodₙ _ _)
-    Σ-prop→[Σ]-prop record{} prodₙ (𝕨-ne _ () _)
+    Σ-prop→[Σ]-prop record{} prodₙ (𝕨-ne () _)
 
   -- A variant of Σ-prop⇔[Σ]-prop (which is defined below).
 
@@ -420,7 +436,9 @@ opaque
 
 -- Unary term reducibility for Σ-types.
 
-record _⊩⟨_⟩Σ_∷_/_ (Γ : Con Term n) (l : Universe-level) (t A : Term n)
+infix 4 _⊩⟨_⟩Σ_∷_/_
+
+record _⊩⟨_⟩Σ_∷_/_ (Γ : Cons m n) (l : Universe-level) (t A : Term n)
          (⊩A : Γ ⊩′⟨ l ⟩B⟨ BΣ s p q ⟩ A) :
          Set a where
   no-eta-equality
@@ -430,7 +448,7 @@ record _⊩⟨_⟩Σ_∷_/_ (Γ : Con Term n) (l : Universe-level) (t A : Term n
   field
     u      : Term n
     ⇒*u    : Γ ⊢ t ⇒* u ∷ Σ⟨ s ⟩ p , q ▷ F ▹ G
-    u-prod : Product u
+    u-prod : Productₗ (Γ .defs) u
     ≅u     : Γ ⊢≅ u ∷ Σ⟨ s ⟩ p , q ▷ F ▹ G
     prop   : Σ-prop Γ u s u-prod ⊩A
 
@@ -460,7 +478,9 @@ mutual
 
   -- Unary reducibility for natural number terms.
 
-  record _⊩ℕ_∷ℕ (Γ : Con Term n) (t : Term n) : Set a where
+  infix 4 _⊩ℕ_∷ℕ
+
+  record _⊩ℕ_∷ℕ (Γ : Cons m n) (t : Term n) : Set a where
     inductive
     no-eta-equality
     pattern
@@ -473,7 +493,7 @@ mutual
 
   -- A property for natural number terms in WHNF.
 
-  data Natural-prop (Γ : Con Term n) : Term n → Set a where
+  data Natural-prop (Γ : Cons m n) : Term n → Set a where
     sucᵣ  : Γ ⊩ℕ t ∷ℕ → Natural-prop Γ (suc t)
     zeroᵣ : Natural-prop Γ zero
     ne    : Γ ⊩neNf t ∷ ℕ → Natural-prop Γ t
@@ -535,10 +555,10 @@ opaque
   -- If t satisfies Natural-prop Γ, then t is a "Natural" (a specific
   -- kind of WHNF).
 
-  natural : Natural-prop Γ t → Natural t
-  natural (sucᵣ _)              = sucₙ
-  natural zeroᵣ                 = zeroₙ
-  natural (ne (neNfₜ _ t-ne _)) = ne t-ne
+  natural : Natural-prop Γ t → Natural Var-included (Γ .defs) t
+  natural (sucᵣ _)            = sucₙ
+  natural zeroᵣ               = zeroₙ
+  natural (ne (neNfₜ t-ne _)) = ne t-ne
 
 ------------------------------------------------------------------------
 -- Id
@@ -549,7 +569,7 @@ opaque
 
   ⊩Id∷-view⇔′ :
     {⊩A : Γ ⊩′⟨ l ⟩Id A}
-    {t-id t-id′ : Identity t} →
+    {t-id t-id′ : Identityₗ (Γ .defs) t} →
     let open _⊩ₗId_ ⊩A in
     ⊩Id∷-view ⊩A t t-id ⇔
     Identity-rec t-id
@@ -558,14 +578,13 @@ opaque
          (Lift _ ⊥))
       (Identity-rec t-id′
          (Lift _ ⊥)
-         (Neutrals-included ×
-          Γ ⊢~ t ∷ Id Ty lhs rhs))
+         (Γ ⊢~ t ∷ Id Ty lhs rhs))
   ⊩Id∷-view⇔′ {Γ} {l} {A} {t} {⊩A} = lemma₁ _ , lemma₂ _ _
     where
     open _⊩ₗId_ ⊩A
 
     lemma₁ :
-      (t-id′ : Identity t) →
+      (t-id′ : Identityₗ (Γ .defs) t) →
       ⊩Id∷-view ⊩A t t-id →
       Identity-rec t-id
         (Identity-rec t-id′
@@ -573,26 +592,24 @@ opaque
            (Lift _ ⊥))
         (Identity-rec t-id′
            (Lift _ ⊥)
-           (Neutrals-included ×
-            Γ ⊢~ t ∷ Id Ty lhs rhs))
+           (Γ ⊢~ t ∷ Id Ty lhs rhs))
     lemma₁ rflₙ    (rflᵣ lhs≡rhs) = lhs≡rhs
-    lemma₁ (ne _)  (ne inc _ ~t)  = inc , ~t
-    lemma₁ rflₙ    (ne _ () _)
+    lemma₁ (ne _)  (ne _ ~t) = ~t
+    lemma₁ rflₙ    (ne () _)
     lemma₁ (ne ()) (rflᵣ _)
 
     lemma₂ :
-      (t-id t-id′ : Identity t) →
+      (t-id t-id′ : Identityₗ (Γ .defs) t) →
       Identity-rec t-id
         (Identity-rec t-id′
            (Γ ⊩⟨ l ⟩ lhs ≡ rhs ∷ Ty / ⊩Ty)
            (Lift _ ⊥))
         (Identity-rec t-id′
            (Lift _ ⊥)
-           (Neutrals-included ×
-            Γ ⊢~ t ∷ Id Ty lhs rhs)) →
+           (Γ ⊢~ t ∷ Id Ty lhs rhs)) →
       ⊩Id∷-view ⊩A t t-id
-    lemma₂ rflₙ      rflₙ    lhs≡rhs    = rflᵣ lhs≡rhs
-    lemma₂ (ne t-ne) (ne _)  (inc , ~t) = ne inc t-ne ~t
+    lemma₂ rflₙ      rflₙ    lhs≡rhs = rflᵣ lhs≡rhs
+    lemma₂ (ne t-ne) (ne _)  ~t      = ne t-ne ~t
     lemma₂ rflₙ      (ne ())
     lemma₂ (ne ())   rflₙ
 
@@ -609,13 +626,14 @@ opaque
          (Lift _ ⊥))
       (Identity-rec t-id
          (Lift _ ⊥)
-         (Neutrals-included ×
-          Γ ⊢~ t ∷ Id Ty lhs rhs))
+         (Γ ⊢~ t ∷ Id Ty lhs rhs))
   ⊩Id∷-view⇔ = ⊩Id∷-view⇔′
 
 -- Unary term reducibility for identity types.
 
-record _⊩⟨_⟩Id_∷_/_ (Γ : Con Term n) (l : Universe-level) (t A : Term n)
+infix 4 _⊩⟨_⟩Id_∷_/_
+
+record _⊩⟨_⟩Id_∷_/_ (Γ : Cons m n) (l : Universe-level) (t A : Term n)
          (⊩A : Γ ⊩′⟨ l ⟩Id A) :
          Set a where
   no-eta-equality
@@ -625,7 +643,7 @@ record _⊩⟨_⟩Id_∷_/_ (Γ : Con Term n) (l : Universe-level) (t A : Term n
   field
     u    : Term n
     ⇒*u  : Γ ⊢ t ⇒* u ∷ Id Ty lhs rhs
-    u-id : Identity u
+    u-id : Identityₗ (Γ .defs) u
     prop : ⊩Id∷-view ⊩A u u-id
 
 opaque

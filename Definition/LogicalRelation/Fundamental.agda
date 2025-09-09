@@ -31,21 +31,36 @@ import Definition.LogicalRelation.Substitution.Introductions.Erased R
 open import Tools.Product
 open import Tools.Nat using (Nat)
 import Tools.PropositionalEquality as PE
+open import Tools.Unit
 
 private
   variable
-    m n : Nat
-    Γ : Con Term n
-    Δ : Con Term m
+    m n κ : Nat
+    ∇ : DCon (Term 0) κ
+    Δ Η : Con Term m
+    Γ : Cons m n
     σ σ₁ σ₂ σ′ : Subst m n
     A A₁ A₂ B t t₁ t₂ u : Term _
-    ⊩Γ : ⊩ᵛ _
+    ⊩Γ : _ »⊩ᵛ _
 
 opaque mutual
 
+  -- Fundamental theorem for definitions.
+  defn-valid : » ∇ → »ᵛ ∇
+  defn-valid ε = »ᵛε⇔ .proj₂ tt
+  defn-valid ∙ᵒ⟨ ok , φ↜ ⟩[ ⊢t ∷ ⊢A ] =
+    »ᵛ-∙ᵒ-intro (defn-valid (defn-wf (wf ⊢A)))
+                ok
+                (fundamental-⊩ᵛ ⊢A .proj₂)
+                φ↜
+                (fundamental-⊩ᵛ∷ ⊢t .proj₂)
+  defn-valid ∙ᵗ[ ⊢t ] =
+    »ᵛ-∙ᵗ-intro (defn-valid (defn-wf (wfTerm ⊢t)))
+                (fundamental-⊩ᵛ∷ ⊢t .proj₂)
+
   -- Fundamental theorem for contexts.
-  valid : ⊢ Γ → ⊩ᵛ Γ
-  valid ε      = ⊩ᵛε⇔ .proj₂ _
+  valid : ⊢ Γ → Γ .defs »⊩ᵛ Γ .vars
+  valid (ε »∇) = ⊩ᵛε⇔ .proj₂ »∇
   valid (∙ ⊢A) = ⊩ᵛ-∙-intro (fundamental-⊩ᵛ ⊢A .proj₂)
 
 
@@ -108,6 +123,8 @@ opaque mutual
     _ , ΠΣᵗᵛ ⊢ΠΣ (fundamental-⊩ᵛ∷ ⊢A .proj₂) (fundamental-⊩ᵛ∷ ⊢B .proj₂)
   fundamental-⊩ᵛ∷ (var ⊢Γ x∈Γ) =
     _ , varᵛ x∈Γ (valid ⊢Γ) .proj₂
+  fundamental-⊩ᵛ∷ (defn ⊢Γ α↦t PE.refl) =
+    _ , defnᵛ α↦t (defn-valid (defn-wf ⊢Γ)) (valid ⊢Γ) .proj₂
   fundamental-⊩ᵛ∷ (lamⱼ _ ⊢t ok) =
     let l₁ , ⊩t = fundamental-⊩ᵛ∷ ⊢t
         l₂ , ⊩A = wf-∙-⊩ᵛ (wf-⊩ᵛ∷ ⊩t)
@@ -186,6 +203,8 @@ opaque mutual
     in l , trans-⊩ᵛ≡∷ (proj₂ (fundamental-⊩ᵛ≡∷ t≡u)) [u≡v]
   fundamental-⊩ᵛ≡∷ (conv t≡u A≡B) =
     _ , conv-⊩ᵛ≡∷ (proj₂ (fundamental-⊩ᵛ≡ A≡B)) (proj₂ (fundamental-⊩ᵛ≡∷ t≡u))
+  fundamental-⊩ᵛ≡∷ (δ-red ⊢Γ α↦t PE.refl PE.refl) =
+    _ , δ-redᵛ α↦t (defn-valid (defn-wf ⊢Γ)) (valid ⊢Γ) .proj₂
   fundamental-⊩ᵛ≡∷ ΠΣ≡ΠΣ@(ΠΣ-cong A₁≡A₂ B₁≡B₂ ok) =
       _
     , ΠΣ-congᵗᵛ ΠΣ≡ΠΣ (fundamental-⊩ᵛ≡∷ A₁≡A₂ .proj₂)
@@ -292,9 +311,9 @@ opaque
 
   -- Fundamental theorem for substitutions.
 
-  fundamental-⊩ˢ∷ : ⊢ Γ → Δ ⊢ˢʷ σ ∷ Γ → Δ ⊩ˢ σ ∷ Γ
-  fundamental-⊩ˢ∷ ε ⊢σ =
-    ⊩ˢ∷ε⇔ .proj₂ (⊢ˢʷ∷ε⇔ .proj₁ ⊢σ)
+  fundamental-⊩ˢ∷ : ∇ »⊢ Δ → ∇ » Η ⊢ˢʷ σ ∷ Δ → ∇ » Η ⊩ˢ σ ∷ Δ
+  fundamental-⊩ˢ∷ (ε »∇) ⊢σ =
+    ⊩ˢ∷ε⇔ .proj₂ (»∇ , ⊢ˢʷ∷ε⇔ .proj₁ ⊢σ)
   fundamental-⊩ˢ∷ (∙ ⊢A) ⊢σ =
     let ⊢σ₊ , ⊢σ₀ = ⊢ˢʷ∷∙⇔ .proj₁ ⊢σ in
     ⊩ˢ∷∙⇔′ .proj₂
@@ -307,9 +326,9 @@ opaque
 
   -- Fundamental theorem for substitution equality.
 
-  fundamental-⊩ˢ≡∷ : ⊢ Γ → Δ ⊢ˢʷ σ₁ ≡ σ₂ ∷ Γ → Δ ⊩ˢ σ₁ ≡ σ₂ ∷ Γ
-  fundamental-⊩ˢ≡∷ ε σ₁≡σ₂ =
-    ⊩ˢ≡∷ε⇔ .proj₂ (⊢ˢʷ≡∷ε⇔ .proj₁ σ₁≡σ₂)
+  fundamental-⊩ˢ≡∷ : ∇ »⊢ Δ → ∇ » Η ⊢ˢʷ σ₁ ≡ σ₂ ∷ Δ → ∇ » Η ⊩ˢ σ₁ ≡ σ₂ ∷ Δ
+  fundamental-⊩ˢ≡∷ (ε »∇) σ₁≡σ₂ =
+    ⊩ˢ≡∷ε⇔ .proj₂ (»∇ , ⊢ˢʷ≡∷ε⇔ .proj₁ σ₁≡σ₂)
   fundamental-⊩ˢ≡∷ (∙ ⊢A) σ₁≡σ₂ =
     let σ₁₊≡σ₂₊ , _ , _ , σ₁₀≡σ₂₀ = ⊢ˢʷ≡∷∙⇔ .proj₁ σ₁≡σ₂ in
     ⊩ˢ≡∷∙⇔′ .proj₂

@@ -13,8 +13,8 @@ module Graded.Erasure.LogicalRelation.Assumptions.Reasoning
   {𝕄 : Modality M}
   {R : Type-restrictions 𝕄}
   (open Graded.Erasure.LogicalRelation.Assumptions R)
-  {k} {Δ : Con Term k}
-  {_⇛_∷_ : Term k → Term k → Term k → Set a}
+  {m n} {Δ : Cons m n}
+  {_⇛_∷_ : Term n → Term n → Term n → Set a}
   (is-reduction-relation : Is-reduction-relation Δ _⇛_∷_)
   where
 

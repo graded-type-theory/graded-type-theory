@@ -20,7 +20,7 @@ open import Definition.Typed R
 open import Definition.Typed.Properties R
 open import Definition.Typed.Well-formed R
 open import Definition.Untyped M
-open import Definition.Untyped.Neutral M type-variant
+open import Definition.Untyped.Whnf M type-variant
 open import Definition.LogicalRelation R
 open import Definition.LogicalRelation.Hidden R
 open import Definition.LogicalRelation.Irrelevance R
@@ -35,8 +35,8 @@ import Tools.PropositionalEquality as PE
 
 private
   variable
-    n    : Nat
-    Γ    : Con Term n
+    m n  : Nat
+    Γ    : Cons m n
     A B  : Term n
     l l′ : Universe-level
     k    : LogRelKit
@@ -103,8 +103,8 @@ opaque
      ∃₂ λ A′ B′ →
      Γ ⊢ A ⇒* A′ ∷ U l′ ×
      Γ ⊢ B ⇒* B′ ∷ U l′ ×
-     Type A′ ×
-     Type B′ ×
+     Typeₗ (Γ .defs) A′ ×
+     Typeₗ (Γ .defs) B′ ×
      Γ ⊢ A′ ≅ B′ ∷ U l′)
   ⊩≡∷U⇔ =
       (λ (⊩U , A≡B) →
@@ -134,19 +134,19 @@ opaque
   -- A variant of ⊩≡∷U⇔.
 
   Type→⊩≡∷U⇔ :
-    Type A →
-    Type B →
+    Typeₗ (Γ .defs) A →
+    Typeₗ (Γ .defs) B →
     Γ ⊩⟨ l ⟩ A ≡ B ∷ U l′ ⇔
     (l′ <ᵘ l × (Γ ⊩⟨ l′ ⟩ A ≡ B) × Γ ⊢ A ≅ B ∷ U l′)
-  Type→⊩≡∷U⇔ {A} {B} {Γ} {l} {l′} A-type B-type =
+  Type→⊩≡∷U⇔ {Γ} {A} {B} {l} {l′} A-type B-type =
     Γ ⊩⟨ l ⟩ A ≡ B ∷ U l′          ⇔⟨ ⊩≡∷U⇔ ⟩
 
     l′ <ᵘ l × (Γ ⊩⟨ l′ ⟩ A ≡ B) ×
     (∃₂ λ A′ B′ →
      Γ ⊢ A ⇒* A′ ∷ U l′ ×
      Γ ⊢ B ⇒* B′ ∷ U l′ ×
-     Type A′ ×
-     Type B′ ×
+     Typeₗ (Γ .defs) A′ ×
+     Typeₗ (Γ .defs) B′ ×
      Γ ⊢ A′ ≅ B′ ∷ U l′)           ⇔⟨ (λ (l′<l , A≡B , A′ , B′ , DA , DB , A′-type , B′-type , A′≅B′) →
                                          case whnfRed*Term DA (typeWhnf A-type) of λ {
                                            PE.refl →
@@ -168,52 +168,52 @@ opaque
   ⊩∷U⇔ :
     Γ ⊩⟨ l ⟩ A ∷ U l′ ⇔
     (l′ <ᵘ l × Γ ⊩⟨ l′ ⟩ A ×
-     ∃ λ B → Γ ⊢ A ⇒* B ∷ U l′ × Type B × Γ ⊢≅ B ∷ U l′)
+     ∃ λ B → Γ ⊢ A ⇒* B ∷ U l′ × Typeₗ (Γ .defs) B × Γ ⊢≅ B ∷ U l′)
   ⊩∷U⇔ {Γ} {l} {A} {l′} =
-    Γ ⊩⟨ l ⟩ A ∷ U l′                                     ⇔⟨ ⊩∷⇔⊩≡∷ ⟩
+    Γ ⊩⟨ l ⟩ A ∷ U l′                                                ⇔⟨ ⊩∷⇔⊩≡∷ ⟩
 
-    Γ ⊩⟨ l ⟩ A ≡ A ∷ U l′                                 ⇔⟨ ⊩≡∷U⇔ ⟩
+    Γ ⊩⟨ l ⟩ A ≡ A ∷ U l′                                            ⇔⟨ ⊩≡∷U⇔ ⟩
 
     (l′ <ᵘ l × Γ ⊩⟨ l′ ⟩ A ≡ A ×
      ∃₂ λ A′ A″ →
      Γ ⊢ A ⇒* A′ ∷ U l′ ×
      Γ ⊢ A ⇒* A″ ∷ U l′ ×
-     Type A′ ×
-     Type A″ ×
-     Γ ⊢ A′ ≅ A″ ∷ U l′)                                  ⇔⟨ (Σ-cong-⇔ λ _ → sym⇔ ⊩⇔⊩≡ ×-cong-⇔
-                                                                ( (λ (_ , _ , A⇒*A′ , _ , A′-type , _ , A′≅A″) →
-                                                                     _ , A⇒*A′ , A′-type , wf-⊢≅∷ A′≅A″ .proj₁)
-                                                                , (λ (_ , A⇒*B , B-type , ≅B) →
-                                                                     _ , _ , A⇒*B , A⇒*B , B-type , B-type , ≅B)
-                                                                )) ⟩
+     Typeₗ (Γ .defs) A′ ×
+     Typeₗ (Γ .defs) A″ ×
+     Γ ⊢ A′ ≅ A″ ∷ U l′)                                             ⇔⟨ (Σ-cong-⇔ λ _ → sym⇔ ⊩⇔⊩≡ ×-cong-⇔
+                                                                           ( (λ (_ , _ , A⇒*A′ , _ , A′-type , _ , A′≅A″) →
+                                                                                _ , A⇒*A′ , A′-type , wf-⊢≅∷ A′≅A″ .proj₁)
+                                                                           , (λ (_ , A⇒*B , B-type , ≅B) →
+                                                                                _ , _ , A⇒*B , A⇒*B , B-type , B-type , ≅B)
+                                                                           )) ⟩
     (l′ <ᵘ l × Γ ⊩⟨ l′ ⟩ A ×
-     ∃ λ B → Γ ⊢ A ⇒* B ∷ U l′ × Type B × Γ ⊢≅ B ∷ U l′)  □⇔
+     ∃ λ B → Γ ⊢ A ⇒* B ∷ U l′ × Typeₗ (Γ .defs) B × Γ ⊢≅ B ∷ U l′)  □⇔
 
 opaque
 
   -- A variant of ⊩∷U⇔.
 
   Type→⊩∷U⇔ :
-    Type A →
+    Typeₗ (Γ .defs) A →
     Γ ⊩⟨ l ⟩ A ∷ U l′ ⇔
     (l′ <ᵘ l × (Γ ⊩⟨ l′ ⟩ A) × Γ ⊢≅ A ∷ U l′)
-  Type→⊩∷U⇔ {A} {Γ} {l} {l′} A-type =
-    Γ ⊩⟨ l ⟩ A ∷ U l′                                     ⇔⟨ ⊩∷U⇔ ⟩
+  Type→⊩∷U⇔ {Γ} {A} {l} {l′} A-type =
+    Γ ⊩⟨ l ⟩ A ∷ U l′                                                ⇔⟨ ⊩∷U⇔ ⟩
 
     l′ <ᵘ l × (Γ ⊩⟨ l′ ⟩ A) ×
-    (∃ λ B → Γ ⊢ A ⇒* B ∷ U l′ × Type B × Γ ⊢≅ B ∷ U l′)  ⇔⟨ id⇔
-                                                               ×-cong-⇔
-                                                             id⇔
-                                                               ×-cong-⇔
-                                                             ( (λ (_ , A⇒*B , _ , B≅B) →
-                                                                 case whnfRed*Term A⇒*B (typeWhnf A-type) of λ {
-                                                                   PE.refl →
-                                                                 B≅B })
-                                                             , (λ ≅A → _ , id (wf-⊢≡∷ (≅ₜ-eq ≅A) .proj₂ .proj₁) , A-type , ≅A)
-                                                             )
-                                                           ⟩
+    (∃ λ B → Γ ⊢ A ⇒* B ∷ U l′ × Typeₗ (Γ .defs) B × Γ ⊢≅ B ∷ U l′)  ⇔⟨ id⇔
+                                                                          ×-cong-⇔
+                                                                        id⇔
+                                                                          ×-cong-⇔
+                                                                        ( (λ (_ , A⇒*B , _ , B≅B) →
+                                                                            case whnfRed*Term A⇒*B (typeWhnf A-type) of λ {
+                                                                              PE.refl →
+                                                                            B≅B })
+                                                                        , (λ ≅A → _ , id (wf-⊢≡∷ (≅ₜ-eq ≅A) .proj₂ .proj₁) , A-type , ≅A)
+                                                                        )
+                                                                      ⟩
 
-    l′ <ᵘ l × (Γ ⊩⟨ l′ ⟩ A) × Γ ⊢≅ A ∷ U l′               □⇔
+    l′ <ᵘ l × (Γ ⊩⟨ l′ ⟩ A) × Γ ⊢≅ A ∷ U l′                          □⇔
 
 ------------------------------------------------------------------------
 -- Validity
@@ -226,11 +226,11 @@ opaque
   ⊩ᵛU {Γ} {l} ⊩Γ =
     ⊩ᵛ⇔ʰ .proj₂
       ( ⊩Γ
-      , λ {_} {Δ = Δ} {σ₁ = σ₁} {σ₂ = σ₂} →
-          Δ ⊩ˢ σ₁ ≡ σ₂ ∷ Γ            →⟨ proj₁ ∘→ escape-⊩ˢ≡∷ ⟩
-          ⊢ Δ                         →⟨ (λ ⊢Δ → ≤ᵘ-refl , id (Uⱼ ⊢Δ)) ⟩
-          l <ᵘ 1+ l × Δ ⊢ U l ⇒* U l  ⇔˘⟨ ⊩U≡⇔ ⟩→
-          Δ ⊩⟨ 1+ l ⟩ U l ≡ U l       □
+      , λ {_} {∇} {_} ξ⊇ {_} {Δ} {σ₁} {σ₂} →
+          ∇ » Δ ⊩ˢ σ₁ ≡ σ₂ ∷ Γ .vars      →⟨ proj₁ ∘→ escape-⊩ˢ≡∷ ⟩
+          ∇ »⊢ Δ                          →⟨ (λ ⊢Δ → ≤ᵘ-refl , id (Uⱼ ⊢Δ)) ⟩
+          l <ᵘ 1+ l × ∇ » Δ ⊢ U l ⇒* U l  ⇔˘⟨ ⊩U≡⇔ ⟩→
+          ∇ » Δ ⊩⟨ 1+ l ⟩ U l ≡ U l       □
       )
 
 opaque
@@ -241,16 +241,16 @@ opaque
   ⊩ᵛU∷U {Γ} {l} ⊩Γ =
     ⊩ᵛ∷⇔ʰ .proj₂
       ( ⊩ᵛU ⊩Γ
-      , λ {_} {Δ = Δ} {σ₁ = σ₁} {σ₂ = σ₂} →
-          Δ ⊩ˢ σ₁ ≡ σ₂ ∷ Γ                                        →⟨ proj₁ ∘→ escape-⊩ˢ≡∷ ⟩
+      , λ {_} {∇} {_} ξ⊇ {_} {Δ} {σ₁} {σ₂} →
+          ∇ » Δ ⊩ˢ σ₁ ≡ σ₂ ∷ Γ .vars                                      →⟨ proj₁ ∘→ escape-⊩ˢ≡∷ ⟩
 
-          ⊢ Δ                                                     →⟨ (λ ⊢Δ → ≤ᵘ-refl , ⊩U⇔ .proj₂ (≤ᵘ-refl , ⊢Δ) , ≅-Urefl ⊢Δ) ⟩
+          ∇ »⊢ Δ                                                          →⟨ (λ ⊢Δ → ≤ᵘ-refl , ⊩U⇔ .proj₂ (≤ᵘ-refl , ⊢Δ) , ≅-Urefl ⊢Δ) ⟩
 
-          1+ l <ᵘ 2+ l × (Δ ⊩⟨ 1+ l ⟩ U l) × Δ ⊢≅ U l ∷ U (1+ l)  →⟨ Type→⊩∷U⇔ Uₙ .proj₂ ⟩
+          1+ l <ᵘ 2+ l × (∇ » Δ ⊩⟨ 1+ l ⟩ U l) × ∇ » Δ ⊢≅ U l ∷ U (1+ l)  →⟨ Type→⊩∷U⇔ Uₙ .proj₂ ⟩
 
-          Δ ⊩⟨ 2+ l ⟩ U l ∷ U (1+ l)                              →⟨ refl-⊩≡∷ ⟩
+          ∇ » Δ ⊩⟨ 2+ l ⟩ U l ∷ U (1+ l)                                  →⟨ refl-⊩≡∷ ⟩
 
-          Δ ⊩⟨ 2+ l ⟩ U l ≡ U l ∷ U (1+ l)                        □
+          ∇ » Δ ⊩⟨ 2+ l ⟩ U l ≡ U l ∷ U (1+ l)                            □
       )
 
 opaque
@@ -265,7 +265,7 @@ opaque
       (⊩U , A≡B∷U) →
     ⊩ᵛ≡⇔ʰ .proj₂
       ( wf-⊩ᵛ ⊩U
-      , proj₁ ∘→ proj₂ ∘→ ⊩≡∷U⇔ .proj₁ ∘→ A≡B∷U
+      , λ ξ⊇ → proj₁ ∘→ proj₂ ∘→ ⊩≡∷U⇔ .proj₁ ∘→ A≡B∷U ξ⊇
       )
 
 opaque

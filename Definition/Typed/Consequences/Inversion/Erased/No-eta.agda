@@ -44,7 +44,7 @@ opaque
 
   ¬-inversion-erased′ :
     Erasedʷ-allowed →
-    ¬ (∀ {n} {Γ : Con Term n} {t A : Term n} →
+    ¬ (∀ {m n} {Γ : Cons m n} {t A : Term n} →
        Γ ⊢ erased A t ∷ A →
        ∃₂ λ q l → Γ ⊢ t ∷ Σʷ 𝟘 , q ▷ A ▹ Unitʷ l)
   ¬-inversion-erased′ (Unit-ok , Σʷ-ok) inversion-erased = bad
@@ -58,26 +58,26 @@ opaque
     A′ : Term 0
     A′ = ℕ
 
-    ⊢Γ′∙ℕ : ⊢ Γ′ ∙ ℕ
-    ⊢Γ′∙ℕ = ∙ ℕⱼ ε
+    ⊢Γ′∙ℕ : ε »⊢ Γ′ ∙ ℕ
+    ⊢Γ′∙ℕ = ∙ ℕⱼ εε
 
-    ⊢t′₁ : Γ′ ⊢ t′ ∷ Σʷ 𝟘 , 𝟘 ▷ ℕ ▹ ℕ
-    ⊢t′₁ = prodⱼ (ℕⱼ ⊢Γ′∙ℕ) (zeroⱼ ε) (zeroⱼ ε) Σʷ-ok
+    ⊢t′₁ : ε » Γ′ ⊢ t′ ∷ Σʷ 𝟘 , 𝟘 ▷ ℕ ▹ ℕ
+    ⊢t′₁ = prodⱼ (ℕⱼ ⊢Γ′∙ℕ) (zeroⱼ εε) (zeroⱼ εε) Σʷ-ok
 
-    ⊢erased-t′ : Γ′ ⊢ erased A′ t′ ∷ A′
+    ⊢erased-t′ : ε » Γ′ ⊢ erased A′ t′ ∷ A′
     ⊢erased-t′ = fstʷⱼ ⊢t′₁
 
-    erased-t′≡zero : Γ′ ⊢ erased A′ t′ ≡ zero ∷ A′
-    erased-t′≡zero = fstʷ-β-≡ (ℕⱼ ⊢Γ′∙ℕ) (zeroⱼ ε) (zeroⱼ ε) Σʷ-ok
+    erased-t′≡zero : ε » Γ′ ⊢ erased A′ t′ ≡ zero ∷ A′
+    erased-t′≡zero = fstʷ-β-≡ (ℕⱼ ⊢Γ′∙ℕ) (zeroⱼ εε) (zeroⱼ εε) Σʷ-ok
 
-    ⊢t′₂ : ∃₂ λ q l → Γ′ ⊢ t′ ∷ Σʷ 𝟘 , q ▷ A′ ▹ Unitʷ l
+    ⊢t′₂ : ∃₂ λ q l → ε » Γ′ ⊢ t′ ∷ Σʷ 𝟘 , q ▷ A′ ▹ Unitʷ l
     ⊢t′₂ = inversion-erased ⊢erased-t′
 
     ⊢snd-t′ :
-      ∃ λ l → Γ′ ⊢ sndʷ 𝟘 (⊢t′₂ .proj₁) A′ (Unitʷ l) t′ ∷ Unitʷ l
+      ∃ λ l → ε » Γ′ ⊢ sndʷ 𝟘 (⊢t′₂ .proj₁) A′ (Unitʷ l) t′ ∷ Unitʷ l
     ⊢snd-t′ = _ , sndʷⱼ (⊢t′₂ .proj₂ .proj₂)
 
-    ℕ≡Unit : ∃ λ l → Γ′ ⊢ ℕ ≡ Unitʷ l
+    ℕ≡Unit : ∃ λ l → ε » Γ′ ⊢ ℕ ≡ Unitʷ l
     ℕ≡Unit =
       let l , ⊢snd-t′ = ⊢snd-t′ in
       case inversion-prodrec ⊢snd-t′ of
@@ -96,9 +96,9 @@ opaque
         λ ⊢zero″ →
       case G≡G′ (refl ⊢zero″)  of
         λ G₀≡G′₀ →
-      let ⊢σ : Γ′ ⊢ˢʷ consSubst (sgSubst zero) zero ∷ (Γ′ ∙ F ∙ G)
+      let ⊢σ : ε » Γ′ ⊢ˢʷ consSubst (sgSubst zero) zero ∷ (Γ′ ∙ F ∙ G)
           ⊢σ = →⊢ˢʷ∷∙
-                 (→⊢ˢʷ∷∙ (⊢ˢʷ∷-idSubst ε) $
+                 (→⊢ˢʷ∷∙ (⊢ˢʷ∷-idSubst εε) $
                   PE.subst (_⊢_∷_ _ _) (PE.sym (subst-id F)) ⊢zero″)
                  (conv ⊢zero′ (sym G₀≡G′₀))
       in case PE.subst (_⊢_≡_ _ _) (wk1-tail G)
@@ -116,7 +116,7 @@ opaque
 
   ¬-inversion-erased :
     Erasedʷ-allowed →
-    ¬ (∀ {n} {Γ : Con Term n} {t A : Term n} →
+    ¬ (∀ {m n} {Γ : Cons m n} {t A : Term n} →
        Γ ⊢ erased A t ∷ A →
        Γ ⊢ t ∷ Erased A)
   ¬-inversion-erased Erased-ok inversion-erased =

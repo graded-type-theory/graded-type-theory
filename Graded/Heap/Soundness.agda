@@ -33,10 +33,13 @@ open import Definition.Untyped M
 open import Definition.Untyped.Neutral M type-variant
 open import Definition.Untyped.Inversion M
 open import Definition.Untyped.Properties M
+open import Definition.Untyped.Whnf M type-variant
 open import Definition.Typed TR
 open import Definition.Typed.Consequences.Canonicity TR
 open import Definition.Typed.EqRelInstance TR
 open import Definition.Typed.Inversion TR
+open import Definition.Typed.Names-below TR
+open import Definition.Typed.Properties TR
 open import Definition.LogicalRelation TR
 open import Definition.LogicalRelation.Fundamental.Reducibility TR
 open import Definition.LogicalRelation.Substitution.Introductions.Nat TR
@@ -49,6 +52,7 @@ open import Graded.Mode 𝕄
 open import Graded.Restrictions 𝕄
 open import Graded.Usage 𝕄 UR
 open import Graded.Usage.Inversion 𝕄 UR
+open import Graded.Usage.Properties 𝕄 UR
 
 open import Graded.Heap.Untyped type-variant UR factoring-nr
 open import Graded.Heap.Untyped.Properties type-variant UR factoring-nr
@@ -70,6 +74,7 @@ private variable
   n t A : Term _
   s : State _ _ _
   γ δ η : Conₘ _
+  ∇ : DCon (Term 0) _
   Γ Δ : Con Term _
   H : Heap _ _
   ρ : Wk _ _
@@ -86,7 +91,7 @@ opaque
   lookup-succeeds :
     {Δ : Con Term k}
     ⦃ ok : No-equality-reflection or-empty Δ ⦄ →
-    (Emptyrec-allowed 𝟙ᵐ 𝟘 → Consistent Δ) →
+    (Emptyrec-allowed 𝟙ᵐ 𝟘 → Consistent (ε » Δ)) →
     (k PE.≢ 0 → No-erased-matches′ type-variant UR × Has-well-behaved-zero M semiring-with-meet) →
     ∣ S ∣≡ p →
     ▸ ⟨ H , var x , ρ , S ⟩ → Δ ⊢ₛ ⟨ H , var x , ρ , S ⟩ ∷ A →
@@ -114,7 +119,7 @@ opaque
   lookup-succeeds′ :
     {Δ : Con Term k}
     ⦃ ok : No-equality-reflection or-empty Δ ⦄ →
-    Consistent Δ →
+    Consistent (ε » Δ) →
     No-erased-matches′ type-variant UR →
     Has-well-behaved-zero M semiring-with-meet →
     ∣ S ∣≡ p →
@@ -125,19 +130,21 @@ opaque
 
 opaque
 
-  -- All well-resourced states of type ℕ that are in
-  -- the logical relation reduce to numerals.
+  -- A lemma used to prove redNumeral.
 
   redNumeral′ : {Δ : Con Term k}
                 ⦃ ok : No-equality-reflection or-empty Δ ⦄
-             → (Emptyrec-allowed 𝟙ᵐ 𝟘 → Consistent Δ)
-             → (k PE.≢ 0 → No-erased-matches′ type-variant UR × Has-well-behaved-zero M semiring-with-meet)
-             → Δ ⊩ℕ n ∷ℕ → n PE.≡ ⦅ s ⦆ → Δ ⊢ₛ s ∷ ℕ → ▸ s
+             → (Emptyrec-allowed 𝟙ᵐ 𝟘 → Consistent (ε » Δ))
+             → (k PE.≢ 0 →
+                No-erased-matches′ type-variant UR ×
+                Has-well-behaved-zero M semiring-with-meet)
+             → No-namesₛ s
+             → ε » Δ ⊩ℕ n ∷ℕ → n PE.≡ ⦅ s ⦆ → Δ ⊢ₛ s ∷ ℕ → ▸ s
              → ∃₅ λ m n H (ρ : Wk m n) t → s ↠* ⟨ H , t , ρ , ε ⟩ ×
-               Numeral t × Δ ⊢ ⦅ s ⦆ ≡ wk ρ t [ H ]ₕ ∷ ℕ ×
+               Numeral t × ε » Δ ⊢ ⦅ s ⦆ ≡ wk ρ t [ H ]ₕ ∷ ℕ ×
                ▸ ⟨ H , t , ρ , ε ⟩
-  redNumeral′ consistent prop (ℕₜ _ d n≡n (sucᵣ x)) PE.refl ⊢s ▸s =
-    case whBisim consistent prop ⊢s ▸s (d , sucₙ) of λ
+  redNumeral′ consistent prop s-nn (ℕₜ _ d n≡n (sucᵣ x)) PE.refl ⊢s ▸s =
+    case whBisim consistent prop s-nn ⊢s ▸s (d , sucₙ) of λ
       (_ , _ , H , t , ρ , (d′ , _) , ≡u , v) →
     case subst-suc {t = wk ρ t} ≡u of λ {
       (inj₁ (x , ≡x)) →
@@ -161,7 +168,8 @@ opaque
       (_ , _ , _ , _ , ∣ε∣≡ , ▸H , ▸t , ▸ε , γ≤) →
     case inv-usage-suc ▸t of λ
       (invUsageSuc ▸n″ δ≤)  →
-    case redNumeral′ {s = ⟨ H , n″ , ρ , ε ⟩} consistent prop x
+    case redNumeral′ {s = ⟨ H , n″ , ρ , ε ⟩} consistent prop
+           (⊢ₛ→No-namesₛ′ (⊢ₛ ⊢H ⊢n″ ε) , ε) x
           (PE.sym (PE.trans (PE.cong (_[ H ]ₕ) ≡n′) ≡n))
           (⊢ₛ ⊢H ⊢n″ ε)
           (▸ₛ ∣ε∣≡ ▸H ▸n″ ▸ε (≤ᶜ-trans γ≤ (+ᶜ-monotoneˡ (·ᶜ-monotoneʳ (wk-≤ᶜ ρ δ≤))))) of λ
@@ -174,8 +182,8 @@ opaque
       , sucₙ n , trans s≡ (suc-cong s′≡)
       , ▸ₛ ∣ε∣≡ ▸H (sucₘ ▸t) ▸S γ≤ }}}
 
-  redNumeral′ consistent prop (ℕₜ _ d n≡n zeroᵣ) PE.refl ⊢s ▸s =
-    case whBisim consistent prop ⊢s ▸s (d , zeroₙ) of λ
+  redNumeral′ consistent prop s-nn (ℕₜ _ d n≡n zeroᵣ) PE.refl ⊢s ▸s =
+    case whBisim consistent prop s-nn ⊢s ▸s (d , zeroₙ) of λ
       (_ , _ , H , t , ρ , (d′ , _) , ≡u , v) →
     case subst-zero {t = wk ρ t} ≡u of λ {
       (inj₁ (x , ≡x)) →
@@ -188,37 +196,44 @@ opaque
     _ , _ , _ , _ , _ , ⇾*→↠* d′ , zeroₙ , ⇾*→≡ ⊢s d′ , ▸-⇾* ▸s d′ }}
 
   redNumeral′
-    {s}
-    consistent prop (ℕₜ _ d n≡n (ne (neNfₜ _ neK k≡k))) PE.refl ⊢s ▸s =
-    case whBisim {s = s} consistent prop ⊢s ▸s (d , ne neK) of λ {
+    consistent prop s-nn (ℕₜ _ d _ (ne (neNfₜ neK _))) PE.refl ⊢s ▸s =
+    let neK = ne→ _ neK in
+    case whBisim consistent prop s-nn ⊢s ▸s (d , ne neK) of λ {
       (_ , _ , H , t , ρ , d′ , PE.refl , v) →
     ⊥-elim (Value→¬Neutral (substValue (toSubstₕ H) (wkValue ρ v)) neK) }
 
 opaque
 
-  -- All well-resourced, well-typed states of type ℕ reduce to numerals.
+  -- If the definition context is empty, then a well-resourced state
+  -- of type ℕ that does not contain any names reduces to a numeral
+  -- (given certain assumptions).
 
   redNumeral : {Δ : Con Term k}
                ⦃ ok : No-equality-reflection or-empty Δ ⦄
-             → (Emptyrec-allowed 𝟙ᵐ 𝟘 → Consistent Δ)
-             → (k PE.≢ 0 → No-erased-matches′ type-variant UR × Has-well-behaved-zero M semiring-with-meet)
-             → Δ ⊢ₛ s ∷ ℕ → ▸ s
+             → (Emptyrec-allowed 𝟙ᵐ 𝟘 → Consistent (ε » Δ))
+             → (k PE.≢ 0 →
+                No-erased-matches′ type-variant UR ×
+                Has-well-behaved-zero M semiring-with-meet)
+             → No-namesₛ s
+             → Δ ⊢ₛ s ∷ ℕ
+             → ▸ s
              → ∃₅ λ m n H (ρ : Wk m n) t → s ↠* ⟨ H , t , ρ , ε ⟩ ×
-               Numeral t × Δ ⊢ ⦅ s ⦆ ≡ wk ρ t [ H ]ₕ ∷ ℕ ×
+               Numeral t × ε » Δ ⊢ ⦅ s ⦆ ≡ wk ρ t [ H ]ₕ ∷ ℕ ×
                ▸ ⟨ H , t , ρ , ε ⟩
-  redNumeral {s} consistent prop ⊢s ▸s =
-    redNumeral′ consistent prop
+  redNumeral {s} consistent prop s-nn ⊢s ▸s =
+    redNumeral′ consistent prop s-nn
       (⊩∷ℕ⇔ .proj₁ (reducible-⊩∷ (⊢⦅⦆ {s = s} ⊢s) .proj₂))
       PE.refl ⊢s ▸s
 
 opaque
 
-  -- All closed, well-resourced, well-typed states of type ℕ reduce to numerals
+  -- All closed, well-resourced, well-typed states of type ℕ that do
+  -- not contain names reduce to numerals.
 
   redNumeral-closed :
-    ε ⊢ₛ s ∷ ℕ → ▸ s →
+    No-namesₛ s → ε ⊢ₛ s ∷ ℕ → ▸ s →
     ∃₅ λ m n H (ρ : Wk m n) t → s ↠* ⟨ H , t , ρ , ε ⟩ ×
-    Numeral t × ε ⊢ ⦅ s ⦆ ≡ wk ρ t [ H ]ₕ ∷ ℕ ×
+    Numeral t × ε » ε ⊢ ⦅ s ⦆ ≡ wk ρ t [ H ]ₕ ∷ ℕ ×
     ▸ ⟨ H , t , ρ , ε ⟩
   redNumeral-closed =
     redNumeral ⦃ ε ⦄ (λ _ _ → ¬Empty)
@@ -231,19 +246,24 @@ opaque
 
   -- Note that some assumptions to this theorem are given as a module parameter.
 
-  soundness : {Δ : Con Term k}
-              ⦃ ok : No-equality-reflection or-empty Δ ⦄
-            → (Emptyrec-allowed 𝟙ᵐ 𝟘 → Consistent Δ)
-            → (k PE.≢ 0 → No-erased-matches′ type-variant UR × Has-well-behaved-zero M semiring-with-meet)
-            → Δ ⊢ t ∷ ℕ → 𝟘ᶜ ▸ t
-            → ∃₅ λ m n H k (ρ : Wk m n) →
-              initial t ↠* ⟨ H , sucᵏ k , ρ , ε ⟩ ×
-              (Δ ⊢ t ≡ sucᵏ k ∷ ℕ) ×
-              H ≤ʰ 𝟘
-  soundness {k} {t} {Δ} consistent prop ⊢t ▸t =
+  soundness-ε :
+    {Δ : Con Term k}
+    ⦃ ok : No-equality-reflection or-empty Δ ⦄ →
+    (Emptyrec-allowed 𝟙ᵐ 𝟘 → Consistent (ε » Δ)) →
+    (k PE.≢ 0 →
+     No-erased-matches′ type-variant UR ×
+     Has-well-behaved-zero M semiring-with-meet) →
+    ε » Δ ⊢ t ∷ ℕ →
+    𝟘ᶜ ▸ t →
+    ∃₅ λ m n H k (ρ : Wk m n) →
+    initial t ↠* ⟨ H , sucᵏ k , ρ , ε ⟩ ×
+    (ε » Δ ⊢ t ≡ sucᵏ k ∷ ℕ) ×
+    H ≤ʰ 𝟘
+  soundness-ε {k} {t} {Δ} consistent prop ⊢t ▸t =
     case ▸initial ▸t of λ
       ▸s →
-    case redNumeral consistent prop (⊢initial ⊢t) ▸s of λ
+    case redNumeral consistent prop (No-namesₛ-initial (⊢∷→Names< ⊢t))
+           (⊢initial ⊢t) ▸s of λ
       (_ , _ , H , ρ , t , d , num , s≡ , ▸s′) →
     case ▸ₛ-inv ▸s′ of λ
       (p , γ , δ , η , ∣ε∣≡ , ▸H , ▸n , ▸ε , γ≤) →
@@ -270,38 +290,69 @@ opaque
           𝟘ᶜ                     ∎ )
 
 opaque
+  unfolding inline
 
-  -- The soundness property above specialized to closed terms
-  -- All closed, well-typed and well-resourced terms of type ℕ reduce to some
-  -- numeral and the resulting heap has all grades less than or equal to 𝟘.
+  -- A variant of soundness-ε without the restriction that the
+  -- definition context must be empty.
+  --
+  -- Note that the module telescope contains an assumption of type
+  -- Assumptions.
+
+  soundness :
+    {Δ : Con Term k}
+    ⦃ ok : No-equality-reflection or-empty Δ ⦄ →
+    (Emptyrec-allowed 𝟙ᵐ 𝟘 → Consistent (ε » inline-Con ∇ Δ)) →
+    (k PE.≢ 0 →
+     No-erased-matches′ type-variant UR ×
+     Has-well-behaved-zero M semiring-with-meet) →
+    glassify ∇ » Δ ⊢ t ∷ ℕ →
+    ▸[ 𝟙ᵐ ] glassify ∇ →
+    𝟘ᶜ ▸ t →
+    ∃₅ λ m n H k (ρ : Wk m n) →
+    initial (inline ∇ t) ↠* ⟨ H , sucᵏ k , ρ , ε ⟩ ×
+    (ε » inline-Con ∇ Δ ⊢ inline ∇ t ≡ sucᵏ k ∷ ℕ) ×
+    H ≤ʰ 𝟘
+  soundness {t} consistent prop ⊢t ▸∇ ▸t =
+    soundness-ε ⦃ ok = or-empty-inline-Con ⦄ consistent prop
+      (PE.subst₃ _⊢_∷_
+         (PE.cong (_»_ _) (inline-Con-glassify _))
+         (inline-glassify t)
+         PE.refl $
+       ⊢inline∷ ⊢t)
+      (▸inline ▸∇ ▸t)
+
+opaque
+  unfolding inline-Con
+
+  -- The soundness property above specialised to closed terms.
 
   -- Note that some assumptions to this theorem are given as a module parameter.
 
-  soundness-closed : ε ⊢ t ∷ ℕ → ε ▸ t
-                   → ∃₅ λ m n H k (ρ : Wk m n) →
-                   initial t ↠* ⟨ H , sucᵏ k , ρ , ε ⟩ ×
-                   (ε ⊢ t ≡ sucᵏ k ∷ ℕ) ×
-                   H ≤ʰ 𝟘
+  soundness-closed :
+    glassify ∇ » ε ⊢ t ∷ ℕ → ▸[ 𝟙ᵐ ] glassify ∇ → ε ▸ t →
+    ∃₅ λ m n H k (ρ : Wk m n) →
+    initial (inline ∇ t) ↠* ⟨ H , sucᵏ k , ρ , ε ⟩ ×
+    (ε » ε ⊢ inline ∇ t ≡ sucᵏ k ∷ ℕ) ×
+    H ≤ʰ 𝟘
   soundness-closed =
     soundness ⦃ ok = ε ⦄ (λ _ _ → ¬Empty) (λ 0≢0 → ⊥-elim (0≢0 PE.refl))
 
 opaque
 
-  -- The soundness property above specialized to open terms
-  -- Given some assumptions, all well-typed and erased types of type ℕ reduce to some
-  -- numeral and the resulting heap has all grades less than or equal to 𝟘
+  -- The soundness property above specialised to open terms.
 
   -- Note that some assumptions to this theorem are given as a module parameter.
 
-  soundness-open : ⦃ No-equality-reflection or-empty Δ ⦄
-                   → (Emptyrec-allowed 𝟙ᵐ 𝟘 → Consistent Δ)
-                   → No-erased-matches′ type-variant UR
-                   → Has-well-behaved-zero M semiring-with-meet
-                   → Δ ⊢ t ∷ ℕ → 𝟘ᶜ ▸ t
-                   → ∃₅ λ m n H k (ρ : Wk m n) →
-                   initial t ↠* ⟨ H , sucᵏ k , ρ , ε ⟩ ×
-                   (Δ ⊢ t ≡ sucᵏ k ∷ ℕ) ×
-                   H ≤ʰ 𝟘
+  soundness-open :
+    ⦃ No-equality-reflection or-empty Δ ⦄ →
+    (Emptyrec-allowed 𝟙ᵐ 𝟘 → Consistent (ε » inline-Con ∇ Δ)) →
+    No-erased-matches′ type-variant UR →
+    Has-well-behaved-zero M semiring-with-meet →
+    glassify ∇ » Δ ⊢ t ∷ ℕ → ▸[ 𝟙ᵐ ] glassify ∇ → 𝟘ᶜ ▸ t →
+    ∃₅ λ m n H k (ρ : Wk m n) →
+    initial (inline ∇ t) ↠* ⟨ H , sucᵏ k , ρ , ε ⟩ ×
+    (ε » inline-Con ∇ Δ ⊢ inline ∇ t ≡ sucᵏ k ∷ ℕ) ×
+    H ≤ʰ 𝟘
   soundness-open consistent erased 𝟘-wb = soundness consistent λ _ → erased , 𝟘-wb
 
 opaque
@@ -310,13 +361,13 @@ opaque
 
   soundness-open-consistent :
     ⦃ No-equality-reflection or-empty Δ ⦄ →
-    Consistent Δ →
+    Consistent (ε » inline-Con ∇ Δ) →
     No-erased-matches′ type-variant UR →
     Has-well-behaved-zero M semiring-with-meet →
-    Δ ⊢ t ∷ ℕ → 𝟘ᶜ ▸ t →
+    glassify ∇ » Δ ⊢ t ∷ ℕ → ▸[ 𝟙ᵐ ] glassify ∇ → 𝟘ᶜ ▸ t →
     ∃₅ λ m n H k (ρ : Wk m n) →
-    initial t ↠* ⟨ H , sucᵏ k , ρ , ε ⟩ ×
-    (Δ ⊢ t ≡ sucᵏ k ∷ ℕ) ×
+    initial (inline ∇ t) ↠* ⟨ H , sucᵏ k , ρ , ε ⟩ ×
+    (ε » inline-Con ∇ Δ ⊢ inline ∇ t ≡ sucᵏ k ∷ ℕ) ×
     H ≤ʰ 𝟘
   soundness-open-consistent consistent = soundness-open (λ _ → consistent)
 
@@ -329,10 +380,10 @@ opaque
     ¬ Emptyrec-allowed 𝟙ᵐ 𝟘 →
     No-erased-matches′ type-variant UR →
     Has-well-behaved-zero M semiring-with-meet →
-    Δ ⊢ t ∷ ℕ → 𝟘ᶜ ▸ t →
+    glassify ∇ » Δ ⊢ t ∷ ℕ → ▸[ 𝟙ᵐ ] glassify ∇ → 𝟘ᶜ ▸ t →
     ∃₅ λ m n H k (ρ : Wk m n) →
-    initial t ↠* ⟨ H , sucᵏ k , ρ , ε ⟩ ×
-    (Δ ⊢ t ≡ sucᵏ k ∷ ℕ) ×
+    initial (inline ∇ t) ↠* ⟨ H , sucᵏ k , ρ , ε ⟩ ×
+    (ε » inline-Con ∇ Δ ⊢ inline ∇ t ≡ sucᵏ k ∷ ℕ) ×
     H ≤ʰ 𝟘
   soundness-open-¬emptyrec₀ ¬ok =
     soundness-open (⊥-elim ∘→ ¬ok)

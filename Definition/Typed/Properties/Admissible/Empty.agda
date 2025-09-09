@@ -27,7 +27,7 @@ open import Tools.Product
 import Tools.PropositionalEquality as PE
 
 private variable
-  Γ                  : Con Term _
+  Γ                  : Cons _ _
   A A₁ A₂ t t′ t₁ t₂ : Term _
   p                  : M
 

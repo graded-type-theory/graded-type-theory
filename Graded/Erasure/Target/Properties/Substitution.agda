@@ -53,6 +53,7 @@ substVar-lifts eq (1+ n) (x +1) = cong wk1 (substVar-lifts eq n x)
 substVar-to-subst : ((x : Fin n) → σ x ≡ σ′ x)
                   → (t : Term n) → t [ σ ] ≡ t [ σ′ ]
 substVar-to-subst eq (var x) = eq x
+substVar-to-subst _ (defn _) = refl
 substVar-to-subst eq (lam t) = cong lam (substVar-to-subst (substVar-lift eq) t)
 substVar-to-subst eq (t ∘⟨ _ ⟩ u) =
   cong₂ _∘⟨ _ ⟩_ (substVar-to-subst eq t) (substVar-to-subst eq u)
@@ -82,6 +83,7 @@ subst-lifts-id (1+ n) (x +1) = cong wk1 (subst-lifts-id n x)
 
 subst-id : (t : Term n) → t [ idSubst ] ≡ t
 subst-id (var x) = refl
+subst-id (defn _) = refl
 subst-id (lam t) = cong lam (trans (substVar-to-subst subst-lift-id t) (subst-id t))
 subst-id (t ∘⟨ _ ⟩ u) = cong₂ _∘⟨ _ ⟩_ (subst-id t) (subst-id u)
 subst-id zero = refl
@@ -146,6 +148,7 @@ subst-lifts-ₛ• (1+ n) t = substVar-to-subst (helper2 n) t
 
 wk-subst : ∀ t → wk ρ (t [ σ ]) ≡ t [ ρ •ₛ σ ]
 wk-subst (var x) = refl
+wk-subst (defn _) = refl
 wk-subst (lam t) = cong lam (trans (wk-subst t) (subst-lift-•ₛ t))
 wk-subst (t ∘⟨ _ ⟩ u) = cong₂ _∘⟨ _ ⟩_ (wk-subst t) (wk-subst u)
 wk-subst zero = refl
@@ -163,6 +166,7 @@ wk-subst ↯ = refl
 
 subst-wk : ∀ t → wk ρ t [ σ ] ≡ t [ σ ₛ• ρ ]
 subst-wk (var x) = refl
+subst-wk (defn _) = refl
 subst-wk (lam t) = cong lam (trans (subst-wk t) (subst-lift-ₛ• t))
 subst-wk (t ∘⟨ _ ⟩ u) = cong₂ _∘⟨ _ ⟩_ (subst-wk t) (subst-wk u)
 subst-wk zero = refl
@@ -213,6 +217,7 @@ substCompLifts {σ = σ} {σ′ = σ′} (1+ n) (x +1) =
 substCompEq : ∀ (t : Term n)
             → t [ σ′ ] [ σ ] ≡ t [ σ ₛ•ₛ σ′ ]
 substCompEq (var x) = refl
+substCompEq (defn _) = refl
 substCompEq (lam t) = cong lam (trans (substCompEq t) (substVar-to-subst substCompLift t))
 substCompEq (t ∘⟨ _ ⟩ u) = cong₂ _∘⟨ _ ⟩_ (substCompEq t) (substCompEq u)
 substCompEq zero = refl
@@ -448,6 +453,9 @@ opaque
   HasX-[]→ {x} {t = var z} {σ} =
     HasX x (σ z)                             →⟨ (λ has → z ∙ varₓ ∙ has) ⟩
     (∃ λ y → HasX y (var z) × HasX x (σ y))  □
+  HasX-[]→ {x} {t = defn α} {σ} =
+    HasX x (defn α)                           →⟨ (λ ()) ⟩
+    (∃ λ y → HasX y (defn α) × HasX x (σ y))  □
   HasX-[]→ {x} {t = lam t} {σ} =
     HasX x (lam t [ σ ])                                        →⟨ (λ { (lamₓ has) → has }) ⟩
     HasX (x +1) (t [ liftSubst σ ])                             →⟨ HasX-[]→ ⟩

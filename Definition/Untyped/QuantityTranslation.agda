@@ -25,6 +25,7 @@ open import Definition.Typed.Variant
 open import Definition.Untyped
 open import Definition.Untyped.Neutral
 import Definition.Untyped.Properties
+open import Definition.Untyped.Whnf
 
 private
   module U₁  = Definition.Untyped M₁
@@ -33,9 +34,11 @@ private
   module UN₂ = Definition.Untyped.Neutral M₂
   module UP₁ = Definition.Untyped.Properties M₁
   module UP₂ = Definition.Untyped.Properties M₂
+  module UW₁ = Definition.Untyped.Whnf M₁
+  module UW₂ = Definition.Untyped.Whnf M₂
 
 private variable
-  m n           : Nat
+  α m n         : Nat
   bs            : List _
   x             : Fin _
   p q r         : M₂
@@ -44,10 +47,12 @@ private variable
   ts us         : GenTs _ _ _
   k₁ k₂         : Kind _ _
   A B j t u v w : Term _ _
+  ∇             : DCon _ _
   ρ             : Wk _ _
   σ             : Subst _ _ _
   l             : Universe-level
   tv₁ tv₂       : Type-variant
+  V₁ V₂         : Set _
 
 ------------------------------------------------------------------------
 -- Translation
@@ -61,6 +66,7 @@ tr-BinderMode (BMΣ _) = tr-Σ
 -- Translation of kinds.
 
 tr-Kind : U₁.Kind bs → U₂.Kind bs
+tr-Kind (Defnkind α)        = Defnkind α
 tr-Kind (Ukind n)           = Ukind n
 tr-Kind (Binderkind b p q)  = Binderkind b (tr-BinderMode b p) (tr q)
 tr-Kind (Lamkind p)         = Lamkind (tr p)
@@ -109,6 +115,17 @@ tr-Con : U₁.Con U₁.Term n → U₂.Con U₂.Term n
 tr-Con ε       = ε
 tr-Con (Γ ∙ A) = tr-Con Γ ∙ tr-Term A
 
+-- Translation of definition contexts.
+
+tr-DCon : U₁.DCon (U₁.Term m) n → U₂.DCon (U₂.Term m) n
+tr-DCon ε                   = ε
+tr-DCon (∇ ∙⟨ o ⟩[ t ∷ A ]) = tr-DCon ∇ ∙⟨ o ⟩[ tr-Term t ∷ tr-Term A ]
+
+-- Translation of context pairs.
+
+tr-Cons : U₁.Cons m n → U₂.Cons m n
+tr-Cons (∇ » Γ) = tr-DCon ∇ » tr-Con Γ
+
 -- Translation of substitutions.
 
 tr-Subst : U₁.Subst m n → U₂.Subst m n
@@ -126,6 +143,33 @@ module _ (tr-Σ≡tr : ∀ {p} → tr-Σ p ≡ tr p) where
   tr-BinderMode-one-function (BMΣ _) = tr-Σ≡tr
 
 ------------------------------------------------------------------------
+-- Lemmas related to definitions
+
+opaque
+
+  -- The relation _↦∷_∈_ is preserved by tr-Term/tr-DCon.
+
+  tr-↦ : α ↦∷ A ∈ ∇ → α ↦∷ tr-Term A ∈ tr-DCon ∇
+  tr-↦ here       = here
+  tr-↦ (there α∈) = there (tr-↦ α∈)
+
+opaque
+
+  -- The relation _↦_∷_∈_ is preserved by tr-Term/tr-DCon.
+
+  tr-↦∷ : α ↦ t ∷ A ∈ ∇ → α ↦ tr-Term t ∷ tr-Term A ∈ tr-DCon ∇
+  tr-↦∷ here       = here
+  tr-↦∷ (there α∈) = there (tr-↦∷ α∈)
+
+opaque
+
+  -- The relation _↦⊘∷_∈_ is preserved by tr-Term/tr-DCon.
+
+  tr-↦⊘∷ : α ↦⊘∷ A ∈ ∇ → α ↦⊘∷ tr-Term A ∈ tr-DCon ∇
+  tr-↦⊘∷ here       = here
+  tr-↦⊘∷ (there α∈) = there (tr-↦⊘∷ α∈)
+
+------------------------------------------------------------------------
 -- Lemmas related to Neutral and Whnf
 
 module _
@@ -133,25 +177,30 @@ module _
   (Unitʷ-η→ : Type-variant.Unitʷ-η tv₂ → Type-variant.Unitʷ-η tv₁)
   where
 
-  -- The function tr-Term preserves neutrality.
+  -- The function tr-Term preserves neutrality (given a certain
+  -- assumption).
 
-  tr-Neutral : UN₁.Neutral tv₁ t → UN₂.Neutral tv₂ (tr-Term t)
-  tr-Neutral (var x)             = var x
-  tr-Neutral (∘ₙ n)              = ∘ₙ (tr-Neutral n)
-  tr-Neutral (fstₙ n)            = fstₙ (tr-Neutral n)
-  tr-Neutral (sndₙ n)            = sndₙ (tr-Neutral n)
-  tr-Neutral (natrecₙ n)         = natrecₙ (tr-Neutral n)
-  tr-Neutral (prodrecₙ n)        = prodrecₙ (tr-Neutral n)
-  tr-Neutral (emptyrecₙ n)       = emptyrecₙ (tr-Neutral n)
-  tr-Neutral (unitrecₙ not-ok n) = unitrecₙ (not-ok ∘→ Unitʷ-η→)
-                                     (tr-Neutral n)
-  tr-Neutral (Jₙ n)              = Jₙ (tr-Neutral n)
-  tr-Neutral (Kₙ n)              = Kₙ (tr-Neutral n)
-  tr-Neutral ([]-congₙ n)        = []-congₙ (tr-Neutral n)
+  tr-Neutral :
+    (V₁ → V₂) →
+    UN₁.Neutral tv₁ V₁ ∇ t → UN₂.Neutral tv₂ V₂ (tr-DCon ∇) (tr-Term t)
+  tr-Neutral f = λ where
+    (defn α∈)           → defn (tr-↦⊘∷ α∈)
+    (var p x)           → var (f p) x
+    (∘ₙ n)              → ∘ₙ (tr-Neutral f n)
+    (fstₙ n)            → fstₙ (tr-Neutral f n)
+    (sndₙ n)            → sndₙ (tr-Neutral f n)
+    (natrecₙ n)         → natrecₙ (tr-Neutral f n)
+    (prodrecₙ n)        → prodrecₙ (tr-Neutral f n)
+    (emptyrecₙ n)       → emptyrecₙ (tr-Neutral f n)
+    (unitrecₙ not-ok n) → unitrecₙ (not-ok ∘→ Unitʷ-η→)
+                            (tr-Neutral f n)
+    (Jₙ n)              → Jₙ (tr-Neutral f n)
+    (Kₙ n)              → Kₙ (tr-Neutral f n)
+    ([]-congₙ n)        → []-congₙ (tr-Neutral f n)
 
   -- The function tr-Term takes WHNFs to WHNFs.
 
-  tr-Whnf : UN₁.Whnf tv₁ t → UN₂.Whnf tv₂ (tr-Term t)
+  tr-Whnf : UW₁.Whnf tv₁ ∇ t → UW₂.Whnf tv₂ (tr-DCon ∇) (tr-Term t)
   tr-Whnf Uₙ                = Uₙ
   tr-Whnf (ΠΣₙ {b = BMΠ})   = ΠΣₙ
   tr-Whnf (ΠΣₙ {b = BMΣ _}) = ΠΣₙ
@@ -165,7 +214,7 @@ module _
   tr-Whnf starₙ             = starₙ
   tr-Whnf prodₙ             = prodₙ
   tr-Whnf rflₙ              = rflₙ
-  tr-Whnf (ne n)            = ne (tr-Neutral n)
+  tr-Whnf (ne n)            = ne (tr-Neutral _ n)
 
 ------------------------------------------------------------------------
 -- Translation commutes with various things
@@ -371,10 +420,39 @@ tr-Term-[]↑² {u = u} t =
 ------------------------------------------------------------------------
 -- Inversion lemmas for translation
 
+-- Inversion for defn.
+
+tr-Term-defn : tr-Term t ≡ defn α → t ≡ defn α
+tr-Term-defn {t = defn _}                refl = refl
+tr-Term-defn {t = var _}                 ()
+tr-Term-defn {t = U _}                   ()
+tr-Term-defn {t = ΠΣ⟨ _ ⟩ _ , _ ▷ _ ▹ _} ()
+tr-Term-defn {t = lam _ _}               ()
+tr-Term-defn {t = _ ∘⟨ _ ⟩ _}            ()
+tr-Term-defn {t = prod _ _ _ _}          ()
+tr-Term-defn {t = fst _ _}               ()
+tr-Term-defn {t = snd _ _}               ()
+tr-Term-defn {t = prodrec _ _ _ _ _ _}   ()
+tr-Term-defn {t = Empty}                 ()
+tr-Term-defn {t = emptyrec _ _ _}        ()
+tr-Term-defn {t = Unit _ _}              ()
+tr-Term-defn {t = star _ _}              ()
+tr-Term-defn {t = unitrec _ _ _ _ _ _}   ()
+tr-Term-defn {t = ℕ}                     ()
+tr-Term-defn {t = zero}                  ()
+tr-Term-defn {t = suc _}                 ()
+tr-Term-defn {t = natrec _ _ _ _ _ _ _}  ()
+tr-Term-defn {t = Id _ _ _}              ()
+tr-Term-defn {t = rfl}                   ()
+tr-Term-defn {t = J _ _ _ _ _ _ _ _}     ()
+tr-Term-defn {t = K _ _ _ _ _ _}         ()
+tr-Term-defn {t = []-cong _ _ _ _ _}     ()
+
 -- Inversion for var.
 
 tr-Term-var : tr-Term t ≡ var x → t ≡ var x
 tr-Term-var {t = var _}                 refl = refl
+tr-Term-var {t = defn _}                ()
 tr-Term-var {t = U _}                   ()
 tr-Term-var {t = ΠΣ⟨ _ ⟩ _ , _ ▷ _ ▹ _} ()
 tr-Term-var {t = lam _ _}               ()
@@ -402,6 +480,7 @@ tr-Term-var {t = []-cong _ _ _ _ _}     ()
 
 tr-Term-U : tr-Term t ≡ U l → t ≡ U l
 tr-Term-U {t = U _}                   refl = refl
+tr-Term-U {t = defn _}                ()
 tr-Term-U {t = var _}                 ()
 tr-Term-U {t = ΠΣ⟨ _ ⟩ _ , _ ▷ _ ▹ _} ()
 tr-Term-U {t = lam _ _}               ()
@@ -435,6 +514,7 @@ tr-Term-ΠΣ :
      tr-Term A′ ≡ A × tr-Term B′ ≡ B
 tr-Term-ΠΣ {t = ΠΣ⟨ _ ⟩ _ , _ ▷ _ ▹ _} refl =
   _ # _ # _ # _ # refl # refl # refl # refl # refl
+tr-Term-ΠΣ {t = defn _}               ()
 tr-Term-ΠΣ {t = var _}                ()
 tr-Term-ΠΣ {t = U _}                  ()
 tr-Term-ΠΣ {t = lam _ _}              ()
@@ -465,6 +545,7 @@ tr-Term-lam :
   ∃₂ λ p′ u′ → t ≡ lam p′ u′ × tr p′ ≡ p × tr-Term u′ ≡ u
 tr-Term-lam {t = lam _ _} refl =
   _ # _ # refl # refl # refl
+tr-Term-lam {t = defn _}                ()
 tr-Term-lam {t = var _}                 ()
 tr-Term-lam {t = U _}                   ()
 tr-Term-lam {t = ΠΣ⟨ _ ⟩ _ , _ ▷ _ ▹ _} ()
@@ -496,6 +577,7 @@ tr-Term-∘ :
      t ≡ u′ ∘⟨ p′ ⟩ v′ × tr-Term u′ ≡ u × tr p′ ≡ p × tr-Term v′ ≡ v
 tr-Term-∘ {t = _ ∘⟨ _ ⟩ _} refl =
   _ # _ # _ # refl # refl # refl # refl
+tr-Term-∘ {t = defn _}                ()
 tr-Term-∘ {t = var _}                 ()
 tr-Term-∘ {t = U _}                   ()
 tr-Term-∘ {t = ΠΣ⟨ _ ⟩ _ , _ ▷ _ ▹ _} ()
@@ -528,6 +610,7 @@ tr-Term-prod :
      tr-BinderMode (BMΣ s) p′ ≡ p × tr-Term u′ ≡ u × tr-Term v′ ≡ v
 tr-Term-prod {t = prod _ _ _ _} refl =
   _ # _ # _ # refl # refl # refl # refl
+tr-Term-prod {t = defn _}                ()
 tr-Term-prod {t = var _}                 ()
 tr-Term-prod {t = U _}                   ()
 tr-Term-prod {t = ΠΣ⟨ _ ⟩ _ , _ ▷ _ ▹ _} ()
@@ -558,6 +641,7 @@ tr-Term-fst :
   ∃₂ λ p′ u′ → t ≡ fst p′ u′ × tr-Σ p′ ≡ p × tr-Term u′ ≡ u
 tr-Term-fst {t = fst _ _} refl =
   _ # _ # refl # refl # refl
+tr-Term-fst {t = defn _}                ()
 tr-Term-fst {t = var _}                 ()
 tr-Term-fst {t = U _}                   ()
 tr-Term-fst {t = ΠΣ⟨ _ ⟩ _ , _ ▷ _ ▹ _} ()
@@ -588,6 +672,7 @@ tr-Term-snd :
   ∃₂ λ p′ u′ → t ≡ snd p′ u′ × tr-Σ p′ ≡ p × tr-Term u′ ≡ u
 tr-Term-snd {t = snd _ _} refl =
   _ # _ # refl # refl # refl
+tr-Term-snd {t = defn _}                ()
 tr-Term-snd {t = var _}                 ()
 tr-Term-snd {t = U _}                   ()
 tr-Term-snd {t = ΠΣ⟨ _ ⟩ _ , _ ▷ _ ▹ _} ()
@@ -620,6 +705,7 @@ tr-Term-prodrec :
      tr q′ ≡ q × tr-Term A′ ≡ A × tr-Term u′ ≡ u × tr-Term v′ ≡ v
 tr-Term-prodrec {t = prodrec _ _ _ _ _ _} refl =
   _ # _ # _ # _ # _ # _ # refl # refl # refl # refl # refl # refl # refl
+tr-Term-prodrec {t = defn _}                ()
 tr-Term-prodrec {t = var _}                 ()
 tr-Term-prodrec {t = U _}                   ()
 tr-Term-prodrec {t = ΠΣ⟨ _ ⟩ _ , _ ▷ _ ▹ _} ()
@@ -647,6 +733,7 @@ tr-Term-prodrec {t = []-cong _ _ _ _ _}     ()
 
 tr-Term-Unit : tr-Term t ≡ Unit s l → t ≡ Unit s l
 tr-Term-Unit {t = Unit!}                 refl = refl
+tr-Term-Unit {t = defn _}                ()
 tr-Term-Unit {t = var _}                 ()
 tr-Term-Unit {t = U _}                   ()
 tr-Term-Unit {t = ΠΣ⟨ _ ⟩ _ , _ ▷ _ ▹ _} ()
@@ -674,6 +761,7 @@ tr-Term-Unit {t = []-cong _ _ _ _ _}     ()
 
 tr-Term-star : tr-Term t ≡ star s l → t ≡ star s l
 tr-Term-star {t = star!}                 refl = refl
+tr-Term-star {t = defn _}                ()
 tr-Term-star {t = var _}                 ()
 tr-Term-star {t = U _}                   ()
 tr-Term-star {t = ΠΣ⟨ _ ⟩ _ , _ ▷ _ ▹ _} ()
@@ -706,6 +794,7 @@ tr-Term-unitrec :
      tr-Term A′ ≡ A × tr-Term u′ ≡ u × tr-Term v′ ≡ v
 tr-Term-unitrec {t = unitrec _ _ _ _ _ _} refl =
   _ # _ # _ # _ # _ # refl # refl # refl # refl # refl # refl
+tr-Term-unitrec {t = defn _}                ()
 tr-Term-unitrec {t = var _}                 ()
 tr-Term-unitrec {t = U _}                   ()
 tr-Term-unitrec {t = ΠΣ⟨ _ ⟩ _ , _ ▷ _ ▹ _} ()
@@ -733,6 +822,7 @@ tr-Term-unitrec {t = []-cong _ _ _ _ _}     ()
 
 tr-Term-Empty : tr-Term t ≡ Empty → t ≡ Empty
 tr-Term-Empty {t = Empty}                 refl = refl
+tr-Term-Empty {t = defn _}                ()
 tr-Term-Empty {t = var _}                 ()
 tr-Term-Empty {t = U _}                   ()
 tr-Term-Empty {t = ΠΣ⟨ _ ⟩ _ , _ ▷ _ ▹ _} ()
@@ -764,6 +854,7 @@ tr-Term-emptyrec :
      t ≡ emptyrec p′ A′ u′ × tr p′ ≡ p × tr-Term A′ ≡ A × tr-Term u′ ≡ u
 tr-Term-emptyrec {t = emptyrec _ _ _} refl =
   _ # _ # _ # refl # refl # refl # refl
+tr-Term-emptyrec {t = defn _}                ()
 tr-Term-emptyrec {t = var _}                 ()
 tr-Term-emptyrec {t = U _}                   ()
 tr-Term-emptyrec {t = ΠΣ⟨ _ ⟩ _ , _ ▷ _ ▹ _} ()
@@ -791,6 +882,7 @@ tr-Term-emptyrec {t = []-cong _ _ _ _ _}     ()
 
 tr-Term-ℕ : tr-Term t ≡ ℕ → t ≡ ℕ
 tr-Term-ℕ {t = ℕ}                     refl = refl
+tr-Term-ℕ {t = defn _}                ()
 tr-Term-ℕ {t = var _}                 ()
 tr-Term-ℕ {t = U _}                   ()
 tr-Term-ℕ {t = ΠΣ⟨ _ ⟩ _ , _ ▷ _ ▹ _} ()
@@ -818,6 +910,7 @@ tr-Term-ℕ {t = []-cong _ _ _ _ _}     ()
 
 tr-Term-zero : tr-Term t ≡ zero → t ≡ zero
 tr-Term-zero {t = zero}                  refl = refl
+tr-Term-zero {t = defn _}                ()
 tr-Term-zero {t = var _}                 ()
 tr-Term-zero {t = U _}                   ()
 tr-Term-zero {t = ΠΣ⟨ _ ⟩ _ , _ ▷ _ ▹ _} ()
@@ -847,6 +940,7 @@ tr-Term-suc :
   tr-Term t ≡ suc u →
   ∃ λ u′ → t ≡ suc u′ × tr-Term u′ ≡ u
 tr-Term-suc {t = suc _}                 refl = _ # refl # refl
+tr-Term-suc {t = defn _}                ()
 tr-Term-suc {t = var _}                 ()
 tr-Term-suc {t = U _}                   ()
 tr-Term-suc {t = ΠΣ⟨ _ ⟩ _ , _ ▷ _ ▹ _} ()
@@ -881,6 +975,7 @@ tr-Term-natrec :
 tr-Term-natrec {t = natrec _ _ _ _ _ _ _} refl =
   _ # _ # _ # _ # _ # _ # _ #
     refl # refl # refl # refl # refl # refl # refl # refl
+tr-Term-natrec {t = defn _}                ()
 tr-Term-natrec {t = var _}                 ()
 tr-Term-natrec {t = U _}                   ()
 tr-Term-natrec {t = ΠΣ⟨ _ ⟩ _ , _ ▷ _ ▹ _} ()
@@ -913,6 +1008,7 @@ tr-Term-Id :
      tr-Term A′ ≡ A × tr-Term t′ ≡ t × tr-Term u′ ≡ u
 tr-Term-Id {v = Id _ _ _} refl =
   _ # _ # _ # refl # refl # refl # refl
+tr-Term-Id {v = defn _}                ()
 tr-Term-Id {v = var _}                 ()
 tr-Term-Id {v = U _}                   ()
 tr-Term-Id {v = ΠΣ⟨ _ ⟩ _ , _ ▷ _ ▹ _} ()
@@ -940,6 +1036,7 @@ tr-Term-Id {v = []-cong _ _ _ _ _}     ()
 
 tr-Term-rfl : tr-Term t ≡ rfl → t ≡ rfl
 tr-Term-rfl {t = rfl}                   refl = refl
+tr-Term-rfl {t = defn _}                ()
 tr-Term-rfl {t = var _}                 ()
 tr-Term-rfl {t = U _}                   ()
 tr-Term-rfl {t = ΠΣ⟨ _ ⟩ _ , _ ▷ _ ▹ _} ()
@@ -974,6 +1071,7 @@ tr-Term-J :
 tr-Term-J {j = J _ _ _ _ _ _ _ _} refl =
   _ # _ # _ # _ # _ # _ # _ # _ #
     refl # refl # refl # refl # refl # refl # refl # refl # refl
+tr-Term-J {j = defn _}                ()
 tr-Term-J {j = var _}                 ()
 tr-Term-J {j = U _}                   ()
 tr-Term-J {j = ΠΣ⟨ _ ⟩ _ , _ ▷ _ ▹ _} ()
@@ -1007,6 +1105,7 @@ tr-Term-K :
      tr-Term u′ ≡ u × tr-Term v′ ≡ v
 tr-Term-K {w = K _ _ _ _ _ _} refl =
   _ # _ # _ # _ # _ # _ # refl # refl # refl # refl # refl # refl # refl
+tr-Term-K {w = defn _}                ()
 tr-Term-K {w = var _}                 ()
 tr-Term-K {w = U _}                   ()
 tr-Term-K {w = ΠΣ⟨ _ ⟩ _ , _ ▷ _ ▹ _} ()
@@ -1039,6 +1138,7 @@ tr-Term-[]-cong :
      tr-Term A′ ≡ A × tr-Term t′ ≡ t × tr-Term u′ ≡ u × tr-Term v′ ≡ v
 tr-Term-[]-cong {w = []-cong _ _ _ _ _} refl =
   _ # _ # _ # _ # refl # refl # refl # refl # refl
+tr-Term-[]-cong {w = defn _}                ()
 tr-Term-[]-cong {w = var _}                 ()
 tr-Term-[]-cong {w = U _}                   ()
 tr-Term-[]-cong {w = ΠΣ⟨ _ ⟩ _ , _ ▷ _ ▹ _} ()
@@ -1144,6 +1244,7 @@ module Injective
   -- The function tr-Kind is injective.
 
   tr-Kind-injective : tr-Kind k₁ ≡ tr-Kind k₂ → k₁ ≡ k₂
+  tr-Kind-injective {k₁ = Defnkind _}    {k₂ = Defnkind _}    refl = refl
   tr-Kind-injective {k₁ = Ukind _}       {k₂ = Ukind _}       refl = refl
   tr-Kind-injective {k₁ = Natkind}       {k₂ = Natkind}       refl = refl
   tr-Kind-injective {k₁ = Zerokind}      {k₂ = Zerokind}      refl = refl
@@ -1207,6 +1308,14 @@ module Injective
     with tr p in tr-p≡
   tr-Kind-injective refl | _ =
     cong Kkind (tr-injective tr-p≡)
+  tr-Kind-injective {k₁ = Defnkind _}     {k₂ = Ukind _}        ()
+  tr-Kind-injective {k₁ = Defnkind _}     {k₂ = Natkind}        ()
+  tr-Kind-injective {k₁ = Defnkind _}     {k₂ = Zerokind}       ()
+  tr-Kind-injective {k₁ = Defnkind _}     {k₂ = Unitkind _ _}   ()
+  tr-Kind-injective {k₁ = Defnkind _}     {k₂ = Starkind _ _}   ()
+  tr-Kind-injective {k₁ = Defnkind _}     {k₂ = Emptykind}      ()
+  tr-Kind-injective {k₁ = Defnkind _}     {k₂ = Reflkind}       ()
+  tr-Kind-injective {k₁ = Ukind _}        {k₂ = Defnkind _}     ()
   tr-Kind-injective {k₁ = Ukind _}        {k₂ = Emptykind}      ()
   tr-Kind-injective {k₁ = Ukind _}        {k₂ = Unitkind _ _}   ()
   tr-Kind-injective {k₁ = Ukind _}        {k₂ = Starkind _ _}   ()
@@ -1221,6 +1330,7 @@ module Injective
   tr-Kind-injective {k₁ = Fstkind _}      {k₂ = Suckind}        ()
   tr-Kind-injective {k₁ = Sndkind _}      {k₂ = Fstkind _}      ()
   tr-Kind-injective {k₁ = Sndkind _}      {k₂ = Suckind}        ()
+  tr-Kind-injective {k₁ = Emptykind}      {k₂ = Defnkind _}     ()
   tr-Kind-injective {k₁ = Emptykind}      {k₂ = Ukind _}        ()
   tr-Kind-injective {k₁ = Emptykind}      {k₂ = Unitkind _ _}   ()
   tr-Kind-injective {k₁ = Emptykind}      {k₂ = Starkind _ _}   ()
@@ -1229,24 +1339,28 @@ module Injective
   tr-Kind-injective {k₁ = Emptykind}      {k₂ = Reflkind}       ()
   tr-Kind-injective {k₁ = Emptyreckind _} {k₂ = Appkind _}      ()
   tr-Kind-injective {k₁ = Emptyreckind _} {k₂ = Prodkind _ _}   ()
+  tr-Kind-injective {k₁ = Unitkind _ _}   {k₂ = Defnkind _}     ()
   tr-Kind-injective {k₁ = Unitkind _ _}   {k₂ = Ukind _}        ()
   tr-Kind-injective {k₁ = Unitkind _ _}   {k₂ = Emptykind}      ()
   tr-Kind-injective {k₁ = Unitkind _ _}   {k₂ = Starkind _ _}   ()
   tr-Kind-injective {k₁ = Unitkind _ _}   {k₂ = Natkind}        ()
   tr-Kind-injective {k₁ = Unitkind _ _}   {k₂ = Zerokind}       ()
   tr-Kind-injective {k₁ = Unitkind _ _}   {k₂ = Reflkind}       ()
+  tr-Kind-injective {k₁ = Starkind _ _}   {k₂ = Defnkind _}     ()
   tr-Kind-injective {k₁ = Starkind _ _}   {k₂ = Ukind _}        ()
   tr-Kind-injective {k₁ = Starkind _ _}   {k₂ = Emptykind}      ()
   tr-Kind-injective {k₁ = Starkind _ _}   {k₂ = Unitkind _ _}   ()
   tr-Kind-injective {k₁ = Starkind _ _}   {k₂ = Natkind}        ()
   tr-Kind-injective {k₁ = Starkind _ _}   {k₂ = Zerokind}       ()
   tr-Kind-injective {k₁ = Starkind _ _}   {k₂ = Reflkind}       ()
+  tr-Kind-injective {k₁ = Natkind}        {k₂ = Defnkind _}     ()
   tr-Kind-injective {k₁ = Natkind}        {k₂ = Ukind _}        ()
   tr-Kind-injective {k₁ = Natkind}        {k₂ = Emptykind}      ()
   tr-Kind-injective {k₁ = Natkind}        {k₂ = Unitkind _ _}   ()
   tr-Kind-injective {k₁ = Natkind}        {k₂ = Starkind _ _}   ()
   tr-Kind-injective {k₁ = Natkind}        {k₂ = Zerokind}       ()
   tr-Kind-injective {k₁ = Natkind}        {k₂ = Reflkind}       ()
+  tr-Kind-injective {k₁ = Zerokind}       {k₂ = Defnkind _}     ()
   tr-Kind-injective {k₁ = Zerokind}       {k₂ = Ukind _}        ()
   tr-Kind-injective {k₁ = Zerokind}       {k₂ = Emptykind}      ()
   tr-Kind-injective {k₁ = Zerokind}       {k₂ = Unitkind _ _}   ()
@@ -1255,6 +1369,7 @@ module Injective
   tr-Kind-injective {k₁ = Zerokind}       {k₂ = Reflkind}       ()
   tr-Kind-injective {k₁ = Suckind}        {k₂ = Fstkind _}      ()
   tr-Kind-injective {k₁ = Suckind}        {k₂ = Sndkind _}      ()
+  tr-Kind-injective {k₁ = Reflkind}       {k₂ = Defnkind _}     ()
   tr-Kind-injective {k₁ = Reflkind}       {k₂ = Ukind _}        ()
   tr-Kind-injective {k₁ = Reflkind}       {k₂ = Emptykind}      ()
   tr-Kind-injective {k₁ = Reflkind}       {k₂ = Unitkind _ _}   ()

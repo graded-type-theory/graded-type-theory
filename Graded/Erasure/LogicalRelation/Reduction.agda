@@ -20,7 +20,7 @@ open Type-restrictions R
 open import Definition.LogicalRelation.Simplified R
 
 open import Definition.Untyped M as U
-open import Definition.Untyped.Neutral M type-variant
+open import Definition.Untyped.Whnf M type-variant
 open import Definition.Typed R
 open import Definition.Typed.Properties R
 
@@ -28,7 +28,7 @@ open import Definition.Untyped.Properties M as UP using (wk-id ; wk-lift-id)
 
 open import Graded.Erasure.Extraction.Properties 𝕄
 open import Graded.Erasure.LogicalRelation as
-open import Graded.Erasure.Target as T hiding (_⇒_; _⇒*_)
+open import Graded.Erasure.Target as T hiding (_⊢_⇒_; _⊢_⇒*_)
 open import Graded.Erasure.Target.Properties as TP
 open import Graded.Erasure.Target.Reasoning
 
@@ -52,7 +52,7 @@ opaque
   -- "reduction" for the source term.
 
   sourceRedSubstTerm :
-    ([A] : Δ ⊨ A) →
+    ([A] : ts » Δ ⊨ A) →
     t′ ® v ∷ A / [A] →
     t ⇛ t′ ∷ A →
     t ® v ∷ A / [A]
@@ -85,14 +85,13 @@ opaque
 opaque
 
   -- Logical relation for erasure is preserved under a single reduction backwards on the target language term
-  -- If t ® v′ ∷ A and v ⇒ v′ then t ® v ∷ A
   --
   -- Proof by induction on t ® v′ ∷ A
 
   targetRedSubstTerm :
-    ([A] : Δ ⊨ A) →
+    ([A] : ts » Δ ⊨ A) →
     t ® v′ ∷ A / [A] →
-    v T.⇒ v′ →
+    vs T.⊢ v ⇒ v′ →
     t ® v ∷ A / [A]
   targetRedSubstTerm (Uᵣ _) (Uᵣ ⇒*↯) v⇒v′ = Uᵣ (T.trans v⇒v′ ∘→ ⇒*↯)
   targetRedSubstTerm (ℕᵣ x) (zeroᵣ t′⇒zero v′⇒zero) v⇒v′ = zeroᵣ t′⇒zero (trans v⇒v′ v′⇒zero)
@@ -122,14 +121,13 @@ opaque
 
   -- Logical relation for erasure is preserved under reduction closure backwards
   -- on the target language term.
-  -- If t ® v′ ∷ A and v ⇒* v′ then t ® v ∷ A
   --
   -- Proof by induction on t ® v′ ∷ A
 
   targetRedSubstTerm* :
-    ([A] : Δ ⊨ A) →
+    ([A] : ts » Δ ⊨ A) →
     t ® v′ ∷ A / [A] →
-    v T.⇒* v′ →
+    vs T.⊢ v ⇒* v′ →
     t ® v ∷ A / [A]
   targetRedSubstTerm* [A] t®v′ refl = t®v′
   targetRedSubstTerm* [A] t®v′ (trans x v⇒v′) =
@@ -142,10 +140,10 @@ opaque
   -- target term.
 
   redSubstTerm :
-    ([A] : Δ ⊨ A) →
+    ([A] : ts » Δ ⊨ A) →
     t′ ® v′ ∷ A / [A] →
     t ⇛ t′ ∷ A →
-    v T.⇒ v′ →
+    vs T.⊢ v ⇒ v′ →
     t ® v ∷ A / [A]
   redSubstTerm [A] t′®v′ t⇒t′ v⇒v′ =
     targetRedSubstTerm [A] (sourceRedSubstTerm [A] t′®v′ t⇒t′) v⇒v′
@@ -157,10 +155,10 @@ opaque
   -- target term.
 
   redSubstTerm* :
-    ([A] : Δ ⊨ A) →
+    ([A] : ts » Δ ⊨ A) →
     t′ ® v′ ∷ A / [A] →
     t ⇛ t′ ∷ A →
-    v T.⇒* v′ →
+    vs T.⊢ v ⇒* v′ →
     t ® v ∷ A / [A]
   redSubstTerm* [A] t′®v′ t⇒t′ v⇒v′ =
     targetRedSubstTerm* [A] (sourceRedSubstTerm [A] t′®v′ t⇒t′) v⇒v′
@@ -171,7 +169,7 @@ opaque
   -- the source term.
 
   sourceRedSubstTerm′ :
-    ([A] : Δ ⊨ A) →
+    ([A] : ts » Δ ⊨ A) →
     t ® v ∷ A / [A] →
     t ⇛ t′ ∷ A →
     t′ ® v ∷ A / [A]
@@ -212,17 +210,17 @@ private opaque
   -- Some lemmas used below.
 
   Π-lemma :
-    v T.⇒ v′ →
-    (∃ λ v″ → v T.⇒* T.lam v″) →
-    (∃ λ v″ → v′ T.⇒* T.lam v″)
+    vs T.⊢ v ⇒ v′ →
+    (∃ λ v″ → vs T.⊢ v ⇒* T.lam v″) →
+    (∃ λ v″ → vs T.⊢ v′ ⇒* T.lam v″)
   Π-lemma v⇒v′ (_ , v⇒*lam)
     with red*Det v⇒*lam (T.trans v⇒v′ T.refl)
   … | inj₁ lam⇒*v′ rewrite Value→⇒*→≡ T.lam lam⇒*v′ = _ , T.refl
   … | inj₂ v′⇒*lam = _ , v′⇒*lam
 
   ⇒*↯→⇒→⇒*↯ :
-    (str PE.≡ strict → v T.⇒* ↯) → v T.⇒ v′ →
-    str PE.≡ strict → v′ T.⇒* ↯
+    (str PE.≡ strict → vs T.⊢ v ⇒* ↯) → vs T.⊢ v ⇒ v′ →
+    str PE.≡ strict → vs T.⊢ v′ ⇒* ↯
   ⇒*↯→⇒→⇒*↯ {v′} v⇒*↯ v⇒v′ ≡strict =
     case red*Det (v⇒*↯ ≡strict) (T.trans v⇒v′ T.refl) of λ where
       (inj₂ v′⇒*↯) → v′⇒*↯
@@ -236,16 +234,16 @@ opaque
   -- the target language term.
 
   targetRedSubstTerm*′ :
-    ([A] : Δ ⊨ A) → t ® v ∷ A / [A] →
-    v T.⇒* v′ → t ® v′ ∷ A / [A]
+    ([A] : ts » Δ ⊨ A) → t ® v ∷ A / [A] →
+    vs T.⊢ v ⇒* v′ → t ® v′ ∷ A / [A]
 
   -- Logical relation for erasure is preserved under one reduction step on the target language term
   -- If t ® v ∷ A and v ⇒ v′  then t ® v′ ∷ A
   --
   -- Proof by induction on t ® v ∷ A
 
-  targetRedSubstTerm′ : ([A] : Δ ⊨ A) → t ® v ∷ A / [A]
-                      → v T.⇒ v′ → t ® v′ ∷ A / [A]
+  targetRedSubstTerm′ : ([A] : ts » Δ ⊨ A) → t ® v ∷ A / [A]
+                      → vs T.⊢ v ⇒ v′ → t ® v′ ∷ A / [A]
   targetRedSubstTerm′ (Uᵣ _) (Uᵣ v⇒*↯) v⇒v′ =
     Uᵣ (⇒*↯→⇒→⇒*↯ v⇒*↯ v⇒v′)
   targetRedSubstTerm′ (ℕᵣ x) (zeroᵣ x₁ v⇒zero) v⇒v′ with red*Det v⇒zero (T.trans v⇒v′ T.refl)
@@ -300,10 +298,10 @@ opaque
   -- the source term and reduction for the target term.
 
   redSubstTerm′ :
-    ([A] : Δ ⊨ A) →
+    ([A] : ts » Δ ⊨ A) →
     t ® v ∷ A / [A] →
     t ⇛ t′ ∷ A →
-    v T.⇒ v′ →
+    vs T.⊢ v ⇒ v′ →
     t′ ® v′ ∷ A / [A]
   redSubstTerm′ [A] t®v t⇒t′ v⇒v′ =
     targetRedSubstTerm′ [A] (sourceRedSubstTerm′ [A] t®v t⇒t′) v⇒v′
@@ -314,10 +312,10 @@ opaque
   -- the source term and reduction for the target term.
 
   redSubstTerm*′ :
-    ([A] : Δ ⊨ A) →
+    ([A] : ts » Δ ⊨ A) →
     t ® v ∷ A / [A] →
     t ⇛ t′ ∷ A →
-    v T.⇒* v′ →
+    vs T.⊢ v ⇒* v′ →
     t′ ® v′ ∷ A / [A]
   redSubstTerm*′ [A] t®v t⇒t′ v⇒v′ =
     targetRedSubstTerm*′ [A] (sourceRedSubstTerm′ [A] t®v t⇒t′) v⇒v′

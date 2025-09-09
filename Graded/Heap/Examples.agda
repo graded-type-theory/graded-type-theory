@@ -90,6 +90,7 @@ opaque
       (PE.sym (·-identityʳ 𝟙)) id
 
 opaque
+  unfolding inline
 
   -- If fstʷ has a usage rule then 𝟙 ≤ 𝟘 (given some assumptions).
 
@@ -101,12 +102,12 @@ opaque
     𝟙 ≤ 𝟘
   fstʷ-has-usage→𝟙≤𝟘 ok 𝟙-𝟙≡𝟘 ▸fstʷ =
     let s = initial {k = 0} (fstʷ (prodʷ 𝟙 zero zero))
-        ⊢ℕ = ℕⱼ (∙ ℕⱼ ε)
+        ⊢ℕ = ℕⱼ (∙ ℕⱼ εε)
         ⊢s = prodrecⱼ (ℕⱼ (∙ ΠΣⱼ ⊢ℕ ok))
-              (prodⱼ ⊢ℕ (zeroⱼ ε) (zeroⱼ ε) ok)
+              (prodⱼ ⊢ℕ (zeroⱼ εε) (zeroⱼ εε) ok)
               (var (∙ ⊢ℕ) (there here)) ok
         ▸s = sub (▸fstʷ (prodʷₘ zeroₘ zeroₘ) .proj₂) (ε≤ _)
-        _ , _ , H , _ , _ , d , _ , H≤𝟘 = soundness-closed ⊢s ▸s
+        _ , _ , H , _ , _ , d , _ , H≤𝟘 = soundness-closed ⊢s (λ ()) ▸s
         m≡ , n≡ , s≡ = ↠*-det d (fstʷ⟨0,0⟩↠* 𝟙-𝟙≡𝟘)
                         (λ _ → ↠-inv-sucᵏ) (λ _ → ↠-inv-sucᵏ)
     in  lemma m≡ n≡ s≡ H≤𝟘

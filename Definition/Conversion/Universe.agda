@@ -15,7 +15,7 @@ module Definition.Conversion.Universe
 open Type-restrictions R
 
 open import Definition.Untyped M
-open import Definition.Untyped.Neutral M type-variant
+open import Definition.Untyped.Whnf M type-variant
 open import Definition.Typed.Properties R
 open import Definition.Conversion R
 open import Definition.Conversion.Reduction R
@@ -27,8 +27,7 @@ import Tools.PropositionalEquality as PE
 
 private
   variable
-    n   : Nat
-    Γ   : Con Term n
+    Γ   : Cons _ _
     A B : Term _
     l   : Universe-level
 

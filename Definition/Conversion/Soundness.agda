@@ -15,7 +15,7 @@ module Definition.Conversion.Soundness
   where
 
 open import Definition.Untyped M
-open import Definition.Untyped.Neutral M type-variant
+open import Definition.Untyped.Whnf M type-variant
 open import Definition.Typed R
 open import Definition.Typed.EqRelInstance R
 open import Definition.Typed.EqualityRelation.Instance R
@@ -39,15 +39,17 @@ import Tools.PropositionalEquality as PE
 
 private
   variable
-    n     : Nat
-    Γ     : Con Term n
+    Γ     : Cons _ _
     A B   : Term _
     l₁ l₂ : Universe-level
 
 mutual
   -- Algorithmic equality of neutrals is well-formed.
   soundness~↑ : ∀ {k l A} → Γ ⊢ k ~ l ↑ A → Γ ⊢ k ≡ l ∷ A
-  soundness~↑ (var-refl x x≡y) = PE.subst (λ y → _ ⊢ _ ≡ var y ∷ _) x≡y (refl x)
+  soundness~↑ (var-refl x x≡y) =
+    PE.subst (λ y → _ ⊢ _ ≡ var y ∷ _) x≡y (refl x)
+  soundness~↑ (defn-refl ⊢α α↦⊘ α≡β) =
+    PE.subst (λ β → _ ⊢ _ ≡ defn β ∷ _) α≡β (refl ⊢α)
   soundness~↑ (app-cong k~l x₁) =
     app-cong (soundness~↓ k~l) (soundnessConv↑Term x₁)
   soundness~↑ (fst-cong x) =

@@ -87,6 +87,10 @@ import Definition.Untyped
 import Definition.Untyped.Inversion
 import Definition.Untyped.Properties.NotParametrised
 import Definition.Untyped.Properties
+import Definition.Typed.Variant
+import Definition.Untyped.Neutral
+import Definition.Untyped.Whnf
+import Definition.Untyped.Names-below
 import Definition.Untyped.Identity
 import Definition.Untyped.Sigma
 import Definition.Untyped.Non-dependent
@@ -100,9 +104,6 @@ import Definition.Untyped.Erased.No-eta
 import Definition.Untyped.Erased
 import Definition.Untyped.Bool.Erased
 import Graded.Derived.Unrestricted.Eta.Untyped
-import Definition.Typed.Variant
-import Definition.Untyped.Neutral
-import Definition.Untyped.Properties.Neutral
 
 ------------------------------------------------------------------------
 -- The type theory, along with some basic properties
@@ -117,6 +118,7 @@ import Definition.Typed.Properties.Well-formed
 import Definition.Typed.Inversion.Primitive
 import Definition.Typed.Properties.Admissible.Erased.Primitive
 import Definition.Typed.Weakening
+import Definition.Typed.Weakening.Definition
 import Definition.Typed.Stability.Primitive
 import Definition.Typed.Substitution.Primitive.Primitive
 import Definition.Typed.Well-formed
@@ -144,8 +146,10 @@ import Definition.Typed.Properties.Admissible.Lift
 import Definition.Typed.Properties.Admissible.Bool.OK
 import Definition.Typed.Properties.Admissible.Bool
 import Definition.Typed.Properties.Admissible.Bool.Erased
+import Definition.Typed.Properties.Definition
 import Definition.Typed.Substitution
 import Definition.Typed.Properties
+import Definition.Typed.Names-below
 import Definition.Typed.EqualityRelation
 import Definition.Typed.EqualityRelation.Instance
 import Definition.Typed.EqRelInstance
@@ -272,6 +276,7 @@ import Definition.LogicalRelation.Properties.Transitivity
 import Definition.LogicalRelation.Properties.Reduction
 import Definition.LogicalRelation.Properties
 import Definition.LogicalRelation.Weakening
+import Definition.LogicalRelation.Weakening.Definition
 import Definition.LogicalRelation.Hidden
 import Definition.LogicalRelation.Hidden.Restricted
 
@@ -281,6 +286,7 @@ import Definition.LogicalRelation.Substitution
 -- The fundamental lemma of the logical relations.
 import Definition.LogicalRelation.Substitution.Introductions.Var
 import Definition.LogicalRelation.Substitution.Introductions.Universe
+import Definition.LogicalRelation.Substitution.Introductions.Definition
 import Definition.LogicalRelation.Substitution.Introductions.Empty
 import Definition.LogicalRelation.Substitution.Introductions.Emptyrec
 import Definition.LogicalRelation.Substitution.Introductions.Unit
@@ -315,6 +321,7 @@ import Definition.Typed.Consequences.Admissible
 import Definition.Typed.Consequences.Consistency
 import Graded.Derived.Unrestricted.Eta.Typed
 import Definition.Typed.Consequences.NeTypeEq
+import Definition.Typed.Consequences.Unfolding
 
 -- A simplified version of the logical relation for types
 import Definition.LogicalRelation.Simplified
@@ -330,6 +337,7 @@ import Definition.Conversion.Conversion
 import Definition.Conversion.Symmetry
 import Definition.Conversion.Transitivity
 import Definition.Conversion.Weakening
+import Definition.Conversion.Weakening.Definition
 import Definition.Conversion.Lift
 import Definition.Conversion.Universe
 import Definition.Conversion.Decidable

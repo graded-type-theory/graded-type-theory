@@ -22,6 +22,7 @@ open Usage-restrictions UR
 
 open import Tools.Empty
 open import Tools.Fin
+open import Tools.Function
 open import Tools.Nat using (1+)
 open import Tools.Product
 import Tools.PropositionalEquality as PE
@@ -64,12 +65,12 @@ opaque
   --   3. If p ≰ 𝟘 for some p then the grades of the entries of the final heap
   --      are not bounded by 𝟘.
 
-  ¬soundness-inconsistent :
+  ¬soundness-ε-inconsistent :
     Emptyrec-allowed 𝟙ᵐ 𝟘 →
     Π-allowed p 𝟘 →
     ∃₃ λ l (Δ : Con Term l) t →
-    ¬ Consistent Δ ×
-    Δ ⊢ t ∷ ℕ ×
+    ¬ Consistent (ε » Δ) ×
+    ε » Δ ⊢ t ∷ ℕ ×
     𝟘ᶜ ▸[ 𝟙ᵐ ] t ×
     ∃₆ λ m n H u (ρ : Wk m n) S →
     initial t ↠* ⟨ H , u , ρ , S ⟩ ×
@@ -77,9 +78,9 @@ opaque
     S PE.≢ ε ×
     ¬ (∃ λ k → u PE.≡ sucᵏ k) ×
     ((p ≤ 𝟘 → ⊥) → ¬ H ≤ʰ 𝟘)
-  ¬soundness-inconsistent {p} ok₁ ok₂ =
+  ¬soundness-ε-inconsistent {p} ok₁ ok₂ =
     let Δ = ε ∙ Empty
-        ⊢Δ = ∙ Emptyⱼ ε
+        ⊢Δ = ∙ Emptyⱼ εε
         ⊢Δ′ = ∙ ℕⱼ ⊢Δ
         ⊢ℕ = ℕⱼ ⊢Δ′
         H = erasedHeap 1 ∙ (𝟙 · p , zero , id)
@@ -122,14 +123,14 @@ opaque
   --   2. The stack of the final state is not empty
   --   3. If 𝟙 ≰ 𝟘 then the grades of the entries of the final heap are not bounded by 𝟘.
 
-  ¬soundness-erased-matches-unitrec :
+  ¬soundness-ε-erased-matches-unitrec :
     Unitʷ-allowed →
     Π-allowed 𝟙 𝟘 →
     Unitrec-allowed 𝟙ᵐ 𝟘 𝟘 →
     ¬ Unitʷ-η →
     ∃₃ λ l (Δ : Con Term l) t →
-    Consistent Δ ×
-    Δ ⊢ t ∷ ℕ ×
+    Consistent (ε » Δ) ×
+    ε » Δ ⊢ t ∷ ℕ ×
     𝟘ᶜ ▸[ 𝟙ᵐ ] t ×
     ∃₆ λ m n H u (ρ : Wk m n) S →
     initial t ↠* ⟨ H , u , ρ , S ⟩ ×
@@ -137,9 +138,9 @@ opaque
     S PE.≢ ε ×
     ¬ (∃ λ k → u PE.≡ sucᵏ k) ×
     ((𝟙 ≤ 𝟘 → ⊥) → ¬ H ≤ʰ 𝟘)
-  ¬soundness-erased-matches-unitrec ok₁ ok₂ ok₃ no-η =
+  ¬soundness-ε-erased-matches-unitrec ok₁ ok₂ ok₃ no-η =
     let Δ = ε ∙ Unitʷ 0
-        ⊢Δ = ∙ Unitⱼ ε ok₁
+        ⊢Δ = ∙ Unitⱼ εε ok₁
         ⊢Δ′ = ∙ ℕⱼ ⊢Δ
         H = erasedHeap 1 ∙ (𝟙 · 𝟙 , zero , id)
         S = unitrecₑ 0 𝟘 𝟘 ℕ (var x0) (lift id) ∙ ε
@@ -163,8 +164,8 @@ opaque
         ▸t = sub (lamₘ (sub (unitrecₘ {η = 𝟘ᶜ} var var (sub ℕₘ (≤ᶜ-refl ∙ ≤-reflexive (·-zeroʳ _))) ok₃)
                                (≤ᶜ-reflexive (ε ∙ eq₂ ∙ eq₁))) ∘ₘ zeroₘ)
               (≤ᶜ-reflexive (ε ∙ eq₃))
-    in  _ , Δ , t , (λ _ x → ¬Empty (substTerm x (starⱼ ε ok₁))) , ⊢t , ▸t
-          , _ , _ , H , var x1 , lift id , S
+    in  _ , Δ , t , (λ _ x → ¬Empty (substTerm x (starⱼ εε ok₁))) , ⊢t
+          , ▸t , _ , _ , H , var x1 , lift id , S
           , (⇾ₑ (⇒ₑ appₕ) ⇨ ⇒ᵥ (lamₕ ε) ⇨ ⇾ₑ (⇒ₑ unitrecₕ no-η) ⇨ id)
           , (λ { s (⇾ₑ d) → ¬↦∧↦● (↦[]→↦ (⇾ₑ-inv-var d .proj₂ .proj₂ .proj₂)) (there here)
                ; s (⇒ᵥ d) → ⇒ᵥ-inv-var d
@@ -183,13 +184,13 @@ opaque
   --   2. The stack of the final state is not empty
   --   3. If 𝟙 ≰ 𝟘 then the grades of the entries of the final heap are not bounded by 𝟘.
 
-  ¬soundness-erased-matches-prodrec :
+  ¬soundness-ε-erased-matches-prodrec :
     Σʷ-allowed p 𝟘 →
     Π-allowed 𝟙 𝟘 →
     Prodrec-allowed 𝟙ᵐ 𝟘 p 𝟘 →
     ∃₃ λ l (Δ : Con Term l) t →
-    Consistent Δ ×
-    Δ ⊢ t ∷ ℕ ×
+    Consistent (ε » Δ) ×
+    ε » Δ ⊢ t ∷ ℕ ×
     𝟘ᶜ ▸[ 𝟙ᵐ ] t ×
     ∃₆ λ m n H u (ρ : Wk m n) S →
     initial t ↠* ⟨ H , u , ρ , S ⟩ ×
@@ -197,9 +198,9 @@ opaque
     S PE.≢ ε ×
     ¬ (∃ λ k → u PE.≡ sucᵏ k) ×
     ((𝟙 ≤ 𝟘 → ⊥) → ¬ H ≤ʰ 𝟘)
-  ¬soundness-erased-matches-prodrec {p} ok₁ ok₂ ok₃ =
+  ¬soundness-ε-erased-matches-prodrec {p} ok₁ ok₂ ok₃ =
     let Δ = ε ∙ Σʷ p , 𝟘 ▷ ℕ ▹ ℕ
-        ⊢Δ = ∙ ΠΣⱼ (ℕⱼ (∙ ℕⱼ ε)) ok₁
+        ⊢Δ = ∙ ΠΣⱼ (ℕⱼ (∙ ℕⱼ εε)) ok₁
         ⊢Δ′ = ∙ ℕⱼ ⊢Δ
         ⊢Δ″ = ∙ ℕⱼ ⊢Δ′
         H = erasedHeap 1 ∙ (𝟙 · 𝟙 , zero , id)
@@ -227,8 +228,11 @@ opaque
                             (≤ᶜ-reflexive (≈ᶜ-refl ∙ eq₂)))
                  ∘ₘ zeroₘ)
                  (ε ∙ ≤-reflexive eq₃)
-    in  _ , Δ , t , (λ _ x → ¬Empty (substTerm x (prodⱼ (ℕⱼ (∙ ℕⱼ ε)) (zeroⱼ ε) (zeroⱼ ε) ok₁))) , ⊢t , ▸t
-          , _ , _ , H , var x1 , lift id , S
+    in  _ , Δ , t
+          , (λ _ x →
+               ¬Empty $ substTerm x $
+               prodⱼ (ℕⱼ (∙ ℕⱼ εε)) (zeroⱼ εε) (zeroⱼ εε) ok₁)
+          , ⊢t , ▸t , _ , _ , H , var x1 , lift id , S
           , (⇾ₑ (⇒ₑ appₕ) ⇨ ⇒ᵥ (lamₕ ε) ⇨ ⇾ₑ (⇒ₑ prodrecₕ) ⇨ id)
           , (λ { s (⇾ₑ d) → ¬↦∧↦● (↦[]→↦ (⇾ₑ-inv-var d .proj₂ .proj₂ .proj₂)) (there here)
                ; s (⇒ᵥ d) → ⇒ᵥ-inv-var d
@@ -248,12 +252,12 @@ opaque
   --   2. The stack of the final state is not empty
   --   3. If 𝟙 ≰ 𝟘 then the grades of the entries of the final heap are not bounded by 𝟘.
 
-  ¬soundness-not-erased :
+  ¬soundness-ε-not-erased :
     Π-allowed 𝟙 𝟘 →
     ∃₄ λ l (Δ : Con Term l) γ t →
-    Consistent Δ ×
+    Consistent (ε » Δ) ×
     γ ≈ᶜ 𝟙ᶜ ×
-    Δ ⊢ t ∷ ℕ ×
+    ε » Δ ⊢ t ∷ ℕ ×
     γ ▸[ 𝟙ᵐ ] t ×
     ∃₆ λ m n H u (ρ : Wk m n) S →
     initial t ↠* ⟨ H , u , ρ , S ⟩ ×
@@ -261,9 +265,9 @@ opaque
     S PE.≢ ε ×
     ¬ (∃ λ k → u PE.≡ sucᵏ k) ×
     ((𝟙 ≤ 𝟘 → ⊥) → ¬ H ≤ʰ 𝟘)
-  ¬soundness-not-erased ok =
+  ¬soundness-ε-not-erased ok =
     let Δ = ε ∙ Π 𝟙 , 𝟘 ▷ ℕ ▹ ℕ
-        ⊢Δ = ∙ ΠΣⱼ (ℕⱼ (∙ ℕⱼ ε)) ok
+        ⊢Δ = ∙ ΠΣⱼ (ℕⱼ (∙ ℕⱼ εε)) ok
         ⊢Δ′ = ∙ ℕⱼ ⊢Δ
         H = erasedHeap 1 ∙ (𝟙 · 𝟙 , zero , id)
         S = ∘ₑ 𝟙 (var y0) (lift id) ∙ ε
@@ -280,7 +284,10 @@ opaque
         ▸t = sub (lamₘ (sub (var ∘ₘ var) (≤ᶜ-reflexive (ε ∙ eq₁ ∙ eq₂)))
                   ∘ₘ zeroₘ)
                (ε ∙ ≤-reflexive eq₁)
-    in  _ , Δ , _ , t , (λ _ x → ¬Empty (substTerm x (lamⱼ (ℕⱼ (∙ ℕⱼ ε)) (var (∙ ℕⱼ ε) here) ok)))
+    in  _ , Δ , _ , t
+          , (λ _ x →
+               ¬Empty $ substTerm x $
+               lamⱼ (ℕⱼ (∙ ℕⱼ εε)) (var (∙ ℕⱼ εε) here) ok)
           , ≈ᶜ-refl , ⊢t , ▸t
           , _ , _ , H , var x1 , lift id , S
           , (⇾ₑ (⇒ₑ appₕ) ⇨ ⇒ᵥ (lamₕ ε) ⇨ ⇾ₑ (⇒ₑ appₕ) ⇨ id)

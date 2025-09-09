@@ -26,6 +26,7 @@ import Tools.PropositionalEquality as PE
 open P public
 
 private variable
+  ∇       : DCon (Term 0) _
   Γ Δ     : Con Term _
   A B t u : Term _
   σ       : Subst _ _
@@ -35,11 +36,14 @@ opaque
   -- A substitution lemma for _⊢_⇒_∷_.
 
   subst-⊢⇒∷ :
-    Γ ⊢ t ⇒ u ∷ A →
-    Δ ⊢ˢʷ σ ∷ Γ →
-    Δ ⊢ t [ σ ] ⇒ u [ σ ] ∷ A [ σ ]
+    ∇ » Γ ⊢ t ⇒ u ∷ A →
+    ∇ » Δ ⊢ˢʷ σ ∷ Γ →
+    ∇ » Δ ⊢ t [ σ ] ⇒ u [ σ ] ∷ A [ σ ]
   subst-⊢⇒∷ (conv t⇒u B≡A) ⊢σ =
     conv (subst-⊢⇒∷ t⇒u ⊢σ) (subst-⊢≡ B≡A (refl-⊢ˢʷ≡∷ ⊢σ))
+  subst-⊢⇒∷ (δ-red ⊢Γ α↦t PE.refl PE.refl) ⊢σ =
+    PE.subst (_ ⊢ _ ⇒_∷ _) (PE.sym (wk₀-subst-invariant _))
+             (δ-red (wf-⊢ˢʷ∷ ⊢σ) α↦t (wk₀-subst-invariant _) PE.refl)
   subst-⊢⇒∷ (app-subst {G = B} t⇒u ⊢v) ⊢σ =
     PE.subst (_⊢_⇒_∷_ _ _ _) (PE.sym (singleSubstLift B _))
       (app-subst (subst-⊢⇒∷ t⇒u ⊢σ) (subst-⊢∷ ⊢v ⊢σ))
@@ -121,7 +125,7 @@ opaque
     PE.subst (_⊢_⇒_∷_ _ _ _) (PE.sym $ [,]-[]-commute B) $
     J-subst (subst-⊢∷ ⊢t ⊢σ)
       (PE.subst (flip _⊢_ _)
-         (PE.cong (_∙_ _) $
+         (PE.cong (_»∙_ _) $
           PE.cong₃ Id (wk1-liftSubst A) (wk1-liftSubst t) PE.refl) $
        subst-⊢-⇑ ⊢B ⊢σ)
       (PE.subst (_⊢_∷_ _ _) ([,]-[]-commute B) (subst-⊢∷ ⊢u ⊢σ))
@@ -137,7 +141,7 @@ opaque
     PE.subst (_⊢_⇒_∷_ _ _ _) (PE.sym $ [,]-[]-commute B) $
     J-β-⇒ (subst-⊢≡∷ t≡t′ (refl-⊢ˢʷ≡∷ ⊢σ))
       (PE.subst (flip _⊢_ _)
-         (PE.cong (_∙_ _) $
+         (PE.cong (_»∙_ _) $
           PE.cong₃ Id (wk1-liftSubst A) (wk1-liftSubst t) PE.refl) $
        subst-⊢-⇑ ⊢B ⊢σ)
       (PE.subst (_⊢_∷_ _ _) ([,]-[]-commute B) (subst-⊢∷ ⊢u ⊢σ))
@@ -153,9 +157,9 @@ opaque
   -- A substitution lemma for _⊢_⇒*_∷_.
 
   subst-⊢⇒*∷ :
-    Γ ⊢ t ⇒* u ∷ A →
-    Δ ⊢ˢʷ σ ∷ Γ →
-    Δ ⊢ t [ σ ] ⇒* u [ σ ] ∷ A [ σ ]
+    ∇ » Γ ⊢ t ⇒* u ∷ A →
+    ∇ » Δ ⊢ˢʷ σ ∷ Γ →
+    ∇ » Δ ⊢ t [ σ ] ⇒* u [ σ ] ∷ A [ σ ]
   subst-⊢⇒*∷ (id ⊢t)      ⊢σ = id (subst-⊢∷ ⊢t ⊢σ)
   subst-⊢⇒*∷ (t⇒u ⇨ u⇒*v) ⊢σ = subst-⊢⇒∷ t⇒u ⊢σ ⇨ subst-⊢⇒*∷ u⇒*v ⊢σ
 
@@ -164,9 +168,9 @@ opaque
   -- A substitution lemma for _⊢_⇒_.
 
   subst-⊢⇒ :
-    Γ ⊢ A ⇒ B →
-    Δ ⊢ˢʷ σ ∷ Γ →
-    Δ ⊢ A [ σ ] ⇒ B [ σ ]
+    ∇ » Γ ⊢ A ⇒ B →
+    ∇ » Δ ⊢ˢʷ σ ∷ Γ →
+    ∇ » Δ ⊢ A [ σ ] ⇒ B [ σ ]
   subst-⊢⇒ (univ A⇒B) ⊢σ =
     univ (subst-⊢⇒∷ A⇒B ⊢σ)
 
@@ -175,8 +179,8 @@ opaque
   -- A substitution lemma for _⊢_⇒*_.
 
   subst-⊢⇒* :
-    Γ ⊢ A ⇒* B →
-    Δ ⊢ˢʷ σ ∷ Γ →
-    Δ ⊢ A [ σ ] ⇒* B [ σ ]
+    ∇ » Γ ⊢ A ⇒* B →
+    ∇ » Δ ⊢ˢʷ σ ∷ Γ →
+    ∇ » Δ ⊢ A [ σ ] ⇒* B [ σ ]
   subst-⊢⇒* (id ⊢A)      ⊢σ = id (subst-⊢ ⊢A ⊢σ)
   subst-⊢⇒* (A⇒B ⇨ B⇒*C) ⊢σ = subst-⊢⇒ A⇒B ⊢σ ⇨ subst-⊢⇒* B⇒*C ⊢σ

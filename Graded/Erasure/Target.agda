@@ -6,6 +6,7 @@ module Graded.Erasure.Target where
 
 open import Tools.Bool
 open import Tools.Fin
+open import Tools.List
 open import Tools.Nat using (Nat; 1+; 2+; _+_)
 open import Tools.PropositionalEquality using (_≡_; refl)
 open import Tools.Relation
@@ -17,11 +18,11 @@ infixl 30 _∘⟨_⟩_
 infixl 25 _[_]
 infixl 25 _[_,_]₁₀
 infixl 25 _[_]₀
-infix 10 _⇒_ _⇒*_
+infix 10 _↦_∈_ _⊢_⇒_ _⊢_⇒*_
 
 private
   variable
-    ℓ m n : Nat
+    α ℓ m n : Nat
 
 -- Function applications can be strict or non-strict.
 
@@ -48,12 +49,13 @@ infix 10 _==_
 _==_ : Strictness → Strictness → Bool
 s₁ == s₂ = Dec.does (s₁ ≟ s₂)
 
--- Terms of the target language:
--- A lambda calculus extended with natural numbers, products, unit
+-- Terms of the target language: A lambda calculus extended with
+-- top-level, recursive definitions, natural numbers, products, unit
 -- and an undefined value.
 
 data Term : Nat → Set where
   var     : (x : Fin n) → Term n
+  defn    : Nat → Term n
   lam     : (t : Term (1+ n)) → Term n
   _∘⟨_⟩_  : (t : Term n) (s : Strictness) (u : Term n) → Term n
   prod    : (t u : Term n) → Term n
@@ -70,6 +72,7 @@ data Term : Nat → Set where
 private
   variable
     t t′ u u′ v v′ : Term n
+    ts             : List (Term _)
 
 -- A possibly strict variant of suc.
 
@@ -108,6 +111,7 @@ data HasX (x : Fin n) : (t : Term n) → Set where
 
 wk : (ρ : Wk m n) → (t : Term n) → Term m
 wk ρ (var x) = var (wkVar ρ x)
+wk _ (defn α) = defn α
 wk ρ (lam t) = lam (wk (lift ρ) t)
 wk ρ (t ∘⟨ s ⟩ u) = wk ρ t ∘⟨ s ⟩ wk ρ u
 wk ρ zero = zero
@@ -189,6 +193,7 @@ toSubst ρ x = var (wkVar ρ x)
 
 _[_] : (t : Term n) → (σ : Subst m n) → Term m
 var x        [ σ ] = σ x
+defn α       [ _ ] = defn α
 lam t        [ σ ] = lam (t [ liftSubst σ ])
 (t ∘⟨ s ⟩ u) [ σ ] = (t [ σ ]) ∘⟨ s ⟩ (u [ σ ])
 prod t u     [ σ ] = prod (t [ σ ]) (u [ σ ])
@@ -264,27 +269,44 @@ sucᵏ : (k : Nat) → Term n
 sucᵏ 0      = zero
 sucᵏ (1+ n) = suc (sucᵏ n)
 
+-- List indexing.
+
+data _↦_∈_ : Nat → Term n → List (Term n) → Set where
+  here  : 0 ↦ t ∈ (t ∷ ts)
+  there : n ↦ t ∈ ts → 1+ n ↦ t ∈ (u ∷ ts)
+
 -- Single-step reduction relation
 
-data _⇒_ : (t u : Term n) → Set where
-  app-subst       : t ⇒ t′ → t ∘⟨ s ⟩ u ⇒ t′ ∘⟨ s ⟩ u
-  app-subst-arg   : Value t → u ⇒ u′ →
-                    t ∘⟨ strict ⟩ u ⇒ t ∘⟨ strict ⟩ u′
-  β-red           : Value⟨ s ⟩ u → lam t ∘⟨ s ⟩ u ⇒ t [ u ]₀
-  fst-subst       : t ⇒ t′ → fst t ⇒ fst t′
-  snd-subst       : t ⇒ t′ → snd t ⇒ snd t′
-  Σ-β₁            : fst (prod t u) ⇒ t
-  Σ-β₂            : snd (prod t u) ⇒ u
-  prodrec-subst   : t ⇒ t′ → prodrec t u ⇒ prodrec t′ u
-  prodrec-β       : prodrec (prod t t′) u ⇒ u [ t , t′ ]₁₀
-  natrec-subst    : v ⇒ v′ → natrec t u v ⇒ natrec t u v′
-  natrec-zero     : natrec t u zero ⇒ t
-  natrec-suc      : natrec t u (suc v) ⇒ u [ v , natrec t u v ]₁₀
-  unitrec-subst   : t ⇒ t′ → unitrec t u ⇒ unitrec t′ u
-  unitrec-β       : unitrec star u ⇒ u
+data _⊢_⇒_ (∇ : List (Term 0)) : (t u : Term n) → Set where
+  δ-red           : α ↦ t ∈ ∇ → ∇ ⊢ defn {n = n} α ⇒ wk wk₀ t
+  app-subst       : ∇ ⊢ t ⇒ t′ → ∇ ⊢ t ∘⟨ s ⟩ u ⇒ t′ ∘⟨ s ⟩ u
+  app-subst-arg   : Value t → ∇ ⊢ u ⇒ u′ →
+                    ∇ ⊢ t ∘⟨ strict ⟩ u ⇒ t ∘⟨ strict ⟩ u′
+  β-red           : Value⟨ s ⟩ u → ∇ ⊢ lam t ∘⟨ s ⟩ u ⇒ t [ u ]₀
+  fst-subst       : ∇ ⊢ t ⇒ t′ → ∇ ⊢ fst t ⇒ fst t′
+  snd-subst       : ∇ ⊢ t ⇒ t′ → ∇ ⊢ snd t ⇒ snd t′
+  Σ-β₁            : ∇ ⊢ fst (prod t u) ⇒ t
+  Σ-β₂            : ∇ ⊢ snd (prod t u) ⇒ u
+  prodrec-subst   : ∇ ⊢ t ⇒ t′ → ∇ ⊢ prodrec t u ⇒ prodrec t′ u
+  prodrec-β       : ∇ ⊢ prodrec (prod t t′) u ⇒ u [ t , t′ ]₁₀
+  natrec-subst    : ∇ ⊢ v ⇒ v′ → ∇ ⊢ natrec t u v ⇒ natrec t u v′
+  natrec-zero     : ∇ ⊢ natrec t u zero ⇒ t
+  natrec-suc      : ∇ ⊢ natrec t u (suc v) ⇒ u [ v , natrec t u v ]₁₀
+  unitrec-subst   : ∇ ⊢ t ⇒ t′ → ∇ ⊢ unitrec t u ⇒ unitrec t′ u
+  unitrec-β       : ∇ ⊢ unitrec star u ⇒ u
 
 -- Reflexive transitive closure of reduction relation
 
-data _⇒*_ : (t u : Term n) → Set where
-  refl : t ⇒* t
-  trans : t ⇒ t′ → t′ ⇒* u → t ⇒* u
+data _⊢_⇒*_ (∇ : List (Term 0)) : (t u : Term n) → Set where
+  refl : ∇ ⊢ t ⇒* t
+  trans : ∇ ⊢ t ⇒ t′ → ∇ ⊢ t′ ⇒* u → ∇ ⊢ t ⇒* u
+
+private
+
+  -- Note that recursive definitions are supported, including
+  -- definitions like "let x = x in x":
+
+  non-terminating-recursive-definition :
+    (defn 0 ∷ []) ⊢ defn {n = n} 0 ⇒ defn 0
+  non-terminating-recursive-definition =
+    δ-red here

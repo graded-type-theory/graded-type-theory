@@ -17,7 +17,6 @@ open EqRelSet eqrel
 open Type-restrictions R
 
 open import Definition.Untyped M
-open import Definition.Untyped.Neutral M type-variant
 open import Definition.Untyped.Properties M
 open import Definition.Typed R
 open import Definition.Typed.Properties R
@@ -34,7 +33,7 @@ import Tools.PropositionalEquality as PE
 private
   variable
     x : Fin _
-    Γ : Con Term _
+    Γ : Cons _ _
     A : Term _
     l : Universe-level
 
@@ -43,21 +42,21 @@ opaque
   -- Reducibility for variables.
 
   ⊩var :
-    ⦃ inc : Neutrals-included ⦄ →
-    x ∷ A ∈ Γ →
+    ⦃ inc : Var-included ⦄ →
+    x ∷ A ∈ Γ .vars →
     Γ ⊩⟨ l ⟩ A →
     Γ ⊩⟨ l ⟩ var x ∷ A
-  ⊩var ⦃ inc ⦄ x∈Γ ⊩A =
+  ⊩var x∈Γ ⊩A =
     case var (wf (escape-⊩ ⊩A)) x∈Γ of λ
       ⊢var →
-    neutral-⊩∷ inc ⊩A (var _) (~-var ⊢var)
+    neutral-⊩∷ ⊩A (varₗ _) (~-var ⊢var)
 
 opaque
 
   -- Well-typed variables in valid contexts are valid.
 
   varᵛ :
-    x ∷ A ∈ Γ →
+    x ∷ A ∈ Γ .vars →
     ⊩ᵛ Γ →
     ∃ λ l → Γ ⊩ᵛ⟨ l ⟩ var x ∷ A
   varᵛ (here {A}) ⊩Γ∙A =
@@ -68,11 +67,11 @@ opaque
       l
     , ⊩ᵛ∷⇔ .proj₂
         ( ⊩wk1-A
-        , λ σ₁≡σ₂ →
+        , λ ξ⊇ σ₁≡σ₂ →
             case ⊩ˢ≡∷∙⇔ .proj₁ σ₁≡σ₂ of λ
               ((_ , _ , σ₁₀≡σ₂₀) , _) →
             R.level-⊩≡∷
-              (⊩ᵛ→⊩ˢ∷→⊩[] ⊩wk1-A (wf-⊩ˢ≡∷ σ₁≡σ₂ .proj₁))
+              (⊩ᵛ→⊩ˢ∷→⊩[] (defn-wk-⊩ᵛ ξ⊇ ⊩wk1-A) (wf-⊩ˢ≡∷ σ₁≡σ₂ .proj₁))
               (PE.subst (R._⊩⟨_⟩_≡_∷_ _ _ _ _) (PE.sym $ wk1-tail A)
                  σ₁₀≡σ₂₀)
         )
@@ -86,7 +85,7 @@ opaque
   -- A variant of varᵛ.
 
   varᵛ′ :
-    x ∷ A ∈ Γ →
+    x ∷ A ∈ Γ .vars →
     Γ ⊩ᵛ⟨ l ⟩ A →
     Γ ⊩ᵛ⟨ l ⟩ var x ∷ A
   varᵛ′ x∈Γ ⊩A =

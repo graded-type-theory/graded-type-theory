@@ -22,7 +22,7 @@ open import Definition.Typed.Reasoning.Term.Primitive R public
 
 private variable
   A B t u v : Term _
-  Γ         : Con Term _
+  Γ         : Cons _ _
 
 ------------------------------------------------------------------------
 -- Equational reasoning combinators

@@ -20,7 +20,7 @@ import Tools.PropositionalEquality as PE
 
 private variable
   A B t u v : Term _
-  Γ         : Con Term _
+  Γ         : Cons _ _
 
 ------------------------------------------------------------------------
 -- Combinators for left-to-right reductions

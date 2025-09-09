@@ -14,9 +14,9 @@ module Definition.LogicalRelation.Fundamental.Reducibility
   (R : Type-restrictions 𝕄)
   {{eqrel : EqRelSet R}}
   (open EqRelSet eqrel)
-  {n} {Γ : Con Term n}
-  -- Neutrals are included or Γ is empty.
-  ⦃ inc : Neutrals-included or-empty Γ ⦄
+  {m n} {Γ : Cons m n}
+  -- Neutrals are included or Γ .vars is empty.
+  ⦃ inc : Var-included or-empty (Γ .vars) ⦄
   where
 
 open import Definition.Typed R

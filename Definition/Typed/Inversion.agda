@@ -18,19 +18,24 @@ import Definition.Typed.Inversion.Primitive R as I
 open import Definition.Typed.Properties.Well-formed R
 open import Definition.Typed.Substitution.Primitive R
 open import Definition.Typed.Syntactic R
+import Definition.Typed.Weakening R as W
+open import Definition.Typed.Well-formed R
 
 open import Definition.Untyped M
 import Definition.Untyped.Erased 𝕄 as Erased
 
 open import Tools.Fin
 open import Tools.Function
+open import Tools.Nat
 open import Tools.Product
+import Tools.PropositionalEquality as PE
 
 open I public
 
 private variable
   x             : Fin _
-  Γ             : Con Term _
+  α             : Nat
+  Γ             : Cons _ _
   A B C t u v w : Term _
   b             : BinderMode
   l             : Universe-level
@@ -44,12 +49,27 @@ opaque
 
   -- Inversion for var.
 
-  inversion-var : Γ ⊢ var x ∷ A → ∃ λ B → x ∷ B ∈ Γ × Γ ⊢ A ≡ B
+  inversion-var : Γ ⊢ var x ∷ A → ∃ λ B → x ∷ B ∈ Γ .vars × Γ ⊢ A ≡ B
   inversion-var ⊢x@(var _ x∈) =
     _ , x∈ , refl (syntacticTerm ⊢x)
   inversion-var (conv ⊢var eq) =
     let a , b , c = inversion-var ⊢var in
     a , b , trans (sym eq) c
+
+------------------------------------------------------------------------
+-- Inversion for definitions
+
+opaque
+
+  -- Inversion for defn.
+
+  inversion-defn : Γ ⊢ defn α ∷ A
+                 → ∃ λ A′ → α ↦∷ A′ ∈ Γ .defs × (Γ ⊢ A ≡ wk wk₀ A′)
+  inversion-defn (defn {A′ = A} ⊢Γ α↦t PE.refl) =
+    A , α↦t , refl (W.wk (W.wk₀∷ʷ⊇ ⊢Γ) (wf-↦∈ α↦t (defn-wf ⊢Γ)))
+  inversion-defn (conv ⊢α eq) =
+    let A , α↦t , A≡A′ = inversion-defn ⊢α
+    in  A , α↦t , trans (sym eq) A≡A′
 
 ------------------------------------------------------------------------
 -- Inversion for Unit
@@ -70,7 +90,7 @@ opaque
 
   inversion-unitrec :
     Γ ⊢ unitrec l p q A t u ∷ B →
-    (Γ ∙ Unitʷ l ⊢ A) ×
+    (Γ »∙ Unitʷ l ⊢ A) ×
     Γ ⊢ t ∷ Unitʷ l ×
     Γ ⊢ u ∷ A [ starʷ l ]₀ ×
     Γ ⊢ B ≡ A [ t ]₀
@@ -102,7 +122,7 @@ opaque
   inversion-lam :
     Γ ⊢ lam p t ∷ A →
     ∃₃ λ B C q →
-      (Γ ⊢ B) × Γ ∙ B ⊢ t ∷ C ×
+      (Γ ⊢ B) × Γ »∙ B ⊢ t ∷ C ×
       Γ ⊢ A ≡ Π p , q ▷ B ▹ C ×
       Π-allowed p q
   inversion-lam (lamⱼ _ ⊢t ok) =
@@ -132,7 +152,7 @@ opaque
   inversion-snd :
     Γ ⊢ snd p t ∷ A →
     ∃₃ λ B C q →
-      (Γ ⊢ B) × (Γ ∙ B ⊢ C) ×
+      (Γ ⊢ B) × (Γ »∙ B ⊢ C) ×
       Γ ⊢ t ∷ Σˢ p , q ▷ B ▹ C ×
       Γ ⊢ A ≡ C [ fst p t ]₀
   inversion-snd (sndⱼ ⊢C ⊢t) =
@@ -149,10 +169,10 @@ opaque
   inversion-prodrec :
     Γ ⊢ prodrec r p q′ A t u ∷ B →
     ∃₃ λ C D q →
-      (Γ ⊢ C) × (Γ ∙ C ⊢ D) ×
-      (Γ ∙ Σʷ p , q ▷ C ▹ D ⊢ A) ×
+      (Γ ⊢ C) × (Γ »∙ C ⊢ D) ×
+      (Γ »∙ Σʷ p , q ▷ C ▹ D ⊢ A) ×
       Γ ⊢ t ∷ Σʷ p , q ▷ C ▹ D ×
-      Γ ∙ C ∙ D ⊢ u ∷ A [ prodʷ p (var x1) (var x0) ]↑² ×
+      Γ »∙ C »∙ D ⊢ u ∷ A [ prodʷ p (var x1) (var x0) ]↑² ×
       Γ ⊢ B ≡ A [ t ]₀
   inversion-prodrec (prodrecⱼ ⊢A ⊢t ⊢u _) =
     let ⊢D = ⊢∙→⊢ (wfTerm ⊢u) in
@@ -171,9 +191,9 @@ opaque
 
   inversion-natrec :
     Γ ⊢ natrec p q r A t u v ∷ B →
-    (Γ ∙ ℕ ⊢ A) ×
+    (Γ »∙ ℕ ⊢ A) ×
     Γ ⊢ t ∷ A [ zero ]₀ ×
-    Γ ∙ ℕ ∙ A ⊢ u ∷ A [ suc (var x1) ]↑² ×
+    Γ »∙ ℕ »∙ A ⊢ u ∷ A [ suc (var x1) ]↑² ×
     Γ ⊢ v ∷ ℕ ×
     Γ ⊢ B ≡ A [ v ]₀
   inversion-natrec (natrecⱼ ⊢t ⊢u ⊢v) =
@@ -208,7 +228,7 @@ opaque
     Γ ⊢ J p q A t B u v w ∷ C →
     (Γ ⊢ A) ×
     Γ ⊢ t ∷ A ×
-    (Γ ∙ A ∙ Id (wk1 A) (wk1 t) (var x0) ⊢ B) ×
+    (Γ »∙ A »∙ Id (wk1 A) (wk1 t) (var x0) ⊢ B) ×
     Γ ⊢ u ∷ B [ t , rfl ]₁₀ ×
     Γ ⊢ v ∷ A ×
     Γ ⊢ w ∷ Id A t v ×
@@ -229,7 +249,7 @@ opaque
     Γ ⊢ K p A t B u v ∷ C →
     (Γ ⊢ A) ×
     Γ ⊢ t ∷ A ×
-    (Γ ∙ Id A t t ⊢ B) ×
+    (Γ »∙ Id A t t ⊢ B) ×
     Γ ⊢ u ∷ B [ rfl ]₀ ×
     Γ ⊢ v ∷ Id A t t ×
     K-allowed ×

@@ -32,7 +32,7 @@ import Tools.PropositionalEquality as PE
 open import Tools.Reasoning.PropositionalEquality
 
 private variable
-  Γ                                                   : Con _ _
+  Γ                                                   : Cons _ _
   A B C D E t u u₁ u₂ u₃ u₄ v w                       : Term _
   p p′ p″ p₁ p₁′ p₂ p₂′ p₃ p₃′ p₄ p₄′ q q₁ q₂ q₃ q₄ r : M
 
@@ -41,7 +41,7 @@ opaque
   -- Another variant of the reduction rule β-red.
 
   β-red-⇒₁ :
-    ⦃ ok : No-equality-reflection or-empty Γ ⦄ →
+    ⦃ ok : No-equality-reflection or-empty (Γ .vars) ⦄ →
     Γ ⊢ lam p t ∷ Π p′ , q ▷ A ▹ B →
     Γ ⊢ u ∷ A →
     Γ ⊢ lam p t ∘⟨ p′ ⟩ u ⇒ t [ u ]₀ ∷ B [ u ]₀
@@ -55,7 +55,7 @@ opaque
   -- Another variant of the equality rule β-red.
 
   β-red-≡₁ :
-    ⦃ ok : No-equality-reflection or-empty Γ ⦄ →
+    ⦃ ok : No-equality-reflection or-empty (Γ .vars) ⦄ →
     Γ ⊢ lam p t ∷ Π p′ , q ▷ A ▹ B →
     Γ ⊢ u ∷ A →
     Γ ⊢ lam p t ∘⟨ p′ ⟩ u ≡ t [ u ]₀ ∷ B [ u ]₀
@@ -67,7 +67,7 @@ opaque
   -- A variant of β-red-⇒₁ for functions of two arguments.
 
   β-red-⇒₂ :
-    ⦃ ok : No-equality-reflection or-empty Γ ⦄ →
+    ⦃ ok : No-equality-reflection or-empty (Γ .vars) ⦄ →
     Γ ⊢ lam p₁ (lam p₂ t) ∷ Π p₁′ , q₁ ▷ A ▹ Π p₂′ , q₂ ▷ B ▹ C →
     Γ ⊢ u ∷ A →
     Γ ⊢ v ∷ B [ u ]₀ →
@@ -87,7 +87,7 @@ opaque
   -- A variant of β-red-⇒₁ for functions of three arguments.
 
   β-red-⇒₃ :
-    ⦃ ok : No-equality-reflection or-empty Γ ⦄ →
+    ⦃ ok : No-equality-reflection or-empty (Γ .vars) ⦄ →
     Γ ⊢ lam p₁ (lam p₂ (lam p₃ t)) ∷
         Π p₁′ , q₁ ▷ A ▹ Π p₂′ , q₂ ▷ B ▹ Π p₃′ , q₃ ▷ C ▹ D →
     Γ ⊢ u ∷ A →
@@ -120,7 +120,7 @@ opaque
   -- A variant of β-red-⇒₁ for functions of four arguments.
 
   β-red-⇒₄ :
-    ⦃ ok : No-equality-reflection or-empty Γ ⦄ →
+    ⦃ ok : No-equality-reflection or-empty (Γ .vars) ⦄ →
     Γ ⊢ lam p₁ (lam p₂ (lam p₃ (lam p₄ t))) ∷
         Π p₁′ , q₁ ▷ A ▹ Π p₂′ , q₂ ▷ B ▹ Π p₃′ , q₃ ▷ C ▹
         Π p₄′ , q₄ ▷ D ▹ E →
@@ -171,7 +171,7 @@ opaque
   wk1-lam∘0⇒ :
     ⦃ ok : No-equality-reflection ⦄ →
     Γ ⊢ lam p t ∷ Π q , r ▷ A ▹ B →
-    Γ ∙ A ⊢ wk1 (lam p t) ∘⟨ p ⟩ var x0 ⇒ t ∷ B
+    Γ »∙ A ⊢ wk1 (lam p t) ∘⟨ p ⟩ var x0 ⇒ t ∷ B
   wk1-lam∘0⇒ ⊢lam =
     case inversion-lam-Π-no-equality-reflection ⊢lam of λ {
       (⊢t , PE.refl , ok) →
@@ -191,7 +191,7 @@ opaque
   wk1-lam∘0≡ :
     ⦃ ok : No-equality-reflection ⦄ →
     Γ ⊢ lam p t ∷ Π q , r ▷ A ▹ B →
-    Γ ∙ A ⊢ wk1 (lam p t) ∘⟨ p ⟩ var x0 ≡ t ∷ B
+    Γ »∙ A ⊢ wk1 (lam p t) ∘⟨ p ⟩ var x0 ≡ t ∷ B
   wk1-lam∘0≡ ⊢lam = subsetTerm (wk1-lam∘0⇒ ⊢lam)
 
 opaque
@@ -201,28 +201,28 @@ opaque
   lam-cong⁻¹ :
     ⦃ ok : No-equality-reflection ⦄ →
     Γ ⊢ lam p t ≡ lam p u ∷ Π p , q ▷ A ▹ B →
-    Γ ∙ A ⊢ t ≡ u ∷ B × Π-allowed p q
+    Γ »∙ A ⊢ t ≡ u ∷ B × Π-allowed p q
   lam-cong⁻¹ {Γ} {p} {t} {u} {q} {A} {B} lam-t≡lam-u =
     case syntacticEqTerm lam-t≡lam-u of λ {
       (⊢ΠAB , ⊢lam-t , ⊢lam-u) →
     case inversion-ΠΣ ⊢ΠAB .proj₁ of λ {
-      ⊢A →                                                               $⟨ lam-t≡lam-u ⟩
+      ⊢A →                                                                $⟨ lam-t≡lam-u ⟩
 
-    Γ ⊢ lam p t ≡ lam p u ∷ Π p , q ▷ A ▹ B                              →⟨ wkEqTerm₁ ⊢A ⟩
+    Γ ⊢ lam p t ≡ lam p u ∷ Π p , q ▷ A ▹ B                               →⟨ wkEqTerm₁ ⊢A ⟩
 
-    Γ ∙ A ⊢ wk1 (lam p t) ≡ wk1 (lam p u) ∷ wk1 (Π p , q ▷ A ▹ B)        →⟨ flip app-cong (refl (var₀ ⊢A)) ⟩
+    Γ »∙ A ⊢ wk1 (lam p t) ≡ wk1 (lam p u) ∷ wk1 (Π p , q ▷ A ▹ B)        →⟨ flip app-cong (refl (var₀ ⊢A)) ⟩
 
-    Γ ∙ A ⊢ wk1 (lam p t) ∘⟨ p ⟩ var x0 ≡ wk1 (lam p u) ∘⟨ p ⟩ var x0 ∷
-      wk (lift (step id)) B [ var x0 ]₀                                  →⟨ PE.subst (_ ⊢ _ ≡ _ ∷_) (wkSingleSubstId _) ⟩
+    Γ »∙ A ⊢ wk1 (lam p t) ∘⟨ p ⟩ var x0 ≡ wk1 (lam p u) ∘⟨ p ⟩ var x0 ∷
+      wk (lift (step id)) B [ var x0 ]₀                                   →⟨ PE.subst (_ ⊢ _ ≡ _ ∷_) (wkSingleSubstId _) ⟩
 
-    Γ ∙ A ⊢ wk1 (lam p t) ∘⟨ p ⟩ var x0 ≡ wk1 (lam p u) ∘⟨ p ⟩ var x0 ∷
-      B                                                                  →⟨ (λ hyp → trans
-                                                                               (sym′ (wk1-lam∘0≡ ⊢lam-t))
-                                                                               (trans hyp (wk1-lam∘0≡ ⊢lam-u))) ⟩
+    Γ »∙ A ⊢ wk1 (lam p t) ∘⟨ p ⟩ var x0 ≡ wk1 (lam p u) ∘⟨ p ⟩ var x0 ∷
+      B                                                                   →⟨ (λ hyp → trans
+                                                                                (sym′ (wk1-lam∘0≡ ⊢lam-t))
+                                                                                (trans hyp (wk1-lam∘0≡ ⊢lam-u))) ⟩
 
-    Γ ∙ A ⊢ t ≡ u ∷ B                                                    →⟨ _, inversion-lam-Π-no-equality-reflection ⊢lam-t .proj₂ .proj₂ ⟩
+    Γ »∙ A ⊢ t ≡ u ∷ B                                                    →⟨ _, inversion-lam-Π-no-equality-reflection ⊢lam-t .proj₂ .proj₂ ⟩
 
-    Γ ∙ A ⊢ t ≡ u ∷ B × Π-allowed p q                                    □ }}
+    Γ »∙ A ⊢ t ≡ u ∷ B × Π-allowed p q                                    □ }}
 
 opaque
 
@@ -231,7 +231,7 @@ opaque
   lam-injective :
     ⦃ ok : No-equality-reflection ⦄ →
     Γ ⊢ lam p t ≡ lam p′ u ∷ Π p″ , q ▷ A ▹ B →
-    p PE.≡ p′ × Γ ∙ A ⊢ t ≡ u ∷ B × Π-allowed p q × p′ PE.≡ p″
+    p PE.≡ p′ × Γ »∙ A ⊢ t ≡ u ∷ B × Π-allowed p q × p′ PE.≡ p″
   lam-injective {Γ} {p} {t} {p′} {u} {p″} {q} {A} {B} lam-t≡lam-u =
     case syntacticEqTerm lam-t≡lam-u of λ {
       (_ , ⊢lam₁ , ⊢lam₂) →
@@ -254,10 +254,10 @@ opaque
   Π-η {Γ} {t} {p} {q} {A} {B} ⊢t =
     case inversion-ΠΣ (syntacticTerm ⊢t) of λ {
       (⊢A , _ , ok) →
-    case                                                               $⟨ wkTerm₁ ⊢A ⊢t ∘ⱼ var₀ ⊢A ⟩
-      Γ ∙ A ⊢ wk1 t ∘⟨ p ⟩ var x0 ∷ wk (lift (step id)) B [ var x0 ]₀  →⟨ PE.subst (_ ⊢ _ ∷_) (wkSingleSubstId _) ⟩
-      Γ ∙ A ⊢ wk1 t ∘⟨ p ⟩ var x0 ∷ B                                  →⟨ lamⱼ′ ok ⟩
-      Γ ⊢ lam p (wk1 t ∘⟨ p ⟩ var x0) ∷ Π p , q ▷ A ▹ B                □
+    case                                                                $⟨ wkTerm₁ ⊢A ⊢t ∘ⱼ var₀ ⊢A ⟩
+      Γ »∙ A ⊢ wk1 t ∘⟨ p ⟩ var x0 ∷ wk (lift (step id)) B [ var x0 ]₀  →⟨ PE.subst (_ ⊢ _ ∷_) (wkSingleSubstId _) ⟩
+      Γ »∙ A ⊢ wk1 t ∘⟨ p ⟩ var x0 ∷ B                                  →⟨ lamⱼ′ ok ⟩
+      Γ ⊢ lam p (wk1 t ∘⟨ p ⟩ var x0) ∷ Π p , q ▷ A ▹ B                 □
     of λ {
       ⊢lam →
     η-eq′ ⊢lam ⊢t
@@ -265,7 +265,7 @@ opaque
 
        Γ ⊢ lam p (wk1 t ∘⟨ p ⟩ var x0) ∷ Π p , q ▷ A ▹ B    →⟨ wk1-lam∘0≡ ⟩
 
-       Γ ∙ A ⊢
+       Γ »∙ A ⊢
          wk1 (lam p (wk1 t ∘⟨ p ⟩ var x0)) ∘⟨ p ⟩ var x0 ≡
          wk1 t ∘⟨ p ⟩ var x0 ∷
          B                                                  □) }}

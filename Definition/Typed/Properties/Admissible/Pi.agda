@@ -31,7 +31,7 @@ import Tools.PropositionalEquality as PE
 open import Tools.Reasoning.PropositionalEquality
 
 private variable
-  Γ                            : Con Term _
+  Γ                            : Cons _ _
   A B C D E t t′ u u₁ u₂ u₃ u₄ : Term _
   p p₁ p₂ p₃ p₄ q q₁ q₂ q₃ q₄  : M
 
@@ -41,7 +41,7 @@ opaque
 
   lamⱼ′ :
     Π-allowed p q →
-    Γ ∙ A ⊢ t ∷ B →
+    Γ »∙ A ⊢ t ∷ B →
     Γ ⊢ lam p t ∷ Π p , q ▷ A ▹ B
   lamⱼ′ ok ⊢t = lamⱼ (wf-⊢∷ ⊢t) ⊢t ok
 
@@ -50,7 +50,7 @@ opaque
   -- Lambdas preserve definitional equality.
 
   lam-cong :
-    Γ ∙ A ⊢ t ≡ u ∷ B →
+    Γ »∙ A ⊢ t ≡ u ∷ B →
     Π-allowed p q →
     Γ ⊢ lam p t ≡ lam p u ∷ Π p , q ▷ A ▹ B
   lam-cong t≡u =
@@ -64,7 +64,7 @@ opaque
   η-eq′ :
     Γ ⊢ t ∷ Π p , q ▷ A ▹ B →
     Γ ⊢ u ∷ Π p , q ▷ A ▹ B →
-    Γ ∙ A ⊢ wk1 t ∘⟨ p ⟩ var x0 ≡ wk1 u ∘⟨ p ⟩ var x0 ∷ B →
+    Γ »∙ A ⊢ wk1 t ∘⟨ p ⟩ var x0 ≡ wk1 u ∘⟨ p ⟩ var x0 ∷ B →
     Γ ⊢ t ≡ u ∷ Π p , q ▷ A ▹ B
   η-eq′ ⊢t ⊢u t0≡u0 =
     let _ , ⊢B , ok = inversion-ΠΣ (wf-⊢∷ ⊢t) in
@@ -86,7 +86,7 @@ opaque
   -- A variant of the reduction rule β-red.
 
   β-red-⇒ :
-    Γ ∙ A ⊢ t ∷ B →
+    Γ »∙ A ⊢ t ∷ B →
     Γ ⊢ u ∷ A →
     Π-allowed p q →
     Γ ⊢ lam p t ∘⟨ p ⟩ u ⇒ t [ u ]₀ ∷ B [ u ]₀
@@ -98,7 +98,7 @@ opaque
   -- A variant of the equality rule β-red.
 
   β-red-≡ :
-    Γ ∙ A ⊢ t ∷ B →
+    Γ »∙ A ⊢ t ∷ B →
     Γ ⊢ u ∷ A →
     Π-allowed p q →
     Γ ⊢ lam p t ∘⟨ p ⟩ u ≡ t [ u ]₀ ∷ B [ u ]₀
@@ -114,7 +114,7 @@ opaque
   β-red-⇒₂′ :
     Π-allowed p₁ q₁ →
     Π-allowed p₂ q₂ →
-    Γ ∙ A ∙ B ⊢ t ∷ C →
+    Γ »∙ A »∙ B ⊢ t ∷ C →
     Γ ⊢ u₁ ∷ A →
     Γ ⊢ u₂ ∷ B [ u₁ ]₀ →
     Γ ⊢ lam p₁ (lam p₂ t) ∘⟨ p₁ ⟩ u₁ ∘⟨ p₂ ⟩ u₂ ⇒* t [ u₁ , u₂ ]₁₀ ∷
@@ -137,7 +137,7 @@ opaque
     Π-allowed p₁ q₁ →
     Π-allowed p₂ q₂ →
     Π-allowed p₃ q₃ →
-    Γ ∙ A ∙ B ∙ C ⊢ t ∷ D →
+    Γ »∙ A »∙ B »∙ C ⊢ t ∷ D →
     Γ ⊢ u₁ ∷ A →
     Γ ⊢ u₂ ∷ B [ u₁ ]₀ →
     Γ ⊢ u₃ ∷ C [ u₁ , u₂ ]₁₀ →
@@ -165,7 +165,7 @@ opaque
     Π-allowed p₂ q₂ →
     Π-allowed p₃ q₃ →
     Π-allowed p₄ q₄ →
-    Γ ∙ A ∙ B ∙ C ∙ D ⊢ t ∷ E →
+    Γ »∙ A »∙ B »∙ C »∙ D ⊢ t ∷ E →
     Γ ⊢ u₁ ∷ A →
     Γ ⊢ u₂ ∷ B [ u₁ ]₀ →
     Γ ⊢ u₃ ∷ C [ u₁ , u₂ ]₁₀ →

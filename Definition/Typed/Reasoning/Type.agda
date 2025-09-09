@@ -19,7 +19,7 @@ import Tools.PropositionalEquality as PE
 
 private variable
   B C : Term _
-  Γ   : Con Term _
+  Γ   : Cons _ _
 
 infix  -1 _∎⟨_⟩⊢ finally finally-˘ finally-≡ finally-˘≡
 infixr -2 step-≡ step-≡˘ step-≡≡ step-≡˘≡ _≡⟨⟩⊢_

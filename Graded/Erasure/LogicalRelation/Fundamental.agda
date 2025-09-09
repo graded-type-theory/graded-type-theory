@@ -31,7 +31,15 @@ open import Graded.Modality.Properties 𝕄
 open import Graded.Usage 𝕄 UR
 open import Graded.Usage.Inversion 𝕄 UR
 open import Graded.Usage.Restrictions.Instance UR
+open import Graded.Usage.Weakening 𝕄 UR
 open import Graded.Mode 𝕄
+
+open import Definition.Untyped.Names-below M
+open import Definition.Untyped.Properties M
+open import Definition.Typed.Names-below TR
+open import Definition.Typed.Properties TR
+open import Definition.Typed.Weakening TR hiding (wk)
+open import Definition.Typed.Weakening.Definition TR
 
 import Graded.Erasure.LogicalRelation
 open import Graded.Erasure.LogicalRelation.Assumptions TR
@@ -47,42 +55,59 @@ import Graded.Erasure.LogicalRelation.Hidden
 
 open import Graded.Erasure.Target as T using (Strictness)
 open import Graded.Erasure.Extraction 𝕄
+open import Graded.Erasure.Extraction.Properties 𝕄
 import Graded.Erasure.Target.Properties as TP
 
 open import Tools.Empty
 open import Tools.Fin
 open import Tools.Function
-open import Tools.Nat using (Nat)
+open import Tools.Nat as N using (Nat)
 open import Tools.Product as Σ
+import Tools.Reasoning.PropositionalEquality
 open import Tools.Sum
 import Tools.PropositionalEquality as PE
 
 private
   variable
-     k l n : Nat
+     α β n o : Nat
+     ∇ : DCon (Term 0) _
+     ξ : DExt (Term 0) _ _
      Γ Δ : Con Term n
-     t u A B : Term n
+     t t′ u A A′ B : Term n
+     v v′ : T.Term n
      γ δ : Conₘ n
      p q : M
      x : Fin n
      m : Mode
 
+-- One way to create an Assumptions record.
+
+assumptions :
+  ∀ {_⇛_∷_} ⦃ inc : Var-included or-empty Δ ⦄ →
+  glassify ∇ »⊢ Δ → Strictness →
+  Is-reduction-relation (glassify ∇ » Δ) _⇛_∷_ →
+  Assumptions
+assumptions {∇} ⊢Δ s rr = record
+  { ts                    = glassify ∇
+  ; vs                    = eraseDCon s ∇
+  ; ⊢Δ                    = ⊢Δ
+  ; str                   = s
+  ; is-reduction-relation = rr
+  }
+
 -- A lemma.
 
 module _
-  (⊢Δ : ⊢ Δ)
-  ⦃ inc : Neutrals-included or-empty Δ ⦄
+  (⊢Δ : glassify ∇ »⊢ Δ)
+  ⦃ inc : Var-included or-empty Δ ⦄
   {s : Strictness}
   {_⇛_∷_}
-  ⦃ is-reduction-relation : Is-reduction-relation Δ _⇛_∷_ ⦄
+  ⦃ is-reduction-relation :
+      Is-reduction-relation (glassify ∇ » Δ) _⇛_∷_ ⦄
   where
 
   open Graded.Erasure.LogicalRelation.Hidden
-         (record
-            { ⊢Δ                    = ⊢Δ
-            ; str                   = s
-            ; is-reduction-relation = is-reduction-relation
-            })
+         (assumptions ⊢Δ s is-reduction-relation)
 
   opaque
 
@@ -91,10 +116,10 @@ module _
     fundamentalVar :
       x ∷ A ∈ Γ →
       γ ▸[ m ] var x →
-      γ ▸ Γ ⊩ʳ var x ∷[ m ] A
-    fundamentalVar {x} {A} {Γ} {γ} {m} x∈Γ ▸x =
+      γ ▸ Γ ⊩ʳ var x ∷[ m ∣ n ] A
+    fundamentalVar {x} {A} {Γ} {γ} {m} {n} x∈Γ ▸x =
       ▸⊩ʳ∷⇔ .proj₂ λ {σ = σ} {σ′ = σ′} _ →
-      σ ® σ′ ∷[ m ] Γ ◂ γ                     →⟨ (λ σ®σ′ → ®∷[]◂⇔ .proj₁ σ®σ′ x∈Γ) ⟩
+      σ ® σ′ ∷[ m ∣ n ] Γ ◂ γ                 →⟨ (λ σ®σ′ → ®∷[∣]◂⇔ .proj₁ σ®σ′ .proj₂ x∈Γ) ⟩
       σ x ® σ′ x ∷ A [ σ ] ◂ ⌜ m ⌝ · γ ⟨ x ⟩  →⟨ subsumption-®∷◂ (lemma m (inv-usage-var ▸x)) ⟩
       σ x ® σ′ x ∷ A [ σ ] ◂ ⌜ m ⌝            □
       where
@@ -116,23 +141,21 @@ module _
 -- contexts.
 
 module Fundamental
-  (FA : Fundamental-assumptions Δ)
+  {∇ : DCon (Term 0) o}
+  (FA : Fundamental-assumptions (glassify ∇ » Δ))
   {s : Strictness}
   {_⇛_∷_}
-  ⦃ is-reduction-relation : Is-reduction-relation Δ _⇛_∷_ ⦄
+  ⦃ is-reduction-relation :
+      Is-reduction-relation (glassify ∇ » Δ) _⇛_∷_ ⦄
   where
 
   open Fundamental-assumptions FA
+  open Is-reduction-relation is-reduction-relation
 
   private
 
     as : Assumptions
-    as = record
-      { ⊢Δ                    = well-formed
-      ; inc                   = inc
-      ; str                   = s
-      ; is-reduction-relation = is-reduction-relation
-      }
+    as = assumptions well-formed s is-reduction-relation
 
   open Graded.Erasure.LogicalRelation.Fundamental.Empty UR as consistent
   open Graded.Erasure.LogicalRelation.Fundamental.Identity as
@@ -142,9 +165,7 @@ module Fundamental
   open Graded.Erasure.LogicalRelation.Fundamental.Universe as
   open Graded.Erasure.LogicalRelation.Hidden as
 
-  -- The fundamental lemma for the erasure relation.
-  --
-  -- Note the assumptions of the local module Fundamental.
+  -- A lemma used to prove the fundamental lemma.
   --
   -- The main parts of this proof are located in Graded.Erasure.LogicalRelation.Fundamental.X
   -- The general proof strategy of these is the following:
@@ -152,74 +173,100 @@ module Fundamental
   -- The result that t is valid then follows from the logical relation being closed under
   -- reduction (see Graded.Erasure.LogicalRelation.Reduction).
 
-  opaque
+  private opaque
 
-    fundamental :
-      Γ ⊢ t ∷ A → γ ▸[ m ] t →
-      γ ▸ Γ ⊩ʳ t ∷[ m ] A
-    fundamental {m = 𝟘ᵐ} ⊢t _ =
+    fundamental′ :
+      glassify ∇ » Γ ⊢ t ∷ A → γ ▸[ m ] t →
+      Names< n t → γ ▸ Γ ⊩ʳ t ∷[ m ∣ n ] A
+    fundamental′ {m = 𝟘ᵐ} ⊢t _ _ =
       ▸⊩ʳ∷[𝟘ᵐ]
-    fundamental (Uⱼ _) _ =
+    fundamental′ (Uⱼ _) _ _ =
       Uʳ
-    fundamental (ΠΣⱼ _ _ _) _ =
+    fundamental′ (ΠΣⱼ _ _ _) _ _ =
       ΠΣʳ
-    fundamental (ℕⱼ _) _ =
+    fundamental′ (ℕⱼ _) _ _ =
       ℕʳ
-    fundamental (Emptyⱼ _) _ =
+    fundamental′ (Emptyⱼ _) _ _ =
       Emptyʳ
-    fundamental (Unitⱼ _ _) _ =
+    fundamental′ (Unitⱼ _ _) _ _ =
       Unitʳ
-    fundamental (var _ x∈Γ) ▸x =
+    fundamental′ (var _ x∈Γ) ▸x _ =
       fundamentalVar well-formed x∈Γ ▸x
-    fundamental (lamⱼ _ ⊢t ok) ▸lam =
+    fundamental′
+      {Γ} {γ} {m} {n} (defn {α} {A′ = A} _ α↦ PE.refl) _ (defn <n) =
+      let t , α↦t∈  = glass-↦∈ α↦
+          α↦erase-t = ↦erase∈eraseDCon′ α↦t∈
+      in
+      ▸⊩ʳ∷⇔ .proj₂ λ {σ = σ} {σ′ = σ′} _ →
+      σ ® σ′ ∷[ m ∣ n ] Γ ◂ γ                             →⟨ proj₁ ∘→ ®∷[∣]◂⇔ .proj₁ ⟩
+
+      Definitions-related m n                             ⇔⟨ Definitions-related⇔ ⟩→
+
+      (∀ {α t A v} →
+       α N.< n →
+       α ↦ t ∷ A ∈ glassify ∇ →
+       α T.↦ v ∈ eraseDCon s ∇ →
+       wk wk₀ t ® T.wk wk₀ v ∷ wk wk₀ A ◂ ⌜ m ⌝)          →⟨ (λ hyp → hyp <n α↦t∈ α↦erase-t) ⟩
+
+      wk wk₀ t ® T.wk wk₀ (erase s t) ∷ wk wk₀ A ◂ ⌜ m ⌝  →⟨ ®∷◂-⇐* (⇒*→⇛ (redMany (δ-red well-formed α↦t∈ PE.refl PE.refl)))
+                                                               (T.trans (T.δ-red α↦erase-t) T.refl) ⟩
+
+      defn α ® T.defn α ∷ wk wk₀ A ◂ ⌜ m ⌝                ≡⟨ PE.cong (_ ® _ ∷_◂ _) $ PE.sym $ wk₀-subst-invariant _ ⟩→
+
+      defn α ® T.defn α ∷ wk wk₀ A [ σ ] ◂ ⌜ m ⌝          □
+    fundamental′ (lamⱼ _ ⊢t ok) ▸lam (lam <n) =
       case inv-usage-lam ▸lam of λ
         (invUsageLam ▸t γ≤δ) →
       subsumption-▸⊩ʳ∷[]-≤ γ≤δ $
-      lamʳ ok ⊢t (fundamental ⊢t ▸t)
-    fundamental (⊢t ∘ⱼ ⊢u) ▸∘ =
+      lamʳ ok ⊢t (fundamental′ ⊢t ▸t <n)
+    fundamental′ (⊢t ∘ⱼ ⊢u) ▸∘ (app <n₁ <n₂) =
       case inv-usage-app ▸∘ of λ
         (invUsageApp ▸t ▸u γ≤δ+pη) →
       subsumption-▸⊩ʳ∷[]-≤ γ≤δ+pη $
-      ∘ʳ ⊢u (fundamental ⊢t ▸t) (fundamental ⊢u ▸u)
-    fundamental (prodⱼ {k = 𝕤} ⊢B ⊢t ⊢u ok) ▸prod =
+      ∘ʳ ⊢u (fundamental′ ⊢t ▸t <n₁) (fundamental′ ⊢u ▸u <n₂)
+    fundamental′ (prodⱼ {k = 𝕤} ⊢B ⊢t ⊢u ok) ▸prod (prod <n₁ <n₂) =
       case inv-usage-prodˢ ▸prod of λ
         (invUsageProdˢ ▸t ▸u γ≤pδ∧η) →
       subsumption-▸⊩ʳ∷[]-≤ γ≤pδ∧η $
-      prodˢʳ ok ⊢B ⊢t ⊢u (fundamental ⊢t ▸t) (fundamental ⊢u ▸u)
-    fundamental (prodⱼ {k = 𝕨} ⊢B ⊢t ⊢u ok) ▸prod =
+      prodˢʳ ok ⊢B ⊢t ⊢u (fundamental′ ⊢t ▸t <n₁)
+        (fundamental′ ⊢u ▸u <n₂)
+    fundamental′ (prodⱼ {k = 𝕨} ⊢B ⊢t ⊢u ok) ▸prod (prod <n₁ <n₂) =
       case inv-usage-prodʷ ▸prod of λ
         (invUsageProdʷ ▸t ▸u γ≤pδ+η) →
       subsumption-▸⊩ʳ∷[]-≤ γ≤pδ+η $
-      prodʷʳ ok ⊢B ⊢t ⊢u (fundamental ⊢t ▸t) (fundamental ⊢u ▸u)
-    fundamental (fstⱼ _ ⊢t) ▸fst =
+      prodʷʳ ok ⊢B ⊢t ⊢u (fundamental′ ⊢t ▸t <n₁)
+        (fundamental′ ⊢u ▸u <n₂)
+    fundamental′ (fstⱼ _ ⊢t) ▸fst (fst <n) =
       case inv-usage-fst ▸fst of λ
         (invUsageFst _ _ ▸t γ≤δ _) →
-      fstʳ ⊢t (fundamental ⊢t (sub ▸t γ≤δ)) ▸fst
-    fundamental (sndⱼ _ ⊢t) ▸snd =
+      fstʳ ⊢t (fundamental′ ⊢t (sub ▸t γ≤δ) <n) ▸fst
+    fundamental′ (sndⱼ _ ⊢t) ▸snd (snd <n) =
       case inv-usage-snd ▸snd of λ
         (invUsageSnd ▸t γ≤δ) →
-      sndʳ ⊢t (fundamental ⊢t (sub ▸t γ≤δ))
-    fundamental {m = 𝟙ᵐ} (prodrecⱼ ⊢C ⊢t ⊢u _) ▸prodrec =
+      sndʳ ⊢t (fundamental′ ⊢t (sub ▸t γ≤δ) <n)
+    fundamental′
+      {m = 𝟙ᵐ} (prodrecⱼ ⊢C ⊢t ⊢u _) ▸prodrec (prodrec _ <n₂ <n₃) =
       case inv-usage-prodrec ▸prodrec of λ
         (invUsageProdrec ▸t ▸u _ ok γ≤rδ+η) →
       subsumption-▸⊩ʳ∷[]-≤ γ≤rδ+η $
-      prodrecʳ ⊢C ⊢t ⊢u (fundamental ⊢t ▸t) (fundamental ⊢u ▸u)
+      prodrecʳ ⊢C ⊢t ⊢u (fundamental′ ⊢t ▸t <n₂)
+        (fundamental′ ⊢u ▸u <n₃)
         (case closed-or-no-erased-matches of λ where
            (inj₁ nem) r≡𝟘 → ⊥-elim (nem non-trivial .proj₁ ok r≡𝟘)
-           (inj₂ k≡0) _   → k≡0)
-    fundamental (zeroⱼ _) _ =
+           (inj₂ k≡0) _   → k≡0 , PE.sym (glassify-idem _))
+    fundamental′ (zeroⱼ _) _ _ =
       zeroʳ
-    fundamental (sucⱼ ⊢t) γ▸suc =
+    fundamental′ (sucⱼ ⊢t) γ▸suc (suc <n) =
       case inv-usage-suc γ▸suc of λ
         (invUsageSuc δ▸t γ≤δ) →
       subsumption-▸⊩ʳ∷[]-≤ γ≤δ $
-      sucʳ ⊢t (fundamental ⊢t δ▸t)
-    fundamental (natrecⱼ {p} {r} ⊢t ⊢u ⊢v) γ▸nr =
+      sucʳ ⊢t (fundamental′ ⊢t δ▸t <n)
+    fundamental′ (natrecⱼ {p} {r} ⊢t ⊢u ⊢v) γ▸nr (natrec _ <n₂ <n₃ <n₄) =
       case inv-usage-natrec γ▸nr of λ {
         (invUsageNatrec {δ} {η} {θ} δ▸t η▸u θ▸v _ γ≤χ extra) →
       subsumption-▸⊩ʳ∷[]-≤ γ≤χ $
-      natrecʳ ⊢t ⊢u ⊢v (fundamental ⊢t δ▸t) (fundamental ⊢u η▸u)
-        (fundamental ⊢v θ▸v)
+      natrecʳ ⊢t ⊢u ⊢v (fundamental′ ⊢t δ▸t <n₂)
+        (fundamental′ ⊢u η▸u <n₃) (fundamental′ ⊢v θ▸v <n₄)
         (λ x → case extra of λ where
            invUsageNatrecNr →
              nrᶜ p r δ η θ ⟨ x ⟩ PE.≡ 𝟘                        →⟨ PE.trans (PE.sym (nrᶜ-⟨⟩ δ)) ⟩
@@ -247,31 +294,33 @@ module Fundamental
                           (≤-reflexive (PE.trans (lookup-cong {x = x} (nrᵢᶜ-suc {r = r} {γ = δ} {η} {0}))
                             (lookup-distrib-+ᶜ η (r ·ᶜ nrᵢᶜ r δ η 0) x))))))
              in  δ≡𝟘 , θ≡𝟘 , η≡𝟘)}
-    fundamental (emptyrecⱼ _ ⊢t) ▸t =
+    fundamental′ (emptyrecⱼ _ ⊢t) ▸t (emptyrec _ <n₂) =
       case inv-usage-emptyrec ▸t of λ
         (invUsageEmptyrec ▸t _ ok γ≤pδ) →
       subsumption-▸⊩ʳ∷[]-≤ γ≤pδ $
-      emptyrecʳ ok ⊢t (fundamental ⊢t ▸t)
-    fundamental (starⱼ _ ok) _ =
+      emptyrecʳ ok ⊢t (fundamental′ ⊢t ▸t <n₂)
+    fundamental′ (starⱼ _ ok) _ _ =
       starʳ ok
-    fundamental {m = 𝟙ᵐ} (unitrecⱼ ⊢A ⊢t ⊢u ok) γ▸ur =
+    fundamental′
+      {m = 𝟙ᵐ} (unitrecⱼ ⊢A ⊢t ⊢u ok) γ▸ur (unitrec _ <n₂ <n₃) =
       case inv-usage-unitrec γ▸ur of λ
         (invUsageUnitrec δ▸t η▸u _ ok′ γ≤pδ+η) →
       subsumption-▸⊩ʳ∷[]-≤ γ≤pδ+η $
-      unitrecʳ ⊢A ⊢t ⊢u (fundamental ⊢t δ▸t) (fundamental ⊢u η▸u)
+      unitrecʳ ⊢A ⊢t ⊢u (fundamental′ ⊢t δ▸t <n₂)
+        (fundamental′ ⊢u η▸u <n₃)
         (λ p≡𝟘 → case closed-or-no-erased-matches of λ where
            (inj₁ nem) → inj₂ (nem non-trivial .proj₂ .proj₁ ok′ p≡𝟘)
-           (inj₂ k≡0) → inj₁ k≡0)
-    fundamental (Idⱼ _ _ _) _ =
+           (inj₂ k≡0) → inj₁ (k≡0 , PE.sym (glassify-idem _)))
+    fundamental′ (Idⱼ _ _ _) _ _ =
       Idʳ
-    fundamental (rflⱼ ⊢t) _ =
+    fundamental′ (rflⱼ ⊢t) _ _ =
       rflʳ ⊢t
-    fundamental {γ} {m = 𝟙ᵐ} (Jⱼ _ ⊢B ⊢u _ ⊢w) ▸J =
+    fundamental′ {γ} {m = 𝟙ᵐ} (Jⱼ _ ⊢B ⊢u _ ⊢w) ▸J (J _ _ _ <n₄ _ <n₆) =
       case inv-usage-J ▸J of λ where
         (invUsageJ₀₂ em _ _ _ ▸u _ _ γ≤) →
-          Jʳ ⊢B ⊢u ⊢w γ≤ (fundamental ⊢u ▸u)
+          Jʳ ⊢B ⊢u ⊢w γ≤ (fundamental′ ⊢u ▸u <n₄)
             (inj₁ $ case closed-or-no-erased-matches of λ where
-               (inj₂ k≡0) → k≡0
+               (inj₂ k≡0) → k≡0 , PE.sym (glassify-idem _)
                (inj₁ nem) →
                  case
                    PE.trans (PE.sym em)
@@ -285,9 +334,9 @@ module Fundamental
                ω PE.≡ 𝟘 ⊎ (γ₃ +ᶜ γ₄) ⟨ x ⟩ PE.≡ 𝟘  →⟨ (λ { (inj₁ ω≡𝟘) → ⊥-elim (ω≢𝟘 ω≡𝟘); (inj₂ hyp) → hyp }) ⟩
                (γ₃ +ᶜ γ₄) ⟨ x ⟩ PE.≡ 𝟘             →⟨ +ᶜ-⟨⟩-≡-𝟘-→-∧ᶜ-⟨⟩-≡-𝟘 γ₃ ⟩
                (γ₃ ∧ᶜ γ₄) ⟨ x ⟩ PE.≡ 𝟘             □) $
-          Jʳ ⊢B ⊢u ⊢w (∧ᶜ-decreasingʳ γ₃ _) (fundamental ⊢u ▸u)
+          Jʳ ⊢B ⊢u ⊢w (∧ᶜ-decreasingʳ γ₃ _) (fundamental′ ⊢u ▸u <n₄)
             (inj₁ $ case closed-or-no-erased-matches of λ where
-               (inj₂ k≡0) → k≡0
+               (inj₂ k≡0) → k≡0 , PE.sym (glassify-idem _)
                (inj₁ nem) →
                  case
                    PE.trans (PE.sym em)
@@ -310,14 +359,15 @@ module Fundamental
                                                                         proj₂ ∘→ +ᶜ-positive-⟨⟩ γ₂ ⟩
                (γ₄ +ᶜ γ₆) ⟨ x ⟩ PE.≡ 𝟘                               →⟨ +ᶜ-⟨⟩-≡-𝟘-→-∧ᶜ-⟨⟩-≡-𝟘 γ₄ ⟩
                (γ₄ ∧ᶜ γ₆) ⟨ x ⟩ PE.≡ 𝟘                               □)
-            (Jʳ ⊢B ⊢u ⊢w (∧ᶜ-decreasingˡ γ₄ _) (fundamental ⊢u ▸u)
-               (inj₂ (_ , ∧ᶜ-decreasingʳ γ₄ _ , fundamental ⊢w ▸w)))
-    fundamental {γ} {m = 𝟙ᵐ} (Kⱼ ⊢B ⊢u ⊢v ok) ▸K =
+            (Jʳ ⊢B ⊢u ⊢w (∧ᶜ-decreasingˡ γ₄ _) (fundamental′ ⊢u ▸u <n₄)
+               (inj₂
+                  (_ , ∧ᶜ-decreasingʳ γ₄ _ , fundamental′ ⊢w ▸w <n₆)))
+    fundamental′ {γ} {m = 𝟙ᵐ} (Kⱼ ⊢B ⊢u ⊢v ok) ▸K (K _ _ _ <n₄ <n₅) =
       case inv-usage-K ▸K of λ where
         (invUsageK₀₂ em _ _ _ ▸u _ γ≤) →
-          Kʳ ⊢B ⊢u ⊢v ok γ≤ (fundamental ⊢u ▸u)
+          Kʳ ⊢B ⊢u ⊢v ok γ≤ (fundamental′ ⊢u ▸u <n₄)
             (inj₁ $ case closed-or-no-erased-matches of λ where
-               (inj₂ k≡0) → k≡0
+               (inj₂ k≡0) → k≡0 , PE.sym (glassify-idem _)
                (inj₁ nem) →
                  case
                    PE.trans (PE.sym em)
@@ -331,9 +381,9 @@ module Fundamental
                ω PE.≡ 𝟘 ⊎ (γ₃ +ᶜ γ₄) ⟨ x ⟩ PE.≡ 𝟘  →⟨ (λ { (inj₁ ω≡𝟘) → ⊥-elim (ω≢𝟘 ω≡𝟘); (inj₂ hyp) → hyp }) ⟩
                (γ₃ +ᶜ γ₄) ⟨ x ⟩ PE.≡ 𝟘             →⟨ +ᶜ-⟨⟩-≡-𝟘-→-∧ᶜ-⟨⟩-≡-𝟘 γ₃ ⟩
                (γ₃ ∧ᶜ γ₄) ⟨ x ⟩ PE.≡ 𝟘             □) $
-          Kʳ ⊢B ⊢u ⊢v ok (∧ᶜ-decreasingʳ γ₃ _) (fundamental ⊢u ▸u)
+          Kʳ ⊢B ⊢u ⊢v ok (∧ᶜ-decreasingʳ γ₃ _) (fundamental′ ⊢u ▸u <n₄)
             (inj₁ $ case closed-or-no-erased-matches of λ where
-               (inj₂ k≡0) → k≡0
+               (inj₂ k≡0) → k≡0 , PE.sym (glassify-idem _)
                (inj₁ nem) →
                  case
                    PE.trans (PE.sym em)
@@ -349,16 +399,78 @@ module Fundamental
                                                                   proj₂ ∘→ +ᶜ-positive-⟨⟩ γ₂ ⟩
                (γ₄ +ᶜ γ₅) ⟨ x ⟩ PE.≡ 𝟘                         →⟨ +ᶜ-⟨⟩-≡-𝟘-→-∧ᶜ-⟨⟩-≡-𝟘 γ₄ ⟩
                (γ₄ ∧ᶜ γ₅) ⟨ x ⟩ PE.≡ 𝟘                         □) $
-          Kʳ ⊢B ⊢u ⊢v ok (∧ᶜ-decreasingˡ γ₄ _) (fundamental ⊢u ▸u)
-            (inj₂ (_ , ∧ᶜ-decreasingʳ γ₄ _ , fundamental ⊢v ▸v))
-    fundamental ([]-congⱼ _ _ _ ⊢v ok) _ =
+          Kʳ ⊢B ⊢u ⊢v ok (∧ᶜ-decreasingˡ γ₄ _) (fundamental′ ⊢u ▸u <n₄)
+            (inj₂ (_ , ∧ᶜ-decreasingʳ γ₄ _ , fundamental′ ⊢v ▸v <n₅))
+    fundamental′ ([]-congⱼ _ _ _ ⊢v ok) _ _ =
       []-congʳ
         (case closed-or-no-erased-matches of λ where
            (inj₁ nem) → ⊥-elim (nem non-trivial .proj₂ .proj₂ .proj₁ ok)
-           (inj₂ k≡0) → k≡0)
+           (inj₂ k≡0) → k≡0 , PE.sym (glassify-idem _))
         ⊢v ok
-    fundamental (conv ⊢t A≡B) γ▸t =
-      conv-▸⊩ʳ∷ A≡B (fundamental ⊢t γ▸t)
+    fundamental′ (conv ⊢t A≡B) γ▸t <n =
+      conv-▸⊩ʳ∷ A≡B (fundamental′ ⊢t γ▸t <n)
+
+  opaque
+    unfolding Definitions-related
+
+    -- The fundamental lemma for the erasure relation.
+    --
+    -- Note the assumptions of the local module Fundamental.
+
+    fundamental :
+      glassify ∇ » Γ ⊢ t ∷ A → γ ▸[ m ] t →
+      γ ▸ Γ ⊩ʳ t ∷[ m ] A
+    fundamental {Γ} {t} {A} {γ} {m} ⊢t ▸t =
+                               $⟨ fundamental′ ⊢t ▸t (⊢∷→Names< ⊢t) ⟩
+      γ ▸ Γ ⊩ʳ t ∷[ m ∣ o ] A  →⟨ ▸⊩ʳ∷[∣]→▸⊩ʳ∷
+                                    (λ _ α↦t α↦v →
+                                       subsumption-®∷◂ (⊥-elim ∘→ non-trivial) $
+                                       lemma id (defn-wf (wfTerm ⊢t)) well-resourced α↦t α↦v) ⟩
+      γ ▸ Γ ⊩ʳ t ∷[ m ] A      □
+      where
+      lemma :
+        ∀ {∇′ : DCon (Term 0) n} {t A} →
+        ξ » glassify ∇ ⊇ glassify ∇′ →
+        » glassify ∇′ →
+        ▸[ 𝟙ᵐ ] glassify ∇′ →
+        α ↦ t ∷ A ∈ glassify ∇′ →
+        α T.↦ v ∈ eraseDCon s ∇′ →
+        wk wk₀ t ® T.wk wk₀ v ∷ wk wk₀ A ◂ 𝟙
+      lemma {∇′ = ε} _ _ _ ()
+      lemma
+        {v} {∇′ = ∇′∙@(∇′ ∙⟨ _ ⟩[ _ ∷ _ ])} {t} {A}
+        ∇⊇∇′∙ »∇′∙t@(∙ᵗ[ ⊢t ]) ▸∇′∙ α↦t α↦v =
+        let ∇⊇∇′ = ∇⊇∇′∙ •ₜᵈ stepᵗ₁ ⊢t
+
+            erase-t≡v : erase s t PE.≡ v
+            erase-t≡v = TP.↦∈-deterministic (↦erase∈eraseDCon′ α↦t) α↦v
+
+            ih :
+              β ↦ t′ ∷ A′ ∈ glassify ∇′ →
+              erase s t′ PE.≡ v′ →
+              wk wk₀ t′ ® T.wk wk₀ v′ ∷ wk wk₀ A′ ◂ 𝟙
+            ih β↦t′ eq =
+              lemma {∇′ = ∇′} ∇⊇∇′ (defn-wf (wfTerm ⊢t)) (▸∇′∙ ∘→ there)
+                β↦t′ (PE.subst (_ T.↦_∈ _) eq (↦erase∈eraseDCon′ β↦t′))
+        in
+        case α↦t of λ where
+          (there α↦t) → ih α↦t erase-t≡v
+          here        →
+            PE.subst (_ ®_∷ _ ◂ _)
+              (erase s (wk wk₀ t)    ≡˘⟨ wk-erase-comm _ t ⟩
+               T.wk wk₀ (erase s t)  ≡⟨ PE.cong (T.wk _) erase-t≡v ⟩
+               T.wk wk₀ v            ∎) $
+            ▸⊩ʳ∷[∣]→®∷◂
+              (λ β<α β↦t′ β↦v′ →
+                 ih (<→⊇→↦→↦ β<α ∇⊇∇′ β↦t′)
+                   (TP.↦∈-deterministic (↦erase∈eraseDCon′ β↦t′) β↦v′))
+              (fundamental′
+                 (wkTerm (wk₀∷ʷ⊇ well-formed) (defn-wkTerm ∇⊇∇′ ⊢t))
+                 (PE.subst (_▸[ _ ] _) wkConₘ-ε $
+                  wkUsage wk₀ (▸∇′∙ α↦t))
+                 (Names<-wk (↦→Names< »∇′∙t α↦t)))
+        where
+        open Tools.Reasoning.PropositionalEquality
 
   opaque
 
@@ -367,7 +479,7 @@ module Fundamental
     -- Note the assumptions of the local module Fundamental.
 
     fundamentalErased :
-      Δ ⊢ t ∷ A → 𝟘ᶜ ▸[ m ] t →
+      glassify ∇ » Δ ⊢ t ∷ A → 𝟘ᶜ ▸[ m ] t →
       t ® erase s t ∷ A ◂ ⌜ m ⌝
     fundamentalErased {t} {A} {m} ⊢t ▸t =
                                  $⟨ fundamental ⊢t ▸t ⟩
@@ -379,7 +491,7 @@ module Fundamental
     -- A variant of fundamentalErased.
 
     fundamentalErased-𝟙ᵐ :
-      Δ ⊢ t ∷ A → 𝟘ᶜ ▸[ 𝟙ᵐ ] t →
+      glassify ∇ » Δ ⊢ t ∷ A → 𝟘ᶜ ▸[ 𝟙ᵐ ] t →
       t ® erase s t ∷ A
     fundamentalErased-𝟙ᵐ ⊢t ▸t =
       ®∷→®∷◂ω non-trivial $

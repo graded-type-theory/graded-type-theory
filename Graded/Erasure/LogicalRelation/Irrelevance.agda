@@ -23,10 +23,11 @@ open import Definition.LogicalRelation.Simplified R
 open import Definition.Typed.Consequences.Injectivity R
 open import Definition.Typed.Properties R
 open import Definition.Typed.Reasoning.Type R
+open import Definition.Typed.Weakening.Definition R
 
 open import Definition.Untyped M
-open import Definition.Untyped.Neutral M type-variant
 open import Definition.Untyped.Properties M
+open import Definition.Untyped.Whnf M type-variant
 
 open import Tools.Function
 open import Tools.Nat
@@ -44,10 +45,10 @@ private opaque
   -- Irrelevance of logical relation for erasure using a ShapeView
 
   irrelevanceTermSV : ∀ {t v A}
-                    → {[A] : Δ ⊨ A}
-                      {[A]′ : Δ ⊨ A}
+                    → {[A] : ts » Δ ⊨ A}
+                      {[A]′ : ts » Δ ⊨ A}
                     → t ® v ∷ A / [A]
-                    → ShapeView Δ A A [A] [A]′
+                    → ShapeView (ts » Δ) A A [A] [A]′
                     → t ® v ∷ A / [A]′
   irrelevanceTermSV t®v (Uᵥ UA UA′) = t®v
   irrelevanceTermSV t®v (ℕᵥ ℕA ℕA′) = t®v
@@ -100,8 +101,8 @@ opaque
   -- Irrelevance of logical relation for erasure
 
   irrelevanceTerm : ∀ {t v A}
-                  → ([A] : Δ ⊨ A)
-                    ([A]′ : Δ ⊨ A)
+                  → ([A] : ts » Δ ⊨ A)
+                    ([A]′ : ts » Δ ⊨ A)
                   → t ® v ∷ A / [A]
                   → t ® v ∷ A / [A]′
   irrelevanceTerm [A] [A]′ t®v =
@@ -113,8 +114,8 @@ opaque
 
   irrelevanceTerm′ : ∀ {t v A}
                    → A PE.≡ A′
-                   → ([A] : Δ ⊨ A)
-                   → ([A]′ : Δ ⊨ A′)
+                   → ([A] : ts » Δ ⊨ A)
+                   → ([A]′ : ts » Δ ⊨ A′)
                    → t ® v ∷ A / [A]
                    → t ® v ∷ A′ / [A]′
   irrelevanceTerm′ PE.refl [A] [A]′ t®v = irrelevanceTerm [A] [A]′ t®v

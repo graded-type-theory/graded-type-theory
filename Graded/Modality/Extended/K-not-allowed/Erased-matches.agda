@@ -75,6 +75,7 @@ private variable
 -- * The K rule is not allowed.
 -- * []-cong is not allowed for 𝕤.
 -- * []-cong is allowed for 𝕨 exactly when the modality is non-trivial.
+-- * Opaque definitions are allowed.
 -- * Equality reflection is not allowed.
 -- * 𝟘ᵐ is allowed exactly when the modality is non-trivial.
 
@@ -98,6 +99,7 @@ All-properties-hold-for M =
   ¬ K-allowed ×
   ¬ []-cong-allowed 𝕤 ×
   ([]-cong-allowed 𝕨 ⇔ (¬ Trivial)) ×
+  Opacity-allowed ×
   ¬ Equality-reflection ×
   (T 𝟘ᵐ-allowed ⇔ (¬ Trivial))
   where
@@ -194,6 +196,7 @@ opaque
     , (λ ())
     , (_$ refl) ∘→ proj₂
     , (proj₁ ∘→ proj₁ , ⊥-elim ∘→ (_$ refl))
+    , lift (λ ())
     , (λ { (lift ()) })
     , ((λ ()) , (_$ refl))
 
@@ -246,6 +249,7 @@ opaque
     , (λ ())
     , (_$ refl) ∘→ proj₂
     , (proj₁ ∘→ proj₁ , (λ _ → ((λ ()) , (λ ())) , (λ ())))
+    , lift (λ ())
     , (λ { (lift ()) })
     , ((λ _ ()) , _)
 
@@ -307,6 +311,7 @@ opaque
     , (λ ())
     , (_$ refl) ∘→ proj₂
     , (proj₁ ∘→ proj₁ , (λ _ → ((λ ()) , (λ ())) , (λ ())))
+    , lift (λ ())
     , (λ { (lift ()) })
     , ((λ _ ()) , _)
 
@@ -372,6 +377,7 @@ opaque
     , (λ ())
     , (_$ refl) ∘→ proj₂
     , (proj₁ ∘→ proj₁ , (λ _ → ((λ ()) , (λ ())) , (λ ())))
+    , lift (λ ())
     , (λ { (lift ()) })
     , ((λ _ ()) , _)
 
@@ -438,6 +444,7 @@ opaque
     , (λ ())
     , (_$ refl) ∘→ proj₂
     , (proj₁ ∘→ proj₁ , (λ _ → ((λ ()) , (λ ())) , (λ ())))
+    , lift (λ ())
     , (λ { (lift ()) })
     , ((λ _ ()) , _)
 

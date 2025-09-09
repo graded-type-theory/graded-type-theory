@@ -1019,6 +1019,9 @@ mutual
        (𝟘ᶜ , x ≔ ⌜ ⌞ ⌜ mo ⌝ ⌟ ⌝) <* Ψ                   ≡˘⟨ cong (λ p → (𝟘ᶜ , x ≔ ⌜ ⌞ p ⌟ ⌝) <* Ψ) (update-lookup 𝟘ᶜ x) ⟩
        (𝟘ᶜ , x ≔ ⌜ ⌞ (𝟘ᶜ , x ≔ ⌜ mo ⌝) ⟨ x ⟩ ⌟ ⌝) <* Ψ  ∎)
 
+  substₘ-lemma Ψ _ defn =
+    sub defn (≤ᶜ-reflexive (<*-zeroˡ Ψ))
+
   substₘ-lemma {mo = mo} Ψ Ψ▶σ (lamₘ {γ = γ} {p = p} γ▸t) = lamₘ
     (sub-≈ᶜ (substₘ-lemma (liftSubstₘ Ψ)
             (▶-cong (liftSubstₘ Ψ)

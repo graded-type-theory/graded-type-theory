@@ -18,11 +18,13 @@ module Definition.Conversion.Lift
 open import Definition.Untyped M
 open import Definition.Untyped.Neutral M type-variant
 open import Definition.Untyped.Properties M
+open import Definition.Untyped.Whnf M type-variant
 open import Definition.Typed R
 open import Definition.Typed.EqualityRelation.Instance R
 open import Definition.Typed.Inversion R
 open import Definition.Typed.Syntactic R
 open import Definition.Typed.Weakening R
+open import Definition.Typed.Weakening.Definition R
 open import Definition.Typed.Properties R
 open import Definition.Typed.EqRelInstance R
 open import Definition.Conversion R
@@ -42,10 +44,8 @@ open import Tools.Product
 import Tools.PropositionalEquality as PE
 open import Tools.Sum using (inj₁; inj₂)
 
-private
-  variable
-    n : Nat
-    Γ : Con Term n
+private variable
+  Γ : Cons _ _
 
 -- Lifting of algorithmic equality of types from WHNF to generic types.
 liftConv : ∀ {A B}
@@ -66,7 +66,7 @@ liftConvTerm t<>u =
   in  [↑]ₜ _ _ _ (id ⊢A , whnfA) (id ⊢t , whnfT) (id ⊢u , whnfU) t<>u
 
 mutual
-  -- Helper function for lifting from neutrals to generic terms in WHNF.
+  -- Helper function for lifting from neutral to generic terms in WHNF.
   lift~toConv↓′ : ∀ {t u A A′ l}
                 → Γ ⊩⟨ l ⟩ A′
                 → Γ ⊢ A′ ⇒* A
@@ -98,12 +98,19 @@ mutual
           (_ , ⊢t , ⊢u) →
         case subset* B⇒*A of λ
           B≡Unit →
-        η-unit (conv ⊢t B≡Unit) (conv ⊢u B≡Unit) (ne t-ne) (ne u-ne) η }
-  lift~toConv↓′ (ne′ _ H D neH H≡H) D₁ ([~] A (D₂ , whnfB) k~l)
-                rewrite PE.sym (whrDet* (D , ne neH) (D₁ , whnfB)) =
+        η-unit (conv ⊢t B≡Unit)
+               (conv ⊢u B≡Unit)
+               (ne-whnf t-ne)
+               (ne-whnf u-ne)
+               η }
+  lift~toConv↓′ (ne′ H D neH H≡H) D₁ ([~] A (D₂ , whnfB) k~l)
+                rewrite PE.sym (whrDet* (D , ne-whnf neH) (D₁ , whnfB)) =
     let _ , ⊢t , ⊢u = syntacticEqTerm (soundness~↑ k~l)
         A≡H = subset* D₂
-    in  ne-ins (conv ⊢t A≡H) (conv ⊢u A≡H) neH ([~] A (D₂ , ne neH) k~l)
+    in  ne-ins (conv ⊢t A≡H)
+               (conv ⊢u A≡H)
+               (ne↑⁺ neH)
+               ([~] A (D₂ , ne-whnf neH) k~l)
   lift~toConv↓′
     (Πᵣ′ F G D A≡A [F] [G] G-ext _) D₁ ([~] A (D₂ , whnfB) k~l)
     rewrite PE.sym (whrDet* (D , ΠΣₙ) (D₁ , whnfB)) =
@@ -113,12 +120,11 @@ mutual
         neT , neU = ne~↑ k~l
         step-id = stepʷ id ⊢F
         step-idʳ = ∷ʷ⊇→∷ʷʳ⊇ step-id
-        var0 = neuTerm no-equality-reflection ([F] step-idʳ) (var x0)
-                 (refl (var₀ ⊢F))
-        0≡0 = lift~toConv↑′ ([F] step-idʳ) (var-refl (var₀ ⊢F) PE.refl)
-    in  η-eq ⊢t ⊢u (ne neT) (ne neU)
+        var0 = neuTerm ([F] id step-idʳ) (var no-equality-reflection x0) (refl (var₀ ⊢F))
+        0≡0 = lift~toConv↑′ ([F] id step-idʳ) (var-refl (var₀ ⊢F) PE.refl)
+    in  η-eq ⊢t ⊢u (ne (ne↑⁺ neT)) (ne (ne↑⁺ neU))
           (PE.subst (λ x → _ ⊢ _ [conv↑] _ ∷ x) (wkSingleSubstId _) $
-           lift~toConv↑′ ([G] step-idʳ var0) $
+           lift~toConv↑′ ([G] id step-idʳ var0) $
            app-cong (wk~↓ step-id ([~] A (D₂ , ΠΣₙ) k~l)) 0≡0)
   lift~toConv↓′
     (Bᵣ′ BΣˢ F G D Σ≡Σ [F] [G] G-ext _) D₁
@@ -135,15 +141,15 @@ mutual
         wkId = wk-id F
         wkLiftId = PE.cong (λ x → x [ fst _ _ ]₀) (wk-lift-id G)
 
-        wk[F] = [F] (id ⊢Γ)
+        wk[F] = [F] id (id ⊢Γ)
         wkfst≡ = PE.subst (_⊢_≡_∷_ _ _ _) (PE.sym wkId)
                    (fst-cong ⊢G (refl ⊢t))
-        wk[fst] = neuTerm no-equality-reflection wk[F] (fstₙ neT) wkfst≡
-        wk[Gfst] = [G] (id ⊢Γ) wk[fst]
+        wk[fst] = neuTerm wk[F] (fstₙ (ne↑ₗ neT)) wkfst≡
+        wk[Gfst] = [G] id (id ⊢Γ) wk[fst]
 
         wkfst~ = PE.subst (λ x → _ ⊢ _ ~ _ ↑ x) (PE.sym wkId) (fst-cong t~u↓)
         wksnd~ = PE.subst (λ x → _ ⊢ _ ~ _ ↑ x) (PE.sym wkLiftId) (snd-cong t~u↓)
-    in  Σ-η ⊢t ⊢u (ne neT) (ne neU)
+    in  Σ-η ⊢t ⊢u (ne (ne↑⁺ neT)) (ne (ne↑⁺ neU))
             (PE.subst (λ x → _ ⊢ _ [conv↑] _ ∷ x) wkId
                       (lift~toConv↑′ wk[F] wkfst~))
             (PE.subst (λ x → _ ⊢ _ [conv↑] _ ∷ x) wkLiftId
@@ -164,7 +170,7 @@ mutual
       ⊢t →
     Id-ins ⊢t t~u }}
 
-  -- Helper function for lifting from neutrals to generic terms.
+  -- Helper function for lifting from neutral to generic terms.
   lift~toConv↑′ : ∀ {t u A l}
                 → Γ ⊩⟨ l ⟩ A
                 → Γ ⊢ t ~ u ↑ A
@@ -174,10 +180,10 @@ mutual
         t~u↓ = [~] _ (D , whnfB) t~u
         neT , neU = ne~↑ t~u
         _ , ⊢t , ⊢u = syntacticEqTerm (soundness~↓ t~u↓)
-    in  [↑]ₜ _ _ _ (D , whnfB) (id ⊢t , ne neT) (id ⊢u , ne neU)
+    in  [↑]ₜ _ _ _ (D , whnfB) (id ⊢t , ne-whnf neT) (id ⊢u , ne-whnf neU)
           (lift~toConv↓′ [A] D t~u↓)
 
--- Lifting of algorithmic equality of terms from neutrals to generic terms in WHNF.
+-- Lifting of algorithmic equality of terms from neutral to generic terms in WHNF.
 lift~toConv↓ : ∀ {t u A}
              → Γ ⊢ t ~ u ↓ A
              → Γ ⊢ t [conv↓] u ∷ A
@@ -186,7 +192,7 @@ lift~toConv↓ ([~] A₁ D@(D′ , _) k~l) =
     (reducible-⊩ (syntacticRed D′ .proj₁) .proj₂) D′
     ([~] A₁ D k~l)
 
--- Lifting of algorithmic equality of terms from neutrals to generic terms.
+-- Lifting of algorithmic equality of terms from neutral to generic terms.
 lift~toConv↑ : ∀ {t u A}
              → Γ ⊢ t ~ u ↑ A
              → Γ ⊢ t [conv↑] u ∷ A

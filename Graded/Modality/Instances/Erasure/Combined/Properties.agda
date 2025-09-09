@@ -48,7 +48,7 @@ import Tools.Reasoning.PartialOrder ≤-poset as POR
 open import Tools.Relation
 
 private variable
-  Γ   : Con Term _
+  Γ   : Cons _ _
   A t : Term _
   γ δ : Conₘ _
   p   : Erasure
@@ -113,6 +113,8 @@ opaque mutual
       ⊢Γ x∈
     where
     open POR
+  sub-⊢∷ (defn ⊢Γ α∈ eq) _ =
+    defn ⊢Γ α∈ eq
   sub-⊢∷ (U ⊢Γ) _ =
     U ⊢Γ
   sub-⊢∷ (Empty ⊢Γ) _ =

@@ -29,7 +29,7 @@ open import Tools.Function
 open import Tools.Product
 
 private variable
-  Γ         : Con Term _
+  Γ         : Cons _ _
   A B C t u : Term _
 
 -- A β-rule for Erased.

@@ -8,9 +8,9 @@ import Definition.Untyped hiding (_[_])
 
 module Definition.Typed.Properties.Admissible.Erased
   {a} {M : Set a}
-  (open Definition.Untyped M)
   (open Graded.Modality M)
   {𝕄 : Modality}
+  (open Definition.Untyped M)
   (R : Type-restrictions 𝕄)
   where
 
@@ -53,7 +53,7 @@ open import Tools.Relation
 
 private variable
   n                                                    : Nat
-  Γ                                                    : Con Term _
+  Γ                                                    : Cons _ _
   A A₁ A₂ B B₁ B₂ C t t′ t₁ t₂ u u₁ u₂ v v₁ v₂ w w₁ w₂ : Term _
   σ                                                    : Subst _ _
   s                                                    : Strength
@@ -214,8 +214,8 @@ private opaque
 
   erasedrec-lemma₁ :
     let open Erased s in
-    Γ ∙ Erased A₁ ⊢ B₁ ≡ B₂ →
-    Γ ∙ A₁ ∙ Unit s 0 ∙ Unit s 0 ⊢
+    Γ »∙ Erased A₁ ⊢ B₁ ≡ B₂ →
+    Γ »∙ A₁ »∙ Unit s 0 »∙ Unit s 0 ⊢
       B₁ [ 3 ][ prod s 𝟘 (var x2) (var x0) ]↑ ≡
       B₂ [ 3 ][ prod s 𝟘 (var x2) (var x0) ]↑
   erasedrec-lemma₁ B₁≡B₂ =
@@ -237,8 +237,8 @@ private opaque
     let open Erased s in
     ∀ B →
     Unit-allowed s →
-    Γ ∙ A ⊢ t₁ ≡ t₂ ∷ B [ [ var x0 ] ]↑ →
-    Γ ∙ A ∙ Unit s 0 ⊢ wk1 t₁ ≡ wk1 t₂ ∷
+    Γ »∙ A ⊢ t₁ ≡ t₂ ∷ B [ [ var x0 ] ]↑ →
+    Γ »∙ A »∙ Unit s 0 ⊢ wk1 t₁ ≡ wk1 t₂ ∷
       B [ 3 ][ prod s 𝟘 (var x2) (var x0) ]↑ [ star s 0 ]₀
   erasedrec-lemma₂ {s} B Unit-ok t₁≡t₂ =
     flip (PE.subst (_⊢_≡_∷_ _ _ _))
@@ -257,8 +257,8 @@ opaque
 
   erasedrec-cong :
     let open Erased s in
-    Γ ∙ Erased A ⊢ B₁ ≡ B₂ →
-    Γ ∙ A ⊢ t₁ ≡ t₂ ∷ B₁ [ [ var x0 ] ]↑ →
+    Γ »∙ Erased A ⊢ B₁ ≡ B₂ →
+    Γ »∙ A ⊢ t₁ ≡ t₂ ∷ B₁ [ [ var x0 ] ]↑ →
     Γ ⊢ u₁ ≡ u₂ ∷ Erased A →
     Γ ⊢ erasedrec p B₁ t₁ u₁ ≡ erasedrec p B₂ t₂ u₂ ∷ B₁ [ u₁ ]₀
   erasedrec-cong {B₁} B₁≡B₂ t₁≡t₂ u₁≡u₂ =
@@ -279,8 +279,8 @@ opaque
 
   ⊢erasedrec :
     let open Erased s in
-    Γ ∙ Erased A ⊢ B →
-    Γ ∙ A ⊢ t ∷ B [ [ var x0 ] ]↑ →
+    Γ »∙ Erased A ⊢ B →
+    Γ »∙ A ⊢ t ∷ B [ [ var x0 ] ]↑ →
     Γ ⊢ u ∷ Erased A →
     Γ ⊢ erasedrec p B t u ∷ B [ u ]₀
   ⊢erasedrec ⊢B ⊢t ⊢u =
@@ -295,8 +295,8 @@ opaque
 
   erasedrec-β :
     let open Erased s in
-    Γ ∙ Erased A ⊢ B →
-    Γ ∙ A ⊢ t ∷ B [ [ var x0 ] ]↑ →
+    Γ »∙ Erased A ⊢ B →
+    Γ »∙ A ⊢ t ∷ B [ [ var x0 ] ]↑ →
     Γ ⊢ u ∷ A →
     Γ ⊢ erasedrec p B t [ u ] ≡ t [ u ]₀ ∷ B [ [ u ] ]₀
   erasedrec-β {s} {B} {t} {u} {p} ⊢B ⊢t ⊢u =
@@ -391,7 +391,7 @@ opaque
   mapᴱ-cong :
     let open Erased s in
     Γ ⊢ A₁ ≡ A₂ →
-    Γ ∙ A₁ ⊢ t₁ ≡ t₂ ∷ wk1 B →
+    Γ »∙ A₁ ⊢ t₁ ≡ t₂ ∷ wk1 B →
     Γ ⊢ u₁ ≡ u₂ ∷ Erased A₁ →
     Γ ⊢ mapᴱ A₁ t₁ u₁ ≡ mapᴱ A₂ t₂ u₂ ∷ Erased B
   mapᴱ-cong A₁≡A₂ t₁≡t₂ u₁≡u₂ =
@@ -407,7 +407,7 @@ opaque
 
   ⊢mapᴱ :
     let open Erased s in
-    Γ ∙ A ⊢ t ∷ wk1 B →
+    Γ »∙ A ⊢ t ∷ wk1 B →
     Γ ⊢ u ∷ Erased A →
     Γ ⊢ mapᴱ A t u ∷ Erased B
   ⊢mapᴱ ⊢t ⊢u =
@@ -424,7 +424,7 @@ opaque
   mapᴱ-β :
     let open Erased s in
     Erased-allowed s →
-    Γ ∙ A ⊢ t ∷ wk1 B →
+    Γ »∙ A ⊢ t ∷ wk1 B →
     Γ ⊢ u ∷ A →
     Γ ⊢ mapᴱ A t [ u ] ≡ [ t [ u ]₀ ] ∷ Erased B
   mapᴱ-β ok ⊢t ⊢u =
@@ -450,7 +450,7 @@ module _ (ok : []-cong-allowed s) where
     Σ-ok = Erased-ok .proj₂
 
     [erased-0]↑[[]]₀≡[]₀ :
-      Γ ∙ A ⊢ B →
+      Γ »∙ A ⊢ B →
       Γ ⊢ t ∷ A →
       Γ ⊢ B [ erased (wk1 A) (var x0) ]↑ [ [ t ] ]₀ ≡ B [ t ]₀
     [erased-0]↑[[]]₀≡[]₀ {A} {B} {t} ⊢B ⊢t =
@@ -463,8 +463,8 @@ module _ (ok : []-cong-allowed s) where
       open TypeR
 
     ⊢[erased-0]↑ :
-      Γ ∙ A ⊢ B →
-      Γ ∙ Erased A ⊢ B [ erased (wk1 A) (var x0) ]↑
+      Γ »∙ A ⊢ B →
+      Γ »∙ Erased A ⊢ B [ erased (wk1 A) (var x0) ]↑
     ⊢[erased-0]↑ ⊢B =
       case wf ⊢B of λ {
         (∙ ⊢A) →
@@ -482,7 +482,7 @@ module _ (ok : []-cong-allowed s) where
     -- A typing rule for substᵉ.
 
     ⊢substᵉ :
-      Γ ∙ A ⊢ B →
+      Γ »∙ A ⊢ B →
       Γ ⊢ v ∷ Id A t u →
       Γ ⊢ w ∷ B [ t ]₀ →
       Γ ⊢ substᵉ A B t u v w ∷ B [ u ]₀
@@ -504,7 +504,7 @@ module _ (ok : []-cong-allowed s) where
     -- A reduction rule for substᵉ.
 
     substᵉ-⇒*′ :
-      Γ ∙ A ⊢ B →
+      Γ »∙ A ⊢ B →
       Γ ⊢ t ≡ t′ ∷ A →
       Γ ⊢ u ∷ B [ t ]₀ →
       Γ ⊢ substᵉ A B t t′ rfl u ⇒* u ∷ B [ t ]₀
@@ -534,7 +534,7 @@ module _ (ok : []-cong-allowed s) where
     -- Another reduction rule for substᵉ.
 
     substᵉ-⇒* :
-      Γ ∙ A ⊢ B →
+      Γ »∙ A ⊢ B →
       Γ ⊢ t ∷ A →
       Γ ⊢ u ∷ B [ t ]₀ →
       Γ ⊢ substᵉ A B t t rfl u ⇒* u ∷ B [ t ]₀
@@ -545,7 +545,7 @@ module _ (ok : []-cong-allowed s) where
     -- An equality rule for substᵉ.
 
     substᵉ-≡ :
-      Γ ∙ A ⊢ B →
+      Γ »∙ A ⊢ B →
       Γ ⊢ t ∷ A →
       Γ ⊢ u ∷ B [ t ]₀ →
       Γ ⊢ substᵉ A B t t rfl u ≡ u ∷ B [ t ]₀
@@ -559,7 +559,7 @@ module _ (ok : []-cong-allowed s) where
 
     substᵉ-cong :
       Γ ⊢ A₁ ≡ A₂ →
-      Γ ∙ A₁ ⊢ B₁ ≡ B₂ →
+      Γ »∙ A₁ ⊢ B₁ ≡ B₂ →
       Γ ⊢ t₁ ≡ t₂ ∷ A₁ →
       Γ ⊢ u₁ ≡ u₂ ∷ A₁ →
       Γ ⊢ v₁ ≡ v₂ ∷ Id A₁ t₁ u₁ →
@@ -592,7 +592,7 @@ module _ (ok : []-cong-allowed s) where
     -- A reduction rule for substᵉ.
 
     substᵉ-subst :
-      Γ ∙ A ⊢ B →
+      Γ »∙ A ⊢ B →
       Γ ⊢ v₁ ⇒ v₂ ∷ Id A t u →
       Γ ⊢ w ∷ B [ t ]₀ →
       Γ ⊢ substᵉ A B t u v₁ w ⇒ substᵉ A B t u v₂ w ∷ B [ u ]₀
@@ -670,7 +670,7 @@ module _ (ok : []-cong-allowed s) where
     lemma₆ :
       Γ ⊢ A₁ ≡ A₂ →
       Γ ⊢ t₁ ≡ t₂ ∷ A₁ →
-      Γ ∙ A₁ ∙ Id (wk1 A₁) (wk1 t₁) (var x0) ⊢
+      Γ »∙ A₁ »∙ Id (wk1 A₁) (wk1 t₁) (var x0) ⊢
         Id (wk₂ (Singleton A₁ t₁)) (wk₂ (prod s 𝟘 t₁ rfl))
           (prod s 𝟘 (var x1) (var x0)) ≡
         Id (wk₂ (Singleton A₂ t₂)) (wk₂ (prod s 𝟘 t₂ rfl))
@@ -716,7 +716,7 @@ module _ (ok : []-cong-allowed s) where
 
     lemma₆′ :
       Γ ⊢ t ∷ A →
-      Γ ∙ A ∙ Id (wk1 A) (wk1 t) (var x0) ⊢
+      Γ »∙ A »∙ Id (wk1 A) (wk1 t) (var x0) ⊢
         Id (wk₂ (Singleton A t)) (wk₂ (prod s 𝟘 t rfl))
           (prod s 𝟘 (var x1) (var x0))
     lemma₆′ ⊢t =
@@ -749,9 +749,9 @@ module _ (ok : []-cong-allowed s) where
 
     lemma₈ :
       Γ ⊢ A₁ ≡ A₂ →
-      Γ ∙ A₁ ∙ Id (wk1 A₁) (wk1 t₁) (var x0) ⊢ B₁ ≡ B₂ →
+      Γ »∙ A₁ »∙ Id (wk1 A₁) (wk1 t₁) (var x0) ⊢ B₁ ≡ B₂ →
       Γ ⊢ t₁ ≡ t₂ ∷ A₁ →
-      Γ ∙ Singleton A₁ t₁ ⊢
+      Γ »∙ Singleton A₁ t₁ ⊢
         B₁ U.[ consSubst
                  (consSubst (wk1Subst idSubst)
                     (fst⟨ s ⟩ 𝟘 (wk1 A₁) (var x0)))
@@ -790,9 +790,9 @@ module _ (ok : []-cong-allowed s) where
             refl (var₀ ⊢Singleton₁)))
 
     lemma₈′ :
-      Γ ∙ A ∙ Id (wk1 A) (wk1 t) (var x0) ⊢ B →
+      Γ »∙ A »∙ Id (wk1 A) (wk1 t) (var x0) ⊢ B →
       Γ ⊢ t ∷ A →
-      Γ ∙ Singleton A t ⊢
+      Γ »∙ Singleton A t ⊢
         B U.[ consSubst
                 (consSubst (wk1Subst idSubst)
                    (fst⟨ s ⟩ 𝟘 (wk1 A) (var x0)))
@@ -804,7 +804,7 @@ module _ (ok : []-cong-allowed s) where
         .proj₁
 
     lemma₉ :
-      Γ ∙ A ∙ Id (wk1 A) (wk1 t) (var x0) ⊢ B →
+      Γ »∙ A »∙ Id (wk1 A) (wk1 t) (var x0) ⊢ B →
       Γ ⊢ v ∷ Id A t u →
       Γ ⊢
         B U.[ consSubst
@@ -872,7 +872,7 @@ module _ (ok : []-cong-allowed s) where
     Jᵉ-cong :
       Γ ⊢ A₁ ≡ A₂ →
       Γ ⊢ t₁ ≡ t₂ ∷ A₁ →
-      Γ ∙ A₁ ∙ Id (wk1 A₁) (wk1 t₁) (var x0) ⊢ B₁ ≡ B₂ →
+      Γ »∙ A₁ »∙ Id (wk1 A₁) (wk1 t₁) (var x0) ⊢ B₁ ≡ B₂ →
       Γ ⊢ u₁ ≡ u₂ ∷ B₁ [ t₁ , rfl ]₁₀ →
       Γ ⊢ v₁ ≡ v₂ ∷ A₁ →
       Γ ⊢ w₁ ≡ w₂ ∷ Id A₁ t₁ v₁ →
@@ -920,7 +920,7 @@ module _ (ok : []-cong-allowed s) where
     -- A typing rule for Jᵉ.
 
     ⊢Jᵉ :
-      Γ ∙ A ∙ Id (wk1 A) (wk1 t) (var x0) ⊢ B →
+      Γ »∙ A »∙ Id (wk1 A) (wk1 t) (var x0) ⊢ B →
       Γ ⊢ u ∷ B [ t , rfl ]₁₀ →
       Γ ⊢ w ∷ Id A t v →
       Γ ⊢ Jᵉ A t B u v w ∷ B [ v , w ]₁₀
@@ -939,7 +939,7 @@ module _ (ok : []-cong-allowed s) where
 
     Jᵉ-⇒*′ :
       Γ ⊢ t ≡ t′ ∷ A →
-      Γ ∙ A ∙ Id (wk1 A) (wk1 t) (var x0) ⊢ B →
+      Γ »∙ A »∙ Id (wk1 A) (wk1 t) (var x0) ⊢ B →
       Γ ⊢ u ∷ B [ t , rfl ]₁₀ →
       Γ ⊢ Jᵉ A t B u t′ rfl ⇒* u ∷ B [ t , rfl ]₁₀
     Jᵉ-⇒*′ {t} {t′} {A} {B} {u} t≡t′ ⊢B ⊢u =
@@ -1013,7 +1013,7 @@ module _ (ok : []-cong-allowed s) where
 
     Jᵉ-⇒* :
       Γ ⊢ t ∷ A →
-      Γ ∙ A ∙ Id (wk1 A) (wk1 t) (var x0) ⊢ B →
+      Γ »∙ A »∙ Id (wk1 A) (wk1 t) (var x0) ⊢ B →
       Γ ⊢ u ∷ B [ t , rfl ]₁₀ →
       Γ ⊢ Jᵉ A t B u t rfl ⇒* u ∷ B [ t , rfl ]₁₀
     Jᵉ-⇒* ⊢t = Jᵉ-⇒*′ (refl ⊢t)
@@ -1024,7 +1024,7 @@ module _ (ok : []-cong-allowed s) where
 
     Jᵉ-≡ :
       Γ ⊢ t ∷ A →
-      Γ ∙ A ∙ Id (wk1 A) (wk1 t) (var x0) ⊢ B →
+      Γ »∙ A »∙ Id (wk1 A) (wk1 t) (var x0) ⊢ B →
       Γ ⊢ u ∷ B [ t , rfl ]₁₀ →
       Γ ⊢ Jᵉ A t B u t rfl ≡ u ∷ B [ t , rfl ]₁₀
     Jᵉ-≡ ⊢t ⊢B ⊢u = subset*Term (Jᵉ-⇒* ⊢t ⊢B ⊢u)
@@ -1035,18 +1035,18 @@ module _ (ok : []-cong-allowed s) where
     -- A certain reduction rule for Jᵉ is not valid.
 
     ¬-Jᵉ-subst :
-      ¬ (∀ {n} {Γ : Con Term n} {A t : Term n} {B : Term (2+ n)}
-           {u v w₁ w₂ : Term n} →
-         Γ ∙ A ∙ Id (wk1 A) (wk1 t) (var x0) ⊢ B →
+      ¬ (∀ {m n} {Γ : Cons m n}
+           {A t : Term n} {B : Term (2+ n)} {u v w₁ w₂ : Term n} →
+         Γ »∙ A »∙ Id (wk1 A) (wk1 t) (var x0) ⊢ B →
          Γ ⊢ u ∷ B [ t , rfl ]₁₀ →
          Γ ⊢ w₁ ⇒ w₂ ∷ Id A t v →
          Γ ⊢ Jᵉ A t B u v w₁ ⇒ Jᵉ A t B u v w₂ ∷ B [ v , w₁ ]₁₀)
     ¬-Jᵉ-subst Jᵉ-subst = ¬lhs⇒rhs lhs⇒rhs
       where
-      Γ′                          : Con Term 0
+      Γ′                          : Cons 0 0
       A′ t″ u′ v′ w₁′ w₂′ lhs rhs : Term 0
       B′                          : Term 2
-      Γ′  = ε
+      Γ′  = ε » ε
       A′  = ℕ
       t″  = zero
       B′  = ℕ
@@ -1057,17 +1057,17 @@ module _ (ok : []-cong-allowed s) where
       lhs = Jᵉ A′ t″ B′ u′ v′ w₁′
       rhs = Jᵉ A′ t″ B′ u′ v′ w₂′
 
-      ⊢B′ : Γ′ ∙ A′ ∙ Id (wk1 A′) (wk1 t″) (var x0) ⊢ B′
-      ⊢B′ = ℕⱼ (∙ Idⱼ′ (zeroⱼ (∙ ℕⱼ ε)) (var₀ (ℕⱼ ε)))
+      ⊢B′ : Γ′ »∙ A′ »∙ Id (wk1 A′) (wk1 t″) (var x0) ⊢ B′
+      ⊢B′ = ℕⱼ (∙ Idⱼ′ (zeroⱼ (∙ ℕⱼ εε)) (var₀ (ℕⱼ εε)))
 
       ⊢u′ : Γ′ ⊢ u′ ∷ B′ [ t″ , rfl ]₁₀
-      ⊢u′ = zeroⱼ ε
+      ⊢u′ = zeroⱼ εε
 
       w₁′⇒w₂′ : Γ′ ⊢ w₁′ ⇒ w₂′ ∷ Id A′ t″ v′
       w₁′⇒w₂′ = subst-⇒
-        (Idⱼ′ (zeroⱼ (∙ ℕⱼ ε)) (zeroⱼ (∙ ℕⱼ ε)))
-        (zeroⱼ ε)
-        (rflⱼ (zeroⱼ ε))
+        (Idⱼ′ (zeroⱼ (∙ ℕⱼ εε)) (zeroⱼ (∙ ℕⱼ εε)))
+        (zeroⱼ εε)
+        (rflⱼ (zeroⱼ εε))
 
       lhs⇒rhs : Γ′ ⊢ lhs ⇒ rhs ∷ B′ [ v′ , w₁′ ]₁₀
       lhs⇒rhs = Jᵉ-subst ⊢B′ ⊢u′ w₁′⇒w₂′

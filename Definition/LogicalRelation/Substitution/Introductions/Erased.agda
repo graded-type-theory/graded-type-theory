@@ -41,7 +41,7 @@ open import Tools.Function
 import Tools.PropositionalEquality as PE
 
 private variable
-  Γ           : Con Term _
+  Γ           : Cons _ _
   A A₁ A₂ t u : Term _
   l           : Universe-level
 
@@ -54,8 +54,8 @@ opaque
     ⊩ΠΣ⇔ .proj₂
       ( ≅-ΠΣ-cong (escape-⊩≡ $ refl-⊩≡ ⊩A)
           (≅-Unitrefl (∙ escape-⊩ ⊩A) Unit-ok) Σ-ok
-      , λ ρ⊇ →
-            wk-⊩ ρ⊇ ⊩A
+      , λ ξ⊇ ρ⊇ →
+            wk-⊩ ρ⊇ (defn-wk-⊩ ξ⊇ ⊩A)
           , λ _ → refl-⊩≡ $ emb-⊩ 0≤ᵘ $ ⊩Unit (wf-∷ʷʳ⊇ ρ⊇) Unit-ok
       )
 
@@ -75,8 +75,8 @@ opaque
       , ≅-ΠΣ-cong (escape-⊩≡ A₁≡A₂)
           (≅-Unitrefl (∙ escape-⊩ ⊩A₁) Unit-ok) Σ-ok
       , PE.refl , PE.refl , PE.refl
-      , λ ρ⊇ →
-            wk-⊩≡ ρ⊇ A₁≡A₂
+      , λ ξ⊇ ρ⊇ →
+            wk-⊩≡ ρ⊇ (defn-wk-⊩≡ ξ⊇ A₁≡A₂)
           , λ _ → refl-⊩≡ $ emb-⊩ 0≤ᵘ $ ⊩Unit (wf-∷ʷʳ⊇ ρ⊇) Unit-ok
       )
 
@@ -90,7 +90,7 @@ opaque
   Erased-congᵛ A₁≡A₂ =
     case ⊩ᵛ≡⇔ʰ .proj₁ A₁≡A₂ of λ
       (⊩Γ , A₁≡A₂) →
-    ⊩ᵛ≡⇔ʰ .proj₂ (⊩Γ , ⊩Erased≡Erased ∘→ A₁≡A₂)
+    ⊩ᵛ≡⇔ʰ .proj₂ (⊩Γ , λ ξ⊇ → ⊩Erased≡Erased ∘→ A₁≡A₂ ξ⊇)
 
 opaque
 
@@ -137,7 +137,7 @@ opaque
       (⊩A , _) →
     ⊩ᵛ≡∷⇔ʰ .proj₂
       ( Erasedᵛ ⊩A
-      , ⊩[]≡[] ∘→ R.⊩≡∷→ ∘→ ⊩ᵛ≡∷→⊩ˢ≡∷→⊩[]≡[]∷ t≡u
+      , λ ξ⊇ → ⊩[]≡[] ∘→ R.⊩≡∷→ ∘→ ⊩ᵛ≡∷→⊩ˢ≡∷→⊩[]≡[]∷ (defn-wk-⊩ᵛ≡∷ ξ⊇ t≡u)
       )
 
 opaque
