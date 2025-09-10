@@ -111,12 +111,20 @@ opaque
   liftn-wk₀-•-wk₀ 0      = •-id
   liftn-wk₀-•-wk₀ (1+ n) = cong step $ liftn-wk₀-•-wk₀ n
 
--- The weakening step id • ρ is equal to lift ρ • step id.
+opaque
 
-lift-step-comp : (ρ : Wk m n) → step id • ρ ≡ lift ρ • step id
-lift-step-comp id       = refl
-lift-step-comp (step ρ) = cong step (lift-step-comp ρ)
-lift-step-comp (lift ρ) = refl
+  -- A generalisation of lift-step-comp (which is defined below).
+
+  liftn-stepn-comp : ∀ n → stepn ρ n ≡ liftn ρ n • stepn id n
+  liftn-stepn-comp 0      = sym •-id
+  liftn-stepn-comp (1+ n) = cong step $ liftn-stepn-comp n
+
+opaque
+
+  -- The weakening step id • ρ is equal to lift ρ • step id.
+
+  lift-step-comp : (ρ : Wk m n) → step id • ρ ≡ lift ρ • step id
+  lift-step-comp _ = liftn-stepn-comp 1
 
 opaque
 
