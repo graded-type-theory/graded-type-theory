@@ -35,10 +35,19 @@ private
   variable
     m n : Nat
     ∇   : DCon (Term 0) m
-    Δ   : Con Term n
+    Δ Ε : Con Term n
     Γ   : Cons m n
     σ   : Subst _ _
     t u : Term n
+
+opaque
+
+  -- If ∇ » Ε is consistent and there is a substitution from Δ to Ε
+  -- under ∇, then ∇ » Δ is consistent.
+
+  subst-Consistent :
+    ∇ » Ε ⊢ˢʷ σ ∷ Δ → Consistent (∇ » Ε) → Consistent (∇ » Δ)
+  subst-Consistent ⊢σ consistent _ ⊢t = consistent _ (subst-⊢∷ ⊢t ⊢σ)
 
 opaque
 
@@ -46,7 +55,7 @@ opaque
   -- consistent.
 
   inhabited-consistent : ∇ » ε ⊢ˢʷ σ ∷ Δ → Consistent (∇ » Δ)
-  inhabited-consistent ⊢σ _ ⊢t = ¬Empty (subst-⊢∷ ⊢t ⊢σ)
+  inhabited-consistent = flip subst-Consistent (λ _ → ¬Empty)
 
 opaque
 
