@@ -218,11 +218,19 @@ wkUsage ρ (sub γ▸t x) = sub (wkUsage ρ γ▸t) (wk-≤ᶜ ρ x)
 
 opaque
 
+  -- The result of weakening 𝟘ᶜ is 𝟘ᶜ.
+
+  wkConₘ-𝟘ᶜ : (ρ : Wk m n) → wkConₘ ρ 𝟘ᶜ ≡ 𝟘ᶜ
+  wkConₘ-𝟘ᶜ id       = refl
+  wkConₘ-𝟘ᶜ (step ρ) = cong (_∙ _) (wkConₘ-𝟘ᶜ ρ)
+  wkConₘ-𝟘ᶜ (lift ρ) = cong (_∙ _) (wkConₘ-𝟘ᶜ ρ)
+
+opaque
+
   -- The result of weakening ε is 𝟘ᶜ.
 
   wkConₘ-ε : wkConₘ ρ ε ≡ 𝟘ᶜ
-  wkConₘ-ε {ρ = id}     = refl
-  wkConₘ-ε {ρ = step _} = cong (_∙ _) wkConₘ-ε
+  wkConₘ-ε {ρ} = wkConₘ-𝟘ᶜ ρ
 
 ------------------------------------------------------------------------
 -- Inversion lemmas
