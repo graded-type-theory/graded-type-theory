@@ -73,12 +73,19 @@ wk₀∷⊇ {Γ = _ ∙ _} = step wk₀∷⊇
 
 opaque
 
+  -- A weakening lemma for stepn.
+
+  stepn∷⊇ : ρ ∷ drop k Δ ⊇ Γ → stepn ρ k ∷ Δ ⊇ Γ
+  stepn∷⊇ {k = 0}                ρ∷ = ρ∷
+  stepn∷⊇ {k = 1+ _} {Δ = _ ∙ _} ρ∷ = step (stepn∷⊇ ρ∷)
+
+opaque
+
   -- The weakening stepn id k is a well-formed weakening from drop k Δ
   -- to Δ.
 
   ⊇-drop : stepn id k ∷ Δ ⊇ drop k Δ
-  ⊇-drop {k = 0}                = id
-  ⊇-drop {k = 1+ _} {Δ = _ ∙ _} = step ⊇-drop
+  ⊇-drop = stepn∷⊇ id
 
 ------------------------------------------------------------------------
 -- The type _∷ʷ_⊇_
@@ -138,6 +145,21 @@ opaque
 
   stepʷʷ : ∇ » ρ ∷ʷ Δ ⊇ Γ → ∇ » Δ ⊢ A → ∇ » step ρ ∷ʷ Δ ∙ A ⊇ Γ
   stepʷʷ = stepʷ ∘→ ∷ʷ⊇→∷⊇
+
+opaque
+  unfolding _»_∷ʷ_⊇_
+
+  -- A "constructor" for _∷ʷ_⊇_.
+
+  stepnʷ : ρ ∷ drop k Δ ⊇ Γ → ∇ »⊢ Δ → ∇ » stepn ρ k ∷ʷ Δ ⊇ Γ
+  stepnʷ ρ⊇ ⊢Δ = stepn∷⊇ ρ⊇ , ⊢Δ
+
+opaque
+
+  -- A variant of stepnʷ.
+
+  stepnʷʷ : ∇ » ρ ∷ʷ drop k Δ ⊇ Γ → ∇ »⊢ Δ → ∇ » stepn ρ k ∷ʷ Δ ⊇ Γ
+  stepnʷʷ = stepnʷ ∘→ ∷ʷ⊇→∷⊇
 
 opaque
   unfolding _»_∷ʷ_⊇_
