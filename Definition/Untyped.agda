@@ -40,7 +40,7 @@ infix 25 _[_]↑
 infix 25 _[_,_]₁₀
 infix 25 _[_]↑²
 infix 25 _[_][_]↑
-infix 24 _∙[_][_][_]
+infix 24 _∙[_][_][_]ʷ _∙[_][_][_]
 
 ------------------------------------------------------------------------
 -- The syntax
@@ -413,6 +413,14 @@ wk[ 1+ k ] t = wk1 (wk[ k ] t)
 
 wk[_]′ : ∀ k → Term n → Term (k + n)
 wk[ k ]′ = wk (stepn id k)
+
+-- Δ ∙[ k ][ Γ ][ ρ ]ʷ is Δ extended with the last k elements of Γ,
+-- modified using ρ (suitably lifted).
+
+_∙[_][_][_]ʷ :
+  Con Term m → ∀ k → Con Term (k + n) → Wk m n → Con Term (k + m)
+Δ ∙[ 0    ][ _     ][ _ ]ʷ = Δ
+Δ ∙[ 1+ k ][ Γ ∙ A ][ ρ ]ʷ = Δ ∙[ k ][ Γ ][ ρ ]ʷ ∙ wk (liftn ρ k) A
 
 ------------------------------------------------------------------------
 -- Substitution

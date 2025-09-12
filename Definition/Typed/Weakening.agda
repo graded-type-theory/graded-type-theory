@@ -87,6 +87,14 @@ opaque
   ⊇-drop : stepn id k ∷ Δ ⊇ drop k Δ
   ⊇-drop = stepn∷⊇ id
 
+opaque
+
+  -- A weakening lemma for liftn.
+
+  liftn∷⊇ : ρ ∷ Δ ⊇ drop k Γ → liftn ρ k ∷ Δ ∙[ k ][ Γ ][ ρ ]ʷ ⊇ Γ
+  liftn∷⊇ {k = 0}                ρ∷ = ρ∷
+  liftn∷⊇ {k = 1+ _} {Γ = _ ∙ _} ρ∷ = lift (liftn∷⊇ ρ∷)
+
 ------------------------------------------------------------------------
 -- The type _∷ʷ_⊇_
 
@@ -1086,3 +1094,18 @@ opaque
   wkRed↘Term :
     ∇ » ρ ∷ʷ Δ ⊇ Γ → ∇ » Γ ⊢ t ↘ u ∷ A → ∇ » Δ ⊢ U.wk ρ t ↘ U.wk ρ u ∷ U.wk ρ A
   wkRed↘Term ρ⊇ = Σ.map (wkRed*Term ρ⊇) (wkWhnf _)
+
+opaque mutual
+
+  -- A typing rule for _∙[_][_][_]ʷ.
+
+  ⊢[][][]ʷ : ∇ » ρ ∷ʷ Δ ⊇ drop k Γ → ∇ »⊢ Γ → ∇ »⊢ Δ ∙[ k ][ Γ ][ ρ ]ʷ
+  ⊢[][][]ʷ {k = 0}    ρ∷ _      = wf-∷ʷ⊇ ρ∷
+  ⊢[][][]ʷ {k = 1+ _} ρ∷ (∙ ⊢A) = ∙ wk (liftnʷ ρ∷ (wf ⊢A)) ⊢A
+
+  -- A "constructor" for _∷ʷ_⊇_.
+
+  liftnʷ :
+    ∇ » ρ ∷ʷ Δ ⊇ drop k Γ → ∇ »⊢ Γ →
+    ∇ » liftn ρ k ∷ʷ Δ ∙[ k ][ Γ ][ ρ ]ʷ ⊇ Γ
+  liftnʷ ρ∷ ⊢Γ = ∷⊇→∷ʷ⊇ (liftn∷⊇ (∷ʷ⊇→∷⊇ ρ∷)) (⊢[][][]ʷ ρ∷ ⊢Γ)
