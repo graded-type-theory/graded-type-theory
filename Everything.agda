@@ -88,6 +88,9 @@ import Definition.Untyped.Inversion
 import Definition.Untyped.Properties.NotParametrised
 import Definition.Untyped.Properties
 import Definition.Untyped.Identity
+import Definition.Untyped.Lift
+import Definition.Untyped.Pi-Sigma
+import Definition.Untyped.Pi
 import Definition.Untyped.Sigma
 import Definition.Untyped.Unit
 import Definition.Untyped.Nat

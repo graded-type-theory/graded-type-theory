@@ -24,6 +24,7 @@ import Definition.Typed.Substitution.Primitive.Primitive R as S
 open import Definition.Typed.Well-formed R
 
 open import Definition.Untyped M
+open import Definition.Untyped.Lift M
 open import Definition.Untyped.Properties M
 
 open import Tools.Fin
@@ -139,12 +140,8 @@ opaque
 ------------------------------------------------------------------------
 -- A helper substitution for heterogeneous Π and Σ
 
--- If Γ ∙ A ⊢ t ∷ B, then Γ ∙ Lift l A ⊢ lower₀ t ∷ lower₀ B.
-
-lower₀ : Term (1+ n) → Term (1+ n)
-lower₀ t = t [ lower (var x0) ]↑
-
 opaque
+  unfolding lower₀
 
   lower₀Type
     : Γ ⊢ l ∷ Level
@@ -154,6 +151,7 @@ opaque
     (⊢ˢʷ∷-[][]↑ (lowerⱼ (var (∙ Liftⱼ ⊢l (⊢∙→⊢ (wf ⊢B))) here)))
 
 opaque
+  unfolding lower₀
 
   lower₀TypeEq
     : Γ ⊢ l ∷ Level
@@ -163,6 +161,7 @@ opaque
     (refl-⊢ˢʷ≡∷ (⊢ˢʷ∷-[][]↑ (lowerⱼ (var (∙ Liftⱼ ⊢l (⊢∙→⊢ (wfEq B≡C))) here))))
 
 opaque
+  unfolding lower₀
 
   lower₀Term
     : Γ ⊢ l ∷ Level
@@ -172,6 +171,7 @@ opaque
     (⊢ˢʷ∷-[][]↑ (lowerⱼ (var (∙ Liftⱼ ⊢l (⊢∙→⊢ (wfTerm ⊢t))) here)))
 
 opaque
+  unfolding lower₀
 
   lower₀TermEq
     : Γ ⊢ l ∷ Level
@@ -181,6 +181,7 @@ opaque
     (refl-⊢ˢʷ≡∷ (⊢ˢʷ∷-[][]↑ (lowerⱼ (var (∙ Liftⱼ ⊢l (⊢∙→⊢ (wfEqTerm t≡u))) here))))
 
 opaque
+  unfolding lower₀
 
   lower₀[lift]₀
     : Γ ∙ A ⊢ B
@@ -191,6 +192,7 @@ opaque
       (substTypeEq (refl ⊢B) (Lift-β′ ⊢u))
 
 opaque
+  unfolding lower₀
 
   lower₀[lift]₀∷
     : Γ ∙ A ⊢ t ∷ B

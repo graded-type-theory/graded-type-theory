@@ -14,6 +14,9 @@ module Definition.Typed.Properties.Admissible.Pi
 open Type-restrictions R
 
 open import Definition.Untyped M
+open import Definition.Untyped.Lift M
+open import Definition.Untyped.Pi M
+open import Definition.Untyped.Pi-Sigma M
 open import Definition.Untyped.Properties M
 
 open import Definition.Typed R
@@ -198,12 +201,8 @@ opaque
 ------------------------------------------------------------------------
 -- Heterogeneous variants of the typing rules for Π
 
--- Heterogeneous λ-abstraction
-
-lamʰ : (p : M) (t : Term (1+ n)) → Term n
-lamʰ p t = lam p (lift (lower₀ t))
-
 opaque
+  unfolding ΠΣʰ lamʰ
 
   lamʰⱼ
     : Γ ⊢ l₁ ∷ Level
@@ -216,12 +215,8 @@ opaque
     let ⊢A = ⊢∙→⊢ (wf ⊢B)
     in lamⱼ′ ok (liftⱼ′ (wkTerm₁ (Liftⱼ ⊢l₂ ⊢A) ⊢l₁) (lower₀Term ⊢l₂ ⊢t))
 
--- Heterogeneous application
-
-∘ʰ : (p : M) (l₂ t u : Term n) → Term n
-∘ʰ p l₂ t u = lower (t ∘⟨ p ⟩ lift u)
-
 opaque
+  unfolding ΠΣʰ ∘ʰ
 
   ∘ʰⱼ
     : Γ ⊢ l₂ ∷ Level
@@ -234,6 +229,7 @@ opaque
     in conv (lowerⱼ (⊢t ∘ⱼ liftⱼ ⊢l₂ ⊢A ⊢u)) (lower₀[lift]₀ ⊢B ⊢u)
 
 opaque
+  unfolding ΠΣʰ ∘ʰ
 
   -- Heterogeneous application congruence
 
@@ -250,6 +246,7 @@ opaque
       (trans (lower₀[lift]₀ ⊢B ⊢t) (substTypeEq (refl ⊢B) t≡u))
 
 opaque
+  unfolding lamʰ ∘ʰ
 
   -- Heterogeneous β-reduction
 
@@ -285,6 +282,7 @@ opaque
       ∎
 
 opaque
+  unfolding ΠΣʰ ∘ʰ lower₀
 
   -- Heterogeneous η-rule
 

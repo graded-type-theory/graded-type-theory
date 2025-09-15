@@ -14,6 +14,8 @@ module Definition.Typed.Properties.Admissible.Pi-Sigma
 open Type-restrictions R
 
 open import Definition.Untyped M
+open import Definition.Untyped.Lift M
+open import Definition.Untyped.Pi-Sigma M
 open import Definition.Untyped.Properties M
 
 open import Definition.Typed R
@@ -61,18 +63,8 @@ opaque
 -- Heterogeneous variants of Π and Σ that take types in different universes.
 -- See also the bottom of Definition.Typed.Properties.Admissible.{Pi,Sigma}.
 
-ΠΣʰ : (b : BinderMode) (p q : M) (l₁ l₂ A : Term n) (B : Term (1+ n)) → Term n
-ΠΣʰ b p q l₁ l₂ A B = ΠΣ⟨ b ⟩ p , q ▷ Lift l₂ A ▹ Lift (wk1 l₁) (lower₀ B)
-
-Σʰ⟨_⟩ : (s : Strength) (p q : M) (l₁ l₂ A : Term n) (B : Term (1+ n)) → Term n
-Σʰ⟨ s ⟩ p q l₁ l₂ A B = ΠΣʰ (BMΣ s) p q l₁ l₂ A B
-
-Πʰ Σʰˢ Σʰʷ : (p q : M) (l₁ l₂ A : Term n) (B : Term (1+ n)) → Term n
-Πʰ p q l₁ l₂ A B = ΠΣʰ BMΠ p q l₁ l₂ A B
-Σʰˢ p q l₁ l₂ A B = ΠΣʰ (BMΣ 𝕤) p q l₁ l₂ A B
-Σʰʷ p q l₁ l₂ A B = ΠΣʰ (BMΣ 𝕨) p q l₁ l₂ A B
-
 opaque
+  unfolding ΠΣʰ lower₀
 
   ΠΣʰⱼ : Γ     ⊢ l₂ ∷ Level
        → Γ     ⊢ A ∷ U l₁
@@ -89,6 +81,7 @@ opaque
         ok
 
 opaque
+  unfolding ΠΣʰ lower₀
 
   ΠΣʰ-cong
     : Γ     ⊢ l₂ ∷ Level

@@ -31,6 +31,8 @@ open import Definition.Typed.Substitution.Primitive R
 open import Definition.Typed.Weakening R as W hiding (wk)
 open import Definition.Typed.Well-formed R
 
+open import Definition.Untyped.Lift M
+open import Definition.Untyped.Pi-Sigma M
 open import Definition.Untyped.Properties M
 open import Definition.Untyped.Sigma 𝕄
 
@@ -1280,16 +1282,8 @@ opaque
 ------------------------------------------------------------------------
 -- Heterogeneous variants of the typing rules for (strong) Σ
 
--- Heterogeneous pairs
-
-prodʰ : (s : Strength) (p : M) (t u : Term n) → Term n
-prodʰ s p t u = prod s p (lift t) (lift u)
-
-prodʰˢ prodʰʷ : (p : M) (t u : Term n) → Term n
-prodʰˢ = prodʰ 𝕤
-prodʰʷ = prodʰ 𝕨
-
 opaque
+  unfolding ΠΣʰ prodʰ
 
   prodʰⱼ
     : ∀ {l₁ l₂ F G}
@@ -1310,12 +1304,8 @@ opaque
           (conv ⊢u (sym (lower₀[lift]₀ ⊢G ⊢t)))
     in prodⱼ ⊢LiftG ⊢liftt ⊢liftu ok
 
--- Heterogeneous first projection
-
-fstʰ : (p : M) (t : Term n) → Term n
-fstʰ p t = lower (fst p t)
-
 opaque
+  unfolding ΠΣʰ fstʰ
 
   fstʰⱼ
     : ∀ {l₁ l₂ F G}
@@ -1324,12 +1314,8 @@ opaque
     → Γ ⊢ fstʰ p t ∷ F
   fstʰⱼ ⊢G ⊢t = lowerⱼ (fstⱼ′ ⊢t)
 
--- Heterogeneous second projection
-
-sndʰ : (p : M) (t : Term n) → Term n
-sndʰ p t = lower (snd p t)
-
 opaque
+  unfolding ΠΣʰ fstʰ sndʰ lower₀
 
   sndʰⱼ
     : ∀ {l₁ l₂ F G}
@@ -1340,6 +1326,7 @@ opaque
     PE.subst (_⊢_∷_ _ _) ([]↑-[]₀ G) (lowerⱼ (sndⱼ′ ⊢t))
 
 opaque
+  unfolding prodʰ fstʰ
 
   -- Heterogeneous first β-rule
 
@@ -1370,6 +1357,7 @@ opaque
 
 
 opaque
+  unfolding prodʰ fstʰ sndʰ lower₀
 
   -- Heterogeneous second β-rule
 
@@ -1399,6 +1387,7 @@ opaque
     u ∎
 
 opaque
+  unfolding ΠΣʰ fstʰ sndʰ lower₀
 
   -- Heterogeneous η-rule
 
