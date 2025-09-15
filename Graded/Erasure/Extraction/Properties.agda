@@ -648,248 +648,290 @@ module hasX (R : Usage-restrictions) where
 
   open import Graded.Usage.Restrictions.Instance R
 
-  -- If the modality's zero is well-behaved, then erased variables do
-  -- not occur after extraction.
+  private opaque
 
-  erased-hasX :
-    ⦃ 𝟘-well-behaved : Has-well-behaved-zero M semiring-with-meet ⦄ →
-    x ◂ 𝟘 ∈ γ → γ ▸[ 𝟙ᵐ ] t → HasX x (erase′ b s t) → ⊥
+    -- A lemma used in the proof of erase-≔.
 
-  erased-hasX erased γ▸t@var varₓ =
-    valid-var-usage γ▸t (var-usage-lookup erased)
-
-  erased-hasX _ defn ()
-
-  erased-hasX {b = false} erased (lamₘ γ▸t) (lamₓ hasX) =
-    erased-hasX (there erased) γ▸t hasX
-  erased-hasX {b = true} erased (lamₘ {p} γ▸t) hasX with is-𝟘? p
-  erased-hasX {b = true} {s} erased (lamₘ γ▸t) hasX | yes _ =
-    erased-hasX (there erased) γ▸t
-      (HasX-[closed]₀→ loop-closed hasX)
-  erased-hasX {b = true} erased (lamₘ γ▸t) (lamₓ hasX) | no _ =
-    erased-hasX (there erased) γ▸t hasX
-
-  erased-hasX erased (_∘ₘ_ {γ = γ} {δ = δ} {p = p} γ▸t δ▸u) hasX
-    with is-𝟘? p
-  erased-hasX {b = false} erased (γ▸t ∘ₘ _) (∘ₓˡ hasX) | yes _ =
-    erased-hasX (x◂𝟘∈γ+δˡ refl erased) γ▸t hasX
-  erased-hasX {b = false} {s} _ (_ ∘ₘ _) (∘ₓʳ hasX) | yes _ =
-    loop?-closed s hasX
-  erased-hasX {b = true} erased (γ▸t ∘ₘ _) hasX | yes _ =
-    erased-hasX (x◂𝟘∈γ+δˡ refl erased) γ▸t hasX
-  erased-hasX erased (_∘ₘ_ {γ = γ} {δ = δ} {_} γ▸t δ▸u) (∘ₓˡ hasX)
-    | no _ =
-    erased-hasX (x◂𝟘∈γ+δˡ refl erased) γ▸t hasX
-  erased-hasX erased (_∘ₘ_ {γ = γ} {δ = δ} {_} γ▸t δ▸u) (∘ₓʳ hasX)
-    | no p≢𝟘 =
-    erased-hasX (x◂𝟘∈pγ refl p≢𝟘 (x◂𝟘∈γ+δʳ refl erased))
-                (▸-cong (≢𝟘→⌞⌟≡𝟙ᵐ p≢𝟘) δ▸u) hasX
-
-  erased-hasX erased (prodʷₘ {γ = γ} {p = p} {δ = δ} _ δ▸) hasX
-    with is-𝟘? p
-  ... | yes refl =
-    erased-hasX
-      (PE.subst (_ ◂ _ ∈_)
-         (≈ᶜ→≡ (begin
-            𝟘 ·ᶜ γ +ᶜ δ  ≈⟨ +ᶜ-congʳ (·ᶜ-zeroˡ _) ⟩
-            𝟘ᶜ +ᶜ δ      ≈⟨ +ᶜ-identityˡ _ ⟩
-            δ            ∎))
-         erased)
-      δ▸ hasX
-    where
-    open Tools.Reasoning.Equivalence Conₘ-setoid
-  erased-hasX {s = non-strict} erased (prodʷₘ γ▸ _) (prodₓˡ hasX)
-    | no p≢𝟘 =
-    erased-hasX (x◂𝟘∈pγ refl p≢𝟘 (x◂𝟘∈γ+δˡ refl erased))
-                (▸-cong (≢𝟘→⌞⌟≡𝟙ᵐ p≢𝟘) γ▸) hasX
-  erased-hasX {s = non-strict} erased (prodʷₘ _ δ▸) (prodₓʳ hasX)
-    | no _ =
-    erased-hasX (x◂𝟘∈γ+δʳ refl erased) δ▸ hasX
-  erased-hasX
-    {s = strict} _ (prodʷₘ _ _) (∘ₓˡ (∘ₓˡ (lamₓ (lamₓ (prodₓˡ ())))))
-    | no _
-  erased-hasX
-    {s = strict} _ (prodʷₘ _ _) (∘ₓˡ (∘ₓˡ (lamₓ (lamₓ (prodₓʳ ())))))
-    | no _
-  erased-hasX {s = strict} erased (prodʷₘ γ▸ _) (∘ₓˡ (∘ₓʳ hasX))
-    | no p≢𝟘 =
-    erased-hasX (x◂𝟘∈pγ refl p≢𝟘 (x◂𝟘∈γ+δˡ refl erased))
-      (▸-cong (≢𝟘→⌞⌟≡𝟙ᵐ p≢𝟘) γ▸) hasX
-  erased-hasX {s = strict} erased (prodʷₘ _ δ▸) (∘ₓʳ hasX)
-    | no _ =
-    erased-hasX (x◂𝟘∈γ+δʳ refl erased) δ▸ hasX
-
-  erased-hasX erased (prodˢₘ {γ = γ} {p = p} {δ = δ} _ γ▸u) hasX
-    with is-𝟘? p
-  ... | yes refl = erased-hasX (x◂𝟘∈γ∧δʳ refl erased) γ▸u hasX
-  erased-hasX {s = non-strict} erased (prodˢₘ γ▸ _) (prodₓˡ hasX)
-    | no p≢𝟘 =
-    erased-hasX (x◂𝟘∈pγ refl p≢𝟘 (x◂𝟘∈γ∧δˡ refl erased))
-                (▸-cong (≢𝟘→⌞⌟≡𝟙ᵐ p≢𝟘) γ▸) hasX
-  erased-hasX {s = non-strict} erased (prodˢₘ _ δ▸) (prodₓʳ hasX)
-    | no p≢𝟘 =
-    erased-hasX erased (sub δ▸ (∧ᶜ-decreasingʳ _ _)) hasX
-  erased-hasX
-    {s = strict} _ (prodˢₘ _ _) (∘ₓˡ (∘ₓˡ (lamₓ (lamₓ (prodₓˡ ())))))
-    | no _
-  erased-hasX
-    {s = strict} _ (prodˢₘ _ _) (∘ₓˡ (∘ₓˡ (lamₓ (lamₓ (prodₓʳ ())))))
-    | no _
-  erased-hasX {s = strict} erased (prodˢₘ γ▸ _) (∘ₓˡ (∘ₓʳ hasX))
-    | no p≢𝟘 =
-    erased-hasX (x◂𝟘∈pγ refl p≢𝟘 (x◂𝟘∈γ∧δˡ refl erased))
-      (▸-cong (≢𝟘→⌞⌟≡𝟙ᵐ p≢𝟘) γ▸) hasX
-  erased-hasX {s = strict} erased (prodˢₘ _ δ▸) (∘ₓʳ hasX)
-    | no _ =
-    erased-hasX (x◂𝟘∈γ∧δʳ refl erased) δ▸ hasX
-
-  erased-hasX erased (fstₘ {p = p} _ _ _ _) hasX with is-𝟘? p
-  erased-hasX erased (fstₘ         _ _ _ _) hasX | yes _ =
-    loop-closed hasX
-  erased-hasX erased (fstₘ {p = _} 𝟘ᵐ _ () _) (fstₓ hasX) | no _
-  erased-hasX erased (fstₘ {p = _} 𝟙ᵐ γ▸ _ _) (fstₓ hasX) | no p≢𝟘 =
-    erased-hasX erased (▸-cong (≢𝟘→⌞⌟≡𝟙ᵐ p≢𝟘) γ▸) hasX
-
-
-  erased-hasX erased (sndₘ {p = p} γ▸) hasX with is-𝟘? p
-  ... | yes _ = erased-hasX erased γ▸ hasX
-  erased-hasX erased (sndₘ {p = _} γ▸) (sndₓ hasX) | no _ =
-    erased-hasX erased γ▸ hasX
-
-  erased-hasX erased (prodrecₘ {r = r} {p = p} ▸t ▸u _ _) hasX
-    with is-𝟘? r
-  erased-hasX erased (prodrecₘ ▸t ▸u _ _) hasX
-    | yes _ =
-    erased-hasX (there (there (x◂𝟘∈γ+δʳ refl erased))) ▸u
-      (HasX-[closed,closed]→ loop-closed loop-closed hasX)
-  ... | no _ with is-𝟘? p
-  erased-hasX erased (prodrecₘ {u} _ ▸u _ _) (∘ₓˡ (lamₓ hasX))
-    | no _ | yes _ =
-    case HasX-[liftSubst]→ {t = erase′ _ _ u} hasX of λ where
-      (inj₁ (() , _))
-      (inj₂ (_ , refl , x0     , _    , has))  → loop-closed has
-      (inj₂ (_ , refl , (_ +1) , hasX , varₓ)) →
-        erased-hasX (there (there (x◂𝟘∈γ+δʳ refl erased))) ▸u hasX
-  erased-hasX erased (prodrecₘ ▸t _ _ _) (∘ₓʳ hasX) | no r≢𝟘 | yes _ =
-    erased-hasX (x◂𝟘∈pγ refl r≢𝟘 (x◂𝟘∈γ+δˡ refl erased))
-      (▸-cong (≢𝟘→⌞⌟≡𝟙ᵐ r≢𝟘) ▸t) hasX
-  erased-hasX erased (prodrecₘ ▸t ▸u _ _) (prodrecₓˡ hasX)
-    | no r≢𝟘 | no _ =
-    erased-hasX (x◂𝟘∈pγ refl r≢𝟘 (x◂𝟘∈γ+δˡ refl erased))
-                (▸-cong (≢𝟘→⌞⌟≡𝟙ᵐ r≢𝟘) ▸t) hasX
-  erased-hasX erased (prodrecₘ ▸t ▸u _ _) (prodrecₓʳ hasX)
-    | no _ | no _ =
-    erased-hasX (there (there (x◂𝟘∈γ+δʳ refl erased))) ▸u hasX
-
-  erased-hasX {s = non-strict} erased (sucₘ γ▸t) (sucₓ hasX) =
-    erased-hasX erased γ▸t hasX
-  erased-hasX {s = strict} _ (sucₘ _) (∘ₓˡ (lamₓ (sucₓ ())))
-  erased-hasX {s = strict} erased (sucₘ γ▸t) (∘ₓʳ hasX) =
-    erased-hasX erased γ▸t hasX
-
-  erased-hasX {x = x} erased
-    (natrecₘ {γ = γ} {z = z} {δ = δ} {p = p} {r = r} {η = η}
-       γ▸z δ▸s η▸n θ▸A)
-    (natrecₓᶻ hasX) =
-    erased-hasX erased′ lemma₃ hasX
+    erase-≔-var :
+      ⦃ 𝟘-well-behaved : Has-well-behaved-zero M semiring-with-meet ⦄ →
+      ∀ (x y : Fin (1+ n)) {u} → x ◂ 𝟘 ∈ (𝟘ᶜ , y ≔ 𝟙) →
+      wk (step-at x) (erase′ b s (⟨ x ≔ u ⟩ y)) ≡ var y
+    erase-≔-var x0 x0 erased =
+      ⊥-elim $ non-trivial $ sym $ x0◂∈ erased
+    erase-≔-var x0 (_ +1) _ =
+      refl
+    erase-≔-var (_+1 {n = 0} ())
+    erase-≔-var (_+1 {n = 1+ _} _) x0 _ =
+      refl
+    erase-≔-var {b} {s} (_+1 {n = 1+ _} x) (y +1) {u} erased =
+      wk (lift (step-at x)) (erase′ b s (U.wk1 (⟨ x ≔ u ⟩ y)))  ≡˘⟨ cong (wk _) $ wk-erase-comm _ (⟨ x ≔ _ ⟩ _) ⟩
+      wk (lift (step-at x)) (T.wk1 (erase′ b s (⟨ x ≔ u ⟩ y)))  ≡˘⟨ wk1-wk≡lift-wk1 _ _ ⟩
+      T.wk1 (wk (step-at x) (erase′ b s (⟨ x ≔ u ⟩ y)))         ≡⟨ cong T.wk1 $ erase-≔-var x y (+1◂∈ erased) ⟩
+      var (y +1)                                                ∎
       where
-      erased′ =                                                   $⟨ erased ⟩
-        x ◂ 𝟘 ∈ nrᶜ p r γ δ η                                     →⟨ ◂∈⇔ .proj₁ ⟩
-        nrᶜ p r γ δ η ⟨ x ⟩ ≡ 𝟘                                   →⟨ trans (sym (nrᶜ-⟨⟩ γ)) ⟩
-        nr p r (γ ⟨ x ⟩) (δ ⟨ x ⟩) (η ⟨ x ⟩) ≡ 𝟘                  →⟨ trans (update-lookup γ _) ⟩
-        (γ , x ≔ nr p r (γ ⟨ x ⟩) (δ ⟨ x ⟩) (η ⟨ x ⟩)) ⟨ x ⟩ ≡ 𝟘  →⟨ ◂∈⇔ .proj₂ ⟩
-        x ◂ 𝟘 ∈ γ , x ≔ nr p r (γ ⟨ x ⟩) (δ ⟨ x ⟩) (η ⟨ x ⟩)      □
+      open Tools.Reasoning.PropositionalEquality
 
-      lemma₁ =                                          $⟨ erased ⟩
-        x ◂ 𝟘 ∈ nrᶜ p r γ δ η                           →⟨ ◂𝟘∈nrᶜ₃ refl ⟩
-        x ◂ 𝟘 ∈ η                                       →⟨ ◂∈⇔ .proj₁ ⟩
-        η ⟨ x ⟩ ≡ 𝟘                                     →⟨ nr-zero ∘→ ≤-reflexive ⟩
-        nr p r (γ ⟨ x ⟩) (δ ⟨ x ⟩) (η ⟨ x ⟩) ≤ γ ⟨ x ⟩  □
+  opaque
 
-      lemma₂ = begin
-        γ , x ≔ nr p r (γ ⟨ x ⟩) (δ ⟨ x ⟩) (η ⟨ x ⟩)  ≤⟨ update-monotoneʳ _ lemma₁ ⟩
-        γ , x ≔ γ ⟨ x ⟩                               ≡⟨ update-self _ _ ⟩
-        γ                                             ∎
+    -- Substituting something for an erasable variable does not affect
+    -- the result of erasure (if we ignore shifting of free
+    -- variables).
+
+    erase-≔ :
+      ∀ {x : Fin n} {u}
+      ⦃ 𝟘-well-behaved : Has-well-behaved-zero M semiring-with-meet ⦄ →
+      x ◂ 𝟘 ∈ γ → γ ▸[ 𝟙ᵐ ] t →
+      wk (step-at x) (erase′ b s (t U.[ ⟨ x ≔ u ⟩ ])) ≡ erase′ b s t
+    erase-≔ {n = 0} {x = ()}
+    erase-≔ erased (sub ▸t γ≤δ) =
+      erase-≔ (x◂𝟘∈γ≤δ erased γ≤δ) ▸t
+    erase-≔ {n = 1+ _} erased var =
+      erase-≔-var _ _ erased
+    erase-≔ _ defn =
+      refl
+    erase-≔ {s} _ Uₘ =
+      wk-loop? s
+    erase-≔ {s} _ Emptyₘ =
+      wk-loop? s
+    erase-≔ _ (emptyrecₘ _ _ _) =
+      wk-loop
+    erase-≔ {s} _ Unitₘ =
+      wk-loop? s
+    erase-≔ _ (starˢₘ _) =
+      refl
+    erase-≔ _ starʷₘ =
+      refl
+    erase-≔ erased (unitrecₘ {p} ▸t₁ ▸t₂ _ _) with is-𝟘? p
+    … | no p≢𝟘 =
+      cong₂ unitrec
+        (erase-≔ (x◂𝟘∈pγ refl p≢𝟘 (x◂𝟘∈γ+δˡ refl erased))
+           (▸-cong (≢𝟘→⌞⌟≡𝟙ᵐ p≢𝟘) ▸t₁))
+        (erase-≔ (x◂𝟘∈γ+δʳ refl erased) ▸t₂)
+    … | yes _ =
+      erase-≔ (x◂𝟘∈γ+δʳ refl erased) ▸t₂
+    erase-≔ {s} _ (ΠΣₘ _ _) =
+      wk-loop? s
+    erase-≔ {n = 1+ _} {b = false} erased (lamₘ ▸t) =
+      cong lam (erase-≔ (there erased) ▸t)
+    erase-≔ {n = 1+ _} {b = true} {s} {x} {u} erased (lamₘ {p} {t} ▸t)
+      with is-𝟘? p
+    … | no _ =
+      cong lam (erase-≔ (there erased) ▸t)
+    … | yes _ =
+      wk (step-at x)
+        (erase′ true s (t U.[ ⟨ x ≔ u ⟩ U.⇑ ]) T.[ loop s ]₀)        ≡⟨ wk-β (erase′ _ _ (t U.[ _ ])) ⟩
+
+      wk (lift (step-at x)) (erase′ true s (t U.[ ⟨ x ≔ u ⟩ U.⇑ ]))
+        T.[ wk (step-at x) (loop s) ]₀                               ≡⟨ cong (wk _ (erase′ _ _ (t U.[ _ ])) T.[_]₀) wk-loop ⟩
+
+      wk (lift (step-at x)) (erase′ true s (t U.[ ⟨ x ≔ u ⟩ U.⇑ ]))
+        T.[ loop s ]₀                                                ≡⟨ cong T._[ _ ]₀ $ erase-≔ (there erased) ▸t ⟩
+
+      erase′ true s t T.[ loop s ]₀                                  ∎
+      where
+      open Tools.Reasoning.PropositionalEquality
+    erase-≔ erased (_∘ₘ_ {p} ▸t ▸u) with is-𝟘? p
+    … | no p≢𝟘 =
+      cong₂ _∘⟨ _ ⟩_ (erase-≔ (x◂𝟘∈γ+δˡ refl erased) ▸t)
+        (erase-≔ (x◂𝟘∈pγ refl p≢𝟘 (x◂𝟘∈γ+δʳ refl erased))
+           (▸-cong (≢𝟘→⌞⌟≡𝟙ᵐ p≢𝟘) ▸u))
+    erase-≔ {b = false} {s} erased (▸t ∘ₘ _) | yes _ =
+      cong₂ _∘⟨ _ ⟩_ (erase-≔ (x◂𝟘∈γ+δˡ refl erased) ▸t)
+        (wk-loop? s)
+    erase-≔ {b = true} erased (▸t ∘ₘ _) | yes _ =
+      erase-≔ (x◂𝟘∈γ+δˡ refl erased) ▸t
+    erase-≔
+      {b} {s} {x} {u} erased (prodˢₘ {p} {t = t₁} {u = t₂} ▸t₁ ▸t₂)
+      with is-𝟘? p
+    … | yes _ =
+      erase-≔ (x◂𝟘∈γ∧δʳ refl erased) ▸t₂
+    … | no p≢𝟘 =
+      wk (step-at x)
+        (prod⟨ s ⟩ (erase′ b s (t₁ U.[ ⟨ x ≔ u ⟩ ]))
+           (erase′ b s (t₂ U.[ ⟨ x ≔ u ⟩ ])))                       ≡⟨ wk-prod⟨⟩ ⟩
+
+      prod⟨ s ⟩ (wk (step-at x) (erase′ b s (t₁ U.[ ⟨ x ≔ u ⟩ ])))
+        (wk (step-at x) (erase′ b s (t₂ U.[ ⟨ x ≔ u ⟩ ])))          ≡⟨ cong₂ prod⟨ _ ⟩
+                                                                         (erase-≔ (x◂𝟘∈pγ refl p≢𝟘 (x◂𝟘∈γ∧δˡ refl erased))
+                                                                            (▸-cong (≢𝟘→⌞⌟≡𝟙ᵐ p≢𝟘) ▸t₁))
+                                                                         (erase-≔ (x◂𝟘∈γ∧δʳ refl erased) ▸t₂) ⟩
+      prod⟨ s ⟩ (erase′ b s t₁) (erase′ b s t₂)                     ∎
+      where
+      open Tools.Reasoning.PropositionalEquality
+    erase-≔ erased (fstₘ {p} _ ▸t eq _) with is-𝟘? p
+    … | yes _ =
+      wk-loop
+    … | no _ =
+      cong fst (erase-≔ erased (▸-cong eq ▸t))
+    erase-≔ erased (sndₘ {p} ▸t) with is-𝟘? p
+    … | yes _ =
+      erase-≔ erased ▸t
+    … | no _ =
+      cong snd (erase-≔ erased ▸t)
+    erase-≔
+      {b} {s} {x} {u} erased (prodʷₘ {p} {t = t₁} {u = t₂} ▸t₁ ▸t₂)
+      with is-𝟘? p
+    … | yes _ =
+      erase-≔ (x◂𝟘∈γ+δʳ refl erased) ▸t₂
+    … | no p≢𝟘 =
+      wk (step-at x)
+        (prod⟨ s ⟩ (erase′ b s (t₁ U.[ ⟨ x ≔ u ⟩ ]))
+           (erase′ b s (t₂ U.[ ⟨ x ≔ u ⟩ ])))                       ≡⟨ wk-prod⟨⟩ ⟩
+
+      prod⟨ s ⟩ (wk (step-at x) (erase′ b s (t₁ U.[ ⟨ x ≔ u ⟩ ])))
+        (wk (step-at x) (erase′ b s (t₂ U.[ ⟨ x ≔ u ⟩ ])))          ≡⟨ cong₂ prod⟨ _ ⟩
+                                                                         (erase-≔ (x◂𝟘∈pγ refl p≢𝟘 (x◂𝟘∈γ+δˡ refl erased))
+                                                                            (▸-cong (≢𝟘→⌞⌟≡𝟙ᵐ p≢𝟘) ▸t₁))
+                                                                         (erase-≔ (x◂𝟘∈γ+δʳ refl erased) ▸t₂) ⟩
+      prod⟨ s ⟩ (erase′ b s t₁) (erase′ b s t₂)                     ∎
+      where
+      open Tools.Reasoning.PropositionalEquality
+    erase-≔
+      {n = 1+ _} {b} {s} {x} {u}
+      erased (prodrecₘ {r} {p} {u = t₂} ▸t₁ ▸t₂ _ _)
+      with is-𝟘? r
+    … | yes _ =
+      wk (step-at x)
+        (erase′ b s (t₂ U.[ ⟨ x +2 ≔ u ⟩ ]) [ loop s , loop s ]₁₀)  ≡⟨ wk-β-doubleSubst _ (erase′ _ _ (t₂ U.[ _ ])) _ _ ⟩
+
+      wk (step-at (x +2)) (erase′ b s (t₂ U.[ ⟨ x +2 ≔ u ⟩ ]))
+        [ wk (step-at x) (loop s) , wk (step-at x) (loop s) ]₁₀     ≡⟨ cong₃ _[_,_]₁₀ (erase-≔ (there (there (x◂𝟘∈γ+δʳ refl erased))) ▸t₂)
+                                                                         wk-loop wk-loop ⟩
+      erase′ b s t₂ [ loop s , loop s ]₁₀                           ∎
+      where
+      open Tools.Reasoning.PropositionalEquality
+    … | no r≢𝟘 with is-𝟘? p
+    …   | yes _ =
+        cong₃ _∘⟨_⟩_
+          (cong lam
+             (wk (step-at (x +1))
+                (erase′ b s (t₂ U.[ ⟨ x +2 ≔ u ⟩ ])
+                   [ T.sgSubst (loop s) T.⇑ ])                           ≡⟨ wk-lift-β (erase′ _ _ (t₂ U.[ _ ])) ⟩
+
+              wk (step-at (x +2)) (erase′ b s (t₂ U.[ ⟨ x +2 ≔ u ⟩ ]))
+                [ T.sgSubst (wk (step-at x) (loop s)) T.⇑ ]              ≡⟨ cong₂ T._[_] (erase-≔ (there (there (x◂𝟘∈γ+δʳ refl erased))) ▸t₂)
+                                                                              (cong T._⇑ $ cong T.sgSubst wk-loop) ⟩
+              erase′ b s t₂ [ T.sgSubst (loop s) T.⇑ ]                   ∎))
+          refl
+          (erase-≔ (x◂𝟘∈pγ refl r≢𝟘 (x◂𝟘∈γ+δˡ refl erased))
+             (▸-cong (≢𝟘→⌞⌟≡𝟙ᵐ r≢𝟘) ▸t₁))
         where
-        open Tools.Reasoning.PartialOrder ≤ᶜ-poset
+        open Tools.Reasoning.PropositionalEquality
+    …   | no p≢𝟘 =
+        cong₂ prodrec
+          (erase-≔ (x◂𝟘∈pγ refl r≢𝟘 (x◂𝟘∈γ+δˡ refl erased))
+             (▸-cong (≢𝟘→⌞⌟≡𝟙ᵐ r≢𝟘) ▸t₁))
+          (erase-≔ (there (there (x◂𝟘∈γ+δʳ refl erased))) ▸t₂)
+    erase-≔ {s} _ ℕₘ =
+      wk-loop? s
+    erase-≔ _ zeroₘ =
+      refl
+    erase-≔ {b} {s} {x} {u} erased (sucₘ {t} ▸t) =
+      wk (step-at x) (suc⟨ s ⟩ (erase′ b s (t U.[ ⟨ x ≔ u ⟩ ])))  ≡⟨ wk-suc⟨⟩ ⟩
+      suc⟨ s ⟩ (wk (step-at x) (erase′ b s (t U.[ ⟨ x ≔ u ⟩ ])))  ≡⟨ cong suc⟨ _ ⟩ $ erase-≔ erased ▸t ⟩
+      suc⟨ s ⟩ (erase′ b s t)                                     ∎
+      where
+      open Tools.Reasoning.PropositionalEquality
+    erase-≔
+      {n = 1+ _} {x}
+      erased (natrecₘ {γ} {δ} {p} {r} {η} ▸t₁ ▸t₂ ▸t₃ _) =
+      cong₃ natrec
+        (erase-≔
+           (                                                          $⟨ erased ⟩
+            x ◂ 𝟘 ∈ nrᶜ p r γ δ η                                     →⟨ ◂∈⇔ .proj₁ ⟩
+            nrᶜ p r γ δ η ⟨ x ⟩ ≡ 𝟘                                   →⟨ trans (sym (nrᶜ-⟨⟩ γ)) ⟩
+            nr p r (γ ⟨ x ⟩) (δ ⟨ x ⟩) (η ⟨ x ⟩) ≡ 𝟘                  →⟨ trans (update-lookup γ _) ⟩
+            (γ , x ≔ nr p r (γ ⟨ x ⟩) (δ ⟨ x ⟩) (η ⟨ x ⟩)) ⟨ x ⟩ ≡ 𝟘  →⟨ ◂∈⇔ .proj₂ ⟩
+            x ◂ 𝟘 ∈ γ , x ≔ nr p r (γ ⟨ x ⟩) (δ ⟨ x ⟩) (η ⟨ x ⟩)      □)
+           (sub ▸t₁ $ begin
+              γ , x ≔ nr p r (γ ⟨ x ⟩) (δ ⟨ x ⟩) (η ⟨ x ⟩)      ≤⟨ update-monotoneʳ _
+                                                                     ($⟨ erased ⟩
+                x ◂ 𝟘 ∈ nrᶜ p r γ δ η                                 →⟨ ◂𝟘∈nrᶜ₃ refl ⟩
+                x ◂ 𝟘 ∈ η                                             →⟨ ◂∈⇔ .proj₁ ⟩
+                η ⟨ x ⟩ ≡ 𝟘                                           →⟨ nr-zero ∘→ ≤-reflexive ⟩
+                nr p r (γ ⟨ x ⟩) (δ ⟨ x ⟩) (η ⟨ x ⟩) ≤ γ ⟨ x ⟩        □) ⟩
 
-      lemma₃ : γ , x ≔ nr p r (γ ⟨ x ⟩) (δ ⟨ x ⟩) (η ⟨ x ⟩) ▸[ 𝟙ᵐ ] z
-      lemma₃ = sub γ▸z lemma₂
-  erased-hasX
-    erased (natrec-no-nrₘ γ▸z _ _ _ χ≤γ _ _ _) (natrecₓᶻ hasX) =
-    erased-hasX erased (sub γ▸z χ≤γ) hasX
-  erased-hasX erased (natrec-no-nr-glbₘ ▸z _ _ _ _ χ-glb) (natrecₓᶻ hasX) =
-    erased-hasX (x◂𝟘∈γ+δʳ refl erased)
-      (sub ▸z (≤ᶜ-trans (χ-glb .proj₁ 0) (≤ᶜ-reflexive nrᵢᶜ-zero))) hasX
-  erased-hasX erased (natrecₘ _ δ▸s _ _) (natrecₓˢ hasX) =
-    erased-hasX (there (there (◂𝟘∈nrᶜ₂ refl erased))) δ▸s hasX
-  erased-hasX erased
-    (natrec-no-nrₘ _ δ▸s _ _ _ _ _ fix)
-    (natrecₓˢ hasX) =
-    erased-hasX
-      (_◂_∈_.there $ there $ x◂𝟘∈γ+δˡ refl $ x◂𝟘∈γ≤δ erased fix)
-      δ▸s hasX
-  erased-hasX erased (natrec-no-nr-glbₘ _ ▸s _ _ _ χ-glb) (natrecₓˢ hasX) =
-    erased-hasX (_◂_∈_.there $ there $ x◂𝟘∈γ+δˡ refl $
-                   x◂𝟘∈γ≤δ (x◂𝟘∈γ+δʳ refl erased)
-                   (≤ᶜ-trans (χ-glb .proj₁ 1) (≤ᶜ-reflexive nrᵢᶜ-suc)))
-      ▸s hasX
-  erased-hasX erased (natrecₘ _ _ η▸n _) (natrecₓⁿ hasX) =
-    erased-hasX (◂𝟘∈nrᶜ₃ refl erased) η▸n hasX
-  erased-hasX erased
-    (natrec-no-nrₘ _ _ η▸n _ _ _ χ≤η _)
-    (natrecₓⁿ hasX) =
-    erased-hasX (x◂𝟘∈γ≤δ erased χ≤η) η▸n hasX
-  erased-hasX erased (natrec-no-nr-glbₘ _ _ ▸n _ x-glb _) (natrecₓⁿ hasX) =
-    erased-hasX (x◂𝟘∈pγ refl (λ {refl → 𝟘≰𝟙 (x-glb .proj₁ 0)})
-                        (x◂𝟘∈γ+δˡ refl erased))
-                ▸n hasX
+              γ , x ≔ γ ⟨ x ⟩                                   ≡⟨ update-self _ _ ⟩
 
-  erased-hasX erased (Jₘ _ _ _ _ _ ▸u _ _) hasX =
-    erased-hasX
-      (x◂𝟘∈γ+δˡ refl $ x◂𝟘∈γ+δʳ refl $ x◂𝟘∈γ+δʳ refl $
-       x◂𝟘∈pγ refl ω≢𝟘 erased)
-      ▸u hasX
-  erased-hasX erased (J₀ₘ₁ _ _ _ _ _ _ ▸u _ _) hasX =
-    erased-hasX (x◂𝟘∈γ+δʳ refl $ x◂𝟘∈pγ refl ω≢𝟘 erased) ▸u hasX
-  erased-hasX erased (J₀ₘ₂ _ _ _ _ ▸u _ _) hasX =
-    erased-hasX erased ▸u hasX
-  erased-hasX erased (Kₘ _ _ _ _ _ ▸u _) hasX =
-    erased-hasX
-      (x◂𝟘∈γ+δˡ refl $ x◂𝟘∈γ+δʳ refl $ x◂𝟘∈γ+δʳ refl $
-       x◂𝟘∈pγ refl ω≢𝟘 erased)
-      ▸u hasX
-  erased-hasX erased (K₀ₘ₁ _ _ _ _ _ ▸u _) hasX =
-    erased-hasX (x◂𝟘∈γ+δʳ refl $ x◂𝟘∈pγ refl ω≢𝟘 erased) ▸u hasX
-  erased-hasX erased (K₀ₘ₂ _ _ _ _ ▸u _) hasX =
-    erased-hasX erased ▸u hasX
+              γ                                                 ∎))
+        (erase-≔ (there (there (◂𝟘∈nrᶜ₂ refl erased))) ▸t₂)
+        (erase-≔ (◂𝟘∈nrᶜ₃ refl erased) ▸t₃)
+      where
+      open ≤ᶜ-reasoning
+    erase-≔
+      {n = 1+ _} erased (natrec-no-nrₘ ▸t₁ ▸t₂ ▸t₃ _ γ≤₁ _ γ≤₃ γ≤₄) =
+      cong₃ natrec (erase-≔ erased (sub ▸t₁ γ≤₁))
+        (erase-≔ (there (there (x◂𝟘∈γ+δˡ refl (x◂𝟘∈γ≤δ erased γ≤₄))))
+           ▸t₂)
+        (erase-≔ (x◂𝟘∈γ≤δ erased γ≤₃) ▸t₃)
+    erase-≔
+      {n = 1+ _} erased
+      (natrec-no-nr-glbₘ {γ} {δ} {r} {χ} ▸t₁ ▸t₂ ▸t₃ _ glb χ-glb) =
+      cong₃ natrec
+        (erase-≔ (x◂𝟘∈γ+δʳ refl erased) $
+         sub ▸t₁ $ begin
+           χ             ≤⟨ χ-glb .proj₁ 0 ⟩
+           nrᵢᶜ r γ δ 0  ≈⟨ nrᵢᶜ-zero ⟩
+           γ             ∎)
+        (erase-≔
+           (_◂_∈_.there $ there $ x◂𝟘∈γ+δˡ refl $
+            x◂𝟘∈γ≤δ (x◂𝟘∈γ+δʳ refl erased) $ begin
+              χ                       ≤⟨ χ-glb .proj₁ 1 ⟩
+              nrᵢᶜ r γ δ 1            ≈⟨ nrᵢᶜ-suc ⟩
+              δ +ᶜ r ·ᶜ nrᵢᶜ r γ δ 0  ∎)
+           ▸t₂)
+        (erase-≔
+           (x◂𝟘∈pγ refl (λ { refl → 𝟘≰𝟙 (glb .proj₁ 0) })
+              (x◂𝟘∈γ+δˡ refl erased))
+           ▸t₃)
+      where
+      open ≤ᶜ-reasoning
+    erase-≔ {s} _ (Idₘ _ _ _ _) =
+      wk-loop? s
+    erase-≔ {s} _ (Id₀ₘ _ _ _ _) =
+      wk-loop? s
+    erase-≔ {s} _ rflₘ =
+      wk-loop? s
+    erase-≔ erased (Jₘ _ _ _ _ _ ▸t _ _) =
+      erase-≔
+        (x◂𝟘∈γ+δˡ refl $ x◂𝟘∈γ+δʳ refl $ x◂𝟘∈γ+δʳ refl $
+         x◂𝟘∈pγ refl ω≢𝟘 erased)
+        ▸t
+    erase-≔ erased (J₀ₘ₁ _ _ _ _ _ _ ▸t _ _) =
+      erase-≔ (x◂𝟘∈γ+δʳ refl $ x◂𝟘∈pγ refl ω≢𝟘 erased) ▸t
+    erase-≔ erased (J₀ₘ₂ _ _ _ _ ▸t _ _) =
+      erase-≔ erased ▸t
+    erase-≔ erased (Kₘ _ _ _ _ _ ▸t _) =
+      erase-≔
+        (x◂𝟘∈γ+δˡ refl $ x◂𝟘∈γ+δʳ refl $ x◂𝟘∈γ+δʳ refl $
+         x◂𝟘∈pγ refl ω≢𝟘 erased)
+        ▸t
+    erase-≔ erased (K₀ₘ₁ _ _ _ _ _ ▸t _) =
+      erase-≔ (x◂𝟘∈γ+δʳ refl $ x◂𝟘∈pγ refl ω≢𝟘 erased) ▸t
+    erase-≔ erased (K₀ₘ₂ _ _ _ _ ▸t _) =
+      erase-≔ erased ▸t
+    erase-≔ {s} _ ([]-congₘ _ _ _ _ _) =
+      wk-loop? s
 
-  erased-hasX erased (unitrecₘ {p = p} γ▸t δ▸u η▸A ok) hasX
-    with is-𝟘? p
-  erased-hasX erased (unitrecₘ _ δ▸u _ _) hasX | yes _ =
-    erased-hasX (x◂𝟘∈γ+δʳ refl erased) δ▸u hasX
-  erased-hasX erased (unitrecₘ {p = _} γ▸t δ▸u η▸A ok) (unitrecₓˡ hasX) | no p≢𝟘 =
-    erased-hasX (x◂𝟘∈pγ refl p≢𝟘 (x◂𝟘∈γ+δˡ refl erased))
-                (▸-cong (≢𝟘→⌞⌟≡𝟙ᵐ p≢𝟘) γ▸t) hasX
-  erased-hasX erased (unitrecₘ {p = _} γ▸t δ▸u η▸A ok) (unitrecₓʳ hasX) | no _ =
-    erased-hasX (x◂𝟘∈γ+δʳ refl erased) δ▸u hasX
+  opaque
 
-  erased-hasX _ (emptyrecₘ _ _ _) =
-    loop-closed
+    -- A special case of erase-≔.
 
-  erased-hasX erased (sub δ▸t γ≤δ) hasX =
-    erased-hasX (x◂𝟘∈γ≤δ erased γ≤δ) δ▸t hasX
+    erase-[]₀ :
+      ⦃ 𝟘-well-behaved : Has-well-behaved-zero M semiring-with-meet ⦄ →
+      x0 ◂ 𝟘 ∈ γ → γ ▸[ 𝟙ᵐ ] t →
+      T.wk1 (erase′ b s (t U.[ u ]₀)) ≡ erase′ b s t
+    erase-[]₀ = erase-≔
 
-  erased-hasX {s} _ Uₘ                   = loop?-closed s
-  erased-hasX {s} _ ℕₘ                   = loop?-closed s
-  erased-hasX {s} _ Emptyₘ               = loop?-closed s
-  erased-hasX {s} _ Unitₘ                = loop?-closed s
-  erased-hasX {s} _ (ΠΣₘ _ _)            = loop?-closed s
-  erased-hasX {s} _ (Idₘ _ _ _ _)        = loop?-closed s
-  erased-hasX {s} _ (Id₀ₘ _ _ _ _)       = loop?-closed s
-  erased-hasX {s} _ rflₘ                 = loop?-closed s
-  erased-hasX {s} _ ([]-congₘ _ _ _ _ _) = loop?-closed s
+  opaque
 
-  erased-hasX _ starʷₘ     ()
-  erased-hasX _ (starˢₘ _) ()
-  erased-hasX _ zeroₘ      ()
+    -- If the modality's zero is well-behaved, then erased variables do
+    -- not occur after extraction.
+
+    erased-hasX :
+      ⦃ 𝟘-well-behaved : Has-well-behaved-zero M semiring-with-meet ⦄ →
+      x ◂ 𝟘 ∈ γ → γ ▸[ 𝟙ᵐ ] t → ¬ HasX x (erase′ b s t)
+    erased-hasX {x} {t} {b} {s} x∈ ▸t =
+      HasX x (erase′ b s t)                                     →⟨ subst (HasX _) (sym $ erase-≔ x∈ ▸t) ⟩
+      HasX x (wk (step-at x) (erase′ b s (t U.[ ⟨ x ≔ ℕ ⟩ ])))  →⟨ ¬-HasX-wk-step-at ⟩
+      ⊥                                                         □
