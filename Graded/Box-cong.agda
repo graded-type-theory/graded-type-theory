@@ -60,7 +60,7 @@ open import Tools.Bool using (T)
 open import Tools.Empty
 open import Tools.Fin
 open import Tools.Function
-open import Tools.Nat using (Nat; 1+; 2+; 4+)
+open import Tools.Nat using (Nat; 1+; 2+; 3+; 4+)
 open import Tools.Product
 open import Tools.PropositionalEquality as PE using (_≢_)
 import Tools.Reasoning.PartialOrder
@@ -69,18 +69,18 @@ open import Tools.Relation
 open import Tools.Sum using (_⊎_; inj₁; inj₂)
 
 private variable
-  n n′                                   : Nat
-  Δ                                      : Con Term _
-  Γ                                      : Cons _ _
-  A A₁ A₂ B t t₁ t₂ t′ u u₁ u₂ v v₁ v₂ w : Term _
-  σ                                      : Subst _ _
-  p q q₁ q₁′ q₂ q₂′ q₃ q₃′ q₄            : M
-  γ₁ γ₂ γ₃ γ₄                            : Conₘ _
-  m                                      : Mode
-  s                                      : Strength
-  l l′                                   : Universe-level
-  sem                                    : Some-erased-matches
-  ok                                     : T _
+  n n′                                     : Nat
+  Δ                                        : Con Term _
+  Γ                                        : Cons _ _
+  A A₁ A₂ B C t t₁ t₂ t′ u u₁ u₂ v v₁ v₂ w : Term _
+  σ                                        : Subst _ _
+  p q q₁ q₁′ q₂ q₂′ q₃ q₃′ q₄              : M
+  γ γ₁ γ₂ γ₃ γ₄                            : Conₘ _
+  m                                        : Mode
+  s                                        : Strength
+  l l′                                     : Universe-level
+  sem                                      : Some-erased-matches
+  ok                                       : T _
 
 ------------------------------------------------------------------------
 -- Some lemmas
@@ -373,6 +373,22 @@ opaque
 ------------------------------------------------------------------------
 -- Has-[]-cong
 
+-- The property of supporting a []-cong combinator for a certain mode,
+-- a certain erased variable context, a certain type, and certain
+-- grades.
+
+Has-[]-cong-for :
+  Strength → Mode → Con Term n → Term n → M → M → M → Set a
+Has-[]-cong-for {n} s m Γ A q₁ q₂ q₃ =
+  let open Erased s in
+  ∃ λ ([]-cong : Term n) →
+  𝟘ᶜ ▸[ m ] []-cong ×
+  ε » Γ ⊢ []-cong ∷
+    Π 𝟘 , q₁ ▷ A ▹
+    Π 𝟘 , q₂ ▷ wk1 A ▹
+    Π 𝟘 , q₃ ▷ Id (wk[ 2 ]′ A) (var x1) (var x0) ▹
+    Id (Erased (wk[ 3 ]′ A)) ([ var x2 ]) ([ var x1 ])
+
 -- The property of supporting a []-cong combinator (with certain
 -- grades) for a certain mode, a certain universe level, and a certain
 -- erased variable context.
@@ -554,6 +570,111 @@ opaque
 
 opaque
 
+  -- Has-[]-cong implies Has-[]-cong-for, given certain assumptions.
+
+  Has-[]-cong→Has-[]-cong-for :
+    γ ▸[ 𝟘ᵐ? ] A →
+    ε » Δ ⊢ A ∷ U l →
+    Has-[]-cong s m l Δ q₁ q₂ q₃ q₄ →
+    Has-[]-cong-for s m Δ A q₂ q₃ q₄
+  Has-[]-cong→Has-[]-cong-for
+    {γ} {A} {s} {m} {q₂} {q₃} {q₄}
+    ▸A ⊢A ([]-cong′ , ▸[]-cong′ , ⊢[]-cong′) =
+    []-cong′ ∘⟨ 𝟘 ⟩ A ,
+    (sub (▸[]-cong′ ∘ₘ ▸-cong (PE.sym $ ᵐ·-zeroʳ m) ▸A) $ begin
+       𝟘ᶜ            ≈˘⟨ ·ᶜ-zeroˡ _ ⟩
+       𝟘 ·ᶜ γ        ≈˘⟨ +ᶜ-identityˡ _ ⟩
+       𝟘ᶜ +ᶜ 𝟘 ·ᶜ γ  ∎) ,
+    PE.subst (_⊢_∷_ _ _)
+      (PE.cong₂ (Π 𝟘 , q₂ ▷_▹_) PE.refl $
+       PE.cong₂ (Π 𝟘 , q₃ ▷_▹_) PE.refl $
+       PE.cong₂ (Π 𝟘 , q₄ ▷_▹_)
+         (PE.cong₃ Id wk[]≡wk[]′ PE.refl PE.refl)
+         (PE.cong₃ Id (PE.cong Erased wk[]≡wk[]′) PE.refl PE.refl))
+      (⊢[]-cong′ ∘ⱼ ⊢A)
+    where
+    open ≤ᶜ-reasoning
+    open Erased s
+
+opaque
+
+  -- If the modality's zero is well-behaved, erased matches (including
+  -- the []-cong primitive) are not allowed, equality reflection is
+  -- not allowed, and η-equality is not allowed for weak unit types
+  -- unless a certain condition is satisfied, then []-cong is not
+  -- supported for the mode 𝟙ᵐ and a "consistent" well-formed type A
+  -- without η-equality.
+
+  ¬-[]-cong-for :
+    {Γ : Con Term n}
+    ⦃ not-ok : No-equality-reflection ⦄
+    ⦃ 𝟘-well-behaved : Has-well-behaved-zero semiring-with-meet ⦄ →
+    No-erased-matches TR UR →
+    (∀ {p q} →
+     Unitʷ-η → Unitʷ-allowed → Unitrec-allowed 𝟙ᵐ p q →
+     p ≤ 𝟘) →
+    No-η-equality ε A →
+    ε » Γ ⊢ A →
+    Consistent (ε » Γ ∙ A) →
+    ¬ Has-[]-cong-for s 𝟙ᵐ Γ A q₁ q₂ q₃
+  ¬-[]-cong-for {n} {A} {Γ} nem Unitʷ-η→ no-η ⊢A consistent (_ , hyp) =
+    let ▸[]-cong′ , ⊢[]-cong′ = lemma (lemma (lemma hyp)) in
+    case red-Id ⦃ ok = included ⦄ ⊢[]-cong′ of λ where
+      (_ , rflₙ , ⇒*rfl) →
+        case var-only-equal-to-itself (wk-No-η-equality no-η)
+               (ne (var _ _)) $
+             prod-cong⁻¹ ⦃ ok = included ⦄
+               (inversion-rfl-Id ⦃ ok = included ⦄ $
+                wf-⊢≡∷ (subset*Term ⇒*rfl) .proj₂ .proj₂)
+               .proj₂ .proj₁ of λ ()
+      (_ , ne u-ne , []-cong′⇒*u) →
+        neutral-not-well-resourced nem
+          (λ _ → subst-Consistent ⊢σ consistent)
+          PE.refl (ne→ _ u-ne)
+          (wf-⊢≡∷ (subset*Term []-cong′⇒*u) .proj₂ .proj₂)
+          (usagePres*Term Unitʷ-η→ (λ ()) ▸[]-cong′ []-cong′⇒*u)
+    where
+    ⊢Γ : ε »⊢ Γ
+    ⊢Γ = wfTerm (hyp .proj₂)
+
+    σ′ : Subst (1+ n) (3+ n)
+    σ′ = consSubst (sgSubst (var x0)) rfl
+
+    ⊢σ :
+      ε » Γ ∙ A ⊢ˢʷ σ′ ∷
+        Γ ∙ A ∙ wk1 A ∙ Id (wk[ 2 ]′ A) (var x1) (var x0)
+    ⊢σ =
+      let ⊢0 = PE.subst (_⊢_∷_ _ _) (PE.sym $ subst-id _) (var₀ ⊢A) in
+      →⊢ˢʷ∷∙ (→⊢ˢʷ∷∙ (⊢ˢʷ∷-idSubst (∙ ⊢A)) ⊢0)
+        (rflⱼ $
+         PE.subst (_⊢_∷_ _ _)
+           (wk1 A [ idSubst ]       ≡⟨ subst-id _ ⟩
+            wk1 A                   ≡˘⟨ wk[1+]′-[]₀≡ ⟩
+            wk[ 2 ]′ A [ var x0 ]₀  ∎)
+           ⊢0)
+      where
+      open Tools.Reasoning.PropositionalEquality
+
+    opaque
+
+      lemma :
+        𝟘ᶜ ▸[ 𝟙ᵐ ] t × ε » Δ ⊢ t ∷ Π 𝟘 , p ▷ B ▹ C →
+        let t0 = wk1 t ∘⟨ 𝟘 ⟩ var x0 in
+        𝟘ᶜ ▸[ 𝟙ᵐ ] t0 × ε » Δ ∙ B ⊢ t0 ∷ C
+      lemma (▸t , ⊢t) =
+        let ⊢B , _ = inversion-ΠΣ (wf-⊢∷ ⊢t) in
+        sub (wkUsage (step id) ▸t ∘ₘ var)
+          (begin
+             𝟘ᶜ                           ≈˘⟨ ·ᶜ-zeroˡ _ ⟩
+             𝟘 ·ᶜ (𝟘ᶜ ∙ ⌜ ⌞ 𝟘 ⌟ ⌝)        ≈˘⟨ +ᶜ-identityˡ _ ⟩
+             𝟘ᶜ +ᶜ 𝟘 ·ᶜ (𝟘ᶜ ∙ ⌜ ⌞ 𝟘 ⌟ ⌝)  ∎) ,
+        PE.subst (_⊢_∷_ _ _) (wkSingleSubstId _)
+          (W.wkTerm₁ ⊢B ⊢t ∘ⱼ var₀ ⊢B)
+        where
+        open ≤ᶜ-reasoning
+
+opaque
+
   -- If the modality's zero is well-behaved, erased matches (including
   -- the []-cong primitive) are not allowed, equality reflection is
   -- not allowed, and η-equality is not allowed for weak unit types
@@ -570,21 +691,14 @@ opaque
      p ≤ 𝟘) →
     Consistent (ε » Γ) →
     ¬ Has-[]-cong s 𝟙ᵐ l Γ q₁ q₂ q₃ q₄
-  ¬-[]-cong {n} {l} {Γ} nem Unitʷ-η→ consistent (_ , hyp) =
-    let ▸[]-cong′ , ⊢[]-cong′ = lemma (lemma (lemma (lemma hyp))) in
-    case red-Id ⦃ ok = included ⦄ ⊢[]-cong′ of λ where
-      (_ , rflₙ , ⇒*rfl) →
-        case var-only-equal-to-itself (neₙ (var _ _)) (ne (var _ _)) $
-             prod-cong⁻¹ ⦃ ok = included ⦄
-               (inversion-rfl-Id ⦃ ok = included ⦄ $
-                wf-⊢≡∷ (subset*Term ⇒*rfl) .proj₂ .proj₂)
-               .proj₂ .proj₁ of λ ()
-      (_ , ne u-ne , []-cong′⇒*u) →
-        neutral-not-well-resourced nem
-          (λ _ → subst-Consistent ⊢σ consistent)
-          PE.refl (ne→ _ u-ne)
-          (wf-⊢≡∷ (subset*Term []-cong′⇒*u) .proj₂ .proj₂)
-          (usagePres*Term Unitʷ-η→ (λ ()) ▸[]-cong′ []-cong′⇒*u)
+  ¬-[]-cong
+    {n} {s} {l} {q₁} {q₂} {q₃} {q₄} {Γ}
+    nem Unitʷ-η→ consistent has-[]-cong@(_ , hyp) =
+                                            $⟨ has-[]-cong ⟩
+    Has-[]-cong s 𝟙ᵐ l Γ q₁ q₂ q₃ q₄        →⟨ Has-[]-cong→Has-[]-cong-for ▸A ⊢A ⟩
+    Has-[]-cong-for s 𝟙ᵐ Γ (A′ l) q₂ q₃ q₄  →⟨ ¬-[]-cong-for nem Unitʷ-η→ No-η-equality-A (univ ⊢A)
+                                                 (subst-Consistent (⊢ˢʷ∷-sgSubst ⊢t) consistent) ⟩
+    ⊥                                       □
     where
     ⊢Γ : ε »⊢ Γ
     ⊢Γ = wfTerm (hyp .proj₂)
@@ -607,35 +721,13 @@ opaque
     ⊢t {l′ = 1}    = ℕⱼ ⊢Γ
     ⊢t {l′ = 2+ _} = Uⱼ ⊢Γ
 
-    σ′ : Subst n (4+ n)
-    σ′ =
-      consSubst (consSubst (consSubst (sgSubst (A′ l)) (t″ l)) (t″ l))
-        rfl
+    ▸A : 𝟘ᶜ ▸[ 𝟘ᵐ? ] A′ l′
+    ▸A {l′ = 0}    = ▸-cong (ᵐ·-zeroʳ 𝟙ᵐ) ℕₘ
+    ▸A {l′ = 1+ _} = ▸-cong (ᵐ·-zeroʳ 𝟙ᵐ) Uₘ
 
-    ⊢σ :
-      ε » Γ ⊢ˢʷ σ′ ∷
-        Γ ∙ U l ∙ var x0 ∙ var x1 ∙ Id (var x2) (var x1) (var x0)
-    ⊢σ =
-      →⊢ˢʷ∷∙ (→⊢ˢʷ∷∙ (→⊢ˢʷ∷∙ (→⊢ˢʷ∷∙ (⊢ˢʷ∷-idSubst ⊢Γ) ⊢A) ⊢t) ⊢t)
-        (rflⱼ ⊢t)
-
-    opaque
-
-      lemma :
-        𝟘ᶜ ▸[ 𝟙ᵐ ] t × ε » Δ ⊢ t ∷ Π 𝟘 , p ▷ A ▹ B →
-        let t0 = wk1 t ∘⟨ 𝟘 ⟩ var x0 in
-        𝟘ᶜ ▸[ 𝟙ᵐ ] t0 × ε » Δ ∙ A ⊢ t0 ∷ B
-      lemma (▸t , ⊢t) =
-        let ⊢A , _ = inversion-ΠΣ (wf-⊢∷ ⊢t) in
-        sub (wkUsage (step id) ▸t ∘ₘ var)
-          (begin
-             𝟘ᶜ                           ≈˘⟨ ·ᶜ-zeroˡ _ ⟩
-             𝟘 ·ᶜ (𝟘ᶜ ∙ ⌜ ⌞ 𝟘 ⌟ ⌝)        ≈˘⟨ +ᶜ-identityˡ _ ⟩
-             𝟘ᶜ +ᶜ 𝟘 ·ᶜ (𝟘ᶜ ∙ ⌜ ⌞ 𝟘 ⌟ ⌝)  ∎) ,
-        PE.subst (_⊢_∷_ _ _) (wkSingleSubstId _)
-          (W.wkTerm₁ ⊢A ⊢t ∘ⱼ var₀ ⊢A)
-        where
-        open ≤ᶜ-reasoning
+    No-η-equality-A : No-η-equality ε (A′ l′)
+    No-η-equality-A {l′ = 0}    = ℕₙ
+    No-η-equality-A {l′ = 1+ _} = Uₙ
 
 ------------------------------------------------------------------------
 -- Has-weaker-[]-cong
