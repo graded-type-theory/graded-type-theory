@@ -91,6 +91,20 @@ var-usage-lookup (there x) = var-usage-lookup x
   from {γ = _ ∙ _} {x = x0}   refl = here
   from {γ = _ ∙ _} {x = _ +1} eq   = there (from eq)
 
+opaque
+
+  -- An inversion lemma for _◂_∈_.
+
+  x0◂∈ : x0 ◂ p ∈ γ ∙ q → p ≡ q
+  x0◂∈ here = refl
+
+opaque
+
+  -- An inversion lemma for _◂_∈_.
+
+  +1◂∈ : (x +1) ◂ p ∈ γ ∙ q → x ◂ p ∈ γ
+  +1◂∈ (there x∈) = x∈
+
 ------------------------------------------------------------------------
 -- Replacing one usage mode with another
 
