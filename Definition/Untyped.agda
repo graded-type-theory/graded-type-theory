@@ -588,6 +588,13 @@ consSubst σ t (x +1) = σ x
 sgSubst : Term n → Subst n (1+ n)
 sgSubst = consSubst idSubst
 
+-- The substitution ⟨ x ≔ t ⟩ replaces x with t (suitably weakened).
+
+⟨_≔_⟩ : (x : Fin n) → Term (pred n ∸ toℕ x) → Subst (pred n) n
+⟨ x0                ≔ t ⟩ = sgSubst t
+⟨ _+1 {n = 1+ _} x  ≔ t ⟩ = ⟨ x ≔ t ⟩ ⇑
+⟨ _+1 {n = 0}    () ≔ _ ⟩
+
 -- Compose two substitutions.
 --
 -- If Γ ⊢ σ : Δ and Δ ⊢ σ′ : Φ then Γ ⊢ σ ₛ•ₛ σ′ : Φ.

@@ -6,7 +6,8 @@ module Tools.Fin where
 
 open import Data.Fin.Properties public
   using (suc-injective) renaming (_≟_ to _≟ⱽ_)
-open import Data.Fin.Base using (Fin) renaming (zero to x0 ; suc to _+1) public
+open import Data.Fin.Base public
+  using (Fin; toℕ) renaming (zero to x0; suc to _+1)
 
 open import Tools.Nat
 
