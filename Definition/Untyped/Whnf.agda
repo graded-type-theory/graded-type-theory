@@ -308,6 +308,19 @@ wkWhnf ρ starₙ  = starₙ
 wkWhnf ρ rflₙ   = rflₙ
 wkWhnf ρ (ne x) = ne (wkNeutral ρ x)
 
+opaque
+
+  -- A weakening lemma for No-η-equality.
+
+  wk-No-η-equality : No-η-equality ∇ A → No-η-equality ∇ (wk ρ A)
+  wk-No-η-equality Uₙ            = Uₙ
+  wk-No-η-equality Σʷₙ           = Σʷₙ
+  wk-No-η-equality Emptyₙ        = Emptyₙ
+  wk-No-η-equality ℕₙ            = ℕₙ
+  wk-No-η-equality (Unitʷₙ no-η) = Unitʷₙ no-η
+  wk-No-η-equality Idₙ           = Idₙ
+  wk-No-η-equality (neₙ A-ne)    = neₙ (wkNeutral _ A-ne)
+
 ------------------------------------------------------------------------
 -- Inversion lemmas
 
