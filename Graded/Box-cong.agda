@@ -97,17 +97,6 @@ private opaque
     ⊢1 : Γ »∙ U l »∙ var x0 ⊢ var x1
     ⊢1 = univ (var₁ (univ (var₀ (Uⱼ ⊢Γ))))
 
-  ⊢Id-4-3-0 :
-    ε »
-    ε ∙ U l ∙ var x0 ∙ var x1 ∙ Id (var x2) (var x1) (var x0) ∙ var x3 ⊢
-    Id (var x4) (var x3) (var x0)
-  ⊢Id-4-3-0 = Idⱼ′ (var₃ ⊢3) (var₀ ⊢3)
-    where
-    ⊢3 :
-      ε » ε ∙ U l ∙ var x0 ∙ var x1 ∙ Id (var x2) (var x1) (var x0) ⊢
-      var x3
-    ⊢3 = univ (var₃ (⊢Id-2-1-0 εε))
-
   Id-[]₀≡ :
     let open Erased s in
     Id (Erased (wk1 A)) [ wk1 t ] ([ var x0 ]) [ u ]₀ PE.≡
