@@ -9,11 +9,13 @@ open import Definition.Untyped.Properties.NotParametrised
 
 open import Graded.Erasure.Target renaming (refl to ⇒*-refl; trans to ⇒*-trans)
 
+open import Tools.Empty
 open import Tools.Fin
 open import Tools.Function
 open import Tools.Nat
 open import Tools.Product as Σ
 open import Tools.PropositionalEquality hiding (subst)
+open import Tools.Relation
 open import Tools.Sum as ⊎ using (_⊎_; inj₁; inj₂)
 
 private
@@ -244,3 +246,13 @@ opaque
     (∃ λ y → wkVar ρ x ≡ wkVar ρ y × HasX y t)  →⟨ Σ.map idᶠ $ Σ.map wkVar-injective idᶠ ⟩
     (∃ λ y → x ≡ y × HasX y t)                  →⟨ (λ { (_ , refl , has) → has }) ⟩
     HasX x t                                    □
+
+opaque
+
+  -- The variable x does not occur in wk (step-at x) t.
+
+  ¬-HasX-wk-step-at : ¬ HasX x (wk (step-at x) t)
+  ¬-HasX-wk-step-at {x} {t} =
+    HasX x (wk (step-at x) t)                     →⟨ HasX-wk→ ⟩
+    (∃ λ y → x ≡ wkVar (step-at x) y × HasX y t)  →⟨ ≢wkVar-step-at ∘→ proj₁ ∘→ proj₂ ⟩
+    ⊥                                             □

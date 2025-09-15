@@ -8,6 +8,7 @@ module Definition.Untyped.Properties.NotParametrised where
 
 open import Definition.Untyped.NotParametrised
 
+open import Tools.Empty
 open import Tools.Fin
 open import Tools.Function
 open import Tools.Nat
@@ -152,6 +153,18 @@ opaque
     lemma id       (_ +1) x0     ()
     lemma (lift _) x0     (_ +1) ()
     lemma (lift _) (_ +1) x0     ()
+
+opaque
+
+  -- It is not the case that x is equal to wkVar (step-at x) y.
+
+  ≢wkVar-step-at : x ≢ wkVar (step-at x) y
+  ≢wkVar-step-at {x = x0}              = λ ()
+  ≢wkVar-step-at {x = _ +1} {y = x0}   = λ ()
+  ≢wkVar-step-at {x = x +1} {y = y +1} =
+    (x +1) ≡ (wkVar (step-at x) y +1)  →⟨ suc-injective ⟩
+    x ≡ wkVar (step-at x) y            →⟨ ≢wkVar-step-at ⟩
+    ⊥                                  □
 
 ------------------------------------------------------------------------
 -- A property related to Universe-level

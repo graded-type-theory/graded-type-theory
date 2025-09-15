@@ -114,6 +114,13 @@ stepn : {k m : Nat} (ρ : Wk k m) → (n : Nat) → Wk (n + k) m
 stepn ρ 0 = ρ
 stepn ρ (1+ n) = step (stepn ρ n)
 
+-- The weakening step-at x inserts a fresh variable at position x.
+
+step-at : Fin n → Wk n (pred n)
+step-at x0                  = step id
+step-at (_+1 {n = 0}    ())
+step-at (_+1 {n = 1+ _} x)  = lift (step-at x)
+
 -- Weakening of variables.
 -- If η : Γ ≤ Δ and x ∈ dom(Δ) then wkVar η x ∈ dom(Γ).
 
