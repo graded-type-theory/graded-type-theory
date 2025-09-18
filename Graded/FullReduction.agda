@@ -270,12 +270,15 @@ module _ (as : Full-reduction-assumptions) where
                    (fullRedConv↑ B↑ ▸B) (fullRedTermConv↑ u↑ ▸u)
                    (fullRedNe~↓ v~ ▸v))
               γ≤
-      ([]-cong-cong A↑ t↑ u↑ v~ _ _) ▸[]-cong →
-        case inv-usage-[]-cong ▸[]-cong of λ {
-          (invUsage-[]-cong ▸A ▸t ▸u ▸v ok γ≤) →
-        sub ([]-congₘ (fullRedConv↑ A↑ ▸A) (fullRedTermConv↑ t↑ ▸t)
-               (fullRedTermConv↑ u↑ ▸u) (fullRedNe~↓ v~ ▸v) ok)
-          γ≤ }
+      ([]-cong-cong l↑ A↑ t↑ u↑ v~ _ _) ▸[]-cong →
+        let invUsage-[]-cong ▸l ▸A ▸t ▸u ▸v ok γ≤ =
+              inv-usage-[]-cong ▸[]-cong
+        in
+        sub
+          ([]-congₘ (fullRedTermConv↑ l↑ ▸l) (fullRedTermConv↑ A↑ ▸A)
+             (fullRedTermConv↑ t↑ ▸t) (fullRedTermConv↑ u↑ ▸u)
+             (fullRedNe~↓ v~ ▸v) ok)
+          γ≤
 
     fullRedNe~↓ :
       ⦃ not-ok : No-equality-reflection ⦄ →

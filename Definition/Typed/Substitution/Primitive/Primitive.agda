@@ -24,6 +24,7 @@ open import Definition.Typed.Size R
 open import Definition.Typed.Weakening R as W hiding (wk)
 
 open import Definition.Untyped M
+import Definition.Untyped.Erased 𝕄 as E
 open import Definition.Untyped.Properties M
 
 open import Tools.Fin
@@ -1072,9 +1073,10 @@ private module Inhabited where
           (PE.subst (_⊢_∷_ _ _) (singleSubstLift B _) $
            subst-⊢∷ ⊢u ⊢σ)
           (subst-⊢∷ ⊢v ⊢σ) ok
-      ([]-congⱼ ⊢A ⊢t ⊢u ⊢v ok) PE.refl →
-        []-congⱼ (subst-⊢ ⊢A ⊢σ) (subst-⊢∷ ⊢t ⊢σ) (subst-⊢∷ ⊢u ⊢σ)
-          (subst-⊢∷ ⊢v ⊢σ) ok
+      ([]-congⱼ ⊢l ⊢A ⊢t ⊢u ⊢v ok) PE.refl →
+        PE.subst (_⊢_∷_ _ _) (E.Id-Erased-[] _) $
+        []-congⱼ (subst-⊢∷ ⊢l ⊢σ) (subst-⊢∷ ⊢A ⊢σ) (subst-⊢∷ ⊢t ⊢σ)
+          (subst-⊢∷ ⊢u ⊢σ) (subst-⊢∷ ⊢v ⊢σ) ok
 
   opaque
     unfolding size-⊢∷
@@ -1257,9 +1259,11 @@ private module Inhabited where
           (PE.subst (_⊢_≡_∷_ _ _ _) (singleSubstLift B _) $
            subst-⊢∷→⊢≡∷ ⊢u σ₁≡σ₂)
           (subst-⊢∷→⊢≡∷ ⊢v σ₁≡σ₂) ok
-      ([]-congⱼ ⊢A ⊢t ⊢u ⊢v ok) PE.refl →
-        []-cong-cong (subst-⊢→⊢≡ ⊢A σ₁≡σ₂) (subst-⊢∷→⊢≡∷ ⊢t σ₁≡σ₂)
-          (subst-⊢∷→⊢≡∷ ⊢u σ₁≡σ₂) (subst-⊢∷→⊢≡∷ ⊢v σ₁≡σ₂) ok
+      ([]-congⱼ ⊢l ⊢A ⊢t ⊢u ⊢v ok) PE.refl →
+        PE.subst (_⊢_≡_∷_ _ _ _) (E.Id-Erased-[] _) $
+        []-cong-cong (subst-⊢∷→⊢≡∷ ⊢l σ₁≡σ₂) (subst-⊢∷→⊢≡∷ ⊢A σ₁≡σ₂)
+          (subst-⊢∷→⊢≡∷ ⊢t σ₁≡σ₂) (subst-⊢∷→⊢≡∷ ⊢u σ₁≡σ₂)
+          (subst-⊢∷→⊢≡∷ ⊢v σ₁≡σ₂) ok
 
   opaque
     unfolding size-⊢≡∷
@@ -1625,12 +1629,16 @@ private module Inhabited where
                                      ok ⟩⊢
         u [ σ₁ ]                ≡⟨ subst-⊢∷→⊢≡∷ ⊢u σ₁≡σ₂ ⟩⊢∎
         u [ σ₂ ]                ∎
-      ([]-cong-cong A₁≡A₂ t₁≡t₂ u₁≡u₂ v₁≡v₂ ok) PE.refl →
-        []-cong-cong (subst-⊢≡ A₁≡A₂ σ₁≡σ₂) (subst-⊢≡∷ t₁≡t₂ σ₁≡σ₂)
-          (subst-⊢≡∷ u₁≡u₂ σ₁≡σ₂) (subst-⊢≡∷ v₁≡v₂ σ₁≡σ₂) ok
-      ([]-cong-β ⊢t PE.refl ok) PE.refl →
-        []-cong-β (subst-⊢∷ ⊢t (wf-⊢ˢʷ≡∷ σ₁≡σ₂ .proj₂ .proj₁)) PE.refl
-          ok
+      ([]-cong-cong l₁≡l₂ A₁≡A₂ t₁≡t₂ u₁≡u₂ v₁≡v₂ ok) PE.refl →
+        PE.subst (_⊢_≡_∷_ _ _ _) (E.Id-Erased-[] _) $
+        []-cong-cong (subst-⊢≡∷ l₁≡l₂ σ₁≡σ₂) (subst-⊢≡∷ A₁≡A₂ σ₁≡σ₂)
+          (subst-⊢≡∷ t₁≡t₂ σ₁≡σ₂) (subst-⊢≡∷ u₁≡u₂ σ₁≡σ₂)
+          (subst-⊢≡∷ v₁≡v₂ σ₁≡σ₂) ok
+      ([]-cong-β ⊢l ⊢A ⊢t PE.refl ok) PE.refl →
+        let _ , ⊢σ₁ , _ = wf-⊢ˢʷ≡∷ σ₁≡σ₂ in
+        PE.subst (_⊢_≡_∷_ _ _ _) (E.Id-Erased-[] _) $
+        []-cong-β (subst-⊢∷ ⊢l ⊢σ₁) (subst-⊢∷ ⊢A ⊢σ₁) (subst-⊢∷ ⊢t ⊢σ₁)
+          PE.refl ok
       (equality-reflection ok ⊢Id ⊢v) PE.refl →
         let ⊢A , ⊢t , ⊢u  = inversion-Id-⊢ ⊢Id
             _ , ⊢σ₁ , ⊢σ₂ = wf-⊢ˢʷ≡∷ σ₁≡σ₂

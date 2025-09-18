@@ -240,7 +240,7 @@ neNeg {γ} (Kⱼ {A} {t} {B} {v} _ _ ⊢v ok) (Kₙ v-ne) ▸K =
         PE.trans (PE.sym em)
           (no-erased-matches non-trivial .proj₂ .proj₂ .proj₂ .proj₂)
       of λ ()
-neNeg ([]-congⱼ _ _ _ _ ok) ([]-congₙ _) _ =
+neNeg ([]-congⱼ _ _ _ _ _ ok) ([]-congₙ _) _ =
   ⊥-elim (no-erased-matches non-trivial .proj₂ .proj₂ .proj₁ ok)
 neNeg (conv d c) n γ▸u nΓγ =
   conv (neNeg d n γ▸u nΓγ) c

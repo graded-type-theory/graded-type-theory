@@ -63,26 +63,26 @@ open import Tools.Sum using (_⊎_; inj₁; inj₂)
 private variable
   n       : Nat
   Γ       : Con Term _
+  l       : Term _
   q₁ q₂   : M
   s s₁ s₂ : Strength
-  l       : Universe-level
 
 -- The type A is "resurrectable" with respect to Γ (as well as a
--- strength and some grades) if (roughly speaking) there is a function
--- that
+-- strength, some grades and a term that stands for a universe level)
+-- if (roughly speaking) there is a function that
 -- * given an erased value x of type A, returns a value y of type A
 --   along with an erased proof which shows that y is equal to x,
 -- * is well-typed with respect to Γ, and
 -- * is well-resourced with respect to 𝟘ᶜ.
 
-Resurrectable : Strength → M → M → Con Term n → Term n → Set a
-Resurrectable s q₁ q₂ Γ A =
+Resurrectable : Strength → M → M → Con Term n → Term n → Term n → Set a
+Resurrectable s q₁ q₂ Γ l A =
   ∃ λ t →
     𝟘ᶜ ▸[ 𝟙ᵐ ] t ×
     Γ ⊢ t ∷
       Π 𝟘 , q₁ ▷ A ▹
       Σ⟨ s ⟩ 𝟙 , q₂ ▷ wk1 A ▹
-      Erased s (Id (wk1 (wk1 A)) (var x0) (var x1))
+      Erased s (wk2 l) (Id (wk2 A) (var x0) (var x1))
 
 opaque
 
@@ -97,17 +97,18 @@ opaque
     (¬ T 𝟘ᵐ-allowed → Id-erased → q₂ ≤ 𝟘) →
     (¬ T 𝟘ᵐ-allowed → ¬ Id-erased → q₂ ≤ 𝟙) →
     ⊢ Γ →
-    Resurrectable s q₁ q₂ Γ Empty
+    Resurrectable s q₁ q₂ Γ zeroᵘ Empty
   Empty-resurrectable
     {s} {q₂} {Γ} emptyrec-ok ok₁ ok₂ Erased-ok hyp₁ hyp₂ ⊢Γ =
       (lam 𝟘 $
        emptyrec 𝟘
-         (Σ⟨ s ⟩ 𝟙 , q₂ ▷ Empty ▹ Erased s (Id Empty (var x0) (var x1)))
+         (Σ⟨ s ⟩ 𝟙 , q₂ ▷ Empty ▹
+          Erased s zeroᵘ (Id Empty (var x0) (var x1)))
          (var x0))
     , (lamₘ $
        sub
          (emptyrecₘ var
-            (ΠΣₘ Emptyₘ $ ▸Erased _ $
+            (ΠΣₘ Emptyₘ $ ▸Erased _ zeroᵘₘ $
              Idₘ-generalised Emptyₘ var var
                (λ erased → begin
                   𝟘ᶜ ∧ᶜ (𝟘ᶜ ∙ ⌜ 𝟘ᵐ? ⌝) ∙ (⌜ 𝟘ᵐ? ⌝ · q₂)  ≤⟨ ∧ᶜ-decreasingˡ _ _ ∙
@@ -135,7 +136,8 @@ opaque
        emptyrecⱼ
          (ΠΣⱼ
             (Erasedⱼ Erased-ok $
-             Idⱼ′ (var₀ (Emptyⱼ (⊢Γ ∙[ Emptyⱼ ])))
+             Idⱼ (Emptyⱼ (⊢Γ ∙[ Emptyⱼ ] ∙[ Emptyⱼ ]))
+               (var₀ (Emptyⱼ (⊢Γ ∙[ Emptyⱼ ])))
                (var₁ (Emptyⱼ (⊢Γ ∙[ Emptyⱼ ]))))
             ok₂)
          (var₀ (Emptyⱼ ⊢Γ)))
@@ -154,7 +156,7 @@ opaque
     Unit-allowed s₂ →
     (s₂ PE.≡ 𝕨 → Unitrec-allowed 𝟘ᵐ? 𝟙 Unit-η-grade) →
     ⊢ Γ →
-    Resurrectable s₁ q₁ q₂ Γ (Unit s₂)
+    Resurrectable s₁ q₁ q₂ Γ zeroᵘ (Unit s₂)
   Unit-resurrectable
     {s₁} {s₂} {Γ} ok₁ ok₂ Erased-ok Unit-ok ur-ok ⊢Γ =
       lam 𝟘
@@ -173,9 +175,12 @@ opaque
             𝟙 ·ᶜ 𝟘ᶜ ∧ᶜ 𝟘ᶜ  ∎))
     , (lamⱼ′ ok₁ $
        prodⱼ
-         (Erasedⱼ Erased-ok (Idⱼ′ (var₀ ⊢Unit₂) (var₁ ⊢Unit₂)))
-         (starⱼ ⊢Γ∙Unit Unit-ok)
-         ([]ⱼ Erased-ok (⊢Unit-η (var₀ ⊢Unit₁)))
+         (Erasedⱼ Erased-ok $
+          Idⱼ (Unitⱼ (∙ ⊢Unit₂) Unit-ok) (var₀ ⊢Unit₂) (var₁ ⊢Unit₂))
+         ⊢star
+         (PE.subst (_⊢_∷_ _ _) (PE.sym Erased-[]) $
+          []ⱼ Erased-ok (Idⱼ ⊢Unit₂∷ ⊢star (var₀ ⊢Unit₁))
+            (⊢Unit-η (var₀ ⊢Unit₁)))
          ok₂)
     where
     open Erased s₁
@@ -187,8 +192,14 @@ opaque
     ⊢Γ∙Unit : ⊢ Γ ∙ Unit s₂
     ⊢Γ∙Unit = ∙ ⊢Unit₁
 
+    ⊢Unit₂∷ : Γ ∙ Unit s₂ ⊢ Unit s₂ ∷ U zeroᵘ
+    ⊢Unit₂∷ = Unitⱼ ⊢Γ∙Unit Unit-ok
+
     ⊢Unit₂ : Γ ∙ Unit s₂ ⊢ Unit s₂
-    ⊢Unit₂ = Unitⱼ ⊢Γ∙Unit Unit-ok
+    ⊢Unit₂ = univ ⊢Unit₂∷
+
+    ⊢star : Γ ∙ Unit s₂ ⊢ star s₂ ∷ Unit s₂
+    ⊢star = starⱼ ⊢Γ∙Unit Unit-ok
 
 opaque
 
@@ -198,7 +209,7 @@ opaque
   ¬-ℕ-resurrectable-ε :
     ⦃ 𝟘-well-behaved : Has-well-behaved-zero semiring-with-meet ⦄ →
     Erased-allowed s →
-    ¬ Resurrectable s q₁ q₂ ε ℕ
+    ¬ Resurrectable s q₁ q₂ ε l ℕ
   ¬-ℕ-resurrectable-ε ok (_ , ▸t , ⊢t) =
     -- By the fundamental theorem t is related to erase t.
     case Fundamental.fundamentalErased-𝟙ᵐ
@@ -214,6 +225,9 @@ opaque
     -- The term t₁ is definitionally equal to zero.
     case ε⊢∷Id→ε⊢≡∷ $
          erasedⱼ $
+         PE.subst (_⊢_∷_ _ _)
+           (PE.trans (PE.cong _[ _ ]₀ (Erased.Erased-[] _)) $
+            Erased.Erased-[] _) $
          inversion-prod-Σ
            (syntacticEqTerm (subset*Term t∘0⇒t₁,t₂) .proj₂ .proj₂)
            .proj₂ .proj₁ of λ
@@ -241,6 +255,9 @@ opaque
         -- The term t₁′ is definitionally equal to suc zero.
         case ε⊢∷Id→ε⊢≡∷ $
              erasedⱼ $
+             PE.subst (_⊢_∷_ _ _)
+               (PE.trans (PE.cong _[ _ ]₀ $ Erased.Erased-[] _) $
+                Erased.Erased-[] _) $
              inversion-prod-Σ
                (syntacticEqTerm (subset*Term t∘1⇒t₁′,t₂′)
                   .proj₂ .proj₂)
@@ -290,8 +307,8 @@ opaque
   -- If 𝟘ᵐ is allowed, η-equality is not allowed for weak unit types
   -- unless a certain condition is satisfied, and []-cong is allowed
   -- for s (and another assumption holds if s is 𝕨), then ℕ is not
-  -- s-resurrectable with respect to any context that satisfies
-  -- Fundamental-assumptions⁻.
+  -- s-resurrectable with respect to zeroᵘ and any context that
+  -- satisfies Fundamental-assumptions⁻.
   --
   -- Note that if []-cong is allowed, then (at the time of writing)
   -- Fundamental-assumptions⁻ only holds for the empty context.
@@ -305,9 +322,11 @@ opaque
     []-cong-allowed s →
     []-cong-allowed-mode s 𝟙ᵐ →
     Fundamental-assumptions⁻ Γ →
-    ¬ Resurrectable s q₁ q₂ Γ ℕ
+    ¬ Resurrectable s q₁ q₂ Γ zeroᵘ ℕ
   ¬-ℕ-resurrectable
     {Γ} ⦃ ok ⦄ Unitʷ-η→ P-ok []-cong-ok []-cong-ok′ as (_ , ▸t , ⊢t) =
+    let ⊢ℕ = ℕⱼ (wfTerm ⊢t) in
+
     -- By the fundamental theorem t is related to erase t.
     case Fundamental.fundamentalErased-𝟙ᵐ
            (record
@@ -327,7 +346,11 @@ opaque
     case inv-usage-prod
            (usagePres*Term Unitʷ-η→ (▸t ∘ₘ zeroₘ) t∘0⇒t₁,t₂) of λ {
       (invUsageProd ▸t₁ ▸t₂ _ _) →
-    case Id→≡″ []-cong-ok []-cong-ok′ P-ok as ℕₘ (▸-𝟘 ▸t₁) zeroₘ (▸-𝟘 ▸t₂) $
+    case Id→≡″ []-cong-ok []-cong-ok′ P-ok as zeroᵘₘ ℕₘ (▸-𝟘 ▸t₁) zeroₘ
+           (▸-𝟘 ▸t₂) ⊢ℕ $
+         PE.subst (_⊢_∷_ _ _)
+           (PE.trans (PE.cong _[ _ ]₀ $ Erased.Erased-[] _) $
+            Erased.Erased-[] _) $
          inversion-prod-Σ
            (syntacticEqTerm (subset*Term t∘0⇒t₁,t₂) .proj₂ .proj₂)
            .proj₂ .proj₁ of λ
@@ -357,8 +380,11 @@ opaque
                (usagePres*Term Unitʷ-η→ (▸t ∘ₘ sucₘ zeroₘ)
                   t∘1⇒t₁′,t₂′) of λ {
           (invUsageProd ▸t₁′ ▸t₂′ _ _) →
-        case Id→≡″ []-cong-ok []-cong-ok′ P-ok as ℕₘ (▸-𝟘 ▸t₁′) (sucₘ zeroₘ)
-               (▸-𝟘 ▸t₂′) $
+        case Id→≡″ []-cong-ok []-cong-ok′ P-ok as zeroᵘₘ ℕₘ (▸-𝟘 ▸t₁′)
+               (sucₘ zeroₘ) (▸-𝟘 ▸t₂′) ⊢ℕ $
+             PE.subst (_⊢_∷_ _ _)
+               (PE.trans (PE.cong _[ _ ]₀ $ Erased.Erased-[] _) $
+                Erased.Erased-[] _) $
              inversion-prod-Σ
                (syntacticEqTerm (subset*Term t∘1⇒t₁′,t₂′)
                   .proj₂ .proj₂)

@@ -126,15 +126,17 @@ mutual
                       B₁ [ v₁ ]₀
 
     []-cong-cong  : ∀ {B}
-                  → Γ ⊢ A₁ [conv↑] A₂
+                  → Γ ⊢ l₁ [conv↑] l₂ ∷ Level
+                  → Γ ⊢ A₁ [conv↑] A₂ ∷ U l₁
                   → Γ ⊢ t₁ [conv↑] t₂ ∷ A₁
                   → Γ ⊢ u₁ [conv↑] u₂ ∷ A₁
                   → Γ ⊢ v₁ ~ v₂ ↓ B
                   → Γ ⊢ B ≡ Id A₁ t₁ u₁
                   → []-cong-allowed s
                   → let open Erased s in
-                    Γ ⊢ []-cong s A₁ t₁ u₁ v₁ ~ []-cong s A₂ t₂ u₂ v₂ ↑
-                      Id (Erased A₁) ([ t₁ ]) ([ u₁ ])
+                    Γ ⊢ []-cong s l₁ A₁ t₁ u₁ v₁ ~
+                      []-cong s l₂ A₂ t₂ u₂ v₂ ↑
+                      Id (Erased l₁ A₁) [ t₁ ] ([ u₁ ])
 
   -- Neutral equality with types in WHNF.
   record _⊢_~_↓_ (Γ : Con Term n) (k l B : Term n) : Set a where

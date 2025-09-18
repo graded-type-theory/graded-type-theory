@@ -590,28 +590,30 @@ private opaque
     Γ ⊢ v₁ ∷ Id A₁ t₁ u₁ →
     Dec
       (s₁ PE.≡ s₂ ×
-       Γ ⊢ A₁ [conv↑] A₂ ×
+       Γ ⊢ l₁ [conv↑] l₂ ∷ Level ×
+       Γ ⊢ A₁ [conv↑] A₂ ∷ U l₁ ×
        ∃ λ B → Γ ⊢ v₁ ~ v₂ ↓ B) →
     (Γ ⊢ A₁ ≡ A₂ → Dec (Γ ⊢ t₁ [conv↑] t₂ ∷ A₁)) →
     (Γ ⊢ A₁ ≡ A₂ → Dec (Γ ⊢ u₁ [conv↑] u₂ ∷ A₁)) →
     Dec
-      (∃ λ B → Γ ⊢ []-cong s₁ A₁ t₁ u₁ v₁ ~ []-cong s₂ A₂ t₂ u₂ v₂ ↑ B)
+      (∃ λ B →
+       Γ ⊢ []-cong s₁ l₁ A₁ t₁ u₁ v₁ ~ []-cong s₂ l₂ A₂ t₂ u₂ v₂ ↑ B)
   dec~↑-[]-cong-cong
-    ok ⊢v₁ (yes (PE.refl , A₁≡A₂ , _ , v₁~v₂)) dec₁ dec₂ =
+    ok ⊢v₁ (yes (PE.refl , l₁≡l₂ , A₁≡A₂ , _ , v₁~v₂)) dec₁ dec₂ =
     case
-       (let A₁≡A₂ = soundnessConv↑ A₁≡A₂ in
+       (let A₁≡A₂ = univ (soundnessConv↑Term A₁≡A₂) in
         dec₁ A₁≡A₂ ×-dec dec₂ A₁≡A₂)
       of λ where
       (yes (t₁≡t₂ , u₁≡u₂)) →
         yes $
           _
-        , []-cong-cong A₁≡A₂ t₁≡t₂ u₁≡u₂ v₁~v₂
+        , []-cong-cong l₁≡l₂ A₁≡A₂ t₁≡t₂ u₁≡u₂ v₁~v₂
             (neTypeEq (ne~↓ v₁~v₂ .proj₂ .proj₁) (~↓→∷ v₁~v₂) ⊢v₁) ok
       (no not-both-equal) →
         no λ (_ , bc~bc) →
-        let _ , _ , _ , _ , _ , _ , bc≡bc , _ , t₁≡ , u₁≡ , _ =
+        let _ , _ , _ , _ , _ , _ , _ , bc≡bc , _ , _ , t₁≡ , u₁≡ , _ =
               inv-[]-cong~ bc~bc
-            _ , _ , ≡t₂ , ≡u₂ , _ =
+            _ , _ , _ , ≡t₂ , ≡u₂ , _ =
               []-cong-PE-injectivity (PE.sym bc≡bc)
         in
         not-both-equal
@@ -620,14 +622,15 @@ private opaque
           )
   dec~↑-[]-cong-cong _ _ (no not-all-equal) _ _ =
     no λ (_ , bc~bc) →
-    let _ , _ , _ , _ , _ , _ , bc≡bc , A₁≡ , _ , _ , v₁~ , _ =
+    let _ , _ , _ , _ , _ , _ , _ , bc≡bc , l₁≡ , A₁≡ , _ , _ , v₁~ , _ =
           inv-[]-cong~ bc~bc
-        s₁≡s₂ , ≡A₂ , _ , _ , ≡v₂ =
+        s₁≡s₂ , ≡l₂ , ≡A₂ , _ , _ , ≡v₂ =
           []-cong-PE-injectivity (PE.sym bc≡bc)
     in
     not-all-equal
       ( s₁≡s₂
-      , PE.subst (_⊢_[conv↑]_ _ _) ≡A₂ A₁≡
+      , PE.subst (flip (_⊢_[conv↑]_∷_ _ _) _) ≡l₂ l₁≡
+      , PE.subst (flip (_⊢_[conv↑]_∷_ _ _) _) ≡A₂ A₁≡
       , _ , PE.subst (flip (_⊢_~_↓_ _ _) _) ≡v₂ v₁~
       )
 
@@ -817,19 +820,22 @@ mutual
         no λ (_ , t~u) →
         let _ , _ , _ , _ , _ , _ , _ , u≡K , _ = inv-K~ t~u in
         u≢K (_ , _ , _ , _ , _ , _ , u≡K)
-  dec~↑ ([]-cong-cong B₁≡ t₁≡ t₂≡ t₃~ B₂≡Id ok) u~ =
+  dec~↑ ([]-cong-cong t₁≡ B₁≡ t₂≡ t₃≡ t₄~ B₂≡Id ok) u~ =
     case inv-~-[]-cong u~ of λ where
       (inj₁
-         (_ , _ , _ , _ , _ , _ , _ , _ , _ , _ , _ ,
-          PE.refl , _ , C₁≡ , u₁≡ , u₂≡ , u₃~ , _)) →
-        dec~↑-[]-cong-cong ok (conv (~↓→∷ t₃~) B₂≡Id)
-          (decStrength _ _ ×-dec decConv↑ B₁≡ C₁≡ ×-dec dec~↓ t₃~ u₃~)
-          (λ eq → decConv↑TermConv eq t₁≡ u₁≡)
+         (_ , _ , _ , _ , _ , _ , _ , _ , _ , _ , _ , _ ,
+          PE.refl , PE.refl , _ , u₁≡ , C₁≡ , u₂≡ , u₃≡ , u₄~ , _)) →
+        dec~↑-[]-cong-cong ok (conv (~↓→∷ t₄~) B₂≡Id)
+          (decStrength _ _ ×-dec decConv↑Term t₁≡ u₁≡ ×-dec′ λ t₁≡u₁ →
+           decConv↑TermConv (U-cong (soundnessConv↑Term t₁≡u₁))
+             B₁≡ C₁≡ ×-dec
+           dec~↓ t₄~ u₄~)
           (λ eq → decConv↑TermConv eq t₂≡ u₂≡)
+          (λ eq → decConv↑TermConv eq t₃≡ u₃≡)
       (inj₂ (u≢bc , _)) →
         no λ (_ , t~u) →
-        let _ , _ , _ , _ , _ , _ , u≡bc , _ = inv-[]-cong~ t~u in
-        u≢bc (_ , _ , _ , _ , _ , u≡bc)
+        let _ , _ , _ , _ , _ , _ , _ , u≡bc , _ = inv-[]-cong~ t~u in
+        u≢bc (_ , _ , _ , _ , _ , _ , u≡bc)
 
   dec~↑′ : ∀ {k l R T}
         → ⊢ Γ ≡ Δ

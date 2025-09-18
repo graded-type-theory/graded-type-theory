@@ -16,6 +16,7 @@ module Definition.Typed.Weakening
 open Type-restrictions R
 
 open import Definition.Untyped M as U hiding (wk; wk′)
+open import Definition.Untyped.Erased 𝕄
 open import Definition.Untyped.Inversion M
 open import Definition.Untyped.Neutral M type-variant
 open import Definition.Untyped.Properties M
@@ -464,9 +465,10 @@ private module Inhabited where
             (PE.subst (_⊢_∷_ _ _) (wk-β B) $
              wkTerm ρ⊇ ⊢Δ ⊢u)
             (wkTerm ρ⊇ ⊢Δ ⊢v) ok
-        ([]-congⱼ ⊢A ⊢t ⊢u ⊢v ok) PE.refl →
-          []-congⱼ (wk ρ⊇ ⊢Δ ⊢A) (wkTerm ρ⊇ ⊢Δ ⊢t) (wkTerm ρ⊇ ⊢Δ ⊢u)
-            (wkTerm ρ⊇ ⊢Δ ⊢v) ok
+        ([]-congⱼ ⊢l ⊢A ⊢t ⊢u ⊢v ok) PE.refl →
+          PE.subst (_⊢_∷_ _ _) (wk-Id-Erased _) $
+          []-congⱼ (wkTerm ρ⊇ ⊢Δ ⊢l) (wkTerm ρ⊇ ⊢Δ ⊢A) (wkTerm ρ⊇ ⊢Δ ⊢t)
+            (wkTerm ρ⊇ ⊢Δ ⊢u) (wkTerm ρ⊇ ⊢Δ ⊢v) ok
       where
       open Variants hyp
 
@@ -800,11 +802,15 @@ private module Inhabited where
             (PE.subst (_⊢_∷_ _ _) (wk-β B) $
              wkTerm ρ⊇ ⊢Δ ⊢u)
             ok
-        ([]-cong-cong A₁≡A₂ t₁≡t₂ u₁≡u₂ v₁≡v₂ ok) PE.refl →
-          []-cong-cong (wkEq ρ⊇ ⊢Δ A₁≡A₂) (wkEqTerm ρ⊇ ⊢Δ t₁≡t₂)
-            (wkEqTerm ρ⊇ ⊢Δ u₁≡u₂) (wkEqTerm ρ⊇ ⊢Δ v₁≡v₂) ok
-        ([]-cong-β ⊢t eq ok) PE.refl →
-          []-cong-β (wkTerm ρ⊇ ⊢Δ ⊢t) (PE.cong (U.wk _) eq) ok
+        ([]-cong-cong l₁≡l₂ A₁≡A₂ t₁≡t₂ u₁≡u₂ v₁≡v₂ ok) PE.refl →
+          PE.subst (_⊢_≡_∷_ _ _ _) (wk-Id-Erased _) $
+          []-cong-cong (wkEqTerm ρ⊇ ⊢Δ l₁≡l₂) (wkEqTerm ρ⊇ ⊢Δ A₁≡A₂)
+            (wkEqTerm ρ⊇ ⊢Δ t₁≡t₂) (wkEqTerm ρ⊇ ⊢Δ u₁≡u₂)
+            (wkEqTerm ρ⊇ ⊢Δ v₁≡v₂) ok
+        ([]-cong-β ⊢l ⊢A ⊢t eq ok) PE.refl →
+          PE.subst (_⊢_≡_∷_ _ _ _) (wk-Id-Erased _) $
+          []-cong-β (wkTerm ρ⊇ ⊢Δ ⊢l) (wkTerm ρ⊇ ⊢Δ ⊢A)
+            (wkTerm ρ⊇ ⊢Δ ⊢t) (PE.cong (U.wk _) eq) ok
         (equality-reflection ok ⊢Id ⊢v) PE.refl →
           equality-reflection ok (wk ρ⊇ ⊢Δ ⊢Id) (wkTerm ρ⊇ ⊢Δ ⊢v)
       where
@@ -1056,7 +1062,9 @@ mutual
        wkTerm ρ ⊢u)
       (wkRedTerm ρ ⊢v) ok
   wkRedTerm ρ ([]-cong-subst A t u v ok) =
-    []-cong-subst (wk ρ A) (wkTerm ρ t) (wkTerm ρ u) (wkRedTerm ρ v) ok
+    PE.subst (_⊢_⇒_∷_ _ _ _) (wk-Id-Erased _) $
+    []-cong-subst (wkTerm ρ A) (wkTerm ρ t) (wkTerm ρ u) (wkRedTerm ρ v)
+      ok
   wkRedTerm ρ (J-β {B} ⊢t ⊢t′ t≡t′ ⊢B B≡B ⊢u) =
     PE.subst (_ ⊢ U.wk _ (J _ _ _ _ _ _ _ rfl) ⇒ _ ∷_)
       (PE.sym $ wk-β-doubleSubst _ B _ _) $
@@ -1094,8 +1102,9 @@ mutual
        wkTerm ρ ⊢u)
       ok
   wkRedTerm ρ ([]-cong-β ⊢A ⊢t ⊢t′ t≡t′ ok) =
-    []-cong-β (wk ρ ⊢A) (wkTerm ρ ⊢t) (wkTerm ρ ⊢t′) (wkEqTerm ρ t≡t′)
-      ok
+    PE.subst (_⊢_⇒_∷_ _ _ _) (wk-Id-Erased _) $
+    []-cong-β (wkTerm ρ ⊢A) (wkTerm ρ ⊢t) (wkTerm ρ ⊢t′)
+      (wkEqTerm ρ t≡t′) ok
 
 wkRed* : ρ ∷ʷ Δ ⊇ Γ → Γ ⊢ A ⇒* B → Δ ⊢ U.wk ρ A ⇒* U.wk ρ B
 wkRed* ρ (id A)         = id (wk ρ A)

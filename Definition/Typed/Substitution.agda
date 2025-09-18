@@ -18,6 +18,7 @@ open import Definition.Typed.Properties.Admissible.Sigma R
 import Definition.Typed.Substitution.Primitive R as P
 
 open import Definition.Untyped M
+import Definition.Untyped.Erased 𝕄 as E
 open import Definition.Untyped.Properties M
 
 open import Tools.Function
@@ -145,8 +146,9 @@ opaque
     K-subst (subst-⊢-⇑ ⊢B ⊢σ)
       (PE.subst (_⊢_∷_ _ _) (singleSubstLift B _) (subst-⊢∷ ⊢u ⊢σ))
       (subst-⊢⇒∷ v₁⇒v₂ ⊢σ) ok
-  subst-⊢⇒∷ ([]-cong-subst _ _ _ v₁⇒v₂ ok) ⊢σ =
-    []-cong-subst′ (subst-⊢⇒∷ v₁⇒v₂ ⊢σ) ok
+  subst-⊢⇒∷ ([]-cong-subst ⊢A _ _ v₁⇒v₂ ok) ⊢σ =
+    PE.subst (_⊢_⇒_∷_ _ _ _) (E.Id-Erased-[] _) $
+    []-cong-subst′ (subst-⊢∷ ⊢A ⊢σ) (subst-⊢⇒∷ v₁⇒v₂ ⊢σ) ok
   subst-⊢⇒∷ (J-β {t} {A} {B} _ _ t≡t′ ⊢B _ ⊢u) ⊢σ =
     PE.subst (_⊢_⇒_∷_ _ _ _) (PE.sym $ [,]-[]-commute B) $
     J-β-⇒ (subst-⊢≡∷ t≡t′ (refl-⊢ˢʷ≡∷ ⊢σ))
@@ -159,8 +161,9 @@ opaque
     PE.subst (_⊢_⇒_∷_ _ _ _) (PE.sym $ singleSubstLift B _) $
     K-β (subst-⊢-⇑ ⊢B ⊢σ)
       (PE.subst (_⊢_∷_ _ _) (singleSubstLift B _) (subst-⊢∷ ⊢u ⊢σ)) ok
-  subst-⊢⇒∷ ([]-cong-β _ _ _ t≡t′ ok) ⊢σ =
-    []-cong-β-⇒ (subst-⊢≡∷ t≡t′ (refl-⊢ˢʷ≡∷ ⊢σ)) ok
+  subst-⊢⇒∷ ([]-cong-β ⊢A _ _ t≡t′ ok) ⊢σ =
+    PE.subst (_⊢_⇒_∷_ _ _ _) (E.Id-Erased-[] _) $
+    []-cong-β-⇒ (subst-⊢∷ ⊢A ⊢σ) (subst-⊢≡∷ t≡t′ (refl-⊢ˢʷ≡∷ ⊢σ)) ok
 
 opaque
 

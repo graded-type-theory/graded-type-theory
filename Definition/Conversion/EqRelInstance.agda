@@ -71,7 +71,7 @@ private
   variable
     m n : Nat
     Γ : Con Term n
-    A₁ A₂ B₁ B₂ l l′ t t′ t₁ t₂ u u′ u₁ u₂ v v₁ v₂ w₁ w₂ : Term _
+    A₁ A₂ B₁ B₂ l l′ l₁ l₂ t t′ t₁ t₂ u u′ u₁ u₂ v v₁ v₂ w₁ w₂ : Term _
     ρ : Wk m n
     p p₁ p₂ p′ q q′ q₁ q₂ r r′ : M
     s : Strength
@@ -280,27 +280,31 @@ module Lemmas where
            (trans (sym (subset* C⇒*Id-t₃-t₄)) (sym Id-t₁-t₁≡C)) ok) }
 
     ~-[]-cong :
-      Γ ⊢ A₁ [conv↑] A₂ →
+      Γ ⊢ l₁ [conv↑] l₂ ∷ Level →
+      Γ ⊢ A₁ [conv↑] A₂ ∷ U l₁ →
       Γ ⊢ t₁ [conv↑] t₂ ∷ A₁ →
       Γ ⊢ u₁ [conv↑] u₂ ∷ A₁ →
       Γ ⊢ v₁ ~ v₂ ∷ Id A₁ t₁ u₁ →
       []-cong-allowed s →
       let open Erased s in
-      Γ ⊢ []-cong s A₁ t₁ u₁ v₁ ~ []-cong s A₂ t₂ u₂ v₂ ∷
-        Id (Erased A₁) ([ t₁ ]) ([ u₁ ])
-    ~-[]-cong A₁≡A₂ t₁≡t₂ u₁≡u₂ (↑ Id-t₁-u₁≡B v₁~v₂) ok =
-      case Id-norm (sym Id-t₁-u₁≡B) of λ {
-        (_ , _ , _ , B⇒*Id-t₃-u₃ , A₁≡A₃ , t₁≡t₃ , u₁≡u₃) →
+      Γ ⊢ []-cong s l₁ A₁ t₁ u₁ v₁ ~ []-cong s l₂ A₂ t₂ u₂ v₂ ∷
+        Id (Erased l₁ A₁) [ t₁ ] ([ u₁ ])
+    ~-[]-cong l₁≡l₂ A₁≡A₂ t₁≡t₂ u₁≡u₂ (↑ Id-t₁-u₁≡B v₁~v₂) ok =
+      let _ , _ , _ , B⇒*Id-t₃-u₃ , _ , t₁≡t₃ , u₁≡u₃ =
+            Id-norm (sym Id-t₁-u₁≡B)
+          _ , ⊢A₁ , _ =
+            wf-⊢≡∷ (soundnessConv↑Term A₁≡A₂)
+      in
       ↑ (_⊢_≡_.refl $
          Idⱼ′
-           ([]ⱼ ([]-cong→Erased ok)
+           ([]ⱼ ([]-cong→Erased ok) ⊢A₁
               (syntacticEqTerm t₁≡t₃ .proj₂ .proj₁))
-           ([]ⱼ ([]-cong→Erased ok)
+           ([]ⱼ ([]-cong→Erased ok) ⊢A₁
               (syntacticEqTerm u₁≡u₃ .proj₂ .proj₁)))
-        ([]-cong-cong A₁≡A₂ t₁≡t₂ u₁≡u₂
+        ([]-cong-cong l₁≡l₂ A₁≡A₂ t₁≡t₂ u₁≡u₂
            ([~] _ (B⇒*Id-t₃-u₃ , Idₙ) v₁~v₂)
            (trans (sym (subset* B⇒*Id-t₃-u₃)) (sym Id-t₁-u₁≡B))
-           ok) }
+           ok)
 
   ~-sym : ∀ {k l A} → Γ ⊢ k ~ l ∷ A → Γ ⊢ l ~ k ∷ A
   ~-sym x@(↑ A≡B _) = sym~∷ (reflConEq (wfEq A≡B)) x

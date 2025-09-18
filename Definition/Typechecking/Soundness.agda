@@ -170,10 +170,11 @@ mutual
       ⊢v →
       substType ⊢B ⊢v
     , Kⱼ ⊢B (soundness⇇ ⊢u) ⊢v ok }}}}
-  soundness⇉ _ ([]-congᵢ _ ⊢t ⊢u ⊢v ok) =
-      Idⱼ′ ([]ⱼ ([]-cong→Erased ok) (soundness⇇ ⊢t))
-        ([]ⱼ ([]-cong→Erased ok) (soundness⇇ ⊢u))
-    , []-congⱼ′ ok (soundness⇇ ⊢v)
+  soundness⇉ _ ([]-congᵢ _ ⊢A ⊢t ⊢u ⊢v ok) =
+    let ⊢A = soundness⇇ ⊢A in
+    Idⱼ′ ([]ⱼ ([]-cong→Erased ok) ⊢A (soundness⇇ ⊢t))
+      ([]ⱼ ([]-cong→Erased ok) ⊢A (soundness⇇ ⊢u)) ,
+    []-congⱼ′ ok ⊢A (soundness⇇ ⊢v)
 
   soundness⇇ : Γ ⊢ t ⇇ A → Γ ⊢ t ∷ A
   soundness⇇ (liftᶜ A↘Lift t⇇B) =

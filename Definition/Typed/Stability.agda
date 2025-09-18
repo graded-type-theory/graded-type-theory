@@ -328,7 +328,7 @@ opaque
       (stability (Γ≡Δ ∙ refl (Idⱼ′ ⊢t ⊢t)) ⊢B) (stabilityTerm Γ≡Δ ⊢u)
       (stabilityRedTerm Γ≡Δ v₁⇒v₂) ok
   stabilityRedTerm Γ≡Δ ([]-cong-subst ⊢A ⊢t ⊢u v₁⇒v₂ ok) =
-    []-cong-subst (stability Γ≡Δ ⊢A) (stabilityTerm Γ≡Δ ⊢t)
+    []-cong-subst (stabilityTerm Γ≡Δ ⊢A) (stabilityTerm Γ≡Δ ⊢t)
       (stabilityTerm Γ≡Δ ⊢u) (stabilityRedTerm Γ≡Δ v₁⇒v₂) ok
   stabilityRedTerm Γ≡Δ (J-β ⊢t ⊢t′ t≡t′ ⊢B ⊢B[t,rfl]≡B[t′,rfl] ⊢u) =
     let ⊢A = ⊢∙→⊢ (wf (⊢∙→⊢ (wf ⊢B))) in
@@ -342,7 +342,7 @@ opaque
     K-β (stability (Γ≡Δ ∙ refl (Idⱼ′ ⊢t ⊢t)) ⊢B)
       (stabilityTerm Γ≡Δ ⊢u) ok
   stabilityRedTerm Γ≡Δ ([]-cong-β ⊢A ⊢t ⊢t′ t≡t′ ok) =
-    []-cong-β (stability Γ≡Δ ⊢A) (stabilityTerm Γ≡Δ ⊢t)
+    []-cong-β (stabilityTerm Γ≡Δ ⊢A) (stabilityTerm Γ≡Δ ⊢t)
       (stabilityTerm Γ≡Δ ⊢t′) (stabilityEqTerm Γ≡Δ t≡t′) ok
 
 opaque

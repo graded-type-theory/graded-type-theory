@@ -123,9 +123,9 @@ opaque mutual
         ⊢w
     (Kⱼ ⊢B _ ⊢v _) →
       subst-⊢ ⊢B (⊢ˢʷ∷-sgSubst ⊢v)
-    ([]-congⱼ ⊢A ⊢t ⊢u _ ok) →
+    ([]-congⱼ ⊢l ⊢A ⊢t ⊢u _ ok) →
       let open Erased ([]-cong→Erased ok) in
-      Idⱼ (Erasedⱼ ⊢A) ([]ⱼ ⊢A ⊢t) ([]ⱼ ⊢A ⊢u)
+      Idⱼ (Erasedⱼ ⊢l ⊢A) ([]ⱼ ⊢l ⊢A ⊢t) ([]ⱼ ⊢l ⊢A ⊢u)
 
   -- A well-formedness lemma for _⊢_≡_.
 
@@ -473,28 +473,30 @@ opaque mutual
     (K-β ⊢B ⊢u ok) →
       let _ , (⊢t , _) , _ = inversion-Id-⊢ (⊢∙→⊢ (wf ⊢B)) in
       wf-⊢∷ ⊢u , Kⱼ ⊢B ⊢u (rflⱼ ⊢t) ok , ⊢u
-    ([]-cong-cong A₁≡A₂ t₁≡t₂ u₁≡u₂ v₁≡v₂ ok) →
+    ([]-cong-cong l₁≡l₂ A₁≡A₂ t₁≡t₂ u₁≡u₂ v₁≡v₂ ok) →
       let open Erased ([]-cong→Erased ok)
-          ⊢A₁ , ⊢A₂     = wf-⊢≡ A₁≡A₂
+          _ , ⊢l₁ , ⊢l₂ = wf-⊢≡∷ l₁≡l₂
+          _ , ⊢A₁ , ⊢A₂ = wf-⊢≡∷ A₁≡A₂
           _ , ⊢t₁ , ⊢t₂ = wf-⊢≡∷ t₁≡t₂
           _ , ⊢u₁ , ⊢u₂ = wf-⊢≡∷ u₁≡u₂
           _ , ⊢v₁ , ⊢v₂ = wf-⊢≡∷ v₁≡v₂
       in
-      Idⱼ (Erasedⱼ ⊢A₁) ([]ⱼ ⊢A₁ ⊢t₁) ([]ⱼ ⊢A₁ ⊢u₁) ,
-      []-congⱼ ⊢A₁ ⊢t₁ ⊢u₁ ⊢v₁ ok ,
+      Idⱼ (Erasedⱼ ⊢l₁ ⊢A₁) ([]ⱼ ⊢l₁ ⊢A₁ ⊢t₁) ([]ⱼ ⊢l₁ ⊢A₁ ⊢u₁) ,
+      []-congⱼ ⊢l₁ ⊢A₁ ⊢t₁ ⊢u₁ ⊢v₁ ok ,
       conv
-        ([]-congⱼ ⊢A₂ (conv ⊢t₂ A₁≡A₂) (conv ⊢u₂ A₁≡A₂)
-           (conv ⊢v₂ (Id-cong A₁≡A₂ t₁≡t₂ u₁≡u₂)) ok)
+        ([]-congⱼ ⊢l₂ (conv ⊢A₂ (U-cong l₁≡l₂)) (conv ⊢t₂ (univ A₁≡A₂))
+           (conv ⊢u₂ (univ A₁≡A₂))
+           (conv ⊢v₂ (Id-cong (univ A₁≡A₂) t₁≡t₂ u₁≡u₂)) ok)
         (_⊢_≡_.sym $
-         Id-cong (Erased-cong ⊢A₁ A₁≡A₂) ([]-cong′ ⊢A₁ t₁≡t₂)
-           ([]-cong′ ⊢A₁ u₁≡u₂))
-    ([]-cong-β ⊢t PE.refl ok) →
+         Id-cong (Erased-cong ⊢l₁ l₁≡l₂ (univ ⊢A₁) A₁≡A₂)
+           ([]-cong′ ⊢l₁ ⊢A₁ ⊢t₁ ⊢t₂ t₁≡t₂)
+           ([]-cong′ ⊢l₁ ⊢A₁ ⊢u₁ ⊢u₂ u₁≡u₂))
+    ([]-cong-β ⊢l ⊢A ⊢t PE.refl ok) →
       let open Erased ([]-cong→Erased ok)
-          ⊢A   = wf-⊢∷ ⊢t
-          ⊢[t] = []ⱼ ⊢A ⊢t
+          ⊢[t] = []ⱼ ⊢l ⊢A ⊢t
       in
-      Idⱼ (Erasedⱼ ⊢A) ⊢[t] ⊢[t] ,
-      []-congⱼ ⊢A ⊢t ⊢t (rflⱼ ⊢t) ok ,
+      Idⱼ (Erasedⱼ ⊢l ⊢A) ⊢[t] ⊢[t] ,
+      []-congⱼ ⊢l ⊢A ⊢t ⊢t (rflⱼ ⊢t) ok ,
       rflⱼ ⊢[t]
     (equality-reflection _ ⊢Id _) →
       inversion-Id ⊢Id

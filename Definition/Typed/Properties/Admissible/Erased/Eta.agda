@@ -18,24 +18,28 @@ open Type-restrictions R
 
 open import Definition.Typed R
 import Definition.Typed.Properties.Admissible.Erased.Primitive R as ET
+open import Definition.Typed.Properties.Admissible.Lift R
 open import Definition.Typed.Properties.Admissible.Sigma R
 open import Definition.Typed.Properties.Well-formed R
 open import Definition.Typed.Inversion R
+open import Definition.Typed.Substitution.Primitive R
 open import Definition.Typed.Well-formed R
 
 open import Definition.Untyped M hiding (_[_])
 open import Definition.Untyped.Erased 𝕄 𝕤 hiding (erased)
 open import Definition.Untyped.Erased.Eta 𝕄
+open import Definition.Untyped.Properties M
 
 open import Tools.Function
 import Tools.PropositionalEquality as PE
 open import Tools.Sum
 
 private variable
-  Γ       : Con Term _
-  A B t u : Term _
+  Γ         : Con Term _
+  A B l t u : Term _
 
 opaque
+  unfolding erased [_]
 
   -- A β-rule for Erased.
 
@@ -44,54 +48,72 @@ opaque
     Γ ⊢ t ∷ A →
     Γ ⊢ erased [ t ] ≡ t ∷ A
   Erased-β (Unit-ok , Σ-ok) ⊢t =
-    let ⊢A = wf-⊢∷ ⊢t in
-    Σ-β₁-≡ (Unitⱼ (∙ ⊢A) Unit-ok) ⊢t (starⱼ (wf ⊢A) Unit-ok) Σ-ok
+    let ⊢A = wf-⊢∷ ⊢t
+        ⊢Γ = wf ⊢A
+    in
+    Σ-β₁-≡ (Liftⱼ (zeroᵘⱼ (∙ ⊢A)) (Unitⱼ (∙ ⊢A) Unit-ok)) ⊢t
+      (liftⱼ′ (zeroᵘⱼ ⊢Γ) (starⱼ ⊢Γ Unit-ok)) Σ-ok
 
 opaque
+  unfolding Erased erased
 
   -- An elimination rule for Erased.
 
-  erasedⱼ : Γ ⊢ t ∷ Erased A → Γ ⊢ erased t ∷ A
+  erasedⱼ : Γ ⊢ t ∷ Erased l A → Γ ⊢ erased t ∷ A
   erasedⱼ ⊢t = fstⱼ′ ⊢t
 
 opaque
+  unfolding Erased erased
 
   -- A corresponding congruence rule.
 
-  erased-cong : Γ ⊢ t ≡ u ∷ Erased A → Γ ⊢ erased t ≡ erased u ∷ A
+  erased-cong : Γ ⊢ t ≡ u ∷ Erased l A → Γ ⊢ erased t ≡ erased u ∷ A
   erased-cong t≡u = fst-cong′ t≡u
 
 opaque
+  unfolding Erased erased
 
   -- A definitional η-rule for Erased.
 
   Erased-η-≡ :
-    Γ ⊢ t ∷ Erased A →
-    Γ ⊢ u ∷ Erased A →
+    Γ ⊢ t ∷ Erased l A →
+    Γ ⊢ u ∷ Erased l A →
     Γ ⊢ erased t ≡ erased u ∷ A →
-    Γ ⊢ t ≡ u ∷ Erased A
-  Erased-η-≡ ⊢t ⊢u t≡u =
-    let ⊢Γ            = wfTerm ⊢t
-        _ , ⊢Unit , _ = inversion-ΠΣ (wf-⊢∷ ⊢t)
-        Unit-ok       = inversion-Unit ⊢Unit
+    Γ ⊢ t ≡ u ∷ Erased l A
+  Erased-η-≡ {l} ⊢t ⊢u t≡u =
+    let Unit-ok =
+          inversion-Unit $
+          inversion-Lift (inversion-ΠΣ (wf-⊢∷ ⊢t) .proj₂ .proj₁) .proj₂
     in
-    Σ-η′ ⊢t ⊢u t≡u (η-unit (sndⱼ′ ⊢t) (sndⱼ′ ⊢u) Unit-ok (inj₁ PE.refl))
+    Σ-η′ ⊢t ⊢u t≡u $
+    Lift-η′
+      (sndⱼ′ ⊢t)
+      (PE.subst (_⊢_∷_ _ _)
+         (PE.cong (flip Lift _) $
+          PE.trans (wk1-sgSubst l _) $ PE.sym $ wk1-sgSubst _ _) $
+       sndⱼ′ ⊢u) $
+    η-unit (lowerⱼ (sndⱼ′ ⊢t)) (lowerⱼ (sndⱼ′ ⊢u)) Unit-ok (inj₁ PE.refl)
 
 opaque
+  unfolding Erased
 
-  -- An instance of the η-rule.
+  -- Another kind of η-rule.
 
   [erased] :
-    Γ ⊢ t ∷ Erased A →
-    Γ ⊢ [ erased t ] ≡ t ∷ Erased A
-  [erased] ⊢t =
-    let ⊢A , ⊢Unit , Σˢ-ok = inversion-ΠΣ (wf-⊢∷ ⊢t)
-        Erased-ok          = inversion-Unit ⊢Unit , Σˢ-ok
+    Γ ⊢ A ∷ U l →
+    Γ ⊢ t ∷ Erased l A →
+    Γ ⊢ [ erased t ] ≡ t ∷ Erased l A
+  [erased] ⊢A ⊢t =
+    let _ , ⊢Lift-Unit , Σ-ok = inversion-ΠΣ (wf-⊢∷ ⊢t)
+        _ , ⊢Unit             = inversion-Lift ⊢Lift-Unit
+        Erased-ok             = inversion-Unit ⊢Unit , Σ-ok
+        ⊢l                    = inversion-U-Level (wf-⊢∷ ⊢A)
     in
-    Erased-η-≡ (ET.[]ⱼ Erased-ok ⊢A (erasedⱼ ⊢t)) ⊢t $
+    Erased-η-≡ (ET.[]ⱼ Erased-ok ⊢l ⊢A (erasedⱼ ⊢t)) ⊢t $
     Erased-β Erased-ok (erasedⱼ ⊢t)
 
 opaque
+  unfolding erased
 
   -- An inversion lemma for erased.
   --

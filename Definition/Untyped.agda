@@ -83,7 +83,7 @@ data Term (n : Nat) : Set a where
       Term n
   K : (p : M) (A t : Term n) (B : Term (1+ n)) (u v : Term n) →
       Term n
-  []-cong : Strength → (A t u v : Term n) → Term n
+  []-cong : Strength → (l A t u v : Term n) → Term n
 
 pattern Unit! = Unit _
 pattern Unitʷ = Unit 𝕨
@@ -105,9 +105,9 @@ pattern star! = star _
 pattern starʷ = star 𝕨
 pattern starˢ = star 𝕤
 
-pattern []-cong! A t u v = []-cong _ A t u v
-pattern []-congʷ A t u v = []-cong 𝕨 A t u v
-pattern []-congˢ A t u v = []-cong 𝕤 A t u v
+pattern []-cong! l A t u v = []-cong _ l A t u v
+pattern []-congʷ l A t u v = []-cong 𝕨 l A t u v
+pattern []-congˢ l A t u v = []-cong 𝕤 l A t u v
 
 private variable
   t : Term _
@@ -197,7 +197,7 @@ data Kind : (ns : List Nat) → Set a where
   Reflkind    : Kind []
   Jkind       : M → M → Kind (0 ∷ 0 ∷ 2 ∷ 0 ∷ 0 ∷ 0 ∷ [])
   Kkind       : M → Kind (0 ∷ 0 ∷ 1 ∷ 0 ∷ 0 ∷ [])
-  Boxcongkind : Strength → Kind (0 ∷ 0 ∷ 0 ∷ 0 ∷ [])
+  Boxcongkind : Strength → Kind (0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ [])
 
 -- In the alternative term representations, a term is either a
 -- variable (de Bruijn index) or a "generic"
@@ -277,8 +277,8 @@ toTerm (gen (Jkind p q) (A ∷ₜ t ∷ₜ B ∷ₜ u ∷ₜ v ∷ₜ w ∷ₜ [
   J p q (toTerm A) (toTerm t) (toTerm B) (toTerm u) (toTerm v) (toTerm w)
 toTerm (gen (Kkind p) (A ∷ₜ t ∷ₜ B ∷ₜ u ∷ₜ v ∷ₜ [])) =
   K p (toTerm A) (toTerm t) (toTerm B) (toTerm u) (toTerm v)
-toTerm (gen (Boxcongkind s) (A ∷ₜ t ∷ₜ u ∷ₜ v ∷ₜ [])) =
-  []-cong s (toTerm A) (toTerm t) (toTerm u) (toTerm v)
+toTerm (gen (Boxcongkind s) (l ∷ₜ A ∷ₜ t ∷ₜ u ∷ₜ v ∷ₜ [])) =
+  []-cong s (toTerm l) (toTerm A) (toTerm t) (toTerm u) (toTerm v)
 
 -- Converting to the alternative syntax.
 
@@ -348,10 +348,10 @@ fromTerm (K p A t B u v) =
   gen (Kkind p)
     (fromTerm A ∷ₜ fromTerm t ∷ₜ fromTerm B
                 ∷ₜ fromTerm u ∷ₜ fromTerm v ∷ₜ [])
-fromTerm ([]-cong s A t u v) =
+fromTerm ([]-cong s l A t u v) =
   gen (Boxcongkind s)
-    (fromTerm A ∷ₜ fromTerm t ∷ₜ fromTerm u
-                ∷ₜ fromTerm v ∷ₜ [])
+    (fromTerm l ∷ₜ fromTerm A ∷ₜ fromTerm t ∷ₜ fromTerm u ∷ₜ
+     fromTerm v ∷ₜ [])
 
 ------------------------------------------------------------------------
 -- Weakening
@@ -395,8 +395,8 @@ wk ρ (J p q A t B u v w) =
   J p q (wk ρ A) (wk ρ t) (wk (liftn ρ 2) B) (wk ρ u) (wk ρ v) (wk ρ w)
 wk ρ (K p A t B u v) =
   K p (wk ρ A) (wk ρ t) (wk (lift ρ) B) (wk ρ u) (wk ρ v)
-wk ρ ([]-cong s A t u v) =
-  []-cong s (wk ρ A) (wk ρ t) (wk ρ u) (wk ρ v)
+wk ρ ([]-cong s l A t u v) =
+  []-cong s (wk ρ l) (wk ρ A) (wk ρ t) (wk ρ u) (wk ρ v)
 
 -- Weakening for the alternative term representation.
 
@@ -574,8 +574,8 @@ J p q A t B u v w [ σ ] =
     (w [ σ ])
 K p A t B u v [ σ ] =
   K p (A [ σ ]) (t [ σ ]) (B [ σ ⇑ ]) (u [ σ ]) (v [ σ ])
-[]-cong s A t u v [ σ ] =
-  []-cong s (A [ σ ]) (t [ σ ]) (u [ σ ]) (v [ σ ])
+[]-cong s l A t u v [ σ ] =
+  []-cong s (l [ σ ]) (A [ σ ]) (t [ σ ]) (u [ σ ]) (v [ σ ])
 
 -- Substitution for the alternative term representation.
 

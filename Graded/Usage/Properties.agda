@@ -435,8 +435,8 @@ opaque
     open CR
   ▸-𝟘 (K₀ₘ₂ _ ▸A ▸t ▸B ▸u ▸v) =
     ▸-𝟘-K ▸A ▸t ▸B ▸u ▸v
-  ▸-𝟘 ([]-congₘ ▸A ▸t ▸u ▸v ok) =
-    []-congₘ ▸A ▸t ▸u ▸v ([]-cong-allowed-·ᵐ ok)
+  ▸-𝟘 ([]-congₘ ▸l ▸A ▸t ▸u ▸v ok) =
+    []-congₘ ▸l ▸A ▸t ▸u ▸v ([]-cong-allowed-·ᵐ ok)
   ▸-𝟘 (sub γ▸t _) =
     ▸-𝟘 γ▸t
 
@@ -700,7 +700,7 @@ opaque
   open CR
 ▸-𝟘ᵐ (K₀ₘ₂ _ _ _ _ γ₄▸ _) =
   ▸-𝟘ᵐ γ₄▸
-▸-𝟘ᵐ ([]-congₘ _ _ _ _ _) =
+▸-𝟘ᵐ ([]-congₘ _ _ _ _ _ _) =
   ≤ᶜ-refl
 ▸-𝟘ᵐ (sub {γ = γ} {δ = δ} γ▸ δ≤γ) = begin
   δ   ≤⟨ δ≤γ ⟩
@@ -1452,10 +1452,10 @@ opaque
     where
     open CR
 
-  Conₘ-interchange {δ} ([]-congₘ ▸A ▸t ▸u ▸v ok) ▸bc x =
+  Conₘ-interchange {δ} ([]-congₘ ▸l ▸A ▸t ▸u ▸v ok) ▸bc x =
     case inv-usage-[]-cong ▸bc of λ
-      (invUsage-[]-cong _ _ _ _ _ δ≤𝟘) → sub
-    ([]-congₘ ▸A ▸t ▸u ▸v ok)
+      (invUsage-[]-cong _ _ _ _ _ _ δ≤𝟘) → sub
+    ([]-congₘ ▸l ▸A ▸t ▸u ▸v ok)
     (begin
        𝟘ᶜ , x ≔ δ ⟨ x ⟩   ≤⟨ update-monotoneʳ _ $ lookup-monotone _ δ≤𝟘 ⟩
        𝟘ᶜ , x ≔ 𝟘ᶜ ⟨ x ⟩  ≡⟨ update-self _ _ ⟩
@@ -1934,7 +1934,7 @@ opaque
   𝟘ᶜ                                                              ∎
   where
   open Tools.Reasoning.Equivalence Conₘ-setoid
-⌈⌉-𝟘ᵐ ([]-cong _ _ _ _ _) =
+⌈⌉-𝟘ᵐ ([]-cong _ _ _ _ _ _) =
   ≈ᶜ-refl
 
 -- The context ⌈ t ⌉ m does not change (up to _≈ᶜ_) if it is
@@ -2169,7 +2169,7 @@ usage-upper-bound ⦃ ok ⦄ ok′ = usage-upper-bound′
   … | is-some-yes ≡some _ = case trans (PE.sym ≡some) ≡all of λ ()
   … | is-all _            = usage-upper-bound′ ▸u
 
-  usage-upper-bound′ ([]-congₘ _ _ _ _ _) =
+  usage-upper-bound′ ([]-congₘ _ _ _ _ _ _) =
     ≤ᶜ-refl
 
   usage-upper-bound′ (sub t x) = ≤ᶜ-trans x (usage-upper-bound′ t)
@@ -2291,8 +2291,8 @@ usage-inf {m} (K₀ₘ₂ {p} ≡all ▸A ▸t ▸B ▸u ▸v) with K-view p m
 … | is-other ≤some _    = case ≤ᵉᵐ→≡all→≡all ≤some ≡all of λ ()
 … | is-some-yes ≡some _ = case trans (PE.sym ≡some) ≡all of λ ()
 … | is-all _            = K₀ₘ₂ ≡all ▸A ▸t ▸B (usage-inf ▸u) ▸v
-usage-inf ([]-congₘ ▸A ▸t ▸u ▸v ok) =
-  []-congₘ ▸A ▸t ▸u ▸v ok
+usage-inf ([]-congₘ ▸l ▸A ▸t ▸u ▸v ok) =
+  []-congₘ ▸l ▸A ▸t ▸u ▸v ok
 usage-inf (sub γ▸t x) = usage-inf γ▸t
 
 ------------------------------------------------------------------------

@@ -25,6 +25,7 @@ open import Definition.Typed.Stability R
 open import Definition.Typed.Substitution R
 open import Definition.Typed.Syntactic R
 open import Definition.Typed.Weakening R as W hiding (wk)
+open import Definition.Typed.Well-formed R
 open import Definition.Conversion R
 open import Definition.Conversion.Soundness R
 open import Definition.Conversion.Conversion R
@@ -206,30 +207,28 @@ mutual
          trans (trans (sym C≡D) C≡Id-t₁-t₁)
            (Id-cong ⊢A₁≡A₂ ⊢t₁≡t₂ ⊢t₁≡t₂))
         ok }}}}}
-  sym~↑ Γ≡Δ ([]-cong-cong A₁≡A₂ t₁≡t₂ u₁≡u₂ v₁~v₂ B≡Id-t₁-u₁ ok) =
-    case sym~↓ Γ≡Δ v₁~v₂ of λ {
-      (_ , _ , B≡C , v₂~v₁) →
-    case soundnessConv↑ A₁≡A₂ of λ {
-      ⊢A₁≡A₂ →
-    case soundnessConv↑Term t₁≡t₂ of λ {
-      ⊢t₁≡t₂ →
-    case soundnessConv↑Term u₁≡u₂ of λ {
-      ⊢u₁≡u₂ →
-    case reflConEq (wfEq ⊢A₁≡A₂) of λ {
-      Γ≡Γ →
-    case []-cong→Erased ok of λ {
-      Erased-ok →
-      _
-    , Id-cong (Erased-cong Erased-ok ⊢A₁≡A₂) ([]-cong′ Erased-ok ⊢t₁≡t₂)
-        ([]-cong′ Erased-ok ⊢u₁≡u₂)
-    , []-cong-cong (symConv↑ Γ≡Δ A₁≡A₂)
-        (convConv↑Term′ Γ≡Δ ⊢A₁≡A₂ (symConv↑Term Γ≡Γ t₁≡t₂))
-        (convConv↑Term′ Γ≡Δ ⊢A₁≡A₂ (symConv↑Term Γ≡Γ u₁≡u₂))
-        v₂~v₁
-        (stabilityEq Γ≡Δ $
-         trans (trans (sym B≡C) B≡Id-t₁-u₁)
-           (Id-cong ⊢A₁≡A₂ ⊢t₁≡t₂ ⊢u₁≡u₂))
-        ok }}}}}}
+  sym~↑ Γ≡Δ ([]-cong-cong l₁≡l₂ A₁≡A₂ t₁≡t₂ u₁≡u₂ v₁~v₂ B≡Id-t₁-u₁ ok) =
+    let _ , _ , B≡C , v₂~v₁ = sym~↓ Γ≡Δ v₁~v₂
+        ⊢l₁≡l₂              = soundnessConv↑Term l₁≡l₂
+        ⊢A₁≡A₂              = soundnessConv↑Term A₁≡A₂
+        _ , ⊢A₁ , _         = wf-⊢≡∷ ⊢A₁≡A₂
+        ⊢t₁≡t₂              = soundnessConv↑Term t₁≡t₂
+        ⊢u₁≡u₂              = soundnessConv↑Term u₁≡u₂
+        Γ≡Γ                 = reflConEq (wfEqTerm ⊢A₁≡A₂)
+        Erased-ok           = []-cong→Erased ok
+    in
+    _ ,
+    Id-cong (Erased-cong Erased-ok ⊢l₁≡l₂ ⊢A₁≡A₂)
+      ([]-cong′ Erased-ok ⊢A₁ ⊢t₁≡t₂) ([]-cong′ Erased-ok ⊢A₁ ⊢u₁≡u₂) ,
+    []-cong-cong (symConv↑Term Γ≡Δ l₁≡l₂)
+      (convConv↑Term′ Γ≡Δ (U-cong ⊢l₁≡l₂) (symConv↑Term Γ≡Γ A₁≡A₂))
+      (convConv↑Term′ Γ≡Δ (univ ⊢A₁≡A₂) (symConv↑Term Γ≡Γ t₁≡t₂))
+      (convConv↑Term′ Γ≡Δ (univ ⊢A₁≡A₂) (symConv↑Term Γ≡Γ u₁≡u₂))
+      v₂~v₁
+      (stabilityEq Γ≡Δ $
+       trans (trans (sym B≡C) B≡Id-t₁-u₁)
+         (Id-cong (univ ⊢A₁≡A₂) ⊢t₁≡t₂ ⊢u₁≡u₂))
+      ok
 
   -- Symmetry of algorithmic equality of neutrals of types in WHNF.
   sym~↓ : ∀ {t u A} → ⊢ Γ ≡ Δ → Γ ⊢ t ~ u ↓ A

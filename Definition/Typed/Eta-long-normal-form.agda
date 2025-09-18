@@ -221,14 +221,15 @@ mutual
                 Γ ⊢ne v ∷ Id A t t →
                 K-allowed →
                 Γ ⊢ne K p A t B u v ∷ B [ v ]₀
-    []-congₙ  : Γ ⊢nf A →
+    []-congₙ  : Γ ⊢nf l ∷ Level →
+                Γ ⊢nf A ∷ U l →
                 Γ ⊢nf t ∷ A →
                 Γ ⊢nf u ∷ A →
                 Γ ⊢ne v ∷ Id A t u →
                 []-cong-allowed s →
                 let open Erased s in
-                Γ ⊢ne []-cong s A t u v ∷
-                  Id (Erased A) ([ t ]) ([ u ])
+                Γ ⊢ne []-cong s l A t u v ∷
+                  Id (Erased l A) ([ t ]) ([ u ])
 
 ------------------------------------------------------------------------
 -- Some conversion functions
@@ -285,24 +286,24 @@ mutual
 
   ⊢ne∷→⊢∷ : Γ ⊢ne t ∷ A → Γ ⊢ t ∷ A
   ⊢ne∷→⊢∷ = λ where
-    (convₙ ⊢t A≡B)           → conv (⊢ne∷→⊢∷ ⊢t) A≡B
-    (varₙ ⊢Γ x∈)             → var ⊢Γ x∈
-    (∘ₙ ⊢t ⊢u)               → ⊢ne∷→⊢∷ ⊢t ∘ⱼ ⊢nf∷→⊢∷ ⊢u
-    (lowerₙ ⊢t)              → lowerⱼ (⊢ne∷→⊢∷ ⊢t)
-    (fstₙ ⊢B ⊢t)             → fstⱼ ⊢B (⊢ne∷→⊢∷ ⊢t)
-    (sndₙ ⊢B ⊢t)             → sndⱼ ⊢B (⊢ne∷→⊢∷ ⊢t)
-    (prodrecₙ ⊢C ⊢t ⊢u ok)   → prodrecⱼ (⊢nf→⊢ ⊢C) (⊢ne∷→⊢∷ ⊢t)
-                                 (⊢nf∷→⊢∷ ⊢u) ok
-    (emptyrecₙ ⊢A ⊢t)        → emptyrecⱼ (⊢nf→⊢ ⊢A) (⊢ne∷→⊢∷ ⊢t)
-    (natrecₙ _ ⊢t ⊢u ⊢v)     → natrecⱼ (⊢nf∷→⊢∷ ⊢t) (⊢nf∷→⊢∷ ⊢u)
-                                 (⊢ne∷→⊢∷ ⊢v)
-    (unitrecₙ ⊢A ⊢t ⊢u ok _) → unitrecⱼ (⊢nf→⊢ ⊢A) (⊢ne∷→⊢∷ ⊢t)
-                                 (⊢nf∷→⊢∷ ⊢u) ok
-    (Jₙ _ ⊢t ⊢B ⊢u ⊢v ⊢w)    → Jⱼ (⊢nf∷→⊢∷ ⊢t) (⊢nf→⊢ ⊢B) (⊢nf∷→⊢∷ ⊢u)
-                                 (⊢nf∷→⊢∷ ⊢v) (⊢ne∷→⊢∷ ⊢w)
-    (Kₙ _ _ ⊢B ⊢u ⊢v ok)     → Kⱼ (⊢nf→⊢ ⊢B) (⊢nf∷→⊢∷ ⊢u) (⊢ne∷→⊢∷ ⊢v)
-                                 ok
-    ([]-congₙ _ _ _ ⊢v ok)   → []-congⱼ′ ok (⊢ne∷→⊢∷ ⊢v)
+    (convₙ ⊢t A≡B)            → conv (⊢ne∷→⊢∷ ⊢t) A≡B
+    (varₙ ⊢Γ x∈)              → var ⊢Γ x∈
+    (∘ₙ ⊢t ⊢u)                → ⊢ne∷→⊢∷ ⊢t ∘ⱼ ⊢nf∷→⊢∷ ⊢u
+    (lowerₙ ⊢t)               → lowerⱼ (⊢ne∷→⊢∷ ⊢t)
+    (fstₙ ⊢B ⊢t)              → fstⱼ ⊢B (⊢ne∷→⊢∷ ⊢t)
+    (sndₙ ⊢B ⊢t)              → sndⱼ ⊢B (⊢ne∷→⊢∷ ⊢t)
+    (prodrecₙ ⊢C ⊢t ⊢u ok)    → prodrecⱼ (⊢nf→⊢ ⊢C) (⊢ne∷→⊢∷ ⊢t)
+                                  (⊢nf∷→⊢∷ ⊢u) ok
+    (emptyrecₙ ⊢A ⊢t)         → emptyrecⱼ (⊢nf→⊢ ⊢A) (⊢ne∷→⊢∷ ⊢t)
+    (natrecₙ _ ⊢t ⊢u ⊢v)      → natrecⱼ (⊢nf∷→⊢∷ ⊢t) (⊢nf∷→⊢∷ ⊢u)
+                                  (⊢ne∷→⊢∷ ⊢v)
+    (unitrecₙ ⊢A ⊢t ⊢u ok _)  → unitrecⱼ (⊢nf→⊢ ⊢A) (⊢ne∷→⊢∷ ⊢t)
+                                  (⊢nf∷→⊢∷ ⊢u) ok
+    (Jₙ _ ⊢t ⊢B ⊢u ⊢v ⊢w)     → Jⱼ (⊢nf∷→⊢∷ ⊢t) (⊢nf→⊢ ⊢B) (⊢nf∷→⊢∷ ⊢u)
+                                  (⊢nf∷→⊢∷ ⊢v) (⊢ne∷→⊢∷ ⊢w)
+    (Kₙ _ _ ⊢B ⊢u ⊢v ok)      → Kⱼ (⊢nf→⊢ ⊢B) (⊢nf∷→⊢∷ ⊢u) (⊢ne∷→⊢∷ ⊢v)
+                                  ok
+    ([]-congₙ _ ⊢A _ _ ⊢v ok) → []-congⱼ′ ok (⊢nf∷→⊢∷ ⊢A) (⊢ne∷→⊢∷ ⊢v)
 
 mutual
 
@@ -376,8 +377,9 @@ mutual
     (Kₙ ⊢A ⊢t ⊢B ⊢u ⊢v _)        → Kₙ (⊢nf→Nf ⊢A) (⊢nf∷→Nf ⊢t)
                                      (⊢nf→Nf ⊢B) (⊢nf∷→Nf ⊢u)
                                      (⊢ne∷→NfNeutral ⊢v)
-    ([]-congₙ ⊢A ⊢t ⊢u ⊢v _)     → []-congₙ (⊢nf→Nf ⊢A) (⊢nf∷→Nf ⊢t)
-                                     (⊢nf∷→Nf ⊢u) (⊢ne∷→NfNeutral ⊢v)
+    ([]-congₙ ⊢l ⊢A ⊢t ⊢u ⊢v _)  → []-congₙ (⊢nf∷→Nf ⊢l) (⊢nf∷→Nf ⊢A)
+                                     (⊢nf∷→Nf ⊢t) (⊢nf∷→Nf ⊢u)
+                                     (⊢ne∷→NfNeutral ⊢v)
 
 ------------------------------------------------------------------------
 -- A lemma
@@ -562,8 +564,9 @@ mutual
         (⊢nf∷-stable Γ≡Δ ⊢u)
         (⊢ne∷-stable Γ≡Δ ⊢v)
         ok
-      ([]-congₙ ⊢A ⊢t ⊢u ⊢v ok) → []-congₙ
-        (⊢nf-stable Γ≡Δ ⊢A)
+      ([]-congₙ ⊢l ⊢A ⊢t ⊢u ⊢v ok) → []-congₙ
+        (⊢nf∷-stable Γ≡Δ ⊢l)
+        (⊢nf∷-stable Γ≡Δ ⊢A)
         (⊢nf∷-stable Γ≡Δ ⊢t)
         (⊢nf∷-stable Γ≡Δ ⊢u)
         (⊢ne∷-stable Γ≡Δ ⊢v)
@@ -1020,53 +1023,58 @@ opaque
 opaque
 
   inversion-ne-[]-cong :
-    Γ ⊢ne []-cong s A t u v ∷ B →
+    Γ ⊢ne []-cong s l A t u v ∷ B →
     let open Erased s in
-    (Γ ⊢nf A) ×
+    Γ ⊢nf l ∷ Level ×
+    Γ ⊢nf A ∷ U l ×
     Γ ⊢nf t ∷ A ×
     Γ ⊢nf u ∷ A ×
     Γ ⊢ne v ∷ Id A t u ×
     []-cong-allowed s ×
-    Γ ⊢ B ≡ Id (Erased A) ([ t ]) ([ u ])
+    Γ ⊢ B ≡ Id (Erased l A) [ t ] ([ u ])
   inversion-ne-[]-cong = λ where
-    ⊢[]-cong@([]-congₙ ⊢A ⊢t ⊢u ⊢v ok) →
-        ⊢A , ⊢t , ⊢u , ⊢v , ok
-      , refl (syntacticTerm (⊢ne∷→⊢∷ ⊢[]-cong))
+    ⊢[]-cong@([]-congₙ ⊢l ⊢A ⊢t ⊢u ⊢v ok) →
+      ⊢l , ⊢A , ⊢t , ⊢u , ⊢v , ok ,
+      refl (syntacticTerm (⊢ne∷→⊢∷ ⊢[]-cong))
     (convₙ ⊢[]-cong C≡B) →
-      case inversion-ne-[]-cong ⊢[]-cong of λ {
-        (⊢A , ⊢t , ⊢u , ⊢v , ok , C≡Id) →
-      ⊢A , ⊢t , ⊢u , ⊢v , ok , trans (sym C≡B) C≡Id }
+      let ⊢l , ⊢A , ⊢t , ⊢u , ⊢v , ok , C≡Id =
+            inversion-ne-[]-cong ⊢[]-cong
+      in
+      ⊢l , ⊢A , ⊢t , ⊢u , ⊢v , ok , trans (sym C≡B) C≡Id
 
 opaque
 
   inversion-nf-[]-cong :
-    Γ ⊢nf []-cong s A t u v ∷ B →
+    Γ ⊢nf []-cong s l A t u v ∷ B →
     let open Erased s in
-    (Γ ⊢nf A) ×
+    Γ ⊢nf l ∷ Level ×
+    Γ ⊢nf A ∷ U l ×
     Γ ⊢nf t ∷ A ×
     Γ ⊢nf u ∷ A ×
     Γ ⊢ne v ∷ Id A t u ×
     []-cong-allowed s ×
-    Γ ⊢ B ≡ Id (Erased A) ([ t ]) ([ u ])
+    Γ ⊢ B ≡ Id (Erased l A) [ t ] ([ u ])
   inversion-nf-[]-cong = λ where
     (neₙ _ (neₙ ⊢[]-cong)) →
       inversion-ne-[]-cong ⊢[]-cong
     (convₙ ⊢[]-cong C≡B) →
-      case inversion-nf-[]-cong ⊢[]-cong of λ {
-        (⊢A , ⊢t , ⊢u , ⊢v , ok , C≡Id) →
-      ⊢A , ⊢t , ⊢u , ⊢v , ok , trans (sym C≡B) C≡Id }
+      let ⊢l , ⊢A , ⊢t , ⊢u , ⊢v , ok , C≡Id =
+            inversion-nf-[]-cong ⊢[]-cong
+      in
+      ⊢l , ⊢A , ⊢t , ⊢u , ⊢v , ok , trans (sym C≡B) C≡Id
 
 opaque
 
   inversion-nf-ne-[]-cong :
-    Γ ⊢nf []-cong s A t u v ∷ B ⊎ Γ ⊢ne []-cong s A t u v ∷ B →
+    Γ ⊢nf []-cong s l A t u v ∷ B ⊎ Γ ⊢ne []-cong s l A t u v ∷ B →
     let open Erased s in
-    (Γ ⊢nf A) ×
+    Γ ⊢nf l ∷ Level ×
+    Γ ⊢nf A ∷ U l ×
     Γ ⊢nf t ∷ A ×
     Γ ⊢nf u ∷ A ×
     Γ ⊢ne v ∷ Id A t u ×
     []-cong-allowed s ×
-    Γ ⊢ B ≡ Id (Erased A) ([ t ]) ([ u ])
+    Γ ⊢ B ≡ Id (Erased l A) [ t ] ([ u ])
   inversion-nf-ne-[]-cong = λ where
     (inj₁ ⊢[]-cong) → inversion-nf-[]-cong ⊢[]-cong
     (inj₂ ⊢[]-cong) → inversion-ne-[]-cong ⊢[]-cong

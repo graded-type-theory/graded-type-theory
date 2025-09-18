@@ -169,8 +169,8 @@ opaque
   -- An inversion lemma related to []-cong.
 
   inv-⇒-[]-cong :
-    Γ ⊢ []-cong s A t u v ⇒ w ∷ C →
-    (∃₂ λ v′ D → Γ ⊢ v ⇒ v′ ∷ D × w PE.≡ []-cong s A t u v′) ⊎
+    Γ ⊢ []-cong s l A t u v ⇒ w ∷ C →
+    (∃₂ λ v′ D → Γ ⊢ v ⇒ v′ ∷ D × w PE.≡ []-cong s l A t u v′) ⊎
     v PE.≡ rfl × w PE.≡ rfl
   inv-⇒-[]-cong (conv d _) =
     inv-⇒-[]-cong d
@@ -226,7 +226,8 @@ opaque
     let (⊢A , _) , (⊢t , _) , _ = inversion-Id-⊢ (⊢∙→⊢ (wf ⊢B)) in
     K-cong (refl ⊢A) (refl ⊢t) (refl ⊢B) (refl ⊢u) (subsetTerm v⇒v′) ok
   subsetTerm ([]-cong-subst ⊢A ⊢t ⊢u v⇒v′ ok) =
-    []-cong-cong (refl ⊢A) (refl ⊢t) (refl ⊢u) (subsetTerm v⇒v′) ok
+    []-cong-cong (refl (inversion-U-Level (wf-⊢∷ ⊢A))) (refl ⊢A)
+      (refl ⊢t) (refl ⊢u) (subsetTerm v⇒v′) ok
   subsetTerm (J-β {t} {A} {t′} {B} {u} {p} {q} ⊢t _ t≡t′ ⊢B _ ⊢u) =
     J p q A t B u t′ rfl  ≡⟨ sym′ $
                              J-cong (refl (⊢∙→⊢ (wf (⊢∙→⊢ (wf ⊢B)))))
@@ -235,14 +236,16 @@ opaque
     u                     ∎
   subsetTerm (K-β ⊢B ⊢u ok) =
     K-β ⊢B ⊢u ok
-  subsetTerm ([]-cong-β ⊢A ⊢t _ t≡t′ ok) =
+  subsetTerm ([]-cong-β ⊢A ⊢t ⊢t′ t≡t′ ok) =
+    let ⊢l = inversion-U-Level (wf-⊢∷ ⊢A) in
     trans
-      ([]-cong-cong (refl ⊢A) (refl ⊢t) (sym′ t≡t′)
-         (conv (refl (rflⱼ ⊢t)) (Id-cong (refl ⊢A) (refl ⊢t) t≡t′))
+      ([]-cong-cong (refl ⊢l) (refl ⊢A) (refl ⊢t) (sym′ t≡t′)
+         (_⊢_≡_∷_.conv (refl (rflⱼ ⊢t)) $
+          Id-cong (refl (univ ⊢A)) (refl ⊢t) t≡t′)
          ok)
-      (conv ([]-cong-β ⊢t PE.refl ok)
-         (Id-cong (refl (Erasedⱼ ⊢A)) (refl ([]ⱼ ⊢A ⊢t))
-            ([]-cong′ ⊢A t≡t′)))
+      (conv ([]-cong-β ⊢l ⊢A ⊢t PE.refl ok)
+         (Id-cong (refl (Erasedⱼ ⊢l ⊢A)) (refl ([]ⱼ ⊢l ⊢A ⊢t))
+            ([]-cong′ ⊢l ⊢A ⊢t ⊢t′ t≡t′)))
     where
     open EP ([]-cong→Erased ok)
   subsetTerm (unitrec-subst A u t⇒t′ ok no-η) =
@@ -651,7 +654,7 @@ opaque
     ([]-cong-subst _ _ _ d _) d′ →
       case inv-⇒-[]-cong d′ of λ where
         (inj₁ (_ , _ , d′ , PE.refl)) →
-          PE.cong ([]-cong _ _ _ _) (whrDetTerm d d′)
+          PE.cong ([]-cong _ _ _ _ _) (whrDetTerm d d′)
         (inj₂ (PE.refl , _)) → ⊥-elim (whnfRedTerm d rflₙ)
     ([]-cong-β _ _ _ _ _) d′ →
       case inv-⇒-[]-cong d′ of λ where

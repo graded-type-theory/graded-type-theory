@@ -114,13 +114,13 @@ import Definition.Typed.Reasoning.Term.Primitive
 import Definition.Typed.Properties.Admissible.Var
 import Definition.Typed.Properties.Well-formed
 import Definition.Typed.Inversion.Primitive
-import Definition.Typed.Properties.Admissible.Erased.Primitive
 import Definition.Typed.Weakening
 import Definition.Typed.Stability.Primitive
 import Definition.Typed.Substitution.Primitive.Primitive
 import Definition.Typed.Properties.Admissible.Lift.Primitive
 import Definition.Typed.Properties.Admissible.Pi-Sigma.Primitive
 import Definition.Typed.Properties.Admissible.Sigma.Primitive
+import Definition.Typed.Properties.Admissible.Erased.Primitive
 import Definition.Typed.Well-formed
 import Definition.Typed.Substitution.Primitive
 import Definition.Typed.Properties.Admissible.Equality
@@ -451,6 +451,12 @@ import Graded.Erasure.Examples
 -- A result related to neutral terms and usage
 
 import Graded.Neutral
+
+------------------------------------------------------------------------
+-- Some discussion of under what circumstances a []-cong combinator
+-- can be defined
+
+import Graded.Box-cong
 
 ------------------------------------------------------------------------
 -- Some applications

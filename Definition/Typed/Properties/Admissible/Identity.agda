@@ -342,14 +342,15 @@ opaque
   -- A variant of []-cong-subst.
 
   []-cong-subst′ :
+    Γ ⊢ A ∷ U l →
     Γ ⊢ v₁ ⇒ v₂ ∷ Id A t u →
     []-cong-allowed s →
     let open Erased s in
-      Γ ⊢ []-cong s A t u v₁ ⇒ []-cong s A t u v₂ ∷
-        Id (Erased A) ([ t ]) ([ u ])
-  []-cong-subst′ v₁⇒v₂ =
+      Γ ⊢ []-cong s l A t u v₁ ⇒ []-cong s l A t u v₂ ∷
+        Id (Erased l A) ([ t ]) ([ u ])
+  []-cong-subst′ ⊢A v₁⇒v₂ =
     case inversion-Id (syntacticTerm (redFirstTerm v₁⇒v₂)) of λ {
-      (⊢A , ⊢t , ⊢u) →
+      (_ , ⊢t , ⊢u) →
     []-cong-subst ⊢A ⊢t ⊢u v₁⇒v₂ }
 
 opaque
@@ -358,32 +359,34 @@ opaque
 
   []-cong-subst* :
     let open Erased s in
+    Γ ⊢ A ∷ U l →
     Γ ⊢ v₁ ⇒* v₂ ∷ Id A t u →
     []-cong-allowed s →
-    Γ ⊢ []-cong s A t u v₁ ⇒* []-cong s A t u v₂ ∷
-      Id (Erased A) [ t ] ([ u ])
-  []-cong-subst* {s} v₁⇒*v₂ ok =
-    let ⊢A , ⊢t , ⊢u =
+    Γ ⊢ []-cong s l A t u v₁ ⇒* []-cong s l A t u v₂ ∷
+      Id (Erased l A) [ t ] ([ u ])
+  []-cong-subst* {s} ⊢A v₁⇒*v₂ ok =
+    let _ , ⊢t , ⊢u =
           inversion-Id (syntacticTerm (redFirst*Term v₁⇒*v₂))
     in
     case v₁⇒*v₂ of λ where
-      (id ⊢v₁)         → id ([]-congⱼ ⊢A ⊢t ⊢u ⊢v₁ ok)
+      (id ⊢v₁)         → id ([]-congⱼ′ ok ⊢A ⊢v₁)
       (v₁⇒v₃ ⇨ v₃⇒*v₂) →
-        []-cong-subst ⊢A ⊢t ⊢u v₁⇒v₃ ok ⇨ []-cong-subst* v₃⇒*v₂ ok
+        []-cong-subst ⊢A ⊢t ⊢u v₁⇒v₃ ok ⇨ []-cong-subst* ⊢A v₃⇒*v₂ ok
 
 opaque
 
   -- A variant of the reduction rule []-cong-β.
 
   []-cong-β-⇒ :
+    Γ ⊢ A ∷ U l →
     Γ ⊢ t ≡ t′ ∷ A →
     []-cong-allowed s →
     let open Erased s in
-      Γ ⊢ []-cong s A t t′ rfl ⇒ rfl ∷
-        Id (Erased A) ([ t ]) ([ t′ ])
-  []-cong-β-⇒ t≡t′ =
+      Γ ⊢ []-cong s l A t t′ rfl ⇒ rfl ∷
+        Id (Erased l A) ([ t ]) ([ t′ ])
+  []-cong-β-⇒ ⊢A t≡t′ =
     case syntacticEqTerm t≡t′ of λ {
-      (⊢A , ⊢t , ⊢t′) →
+      (_ , ⊢t , ⊢t′) →
     []-cong-β ⊢A ⊢t ⊢t′ t≡t′ }
 
 opaque
@@ -391,21 +394,22 @@ opaque
   -- A variant of the equality rule []-cong-β.
 
   []-cong-β-≡ :
+    Γ ⊢ A ∷ U l →
     Γ ⊢ t ≡ t′ ∷ A →
     []-cong-allowed s →
     let open Erased s in
-      Γ ⊢ []-cong s A t t′ rfl ≡ rfl ∷
-        Id (Erased A) ([ t ]) ([ t′ ])
-  []-cong-β-≡ t≡t′ ok =
-    case syntacticEqTerm t≡t′ of λ {
-      (⊢A , ⊢t , ⊢t′) →
-    case []-cong-cong (refl ⊢A) (refl ⊢t) (sym′ t≡t′)
-           (refl (rflⱼ′ t≡t′)) ok of λ
-      []-cong-t≡[]-cong-t′ →
-    case ([]-cong-β ⊢t PE.refl ok) of λ
-      []-cong-⇒ →
-    trans []-cong-t≡[]-cong-t′ (conv []-cong-⇒
-      (Id-cong (refl (Erasedⱼ ⊢A)) (refl ([]ⱼ ⊢A ⊢t)) ([]-cong′ ⊢A t≡t′))) }
+      Γ ⊢ []-cong s l A t t′ rfl ≡ rfl ∷
+        Id (Erased l A) ([ t ]) ([ t′ ])
+  []-cong-β-≡ ⊢A t≡t′ ok =
+    let ⊢l           = inversion-U-Level (wf-⊢∷ ⊢A)
+        _ , ⊢t , ⊢t′ = wf-⊢≡∷ t≡t′
+    in
+    trans
+      ([]-cong-cong (refl ⊢l) (refl ⊢A) (refl ⊢t) (sym′ t≡t′)
+         (refl (rflⱼ′ t≡t′)) ok)
+      (conv ([]-cong-β ⊢l ⊢A ⊢t PE.refl ok)
+         (Id-cong (refl (Erasedⱼ ⊢l ⊢A)) (refl ([]ⱼ ⊢l ⊢A ⊢t))
+            ([]-cong′ ⊢l ⊢A ⊢t ⊢t′ t≡t′)))
     where
     open EP ([]-cong→Erased ok)
 
@@ -1267,8 +1271,11 @@ opaque
     let open Erased s in
     Equality-reflection →
     Erased-allowed s →
+    Γ ⊢ A ∷ U l →
     Γ ⊢ eq ∷ Id A t u →
-    Γ ⊢ rfl ∷ Id (Erased A) [ t ] ([ u ])
-  []-cong-with-equality-reflection ok₁ ok₂ ⊢eq =
-    let ⊢A , _ = inversion-Id (syntacticTerm ⊢eq) in
-    rflⱼ′ (EP.[]-cong′ ok₂ ⊢A (equality-reflection′ ok₁ ⊢eq))
+    Γ ⊢ rfl ∷ Id (Erased l A) [ t ] ([ u ])
+  []-cong-with-equality-reflection ok₁ ok₂ ⊢A ⊢eq =
+    let ⊢l          = inversion-U-Level (wf-⊢∷ ⊢A)
+        _ , ⊢t , ⊢u = inversion-Id (syntacticTerm ⊢eq)
+    in
+    rflⱼ′ (EP.[]-cong′ ok₂ ⊢l ⊢A ⊢t ⊢u (equality-reflection′ ok₁ ⊢eq))

@@ -26,6 +26,7 @@ open import Definition.Typed.Properties R
 open import Definition.Typed.Stability R
 open import Definition.Typed.Substitution R
 open import Definition.Typed.Syntactic R
+open import Definition.Typed.Well-formed R
 open import Definition.Conversion R
 open import Definition.Conversion.Inversion R
 open import Definition.Conversion.Soundness R
@@ -171,19 +172,21 @@ mutual
         (transConv↑Term (K-motive-rfl-cong ⊢B₁≡B₂) u₁≡u₂ u₂≡u₃)
         (trans~↓ v₁~v₂ v₂~v₃ .proj₁) C₁≡Id-t₁-t₁ ok
     , substTypeEq ⊢B₁≡B₂ (conv (soundness~↓ v₁~v₂) C₁≡Id-t₁-t₁) }}
-  trans~↑ ([]-cong-cong A₁≡A₂ t₁≡t₂ u₁≡u₂ v₁~v₂ B₁≡Id-t₁-u₁ ok)
-    ([]-cong-cong A₂≡A₃ t₂≡t₃ u₂≡u₃ v₂~v₃ _ _) =
-    case soundnessConv↑ A₁≡A₂ of λ {
-      ⊢A₁≡A₂ →
-    case []-cong→Erased ok of λ {
-      Erased-ok →
-      []-cong-cong (transConv↑ A₁≡A₂ A₂≡A₃)
-        (transConv↑Term ⊢A₁≡A₂ t₁≡t₂ t₂≡t₃)
-        (transConv↑Term ⊢A₁≡A₂ u₁≡u₂ u₂≡u₃)
-        (trans~↓ v₁~v₂ v₂~v₃ .proj₁) B₁≡Id-t₁-u₁ ok
-    , Id-cong (Erased-cong Erased-ok ⊢A₁≡A₂)
-        ([]-cong′ Erased-ok (soundnessConv↑Term t₁≡t₂))
-        ([]-cong′ Erased-ok (soundnessConv↑Term u₁≡u₂)) }}
+  trans~↑ ([]-cong-cong l₁≡l₂ A₁≡A₂ t₁≡t₂ u₁≡u₂ v₁~v₂ B₁≡Id-t₁-u₁ ok)
+    ([]-cong-cong l₂≡l₃ A₂≡A₃ t₂≡t₃ u₂≡u₃ v₂~v₃ _ _) =
+    let ⊢A₁≡A₂      = soundnessConv↑Term A₁≡A₂
+        _ , ⊢A₁ , _ = wf-⊢≡∷ ⊢A₁≡A₂
+        ⊢l₁≡l₂      = soundnessConv↑Term l₁≡l₂
+        Erased-ok   = []-cong→Erased ok
+    in
+    []-cong-cong (transConvTerm l₁≡l₂ l₂≡l₃)
+      (transConv↑Term (U-cong ⊢l₁≡l₂) A₁≡A₂ A₂≡A₃)
+      (transConv↑Term (univ ⊢A₁≡A₂) t₁≡t₂ t₂≡t₃)
+      (transConv↑Term (univ ⊢A₁≡A₂) u₁≡u₂ u₂≡u₃)
+      (trans~↓ v₁~v₂ v₂~v₃ .proj₁) B₁≡Id-t₁-u₁ ok ,
+    Id-cong (Erased-cong Erased-ok ⊢l₁≡l₂ ⊢A₁≡A₂)
+      ([]-cong′ Erased-ok ⊢A₁ (soundnessConv↑Term t₁≡t₂))
+      ([]-cong′ Erased-ok ⊢A₁ (soundnessConv↑Term u₁≡u₂))
 
   -- Transitivity of algorithmic equality of neutrals with types in WHNF.
   trans~↓ : ∀ {t u v A B}

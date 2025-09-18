@@ -358,9 +358,10 @@ private module Inhabited where
         in
         Kⱼ (stability-⊢ (Γ≡Δ ∙⟨ Idⱼ ⊢A′ ⊢t′ ⊢t′ ⟩) ⊢B)
           (stability-⊢∷ Γ≡Δ ⊢u) (stability-⊢∷ Γ≡Δ ⊢v) ok
-      ([]-congⱼ ⊢A ⊢t ⊢u ⊢v ok) PE.refl →
-        []-congⱼ (stability-⊢ Γ≡Δ ⊢A) (stability-⊢∷ Γ≡Δ ⊢t)
-          (stability-⊢∷ Γ≡Δ ⊢u) (stability-⊢∷ Γ≡Δ ⊢v) ok
+      ([]-congⱼ ⊢l ⊢A ⊢t ⊢u ⊢v ok) PE.refl →
+        []-congⱼ (stability-⊢∷ Γ≡Δ ⊢l) (stability-⊢∷ Γ≡Δ ⊢A)
+          (stability-⊢∷ Γ≡Δ ⊢t) (stability-⊢∷ Γ≡Δ ⊢u)
+          (stability-⊢∷ Γ≡Δ ⊢v) ok
 
   opaque
     unfolding size-⊢≡∷
@@ -586,11 +587,13 @@ private module Inhabited where
         in
         K-β (stability-⊢ (Γ≡Δ ∙⟨ Idⱼ ⊢A′ ⊢t′ ⊢t′ ⟩) ⊢B)
           (stability-⊢∷ Γ≡Δ ⊢u) ok
-      ([]-cong-cong A₁≡A₂ t₁≡t₂ u₁≡u₂ v₁≡v₂ ok) PE.refl →
-        []-cong-cong (stability-⊢≡ Γ≡Δ A₁≡A₂) (stability-⊢≡∷ Γ≡Δ t₁≡t₂)
-          (stability-⊢≡∷ Γ≡Δ u₁≡u₂) (stability-⊢≡∷ Γ≡Δ v₁≡v₂) ok
-      ([]-cong-β ⊢t eq ok) PE.refl →
-        []-cong-β (stability-⊢∷ Γ≡Δ ⊢t) eq ok
+      ([]-cong-cong l₁≡l₂ A₁≡A₂ t₁≡t₂ u₁≡u₂ v₁≡v₂ ok) PE.refl →
+        []-cong-cong (stability-⊢≡∷ Γ≡Δ l₁≡l₂) (stability-⊢≡∷ Γ≡Δ A₁≡A₂)
+          (stability-⊢≡∷ Γ≡Δ t₁≡t₂) (stability-⊢≡∷ Γ≡Δ u₁≡u₂)
+          (stability-⊢≡∷ Γ≡Δ v₁≡v₂) ok
+      ([]-cong-β ⊢l ⊢A ⊢t eq ok) PE.refl →
+        []-cong-β (stability-⊢∷ Γ≡Δ ⊢l) (stability-⊢∷ Γ≡Δ ⊢A)
+          (stability-⊢∷ Γ≡Δ ⊢t) eq ok
       (equality-reflection ok ⊢Id ⊢v) PE.refl →
         equality-reflection ok (stability-⊢ Γ≡Δ ⊢Id)
           (stability-⊢∷ Γ≡Δ ⊢v)

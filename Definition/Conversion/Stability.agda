@@ -97,10 +97,11 @@ mutual
       (stabilityConv↑ (Γ≡Δ ∙ refl (Idⱼ′ ⊢t₁ ⊢t₁)) B₁≡B₂)
       (stabilityConv↑Term Γ≡Δ u₁≡u₂) (stability~↓ Γ≡Δ v₁~v₂)
       (stabilityEq Γ≡Δ ≡Id) ok }
-  stability~↑ Γ≡Δ ([]-cong-cong A₁≡A₂ t₁≡t₂ u₁≡u₂ v₁~v₂ ≡Id ok) =
-    []-cong-cong (stabilityConv↑ Γ≡Δ A₁≡A₂)
-      (stabilityConv↑Term Γ≡Δ t₁≡t₂) (stabilityConv↑Term Γ≡Δ u₁≡u₂)
-      (stability~↓ Γ≡Δ v₁~v₂) (stabilityEq Γ≡Δ ≡Id) ok
+  stability~↑ Γ≡Δ ([]-cong-cong l₁≡l₂ A₁≡A₂ t₁≡t₂ u₁≡u₂ v₁~v₂ ≡Id ok) =
+    []-cong-cong (stabilityConv↑Term Γ≡Δ l₁≡l₂)
+      (stabilityConv↑Term Γ≡Δ A₁≡A₂) (stabilityConv↑Term Γ≡Δ t₁≡t₂)
+      (stabilityConv↑Term Γ≡Δ u₁≡u₂) (stability~↓ Γ≡Δ v₁~v₂)
+      (stabilityEq Γ≡Δ ≡Id) ok
 
   -- Stability of algorithmic equality of neutrals of types in WHNF.
   stability~↓ : ∀ {k l A}

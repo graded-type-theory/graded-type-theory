@@ -105,8 +105,8 @@ opaque mutual
     (size-⊢∷ ⊢u ⊕ size-⊢∷ ⊢v ⊕ size-⊢∷ ⊢w)
   size-⊢∷ (Kⱼ ⊢B ⊢u ⊢v _) =
     size-⊢ ⊢B ⊕ size-⊢∷ ⊢u ⊕ size-⊢∷ ⊢v
-  size-⊢∷ ([]-congⱼ ⊢A ⊢t ⊢u ⊢v _) =
-    (size-⊢ ⊢A ⊕ size-⊢∷ ⊢t) ⊕ (size-⊢∷ ⊢u ⊕ size-⊢∷ ⊢v)
+  size-⊢∷ ([]-congⱼ ⊢l ⊢A ⊢t ⊢u ⊢v _) =
+    (size-⊢∷ ⊢l ⊕ size-⊢∷ ⊢A ⊕ size-⊢∷ ⊢t) ⊕ (size-⊢∷ ⊢u ⊕ size-⊢∷ ⊢v)
 
   -- The size of a derivation.
 
@@ -217,13 +217,14 @@ opaque mutual
   size-⊢≡∷ (K-cong A₁≡B₁ t₁≡u₁ A₂≡B₂ t₂≡u₂ t₃≡u₃ _) =
     (size-⊢≡ A₁≡B₁ ⊕ size-⊢≡∷ t₁≡u₁) ⊕
     (size-⊢≡ A₂≡B₂ ⊕ size-⊢≡∷ t₂≡u₂ ⊕ size-⊢≡∷ t₃≡u₃)
-  size-⊢≡∷ ([]-cong-cong A≡B t₁≡u₁ t₂≡u₂ t₃≡u₃ _) =
-    (size-⊢≡ A≡B ⊕ size-⊢≡∷ t₁≡u₁) ⊕ (size-⊢≡∷ t₂≡u₂ ⊕ size-⊢≡∷ t₃≡u₃)
+  size-⊢≡∷ ([]-cong-cong t₁≡u₁ A≡B t₂≡u₂ t₃≡u₃ t₄≡u₄ _) =
+    (size-⊢≡∷ t₁≡u₁ ⊕ size-⊢≡∷ A≡B ⊕ size-⊢≡∷ t₂≡u₂) ⊕
+    (size-⊢≡∷ t₃≡u₃ ⊕ size-⊢≡∷ t₄≡u₄)
   size-⊢≡∷ (J-β ⊢t ⊢B ⊢u _) =
     size-⊢∷ ⊢t ⊕ size-⊢ ⊢B ⊕ size-⊢∷ ⊢u
   size-⊢≡∷ (K-β ⊢B ⊢u _) =
     size-⊢ ⊢B ⊕ size-⊢∷ ⊢u
-  size-⊢≡∷ ([]-cong-β ⊢t _ _) =
-    node (size-⊢∷ ⊢t)
+  size-⊢≡∷ ([]-cong-β ⊢l ⊢A ⊢t _ _) =
+    size-⊢∷ ⊢l ⊕ size-⊢∷ ⊢A ⊕ size-⊢∷ ⊢t
   size-⊢≡∷ (equality-reflection _ ⊢Id ⊢v) =
     size-⊢ ⊢Id ⊕ size-⊢∷ ⊢v

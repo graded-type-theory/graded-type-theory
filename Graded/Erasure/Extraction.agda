@@ -127,13 +127,13 @@ mutual
     erase″ (U.unitrec p _ _ t u) = case is-𝟘? p of λ where
       (no _)  → T.unitrec (erase″ t) (erase″ u)
       (yes _) → erase″ u
-    erase″ Empty               = loop? s
-    erase″ (emptyrec p A t)    = loop s
-    erase″ (Id _ _ _)          = loop? s
-    erase″ U.rfl               = loop? s
-    erase″ (J _ _ _ _ _ u _ _) = erase″ u
-    erase″ (K _ _ _ _ u _)     = erase″ u
-    erase″ ([]-cong _ _ _ _ _) = loop? s
+    erase″ Empty                 = loop? s
+    erase″ (emptyrec p A t)      = loop s
+    erase″ (Id _ _ _)            = loop? s
+    erase″ U.rfl                 = loop? s
+    erase″ (J _ _ _ _ _ u _ _)   = erase″ u
+    erase″ (K _ _ _ _ u _)       = erase″ u
+    erase″ ([]-cong _ _ _ _ _ _) = loop? s
 
 mutual
 

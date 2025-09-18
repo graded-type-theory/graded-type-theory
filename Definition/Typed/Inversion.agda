@@ -275,17 +275,17 @@ opaque
   -- Inversion for []-cong.
 
   inversion-[]-cong :
-    Γ ⊢ []-cong s A t u v ∷ B →
+    Γ ⊢ []-cong s l A t u v ∷ B →
     let open Erased s in
-      (Γ ⊢ A) ×
+      Γ ⊢ A ∷ U l ×
       Γ ⊢ t ∷ A ×
       Γ ⊢ u ∷ A ×
       Γ ⊢ v ∷ Id A t u ×
       []-cong-allowed s ×
-      Γ ⊢ B ≡ Id (Erased A) ([ t ]) ([ u ])
+      Γ ⊢ B ≡ Id (Erased l A) ([ t ]) ([ u ])
   inversion-[]-cong = λ where
-    ⊢[]-cong@([]-congⱼ _ ⊢t ⊢u ⊢v ok) →
-        syntacticTerm ⊢t , ⊢t , ⊢u , ⊢v , ok
+    ⊢[]-cong@([]-congⱼ _ ⊢A ⊢t ⊢u ⊢v ok) →
+        ⊢A , ⊢t , ⊢u , ⊢v , ok
       , refl (syntacticTerm ⊢[]-cong)
     (conv ⊢bc eq) →
       let a , b , c , d , e , f = inversion-[]-cong ⊢bc in

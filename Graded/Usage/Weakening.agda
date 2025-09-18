@@ -222,12 +222,12 @@ wkUsage ρ (K₀ₘ₁ {γ₃} {γ₄} ok p≡𝟘 ▸A ▸t ▸B ▸u ▸v) = s
 wkUsage _ (K₀ₘ₂ ok ▸A ▸t ▸B ▸u ▸v) =
   K₀ₘ₂ ok (wkUsage _ ▸A) (wkUsage _ ▸t) (wkUsage _ ▸B) (wkUsage _ ▸u)
     (wkUsage _ ▸v)
-wkUsage ρ ([]-congₘ ▸A ▸t ▸u ▸v ok) =
+wkUsage ρ ([]-congₘ ▸l ▸A ▸t ▸u ▸v ok) =
   subst (_▸[ _ ] _)
     (𝟘ᶜ           ≡˘⟨ wk-𝟘ᶜ ρ ⟩
      wkConₘ ρ 𝟘ᶜ  ∎)
-    ([]-congₘ (wkUsage _ ▸A) (wkUsage _ ▸t) (wkUsage _ ▸u)
-       (wkUsage _ ▸v) ok)
+    ([]-congₘ (wkUsage _ ▸l) (wkUsage _ ▸A) (wkUsage _ ▸t)
+       (wkUsage _ ▸u) (wkUsage _ ▸v) ok)
   where
   open Tools.Reasoning.PropositionalEquality
 wkUsage ρ (sub γ▸t x) = sub (wkUsage ρ γ▸t) (wk-≤ᶜ ρ x)
@@ -504,12 +504,13 @@ wkUsage⁻¹ ▸t = wkUsage⁻¹′ ▸t refl
            refl , refl , refl , refl , refl , refl) →
         K₀ₘ₂ ok (wkUsage⁻¹ ▸A) (wkUsage⁻¹ ▸t) (wkUsage⁻¹ ▸B)
           (wkUsage⁻¹ ▸u) (wkUsage⁻¹ ▸v) }
-      ([]-congₘ ▸A ▸t ▸u ▸v ok) eq →
+      ([]-congₘ ▸l ▸A ▸t ▸u ▸v ok) eq →
         case wk-[]-cong eq of λ {
-          (_ , _ , _ , _ , refl , refl , refl , refl , refl) →
+          (_ , _ , _ , _ , _ ,
+           refl , refl , refl , refl , refl , refl) →
         sub
-          ([]-congₘ (wkUsage⁻¹ ▸A) (wkUsage⁻¹ ▸t) (wkUsage⁻¹ ▸u)
-             (wkUsage⁻¹ ▸v) ok) $
+          ([]-congₘ (wkUsage⁻¹ ▸l) (wkUsage⁻¹ ▸A) (wkUsage⁻¹ ▸t)
+             (wkUsage⁻¹ ▸u) (wkUsage⁻¹ ▸v) ok) $
         ≤ᶜ-reflexive (wkConₘ⁻¹-𝟘ᶜ ρ) }
       (sub ▸t leq) refl →
         sub (wkUsage⁻¹ ▸t) (wkConₘ⁻¹-monotone ρ leq)

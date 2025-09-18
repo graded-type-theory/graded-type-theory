@@ -22,9 +22,11 @@ open Type-restrictions R
 open import Definition.Typed R
 open import Definition.Typed.Consequences.Canonicity R
 open import Definition.Typed.Consequences.Inversion R
+open import Definition.Typed.Inversion R
 open import Definition.Typed.Properties R
 open import Definition.Typed.Substitution R
 open import Definition.Typed.Syntactic R
+open import Definition.Typed.Well-formed R
 
 open import Definition.LogicalRelation.Fundamental R
 open import
@@ -57,13 +59,12 @@ open import Tools.PropositionalEquality as PE using (_≡_)
 open import Tools.Sum using (_⊎_; inj₁; inj₂)
 
 private variable
-  Γ           : Con Term _
-  γ δ         : Conₘ _
-  A B t u v w : Term _
-  m           : Mode
-  p q         : M
-  s           : Strength
-  l           : Universe-level
+  Γ             : Con Term _
+  γ δ           : Conₘ _
+  A B l t u v w : Term _
+  m             : Mode
+  p q           : M
+  s             : Strength
 
 opaque
 
@@ -105,23 +106,25 @@ opaque
 
   []-congʳ :
     Empty-con Δ →
+    Γ ⊢ A ∷ U l →
     Γ ⊢ v ∷ Id A t u →
     []-cong-allowed s →
     let open Erased s in
-    γ ▸ Γ ⊩ʳ []-cong s A t u v ∷[ m ] Id (Erased A) [ t ] ([ u ])
-  []-congʳ {v} {A} {t} {u} ε ⊢v ok =
-    case fundamental-⊩ᵛ∷ ⊢v of λ
-      (_ , ⊩v) →
-    case ⊩ᵛId⇔ .proj₁ (wf-⊩ᵛ∷ ⊩v) of λ
-      (⊩t , _) →
+    γ ▸ Γ ⊩ʳ []-cong s l A t u v ∷[ m ] Id (Erased l A) [ t ] ([ u ])
+  []-congʳ {A} {l} {v} {t} {u} ε ⊢A ⊢v ok =
+    let _ , ⊩l = fundamental-⊩ᵛ∷ (inversion-U-Level (wf-⊢∷ ⊢A))
+        _ , ⊩v = fundamental-⊩ᵛ∷ ⊢v
+        ⊩t , _ = ⊩ᵛId⇔ .proj₁ (wf-⊩ᵛ∷ ⊩v)
+    in
     ▸⊩ʳ∷⇔ .proj₂ λ {σ = σ} ⊩σ _ →
     ®∷→®∷◂ $
     ®∷Id⇔ .proj₂
-      ( R.escape-⊩ (⊩ᵛ→⊩ˢ∷→⊩[] (Erasedᵛ (wf-⊩ᵛ∷ ⊩t)) ⊩σ)
+      ( R.escape-⊩ (⊩ᵛ→⊩ˢ∷→⊩[] (Erasedᵛ ⊩l (wf-⊩ᵛ∷ ⊩t)) ⊩σ)
       , rflᵣ
-          (([]-cong _ A t u v) [ σ ]  ⇒*⟨ ε⊢⇒*rfl∷Id $ []-congⱼ′ ok $ R.escape-⊩∷ $
-                                          ⊩ᵛ∷→⊩ˢ∷→⊩[]∷ ⊩v ⊩σ ⟩∎⇛
-           rfl                        ∎)
+          (                              ˘⟨ Erased.Id-Erased-[] _ ⟩⇛≡
+           ([]-cong _ l A t u v) [ σ ]  ⇒*⟨ ε⊢⇒*rfl∷Id $ []-congⱼ′ ok (subst-⊢∷ ⊢A (escape-⊩ˢ∷ ⊩σ .proj₂)) $ R.escape-⊩∷ $
+                                            ⊩ᵛ∷→⊩ˢ∷→⊩[]∷ ⊩v ⊩σ ⟩∎⇛
+           rfl                          ∎)
           (λ { PE.refl → T.refl })
       )
     where

@@ -167,37 +167,37 @@ private module Lemmas where
       size-⊢∷ ⊢t PE.≡ s₂ →
       ∃ λ (⊢Γ : ⊢ Γ) → size-⊢′ ⊢Γ <ˢ size-⊢∷ ⊢t
     wfTerm-<ˢ′ hyp = λ where
-        (conv ⊢t _)           PE.refl → fix (wfTerm-<ˢ ⊢t)
-        (var ⊢Γ _)            _       → ⊢Γ , !
-        (Levelⱼ ⊢Γ _)         _       → ⊢Γ , !
-        (zeroᵘⱼ ⊢Γ)           _       → ⊢Γ , !
-        (sucᵘⱼ t)             PE.refl → fix (wfTerm-<ˢ t)
-        (supᵘⱼ t u)           PE.refl → fix (wfTerm-<ˢ t)
-        (Uⱼ ⊢l)               PE.refl → fix (wfTerm-<ˢ ⊢l)
-        (Liftⱼ ⊢l₁ _ _)       PE.refl → fix (wfTerm-<ˢ ⊢l₁)
-        (liftⱼ x _ _)         PE.refl → fix (wfTerm-<ˢ x)
-        (lowerⱼ ⊢t)           PE.refl → fix (wfTerm-<ˢ ⊢t)
-        (ΠΣⱼ ⊢l _ _ _)        PE.refl → fix (wfTerm-<ˢ ⊢l)
-        (lamⱼ _ ⊢t _)         PE.refl → fix (∙⊢∷→⊢-<ˢ ⊢t .proj₁)
-        (⊢t ∘ⱼ _)             PE.refl → fix (wfTerm-<ˢ ⊢t)
-        (prodⱼ _ ⊢t _ _)      PE.refl → fix (wfTerm-<ˢ ⊢t)
-        (fstⱼ _ ⊢t)           PE.refl → fix (wfTerm-<ˢ ⊢t)
-        (sndⱼ _ ⊢t)           PE.refl → fix (wfTerm-<ˢ ⊢t)
-        (prodrecⱼ _ ⊢t _ _)   PE.refl → fix (wfTerm-<ˢ ⊢t)
-        (Emptyⱼ ⊢Γ)           _       → ⊢Γ , !
-        (emptyrecⱼ ⊢A _)      PE.refl → fix (wf-<ˢ ⊢A)
-        (Unitⱼ ⊢Γ _)          PE.refl → ⊢Γ , !
-        (starⱼ ⊢Γ _)          PE.refl → ⊢Γ , !
-        (unitrecⱼ ⊢A ⊢t _ _)  PE.refl → fix (wfTerm-<ˢ ⊢t)
-        (ℕⱼ ⊢Γ)               _       → ⊢Γ , !
-        (zeroⱼ ⊢Γ)            _       → ⊢Γ , !
-        (sucⱼ n)              PE.refl → fix (wfTerm-<ˢ n)
-        (natrecⱼ ⊢t _ _)      PE.refl → fix (wfTerm-<ˢ ⊢t)
-        (Idⱼ ⊢A _ _)          PE.refl → fix (wfTerm-<ˢ ⊢A)
-        (rflⱼ ⊢t)             PE.refl → fix (wfTerm-<ˢ ⊢t)
-        (Jⱼ ⊢t _ _ _ _)       PE.refl → fix (wfTerm-<ˢ ⊢t)
-        (Kⱼ _ ⊢u _ _)         PE.refl → fix (wfTerm-<ˢ ⊢u)
-        ([]-congⱼ ⊢A _ _ _ _) PE.refl → fix (wf-<ˢ ⊢A)
+        (conv ⊢t _)             PE.refl → fix (wfTerm-<ˢ ⊢t)
+        (var ⊢Γ _)              _       → ⊢Γ , !
+        (Levelⱼ ⊢Γ _)           _       → ⊢Γ , !
+        (zeroᵘⱼ ⊢Γ)             _       → ⊢Γ , !
+        (sucᵘⱼ t)               PE.refl → fix (wfTerm-<ˢ t)
+        (supᵘⱼ t u)             PE.refl → fix (wfTerm-<ˢ t)
+        (Uⱼ ⊢l)                 PE.refl → fix (wfTerm-<ˢ ⊢l)
+        (Liftⱼ ⊢l₁ _ _)         PE.refl → fix (wfTerm-<ˢ ⊢l₁)
+        (liftⱼ x _ _)           PE.refl → fix (wfTerm-<ˢ x)
+        (lowerⱼ ⊢t)             PE.refl → fix (wfTerm-<ˢ ⊢t)
+        (ΠΣⱼ ⊢l _ _ _)          PE.refl → fix (wfTerm-<ˢ ⊢l)
+        (lamⱼ _ ⊢t _)           PE.refl → fix (∙⊢∷→⊢-<ˢ ⊢t .proj₁)
+        (⊢t ∘ⱼ _)               PE.refl → fix (wfTerm-<ˢ ⊢t)
+        (prodⱼ _ ⊢t _ _)        PE.refl → fix (wfTerm-<ˢ ⊢t)
+        (fstⱼ _ ⊢t)             PE.refl → fix (wfTerm-<ˢ ⊢t)
+        (sndⱼ _ ⊢t)             PE.refl → fix (wfTerm-<ˢ ⊢t)
+        (prodrecⱼ _ ⊢t _ _)     PE.refl → fix (wfTerm-<ˢ ⊢t)
+        (Emptyⱼ ⊢Γ)             _       → ⊢Γ , !
+        (emptyrecⱼ ⊢A _)        PE.refl → fix (wf-<ˢ ⊢A)
+        (Unitⱼ ⊢Γ _)            PE.refl → ⊢Γ , !
+        (starⱼ ⊢Γ _)            PE.refl → ⊢Γ , !
+        (unitrecⱼ ⊢A ⊢t _ _)    PE.refl → fix (wfTerm-<ˢ ⊢t)
+        (ℕⱼ ⊢Γ)                 _       → ⊢Γ , !
+        (zeroⱼ ⊢Γ)              _       → ⊢Γ , !
+        (sucⱼ n)                PE.refl → fix (wfTerm-<ˢ n)
+        (natrecⱼ ⊢t _ _)        PE.refl → fix (wfTerm-<ˢ ⊢t)
+        (Idⱼ ⊢A _ _)            PE.refl → fix (wfTerm-<ˢ ⊢A)
+        (rflⱼ ⊢t)               PE.refl → fix (wfTerm-<ˢ ⊢t)
+        (Jⱼ ⊢t _ _ _ _)         PE.refl → fix (wfTerm-<ˢ ⊢t)
+        (Kⱼ _ ⊢u _ _)           PE.refl → fix (wfTerm-<ˢ ⊢u)
+        ([]-congⱼ ⊢l _ _ _ _ _) PE.refl → fix (wfTerm-<ˢ ⊢l)
       where
       open Variants hyp
 
@@ -339,14 +339,14 @@ opaque
       fix (wfTerm-<ˢ ⊢t₁)
     wfEqTerm-<ˢ (K-cong A₁≡A₂ _ _ _ _ _) =
       fix (wfEq-<ˢ A₁≡A₂)
-    wfEqTerm-<ˢ ([]-cong-cong A≡B _ _ _ _) =
-      fix (wfEq-<ˢ A≡B)
+    wfEqTerm-<ˢ ([]-cong-cong _ A≡B _ _ _ _) =
+      fix (wfEqTerm-<ˢ A≡B)
     wfEqTerm-<ˢ (J-β ⊢t _ _ _) =
       fix (wfTerm-<ˢ ⊢t)
     wfEqTerm-<ˢ (K-β _ ⊢u _) =
       fix (wfTerm-<ˢ ⊢u)
-    wfEqTerm-<ˢ ([]-cong-β ⊢t _ _) =
-      fix (wfTerm-<ˢ ⊢t)
+    wfEqTerm-<ˢ ([]-cong-β ⊢l _ _ _ _) =
+      fix (wfTerm-<ˢ ⊢l)
     wfEqTerm-<ˢ (equality-reflection _ _ ⊢v) =
       fix (wfTerm-<ˢ ⊢v)
 

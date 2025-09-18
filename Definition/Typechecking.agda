@@ -134,14 +134,15 @@ mutual
        → Γ ⊢ v ⇇ Id A t t
        → K-allowed
        → Γ ⊢ K p A t B u v ⇉ B [ v ]₀
-    []-congᵢ : Γ ⊢ A ⇇Type
+    []-congᵢ : Γ ⊢ l ⇇ Level
+             → Γ ⊢ A ⇇ U l
              → Γ ⊢ t ⇇ A
              → Γ ⊢ u ⇇ A
              → Γ ⊢ v ⇇ Id A t u
              → []-cong-allowed s
              → let open Erased s in
-               Γ ⊢ []-cong s A t u v ⇉
-                 Id (Erased A) ([ t ]) ([ u ])
+               Γ ⊢ []-cong s l A t u v ⇉
+                 Id (Erased l A) [ t ] ([ u ])
 
   data _⊢_⇇_ (Γ : Con Term n) : (t A : Term n) → Set a where
     liftᶜ : Γ ⊢ A ↘ Lift l B
@@ -211,8 +212,8 @@ mutual
          Inferable (J p q A t B u v w)
     Kᵢ : Checkable-type A → Checkable t → Checkable-type B →
          Checkable u → Checkable v → Inferable (K p A t B u v)
-    []-congᵢ : Checkable-type A → Checkable t → Checkable u →
-               Checkable v → Inferable ([]-cong s A t u v)
+    []-congᵢ : Checkable l → Checkable A → Checkable t → Checkable u →
+               Checkable v → Inferable ([]-cong s l A t u v)
 
   -- Checkable terms.
 
@@ -288,6 +289,6 @@ mutual
   Inferable⇉ (Kᵢ A t B u v _) =
     Kᵢ (Checkable⇇Type A) (Checkable⇇ t) (Checkable⇇Type B)
       (Checkable⇇ u) (Checkable⇇ v)
-  Inferable⇉ ([]-congᵢ A t u v _) =
-    []-congᵢ (Checkable⇇Type A) (Checkable⇇ t) (Checkable⇇ u)
+  Inferable⇉ ([]-congᵢ l A t u v _) =
+    []-congᵢ (Checkable⇇ l) (Checkable⇇ A) (Checkable⇇ t) (Checkable⇇ u)
       (Checkable⇇ v)
