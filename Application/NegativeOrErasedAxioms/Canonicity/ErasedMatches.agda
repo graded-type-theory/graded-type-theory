@@ -128,7 +128,7 @@ module Counterexample
     , (λ where
          (u , numU , whred x ⇨ˢ d) → neRedTerm x (prodrecₙ (var x0))
          (_ , ()   , id _))
-    , (_ , (id ⊢prodrec , ne neutral) , neutral)
+    , (_ , (id ⊢prodrec , ne! neutral) , neutral)
     where
     open E
 
@@ -137,7 +137,7 @@ module Counterexample
         prodrec 𝟘 ω 𝟘 ℕ (var x0) zero [conv↑] zero ∷ ℕ →
       ⊥
     lem ([↑]ₜ _ _ _ (D , _) (d , _) (d′ , _) prodrec-0-zero≡zero) =
-      case whnfRed*Term d (ne (prodrecₙ (var x0))) of λ {
+      case whnfRed*Term d (ne! (prodrecₙ (var x0))) of λ {
         PE.refl →
       case whnfRed*Term d′ zeroₙ of λ {
         PE.refl →
@@ -152,7 +152,7 @@ module Counterexample
         prodrec 𝟘 ω 𝟘 ℕ (var x0) zero [conv↑] suc t ∷ ℕ →
       ⊥
     lem′ ([↑]ₜ _ _ _ (D , _) (d , _) (d′ , _) prodrec-0-zero≡suc) =
-      case whnfRed*Term d (ne (prodrecₙ (var x0))) of λ {
+      case whnfRed*Term d (ne! (prodrecₙ (var x0))) of λ {
         PE.refl →
       case whnfRed*Term d′ sucₙ of λ {
         PE.refl →

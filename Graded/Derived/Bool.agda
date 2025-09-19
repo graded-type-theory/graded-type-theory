@@ -56,9 +56,9 @@ opaque
     γ ▸[ m ] t →
     nrᶜ OKᵍ 𝟘 𝟘ᶜ 𝟘ᶜ γ ▸[ m ] OK t
   ▸OK {m} ▸t =
-    ▸natcase (Unitₘ zeroᵘₘ)
+    ▸natcase Unitₘ
       (sub
-         (▸natcase (Unitₘ zeroᵘₘ)
+         (▸natcase Unitₘ
             (sub Emptyₘ $ begin
                𝟘ᶜ ∙ ⌜ m ⌝ · 𝟘  ≈⟨ ≈ᶜ-refl ∙ ·-zeroʳ _ ⟩
                𝟘ᶜ              ∎)
@@ -102,7 +102,7 @@ opaque
 
   ▸true : 𝟘ᶜ ▸[ m ] true {n = n}
   ▸true {m} =
-    sub (prodʷₘ (sucₘ zeroₘ) (starₘ zeroᵘₘ)) $ begin
+    sub (prodʷₘ (sucₘ zeroₘ) starₘ) $ begin
       𝟘ᶜ             ≈˘⟨ ·ᶜ-zeroʳ _ ⟩
       ω ·ᶜ 𝟘ᶜ        ≈˘⟨ +ᶜ-identityʳ _ ⟩
       ω ·ᶜ 𝟘ᶜ +ᶜ 𝟘ᶜ  ∎
@@ -116,7 +116,7 @@ opaque
 
   ▸false : 𝟘ᶜ ▸[ m ] false {n = n}
   ▸false {m} =
-    sub (prodʷₘ zeroₘ (starₘ zeroᵘₘ)) $ begin
+    sub (prodʷₘ zeroₘ starₘ) $ begin
       𝟘ᶜ             ≈˘⟨ ·ᶜ-zeroʳ _ ⟩
       ω ·ᶜ 𝟘ᶜ        ≈˘⟨ +ᶜ-identityʳ _ ⟩
       ω ·ᶜ 𝟘ᶜ +ᶜ 𝟘ᶜ  ∎
@@ -300,12 +300,12 @@ opaque
       γ ▸[ m ] u →
       wkConₘ (stepn id k) γ ▸[ m ]
         lam boolrecᵍ-Π
-          (unitrec boolrecᵍ-Π p zeroᵘ (Target (2+ k) A t (var x0))
+          (unitrec boolrecᵍ-Π p (Target (2+ k) A t (var x0))
              (var x0) (wk[ 1+ k ]′ u))
     unitrec-lemma {k} {γ} ▸t ▸u =
       lamₘ $
       sub
-        (unitrecₘ zeroᵘₘ
+        (unitrecₘ
            (sub
               (▸Target ▸A ▸t var $ begin
                  ⌜ ⌞ ⌜ 𝟘ᵐ? ⌝ · p ⌟ ⌝ ·ᶜ (𝟘ᶜ ∙ 𝟙)        ≈⟨ ·ᶜ-zeroʳ _ ∙ ·-identityʳ _ ⟩

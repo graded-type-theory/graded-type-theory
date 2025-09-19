@@ -35,14 +35,17 @@ private variable
   σ     : Subst m n
   Γ Δ   : Con Term m
   A B C : Term m
-  t u   : Term m
-  l     : Universe-level
+  t u l : Term m
   s     : Strength
   p q   : M
 
 -- Negative types.
 
 data NegativeType (Γ : Con Term m) : Term m → Set a where
+
+  lift  : NegativeType Γ A
+        → NegativeType Γ (Lift l A)
+
   empty : NegativeType Γ Empty
 
   pi : Γ ⊢ A →
@@ -67,6 +70,9 @@ data NegativeType (Γ : Con Term m) : Term m → Set a where
 -- Negative types are closed under weakening.
 
 wkNeg : ρ ∷ʷ Δ ⊇ Γ → NegativeType Γ A → NegativeType Δ (U.wk ρ A)
+wkNeg w (lift n) =
+  lift (wkNeg w n)
+
 wkNeg w empty =
   empty
 
@@ -92,6 +98,9 @@ wkNeg w (conv n c) =
 subNeg :
   NegativeType Γ A → Δ ⊢ˢʷ σ ∷ Γ → NegativeType Δ (A [ σ ])
 
+subNeg (lift n) s =
+  lift (subNeg n s)
+
 subNeg empty _ = empty
 
 subNeg (pi ⊢A n) s =
@@ -113,6 +122,21 @@ subNeg (conv n c) s =
 subNeg1 : NegativeType (Γ ∙ A) B → Γ ⊢ t ∷ A → NegativeType Γ (B [ t ]₀)
 subNeg1 n ⊢t = subNeg n (⊢ˢʷ∷-sgSubst ⊢t)
 
+-- If Lift l A is negative, then A is negative (given a certain assumption).
+
+lowerNeg :
+  ⦃ ok : No-equality-reflection or-empty Γ ⦄ →
+  NegativeType Γ C →
+  Γ ⊢ C ≡ Lift l A →
+  NegativeType Γ A
+lowerNeg (lift n)       c = conv n (Lift-injectivity c .proj₂)
+lowerNeg empty          c = ⊥-elim (Lift≢Emptyⱼ (sym c))
+lowerNeg (pi x n)       c = ⊥-elim (Lift≢ΠΣⱼ (sym c))
+lowerNeg (sigma-𝟘 x n)  c = ⊥-elim (Lift≢ΠΣⱼ (sym c))
+lowerNeg (sigma x n n₁) c = ⊥-elim (Lift≢ΠΣⱼ (sym c))
+lowerNeg universe       c = ⊥-elim (U≢Liftⱼ c)
+lowerNeg (conv n x)     c = lowerNeg n (trans x c)
+
 -- The first component of a negative Σ-type is negative if the
 -- quantity is not 𝟘 (given a certain assumption).
 
@@ -122,6 +146,7 @@ fstNeg :
   Γ ⊢ C ≡ Σˢ p , q ▷ A ▹ B →
   𝟘 ≢ p →
   NegativeType Γ A
+fstNeg (lift _)       c  _   = ⊥-elim (Lift≢ΠΣⱼ c)
 fstNeg empty          c  _   = ⊥-elim (Empty≢ΠΣⱼ c)
 fstNeg (pi _ _)       c  _   = ⊥-elim (Π≢Σⱼ c)
 fstNeg (sigma-𝟘 _ _)  c  𝟘≢p = let _ , _ , 𝟘≡p , _ = ΠΣ-injectivity c in
@@ -139,6 +164,7 @@ sndNeg :
   Γ ⊢ C ≡ Σˢ p , q ▷ A ▹ B →
   Γ ⊢ t ∷ A →
   NegativeType Γ (B [ t ]₀)
+sndNeg (lift _)       c  _ = ⊥-elim (Lift≢ΠΣⱼ c)
 sndNeg empty          c    = ⊥-elim (Empty≢ΠΣⱼ c)
 sndNeg (pi _ _)       c    = ⊥-elim (Π≢Σⱼ c)
 sndNeg (sigma-𝟘 _ nB) c ⊢t =
@@ -163,6 +189,7 @@ appNeg :
   Γ ⊢ C ≡ Π p , q ▷ A ▹ B →
   Γ ⊢ t ∷ A →
   NegativeType Γ (B [ t ]₀)
+appNeg (lift _)       c  = ⊥-elim (Lift≢ΠΣⱼ c)
 appNeg empty          c = ⊥-elim (Empty≢ΠΣⱼ c)
 appNeg (sigma-𝟘 _ _)  c = ⊥-elim (Π≢Σⱼ (sym c))
 appNeg (sigma _ _ _)  c = ⊥-elim (Π≢Σⱼ (sym c))
@@ -179,6 +206,7 @@ appNeg (conv n c) c′ = appNeg n (trans c c′)
 ¬negℕ :
   ⦃ ok : No-equality-reflection or-empty Γ ⦄ →
   NegativeType Γ C → Γ ⊢ C ≡ ℕ → ⊥
+¬negℕ (lift _)      c  = Lift≢ℕ c
 ¬negℕ empty         c  = ℕ≢Emptyⱼ (sym c)
 ¬negℕ (pi _ _)      c  = ℕ≢ΠΣⱼ (sym c)
 ¬negℕ (sigma-𝟘 _ _) c  = ℕ≢ΠΣⱼ (sym c)
@@ -191,6 +219,7 @@ appNeg (conv n c) c′ = appNeg n (trans c c′)
 ¬negΣʷ :
   ⦃ ok : No-equality-reflection or-empty Γ ⦄ →
   NegativeType Γ C → Γ ⊢ C ≡ Σʷ p , q ▷ A ▹ B → ⊥
+¬negΣʷ (lift _)      c  = Lift≢ΠΣⱼ c
 ¬negΣʷ empty         c  = Empty≢ΠΣⱼ c
 ¬negΣʷ (pi _ _)      c  = Π≢Σⱼ c
 ¬negΣʷ (sigma-𝟘 _ _) c  = Σˢ≢Σʷⱼ c
@@ -202,7 +231,8 @@ appNeg (conv n c) c′ = appNeg n (trans c c′)
 
 ¬negUnit :
   ⦃ ok : No-equality-reflection or-empty Γ ⦄ →
-  NegativeType Γ C → Γ ⊢ C ≡ Unit s l → ⊥
+  NegativeType Γ C → Γ ⊢ C ≡ Unit s → ⊥
+¬negUnit (lift _)      c  = Lift≢Unitⱼ c
 ¬negUnit empty         c  = Empty≢Unitⱼ c
 ¬negUnit (pi _ _)      c  = Unit≢ΠΣⱼ (sym c)
 ¬negUnit (sigma-𝟘 _ _) c  = Unit≢ΠΣⱼ (sym c)
@@ -217,6 +247,7 @@ opaque
   ¬negId :
     ⦃ ok : No-equality-reflection or-empty Γ ⦄ →
     NegativeType Γ A → ¬ Γ ⊢ A ≡ Id B t u
+  ¬negId (lift _)      = Id≢Lift ∘→ sym
   ¬negId empty         = Id≢Empty ∘→ sym
   ¬negId (pi _ _)      = I.Id≢ΠΣ ∘→ sym
   ¬negId (sigma-𝟘 _ _) = I.Id≢ΠΣ ∘→ sym

@@ -142,6 +142,6 @@ opaque
   -- unitrec-subst and unitrec-β.
 
   soundness-Unit :
-    Δ ⊢ t ∷ Unit s l → 𝟘ᶜ ▸[ 𝟙ᵐ ] t →
-    Δ T-η.⊢ t ⇒* star s l ∷ Unit s l × erase str t T.⇒* T.star
+    Δ ⊢ t ∷ Unit s → 𝟘ᶜ ▸[ 𝟙ᵐ ] t →
+    Δ T-η.⊢ t ⇒* star s ∷ Unit s × erase str t T.⇒* T.star
   soundness-Unit = Soundness-η.soundness-Unit ∘→ ⊢∷→⊢∷-η

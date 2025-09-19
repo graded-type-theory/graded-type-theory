@@ -105,6 +105,16 @@ headₘ-distrib-·ᶜ p (γ ∙ q) = refl
 headₘ-tailₘ-correct : (γ : Conₘ (1+ n)) → tailₘ γ ∙ headₘ γ ≡ γ
 headₘ-tailₘ-correct (γ ∙ p) = refl
 
+-- A propositional uniqueness principle for contexts
+
+decomposeᶜ : (γ : Conₘ n) → Conₘ n
+decomposeᶜ {0} γ = ε
+decomposeᶜ {1+ n} γ = decomposeᶜ (tailₘ γ) ∙ headₘ γ
+
+decomposeᶜ-correct : (γ : Conₘ n) → decomposeᶜ γ ≡ γ
+decomposeᶜ-correct ε = refl
+decomposeᶜ-correct (γ ∙ p) = cong (_∙ p) (decomposeᶜ-correct γ)
+
 -- Congruence of tailₘ
 -- If γ ≈ᶜ δ then tailₘ γ ≈ᶜ tailₘ δ
 

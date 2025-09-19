@@ -116,17 +116,21 @@ _⊛ᶜ_▷_ :
 ε       ⊛ᶜ ε     ▷ r = ε
 (γ ∙ p) ⊛ᶜ δ ∙ q ▷ r = (γ ⊛ᶜ δ ▷ r) ∙ (p ⊛ q ▷ r)
 
+-- Constant contexts
+
+replicateᶜ : (n : Nat) → M → Conₘ n
+replicateᶜ 0 m = ε
+replicateᶜ (1+ n) m = replicateᶜ n m ∙ m
+
 -- Zero modality context
 
 𝟘ᶜ : Conₘ n
-𝟘ᶜ {n = 0}    = ε
-𝟘ᶜ {n = 1+ n} = 𝟘ᶜ ∙ 𝟘
+𝟘ᶜ {n} = replicateᶜ n 𝟘
 
 -- Unit modality context
 
 𝟙ᶜ : Conₘ n
-𝟙ᶜ {n = 0}    = ε
-𝟙ᶜ {n = 1+ n} = 𝟙ᶜ ∙ 𝟙
+𝟙ᶜ {n} = replicateᶜ n 𝟙
 
 -- Greatest-such-thatᶜ P γ means that γ is the greatest context which
 -- satisfies P.

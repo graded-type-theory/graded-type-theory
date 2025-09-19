@@ -63,7 +63,7 @@ opaque
     Erased-allowed s →
     ¬ (∀ {n} {Γ : Con Term n} {t A : Term n} →
        Γ ⊢ [ t ] ∷ A →
-       ∃₂ λ B q → Γ ⊢ t ∷ B × Γ ⊢ A ≡ Σ⟨ s ⟩ 𝟘 , q ▷ B ▹ Unit s zeroᵘ)
+       ∃₂ λ B q → Γ ⊢ t ∷ B × Γ ⊢ A ≡ Σ⟨ s ⟩ 𝟘 , q ▷ B ▹ Unit s)
   ¬-inversion-[]′ (Unit-ok , Σ-ok) inversion-[] = bad
     where
     Γ′ : Con Term 0
@@ -87,16 +87,16 @@ opaque
     ⊢[t′] : Γ′ ⊢ [ t′ ] ∷ A′
     ⊢[t′] = prodⱼ
       (univ (natrecⱼ
-               (Unitⱼ (zeroᵘⱼ ⊢Γ′∙ℕ) Unit-ok)
+               (Unitⱼ ⊢Γ′∙ℕ Unit-ok)
                (ℕⱼ (∙ Uⱼ (zeroᵘⱼ ⊢Γ′∙ℕ∙ℕ)))
                (var ⊢Γ′∙ℕ here)))
       (zeroⱼ ε)
-      (conv (starⱼ (zeroᵘⱼ ε) Unit-ok)
+      (conv (starⱼ ε Unit-ok)
          (_⊢_≡_.sym $
-          univ (natrec-zero (Unitⱼ (zeroᵘⱼ ε) Unit-ok) (ℕⱼ ⊢Γ′∙ℕ∙U))))
+          univ (natrec-zero (Unitⱼ ε Unit-ok) (ℕⱼ ⊢Γ′∙ℕ∙U))))
       Σ-ok
 
-    ℕ≡Unit : Γ′ ⊢ ℕ ≡ Unit s zeroᵘ
+    ℕ≡Unit : Γ′ ⊢ ℕ ≡ Unit s
     ℕ≡Unit =
       case inversion-[] ⊢[t′] of
         λ (_ , _ , _ , A′≡) →
@@ -104,7 +104,7 @@ opaque
         λ (_ , ≡Unit , _ , _ , _) →
       trans
         (_⊢_≡_.sym $ _⊢_≡_.univ $
-         natrec-suc (Unitⱼ (zeroᵘⱼ ε) Unit-ok) (ℕⱼ ⊢Γ′∙ℕ∙U) (zeroⱼ ε))
+         natrec-suc (Unitⱼ ε Unit-ok) (ℕⱼ ⊢Γ′∙ℕ∙U) (zeroⱼ ε))
         (≡Unit (refl (sucⱼ (zeroⱼ ε))))
 
     bad : ⊥

@@ -62,6 +62,8 @@ module Main {Γ : Con Term m} (nΓ : NegativeContext Γ)
   neNeg :
     ⦃ ok : No-equality-reflection or-empty Γ ⦄
     (d : Γ ⊢ u ∷ A) (n : Neutral u) → NegativeType Γ A
+  neNeg (lowerⱼ x) (lowerₙ y) =
+    lowerNeg (neNeg x y) (refl (syntacticTerm x))
   neNeg (var ⊢Γ h          ) (var x      ) = lookupNegative ⊢Γ nΓ h
   neNeg (d ∘ⱼ ⊢t           ) (∘ₙ n       ) =
     appNeg (neNeg d n) (refl (syntacticTerm d)) ⊢t
@@ -89,7 +91,7 @@ module Main {Γ : Con Term m} (nΓ : NegativeContext Γ)
   neNeg (conv d c) n =
     conv (neNeg d n) c
   neNeg (Uⱼ _)          ()
-  neNeg (ΠΣⱼ _ _ _)     ()
+  neNeg (ΠΣⱼ _ _ _ _)   ()
   neNeg (lamⱼ _ _ _)    ()
   neNeg (prodⱼ _ _ _ _) ()
   neNeg (Emptyⱼ _)      ()
@@ -100,6 +102,12 @@ module Main {Γ : Con Term m} (nΓ : NegativeContext Γ)
   neNeg (sucⱼ _)        ()
   neNeg (Idⱼ _ _ _)     ()
   neNeg (rflⱼ _)        ()
+  neNeg (Levelⱼ _)      ()
+  neNeg (zeroᵘⱼ _)      ()
+  neNeg (sucᵘⱼ _)       ()
+  neNeg (supᵘⱼ _ _)     ()
+  neNeg (Liftⱼ _ _ _)   ()
+  neNeg (liftⱼ _ _ _)   ()
 
   -- Lemma: A normal form of type ℕ is a numeral in a consistent
   -- negative context (given a certain assumption).
@@ -110,9 +118,15 @@ module Main {Γ : Con Term m} (nΓ : NegativeContext Γ)
       → (c : Γ ⊢ A ≡ ℕ)
       → Numeral u
 
-  -- Case: neutrals. The type cannot be ℕ since it must be negative.
-  nfN d (ne n) c =
+  -- Case: atomic neutrals. The type cannot be ℕ since it must be negative.
+  nfN d (ne (ne n)) c =
     ⊥-elim (¬negℕ (neNeg d (nfNeutral n)) c)
+
+  nfN (Levelⱼ _) Levelₙ c         = ⊥-elim (U≢ℕ c)
+  nfN (zeroᵘⱼ _) zeroᵘₙ c         = ⊥-elim (Level≢ℕ c)
+  nfN (sucᵘⱼ _) (sucᵘₙ _) c       = ⊥-elim (Level≢ℕ c)
+  nfN (Liftⱼ _ _ _) (Liftₙ _ _) c = ⊥-elim (U≢ℕ c)
+  nfN (liftⱼ _ _ _) (liftₙ _) c   = ⊥-elim (Lift≢ℕ c)
 
   -- Case: numerals.
   nfN (zeroⱼ x) zeroₙ   c = zeroₙ
@@ -123,9 +137,13 @@ module Main {Γ : Con Term m} (nΓ : NegativeContext Γ)
 
   -- Impossible cases: type is not ℕ.
 
+  -- * Neutral levels
+  nfN (supᵘⱼ _ _) (ne (supᵘˡₙ _ _)) c = ⊥-elim (Level≢ℕ c)
+  nfN (supᵘⱼ _ _) (ne (supᵘʳₙ _ _)) c = ⊥-elim (Level≢ℕ c)
+
   -- * Canonical types
-  nfN (Uⱼ _)      Uₙ          c = ⊥-elim (U≢ℕ c)
-  nfN (ΠΣⱼ _ _ _) (ΠΣₙ _ _)   c = ⊥-elim (U≢ℕ c)
+  nfN (Uⱼ _)      (Uₙ _)      c = ⊥-elim (U≢ℕ c)
+  nfN (ΠΣⱼ _ _ _ _) (ΠΣₙ _ _) c = ⊥-elim (U≢ℕ c)
   nfN (ℕⱼ _)      ℕₙ          c = ⊥-elim (U≢ℕ c)
   nfN (Emptyⱼ _)  Emptyₙ      c = ⊥-elim (U≢ℕ c)
   nfN (Unitⱼ _ _) Unitₙ       c = ⊥-elim (U≢ℕ c)
@@ -166,7 +184,7 @@ module Main {Γ : Con Term m} (nΓ : NegativeContext Γ)
           ¬NeutralNf (redFirst*Term d)
             (flip ¬negℕ $ refl (ℕⱼ $ wfTerm $ redFirst*Term d))
     in  ⊥-elim $ ¬neU $
-        PE.subst Neutral (whrDet*Term (d , ne neK) d′) neK
+        PE.subst Neutral (whrDet*Term (d , ne! neK) d′) neK
 
   canonicityRed :
     ⦃ ok : No-equality-reflection or-empty Γ ⦄ →

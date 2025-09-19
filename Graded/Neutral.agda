@@ -74,6 +74,9 @@ opaque
                                           flip PE.trans (𝟘ᶜ-lookup x) ⟩
         𝟙 ≡ 𝟘                          →⟨ non-trivial ⟩
         ⊥                              □
+      (lowerₙ t-n) ⊢lower (lowerₘ ▸t) →
+        case inversion-lower ⊢lower of λ (_ , _ , ⊢t , _) →
+          helper t-n ⊢t ▸t
       (∘ₙ t-n) ⊢∘ (▸t ∘ₘ _) →
         case inversion-app ⊢∘ of λ {
           (_ , _ , _ , ⊢t , _) →
@@ -127,7 +130,7 @@ opaque
             p ≡ 𝟘 ⊎ γ ≈ᶜ 𝟘ᶜ  →⟨ (λ { (inj₁ p≡𝟘) → ⊥-elim $ p≢𝟘 p≡𝟘; (inj₂ γ≈𝟘) → γ≈𝟘 }) ⟩
             γ ≈ᶜ 𝟘ᶜ          →⟨ helper t-n ⊢t (▸-cong (≢𝟘→⌞⌟≡𝟙ᵐ p≢𝟘) γ▸t) ⟩
             ⊥                □
-      (unitrecₙ no-η t-n) ⊢ur (unitrecₘ {γ} {p} {δ} ▸t _ _ ok) →
+      (unitrecₙ no-η t-n) ⊢ur (unitrecₘ {γ₃ = γ} {p} {γ₄ = δ} _ ▸t _ ok) →
         case inversion-unitrec ⊢ur of λ {
           (_ , ⊢t , _ , _) →
         case no-η ∘→ nem non-trivial .proj₂ .proj₁ ok of λ

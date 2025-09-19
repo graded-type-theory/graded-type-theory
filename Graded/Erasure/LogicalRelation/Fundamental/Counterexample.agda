@@ -309,16 +309,16 @@ opaque
     ¬t®t $ ▸⊩ʳ∷[𝟙ᵐ]→®∷ $ hyp ⊢Δ consistent ⦃ inc = included ⦄ ⊢t ▸t
     where
     Δ : Con Term 1
-    Δ = ε ∙ Unitʷ zeroᵘ
+    Δ = ε ∙ Unitʷ
 
     t : Term 1
-    t = unitrec 𝟘 𝟘 zeroᵘ ℕ (var x0) zero
+    t = unitrec 𝟘 𝟘 ℕ (var x0) zero
 
     A : Term 1
     A = ℕ
 
     ⊢Δ : ⊢ Δ
-    ⊢Δ = ∙ Unitⱼ (zeroᵘⱼ ε) Unit-ok
+    ⊢Δ = ∙ Unitⱼ ε Unit-ok
 
     open LR ⊢Δ ⦃ inc = included ⦄ str ⇒*-is-reduction-relation
 

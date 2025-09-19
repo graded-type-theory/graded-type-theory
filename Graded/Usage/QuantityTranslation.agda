@@ -117,8 +117,22 @@ module Is-morphism
     -- Preservation of _▸[_]_.
 
     tr-▸ : γ U₁.▸[ m ] t → tr-Conₘ γ U₂.▸[ tr-Mode m ] tr-Term t
-    tr-▸ Uₘ =
-      sub Uₘ tr-Conₘ-𝟘ᶜ-≤ᶜ
+    tr-▸ Levelₘ =
+      sub Levelₘ tr-Conₘ-𝟘ᶜ-≤ᶜ
+    tr-▸ zeroᵘₘ =
+      sub zeroᵘₘ tr-Conₘ-𝟘ᶜ-≤ᶜ
+    tr-▸ (sucᵘₘ ▸t) =
+      sucᵘₘ (tr-▸ ▸t)
+    tr-▸ (supᵘₘ ▸t ▸u) =
+      sub (supᵘₘ (tr-▸ ▸t) (tr-▸ ▸u)) (≤ᶜ-reflexive tr-Conₘ-+ᶜ)
+    tr-▸ (Liftₘ ▸A ▸t) =
+      Liftₘ (tr-▸[𝟘ᵐ?] ▸A) (tr-▸ ▸t)
+    tr-▸ (liftₘ ▸t) =
+      liftₘ (tr-▸ ▸t)
+    tr-▸ (lowerₘ ▸t) =
+      lowerₘ (tr-▸ ▸t)
+    tr-▸ (Uₘ ▸t) =
+      sub (Uₘ (tr-▸[𝟘ᵐ?] ▸t)) tr-Conₘ-𝟘ᶜ-≤ᶜ
     tr-▸ ℕₘ =
       sub ℕₘ tr-Conₘ-𝟘ᶜ-≤ᶜ
     tr-▸ Emptyₘ =
@@ -319,9 +333,11 @@ module Is-morphism
           tr Mo₁.⌜ m ⌝ C₂.·ᶜ tr-Conₘ γ       ≤⟨ ·ᶜ-monotoneˡ (tr-⌜⌝ m) ⟩
           Mo₂.⌜ tr-Mode m ⌝ C₂.·ᶜ tr-Conₘ γ  ∎)
 
-    tr-▸ {m = m} (unitrecₘ {γ = γ} {p = p} {δ = δ} ▸t ▸u ▸A ok) =
-      sub (unitrecₘ (▸-cong (tr-Mode-ᵐ· m BMΠ) (tr-▸ ▸t)) (tr-▸ ▸u)
-            (tr-∙▸[𝟘ᵐ?] ▸A) (Unitrec-preserved ≈ᵐ-tr-Mode ok))
+    tr-▸ {m = m} (unitrecₘ {γ₃ = γ} {p = p} {γ₄ = δ} ▸A ▸t ▸u ok) =
+      sub (unitrecₘ (tr-∙▸[𝟘ᵐ?] ▸A)
+             (▸-cong (tr-Mode-ᵐ· m BMΠ) (tr-▸ ▸t))
+             (tr-▸ ▸u)
+             (Unitrec-preserved ≈ᵐ-tr-Mode ok))
           (begin
             tr-Conₘ (p C₁.·ᶜ γ C₁.+ᶜ δ)           ≈⟨ tr-Conₘ-+ᶜ ⟩
             tr-Conₘ (p C₁.·ᶜ γ) C₂.+ᶜ tr-Conₘ δ   ≈⟨ +ᶜ-congʳ tr-Conₘ-·ᶜ ⟩
@@ -753,16 +769,30 @@ module Is-order-embedding
       lemma {m₁} m₁≳m₂ = λ where
         (var _) varᵤ →
           RS₁.varᵤ
+        Level Levelᵤ →
+          RS₁.Levelᵤ
+        zeroᵘ zeroᵘᵤ →
+          RS₁.zeroᵘᵤ
+        (sucᵘ _) (sucᵘᵤ t) →
+          RS₁.sucᵘᵤ (lemma m₁≳m₂ _ t)
+        (_ supᵘ _) (supᵘᵤ t u) →
+          RS₁.supᵘᵤ (lemma m₁≳m₂ _ t) (lemma m₁≳m₂ _ u)
+        (Lift _ _) (Liftᵤ t A) →
+          RS₁.Liftᵤ (lemma-𝟘ᵐ?-𝟘ᵐ? t) (lemma m₁≳m₂ _ A)
+        (lift _) (liftᵤ t) →
+          RS₁.liftᵤ (lemma m₁≳m₂ _ t)
+        (lower _) (lowerᵤ t) →
+          RS₁.lowerᵤ (lemma m₁≳m₂ _ t)
         Empty Emptyᵤ →
           RS₁.Emptyᵤ
         (emptyrec _ _ _) (emptyrecᵤ ok A t) →
           RS₁.emptyrecᵤ (Emptyrec-reflected m₁≳m₂ ok) (lemma-𝟘ᵐ?-𝟘ᵐ? A)
             (lemma (ᵐ·≳ᵐᵐ· m₁≳m₂) _ t)
-        (Unit _ _) Unitᵤ →
+        (Unit _) Unitᵤ →
           RS₁.Unitᵤ
-        (star _ _) starᵤ →
+        (star _) starᵤ →
           RS₁.starᵤ
-        (unitrec _ _ _ _ _ _) (unitrecᵤ ok A t u) →
+        (unitrec _ _ _ _ _) (unitrecᵤ ok A t u) →
           RS₁.unitrecᵤ (Unitrec-reflected m₁≳m₂ ok) (lemma-𝟘ᵐ?-𝟘ᵐ? A)
             (lemma (ᵐ·≳ᵐᵐ· m₁≳m₂) _ t) (lemma m₁≳m₂ _ u)
         (ΠΣ⟨ _ ⟩ _ , _ ▷ _ ▹ _) (ΠΣᵤ A B) →
@@ -793,8 +823,8 @@ module Is-order-embedding
                 (M.Is-no-nr-glb-reflecting-morphism.tr-nrᵢ-glb no-nr-glb-reflected (x .proj₂))
                 (lemma-𝟘ᵐ?-𝟘ᵐ? A) (lemma m₁≳m₂ _ t)
                 (lemma m₁≳m₂ _ u) (lemma m₁≳m₂ _ v)
-        (U _) Uᵤ →
-          RS₁.Uᵤ
+        (U _) (Uᵤ t) →
+          RS₁.Uᵤ (lemma-𝟘ᵐ?-𝟘ᵐ? t)
         (Id _ _ _) (Idᵤ not-erased A t u) →
           RS₁.Idᵤ (not-erased ∘→ Id-erased-preserved .proj₁)
             (lemma-𝟘ᵐ?-𝟘ᵐ? A) (lemma m₁≳m₂ _ t) (lemma m₁≳m₂ _ u)
@@ -912,8 +942,30 @@ module Is-order-embedding
     tr-▸⁻¹′ :
       ∀ t → γ′ U₂.▸[ m′ ] tr-Term t →
       m′ ≡ tr-Mode m → tr-Conₘ γ C₂.≤ᶜ γ′ → γ U₁.▸[ m ] t
-    tr-▸⁻¹′ {γ = γ} (U _) Uₘ refl ≤𝟘 = sub
-      Uₘ
+    tr-▸⁻¹′ Level Levelₘ refl ≤𝟘 =
+      sub Levelₘ (tr-Conₘ-≤ᶜ-𝟘ᶜ-→-≤ᶜ-𝟘ᶜ ≤𝟘)
+
+    tr-▸⁻¹′ zeroᵘ zeroᵘₘ refl ≤𝟘 =
+      sub zeroᵘₘ (tr-Conₘ-≤ᶜ-𝟘ᶜ-→-≤ᶜ-𝟘ᶜ ≤𝟘)
+
+    tr-▸⁻¹′ (sucᵘ _) (sucᵘₘ ▸t) refl ≤γ =
+      sucᵘₘ (tr-▸⁻¹′ _ ▸t refl ≤γ)
+
+    tr-▸⁻¹′ (_ supᵘ _) (supᵘₘ ▸t ▸u) refl ≤γ =
+      case tr-Conₘ-≤ᶜ-+ᶜ ≤γ of λ (δ′ , η′ , ≤₁ , ≤₂ , γ≤) →
+        sub (supᵘₘ (tr-▸⁻¹′ _ ▸t refl ≤₁) (tr-▸⁻¹′ _ ▸u refl ≤₂)) γ≤
+
+    tr-▸⁻¹′ (Lift _ _) (Liftₘ ▸t ▸A) refl ≤γ =
+      Liftₘ (tr-▸[𝟘ᵐ?]⁻¹ ▸t .proj₂) (tr-▸⁻¹′ _ ▸A refl ≤γ)
+
+    tr-▸⁻¹′ (lift _) (liftₘ ▸t) refl ≤γ =
+      liftₘ (tr-▸⁻¹′ _ ▸t refl ≤γ)
+
+    tr-▸⁻¹′ (lower _) (lowerₘ ▸t) refl ≤γ =
+      lowerₘ (tr-▸⁻¹′ _ ▸t refl ≤γ)
+
+    tr-▸⁻¹′ {γ = γ} (U _) (Uₘ ▸t) refl ≤𝟘 = sub
+      (Uₘ (tr-▸[𝟘ᵐ?]⁻¹ ▸t .proj₂))
       (begin
          γ      ≤⟨ tr-Conₘ-≤ᶜ-𝟘ᶜ-→-≤ᶜ-𝟘ᶜ ≤𝟘 ⟩
          C₁.𝟘ᶜ  ∎)
@@ -923,7 +975,7 @@ module Is-order-embedding
     tr-▸⁻¹′ Unit! Unitₘ refl ≤𝟘 =
       sub Unitₘ (tr-Conₘ-≤ᶜ-𝟘ᶜ-→-≤ᶜ-𝟘ᶜ ≤𝟘)
 
-    tr-▸⁻¹′ (starʷ _) starʷₘ refl ≤𝟘 =
+    tr-▸⁻¹′ starʷ starʷₘ refl ≤𝟘 =
       sub starʷₘ (tr-Conₘ-≤ᶜ-𝟘ᶜ-→-≤ᶜ-𝟘ᶜ ≤𝟘)
 
     tr-▸⁻¹′ Empty Emptyₘ refl ≤𝟘 =
@@ -941,7 +993,7 @@ module Is-order-embedding
     tr-▸⁻¹′ (snd _ _) (sndₘ ▸t) refl ≤γ′ =
       sndₘ (tr-▸⁻¹′ _ ▸t refl ≤γ′)
 
-    tr-▸⁻¹′ {m} {γ} (starˢ _) (starˢₘ {γ = δ} prop) refl ≤mδ =
+    tr-▸⁻¹′ {m} {γ} starˢ (starˢₘ {γ = δ} prop) refl ≤mδ =
       case lemma″ starˢ-sink-preserved prop of λ (_ , prop′ , γ≤) →
         sub (starˢₘ prop′) γ≤
       where
@@ -1189,13 +1241,14 @@ module Is-order-embedding
       open CR₁
 
     tr-▸⁻¹′
-      {m = m} {γ = γ} (unitrec _ p _ _ _ _)
-      (unitrecₘ {γ = δ} {δ = η} ▸t ▸u ▸A ok) refl γ≤pδ+η =
+      {m = m} {γ = γ} (unitrec p _ _ _ _)
+      (unitrecₘ {γ₃ = δ} {γ₄ = η} ▸A ▸t ▸u ok) refl γ≤pδ+η =
       case tr-Conₘ-≤ᶜ-+ᶜ γ≤pδ+η of λ (δ′ , η′ , δ′≤pδ , η′≤η , γ≤δ′+η′) →
       case tr-Conₘ-≤ᶜ-·ᶜ δ′≤pδ of λ (δ″ , δ″≤δ , δ′≤pδ″) →
       sub
-        (unitrecₘ (tr-▸⁻¹′ _ ▸t (sym (tr-Mode-ᵐ· m BMΠ)) δ″≤δ)
-           (tr-▸⁻¹′ _ ▸u refl η′≤η) (tr-∙▸[𝟘ᵐ?]⁻¹ ▸A .proj₂)
+        (unitrecₘ (tr-∙▸[𝟘ᵐ?]⁻¹ ▸A .proj₂)
+           (tr-▸⁻¹′ _ ▸t (sym (tr-Mode-ᵐ· m BMΠ)) δ″≤δ)
+           (tr-▸⁻¹′ _ ▸u refl η′≤η)
            (Unitrec-reflected [ ≈ᵐ-tr-Mode ] ok))
         (begin
           γ                    ≤⟨ γ≤δ′+η′ ⟩

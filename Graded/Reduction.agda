@@ -80,14 +80,14 @@ opaque
     open ≤ᶜ-reasoning
 
     Γ′ : Con Term 1
-    Γ′ = ε ∙ Unitʷ 0
+    Γ′ = ε ∙ Unitʷ
 
     γ′ : Conₘ 1
     γ′ = ε ∙ 𝟙
 
     A′ t′ u′ : Term 1
     A′ = ℕ
-    t′ = unitrec 0 𝟙 𝟘 ℕ (var x0) zero
+    t′ = unitrec 𝟙 𝟘 ℕ (var x0) zero
     u′ = zero
 
     ⊢Γ′ : ⊢ Γ′
@@ -100,10 +100,11 @@ opaque
 
     ▸t′ : γ′ ▸[ 𝟙ᵐ ] t′
     ▸t′ = sub
-      (unitrecₘ var zeroₘ
+      (unitrecₘ
          (sub ℕₘ $ begin
             𝟘ᶜ ∙ ⌜ 𝟘ᵐ? ⌝ · 𝟘  ≈⟨ ≈ᶜ-refl ∙ ·-zeroʳ _ ⟩
             𝟘ᶜ                ∎)
+         var zeroₘ
          unitrec-ok)
       (begin
          ε ∙ 𝟙                  ≈˘⟨ ε ∙ ·⌜⌞⌟⌝ ⟩
@@ -319,13 +320,13 @@ module _
     in  sub (emptyrecₘ (usagePresTerm δ▸t t⇒u) η▸A ok) γ≤δ
 
   usagePresTerm γ▸ur (unitrec-subst x x₁ t⇒t′ _ _) =
-    let invUsageUnitrec δ▸t η▸u θ▸A ok γ≤γ′ = inv-usage-unitrec γ▸ur
+    let invUsageUnitrec θ▸A δ▸t η▸u ok γ≤γ′ = inv-usage-unitrec γ▸ur
         δ▸t′ = usagePresTerm δ▸t t⇒t′
-    in  sub (unitrecₘ δ▸t′ η▸u θ▸A ok) γ≤γ′
+    in  sub (unitrecₘ θ▸A δ▸t′ η▸u ok) γ≤γ′
 
 
   usagePresTerm {γ = γ} γ▸ur (unitrec-β {p = p} x x₁ _ _) =
-    let invUsageUnitrec {δ = δ} {η = η} δ▸t η▸u θ▸A ok γ≤γ′ =
+    let invUsageUnitrec {γ₃ = δ} {γ₄ = η} θ▸A δ▸t η▸u ok γ≤γ′ =
           inv-usage-unitrec γ▸ur
         δ≤𝟘 = inv-usage-starʷ δ▸t
     in  sub η▸u (begin
@@ -339,7 +340,7 @@ module _
 
   usagePresTerm {γ} {m} γ▸ur (unitrec-β-η {u} {p} _ _ _ Unit-ok η-ok) =
     case inv-usage-unitrec γ▸ur of λ
-      (invUsageUnitrec {δ} {η} _ η▸u _ unitrec-ok γ≤pδ+η) →
+      (invUsageUnitrec {γ₃ = δ} {γ₄ = η} _ _ η▸u unitrec-ok γ≤pδ+η) →
     case PE.singleton m of λ where
       (𝟘ᵐ , PE.refl) →                               $⟨ η▸u ⟩
         η ▸[ 𝟘ᵐ ] u                                  →⟨ proj₂ ∘→ ▸[𝟘ᵐ]⇔ .proj₁ ⟩
@@ -438,6 +439,36 @@ module _
       λ (invUsage-[]-cong _ _ _ _ _ γ≤) →
     sub rflₘ γ≤
 
+  usagePresTerm {γ = γ} γ▸ (supᵘ-substˡ t⇒t′ _) =
+    case inv-usage-supᵘ γ▸ of λ (_ , _ , γ≤ , ▸t , ▸u) →
+      sub (supᵘₘ (usagePresTerm ▸t t⇒t′) ▸u) γ≤
+  usagePresTerm {γ = γ} γ▸ (supᵘ-substʳ _ u⇒u′) =
+    case inv-usage-supᵘ γ▸ of λ (_ , _ , γ≤ , ▸t , ▸u) →
+      sub (supᵘₘ ▸t (usagePresTerm ▸u u⇒u′)) γ≤
+  usagePresTerm {γ = γ} γ▸ (supᵘ-zeroˡ _) =
+    case inv-usage-supᵘ γ▸ of λ (δ , η , γ≤ , ▸zeroᵘ , ▸u) →
+      sub ▸u (begin
+        γ       ≤⟨ γ≤ ⟩
+        δ +ᶜ η  ≤⟨ +ᶜ-monotoneˡ (inv-usage-zeroᵘ ▸zeroᵘ) ⟩
+        𝟘ᶜ +ᶜ η ≈⟨ +ᶜ-identityˡ η ⟩
+        η       ∎)
+      where open import Tools.Reasoning.PartialOrder ≤ᶜ-poset
+  usagePresTerm {γ = γ} γ▸ (supᵘ-zeroʳ _) =
+    case inv-usage-supᵘ γ▸ of λ (δ , η , γ≤ , ▸u , ▸zeroᵘ) →
+      sub ▸u (begin
+        γ       ≤⟨ γ≤ ⟩
+        δ +ᶜ η  ≤⟨ +ᶜ-monotoneʳ (inv-usage-zeroᵘ ▸zeroᵘ) ⟩
+        δ +ᶜ 𝟘ᶜ ≈⟨ +ᶜ-identityʳ δ ⟩
+        δ       ∎)
+      where open import Tools.Reasoning.PartialOrder ≤ᶜ-poset
+  usagePresTerm {γ = γ} γ▸ (supᵘ-sucᵘ _ _) =
+    case inv-usage-supᵘ γ▸ of λ (δ , η , γ≤ , ▸t , ▸u) →
+      sub (sucᵘₘ (supᵘₘ (inv-usage-sucᵘ ▸t) (inv-usage-sucᵘ ▸u))) γ≤
+  usagePresTerm {γ = γ} γ▸ (lower-subst t⇒t′) =
+    lowerₘ (usagePresTerm (inv-usage-lower γ▸) t⇒t′)
+  usagePresTerm {γ = γ} γ▸ (Lift-β _ _) =
+    inv-usage-lift (inv-usage-lower γ▸)
+
   -- Type reduction preserves usage.
 
   usagePres : γ ▸[ m ] A → Γ ⊢ A ⇒ B → γ ▸[ m ] B
@@ -487,11 +518,11 @@ Well-resourced-normal-form-without-η-long-normal-form =
 η-long-nf-for-0⇔sink⊎𝟙≤𝟘 :
   Unit-allowed s →
   Unit-with-η s →
-  let Γ = ε ∙ Unit s 0
+  let Γ = ε ∙ Unit s
       γ = ε ∙ 𝟙
-      A = Unit s 0
+      A = Unit s
       t = var x0
-      u = star s 0
+      u = star s
   in
   Γ ⊢ t ∷ A ×
   γ ▸[ 𝟙ᵐ ] t ×
@@ -549,9 +580,9 @@ Well-resourced-normal-form-without-η-long-normal-form =
   Π-allowed 𝟙 q →
   Unit-allowed s →
   Unit-with-η s →
-  let A = Π 𝟙 , q ▷ Unit s 0 ▹ Unit s 0
+  let A = Π 𝟙 , q ▷ Unit s ▹ Unit s
       t = lam 𝟙 (var x0)
-      u = lam 𝟙 (star s 0)
+      u = lam 𝟙 (star s)
   in
   ε ⊢ t ∷ A ×
   ε ▸[ 𝟙ᵐ ] t ×
@@ -581,6 +612,8 @@ Well-resourced-normal-form-without-η-long-normal-form =
 -- Unitˢ is not allowed to be used as a sink, 𝟙 is not bounded by 𝟘,
 -- Π-allowed 𝟙 q holds for some q, and equality reflection is not
 -- allowed.
+
+{- TODO: depends on uniqueness of normal forms
 
 well-resourced-normal-form-without-η-long-normal-form-Unit :
   ⦃ not-ok : No-equality-reflection ⦄ →
@@ -761,3 +794,4 @@ well-resourced-normal-form-without-η-long-normal-form-Σˢ
       ε ▸[ 𝟙ᵐ ] lam 𝟙 (prodˢ p (fst p (var x0)) (snd p (var x0)))  →⟨ ▸u→ ⟩
       p PE.≡ 𝟙 ⊎ p PE.≡ 𝟘 × T 𝟘ᵐ-allowed × 𝟙 ≤ 𝟘                   →⟨ (λ { (inj₁ p≡𝟙) → p≢𝟙 p≡𝟙; (inj₂ hyp) → ¬[p≡𝟘×𝟘ᵐ×𝟙≤𝟘] hyp }) ⟩
       ⊥                                                            □ }
+-}

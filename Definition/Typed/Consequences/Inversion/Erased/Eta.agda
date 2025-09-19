@@ -43,7 +43,7 @@ opaque
     Erasedˢ-allowed →
     ¬ (∀ {n} {Γ : Con Term n} {t A : Term n} →
        Γ ⊢ erased t ∷ A →
-       ∃₂ λ q u → Γ ⊢ t ∷ Σˢ 𝟘 , q ▷ A ▹ Unitˢ u)
+       ∃ λ q → Γ ⊢ t ∷ Σˢ 𝟘 , q ▷ A ▹ Unitˢ)
   ¬-inversion-erased′ (Unit-ok , Σˢ-ok) inversion-erased = bad
     where
     Γ′ : Con Term 0
@@ -68,21 +68,18 @@ opaque
     erased-t′≡zero =
       Σ-β₁ (ℕⱼ ⊢Γ′∙ℕ) (zeroⱼ ε) (zeroⱼ ε) PE.refl Σˢ-ok
 
-    ⊢t′₂ : ∃₂ λ q u → Γ′ ⊢ t′ ∷ Σˢ 𝟘 , q ▷ A′ ▹ Unitˢ u
+    ⊢t′₂ : ∃ λ q → Γ′ ⊢ t′ ∷ Σˢ 𝟘 , q ▷ A′ ▹ Unitˢ
     ⊢t′₂ = inversion-erased ⊢erased-t′
 
-    ⊢snd-t′ : ∃ λ l → Γ′ ⊢ snd 𝟘 t′ ∷ Unitˢ l
+    ⊢snd-t′ : Γ′ ⊢ snd 𝟘 t′ ∷ Unitˢ
     ⊢snd-t′ =
-      let _ , _ , ⊢t′   = ⊢t′₂
-          _ , ⊢Unit , _ = inversion-ΠΣ (wf-⊢∷ ⊢t′)
-          ⊢u , _        = inversion-Unit ⊢Unit
+      let _ , ⊢t′         = ⊢t′₂
+          ⊢A′ , ⊢Unit , _ = inversion-ΠΣ (wf-⊢∷ ⊢t′)
       in
-      _ , sndⱼ (Unitⱼ ⊢u Unit-ok) ⊢t′
+      sndⱼ (Unitⱼ (∙ ⊢A′) Unit-ok) ⊢t′
 
-    ℕ≡Unit : ∃ λ l → Γ′ ⊢ ℕ ≡ Unitˢ l
+    ℕ≡Unit : Γ′ ⊢ ℕ ≡ Unitˢ
     ℕ≡Unit =
-      case ⊢snd-t′ of λ
-        (l , ⊢snd-t′) →
       case inversion-snd ⊢snd-t′ of
         λ (_ , _ , _ , _ , _ , ⊢t′ , Unit≡) →
       case inversion-prod ⊢t′ of
@@ -93,14 +90,13 @@ opaque
         λ ≡ℕ →
       case inversion-zero ⊢zero′ of
         λ ≡ℕ′ →
-        l
-      , (_⊢_≡_.sym $
+      (_⊢_≡_.sym $
          trans Unit≡ $
          trans (G≡G′ (conv erased-t′≡zero (_⊢_≡_.sym (trans F≡F′ ≡ℕ))))
            ≡ℕ′)
 
     bad : ⊥
-    bad = ℕ≢Unitⱼ ⦃ ok = ε ⦄ (ℕ≡Unit .proj₂)
+    bad = ℕ≢Unitⱼ ⦃ ok = ε ⦄ ℕ≡Unit
 
 opaque
 
@@ -114,4 +110,4 @@ opaque
        Γ ⊢ t ∷ Erased A)
   ¬-inversion-erased Erased-ok inversion-erased =
     ¬-inversion-erased′ Erased-ok λ ⊢erased →
-    _ , _ , inversion-erased ⊢erased
+    _ , inversion-erased ⊢erased

@@ -46,11 +46,11 @@ opaque
                    ⌜ m ⌝ ·ᶜ η ▸[ m ] emptyrec-sink A t
   ▸emptyrec-sink {γ} {δ} {m} {η} ▸t ▸A ok ok′ =
     sub ((emptyrecₘ (▸-cong (sym (ᵐ·-zeroʳ m)) ▸t)
-           (ΠΣₘ {δ = δ} (Unitₘ zeroᵘₘ)
+           (ΠΣₘ {δ = δ} Unitₘ
               (sub (wkUsage (step id) ▸A)
                  (≤ᶜ-refl ∙ ≤-reflexive (·-zeroʳ _))))
            ok)
-        ∘ₘ (starˢₘ (⊥-elim ∘→ not-sink-and-no-sink ok′) zeroᵘₘ))
+        ∘ₘ (starˢₘ (⊥-elim ∘→ not-sink-and-no-sink ok′)))
       (begin
         ⌜ m ⌝ ·ᶜ η                     ≈˘⟨ ·ᶜ-congʳ (cong ⌜_⌝ (ᵐ·-identityʳ {m})) ⟩
         ⌜ m ᵐ· 𝟙 ⌝ ·ᶜ η                ≈˘⟨ +ᶜ-identityˡ _ ⟩

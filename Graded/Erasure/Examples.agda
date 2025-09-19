@@ -2,7 +2,7 @@
 -- Some examples related to the erasure modality and extraction
 ------------------------------------------------------------------------
 
-open import Tools.Level
+open import Tools.Level hiding (Level; Lift)
 
 open import Graded.Modality.Instances.Erasure
 open import Graded.Modality.Instances.Erasure.Modality
@@ -51,6 +51,7 @@ open import Tools.Sum as ⊎ using (_⊎_; inj₁; inj₂)
 
 open import Definition.Typed TR as DT hiding (id)
 open import Definition.Typed.Eta-long-normal-form TR
+open import Definition.Typed.Inversion TR
 open import Definition.Typed.Properties TR
 open import Definition.Typed.Substitution TR hiding (id)
 open import Definition.Typed.Syntactic TR
@@ -83,9 +84,8 @@ open import Graded.Usage.Weakening EM UR
 private variable
   n       : Nat
   Γ       : Con Term _
-  A t u v : Term _
+  A t u v l : Term _
   γ       : Conₘ _
-  l       : Universe-level
   str     : Strictness
 
 private
@@ -95,97 +95,97 @@ private
   ⊢ℕ : ⊢ ε ∙ ℕ
   ⊢ℕ = ∙ ℕⱼ ε
 
-  ⊢U : ⊢ ε ∙ U l
-  ⊢U = ∙ Uⱼ ε
+  ⊢U : ε ∙ Level ⊢ U (var x0)
+  ⊢U = Uⱼ (var (∙ Levelⱼ ε) here)
 
-  U⊢0 : ε ∙ U l ⊢ var x0
-  U⊢0 = univ (var ⊢U here)
+  U⊢ℕ : ε ∙ Level ∙ U (var x0) ⊢ ℕ
+  U⊢ℕ = ℕⱼ (∙ ⊢U)
 
-  ⊢U0 : ⊢ ε ∙ U l ∙ var x0
-  ⊢U0 = ∙ U⊢0
-
-  U⊢id : ε ∙ U l ⊢ lam ω (var x0) ∷ Π ω , q ▷ var x0 ▹ var x1
-  U⊢id = lamⱼ′ Π-ω-ok (var ⊢U0 here)
-
-  ΓU⊢id : ⊢ Γ → Γ ∙ U l ⊢ lam ω (var x0) ∷ Π ω , q ▷ var x0 ▹ var x1
-  ΓU⊢id ε = U⊢id
-  ΓU⊢id (∙ ⊢A) =
-    W.wkTerm (W.liftʷ (W.step W.id) (Uⱼ (∙ ⊢A)))
-             (ΓU⊢id (wf ⊢A))
-
-  U⊢ℕ : ε ∙ U l ⊢ ℕ
-  U⊢ℕ = ℕⱼ ⊢U
-
-  ⊢Uℕ : ⊢ ε ∙ U l ∙ ℕ
+  ⊢Uℕ : ⊢ ε ∙ Level ∙ U (var x0) ∙ ℕ
   ⊢Uℕ = ∙ U⊢ℕ
 
-  ⊢Uℕℕ : ⊢ ε ∙ U l ∙ ℕ ∙ ℕ
+  U⊢0 : ε ∙ Level ∙ U (var x0) ⊢ var x0
+  U⊢0 = univ (var (∙ ⊢U) here)
+
+  ⊢U0 : ⊢ ε ∙ Level ∙ U (var x0) ∙ var x0
+  ⊢U0 = ∙ U⊢0
+
+  U⊢id : ε ∙ Level ∙ U (var x0) ⊢ lam ω (var x0) ∷ Π ω , q ▷ var x0 ▹ var x1
+  U⊢id = lamⱼ′ Π-ω-ok (var ⊢U0 here)
+
+  ΓU⊢id : ⊢ Γ → Γ ∙ Level ∙ U (var x0) ⊢ lam ω (var x0) ∷ Π ω , q ▷ var x0 ▹ var x1
+  ΓU⊢id ε = U⊢id
+  ΓU⊢id (∙ ⊢A) =
+    W.wkTerm (W.liftʷ (W.lift (W.step W.id)) (Uⱼ (var (∙ Levelⱼ (∙ ⊢A)) here)))
+             (ΓU⊢id (wf ⊢A))
+
+  ⊢Uℕℕ : ⊢ ε ∙ Level ∙ U (var x0) ∙ ℕ ∙ ℕ
   ⊢Uℕℕ = ∙ ℕⱼ ⊢Uℕ
 
-  UℕℕU⊢3 : ε ∙ U l ∙ ℕ ∙ ℕ ∙ U l ⊢ var x3 ∷ U l
-  UℕℕU⊢3 = var₃ (Uⱼ ⊢Uℕℕ)
+  UℕℕU⊢3 : ε ∙ Level ∙ U (var x0) ∙ ℕ ∙ ℕ ∙ U (var x3) ⊢ var x3 ∷ U (var x4)
+  UℕℕU⊢3 = var₃ (Uⱼ (var₃ (ℕⱼ ⊢Uℕ)))
 
-  ⊢UℕℕU3 : ⊢ ε ∙ U l ∙ ℕ ∙ ℕ ∙ U l ∙ var x3
+  ⊢UℕℕU3 : ⊢ ε ∙ Level ∙ U (var x0) ∙ ℕ ∙ ℕ ∙ U (var x3) ∙ var x3
   ⊢UℕℕU3 = ∙ univ UℕℕU⊢3
 
   ⊢ℕℕ : ⊢ ε ∙ ℕ ∙ ℕ
   ⊢ℕℕ = ∙ ℕⱼ ⊢ℕ
 
-  ⊢ℕℕU : ⊢ ε ∙ ℕ ∙ ℕ ∙ U l
-  ⊢ℕℕU = ∙ Uⱼ ⊢ℕℕ
+  ⊢ℕℕU : ⊢ ε ∙ ℕ ∙ ℕ ∙ Level ∙ U (var x0)
+  ⊢ℕℕU = ∙ Uⱼ (var (∙ Levelⱼ ⊢ℕℕ) here)
 
 ------------------------------------------------------------------------
--- A polymorphic identity function
+-- A universe-polymorphic identity function
 
--- A polymorphic identity function with an erased type argument.
+-- A universe-polymorphic identity function with an erased type argument.
 
 id : Term n
-id = lam 𝟘 (lam ω (var x0))
+id = lam 𝟘 (lam 𝟘 (lam ω (var x0)))
 
--- The polymorphic identity function is well-typed (in a well-formed
+-- The universe-polymorphic identity function is well-typed (in a well-formed
 -- context).
 
-⊢id : ⊢ Γ → Γ ⊢ id ∷ Π 𝟘 , p ▷ U l ▹ Π ω , q ▷ var x0 ▹ var x1
-⊢id ⊢Γ = lamⱼ′ Π-𝟘-ok (ΓU⊢id ⊢Γ)
+⊢id : ⊢ Γ → Γ ⊢ id ∷ Π 𝟘 , p ▷ Level ▹ Π 𝟘 , p ▷ U (var x0) ▹ Π ω , q ▷ var x0 ▹ var x1
+⊢id ⊢Γ = lamⱼ′ Π-𝟘-ok (lamⱼ′ Π-𝟘-ok (ΓU⊢id ⊢Γ))
 
--- The polymorphic identity function is well-resourced (with respect
+-- The universe-polymorphic identity function is well-resourced (with respect
 -- to the zero usage context).
 
 ▸id : 𝟘ᶜ {n} ▸[ 𝟙ᵐ ] id
-▸id = lamₘ (lamₘ var)
+▸id = lamₘ (lamₘ (lamₘ var))
 
--- The polymorphic identity function applied to two free variables
+-- The universe-polymorphic identity function applied to three free variables
 
-id-x1-x0 : Term 2
-id-x1-x0 = id ∘⟨ 𝟘 ⟩ var x1 ∘⟨ ω ⟩ var x0
+id-generic : Term 3
+id-generic = id ∘⟨ 𝟘 ⟩ var x2 ∘⟨ 𝟘 ⟩ var x1 ∘⟨ ω ⟩ var x0
 
--- The term id-x0-x1 is well-typed (in a certain context)
+-- The term id-generic is well-typed (in a certain context)
 
-⊢id-x1-x0 : ε ∙ U l ∙ var x0 ⊢ id-x1-x0 ∷ var x1
-⊢id-x1-x0 = (⊢id ⊢Γ ∘ⱼ var ⊢Γ (there here)) ∘ⱼ var ⊢Γ here
+⊢id-generic : ε ∙ Level ∙ U (var x0) ∙ var x0 ⊢ id-generic ∷ var x1
+⊢id-generic = ((⊢id ⊢Γ ∘ⱼ var ⊢Γ (there (there here))) ∘ⱼ var ⊢Γ (there here)) ∘ⱼ var ⊢Γ here
   where
-  ⊢Γ = ∙ univ (var₀ (Uⱼ ε))
+  ⊢Γ = ∙ univ (var₀ ⊢U)
 
--- The term id-x1-x0 is well-resourced (with respect to a specific
+-- The term id-generic is well-resourced (with respect to a specific
 -- usage context).
 
-▸id-x1-x0 : ε ∙ 𝟘 ∙ ω ▸[ 𝟙ᵐ ] id-x1-x0
-▸id-x1-x0 = PE.subst
-  (λ γ → γ ▸[ 𝟙ᵐ ] id-x1-x0)
-  (≈ᶜ→≡ (ε ∙ PE.refl ∙ PE.cong ⌜_⌝ (ᵐ·-identityʳ {m = 𝟙ᵐ})))
-  ((▸id ∘ₘ var) ∘ₘ var)
+▸id-generic : ε ∙ 𝟘 ∙ 𝟘 ∙ ω ▸[ 𝟙ᵐ ] id-generic
+▸id-generic = PE.subst
+  (λ γ → γ ▸[ 𝟙ᵐ ] id-generic)
+  (≈ᶜ→≡ (ε ∙ PE.refl ∙ PE.refl ∙ PE.cong ⌜_⌝ (ᵐ·-identityʳ {m = 𝟙ᵐ})))
+  (((▸id ∘ₘ var) ∘ₘ var) ∘ₘ var)
 
--- The polymorphic identity function applied to two arguments.
+-- The universe-polymorphic identity function applied to two arguments.
 
 id-ℕ-zero : Term 0
-id-ℕ-zero = id ∘⟨ 𝟘 ⟩ ℕ ∘⟨ ω ⟩ zero
+id-ℕ-zero = id ∘⟨ 𝟘 ⟩ zeroᵘ ∘⟨ 𝟘 ⟩ ℕ ∘⟨ ω ⟩ zero
 
 -- In the strict setting the extraction of id-ℕ-zero includes an
 -- erased part (T.↯).
 
 erase-strict-id-ℕ-zero :
   erase strict id-ℕ-zero PE.≡
-  T.lam (T.lam (T.var x0)) T.∘⟨ strict ⟩ T.↯ T.∘⟨ strict ⟩ T.zero
+  T.lam (T.lam (T.lam (T.var x0))) T.∘⟨ strict ⟩ T.↯ T.∘⟨ strict ⟩ T.↯ T.∘⟨ strict ⟩ T.zero
 erase-strict-id-ℕ-zero = PE.refl
 
 -- In the non-strict setting that part is removed entirely, and one
@@ -199,30 +199,27 @@ erase-non-strict-id-ℕ-zero = PE.refl
 -- The term id-ℕ-zero is well-typed (in the empty context).
 
 ⊢id-ℕ-zero : ε ⊢ id-ℕ-zero ∷ ℕ
-⊢id-ℕ-zero = (⊢id ε ∘ⱼ ℕⱼ ε) ∘ⱼ zeroⱼ ε
+⊢id-ℕ-zero = ((⊢id ε ∘ⱼ zeroᵘⱼ ε) ∘ⱼ ℕⱼ ε) ∘ⱼ zeroⱼ ε
 
 -- The term id-ℕ-zero is well-resourced (with respect to the empty
 -- usage context).
 
 ▸id-ℕ-zero : ε ▸[ 𝟙ᵐ ] id-ℕ-zero
-▸id-ℕ-zero = (▸id ∘ₘ ℕₘ) ∘ₘ zeroₘ
+▸id-ℕ-zero = ((▸id ∘ₘ zeroᵘₘ) ∘ₘ ℕₘ) ∘ₘ zeroₘ
 
 -- The term id-ℕ-zero reduces to zero.
 
 id-ℕ-zero⇒*zero : ε ⊢ id-ℕ-zero ⇒* zero ∷ ℕ
 id-ℕ-zero⇒*zero =
-  app-subst
-    (β-red (ΠΣⱼ (univ (var ⊢U0 (there here))) Π-ω-ok) U⊢id (ℕⱼ ε)
-       PE.refl Π-𝟘-ok)
-    (zeroⱼ ε) ⇨
-  redMany (β-red (ℕⱼ ⊢ℕ) (var ⊢ℕ here) (zeroⱼ ε) PE.refl Π-ω-ok)
+  β-red-⇒₃′ Π-𝟘-ok Π-𝟘-ok Π-ω-ok (var ⊢U0 here) (zeroᵘⱼ ε) (ℕⱼ ε) (zeroⱼ ε)
 
 -- The erasure of id-ℕ-zero reduces to zero.
 
 erase-id-ℕ-zero⇒*zero : erase str id-ℕ-zero T.⇒* T.zero
 erase-id-ℕ-zero⇒*zero {str = strict} =
+  T.trans (T.app-subst $ T.app-subst $ T.β-red T.↯) $
   T.trans (T.app-subst $ T.β-red T.↯) $
-  T.trans (T.β-red $ TP.Value→Value⟨⟩ T.zero)
+  T.trans (T.β-red (TP.Value→Value⟨⟩ T.zero)) $
   T.refl
 erase-id-ℕ-zero⇒*zero {str = non-strict} =
   T.trans (T.β-red _)
@@ -321,29 +318,30 @@ private
 
   -- Parts of the implementation of Vec.
 
-  Vec-body₂ : Universe-level → Term (2+ n)
-  Vec-body₂ l =
+  Vec-body₂ : Term (1+ (2+ n))
+  Vec-body₂ =
     natrec 𝟘 𝟘 ω
-      (U l)
-      (Unit s l)
+      (U (var x3))
+      (Lift (var x2) (Unit s))
       (Σˢ ω , r ▷ var x3 ▹ var x1)
       (var x0)
 
-  Vec-body₁ : Universe-level → Term (1+ n)
-  Vec-body₁ l = lam ω (Vec-body₂ l)
+  Vec-body₁ : Term (2+ n)
+  Vec-body₁ = lam ω Vec-body₂
 
 -- Vectors (lists of a fixed length).
 
-Vec : Universe-level → Term 0
-Vec l = lam ω (Vec-body₁ l)
+Vec : Term 0
+Vec = lam ω (lam ω Vec-body₁)
 
 -- Vec l is well-resourced.
 
-▸Vec : ε ▸[ 𝟙ᵐ ] Vec l
+▸Vec : ε ▸[ 𝟙ᵐ ] Vec
 ▸Vec =
   lamₘ $
   lamₘ $
-  natrec-nr-or-no-nrₘ Unitₘ
+  lamₘ $
+  natrec-nr-or-no-nrₘ (Liftₘ var Unitₘ)
     (ΠΣₘ var $
      sub var $
      let open Tools.Reasoning.PartialOrder ≤ᶜ-poset in begin
@@ -351,9 +349,9 @@ Vec l = lam ω (Vec-body₁ l)
        𝟘ᶜ ∙ ω ∙ 𝟘  ∎)
     (sub (var {x = x0} {m = 𝟙ᵐ}) $
      let open Tools.Reasoning.PartialOrder ≤ᶜ-poset in begin
-       ε ∙ ω ∙ ω  ≤⟨ ≤ᶜ-refl ⟩
-       ε ∙ 𝟘 ∙ ω  ∎)
-    (sub Uₘ $
+       replicateᶜ 3 ω ≤⟨ ≤ᶜ-refl ⟩
+       ε ∙ 𝟘 ∙ 𝟘 ∙ ω  ∎)
+    (sub (Uₘ var) $
      let open Tools.Reasoning.PartialOrder ≤ᶜ-poset in begin
        𝟘ᶜ ∙ ⌜ 𝟘ᵐ? ⌝ · 𝟘  ≈⟨ ≈ᶜ-refl ∙ EM.·-zeroʳ _ ⟩
        𝟘ᶜ                ∎)
@@ -367,34 +365,31 @@ Vec l = lam ω (Vec-body₁ l)
          χ , χ-glb = ∃nrᵢ-GLB→∃nrᵢᶜ-GLB (Erasure-nrᵢ-glb _) 𝟘ᶜ _
          open Tools.Reasoning.PartialOrder ≤ᶜ-poset
     in  x , χ , x-glb , χ-glb , (begin
-      ε ∙ ω ∙ ω ≡⟨⟩
-      ω ·ᶜ (ε ∙ ω ∙ ω) +ᶜ (ε ∙ headₘ (tailₘ χ) ∙ headₘ χ)               ≈˘⟨ +ᶜ-congʳ (·ᶜ-congʳ (least-elem′ x (x-glb .proj₁ 0))) ⟩
-      x ·ᶜ (ε ∙ ω ∙ ω) +ᶜ (ε ∙ headₘ (tailₘ χ) ∙ headₘ χ)               ≈⟨ +ᶜ-congˡ {δ = _ ∙ headₘ (tailₘ χ) ∙ headₘ χ} (ε≈ᶜ ∙ PE.refl ∙ PE.refl) ⟩
-      x ·ᶜ (ε ∙ ω ∙ ω) +ᶜ (tailₘ (tailₘ χ) ∙ headₘ (tailₘ χ) ∙ headₘ χ) ≡⟨ PE.cong (x ·ᶜ (ε ∙ ω ∙ ω) +ᶜ_) (PE.cong (_∙ headₘ χ)
-                                                                             (headₘ-tailₘ-correct (tailₘ χ))) ⟩
-      x ·ᶜ (ε ∙ ω ∙ ω) +ᶜ (tailₘ χ ∙ headₘ χ)                           ≡⟨ PE.cong (x ·ᶜ (ε ∙ ω ∙ ω) +ᶜ_) (headₘ-tailₘ-correct χ) ⟩
-      x ·ᶜ (ε ∙ ω ∙ ω) +ᶜ χ       ∎))
+      replicateᶜ 3 ω                      ≡⟨⟩
+      ω ·ᶜ replicateᶜ 3 ω +ᶜ decomposeᶜ χ ≈˘⟨ +ᶜ-congʳ (·ᶜ-congʳ (least-elem′ x (x-glb .proj₁ 0))) ⟩
+      x ·ᶜ replicateᶜ 3 ω +ᶜ decomposeᶜ χ ≡⟨ PE.cong (λ y → x ·ᶜ replicateᶜ 3 ω +ᶜ y) (decomposeᶜ-correct χ) ⟩
+      x ·ᶜ replicateᶜ 3 ω +ᶜ χ            ∎))
 
 private
 
   -- A typing rule for Vec-body₂.
 
-  ⊢Vec-body₂ : ε ∙ U l ∙ ℕ ⊢ Vec-body₂ l ∷ U l
+  ⊢Vec-body₂ : ε ∙ Level ∙ U (var x0) ∙ ℕ ⊢ Vec-body₂ ∷ U (var x2)
   ⊢Vec-body₂ =
-    natrecⱼ (Unitⱼ ⊢Uℕ Unit-ok)
-      (PE.subst (_⊢_∷_ _ _) (PE.cong U ⊔ᵘ-idem) $
-       ΠΣⱼ UℕℕU⊢3 (var ⊢UℕℕU3 (there here)) Σˢ-ω-ok)
+    natrecⱼ
+      (Liftⱼ≤ (supᵘ-zeroˡ (var ⊢Uℕ (there (there here)))) (Unitⱼ ⊢Uℕ Unit-ok))
+      (ΠΣⱼ′ UℕℕU⊢3 (var ⊢UℕℕU3 (there here)) Σˢ-ω-ok)
       (var ⊢Uℕ here)
 
   -- A typing rule for Vec-body₁.
 
-  ⊢Vec-body₁ : ε ∙ U l ⊢ Vec-body₁ l ∷ Π ω , q ▷ ℕ ▹ U l
+  ⊢Vec-body₁ : ε ∙ Level ∙ U (var x0) ⊢ Vec-body₁ ∷ Π ω , q ▷ ℕ ▹ U (var x2)
   ⊢Vec-body₁ = lamⱼ′ Π-ω-ok ⊢Vec-body₂
 
 -- A typing rule for Vec.
 
-⊢Vec : ε ⊢ Vec l ∷ Π ω , q ▷ U l ▹ Π ω , q ▷ ℕ ▹ U l
-⊢Vec = lamⱼ′ Π-ω-ok ⊢Vec-body₁
+⊢Vec : ε ⊢ Vec ∷ Π ω , q ▷ Level ▹ Π ω , q ▷ U (var x0) ▹ Π ω , q ▷ ℕ ▹ U (var x2)
+⊢Vec = lamⱼ′ Π-ω-ok (lamⱼ′ Π-ω-ok ⊢Vec-body₁)
 
 -- Some lemmas used below.
 
@@ -414,8 +409,11 @@ private module Vec-lemmas (⊢A : Γ ⊢ A ∷ U l) where
   ⊢Γℕ : ⊢ Γ ∙ ℕ
   ⊢Γℕ = ∙ ℕⱼ ⊢Γ
 
-  Γℕ⊢U : Γ ∙ ℕ ⊢ U l
-  Γℕ⊢U = Uⱼ ⊢Γℕ
+  ⊢l : Γ ⊢ l ∷ Level
+  ⊢l = inversion-U-Level (syntacticTerm ⊢A)
+
+  Γℕ⊢U : Γ ∙ ℕ ⊢ U (wk1 l)
+  Γℕ⊢U = Uⱼ (W.wkTerm₁ (ℕⱼ ⊢Γ) ⊢l)
 
   wk2≡ :
     ∀ A →
@@ -459,6 +457,7 @@ private module Vec-lemmas (⊢A : Γ ⊢ A ∷ U l) where
     wk (lift (lift (step U.id)))
       (wk1 (wk1 (wk1 A)) [ liftSubst (liftSubst (sgSubst u)) ])    ∎
 
+{- TODO
   ΓℕU⊢A :
     Γ ∙ ℕ ∙ U l ⊢
     wk1 (wk1 (wk1 A)) [ liftSubst (liftSubst (sgSubst t)) ] ∷ U l
@@ -975,3 +974,4 @@ head-[0]⇒*zero =
       of λ where
         (inj₁ zero⇒*suc) → case TP.zero-noRed zero⇒*suc of λ ()
         (inj₂ suc⇒*zero) → case TP.suc-noRed  suc⇒*zero of λ ()
+-}

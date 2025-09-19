@@ -112,8 +112,12 @@ mutual
   -- Preservation of _⊢_.
 
   tr-⊢′ : Γ T₁.⊢ A → tr-Con Γ T₂.⊢ tr-Term A
-  tr-⊢′ (Uⱼ Γ) =
-    Uⱼ (tr-⊢ Γ)
+  tr-⊢′ (Levelⱼ Γ) =
+    Levelⱼ (tr-⊢ Γ)
+  tr-⊢′ (Liftⱼ l A) =
+    Liftⱼ (tr-⊢∷ l) (tr-⊢′ A)
+  tr-⊢′ (Uⱼ l) =
+    Uⱼ (tr-⊢∷ l)
   tr-⊢′ (ℕⱼ Γ) =
     ℕⱼ (tr-⊢ Γ)
   tr-⊢′ (Emptyⱼ Γ) =
@@ -130,10 +134,26 @@ mutual
   -- Preservation of _⊢_∷_.
 
   tr-⊢∷ : Γ T₁.⊢ t ∷ A → tr-Con Γ T₂.⊢ tr-Term t ∷ tr-Term A
-  tr-⊢∷ (Uⱼ Γ) =
-    Uⱼ (tr-⊢ Γ)
-  tr-⊢∷ (ΠΣⱼ {b = b} A P ok) =
-    ΠΣⱼ (tr-⊢∷ A) (tr-⊢∷ P) (ΠΣ-preserved ok)
+  tr-⊢∷ (Levelⱼ Γ) =
+    Levelⱼ (tr-⊢ Γ)
+  tr-⊢∷ (zeroᵘⱼ Γ) =
+    zeroᵘⱼ (tr-⊢ Γ)
+  tr-⊢∷ (sucᵘⱼ t) =
+    sucᵘⱼ (tr-⊢∷ t)
+  tr-⊢∷ (supᵘⱼ t u) =
+    supᵘⱼ (tr-⊢∷ t) (tr-⊢∷ u)
+  tr-⊢∷ (Liftⱼ t u A) =
+    Liftⱼ (tr-⊢∷ t) (tr-⊢∷ u) (tr-⊢∷ A)
+  tr-⊢∷ (liftⱼ t A u) =
+    liftⱼ (tr-⊢∷ t) (tr-⊢′ A) (tr-⊢∷ u)
+  tr-⊢∷ (lowerⱼ t) =
+    lowerⱼ (tr-⊢∷ t)
+  tr-⊢∷ (Uⱼ l) =
+    Uⱼ (tr-⊢∷ l)
+  tr-⊢∷ (ΠΣⱼ {l = l} ⊢l A P ok) =
+    ΠΣⱼ (tr-⊢∷ ⊢l) (tr-⊢∷ A)
+      (PE.subst (T₂._⊢_∷_ _ _) (PE.sym (tr-Term-wk {t = U l})) (tr-⊢∷ P))
+      (ΠΣ-preserved ok)
   tr-⊢∷ (ℕⱼ Γ) =
     ℕⱼ (tr-⊢ Γ)
   tr-⊢∷ (Emptyⱼ Γ) =
@@ -212,6 +232,10 @@ mutual
   -- Preservation of _⊢_≡_.
 
   tr-⊢≡ : Γ T₁.⊢ A ≡ B → tr-Con Γ T₂.⊢ tr-Term A ≡ tr-Term B
+  tr-⊢≡ (U-cong l₁≡l₂) =
+    U-cong (tr-⊢≡∷ l₁≡l₂)
+  tr-⊢≡ (Lift-cong l₁≡l₂ A≡B) =
+    Lift-cong (tr-⊢≡∷ l₁≡l₂) (tr-⊢≡ A≡B)
   tr-⊢≡ (univ A≡B) =
     univ (tr-⊢≡∷ A≡B)
   tr-⊢≡ (refl A) =
@@ -237,8 +261,36 @@ mutual
     trans (tr-⊢≡∷ t≡u) (tr-⊢≡∷ u≡v)
   tr-⊢≡∷ (conv t≡u A≡B) =
     conv (tr-⊢≡∷ t≡u) (tr-⊢≡ A≡B)
-  tr-⊢≡∷ (ΠΣ-cong {b} A≡B C≡D ok) =
-    ΠΣ-cong (tr-⊢≡∷ A≡B) (tr-⊢≡∷ C≡D) (ΠΣ-preserved ok)
+  tr-⊢≡∷ (sucᵘ-cong t≡t') =
+    sucᵘ-cong (tr-⊢≡∷ t≡t')
+  tr-⊢≡∷ (supᵘ-cong t≡t' u≡u') =
+    supᵘ-cong (tr-⊢≡∷ t≡t') (tr-⊢≡∷ u≡u')
+  tr-⊢≡∷ (supᵘ-zeroˡ t) =
+    supᵘ-zeroˡ (tr-⊢∷ t)
+  tr-⊢≡∷ (supᵘ-sucᵘ t u) =
+    supᵘ-sucᵘ (tr-⊢∷ t) (tr-⊢∷ u)
+  tr-⊢≡∷ (supᵘ-assoc t u v) =
+    supᵘ-assoc (tr-⊢∷ t) (tr-⊢∷ u) (tr-⊢∷ v)
+  tr-⊢≡∷ (supᵘ-comm t u) =
+    supᵘ-comm (tr-⊢∷ t) (tr-⊢∷ u)
+  tr-⊢≡∷ (supᵘ-idem t) =
+    supᵘ-idem (tr-⊢∷ t)
+  tr-⊢≡∷ (supᵘ-sub t) =
+    supᵘ-sub (tr-⊢∷ t)
+  tr-⊢≡∷ (U-cong t≡u) =
+    U-cong (tr-⊢≡∷ t≡u)
+  tr-⊢≡∷ (Lift-cong t u≡u' A≡B) =
+    Lift-cong (tr-⊢∷ t) (tr-⊢≡∷ u≡u') (tr-⊢≡∷ A≡B)
+  tr-⊢≡∷ (lower-cong t≡u) =
+    lower-cong (tr-⊢≡∷ t≡u)
+  tr-⊢≡∷ (Lift-β A u) =
+    Lift-β (tr-⊢′ A) (tr-⊢∷ u)
+  tr-⊢≡∷ (Lift-η l A t u lt≡lu) =
+    Lift-η (tr-⊢∷ l) (tr-⊢′ A) (tr-⊢∷ t) (tr-⊢∷ u) (tr-⊢≡∷ lt≡lu)
+  tr-⊢≡∷ (ΠΣ-cong {l = l} ⊢l A≡B C≡D ok) =
+    ΠΣ-cong (tr-⊢∷ ⊢l) (tr-⊢≡∷ A≡B)
+      (PE.subst (T₂._⊢_≡_∷_ _ _ _) (PE.sym (tr-Term-wk {t = U l})) (tr-⊢≡∷ C≡D))
+      (ΠΣ-preserved ok)
   tr-⊢≡∷ (app-cong {G = P} t≡u v≡w) =
     PE.subst (_ T₂.⊢ _ ≡ _ ∷_) (tr-Term-[] P)
       (app-cong (tr-⊢≡∷ t≡u) (tr-⊢≡∷ v≡w))
@@ -335,9 +387,9 @@ mutual
       (unitrec-β-η (tr-⊢′ ⊢A) (tr-⊢∷ t)
          (PE.subst (_ T₂.⊢ _ ∷_) (PE.sym (tr-Term-[] A)) (tr-⊢∷ u))
          (Unit-preserved ok₁) (Unitʷ-η-preserved ok₂))
-  tr-⊢≡∷ (η-unit t u ok) =
-    η-unit (tr-⊢∷ t) (tr-⊢∷ u) $
-    case ok of λ where
+  tr-⊢≡∷ (η-unit t u ok₁ ok₂) =
+    η-unit (tr-⊢∷ t) (tr-⊢∷ u) (Unit-preserved ok₁) $
+    case ok₂ of λ where
        (inj₁ ok) → inj₁ ok
        (inj₂ ok) → inj₂ (Unitʷ-η-preserved ok)
   tr-⊢≡∷ (Id-cong A₁≡A₂ t₁≡t₂ u₁≡u₂) =
@@ -436,6 +488,20 @@ module _
     Γ T₁.⊢ t ⇒ u ∷ A → tr-Con Γ T₂.⊢ tr-Term t ⇒ tr-Term u ∷ tr-Term A
   tr-⊢⇒∷ (conv t⇒u A≡B) =
     conv (tr-⊢⇒∷ t⇒u) (tr-⊢≡ A≡B)
+  tr-⊢⇒∷ (supᵘ-substˡ t⇒t' u) =
+    supᵘ-substˡ (tr-⊢⇒∷ t⇒t') (tr-⊢∷ u)
+  tr-⊢⇒∷ (supᵘ-substʳ t u⇒u') =
+    supᵘ-substʳ (tr-⊢∷ t) (tr-⊢⇒∷ u⇒u')
+  tr-⊢⇒∷ (supᵘ-zeroˡ t) =
+    supᵘ-zeroˡ (tr-⊢∷ t)
+  tr-⊢⇒∷ (supᵘ-zeroʳ t) =
+    supᵘ-zeroʳ (tr-⊢∷ t)
+  tr-⊢⇒∷ (supᵘ-sucᵘ t u) =
+    supᵘ-sucᵘ (tr-⊢∷ t) (tr-⊢∷ u)
+  tr-⊢⇒∷ (lower-subst t⇒u) =
+    lower-subst (tr-⊢⇒∷ t⇒u)
+  tr-⊢⇒∷ (Lift-β A u) =
+    Lift-β (tr-⊢′ A) (tr-⊢∷ u)
   tr-⊢⇒∷ (app-subst {G = P} t⇒u v) =
     PE.subst (_ T₂.⊢ _ ⇒ _ ∷_) (tr-Term-[] P)
       (app-subst (tr-⊢⇒∷ t⇒u) (tr-⊢∷ v))

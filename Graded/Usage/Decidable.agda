@@ -75,11 +75,11 @@ infix 10 ⌈⌉▸[_]?_
     let (_ , ▸t) , ▸A = inv-usage-Lift ▸Lift in
     problem _ (▸t , ▸A)
 
-⌈⌉▸[ m ]? lift t u = case ⌈⌉▸[ 𝟘ᵐ? ]? t ×-Dec-∀ ⌈⌉▸[ m ]? u of λ where
-  (inj₁ (▸t , ▸u)) → inj₁ (liftₘ ▸t ▸u)
+⌈⌉▸[ m ]? lift u = case ⌈⌉▸[ m ]? u of λ where
+  (inj₁ ▸u) → inj₁ (liftₘ ▸u)
   (inj₂ problem)   → inj₂ λ _ ▸lift →
-    let (_ , ▸t) , ▸u = inv-usage-lift ▸lift in
-    problem _ (▸t , ▸u)
+    let ▸u = inv-usage-lift ▸lift in
+    problem _ ▸u
 
 ⌈⌉▸[ m ]? lower t = case ⌈⌉▸[ m ]? t of λ where
   (inj₁ ▸t)   → inj₁ (lowerₘ ▸t)
@@ -89,11 +89,8 @@ infix 10 ⌈⌉▸[_]?_
 ⌈⌉▸[ m ]? ℕ =
   inj₁ ℕₘ
 
-⌈⌉▸[ m ]? Unit _ t = case ⌈⌉▸[ 𝟘ᵐ? ]? t of λ where
-  (inj₁ ▸t)  → inj₁ (Unitₘ ▸t)
-  (inj₂ ¬▸t) → inj₂ λ _ ▸Unit →
-    case inv-usage-Unit ▸Unit of λ (_ , _ , ▸t) →
-    ¬▸t _ ▸t
+⌈⌉▸[ m ]? Unit _ =
+  inj₁ Unitₘ
 
 ⌈⌉▸[ m ]? Empty =
   inj₁ Emptyₘ
@@ -101,17 +98,8 @@ infix 10 ⌈⌉▸[_]?_
 ⌈⌉▸[ m ]? zero =
   inj₁ zeroₘ
 
-⌈⌉▸[ m ]? starʷ t = case ⌈⌉▸[ 𝟘ᵐ? ]? t of λ where
-  (inj₁ ▸t)  → inj₁ (starₘ ▸t)
-  (inj₂ ¬▸t) → inj₂ λ _ ▸star →
-    case inv-usage-starʷ ▸star of λ (_ , _ , ▸t) →
-    ¬▸t _ ▸t
-
-⌈⌉▸[ m ]? starˢ t = case ⌈⌉▸[ 𝟘ᵐ? ]? t of λ where
-  (inj₁ ▸t)  → inj₁ (starₘ ▸t)
-  (inj₂ ¬▸t) → inj₂ λ _ ▸star →
-    case inv-usage-starˢ ▸star of λ (invUsageStarˢ ▸t _ _) →
-    ¬▸t _ ▸t
+⌈⌉▸[ m ]? (star _) =
+  inj₁ starₘ
 
 ⌈⌉▸[ m ]? var _   = inj₁ var
 
@@ -220,22 +208,22 @@ infix 10 ⌈⌉▸[_]?_
       let invUsageProdˢ ▸t ▸u _ = inv-usage-prodˢ ▸prod in
       problem _ (▸t , ▸u)
 
-⌈⌉▸[ m ]? unitrec p q t A u v =
+⌈⌉▸[ m ]? unitrec p q A u v =
   case Dec→Dec-∀ (Unitrec-allowed? m p q) ×-Dec-∀
-       ⌈⌉▸[ 𝟘ᵐ? ]? t ×-Dec-∀ ⌈⌉▸[ 𝟘ᵐ? ]? A ×-Dec-∀
+       ⌈⌉▸[ 𝟘ᵐ? ]? A ×-Dec-∀
        ⌈⌉▸[ m ᵐ· p ]? u ×-Dec-∀ ⌈⌉▸[ m ]? v ×-Dec-∀
        Dec→Dec-∀ (⌜ 𝟘ᵐ? ⌝ · q ≤? headₘ (⌈ A ⌉ 𝟘ᵐ?)) of λ where
-    (inj₁ (ok , ▸t , ▸A , ▸u , ▸v , q≤)) →
+    (inj₁ (ok , ▸A , ▸u , ▸v , q≤)) →
       let lemma = begin
             tailₘ (⌈ A ⌉ 𝟘ᵐ?) ∙ (⌜ 𝟘ᵐ? ⌝ · q)      ≤⟨ ≤ᶜ-refl ∙ q≤ ⟩
             tailₘ (⌈ A ⌉ 𝟘ᵐ?) ∙ headₘ (⌈ A ⌉ 𝟘ᵐ?)  ≡⟨ headₘ-tailₘ-correct _ ⟩
             ⌈ A ⌉ 𝟘ᵐ?                              ∎
       in
-      inj₁ (unitrecₘ ▸t (sub ▸A lemma) ▸u ▸v ok)
+      inj₁ (unitrecₘ (sub ▸A lemma) ▸u ▸v ok)
     (inj₂ problem) → inj₂ λ _ ▸ur →
-      let invUsageUnitrec ▸t ▸A ▸u ▸v ok _ = inv-usage-unitrec ▸ur in
+      let invUsageUnitrec ▸A ▸u ▸v ok _ = inv-usage-unitrec ▸ur in
       problem _
-        (ok , ▸t , ▸A , ▸u , ▸v ,
+        (ok , ▸A , ▸u , ▸v ,
          headₘ-monotone (usage-upper-bound no-sink-or-≤𝟘 ▸A))
   where
   open ≤ᶜ-reasoning

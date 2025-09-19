@@ -98,7 +98,7 @@ module _ (as : Full-reduction-assumptions) where
     -- require that these assumptions hold when the mode is 𝟙ᵐ.
 
     Unit-lemma :
-      Unit-allowed s → Unit-with-η s → γ ▸[ m ] t → γ ▸[ m ] star s l
+      Unit-allowed s → Unit-with-η s → γ ▸[ m ] t → γ ▸[ m ] star s
     Unit-lemma {s} {γ} {m} ok η ▸t =
       case lemma of λ
         (δ , prop , γ≤) →
@@ -187,6 +187,8 @@ module _ (as : Full-reduction-assumptions) where
     fullRedNe {Γ = Γ} = λ where
       (var-refl _ _) ▸x →
         ▸x
+      (lower-cong t~) ▸lower-t →
+        lowerₘ (fullRedNe~↓ t~ (inv-usage-lower ▸lower-t))
       (app-cong t~ u↑) ▸tu →
         case inv-usage-app ▸tu of λ {
           (invUsageApp ▸t ▸u γ≤) →
@@ -228,9 +230,9 @@ module _ (as : Full-reduction-assumptions) where
         sub (emptyrecₘ (fullRedNe~↓ t~ ▸t) (fullRedConv↑ A↑ ▸A) ok) γ≤ }
       (unitrec-cong A↑ t~ u↑ _) ▸unitrec →
         case inv-usage-unitrec ▸unitrec of λ {
-          (invUsageUnitrec ▸t ▸u ▸A ok γ≤) →
-        sub (unitrecₘ (fullRedNe~↓ t~ ▸t) (fullRedTermConv↑ u↑ ▸u)
-              (fullRedConv↑ A↑ ▸A) ok)
+          (invUsageUnitrec ▸A ▸t ▸u ok γ≤) →
+        sub (unitrecₘ (fullRedConv↑ A↑ ▸A) (fullRedNe~∷ t~ ▸t) (fullRedTermConv↑ u↑ ▸u)
+              ok)
             γ≤ }
       (J-cong A↑ t↑ B↑ u↑ v↑ w~ _) ▸J →
         case inv-usage-J ▸J of λ where
@@ -282,6 +284,12 @@ module _ (as : Full-reduction-assumptions) where
     fullRedNe~↓ ([~] _ _ k~l) γ▸t =
       fullRedNe k~l γ▸t
 
+    fullRedNe~∷ :
+      ⦃ not-ok : No-equality-reflection ⦄ →
+      (⊢t : Γ ⊢ t ~ t′ ∷ A) → γ ▸[ m ] t →
+      γ ▸[ m ] FR.fullRedNe~∷ ⊢t .proj₁
+    fullRedNe~∷ (↑ A≡B k~↑l) γ▸t = fullRedNe k~↑l γ▸t
+
     fullRedConv↑ :
       ⦃ not-ok : No-equality-reflection ⦄ →
       (⊢A : Γ ⊢ A [conv↑] A′) → γ ▸[ m ] A →
@@ -294,7 +302,13 @@ module _ (as : Full-reduction-assumptions) where
       (⊢A : Γ ⊢ A [conv↓] A′) → γ ▸[ m ] A →
       γ ▸[ m ] FR.fullRedConv↓ ⊢A .proj₁
     fullRedConv↓ = λ where
-      (U-refl     _)        ▸U    → ▸U
+      (Level-refl _)        ▸Level → ▸Level
+      (Lift-cong x x₁) ▸Lift →
+        case inv-usage-Lift ▸Lift of λ ((δ , ▸l) , ▸F) →
+          Liftₘ (fullRedTermConv↑ x ▸l) (fullRedConv↑ x₁ ▸F)
+      (U-cong     l↑)       ▸U    →
+        case inv-usage-U ▸U of λ (γ≤ , _ , ▸l) →
+          sub (Uₘ (fullRedTermConv↑ l↑ ▸l)) γ≤
       (ℕ-refl     _)        ▸ℕ    → ▸ℕ
       (Empty-refl _)        ▸⊥    → ▸⊥
       (Unit-refl  _ _)      ▸⊤    → ▸⊤
@@ -321,14 +335,53 @@ module _ (as : Full-reduction-assumptions) where
     fullRedTermConv↑ ([↑]ₜ _ _ _ _ (d , _) _ t<>u) γ▸t =
       fullRedTermConv↓ t<>u (usagePres*Term Unitʷ-η→ γ▸t d)
 
+    fullRedTermConv↑ᵛ :
+      ⦃ not-ok : No-equality-reflection ⦄ →
+      ∀ {tᵛ} (⊢t : Γ ⊢ t ↑ᵛ tᵛ) → γ ▸[ m ] t →
+      γ ▸[ m ] FR.fullRedTermConv↑ᵛ ⊢t .proj₁
+    fullRedTermConv↑ᵛ ([↑]ᵛ (d , _) t↓v) ▸t =
+      fullRedTermConv↓ᵛ t↓v (usagePres*Term Unitʷ-η→ ▸t d)
+
+    fullRedTermConv~ᵛ :
+      ⦃ not-ok : No-equality-reflection ⦄ →
+      ∀ {tᵛ} (⊢t : Γ ⊢ t ~ᵛ tᵛ) → γ ▸[ m ] t →
+      γ ▸[ m ] FR.fullRedTermConv~ᵛ ⊢t .proj₁
+    fullRedTermConv~ᵛ (supᵘˡₙ x ⊢t x₁) ▸t =
+      case inv-usage-supᵘ ▸t of λ (δ , η , γ≤ , ▸u , ▸v) →
+        sub (supᵘₘ (fullRedTermConv~ᵛ ⊢t ▸u) (fullRedTermConv↑ᵛ x₁ ▸v)) γ≤
+    fullRedTermConv~ᵛ (supᵘʳₙ x x₁ ⊢t) ▸t =
+      case inv-usage-supᵘ ▸t of λ (δ , η , γ≤ , ▸u , ▸v) →
+        sub (supᵘₘ
+          (sucᵘₘ (fullRedTermConv↑ᵛ x₁ (inv-usage-sucᵘ ▸u)))
+          (fullRedTermConv~ᵛ ⊢t ▸v))
+          γ≤
+    fullRedTermConv~ᵛ (neₙ [t] x) ▸t = fullRedNe~↓ [t] ▸t
+
+    fullRedTermConv↓ᵛ :
+      ⦃ not-ok : No-equality-reflection ⦄ →
+      ∀ {tᵛ} (⊢t : Γ ⊢ t ↓ᵛ tᵛ) → γ ▸[ m ] t →
+      γ ▸[ m ] FR.fullRedTermConv↓ᵛ ⊢t .proj₁
+    fullRedTermConv↓ᵛ (zeroᵘₙ x) ▸t = ▸t
+    fullRedTermConv↓ᵛ (sucᵘₙ PE.refl x₁) ▸t = sucᵘₘ (fullRedTermConv↑ᵛ x₁ (inv-usage-sucᵘ ▸t))
+    fullRedTermConv↓ᵛ (neₙ x) ▸t = fullRedTermConv~ᵛ x ▸t
+
+    fullRedTermConv↓Level :
+      ⦃ not-ok : No-equality-reflection ⦄ →
+      (⊢t : Γ ⊢ t [conv↓] t′ ∷Level) → γ ▸[ m ] t →
+      γ ▸[ m ] FR.fullRedTermConv↓Level ⊢t .proj₁
+    fullRedTermConv↓Level ([↓]ˡ tᵛ uᵛ t↓ u↓ t≡u) ▸t =
+      fullRedTermConv↓ᵛ t↓ ▸t
+
     fullRedTermConv↓ :
       ⦃ not-ok : No-equality-reflection ⦄ →
       (⊢t : Γ ⊢ t [conv↓] t′ ∷ A) → γ ▸[ m ] t →
       γ ▸[ m ] FR.fullRedTermConv↓ ⊢t .proj₁
     fullRedTermConv↓ {Γ = Γ} {t = t} {γ = γ} {m = m} = λ where
+      (Level-ins x)       y      → fullRedTermConv↓Level x y
+      (Lift-η x x₁ x₂ x₃ x₄) ▸t  → liftₘ (fullRedTermConv↑ x₄ (lowerₘ ▸t))
       (ℕ-ins t~)          ▸t     → fullRedNe~↓ t~ ▸t
       (Empty-ins t~)      ▸t     → fullRedNe~↓ t~ ▸t
-      (Unitʷ-ins _ t~)    ▸t     → fullRedNe~↓ t~ ▸t
+      (Unitʷ-ins _ t~)    ▸t     → fullRedNe~∷ t~ ▸t
       (Σʷ-ins _ _ t~)     ▸t     → fullRedNe~↓ t~ ▸t
       (ne-ins _ _ _ t~↓B) ▸t     → fullRedNe~↓ t~↓B ▸t
       (univ _ _ A↓)       ▸A     → fullRedConv↓ A↓ ▸A
@@ -363,7 +416,7 @@ module _ (as : Full-reduction-assumptions) where
         begin
           γ            ≤⟨ ∧ᶜ-greatest-lower-bound γ≤ ≤ᶜ-refl ⟩
           p ·ᶜ δ ∧ᶜ γ  ∎ }}
-      (η-unit ⊢t _ _ _ η) ▸t →
+      (η-unit ⊢t _ _ _ _ η) ▸t →
         Unit-lemma (⊢∷Unit→Unit-allowed ⊢t) η ▸t
       (Id-ins _ v~) ▸v   → fullRedNe~↓ v~ ▸v
       (rfl-refl _)  ▸rfl → sub rflₘ (inv-usage-rfl ▸rfl)
@@ -414,6 +467,8 @@ fullRedTerm as ⊢t ▸t =
 
 -- Full-reduction-term is logically equivalent to
 -- Full-reduction-assumptions (if equality reflection is not allowed).
+
+{- TODO: depends on uniqueness of normal forms
 
 Full-reduction-term⇔Full-reduction-assumptions :
   ⦃ not-ok : No-equality-reflection ⦄ →
@@ -596,3 +651,4 @@ Full-reduction-term⇔Full-reduction-term-ε ok =
   , (Full-reduction-term-ε       →⟨ Full-reduction-term-ε→Full-reduction-assumptions ok ⟩
      Full-reduction-assumptions  →⟨ fullRedTerm ⟩
      Full-reduction-term         □)
+-}

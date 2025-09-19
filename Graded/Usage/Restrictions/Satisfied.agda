@@ -70,18 +70,15 @@ data Usage-restrictions-satisfied {n} (m : Mode) : Term n → Set a where
     Usage-restrictions-satisfied (m ᵐ· p) t →
     Usage-restrictions-satisfied m (emptyrec p A t)
   Unitᵤ :
-    Usage-restrictions-satisfied 𝟘ᵐ? t →
-    Usage-restrictions-satisfied m (Unit s t)
+    Usage-restrictions-satisfied m (Unit s)
   starᵤ :
-    Usage-restrictions-satisfied 𝟘ᵐ? t →
-    Usage-restrictions-satisfied m (star s t)
+    Usage-restrictions-satisfied m (star s)
   unitrecᵤ :
     Unitrec-allowed m p q →
-    Usage-restrictions-satisfied 𝟘ᵐ? t →
     Usage-restrictions-satisfied 𝟘ᵐ? A →
     Usage-restrictions-satisfied (m ᵐ· p) u →
     Usage-restrictions-satisfied m v →
-    Usage-restrictions-satisfied m (unitrec p q t A u v)
+    Usage-restrictions-satisfied m (unitrec p q A u v)
   ΠΣᵤ :
     Usage-restrictions-satisfied (m ᵐ· p) A →
     Usage-restrictions-satisfied m B →
@@ -143,9 +140,8 @@ data Usage-restrictions-satisfied {n} (m : Mode) : Term n → Set a where
     Usage-restrictions-satisfied m A →
     Usage-restrictions-satisfied m (Lift t A)
   liftᵤ :
-    Usage-restrictions-satisfied 𝟘ᵐ? t →
     Usage-restrictions-satisfied m u →
-    Usage-restrictions-satisfied m (lift t u)
+    Usage-restrictions-satisfied m (lift u)
   lowerᵤ :
     Usage-restrictions-satisfied m t →
     Usage-restrictions-satisfied m (lower t)
@@ -362,12 +358,12 @@ opaque
     (emptyrecᵤ ok A t) →
       emptyrecᵤ (Emptyrec-allowed-downwards-closed ok) A
         (Usage-restrictions-satisfied-→𝟘ᵐ t)
-    (Unitᵤ t) →
-      Unitᵤ t
-    (starᵤ t) →
-      starᵤ t
-    (unitrecᵤ ok t A u v) →
-      unitrecᵤ (Unitrec-allowed-downwards-closed ok) t A
+    Unitᵤ →
+      Unitᵤ
+    starᵤ →
+      starᵤ
+    (unitrecᵤ ok A u v) →
+      unitrecᵤ (Unitrec-allowed-downwards-closed ok) A
         (Usage-restrictions-satisfied-→𝟘ᵐ u)
         (Usage-restrictions-satisfied-→𝟘ᵐ v)
     (ΠΣᵤ A B) →
@@ -412,8 +408,8 @@ opaque
       Uᵤ t
     (Liftᵤ t A) →
       Liftᵤ t (Usage-restrictions-satisfied-𝟙ᵐ→ A)
-    (liftᵤ t u) →
-      liftᵤ t (Usage-restrictions-satisfied-𝟙ᵐ→ u)
+    (liftᵤ u) →
+      liftᵤ (Usage-restrictions-satisfied-𝟙ᵐ→ u)
     (lowerᵤ t) →
       lowerᵤ (Usage-restrictions-satisfied-𝟙ᵐ→ t)
     (Idᵤ ok A t u) →
@@ -499,14 +495,14 @@ opaque
     (emptyrecₘ ▸t ▸A ok) →
       emptyrecᵤ ok (▸→Usage-restrictions-satisfied ▸A)
         (▸→Usage-restrictions-satisfied ▸t)
-    (Unitₘ ▸t) →
-      Unitᵤ (▸→Usage-restrictions-satisfied ▸t)
-    (starʷₘ ▸t) →
-      starᵤ (▸→Usage-restrictions-satisfied ▸t)
-    (starˢₘ _ ▸t) →
-      starᵤ (▸→Usage-restrictions-satisfied ▸t)
-    (unitrecₘ ▸t ▸A ▸u ▸v ok) →
-      unitrecᵤ ok (▸→Usage-restrictions-satisfied ▸t)
+    Unitₘ →
+      Unitᵤ
+    starʷₘ →
+      starᵤ
+    (starˢₘ _) →
+      starᵤ
+    (unitrecₘ ▸A ▸u ▸v ok) →
+      unitrecᵤ ok
         (▸→Usage-restrictions-satisfied ▸A)
         (▸→Usage-restrictions-satisfied ▸u)
         (▸→Usage-restrictions-satisfied ▸v)
@@ -572,8 +568,8 @@ opaque
     (Liftₘ ▸t ▸A) →
       Liftᵤ (▸→Usage-restrictions-satisfied ▸t)
         (▸→Usage-restrictions-satisfied ▸A)
-    (liftₘ ▸t ▸u) →
-      liftᵤ (▸→Usage-restrictions-satisfied ▸t)
+    (liftₘ ▸u) →
+      liftᵤ
         (▸→Usage-restrictions-satisfied ▸u)
     (lowerₘ ▸t) →
       lowerᵤ (▸→Usage-restrictions-satisfied ▸t)
@@ -740,8 +736,8 @@ opaque
         sub (emptyrecₘ (lemma t-ok) (lemma-𝟘ᵐ? A-ok) ok) $ begin
           𝟘ᶜ       ≈˘⟨ ·ᶜ-zeroʳ _ ⟩
           p ·ᶜ 𝟘ᶜ  ∎
-      (unitrecᵤ {p} {q} ok t-ok A-ok u-ok v-ok) →
-        sub (unitrecₘ (lemma-𝟘ᵐ? t-ok)
+      (unitrecᵤ {p} {q} ok A-ok u-ok v-ok) →
+        sub (unitrecₘ
                (sub (lemma-𝟘ᵐ? A-ok) $ begin
                   𝟘ᶜ ∙ ⌜ 𝟘ᵐ? ⌝ · q  ≈⟨ ≈ᶜ-refl ∙ ·-congʳ (cong ⌜_⌝ (𝟘ᵐ?≡𝟘ᵐ {ok = 𝟘ᵐ-ok})) ⟩
                   𝟘ᶜ ∙ 𝟘 · q        ≈⟨ ≈ᶜ-refl ∙ ·-zeroˡ _ ⟩
@@ -846,20 +842,20 @@ opaque
         Uₘ (lemma-𝟘ᵐ? t-ok)
       (Liftᵤ t-ok A-ok) →
         Liftₘ (lemma-𝟘ᵐ? t-ok) (lemma A-ok)
-      (liftᵤ t-ok u-ok) →
-        liftₘ (lemma-𝟘ᵐ? t-ok) (lemma u-ok)
+      (liftᵤ u-ok) →
+        liftₘ (lemma u-ok)
       (lowerᵤ t-ok) →
         lowerₘ (lemma t-ok)
       ℕᵤ →
         ℕₘ
       Emptyᵤ →
         Emptyₘ
-      (Unitᵤ t-ok) →
-        Unitₘ (lemma-𝟘ᵐ? t-ok)
+      Unitᵤ →
+        Unitₘ
       zeroᵤ →
         zeroₘ
-      (starᵤ t-ok) →
-        starₘ (lemma-𝟘ᵐ? t-ok)
+      starᵤ →
+        starₘ
       rflᵤ →
         rflₘ
 
@@ -943,9 +939,9 @@ opaque
                 (≈ᶜ-trivial 𝟙≡𝟘)
       (emptyrecᵤ ok A-ok t-ok) →
         sub (emptyrecₘ (lemma₀ t-ok) (lemma₀ A-ok) ok) (≈ᶜ-trivial 𝟙≡𝟘)
-      (unitrecᵤ ok t-ok A-ok u-ok v-ok) →
+      (unitrecᵤ ok A-ok u-ok v-ok) →
         sub
-          (unitrecₘ {γ₂ = 𝟘ᶜ} (lemma₀ t-ok) (lemma A-ok) (lemma₀ u-ok)
+          (unitrecₘ {γ₂ = 𝟘ᶜ} (lemma A-ok) (lemma₀ u-ok)
              (lemma₀ v-ok) ok)
           (≈ᶜ-trivial 𝟙≡𝟘)
       (Idᵤ not-erased A-ok t-ok u-ok) →
@@ -1006,20 +1002,20 @@ opaque
         sub (Uₘ (lemma₀ t-ok)) (≈ᶜ-trivial 𝟙≡𝟘)
       (Liftᵤ t-ok A-ok) →
         Liftₘ (lemma₀ t-ok) (lemma A-ok)
-      (liftᵤ t-ok u-ok) →
-        liftₘ (lemma₀ t-ok) (lemma u-ok)
+      (liftᵤ u-ok) →
+        liftₘ (lemma u-ok)
       (lowerᵤ t-ok) →
         lowerₘ (lemma t-ok)
       ℕᵤ →
         sub ℕₘ (≈ᶜ-trivial 𝟙≡𝟘)
       Emptyᵤ →
         sub Emptyₘ (≈ᶜ-trivial 𝟙≡𝟘)
-      (Unitᵤ t-ok) →
-        sub (Unitₘ {γ = 𝟘ᶜ} (lemma t-ok)) (≈ᶜ-trivial 𝟙≡𝟘)
+      Unitᵤ →
+        sub Unitₘ (≈ᶜ-trivial 𝟙≡𝟘)
       zeroᵤ →
         sub zeroₘ (≈ᶜ-trivial 𝟙≡𝟘)
-      (starᵤ t-ok) →
-        sub (starₘ {γ = 𝟘ᶜ} (lemma t-ok)) (≈ᶜ-trivial 𝟙≡𝟘)
+      starᵤ →
+        sub starₘ (≈ᶜ-trivial 𝟙≡𝟘)
       rflᵤ →
         sub rflₘ (≈ᶜ-trivial 𝟙≡𝟘)
 

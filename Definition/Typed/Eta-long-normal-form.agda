@@ -1225,6 +1225,8 @@ opaque
 ------------------------------------------------------------------------
 -- Normal forms (η-long) are unique (if equality reflection is not
 -- allowed)
+-- TODO: This is not true for levels: x and x supᵘ x are equal normal
+-- forms when x is a level variable.
 
 mutual
 

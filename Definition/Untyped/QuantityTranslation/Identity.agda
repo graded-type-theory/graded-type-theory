@@ -39,7 +39,7 @@ opaque
   -- The function tr-Kind is pointwise equal to an identity function.
 
   tr-Kind-id : tr-Kind k ≡ k
-  tr-Kind-id {k = Ukind _}           = refl
+  tr-Kind-id {k = Ukind}           = refl
   tr-Kind-id {k = Binderkind b _ _}  = cong (flip (Binderkind _) _) $
                                        tr-BinderMode-id b
   tr-Kind-id {k = Lamkind _}         = refl
@@ -52,9 +52,9 @@ opaque
   tr-Kind-id {k = Zerokind}          = refl
   tr-Kind-id {k = Suckind}           = refl
   tr-Kind-id {k = Natreckind _ _ _}  = refl
-  tr-Kind-id {k = Unitkind _ _}      = refl
-  tr-Kind-id {k = Starkind _ _}      = refl
-  tr-Kind-id {k = Unitreckind _ _ _} = refl
+  tr-Kind-id {k = Unitkind _}      = refl
+  tr-Kind-id {k = Starkind _}      = refl
+  tr-Kind-id {k = Unitreckind _ _} = refl
   tr-Kind-id {k = Emptykind}         = refl
   tr-Kind-id {k = Emptyreckind _}    = refl
   tr-Kind-id {k = Idkind}            = refl
@@ -62,6 +62,13 @@ opaque
   tr-Kind-id {k = Jkind _ _}         = refl
   tr-Kind-id {k = Kkind _}           = refl
   tr-Kind-id {k = Boxcongkind _}     = refl
+  tr-Kind-id {k = Levelkind} = refl
+  tr-Kind-id {k = Zeroᵘkind} = refl
+  tr-Kind-id {k = Sucᵘkind} = refl
+  tr-Kind-id {k = Supᵘkind} = refl
+  tr-Kind-id {k = Liftkind} = refl
+  tr-Kind-id {k = liftkind} = refl
+  tr-Kind-id {k = lowerkind} = refl
 
 opaque mutual
 

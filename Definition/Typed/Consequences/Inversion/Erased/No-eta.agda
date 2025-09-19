@@ -48,7 +48,7 @@ opaque
     Erasedʷ-allowed →
     ¬ (∀ {n} {Γ : Con Term n} {t A : Term n} →
        Γ ⊢ erased A t ∷ A →
-       ∃₂ λ q u → Γ ⊢ t ∷ Σʷ 𝟘 , q ▷ A ▹ Unitʷ (wk1 u))
+       ∃ λ q → Γ ⊢ t ∷ Σʷ 𝟘 , q ▷ A ▹ Unitʷ)
   ¬-inversion-erased′ (Unit-ok , Σʷ-ok) inversion-erased = bad
     where
     Γ′ : Con Term 0
@@ -72,18 +72,17 @@ opaque
     erased-t′≡zero : Γ′ ⊢ erased A′ t′ ≡ zero ∷ A′
     erased-t′≡zero = fstʷ-β-≡ (ℕⱼ ⊢Γ′∙ℕ) (zeroⱼ ε) (zeroⱼ ε) Σʷ-ok
 
-    ⊢t′₂ : ∃₂ λ q u → Γ′ ⊢ t′ ∷ Σʷ 𝟘 , q ▷ A′ ▹ Unitʷ (wk1 u)
+    ⊢t′₂ : ∃ λ q → Γ′ ⊢ t′ ∷ Σʷ 𝟘 , q ▷ A′ ▹ Unitʷ
     ⊢t′₂ = inversion-erased ⊢erased-t′
 
     ⊢snd-t′ :
-      ∃ λ u → Γ′ ⊢ sndʷ 𝟘 (⊢t′₂ .proj₁) A′ (Unitʷ (wk1 u)) t′ ∷ Unitʷ u
+      Γ′ ⊢ sndʷ 𝟘 (⊢t′₂ .proj₁) A′ Unitʷ t′ ∷ Unitʷ
     ⊢snd-t′ =
-      let _ , u , ⊢t′ = ⊢t′₂ in
-      u , PE.subst (_⊢_∷_ _ _) (wk1-sgSubst _ _) (sndʷⱼ ⊢t′)
+      let _ , ⊢t′ = ⊢t′₂ in
+      sndʷⱼ ⊢t′
 
-    ℕ≡Unit : ∃ λ l → Γ′ ⊢ ℕ ≡ Unitʷ l
+    ℕ≡Unit : Γ′ ⊢ ℕ ≡ Unitʷ
     ℕ≡Unit =
-      let u , ⊢snd-t′ = ⊢snd-t′ in
       case inversion-prodrec ⊢snd-t′ of
         λ (F , G , _ , _ , _ , _ , ⊢t′ , ⊢x₀ , Unit≡) →
       case inversion-var ⊢x₀ of λ {
@@ -106,23 +105,14 @@ opaque
                   PE.subst (_⊢_∷_ _ _) (PE.sym (subst-id F)) ⊢zero″)
                  (conv ⊢zero′ (sym G₀≡G′₀))
       in
-      case PE.subst₂ (_⊢_≡_ _)
-             (PE.cong Unitʷ
-                (wk1 u [ fstʷ 𝟘 (wk1 A′) (var x0) ]↑
-                   [ prodʷ 𝟘 (var x1) (var x0) ]↑² [ zero , zero ]₁₀      ≡⟨ PE.cong _[ _ , _ ]₁₀ $ PE.cong _[ _ ]↑² $ wk1-[][]↑ {t = u} 1 ⟩
-
-                 wk1 u [ prodʷ 𝟘 (var x1) (var x0) ]↑² [ zero , zero ]₁₀  ≡⟨ PE.cong _[ _ , _ ]₁₀ $ wk1-[][]↑ {t = u} 2 ⟩
-
-                 wk[ 2 ] u [ zero , zero ]₁₀                              ≡⟨ wk2-[,] ⟩
-
-                 u                                                        ∎))
+      case PE.subst (_⊢_≡_ _ _)
              (wk1-tail G)
              (subst-⊢≡ Unit≡′ (refl-⊢ˢʷ≡∷ ⊢σ)) of λ
         Unit≡″ →
-      u , sym (trans Unit≡″ (trans G₀≡G′₀ ≡ℕ′)) }
+      sym (trans Unit≡″ (trans G₀≡G′₀ ≡ℕ′)) }
 
     bad : ⊥
-    bad = ℕ≢Unitⱼ ⦃ ok = ε ⦄ (ℕ≡Unit .proj₂)
+    bad = ℕ≢Unitⱼ ⦃ ok = ε ⦄ ℕ≡Unit
 
 opaque
 
@@ -136,4 +126,4 @@ opaque
        Γ ⊢ t ∷ Erased A)
   ¬-inversion-erased Erased-ok inversion-erased =
     ¬-inversion-erased′ Erased-ok λ ⊢erased →
-    _ , _ , inversion-erased ⊢erased
+    _ , inversion-erased ⊢erased
