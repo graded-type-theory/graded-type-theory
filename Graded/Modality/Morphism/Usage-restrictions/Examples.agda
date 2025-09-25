@@ -14,7 +14,7 @@ open import Tools.Level
 open import Tools.Product as Σ
 open import Tools.PropositionalEquality
 open import Tools.Relation
-open import Tools.Sum using (_⊎_; inj₁; inj₂)
+open import Tools.Sum as ⊎ using (_⊎_; inj₁; inj₂)
 
 open import Definition.Typed.Restrictions
 
@@ -555,6 +555,113 @@ opaque
     module M₂ = Modality 𝕄₂
     module R₁ = Usage-restrictions R₁
     module R₂ = Usage-restrictions R₂
+    open Are-reflecting-usage-restrictions r
+
+opaque
+
+  -- The function []-cong-UR preserves Common-properties in a certain
+  -- way.
+
+  Common-properties-[]-cong-UR :
+    Common-properties R₁ R₂ →
+    Common-properties
+      ([]-cong-UR 𝕄₁ R₁)
+      ([]-cong-UR 𝕄₂ R₂)
+  Common-properties-[]-cong-UR cp = record
+    { 𝟘ᵐ-preserved                   = 𝟘ᵐ-preserved
+    ; natrec-mode-preserved          = natrec-mode-preserved
+    ; starˢ-sink-preserved           = starˢ-sink-preserved
+    ; Id-erased-preserved            = Id-erased-preserved
+    ; erased-matches-for-J-preserved = _
+    ; erased-matches-for-K-preserved = erased-matches-for-K-preserved
+    }
+    where
+    open Common-properties cp
+
+opaque
+
+  -- If the functions tr and tr-Σ preserve certain usage restrictions,
+  -- then they also do this for certain usage restrictions obtained
+  -- using []-cong-UR, given a certain assumption.
+
+  Are-preserving-usage-restrictions-[]-cong-UR :
+    let module M₁ = Modality 𝕄₁
+        module M₂ = Modality 𝕄₂
+    in
+    (M₂.Trivial → M₁.Trivial) →
+    Are-preserving-usage-restrictions R₁ R₂ tr tr-Σ →
+    Are-preserving-usage-restrictions
+      ([]-cong-UR 𝕄₁ R₁)
+      ([]-cong-UR 𝕄₂ R₂)
+      tr tr-Σ
+  Are-preserving-usage-restrictions-[]-cong-UR hyp r = record
+    { common-properties =
+        Common-properties-[]-cong-UR common-properties
+    ; nr-preserving =
+        nr-preserving
+    ; no-nr-preserving =
+        no-nr-preserving
+    ; no-nr-glb-preserving =
+        no-nr-glb-preserving
+    ; Prodrec-𝟙ᵐ-preserved =
+        Prodrec-𝟙ᵐ-preserved
+    ; Unitrec-𝟙ᵐ-preserved =
+        Unitrec-𝟙ᵐ-preserved
+    ; Emptyrec-𝟙ᵐ-preserved =
+        Emptyrec-𝟙ᵐ-preserved
+    ; []-cong-𝟙ᵐ-preserved =
+        ⊎.map []-cong-𝟙ᵐ-preserved (_∘→ hyp)
+    }
+    where
+    open Are-preserving-usage-restrictions r
+
+opaque
+
+  -- If the functions tr and tr-Σ reflect certain usage restrictions,
+  -- then they also do this for certain usage restrictions obtained
+  -- using []-cong-UR, given a certain assumption.
+
+  Are-reflecting-usage-restrictions-[]-cong-UR :
+    let module M₁ = Modality 𝕄₁
+        module M₂ = Modality 𝕄₂
+    in
+    (M₁.Trivial → M₂.Trivial) →
+    Are-reflecting-usage-restrictions R₁ R₂ tr tr-Σ →
+    Are-reflecting-usage-restrictions
+      ([]-cong-UR 𝕄₁ R₁)
+      ([]-cong-UR 𝕄₂ R₂)
+      tr tr-Σ
+  Are-reflecting-usage-restrictions-[]-cong-UR {𝕄₂} hyp r = record
+    { common-properties =
+        Common-properties-[]-cong-UR common-properties
+    ; 𝟘ᵐ-reflected =
+        𝟘ᵐ-reflected
+    ; nr-reflected =
+        nr-reflected
+    ; no-nr-reflected =
+        no-nr-reflected
+    ; no-nr-glb-reflected =
+        no-nr-glb-reflected
+    ; Prodrec-𝟙ᵐ-reflected =
+        Prodrec-𝟙ᵐ-reflected
+    ; Unitrec-𝟙ᵐ-reflected =
+        Unitrec-𝟙ᵐ-reflected
+    ; Emptyrec-𝟙ᵐ-reflected =
+        Emptyrec-𝟙ᵐ-reflected
+    ; []-cong-𝟙ᵐ-reflected = λ where
+        (inj₁ ok) →
+          ⊎.map ([]-cong-𝟙ᵐ-reflected ∘→ inj₁) (_∘→ hyp) ok
+        (inj₂ (trivial , ok)) →
+          ⊥-elim $
+          Has-well-behaved-zero.non-trivial (M₂.𝟘-well-behaved ok)
+            (hyp trivial)
+    ; erased-matches-for-J-reflected =
+        _
+    ; erased-matches-for-K-reflected =
+        erased-matches-for-K-reflected
+    }
+    where
+    module M₂ = Modality 𝕄₂
     open Are-reflecting-usage-restrictions r
 
 private opaque

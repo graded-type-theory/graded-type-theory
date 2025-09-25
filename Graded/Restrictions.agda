@@ -192,6 +192,25 @@ TR with-η-for-Unitʷ = record TR
   where
   open Type-restrictions TR
 
+-- The function []-cong-TR enables unrestricted support for []-cong if
+-- the modality is non-trivial.
+
+[]-cong-TR : Type-restrictions → Type-restrictions
+[]-cong-TR TR = record TR
+  { Unit-allowed     = λ s → Unit-allowed s ⊎ ¬ Trivial
+  ; ΠΣ-allowed       = λ where
+                         (BMΣ s) p q → ΠΣ-allowed (BMΣ s) p q ⊎
+                                       ¬ Trivial × p ≡ 𝟘 × q ≡ 𝟘
+                         BMΠ     p q → ΠΣ-allowed BMΠ p q
+  ; []-cong-allowed  = λ _ → ¬ Trivial
+  ; []-cong→Erased   = λ non-trivial →
+                         inj₂ non-trivial ,
+                         inj₂ (non-trivial , refl , refl)
+  ; []-cong→¬Trivial = idᶠ
+  }
+  where
+  open Type-restrictions TR
+
 -- The function no-[]-cong-TR disables support for []-cong.
 
 no-[]-cong-TR : Type-restrictions → Type-restrictions
@@ -320,6 +339,19 @@ nr-not-available-glb-UR :
   Usage-restrictions → Usage-restrictions
 nr-not-available-glb-UR ok UR =
   record UR { natrec-mode = No-nr-glb ⦃ ok ⦄ }
+
+-- The function enables support for []-cong (if the modality is
+-- non-trivial), but disables support for erased matches for J.
+
+[]-cong-UR : Usage-restrictions → Usage-restrictions
+[]-cong-UR UR = record UR
+  { []-cong-allowed-mode-𝟙ᵐ  = λ s → []-cong-allowed-mode-𝟙ᵐ s ⊎
+                                     ¬ Trivial
+  ; erased-matches-for-J     = λ _ → none
+  ; erased-matches-for-J-≤ᵉᵐ = _
+  }
+  where
+  open Usage-restrictions UR
 
 -- A function used to define no-[]-cong-UR.
 

@@ -562,6 +562,108 @@ Are-reflecting-type-restrictions-no-erased-matches-TR hyp r = record
 opaque
 
   -- If the functions tr and tr-Σ preserve certain type restrictions,
+  -- then they do this also for certain type restrictions obtained using
+  -- []-cong-TR, given a certain assumption.
+
+  Are-preserving-type-restrictions-[]-cong-TR :
+    let module M₁ = Modality 𝕄₁
+        module M₂ = Modality 𝕄₂
+    in
+    (¬ M₁.Trivial → ¬ M₂.Trivial × tr M₁.𝟘 ≡ M₂.𝟘 × tr-Σ M₁.𝟘 ≡ M₂.𝟘) →
+    Are-preserving-type-restrictions R₁ R₂ tr tr-Σ →
+    Are-preserving-type-restrictions
+      ([]-cong-TR 𝕄₁ R₁)
+      ([]-cong-TR 𝕄₂ R₂)
+      tr tr-Σ
+  Are-preserving-type-restrictions-[]-cong-TR hyp r = record
+    { unfolding-mode-preserved =
+        unfolding-mode-preserved
+    ; Unitʷ-η-preserved =
+        Unitʷ-η-preserved
+    ; Unit-preserved =
+        ⊎.map Unit-preserved (proj₁ ∘→ hyp)
+    ; ΠΣ-preserved = λ {b = b} ok →
+        case singleton b of λ where
+          (BMΠ , refl) →
+            ΠΣ-preserved ok
+          (BMΣ s , refl) →
+            ⊎.map
+              ΠΣ-preserved
+              (λ { (non-trivial , refl , refl) →
+                   let non-trivial , tr-𝟘≡𝟘 , tr-Σ-𝟘≡𝟘 =
+                         hyp non-trivial
+                   in
+                   non-trivial , tr-Σ-𝟘≡𝟘 , tr-𝟘≡𝟘 })
+              ok
+    ; Opacity-preserved =
+        Opacity-preserved
+    ; K-preserved =
+        K-preserved
+    ; []-cong-preserved =
+        proj₁ ∘→ hyp
+    ; Equality-reflection-preserved =
+        Equality-reflection-preserved
+    }
+    where
+    open Are-preserving-type-restrictions r
+
+opaque
+
+  -- If the functions tr and tr-Σ reflect certain type restrictions,
+  -- then they do this also for certain type restrictions obtained using
+  -- []-cong-TR, given a certain assumption.
+
+  Are-reflecting-type-restrictions-[]-cong-TR :
+    let module M₁ = Modality 𝕄₁
+        module M₂ = Modality 𝕄₂
+    in
+    (¬ M₂.Trivial →
+     ¬ M₁.Trivial ×
+     (∀ p → tr p ≡ M₂.𝟘 → p ≡ M₁.𝟘) ×
+     (∀ p → tr-Σ p ≡ M₂.𝟘 → p ≡ M₁.𝟘)) →
+    Are-reflecting-type-restrictions R₁ R₂ tr tr-Σ →
+    Are-reflecting-type-restrictions
+      ([]-cong-TR 𝕄₁ R₁)
+      ([]-cong-TR 𝕄₂ R₂)
+      tr tr-Σ
+  Are-reflecting-type-restrictions-[]-cong-TR {𝕄₁} hyp r = record
+    { unfolding-mode-reflected =
+        unfolding-mode-reflected
+    ; Unitʷ-η-reflected =
+        Unitʷ-η-reflected
+    ; Unit-reflected =
+        ⊎.map Unit-reflected (proj₁ ∘→ hyp)
+    ; ΠΣ-reflected =
+        λ {b = b} ok →
+        case singleton b of λ where
+          (BMΠ , refl) →
+            ΠΣ-reflected ok
+          (BMΣ s , refl) →
+            ⊎.map
+              ΠΣ-reflected
+              (λ (non-trivial , tr-Σ-p≡𝟘 , tr-q≡𝟘) →
+                 let non-trivial , tr≡𝟘→≡𝟘 , tr-Σ≡𝟘→≡𝟘 =
+                       hyp non-trivial
+                 in
+                 non-trivial , tr-Σ≡𝟘→≡𝟘 _ tr-Σ-p≡𝟘 , tr≡𝟘→≡𝟘 _ tr-q≡𝟘)
+              ok
+    ; Opacity-reflected =
+        Opacity-reflected
+    ; K-reflected =
+        K-reflected
+    ; []-cong-reflected = λ _ → case trivial? of λ where
+        (yes trivial)    → inj₂ trivial
+        (no non-trivial) → inj₁ non-trivial
+    ; Equality-reflection-reflected =
+        Equality-reflection-reflected
+    }
+    where
+    open Graded.Modality.Properties 𝕄₁
+    open Are-reflecting-type-restrictions r
+
+opaque
+
+  -- If the functions tr and tr-Σ preserve certain type restrictions,
   -- then they do this also for certain type restrictions obtained
   -- using no-[]-cong-TR.
 
