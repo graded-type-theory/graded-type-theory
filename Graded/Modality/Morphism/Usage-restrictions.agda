@@ -30,7 +30,7 @@ private variable
   p q r                    : M
   𝕄 𝕄₁ 𝕄₂ 𝕄₃               : Modality _
   R R₁ R₂ R₃               : Usage-restrictions _
-  m₁ m₂ m₃                 : Mode _
+  m m₁ m₂ m₃               : Mode _
   s                        : Strength
   ⦃ ok₁ ok₂ ⦄              : T _
   nm nm₁ nm₂ nm₃           : Natrec-mode _
@@ -61,6 +61,23 @@ data _≳ᵐ_
        Mode 𝕄₁ → Mode 𝕄₂ → Set (a₁ ⊔ a₂) where
   [_]   : m₁ ≈ᵐ m₂ → m₁ ≳ᵐ m₂
   𝟙ᵐ≳𝟘ᵐ : Modality.Trivial 𝕄₁ → 𝟙ᵐ ≳ᵐ 𝟘ᵐ[ ok₂ ]
+
+opaque
+
+  -- The relation _≈ᵐ_ is contained in propositional equality if it is
+  -- restricted to modes for a single modality.
+
+  ≈ᵐ→≡ : {m₁ m₂ : Mode 𝕄} → m₁ ≈ᵐ m₂ → m₁ ≡ m₂
+  ≈ᵐ→≡ 𝟘ᵐ = 𝟘ᵐ-cong _
+  ≈ᵐ→≡ 𝟙ᵐ = refl
+
+opaque
+
+  -- The relation _≈ᵐ_ is reflexive.
+
+  ≈ᵐ-reflexive : m ≈ᵐ m
+  ≈ᵐ-reflexive {m = 𝟘ᵐ} = 𝟘ᵐ
+  ≈ᵐ-reflexive {m = 𝟙ᵐ} = 𝟙ᵐ
 
 opaque
 
