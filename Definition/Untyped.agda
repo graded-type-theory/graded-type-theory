@@ -335,6 +335,11 @@ infixl 24 _»∙_
 _»∙_ : Cons m n → Term n → Cons m (1+ n)
 (∇ » Γ) »∙ A = ∇ » Γ ∙ A
 
+-- A map function for context pairs.
+
+map-Cons : (∀ {n} → Term n → Term n) → Cons m n → Cons m n
+map-Cons f (∇ » Γ) = map-DCon f ∇ » map-Con f Γ
+
 ------------------------------------------------------------------------
 -- Weakening
 

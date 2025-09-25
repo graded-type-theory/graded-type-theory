@@ -15,6 +15,7 @@ open import Tools.PropositionalEquality
 private variable
   a       : Level
   α l m n : Nat
+  𝕋 𝕌     : Set a
   P       : Nat → Set _
 
 ------------------------------------------------------------------------
@@ -74,6 +75,12 @@ data BinderMode : Set where
 drop : ∀ k → Con P (k + n) → Con P n
 drop 0      Γ       = Γ
 drop (1+ k) (Γ ∙ _) = drop k Γ
+
+-- A map function for contexts.
+
+map-Con : (∀ {n} → P n → P n) → Con P n → Con P n
+map-Con _ ε       = ε
+map-Con f (Γ ∙ A) = map-Con f Γ ∙ f A
 
 ------------------------------------------------------------------------
 -- Weakening
@@ -271,3 +278,10 @@ pattern step₁ ω A t = step id ω A t
 _•ᵈ_ : {𝕋 : Set a} → DExt 𝕋 m n → DExt 𝕋 n l → DExt 𝕋 m l
 id            •ᵈ ξ = ξ
 step ξ′ ω A t •ᵈ ξ = step (ξ′ •ᵈ ξ) ω A t
+
+-- A map function for definition contexts.
+
+map-DCon : (𝕋 → 𝕌) → DCon 𝕋 n → DCon 𝕌 n
+map-DCon _ ε                   = ε
+map-DCon f (∇ ∙⟨ ω ⟩[ t ∷ A ]) =
+  map-DCon f ∇ ∙⟨ ω ⟩[ f t ∷ f A ]
