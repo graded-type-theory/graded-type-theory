@@ -559,6 +559,64 @@ Are-reflecting-type-restrictions-no-erased-matches-TR hyp r = record
   where
   open Are-reflecting-type-restrictions r
 
+opaque
+
+  -- If the functions tr and tr-Σ preserve certain type restrictions,
+  -- then they do this also for certain type restrictions obtained
+  -- using no-[]-cong-TR.
+
+  Are-preserving-type-restrictions-no-[]-cong-TR :
+    Are-preserving-type-restrictions R₁ R₂ tr tr-Σ →
+    Are-preserving-type-restrictions
+      (no-[]-cong-TR 𝕄₁ R₁)
+      (no-[]-cong-TR 𝕄₂ R₂)
+      tr tr-Σ
+  Are-preserving-type-restrictions-no-[]-cong-TR r = record
+    { unfolding-mode-preserved      = unfolding-mode-preserved
+    ; Unitʷ-η-preserved             = Unitʷ-η-preserved
+    ; Unit-preserved                = Unit-preserved
+    ; ΠΣ-preserved                  = ΠΣ-preserved
+    ; Opacity-preserved             = Opacity-preserved
+    ; K-preserved                   = K-preserved
+    ; []-cong-preserved             = λ ()
+    ; Equality-reflection-preserved = Equality-reflection-preserved
+    }
+    where
+    open Are-preserving-type-restrictions r
+
+opaque
+
+  -- If the functions tr and tr-Σ reflect certain type restrictions,
+  -- then they do this also for certain type restrictions obtained
+  -- using no-[]-cong-TR, given a certain assumption.
+
+  Are-reflecting-type-restrictions-no-[]-cong-TR :
+    (∀ {s} →
+     Modality.Trivial 𝕄₂ →
+     ¬ Type-restrictions.[]-cong-allowed R₁ s) →
+    Are-reflecting-type-restrictions R₁ R₂ tr tr-Σ →
+    Are-reflecting-type-restrictions
+      (no-[]-cong-TR 𝕄₁ R₁)
+      (no-[]-cong-TR 𝕄₂ R₂)
+      tr tr-Σ
+  Are-reflecting-type-restrictions-no-[]-cong-TR hyp r = record
+    { unfolding-mode-reflected = unfolding-mode-reflected
+    ; Unitʷ-η-reflected        = Unitʷ-η-reflected
+    ; Unit-reflected           = Unit-reflected
+    ; ΠΣ-reflected             = ΠΣ-reflected
+    ; Opacity-reflected        = Opacity-reflected
+    ; K-reflected              = K-reflected
+    ; []-cong-reflected        = λ {s = s} → λ where
+        (inj₁ ())
+        (inj₂ trivial) →
+          case []-cong-reflected {s = s} (inj₂ trivial) of λ where
+            (inj₁ ok)      → ⊥-elim $ hyp trivial ok
+            (inj₂ trivial) → inj₂ trivial
+    ; Equality-reflection-reflected = Equality-reflection-reflected
+    }
+    where
+    open Are-reflecting-type-restrictions r
+
 ------------------------------------------------------------------------
 -- Some lemmas related to equal-binder-quantities and concrete
 -- translation functions

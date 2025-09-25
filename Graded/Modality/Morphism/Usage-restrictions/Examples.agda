@@ -557,6 +557,128 @@ opaque
     module R₂ = Usage-restrictions R₂
     open Are-reflecting-usage-restrictions r
 
+private opaque
+
+  -- A lemma related to at-least-some.
+
+  at-least-some-≤ᵉᵐ :
+    (f₁ : Mode 𝕄₁ → Erased-matches)
+    (f₂ : Mode 𝕄₂ → Erased-matches) →
+    f₁ m₁ ≤ᵉᵐ f₂ m₂ → m₁ ≈ᵐ m₂ →
+    at-least-some 𝕄₁ f₁ m₁ ≤ᵉᵐ at-least-some 𝕄₂ f₂ m₂
+  at-least-some-≤ᵉᵐ {m₁} {m₂} f₁ f₂ hyp eq with f₁ m₁ | f₂ m₂
+  … | none       | none       = _
+  … | none       | some       = _
+  … | none       | all        = _
+  … | some       | none       = _
+  … | all        | none       = hyp
+  … | not-none _ | not-none _ = hyp
+
+opaque
+
+  -- The function no-[]-cong-UR preserves Common-properties in a
+  -- certain way.
+
+  Common-properties-no-[]-cong-UR :
+    Common-properties R₁ R₂ →
+    Common-properties
+      (no-[]-cong-UR 𝕄₁ R₁)
+      (no-[]-cong-UR 𝕄₂ R₂)
+  Common-properties-no-[]-cong-UR {R₁} {R₂} cp = record
+    { 𝟘ᵐ-preserved                   = 𝟘ᵐ-preserved
+    ; natrec-mode-preserved          = natrec-mode-preserved
+    ; starˢ-sink-preserved           = starˢ-sink-preserved
+    ; Id-erased-preserved            = Id-erased-preserved
+    ; erased-matches-for-J-preserved = λ m₁≈m₂ →
+        at-least-some-≤ᵉᵐ R₁.erased-matches-for-J
+          R₂.erased-matches-for-J (erased-matches-for-J-preserved m₁≈m₂)
+          m₁≈m₂
+    ; erased-matches-for-K-preserved = erased-matches-for-K-preserved
+    }
+    where
+    module R₁ = Usage-restrictions R₁
+    module R₂ = Usage-restrictions R₂
+    open Common-properties cp
+
+opaque
+
+  -- If the functions tr and tr-Σ preserve certain usage restrictions,
+  -- then they also do this for certain usage restrictions obtained
+  -- using no-[]-cong-UR.
+
+  Are-preserving-usage-restrictions-no-[]-cong-UR :
+    Are-preserving-usage-restrictions R₁ R₂ tr tr-Σ →
+    Are-preserving-usage-restrictions
+      (no-[]-cong-UR 𝕄₁ R₁)
+      (no-[]-cong-UR 𝕄₂ R₂)
+      tr tr-Σ
+  Are-preserving-usage-restrictions-no-[]-cong-UR r = record
+    { common-properties =
+        Common-properties-no-[]-cong-UR common-properties
+    ; nr-preserving =
+        nr-preserving
+    ; no-nr-preserving =
+        no-nr-preserving
+    ; no-nr-glb-preserving =
+        no-nr-glb-preserving
+    ; Prodrec-𝟙ᵐ-preserved =
+        Prodrec-𝟙ᵐ-preserved
+    ; Unitrec-𝟙ᵐ-preserved =
+        Unitrec-𝟙ᵐ-preserved
+    ; Emptyrec-𝟙ᵐ-preserved =
+        Emptyrec-𝟙ᵐ-preserved
+    ; []-cong-𝟙ᵐ-preserved =
+        λ ()
+    }
+    where
+    open Are-preserving-usage-restrictions r
+
+opaque
+
+  -- If the functions tr and tr-Σ reflect certain usage restrictions,
+  -- then they also do this for certain usage restrictions obtained
+  -- using no-[]-cong-UR, given a certain assumption.
+
+  Are-reflecting-usage-restrictions-no-[]-cong-UR :
+    let module M₁ = Modality 𝕄₁
+        module M₂ = Modality 𝕄₂
+    in
+    ¬ (M₁.Trivial × T M₂.𝟘ᵐ-allowed) →
+    Are-reflecting-usage-restrictions R₁ R₂ tr tr-Σ →
+    Are-reflecting-usage-restrictions
+      (no-[]-cong-UR 𝕄₁ R₁)
+      (no-[]-cong-UR 𝕄₂ R₂)
+      tr tr-Σ
+  Are-reflecting-usage-restrictions-no-[]-cong-UR
+    {R₁} {R₂} hyp r = record
+    { common-properties =
+        Common-properties-no-[]-cong-UR common-properties
+    ; 𝟘ᵐ-reflected =
+        𝟘ᵐ-reflected
+    ; nr-reflected = nr-reflected
+    ; no-nr-reflected = no-nr-reflected
+    ; no-nr-glb-reflected = no-nr-glb-reflected
+    ; Prodrec-𝟙ᵐ-reflected =
+        Prodrec-𝟙ᵐ-reflected
+    ; Unitrec-𝟙ᵐ-reflected =
+        Unitrec-𝟙ᵐ-reflected
+    ; Emptyrec-𝟙ᵐ-reflected =
+        Emptyrec-𝟙ᵐ-reflected
+    ; []-cong-𝟙ᵐ-reflected = λ where
+        (inj₁ ())
+        (inj₂ ok) → ⊥-elim (hyp ok)
+    ; erased-matches-for-J-reflected = λ m₁≈m₂ →
+        at-least-some-≤ᵉᵐ
+          R₂.erased-matches-for-J R₁.erased-matches-for-J
+          (erased-matches-for-J-reflected m₁≈m₂) (≈ᵐ-symmetric m₁≈m₂)
+    ; erased-matches-for-K-reflected =
+        erased-matches-for-K-reflected
+    }
+    where
+    module R₁ = Usage-restrictions R₁
+    module R₂ = Usage-restrictions R₂
+    open Are-reflecting-usage-restrictions r
+
 ------------------------------------------------------------------------
 -- Some lemmas related to only-some-erased-matches and concrete
 -- translation functions

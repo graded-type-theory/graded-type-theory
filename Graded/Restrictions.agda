@@ -192,6 +192,15 @@ TR with-η-for-Unitʷ = record TR
   where
   open Type-restrictions TR
 
+-- The function no-[]-cong-TR disables support for []-cong.
+
+no-[]-cong-TR : Type-restrictions → Type-restrictions
+no-[]-cong-TR TR = record TR
+  { []-cong-allowed  = λ _ → Lift _ ⊥
+  ; []-cong→Erased   = λ ()
+  ; []-cong→¬Trivial = λ ()
+  }
+
 ------------------------------------------------------------------------
 -- Functions that construct Usage-restrictions
 
@@ -311,6 +320,40 @@ nr-not-available-glb-UR :
   Usage-restrictions → Usage-restrictions
 nr-not-available-glb-UR ok UR =
   record UR { natrec-mode = No-nr-glb ⦃ ok ⦄ }
+
+-- A function used to define no-[]-cong-UR.
+
+at-least-some : (Mode → Erased-matches) → Mode → Erased-matches
+at-least-some f m = case f m of λ where
+  none → some
+  em   → em
+
+-- The function no-[]-cong-UR disables support for []-cong but enables
+-- "some" erased matches for J.
+
+no-[]-cong-UR : Usage-restrictions → Usage-restrictions
+no-[]-cong-UR UR = record UR
+  { []-cong-allowed-mode-𝟙ᵐ  = λ _ → Lift _ ⊥
+  ; erased-matches-for-J     = at-least-some erased-matches-for-J
+  ; erased-matches-for-J-≤ᵉᵐ = at-least-some-≤ᵉᵐ
+
+  }
+  where
+  open Usage-restrictions UR
+
+  at-least-some-≤ᵉᵐ :
+    at-least-some erased-matches-for-J 𝟙ᵐ ≤ᵉᵐ
+    at-least-some erased-matches-for-J 𝟘ᵐ[ ok ]
+  at-least-some-≤ᵉᵐ {ok}
+    with erased-matches-for-J 𝟙ᵐ
+       | erased-matches-for-J 𝟘ᵐ[ ok ]
+       | erased-matches-for-J-≤ᵉᵐ ⦃ ok = ok ⦄
+  … | none       | none       | _  = _
+  … | none       | some       | _  = _
+  … | none       | all        | _  = _
+  … | all        | none       | ()
+  … | some       | none       | ()
+  … | not-none _ | not-none _ | r  = r
 
 ------------------------------------------------------------------------
 -- Only-some-erased-matches
