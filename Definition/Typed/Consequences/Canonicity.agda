@@ -87,8 +87,16 @@ opaque
 
   -- There can be no well-typed definition of the empty type.
 
+  ¬defn-Empty′ : » ∇ → α ↦∷ A ∈ ∇ → ¬ ∇ » ε ⊢ A ≡ Empty
+  ¬defn-Empty′ »∇ α↦∷A A≡Empty = ¬Empty′ $
+      conv (wf-↦∷∈ (glassify-↦∈′ α↦∷A .proj₂) (glassify-» »∇)) (glassify-⊢≡ A≡Empty)
+
+opaque
+
+  -- There can be no well-typed definition annotated with the empty type.
+
   ¬defn-Empty : » ∇ → ¬ α ↦∷ Empty ∈ ∇
-  ¬defn-Empty »∇ α↦ = ¬Empty′ (wf-↦∷∈ (glassify-↦∈′ α↦ .proj₂) (glassify-» »∇))
+  ¬defn-Empty »∇ α↦∷Empty = ¬defn-Empty′ »∇ α↦∷Empty (refl (Emptyⱼ (ε »∇)))
 
 opaque
 

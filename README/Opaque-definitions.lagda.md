@@ -883,26 +883,9 @@ a property that might be called "definition consistency":
 import Definition.Typed.Consequences.Canonicity using (¬defn-Empty)
 ```
 The theorem `¬defn-Empty` establishes that no definition is explicitly given the empty type (`¬ α ↦∷ Empty ∈ ∇`), but
-one can also prove that no definition has the empty type (`α ↦∷ A ∈ ∇ → ¬ ∇ » ε ⊢ A ≡ Empty`):
+one can also prove that no definition has the empty type in general (`α ↦∷ A ∈ ∇ → ¬ ∇ » ε ⊢ A ≡ Empty`):
 ```
-module Canonicity {a} {M : Set a} {𝕄 : Modality M} (R : Type-restrictions 𝕄) where
-  open import Tools.Nat
-  open import Tools.Product
-  open import Tools.Relation
-  open Definition.Typed R
-  open import Definition.Typed.Consequences.Canonicity R
-  open import Definition.Typed.Properties R
-  open Definition.Typed.Well-formed R
-  open Definition.Untyped M
-  open Definition.Untyped.Properties M
-
-  ¬defn-Empty′ :
-    ∀ {n} {∇ : DCon (Term 0) n} {α : Nat} {A : Term 0} →
-    » ∇ → α ↦∷ A ∈ ∇ → ¬ ∇ » ε ⊢ A ≡ Empty
-  ¬defn-Empty′ »∇ α↦∷A A≡Empty =
-    ¬Empty′
-      (conv (wf-↦∷∈ (glassify-↦∈′ α↦∷A .proj₂) (glassify-» »∇))
-         (glassify-⊢≡ A≡Empty))
+import Definition.Typed.Consequences.Canonicity using (¬defn-Empty′)
 ```
 
 Theorems 5.24 and 5.25 re-establish normalization (this snippet is identical to the one above for Theorem 3.18):
