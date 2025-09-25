@@ -1,4 +1,4 @@
-# An Agda Formalization of a Graded Modal Type Theory with a Universe Hierarchy and Erasure
+# An Agda Formalization of a Graded Modal Type Theory with a Universe Hierarchy, Erasure and Opaque Definitions
 
 This formalization originated as a fork of [logrel-mltt](https://github.com/mr-ohman/logrel-mltt).
 The original work consisted of the following contributions:
@@ -39,8 +39,14 @@ highlights:
   Kubánek (@nad and @kubaneko, 2024).
 
 - Top-level definitions and opacity were added by Nils Anders
-  Danielsson and Eve Geng (@nad and @phantamanta44, 2025); see
-  [README.Opaque-definitions](README/Opaque-definitions.agda) for more details.
+  Danielsson and Eve Geng (@nad and @phantamanta44, 2025), see
+  [README.Opaque-definitions](README/Opaque-definitions.lagda.md) for more
+  details. This addition is also described in the paper _A
+  Formalization of Opaque Definitions for a Dependent Type Theory_,
+  Nils Anders Danielsson and Eve Geng, _Proceedings of the 10th ACM
+  SIGPLAN International Workshop on Type-Driven Development (TyDe
+  '25)_, 2025
+  ([doi:10.1145/3759538.3759653](https://doi.org/10.1145/3759538.3759653)).
 
 ### Dependencies ###
 

@@ -1,4 +1,6 @@
 ```
+{-# OPTIONS --infer-absurd-clauses #-}
+
 open import Definition.Typed.Restrictions
 open import Graded.Modality
 
@@ -10,10 +12,10 @@ module ExampleLib where -- Utilities for the example code snippets
   open import Tools.Product renaming (proj₁ to fst; proj₂ to snd) public
   open import Tools.PropositionalEquality public
   open import Tools.Relation using (¬_) public
-  
+
   Σ-syntax : ∀ {ℓ ℓ′} (A : Set ℓ) (B : A → Set ℓ′) → Set (ℓ ⊔ₗ ℓ′)
   Σ-syntax = Σ
-  
+
   syntax Σ-syntax A (λ x → B) = Σ[ x ∷ A ] B
   infix 2 Σ-syntax
 
@@ -27,7 +29,7 @@ module ExampleLib where -- Utilities for the example code snippets
 This document serves as a companion to the paper of the same name, linking the definitions and theorems used in the
 paper to the relevant parts of the actual formalization codebase. Each entity listed here is accompanied by an Agda
 snippet containing either relevant example code or a reference to the theorem in the main formalization. Any differences
-between the formalism given in the paper and the actual formalization will also mentioned.
+between the formalism given in the paper and the actual formalization will also be mentioned.
 
 Note that the listings in the paper reference previous snapshots of the formalization, whereas this document is intended
 to live in the most up-to-date version. As such, some of the references below do not refer to the same code as is
@@ -35,17 +37,16 @@ referenced by the corresponding entity in the paper; instead, they'll refer to t
 This also means that there is some duplication below, since an entity referenced in two different snapshots by the paper
 will both redirect to the same entity in this version.
 
-This document is a literate Agda document, which means it's also valid Agda source code! Try loading it in `agda-mode`
-to make navigating the references a bit easier.
+This document is a literate Agda document, which means it's also valid Agda source code! Try loading it in an editor
+with good support for Agda to make navigating the references a bit easier.
 
 ## 1 Introduction
 
 The first code snippet from the introduction, demonstrating definitions:
-
 ```
 module DefinitionDemo where
   open ExampleLib
-  
+
   double : ℕ → ℕ -- Doubles a natural
   double n = n + n
 
@@ -56,16 +57,14 @@ module DefinitionDemo where
   ℕ>0 = Σ[ n ∷ ℕ ] n > 0
 
   pred : ℕ>0 → ℕ -- Predecessor
-  pred (0     , ())
   pred (suc n , >zero) = n
 ```
 
 The "complex" example from the introduction, first without opaque definitions:
-
 ```
 module IntroExample1 where
   open ExampleLib
-  
+
   ℤ : Set -- Integers as differences of naturals
   ℤ = ℕ × ℕ
 
@@ -98,7 +97,6 @@ module IntroExample1 where
 ```
 
 The "complex" example again, now with opaque definitions:
-
 ```
 module IntroExample2 where
   open ExampleLib
@@ -111,7 +109,7 @@ module IntroExample2 where
     unfolding ℤ
     _≡ℤ_ : ℤ → ℤ → Set -- Equality on integers
     x ≡ℤ y = fst x + snd y ≡ fst y + snd x
-  
+
   opaque
     unfolding ℤ
     _*ℤ_ : ℤ → ℤ → ℤ -- Integer multiplication
@@ -151,18 +149,24 @@ module IntroExample2 where
 
 ### 3.1 The Type Theory
 
-Definition 3.1 refers to terms, which are defined here:
-
+Definition 3.1 refers to terms, which are defined here:
 ```
 import Definition.Untyped using (Term)
 ```
+Note that the formalization uses well-scoped terms (this is mostly ignored in the paper): `Term n` stands for terms with
+at most `n` distinct free variables. Note how the `var` constructor takes an index from `Fin n`, and so it is not
+possible to reference an out-of-scope variable.
 
-The paper elides that the terms are well-scoped, which is to say that the index `n : Nat` refers to the number of
-variables present in the ambient typing context. Note how the `var` constructor takes an index from `Fin n`, and so it
-is not possible to reference an out-of-scope variable.
+The formalization includes support for modalities, and some terms are annotated with "grades". Such annotations are not
+included in the paper. However, some results related to the grades have been extended to also work in the presence of
+definitions. For instance, soundness of erasure holds for transparent definition contexts:
+```
+import Graded.Erasure.Consequences.Soundness
+_ = Graded.Erasure.Consequences.Soundness.Soundness.soundness-ℕ
+```
 
-Definitions 3.2, 3.3, and 3.4 refer to typing contexts, weakenings, and substitutions, which are defined here:
-
+Definitions 3.2, 3.3, and 3.4 refer to typing contexts, weakenings, and substitutions, which are defined here (all
+well-scoped):
 ```
 import Definition.Untyped.NotParametrised using
   ( Con -- Typing contexts
@@ -174,12 +178,10 @@ import Definition.Untyped using
   ; _[_]  -- Substitution operation
   )
 ```
+Note that the `Con` type former is more general than in the paper.
 
-The paper similarly elides the well-scopedness of all these constructions.
-
-Definition 3.5 refers to the typing judgements, which are defined here (albeit with accomodation for definition
-contexts, which are discussed further down in section 4):
-
+Definition 3.5 refers to the typing judgements, which are defined here (albeit with accommodation for definition
+contexts, which are discussed further down in Section 4):
 ```
 import Definition.Typed using
   ( _»⊢_    -- Well-formed typing contexts
@@ -197,23 +199,25 @@ import Definition.Typed.Substitution using
   ( _⊢ˢʷ_∷_ -- Well-formed substitutions
   )
 ```
-
 Note that well-formedness of weakenings and substitutions as defined for the above relations includes well-formedness of
 the target context (the one on the left).
 
-There are also transitive closures (i.e. zero or more steps) for the reduction relations:
+The type system is parametrised by a record type that makes it possible to include or exclude certain features:
+```
+import Definition.Typed.Restrictions using (Type-restrictions)
+```
+For instance, one can choose whether or not to include equality reflection.
 
+The following variants of the reduction relations, allowing for zero or more steps, are also used:
 ```
 import Definition.Typed using
-  ( _⊢_⇒*_   -- Transitive closure of weak head readuction for types
-  ; _⊢_⇒*_∷_ -- Transitive closure of weak head readuction for terms
+  ( _⊢_⇒*_   -- Many-step weak head reduction for types
+  ; _⊢_⇒*_∷_ -- Many-step weak head reduction for terms
   )
 ```
-
 These are left implicit in the paper, but are used in some of the theorem statements here.
 
-Lemma 3.6 states that typing judgements are preserved under weakening:
-
+Lemma 3.6 states that typing judgements are preserved under weakening:
 ```
 import Definition.Typed.Weakening using
   ( wk        -- Well-formedness of types is preserved under weakening
@@ -225,8 +229,7 @@ import Definition.Typed.Weakening using
   )
 ```
 
-Lemma 3.7 states that typing judgements are preserved under substitution:
-
+Lemma 3.7 states that typing judgements are preserved under substitution:
 ```
 import Definition.Typed.Substitution using
   ( subst-⊢   -- Well-formedness of types is preserved under substitution
@@ -237,9 +240,10 @@ import Definition.Typed.Substitution using
   ; subst-⊢⇒∷ -- Weak head reduction of terms is preserved under substitution
   )
 ```
+Some of these lemmas are stated a little differently than in the paper. For instance, `subst-⊢≡` involves equality of
+substitutions.
 
-Lemma 3.8 states that constituents of valid typing judgements are well-formed:
-
+Lemma 3.8 states that constituents of valid typing judgements are well-formed:
 ```
 import Definition.Typed.Properties.Well-formed using
   ( wf -- Γ ⊢ A implies ⊢ Γ
@@ -254,41 +258,47 @@ import Definition.Typed.Syntactic using
   ; syntacticRedTerm -- Γ ⊢ t ⇒* u ∷ A implies Γ ⊢ t ∷ A and Γ ⊢ u ∷ A
   )
 ```
+The formalization does not contain lemmas like `syntacticRed` and `syntacticRedTerm` for the non-starred reduction
+relations: those variants follow from `redMany-⊢` and `redMany`:
+```
+import Definition.Typed.Properties.Reduction using
+  ( redMany-⊢ -- Γ ⊢ A ⇒ B implies Γ ⊢ A ⇒* B
+  ; redMany   -- Γ ⊢ t ⇒ u ∷ A implies Γ ⊢ t ⇒* u ∷ A
+  )
+```
 
-Theorem 3.9 states that the term reduction relation enjoys subject reduction. The statement as it appears in the paper
+Theorem 3.9 states that the term reduction relation enjoys subject reduction. The statement as it appears in the paper
 follows directly from the above:
-
 ```
 module SubjectReduction {a} {M : Set a} {𝕄 : Modality M} (R : Type-restrictions 𝕄) where
   open import Tools.Product
   open import Definition.Untyped M
   open import Definition.Typed R
+  open import Definition.Typed.Properties.Reduction R
   open import Definition.Typed.Syntactic R
 
   subject-reduction :
     ∀ {m n} {Γ : Cons m n} {t u A : Term n} →
-    Γ ⊢ t ⇒* u ∷ A → Γ ⊢ t ∷ A → Γ ⊢ u ∷ A
-  subject-reduction t⇒u ⊢t = syntacticRedTerm t⇒u .proj₂ .proj₂
+    Γ ⊢ t ⇒ u ∷ A → Γ ⊢ t ∷ A → Γ ⊢ u ∷ A
+  subject-reduction t⇒u ⊢t = syntacticRedTerm (redMany t⇒u) .proj₂ .proj₂
 ```
-
-Note that the parameter `⊢t : Γ ⊢ t ∷ A` is unused; in fact, it can be obtained as a consequence of `syntacticRedTerm`.
+Note that the parameter `⊢t : Γ ⊢ t ∷ A` is unused; in fact, it can be obtained from `syntacticRedTerm`.
 
 ### 3.2 The Logical Relation
 
-Definition 3.10 refers to neutrals, which are defined by a predicate on terms here:
-
+Definition 3.10 refers to neutrals, which are defined by a predicate on terms here:
 ```
 import Definition.Untyped.Neutral using (Neutral)
 ```
+The predicate in the formalization includes some extra parameters.
 
-Definition 3.11 refers to weak head normal forms, which are similarly defined by a predicate here:
-
+Definition 3.11 refers to weak head normal forms, which are similarly defined by a predicate here:
 ```
 import Definition.Untyped.Whnf using (Whnf)
 ```
+The predicate in the formalization includes an extra parameter.
 
-Definition 3.12 refers to the logical relation for reducibility, which is defined here:
-
+Definition 3.12 refers to the logical relation for reducibility, which is defined here:
 ```
 import Definition.LogicalRelation using
   ( _⊩⟨_⟩_       -- Reducible types
@@ -297,43 +307,34 @@ import Definition.LogicalRelation using
   ; _⊩⟨_⟩_≡_∷_/_ -- Reducibly equal terms
   )
 ```
-
 Note the two extra parameters compared to the presentation in the paper, one in brackets (`⟨_⟩`) and the other under a
-slash (`/_`). The bracketed parameter is a universe level and the over parameter is a type reducibility proof. Both are
+slash (`/_`). The bracketed parameter is a universe level and the other parameter is a type reducibility proof. Both are
 elided in the paper for brevity.
 
-Note also that the notion of judgemental equality used in the logical relation is not actually the usual judgemental
-equality `_⊢_≡_`, but is a parametric equality given by a choice of three operators `_⊢_≅_`, `_⊢_≅_∷_`, and `_⊢_~_∷_`,
-representing generic equality `≅` and equality of neutral terms `~`. These operators are given as part of an `EqRelSet`
-data structure:
-
+Note also that the notion of judgemental equality used in the logical relation is not the usual judgemental equality
+`_⊢_≡_`, but is given by the `EqRelSet` data structure, which contains three operators `_⊢_≅_`, `_⊢_≅_∷_`, and
+`_⊢_~_∷_`:
 ```
 import Definition.Typed.EqualityRelation using (EqRelSet)
 ```
-
-Additionally, there is a `Var-included` flag used to control whether free variables are considered or not:
-
+Additionally, there is a `Var-included` flag used to control how terms stuck on free variables are treated in the
+logical relation:
 ```
 _ = Definition.Typed.EqualityRelation.EqRelSet.Var-included
 ```
+This flag is present because the formalization has optional support for equality reflection: in the presence of equality
+reflection, normalization does not necessarily hold for open terms.
 
-The motivation for this is that the introduction of free variables causes problems down the line with the validity of
-equality reflection. In particular, a free variable may introduce a spurious equality which, when lifted to judgemental
-equality by reflection, can break normalization! Thus, this flag is used to prohibit free variables in contexts where
-these spurious equalities must not appear.
-
-The parametric notion of equality thus defined allows for different instantiations of the logical relations (and, by
-extension, of the fundamental theorem) which can be used in different situations to prove different properties of the
-type system. In the formalization, the "standard" instantiation `_⊢_≡_ = _⊢_≅_ = _⊢_~_` is given in `Definition.Typed`,
-while a specialized instantiation is given in `Definition.Conversion` to show decidability of conversion:
-
+The `EqRelSet` parameter allows for different instantiations of the logical relation (and, by extension, of the
+fundamental theorem) which can be used in different situations to prove different properties of the type system. In the
+formalization, the "standard" instantiation uses `_⊢_≡_` and `_⊢_≡_∷_`, while a specialized instantiation is given in
+`Definition.Conversion` to show decidability of conversion:
 ```
 import Definition.Typed.EqRelInstance using (eqRelInstance)
 import Definition.Conversion.EqRelInstance using (eqRelInstance)
 ```
 
-Lemma 3.13 states that reducibility is preserved under weakening:
-
+Lemma 3.13 states that reducibility is preserved under weakening:
 ```
 import Definition.LogicalRelation.Weakening using
   ( wk       -- Weakening for reducible types
@@ -342,13 +343,10 @@ import Definition.LogicalRelation.Weakening using
   ; wkEqTerm -- Weakening for reducible equality of terms
   )
 ```
-
 Note that the well-formedness relation for weakening is the "restricted" variant `_»_∷ʷʳ_⊇_`, which requires the
-weakening to be trivial if free variables are disallowed. This prevents the introduction of free variables through
-weakenings, which would become a problem for the validity of equality reflection as discussed above.
+weakening to be trivial if `Var-included` does not hold.
 
-Lemma 3.14 states that the reducibility judgements can be "escaped" to recover the normal typing judgements:
-
+Lemma 3.14 states that the reducibility judgements can be "escaped" to recover the normal typing judgements:
 ```
 import Definition.LogicalRelation.Properties.Escape using
   ( escape       -- Escape for reducible types
@@ -358,9 +356,8 @@ import Definition.LogicalRelation.Properties.Escape using
   )
 ```
 
-Definition 3.15 refers to the validity judgements, which are defined here (again, with accomodation for definition
+Definition 3.15 refers to the validity judgements, which are defined here (again, with accommodation for definition
 contexts):
-
 ```
 import Definition.LogicalRelation.Substitution using
   ( _»⊩ᵛ_       -- Valid typing contexts
@@ -372,27 +369,23 @@ import Definition.LogicalRelation.Substitution using
   ; _⊩ˢ_≡_∷_    -- Valid equality of substitutions
   )
 ```
-
-Note that the substitution validity operators are tagged with a superscript `ˢ` rather than a `ᵛ` in the Agda code to
-disambiguate them from the operators for terms; the paper uses `ᵛ` for them instead.
+Note that the substitution validity operators are tagged with a superscript `ˢ` in the Agda code, rather than with a `ᵛ`
+as in the paper.
 
 As with reducibility above, the bracketed universe level parameter is elided in the paper, but note that the other
 parameter (the type reducibility proof) has vanished; this is accomplished by existential quantification in the "hidden"
 variant of reducibility introduced here:
-
 ```
 import Definition.LogicalRelation.Hidden using
   ( _⊩⟨_⟩_∷_   -- "Hidden" reducibility for terms
   ; _⊩⟨_⟩_≡_   -- "Hidden" reducible equality for types
   ; _⊩⟨_⟩_≡_∷_ -- "Hidden" reducible equality for terms
-  )            -- No "hidden" type reducibility needed, since there is no parameter to hide
+  )
 ```
-
 No hidden variant of type reducibility is necessary, since there is no parameter to hide.
 
 Additionally, the validity judgements operate on a "restricted" variant of reducibility that is only required to hold
-when either the ambient context is empty or free variables are disallowed; this is introduced here:
-
+when either the context is empty or `Var-included` does not hold; this is introduced here:
 ```
 import Definition.LogicalRelation.Hidden.Restricted using
   ( _⊩⟨_⟩_     -- "Restricted" reducibility for types
@@ -401,13 +394,10 @@ import Definition.LogicalRelation.Hidden.Restricted using
   ; _⊩⟨_⟩_≡_∷_ -- "Restricted" reducible equality for terms
   )
 ```
+This restricted notion of reducibility is used to enable the validity argument for equality reflection.
 
-This restricted notion of reducibility, as above with restricted substitution, is to enable the validity argument for
-equality reflection.
-
-Lemma 3.16 states that the validity judgements can be "escaped" to recover reducibility (and, by extension, the normal
+Lemma 3.16 states that the validity judgements can be "escaped" to recover reducibility (and, by extension, the normal
 typing judgements):
-
 ```
 import Definition.LogicalRelation.Substitution using
   ( escape-⊩ᵛ′  -- Escape for valid typing contexts
@@ -419,12 +409,12 @@ import Definition.LogicalRelation.Substitution using
   ; escape-⊩ˢ≡∷ -- Escape for valid equality of substitutions
   )
 ```
+In the formalization, these lemmas include an assumption related to `Var-included`. Note that the escape lemmas for
+valid contexts, substitutions, and substitution equality all go directly to the normal typing judgements, since there is
+no notion of reducibility for these entities. (In the paper it is stated that `⊩ᵛ Γ` implies `⊩ Γ`, but the latter
+notion is not defined: it should be replaced by `⊢ Γ`.)
 
-Note that the escape lemmas for valid contexts, substitutions, and substitution equality all go directly to the normal
-typing judgements, since there is no notion of reducibility for these entities.
-
-Theorem 3.17, the fundamental theorem, states that the normal typing judgements can be strengthened to validity:
-
+Theorem 3.17, the fundamental theorem, states that the normal typing judgements can be strengthened to validity:
 ```
 import Definition.LogicalRelation.Fundamental using
   ( valid            -- Fundamental theorem for well-formedness of typing contexts
@@ -437,18 +427,15 @@ import Definition.LogicalRelation.Fundamental using
   )
 ```
 
-Theorem 3.18 states that all well-typed terms normalize to a WHNF; the same is true of well-formed types:
-
+Theorem 3.18 states that all well-typed terms normalize to a WHNF; the same is true of well-formed types:
 ```
 import Definition.Typed.Consequences.Reduction using
-  ( whNorm     -- Well-formed types normalize to a WHNF
-  ; whNormTerm -- Well-typed terms normalize to a WHNF
+  ( whNorm     -- Well-formed types normalize to WHNF
+  ; whNormTerm -- Well-typed terms normalize to WHNF
   )
 ```
-
-Note that these results require either that the ambient context is empty or that equality reflection is disallowed;
-otherwise, equality reflection would contradict normalization:
-
+Note that these results require either that the context is empty or that equality reflection is disallowed; otherwise,
+equality reflection can contradict normalization:
 ```
 import Definition.Typed.Consequences.Reduction using
   ( type-without-WHNF -- A well-formed type that fails to normalize in the presence of equality reflection
@@ -456,37 +443,33 @@ import Definition.Typed.Consequences.Reduction using
   )
 ```
 
-Theorem 3.19 states that if `ε ⊢ t ∷ ℕ`, then `t` reduces to a canonical form of `ℕ`, ergo either `zero` or `suc`
-applied to a canonical subterm:
-
+Theorem 3.19 states that if `ε ⊢ t ∷ ℕ`, then `t` reduces to a canonical form of `ℕ`, i.e. a numeral. This formulation
+should not have been used: the statement is not necessarily true, because the reduction relation does not include
+reduction under `suc`. However, a variant of the statement with judgemental equality instead of reduction does hold:
 ```
 import Definition.Typed.Consequences.Canonicity using (canonicity)
 ```
 
-Theorem 3.20 states that the empty type is uninhabited in the empty context---that is, that the theory is consistent;
+Theorem 3.20 states that the empty type is uninhabited in the empty context---that is, that the theory is consistent;
 this is the special case of canonicity for the empty type:
-
 ```
 import Definition.Typed.Consequences.Canonicity using (¬Empty)
 ```
 
-Theorem 3.21 states that conversion is decidable:
-
+Theorem 3.21 states that conversion is decidable (in the absence of equality reflection):
 ```
 import Definition.Typed.Decidable.Equality using
   ( decEq     -- Equality of types is decidable
   ; decEqTerm -- Equality of terms is decidable
   )
 ```
-
 As mentioned above, this is shown through a specialized instantiation of the logical relation.
 
 ## 4 Formalizing Top-level Definitions
 
 ### 4.1 The Formalism
 
-Definition 4.1 refers to the terms updated with a definition constructor, which are defined here:
-
+Definition 4.1 refers to the terms updated with a definition constructor, which are defined here:
 ```
 import Definition.Untyped using
   ( Term -- Term data type
@@ -494,48 +477,39 @@ import Definition.Untyped using
   )
 ```
 
-Definition 4.2 refers to definition contexts, which are defined here (with additional constructor parameters for
-opacities, which are discussed later):
-
+Definition 4.2 refers to definition contexts, which are defined here (the definition includes an extra parameter, and
+one of the constructors takes an extra opacity argument, which is discussed later):
 ```
 import Definition.Untyped using (DCon)
 ```
+As with typing contexts, definition contexts are also length-indexed.
 
-As with typing contexts, definition contexts are also indexed by their length.
-
-Definition 4.3 refers to the maps-to relations, which are defined here:
-
+Definition 4.3 refers to the maps-to relations, which are defined here:
 ```
 import Definition.Untyped using
   ( _↦_∷_∈_ -- A name refers to a definition with a given definiens and annotated with a given type
   ; _↦∷_∈_  -- A name refers to a definition annotated with a given type
   )
 ```
-
 Since the code here accounts for opacity, `_↦_∷_∈_` has the additional stipulation that the definition is transparent,
 as mentioned later in the paper.
 
-Definition 4.4 refers to well-formedness for definition contexts, which is defined here:
-
+Definition 4.4 refers to well-formedness for definition contexts, which is defined here:
 ```
 import Definition.Typed using (»_)
 ```
-
 The constructors here similarly account for opacity, and so the "extend" case is split into two separate constructors
 which are also discussed later in the paper.
 
-Definition 4.5 refers to well-formedness for typing contexts, which is defined here:
-
+Definition 4.5 refers to well-formedness for typing contexts, which is defined here:
 ```
 import Definition.Typed using (_»⊢_)
 ```
 
-The typing rules need to be augmented with definition contexts, but instead of prepending a parameter for it as in the
-paper (e.g. `_»_⊢_`), the formalization here just changes the parameter on the left of the turnstile to a pair of a
-definition context and typing context. This considerably reduces the syntactic burden of the augmentation, and by naming
-the pairing operator `_»_`, we can recover the syntax from the paper by expanding the pair when necessary. These pairs
-are defined here:
-
+The typing rules are augmented with definition contexts, but instead of prepending a parameter for it as in the paper
+(e.g. `_»_⊢_`), the formalization here just changes the parameter on the left of the turnstile to a pair of a definition
+context and a typing context. By naming the pairing operator `_»_`, we can recover the syntax from the paper by
+expanding the pair. These pairs are defined here:
 ```
 import Definition.Untyped using
   ( Cons -- Context pair type
@@ -544,20 +518,17 @@ import Definition.Untyped using
 ```
 
 The typing rules for definitions are given here:
-
 ```
 import Definition.Typed using
   ( defn  -- Well-typedness rule
   ; δ-red -- Equality (and reduction) rule
   )
 ```
-
 Note the extra weakenings, which are necessary because the definientia are closed terms (defined in the empty context)
 which must be lifted to the ambient context for the rule. Since these weakenings are necessarily trivial, they are
 elided in the paper for brevity.
 
-Definition 4.6 refers to definition context extensions, which are defined here:
-
+Definition 4.6 refers to definition context extensions, which are defined here:
 ```
 import Definition.Untyped using
   ( DExt -- Definition context extensions
@@ -567,9 +538,8 @@ import Definition.Typed.Weakening.Definition using
   )
 ```
 
-Lemma 4.7 states that typing judgements are preserved under weakening of the definition context ("definitional
+Lemma 4.7 states that typing judgements are preserved under weakening of the definition context ("definitional
 weakening"):
-
 ```
 import Definition.Typed.Weakening.Definition using
   ( defn-wk        -- Well-formedness of types is preserved under definitional weakening
@@ -581,8 +551,7 @@ import Definition.Typed.Weakening.Definition using
   )
 ```
 
-Lemma 4.8 states that if `» ∇` and `α ↦ t ∷ A ∈ ∇`, then `∇ » ε ⊢ t ∷ A`; a similar result holds for `α ↦∷ A ∈ ∇`:
-
+Lemma 4.8 states that if `» ∇` and `α ↦ t ∷ A ∈ ∇`, then `∇ » ε ⊢ t ∷ A`; a similar result holds for `α ↦∷ A ∈ ∇`:
 ```
 import Definition.Typed.Well-formed using
   ( wf-↦∈  -- Well-formedness of the type annotation for `α ↦∷ A ∈ ∇`
@@ -590,9 +559,8 @@ import Definition.Typed.Well-formed using
   )
 ```
 
-Lemma 4.9 extends the well-formedness lemma with definition contexts and an additional case for well-formedness of the
+Lemma 4.9 extends the well-formedness lemma with definition contexts and an additional case for well-formedness of the
 definition context:
-
 ```
 import Definition.Typed.Properties.Well-formed using
   ( defn-wf -- ∇ »⊢ Γ implies » ∇
@@ -611,8 +579,8 @@ import Definition.Typed.Syntactic using
 
 ### 4.2 Updating the Logical Relation
 
-Definition 4.10 extends the logical relation for reducibility with defintion contexts (this snippet is identical to the
-one above for 3.12):
+Definition 4.10 extends the logical relation for reducibility with defintion contexts (this snippet is identical to the
+one above for Definition 3.12):
 
 ```
 import Definition.LogicalRelation using
@@ -622,12 +590,10 @@ import Definition.LogicalRelation using
   ; _⊩⟨_⟩_≡_∷_/_ -- Reducibly equal terms
   )
 ```
-
 As with the normal typing judgements, the parameter to the left of the turnstile is a context pair.
 
-Definition 4.11 similarly extends the validity judgements with definition contexts (this snippet is identical to the one
-above for 3.15):
-
+Definition 4.11 similarly extends the validity judgements with definition contexts (this snippet is identical to the one
+above for Definition 3.15):
 ```
 import Definition.LogicalRelation.Substitution using
   ( _»⊩ᵛ_       -- Valid typing contexts
@@ -640,14 +606,12 @@ import Definition.LogicalRelation.Substitution using
   )
 ```
 
-Definition 4.12 refers to validity for definition contexts, which is defined here:
-
+Definition 4.12 refers to validity for definition contexts, which is defined here:
 ```
 import Definition.LogicalRelation.Substitution.Introductions.Definition using (»ᵛ_)
 ```
 
-Theorem 4.13 updates the fundamental theorem, adding a case for definition contexts:
-
+Theorem 4.13 updates the fundamental theorem, adding a case for definition contexts:
 ```
 import Definition.LogicalRelation.Fundamental using
   ( defn-valid       -- Fundamental theorem for well-formedness of definition contexts
@@ -661,14 +625,12 @@ import Definition.LogicalRelation.Fundamental using
   )
 ```
 
-Lemma 4.14 establishes validity for δ-reduction:
-
+Lemma 4.14 establishes validity for δ-reduction (with two weakenings which are elided in the paper):
 ```
 import Definition.LogicalRelation.Substitution.Introductions.Definition using (δ-redᵛ)
 ```
 
-Lemma 4.15 establishes validity variants of the well-formedness results from 4.8:
-
+Lemma 4.15 establishes validity variants of the well-formedness results from Lemma 4.8:
 ```
 import Definition.LogicalRelation.Substitution.Introductions.Definition using
   ( wf-↦∈ᵛ  -- Validity of the type annotation for `α ↦∷ A ∈ ∇`
@@ -676,8 +638,7 @@ import Definition.LogicalRelation.Substitution.Introductions.Definition using
   )
 ```
 
-Lemma 4.16 states that validity is preserved under definitional weakening:
-
+Lemma 4.16 states that validity is preserved under definitional weakening:
 ```
 import Definition.LogicalRelation.Substitution using
   ( defn-wk-⊩ᵛ   -- Validity of types is preserved under definitional weakening
@@ -687,23 +648,24 @@ import Definition.LogicalRelation.Substitution using
   )
 ```
 
-Lemma 4.17 states that validity is preserved under weak head expansion, a generalization of a result for reducibility:
-
+Lemma 4.17 states that validity is preserved under weak head expansion (the formalized statement is a little different
+from the one in the paper if `Var-included` does not hold):
 ```
-import Definition.LogicalRelation.Properties.Reduction using
-  ( redSubst*Term -- Weak head expansion for reducibility
-  )
 import Definition.LogicalRelation.Substitution using
   ( ⊩ᵛ∷-⇐ -- Weak head expansion for validity
   )
 ```
+This is proved using `redSubst*Term`:
+```
+import Definition.LogicalRelation.Properties.Reduction using
+  ( redSubst*Term -- Weak head expansion for reducibility
+  )
+```
 
-Lemma 4.18 establishes validity for the definition typing rule:
-
+Lemma 4.18 establishes validity for the definition typing rule (with a weakening which is elided in the paper):
 ```
 import Definition.LogicalRelation.Substitution.Introductions.Definition using (defnᵛ)
 ```
-
 Note that the argument here accounts for opacity, and so it differs somewhat from the one given in this section of the
 paper.
 
@@ -711,7 +673,7 @@ paper.
 
 ### 5.1 The Formalism, Take Two
 
-Definition 5.1 refers to opacities and unfolding vectors:
+Definition 5.1 refers to opacities and unfolding vectors:
 
 ```
 import Definition.Untyped using
@@ -719,19 +681,17 @@ import Definition.Untyped using
   ; Unfolding -- Unfolding vectors
   )
 ```
-
 Note that opacities and unfolding vectors are indexed by the length of the definition contexts they act on, which is how
 the side condition on the length of `φ` in `opa(φ)` is enforced.
 
-Definition 5.2 extends definition contexts with opacities (this snippet is identical to the one above for 4.2):
-
+Definition 5.2 extends definition contexts with opacities (this snippet is identical to the one above for
+Definition 4.2):
 ```
 import Definition.Untyped using (DCon)
 ```
 
-Definition 5.3 extends the maps-to relations with an additional case for opaque definitions, and refines the `_↦_∷_∈_`
+Definition 5.3 extends the maps-to relations with an additional case for opaque definitions, and refines the `_↦_∷_∈_`
 relation to require that the definition is transparent:
-
 ```
 import Definition.Untyped using
   ( _↦_∷_∈_ -- A name refers to a transparent definition with a given definiens and annotated with a given type
@@ -740,26 +700,22 @@ import Definition.Untyped using
   )
 ```
 
-Lemma 5.4 states that any definition (`_↦∷_∈_`) must be either opaque (`_↦⊘∷_∈_`) or transparent (`_↦_∷_∈_`):
-
+Lemma 5.4 states that any definition (`_↦∷_∈_`) must be either opaque (`_↦⊘∷_∈_`) or transparent (`_↦_∷_∈_`):
 ```
 import Definition.Untyped.Properties using (dichotomy-↦∈)
 ```
 
-Definition 5.5 refers to the glassification operation, which is defined here:
-
+Definition 5.5 refers to the glassification operation, which is defined here:
 ```
 import Definition.Untyped using (glassify)
 ```
 
-Lemma 5.6 states that glassification makes any definition transparent:
-
+Lemma 5.6 states that glassification makes any definition transparent:
 ```
 import Definition.Untyped.Properties using (glassify-↦∈′)
 ```
 
-Definition 5.7 refers to the transparentization relation, which is defined here:
-
+Definition 5.7 refers to the transparentization relation, which is defined here:
 ```
 import Definition.Typed using
   ( _»_↜_ -- The transparentization relation
@@ -771,10 +727,8 @@ import Definition.Typed using
 ```
 
 In the paper, the "⊔" operator refers exclusively to bitwise disjunction, whereas the formalization offers the choice of
-an alternative operator that always returns the left unfolding vector and discards the right one. This alternative
-operator corresponds to a system where *no* transitive dependencies are unfolded; the consequences of this are shown
-later in 5.13. The operators are defined here:
-
+an alternative operator that always returns the left unfolding vector and discards the right one. A consequence of the
+use of this operator is shown later in Counterexample 5.13. The operators are defined here:
 ```
 import Definition.Typed.Variant using
   ( UnfoldingMode  -- The enumeration of available unfolding operators
@@ -784,8 +738,7 @@ import Definition.Typed using
   )
 ```
 
-Definition 5.8 extends well-formedness for definition contexts with opacity:
-
+Definition 5.8 extends well-formedness for definition contexts with opacity:
 ```
 import Definition.Typed using
   ( »_           -- Well-formedness relation
@@ -794,28 +747,22 @@ import Definition.Typed using
   ; ∙ᵗ[_]        -- Extend case for a transparent definition
   )
 ```
-
 Note the `Opacity-allowed` parameter to the opaque case: this is a type system parameter that specifies whether opaque
 definitions are allowed at all:
-
 ```
 _ = Definition.Typed.Restrictions.Type-restrictions.Opacity-allowed
 ```
-
 If this is set to the empty type, then the `∙ᵒ⟨_,_⟩[_∷_]` constructor becomes unusable, meaning that contexts with
 opaque definitions cannot be well-formed. In particular, we use this to prohibit opaque definitions in the presence of
 equality reflection:
-
 ```
 _ = Definition.Typed.Restrictions.Type-restrictions.no-opaque-equality-reflection
 ```
+This is used in the proof of validity for equality reflection: if all definitions are transparent, then any closed
+term of an identity type must reduce to reflexivity.
 
-This simplifies the proof of validity for equality reflection: if all definitions are transparent, then any definition
-term of an identity type must normalize to reflexivity.
-
-Lemma 5.9 states that typing judgements are preserved under definitional weakening (this snippet is identical to the one
-above for 4.7):
-
+Lemma 5.9 states that typing judgements are preserved under definitional weakening (this snippet is identical to the one
+above for Lemma 4.7):
 ```
 import Definition.Typed.Weakening.Definition using
   ( defn-wk        -- Well-formedness of types is preserved under definitional weakening
@@ -827,8 +774,7 @@ import Definition.Typed.Weakening.Definition using
   )
 ```
 
-Lemma 5.10 states that typing judgements are preserved under glassification of the definition context:
-
+Lemma 5.10 states that typing judgements are preserved under glassification of the definition context:
 ```
 import Definition.Typed.Properties.Definition using
   ( glassify-»   -- Glassification for well-formedness of definition contexts
@@ -842,43 +788,54 @@ import Definition.Typed.Properties.Definition using
   )
 ```
 
-Theorem 5.11 re-establishes subject reduction:
-
+Theorem 5.11 re-establishes subject reduction:
 ```
 _ = SubjectReduction.subject-reduction
 ```
 
-Theorem 5.12 states that with transitive unfolding (using the bitwise disjunction operator), well-formedness of
-definition contexts is preserved under transparentization by any unfolding vector:
-
+Theorem 5.12 states that with transitive unfolding (using the bitwise disjunction operator), well-formedness of
+definition contexts (among other things) is preserved under transparentization by any unfolding vector:
 ```
 import Definition.Typed.Consequences.Unfolding
 _ = Definition.Typed.Consequences.Unfolding.Transitive.unfold-»
+_ = Definition.Typed.Consequences.Unfolding.Transitive.unfold-⊢′
+_ = Definition.Typed.Consequences.Unfolding.Transitive.unfold-⊢
+_ = Definition.Typed.Consequences.Unfolding.Transitive.unfold-⊢∷
+_ = Definition.Typed.Consequences.Unfolding.Transitive.unfold-⊢≡
+_ = Definition.Typed.Consequences.Unfolding.Transitive.unfold-⊢≡∷
+_ = Definition.Typed.Consequences.Unfolding.Transitive.unfold-⇒∷
+_ = Definition.Typed.Consequences.Unfolding.Transitive.unfold-⇒
 ```
+(The last seven definitions above are given in a module with an extra assumption that is instantiated in the module
+`Transitive`; see `open Unconditional`.)
 
-Counterexample 5.13 demonstrates that the same is not true of the alternative operator:
-
+Counterexample 5.13 demonstrates that the same is not necessarily true of the alternative operator:
 ```
 _ = Definition.Typed.Consequences.Unfolding.Explicit.no-unfold-»
 ```
 
+The text discusses efficiency of type-checking. Our implementation of `decWfDCon`, a type-checker for definition
+contexts, uses an extra recursive call in one of the branches if transitive unfolding is not used:
+```
+open import Definition.Typed.Decidable using (decWfDCon)
+```
+
 ### 5.2 Updating the Logical Relation, Take Two
 
-Definitions 5.14 and 5.15 extend neutrality and WHNF to include opaque definitions:
-
+Definitions 5.14 and 5.15 extend neutrality and WHNFs to include opaque definitions:
 ```
 import Definition.Untyped.Neutral using (Neutral)
 import Definition.Untyped.Whnf using (Whnf)
 ```
+The definition of neutrality includes an extra parameter that is used to handle equality reflection.
 
-Lemma 5.16 re-establishes validity for the definition typing rule (this snippet is identical to the one above for 4.18):
-
+Lemma 5.16 re-establishes validity for the definition typing rule (this snippet is identical to the one above for
+Lemma 4.18):
 ```
 import Definition.LogicalRelation.Substitution.Introductions.Definition using (defnᵛ)
 ```
 
-Lemma 5.17 states that neutral terms of reducible types are reducible:
-
+Lemma 5.17 states that neutral terms of reducible types are reducible:
 ```
 import Definition.LogicalRelation.Properties.Neutral using
   ( neuTerm -- Neutral term reducibility for basic reducibility
@@ -888,9 +845,8 @@ import Definition.LogicalRelation.Hidden.Restricted using
   )
 ```
 
-Lemma 5.18 extends the well-formedness results for definitions from 4.15 to handle opacity (this snippet is identical to
-the one above for 4.15):
-
+Lemma 5.18 extends the well-formedness results for definitions from Lemma 4.15 to handle opacity (this snippet is
+identical to the one above for Lemma 4.15):
 ```
 import Definition.LogicalRelation.Substitution.Introductions.Definition using
   ( wf-↦∈ᵛ  -- Validity of the type annotation for `α ↦∷ A ∈ ∇`
@@ -900,40 +856,56 @@ import Definition.LogicalRelation.Substitution.Introductions.Definition using
 
 ### 5.3 Consequences of the Fundamental Theorem
 
-Theorem 5.19 re-establishes canonicity for natural numbers with appropriate glassification of definition contexts (this
-snippet is identical to the one above for 3.19):
-
+Theorem 5.19 re-establishes canonicity for natural numbers with appropriate glassification of definition contexts (this
+snippet is identical to the one above for Theorem 3.19, and the paper's formulation of the theorem is again incorrect):
 ```
 import Definition.Typed.Consequences.Canonicity using (canonicity)
 ```
 
-Theorem 5.20 states that in glass definition contexts, terms of identity types may be lifted to judgemental equalities:
-
+Theorem 5.20 states that in glass definition contexts, terms of identity types may be lifted to judgemental equalities:
 ```
 import Definition.Typed.Consequences.Canonicity using (ε⊢∷Id→ε⊢≡∷)
 ```
 
-Counterexample 5.21 demonstrates that this fails in non-glass contexts:
-
+Counterexample 5.21 demonstrates that this can fail in non-glass contexts:
 ```
 import Definition.Typed.Consequences.Canonicity using (ε⊢∷Id↛ε⊢≡∷)
 ```
 
-Theorem 5.22 re-establishes consistency (this snippet is identical to the one above for 3.20):
-
+Theorem 5.22 re-establishes consistency (this snippet is identical to the one above for Theorem 3.20):
 ```
 import Definition.Typed.Consequences.Canonicity using (¬Empty)
 ```
 
-Theorem 5.23 states that there can be no definitions annotated with the empty type in a well-formed definition context,
+Theorem 5.23 states that there can be no definitions annotated with the empty type in a well-formed definition context,
 a property that might be called "definition consistency":
-
 ```
 import Definition.Typed.Consequences.Canonicity using (¬defn-Empty)
 ```
+The theorem `¬defn-Empty` establishes that no definition is explicitly given the empty type (`¬ α ↦∷ Empty ∈ ∇`), but
+one can also prove that no definition has the empty type (`α ↦∷ A ∈ ∇ → ¬ ∇ » ε ⊢ A ≡ Empty`):
+```
+module Canonicity {a} {M : Set a} {𝕄 : Modality M} (R : Type-restrictions 𝕄) where
+  open import Tools.Nat
+  open import Tools.Product
+  open import Tools.Relation
+  open Definition.Typed R
+  open import Definition.Typed.Consequences.Canonicity R
+  open import Definition.Typed.Properties R
+  open Definition.Typed.Well-formed R
+  open Definition.Untyped M
+  open Definition.Untyped.Properties M
 
-Theorems 5.24 and 5.25 re-establish normalization (this snippet is identical to the one above for 3.18):
+  ¬defn-Empty′ :
+    ∀ {n} {∇ : DCon (Term 0) n} {α : Nat} {A : Term 0} →
+    » ∇ → α ↦∷ A ∈ ∇ → ¬ ∇ » ε ⊢ A ≡ Empty
+  ¬defn-Empty′ »∇ α↦∷A A≡Empty =
+    ¬Empty′
+      (conv (wf-↦∷∈ (glassify-↦∈′ α↦∷A .proj₂) (glassify-» »∇))
+         (glassify-⊢≡ A≡Empty))
+```
 
+Theorems 5.24 and 5.25 re-establish normalization (this snippet is identical to the one above for Theorem 3.18):
 ```
 import Definition.Typed.Consequences.Reduction using
   ( whNorm     -- Well-formed types normalize to a WHNF
@@ -941,8 +913,7 @@ import Definition.Typed.Consequences.Reduction using
   )
 ```
 
-Theorem 5.26 re-establishes decidability of conversion (this snippet is identical to the one above for 3.21):
-
+Theorem 5.26 re-establishes decidability of conversion (this snippet is identical to the one above for Theorem 3.21):
 ```
 import Definition.Typed.Decidable.Equality using
   ( decEq     -- Equality of types is decidable
@@ -950,19 +921,18 @@ import Definition.Typed.Decidable.Equality using
   )
 ```
 
-Theorem 5.27 states that type-checking is decidable on a "checkable" fragment of the language:
-
+Theorem 5.27 states that type-checking is decidable for a "checkable" fragment of the language:
 ```
 import Definition.Typechecking using
   ( Checkable-type -- Checkability predicate for types
   ; Checkable      -- Checkability predicate for terms
-  ; Inferable      -- Inferability predicate (can we synthesize a type for an unannotated term?)
+  ; Inferable      -- Inferability predicate
   )
 import Definition.Typed.Decidable using
   ( decWfDCon -- Check whether a definition context of checkable definitions is well-formed
   ; decWfCon  -- Check whether a typing context of checkable types is well-formed
   ; dec       -- Check whether a checkable type is well-formed
   ; decTermᶜ  -- Check whether a checkable term is well-typed for a given type
-  ; decTermᵢ  -- Infer a type for an inferable term
+  ; decTermᵢ  -- Infer a type for an inferable term, if possible
   )
 ```
