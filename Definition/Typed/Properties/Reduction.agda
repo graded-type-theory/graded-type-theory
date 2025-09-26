@@ -147,14 +147,14 @@ opaque
 
   inv-⇒-J :
     Γ ⊢ J p q A t B u v w ⇒ t′ ∷ C →
-    (∃₂ λ w′ D → Γ ⊢ w ⇒ w′ ∷ D × t′ PE.≡ J p q A t B u v w′) ⊎
-    w PE.≡ rfl × t′ PE.≡ u
+    (∃ λ w′ → Γ ⊢ w ⇒ w′ ∷ Id A t v × t′ PE.≡ J p q A t B u v w′) ⊎
+    w PE.≡ rfl × t′ PE.≡ u × Γ ⊢ t ≡ v ∷ A
   inv-⇒-J (conv d _) =
     inv-⇒-J d
   inv-⇒-J (J-subst _ _ _ _ d) =
-    inj₁ (_ , _ , d , PE.refl)
-  inv-⇒-J (J-β _ _ _ _ _ _) =
-    inj₂ (PE.refl , PE.refl)
+    inj₁ (_ , d , PE.refl)
+  inv-⇒-J (J-β _ _ t≡v _ _ _) =
+    inj₂ (PE.refl , PE.refl , t≡v)
 
   -- An inversion lemma related to K.
 
@@ -173,14 +173,14 @@ opaque
 
   inv-⇒-[]-cong :
     Γ ⊢ []-cong s A t u v ⇒ w ∷ C →
-    (∃₂ λ v′ D → Γ ⊢ v ⇒ v′ ∷ D × w PE.≡ []-cong s A t u v′) ⊎
-    v PE.≡ rfl × w PE.≡ rfl
+    (∃ λ v′ → Γ ⊢ v ⇒ v′ ∷ Id A t u × w PE.≡ []-cong s A t u v′) ⊎
+    v PE.≡ rfl × w PE.≡ rfl × Γ ⊢ t ≡ u ∷ A
   inv-⇒-[]-cong (conv d _) =
     inv-⇒-[]-cong d
   inv-⇒-[]-cong ([]-cong-subst _ _ _ d _) =
-    inj₁ (_ , _ , d , PE.refl)
-  inv-⇒-[]-cong ([]-cong-β _ _ _ _ _) =
-    inj₂ (PE.refl , PE.refl)
+    inj₁ (_ , d , PE.refl)
+  inv-⇒-[]-cong ([]-cong-β _ _ _ t≡t′ _) =
+    inj₂ (PE.refl , PE.refl , t≡t′)
 
 ------------------------------------------------------------------------
 -- The reduction relations are contained in the equality relations
@@ -565,13 +565,13 @@ opaque
         (inj₂ (inj₂ (PE.refl , _)))   → PE.refl
     (J-subst _ _ _ _ d) d′ →
       case inv-⇒-J d′ of λ where
-        (inj₁ (_ , _ , d′ , PE.refl)) →
+        (inj₁ (_ , d′ , PE.refl)) →
           PE.cong (J _ _ _ _ _ _ _) (whrDetTerm d d′)
         (inj₂ (PE.refl , _)) → ⊥-elim (whnfRedTerm d rflₙ)
     (J-β _ _ _ _ _ _) d′ →
       case inv-⇒-J d′ of λ where
-        (inj₁ (_ , _ , d′ , _)) → ⊥-elim (whnfRedTerm d′ rflₙ)
-        (inj₂ (_ , PE.refl))    → PE.refl
+        (inj₁ (_ , d′ , _))      → ⊥-elim (whnfRedTerm d′ rflₙ)
+        (inj₂ (_ , PE.refl , _)) → PE.refl
     (K-subst _ _ d _) d′ →
       case inv-⇒-K d′ of λ where
         (inj₁ (_ , _ , d′ , PE.refl)) →
@@ -583,13 +583,13 @@ opaque
         (inj₂ (_ , PE.refl))    → PE.refl
     ([]-cong-subst _ _ _ d _) d′ →
       case inv-⇒-[]-cong d′ of λ where
-        (inj₁ (_ , _ , d′ , PE.refl)) →
+        (inj₁ (_ , d′ , PE.refl)) →
           PE.cong ([]-cong _ _ _ _) (whrDetTerm d d′)
         (inj₂ (PE.refl , _)) → ⊥-elim (whnfRedTerm d rflₙ)
     ([]-cong-β _ _ _ _ _) d′ →
       case inv-⇒-[]-cong d′ of λ where
-        (inj₁ (_ , _ , d′ , _)) → ⊥-elim (whnfRedTerm d′ rflₙ)
-        (inj₂ (_ , PE.refl))    → PE.refl
+        (inj₁ (_ , d′ , _))      → ⊥-elim (whnfRedTerm d′ rflₙ)
+        (inj₂ (_ , PE.refl , _)) → PE.refl
 
 opaque
 

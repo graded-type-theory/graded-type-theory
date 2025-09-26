@@ -42,6 +42,7 @@ open import Tools.Nat as N using (Nat; 1+; 2+; 3+)
 open import Tools.Product
 import Tools.PropositionalEquality as PE
 open import Tools.Reasoning.PropositionalEquality
+open import Tools.Sum
 
 open Definition.Typed.Properties.Admissible.Identity.Primitive R public
 
@@ -575,6 +576,17 @@ opaque
       (⊢A , ⊢t , ⊢Id , ⊢w , ⊢u , ⊢v , C≡) →
     ⊢A , ⊢t , ⊢u , ⊢v , PE.subst (_⊢_∷_ _ _) (subst-wk B) ⊢w ,
     PE.subst (_⊢_≡_ _ _) (subst-wk B) C≡
+
+opaque
+  unfolding subst
+
+  -- An inversion lemma for subst.
+
+  inv-⇒-subst :
+    Γ ⊢ subst p A B t u v w ⇒ t′ ∷ C →
+    (∃ λ v′ → Γ ⊢ v ⇒ v′ ∷ Id A t u × t′ PE.≡ subst p A B t u v′ w) ⊎
+    v PE.≡ rfl × t′ PE.≡ w × Γ ⊢ t ≡ u ∷ A
+  inv-⇒-subst = inv-⇒-J
 
 ------------------------------------------------------------------------
 -- Lemmas related to cast
