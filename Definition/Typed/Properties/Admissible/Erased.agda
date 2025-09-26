@@ -42,6 +42,7 @@ open import Definition.Untyped.Identity 𝕄
 open import Definition.Untyped.Properties M
 open import Definition.Untyped.Sigma 𝕄
 open import Definition.Untyped.Unit 𝕄
+open import Definition.Untyped.Whnf M
 
 open import Tools.Fin
 open import Tools.Function
@@ -50,6 +51,7 @@ open import Tools.Product
 import Tools.PropositionalEquality as PE
 open import Tools.Reasoning.PropositionalEquality
 open import Tools.Relation
+open import Tools.Sum
 
 private variable
   n                                                    : Nat
@@ -1029,19 +1031,26 @@ module _ (ok : []-cong-allowed s) where
       Γ ⊢ Jᵉ A t B u t rfl ≡ u ∷ B [ t , rfl ]₁₀
     Jᵉ-≡ ⊢t ⊢B ⊢u = subset*Term (Jᵉ-⇒* ⊢t ⊢B ⊢u)
 
+------------------------------------------------------------------------
+-- More lemmas related to Jᵉ
+
+module _ {s : Strength} where
+
+  open Erased s
+
   opaque
     unfolding Jᵉ substᵉ subst
 
     -- A certain reduction rule for Jᵉ is not valid.
 
-    ¬-Jᵉ-subst :
+    ¬-Jᵉ-subst-⇒* :
       ¬ (∀ {m n} {Γ : Cons m n}
            {A t : Term n} {B : Term (2+ n)} {u v w₁ w₂ : Term n} →
          Γ »∙ A »∙ Id (wk1 A) (wk1 t) (var x0) ⊢ B →
          Γ ⊢ u ∷ B [ t , rfl ]₁₀ →
          Γ ⊢ w₁ ⇒ w₂ ∷ Id A t v →
-         Γ ⊢ Jᵉ A t B u v w₁ ⇒ Jᵉ A t B u v w₂ ∷ B [ v , w₁ ]₁₀)
-    ¬-Jᵉ-subst Jᵉ-subst = ¬lhs⇒rhs lhs⇒rhs
+         Γ ⊢ Jᵉ A t B u v w₁ ⇒* Jᵉ A t B u v w₂ ∷ B [ v , w₁ ]₁₀)
+    ¬-Jᵉ-subst-⇒* Jᵉ-subst = ¬lhs⇒*rhs lhs⇒*rhs
       where
       Γ′                          : Cons 0 0
       A′ t″ u′ v′ w₁′ w₂′ lhs rhs : Term 0
@@ -1069,8 +1078,46 @@ module _ (ok : []-cong-allowed s) where
         (zeroⱼ εε)
         (rflⱼ (zeroⱼ εε))
 
-      lhs⇒rhs : Γ′ ⊢ lhs ⇒ rhs ∷ B′ [ v′ , w₁′ ]₁₀
-      lhs⇒rhs = Jᵉ-subst ⊢B′ ⊢u′ w₁′⇒w₂′
+      lhs⇒*rhs : Γ′ ⊢ lhs ⇒* rhs ∷ B′ [ v′ , w₁′ ]₁₀
+      lhs⇒*rhs = Jᵉ-subst ⊢B′ ⊢u′ w₁′⇒w₂′
 
-      ¬lhs⇒rhs : ¬ Γ′ ⊢ lhs ⇒ rhs ∷ C
-      ¬lhs⇒rhs (conv lhs⇒rhs _) = ¬lhs⇒rhs lhs⇒rhs
+      ¬lhs⇒*rhs : ¬ Γ′ ⊢ lhs ⇒* rhs ∷ C
+      ¬lhs⇒*rhs (d ⇨ ⇒*rhs) = case inv-⇒-subst d of λ {
+        (inj₂ (() , _));
+        (inj₁ (_ , d , PE.refl)) → case inv-⇒-[]-cong d of λ {
+        (inj₂ (() , _));
+        (inj₁ (_ , d , PE.refl)) → case inv-⇒-J d of λ {
+        (inj₂ (() , _));
+        (inj₁ (_ , d , PE.refl)) → case inv-⇒-subst d of λ {
+        (inj₁ (_ , d , _))       → whnfRedTerm d rflₙ;
+        (inj₂ (_ , PE.refl , _)) → case ⇒*rhs of λ {
+        (d ⇨ ⇒*rhs)              → case inv-⇒-subst d of λ {
+        (inj₂ (() , _));
+        (inj₁ (_ , d , PE.refl)) → case inv-⇒-[]-cong d of λ {
+        (inj₂ (() , _));
+        (inj₁ (_ , d , PE.refl)) → case inv-⇒-J d of λ {
+        (inj₁ (_ , d , _))       → whnfRedTerm d rflₙ;
+        (inj₂ (_ , PE.refl , _)) → case ⇒*rhs of λ {
+        (d ⇨ ⇒*rhs)              → case inv-⇒-subst d of λ {
+        (inj₂ (() , _));
+        (inj₁ (_ , d , PE.refl)) → case inv-⇒-[]-cong d of λ {
+        (inj₁ (_ , d , _))       → whnfRedTerm d rflₙ;
+        (inj₂ (_ , PE.refl , _)) → case ⇒*rhs of λ {
+        (d ⇨ ⇒*rhs)              → case inv-⇒-subst d of λ {
+        (inj₁ (_ , d , _))       → whnfRedTerm d rflₙ;
+        (inj₂ (_ , PE.refl , _)) → case ⇒*rhs of λ {
+        (d ⇨ _)                  → whnfRedTerm d zeroₙ }}}}}}}}}}}}}}
+
+  opaque
+
+    -- Another reduction rule for Jᵉ is also not valid.
+
+    ¬-Jᵉ-subst :
+      ¬ (∀ {m n} {Γ : Cons m n}
+           {A t : Term n} {B : Term (2+ n)} {u v w₁ w₂ : Term n} →
+         Γ »∙ A »∙ Id (wk1 A) (wk1 t) (var x0) ⊢ B →
+         Γ ⊢ u ∷ B [ t , rfl ]₁₀ →
+         Γ ⊢ w₁ ⇒ w₂ ∷ Id A t v →
+         Γ ⊢ Jᵉ A t B u v w₁ ⇒ Jᵉ A t B u v w₂ ∷ B [ v , w₁ ]₁₀)
+    ¬-Jᵉ-subst Jᵉ-subst =
+      ¬-Jᵉ-subst-⇒* (λ ⊢B ⊢u w₁⇒w₂ → redMany (Jᵉ-subst ⊢B ⊢u w₁⇒w₂))
