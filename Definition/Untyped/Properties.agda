@@ -2929,3 +2929,42 @@ opaque
     wk (lift (step-at x)) (wk1 (⟨ x ≔ t ⟩ y))  ≡˘⟨ wk1-wk≡lift-wk1 _ _ ⟩
     wk1 (wk (step-at x) (⟨ x ≔ t ⟩ y))         ≡⟨ cong wk1 $ ⟨≔⟩≡⟨≔⟩↑ y ⟩
     wk1 (⟨ x ≔ wk (step-at′ x) t ⟩↑ y)         ∎
+
+------------------------------------------------------------------------
+-- A view for variables
+
+-- A view of terms as variables or anything else.
+
+data Is-var? {n} : Term n → Set a where
+  var     : ∀ x → Is-var? (var x)
+  not-var : (∀ {x} → ¬ t ≡ var x) → Is-var? t
+
+opaque
+
+  -- The Is-var? view is "decidable".
+
+  is-var? : (t : Term n) → Is-var? t
+  is-var? (var x)                 = var x
+  is-var? (defn _)                = not-var (λ ())
+  is-var? (U _)                   = not-var (λ ())
+  is-var? Empty                   = not-var (λ ())
+  is-var? (emptyrec _ _ _)        = not-var (λ ())
+  is-var? (Unit _ _)              = not-var (λ ())
+  is-var? (star _ _)              = not-var (λ ())
+  is-var? (unitrec _ _ _ _ _ _)   = not-var (λ ())
+  is-var? (ΠΣ⟨ _ ⟩ _ , _ ▷ _ ▹ _) = not-var (λ ())
+  is-var? (lam _ _)               = not-var (λ ())
+  is-var? (_ ∘⟨ _ ⟩ _)            = not-var (λ ())
+  is-var? (prod _ _ _ _)          = not-var (λ ())
+  is-var? (fst _ _)               = not-var (λ ())
+  is-var? (snd _ _)               = not-var (λ ())
+  is-var? (prodrec _ _ _ _ _ _)   = not-var (λ ())
+  is-var? ℕ                       = not-var (λ ())
+  is-var? zero                    = not-var (λ ())
+  is-var? (suc _)                 = not-var (λ ())
+  is-var? (natrec _ _ _ _ _ _ _)  = not-var (λ ())
+  is-var? (Id _ _ _)              = not-var (λ ())
+  is-var? rfl                     = not-var (λ ())
+  is-var? (J _ _ _ _ _ _ _ _)     = not-var (λ ())
+  is-var? (K _ _ _ _ _ _)         = not-var (λ ())
+  is-var? ([]-cong _ _ _ _ _)     = not-var (λ ())
