@@ -16,7 +16,7 @@ private variable
   a       : Level
   α l m n : Nat
   𝕋 𝕌     : Set a
-  P       : Nat → Set _
+  P Q     : Nat → Set _
 
 ------------------------------------------------------------------------
 -- Definitions related to terms
@@ -78,7 +78,7 @@ drop (1+ k) (Γ ∙ _) = drop k Γ
 
 -- A map function for contexts.
 
-map-Con : (∀ {n} → P n → P n) → Con P n → Con P n
+map-Con : (∀ {n} → P n → Q n) → Con P n → Con Q n
 map-Con _ ε       = ε
 map-Con f (Γ ∙ A) = map-Con f Γ ∙ f A
 
@@ -285,3 +285,32 @@ map-DCon : (𝕋 → 𝕌) → DCon 𝕋 n → DCon 𝕌 n
 map-DCon _ ε                   = ε
 map-DCon f (∇ ∙⟨ ω ⟩[ t ∷ A ]) =
   map-DCon f ∇ ∙⟨ ω ⟩[ f t ∷ f A ]
+
+------------------------------------------------------------------------
+-- Context pairs
+
+-- Pairs of definition contexts and variable contexts.
+
+infix 5 _»_
+
+record Context-pair (P : Nat → Set a) (m n : Nat) : Set a where
+  constructor _»_
+  field
+    -- The definition context.
+    defs : DCon (P 0) m
+    -- The variable context.
+    vars : Con P n
+
+open Context-pair public
+
+-- A variant of Con._∙_ for Context-pair.
+
+infixl 24 _»∙_
+
+_»∙_ : Context-pair P m n → P n → Context-pair P m (1+ n)
+(∇ » Γ) »∙ A = ∇ » Γ ∙ A
+
+-- A map function for context pairs.
+
+map-Cons : (∀ {n} → P n → Q n) → Context-pair P m n → Context-pair Q m n
+map-Cons f (∇ » Γ) = map-DCon f ∇ » map-Con f Γ

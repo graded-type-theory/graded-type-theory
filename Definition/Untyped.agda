@@ -112,6 +112,11 @@ pattern []-congˢ A t u v = []-cong 𝕤 A t u v
 private variable
   t : Term _
 
+-- Pairs of definition contexts and variable contexts.
+
+Cons : (_ _ : Nat) → Set a
+Cons = Context-pair Term
+
 -- Type constructors.
 
 data BindingType : Set a where
@@ -310,35 +315,6 @@ fromTerm ([]-cong s A t u v) =
   gen (Boxcongkind s)
     (fromTerm A ∷ₜ fromTerm t ∷ₜ fromTerm u
                 ∷ₜ fromTerm v ∷ₜ [])
-
-------------------------------------------------------------------------
--- Context pairs
-
--- Pairs of definition contexts and variable contexts.
-
-infix 5 _»_
-
-record Cons (m n : Nat) : Set a where
-  constructor _»_
-  field
-    -- The definition context.
-    defs : DCon (Term 0) m
-    -- The variable context.
-    vars : Con Term n
-
-open Cons public
-
--- A variant of Con._∙_ for Cons.
-
-infixl 24 _»∙_
-
-_»∙_ : Cons m n → Term n → Cons m (1+ n)
-(∇ » Γ) »∙ A = ∇ » Γ ∙ A
-
--- A map function for context pairs.
-
-map-Cons : (∀ {n} → Term n → Term n) → Cons m n → Cons m n
-map-Cons f (∇ » Γ) = map-DCon f ∇ » map-Con f Γ
 
 ------------------------------------------------------------------------
 -- Weakening
