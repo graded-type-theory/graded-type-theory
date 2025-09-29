@@ -83,6 +83,20 @@ opaque
   ne-opaque-ok »∇ (Kₙ b)         = ne-opaque-ok »∇ b
   ne-opaque-ok »∇ ([]-congₙ b)   = ne-opaque-ok »∇ b
 
+opaque
+
+  -- If opacity is not allowed, then well-formed definition contexts
+  -- are transparent.
+
+  »→Transparent : ¬ Opacity-allowed → » ∇ → Transparent ∇
+  »→Transparent _ ε =
+    PE.refl
+  »→Transparent no-opacity ∙ᵒ⟨ allowed , _ ⟩[ _ ∷ _ ] =
+    ⊥-elim $ no-opacity allowed
+  »→Transparent no-opacity ∙ᵗ[ ⊢t ] =
+    PE.cong _∙⟨ _ ⟩[ _ ∷ _ ] $
+    »→Transparent no-opacity (defn-wf (wfTerm ⊢t))
+
 ------------------------------------------------------------------------
 -- Lemmas about unfoldings
 
