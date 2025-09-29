@@ -27,7 +27,7 @@ open import Definition.LogicalRelation.ShapeView R
 open import Definition.LogicalRelation.Fundamental.Reducibility R
 
 open import Tools.Function
-open import Tools.Nat as Nat using (Nat)
+open import Tools.Nat as Nat using (Nat; 1+)
 open import Tools.Product
 open import Tools.Relation
 open import Tools.Empty
@@ -538,6 +538,18 @@ suc≢ne :
   (No-equality-reflection → V) → Neutral V (Γ .defs) u →
   ¬ Γ ⊢ suc t ≡ u ∷ ℕ
 suc≢ne →V = whnf≢ne →V ℕₙ sucₙ (λ ())
+
+opaque
+
+  -- The term sucᵏ n is not definitionally equal (at type ℕ) to any
+  -- neutral term (given a certain assumption).
+
+  sucᵏ≢ne :
+    ⦃ ok : No-equality-reflection or-empty (Γ .vars) ⦄ →
+    (No-equality-reflection → V) → Neutral V (Γ .defs) t →
+    ¬ Γ ⊢ sucᵏ n ≡ t ∷ ℕ
+  sucᵏ≢ne {n = 0}    = zero≢ne
+  sucᵏ≢ne {n = 1+ _} = suc≢ne
 
 -- The term starʷ l is not definitionally equal (at type Unitʷ l) to
 -- any neutral term (given certain assumptions).
