@@ -23,7 +23,7 @@ private
     j k k₁ k₂ ℓ m n o α β : Nat
     x x₁ x₂ : Fin _
     eq eq₁ eq₂ : _ ≡ _
-    𝕋 : Set _
+    𝕋 𝕌 : Set _
     ∇ ∇′ : DCon _ _
     Γ : Con Term _
     φ : Unfolding _
@@ -35,6 +35,7 @@ private
     s s₁ s₂ : Strength
     b₁ b₂ : BinderMode
     l l₁ l₂ : Universe-level
+    f : 𝕋 → 𝕌
 
 ------------------------------------------------------------------------
 -- Properties of definition contexts
@@ -170,6 +171,15 @@ opaque
 
   glassify-↦∈′ : ∀ {A} → α ↦∷ A ∈ ∇ → ∃ λ t → α ↦ t ∷ A ∈ glassify ∇
   glassify-↦∈′ = glass-↦∈ ∘→ glassify-↦∈
+
+opaque
+
+  -- The functions glassify and map-DCon f commute.
+
+  glassify-map-DCon : glassify (map-DCon f ∇) ≡ map-DCon f (glassify ∇)
+  glassify-map-DCon {∇ = ε} = refl
+  glassify-map-DCon {∇ = _ ∙⟨ _ ⟩[ _ ∷ _ ]} =
+    cong _∙⟨ _ ⟩[ _ ∷ _ ] glassify-map-DCon
 
 ------------------------------------------------------------------------
 -- Properties of toTerm and fromTerm.
