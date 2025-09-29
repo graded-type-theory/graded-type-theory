@@ -460,6 +460,7 @@ import Graded.Erasure.LogicalRelation.Fundamental
 -- Soundness of extraction.
 import Graded.Erasure.SucRed
 import Graded.Erasure.Consequences.Soundness
+import Graded.Erasure.Consequences.Soundness.Extended-type-theory
 import Graded.Erasure.Consequences.Soundness.Erased-matches
 import Graded.Erasure.LogicalRelation.Fundamental.Counterexample
 
