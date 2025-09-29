@@ -47,7 +47,7 @@ record Fundamental-assumptions⁻ (Δ : Cons kᵈ k) : Set a where
     -- Every definition in Δ is well-resourced.
     well-resourced : ▸[ 𝟙ᵐ ] (Δ .defs)
     -- If erased matches are allowed for emptyrec when the mode is 𝟙ᵐ,
-    -- then the contexts in Δ consistent.
+    -- then the contexts in Δ are consistent.
     consistent : Emptyrec-allowed 𝟙ᵐ 𝟘 → Consistent Δ
     -- Erased matches are not allowed unless the variable context is
     -- empty.
