@@ -2907,3 +2907,25 @@ opaque
   inline-Con-glassify ε       = refl
   inline-Con-glassify (Γ ∙ A) =
     cong₂ _∙_ (inline-Con-glassify _) (inline-glassify A)
+
+------------------------------------------------------------------------
+-- Properties related to ⟨_≔_⟩ and ⟨_≔_⟩↑
+
+opaque
+
+  -- A lemma relating ⟨_≔_⟩ and ⟨_≔_⟩↑.
+
+  ⟨≔⟩≡⟨≔⟩↑ :
+    (y : Fin n) →
+    wk (step-at x) (⟨ x ≔ t ⟩ y) ≡ ⟨ x ≔ wk (step-at′ x) t ⟩↑ y
+  ⟨≔⟩≡⟨≔⟩↑ {x = x0} x0 =
+    refl
+  ⟨≔⟩≡⟨≔⟩↑ {x = x0} (_ +1) =
+    refl
+  ⟨≔⟩≡⟨≔⟩↑ {x = _+1 {n = 0}    ()}
+  ⟨≔⟩≡⟨≔⟩↑ {x = _+1 {n = 1+ _} _}  x0 =
+    refl
+  ⟨≔⟩≡⟨≔⟩↑ {x = _+1 {n = 1+ _} x} {t} (y +1) =
+    wk (lift (step-at x)) (wk1 (⟨ x ≔ t ⟩ y))  ≡˘⟨ wk1-wk≡lift-wk1 _ _ ⟩
+    wk1 (wk (step-at x) (⟨ x ≔ t ⟩ y))         ≡⟨ cong wk1 $ ⟨≔⟩≡⟨≔⟩↑ y ⟩
+    wk1 (⟨ x ≔ wk (step-at′ x) t ⟩↑ y)         ∎

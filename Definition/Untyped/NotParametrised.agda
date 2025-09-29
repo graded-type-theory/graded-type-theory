@@ -128,6 +128,13 @@ step-at x0                  = step id
 step-at (_+1 {n = 0}    ())
 step-at (_+1 {n = 1+ _} x)  = lift (step-at x)
 
+-- A variant of step-at without lift constructors in the result.
+
+step-at′ : (x : Fin n) → Wk (n ∸ toℕ x) (pred n ∸ toℕ x)
+step-at′ x0                  = step id
+step-at′ (_+1 {n = 0}    ())
+step-at′ (_+1 {n = 1+ _} x)  = step-at′ x
+
 -- Weakening of variables.
 -- If η : Γ ≤ Δ and x ∈ dom(Δ) then wkVar η x ∈ dom(Γ).
 
