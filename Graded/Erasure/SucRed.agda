@@ -42,6 +42,7 @@ private
     ∇ : List (T.Term 0)
     t t′ u : Term n
     v v′ w w′ : T.Term n
+    ρ : Wk _ _
     s : Strictness
 
 ------------------------------------------------------------------------
@@ -278,6 +279,76 @@ opaque
       (inj₁ v′⇒w)         → inj₁ (T.trans v⇒v′ v′⇒w)
       (inj₂ (_ , v′⇒suc)) → inj₂ (_ , T.trans v⇒v′ v′⇒suc)
 
+opaque
+
+  -- A weakening lemma for extended reduction.
+
+  wk-⇒ˢ : ∇ ⊢ v ⇒ˢ w → ∇ ⊢ T.wk ρ v ⇒ˢ T.wk ρ w
+  wk-⇒ˢ = λ where
+    (whred d)  → whred (TP.wk-⇒ d)
+    (sucred d) → sucred (wk-⇒ˢ d)
+
+opaque
+
+  -- A weakening lemma for extended reduction.
+
+  wk-⇒ˢ* : ∇ ⊢ v ⇒ˢ* w → ∇ ⊢ T.wk ρ v ⇒ˢ* T.wk ρ w
+  wk-⇒ˢ* = λ where
+    refl          → refl
+    (trans d₁ d₂) → trans (wk-⇒ˢ d₁) (wk-⇒ˢ* d₂)
+
+opaque
+
+  -- A strengthening lemma for extended reduction.
+
+  strengthen-⇒ˢ :
+    ∇ ⊢ T.wk ρ v ⇒ˢ w → ∃ λ w′ → T.wk ρ w′ PE.≡ w × ∇ ⊢ v ⇒ˢ w′
+  strengthen-⇒ˢ = flip lemma PE.refl
+    where
+    lemma :
+      ∇ ⊢ v ⇒ˢ w → T.wk ρ v′ PE.≡ v →
+      ∃ λ w′ → T.wk ρ w′ PE.≡ w × ∇ ⊢ v′ ⇒ˢ w′
+    lemma = λ where
+      (whred d) PE.refl →
+        case TP.strengthen-⇒ d of λ {
+          (_ , PE.refl , d) →
+        _ , PE.refl , whred d }
+      (sucred d) eq →
+        case TP.inv-wk-suc eq of λ {
+          (_ , PE.refl , PE.refl) →
+        case strengthen-⇒ˢ d of λ {
+          (_ , PE.refl , d) →
+        _ , PE.refl , sucred d }}
+
+opaque
+
+  -- A strengthening lemma for extended reduction.
+
+  strengthen-⇒ˢ* :
+    ∇ ⊢ T.wk ρ v ⇒ˢ* w → ∃ λ w′ → T.wk ρ w′ PE.≡ w × ∇ ⊢ v ⇒ˢ* w′
+  strengthen-⇒ˢ* = λ where
+    refl →
+      _ , PE.refl , refl
+    (trans d₁ d₂) →
+      case strengthen-⇒ˢ d₁ of λ {
+        (_ , PE.refl , d₁) →
+      case strengthen-⇒ˢ* d₂ of λ {
+        (_ , PE.refl , d₂) →
+      _ , PE.refl , trans d₁ d₂ }}
+
+opaque
+
+  -- If T.wk ρ v reduces to a numeral, then v reduces to the same
+  -- numeral.
+
+  strengthen-⇒ˢ*-sucᵏ : ∇ ⊢ T.wk ρ v ⇒ˢ* T.sucᵏ n → ∇ ⊢ v ⇒ˢ* T.sucᵏ n
+  strengthen-⇒ˢ*-sucᵏ d =
+    case strengthen-⇒ˢ* d of λ {
+      (_ , eq , d) →
+    case TP.inv-wk-sucᵏ eq of λ {
+      PE.refl →
+    d }}
+
 ------------------------------------------------------------------------
 -- _⊢_⇒ˢ⟨_⟩*_
 
@@ -322,3 +393,31 @@ opaque
     ¬loop⇒ˢ*′ v-value (trans (whred loop⇒) ⇒*v)
       rewrite TP.redDet _ loop⇒ loop⇒loop =
       ¬loop⇒ˢ*′ v-value ⇒*v
+
+opaque
+
+  -- A weakening lemma for _⊢_⇒ˢ⟨_⟩*_.
+
+  wk-⇒ˢ⟨⟩* : ∇ ⊢ v ⇒ˢ⟨ s ⟩* w → ∇ ⊢ T.wk ρ v ⇒ˢ⟨ s ⟩* T.wk ρ w
+  wk-⇒ˢ⟨⟩* {s = non-strict} = wk-⇒ˢ*
+  wk-⇒ˢ⟨⟩* {s = strict}     = TP.wk-⇒*
+
+opaque
+
+  -- A strengthening lemma for _⊢_⇒ˢ⟨_⟩*_.
+
+  strengthen-⇒ˢ⟨⟩* :
+    ∇ ⊢ T.wk ρ v ⇒ˢ⟨ s ⟩* w →
+    ∃ λ w′ → T.wk ρ w′ PE.≡ w × ∇ ⊢ v ⇒ˢ⟨ s ⟩* w′
+  strengthen-⇒ˢ⟨⟩* {s = non-strict} = strengthen-⇒ˢ*
+  strengthen-⇒ˢ⟨⟩* {s = strict}     = TP.strengthen-⇒*
+
+opaque
+
+  -- If T.wk ρ v reduces to a numeral, then v reduces to the same
+  -- numeral.
+
+  strengthen-⇒ˢ⟨⟩*-sucᵏ :
+    ∇ ⊢ T.wk ρ v ⇒ˢ⟨ s ⟩* T.sucᵏ n → ∇ ⊢ v ⇒ˢ⟨ s ⟩* T.sucᵏ n
+  strengthen-⇒ˢ⟨⟩*-sucᵏ {s = strict}     = TP.strengthen-⇒*-sucᵏ
+  strengthen-⇒ˢ⟨⟩*-sucᵏ {s = non-strict} = strengthen-⇒ˢ*-sucᵏ

@@ -577,3 +577,68 @@ opaque
   inv-wk-↯ {t = zero}         ()
   inv-wk-↯ {t = suc _}        ()
   inv-wk-↯ {t = natrec _ _ _} ()
+
+------------------------------------------------------------------------
+-- Some lemmas related to Value and Value⟨_⟩
+
+opaque
+
+  -- Value is closed under weakening.
+
+  wk-Value : Value t → Value (wk ρ t)
+  wk-Value lam  = lam
+  wk-Value prod = prod
+  wk-Value zero = zero
+  wk-Value suc  = suc
+  wk-Value star = star
+  wk-Value ↯    = ↯
+
+opaque
+
+  -- Value⟨ s ⟩ is closed under weakening.
+
+  wk-Value⟨⟩ : Value⟨ s ⟩ t → Value⟨ s ⟩ (wk ρ t)
+  wk-Value⟨⟩ {s = strict}     = wk-Value
+  wk-Value⟨⟩ {s = non-strict} = _
+
+opaque
+
+  -- Value is closed under strengthening.
+
+  strengthen-Value : Value (wk ρ t) → Value t
+  strengthen-Value = flip lemma refl
+    where
+    lemma : Value u → wk ρ t ≡ u → Value t
+    lemma = λ where
+      lam eq →
+        case inv-wk-lam eq of λ {
+          (_ , refl , _) →
+        lam }
+      prod eq →
+        case inv-wk-prod eq of λ {
+          (_ , _ , refl , _) →
+        prod }
+      zero eq →
+        case inv-wk-zero eq of λ {
+          refl →
+        zero }
+      suc eq →
+        case inv-wk-suc eq of λ {
+          (_ , refl , _) →
+        suc }
+      star eq →
+        case inv-wk-star eq of λ {
+          refl →
+        star }
+      ↯ eq →
+        case inv-wk-↯ eq of λ {
+          refl →
+        ↯ }
+
+opaque
+
+  -- Value⟨ s ⟩ is closed under strengthening.
+
+  strengthen-Value⟨⟩ : Value⟨ s ⟩ (wk ρ t) → Value⟨ s ⟩ t
+  strengthen-Value⟨⟩ {s = strict}     = strengthen-Value
+  strengthen-Value⟨⟩ {s = non-strict} = _
