@@ -45,6 +45,8 @@ open import Graded.Context 𝕄
 open import Graded.Context.Properties 𝕄
 import Graded.Derived.Erased.Usage 𝕄 UR as ErasedU
 open import Graded.Derived.Identity UR
+open import Graded.Erasure.Extraction 𝕄
+import Graded.Erasure.Target as T
 open import Graded.Modality.Properties 𝕄
 open import Graded.Mode 𝕄
 open import Graded.Neutral TR UR
@@ -56,7 +58,7 @@ open import Graded.Usage.Inversion 𝕄 UR
 open import Graded.Usage.Properties 𝕄 UR
 open import Graded.Usage.Weakening 𝕄 UR
 
-open import Tools.Bool using (T)
+open import Tools.Bool using (Bool; T)
 open import Tools.Empty
 open import Tools.Fin
 open import Tools.Function
@@ -69,6 +71,7 @@ open import Tools.Relation
 open import Tools.Sum using (_⊎_; inj₁; inj₂)
 
 private variable
+  b                                        : Bool
   n n′                                     : Nat
   Δ                                        : Con Term _
   Γ                                        : Cons _ _
@@ -80,6 +83,7 @@ private variable
   s                                        : Strength
   l l′                                     : Universe-level
   sem                                      : Some-erased-matches
+  str                                      : T.Strictness
   ok                                       : T _
 
 ------------------------------------------------------------------------
@@ -369,6 +373,15 @@ opaque
     where
     open Erased s
     open Tools.Reasoning.PropositionalEquality
+
+opaque
+  unfolding []-cong-J subst
+
+  -- The result of "extracting" an application of []-cong-J is an
+  -- application of loop?.
+
+  erase-[]-cong-J : erase′ b str ([]-cong-J s A t u v) PE.≡ loop? str
+  erase-[]-cong-J = PE.refl
 
 ------------------------------------------------------------------------
 -- Has-[]-cong

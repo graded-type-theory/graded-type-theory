@@ -3,7 +3,7 @@
 ------------------------------------------------------------------------
 
 open import Graded.Modality
-open import Tools.PropositionalEquality as PE
+open import Tools.PropositionalEquality as PE hiding (subst)
 
 module Graded.Erasure.Extraction.Properties
   {a} {M : Set a}
@@ -23,6 +23,8 @@ open import Graded.Erasure.Target.Properties
 
 open import Definition.Untyped M as U
   hiding (Term; wk; _[_]; _[_,_]₁₀; liftSubst)
+open import Definition.Untyped.Erased 𝕄 using (substᵉ; Jᵉ)
+open import Definition.Untyped.Identity 𝕄 using (subst)
 open import Definition.Untyped.Omega M as O using (Ω)
 
 open import Graded.Context 𝕄
@@ -51,7 +53,7 @@ private
   variable
     b : Bool
     α m n : Nat
-    t u A : U.Term n
+    A A₁ A₂ t t₁ t₂ t₃ t₄ u : U.Term n
     v v₁ v₂ : T.Term n
     ts : DCon (U.Term _) _
     ∇ : List (T.Term n)
@@ -218,6 +220,26 @@ opaque
   lam-𝟘-remove with is-𝟘? 𝟘
   … | yes _  = refl
   … | no 𝟘≢𝟘 = ⊥-elim $ 𝟘≢𝟘 refl
+
+opaque
+  unfolding subst
+
+  erase-subst :
+    erase′ b s (subst p A₁ A₂ t₁ t₂ t₃ t₄) PE.≡ erase′ b s t₄
+  erase-subst = PE.refl
+
+opaque
+  unfolding substᵉ subst
+
+  erase-substᵉ :
+    erase′ b s (substᵉ k A₁ A₂ t₁ t₂ t₃ t₄) PE.≡ erase′ b s t₄
+  erase-substᵉ = PE.refl
+
+opaque
+  unfolding Jᵉ substᵉ subst
+
+  erase-Jᵉ : erase′ b s (Jᵉ k A₁ t₁ A₂ t₂ t₃ t₄) PE.≡ erase′ b s t₂
+  erase-Jᵉ = PE.refl
 
 opaque
 
@@ -932,6 +954,6 @@ module hasX (R : Usage-restrictions) where
       ⦃ 𝟘-well-behaved : Has-well-behaved-zero M semiring-with-meet ⦄ →
       x ◂ 𝟘 ∈ γ → γ ▸[ 𝟙ᵐ ] t → ¬ HasX x (erase′ b s t)
     erased-hasX {x} {t} {b} {s} x∈ ▸t =
-      HasX x (erase′ b s t)                                     →⟨ subst (HasX _) (sym $ erase-≔ x∈ ▸t) ⟩
+      HasX x (erase′ b s t)                                     →⟨ PE.subst (HasX _) (sym $ erase-≔ x∈ ▸t) ⟩
       HasX x (wk (step-at x) (erase′ b s (t U.[ ⟨ x ≔ ℕ ⟩ ])))  →⟨ ¬-HasX-wk-step-at ⟩
       ⊥                                                         □
