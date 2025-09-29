@@ -1449,6 +1449,29 @@ mutual
     (substₘ-lemma Ψ (▶-≤ Ψ γ≤δ Ψ▶σ) γ▸t)
     (<*-monotone Ψ γ≤δ)
 
+opaque
+
+  -- A variant of substₘ-lemma for closing substitutions.
+
+  substₘ-lemma-closed :
+    ((x : Fin n) → ε ▸[ 𝟘ᵐ? ] σ x) →
+    𝟘ᶜ ▸[ mo ] t →
+    ε ▸[ mo ] t [ σ ]
+  substₘ-lemma-closed {n} ▸σ ▸t =
+    subst (_▸[ _ ] _) (≈ᶜ→≡ $ <*-zeroʳ (𝟘ᶜ {n = n})) $
+    substₘ-lemma εₘ
+      (λ x →
+         subst₃ _▸[_]_
+           (sym $ ≈ᶜ→≡ $ <*-zeroʳ ((𝟘ᶜ , x ≔ ⌜ ⌞ 𝟘ᶜ ⟨ x ⟩ ⌟ ⌝)))
+           (𝟘ᵐ?           ≡˘⟨ ⌞𝟘⌟≡𝟘ᵐ? ⟩
+            ⌞ 𝟘 ⌟         ≡˘⟨ cong ⌞_⌟ $ 𝟘ᶜ-lookup x ⟩
+            ⌞ 𝟘ᶜ ⟨ x ⟩ ⌟  ∎)
+           refl
+           (▸σ x))
+      ▸t
+    where
+    open Tools.Reasoning.PropositionalEquality
+
 -- A substitution lemma for single substitutions.
 
 sgSubstₘ-lemma₁ :
