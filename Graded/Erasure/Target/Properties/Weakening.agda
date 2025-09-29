@@ -129,6 +129,14 @@ opaque
   wk-prod⟨⟩ {s = strict}     = refl
   wk-prod⟨⟩ {s = non-strict} = refl
 
+opaque
+
+  -- A weakening lemma for sucᵏ.
+
+  wk-sucᵏ : wk ρ (sucᵏ n) ≡ sucᵏ n
+  wk-sucᵏ {n = 0}    = refl
+  wk-sucᵏ {n = 1+ _} = cong suc wk-sucᵏ
+
 ------------------------------------------------------------------------
 -- Some lemmas related to HasX
 
