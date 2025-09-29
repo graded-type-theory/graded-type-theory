@@ -12,16 +12,18 @@ open import Tools.Empty
 open import Tools.Fin
 open import Tools.Function
 open import Tools.Nat
-open import Tools.Product
+open import Tools.Product as Σ
 open import Tools.Relation
 open import Tools.PropositionalEquality
 open import Tools.Sum as ⊎
 
 private variable
-  ℓ m n              : Nat
-  A                  : Set _
+  α ℓ m n            : Nat
+  A A₁ A₂            : Set _
   P                  : Nat → Set _
-  B                  : A
+  B t                : A
+  f                  : A₁ → A₂
+  ∇                  : DCon _ _
   Γ                  : Con _ _
   ρ ρ′               : Wk _ _
   x y                : Fin _
@@ -261,6 +263,23 @@ opaque
 
   ⊔ᵘ-idem : l ⊔ᵘ l ≡ l
   ⊔ᵘ-idem = ⊔-idem _
+
+------------------------------------------------------------------------
+-- A property related to _↦_∷_∈_
+
+opaque
+
+  -- A lemma related to _↦_∷_∈_ and map-DCon.
+
+  ↦∷∈-map-DCon :
+    α ↦ t ∷ B ∈ map-DCon f ∇ →
+    ∃₂ λ u C → t ≡ f u × B ≡ f C × α ↦ u ∷ C ∈ ∇
+  ↦∷∈-map-DCon {∇ = ε} ()
+  ↦∷∈-map-DCon {∇ = _ ∙⟨ _ ⟩[ _ ∷ _ ]} here =
+    _ , _ , refl , refl , here
+  ↦∷∈-map-DCon {∇ = _ ∙⟨ _ ⟩[ _ ∷ _ ]} (there α↦) =
+    Σ.map idᶠ (Σ.map idᶠ (Σ.map idᶠ (Σ.map idᶠ there))) $
+    ↦∷∈-map-DCon α↦
 
 ------------------------------------------------------------------------
 -- Properties related to Empty-con and _or-empty_
