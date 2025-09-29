@@ -26,6 +26,7 @@ private
     𝕋 𝕌 : Set _
     ∇ ∇′ : DCon _ _
     Γ : Con Term _
+    Δ : Cons _ _
     φ : Unfolding _
     A A₁ A₂ B₁ B₂ E F G H t t₁ t₂ u u₁ u₂ v v₁ v₂ w w₁ w₂ : Term _
     ρ ρ′ : Wk m n
@@ -2963,3 +2964,23 @@ opaque
   is-var? (J _ _ _ _ _ _ _ _)     = not-var (λ ())
   is-var? (K _ _ _ _ _ _)         = not-var (λ ())
   is-var? ([]-cong _ _ _ _ _)     = not-var (λ ())
+
+------------------------------------------------------------------------
+-- A lemma related to map-Cons
+
+opaque
+
+  -- The function map-Cons idᶠ is pointwise equal to the identity
+  -- function.
+
+  map-Cons-id : map-Cons idᶠ Δ ≡ Δ
+  map-Cons-id = cong₂ _»_ map-DCon-id map-Con-id
+
+opaque
+
+  -- The function map-Cons preserves pointwise equality.
+
+  map-Cons-cong :
+    {f g : ∀ {n} → Term n → Term n} →
+    (∀ {n} (x : Term n) → f x ≡ g x) → map-Cons f Δ ≡ map-Cons g Δ
+  map-Cons-cong f≡g = cong₂ _»_ (map-DCon-cong f≡g) (map-Con-cong f≡g)

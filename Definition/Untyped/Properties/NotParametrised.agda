@@ -20,9 +20,9 @@ open import Tools.Sum as ⊎
 private variable
   α ℓ m n            : Nat
   A A₁ A₂            : Set _
-  P                  : Nat → Set _
+  P Q                : Nat → Set _
   B t                : A
-  f                  : A₁ → A₂
+  f g                : A₁ → A₂
   ∇                  : DCon _ _
   Γ                  : Con _ _
   ρ ρ′               : Wk _ _
@@ -265,7 +265,45 @@ opaque
   ⊔ᵘ-idem = ⊔-idem _
 
 ------------------------------------------------------------------------
--- A property related to _↦_∷_∈_
+-- Some properties related to map-Con and map-DCon
+
+opaque
+
+  -- The function map-Con idᶠ is pointwise equal to the identity
+  -- function.
+
+  map-Con-id : map-Con idᶠ Γ ≡ Γ
+  map-Con-id {Γ = ε}     = refl
+  map-Con-id {Γ = _ ∙ _} = cong (_∙ _) map-Con-id
+
+opaque
+
+  -- The function map-DCon idᶠ is pointwise equal to the identity
+  -- function.
+
+  map-DCon-id : map-DCon idᶠ ∇ ≡ ∇
+  map-DCon-id {∇ = ε}                 = refl
+  map-DCon-id {∇ = _ ∙⟨ _ ⟩[ _ ∷ _ ]} =
+    cong _∙⟨ _ ⟩[ _ ∷ _ ] map-DCon-id
+
+opaque
+
+  -- The function map-Con preserves pointwise equality.
+
+  map-Con-cong :
+    {f g : ∀ {n} → P n → Q n} {Γ : Con P n} →
+    (∀ {n} (x : P n) → f x ≡ g x) → map-Con f Γ ≡ map-Con g Γ
+  map-Con-cong {Γ = ε}     _   = refl
+  map-Con-cong {Γ = _ ∙ _} f≡g = cong₂ _∙_ (map-Con-cong f≡g) (f≡g _)
+
+opaque
+
+  -- The function map-DCon preserves pointwise equality.
+
+  map-DCon-cong : (∀ x → f x ≡ g x) → map-DCon f ∇ ≡ map-DCon g ∇
+  map-DCon-cong {∇ = ε}                 _ = refl
+  map-DCon-cong {∇ = _ ∙⟨ _ ⟩[ _ ∷ _ ]} f≡g =
+    cong₃ _∙⟨ _ ⟩[_∷_] (map-DCon-cong f≡g) (f≡g _) (f≡g _)
 
 opaque
 
