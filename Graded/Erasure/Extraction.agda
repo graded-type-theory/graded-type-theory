@@ -28,6 +28,7 @@ private
     A t t′ u : U.Term n
     v v′ w : T.Term n
     p : M
+    𝕋 𝕌 : Set _
 
 -- If the first argument is strict, then the result is ↯ (which is a
 -- value), but if the first argument is non-strict, then the result is
@@ -143,12 +144,20 @@ mutual
 
 opaque
 
+  -- A variant of eraseDCon′ (which is defined below).
+
+  eraseDCon″ : (𝕋 → 𝕌) → DCon 𝕋 n → List 𝕌
+  eraseDCon″ _     ε                    = []
+  eraseDCon″ erase (ts ∙⟨ _ ⟩[ t ∷ _ ]) =
+    eraseDCon″ erase ts ++ (erase t ∷ [])
+
+opaque
+  unfolding eraseDCon″
+
   -- A variant of eraseDCon (which is defined below).
 
   eraseDCon′ : Bool → Strictness → DCon (U.Term 0) n → List (T.Term 0)
-  eraseDCon′ _ _   ε                    = []
-  eraseDCon′ b str (ts ∙⟨ _ ⟩[ t ∷ _ ]) =
-    eraseDCon′ b str ts ++ (erase′ b str t ∷ [])
+  eraseDCon′ b str = eraseDCon″ (erase′ b str)
 
 -- Extraction of definition contexts.
 
