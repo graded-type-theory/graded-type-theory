@@ -255,27 +255,44 @@ module _
   -- context.
 
   module Soundness₀
-    (»∇ : » glassify ∇)
     (▸∇ : ▸[ 𝟙ᵐ ] glassify ∇)
     (str : Strictness)
     where
 
     private
-      module S = Soundness (fundamental-assumptions⁻₀ »∇ ▸∇) str
-
-    open S public hiding (soundness-ℕ)
+      module S »∇ = Soundness (fundamental-assumptions⁻₀ »∇ ▸∇) str
 
     opaque
 
-      -- Soundness for natural numbers (restated to make it easier to
-      -- see what the function's type is).
+      -- Soundness of extraction for natural numbers.
 
       soundness-ℕ :
         glassify ∇ » ε ⊢ t ∷ ℕ → ε ▸[ 𝟙ᵐ ] t →
         ∃ λ n →
         glassify ∇ » ε ⊢ t ⇒ˢ* sucᵏ n ∷ℕ ×
         eraseDCon str ∇ ⊢ erase str t ⇒ˢ⟨ str ⟩* T.sucᵏ n
-      soundness-ℕ = S.soundness-ℕ
+      soundness-ℕ ⊢t = S.soundness-ℕ (defn-wf (wfTerm ⊢t)) ⊢t
+
+    opaque
+
+      -- A variant of soundness-ℕ which only considers the source
+      -- language.
+
+      soundness-ℕ-only-source :
+        glassify ∇ » ε ⊢ t ∷ ℕ → 𝟘ᶜ ▸[ 𝟙ᵐ ] t →
+        ∃ λ n → glassify ∇ » ε ⊢ t ⇒ˢ* sucᵏ n ∷ℕ
+      soundness-ℕ-only-source ⊢t =
+        S.soundness-ℕ-only-source (defn-wf (wfTerm ⊢t)) ⊢t
+
+    opaque
+
+      -- Soundness of extraction for unit types.
+
+      soundness-Unit :
+        glassify ∇ » ε ⊢ t ∷ Unit s l → 𝟘ᶜ ▸[ 𝟙ᵐ ] t →
+        glassify ∇ » ε ⊢ t ⇒* star s l ∷ Unit s l ×
+        eraseDCon str ∇ T.⊢ erase str t ⇒* T.star
+      soundness-Unit ⊢t = S.soundness-Unit (defn-wf (wfTerm ⊢t)) ⊢t
 
 -- If Prodrec-allowed 𝟙ᵐ 𝟘 p 𝟘 holds for some p (which means that
 -- certain kinds of erased matches are allowed), and if additionally

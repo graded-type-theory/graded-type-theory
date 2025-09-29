@@ -984,7 +984,7 @@ erase-head-[0]⇒*zero {str = strict} =
 
 head-[0]⇒*zero : ε » ε ⊢ head-[0] ⇒* zero ∷ ℕ
 head-[0]⇒*zero =
-  case Soundness₀.soundness-ℕ ε (λ ())
+  case Soundness₀.soundness-ℕ (λ ())
          T.non-strict ⊢head-[0] ▸head-[0] of λ where
     (0 , head-[0]⇒*zero , _) →
       S.⇒ˢ*zero∷ℕ→⇒*zero ⦃ ok = ε ⦄ head-[0]⇒*zero
