@@ -481,6 +481,8 @@ import Graded.Neutral
 -- can be defined
 
 import Graded.Box-cong
+import Graded.Modify-box-cong-or-J.Configuration
+import Graded.Modify-box-cong-or-J
 
 ------------------------------------------------------------------------
 -- A resource aware abstract machine
