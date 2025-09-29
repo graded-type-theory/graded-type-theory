@@ -26,6 +26,7 @@ open import Definition.Untyped M as U
 open import Definition.Untyped.Erased 𝕄 using (substᵉ; Jᵉ)
 open import Definition.Untyped.Identity 𝕄 using (subst)
 open import Definition.Untyped.Omega M as O using (Ω)
+import Definition.Untyped.Properties M as UP
 
 open import Graded.Context 𝕄
 open import Graded.Context.Properties 𝕄
@@ -944,6 +945,22 @@ module hasX (R : Usage-restrictions) where
       x0 ◂ 𝟘 ∈ γ → γ ▸[ 𝟙ᵐ ] t →
       T.wk1 (erase′ b s (t U.[ u ]₀)) ≡ erase′ b s t
     erase-[]₀ = erase-≔
+
+  opaque
+
+    -- A variant of erase-[]₀.
+
+    erase-[wk1]↑ :
+      ⦃ 𝟘-well-behaved : Has-well-behaved-zero M semiring-with-meet ⦄ →
+      x0 ◂ 𝟘 ∈ γ → γ ▸[ 𝟙ᵐ ] t →
+      erase′ b s (t U.[ U.wk1 u ]↑) ≡ erase′ b s t
+    erase-[wk1]↑ {t} {b} {s} {u} x0◂ ▸t =
+      erase′ b s (t U.[ U.wk1 u ]↑)    ≡˘⟨ PE.cong (erase′ _ _) $ UP.wk[]′[][]↑ 1 t ⟩
+      erase′ b s (U.wk1 (t U.[ u ]₀))  ≡˘⟨ wk-erase-comm _ (t U.[ _ ]₀) ⟩
+      T.wk1 (erase′ b s (t U.[ u ]₀))  ≡⟨ erase-[]₀ x0◂ ▸t ⟩
+      erase′ b s t                     ∎
+      where
+      open Tools.Reasoning.PropositionalEquality
 
   opaque
 
