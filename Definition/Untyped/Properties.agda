@@ -1561,6 +1561,16 @@ opaque
 
 opaque
 
+  -- A variant of []≡wk-wk₀.
+
+  []-closed : {t : Term 0} → t [ σ ] ≡ t
+  []-closed {σ} {t} =
+    t [ σ ]   ≡⟨ []≡wk-wk₀ t ⟩
+    wk wk₀ t  ≡⟨ wk₀-closed ⟩
+    t         ∎
+
+opaque
+
   -- Closed terms are invariant under substitution
 
   wk₀-subst-invariant : {σ : Subst m n} (t : Term 0) → wk wk₀ t [ σ ] ≡ wk wk₀ t
