@@ -129,6 +129,9 @@ opaque
   wk-prod⟨⟩ {s = strict}     = refl
   wk-prod⟨⟩ {s = non-strict} = refl
 
+------------------------------------------------------------------------
+-- Some lemmas related to HasX
+
 opaque
 
   -- If x occurs in wk ρ t, then x is equal to wkVar ρ y for some y
