@@ -20,10 +20,10 @@ open import Tools.Sum as ⊎ using (_⊎_; inj₁; inj₂)
 
 private
   variable
-    ℓ m n : Nat
+    α ℓ m n : Nat
     x : Fin n
     ρ ρ′ : Wk m n
-    t u : Term n
+    t u v w : Term n
     s : Strictness
 
 -- Weakening properties
@@ -256,3 +256,321 @@ opaque
     HasX x (wk (step-at x) t)                     →⟨ HasX-wk→ ⟩
     (∃ λ y → x ≡ wkVar (step-at x) y × HasX y t)  →⟨ ≢wkVar-step-at ∘→ proj₁ ∘→ proj₂ ⟩
     ⊥                                             □
+
+------------------------------------------------------------------------
+-- Inversion lemmas for weakening
+
+opaque
+
+  -- Inversion for var.
+
+  inv-wk-var :
+    wk ρ t ≡ var x →
+    ∃ λ x′ → t ≡ var x′ × wkVar ρ x′ ≡ x
+  inv-wk-var {t = var _}        refl = _ , refl , refl
+  inv-wk-var {t = defn _}       ()
+  inv-wk-var {t = lam _}        ()
+  inv-wk-var {t = _ ∘⟨ _ ⟩ _}   ()
+  inv-wk-var {t = prod _ _}     ()
+  inv-wk-var {t = fst _}        ()
+  inv-wk-var {t = snd _}        ()
+  inv-wk-var {t = prodrec _ _}  ()
+  inv-wk-var {t = star}         ()
+  inv-wk-var {t = unitrec _ _}  ()
+  inv-wk-var {t = zero}         ()
+  inv-wk-var {t = suc _}        ()
+  inv-wk-var {t = natrec _ _ _} ()
+  inv-wk-var {t = ↯}            ()
+
+opaque
+
+  -- Inversion for defn.
+
+  inv-wk-defn : wk ρ t ≡ defn α → t ≡ defn α
+  inv-wk-defn {t = defn _}       refl = refl
+  inv-wk-defn {t = var _}        ()
+  inv-wk-defn {t = lam _}        ()
+  inv-wk-defn {t = _ ∘⟨ _ ⟩ _}   ()
+  inv-wk-defn {t = prod _ _}     ()
+  inv-wk-defn {t = fst _}        ()
+  inv-wk-defn {t = snd _}        ()
+  inv-wk-defn {t = prodrec _ _}  ()
+  inv-wk-defn {t = star}         ()
+  inv-wk-defn {t = unitrec _ _}  ()
+  inv-wk-defn {t = zero}         ()
+  inv-wk-defn {t = suc _}        ()
+  inv-wk-defn {t = natrec _ _ _} ()
+  inv-wk-defn {t = ↯}            ()
+
+opaque
+
+  -- Inversion for lam.
+
+  inv-wk-lam :
+    wk ρ t ≡ lam u →
+    ∃ λ u′ → t ≡ lam u′ × wk (lift ρ) u′ ≡ u
+  inv-wk-lam {t = lam _}        refl = _ , refl , refl
+  inv-wk-lam {t = var _}        ()
+  inv-wk-lam {t = defn _}       ()
+  inv-wk-lam {t = _ ∘⟨ _ ⟩ _}   ()
+  inv-wk-lam {t = prod _ _}     ()
+  inv-wk-lam {t = fst _}        ()
+  inv-wk-lam {t = snd _}        ()
+  inv-wk-lam {t = prodrec _ _}  ()
+  inv-wk-lam {t = star}         ()
+  inv-wk-lam {t = unitrec _ _}  ()
+  inv-wk-lam {t = zero}         ()
+  inv-wk-lam {t = suc _}        ()
+  inv-wk-lam {t = natrec _ _ _} ()
+  inv-wk-lam {t = ↯}            ()
+
+opaque
+
+  -- Inversion for _∘⟨_⟩_.
+
+  inv-wk-∘ :
+    wk ρ t ≡ u ∘⟨ s ⟩ v →
+    ∃₂ λ u′ v′ → t ≡ u′ ∘⟨ s ⟩ v′ × wk ρ u′ ≡ u × wk ρ v′ ≡ v
+  inv-wk-∘ {t = _ ∘⟨ _ ⟩ _}   refl = _ , _ , refl , refl , refl
+  inv-wk-∘ {t = var _}        ()
+  inv-wk-∘ {t = defn _}       ()
+  inv-wk-∘ {t = lam _}        ()
+  inv-wk-∘ {t = prod _ _}     ()
+  inv-wk-∘ {t = fst _}        ()
+  inv-wk-∘ {t = snd _}        ()
+  inv-wk-∘ {t = prodrec _ _}  ()
+  inv-wk-∘ {t = star}         ()
+  inv-wk-∘ {t = unitrec _ _}  ()
+  inv-wk-∘ {t = zero}         ()
+  inv-wk-∘ {t = suc _}        ()
+  inv-wk-∘ {t = natrec _ _ _} ()
+  inv-wk-∘ {t = ↯}            ()
+
+opaque
+
+  -- Inversion for prod.
+
+  inv-wk-prod :
+    wk ρ t ≡ prod u v →
+    ∃₂ λ u′ v′ → t ≡ prod u′ v′ × wk ρ u′ ≡ u × wk ρ v′ ≡ v
+  inv-wk-prod {t = prod _ _}     refl = _ , _ , refl , refl , refl
+  inv-wk-prod {t = var _}        ()
+  inv-wk-prod {t = defn _}       ()
+  inv-wk-prod {t = lam _}        ()
+  inv-wk-prod {t = _ ∘⟨ _ ⟩ _}   ()
+  inv-wk-prod {t = fst _}        ()
+  inv-wk-prod {t = snd _}        ()
+  inv-wk-prod {t = prodrec _ _}  ()
+  inv-wk-prod {t = star}         ()
+  inv-wk-prod {t = unitrec _ _}  ()
+  inv-wk-prod {t = zero}         ()
+  inv-wk-prod {t = suc _}        ()
+  inv-wk-prod {t = natrec _ _ _} ()
+  inv-wk-prod {t = ↯}            ()
+
+opaque
+
+  -- Inversion for fst.
+
+  inv-wk-fst :
+    wk ρ t ≡ fst u →
+    ∃ λ u′ → t ≡ fst u′ × wk ρ u′ ≡ u
+  inv-wk-fst {t = fst _}        refl = _ , refl , refl
+  inv-wk-fst {t = var _}        ()
+  inv-wk-fst {t = defn _}       ()
+  inv-wk-fst {t = lam _}        ()
+  inv-wk-fst {t = _ ∘⟨ _ ⟩ _}   ()
+  inv-wk-fst {t = prod _ _}     ()
+  inv-wk-fst {t = snd _}        ()
+  inv-wk-fst {t = prodrec _ _}  ()
+  inv-wk-fst {t = star}         ()
+  inv-wk-fst {t = unitrec _ _}  ()
+  inv-wk-fst {t = zero}         ()
+  inv-wk-fst {t = suc _}        ()
+  inv-wk-fst {t = natrec _ _ _} ()
+  inv-wk-fst {t = ↯}            ()
+
+opaque
+
+  -- Inversion for snd.
+
+  inv-wk-snd :
+    wk ρ t ≡ snd u →
+    ∃ λ u′ → t ≡ snd u′ × wk ρ u′ ≡ u
+  inv-wk-snd {t = snd _}        refl = _ , refl , refl
+  inv-wk-snd {t = var _}        ()
+  inv-wk-snd {t = defn _}       ()
+  inv-wk-snd {t = lam _}        ()
+  inv-wk-snd {t = _ ∘⟨ _ ⟩ _}   ()
+  inv-wk-snd {t = prod _ _}     ()
+  inv-wk-snd {t = fst _}        ()
+  inv-wk-snd {t = prodrec _ _}  ()
+  inv-wk-snd {t = star}         ()
+  inv-wk-snd {t = unitrec _ _}  ()
+  inv-wk-snd {t = zero}         ()
+  inv-wk-snd {t = suc _}        ()
+  inv-wk-snd {t = natrec _ _ _} ()
+  inv-wk-snd {t = ↯}            ()
+
+opaque
+
+  -- Inversion for prodrec.
+
+  inv-wk-prodrec :
+    wk ρ t ≡ prodrec u v →
+    ∃₂ λ u′ v′ → t ≡ prodrec u′ v′ × wk ρ u′ ≡ u × wk (liftn ρ 2) v′ ≡ v
+  inv-wk-prodrec {t = prodrec _ _}  refl = _ , _ , refl , refl , refl
+  inv-wk-prodrec {t = var _}        ()
+  inv-wk-prodrec {t = defn _}       ()
+  inv-wk-prodrec {t = lam _}        ()
+  inv-wk-prodrec {t = _ ∘⟨ _ ⟩ _}   ()
+  inv-wk-prodrec {t = prod _ _}     ()
+  inv-wk-prodrec {t = fst _}        ()
+  inv-wk-prodrec {t = snd _}        ()
+  inv-wk-prodrec {t = star}         ()
+  inv-wk-prodrec {t = unitrec _ _}  ()
+  inv-wk-prodrec {t = zero}         ()
+  inv-wk-prodrec {t = suc _}        ()
+  inv-wk-prodrec {t = natrec _ _ _} ()
+  inv-wk-prodrec {t = ↯}            ()
+
+opaque
+
+  -- Inversion for star.
+
+  inv-wk-star : wk ρ t ≡ star → t ≡ star
+  inv-wk-star {t = star}         refl = refl
+  inv-wk-star {t = var _}        ()
+  inv-wk-star {t = defn _}       ()
+  inv-wk-star {t = lam _}        ()
+  inv-wk-star {t = _ ∘⟨ _ ⟩ _}   ()
+  inv-wk-star {t = prod _ _}     ()
+  inv-wk-star {t = fst _}        ()
+  inv-wk-star {t = snd _}        ()
+  inv-wk-star {t = prodrec _ _}  ()
+  inv-wk-star {t = unitrec _ _}  ()
+  inv-wk-star {t = zero}         ()
+  inv-wk-star {t = suc _}        ()
+  inv-wk-star {t = natrec _ _ _} ()
+  inv-wk-star {t = ↯}            ()
+
+opaque
+
+  -- Inversion for unitrec.
+
+  inv-wk-unitrec :
+    wk ρ t ≡ unitrec u v →
+    ∃₂ λ u′ v′ → t ≡ unitrec u′ v′ × wk ρ u′ ≡ u × wk ρ v′ ≡ v
+  inv-wk-unitrec {t = unitrec _ _}  refl = _ , _ , refl , refl , refl
+  inv-wk-unitrec {t = var _}        ()
+  inv-wk-unitrec {t = defn _}       ()
+  inv-wk-unitrec {t = lam _}        ()
+  inv-wk-unitrec {t = _ ∘⟨ _ ⟩ _}   ()
+  inv-wk-unitrec {t = prod _ _}     ()
+  inv-wk-unitrec {t = fst _}        ()
+  inv-wk-unitrec {t = snd _}        ()
+  inv-wk-unitrec {t = prodrec _ _}  ()
+  inv-wk-unitrec {t = star}         ()
+  inv-wk-unitrec {t = zero}         ()
+  inv-wk-unitrec {t = suc _}        ()
+  inv-wk-unitrec {t = natrec _ _ _} ()
+  inv-wk-unitrec {t = ↯}            ()
+
+opaque
+
+  -- Inversion for zero.
+
+  inv-wk-zero : wk ρ t ≡ zero → t ≡ zero
+  inv-wk-zero {t = zero}         refl = refl
+  inv-wk-zero {t = var _}        ()
+  inv-wk-zero {t = defn _}       ()
+  inv-wk-zero {t = lam _}        ()
+  inv-wk-zero {t = _ ∘⟨ _ ⟩ _}   ()
+  inv-wk-zero {t = prod _ _}     ()
+  inv-wk-zero {t = fst _}        ()
+  inv-wk-zero {t = snd _}        ()
+  inv-wk-zero {t = prodrec _ _}  ()
+  inv-wk-zero {t = star}         ()
+  inv-wk-zero {t = unitrec _ _}  ()
+  inv-wk-zero {t = suc _}        ()
+  inv-wk-zero {t = natrec _ _ _} ()
+  inv-wk-zero {t = ↯}            ()
+
+opaque
+
+  -- Inversion for suc.
+
+  inv-wk-suc :
+    wk ρ t ≡ suc u →
+    ∃ λ u′ → t ≡ suc u′ × wk ρ u′ ≡ u
+  inv-wk-suc {t = suc _}        refl = _ , refl , refl
+  inv-wk-suc {t = var _}        ()
+  inv-wk-suc {t = defn _}       ()
+  inv-wk-suc {t = lam _}        ()
+  inv-wk-suc {t = _ ∘⟨ _ ⟩ _}   ()
+  inv-wk-suc {t = prod _ _}     ()
+  inv-wk-suc {t = fst _}        ()
+  inv-wk-suc {t = snd _}        ()
+  inv-wk-suc {t = prodrec _ _}  ()
+  inv-wk-suc {t = star}         ()
+  inv-wk-suc {t = unitrec _ _}  ()
+  inv-wk-suc {t = zero}         ()
+  inv-wk-suc {t = natrec _ _ _} ()
+  inv-wk-suc {t = ↯}            ()
+
+opaque
+
+  -- Inversion for sucᵏ.
+
+  inv-wk-sucᵏ : wk ρ t ≡ sucᵏ n → t ≡ sucᵏ n
+  inv-wk-sucᵏ {n = 0} =
+    inv-wk-zero
+  inv-wk-sucᵏ {n = 1+ _} eq =
+    case inv-wk-suc eq of λ {
+      (_ , refl , eq) →
+    cong suc (inv-wk-sucᵏ eq) }
+
+opaque
+
+  -- Inversion for natrec.
+
+  inv-wk-natrec :
+    wk ρ t ≡ natrec u v w →
+    ∃₃ λ u′ v′ w′ →
+       t ≡ natrec u′ v′ w′ ×
+       wk ρ u′ ≡ u × wk (liftn ρ 2) v′ ≡ v × wk ρ w′ ≡ w
+  inv-wk-natrec {t = natrec _ _ _} refl =
+    _ , _ , _ , refl , refl , refl , refl
+  inv-wk-natrec {t = var _}       ()
+  inv-wk-natrec {t = defn _}      ()
+  inv-wk-natrec {t = lam _}       ()
+  inv-wk-natrec {t = _ ∘⟨ _ ⟩ _}  ()
+  inv-wk-natrec {t = prod _ _}    ()
+  inv-wk-natrec {t = fst _}       ()
+  inv-wk-natrec {t = snd _}       ()
+  inv-wk-natrec {t = prodrec _ _} ()
+  inv-wk-natrec {t = star}        ()
+  inv-wk-natrec {t = unitrec _ _} ()
+  inv-wk-natrec {t = zero}        ()
+  inv-wk-natrec {t = suc _}       ()
+  inv-wk-natrec {t = ↯}           ()
+
+opaque
+
+  -- Inversion for ↯.
+
+  inv-wk-↯ : wk ρ t ≡ ↯ → t ≡ ↯
+  inv-wk-↯ {t = ↯}            refl = refl
+  inv-wk-↯ {t = var _}        ()
+  inv-wk-↯ {t = defn _}       ()
+  inv-wk-↯ {t = lam _}        ()
+  inv-wk-↯ {t = _ ∘⟨ _ ⟩ _}   ()
+  inv-wk-↯ {t = prod _ _}     ()
+  inv-wk-↯ {t = fst _}        ()
+  inv-wk-↯ {t = snd _}        ()
+  inv-wk-↯ {t = prodrec _ _}  ()
+  inv-wk-↯ {t = star}         ()
+  inv-wk-↯ {t = unitrec _ _}  ()
+  inv-wk-↯ {t = zero}         ()
+  inv-wk-↯ {t = suc _}        ()
+  inv-wk-↯ {t = natrec _ _ _} ()
