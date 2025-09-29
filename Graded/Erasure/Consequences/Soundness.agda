@@ -30,6 +30,7 @@ open import Definition.Untyped.Whnf M type-variant
 open import Definition.Typed TR
 open import Definition.Typed.Consequences.Consistency TR
 import Definition.Typed.Consequences.Canonicity TR as TC
+open import Definition.Typed.Consequences.Inequality TR
 open import Definition.Typed.EqualityRelation
 open import Definition.Typed.Properties TR
 open import Definition.Typed.Reasoning.Term TR
@@ -65,12 +66,14 @@ open import Tools.Bool using (T; true)
 open import Tools.Empty
 open import Tools.Fin
 open import Tools.Function
+open import Tools.Level
 open import Tools.Nat using (Nat; 1+)
 open import Tools.Product
 import Tools.Reasoning.PartialOrder
 open import Tools.Relation
-open import Tools.PropositionalEquality as PE using (_≡_; _≢_)
+open import Tools.PropositionalEquality as PE using (_≢_)
 open import Tools.Sum
+open import Tools.Unit
 
 private
   variable
@@ -294,64 +297,71 @@ module _
         eraseDCon str ∇ T.⊢ erase str t ⇒* T.star
       soundness-Unit ⊢t = S.soundness-Unit (defn-wf (wfTerm ⊢t)) ⊢t
 
--- If Prodrec-allowed 𝟙ᵐ 𝟘 p 𝟘 holds for some p (which means that
--- certain kinds of erased matches are allowed), and if additionally
--- Σʷ-allowed p 𝟘 holds, then there is a counterexample to
--- soundness-ℕ-only-source without the assumption "erased matches are
--- not allowed unless the context is empty" (and without the
--- strictness argument, the assumption that the modality's zero is
--- well-behaved, and the assumption that Var-included holds or the
--- variable context is empty).
+opaque
 
-soundness-ℕ-only-source-counterexample₁ :
-  Prodrec-allowed 𝟙ᵐ 𝟘 p 𝟘 →
-  Σʷ-allowed p 𝟘 →
-  let ∇ = ε
-      Δ = ε ∙ (Σʷ p , 𝟘 ▷ ℕ ▹ ℕ)
-      t = prodrec 𝟘 p 𝟘 ℕ (var {n = 1} x0) zero
-  in
-  Consistent (glassify ∇ » Δ) ×
-  glassify ∇ » Δ ⊢ t ∷ ℕ ×
-  ▸[ 𝟙ᵐ ] glassify ∇ ×
-  𝟘ᶜ ▸[ 𝟙ᵐ ] t ×
-  ¬ ∃ λ n → glassify ∇ » Δ ⊢ t ⇒ˢ* sucᵏ n ∷ℕ
-soundness-ℕ-only-source-counterexample₁ {p = p} P-ok Σʷ-ok =
-    inhabited-consistent
-      (⊢ˢʷ∷-sgSubst (prodⱼ εℕ⊢ℕ (zeroⱼ εε) (zeroⱼ εε) Σʷ-ok))
-  , ⊢prodrec
-  , (λ ())
-  , sub
-      (prodrecₘ var
-         (sub zeroₘ $
-          let open Tools.Reasoning.PartialOrder ≤ᶜ-poset in begin
-            𝟘ᶜ ∙ 𝟙 · 𝟘 · p ∙ 𝟙 · 𝟘  ≈⟨ ≈ᶜ-refl ∙ ·-congˡ (·-zeroˡ _) ∙ PE.refl ⟩
-            𝟘ᶜ ∙ 𝟙 · 𝟘 ∙ 𝟙 · 𝟘      ≈⟨ ≈ᶜ-refl ∙ ·-zeroʳ _ ∙ ·-zeroʳ _ ⟩
-            𝟘ᶜ                      ∎)
-         (sub ℕₘ $
-          let open Tools.Reasoning.PartialOrder ≤ᶜ-poset in begin
-            𝟘ᶜ ∙ ⌜ 𝟘ᵐ? ⌝ · 𝟘  ≈⟨ ≈ᶜ-refl ∙ ·-zeroʳ _ ⟩
-            𝟘ᶜ                ∎)
-         P-ok)
-      (let open Tools.Reasoning.PartialOrder ≤ᶜ-poset in begin
-         𝟘ᶜ                           ≈˘⟨ +ᶜ-identityʳ _ ⟩
-         𝟘ᶜ +ᶜ 𝟘ᶜ                     ≈˘⟨ +ᶜ-congʳ (·ᶜ-zeroˡ _) ⟩
-         𝟘 ·ᶜ (𝟘ᶜ ∙ ⌜ ⌞ 𝟘 ⌟ ⌝) +ᶜ 𝟘ᶜ  ∎)
-  , λ where
-      (0    , whred d ⇨ˢ _) → whnfRedTerm d (ne (prodrecₙ (var _ _)))
-      (1+ _ , whred d ⇨ˢ _) → whnfRedTerm d (ne (prodrecₙ (var _ _)))
-  where
-  ε⊢ℕ = ℕⱼ εε
-  ⊢εℕ = ∙ ε⊢ℕ
-  εℕ⊢ℕ = ℕⱼ ⊢εℕ
-  ε⊢Σ = ΠΣⱼ εℕ⊢ℕ Σʷ-ok
-  ⊢εΣ = ∙ ε⊢Σ
-  ⊢εΣℕ = ∙ ℕⱼ ⊢εΣ
-  εΣℕ⊢ℕ = ℕⱼ ⊢εΣℕ
-  εΣ⊢Σ = ΠΣⱼ εΣℕ⊢ℕ Σʷ-ok
-  ⊢εΣΣ = ∙ εΣ⊢Σ
-  εΣΣ⊢ℕ = ℕⱼ ⊢εΣΣ
-  ⊢εΣℕℕ = ∙ εΣℕ⊢ℕ
-  ⊢prodrec = prodrecⱼ {r = 𝟘} εΣΣ⊢ℕ (var₀ ε⊢Σ) (zeroⱼ ⊢εΣℕℕ) Σʷ-ok
+  -- If Prodrec-allowed 𝟙ᵐ 𝟘 p 𝟘 holds for some p (which means that
+  -- certain kinds of erased matches are allowed), and if additionally
+  -- Σʷ-allowed p 𝟘 holds, then there is a counterexample to
+  -- soundness-ℕ-only-source without the assumption "erased matches
+  -- are not allowed unless the context is empty" (and without the
+  -- strictness argument, the assumption that the modality's zero is
+  -- well-behaved, and the assumption that Var-included holds or the
+  -- variable context is empty).
+  --
+  -- If equality reflection is not allowed, then the counterexample
+  -- also works for a variant of the statement with reduction replaced
+  -- by judgemental equality.
+
+  soundness-ℕ-only-source-counterexample₁ :
+    Prodrec-allowed 𝟙ᵐ 𝟘 p 𝟘 →
+    Σʷ-allowed p 𝟘 →
+    let ∇ = ε
+        Δ = ε ∙ (Σʷ p , 𝟘 ▷ ℕ ▹ ℕ)
+        t = prodrec 𝟘 p 𝟘 ℕ (var {n = 1} x0) zero
+    in
+    Consistent (glassify ∇ » Δ) ×
+    glassify ∇ » Δ ⊢ t ∷ ℕ ×
+    ▸[ 𝟙ᵐ ] glassify ∇ ×
+    𝟘ᶜ ▸[ 𝟙ᵐ ] t ×
+    (¬ ∃ λ n → glassify ∇ » Δ ⊢ t ⇒ˢ* sucᵏ n ∷ℕ) ×
+    (⦃ ok : No-equality-reflection ⦄ →
+     ¬ ∃ λ n → glassify ∇ » Δ ⊢ t ≡ sucᵏ n ∷ ℕ)
+  soundness-ℕ-only-source-counterexample₁ {p = p} P-ok Σʷ-ok =
+      inhabited-consistent
+        (⊢ˢʷ∷-sgSubst (prodⱼ ℕ⊢ℕ (zeroⱼ εε) (zeroⱼ εε) Σʷ-ok))
+    , prodrecⱼ′ (ℕⱼ (∙ ΠΣⱼ Σℕ⊢ℕ Σʷ-ok)) (var₀ ⊢Σ) (zeroⱼ (∙ Σℕ⊢ℕ))
+    , (λ ())
+    , sub
+        (prodrecₘ var
+           (sub zeroₘ $
+            let open Tools.Reasoning.PartialOrder ≤ᶜ-poset in begin
+              𝟘ᶜ ∙ 𝟙 · 𝟘 · p ∙ 𝟙 · 𝟘  ≈⟨ ≈ᶜ-refl ∙ ·-congˡ (·-zeroˡ _) ∙ PE.refl ⟩
+              𝟘ᶜ ∙ 𝟙 · 𝟘 ∙ 𝟙 · 𝟘      ≈⟨ ≈ᶜ-refl ∙ ·-zeroʳ _ ∙ ·-zeroʳ _ ⟩
+              𝟘ᶜ                      ∎)
+           (sub ℕₘ $
+            let open Tools.Reasoning.PartialOrder ≤ᶜ-poset in begin
+              𝟘ᶜ ∙ ⌜ 𝟘ᵐ? ⌝ · 𝟘  ≈⟨ ≈ᶜ-refl ∙ ·-zeroʳ _ ⟩
+              𝟘ᶜ                ∎)
+           P-ok)
+        (let open Tools.Reasoning.PartialOrder ≤ᶜ-poset in begin
+           𝟘ᶜ                           ≈˘⟨ +ᶜ-identityʳ _ ⟩
+           𝟘ᶜ +ᶜ 𝟘ᶜ                     ≈˘⟨ +ᶜ-congʳ (·ᶜ-zeroˡ _) ⟩
+           𝟘 ·ᶜ (𝟘ᶜ ∙ ⌜ ⌞ 𝟘 ⌟ ⌝) +ᶜ 𝟘ᶜ  ∎)
+    , (λ where
+         (0    , whred d ⇨ˢ _) → whnfRedTerm d (ne (prodrecₙ (var _ _)))
+         (1+ _ , whred d ⇨ˢ _) → whnfRedTerm d (ne (prodrecₙ (var _ _))))
+    , sucᵏ≢ne {V = Lift _ ⊤} ⦃ ok = possibly-nonempty ⦄
+        _ (prodrecₙ (var _ _)) ∘→
+      sym′ ∘→ proj₂
+    where
+    ℕ⊢ℕ : ε » ε ∙ ℕ ⊢ ℕ
+    ℕ⊢ℕ = ℕⱼ (∙ ℕⱼ εε)
+
+    ⊢Σ : ε » ε ⊢ Σʷ p , 𝟘 ▷ ℕ ▹ ℕ
+    ⊢Σ = ΠΣⱼ ℕ⊢ℕ Σʷ-ok
+
+    Σℕ⊢ℕ : ε » ε ∙ Σʷ p , 𝟘 ▷ ℕ ▹ ℕ ∙ ℕ ⊢ ℕ
+    Σℕ⊢ℕ = ℕⱼ (∙ ℕⱼ (∙ ⊢Σ))
 
 opaque
 
@@ -361,6 +371,10 @@ opaque
   -- empty" (and without the strictness argument, the assumption that
   -- the modality's zero is well-behaved, and the assumption that
   -- Var-included holds or the variable context is empty).
+  --
+  -- If equality reflection is not allowed, then the counterexample
+  -- also works for a variant of the statement with reduction replaced
+  -- by judgemental equality.
 
   soundness-ℕ-only-source-counterexample₂ :
     []-cong-allowed s →
@@ -375,7 +389,9 @@ opaque
     glassify ∇ » Δ ⊢ t ∷ ℕ ×
     ▸[ 𝟙ᵐ ] glassify ∇ ×
     𝟘ᶜ ▸[ 𝟙ᵐ ] t ×
-    ¬ ∃ λ n → glassify ∇ » Δ ⊢ t ⇒ˢ* sucᵏ n ∷ℕ
+    (¬ ∃ λ n → glassify ∇ » Δ ⊢ t ⇒ˢ* sucᵏ n ∷ℕ) ×
+    (⦃ ok : No-equality-reflection ⦄ →
+     ¬ ∃ λ n → glassify ∇ » Δ ⊢ t ≡ sucᵏ n ∷ ℕ)
   soundness-ℕ-only-source-counterexample₂ {s = s} ok ok′ =
     case ∙ Idⱼ′ (zeroⱼ εε) (zeroⱼ εε) of λ {
       ⊢Id →
@@ -395,7 +411,10 @@ opaque
          (0 , whred J⇒ ⇨ˢ _) →
            whnfRedTerm J⇒ (ne (Jₙ ([]-congₙ (var _ _))))
          (1+ _ , whred J⇒ ⇨ˢ _) →
-           whnfRedTerm J⇒ (ne (Jₙ ([]-congₙ (var _ _))))) }
+           whnfRedTerm J⇒ (ne (Jₙ ([]-congₙ (var _ _)))))
+    , sucᵏ≢ne {V = Lift _ ⊤} ⦃ ok = possibly-nonempty ⦄
+        _ (Jₙ ([]-congₙ (var _ _))) ∘→
+      sym′ ∘→ proj₂ }
 
 opaque
 
@@ -405,9 +424,13 @@ opaque
   -- empty" (and without the strictness argument, the assumption that
   -- the modality's zero is well-behaved, and the assumption that
   -- Var-included holds or the variable context is empty).
+  --
+  -- If equality reflection is not allowed, then the counterexample
+  -- also works for a variant of the statement with reduction replaced
+  -- by judgemental equality.
 
   soundness-ℕ-only-source-counterexample₃ :
-    erased-matches-for-J 𝟙ᵐ ≡ not-none sem →
+    erased-matches-for-J 𝟙ᵐ PE.≡ not-none sem →
     let ∇ = ε
         Δ = ε ∙ Id ℕ zero zero
         t = J 𝟘 𝟘 ℕ zero ℕ zero zero (var {n = 1} x0)
@@ -416,7 +439,9 @@ opaque
     glassify ∇ » Δ ⊢ t ∷ ℕ ×
     ▸[ 𝟙ᵐ ] glassify ∇ ×
     𝟘ᶜ ▸[ 𝟙ᵐ ] t ×
-    ¬ ∃ λ n → glassify ∇ » Δ ⊢ t ⇒ˢ* sucᵏ n ∷ℕ
+    (¬ ∃ λ n → glassify ∇ » Δ ⊢ t ⇒ˢ* sucᵏ n ∷ℕ) ×
+    (⦃ ok : No-equality-reflection ⦄ →
+     ¬ ∃ λ n → glassify ∇ » Δ ⊢ t ≡ sucᵏ n ∷ ℕ)
   soundness-ℕ-only-source-counterexample₃ ≡not-none =
     case ∙ Idⱼ′ (zeroⱼ εε) (zeroⱼ εε) of λ {
       ⊢Id →
@@ -431,7 +456,10 @@ opaque
            ω ·ᶜ (𝟘ᶜ +ᶜ 𝟘ᶜ)  ∎)
     , (λ where
          (0    , whred J⇒ ⇨ˢ _) → whnfRedTerm J⇒ (ne (Jₙ (var _ _)))
-         (1+ _ , whred J⇒ ⇨ˢ _) → whnfRedTerm J⇒ (ne (Jₙ (var _ _)))) }
+         (1+ _ , whred J⇒ ⇨ˢ _) → whnfRedTerm J⇒ (ne (Jₙ (var _ _))))
+    , sucᵏ≢ne {V = Lift _ ⊤} ⦃ ok = possibly-nonempty ⦄
+        _ (Jₙ (var _ _)) ∘→
+      sym′ ∘→ proj₂ }
     where
     open Tools.Reasoning.PartialOrder ≤ᶜ-poset
 
@@ -444,10 +472,14 @@ opaque
   -- strictness argument, the assumption that the modality's zero is
   -- well-behaved, and the assumption that Var-included holds or the
   -- variable context is empty).
+  --
+  -- If equality reflection is not allowed, then the counterexample
+  -- also works for a variant of the statement with reduction replaced
+  -- by judgemental equality.
 
   soundness-ℕ-only-source-counterexample₄ :
     K-allowed →
-    erased-matches-for-K 𝟙ᵐ ≡ not-none sem →
+    erased-matches-for-K 𝟙ᵐ PE.≡ not-none sem →
     let ∇ = ε
         Δ = ε ∙ Id ℕ zero zero
         t = K 𝟘 ℕ zero ℕ zero (var {n = 1} x0)
@@ -456,7 +488,9 @@ opaque
     glassify ∇ » Δ ⊢ t ∷ ℕ ×
     ▸[ 𝟙ᵐ ] glassify ∇ ×
     𝟘ᶜ ▸[ 𝟙ᵐ ] t ×
-    ¬ ∃ λ n → glassify ∇ » Δ ⊢ t ⇒ˢ* sucᵏ n ∷ℕ
+    (¬ ∃ λ n → glassify ∇ » Δ ⊢ t ⇒ˢ* sucᵏ n ∷ℕ) ×
+    (⦃ ok : No-equality-reflection ⦄ →
+     ¬ ∃ λ n → glassify ∇ » Δ ⊢ t ≡ sucᵏ n ∷ ℕ)
   soundness-ℕ-only-source-counterexample₄ K-ok ≡not-none =
     case ∙ Idⱼ′ (zeroⱼ εε) (zeroⱼ εε) of λ {
       ⊢Id →
@@ -471,7 +505,10 @@ opaque
            ω ·ᶜ (𝟘ᶜ +ᶜ 𝟘ᶜ)  ∎)
     , (λ where
          (0    , whred K⇒ ⇨ˢ _) → whnfRedTerm K⇒ (ne (Kₙ (var _ _)))
-         (1+ _ , whred K⇒ ⇨ˢ _) → whnfRedTerm K⇒ (ne (Kₙ (var _ _)))) }
+         (1+ _ , whred K⇒ ⇨ˢ _) → whnfRedTerm K⇒ (ne (Kₙ (var _ _))))
+    , sucᵏ≢ne {V = Lift _ ⊤} ⦃ ok = possibly-nonempty ⦄
+        _ (Kₙ (var _ _)) ∘→
+      sym′ ∘→ proj₂ }
     where
     open Tools.Reasoning.PartialOrder ≤ᶜ-poset
 
@@ -484,6 +521,10 @@ opaque
   -- without the strictness argument, the assumption that the
   -- modality's zero is well-behaved, and the assumption that
   -- Var-included holds or the variable context is empty).
+  --
+  -- If equality reflection is not allowed, then the counterexample
+  -- also works for a variant of the statement with reduction replaced
+  -- by judgemental equality.
 
   soundness-ℕ-only-source-counterexample₅ :
     Unitrec-allowed 𝟙ᵐ 𝟘 𝟘 →
@@ -497,7 +538,9 @@ opaque
     glassify ∇ » Δ ⊢ t ∷ ℕ ×
     ▸[ 𝟙ᵐ ] glassify ∇ ×
     𝟘ᶜ ▸[ 𝟙ᵐ ] t ×
-    ¬ ∃ λ n → glassify ∇ » Δ ⊢ t ⇒ˢ* sucᵏ n ∷ℕ
+    (¬ ∃ λ n → glassify ∇ » Δ ⊢ t ⇒ˢ* sucᵏ n ∷ℕ) ×
+    (⦃ ok : No-equality-reflection ⦄ →
+     ¬ ∃ λ n → glassify ∇ » Δ ⊢ t ≡ sucᵏ n ∷ ℕ)
   soundness-ℕ-only-source-counterexample₅ unitrec-ok Unit-ok no-η =
     case Unitⱼ εε Unit-ok of λ
       ⊢Unit →
@@ -523,6 +566,9 @@ opaque
            whnfRedTerm unitrec⇒ (ne (unitrecₙ no-η (var _ _)))
          (1+ _ , whred unitrec⇒ ⇨ˢ _) →
            whnfRedTerm unitrec⇒ (ne (unitrecₙ no-η (var _ _))))
+    , sucᵏ≢ne {V = Lift _ ⊤} ⦃ ok = possibly-nonempty ⦄
+        _ (unitrecₙ no-η (var _ _)) ∘→
+      sym′ ∘→ proj₂
 
 opaque
 
@@ -540,6 +586,10 @@ opaque
   --
   -- Note that the counterexample does not make use of any erased
   -- matches (except for emptyrec).
+  --
+  -- If equality reflection is not allowed, then the counterexample
+  -- also works for a variant of the statement with reduction (in the
+  -- source language) replaced by judgemental equality.
 
   soundness-ℕ-counterexample₆ :
     Emptyrec-allowed 𝟙ᵐ 𝟘 →
@@ -551,7 +601,9 @@ opaque
     ▸[ 𝟙ᵐ ] glassify ∇ ×
     𝟘ᶜ ▸[ 𝟙ᵐ ] t ×
     (¬ ∃ λ n → glassify ∇ » Δ ⊢ t ⇒ˢ* sucᵏ n ∷ℕ) ×
-    (¬ ∃ λ n → eraseDCon str ∇ ⊢ erase str t ⇒ˢ⟨ str ⟩* T.sucᵏ n)
+    (¬ ∃ λ n → eraseDCon str ∇ ⊢ erase str t ⇒ˢ⟨ str ⟩* T.sucᵏ n) ×
+    (⦃ ok : No-equality-reflection ⦄ →
+     ¬ ∃ λ n → glassify ∇ » Δ ⊢ t ≡ sucᵏ n ∷ ℕ)
   soundness-ℕ-counterexample₆ emptyrec-ok =
       emptyrecⱼ (ℕⱼ (εε ∙[ Emptyⱼ ])) (var₀ (Emptyⱼ εε))
     , (λ ())
@@ -564,6 +616,9 @@ opaque
          (1+ _ , whred emptyrec⇒ ⇨ˢ _) →
            whnfRedTerm emptyrec⇒ (ne (emptyrecₙ (var _ _))))
     , ¬loop⇒ˢ* TP.Value-sucᵏ ∘→ proj₂
+    , sucᵏ≢ne {V = Lift _ ⊤} ⦃ ok = possibly-nonempty ⦄
+        _ (emptyrecₙ (var _ _)) ∘→
+      sym′ ∘→ proj₂
     where
     open ≤ᶜ-reasoning
 
@@ -573,6 +628,9 @@ opaque
   -- soundness-ℕ-only-source with glassify ∇ replaced by ∇ (and
   -- without the strictness argument and the assumption that the
   -- modality's zero is well-behaved).
+  --
+  -- The counterexample also works for a variant of the statement with
+  -- reduction replaced by judgemental equality.
 
   soundness-ℕ-only-source-counterexample₇ :
     Opacity-allowed →
@@ -585,7 +643,8 @@ opaque
     ∇ » Δ ⊢ t ∷ ℕ ×
     ▸[ 𝟙ᵐ ] ∇ ×
     𝟘ᶜ ▸[ 𝟙ᵐ ] t ×
-    ¬ ∃ λ n → ∇ » Δ ⊢ t ⇒ˢ* sucᵏ n ∷ℕ
+    (¬ ∃ λ n → ∇ » Δ ⊢ t ⇒ˢ* sucᵏ n ∷ℕ) ×
+    (¬ ∃ λ n → ∇ » Δ ⊢ t ≡ sucᵏ n ∷ ℕ)
   soundness-ℕ-only-source-counterexample₇ ok =
     let ∇»⊢Δ = ε ∙ᵒ⟨ ok , ε ⟩[ zeroⱼ εε ∷ ℕⱼ εε ] in
     inhabited-consistent (⊢ˢʷ∷-idSubst ∇»⊢Δ) ,
@@ -597,7 +656,12 @@ opaque
        (0 , whred emptyrec⇒ ⇨ˢ _) →
          whnfRedTerm emptyrec⇒ (ne (defn here))
        (1+ _ , whred emptyrec⇒ ⇨ˢ _) →
-         whnfRedTerm emptyrec⇒ (ne (defn here)))
+         whnfRedTerm emptyrec⇒ (ne (defn here))) ,
+    sucᵏ≢ne {V = Lift _ ⊤}
+      ⦃ ok = possibly-nonempty
+               ⦃ ok = Opacity-allowed→No-equality-reflection ok ⦄ ⦄
+      _ (defn here) ∘→
+    sym′ ∘→ proj₂
 
 opaque
 
