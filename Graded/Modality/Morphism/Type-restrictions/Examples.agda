@@ -719,6 +719,60 @@ opaque
     where
     open Are-reflecting-type-restrictions r
 
+opaque
+
+  -- If the functions tr and tr-Σ preserve certain type restrictions,
+  -- then they do this also for certain type restrictions obtained
+  -- using with-equality-reflection.
+
+  Are-preserving-type-restrictions-with-equality-reflection :
+    Are-preserving-type-restrictions R₁ R₂ tr tr-Σ →
+    Are-preserving-type-restrictions
+      (with-equality-reflection 𝕄₁ R₁)
+      (with-equality-reflection 𝕄₂ R₂)
+      tr tr-Σ
+  Are-preserving-type-restrictions-with-equality-reflection r = record
+    { unfolding-mode-preserved      = unfolding-mode-preserved
+    ; Unitʷ-η-preserved             = Unitʷ-η-preserved
+    ; Unit-preserved                = Unit-preserved
+    ; ΠΣ-preserved                  = ΠΣ-preserved
+    ; Opacity-preserved             = λ ()
+    ; K-preserved                   = K-preserved
+    ; []-cong-preserved             = []-cong-preserved
+    ; Equality-reflection-preserved = _
+    }
+    where
+    open Are-preserving-type-restrictions r
+
+opaque
+
+  -- If the functions tr and tr-Σ reflect certain type restrictions,
+  -- then they do this also for certain type restrictions obtained
+  -- using with-equality-reflection, given a certain assumption.
+
+  Are-reflecting-type-restrictions-with-equality-reflection :
+    (∀ {s} →
+     Modality.Trivial 𝕄₂ →
+     ¬ Type-restrictions.[]-cong-allowed R₁ s) →
+    Are-reflecting-type-restrictions R₁ R₂ tr tr-Σ →
+    Are-reflecting-type-restrictions
+      (with-equality-reflection 𝕄₁ R₁)
+      (with-equality-reflection 𝕄₂ R₂)
+      tr tr-Σ
+  Are-reflecting-type-restrictions-with-equality-reflection
+    hyp r = record
+    { unfolding-mode-reflected      = unfolding-mode-reflected
+    ; Unitʷ-η-reflected             = Unitʷ-η-reflected
+    ; Unit-reflected                = Unit-reflected
+    ; ΠΣ-reflected                  = ΠΣ-reflected
+    ; Opacity-reflected             = λ ()
+    ; K-reflected                   = K-reflected
+    ; []-cong-reflected             = []-cong-reflected
+    ; Equality-reflection-reflected = _
+    }
+    where
+    open Are-reflecting-type-restrictions r
+
 ------------------------------------------------------------------------
 -- Some lemmas related to equal-binder-quantities and concrete
 -- translation functions

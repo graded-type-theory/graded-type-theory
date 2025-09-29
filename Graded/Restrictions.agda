@@ -220,6 +220,17 @@ no-[]-cong-TR TR = record TR
   ; []-cong→¬Trivial = λ ()
   }
 
+-- The function with-equality-reflection enables support for equality
+-- reflection, and disables support for opaque definitions.
+
+with-equality-reflection : Type-restrictions → Type-restrictions
+with-equality-reflection TR = record TR
+  { Opacity-allowed               = Lift _ ⊥
+  ; Equality-reflection           = Lift _ ⊤
+  ; Equality-reflection?          = yes _
+  ; no-opaque-equality-reflection = λ ()
+  }
+
 ------------------------------------------------------------------------
 -- Functions that construct Usage-restrictions
 
