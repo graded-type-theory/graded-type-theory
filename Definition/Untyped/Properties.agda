@@ -503,12 +503,7 @@ opaque
 
 opaque
 
-  -- wk₀ is invariant under further weakenings
-
-  wk₀-invariant : (ρ : Wk m n) → ρ • wk₀ ≡ wk₀
-  wk₀-invariant id       = refl
-  wk₀-invariant (step ρ) = cong step (wk₀-invariant ρ)
-  wk₀-invariant (lift ρ) = cong step (wk₀-invariant ρ)
+  -- A composition lemma for wk₀.
 
   wk₀-comp : (ρ : Wk m n) (t : Term 0) → wk ρ (wk wk₀ t) ≡ wk wk₀ t
   wk₀-comp ρ t = begin

@@ -108,9 +108,10 @@ opaque
 
   -- A composition lemma for wk₀.
 
-  liftn-wk₀-•-wk₀ : ∀ n → liftn {k = m} wk₀ n • wk₀ ≡ wk₀
-  liftn-wk₀-•-wk₀ 0      = •-id
-  liftn-wk₀-•-wk₀ (1+ n) = cong step $ liftn-wk₀-•-wk₀ n
+  wk₀-invariant : (ρ : Wk m n) → ρ • wk₀ ≡ wk₀
+  wk₀-invariant id       = refl
+  wk₀-invariant (step ρ) = cong step (wk₀-invariant ρ)
+  wk₀-invariant (lift ρ) = cong step (wk₀-invariant ρ)
 
 opaque
 
