@@ -135,7 +135,7 @@ opaque
   -- If opacity is allowed, then consistency is not preserved by
   -- glassification or inlining: there is a definition context ∇ and
   -- well-formed context Γ that are consistent, but for which
-  -- glassify ∇ and Γ are not consistent.
+  -- glassify ∇ and Γ, or ε and inline-Con ∇ Γ, are not consistent.
 
   consistency-is-not-preserved-by-glassification-or-inlining :
     Opacity-allowed →
