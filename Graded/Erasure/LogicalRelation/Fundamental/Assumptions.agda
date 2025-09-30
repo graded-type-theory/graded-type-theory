@@ -44,7 +44,7 @@ private variable
 record Fundamental-assumptions⁻ (Δ : Cons kᵈ k) : Set a where
   no-eta-equality
   field
-    -- Every definition in Δ is well-resourced.
+    -- Every transparent definition in Δ is well-resourced.
     well-resourced : ▸[ 𝟙ᵐ ] (Δ .defs)
     -- If erased matches are allowed for emptyrec when the mode is 𝟙ᵐ,
     -- then the contexts in Δ are consistent.
