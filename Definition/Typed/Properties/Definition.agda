@@ -1414,7 +1414,7 @@ opaque
 module _
   (ok : Opacity-allowed)
   {A t u : Term 0}
-  (⊢t : ε » ε ⊢ u ∷ A)
+  (⊢u : ε » ε ⊢ u ∷ A)
   where
 
   opaque mutual
@@ -1434,7 +1434,7 @@ module _
     -- well-formed under Opaque[ u ∷ A ].
 
     definition-irrelevant-»⊢ : Opaque[ t ∷ A ] »⊢ Γ → Opaque[ u ∷ A ] »⊢ Γ
-    definition-irrelevant-»⊢ (ε _)  = ε (»Opaque ok ⊢t)
+    definition-irrelevant-»⊢ (ε _)  = ε (»Opaque ok ⊢u)
     definition-irrelevant-»⊢ (∙ ⊢A) = ∙ definition-irrelevant-⊢ ⊢A
 
     -- Any type that is well-formed under Opaque[ t ∷ A ] is also
