@@ -92,6 +92,7 @@ import Definition.Untyped.Neutral
 import Definition.Untyped.Whnf
 import Definition.Untyped.Names-below
 import Definition.Untyped.Identity
+import Definition.Untyped.Pi
 import Definition.Untyped.Sigma
 import Definition.Untyped.Non-dependent
 import Definition.Untyped.Unit

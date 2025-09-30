@@ -14,14 +14,17 @@ module Definition.Typed.Properties.Admissible.Pi
 open Type-restrictions R
 
 open import Definition.Untyped M
+open import Definition.Untyped.Pi M
 open import Definition.Untyped.Properties M
 
 open import Definition.Typed R
 open import Definition.Typed.Inversion.Primitive R
+open import Definition.Typed.Properties.Admissible.Var R
 open import Definition.Typed.Properties.Reduction R
 open import Definition.Typed.Reasoning.Reduction R
 open import Definition.Typed.Substitution.Primitive R
 import Definition.Typed.Substitution.Primitive.Primitive R as S
+open import Definition.Typed.Weakening R
 open import Definition.Typed.Well-formed R
 
 open import Tools.Fin
@@ -31,6 +34,8 @@ import Tools.PropositionalEquality as PE
 open import Tools.Reasoning.PropositionalEquality
 
 private variable
+  ∇                            : DCon _ _
+  Δ                            : Con _ _
   Γ                            : Cons _ _
   A B C D E t t′ u u₁ u₂ u₃ u₄ : Term _
   p p₁ p₂ p₃ p₄ q q₁ q₂ q₃ q₄  : M
@@ -186,3 +191,57 @@ opaque
                                                                                ⊢u₄ ok₄ ⟩∎≡
     t [ consSubst (consSubst (sgSubst u₁) u₂) u₃ ⇑ ] [ u₄ ]₀              ≡⟨ singleSubstComp _ _ t ⟩
     t [ consSubst (consSubst (consSubst (sgSubst u₁) u₂) u₃) u₄ ]         ∎
+
+------------------------------------------------------------------------
+-- Iterated Π-types
+
+opaque
+  unfolding Πs
+
+  -- A typing rule for Πs.
+
+  ⊢Πs :
+    Π-allowed p q →
+    ∇ » Δ ⊢ A →
+    ∇ » ε ⊢ Πs p q Δ A
+  ⊢Πs {Δ = ε}     _  ⊢A = ⊢A
+  ⊢Πs {Δ = _ ∙ _} ok ⊢A = ⊢Πs ok (ΠΣⱼ ⊢A ok)
+
+opaque
+  unfolding Πs
+
+  -- An inversion lemma for Πs.
+
+  inversion-Πs :
+    ∇ » ε ⊢ Πs p q Δ A →
+    ∇ » Δ ⊢ A
+  inversion-Πs {Δ = ε}     ⊢A = ⊢A
+  inversion-Πs {Δ = _ ∙ _} ⊢A =
+    inversion-ΠΣ (inversion-Πs ⊢A) .proj₂ .proj₁
+
+opaque
+  unfolding Πs lams
+
+  -- A typing rule for lams.
+
+  ⊢lams :
+    Π-allowed p q →
+    ∇ » Δ ⊢ t ∷ A →
+    ∇ » ε ⊢ lams p Δ t ∷ Πs p q Δ A
+  ⊢lams {Δ = ε}     _  ⊢t = ⊢t
+  ⊢lams {Δ = _ ∙ _} ok ⊢t = ⊢lams ok (lamⱼ′ ok ⊢t)
+
+opaque
+  unfolding Πs apps
+
+  -- A typing rule for apps.
+
+  ⊢apps :
+    Π-allowed p q →
+    ∇ » ε ⊢ t ∷ Πs p q Δ A →
+    ∇ » Δ ⊢ apps p Δ t ∷ A
+  ⊢apps {Δ = ε}     _  ⊢t = ⊢t
+  ⊢apps {Δ = _ ∙ _} ok ⊢t =
+    let ⊢A , _ = inversion-ΠΣ (inversion-Πs (wf-⊢∷ ⊢t)) in
+    PE.subst (_⊢_∷_ _ _) (wkSingleSubstId _) $
+    wkTerm₁ ⊢A (⊢apps ok ⊢t) ∘ⱼ var₀ ⊢A
