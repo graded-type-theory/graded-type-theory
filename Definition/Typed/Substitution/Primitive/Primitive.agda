@@ -18,6 +18,7 @@ open Type-restrictions R
 open import Definition.Typed R
 open import Definition.Typed.Inversion.Primitive R
 open import Definition.Typed.Properties.Admissible.Var R
+open import Definition.Typed.Properties.Definition.Primitive R
 open import Definition.Typed.Properties.Well-formed R
 open import Definition.Typed.Reasoning.Term.Primitive R
 open import Definition.Typed.Size R
@@ -30,7 +31,7 @@ open import Definition.Untyped.Properties M
 open import Tools.Fin
 open import Tools.Function
 open import Tools.Nat
-open import Tools.Product
+open import Tools.Product as Σ
 import Tools.PropositionalEquality as PE
 open import Tools.Reasoning.PropositionalEquality
 open import Tools.Relation
@@ -477,6 +478,52 @@ opaque
   defn-wkSubstʷ ξ⊇ ⊢ˢʷσ =
     let (⊢Δ , ⊢σ) = ⊢ˢʷ∷⇔ .proj₁ ⊢ˢʷσ
     in  ⊢ˢʷ∷⇔ .proj₂ (defn-wk′ ξ⊇ ⊢Δ , defn-wkSubst ξ⊇ ⊢σ)
+
+opaque
+
+  -- A glassification lemma for _⊢ˢʷ_∷_.
+
+  glassify-⊢ˢʷ∷ : ∇ » Δ ⊢ˢʷ σ ∷ Γ → glassify ∇ » Δ ⊢ˢʷ σ ∷ Γ
+  glassify-⊢ˢʷ∷ {∇} {Δ} {σ} {Γ = ε} =
+    ∇ » Δ ⊢ˢʷ σ ∷ ε           ⇔⟨ ⊢ˢʷ∷ε⇔ ⟩→
+    ∇ »⊢ Δ                    →⟨ glassify-⊢′ ⟩
+    glassify ∇ »⊢ Δ           ⇔˘⟨ ⊢ˢʷ∷ε⇔ ⟩→
+    glassify ∇ » Δ ⊢ˢʷ σ ∷ ε  □
+  glassify-⊢ˢʷ∷ {∇} {Δ} {σ} {Γ = Γ ∙ A} =
+    ∇ » Δ ⊢ˢʷ σ ∷ Γ ∙ A                                   ⇔⟨ ⊢ˢʷ∷∙⇔ ⟩→
+
+    ∇ » Δ ⊢ˢʷ tail σ ∷ Γ × ∇ » Δ ⊢ head σ ∷ A [ tail σ ]  →⟨ Σ.map glassify-⊢ˢʷ∷ glassify-⊢∷ ⟩
+
+    glassify ∇ » Δ ⊢ˢʷ tail σ ∷ Γ ×
+    glassify ∇ » Δ ⊢ head σ ∷ A [ tail σ ]                ⇔˘⟨ ⊢ˢʷ∷∙⇔ ⟩→
+
+    glassify ∇ » Δ ⊢ˢʷ σ ∷ Γ ∙ A                          □
+
+opaque
+
+  -- A glassification lemma for _⊢ˢʷ_≡_∷_.
+
+  glassify-⊢ˢʷ≡∷ :
+    ∇ » Δ ⊢ˢʷ σ₁ ≡ σ₂ ∷ Γ → glassify ∇ » Δ ⊢ˢʷ σ₁ ≡ σ₂ ∷ Γ
+  glassify-⊢ˢʷ≡∷ {∇} {Δ} {σ₁} {σ₂} {Γ = ε} =
+    ∇ » Δ ⊢ˢʷ σ₁ ≡ σ₂ ∷ ε           ⇔⟨ ⊢ˢʷ≡∷ε⇔ ⟩→
+    ∇ »⊢ Δ                          →⟨ glassify-⊢′ ⟩
+    glassify ∇ »⊢ Δ                 ⇔˘⟨ ⊢ˢʷ≡∷ε⇔ ⟩→
+    glassify ∇ » Δ ⊢ˢʷ σ₁ ≡ σ₂ ∷ ε  □
+  glassify-⊢ˢʷ≡∷ {∇} {Δ} {σ₁} {σ₂} {Γ = Γ ∙ A} =
+    ∇ » Δ ⊢ˢʷ σ₁ ≡ σ₂ ∷ Γ ∙ A                           ⇔⟨ ⊢ˢʷ≡∷∙⇔ ⟩→
+
+    ∇ » Δ ⊢ˢʷ tail σ₁ ≡ tail σ₂ ∷ Γ ×
+    ∇ » Δ ⊢ head σ₁ ∷ A [ tail σ₁ ] ×
+    ∇ » Δ ⊢ head σ₂ ∷ A [ tail σ₂ ] ×
+    ∇ » Δ ⊢ head σ₁ ≡ head σ₂ ∷ A [ tail σ₁ ]           →⟨ Σ.map glassify-⊢ˢʷ≡∷ $ Σ.map glassify-⊢∷ $ Σ.map glassify-⊢∷ glassify-⊢≡∷ ⟩
+
+    glassify ∇ » Δ ⊢ˢʷ tail σ₁ ≡ tail σ₂ ∷ Γ ×
+    glassify ∇ » Δ ⊢ head σ₁ ∷ A [ tail σ₁ ] ×
+    glassify ∇ » Δ ⊢ head σ₂ ∷ A [ tail σ₂ ] ×
+    glassify ∇ » Δ ⊢ head σ₁ ≡ head σ₂ ∷ A [ tail σ₁ ]  ⇔˘⟨ ⊢ˢʷ≡∷∙⇔ ⟩→
+
+    glassify ∇ » Δ ⊢ˢʷ σ₁ ≡ σ₂ ∷ Γ ∙ A                  □
 
 ------------------------------------------------------------------------
 -- Substitution lemmas

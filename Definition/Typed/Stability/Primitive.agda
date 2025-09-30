@@ -16,6 +16,7 @@ module Definition.Typed.Stability.Primitive
 open import Definition.Typed R
 open import Definition.Typed.Inversion.Primitive R
 open import Definition.Typed.Properties.Admissible.Var R
+open import Definition.Typed.Properties.Definition.Primitive R
 open import Definition.Typed.Properties.Well-formed R
 open import Definition.Typed.Size R
 open import Definition.Typed.Weakening R
@@ -77,6 +78,16 @@ opaque
 
   refl-∙⟨_∣_⟩ : ∇ » Γ ⊢ B → ∇ » Γ ⊢ A ≡ B → ∇ »⊢ Γ ∙ A ≡ Γ ∙ B
   refl-∙⟨ ⊢B ∣ A≡B ⟩ = reflConEq (wf ⊢B) ∙⟨ ⊢B ∣ A≡B ⟩
+
+opaque
+
+  -- A glassification lemma for _»⊢_≡_.
+
+  glassify-»⊢≡ : ∇ »⊢ Γ ≡ Δ → glassify ∇ »⊢ Γ ≡ Δ
+  glassify-»⊢≡ (ε »∇) =
+    ε (glassify-» »∇)
+  glassify-»⊢≡ (Γ≡Δ ∙⟨ ⊢B ∣ A≡B ⟩) =
+    glassify-»⊢≡ Γ≡Δ ∙⟨ glassify-⊢ ⊢B ∣ glassify-⊢≡ A≡B ⟩
 
 opaque
 

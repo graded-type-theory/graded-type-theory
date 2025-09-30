@@ -18,11 +18,14 @@ open import Definition.Untyped.Neutral M type-variant
 open import Definition.Untyped.Whnf M type-variant
 
 open import Definition.Typed R
+open import Definition.Typed.Properties.Definition.Primitive R
 open import Definition.Typed.Properties.Well-formed R
 open import Definition.Typed.Weakening R
 
+open import Tools.Function
 open import Tools.Nat
-open import Tools.Product
+open import Tools.Product as Σ
+import Tools.PropositionalEquality as PE
 
 private
   variable
@@ -131,6 +134,26 @@ opaque
   there*-↦⊘∈ : ξ » ∇′ ⊇ ∇ → α ↦⊘∷ A ∈ ∇ → α ↦⊘∷ A ∈ ∇′
   there*-↦⊘∈ id          α↦t = α↦t
   there*-↦⊘∈ (step ξ⊇ s) α↦t = there (there*-↦⊘∈ ξ⊇ α↦t)
+
+------------------------------------------------------------------------
+-- A glassification lemma
+
+opaque
+
+  -- A glassification lemma for _»_⊇_.
+
+  glassify-»⊇ : ξ » ∇′ ⊇ ∇ → ∃ λ ξ → ξ » glassify ∇′ ⊇ glassify ∇
+  glassify-»⊇ id =
+    id , id
+  glassify-»⊇ (stepᵗ ξ⊇ ⊢t) =
+    Σ.map _ (flip stepᵗ (glassify-⊢∷ ⊢t)) (glassify-»⊇ ξ⊇)
+  glassify-»⊇ (stepᵒ ξ⊇ _ _ ∇′↜∇ ⊢t) =
+    Σ.map _
+      (flip stepᵗ $
+       PE.subst₃ _⊢_∷_
+         (PE.cong (_» _) (glassify-factor ∇′↜∇)) PE.refl PE.refl $
+       glassify-⊢∷ ⊢t)
+      (glassify-»⊇ ξ⊇)
 
 ------------------------------------------------------------------------
 -- Weakening for typing derivations
