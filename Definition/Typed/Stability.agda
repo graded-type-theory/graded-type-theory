@@ -39,7 +39,7 @@ private variable
 infixl 24 _∙_
 
 data _»⊢_≡_ : DCon (Term 0) m → (_ _ : Con Term n) → Set a where
-  ε   : ∇ »⊢ ε → ∇ »⊢ ε ≡ ε
+  ε   : » ∇ → ∇ »⊢ ε ≡ ε
   _∙_ : ∇ »⊢ Γ ≡ Δ → ∇ » Γ ⊢ A ≡ B → ∇ »⊢ Γ ∙ A ≡ Δ ∙ B
 
 _»⊢ᵖ_≡_ : DCon (Term 0) m → Con Term n → Con Term n → Set a
@@ -106,7 +106,7 @@ private opaque
   -- A well-formedness lemma for ⊢_≡_.
 
   wf-⊢≡ˡ : ∇ »⊢ Γ ≡ Δ → ∇ »⊢ Γ
-  wf-⊢≡ˡ (ε ⊢ε)      = ε (defn-wf ⊢ε)
+  wf-⊢≡ˡ (ε »∇)      = ε »∇
   wf-⊢≡ˡ (Γ≡Δ ∙ A≡B) = ∙ wf-⊢≡ A≡B .proj₁
 
 opaque

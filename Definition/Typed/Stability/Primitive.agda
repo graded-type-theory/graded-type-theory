@@ -43,7 +43,7 @@ private variable
 infix 24 _∙⟨_∣_⟩
 
 data _»⊢_≡_ : (∇ : DCon (Term 0) m) (_ _ : Con Term n) → Set a where
-  ε       : ∇ »⊢ ε → ∇ »⊢ ε ≡ ε
+  ε       : » ∇ → ∇ »⊢ ε ≡ ε
   _∙⟨_∣_⟩ : ∇ »⊢ Γ ≡ Δ → ∇ » Δ ⊢ B → ∇ » Δ ⊢ A ≡ B → ∇ »⊢ Γ ∙ A ≡ Δ ∙ B
 
 opaque
@@ -60,7 +60,7 @@ opaque
   -- A well-formedness lemma for ⊢_≡_.
 
   wf-⊢≡ʳ : ∇ »⊢ Γ ≡ Δ → ∇ »⊢ Δ
-  wf-⊢≡ʳ (ε ⊢ε)          = ⊢ε
+  wf-⊢≡ʳ (ε »∇)          = ε »∇
   wf-⊢≡ʳ (_ ∙⟨ ⊢B ∣ _ ⟩) = ∙ ⊢B
 
 opaque
@@ -68,7 +68,7 @@ opaque
   -- Reflexivity for ⊢_≡_.
 
   reflConEq : ∇ »⊢ Γ → ∇ »⊢ Γ ≡ Γ
-  reflConEq (ε »∇) = ε (ε »∇)
+  reflConEq (ε »∇) = ε »∇
   reflConEq (∙ ⊢A) = reflConEq (wf ⊢A) ∙⟨ ⊢A ⟩
 
 opaque
