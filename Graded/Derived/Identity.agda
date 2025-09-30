@@ -28,14 +28,16 @@ open import Definition.Untyped M
 open import Definition.Untyped.Identity 𝕄
 
 open import Tools.Function
+open import Tools.Nat using (Nat)
 open import Tools.Product
 open import Tools.PropositionalEquality as PE using (_≡_)
 import Tools.Reasoning.PartialOrder
 open import Tools.Relation
 
 private variable
+  n                    : Nat
   A B t u v w          : Term _
-  p                    : M
+  p p′                 : M
   γ₁ γ₂ γ₃ γ₄ γ₅ γ₆ γ₇ : Conₘ _
   m                    : Mode
   sem                  : Some-erased-matches
@@ -153,5 +155,21 @@ opaque
                                                 +ᶜ-congˡ $
                                                 +ᶜ-identityʳ _ ⟩
          ω ·ᶜ (γ₇ +ᶜ γ₂ +ᶜ γ₃ +ᶜ γ₆ +ᶜ 𝟘ᶜ)  ∎)
+    where
+    open ≤ᶜ-reasoning
+
+opaque
+  unfolding funext
+
+  -- A usage rule for funext.
+
+  ▸funext :
+    ⌜ m ⌝ · p ≤ 𝟘 →
+    ⌜ m ⌝ · p′ ≤ 𝟘 →
+    𝟘ᶜ {n = n} ▸[ m ] funext p p′
+  ▸funext {m} {p} {p′} hyp hyp′ =
+    lamₘ $ lamₘ $ lamₘ $ lamₘ $ lamₘ $ sub rflₘ $ begin
+      𝟘ᶜ ∙ ⌜ m ⌝ · p ∙ ⌜ m ⌝ · p′ ∙ ⌜ m ⌝ · p′ ∙ ⌜ m ⌝ · p′ ∙ ⌜ m ⌝ · p′  ≤⟨ ≤ᶜ-refl ∙ hyp ∙ hyp′ ∙ hyp′ ∙ hyp′ ∙ hyp′ ⟩
+      𝟘ᶜ                                                                  ∎
     where
     open ≤ᶜ-reasoning

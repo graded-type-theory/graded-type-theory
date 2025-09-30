@@ -29,8 +29,8 @@ private variable
   A A₁ A₂ B eq eq₁ eq₂ t t₁ t₂ u u₁ u₂ v w w₁ w₂ : Term _
   σ                                              : Subst _ _
   ρ                                              : Wk _ _
-  l                                              : Universe-level
-  p q                                            : M
+  l l₁ l₂                                        : Universe-level
+  p p′ q q′                                      : M
 
 opaque
 
@@ -329,3 +329,46 @@ opaque
          (transitivity (wk1 A) (wk1 t) (wk1 u) (wk1 u) (wk1 eq₂)
             (var x0))
          (transitivity-symmetryˡ A t u eq₁))
+
+opaque
+
+  -- A certain formulation of function extensionality.
+
+  Funext : M → M → M → M → Universe-level → Universe-level → Term n
+  Funext p q p′ q′ l₁ l₂ =
+    Π p , q ▷ U l₁ ▹
+    Π p′ , q′ ▷ (Π p , q ▷ var x0 ▹ U l₂) ▹
+    let Π-type = Π p , q ▷ var x1 ▹ (var x1 ∘⟨ p ⟩ var x0) in
+    Π p′ , q′ ▷ Π-type ▹
+    Π p′ , q′ ▷ wk1 Π-type ▹
+    Π p′ , q′ ▷
+      (Π p , q ▷ var x3 ▹
+       Id (var x3 ∘⟨ p ⟩ var x0)
+         (var x2 ∘⟨ p ⟩ var x0)
+         (var x1 ∘⟨ p ⟩ var x0)) ▹
+    Id (wk[ 3 ]′ Π-type) (var x2) (var x1)
+
+opaque
+  unfolding Funext
+
+  -- A substitution lemma for Funext.
+
+  Funext-[] : Funext p q p′ q′ l₁ l₂ [ σ ] ≡ Funext p q p′ q′ l₁ l₂
+  Funext-[] = refl
+
+opaque
+
+  -- A variant of function extensionality that works in the presence
+  -- of equality reflection (see
+  -- Definition.Typed.Properties.Admissible.Identity.⊢funext).
+
+  funext : M → M → Term n
+  funext p p′ = lam p $ lam p′ $ lam p′ $ lam p′ $ lam p′ rfl
+
+opaque
+  unfolding funext
+
+  -- A substitution lemma for funext.
+
+  funext-[] : funext p p′ [ σ ] ≡ funext p p′
+  funext-[] = refl

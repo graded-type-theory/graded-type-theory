@@ -1481,19 +1481,7 @@ opaque
   Has-function-extensionality :
     M → M → M → M → Universe-level → Universe-level → Cons m n → Set a
   Has-function-extensionality p q p′ q′ l₁ l₂ Γ =
-    ∃ λ t →
-    Γ ⊢ t ∷
-      Π p , q ▷ U l₁ ▹
-      Π p′ , q′ ▷ (Π p , q ▷ var x0 ▹ U l₂) ▹
-      let Π-type = Π p , q ▷ var x1 ▹ (var x1 ∘⟨ p ⟩ var x0) in
-      Π p′ , q′ ▷ Π-type ▹
-      Π p′ , q′ ▷ wk1 Π-type ▹
-      Π p′ , q′ ▷
-        (Π p , q ▷ var x3 ▹
-         Id (var x3 ∘⟨ p ⟩ var x0)
-           (var x2 ∘⟨ p ⟩ var x0)
-           (var x1 ∘⟨ p ⟩ var x0)) ▹
-      Id (wk[ 3 ]′ Π-type) (var x2) (var x1)
+    ∃ λ t → Γ ⊢ t ∷ Funext p q p′ q′ l₁ l₂
 
 opaque
 
@@ -1504,18 +1492,7 @@ opaque
     M → M → M → M → Universe-level → Universe-level →
     Cons m n → Cons m (1+ n)
   with-function-extensionality-assumption p q p′ q′ l₁ l₂ Γ =
-    Γ »∙
-    Π p , q ▷ U l₁ ▹
-    Π p′ , q′ ▷ (Π p , q ▷ var x0 ▹ U l₂) ▹
-    let Π-type = Π p , q ▷ var x1 ▹ (var x1 ∘⟨ p ⟩ var x0) in
-    Π p′ , q′ ▷ Π-type ▹
-    Π p′ , q′ ▷ wk1 Π-type ▹
-    Π p′ , q′ ▷
-      (Π p , q ▷ var x3 ▹
-       Id (var x3 ∘⟨ p ⟩ var x0)
-         (var x2 ∘⟨ p ⟩ var x0)
-         (var x1 ∘⟨ p ⟩ var x0)) ▹
-    Id (wk[ 3 ]′ Π-type) (var x2) (var x1)
+    Γ »∙ Funext p q p′ q′ l₁ l₂
 
 private opaque
 
@@ -1559,6 +1536,7 @@ private opaque
 opaque
   unfolding
     Has-function-extensionality with-function-extensionality-assumption
+    Funext
 
   -- If Η is a well-formed context pair and certain Π-types are
   -- allowed, then the context
@@ -1646,6 +1624,23 @@ opaque
       (wkTerm₁ ⊢A ⊢v ∘ⱼ var₀ ⊢A)
 
 opaque
+  unfolding Funext funext
+
+  -- A typing rule for funext.
+
+  ⊢funext :
+    Equality-reflection →
+    Π-allowed p q →
+    Π-allowed p′ q′ →
+    ⊢ Γ →
+    Γ ⊢ funext p p′ ∷ Funext p q p′ q′ l₁ l₂
+  ⊢funext ok Π-ok Π-ok′ ⊢Γ =
+    let ⊢Π3Id = ⊢Π3Id Π-ok ⊢Γ in
+    lamⱼ′ Π-ok $ lamⱼ′ Π-ok′ $ lamⱼ′ Π-ok′ $ lamⱼ′ Π-ok′ $ lamⱼ′ Π-ok′ $
+    function-extensionality-Π ok (var₂ ⊢Π3Id) (var₁ ⊢Π3Id)
+      (var₀ ⊢Π3Id)
+
+opaque
   unfolding Has-function-extensionality
 
   -- In the presence of equality reflection
@@ -1659,12 +1654,8 @@ opaque
     ⊢ Η →
     Has-function-extensionality p q p′ q′ l₁ l₂ Η
   has-function-extensionality {p} {p′} ok Π-ok Π-ok′ ⊢Η =
-    let ⊢Π3Id = ⊢Π3Id Π-ok ⊢Η in
-    lam p (lam p′ (lam p′ (lam p′ (lam p′ rfl)))) ,
-    (lamⱼ′ Π-ok $
-     lamⱼ′ Π-ok′ $ lamⱼ′ Π-ok′ $ lamⱼ′ Π-ok′ $ lamⱼ′ Π-ok′ $
-     function-extensionality-Π ok (var₂ ⊢Π3Id) (var₁ ⊢Π3Id)
-       (var₀ ⊢Π3Id))
+    funext p p′ ,
+    ⊢funext ok Π-ok Π-ok′ ⊢Η
 
 opaque
 
@@ -1760,7 +1751,7 @@ private opaque
        A₁≡A₂ B₁≡B₂
 
 opaque
-  unfolding Has-function-extensionality
+  unfolding Has-function-extensionality Funext
 
   -- Allowed Π- and Σ-types preserve propositional equality in a
   -- certain sense, assuming that a certain form of function
