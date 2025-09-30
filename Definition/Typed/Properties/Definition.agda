@@ -31,6 +31,7 @@ open import Definition.Typed.Well-formed R
 
 open import Definition.Untyped M
 open import Definition.Untyped.Neutral M type-variant
+open import Definition.Untyped.Pi M
 open import Definition.Untyped.Properties M
 open import Definition.Untyped.Whnf M type-variant
 
@@ -55,6 +56,7 @@ private
     t t₁ t₂ u v w A B C : Term _
     V : Set a
     φ : Unfolding _
+    p q : M
 
 ------------------------------------------------------------------------
 -- Lemmas about opacity
@@ -216,6 +218,60 @@ opaque
 
   glass-closed-no-ne : {t : Term 0} → ¬ Neutral V (glassify ∇) t
   glass-closed-no-ne = glass-no-ne⁻ ∘→ closed-ne
+
+------------------------------------------------------------------------
+-- Some lemmas related to context extensions
+
+opaque
+
+  -- If a closed type A is well-formed under ∇ and inhabited under
+  -- glassify ∇, then A is inhabited under an extension of ∇.
+  --
+  -- See also inhabited-under-extension below.
+
+  inhabited-under-extension₀ :
+    ∇ » ε ⊢ A → glassify ∇ » ε ⊢ t ∷ A →
+    ∃₄ λ n ξ (∇′ : DCon (Term 0) n) u → ξ » ∇′ ⊇ ∇ × ∇′ » ε ⊢ u ∷ A
+  inhabited-under-extension₀ {A} {t} ⊢A ⊢t =
+    let »∇ = defn-wf (wf ⊢A) in
+    case Opacity-allowed? of λ where
+      (no no-opacity) →
+        let transparent = »→Transparent no-opacity »∇ in
+        _ , id , _ , t , id ,
+        PE.subst₃ _⊢_∷_
+          (PE.cong (_» _) (PE.sym transparent)) PE.refl PE.refl
+        ⊢t
+      (yes opacity) →
+        let ext-ok = stepᵒ₁ opacity ⊢A (ones-»↜ _) ⊢t in
+        _ , step id (opa (ones _)) A t , _ , defn _ , ext-ok ,
+        defn (ε (wf-»⊇ ext-ok »∇)) here (PE.sym $ wk-id _)
+
+opaque
+
+  -- If a type A is well-formed under ∇ and inhabited under
+  -- glassify ∇, then A is inhabited under an extension of ∇ (assuming
+  -- that at least one Π-type is allowed).
+
+  inhabited-under-extension :
+    Π-allowed p q →
+    ∇ » Γ ⊢ A → glassify ∇ » Γ ⊢ t ∷ A →
+    ∃₄ λ n ξ (∇′ : DCon (Term 0) n) u → ξ » ∇′ ⊇ ∇ × ∇′ » Γ ⊢ u ∷ A
+  inhabited-under-extension {p} {q} {Γ} {A} {t} ok ⊢A ⊢t =
+    let »∇ = defn-wf (wf ⊢A) in
+    case Opacity-allowed? of λ where
+      (no no-opacity) →
+        let transparent = »→Transparent no-opacity »∇ in
+        _ , id , _ , t , id ,
+        PE.subst₃ _⊢_∷_
+          (PE.cong (_» _) (PE.sym transparent)) PE.refl PE.refl
+        ⊢t
+      (yes opacity) →
+        let ext-ok =
+              stepᵒ₁ opacity (⊢Πs ok ⊢A) (ones-»↜ _) (⊢lams ok ⊢t)
+        in
+        _ , step id (opa (ones _)) (Πs p q Γ A) (lams p Γ t) ,
+        _ , apps p Γ (defn _) , ext-ok ,
+        ⊢apps ok (defn (ε (wf-»⊇ ext-ok »∇)) here (PE.sym $ wk-id _))
 
 ------------------------------------------------------------------------
 -- Glassification lemmas
