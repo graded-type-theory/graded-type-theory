@@ -119,6 +119,7 @@ import Definition.Typed.Properties.Admissible.Var
 import Definition.Typed.Properties.Well-formed
 import Definition.Typed.Inversion.Primitive
 import Definition.Typed.Properties.Admissible.Erased.Primitive
+import Definition.Typed.Properties.Definition.Primitive
 import Definition.Typed.Weakening
 import Definition.Typed.Weakening.Definition
 import Definition.Typed.Stability.Primitive
