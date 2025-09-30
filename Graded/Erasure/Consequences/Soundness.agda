@@ -133,11 +133,11 @@ module _
     -- Note the assumptions of the local module Soundness.
 
     soundness-ℕ :
-      glassify ∇ » Δ ⊢ t ∷ ℕ → 𝟘ᶜ ▸[ 𝟙ᵐ ] t →
+      ∇ » Δ ⊢ t ∷ ℕ → 𝟘ᶜ ▸[ 𝟙ᵐ ] t →
       ∃ λ n →
       glassify ∇ » Δ ⊢ t ⇒ˢ* sucᵏ n ∷ℕ ×
       eraseDCon str ∇ ⊢ erase str t ⇒ˢ⟨ str ⟩* T.sucᵏ n
-    soundness-ℕ {t} ⊢t ▸t =                                $⟨ fundamentalErased-𝟙ᵐ ⊢t ▸t ⟩
+    soundness-ℕ {t} ⊢t ▸t =                                $⟨ fundamentalErased-𝟙ᵐ ⊢t′ ▸t ⟩
 
       t ® erase str t ∷ ℕ                                  ⇔⟨ ®∷ℕ⇔ ⟩→
 
@@ -147,7 +147,10 @@ module _
        glassify ∇ » Δ ⊢ t ⇒ˢ* sucᵏ n ∷ℕ ×
        eraseDCon str ∇ ⊢ erase str t ⇒ˢ⟨ str ⟩* T.sucᵏ n)  □
       where
-      open L (wfTerm ⊢t)
+      ⊢t′ : glassify ∇ » Δ ⊢ t ∷ ℕ
+      ⊢t′ = glassify-⊢∷ ⊢t
+
+      open L (wfTerm ⊢t′)
 
       soundness-ℕ′ :
         u ® v ∷ℕ →
@@ -173,7 +176,7 @@ module _
     -- Note the assumptions of the local module Soundness.
 
     soundness-ℕ-only-source :
-      glassify ∇ » Δ ⊢ t ∷ ℕ → 𝟘ᶜ ▸[ 𝟙ᵐ ] t →
+      ∇ » Δ ⊢ t ∷ ℕ → 𝟘ᶜ ▸[ 𝟙ᵐ ] t →
       ∃ λ n → glassify ∇ » Δ ⊢ t ⇒ˢ* sucᵏ n ∷ℕ
     soundness-ℕ-only-source ⊢t ▸t =
       case soundness-ℕ ⊢t ▸t of λ {
@@ -187,15 +190,18 @@ module _
       -- Note the assumptions of the local module Soundness.
 
       soundness-Unit :
-        glassify ∇ » Δ ⊢ t ∷ Unit s l → 𝟘ᶜ ▸[ 𝟙ᵐ ] t →
+        ∇ » Δ ⊢ t ∷ Unit s l → 𝟘ᶜ ▸[ 𝟙ᵐ ] t →
         glassify ∇ » Δ ⊢ t ⇒* star s l ∷ Unit s l ×
         eraseDCon str ∇ T.⊢ erase str t ⇒* T.star
-      soundness-Unit ⊢t ▸t =
-        case ®∷Unit⇔ .proj₁ $ fundamentalErased-𝟙ᵐ ⊢t ▸t of λ where
+      soundness-Unit {t} {s} {l} ⊢t ▸t =
+        case ®∷Unit⇔ .proj₁ $ fundamentalErased-𝟙ᵐ ⊢t′ ▸t of λ where
           (starᵣ t⇒*star erase-t⇒*star) →
             t⇒*star , erase-t⇒*star
         where
-        open L (wfTerm ⊢t)
+        ⊢t′ : glassify ∇ » Δ ⊢ t ∷ Unit s l
+        ⊢t′ = glassify-⊢∷ ⊢t
+
+        open L (wfTerm ⊢t′)
 
   -- If the variable context is empty, then the results in Soundness
   -- hold without any further assumptions related to the variable
@@ -214,11 +220,12 @@ module _
       -- Soundness of extraction for natural numbers.
 
       soundness-ℕ :
-        glassify ∇ » ε ⊢ t ∷ ℕ → ε ▸[ 𝟙ᵐ ] t →
+        ∇ » ε ⊢ t ∷ ℕ → ε ▸[ 𝟙ᵐ ] t →
         ∃ λ n →
         glassify ∇ » ε ⊢ t ⇒ˢ* sucᵏ n ∷ℕ ×
         eraseDCon str ∇ ⊢ erase str t ⇒ˢ⟨ str ⟩* T.sucᵏ n
-      soundness-ℕ ⊢t = S.soundness-ℕ (defn-wf (wfTerm ⊢t)) ⊢t
+      soundness-ℕ ⊢t =
+        S.soundness-ℕ (glassify-» (defn-wf (wfTerm ⊢t))) ⊢t
 
     opaque
 
@@ -226,20 +233,21 @@ module _
       -- language.
 
       soundness-ℕ-only-source :
-        glassify ∇ » ε ⊢ t ∷ ℕ → 𝟘ᶜ ▸[ 𝟙ᵐ ] t →
+        ∇ » ε ⊢ t ∷ ℕ → 𝟘ᶜ ▸[ 𝟙ᵐ ] t →
         ∃ λ n → glassify ∇ » ε ⊢ t ⇒ˢ* sucᵏ n ∷ℕ
       soundness-ℕ-only-source ⊢t =
-        S.soundness-ℕ-only-source (defn-wf (wfTerm ⊢t)) ⊢t
+        S.soundness-ℕ-only-source (glassify-» (defn-wf (wfTerm ⊢t))) ⊢t
 
     opaque
 
       -- Soundness of extraction for unit types.
 
       soundness-Unit :
-        glassify ∇ » ε ⊢ t ∷ Unit s l → 𝟘ᶜ ▸[ 𝟙ᵐ ] t →
+        ∇ » ε ⊢ t ∷ Unit s l → 𝟘ᶜ ▸[ 𝟙ᵐ ] t →
         glassify ∇ » ε ⊢ t ⇒* star s l ∷ Unit s l ×
         eraseDCon str ∇ T.⊢ erase str t ⇒* T.star
-      soundness-Unit ⊢t = S.soundness-Unit (defn-wf (wfTerm ⊢t)) ⊢t
+      soundness-Unit ⊢t =
+        S.soundness-Unit (glassify-» (defn-wf (wfTerm ⊢t))) ⊢t
 
 opaque
 
@@ -264,7 +272,7 @@ opaque
         t = prodrec 𝟘 p 𝟘 ℕ (var {n = 1} x0) zero
     in
     Consistent (glassify ∇ » Δ) ×
-    glassify ∇ » Δ ⊢ t ∷ ℕ ×
+    ∇ » Δ ⊢ t ∷ ℕ ×
     ▸[ 𝟙ᵐ ] glassify ∇ ×
     𝟘ᶜ ▸[ 𝟙ᵐ ] t ×
     (¬ ∃ λ n → glassify ∇ » Δ ⊢ t ⇒ˢ* sucᵏ n ∷ℕ) ×
@@ -330,7 +338,7 @@ opaque
               ([]-cong s ℕ zero zero (var {n = 1} x0))
     in
     Consistent (glassify ∇ » Δ) ×
-    glassify ∇ » Δ ⊢ t ∷ ℕ ×
+    ∇ » Δ ⊢ t ∷ ℕ ×
     ▸[ 𝟙ᵐ ] glassify ∇ ×
     𝟘ᶜ ▸[ 𝟙ᵐ ] t ×
     (¬ ∃ λ n → glassify ∇ » Δ ⊢ t ⇒ˢ* sucᵏ n ∷ℕ) ×
@@ -380,7 +388,7 @@ opaque
         t = J 𝟘 𝟘 ℕ zero ℕ zero zero (var {n = 1} x0)
     in
     Consistent (glassify ∇ » Δ) ×
-    glassify ∇ » Δ ⊢ t ∷ ℕ ×
+    ∇ » Δ ⊢ t ∷ ℕ ×
     ▸[ 𝟙ᵐ ] glassify ∇ ×
     𝟘ᶜ ▸[ 𝟙ᵐ ] t ×
     (¬ ∃ λ n → glassify ∇ » Δ ⊢ t ⇒ˢ* sucᵏ n ∷ℕ) ×
@@ -429,7 +437,7 @@ opaque
         t = K 𝟘 ℕ zero ℕ zero (var {n = 1} x0)
     in
     Consistent (glassify ∇ » Δ) ×
-    glassify ∇ » Δ ⊢ t ∷ ℕ ×
+    ∇ » Δ ⊢ t ∷ ℕ ×
     ▸[ 𝟙ᵐ ] glassify ∇ ×
     𝟘ᶜ ▸[ 𝟙ᵐ ] t ×
     (¬ ∃ λ n → glassify ∇ » Δ ⊢ t ⇒ˢ* sucᵏ n ∷ℕ) ×
@@ -479,7 +487,7 @@ opaque
         t = unitrec 0 𝟘 𝟘 ℕ (var {n = 1} x0) zero
     in
     Consistent (glassify ∇ » Δ) ×
-    glassify ∇ » Δ ⊢ t ∷ ℕ ×
+    ∇ » Δ ⊢ t ∷ ℕ ×
     ▸[ 𝟙ᵐ ] glassify ∇ ×
     𝟘ᶜ ▸[ 𝟙ᵐ ] t ×
     (¬ ∃ λ n → glassify ∇ » Δ ⊢ t ⇒ˢ* sucᵏ n ∷ℕ) ×
@@ -541,7 +549,7 @@ opaque
         Δ = ε ∙ Empty
         t = emptyrec 𝟘 ℕ (var x0)
     in
-    glassify ∇ » Δ ⊢ t ∷ ℕ ×
+    ∇ » Δ ⊢ t ∷ ℕ ×
     ▸[ 𝟙ᵐ ] glassify ∇ ×
     𝟘ᶜ ▸[ 𝟙ᵐ ] t ×
     (¬ ∃ λ n → glassify ∇ » Δ ⊢ t ⇒ˢ* sucᵏ n ∷ℕ) ×
@@ -626,7 +634,7 @@ opaque
         Δ = ε ∙ Empty
         t = Ω p
     in
-    glassify ∇ » Δ ⊢ t ∷ ℕ ×
+    ∇ » Δ ⊢ t ∷ ℕ ×
     ▸[ 𝟙ᵐ ] glassify ∇ ×
     𝟘ᶜ ▸[ 𝟙ᵐ ] t ×
     (¬ ∃ λ n → glassify ∇ » Δ ⊢ t ⇒ˢ* sucᵏ n ∷ℕ) ×

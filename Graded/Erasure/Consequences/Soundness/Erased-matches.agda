@@ -138,7 +138,7 @@ opaque
   -- than unitrec-subst and unitrec-β.
 
   soundness-ℕ :
-    glassify ∇ » Δ ⊢ t ∷ ℕ → 𝟘ᶜ ▸[ 𝟙ᵐ ] t →
+    ∇ » Δ ⊢ t ∷ ℕ → 𝟘ᶜ ▸[ 𝟙ᵐ ] t →
     ∃ λ n →
     glassify ∇ » Δ SR-η.⊢ t ⇒ˢ* sucᵏ n ∷ℕ ×
     eraseDCon str ∇ ⊢ erase str t ⇒ˢ⟨ str ⟩* T.sucᵏ n
@@ -153,7 +153,7 @@ opaque
   -- unitrec-subst and unitrec-β.
 
   soundness-Unit :
-    glassify ∇ » Δ ⊢ t ∷ Unit s l → 𝟘ᶜ ▸[ 𝟙ᵐ ] t →
+    ∇ » Δ ⊢ t ∷ Unit s l → 𝟘ᶜ ▸[ 𝟙ᵐ ] t →
     glassify ∇ » Δ T-η.⊢ t ⇒* star s l ∷ Unit s l ×
     eraseDCon str ∇ T.⊢ erase str t ⇒* T.star
   soundness-Unit = Soundness-η.soundness-Unit ∘→ ⊢∷→⊢∷-η

@@ -194,7 +194,7 @@ record Extended-type-theory : Set (lsuc a) where
     soundness-ℕᴱ :
       {t : Termᴱ 0}
       ⦃ 𝟘-well-behaved : Has-well-behaved-zero semiring-with-meet ⦄ →
-      glassify ∇ » ε ⊢ᴱ t ∷ tr ℕ →
+      ∇ » ε ⊢ᴱ t ∷ tr ℕ →
       ▸ᴱ[ 𝟙ᵐ ] glassify ∇ →
       ε ▸ᴱ[ 𝟙ᵐ ] t →
       ∃ λ n →
@@ -223,9 +223,9 @@ record Extended-type-theory : Set (lsuc a) where
     soundness-ℕ :
       {σ : Substᴱ 0 n}
       ⦃ 𝟘-well-behaved : Has-well-behaved-zero semiring-with-meet ⦄ →
-      map-DCon tr (glassify ∇) » ε ⊢ˢᴱ σ ∷ map-Con tr Δ →
+      map-DCon tr ∇ » ε ⊢ˢᴱ σ ∷ map-Con tr Δ →
       ((x : Fin n) → ε ▸ᴱ[ 𝟘ᵐ? ] σ x) →
-      glassify ∇ » Δ ⊢ t ∷ ℕ →
+      ∇ » Δ ⊢ t ∷ ℕ →
       ▸[ 𝟙ᵐ ] glassify ∇ →
       𝟘ᶜ ▸[ 𝟙ᵐ ] t →
       ∃ λ n →
@@ -235,9 +235,7 @@ record Extended-type-theory : Set (lsuc a) where
     soundness-ℕ {t} {str} {σ} ⊢σ ▸σ ⊢t ▸∇ ▸t =
       let n , eq , red =
             soundness-ℕᴱ
-              (PE.subst₃ _⊢ᴱ_∷_
-                 (PE.cong (flip _»_ _) $ PE.sym glassify-map-DCon)
-                 PE.refl tr-ℕ-[]ᴱ $
+              (PE.subst (_⊢ᴱ_∷_ _ _) tr-ℕ-[]ᴱ $
                subst-⊢∷ᴱ (tr-⊢∷ ⊢t) ⊢σ)
               (λ α↦ →
                  case ↦∷∈-map-DCon $
@@ -391,13 +389,9 @@ opaque
         _ , eq , d =
           soundness-ℕ
             (PE.subst₃ _⊢ˢᴱ_∷_
-               (PE.cong (flip _»_ _) $ PE.sym lemma)
-               PE.refl (PE.sym map-Con-id)
+               (PE.sym map-Cons-id) PE.refl (PE.sym map-Con-id)
                ⊢σ)
-            ▸σ
-            (PE.subst₃ _⊢_∷_
-               (PE.cong (flip _»_ _) transparent) PE.refl PE.refl
-               ⊢t)
+            ▸σ ⊢t
             (PE.subst (▸[ _ ]_) transparent ▸∇) ▸t
     in
     _ ,
