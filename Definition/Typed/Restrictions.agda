@@ -82,6 +82,9 @@ record Type-restrictions : Set (lsuc a) where
     -- holds.
     Opacity-allowed : Set a
 
+    -- Opacity-allowed is decided.
+    Opacity-allowed? : Dec Opacity-allowed
+
   -- The type Erased A is only allowed if Erased-allowed holds.
   -- Note that the Erased type can be defined using either a
   -- weak or strong unit type.

@@ -61,6 +61,7 @@ no-type-restrictions k equality-reflection = λ where
     .Unit-allowed                  → λ _ → Lift _ ⊤
     .ΠΣ-allowed                    → λ _ _ _ → Lift _ ⊤
     .Opacity-allowed               → Lift _ (¬ T equality-reflection)
+    .Opacity-allowed?              → Lift? (¬? (T? equality-reflection))
     .K-allowed                     → Lift _ (T k)
     .[]-cong-allowed               → λ _ → ¬ Trivial
     .[]-cong→Erased                → _
@@ -226,6 +227,7 @@ no-[]-cong-TR TR = record TR
 with-equality-reflection : Type-restrictions → Type-restrictions
 with-equality-reflection TR = record TR
   { Opacity-allowed               = Lift _ ⊥
+  ; Opacity-allowed?              = no (λ ())
   ; Equality-reflection           = Lift _ ⊤
   ; Equality-reflection?          = yes _
   ; no-opaque-equality-reflection = λ ()
