@@ -11,9 +11,11 @@ module Definition.Typed.Consequences.Consistency
   (R : Type-restrictions 𝕄)
   where
 
+open Modality 𝕄
 open Type-restrictions R
 
 open import Definition.Untyped M
+open import Definition.Untyped.Identity 𝕄
 open import Definition.Typed R
 open import Definition.Typed.Consequences.Canonicity R
 open import Definition.Typed.EqRelInstance R
@@ -148,8 +150,7 @@ opaque
   unfolding inline inline-Con
 
   -- If opacity is allowed, then consistency is not preserved by
-  -- glassification, inlining or context extension (in the latter case
-  -- assuming that at least one Π-type is allowed): there is a
+  -- glassification, inlining or context extension: there is a
   -- definition context ∇ and well-formed context Γ that are
   -- consistent, but for which glassify ∇ » Γ and ε » inline-Con ∇ Γ
   -- are not consistent, and for which there is an extended context ∇′
@@ -162,22 +163,23 @@ opaque
        Consistent (∇ » Γ) ×
        ¬ Consistent (glassify ∇ » Γ) ×
        ¬ Consistent (ε » inline-Con ∇ Γ) ×
-       (∀ {p q} →
-        Π-allowed p q →
-        ∃₃ λ m′ ξ (∇′ : DCon (Term 0) m′) →
-          ξ » ∇′ ⊇ ∇ × ¬ Consistent (∇′ » Γ))
+       ∃₃ λ m′ ξ (∇′ : DCon (Term 0) m′) →
+         ξ » ∇′ ⊇ ∇ × ¬ Consistent (∇′ » Γ)
   consistency-is-not-preserved ok =
     _ , _ , Opaque[ Empty ∷ U 0 ] , ε ∙ defn 0 , ∙ ⊢0 , consistent ,
     (λ hyp → hyp _ inconsistent₁) ,
     (λ hyp → hyp _ inconsistent₂) ,
-    (λ ok →
-       let _ , _ , _ , _ , ∇′⊇Opaque[Empty∷U] , inconsistent₃ =
-             inhabited-under-extension ok (Emptyⱼ (∙ ⊢0)) inconsistent₁
-       in
-       _ , _ , _ , ∇′⊇Opaque[Empty∷U] , λ hyp → hyp _ inconsistent₃)
+    _ , _ , _ , ∙⊇ ,
+    (λ hyp → hyp _ inconsistent₃)
     where
+    ⊢ε : Opaque[ Empty ∷ U 0 ] »⊢ ε
+    ⊢ε = ε (»Opaque ok (Emptyⱼ εε))
+
+    ⊢0∷U : Opaque[ Empty ∷ U 0 ] » ε ⊢ defn 0 ∷ U 0
+    ⊢0∷U = defn ⊢ε here PE.refl
+
     ⊢0 : Opaque[ Empty ∷ U 0 ] » ε ⊢ defn 0
-    ⊢0 = univ (defn (ε (»Opaque ok (Emptyⱼ εε))) here PE.refl)
+    ⊢0 = univ ⊢0∷U
 
     ⊢0′ : glassify Opaque[ Empty ∷ U 0 ] » ε ⊢ defn 0
     ⊢0′ = glassify-⊢ ⊢0
@@ -191,6 +193,30 @@ opaque
       ε » inline-Con Opaque[ Empty ∷ U 0 ] (ε ∙ defn 0) ⊢ var x0 ∷ Empty
     inconsistent₂ =
       var₀ (Emptyⱼ εε)
+
+    ∙⊇ :
+      step id (opa (ε ¹)) (Id (U 0) (defn 0) Empty) rfl »
+      Opaque[ Empty ∷ U 0 ]
+        ∙⟨ opa (ε ¹) ⟩[ rfl ∷ Id (U 0) (defn 0) Empty ] ⊇
+      Opaque[ Empty ∷ U 0 ]
+    ∙⊇ =
+      stepᵒ₁ ok (Idⱼ′ ⊢0∷U (Emptyⱼ ⊢ε)) (ones-»↜ _)
+        (rflⱼ′ (δ-red (glassify-⊢′ ⊢ε) here PE.refl PE.refl))
+
+    ⊢0″ :
+      Opaque[ Empty ∷ U 0 ]
+        ∙⟨ opa (ones 1) ⟩[ rfl ∷ Id (U 0) (defn 0) Empty ] »
+      ε ⊢ defn 0
+    ⊢0″ = defn-wk ∙⊇ ⊢0
+
+    inconsistent₃ :
+      Opaque[ Empty ∷ U 0 ]
+        ∙⟨ opa (ones 1) ⟩[ rfl ∷ Id (U 0) (defn 0) Empty ] »
+      ε ∙ defn 0 ⊢
+      subst 𝟙 (U 0) (var x0) (defn 0) Empty (defn 1) (var x0) ∷ Empty
+    inconsistent₃ =
+      ⊢subst (univ (var₀ (Uⱼ (∙ ⊢0″)))) (defn (∙ ⊢0″) here PE.refl)
+        (var₀ ⊢0″)
 
     consistent : Consistent (Opaque[ Empty ∷ U 0 ] » ε ∙ defn 0)
     consistent t =
@@ -240,23 +266,19 @@ opaque
 
 opaque
 
-  -- If opacity and at least one Π-type are allowed, then it is not in
-  -- general the case that, if ∇ »⊢ Γ, and ∇ and Γ are consistent,
-  -- then ∇′ and Γ are consistent for every well-formed extension ∇′
-  -- of ∇.
+  -- If opacity is allowed then it is not in general the case that, if
+  -- ∇ »⊢ Γ, and ∇ and Γ are consistent, then ∇′ and Γ are consistent
+  -- for every well-formed extension ∇′ of ∇.
 
   ¬Consistent→Consistent-⊇ :
     Opacity-allowed →
-    Π-allowed p q →
     ¬ (∀ {m m′ n} {∇ : DCon (Term 0) m} {∇′ : DCon (Term 0) m′}
          {ξ : DExt (Term 0) m′ m} {Γ : Con Term n} →
        ∇ »⊢ Γ → ξ » ∇′ ⊇ ∇ →
        Consistent (∇ » Γ) →
        Consistent (∇′ » Γ))
-  ¬Consistent→Consistent-⊇ ok₁ ok₂ hyp =
-    let _ , _ , _ , _ , ⊢Γ , con , _ , _ , not-con =
-          consistency-is-not-preserved ok₁
-        _ , _ , _ , ∇′⊇∇ , not-con =
-          not-con ok₂
+  ¬Consistent→Consistent-⊇ ok hyp =
+    let _ , _ , _ , _ , ⊢Γ , con , _ , _ , _ , _ , _ , ∇′⊇∇ , not-con =
+          consistency-is-not-preserved ok
     in
     not-con (hyp ⊢Γ ∇′⊇∇ con)
