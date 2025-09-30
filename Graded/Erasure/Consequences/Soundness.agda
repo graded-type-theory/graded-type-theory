@@ -31,6 +31,7 @@ open import Definition.Typed TR
 open import Definition.Typed.Consequences.Consistency TR
 import Definition.Typed.Consequences.Canonicity TR as TC
 open import Definition.Typed.Consequences.Inequality TR
+open import Definition.Typed.EqRelInstance TR
 open import Definition.Typed.EqualityRelation
 open import Definition.Typed.Properties TR
 open import Definition.Typed.Reasoning.Term TR
@@ -101,80 +102,6 @@ module _
 
   -- The following results make use of some assumptions.
 
-  module Soundness′
-    ⦃ eqrel : EqRelSet TR ⦄
-    (FA : Fundamental-assumptions (glassify ∇ » Δ))
-    {str : Strictness}
-    where
-
-    open Fundamental-assumptions FA
-    open Graded.Erasure.LogicalRelation.Fundamental TR UR
-    open Fundamental FA
-
-    private
-
-      as : Assumptions
-      as = assumptions well-formed str ⇒*-is-reduction-relation
-
-    open Graded.Erasure.LogicalRelation as
-    open Graded.Erasure.LogicalRelation.Hidden as
-    open Graded.Erasure.LogicalRelation.Irrelevance as
-
-    -- WH reduction soundness of zero
-
-    soundness-zero :
-      glassify ∇ » Δ ⊢ t ⇒* zero ∷ ℕ → 𝟘ᶜ ▸[ 𝟙ᵐ ] t →
-      eraseDCon str ∇ T.⊢ erase str t ⇒* T.zero
-    soundness-zero {t} t⇒*zero ▸t =
-                                                 $⟨ fundamentalErased-𝟙ᵐ (redFirst*Term t⇒*zero) ▸t ⟩
-      t ® erase str t ∷ ℕ                        ⇔⟨ ®∷ℕ⇔ ⟩→
-      t ® erase str t ∷ℕ                         →⟨ (λ { (zeroᵣ _ ⇒*zero)    → ⇒*zero
-                                                       ; (sucᵣ t⇒*suc _ _ _) →
-                                                           case whrDet*Term (t⇒*zero , zeroₙ) (t⇒*suc , sucₙ) of λ ()
-                                                       }) ⟩
-      eraseDCon str ∇ T.⊢ erase str t ⇒* T.zero  □
-
-    -- WH reduction soundness of suc
-
-    soundness-suc :
-      glassify ∇ » Δ ⊢ t ⇒* suc t′ ∷ ℕ → 𝟘ᶜ ▸[ 𝟙ᵐ ] t →
-      ∃ λ v′ → eraseDCon str ∇ T.⊢ erase str t ⇒* T.suc v′ × t′ ® v′ ∷ℕ
-    soundness-suc {t} {t′} t⇒*suc ▸t =                            $⟨ fundamentalErased-𝟙ᵐ (redFirst*Term t⇒*suc) ▸t ⟩
-      t ® erase str t ∷ ℕ                                         ⇔⟨ ®∷ℕ⇔ ⟩→
-      t ® erase str t ∷ℕ                                          →⟨ (λ { (zeroᵣ t⇒*zero _) →
-                                                                            case whrDet*Term (t⇒*zero , zeroₙ) (t⇒*suc , sucₙ) of λ ()
-                                                                        ; (sucᵣ t⇒*suc′ ⇒*suc _ t′®v′) →
-                                                                            case whrDet*Term (t⇒*suc , sucₙ) (t⇒*suc′ , sucₙ) of λ {
-                                                                              PE.refl →
-                                                                            _ , ⇒*suc , t′®v′ }
-                                                                        }) ⟩
-      (∃ λ v′ →
-       eraseDCon str ∇ T.⊢ erase str t ⇒* T.suc v′ × t′ ® v′ ∷ℕ)  □
-
-    -- Helper lemma for soundness of natural numbers
-
-    soundness-ℕ′ :
-      t ® v ∷ℕ →
-      ∃ λ n →
-      glassify ∇ » Δ ⊢ t ⇒ˢ* sucᵏ n ∷ℕ ×
-      eraseDCon str ∇ ⊢ v ⇒ˢ⟨ str ⟩* T.sucᵏ n
-    soundness-ℕ′ (zeroᵣ ⇒*zero ⇒*zero′) =
-      0 , whred* ⇒*zero , ⇒*→⇒ˢ⟨⟩* ⇒*zero′
-    soundness-ℕ′ {v} (sucᵣ {v′} ⇒*suc ⇒*suc′ num t®v) =
-      let n , d , d′ = soundness-ℕ′ t®v
-      in  1+ n , ⇒ˢ*∷ℕ-trans (whred* ⇒*suc) (sucred* d) ,
-          (case PE.singleton str of λ where
-             (non-strict , PE.refl) →
-               ⇒ˢ*-trans (whred*′ ⇒*suc′) (sucred*′ d′)
-             (strict , PE.refl) →
-               v              ⇒*⟨ ⇒*suc′ ⟩
-               T.suc v′       ≡˘⟨ PE.cong T.suc $ TP.Value→⇒*→≡ (TP.Numeral→Value num) d′ ⟩⇒
-               T.sucᵏ (1+ n)  ∎⇒)
-
-  -- The following results make use of some assumptions.
-
-  open import Definition.Typed.EqRelInstance TR
-
   module Soundness
     (FA⁻ : Fundamental-assumptions⁻ (glassify ∇ » Δ))
     (str : Strictness)
@@ -198,7 +125,6 @@ module _
       open Graded.Erasure.LogicalRelation as public
       open Graded.Erasure.LogicalRelation.Hidden as public
       open Graded.Erasure.LogicalRelation.Irrelevance as public
-      open Soundness′ FA public
 
     -- Soundness for erasure of natural numbers
     -- Well-typed terms of the natural number type reduce to numerals
@@ -222,6 +148,24 @@ module _
        eraseDCon str ∇ ⊢ erase str t ⇒ˢ⟨ str ⟩* T.sucᵏ n)  □
       where
       open L (wfTerm ⊢t)
+
+      soundness-ℕ′ :
+        u ® v ∷ℕ →
+        ∃ λ n →
+        glassify ∇ » Δ ⊢ u ⇒ˢ* sucᵏ n ∷ℕ ×
+        eraseDCon str ∇ ⊢ v ⇒ˢ⟨ str ⟩* T.sucᵏ n
+      soundness-ℕ′ (zeroᵣ ⇒*zero ⇒*zero′) =
+        0 , whred* ⇒*zero , ⇒*→⇒ˢ⟨⟩* ⇒*zero′
+      soundness-ℕ′ {v} (sucᵣ {v′} ⇒*suc ⇒*suc′ num u®v) =
+        let n , d , d′ = soundness-ℕ′ u®v
+        in  1+ n , ⇒ˢ*∷ℕ-trans (whred* ⇒*suc) (sucred* d) ,
+            (case PE.singleton str of λ where
+               (non-strict , PE.refl) →
+                 ⇒ˢ*-trans (whred*′ ⇒*suc′) (sucred*′ d′)
+               (strict , PE.refl) →
+                 v              ⇒*⟨ ⇒*suc′ ⟩
+                 T.suc v′       ≡˘⟨ PE.cong T.suc $ TP.Value→⇒*→≡ (TP.Numeral→Value num) d′ ⟩⇒
+                 T.sucᵏ (1+ n)  ∎⇒)
 
     -- A variant of soundness-ℕ which only considers the source
     -- language.
