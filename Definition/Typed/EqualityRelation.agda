@@ -145,7 +145,9 @@ record Equality-relations
            → Γ ⊢ a  ≅ b  ∷ A
 
     -- Level type reflexivity
-    ≅ₜ-Levelrefl : ⊢ Γ → Γ ⊢≅ Level ∷ U zeroᵘ
+    ≅ₜ-Levelrefl : ⊢ Γ → Level-is-small → Γ ⊢≅ Level ∷ U zeroᵘ
+
+    ≅-Levelrefl : ⊢ Γ → Γ ⊢≅ Level
 
     -- Zero level reflexivity
     ≅ₜ-zeroᵘrefl : ⊢ Γ → Γ ⊢≅ zeroᵘ ∷ Level
@@ -391,13 +393,6 @@ record Equality-relations
   -- Composition of universe and generic equality compatibility
   ~-to-≅ : ∀ {k l l′} → Γ ⊢ k ~ l ∷ U l′ → Γ ⊢ k ≅ l
   ~-to-≅ k~l = ≅-univ (~-to-≅ₜ k~l)
-
-  opaque
-
-    -- A variant of ≅ₜ-Levelrefl.
-
-    ≅-Levelrefl : ⊢ Γ → Γ ⊢≅ Level
-    ≅-Levelrefl = ≅-univ ∘→ ≅ₜ-Levelrefl
 
   opaque
 

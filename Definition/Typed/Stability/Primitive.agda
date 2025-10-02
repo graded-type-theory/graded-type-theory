@@ -250,8 +250,8 @@ private module Inhabited where
       (var _ x∈Γ) _ →
         let _ , A≡B , x∈Δ = stability-⊢∈ Γ≡Δ x∈Γ in
         conv (var (wf-⊢≡ʳ Γ≡Δ) x∈Δ) (sym A≡B)
-      (Levelⱼ _) _ →
-        Levelⱼ (wf-⊢≡ʳ Γ≡Δ)
+      (Levelⱼ _ ok) _ →
+        Levelⱼ (wf-⊢≡ʳ Γ≡Δ) ok
       (zeroᵘⱼ _) _ →
         zeroᵘⱼ (wf-⊢≡ʳ Γ≡Δ)
       (sucᵘⱼ ⊢t) PE.refl →

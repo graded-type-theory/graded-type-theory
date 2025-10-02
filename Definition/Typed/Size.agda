@@ -48,7 +48,7 @@ opaque mutual
     size-⊢∷ ⊢t ⊕ size-⊢≡ B≡A
   size-⊢∷ (var ⊢Γ _) =
     node (size-⊢′ ⊢Γ)
-  size-⊢∷ (Levelⱼ ⊢Γ) =
+  size-⊢∷ (Levelⱼ ⊢Γ _) =
     node (size-⊢′ ⊢Γ)
   size-⊢∷ (zeroᵘⱼ ⊢Γ) =
     node (size-⊢′ ⊢Γ)

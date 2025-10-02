@@ -134,8 +134,8 @@ mutual
   -- Preservation of _⊢_∷_.
 
   tr-⊢∷ : Γ T₁.⊢ t ∷ A → tr-Con Γ T₂.⊢ tr-Term t ∷ tr-Term A
-  tr-⊢∷ (Levelⱼ Γ) =
-    Levelⱼ (tr-⊢ Γ)
+  tr-⊢∷ (Levelⱼ Γ ok) =
+    Levelⱼ (tr-⊢ Γ) (Level-is-small-preserved ok)
   tr-⊢∷ (zeroᵘⱼ Γ) =
     zeroᵘⱼ (tr-⊢ Γ)
   tr-⊢∷ (sucᵘⱼ t) =

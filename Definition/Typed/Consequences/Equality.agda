@@ -57,19 +57,21 @@ opaque
 
 opaque
 
-  -- If equality reflection is allowed, then there is a WHNF A that is
-  -- judgementally equal to Level but not propositionally equal to Level.
+  -- If equality reflection is allowed and Level is a small type, then
+  -- there is a WHNF A that is judgementally equal to Level but not
+  -- propositionally equal to Level.
 
   whnf≢Level :
     Equality-reflection →
+    Level-is-small →
     ∃₂ λ (Γ : Con Term 1) (A : Term 1) →
       Γ ⊢ Level ≡ A × Whnf A × A PE.≢ Level
-  whnf≢Level ok =
+  whnf≢Level ok Level-ok =
     ε ∙ Id (U zeroᵘ) Level Empty ,
     Empty ,
     univ
       (equality-reflection′ ok $
-       var₀ (Idⱼ′ (Levelⱼ ε) (Emptyⱼ ε))) ,
+       var₀ (Idⱼ′ (Levelⱼ ε Level-ok) (Emptyⱼ ε))) ,
     Emptyₙ ,
     (λ ())
 

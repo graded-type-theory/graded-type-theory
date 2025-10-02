@@ -60,7 +60,7 @@ mutual
     univ (soundness⇇ ⊢A)
 
   soundness⇉ : ⊢ Γ → Γ ⊢ t ⇉ A → (Γ ⊢ A) × (Γ ⊢ t ∷ A)
-  soundness⇉ ⊢Γ Levelᵢ = Uⱼ (zeroᵘⱼ ⊢Γ) , Levelⱼ ⊢Γ
+  soundness⇉ ⊢Γ (Levelᵢ ok) = Uⱼ (zeroᵘⱼ ⊢Γ) , Levelⱼ ⊢Γ ok
   soundness⇉ ⊢Γ zeroᵘᵢ = Levelⱼ ⊢Γ , zeroᵘⱼ ⊢Γ
   soundness⇉ ⊢Γ (sucᵘᵢ t⇇Level) = Levelⱼ ⊢Γ , sucᵘⱼ (soundness⇇ t⇇Level)
   soundness⇉ ⊢Γ (supᵘᵢ t⇇Level u⇇Level) = Levelⱼ ⊢Γ , supᵘⱼ (soundness⇇ t⇇Level) (soundness⇇ u⇇Level)

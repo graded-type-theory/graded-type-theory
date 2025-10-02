@@ -55,7 +55,7 @@ mutual
           → Γ ⊢ A ⇇Type
 
   data _⊢_⇉_ (Γ : Con Term n) : (t A : Term n) → Set a where
-    Levelᵢ : Γ ⊢ Level ⇉ U zeroᵘ
+    Levelᵢ : Level-is-small → Γ ⊢ Level ⇉ U zeroᵘ
     zeroᵘᵢ : Γ ⊢ zeroᵘ ⇉ Level
     sucᵘᵢ : Γ ⊢ t ⇇ Level
           → Γ ⊢ sucᵘ t ⇉ Level
@@ -257,7 +257,7 @@ mutual
   -- Γ ⊢ t ⇉ A implies that t is an inferable term.
 
   Inferable⇉ : Γ ⊢ t ⇉ A → Inferable t
-  Inferable⇉ Levelᵢ = Levelᵢ
+  Inferable⇉ (Levelᵢ ok) = Levelᵢ
   Inferable⇉ zeroᵘᵢ = zeroᵘᵢ
   Inferable⇉ (sucᵘᵢ x) = sucᵘᵢ (Checkable⇇ x)
   Inferable⇉ (supᵘᵢ x x₁) = supᵘᵢ (Checkable⇇ x) (Checkable⇇ x₁)

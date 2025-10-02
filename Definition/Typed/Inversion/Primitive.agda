@@ -42,9 +42,11 @@ opaque
 
   -- Inversion for Level.
 
-  inversion-Level : Γ ⊢ Level ∷ A → Γ ⊢ A ≡ U zeroᵘ
-  inversion-Level (Levelⱼ ⊢Γ)      = refl (Uⱼ (zeroᵘⱼ ⊢Γ))
-  inversion-Level (conv ⊢Level eq) = trans (sym eq) (inversion-Level ⊢Level)
+  inversion-Level : Γ ⊢ Level ∷ A → Γ ⊢ A ≡ U zeroᵘ × Level-is-small
+  inversion-Level (Levelⱼ ⊢Γ ok)    = refl (Uⱼ (zeroᵘⱼ ⊢Γ)) , ok
+  inversion-Level (conv ⊢Level eq) =
+    let a , ok = inversion-Level ⊢Level
+    in trans (sym eq) a , ok
 
 opaque
 

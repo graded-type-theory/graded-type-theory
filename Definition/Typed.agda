@@ -81,7 +81,7 @@ mutual
               → x ∷ A ∈ Γ
               → Γ ⊢ var x ∷ A
 
-    Levelⱼ    : ⊢ Γ → Γ ⊢ Level ∷ U zeroᵘ
+    Levelⱼ    : ⊢ Γ → Level-is-small → Γ ⊢ Level ∷ U zeroᵘ
     zeroᵘⱼ    : ⊢ Γ
               → Γ ⊢ zeroᵘ ∷ Level
     sucᵘⱼ     : Γ ⊢ l ∷ Level

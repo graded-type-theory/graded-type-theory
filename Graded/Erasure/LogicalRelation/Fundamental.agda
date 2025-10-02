@@ -171,7 +171,7 @@ module Fundamental
       γ ▸ Γ ⊩ʳ t ∷[ m ] A
     fundamental {m = 𝟘ᵐ} ⊢t _ =
       ▸⊩ʳ∷[𝟘ᵐ]
-    fundamental (Levelⱼ ⊢Γ) _ =
+    fundamental (Levelⱼ ⊢Γ ok) _ =
       Levelʳ (zeroᵘⱼ ⊢Γ)
     fundamental (zeroᵘⱼ _) _ =
       zeroᵘʳ

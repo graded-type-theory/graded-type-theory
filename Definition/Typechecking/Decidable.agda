@@ -864,7 +864,10 @@ mutual
   -- Decidability of bi-directional type inference
 
   dec⇉ : ⊢ Γ → Inferable t → Dec (∃ λ A → Γ ⊢ t ⇉ A)
-  dec⇉ ⊢Γ Levelᵢ = yes (U zeroᵘ , Levelᵢ)
+  dec⇉ ⊢Γ Levelᵢ = case Level-is-small? of λ where
+    (yes ok) → yes (U zeroᵘ , Levelᵢ ok)
+    (no ¬ok) → no λ where
+      (_ , Levelᵢ ok) → ¬ok ok
   dec⇉ ⊢Γ zeroᵘᵢ = yes (Level , zeroᵘᵢ)
   dec⇉ ⊢Γ (sucᵘᵢ t) = case dec⇇ t (Levelⱼ ⊢Γ) of λ where
     (yes t⇇Level) → yes (_ , sucᵘᵢ t⇇Level)

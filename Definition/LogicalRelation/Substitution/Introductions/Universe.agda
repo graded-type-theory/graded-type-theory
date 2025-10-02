@@ -17,6 +17,7 @@ open EqRelSet {{...}}
 open Type-restrictions R
 
 open import Definition.Typed R
+open import Definition.Typed.Inversion R
 open import Definition.Typed.Properties R
 open import Definition.Typed.Well-formed R
 open import Definition.Untyped M
@@ -326,30 +327,33 @@ opaque
 
   -- A characterisation lemma for _⊩⟨_⟩_≡_∷_.
 
-  ⊩Level≡Level∷U⇔ : Γ ⊩⟨ ωᵘ ⟩ Level ≡ Level ∷ U zeroᵘ ⇔ ⊢ Γ
+  ⊩Level≡Level∷U⇔ : Γ ⊩⟨ ωᵘ ⟩ Level ≡ Level ∷ U zeroᵘ ⇔ (⊢ Γ × Level-is-small)
   ⊩Level≡Level∷U⇔ =
       (λ Level≡Level →
          case ⊩≡∷U⇔ .proj₁ Level≡Level of λ
            (_ , _ , _ , _ , _ , Level⇒* , _) →
-         wfEqTerm (subset*Term Level⇒*))
-    , (λ ⊢Γ →
-         case id (Levelⱼ ⊢Γ) of λ
+         case inversion-Level (redFirst*Term Level⇒*) of λ
+           (_ , ok) →
+         wfEqTerm (subset*Term Level⇒*) , ok)
+    , (λ (⊢Γ , ok) →
+         case id (Levelⱼ ⊢Γ ok) of λ
            Level⇒*Level →
          ⊩≡∷U⇔ .proj₂
            ( ⊩zeroᵘ ⊢Γ , <ᵘ-ωᵘ , ⊩Level≡⇔ .proj₂ (id (Levelⱼ ⊢Γ))
-           , (_ , _ , Level⇒*Level , Level⇒*Level , Levelₙ , Levelₙ , ≅ₜ-Levelrefl ⊢Γ)
+           , (_ , _ , Level⇒*Level , Level⇒*Level , Levelₙ , Levelₙ , ≅ₜ-Levelrefl ⊢Γ ok)
            ))
 
 opaque
 
   -- Validity of Level, seen as a term former.
 
-  Levelᵗᵛ : ⊩ᵛ Γ → Γ ⊩ᵛ⟨ ωᵘ ⟩ Level ∷ U zeroᵘ
-  Levelᵗᵛ {Γ} ⊩Γ =
+  Levelᵗᵛ : ⊩ᵛ Γ → Level-is-small → Γ ⊩ᵛ⟨ ωᵘ ⟩ Level ∷ U zeroᵘ
+  Levelᵗᵛ {Γ} ⊩Γ ok =
     ⊩ᵛ∷⇔ʰ .proj₂
       ( ⊩ᵛU (zeroᵘᵛ ⊩Γ)
       , λ {_} {Δ = Δ} {σ₁ = σ₁} {σ₂ = σ₂} →
           Δ ⊩ˢ σ₁ ≡ σ₂ ∷ Γ                   →⟨ proj₁ ∘→ escape-⊩ˢ≡∷ ⟩
-          ⊢ Δ                                ⇔˘⟨ ⊩Level≡Level∷U⇔ ⟩→
+          ⊢ Δ                                →⟨ _, ok ⟩
+          ⊢ Δ × Level-is-small               ⇔˘⟨ ⊩Level≡Level∷U⇔ ⟩→
           Δ ⊩⟨ ωᵘ ⟩ Level ≡ Level ∷ U zeroᵘ  □
       )

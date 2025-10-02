@@ -38,6 +38,13 @@ record Type-restrictions : Set (lsuc a) where
   open Type-variant type-variant public
 
   field
+    -- Is Level an element of U 0 ?
+    Level-is-small : Set a
+
+    -- Level-is-small is decided.
+    Level-is-small? : Dec Level-is-small
+
+  field
     -- Unit types of either variant are only allowed if the given
     -- predicate holds.
     Unit-allowed : Strength → Set a

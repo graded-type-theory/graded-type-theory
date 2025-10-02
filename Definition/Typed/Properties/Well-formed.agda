@@ -169,7 +169,7 @@ private module Lemmas where
     wfTerm-<ˢ′ hyp = λ where
         (conv ⊢t _)           PE.refl → fix (wfTerm-<ˢ ⊢t)
         (var ⊢Γ _)            _       → ⊢Γ , !
-        (Levelⱼ ⊢Γ)           _       → ⊢Γ , !
+        (Levelⱼ ⊢Γ _)         _       → ⊢Γ , !
         (zeroᵘⱼ ⊢Γ)           _       → ⊢Γ , !
         (sucᵘⱼ t)             PE.refl → fix (wfTerm-<ˢ t)
         (supᵘⱼ t u)           PE.refl → fix (wfTerm-<ˢ t)

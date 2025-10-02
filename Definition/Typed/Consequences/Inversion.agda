@@ -175,7 +175,7 @@ opaque
       let _ , _ , A≡Level = inversion-supᵘ ⊢t in
       ⊥-elim (Level≢ΠΣⱼ (sym A≡Level))
     Levelₙ →
-      ⊥-elim (U≢ΠΣⱼ (sym (inversion-Level ⊢t)))
+      ⊥-elim (U≢ΠΣⱼ (sym (inversion-Level ⊢t .proj₁)))
     zeroᵘₙ →
       ⊥-elim (Level≢ΠΣⱼ (sym (inversion-zeroᵘ ⊢t)))
     sucᵘₙ →
@@ -234,7 +234,7 @@ opaque
       let _ , _ , A≡Level = inversion-supᵘ ⊢t in
       ⊥-elim (Level≢Unitⱼ (sym A≡Level))
     Levelₙ →
-      ⊥-elim (U≢Unitⱼ (sym (inversion-Level ⊢t)))
+      ⊥-elim (U≢Unitⱼ (sym (inversion-Level ⊢t .proj₁)))
     zeroᵘₙ →
       ⊥-elim (Level≢Unitⱼ (sym (inversion-zeroᵘ ⊢t)))
     sucᵘₙ →

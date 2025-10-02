@@ -41,6 +41,10 @@ record Are-preserving-type-restrictions
     module R₂ = Type-restrictions R₂
 
   field
+    -- R₁.Level-is-small implies R₂.Level-is-small
+    Level-is-small-preserved
+      : R₁.Level-is-small → R₂.Level-is-small
+
     -- R₁.Unitʷ-η implies R₂.Unitʷ-η.
     Unitʷ-η-preserved :
       R₁.Unitʷ-η → R₂.Unitʷ-η
@@ -84,6 +88,10 @@ record Are-reflecting-type-restrictions
     module R₂ = Type-restrictions R₂
 
   field
+    -- R₂.Level-is-small implies R₁.Level-is-small
+    Level-is-small-reflected :
+      R₂.Level-is-small → R₁.Level-is-small
+
     -- R₂.Unitʷ-η implies R₁.Unitʷ-η.
     Unitʷ-η-reflected :
       R₂.Unitʷ-η → R₁.Unitʷ-η
@@ -122,6 +130,7 @@ record Are-reflecting-type-restrictions
 Are-preserving-type-restrictions-id :
   Are-preserving-type-restrictions R R idᶠ idᶠ
 Are-preserving-type-restrictions-id {R = R} = λ where
+    .Level-is-small-preserved      → idᶠ
     .Unitʷ-η-preserved             → idᶠ
     .Unit-preserved                → idᶠ
     .ΠΣ-preserved {b = BMΠ}        → idᶠ
@@ -139,6 +148,7 @@ Are-preserving-type-restrictions-id {R = R} = λ where
 Are-reflecting-type-restrictions-id :
   Are-reflecting-type-restrictions R R idᶠ idᶠ
 Are-reflecting-type-restrictions-id {R = R} = λ where
+    .Level-is-small-reflected      → idᶠ
     .Unitʷ-η-reflected             → idᶠ
     .Unit-reflected                → idᶠ
     .ΠΣ-reflected {b = BMΠ}        → idᶠ
@@ -161,6 +171,8 @@ Are-preserving-type-restrictions-∘ :
   Are-preserving-type-restrictions
     R₁ R₃ (tr₁ ∘→ tr₂) (tr-Σ₁ ∘→ tr-Σ₂)
 Are-preserving-type-restrictions-∘ m₁ m₂ = λ where
+    .Level-is-small-preserved →
+      M₁.Level-is-small-preserved ∘→ M₂.Level-is-small-preserved
     .Unitʷ-η-preserved →
       M₁.Unitʷ-η-preserved ∘→ M₂.Unitʷ-η-preserved
     .Unit-preserved →
@@ -188,6 +200,8 @@ Are-reflecting-type-restrictions-∘ :
   Are-reflecting-type-restrictions R₁ R₂ tr₂ tr-Σ₂ →
   Are-reflecting-type-restrictions R₁ R₃ (tr₁ ∘→ tr₂) (tr-Σ₁ ∘→ tr-Σ₂)
 Are-reflecting-type-restrictions-∘ m₁ m₂ = λ where
+    .Level-is-small-reflected →
+      M₂.Level-is-small-reflected ∘→ M₁.Level-is-small-reflected
     .Unitʷ-η-reflected →
       M₂.Unitʷ-η-reflected ∘→ M₁.Unitʷ-η-reflected
     .Unit-reflected →

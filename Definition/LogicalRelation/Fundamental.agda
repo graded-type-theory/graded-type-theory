@@ -104,8 +104,8 @@ opaque mutual
 
   -- Fundamental theorem for terms.
   fundamental-⊩ᵛ∷ : Γ ⊢ t ∷ A → ∃ λ l → Γ ⊩ᵛ⟨ l ⟩ t ∷ A
-  fundamental-⊩ᵛ∷ (Levelⱼ ⊢Γ) =
-    _ , Levelᵗᵛ (valid ⊢Γ)
+  fundamental-⊩ᵛ∷ (Levelⱼ ⊢Γ ok) =
+    _ , Levelᵗᵛ (valid ⊢Γ) ok
   fundamental-⊩ᵛ∷ (zeroᵘⱼ ⊢Γ) =
     0ᵘ , zeroᵘᵛ (valid ⊢Γ)
   fundamental-⊩ᵛ∷ (sucᵘⱼ ⊢l) =

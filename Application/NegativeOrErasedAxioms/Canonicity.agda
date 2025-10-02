@@ -256,7 +256,7 @@ neNeg (zeroⱼ _)       ()
 neNeg (sucⱼ _)        ()
 neNeg (Idⱼ _ _ _)     ()
 neNeg (rflⱼ _)        ()
-neNeg (Levelⱼ _)      ()
+neNeg (Levelⱼ _ _)    ()
 neNeg (zeroᵘⱼ _)      ()
 neNeg (sucᵘⱼ _)       ()
 neNeg (supᵘⱼ _ _)     ()
@@ -295,7 +295,7 @@ nfN (conv d c) γ▸u nΓγ n c' =
 -- Impossible cases: type is not ℕ.
 
 -- * Canonical types
-nfN (Levelⱼ _)  _ _ Levelₙ      c = ⊥-elim (U≢ℕ c)
+nfN (Levelⱼ _ _)  _ _ Levelₙ      c = ⊥-elim (U≢ℕ c)
 nfN (Liftⱼ _ _ _) _ _ (Liftₙ _ _) c = ⊥-elim (U≢ℕ c)
 nfN (Uⱼ _)      _ _ (Uₙ _)      c = ⊥-elim (U≢ℕ c)
 nfN (ΠΣⱼ _ _ _ _) _ _ (ΠΣₙ _ _) c = ⊥-elim (U≢ℕ c)

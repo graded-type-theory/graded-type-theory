@@ -919,8 +919,8 @@ private module Inhabited where
           (subst-⊢≡ B≡A (refl-⊢ˢʷ≡∷ ⊢σ))
       (var _ x∈) _ →
         subst-∷∈→⊢∷ x∈ ⊢σ
-      (Levelⱼ _) _ →
-        Levelⱼ (wf-⊢ˢʷ∷ ⊢σ)
+      (Levelⱼ _ ok) _ →
+        Levelⱼ (wf-⊢ˢʷ∷ ⊢σ) ok
       (zeroᵘⱼ _) _ →
         zeroᵘⱼ (wf-⊢ˢʷ∷ ⊢σ)
       (sucᵘⱼ ⊢t) PE.refl →
@@ -1036,8 +1036,8 @@ private module Inhabited where
            refl-⊢ˢʷ≡∷ (wf-⊢ˢʷ≡∷ σ₁≡σ₂ .proj₂ .proj₁))
       (var _ x∈) _ →
         subst-∷∈→⊢≡∷ x∈ σ₁≡σ₂
-      (Levelⱼ _) _ →
-        refl (Levelⱼ (wf-⊢ˢʷ≡∷ σ₁≡σ₂ .proj₁))
+      (Levelⱼ _ ok) _ →
+        refl (Levelⱼ (wf-⊢ˢʷ≡∷ σ₁≡σ₂ .proj₁) ok)
       (zeroᵘⱼ _) _ →
         refl (zeroᵘⱼ (wf-⊢ˢʷ≡∷ σ₁≡σ₂ .proj₁))
       (sucᵘⱼ ⊢t) PE.refl →

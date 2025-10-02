@@ -429,7 +429,9 @@ private opaque
     .Equality-relations.≅ₜ-red   →
       λ (A⇒* , _) (t⇒* , _) (u⇒* , _) → reductionConv↑Term A⇒* t⇒* u⇒*
     .Equality-relations.≅ₜ-Levelrefl →
-      λ x → liftConvTerm (univ (Levelⱼ x) (Levelⱼ x) (Level-refl x))
+      λ x ok → liftConvTerm (univ (Levelⱼ x ok) (Levelⱼ x ok) (Level-refl x))
+    .Equality-relations.≅-Levelrefl →
+      λ x → liftConv (Level-refl x)
     .Equality-relations.≅ₜ-zeroᵘrefl →
       liftConvTerm ∘ᶠ Level-ins ∘ᶠ ≅ₜ-zeroᵘrefl
     .Equality-relations.≅ₜ-sucᵘ-cong →

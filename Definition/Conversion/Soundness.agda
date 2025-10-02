@@ -212,8 +212,8 @@ mutual
   soundnessConv↓-U {l₁} {l₂} ⊢Level₁ ⊢Level₂ (Level-refl _) =
       refl ⊢Level₁
     , U-injectivity
-        (U l₁     ≡⟨ inversion-Level ⊢Level₁ ⟩⊢
-         U zeroᵘ  ≡˘⟨ inversion-Level ⊢Level₂ ⟩⊢∎
+        (U l₁     ≡⟨ inversion-Level ⊢Level₁ .proj₁ ⟩⊢
+         U zeroᵘ  ≡˘⟨ inversion-Level ⊢Level₂ .proj₁ ⟩⊢∎
          U l₂     ∎)
     where
     open TyR

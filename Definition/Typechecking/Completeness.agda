@@ -143,7 +143,9 @@ mutual
   -- Completeness of type inference
 
   completeness⇉ : Inferable t → Γ ⊢ t ∷ A → ∃ λ B → Γ ⊢ t ⇉ B × Γ ⊢ A ≡ B
-  completeness⇉ Levelᵢ ⊢t = _ , Levelᵢ , inversion-Level ⊢t
+  completeness⇉ Levelᵢ ⊢t =
+    let A≡ , ok = inversion-Level ⊢t
+    in _ , Levelᵢ ok , A≡
   completeness⇉ zeroᵘᵢ ⊢t = _ , zeroᵘᵢ , inversion-zeroᵘ ⊢t
   completeness⇉ (sucᵘᵢ t) ⊢t =
     let ⊢t , A≡Level = inversion-sucᵘ ⊢t

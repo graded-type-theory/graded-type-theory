@@ -109,7 +109,8 @@ opaque
     subst₃ T-η._⊢_∷_ tr-Con-id tr-Term-id tr-Term-id $
     QT.tr-⊢∷ TR TR-η idᶠ idᶠ m (Is-morphism→Is-Σ-morphism m)
       (record
-         { Unit-preserved = idᶠ
+         { Level-is-small-preserved = idᶠ
+         ; Unit-preserved = idᶠ
          ; ΠΣ-preserved   =
              λ {b = b} →
                subst (flip (ΠΣ-allowed _) _) $

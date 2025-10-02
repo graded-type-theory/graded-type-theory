@@ -326,8 +326,8 @@ private module Inhabited where
           conv (wkTerm ρ⊇ ⊢Δ ⊢t) (wkEq ρ⊇ ⊢Δ B≡A)
         (var _ x∈) _ →
           var ⊢Δ (wkIndex ρ⊇ x∈)
-        (Levelⱼ _) _ →
-          Levelⱼ ⊢Δ
+        (Levelⱼ _ ok) _ →
+          Levelⱼ ⊢Δ ok
         (zeroᵘⱼ _) _ →
           zeroᵘⱼ ⊢Δ
         (sucᵘⱼ ⊢t) PE.refl →

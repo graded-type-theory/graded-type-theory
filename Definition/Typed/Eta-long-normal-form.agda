@@ -99,6 +99,7 @@ mutual
              Γ ⊢ A ≡ B →
              Γ ⊢nf t ∷ B
     Levelₙ : ⊢ Γ →
+             Level-is-small →
              Γ ⊢nf Level ∷ U zeroᵘ
     zeroᵘₙ : ⊢ Γ →
              Γ ⊢nf zeroᵘ ∷ Level
@@ -252,7 +253,7 @@ mutual
 
   ⊢nf∷→⊢∷ : Γ ⊢nf t ∷ A → Γ ⊢ t ∷ A
   ⊢nf∷→⊢∷ = λ where
-    (Levelₙ ⊢Γ)         → Levelⱼ ⊢Γ
+    (Levelₙ ⊢Γ ok)      → Levelⱼ ⊢Γ ok
     (zeroᵘₙ ⊢Γ)         → zeroᵘⱼ ⊢Γ
     (sucᵘₙ ⊢t)          → sucᵘⱼ (⊢nf∷→⊢∷ ⊢t)
     (convₙ ⊢t A≡B)      → conv (⊢nf∷→⊢∷ ⊢t) A≡B
@@ -324,7 +325,7 @@ mutual
   ⊢nf∷→Nf : Γ ⊢nf t ∷ A → Nf t
   ⊢nf∷→Nf = λ where
     (convₙ ⊢t _)      → ⊢nf∷→Nf ⊢t
-    (Levelₙ _)        → Levelₙ
+    (Levelₙ _ _)      → Levelₙ
     (zeroᵘₙ _)        → zeroᵘₙ
     (sucᵘₙ ⊢t)        → sucᵘₙ (⊢nf∷→Nf ⊢t)
     (Uₙ ⊢l)           → Uₙ (⊢nf∷→Nf ⊢l)
@@ -391,7 +392,8 @@ opaque
     Γ ⊢nf A → Γ ⊢ A ∷ U l → Γ ⊢nf A ∷ U l
   ⊢nf∷U→⊢nf∷U = λ where
     (Levelₙ ⊢Γ) ⊢Level →
-      convₙ (Levelₙ ⊢Γ) (sym $ inversion-Level ⊢Level)
+      let A≡ , ok = inversion-Level ⊢Level
+      in convₙ (Levelₙ ⊢Γ ok) (sym A≡)
     (Uₙ ⊢Γ) ⊢U →
       convₙ (Uₙ ⊢Γ) (sym $ inversion-U ⊢U)
     (univₙ ⊢A) ⊢A∷U →
@@ -448,7 +450,7 @@ mutual
       (convₙ ⊢t B≡A) → convₙ
         (⊢nf∷-stable Γ≡Δ ⊢t)
         (stabilityEq Γ≡Δ B≡A)
-      (Levelₙ ⊢Γ)   → Levelₙ ⊢Δ
+      (Levelₙ ⊢Γ ok) → Levelₙ ⊢Δ ok
       (zeroᵘₙ ⊢Γ)   → zeroᵘₙ ⊢Δ
       (sucᵘₙ ⊢t)    → sucᵘₙ
         (⊢nf∷-stable Γ≡Δ ⊢t)
@@ -1134,7 +1136,7 @@ opaque
       ⊢nf∷Π→Neutral→⊥′ ⊢t (trans B≡A A≡Σ) t-ne
     (neₙ A-no-η _) A≡Π _ →
       No-η-equality→≢Π A-no-η A≡Π
-    (Levelₙ _)      _ ()
+    (Levelₙ _ _)    _ ()
     (zeroᵘₙ _)      _ ()
     (sucᵘₙ _)       _ ()
     (Uₙ _)          _ ()
@@ -1168,7 +1170,7 @@ opaque
       ⊢nf∷Σˢ→Neutral→⊥′ ⊢t (trans B≡A A≡Σ) t-ne
     (neₙ A-no-η _) A≡Σ _ →
       No-η-equality→≢Σˢ A-no-η A≡Σ
-    (Levelₙ _)      _ ()
+    (Levelₙ _ _)    _ ()
     (zeroᵘₙ _)      _ ()
     (sucᵘₙ _)       _ ()
     (Uₙ _)          _ ()
@@ -1204,7 +1206,7 @@ opaque
       refl (starⱼ ⊢Γ ok) }
     (convₙ ⊢t ≡A)   → ⊢nf∷Unitˢ→≡starˢ′ (trans ≡A A≡Unit) ⊢t
     (neₙ A-no-η _)  → ⊥-elim (No-η-equality→≢Unit A-no-η A≡Unit ok)
-    (Levelₙ _)      → ⊥-elim (U≢Unitⱼ A≡Unit)
+    (Levelₙ _ _)    → ⊥-elim (U≢Unitⱼ A≡Unit)
     (zeroᵘₙ _)      → ⊥-elim (Level≢Unitⱼ A≡Unit)
     (sucᵘₙ _)       → ⊥-elim (Level≢Unitⱼ A≡Unit)
     (Uₙ _)          → ⊥-elim (U≢Unitⱼ A≡Unit)

@@ -60,7 +60,7 @@ opaque mutual
       ⊢A
     (var ⊢Γ x∈) →
       wf-∷∈ x∈ ⊢Γ
-    (Levelⱼ ⊢Γ) →
+    (Levelⱼ ⊢Γ ok) →
       Uⱼ (zeroᵘⱼ ⊢Γ)
     (zeroᵘⱼ ⊢Γ) →
       Levelⱼ ⊢Γ
