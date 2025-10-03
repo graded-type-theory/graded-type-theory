@@ -41,18 +41,20 @@ open import Definition.LogicalRelation.Unary R
 open import Tools.Empty
 open import Tools.Fin
 open import Tools.Function
+open import Tools.Level
 open import Tools.Nat using (Nat)
 open import Tools.Product
 import Tools.PropositionalEquality as PE
 open import Tools.Relation
 open import Tools.Sum
+open import Tools.Unit
 
 private
   variable
     ∇ : DCon (Term 0) _
     Δ : Con Term _
     Γ : Cons _ _
-    A B C t u v : Term _
+    A B C t u v w : Term _
     p q : M
     b : BinderMode
     m s : Strength
@@ -176,6 +178,28 @@ opaque
          (rflᵣ _)    → rflₙ
          (ne w-ne _) → ne w-ne)
     , t⇒*w
+
+opaque
+
+  -- A variant of red-Id.
+
+  red-Id′ :
+    ⦃ ok : No-equality-reflection or-empty (Γ .vars) ⦄ →
+    Γ ⊢ t ∷ Id A u v →
+    ∃ λ w → Γ ⊢ t ⇒* w ∷ Id A u v ×
+      ∃ λ (w-id : Identity No-equality-reflection (Γ .defs) w) →
+      Identity-rec w-id (Γ ⊢ u ≡ v ∷ A) (Lift _ ⊤)
+  red-Id′ {Γ} ⊢t =
+    let _ , w-id , t⇒*w = red-Id ⊢t in
+    _ , t⇒*w , w-id ,
+    lemma (wf-⊢≡∷ (subset*Term t⇒*w) .proj₂ .proj₂) w-id
+    where
+    lemma :
+      Γ ⊢ w ∷ Id A u v →
+      (w-id : Identity No-equality-reflection (Γ .defs) w) →
+      Identity-rec w-id (Γ ⊢ u ≡ v ∷ A) (Lift _ ⊤)
+    lemma ⊢w rflₙ   = inversion-rfl-Id ⊢w
+    lemma ⊢w (ne _) = _
 
 -- Helper function where all reducible types can be reduced to WHNF.
 whNorm′ : ∀ {A l} ([A] : Γ ⊩⟨ l ⟩ A)
