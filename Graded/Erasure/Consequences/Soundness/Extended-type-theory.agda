@@ -20,6 +20,7 @@ open Type-restrictions TR
 import Definition.Typed
 open Definition.Typed TR
 import Definition.Typed.Properties
+import Definition.Typed.Properties.Definition
 import Definition.Typed.Substitution
 
 open import Definition.Untyped M
@@ -156,13 +157,27 @@ record Extended-type-theory : Set (lsuc a) where
     -- A function translating from terms to extended terms.
     tr : Term n → Termᴱ n
 
+    -- A translation for definition contexts.
+    tr-DCon : DCon (Term 0) n → DCon (Termᴱ 0) n
+
+  -- A translation for context pairs.
+
+  tr-Cons : Context-pair Term k n → Context-pair Termᴱ k n
+  tr-Cons (∇ » Γ) = tr-DCon ∇ » map-Con tr Γ
+
+  field
     -- The result of applying a substitution to tr ℕ is tr ℕ.
     tr-ℕ-[]ᴱ :
       {σ : Substᴱ l n} →
       tr ℕ [ σ ]ᴱ PE.≡ tr ℕ
 
+    -- The definition context glassify (tr-DCon ∇) is equal to
+    -- glassify (map-DCon tr ∇).
+    glassify-tr-DCon :
+      glassify (tr-DCon ∇) PE.≡ glassify (map-DCon tr ∇)
+
     -- The translation is type-preserving.
-    tr-⊢∷ : Γ ⊢ t ∷ A → map-Cons tr Γ ⊢ᴱ tr t ∷ tr A
+    tr-⊢∷ : Γ ⊢ t ∷ A → tr-Cons Γ ⊢ᴱ tr t ∷ tr A
 
     -- The translation is usage-preserving.
     tr-▸ : γ ▸[ m ] t → γ ▸ᴱ[ m ] tr t
@@ -206,11 +221,25 @@ record Extended-type-theory : Set (lsuc a) where
 
     -- Extraction is not affected by translation.
 
-    eraseDConᴱ-tr : eraseDConᴱ str (map-DCon tr ∇) PE.≡ eraseDCon str ∇
-    eraseDConᴱ-tr {∇ = ε} = PE.refl
-    eraseDConᴱ-tr {∇ = ∇ ∙⟨ x ⟩[ x₁ ∷ x₂ ]} =
-      PE.cong₂ L._++_ (eraseDConᴱ-tr {∇ = ∇})
+    eraseDConᴱ-map-DCon-tr :
+      eraseDConᴱ str (map-DCon tr ∇) PE.≡ eraseDCon str ∇
+    eraseDConᴱ-map-DCon-tr {∇ = ε} =
+      PE.refl
+    eraseDConᴱ-map-DCon-tr {∇ = ∇ ∙⟨ _ ⟩[ _ ∷ _ ]} =
+      PE.cong₂ L._++_ (eraseDConᴱ-map-DCon-tr {∇ = ∇})
         (PE.cong (L._∷ _) eraseᴱ-tr)
+
+  opaque
+
+    -- Extraction is not affected by translation.
+
+    eraseDConᴱ-tr-DCon : eraseDConᴱ str (tr-DCon ∇) PE.≡ eraseDCon str ∇
+    eraseDConᴱ-tr-DCon {str} {∇} =
+      eraseDConᴱ str (tr-DCon ∇)                 ≡˘⟨ eraseDCon″-glassify ⟩
+      eraseDConᴱ str (glassify (tr-DCon ∇))      ≡⟨ PE.cong (eraseDConᴱ _) glassify-tr-DCon ⟩
+      eraseDConᴱ str (glassify (map-DCon tr ∇))  ≡⟨ eraseDCon″-glassify ⟩
+      eraseDConᴱ str (map-DCon tr ∇)             ≡⟨ eraseDConᴱ-map-DCon-tr ⟩
+      eraseDCon str ∇                            ∎
 
   opaque
 
@@ -223,7 +252,7 @@ record Extended-type-theory : Set (lsuc a) where
     soundness-ℕ :
       {σ : Substᴱ 0 n}
       ⦃ 𝟘-well-behaved : Has-well-behaved-zero semiring-with-meet ⦄ →
-      map-DCon tr ∇ » ε ⊢ˢᴱ σ ∷ map-Con tr Δ →
+      tr-DCon ∇ » ε ⊢ˢᴱ σ ∷ map-Con tr Δ →
       ((x : Fin n) → ε ▸ᴱ[ 𝟘ᵐ? ] σ x) →
       ∇ » Δ ⊢ t ∷ ℕ →
       ▸[ 𝟙ᵐ ] glassify ∇ →
@@ -232,25 +261,29 @@ record Extended-type-theory : Set (lsuc a) where
         map-DCon tr (glassify ∇) » ε ⊢ᴱ
           tr t [ σ ]ᴱ ≡ tr (sucᵏ n) ∷ tr ℕ ×
         eraseDCon str ∇ ⊢ erase str t ⇒ˢ⟨ str ⟩* T.sucᵏ n
-    soundness-ℕ {t} {str} {σ} ⊢σ ▸σ ⊢t ▸∇ ▸t =
-      let n , eq , red =
+    soundness-ℕ {∇} {t} {str} {σ} ⊢σ ▸σ ⊢t ▸∇ ▸t =
+      let lemma =
+            glassify (tr-DCon ∇)      ≡⟨ glassify-tr-DCon ⟩
+            glassify (map-DCon tr ∇)  ≡⟨ glassify-map-DCon ⟩
+            map-DCon tr (glassify ∇)  ∎
+
+          n , eq , red =
             soundness-ℕᴱ
               (PE.subst (_⊢ᴱ_∷_ _ _) tr-ℕ-[]ᴱ $
                subst-⊢∷ᴱ (tr-⊢∷ ⊢t) ⊢σ)
               (λ α↦ →
                  case ↦∷∈-map-DCon $
-                      PE.subst (_↦_∷_∈_ _ _ _) glassify-map-DCon
-                        α↦ of λ {
+                      PE.subst (_↦_∷_∈_ _ _ _) lemma α↦ of λ {
                    (_ , _ , PE.refl , _ , α↦) →
                  tr-▸ (▸∇ α↦) })
               (subst-▸ᴱ ▸σ (tr-▸ ▸t))
       in
       n ,
       PE.subst₄ _⊢ᴱ_≡_∷_
-        (PE.cong (flip _»_ _) glassify-map-DCon) PE.refl PE.refl PE.refl
+        (PE.cong (flip _»_ _) lemma) PE.refl PE.refl PE.refl
         eq ,
       PE.subst₄ _⊢_⇒ˢ⟨_⟩*_
-        eraseDConᴱ-tr
+        eraseDConᴱ-tr-DCon
         (T.wk wk₀ (eraseᴱ str (tr t [ σ ]ᴱ))  ≡⟨ eraseᴱ-[]ᴱ (tr-▸ ▸t) ⟩
          eraseᴱ str (tr t)                    ≡⟨ eraseᴱ-tr ⟩
          erase str t                          ∎)
@@ -270,6 +303,7 @@ opaque
   Trivial-extended-type-theory = λ where
       .Termᴱ     → Term
       .tr        → idᶠ
+      .tr-DCon   → idᶠ
       .eraseᴱ    → erase
       ._⊢ᴱ_∷_    → _⊢_∷_
       ._⊢ᴱ_≡_∷_  → _⊢_≡_∷_
@@ -282,8 +316,10 @@ opaque
         substₘ-lemma-closed
       .tr-ℕ-[]ᴱ →
         PE.refl
+      .glassify-tr-DCon →
+        PE.cong glassify $ PE.sym map-DCon-id
       .tr-⊢∷ →
-        PE.subst (_⊢ _ ∷ _) (PE.sym map-Cons-id)
+        PE.subst (_⊢ _ ∷ _) $ PE.cong (_»_ _) $ PE.sym map-Con-id
       .tr-▸ →
         idᶠ
       .eraseᴱ-tr →
@@ -303,28 +339,43 @@ opaque
 -- An instance that uses equality reflection
 
 opaque
-  unfolding eraseDCon′ turn-on-equality-reflection
+  unfolding
+    turn-on-equality-reflection
+    eraseDCon′
+    Graded.Modify-box-cong-or-J.tr-DCon
+    Graded.Modify-box-cong-or-J.tr-Cons
 
   -- An instance that uses equality reflection.
 
-  Extended-type-theory-with-equality-reflection :
-    ¬ Opacity-allowed → Extended-type-theory
-  Extended-type-theory-with-equality-reflection no-opacity = λ where
-      .Termᴱ      → Term
-      .tr         → idᶠ
-      .eraseᴱ     → erase
-      ._⊢ᴱ_∷_     → DT._⊢_∷_
-      ._⊢ᴱ_≡_∷_   → DT._⊢_≡_∷_
-      ._▸ᴱ[_]_    → GU._▸[_]_
-      ._[_]ᴱ      → _[_]
-      ._⊢ˢᴱ_∷_    → _⊢ˢʷ_∷_
-      .subst-⊢∷ᴱ  → subst-⊢∷
-      .subst-▸ᴱ   → substₘ-lemma-closed
-      .tr-ℕ-[]ᴱ   → PE.refl
-      .eraseᴱ-tr  → PE.refl
-      .eraseᴱ-[]ᴱ → hasX.wk₀-erase-[] _
-      .tr-⊢∷      →
-        PE.subst₃ DT._⊢_∷_ (map-Cons-cong λ _ → tr-id) tr-id tr-id ∘→
+  Extended-type-theory-with-equality-reflection : Extended-type-theory
+  Extended-type-theory-with-equality-reflection = λ where
+      .Termᴱ                → Term
+      .tr                   → idᶠ
+      .tr-DCon              → glassify
+      .eraseᴱ               → erase
+      ._⊢ᴱ_∷_               → DT._⊢_∷_
+      ._⊢ᴱ_≡_∷_             → DT._⊢_≡_∷_
+      ._▸ᴱ[_]_              → GU._▸[_]_
+      ._[_]ᴱ                → _[_]
+      ._⊢ˢᴱ_∷_              → _⊢ˢʷ_∷_
+      .subst-⊢∷ᴱ            → subst-⊢∷
+      .subst-▸ᴱ             → substₘ-lemma-closed
+      .tr-ℕ-[]ᴱ             → PE.refl
+      .glassify-tr-DCon {∇} →
+        glassify (glassify ∇)      ≡⟨ DD.glassify-idem _ ⟩
+        glassify ∇                 ≡˘⟨ PE.cong glassify map-DCon-id ⟩
+        glassify (map-DCon idᶠ ∇)  ∎
+      .eraseᴱ-tr         → PE.refl
+      .eraseᴱ-[]ᴱ        → hasX.wk₀-erase-[] _
+      .tr-⊢∷ {Γ = ∇ » Γ} →
+        PE.subst₃ DT._⊢_∷_
+          (PE.cong₂ _»_
+             (glassify (map-DCon GM.tr ∇)  ≡⟨ PE.cong glassify $ GM.map-DCon-tr-id PE.refl PE.refl ⟩
+              glassify ∇                   ∎)
+             (map-Con GM.tr Γ  ≡⟨ GM.map-Con-tr-id PE.refl PE.refl ⟩
+              Γ                ≡˘⟨ map-Con-id ⟩
+              map-Con idᶠ Γ    ∎))
+          tr-id tr-id ∘→
         GM.tr-⊢∷
       .tr-▸ →
         PE.subst (GU._▸[_]_ _ _) tr-id ∘→ GM.tr-▸
@@ -332,14 +383,12 @@ opaque
         let _ , t⇒n , erase-t⇒n = Soundness₀.soundness-ℕ ▸∇ _ ⊢t ▸t in
         _ , GS.subset*Termˢ t⇒n , erase-t⇒n
     where
-    conf : Configuration
-    conf = turn-on-equality-reflection no-opacity
-
-    module Conf = Configuration conf
+    module Conf = Configuration turn-on-equality-reflection
 
     module DT = Definition.Typed Conf.TRₜ
+    module DD = Definition.Typed.Properties.Definition Conf.TRₜ
     module GS = Graded.Erasure.SucRed Conf.TRₜ
-    module GM = Graded.Modify-box-cong-or-J conf
+    module GM = Graded.Modify-box-cong-or-J turn-on-equality-reflection
     module GU = Graded.Usage 𝕄 Conf.URₜ
 
     open Definition.Typed.Substitution Conf.TRₜ
@@ -369,41 +418,28 @@ opaque
     in
     {σ : Subst 0 n}
     ⦃ 𝟘-well-behaved : Has-well-behaved-zero semiring-with-meet ⦄ →
-    ¬ Opacity-allowed →
-    ∇ » ε Extˢ.⊢ˢʷ σ ∷ Δ →
+    glassify ∇ » ε Extˢ.⊢ˢʷ σ ∷ Δ →
     ((x : Fin n) → ε ▸[ 𝟘ᵐ? ] σ x) →
     ∇ » Δ ⊢ t ∷ ℕ →
-    ▸[ 𝟙ᵐ ] ∇ →
+    ▸[ 𝟙ᵐ ] glassify ∇ →
     𝟘ᶜ ▸[ 𝟙ᵐ ] t →
     ∃ λ n →
-      ∇ » ε Ext.⊢ t [ σ ] ≡ sucᵏ n ∷ ℕ ×
+      glassify ∇ » ε Ext.⊢ t [ σ ] ≡ sucᵏ n ∷ ℕ ×
       eraseDCon str ∇ ⊢ erase str t ⇒ˢ⟨ str ⟩* T.sucᵏ n
-  soundness-ℕ-using-equality-reflection {∇} no-opacity ⊢σ ▸σ ⊢t ▸∇ ▸t =
-    let transparent = »→Transparent no-opacity (defn-wf (wfTerm ⊢t))
-
-        lemma =
-          map-DCon idᶠ (glassify ∇)  ≡⟨ map-DCon-id ⟩
-          glassify ∇                 ≡˘⟨ transparent ⟩
-          ∇                          ∎
-
-        _ , eq , d =
+  soundness-ℕ-using-equality-reflection {∇} ⊢σ ▸σ ⊢t ▸∇ ▸t =
+    let _ , eq , d =
           soundness-ℕ
-            (PE.subst₃ _⊢ˢᴱ_∷_
-               (PE.sym map-Cons-id) PE.refl (PE.sym map-Con-id)
-               ⊢σ)
-            ▸σ ⊢t
-            (PE.subst (▸[ _ ]_) transparent ▸∇) ▸t
+            (PE.subst (_⊢ˢᴱ_∷_ _ _) (PE.sym map-Con-id) ⊢σ)
+            ▸σ ⊢t ▸∇ ▸t
     in
     _ ,
     PE.subst₄ _⊢ᴱ_≡_∷_
-      (PE.cong (flip _»_ _) lemma) PE.refl PE.refl PE.refl
+      (PE.cong (flip _»_ _) map-DCon-id) PE.refl PE.refl PE.refl
       eq ,
     d
     where
-    open Definition.Typed.Properties TR
     open Extended-type-theory
-           (Extended-type-theory-with-equality-reflection
-              no-opacity)
+           Extended-type-theory-with-equality-reflection
 
 opaque
   unfolding Extended-type-theory-with-equality-reflection
@@ -416,20 +452,19 @@ opaque
   soundness-ℕ-with-function-extensionality :
     let module Ext = Definition.Typed (with-equality-reflection TR) in
     ⦃ 𝟘-well-behaved : Has-well-behaved-zero semiring-with-meet ⦄ →
-    ¬ Opacity-allowed →
     Π-allowed p q →
     Π-allowed p′ q′ →
     ⌜ 𝟘ᵐ? ⌝ · p ≤ 𝟘 →
     ⌜ 𝟘ᵐ? ⌝ · p′ ≤ 𝟘 →
     ∇ » ε ∙ Funext p q p′ q′ l₁ l₂ ⊢ t ∷ ℕ →
-    ▸[ 𝟙ᵐ ] ∇ →
+    ▸[ 𝟙ᵐ ] glassify ∇ →
     𝟘ᶜ ▸[ 𝟙ᵐ ] t →
     ∃ λ n →
-      ∇ » ε Ext.⊢ t [ funext p p′ ]₀ ≡ sucᵏ n ∷ ℕ ×
+      glassify ∇ » ε Ext.⊢ t [ funext p p′ ]₀ ≡ sucᵏ n ∷ ℕ ×
       eraseDCon str ∇ ⊢ erase str t ⇒ˢ⟨ str ⟩* T.sucᵏ n
   soundness-ℕ-with-function-extensionality
-    {∇} no-opacity Π-ok Π-ok′ ·p≤𝟘 ·p′≤𝟘 ⊢t =
-    soundness-ℕ-using-equality-reflection no-opacity
+    {∇} Π-ok Π-ok′ ·p≤𝟘 ·p′≤𝟘 ⊢t =
+    soundness-ℕ-using-equality-reflection
       (⊢ˢʷ∷-sgSubst $ ⊢funext _ Π-ok Π-ok′ (DT.ε »∇))
       (λ { x0 → ▸funext ·p≤𝟘 ·p′≤𝟘; (() +1) })
       ⊢t
@@ -442,12 +477,10 @@ opaque
     open Definition.Typed.Properties TR′
     open Definition.Typed.Substitution TR′
     open Extended-type-theory
-           (Extended-type-theory-with-equality-reflection no-opacity)
+           Extended-type-theory-with-equality-reflection
 
-    »∇ : DT.» ∇
-    »∇ =
-      PE.subst DT.»_ map-DCon-id $
-      defn-wf (wfTerm (tr-⊢∷ ⊢t))
+    »∇ : DT.» glassify ∇
+    »∇ = defn-wf (wfTerm (tr-⊢∷ ⊢t))
 
 opaque
 
@@ -457,20 +490,17 @@ opaque
   soundness-ℕ-with-function-extensionality-𝟘ᵐ :
     let module Ext = Definition.Typed (with-equality-reflection TR) in
     ⦃ ok : T 𝟘ᵐ-allowed ⦄ →
-    ¬ Opacity-allowed →
     Π-allowed p q →
     Π-allowed p′ q′ →
     ∇ » ε ∙ Funext p q p′ q′ l₁ l₂ ⊢ t ∷ ℕ →
-    ▸[ 𝟙ᵐ ] ∇ →
+    ▸[ 𝟙ᵐ ] glassify ∇ →
     𝟘ᶜ ▸[ 𝟙ᵐ ] t →
     ∃ λ n →
-      ∇ » ε Ext.⊢ t [ funext p p′ ]₀ ≡ sucᵏ n ∷ ℕ ×
+      glassify ∇ » ε Ext.⊢ t [ funext p p′ ]₀ ≡ sucᵏ n ∷ ℕ ×
       eraseDCon str ∇ ⊢ erase str t ⇒ˢ⟨ str ⟩* T.sucᵏ n
-  soundness-ℕ-with-function-extensionality-𝟘ᵐ
-    ⦃ ok ⦄ no-opacity Π-ok Π-ok′ =
+  soundness-ℕ-with-function-extensionality-𝟘ᵐ ⦃ ok ⦄ Π-ok Π-ok′ =
     soundness-ℕ-with-function-extensionality
-      ⦃ 𝟘-well-behaved = 𝟘-well-behaved ok ⦄ no-opacity Π-ok Π-ok′
-      lemma lemma
+      ⦃ 𝟘-well-behaved = 𝟘-well-behaved ok ⦄ Π-ok Π-ok′ lemma lemma
     where
     lemma : ⌜ 𝟘ᵐ? ⌝ · p ≤ 𝟘
     lemma {p} = ≤-reflexive

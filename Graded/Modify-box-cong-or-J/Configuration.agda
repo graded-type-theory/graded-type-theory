@@ -82,7 +82,13 @@ private variable
 record Configuration : Set (lsuc a) where
   field
     -- Should preservation of reduction be proved?
+
     preservation-of-reduction : Bool
+
+    -- Should the type preservation results be stated using glassified
+    -- definition contexts in the conclusions?
+
+    glassification : Bool
 
     -- The type and usage restrictions used for the target of the
     -- translation.
@@ -103,6 +109,7 @@ record Configuration : Set (lsuc a) where
     -- Some assumptions related to type restrictions.
 
     Opacity-allowed-→ :
+      ¬ T glassification →
       TRₛ.Opacity-allowed → TRₜ.Opacity-allowed
     unfolding-mode-≡ :
       TRₛ.unfolding-mode PE.≡ TRₜ.unfolding-mode
@@ -502,9 +509,10 @@ opaque
     Configuration
   remove-[]-cong 𝟘ᵐ-ok = λ where
       .preservation-of-reduction    → true
+      .glassification               → false
       .Configuration.TRₜ            → TRₜ
       .Configuration.URₜ            → URₜ
-      .Opacity-allowed-→            → idᶠ
+      .Opacity-allowed-→ _          → idᶠ
       .unfolding-mode-≡             → PE.refl
       .Unit-allowed-→               → idᶠ
       .η-for-Unitʷ-≡                → PE.refl
@@ -588,9 +596,10 @@ opaque
     Configuration
   remove-J-𝟘-𝟘 ⦃ ok = 𝟘ᵐ-ok ⦄ ≤some = λ where
       .preservation-of-reduction         → false
+      .glassification                    → false
       .Configuration.TRₜ                 → TRₜ
       .Configuration.URₜ                 → URₜ
-      .Opacity-allowed-→                 → idᶠ
+      .Opacity-allowed-→ _               → idᶠ
       .unfolding-mode-≡                  → PE.refl
       .Unit-allowed-→                    → inj₁
       .η-for-Unitʷ-≡                     → PE.refl
@@ -816,16 +825,14 @@ opaque
 
   -- A translation that replaces every occurrence of []-cong with rfl
   -- and turns on equality reflection.
-  --
-  -- The translation uses the assumption that opacity is not allowed
-  -- (according to TRₛ).
 
-  replace-[]-cong-with-rfl : ¬ TRₛ .Opacity-allowed → Configuration
-  replace-[]-cong-with-rfl no-opacity = λ where
+  replace-[]-cong-with-rfl : Configuration
+  replace-[]-cong-with-rfl = λ where
       .preservation-of-reduction    → true
+      .glassification               → true
       .Configuration.TRₜ            → TRₜ
       .Configuration.URₜ            → URₜ
-      .Opacity-allowed-→            → ⊥-elim ∘→ no-opacity
+      .Opacity-allowed-→ ¬⊤         → ⊥-elim (¬⊤ _)
       .unfolding-mode-≡             → PE.refl
       .Unit-allowed-→               → idᶠ
       .η-for-Unitʷ-≡                → PE.refl
@@ -887,16 +894,14 @@ opaque
 
   -- A translation that only turns on equality reflection, no changes
   -- are made to the terms.
-  --
-  -- The translation uses the assumption that opacity is not allowed
-  -- (according to TRₛ).
 
-  turn-on-equality-reflection : ¬ TRₛ .Opacity-allowed → Configuration
-  turn-on-equality-reflection no-opacity = λ where
+  turn-on-equality-reflection : Configuration
+  turn-on-equality-reflection = λ where
       .preservation-of-reduction → true
+      .glassification            → true
       .Configuration.TRₜ         → TRₜ
       .Configuration.URₜ         → URₛ
-      .Opacity-allowed-→         → ⊥-elim ∘→ no-opacity
+      .Opacity-allowed-→ ¬⊤      → ⊥-elim (¬⊤ _)
       .unfolding-mode-≡          → PE.refl
       .Unit-allowed-→            → idᶠ
       .η-for-Unitʷ-≡             → PE.refl

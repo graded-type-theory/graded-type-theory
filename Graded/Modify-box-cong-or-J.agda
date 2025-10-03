@@ -26,7 +26,7 @@ module Graded.Modify-box-cong-or-J
 open Configuration conf
 open Modality 𝕄
 
-open import Definition.Typed.Properties TRₜ hiding ([]-cong′)
+import Definition.Typed.Properties
 
 open import Definition.Untyped M
 open import Definition.Untyped.Properties M
@@ -49,8 +49,10 @@ import Tools.Reasoning.PropositionalEquality
 open import Tools.Relation
 
 private
-  module Sₛ = Graded.Erasure.SucRed TRₛ
-  module Sₜ = Graded.Erasure.SucRed TRₜ
+  module Sₛ  = Graded.Erasure.SucRed TRₛ
+  module Sₜ  = Graded.Erasure.SucRed TRₜ
+  module TPₛ = Definition.Typed.Properties TRₛ
+  module TPₜ = Definition.Typed.Properties TRₜ
 
 private variable
   b         : Bool
@@ -124,6 +126,30 @@ opaque
   tr ([]-cong s A t u v) =
     []-cong′ s (tr A) (tr t) (tr u) (tr v)
 
+opaque
+
+  private
+
+    -- A function used to implement tr-DCon.
+
+    tr-DCon′ : Bool → DCon (Term 0) n → DCon (Term 0) n
+    tr-DCon′ b =
+      if b
+      then glassify ∘→ map-DCon tr
+      else map-DCon tr
+
+  -- Translation of definition contexts.
+
+  tr-DCon : DCon (Term 0) n → DCon (Term 0) n
+  tr-DCon = tr-DCon′ glassification
+
+opaque
+
+  -- Translation of context pairs.
+
+  tr-Cons : Cons k n → Cons k n
+  tr-Cons (∇ » Γ) = tr-DCon ∇ » map-Con tr Γ
+
 ------------------------------------------------------------------------
 -- Some simple lemmas
 
@@ -136,78 +162,127 @@ opaque
   tr-sucᵏ {n = 0}    = PE.refl
   tr-sucᵏ {n = 1+ _} = PE.cong suc tr-sucᵏ
 
-opaque
-  unfolding tr
+-- Some lemmas proved under the assumption that []-cong and J are both
+-- replaced by themselves.
 
-  -- If []-cong and J are both replaced by themselves, then the
-  -- translation does not change anything.
+module _
+  ([]-cong′≡[]-cong :
+     ∀ {n s} {A t u v : Term n} →
+     []-cong′ s A t u v PE.≡ []-cong s A t u v)
+  (J′≡J :
+     ∀ {n p q} {A t : Term n} {B u v w} →
+     J′ p q A t B u v w PE.≡ J p q A t B u v w)
+  where
 
-  tr-id :
-    (∀ {n s} {A t u v : Term n} →
-     []-cong′ s A t u v PE.≡ []-cong s A t u v) →
-    (∀ {n p q} {A t : Term n} {B u v w} →
-     J′ p q A t B u v w PE.≡ J p q A t B u v w) →
-    tr t PE.≡ t
-  tr-id []-cong′≡[]-cong J′≡J = tr-id′ _
-    where
-    tr-id′ : (t : Term n) → tr t PE.≡ t
-    tr-id′ = λ where
-      (var _) →
-        PE.refl
-      (defn _) →
-        PE.refl
-      (U _) →
-        PE.refl
-      Empty →
-        PE.refl
-      (emptyrec _ A t) →
-        PE.cong₂ (emptyrec _) (tr-id′ A) (tr-id′ t)
-      (Unit _ _) →
-        PE.refl
-      (star _ _) →
-        PE.refl
-      (unitrec _ _ _ A t u) →
-        PE.cong₃ (unitrec _ _ _) (tr-id′ A) (tr-id′ t) (tr-id′ u)
-      (ΠΣ⟨ _ ⟩ _ , _ ▷ A ▹ B) →
-        PE.cong₂ (ΠΣ⟨ _ ⟩ _ , _ ▷_▹_) (tr-id′ A) (tr-id′ B)
-      (lam _ t) →
-        PE.cong (lam _) (tr-id′ t)
-      (t ∘⟨ _ ⟩ u) →
-        PE.cong₂ (_∘⟨ _ ⟩_) (tr-id′ t) (tr-id′ u)
-      (prod _ _ t u) →
-        PE.cong₂ (prod _ _) (tr-id′ t) (tr-id′ u)
-      (fst _ t) →
-        PE.cong (fst _) (tr-id′ t)
-      (snd _ t) →
-        PE.cong (snd _) (tr-id′ t)
-      (prodrec _ _ _ A t u) →
-        PE.cong₃ (prodrec _ _ _) (tr-id′ A) (tr-id′ t) (tr-id′ u)
-      ℕ →
-        PE.refl
-      zero →
-        PE.refl
-      (suc t) →
-        PE.cong suc (tr-id′ t)
-      (natrec _ _ _ A t u v) →
-        PE.cong₄ (natrec _ _ _) (tr-id′ A) (tr-id′ t) (tr-id′ u)
-          (tr-id′ v)
-      (Id A t u) →
-        PE.cong₃ Id (tr-id′ A) (tr-id′ t) (tr-id′ u)
-      rfl →
-        PE.refl
-      (J p q A t B u v w) →
-        let open Tools.Reasoning.PropositionalEquality in
-        J′ p q (tr A) (tr t) (tr B) (tr u) (tr v) (tr w)  ≡⟨ PE.cong₆ (J′ _ _) (tr-id′ A) (tr-id′ t) (tr-id′ B) (tr-id′ u) (tr-id′ v) (tr-id′ w) ⟩
-        J′ p q A t B u v w                                ≡⟨ J′≡J ⟩
-        J p q A t B u v w                                 ∎
-      (K _ A t B u v) →
-        PE.cong₅ (K _) (tr-id′ A) (tr-id′ t) (tr-id′ B)
-          (tr-id′ u) (tr-id′ v)
-      ([]-cong s A t u v) →
-        let open Tools.Reasoning.PropositionalEquality in
-        []-cong′ s (tr A) (tr t) (tr u) (tr v)  ≡⟨ PE.cong₄ ([]-cong′ _) (tr-id′ A) (tr-id′ t) (tr-id′ u) (tr-id′ v) ⟩
-        []-cong′ s A t u v                      ≡⟨ []-cong′≡[]-cong ⟩
-        []-cong s A t u v                       ∎
+  opaque
+    unfolding tr
+
+    -- The translation does not change anything.
+
+    tr-id : tr t PE.≡ t
+    tr-id = tr-id′ _
+      where
+      tr-id′ : (t : Term n) → tr t PE.≡ t
+      tr-id′ = λ where
+        (var _) →
+          PE.refl
+        (defn _) →
+          PE.refl
+        (U _) →
+          PE.refl
+        Empty →
+          PE.refl
+        (emptyrec _ A t) →
+          PE.cong₂ (emptyrec _) (tr-id′ A) (tr-id′ t)
+        (Unit _ _) →
+          PE.refl
+        (star _ _) →
+          PE.refl
+        (unitrec _ _ _ A t u) →
+          PE.cong₃ (unitrec _ _ _) (tr-id′ A) (tr-id′ t) (tr-id′ u)
+        (ΠΣ⟨ _ ⟩ _ , _ ▷ A ▹ B) →
+          PE.cong₂ (ΠΣ⟨ _ ⟩ _ , _ ▷_▹_) (tr-id′ A) (tr-id′ B)
+        (lam _ t) →
+          PE.cong (lam _) (tr-id′ t)
+        (t ∘⟨ _ ⟩ u) →
+          PE.cong₂ (_∘⟨ _ ⟩_) (tr-id′ t) (tr-id′ u)
+        (prod _ _ t u) →
+          PE.cong₂ (prod _ _) (tr-id′ t) (tr-id′ u)
+        (fst _ t) →
+          PE.cong (fst _) (tr-id′ t)
+        (snd _ t) →
+          PE.cong (snd _) (tr-id′ t)
+        (prodrec _ _ _ A t u) →
+          PE.cong₃ (prodrec _ _ _) (tr-id′ A) (tr-id′ t) (tr-id′ u)
+        ℕ →
+          PE.refl
+        zero →
+          PE.refl
+        (suc t) →
+          PE.cong suc (tr-id′ t)
+        (natrec _ _ _ A t u v) →
+          PE.cong₄ (natrec _ _ _) (tr-id′ A) (tr-id′ t) (tr-id′ u)
+            (tr-id′ v)
+        (Id A t u) →
+          PE.cong₃ Id (tr-id′ A) (tr-id′ t) (tr-id′ u)
+        rfl →
+          PE.refl
+        (J p q A t B u v w) →
+          let open Tools.Reasoning.PropositionalEquality in
+          J′ p q (tr A) (tr t) (tr B) (tr u) (tr v) (tr w)  ≡⟨ PE.cong₆ (J′ _ _) (tr-id′ A) (tr-id′ t) (tr-id′ B) (tr-id′ u) (tr-id′ v) (tr-id′ w) ⟩
+          J′ p q A t B u v w                                ≡⟨ J′≡J ⟩
+          J p q A t B u v w                                 ∎
+        (K _ A t B u v) →
+          PE.cong₅ (K _) (tr-id′ A) (tr-id′ t) (tr-id′ B)
+            (tr-id′ u) (tr-id′ v)
+        ([]-cong s A t u v) →
+          let open Tools.Reasoning.PropositionalEquality in
+          []-cong′ s (tr A) (tr t) (tr u) (tr v)  ≡⟨ PE.cong₄ ([]-cong′ _) (tr-id′ A) (tr-id′ t) (tr-id′ u) (tr-id′ v) ⟩
+          []-cong′ s A t u v                      ≡⟨ []-cong′≡[]-cong ⟩
+          []-cong s A t u v                       ∎
+
+  opaque
+
+    -- The function map-Con (λ {n = n} → tr {n = n}) does not change
+    -- anything.
+
+    map-Con-tr-id : map-Con (λ {n = n} → tr {n = n}) Δ PE.≡ Δ
+    map-Con-tr-id {Δ = ε} =
+      PE.refl
+    map-Con-tr-id {Δ = _ ∙ _} =
+      PE.cong₂ _∙_ map-Con-tr-id tr-id
+
+  opaque
+
+    -- The function map-DCon tr does not change anything.
+
+    map-DCon-tr-id : map-DCon tr ∇ PE.≡ ∇
+    map-DCon-tr-id {∇ = ε} =
+      PE.refl
+    map-DCon-tr-id {∇ = _ ∙⟨ _ ⟩[ _ ∷ _ ]} =
+      PE.cong₃ _∙⟨ _ ⟩[_∷_] map-DCon-tr-id tr-id tr-id
+
+  opaque
+    unfolding tr-DCon
+
+    -- The function tr-DCon is either pointwise equal to glassify or
+    -- to the identity function.
+
+    tr-DCon-glassify-id :
+      tr-DCon ∇ PE.≡ (if glassification then glassify ∇ else ∇)
+    tr-DCon-glassify-id with glassification
+    … | true  = PE.cong glassify map-DCon-tr-id
+    … | false = map-DCon-tr-id
+
+  opaque
+    unfolding tr-Cons
+
+    -- A variant of tr-DCon-glassify-id for tr-Cons.
+
+    tr-Cons-glassify-id :
+      tr-Cons (∇ » Δ) PE.≡
+      (if glassification then glassify ∇ else ∇) » Δ
+    tr-Cons-glassify-id = PE.cong₂ _»_ tr-DCon-glassify-id map-Con-tr-id
 
 ------------------------------------------------------------------------
 -- A weakening lemma
@@ -573,22 +648,32 @@ opaque
       Tₜ.there (tr-∷∈ x∈)
 
 opaque
+  unfolding tr-DCon
 
   -- A preservation lemma for _↦∷_∈_.
 
-  tr-↦∈ : α ↦∷ A ∈ ∇ → α ↦∷ tr A ∈ map-DCon tr ∇
-  tr-↦∈ = λ where
-    here       → here
-    (there α↦) → there (tr-↦∈ α↦)
+  tr-↦∈ : α ↦∷ A ∈ ∇ → α ↦∷ tr A ∈ tr-DCon ∇
+  tr-↦∈ = tr-↦∈′ glassification
+    where
+    tr-↦∈′ : ∀ b → α ↦∷ A ∈ ∇ → α ↦∷ tr A ∈ tr-DCon′ b ∇
+    tr-↦∈′ true  here       = here
+    tr-↦∈′ false here       = here
+    tr-↦∈′ true  (there α↦) = there (tr-↦∈′ true  α↦)
+    tr-↦∈′ false (there α↦) = there (tr-↦∈′ false α↦)
 
 opaque
+  unfolding tr-DCon
 
   -- A preservation lemma for _↦_∷_∈_.
 
-  tr-↦∷∈ : α ↦ t ∷ A ∈ ∇ → α ↦ tr t ∷ tr A ∈ map-DCon tr ∇
-  tr-↦∷∈ = λ where
-    here       → here
-    (there α↦) → there (tr-↦∷∈ α↦)
+  tr-↦∷∈ : α ↦ t ∷ A ∈ ∇ → α ↦ tr t ∷ tr A ∈ tr-DCon ∇
+  tr-↦∷∈ = tr-↦∷∈′ glassification
+    where
+    tr-↦∷∈′ : ∀ b → α ↦ t ∷ A ∈ ∇ → α ↦ tr t ∷ tr A ∈ tr-DCon′ b ∇
+    tr-↦∷∈′ true  here       = here
+    tr-↦∷∈′ false here       = here
+    tr-↦∷∈′ true  (there α↦) = there (tr-↦∷∈′ true  α↦)
+    tr-↦∷∈′ false (there α↦) = there (tr-↦∷∈′ false α↦)
 
 opaque
 
@@ -609,23 +694,43 @@ opaque
     lemma rewrite unfolding-mode-≡ = PE.refl
 
 opaque
- unfolding tr
+ unfolding tr tr-DCon tr-Cons
  mutual
 
   -- A preservation lemma for »_.
 
-  tr-» : Tₛ.» ∇ → Tₜ.» map-DCon tr ∇
-  tr-» = λ where
-    Tₛ.ε →
+  tr-» : Tₛ.» ∇ → Tₜ.» tr-DCon ∇
+  tr-» = tr-»′ _ PE.refl
+    where
+    tr-»′ : ∀ b → glassification PE.≡ b → Tₛ.» ∇ → Tₜ.» tr-DCon′ b ∇
+    tr-»′ true _ Tₛ.ε =
       Tₜ.ε
-    Tₛ.∙ᵒ⟨ ok , ∇′↜∇ ⟩[ ⊢t ∷ ⊢A ] →
-      Tₜ.∙ᵒ⟨ Opacity-allowed-→ ok , tr-»↜ ∇′↜∇ ⟩[ tr-⊢∷ ⊢t ∷ tr-⊢ ⊢A ]
-    Tₛ.∙ᵗ[ ⊢t ] →
+    tr-»′ false _ Tₛ.ε =
+      Tₜ.ε
+    tr-»′ true PE.refl (Tₛ.∙ᵒ⟨_,_⟩[_∷_] {∇′} {∇} ok ∇′↜∇ ⊢t ⊢A) =
+      Tₜ.∙ᵗ[
+        PE.subst₃ Tₜ._⊢_∷_
+          (PE.cong (_» _)
+             (glassify (map-DCon tr ∇′)  ≡⟨ glassify-map-DCon ⟩
+              map-DCon tr (glassify ∇′)  ≡⟨ PE.cong (map-DCon _) $ TPₛ.glassify-factor ∇′↜∇ ⟩
+              map-DCon tr (glassify ∇)   ≡˘⟨ glassify-map-DCon ⟩
+              glassify (map-DCon tr ∇)   ∎))
+          PE.refl PE.refl $
+        tr-⊢∷ ⊢t
+      ]
+      where
+      open Tools.Reasoning.PropositionalEquality
+    tr-»′ false PE.refl Tₛ.∙ᵒ⟨ ok , ∇′↜∇ ⟩[ ⊢t ∷ ⊢A ] =
+      Tₜ.∙ᵒ⟨ Opacity-allowed-→ (λ ()) ok , tr-»↜ ∇′↜∇ ⟩[
+        tr-⊢∷ ⊢t ∷ tr-⊢ ⊢A ]
+    tr-»′ true PE.refl Tₛ.∙ᵗ[ ⊢t ] =
+      Tₜ.∙ᵗ[ tr-⊢∷ ⊢t ]
+    tr-»′ false PE.refl Tₛ.∙ᵗ[ ⊢t ] =
       Tₜ.∙ᵗ[ tr-⊢∷ ⊢t ]
 
   -- A preservation lemma for ⊢_.
 
-  tr-⊢′ : Tₛ.⊢ Γ → Tₜ.⊢ map-Cons tr Γ
+  tr-⊢′ : Tₛ.⊢ Γ → Tₜ.⊢ tr-Cons Γ
   tr-⊢′ = λ where
     (Tₛ.ε »∇) →
       Tₜ.ε (tr-» »∇)
@@ -634,7 +739,7 @@ opaque
 
   -- A preservation lemma for _⊢_.
 
-  tr-⊢ : Γ Tₛ.⊢ A → map-Cons tr Γ Tₜ.⊢ tr A
+  tr-⊢ : Γ Tₛ.⊢ A → tr-Cons Γ Tₜ.⊢ tr A
   tr-⊢ = λ where
     (Tₛ.Uⱼ ⊢Γ) →
       Tₜ.Uⱼ (tr-⊢′ ⊢Γ)
@@ -649,11 +754,11 @@ opaque
     (Tₛ.ℕⱼ ⊢Γ) →
       Tₜ.ℕⱼ (tr-⊢′ ⊢Γ)
     (Tₛ.Idⱼ _ ⊢t ⊢u) →
-      Idⱼ′ (tr-⊢∷ ⊢t) (tr-⊢∷ ⊢u)
+      TPₜ.Idⱼ′ (tr-⊢∷ ⊢t) (tr-⊢∷ ⊢u)
 
   -- A preservation lemma for _⊢_∷_.
 
-  tr-⊢∷ : Γ Tₛ.⊢ t ∷ A → map-Cons tr Γ Tₜ.⊢ tr t ∷ tr A
+  tr-⊢∷ : Γ Tₛ.⊢ t ∷ A → tr-Cons Γ Tₜ.⊢ tr t ∷ tr A
   tr-⊢∷ = λ where
     (Tₛ.conv ⊢t A≡B) →
       Tₜ.conv (tr-⊢∷ ⊢t) (tr-⊢≡ A≡B)
@@ -673,13 +778,13 @@ opaque
       Tₜ.starⱼ (tr-⊢′ ⊢Γ) (Unit-allowed-→ ok)
     (Tₛ.unitrecⱼ {A} ⊢A ⊢t ⊢u _) →
       PE.subst (Tₜ._⊢_∷_ _ _) (PE.sym $ tr-[]₀ A) $
-      unitrecⱼ′ (tr-⊢ ⊢A) (tr-⊢∷ ⊢t)
+      TPₜ.unitrecⱼ′ (tr-⊢ ⊢A) (tr-⊢∷ ⊢t)
         (PE.subst (Tₜ._⊢_∷_ _ _) (tr-[]₀ A) $
          tr-⊢∷ ⊢u)
     (Tₛ.ΠΣⱼ ⊢A ⊢B ok) →
       Tₜ.ΠΣⱼ (tr-⊢∷ ⊢A) (tr-⊢∷ ⊢B) (ΠΣ-allowed-→ ok)
     (Tₛ.lamⱼ _ ⊢t ok) →
-      lamⱼ′ (ΠΣ-allowed-→ ok) (tr-⊢∷ ⊢t)
+      TPₜ.lamⱼ′ (ΠΣ-allowed-→ ok) (tr-⊢∷ ⊢t)
     (Tₛ._∘ⱼ_ {G = B} ⊢t ⊢u) →
       PE.subst (Tₜ._⊢_∷_ _ _) (PE.sym $ tr-[]₀ B) $
       tr-⊢∷ ⊢t Tₜ.∘ⱼ tr-⊢∷ ⊢u
@@ -689,13 +794,13 @@ opaque
          tr-⊢∷ ⊢u)
         (ΠΣ-allowed-→ ok)
     (Tₛ.fstⱼ _ ⊢t) →
-      fstⱼ′ (tr-⊢∷ ⊢t)
+      TPₜ.fstⱼ′ (tr-⊢∷ ⊢t)
     (Tₛ.sndⱼ {G = B} _ ⊢t) →
       PE.subst (Tₜ._⊢_∷_ _ _) (PE.sym $ tr-[]₀ B) $
-      sndⱼ′ (tr-⊢∷ ⊢t)
+      TPₜ.sndⱼ′ (tr-⊢∷ ⊢t)
     (Tₛ.prodrecⱼ {A = C} ⊢C ⊢t ⊢u _) →
       PE.subst (Tₜ._⊢_∷_ _ _) (PE.sym $ tr-[]₀ C) $
-      prodrecⱼ′ (tr-⊢ ⊢C) (tr-⊢∷ ⊢t)
+      TPₜ.prodrecⱼ′ (tr-⊢ ⊢C) (tr-⊢∷ ⊢t)
         (PE.subst (Tₜ._⊢_∷_ _ _) (tr-[]↑² C) $
          tr-⊢∷ ⊢u)
     (Tₛ.ℕⱼ ⊢Γ) →
@@ -737,8 +842,7 @@ opaque
 
   -- A preservation lemma for _⊢_≡_.
 
-  tr-⊢≡ :
-    Γ Tₛ.⊢ A ≡ B → map-Cons tr Γ Tₜ.⊢ tr A ≡ tr B
+  tr-⊢≡ : Γ Tₛ.⊢ A ≡ B → tr-Cons Γ Tₜ.⊢ tr A ≡ tr B
   tr-⊢≡ = λ where
     (Tₛ.refl ⊢A) →
       Tₜ.refl (tr-⊢ ⊢A)
@@ -755,16 +859,14 @@ opaque
 
   -- A preservation lemma for _⊢_≡_∷_.
 
-  tr-⊢≡∷ :
-    Γ Tₛ.⊢ t ≡ u ∷ A →
-    map-Cons tr Γ Tₜ.⊢ tr t ≡ tr u ∷ tr A
+  tr-⊢≡∷ : Γ Tₛ.⊢ t ≡ u ∷ A → tr-Cons Γ Tₜ.⊢ tr t ≡ tr u ∷ tr A
   tr-⊢≡∷ = λ where
     (Tₛ.conv t₁≡t₂ A₁≡A₂) →
       Tₜ.conv (tr-⊢≡∷ t₁≡t₂) (tr-⊢≡ A₁≡A₂)
     (Tₛ.refl ⊢t) →
       Tₜ.refl (tr-⊢∷ ⊢t)
     (Tₛ.sym _ t₁≡t₂) →
-      sym′ (tr-⊢≡∷ t₁≡t₂)
+      TPₜ.sym′ (tr-⊢≡∷ t₁≡t₂)
     (Tₛ.trans t₁≡t₂ t₂≡t₃) →
       Tₜ.trans (tr-⊢≡∷ t₁≡t₂) (tr-⊢≡∷ t₂≡t₃)
     (Tₛ.δ-red {t′} {A′} ⊢Γ α∈ PE.refl PE.refl) →
@@ -775,12 +877,12 @@ opaque
       Tₜ.η-unit (tr-⊢∷ ⊢t₁) (tr-⊢∷ ⊢t₂) (Unit-with-η-⇔ .proj₁ ok)
     (Tₛ.unitrec-cong {A = A₁} A₁≡A₂ t₁≡t₂ u₁≡u₂ _ _) →
       PE.subst (Tₜ._⊢_≡_∷_ _ _ _) (PE.sym $ tr-[]₀ A₁) $
-      unitrec-cong′ (tr-⊢≡ A₁≡A₂) (tr-⊢≡∷ t₁≡t₂)
+      TPₜ.unitrec-cong′ (tr-⊢≡ A₁≡A₂) (tr-⊢≡∷ t₁≡t₂)
         (PE.subst (Tₜ._⊢_≡_∷_ _ _ _) (tr-[]₀ A₁) $
          tr-⊢≡∷ u₁≡u₂)
     (Tₛ.unitrec-β {A} ⊢A ⊢t _ _) →
       PE.subst (Tₜ._⊢_≡_∷_ _ _ _) (PE.sym $ tr-[]₀ A) $
-      unitrec-β-≡ (tr-⊢ ⊢A)
+      TPₜ.unitrec-β-≡ (tr-⊢ ⊢A)
         (PE.subst (Tₜ._⊢_∷_ _ _) (tr-[]₀ A) $
          tr-⊢∷ ⊢t)
     (Tₛ.unitrec-β-η {A} ⊢A ⊢t ⊢u ok η) →
@@ -797,9 +899,9 @@ opaque
     (Tₛ.β-red {G = B} {t} _ ⊢t ⊢u PE.refl ok) →
       PE.subst₂ (Tₜ._⊢_≡_∷_ _ _)
         (PE.sym $ tr-[]₀ t) (PE.sym $ tr-[]₀ B) $
-      β-red-≡ (tr-⊢∷ ⊢t) (tr-⊢∷ ⊢u) (ΠΣ-allowed-→ ok)
+      TPₜ.β-red-≡ (tr-⊢∷ ⊢t) (tr-⊢∷ ⊢u) (ΠΣ-allowed-→ ok)
     (Tₛ.η-eq {f = t₁} {g = t₂} _ ⊢t₁ ⊢t₂ t₁∘0≡t₂∘0 _) →
-      η-eq′ (tr-⊢∷ ⊢t₁) (tr-⊢∷ ⊢t₂)
+      TPₜ.η-eq′ (tr-⊢∷ ⊢t₁) (tr-⊢∷ ⊢t₂)
         (PE.subst₃ (Tₜ._⊢_≡_∷_ _)
            (PE.cong (_∘⟨ _ ⟩ _) (tr-wk t₁))
            (PE.cong (_∘⟨ _ ⟩ _) (tr-wk t₂)) PE.refl $
@@ -810,7 +912,7 @@ opaque
          tr-⊢≡∷ u₁≡u₂)
         (ΠΣ-allowed-→ ok)
     (Tₛ.fst-cong _ t₁≡t₂) →
-      fst-cong′ (tr-⊢≡∷ t₁≡t₂)
+      TPₜ.fst-cong′ (tr-⊢≡∷ t₁≡t₂)
     (Tₛ.Σ-β₁ {G = B} ⊢B ⊢t ⊢u eq ok) →
       Tₜ.Σ-β₁ (tr-⊢ ⊢B) (tr-⊢∷ ⊢t)
         (PE.subst (Tₜ._⊢_∷_ _ _) (tr-[]₀ B) $
@@ -818,7 +920,7 @@ opaque
         eq (ΠΣ-allowed-→ ok)
     (Tₛ.snd-cong {G = B} _ t₁≡t₂) →
       PE.subst (Tₜ._⊢_≡_∷_ _ _ _) (PE.sym $ tr-[]₀ B) $
-      snd-cong′ (tr-⊢≡∷ t₁≡t₂)
+      TPₜ.snd-cong′ (tr-⊢≡∷ t₁≡t₂)
     (Tₛ.Σ-β₂ {G = B} ⊢B ⊢t ⊢u eq ok) →
       PE.subst (Tₜ._⊢_≡_∷_ _ _ _) (PE.sym $ tr-[]₀ B) $
       Tₜ.Σ-β₂ (tr-⊢ ⊢B) (tr-⊢∷ ⊢t)
@@ -826,12 +928,12 @@ opaque
          tr-⊢∷ ⊢u)
         eq (ΠΣ-allowed-→ ok)
     (Tₛ.Σ-η {G = B} _ ⊢t₁ ⊢t₂ fst-t₁≡fst-t₂ snd-t₁≡snd-t₂ _) →
-      Σ-η′ (tr-⊢∷ ⊢t₁) (tr-⊢∷ ⊢t₂) (tr-⊢≡∷ fst-t₁≡fst-t₂)
+      TPₜ.Σ-η′ (tr-⊢∷ ⊢t₁) (tr-⊢∷ ⊢t₂) (tr-⊢≡∷ fst-t₁≡fst-t₂)
         (PE.subst (Tₜ._⊢_≡_∷_ _ _ _) (tr-[]₀ B) $
          tr-⊢≡∷ snd-t₁≡snd-t₂)
     (Tₛ.prodrec-cong {A = C₁} C₁≡C₂ t₁≡t₂ u₁≡u₂ _) →
       PE.subst (Tₜ._⊢_≡_∷_ _ _ _) (PE.sym $ tr-[]₀ C₁) $
-      prodrec-cong′ (tr-⊢≡ C₁≡C₂) (tr-⊢≡∷ t₁≡t₂)
+      TPₜ.prodrec-cong′ (tr-⊢≡ C₁≡C₂) (tr-⊢≡∷ t₁≡t₂)
         (PE.subst (Tₜ._⊢_≡_∷_ _ _ _) (tr-[]↑² C₁) $
          tr-⊢≡∷ u₁≡u₂)
     (Tₛ.prodrec-β {G = B} {A = C} {u} ⊢C ⊢t ⊢u ⊢v eq ok) →
@@ -909,7 +1011,7 @@ opaque
     (Tₛ.[]-cong-β ⊢t PE.refl ok) →
       []-cong′-β-≡ ok (tr-⊢∷ ⊢t)
     (Tₛ.equality-reflection ok _ ⊢v) →
-      equality-reflection′ (Equality-reflection-→ ok) (tr-⊢∷ ⊢v)
+      TPₜ.equality-reflection′ (Equality-reflection-→ ok) (tr-⊢∷ ⊢v)
 
 ------------------------------------------------------------------------
 -- The translation might preserve reduction
@@ -920,82 +1022,81 @@ opaque
 module _ (pres : T preservation-of-reduction) where
 
   opaque
-    unfolding tr
+    unfolding tr tr-Cons
 
     -- A preservation lemma for _⊢_⇒_∷_.
 
-    tr-⊢⇒∷ :
-      Γ Tₛ.⊢ t ⇒ u ∷ A →
-      map-Cons tr Γ Tₜ.⊢ tr t ⇒* tr u ∷ tr A
+    tr-⊢⇒∷ : Γ Tₛ.⊢ t ⇒ u ∷ A → tr-Cons Γ Tₜ.⊢ tr t ⇒* tr u ∷ tr A
     tr-⊢⇒∷ = λ where
       (Tₛ.conv t⇒t′ A≡B) →
-        conv* (tr-⊢⇒∷ t⇒t′) (tr-⊢≡ A≡B)
+        TPₜ.conv* (tr-⊢⇒∷ t⇒t′) (tr-⊢≡ A≡B)
       (Tₛ.δ-red {t′} {A′} ⊢Γ α↦ PE.refl PE.refl) →
-        redMany (Tₜ.δ-red (tr-⊢′ ⊢Γ) (tr-↦∷∈ α↦) (tr-wk A′) (tr-wk t′))
+        TPₜ.redMany $
+        Tₜ.δ-red (tr-⊢′ ⊢Γ) (tr-↦∷∈ α↦) (tr-wk A′) (tr-wk t′)
       (Tₛ.emptyrec-subst ⊢A t⇒t′) →
-        emptyrec-subst* (tr-⊢⇒∷ t⇒t′) (tr-⊢ ⊢A)
+        TPₜ.emptyrec-subst* (tr-⊢⇒∷ t⇒t′) (tr-⊢ ⊢A)
       (Tₛ.unitrec-subst {A} ⊢A ⊢u t⇒t′ _ no-η) →
         PE.subst (Tₜ._⊢_⇒*_∷_ _ _ _) (PE.sym $ tr-[]₀ A) $
-        unitrec-subst* (tr-⊢⇒∷ t⇒t′) (tr-⊢ ⊢A)
+        TPₜ.unitrec-subst* (tr-⊢⇒∷ t⇒t′) (tr-⊢ ⊢A)
           (PE.subst (Tₜ._⊢_∷_ _ _) (tr-[]₀ A) $
            tr-⊢∷ ⊢u)
           (no-η ∘→ Unitʷ-η-⇔ .proj₂)
       (Tₛ.unitrec-β {A} ⊢A ⊢u _ _) →
         PE.subst (Tₜ._⊢_⇒*_∷_ _ _ _) (PE.sym $ tr-[]₀ A) $
-        redMany $
-        unitrec-β-⇒ (tr-⊢ ⊢A)
+        TPₜ.redMany $
+        TPₜ.unitrec-β-⇒ (tr-⊢ ⊢A)
           (PE.subst (Tₜ._⊢_∷_ _ _) (tr-[]₀ A) $
            tr-⊢∷ ⊢u)
       (Tₛ.unitrec-β-η {A} ⊢A ⊢t ⊢u ok η) →
         PE.subst (Tₜ._⊢_⇒*_∷_ _ _ _) (PE.sym $ tr-[]₀ A) $
-        redMany $
+        TPₜ.redMany $
         Tₜ.unitrec-β-η (tr-⊢ ⊢A) (tr-⊢∷ ⊢t)
           (PE.subst (Tₜ._⊢_∷_ _ _) (tr-[]₀ A) $
            tr-⊢∷ ⊢u)
           (Unit-allowed-→ ok) (Unitʷ-η-⇔ .proj₁ η)
       (Tₛ.app-subst {G = B} t⇒t′ ⊢u) →
         PE.subst (Tₜ._⊢_⇒*_∷_ _ _ _) (PE.sym $ tr-[]₀ B) $
-        app-subst* (tr-⊢⇒∷ t⇒t′) (tr-⊢∷ ⊢u)
+        TPₜ.app-subst* (tr-⊢⇒∷ t⇒t′) (tr-⊢∷ ⊢u)
       (Tₛ.β-red {G = B} {t} _ ⊢t ⊢u PE.refl ok) →
         PE.subst₂ (Tₜ._⊢_⇒*_∷_ _ _)
           (PE.sym $ tr-[]₀ t) (PE.sym $ tr-[]₀ B) $
-        redMany $
-        β-red-⇒ (tr-⊢∷ ⊢t) (tr-⊢∷ ⊢u) (ΠΣ-allowed-→ ok)
+        TPₜ.redMany $
+        TPₜ.β-red-⇒ (tr-⊢∷ ⊢t) (tr-⊢∷ ⊢u) (ΠΣ-allowed-→ ok)
       (Tₛ.fst-subst _ t⇒t′) →
-        fst-subst* (tr-⊢⇒∷ t⇒t′)
+        TPₜ.fst-subst* (tr-⊢⇒∷ t⇒t′)
       (Tₛ.Σ-β₁ {G = B} ⊢B ⊢t ⊢u eq ok) →
-        redMany $
+        TPₜ.redMany $
         Tₜ.Σ-β₁ (tr-⊢ ⊢B) (tr-⊢∷ ⊢t)
           (PE.subst (Tₜ._⊢_∷_ _ _) (tr-[]₀ B) $
            tr-⊢∷ ⊢u)
           eq (ΠΣ-allowed-→ ok)
       (Tₛ.snd-subst {G = B} _ t⇒t′) →
         PE.subst (Tₜ._⊢_⇒*_∷_ _ _ _) (PE.sym $ tr-[]₀ B) $
-        snd-subst* (tr-⊢⇒∷ t⇒t′)
+        TPₜ.snd-subst* (tr-⊢⇒∷ t⇒t′)
       (Tₛ.Σ-β₂ {G = B} ⊢B ⊢t ⊢u eq ok) →
         PE.subst (Tₜ._⊢_⇒*_∷_ _ _ _) (PE.sym $ tr-[]₀ B) $
-        redMany $
+        TPₜ.redMany $
         Tₜ.Σ-β₂ (tr-⊢ ⊢B) (tr-⊢∷ ⊢t)
           (PE.subst (Tₜ._⊢_∷_ _ _) (tr-[]₀ B) $
            tr-⊢∷ ⊢u)
           eq (ΠΣ-allowed-→ ok)
       (Tₛ.prodrec-subst {A = C} ⊢C ⊢u t⇒t′ _) →
         PE.subst (Tₜ._⊢_⇒*_∷_ _ _ _) (PE.sym $ tr-[]₀ C) $
-        prodrec-subst* (tr-⊢ ⊢C) (tr-⊢⇒∷ t⇒t′)
+        TPₜ.prodrec-subst* (tr-⊢ ⊢C) (tr-⊢⇒∷ t⇒t′)
           (PE.subst (Tₜ._⊢_∷_ _ _) (tr-[]↑² C) $
            tr-⊢∷ ⊢u)
       (Tₛ.prodrec-β {G = B} {A = C} {u} ⊢C ⊢t ⊢u ⊢v PE.refl _) →
         PE.subst₂ (Tₜ._⊢_⇒*_∷_ _ _)
           (PE.sym $ tr-[]₁₀ u) (PE.sym $ tr-[]₀ C) $
-        redMany $
-        prodrec-β-⇒ (tr-⊢ ⊢C) (tr-⊢∷ ⊢t)
+        TPₜ.redMany $
+        TPₜ.prodrec-β-⇒ (tr-⊢ ⊢C) (tr-⊢∷ ⊢t)
           (PE.subst (Tₜ._⊢_∷_ _ _) (tr-[]₀ B) $
            tr-⊢∷ ⊢u)
           (PE.subst (Tₜ._⊢_∷_ _ _) (tr-[]↑² C) $
            tr-⊢∷ ⊢v)
       (Tₛ.natrec-subst {A} ⊢t ⊢u v⇒v′) →
         PE.subst (Tₜ._⊢_⇒*_∷_ _ _ _) (PE.sym $ tr-[]₀ A) $
-        natrec-subst*
+        TPₜ.natrec-subst*
           (PE.subst (Tₜ._⊢_∷_ _ _) (tr-[]₀ A) $
            tr-⊢∷ ⊢t)
           (PE.subst (Tₜ._⊢_∷_ _ _) (tr-[]↑² A) $
@@ -1003,7 +1104,7 @@ module _ (pres : T preservation-of-reduction) where
           (tr-⊢⇒∷ v⇒v′)
       (Tₛ.natrec-zero {A} ⊢t ⊢u) →
         PE.subst (Tₜ._⊢_⇒*_∷_ _ _ _) (PE.sym $ tr-[]₀ A) $
-        redMany $
+        TPₜ.redMany $
         Tₜ.natrec-zero
           (PE.subst (Tₜ._⊢_∷_ _ _) (tr-[]₀ A) $
            tr-⊢∷ ⊢t)
@@ -1012,7 +1113,7 @@ module _ (pres : T preservation-of-reduction) where
       (Tₛ.natrec-suc {A} {s = u} ⊢t ⊢u ⊢v) →
         PE.subst₂ (Tₜ._⊢_⇒*_∷_ _ _)
           (PE.sym $ tr-[]₁₀ u) (PE.sym $ tr-[]₀ A) $
-        redMany $
+        TPₜ.redMany $
         Tₜ.natrec-suc
           (PE.subst (Tₜ._⊢_∷_ _ _) (tr-[]₀ A) $
            tr-⊢∷ ⊢t)
@@ -1040,13 +1141,13 @@ module _ (pres : T preservation-of-reduction) where
            tr-⊢∷ ⊢u)
       (Tₛ.K-subst {B} ⊢B ⊢u v⇒v′ ok) →
         PE.subst (Tₜ._⊢_⇒*_∷_ _ _ _) (PE.sym $ tr-[]₀ B) $
-        K-subst* (tr-⊢ ⊢B)
+        TPₜ.K-subst* (tr-⊢ ⊢B)
           (PE.subst (Tₜ._⊢_∷_ _ _) (tr-[]₀ B) $
            tr-⊢∷ ⊢u)
           (tr-⊢⇒∷ v⇒v′) (K-allowed-→ ok)
       (Tₛ.K-β {B} ⊢B ⊢u ok) →
         PE.subst (Tₜ._⊢_⇒*_∷_ _ _ _) (PE.sym $ tr-[]₀ B) $
-        redMany $
+        TPₜ.redMany $
         Tₜ.K-β (tr-⊢ ⊢B)
           (PE.subst (Tₜ._⊢_∷_ _ _) (tr-[]₀ B) $
            tr-⊢∷ ⊢u)
@@ -1060,47 +1161,39 @@ module _ (pres : T preservation-of-reduction) where
 
     -- A preservation lemma for _⊢_⇒*_∷_.
 
-    tr-⊢⇒*∷ :
-      Γ Tₛ.⊢ t ⇒* u ∷ A →
-      map-Cons tr Γ Tₜ.⊢ tr t ⇒* tr u ∷ tr A
+    tr-⊢⇒*∷ : Γ Tₛ.⊢ t ⇒* u ∷ A → tr-Cons Γ Tₜ.⊢ tr t ⇒* tr u ∷ tr A
     tr-⊢⇒*∷ = λ where
       (Tₛ.id ⊢t) →
         Tₜ.id (tr-⊢∷ ⊢t)
       (t⇒u Tₛ.⇨ u⇒*v) →
-        tr-⊢⇒∷ t⇒u ⇨∷* tr-⊢⇒*∷ u⇒*v
+        tr-⊢⇒∷ t⇒u TPₜ.⇨∷* tr-⊢⇒*∷ u⇒*v
 
   opaque
     unfolding tr
 
     -- A preservation lemma for _⊢_⇒_.
 
-    tr-⊢⇒ :
-      Γ Tₛ.⊢ A ⇒ B →
-      map-Cons tr Γ Tₜ.⊢ tr A ⇒* tr B
+    tr-⊢⇒ : Γ Tₛ.⊢ A ⇒ B → tr-Cons Γ Tₜ.⊢ tr A ⇒* tr B
     tr-⊢⇒ = λ where
-      (Tₛ.univ A⇒B) → univ* (tr-⊢⇒∷ A⇒B)
+      (Tₛ.univ A⇒B) → TPₜ.univ* (tr-⊢⇒∷ A⇒B)
 
   opaque
 
     -- A preservation lemma for _⊢_⇒*_.
 
-    tr-⊢⇒* :
-      Γ Tₛ.⊢ A ⇒* B →
-      map-Cons tr Γ Tₜ.⊢ tr A ⇒* tr B
+    tr-⊢⇒* : Γ Tₛ.⊢ A ⇒* B → tr-Cons Γ Tₜ.⊢ tr A ⇒* tr B
     tr-⊢⇒* = λ where
       (Tₛ.id ⊢A) →
         Tₜ.id (tr-⊢ ⊢A)
       (A⇒B Tₛ.⇨ B⇒*C) →
-        tr-⊢⇒ A⇒B ⇨* tr-⊢⇒* B⇒*C
+        tr-⊢⇒ A⇒B TPₜ.⇨* tr-⊢⇒* B⇒*C
 
   opaque
     unfolding tr
 
     -- A preservation lemma for _⊢_⇒ˢ_∷ℕ.
 
-    tr-⊢⇒ˢ∷ℕ :
-      Γ Sₛ.⊢ t ⇒ˢ u ∷ℕ →
-      map-Cons tr Γ Sₜ.⊢ tr t ⇒ˢ* tr u ∷ℕ
+    tr-⊢⇒ˢ∷ℕ : Γ Sₛ.⊢ t ⇒ˢ u ∷ℕ → tr-Cons Γ Sₜ.⊢ tr t ⇒ˢ* tr u ∷ℕ
     tr-⊢⇒ˢ∷ℕ = λ where
       (Sₛ.whred t⇒u) →
         Sₜ.whred* (tr-⊢⇒∷ t⇒u)
@@ -1112,9 +1205,7 @@ module _ (pres : T preservation-of-reduction) where
 
     -- A preservation lemma for _⊢_⇒ˢ*_∷ℕ.
 
-    tr-⊢⇒ˢ*∷ℕ :
-      Γ Sₛ.⊢ t ⇒ˢ* u ∷ℕ →
-      map-Cons tr Γ Sₜ.⊢ tr t ⇒ˢ* tr u ∷ℕ
+    tr-⊢⇒ˢ*∷ℕ : Γ Sₛ.⊢ t ⇒ˢ* u ∷ℕ → tr-Cons Γ Sₜ.⊢ tr t ⇒ˢ* tr u ∷ℕ
     tr-⊢⇒ˢ*∷ℕ = λ where
       (Sₛ.id ⊢t) →
         Sₜ.id (tr-⊢∷ ⊢t)
