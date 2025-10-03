@@ -22,7 +22,6 @@ open Usage-restrictions UR
 open import Definition.Typed TR
 open import Definition.Typed.Consequences.Admissible TR
 open import Definition.Typed.Consequences.Inversion TR
-open import Definition.Typed.EqRelInstance TR
 open import Definition.Typed.Properties TR
 open import Definition.Typed.Syntactic TR
 open import Definition.Untyped M
@@ -83,11 +82,7 @@ opaque
     open Fundamental-assumptions⁻ ok
 
     as : Assumptions
-    as = record
-      { ⊢Δ  = wfTerm ⊢v
-      ; inc = no-equality-reflection-or-empty
-      ; str = T.non-strict
-      }
+    as = record { ⊢Δ = wfTerm ⊢v; str = T.non-strict }
 
     open H as
     open L as

@@ -22,7 +22,6 @@ open import Definition.Typed TR
 open import Definition.Typed.Consequences.Canonicity TR
 open import Definition.Typed.Consequences.Consistency TR
 open import Definition.Typed.Consequences.Inversion TR
-open import Definition.Typed.EqRelInstance TR
 open import Definition.Typed.Properties TR
 open import Definition.Typed.Reasoning.Term TR
 open import Definition.Typed.Syntactic TR
@@ -297,11 +296,7 @@ opaque
     open Fundamental-assumptions fas
 
     as : Assumptions
-    as = record
-      { ⊢Δ  = well-formed
-      ; inc = no-equality-reflection-or-empty
-      ; str = T.non-strict
-      }
+    as = record { ⊢Δ = well-formed; str = T.non-strict }
 
     open H as
     open L as
@@ -420,11 +415,7 @@ opaque
     open Fundamental-assumptions⁻ as
 
     as′ : Assumptions
-    as′ = record
-      { ⊢Δ  = wfTerm ⊢t
-      ; inc = no-equality-reflection-or-empty
-      ; str = T.non-strict
-      }
+    as′ = record { ⊢Δ = wfTerm ⊢t; str = T.non-strict }
 
     open H as′
     open L as′

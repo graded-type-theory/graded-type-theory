@@ -14,7 +14,6 @@ module Graded.Erasure.LogicalRelation.Assumptions
 open Type-restrictions R
 
 open import Definition.Typed R
-open import Definition.Typed.EqualityRelation R
 open import Definition.Typed.Consequences.Canonicity R
 open import Definition.Typed.Inversion R
 open import Definition.Typed.Properties R
@@ -222,12 +221,6 @@ record Assumptions : Set (lsuc a) where
   infix 4 _⇛_∷_
 
   field
-    -- An "EqRelSet".
-    ⦃ eqRelSet ⦄ : EqRelSet
-
-  open EqRelSet eqRelSet public
-
-  field
     -- The size of the definition context below.
     {kᵈ} : Nat
 
@@ -246,8 +239,10 @@ record Assumptions : Set (lsuc a) where
     -- The source contexts are well-formed.
     ⊢Δ : ts »⊢ Δ
 
-    -- Var-included holds or Δ is empty.
-    ⦃ inc ⦄ : Var-included or-empty Δ
+    instance
+      -- Var-included holds or Δ is empty.
+      ⦃ no-equality-reflection-or-empty ⦄ :
+        No-equality-reflection or-empty Δ
 
     -- Should applications be extracted to strict or non-strict
     -- applications?
@@ -260,15 +255,3 @@ record Assumptions : Set (lsuc a) where
     is-reduction-relation : Is-reduction-relation (ts » Δ) _⇛_∷_
 
   open Is-reduction-relation is-reduction-relation public
-
-  instance
-
-    -- Equality reflection is not allowed or Δ is empty.
-
-    no-equality-reflection-or-empty :
-      No-equality-reflection or-empty Δ
-    no-equality-reflection-or-empty =
-      or-empty-map
-        (No-equality-reflection⇔ .proj₂ ∘→
-         flip Equality-reflection-allowed→¬Var-included)
-        inc
