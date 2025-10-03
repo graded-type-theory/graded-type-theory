@@ -54,6 +54,7 @@ private
   variable
     b : Bool
     α m n : Nat
+    𝕋 𝕌 : Set _
     A A₁ A₂ t t₁ t₂ t₃ t₄ u : U.Term n
     v v₁ v₂ : T.Term n
     ts : DCon (U.Term _) _
@@ -566,6 +567,18 @@ erase-consSubst : (σ : U.Subst m n) (a : U.Term m) (t : T.Term (1+ n))
 erase-consSubst σ a t = substVar-to-subst (erase-consSubst-var σ a) t
 
 opaque
+  unfolding eraseDCon″
+
+  -- Glassification does not affect the result of eraseDCon′.
+
+  eraseDCon″-glassify :
+    {erase : 𝕋 → 𝕌} {∇ : DCon 𝕋 n} →
+    eraseDCon″ erase (glassify ∇) ≡ eraseDCon″ erase ∇
+  eraseDCon″-glassify {∇ = ε}                 = refl
+  eraseDCon″-glassify {∇ = ∇ ∙⟨ _ ⟩[ _ ∷ _ ]} =
+    cong (_++ _) (eraseDCon″-glassify {∇ = ∇})
+
+opaque
   unfolding eraseDCon′
 
   -- Glassification does not affect the result of eraseDCon′.
@@ -573,9 +586,7 @@ opaque
   eraseDCon-glassify :
     {∇ : DCon (U.Term 0) n} →
     eraseDCon′ b s (glassify ∇) ≡ eraseDCon′ b s ∇
-  eraseDCon-glassify {∇ = ε}                 = refl
-  eraseDCon-glassify {∇ = ∇ ∙⟨ _ ⟩[ _ ∷ _ ]} =
-    cong (_++ _) (eraseDCon-glassify {∇ = ∇})
+  eraseDCon-glassify {∇} = eraseDCon″-glassify {∇ = ∇}
 
 opaque
   unfolding eraseDCon′
