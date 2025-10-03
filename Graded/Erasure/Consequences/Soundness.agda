@@ -118,8 +118,11 @@ module _
         }
 
       as : Assumptions
-      as = assumptions ⦃ inc = Fundamental-assumptions.inc FA ⦄ ⊢Δ str
-             ⇒*-is-reduction-relation
+      as =
+        assumptions ⦃ ok = no-equality-reflection-or-empty ⦄ ⊢Δ str
+          ⇒*-is-reduction-relation
+        where
+        open Fundamental-assumptions FA
 
       open Fundamental FA public
       open Graded.Erasure.LogicalRelation as public
@@ -257,8 +260,8 @@ opaque
   -- soundness-ℕ-only-source without the assumption "erased matches
   -- are not allowed unless the context is empty" (and without the
   -- strictness argument, the assumption that the modality's zero is
-  -- well-behaved, and the assumption that Var-included holds or the
-  -- variable context is empty).
+  -- well-behaved, and the assumption that No-equality-reflection
+  -- holds or the variable context is empty).
   --
   -- If equality reflection is not allowed, then the counterexample
   -- also works for a variant of the statement with reduction replaced
@@ -322,7 +325,7 @@ opaque
   -- assumption "erased matches are not allowed unless the context is
   -- empty" (and without the strictness argument, the assumption that
   -- the modality's zero is well-behaved, and the assumption that
-  -- Var-included holds or the variable context is empty).
+  -- No-equality-reflection holds or the variable context is empty).
   --
   -- If equality reflection is not allowed, then the counterexample
   -- also works for a variant of the statement with reduction replaced
@@ -375,7 +378,7 @@ opaque
   -- assumption "erased matches are not allowed unless the context is
   -- empty" (and without the strictness argument, the assumption that
   -- the modality's zero is well-behaved, and the assumption that
-  -- Var-included holds or the variable context is empty).
+  -- No-equality-reflection holds or the variable context is empty).
   --
   -- If equality reflection is not allowed, then the counterexample
   -- also works for a variant of the statement with reduction replaced
@@ -422,8 +425,8 @@ opaque
   -- soundness-ℕ-only-source without the assumption "erased matches
   -- are not allowed unless the context is empty" (and without the
   -- strictness argument, the assumption that the modality's zero is
-  -- well-behaved, and the assumption that Var-included holds or the
-  -- variable context is empty).
+  -- well-behaved, and the assumption that No-equality-reflection
+  -- holds or the variable context is empty).
   --
   -- If equality reflection is not allowed, then the counterexample
   -- also works for a variant of the statement with reduction replaced
@@ -472,7 +475,7 @@ opaque
   -- "erased matches are not allowed unless the context is empty" (and
   -- without the strictness argument, the assumption that the
   -- modality's zero is well-behaved, and the assumption that
-  -- Var-included holds or the variable context is empty).
+  -- No-equality-reflection holds or the variable context is empty).
   --
   -- If equality reflection is not allowed, then the counterexample
   -- also works for a variant of the statement with reduction replaced
@@ -533,8 +536,8 @@ opaque
   --   is consistent",
   -- * "erased matches are not allowed unless the context is empty",
   -- * the assumption that the modality's zero is well-behaved, and
-  -- * the assumption that Var-included holds or the variable context
-  --   is empty.
+  -- * the assumption that No-equality-reflection holds or the
+  --   variable context is empty.
   --
   -- Note that the counterexample does not make use of any erased
   -- matches (except for emptyrec).
@@ -619,12 +622,13 @@ opaque
 
   -- If equality reflection is allowed and Π p , q is allowed for some
   -- grade p that satisfies p ≤ 1 + p, then there is a counterexample
-  -- to soundness-ℕ without the assumption "Var-included holds or
-  -- the context is empty" (and without the strictness argument, the
-  -- assumption that the modality's zero is well-behaved, the
-  -- assumption "erased matches are not allowed unless the context is
-  -- empty", and the assumption "if erased matches are allowed for
-  -- emptyrec, then the context is consistent").
+  -- to soundness-ℕ without the assumption "No-equality-reflection
+  -- holds or the context is empty" (and without the strictness
+  -- argument, the assumption that the modality's zero is
+  -- well-behaved, the assumption "erased matches are not allowed
+  -- unless the context is empty", and the assumption "if erased
+  -- matches are allowed for emptyrec, then the context is
+  -- consistent").
 
   soundness-ℕ-counterexample₈ :
     Equality-reflection →

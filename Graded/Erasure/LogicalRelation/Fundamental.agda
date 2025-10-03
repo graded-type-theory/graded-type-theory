@@ -17,12 +17,12 @@ module Graded.Erasure.LogicalRelation.Fundamental
   (TR : Type-restrictions 𝕄)
   (UR : Usage-restrictions 𝕄)
   ⦃ 𝟘-well-behaved : Has-well-behaved-zero M semiring-with-meet ⦄
-  {{eqrel : EqRelSet TR}}
   where
+
+open Type-restrictions TR
 
 open Definition.Untyped M
 open Definition.Typed TR
-open EqRelSet {{...}}
 
 open import Graded.Context 𝕄
 open import Graded.Context.Properties 𝕄
@@ -36,6 +36,7 @@ open import Graded.Mode 𝕄
 
 open import Definition.Untyped.Names-below M
 open import Definition.Untyped.Properties M
+open import Definition.Typed.EqRelInstance TR
 open import Definition.Typed.Names-below TR
 open import Definition.Typed.Properties TR
 open import Definition.Typed.Weakening TR hiding (wk)
@@ -83,7 +84,7 @@ private
 -- One way to create an Assumptions record.
 
 assumptions :
-  ∀ {_⇛_∷_} ⦃ inc : Var-included or-empty Δ ⦄ →
+  ∀ {_⇛_∷_} ⦃ ok : No-equality-reflection or-empty Δ ⦄ →
   glassify ∇ »⊢ Δ → Strictness →
   Is-reduction-relation (glassify ∇ » Δ) _⇛_∷_ →
   Assumptions
@@ -99,7 +100,7 @@ assumptions {∇} ⊢Δ s rr = record
 
 module _
   (⊢Δ : glassify ∇ »⊢ Δ)
-  ⦃ inc : Var-included or-empty Δ ⦄
+  ⦃ ok : No-equality-reflection or-empty Δ ⦄
   {s : Strictness}
   {_⇛_∷_}
   ⦃ is-reduction-relation :

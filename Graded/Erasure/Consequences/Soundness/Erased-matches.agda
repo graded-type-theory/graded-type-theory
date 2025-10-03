@@ -97,7 +97,7 @@ private
              inj₁ $
              Only-some-erased-matches→No-erased-matches
                TR-η UR _ only-some-erased-matches
-         ; inc =
+         ; no-equality-reflection-or-empty =
              Type-restrictions.No-equality-reflection-or-empty⇔ TR-η
                .proj₂ $
              No-equality-reflection-or-empty⇔ .proj₁ $

@@ -16,10 +16,8 @@ module Graded.Erasure.LogicalRelation.Fundamental.Counterexample
   (TR : Type-restrictions 𝕄)
   (UR : Usage-restrictions 𝕄)
   ⦃ 𝟘-well-behaved : Has-well-behaved-zero M semiring-with-meet ⦄
-  {{eqrel : EqRelSet TR}}
   where
 
-open EqRelSet eqrel
 open Type-restrictions TR
 open Usage-restrictions UR
 
@@ -34,6 +32,7 @@ import Definition.Untyped.Erased 𝕄 as Erased
 open import Definition.Untyped.Neutral M type-variant
 open import Definition.Untyped.Whnf M type-variant
 open import Definition.Typed TR
+open import Definition.Typed.EqRelInstance TR
 open import Definition.Typed.Consequences.Consistency TR
 open import Definition.Typed.Properties TR
 open import Definition.Typed.Substitution TR
@@ -69,7 +68,7 @@ private
     {∇ : DCon (Term 0) kᵈ}
     {Δ : Con Term k}
     (⊢Δ : glassify ∇ »⊢ Δ)
-    ⦃ inc : Var-included or-empty Δ ⦄
+    ⦃ ok : No-equality-reflection or-empty Δ ⦄
     (str : Strictness)
     {_⇛_∷_}
     (is-reduction-relation :
@@ -90,7 +89,7 @@ private
     {∇ : DCon (Term 0) kᵈ}
     {Δ : Con Term k}
     (⊢Δ : ∇ »⊢ Δ)
-    ⦃ inc : Var-included or-empty Δ ⦄
+    ⦃ ok : No-equality-reflection or-empty Δ ⦄
     (str : Strictness)
     {_⇛_∷_}
     (is-reduction-relation : Is-reduction-relation (∇ » Δ) _⇛_∷_)
@@ -122,18 +121,18 @@ private
 
 -- If Prodrec-allowed 𝟙ᵐ 𝟘 p 𝟘 holds for some p (which means that
 -- certain kinds of erased matches are allowed), and if additionally
--- Σʷ-allowed p 𝟘 and Var-included hold, then one can prove a negation
--- of a variant of the statement of the fundamental lemma.
+-- Σʷ-allowed p 𝟘 and No-equality-reflection hold, then one can prove
+-- a negation of a variant of the statement of the fundamental lemma.
 
 negation-of-fundamental-lemma-with-erased-matches₁ :
-  ⦃ inc : Var-included ⦄ →
+  ⦃ ok : No-equality-reflection ⦄ →
   Prodrec-allowed 𝟙ᵐ 𝟘 p 𝟘 →
   Σʷ-allowed p 𝟘 →
   ¬ (∀ {o k} {Δ : Con Term k} {∇ : DCon (Term 0) o}
      (⊢Δ : glassify ∇ »⊢ Δ) →
      ▸[ 𝟙ᵐ ] (glassify ∇) →
      Consistent (glassify ∇ » Δ) →
-     ∀ ⦃ inc : Var-included or-empty Δ ⦄
+     ∀ ⦃ ok : No-equality-reflection or-empty Δ ⦄
        {_⇛_∷_}
        ⦃ is-reduction-relation :
            Is-reduction-relation (glassify ∇ » Δ) _⇛_∷_ ⦄ →
@@ -145,7 +144,8 @@ negation-of-fundamental-lemma-with-erased-matches₁
   {p} {str} P-ok Σʷ-ok hyp =
   case soundness-ℕ-only-source-counterexample₁ P-ok Σʷ-ok of λ
     (consistent , ⊢t , ▸∇ , ▸t , _) →
-  ¬t®t $ ▸⊩ʳ∷[𝟙ᵐ]→®∷ $ hyp ⊢Δ ▸∇ consistent ⦃ inc = included ⦄ ⊢t ▸t
+  ¬t®t $ ▸⊩ʳ∷[𝟙ᵐ]→®∷ $
+  hyp ⊢Δ ▸∇ consistent ⦃ ok = possibly-nonempty ⦄ ⊢t ▸t
   where
   Δ : Cons 0 1
   Δ = ε » ε ∙ (Σʷ p , 𝟘 ▷ ℕ ▹ ℕ)
@@ -159,7 +159,7 @@ negation-of-fundamental-lemma-with-erased-matches₁
   ⊢Δ : ⊢ Δ
   ⊢Δ = ∙ ΠΣⱼ (ℕⱼ (∙ ℕⱼ εε)) Σʷ-ok
 
-  open LR ⊢Δ ⦃ inc = included ⦄ str ⇒*-is-reduction-relation
+  open LR ⊢Δ ⦃ ok = possibly-nonempty ⦄ str ⇒*-is-reduction-relation
 
   ¬t®t : ¬ t ® erase str t ∷ A
   ¬t®t t®t = case ®∷ℕ⇔ .proj₁ t®t of λ where
@@ -170,19 +170,19 @@ negation-of-fundamental-lemma-with-erased-matches₁
 
 opaque
 
-  -- If []-cong-allowed, []-cong-allowed-mode and Var-included hold,
-  -- then one can prove a negation of a variant of the statement of
-  -- the fundamental lemma.
+  -- If []-cong-allowed, []-cong-allowed-mode and
+  -- No-equality-reflection hold, then one can prove a negation of a
+  -- variant of the statement of the fundamental lemma.
 
   negation-of-fundamental-lemma-with-erased-matches₂ :
-    ⦃ inc : Var-included ⦄ →
+    ⦃ ok : No-equality-reflection ⦄ →
     []-cong-allowed s →
     []-cong-allowed-mode s 𝟙ᵐ →
     ¬ (∀ {o k} {Δ : Con Term k} {∇ : DCon (Term 0) o}
        (⊢Δ : glassify ∇ »⊢ Δ) →
        ▸[ 𝟙ᵐ ] (glassify ∇) →
        Consistent (glassify ∇ » Δ) →
-       ∀ ⦃ inc : Var-included or-empty Δ ⦄
+       ∀ ⦃ ok : No-equality-reflection or-empty Δ ⦄
          {_⇛_∷_}
          ⦃ is-reduction-relation :
              Is-reduction-relation (glassify ∇ » Δ) _⇛_∷_ ⦄ →
@@ -193,7 +193,7 @@ opaque
   negation-of-fundamental-lemma-with-erased-matches₂
     {s} {str} ok ok′ hyp =
     ¬t®t $ ▸⊩ʳ∷[𝟙ᵐ]→®∷ $
-    hyp ⊢Δ (λ ()) consistent ⦃ inc = included ⦄ ⊢t ▸t
+    hyp ⊢Δ (λ ()) consistent ⦃ ok = possibly-nonempty ⦄ ⊢t ▸t
     where
     open Erased s
     Δ : Cons 0 1
@@ -217,7 +217,7 @@ opaque
     ▸t : 𝟘ᶜ ▸[ 𝟙ᵐ ] t
     ▸t = []-congₘ ℕₘ zeroₘ zeroₘ var ok′
 
-    open LR ⊢Δ ⦃ inc = included ⦄ str ⇒*-is-reduction-relation
+    open LR ⊢Δ ⦃ ok = possibly-nonempty ⦄ str ⇒*-is-reduction-relation
 
     ¬t®t : ¬ t ® erase str t ∷ A
     ¬t®t t®t =
@@ -228,17 +228,17 @@ opaque
 opaque
 
   -- If erased-matches-for-J 𝟙ᵐ is equal to not-none sem and
-  -- Var-included holds, then one can prove a negation of a variant of
-  -- the statement of the fundamental lemma.
+  -- No-equality-reflection holds, then one can prove a negation of a
+  -- variant of the statement of the fundamental lemma.
 
   negation-of-fundamental-lemma-with-erased-matches₃ :
-    ⦃ inc : Var-included ⦄ →
+    ⦃ ok : No-equality-reflection ⦄ →
     erased-matches-for-J 𝟙ᵐ ≡ not-none sem →
     ¬ (∀ {o k} {Δ : Con Term k} {∇ : DCon (Term 0) o}
        (⊢Δ : glassify ∇ »⊢ Δ) →
        ▸[ 𝟙ᵐ ] (glassify ∇) →
        Consistent (glassify ∇ » Δ) →
-       ∀ ⦃ inc : Var-included or-empty Δ ⦄
+       ∀ ⦃ ok : No-equality-reflection or-empty Δ ⦄
          {_⇛_∷_}
          ⦃ is-reduction-relation :
              Is-reduction-relation (glassify ∇ » Δ) _⇛_∷_ ⦄ →
@@ -250,7 +250,8 @@ opaque
     {str} ≡not-none hyp =
     case soundness-ℕ-only-source-counterexample₃ ≡not-none of λ
       (consistent , ⊢t , ▸∇ , ▸t , _) →
-    ¬t®t $ ▸⊩ʳ∷[𝟙ᵐ]→®∷ $ hyp ⊢Δ ▸∇ consistent ⦃ inc = included ⦄ ⊢t ▸t
+    ¬t®t $ ▸⊩ʳ∷[𝟙ᵐ]→®∷ $
+    hyp ⊢Δ ▸∇ consistent ⦃ ok = possibly-nonempty ⦄ ⊢t ▸t
     where
     Δ : Cons 0 1
     Δ = ε » ε ∙ Id ℕ zero zero
@@ -264,7 +265,7 @@ opaque
     ⊢Δ : ⊢ Δ
     ⊢Δ = ∙ Idⱼ′ (zeroⱼ εε) (zeroⱼ εε)
 
-    open LR ⊢Δ ⦃ inc = included ⦄ str ⇒*-is-reduction-relation
+    open LR ⊢Δ ⦃ ok = possibly-nonempty ⦄ str ⇒*-is-reduction-relation
 
     ¬t®t : ¬ t ® erase str t ∷ A
     ¬t®t t®t = case ®∷ℕ⇔ .proj₁ t®t of λ where
@@ -276,18 +277,19 @@ opaque
 opaque
 
   -- If the K rule is allowed, erased-matches-for-K 𝟙ᵐ is equal to
-  -- not-none sem, and Var-included holds, then one can prove a
-  -- negation of a variant of the statement of the fundamental lemma.
+  -- not-none sem, and No-equality-reflection holds, then one can
+  -- prove a negation of a variant of the statement of the fundamental
+  -- lemma.
 
   negation-of-fundamental-lemma-with-erased-matches₄ :
-    ⦃ inc : Var-included ⦄ →
+    ⦃ ok : No-equality-reflection ⦄ →
     K-allowed →
     erased-matches-for-K 𝟙ᵐ ≡ not-none sem →
     ¬ (∀ {o k} {Δ : Con Term k} {∇ : DCon (Term 0) o}
        (⊢Δ : glassify ∇ »⊢ Δ) →
        ▸[ 𝟙ᵐ ] (glassify ∇) →
        Consistent (glassify ∇ » Δ) →
-       ∀ ⦃ inc : Var-included or-empty Δ ⦄
+       ∀ ⦃ ok : No-equality-reflection or-empty Δ ⦄
          {_⇛_∷_}
          ⦃ is-reduction-relation :
              Is-reduction-relation (glassify ∇ » Δ) _⇛_∷_ ⦄ →
@@ -299,7 +301,8 @@ opaque
     {str} K-ok ≡not-none hyp =
     case soundness-ℕ-only-source-counterexample₄ K-ok ≡not-none of λ
       (consistent , ⊢t , ▸∇ , ▸t , _) →
-    ¬t®t $ ▸⊩ʳ∷[𝟙ᵐ]→®∷ $ hyp ⊢Δ ▸∇ consistent ⦃ inc = included ⦄ ⊢t ▸t
+    ¬t®t $ ▸⊩ʳ∷[𝟙ᵐ]→®∷ $
+    hyp ⊢Δ ▸∇ consistent ⦃ ok = possibly-nonempty ⦄ ⊢t ▸t
     where
     Δ : Cons 0 1
     Δ = ε » ε ∙ Id ℕ zero zero
@@ -313,7 +316,7 @@ opaque
     ⊢Δ : ⊢ Δ
     ⊢Δ = ∙ Idⱼ′ (zeroⱼ εε) (zeroⱼ εε)
 
-    open LR ⊢Δ ⦃ inc = included ⦄ str ⇒*-is-reduction-relation
+    open LR ⊢Δ ⦃ ok = possibly-nonempty ⦄ str ⇒*-is-reduction-relation
 
     ¬t®t : ¬ t ® erase str t ∷ A
     ¬t®t t®t = case ®∷ℕ⇔ .proj₁ t®t of λ where
@@ -324,12 +327,12 @@ opaque
 
   -- If Unitrec-allowed 𝟙ᵐ 𝟘 𝟘 holds and η-equality is not allowed for
   -- weak unit types (which means that certain kinds of erased matches
-  -- are allowed), and if additionally Unitʷ-allowed and Var-included
-  -- hold, then one can prove a negation of a variant of the statement
-  -- of the fundamental lemma.
+  -- are allowed), and if additionally Unitʷ-allowed and
+  -- No-equality-reflection hold, then one can prove a negation of a
+  -- variant of the statement of the fundamental lemma.
 
   negation-of-fundamental-lemma-with-erased-matches₅ :
-    ⦃ inc : Var-included ⦄ →
+    ⦃ ok : No-equality-reflection ⦄ →
     Unitʷ-allowed →
     Unitrec-allowed 𝟙ᵐ 𝟘 𝟘 →
     ¬ Unitʷ-η →
@@ -337,7 +340,7 @@ opaque
        (⊢Δ : glassify ∇ »⊢ Δ) →
        ▸[ 𝟙ᵐ ] (glassify ∇) →
        Consistent (glassify ∇ » Δ) →
-       ∀ ⦃ inc : Var-included or-empty Δ ⦄
+       ∀ ⦃ ok : No-equality-reflection or-empty Δ ⦄
          {_⇛_∷_}
          ⦃ is-reduction-relation :
              Is-reduction-relation (glassify ∇ » Δ) _⇛_∷_ ⦄ →
@@ -349,7 +352,8 @@ opaque
     {str} Unit-ok ok no-η hyp =
     case soundness-ℕ-only-source-counterexample₅ ok Unit-ok no-η of λ
       (consistent , ⊢t , ▸∇ , ▸t , _) →
-    ¬t®t $ ▸⊩ʳ∷[𝟙ᵐ]→®∷ $ hyp ⊢Δ ▸∇ consistent ⦃ inc = included ⦄ ⊢t ▸t
+    ¬t®t $ ▸⊩ʳ∷[𝟙ᵐ]→®∷ $
+    hyp ⊢Δ ▸∇ consistent ⦃ ok = possibly-nonempty ⦄ ⊢t ▸t
     where
     Δ : Cons 0 1
     Δ = ε » ε ∙ Unitʷ 0
@@ -363,7 +367,7 @@ opaque
     ⊢Δ : ⊢ Δ
     ⊢Δ = ∙ Unitⱼ εε Unit-ok
 
-    open LR ⊢Δ ⦃ inc = included ⦄ str ⇒*-is-reduction-relation
+    open LR ⊢Δ ⦃ ok = possibly-nonempty ⦄ str ⇒*-is-reduction-relation
 
     ¬t®t : ¬ t ® erase str t ∷ A
     ¬t®t t®t = case ®∷ℕ⇔ .proj₁ t®t of λ where
@@ -374,17 +378,17 @@ opaque
 
 opaque
 
-  -- If Emptyrec-allowed 𝟙ᵐ 𝟘 and Var-included hold, then one can
-  -- prove a negation of a variant of the statement of the fundamental
-  -- lemma.
+  -- If Emptyrec-allowed 𝟙ᵐ 𝟘 and No-equality-reflection hold, then
+  -- one can prove a negation of a variant of the statement of the
+  -- fundamental lemma.
 
   negation-of-fundamental-lemma-without-consistency₆ :
-    ⦃ inc : Var-included ⦄ →
+    ⦃ ok : No-equality-reflection ⦄ →
     Emptyrec-allowed 𝟙ᵐ 𝟘 →
     ¬ (∀ {o k} {Δ : Con Term k} {∇ : DCon (Term 0) o}
        (⊢Δ : glassify ∇ »⊢ Δ) →
        ▸[ 𝟙ᵐ ] (glassify ∇) →
-       ∀ ⦃ inc : Var-included or-empty Δ ⦄
+       ∀ ⦃ ok : No-equality-reflection or-empty Δ ⦄
          {_⇛_∷_}
          ⦃ is-reduction-relation :
              Is-reduction-relation (glassify ∇ » Δ) _⇛_∷_ ⦄ →
@@ -395,7 +399,7 @@ opaque
   negation-of-fundamental-lemma-without-consistency₆ {str} ok hyp =
     case soundness-ℕ-counterexample₆ {str = str} ok of λ
       (⊢t , ▸∇ , ▸t , _) →
-    ¬t®t $ ▸⊩ʳ∷[𝟙ᵐ]→®∷ $ hyp ⊢Δ ▸∇ ⦃ inc = included ⦄ ⊢t ▸t
+    ¬t®t $ ▸⊩ʳ∷[𝟙ᵐ]→®∷ $ hyp ⊢Δ ▸∇ ⦃ ok = possibly-nonempty ⦄ ⊢t ▸t
     where
     Δ : Cons 0 1
     Δ = ε » ε ∙ Empty
@@ -409,7 +413,7 @@ opaque
     ⊢Δ : ⊢ Δ
     ⊢Δ = ∙ Emptyⱼ εε
 
-    open LR ⊢Δ ⦃ inc = included ⦄ str ⇒*-is-reduction-relation
+    open LR ⊢Δ ⦃ ok = possibly-nonempty ⦄ str ⇒*-is-reduction-relation
 
     ¬t®t : ¬ t ® erase str t ∷ A
     ¬t®t t®t = case ®∷ℕ⇔ .proj₁ t®t of λ where
@@ -428,7 +432,7 @@ opaque
        ▸[ 𝟙ᵐ ] ∇ →
        Consistent (∇ » Δ) →
        No-erased-matches TR UR ⊎ Empty-con Δ →
-       ∀ ⦃ inc : Var-included or-empty Δ ⦄
+       ∀ ⦃ ok : No-equality-reflection or-empty Δ ⦄
          {_⇛_∷_}
          ⦃ is-reduction-relation :
              Is-reduction-relation (∇ » Δ) _⇛_∷_ ⦄ →
@@ -440,7 +444,7 @@ opaque
     case soundness-ℕ-only-source-counterexample₇ ok of λ
       (consistent , empty , ⊢t , ▸∇ , ▸t , _) →
     ¬t®t $ ▸⊩ʳ∷[𝟙ᵐ]→®∷ $
-    hyp ⊢Δ ▸∇ consistent (inj₂ empty) ⦃ inc = ε ⦄ ⊢t ▸t
+    hyp ⊢Δ ▸∇ consistent (inj₂ empty) ⦃ ok = ε ⦄ ⊢t ▸t
     where
     Δ : Cons 1 0
     Δ = Opaque[ zero ∷ ℕ ] » ε
@@ -454,7 +458,7 @@ opaque
     ⊢Δ : ⊢ Δ
     ⊢Δ = ε ∙ᵒ⟨ ok , ε ⟩[ zeroⱼ εε ∷ ℕⱼ εε ]
 
-    open LR′ ⊢Δ ⦃ inc = ε ⦄ str ⇒*-is-reduction-relation
+    open LR′ ⊢Δ ⦃ ok = ε ⦄ str ⇒*-is-reduction-relation
 
     ¬t®t : ¬ t ® erase str t ∷ A
     ¬t®t t®t = case ®∷ℕ⇔ .proj₁ t®t of λ where

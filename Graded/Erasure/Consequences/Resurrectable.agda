@@ -297,7 +297,11 @@ opaque
     open Fundamental-assumptions fas
 
     as : Assumptions
-    as = record { ⊢Δ = well-formed; inc = inc; str = T.non-strict }
+    as = record
+      { ⊢Δ  = well-formed
+      ; inc = no-equality-reflection-or-empty
+      ; str = T.non-strict
+      }
 
     open H as
     open L as
@@ -416,7 +420,11 @@ opaque
     open Fundamental-assumptions⁻ as
 
     as′ : Assumptions
-    as′ = record { ⊢Δ = wfTerm ⊢t; inc = inc; str = T.non-strict }
+    as′ = record
+      { ⊢Δ  = wfTerm ⊢t
+      ; inc = no-equality-reflection-or-empty
+      ; str = T.non-strict
+      }
 
     open H as′
     open L as′
