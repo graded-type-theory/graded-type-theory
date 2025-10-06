@@ -321,8 +321,8 @@ record _⊩⟨_⟩Π_∷_/_ (Γ : Cons m n) (l : Universe-level) (t A : Term n)
     ⇒*u   : Γ ⊢ t ⇒* u ∷ Π p , q ▷ F ▹ G
     u-fun : Functionₗ (Γ .defs) u
     ≅u    : Γ ⊢≅ u ∷ Π p , q ▷ F ▹ G
-    ⊩u    : ∀ {m′} {ξ : DExt _ m′ m} {∇ : DCon (Term 0) m′}
-            (∇⊇Γ : ξ » ∇ ⊇ Γ .defs)
+    ⊩u    : ∀ {m′} {∇ : DCon (Term 0) m′}
+            (∇⊇Γ : » ∇ ⊇ Γ .defs)
             {n′} {ρ : Wk n′ n} {Δ : Con Term n′} {v w}
             (Δ⊇Γ : ∇ » ρ ∷ʷʳ Δ ⊇ Γ .vars)
             (⊩v : ∇ » Δ ⊩⟨ l ⟩ v ∷ wk ρ F / [F] ∇⊇Γ Δ⊇Γ) →

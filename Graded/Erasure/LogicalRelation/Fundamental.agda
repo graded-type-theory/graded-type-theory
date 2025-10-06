@@ -72,7 +72,6 @@ private
   variable
      α β n o : Nat
      ∇ : DCon (Term 0) _
-     ξ : DExt (Term 0) _ _
      Γ Δ : Con Term n
      t t′ u A A′ B : Term n
      v v′ : T.Term n
@@ -431,7 +430,7 @@ module Fundamental
       where
       lemma :
         ∀ {∇′ : DCon (Term 0) n} {t A} →
-        ξ » glassify ∇ ⊇ glassify ∇′ →
+        » glassify ∇ ⊇ glassify ∇′ →
         » glassify ∇′ →
         ▸[ 𝟙ᵐ ] glassify ∇′ →
         α ↦ t ∷ A ∈ glassify ∇′ →
@@ -441,7 +440,7 @@ module Fundamental
       lemma
         {v} {∇′ = ∇′∙@(∇′ ∙⟨ _ ⟩[ _ ∷ _ ])} {t} {A}
         ∇⊇∇′∙ »∇′∙t@(∙ᵗ[ ⊢t ]) ▸∇′∙ α↦t α↦v =
-        let ∇⊇∇′ = ∇⊇∇′∙ •ₜᵈ stepᵗ₁ ⊢t
+        let ∇⊇∇′ = »⊇-trans ∇⊇∇′∙ (stepᵗ₁ ⊢t)
 
             erase-t≡v : erase s t PE.≡ v
             erase-t≡v = TP.↦∈-deterministic (↦erase∈eraseDCon′ α↦t) α↦v

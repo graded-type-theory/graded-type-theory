@@ -37,7 +37,6 @@ private
     ∇′ : DCon (Term 0) n′
     Γ : Cons _ _
     Δ Η : Con _ _
-    ξ : DExt (Term 0) n′ n
     ρ : Wk n′ n
     A A₁ A₂ A′ B B₁ B₂ B′ C : Term n
     a a′ b b′ e e′ : Term n
@@ -141,13 +140,13 @@ record Equality-relations
           → (∇ » Η) ⊢ wk ρ t ~ wk ρ u ∷ wk ρ A
 
     -- Definitional weakening
-    ≅-defn-wk  : ξ » ∇′ ⊇ ∇
+    ≅-defn-wk  : » ∇′ ⊇ ∇
                → (∇ » Δ) ⊢ A ≅ B
                → (∇′ » Δ) ⊢ A ≅ B
-    ≅ₜ-defn-wk : ξ » ∇′ ⊇ ∇
+    ≅ₜ-defn-wk : » ∇′ ⊇ ∇
                → (∇ » Δ) ⊢ t ≅ u ∷ A
                → (∇′ » Δ) ⊢ t ≅ u ∷ A
-    ~-defn-wk  : ξ » ∇′ ⊇ ∇
+    ~-defn-wk  : » ∇′ ⊇ ∇
                → (∇ » Δ) ⊢ t ~ u ∷ A
                → (∇′ » Δ) ⊢ t ~ u ∷ A
 

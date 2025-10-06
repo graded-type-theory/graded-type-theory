@@ -690,8 +690,8 @@ Run-time-canonicity-for :
 Run-time-canonicity-for str ∇ Δ t =
   ∃ λ n →
   eraseDCon str ∇ ⊢ erase str t ⇒ˢ⟨ str ⟩* T.sucᵏ n ×
-  ∃₄ λ u m (∇′ : DCon (Term 0) m) ξ →
-  ξ » ∇′ ⊇ ∇ ×
+  ∃₃ λ u m (∇′ : DCon (Term 0) m) →
+  » ∇′ ⊇ ∇ ×
   ∇′ » Δ ⊢ u ∷ Id ℕ t (sucᵏ n)
 
 -- Above some counterexamples to variants of soundness-ℕ-only-source
@@ -712,7 +712,7 @@ soundness-ℕ-only-target-not-counterexample₁ {p} ok
     0
   , refl-⇒ˢ⟨⟩*
   , subst ω ℕ² (Id ℕ pr zero) 0,0 (var x0) η rfl
-  , 0 , ε , id , id
+  , 0 , ε , id
   , ⊢subst (Idⱼ′ ⊢pr (zeroⱼ (εε ∙[ ⊢ℕ² ] ∙[ ⊢ℕ² ])))
       (⊢Σʷ-η-prodʷ-fstʷ-sndʷ (var₀ (⊢ℕ² εε)))
       (rflⱼ′
@@ -764,7 +764,7 @@ opaque
                ([]-cong s ℕ zero (var x1) (var x0)))
             zero)
         rfl zero (var x0)
-    , 0 , ε , id , id
+    , 0 , ε , id
     , Jⱼ′
         (Idⱼ′
            (Jⱼ′ (ℕⱼ (J-motive-context ([]ⱼ Erased-ok ⊢zero))) ⊢zero
@@ -816,7 +816,7 @@ opaque
     , J 𝟘 𝟘 ℕ zero
         (Id ℕ (J 𝟘 𝟘 ℕ zero ℕ zero (var x1) (var x0)) zero)
         rfl zero (var x0)
-    , 0 , ε , id , id
+    , 0 , ε , id
     , Jⱼ′
         (Idⱼ′
            (Jⱼ′ (ℕⱼ (J-motive-context ⊢zero)) ⊢zero
@@ -856,7 +856,7 @@ opaque
     , K 𝟘 ℕ zero
         (Id ℕ (K 𝟘 ℕ zero ℕ zero (var x0)) zero)
         rfl (var x0)
-    , 0 , ε , id , id
+    , 0 , ε , id
     , Kⱼ
         (Idⱼ′
            (Kⱼ (ℕⱼ (K-motive-context ⊢zero)) ⊢zero
@@ -898,7 +898,7 @@ opaque
     , refl-⇒ˢ⟨⟩*
     , subst ω (Unitʷ 0) (Id ℕ (unitrec 0 𝟘 𝟘 ℕ (var x0) zero) zero)
         (starʷ 0) (var x0) (Unit-η 𝕨 0 ω (var x0)) rfl
-    , 0 , ε , id , id
+    , 0 , ε , id
     , ⊢subst
         (Idⱼ′
            (unitrecⱼ (ℕⱼ (εε ∙[ ⊢Unitʷ ] ∙[ ⊢Unitʷ ] ∙[ ⊢Unitʷ ]))
@@ -934,7 +934,6 @@ opaque
     defn 1 ,
     2 ,
     Opaque[ zero ∷ ℕ ] ∙⟨ opa (ε ¹) ⟩[ rfl ∷ Id ℕ (defn 0) zero ] ,
-    step₁ _ _ _ ,
     stepᵒ₁ ok ⊢Id zero←zero ⊢rfl ,
     defn (ε ∙ᵒ⟨ ok , zero←zero ⟩[ ⊢rfl ∷ ⊢Id ]) here PE.refl
 
@@ -946,8 +945,8 @@ Run-time-canonicity-with-arguments-removed-for :
 Run-time-canonicity-with-arguments-removed-for str ∇ Δ t =
   ∃ λ n →
   eraseDCon′ true str ∇ ⊢ erase′ true str t ⇒ˢ⟨ str ⟩* T.sucᵏ n ×
-  ∃₄ λ u m (∇′ : DCon (Term 0) m) ξ →
-  ξ » ∇′ ⊇ ∇ ×
+  ∃₃ λ u m (∇′ : DCon (Term 0) m) →
+  » ∇′ ⊇ ∇ ×
   ∇′ » Δ ⊢ u ∷ Id ℕ t (sucᵏ n)
 
 opaque

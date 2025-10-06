@@ -46,7 +46,6 @@ private variable
   Γ Δ Η                      : Con Term _
   A A₁ A₂ B t t₁ t₂ u v      : Term _
   σ σ₁ σ₁₁ σ₁₂ σ₂ σ₂₁ σ₂₂ σ₃ : Subst _ _
-  ξ                          : DExt (Term 0) _ _
   ρ                          : Wk _ _
   s s₂                       : Size
   p q                        : M
@@ -466,7 +465,7 @@ opaque
 
   -- Well-typedness of substitutions is preserved by extension of the definition context.
 
-  defn-wkSubst : ξ » ∇′ ⊇ ∇ → ∇ » Δ ⊢ˢ σ ∷ Γ → ∇′ » Δ ⊢ˢ σ ∷ Γ
+  defn-wkSubst : » ∇′ ⊇ ∇ → ∇ » Δ ⊢ˢ σ ∷ Γ → ∇′ » Δ ⊢ˢ σ ∷ Γ
   defn-wkSubst ξ⊇ id        = id
   defn-wkSubst ξ⊇ (⊢σ , ⊢t) = defn-wkSubst ξ⊇ ⊢σ , defn-wkTerm ξ⊇ ⊢t
 
@@ -474,7 +473,7 @@ opaque
 
   -- Well-typedness of substitutions is preserved by extension of the definition context.
 
-  defn-wkSubstʷ : ξ » ∇′ ⊇ ∇ → ∇ » Δ ⊢ˢʷ σ ∷ Γ → ∇′ » Δ ⊢ˢʷ σ ∷ Γ
+  defn-wkSubstʷ : » ∇′ ⊇ ∇ → ∇ » Δ ⊢ˢʷ σ ∷ Γ → ∇′ » Δ ⊢ˢʷ σ ∷ Γ
   defn-wkSubstʷ ξ⊇ ⊢ˢʷσ =
     let (⊢Δ , ⊢σ) = ⊢ˢʷ∷⇔ .proj₁ ⊢ˢʷσ
     in  ⊢ˢʷ∷⇔ .proj₂ (defn-wk′ ξ⊇ ⊢Δ , defn-wkSubst ξ⊇ ⊢σ)

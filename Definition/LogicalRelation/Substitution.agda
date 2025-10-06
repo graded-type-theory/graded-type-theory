@@ -44,7 +44,6 @@ private variable
   Γ                                                     : Cons _ _
   A A₁ A₂ B B₁ B₂ C C₁ C₂ D E t t₁ t₂ u u₁ u₂ v v₁ v₂ w : Term _
   σ σ₁ σ₂ σ₃                                            : Subst _ _
-  ξ                                                     : DExt (Term 0) _ _
   ρ                                                     : Wk _ _
   l l′ l″ l‴                                            : Universe-level
 
@@ -75,7 +74,7 @@ opaque mutual
   _⊩ᵛ⟨_⟩_≡_ : Cons κ n → Universe-level → Term n → Term n → Set a
   _⊩ᵛ⟨_⟩_≡_ {κ} {n} (∇ » Γ) l A B =
     ∇ »⊩ᵛ Γ ×
-    (∀ {κ′ ∇′} {ξ : DExt _ κ′ κ} → ξ » ∇′ ⊇ ∇ →
+    (∀ {κ′} {∇′ : DCon (Term 0) κ′} → » ∇′ ⊇ ∇ →
      ∀ {m Δ} {σ₁ σ₂ : Subst m n} → ∇′ » Δ ⊩ˢ σ₁ ≡ σ₂ ∷ Γ →
      ∇′ » Δ ⊩⟨ l ⟩ A [ σ₁ ] ≡ B [ σ₂ ])
 
@@ -118,7 +117,7 @@ opaque
     Cons κ n → Universe-level → Term n → Term n → Term n → Set a
   _⊩ᵛ⟨_⟩_≡_∷_ {κ} {n} (∇ » Γ) l t u A =
     ∇ » Γ ⊩ᵛ⟨ l ⟩ A ×
-    (∀ {κ′ ∇′} {ξ : DExt _ κ′ κ} → ξ » ∇′ ⊇ ∇ →
+    (∀ {κ′} {∇′ : DCon (Term 0) κ′} → » ∇′ ⊇ ∇ →
      ∀ {m Δ} {σ₁ σ₂ : Subst m n} → ∇′ » Δ ⊩ˢ σ₁ ≡ σ₂ ∷ Γ →
      ∇′ » Δ ⊩⟨ l ⟩ t [ σ₁ ] ≡ u [ σ₂ ] ∷ A [ σ₁ ])
 
@@ -166,7 +165,7 @@ opaque
   ⊩ᵛ⇔ :
     ∇ » Δ ⊩ᵛ⟨ l ⟩ A ⇔
     (∇ »⊩ᵛ Δ ×
-     (∀ {κ′ ∇′} {ξ : DExt _ κ′ κ} → ξ » ∇′ ⊇ ∇ →
+     (∀ {κ′} {∇′ : DCon (Term 0) κ′} → » ∇′ ⊇ ∇ →
       ∀ {m Η} {σ₁ σ₂ : Subst m n} → ∇′ » Η ⊩ˢ σ₁ ≡ σ₂ ∷ Δ →
       ∇′ » Η ⊩⟨ l ⟩ A [ σ₁ ] ≡ A [ σ₂ ]))
   ⊩ᵛ⇔ = id⇔
@@ -178,24 +177,24 @@ opaque
   ⊩ᵛ⇔ʰ :
     ∇ » Δ ⊩ᵛ⟨ l ⟩ A ⇔
     (∇ »⊩ᵛ Δ ×
-     (∀ {κ′ ∇′} {ξ : DExt _ κ′ κ} → ξ » ∇′ ⊇ ∇ →
+     (∀ {κ′} {∇′ : DCon (Term 0) κ′} → » ∇′ ⊇ ∇ →
       ∀ {m Η} {σ₁ σ₂ : Subst m n}
         ⦃ inc : Var-included or-empty Η ⦄ →
       ∇′ » Η ⊩ˢ σ₁ ≡ σ₂ ∷ Δ → ∇′ » Η H.⊩⟨ l ⟩ A [ σ₁ ] ≡ A [ σ₂ ]))
-  ⊩ᵛ⇔ʰ {κ} {∇} {n} {Δ} {l} {A} =
+  ⊩ᵛ⇔ʰ {∇} {n} {Δ} {l} {A} =
     ∇ » Δ ⊩ᵛ⟨ l ⟩ A                                                ⇔⟨ ⊩ᵛ⇔ ⟩
 
     ∇ »⊩ᵛ Δ ×
-    (∀ {κ′ ∇′} {ξ : DExt _ κ′ κ} → ξ » ∇′ ⊇ ∇ →
+    (∀ {κ′} {∇′ : DCon (Term 0) κ′} → » ∇′ ⊇ ∇ →
      ∀ {m Η} {σ₁ σ₂ : Subst m n} → ∇′ » Η ⊩ˢ σ₁ ≡ σ₂ ∷ Δ →
      ∇′ » Η ⊩⟨ l ⟩ A [ σ₁ ] ≡ A [ σ₂ ])                            ⇔⟨ (Σ-cong-⇔ λ _ →
-                                                                         implicit-Π-cong-⇔ λ _ → implicit-Π-cong-⇔ λ _ →
+                                                                         implicit-Π-cong-⇔ λ _ →
                                                                          implicit-Π-cong-⇔ λ _ → Π-cong-⇔ λ _ →
                                                                          implicit-Π-cong-⇔ λ _ → implicit-Π-cong-⇔ λ _ →
                                                                          implicit-Π-cong-⇔ λ _ → implicit-Π-cong-⇔ λ _ →
                                                                          Π⦃⦄→⇔⦃⦄→Π ∘⇔ (Π-cong-⇔ λ _ → ⊩≡⇔)) ⟩
     ∇ »⊩ᵛ Δ ×
-    (∀ {κ′ ∇′} {ξ : DExt _ κ′ κ} → ξ » ∇′ ⊇ ∇ →
+    (∀ {κ′} {∇′ : DCon (Term 0) κ′} → » ∇′ ⊇ ∇ →
      ∀ {m Η} {σ₁ σ₂ : Subst m n}
        ⦃ inc : Var-included or-empty Η ⦄ →
      ∇′ » Η ⊩ˢ σ₁ ≡ σ₂ ∷ Δ → ∇′ » Η H.⊩⟨ l ⟩ A [ σ₁ ] ≡ A [ σ₂ ])  □⇔
@@ -208,7 +207,7 @@ opaque
   ⊩ᵛ≡⇔ :
     ∇ » Δ ⊩ᵛ⟨ l ⟩ A ≡ B ⇔
     (∇ »⊩ᵛ Δ ×
-     (∀ {κ′ ∇′} {ξ : DExt _ κ′ κ} → ξ » ∇′ ⊇ ∇ →
+     (∀ {κ′} {∇′ : DCon (Term 0) κ′} → » ∇′ ⊇ ∇ →
       ∀ {m Η} {σ₁ σ₂ : Subst m n} → ∇′ » Η ⊩ˢ σ₁ ≡ σ₂ ∷ Δ →
       ∇′ » Η ⊩⟨ l ⟩ A [ σ₁ ] ≡ B [ σ₂ ]))
   ⊩ᵛ≡⇔ = id⇔
@@ -220,24 +219,24 @@ opaque
   ⊩ᵛ≡⇔ʰ :
     ∇ » Δ ⊩ᵛ⟨ l ⟩ A ≡ B ⇔
     (∇ »⊩ᵛ Δ ×
-     (∀ {κ′ ∇′} {ξ : DExt _ κ′ κ} → ξ » ∇′ ⊇ ∇ →
+     (∀ {κ′} {∇′ : DCon (Term 0) κ′} → » ∇′ ⊇ ∇ →
       ∀ {m Η} {σ₁ σ₂ : Subst m n}
       ⦃ inc : Var-included or-empty Η ⦄ →
       ∇′ » Η ⊩ˢ σ₁ ≡ σ₂ ∷ Δ → ∇′ » Η H.⊩⟨ l ⟩ A [ σ₁ ] ≡ B [ σ₂ ]))
-  ⊩ᵛ≡⇔ʰ {κ} {∇} {n} {Δ} {l} {A} {B} =
+  ⊩ᵛ≡⇔ʰ {∇} {n} {Δ} {l} {A} {B} =
     ∇ » Δ ⊩ᵛ⟨ l ⟩ A ≡ B                                            ⇔⟨ ⊩ᵛ≡⇔ ⟩
 
     ∇ »⊩ᵛ Δ ×
-    (∀ {κ′ ∇′} {ξ : DExt _ κ′ κ} → ξ » ∇′ ⊇ ∇ →
+    (∀ {κ′} {∇′ : DCon (Term 0) κ′} → » ∇′ ⊇ ∇ →
      ∀ {m Η} {σ₁ σ₂ : Subst m n} → ∇′ » Η ⊩ˢ σ₁ ≡ σ₂ ∷ Δ →
      ∇′ » Η ⊩⟨ l ⟩ A [ σ₁ ] ≡ B [ σ₂ ])                            ⇔⟨ (Σ-cong-⇔ λ _ →
-                                                                         implicit-Π-cong-⇔ λ _ → implicit-Π-cong-⇔ λ _ →
+                                                                         implicit-Π-cong-⇔ λ _ →
                                                                          implicit-Π-cong-⇔ λ _ → Π-cong-⇔ λ _ →
                                                                          implicit-Π-cong-⇔ λ _ → implicit-Π-cong-⇔ λ _ →
                                                                          implicit-Π-cong-⇔ λ _ → implicit-Π-cong-⇔ λ _ →
                                                                          Π⦃⦄→⇔⦃⦄→Π ∘⇔ (Π-cong-⇔ λ _ → ⊩≡⇔)) ⟩
     ∇ »⊩ᵛ Δ ×
-    (∀ {κ′ ∇′} {ξ : DExt _ κ′ κ} → ξ » ∇′ ⊇ ∇ →
+    (∀ {κ′} {∇′ : DCon (Term 0) κ′} → » ∇′ ⊇ ∇ →
      ∀ {m Η} {σ₁ σ₂ : Subst m n}
        ⦃ inc : Var-included or-empty Η ⦄ →
      ∇′ » Η ⊩ˢ σ₁ ≡ σ₂ ∷ Δ → ∇′ » Η H.⊩⟨ l ⟩ A [ σ₁ ] ≡ B [ σ₂ ])  □⇔
@@ -258,7 +257,7 @@ opaque
   ⊩ᵛ∷⇔ :
     ∇ » Δ ⊩ᵛ⟨ l ⟩ t ∷ A ⇔
     (∇ » Δ ⊩ᵛ⟨ l ⟩ A ×
-     (∀ {κ′ ∇′} {ξ : DExt _ κ′ κ} → ξ » ∇′ ⊇ ∇ →
+     (∀ {κ′} {∇′ : DCon (Term 0) κ′} → » ∇′ ⊇ ∇ →
       ∀ {m Η} {σ₁ σ₂ : Subst m n} → ∇′ » Η ⊩ˢ σ₁ ≡ σ₂ ∷ Δ →
       ∇′ » Η ⊩⟨ l ⟩ t [ σ₁ ] ≡ t [ σ₂ ] ∷ A [ σ₁ ]))
   ⊩ᵛ∷⇔ = id⇔
@@ -270,25 +269,25 @@ opaque
   ⊩ᵛ∷⇔ʰ :
     ∇ » Δ ⊩ᵛ⟨ l ⟩ t ∷ A ⇔
     (∇ » Δ ⊩ᵛ⟨ l ⟩ A ×
-     (∀ {κ′ ∇′} {ξ : DExt _ κ′ κ} → ξ » ∇′ ⊇ ∇ →
+     (∀ {κ′} {∇′ : DCon (Term 0) κ′} → » ∇′ ⊇ ∇ →
       ∀ {m Η} {σ₁ σ₂ : Subst m n}
       ⦃ inc : Var-included or-empty Η ⦄ →
       ∇′ » Η ⊩ˢ σ₁ ≡ σ₂ ∷ Δ →
       ∇′ » Η H.⊩⟨ l ⟩ t [ σ₁ ] ≡ t [ σ₂ ] ∷ A [ σ₁ ]))
-  ⊩ᵛ∷⇔ʰ {κ} {∇} {n} {Δ} {l} {t} {A} =
+  ⊩ᵛ∷⇔ʰ {∇} {n} {Δ} {l} {t} {A} =
     ∇ » Δ ⊩ᵛ⟨ l ⟩ t ∷ A                                                       ⇔⟨ ⊩ᵛ∷⇔ ⟩
 
     ∇ » Δ ⊩ᵛ⟨ l ⟩ A ×
-    (∀ {κ′ ∇′} {ξ : DExt _ κ′ κ} → ξ » ∇′ ⊇ ∇ →
+    (∀ {κ′} {∇′ : DCon (Term 0) κ′} → » ∇′ ⊇ ∇ →
      ∀ {m Η} {σ₁ σ₂ : Subst m n} → ∇′ » Η ⊩ˢ σ₁ ≡ σ₂ ∷ Δ →
      ∇′ » Η ⊩⟨ l ⟩ t [ σ₁ ] ≡ t [ σ₂ ] ∷ A [ σ₁ ])                            ⇔⟨ (Σ-cong-⇔ λ _ →
-                                                                                    implicit-Π-cong-⇔ λ _ → implicit-Π-cong-⇔ λ _ →
+                                                                                    implicit-Π-cong-⇔ λ _ →
                                                                                     implicit-Π-cong-⇔ λ _ → Π-cong-⇔ λ _ →
                                                                                     implicit-Π-cong-⇔ λ _ → implicit-Π-cong-⇔ λ _ →
                                                                                     implicit-Π-cong-⇔ λ _ → implicit-Π-cong-⇔ λ _ →
                                                                                     Π⦃⦄→⇔⦃⦄→Π ∘⇔ (Π-cong-⇔ λ _ → ⊩≡∷⇔)) ⟩
     ∇ » Δ ⊩ᵛ⟨ l ⟩ A ×
-    (∀ {κ′ ∇′} {ξ : DExt _ κ′ κ} → ξ » ∇′ ⊇ ∇ →
+    (∀ {κ′} {∇′ : DCon (Term 0) κ′} → » ∇′ ⊇ ∇ →
      ∀ {m Η} {σ₁ σ₂ : Subst m n}
        ⦃ inc : Var-included or-empty Η ⦄ →
      ∇′ » Η ⊩ˢ σ₁ ≡ σ₂ ∷ Δ → ∇′ » Η H.⊩⟨ l ⟩ t [ σ₁ ] ≡ t [ σ₂ ] ∷ A [ σ₁ ])  □⇔
@@ -301,7 +300,7 @@ opaque
   ⊩ᵛ≡∷⇔ :
     ∇ » Δ ⊩ᵛ⟨ l ⟩ t ≡ u ∷ A ⇔
     (∇ » Δ ⊩ᵛ⟨ l ⟩ A ×
-     (∀ {κ′ ∇′} {ξ : DExt _ κ′ κ} → ξ » ∇′ ⊇ ∇ →
+     (∀ {κ′} {∇′ : DCon (Term 0) κ′} → » ∇′ ⊇ ∇ →
       ∀ {m Η} {σ₁ σ₂ : Subst m n} → ∇′ » Η ⊩ˢ σ₁ ≡ σ₂ ∷ Δ →
       ∇′ » Η ⊩⟨ l ⟩ t [ σ₁ ] ≡ u [ σ₂ ] ∷ A [ σ₁ ]))
   ⊩ᵛ≡∷⇔ = id⇔
@@ -313,25 +312,25 @@ opaque
   ⊩ᵛ≡∷⇔ʰ :
     ∇ » Δ ⊩ᵛ⟨ l ⟩ t ≡ u ∷ A ⇔
     (∇ » Δ ⊩ᵛ⟨ l ⟩ A ×
-     (∀ {κ′ ∇′} {ξ : DExt _ κ′ κ} → ξ » ∇′ ⊇ ∇ →
+     (∀ {κ′} {∇′ : DCon (Term 0) κ′} → » ∇′ ⊇ ∇ →
       ∀ {m Η} {σ₁ σ₂ : Subst m n}
         ⦃ inc : Var-included or-empty Η ⦄ →
       ∇′ » Η ⊩ˢ σ₁ ≡ σ₂ ∷ Δ →
       ∇′ » Η H.⊩⟨ l ⟩ t [ σ₁ ] ≡ u [ σ₂ ] ∷ A [ σ₁ ]))
-  ⊩ᵛ≡∷⇔ʰ {κ} {∇} {n} {Δ} {l} {t} {u} {A} =
+  ⊩ᵛ≡∷⇔ʰ {∇} {n} {Δ} {l} {t} {u} {A} =
     ∇ » Δ ⊩ᵛ⟨ l ⟩ t ≡ u ∷ A                                                   ⇔⟨ ⊩ᵛ≡∷⇔ ⟩
 
     ∇ » Δ ⊩ᵛ⟨ l ⟩ A ×
-    (∀ {κ′ ∇′} {ξ : DExt _ κ′ κ} → ξ » ∇′ ⊇ ∇ →
+    (∀ {κ′} {∇′ : DCon (Term 0) κ′} → » ∇′ ⊇ ∇ →
      ∀ {m Η} {σ₁ σ₂ : Subst m n} → ∇′ » Η ⊩ˢ σ₁ ≡ σ₂ ∷ Δ →
      ∇′ » Η ⊩⟨ l ⟩ t [ σ₁ ] ≡ u [ σ₂ ] ∷ A [ σ₁ ])                            ⇔⟨ (Σ-cong-⇔ λ _ →
-                                                                                    implicit-Π-cong-⇔ λ _ → implicit-Π-cong-⇔ λ _ →
+                                                                                    implicit-Π-cong-⇔ λ _ →
                                                                                     implicit-Π-cong-⇔ λ _ → Π-cong-⇔ λ _ →
                                                                                     implicit-Π-cong-⇔ λ _ → implicit-Π-cong-⇔ λ _ →
                                                                                     implicit-Π-cong-⇔ λ _ → implicit-Π-cong-⇔ λ _ →
                                                                                     Π⦃⦄→⇔⦃⦄→Π ∘⇔ (Π-cong-⇔ λ _ → ⊩≡∷⇔)) ⟩
     ∇ » Δ ⊩ᵛ⟨ l ⟩ A ×
-    (∀ {κ′ ∇′} {ξ : DExt _ κ′ κ} → ξ » ∇′ ⊇ ∇ →
+    (∀ {κ′} {∇′ : DCon (Term 0) κ′} → » ∇′ ⊇ ∇ →
      ∀ {m Η} {σ₁ σ₂ : Subst m n}
        ⦃ inc : Var-included or-empty Η ⦄ →
      ∇′ » Η ⊩ˢ σ₁ ≡ σ₂ ∷ Δ → ∇′ » Η H.⊩⟨ l ⟩ t [ σ₁ ] ≡ u [ σ₂ ] ∷ A [ σ₁ ])  □⇔
@@ -639,7 +638,7 @@ opaque mutual
 
   -- A definitional weakening lemma for ⊩ᵛ_.
 
-  defn-wk-⊩ᵛ′ : ξ » ∇′ ⊇ ∇ → ∇ »⊩ᵛ Δ → ∇′ »⊩ᵛ Δ
+  defn-wk-⊩ᵛ′ : » ∇′ ⊇ ∇ → ∇ »⊩ᵛ Δ → ∇′ »⊩ᵛ Δ
   defn-wk-⊩ᵛ′ {Δ = ε} ξ⊇ ⊩Δ =
     ⊩ᵛε⇔ .proj₂ (wf-»⊇ ξ⊇ (⊩ᵛε⇔ .proj₁ ⊩Δ))
   defn-wk-⊩ᵛ′ {Δ = Δ ∙ A} ξ⊇ ⊩Δ =
@@ -648,17 +647,17 @@ opaque mutual
 
   -- A definitional weakening lemma for _⊩ᵛ⟨_⟩_.
 
-  defn-wk-⊩ᵛ : ξ » ∇′ ⊇ ∇ → ∇ » Δ ⊩ᵛ⟨ l ⟩ A → ∇′ » Δ ⊩ᵛ⟨ l ⟩ A
+  defn-wk-⊩ᵛ : » ∇′ ⊇ ∇ → ∇ » Δ ⊩ᵛ⟨ l ⟩ A → ∇′ » Δ ⊩ᵛ⟨ l ⟩ A
   defn-wk-⊩ᵛ ξ⊇ = ⊩ᵛ⇔⊩ᵛ≡ .proj₂ ∘→ defn-wk-⊩ᵛ≡ ξ⊇ ∘→ ⊩ᵛ⇔⊩ᵛ≡ .proj₁
 
   -- A definitional weakening lemma for _⊩ᵛ⟨_⟩_≡_.
 
-  defn-wk-⊩ᵛ≡ : ξ » ∇′ ⊇ ∇ → ∇ » Δ ⊩ᵛ⟨ l ⟩ A ≡ B → ∇′ » Δ ⊩ᵛ⟨ l ⟩ A ≡ B
+  defn-wk-⊩ᵛ≡ : » ∇′ ⊇ ∇ → ∇ » Δ ⊩ᵛ⟨ l ⟩ A ≡ B → ∇′ » Δ ⊩ᵛ⟨ l ⟩ A ≡ B
   defn-wk-⊩ᵛ≡ {A} {B} ξ⊇ A≡B =
     let (⊩Δ , A≡B) = ⊩ᵛ≡⇔ .proj₁ A≡B
     in  ⊩ᵛ≡⇔ .proj₂
           ( defn-wk-⊩ᵛ′ ξ⊇ ⊩Δ
-          , λ ξ⊇′ → A≡B (ξ⊇′ •ₜᵈ ξ⊇)
+          , λ ξ⊇′ → A≡B (»⊇-trans ξ⊇′ ξ⊇)
           )
 
 opaque
@@ -666,14 +665,14 @@ opaque
   -- A definitional weakening lemma for _⊩ᵛ⟨_⟩_≡_∷_.
 
   defn-wk-⊩ᵛ≡∷ :
-    ξ » ∇′ ⊇ ∇ →
+    » ∇′ ⊇ ∇ →
     ∇ » Δ ⊩ᵛ⟨ l ⟩ t ≡ u ∷ A →
     ∇′ » Δ ⊩ᵛ⟨ l ⟩ t ≡ u ∷ A
   defn-wk-⊩ᵛ≡∷ {t} {u} {A} ξ⊇ t≡u =
     let (⊩A , t≡u) = ⊩ᵛ≡∷⇔ .proj₁ t≡u
     in  ⊩ᵛ≡∷⇔ .proj₂
           ( defn-wk-⊩ᵛ ξ⊇ ⊩A
-          , λ ξ⊇′ → t≡u (ξ⊇′ •ₜᵈ ξ⊇)
+          , λ ξ⊇′ → t≡u (»⊇-trans ξ⊇′ ξ⊇)
           )
 
 opaque
@@ -681,7 +680,7 @@ opaque
   -- A definitional weakening lemma for _⊩ᵛ⟨_⟩_∷_.
 
   defn-wk-⊩ᵛ∷ :
-    ξ » ∇′ ⊇ ∇ →
+    » ∇′ ⊇ ∇ →
     ∇ » Δ ⊩ᵛ⟨ l ⟩ t ∷ A →
     ∇′ » Δ ⊩ᵛ⟨ l ⟩ t ∷ A
   defn-wk-⊩ᵛ∷ ξ⊇ = ⊩ᵛ∷⇔⊩ᵛ≡∷ .proj₂ ∘→ defn-wk-⊩ᵛ≡∷ ξ⊇ ∘→ ⊩ᵛ∷⇔⊩ᵛ≡∷ .proj₁
@@ -692,7 +691,7 @@ opaque
 
   defn-wk-⊩ˢ≡∷ :
     ⦃ inc : Var-included or-empty Η ⦄ →
-    ξ » ∇′ ⊇ ∇ →
+    » ∇′ ⊇ ∇ →
     ∇ » Η ⊩ˢ σ₁ ≡ σ₂ ∷ Δ →
     ∇′ » Η ⊩ˢ σ₁ ≡ σ₂ ∷ Δ
   defn-wk-⊩ˢ≡∷ {Δ = ε} ⦃ inc ⦄ ξ⊇ σ₁≡σ₂ =
@@ -706,7 +705,7 @@ opaque
 
   -- A definitional weakening lemma for _⊩ˢ_∷_.
 
-  defn-wk-⊩ˢ∷ : ξ » ∇′ ⊇ ∇ → ∇ » Η ⊩ˢ σ ∷ Δ → ∇′ » Η ⊩ˢ σ ∷ Δ
+  defn-wk-⊩ˢ∷ : » ∇′ ⊇ ∇ → ∇ » Η ⊩ˢ σ ∷ Δ → ∇′ » Η ⊩ˢ σ ∷ Δ
   defn-wk-⊩ˢ∷ {Δ = ε} ξ⊇ ⊩σ =
     ⊩ˢ∷ε⇔ .proj₂ (wf-»⊇ ξ⊇ (⊩ˢ∷→» ⊩σ) , defn-wk′ ξ⊇ (⊩ˢ∷ε⇔ .proj₁ ⊩σ .proj₂))
   defn-wk-⊩ˢ∷ {Δ = Δ ∙ A} ξ⊇ ⊩σ =
@@ -840,14 +839,14 @@ opaque
     ∇ » Δ ⊩ᵛ⟨ l ⟩ A ≡ B ⇔
     (∇ » Δ ⊩ᵛ⟨ l ⟩ A ×
      ∇ » Δ ⊩ᵛ⟨ l ⟩ B ×
-     (∀ {κ′ ∇′} {ξ : DExt _ κ′ κ} → ξ » ∇′ ⊇ ∇ →
+     (∀ {κ′} {∇′ : DCon (Term 0) κ′} → » ∇′ ⊇ ∇ →
       ∀ {m Η} {σ : Subst m n} → ∇′ » Η ⊩ˢ σ ∷ Δ →
       ∇′ » Η ⊩⟨ l ⟩ A [ σ ] ≡ B [ σ ]))
   ⊩ᵛ≡⇔′ {A} {B} =
       (λ A≡B →
          case wf-⊩ᵛ≡ A≡B of λ
            (⊩A , ⊩B) →
-         ⊩A , ⊩B , λ {_ _ _} ξ⊇ {_ _ _} ⊩σ →
+         ⊩A , ⊩B , λ {_ _} ξ⊇ {_ _ _} ⊩σ →
                      ⊩ᵛ≡→⊩ˢ≡∷→⊩[]≡[] (defn-wk-⊩ᵛ≡ ξ⊇ A≡B) (refl-⊩ˢ≡∷ ⊩σ))
     , (λ (⊩A , _ , A≡B) →
          ⊩ᵛ≡⇔ .proj₂
@@ -866,27 +865,27 @@ opaque
     ∇ » Δ ⊩ᵛ⟨ l ⟩ A ≡ B ⇔
     (∇ » Δ ⊩ᵛ⟨ l ⟩ A ×
      ∇ » Δ ⊩ᵛ⟨ l ⟩ B ×
-     (∀ {κ′ ∇′} {ξ : DExt _ κ′ κ} → ξ » ∇′ ⊇ ∇ →
+     (∀ {κ′} {∇′ : DCon (Term 0) κ′} → » ∇′ ⊇ ∇ →
       ∀ {m Η} {σ : Subst m n}
         ⦃ inc : Var-included or-empty Η ⦄ →
       ∇′ » Η ⊩ˢ σ ∷ Δ →
       ∇′ » Η H.⊩⟨ l ⟩ A [ σ ] ≡ B [ σ ]))
-  ⊩ᵛ≡⇔′ʰ {κ} {∇} {n} {Δ} {l} {A} {B} =
+  ⊩ᵛ≡⇔′ʰ {∇} {n} {Δ} {l} {A} {B} =
     ∇ » Δ ⊩ᵛ⟨ l ⟩ A ≡ B                           ⇔⟨ ⊩ᵛ≡⇔′ ⟩
 
     ∇ » Δ ⊩ᵛ⟨ l ⟩ A ×
     ∇ » Δ ⊩ᵛ⟨ l ⟩ B ×
-    (∀ {κ′ ∇′} {ξ : DExt _ κ′ κ} → ξ » ∇′ ⊇ ∇ →
+    (∀ {κ′} {∇′ : DCon (Term 0) κ′} → » ∇′ ⊇ ∇ →
      ∀ {m Η} {σ : Subst m n} → ∇′ » Η ⊩ˢ σ ∷ Δ →
      ∇′ » Η ⊩⟨ l ⟩ A [ σ ] ≡ B [ σ ])             ⇔⟨ (Σ-cong-⇔ λ _ → Σ-cong-⇔ λ _ →
-                                                      implicit-Π-cong-⇔ λ _ → implicit-Π-cong-⇔ λ _ →
+                                                      implicit-Π-cong-⇔ λ _ →
                                                       implicit-Π-cong-⇔ λ _ → Π-cong-⇔ λ _ →
                                                       implicit-Π-cong-⇔ λ _ → implicit-Π-cong-⇔ λ _ →
                                                       implicit-Π-cong-⇔ λ _ →
                                                       Π⦃⦄→⇔⦃⦄→Π ∘⇔ (Π-cong-⇔ λ _ → ⊩≡⇔)) ⟩
     ∇ » Δ ⊩ᵛ⟨ l ⟩ A ×
     ∇ » Δ ⊩ᵛ⟨ l ⟩ B ×
-    (∀ {κ′ ∇′} {ξ : DExt _ κ′ κ} → ξ » ∇′ ⊇ ∇ →
+    (∀ {κ′} {∇′ : DCon (Term 0) κ′} → » ∇′ ⊇ ∇ →
      ∀ {m Η} {σ : Subst m n}
        ⦃ inc : Var-included or-empty Η ⦄ →
      ∇′ » Η ⊩ˢ σ ∷ Δ →
@@ -900,14 +899,14 @@ opaque
     ∇ » Δ ⊩ᵛ⟨ l ⟩ A ≡ B ⇔
     (∇ » Δ ⊩ᵛ⟨ l ⟩ A ×
      ∇ » Δ ⊩ᵛ⟨ l ⟩ B ×
-     (∀ {κ′ ∇′} {ξ : DExt _ κ′ κ} → ξ » ∇′ ⊇ ∇ →
+     (∀ {κ′} {∇′ : DCon (Term 0) κ′} → » ∇′ ⊇ ∇ →
       ∀ {m Η} {σ₁ σ₂ : Subst m n} → ∇′ » Η ⊩ˢ σ₁ ≡ σ₂ ∷ Δ →
       ∇′ » Η ⊩⟨ l ⟩ A [ σ₁ ] ≡ B [ σ₂ ]))
   ⊩ᵛ≡⇔″ =
       (λ A≡B →
          case wf-⊩ᵛ≡ A≡B of λ
            (⊩A , ⊩B) →
-         ⊩A , ⊩B , λ {_ _ _} ξ⊇ {_ _ _ _} σ₁≡σ₂ →
+         ⊩A , ⊩B , λ {_ _} ξ⊇ {_ _ _ _} σ₁≡σ₂ →
                      ⊩ᵛ≡→⊩ˢ≡∷→⊩[]≡[] (defn-wk-⊩ᵛ≡ ξ⊇ A≡B) σ₁≡σ₂)
     , (λ (⊩A , _ , A≡B) →
          ⊩ᵛ≡⇔ .proj₂ (wf-⊩ᵛ ⊩A , A≡B))
@@ -920,27 +919,27 @@ opaque
     ∇ » Δ ⊩ᵛ⟨ l ⟩ A ≡ B ⇔
     (∇ » Δ ⊩ᵛ⟨ l ⟩ A ×
      ∇ » Δ ⊩ᵛ⟨ l ⟩ B ×
-     (∀ {κ′ ∇′} {ξ : DExt _ κ′ κ} → ξ » ∇′ ⊇ ∇ →
+     (∀ {κ′} {∇′ : DCon (Term 0) κ′} → » ∇′ ⊇ ∇ →
       ∀ {m Η} {σ₁ σ₂ : Subst m n}
         ⦃ inc : Var-included or-empty Η ⦄ →
       ∇′ » Η ⊩ˢ σ₁ ≡ σ₂ ∷ Δ →
       ∇′ » Η H.⊩⟨ l ⟩ A [ σ₁ ] ≡ B [ σ₂ ]))
-  ⊩ᵛ≡⇔″ʰ {κ} {∇} {n} {Δ} {l} {A} {B} =
+  ⊩ᵛ≡⇔″ʰ {∇} {n} {Δ} {l} {A} {B} =
     ∇ » Δ ⊩ᵛ⟨ l ⟩ A ≡ B                                     ⇔⟨ ⊩ᵛ≡⇔″ ⟩
 
     ∇ » Δ ⊩ᵛ⟨ l ⟩ A ×
     ∇ » Δ ⊩ᵛ⟨ l ⟩ B ×
-    (∀ {κ′ ∇′} {ξ : DExt _ κ′ κ} → ξ » ∇′ ⊇ ∇ →
+    (∀ {κ′} {∇′ : DCon (Term 0) κ′} → » ∇′ ⊇ ∇ →
      ∀ {m Η} {σ₁ σ₂ : Subst m n} → ∇′ » Η ⊩ˢ σ₁ ≡ σ₂ ∷ Δ →
      ∇′ » Η ⊩⟨ l ⟩ A [ σ₁ ] ≡ B [ σ₂ ])                     ⇔⟨ (Σ-cong-⇔ λ _ → Σ-cong-⇔ λ _ →
-                                                                implicit-Π-cong-⇔ λ _ → implicit-Π-cong-⇔ λ _ →
+                                                                implicit-Π-cong-⇔ λ _ →
                                                                 implicit-Π-cong-⇔ λ _ → Π-cong-⇔ λ _ →
                                                                 implicit-Π-cong-⇔ λ _ → implicit-Π-cong-⇔ λ _ →
                                                                 implicit-Π-cong-⇔ λ _ → implicit-Π-cong-⇔ λ _ →
                                                                 Π⦃⦄→⇔⦃⦄→Π ∘⇔ (Π-cong-⇔ λ _ → ⊩≡⇔)) ⟩
     ∇ » Δ ⊩ᵛ⟨ l ⟩ A ×
     ∇ » Δ ⊩ᵛ⟨ l ⟩ B ×
-    (∀ {κ′ ∇′} {ξ : DExt _ κ′ κ} → ξ » ∇′ ⊇ ∇ →
+    (∀ {κ′} {∇′ : DCon (Term 0) κ′} → » ∇′ ⊇ ∇ →
      ∀ {m Η} {σ₁ σ₂ : Subst m n}
        ⦃ inc : Var-included or-empty Η ⦄ →
      ∇′ » Η ⊩ˢ σ₁ ≡ σ₂ ∷ Δ →
@@ -954,14 +953,14 @@ opaque
     ∇ » Δ ⊩ᵛ⟨ l ⟩ t ≡ u ∷ A ⇔
     (∇ » Δ ⊩ᵛ⟨ l ⟩ t ∷ A ×
      ∇ » Δ ⊩ᵛ⟨ l ⟩ u ∷ A ×
-     (∀ {κ′ ∇′} {ξ : DExt _ κ′ κ} → ξ » ∇′ ⊇ ∇ →
+     (∀ {κ′} {∇′ : DCon (Term 0) κ′} → » ∇′ ⊇ ∇ →
       ∀ {m Η} {σ : Subst m n} → ∇′ » Η ⊩ˢ σ ∷ Δ →
       ∇′ » Η ⊩⟨ l ⟩ t [ σ ] ≡ u [ σ ] ∷ A [ σ ]))
   ⊩ᵛ≡∷⇔′ {t} {u} =
       (λ t≡u →
          case wf-⊩ᵛ≡∷ t≡u of λ
            (⊩t , ⊩u) →
-         ⊩t , ⊩u , λ {_ _ _} ξ⊇ {_ _ _} ⊩σ →
+         ⊩t , ⊩u , λ {_ _} ξ⊇ {_ _ _} ⊩σ →
                      ⊩ᵛ≡∷→⊩ˢ≡∷→⊩[]≡[]∷ (defn-wk-⊩ᵛ≡∷ ξ⊇ t≡u) (refl-⊩ˢ≡∷ ⊩σ))
     , (λ (_ , ⊩u , t≡u) →
          ⊩ᵛ≡∷⇔ .proj₂
@@ -980,27 +979,27 @@ opaque
     ∇ » Δ ⊩ᵛ⟨ l ⟩ t ≡ u ∷ A ⇔
     (∇ » Δ ⊩ᵛ⟨ l ⟩ t ∷ A ×
      ∇ » Δ ⊩ᵛ⟨ l ⟩ u ∷ A ×
-     (∀ {κ′ ∇′} {ξ : DExt _ κ′ κ} → ξ » ∇′ ⊇ ∇ →
+     (∀ {κ′} {∇′ : DCon (Term 0) κ′} → » ∇′ ⊇ ∇ →
       ∀ {m Η} {σ : Subst m n}
         ⦃ inc : Var-included or-empty Η ⦄ →
       ∇′ » Η ⊩ˢ σ ∷ Δ →
       ∇′ » Η H.⊩⟨ l ⟩ t [ σ ] ≡ u [ σ ] ∷ A [ σ ]))
-  ⊩ᵛ≡∷⇔′ʰ {κ} {∇} {n} {Δ} {l} {t} {u} {A} =
+  ⊩ᵛ≡∷⇔′ʰ {∇} {n} {Δ} {l} {t} {u} {A} =
     ∇ » Δ ⊩ᵛ⟨ l ⟩ t ≡ u ∷ A                        ⇔⟨ ⊩ᵛ≡∷⇔′ ⟩
 
     ∇ » Δ ⊩ᵛ⟨ l ⟩ t ∷ A ×
     ∇ » Δ ⊩ᵛ⟨ l ⟩ u ∷ A ×
-    (∀ {κ′ ∇′} {ξ : DExt _ κ′ κ} → ξ » ∇′ ⊇ ∇ →
+    (∀ {κ′} {∇′ : DCon (Term 0) κ′} → » ∇′ ⊇ ∇ →
      ∀ {m Η} {σ : Subst m n} → ∇′ » Η ⊩ˢ σ ∷ Δ →
      ∇′ » Η ⊩⟨ l ⟩ t [ σ ] ≡ u [ σ ] ∷ A [ σ ])    ⇔⟨ (Σ-cong-⇔ λ _ → Σ-cong-⇔ λ _ →
-                                                       implicit-Π-cong-⇔ λ _ → implicit-Π-cong-⇔ λ _ →
+                                                       implicit-Π-cong-⇔ λ _ →
                                                        implicit-Π-cong-⇔ λ _ → Π-cong-⇔ λ _ →
                                                        implicit-Π-cong-⇔ λ _ → implicit-Π-cong-⇔ λ _ →
                                                        implicit-Π-cong-⇔ λ _ →
                                                        Π⦃⦄→⇔⦃⦄→Π ∘⇔ (Π-cong-⇔ λ _ → ⊩≡∷⇔)) ⟩
     ∇ » Δ ⊩ᵛ⟨ l ⟩ t ∷ A ×
     ∇ » Δ ⊩ᵛ⟨ l ⟩ u ∷ A ×
-    (∀ {κ′ ∇′} {ξ : DExt _ κ′ κ} → ξ » ∇′ ⊇ ∇ →
+    (∀ {κ′} {∇′ : DCon (Term 0) κ′} → » ∇′ ⊇ ∇ →
      ∀ {m Η} {σ : Subst m n}
        ⦃ inc : Var-included or-empty Η ⦄ →
      ∇′ » Η ⊩ˢ σ ∷ Δ →
@@ -1014,14 +1013,14 @@ opaque
     ∇ » Δ ⊩ᵛ⟨ l ⟩ t ≡ u ∷ A ⇔
     (∇ » Δ ⊩ᵛ⟨ l ⟩ t ∷ A ×
      ∇ » Δ ⊩ᵛ⟨ l ⟩ u ∷ A ×
-     (∀ {κ′ ∇′} {ξ : DExt _ κ′ κ} → ξ » ∇′ ⊇ ∇ →
+     (∀ {κ′} {∇′ : DCon (Term 0) κ′} → » ∇′ ⊇ ∇ →
       ∀ {m Η} {σ₁ σ₂ : Subst m n} → ∇′ » Η ⊩ˢ σ₁ ≡ σ₂ ∷ Δ →
       ∇′ » Η ⊩⟨ l ⟩ t [ σ₁ ] ≡ u [ σ₂ ] ∷ A [ σ₁ ]))
   ⊩ᵛ≡∷⇔″ =
       (λ t≡u →
          case wf-⊩ᵛ≡∷ t≡u of λ
            (⊩t , ⊩u) →
-         ⊩t , ⊩u , λ {_ _ _} ξ⊇ {_ _ _ _} σ₁≡σ₂ →
+         ⊩t , ⊩u , λ {_ _} ξ⊇ {_ _ _ _} σ₁≡σ₂ →
                      ⊩ᵛ≡∷→⊩ˢ≡∷→⊩[]≡[]∷ (defn-wk-⊩ᵛ≡∷ ξ⊇ t≡u) σ₁≡σ₂)
     , (λ (⊩t , _ , t≡u) →
          ⊩ᵛ≡∷⇔ .proj₂ (wf-⊩ᵛ∷ ⊩t , t≡u))
@@ -1034,27 +1033,27 @@ opaque
     ∇ » Δ ⊩ᵛ⟨ l ⟩ t ≡ u ∷ A ⇔
     (∇ » Δ ⊩ᵛ⟨ l ⟩ t ∷ A ×
      ∇ » Δ ⊩ᵛ⟨ l ⟩ u ∷ A ×
-     (∀ {κ′ ∇′} {ξ : DExt _ κ′ κ} → ξ » ∇′ ⊇ ∇ →
+     (∀ {κ′} {∇′ : DCon (Term 0) κ′} → » ∇′ ⊇ ∇ →
       ∀ {m Η} {σ₁ σ₂ : Subst m n}
         ⦃ inc : Var-included or-empty Η ⦄ →
       ∇′ » Η ⊩ˢ σ₁ ≡ σ₂ ∷ Δ →
       ∇′ » Η H.⊩⟨ l ⟩ t [ σ₁ ] ≡ u [ σ₂ ] ∷ A [ σ₁ ]))
-  ⊩ᵛ≡∷⇔″ʰ {κ} {∇} {n} {Δ} {l} {t} {u} {A} =
+  ⊩ᵛ≡∷⇔″ʰ {∇} {n} {Δ} {l} {t} {u} {A} =
     ∇ » Δ ⊩ᵛ⟨ l ⟩ t ≡ u ∷ A                                 ⇔⟨ ⊩ᵛ≡∷⇔″ ⟩
 
     ∇ » Δ ⊩ᵛ⟨ l ⟩ t ∷ A ×
     ∇ » Δ ⊩ᵛ⟨ l ⟩ u ∷ A ×
-    (∀ {κ′ ∇′} {ξ : DExt _ κ′ κ} → ξ » ∇′ ⊇ ∇ →
+    (∀ {κ′} {∇′ : DCon (Term 0) κ′} → » ∇′ ⊇ ∇ →
      ∀ {m Η} {σ₁ σ₂ : Subst m n} → ∇′ » Η ⊩ˢ σ₁ ≡ σ₂ ∷ Δ →
      ∇′ » Η ⊩⟨ l ⟩ t [ σ₁ ] ≡ u [ σ₂ ] ∷ A [ σ₁ ])          ⇔⟨ (Σ-cong-⇔ λ _ → Σ-cong-⇔ λ _ →
-                                                                implicit-Π-cong-⇔ λ _ → implicit-Π-cong-⇔ λ _ →
+                                                                implicit-Π-cong-⇔ λ _ →
                                                                 implicit-Π-cong-⇔ λ _ → Π-cong-⇔ λ _ →
                                                                 implicit-Π-cong-⇔ λ _ → implicit-Π-cong-⇔ λ _ →
                                                                 implicit-Π-cong-⇔ λ _ → implicit-Π-cong-⇔ λ _ →
                                                                 Π⦃⦄→⇔⦃⦄→Π ∘⇔ (Π-cong-⇔ λ _ → ⊩≡∷⇔)) ⟩
     ∇ » Δ ⊩ᵛ⟨ l ⟩ t ∷ A ×
     ∇ » Δ ⊩ᵛ⟨ l ⟩ u ∷ A ×
-    (∀ {κ′ ∇′} {ξ : DExt _ κ′ κ} → ξ » ∇′ ⊇ ∇ →
+    (∀ {κ′} {∇′ : DCon (Term 0) κ′} → » ∇′ ⊇ ∇ →
      ∀ {m Η} {σ₁ σ₂ : Subst m n}
        ⦃ inc : Var-included or-empty Η ⦄ →
      ∇′ » Η ⊩ˢ σ₁ ≡ σ₂ ∷ Δ →
@@ -1158,7 +1157,7 @@ opaque
       (⊩A , ⊩B , A≡B) →
     ⊩ᵛ⇔ .proj₂
       ( ⊩ᵛ-∙-intro ⊩B
-      , λ {_} {∇′ = ∇} {_} ξ⊇ {_} {Η = Η} {σ₁ = σ₁} {σ₂ = σ₂} σ₁≡σ₂ →
+      , λ {_} {∇′ = ∇} ξ⊇ {_} {Η = Η} {σ₁ = σ₁} {σ₂ = σ₂} σ₁≡σ₂ →
           let Δ = Γ .vars in                                  $⟨ σ₁≡σ₂ ⟩
 
           ∇ » Η ⊩ˢ σ₁ ≡ σ₂ ∷ Δ ∙ B                            ⇔⟨ ⊩ˢ≡∷∙⇔ ⟩→
@@ -1196,7 +1195,7 @@ opaque
       (⊩B₁ , ⊩B₂ , B₁≡B₂) →
     ⊩ᵛ⇔ .proj₂
       ( ⊩ᵛ-∙-intro (conv-∙-⊩ᵛ A₁≡A₂ ⊩B₂)
-      , λ {_} {∇′ = ∇} {_} ξ⊇ {_} {Η = Η} {σ₁ = σ₁} {σ₂ = σ₂} σ₁≡σ₂ →
+      , λ {_} {∇′ = ∇} ξ⊇ {_} {Η = Η} {σ₁ = σ₁} {σ₂ = σ₂} σ₁≡σ₂ →
           let Δ = Γ .vars
               »∇ = ⊩ˢ≡∷→» σ₁≡σ₂
               A₂≡A₁ = defn-wk-⊩ᵛ≡ ξ⊇ A₂≡A₁
@@ -1276,7 +1275,7 @@ opaque
   -- An expansion lemma for _⊩ᵛ⟨_⟩_∷_.
 
   ⊩ᵛ∷-⇐ :
-    (∀ {κ′ ∇′} {ξ : DExt _ κ′ κ} → ξ » ∇′ ⊇ ∇ →
+    (∀ {κ′} {∇′ : DCon (Term 0) κ′} → » ∇′ ⊇ ∇ →
      ∀ {m Η} {σ : Subst m n}
        ⦃ inc : Var-included or-empty Η ⦄ →
      ∇′ » Η ⊩ˢ σ ∷ Δ →
@@ -1529,7 +1528,7 @@ opaque
 
     (Γ ⊩ᵛ⟨ l ⟩ A) ×
     (Γ ⊩ᵛ⟨ l ⟩ B) ×
-    (∀ {κ′ ∇} {ξ : DExt _ κ′ _} → ξ » ∇ ⊇ Γ .defs →
+    (∀ {κ′} {∇ : DCon (Term 0) κ′} → » ∇ ⊇ Γ .defs →
      ∀ {m} {Δ : Con Term m} {σ} → ∇ » Δ ⊩ˢ σ ∷ Γ .vars →
      ∇ » Δ ⊩⟨ l ⟩ A [ σ ] ≡ B [ σ ])                      →⟨ (λ (⊩A , _ , A≡B) → A≡B id $ ⊩ˢ∷-idSubst $ wf-⊩ᵛ ⊩A) ⟩
 
@@ -1555,7 +1554,7 @@ opaque
 
     (Γ ⊩ᵛ⟨ l ⟩ t ∷ A) ×
     (Γ ⊩ᵛ⟨ l ⟩ u ∷ A) ×
-    (∀ {κ′ ∇} {ξ : DExt _ κ′ _} → ξ » ∇ ⊇ Γ .defs →
+    (∀ {κ′} {∇ : DCon (Term 0) κ′} → » ∇ ⊇ Γ .defs →
      ∀ {m} {Δ : Con Term m} {σ} → ∇ » Δ ⊩ˢ σ ∷ Γ .vars →
      ∇ » Δ ⊩⟨ l ⟩ t [ σ ] ≡ u [ σ ] ∷ A [ σ ])              →⟨ (λ (⊩t , _ , t≡u) →
                                                                   t≡u id $ ⊩ˢ∷-idSubst $ wf-⊩ᵛ $ wf-⊩ᵛ∷ ⊩t) ⟩
@@ -1745,7 +1744,7 @@ opaque
       (⊩Δ , A≡B) →
     ⊩ᵛ≡⇔ .proj₂
       ( ⊩Η
-      , λ {_ _ _} ξ⊇ {_ _} {σ₁} {σ₂} σ₁≡σ₂ →
+      , λ {_ _} ξ⊇ {_ _} {σ₁} {σ₂} σ₁≡σ₂ →
           wk ρ A [ σ₁ ]  ≡⟨ subst-wk A ⟩⊩≡
           A [ σ₁ ₛ• ρ ]  ≡⟨ A≡B ξ⊇ $ ⊩ˢ≡∷-ₛ• ρ⊇ (defn-wk-⊩ᵛ′ ξ⊇ ⊩Δ) σ₁≡σ₂ ⟩⊩∎≡
           B [ σ₂ ₛ• ρ ]  ≡˘⟨ subst-wk B ⟩
@@ -1789,7 +1788,7 @@ opaque
       ⊩A →
     ⊩ᵛ≡∷⇔ .proj₂
       ( wk-⊩ᵛ ρ⊇ ⊩Η ⊩A
-      , λ {_ _ _} ξ⊇ {_ _} {σ₁} {σ₂} σ₁≡σ₂ →
+      , λ {_ _} ξ⊇ {_ _} {σ₁} {σ₂} σ₁≡σ₂ →
           let »∇′ = ⊩ˢ≡∷→» σ₁≡σ₂ in
           wk ρ t [ σ₁ ] ∷ wk ρ A [ σ₁ ]  ≡⟨ subst-wk t ⟩⊩∷∷≡
                                           ⟨ subst-wk A ⟩⊩∷≡

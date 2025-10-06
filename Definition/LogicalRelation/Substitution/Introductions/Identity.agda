@@ -470,20 +470,20 @@ opaque
     (Γ ⊩ᵛ⟨ l ⟩ Id A t u)                                     ⇔⟨ ⊩ᵛ⇔ʰ ⟩
 
     ⊩ᵛ Γ ×
-    (∀ {κ′ ∇} {ξ : DExt _ κ′ _} → ξ » ∇ ⊇ Γ .defs →
+    (∀ {κ′} {∇ : DCon (Term 0) κ′} → » ∇ ⊇ Γ .defs →
      ∀ {m Δ} {σ₁ σ₂ : Subst m _}
        ⦃ inc : Var-included or-empty Δ ⦄ →
      ∇ » Δ ⊩ˢ σ₁ ≡ σ₂ ∷ Γ .vars →
      ∇ » Δ ⊩⟨ l ⟩ Id A t u U.[ σ₁ ] ≡ Id A t u U.[ σ₂ ])     ⇔⟨ id⇔
                                                                    ×-cong-⇔
-                                                                 (implicit-Π-cong-⇔ λ _ → implicit-Π-cong-⇔ λ _ →
+                                                                 (implicit-Π-cong-⇔ λ _ →
                                                                   implicit-Π-cong-⇔ λ _ → Π-cong-⇔ λ _ →
                                                                   implicit-Π-cong-⇔ λ _ → implicit-Π-cong-⇔ λ _ →
                                                                   implicit-Π-cong-⇔ λ _ → implicit-Π-cong-⇔ λ _ →
                                                                   instance-Π-cong-⇔ $ Π-cong-⇔ λ _ →
                                                                   ⊩Id≡Id⇔) ⟩
     ⊩ᵛ Γ ×
-    (∀ {κ′ ∇} {ξ : DExt _ κ′ _} → ξ » ∇ ⊇ Γ .defs →
+    (∀ {κ′} {∇ : DCon (Term 0) κ′} → » ∇ ⊇ Γ .defs →
      ∀ {m Δ} {σ₁ σ₂ : Subst m _} →
        ⦃ inc : Var-included or-empty Δ ⦄ →
      ∇ » Δ ⊩ˢ σ₁ ≡ σ₂ ∷ Γ .vars →
@@ -507,13 +507,13 @@ opaque
                                                                         , t≡t ξ⊇ σ₁≡σ₂ , u≡u ξ⊇ σ₁≡σ₂))
                                                               ⟩
     (Γ ⊩ᵛ⟨ l ⟩ A ×
-     (∀ {κ′ ∇} {ξ : DExt _ κ′ _} → ξ » ∇ ⊇ Γ .defs →
+     (∀ {κ′} {∇ : DCon (Term 0) κ′} → » ∇ ⊇ Γ .defs →
       ∀ {m Δ} {σ₁ σ₂ : Subst m _}
         ⦃ inc : Var-included or-empty Δ ⦄ →
       ∇ » Δ ⊩ˢ σ₁ ≡ σ₂ ∷ Γ .vars →
       ∇ » Δ ⊩⟨ l ⟩ t U.[ σ₁ ] ≡ t U.[ σ₂ ] ∷ A U.[ σ₁ ])) ×
     (Γ ⊩ᵛ⟨ l ⟩ A ×
-     (∀ {κ′ ∇} {ξ : DExt _ κ′ _} → ξ » ∇ ⊇ Γ .defs →
+     (∀ {κ′} {∇ : DCon (Term 0) κ′} → » ∇ ⊇ Γ .defs →
       ∀ {m Δ} {σ₁ σ₂ : Subst m _}
         ⦃ inc : Var-included or-empty Δ ⦄ →
       ∇ » Δ ⊩ˢ σ₁ ≡ σ₂ ∷ Γ .vars →
@@ -1377,7 +1377,7 @@ opaque
     Γ ⊩ᵛ⟨ l ⟩ J p q A t B u t rfl ≡ u ∷ B [ t , rfl ]₁₀
   J-βᵛ {t} {A} {B} ⊢t ⊢B ⊩u =
     ⊩ᵛ∷-⇐
-      (λ {_ _ _} ξ⊇ {_ _} {σ} ⊩σ →
+      (λ {_ _} ξ⊇ {_ _} {σ} ⊩σ →
          case escape-⊩ˢ∷ ⊩σ of λ
            (_ , ⊢σ) →
          PE.subst (_⊢_⇒_∷_ _ _ _) (PE.sym $ [,]-[]-commute B) $

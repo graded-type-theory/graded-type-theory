@@ -49,7 +49,6 @@ private variable
   α n n′              : Nat
   x                   : Fin _
   ∇ ∇′                : DCon _ _
-  ξ                   : DExt _ _ _
   Γ                   : Con Term _
   A B C t t₁ t₂ u v w : Term _
   φ                   : Unfolding _
@@ -67,19 +66,19 @@ opaque
 
   inhabited-under-extension₀ :
     ∇ » ε ⊢ A → glassify ∇ » ε ⊢ t ∷ A →
-    ∃₄ λ n ξ (∇′ : DCon (Term 0) n) u → ξ » ∇′ ⊇ ∇ × ∇′ » ε ⊢ u ∷ A
+    ∃₃ λ n (∇′ : DCon (Term 0) n) u → » ∇′ ⊇ ∇ × ∇′ » ε ⊢ u ∷ A
   inhabited-under-extension₀ {A} {t} ⊢A ⊢t =
     let »∇ = defn-wf (wf ⊢A) in
     case Opacity-allowed? of λ where
       (no no-opacity) →
         let transparent = »→Transparent no-opacity »∇ in
-        _ , id , _ , t , id ,
+        _  , _ , t , id ,
         PE.subst₃ _⊢_∷_
           (PE.cong (_» _) (PE.sym transparent)) PE.refl PE.refl
         ⊢t
       (yes opacity) →
         let ext-ok = stepᵒ₁ opacity ⊢A (ones-»↜ _) ⊢t in
-        _ , step id (opa (ones _)) A t , _ , defn _ , ext-ok ,
+        _ , _ , defn _ , ext-ok ,
         defn (ε (wf-»⊇ ext-ok »∇)) here (PE.sym $ wk-id _)
 
 opaque
@@ -91,13 +90,13 @@ opaque
   inhabited-under-extension :
     Π-allowed p q →
     ∇ » Γ ⊢ A → glassify ∇ » Γ ⊢ t ∷ A →
-    ∃₄ λ n ξ (∇′ : DCon (Term 0) n) u → ξ » ∇′ ⊇ ∇ × ∇′ » Γ ⊢ u ∷ A
+    ∃₃ λ n (∇′ : DCon (Term 0) n) u → » ∇′ ⊇ ∇ × ∇′ » Γ ⊢ u ∷ A
   inhabited-under-extension {p} {q} {Γ} {A} {t} ok ⊢A ⊢t =
     let »∇ = defn-wf (wf ⊢A) in
     case Opacity-allowed? of λ where
       (no no-opacity) →
         let transparent = »→Transparent no-opacity »∇ in
-        _ , id , _ , t , id ,
+        _ , _ , t , id ,
         PE.subst₃ _⊢_∷_
           (PE.cong (_» _) (PE.sym transparent)) PE.refl PE.refl
         ⊢t
@@ -105,8 +104,7 @@ opaque
         let ext-ok =
               stepᵒ₁ opacity (⊢Πs ok ⊢A) (ones-»↜ _) (⊢lams ok ⊢t)
         in
-        _ , step id (opa (ones _)) (Πs p q Γ A) (lams p Γ t) ,
-        _ , apps p Γ (defn _) , ext-ok ,
+        _ , _ , apps p Γ (defn _) , ext-ok ,
         ⊢apps ok (defn (ε (wf-»⊇ ext-ok »∇)) here (PE.sym $ wk-id _))
 
 ------------------------------------------------------------------------
@@ -217,7 +215,7 @@ opaque
   inline-<-⊇ :
     {∇  : DCon (Term 0) n}
     {∇′ : DCon (Term 0) n′} →
-    ξ » ∇′ ⊇ ∇ →
+    » ∇′ ⊇ ∇ →
     (α<n  : α <′ n)
     (α<n′ : α <′ n′) →
     inline-< ∇ α<n PE.≡ inline-< ∇′ α<n′
@@ -234,7 +232,7 @@ opaque
   inline-Nat-⊇ :
     {∇  : DCon (Term 0) n}
     {∇′ : DCon (Term 0) n′} →
-    ξ » ∇′ ⊇ ∇ →
+    » ∇′ ⊇ ∇ →
     α <′ n →
     inline-Nat ∇ α PE.≡ inline-Nat ∇′ α
   inline-Nat-⊇ {n} {n′} {α} ∇′⊇∇ α<n with α <′? n | α <′? n′
@@ -247,7 +245,7 @@ opaque
   -- extension (for well-formed types).
 
   inline-⊇-⊢ :
-    ξ » ∇′ ⊇ ∇ →
+    » ∇′ ⊇ ∇ →
     ∇ » Γ ⊢ A →
     inline ∇ A PE.≡ inline ∇′ A
   inline-⊇-⊢ _ (Uⱼ _) =
@@ -271,7 +269,7 @@ opaque
   -- extension (for well-typed terms).
 
   inline-⊇-⊢∷ :
-    ξ » ∇′ ⊇ ∇ →
+    » ∇′ ⊇ ∇ →
     ∇ » Γ ⊢ t ∷ A →
     inline ∇ t PE.≡ inline ∇′ t
   inline-⊇-⊢∷ ∇′⊇∇ (conv ⊢t _) =

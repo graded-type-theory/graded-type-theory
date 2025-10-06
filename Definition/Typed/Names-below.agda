@@ -29,7 +29,6 @@ import Tools.PropositionalEquality as PE
 private variable
   α n           : Nat
   ∇ ∇₁ ∇₂       : DCon (Term 0) _
-  ξ             : DExt (Term 0) _ _
   Γ             : Con Term _
   A B C t u v w : Term _
 
@@ -155,7 +154,7 @@ opaque
   <→⊇→↦→↦ :
     {∇₁ : DCon (Term 0) n} →
     α < n →
-    ξ » ∇₂ ⊇ ∇₁ →
+    » ∇₂ ⊇ ∇₁ →
     α ↦ t ∷ A ∈ ∇₂ →
     α ↦ t ∷ A ∈ ∇₁
   <→⊇→↦→↦ _   id             α↦t         = α↦t

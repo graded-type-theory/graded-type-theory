@@ -27,7 +27,7 @@ open import Definition.LogicalRelation.Weakening.Restricted R
 
 open import Definition.Typed R
 open import Definition.Typed.Properties R
-open import Definition.Typed.Weakening.Definition R using (_»_⊇_)
+open import Definition.Typed.Weakening.Definition R using (»_⊇_)
 open import Definition.Typed.Well-formed R
 
 open import Definition.Untyped M
@@ -48,7 +48,6 @@ private variable
   Δ Η               : Con Term _
   Γ                 : Cons _ _
   A B C t t₁ t₂ u v : Term _
-  ξ                 : DExt (Term 0) _ _
   ρ                 : Wk _ _
   l l′              : Universe-level
   k                 : LogRelKit
@@ -350,7 +349,7 @@ opaque
 
   -- Weakening of the definition context for _⊩⟨_⟩_.
 
-  defn-wk-⊩ : ξ » ∇′ ⊇ ∇ → ∇ » Δ ⊩⟨ l ⟩ A → ∇′ » Δ ⊩⟨ l ⟩ A
+  defn-wk-⊩ : » ∇′ ⊇ ∇ → ∇ » Δ ⊩⟨ l ⟩ A → ∇′ » Δ ⊩⟨ l ⟩ A
   defn-wk-⊩ = defn-wk
 
 opaque
@@ -359,7 +358,7 @@ opaque
   -- Weakening of the definition context for _⊩⟨_⟩_≡_.
 
   defn-wk-⊩≡ :
-    ξ » ∇′ ⊇ ∇ →
+    » ∇′ ⊇ ∇ →
     ∇ » Δ ⊩⟨ l ⟩ A ≡ B →
     ∇′ » Δ ⊩⟨ l ⟩ A ≡ B
   defn-wk-⊩≡ ξ⊇ (⊩A , ⊩B , A≡B) =
@@ -371,7 +370,7 @@ opaque
   -- Weakening of the definition context for _⊩⟨_⟩_≡_∷_.
 
   defn-wk-⊩≡∷ :
-    ξ » ∇′ ⊇ ∇ →
+    » ∇′ ⊇ ∇ →
     ∇ » Δ ⊩⟨ l ⟩ t ≡ u ∷ A →
     ∇′ » Δ ⊩⟨ l ⟩ t ≡ u ∷ A
   defn-wk-⊩≡∷ ξ⊇ (⊩A , t≡u) = defn-wk ξ⊇ ⊩A , defn-wkEqTerm ξ⊇ ⊩A t≡u
@@ -381,7 +380,7 @@ opaque
   -- Weakening of the definition context for _⊩⟨_⟩_∷_.
 
   defn-wk-⊩∷ :
-    ξ » ∇′ ⊇ ∇ →
+    » ∇′ ⊇ ∇ →
     ∇ » Δ ⊩⟨ l ⟩ t ∷ A →
     ∇′ » Δ ⊩⟨ l ⟩ t ∷ A
   defn-wk-⊩∷ ξ⊇ = ⊩∷⇔⊩≡∷ .proj₂ ∘→ defn-wk-⊩≡∷ ξ⊇ ∘→ ⊩∷⇔⊩≡∷ .proj₁

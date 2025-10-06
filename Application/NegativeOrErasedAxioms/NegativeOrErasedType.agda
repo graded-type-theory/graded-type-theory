@@ -32,7 +32,6 @@ open import Tools.Relation
 
 private variable
   m n   : Nat
-  ξ     : DExt _ _ _
   ∇ ∇′  : DCon (Term 0) _
   ρ     : Wk m n
   σ     : Subst m n
@@ -99,7 +98,7 @@ opaque
   -- context.
 
   defn-wkNeg :
-    ξ » ∇′ ⊇ ∇ → NegativeType (∇ » Γ) A → NegativeType (∇′ » Γ) A
+    » ∇′ ⊇ ∇ → NegativeType (∇ » Γ) A → NegativeType (∇′ » Γ) A
   defn-wkNeg _ empty =
     empty
   defn-wkNeg ∇′⊇∇ (pi ⊢A B-neg) =

@@ -77,7 +77,7 @@ opaque
      Functionₗ ∇ u₁ ×
      Functionₗ ∇ u₂ ×
      ∇ » Δ ⊢ u₁ ≅ u₂ ∷ Π p , q ▷ A ▹ B ×
-     ∀ {m} {ξ : DExt _ m _} {∇′} → ξ » ∇′ ⊇ ∇ →
+     ∀ {m} {∇′ : DCon (Term 0) m} → » ∇′ ⊇ ∇ →
      ∀ {n} {ρ : Wk n _} {Η v₁ v₂} → ∇′ » ρ ∷ʷʳ Η ⊇ Δ →
      ∇′ » Η ⊩⟨ l ⟩ v₁ ≡ v₂ ∷ wk ρ A →
      ∇′ » Η ⊩⟨ l ⟩ wk ρ u₁ ∘⟨ p ⟩ v₁ ≡ wk ρ u₂ ∘⟨ p ⟩ v₂ ∷
@@ -97,8 +97,8 @@ opaque
           Functionₗ ∇ u₁ ×
           Functionₗ ∇ u₂ ×
           ∇ » Δ ⊢ u₁ ≅ u₂ ∷ Π p , q ▷ A ▹ B ×
-          ∀ {m} {ξ : DExt _ m _} {∇′ : DCon (Term 0) m} →
-          ξ » ∇′ ⊇ ∇ →
+          ∀ {m} {∇′ : DCon (Term 0) m} →
+          » ∇′ ⊇ ∇ →
           ∀ {n} {ρ : Wk n _} {Η : Con Term n} {v₁ v₂} →
           ∇′ » ρ ∷ʷʳ Η ⊇ Δ →
           ∇′ » Η ⊩⟨ l ⟩ v₁ ≡ v₂ ∷ wk ρ A →
@@ -137,7 +137,7 @@ opaque
      ∇ » Δ ⊢ t ⇒* u ∷ Π p , q ▷ A ▹ B ×
      Functionₗ ∇ u ×
      ∇ » Δ ⊢≅ u ∷ Π p , q ▷ A ▹ B ×
-     ∀ {m} {ξ : DExt _ m _} {∇′} → ξ » ∇′ ⊇ ∇ →
+     ∀ {m} {∇′ : DCon (Term 0) m} → » ∇′ ⊇ ∇ →
      ∀ {n} {ρ : Wk n _} {Η v₁ v₂} → ∇′ » ρ ∷ʷʳ Η ⊇ Δ →
      ∇′ » Η ⊩⟨ l ⟩ v₁ ≡ v₂ ∷ wk ρ A →
      ∇′ » Η ⊩⟨ l ⟩ wk ρ u ∘⟨ p ⟩ v₁ ≡ wk ρ u ∘⟨ p ⟩ v₂ ∷
@@ -154,7 +154,7 @@ opaque
      Functionₗ ∇ u₁ ×
      Functionₗ ∇ u₂ ×
      ∇ » Δ ⊢ u₁ ≅ u₂ ∷ Π p , q ▷ A ▹ B ×
-     ∀ {m} {ξ : DExt _ m _} {∇′} → ξ » ∇′ ⊇ ∇ →
+     ∀ {m} {∇′ : DCon (Term 0) m} → » ∇′ ⊇ ∇ →
      ∀ {n} {ρ : Wk n _} {Η v₁ v₂} → ∇′ » ρ ∷ʷʳ Η ⊇ Δ →
      ∇′ » Η ⊩⟨ l ⟩ v₁ ≡ v₂ ∷ wk ρ A →
      ∇′ » Η ⊩⟨ l ⟩ wk ρ u₁ ∘⟨ p ⟩ v₁ ≡ wk ρ u₂ ∘⟨ p ⟩ v₂ ∷
@@ -172,7 +172,7 @@ opaque
      ∇ » Δ ⊢ t ⇒* u ∷ Π p , q ▷ A ▹ B ×
      Functionₗ ∇ u ×
      ∇ » Δ ⊢≅ u ∷ Π p , q ▷ A ▹ B ×
-     ∀ {m} {ξ : DExt _ m _} {∇′} → ξ » ∇′ ⊇ ∇ →
+     ∀ {m} {∇′ : DCon (Term 0) m} → » ∇′ ⊇ ∇ →
      ∀ {n} {ρ : Wk n _} {Η v₁ v₂} → ∇′ » ρ ∷ʷʳ Η ⊇ Δ →
      ∇′ » Η ⊩⟨ l ⟩ v₁ ≡ v₂ ∷ wk ρ A →
      ∇′ » Η ⊩⟨ l ⟩ wk ρ u ∘⟨ p ⟩ v₁ ≡ wk ρ u ∘⟨ p ⟩ v₂ ∷
@@ -221,14 +221,14 @@ opaque
     case wf-⊢≡∷ (subst-⊢≡∷ (lam-cong ⊢t₁≡t₂ ok) ⊢σ₁≡σ₂) of λ
       (_ , ⊢lam-t₁[σ₁] , ⊢lam-t₂[σ₂]) →
     case
-      (∀ κ′ (ξ : DExt _ κ′ _) (∇′ : DCon (Term 0) κ′) → ξ » ∇′ ⊇ ∇ →
+      (∀ κ′ (∇′ : DCon (Term 0) κ′) → » ∇′ ⊇ ∇ →
        ∀ k (ρ : Wk k m) (Ε : Con Term k) v₁ v₂ →
        ∇′ » ρ ∷ʷʳ Ε ⊇ Η →
        ∇′ » Ε ⊩⟨ l ⟩ v₁ ≡ v₂ ∷ wk ρ (A [ σ₁ ]) →
        ∇′ » Ε ⊩⟨ l ⟩ wk ρ (lam p t₁ [ σ₁ ]) ∘⟨ p ⟩ v₁ ≡
          wk ρ (lam p t₂ [ σ₂ ]) ∘⟨ p ⟩ v₂ ∷
          wk (lift ρ) (B [ σ₁ ⇑ ]) [ v₁ ]₀) ∋
-      (λ _ _ _ ξ⊇ _ ρ _ v₁ v₂ ρʳ⊇ v₁≡v₂ →
+      (λ _ _ ξ⊇ _ ρ _ v₁ v₂ ρʳ⊇ v₁≡v₂ →
          let instance
                inc = wk-Var-included-or-empty← ρʳ⊇
              ρ⊇ = ∷ʷʳ⊇→∷ʷ⊇ ρʳ⊇
@@ -300,10 +300,10 @@ opaque
            ≅-η-eq ⊢lam-t₁[σ₁] ⊢lam-t₂[σ₂] lamₙ lamₙ $
            escape-⊩≡∷ $
            PE.subst (_⊩⟨_⟩_≡_∷_ _ _ _ _) (idWkLiftSubstLemma _ B) $
-           lemma _ _ _ id _ (step id) _ _ _ (∷ʷ⊇→∷ʷʳ⊇ step-id) $
+           lemma _ _ id _ (step id) _ _ _ (∷ʷ⊇→∷ʷʳ⊇ step-id) $
            refl-⊩≡∷ $ ⊩var here $
            R.⊩→ $ R.wk-⊩ step-id ⊩A[σ₁])
-      , λ ξ⊇ → lemma _ _ _ ξ⊇ _ _ _ _ _
+      , λ ξ⊇ → lemma _ _ ξ⊇ _ _ _ _ _
       )
 
 opaque
@@ -475,7 +475,7 @@ opaque
     ⊩ᵛ≡∷⇔′ʰ .proj₂
       ( ⊩t₁
       , level-⊩ᵛ∷ ⊩ΠAB ⊩t₂
-      , λ {κ′} {∇} {_} ξ⊇ {m} {Δ} {σ} ⊩σ →
+      , λ {κ′} {∇} ξ⊇ {m} {Δ} {σ} ⊩σ →
           case ⊩ᵛ→⊩ˢ∷→⊩[] (defn-wk-⊩ᵛ ξ⊇ ⊩A) ⊩σ of λ
             ⊩A[σ] →
           case R.escape-⊩ ⊩A[σ] of λ
@@ -485,17 +485,17 @@ opaque
           case ⊩∷Π⇔ .proj₁ $ R.⊩∷→ $ ⊩ᵛ∷→⊩ˢ∷→⊩[]∷ (defn-wk-⊩ᵛ∷ ξ⊇ ⊩t₂) ⊩σ of λ
             (_ , u₂ , t₂[σ]⇒*u₂ , u₂-fun , _ , _) →
           case
-            (∀ κ″ (ξ′ : DExt _ κ″ κ′) (∇′ : DCon (Term 0) κ″) → ξ′ » ∇′ ⊇ ∇ →
+            (∀ κ″ (∇′ : DCon (Term 0) κ″) → » ∇′ ⊇ ∇ →
              ∀ k (ρ : Wk k m) (Ε : Con Term k) v₁ v₂ →
              ∇′ » ρ ∷ʷʳ Ε ⊇ Δ →
              ∇′ » Ε ⊩⟨ l ⟩ v₁ ≡ v₂ ∷ wk ρ (A [ σ ]) →
              ∇′ » Ε ⊩⟨ l ⟩ wk ρ u₁ ∘⟨ p ⟩ v₁ ≡ wk ρ u₂ ∘⟨ p ⟩ v₂ ∷
                wk (lift ρ) (B [ σ ⇑ ]) [ v₁ ]₀) ∋
-            (λ _ _ _ ξ′⊇ _ ρ _ v₁ v₂ ρ⊇ v₁≡v₂ →
+            (λ _ _ ξ′⊇ _ ρ _ v₁ v₂ ρ⊇ v₁≡v₂ →
                let instance
                      inc = wk-Var-included-or-empty← ρ⊇
                    ρ⊇ = ∷ʷʳ⊇→∷ʷ⊇ ρ⊇
-                   ξ′•ξ⊇ = ξ′⊇ •ₜᵈ ξ⊇
+                   ξ′•ξ⊇ = »⊇-trans ξ′⊇ ξ⊇
                    ⊩A = defn-wk-⊩ᵛ ξ′•ξ⊇ ⊩A
                    ⊩σ = defn-wk-⊩ˢ∷ ξ′⊇ ⊩σ
                    wk1-t₁∘0≡wk1-t₂∘0 = defn-wk-⊩ᵛ≡∷ ξ′•ξ⊇ wk1-t₁∘0≡wk1-t₂∘0
@@ -559,10 +559,10 @@ opaque
                    (PE.subst (_⊢_≅_∷_ _ _ _)
                       (idWkLiftSubstLemma _ B) $
                     escape-⊩≡∷ $
-                    lemma _ _ _ id _ _ _ _ _ step-id $
+                    lemma _ _ id _ _ _ _ _ step-id $
                     refl-⊩≡∷ $
                     ⊩var here $
                     wk-⊩ step-id $ R.⊩→ ⦃ inc = inc ⦄ ⊩A[σ]))
-            , λ ξ′⊇ → lemma _ _ _ ξ′⊇ _ _ _ _ _
+            , λ ξ′⊇ → lemma _ _ ξ′⊇ _ _ _ _ _
             )
       )

@@ -29,7 +29,6 @@ open import Tools.Product
 
 private variable
   m n κ   : Nat
-  ξ       : DExt (Term 0) _ _
   ρ ρ₁ ρ₂ : Wk _ _
   ∇ ∇′    : DCon (Term 0) _
   Γ Δ Η   : Con Term _
@@ -123,6 +122,6 @@ opaque
 
   -- A definitional weakening lemma for _∷ʷʳ_⊇_ weakenings.
 
-  defn-wkWkʷʳ : ξ » ∇′ ⊇ ∇ → ∇ » ρ ∷ʷʳ Δ ⊇ Γ → ∇′ » ρ ∷ʷʳ Δ ⊇ Γ
+  defn-wkWkʷʳ : » ∇′ ⊇ ∇ → ∇ » ρ ∷ʷʳ Δ ⊇ Γ → ∇′ » ρ ∷ʷʳ Δ ⊇ Γ
   defn-wkWkʷʳ ξ⊇ (includedʷʳ ρ) = includedʷʳ (defn-wkWkʷ ξ⊇ ρ)
   defn-wkWkʷʳ ξ⊇ (id ⊢Δ)        = id (defn-wk′ ξ⊇ ⊢Δ)

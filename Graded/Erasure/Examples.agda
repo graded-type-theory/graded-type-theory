@@ -413,7 +413,7 @@ private module Vec-lemmas (⊢A : Γ ⊢ A ∷ U l) where
   »Γ : » Γ .defs
   »Γ = defn-wf ⊢Γ
 
-  Γ⊇ε : ∃ λ ξ → ξ WD.» Γ .defs ⊇ ε
+  Γ⊇ε : WD.» Γ .defs ⊇ ε
   Γ⊇ε = WD.»⊇ε »Γ
 
   ⊢ΓA : ⊢ Γ »∙ A
@@ -480,19 +480,19 @@ private module Vec-lemmas (⊢A : Γ ⊢ A ∷ U l) where
   ⊢Vec-body₁′ : Γ »∙ U l ⊢ Vec-body₁ l ∷ Π ω , q ▷ ℕ ▹ U l
   ⊢Vec-body₁′ =
     W.wkTerm (W.liftʷ W.wk₀∷⊇ (Uⱼ ⊢Γ)) $
-    WD.defn-wkTerm (Γ⊇ε .proj₂) ⊢Vec-body₁
+    WD.defn-wkTerm Γ⊇ε ⊢Vec-body₁
 
   ⊢Vec-body₁″ : Γ »∙ A »∙ U l ⊢ Vec-body₁ l ∷ Π ω , q ▷ ℕ ▹ U l
   ⊢Vec-body₁″ =
     W.wkTerm
       (W.liftʷ (W.step W.wk₀∷⊇) (Uⱼ ⊢ΓA)) $
-    WD.defn-wkTerm (Γ⊇ε .proj₂) ⊢Vec-body₁
+    WD.defn-wkTerm Γ⊇ε ⊢Vec-body₁
 
   ⊢Vec-body₂′ :
     Γ »∙ ℕ ⊢ Vec-body₂ l [ liftSubst (consSubst (toSubst wk₀) A) ] ∷ U l
   ⊢Vec-body₂′ = subst-⊢∷
     {σ = liftSubst (consSubst (toSubst wk₀) A)}
-    (WD.defn-wkTerm (Γ⊇ε .proj₂) ⊢Vec-body₂)
+    (WD.defn-wkTerm Γ⊇ε ⊢Vec-body₂)
     (⊢ˢʷ∷-⇑′ (U⊢ℕ »Γ) (→⊢ˢʷ∷∙ (⊢ˢʷ∷ε⇔ .proj₂ ⊢Γ) ⊢A))
 
   ⊢Vec-body₂″ :
@@ -500,7 +500,7 @@ private module Vec-lemmas (⊢A : Γ ⊢ A ∷ U l) where
     Vec-body₂ l [ liftSubst (consSubst (toSubst wk₀) (wk1 A)) ] ∷ U l
   ⊢Vec-body₂″ = subst-⊢∷
     {σ = liftSubst (consSubst (toSubst wk₀) (wk1 A))}
-    (WD.defn-wkTerm (Γ⊇ε .proj₂) ⊢Vec-body₂)
+    (WD.defn-wkTerm Γ⊇ε ⊢Vec-body₂)
     (⊢ˢʷ∷-⇑′ (U⊢ℕ »Γ) $
      →⊢ˢʷ∷∙ (⊢ˢʷ∷ε⇔ .proj₂ ⊢ΓA) (W.wkTerm₁ (univ ⊢A) ⊢A))
 
@@ -623,7 +623,7 @@ Non-zero∘zero⇒* :
 Non-zero∘zero⇒* ⊢Γ =
   β-red (Uⱼ ⊢Γℕ)
     (W.wkTerm (W.liftʷ W.wk₀∷⊇ (ℕⱼ ⊢Γ)) $
-     WD.defn-wkTerm (WD.»⊇ε (defn-wf ⊢Γ) .proj₂) ⊢Non-zero-body)
+     WD.defn-wkTerm (WD.»⊇ε (defn-wf ⊢Γ)) ⊢Non-zero-body)
     (zeroⱼ ⊢Γ) PE.refl Π-ω-ok ⇨
   (redMany $
    natrec-zero (Emptyⱼ ⊢Γ) (Unitⱼ (∙ Uⱼ ⊢Γℕ) Unit-ok))
@@ -638,7 +638,7 @@ Non-zero∘suc⇒* :
 Non-zero∘suc⇒* ⊢t =
   β-red (Uⱼ ⊢Γℕ)
     (W.wkTerm (W.liftʷ W.wk₀∷⊇ (ℕⱼ ⊢Γ)) $
-     WD.defn-wkTerm (WD.»⊇ε (defn-wf ⊢Γ) .proj₂) ⊢Non-zero-body)
+     WD.defn-wkTerm (WD.»⊇ε (defn-wf ⊢Γ)) ⊢Non-zero-body)
     (sucⱼ ⊢t) PE.refl Π-ω-ok ⇨
   (redMany $
    natrec-suc (Emptyⱼ ⊢Γ) (Unitⱼ (∙ Uⱼ ⊢Γℕ) Unit-ok) ⊢t)

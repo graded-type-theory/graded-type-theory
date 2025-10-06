@@ -25,12 +25,11 @@ private
     ∇ ∇′ : DCon (Term 0) _
     Γ : Con Term _
     t u A B : Term _
-    ξ : DExt (Term 0) _ _
 
 opaque mutual
 
   defn-wk~↑ :
-    ξ » ∇′ ⊇ ∇ →
+    » ∇′ ⊇ ∇ →
     ∇ » Γ ⊢ t ~ u ↑ A →
     ∇′ » Γ ⊢ t ~ u ↑ A
   defn-wk~↑ ξ⊇ (var-refl ⊢t eq) = var-refl (defn-wkTerm ξ⊇ ⊢t) eq
@@ -81,14 +80,14 @@ opaque mutual
                  ok
 
   defn-wk~↓ :
-    ξ » ∇′ ⊇ ∇ →
+    » ∇′ ⊇ ∇ →
     ∇ » Γ ⊢ t ~ u ↓ A →
     ∇′ » Γ ⊢ t ~ u ↓ A
   defn-wk~↓ ξ⊇ ([~] A D k~l) =
     [~] A (defn-wkRed↘ ξ⊇ D) (defn-wk~↑ ξ⊇ k~l)
 
   defn-wkConv↓ :
-    ξ » ∇′ ⊇ ∇ →
+    » ∇′ ⊇ ∇ →
     ∇ » Γ ⊢ A [conv↓] B →
     ∇′ » Γ ⊢ A [conv↓] B
   defn-wkConv↓ ξ⊇ (U-refl ⊢Γ) = U-refl (defn-wk′ ξ⊇ ⊢Γ)
@@ -104,7 +103,7 @@ opaque mutual
             (defn-wkConv↑Term ξ⊇ u<>)
 
   defn-wkConv↓Term :
-    ξ » ∇′ ⊇ ∇ →
+    » ∇′ ⊇ ∇ →
     ∇ » Γ ⊢ t [conv↓] u ∷ A →
     ∇′ » Γ ⊢ t [conv↓] u ∷ A
   defn-wkConv↓Term ξ⊇ (ℕ-ins t~) = ℕ-ins (defn-wk~↓ ξ⊇ t~)
@@ -151,7 +150,7 @@ opaque mutual
   defn-wkConv↓Term ξ⊇ (rfl-refl t≡) = rfl-refl (defn-wkEqTerm ξ⊇ t≡)
 
   defn-wkConv↑ :
-    ξ » ∇′ ⊇ ∇ →
+    » ∇′ ⊇ ∇ →
     ∇ » Γ ⊢ A [conv↑] B →
     ∇′ » Γ ⊢ A [conv↑] B
   defn-wkConv↑ ξ⊇ ([↑] A′ B′ D D′ A′<>B′) =
@@ -160,7 +159,7 @@ opaque mutual
               (defn-wkConv↓ ξ⊇ A′<>B′)
 
   defn-wkConv↑Term :
-    ξ » ∇′ ⊇ ∇ →
+    » ∇′ ⊇ ∇ →
     ∇ » Γ ⊢ t [conv↑] u ∷ A →
     ∇′ » Γ ⊢ t [conv↑] u ∷ A
   defn-wkConv↑Term ξ⊇ ([↑]ₜ B t′ u′ D d d′ t<>u) =

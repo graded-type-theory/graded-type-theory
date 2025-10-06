@@ -362,18 +362,18 @@ module LogRel
         G : Term (1+ ℓ)
         D : Γ ⊢ A ⇒* ⟦ W ⟧ F ▹ G
         A≡A : Γ ⊢≅ ⟦ W ⟧ F ▹ G
-        [F] : ∀ {κ′} {ξ : DExt _ κ′ κ} {∇ : DCon (Term 0) κ′}
-            → ξ » ∇ ⊇ Γ .defs
+        [F] : ∀ {κ′} {∇ : DCon (Term 0) κ′}
+            → » ∇ ⊇ Γ .defs
             → ∀ {m} {ρ : Wk m ℓ} {Δ : Con Term m} → ∇ » ρ ∷ʷʳ Δ ⊇ Γ .vars
             → ∇ » Δ ⊩ₗ U.wk ρ F
-        [G] : ∀ {κ′} {ξ : DExt _ κ′ κ} {∇ : DCon (Term 0) κ′}
-            → ([ξ] : ξ » ∇ ⊇ Γ .defs)
+        [G] : ∀ {κ′} {∇ : DCon (Term 0) κ′}
+            → ([ξ] : » ∇ ⊇ Γ .defs)
             → ∀ {m} {ρ : Wk m ℓ} {Δ : Con Term m} {a : Term m}
             → ([ρ] : ∇ » ρ ∷ʷʳ Δ ⊇ Γ .vars)
             → ∇ » Δ ⊩ₗ a ∷ U.wk ρ F / [F] [ξ] [ρ]
             → ∇ » Δ ⊩ₗ U.wk (lift ρ) G [ a ]₀
-        G-ext : ∀ {κ′} {ξ : DExt _ κ′ κ} {∇ : DCon (Term 0) κ′}
-              → ([ξ] : ξ » ∇ ⊇ Γ .defs)
+        G-ext : ∀ {κ′} {∇ : DCon (Term 0) κ′}
+              → ([ξ] : » ∇ ⊇ Γ .defs)
               → ∀ {m} {ρ : Wk m ℓ} {Δ : Con Term m} {a b}
               → ([ρ] : ∇ » ρ ∷ʷʳ Δ ⊇ Γ .vars)
               → ([a] : ∇ » Δ ⊩ₗ a ∷ U.wk ρ F / [F] [ξ] [ρ])
@@ -399,13 +399,13 @@ module LogRel
         G′     : Term (1+ ℓ)
         D′     : Γ ⊢ B ⇒* ⟦ W ⟧ F′ ▹ G′
         A≡B    : Γ ⊢ ⟦ W ⟧ F ▹ G ≅ ⟦ W ⟧ F′ ▹ G′
-        [F≡F′] : ∀ {κ′} {ξ : DExt _ κ′ κ} {∇ : DCon (Term 0) κ′}
-               → ([ξ] : ξ » ∇ ⊇ Γ .defs)
+        [F≡F′] : ∀ {κ′} {∇ : DCon (Term 0) κ′}
+               → ([ξ] : » ∇ ⊇ Γ .defs)
                → ∀ {m} {ρ : Wk m ℓ} {Δ : Con Term m}
                → ([ρ] : ∇ » ρ ∷ʷʳ Δ ⊇ Γ .vars)
                → ∇ » Δ ⊩ₗ U.wk ρ F ≡ U.wk ρ F′ / [F] [ξ] [ρ]
-        [G≡G′] : ∀ {κ′} {ξ : DExt _ κ′ κ} {∇ : DCon (Term 0) κ′}
-               → ([ξ] : ξ » ∇ ⊇ Γ .defs)
+        [G≡G′] : ∀ {κ′} {∇ : DCon (Term 0) κ′}
+               → ([ξ] : » ∇ ⊇ Γ .defs)
                → ∀ {m} {ρ : Wk m ℓ} {Δ : Con Term m} {a}
                → ([ρ] : ∇ » ρ ∷ʷʳ Δ ⊇ Γ .vars)
                → ([a] : ∇ » Δ ⊩ₗ a ∷ U.wk ρ F / [F] [ξ] [ρ])
@@ -426,7 +426,7 @@ module LogRel
                × Functionₗ ∇ f
                × Functionₗ ∇ g
                × ∇ » Γ ⊢ f ≅ g ∷ Π p , q ▷ F ▹ G
-               × (∀ {κ′} {ξ : DExt _ κ′ κ} {∇′ : DCon (Term 0) κ′} ([ξ] : ξ » ∇′ ⊇ ∇)
+               × (∀ {κ′} {∇′ : DCon (Term 0) κ′} ([ξ] : » ∇′ ⊇ ∇)
                   {m} {ρ : Wk m ℓ} {Δ : Con Term m} {v w}
                   ([ρ] : ∇′ » ρ ∷ʷʳ Δ ⊇ Γ)
                   (⊩v : ∇′ » Δ ⊩ₗ v ∷ U.wk ρ F / [F] [ξ] [ρ]) →

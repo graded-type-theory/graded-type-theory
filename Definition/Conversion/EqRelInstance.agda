@@ -60,7 +60,7 @@ open import Tools.Unit
 private
   variable
     m n κ : Nat
-    ∇ : DCon (Term 0) κ
+    ∇ ∇′ : DCon (Term 0) κ
     Η : Con Term _
     Γ : Cons _ _
     A₁ A₂ B₁ B₂ t₁ t₂ u₁ u₂ v₁ v₂ w₁ w₂ : Term _
@@ -316,8 +316,8 @@ private module Lemmas where
         ∇ » Γ ⊢ k ~ l ∷ A → ∇ » Δ ⊢ wk ρ k ~ wk ρ l ∷ wk ρ A
   ~-wk x (↑ x₂ x₃) = ↑ (wkEq x x₂) (wk~↑ x x₃)
 
-  ~-defn-wk : ∀ {k l A} {ξ : DExt (Term 0) m n} {∇ ∇′} →
-        ξ » ∇′ ⊇ ∇ →
+  ~-defn-wk : ∀ {k l A} →
+        » ∇′ ⊇ ∇ →
         ∇ » Η ⊢ k ~ l ∷ A → ∇′ » Η ⊢ k ~ l ∷ A
   ~-defn-wk ξ⊇ (↑ A≡B k~l) = ↑ (defn-wkEq ξ⊇ A≡B) (defn-wk~↑ ξ⊇ k~l)
 

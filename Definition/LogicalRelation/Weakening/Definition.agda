@@ -41,24 +41,23 @@ private
     ∇ ∇′ : DCon (Term 0) _
     Γ : Con Term _
     t u A B : Term _
-    ξ : DExt (Term 0) _ _
     l : Universe-level
     s : Strength
 
 opaque
 
-  defn-wkTermNe : ξ » ∇′ ⊇ ∇ → ∇ » Γ ⊩neNf t ∷ A → ∇′ » Γ ⊩neNf t ∷ A
+  defn-wkTermNe : » ∇′ ⊇ ∇ → ∇ » Γ ⊩neNf t ∷ A → ∇′ » Γ ⊩neNf t ∷ A
   defn-wkTermNe ξ⊇ (neNfₜ neK k≡k) =
     neNfₜ (defn-wkNeutral ξ⊇ neK) (~-defn-wk ξ⊇ k≡k)
 
 opaque mutual
 
-  defn-wkTermℕ : ξ » ∇′ ⊇ ∇ → ∇ » Γ ⊩ℕ t ∷ℕ → ∇′ » Γ ⊩ℕ t ∷ℕ
+  defn-wkTermℕ : » ∇′ ⊇ ∇ → ∇ » Γ ⊩ℕ t ∷ℕ → ∇′ » Γ ⊩ℕ t ∷ℕ
   defn-wkTermℕ ξ⊇ (ℕₜ n d n≡n prop) =
     ℕₜ n (defn-wkRed*Term ξ⊇ d) (≅ₜ-defn-wk ξ⊇ n≡n) (defn-wkNatural-prop ξ⊇ prop)
 
   defn-wkNatural-prop :
-    ξ » ∇′ ⊇ ∇ → Natural-prop (∇ » Γ) t → Natural-prop (∇′ » Γ) t
+    » ∇′ ⊇ ∇ → Natural-prop (∇ » Γ) t → Natural-prop (∇′ » Γ) t
   defn-wkNatural-prop ξ⊇ (sucᵣ n) = sucᵣ (defn-wkTermℕ ξ⊇ n)
   defn-wkNatural-prop ξ⊇ zeroᵣ    = zeroᵣ
   defn-wkNatural-prop ξ⊇ (ne nf)  = ne (defn-wkTermNe ξ⊇ nf)
@@ -66,14 +65,14 @@ opaque mutual
 opaque
 
   defn-wkUnit-prop′ :
-    ξ » ∇′ ⊇ ∇ → Unit-prop′ (∇ » Γ) l s t → Unit-prop′ (∇′ » Γ) l s t
+    » ∇′ ⊇ ∇ → Unit-prop′ (∇ » Γ) l s t → Unit-prop′ (∇′ » Γ) l s t
   defn-wkUnit-prop′ ξ⊇ starᵣ   = starᵣ
   defn-wkUnit-prop′ ξ⊇ (ne nf) = ne (defn-wkTermNe ξ⊇ nf)
 
 opaque
 
   defn-wkUnit-prop :
-    ξ » ∇′ ⊇ ∇ → Unit-prop (∇ » Γ) l s t → Unit-prop (∇′ » Γ) l s t
+    » ∇′ ⊇ ∇ → Unit-prop (∇ » Γ) l s t → Unit-prop (∇′ » Γ) l s t
   defn-wkUnit-prop ξ⊇ (Unitₜʷ prop no-η) =
     Unitₜʷ (defn-wkUnit-prop′ ξ⊇ prop) no-η
   defn-wkUnit-prop ξ⊇ (Unitₜˢ η) =
@@ -82,19 +81,19 @@ opaque
 opaque
 
   defn-wkEqTermNe :
-    ξ » ∇′ ⊇ ∇ → ∇ » Γ ⊩neNf t ≡ u ∷ A → ∇′ » Γ ⊩neNf t ≡ u ∷ A
+    » ∇′ ⊇ ∇ → ∇ » Γ ⊩neNf t ≡ u ∷ A → ∇′ » Γ ⊩neNf t ≡ u ∷ A
   defn-wkEqTermNe ξ⊇ (neNfₜ₌ neK neM k≡m) =
     neNfₜ₌ (defn-wkNeutral ξ⊇ neK) (defn-wkNeutral ξ⊇ neM) (~-defn-wk ξ⊇ k≡m)
 
 opaque mutual
 
-  defn-wkEqTermℕ : ξ » ∇′ ⊇ ∇ → ∇ » Γ ⊩ℕ t ≡ u ∷ℕ → ∇′ » Γ ⊩ℕ t ≡ u ∷ℕ
+  defn-wkEqTermℕ : » ∇′ ⊇ ∇ → ∇ » Γ ⊩ℕ t ≡ u ∷ℕ → ∇′ » Γ ⊩ℕ t ≡ u ∷ℕ
   defn-wkEqTermℕ ξ⊇ (ℕₜ₌ k k′ d d′ k≡k′ prop) =
     ℕₜ₌ k k′ (defn-wkRed*Term ξ⊇ d) (defn-wkRed*Term ξ⊇ d′)
         (≅ₜ-defn-wk ξ⊇ k≡k′) (defn-wk[Natural]-prop ξ⊇ prop)
 
   defn-wk[Natural]-prop :
-    ξ » ∇′ ⊇ ∇ →
+    » ∇′ ⊇ ∇ →
     [Natural]-prop (∇ » Γ) t u → [Natural]-prop (∇′ » Γ) t u
   defn-wk[Natural]-prop ξ⊇ (sucᵣ [n≡n′]) = sucᵣ (defn-wkEqTermℕ ξ⊇ [n≡n′])
   defn-wk[Natural]-prop ξ⊇ zeroᵣ         = zeroᵣ
@@ -103,7 +102,7 @@ opaque mutual
 opaque
 
   defn-wk[Unitʷ]-prop :
-    ξ » ∇′ ⊇ ∇ →
+    » ∇′ ⊇ ∇ →
     [Unitʷ]-prop (∇ » Γ) l t u → [Unitʷ]-prop (∇′ » Γ) l t u
   defn-wk[Unitʷ]-prop ξ⊇ starᵣ   = starᵣ
   defn-wk[Unitʷ]-prop ξ⊇ (ne nf) = ne (defn-wkEqTermNe ξ⊇ nf)
@@ -111,7 +110,7 @@ opaque
 opaque
 
   defn-wk[Unit]-prop :
-    ξ » ∇′ ⊇ ∇ →
+    » ∇′ ⊇ ∇ →
     [Unit]-prop (∇ » Γ) l s t u → [Unit]-prop (∇′ » Γ) l s t u
   defn-wk[Unit]-prop ξ⊇ (Unitₜ₌ʷ prop no-η) =
     Unitₜ₌ʷ (defn-wk[Unitʷ]-prop ξ⊇ prop) no-η
@@ -121,7 +120,7 @@ opaque
 opaque
 
   defn-wkEqTermUnit :
-    ξ » ∇′ ⊇ ∇ →
+    » ∇′ ⊇ ∇ →
     ∇ » Γ ⊩Unit⟨ l , s ⟩ t ≡ u ∷Unit →
     ∇′ » Γ ⊩Unit⟨ l , s ⟩ t ≡ u ∷Unit
   defn-wkEqTermUnit ξ⊇ (Unitₜ₌ _ _ ↘u₁ ↘u₂ prop) =
@@ -132,20 +131,22 @@ private
 
   _•ᵈ→_ :
     ∀ {κ} {∇ : DCon (Term 0) κ} →
-    {P : ∀ {κ′} {ξ : DExt _ κ′ κ} {∇′ : DCon (Term 0) κ′}
-       → ([ξ] : ξ » ∇′ ⊇ ∇) → Set ℓ} →
-    ∀ {κ*} {ξ* : DExt _ κ* κ} {∇* : DCon (Term 0) κ*} →
-    ([ξ*] : ξ* » ∇* ⊇ ∇) →
-    (∀ {κ′} {ξ : DExt _ κ′ κ} {∇′ : DCon (Term 0) κ′}
-     → ([ξ] : ξ » ∇′ ⊇ ∇) → P [ξ]) →
-    (∀ {κ′} {ξ : DExt _ κ′ κ*} {∇′ : DCon (Term 0) κ′}
-     → ([ξ] : ξ » ∇′ ⊇ ∇*) → P ([ξ] •ₜᵈ [ξ*]))
-  [ξ*] •ᵈ→ f = λ [ξ] → f ([ξ] •ₜᵈ [ξ*])
+    {P : ∀ {κ′} {∇′ : DCon (Term 0) κ′}
+       → ([ξ] : » ∇′ ⊇ ∇) → Set ℓ} →
+    ∀ {κ*} {∇* : DCon (Term 0) κ*} →
+    ([ξ*] : » ∇* ⊇ ∇) →
+    (∀ {κ′} {∇′ : DCon (Term 0) κ′}
+     → ([ξ] : » ∇′ ⊇ ∇) → P [ξ]) →
+    (∀ {κ′} {∇′ : DCon (Term 0) κ′}
+     → ([ξ] : » ∇′ ⊇ ∇*) → P (»⊇-trans [ξ] [ξ*]))
+  [ξ*] •ᵈ→ f = λ [ξ] → f (»⊇-trans [ξ] [ξ*])
 
-opaque mutual
+opaque
+ unfolding »⊇-trans
+ mutual
 
   defn-wk :
-    ξ » ∇′ ⊇ ∇ →
+    » ∇′ ⊇ ∇ →
     ∇ » Γ ⊩⟨ l ⟩ A →
     ∇′ » Γ ⊩⟨ l ⟩ A
   defn-wk ξ⊇ (Uᵣ′ l′ l< D) = Uᵣ′ l′ l< (defn-wkRed* ξ⊇ D)
@@ -167,14 +168,14 @@ opaque mutual
     open _⊩ₗId_ ⊩A
 
   defn-wkTerm :
-    (ξ⊇ : ξ » ∇′ ⊇ ∇) →
+    (ξ⊇ : » ∇′ ⊇ ∇) →
     ([A] : ∇ » Γ ⊩⟨ l ⟩ A) →
     ∇ » Γ ⊩⟨ l ⟩ t ∷ A / [A] →
     ∇′ » Γ ⊩⟨ l ⟩ t ∷ A / defn-wk ξ⊇ [A]
   defn-wkTerm = defn-wkEqTerm
 
   defn-wkEq :
-    (ξ⊇ : ξ » ∇′ ⊇ ∇) →
+    (ξ⊇ : » ∇′ ⊇ ∇) →
     ([A] : ∇ » Γ ⊩⟨ l ⟩ A) →
     ∇ » Γ ⊩⟨ l ⟩ A ≡ B / [A] →
     ∇′ » Γ ⊩⟨ l ⟩ A ≡ B / defn-wk ξ⊇ [A]
@@ -200,7 +201,7 @@ opaque mutual
     open _⊩ₗId_≡_/_ A≡B
 
   defn-wkEqTerm :
-    (ξ⊇ : ξ » ∇′ ⊇ ∇) →
+    (ξ⊇ : » ∇′ ⊇ ∇) →
     ([A] : ∇ » Γ ⊩⟨ l ⟩ A) →
     ∇ » Γ ⊩⟨ l ⟩ t ≡ u ∷ A / [A] →
     ∇′ » Γ ⊩⟨ l ⟩ t ≡ u ∷ A / defn-wk ξ⊇ [A]

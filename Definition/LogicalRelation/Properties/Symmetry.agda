@@ -106,8 +106,8 @@ symEqT
   let ΠF₁G₁≡ΠF′G′       = whrDet* (D₁ , ⟦ W ⟧ₙ) (D′ , ⟦ W ⟧ₙ)
       F₁≡F′ , G₁≡G′ , _ = B-PE-injectivity W W ΠF₁G₁≡ΠF′G′
       [F₁≡F] :
-        {κ′ : Nat} {ξ : DExt _ κ′ κ} {∇ : DCon (Term 0) κ′}
-        ([ξ] : ξ » ∇ ⊇ Γ .defs) →
+        {κ′ : Nat} {∇ : DCon (Term 0) κ′}
+        ([ξ] : » ∇ ⊇ Γ .defs) →
         {ℓ : Nat} {ρ : Wk ℓ n} {Δ : Con Term ℓ}
         ([ρ] : ∇ » ρ ∷ʷʳ Δ ⊇ Γ .vars) →
         ∇ » Δ ⊩⟨ l′ ⟩ (wk ρ F₁) ≡ (wk ρ F) / [F]₁ [ξ] [ρ]
@@ -122,7 +122,7 @@ symEqT
   B₌ _ _ D
     (≅-sym (PE.subst (_⊢_≅_ _ _) (PE.sym ΠF₁G₁≡ΠF′G′) A≡B))
     [F₁≡F]
-    (λ {_} {_} {∇} [ξ] {_} {ρ} {Δ} {a} [ρ] [a] →
+    (λ {_} {∇} [ξ] {_} {ρ} {Δ} {a} [ρ] [a] →
        let ρG′a≡ρG₁′a = PE.cong (_[ a ]₀ ∘→ wk (lift ρ)) (PE.sym G₁≡G′)
            [ρG′a] = PE.subst (λ x → ∇ » Δ ⊩⟨ l′ ⟩ wk (lift ρ) x [ a ]₀)
                       G₁≡G′ ([G]₁ [ξ] [ρ] [a])

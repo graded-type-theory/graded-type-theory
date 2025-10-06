@@ -38,7 +38,6 @@ private
   variable
     m n  : Nat
     ∇ ∇′ : DCon (Term 0) m
-    ξ    : DExt _ _ _
     Δ Ε  : Con Term n
     Γ    : Cons m n
     σ    : Subst _ _
@@ -140,7 +139,7 @@ opaque
   -- ∇, then ∇ » Δ is consistent.
 
   Consistent-⊇→Consistent :
-    ξ » ∇′ ⊇ ∇ →
+    » ∇′ ⊇ ∇ →
     Consistent (∇′ » Δ) →
     Consistent (∇ » Δ)
   Consistent-⊇→Consistent ∇′⊇∇ consistent _ =
@@ -163,13 +162,13 @@ opaque
        Consistent (∇ » Γ) ×
        ¬ Consistent (glassify ∇ » Γ) ×
        ¬ Consistent (ε » inline-Con ∇ Γ) ×
-       ∃₃ λ m′ ξ (∇′ : DCon (Term 0) m′) →
-         ξ » ∇′ ⊇ ∇ × ¬ Consistent (∇′ » Γ)
+       ∃₂ λ m′ (∇′ : DCon (Term 0) m′) →
+         » ∇′ ⊇ ∇ × ¬ Consistent (∇′ » Γ)
   consistency-is-not-preserved ok =
     _ , _ , Opaque[ Empty ∷ U 0 ] , ε ∙ defn 0 , ∙ ⊢0 , consistent ,
     (λ hyp → hyp _ inconsistent₁) ,
     (λ hyp → hyp _ inconsistent₂) ,
-    _ , _ , _ , ∙⊇ ,
+    _ , _ , ∙⊇ ,
     (λ hyp → hyp _ inconsistent₃)
     where
     ⊢ε : Opaque[ Empty ∷ U 0 ] »⊢ ε
@@ -195,10 +194,9 @@ opaque
       var₀ (Emptyⱼ εε)
 
     ∙⊇ :
-      step id (opa (ε ¹)) (Id (U 0) (defn 0) Empty) rfl »
-      Opaque[ Empty ∷ U 0 ]
-        ∙⟨ opa (ε ¹) ⟩[ rfl ∷ Id (U 0) (defn 0) Empty ] ⊇
-      Opaque[ Empty ∷ U 0 ]
+      » Opaque[ Empty ∷ U 0 ]
+          ∙⟨ opa (ε ¹) ⟩[ rfl ∷ Id (U 0) (defn 0) Empty ] ⊇
+        Opaque[ Empty ∷ U 0 ]
     ∙⊇ =
       stepᵒ₁ ok (Idⱼ′ ⊢0∷U (Emptyⱼ ⊢ε)) (ones-»↜ _)
         (rflⱼ′ (δ-red (glassify-⊢′ ⊢ε) here PE.refl PE.refl))
@@ -273,12 +271,12 @@ opaque
   ¬Consistent→Consistent-⊇ :
     Opacity-allowed →
     ¬ (∀ {m m′ n} {∇ : DCon (Term 0) m} {∇′ : DCon (Term 0) m′}
-         {ξ : DExt (Term 0) m′ m} {Γ : Con Term n} →
-       ∇ »⊢ Γ → ξ » ∇′ ⊇ ∇ →
+         {Γ : Con Term n} →
+       ∇ »⊢ Γ → » ∇′ ⊇ ∇ →
        Consistent (∇ » Γ) →
        Consistent (∇′ » Γ))
   ¬Consistent→Consistent-⊇ ok hyp =
-    let _ , _ , _ , _ , ⊢Γ , con , _ , _ , _ , _ , _ , ∇′⊇∇ , not-con =
+    let _ , _ , _ , _ , ⊢Γ , con , _ , _ , _ , _ , ∇′⊇∇ , not-con =
           consistency-is-not-preserved ok
     in
     not-con (hyp ⊢Γ ∇′⊇∇ con)

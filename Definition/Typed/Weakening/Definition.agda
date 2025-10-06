@@ -36,7 +36,6 @@ private
     V : Set a
     φ : Unfolding _
     ω : Opacity _
-    ξ ξ′ : DExt (Term 0) _ _
     ρ : Wk _ _
 
 ------------------------------------------------------------------------
@@ -51,29 +50,35 @@ data DWkStep (∇ : DCon (Term 0) n) (A : Term 0) (t : Term 0) : Opacity n → S
   tra : ∇ » ε ⊢ t ∷ A
       → DWkStep ∇ A t tra
 
-data _»_⊇_ : DExt (Term 0) m n
-           → DCon (Term 0) m → DCon (Term 0) n → Set a where
-  id   : id » ∇ ⊇ ∇
-  step : ξ » ∇′ ⊇ ∇
+-- » ∇′ ⊇ ∇ means that ∇′ is a well-formed extension of ∇.
+
+infix 4 »_⊇_
+
+data »_⊇_ : DCon (Term 0) m → DCon (Term 0) n → Set a where
+  id   : » ∇ ⊇ ∇
+  step : » ∇′ ⊇ ∇
        → DWkStep ∇′ A t ω
-       → step ξ ω A t » ∇′ ∙⟨ ω ⟩[ t ∷ A ] ⊇ ∇
+       → » ∇′ ∙⟨ ω ⟩[ t ∷ A ] ⊇ ∇
 
 pattern stepᵒ ξ⊇ ok ⊢A φ↜ ⊢t = step ξ⊇ (opa ok ⊢A φ↜ ⊢t)
 pattern stepᵗ ξ⊇ ⊢t = step ξ⊇ (tra ⊢t)
 pattern stepᵒ₁ ok ⊢A φ↜ ⊢t = stepᵒ id ok ⊢A φ↜ ⊢t
 pattern stepᵗ₁ ⊢t = stepᵗ id ⊢t
 
--- Composition of well-typed definition context extensions.
+opaque
 
-_•ₜᵈ_ : ξ′ » ∇″ ⊇ ∇′ → ξ » ∇′ ⊇ ∇ → (ξ′ •ᵈ ξ) » ∇″ ⊇ ∇
-id         •ₜᵈ ξ⊇ = ξ⊇
-step ξ′⊇ s •ₜᵈ ξ⊇ = step (ξ′⊇ •ₜᵈ ξ⊇) s
+  -- The relation »_⊇_ is transitive.
+
+  »⊇-trans : » ∇″ ⊇ ∇′ → » ∇′ ⊇ ∇ → » ∇″ ⊇ ∇
+  »⊇-trans id             ∇′⊇∇ = ∇′⊇∇
+  »⊇-trans (step ∇″⊇∇′ s) ∇′⊇∇ = step (»⊇-trans ∇″⊇∇′ ∇′⊇∇) s
 
 opaque
 
-  -- Well-formedness lemma for definition context extensions.
+  -- If ∇′ is a well-formed extension of a well-formed definition
+  -- context, then ∇′ is a well-formed definition context.
 
-  wf-»⊇ : ξ » ∇′ ⊇ ∇ → » ∇ → » ∇′
+  wf-»⊇ : » ∇′ ⊇ ∇ → » ∇ → » ∇′
   wf-»⊇ id                     »∇ = »∇
   wf-»⊇ (stepᵒ ξ⊇ ok ⊢A φ↜ ⊢t) »∇ = ∙ᵒ⟨ ok , φ↜ ⟩[ ⊢t ∷ ⊢A ]
   wf-»⊇ (stepᵗ ξ⊇ ⊢t)          »∇ = ∙ᵗ[ ⊢t ]
@@ -86,7 +91,7 @@ opaque
   ⊇→≤ :
     {∇  : DCon (Term 0) n}
     {∇′ : DCon (Term 0) n′} →
-    ξ » ∇′ ⊇ ∇ →
+    » ∇′ ⊇ ∇ →
     n ≤ n′
   ⊇→≤ id            = ≤-refl
   ⊇→≤ (step ∇′⊇∇ _) = ≤-trans (⊇→≤ ∇′⊇∇) (n≤1+n _)
@@ -96,17 +101,13 @@ opaque
   -- If ∇ is well-formed, then ∇ is an extension of the empty
   -- definition context.
 
-  »⊇ε :
-    » ∇ →
-    ∃ λ ξ → ξ » ∇ ⊇ ε
+  »⊇ε : » ∇ → » ∇ ⊇ ε
   »⊇ε ε =
-    _ , id
+    id
   »⊇ε ∙ᵗ[ ⊢t ] =
-    let _ , ∇⊇ = »⊇ε (defn-wf (wfTerm ⊢t)) in
-    _ , stepᵗ ∇⊇ ⊢t
+    stepᵗ (»⊇ε (defn-wf (wfTerm ⊢t))) ⊢t
   »⊇ε ∙ᵒ⟨ ok , ∇′↜∇ ⟩[ ⊢t ∷ ⊢A ] =
-    let _ , ∇⊇ = »⊇ε (defn-wf (wf ⊢A)) in
-    _ , stepᵒ ∇⊇ ok ⊢A ∇′↜∇ ⊢t
+    stepᵒ (»⊇ε (defn-wf (wf ⊢A))) ok ⊢A ∇′↜∇ ⊢t
 
 ------------------------------------------------------------------------
 -- Weakening for properties of definitions
@@ -115,7 +116,7 @@ opaque
 
   -- A definition weakening lemma for the definition context.
 
-  there*-↦∈ : ξ » ∇′ ⊇ ∇ → α ↦∷ A ∈ ∇ → α ↦∷ A ∈ ∇′
+  there*-↦∈ : » ∇′ ⊇ ∇ → α ↦∷ A ∈ ∇ → α ↦∷ A ∈ ∇′
   there*-↦∈ id          α↦t = α↦t
   there*-↦∈ (step ξ⊇ s) α↦t = there (there*-↦∈ ξ⊇ α↦t)
 
@@ -123,7 +124,7 @@ opaque
 
   -- A definition weakening lemma for the definition context.
 
-  there*-↦∷∈ : ξ » ∇′ ⊇ ∇ → α ↦ t ∷ A ∈ ∇ → α ↦ t ∷ A ∈ ∇′
+  there*-↦∷∈ : » ∇′ ⊇ ∇ → α ↦ t ∷ A ∈ ∇ → α ↦ t ∷ A ∈ ∇′
   there*-↦∷∈ id          α↦t = α↦t
   there*-↦∷∈ (step ξ⊇ s) α↦t = there (there*-↦∷∈ ξ⊇ α↦t)
 
@@ -131,7 +132,7 @@ opaque
 
   -- A definition weakening lemma for the definition context.
 
-  there*-↦⊘∈ : ξ » ∇′ ⊇ ∇ → α ↦⊘∷ A ∈ ∇ → α ↦⊘∷ A ∈ ∇′
+  there*-↦⊘∈ : » ∇′ ⊇ ∇ → α ↦⊘∷ A ∈ ∇ → α ↦⊘∷ A ∈ ∇′
   there*-↦⊘∈ id          α↦t = α↦t
   there*-↦⊘∈ (step ξ⊇ s) α↦t = there (there*-↦⊘∈ ξ⊇ α↦t)
 
@@ -142,18 +143,16 @@ opaque
 
   -- A glassification lemma for _»_⊇_.
 
-  glassify-»⊇ : ξ » ∇′ ⊇ ∇ → ∃ λ ξ → ξ » glassify ∇′ ⊇ glassify ∇
+  glassify-»⊇ : » ∇′ ⊇ ∇ → » glassify ∇′ ⊇ glassify ∇
   glassify-»⊇ id =
-    id , id
+    id
   glassify-»⊇ (stepᵗ ξ⊇ ⊢t) =
-    Σ.map _ (flip stepᵗ (glassify-⊢∷ ⊢t)) (glassify-»⊇ ξ⊇)
+    stepᵗ (glassify-»⊇ ξ⊇) (glassify-⊢∷ ⊢t)
   glassify-»⊇ (stepᵒ ξ⊇ _ _ ∇′↜∇ ⊢t) =
-    Σ.map _
-      (flip stepᵗ $
-       PE.subst₃ _⊢_∷_
+    stepᵗ (glassify-»⊇ ξ⊇)
+      (PE.subst₃ _⊢_∷_
          (PE.cong (_» _) (glassify-factor ∇′↜∇)) PE.refl PE.refl $
        glassify-⊢∷ ⊢t)
-      (glassify-»⊇ ξ⊇)
 
 ------------------------------------------------------------------------
 -- Weakening for typing derivations
@@ -162,11 +161,11 @@ opaque mutual
 
   -- Single-weakening lemmas for the definition context.
 
-  defn-wk′ : ξ » ∇′ ⊇ ∇ → ∇ »⊢ Γ → ∇′ »⊢ Γ
+  defn-wk′ : » ∇′ ⊇ ∇ → ∇ »⊢ Γ → ∇′ »⊢ Γ
   defn-wk′ ξ⊇ (ε »∇) = ε (wf-»⊇ ξ⊇ »∇)
   defn-wk′ ξ⊇ (∙ ⊢Γ) = ∙ defn-wk ξ⊇ ⊢Γ
 
-  defn-wk : ξ » ∇′ ⊇ ∇ → ∇ » Γ ⊢ A → ∇′ » Γ ⊢ A
+  defn-wk : » ∇′ ⊇ ∇ → ∇ » Γ ⊢ A → ∇′ » Γ ⊢ A
   defn-wk ξ⊇ (Uⱼ ⊢Γ) = Uⱼ (defn-wk′ ξ⊇ ⊢Γ)
   defn-wk ξ⊇ (ℕⱼ ⊢Γ) = ℕⱼ (defn-wk′ ξ⊇ ⊢Γ)
   defn-wk ξ⊇ (Emptyⱼ ⊢Γ) = Emptyⱼ (defn-wk′ ξ⊇ ⊢Γ)
@@ -178,7 +177,7 @@ opaque mutual
         (defn-wkTerm ξ⊇ ⊢t₂)
   defn-wk ξ⊇ (univ ⊢A) = univ (defn-wkTerm ξ⊇ ⊢A)
 
-  defn-wkTerm : ξ » ∇′ ⊇ ∇ → ∇ » Γ ⊢ t ∷ A → ∇′ » Γ ⊢ t ∷ A
+  defn-wkTerm : » ∇′ ⊇ ∇ → ∇ » Γ ⊢ t ∷ A → ∇′ » Γ ⊢ t ∷ A
   defn-wkTerm ξ⊇ (Uⱼ ⊢Γ) = Uⱼ (defn-wk′ ξ⊇ ⊢Γ)
   defn-wkTerm ξ⊇ (ΠΣⱼ ⊢t₁ ⊢t₂ ok) =
     ΠΣⱼ (defn-wkTerm ξ⊇ ⊢t₁) (defn-wkTerm ξ⊇ ⊢t₂) ok
@@ -244,7 +243,7 @@ opaque mutual
              (defn-wkTerm ξ⊇ ⊢t₂)
              (defn-wkTerm ξ⊇ ⊢tₚ) ok
 
-  defn-wkEq : ξ » ∇′ ⊇ ∇ → ∇ » Γ ⊢ A ≡ A′ → ∇′ » Γ ⊢ A ≡ A′
+  defn-wkEq : » ∇′ ⊇ ∇ → ∇ » Γ ⊢ A ≡ A′ → ∇′ » Γ ⊢ A ≡ A′
   defn-wkEq ξ⊇ (univ A≡A′) = univ (defn-wkEqTerm ξ⊇ A≡A′)
   defn-wkEq ξ⊇ (refl ⊢A) = refl (defn-wk ξ⊇ ⊢A)
   defn-wkEq ξ⊇ (sym A≡A′) = sym (defn-wkEq ξ⊇ A≡A′)
@@ -257,7 +256,7 @@ opaque mutual
             (defn-wkEqTerm ξ⊇ t₁≡t₂)
             (defn-wkEqTerm ξ⊇ u₁≡u₂)
 
-  defn-wkEqTerm : ξ » ∇′ ⊇ ∇ → ∇ » Γ ⊢ t ≡ t′ ∷ A → ∇′ » Γ ⊢ t ≡ t′ ∷ A
+  defn-wkEqTerm : » ∇′ ⊇ ∇ → ∇ » Γ ⊢ t ≡ t′ ∷ A → ∇′ » Γ ⊢ t ≡ t′ ∷ A
   defn-wkEqTerm ξ⊇ (refl ⊢t) = refl (defn-wkTerm ξ⊇ ⊢t)
   defn-wkEqTerm ξ⊇ (sym ⊢A t≡t′) =
     sym (defn-wk ξ⊇ ⊢A) (defn-wkEqTerm ξ⊇ t≡t′)
@@ -391,7 +390,7 @@ opaque
 
   -- A definitional weakening lemma for weakenings.
 
-  defn-wkWkʷ : ξ » ∇′ ⊇ ∇ → ∇ » ρ ∷ʷ Δ ⊇ Γ → ∇′ » ρ ∷ʷ Δ ⊇ Γ
+  defn-wkWkʷ : » ∇′ ⊇ ∇ → ∇ » ρ ∷ʷ Δ ⊇ Γ → ∇′ » ρ ∷ʷ Δ ⊇ Γ
   defn-wkWkʷ ξ⊇ ρ = ∷⊇→∷ʷ⊇ (∷ʷ⊇→∷⊇ ρ) (defn-wk′ ξ⊇ (wf-∷ʷ⊇ ρ))
 
 ------------------------------------------------------------------------
@@ -401,7 +400,7 @@ opaque
 
   -- A reduction weakening lemma for the definition context.
 
-  defn-wkRedTerm : ξ » ∇′ ⊇ ∇ → ∇ » Γ ⊢ t ⇒ t′ ∷ A → ∇′ » Γ ⊢ t ⇒ t′ ∷ A
+  defn-wkRedTerm : » ∇′ ⊇ ∇ → ∇ » Γ ⊢ t ⇒ t′ ∷ A → ∇′ » Γ ⊢ t ⇒ t′ ∷ A
   defn-wkRedTerm ξ⊇ (conv t⇒t′ A≡A′) =
     conv (defn-wkRedTerm ξ⊇ t⇒t′) (defn-wkEq ξ⊇ A≡A′)
   defn-wkRedTerm ξ⊇ (δ-red ⊢Γ α↦t A≡A′ T≡T′) =
@@ -499,14 +498,14 @@ opaque
 
   -- A reduction weakening lemma for the definition context.
 
-  defn-wkRed : ξ » ∇′ ⊇ ∇ → ∇ » Γ ⊢ A ⇒ A′ → ∇′ » Γ ⊢ A ⇒ A′
+  defn-wkRed : » ∇′ ⊇ ∇ → ∇ » Γ ⊢ A ⇒ A′ → ∇′ » Γ ⊢ A ⇒ A′
   defn-wkRed ξ⊇ (univ A⇒A′) = univ (defn-wkRedTerm ξ⊇ A⇒A′)
 
 opaque
 
   -- A multi-step reduction weakening lemma for the definition context.
 
-  defn-wkRed* : ξ » ∇′ ⊇ ∇ → ∇ » Γ ⊢ A ⇒* A′ → ∇′ » Γ ⊢ A ⇒* A′
+  defn-wkRed* : » ∇′ ⊇ ∇ → ∇ » Γ ⊢ A ⇒* A′ → ∇′ » Γ ⊢ A ⇒* A′
   defn-wkRed* ξ⊇ (id ⊢A)       = id (defn-wk ξ⊇ ⊢A)
   defn-wkRed* ξ⊇ (A⇒X ⇨ X⇒*A′) = defn-wkRed ξ⊇ A⇒X ⇨ defn-wkRed* ξ⊇ X⇒*A′
 
@@ -514,7 +513,8 @@ opaque
 
   -- A multi-step reduction weakening lemma for the definition context.
 
-  defn-wkRed*Term : ξ » ∇′ ⊇ ∇ → ∇ » Γ ⊢ t ⇒* t′ ∷ A → ∇′ » Γ ⊢ t ⇒* t′ ∷ A
+  defn-wkRed*Term :
+    » ∇′ ⊇ ∇ → ∇ » Γ ⊢ t ⇒* t′ ∷ A → ∇′ » Γ ⊢ t ⇒* t′ ∷ A
   defn-wkRed*Term ξ⊇ (id ⊢t)       = id (defn-wkTerm ξ⊇ ⊢t)
   defn-wkRed*Term ξ⊇ (t⇒x ⇨ x⇒*t′) =
     defn-wkRedTerm ξ⊇ t⇒x ⇨ defn-wkRed*Term ξ⊇ x⇒*t′
@@ -526,7 +526,7 @@ opaque
 
   -- A neutral term weakening lemma for the definition context.
 
-  defn-wkNeutral : ξ » ∇′ ⊇ ∇ → Neutral V ∇ t → Neutral V ∇′ t
+  defn-wkNeutral : » ∇′ ⊇ ∇ → Neutral V ∇ t → Neutral V ∇′ t
   defn-wkNeutral ξ⊇ (defn α↦⊘)     = defn (there*-↦⊘∈ ξ⊇ α↦⊘)
   defn-wkNeutral ξ⊇ (var ok x)     = var ok x
   defn-wkNeutral ξ⊇ (∘ₙ b)         = ∘ₙ (defn-wkNeutral ξ⊇ b)
@@ -544,7 +544,7 @@ opaque
 
   -- A WHNF weakening lemma for the definition context.
 
-  defn-wkWhnf : ξ » ∇′ ⊇ ∇ → Whnf ∇ t → Whnf ∇′ t
+  defn-wkWhnf : » ∇′ ⊇ ∇ → Whnf ∇ t → Whnf ∇′ t
   defn-wkWhnf ξ⊇ Uₙ     = Uₙ
   defn-wkWhnf ξ⊇ ΠΣₙ    = ΠΣₙ
   defn-wkWhnf ξ⊇ ℕₙ     = ℕₙ
@@ -563,7 +563,7 @@ opaque
 
   -- A WHNF view weakening lemma for the definition context.
 
-  defn-wkNatural : ξ » ∇′ ⊇ ∇ → Natural V ∇ t → Natural V ∇′ t
+  defn-wkNatural : » ∇′ ⊇ ∇ → Natural V ∇ t → Natural V ∇′ t
   defn-wkNatural ξ⊇ sucₙ   = sucₙ
   defn-wkNatural ξ⊇ zeroₙ  = zeroₙ
   defn-wkNatural ξ⊇ (ne n) = ne (defn-wkNeutral ξ⊇ n)
@@ -572,7 +572,7 @@ opaque
 
   -- A WHNF view weakening lemma for the definition context.
 
-  defn-wkType : ξ » ∇′ ⊇ ∇ → Type V ∇ t → Type V ∇′ t
+  defn-wkType : » ∇′ ⊇ ∇ → Type V ∇ t → Type V ∇′ t
   defn-wkType ξ⊇ Uₙ     = Uₙ
   defn-wkType ξ⊇ ΠΣₙ    = ΠΣₙ
   defn-wkType ξ⊇ ℕₙ     = ℕₙ
@@ -585,7 +585,7 @@ opaque
 
   -- A WHNF view weakening lemma for the definition context.
 
-  defn-wkFunction : ξ » ∇′ ⊇ ∇ → Function V ∇ t → Function V ∇′ t
+  defn-wkFunction : » ∇′ ⊇ ∇ → Function V ∇ t → Function V ∇′ t
   defn-wkFunction ξ⊇ lamₙ   = lamₙ
   defn-wkFunction ξ⊇ (ne n) = ne (defn-wkNeutral ξ⊇ n)
 
@@ -593,7 +593,7 @@ opaque
 
   -- A WHNF view weakening lemma for the definition context.
 
-  defn-wkProduct : ξ » ∇′ ⊇ ∇ → Product V ∇ t → Product V ∇′ t
+  defn-wkProduct : » ∇′ ⊇ ∇ → Product V ∇ t → Product V ∇′ t
   defn-wkProduct ξ⊇ prodₙ  = prodₙ
   defn-wkProduct ξ⊇ (ne n) = ne (defn-wkNeutral ξ⊇ n)
 
@@ -601,7 +601,7 @@ opaque
 
   -- A WHNF view weakening lemma for the definition context.
 
-  defn-wkIdentity : ξ » ∇′ ⊇ ∇ → Identity V ∇ t → Identity V ∇′ t
+  defn-wkIdentity : » ∇′ ⊇ ∇ → Identity V ∇ t → Identity V ∇′ t
   defn-wkIdentity ξ⊇ rflₙ   = rflₙ
   defn-wkIdentity ξ⊇ (ne n) = ne (defn-wkNeutral ξ⊇ n)
 
@@ -609,12 +609,12 @@ opaque
 
   -- A normalization weakening lemma for the definition context.
 
-  defn-wkRed↘ : ξ » ∇′ ⊇ ∇ → ∇ » Γ ⊢ A ↘ A′ → ∇′ » Γ ⊢ A ↘ A′
+  defn-wkRed↘ : » ∇′ ⊇ ∇ → ∇ » Γ ⊢ A ↘ A′ → ∇′ » Γ ⊢ A ↘ A′
   defn-wkRed↘ ξ⊇ (A⇒*A′ , w) = defn-wkRed* ξ⊇ A⇒*A′ , defn-wkWhnf ξ⊇ w
 
 opaque
 
   -- A normalization weakening lemma for the definition context.
 
-  defn-wkRed↘Term : ξ » ∇′ ⊇ ∇ → ∇ » Γ ⊢ t ↘ t′ ∷ A → ∇′ » Γ ⊢ t ↘ t′ ∷ A
+  defn-wkRed↘Term : » ∇′ ⊇ ∇ → ∇ » Γ ⊢ t ↘ t′ ∷ A → ∇′ » Γ ⊢ t ↘ t′ ∷ A
   defn-wkRed↘Term ξ⊇ (t⇒*t′ , w) = defn-wkRed*Term ξ⊇ t⇒*t′ , defn-wkWhnf ξ⊇ w

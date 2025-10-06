@@ -475,7 +475,7 @@ opaque
       , lamⱼ′ ok₁ (lamⱼ′ ok₂ (lamⱼ′ ok₃ (lamⱼ′ ok₄ ⊢[]-cong″)))
       )
     , λ _ _ _ A t ρ Δ⊇Γ ⊢A ⊢t →
-        let ⊇ε = WD.»⊇ε (defn-wf (wfTerm ⊢A)) .proj₂ in
+        let ⊇ε = WD.»⊇ε (defn-wf (wfTerm ⊢A)) in
         wk ρ []-cong′ ∘⟨ 𝟘 ⟩ A ∘⟨ 𝟘 ⟩ t ∘⟨ 𝟘 ⟩ t ∘⟨ 𝟘 ⟩ rfl          ⇒*⟨ β-red-⇒₄′ ok₁ ok₂ ok₃ ok₄
                                                                            (W.wkTerm (W.liftnʷ Δ⊇Γ (∙ ⊢Id-2-1-0 (WD.defn-wk′ ⊇ε ⊢Γ))) $
                                                                             WD.defn-wkTerm ⊇ε ⊢[]-cong″)
@@ -906,7 +906,7 @@ opaque
     in
       Has-[]-cong→Has-weaker-[]-cong hyp₁ hyp₂ hyp₃ has-[]-cong
     , λ _ _ _ A t ρ Δ⊇Γ ⊢A ⊢t →
-        let ⊇ε = WD.»⊇ε (defn-wf (wfTerm ⊢A)) .proj₂ in
+        let ⊇ε = WD.»⊇ε (defn-wf (wfTerm ⊢A)) in
         wk ρ
           (lam ω $ lam ω $ lam ω $ lam 𝟘 $
            wk (stepn id 4) []-cong′
@@ -1247,7 +1247,7 @@ opaque
 
           ok₁ , ok₂ , ok₃ , ok₄ , ⊢[]-cong″ = ⊢[]-cong″
 
-          ⊇ε = WD.»⊇ε (defn-wf (wfTerm ⊢A)) .proj₂
+          ⊇ε = WD.»⊇ε (defn-wf (wfTerm ⊢A))
       in
       wk ρ
         (lam 𝟘 $ lam 𝟘 $ lam 𝟘 $ lam 𝟘 $
