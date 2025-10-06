@@ -179,6 +179,14 @@ opaque
 
 opaque
 
+  -- Inversion of lower
+
+  ▸-inv-lowerₑ :
+    γ ▸ᵉ[ m ] lowerₑ → γ ≈ᶜ 𝟘ᶜ
+  ▸-inv-lowerₑ lowerₑ = ≈ᶜ-refl
+
+opaque
+
   -- Inversion of application
 
   ▸-inv-∘ₑ :
@@ -242,7 +250,7 @@ opaque
   -- Inversion of unitrec
 
   ▸-inv-unitrecₑ :
-    γ ▸ᵉ[ m ] unitrecₑ l p q A u ρ →
+    γ ▸ᵉ[ m ] unitrecₑ p q A u ρ →
     ∃ λ δ → δ ▸[ m ] u × Unitrec-allowed m p q ×
     ¬ Unitʷ-η × γ ≈ᶜ wkConₘ ρ δ
   ▸-inv-unitrecₑ (unitrecₑ ▸u ok no-η) =

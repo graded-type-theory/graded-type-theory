@@ -48,6 +48,21 @@ private variable
 
 opaque
 
+  -- Inversion of lower
+
+  inversion-lowerₑ :
+    Δ ⨾ H ⊢ᵉ lowerₑ ⟨ t ⟩∷ A ↝ B →
+    ∃₂ λ u F → (Δ ⊢ F) × A PE.≡ Lift u F × Δ ⊢ B ≡ F
+  inversion-lowerₑ (lowerₑ ⊢B) =
+    _ , _ , ⊢B , PE.refl , refl ⊢B
+  inversion-lowerₑ (conv ⊢e B≡B′) =
+    case inversion-lowerₑ ⊢e of λ
+      (u , F , ⊢F , A≡Lift , B′≡) →
+    -- _ , _ , _ , ⊢G , A≡Σ , trans (sym B≡B′) B′≡
+    _ , _ , ⊢F , A≡Lift , trans (sym B≡B′) B′≡
+
+opaque
+
   -- Inversion of application
 
   inversion-∘ₑ : Δ ⨾ H ⊢ᵉ ∘ₑ p u ρ ⟨ t ⟩∷ A ↝ B
@@ -133,11 +148,11 @@ opaque
   -- Inversion of unitrec
 
   inversion-unitrecₑ :
-    Δ ⨾ H ⊢ᵉ unitrecₑ l p q A u ρ ⟨ t ⟩∷ B ↝ C →
-    Δ ⊢ wk ρ u [ H ]ₕ ∷ wk (lift ρ) A [ H ]⇑ₕ [ starʷ l ]₀ ×
-    (Δ ∙ Unitʷ l ⊢ wk (lift ρ) A [ H ]⇑ₕ) ×
+    Δ ⨾ H ⊢ᵉ unitrecₑ p q A u ρ ⟨ t ⟩∷ B ↝ C →
+    Δ ⊢ wk ρ u [ H ]ₕ ∷ wk (lift ρ) A [ H ]⇑ₕ [ starʷ ]₀ ×
+    (Δ ∙ Unitʷ ⊢ wk (lift ρ) A [ H ]⇑ₕ) ×
     ¬ Unitʷ-η ×
-    B PE.≡ Unitʷ l ×
+    B PE.≡ Unitʷ ×
     (Δ ⊢ t [ H ]ₕ ∷ B → Δ ⊢ C ≡ wk (lift ρ) A [ H ]⇑ₕ [ t [ H ]ₕ ]₀)
   inversion-unitrecₑ {A} (unitrecₑ ⊢u ⊢A no-η) =
     ⊢u , ⊢A , no-η , PE.refl

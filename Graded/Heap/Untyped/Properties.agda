@@ -78,6 +78,11 @@ opaque
   -- Values applied to weakenings are values
 
   wkValue : (ρ : Wk m n) → Value t → Value (wk ρ t)
+  wkValue ρ Levelᵥ = Levelᵥ
+  wkValue ρ zeroᵘᵥ = zeroᵘᵥ
+  wkValue ρ sucᵘᵥ = sucᵘᵥ
+  wkValue ρ Liftᵥ = Liftᵥ
+  wkValue ρ liftᵥ = liftᵥ
   wkValue ρ lamᵥ = lamᵥ
   wkValue ρ zeroᵥ = zeroᵥ
   wkValue ρ sucᵥ = sucᵥ
@@ -97,6 +102,11 @@ opaque
   -- Values applied to substitutions are values
 
   substValue : (σ : Subst m n) → Value t → Value (t [ σ ])
+  substValue σ Levelᵥ = Levelᵥ
+  substValue σ zeroᵘᵥ = zeroᵘᵥ
+  substValue σ sucᵘᵥ = sucᵘᵥ
+  substValue σ Liftᵥ = Liftᵥ
+  substValue σ liftᵥ = liftᵥ
   substValue σ lamᵥ = lamᵥ
   substValue σ zeroᵥ = zeroᵥ
   substValue σ sucᵥ = sucᵥ
@@ -116,6 +126,11 @@ opaque
   -- Values are non-neutrals
 
   Value→¬Neutral : Value t → ¬ Neutral t
+  Value→¬Neutral Levelᵥ ()
+  Value→¬Neutral zeroᵘᵥ ()
+  Value→¬Neutral sucᵘᵥ ()
+  Value→¬Neutral Liftᵥ ()
+  Value→¬Neutral liftᵥ ()
   Value→¬Neutral lamᵥ ()
   Value→¬Neutral zeroᵥ ()
   Value→¬Neutral sucᵥ ()
@@ -137,7 +152,12 @@ opaque
 
   Value→Whnf :
     Value t →
-    Whnf t ⊎ ∃₆ λ l p q A u v → t ≡ unitrec l p q A u v × Unitʷ-η
+    Whnf t ⊎ (∃₅ λ p q A u v → t ≡ unitrec p q A u v × Unitʷ-η)
+  Value→Whnf Levelᵥ = inj₁ Levelₙ
+  Value→Whnf zeroᵘᵥ = inj₁ zeroᵘₙ
+  Value→Whnf sucᵘᵥ = inj₁ sucᵘₙ
+  Value→Whnf Liftᵥ = inj₁ Liftₙ
+  Value→Whnf liftᵥ = inj₁ liftₙ
   Value→Whnf lamᵥ = inj₁ lamₙ
   Value→Whnf zeroᵥ = inj₁ zeroₙ
   Value→Whnf sucᵥ = inj₁ sucₙ
@@ -150,7 +170,7 @@ opaque
   Value→Whnf Unitᵥ = inj₁ Unitₙ
   Value→Whnf Emptyᵥ = inj₁ Emptyₙ
   Value→Whnf Idᵥ = inj₁ Idₙ
-  Value→Whnf (unitrec-ηᵥ x) = inj₂ (_ , _ , _ , _ , _ , _ , refl , x)
+  Value→Whnf (unitrec-ηᵥ x) = inj₂ (_ , _ , _ , _ , _ , refl , x)
 
 ------------------------------------------------------------------------
 -- Properties of the lookup relations
@@ -302,6 +322,7 @@ opaque
   -- Applying a single substitution to a term and then to an eliminator
 
   ⦅⦆ᵉ-sgSubst : ∀ e → ⦅ e ⦆ᵉ (t [ u ]₀) ≡ ⦅ wk1ᵉ e ⦆ᵉ t [ u ]₀
+  ⦅⦆ᵉ-sgSubst lowerₑ = refl
   ⦅⦆ᵉ-sgSubst (∘ₑ p u ρ) =
     cong (_ ∘_) (sym (step-sgSubst _ _))
   ⦅⦆ᵉ-sgSubst (fstₑ p) = refl
@@ -315,8 +336,8 @@ opaque
       (lifts-step-sgSubst 1 A)
       (lifts-step-sgSubst 0 z)
       (lifts-step-sgSubst 2 s)
-  ⦅⦆ᵉ-sgSubst {u = v} (unitrecₑ _ p q A u ρ) =
-    cong₂ (λ u A → unitrec _ p q A _ u)
+  ⦅⦆ᵉ-sgSubst {u = v} (unitrecₑ p q A u ρ) =
+    cong₂ (λ u A → unitrec p q A _ u)
       (sym (step-sgSubst _ _))
       (lifts-step-sgSubst 1 A)
   ⦅⦆ᵉ-sgSubst (emptyrecₑ p A ρ) =
@@ -356,6 +377,7 @@ opaque
   -- Applying a double substitution to a term and then to an eliminator
 
   ⦅⦆ᵉ-[,] : ∀ e → ⦅ e ⦆ᵉ (t [ u , v ]₁₀) ≡ ⦅ wk2ᵉ e ⦆ᵉ t [ u , v ]₁₀
+  ⦅⦆ᵉ-[,] lowerₑ = refl
   ⦅⦆ᵉ-[,] (∘ₑ p u ρ) =
     cong (_ ∘_) (lifts-step-[,] 0 u)
   ⦅⦆ᵉ-[,] (fstₑ x) = refl
@@ -369,8 +391,8 @@ opaque
       (lifts-step-[,] 1 A)
       (lifts-step-[,] 0 z)
       (lifts-step-[,] 2 s)
-  ⦅⦆ᵉ-[,] (unitrecₑ _ p q A u ρ) =
-    cong₂ (λ x y → unitrec _ p q x _ y)
+  ⦅⦆ᵉ-[,] (unitrecₑ p q A u ρ) =
+    cong₂ (λ x y → unitrec p q x _ y)
       (lifts-step-[,] 1 A) (lifts-step-[,] 0 u)
   ⦅⦆ᵉ-[,] (emptyrecₑ p A ρ) =
     cong (λ A → emptyrec p A _) (lifts-step-[,] 0 A)
@@ -407,6 +429,7 @@ opaque
   -- Weakening of an eliminator applied to a Term
 
   wk-⦅⦆ᵉ : ∀ {ρ : Wk m n} e → wk ρ (⦅ e ⦆ᵉ t) ≡ ⦅ wkᵉ ρ e ⦆ᵉ (wk ρ t)
+  wk-⦅⦆ᵉ lowerₑ = refl
   wk-⦅⦆ᵉ {ρ} (∘ₑ p u ρ′) =
     cong (_ ∘_) (wk-comp ρ ρ′ u)
   wk-⦅⦆ᵉ (fstₑ p) = refl
@@ -420,8 +443,8 @@ opaque
       (wk-comp (lift ρ) (lift ρ′) A)
       (wk-comp ρ ρ′ z)
       (wk-comp (liftn ρ 2) (liftn ρ′ 2) s)
-  wk-⦅⦆ᵉ {ρ} (unitrecₑ _ p q A u ρ′) =
-    cong₂ (λ A u → unitrec _ p q A _ u)
+  wk-⦅⦆ᵉ {ρ} (unitrecₑ p q A u ρ′) =
+    cong₂ (λ A u → unitrec p q A _ u)
       (wk-comp (lift ρ) (lift ρ′) A)
       (wk-comp ρ ρ′ u)
   wk-⦅⦆ᵉ {ρ} (emptyrecₑ p A ρ′) =
@@ -447,6 +470,8 @@ opaque
 
   ⦅⦆ᵉ-cong : ∀ e → t [ σ ] ≡ u [ σ ]
          → ⦅ e ⦆ᵉ t [ σ ] ≡ ⦅ e ⦆ᵉ u [ σ ]
+  ⦅⦆ᵉ-cong lowerₑ t≡u =
+    cong lower t≡u
   ⦅⦆ᵉ-cong (∘ₑ p u ρ) t≡u =
     cong (_∘ _) t≡u
   ⦅⦆ᵉ-cong (fstₑ x) t≡u =
@@ -457,8 +482,8 @@ opaque
     cong (λ t → prodrec _ _ _ _ t _) t≡u
   ⦅⦆ᵉ-cong (natrecₑ p q r A z s ρ) t≡u =
     cong (λ t → natrec _ _ _ _ _ _ t) t≡u
-  ⦅⦆ᵉ-cong (unitrecₑ _ p q A u ρ) t≡u =
-    cong (λ t → unitrec _ _ _ _ t _) t≡u
+  ⦅⦆ᵉ-cong (unitrecₑ p q A u ρ) t≡u =
+    cong (λ t → unitrec _ _ _ t _) t≡u
   ⦅⦆ᵉ-cong (emptyrecₑ p A ρ) t≡u =
     cong (emptyrec _ _) t≡u
   ⦅⦆ᵉ-cong (Jₑ p q A t B u v ρ) t≡u =
@@ -499,6 +524,7 @@ opaque
   -- Eliminator weakening preserves multiplicity
 
   wk-∣∣ᵉ : ∣ e ∣ᵉ≡ p → ∣ wkᵉ ρ e ∣ᵉ≡ p
+  wk-∣∣ᵉ lowerₑ = lowerₑ
   wk-∣∣ᵉ ∘ₑ = ∘ₑ
   wk-∣∣ᵉ fstₑ = fstₑ
   wk-∣∣ᵉ sndₑ = sndₑ
@@ -569,6 +595,7 @@ opaque
   -- The multiplicity relation for eliminators is functional
 
   ∣∣ᵉ-functional : ∣ e ∣ᵉ≡ p → ∣ e ∣ᵉ≡ q → p ≡ q
+  ∣∣ᵉ-functional lowerₑ lowerₑ = refl
   ∣∣ᵉ-functional ∘ₑ ∘ₑ = refl
   ∣∣ᵉ-functional fstₑ fstₑ = refl
   ∣∣ᵉ-functional sndₑ sndₑ = refl
@@ -634,13 +661,14 @@ opaque
   ∣∣ᵉ≡ :
     (∀ {n p q r A u v ρ} → e ≡ natrecₑ {n = n} p q r A u v ρ → Nr-available) →
     ∃ ∣ e ∣ᵉ≡_
+  ∣∣ᵉ≡ {e = lowerₑ} _ = 𝟙 , lowerₑ
   ∣∣ᵉ≡ {e = ∘ₑ p u ρ} _ = 𝟙 , ∘ₑ
   ∣∣ᵉ≡ {e = fstₑ x} _ = 𝟙 , fstₑ
   ∣∣ᵉ≡ {e = sndₑ x} _ = 𝟙 , sndₑ
   ∣∣ᵉ≡ {e = prodrecₑ r p q A u ρ} _ = r , prodrecₑ
   ∣∣ᵉ≡ {e = natrecₑ p q r A z s ρ} has-nr =
     _ , natrecₑ (∣nr∣≡ ⦃ has-nr refl ⦄ .proj₂)
-  ∣∣ᵉ≡ {e = unitrecₑ l p q A u ρ} _ = p , unitrecₑ
+  ∣∣ᵉ≡ {e = unitrecₑ p q A u ρ} _ = p , unitrecₑ
   ∣∣ᵉ≡ {e = emptyrecₑ p A ρ} _ = p , emptyrecₑ
   ∣∣ᵉ≡ {e = Jₑ p q A t B u v ρ} _ = _ , Jₑ (∣J∣≡ .proj₂)
   ∣∣ᵉ≡ {e = Kₑ p A t B u ρ} _ = _ , Kₑ (∣K∣≡ .proj₂)
@@ -803,6 +831,7 @@ opaque
       q ≡ 𝟘 → ∣ e ∣ᵉ≡ q →
       (∃ λ p → prodrec 𝟘 , p ∈ (e ∙ S)) ⊎ (unitrec 𝟘 ∈ e ∙ S) ⊎ (emptyrec 𝟘 ∈ e ∙ S) ⊎
       (∃₂ λ p q → J p , q ∈ e ∙ S) ⊎ (∃ λ p → K p ∈ e ∙ S) ⊎ ([]-cong∈ e ∙ S)
+    here′ q≡ lowerₑ = ⊥-elim (non-trivial q≡)
     here′ q≡ ∘ₑ = ⊥-elim (non-trivial q≡)
     here′ q≡ fstₑ = ⊥-elim (non-trivial q≡)
     here′ q≡ sndₑ = ⊥-elim (non-trivial q≡)
@@ -875,12 +904,13 @@ opaque
   -- term is neutral.
 
   ⦅⦆ᵉ-neutral : ∀ e → Neutral (⦅ e ⦆ᵉ t) → Neutral t
+  ⦅⦆ᵉ-neutral lowerₑ (lowerₙ n) = n
   ⦅⦆ᵉ-neutral (∘ₑ p u ρ) (∘ₙ n) = n
   ⦅⦆ᵉ-neutral (fstₑ x) (fstₙ n) = n
   ⦅⦆ᵉ-neutral (sndₑ x) (sndₙ n) = n
   ⦅⦆ᵉ-neutral (prodrecₑ r p q A u ρ) (prodrecₙ n) = n
   ⦅⦆ᵉ-neutral (natrecₑ p q r A z s ρ) (natrecₙ n) = n
-  ⦅⦆ᵉ-neutral (unitrecₑ l p q A u ρ) (unitrecₙ x n) = n
+  ⦅⦆ᵉ-neutral (unitrecₑ p q A u ρ) (unitrecₙ x n) = n
   ⦅⦆ᵉ-neutral (emptyrecₑ p A ρ) (emptyrecₙ n) = n
   ⦅⦆ᵉ-neutral (Jₑ p q A t B u v ρ) (Jₙ n) = n
   ⦅⦆ᵉ-neutral (Kₑ p A t B u ρ) (Kₙ n) = n
@@ -986,12 +1016,14 @@ opaque
   wk1-Normal : Normal ⟨ H , t , ρ , S ⟩ → Normal ⟨ H ∙ (p , c) , t , step ρ , wk1ˢ S ⟩
   wk1-Normal (val x) = val x
   wk1-Normal (var d) = var (there d)
+  wk1-Normal sup = sup
 
 opaque
 
   wk1●-Normal : Normal ⟨ H , t , ρ , S ⟩ → Normal ⟨ H ∙● , t , step ρ , wk1ˢ S ⟩
   wk1●-Normal (val x) = val x
   wk1●-Normal (var d) = var (there● d)
+  wk1●-Normal sup = sup
 
 opaque
 
@@ -1000,6 +1032,7 @@ opaque
   Normal-stack : Normal ⟨ H , t , ρ , S ⟩ → Normal ⟨ H , t , ρ , S′ ⟩
   Normal-stack (val x) = val x
   Normal-stack (var x) = var x
+  Normal-stack sup = sup
 
 opaque
 
@@ -1009,6 +1042,7 @@ opaque
   ~ʰ-Normal : H ~ʰ H′ → Normal ⟨ H , t , ρ , S ⟩ → Normal ⟨ H′ , t , ρ , S′ ⟩
   ~ʰ-Normal H~H′ (val x) = val x
   ~ʰ-Normal H~H′ (var x) = var (~ʰ-lookup● H~H′ x)
+  ~ʰ-Normal H~H′ sup = sup
 
 ------------------------------------------------------------------------
 -- Properties of heaps as substitutions
@@ -1103,6 +1137,8 @@ opaque
   toSubstₕ-NeutralAt d var with toSubstₕ-erased _ _ d
   … | (x′ , ≡x′) =
     subst (NeutralAt _) (sym ≡x′) var
+  toSubstₕ-NeutralAt d (lowerₙ n) =
+    lowerₙ (toSubstₕ-NeutralAt d n)
   toSubstₕ-NeutralAt d (∘ₙ n) =
     ∘ₙ (toSubstₕ-NeutralAt d n)
   toSubstₕ-NeutralAt d (fstₙ n) =

@@ -92,6 +92,22 @@ opaque mutual
   normalize : (H : Heap k m) (t : Term n) (ρ : Wk m n) (S : Stack m)
             → ∃₄ λ n′ t′ (ρ′ : Wk m n′) (S′ : Stack m) → Normal ⟨ H , t′ , ρ′ , S′ ⟩ ×
               ⟨ H , t , ρ , S ⟩ ⇢ₑ* ⟨ H , t′ , ρ′ , S′ ⟩
+  normalize H Level ρ S =
+    _ , Level , ρ , S , val Levelᵥ , id
+  normalize h zeroᵘ ρ s =
+    _ , zeroᵘ , ρ , s , val zeroᵘᵥ , id
+  normalize h (sucᵘ t) ρ s =
+    _ , sucᵘ t , ρ , s , val sucᵘᵥ , id
+  normalize h (t supᵘ u) ρ s =
+    _ , t supᵘ u , ρ , s , sup , id
+  normalize H (Lift t A) ρ S =
+    _ , Lift t A , ρ , S , val Liftᵥ , id
+  normalize H (lift t) ρ S =
+    _ , lift t , ρ , S , val liftᵥ , id
+  normalize H (lower t) ρ S =
+    case normalize H t ρ (lowerₑ ∙ S) of λ
+      (_ , _ , _ , _ , n , d) →
+    _ , _ , _ , _ , n , ⇒ₑ lowerₕ ⇨ d
   normalize H (var x) ρ S =
     case normalize-var H (wkVar ρ x) of λ
       (_ , t , ρ′ , S′ , n , d) →
@@ -125,14 +141,14 @@ opaque mutual
     case normalize H t ρ (prodrecₑ r p q A u ρ ∙ S) of λ
       (_ , _ , _ , _ , n , d) →
     _ , _ , _ , _ , n , ⇒ₑ prodrecₕ ⇨ d
-  normalize H (star s l) ρ S =
-    _ , star s l , ρ , S , val starᵥ , id
-  normalize H (unitrec l p q A t u) ρ S =
+  normalize H (star s) ρ S =
+    _ , star s , ρ , S , val starᵥ , id
+  normalize H (unitrec p q A t u) ρ S =
     case Unitʷ-η? of λ where
       (yes η) →
-        _ , unitrec l p q A t u , ρ , S , val (unitrec-ηᵥ η) , id
+        _ , unitrec p q A t u , ρ , S , val (unitrec-ηᵥ η) , id
       (no no-η) →
-        case normalize H t ρ (unitrecₑ l p q A u ρ ∙ S) of λ
+        case normalize H t ρ (unitrecₑ p q A u ρ ∙ S) of λ
           (_ , _ , _ , _ , n , d) →
         _ , _ , _ , _ , n , ⇒ₑ unitrecₕ no-η ⇨ d
   normalize H zero ρ S =
@@ -167,8 +183,8 @@ opaque mutual
     _ , ℕ , ρ , S , val ℕᵥ , id
   normalize H Empty ρ S =
     _ , Empty , ρ , S , val Emptyᵥ , id
-  normalize H (Unit s l) ρ S =
-    _ , Unit s l , ρ , S , val Unitᵥ , id
+  normalize H (Unit s) ρ S =
+    _ , Unit s , ρ , S , val Unitᵥ , id
   normalize H (ΠΣ⟨ b ⟩ p , q ▷ A ▹ B) ρ S =
     _ , ΠΣ⟨ b ⟩ p , q ▷ A ▹ B , ρ , S , val ΠΣᵥ , id
   normalize H (Id A t u) ρ S =

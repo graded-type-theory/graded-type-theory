@@ -82,6 +82,7 @@ opaque
   -- The reduction relation for eliminators is deterministic
 
   ⇒ₑ-det : s ⇒ₑ s′ → s ⇒ₑ s″ → s′ ≡ s″
+  ⇒ₑ-det d lowerₕ = ⇒ₑ-inv-lower d
   ⇒ₑ-det d appₕ = ⇒ₑ-inv-∘ d
   ⇒ₑ-det d fstₕ = ⇒ₑ-inv-fst d
   ⇒ₑ-det d sndₕ = ⇒ₑ-inv-snd d
@@ -138,6 +139,7 @@ opaque
          → (d : s ⇒ᵥ s′) (d′ : s ⇒ᵥ s″)
          → Σ (m ≡ m′) λ m≡m′ → Σ (n ≡ n′) λ n≡n′ →
             subst₂ (State k) m≡m′ n≡n′ s′ ≡ s″
+  ⇒ᵥ-det d liftₕ = ⇒ᵥ-inv-lift-lowerₑ d
   ⇒ᵥ-det d (lamₕ ∣S∣≡) =
     let _ , ∣S∣≡′ , rest = ⇒ᵥ-inv-lam-∘ₑ d
     in  case ∣∣-functional ∣S∣≡ ∣S∣≡′ of λ where
@@ -156,7 +158,7 @@ opaque
         case ∣natrec∣ᵉ-functional ∣nr∣≡ ∣nr∣≡′ of λ {
           refl →
         rest }}
-  ⇒ᵥ-det d starʷₕ = ⇒ᵥ-inv-starʷ-unitrecₑ d .proj₂
+  ⇒ᵥ-det d starʷₕ = ⇒ᵥ-inv-starʷ-unitrecₑ d
   ⇒ᵥ-det d (unitrec-ηₕ x) = ⇒ᵥ-inv-unitrec-η d .proj₂
   ⇒ᵥ-det d rflₕⱼ = ⇒ᵥ-inv-rfl-Jₑ d
   ⇒ᵥ-det d rflₕₖ = ⇒ᵥ-inv-rfl-Kₑ d
@@ -179,6 +181,7 @@ opaque
   -- A state cannot reduce in both ⇒ᵥ and ⇒ₙ
 
   not-⇒ᵥ-and-⇒ₑ : s ⇒ᵥ s′ → s ⇒ₑ s″ → ⊥
+  not-⇒ᵥ-and-⇒ₑ liftₕ d = ⇒ₑ-inv-lift d
   not-⇒ᵥ-and-⇒ₑ (lamₕ _) d = ⇒ₑ-inv-lam d
   not-⇒ᵥ-and-⇒ₑ prodˢₕ₁ d = ⇒ₑ-inv-prod d
   not-⇒ᵥ-and-⇒ₑ prodˢₕ₂ d = ⇒ₑ-inv-prod d
@@ -324,6 +327,7 @@ opaque
   -- The normalising reduction preserves equality in a certain way
 
   ⇒ₑ-⦅⦆-≡ : s ⇒ₑ s′ → ⦅ s ⦆ ≡ ⦅ s′ ⦆
+  ⇒ₑ-⦅⦆-≡ lowerₕ = refl
   ⇒ₑ-⦅⦆-≡ appₕ = refl
   ⇒ₑ-⦅⦆-≡ fstₕ = refl
   ⇒ₑ-⦅⦆-≡ sndₕ = refl
@@ -376,6 +380,7 @@ opaque
 
   wk1-⇒ₑ : ⟨ H , t , ρ , S ⟩ ⇒ₑ ⟨ H′ , t′ , ρ′ , S′ ⟩
           → ⟨ H ∙ c , t , step ρ , wk1ˢ S ⟩ ⇒ₑ ⟨ H′ ∙ c , t′ , step ρ′ , wk1ˢ S′ ⟩
+  wk1-⇒ₑ lowerₕ = lowerₕ
   wk1-⇒ₑ appₕ = appₕ
   wk1-⇒ₑ fstₕ = fstₕ
   wk1-⇒ₑ sndₕ = sndₕ
@@ -421,6 +426,7 @@ opaque
 
   wk1●-⇒ₑ : ⟨ H , t , ρ , S ⟩ ⇒ₑ ⟨ H′ , t′ , ρ′ , S′ ⟩
            → ⟨ H ∙● , t , step ρ , wk1ˢ S ⟩ ⇒ₑ ⟨ H′ ∙● , t′ , step ρ′ , wk1ˢ S′ ⟩
+  wk1●-⇒ₑ lowerₕ = lowerₕ
   wk1●-⇒ₑ appₕ = appₕ
   wk1●-⇒ₑ fstₕ = fstₕ
   wk1●-⇒ₑ sndₕ = sndₕ
@@ -500,6 +506,7 @@ opaque
   ++-⇒ₑ S₀ Jₕ = Jₕ
   ++-⇒ₑ S₀ Kₕ = Kₕ
   ++-⇒ₑ S₀ []-congₕ = []-congₕ
+  ++-⇒ₑ S₀ lowerₕ = lowerₕ
 
 opaque
 
@@ -535,6 +542,7 @@ opaque
 
   ++sucₛ-⇒ᵥ : (d : ⟨ H , t , ρ , S ⟩ ⇒ᵥ ⟨ H′ , t′ , ρ′ , S′ ⟩)
             → ⟨ H , t , ρ , S ++ sucₛ k ⟩ ⇒ᵥ ⟨ H′ , t′ , ρ′ , S′ ++ sucₛ k ⟩
+  ++sucₛ-⇒ᵥ liftₕ = liftₕ
   ++sucₛ-⇒ᵥ {k} (lamₕ {S} {H} {p} {t} {ρ} {u} {ρ′} ∣S∣≡) =
     subst
       (λ x →
@@ -594,6 +602,7 @@ opaque
   -- The relation _⇒ₑ_ preserves the heap
 
   ⇒ₑ-Heap≡ : ⟨ H , t , ρ , S ⟩ ⇒ₑ ⟨ H′ , t′ , ρ′ , S′ ⟩ → H ≡ H′
+  ⇒ₑ-Heap≡ lowerₕ = refl
   ⇒ₑ-Heap≡ appₕ = refl
   ⇒ₑ-Heap≡ fstₕ = refl
   ⇒ₑ-Heap≡ sndₕ = refl
@@ -628,6 +637,8 @@ opaque
   ~ʰ-⇒ₑ :
     ⟨ H , t , ρ , S ⟩ ⇒ₑ ⟨ H′ , t′ , ρ′ , S′ ⟩ → H ~ʰ H″ →
     ∃ λ H‴ → ⟨ H″ , t , ρ , S ⟩ ⇒ₑ ⟨ H‴ , t′ , ρ′ , S′ ⟩ × H′ ~ʰ H‴
+  ~ʰ-⇒ₑ lowerₕ H~H″ =
+    _ , lowerₕ , H~H″
   ~ʰ-⇒ₑ appₕ H~H″ =
     _ , appₕ , H~H″
   ~ʰ-⇒ₑ fstₕ H~H″ =
@@ -670,6 +681,7 @@ opaque
   ~ʰ-⇒ᵥ :
     ⟨ H , t , ρ , S ⟩ ⇒ᵥ ⟨ H′ , t′ , ρ′ , S′ ⟩ → H ~ʰ H″ →
     ∃ λ H‴ → ⟨ H″ , t , ρ , S ⟩ ⇒ᵥ ⟨ H‴ , t′ , ρ′ , S′ ⟩ × H′ ~ʰ H‴
+  ~ʰ-⇒ᵥ liftₕ H~H″ = _ , liftₕ , H~H″
   ~ʰ-⇒ᵥ (lamₕ ∣S∣≡) H~H″ = _ , lamₕ ∣S∣≡ , H~H″ ∙ _
   ~ʰ-⇒ᵥ prodˢₕ₁ H~H″ = _ , prodˢₕ₁ , H~H″
   ~ʰ-⇒ᵥ prodˢₕ₂ H~H″ = _ , prodˢₕ₂ , H~H″
@@ -751,6 +763,7 @@ opaque
     Matching t S →
     ∣ S ∣≡ p →
     ∃₃ λ m n (s : State _ m n) → ⟨ H , t , ρ , S ⟩ ⇒ᵥ s
+  Matching→⇒ᵥ lowerₑ _ = _ , _ , _ , liftₕ
   Matching→⇒ᵥ ∘ₑ (_ ∙ ok) = _ , _ , _ , lamₕ ok
   Matching→⇒ᵥ fstₑ _ = _ , _ , _ , prodˢₕ₁
   Matching→⇒ᵥ sndₑ _ = _ , _ , _ , prodˢₕ₂
@@ -771,6 +784,7 @@ opaque
   ⇒ᵥ→Matching :
     ⟨ H , t , ρ , S ⟩ ⇒ᵥ s →
     Matching t S
+  ⇒ᵥ→Matching liftₕ = lowerₑ
   ⇒ᵥ→Matching (lamₕ _) = ∘ₑ
   ⇒ᵥ→Matching prodˢₕ₁ = fstₑ
   ⇒ᵥ→Matching prodˢₕ₂ = sndₑ
@@ -799,6 +813,7 @@ opaque
   -- 1. It has a variable in head position but lookup does not succeed
   --    (for the number of copies matching the current stack
   --    multiplicity).
+  -- 1b. It has a level of the form t ⊔ u in head position.
   -- 2. It has a value in head position, the stack is not empty and it
   --    is not the case that the head matches the stack and that the
   --    stack multiplicity does not exist.
@@ -806,13 +821,21 @@ opaque
 
   Final-reasons :
       ∀ t → Final ⟨ H , t , ρ , S ⟩ →
-      (∃ λ x → t ≡ var x ×
+      ((∃ λ x → t ≡ var x ×
          (∀ {p n H′} {c : Entry _ n} → ∣ S ∣≡ p → H ⊢ wkVar ρ x ↦[ p ] c ⨾ H′ → ⊥)) ⊎
+      (∃₂ λ u v → t ≡ u supᵘ v)) ⊎
       (∃₂ λ e S′ → S ≡ e ∙ S′ × Value t × ¬ (Matching t S × ∃ ∣ S ∣≡_)) ⊎
       Value t × S ≡ ε
 
   Final-reasons = λ where
-      (var x) ¬d → inj₁ (_ , refl , λ x y → ¬d (⇾ₑ (var x y)))
+      (var x) ¬d → inj₁ (inj₁ (_ , refl , λ x y → ¬d (⇾ₑ (var x y))))
+      Level ¬d → inj₂ (lemma Levelᵥ ¬d)
+      zeroᵘ ¬d → inj₂ (lemma zeroᵘᵥ ¬d)
+      (sucᵘ t) ¬d → inj₂ (lemma sucᵘᵥ ¬d)
+      (t supᵘ u) ¬d → inj₁ (inj₂ (_ , _ , refl))
+      (Lift t A) ¬d → inj₂ (lemma Liftᵥ ¬d)
+      (lift t) ¬d → inj₂ (lemma liftᵥ ¬d)
+      (lower t) ¬d → ⊥-elim (¬d (⇾ₑ′ lowerₕ))
       (U x) ¬d → inj₂ (lemma Uᵥ ¬d)
       (ΠΣ⟨ b ⟩ p , q ▷ t ▹ t₁) ¬d → inj₂ (lemma ΠΣᵥ ¬d)
       (lam p t) ¬d → inj₂ (lemma lamᵥ ¬d)
@@ -825,9 +848,9 @@ opaque
       zero ¬d → inj₂ (lemma zeroᵥ ¬d)
       (suc t) ¬d → inj₂ (lemma sucᵥ ¬d)
       (natrec p q r t t₁ t₂ t₃) ¬d → ⊥-elim (¬d (⇾ₑ′ natrecₕ))
-      (Unit x x₁) ¬d → inj₂ (lemma Unitᵥ ¬d)
-      (star x x₁) ¬d → inj₂ (lemma starᵥ ¬d)
-      (unitrec x p q t t₁ t₂) ¬d →
+      (Unit x) ¬d → inj₂ (lemma Unitᵥ ¬d)
+      (star x) ¬d → inj₂ (lemma starᵥ ¬d)
+      (unitrec p q t t₁ t₂) ¬d →
         case Unitʷ-η? of λ where
           (yes η) → inj₂ (lemma (unitrec-ηᵥ η) ¬d)
           (no no-η) → ⊥-elim (¬d (⇾ₑ′ (unitrecₕ no-η)))
@@ -842,6 +865,8 @@ opaque
         lemma′ :
           Value t → Final ⟨ H , t , ρ , e ∙ S ⟩ →
           ¬ (Matching t (e ∙ S) × ∃ ∣ e ∙ S ∣≡_)
+        lemma′ liftᵥ ¬d (lowerₑ , _ , _) =
+          ¬d (⇒ᵥ liftₕ)
         lemma′ lamᵥ ¬d (∘ₑ , _ , _ ∙ ∣S∣≡) =
           ¬d (⇒ᵥ lamₕ ∣S∣≡)
         lemma′ zeroᵥ ¬d (natrecₑ₀ , _ , _) =
@@ -862,6 +887,10 @@ opaque
           ¬d (⇒ᵥ rflₕₖ)
         lemma′ rflᵥ ¬d ([]-congₑ , _ , _) =
           ¬d (⇒ᵥ rflₕₑ)
+        lemma′ Levelᵥ ¬d (() , _ , _)
+        lemma′ zeroᵘᵥ ¬d (() , _ , _)
+        lemma′ sucᵘᵥ ¬d (() , _ , _)
+        lemma′ Liftᵥ ¬d (() , _ , _)
         lemma′ Uᵥ ¬d (() , _ , _)
         lemma′ ΠΣᵥ ¬d (() , _ , _)
         lemma′ ℕᵥ ¬d (() , _ , _)
@@ -882,8 +911,9 @@ opaque
 
     ⇘-reasons :
       s ⇘ ⟨ H , t , ρ , S ⟩ →
-      (∃ λ x → t ≡ var x ×
+      ((∃ λ x → t ≡ var x ×
          (∀ {p n H′} {c : Entry _ n} → ∣ S ∣≡ p → H ⊢ wkVar ρ x ↦[ p ] c ⨾ H′ → ⊥)) ⊎
+      (∃₂ λ u v → t ≡ u supᵘ v)) ⊎
       (∃₂ λ e S′ → S ≡ e ∙ S′ × Value t × ¬ (Matching t S × (∃ ∣ S ∣≡_))) ⊎
       Value t × S ≡ ε
     ⇘-reasons (d , ¬d) = Final-reasons _ ¬d
@@ -898,6 +928,7 @@ opaque
   -- 1. It has a variable in head position but lookup does not succeed
   --    (for the number of copies matching the current stack
   --    multiplicity).
+  -- 1b. It has a level of the form t ⊔ u in head position.
   -- 2. It has a value in head position, the stack is not empty and the
   --    head does not match the stack.
   -- 3. It has a value in head position and the stack is empty.
@@ -905,8 +936,9 @@ opaque
   nr∉-Final-reasons :
       ∀ t → (∀ {p r} → natrec p , r ∈ S → Nr-available) →
       Final ⟨ H , t , ρ , S ⟩ →
-      (∃ λ x → t ≡ var x ×
+      ((∃ λ x → t ≡ var x ×
          (∀ {p n H′} {c : Entry _ n} → ∣ S ∣≡ p → H ⊢ wkVar ρ x ↦[ p ] c ⨾ H′ → ⊥)) ⊎
+      (∃₂ λ u v → t ≡ u supᵘ v)) ⊎
       (∃₂ λ e S′ → S ≡ e ∙ S′ × Value t × ¬ Matching t S) ⊎
       Value t × S ≡ ε
   nr∉-Final-reasons t has-nr ¬d =
@@ -925,6 +957,7 @@ opaque
   -- 1. It has a variable in head position but lookup does not succeed
   --    (for the number of copies matching the current stack
   --    multiplicity).
+  -- 1b. It has a level of the form t ⊔ u in head position.
   -- 2. It has a value in head position, the stack is not empty and the
   --    head does not match the stack.
   -- 3. It has a value in head position and the stack is empty.
@@ -932,8 +965,9 @@ opaque
   nr∉-Final-reasons′ :
       ∀ t → (∀ {p r} → natrec p , r ∈ S → ⊥) →
       Final ⟨ H , t , ρ , S ⟩ →
-      (∃ λ x → t ≡ var x ×
+      ((∃ λ x → t ≡ var x ×
          (∀ {p n H′} {c : Entry _ n} → ∣ S ∣≡ p → H ⊢ wkVar ρ x ↦[ p ] c ⨾ H′ → ⊥)) ⊎
+      (∃₂ λ u v → t ≡ u supᵘ v)) ⊎
       (∃₂ λ e S′ → S ≡ e ∙ S′ × Value t × ¬ Matching t S) ⊎
       Value t × S ≡ ε
   nr∉-Final-reasons′ t nr∉ ¬d =
@@ -944,6 +978,7 @@ opaque
   -- Values do not reduce with the reduction for elims.
 
   Value-¬⇒ₑ : Value t → ⟨ H , t , ρ , S ⟩ ⇒ₑ s → ⊥
+  Value-¬⇒ₑ () lowerₕ
   Value-¬⇒ₑ () appₕ
   Value-¬⇒ₑ () fstₕ
   Value-¬⇒ₑ () sndₕ
@@ -974,3 +1009,5 @@ opaque
     let _ , _ , _ , d′ = ⇾ₑ-inv-var d
     in  ⊥-elim (¬↦∧↦● (↦[]→↦ d′) x)
   Normal-⇾→⇒ᵥ (var _) (⇒ᵥ ())
+  Normal-⇾→⇒ᵥ sup (⇾ₑ′ ())
+  Normal-⇾→⇒ᵥ sup (⇒ᵥ ())

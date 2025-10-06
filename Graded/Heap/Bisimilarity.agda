@@ -196,6 +196,7 @@ module _
     ⦃ has-nr : Nr-available ⦄ →
     Is-factoring-nr M (Natrec-mode-Has-nr 𝕄 has-nr))
   ⦃ ok : No-equality-reflection or-empty Δ ⦄
+  (no : ⊥)
   where
 
   open Imports factoring-nr
@@ -225,7 +226,7 @@ module _
     ⊢⇒→⇒ᵥ {s = ⟨ H , t , ρ , ε ⟩} d (val x) ⊢s _ =
       case Value→Whnf (substValue (toSubstₕ H) (wkValue ρ x)) of λ where
           (inj₁ w) → ⊥-elim (whnfRedTerm d w)
-          (inj₂ (_ , _ , _ , _ , _ , _ , ≡ur , η)) →
+          (inj₂ (_ , _ , _ , _ , _ , ≡ur , η)) →
             case subst-unitrec {t = wk ρ t} ≡ur of λ where
               (inj₁ (_ , ≡x)) → case subst Value ≡x (wkValue ρ x) of λ ()
               (inj₂ (_ , _ , _ , ≡ur′ , refl , refl , refl)) →
@@ -233,7 +234,7 @@ module _
                   (_ , _ , _ , refl , refl , refl , refl) →
                 _ , _ , _ , unitrec-ηₕ η , lemma η d}
         where
-        lemma : Unitʷ-η → Δ ⊢ (unitrec l p q A u v) ⇒ w ∷ B → w PE.≡ v
+        lemma : Unitʷ-η → Δ ⊢ (unitrec p q A u v) ⇒ w ∷ B → w PE.≡ v
         lemma η (conv d x) = lemma η d
         lemma η (unitrec-subst _ _ _ _ no-η) = ⊥-elim (no-η η)
         lemma η (unitrec-β _ _ _ no-η) = ⊥-elim (no-η η)
@@ -246,6 +247,7 @@ module _
       let _ , _ , _ , _ , ⊢S = ⊢ₛ-inv ⊢s
       in  ⊥-elim (neRedTerm d (NeutralAt→Neutral
             (toSubstₕ-NeutralAt d′ (⊢⦅⦆ˢ-NeutralAt ⊢S var))))
+    ⊢⇒→⇒ᵥ d sup (⊢ₛ x x₁ x₂) - = ⊥-elim no
 
 -- The remaining properties are proven under some additional assumptions
 
@@ -275,7 +277,7 @@ module _ (As : Assumptions) where
         let d″ = PE.subst (_ ⊢_⇒ _ ∷ _) (⇾ₑ*-⦅⦆-≡ d′) d
             ⊢s′ = ⊢ₛ-⇾ₑ* ⊢s d′
             _ , _ , _ , _ , ∣S∣≡ , _ = ▸ₛ-inv (▸-⇾ₑ* ▸s d′)
-            _ , _ , s″ , d‴ , u≡ = ⊢⇒→⇒ᵥ factoring-nr d″ n ⊢s′ ∣S∣≡
+            _ , _ , s″ , d‴ , u≡ = ⊢⇒→⇒ᵥ factoring-nr ¬Level d″ n ⊢s′ ∣S∣≡
         in  _ , _ , s″ , ⇾ₑ* d′ ⇨* ⇒ᵥ d‴ ⇨ id , u≡
 
   opaque

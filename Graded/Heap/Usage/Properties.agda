@@ -285,6 +285,7 @@ module _ (nem : No-erased-matches′ type-variant UR) where
       ∃₃ λ n (A : Term n) ρ → e ≡ emptyrecₑ 𝟘 A ρ × Emptyrec-allowed 𝟙ᵐ 𝟘
     ▸∣e∣≢𝟘 (∘ₑ _) = inj₁ λ ∣e∣≡𝟘 → non-trivial (∣∣ᵉ-functional ∘ₑ ∣e∣≡𝟘)
     ▸∣e∣≢𝟘 = λ where
+        lowerₑ → inj₁ (lemma non-trivial lowerₑ)
         (∘ₑ _) → inj₁ (lemma non-trivial ∘ₑ)
         (fstₑ _) → inj₁ (lemma non-trivial fstₑ)
         sndₑ → inj₁ (lemma non-trivial sndₑ)

@@ -94,6 +94,7 @@ wk1ᵉⁿ = wkᵉⁿ (step id)
 -- evaluating under it.
 
 data Elim (m : Nat) : Set a where
+  lowerₑ    : Elim m
   ∘ₑ        : (p : M) (u : Term n) (ρ : Wk m n) → Elim m
   fstₑ      : M → Elim m
   sndₑ      : M → Elim m
@@ -101,7 +102,7 @@ data Elim (m : Nat) : Set a where
               (ρ : Wk m n) → Elim m
   natrecₑ   : (p q r : M) (A : Term (1+ n)) (z : Term n)
               (s : Term (2+ n)) (ρ : Wk m n) → Elim m
-  unitrecₑ  : (l : Universe-level) (p q : M) (A : Term (1+ n))
+  unitrecₑ  : (p q : M) (A : Term (1+ n))
               (u : Term n) (ρ : Wk m n) → Elim m
   emptyrecₑ : (p : M) (A : Term n) (ρ : Wk m n) → Elim m
   Jₑ        : (p q : M) (A t : Term n) (B : Term (2+ n))
@@ -117,12 +118,13 @@ private variable
 -- Weakening of eliminators
 
 wkᵉ : Wk m′ m → Elim m → Elim m′
+wkᵉ ρ lowerₑ = lowerₑ
 wkᵉ ρ (∘ₑ p u ρ′) = ∘ₑ p u (ρ • ρ′)
 wkᵉ ρ (fstₑ p) = fstₑ p
 wkᵉ ρ (sndₑ p) = sndₑ p
 wkᵉ ρ (natrecₑ p q r A z s ρ′) = natrecₑ p q r A z s (ρ • ρ′)
 wkᵉ ρ (prodrecₑ r p q A u ρ′) = prodrecₑ r p q A u (ρ • ρ′)
-wkᵉ ρ (unitrecₑ l p q A u ρ′) = unitrecₑ l p q A u (ρ • ρ′)
+wkᵉ ρ (unitrecₑ p q A u ρ′) = unitrecₑ p q A u (ρ • ρ′)
 wkᵉ ρ (emptyrecₑ p A ρ′) = emptyrecₑ p A (ρ • ρ′)
 wkᵉ ρ (Jₑ p q A t B u v ρ′) = Jₑ p q A t B u v (ρ • ρ′)
 wkᵉ ρ (Kₑ p A t B u ρ′) = Kₑ p A t B u (ρ • ρ′)
@@ -172,6 +174,7 @@ data ∣K_,_∣≡_ : Erased-matches → M → M → Set a where
 -- be evaluated.
 
 data ∣_∣ᵉ≡_ {m} : Elim m → M → Set a where
+  lowerₑ : ∣ lowerₑ ∣ᵉ≡ 𝟙
   ∘ₑ : ∣ ∘ₑ p u ρ ∣ᵉ≡ 𝟙
   fstₑ : ∣ fstₑ p ∣ᵉ≡ 𝟙
   sndₑ : ∣ sndₑ p ∣ᵉ≡ 𝟙
@@ -179,7 +182,7 @@ data ∣_∣ᵉ≡_ {m} : Elim m → M → Set a where
   natrecₑ :
     ∣natrec p , r ∣≡ q′ →
     ∣ natrecₑ p q r A u v ρ ∣ᵉ≡ q′
-  unitrecₑ : ∣ unitrecₑ l p q A u ρ ∣ᵉ≡ p
+  unitrecₑ : ∣ unitrecₑ p q A u ρ ∣ᵉ≡ p
   emptyrecₑ : ∣ emptyrecₑ p A ρ ∣ᵉ≡ p
   Jₑ :
     ∣J erased-matches-for-J 𝟙ᵐ , p , q ∣≡ r →
@@ -245,7 +248,7 @@ data natrec_,_∈ {m} (p r : M) : (S : Stack m) → Set a where
 -- A predicate for stacks containing unitrecₑ (with a given grade)
 
 data unitrec_∈_ {m} (p : M) : (S : Stack m) → Set a where
-  here  : unitrec p ∈ (unitrecₑ n p q A u ρ ∙ S)
+  here  : unitrec p ∈ (unitrecₑ p q A u ρ ∙ S)
   there : unitrec p ∈ S → unitrec p ∈ (e ∙ S)
 
 -- A predicate for stacks containing emptyrecₑ (with a given grade)
@@ -422,6 +425,7 @@ record State (k m n : Nat) : Set a where
 infixr 29 ⦅_⦆ᵉ_
 
 ⦅_⦆ᵉ_ : Elim m → (Term m → Term m)
+⦅ lowerₑ ⦆ᵉ t = lower t
 ⦅ ∘ₑ p u ρ ⦆ᵉ t = t ∘⟨ p ⟩ wk ρ u
 ⦅ fstₑ p ⦆ᵉ t = fst p t
 ⦅ sndₑ p ⦆ᵉ t = snd p t
@@ -429,8 +433,8 @@ infixr 29 ⦅_⦆ᵉ_
   prodrec r p q (wk (lift ρ) A) t (wk (liftn ρ 2) u)
 ⦅ natrecₑ p q r A z s ρ ⦆ᵉ t =
   natrec p q r (wk (lift ρ) A) (wk ρ z) (wk (liftn ρ 2) s) t
-⦅ unitrecₑ l p q A u ρ ⦆ᵉ t =
-  unitrec l p q (wk (lift ρ) A) t (wk ρ u)
+⦅ unitrecₑ p q A u ρ ⦆ᵉ t =
+  unitrec p q (wk (lift ρ) A) t (wk ρ u)
 ⦅ emptyrecₑ p A ρ ⦆ᵉ t =
   emptyrec p (wk ρ A) t
 ⦅ Jₑ p q A t B u v ρ ⦆ᵉ w =
@@ -468,27 +472,33 @@ initial {k} t = ⟨ erasedHeap k , t , id , ε ⟩
 -- Values are those terms that do not evaluate further
 
 data Value {n : Nat} : (t : Term n) → Set a where
+  Levelᵥ : Value Level
+  zeroᵘᵥ : Value zeroᵘ
+  sucᵘᵥ : Value (sucᵘ t)
+  Liftᵥ : Value (Lift t A)
+  liftᵥ : Value (lift t)
   lamᵥ : Value (lam p t)
   zeroᵥ : Value zero
   sucᵥ : Value (suc t)
-  starᵥ : Value (star s l)
+  starᵥ : Value (star s)
   prodᵥ : Value (prod s p u t)
   rflᵥ : Value rfl
-  Uᵥ : Value (U l)
+  Uᵥ : Value (U t)
   ΠΣᵥ : Value (ΠΣ⟨ b ⟩ p , q ▷ A ▹ B)
   ℕᵥ : Value ℕ
-  Unitᵥ : Value (Unit s l)
+  Unitᵥ : Value (Unit s)
   Emptyᵥ : Value Empty
   Idᵥ : Value (Id A t u)
-  unitrec-ηᵥ : Unitʷ-η → Value (unitrec l p q A t u)
+  unitrec-ηᵥ : Unitʷ-η → Value (unitrec p q A t u)
 
--- States in normal form are either values, or variables without
--- entries in the heap.
+-- States in normal form are either values, variables without
+-- entries in the heap, or levels of the form t ⊔ u.
 -- I.e. states which do not reduce with _⇒ₙ_
 
 data Normal : (State k m n) → Set a where
   val : Value t → Normal ⟨ H , t , ρ , S ⟩
   var : H ⊢ wkVar ρ x ↦● → Normal ⟨ H , var x , ρ , S ⟩
+  sup : Normal ⟨ H , t supᵘ u , ρ , S ⟩
 
 ------------------------------------------------------------------------
 -- Matching terms and eliminators
@@ -502,14 +512,15 @@ data Normal : (State k m n) → Set a where
 -- considered a value and matches any stack.
 
 data Matching {m n} : Term n → Stack m → Set a where
+  lowerₑ : Matching (lift t) (lowerₑ ∙ S)
   ∘ₑ : Matching (lam p t) (∘ₑ p u ρ ∙ S)
   fstₑ : Matching (prodˢ p t u) (fstₑ p ∙ S)
   sndₑ : Matching (prodˢ p t u) (sndₑ p ∙ S)
   prodrecₑ : Matching (prodʷ p t u) (prodrecₑ r p q A v ρ ∙ S)
   natrecₑ₀ : Matching zero (natrecₑ p q r A t u ρ ∙ S)
   natrecₑ₊ : Matching (suc v) (natrecₑ p q r A t u ρ ∙ S)
-  unitrecₑ : Matching (starʷ l) (unitrecₑ l p q A u ρ ∙ S)
-  unitrec-η : Unitʷ-η → Matching (unitrec l p q A t u) S
+  unitrecₑ : Matching starʷ (unitrecₑ p q A u ρ ∙ S)
+  unitrec-η : Unitʷ-η → Matching (unitrec p q A t u) S
   Jₑ : Matching rfl (Jₑ p q A t B u v ρ ∙ S)
   Kₑ : Matching rfl (Kₑ p A t B u ρ ∙ S)
   []-congₑ : Matching rfl ([]-congₑ s A t u ρ ∙ S)

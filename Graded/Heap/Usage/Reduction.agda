@@ -75,6 +75,23 @@ opaque
   -- Usage preservation under _⇒ᵥ_
 
   ▸-⇒ᵥ : ▸ s → s ⇒ᵥ s′ → ▸ s′
+  ▸-⇒ᵥ ▸s (liftₕ {ρ}) =
+    let q′ , p′ , γ , δ , η , θ
+           , ∣S∣≡ , ∣e∣≡ , ▸H , ▸t , ▸S , ▸e , γ≤ = ▸ₛ-∙-inv ▸s
+        θ≈𝟘 = ▸-inv-lowerₑ ▸e
+        ▸t = inv-usage-lift ▸t
+        p′≡𝟙 = ∣∣ᵉ-functional ∣e∣≡ lowerₑ
+    in  ▸ₛ ∣S∣≡ ▸H
+          (▸-cong (⌞⌟-cong (trans (·-congˡ p′≡𝟙) (·-identityʳ _))) ▸t)
+           ▸S $ begin
+      γ                                        ≤⟨ γ≤ ⟩
+      (q′ · p′) ·ᶜ wkConₘ ρ δ +ᶜ η +ᶜ q′ ·ᶜ θ  ≈⟨ +ᶜ-cong (·ᶜ-congʳ (·-congˡ p′≡𝟙)) (+ᶜ-congˡ (·ᶜ-congˡ θ≈𝟘)) ⟩
+      (q′ · 𝟙) ·ᶜ wkConₘ ρ δ +ᶜ η +ᶜ q′ ·ᶜ 𝟘ᶜ  ≈⟨ +ᶜ-cong (·ᶜ-congʳ (·-identityʳ _)) (+ᶜ-congˡ (·ᶜ-zeroʳ _)) ⟩
+      q′ ·ᶜ wkConₘ ρ δ +ᶜ η +ᶜ 𝟘ᶜ              ≈⟨ +ᶜ-congˡ (+ᶜ-identityʳ _) ⟩
+      q′ ·ᶜ wkConₘ ρ δ +ᶜ η                    ∎
+    where
+    open ≤ᶜ-reasoning
+
   ▸-⇒ᵥ ▸s (lamₕ {q} {p} {ρ} {ρ′} ∣S∣≡) =
     let q′ , p′ , γ , δ , η , θ
            , ∣S∣≡′ , ∣e∣≡ , ▸H , ▸t , ▸S , ▸e , γ≤ = ▸ₛ-∙-inv ▸s
@@ -365,7 +382,7 @@ opaque
   ▸-⇒ᵥ ▸s (unitrec-ηₕ {p} {ρ} η-ok) =
     let q , γ , δ , η
           , ∣S∣≡ , ▸H , ▸t , ▸S , γ≤ = ▸ₛ-inv ▸s
-        invUsageUnitrec {δ = δ₁} {η = δ₂} ▸t ▸u _ ok δ≤ = inv-usage-unitrec ▸t
+        invUsageUnitrec {γ₃ = δ₁} {γ₄ = δ₂} _ ▸t ▸u ok δ≤ = inv-usage-unitrec ▸t
     in  ▸ₛ ∣S∣≡ ▸H ▸u ▸S (lemma _ refl γ≤ δ≤ ok)
     where
     open ≤ᶜ-reasoning
@@ -445,6 +462,18 @@ opaque
   -- Usage preservation under _⇒ₑ_
 
   ▸-⇒ₑ : ▸ s → s ⇒ₑ s′ → ▸ s′
+  ▸-⇒ₑ ▸s (lowerₕ {ρ} {S}) =
+    let q , γ , δ , η , ∣S∣≡ , ▸H , ▸t , ▸S , γ≤ = ▸ₛ-inv ▸s
+        ▸t = inv-usage-lower ▸t
+    in  ▸ₛ (lowerₑ ∙ ∣S∣≡) ▸H (▸-cong (⌞⌟-cong (sym (·-identityʳ _))) ▸t)
+        (▸ˢ∙ ∣S∣≡ lowerₑ ▸S) $ begin
+           γ                                     ≤⟨ γ≤ ⟩
+           q ·ᶜ wkConₘ ρ δ +ᶜ η                  ≈˘⟨ +ᶜ-cong (·ᶜ-congʳ (·-identityʳ _)) (+ᶜ-identityʳ η) ⟩
+           (q · 𝟙) ·ᶜ wkConₘ ρ δ +ᶜ η +ᶜ 𝟘ᶜ      ≈˘⟨ +ᶜ-congˡ (+ᶜ-congˡ (·ᶜ-zeroʳ _)) ⟩
+           (q · 𝟙) ·ᶜ wkConₘ ρ δ +ᶜ η +ᶜ q ·ᶜ 𝟘ᶜ ∎
+    where
+    open ≤ᶜ-reasoning
+
   ▸-⇒ₑ ▸s (appₕ {p} {ρ} {S}) =
     let q , γ , δ , η , ∣S∣≡ , ▸H , ▸t , ▸S , γ≤ = ▸ₛ-inv ▸s
         invUsageApp {(δ′)} {(η′)} ▸t ▸u δ≤ = inv-usage-app ▸t
@@ -545,7 +574,7 @@ opaque
 
   ▸-⇒ₑ ▸s (unitrecₕ {p} {ρ} no-η) =
     let q , γ , δ , η , ∣S|≡ , ▸H , ▸t , ▸S , γ≤ = ▸ₛ-inv ▸s
-        invUsageUnitrec {(δ′)} {(η′)} ▸t ▸u _ ok δ≤ = inv-usage-unitrec ▸t
+        invUsageUnitrec {γ₃ = δ′} {γ₄ = η′} _ ▸t ▸u ok δ≤ = inv-usage-unitrec ▸t
     in  ▸ₛ (unitrecₑ ∙ ∣S|≡) ▸H
            (▸-cong ⌞⌟ᵐ· ▸t)
            (▸ˢ∙ ∣S|≡ (unitrecₑ ▸u ok no-η) ▸S) $ begin
@@ -826,6 +855,7 @@ opaque
   -- There are three different reasons a well-resourced state can be Final:
   -- 1. It has a variable in head position pointing to a dummy entry
   --    in the heap and the stack multiplicity is 𝟘.
+  -- 1b. It has a level of the form t ⊔ u in head position.
   -- 2. It has a value in head position, the stack is not empty and the
   --    top of the stack does not match the head.
   -- 3. It has a value in head position and the stack is empty.
@@ -834,7 +864,8 @@ opaque
     Supports-subtraction →
     ▸ ⟨ H , t , ρ , S ⟩ →
     Final (⟨_,_,_,_⟩ H t ρ S) →
-    (∃ λ x → t ≡ var x × H ⊢ wkVar ρ x ↦● × ∣ S ∣≡ 𝟘) ⊎
+    ((∃ λ x → t ≡ var x × H ⊢ wkVar ρ x ↦● × ∣ S ∣≡ 𝟘) ⊎
+      (∃₂ λ u v → t ≡ u supᵘ v)) ⊎
     (∃₂ λ e S′ → S ≡ e ∙ S′ × Value t × ¬ Matching t S) ⊎
     Value t × S ≡ ε
   ▸Final-reasons {ρ} ok ▸s f =
@@ -843,14 +874,15 @@ opaque
           (inj₂ (inj₂ x)) → inj₂ (inj₂ x)
           (inj₂ (inj₁ (_ , _ , eq , v , prop))) →
             inj₂ (inj₁ (_ , _ , eq , v , λ m → prop (m , _ , ∣S∣≡)))
-          (inj₁ (x , refl , ¬d)) →
+          (inj₁ (inj₁ (x , refl , ¬d))) →
             case ↦⊎↦● (wkVar ρ x) of λ where
               (inj₁ (_ , _ , d)) →
                 case ▸↦→↦[] ok ∣S∣≡ d ▸s of λ
                   (_ , d′) →
                 ⊥-elim (¬d ∣S∣≡ d′)
               (inj₂ d) →
-                inj₁ (_ , refl , d , ▸s● ok d ▸s)
+                inj₁ (inj₁ (_ , refl , d , ▸s● ok d ▸s))
+          (inj₁ (inj₂ x)) → inj₁ (inj₂ x)
 
 opaque
 
@@ -862,6 +894,7 @@ opaque
   -- 1. It has a variable in head position pointing to a dummy entry
   --    in the heap, the stack contains an erased emptyrec and erased uses
   --    of emptyrec are allowed.
+  -- 1b. It has a level of the form t ⊔ u in head position.
   -- 2. It has a value in head position, the stack is not empty and the
   --    top of the stack does not match the head.
   -- 3. It has a value in head position and the stack is empty.
@@ -872,17 +905,19 @@ opaque
     (k ≢ 0 → No-erased-matches′ type-variant UR) →
     ▸ ⟨ H , t , ρ , S ⟩ →
     Final (⟨_,_,_,_⟩ H t ρ S) →
-    (∃ λ x → t ≡ var x × H ⊢ wkVar ρ x ↦● × emptyrec 𝟘 ∈ S × Emptyrec-allowed 𝟙ᵐ 𝟘) ⊎
+    ((∃ λ x → t ≡ var x × H ⊢ wkVar ρ x ↦● × emptyrec 𝟘 ∈ S × Emptyrec-allowed 𝟙ᵐ 𝟘) ⊎
+      (∃₂ λ u v → t ≡ u supᵘ v)) ⊎
     (∃₂ λ e S′ → S ≡ e ∙ S′ × Value t × (Matching t S → ⊥)) ⊎
     Value t × S ≡ ε
   ▸Final-reasons′ {ρ} ok nem ▸s f =
     let _ , _ , _ , _ , _ , _ , _ , ▸S , _ = ▸ₛ-inv ▸s in
     case ▸Final-reasons ok ▸s f of λ where
       (inj₂ x) → inj₂ x
-      (inj₁ (x , t≡x , d , ∣S∣≡𝟘)) →
+      (inj₁ (inj₁ (x , t≡x , d , ∣S∣≡𝟘))) →
         case ▸∣S∣≢𝟘 (nem (¬erased-heap→¬↦● d)) ▸S of λ where
            (inj₁ ∣S∣≢𝟘) → ⊥-elim (∣S∣≢𝟘 ∣S∣≡𝟘)
-           (inj₂ prop) → inj₁ (x , t≡x , d , prop)
+           (inj₂ prop) → inj₁ (inj₁ (x , t≡x , d , prop))
+      (inj₁ (inj₂ x)) → inj₁ (inj₂ x)
 
 opaque
 
@@ -892,7 +927,8 @@ opaque
     Supports-subtraction →
     ▸ s →
     s ⇘ ⟨ H , t , ρ , S ⟩ →
-    (∃ λ x → t ≡ var x × H ⊢ wkVar ρ x ↦● × ∣ S ∣≡ 𝟘) ⊎
+    ((∃ λ x → t ≡ var x × H ⊢ wkVar ρ x ↦● × ∣ S ∣≡ 𝟘) ⊎
+      (∃₂ λ u v → t ≡ u supᵘ v)) ⊎
     (∃₂ λ e S′ → S ≡ e ∙ S′ × Value t × (Matching t S → ⊥)) ⊎
     Value t × S ≡ ε
   ▸-⇘-reasons ok ▸s (d , f) =
@@ -910,9 +946,11 @@ opaque
     Supports-subtraction →
     ▸ ⟨ H , t , ρ , S ⟩ →
     Final (⟨_,_,_,_⟩ H t ρ S) →
+    (∃₂ λ u v → t ≡ u supᵘ v) ⊎
     (∃₂ λ e S′ → S ≡ e ∙ S′ × Value t × (Matching t S → ⊥)) ⊎
     Value t × S ≡ ε
   ▸Final-reasons-closed ok ▸s f =
     case ▸Final-reasons ok ▸s f of λ where
-      (inj₁ (_ , _ , d , _)) → ⊥-elim (¬erased-heap→¬↦● d refl)
-      (inj₂ x) → x
+      (inj₁ (inj₁ (_ , _ , d , _))) → ⊥-elim (¬erased-heap→¬↦● d refl)
+      (inj₁ (inj₂ x)) → inj₁ x
+      (inj₂ x) → inj₂ x

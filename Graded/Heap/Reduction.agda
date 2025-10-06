@@ -62,6 +62,7 @@ private variable
 infix 28 _⇒ₑ_
 
 data _⇒ₑ_ {k m n} : State k m n → State k m n → Set a where
+  lowerₕ : ⟨ H , lower t , ρ , S ⟩ ⇒ₑ ⟨ H , t , ρ , lowerₑ ∙ S ⟩
   appₕ : ⟨ H , t ∘⟨ p ⟩ u , ρ , S ⟩ ⇒ₑ ⟨ H , t , ρ , ∘ₑ p u ρ ∙ S ⟩
   fstₕ : ⟨ H , fst p t , ρ , S ⟩ ⇒ₑ ⟨ H , t , ρ , fstₑ p ∙ S ⟩
   sndₕ : ⟨ H , snd p t , ρ , S ⟩ ⇒ₑ ⟨ H , t , ρ , sndₑ p ∙ S ⟩
@@ -70,8 +71,8 @@ data _⇒ₑ_ {k m n} : State k m n → State k m n → Set a where
   natrecₕ : ⟨ H , natrec p q r A z s t , ρ , S ⟩ ⇒ₑ
             ⟨ H , t , ρ , natrecₑ p q r A z s ρ ∙ S ⟩
   unitrecₕ : ¬ Unitʷ-η →
-             ⟨ H , unitrec l p q A t u , ρ , S ⟩ ⇒ₑ
-             ⟨ H , t , ρ , unitrecₑ l p q A u ρ ∙ S ⟩
+             ⟨ H , unitrec p q A t u , ρ , S ⟩ ⇒ₑ
+             ⟨ H , t , ρ , unitrecₑ p q A u ρ ∙ S ⟩
   emptyrecₕ : ⟨ H , emptyrec p A t , ρ , S ⟩ ⇒ₑ
               ⟨ H , t , ρ , emptyrecₑ p A ρ ∙ S ⟩
   Jₕ : ⟨ H , J p q A t B u v w , ρ , S ⟩ ⇒ₑ
@@ -128,6 +129,8 @@ data _⇢ₑ*_ (s : State k m n) : (s′ : State k m n′) → Set a where
 infix 28 _⇒ᵥ_
 
 data _⇒ᵥ_ {k m n} : State k m n → State k m′ n′ → Set a where
+  liftₕ : ⟨ H , lift t , ρ , lowerₑ ∙ S ⟩ ⇒ᵥ
+          ⟨ H , t      , ρ , S          ⟩
   lamₕ : ∣ S ∣≡ q
        → ⟨ H , lam p t , ρ , ∘ₑ p u ρ′ ∙ S ⟩ ⇒ᵥ
          ⟨ H ∙ (q · p , u , ρ′) , t , lift ρ , wk1ˢ S ⟩
@@ -152,11 +155,11 @@ data _⇒ᵥ_ {k m n} : State k m n → State k m′ n′ → Set a where
                               (wk (liftn (step id) 2) s) (var x0)
                           , lift ρ′)
              , s , liftn ρ′ 2 , wk2ˢ S ⟩
-  starʷₕ :  ⟨ H , starʷ l , ρ  , unitrecₑ l p q A u ρ′ ∙ S ⟩ ⇒ᵥ
-            ⟨ H , u       , ρ′ ,                         S ⟩
+  starʷₕ :  ⟨ H , starʷ , ρ  , unitrecₑ p q A u ρ′ ∙ S ⟩ ⇒ᵥ
+            ⟨ H , u     , ρ′ ,                       S ⟩
   unitrec-ηₕ : Unitʷ-η →
-               ⟨ H , unitrec l p q A t u , ρ , S ⟩ ⇒ᵥ
-               ⟨ H ,                   u , ρ , S ⟩
+               ⟨ H , unitrec p q A t u , ρ , S ⟩ ⇒ᵥ
+               ⟨ H ,                 u , ρ , S ⟩
   rflₕⱼ : ⟨ H , rfl , ρ  , Jₑ p q A t B u v ρ′ ∙ S ⟩ ⇒ᵥ
           ⟨ H , u   , ρ′ , S ⟩
   rflₕₖ : ⟨ H , rfl , ρ ,  Kₑ p A t B u ρ′ ∙ S ⟩ ⇒ᵥ ⟨ H , u , ρ′ , S ⟩

@@ -75,6 +75,8 @@ opaque
   -- Eliminator typing is preserved by heap lookups/updates
 
   heapUpdate-⊢ᵉ : Δ ⨾ H ⊢ᵉ e ⟨ t ⟩∷ A ↝ B → H ⊢ y ↦[ q ] c ⨾ H′ → Δ ⨾ H′ ⊢ᵉ e ⟨ t ⟩∷ A ↝ B
+  heapUpdate-⊢ᵉ (lowerₑ ⊢B) d =
+    lowerₑ ⊢B
   heapUpdate-⊢ᵉ {H} {H′} (∘ₑ {ρ} {u} {A} {B} {p} {q} ⊢u ⊢B) d =
     case heapUpdateSubst d of λ
       H≡H′ →
@@ -223,6 +225,15 @@ opaque
                (wk (lift ρ) t [ H ]⇑ₕ) [ wk ρ′ u [ H ]ₕ ]₀                  ≡⟨ singleSubstComp (wk ρ′ u [ H ]ₕ) (toSubstₕ H) (wk (lift ρ) t) ⟩
                wk (lift ρ) t [ H ∙ (p , u , ρ′) ]ₕ                          ∎)
                (sym (trans B≡Gu (sym ≡G[u]₀))))) }
+
+  ⊢ₛ-⇒ᵥ ⊢s liftₕ =
+    case ⊢ₛ-inv′ ⊢s of λ
+      (_ , _ , _ , ⊢H , ⊢t , ⊢e , ⊢S) →
+    case inversion-lowerₑ ⊢e of λ {
+      (u , F , ⊢F , PE.refl , B≡F) →
+    let ⊢t′ = inversion-lift-Lift ⊢t
+    in ⊢ₛ ⊢H (conv ⊢t′ (sym B≡F))
+        (⊢ˢ-convₜ ⊢S (conv (Lift-β′ ⊢t′) (sym B≡F))) }
 
   ⊢ₛ-⇒ᵥ ⊢s prodˢₕ₁ =
     case ⊢ₛ-inv′ ⊢s of λ
@@ -377,6 +388,10 @@ opaque
   -- Type preservation for _⇒ₑ_
 
   ⊢ₛ-⇒ₑ : Δ ⊢ₛ s ∷ A → s ⇒ₑ s′ → Δ ⊢ₛ s′ ∷ A
+  ⊢ₛ-⇒ₑ ⊢s lowerₕ =
+    let _ , _ , ⊢H , ⊢t , ⊢S = ⊢ₛ-inv ⊢s
+        _ , _ , ⊢t , A≡F = inversion-lower ⊢t
+    in  ⊢ₛ ⊢H ⊢t (conv (lowerₑ (syntacticEq A≡F .proj₂)) (sym A≡F) ∙ ⊢S)
   ⊢ₛ-⇒ₑ ⊢s appₕ =
     let _ , _ , ⊢H , ⊢t , ⊢S = ⊢ₛ-inv ⊢s
         _ , _ , _ , ⊢t , ⊢u , A≡Gu = inversion-app ⊢t
@@ -524,6 +539,14 @@ opaque
   ⇒ᵥ→⇒ :
     ⦃ ok : No-equality-reflection or-empty Δ ⦄ →
     Δ ⊢ₛ s ∷ A → s ⇒ᵥ s′ → Δ ⊢ ⦅ s ⦆ ⇒ ⦅ s′ ⦆ ∷ A
+  ⇒ᵥ→⇒ ⊢s liftₕ =
+    case ⊢ₛ-inv′ ⊢s of λ
+      (_ , _ , _ , ⊢H , ⊢t , ⊢e , ⊢S) →
+    case inversion-lowerₑ ⊢e of λ {
+      (u′ , F′ , ⊢F′ , PE.refl , C≡F′) →
+    let l , D , ⊢t′ , B≡Lift = inversion-lift ⊢t
+        _ , F≡F′ = Lift-injectivity (sym B≡Lift)
+    in  ⊢⦅⦆ˢ-subst ⊢S (conv (Lift-β⇒ ⊢t′) (trans F≡F′ (sym C≡F′))) }
   ⇒ᵥ→⇒ {A} ⊢s (lamₕ {S} {H} {p} {t} {ρ} {u} {ρ′} _) =
     case ⊢ₛ-inv′ ⊢s of λ
       (_ , _ , _ , ⊢H , ⊢t , ⊢e , ⊢S) →
@@ -745,6 +768,10 @@ opaque
     ⊢ˢValue-⇒ᵥ ∣S∣≡ ⊢e ⊢t v
   ⊢ˢValue-⇒ᵥ _ ⊢e ⊢t (unitrec-ηᵥ η) =
     _ , _ , _ , unitrec-ηₕ η
+  ⊢ˢValue-⇒ᵥ _ (lowerₑ _) ⊢t liftᵥ =
+    case inversion-lift-Lift ⊢t of λ
+      ⊢t′ →
+    _ , _ , _ , liftₕ
   ⊢ˢValue-⇒ᵥ (_ ∙ ∣S∣≡) (∘ₑ x x₁) ⊢t lamᵥ =
     case inversion-lam-Π ⊢t of λ {
       (_ , _ , _ , PE.refl , _) →
@@ -767,7 +794,7 @@ opaque
         _ , _ , _ , sucₕ ∣S∣≡ ∣nr∣≡
   ⊢ˢValue-⇒ᵥ _ (unitrecₑ x x₁ x₂) ⊢t starᵥ =
     case inversion-star-Unit ⊢t of λ {
-      (PE.refl , PE.refl , _) →
+      (PE.refl , _) →
     _ , _ , _ , starʷₕ }
   ⊢ˢValue-⇒ᵥ _ (Jₑ x x₁) ⊢t rflᵥ =
     _ , _ , _ , rflₕⱼ
@@ -777,6 +804,76 @@ opaque
     _ , _ , _ , rflₕₑ
 
   -- Impossible cases:
+  ⊢ˢValue-⇒ᵥ _ (lowerₑ _) ⊢t Levelᵥ =
+    ⊥-elim (U≢Liftⱼ (sym (inversion-Level ⊢t .proj₁)))
+  ⊢ˢValue-⇒ᵥ _ (∘ₑ x x₁) ⊢t Levelᵥ =
+    ⊥-elim (U≢ΠΣⱼ (sym (inversion-Level ⊢t .proj₁)))
+  ⊢ˢValue-⇒ᵥ _ (fstₑ _) ⊢t Levelᵥ =
+    ⊥-elim (U≢ΠΣⱼ (sym (inversion-Level ⊢t .proj₁)))
+  ⊢ˢValue-⇒ᵥ _ (sndₑ _) ⊢t Levelᵥ =
+    ⊥-elim (U≢ΠΣⱼ (sym (inversion-Level ⊢t .proj₁)))
+  ⊢ˢValue-⇒ᵥ _ (prodrecₑ x x₁) ⊢t Levelᵥ =
+    ⊥-elim (U≢ΠΣⱼ (sym (inversion-Level ⊢t .proj₁)))
+  ⊢ˢValue-⇒ᵥ _ (natrecₑ x x₁) ⊢t Levelᵥ =
+    ⊥-elim (U≢ℕ (sym (inversion-Level ⊢t .proj₁)))
+  ⊢ˢValue-⇒ᵥ _ (unitrecₑ x x₁ x₂) ⊢t Levelᵥ =
+    ⊥-elim (U≢Unitⱼ (sym (inversion-Level ⊢t .proj₁)))
+  ⊢ˢValue-⇒ᵥ _ (emptyrecₑ x) ⊢t Levelᵥ =
+    ⊥-elim (U≢Emptyⱼ (sym (inversion-Level ⊢t .proj₁)))
+  ⊢ˢValue-⇒ᵥ _ (Jₑ x x₁) ⊢t Levelᵥ =
+    ⊥-elim (Id≢U (inversion-Level ⊢t .proj₁))
+  ⊢ˢValue-⇒ᵥ _ (Kₑ x x₁ x₂) ⊢t Levelᵥ =
+    ⊥-elim (Id≢U (inversion-Level ⊢t .proj₁))
+  ⊢ˢValue-⇒ᵥ _ ([]-congₑ x) ⊢t Levelᵥ =
+    ⊥-elim (Id≢U (inversion-Level ⊢t .proj₁))
+  ⊢ˢValue-⇒ᵥ _ (lowerₑ _) ⊢t zeroᵘᵥ =
+    ⊥-elim (Lift≢Level (inversion-zeroᵘ ⊢t))
+  ⊢ˢValue-⇒ᵥ _ (∘ₑ x x₁) ⊢t zeroᵘᵥ =
+    ⊥-elim (Level≢ΠΣⱼ (sym (inversion-zeroᵘ ⊢t)))
+  ⊢ˢValue-⇒ᵥ _ (fstₑ _) ⊢t zeroᵘᵥ =
+    ⊥-elim (Level≢ΠΣⱼ (sym (inversion-zeroᵘ ⊢t)))
+  ⊢ˢValue-⇒ᵥ _ (sndₑ _) ⊢t zeroᵘᵥ =
+    ⊥-elim (Level≢ΠΣⱼ (sym (inversion-zeroᵘ ⊢t)))
+  ⊢ˢValue-⇒ᵥ _ (prodrecₑ x x₁) ⊢t zeroᵘᵥ =
+    ⊥-elim (Level≢ΠΣⱼ (sym (inversion-zeroᵘ ⊢t)))
+  ⊢ˢValue-⇒ᵥ _ (natrecₑ x x₁) ⊢t zeroᵘᵥ =
+    ⊥-elim (Level≢ℕ (sym (inversion-zeroᵘ ⊢t)))
+  ⊢ˢValue-⇒ᵥ _ (unitrecₑ x x₁ x₂) ⊢t zeroᵘᵥ =
+    ⊥-elim (Level≢Unitⱼ (sym (inversion-zeroᵘ ⊢t)))
+  ⊢ˢValue-⇒ᵥ _ (emptyrecₑ x) ⊢t zeroᵘᵥ =
+    ⊥-elim (Level≢Empty (sym (inversion-zeroᵘ ⊢t)))
+  ⊢ˢValue-⇒ᵥ _ (Jₑ x x₁) ⊢t zeroᵘᵥ =
+    ⊥-elim (Id≢Level (inversion-zeroᵘ ⊢t))
+  ⊢ˢValue-⇒ᵥ _ (Kₑ x x₁ x₂) ⊢t zeroᵘᵥ =
+    ⊥-elim (Id≢Level (inversion-zeroᵘ ⊢t))
+  ⊢ˢValue-⇒ᵥ _ ([]-congₑ x) ⊢t zeroᵘᵥ =
+    ⊥-elim (Id≢Level (inversion-zeroᵘ ⊢t))
+  ⊢ˢValue-⇒ᵥ _ (lowerₑ _) ⊢t sucᵘᵥ =
+    (⊥-elim (Lift≢Level (inversion-sucᵘ ⊢t .proj₂)))
+  ⊢ˢValue-⇒ᵥ _ (∘ₑ x x₁) ⊢t sucᵘᵥ =
+    ⊥-elim (Level≢ΠΣⱼ (sym (inversion-sucᵘ ⊢t .proj₂)))
+  ⊢ˢValue-⇒ᵥ _ (fstₑ _) ⊢t sucᵘᵥ =
+    (⊥-elim (Level≢ΠΣⱼ (sym (inversion-sucᵘ ⊢t .proj₂))))
+  ⊢ˢValue-⇒ᵥ _ (sndₑ _) ⊢t sucᵘᵥ =
+    ⊥-elim (Level≢ΠΣⱼ (sym (inversion-sucᵘ ⊢t .proj₂)))
+  ⊢ˢValue-⇒ᵥ _ (prodrecₑ x x₁) ⊢t sucᵘᵥ =
+    ⊥-elim (Level≢ΠΣⱼ (sym (inversion-sucᵘ ⊢t .proj₂)))
+  ⊢ˢValue-⇒ᵥ _ (natrecₑ x x₁) ⊢t sucᵘᵥ =
+    ⊥-elim (Level≢ℕ (sym (inversion-sucᵘ ⊢t .proj₂)))
+  ⊢ˢValue-⇒ᵥ _ (unitrecₑ x x₁ x₂) ⊢t sucᵘᵥ =
+    ⊥-elim (Level≢Unitⱼ (sym (inversion-sucᵘ ⊢t .proj₂)))
+  ⊢ˢValue-⇒ᵥ _ (emptyrecₑ x) ⊢t sucᵘᵥ =
+    ⊥-elim (Level≢Empty (sym (inversion-sucᵘ ⊢t .proj₂)))
+  ⊢ˢValue-⇒ᵥ _ (Jₑ x x₁) ⊢t sucᵘᵥ =
+    ⊥-elim (Id≢Level (inversion-sucᵘ ⊢t .proj₂))
+  ⊢ˢValue-⇒ᵥ _ (Kₑ x x₁ x₂) ⊢t sucᵘᵥ =
+    ⊥-elim (Id≢Level (inversion-sucᵘ ⊢t .proj₂))
+  ⊢ˢValue-⇒ᵥ _ ([]-congₑ x) ⊢t sucᵘᵥ =
+    ⊥-elim (Id≢Level (inversion-sucᵘ ⊢t .proj₂))
+  ⊢ˢValue-⇒ᵥ _ (lowerₑ _) ⊢t lamᵥ =
+    case inversion-lam ⊢t of λ
+      (_ , _ , _ , _ , _ , Lift≡Π , _) →
+    ⊥-elim (Lift≢ΠΣⱼ Lift≡Π)
   ⊢ˢValue-⇒ᵥ _ (fstₑ _) ⊢t lamᵥ =
     case inversion-lam ⊢t of λ
       (_ , _ , _ , _ , _ , Σ≡Π , _) →
@@ -813,6 +910,8 @@ opaque
     case inversion-lam ⊢t of λ
       (_ , _ , _ , _ , _ , Id≡Π , _) →
     ⊥-elim (Id≢ΠΣ Id≡Π)
+  ⊢ˢValue-⇒ᵥ _ (lowerₑ _) ⊢t zeroᵥ =
+    ⊥-elim (Lift≢ℕ (inversion-zero ⊢t))
   ⊢ˢValue-⇒ᵥ _ (∘ₑ x x₁) ⊢t zeroᵥ =
     ⊥-elim (ℕ≢ΠΣⱼ (sym (inversion-zero ⊢t)))
   ⊢ˢValue-⇒ᵥ _ (fstₑ _) ⊢t zeroᵥ =
@@ -831,6 +930,8 @@ opaque
     ⊥-elim (Id≢ℕ (inversion-zero ⊢t))
   ⊢ˢValue-⇒ᵥ _ ([]-congₑ x) ⊢t zeroᵥ =
     ⊥-elim (Id≢ℕ (inversion-zero ⊢t))
+  ⊢ˢValue-⇒ᵥ _ (lowerₑ _) ⊢t sucᵥ =
+    (⊥-elim (Lift≢ℕ (inversion-suc ⊢t .proj₂)))
   ⊢ˢValue-⇒ᵥ _ (∘ₑ x x₁) ⊢t sucᵥ =
     ⊥-elim (ℕ≢ΠΣⱼ (sym (inversion-suc ⊢t .proj₂)))
   ⊢ˢValue-⇒ᵥ _ (fstₑ _) ⊢t sucᵥ =
@@ -849,6 +950,8 @@ opaque
     ⊥-elim (Id≢ℕ (inversion-suc ⊢t .proj₂))
   ⊢ˢValue-⇒ᵥ _ ([]-congₑ x) ⊢t sucᵥ =
     ⊥-elim (Id≢ℕ (inversion-suc ⊢t .proj₂))
+  ⊢ˢValue-⇒ᵥ _ (lowerₑ _) ⊢t starᵥ =
+    ⊥-elim (Lift≢Unitⱼ (inversion-star ⊢t .proj₁))
   ⊢ˢValue-⇒ᵥ _ (∘ₑ x x₁) ⊢t starᵥ =
     ⊥-elim (Unit≢ΠΣⱼ (sym (inversion-star ⊢t .proj₁)))
   ⊢ˢValue-⇒ᵥ _ (fstₑ _) ⊢t starᵥ =
@@ -867,6 +970,10 @@ opaque
     ⊥-elim (Id≢Unit (inversion-star ⊢t .proj₁))
   ⊢ˢValue-⇒ᵥ _ ([]-congₑ x) ⊢t starᵥ =
     ⊥-elim (Id≢Unit (inversion-star ⊢t .proj₁))
+  ⊢ˢValue-⇒ᵥ _ (lowerₑ _) ⊢t prodᵥ =
+    case inversion-prod ⊢t of λ
+      (_ , _ , _ , _ , _ , _ , _ , Lift≡Σ , _) →
+    ⊥-elim (Lift≢ΠΣⱼ Lift≡Σ)
   ⊢ˢValue-⇒ᵥ _ (∘ₑ x x₁) ⊢t prodᵥ =
     case inversion-prod ⊢t of λ
       (_ , _ , _ , _ , _ , _ , _ , Π≡Σ , _) →
@@ -895,6 +1002,10 @@ opaque
     case inversion-prod ⊢t of λ
       (_ , _ , _ , _ , _ , _ , _ , Id≡Σ , _) →
     ⊥-elim (Id≢ΠΣ Id≡Σ)
+  ⊢ˢValue-⇒ᵥ _ (lowerₑ _) ⊢t rflᵥ =
+    case inversion-rfl ⊢t of λ
+      (_ , _ , _ , _ , Lift≡Id) →
+    ⊥-elim (Id≢Lift (sym Lift≡Id))
   ⊢ˢValue-⇒ᵥ _ (∘ₑ x x₁) ⊢t rflᵥ =
     case inversion-rfl ⊢t of λ
       (_ , _ , _ , _ , Π≡Id) →
@@ -925,6 +1036,10 @@ opaque
     ⊥-elim (Id≢Empty (sym Empty≡Id))
   ⊢ˢValue-⇒ᵥ _ ⊢e ⊢t Uᵥ =
     ⊥-elim (hole-type-not-U ⊢e (inversion-U ⊢t))
+  ⊢ˢValue-⇒ᵥ _ (lowerₑ _) ⊢t ΠΣᵥ =
+    case inversion-ΠΣ-U ⊢t of λ
+      (_ , _ , _ , _ , Lift≡U , _) →
+    ⊥-elim (U≢Liftⱼ (sym Lift≡U))
   ⊢ˢValue-⇒ᵥ _ (∘ₑ x x₁) ⊢t ΠΣᵥ =
     case inversion-ΠΣ-U ⊢t of λ
       (_ , _ , _ , _ , Π≡U , _) →
@@ -965,6 +1080,8 @@ opaque
     case inversion-ΠΣ-U ⊢t of λ
       (_ , _ , _ , _ , Id≡U , _) →
     ⊥-elim (Id≢U Id≡U)
+  ⊢ˢValue-⇒ᵥ _ (lowerₑ _) ⊢t ℕᵥ =
+    ⊥-elim (U≢Liftⱼ (sym (inversion-ℕ ⊢t)))
   ⊢ˢValue-⇒ᵥ _ (∘ₑ x x₁) ⊢t ℕᵥ =
     ⊥-elim (U≢ΠΣⱼ (sym (inversion-ℕ ⊢t)))
   ⊢ˢValue-⇒ᵥ _ (fstₑ _) ⊢t ℕᵥ =
@@ -985,6 +1102,8 @@ opaque
     ⊥-elim (Id≢U (inversion-ℕ ⊢t))
   ⊢ˢValue-⇒ᵥ _ ([]-congₑ x) ⊢t ℕᵥ =
     ⊥-elim (Id≢U (inversion-ℕ ⊢t))
+  ⊢ˢValue-⇒ᵥ _ (lowerₑ _) ⊢t Unitᵥ =
+    ⊥-elim (U≢Liftⱼ (sym (inversion-Unit-U ⊢t .proj₁)))
   ⊢ˢValue-⇒ᵥ _ (∘ₑ x x₁) ⊢t Unitᵥ =
     ⊥-elim (U≢ΠΣⱼ (sym (inversion-Unit-U ⊢t .proj₁)))
   ⊢ˢValue-⇒ᵥ _ (fstₑ _) ⊢t Unitᵥ =
@@ -1005,6 +1124,8 @@ opaque
     ⊥-elim (Id≢U (inversion-Unit-U ⊢t .proj₁))
   ⊢ˢValue-⇒ᵥ _ ([]-congₑ x) ⊢t Unitᵥ =
     ⊥-elim (Id≢U (inversion-Unit-U ⊢t .proj₁))
+  ⊢ˢValue-⇒ᵥ _ (lowerₑ _) ⊢t Emptyᵥ =
+    ⊥-elim (U≢Liftⱼ (sym (inversion-Empty ⊢t)))
   ⊢ˢValue-⇒ᵥ _ (∘ₑ x x₁) ⊢t Emptyᵥ =
     ⊥-elim (U≢ΠΣⱼ (sym (inversion-Empty ⊢t)))
   ⊢ˢValue-⇒ᵥ _ (fstₑ _) ⊢t Emptyᵥ =
@@ -1025,6 +1146,10 @@ opaque
     ⊥-elim (Id≢U (inversion-Empty ⊢t))
   ⊢ˢValue-⇒ᵥ _ ([]-congₑ x) ⊢t Emptyᵥ =
     ⊥-elim (Id≢U (inversion-Empty ⊢t))
+  ⊢ˢValue-⇒ᵥ _ (lowerₑ _) ⊢t Idᵥ =
+    case inversion-Id-U ⊢t of λ
+      (_ , _ , _ , _ , Lift≡U) →
+    ⊥-elim (U≢Liftⱼ (sym Lift≡U))
   ⊢ˢValue-⇒ᵥ _ (∘ₑ x x₁) ⊢t Idᵥ =
     case inversion-Id-U ⊢t of λ
       (_ , _ , _ , _ , Π≡U) →
@@ -1065,6 +1190,90 @@ opaque
     case inversion-Id-U ⊢t of λ
       (_ , _ , _ , _ , Id≡U) →
     ⊥-elim (Id≢U Id≡U)
+  ⊢ˢValue-⇒ᵥ _ (lowerₑ x) ⊢t Liftᵥ =
+    case inversion-Lift∷ ⊢t of λ
+      (_ , _ , _ , Lift≡U)
+    → ⊥-elim (U≢Liftⱼ (sym Lift≡U))
+  ⊢ˢValue-⇒ᵥ _ (∘ₑ x x₁) ⊢t Liftᵥ =
+    case inversion-Lift∷ ⊢t of λ
+      (_ , _ , _ , Π≡U)
+    → ⊥-elim (U≢ΠΣⱼ (sym Π≡U))
+  ⊢ˢValue-⇒ᵥ _ (fstₑ x) ⊢t Liftᵥ =
+    case inversion-Lift∷ ⊢t of λ
+      (_ , _ , _ , Σ≡U)
+    → ⊥-elim (U≢ΠΣⱼ (sym Σ≡U))
+  ⊢ˢValue-⇒ᵥ _ (sndₑ x) ⊢t Liftᵥ =
+    case inversion-Lift∷ ⊢t of λ
+      (_ , _ , _ , Σ≡U)
+    → ⊥-elim (U≢ΠΣⱼ (sym Σ≡U))
+  ⊢ˢValue-⇒ᵥ _ (prodrecₑ x x₁) ⊢t Liftᵥ =
+    case inversion-Lift∷ ⊢t of λ
+      (_ , _ , _ , Σ≡U)
+    → ⊥-elim (U≢ΠΣⱼ (sym Σ≡U))
+  ⊢ˢValue-⇒ᵥ _ (natrecₑ x x₁) ⊢t Liftᵥ =
+    case inversion-Lift∷ ⊢t of λ
+      (_ , _ , _ , ℕ≡U)
+    → ⊥-elim (U≢ℕ (sym ℕ≡U))
+  ⊢ˢValue-⇒ᵥ _ (unitrecₑ x x₁ x₂) ⊢t Liftᵥ =
+    case inversion-Lift∷ ⊢t of λ
+      (_ , _ , _ , Unit≡U)
+    → ⊥-elim (U≢Unitⱼ (sym Unit≡U))
+  ⊢ˢValue-⇒ᵥ _ (emptyrecₑ x) ⊢t Liftᵥ =
+    case inversion-Lift∷ ⊢t of λ
+      (_ , _ , _ , Empty≡U)
+    → ⊥-elim (U≢Emptyⱼ (sym Empty≡U))
+  ⊢ˢValue-⇒ᵥ _ (Jₑ x x₁) ⊢t Liftᵥ =
+    case inversion-Lift∷ ⊢t of λ
+      (_ , _ , _ , Id≡U)
+    → ⊥-elim (Id≢U Id≡U)
+  ⊢ˢValue-⇒ᵥ _ (Kₑ x x₁ x₂) ⊢t Liftᵥ =
+    case inversion-Lift∷ ⊢t of λ
+      (_ , _ , _ , Id≡U)
+    → ⊥-elim (Id≢U Id≡U)
+  ⊢ˢValue-⇒ᵥ _ ([]-congₑ x) ⊢t Liftᵥ =
+    case inversion-Lift∷ ⊢t of λ
+      (_ , _ , _ , Id≡U)
+    → ⊥-elim (Id≢U Id≡U)
+  ⊢ˢValue-⇒ᵥ _ (∘ₑ x x₁) ⊢t liftᵥ =
+    case inversion-lift ⊢t of λ
+      (_ , _ , _ , Π≡Lift)
+    → ⊥-elim (Lift≢ΠΣⱼ (sym Π≡Lift))
+  ⊢ˢValue-⇒ᵥ _ (fstₑ x) ⊢t liftᵥ =
+    case inversion-lift ⊢t of λ
+      (_ , _ , _ , Σ≡Lift)
+    → ⊥-elim (Lift≢ΠΣⱼ (sym Σ≡Lift))
+  ⊢ˢValue-⇒ᵥ _ (sndₑ x) ⊢t liftᵥ =
+    case inversion-lift ⊢t of λ
+      (_ , _ , _ , Σ≡Lift)
+    → ⊥-elim (Lift≢ΠΣⱼ (sym Σ≡Lift))
+  ⊢ˢValue-⇒ᵥ _ (prodrecₑ x x₁) ⊢t liftᵥ =
+    case inversion-lift ⊢t of λ
+      (_ , _ , _ , Σ≡Lift)
+    → ⊥-elim (Lift≢ΠΣⱼ (sym Σ≡Lift))
+  ⊢ˢValue-⇒ᵥ _ (natrecₑ x x₁) ⊢t liftᵥ =
+    case inversion-lift ⊢t of λ
+      (_ , _ , _ , ℕ≡Lift)
+    → ⊥-elim (Lift≢ℕ (sym ℕ≡Lift))
+  ⊢ˢValue-⇒ᵥ _ (unitrecₑ x x₁ x₂) ⊢t liftᵥ =
+    case inversion-lift ⊢t of λ
+      (_ , _ , _ , Unit≡Lift)
+    → ⊥-elim (Lift≢Unitⱼ (sym Unit≡Lift))
+  ⊢ˢValue-⇒ᵥ _ (emptyrecₑ x) ⊢t liftᵥ =
+    case inversion-lift ⊢t of λ
+      (_ , _ , _ , Empty≡Lift)
+    → ⊥-elim (Lift≢Emptyⱼ (sym Empty≡Lift))
+  ⊢ˢValue-⇒ᵥ _ (Jₑ x x₁) ⊢t liftᵥ =
+    case inversion-lift ⊢t of λ
+      (_ , _ , _ , Id≡Lift)
+    → ⊥-elim (Id≢Lift Id≡Lift)
+  ⊢ˢValue-⇒ᵥ _ (Kₑ x x₁ x₂) ⊢t liftᵥ =
+    case inversion-lift ⊢t of λ
+      (_ , _ , _ , Id≡Lift)
+    → ⊥-elim (Id≢Lift Id≡Lift)
+  ⊢ˢValue-⇒ᵥ _ ([]-congₑ x) ⊢t liftᵥ =
+    case inversion-lift ⊢t of λ
+      (_ , _ , _ , Id≡Lift)
+    → ⊥-elim (Id≢Lift Id≡Lift)
 
 opaque
 
@@ -1095,6 +1304,9 @@ opaque
   ⊢Matching ∣S∣≡ ⊢s v =
     let _ , _ , _ , d = ⊢Value-⇒ᵥ ∣S∣≡ ⊢s v
     in  ⇒ᵥ→Matching d
+
+{-
+TODO
 
 opaque
 
@@ -1136,3 +1348,4 @@ opaque
     Value t × S PE.≡ ε
   ⊢⇘-reasons ⊢s (d , f) =
     ⊢Final-reasons (⊢ₛ-⇾* ⊢s d) f
+-}

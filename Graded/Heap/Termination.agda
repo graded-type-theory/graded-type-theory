@@ -81,8 +81,9 @@ opaque
   ⊢▸Final-reasons consistent nem ⊢s ▸s f =
     let _ , _ , _ , _ , ∣S∣≡ , _ = ▸ₛ-inv ▸s in
     case ▸Final-reasons′ subtraction-ok nem ▸s f of λ where
-      (inj₁ (_ , _  , _ , er∈S , ok)) →
+      (inj₁ (inj₁ (_ , _  , _ , er∈S , ok))) →
         ⊥-elim (⊢emptyrec₀∉S (consistent ok) ⊢s er∈S)
+      (inj₁ (inj₂ x)) → ⊥-elim ¬Level
       (inj₂ (inj₁ (_ , _ , refl , v , ¬m))) →
         ⊥-elim (¬m (⊢Matching ∣S∣≡ ⊢s v))
       (inj₂ (inj₂ x)) → x

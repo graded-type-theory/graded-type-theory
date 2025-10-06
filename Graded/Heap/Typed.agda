@@ -54,6 +54,8 @@ data _⊢ʰ_∷_ : (Δ : Con Term k) (H : Heap k m) (Γ : Con Term m) → Set a 
 
 data _⨾_⊢ᵉ_⟨_⟩∷_↝_ (Δ : Con Term k) (H : Heap k m) :
                   (e : Elim m) (t : Term m) (A B : Term k) → Set a where
+  lowerₑ : Δ ⊢ A
+         → Δ ⨾ H ⊢ᵉ lowerₑ ⟨ t ⟩∷ Lift u A ↝ A
   ∘ₑ : Δ ⊢ wk ρ u [ H ]ₕ ∷ A
      → Δ ∙ A ⊢ B
      → Δ ⨾ H ⊢ᵉ ∘ₑ p u ρ ⟨ t ⟩∷ Π p , q ▷ A ▹ B ↝ B [ wk ρ u [ H ]ₕ ]₀
@@ -67,10 +69,10 @@ data _⨾_⊢ᵉ_⟨_⟩∷_↝_ (Δ : Con Term k) (H : Heap k m) :
   natrecₑ : Δ ⊢ wk ρ z [ H ]ₕ ∷ wk (lift ρ) A [ H ]⇑ₕ [ zero ]₀
           → Δ ∙ ℕ ∙ wk (lift ρ) A [ H ]⇑ₕ ⊢ wk (liftn ρ 2) s [ H ]⇑²ₕ ∷ wk (lift ρ) A [ H ]⇑ₕ [ suc (var x1) ]↑²
           → Δ ⨾ H ⊢ᵉ natrecₑ p q r A z s ρ ⟨ t ⟩∷ ℕ ↝ wk (lift ρ) A [ H ]⇑ₕ [ t [ H ]ₕ ]₀
-  unitrecₑ : Δ ⊢ wk ρ u [ H ]ₕ ∷ wk (lift ρ) A [ H ]⇑ₕ [ starʷ l ]₀
-           → Δ ∙ Unitʷ l ⊢ wk (lift ρ) A [ H ]⇑ₕ
+  unitrecₑ : Δ ⊢ wk ρ u [ H ]ₕ ∷ wk (lift ρ) A [ H ]⇑ₕ [ starʷ ]₀
+           → Δ ∙ Unitʷ ⊢ wk (lift ρ) A [ H ]⇑ₕ
            → ¬ Unitʷ-η
-           → Δ ⨾ H ⊢ᵉ unitrecₑ l p q A u ρ ⟨ t ⟩∷ Unitʷ l ↝
+           → Δ ⨾ H ⊢ᵉ unitrecₑ p q A u ρ ⟨ t ⟩∷ Unitʷ ↝
                wk (lift ρ) A [ H ]⇑ₕ [ t [ H ]ₕ ]₀
   emptyrecₑ : Δ ⊢ wk ρ A [ H ]ₕ
             → Δ ⨾ H ⊢ᵉ emptyrecₑ p A ρ ⟨ t ⟩∷ Empty ↝ wk ρ A [ H ]ₕ

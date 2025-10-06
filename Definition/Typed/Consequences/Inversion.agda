@@ -42,6 +42,21 @@ private
 
 opaque
 
+  -- A variant of inversion-lift.
+
+  inversion-lift-Lift :
+    ⦃ ok : No-equality-reflection or-empty Γ ⦄ →
+    Γ ⊢ lift t ∷ Lift u A →
+    Γ ⊢ t ∷ A
+  inversion-lift-Lift ⊢lift =
+    case inversion-lift ⊢lift of λ
+      (_ , _ , ⊢t , Lift≡Lift) →
+    case Lift-injectivity Lift≡Lift of λ
+      (u≡u′ , A≡A′) →
+    conv ⊢t (sym A≡A′)
+
+opaque
+
   -- A variant of inversion-lam.
 
   inversion-lam-Π′ :

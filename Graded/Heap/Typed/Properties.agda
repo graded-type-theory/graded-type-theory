@@ -86,6 +86,8 @@ opaque
   ⊢⦅⦆ᵉ : Δ ⨾ H ⊢ᵉ e ⟨ t ⟩∷ A ↝ B
       → Δ ⊢ t [ H ]ₕ ∷ A
       → Δ ⊢ ⦅ e ⦆ᵉ t [ H ]ₕ ∷ B
+  ⊢⦅⦆ᵉ (lowerₑ _) ⊢t =
+    lowerⱼ ⊢t
   ⊢⦅⦆ᵉ (∘ₑ ⊢u _) ⊢t =
     ⊢t ∘ⱼ ⊢u
   ⊢⦅⦆ᵉ (fstₑ _) ⊢t =
@@ -136,6 +138,8 @@ opaque
   ⊢⦅⦆ᵉ-cong : Δ ⨾ H ⊢ᵉ e ⟨ t ⟩∷ A ↝ B
            → Δ ⊢ t [ H ]ₕ ≡ u [ H ]ₕ ∷ A
            → Δ ⊢ ⦅ e ⦆ᵉ t [ H ]ₕ ≡ ⦅ e ⦆ᵉ u [ H ]ₕ ∷ B
+  ⊢⦅⦆ᵉ-cong (lowerₑ _) t≡u =
+    lower-cong t≡u
   ⊢⦅⦆ᵉ-cong (∘ₑ ⊢u _) t≡u =
     app-cong t≡u (refl ⊢u)
   ⊢⦅⦆ᵉ-cong (fstₑ _) t≡u =
@@ -184,6 +188,8 @@ opaque
   ⊢⦅⦆ᵉ-subst : Δ ⨾ H ⊢ᵉ e ⟨ t ⟩∷ A ↝ B
             → Δ ⊢ t [ H ]ₕ ⇒ u [ H ]ₕ ∷ A
             → Δ ⊢ ⦅ e ⦆ᵉ t [ H ]ₕ ⇒ ⦅ e ⦆ᵉ u [ H ]ₕ ∷ B
+  ⊢⦅⦆ᵉ-subst (lowerₑ _) d =
+    lower-subst d
   ⊢⦅⦆ᵉ-subst (∘ₑ ⊢u _) d =
     app-subst d ⊢u
   ⊢⦅⦆ᵉ-subst (fstₑ _) d =
@@ -225,6 +231,8 @@ opaque
   ⊢ᵉ-convₜ : Δ ⨾ H ⊢ᵉ e ⟨ t ⟩∷ A ↝ B
            → Δ ⊢ t [ H ]ₕ ≡ u [ H ]ₕ ∷ A
            → Δ ⨾ H ⊢ᵉ e ⟨ u ⟩∷ A ↝ B
+  ⊢ᵉ-convₜ (lowerₑ ⊢B) t≡u =
+    lowerₑ ⊢B
   ⊢ᵉ-convₜ (∘ₑ {A} {B} ⊢v ⊢B) t≡u =
     ∘ₑ {A = A} {B} ⊢v ⊢B
   ⊢ᵉ-convₜ (fstₑ ⊢B) t≡u =
@@ -281,16 +289,17 @@ opaque
   ⊢whnf⦅⦆ᵉ : Δ ⨾ H ⊢ᵉ e ⟨ u ⟩∷ A ↝ B
           → Whnf (⦅ e ⦆ᵉ t)
           → Neutral t × Neutral (⦅ e ⦆ᵉ t)
-  ⊢whnf⦅⦆ᵉ (∘ₑ x x₁) (ne (∘ₙ n)) = n , ∘ₙ n
-  ⊢whnf⦅⦆ᵉ (fstₑ _) (ne (fstₙ n)) = n , fstₙ n
-  ⊢whnf⦅⦆ᵉ (sndₑ _) (ne (sndₙ n)) = n , sndₙ n
-  ⊢whnf⦅⦆ᵉ (prodrecₑ x x₁) (ne (prodrecₙ n)) = n , prodrecₙ n
-  ⊢whnf⦅⦆ᵉ (natrecₑ _ _) (ne (natrecₙ n)) = n , natrecₙ n
-  ⊢whnf⦅⦆ᵉ (unitrecₑ x x₁ x₂) (ne (unitrecₙ no-η n)) = n , unitrecₙ no-η n
-  ⊢whnf⦅⦆ᵉ (emptyrecₑ x) (ne (emptyrecₙ n)) = n , emptyrecₙ n
-  ⊢whnf⦅⦆ᵉ (Jₑ x x₁) (ne (Jₙ n)) = n , Jₙ n
-  ⊢whnf⦅⦆ᵉ (Kₑ x x₁ x₂) (ne (Kₙ n)) = n , Kₙ n
-  ⊢whnf⦅⦆ᵉ ([]-congₑ x) (ne ([]-congₙ n)) = n , []-congₙ n
+  ⊢whnf⦅⦆ᵉ (lowerₑ _) (ne! (lowerₙ n)) = n , lowerₙ n
+  ⊢whnf⦅⦆ᵉ (∘ₑ x x₁) (ne! (∘ₙ n)) = n , ∘ₙ n
+  ⊢whnf⦅⦆ᵉ (fstₑ _) (ne! (fstₙ n)) = n , fstₙ n
+  ⊢whnf⦅⦆ᵉ (sndₑ _) (ne! (sndₙ n)) = n , sndₙ n
+  ⊢whnf⦅⦆ᵉ (prodrecₑ x x₁) (ne! (prodrecₙ n)) = n , prodrecₙ n
+  ⊢whnf⦅⦆ᵉ (natrecₑ _ _) (ne! (natrecₙ n)) = n , natrecₙ n
+  ⊢whnf⦅⦆ᵉ (unitrecₑ x x₁ x₂) (ne! (unitrecₙ no-η n)) = n , unitrecₙ no-η n
+  ⊢whnf⦅⦆ᵉ (emptyrecₑ x) (ne! (emptyrecₙ n)) = n , emptyrecₙ n
+  ⊢whnf⦅⦆ᵉ (Jₑ x x₁) (ne! (Jₙ n)) = n , Jₙ n
+  ⊢whnf⦅⦆ᵉ (Kₑ x x₁ x₂) (ne! (Kₙ n)) = n , Kₙ n
+  ⊢whnf⦅⦆ᵉ ([]-congₑ x) (ne! ([]-congₙ n)) = n , []-congₙ n
   ⊢whnf⦅⦆ᵉ (conv ⊢e x) w = ⊢whnf⦅⦆ᵉ ⊢e w
 
 opaque
@@ -302,7 +311,7 @@ opaque
           → Whnf t
   ⊢whnf⦅⦆ˢ ε w = w
   ⊢whnf⦅⦆ˢ (⊢e ∙ ⊢S) w =
-    ne (⊢whnf⦅⦆ᵉ ⊢e (⊢whnf⦅⦆ˢ ⊢S w) .proj₁)
+    ne! (⊢whnf⦅⦆ᵉ ⊢e (⊢whnf⦅⦆ˢ ⊢S w) .proj₁)
 
 
 opaque
@@ -324,6 +333,7 @@ opaque
   ⊢⦅⦆ᵉ-NeutralAt : Δ ⨾ H ⊢ᵉ e ⟨ t ⟩∷ A ↝ B
                 → NeutralAt x t
                 → NeutralAt x (⦅ e ⦆ᵉ t)
+  ⊢⦅⦆ᵉ-NeutralAt (lowerₑ _) n = lowerₙ n
   ⊢⦅⦆ᵉ-NeutralAt (∘ₑ _ _) n = ∘ₙ n
   ⊢⦅⦆ᵉ-NeutralAt (fstₑ _) n = fstₙ n
   ⊢⦅⦆ᵉ-NeutralAt (sndₑ _) n = sndₙ n
@@ -377,7 +387,8 @@ opaque
 
   hole-type-not-U :
     ⦃ ok : No-equality-reflection or-empty Γ ⦄ →
-    Δ ⨾ H ⊢ᵉ e ⟨ t ⟩∷ A ↝ B → ¬ Γ ⊢ A ≡ U l
+    Δ ⨾ H ⊢ᵉ e ⟨ t ⟩∷ A ↝ B → ¬ Γ ⊢ A ≡ U u
+  hole-type-not-U (lowerₑ _)       = U≢Liftⱼ ∘→ sym
   hole-type-not-U (∘ₑ _ _)         = U≢ΠΣⱼ ∘→ sym
   hole-type-not-U (fstₑ _)         = U≢ΠΣⱼ ∘→ sym
   hole-type-not-U (sndₑ _)         = U≢ΠΣⱼ ∘→ sym

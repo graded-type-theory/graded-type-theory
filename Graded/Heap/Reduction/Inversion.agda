@@ -71,6 +71,15 @@ opaque
 
 opaque
 
+  -- Inversion of lower
+
+  ⇒ₑ-inv-lower :
+    ⟨ H , lower t , ρ , S ⟩ ⇒ₑ s →
+    s ≡ ⟨ H , t , ρ , lowerₑ ∙ S ⟩
+  ⇒ₑ-inv-lower lowerₕ = refl
+
+opaque
+
   -- Inversion of application
 
   ⇒ₑ-inv-∘ :
@@ -119,8 +128,8 @@ opaque
   -- Inversion of unitrec
 
   ⇒ₑ-inv-unitrec :
-    ⟨ H , unitrec l p q A t u , ρ , S ⟩ ⇒ₑ s →
-    s ≡ ⟨ H , t , ρ , unitrecₑ l p q A u ρ ∙ S ⟩ × ¬ Unitʷ-η
+    ⟨ H , unitrec p q A t u , ρ , S ⟩ ⇒ₑ s →
+    s ≡ ⟨ H , t , ρ , unitrecₑ p q A u ρ ∙ S ⟩ × ¬ Unitʷ-η
   ⇒ₑ-inv-unitrec (unitrecₕ x) = refl , x
 
 opaque
@@ -157,6 +166,31 @@ opaque
     ⟨ H , []-cong s′ A u v t , ρ , S ⟩ ⇒ₑ s →
     s ≡ ⟨ H , t , ρ , []-congₑ s′ A u v ρ ∙ S ⟩
   ⇒ₑ-inv-[]-cong []-congₕ = refl
+
+opaque
+
+  -- Inversion of lift
+
+  ⇒ᵥ-inv-lift :
+    {H : Heap k m′} {t : Term n′} {s : State _ m n} →
+    ⟨ H , lift t , ρ , S ⟩ ⇒ᵥ s →
+    ∃ λ S′ → Σ (m ≡ m′) λ m≡ → Σ (n ≡ n′) λ n≡ →
+      S ≡ lowerₑ ∙ S′ × subst₂ (State _) m≡ n≡ s ≡ ⟨ H , t , ρ , S′ ⟩
+  ⇒ᵥ-inv-lift liftₕ = _ , refl , refl , refl , refl
+
+opaque
+
+  -- Inversion of lift with lower on top of the stack
+
+  ⇒ᵥ-inv-lift-lowerₑ :
+    {H : Heap k m′} {t : Term n′} {s : State _ m n} →
+    ⟨ H , lift t , ρ , lowerₑ ∙ S ⟩ ⇒ᵥ s →
+    Σ (m ≡ m′) λ m≡ → Σ (n ≡ n′) λ n≡ →
+      subst₂ (State _) m≡ n≡ s ≡ ⟨ H , t , ρ , S ⟩
+  ⇒ᵥ-inv-lift-lowerₑ d =
+    case ⇒ᵥ-inv-lift d of λ where
+      (_ , refl , refl , refl , refl) →
+        refl , refl , refl
 
 opaque
 
@@ -338,9 +372,9 @@ opaque
 
   ⇒ᵥ-inv-starʷ :
     {H : Heap k m′} {s : State _ m n} →
-    ⟨ H , starʷ l , ρ , S ⟩ ⇒ᵥ s →
+    ⟨ H , starʷ , ρ , S ⟩ ⇒ᵥ s →
     ∃₇ λ n′ p q A u (ρ′ : Wk _ n′) S′ →
-    S ≡ unitrecₑ l p q A u ρ′ ∙ S′ ×
+    S ≡ unitrecₑ p q A u ρ′ ∙ S′ ×
     ∃₂ λ (m≡ : m ≡ m′) (n≡ : n ≡ n′) →
     subst₂ (State _) m≡ n≡ s ≡ ⟨ H , u , ρ′ , S′ ⟩
   ⇒ᵥ-inv-starʷ starʷₕ =
@@ -352,13 +386,13 @@ opaque
 
   ⇒ᵥ-inv-starʷ-unitrecₑ :
     {H : Heap k m′} {u : Term n′} {s : State _ m n} →
-    ⟨ H , starʷ l₁ , ρ , unitrecₑ l₂ p q A u ρ′ ∙ S ⟩ ⇒ᵥ s →
-    l₁ ≡ l₂ × ∃₂ λ (m≡ : m ≡ m′) (n≡ : n ≡ n′) →
+    ⟨ H , starʷ , ρ , unitrecₑ p q A u ρ′ ∙ S ⟩ ⇒ᵥ s →
+    ∃₂ λ (m≡ : m ≡ m′) (n≡ : n ≡ n′) →
     subst₂ (State _) m≡ n≡ s ≡ ⟨ H , u , ρ′ , S ⟩
   ⇒ᵥ-inv-starʷ-unitrecₑ d =
     case ⇒ᵥ-inv-starʷ d of λ {
       (_ , _ , _ , _ , _ , _ , _ , refl , refl , refl , refl) →
-    refl , refl , refl , refl }
+    refl , refl , refl }
 
 opaque
 
@@ -366,7 +400,7 @@ opaque
 
   ⇒ᵥ-inv-unitrec-η :
     {H : Heap k m′} {s : State _ m n} →
-    ⟨ H , unitrec l p q A t u , ρ , S ⟩ ⇒ᵥ s →
+    ⟨ H , unitrec p q A t u , ρ , S ⟩ ⇒ᵥ s →
     Unitʷ-η × ∃₂ λ (m≡ : m ≡ m′) (n≡ : n ≡ n′) →
     subst₂ (State _) m≡ n≡ s ≡ ⟨ H , u , ρ , S ⟩
   ⇒ᵥ-inv-unitrec-η (unitrec-ηₕ x) = x , refl , refl , refl
@@ -469,6 +503,13 @@ opaque
 
 opaque
 
+  -- Inversion of lift
+
+  ⇒ₑ-inv-lift : ⟨ H , lift t , ρ , S ⟩ ⇒ₑ s → ⊥
+  ⇒ₑ-inv-lift ()
+
+opaque
+
   -- Inversion of lambda
 
   ⇒ₑ-inv-lam : ⟨ H , lam p t , ρ , S ⟩ ⇒ₑ s → ⊥
@@ -499,7 +540,7 @@ opaque
 
   -- Inversion of star
 
-  ⇒ₑ-inv-star : ⟨ H , star s′ l , ρ , S ⟩ ⇒ₑ s → ⊥
+  ⇒ₑ-inv-star : ⟨ H , star s′ , ρ , S ⟩ ⇒ₑ s → ⊥
   ⇒ₑ-inv-star ()
 
 opaque
@@ -507,7 +548,7 @@ opaque
   -- Inversion of unitrec with η-equality
 
   ⇒ₑ-inv-unitrec-η :
-    Unitʷ-η → ⟨ H , unitrec l p q A t u , ρ , S ⟩ ⇒ₑ s → ⊥
+    Unitʷ-η → ⟨ H , unitrec p q A t u , ρ , S ⟩ ⇒ₑ s → ⊥
   ⇒ₑ-inv-unitrec-η η (unitrecₕ no-η) = no-η η
 
 opaque

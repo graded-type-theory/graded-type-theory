@@ -70,6 +70,8 @@ opaque
   -- Weakening of eliminators
 
   wk-⊢ᵉ : ρ ∷ H ⊇ʰ H′ → Δ ⨾ H′ ⊢ᵉ e ⟨ t ⟩∷ A ↝ B → Δ ⨾ H ⊢ᵉ wkᵉ ρ e ⟨ wk ρ t ⟩∷ A ↝ B
+  wk-⊢ᵉ ρ (lowerₑ ⊢B) =
+    lowerₑ ⊢B
   wk-⊢ᵉ {ρ} {H} {Δ} {t} [ρ] (∘ₑ {ρ = ρ′} {u} {A} {B} {p} ⊢u ⊢B) =
     case wk-liftₕ 0 [ρ] u of λ
       u≡u′ →
