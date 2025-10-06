@@ -120,7 +120,7 @@ opaque
   wk₀∷ʷʳ⊇ ⊢Γ = ∷ʷ⊇→∷ʷʳ⊇ (W.wk₀∷ʷ⊇ ⊢Γ)
 
 opaque
-  
+
   -- A definitional weakening lemma for _∷ʷʳ_⊇_ weakenings.
 
   defn-wkWkʷʳ : ξ » ∇′ ⊇ ∇ → ∇ » ρ ∷ʷʳ Δ ⊇ Γ → ∇′ » ρ ∷ʷʳ Δ ⊇ Γ

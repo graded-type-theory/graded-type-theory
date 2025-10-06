@@ -86,7 +86,7 @@ opaque mutual
     ∇′ » Γ ⊢ t ~ u ↓ A
   defn-wk~↓ ξ⊇ ([~] A D k~l) =
     [~] A (defn-wkRed↘ ξ⊇ D) (defn-wk~↑ ξ⊇ k~l)
-  
+
   defn-wkConv↓ :
     ξ » ∇′ ⊇ ∇ →
     ∇ » Γ ⊢ A [conv↓] B →
@@ -158,7 +158,7 @@ opaque mutual
     [↑] A′ B′ (defn-wkRed↘ ξ⊇ D)
               (defn-wkRed↘ ξ⊇ D′)
               (defn-wkConv↓ ξ⊇ A′<>B′)
-  
+
   defn-wkConv↑Term :
     ξ » ∇′ ⊇ ∇ →
     ∇ » Γ ⊢ t [conv↑] u ∷ A →
