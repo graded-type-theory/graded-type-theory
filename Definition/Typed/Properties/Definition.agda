@@ -72,7 +72,7 @@ opaque
     case Opacity-allowed? of λ where
       (no no-opacity) →
         let transparent = »→Transparent no-opacity »∇ in
-        _  , _ , t , id ,
+        _  , _ , t , id⊇ ,
         PE.subst₃ _⊢_∷_
           (PE.cong (_» _) (PE.sym transparent)) PE.refl PE.refl
         ⊢t
@@ -96,7 +96,7 @@ opaque
     case Opacity-allowed? of λ where
       (no no-opacity) →
         let transparent = »→Transparent no-opacity »∇ in
-        _ , _ , t , id ,
+        _ , _ , t , id⊇ ,
         PE.subst₃ _⊢_∷_
           (PE.cong (_» _) (PE.sym transparent)) PE.refl PE.refl
         ⊢t
@@ -219,7 +219,7 @@ opaque
     (α<n  : α <′ n)
     (α<n′ : α <′ n′) →
     inline-< ∇ α<n PE.≡ inline-< ∇′ α<n′
-  inline-<-⊇ {∇} id α<n α<n′ =
+  inline-<-⊇ {∇} id⊇ α<n α<n′ =
     PE.cong (inline-< ∇) <′-propositional
   inline-<-⊇ (step ∇′⊇∇ _) α<n ≤′-refl =
     ⊥-elim (n≮n _ (≤-trans (<′⇒< α<n) (⊇→≤ ∇′⊇∇)))

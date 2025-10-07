@@ -337,27 +337,27 @@ wkEqTerm {ρ} [ρ] [A]@(Bᵣ′ BΣʷ F G _ _ [F] [G] _ _)
                   ≡⟨ PE.sym (wk-id (U.wk ρ F)) ⟩
                     U.wk id (U.wk ρ F)
                   ∎
-      [ρF] = irrelevance′ (PE.sym (wk-comp id ρ F)) ([F] id [ρ])
-      [ρp₁] = wkTerm [ρ] ([F] id _) [p₁]
+      [ρF] = irrelevance′ (PE.sym (wk-comp id ρ F)) ([F] id⊇ [ρ])
+      [ρp₁] = wkTerm [ρ] ([F] id⊇ _) [p₁]
       [ρp₁]′ = irrelevanceTerm′
                   ρidF≡idρF
-                  (wk [ρ] ([F] id _)) [ρF]
+                  (wk [ρ] ([F] id⊇ _)) [ρF]
                   [ρp₁]
-      [ρr₁] = wkTerm [ρ] ([F] id _) [r₁]
+      [ρr₁] = wkTerm [ρ] ([F] id⊇ _) [r₁]
       [ρr₁]′ = irrelevanceTerm′
                   ρidF≡idρF
-                  (wk [ρ] ([F] id _)) [ρF]
+                  (wk [ρ] ([F] id⊇ _)) [ρF]
                   [ρr₁]
-      [ρfst≡] = wkEqTerm [ρ] ([F] id _) [fst≡]
+      [ρfst≡] = wkEqTerm [ρ] ([F] id⊇ _) [fst≡]
       [ρfst≡]′ = irrelevanceEqTerm′
                    ρidF≡idρF
-                   (wk [ρ] ([F] id _)) [ρF]
+                   (wk [ρ] ([F] id⊇ _)) [ρF]
                    [ρfst≡]
-      [ρsnd≡] = wkEqTerm [ρ] ([G] id _ [p₁]) [snd≡]
+      [ρsnd≡] = wkEqTerm [ρ] ([G] id⊇ _ [p₁]) [snd≡]
       [ρG]′ = irrelevance′ (wk-comp-subst id ρ G)
-                ([G] id [ρ]
+                ([G] id⊇ [ρ]
                    (irrelevanceTerm′ (wk-comp id ρ F)
-                      [ρF] ([F] id [ρ]) [ρp₁]′))
+                      [ρF] ([F] id⊇ [ρ]) [ρp₁]′))
       ρG-eq = λ t → (begin
                     U.wk ρ (U.wk (lift id) G [ t ]₀)
                   ≡⟨ PE.cong (λ x → U.wk ρ (x [ t ]₀)) (wk-lift-id G) ⟩
@@ -369,7 +369,7 @@ wkEqTerm {ρ} [ρ] [A]@(Bᵣ′ BΣʷ F G _ _ [F] [G] _ _)
                   ∎)
       [ρsnd≡]′ = irrelevanceEqTerm′
                   (ρG-eq p₁)
-                  (wk [ρ] ([G] id _ [p₁])) [ρG]′
+                  (wk [ρ] ([G] id⊇ _ [p₁])) [ρG]′
                   [ρsnd≡]
   in  Σₜ₌ (U.wk ρ p) (U.wk ρ r)
           (wkRed*Term [ρ]′ d) (wkRed*Term [ρ]′ d′)
@@ -402,27 +402,27 @@ wkEqTerm
                   ≡⟨ PE.sym (wk-id (U.wk ρ F)) ⟩
                     U.wk id (U.wk ρ F)
                   ∎
-      [ρF] = irrelevance′ (PE.sym (wk-comp id ρ F)) ([F] id [ρ])
-      [ρfstp] = wkTerm [ρ] ([F] id _) [fstp]
+      [ρF] = irrelevance′ (PE.sym (wk-comp id ρ F)) ([F] id⊇ [ρ])
+      [ρfstp] = wkTerm [ρ] ([F] id⊇ _) [fstp]
       [ρfstp]′ = irrelevanceTerm′
                   ρidF≡idρF
-                  (wk [ρ] ([F] id _)) [ρF]
+                  (wk [ρ] ([F] id⊇ _)) [ρF]
                   [ρfstp]
-      [ρfstr] = wkTerm [ρ] ([F] id _) [fstr]
+      [ρfstr] = wkTerm [ρ] ([F] id⊇ _) [fstr]
       [ρfstr]′ = irrelevanceTerm′
                   ρidF≡idρF
-                  (wk [ρ] ([F] id _)) [ρF]
+                  (wk [ρ] ([F] id⊇ _)) [ρF]
                   [ρfstr]
-      [ρfst≡] = wkEqTerm [ρ] ([F] id _) [fst≡]
+      [ρfst≡] = wkEqTerm [ρ] ([F] id⊇ _) [fst≡]
       [ρfst≡]′ = irrelevanceEqTerm′
                    ρidF≡idρF
-                   (wk [ρ] ([F] id _)) [ρF]
+                   (wk [ρ] ([F] id⊇ _)) [ρF]
                    [ρfst≡]
-      [ρsnd≡] = wkEqTerm [ρ] ([G] id _ [fstp]) [snd≡]
+      [ρsnd≡] = wkEqTerm [ρ] ([G] id⊇ _ [fstp]) [snd≡]
       [ρG]′ = irrelevance′ (wk-comp-subst id ρ G)
-                ([G] id [ρ]
+                ([G] id⊇ [ρ]
                    (irrelevanceTerm′ (wk-comp id ρ F)
-                      [ρF] ([F] id [ρ]) [ρfstp]′))
+                      [ρF] ([F] id⊇ [ρ]) [ρfstp]′))
       [ρsnd≡]′ = irrelevanceEqTerm′
         (begin
            U.wk ρ (U.wk (lift id) G [ fst _ p ]₀)                    ≡⟨ PE.cong (λ x → U.wk ρ (x [ fst _ p ]₀)) (wk-lift-id G) ⟩
@@ -430,7 +430,7 @@ wkEqTerm
            (U.wk (lift ρ) G) [ fst _ (U.wk ρ p) ]₀                   ≡⟨ PE.cong (λ x → x [ fst _ (U.wk ρ p) ]₀)
                                                                          (PE.sym (wk-lift-id (U.wk (lift ρ) G))) ⟩
            (U.wk (lift id) (U.wk (lift ρ) G)) [ fst _ (U.wk ρ p) ]₀  ∎)
-        (wk [ρ] ([G] id _ [fstp])) [ρG]′
+        (wk [ρ] ([G] id⊇ _ [fstp])) [ρG]′
         [ρsnd≡]
   in  Σₜ₌ (U.wk ρ p) (U.wk ρ r)
           (wkRed*Term [ρ]′ d) (wkRed*Term [ρ]′ d′)

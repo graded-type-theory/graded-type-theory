@@ -712,7 +712,7 @@ soundness-ℕ-only-target-not-counterexample₁ {p} ok
     0
   , refl-⇒ˢ⟨⟩*
   , subst ω ℕ² (Id ℕ pr zero) 0,0 (var x0) η rfl
-  , 0 , ε , id
+  , 0 , ε , id⊇
   , ⊢subst (Idⱼ′ ⊢pr (zeroⱼ (εε ∙[ ⊢ℕ² ] ∙[ ⊢ℕ² ])))
       (⊢Σʷ-η-prodʷ-fstʷ-sndʷ (var₀ (⊢ℕ² εε)))
       (rflⱼ′
@@ -764,7 +764,7 @@ opaque
                ([]-cong s ℕ zero (var x1) (var x0)))
             zero)
         rfl zero (var x0)
-    , 0 , ε , id
+    , 0 , ε , id⊇
     , Jⱼ′
         (Idⱼ′
            (Jⱼ′ (ℕⱼ (J-motive-context ([]ⱼ Erased-ok ⊢zero))) ⊢zero
@@ -816,7 +816,7 @@ opaque
     , J 𝟘 𝟘 ℕ zero
         (Id ℕ (J 𝟘 𝟘 ℕ zero ℕ zero (var x1) (var x0)) zero)
         rfl zero (var x0)
-    , 0 , ε , id
+    , 0 , ε , id⊇
     , Jⱼ′
         (Idⱼ′
            (Jⱼ′ (ℕⱼ (J-motive-context ⊢zero)) ⊢zero
@@ -856,7 +856,7 @@ opaque
     , K 𝟘 ℕ zero
         (Id ℕ (K 𝟘 ℕ zero ℕ zero (var x0)) zero)
         rfl (var x0)
-    , 0 , ε , id
+    , 0 , ε , id⊇
     , Kⱼ
         (Idⱼ′
            (Kⱼ (ℕⱼ (K-motive-context ⊢zero)) ⊢zero
@@ -898,7 +898,7 @@ opaque
     , refl-⇒ˢ⟨⟩*
     , subst ω (Unitʷ 0) (Id ℕ (unitrec 0 𝟘 𝟘 ℕ (var x0) zero) zero)
         (starʷ 0) (var x0) (Unit-η 𝕨 0 ω (var x0)) rfl
-    , 0 , ε , id
+    , 0 , ε , id⊇
     , ⊢subst
         (Idⱼ′
            (unitrecⱼ (ℕⱼ (εε ∙[ ⊢Unitʷ ] ∙[ ⊢Unitʷ ] ∙[ ⊢Unitʷ ]))

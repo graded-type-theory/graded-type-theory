@@ -425,7 +425,7 @@ module Fundamental
       γ ▸ Γ ⊩ʳ t ∷[ m ∣ o ] A  →⟨ ▸⊩ʳ∷[∣]→▸⊩ʳ∷
                                     (λ _ α↦t α↦v →
                                        subsumption-®∷◂ (⊥-elim ∘→ non-trivial) $
-                                       lemma id (defn-wf (wfTerm ⊢t)) well-resourced α↦t α↦v) ⟩
+                                       lemma id⊇ (defn-wf (wfTerm ⊢t)) well-resourced α↦t α↦v) ⟩
       γ ▸ Γ ⊩ʳ t ∷[ m ] A      □
       where
       lemma :

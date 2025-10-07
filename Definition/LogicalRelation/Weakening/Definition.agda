@@ -246,7 +246,7 @@ opaque
                      ([fstp] , [fstr] , [fst≡] , [snd≡])) =
     let id-Γ = id (wfEq (≅-eq A≡A))
         id-Γ′ = id (wfEq (≅-eq (≅-defn-wk ξ⊇ A≡A)))
-        [Fid] = [F] id id-Γ
+        [Fid] = [F] id⊇ id-Γ
         [Fid]′ = [F] ξ⊇ id-Γ′
         [fstp]′ = irrelevanceTerm (defn-wk ξ⊇ [Fid]) [Fid]′
                                   (defn-wkTerm ξ⊇ [Fid] [fstp])
@@ -254,7 +254,7 @@ opaque
                                   (defn-wkTerm ξ⊇ [Fid] [fstr])
         [fst≡]′ = irrelevanceEqTerm (defn-wk ξ⊇ [Fid]) [Fid]′
                                     (defn-wkEqTerm ξ⊇ [Fid] [fst≡])
-        [Gid] = [G] id id-Γ [fstp]
+        [Gid] = [G] id⊇ id-Γ [fstp]
         [snd≡]′ = irrelevanceEqTerm (defn-wk ξ⊇ [Gid]) ([G] ξ⊇ id-Γ′ [fstp]′)
                                     (defn-wkEqTerm ξ⊇ [Gid] [snd≡])
     in  Σₜ₌ p r (defn-wkRed*Term ξ⊇ d)
@@ -268,7 +268,7 @@ opaque
        (eq , eq′ , eq″ , eq‴ , [p₁] , [r₁] , [fst≡] , [snd≡])) =
     let id-Γ = id (wfEq (≅-eq A≡A))
         id-Γ′ = id (wfEq (≅-eq (≅-defn-wk ξ⊇ A≡A)))
-        [Fid] = [F] id id-Γ
+        [Fid] = [F] id⊇ id-Γ
         [Fid]′ = [F] ξ⊇ id-Γ′
         [p₁]′ = irrelevanceTerm (defn-wk ξ⊇ [Fid]) [Fid]′
                                 (defn-wkTerm ξ⊇ [Fid] [p₁])
@@ -276,9 +276,9 @@ opaque
                                 (defn-wkTerm ξ⊇ [Fid] [r₁])
         [fst≡]′ = irrelevanceEqTerm (defn-wk ξ⊇ [Fid]) [Fid]′
                                     (defn-wkEqTerm ξ⊇ [Fid] [fst≡])
-        [Gidp] = [G] id id-Γ [p₁]
+        [Gidp] = [G] id⊇ id-Γ [p₁]
         [Gidp]′ = [G] ξ⊇ id-Γ′ [p₁]′
-        [Gidr] = [G] id id-Γ [r₁]
+        [Gidr] = [G] id⊇ id-Γ [r₁]
         [snd≡]′ = irrelevanceEqTerm (defn-wk ξ⊇ [Gidp]) [Gidp]′
                                     (defn-wkEqTerm ξ⊇ [Gidp] [snd≡])
     in  Σₜ₌ p r (defn-wkRed*Term ξ⊇ d)

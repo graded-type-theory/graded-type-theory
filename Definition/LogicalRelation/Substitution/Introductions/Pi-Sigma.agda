@@ -128,11 +128,11 @@ opaque
   ⊩ΠΣ→ ⊩ΠΣ =
     let ⊢A , _ , ok  = inversion-ΠΣ (escape-⊩ ⊩ΠΣ)
         _ , hyp      = ⊩ΠΣ⇔ .proj₁ ⊩ΠΣ
-        ⊩wk-id-A , _ = hyp id (id (wf ⊢A))
+        ⊩wk-id-A , _ = hyp id⊇ (id (wf ⊢A))
         ⊩A           = PE.subst (_⊩⟨_⟩_ _ _) (wk-id _) ⊩wk-id-A
     in
         ok , ⊩A
-      , (case hyp id (includedʷʳ (TW.stepʷ TW.id (escape-⊩ ⊩A))) of λ
+      , (case hyp id⊇ (includedʷʳ (TW.stepʷ TW.id (escape-⊩ ⊩A))) of λ
            (⊩wk₁-A , wk-lift-step-id-B[]₀≡wk-lift-step-id-B[]₀) →
          PE.subst (_⊩⟨_⟩_ _ _) (wkSingleSubstId _)
            (proj₁ $ wf-⊩≡ $
@@ -278,10 +278,10 @@ opaque
     in
       ok , b₁≡b₂ , p₁≡p₂ , q₁≡q₂
     , PE.subst₂ (_⊩⟨_⟩_≡_ _ _) (wk-id _) (wk-id _)
-        (rest id (id (wfEq (≅-eq ΠΣ≅ΠΣ))) .proj₁)
+        (rest id⊇ (id (wfEq (≅-eq ΠΣ≅ΠΣ))) .proj₁)
     , let wk₁-A₁≡wk₁-A₂ ,
             wk-lift-step-id-B₁[]₀≡wk-lift-step-id-B₂[]₀ =
-            rest id (includedʷʳ (TW.stepʷ TW.id (escape ⊩A₁)))
+            rest id⊇ (includedʷʳ (TW.stepʷ TW.id (escape ⊩A₁)))
       in
       PE.subst₂ (_⊩⟨_⟩_≡_ _ _) (wkSingleSubstId _) (wkSingleSubstId _)
         (wk-lift-step-id-B₁[]₀≡wk-lift-step-id-B₂[]₀ $
@@ -312,13 +312,13 @@ opaque
     B₁ [ t₁ ]₀  ≡⟨ PE.subst₂ (_⊩⟨_⟩_≡_ _ _)
                      (PE.cong _[ _ ]₀ $ wk-lift-id B₁)
                      (PE.cong _[ _ ]₀ $ wk-lift-id B₁) $
-                   rest₁ id (id ⊢Γ) .proj₂ $
+                   rest₁ id⊇ (id ⊢Γ) .proj₂ $
                    PE.subst (_⊩⟨_⟩_≡_∷_ _ _ _ _) (PE.sym $ wk-id _) $
                    level-⊩≡∷ ⊩A₁ t₁≡t₂ ⟩⊩
     B₁ [ t₂ ]₀  ≡⟨ PE.subst₂ (_⊩⟨_⟩_≡_ _ _)
                      (PE.cong _[ _ ]₀ $ wk-lift-id B₁)
                      (PE.cong _[ _ ]₀ $ wk-lift-id B₂) $
-                   rest id (id ⊢Γ) .proj₂ $
+                   rest id⊇ (id ⊢Γ) .proj₂ $
                    PE.subst (_⊩⟨_⟩_∷_ _ _ _) (PE.sym $ wk-id _) $
                    level-⊩∷ ⊩A₁ $
                    wf-⊩≡∷ t₁≡t₂ .proj₂ ⟩⊩∎
@@ -373,7 +373,7 @@ opaque
                 (PE.sym $ singleSubstWkComp _ _ B)
                 (PE.sym $ singleSubstWkComp _ _ B) $
               R.⊩≡→ $
-              ⊩ᵛ⇔ .proj₁ ⊩B .proj₂ id $
+              ⊩ᵛ⇔ .proj₁ ⊩B .proj₂ id⊇ $
               ⊩ˢ≡∷∙⇔ .proj₂
                 ( ( _ , ⊩A
                   , (R.→⊩≡∷ $
@@ -547,7 +547,7 @@ opaque
       A₁≡A₂ →
     case ⊩ᵛ≡∷U→⊩ᵛ≡ B₁≡B₂∷U of λ
       B₁≡B₂ →
-    case ⊩ᵛ≡∷⇔ .proj₁ A₁≡A₂∷U .proj₂ id σ₁≡σ₂ of λ
+    case ⊩ᵛ≡∷⇔ .proj₁ A₁≡A₂∷U .proj₂ id⊇ σ₁≡σ₂ of λ
       A₁[σ₁]≡A₂[σ₂]∷U →
     case ⊩ᵛ≡∷→⊩ˢ≡∷→⊩[⇑]≡[⇑]∷ B₁≡B₂∷U σ₁≡σ₂ of λ
       B₁[σ₁⇑]≡B₂[σ₂⇑]∷U →

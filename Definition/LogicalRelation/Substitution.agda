@@ -451,7 +451,7 @@ opaque
     ∇ » Δ ⊩ᵛ⟨ l ⟩ A ≡ B →
     ∇ » Η ⊩ˢ σ₁ ≡ σ₂ ∷ Δ →
     ∇ » Η ⊩⟨ l ⟩ A [ σ₁ ] ≡ B [ σ₂ ]
-  ⊩ᵛ≡→⊩ˢ≡∷→⊩[]≡[] A≡B = ⊩ᵛ≡⇔ .proj₁ A≡B .proj₂ id
+  ⊩ᵛ≡→⊩ˢ≡∷→⊩[]≡[] A≡B = ⊩ᵛ≡⇔ .proj₁ A≡B .proj₂ id⊇
 
 opaque
 
@@ -462,7 +462,7 @@ opaque
     ∇ » Η ⊩ˢ σ ∷ Δ →
     ∇ » Η ⊩⟨ l ⟩ A [ σ ]
   ⊩ᵛ→⊩ˢ∷→⊩[] ⊩A =
-    ⊩⇔⊩≡ .proj₂ ∘→ ⊩ᵛ⇔ .proj₁ ⊩A .proj₂ id ∘→ refl-⊩ˢ≡∷
+    ⊩⇔⊩≡ .proj₂ ∘→ ⊩ᵛ⇔ .proj₁ ⊩A .proj₂ id⊇ ∘→ refl-⊩ˢ≡∷
 
 opaque
 
@@ -472,7 +472,7 @@ opaque
     ∇ » Δ ⊩ᵛ⟨ l ⟩ t ≡ u ∷ A →
     ∇ » Η ⊩ˢ σ₁ ≡ σ₂ ∷ Δ →
     ∇ » Η ⊩⟨ l ⟩ t [ σ₁ ] ≡ u [ σ₂ ] ∷ A [ σ₁ ]
-  ⊩ᵛ≡∷→⊩ˢ≡∷→⊩[]≡[]∷ t≡u = ⊩ᵛ≡∷⇔ .proj₁ t≡u .proj₂ id
+  ⊩ᵛ≡∷→⊩ˢ≡∷→⊩[]≡[]∷ t≡u = ⊩ᵛ≡∷⇔ .proj₁ t≡u .proj₂ id⊇
 
 opaque
 
@@ -483,7 +483,7 @@ opaque
     ∇ » Η ⊩ˢ σ ∷ Δ →
     ∇ » Η ⊩⟨ l ⟩ t [ σ ] ∷ A [ σ ]
   ⊩ᵛ∷→⊩ˢ∷→⊩[]∷ ⊩t =
-    ⊩∷⇔⊩≡∷ .proj₂ ∘→ ⊩ᵛ∷⇔ .proj₁ ⊩t .proj₂ id ∘→ refl-⊩ˢ≡∷
+    ⊩∷⇔⊩≡∷ .proj₂ ∘→ ⊩ᵛ∷⇔ .proj₁ ⊩t .proj₂ id⊇ ∘→ refl-⊩ˢ≡∷
 
 ------------------------------------------------------------------------
 -- Symmetry
@@ -500,7 +500,7 @@ opaque
   sym-⊩ˢ≡∷ {Δ = _ ∙ _} = λ σ₁≡σ₂ →
     case ⊩ˢ≡∷∙⇔ .proj₁ σ₁≡σ₂ of λ
       ((l , ⊩A , σ₁₀≡σ₂₀) , σ₁₊≡σ₂₊) →
-    case conv-⊩≡∷ (⊩ᵛ⇔ .proj₁ ⊩A .proj₂ id σ₁₊≡σ₂₊) $
+    case conv-⊩≡∷ (⊩ᵛ⇔ .proj₁ ⊩A .proj₂ id⊇ σ₁₊≡σ₂₊) $
          sym-⊩≡∷ σ₁₀≡σ₂₀ of λ
       σ₂₀≡σ₁₀ →
     ⊩ˢ≡∷∙⇔ .proj₂ ((l , ⊩A , σ₂₀≡σ₁₀) , sym-⊩ˢ≡∷ σ₁₊≡σ₂₊)
@@ -551,7 +551,8 @@ opaque
       ((l , ⊩A , σ₁₀≡σ₂₀) , σ₁₊≡σ₂₊) →
     case ⊩ˢ≡∷∙⇔ .proj₁ σ₂≡σ₃ of λ
       ((l , ⊩A , σ₂₀≡σ₃₀) , σ₂₊≡σ₃₊) →
-    case conv-⊩≡∷ (⊩ᵛ⇔ .proj₁ ⊩A .proj₂ id $ sym-⊩ˢ≡∷ σ₁₊≡σ₂₊) σ₂₀≡σ₃₀ of λ
+    case conv-⊩≡∷ (⊩ᵛ⇔ .proj₁ ⊩A .proj₂ id⊇ $ sym-⊩ˢ≡∷ σ₁₊≡σ₂₊)
+           σ₂₀≡σ₃₀ of λ
       σ₂₀≡σ₃₀ →
     ⊩ˢ≡∷∙⇔ .proj₂
       ( (l , ⊩A , trans-⊩≡∷ σ₁₀≡σ₂₀ σ₂₀≡σ₃₀)
@@ -1127,7 +1128,7 @@ opaque
     (∃ λ l →
      (∇ » Δ ⊩ᵛ⟨ l ⟩ A) × ∇ » Η ⊩⟨ l ⟩ head σ₁ ≡ head σ₂ ∷ A [ tail σ₁ ]) ×
     ∇ » Η ⊩ˢ tail σ₁ ≡ tail σ₂ ∷ Δ                                          →⟨ (λ ((_ , ⊩A , σ₁₀≡σ₂₀) , σ₁₊≡σ₂₊) →
-                                                                                    (_ , ⊩B , conv-⊩≡∷ (A≡B id $ wf-⊩ˢ≡∷ σ₁₊≡σ₂₊ .proj₁) σ₁₀≡σ₂₀)
+                                                                                    (_ , ⊩B , conv-⊩≡∷ (A≡B id⊇ $ wf-⊩ˢ≡∷ σ₁₊≡σ₂₊ .proj₁) σ₁₀≡σ₂₀)
                                                                                   , σ₁₊≡σ₂₊) ⟩
     (∃ λ l →
      (∇ » Δ ⊩ᵛ⟨ l ⟩ B) × ∇ » Η ⊩⟨ l ⟩ head σ₁ ≡ head σ₂ ∷ B [ tail σ₁ ]) ×
@@ -1530,7 +1531,7 @@ opaque
     (Γ ⊩ᵛ⟨ l ⟩ B) ×
     (∀ {κ′} {∇ : DCon (Term 0) κ′} → » ∇ ⊇ Γ .defs →
      ∀ {m} {Δ : Con Term m} {σ} → ∇ » Δ ⊩ˢ σ ∷ Γ .vars →
-     ∇ » Δ ⊩⟨ l ⟩ A [ σ ] ≡ B [ σ ])                      →⟨ (λ (⊩A , _ , A≡B) → A≡B id $ ⊩ˢ∷-idSubst $ wf-⊩ᵛ ⊩A) ⟩
+     ∇ » Δ ⊩⟨ l ⟩ A [ σ ] ≡ B [ σ ])                      →⟨ (λ (⊩A , _ , A≡B) → A≡B id⊇ $ ⊩ˢ∷-idSubst $ wf-⊩ᵛ ⊩A) ⟩
 
     Γ ⊩⟨ l ⟩ A [ idSubst ] ≡ B [ idSubst ]                ≡⟨ PE.cong₂ (_⊩⟨_⟩_≡_ _ _) (subst-id _) (subst-id _) ⟩→
 
@@ -1557,7 +1558,7 @@ opaque
     (∀ {κ′} {∇ : DCon (Term 0) κ′} → » ∇ ⊇ Γ .defs →
      ∀ {m} {Δ : Con Term m} {σ} → ∇ » Δ ⊩ˢ σ ∷ Γ .vars →
      ∇ » Δ ⊩⟨ l ⟩ t [ σ ] ≡ u [ σ ] ∷ A [ σ ])              →⟨ (λ (⊩t , _ , t≡u) →
-                                                                  t≡u id $ ⊩ˢ∷-idSubst $ wf-⊩ᵛ $ wf-⊩ᵛ∷ ⊩t) ⟩
+                                                                  t≡u id⊇ $ ⊩ˢ∷-idSubst $ wf-⊩ᵛ $ wf-⊩ᵛ∷ ⊩t) ⟩
 
     Γ ⊩⟨ l ⟩ t [ idSubst ] ≡ u [ idSubst ] ∷ A [ idSubst ]  ≡⟨ PE.cong₃ (_⊩⟨_⟩_≡_∷_ _ _)
                                                                  (subst-id _) (subst-id _) (subst-id _) ⟩→

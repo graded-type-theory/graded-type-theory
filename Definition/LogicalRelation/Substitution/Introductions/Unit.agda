@@ -340,7 +340,7 @@ opaque
          PE.subst (R._⊩⟨_⟩_∷_ _ _ _) (singleSubstLift A₁ (starʷ _)) $
          ⊩ᵛ∷→⊩ˢ∷→⊩[]∷ ⊩u₂ ⊩σ₂ of λ
       ⊢u₂[σ₂] →
-    case ⊩≡∷Unit⇔ .proj₁ (R.⊩≡∷⇔ .proj₁ (t₁≡t₂ id σ₁≡σ₂)) of λ {
+    case ⊩≡∷Unit⇔ .proj₁ (R.⊩≡∷⇔ .proj₁ (t₁≡t₂ id⊇ σ₁≡σ₂)) of λ {
       (_ , ok ,
        Unitₜ₌ t₁′ t₂′ (t₁[σ₁]⇒*t₁′ , _) (t₂[σ₂]⇒*t₂′ , _) prop) →
     case prop of λ where
@@ -355,7 +355,7 @@ opaque
                                                                        (⊩ᵛ≡∷→⊩ˢ≡∷→⊩[]≡[]∷ (η-unitᵛ ⊩t₁ ⊩⋆ η) $
                                                                         refl-⊩ˢ≡∷ ⊩σ₁)
                                                                        (refl-⊩ˢ≡∷ ⊩σ₁) ⟩⊩∷
-        u₁ [ σ₁ ]                     ∷ A₁ [ starʷ l ]₀ [ σ₁ ]    ≡⟨ R.⊩≡∷⇔ .proj₁ (u₁≡u₂ id σ₁≡σ₂) ⟩⊩∷∷⇐*
+        u₁ [ σ₁ ]                     ∷ A₁ [ starʷ l ]₀ [ σ₁ ]    ≡⟨ R.⊩≡∷⇔ .proj₁ (u₁≡u₂ id⊇ σ₁≡σ₂) ⟩⊩∷∷⇐*
                                                                    ⟨ A₁[⋆]₀[σ₁]≡A₂[⋆]₀[σ₂] ⟩⇒
                                       ∷ A₂ [ starʷ l ]₀ [ σ₂ ]     ⟨ singleSubstLift A₂ (starʷ _) ⟩⇐≡
         u₂ [ σ₂ ]                     ∷ A₂ [ σ₂ ⇑ ] [ starʷ l ]₀  ⇐⟨ conv
@@ -398,7 +398,7 @@ opaque
                                                                                ⟨ A₁[t₁]₀[σ₁]≡A₁[σ₁⇑][t₁′]₀ ⟩⊩∷
             unitrec l p q A₁ (starʷ l) u₁ [ σ₁ ] ∷ A₁ [ σ₁ ⇑ ] [ starʷ l ]₀  ⇒⟨ unitrec-β ⊢A₁[σ₁⇑] ⊢u₁[σ₁] ok no-η ⟩⊩∷∷
                                                                              ˘⟨ singleSubstLift A₁ (starʷ _) ⟩⊩∷≡
-            u₁ [ σ₁ ]                            ∷ A₁ [ starʷ l ]₀ [ σ₁ ]    ≡⟨ R.⊩≡∷→ $ u₁≡u₂ id σ₁≡σ₂ ⟩⊩∷∷⇐*
+            u₁ [ σ₁ ]                            ∷ A₁ [ starʷ l ]₀ [ σ₁ ]    ≡⟨ R.⊩≡∷→ $ u₁≡u₂ id⊇ σ₁≡σ₂ ⟩⊩∷∷⇐*
                                                                               ⟨ A₁[⋆]₀[σ₁]≡A₂[⋆]₀[σ₂] ⟩⇒
                                                  ∷ A₂ [ starʷ l ]₀ [ σ₂ ]     ⟨ singleSubstLift A₂ (starʷ _) ⟩⇐≡
             u₂ [ σ₂ ]                            ∷ A₂ [ σ₂ ⇑ ] [ starʷ l ]₀  ⇐⟨ unitrec-β ⊢A₂[σ₂⇑] ⊢u₂[σ₂] ok no-η ⟩∷
@@ -423,7 +423,7 @@ opaque
                                                                            R.⊩≡→ ⦃ inc = included ⦄ A₁[σ₁⇑]≡A₂[σ₂⇑])
                                                                           t₁′~t₂′
                                                                           (PE.subst (_⊢_≅_∷_ _ _ _) (singleSubstLift A₁ _) $
-                                                                           escape-⊩≡∷ (R.⊩≡∷→ $ u₁≡u₂ id σ₁≡σ₂))
+                                                                           escape-⊩≡∷ (R.⊩≡∷→ $ u₁≡u₂ id⊇ σ₁≡σ₂))
                                                                           ok no-η) ⟩⊩∷∷⇐*
                                                                     ⟨ ≅-eq $ escape-⊩≡ $ R.⊩≡→ $
                                                                       ⊩ᵛ≡→⊩ˢ≡∷→⊩≡∷→⊩[⇑][]₀≡[⇑][]₀ A₁≡A₂ σ₁≡σ₂ $ R.→⊩≡∷ $

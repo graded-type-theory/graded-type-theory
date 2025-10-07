@@ -300,7 +300,7 @@ opaque
            ≅-η-eq ⊢lam-t₁[σ₁] ⊢lam-t₂[σ₂] lamₙ lamₙ $
            escape-⊩≡∷ $
            PE.subst (_⊩⟨_⟩_≡_∷_ _ _ _ _) (idWkLiftSubstLemma _ B) $
-           lemma _ _ id _ (step id) _ _ _ (∷ʷ⊇→∷ʷʳ⊇ step-id) $
+           lemma _ _ id⊇ _ (step id) _ _ _ (∷ʷ⊇→∷ʷʳ⊇ step-id) $
            refl-⊩≡∷ $ ⊩var here $
            R.⊩→ $ R.wk-⊩ step-id ⊩A[σ₁])
       , λ ξ⊇ → lemma _ _ ξ⊇ _ _ _ _ _
@@ -365,7 +365,7 @@ opaque
       u₁[σ₁]≡u₂[σ₂] →
     case ⊩ᵛΠΣ→ (wf-⊩ᵛ∷ ⊩t₁) of λ
       (_ , ⊩A , ⊩B) →
-    case ⊩≡∷Π⇔ .proj₁ $ R.⊩≡∷→ $ t₁[]≡t₂[] id σ₁≡σ₂ of λ
+    case ⊩≡∷Π⇔ .proj₁ $ R.⊩≡∷→ $ t₁[]≡t₂[] id⊇ σ₁≡σ₂ of λ
       (_ , t₁′ , t₂′ , t₁[σ₁]⇒*t₁′ , t₂[σ₂]⇒*t₂′ , _ , _ , _ , rest) →
                            ∷ B [ u₁ ]₀ [ σ₁ ]             ⟨ singleSubstLift B _ ⟩⊩∷∷≡
     (t₁ ∘⟨ p ⟩ u₁) [ σ₁ ]  ∷ B [ σ₁ ⇑ ] [ u₁ [ σ₁ ] ]₀  ⇒*⟨ app-subst* t₁[σ₁]⇒*t₁′ $
@@ -374,7 +374,7 @@ opaque
                                                              (PE.cong₃ _∘⟨_⟩_ (wk-id _) PE.refl PE.refl)
                                                              (PE.cong₃ _∘⟨_⟩_ (wk-id _) PE.refl PE.refl)
                                                              (PE.cong₂ _[_]₀ (wk-lift-id (B [ _ ])) PE.refl) $
-                                                           rest id (id (escape-⊩ˢ∷ ⊩σ₁ .proj₁)) $
+                                                           rest id⊇ (id (escape-⊩ˢ∷ ⊩σ₁ .proj₁)) $
                                                            PE.subst (_⊩⟨_⟩_≡_∷_ _ _ _ _) (PE.sym $ wk-id _) $
                                                            level-⊩≡∷ (R.⊩→ $ ⊩ᵛ→⊩ˢ∷→⊩[] ⊩A ⊩σ₁)
                                                              (R.⊩≡∷→ u₁[σ₁]≡u₂[σ₂]) ⟩⊩∷⇐*
@@ -383,7 +383,7 @@ opaque
                                                               (refl-⊩ᵛ≡ ⊩B) (refl-⊩ˢ≡∷ ⊩σ₁) u₁[σ₁]≡u₂[σ₂] ⟩⇒
     t₂′ ∘⟨ p ⟩ (u₂ [ σ₂ ]) ∷ B [ σ₁ ⇑ ] [ u₂ [ σ₂ ] ]₀  ⇐*⟨ app-subst* t₂[σ₂]⇒*t₂′ $
                                                             R.escape-⊩∷ $
-                                                            R.conv-⊩∷ (R.sym-⊩≡ $ ⊩ᵛ⇔ .proj₁ ⊩A .proj₂ id σ₁≡σ₂) $
+                                                            R.conv-⊩∷ (R.sym-⊩≡ $ ⊩ᵛ⇔ .proj₁ ⊩A .proj₂ id⊇ σ₁≡σ₂) $
                                                             ⊩ᵛ∷→⊩ˢ∷→⊩[]∷ ⊩u₂ ⊩σ₂ ⟩∎∷
     (t₂ ∘⟨ p ⟩ u₂) [ σ₂ ]                               ∎
 
@@ -559,7 +559,7 @@ opaque
                    (PE.subst (_⊢_≅_∷_ _ _ _)
                       (idWkLiftSubstLemma _ B) $
                     escape-⊩≡∷ $
-                    lemma _ _ id _ _ _ _ _ step-id $
+                    lemma _ _ id⊇ _ _ _ _ _ step-id $
                     refl-⊩≡∷ $
                     ⊩var here $
                     wk-⊩ step-id $ R.⊩→ ⦃ inc = inc ⦄ ⊩A[σ]))

@@ -120,11 +120,13 @@ mutual
         neT , neU = ne~↑ k~l
         step-id = stepʷ id ⊢F
         step-idʳ = ∷ʷ⊇→∷ʷʳ⊇ step-id
-        var0 = neuTerm ([F] id step-idʳ) (var no-equality-reflection x0) (refl (var₀ ⊢F))
-        0≡0 = lift~toConv↑′ ([F] id step-idʳ) (var-refl (var₀ ⊢F) PE.refl)
+        var0 = neuTerm ([F] id⊇ step-idʳ)
+                 (var no-equality-reflection x0) (refl (var₀ ⊢F))
+        0≡0 = lift~toConv↑′ ([F] id⊇ step-idʳ)
+                (var-refl (var₀ ⊢F) PE.refl)
     in  η-eq ⊢t ⊢u (ne (ne↑⁺ neT)) (ne (ne↑⁺ neU))
           (PE.subst (λ x → _ ⊢ _ [conv↑] _ ∷ x) (wkSingleSubstId _) $
-           lift~toConv↑′ ([G] id step-idʳ var0) $
+           lift~toConv↑′ ([G] id⊇ step-idʳ var0) $
            app-cong (wk~↓ step-id ([~] A (D₂ , ΠΣₙ) k~l)) 0≡0)
   lift~toConv↓′
     (Bᵣ′ BΣˢ F G D Σ≡Σ [F] [G] G-ext _) D₁
@@ -141,11 +143,11 @@ mutual
         wkId = wk-id F
         wkLiftId = PE.cong (λ x → x [ fst _ _ ]₀) (wk-lift-id G)
 
-        wk[F] = [F] id (id ⊢Γ)
+        wk[F] = [F] id⊇ (id ⊢Γ)
         wkfst≡ = PE.subst (_⊢_≡_∷_ _ _ _) (PE.sym wkId)
                    (fst-cong ⊢G (refl ⊢t))
         wk[fst] = neuTerm wk[F] (fstₙ (ne↑ₗ neT)) wkfst≡
-        wk[Gfst] = [G] id (id ⊢Γ) wk[fst]
+        wk[Gfst] = [G] id⊇ (id ⊢Γ) wk[fst]
 
         wkfst~ = PE.subst (λ x → _ ⊢ _ ~ _ ↑ x) (PE.sym wkId) (fst-cong t~u↓)
         wksnd~ = PE.subst (λ x → _ ⊢ _ ~ _ ↑ x) (PE.sym wkLiftId) (snd-cong t~u↓)

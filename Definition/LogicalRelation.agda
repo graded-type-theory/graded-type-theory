@@ -461,11 +461,11 @@ module LogRel
       Productₗ (Γ .defs) t → Productₗ (Γ .defs) r → Set a
     [Σ]-prop {p} 𝕤 t r Γ (Bᵣ F G D A≡A [F] [G] G-ext _) _ _ =
       let id-Γ = id (wfEq (≅-eq A≡A)) in
-      Σ (Γ ⊩ₗ fst p t ∷ U.wk id F / [F] id id-Γ) λ [fstp]
-      → Γ ⊩ₗ fst p r ∷ U.wk id F / [F] id id-Γ
-      × Γ ⊩ₗ fst p t ≡ fst p r ∷ U.wk id F / [F] id id-Γ
+      Σ (Γ ⊩ₗ fst p t ∷ U.wk id F / [F] id⊇ id-Γ) λ [fstp]
+      → Γ ⊩ₗ fst p r ∷ U.wk id F / [F] id⊇ id-Γ
+      × Γ ⊩ₗ fst p t ≡ fst p r ∷ U.wk id F / [F] id⊇ id-Γ
       × Γ ⊩ₗ snd p t ≡ snd p r ∷ U.wk (lift id) G [ fst p t ]₀
-        / [G] id id-Γ [fstp]
+        / [G] id⊇ id-Γ [fstp]
     [Σ]-prop
       {p} 𝕨 _ _ Γ (Bᵣ F G _ A≡A [F] [G] _ _)
       (prodₙ {p = p′} {t = p₁} {u = p₂} {s = s′})
@@ -473,10 +473,10 @@ module LogRel
         let id-Γ = id (wfEq (≅-eq A≡A)) in
         s′ PE.≡ 𝕨 × s″ PE.≡ 𝕨 ×
         p PE.≡ p′ × p PE.≡ p″ ×
-        Σ (Γ ⊩ₗ p₁ ∷ U.wk id F / [F] id id-Γ) λ [p₁] →
-        Σ (Γ ⊩ₗ r₁ ∷ U.wk id F / [F] id id-Γ) λ [r₁]
-        → (Γ ⊩ₗ p₁ ≡ r₁ ∷ U.wk id F / [F] id id-Γ)
-        × (Γ ⊩ₗ p₂ ≡ r₂ ∷ U.wk (lift id) G [ p₁ ]₀ / [G] id id-Γ [p₁])
+        Σ (Γ ⊩ₗ p₁ ∷ U.wk id F / [F] id⊇ id-Γ) λ [p₁] →
+        Σ (Γ ⊩ₗ r₁ ∷ U.wk id F / [F] id⊇ id-Γ) λ [r₁]
+        → (Γ ⊩ₗ p₁ ≡ r₁ ∷ U.wk id F / [F] id⊇ id-Γ)
+        × (Γ ⊩ₗ p₂ ≡ r₂ ∷ U.wk (lift id) G [ p₁ ]₀ / [G] id⊇ id-Γ [p₁])
     [Σ]-prop 𝕨 _ _ _ (Bᵣ _ _ _ _ _ _ _ _) prodₙ (ne _) =
       Lift a ⊥
     [Σ]-prop 𝕨 _ _ _ (Bᵣ _ _ _ _ _ _ _ _) (ne _) prodₙ =

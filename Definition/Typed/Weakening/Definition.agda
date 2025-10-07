@@ -55,22 +55,25 @@ data DWkStep (∇ : DCon (Term 0) n) (A : Term 0) (t : Term 0) : Opacity n → S
 infix 4 »_⊇_
 
 data »_⊇_ : DCon (Term 0) m → DCon (Term 0) n → Set a where
-  id   : » ∇ ⊇ ∇
+  id   : {∇′ : DCon (Term 0) m} {∇ : DCon (Term 0) n}
+         (eq : m PE.≡ n) →
+         PE.subst (DCon (Term 0)) eq ∇′ PE.≡ ∇ → » ∇′ ⊇ ∇
   step : » ∇′ ⊇ ∇
        → DWkStep ∇′ A t ω
        → » ∇′ ∙⟨ ω ⟩[ t ∷ A ] ⊇ ∇
 
+pattern id⊇ = id PE.refl PE.refl
 pattern stepᵒ ξ⊇ ok ⊢A φ↜ ⊢t = step ξ⊇ (opa ok ⊢A φ↜ ⊢t)
 pattern stepᵗ ξ⊇ ⊢t = step ξ⊇ (tra ⊢t)
-pattern stepᵒ₁ ok ⊢A φ↜ ⊢t = stepᵒ id ok ⊢A φ↜ ⊢t
-pattern stepᵗ₁ ⊢t = stepᵗ id ⊢t
+pattern stepᵒ₁ ok ⊢A φ↜ ⊢t = stepᵒ id⊇ ok ⊢A φ↜ ⊢t
+pattern stepᵗ₁ ⊢t = stepᵗ id⊇ ⊢t
 
 opaque
 
   -- The relation »_⊇_ is transitive.
 
   »⊇-trans : » ∇″ ⊇ ∇′ → » ∇′ ⊇ ∇ → » ∇″ ⊇ ∇
-  »⊇-trans id             ∇′⊇∇ = ∇′⊇∇
+  »⊇-trans id⊇            ∇′⊇∇ = ∇′⊇∇
   »⊇-trans (step ∇″⊇∇′ s) ∇′⊇∇ = step (»⊇-trans ∇″⊇∇′ ∇′⊇∇) s
 
 opaque
@@ -79,7 +82,7 @@ opaque
   -- context, then ∇′ is a well-formed definition context.
 
   wf-»⊇ : » ∇′ ⊇ ∇ → » ∇ → » ∇′
-  wf-»⊇ id                     »∇ = »∇
+  wf-»⊇ id⊇                    »∇ = »∇
   wf-»⊇ (stepᵒ ξ⊇ ok ⊢A φ↜ ⊢t) »∇ = ∙ᵒ⟨ ok , φ↜ ⟩[ ⊢t ∷ ⊢A ]
   wf-»⊇ (stepᵗ ξ⊇ ⊢t)          »∇ = ∙ᵗ[ ⊢t ]
 
@@ -93,7 +96,7 @@ opaque
     {∇′ : DCon (Term 0) n′} →
     » ∇′ ⊇ ∇ →
     n ≤ n′
-  ⊇→≤ id            = ≤-refl
+  ⊇→≤ id⊇           = ≤-refl
   ⊇→≤ (step ∇′⊇∇ _) = ≤-trans (⊇→≤ ∇′⊇∇) (n≤1+n _)
 
 opaque
@@ -103,7 +106,7 @@ opaque
 
   »⊇ε : » ∇ → » ∇ ⊇ ε
   »⊇ε ε =
-    id
+    id⊇
   »⊇ε ∙ᵗ[ ⊢t ] =
     stepᵗ (»⊇ε (defn-wf (wfTerm ⊢t))) ⊢t
   »⊇ε ∙ᵒ⟨ ok , ∇′↜∇ ⟩[ ⊢t ∷ ⊢A ] =
@@ -117,7 +120,7 @@ opaque
   -- A definition weakening lemma for the definition context.
 
   there*-↦∈ : » ∇′ ⊇ ∇ → α ↦∷ A ∈ ∇ → α ↦∷ A ∈ ∇′
-  there*-↦∈ id          α↦t = α↦t
+  there*-↦∈ id⊇         α↦t = α↦t
   there*-↦∈ (step ξ⊇ s) α↦t = there (there*-↦∈ ξ⊇ α↦t)
 
 opaque
@@ -125,7 +128,7 @@ opaque
   -- A definition weakening lemma for the definition context.
 
   there*-↦∷∈ : » ∇′ ⊇ ∇ → α ↦ t ∷ A ∈ ∇ → α ↦ t ∷ A ∈ ∇′
-  there*-↦∷∈ id          α↦t = α↦t
+  there*-↦∷∈ id⊇         α↦t = α↦t
   there*-↦∷∈ (step ξ⊇ s) α↦t = there (there*-↦∷∈ ξ⊇ α↦t)
 
 opaque
@@ -133,7 +136,7 @@ opaque
   -- A definition weakening lemma for the definition context.
 
   there*-↦⊘∈ : » ∇′ ⊇ ∇ → α ↦⊘∷ A ∈ ∇ → α ↦⊘∷ A ∈ ∇′
-  there*-↦⊘∈ id          α↦t = α↦t
+  there*-↦⊘∈ id⊇         α↦t = α↦t
   there*-↦⊘∈ (step ξ⊇ s) α↦t = there (there*-↦⊘∈ ξ⊇ α↦t)
 
 ------------------------------------------------------------------------
@@ -144,8 +147,8 @@ opaque
   -- A glassification lemma for _»_⊇_.
 
   glassify-»⊇ : » ∇′ ⊇ ∇ → » glassify ∇′ ⊇ glassify ∇
-  glassify-»⊇ id =
-    id
+  glassify-»⊇ id⊇ =
+    id⊇
   glassify-»⊇ (stepᵗ ξ⊇ ⊢t) =
     stepᵗ (glassify-»⊇ ξ⊇) (glassify-⊢∷ ⊢t)
   glassify-»⊇ (stepᵒ ξ⊇ _ _ ∇′↜∇ ⊢t) =

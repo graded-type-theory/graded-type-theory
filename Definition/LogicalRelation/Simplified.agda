@@ -171,7 +171,7 @@ opaque
   ⊩→⊨ (ne (ne N D neN _)) = ne′ N D neN
   ⊩→⊨ (Bᵣ (BM b p q) (Bᵣ F G D A≡A [F] [G] G-ext ok)) =
     let ⊢Γ = wf (redFirst* D)
-        [F]′ = [F] id (id ⊢Γ)
+        [F]′ = [F] id⊇ (id ⊢Γ)
     in  Bᵣ′ b p q F G D
          (PE.subst (_ ⊨_) (wk-id F) (⊩→⊨ [F]′))
          (λ ⊢t →
@@ -179,7 +179,7 @@ opaque
                _ , [t] = reducible-⊩∷ ⊢t′
                [t]′ = ⊩∷→⊩∷/ [F]′ [t]
            in  PE.subst (_ ⊨_) (PE.cong (_[ _ ]₀) (wk-lift-id G))
-                 (⊩→⊨ ([G] id (id ⊢Γ) [t]′)))
+                 (⊩→⊨ ([G] id⊇ (id ⊢Γ) [t]′)))
   ⊩→⊨ (Idᵣ (Idᵣ Ty lhs rhs ⇒*Id ⊩Ty ⊩lhs ⊩rhs)) =
     Idᵣ′ Ty lhs rhs ⇒*Id (⊩→⊨ ⊩Ty)
       (escapeTerm ⊩Ty ⊩lhs) (escapeTerm ⊩Ty ⊩rhs)
