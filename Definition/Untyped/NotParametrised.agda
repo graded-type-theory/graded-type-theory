@@ -275,15 +275,16 @@ Transparent ∇ = ∇ ≡ glassify ∇
 -- Definition context extensions.
 
 data DExt (𝕋 : Set a) : Nat → Nat → Set a where
-  id   : DExt 𝕋 n n
+  id   : n ≡ m → DExt 𝕋 m n
   step : DExt 𝕋 m n → Opacity m → 𝕋 → 𝕋 → DExt 𝕋 (1+ m) n
 
-pattern step₁ ω A t = step id ω A t
+pattern idᵉ         = id refl
+pattern step₁ ω A t = step idᵉ ω A t
 
 -- Concatenation of definition context extensions.
 
 _•ᵈ_ : {𝕋 : Set a} → DExt 𝕋 m n → DExt 𝕋 n l → DExt 𝕋 m l
-id            •ᵈ ξ = ξ
+id eq         •ᵈ ξ = subst (flip (DExt _) _) eq ξ
 step ξ′ ω A t •ᵈ ξ = step (ξ′ •ᵈ ξ) ω A t
 
 -- A map function for definition contexts.
