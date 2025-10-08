@@ -44,8 +44,7 @@ private
 data DWkStep (∇ : DCon (Term 0) n) (A : Term 0) (t : Term 0) : Opacity n → Set a where
   opa : Opacity-allowed
       → ∇ » ε ⊢ A
-      → φ » ∇′ ↜ ∇
-      → ∇′ » ε ⊢ t ∷ A
+      → Trans φ ∇ » ε ⊢ t ∷ A
       → DWkStep ∇ A t (opa φ)
   tra : ∇ » ε ⊢ t ∷ A
       → DWkStep ∇ A t tra
@@ -63,9 +62,9 @@ data »_⊇_ : DCon (Term 0) m → DCon (Term 0) n → Set a where
        → » ∇′ ∙⟨ ω ⟩[ t ∷ A ] ⊇ ∇
 
 pattern id⊇ = id PE.refl PE.refl
-pattern stepᵒ ξ⊇ ok ⊢A φ↜ ⊢t = step ξ⊇ (opa ok ⊢A φ↜ ⊢t)
+pattern stepᵒ ξ⊇ ok ⊢A ⊢t = step ξ⊇ (opa ok ⊢A ⊢t)
 pattern stepᵗ ξ⊇ ⊢t = step ξ⊇ (tra ⊢t)
-pattern stepᵒ₁ ok ⊢A φ↜ ⊢t = stepᵒ id⊇ ok ⊢A φ↜ ⊢t
+pattern stepᵒ₁ ok ⊢A ⊢t = stepᵒ id⊇ ok ⊢A ⊢t
 pattern stepᵗ₁ ⊢t = stepᵗ id⊇ ⊢t
 
 opaque
@@ -82,9 +81,9 @@ opaque
   -- context, then ∇′ is a well-formed definition context.
 
   wf-»⊇ : » ∇′ ⊇ ∇ → » ∇ → » ∇′
-  wf-»⊇ id⊇                    »∇ = »∇
-  wf-»⊇ (stepᵒ ξ⊇ ok ⊢A φ↜ ⊢t) »∇ = ∙ᵒ⟨ ok , φ↜ ⟩[ ⊢t ∷ ⊢A ]
-  wf-»⊇ (stepᵗ ξ⊇ ⊢t)          »∇ = ∙ᵗ[ ⊢t ]
+  wf-»⊇ id⊇                 »∇ = »∇
+  wf-»⊇ (stepᵒ ξ⊇ ok ⊢A ⊢t) »∇ = ∙ᵒ⟨ ok ⟩[ ⊢t ∷ ⊢A ]
+  wf-»⊇ (stepᵗ ξ⊇ ⊢t)       »∇ = ∙ᵗ[ ⊢t ]
 
 opaque
 
@@ -109,8 +108,8 @@ opaque
     id⊇
   »⊇ε ∙ᵗ[ ⊢t ] =
     stepᵗ (»⊇ε (defn-wf (wfTerm ⊢t))) ⊢t
-  »⊇ε ∙ᵒ⟨ ok , ∇′↜∇ ⟩[ ⊢t ∷ ⊢A ] =
-    stepᵒ (»⊇ε (defn-wf (wf ⊢A))) ok ⊢A ∇′↜∇ ⊢t
+  »⊇ε ∙ᵒ⟨ ok ⟩[ ⊢t ∷ ⊢A ] =
+    stepᵒ (»⊇ε (defn-wf (wf ⊢A))) ok ⊢A ⊢t
 
 ------------------------------------------------------------------------
 -- Weakening for properties of definitions
@@ -151,10 +150,10 @@ opaque
     id⊇
   glassify-»⊇ (stepᵗ ξ⊇ ⊢t) =
     stepᵗ (glassify-»⊇ ξ⊇) (glassify-⊢∷ ⊢t)
-  glassify-»⊇ (stepᵒ ξ⊇ _ _ ∇′↜∇ ⊢t) =
+  glassify-»⊇ (stepᵒ ξ⊇ _ _ ⊢t) =
     stepᵗ (glassify-»⊇ ξ⊇)
       (PE.subst₃ _⊢_∷_
-         (PE.cong (_» _) (glassify-factor ∇′↜∇)) PE.refl PE.refl $
+         (PE.cong (_» _) glassify-factor) PE.refl PE.refl $
        glassify-⊢∷ ⊢t)
 
 ------------------------------------------------------------------------

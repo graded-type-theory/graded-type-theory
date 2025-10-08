@@ -105,24 +105,34 @@ tr-∷∈ (there x) =
   PE.subst (_ T₂.∷_∈ _ ∙ tr-Term _) tr-Term-wk (there (tr-∷∈ x))
 
 opaque
+  unfolding Definition.Typed.Trans Definition.Typed._⊔ᵒᵗ_
 
-  -- The relation _»_↜_ is preserved by tr-DCon.
+  -- Translation commutes with Trans φ.
 
-  tr-↜ : φ T₁.» ∇′ ↜ ∇ → φ T₂.» tr-DCon ∇′ ↜ tr-DCon ∇
-  tr-↜ ε                                          = ε
-  tr-↜ (∇′↜∇ ⁰)                                   = tr-↜ ∇′↜∇ ⁰
-  tr-↜ (∇′↜∇ ¹ᵒ) rewrite unfolding-mode-preserved = tr-↜ ∇′↜∇ ¹ᵒ
-  tr-↜ (∇′↜∇ ¹ᵗ)                                  = tr-↜ ∇′↜∇ ¹ᵗ
+  tr-Trans : tr-DCon (T₁.Trans φ ∇) PE.≡ T₂.Trans φ (tr-DCon ∇)
+  tr-Trans {∇ = ε} =
+    PE.refl
+  tr-Trans {∇ = _ ∙⟨ tra ⟩!} =
+    PE.cong U₂._∙! tr-Trans
+  tr-Trans {φ = _ ⁰} {∇ = _ ∙⟨ opa _ ⟩!} =
+    PE.cong U₂._∙! tr-Trans
+  tr-Trans {φ = φ ¹} {∇ = ∇ ∙⟨ opa φ′ ⟩!}
+    rewrite unfolding-mode-preserved =
+    PE.cong U₂._∙! tr-Trans
 
 mutual
 
   -- Preservation of »_.
 
   tr-» : T₁.» ∇ → T₂.» tr-DCon ∇
-  tr-» ε                        = ε
-  tr-» ∙ᵗ[ t ]                  = ∙ᵗ[ tr-⊢∷ t ]
-  tr-» ∙ᵒ⟨ ok , ∇′↜∇ ⟩[ t ∷ A ] =
-    ∙ᵒ⟨ Opacity-preserved ok , tr-↜ ∇′↜∇ ⟩[ tr-⊢∷ t ∷ tr-⊢′ A ]
+  tr-» ε                 = ε
+  tr-» ∙ᵗ[ t ]           = ∙ᵗ[ tr-⊢∷ t ]
+  tr-» ∙ᵒ⟨ ok ⟩[ t ∷ A ] =
+    ∙ᵒ⟨ Opacity-preserved ok
+    ⟩[ PE.subst₃ T₂._⊢_∷_ (PE.cong (_» _) tr-Trans) PE.refl PE.refl $
+       tr-⊢∷ t
+    ∷ tr-⊢′ A
+    ]
 
   -- Preservation of ⊢_.
 

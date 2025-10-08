@@ -36,7 +36,7 @@ open import Graded.Modality.Instances.Erasure
 open import Graded.Mode 𝕄
 open import Graded.Usage.Erased-matches
 
-open import Definition.Typed TR using (_∷_∈_; _»_↜_)
+open import Definition.Typed TR using (_∷_∈_; Trans)
 open import Definition.Untyped Erasure
 import Definition.Untyped.Erased 𝕄 as Erased
 
@@ -71,9 +71,8 @@ mutual
   data »_ : DCon (Term 0) m → Set where
     ε  : » ε
     ∙ᵒ : Opacity-allowed →
-         φ » ∇′ ↜ ∇ →
          » ∇ →
-         ∇′ » ε ⊢ t ∷ A →
+         Trans φ ∇ » ε ⊢ t ∷ A →
          ∇ » ε ⊢ A →
          » ∇ ∙⟨ opa φ ⟩[ t ∷ A ]
     ∙ᵗ : » ∇ →

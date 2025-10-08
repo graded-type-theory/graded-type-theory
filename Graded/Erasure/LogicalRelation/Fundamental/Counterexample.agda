@@ -421,6 +421,7 @@ opaque
       (sucᵣ t⇒* _ _ _) → case whnfRed*Term t⇒* (ne (emptyrecₙ (var _ _))) of λ ()
 
 opaque
+  unfolding Trans
 
   -- If Opacity-allowed holds, then one can prove a negation of a
   -- variant of the statement of the fundamental lemma.
@@ -456,7 +457,7 @@ opaque
     A = ℕ
 
     ⊢Δ : ⊢ Δ
-    ⊢Δ = ε ∙ᵒ⟨ ok , ε ⟩[ zeroⱼ εε ∷ ℕⱼ εε ]
+    ⊢Δ = ε ∙ᵒ⟨ ok ⟩[ zeroⱼ εε ∷ ℕⱼ εε ]
 
     open LR′ ⊢Δ ⦃ ok = ε ⦄ str ⇒*-is-reduction-relation
 

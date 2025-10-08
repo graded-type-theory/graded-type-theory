@@ -41,6 +41,7 @@ open import Tools.Product
 import Tools.PropositionalEquality as PE
 open import Tools.Reasoning.PropositionalEquality
 open import Tools.Relation
+open import Tools.Vec using (ε)
 
 open import Definition.Typed.Properties.Definition.Primitive R
   public
@@ -77,7 +78,11 @@ opaque
           (PE.cong (_» _) (PE.sym transparent)) PE.refl PE.refl
         ⊢t
       (yes opacity) →
-        let ext-ok = stepᵒ₁ opacity ⊢A (ones-»↜ _) ⊢t in
+        let ext-ok =
+              stepᵒ₁ opacity ⊢A
+                (PE.subst₃ _⊢_∷_
+                   (PE.cong (_» _) $ PE.sym Trans-ones) PE.refl PE.refl
+                   ⊢t) in
         _ , _ , defn _ , ext-ok ,
         defn (ε (wf-»⊇ ext-ok »∇)) here (PE.sym $ wk-id _)
 
@@ -102,7 +107,11 @@ opaque
         ⊢t
       (yes opacity) →
         let ext-ok =
-              stepᵒ₁ opacity (⊢Πs ok ⊢A) (ones-»↜ _) (⊢lams ok ⊢t)
+              stepᵒ₁ opacity (⊢Πs ok ⊢A)
+                (⊢lams ok $
+                 PE.subst₃ _⊢_∷_
+                   (PE.cong (_» _) $ PE.sym Trans-ones) PE.refl PE.refl
+                   ⊢t)
         in
         _ , _ , apps p Γ (defn _) , ext-ok ,
         ⊢apps ok (defn (ε (wf-»⊇ ext-ok »∇)) here (PE.sym $ wk-id _))
@@ -111,99 +120,102 @@ opaque
 -- Properties related to inlining of definitions
 
 opaque
- unfolding inline
+ unfolding inline Trans
  mutual
 
   -- The result of inline-< is invariant under transparentisation of
   -- definition contexts.
 
-  inline-<-↜ :
-    φ » ∇′ ↜ ∇ → (α<n : α <′ n) →
-    inline-< ∇ α<n PE.≡ inline-< ∇′ α<n
-  inline-<-↜ ε α<n =
+  inline-<-Trans :
+    (α<n : α <′ n) →
+    inline-< ∇ α<n PE.≡ inline-< (Trans φ ∇) α<n
+  inline-<-Trans {∇ = ε} α<n =
     ⊥-elim (n≮0 (<′⇒< α<n))
-  inline-<-↜ (_⁰ {t} ∇′↜∇) (≤′-reflexive _) =
-    inline-↜ ∇′↜∇ t
-  inline-<-↜ (∇′↜∇ ⁰) (≤′-step α<n) =
-    inline-<-↜ ∇′↜∇ α<n
-  inline-<-↜ (_¹ᵒ {t} ∇′↜∇) (≤′-reflexive _) =
-    inline-↜ ∇′↜∇ t
-  inline-<-↜ (∇′↜∇ ¹ᵒ) (≤′-step α<n) =
-    inline-<-↜ ∇′↜∇ α<n
-  inline-<-↜ (_¹ᵗ {t} ∇′↜∇) (≤′-reflexive _) =
-    inline-↜ ∇′↜∇ t
-  inline-<-↜ (∇′↜∇ ¹ᵗ) (≤′-step α<n) =
-    inline-<-↜ ∇′↜∇ α<n
+  inline-<-Trans {∇ = _ ∙⟨ tra ⟩[ t ∷ _ ]} (≤′-reflexive _) =
+    inline-Trans t
+  inline-<-Trans {∇ = ∇ ∙⟨ tra ⟩[ t ∷ _ ]} (≤′-step α<n) =
+    inline-<-Trans {∇ = ∇} α<n
+  inline-<-Trans
+    {∇ = _ ∙⟨ opa _ ⟩[ t ∷ _ ]} {φ = _ ⁰} (≤′-reflexive _) =
+    inline-Trans t
+  inline-<-Trans {∇ = ∇ ∙⟨ opa _ ⟩!} {φ = _ ⁰} (≤′-step α<n) =
+    inline-<-Trans {∇ = ∇} α<n
+  inline-<-Trans
+    {∇ = _ ∙⟨ opa _ ⟩[ t ∷ _ ]} {φ = _ ¹} (≤′-reflexive _) =
+    inline-Trans t
+  inline-<-Trans {∇ = ∇ ∙⟨ opa _ ⟩!} {φ = _ ¹} (≤′-step α<n) =
+    inline-<-Trans {∇ = ∇} α<n
 
   -- The result of inline-Nat is invariant under transparentisation of
   -- definition contexts.
 
-  inline-Nat-↜ :
-    {∇ ∇′ : DCon (Term 0) n} →
-    φ » ∇′ ↜ ∇ → inline-Nat ∇ α PE.≡ inline-Nat ∇′ α
-  inline-Nat-↜ {n} {α} ∇′↜∇ with α <′? n
-  … | yes α<n = inline-<-↜ ∇′↜∇ α<n
+  inline-Nat-Trans :
+    {∇ : DCon (Term 0) n} →
+    inline-Nat ∇ α PE.≡ inline-Nat (Trans φ ∇) α
+  inline-Nat-Trans {n} {α} {∇} with α <′? n
+  … | yes α<n = inline-<-Trans {∇ = ∇} α<n
   … | no _    = PE.refl
 
   -- The result of inline is invariant under transparentisation of
   -- definition contexts.
 
-  inline-↜ :
-    φ » ∇′ ↜ ∇ →
+  inline-Trans :
     (t : Term n) →
-    inline ∇ t PE.≡ inline ∇′ t
-  inline-↜ ∇′↜∇ (var _) =
+    inline ∇ t PE.≡ inline (Trans φ ∇) t
+  inline-Trans (var _) =
     PE.refl
-  inline-↜ ∇′↜∇ (defn _) =
-    PE.cong (wk _) (inline-Nat-↜ ∇′↜∇)
-  inline-↜ ∇′↜∇ (U _) =
+  inline-Trans {∇} (defn _) =
+    PE.cong (wk _) (inline-Nat-Trans {∇ = ∇})
+  inline-Trans (U _) =
     PE.refl
-  inline-↜ ∇′↜∇ Empty =
+  inline-Trans Empty =
     PE.refl
-  inline-↜ ∇′↜∇ (emptyrec p A t) =
-    PE.cong₂ (emptyrec _) (inline-↜ ∇′↜∇ A) (inline-↜ ∇′↜∇ t)
-  inline-↜ ∇′↜∇ (Unit _ _) =
+  inline-Trans (emptyrec p A t) =
+    PE.cong₂ (emptyrec _) (inline-Trans A) (inline-Trans t)
+  inline-Trans (Unit _ _) =
     PE.refl
-  inline-↜ ∇′↜∇ (star _ _) =
+  inline-Trans (star _ _) =
     PE.refl
-  inline-↜ ∇′↜∇ (unitrec _ _ _ A t u) =
-    PE.cong₃ (unitrec _ _ _) (inline-↜ ∇′↜∇ A) (inline-↜ ∇′↜∇ t) (inline-↜ ∇′↜∇ u)
-  inline-↜ ∇′↜∇ (ΠΣ⟨ _ ⟩ _ , _ ▷ A ▹ B) =
-    PE.cong₂ (ΠΣ⟨ _ ⟩ _ , _ ▷_▹_) (inline-↜ ∇′↜∇ A) (inline-↜ ∇′↜∇ B)
-  inline-↜ ∇′↜∇ (lam p t) =
-    PE.cong (lam _) (inline-↜ ∇′↜∇ t)
-  inline-↜ ∇′↜∇ (t ∘⟨ p ⟩ u) =
-    PE.cong₂ (_∘⟨ _ ⟩_) (inline-↜ ∇′↜∇ t) (inline-↜ ∇′↜∇ u)
-  inline-↜ ∇′↜∇ (prod s p t u) =
-    PE.cong₂ (prod _ _) (inline-↜ ∇′↜∇ t) (inline-↜ ∇′↜∇ u)
-  inline-↜ ∇′↜∇ (fst p t) =
-    PE.cong (fst _) (inline-↜ ∇′↜∇ t)
-  inline-↜ ∇′↜∇ (snd p t) =
-    PE.cong (snd _) (inline-↜ ∇′↜∇ t)
-  inline-↜ ∇′↜∇ (prodrec r p q A t u) =
-    PE.cong₃ (prodrec _ _ _) (inline-↜ ∇′↜∇ A) (inline-↜ ∇′↜∇ t) (inline-↜ ∇′↜∇ u)
-  inline-↜ ∇′↜∇ ℕ =
+  inline-Trans (unitrec _ _ _ A t u) =
+    PE.cong₃ (unitrec _ _ _) (inline-Trans A) (inline-Trans t)
+      (inline-Trans u)
+  inline-Trans (ΠΣ⟨ _ ⟩ _ , _ ▷ A ▹ B) =
+    PE.cong₂ (ΠΣ⟨ _ ⟩ _ , _ ▷_▹_) (inline-Trans A) (inline-Trans B)
+  inline-Trans (lam p t) =
+    PE.cong (lam _) (inline-Trans t)
+  inline-Trans (t ∘⟨ p ⟩ u) =
+    PE.cong₂ (_∘⟨ _ ⟩_) (inline-Trans t) (inline-Trans u)
+  inline-Trans (prod s p t u) =
+    PE.cong₂ (prod _ _) (inline-Trans t) (inline-Trans u)
+  inline-Trans (fst p t) =
+    PE.cong (fst _) (inline-Trans t)
+  inline-Trans (snd p t) =
+    PE.cong (snd _) (inline-Trans t)
+  inline-Trans (prodrec r p q A t u) =
+    PE.cong₃ (prodrec _ _ _) (inline-Trans A) (inline-Trans t)
+      (inline-Trans u)
+  inline-Trans ℕ =
     PE.refl
-  inline-↜ ∇′↜∇ zero =
+  inline-Trans zero =
     PE.refl
-  inline-↜ ∇′↜∇ (suc t) =
-    PE.cong suc (inline-↜ ∇′↜∇ t)
-  inline-↜ ∇′↜∇ (natrec p q r A t u v) =
-    PE.cong₄ (natrec _ _ _) (inline-↜ ∇′↜∇ A) (inline-↜ ∇′↜∇ t) (inline-↜ ∇′↜∇ u)
-      (inline-↜ ∇′↜∇ v)
-  inline-↜ ∇′↜∇ (Id A t u) =
-    PE.cong₃ Id (inline-↜ ∇′↜∇ A) (inline-↜ ∇′↜∇ t) (inline-↜ ∇′↜∇ u)
-  inline-↜ ∇′↜∇ rfl =
+  inline-Trans (suc t) =
+    PE.cong suc (inline-Trans t)
+  inline-Trans (natrec p q r A t u v) =
+    PE.cong₄ (natrec _ _ _) (inline-Trans A) (inline-Trans t)
+      (inline-Trans u) (inline-Trans v)
+  inline-Trans (Id A t u) =
+    PE.cong₃ Id (inline-Trans A) (inline-Trans t) (inline-Trans u)
+  inline-Trans rfl =
     PE.refl
-  inline-↜ ∇′↜∇ (J p q A t B u v w) =
-    PE.cong₆ (J _ _) (inline-↜ ∇′↜∇ A) (inline-↜ ∇′↜∇ t) (inline-↜ ∇′↜∇ B)
-      (inline-↜ ∇′↜∇ u) (inline-↜ ∇′↜∇ v) (inline-↜ ∇′↜∇ w)
-  inline-↜ ∇′↜∇ (K p A t B u v) =
-    PE.cong₅ (K _) (inline-↜ ∇′↜∇ A) (inline-↜ ∇′↜∇ t) (inline-↜ ∇′↜∇ B)
-      (inline-↜ ∇′↜∇ u) (inline-↜ ∇′↜∇ v)
-  inline-↜ ∇′↜∇ ([]-cong s A t u v) =
-    PE.cong₄ ([]-cong _) (inline-↜ ∇′↜∇ A) (inline-↜ ∇′↜∇ t) (inline-↜ ∇′↜∇ u)
-      (inline-↜ ∇′↜∇ v)
+  inline-Trans (J p q A t B u v w) =
+    PE.cong₆ (J _ _) (inline-Trans A) (inline-Trans t) (inline-Trans B)
+      (inline-Trans u) (inline-Trans v) (inline-Trans w)
+  inline-Trans (K p A t B u v) =
+    PE.cong₅ (K _) (inline-Trans A) (inline-Trans t) (inline-Trans B)
+      (inline-Trans u) (inline-Trans v)
+  inline-Trans ([]-cong s A t u v) =
+    PE.cong₄ ([]-cong _) (inline-Trans A) (inline-Trans t)
+      (inline-Trans u) (inline-Trans v)
 
 opaque
  unfolding inline
@@ -367,8 +379,8 @@ opaque
     ⊥-elim (n≮n _ (<′⇒< α<α))
   inline-<≡
     {t} (≤′-step α<n)
-    (∙ᵒ⟨_,_⟩[_∷_] {φ} {∇} {t = u} {A = B} ok ∇′↜∇ ⊢u ⊢B) (there α∈) =
-    let s = stepᵒ₁ ok ⊢B ∇′↜∇ ⊢u in
+    (∙ᵒ⟨_⟩[_∷_] {φ} {∇} {t = u} {A = B} ok ⊢u ⊢B) (there α∈) =
+    let s = stepᵒ₁ ok ⊢B ⊢u in
     inline-< ∇ α<n                    ≡⟨ inline-<≡ α<n (defn-wf (wf ⊢B)) α∈ ⟩
 
     inline ∇ t                        ≡⟨ inline-⊇-⊢∷ s $
@@ -413,12 +425,11 @@ opaque
   ⊢inline-<∷ α<0 ε _ =
     ⊥-elim (n≮0 (<′⇒< α<0))
   ⊢inline-<∷
-    (≤′-reflexive _) (∙ᵒ⟨_,_⟩[_∷_] {φ} {∇′} {∇} {t} {A} ok ∇′↜∇ ⊢t ⊢A)
-    here =
+    (≤′-reflexive _) (∙ᵒ⟨_⟩[_∷_] {φ} {∇} {t} {A} ok ⊢t ⊢A) here =
     PE.subst₂ (_⊢_∷_ _)
-      (PE.sym $ inline-↜ ∇′↜∇ t)
-      (inline ∇′ A                       ≡˘⟨ inline-↜ ∇′↜∇ A ⟩
-       inline ∇ A                        ≡⟨ inline-⊇-⊢ (stepᵒ₁ ok ⊢A ∇′↜∇ ⊢t) ⊢A ⟩
+      (PE.sym $ inline-Trans t)
+      (inline (Trans φ ∇) A              ≡˘⟨ inline-Trans A ⟩
+       inline ∇ A                        ≡⟨ inline-⊇-⊢ (stepᵒ₁ ok ⊢A ⊢t) ⊢A ⟩
        inline (∇ ∙⟨ opa φ ⟩[ t ∷ A ]) A  ∎) $
     ⊢inline∷ ⊢t
   ⊢inline-<∷ (≤′-reflexive _) ∙ᵗ[ ⊢t ] here =
@@ -428,9 +439,9 @@ opaque
     ⊥-elim (n≮n _ (scoped-↦∈ α∈))
   ⊢inline-<∷ (≤′-step α<α) _ here =
     ⊥-elim (n≮n _ (<′⇒< α<α))
-  ⊢inline-<∷ (≤′-step α<n) ∙ᵒ⟨ ok , ∇′↜∇ ⟩[ ⊢t ∷ ⊢B ] (there α∈) =
+  ⊢inline-<∷ (≤′-step α<n) ∙ᵒ⟨ ok ⟩[ ⊢t ∷ ⊢B ] (there α∈) =
     PE.subst (_⊢_∷_ _ _)
-      (inline-⊇-⊢ (stepᵒ₁ ok ⊢B ∇′↜∇ ⊢t) $
+      (inline-⊇-⊢ (stepᵒ₁ ok ⊢B ⊢t) $
        PE.subst (_⊢_ _) wk₀-closed $
        wf-⊢∷ (defn (wf ⊢B) α∈ PE.refl)) $
     ⊢inline-<∷ α<n (defn-wf (wf ⊢B)) α∈
@@ -943,12 +954,13 @@ opaque
   ¬↦∷∈Opaque (there ())
 
 opaque
+  unfolding Trans
 
   -- If t has type A and opaque definitions are allowed, then
   -- Opaque[ t ∷ A ] is well-formed.
 
   »Opaque : Opacity-allowed → ε » ε ⊢ t ∷ A → » Opaque[ t ∷ A ]
-  »Opaque ok ⊢t = ∙ᵒ⟨ ok , ε ⟩[ ⊢t ∷ wf-⊢∷ ⊢t ]
+  »Opaque ok ⊢t = ∙ᵒ⟨ ok ⟩[ ⊢t ∷ wf-⊢∷ ⊢t ]
 
 -- Below it is assumed that opaque definitions are allowed, and that
 -- there are three closed terms A, t and u that satisfy ε » ε ⊢ u ∷ A

@@ -108,10 +108,10 @@ opaque
     » ∇ →
     NegativeDefinitionContext ∇ →
     NegativeType (∇ » ε) A
-  lookupOpaqueNegative here (∙ᵒ⟨ ok , ∇′↜∇ ⟩[ ⊢t ∷ ⊢A ]) (∙ᵒ _ A-neg) =
-    defn-wkNeg (stepᵒ₁ ok ⊢A ∇′↜∇ ⊢t) A-neg
-  lookupOpaqueNegative (there α↦) ∙ᵒ⟨ ok , ∇′↜∇ ⟩[ ⊢t ∷ ⊢A ] (∙ᵒ ∇-neg _) =
-    defn-wkNeg (stepᵒ₁ ok ⊢A ∇′↜∇ ⊢t)
+  lookupOpaqueNegative here (∙ᵒ⟨ ok ⟩[ ⊢t ∷ ⊢A ]) (∙ᵒ _ A-neg) =
+    defn-wkNeg (stepᵒ₁ ok ⊢A ⊢t) A-neg
+  lookupOpaqueNegative (there α↦) ∙ᵒ⟨ ok ⟩[ ⊢t ∷ ⊢A ] (∙ᵒ ∇-neg _) =
+    defn-wkNeg (stepᵒ₁ ok ⊢A ⊢t)
       (lookupOpaqueNegative α↦ (defn-wf (wf ⊢A)) ∇-neg)
   lookupOpaqueNegative (there α↦) ∙ᵗ[ ⊢t ] (∙ᵗ ∇-neg) =
     defn-wkNeg (stepᵗ₁ ⊢t)

@@ -26,6 +26,7 @@ module Graded.Modify-box-cong-or-J
 open Configuration conf
 open Modality 𝕄
 
+import Definition.Typed
 import Definition.Typed.Properties
 
 open import Definition.Untyped M
@@ -676,22 +677,19 @@ opaque
     tr-↦∷∈′ false (there α↦) = there (tr-↦∷∈′ false α↦)
 
 opaque
+  unfolding Definition.Typed.Trans Definition.Typed._⊔ᵒᵗ_
 
-  -- A preservation lemma for _»_↜_.
+  -- Trans commutes with map-DCon.
 
-  tr-»↜ : φ Tₛ.» ∇₂ ↜ ∇₁ → φ Tₜ.» map-DCon tr ∇₂ ↜ map-DCon tr ∇₁
-  tr-»↜ = λ where
-      Tₛ.ε →
-        Tₜ.ε
-      (∇₂↜∇₁ Tₛ.⁰) →
-        tr-»↜ ∇₂↜∇₁ Tₜ.⁰
-      (∇₂↜∇₁ Tₛ.¹ᵒ) →
-        PE.subst (Tₜ._» _ ↜ _) lemma (tr-»↜ ∇₂↜∇₁) Tₜ.¹ᵒ
-      (∇₂↜∇₁ Tₛ.¹ᵗ) →
-        tr-»↜ ∇₂↜∇₁ Tₜ.¹ᵗ
-    where
-    lemma : φ₁ Tₛ.⊔ᵒᵗ φ₂ PE.≡ φ₁ Tₜ.⊔ᵒᵗ φ₂
-    lemma rewrite unfolding-mode-≡ = PE.refl
+  tr-Trans : map-DCon tr (Tₛ.Trans φ ∇) PE.≡ Tₜ.Trans φ (map-DCon tr ∇)
+  tr-Trans {∇ = ε} =
+    PE.refl
+  tr-Trans {∇ = _ ∙⟨ tra ⟩!} =
+    PE.cong _∙! tr-Trans
+  tr-Trans {φ = _ ⁰} {∇ = ∇ ∙⟨ opa _ ⟩!} =
+    PE.cong _∙! tr-Trans
+  tr-Trans {φ = _ ¹} {∇ = ∇ ∙⟨ opa _ ⟩!} rewrite unfolding-mode-≡ =
+    PE.cong _∙! tr-Trans
 
 opaque
  unfolding tr tr-DCon tr-Cons
@@ -707,22 +705,26 @@ opaque
       Tₜ.ε
     tr-»′ false _ Tₛ.ε =
       Tₜ.ε
-    tr-»′ true PE.refl (Tₛ.∙ᵒ⟨_,_⟩[_∷_] {∇′} {∇} ok ∇′↜∇ ⊢t ⊢A) =
+    tr-»′ true PE.refl (Tₛ.∙ᵒ⟨_⟩[_∷_] {φ} {∇} ok ⊢t ⊢A) =
       Tₜ.∙ᵗ[
         PE.subst₃ Tₜ._⊢_∷_
           (PE.cong (_» _)
-             (glassify (map-DCon tr ∇′)  ≡⟨ glassify-map-DCon ⟩
-              map-DCon tr (glassify ∇′)  ≡⟨ PE.cong (map-DCon _) $ TPₛ.glassify-factor ∇′↜∇ ⟩
-              map-DCon tr (glassify ∇)   ≡˘⟨ glassify-map-DCon ⟩
-              glassify (map-DCon tr ∇)   ∎))
+             (glassify (map-DCon tr (Tₛ.Trans φ ∇))  ≡⟨ glassify-map-DCon ⟩
+              map-DCon tr (glassify (Tₛ.Trans φ ∇))  ≡⟨ PE.cong (map-DCon _) TPₛ.glassify-factor ⟩
+              map-DCon tr (glassify ∇)               ≡˘⟨ glassify-map-DCon ⟩
+              glassify (map-DCon tr ∇)               ∎))
           PE.refl PE.refl $
         tr-⊢∷ ⊢t
       ]
       where
       open Tools.Reasoning.PropositionalEquality
-    tr-»′ false PE.refl Tₛ.∙ᵒ⟨ ok , ∇′↜∇ ⟩[ ⊢t ∷ ⊢A ] =
-      Tₜ.∙ᵒ⟨ Opacity-allowed-→ (λ ()) ok , tr-»↜ ∇′↜∇ ⟩[
-        tr-⊢∷ ⊢t ∷ tr-⊢ ⊢A ]
+    tr-»′ false PE.refl Tₛ.∙ᵒ⟨ ok ⟩[ ⊢t ∷ ⊢A ] =
+      Tₜ.∙ᵒ⟨ Opacity-allowed-→ (λ ()) ok
+      ⟩[ PE.subst₃ Tₜ._⊢_∷_
+          (PE.cong (_» _) tr-Trans) PE.refl PE.refl $
+         tr-⊢∷ ⊢t
+      ∷ tr-⊢ ⊢A
+      ]
     tr-»′ true PE.refl Tₛ.∙ᵗ[ ⊢t ] =
       Tₜ.∙ᵗ[ tr-⊢∷ ⊢t ]
     tr-»′ false PE.refl Tₛ.∙ᵗ[ ⊢t ] =

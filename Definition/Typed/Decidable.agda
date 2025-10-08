@@ -76,14 +76,20 @@ decTermᵢ ⊢Γ t = Dec.map
   (λ { (A , ⊢t)  → _ , (proj₁ (proj₂ (completeness⇉ t ⊢t)))})
   (dec⇉ ⊢Γ t)
 
--- Checkability of definition contexts is preserved under unfolding.
+opaque
+  unfolding Trans
 
-unfold-Checkable : φ » ∇′ ↜ ∇ → CheckableDCon ∇ → CheckableDCon ∇′
-unfold-Checkable ε      ε                      = ε
-unfold-Checkable (φ ⁰)  (∇ ∙ᶜᵒ⟨ ok ⟩[ t ∷ A ]) = unfold-Checkable φ ∇ ∙ᶜᵒ⟨ ok ⟩[ t ∷ A ]
-unfold-Checkable (φ ⁰)  (∇ ∙ᶜᵗ[ t ∷ A ])       = unfold-Checkable φ ∇       ∙ᶜᵗ[ t ∷ A ]
-unfold-Checkable (φ ¹ᵒ) (∇ ∙ᶜᵒ⟨ ok ⟩[ t ∷ A ]) = unfold-Checkable φ ∇       ∙ᶜᵗ[ t ∷ A ]
-unfold-Checkable (φ ¹ᵗ) (∇ ∙ᶜᵗ[ t ∷ A ])       = unfold-Checkable φ ∇       ∙ᶜᵗ[ t ∷ A ]
+  -- Checkability of definition contexts is preserved under unfolding.
+
+  unfold-Checkable : CheckableDCon ∇ → CheckableDCon (Trans φ ∇)
+  unfold-Checkable ε =
+    ε
+  unfold-Checkable (∇ ∙ᶜᵗ[ t ∷ A ]) =
+    unfold-Checkable ∇ ∙ᶜᵗ[ t ∷ A ]
+  unfold-Checkable {φ = _ ⁰} (∇ ∙ᶜᵒ⟨ ok ⟩[ t ∷ A ]) =
+    unfold-Checkable ∇ ∙ᶜᵒ⟨ ok ⟩[ t ∷ A ]
+  unfold-Checkable {φ = _ ¹} (∇ ∙ᶜᵒ⟨ _ ⟩[ t ∷ A ]) =
+    unfold-Checkable ∇ ∙ᶜᵗ[ t ∷ A ]
 
 -- If ∇ is a checkable definition context, then » ∇ is decidable.
 --
@@ -94,35 +100,26 @@ unfold-Checkable (φ ¹ᵗ) (∇ ∙ᶜᵗ[ t ∷ A ])       = unfold-Checkable 
 
 decWfDCon : CheckableDCon ∇ → Dec (» ∇)
 decWfDCon ε = yes ε
-decWfDCon {∇ = _ ∙⟨ opa φ ⟩!} (∇ ∙ᶜᵒ⟨ ok ⟩[ t ∷ A ]) =
+decWfDCon (∇ ∙ᶜᵒ⟨ ok ⟩[ t ∷ A ]) =
   case (decWfDCon ∇ ×-dec′ λ »∇ →
         dec (ε »∇) A) of λ where
     (no not) → no λ where
-      ∙ᵒ⟨ _ , _ ⟩[ _ ∷ ⊢A ] → not (defn-wf (wf ⊢A) , ⊢A)
+      ∙ᵒ⟨ _ ⟩[ _ ∷ ⊢A ] → not (defn-wf (wf ⊢A) , ⊢A)
     (yes (»∇ , ⊢A)) →
-      let _ , φ↜ = total-»↜ φ _
-          cont   = λ »∇′ →
-            let ⊢A′ = Unconditional.unfold-⊢ φ↜ (λ _ → »∇′) ⊢A in
+      let cont   = λ »∇′ →
+            let ⊢A′ = Unconditional.unfold-⊢ (λ _ → »∇′) ⊢A in
             case decTermᶜ ⊢A′ t of λ where
               (no not) → no λ where
-                ∙ᵒ⟨ _ , φ′↜ ⟩[ ⊢t ∷ _ ] →
-                  not $
-                  PE.subst₃ _⊢_∷_
-                    (PE.cong (_» ε) (unique-»↜ φ′↜ φ↜)) PE.refl PE.refl
-                    ⊢t
-              (yes ⊢t) → yes ∙ᵒ⟨ ok , φ↜ ⟩[ ⊢t ∷ ⊢A ]
+                ∙ᵒ⟨ _ ⟩[ ⊢t ∷ _ ] → not ⊢t
+              (yes ⊢t) → yes ∙ᵒ⟨ ok ⟩[ ⊢t ∷ ⊢A ]
       in
       case PE.singleton unfolding-mode of λ where
         (transitive , ≡transitive) →
-          cont (Transitive.unfold-» ≡transitive φ↜ »∇)
+          cont (Transitive.unfold-» ≡transitive »∇)
         (explicit , _) →
-          case decWfDCon (unfold-Checkable φ↜ ∇) of λ where
+          case decWfDCon (unfold-Checkable ∇) of λ where
             (no not) → no λ where
-              ∙ᵒ⟨ _ , φ′↜ ⟩[ ⊢t ∷ _ ] →
-                not $ defn-wf $ wfTerm $
-                PE.subst₃ _⊢_∷_
-                  (PE.cong (_» ε) (unique-»↜ φ′↜ φ↜)) PE.refl PE.refl
-                  ⊢t
+              ∙ᵒ⟨ _ ⟩[ ⊢t ∷ _ ] → not $ defn-wf $ wfTerm ⊢t
             (yes »∇′) → cont »∇′
 decWfDCon (∇ ∙ᶜᵗ[ t ∷ A ]) =
   case (decWfDCon ∇ ×-dec′ λ »∇ →

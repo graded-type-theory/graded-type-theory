@@ -27,6 +27,7 @@ import Tools.Size
 import Tools.Size.Instances
 import Tools.Fin
 import Tools.List
+import Tools.Vec
 import Tools.Algebra
 
 ------------------------------------------------------------------------

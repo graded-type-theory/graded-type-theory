@@ -5,12 +5,14 @@
 
 module Definition.Untyped.NotParametrised where
 
+open import Tools.Bool
 open import Tools.Fin
 open import Tools.Function
 open import Tools.Level
 open import Tools.List
 open import Tools.Nat
 open import Tools.PropositionalEquality
+open import Tools.Vec
 
 private variable
   a       : Level
@@ -193,31 +195,29 @@ i <ᵘ j = i <′ j
 ------------------------------------------------------------------------
 -- Definition contexts
 
--- Unfolding vectors.
---
--- Here "1" means "unfold".
+-- Unfolding vectors. The value true stands for "unfold".
 
-data Unfolding : Nat -> Set where
-  ε  : Unfolding 0
-  _⁰ : Unfolding n → Unfolding (1+ n)
-  _¹ : Unfolding n → Unfolding (1+ n)
+Unfolding : Nat → Set
+Unfolding = Vec Bool
 
--- Merging of unfolding vectors.
+pattern _⁰ φ = false ∷ φ
+pattern _¹ φ = true  ∷ φ
 
-infixl 5 _⊔ᵒ_
+opaque
 
-_⊔ᵒ_ : Unfolding n → Unfolding n → Unfolding n
-ε    ⊔ᵒ ε     = ε
-uf ⁰ ⊔ᵒ uf′ ⁰ = (uf ⊔ᵒ uf′) ⁰
-uf ⁰ ⊔ᵒ uf′ ¹ = (uf ⊔ᵒ uf′) ¹
-uf ¹ ⊔ᵒ uf′ ⁰ = (uf ⊔ᵒ uf′) ¹
-uf ¹ ⊔ᵒ uf′ ¹ = (uf ⊔ᵒ uf′) ¹
+  -- Merging of unfolding vectors.
 
--- A vector for unfolding everything.
+  infixl 5 _⊔ᵒ_
 
-ones : (n : Nat) → Unfolding n
-ones 0      = ε
-ones (1+ n) = ones n ¹
+  _⊔ᵒ_ : Unfolding n → Unfolding n → Unfolding n
+  _⊔ᵒ_ = zipWith _∨_
+
+opaque
+
+  -- A vector for unfolding everything.
+
+  ones : Unfolding n
+  ones = replicate _ true
 
 -- Opacity.
 

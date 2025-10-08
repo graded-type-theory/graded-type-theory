@@ -60,10 +60,11 @@ opaque
   -- A well-formedness lemma for _↦_∷_∈_.
 
   wf-↦∷∈ : α ↦ t ∷ A ∈ ∇ → » ∇ → ∇ » ε ⊢ t ∷ A
-  wf-↦∷∈ here                   ∙ᵗ[ ⊢t      ] = defn-wkTerm (stepᵗ₁ ⊢t) ⊢t
-  wf-↦∷∈ (there α↦t) ∙ᵒ⟨ ok , φ↜ ⟩[ ⊢u ∷ ⊢B ] =
-    defn-wkTerm (stepᵒ₁ ok ⊢B φ↜ ⊢u) (wf-↦∷∈ α↦t (defn-wf (wf ⊢B)))
-  wf-↦∷∈ (there α↦t)            ∙ᵗ[ ⊢u      ] =
+  wf-↦∷∈ here ∙ᵗ[ ⊢t ] =
+    defn-wkTerm (stepᵗ₁ ⊢t) ⊢t
+  wf-↦∷∈ (there α↦t) ∙ᵒ⟨ ok ⟩[ ⊢u ∷ ⊢B ] =
+    defn-wkTerm (stepᵒ₁ ok ⊢B ⊢u) (wf-↦∷∈ α↦t (defn-wf (wf ⊢B)))
+  wf-↦∷∈ (there α↦t) ∙ᵗ[ ⊢u ] =
     defn-wkTerm (stepᵗ₁ ⊢u) (wf-↦∷∈ α↦t (defn-wf (wfTerm ⊢u)))
 
 opaque mutual
@@ -71,11 +72,13 @@ opaque mutual
   -- A well-formedness lemma for _↦∷_∈_.
 
   wf-↦∈ : α ↦∷ A ∈ ∇ → » ∇ → ∇ » ε ⊢ A
-  wf-↦∈ here        ∙ᵒ⟨ ok , φ↜ ⟩[ ⊢t ∷ ⊢A ] = defn-wk (stepᵒ₁ ok ⊢A φ↜ ⊢t) ⊢A
-  wf-↦∈ here                   ∙ᵗ[ ⊢t      ] = defn-wk (stepᵗ₁ ⊢t) (wf-⊢∷ ⊢t)
-  wf-↦∈ (there α↦t) ∙ᵒ⟨ ok , φ↜ ⟩[ ⊢u ∷ ⊢B ] =
-    defn-wk (stepᵒ₁ ok ⊢B φ↜ ⊢u) (wf-↦∈ α↦t (defn-wf (wf ⊢B)))
-  wf-↦∈ (there α↦t)            ∙ᵗ[ ⊢u      ] =
+  wf-↦∈ here ∙ᵒ⟨ ok ⟩[ ⊢t ∷ ⊢A ] =
+    defn-wk (stepᵒ₁ ok ⊢A ⊢t) ⊢A
+  wf-↦∈ here ∙ᵗ[ ⊢t ] =
+    defn-wk (stepᵗ₁ ⊢t) (wf-⊢∷ ⊢t)
+  wf-↦∈ (there α↦t) ∙ᵒ⟨ ok ⟩[ ⊢u ∷ ⊢B ] =
+    defn-wk (stepᵒ₁ ok ⊢B ⊢u) (wf-↦∈ α↦t (defn-wf (wf ⊢B)))
+  wf-↦∈ (there α↦t) ∙ᵗ[ ⊢u ] =
     defn-wk (stepᵗ₁ ⊢u) (wf-↦∈ α↦t (defn-wf (wfTerm ⊢u)))
 
   -- A well-formedness lemma for _⊢_∷_.

@@ -33,6 +33,7 @@ open import Tools.Nat
 open import Tools.Product
 import Tools.PropositionalEquality as PE
 open import Tools.Relation
+open import Tools.Vec using (ε)
 
 private
   variable
@@ -146,7 +147,7 @@ opaque
     consistent _ ∘→ defn-wkTerm ∇′⊇∇
 
 opaque
-  unfolding inline inline-Con
+  unfolding Trans ones inline inline-Con
 
   -- If opacity is allowed, then consistency is not preserved by
   -- glassification, inlining or context extension: there is a
@@ -198,18 +199,18 @@ opaque
           ∙⟨ opa (ε ¹) ⟩[ rfl ∷ Id (U 0) (defn 0) Empty ] ⊇
         Opaque[ Empty ∷ U 0 ]
     ∙⊇ =
-      stepᵒ₁ ok (Idⱼ′ ⊢0∷U (Emptyⱼ ⊢ε)) (ones-»↜ _)
+      stepᵒ₁ ok (Idⱼ′ ⊢0∷U (Emptyⱼ ⊢ε))
         (rflⱼ′ (δ-red (glassify-⊢′ ⊢ε) here PE.refl PE.refl))
 
     ⊢0″ :
       Opaque[ Empty ∷ U 0 ]
-        ∙⟨ opa (ones 1) ⟩[ rfl ∷ Id (U 0) (defn 0) Empty ] »
+        ∙⟨ opa ones ⟩[ rfl ∷ Id (U 0) (defn 0) Empty ] »
       ε ⊢ defn 0
     ⊢0″ = defn-wk ∙⊇ ⊢0
 
     inconsistent₃ :
       Opaque[ Empty ∷ U 0 ]
-        ∙⟨ opa (ones 1) ⟩[ rfl ∷ Id (U 0) (defn 0) Empty ] »
+        ∙⟨ opa ones ⟩[ rfl ∷ Id (U 0) (defn 0) Empty ] »
       ε ∙ defn 0 ⊢
       subst 𝟙 (U 0) (var x0) (defn 0) Empty (defn 1) (var x0) ∷ Empty
     inconsistent₃ =

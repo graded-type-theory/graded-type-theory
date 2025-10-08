@@ -33,6 +33,7 @@ import Tools.PropositionalEquality as PE
 open import Tools.Reasoning.PropositionalEquality
 open import Tools.Relation
 open import Tools.Unit
+open import Tools.Vec as Vec using (ε)
 
 private
   variable
@@ -44,50 +45,62 @@ private
     φ φ′ : Unfolding _
 
 opaque
+  unfolding Trans
 
   -- If α has type A in ∇, then α has the same type in every
   -- transparentisation of ∇.
 
-  unfold-↦∈ : φ » ∇′ ↜ ∇ → α ↦∷ A ∈ ∇ → α ↦∷ A ∈ ∇′
-  unfold-↦∈ ε       ()
-  unfold-↦∈ (φ↜ ⁰)  here         = here
-  unfold-↦∈ (φ↜ ¹ᵒ) here         = here
-  unfold-↦∈ (φ↜ ¹ᵗ) here         = here
-  unfold-↦∈ (φ↜ ⁰)  (there α↦∷A) = there (unfold-↦∈ φ↜ α↦∷A)
-  unfold-↦∈ (φ↜ ¹ᵒ) (there α↦∷A) = there (unfold-↦∈ φ↜ α↦∷A)
-  unfold-↦∈ (φ↜ ¹ᵗ) (there α↦∷A) = there (unfold-↦∈ φ↜ α↦∷A)
+  unfold-↦∈ : α ↦∷ A ∈ ∇ → α ↦∷ A ∈ Trans φ ∇
+  unfold-↦∈ {∇ = ε}           ()
+  unfold-↦∈ {∇ = _ ∙⟨ tra ⟩!} here =
+    here
+  unfold-↦∈ {∇ = _ ∙⟨ opa _ ⟩!} {φ = _ ⁰} here =
+    here
+  unfold-↦∈ {∇ = _ ∙⟨ opa _ ⟩!} {φ = _ ¹} here =
+    here
+  unfold-↦∈ {∇ = _ ∙⟨ tra ⟩!} (there α↦) =
+    there (unfold-↦∈ α↦)
+  unfold-↦∈ {∇ = _ ∙⟨ opa _ ⟩!} {φ = _ ⁰} (there α↦) =
+    there (unfold-↦∈ α↦)
+  unfold-↦∈ {∇ = _ ∙⟨ opa _ ⟩!} {φ = _ ¹} (there α↦) =
+    there (unfold-↦∈ α↦)
 
 opaque
+  unfolding Trans
 
   -- If α has the body t and the type A in ∇, then α has the same body
   -- and type in every transparentisation of ∇.
 
-  unfold-↦∷∈ : φ » ∇′ ↜ ∇ → α ↦ t ∷ A ∈ ∇ → α ↦ t ∷ A ∈ ∇′
-  unfold-↦∷∈ ε       ()
-  unfold-↦∷∈ (φ↜ ⁰)  here        = here
-  unfold-↦∷∈ (φ↜ ¹ᵗ) here        = here
-  unfold-↦∷∈ (φ↜ ⁰)  (there α↦t) = there (unfold-↦∷∈ φ↜ α↦t)
-  unfold-↦∷∈ (φ↜ ¹ᵒ) (there α↦t) = there (unfold-↦∷∈ φ↜ α↦t)
-  unfold-↦∷∈ (φ↜ ¹ᵗ) (there α↦t) = there (unfold-↦∷∈ φ↜ α↦t)
+  unfold-↦∷∈ : α ↦ t ∷ A ∈ ∇ → α ↦ t ∷ A ∈ Trans φ ∇
+  unfold-↦∷∈ {∇ = ε}           ()
+  unfold-↦∷∈ {∇ = _ ∙⟨ tra ⟩!} here =
+    here
+  unfold-↦∷∈ {∇ = _ ∙⟨ tra ⟩!} (there α↦) =
+    there (unfold-↦∷∈ α↦)
+  unfold-↦∷∈ {∇ = _ ∙⟨ opa _ ⟩!} {φ = _ ⁰} (there α↦) =
+    there (unfold-↦∷∈ α↦)
+  unfold-↦∷∈ {∇ = _ ∙⟨ opa _ ⟩!} {φ = _ ¹} (there α↦) =
+    there (unfold-↦∷∈ α↦)
 
 -- The following module is re-exported from the module Transitive
--- below. It uses the assumption that ∇′ is a transparentisation of ∇
--- that is well-formed whenever ∇ is.
+-- below. It uses the assumption that Trans φ ∇ is well-formed
+-- whenever ∇ is.
 
-module Unconditional (φ↜ : φ » ∇′ ↜ ∇) (»∇′ : » ∇ → » ∇′) where
+module Unconditional (»-Trans : » ∇ → » Trans φ ∇) where
 
   opaque mutual
 
     -- Varible contexts that are well-formed under ∇ are well-formed
-    -- under ∇′.
+    -- under Trans φ ∇.
 
-    unfold-⊢′ : ∇ »⊢ Γ → ∇′ »⊢ Γ
-    unfold-⊢′ (ε »∇) = ε (»∇′ »∇)
+    unfold-⊢′ : ∇ »⊢ Γ → Trans φ ∇ »⊢ Γ
+    unfold-⊢′ (ε »∇) = ε (»-Trans »∇)
     unfold-⊢′ (∙ ⊢A) = ∙ unfold-⊢ ⊢A
 
-    -- Types that are well-formed under ∇ are well-formed under ∇′.
+    -- Types that are well-formed under ∇ are well-formed under
+    -- Trans φ ∇.
 
-    unfold-⊢ : ∇ » Γ ⊢ A → ∇′ » Γ ⊢ A
+    unfold-⊢ : ∇ » Γ ⊢ A → Trans φ ∇ » Γ ⊢ A
     unfold-⊢ (Uⱼ ⊢Γ) = Uⱼ (unfold-⊢′ ⊢Γ)
     unfold-⊢ (ℕⱼ ⊢Γ) = ℕⱼ (unfold-⊢′ ⊢Γ)
     unfold-⊢ (Emptyⱼ ⊢Γ) = Emptyⱼ (unfold-⊢′ ⊢Γ)
@@ -97,9 +110,10 @@ module Unconditional (φ↜ : φ » ∇′ ↜ ∇) (»∇′ : » ∇ → » �
       Idⱼ (unfold-⊢ ⊢A) (unfold-⊢∷ ⊢t) (unfold-⊢∷ ⊢u)
     unfold-⊢ (univ ⊢A) = univ (unfold-⊢∷ ⊢A)
 
-    -- Terms that are well-formed under ∇ are well-formed under ∇′.
+    -- Terms that are well-formed under ∇ are well-formed under
+    -- Trans φ ∇.
 
-    unfold-⊢∷ : ∇ » Γ ⊢ t ∷ A → ∇′ » Γ ⊢ t ∷ A
+    unfold-⊢∷ : ∇ » Γ ⊢ t ∷ A → Trans φ ∇ » Γ ⊢ t ∷ A
     unfold-⊢∷ (Uⱼ ⊢Γ) = Uⱼ (unfold-⊢′ ⊢Γ)
     unfold-⊢∷ (ΠΣⱼ ⊢t₁ ⊢t₂ ok) =
       ΠΣⱼ (unfold-⊢∷ ⊢t₁) (unfold-⊢∷ ⊢t₂) ok
@@ -110,7 +124,7 @@ module Unconditional (φ↜ : φ » ∇′ ↜ ∇) (»∇′ : » ∇ → » �
       conv (unfold-⊢∷ ⊢t) (unfold-⊢≡ A≡A′)
     unfold-⊢∷ (var ⊢Γ x∈) = var (unfold-⊢′ ⊢Γ) x∈
     unfold-⊢∷ (defn ⊢Γ α↦t A≡A′) =
-      defn (unfold-⊢′ ⊢Γ) (unfold-↦∈ φ↜ α↦t) A≡A′
+      defn (unfold-⊢′ ⊢Γ) (unfold-↦∈ α↦t) A≡A′
     unfold-⊢∷ (lamⱼ ⊢A ⊢t ok) =
       lamⱼ (unfold-⊢ ⊢A) (unfold-⊢∷ ⊢t) ok
     unfold-⊢∷ (⊢t₁ ∘ⱼ ⊢t₂) =
@@ -165,9 +179,9 @@ module Unconditional (φ↜ : φ » ∇′ ↜ ∇) (»∇′ : » ∇ → » �
               (unfold-⊢∷ ⊢t₂)
               (unfold-⊢∷ ⊢tₚ) ok
 
-    -- Type equalities that hold under ∇ hold under ∇′.
+    -- Type equalities that hold under ∇ hold under Trans φ ∇.
 
-    unfold-⊢≡ : ∇ » Γ ⊢ A ≡ B → ∇′ » Γ ⊢ A ≡ B
+    unfold-⊢≡ : ∇ » Γ ⊢ A ≡ B → Trans φ ∇ » Γ ⊢ A ≡ B
     unfold-⊢≡ (univ A≡A′) = univ (unfold-⊢≡∷ A≡A′)
     unfold-⊢≡ (refl ⊢A) = refl (unfold-⊢ ⊢A)
     unfold-⊢≡ (sym A≡A′) = sym (unfold-⊢≡ A≡A′)
@@ -180,9 +194,9 @@ module Unconditional (φ↜ : φ » ∇′ ↜ ∇) (»∇′ : » ∇ → » �
               (unfold-⊢≡∷ t₁≡t₂)
               (unfold-⊢≡∷ u₁≡u₂)
 
-    -- Term equalities that hold under ∇ hold under ∇′.
+    -- Term equalities that hold under ∇ hold under Trans φ ∇.
 
-    unfold-⊢≡∷ : ∇ » Γ ⊢ t ≡ u ∷ A → ∇′ » Γ ⊢ t ≡ u ∷ A
+    unfold-⊢≡∷ : ∇ » Γ ⊢ t ≡ u ∷ A → Trans φ ∇ » Γ ⊢ t ≡ u ∷ A
     unfold-⊢≡∷ (refl ⊢t) = refl (unfold-⊢∷ ⊢t)
     unfold-⊢≡∷ (sym ⊢A t≡t′) =
       sym (unfold-⊢ ⊢A) (unfold-⊢≡∷ t≡t′)
@@ -191,7 +205,7 @@ module Unconditional (φ↜ : φ » ∇′ ↜ ∇) (»∇′ : » ∇ → » �
     unfold-⊢≡∷ (conv t≡t′ A≡A′) =
       conv (unfold-⊢≡∷ t≡t′) (unfold-⊢≡ A≡A′)
     unfold-⊢≡∷ (δ-red ⊢Γ α↦t A≡A′ t≡t′) =
-      δ-red (unfold-⊢′ ⊢Γ) (unfold-↦∷∈ φ↜ α↦t) A≡A′ t≡t′
+      δ-red (unfold-⊢′ ⊢Γ) (unfold-↦∷∈ α↦t) A≡A′ t≡t′
     unfold-⊢≡∷ (ΠΣ-cong t₁≡t₂ u₁≡u₂ ok) =
       ΠΣ-cong (unfold-⊢≡∷ t₁≡t₂) (unfold-⊢≡∷ u₁≡u₂) ok
     unfold-⊢≡∷ (app-cong t₁≡t₂ u₁≡u₂) =
@@ -311,13 +325,13 @@ module Unconditional (φ↜ : φ » ∇′ ↜ ∇) (»∇′ : » ∇ → » �
 
   opaque
 
-    -- Reductions that hold under ∇ hold under ∇′.
+    -- Reductions that hold under ∇ hold under Trans φ ∇.
 
-    unfold-⇒∷ : ∇ » Γ ⊢ t ⇒ u ∷ A → ∇′ » Γ ⊢ t ⇒ u ∷ A
+    unfold-⇒∷ : ∇ » Γ ⊢ t ⇒ u ∷ A → Trans φ ∇ » Γ ⊢ t ⇒ u ∷ A
     unfold-⇒∷ (conv t⇒t′ A≡A′) =
       conv (unfold-⇒∷ t⇒t′) (unfold-⊢≡ A≡A′)
     unfold-⇒∷ (δ-red ⊢Γ α↦t A≡A′ T≡T′) =
-      δ-red (unfold-⊢′ ⊢Γ) (unfold-↦∷∈ φ↜ α↦t) A≡A′ T≡T′
+      δ-red (unfold-⊢′ ⊢Γ) (unfold-↦∷∈ α↦t) A≡A′ T≡T′
     unfold-⇒∷ (app-subst t⇒t′ ⊢a) =
       app-subst (unfold-⇒∷ t⇒t′) (unfold-⊢∷ ⊢a)
     unfold-⇒∷ (β-red ⊢A ⊢t ⊢x eq ok) =
@@ -409,55 +423,52 @@ module Unconditional (φ↜ : φ » ∇′ ↜ ∇) (»∇′ : » ∇ → » �
 
   opaque
 
-    -- Reductions that hold under ∇ hold under ∇′.
+    -- Reductions that hold under ∇ hold under Trans φ ∇.
 
-    unfold-⇒ : ∇ » Γ ⊢ A ⇒ B → ∇′ » Γ ⊢ A ⇒ B
+    unfold-⇒ : ∇ » Γ ⊢ A ⇒ B → Trans φ ∇ » Γ ⊢ A ⇒ B
     unfold-⇒ (univ A⇒B) = univ (unfold-⇒∷ A⇒B)
 
   opaque
 
-    -- Reductions that hold under ∇ hold under ∇′.
+    -- Reductions that hold under ∇ hold under Trans φ ∇.
 
-    unfold-⇒* : ∇ » Γ ⊢ A ⇒* B → ∇′ » Γ ⊢ A ⇒* B
+    unfold-⇒* : ∇ » Γ ⊢ A ⇒* B → Trans φ ∇ » Γ ⊢ A ⇒* B
     unfold-⇒* (id ⊢A)      = id (unfold-⊢ ⊢A)
     unfold-⇒* (A⇒X ⇨ X⇒*B) = unfold-⇒ A⇒X ⇨ unfold-⇒* X⇒*B
 
   opaque
 
-    -- Reductions that hold under ∇ hold under ∇′.
+    -- Reductions that hold under ∇ hold under Trans φ ∇.
 
-    unfold-⇒*∷ : ∇ » Γ ⊢ t ⇒* u ∷ A → ∇′ » Γ ⊢ t ⇒* u ∷ A
+    unfold-⇒*∷ : ∇ » Γ ⊢ t ⇒* u ∷ A → Trans φ ∇ » Γ ⊢ t ⇒* u ∷ A
     unfold-⇒*∷ (id ⊢t)      = id (unfold-⊢∷ ⊢t)
     unfold-⇒*∷ (t⇒x ⇨ x⇒*u) = unfold-⇒∷ t⇒x ⇨ unfold-⇒*∷ x⇒*u
 
 module Explicit (mode-eq : unfolding-mode PE.≡ explicit) where
 
-  private opaque
-
-    _! : φ » ∇′ ↜ ∇ → {φ′ : Unfolding n} → φ ⊔ᵒᵗ φ′ » ∇′ ↜ ∇
-    φ↜ ! with unfolding-mode
-    ...     | explicit   = φ↜
-    ...     | transitive = case mode-eq of λ ()
-
   opaque
+    unfolding Trans
 
     no-unfold-» :
       Opacity-allowed →
-      ∃₃ λ (∇ ∇′ : DCon (Term 0) 2) (φ : Unfolding 2) →
-           φ » ∇′ ↜ ∇ × » ∇ × ¬ » ∇′
+      ∃₂ λ (∇ : DCon (Term 0) 2) (φ : Unfolding 2) →
+        » ∇ × ¬ » Trans φ ∇
     no-unfold-» ok =
       let ∇₁ = ε ∙⟨ opa ε ⟩[ ℕ ∷ U 0 ]
           ∇ = ∇₁ ∙⟨ opa (ε ¹) ⟩[ zero ∷ defn 0 ]
-          ∇′ = ∇₁ ∙⟨ tra ⟩[ zero ∷ defn 0 ]
-          ∇₁⊢ε = ε ∙ᵒ⟨ ok , ε ⟩[ ℕⱼ εε ∷ Uⱼ εε ]
+          ∇₁⊢ε = ε ∙ᵒ⟨ ok ⟩[ ℕⱼ εε ∷ Uⱼ εε ]
           ∇₁ᵗ⊢ε = ε ∙ᵗ[ ℕⱼ εε ]
-          »∇ = ∙ᵒ⟨ ok , ε ! ¹ᵒ ⟩[
+          »∇ = ∙ᵒ⟨ ok ⟩[
             conv (zeroⱼ ∇₁ᵗ⊢ε) (sym (univ (δ-red ∇₁ᵗ⊢ε here PE.refl PE.refl))) ∷
             univ (defn ∇₁⊢ε here PE.refl) ]
-          not »∇′ = ℕ≢ne {V = Lift _ ⊤} ⦃ ε ⦄
-                         (defn (there here))
-                         (sym (inversion-zero (wf-↦∷∈ here »∇′)))
-      in  ∇ , ∇′ , ε ⁰ ¹ , (ε ⁰ !) ¹ᵒ , »∇ , not
+          not »Trans-∇ =
+            ℕ≢ne {V = Lift _ ⊤} ⦃ ok = ε ⦄
+              (defn
+                 (there
+                    (PE.subst (_↦⊘∷_∈_ _ (U 0) ∘→ flip Trans _)
+                       (PE.sym $ ⊔ᵒᵗ≡const mode-eq) here)))
+              (sym (inversion-zero (wf-↦∷∈ here »Trans-∇)))
+      in  ∇ , ε ⁰ ¹ , »∇ , not
 
 module Transitive (mode-eq : unfolding-mode PE.≡ transitive) where
 
@@ -470,78 +481,46 @@ module Transitive (mode-eq : unfolding-mode PE.≡ transitive) where
       φ′ ⊔ᵒ φ   ≡˘⟨ ⊔ᵒᵗ≡⊔ᵒ mode-eq ⟩
       φ′ ⊔ᵒᵗ φ  ∎
 
-  private opaque
+  private
 
-    a1[23] : (φ φ′ φ″ : Unfolding n) → φ ⊔ᵒᵗ (φ′ ⊔ᵒᵗ φ″) PE.≡ (φ ⊔ᵒ φ′) ⊔ᵒᵗ φ″
-    a1[23] φ φ′ φ″ = begin
-      φ ⊔ᵒᵗ (φ′ ⊔ᵒᵗ φ″)  ≡⟨ assoc-⊔ᵒᵗ φ φ′ φ″ ⟩
-      (φ ⊔ᵒᵗ φ′) ⊔ᵒᵗ φ″  ≡⟨ PE.cong (_⊔ᵒᵗ φ″) (⊔ᵒᵗ≡⊔ᵒ mode-eq) ⟩
-      (φ ⊔ᵒ φ′) ⊔ᵒᵗ φ″   ∎
+    -- A module used in the implementation of unfold-» below.
 
-  private opaque
-
-    a[13]2 : (φ φ′ φ″ : Unfolding n) → (φ ⊔ᵒᵗ φ″) ⊔ᵒᵗ φ′ PE.≡ (φ ⊔ᵒ φ′) ⊔ᵒᵗ φ″
-    a[13]2 φ φ′ φ″ = begin
-      (φ ⊔ᵒᵗ φ″) ⊔ᵒᵗ φ′  ≡˘⟨ assoc-⊔ᵒᵗ φ φ″ φ′ ⟩
-      φ ⊔ᵒᵗ (φ″ ⊔ᵒᵗ φ′)  ≡⟨ PE.cong (φ ⊔ᵒᵗ_) (comm-⊔ᵒᵗ φ″ φ′) ⟩
-      φ ⊔ᵒᵗ (φ′ ⊔ᵒᵗ φ″)  ≡⟨ assoc-⊔ᵒᵗ φ φ′ φ″ ⟩
-      (φ ⊔ᵒᵗ φ′) ⊔ᵒᵗ φ″  ≡⟨ PE.cong (_⊔ᵒᵗ φ″) (⊔ᵒᵗ≡⊔ᵒ mode-eq) ⟩
-      (φ ⊔ᵒ φ′) ⊔ᵒᵗ φ″   ∎
+    module U {n} {∇ : DCon (Term 0) n} {φ : Unfolding n}
+             (unfold-» : » ∇ → » Trans φ ∇) =
+      Unconditional unfold-»
 
   opaque
+    unfolding Trans
 
-    join-»↜ : φ » ∇′ ↜ ∇ → φ′ » ∇″ ↜ ∇′ → φ ⊔ᵒᵗ φ′ » ∇″ ↜ ∇
-    join-»↜ φ↜ φ′↜ =
-      PE.subst (_» _ ↜ _) (PE.sym (⊔ᵒᵗ≡⊔ᵒ mode-eq)) (join′ φ↜ φ′↜)
-      where
-      join′ : φ » ∇′ ↜ ∇ → φ′ » ∇″ ↜ ∇′ → φ ⊔ᵒ φ′ » ∇″ ↜ ∇
-      join′ ε ε = ε
-      join′ (φ↜ ⁰) (φ′↜ ⁰) = join′ φ↜ φ′↜ ⁰
-      join′ (φ↜ ⁰) (φ′↜ ¹ᵒ) =
-        PE.subst (_» _ ↜ _) (a1[23] _ _ _) (join-»↜ φ↜ φ′↜) ¹ᵒ
-      join′ (φ↜ ⁰) (φ′↜ ¹ᵗ) = join′ φ↜ φ′↜ ¹ᵗ
-      join′ (φ↜ ¹ᵒ) (φ′↜ ⁰) =
-        PE.subst (_» _ ↜ _) (a[13]2 _ _ _) (join-»↜ φ↜ φ′↜) ¹ᵒ
-      join′ (φ↜ ¹ᵒ) (φ′↜ ¹ᵗ) =
-        PE.subst (_» _ ↜ _) (a[13]2 _ _ _) (join-»↜ φ↜ φ′↜) ¹ᵒ
-      join′ (φ↜ ¹ᵗ) (φ′↜ ⁰) = join′ φ↜ φ′↜ ¹ᵗ
-      join′ (φ↜ ¹ᵗ) (φ′↜ ¹ᵗ) = join′ φ↜ φ′↜ ¹ᵗ
+    -- If ∇ is well-formed, then Trans φ ∇ is well-formed.
 
-  opaque
-
-    unjoin-»↜ : φ′ ⊔ᵒᵗ φ » ∇″ ↜ ∇ → φ » ∇′ ↜ ∇ → φ′ » ∇″ ↜ ∇′
-    unjoin-»↜ φ′φ↜ φ↜ =
-      unjoin′ (PE.subst (_» _ ↜ _) (⊔ᵒᵗ≡⊔ᵒ mode-eq) φ′φ↜) φ↜
-      where
-      unjoin′ : φ′ ⊔ᵒ φ » ∇″ ↜ ∇ → φ » ∇′ ↜ ∇ → φ′ » ∇″ ↜ ∇′
-      unjoin′ {φ′ = ε} {φ = ε} ε ε = ε
-      unjoin′ {φ′ = φ′ ⁰} {φ = φ ⁰} (φ′φ↜ ⁰) (φ↜ ⁰) = unjoin′ φ′φ↜ φ↜ ⁰
-      unjoin′ {φ′ = φ′ ¹} {φ = φ ⁰} (φ′φ↜ ¹ᵒ) (φ↜ ⁰) =
-        unjoin-»↜ (PE.subst (_» _ ↜ _) (PE.sym (a[13]2 _ _ _)) φ′φ↜) φ↜ ¹ᵒ
-      unjoin′ {φ′ = φ′ ¹} {φ = φ ⁰} (φ′φ↜ ¹ᵗ) (φ↜ ⁰) = unjoin′ φ′φ↜ φ↜ ¹ᵗ
-      unjoin′ {φ′ = φ′ ⁰} {φ = φ ¹} (φ′φ↜ ¹ᵒ) (φ↜ ¹ᵒ) =
-        unjoin-»↜ (PE.subst (_» _ ↜ _) (PE.sym (a1[23] _ _ _)) φ′φ↜) φ↜ ⁰
-      unjoin′ {φ′ = φ′ ⁰} {φ = φ ¹} (φ′φ↜ ¹ᵗ) (φ↜ ¹ᵗ) = unjoin′ φ′φ↜ φ↜ ⁰
-      unjoin′ {φ′ = φ′ ¹} {φ = φ ¹} (φ′φ↜ ¹ᵒ) (φ↜ ¹ᵒ) =
-        unjoin-»↜ (PE.subst (_» _ ↜ _) (PE.sym (a1[23] _ _ _)) φ′φ↜) φ↜ ¹ᵗ
-      unjoin′ {φ′ = φ′ ¹} {φ = φ ¹} (φ′φ↜ ¹ᵗ) (φ↜ ¹ᵗ) = unjoin′ φ′φ↜ φ↜ ¹ᵗ
-
-  -- If ∇′ is a transparentisation of the well-formed definition
-  -- context ∇, then ∇′ is well-formed.
-
-  unfold-» : φ » ∇′ ↜ ∇ → » ∇ → » ∇′
+    unfold-» : » ∇ → » Trans φ ∇
+    unfold-» ε =
+      ε
+    unfold-» ∙ᵗ[ ⊢t ] =
+      ∙ᵗ[ U.unfold-⊢∷ unfold-» ⊢t ]
+    unfold-» {φ = φ ⁰} (∙ᵒ⟨_⟩[_∷_] {φ = φ′} {∇} ok ⊢t ⊢A) =
+      ∙ᵒ⟨ ok ⟩[ PE.subst₃ _⊢_∷_
+                  (PE.cong (_» _)
+                     (Trans φ (Trans φ′ ∇)  ≡⟨ Trans-trans ⟩
+                      Trans (φ′ ⊔ᵒ φ) ∇     ≡⟨ PE.cong (flip Trans _) $ comm-⊔ᵒ _ _ ⟩
+                      Trans (φ ⊔ᵒ φ′) ∇     ≡˘⟨ Trans-trans ⟩
+                      Trans φ′ (Trans φ ∇)  ∎))
+                  PE.refl PE.refl $
+                U.unfold-⊢∷ unfold-» ⊢t
+              ∷ U.unfold-⊢ unfold-» ⊢A
+              ]
+    unfold-» {φ = φ ¹} (∙ᵒ⟨_⟩[_∷_] {φ = φ′} {∇} ok ⊢t ⊢A) =
+      ∙ᵗ[ PE.subst₃ _⊢_∷_
+            (PE.cong (_» _)
+               (Trans φ (Trans φ′ ∇)  ≡⟨ Trans-transᵗ mode-eq ⟩
+                Trans (φ′ ⊔ᵒᵗ φ) ∇    ≡⟨ PE.cong (flip Trans _) $ comm-⊔ᵒᵗ _ _ ⟩
+                Trans (φ ⊔ᵒᵗ φ′) ∇    ∎))
+            PE.refl PE.refl $
+          U.unfold-⊢∷ unfold-» ⊢t
+        ]
 
   -- Other preservation lemmas related to transparentisation.
 
-  module _ (φ» : φ » ∇′ ↜ ∇) where
-    open Unconditional φ» (unfold-» φ») public
-
-  unfold-» ε       ε                         = ε
-  unfold-» (φ↜ ⁰)  ∙ᵒ⟨ ok , φ′↜ ⟩[ ⊢t ∷ ⊢A ] =
-    let _ , φ″↜ = total-»↜ _ _
-    in  ∙ᵒ⟨ ok , φ″↜ ⟩[ unfold-⊢∷ (unjoin-»↜ (join-»↜ φ↜ φ″↜) φ′↜) ⊢t
-                      ∷ unfold-⊢ φ↜ ⊢A
-                      ]
-  unfold-» (φ↜ ¹ᵒ) ∙ᵒ⟨ ok , φ′↜ ⟩[ ⊢t ∷ ⊢A ] = ∙ᵗ[ unfold-⊢∷ (unjoin-»↜ φ↜ φ′↜) ⊢t ]
-  unfold-» (φ↜ ⁰)              ∙ᵗ[ ⊢t      ] = ∙ᵗ[ unfold-⊢∷ φ↜ ⊢t ]
-  unfold-» (φ↜ ¹ᵗ)             ∙ᵗ[ ⊢t      ] = ∙ᵗ[ unfold-⊢∷ φ↜ ⊢t ]
+  module _ {∇ : DCon (Term 0) n} {φ : Unfolding n} where
+    open Unconditional (unfold-» {∇ = ∇} {φ = φ}) public

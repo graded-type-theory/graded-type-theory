@@ -127,9 +127,9 @@ opaque
     ⊢→Names< (wf-⊢∷ ⊢t)
   ↦∷→Names< ∙ᵗ[ ⊢t ] (there α↦) =
     ↦∷→Names< (defn-wf (wfTerm ⊢t)) α↦
-  ↦∷→Names< ∙ᵒ⟨ _ , _ ⟩[ _ ∷ ⊢A ] here =
+  ↦∷→Names< ∙ᵒ⟨ _ ⟩[ _ ∷ ⊢A ] here =
     ⊢→Names< ⊢A
-  ↦∷→Names< ∙ᵒ⟨ _ , _ ⟩[ _ ∷ ⊢A ] (there α↦) =
+  ↦∷→Names< ∙ᵒ⟨ _ ⟩[ _ ∷ ⊢A ] (there α↦) =
     ↦∷→Names< (defn-wf (wf ⊢A)) α↦
 
 opaque
@@ -143,7 +143,7 @@ opaque
     ⊢∷→Names< ⊢t
   ↦→Names< ∙ᵗ[ ⊢t ] (there α↦) =
     ↦→Names< (defn-wf (wfTerm ⊢t)) α↦
-  ↦→Names< ∙ᵒ⟨ _ , _ ⟩[ _ ∷ ⊢A ] (there α↦) =
+  ↦→Names< ∙ᵒ⟨ _ ⟩[ _ ∷ ⊢A ] (there α↦) =
     ↦→Names< (defn-wf (wf ⊢A)) α↦
 
 opaque

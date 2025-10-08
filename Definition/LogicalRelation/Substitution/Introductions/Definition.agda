@@ -59,7 +59,7 @@ opaque
     »ᵛ ∇ ×
     Opacity-allowed ×
     (∃ λ l → ∇ » ε ⊩ᵛ⟨ l ⟩ A ×
-    (∃ λ ∇′ → φ » ∇′ ↜ ∇ × ∇′ » ε ⊩ᵛ⟨ l ⟩ t ∷ A))
+     (Trans φ ∇ » ε ⊩ᵛ⟨ l ⟩ t ∷ A))
   »ᵛ (∇ ∙⟨ tra ⟩[ t ∷ A ]) = »ᵛ ∇ × ∃ λ l → ∇ » ε ⊩ᵛ⟨ l ⟩ t ∷ A
 
 opaque
@@ -80,7 +80,7 @@ opaque
     (»ᵛ ∇ ×
      Opacity-allowed ×
      (∃ λ l → ∇ » ε ⊩ᵛ⟨ l ⟩ A ×
-      (∃ λ ∇′ → φ » ∇′ ↜ ∇ × ∇′ » ε ⊩ᵛ⟨ l ⟩ t ∷ A)))
+      (Trans φ ∇ » ε ⊩ᵛ⟨ l ⟩ t ∷ A)))
   »ᵛ∙ᵒ⇔ = id⇔
 
 opaque
@@ -99,11 +99,10 @@ opaque
     »ᵛ ∇ →
     Opacity-allowed →
     ∇ » ε ⊩ᵛ⟨ l ⟩ A →
-    φ » ∇′ ↜ ∇ →
-    ∇′ » ε ⊩ᵛ⟨ l′ ⟩ t ∷ A →
+    Trans φ ∇ » ε ⊩ᵛ⟨ l′ ⟩ t ∷ A →
     »ᵛ ∇ ∙⟨ opa φ ⟩[ t ∷ A ]
-  »ᵛ-∙ᵒ-intro {l} {∇′} {l′} »∇ ok ⊩A φ↜ ⊩t = »ᵛ∙ᵒ⇔ .proj₂
-    (»∇ , ok , l ⊔ l′ , emb-⊩ᵛ ≤ᵘ⊔ᵘˡ ⊩A , ∇′ , φ↜ , emb-⊩ᵛ∷ ≤ᵘ⊔ᵘʳ ⊩t)
+  »ᵛ-∙ᵒ-intro {l} {l′} »∇ ok ⊩A ⊩t = »ᵛ∙ᵒ⇔ .proj₂
+    (»∇ , ok , l ⊔ l′ , emb-⊩ᵛ ≤ᵘ⊔ᵘˡ ⊩A , emb-⊩ᵛ∷ ≤ᵘ⊔ᵘʳ ⊩t)
 
 opaque
 
@@ -124,15 +123,15 @@ opaque
   wf-↦∈ᵛ : α ↦∷ A ∈ ∇ → »ᵛ ∇ → ∃ λ l → ∇ » ε ⊩ᵛ⟨ l ⟩ A
   wf-↦∈ᵛ {∇ = ε} ()
   wf-↦∈ᵛ {∇ = ∇ ∙⟨ opa φ ⟩[ t ∷ A ]} here »∇ =
-    let _ , ok , l , ⊩A , _ , φ↜ , ⊩t = »ᵛ∙ᵒ⇔ .proj₁ »∇
-    in  l , defn-wk-⊩ᵛ (stepᵒ₁ ok (escape-⊩ᵛ ⊩A) φ↜ (escape-⊩ᵛ∷ ⊩t)) ⊩A
+    let _ , ok , l , ⊩A , ⊩t = »ᵛ∙ᵒ⇔ .proj₁ »∇
+    in  l , defn-wk-⊩ᵛ (stepᵒ₁ ok (escape-⊩ᵛ ⊩A) (escape-⊩ᵛ∷ ⊩t)) ⊩A
   wf-↦∈ᵛ {∇ = ∇ ∙⟨ tra ⟩[ t ∷ A ]} here »∇ =
     let _ , l , ⊩t = »ᵛ∙ᵗ⇔ .proj₁ »∇
     in  l , defn-wk-⊩ᵛ (stepᵗ₁ (escape-⊩ᵛ∷ ⊩t)) (wf-⊩ᵛ∷ ⊩t)
   wf-↦∈ᵛ {∇ = ∇ ∙⟨ opa φ ⟩[ t ∷ A ]} (there α↦t) »∇ =
-    let »∇′ , ok , _ , ⊩B , _ , φ↜ , ⊩u = »ᵛ∙ᵒ⇔ .proj₁ »∇
+    let »∇′ , ok , _ , ⊩B , ⊩u = »ᵛ∙ᵒ⇔ .proj₁ »∇
         l , ⊩A = wf-↦∈ᵛ α↦t »∇′
-    in  l , defn-wk-⊩ᵛ (stepᵒ₁ ok (escape-⊩ᵛ ⊩B) φ↜ (escape-⊩ᵛ∷ ⊩u)) ⊩A
+    in  l , defn-wk-⊩ᵛ (stepᵒ₁ ok (escape-⊩ᵛ ⊩B) (escape-⊩ᵛ∷ ⊩u)) ⊩A
   wf-↦∈ᵛ {∇ = ∇ ∙⟨ tra ⟩[ t ∷ A ]} (there α↦t) »∇ =
     let »∇′ , _ , ⊩u = »ᵛ∙ᵗ⇔ .proj₁ »∇
         l , ⊩A = wf-↦∈ᵛ α↦t »∇′
@@ -148,9 +147,9 @@ opaque
     let _ , l , ⊩t = »ᵛ∙ᵗ⇔ .proj₁ »∇
     in  l , defn-wk-⊩ᵛ∷ (stepᵗ₁ (escape-⊩ᵛ∷ ⊩t)) ⊩t
   wf-↦∷∈ᵛ {∇ = ∇ ∙⟨ opa φ ⟩[ t ∷ A ]} (there α↦t) »∇ =
-    let »∇′ , ok , _ , ⊩B , _ , φ↜ , ⊩u = »ᵛ∙ᵒ⇔ .proj₁ »∇
+    let »∇′ , ok , _ , ⊩B , ⊩u = »ᵛ∙ᵒ⇔ .proj₁ »∇
         l , ⊩t = wf-↦∷∈ᵛ α↦t »∇′
-    in  l , defn-wk-⊩ᵛ∷ (stepᵒ₁ ok (escape-⊩ᵛ ⊩B) φ↜ (escape-⊩ᵛ∷ ⊩u)) ⊩t
+    in  l , defn-wk-⊩ᵛ∷ (stepᵒ₁ ok (escape-⊩ᵛ ⊩B) (escape-⊩ᵛ∷ ⊩u)) ⊩t
   wf-↦∷∈ᵛ {∇ = ∇ ∙⟨ tra ⟩[ t ∷ A ]} (there α↦t) »∇ =
     let »∇′ , _ , ⊩u = »ᵛ∙ᵗ⇔ .proj₁ »∇
         l , ⊩t = wf-↦∷∈ᵛ α↦t »∇′
@@ -163,8 +162,8 @@ opaque
   escape-»ᵛ : »ᵛ ∇ → » ∇
   escape-»ᵛ {∇ = ε} »∇ = ε
   escape-»ᵛ {∇ = ∇ ∙⟨ opa φ ⟩[ t ∷ A ]} »∇ =
-    let _ , ok , _ , ⊩A , _ , φ↜ , ⊩t = »ᵛ∙ᵒ⇔ .proj₁ »∇
-    in  ∙ᵒ⟨ ok , φ↜ ⟩[ escape-⊩ᵛ∷ ⊩t ∷ escape-⊩ᵛ ⊩A ]
+    let _ , ok , _ , ⊩A , ⊩t = »ᵛ∙ᵒ⇔ .proj₁ »∇
+    in  ∙ᵒ⟨ ok ⟩[ escape-⊩ᵛ∷ ⊩t ∷ escape-⊩ᵛ ⊩A ]
   escape-»ᵛ {∇ = ∇ ∙⟨ tra ⟩[ t ∷ A ]} »∇ =
     ∙ᵗ[ escape-⊩ᵛ∷ (»ᵛ∙ᵗ⇔ .proj₁ »∇ .proj₂ .proj₂) ]
 

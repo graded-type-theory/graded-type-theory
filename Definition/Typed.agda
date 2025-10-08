@@ -24,6 +24,7 @@ open import Tools.Nat
 open import Tools.Product
 import Tools.PropositionalEquality as PE
 open import Tools.Relation
+import Tools.Vec as Vec
 
 infix 24 ∙_
 
@@ -48,27 +49,31 @@ data _∷_∈_ : (x : Fin n) (A : Term n) (Γ : Con Term n) → Set ℓ where
   here  :                 x0 ∷ wk1 A ∈ Γ ∙ A
   there : x ∷ A ∈ Γ → (x +1) ∷ wk1 A ∈ Γ ∙ B
 
--- Definition context unfolding relation
+opaque
+  unfolding _⊔ᵒ_
 
-_⊔ᵒᵗ_ : Unfolding n → Unfolding n → Unfolding n
-_⊔ᵒᵗ_ with unfolding-mode
-...      | explicit   = λ φ _ → φ
-...      | transitive = _⊔ᵒ_
+  infixl 5 _⊔ᵒᵗ_
 
-⊔ᵒᵗ-rec : ∀ {ℓ} {P : Unfolding n → Set ℓ} → P φ → P (φ ⊔ᵒ φ′) → P (φ ⊔ᵒᵗ φ′)
-⊔ᵒᵗ-rec d t with unfolding-mode
-...            | explicit   = d
-...            | transitive = t
+  -- Definition context unfolding.
 
--- Transparentisation.
+  _⊔ᵒᵗ_ : Unfolding n → Unfolding n → Unfolding n
+  _⊔ᵒᵗ_ with unfolding-mode
+  … | explicit   = λ φ _ → φ
+  … | transitive = _⊔ᵒ_
 
-infix 4 _»_↜_
+opaque
 
-data _»_↜_ : Unfolding n → DCon (Term 0) n → DCon (Term 0) n → Set ℓ where
-  ε   :                     ε   » ε                        ↜ ε
-  _⁰  : φ        » ∇′ ↜ ∇ → φ ⁰ » ∇′ ∙⟨ ω   ⟩[ t ∷ A ] ↜ ∇ ∙⟨ ω      ⟩[ t ∷ A ]
-  _¹ᵒ : φ ⊔ᵒᵗ φ′ » ∇′ ↜ ∇ → φ ¹ » ∇′ ∙⟨ tra ⟩[ t ∷ A ] ↜ ∇ ∙⟨ opa φ′ ⟩[ t ∷ A ]
-  _¹ᵗ : φ        » ∇′ ↜ ∇ → φ ¹ » ∇′ ∙⟨ tra ⟩[ t ∷ A ] ↜ ∇ ∙⟨ tra    ⟩[ t ∷ A ]
+  -- Transparentisation.
+
+  Trans : Unfolding n → DCon (Term 0) n → DCon (Term 0) n
+  Trans _ ε =
+    ε
+  Trans φ (∇ ∙⟨ tra ⟩[ t ∷ A ]) =
+    Trans (Vec.tail φ) ∇ ∙⟨ tra ⟩[ t ∷ A ]
+  Trans (φ ⁰) (∇ ∙⟨ ω ⟩[ t ∷ A ]) =
+    Trans φ ∇ ∙⟨ ω ⟩[ t ∷ A ]
+  Trans (φ ¹) (∇ ∙⟨ opa φ′ ⟩[ t ∷ A ]) =
+    Trans (φ ⊔ᵒᵗ φ′) ∇ ∙⟨ tra ⟩[ t ∷ A ]
 
 mutual
 
@@ -77,11 +82,13 @@ mutual
   infix 4 »_
 
   data »_ : DCon (Term 0) m → Set ℓ where
-    ε            : » ε
-    ∙ᵒ⟨_,_⟩[_∷_] : Opacity-allowed
-                 → φ » ∇′ ↜ ∇
-                 → ∇′ » ε ⊢ t ∷ A → ∇ » ε ⊢ A → » ∇ ∙⟨ opa φ ⟩[ t ∷ A ]
-    ∙ᵗ[_]        : ∇  » ε ⊢ t ∷ A → {- by WF -} » ∇ ∙⟨ tra   ⟩[ t ∷ A ]
+    ε          : » ε
+    ∙ᵒ⟨_⟩[_∷_] : Opacity-allowed
+               → Trans φ ∇ » ε ⊢ t ∷ A
+               → ∇ » ε ⊢ A
+               → » ∇ ∙⟨ opa φ ⟩[ t ∷ A ]
+    ∙ᵗ[_]      : ∇ » ε ⊢ t ∷ A
+               → » ∇ ∙⟨ tra ⟩[ t ∷ A ]
 
   -- Well-formed contexts.
 

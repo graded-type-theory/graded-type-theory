@@ -75,6 +75,7 @@ open import Tools.Relation
 open import Tools.PropositionalEquality as PE using (_≢_)
 open import Tools.Sum
 open import Tools.Unit
+open import Tools.Vec using (ε)
 
 private
   variable
@@ -578,6 +579,7 @@ opaque
     open ≤ᶜ-reasoning
 
 opaque
+  unfolding Trans
 
   -- If opacity is allowed, then there is a counterexample to
   -- soundness-ℕ-only-source with glassify ∇ replaced by ∇ (and
@@ -601,7 +603,7 @@ opaque
     (¬ ∃ λ n → ∇ » Δ ⊢ t ⇒ˢ* sucᵏ n ∷ℕ) ×
     (¬ ∃ λ n → ∇ » Δ ⊢ t ≡ sucᵏ n ∷ ℕ)
   soundness-ℕ-only-source-counterexample₇ ok =
-    let ∇»⊢Δ = ε ∙ᵒ⟨ ok , ε ⟩[ zeroⱼ εε ∷ ℕⱼ εε ] in
+    let ∇»⊢Δ = ε ∙ᵒ⟨ ok ⟩[ zeroⱼ εε ∷ ℕⱼ εε ] in
     inhabited-consistent (⊢ˢʷ∷-idSubst ∇»⊢Δ) ,
     ε ,
     defn ∇»⊢Δ here PE.refl ,
@@ -914,7 +916,7 @@ opaque
     ⊢Unitʷ ⊢Γ = Unitⱼ ⊢Γ Unit-ok
 
 opaque
-  unfolding eraseDCon′
+  unfolding Trans eraseDCon′
 
   soundness-ℕ-only-target-not-counterexample₇ :
     Opacity-allowed →
@@ -923,19 +925,17 @@ opaque
       ε
       (defn 0)
   soundness-ℕ-only-target-not-counterexample₇ ok =
-    let ∇»⊢ε      = ε ∙ᵒ⟨ ok , ε ⟩[ zeroⱼ εε ∷ ℕⱼ εε ]
-        zero←zero = PE.subst (_» _ ↜ _) (PE.sym ε-⊔ᵒᵗ) ε ¹ᵒ
-        ⊢Id       = Idⱼ′ (defn ∇»⊢ε here PE.refl) (zeroⱼ ∇»⊢ε)
-        ⊢rfl      = rflⱼ′ $
-                    δ-red (glassify-⊢′ ∇»⊢ε) here PE.refl PE.refl
+    let ∇»⊢ε = ε ∙ᵒ⟨ ok ⟩[ zeroⱼ εε ∷ ℕⱼ εε ]
+        ⊢Id  = Idⱼ′ (defn ∇»⊢ε here PE.refl) (zeroⱼ ∇»⊢ε)
+        ⊢rfl = rflⱼ′ $ δ-red (glassify-⊢′ ∇»⊢ε) here PE.refl PE.refl
     in
     0 ,
     ⇒*→⇒ˢ⟨⟩* (T.trans (T.δ-red T.here) T.refl) ,
     defn 1 ,
     2 ,
     Opaque[ zero ∷ ℕ ] ∙⟨ opa (ε ¹) ⟩[ rfl ∷ Id ℕ (defn 0) zero ] ,
-    stepᵒ₁ ok ⊢Id zero←zero ⊢rfl ,
-    defn (ε ∙ᵒ⟨ ok , zero←zero ⟩[ ⊢rfl ∷ ⊢Id ]) here PE.refl
+    stepᵒ₁ ok ⊢Id ⊢rfl ,
+    defn (ε ∙ᵒ⟨ ok ⟩[ ⊢rfl ∷ ⊢Id ]) here PE.refl
 
 -- A variant of run-time canonicity that uses erase′ true instead of
 -- erase (and eraseDCon′ true instead of eraseDCon).

@@ -17,6 +17,7 @@ open import Tools.PropositionalEquality as PE
 open import Tools.Reasoning.PropositionalEquality
 open import Tools.Relation
 open import Tools.Sum
+open import Tools.Vec using (ε)
 
 private
   variable
@@ -127,8 +128,9 @@ opaque
 -- Properties of unfoldings
 
 opaque
+  unfolding ones _⊔ᵒ_
 
-  ones-⊔ᵒ : (φ : Unfolding n) → ones n ⊔ᵒ φ ≡ ones n
+  ones-⊔ᵒ : (φ : Unfolding n) → ones ⊔ᵒ φ ≡ ones
   ones-⊔ᵒ ε     = refl
   ones-⊔ᵒ (φ ⁰) = cong _¹ (ones-⊔ᵒ φ)
   ones-⊔ᵒ (φ ¹) = cong _¹ (ones-⊔ᵒ φ)

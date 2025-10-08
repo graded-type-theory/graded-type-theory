@@ -39,6 +39,7 @@ open import Tools.Product as Σ
 import Tools.PropositionalEquality as PE
 open import Tools.Relation
 open import Tools.Sum
+open import Tools.Vec using (ε)
 
 private
   variable
@@ -108,6 +109,7 @@ opaque
     glassify ∇ » ε ⊢ t ≡ u ∷ A            □
 
 opaque
+  unfolding Trans
 
   -- In a non-glass empty context, Id A t u being inhabited is not
   -- sufficient to conclude definitional equality.
@@ -119,7 +121,7 @@ opaque
   ε⊢∷Id↛ε⊢≡∷ ok =
     let ∇ = ε ∙⟨ opa ε     ⟩[ zero ∷ ℕ ]
               ∙⟨ opa (ε ¹) ⟩[ rfl  ∷ Id ℕ zero (defn 0) ]
-        ⊢ε = ε ∙ᵒ⟨ ok , ε ⟩[ zeroⱼ εε ∷ ℕⱼ εε ]
+        ⊢ε = ε ∙ᵒ⟨ ok ⟩[ zeroⱼ εε ∷ ℕⱼ εε ]
         ⊢εᵗ = ε ∙ᵗ[ zeroⱼ εε ]
         ⊢Id = Idⱼ (ℕⱼ ⊢ε) (zeroⱼ ⊢ε) (defn ⊢ε here PE.refl)
         ⊢α₀ = defn ⊢εᵗ here PE.refl
@@ -127,7 +129,6 @@ opaque
                     (Id-cong (refl (ℕⱼ ⊢εᵗ))
                              (δ-red ⊢εᵗ here PE.refl PE.refl)
                              (refl ⊢α₀))
-        φ₁ = PE.subst (_» ε ↜ ε) (PE.sym ε-⊔ᵒᵗ) ε ¹ᵒ
-        ⊢α₁ = defn (ε ∙ᵒ⟨ ok , φ₁ ⟩[ ⊢rfl ∷ ⊢Id ]) here PE.refl
+        ⊢α₁ = defn (ε ∙ᵒ⟨ ok ⟩[ ⊢rfl ∷ ⊢Id ]) here PE.refl
         not = I.zero≢ne ⦃ ok = ε ⦄ _ (defn⁺ (there here))
     in  ∇ , ℕ , zero , defn 0 , defn 1 , ⊢α₁ , not

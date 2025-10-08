@@ -27,16 +27,18 @@ open import Tools.Level
 open import Tools.Nat
 open import Tools.Product
 import Tools.PropositionalEquality as PE
+open import Tools.Reasoning.PropositionalEquality
 open import Tools.Relation
 open import Tools.Sum
+open import Tools.Vec as Vec using (ε)
 
 private variable
-  α n     : Nat
-  ∇ ∇′ ∇″ : DCon _ _
-  Γ       : Con _ _
-  A B t u : Term _
-  V       : Set a
-  φ φ₁ φ₂ : Unfolding _
+  α n              : Nat
+  ∇ ∇′ ∇″ ∇₁ ∇₂ ∇₃ : DCon _ _
+  Γ                : Con _ _
+  A B t u          : Term _
+  V                : Set a
+  φ φ₁ φ₂ φ₃       : Unfolding _
 
 ------------------------------------------------------------------------
 -- Lemmas about opacity
@@ -44,12 +46,12 @@ private variable
 opaque
 
   opaque-ok : » ∇ → α ↦⊘∷ A ∈ ∇ → Opacity-allowed
-  opaque-ok ε                       ()
-  opaque-ok ∙ᵒ⟨ ok , _ ⟩[ _  ∷ ⊢A ] here =
+  opaque-ok ε                   ()
+  opaque-ok ∙ᵒ⟨ ok ⟩[ _  ∷ ⊢A ] here =
     ok
   opaque-ok ∙ᵗ[ ⊢t ] (there α↦⊘) =
     opaque-ok (defn-wf (wfTerm ⊢t)) α↦⊘
-  opaque-ok ∙ᵒ⟨ ok , _ ⟩[ _  ∷ ⊢A ] (there α↦⊘) =
+  opaque-ok ∙ᵒ⟨ ok ⟩[ _  ∷ ⊢A ] (there α↦⊘) =
     opaque-ok (defn-wf (wf ⊢A)) α↦⊘
 
 opaque
@@ -76,7 +78,7 @@ opaque
   »→Transparent : ¬ Opacity-allowed → » ∇ → Transparent ∇
   »→Transparent _ ε =
     PE.refl
-  »→Transparent no-opacity ∙ᵒ⟨ allowed , _ ⟩[ _ ∷ _ ] =
+  »→Transparent no-opacity ∙ᵒ⟨ allowed ⟩[ _ ∷ _ ] =
     ⊥-elim $ no-opacity allowed
   »→Transparent no-opacity ∙ᵗ[ ⊢t ] =
     PE.cong _∙! $
@@ -86,6 +88,19 @@ opaque
 -- Lemmas about unfoldings
 
 opaque
+  unfolding _⊔ᵒᵗ_
+
+  -- A lemma that can be used to prove properties about _⊔ᵒᵗ_.
+
+  ⊔ᵒᵗ-rec :
+    (P : (∀ {n} → Unfolding n → Unfolding n → Unfolding n) → Set a) →
+    P _⊔ᵒ_ → P (λ φ _ → φ) → P _⊔ᵒᵗ_
+  ⊔ᵒᵗ-rec _ pᵗ pᵉ with unfolding-mode
+  … | transitive = pᵗ
+  … | explicit   = pᵉ
+
+opaque
+  unfolding _⊔ᵒᵗ_
 
   -- If the transitive unfolding mode is used, then _⊔ᵒᵗ_ is pointwise
   -- equal to _⊔ᵒ_.
@@ -98,6 +113,7 @@ opaque
   ⊔ᵒᵗ≡⊔ᵒ () | explicit
 
 opaque
+  unfolding _⊔ᵒᵗ_
 
   -- If the explicit unfolding mode is used, then φ₁ ⊔ᵒᵗ φ₂ is equal
   -- to φ₁.
@@ -110,6 +126,7 @@ opaque
   ⊔ᵒᵗ≡const () | transitive
 
 opaque
+  unfolding _⊔ᵒᵗ_
 
   ε-⊔ᵒᵗ : ε ⊔ᵒᵗ ε PE.≡ ε
   ε-⊔ᵒᵗ with unfolding-mode
@@ -117,6 +134,7 @@ opaque
   ...      | transitive = PE.refl
 
 opaque
+  unfolding _⊔ᵒ_
 
   assoc-⊔ᵒ :
     (φ φ′ φ″ : Unfolding n) → φ ⊔ᵒ (φ′ ⊔ᵒ φ″) PE.≡ (φ ⊔ᵒ φ′) ⊔ᵒ φ″
@@ -131,6 +149,7 @@ opaque
   assoc-⊔ᵒ (φ ¹) (φ′ ¹) (φ″ ¹) = PE.cong _¹ (assoc-⊔ᵒ φ φ′ φ″)
 
 opaque
+  unfolding _⊔ᵒ_
 
   comm-⊔ᵒ : (φ φ′ : Unfolding n) → φ ⊔ᵒ φ′ PE.≡ φ′ ⊔ᵒ φ
   comm-⊔ᵒ ε ε = PE.refl
@@ -140,6 +159,7 @@ opaque
   comm-⊔ᵒ (φ ¹) (φ′ ¹) = PE.cong _¹ (comm-⊔ᵒ φ φ′)
 
 opaque
+  unfolding _⊔ᵒᵗ_
 
   assoc-⊔ᵒᵗ :
     (φ φ′ φ″ : Unfolding n) → φ ⊔ᵒᵗ (φ′ ⊔ᵒᵗ φ″) PE.≡ (φ ⊔ᵒᵗ φ′) ⊔ᵒᵗ φ″
@@ -148,8 +168,9 @@ opaque
   ...          | transitive = assoc-⊔ᵒ φ φ′ φ″
 
 opaque
+  unfolding ones _⊔ᵒᵗ_
 
-  ones-⊔ᵒᵗ : (φ : Unfolding n) → ones n ⊔ᵒᵗ φ PE.≡ ones n
+  ones-⊔ᵒᵗ : (φ : Unfolding n) → ones ⊔ᵒᵗ φ PE.≡ ones
   ones-⊔ᵒᵗ with unfolding-mode
   ...         | explicit   = λ _ → PE.refl
   ...         | transitive = ones-⊔ᵒ
@@ -158,56 +179,129 @@ opaque
 -- Lemmas about transparentisation
 
 opaque
+  unfolding Trans ones
 
-  ones-»↜ : (∇ : DCon (Term 0) n) → ones n » glassify ∇ ↜ ∇
-  ones-»↜ ε                       = ε
-  ones-»↜ (∇ ∙⟨ tra   ⟩[ t ∷ A ]) = ones-»↜ ∇ ¹ᵗ
-  ones-»↜ (∇ ∙⟨ opa φ ⟩[ t ∷ A ]) =
-    PE.subst (_» glassify ∇ ↜ ∇) (PE.sym (ones-⊔ᵒᵗ φ)) (ones-»↜ ∇) ¹ᵒ
+  -- Trans ones is pointwise equal to glassify.
+
+  Trans-ones : Trans ones ∇ PE.≡ glassify ∇
+  Trans-ones {∇ = ε} =
+    PE.refl
+  Trans-ones {∇ = _ ∙⟨ tra ⟩!} =
+    PE.cong _∙! Trans-ones
+  Trans-ones {∇ = ∇ ∙⟨ opa φ ⟩!} =
+    PE.cong _∙!
+      (Trans (ones ⊔ᵒᵗ φ) ∇  ≡⟨ PE.cong (flip Trans _) $ ones-⊔ᵒᵗ φ ⟩
+       Trans ones ∇          ≡⟨ Trans-ones ⟩
+       glassify ∇            ∎)
+
+opaque
+  unfolding Trans
+
+  -- If the explicit unfolding mode is used, then Trans does not
+  -- satisfy a certain property that is reminiscent of transitivity.
+
+  ¬-Trans-trans :
+    unfolding-mode PE.≡ explicit →
+    ¬ (∀ {n} (φ₁ φ₂ : Unfolding n) (∇ : DCon (Term 0) n) →
+       Trans φ₂ (Trans φ₁ ∇) PE.≡ Trans (φ₁ ⊔ᵒᵗ φ₂) ∇)
+  ¬-Trans-trans eq hyp =
+    case
+      (ε ∙⟨ tra ⟩[ zero ∷ ℕ ]                                ≡⟨⟩
+       Trans (ε ¹) (Trans (ε ⁰) (ε ∙⟨ opa ε ⟩[ zero ∷ ℕ ]))  ≡⟨ hyp _ _ _ ⟩
+       Trans (ε ⁰ ⊔ᵒᵗ ε ¹) (ε ∙⟨ opa ε ⟩[ zero ∷ ℕ ])        ≡⟨ PE.cong (flip Trans _) $ ⊔ᵒᵗ≡const eq ⟩
+       Trans (ε ⁰) (ε ∙⟨ opa ε ⟩[ zero ∷ ℕ ])                ≡⟨⟩
+       ε ∙⟨ opa ε ⟩[ zero ∷ ℕ ]                              ∎)
+      of λ ()
+
+private opaque
+
+  -- A lemma used below.
+
+  Trans-trans-lemma : (φ₁ ⊔ᵒ φ₃) ⊔ᵒ φ₂ PE.≡ (φ₁ ⊔ᵒ φ₂) ⊔ᵒ φ₃
+  Trans-trans-lemma {φ₁} {φ₃} {φ₂} =
+    (φ₁ ⊔ᵒ φ₃) ⊔ᵒ φ₂  ≡⟨ comm-⊔ᵒ _ _ ⟩
+    φ₂ ⊔ᵒ (φ₁ ⊔ᵒ φ₃)  ≡⟨ assoc-⊔ᵒ _ _ _ ⟩
+    (φ₂ ⊔ᵒ φ₁) ⊔ᵒ φ₃  ≡⟨ PE.cong (_⊔ᵒ _) $ comm-⊔ᵒ _ _ ⟩
+    (φ₁ ⊔ᵒ φ₂) ⊔ᵒ φ₃  ∎
+
+opaque
+  unfolding Trans _⊔ᵒ_
+
+  -- Trans satisfies a property that is reminiscent of transitivity.
+
+  Trans-trans : Trans φ₂ (Trans φ₁ ∇) PE.≡ Trans (φ₁ ⊔ᵒ φ₂) ∇
+  Trans-trans {∇ = ε} =
+    PE.refl
+  Trans-trans
+    {φ₂ = _ Vec.∷ _} {φ₁ = _ Vec.∷ _} {∇ = _ ∙⟨ tra ⟩!} =
+    PE.cong _∙! Trans-trans
+  Trans-trans {φ₂ = _ ⁰} {φ₁ = _ ⁰} {∇ = _ ∙⟨ opa _ ⟩!} =
+    PE.cong _∙! Trans-trans
+  Trans-trans {φ₂ = φ₂ ¹} {φ₁ = φ₁ ⁰} {∇ = ∇ ∙⟨ opa φ₃ ⟩!} =
+    PE.cong _∙! $
+    ⊔ᵒᵗ-rec
+      (λ _⊔_ →
+         Trans (φ₂ ⊔ φ₃) (Trans φ₁ ∇) PE.≡ Trans ((φ₁ ⊔ᵒ φ₂) ⊔ φ₃) ∇)
+      (Trans (φ₂ ⊔ᵒ φ₃) (Trans φ₁ ∇)  ≡⟨ Trans-trans ⟩
+       Trans (φ₁ ⊔ᵒ (φ₂ ⊔ᵒ φ₃)) ∇     ≡⟨ PE.cong (flip Trans _) $ assoc-⊔ᵒ _ _ _ ⟩
+       Trans ((φ₁ ⊔ᵒ φ₂) ⊔ᵒ φ₃) ∇     ∎)
+      Trans-trans
+  Trans-trans {φ₂ = φ₂ ⁰} {φ₁ = φ₁ ¹} {∇ = ∇ ∙⟨ opa φ₃ ⟩!} =
+    PE.cong _∙! $
+    ⊔ᵒᵗ-rec
+      (λ _⊔_ →
+         Trans φ₂ (Trans (φ₁ ⊔ φ₃) ∇) PE.≡ Trans ((φ₁ ⊔ᵒ φ₂) ⊔ φ₃) ∇)
+      (Trans φ₂ (Trans (φ₁ ⊔ᵒ φ₃) ∇)  ≡⟨ Trans-trans ⟩
+       Trans ((φ₁ ⊔ᵒ φ₃) ⊔ᵒ φ₂) ∇     ≡⟨ PE.cong (flip Trans _) Trans-trans-lemma ⟩
+       Trans ((φ₁ ⊔ᵒ φ₂) ⊔ᵒ φ₃) ∇     ∎)
+      Trans-trans
+  Trans-trans {φ₂ = φ₂ ¹} {φ₁ = φ₁ ¹} {∇ = ∇ ∙⟨ opa φ₃ ⟩!} =
+    PE.cong _∙! $
+    ⊔ᵒᵗ-rec
+      (λ _⊔_ →
+         Trans φ₂ (Trans (φ₁ ⊔ φ₃) ∇) PE.≡ Trans ((φ₁ ⊔ᵒ φ₂) ⊔ φ₃) ∇)
+      (Trans φ₂ (Trans (φ₁ ⊔ᵒ φ₃) ∇)  ≡⟨ Trans-trans ⟩
+       Trans ((φ₁ ⊔ᵒ φ₃) ⊔ᵒ φ₂) ∇     ≡⟨ PE.cong (flip Trans _) Trans-trans-lemma ⟩
+       Trans ((φ₁ ⊔ᵒ φ₂) ⊔ᵒ φ₃) ∇     ∎)
+      Trans-trans
 
 opaque
 
-  unique-»↜ : φ » ∇′ ↜ ∇ → φ » ∇″ ↜ ∇ → ∇′ PE.≡ ∇″
-  unique-»↜ ε       ε        = PE.refl
-  unique-»↜ (φ↜ ⁰)  (φ↜′ ⁰)  = PE.cong _ (unique-»↜ φ↜ φ↜′)
-  unique-»↜ (φ↜ ¹ᵒ) (φ↜′ ¹ᵒ) = PE.cong _ (unique-»↜ φ↜ φ↜′)
-  unique-»↜ (φ↜ ¹ᵗ) (φ↜′ ¹ᵗ) = PE.cong _ (unique-»↜ φ↜ φ↜′)
+  -- If the transitive unfolding mode is used, then Trans satisfies a
+  -- property that is reminiscent of transitivity.
 
-opaque
-
-  total-»↜ :
-    (φ : Unfolding n) (∇ : DCon (Term 0) n) → ∃ λ ∇′ → φ » ∇′ ↜ ∇
-  total-»↜ ε ε = ε , ε
-  total-»↜ (φ ⁰) (∇ ∙⟨ ω ⟩[ t ∷ A ]) =
-    let ∇′ , φ↜ = total-»↜ φ ∇
-    in  ∇′ ∙⟨ ω ⟩[ t ∷ A ] , φ↜ ⁰
-  total-»↜ (φ ¹) (∇ ∙⟨ opa φ′ ⟩[ t ∷ A ]) =
-    let ∇′ , φ↜ = total-»↜ (φ ⊔ᵒᵗ φ′) ∇
-    in  ∇′ ∙⟨ tra ⟩[ t ∷ A ] , φ↜ ¹ᵒ
-  total-»↜ (φ ¹) (∇ ∙⟨ tra ⟩[ t ∷ A ]) =
-    let ∇′ , φ↜ = total-»↜ φ ∇
-    in  ∇′ ∙⟨ tra ⟩[ t ∷ A ] , φ↜ ¹ᵗ
+  Trans-transᵗ :
+    unfolding-mode PE.≡ transitive →
+    Trans φ₂ (Trans φ₁ ∇) PE.≡ Trans (φ₁ ⊔ᵒᵗ φ₂) ∇
+  Trans-transᵗ {φ₂} {φ₁} {∇} eq =
+    Trans φ₂ (Trans φ₁ ∇)  ≡⟨ Trans-trans ⟩
+    Trans (φ₁ ⊔ᵒ φ₂) ∇     ≡˘⟨ PE.cong (flip Trans _) $ ⊔ᵒᵗ≡⊔ᵒ eq ⟩
+    Trans (φ₁ ⊔ᵒᵗ φ₂) ∇    ∎
 
 ------------------------------------------------------------------------
 -- Lemmas about glassified contexts
 
 opaque
+  unfolding Trans
 
-  glassify-factor : φ » ∇′ ↜ ∇ → glassify ∇′ PE.≡ glassify ∇
-  glassify-factor ε =
+  glassify-factor : glassify (Trans φ ∇) PE.≡ glassify ∇
+  glassify-factor {∇ = ε} =
     PE.refl
-  glassify-factor (u ⁰) =
-    PE.cong (_∙⟨ _ ⟩[ _ ∷ _ ]) (glassify-factor u)
-  glassify-factor (u ¹ᵗ) =
-    PE.cong (_∙⟨ _ ⟩[ _ ∷ _ ]) (glassify-factor u)
-  glassify-factor (u ¹ᵒ) =
-    PE.cong (_∙⟨ _ ⟩[ _ ∷ _ ]) (glassify-factor u)
+  glassify-factor {∇ = _ ∙⟨ tra ⟩!} =
+    PE.cong _∙! glassify-factor
+  glassify-factor {φ = _ ⁰} {∇ = _ ∙⟨ opa _ ⟩!} =
+    PE.cong _∙! glassify-factor
+  glassify-factor {φ = _ ¹} {∇ = _ ∙⟨ opa _ ⟩!} =
+    PE.cong _∙! glassify-factor
 
 opaque
 
   glassify-idem :
     (∇ : DCon (Term 0) n) → glassify (glassify ∇) PE.≡ glassify ∇
-  glassify-idem = glassify-factor ∘→ ones-»↜
+  glassify-idem ∇ =
+    glassify (glassify ∇)    ≡˘⟨ PE.cong glassify Trans-ones ⟩
+    glassify (Trans ones ∇)  ≡⟨ glassify-factor ⟩
+    glassify ∇               ∎
 
 opaque
 
@@ -244,9 +338,9 @@ opaque mutual
 
   glassify-» : » ∇ → » glassify ∇
   glassify-» ε = ε
-  glassify-» ∙ᵒ⟨ ok , φ↜ ⟩[ ⊢t ∷ ⊢A ] =
+  glassify-» ∙ᵒ⟨ ok ⟩[ ⊢t ∷ ⊢A ] =
     ∙ᵗ[ PE.subst₃ _⊢_∷_
-          (PE.cong (_» _) (glassify-factor φ↜)) PE.refl PE.refl
+          (PE.cong (_» _) glassify-factor) PE.refl PE.refl
           (glassify-⊢∷ ⊢t)
       ]
   glassify-» ∙ᵗ[ ⊢t ] = ∙ᵗ[ glassify-⊢∷ ⊢t ]
