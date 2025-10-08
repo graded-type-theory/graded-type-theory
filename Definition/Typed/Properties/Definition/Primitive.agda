@@ -36,7 +36,7 @@ private variable
   Γ       : Con _ _
   A B t u : Term _
   V       : Set a
-  φ       : Unfolding _
+  φ φ₁ φ₂ : Unfolding _
 
 ------------------------------------------------------------------------
 -- Lemmas about opacity
@@ -84,6 +84,30 @@ opaque
 
 ------------------------------------------------------------------------
 -- Lemmas about unfoldings
+
+opaque
+
+  -- If the transitive unfolding mode is used, then _⊔ᵒᵗ_ is pointwise
+  -- equal to _⊔ᵒ_.
+
+  ⊔ᵒᵗ≡⊔ᵒ :
+    unfolding-mode PE.≡ transitive →
+    φ₁ ⊔ᵒᵗ φ₂ PE.≡ φ₁ ⊔ᵒ φ₂
+  ⊔ᵒᵗ≡⊔ᵒ eq with unfolding-mode
+  ⊔ᵒᵗ≡⊔ᵒ _  | transitive = PE.refl
+  ⊔ᵒᵗ≡⊔ᵒ () | explicit
+
+opaque
+
+  -- If the explicit unfolding mode is used, then φ₁ ⊔ᵒᵗ φ₂ is equal
+  -- to φ₁.
+
+  ⊔ᵒᵗ≡const :
+    unfolding-mode PE.≡ explicit →
+    φ₁ ⊔ᵒᵗ φ₂ PE.≡ φ₁
+  ⊔ᵒᵗ≡const eq with unfolding-mode
+  ⊔ᵒᵗ≡const _  | explicit   = PE.refl
+  ⊔ᵒᵗ≡const () | transitive
 
 opaque
 

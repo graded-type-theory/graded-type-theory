@@ -461,20 +461,13 @@ module Explicit (mode-eq : unfolding-mode PE.≡ explicit) where
 
 module Transitive (mode-eq : unfolding-mode PE.≡ transitive) where
 
-  private opaque
-
-    ⊔ᵒᵗ-eq : (φ φ′ : Unfolding n) → φ ⊔ᵒᵗ φ′ PE.≡ φ ⊔ᵒ φ′
-    ⊔ᵒᵗ-eq φ φ′ with unfolding-mode
-    ...            | explicit   = case mode-eq of λ ()
-    ...            | transitive = PE.refl
-
   opaque
 
     comm-⊔ᵒᵗ : (φ φ′ : Unfolding n) → φ ⊔ᵒᵗ φ′ PE.≡ φ′ ⊔ᵒᵗ φ
     comm-⊔ᵒᵗ φ φ′ = begin
-      φ ⊔ᵒᵗ φ′  ≡⟨ ⊔ᵒᵗ-eq φ φ′ ⟩
+      φ ⊔ᵒᵗ φ′  ≡⟨ ⊔ᵒᵗ≡⊔ᵒ mode-eq ⟩
       φ ⊔ᵒ φ′   ≡⟨ comm-⊔ᵒ φ φ′ ⟩
-      φ′ ⊔ᵒ φ   ≡˘⟨ ⊔ᵒᵗ-eq φ′ φ ⟩
+      φ′ ⊔ᵒ φ   ≡˘⟨ ⊔ᵒᵗ≡⊔ᵒ mode-eq ⟩
       φ′ ⊔ᵒᵗ φ  ∎
 
   private opaque
@@ -482,7 +475,7 @@ module Transitive (mode-eq : unfolding-mode PE.≡ transitive) where
     a1[23] : (φ φ′ φ″ : Unfolding n) → φ ⊔ᵒᵗ (φ′ ⊔ᵒᵗ φ″) PE.≡ (φ ⊔ᵒ φ′) ⊔ᵒᵗ φ″
     a1[23] φ φ′ φ″ = begin
       φ ⊔ᵒᵗ (φ′ ⊔ᵒᵗ φ″)  ≡⟨ assoc-⊔ᵒᵗ φ φ′ φ″ ⟩
-      (φ ⊔ᵒᵗ φ′) ⊔ᵒᵗ φ″  ≡⟨ PE.cong (_⊔ᵒᵗ φ″) (⊔ᵒᵗ-eq φ φ′) ⟩
+      (φ ⊔ᵒᵗ φ′) ⊔ᵒᵗ φ″  ≡⟨ PE.cong (_⊔ᵒᵗ φ″) (⊔ᵒᵗ≡⊔ᵒ mode-eq) ⟩
       (φ ⊔ᵒ φ′) ⊔ᵒᵗ φ″   ∎
 
   private opaque
@@ -492,13 +485,14 @@ module Transitive (mode-eq : unfolding-mode PE.≡ transitive) where
       (φ ⊔ᵒᵗ φ″) ⊔ᵒᵗ φ′  ≡˘⟨ assoc-⊔ᵒᵗ φ φ″ φ′ ⟩
       φ ⊔ᵒᵗ (φ″ ⊔ᵒᵗ φ′)  ≡⟨ PE.cong (φ ⊔ᵒᵗ_) (comm-⊔ᵒᵗ φ″ φ′) ⟩
       φ ⊔ᵒᵗ (φ′ ⊔ᵒᵗ φ″)  ≡⟨ assoc-⊔ᵒᵗ φ φ′ φ″ ⟩
-      (φ ⊔ᵒᵗ φ′) ⊔ᵒᵗ φ″  ≡⟨ PE.cong (_⊔ᵒᵗ φ″) (⊔ᵒᵗ-eq φ φ′) ⟩
+      (φ ⊔ᵒᵗ φ′) ⊔ᵒᵗ φ″  ≡⟨ PE.cong (_⊔ᵒᵗ φ″) (⊔ᵒᵗ≡⊔ᵒ mode-eq) ⟩
       (φ ⊔ᵒ φ′) ⊔ᵒᵗ φ″   ∎
 
   opaque
 
     join-»↜ : φ » ∇′ ↜ ∇ → φ′ » ∇″ ↜ ∇′ → φ ⊔ᵒᵗ φ′ » ∇″ ↜ ∇
-    join-»↜ φ↜ φ′↜ = PE.subst (_» _ ↜ _) (PE.sym (⊔ᵒᵗ-eq _ _)) (join′ φ↜ φ′↜)
+    join-»↜ φ↜ φ′↜ =
+      PE.subst (_» _ ↜ _) (PE.sym (⊔ᵒᵗ≡⊔ᵒ mode-eq)) (join′ φ↜ φ′↜)
       where
       join′ : φ » ∇′ ↜ ∇ → φ′ » ∇″ ↜ ∇′ → φ ⊔ᵒ φ′ » ∇″ ↜ ∇
       join′ ε ε = ε
@@ -516,7 +510,8 @@ module Transitive (mode-eq : unfolding-mode PE.≡ transitive) where
   opaque
 
     unjoin-»↜ : φ′ ⊔ᵒᵗ φ » ∇″ ↜ ∇ → φ » ∇′ ↜ ∇ → φ′ » ∇″ ↜ ∇′
-    unjoin-»↜ φ′φ↜ φ↜ = unjoin′ (PE.subst (_» _ ↜ _) (⊔ᵒᵗ-eq _ _) φ′φ↜) φ↜
+    unjoin-»↜ φ′φ↜ φ↜ =
+      unjoin′ (PE.subst (_» _ ↜ _) (⊔ᵒᵗ≡⊔ᵒ mode-eq) φ′φ↜) φ↜
       where
       unjoin′ : φ′ ⊔ᵒ φ » ∇″ ↜ ∇ → φ » ∇′ ↜ ∇ → φ′ » ∇″ ↜ ∇′
       unjoin′ {φ′ = ε} {φ = ε} ε ε = ε
