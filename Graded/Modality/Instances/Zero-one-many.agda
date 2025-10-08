@@ -36,6 +36,8 @@ import Graded.Modality.Properties.Star as Star
 import Graded.Modality.Properties.Natrec as Natrec
 import Graded.Modality.Properties.Subtraction as Subtraction
 open import Graded.Modality.Variant lzero
+import Graded.Context
+import Graded.Context.Properties
 
 ------------------------------------------------------------------------
 -- The type
@@ -2142,6 +2144,17 @@ opaque
 
 opaque
 
+  -- The sequence nrᵢ r z s has a greatest lower bound
+
+  nrᵢ-GLB :
+    let 𝕄 = zero-one-many-semiring-with-meet in
+    ∀ r z s → ∃ λ p →
+      Semiring-with-meet.Greatest-lower-bound
+        𝕄 p (Semiring-with-meet.nrᵢ 𝕄 r z s)
+  nrᵢ-GLB r z s = _ , nr-nrᵢ-GLB r
+
+opaque
+
   -- The greatest lower bound for certain nrᵢ sequences
 
   nrᵢ-𝟘-GLB :
@@ -2177,17 +2190,6 @@ opaque
     where
     open Semiring-with-meet zero-one-many-semiring-with-meet
       hiding (ω; _·_; _+_)
-
-opaque
-
-  -- The sequence nrᵢ r z s has a greatest lower bound
-
-  nrᵢ-GLB :
-    let 𝕄 = zero-one-many-semiring-with-meet in
-    ∀ r z s → ∃ λ p →
-      Semiring-with-meet.Greatest-lower-bound
-        𝕄 p (Semiring-with-meet.nrᵢ 𝕄 r z s)
-  nrᵢ-GLB r z s = _ , nr-nrᵢ-GLB r
 
 opaque
 
@@ -2286,3 +2288,81 @@ opaque
                                            (GLB-unique p₂-glb (nr-nrᵢ-GLB r)) ⟩
         nr 𝟘 r z₁ s₁ 𝟘 + nr 𝟘 r z₂ s₂ 𝟘 ≤⟨ Has-nr.nr-+ zero-one-many-has-nr {𝟘} {r} ⟩
         nr 𝟘 r (z₁ + z₂) (s₁ + s₂) 𝟘    ∎)
+
+------------------------------------------------------------------------
+-- Some properties lifted to contexts
+
+module _ {v : Modality-variant} where
+
+  open Graded.Context (zero-one-many-modality v)
+  open Graded.Context.Properties (zero-one-many-modality v)
+
+  private variable
+    γ δ η : Conₘ _
+
+  opaque
+
+    -- Evaluation of nrᶜ for r = 𝟘.
+
+    nrᶜ-𝟘-≈ᶜ :
+      nrᶜ ⦃ zero-one-many-has-nr ⦄ p 𝟘 γ δ η ≈ᶜ (((𝟙 ∧ p) ·ᶜ η +ᶜ δ) ∧ᶜ (η +ᶜ γ))
+    nrᶜ-𝟘-≈ᶜ {γ = ε} {δ = ε} {η = ε} = ε
+    nrᶜ-𝟘-≈ᶜ {γ = _ ∙ _} {δ = _ ∙ _} {η = _ ∙ _} =
+      nrᶜ-𝟘-≈ᶜ ∙ refl
+
+  opaque
+
+    -- Evaluation of nrᶜ for r = 𝟙.
+
+    nrᶜ-𝟙-≈ᶜ :
+      nrᶜ ⦃ zero-one-many-has-nr ⦄ p 𝟙 γ δ η ≈ᶜ (𝟙 + p) ·ᶜ η +ᶜ ω ·ᶜ δ +ᶜ γ
+    nrᶜ-𝟙-≈ᶜ {γ = ε} {δ = ε} {η = ε} = ε
+    nrᶜ-𝟙-≈ᶜ {γ = _ ∙ _} {δ = _ ∙ _} {η = _ ∙ _} =
+      nrᶜ-𝟙-≈ᶜ ∙ refl
+
+  opaque
+
+    -- Evaluation of nrᶜ for r = ω.
+
+    nrᶜ-ω-≈ᶜ :
+      nrᶜ ⦃ zero-one-many-has-nr ⦄ p ω γ δ η ≈ᶜ ω ·ᶜ (η +ᶜ δ +ᶜ γ)
+    nrᶜ-ω-≈ᶜ {γ = ε} {δ = ε} {η = ε} = ε
+    nrᶜ-ω-≈ᶜ {γ = _ ∙ _} {δ = _ ∙ _} {η = _ ∙ _} =
+      nrᶜ-ω-≈ᶜ ∙ refl
+
+  opaque
+
+    -- The greatest lower bound for certain nrᵢᶜ sequences
+
+    nrᵢᶜ-𝟘-GLBᶜ : Greatest-lower-boundᶜ (γ ∧ᶜ δ) (nrᵢᶜ 𝟘 γ δ)
+    nrᵢᶜ-𝟘-GLBᶜ {γ = ε} {δ = ε} = ε-GLB
+    nrᵢᶜ-𝟘-GLBᶜ {γ = γ ∙ p} {δ = δ ∙ q} =
+      GLBᶜ-pointwise′ nrᵢᶜ-𝟘-GLBᶜ (nrᵢ-𝟘-GLB p q)
+
+  opaque
+
+    -- The greatest lower bound for certain nrᵢᶜ sequences
+
+    nrᵢᶜ-𝟙-GLBᶜ : Greatest-lower-boundᶜ (γ +ᶜ ω ·ᶜ δ) (nrᵢᶜ 𝟙 γ δ)
+    nrᵢᶜ-𝟙-GLBᶜ {γ = ε} {δ = ε} = ε-GLB
+    nrᵢᶜ-𝟙-GLBᶜ {γ = γ ∙ p} {δ = δ ∙ q} =
+      GLBᶜ-pointwise′ nrᵢᶜ-𝟙-GLBᶜ (nrᵢ-𝟙-GLB p q)
+
+  opaque
+
+    -- The greatest lower bound for certain nrᵢᶜ sequences
+
+    nrᵢᶜ-ω-GLBᶜ : Greatest-lower-boundᶜ (ω ·ᶜ (γ +ᶜ δ)) (nrᵢᶜ ω γ δ)
+    nrᵢᶜ-ω-GLBᶜ {γ = ε} {δ = ε} = ε-GLB
+    nrᵢᶜ-ω-GLBᶜ {γ = γ ∙ p} {δ = δ ∙ q} =
+      GLBᶜ-pointwise′ nrᵢᶜ-ω-GLBᶜ (nrᵢ-ω-GLB p q)
+
+  opaque
+
+    -- nrᶜ 𝟘 r γ δ 𝟘ᶜ is the greatest lower bound of nrᵢᶜ r γ δ
+
+    nrᶜ-nrᵢᶜ-GLBᶜ :
+      Greatest-lower-boundᶜ (nrᶜ ⦃ zero-one-many-has-nr ⦄ 𝟘 r γ δ 𝟘ᶜ) (nrᵢᶜ r γ δ)
+    nrᶜ-nrᵢᶜ-GLBᶜ {γ = ε} {δ = ε} = ε-GLB
+    nrᶜ-nrᵢᶜ-GLBᶜ {γ = _ ∙ _} {δ = _ ∙ _} =
+      GLBᶜ-pointwise′ nrᶜ-nrᵢᶜ-GLBᶜ (nr-nrᵢ-GLB _)
