@@ -44,46 +44,46 @@ import Tools.PropositionalEquality as PE
 private variable
   n : Nat
   A P k h t nl cs xs : Term _
-  Γ : Con Term _
+  Γ : Cons _ _
   p₁ p₂ p₃ q r q₁ q₂ q₃ q₄ : M
   l : Universe-level
 
-private
 
-  opaque
 
-    Vec₀≡ : Vec′ l (wk[ n ]′ A) k PE.≡ Vec′ l (wk1 A) (var x0) [ consSubst (wkSubst n idSubst) k ]
-    Vec₀≡ {l} {n} {A} {k} = begin
-      Vec′ l (wk[ n ]′ A) k                                       ≡⟨ PE.cong (λ x → Vec′ l x k) lemma ⟩
-      Vec′ l (wk1 A [ consSubst (wkSubst n idSubst) k ]) k        ≡˘⟨ Vec′-subst ⟩
-      Vec′ l (wk1 A) (var x0) [ consSubst (wkSubst n idSubst) k ] ∎
-      where
-      lemma : wk[ n ]′ A PE.≡ wk1 A [ consSubst (wkSubst n idSubst) k ]
-      lemma = begin
-        wk[ n ]′ A                                ≡˘⟨ wk[]≡wk[]′ ⟩
-        wk[ n ] A                                 ≡⟨ wk[]≡[] n ⟩
-        A [ wkSubst n idSubst ]                   ≡˘⟨ wk1-tail A ⟩
-        wk1 A [ consSubst (wkSubst n idSubst) k ] ∎
+opaque
 
-  opaque
+  Vec₀≡ : Vec′ l (wk[ n ]′ A) k PE.≡ Vec′ l (wk1 A) (var x0) [ consSubst (wkSubst n idSubst) k ]
+  Vec₀≡ {l} {n} {A} {k} = begin
+    Vec′ l (wk[ n ]′ A) k                                       ≡⟨ PE.cong (λ x → Vec′ l x k) lemma ⟩
+    Vec′ l (wk1 A [ consSubst (wkSubst n idSubst) k ]) k        ≡˘⟨ Vec′-subst ⟩
+    Vec′ l (wk1 A) (var x0) [ consSubst (wkSubst n idSubst) k ] ∎
+    where
+    lemma : wk[ n ]′ A PE.≡ wk1 A [ consSubst (wkSubst n idSubst) k ]
+    lemma = begin
+      wk[ n ]′ A                                ≡˘⟨ wk[]≡wk[]′ ⟩
+      wk[ n ] A                                 ≡⟨ wk[]≡[] n ⟩
+      A [ wkSubst n idSubst ]                   ≡˘⟨ wk1-tail A ⟩
+      wk1 A [ consSubst (wkSubst n idSubst) k ] ∎
 
-    Vec₀≡₀ : Vec′ l A k PE.≡ Vec′ l (wk1 A) (var x0) [ k ]₀
-    Vec₀≡₀ {l} {A} {k} = begin
-      Vec′ l A k                     ≡˘⟨ PE.cong (λ x → Vec′ l x k) (wk-id A) ⟩
-      Vec′ l (wk id A) k             ≡⟨ Vec₀≡ ⟩
-      Vec′ l (wk1 A) (var x0) [ k ]₀ ∎
+opaque
 
-  opaque
+  Vec₀≡₀ : Vec′ l A k PE.≡ Vec′ l (wk1 A) (var x0) [ k ]₀
+  Vec₀≡₀ {l} {A} {k} = begin
+    Vec′ l A k                     ≡˘⟨ PE.cong (λ x → Vec′ l x k) (wk-id A) ⟩
+    Vec′ l (wk id A) k             ≡⟨ Vec₀≡ ⟩
+    Vec′ l (wk1 A) (var x0) [ k ]₀ ∎
 
-    ⊢Vec-tail :
-      Γ ⊢ A ∷ U l →
-      Γ ∙ ℕ ∙ U l ⊢ Σ⟨ s ⟩ p , 𝟘 ▷ wk₂ A ▹ var x1 ∷ U l
-    ⊢Vec-tail {Γ} {A} {l} ⊢A =
-      let ⊢Γ = wfTerm ⊢A
-          ⊢wk₂A = wkTerm (stepʷ (step id) (Uⱼ (∙ ℕⱼ ⊢Γ))) ⊢A
-      in  PE.subst ((Γ ∙ ℕ ∙ U l) ⊢ Σ⟨ s ⟩ p , 𝟘 ▷ wk₂ A ▹ var x1 ∷_)
-            (PE.cong U (⊔-idem l))
-            (ΠΣⱼ ⊢wk₂A (var (∙ univ ⊢wk₂A) (there here)) Σ-ok)
+opaque
+
+  ⊢Vec-tail :
+    Γ ⊢ A ∷ U l →
+    Γ »∙ ℕ »∙ U l ⊢ Σ⟨ s ⟩ p , 𝟘 ▷ wk₂ A ▹ var x1 ∷ U l
+  ⊢Vec-tail {Γ} {A} {l} ⊢A =
+    let ⊢Γ = wfTerm ⊢A
+        ⊢wk₂A = wkTerm (stepʷ (step id) (Uⱼ (∙ ℕⱼ ⊢Γ))) ⊢A
+    in  PE.subst ((Γ »∙ ℕ »∙ U l) ⊢ Σ⟨ s ⟩ p , 𝟘 ▷ wk₂ A ▹ var x1 ∷_)
+          (PE.cong U (⊔-idem l))
+          (ΠΣⱼ ⊢wk₂A (var (∙ univ ⊢wk₂A) (there here)) Σ-ok)
 
 opaque
   unfolding Vec′
@@ -113,7 +113,7 @@ private opaque
   ⊢λVec′ :
     ⊢ Γ →
     Π-allowed 𝟙 q →
-    Γ ∙ U l ⊢ lam 𝟙 (Vec′ l (var x1) (var x0)) ∷ (Π 𝟙 , q ▷ ℕ ▹ U l)
+    Γ »∙ U l ⊢ lam 𝟙 (Vec′ l (var x1) (var x0)) ∷ (Π 𝟙 , q ▷ ℕ ▹ U l)
   ⊢λVec′ ⊢Γ Π-ok =
     let ⊢Γ′ = ∙ ℕⱼ (∙ Uⱼ ⊢Γ)
     in  lamⱼ (Uⱼ ⊢Γ′)
@@ -195,7 +195,7 @@ opaque
         ⊢Unit = Unitⱼ ⊢Γ Unit-ok
         ⊢wk₂A = wkTerm (stepʷ (step id) (Uⱼ (∙ ℕⱼ ⊢Γ))) ⊢A
         ⊢Σ = ΠΣⱼ ⊢wk₂A (var (∙ univ ⊢wk₂A) (there here)) Σ-ok
-        ⊢Σ′ = PE.subst (Γ ∙ ℕ ∙ U l ⊢ Σ⟨ s ⟩ p , 𝟘 ▷ wk₂ A ▹ var x1 ∷_)
+        ⊢Σ′ = PE.subst (Γ »∙ ℕ »∙ U l ⊢ Σ⟨ s ⟩ p , 𝟘 ▷ wk₂ A ▹ var x1 ∷_)
                (PE.cong U (⊔-idem l)) ⊢Σ
     in  flip (PE.subst (Γ ⊢ Vec′ l A (suc k) ⇒_∷ U l))
                (natrec-suc ⊢Unit ⊢Σ′ ⊢k) $ begin
@@ -343,7 +343,7 @@ opaque
                  (var ⊢Γ″ (there here))
         ⊢Γ′ = ∙ ⊢Vec₀
         ⊢x0 = var ⊢Γ′ here
-        ⊢x0′ = PE.subst (_ ∙ _ ∙ _ ∙ _ ∙ Vec′ _ _ _ ⊢ var x0 ∷_)
+        ⊢x0′ = PE.subst (_ »∙ _ »∙ _ »∙ _ »∙ Vec′ _ _ _ ⊢ var x0 ∷_)
                  Vec′-wk ⊢x0
         ⊢x1 = var ⊢Γ′ (there here)
         ⊢x2 = var ⊢Γ′ (there (there here))
@@ -362,17 +362,17 @@ opaque
          Π-ok₁
 
 private opaque
-  unfolding Vecrec-nil
+  unfolding vecrec-nil
 
-  ⊢∷-Vecrec-nil′ :
+  ⊢∷-vecrec-nil′ :
     s PE.≡ 𝕨 →
-    Γ ∙ ℕ ∙ Vec′ l (wk1 A) (var x0) ⊢ P →
+    Γ »∙ ℕ »∙ Vec′ l (wk1 A) (var x0) ⊢ P →
     Γ ⊢ A ∷ U l →
     Γ ⊢ nl ∷ P [ zero , nil′ l A ]₁₀ →
     Π-allowed r q →
-    Γ ⊢ Vecrec-nil l r q P nl ∷ Π r , q ▷ Vec′ l A zero ▹ (P [ sgSubst zero ⇑ ]) ×
-    Γ ⊢ Vecrec-nil l r q P nl ∘⟨ r ⟩ nil′ l A ⇒* nl ∷ P [ zero , nil′ l A ]₁₀
-  ⊢∷-Vecrec-nil′ {Γ} {l} {A} {P} {nl} {r} {q} PE.refl ⊢P ⊢A ⊢nl Π-ok =
+    Γ ⊢ vecrec-nil l r q P nl ∷ Π r , q ▷ Vec′ l A zero ▹ (P [ sgSubst zero ⇑ ]) ×
+    Γ ⊢ vecrec-nil l r q P nl ∘⟨ r ⟩ nil′ l A ⇒* nl ∷ P [ zero , nil′ l A ]₁₀
+  ⊢∷-vecrec-nil′ {Γ} {l} {A} {P} {nl} {r} {q} PE.refl ⊢P ⊢A ⊢nl Π-ok =
     let ⊢Γ = wfTerm ⊢nl
         ⊢zero = zeroⱼ ⊢Γ
         ⊢Vec₀ = ⊢Vec′ ⊢A ⊢zero
@@ -381,13 +381,13 @@ private opaque
         ⊢Γ′≡ = refl-∙ (⊢Vec′-zero≡Unit ⊢A)
         ⊢wk1A = wkTerm (stepʷ id ⊢Vec₀) ⊢A
         ⊢Vec₊ = ⊢Vec′ ⊢wk1A (zeroⱼ ⊢Γ′)
-        ⊢Vec₊′ = PE.subst (λ x → Γ ∙ Vec′ _ _ _ ⊢ x)
+        ⊢Vec₊′ = PE.subst (λ x → Γ »∙ Vec′ _ _ _ ⊢ x)
                   Vec₀≡ ⊢Vec₊
         ⊢Vec₀≡Unit = wkEq (stepʷ id ⊢Vec₀) (⊢Vec′-zero≡Unit ⊢A)
-        ⊢Vec₀≡Unit′ = PE.subst (Γ ∙ Vec′ _ _ _ ⊢_≡ Unitʷ _)
+        ⊢Vec₀≡Unit′ = PE.subst (Γ »∙ Vec′ _ _ _ ⊢_≡ Unitʷ _)
                        (PE.trans Vec′-wk Vec₀≡) ⊢Vec₀≡Unit
         ⊢P₀ = subst-⊢ ⊢P (⊢ˢʷ∷-⇑ ⊢Vec₀′ (⊢ˢʷ∷-sgSubst ⊢zero))
-        ⊢P₀′ = PE.subst (λ x → Γ ∙ x ⊢ _) (PE.sym Vec₀≡₀) ⊢P₀
+        ⊢P₀′ = PE.subst (λ x → Γ »∙ x ⊢ _) (PE.sym Vec₀≡₀) ⊢P₀
         ⊢P₀″ = stability (refl-∙ (⊢Vec′-zero≡Unit ⊢A))
                 (PE.subst (λ x → _ ⊢ x) P₀≡′ ⊢P₀′)
         ⊢P₊ = subst-⊢ ⊢P (⊢ˢʷ∷-⇑ ⊢Vec₊′ (→⊢ˢʷ∷∙
@@ -404,7 +404,7 @@ private opaque
         ⊢wk1nl″ = stabilityTerm ⊢Γ′≡ ⊢wk1nl′
         ⊢unitrec = ⊢∷-conv-PE (unitrecⱼ ⊢P₊′ ⊢x0′ ⊢wk1nl′ Unit-ok) P₀≡
      in    lamⱼ ⊢P₀′ ⊢unitrec Π-ok
-         , (Vecrec-nil l r q P nl ∘⟨ r ⟩ nil′ l A
+         , (vecrec-nil l r q P nl ∘⟨ r ⟩ nil′ l A
             ≡⟨ PE.cong (_ ∘⟨ _ ⟩_) nil′≡star ⟩⇒
           lam r (unitrec l r q _ (var x0) (wk1 nl)) ∘⟨ r ⟩ starʷ l
             ⇒⟨ ⊢⇒∷-conv-PE (β-red-⇒ (unitrecⱼ′ ⊢P₊″ ⊢x0″ ⊢wk1nl″) (starⱼ ⊢Γ Unit-ok) Π-ok) P₊≡″ ⟩
@@ -489,50 +489,50 @@ private opaque
 
 opaque
 
-  ⊢∷-Vecrec-nil :
+  ⊢∷-vecrec-nil :
     s PE.≡ 𝕨 →
-    Γ ∙ ℕ ∙ Vec′ l (wk1 A) (var x0) ⊢ P →
+    Γ »∙ ℕ »∙ Vec′ l (wk1 A) (var x0) ⊢ P →
     Γ ⊢ A ∷ U l →
     Γ ⊢ nl ∷ P [ zero , nil′ l A ]₁₀ →
     Π-allowed r q →
-    Γ ⊢ Vecrec-nil l r q P nl ∷ Π r , q ▷ Vec′ l A zero ▹ (P [ sgSubst zero ⇑ ])
-  ⊢∷-Vecrec-nil s≡𝕨 ⊢P ⊢A ⊢nl Π-ok =
-    ⊢∷-Vecrec-nil′ s≡𝕨 ⊢P ⊢A ⊢nl Π-ok .proj₁
+    Γ ⊢ vecrec-nil l r q P nl ∷ Π r , q ▷ Vec′ l A zero ▹ (P [ sgSubst zero ⇑ ])
+  ⊢∷-vecrec-nil s≡𝕨 ⊢P ⊢A ⊢nl Π-ok =
+    ⊢∷-vecrec-nil′ s≡𝕨 ⊢P ⊢A ⊢nl Π-ok .proj₁
 
 opaque
 
-  ⊢⇒*∷-Vecrec-nil :
+  ⊢⇒*∷-vecrec-nil :
     s PE.≡ 𝕨 →
-    Γ ∙ ℕ ∙ Vec′ l (wk1 A) (var x0) ⊢ P →
+    Γ »∙ ℕ »∙ Vec′ l (wk1 A) (var x0) ⊢ P →
     Γ ⊢ A ∷ U l →
     Γ ⊢ nl ∷ P [ zero , nil′ l A ]₁₀ →
     Π-allowed r q →
-    Γ ⊢ Vecrec-nil l r q P nl ∘⟨ r ⟩ nil′ l A ⇒* nl ∷ P [ zero , nil′ l A ]₁₀
-  ⊢⇒*∷-Vecrec-nil s≡𝕨 ⊢P ⊢A ⊢nl Π-ok =
-    ⊢∷-Vecrec-nil′ s≡𝕨 ⊢P ⊢A ⊢nl Π-ok .proj₂
+    Γ ⊢ vecrec-nil l r q P nl ∘⟨ r ⟩ nil′ l A ⇒* nl ∷ P [ zero , nil′ l A ]₁₀
+  ⊢⇒*∷-vecrec-nil s≡𝕨 ⊢P ⊢A ⊢nl Π-ok =
+    ⊢∷-vecrec-nil′ s≡𝕨 ⊢P ⊢A ⊢nl Π-ok .proj₂
 
 private opaque
-  unfolding Vecrec-cons
+  unfolding vecrec-cons
 
-  ⊢∷-Vecrec-cons′ :
+  ⊢∷-vecrec-cons′ :
     s PE.≡ 𝕨 →
-    Γ ∙ ℕ ∙ Vec′ l (wk1 A) (var x0) ⊢ P →
+    Γ »∙ ℕ »∙ Vec′ l (wk1 A) (var x0) ⊢ P →
     Γ ⊢ A ∷ U l →
-    Γ ∙ ℕ ∙ wk1 A ∙ Vec′ l (wk₂ A) (var x1) ∙ P [ wk1Subst idSubst ⇑ ] ⊢ cs ∷
+    Γ »∙ ℕ »∙ wk1 A »∙ Vec′ l (wk₂ A) (var x1) »∙ P [ wk1Subst idSubst ⇑ ] ⊢ cs ∷
       (P [ consSubst (consSubst (wkSubst 4 idSubst) (suc (var x3))) (cons′ (wk[ 4 ]′ A) (var x3) (var x2) (var x1)) ]) →
     Π-allowed r q →
-    (Γ ∙ ℕ ∙ Π r , q ▷ Vec′ l (wk1 A) (var x0) ▹ P
-         ⊢ Vecrec-cons r q P cs
+    (Γ »∙ ℕ »∙ Π r , q ▷ Vec′ l (wk1 A) (var x0) ▹ P
+         ⊢ vecrec-cons r q P cs
          ∷ Π r , q ▷ Vec′ l (wk₂ A) (suc (var x1)) ▹ (P [ consSubst (consSubst (wkSubst 3 idSubst) (suc (var x2))) (var x0) ])) ×
     (∀ {k x xs IH} →
       Γ ⊢ k ∷ ℕ →
       Γ ⊢ x ∷ A →
       Γ ⊢ xs ∷ Vec′ l A k →
       Γ ⊢ IH ∷ Π r , q ▷ Vec′ l A k ▹ (P [ sgSubst k ⇑ ]) →
-      Γ ⊢ (Vecrec-cons r q P cs [ k , IH ]₁₀) ∘⟨ r ⟩ cons′ A k x xs ⇒*
+      Γ ⊢ (vecrec-cons r q P cs [ k , IH ]₁₀) ∘⟨ r ⟩ cons′ A k x xs ⇒*
          cs [ consSubst (consSubst (consSubst (sgSubst k) x) xs) (IH ∘⟨ r ⟩ xs) ] ∷
          P [ suc k , cons′ A k x xs ]₁₀)
-  ⊢∷-Vecrec-cons′ {l} {A} {P} {cs} {r} {q} PE.refl ⊢P ⊢A ⊢cs Π-ok =
+  ⊢∷-vecrec-cons′ {l} {A} {P} {cs} {r} {q} PE.refl ⊢P ⊢A ⊢cs Π-ok =
     let ⊢Γ = wfTerm ⊢A
         ⊢Π = ΠΣⱼ ⊢P Π-ok
         ⊢ΓℕΠ = ∙ ⊢Π
@@ -597,7 +597,7 @@ private opaque
               ⊢IH₃ = (wkTerm (stepʷ (step (step id)) ⊢Vec₂′) ⊢IH) ∘ⱼ
                        ⊢∷-conv-PE (var (∙ ⊢Vec₂′) here)
                          (PE.trans (PE.cong wk1 (PE.sym Vec′-wk)) (wk-comp _ _ (Vec′ l A k)))
-              ⊢IH₃′ = PE.subst₃ (λ x y z → _ ∙ Σʷ p , 𝟘 ▷ A ▹ wk1 (Vec′ l A k) ∙ x ∙ y ⊢ _ ∷ z)
+              ⊢IH₃′ = PE.subst₃ (λ x y z → _ »∙ Σʷ p , 𝟘 ▷ A ▹ wk1 (Vec′ l A k) »∙ x »∙ y ⊢ _ ∷ z)
                        (PE.sym lemma₁₇) lemma₁₈ lemma₁₉ ⊢IH₃
 
               ⊢P₂ = subst-⊢ {σ = consSubst (wk1Subst idSubst) (wk1 (suc k)) ⇑} ⊢P
@@ -605,7 +605,7 @@ private opaque
               ⊢P₂′ = stability (refl-∙ ⊢Vec₁≡Σ′) ⊢P₂
               ⊢cs₃ = subst-⊢∷ {σ = consSubst (consSubst (wk1Subst idSubst) (wk1 k) ⇑[ 2 ]) (wk[ 3 ]′ IH ∘⟨ r ⟩ var x0)} ⊢cs
                        (→⊢ˢʷ∷∙ (⊢ˢʷ∷-⇑[] {k = 2} ⊢ΓℕAV (→⊢ˢʷ∷∙ (⊢ˢʷ∷-wkSubst ⊢ΓV (⊢ˢʷ∷-idSubst ⊢Γ)) ⊢wk1k)) ⊢IH₃′)
-              ⊢cs₃′ = PE.subst₃ (λ x y z → _ ∙ Σʷ p , 𝟘 ▷ A ▹ wk1 (Vec′ l A k) ∙ x ∙ y ⊢ cs [ _ ] ∷ z)
+              ⊢cs₃′ = PE.subst₃ (λ x y z → _ »∙ Σʷ p , 𝟘 ▷ A ▹ wk1 (Vec′ l A k) »∙ x »∙ y ⊢ cs [ _ ] ∷ z)
                         lemma₁₇ (PE.sym (PE.trans (wk-comp _ _ _) (PE.trans Vec′-wk lemma₁₈))) lemma₂₀ ⊢cs₃
 
               ⊢Vec₀″ = ⊢-cong (⊢Vec′ ⊢A (sucⱼ ⊢k))
@@ -615,7 +615,7 @@ private opaque
               ⊢IH₂ = wkTerm (stepʷ (step id) ⊢Vec₁″) ⊢IH ∘ⱼ
                        ⊢∷-conv-PE (var (∙ ⊢Vec₁″) here)
                          (wk-comp _ _ _)
-              ⊢IH₂′ = PE.subst₃ (λ x y z → _ ∙ x ∙ y ⊢ _ ∷ z) (PE.sym (wk1-sgSubst _ _))
+              ⊢IH₂′ = PE.subst₃ (λ x y z → _ »∙ x »∙ y ⊢ _ ∷ z) (PE.sym (wk1-sgSubst _ _))
                         lemma₂₄ lemma₂₅ ⊢IH₂
 
 
@@ -625,10 +625,10 @@ private opaque
               ⊢P₁′ = stability (refl-∙ ⊢Vec₀≡Σ′) ⊢P₁
               ⊢cs₂ = subst-⊢∷ {σ = consSubst (sgSubst k ⇑[ 2 ]) (wk₂ IH ∘⟨ r ⟩ var x0)} ⊢cs
                        (→⊢ˢʷ∷∙ (⊢ˢʷ∷-⇑[] {k = 2} ⊢ΓℕAV (⊢ˢʷ∷-sgSubst ⊢k)) ⊢IH₂′)
-              ⊢cs₂′ = PE.subst₃ (λ x y z → _ ∙ x ∙ y ⊢ _ ∷ z) (wk1-sgSubst _ _)
+              ⊢cs₂′ = PE.subst₃ (λ x y z → _ »∙ x »∙ y ⊢ _ ∷ z) (wk1-sgSubst _ _)
                         (PE.sym lemma₂₄) lemma₂₆ ⊢cs₂
 
-              d = (Vecrec-cons r q P cs [ k , IH ]₁₀) ∘⟨ r ⟩ cons′ A k x xs
+              d = (vecrec-cons r q P cs [ k , IH ]₁₀) ∘⟨ r ⟩ cons′ A k x xs
                       ≡⟨⟩⇒
                   (lam r $ prodrec r p q
                     (P [ consSubst (wkSubst 3 idSubst) (suc (var x2)) ⇑ ] [ consSubst (sgSubst k) IH ⇑[ 2 ] ])
@@ -1017,88 +1017,88 @@ private opaque
 
 opaque
 
-  ⊢∷-Vecrec-cons :
+  ⊢∷-vecrec-cons :
     s PE.≡ 𝕨 →
-    Γ ∙ ℕ ∙ Vec′ l (wk1 A) (var x0) ⊢ P →
+    Γ »∙ ℕ »∙ Vec′ l (wk1 A) (var x0) ⊢ P →
     Γ ⊢ A ∷ U l →
-    Γ ∙ ℕ ∙ wk1 A ∙ Vec′ l (wk₂ A) (var x1) ∙ P [ wk1Subst idSubst ⇑ ] ⊢ cs ∷
+    Γ »∙ ℕ »∙ wk1 A »∙ Vec′ l (wk₂ A) (var x1) »∙ P [ wk1Subst idSubst ⇑ ] ⊢ cs ∷
       P [ consSubst (consSubst (wkSubst 4 idSubst) (suc (var x3))) (cons′ (wk[ 4 ]′ A) (var x3) (var x2) (var x1)) ] →
     Π-allowed r q →
-    Γ ∙ ℕ ∙ Π r , q ▷ Vec′ l (wk1 A) (var x0) ▹ P
-        ⊢ Vecrec-cons r q P cs
+    Γ »∙ ℕ »∙ Π r , q ▷ Vec′ l (wk1 A) (var x0) ▹ P
+        ⊢ vecrec-cons r q P cs
         ∷ Π r , q ▷ Vec′ l (wk₂ A) (suc (var x1)) ▹ (P [ consSubst (consSubst (wkSubst 3 idSubst) (suc (var x2))) (var x0) ])
-  ⊢∷-Vecrec-cons s≡𝕨 ⊢P ⊢A ⊢cs Π-ok =
-    ⊢∷-Vecrec-cons′ s≡𝕨 ⊢P ⊢A ⊢cs Π-ok .proj₁
+  ⊢∷-vecrec-cons s≡𝕨 ⊢P ⊢A ⊢cs Π-ok =
+    ⊢∷-vecrec-cons′ s≡𝕨 ⊢P ⊢A ⊢cs Π-ok .proj₁
 
 opaque
 
-  ⊢⇒*∷-Vecrec-cons :
+  ⊢⇒*∷-vecrec-cons :
     ∀ {IH} →
     s PE.≡ 𝕨 →
-    Γ ∙ ℕ ∙ Vec′ l (wk1 A) (var x0) ⊢ P →
+    Γ »∙ ℕ »∙ Vec′ l (wk1 A) (var x0) ⊢ P →
     Γ ⊢ A ∷ U l →
-    Γ ∙ ℕ ∙ wk1 A ∙ Vec′ l (wk₂ A) (var x1) ∙ P [ wk1Subst idSubst ⇑ ] ⊢ cs ∷
+    Γ »∙ ℕ »∙ wk1 A »∙ Vec′ l (wk₂ A) (var x1) »∙ P [ wk1Subst idSubst ⇑ ] ⊢ cs ∷
       P [ consSubst (consSubst (wkSubst 4 idSubst) (suc (var x3))) (cons′ (wk[ 4 ]′ A) (var x3) (var x2) (var x1)) ] →
     Γ ⊢ k ∷ ℕ →
     Γ ⊢ h ∷ A →
     Γ ⊢ t ∷ Vec′ l A k →
     Γ ⊢ IH ∷ Π r , q ▷ Vec′ l A k ▹ (P [ sgSubst k ⇑ ]) →
     Π-allowed r q →
-    Γ ⊢ (Vecrec-cons r q P cs [ k , IH ]₁₀) ∘⟨ r ⟩ cons′ A k h t ⇒*
+    Γ ⊢ (vecrec-cons r q P cs [ k , IH ]₁₀) ∘⟨ r ⟩ cons′ A k h t ⇒*
       cs [ consSubst (consSubst (consSubst (sgSubst k) h) t) (IH ∘⟨ r ⟩ t) ] ∷
       P [ suc k , cons′ A k h t ]₁₀
-  ⊢⇒*∷-Vecrec-cons s≡𝕨 ⊢P ⊢A ⊢cs ⊢k ⊢h ⊢t ⊢IH Π-ok =
-    ⊢∷-Vecrec-cons′ s≡𝕨 ⊢P ⊢A ⊢cs Π-ok .proj₂ ⊢k ⊢h ⊢t ⊢IH
+  ⊢⇒*∷-vecrec-cons s≡𝕨 ⊢P ⊢A ⊢cs ⊢k ⊢h ⊢t ⊢IH Π-ok =
+    ⊢∷-vecrec-cons′ s≡𝕨 ⊢P ⊢A ⊢cs Π-ok .proj₂ ⊢k ⊢h ⊢t ⊢IH
 
 private opaque
-  unfolding Vecrec′
+  unfolding vecrec′
 
-  ⊢∷-Vecrec″ :
+  ⊢∷-vecrec″ :
     s PE.≡ 𝕨 →
-    Γ ∙ ℕ ∙ Vec′ l (wk1 A) (var x0) ⊢ P →
+    Γ »∙ ℕ »∙ Vec′ l (wk1 A) (var x0) ⊢ P →
     Γ ⊢ A ∷ U l →
     Γ ⊢ nl ∷ P [ zero , nil′ l A ]₁₀ →
-    Γ ∙ ℕ ∙ wk1 A ∙ Vec′ l (wk₂ A) (var x1) ∙ P [ wk1Subst idSubst ⇑ ] ⊢ cs ∷
+    Γ »∙ ℕ »∙ wk1 A »∙ Vec′ l (wk₂ A) (var x1) »∙ P [ wk1Subst idSubst ⇑ ] ⊢ cs ∷
       (P [ consSubst (consSubst (wkSubst 4 idSubst) (suc (var x3))) (cons′ (wk[ 4 ]′ A) (var x3) (var x2) (var x1)) ]) →
     Π-allowed r q₂ →
     (∀ {k} {xs} →
        Γ ⊢ k ∷ ℕ →
        Γ ⊢ xs ∷ Vec′ l A k →
-       Γ ⊢ Vecrec′ l p₁ p₂ r q₁ q₂ A P nl cs k xs ∷ (P [ k , xs ]₁₀)) ×
-    (Γ ⊢ Vecrec′ l p₁ p₂ r q₁ q₂ A P nl cs zero (nil′ l A) ⇒* nl ∷ P [ zero , nil′ l A ]₁₀) ×
+       Γ ⊢ vecrec′ l p₁ p₂ r q₁ q₂ A P nl cs k xs ∷ (P [ k , xs ]₁₀)) ×
+    (Γ ⊢ vecrec′ l p₁ p₂ r q₁ q₂ A P nl cs zero (nil′ l A) ⇒* nl ∷ P [ zero , nil′ l A ]₁₀) ×
     (∀ {k} {x} {xs} →
        Γ ⊢ k ∷ ℕ →
        Γ ⊢ x ∷ A →
        Γ ⊢ xs ∷ Vec′ l A k →
-       Γ ⊢ Vecrec′ l p₁ p₂ r q₁ q₂ A P nl cs (suc k) (cons′ A k x xs) ⇒*
-           cs [ consSubst (consSubst (consSubst (sgSubst k) x) xs) (Vecrec′ l p₁ p₂ r q₁ q₂ A P nl cs k xs) ] ∷
+       Γ ⊢ vecrec′ l p₁ p₂ r q₁ q₂ A P nl cs (suc k) (cons′ A k x xs) ⇒*
+           cs [ consSubst (consSubst (consSubst (sgSubst k) x) xs) (vecrec′ l p₁ p₂ r q₁ q₂ A P nl cs k xs) ] ∷
            P [ suc k , cons′ A k x xs ]₁₀)
-  ⊢∷-Vecrec″ {l} {A} {P} {nl} {cs} {r} {q₂} {p₁} {p₂} {q₁} PE.refl ⊢P ⊢A ⊢nl ⊢cs Π-ok =
-    let ⊢Vecrec₀ = ⊢∷-Vecrec-nil PE.refl ⊢P ⊢A ⊢nl Π-ok
-        ⊢Vecrec₀′ = ⊢∷-conv-PE ⊢Vecrec₀ (PE.cong (Π _ , _ ▷_▹ _) Vec₀≡₀)
-        ⊢Vecrec₊ = ⊢∷-Vecrec-cons PE.refl ⊢P ⊢A ⊢cs Π-ok
-        ⊢Vecrec₊′ = ⊢∷-conv-PE ⊢Vecrec₊ (PE.cong₂ (Π _ , _ ▷_▹_) Vec₀≡
+  ⊢∷-vecrec″ {l} {A} {P} {nl} {cs} {r} {q₂} {p₁} {p₂} {q₁} PE.refl ⊢P ⊢A ⊢nl ⊢cs Π-ok =
+    let ⊢vecrec₀ = ⊢∷-vecrec-nil PE.refl ⊢P ⊢A ⊢nl Π-ok
+        ⊢vecrec₀′ = ⊢∷-conv-PE ⊢vecrec₀ (PE.cong (Π _ , _ ▷_▹ _) Vec₀≡₀)
+        ⊢vecrec₊ = ⊢∷-vecrec-cons PE.refl ⊢P ⊢A ⊢cs Π-ok
+        ⊢vecrec₊′ = ⊢∷-conv-PE ⊢vecrec₊ (PE.cong₂ (Π _ , _ ▷_▹_) Vec₀≡
                       (substVar-to-subst lemma₁ P))
     in  (λ ⊢k ⊢xs →
           let ⊢xs′ = ⊢∷-conv-PE ⊢xs Vec₀≡₀
-          in  ⊢∷-conv-PE (natrecⱼ ⊢Vecrec₀′ ⊢Vecrec₊′ ⊢k ∘ⱼ ⊢xs′) lemma₂)
+          in  ⊢∷-conv-PE (natrecⱼ ⊢vecrec₀′ ⊢vecrec₊′ ⊢k ∘ⱼ ⊢xs′) lemma₂)
         ,
-        (Vecrec′ l p₁ p₂ r q₁ q₂ A P nl cs zero (nil′ l A)              ≡⟨⟩⇒
-        natrec p₁ _ p₂ _ (Vecrec-nil l r q₂ P nl) _ zero ∘⟨ r ⟩ nil′ l A ⇒⟨ ⊢⇒∷-conv-PE (app-subst (⊢⇒∷-conv-PE (natrec-zero ⊢Vecrec₀′ ⊢Vecrec₊′) lemma₃)
+        (vecrec′ l p₁ p₂ r q₁ q₂ A P nl cs zero (nil′ l A)              ≡⟨⟩⇒
+        natrec p₁ _ p₂ _ (vecrec-nil l r q₂ P nl) _ zero ∘⟨ r ⟩ nil′ l A ⇒⟨ ⊢⇒∷-conv-PE (app-subst (⊢⇒∷-conv-PE (natrec-zero ⊢vecrec₀′ ⊢vecrec₊′) lemma₃)
                                                                             (⊢nil′ ⊢A)) lemma₂ ⟩
-        Vecrec-nil l r q₂ P nl ∘⟨ r ⟩ nil′ l A                           ⇒*⟨ ⊢⇒*∷-Vecrec-nil PE.refl ⊢P ⊢A ⊢nl Π-ok ⟩∎
+        vecrec-nil l r q₂ P nl ∘⟨ r ⟩ nil′ l A                           ⇒*⟨ ⊢⇒*∷-vecrec-nil PE.refl ⊢P ⊢A ⊢nl Π-ok ⟩∎
         nl                                                              ∎)
         , λ {k} {x} {xs} ⊢k ⊢x ⊢xs →
           let nr = natrec p₁ (⌜ ⌞ r ⌟ ⌝ + q₁) p₂  (Π r , q₂ ▷ Vec′ l (wk1 A) (var x0) ▹ P)
-                     (Vecrec-nil l r q₂ P nl) (Vecrec-cons r q₂ P cs)
-              IH = Vecrec′ l p₁ p₂ r q₁ q₂ A P nl cs k xs
+                     (vecrec-nil l r q₂ P nl) (vecrec-cons r q₂ P cs)
+              IH = vecrec′ l p₁ p₂ r q₁ q₂ A P nl cs k xs
               x:xs = cons′ A k x xs
               ⊢x:xs = ⊢cons′ ⊢A ⊢k ⊢x ⊢xs
-              ⊢nr = ⊢∷-conv-PE (natrecⱼ ⊢Vecrec₀′ ⊢Vecrec₊′ ⊢k) lemma₃
+              ⊢nr = ⊢∷-conv-PE (natrecⱼ ⊢vecrec₀′ ⊢vecrec₊′ ⊢k) lemma₃
               d =
-                Vecrec′ l p₁ p₂ r q₁ q₂ A P nl cs (suc k) x:xs ≡⟨⟩⇒
-                nr (suc k) ∘⟨ r ⟩ x:xs                                        ⇒⟨ app-subst (⊢⇒∷-conv-PE (natrec-suc ⊢Vecrec₀′ ⊢Vecrec₊′ ⊢k) lemma₃) ⊢x:xs ⟩
-                (Vecrec-cons r q₂ P cs [ k , nr k ]₁₀) ∘⟨ r ⟩ x:xs            ⇒*⟨ ⊢⇒*∷-conv-PE (⊢⇒*∷-Vecrec-cons PE.refl ⊢P ⊢A ⊢cs ⊢k ⊢x ⊢xs ⊢nr Π-ok) (PE.sym lemma₂) ⟩∎
+                vecrec′ l p₁ p₂ r q₁ q₂ A P nl cs (suc k) x:xs ≡⟨⟩⇒
+                nr (suc k) ∘⟨ r ⟩ x:xs                                        ⇒⟨ app-subst (⊢⇒∷-conv-PE (natrec-suc ⊢vecrec₀′ ⊢vecrec₊′ ⊢k) lemma₃) ⊢x:xs ⟩
+                (vecrec-cons r q₂ P cs [ k , nr k ]₁₀) ∘⟨ r ⟩ x:xs            ⇒*⟨ ⊢⇒*∷-conv-PE (⊢⇒*∷-vecrec-cons PE.refl ⊢P ⊢A ⊢cs ⊢k ⊢x ⊢xs ⊢nr Π-ok) (PE.sym lemma₂) ⟩∎
                 cs [ consSubst (consSubst (consSubst (sgSubst k) x) xs) IH ] ∎
           in  ⊢⇒*∷-conv-PE d lemma₂
     where
@@ -1124,49 +1124,49 @@ private opaque
 
 opaque
 
-  ⊢∷-Vecrec′ :
+  ⊢∷-vecrec′ :
     s PE.≡ 𝕨 →
-    Γ ∙ ℕ ∙ Vec′ l (wk1 A) (var x0) ⊢ P →
+    Γ »∙ ℕ »∙ Vec′ l (wk1 A) (var x0) ⊢ P →
     Γ ⊢ A ∷ U l →
     Γ ⊢ nl ∷ P [ zero , nil′ l A ]₁₀ →
-    Γ ∙ ℕ ∙ wk1 A ∙ Vec′ l (wk₂ A) (var x1) ∙ P [ wk1Subst idSubst ⇑ ] ⊢ cs ∷
+    Γ »∙ ℕ »∙ wk1 A »∙ Vec′ l (wk₂ A) (var x1) »∙ P [ wk1Subst idSubst ⇑ ] ⊢ cs ∷
       P [ consSubst (consSubst (wkSubst 4 idSubst) (suc (var x3))) (cons′ (wk[ 4 ]′ A) (var x3) (var x2) (var x1)) ] →
     Γ ⊢ k ∷ ℕ →
     Γ ⊢ xs ∷ Vec′ l A k →
     Π-allowed r q₂ →
-    Γ ⊢ Vecrec′ l p₁ p₂ r q₁ q₂ A P nl cs k xs ∷ P [ k , xs ]₁₀
-  ⊢∷-Vecrec′ s≡𝕨 ⊢P ⊢A ⊢nl ⊢cs ⊢k ⊢xs Π-ok =
-    ⊢∷-Vecrec″ s≡𝕨 ⊢P ⊢A ⊢nl ⊢cs Π-ok .proj₁ ⊢k ⊢xs
+    Γ ⊢ vecrec′ l p₁ p₂ r q₁ q₂ A P nl cs k xs ∷ P [ k , xs ]₁₀
+  ⊢∷-vecrec′ s≡𝕨 ⊢P ⊢A ⊢nl ⊢cs ⊢k ⊢xs Π-ok =
+    ⊢∷-vecrec″ s≡𝕨 ⊢P ⊢A ⊢nl ⊢cs Π-ok .proj₁ ⊢k ⊢xs
 
 opaque
 
-  ⊢⇒*∷-Vecrec-β-nil :
+  ⊢⇒*∷-vecrec-β-nil :
     s PE.≡ 𝕨 →
-    Γ ∙ ℕ ∙ Vec′ l (wk1 A) (var x0) ⊢ P →
+    Γ »∙ ℕ »∙ Vec′ l (wk1 A) (var x0) ⊢ P →
     Γ ⊢ A ∷ U l →
     Γ ⊢ nl ∷ P [ zero , nil′ l A ]₁₀ →
-    Γ ∙ ℕ ∙ wk1 A ∙ Vec′ l (wk₂ A) (var x1) ∙ P [ wk1Subst idSubst ⇑ ] ⊢ cs ∷
+    Γ »∙ ℕ »∙ wk1 A »∙ Vec′ l (wk₂ A) (var x1) »∙ P [ wk1Subst idSubst ⇑ ] ⊢ cs ∷
       P [ consSubst (consSubst (wkSubst 4 idSubst) (suc (var x3))) (cons′ (wk[ 4 ]′ A) (var x3) (var x2) (var x1)) ] →
     Π-allowed r q₂ →
-    Γ ⊢ Vecrec′ l p₁ p₂ r q₁ q₂ A P nl cs zero (nil′ l A) ⇒* nl ∷ P [ zero , nil′ l A ]₁₀
-  ⊢⇒*∷-Vecrec-β-nil s≡𝕨 ⊢P ⊢A ⊢nl ⊢cs Π-ok =
-    ⊢∷-Vecrec″ s≡𝕨 ⊢P ⊢A ⊢nl ⊢cs Π-ok .proj₂ .proj₁
+    Γ ⊢ vecrec′ l p₁ p₂ r q₁ q₂ A P nl cs zero (nil′ l A) ⇒* nl ∷ P [ zero , nil′ l A ]₁₀
+  ⊢⇒*∷-vecrec-β-nil s≡𝕨 ⊢P ⊢A ⊢nl ⊢cs Π-ok =
+    ⊢∷-vecrec″ s≡𝕨 ⊢P ⊢A ⊢nl ⊢cs Π-ok .proj₂ .proj₁
 
 opaque
 
-  ⊢⇒*∷-Vecrec-β-cons :
+  ⊢⇒*∷-vecrec-β-cons :
     s PE.≡ 𝕨 →
-    Γ ∙ ℕ ∙ Vec′ l (wk1 A) (var x0) ⊢ P →
+    Γ »∙ ℕ »∙ Vec′ l (wk1 A) (var x0) ⊢ P →
     Γ ⊢ A ∷ U l →
     Γ ⊢ nl ∷ P [ zero , nil′ l A ]₁₀ →
-    Γ ∙ ℕ ∙ wk1 A ∙ Vec′ l (wk₂ A) (var x1) ∙ P [ wk1Subst idSubst ⇑ ] ⊢ cs ∷
+    Γ »∙ ℕ »∙ wk1 A »∙ Vec′ l (wk₂ A) (var x1) »∙ P [ wk1Subst idSubst ⇑ ] ⊢ cs ∷
       P [ consSubst (consSubst (wkSubst 4 idSubst) (suc (var x3))) (cons′ (wk[ 4 ]′ A) (var x3) (var x2) (var x1)) ] →
     Γ ⊢ k ∷ ℕ →
     Γ ⊢ h ∷ A →
     Γ ⊢ t ∷ Vec′ l A k →
     Π-allowed r q₂ →
-    Γ ⊢ Vecrec′ l p₁ p₂ r q₁ q₂ A P nl cs (suc k) (cons′ A k h t) ⇒*
-        cs [ consSubst (consSubst (consSubst (sgSubst k) h) t) (Vecrec′ l p₁ p₂ r q₁ q₂ A P nl cs k t) ] ∷
+    Γ ⊢ vecrec′ l p₁ p₂ r q₁ q₂ A P nl cs (suc k) (cons′ A k h t) ⇒*
+        cs [ consSubst (consSubst (consSubst (sgSubst k) h) t) (vecrec′ l p₁ p₂ r q₁ q₂ A P nl cs k t) ] ∷
         P [ suc k , cons′ A k h t ]₁₀
-  ⊢⇒*∷-Vecrec-β-cons s≡𝕨 ⊢P ⊢A ⊢nl ⊢cs ⊢k ⊢x ⊢xs Π-ok =
-    ⊢∷-Vecrec″ s≡𝕨 ⊢P ⊢A ⊢nl ⊢cs Π-ok .proj₂ .proj₂ ⊢k ⊢x ⊢xs
+  ⊢⇒*∷-vecrec-β-cons s≡𝕨 ⊢P ⊢A ⊢nl ⊢cs ⊢k ⊢x ⊢xs Π-ok =
+    ⊢∷-vecrec″ s≡𝕨 ⊢P ⊢A ⊢nl ⊢cs Π-ok .proj₂ .proj₂ ⊢k ⊢x ⊢xs
