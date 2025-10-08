@@ -411,8 +411,7 @@ import Definition.LogicalRelation.Substitution using
 ```
 In the formalization, these lemmas include an assumption related to `Var-included`. Note that the escape lemmas for
 valid contexts, substitutions, and substitution equality all go directly to the normal typing judgements, since there is
-no notion of reducibility for these entities. (In the paper it is stated that `⊩ᵛ Γ` implies `⊩ Γ`, but the latter
-notion is not defined: it should be replaced by `⊢ Γ`.)
+no notion of reducibility for these entities.
 
 Theorem 3.17, the fundamental theorem, states that the normal typing judgements can be strengthened to validity:
 ```
@@ -443,9 +442,7 @@ import Definition.Typed.Consequences.Reduction using
   )
 ```
 
-Theorem 3.19 states that if `ε ⊢ t ∷ ℕ`, then `t` reduces to a canonical form of `ℕ`, i.e. a numeral. This formulation
-should not have been used: the statement is not necessarily true, because the reduction relation does not include
-reduction under `suc`. However, a variant of the statement with judgemental equality instead of reduction does hold:
+Theorem 3.19 states that if `ε ⊢ t ∷ ℕ`, then `t` is judgementally equal to a canonical form of `ℕ`, i.e. a numeral:
 ```
 import Definition.Typed.Consequences.Canonicity using (canonicity)
 ```
@@ -857,7 +854,7 @@ import Definition.LogicalRelation.Substitution.Introductions.Definition using
 ### 5.3 Consequences of the Fundamental Theorem
 
 Theorem 5.19 re-establishes canonicity for natural numbers with appropriate glassification of definition contexts (this
-snippet is identical to the one above for Theorem 3.19, and the paper's formulation of the theorem is again incorrect):
+snippet is identical to the one above for Theorem 3.19):
 ```
 import Definition.Typed.Consequences.Canonicity using (canonicity)
 ```
@@ -877,13 +874,8 @@ Theorem 5.22 re-establishes consistency (this snippet is identical to the one a
 import Definition.Typed.Consequences.Canonicity using (¬Empty)
 ```
 
-Theorem 5.23 states that there can be no definitions annotated with the empty type in a well-formed definition context,
-a property that might be called "definition consistency":
-```
-import Definition.Typed.Consequences.Canonicity using (¬defn-Empty)
-```
-The theorem `¬defn-Empty` establishes that no definition is explicitly given the empty type (`¬ α ↦∷ Empty ∈ ∇`), but
-one can also prove that no definition has the empty type in general (`α ↦∷ A ∈ ∇ → ¬ ∇ » ε ⊢ A ≡ Empty`):
+Theorem 5.23 states that no definition in a well-formed definition context has the empty type, a property that might be
+called "definition consistency":
 ```
 import Definition.Typed.Consequences.Canonicity using (¬defn-Empty′)
 ```
