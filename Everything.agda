@@ -106,6 +106,7 @@ import Definition.Untyped.Erased.No-eta
 import Definition.Untyped.Erased
 import Definition.Untyped.Bool.Erased
 import Definition.Untyped.Omega
+import Definition.Untyped.Vec
 import Graded.Derived.Unrestricted.Eta.Untyped
 
 ------------------------------------------------------------------------
@@ -158,6 +159,7 @@ import Definition.Typed.Names-below
 import Definition.Typed.EqualityRelation
 import Definition.Typed.EqualityRelation.Instance
 import Definition.Typed.EqRelInstance
+import Definition.Typed.Properties.Admissible.Vec
 
 ------------------------------------------------------------------------
 -- The usage relation
@@ -204,6 +206,7 @@ import Graded.Derived.Erased.Usage
 import Graded.Derived.Bool.Erased
 import Graded.Derived.Unrestricted.Eta.Usage
 import Graded.Derived.Omega
+import Graded.Derived.Vec
 
 ------------------------------------------------------------------------
 -- Assumptions used to state the theorems in Graded.FullReduction
