@@ -14,10 +14,10 @@ module Graded.Derived.Vec
   (s : Strength)
   (p : M)
   (R : Usage-restrictions 𝕄)
-  (open Usage-restrictions R)
   where
 
 open Modality 𝕄
+open Usage-restrictions R
 
 open import Graded.Context 𝕄
 open import Graded.Context.Properties 𝕄
@@ -56,6 +56,8 @@ private variable
 opaque
   unfolding Vec′
 
+  -- A usage rule for Vec′
+
   ▸Vec′ :
     ⦃ no-nr : Nr-not-available-GLB ⦄ →
     γ ▸[ m ] k →
@@ -76,11 +78,15 @@ opaque
 opaque
   unfolding nil′
 
+  -- A usage rule for nil′
+
   ▸nil′ : 𝟘ᶜ ▸[ m ] nil′ l A
   ▸nil′ = starₘ
 
 opaque
   unfolding cons′
+
+  -- A usage rule for cons′ where weak unit and Σ-types are used
 
   ▸cons′ʷ :
     s ≡ 𝕨 →
@@ -92,6 +98,8 @@ opaque
 opaque
   unfolding cons′
 
+  -- A usage rule for cons′ where strong unit and Σ-types are used
+
   ▸cons′ˢ :
     s ≡ 𝕤 →
     γ ▸[ m ᵐ· p ] h →
@@ -101,6 +109,8 @@ opaque
 
 opaque
   unfolding vecrec-nil
+
+  -- A usage lemma for vecrec-nil
 
   ▸vecrec-nil :
     γ ▸[ m ] nl →
@@ -138,6 +148,8 @@ opaque
 
 opaque
   unfolding vecrec-cons
+
+  -- A usage lemma for vecrec-cons
 
   ▸vecrec-cons :
     ⦃ Has-well-behaved-GLBs semiring-with-meet ⦄ →
@@ -283,6 +295,8 @@ opaque
 opaque
   unfolding vecrec′
 
+  -- A usage rule for vecrec′
+
   ▸vecrec′ :
     ⦃ no-nr : Nr-not-available-GLB ⦄ →
     γ₁ ▸[ m ] nl →
@@ -298,7 +312,7 @@ opaque
     Unitrec-allowed m r₂ q₂ →
     Prodrec-allowed m r₂ p q₂ →
     θ₁ +ᶜ r₁ ·ᶜ δ₁ +ᶜ r₂ ·ᶜ δ₂ ▸[ m ] vecrec′ l p₁ p₄ r₂ q₁ q₂ A P nl cs k xs
-  ▸vecrec′ {δ₁} {δ₂} {r₁} {η₂} {q₁} {r₂} {θ₁} {θ₂}
+  ▸vecrec′ {δ₁} {δ₂} {r₂} {η₂} {q₁} {r₁} {θ₁} {θ₂}
     ▸nl ▸cs ▸k ▸xs ▸A ▸P r₁-GLB r₂-GLB θ₁-GLB θ₂-GLB ok₁ ok₂ =
     let open Graded.Usage.Restrictions.Instance R
         open ≈ᶜ-reasoning
@@ -318,136 +332,186 @@ opaque
               ▸k ▸Π′ r₁-GLB θ₁-GLB
             ∘ₘ ▸xs)
             (begin
-              θ₁ +ᶜ r₂ ·ᶜ δ₁ +ᶜ r₁ ·ᶜ δ₂   ≈˘⟨ +ᶜ-assoc _ _ _ ⟩
-              (θ₁ +ᶜ r₂ ·ᶜ δ₁) +ᶜ r₁ ·ᶜ δ₂ ≈⟨ +ᶜ-congʳ (+ᶜ-comm _ _) ⟩
-              (r₂ ·ᶜ δ₁ +ᶜ θ₁) +ᶜ r₁ ·ᶜ δ₂ ∎)
+              θ₁ +ᶜ r₁ ·ᶜ δ₁ +ᶜ r₂ ·ᶜ δ₂   ≈˘⟨ +ᶜ-assoc _ _ _ ⟩
+              (θ₁ +ᶜ r₁ ·ᶜ δ₁) +ᶜ r₂ ·ᶜ δ₂ ≈⟨ +ᶜ-congʳ (+ᶜ-comm _ _) ⟩
+              (r₁ ·ᶜ δ₁ +ᶜ θ₁) +ᶜ r₂ ·ᶜ δ₂ ∎)
 
--- ------------------------------------------------------------------------
--- -- Inversion lemmas for usage
+------------------------------------------------------------------------
+-- Inversion lemmas for usage
 
--- opaque
---   unfolding Vec′
+opaque
+  unfolding Vec′
 
---   inv-usage-Vec′ :
---     ⦃ no-nr : Nr-not-available-GLB ⦄ →
---     γ ▸[ m ] Vec′ l A k →
---     ∃₅ λ δ η θ δ′ η′ → δ ▸[ m ] k × η ▸[ m ᵐ· p ] A ×
---       Greatest-lower-boundᶜ θ (nrᵢᶜ 𝟙 δ′ η′) ×
---       γ ≤ᶜ δ +ᶜ θ × δ′ ≤ᶜ 𝟘ᶜ × η′ ≤ᶜ η
---   inv-usage-Vec′ {γ} {m} ▸Vec =
---     let δ , η , θ , φ , q , χ , ▸⊤ , ▸Σ , ▸k , ▸U
---           , γ≤ , q-GLB , χ-GLB = inv-usage-natrec-no-nr-glb ▸Vec
---         invUsageΠΣ {δ = δ′} {η = η′} ▸A ▸x1 η≤ = inv-usage-ΠΣ ▸Σ
---         open ≤ᶜ-reasoning
---     in  _ , _ , _ , _ , _ , ▸k  , wkUsage⁻¹ ▸A , χ-GLB
---           , (begin
---               γ            ≤⟨ γ≤ ⟩
---               q ·ᶜ θ +ᶜ χ  ≤⟨ +ᶜ-monotoneˡ (·ᶜ-monotoneˡ (nrᵢ-GLB-≤₀ q-GLB)) ⟩
---               𝟙 ·ᶜ θ +ᶜ χ  ≈⟨  +ᶜ-congʳ (·ᶜ-identityˡ _) ⟩
---               θ +ᶜ χ ∎)
---           , inv-usage-Unit ▸⊤
---           , (begin
---               η                                  ≤⟨ tailₘ-monotone (tailₘ-monotone η≤) ⟩
---               tailₘ (tailₘ (δ′ +ᶜ η′))           ≤⟨ tailₘ-monotone (tailₘ-monotone (+ᶜ-monotoneʳ {η = δ′}
---                                                      (tailₘ-monotone (inv-usage-var ▸x1)))) ⟩
---               tailₘ (tailₘ (δ′ +ᶜ (𝟘ᶜ ∙ ⌜ m ⌝))) ≈⟨ tailₘ-cong (tailₘ-distrib-+ᶜ δ′ (𝟘ᶜ ∙ ⌜ m ⌝)) ⟩
---               tailₘ (tailₘ δ′ +ᶜ 𝟘ᶜ)             ≈⟨ tailₘ-cong (+ᶜ-identityʳ (tailₘ δ′)) ⟩
---               tailₘ (tailₘ δ′)                   ≡⟨⟩
---               wkConₘ⁻¹ id (tailₘ (tailₘ δ′))     ≈˘⟨ wkConₘ⁻¹-step (tailₘ δ′) ⟩
---               wkConₘ⁻¹ (step id) (tailₘ δ′)      ≈˘⟨ wkConₘ⁻¹-step δ′ ⟩
---               wkConₘ⁻¹ (step (step id)) δ′       ∎)
+  -- A usage inversion lemma for Vec′
 
--- opaque
---   unfolding nil′
+  inv-usage-Vec′ :
+    ⦃ no-nr : Nr-not-available-GLB ⦄ →
+    γ ▸[ m ] Vec′ l A k →
+    ∃₅ λ δ η θ δ′ η′ → δ ▸[ m ] k × η ▸[ m ᵐ· p ] A ×
+      Greatest-lower-boundᶜ θ (nrᵢᶜ 𝟙 δ′ η′) ×
+      γ ≤ᶜ δ +ᶜ θ × δ′ ≤ᶜ 𝟘ᶜ × η′ ≤ᶜ η
+  inv-usage-Vec′ {γ} {m} ▸Vec =
+    let δ , η , θ , φ , q , χ , ▸⊤ , ▸Σ , ▸k , ▸U
+          , γ≤ , q-GLB , χ-GLB = inv-usage-natrec-no-nr-glb ▸Vec
+        invUsageΠΣ {δ = δ′} {η = η′} ▸A ▸x1 η≤ = inv-usage-ΠΣ ▸Σ
+        open ≤ᶜ-reasoning
+    in  _ , _ , _ , _ , _ , ▸k  , wkUsage⁻¹ ▸A , χ-GLB
+          , (begin
+              γ            ≤⟨ γ≤ ⟩
+              q ·ᶜ θ +ᶜ χ  ≤⟨ +ᶜ-monotoneˡ (·ᶜ-monotoneˡ (nrᵢ-GLB-≤₀ q-GLB)) ⟩
+              𝟙 ·ᶜ θ +ᶜ χ  ≈⟨  +ᶜ-congʳ (·ᶜ-identityˡ _) ⟩
+              θ +ᶜ χ ∎)
+          , inv-usage-Unit ▸⊤
+          , (begin
+              η                                  ≤⟨ tailₘ-monotone (tailₘ-monotone η≤) ⟩
+              tailₘ (tailₘ (δ′ +ᶜ η′))           ≤⟨ tailₘ-monotone (tailₘ-monotone (+ᶜ-monotoneʳ {η = δ′}
+                                                     (tailₘ-monotone (inv-usage-var ▸x1)))) ⟩
+              tailₘ (tailₘ (δ′ +ᶜ (𝟘ᶜ ∙ ⌜ m ⌝))) ≈⟨ tailₘ-cong (tailₘ-distrib-+ᶜ δ′ (𝟘ᶜ ∙ ⌜ m ⌝)) ⟩
+              tailₘ (tailₘ δ′ +ᶜ 𝟘ᶜ)             ≈⟨ tailₘ-cong (+ᶜ-identityʳ (tailₘ δ′)) ⟩
+              tailₘ (tailₘ δ′)                   ≡⟨⟩
+              wkConₘ⁻¹ id (tailₘ (tailₘ δ′))     ≈˘⟨ wkConₘ⁻¹-step (tailₘ δ′) ⟩
+              wkConₘ⁻¹ (step id) (tailₘ δ′)      ≈˘⟨ wkConₘ⁻¹-step δ′ ⟩
+              wkConₘ⁻¹ (step (step id)) δ′       ∎)
 
---   inv-usage-nil′ʷ :
---     s ≡ 𝕨 → γ ▸[ m ] nil′ l A → γ ≤ᶜ 𝟘ᶜ
---   inv-usage-nil′ʷ refl ▸nil = inv-usage-starʷ ▸nil
+opaque
+  unfolding nil′
 
--- opaque
---   unfolding nil′
+  -- A usage inversion lemma for nil′ when weak unit and Σ-types are used
 
---   inv-usage-nil′ˢ :
---     s ≡ 𝕤 → γ ▸[ m ] nil′ l A →
---     ∃ λ δ → γ ≤ᶜ ⌜ m ⌝ ·ᶜ δ × (¬ Starˢ-sink → 𝟘ᶜ ≈ᶜ δ)
---   inv-usage-nil′ˢ refl ▸nil =
---     let invUsageStarˢ γ≤ 𝟘ᶜ≈ = inv-usage-starˢ ▸nil
---     in  _ , γ≤ , 𝟘ᶜ≈
+  inv-usage-nil′ʷ :
+    s ≡ 𝕨 → γ ▸[ m ] nil′ l A → γ ≤ᶜ 𝟘ᶜ
+  inv-usage-nil′ʷ refl ▸nil = inv-usage-starʷ ▸nil
 
--- opaque
---   unfolding cons′
+opaque
+  unfolding nil′
 
---   inv-usage-cons′ʷ :
---     s ≡ 𝕨 → γ ▸[ m ] cons′ A k h t →
---     ∃₂ λ δ η → δ ▸[ m ᵐ· p ] h × η ▸[ m ] t × γ ≤ᶜ p ·ᶜ δ +ᶜ η
---   inv-usage-cons′ʷ refl ▸cons =
---     let invUsageProdʷ ▸h ▸t γ≤ = inv-usage-prodʷ ▸cons
---     in  _ , _ , ▸h , ▸t , γ≤
+  -- A usage inversion lemma for nil′ when strong unit and Σ-types are used
 
--- opaque
---   unfolding cons′
+  inv-usage-nil′ˢ :
+    s ≡ 𝕤 → γ ▸[ m ] nil′ l A →
+    ∃ λ δ → γ ≤ᶜ ⌜ m ⌝ ·ᶜ δ × (¬ Starˢ-sink → 𝟘ᶜ ≈ᶜ δ)
+  inv-usage-nil′ˢ refl ▸nil =
+    let invUsageStarˢ γ≤ 𝟘ᶜ≈ = inv-usage-starˢ ▸nil
+    in  _ , γ≤ , 𝟘ᶜ≈
 
---   inv-usage-cons′ˢ :
---     s ≡ 𝕤 → γ ▸[ m ] cons′ A k h t →
---     ∃₂ λ δ η → δ ▸[ m ᵐ· p ] h × η ▸[ m ] t × γ ≤ᶜ p ·ᶜ δ ∧ᶜ η
---   inv-usage-cons′ˢ refl ▸cons =
---     let invUsageProdˢ ▸h ▸t γ≤ = inv-usage-prodˢ ▸cons
---     in  _ , _ , ▸h , ▸t , γ≤
+opaque
+  unfolding cons′
 
--- opaque
---   unfolding vecrec-nil
+  -- A usage inversion lemma for cons′ when weak unit and Σ-types are used
 
---   inv-usage-vecrec-nil :
---     γ ▸[ m ] vecrec-nil l r q P nl →
---     ∃₂ λ δ η → δ ∙ ⌜ 𝟘ᵐ? ⌝ · q ▸[ 𝟘ᵐ? ] P [ consSubst (wk1Subst idSubst) zero ⇑ ] ×
---       η ▸[ m ] nl × Unitrec-allowed m r q × γ ≤ᶜ η
---   inv-usage-vecrec-nil {γ} {r} ▸λur =
---     let invUsageLam {δ} ▸ur γ≤ = inv-usage-lam ▸λur
---         invUsageUnitrec {δ = η′} {η = η} ▸x0 ▸nl ▸P ok δ≤ = inv-usage-unitrec ▸ur
---         open ≤ᶜ-reasoning
---     in _ , _ , ▸P , wkUsage⁻¹ ▸nl , ok , (begin
---         γ                          ≤⟨ γ≤ ⟩
---         δ                          ≤⟨ tailₘ-monotone δ≤ ⟩
---         tailₘ (r ·ᶜ η′ +ᶜ η)       ≈⟨ tailₘ-distrib-+ᶜ (r ·ᶜ η′) η ⟩
---         tailₘ (r ·ᶜ η′) +ᶜ tailₘ η ≈⟨ +ᶜ-congʳ (tailₘ-distrib-·ᶜ _ η′) ⟩
---         r ·ᶜ tailₘ η′ +ᶜ tailₘ η   ≤⟨ +ᶜ-monotoneˡ (·ᶜ-monotoneʳ (tailₘ-monotone (inv-usage-var ▸x0))) ⟩
---         r ·ᶜ 𝟘ᶜ +ᶜ tailₘ η         ≈⟨ +ᶜ-congʳ (·ᶜ-zeroʳ _) ⟩
---         𝟘ᶜ +ᶜ tailₘ η              ≈⟨ +ᶜ-identityˡ _ ⟩
---         tailₘ η                    ≈˘⟨ wkConₘ⁻¹-step η ⟩
---         wkConₘ⁻¹ (step id) η       ∎)
+  inv-usage-cons′ʷ :
+    s ≡ 𝕨 → γ ▸[ m ] cons′ A k h t →
+    ∃₂ λ δ η → δ ▸[ m ᵐ· p ] h × η ▸[ m ] t × γ ≤ᶜ p ·ᶜ δ +ᶜ η
+  inv-usage-cons′ʷ refl ▸cons =
+    let invUsageProdʷ ▸h ▸t γ≤ = inv-usage-prodʷ ▸cons
+    in  _ , _ , ▸h , ▸t , γ≤
 
--- opaque
---   unfolding vecrec-cons
+opaque
+  unfolding cons′
 
---   inv-usage-vecrec-cons :
---     γ ▸[ m ] vecrec-cons r q P cs →
---     {!!}
---   inv-usage-vecrec-cons ▸λpr =
---     let invUsageLam {δ} ▸pr γ≤ = inv-usage-lam ▸λpr
---         invUsageProdrec ▸x0 b c ok δ≤ = inv-usage-prodrec ▸pr
---     in  {!b!}
+  -- A usage inversion lemma for cons′ when strong unit and Σ-types are used
 
+  inv-usage-cons′ˢ :
+    s ≡ 𝕤 → γ ▸[ m ] cons′ A k h t →
+    ∃₂ λ δ η → δ ▸[ m ᵐ· p ] h × η ▸[ m ] t × γ ≤ᶜ p ·ᶜ δ ∧ᶜ η
+  inv-usage-cons′ˢ refl ▸cons =
+    let invUsageProdˢ ▸h ▸t γ≤ = inv-usage-prodˢ ▸cons
+    in  _ , _ , ▸h , ▸t , γ≤
 
+opaque
+  unfolding vecrec-nil
 
--- opaque
---   unfolding vecrec′
+  -- A usage inversion lemma for vecrec-nil
 
---   inv-usage-vecrec′ :
---     ⦃ no-nr : Nr-not-available-GLB ⦄ →
---     s ≡ 𝕨 → γ ▸[ m ] vecrec′ l p₁ p₄ r₁ q₁ q₂ A P nl cs k xs →
---     ∃₆ λ δ₁ δ₂ η₁ η₂ θ₁ θ₂ →
---       θ₁ ▸[ (𝟘ᵐ? ᵐ· r₁) ᵐ· p ] A × θ₂ ∙ ⌜ 𝟘ᵐ? ⌝ · q₂ ▸[ 𝟘ᵐ? ] P ×
---       δ₁ ▸[ m ] nl × δ₂ ∙ {!!} ∙ {!!} ∙ {!!} ∙ {!!} ▸[ {!!} ] cs ×
---       η₁ ▸[ m ] k × η₂ ▸[ m ᵐ· r₁ ] xs ×
---       Unitrec-allowed m r₁ q₂ ×
---       γ ≤ᶜ {!!} × δ₁ ≤ᶜ {!!} × δ₂ ≤ᶜ {!!} × η₁ ≤ᶜ {!!} × η₂ ≤ᶜ {!!} × θ₁ ≤ᶜ {!!} × θ₂ ≤ᶜ {!!}
---   inv-usage-vecrec′ refl ▸vr =
---     let invUsageApp ▸nr ▸xs γ≤ = inv-usage-app ▸vr
---         δ , η , θ , φ , x , χ , ▸vrn , ▸vrc , ▸k , ▸ΠVP , γ′≤ , x-GLB , χ-GLB = inv-usage-natrec-no-nr-glb ▸nr
---         invUsageΠΣ ▸V ▸P φ≤ = inv-usage-ΠΣ ▸ΠVP
---         _ , _ , _ , _ , _ , ▸x0 , ▸A , θ′-GLB , le₁ , le₂ , le₃ = inv-usage-Vec′ ▸V
---         _ , _ , _ , ▸nl , ok₁ , le₄ = inv-usage-vecrec-nil ▸vrn
---     in  _ , _ , _ , _ , _ , _
---           , wkUsage⁻¹ ▸A , ▸P , ▸nl , {!▸vrc!} , ▸k , ▸xs
---           , ok₁
---           , {!γ≤!} , {!!} , {!!} , {!!} , {!!} , {!!}
+  inv-usage-vecrec-nil :
+    γ ▸[ m ] vecrec-nil l r q P nl →
+    ∃₂ λ δ η → δ ∙ ⌜ 𝟘ᵐ? ⌝ · q ▸[ 𝟘ᵐ? ] P [ consSubst (wk1Subst idSubst) zero ⇑ ] ×
+      η ▸[ m ] nl × Unitrec-allowed m r q × γ ≤ᶜ η
+  inv-usage-vecrec-nil {γ} {r} ▸λur =
+    let invUsageLam {δ} ▸ur γ≤ = inv-usage-lam ▸λur
+        invUsageUnitrec {δ = η′} {η = η} ▸x0 ▸nl ▸P ok δ≤ = inv-usage-unitrec ▸ur
+        open ≤ᶜ-reasoning
+    in _ , _ , ▸P , wkUsage⁻¹ ▸nl , ok , (begin
+        γ                          ≤⟨ γ≤ ⟩
+        δ                          ≤⟨ tailₘ-monotone δ≤ ⟩
+        tailₘ (r ·ᶜ η′ +ᶜ η)       ≈⟨ tailₘ-distrib-+ᶜ (r ·ᶜ η′) η ⟩
+        tailₘ (r ·ᶜ η′) +ᶜ tailₘ η ≈⟨ +ᶜ-congʳ (tailₘ-distrib-·ᶜ _ η′) ⟩
+        r ·ᶜ tailₘ η′ +ᶜ tailₘ η   ≤⟨ +ᶜ-monotoneˡ (·ᶜ-monotoneʳ (tailₘ-monotone (inv-usage-var ▸x0))) ⟩
+        r ·ᶜ 𝟘ᶜ +ᶜ tailₘ η         ≈⟨ +ᶜ-congʳ (·ᶜ-zeroʳ _) ⟩
+        𝟘ᶜ +ᶜ tailₘ η              ≈⟨ +ᶜ-identityˡ _ ⟩
+        tailₘ η                    ≈˘⟨ wkConₘ⁻¹-step η ⟩
+        wkConₘ⁻¹ (step id) η       ∎)
+
+opaque
+  unfolding vecrec-cons
+
+  inv-usage-vecrec-cons :
+    γ ▸[ m ] vecrec-cons r q P cs →
+    ∃₂ λ δ₁ δ₂ →
+    δ₁ ∙ ⌜ m ⌝ · r · p ∙ ⌜ m ⌝ · r ▸[ m ] cs [ consSubst (consSubst (consSubst (consSubst (wkSubst 5 idSubst)
+                                                (var x4)) (var x1)) (var x0)) (var x3 ∘⟨ r ⟩ var x0) ] ×
+    δ₂ ∙ ⌜ 𝟘ᵐ? ⌝ · q ▸[ 𝟘ᵐ? ] P [ consSubst (wkSubst 3 idSubst) (suc (var x2)) ⇑ ] ×
+    Prodrec-allowed m r p q ×
+    γ ∙ ⌜ m ⌝ · r ≤ᶜ δ₁ +ᶜ (𝟘ᶜ ∙ ⌜ m ⌝ · r)
+  inv-usage-vecrec-cons {γ} {m} {r} ▸λpr =
+    let invUsageLam {δ = γ′} ▸pr γ≤γ′ = inv-usage-lam ▸λpr
+        invUsageProdrec {δ} {η} {θ} ▸x0 ▸cs[] ▸P[] ok γ′≤ = inv-usage-prodrec ▸pr
+        open ≤ᶜ-reasoning
+    in  _ , _ , ▸cs[] , ▸P[] , ok , (begin
+      γ ∙ ⌜ m ⌝ · r                   ≤⟨ γ≤γ′ ∙ ≤-refl ⟩
+      γ′ ∙ ⌜ m ⌝ · r                  ≤⟨ γ′≤ ⟩
+      r ·ᶜ δ +ᶜ η                     ≤⟨ +ᶜ-monotoneˡ (·ᶜ-monotoneʳ (inv-usage-var ▸x0)) ⟩
+      r ·ᶜ (𝟘ᶜ ∙ ⌜ m ᵐ· r ⌝) +ᶜ η     ≡⟨⟩
+      (r ·ᶜ 𝟘ᶜ ∙ r · ⌜ m ᵐ· r ⌝) +ᶜ η ≈⟨ +ᶜ-congʳ (·ᶜ-zeroʳ _ ∙ ·⌜ᵐ·⌝ m) ⟩
+      (𝟘ᶜ ∙ r · ⌜ m ⌝) +ᶜ η           ≈˘⟨ +ᶜ-congʳ (≈ᶜ-refl ∙ ⌜⌝-·-comm m) ⟩
+      (𝟘ᶜ ∙ ⌜ m ⌝ · r) +ᶜ η           ≈⟨ +ᶜ-comm _ _ ⟩
+      η +ᶜ (𝟘ᶜ ∙ ⌜ m ⌝ · r)           ∎)
+
+opaque
+  unfolding vecrec′
+
+  -- A usage inversion lemma for vecrec′.
+  -- If a kind of inversion lemma for substitution is proved then this can
+  -- perhaps be improved.
+
+  inv-usage-vecrec′ :
+    ⦃ no-nr : Nr-not-available-GLB ⦄ →
+    s ≡ 𝕨 → γ ▸[ m ] vecrec′ l p₁ p₄ r₁ q₁ q₂ A P nl cs k xs →
+    ∃₁₀ λ δ₁ δ₁′ δ₂ δ₂′ η₁ η₂ θ₁ θ₁′ θ₁″ θ₂ → ∃₃ λ x χ φ →
+      wkConₘ⁻¹ (step id) θ₁ ▸[ 𝟘ᵐ? ] A ×
+      θ₂ ∙ ⌜ 𝟘ᵐ? ⌝ · q₂ ▸[ 𝟘ᵐ? ] P ×
+      δ₁ ▸[ m ] nl ×
+      δ₂ ∙ ⌜ m ⌝ · r₁ · p ∙ ⌜ m ⌝ · r₁ ▸[ m ]
+        cs [ consSubst (consSubst (consSubst (consSubst (wkSubst 5 idSubst)
+               (var x4)) (var x1)) (var x0)) (var x3 ∘⟨ r₁ ⟩ var x0) ] ×
+      η₁ ▸[ m ] k ×
+      η₂ ▸[ m ᵐ· r₁ ] xs ×
+      Unitrec-allowed m r₁ q₂ ×
+      Prodrec-allowed m r₁ p q₂ ×
+      Greatest-lower-bound x (nrᵢ p₄ 𝟙 p₁) ×
+      Greatest-lower-boundᶜ χ (nrᵢᶜ p₄ δ₁′ δ₂′) ×
+      Greatest-lower-boundᶜ φ (nrᵢᶜ 𝟙 θ₁′ θ₁″) ×
+      γ ≤ᶜ x ·ᶜ η₁ +ᶜ χ +ᶜ r₁ ·ᶜ η₂ ×
+      δ₁′ ≤ᶜ δ₁ ×
+      δ₂′ ∙ ⌜ m ⌝ · p₁ ∙ ⌜ m ⌝ · p₄ ∙ ⌜ m ⌝ · r₁ ≤ᶜ δ₂ +ᶜ (𝟘ᶜ ∙ ⌜ m ⌝ · r₁) ×
+      θ₁′ ≤ᶜ 𝟘ᶜ ×
+      θ₁″ ≤ᶜ θ₁
+  inv-usage-vecrec′ {γ} {r₁} refl ▸vr =
+    let invUsageApp {δ} {η = η₂} ▸nr ▸xs γ≤ = inv-usage-app ▸vr
+        _ , _ , θ , _ , x , χ
+          , ▸vrn , ▸vrc , ▸k , ▸ΠVP , δ≤ , x-GLB , χ-GLB = inv-usage-natrec-no-nr-glb ▸nr
+        invUsageΠΣ ▸V ▸P φ≤ = inv-usage-ΠΣ ▸ΠVP
+        _ , _ , _ , _ , _ , ▸x0 , ▸A , θ′-GLB , le₁ , le₂ , le₃ = inv-usage-Vec′ ▸V
+        _ , _ , _ , ▸nl , ok₁ , le₄ = inv-usage-vecrec-nil ▸vrn
+        _ , _ , ▸cs[] , _ , ok₂ , le₅ = inv-usage-vecrec-cons ▸vrc
+        open ≤ᶜ-reasoning
+    in  _ , _ , _ , _ , _ , _ , _ , _ , _ , _ , _ , _ , _
+          , ▸-cong (trans (cong (_ᵐ· p) ᵐ·-zeroˡ) ᵐ·-zeroˡ) (wkUsage⁻¹ ▸A)
+          , ▸P , ▸nl , ▸cs[] , ▸k , ▸xs
+          , ok₁ , ok₂ , x-GLB , χ-GLB , θ′-GLB
+          , (begin
+              γ                        ≤⟨ γ≤ ⟩
+              δ +ᶜ r₁ ·ᶜ η₂             ≤⟨ +ᶜ-monotoneˡ δ≤ ⟩
+              (x ·ᶜ θ +ᶜ χ) +ᶜ r₁ ·ᶜ η₂ ≈⟨ +ᶜ-assoc _ _ _ ⟩
+              x ·ᶜ θ +ᶜ χ +ᶜ r₁ ·ᶜ η₂   ∎)
+          , le₄ , le₅ , le₂ , le₃
