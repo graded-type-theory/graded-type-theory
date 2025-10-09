@@ -38,10 +38,10 @@ open import Definition.Typed.Properties.Reduction R public
 open import Definition.Typed.Properties.Well-formed R public
 
 private variable
-  x             : Fin _
-  Δ             : Con Term _
-  Γ             : Cons _ _
-  A A′ B B′ t u : Term _
+  x                   : Fin _
+  Δ                   : Con Term _
+  Γ                   : Cons _ _
+  A A′ B B′ t t′ u u′ : Term _
 
 ------------------------------------------------------------------------
 -- A lemma related to _∷_∈_
@@ -125,6 +125,48 @@ opaque
 
   ⊢≡-congʳ : Γ ⊢ A ≡ B → A PE.≡ A′ → Γ ⊢ A′ ≡ B
   ⊢≡-congʳ ⊢A≡B PE.refl = ⊢A≡B
+
+opaque
+
+  -- Congruence of term reduction
+
+  ⊢⇒∷-cong : Γ ⊢ t ⇒ u ∷ A → t PE.≡ t′ → u PE.≡ u′ → Γ ⊢ t′ ⇒ u′ ∷ A
+  ⊢⇒∷-cong t⇒u PE.refl PE.refl = t⇒u
+
+opaque
+
+  -- Congruence of term reduction
+
+  ⊢⇒∷-congʳ : Γ ⊢ t ⇒ u ∷ A → t PE.≡ t′ → Γ ⊢ t′ ⇒ u ∷ A
+  ⊢⇒∷-congʳ t⇒u PE.refl = t⇒u
+
+opaque
+
+  -- Congruence of term reduction
+
+  ⊢⇒∷-congˡ : Γ ⊢ t ⇒ u ∷ A → u PE.≡ u′ → Γ ⊢ t ⇒ u′ ∷ A
+  ⊢⇒∷-congˡ t⇒u PE.refl = t⇒u
+
+opaque
+
+  -- Congruence of term reduction
+
+  ⊢⇒*∷-cong : Γ ⊢ t ⇒* u ∷ A → t PE.≡ t′ → u PE.≡ u′ → Γ ⊢ t′ ⇒* u′ ∷ A
+  ⊢⇒*∷-cong t⇒*u PE.refl PE.refl = t⇒*u
+
+opaque
+
+  -- Congruence of term reduction
+
+  ⊢⇒*∷-congʳ : Γ ⊢ t ⇒* u ∷ A → t PE.≡ t′ → Γ ⊢ t′ ⇒* u ∷ A
+  ⊢⇒*∷-congʳ t⇒*u PE.refl = t⇒*u
+
+opaque
+
+  -- Congruence of term reduction
+
+  ⊢⇒*∷-congˡ : Γ ⊢ t ⇒* u ∷ A → u PE.≡ u′ → Γ ⊢ t ⇒* u′ ∷ A
+  ⊢⇒*∷-congˡ t⇒*u PE.refl = t⇒*u
 
 ------------------------------------------------------------------------
 -- Variants of equality rules
