@@ -43,12 +43,10 @@ import Tools.PropositionalEquality as PE
 
 private variable
   n : Nat
-  A P k h t nl cs xs : Term _
+  A A′ P k k′ h h′ t t′ nl cs xs : Term _
   Γ : Cons _ _
   p₁ p₂ p₃ q r q₁ q₂ q₃ q₄ : M
   l : Universe-level
-
-
 
 opaque
 
@@ -282,6 +280,31 @@ opaque
   ⊢Vec≡Vec′ ⊢A ⊢k Π-ok = univ (⊢Vec≡Vec′∷U ⊢A ⊢k Π-ok)
 
 opaque
+  unfolding Vec′
+
+  ⊢∷Vec′-cong :
+    Γ ⊢ A ≡ A′ ∷ U l →
+    Γ ⊢ k ≡ k′ ∷ ℕ →
+    Γ ⊢ Vec′ l A k ≡ Vec′ l A′ k′ ∷ U l
+  ⊢∷Vec′-cong A≡A′ k≡k′ =
+    let ⊢Γ = wfEqTerm A≡A′
+        ⊢A₂ = wkType (stepʷ (step id) (Uⱼ (∙ ℕⱼ ⊢Γ))) (univ (syntacticEqTerm A≡A′ .proj₂ .proj₁))
+    in  natrec-cong (refl (Uⱼ (∙ ℕⱼ ⊢Γ))) (refl (Unitⱼ ⊢Γ Unit-ok))
+          (⊢≡∷-conv-PE
+            (ΠΣ-cong (wkEqTerm (stepʷ (step id) (Uⱼ (∙ ℕⱼ ⊢Γ))) A≡A′)
+              (refl (var₁ ⊢A₂)) Σ-ok)
+            (PE.cong U (⊔-idem _)))
+          k≡k′
+
+opaque
+
+  ⊢Vec′-cong :
+    Γ ⊢ A ≡ A′ ∷ U l →
+    Γ ⊢ k ≡ k′ ∷ ℕ →
+    Γ ⊢ Vec′ l A k ≡ Vec′ l A′ k′
+  ⊢Vec′-cong A≡A′ k≡k′ = univ (⊢∷Vec′-cong A≡A′ k≡k′)
+
+opaque
   unfolding nil′
 
   ⊢nil′ :
@@ -360,6 +383,19 @@ opaque
              Π-ok₃)
            Π-ok₂)
          Π-ok₁
+
+opaque
+  unfolding cons′
+
+  ⊢≡∷-cons′-cong :
+    Γ ⊢ A ∷ U l →
+    Γ ⊢ k ∷ ℕ →
+    Γ ⊢ h ≡ h′ ∷ A →
+    Γ ⊢ t ≡ t′ ∷ Vec′ l A k →
+    Γ ⊢ cons′ A k h t ≡ cons′ A′ k′ h′ t′ ∷ Vec′ l A (suc k)
+  ⊢≡∷-cons′-cong ⊢A ⊢k h≡h′ t≡t′ =
+    conv (prod-cong (wkType (stepʷ id (univ ⊢A)) (⊢Vec′ ⊢A ⊢k)) h≡h′ (⊢≡∷-conv-PE t≡t′ (PE.sym (wk1-sgSubst _ _))) Σ-ok)
+      (sym (⊢Vec′-suc≡Σ ⊢A ⊢k))
 
 private opaque
   unfolding vecrec-nil

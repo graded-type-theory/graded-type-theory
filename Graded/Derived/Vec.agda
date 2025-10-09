@@ -296,6 +296,16 @@ opaque
   unfolding vecrec′
 
   -- A usage rule for vecrec′
+  --
+  -- The grades can be interpreted as follows:
+  -- p₁ represents the uses of the length in cs
+  -- p₂ represents the uses of the head in cs
+  -- p₃ represents the uses of the tail in cs
+  -- p₄ represents the uses of the recursive call in cs
+  -- q₁ represents the uses of the length in the motive P
+  -- q₂ represents the uses of the vector in the motive P
+  -- r₁ represents the total uses of the length
+  -- r₂ represents the total of the vector
 
   ▸vecrec′ :
     ⦃ no-nr : Nr-not-available-GLB ⦄ →
