@@ -154,6 +154,9 @@ opaque
   ...         | explicit   = λ _ → PE.refl
   ...         | transitive = ones-⊔ᵒ
 
+------------------------------------------------------------------------
+-- Lemmas about transparentisation
+
 opaque
 
   ones-»↜ : (∇ : DCon (Term 0) n) → ones n » glassify ∇ ↜ ∇

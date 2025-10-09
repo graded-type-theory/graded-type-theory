@@ -114,8 +114,8 @@ opaque
  unfolding inline
  mutual
 
-  -- The result of inline-< is invariant under
-  -- "transparentification" of definition contexts.
+  -- The result of inline-< is invariant under transparentisation of
+  -- definition contexts.
 
   inline-<-↜ :
     φ » ∇′ ↜ ∇ → (α<n : α <′ n) →
@@ -135,8 +135,8 @@ opaque
   inline-<-↜ (∇′↜∇ ¹ᵗ) (≤′-step α<n) =
     inline-<-↜ ∇′↜∇ α<n
 
-  -- The result of inline-Nat is invariant under
-  -- "transparentification" of definition contexts.
+  -- The result of inline-Nat is invariant under transparentisation of
+  -- definition contexts.
 
   inline-Nat-↜ :
     {∇ ∇′ : DCon (Term 0) n} →
@@ -145,7 +145,7 @@ opaque
   … | yes α<n = inline-<-↜ ∇′↜∇ α<n
   … | no _    = PE.refl
 
-  -- The result of inline is invariant under "transparentification" of
+  -- The result of inline is invariant under transparentisation of
   -- definition contexts.
 
   inline-↜ :
