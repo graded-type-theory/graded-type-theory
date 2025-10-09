@@ -219,6 +219,13 @@ opaque
   ones : Unfolding n
   ones = replicate _ true
 
+opaque
+
+  -- A vector for unfolding nothing.
+
+  zeros : Unfolding n
+  zeros = replicate _ false
+
 -- Opacity.
 
 data Opacity (n : Nat) : Set where

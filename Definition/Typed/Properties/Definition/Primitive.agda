@@ -150,6 +150,16 @@ opaque
   ...         | explicit   = λ _ → PE.refl
   ...         | transitive = ones-⊔ᵒ
 
+opaque
+  unfolding ones _⊔ᵒᵗ_
+
+  -- The unfolding zeros is a right unit for _⊔ᵒᵗ_.
+
+  zeros-⊔ᵒᵗʳ : φ ⊔ᵒᵗ zeros PE.≡ φ
+  zeros-⊔ᵒᵗʳ with unfolding-mode
+  … | explicit   = PE.refl
+  … | transitive = zeros-⊔ᵒʳ
+
 ------------------------------------------------------------------------
 -- Lemmas about transparentisation
 
@@ -168,6 +178,19 @@ opaque
       (Trans (ones ⊔ᵒᵗ φ) ∇  ≡⟨ PE.cong (flip Trans _) $ ones-⊔ᵒᵗ φ ⟩
        Trans ones ∇          ≡⟨ Trans-ones ⟩
        glassify ∇            ∎)
+
+opaque
+  unfolding Trans zeros
+
+  -- The transparentisation of ∇ with respect to zeros is ∇.
+
+  Trans-zeros : Trans zeros ∇ PE.≡ ∇
+  Trans-zeros {∇ = ε} =
+    PE.refl
+  Trans-zeros {∇ = _ ∙⟨ tra ⟩!} =
+    PE.cong _∙! Trans-zeros
+  Trans-zeros {∇ = _ ∙⟨ opa _ ⟩!} =
+    PE.cong _∙! Trans-zeros
 
 opaque
   unfolding Trans

@@ -17,7 +17,7 @@ open import Tools.PropositionalEquality as PE
 open import Tools.Reasoning.PropositionalEquality
 open import Tools.Relation
 open import Tools.Sum
-open import Tools.Vec using (ε)
+open import Tools.Vec as Vec using (ε)
 
 private
   variable
@@ -163,6 +163,25 @@ opaque
   ones-⊔ᵒ ε     = refl
   ones-⊔ᵒ (φ ⁰) = cong _¹ (ones-⊔ᵒ φ)
   ones-⊔ᵒ (φ ¹) = cong _¹ (ones-⊔ᵒ φ)
+
+opaque
+  unfolding zeros _⊔ᵒ_
+
+  -- The unfolding zeros is a left unit for _⊔ᵒ_.
+
+  zeros-⊔ᵒˡ : zeros ⊔ᵒ φ PE.≡ φ
+  zeros-⊔ᵒˡ {φ = ε}         = refl
+  zeros-⊔ᵒˡ {φ = _ Vec.∷ _} = cong (_ Vec.∷_) zeros-⊔ᵒˡ
+
+opaque
+
+  -- The unfolding zeros is a right unit for _⊔ᵒ_.
+
+  zeros-⊔ᵒʳ : φ ⊔ᵒ zeros PE.≡ φ
+  zeros-⊔ᵒʳ {φ} =
+    φ ⊔ᵒ zeros  ≡⟨ comm-⊔ᵒ _ _ ⟩
+    zeros ⊔ᵒ φ  ≡⟨ zeros-⊔ᵒˡ ⟩
+    φ           ∎
 
 ------------------------------------------------------------------------
 -- Properties of glassification
