@@ -282,9 +282,8 @@ opaque
   -- function.
 
   map-DCon-id : map-DCon idᶠ ∇ ≡ ∇
-  map-DCon-id {∇ = ε}                 = refl
-  map-DCon-id {∇ = _ ∙⟨ _ ⟩[ _ ∷ _ ]} =
-    cong _∙⟨ _ ⟩[ _ ∷ _ ] map-DCon-id
+  map-DCon-id {∇ = ε}    = refl
+  map-DCon-id {∇ = _ ∙!} = cong _∙! map-DCon-id
 
 opaque
 
@@ -301,8 +300,8 @@ opaque
   -- The function map-DCon preserves pointwise equality.
 
   map-DCon-cong : (∀ x → f x ≡ g x) → map-DCon f ∇ ≡ map-DCon g ∇
-  map-DCon-cong {∇ = ε}                 _ = refl
-  map-DCon-cong {∇ = _ ∙⟨ _ ⟩[ _ ∷ _ ]} f≡g =
+  map-DCon-cong {∇ = ε}    _   = refl
+  map-DCon-cong {∇ = _ ∙!} f≡g =
     cong₃ _∙⟨ _ ⟩[_∷_] (map-DCon-cong f≡g) (f≡g _) (f≡g _)
 
 opaque
@@ -313,9 +312,9 @@ opaque
     α ↦ t ∷ B ∈ map-DCon f ∇ →
     ∃₂ λ u C → t ≡ f u × B ≡ f C × α ↦ u ∷ C ∈ ∇
   ↦∷∈-map-DCon {∇ = ε} ()
-  ↦∷∈-map-DCon {∇ = _ ∙⟨ _ ⟩[ _ ∷ _ ]} here =
+  ↦∷∈-map-DCon {∇ = _ ∙!} here =
     _ , _ , refl , refl , here
-  ↦∷∈-map-DCon {∇ = _ ∙⟨ _ ⟩[ _ ∷ _ ]} (there α↦) =
+  ↦∷∈-map-DCon {∇ = _ ∙!} (there α↦) =
     Σ.map idᶠ (Σ.map idᶠ (Σ.map idᶠ (Σ.map idᶠ there))) $
     ↦∷∈-map-DCon α↦
 

@@ -574,8 +574,8 @@ opaque
   eraseDCon″-glassify :
     {erase : 𝕋 → 𝕌} {∇ : DCon 𝕋 n} →
     eraseDCon″ erase (glassify ∇) ≡ eraseDCon″ erase ∇
-  eraseDCon″-glassify {∇ = ε}                 = refl
-  eraseDCon″-glassify {∇ = ∇ ∙⟨ _ ⟩[ _ ∷ _ ]} =
+  eraseDCon″-glassify {∇ = ε}    = refl
+  eraseDCon″-glassify {∇ = ∇ ∙!} =
     cong (_++ _) (eraseDCon″-glassify {∇ = ∇})
 
 opaque

@@ -659,7 +659,7 @@ opaque mutual
     ⊥-elim (n≮0 (<′⇒< m<0))
   inline-< (∇ ∙⟨ _ ⟩[ t ∷ _ ]) (≤′-reflexive _) =
     inline ∇ t
-  inline-< (∇ ∙⟨ _ ⟩[ _ ∷ _ ]) (≤′-step m<n) =
+  inline-< (∇ ∙!) (≤′-step m<n) =
     inline-< ∇ m<n
 
   -- The term at the given position, if any, with the definition

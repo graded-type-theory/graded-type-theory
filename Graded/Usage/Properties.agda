@@ -2250,9 +2250,9 @@ opaque
     ▸[ m ] glassify ∇ → ε ▸[ m ] inline-< ∇ α<n
   ▸inline-< {∇ = ε} m<0 _ =
     ⊥-elim (N.n≮0 (N.<′⇒< m<0))
-  ▸inline-< {∇ = _ ∙⟨ _ ⟩[ _ ∷ _ ]} (N.≤′-reflexive _) ▸∇ =
+  ▸inline-< {∇ = _ ∙!} (N.≤′-reflexive _) ▸∇ =
     ▸inline (▸∇ ∘→ there) (▸∇ here)
-  ▸inline-< {∇ = _ ∙⟨ _ ⟩[ _ ∷ _ ]} (N.≤′-step m<n) ▸∇ =
+  ▸inline-< {∇ = _ ∙!} (N.≤′-step m<n) ▸∇ =
     ▸inline-< m<n (▸∇ ∘→ there)
 
   -- If glassify ∇ is well-resourced, then inline-Nat ∇ α is

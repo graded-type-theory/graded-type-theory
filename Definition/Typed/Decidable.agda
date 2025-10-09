@@ -94,7 +94,7 @@ unfold-Checkable (φ ¹ᵗ) (∇ ∙ᶜᵗ[ t ∷ A ])       = unfold-Checkable 
 
 decWfDCon : CheckableDCon ∇ → Dec (» ∇)
 decWfDCon ε = yes ε
-decWfDCon {∇ = _ ∙⟨ opa φ ⟩[ _ ∷ _ ]} (∇ ∙ᶜᵒ⟨ ok ⟩[ t ∷ A ]) =
+decWfDCon {∇ = _ ∙⟨ opa φ ⟩!} (∇ ∙ᶜᵒ⟨ ok ⟩[ t ∷ A ]) =
   case (decWfDCon ∇ ×-dec′ λ »∇ →
         dec (ε »∇) A) of λ where
     (no not) → no λ where

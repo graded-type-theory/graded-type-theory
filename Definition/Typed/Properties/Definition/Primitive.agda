@@ -79,7 +79,7 @@ opaque
   »→Transparent no-opacity ∙ᵒ⟨ allowed , _ ⟩[ _ ∷ _ ] =
     ⊥-elim $ no-opacity allowed
   »→Transparent no-opacity ∙ᵗ[ ⊢t ] =
-    PE.cong _∙⟨ _ ⟩[ _ ∷ _ ] $
+    PE.cong _∙! $
     »→Transparent no-opacity (defn-wf (wfTerm ⊢t))
 
 ------------------------------------------------------------------------

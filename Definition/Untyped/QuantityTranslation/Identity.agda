@@ -100,8 +100,8 @@ opaque
   -- The function tr-DCon is pointwise equal to an identity function.
 
   tr-DCon-id : tr-DCon ∇ ≡ ∇
-  tr-DCon-id {∇ = ε}                 = refl
-  tr-DCon-id {∇ = _ ∙⟨ _ ⟩[ _ ∷ _ ]} =
+  tr-DCon-id {∇ = ε}    = refl
+  tr-DCon-id {∇ = _ ∙!} =
     cong₃ _∙⟨ _ ⟩[_∷_] tr-DCon-id tr-Term-id tr-Term-id
 
 opaque

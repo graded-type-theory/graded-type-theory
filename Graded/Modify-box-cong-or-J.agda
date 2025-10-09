@@ -259,7 +259,7 @@ module _
     map-DCon-tr-id : map-DCon tr ∇ PE.≡ ∇
     map-DCon-tr-id {∇ = ε} =
       PE.refl
-    map-DCon-tr-id {∇ = _ ∙⟨ _ ⟩[ _ ∷ _ ]} =
+    map-DCon-tr-id {∇ = _ ∙!} =
       PE.cong₃ _∙⟨ _ ⟩[_∷_] map-DCon-tr-id tr-id tr-id
 
   opaque
@@ -625,10 +625,10 @@ opaque
     lemma :
       α ↦ t ∷ A ∈ map-DCon tr ∇ →
       ∃₂ λ t′ A′ → t PE.≡ tr t′ × A PE.≡ tr A′ × α ↦ t′ ∷ A′ ∈ ∇
-    lemma {∇ = ε}                 ()
-    lemma {∇ = ∇ ∙⟨ _ ⟩[ _ ∷ _ ]} here =
+    lemma {∇ = ε}    ()
+    lemma {∇ = ∇ ∙!} here =
       _ , _ , PE.refl , PE.refl , here
-    lemma {∇ = ∇ ∙⟨ _ ⟩[ _ ∷ _ ]} (there α↦) =
+    lemma {∇ = ∇ ∙!} (there α↦) =
       Σ.map idᶠ (Σ.map idᶠ (Σ.map idᶠ (Σ.map idᶠ there))) (lemma α↦)
 
 ------------------------------------------------------------------------

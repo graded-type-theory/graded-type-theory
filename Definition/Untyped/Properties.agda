@@ -178,9 +178,8 @@ opaque
   -- The functions glassify and map-DCon f commute.
 
   glassify-map-DCon : glassify (map-DCon f ∇) ≡ map-DCon f (glassify ∇)
-  glassify-map-DCon {∇ = ε} = refl
-  glassify-map-DCon {∇ = _ ∙⟨ _ ⟩[ _ ∷ _ ]} =
-    cong _∙⟨ _ ⟩[ _ ∷ _ ] glassify-map-DCon
+  glassify-map-DCon {∇ = ε}    = refl
+  glassify-map-DCon {∇ = _ ∙!} = cong _∙! glassify-map-DCon
 
 ------------------------------------------------------------------------
 -- Properties of toTerm and fromTerm.
@@ -2821,7 +2820,7 @@ opaque
     ⊥-elim (n≮0 (<′⇒< m<0))
   inline-<-glassify (_ ∙⟨ _ ⟩[ t ∷ _ ]) (≤′-reflexive _) =
     inline-glassify t
-  inline-<-glassify (∇ ∙⟨ _ ⟩[ _ ∷ _ ]) (≤′-step m<n) =
+  inline-<-glassify (∇ ∙!) (≤′-step m<n) =
     inline-<-glassify ∇ m<n
 
   -- The result of inline-Nat is not affected by glassification.

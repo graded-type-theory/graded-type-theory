@@ -229,11 +229,14 @@ data Opacity (n : Nat) : Set where
 
 -- Definition contexts.
 
-infixl 24 _∙⟨_⟩[_∷_]
+infixl 24 _∙⟨_⟩[_∷_] _∙⟨_⟩! _∙!
 
 data DCon (𝕋 : Set a) : Nat → Set a where
   ε          : DCon 𝕋 0
   _∙⟨_⟩[_∷_] : DCon 𝕋 n → Opacity n → 𝕋 → 𝕋 → DCon 𝕋 (1+ n)
+
+pattern _∙⟨_⟩! ∇ ω = ∇ ∙⟨ ω ⟩[ _ ∷ _ ]
+pattern _∙! ∇      = ∇ ∙⟨ _ ⟩!
 
 private variable
   ∇ : DCon _ _

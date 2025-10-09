@@ -225,7 +225,7 @@ record Extended-type-theory : Set (lsuc a) where
       eraseDConᴱ str (map-DCon tr ∇) PE.≡ eraseDCon str ∇
     eraseDConᴱ-map-DCon-tr {∇ = ε} =
       PE.refl
-    eraseDConᴱ-map-DCon-tr {∇ = ∇ ∙⟨ _ ⟩[ _ ∷ _ ]} =
+    eraseDConᴱ-map-DCon-tr {∇ = ∇ ∙!} =
       PE.cong₂ L._++_ (eraseDConᴱ-map-DCon-tr {∇ = ∇})
         (PE.cong (L._∷ _) eraseᴱ-tr)
 
