@@ -30,7 +30,8 @@ private
   variable
     p q r : M
     n l : Nat
-    ∇ : DCon (Term 0) _
+    ∇ ∇′ : DCon (Term 0) _
+    ξ : DExt _ _ _
     t u v w A B F G : Term _
     V V′ : Set a
     ρ : Wk _ _
@@ -524,9 +525,10 @@ opaque
 opaque
   unfolding inline
 
-  -- If t is neutral under glassify ∇, then inline ∇ t is neutral.
+  -- If t is neutral under glassify ∇, then inline ξ t is neutral
+  -- under ∇′.
 
-  Neutral-inline : Neutral V (glassify ∇) t → Neutral V ε (inline ∇ t)
+  Neutral-inline : Neutral V (glassify ∇) t → Neutral V ∇′ (inline ξ t)
   Neutral-inline (defn α↦)            = ⊥-elim (glass-↦⊘∈ α↦)
   Neutral-inline (var ok _)           = var ok _
   Neutral-inline (∘ₙ t-ne)            = ∘ₙ (Neutral-inline t-ne)
@@ -544,9 +546,10 @@ opaque
 opaque
   unfolding inline
 
-  -- If t is in WHNF under glassify ∇, then inline ∇ t is in WHNF.
+  -- If t is in WHNF under glassify ∇, then inline ξ t is in WHNF
+  -- under ∇′.
 
-  Whnf-inline : Whnf (glassify ∇) t → Whnf ε (inline ∇ t)
+  Whnf-inline : Whnf (glassify ∇) t → Whnf ∇′ (inline ξ t)
   Whnf-inline Uₙ        = Uₙ
   Whnf-inline ΠΣₙ       = ΠΣₙ
   Whnf-inline ℕₙ        = ℕₙ

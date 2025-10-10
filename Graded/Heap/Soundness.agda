@@ -290,7 +290,7 @@ opaque
           𝟘ᶜ                     ∎ )
 
 opaque
-  unfolding inline
+  unfolding inlineᵈ
 
   -- A variant of soundness-ε without the restriction that the
   -- definition context must be empty.
@@ -301,7 +301,7 @@ opaque
   soundness :
     {Δ : Con Term k}
     ⦃ ok : No-equality-reflection or-empty Δ ⦄ →
-    (Emptyrec-allowed 𝟙ᵐ 𝟘 → Consistent (ε » inline-Con ∇ Δ)) →
+    (Emptyrec-allowed 𝟙ᵐ 𝟘 → Consistent (ε » inline-Conᵈ ∇ Δ)) →
     (k PE.≢ 0 →
      No-erased-matches′ type-variant UR ×
      Has-well-behaved-zero M semiring-with-meet) →
@@ -309,20 +309,19 @@ opaque
     ▸[ 𝟙ᵐ ] glassify ∇ →
     𝟘ᶜ ▸ t →
     ∃₅ λ m n H k (ρ : Wk m n) →
-    initial (inline ∇ t) ↠* ⟨ H , sucᵏ k , ρ , ε ⟩ ×
-    (ε » inline-Con ∇ Δ ⊢ inline ∇ t ≡ sucᵏ k ∷ ℕ) ×
+    initial (inlineᵈ ∇ t) ↠* ⟨ H , sucᵏ k , ρ , ε ⟩ ×
+    (ε » inline-Conᵈ ∇ Δ ⊢ inlineᵈ ∇ t ≡ sucᵏ k ∷ ℕ) ×
     H ≤ʰ 𝟘
   soundness {t} consistent prop ⊢t ▸∇ ▸t =
-    soundness-ε ⦃ ok = or-empty-inline-Con ⦄ consistent prop
+    soundness-ε ⦃ ok = or-empty-inline-Conᵈ ⦄ consistent prop
       (PE.subst₃ _⊢_∷_
-         (PE.cong (_»_ _) (inline-Con-glassify _))
-         (inline-glassify t)
-         PE.refl $
-       ⊢inline∷ ⊢t)
-      (▸inline ▸∇ ▸t)
+         (PE.cong (_»_ _) inline-Conᵈ-glassify)
+         (inlineᵈ-glassify {t = t}) PE.refl $
+       ⊢inlineᵈ∷ ⊢t)
+      (▸inlineᵈ ▸∇ ▸t)
 
 opaque
-  unfolding inline-Con
+  unfolding inline-Conᵈ
 
   -- The soundness property above specialised to closed terms.
 
@@ -331,8 +330,8 @@ opaque
   soundness-closed :
     glassify ∇ » ε ⊢ t ∷ ℕ → ▸[ 𝟙ᵐ ] glassify ∇ → ε ▸ t →
     ∃₅ λ m n H k (ρ : Wk m n) →
-    initial (inline ∇ t) ↠* ⟨ H , sucᵏ k , ρ , ε ⟩ ×
-    (ε » ε ⊢ inline ∇ t ≡ sucᵏ k ∷ ℕ) ×
+    initial (inlineᵈ ∇ t) ↠* ⟨ H , sucᵏ k , ρ , ε ⟩ ×
+    (ε » ε ⊢ inlineᵈ ∇ t ≡ sucᵏ k ∷ ℕ) ×
     H ≤ʰ 𝟘
   soundness-closed =
     soundness ⦃ ok = ε ⦄ (λ _ _ → ¬Empty) (λ 0≢0 → ⊥-elim (0≢0 PE.refl))
@@ -345,13 +344,13 @@ opaque
 
   soundness-open :
     ⦃ No-equality-reflection or-empty Δ ⦄ →
-    (Emptyrec-allowed 𝟙ᵐ 𝟘 → Consistent (ε » inline-Con ∇ Δ)) →
+    (Emptyrec-allowed 𝟙ᵐ 𝟘 → Consistent (ε » inline-Conᵈ ∇ Δ)) →
     No-erased-matches′ type-variant UR →
     Has-well-behaved-zero M semiring-with-meet →
     glassify ∇ » Δ ⊢ t ∷ ℕ → ▸[ 𝟙ᵐ ] glassify ∇ → 𝟘ᶜ ▸ t →
     ∃₅ λ m n H k (ρ : Wk m n) →
-    initial (inline ∇ t) ↠* ⟨ H , sucᵏ k , ρ , ε ⟩ ×
-    (ε » inline-Con ∇ Δ ⊢ inline ∇ t ≡ sucᵏ k ∷ ℕ) ×
+    initial (inlineᵈ ∇ t) ↠* ⟨ H , sucᵏ k , ρ , ε ⟩ ×
+    (ε » inline-Conᵈ ∇ Δ ⊢ inlineᵈ ∇ t ≡ sucᵏ k ∷ ℕ) ×
     H ≤ʰ 𝟘
   soundness-open consistent erased 𝟘-wb = soundness consistent λ _ → erased , 𝟘-wb
 
@@ -361,13 +360,13 @@ opaque
 
   soundness-open-consistent :
     ⦃ No-equality-reflection or-empty Δ ⦄ →
-    Consistent (ε » inline-Con ∇ Δ) →
+    Consistent (ε » inline-Conᵈ ∇ Δ) →
     No-erased-matches′ type-variant UR →
     Has-well-behaved-zero M semiring-with-meet →
     glassify ∇ » Δ ⊢ t ∷ ℕ → ▸[ 𝟙ᵐ ] glassify ∇ → 𝟘ᶜ ▸ t →
     ∃₅ λ m n H k (ρ : Wk m n) →
-    initial (inline ∇ t) ↠* ⟨ H , sucᵏ k , ρ , ε ⟩ ×
-    (ε » inline-Con ∇ Δ ⊢ inline ∇ t ≡ sucᵏ k ∷ ℕ) ×
+    initial (inlineᵈ ∇ t) ↠* ⟨ H , sucᵏ k , ρ , ε ⟩ ×
+    (ε » inline-Conᵈ ∇ Δ ⊢ inlineᵈ ∇ t ≡ sucᵏ k ∷ ℕ) ×
     H ≤ʰ 𝟘
   soundness-open-consistent consistent = soundness-open (λ _ → consistent)
 
@@ -382,8 +381,8 @@ opaque
     Has-well-behaved-zero M semiring-with-meet →
     glassify ∇ » Δ ⊢ t ∷ ℕ → ▸[ 𝟙ᵐ ] glassify ∇ → 𝟘ᶜ ▸ t →
     ∃₅ λ m n H k (ρ : Wk m n) →
-    initial (inline ∇ t) ↠* ⟨ H , sucᵏ k , ρ , ε ⟩ ×
-    (ε » inline-Con ∇ Δ ⊢ inline ∇ t ≡ sucᵏ k ∷ ℕ) ×
+    initial (inlineᵈ ∇ t) ↠* ⟨ H , sucᵏ k , ρ , ε ⟩ ×
+    (ε » inline-Conᵈ ∇ Δ ⊢ inlineᵈ ∇ t ≡ sucᵏ k ∷ ℕ) ×
     H ≤ʰ 𝟘
   soundness-open-¬emptyrec₀ ¬ok =
     soundness-open (⊥-elim ∘→ ¬ok)

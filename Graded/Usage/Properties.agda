@@ -29,6 +29,7 @@ open import Graded.Mode 𝕄
 import Definition.Typed
 open import Definition.Typed.Restrictions 𝕄
 open import Definition.Untyped M
+open import Definition.Untyped.Properties M
 
 open import Tools.Bool using (Bool; T)
 open import Tools.Empty
@@ -50,6 +51,7 @@ private
   variable
     α n l : Nat
     ∇ : DCon (Term 0) n
+    ξ : DExt _ _ _
     Γ : Con Term n
     A B F t u v w : Term n
     G : Term (1+ n)
@@ -2239,49 +2241,51 @@ usage-inf (sub γ▸t x) = usage-inf γ▸t
 -- Inlining
 
 opaque
- unfolding inline
+ unfolding inline _ᵈ•_
  mutual
 
-  -- If glassify ∇ is well-resourced, then inline-< ∇ α<n is
-  -- well-resourced.
+  -- If glassify (∇ ᵈ• ξ) is well-resourced, then inline-< ∇ l≤α α<n
+  -- is well-resourced.
 
   ▸inline-< :
-    {∇ : DCon (Term 0) n} (α<n : α <′ n) →
-    ▸[ m ] glassify ∇ → ε ▸[ m ] inline-< ∇ α<n
-  ▸inline-< {∇ = ε} m<0 _ =
-    ⊥-elim (N.n≮0 (N.<′⇒< m<0))
-  ▸inline-< {∇ = _ ∙!} (N.≤′-reflexive _) ▸∇ =
-    ▸inline (▸∇ ∘→ there) (▸∇ here)
-  ▸inline-< {∇ = _ ∙!} (N.≤′-step m<n) ▸∇ =
-    ▸inline-< m<n (▸∇ ∘→ there)
+    {ξ : DExt (Term 0) n l} {l≤α : l N.≤ α} {α<n : α <′ n} →
+    ▸[ m ] glassify (∇ ᵈ• ξ) → ε ▸[ m ] inline-< ξ l≤α α<n
+  ▸inline-< {ξ = idᵉ} {l≤α = n≤α} {α<n} =
+    ⊥-elim $ N.n≮n _ $ N.≤-trans (N.<′⇒< α<n) n≤α
+  ▸inline-< {ξ = step _ _ _ _} {α<n = N.≤′-reflexive _} ▸ξ =
+    ▸inline (▸ξ ∘→ there) (▸ξ here)
+  ▸inline-< {ξ = step ξ _ _ _} {α<n = N.≤′-step _} ▸ξ =
+    ▸inline-< {ξ = ξ} (▸ξ ∘→ there)
 
-  -- If glassify ∇ is well-resourced, then inline-Nat ∇ α is
+  -- If glassify (∇ ᵈ• ξ) is well-resourced, then inline-Nat ξ α is
   -- well-resourced.
 
   ▸inline-Nat :
-    {∇ : DCon (Term 0) n} →
-    ▸[ m ] glassify ∇ → ε ▸[ m ] inline-Nat ∇ α
-  ▸inline-Nat {n} {α} {∇} ▸∇ with α N.<′? n
-  … | yes α<n = ▸inline-< α<n ▸∇
-  … | no _    = ℕₘ
+    {ξ : DExt (Term 0) n l} →
+    ▸[ m ] glassify (∇ ᵈ• ξ) → ε ▸[ m ] inline-Nat ξ α
+  ▸inline-Nat {n} {l} {α} {ξ} ▸ξ with l N.≤? α
+  … | no _  = defn
+  … | yes _ with α N.<′? n
+  …   | no _  = defn
+  …   | yes _ = ▸inline-< {ξ = ξ} ▸ξ
 
-  -- If glassify ∇ and t are well-resourced, then inline ∇ t is
+  -- If glassify (∇ ᵈ• ξ) and t are well-resourced, then inline ξ t is
   -- well-resourced.
 
-  ▸inline : ▸[ m ] glassify ∇ → γ ▸[ m ] t → γ ▸[ m ] inline ∇ t
-  ▸inline ▸∇ (sub ▸t γ≤δ) =
-    sub (▸inline ▸∇ ▸t) γ≤δ
+  ▸inline : ▸[ m ] glassify (∇ ᵈ• ξ) → γ ▸[ m ] t → γ ▸[ m ] inline ξ t
+  ▸inline ▸ξ (sub ▸t γ≤δ) =
+    sub (▸inline ▸ξ ▸t) γ≤δ
   ▸inline _ var =
     var
-  ▸inline ▸∇ defn =
+  ▸inline {ξ} ▸ξ defn =
     PE.subst (_▸[ _ ] _) wkConₘ-ε $
-    wkUsage _ (▸inline-Nat ▸∇)
+    wkUsage _ (▸inline-Nat {ξ = ξ} ▸ξ)
   ▸inline _ Uₘ =
     Uₘ
   ▸inline _ Emptyₘ =
     Emptyₘ
-  ▸inline ▸∇ (emptyrecₘ ▸A ▸t ok) =
-    emptyrecₘ (▸inline (▸-ᵐ·-DCon ▸∇) ▸A) (▸inline (▸-𝟘ᵐ?-DCon ▸∇) ▸t)
+  ▸inline ▸ξ (emptyrecₘ ▸A ▸t ok) =
+    emptyrecₘ (▸inline (▸-ᵐ·-DCon ▸ξ) ▸A) (▸inline (▸-𝟘ᵐ?-DCon ▸ξ) ▸t)
       ok
   ▸inline _ Unitₘ =
     Unitₘ
@@ -2289,73 +2293,83 @@ opaque
     starʷₘ
   ▸inline _ (starˢₘ ok) =
     starˢₘ ok
-  ▸inline ▸∇ (unitrecₘ ▸t ▸u ▸A ok) =
-    unitrecₘ (▸inline (▸-ᵐ·-DCon ▸∇) ▸t) (▸inline ▸∇ ▸u)
-      (▸inline (▸-𝟘ᵐ?-DCon ▸∇) ▸A) ok
-  ▸inline ▸∇ (ΠΣₘ ▸A ▸B) =
-    ΠΣₘ (▸inline (▸-ᵐ·-DCon ▸∇) ▸A) (▸inline ▸∇ ▸B)
-  ▸inline ▸∇ (lamₘ ▸t) =
-    lamₘ (▸inline ▸∇ ▸t)
-  ▸inline ▸∇ (▸t ∘ₘ ▸u) =
-    ▸inline ▸∇ ▸t ∘ₘ ▸inline (▸-ᵐ·-DCon ▸∇) ▸u
-  ▸inline ▸∇ (prodˢₘ ▸t ▸u) =
-    prodˢₘ (▸inline (▸-ᵐ·-DCon ▸∇) ▸t) (▸inline ▸∇ ▸u)
-  ▸inline ▸∇ (fstₘ m ▸t refl ok) =
-    fstₘ m (▸inline ▸∇ ▸t) refl ok
-  ▸inline ▸∇ (sndₘ ▸t) =
-    sndₘ (▸inline ▸∇ ▸t)
-  ▸inline ▸∇ (prodʷₘ ▸t ▸u) =
-    prodʷₘ (▸inline (▸-ᵐ·-DCon ▸∇) ▸t) (▸inline ▸∇ ▸u)
-  ▸inline ▸∇ (prodrecₘ ▸t ▸u ▸A ok) =
-    prodrecₘ (▸inline (▸-ᵐ·-DCon ▸∇) ▸t) (▸inline ▸∇ ▸u)
-      (▸inline (▸-𝟘ᵐ?-DCon ▸∇) ▸A) ok
+  ▸inline ▸ξ (unitrecₘ ▸t ▸u ▸A ok) =
+    unitrecₘ (▸inline (▸-ᵐ·-DCon ▸ξ) ▸t) (▸inline ▸ξ ▸u)
+      (▸inline (▸-𝟘ᵐ?-DCon ▸ξ) ▸A) ok
+  ▸inline ▸ξ (ΠΣₘ ▸A ▸B) =
+    ΠΣₘ (▸inline (▸-ᵐ·-DCon ▸ξ) ▸A) (▸inline ▸ξ ▸B)
+  ▸inline ▸ξ (lamₘ ▸t) =
+    lamₘ (▸inline ▸ξ ▸t)
+  ▸inline ▸ξ (▸t ∘ₘ ▸u) =
+    ▸inline ▸ξ ▸t ∘ₘ ▸inline (▸-ᵐ·-DCon ▸ξ) ▸u
+  ▸inline ▸ξ (prodˢₘ ▸t ▸u) =
+    prodˢₘ (▸inline (▸-ᵐ·-DCon ▸ξ) ▸t) (▸inline ▸ξ ▸u)
+  ▸inline ▸ξ (fstₘ m ▸t refl ok) =
+    fstₘ m (▸inline ▸ξ ▸t) refl ok
+  ▸inline ▸ξ (sndₘ ▸t) =
+    sndₘ (▸inline ▸ξ ▸t)
+  ▸inline ▸ξ (prodʷₘ ▸t ▸u) =
+    prodʷₘ (▸inline (▸-ᵐ·-DCon ▸ξ) ▸t) (▸inline ▸ξ ▸u)
+  ▸inline ▸ξ (prodrecₘ ▸t ▸u ▸A ok) =
+    prodrecₘ (▸inline (▸-ᵐ·-DCon ▸ξ) ▸t) (▸inline ▸ξ ▸u)
+      (▸inline (▸-𝟘ᵐ?-DCon ▸ξ) ▸A) ok
   ▸inline _ ℕₘ =
     ℕₘ
   ▸inline _ zeroₘ =
     zeroₘ
-  ▸inline ▸∇ (sucₘ ▸t) =
-    sucₘ (▸inline ▸∇ ▸t)
-  ▸inline ▸∇ (natrecₘ ▸t ▸u ▸v ▸A) =
-    natrecₘ (▸inline ▸∇ ▸t) (▸inline ▸∇ ▸u) (▸inline ▸∇ ▸v)
-      (▸inline (▸-𝟘ᵐ?-DCon ▸∇) ▸A)
-  ▸inline ▸∇ (natrec-no-nrₘ ▸t ▸u ▸v ▸A ok₁ ok₂ ok₃ ok₄) =
-    natrec-no-nrₘ (▸inline ▸∇ ▸t) (▸inline ▸∇ ▸u) (▸inline ▸∇ ▸v)
-      (▸inline (▸-𝟘ᵐ?-DCon ▸∇) ▸A) ok₁ ok₂ ok₃ ok₄
-  ▸inline ▸∇ (natrec-no-nr-glbₘ ▸t ▸u ▸v ▸A ok₁ ok₂) =
-    natrec-no-nr-glbₘ (▸inline ▸∇ ▸t) (▸inline ▸∇ ▸u) (▸inline ▸∇ ▸v)
-      (▸inline (▸-𝟘ᵐ?-DCon ▸∇) ▸A) ok₁ ok₂
-  ▸inline ▸∇ (Idₘ not-erased ▸A ▸t ▸u) =
-    Idₘ not-erased (▸inline ▸∇ ▸A) (▸inline ▸∇ ▸t) (▸inline ▸∇ ▸u)
-  ▸inline ▸∇ (Id₀ₘ erased ▸A ▸t ▸u) =
-    Id₀ₘ erased (▸inline (▸-𝟘ᵐ?-DCon ▸∇) ▸A)
-      (▸inline (▸-𝟘ᵐ?-DCon ▸∇) ▸t) (▸inline (▸-𝟘ᵐ?-DCon ▸∇) ▸u)
+  ▸inline ▸ξ (sucₘ ▸t) =
+    sucₘ (▸inline ▸ξ ▸t)
+  ▸inline ▸ξ (natrecₘ ▸t ▸u ▸v ▸A) =
+    natrecₘ (▸inline ▸ξ ▸t) (▸inline ▸ξ ▸u) (▸inline ▸ξ ▸v)
+      (▸inline (▸-𝟘ᵐ?-DCon ▸ξ) ▸A)
+  ▸inline ▸ξ (natrec-no-nrₘ ▸t ▸u ▸v ▸A ok₁ ok₂ ok₃ ok₄) =
+    natrec-no-nrₘ (▸inline ▸ξ ▸t) (▸inline ▸ξ ▸u) (▸inline ▸ξ ▸v)
+      (▸inline (▸-𝟘ᵐ?-DCon ▸ξ) ▸A) ok₁ ok₂ ok₃ ok₄
+  ▸inline ▸ξ (natrec-no-nr-glbₘ ▸t ▸u ▸v ▸A ok₁ ok₂) =
+    natrec-no-nr-glbₘ (▸inline ▸ξ ▸t) (▸inline ▸ξ ▸u) (▸inline ▸ξ ▸v)
+      (▸inline (▸-𝟘ᵐ?-DCon ▸ξ) ▸A) ok₁ ok₂
+  ▸inline ▸ξ (Idₘ not-erased ▸A ▸t ▸u) =
+    Idₘ not-erased (▸inline ▸ξ ▸A) (▸inline ▸ξ ▸t) (▸inline ▸ξ ▸u)
+  ▸inline ▸ξ (Id₀ₘ erased ▸A ▸t ▸u) =
+    Id₀ₘ erased (▸inline (▸-𝟘ᵐ?-DCon ▸ξ) ▸A)
+      (▸inline (▸-𝟘ᵐ?-DCon ▸ξ) ▸t) (▸inline (▸-𝟘ᵐ?-DCon ▸ξ) ▸u)
   ▸inline _ rflₘ =
     rflₘ
-  ▸inline ▸∇ (Jₘ ok₁ ok₂ ▸A ▸t ▸B ▸u ▸v ▸w) =
-    Jₘ ok₁ ok₂ (▸inline (▸-𝟘ᵐ?-DCon ▸∇) ▸A) (▸inline ▸∇ ▸t)
-      (▸inline ▸∇ ▸B) (▸inline ▸∇ ▸u) (▸inline ▸∇ ▸v) (▸inline ▸∇ ▸w)
-  ▸inline ▸∇ (J₀ₘ₁ ok₁ ok₂ ok₃ ▸A ▸t ▸B ▸u ▸v ▸w) =
-    J₀ₘ₁ ok₁ ok₂ ok₃ (▸inline (▸-𝟘ᵐ?-DCon ▸∇) ▸A)
-      (▸inline (▸-𝟘ᵐ?-DCon ▸∇) ▸t) (▸inline ▸∇ ▸B) (▸inline ▸∇ ▸u)
-      (▸inline (▸-𝟘ᵐ?-DCon ▸∇) ▸v) (▸inline (▸-𝟘ᵐ?-DCon ▸∇) ▸w)
-  ▸inline ▸∇ (J₀ₘ₂ ok ▸A ▸t ▸B ▸u ▸v ▸w) =
-    J₀ₘ₂ ok (▸inline (▸-𝟘ᵐ?-DCon ▸∇) ▸A) (▸inline (▸-𝟘ᵐ?-DCon ▸∇) ▸t)
-      (▸inline (▸-𝟘ᵐ?-DCon ▸∇) ▸B) (▸inline ▸∇ ▸u)
-      (▸inline (▸-𝟘ᵐ?-DCon ▸∇) ▸v) (▸inline (▸-𝟘ᵐ?-DCon ▸∇) ▸w)
-  ▸inline ▸∇ (Kₘ ok₁ ok₂ ▸A ▸t ▸B ▸u ▸v) =
-    Kₘ ok₁ ok₂ (▸inline (▸-𝟘ᵐ?-DCon ▸∇) ▸A) (▸inline ▸∇ ▸t)
-      (▸inline ▸∇ ▸B) (▸inline ▸∇ ▸u) (▸inline ▸∇ ▸v)
-  ▸inline ▸∇ (K₀ₘ₁ ok₁ ok₂ ▸A ▸t ▸B ▸u ▸v) =
-    K₀ₘ₁ ok₁ ok₂ (▸inline (▸-𝟘ᵐ?-DCon ▸∇) ▸A)
-      (▸inline (▸-𝟘ᵐ?-DCon ▸∇) ▸t) (▸inline ▸∇ ▸B) (▸inline ▸∇ ▸u)
-      (▸inline (▸-𝟘ᵐ?-DCon ▸∇) ▸v)
-  ▸inline ▸∇ (K₀ₘ₂ ok ▸A ▸t ▸B ▸u ▸v) =
-    K₀ₘ₂ ok (▸inline (▸-𝟘ᵐ?-DCon ▸∇) ▸A) (▸inline (▸-𝟘ᵐ?-DCon ▸∇) ▸t)
-      (▸inline (▸-𝟘ᵐ?-DCon ▸∇) ▸B) (▸inline ▸∇ ▸u)
-      (▸inline (▸-𝟘ᵐ?-DCon ▸∇) ▸v)
-  ▸inline ▸∇ ([]-congₘ ▸A ▸t ▸u ▸v ok) =
-    []-congₘ (▸inline (▸-𝟘ᵐ?-DCon ▸∇) ▸A) (▸inline (▸-𝟘ᵐ?-DCon ▸∇) ▸t)
-      (▸inline (▸-𝟘ᵐ?-DCon ▸∇) ▸u) (▸inline (▸-𝟘ᵐ?-DCon ▸∇) ▸v) ok
+  ▸inline ▸ξ (Jₘ ok₁ ok₂ ▸A ▸t ▸B ▸u ▸v ▸w) =
+    Jₘ ok₁ ok₂ (▸inline (▸-𝟘ᵐ?-DCon ▸ξ) ▸A) (▸inline ▸ξ ▸t)
+      (▸inline ▸ξ ▸B) (▸inline ▸ξ ▸u) (▸inline ▸ξ ▸v) (▸inline ▸ξ ▸w)
+  ▸inline ▸ξ (J₀ₘ₁ ok₁ ok₂ ok₃ ▸A ▸t ▸B ▸u ▸v ▸w) =
+    J₀ₘ₁ ok₁ ok₂ ok₃ (▸inline (▸-𝟘ᵐ?-DCon ▸ξ) ▸A)
+      (▸inline (▸-𝟘ᵐ?-DCon ▸ξ) ▸t) (▸inline ▸ξ ▸B) (▸inline ▸ξ ▸u)
+      (▸inline (▸-𝟘ᵐ?-DCon ▸ξ) ▸v) (▸inline (▸-𝟘ᵐ?-DCon ▸ξ) ▸w)
+  ▸inline ▸ξ (J₀ₘ₂ ok ▸A ▸t ▸B ▸u ▸v ▸w) =
+    J₀ₘ₂ ok (▸inline (▸-𝟘ᵐ?-DCon ▸ξ) ▸A) (▸inline (▸-𝟘ᵐ?-DCon ▸ξ) ▸t)
+      (▸inline (▸-𝟘ᵐ?-DCon ▸ξ) ▸B) (▸inline ▸ξ ▸u)
+      (▸inline (▸-𝟘ᵐ?-DCon ▸ξ) ▸v) (▸inline (▸-𝟘ᵐ?-DCon ▸ξ) ▸w)
+  ▸inline ▸ξ (Kₘ ok₁ ok₂ ▸A ▸t ▸B ▸u ▸v) =
+    Kₘ ok₁ ok₂ (▸inline (▸-𝟘ᵐ?-DCon ▸ξ) ▸A) (▸inline ▸ξ ▸t)
+      (▸inline ▸ξ ▸B) (▸inline ▸ξ ▸u) (▸inline ▸ξ ▸v)
+  ▸inline ▸ξ (K₀ₘ₁ ok₁ ok₂ ▸A ▸t ▸B ▸u ▸v) =
+    K₀ₘ₁ ok₁ ok₂ (▸inline (▸-𝟘ᵐ?-DCon ▸ξ) ▸A)
+      (▸inline (▸-𝟘ᵐ?-DCon ▸ξ) ▸t) (▸inline ▸ξ ▸B) (▸inline ▸ξ ▸u)
+      (▸inline (▸-𝟘ᵐ?-DCon ▸ξ) ▸v)
+  ▸inline ▸ξ (K₀ₘ₂ ok ▸A ▸t ▸B ▸u ▸v) =
+    K₀ₘ₂ ok (▸inline (▸-𝟘ᵐ?-DCon ▸ξ) ▸A) (▸inline (▸-𝟘ᵐ?-DCon ▸ξ) ▸t)
+      (▸inline (▸-𝟘ᵐ?-DCon ▸ξ) ▸B) (▸inline ▸ξ ▸u)
+      (▸inline (▸-𝟘ᵐ?-DCon ▸ξ) ▸v)
+  ▸inline ▸ξ ([]-congₘ ▸A ▸t ▸u ▸v ok) =
+    []-congₘ (▸inline (▸-𝟘ᵐ?-DCon ▸ξ) ▸A) (▸inline (▸-𝟘ᵐ?-DCon ▸ξ) ▸t)
+      (▸inline (▸-𝟘ᵐ?-DCon ▸ξ) ▸u) (▸inline (▸-𝟘ᵐ?-DCon ▸ξ) ▸v) ok
+
+opaque
+  unfolding inlineᵈ
+
+  -- A variant of ▸inline.
+
+  ▸inlineᵈ : ▸[ m ] glassify ∇ → γ ▸[ m ] t → γ ▸[ m ] inlineᵈ ∇ t
+  ▸inlineᵈ =
+    ▸inline ∘→
+    PE.subst (▸[_]_ _) (PE.cong glassify $ PE.sym εᵈ•as-DExt)
 
 ------------------------------------------------------------------------
 -- A negative result

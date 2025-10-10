@@ -20,7 +20,7 @@ open import Data.Nat.Properties
 open import Data.Nat using (_<′_; ≤′-reflexive; ≤′-refl; ≤′-step; _≤′_)
   public
 open Data.Nat.Properties
-  using (_≟_; _<?_; _<′?_; ≤-total;
+  using (_≟_; _≤?_; _<?_; _<′?_; ≤-total;
          +-identityʳ; +-assoc; +-comm; +-0-isCommutativeMonoid; +-suc;
          +-cancelˡ-≡;
          *-identityˡ; *-identityʳ; *-assoc; *-comm; *-zeroʳ; *-cancelˡ-≡;
@@ -82,6 +82,14 @@ Nat-set {x = suc m} {y = suc n} {x = p}    {y = q}    =
   where
   lemma : (p : suc m ≡ suc n) → cong suc (cong pred p) ≡ p
   lemma refl = refl
+
+opaque
+
+  -- The type m ≤ n is propositional.
+
+  ≤-propositional : Is-proposition (m ≤ n)
+  ≤-propositional {x = z≤n}   {y = z≤n}   = refl
+  ≤-propositional {x = s≤s _} {y = s≤s _} = cong s≤s ≤-propositional
 
 opaque
 

@@ -123,16 +123,16 @@ opaque
     consistent _ ∘→ glassify-⊢∷
 
 opaque
-  unfolding inline
+  unfolding inlineᵈ
 
-  -- If ε and inline-Con ∇ Δ are consistent, then ∇ and Δ are
+  -- If ε and inline-Conᵈ ∇ Δ are consistent, then ∇ and Δ are
   -- consistent.
 
   Consistent-inline-Con→Consistent :
-    Consistent (ε » inline-Con ∇ Δ) →
+    Consistent (ε » inline-Conᵈ ∇ Δ) →
     Consistent (∇ » Δ)
   Consistent-inline-Con→Consistent consistent _ =
-    consistent _ ∘→ ⊢inline∷
+    consistent _ ∘→ ⊢inlineᵈ∷
 
 opaque
 
@@ -147,12 +147,12 @@ opaque
     consistent _ ∘→ defn-wkTerm ∇′⊇∇
 
 opaque
-  unfolding Trans ones inline inline-Con
+  unfolding Trans ones inlineᵈ
 
   -- If opacity is allowed, then consistency is not preserved by
   -- glassification, inlining or context extension: there is a
   -- definition context ∇ and well-formed context Γ that are
-  -- consistent, but for which glassify ∇ » Γ and ε » inline-Con ∇ Γ
+  -- consistent, but for which glassify ∇ » Γ and ε » inline-Conᵈ ∇ Γ
   -- are not consistent, and for which there is an extended context ∇′
   -- such that ∇′ » Γ is not consistent.
 
@@ -162,7 +162,7 @@ opaque
        ∇ »⊢ Γ ×
        Consistent (∇ » Γ) ×
        ¬ Consistent (glassify ∇ » Γ) ×
-       ¬ Consistent (ε » inline-Con ∇ Γ) ×
+       ¬ Consistent (ε » inline-Conᵈ ∇ Γ) ×
        ∃₂ λ m′ (∇′ : DCon (Term 0) m′) →
          » ∇′ ⊇ ∇ × ¬ Consistent (∇′ » Γ)
   consistency-is-not-preserved ok =
@@ -190,7 +190,8 @@ opaque
       conv (var₀ ⊢0′) (univ (δ-red (∙ ⊢0′) here PE.refl PE.refl))
 
     inconsistent₂ :
-      ε » inline-Con Opaque[ Empty ∷ U 0 ] (ε ∙ defn 0) ⊢ var x0 ∷ Empty
+      ε » inline-Conᵈ Opaque[ Empty ∷ U 0 ] (ε ∙ defn 0) ⊢
+        var x0 ∷ Empty
     inconsistent₂ =
       var₀ (Emptyⱼ εε)
 
@@ -248,15 +249,15 @@ opaque
 opaque
 
   -- If opacity is allowed then it is not in general the case that, if
-  -- ∇ »⊢ Γ, and ∇ and Γ are consistent, then ε and inline-Con ∇ Γ are
-  -- consistent.
+  -- ∇ »⊢ Γ, and ∇ and Γ are consistent, then ε and inline-Conᵈ ∇ Γ
+  -- are consistent.
 
   ¬Consistent→Consistent-inline-Con :
     Opacity-allowed →
     ¬ (∀ {m n} {∇ : DCon (Term 0) m} {Γ : Con Term n} →
        ∇ »⊢ Γ →
        Consistent (∇ » Γ) →
-       Consistent (ε » inline-Con ∇ Γ))
+       Consistent (ε » inline-Conᵈ ∇ Γ))
   ¬Consistent→Consistent-inline-Con ok hyp =
     let _ , _ , _ , _ , ⊢Γ , con , _ , not-con , _ =
           consistency-is-not-preserved ok

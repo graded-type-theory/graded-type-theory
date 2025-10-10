@@ -90,7 +90,7 @@ opaque
       (PE.sym (·-identityʳ 𝟙)) id
 
 opaque
-  unfolding inline
+  unfolding inlineᵈ
 
   -- If fstʷ has a usage rule then 𝟙 ≤ 𝟘 (given some assumptions).
 

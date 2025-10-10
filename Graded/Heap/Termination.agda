@@ -220,7 +220,7 @@ opaque
   whBisim-initial :
     {Γ : Con Term k} →
     ⦃ ok : No-equality-reflection or-empty Γ ⦄ →
-    (Emptyrec-allowed 𝟙ᵐ 𝟘 → Consistent (ε » inline-Con ∇ Γ)) →
+    (Emptyrec-allowed 𝟙ᵐ 𝟘 → Consistent (ε » inline-Conᵈ ∇ Γ)) →
     (k ≢ 0 →
      No-erased-matches′ type-variant UR ×
      Has-well-behaved-zero M semiring-with-meet) →
@@ -228,11 +228,11 @@ opaque
     𝟘ᶜ ▸ t →
     glassify ∇ » Γ ⊢ t ↘ u ∷ A →
     ∃₅ λ m n H u′ (ρ : Wk m n) →
-    initial (inline ∇ t) ⇘ ⟨ H , u′ , ρ , ε ⟩ ×
-    wk ρ u′ [ H ]ₕ ≡ inline ∇ u × Value u′
+    initial (inlineᵈ ∇ t) ⇘ ⟨ H , u′ , ρ , ε ⟩ ×
+    wk ρ u′ [ H ]ₕ ≡ inlineᵈ ∇ u × Value u′
   whBisim-initial {∇} {Γ} consistent nem ▸∇ ▸t t↘u =
-    whBisim-initial-ε ⦃ ok = or-empty-inline-Con ⦄ consistent nem
-      (▸inline ▸∇ ▸t) (⊢inline↘inline∷ t↘u)
+    whBisim-initial-ε ⦃ ok = or-empty-inline-Conᵈ ⦄ consistent nem
+      (▸inlineᵈ ▸∇ ▸t) (⊢inlineᵈ↘inlineᵈ∷ t↘u)
 
 opaque
 
@@ -289,7 +289,7 @@ opaque
   initial-⇘ :
     {Δ : Con Term k} →
     ⦃ ok : No-equality-reflection or-empty Δ ⦄ →
-    (Emptyrec-allowed 𝟙ᵐ 𝟘 → Consistent (ε » inline-Con ∇ Δ)) →
+    (Emptyrec-allowed 𝟙ᵐ 𝟘 → Consistent (ε » inline-Conᵈ ∇ Δ)) →
     (k ≢ 0 →
      No-erased-matches′ type-variant UR ×
      Has-well-behaved-zero M semiring-with-meet) →
@@ -297,10 +297,10 @@ opaque
     ▸[ 𝟙ᵐ ] glassify ∇ →
     𝟘ᶜ ▸ t →
     ∃₅ λ m n H u (ρ : Wk m n) →
-    initial (inline ∇ t) ⇘ ⟨ H , u , ρ , ε ⟩ × Value u
+    initial (inlineᵈ ∇ t) ⇘ ⟨ H , u , ρ , ε ⟩ × Value u
   initial-⇘ consistent prop ⊢t ▸∇ ▸t =
-    initial-⇘-ε ⦃ ok = or-empty-inline-Con ⦄ consistent prop
-      (⊢inline∷ ⊢t) (▸inline ▸∇ ▸t)
+    initial-⇘-ε ⦃ ok = or-empty-inline-Conᵈ ⦄ consistent prop
+      (⊢inlineᵈ∷ ⊢t) (▸inlineᵈ ▸∇ ▸t)
 
 opaque
 
@@ -312,7 +312,7 @@ opaque
       (λ _ _ → ¬Empty) (λ 0≢0 → ⊥-elim (0≢0 refl)) ⊢t ▸t
 
 opaque
-  unfolding inline-Con
+  unfolding inline-Conᵈ
 
   -- A variant of initial-⇘-closed-ε without the restriction that the
   -- definition context must be empty.
@@ -320,6 +320,6 @@ opaque
   initial-⇘-closed :
     ∇ » ε ⊢ t ∷ A → ▸[ 𝟙ᵐ ] glassify ∇ → ε ▸ t →
     ∃₅ λ m n H u (ρ : Wk m n) →
-    initial (inline ∇ t) ⇘ ⟨ H , u , ρ , ε ⟩ × Value u
+    initial (inlineᵈ ∇ t) ⇘ ⟨ H , u , ρ , ε ⟩ × Value u
   initial-⇘-closed ⊢t ▸∇ ▸t =
-    initial-⇘-closed-ε (⊢inline∷ ⊢t) (▸inline ▸∇ ▸t)
+    initial-⇘-closed-ε (⊢inlineᵈ∷ ⊢t) (▸inlineᵈ ▸∇ ▸t)

@@ -20,7 +20,7 @@ open import Definition.Untyped.NotParametrised public
 
 private
   variable
-    n m l : Nat
+    l m n o : Nat
     bs bs′ : List _
     ts ts′ : GenTs _ _ _
 
@@ -649,99 +649,115 @@ _∙[_][_][_] :
 ------------------------------------------------------------------------
 -- Inlining of definitions
 
-opaque mutual
-
-  -- The term at the given position, with the definition context
-  -- inlined. Opacity is ignored.
-
-  inline-< : DCon (Term 0) n → m <′ n → Term 0
-  inline-< ε m<0 =
-    ⊥-elim (n≮0 (<′⇒< m<0))
-  inline-< (∇ ∙⟨ _ ⟩[ t ∷ _ ]) (≤′-reflexive _) =
-    inline ∇ t
-  inline-< (∇ ∙!) (≤′-step m<n) =
-    inline-< ∇ m<n
-
-  -- The term at the given position, if any, with the definition
-  -- context inlined. If the number is out of bounds, then a dummy
-  -- term is returned. Opacity is ignored.
-
-  inline-Nat : DCon (Term 0) n → Nat → Term 0
-  inline-Nat {n} ∇ α =
-    case α <′? n of λ where
-      (yes α<n) → inline-< ∇ α<n
-      (no _)    → ℕ
-
-  -- Inlines all definitions (names that are out of bounds are
-  -- replaced by a dummy term). Opacity is ignored.
-
-  inline : DCon (Term 0) m → Term n → Term n
-  inline _ t@(var _) =
-    t
-  inline ∇ (defn α) =
-    wk wk₀ (inline-Nat ∇ α)
-  inline _ t@(U _) =
-    t
-  inline ∇ (ΠΣ⟨ b ⟩ p , q ▷ A ▹ B) =
-    ΠΣ⟨ b ⟩ p , q ▷ inline ∇ A ▹ inline ∇ B
-  inline ∇ (lam p t) =
-    lam p (inline ∇ t)
-  inline ∇ (t ∘⟨ p ⟩ u) =
-    inline ∇ t ∘⟨ p ⟩ inline ∇ u
-  inline ∇ (prod s p t u) =
-    prod s p (inline ∇ t) (inline ∇ u)
-  inline ∇ (fst p t) =
-    fst p (inline ∇ t)
-  inline ∇ (snd p t) =
-    snd p (inline ∇ t)
-  inline ∇ (prodrec r p q A t u) =
-    prodrec r p q (inline ∇ A) (inline ∇ t) (inline ∇ u)
-  inline _ t@ℕ =
-    t
-  inline _ t@zero =
-    t
-  inline ∇ (suc t) =
-    suc (inline ∇ t)
-  inline ∇ (natrec p q r A t u v) =
-    natrec p q r (inline ∇ A) (inline ∇ t) (inline ∇ u) (inline ∇ v)
-  inline _ t@(Unit _ _) =
-    t
-  inline _ t@(star _ _) =
-    t
-  inline ∇ (unitrec l p q A t u) =
-    unitrec l p q (inline ∇ A) (inline ∇ t) (inline ∇ u)
-  inline _ t@Empty =
-    t
-  inline ∇ (emptyrec p A t) =
-    emptyrec p (inline ∇ A) (inline ∇ t)
-  inline ∇ (Id A t u) =
-    Id (inline ∇ A) (inline ∇ t) (inline ∇ u)
-  inline _ t@rfl =
-    t
-  inline ∇ (J p q A t B u v w) =
-    J p q (inline ∇ A) (inline ∇ t) (inline ∇ B) (inline ∇ u)
-      (inline ∇ v) (inline ∇ w)
-  inline ∇ (K p A t B u v) =
-    K p (inline ∇ A) (inline ∇ t) (inline ∇ B) (inline ∇ u) (inline ∇ v)
-  inline ∇ ([]-cong s A t u v) =
-    []-cong s (inline ∇ A) (inline ∇ t) (inline ∇ u) (inline ∇ v)
-
 opaque
 
-  -- Inlines all definitions (names that are out of bounds are
-  -- replaced by a dummy term). Opacity is ignored.
+  mutual
 
-  inline-Con : DCon (Term 0) m → Con Term n → Con Term n
+    -- The term at the given position, with the definition context
+    -- inlined. Opacity is ignored.
+
+    inline-< : DExt (Term 0) n l → l ≤ m → m <′ n → Term 0
+    inline-< idᵉ n≤m m<n =
+      ⊥-elim (n≮n _ (≤-trans (<′⇒< m<n) n≤m))
+    inline-< (step ξ _ _ t) _ (≤′-reflexive _) =
+      inline ξ t
+    inline-< (step ξ _ _ _) l≤m (≤′-step m<n) =
+      inline-< ξ l≤m m<n
+
+    -- The term at the given position, if any, with the definition
+    -- context inlined. If the number, α, is out of bounds, then
+    -- defn α is returned. Opacity is ignored.
+
+    inline-Nat : DExt (Term 0) n l → Nat → Term 0
+    inline-Nat {n} {l} ξ α =
+      case l ≤? α of λ where
+        (no _)    → defn α
+        (yes l≤α) →
+          case α <′? n of λ where
+            (no _)    → defn α
+            (yes α<n) → inline-< ξ l≤α α<n
+
+    -- Inlines all definitions that are in scope. Opacity is ignored.
+
+    inline : DExt (Term 0) n l → Term m → Term m
+    inline _ t@(var _) =
+      t
+    inline ξ (defn α) =
+      wk wk₀ (inline-Nat ξ α)
+    inline _ t@(U _) =
+      t
+    inline ξ (ΠΣ⟨ b ⟩ p , q ▷ A ▹ B) =
+      ΠΣ⟨ b ⟩ p , q ▷ inline ξ A ▹ inline ξ B
+    inline ξ (lam p t) =
+      lam p (inline ξ t)
+    inline ξ (t ∘⟨ p ⟩ u) =
+      inline ξ t ∘⟨ p ⟩ inline ξ u
+    inline ξ (prod s p t u) =
+      prod s p (inline ξ t) (inline ξ u)
+    inline ξ (fst p t) =
+      fst p (inline ξ t)
+    inline ξ (snd p t) =
+      snd p (inline ξ t)
+    inline ξ (prodrec r p q A t u) =
+      prodrec r p q (inline ξ A) (inline ξ t) (inline ξ u)
+    inline _ t@ℕ =
+      t
+    inline _ t@zero =
+      t
+    inline ξ (suc t) =
+      suc (inline ξ t)
+    inline ξ (natrec p q r A t u v) =
+      natrec p q r (inline ξ A) (inline ξ t) (inline ξ u) (inline ξ v)
+    inline _ t@(Unit _ _) =
+      t
+    inline _ t@(star _ _) =
+      t
+    inline ξ (unitrec l p q A t u) =
+      unitrec l p q (inline ξ A) (inline ξ t) (inline ξ u)
+    inline _ t@Empty =
+      t
+    inline ξ (emptyrec p A t) =
+      emptyrec p (inline ξ A) (inline ξ t)
+    inline ξ (Id A t u) =
+      Id (inline ξ A) (inline ξ t) (inline ξ u)
+    inline _ t@rfl =
+      t
+    inline ξ (J p q A t B u v w) =
+      J p q (inline ξ A) (inline ξ t) (inline ξ B) (inline ξ u)
+        (inline ξ v) (inline ξ w)
+    inline ξ (K p A t B u v) =
+      K p (inline ξ A) (inline ξ t) (inline ξ B) (inline ξ u) (inline ξ v)
+    inline ξ ([]-cong s A t u v) =
+      []-cong s (inline ξ A) (inline ξ t) (inline ξ u) (inline ξ v)
+
+  -- Inlines all definitions that are in scope. Opacity is ignored.
+
+  inline-Con : DExt (Term 0) n l → Con Term m → Con Term m
   inline-Con _ ε       = ε
-  inline-Con ∇ (Γ ∙ A) = inline-Con ∇ Γ ∙ inline ∇ A
+  inline-Con ξ (Γ ∙ A) = inline-Con ξ Γ ∙ inline ξ A
+
+  -- Inlines all definitions that are in scope. Opacity is ignored.
+
+  inline-Subst : DExt (Term 0) o l → Subst m n → Subst m n
+  inline-Subst ξ σ = inline ξ ∘→ σ
 
 opaque
+  unfolding inline as-DExt
 
-  -- Inlines all definitions (names that are out of bounds are
-  -- replaced by a dummy term). Opacity is ignored.
+  -- A variant of inline for DCon.
 
-  inline-Subst : DCon (Term 0) l → Subst m n → Subst m n
-  inline-Subst ∇ σ = inline ∇ ∘→ σ
+  inlineᵈ : DCon (Term 0) n → Term m → Term m
+  inlineᵈ = inline ∘→ as-DExt
+
+  -- A variant of inline-Con for DCon.
+
+  inline-Conᵈ : DCon (Term 0) n → Con Term m → Con Term m
+  inline-Conᵈ = inline-Con ∘→ as-DExt
+
+  -- A variant of inline-Subst for DCon.
+
+  inline-Substᵈ : DCon (Term 0) l → Subst m n → Subst m n
+  inline-Substᵈ = inline-Subst ∘→ as-DExt
 
 ------------------------------------------------------------------------
 -- Some inversion lemmas
