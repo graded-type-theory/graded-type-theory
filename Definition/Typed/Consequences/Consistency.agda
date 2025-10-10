@@ -16,10 +16,12 @@ open Type-restrictions R
 
 open import Definition.Untyped M
 open import Definition.Untyped.Identity 𝕄
+open import Definition.Untyped.Properties M
 open import Definition.Typed R
 open import Definition.Typed.Consequences.Canonicity R
 open import Definition.Typed.EqRelInstance R
 open import Definition.Typed.Properties R
+open import Definition.Typed.Stability R
 open import Definition.Typed.Substitution R
 open import Definition.Typed.Weakening.Definition R
 open import Definition.LogicalRelation.Hidden R
@@ -32,6 +34,7 @@ open import Tools.Function
 open import Tools.Nat
 open import Tools.Product
 import Tools.PropositionalEquality as PE
+open import Tools.Reasoning.PropositionalEquality
 open import Tools.Relation
 open import Tools.Vec using (ε)
 
@@ -282,3 +285,226 @@ opaque
           consistency-is-not-preserved ok
     in
     not-con (hyp ⊢Γ ∇′⊇∇ con)
+
+------------------------------------------------------------------------
+-- An alternative notion of consistency
+
+opaque
+
+  -- An alternative notion of consistency, defined in response to
+  -- ¬Consistent→Consistent-glassify,
+  -- ¬Consistent→Consistent-inline-Con and ¬Consistent→Consistent-⊇.
+
+  Consistentᵍ : Cons m n → Set a
+  Consistentᵍ (∇ » Γ) = Consistent (glassify ∇ » Γ)
+
+opaque
+  unfolding Consistentᵍ
+
+  -- Consistentᵍ Γ implies Consistent Γ.
+
+  Consistentᵍ→Consistent :
+    Consistentᵍ Γ → Consistent Γ
+  Consistentᵍ→Consistent = Consistent-glassify→Consistent
+
+opaque
+  unfolding Consistentᵍ
+
+  -- If opacity is allowed, then it is not necessarily the case that
+  -- Consistent Γ implies Consistentᵍ Γ for every well-formed context
+  -- pair Γ.
+
+  ¬Consistent→Consistentᵍ :
+    Opacity-allowed →
+    ¬ (∀ {m n} {Γ : Cons m n} →
+       ⊢ Γ → Consistent Γ → Consistentᵍ Γ)
+  ¬Consistent→Consistentᵍ ok hyp =
+    ¬Consistent→Consistent-glassify ok hyp
+
+opaque
+  unfolding Consistentᵍ
+
+  -- If Consistentᵍ (∇ » Ε) holds and there is a substitution from Δ
+  -- to Ε under ∇, then Consistentᵍ (∇ » Δ) holds.
+
+  subst-Consistentᵍ :
+    ∇ » Ε ⊢ˢʷ σ ∷ Δ → Consistentᵍ (∇ » Ε) →
+    Consistentᵍ (∇ » Δ)
+  subst-Consistentᵍ = subst-Consistent ∘→ glassify-⊢ˢʷ∷
+
+opaque
+  unfolding Consistentᵍ
+
+  -- If there is some way to instantiate all the types in Δ (under ∇),
+  -- then Consistentᵍ (∇ » Δ) holds.
+
+  ⊢ˢʷ∷→Consistentᵍ :
+    ∇ » ε ⊢ˢʷ σ ∷ Δ → Consistentᵍ (∇ » Δ)
+  ⊢ˢʷ∷→Consistentᵍ =
+    flip subst-Consistentᵍ (λ _ → ¬Empty)
+
+opaque
+
+  -- If ∇ is well-formed, then Consistentᵍ (∇ » ε) holds.
+
+  Consistentᵍ-ε : » ∇ → Consistentᵍ (∇ » ε)
+  Consistentᵍ-ε =
+    ⊢ˢʷ∷→Consistentᵍ ∘→ ⊢ˢʷ∷-idSubst ∘→ ε
+
+------------------------------------------------------------------------
+-- Consistentᵍ, glassification, inlining and context extensions
+
+opaque
+  unfolding Consistentᵍ
+
+  -- Consistentᵍ (glassify ∇ » Δ) is logically equivalent to
+  -- Consistentᵍ (∇ » Δ).
+
+  Consistentᵍ-glassify⇔Consistentᵍ :
+    Consistentᵍ (glassify ∇ » Δ) ⇔
+    Consistentᵍ (∇ » Δ)
+  Consistentᵍ-glassify⇔Consistentᵍ {∇} {Δ} =
+    Π-cong-⇔ λ t →
+      (glassify (glassify ∇) » Δ ⊢ t ∷ Empty  ≡⟨ PE.cong₃ _⊢_∷_ (PE.cong (_» _) (glassify-idem _)) PE.refl PE.refl ⟩⇔
+                 glassify ∇  » Δ ⊢ t ∷ Empty  □⇔)
+      →-cong-⇔ id⇔
+
+opaque
+  unfolding Consistentᵍ inlineᵈ
+
+  -- "Consistentᵍ (ε » inline-Conᵈ ∇ Δ) if glassify ∇ »⊢ Δ holds" is
+  -- logically equivalent to Consistentᵍ (∇ » Δ).
+
+  Consistentᵍ-inline-Con⇔Consistentᵍ :
+    (glassify ∇ »⊢ Δ → Consistentᵍ (ε » inline-Conᵈ ∇ Δ)) ⇔
+    Consistentᵍ (∇ » Δ)
+  Consistentᵍ-inline-Con⇔Consistentᵍ =
+    (λ consistent _ ⊢t →
+       consistent (wfTerm ⊢t) _ $
+       PE.subst₃ _⊢_∷_
+         (PE.cong (_»_ _) inline-Conᵈ-glassify) PE.refl PE.refl $
+       ⊢inlineᵈ∷ ⊢t) ,
+    (λ consistent ⊢Δ _ →
+       consistent _ ∘→
+       stabilityTerm
+         (PE.subst₃ _»⊢_≡_
+            (glassify-idem _) inline-Conᵈ-glassify PE.refl $
+          ⊢inline-Conᵈ≡ ⊢Δ) ∘→
+       defn-wkTerm (»⊇ε (defn-wf ⊢Δ)))
+
+opaque
+  unfolding Consistentᵍ
+
+  -- Consistentᵍ (∇ » Δ) holds if and only if, given that
+  -- glassify ∇ »⊢ Δ holds, Consistentᵍ (∇′ » Δ) holds for all
+  -- ∇′ for which » glassify ∇′ ⊇ glassify ∇ holds.
+  --
+  -- See also All-extensions-consistent⇔Consistentᵍ below.
+
+  Consistentᵍ-⊇⇔Consistentᵍ :
+    (∀ {n} {∇′ : DCon (Term 0) n} →
+     glassify ∇ »⊢ Δ → » glassify ∇′ ⊇ glassify ∇ →
+     Consistentᵍ (∇′ » Δ)) ⇔
+    Consistentᵍ (∇ » Δ)
+  Consistentᵍ-⊇⇔Consistentᵍ =
+    (λ consistent _ ⊢t →
+       consistent (wfTerm ⊢t) id⊇ _ ⊢t) ,
+    (λ consistent ⊢Δ ∇′⊇∇ _ ⊢t →
+       consistent _ $
+       PE.subst₃ _⊢_∷_
+         (PE.cong (_» _) $ glassify-idem _) PE.refl PE.refl $
+       inhabited-under-glassified-context (Emptyⱼ ⊢Δ) ∇′⊇∇ ⊢t .proj₂)
+
+------------------------------------------------------------------------
+-- Another alternative notion of consistency
+
+opaque
+
+  -- Another alternative notion of consistency.
+  --
+  -- Below the terminology "all extensions of Γ are consistent" is
+  -- used for All-extensions-consistent Γ, but note that it is only
+  -- the definition context Γ .defs that is extended.
+
+  All-extensions-consistent : Cons m n → Set a
+  All-extensions-consistent (∇ » Γ) =
+    ∀ {k} {∇′ : DCon (Term 0) k} → » ∇′ ⊇ ∇ → Consistent (∇′ » Γ)
+
+opaque
+  unfolding All-extensions-consistent Consistentᵍ
+
+  -- If Γ is well-formed and either some Π-type is allowed or Γ .vars
+  -- is empty, then All-extensions-consistent Γ is logically
+  -- equivalent to Consistentᵍ Γ.
+
+  All-extensions-consistent⇔Consistentᵍ :
+    ∃₂ Π-allowed or-empty (Γ .vars) →
+    ⊢ Γ →
+    All-extensions-consistent Γ ⇔ Consistentᵍ Γ
+  All-extensions-consistent⇔Consistentᵍ ok ⊢Γ =
+    (λ consistent _ ⊢t →
+       let _ , _ , _ , ∇′⊇∇ , ⊢u =
+             inhabited-under-extension ok (Emptyⱼ ⊢Γ) ⊢t
+       in
+       consistent ∇′⊇∇ _ ⊢u) ,
+    (λ consistent ∇′⊇∇ _ ⊢t →
+       consistent _ $
+       inhabited-under-glassified-context (Emptyⱼ ⊢Γ) ∇′⊇∇ ⊢t .proj₂)
+
+opaque
+  unfolding All-extensions-consistent
+
+  -- If all extensions of Γ are consistent, then Γ is consistent.
+
+  All-extensions-consistent→Consistent :
+    All-extensions-consistent Γ → Consistent Γ
+  All-extensions-consistent→Consistent = _$ id⊇
+
+opaque
+  unfolding All-extensions-consistent
+
+  -- If opacity is allowed, then it is not necessarily the case that
+  -- all extensions of a consistent, well-formed context pair are
+  -- consistent.
+
+  ¬Consistent→All-extensions-consistent :
+    Opacity-allowed →
+    ¬ (∀ {m n} {Γ : Cons m n} →
+       ⊢ Γ → Consistent Γ → All-extensions-consistent Γ)
+  ¬Consistent→All-extensions-consistent ok hyp =
+    let _ , _ , _ , _ , ⊢Γ , con , _ , _ , _ , _ , ∇′⊇∇ , not-con =
+          consistency-is-not-preserved ok
+    in
+    not-con (hyp ⊢Γ con ∇′⊇∇)
+
+opaque
+  unfolding All-extensions-consistent
+
+  -- If all extensions of ∇ » Ε are consistent and there is a
+  -- substitution from Δ to Ε under ∇, then all extensions of ∇ » Δ
+  -- are consistent.
+
+  subst-All-extensions-consistent :
+    ∇ » Ε ⊢ˢʷ σ ∷ Δ → All-extensions-consistent (∇ » Ε) →
+    All-extensions-consistent (∇ » Δ)
+  subst-All-extensions-consistent ⊢σ consistent ∇′⊇∇ =
+    subst-Consistent (defn-wkSubstʷ ∇′⊇∇ ⊢σ) (consistent ∇′⊇∇)
+
+opaque
+  unfolding All-extensions-consistent
+
+  -- If there is some way to instantiate all the types in Δ (under ∇),
+  -- then all extensions of ∇ » Δ are consistent.
+
+  ⊢ˢʷ∷→All-extensions-consistent :
+    ∇ » ε ⊢ˢʷ σ ∷ Δ → All-extensions-consistent (∇ » Δ)
+  ⊢ˢʷ∷→All-extensions-consistent =
+    flip subst-All-extensions-consistent (λ _ _ → ¬Empty)
+
+opaque
+
+  -- If ∇ is well-formed, then all extensions of ∇ » ε are consistent.
+
+  All-extensions-consistent-ε : » ∇ → All-extensions-consistent (∇ » ε)
+  All-extensions-consistent-ε =
+    ⊢ˢʷ∷→All-extensions-consistent ∘→ ⊢ˢʷ∷-idSubst ∘→ ε
