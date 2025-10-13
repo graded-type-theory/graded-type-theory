@@ -111,6 +111,21 @@ opaque
   »⊇ε ∙ᵒ⟨ ok ⟩[ ⊢t ∷ ⊢A ] =
     stepᵒ (»⊇ε (defn-wf (wf ⊢A))) ok ⊢A ⊢t
 
+opaque
+
+  -- A glassification lemma for _»_⊇_.
+
+  glassify-»⊇ : » ∇′ ⊇ ∇ → » glassify ∇′ ⊇ glassify ∇
+  glassify-»⊇ id⊇ =
+    id⊇
+  glassify-»⊇ (stepᵗ ξ⊇ ⊢t) =
+    stepᵗ (glassify-»⊇ ξ⊇) (glassify-⊢∷ ⊢t)
+  glassify-»⊇ (stepᵒ ξ⊇ _ _ ⊢t) =
+    stepᵗ (glassify-»⊇ ξ⊇)
+      (PE.subst₃ _⊢_∷_
+         (PE.cong (_» _) glassify-factor) PE.refl PE.refl $
+       glassify-⊢∷ ⊢t)
+
 ------------------------------------------------------------------------
 -- Weakening for properties of definitions
 
@@ -137,24 +152,6 @@ opaque
   there*-↦⊘∈ : » ∇′ ⊇ ∇ → α ↦⊘∷ A ∈ ∇ → α ↦⊘∷ A ∈ ∇′
   there*-↦⊘∈ id⊇         α↦t = α↦t
   there*-↦⊘∈ (step ξ⊇ s) α↦t = there (there*-↦⊘∈ ξ⊇ α↦t)
-
-------------------------------------------------------------------------
--- A glassification lemma
-
-opaque
-
-  -- A glassification lemma for _»_⊇_.
-
-  glassify-»⊇ : » ∇′ ⊇ ∇ → » glassify ∇′ ⊇ glassify ∇
-  glassify-»⊇ id⊇ =
-    id⊇
-  glassify-»⊇ (stepᵗ ξ⊇ ⊢t) =
-    stepᵗ (glassify-»⊇ ξ⊇) (glassify-⊢∷ ⊢t)
-  glassify-»⊇ (stepᵒ ξ⊇ _ _ ⊢t) =
-    stepᵗ (glassify-»⊇ ξ⊇)
-      (PE.subst₃ _⊢_∷_
-         (PE.cong (_» _) glassify-factor) PE.refl PE.refl $
-       glassify-⊢∷ ⊢t)
 
 ------------------------------------------------------------------------
 -- Weakening for typing derivations
