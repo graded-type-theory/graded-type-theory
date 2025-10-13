@@ -2,7 +2,7 @@ module README where
 
 ------------------------------------------------------------------------
 -- Code related to the paper "Normalisation for First-Class Universe
--- Levels" by Nils Anders Danielsson, Naïm Favier and Ondřej Kubánek
+-- Levels" by Nils Anders Danielsson, Naïm Camille Favier and Ondřej Kubánek
 ------------------------------------------------------------------------
 
 -- Note that Andreas Abel, Oskar Eriksson, Gaëtan Gilbert, Wojciech
@@ -65,7 +65,7 @@ module README where
 -- * A weak unit type was added by Oskar Eriksson (2023).
 --
 -- * A universe hierarchy with first-class universe levels were added
---   by Nils Anders Danielsson, Naïm Favier and Ondřej Kubánek
+--   by Nils Anders Danielsson, Naïm Camille Favier and Ondřej Kubánek
 --   (2024-2025): this is the focus of the discussion below.
 
 ------------------------------------------------------------------------
@@ -124,7 +124,8 @@ import Definition.Typed.Weakening using (_∷ʷ_⊇_; wk₁; wkTerm₁)
 -- Some typing rules have slightly different names from those in the paper.
 
 import Definition.Typed using (⊢_; _⊢_; _⊢_≡_; _⊢_∷_; _⊢_≡_∷_; _⊢_≤_∷Level)
-import Definition.Typed.Properties.Admissible.Level using (⊢≤-refl; ⊢≤-trans; ⊢≤-antisymmetric)
+import Definition.Typed.Properties.Admissible.Level
+  using (⊢≤-refl; ⊢≤-trans; ⊢≤-antisymmetric)
 import Definition.Typed.Properties.Admissible.Lift using (Liftⱼ≤)
 
 -- Admissible heterogeneous Π- and Σ-types.
@@ -169,7 +170,8 @@ import Definition.Typed.EqRelInstance
 -- of Γ ⊩Lvl_w t, and neLevel-prop Γ t instead of Γ ⊩Lvlₙ t, and
 -- similarly for equalities.
 
-import Definition.LogicalRelation using (_⊩neNf_≡_∷_; _⊩Level_∷Level; Level-prop; neLevel-prop)
+import Definition.LogicalRelation
+  using (_⊩neNf_≡_∷_; _⊩Level_∷Level; Level-prop; neLevel-prop)
 
 -- Unary versions of the logical relations.
 import Definition.LogicalRelation.Unary using (_⊩neNf_∷_)
@@ -180,7 +182,8 @@ import Definition.LogicalRelation.Unary using (_⊩neNf_∷_)
 import Definition.LogicalRelation using (↑ᵘ_)
 
 -- Irrelevance for ↑ᵘ; ↑ᵘ respects equality and ordering.
-import Definition.LogicalRelation.Properties.Primitive using (↑ᵘ-irrelevance; ↑ᵘ-cong; ↑ᵘ-cong-≤)
+import Definition.LogicalRelation.Properties.Primitive
+  using (↑ᵘ-irrelevance; ↑ᵘ-cong; ↑ᵘ-cong-≤)
 
 -- supᵘ respects equality in its first argument.
 import Definition.LogicalRelation.Properties.Primitive using (⊩supᵘ-congˡ)
@@ -197,13 +200,15 @@ import Definition.LogicalRelation.Properties.Primitive using (⊩supᵘ-idem)
 -- The main reducibility judgements are written Γ ⊩⟨ ℓ ⟩ 𝒥, where 𝒥 is
 -- one of the four forms of judgement.
 
-import Definition.LogicalRelation using (_⊩⟨_⟩_; _⊩⟨_⟩_≡_/_; _⊩⟨_⟩_∷_/_; _⊩⟨_⟩_≡_∷_/_)
+import Definition.LogicalRelation
+  using (_⊩⟨_⟩_; _⊩⟨_⟩_≡_/_; _⊩⟨_⟩_∷_/_; _⊩⟨_⟩_≡_∷_/_)
 
 -- The logical relation is cumulative.
 import Definition.LogicalRelation.Properties.Embedding
 
 -- Versions of reducibility judgements with hidden reducibility arguments.
-import Definition.LogicalRelation.Hidden using (_⊩⟨_⟩_≡_; _⊩⟨_⟩_∷_; _⊩⟨_⟩_≡_∷_)
+import Definition.LogicalRelation.Hidden
+  using (_⊩⟨_⟩_≡_; _⊩⟨_⟩_∷_; _⊩⟨_⟩_≡_∷_)
 
 -- Irrelevance for reducibility judgements, justifying the hidden versions
 -- above.
@@ -216,7 +221,8 @@ import Definition.LogicalRelation.Irrelevance
 import Definition.LogicalRelation.Properties.Escape
 
 -- Validity judgements.
-import Definition.LogicalRelation.Substitution using (⊩ᵛ_; _⊩ᵛ⟨_⟩_; _⊩ᵛ⟨_⟩_≡_; _⊩ˢ_≡_∷_; _⊩ˢ_∷_; _⊩ᵛ⟨_⟩_≡_∷_; _⊩ᵛ⟨_⟩_∷_)
+import Definition.LogicalRelation.Substitution
+  using (⊩ᵛ_; _⊩ᵛ⟨_⟩_; _⊩ᵛ⟨_⟩_≡_; _⊩ˢ_≡_∷_; _⊩ˢ_∷_; _⊩ᵛ⟨_⟩_≡_∷_; _⊩ᵛ⟨_⟩_∷_)
 
 -- Lemma 3.3: Fundamental lemma.
 import Definition.LogicalRelation.Fundamental
@@ -261,7 +267,8 @@ import Definition.Typed.Consequences.Injectivity
 -- * Γ ⊢ t ~ u ↑ A and Γ ⊢ t ~ u ↓ A for atomic neutral terms and atomic
 --   neutral terms with types in WHNF respectively.
 
-import Definition.Conversion using (_⊢_[conv↑]_; _⊢_[conv↓]_; _⊢_[conv↑]_∷_; _⊢_[conv↓]_∷_; _⊢_~_↑_; _⊢_~_↓_)
+import Definition.Conversion
+  using (_⊢_[conv↑]_; _⊢_[conv↓]_; _⊢_[conv↑]_∷_; _⊢_[conv↓]_∷_; _⊢_~_↑_; _⊢_~_↓_)
 
 -- Level atoms and views.
 import Definition.Conversion using (LevelAtom; Level⁺; Levelᵛ)
@@ -320,3 +327,29 @@ import Graded.Erasure.Target
 
 -- Theorem 5.1: Soundness of erasure.
 import Graded.Erasure.Consequences.Soundness
+
+-- Some examples, including a universe-polymorphic identity function.
+import Graded.Erasure.Examples using (⊢id)
+
+------------------------------------------------------------------------
+-- Additional results
+
+-- Some features were added to the formalisation after the paper was submitted.
+
+-- There is now a Level-is-small parameter that controls whether Level
+-- belongs to the first universe. If this is disabled, then Level is
+-- only a type, not an element of any universe. Disabling this parameter
+-- is similar to *enabling* Agda's --level-universe flag, which makes
+-- Level an element of a separate universe LevelUniv instead of Set.
+-- A notable difference is that Agda disallows forming identity
+-- types of types in LevelUniv, whereas our type theory has identity
+-- type formation rules for every type.
+
+open import Definition.Typed.Restrictions using (module Type-restrictions)
+open Type-restrictions using (Level-is-small)
+
+-- Canonicity is proved for natural number terms in contexts consisting
+-- only of Level variables.
+
+import Definition.Typed.Consequences.Canonicity
+  using (canonicity-with-level-assumptions)
