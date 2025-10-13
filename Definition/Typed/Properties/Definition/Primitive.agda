@@ -33,7 +33,7 @@ open import Tools.Sum
 open import Tools.Vec as Vec using (ε)
 
 private variable
-  α n              : Nat
+  α m n            : Nat
   ∇ ∇′ ∇″ ∇₁ ∇₂ ∇₃ : DCon _ _
   ξ                : DExt _ _ _
   Γ                : Con _ _
@@ -167,6 +167,89 @@ opaque
 -- Lemmas about transparentisation
 
 opaque
+
+  -- Transparentisation of definition context extensions.
+
+  Transᵉ : Unfolding m → DExt (Term 0) m n → DExt (Term 0) m n
+  Transᵉ _ (id eq) =
+    id eq
+  Transᵉ φ (step ξ tra A t) =
+    step (Transᵉ (Vec.tail φ) ξ) tra A t
+  Transᵉ (φ ⁰) (step ξ ω A t) =
+    step (Transᵉ φ ξ) ω A t
+  Transᵉ (φ ¹) (step ξ (opa φ′) A t) =
+    step (Transᵉ (φ ⊔ᵒᵗ φ′) ξ) tra A t
+
+opaque
+  unfolding Trans Transᵉ _ᵈ•_ as-DExt
+
+  -- Trans can be expressed in terms of Transᵉ.
+
+  Trans-Transᵉ : Trans φ ∇ PE.≡ ε ᵈ• Transᵉ φ (as-DExt ∇)
+  Trans-Transᵉ {∇ = ε} =
+    PE.refl
+  Trans-Transᵉ {∇ = _ ∙⟨ tra ⟩!} =
+    PE.cong _∙! Trans-Transᵉ
+  Trans-Transᵉ {φ = _ ⁰} {∇ = _ ∙⟨ opa _ ⟩!} =
+    PE.cong _∙! Trans-Transᵉ
+  Trans-Transᵉ {φ = _ ¹} {∇ = _ ∙⟨ opa _ ⟩!} =
+    PE.cong _∙! Trans-Transᵉ
+
+opaque
+
+  -- A function used to state Trans-ᵈ•.
+
+  remainder : DExt (Term 0) m n → Unfolding m → Unfolding n
+  remainder idᵉ                   φ           = φ
+  remainder (step ξ tra _ _)      (_ Vec.∷ φ) = remainder ξ φ
+  remainder (step ξ (opa _) _ _)  (φ ⁰)       = remainder ξ φ
+  remainder (step ξ (opa φ′) _ _) (φ ¹)       = remainder ξ (φ ⊔ᵒᵗ φ′)
+
+opaque
+  unfolding Trans Transᵉ _ᵈ•_ remainder
+
+  -- Trans and Transᵉ commute, in a certain sense, with concatenation.
+
+  Trans-ᵈ• :
+    Trans φ (∇ ᵈ• ξ) PE.≡ Trans (remainder ξ φ) ∇ ᵈ• Transᵉ φ ξ
+  Trans-ᵈ• {ξ = idᵉ} =
+    PE.refl
+  Trans-ᵈ• {φ = _ Vec.∷ _} {ξ = step ξ tra _ _} =
+    PE.cong _∙! $ Trans-ᵈ• {ξ = ξ}
+  Trans-ᵈ• {φ = _ ⁰} {ξ = step ξ (opa _) _ _} =
+    PE.cong _∙! $ Trans-ᵈ• {ξ = ξ}
+  Trans-ᵈ• {φ = _ ¹} {ξ = step ξ (opa _) _ _} =
+    PE.cong _∙! $ Trans-ᵈ• {ξ = ξ}
+
+opaque
+  unfolding remainder ones
+
+  -- The unfolding remainder ξ ones is equal to ones.
+
+  remainder-ones : remainder ξ ones PE.≡ ones
+  remainder-ones {ξ = idᵉ} =
+    PE.refl
+  remainder-ones {ξ = step ξ tra _ _} =
+    remainder-ones {ξ = ξ}
+  remainder-ones {ξ = step ξ (opa φ) _ _} =
+    remainder ξ (ones ⊔ᵒᵗ φ)  ≡⟨ PE.cong (remainder ξ) ones-⊔ᵒᵗˡ ⟩
+    remainder ξ ones          ≡⟨ remainder-ones {ξ = ξ} ⟩
+    ones                      ∎
+
+opaque
+  unfolding remainder zeros
+
+  -- The unfolding remainder ξ zeros is equal to zeros.
+
+  remainder-zeros : remainder ξ zeros PE.≡ zeros
+  remainder-zeros {ξ = idᵉ} =
+    PE.refl
+  remainder-zeros {ξ = step ξ tra _ _} =
+    remainder-zeros {ξ = ξ}
+  remainder-zeros {ξ = step ξ (opa _) _ _} =
+    remainder-zeros {ξ = ξ}
+
+opaque
   unfolding Trans ones
 
   -- Trans ones is pointwise equal to glassify.
@@ -194,6 +277,35 @@ opaque
     PE.cong _∙! Trans-zeros
   Trans-zeros {∇ = _ ∙⟨ opa _ ⟩!} =
     PE.cong _∙! Trans-zeros
+
+opaque
+  unfolding Transᵉ glassifyᵉ ones
+
+  -- Transᵉ ones is pointwise equal to glassifyᵉ.
+
+  Transᵉ-ones : Transᵉ ones ξ PE.≡ glassifyᵉ ξ
+  Transᵉ-ones {ξ = idᵉ} =
+    PE.refl
+  Transᵉ-ones {ξ = step ξ tra _ _} =
+    PE.cong (λ ξ → step ξ _ _ _) Transᵉ-ones
+  Transᵉ-ones {ξ = step ξ (opa φ) _ _} =
+    PE.cong (λ ξ → step ξ _ _ _)
+      (Transᵉ (ones ⊔ᵒᵗ φ) ξ  ≡⟨ PE.cong (flip Transᵉ _) ones-⊔ᵒᵗˡ ⟩
+       Transᵉ ones ξ          ≡⟨ Transᵉ-ones ⟩
+       glassifyᵉ ξ            ∎)
+
+opaque
+  unfolding Transᵉ zeros
+
+  -- The transparentisation of ξ with respect to zeros is ξ.
+
+  Transᵉ-zeros : Transᵉ zeros ξ PE.≡ ξ
+  Transᵉ-zeros {ξ = idᵉ} =
+    PE.refl
+  Transᵉ-zeros {ξ = step ξ tra _ _} =
+    PE.cong (λ ξ → step ξ _ _ _) Transᵉ-zeros
+  Transᵉ-zeros {ξ = step ξ (opa _) _ _} =
+    PE.cong (λ ξ → step ξ _ _ _) Transᵉ-zeros
 
 opaque
   unfolding Trans
