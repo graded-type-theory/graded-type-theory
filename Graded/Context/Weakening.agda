@@ -190,6 +190,13 @@ opaque
     where
     open ≤ᶜ-reasoning
 
+opaque
+
+  -- The result of weakening ε is 𝟘ᶜ.
+
+  wkConₘ-ε : wkConₘ ρ ε ≡ 𝟘ᶜ
+  wkConₘ-ε {ρ} = wk-𝟘ᶜ ρ
+
 ------------------------------------------------------------------------
 -- The function wkConₘ⁻¹
 

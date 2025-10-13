@@ -394,6 +394,7 @@ import Graded.Modality.Instances.Linearity.Examples.Good.Greatest-lower-bound
 -- Subject reduction for modalities
 
 import Graded.Reduction
+import Graded.Reduction.Necessary
 import Graded.FullReduction
 
 ------------------------------------------------------------------------

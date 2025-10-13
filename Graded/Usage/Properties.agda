@@ -17,6 +17,7 @@ open Usage-restrictions R
 
 open import Graded.Context 𝕄
 open import Graded.Context.Properties 𝕄
+open import Graded.Context.Weakening 𝕄
 open import Graded.Usage 𝕄 R
 open import Graded.Usage.Inversion 𝕄 R
 open import Graded.Usage.Erased-matches
