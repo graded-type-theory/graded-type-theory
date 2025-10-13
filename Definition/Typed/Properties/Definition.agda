@@ -1201,60 +1201,42 @@ opaque
 
 opaque
 
-  -- If a closed type A is well-formed under ∇ and inhabited under
-  -- glassify ∇, then A is inhabited under an extension of ∇.
-  --
-  -- See also inhabited-under-extension below.
-
-  inhabited-under-extension₀ :
-    ∇ » ε ⊢ A → glassify ∇ » ε ⊢ t ∷ A →
-    ∃₃ λ n (∇′ : DCon (Term 0) n) u → » ∇′ ⊇ ∇ × ∇′ » ε ⊢ u ∷ A
-  inhabited-under-extension₀ {A} {t} ⊢A ⊢t =
-    let »∇ = defn-wf (wf ⊢A) in
-    case Opacity-allowed? of λ where
-      (no no-opacity) →
-        let transparent = »→Transparent no-opacity »∇ in
-        _  , _ , t , id⊇ ,
-        PE.subst₃ _⊢_∷_
-          (PE.cong (_» _) (PE.sym transparent)) PE.refl PE.refl
-        ⊢t
-      (yes opacity) →
-        let ext-ok =
-              stepᵒ₁ opacity ⊢A
-                (PE.subst₃ _⊢_∷_
-                   (PE.cong (_» _) $ PE.sym Trans-ones) PE.refl PE.refl
-                   ⊢t) in
-        _ , _ , defn _ , ext-ok ,
-        defn (ε (wf-»⊇ ext-ok »∇)) here (PE.sym $ wk-id _)
-
-opaque
-
   -- If a type A is well-formed under ∇ and inhabited under
   -- glassify ∇, then A is inhabited under an extension of ∇ (assuming
-  -- that at least one Π-type is allowed).
+  -- that at least one Π-type is allowed or the variable context is
+  -- empty).
 
   inhabited-under-extension :
-    Π-allowed p q →
+    ∃₂ Π-allowed or-empty Γ →
     ∇ » Γ ⊢ A → glassify ∇ » Γ ⊢ t ∷ A →
     ∃₃ λ n (∇′ : DCon (Term 0) n) u → » ∇′ ⊇ ∇ × ∇′ » Γ ⊢ u ∷ A
-  inhabited-under-extension {p} {q} {Γ} {A} {t} ok ⊢A ⊢t =
+  inhabited-under-extension {Γ} ok ⊢A ⊢t =
     let »∇ = defn-wf (wf ⊢A) in
     case Opacity-allowed? of λ where
       (no no-opacity) →
         let transparent = »→Transparent no-opacity »∇ in
-        _ , _ , t , id⊇ ,
+        _ , _ , _ , id⊇ ,
         PE.subst₃ _⊢_∷_
           (PE.cong (_» _) (PE.sym transparent)) PE.refl PE.refl
         ⊢t
       (yes opacity) →
-        let ext-ok =
+        let p,q,ok : ∃₂ λ p q → Π-allowed p q or-empty Γ
+            p,q,ok = case ok of λ where
+              (possibly-nonempty ⦃ ok = p , q , ok ⦄) →
+                p , q , possibly-nonempty ⦃ ok = ok ⦄
+              ε →
+                Modality.ω 𝕄 , Modality.ω 𝕄 , ε
+
+            ok = p,q,ok .proj₂ .proj₂
+
+            ext-ok =
               stepᵒ₁ opacity (⊢Πs ok ⊢A)
                 (⊢lams ok $
                  PE.subst₃ _⊢_∷_
                    (PE.cong (_» _) $ PE.sym Trans-ones) PE.refl PE.refl
                    ⊢t)
         in
-        _ , _ , apps p Γ (defn _) , ext-ok ,
+        _ , _ , _ , ext-ok ,
         ⊢apps ok (defn (ε (wf-»⊇ ext-ok »∇)) here (PE.sym $ wk-id _))
 
 opaque

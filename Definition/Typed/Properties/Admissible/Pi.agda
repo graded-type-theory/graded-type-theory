@@ -201,11 +201,12 @@ opaque
   -- A typing rule for Πs.
 
   ⊢Πs :
-    Π-allowed p q →
+    Π-allowed p q or-empty Δ →
     ∇ » Δ ⊢ A →
     ∇ » ε ⊢ Πs p q Δ A
-  ⊢Πs {Δ = ε}     _  ⊢A = ⊢A
-  ⊢Πs {Δ = _ ∙ _} ok ⊢A = ⊢Πs ok (ΠΣⱼ ⊢A ok)
+  ⊢Πs {Δ = ε}     _                          ⊢A = ⊢A
+  ⊢Πs {Δ = _ ∙ _} (possibly-nonempty ⦃ ok ⦄) ⊢A =
+    ⊢Πs possibly-nonempty (ΠΣⱼ ⊢A ok)
 
 opaque
   unfolding Πs
@@ -225,11 +226,12 @@ opaque
   -- A typing rule for lams.
 
   ⊢lams :
-    Π-allowed p q →
+    Π-allowed p q or-empty Δ →
     ∇ » Δ ⊢ t ∷ A →
     ∇ » ε ⊢ lams p Δ t ∷ Πs p q Δ A
-  ⊢lams {Δ = ε}     _  ⊢t = ⊢t
-  ⊢lams {Δ = _ ∙ _} ok ⊢t = ⊢lams ok (lamⱼ′ ok ⊢t)
+  ⊢lams {Δ = ε}     _                          ⊢t = ⊢t
+  ⊢lams {Δ = _ ∙ _} (possibly-nonempty ⦃ ok ⦄) ⊢t =
+    ⊢lams possibly-nonempty (lamⱼ′ ok ⊢t)
 
 opaque
   unfolding Πs apps
@@ -237,11 +239,11 @@ opaque
   -- A typing rule for apps.
 
   ⊢apps :
-    Π-allowed p q →
+    Π-allowed p q or-empty Δ →
     ∇ » ε ⊢ t ∷ Πs p q Δ A →
     ∇ » Δ ⊢ apps p Δ t ∷ A
-  ⊢apps {Δ = ε}     _  ⊢t = ⊢t
-  ⊢apps {Δ = _ ∙ _} ok ⊢t =
+  ⊢apps {Δ = ε}     _                 ⊢t = ⊢t
+  ⊢apps {Δ = _ ∙ _} possibly-nonempty ⊢t =
     let ⊢A , _ = inversion-ΠΣ (inversion-Πs (wf-⊢∷ ⊢t)) in
     PE.subst (_⊢_∷_ _ _) (wkSingleSubstId _) $
-    wkTerm₁ ⊢A (⊢apps ok ⊢t) ∘ⱼ var₀ ⊢A
+    wkTerm₁ ⊢A (⊢apps possibly-nonempty ⊢t) ∘ⱼ var₀ ⊢A
