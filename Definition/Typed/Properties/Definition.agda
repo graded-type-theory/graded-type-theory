@@ -87,67 +87,6 @@ opaque
   »ᵈ•→» {ξ = step ξ _ _ _} = »ᵈ•→» {ξ = ξ} ∘→ »∙→»
 
 ------------------------------------------------------------------------
--- Some lemmas related to context extensions
-
-opaque
-
-  -- If a closed type A is well-formed under ∇ and inhabited under
-  -- glassify ∇, then A is inhabited under an extension of ∇.
-  --
-  -- See also inhabited-under-extension below.
-
-  inhabited-under-extension₀ :
-    ∇ » ε ⊢ A → glassify ∇ » ε ⊢ t ∷ A →
-    ∃₃ λ n (∇′ : DCon (Term 0) n) u → » ∇′ ⊇ ∇ × ∇′ » ε ⊢ u ∷ A
-  inhabited-under-extension₀ {A} {t} ⊢A ⊢t =
-    let »∇ = defn-wf (wf ⊢A) in
-    case Opacity-allowed? of λ where
-      (no no-opacity) →
-        let transparent = »→Transparent no-opacity »∇ in
-        _  , _ , t , id⊇ ,
-        PE.subst₃ _⊢_∷_
-          (PE.cong (_» _) (PE.sym transparent)) PE.refl PE.refl
-        ⊢t
-      (yes opacity) →
-        let ext-ok =
-              stepᵒ₁ opacity ⊢A
-                (PE.subst₃ _⊢_∷_
-                   (PE.cong (_» _) $ PE.sym Trans-ones) PE.refl PE.refl
-                   ⊢t) in
-        _ , _ , defn _ , ext-ok ,
-        defn (ε (wf-»⊇ ext-ok »∇)) here (PE.sym $ wk-id _)
-
-opaque
-
-  -- If a type A is well-formed under ∇ and inhabited under
-  -- glassify ∇, then A is inhabited under an extension of ∇ (assuming
-  -- that at least one Π-type is allowed).
-
-  inhabited-under-extension :
-    Π-allowed p q →
-    ∇ » Γ ⊢ A → glassify ∇ » Γ ⊢ t ∷ A →
-    ∃₃ λ n (∇′ : DCon (Term 0) n) u → » ∇′ ⊇ ∇ × ∇′ » Γ ⊢ u ∷ A
-  inhabited-under-extension {p} {q} {Γ} {A} {t} ok ⊢A ⊢t =
-    let »∇ = defn-wf (wf ⊢A) in
-    case Opacity-allowed? of λ where
-      (no no-opacity) →
-        let transparent = »→Transparent no-opacity »∇ in
-        _ , _ , t , id⊇ ,
-        PE.subst₃ _⊢_∷_
-          (PE.cong (_» _) (PE.sym transparent)) PE.refl PE.refl
-        ⊢t
-      (yes opacity) →
-        let ext-ok =
-              stepᵒ₁ opacity (⊢Πs ok ⊢A)
-                (⊢lams ok $
-                 PE.subst₃ _⊢_∷_
-                   (PE.cong (_» _) $ PE.sym Trans-ones) PE.refl PE.refl
-                   ⊢t)
-        in
-        _ , _ , apps p Γ (defn _) , ext-ok ,
-        ⊢apps ok (defn (ε (wf-»⊇ ext-ok »∇)) here (PE.sym $ wk-id _))
-
-------------------------------------------------------------------------
 -- Properties related to inlining and Transᵉ
 
 opaque
@@ -1256,6 +1195,67 @@ opaque
     PE.subst₄ _⊢_↘_∷_
       (PE.cong (_» _) (PE.cong glassify $ PE.sym εᵈ•as-DExt))
       PE.refl PE.refl PE.refl
+
+------------------------------------------------------------------------
+-- Some lemmas related to context extensions and glassification
+
+opaque
+
+  -- If a closed type A is well-formed under ∇ and inhabited under
+  -- glassify ∇, then A is inhabited under an extension of ∇.
+  --
+  -- See also inhabited-under-extension below.
+
+  inhabited-under-extension₀ :
+    ∇ » ε ⊢ A → glassify ∇ » ε ⊢ t ∷ A →
+    ∃₃ λ n (∇′ : DCon (Term 0) n) u → » ∇′ ⊇ ∇ × ∇′ » ε ⊢ u ∷ A
+  inhabited-under-extension₀ {A} {t} ⊢A ⊢t =
+    let »∇ = defn-wf (wf ⊢A) in
+    case Opacity-allowed? of λ where
+      (no no-opacity) →
+        let transparent = »→Transparent no-opacity »∇ in
+        _  , _ , t , id⊇ ,
+        PE.subst₃ _⊢_∷_
+          (PE.cong (_» _) (PE.sym transparent)) PE.refl PE.refl
+        ⊢t
+      (yes opacity) →
+        let ext-ok =
+              stepᵒ₁ opacity ⊢A
+                (PE.subst₃ _⊢_∷_
+                   (PE.cong (_» _) $ PE.sym Trans-ones) PE.refl PE.refl
+                   ⊢t) in
+        _ , _ , defn _ , ext-ok ,
+        defn (ε (wf-»⊇ ext-ok »∇)) here (PE.sym $ wk-id _)
+
+opaque
+
+  -- If a type A is well-formed under ∇ and inhabited under
+  -- glassify ∇, then A is inhabited under an extension of ∇ (assuming
+  -- that at least one Π-type is allowed).
+
+  inhabited-under-extension :
+    Π-allowed p q →
+    ∇ » Γ ⊢ A → glassify ∇ » Γ ⊢ t ∷ A →
+    ∃₃ λ n (∇′ : DCon (Term 0) n) u → » ∇′ ⊇ ∇ × ∇′ » Γ ⊢ u ∷ A
+  inhabited-under-extension {p} {q} {Γ} {A} {t} ok ⊢A ⊢t =
+    let »∇ = defn-wf (wf ⊢A) in
+    case Opacity-allowed? of λ where
+      (no no-opacity) →
+        let transparent = »→Transparent no-opacity »∇ in
+        _ , _ , t , id⊇ ,
+        PE.subst₃ _⊢_∷_
+          (PE.cong (_» _) (PE.sym transparent)) PE.refl PE.refl
+        ⊢t
+      (yes opacity) →
+        let ext-ok =
+              stepᵒ₁ opacity (⊢Πs ok ⊢A)
+                (⊢lams ok $
+                 PE.subst₃ _⊢_∷_
+                   (PE.cong (_» _) $ PE.sym Trans-ones) PE.refl PE.refl
+                   ⊢t)
+        in
+        _ , _ , apps p Γ (defn _) , ext-ok ,
+        ⊢apps ok (defn (ε (wf-»⊇ ext-ok »∇)) here (PE.sym $ wk-id _))
 
 ------------------------------------------------------------------------
 -- Opaque[_∷_]
