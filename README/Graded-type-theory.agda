@@ -21,7 +21,7 @@
 -- * https://github.com/agda/agda-stdlib/blob/v2.3/LICENCE
 -- * https://github.com/agda/agda/blob/v2.8.0/LICENSE
 
-module README where
+module README.Graded-type-theory where
 
 import Definition.LogicalRelation
 import Definition.LogicalRelation.Fundamental

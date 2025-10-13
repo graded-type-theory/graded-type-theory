@@ -17,6 +17,7 @@ module Definition.Typed.Consequences.Canonicity
 open Type-restrictions R
 
 open import Definition.Untyped.Neutral M type-variant
+open import Definition.Untyped.Properties M
 
 open import Definition.Typed R
 import Definition.Typed.Consequences.Inequality R as I
@@ -67,11 +68,10 @@ opaque
 
 opaque
 
-  -- Canonicity for the empty type.
+  -- Canonicity for the empty type in glass contexts.
 
-  ¬Empty : ¬ ∇ » ε ⊢ t ∷ Empty
-  ¬Empty {t} =
-    ∇ » ε ⊢ t ∷ Empty               →⟨ glassify-⊢∷ ⟩
+  ¬Empty′ : ¬ glassify ∇ » ε ⊢ t ∷ Empty
+  ¬Empty′ {t} =
     glassify ∇ » ε ⊢ t ∷ Empty      →⟨ ⊩∷Empty⇔ .proj₁ ∘→ proj₂ ∘→ reducible-⊩∷ ⟩
     glassify ∇ » ε ⊩Empty t ∷Empty  →⟨ (λ { (Emptyₜ _ _ _ (ne (neNfₜ u-ne _))) →
                                             glass-closed-no-ne u-ne }) ⟩
@@ -79,10 +79,25 @@ opaque
 
 opaque
 
+  -- Canonicity for the empty type.
+
+  ¬Empty : ¬ ∇ » ε ⊢ t ∷ Empty
+  ¬Empty = ¬Empty′ ∘→ glassify-⊢∷
+
+opaque
+
   -- There can be no well-typed definition of the empty type.
 
-  ¬defn-Empty : » ∇ → ¬ α ↦ t ∷ Empty ∈ ∇
-  ¬defn-Empty »∇ α↦t = ¬Empty (wf-↦∷∈ α↦t »∇)
+  ¬defn-Empty′ : » ∇ → α ↦∷ A ∈ ∇ → ¬ ∇ » ε ⊢ A ≡ Empty
+  ¬defn-Empty′ »∇ α↦∷A A≡Empty = ¬Empty′ $
+      conv (wf-↦∷∈ (glassify-↦∈′ α↦∷A .proj₂) (glassify-» »∇)) (glassify-⊢≡ A≡Empty)
+
+opaque
+
+  -- There can be no well-typed definition annotated with the empty type.
+
+  ¬defn-Empty : » ∇ → ¬ α ↦∷ Empty ∈ ∇
+  ¬defn-Empty »∇ α↦∷Empty = ¬defn-Empty′ »∇ α↦∷Empty (refl (Emptyⱼ (ε »∇)))
 
 opaque
 
