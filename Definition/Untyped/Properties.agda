@@ -159,10 +159,21 @@ opaque
 opaque
   unfolding ones _⊔ᵒ_
 
-  ones-⊔ᵒ : (φ : Unfolding n) → ones ⊔ᵒ φ ≡ ones
-  ones-⊔ᵒ ε     = refl
-  ones-⊔ᵒ (φ ⁰) = cong _¹ (ones-⊔ᵒ φ)
-  ones-⊔ᵒ (φ ¹) = cong _¹ (ones-⊔ᵒ φ)
+  -- The unfolding ones is a left zero for _⊔ᵒ_.
+
+  ones-⊔ᵒˡ : ones ⊔ᵒ φ ≡ ones
+  ones-⊔ᵒˡ {φ = ε}         = refl
+  ones-⊔ᵒˡ {φ = _ Vec.∷ _} = cong (_ Vec.∷_) ones-⊔ᵒˡ
+
+opaque
+
+  -- The unfolding ones is a right zero for _⊔ᵒ_.
+
+  ones-⊔ᵒʳ : φ ⊔ᵒ ones ≡ ones
+  ones-⊔ᵒʳ {φ} =
+    φ ⊔ᵒ ones  ≡⟨ comm-⊔ᵒ _ _ ⟩
+    ones ⊔ᵒ φ  ≡⟨ ones-⊔ᵒˡ ⟩
+    ones       ∎
 
 opaque
   unfolding zeros _⊔ᵒ_

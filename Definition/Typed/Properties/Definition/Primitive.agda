@@ -145,10 +145,12 @@ opaque
 opaque
   unfolding ones _⊔ᵒᵗ_
 
-  ones-⊔ᵒᵗ : (φ : Unfolding n) → ones ⊔ᵒᵗ φ PE.≡ ones
-  ones-⊔ᵒᵗ with unfolding-mode
-  ...         | explicit   = λ _ → PE.refl
-  ...         | transitive = ones-⊔ᵒ
+  -- The unfolding ones is a left zero for _⊔ᵒ_.
+
+  ones-⊔ᵒᵗˡ : ones ⊔ᵒᵗ φ PE.≡ ones
+  ones-⊔ᵒᵗˡ with unfolding-mode
+  … | explicit   = PE.refl
+  … | transitive = ones-⊔ᵒˡ
 
 opaque
   unfolding ones _⊔ᵒᵗ_
@@ -175,7 +177,7 @@ opaque
     PE.cong _∙! Trans-ones
   Trans-ones {∇ = ∇ ∙⟨ opa φ ⟩!} =
     PE.cong _∙!
-      (Trans (ones ⊔ᵒᵗ φ) ∇  ≡⟨ PE.cong (flip Trans _) $ ones-⊔ᵒᵗ φ ⟩
+      (Trans (ones ⊔ᵒᵗ φ) ∇  ≡⟨ PE.cong (flip Trans _) ones-⊔ᵒᵗˡ ⟩
        Trans ones ∇          ≡⟨ Trans-ones ⟩
        glassify ∇            ∎)
 
