@@ -27,6 +27,7 @@ open import Tools.Function
 open import Tools.Nat
 open import Tools.Product as Σ
 import Tools.PropositionalEquality as PE
+open import Tools.Sum
 
 private
   variable
@@ -133,6 +134,19 @@ opaque
   wf-»⊇ id⊇                 »∇ = »∇
   wf-»⊇ (stepᵒ ξ⊇ ok ⊢A ⊢t) »∇ = ∙ᵒ⟨ ok ⟩[ ⊢t ∷ ⊢A ]
   wf-»⊇ (stepᵗ ξ⊇ ⊢t)       »∇ = ∙ᵗ[ ⊢t ]
+
+opaque
+
+  -- An inversion lemma for »_⊇_.
+
+  inv-»∙⊇ :
+    {∇′ : DCon (Term 0) n′} {∇ : DCon (Term 0) n} →
+    » ∇′ ∙⟨ ω ⟩[ t ∷ A ] ⊇ ∇ →
+    (∃ λ (eq : 1+ n′ PE.≡ n) →
+       PE.subst (DCon (Term 0)) eq (∇′ ∙⟨ ω ⟩[ t ∷ A ]) PE.≡ ∇) ⊎
+    » ∇′ ⊇ ∇ × DWkStep ∇′ A t ω
+  inv-»∙⊇ (id eq₁ eq₂)  = inj₁ (eq₁ , eq₂)
+  inv-»∙⊇ (step ∇′⊇∇ s) = inj₂ (∇′⊇∇ , s)
 
 opaque
 
