@@ -15,6 +15,7 @@ open Type-restrictions R
 
 open import Definition.Untyped M
 open import Definition.Untyped.Neutral M type-variant
+open import Definition.Untyped.Properties M
 open import Definition.Untyped.Whnf M type-variant
 
 open import Definition.Typed R
@@ -152,12 +153,11 @@ opaque
   -- definition context.
 
   »⊇ε : » ∇ → » ∇ ⊇ ε
-  »⊇ε ε =
-    id⊇
-  »⊇ε ∙ᵗ[ ⊢t ] =
-    stepᵗ (»⊇ε (defn-wf (wfTerm ⊢t))) ⊢t
-  »⊇ε ∙ᵒ⟨ ok ⟩[ ⊢t ∷ ⊢A ] =
-    stepᵒ (»⊇ε (defn-wf (wf ⊢A))) ok ⊢A ⊢t
+  »⊇ε {∇} =
+    (» ∇)                 ≡⟨ PE.cong (»_) $ PE.sym εᵈ•as-DExt ⟩→
+    (» ε ᵈ• as-DExt ∇)    →⟨ ᵈ•⊇ ⟩
+    » ε ᵈ• as-DExt ∇ ⊇ ε  ≡⟨ PE.cong (»_⊇ _) εᵈ•as-DExt ⟩→
+    » ∇ ⊇ ε               □
 
 opaque
 

@@ -293,6 +293,14 @@ pattern step₁ ω A t = step idᵉ ω A t
 
 opaque
 
+  -- Turns a definition context into a definition context extension.
+
+  as-DExt : DCon 𝕋 n → DExt 𝕋 n 0
+  as-DExt ε                   = idᵉ
+  as-DExt (∇ ∙⟨ ω ⟩[ t ∷ A ]) = step (as-DExt ∇) ω A t
+
+opaque
+
   infixl 24 _ᵈ•_
 
   -- Appends a definition context extension to a definition context.

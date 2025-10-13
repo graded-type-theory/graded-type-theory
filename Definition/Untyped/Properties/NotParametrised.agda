@@ -337,6 +337,28 @@ opaque
   DExt→≤ (step ξ _ _ _) = m≤n⇒m≤1+n (DExt→≤ ξ)
 
 opaque
+  unfolding _ᵈ•_ as-DExt
+
+  -- The definition context ε ᵈ• as-DExt ∇ is equal to ∇.
+
+  εᵈ•as-DExt : ε ᵈ• as-DExt ∇ ≡ ∇
+  εᵈ•as-DExt {∇ = ε} =
+    refl
+  εᵈ•as-DExt {∇ = _ ∙⟨ _ ⟩[ _ ∷ _ ]} =
+    cong _∙⟨ _ ⟩[ _ ∷ _ ] εᵈ•as-DExt
+
+opaque
+  unfolding glassifyᵉ as-DExt
+
+  -- Glassification commutes with as-DExt.
+
+  glassifyᵉ-as-DExt : glassifyᵉ (as-DExt ∇) ≡ as-DExt (glassify ∇)
+  glassifyᵉ-as-DExt {∇ = ε} =
+    refl
+  glassifyᵉ-as-DExt {∇ = _ ∙!} =
+    cong (λ ξ → step ξ _ _ _) glassifyᵉ-as-DExt
+
+opaque
   unfolding _ᵈ•_
 
   -- If α points to B in ∇ ᵈ• ξ, but not in ξ, then α points to B in
