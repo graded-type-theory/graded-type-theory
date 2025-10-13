@@ -1257,6 +1257,30 @@ opaque
         _ , _ , apps p Γ (defn _) , ext-ok ,
         ⊢apps ok (defn (ε (wf-»⊇ ext-ok »∇)) here (PE.sym $ wk-id _))
 
+opaque
+  unfolding _ᵈ•_
+
+  -- If a type A is well-formed under ∇ and inhabited under a
+  -- well-formed extension of ∇, then A is inhabited under glassify ∇.
+
+  inhabited-under-glassified-context :
+    ∇ » Γ ⊢ A → » ∇′ ⊇ ∇ → ∇′ » Γ ⊢ t ∷ A →
+    ∃ λ t → glassify ∇ » Γ ⊢ t ∷ A
+  inhabited-under-glassified-context {Γ} {A} {t} ⊢A ∇′⊇∇ ⊢t =
+    case »⊇→ ∇′⊇∇ of λ {
+      (ξ , PE.refl) →
+    inline ξ t ,
+    PE.subst₃ _⊢_∷_
+      (PE.cong (_»_ _)
+         (inline-Con ξ Γ    ≡˘⟨ inline-Con-⊇ ∇′⊇∇ (wf ⊢A) ⟩
+          inline-Con idᵉ Γ  ≡⟨ inline-Con-id _ ⟩
+          Γ                 ∎))
+      PE.refl
+      (inline ξ A    ≡˘⟨ inline-⊇-⊢ ∇′⊇∇ ⊢A ⟩
+       inline idᵉ A  ≡⟨ inline-id _ ⟩
+       A             ∎)
+      (⊢inline∷ ⊢t) }
+
 ------------------------------------------------------------------------
 -- Opaque[_∷_]
 
