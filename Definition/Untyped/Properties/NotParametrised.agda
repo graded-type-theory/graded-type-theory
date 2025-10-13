@@ -318,6 +318,14 @@ opaque
     Σ.map idᶠ (Σ.map idᶠ (Σ.map idᶠ (Σ.map idᶠ there))) $
     ↦∷∈-map-DCon α↦
 
+opaque
+
+  -- If DExt A n m is inhabited, then m ≤ n.
+
+  DExt→≤ : DExt A n m → m ≤ n
+  DExt→≤ idᵉ            = ≤-refl
+  DExt→≤ (step ξ _ _ _) = m≤n⇒m≤1+n (DExt→≤ ξ)
+
 ------------------------------------------------------------------------
 -- Properties related to Empty-con and _or-empty_
 
