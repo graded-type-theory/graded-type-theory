@@ -35,6 +35,7 @@ open import Tools.Vec as Vec using (ε)
 private variable
   α n              : Nat
   ∇ ∇′ ∇″ ∇₁ ∇₂ ∇₃ : DCon _ _
+  ξ                : DExt _ _ _
   Γ                : Con _ _
   A B t u          : Term _
   V                : Set a
@@ -280,6 +281,17 @@ opaque
 
 ------------------------------------------------------------------------
 -- Lemmas about glassified contexts
+
+opaque
+  unfolding glassifyᵉ _ᵈ•_
+
+  -- The functions glassify/glassifyᵉ commute with _ᵈ•_.
+
+  glassify-ᵈ• : glassify (∇ ᵈ• ξ) PE.≡ glassify ∇ ᵈ• glassifyᵉ ξ
+  glassify-ᵈ• {ξ = idᵉ} =
+    PE.refl
+  glassify-ᵈ• {ξ = step ξ _ _ _} =
+    PE.cong _∙! (glassify-ᵈ• {ξ = ξ})
 
 opaque
   unfolding Trans

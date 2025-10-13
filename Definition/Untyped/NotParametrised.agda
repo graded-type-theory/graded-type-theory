@@ -307,6 +307,14 @@ _•ᵈ_ : {𝕋 : Set a} → DExt 𝕋 m n → DExt 𝕋 n l → DExt 𝕋 m l
 id eq         •ᵈ ξ = subst (flip (DExt _) _) eq ξ
 step ξ′ ω A t •ᵈ ξ = step (ξ′ •ᵈ ξ) ω A t
 
+opaque
+
+  -- Glassification for DExt.
+
+  glassifyᵉ : DExt 𝕋 m n → DExt 𝕋 m n
+  glassifyᵉ (id eq)        = id eq
+  glassifyᵉ (step ξ _ A t) = step (glassifyᵉ ξ) tra A t
+
 -- A map function for definition contexts.
 
 map-DCon : (𝕋 → 𝕌) → DCon 𝕋 n → DCon 𝕌 n
