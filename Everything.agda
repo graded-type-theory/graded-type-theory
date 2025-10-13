@@ -96,8 +96,6 @@ import Definition.Untyped.Bool
 import Definition.Untyped.Erased.Eta
 import Definition.Untyped.Erased.No-eta
 import Definition.Untyped.Erased
--- import Definition.Untyped.Bool.Erased
--- import Graded.Derived.Unrestricted.Eta.Untyped
 import Definition.Typed.Variant
 import Definition.Untyped.Neutral
 import Definition.Untyped.Properties.Neutral
@@ -128,7 +126,6 @@ import Definition.Typed.Reasoning.Term
 import Definition.Typed.Properties.Admissible.Pi
 import Definition.Typed.Syntactic
 import Definition.Typed.Inversion
--- import Definition.Typed.InverseUniv
 import Definition.Typed.Properties.Admissible.Empty
 import Definition.Typed.Properties.Admissible.Identity
 import Definition.Typed.Properties.Admissible.Nat
@@ -142,7 +139,6 @@ import Definition.Typed.Properties.Admissible.Level.Primitive
 import Definition.Typed.Properties.Admissible.Lift
 import Definition.Typed.Properties.Admissible.Bool.OK
 import Definition.Typed.Properties.Admissible.Bool
--- import Definition.Typed.Properties.Admissible.Bool.Erased
 import Definition.Typed.Substitution
 import Definition.Typed.Properties
 import Definition.Typed.EqualityRelation
@@ -189,7 +185,6 @@ import Graded.Derived.Bool
 import Graded.Derived.Erased.Usage.Eta
 import Graded.Derived.Erased.Usage.No-eta
 import Graded.Derived.Erased.Usage
--- import Graded.Derived.Bool.Erased
 import Graded.Derived.Unrestricted.Eta.Usage
 
 ------------------------------------------------------------------------
@@ -300,7 +295,6 @@ import Definition.Typed.Consequences.Inversion.Erased.Eta
 import Definition.Typed.Consequences.Inversion.Erased.No-eta
 import Definition.Typed.Consequences.Admissible
 import Definition.Typed.Consequences.Consistency
--- import Graded.Derived.Unrestricted.Eta.Typed
 import Definition.Typed.Consequences.NeTypeEq
 
 -- Algorithmic equality.
@@ -320,7 +314,6 @@ import Definition.Conversion.Decidable
 import Definition.Conversion.EqRelInstance
 import Definition.Conversion.Consequences.Completeness
 import Definition.Conversion.Consequences.InverseUniv
--- import Definition.Conversion.Consequences.Var
 import Definition.Untyped.Normal-form
 import Definition.Typed.Eta-long-normal-form
 import Definition.Conversion.FullReduction
@@ -450,53 +443,6 @@ import Graded.Erasure.Examples
 -- A result related to neutral terms and usage
 
 import Graded.Neutral
-
-------------------------------------------------------------------------
--- Some discussion of under what circumstances a []-cong combinator
--- can be defined
-
--- import Graded.Box-cong
-
-------------------------------------------------------------------------
--- A resource aware abstract machine
-
--- The abstract machine
-import Graded.Heap.Untyped
-import Graded.Heap.Untyped.Properties
-import Graded.Heap.Reduction
-import Graded.Heap.Reduction.Inversion
-import Graded.Heap.Reduction.Properties
-
--- Typing for the abstract machine
-import Graded.Heap.Typed
-import Graded.Heap.Typed.Substitution
-import Graded.Heap.Typed.Weakening
-import Graded.Heap.Typed.Inversion
-import Graded.Heap.Typed.Properties
-import Graded.Heap.Typed.Reduction
-
--- Usage for the abstract machine
-import Graded.Heap.Usage
-import Graded.Heap.Usage.Inversion
-import Graded.Heap.Usage.Weakening
-import Graded.Heap.Usage.Properties
-import Graded.Heap.Usage.Inversion
-import Graded.Heap.Usage.Reduction
-
--- Assumptions used to prove some properties of the abstract machine
-import Graded.Heap.Assumptions
-
--- Other properties of the abstract machine
-import Graded.Heap.Normalization
-import Graded.Heap.Bisimilarity
-import Graded.Heap.Termination
-
--- Resource correctness of the abstract machine
-import Graded.Heap.Soundness
-
--- Examples related to the abstract machine
-import Graded.Heap.Examples
-import Graded.Heap.Examples.Linearity
 
 ------------------------------------------------------------------------
 -- Some applications
