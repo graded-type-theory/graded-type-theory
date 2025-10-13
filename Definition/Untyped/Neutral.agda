@@ -77,7 +77,7 @@ data Neutralˡ : Term n → Set a where
   supᵘˡₙ : Neutralˡ t → Neutralˡ (t supᵘ u)
   supᵘʳₙ : Neutralˡ u → Neutralˡ (sucᵘ t supᵘ u)
 
-  -- Join-free neutral terms are neutral levels
+  -- Atomic neutral terms are neutral levels
   ne     : Neutral t → Neutralˡ t
 
 -- There are no closed neutral level terms

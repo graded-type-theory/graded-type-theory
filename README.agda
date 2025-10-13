@@ -120,69 +120,203 @@ import Definition.Typed.Weakening using (_∷ʷ_⊇_; wk₁; wkTerm₁)
 
 ------------------------------------------------------------------------
 -- 2.2: Typing rules
+
+-- Some typing rules have slightly different names from those in the paper.
+
+import Definition.Typed using (⊢_; _⊢_; _⊢_≡_; _⊢_∷_; _⊢_≡_∷_; _⊢_≤_∷Level)
+import Definition.Typed.Properties.Admissible.Level using (⊢≤-refl; ⊢≤-trans; ⊢≤-antisymmetric)
+import Definition.Typed.Properties.Admissible.Lift using (Liftⱼ≤)
+
+-- Admissible heterogeneous Π- and Σ-types.
+
+import Definition.Typed.Properties.Admissible.Pi-Sigma using (ΠΣʰⱼ)
+import Definition.Typed.Properties.Admissible.Pi using (lamʰⱼ; ∘ʰⱼ)
+import Definition.Typed.Properties.Admissible.Sigma using (prodʰⱼ; fstʰⱼ; sndʰⱼ)
+
+-- Well-formedness and subject reduction are only mentioned in the
+-- Contributions section; we plan to revise the paper to include these
+-- results in this section.
+
+import Definition.Typed.Syntactic using (syntacticTerm; syntacticRedTerm)
+
+------------------------------------------------------------------------
 -- 2.3: Reduction rules
 
--- Typing and reduction rules.
-import Definition.Typed
+import Definition.Typed using (_⊢_⇒_∷_)
 
--- Well-formedness and subject reduction.
-import Definition.Typed.Syntactic
+-- Compared to the paper, we use Neutral instead of Neutralᵃ for
+-- atomic neutrals and Neutralˡ instead of Neutral for neutrals
+-- possibly including _supᵘ_.
 
--- Admissible properties of Level, Lift, and Π/Σ.
-import Definition.Typed.Properties.Admissible.Level
-import Definition.Typed.Properties.Admissible.Lift
-import Definition.Typed.Properties.Admissible.Pi-Sigma
-import Definition.Typed.Properties.Admissible.Pi
-import Definition.Typed.Properties.Admissible.Sigma
+import Definition.Untyped.Neutral using (Neutral; Neutralˡ; Whnf)
 
 ------------------------------------------------------------------------
 -- 3: A logical relation
 
--- The logical relation.
-import Definition.LogicalRelation
+-- The external universe level hierarchy ω + 1.
+import Definition.Untyped.NotParametrised using (Universe-level)
 
--- Validity.
-import Definition.LogicalRelation.Substitution
+-- The generic equality relations.
+import Definition.Typed.EqualityRelation
 
--- The fundamental lemma.
+-- The equality relation instance for judgemental equality.
+import Definition.Typed.EqRelInstance
+
+------------------------------------------------------------------------
+-- 3.1: Reducible levels and neutrals
+
+-- We write Γ ⊩Level t ∷Level instead of Γ ⊩Lvl t, Level-prop Γ t instead
+-- of Γ ⊩Lvl_w t, and neLevel-prop Γ t instead of Γ ⊩Lvlₙ t, and
+-- similarly for equalities.
+
+import Definition.LogicalRelation using (_⊩neNf_≡_∷_; _⊩Level_∷Level; Level-prop; neLevel-prop)
+
+-- Unary versions of the logical relations.
+import Definition.LogicalRelation.Unary using (_⊩neNf_∷_)
+
+-- The realiser of a reducible level t is written ↑ᵘ [t], where [t] is
+-- a witness that t is reducible.
+
+import Definition.LogicalRelation using (↑ᵘ_)
+
+-- Irrelevance for ↑ᵘ; ↑ᵘ respects equality and ordering.
+import Definition.LogicalRelation.Properties.Primitive using (↑ᵘ-irrelevance; ↑ᵘ-cong; ↑ᵘ-cong-≤)
+
+-- supᵘ respects equality in its first argument.
+import Definition.LogicalRelation.Properties.Primitive using (⊩supᵘ-congˡ)
+
+-- Lemma 3.1: The typing rule for supᵘ is reducible.
+import Definition.LogicalRelation.Properties.Primitive using (⊩supᵘ)
+
+-- Lemma 3.2: The judgemental equality supᵘ-idem is reducible.
+import Definition.LogicalRelation.Properties.Primitive using (⊩supᵘ-idem)
+
+------------------------------------------------------------------------
+-- 3.2: Reducibility
+
+-- The main reducibility judgements are written Γ ⊩⟨ ℓ ⟩ 𝒥, where 𝒥 is
+-- one of the four forms of judgement.
+
+import Definition.LogicalRelation using (_⊩⟨_⟩_; _⊩⟨_⟩_≡_/_; _⊩⟨_⟩_∷_/_; _⊩⟨_⟩_≡_∷_/_)
+
+-- The logical relation is cumulative.
+import Definition.LogicalRelation.Properties.Embedding
+
+-- Versions of reducibility judgements with hidden reducibility arguments.
+import Definition.LogicalRelation.Hidden using (_⊩⟨_⟩_≡_; _⊩⟨_⟩_∷_; _⊩⟨_⟩_≡_∷_)
+
+-- Irrelevance for reducibility judgements, justifying the hidden versions
+-- above.
+import Definition.LogicalRelation.Irrelevance
+
+------------------------------------------------------------------------
+-- 3.3 Validity and the fundamental lemma
+
+-- Γ ⊩⟨ ℓ ⟩ 𝒥 implies Γ ⊢ 𝒥.
+import Definition.LogicalRelation.Properties.Escape
+
+-- Validity judgements.
+import Definition.LogicalRelation.Substitution using (⊩ᵛ_; _⊩ᵛ⟨_⟩_; _⊩ᵛ⟨_⟩_≡_; _⊩ˢ_≡_∷_; _⊩ˢ_∷_; _⊩ᵛ⟨_⟩_≡_∷_; _⊩ᵛ⟨_⟩_∷_)
+
+-- Lemma 3.3: Fundamental lemma.
 import Definition.LogicalRelation.Fundamental
+
+-- Lemma 3.4: The term typing rule for U is valid.
+import Definition.LogicalRelation.Substitution.Introductions.Universe using (⊩ᵛU∷U)
+
+-- Lemma 3.5: The typing rule univ is valid.
+import Definition.LogicalRelation.Substitution.Introductions.Universe using (⊩ᵛ∷U→⊩ᵛ)
+
+-- Lemma 3.6: The term typing rule for Lift is valid.
+import Definition.LogicalRelation.Substitution.Introductions.Lift using (Liftᵗᵛ)
+
+-- Corollary 3.8: Well-typed objects are reducible.
 import Definition.LogicalRelation.Fundamental.Reducibility
 
--- Consistency, canonicity, injectivity of type formers,
--- and other consequences of the fundamental lemma.
-import Definition.Typed.Consequences.Canonicity
-import Definition.Typed.Consequences.Consistency
+-- Atomic neutrals are reducible.
+import Definition.LogicalRelation.Properties.Neutral
+
+-- Corollary 3.9: Consistency.
+import Definition.Typed.Consequences.Canonicity using (¬Empty)
+
+-- Corollary 3.10: Canonicity.
+import Definition.Typed.Consequences.Canonicity using (canonicity)
+
+-- Corollary 3.11: Weak head normalisation.
+import Definition.Typed.Consequences.Reduction using (whNorm; whNormTerm)
+
+-- Corollary 3.12: Injectivity of type formers.
 import Definition.Typed.Consequences.Injectivity
-import Definition.Typed.Consequences.Inversion
-import Definition.Typed.Consequences.Reduction
-import Definition.Typed.Consequences.Equality
-import Definition.Typed.Consequences.Inequality
 
 ------------------------------------------------------------------------
 -- 4: Decidability of equality
 
 -- Algorithmic equality.
-import Definition.Conversion
 
--- Decidability of algorithmic equality, judgemental equality,
--- typechecking, and typing.
+-- The conversion relations are denoted as follows:
+-- * Γ ⊢ A [conv↑] B and Γ ⊢ A [conv↓] B for arbitrary types and types
+--   in WHNF respectively,
+-- * Γ ⊢ t [conv↑] u ∷ A and Γ ⊢ t [conv↓] u ∷ B for arbitrary terms and terms
+--   in WHNF with types in WHNF respectively, and
+-- * Γ ⊢ t ~ u ↑ A and Γ ⊢ t ~ u ↓ A for atomic neutral terms and atomic
+--   neutral terms with types in WHNF respectively.
+
+import Definition.Conversion using (_⊢_[conv↑]_; _⊢_[conv↓]_; _⊢_[conv↑]_∷_; _⊢_[conv↓]_∷_; _⊢_~_↑_; _⊢_~_↓_)
+
+-- Level atoms and views.
+import Definition.Conversion using (LevelAtom; Level⁺; Levelᵛ)
+
+-- Level view comparison.
+import Definition.Conversion using (_≡ᵛ_; ≤ᵛ)
+
+-- Operations on level views.
+import Definition.Conversion using (sucᵛ; supᵛ)
+
+-- Normalising levels into level views.
+import Definition.Conversion using (_⊢_↑ᵛ_; _⊢_↓ᵛ_; _⊢_~ᵛ_)
+
+-- Algorithmic equality is sound.
+import Definition.Conversion.Soundness
+
+-- Algorithmic equality is stable under weakening.
+import Definition.Conversion.Weakening
+
+-- Algorithmic equality is decidable.
 import Definition.Conversion.Decidable
+
+-- Level normalisation is deterministic.
+import Definition.Conversion.Level using (deterministic-↑ᵛ)
+
+-- Lemma 4.1.
+import Definition.Conversion.EqRelInstance -- supᵘ-↑ᵛ
+
+-- Lemma 4.2: Algorithmic equality is complete for judgemental equality.
+import Definition.Conversion.Consequences.Completeness
+
+-- Corollary 4.3: Judgemental equality of well-formed types and terms is decidable.
 import Definition.Typed.Decidable.Equality
-import Definition.Typechecking.Decidable
+
+-- Corollary 4.4: Typing is decidable for a certain subset of Checkable
+-- types and terms.
+import Definition.Typechecking using (Checkable)
 import Definition.Typed.Decidable
 
--- Full reduction / deep normalisation.
-import Definition.Untyped.Normal-form
+-- Corollary 4.5: Deep normalisation.
 import Definition.Typed.Eta-long-normal-form
-import Definition.Conversion.FullReduction
+import Definition.Conversion.FullReduction using (fullRed)
 
 ------------------------------------------------------------------------
 -- 5: Erasing levels is safe
 
+-- The usage relation.
+import Graded.Usage using (_▸[_]_)
+
 -- The erasure modality.
-import Graded.Modality.Instances.Erasure
+import Graded.Modality.Instances.Erasure using (𝟘; ω)
 import Graded.Modality.Instances.Erasure.Modality
 
--- Soundness of erasure.
-import Graded.Usage
+-- The target language.
+import Graded.Erasure.Target
+
+-- Theorem 5.1: Soundness of erasure.
 import Graded.Erasure.Consequences.Soundness
