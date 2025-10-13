@@ -17,13 +17,19 @@ open import Definition.Typed R
 open import Definition.Typed.Inversion R
 open import Definition.Typed.Properties.Admissible.Empty R
 open import Definition.Typed.Properties.Admissible.Equality R
+open import Definition.Typed.Properties.Admissible.Erased R
 open import Definition.Typed.Properties.Admissible.Identity R
 open import Definition.Typed.Properties.Admissible.Nat R
 open import Definition.Typed.Properties.Admissible.Pi R
 open import Definition.Typed.Properties.Admissible.Sigma R
 open import Definition.Typed.Properties.Admissible.Unit R
+open import Definition.Typed.Properties.Admissible.Var R
 open import Definition.Typed.Properties.Reduction R
 open import Definition.Typed.Properties.Well-formed R
+import Definition.Typed.Reasoning.Term R as TmR
+import Definition.Typed.Reasoning.Type R as TyR
+open import Definition.Typed.Stability R
+open import Definition.Typed.Substitution.Primitive R
 open import Definition.Typed.Weakening R hiding (wk)
 open import Definition.Typed.Weakening.Definition R
 open import Definition.Typed.Well-formed R
@@ -1195,6 +1201,315 @@ opaque
     PE.subst₄ _⊢_↘_∷_
       (PE.cong (_» _) (PE.cong glassify $ PE.sym εᵈ•as-DExt))
       PE.refl PE.refl PE.refl
+
+------------------------------------------------------------------------
+-- Inlining produces definitionally equal terms
+
+opaque
+ unfolding inline _ᵈ•_
+ mutual
+
+  -- Inlining produces definitionally equal terms, given certain
+  -- assumptions.
+
+  ⊢inline-<≡defn∷ :
+    {ξ : DExt (Term 0) n l} →
+    {l≤α : l ≤ α} {α<n : α <′ n} →
+    » ∇ ᵈ• ξ → α ↦∷ A ∈ ∇ ᵈ• ξ →
+    glassify (∇ ᵈ• ξ) » ε ⊢ inline-< ξ l≤α α<n ≡ defn α ∷ A
+  ⊢inline-<≡defn∷ {ξ = idᵉ} {l≤α = n≤α} {α<n} _ _ =
+    ⊥-elim (n≮n _ (≤-trans (<′⇒< α<n) n≤α))
+  ⊢inline-<≡defn∷ {α} {ξ = step ξ _ _ t} {α<n = ≤′-reflexive _}
+    »ξ∙@(∙ᵗ[ ⊢t ]) here =
+    inline ξ t  ≡⟨ defn-wkEqTerm (stepᵗ₁ (glassify-⊢∷ ⊢t)) (⊢inline≡∷ ⊢t) ⟩⊢
+    t           ≡˘⟨ δ-red (ε (glassify-» »ξ∙)) here (PE.sym $ wk-id _) (PE.sym $ wk-id _) ⟩⊢∎
+    defn α      ∎
+    where
+    open TmR
+  ⊢inline-<≡defn∷ {α} {∇} {ξ = step ξ _ _ t} {α<n = ≤′-reflexive _}
+    »ξ∙@(∙ᵒ⟨_⟩[_∷_] {φ} _ ⊢t _) here =
+    inline ξ t  ≡⟨ defn-wkEqTerm
+                     (stepᵗ₁ $
+                      PE.subst₃ _⊢_∷_
+                        (PE.cong (_» _) glassify-factor) PE.refl PE.refl $
+                      glassify-⊢∷ ⊢t)
+                     (PE.subst₄ _⊢_≡_∷_
+                        (PE.cong (_» _)
+                           (glassify
+                              (Trans (remainder ξ φ) ∇ ᵈ• Transᵉ φ ξ)  ≡˘⟨ PE.cong glassify Trans-ᵈ• ⟩
+
+                            glassify (Trans φ (∇ ᵈ• ξ))                ≡⟨ glassify-factor ⟩
+
+                            glassify (∇ ᵈ• ξ)                          ∎))
+                        (PE.sym $ inline-Transᵉ t) PE.refl PE.refl $
+                      ⊢inline≡∷ $
+                      PE.subst₃ _⊢_∷_ (PE.cong (_» _) Trans-ᵈ•) PE.refl PE.refl ⊢t) ⟩⊢
+    t           ≡˘⟨ δ-red (ε (glassify-» »ξ∙)) here (PE.sym $ wk-id _) (PE.sym $ wk-id _) ⟩⊢∎
+    defn α      ∎
+    where
+    open TmR
+  ⊢inline-<≡defn∷ {ξ = step _ _ _ _} {α<n = ≤′-reflexive eq}
+    _ (there α↦) =
+    ⊥-elim $ n≮n _ $ PE.subst (_< _) (1+-injective eq) (scoped-↦∈ α↦)
+  ⊢inline-<≡defn∷ {ξ = step _ _ _ _} {α<n = ≤′-step α<α} _ here =
+    ⊥-elim (n≮n _ (<′⇒< α<α))
+  ⊢inline-<≡defn∷ {ξ = step ξ _ _ _} {α<n = ≤′-step _}
+    ∙ᵗ[ ⊢t ] (there α↦) =
+    defn-wkEqTerm (stepᵗ₁ (glassify-⊢∷ ⊢t)) $
+    ⊢inline-<≡defn∷ {ξ = ξ} (defn-wf (wfTerm ⊢t)) α↦
+  ⊢inline-<≡defn∷ {ξ = step ξ _ _ _} {α<n = ≤′-step _}
+    ∙ᵒ⟨ _ ⟩[ ⊢t ∷ ⊢A ] (there α↦) =
+    defn-wkEqTerm
+      (stepᵗ₁ $
+       PE.subst₃ _⊢_∷_
+         (PE.cong (_» _) glassify-factor) PE.refl PE.refl $
+       glassify-⊢∷ ⊢t) $
+    ⊢inline-<≡defn∷ {ξ = ξ} (defn-wf (wf ⊢A)) α↦
+
+  -- Inlining produces definitionally equal terms, given certain
+  -- assumptions.
+
+  ⊢inline-Nat≡defn∷ :
+    {ξ : DExt (Term 0) n l} →
+    » ∇ ᵈ• ξ → α ↦∷ A ∈ ∇ ᵈ• ξ →
+    glassify (∇ ᵈ• ξ) » ε ⊢ inline-Nat ξ α ≡ defn α ∷ A
+  ⊢inline-Nat≡defn∷ {n} {l} {α} {ξ} »ξ α↦
+    with l ≤? α
+       | refl
+           (defn (ε (glassify-» »ξ)) (glassify-↦∈ α↦)
+              (PE.sym $ wk-id _))
+  … | no _  | eq = eq
+  … | yes _ | eq with α <′? n
+  …   | no _  = eq
+  …   | yes _ = ⊢inline-<≡defn∷ {ξ = ξ} »ξ α↦
+
+  -- Inlining produces definitionally equal types, given a certain
+  -- assumption.
+
+  ⊢inline≡ :
+    ∇ ᵈ• ξ » Γ ⊢ A →
+    glassify (∇ ᵈ• ξ) » Γ ⊢ inline ξ A ≡ A
+  ⊢inline≡ (Uⱼ ⊢Γ) =
+    refl (Uⱼ (glassify-⊢′ ⊢Γ))
+  ⊢inline≡ (univ ⊢A) =
+    univ (⊢inline≡∷ ⊢A)
+  ⊢inline≡ (Emptyⱼ ⊢Γ) =
+    refl (Emptyⱼ (glassify-⊢′ ⊢Γ))
+  ⊢inline≡ (Unitⱼ ⊢Γ ok) =
+    refl (Unitⱼ (glassify-⊢′ ⊢Γ) ok)
+  ⊢inline≡ (ΠΣⱼ ⊢B ok) =
+    let ≡A = ⊢inline≡ (⊢∙→⊢ (wf ⊢B)) in
+    ΠΣ-cong ≡A (stabilityEq (refl-∙ (sym ≡A)) (⊢inline≡ ⊢B)) ok
+  ⊢inline≡ (ℕⱼ ⊢Γ) =
+    refl (ℕⱼ (glassify-⊢′ ⊢Γ))
+  ⊢inline≡ (Idⱼ ⊢A ⊢t ⊢u) =
+    let ≡A = ⊢inline≡ ⊢A in
+    Id-cong ≡A (conv (⊢inline≡∷ ⊢t) (sym ≡A))
+      (conv (⊢inline≡∷ ⊢u) (sym ≡A))
+
+  -- Inlining produces definitionally equal terms, given a certain
+  -- assumption.
+
+  ⊢inline≡∷ :
+    ∇ ᵈ• ξ » Γ ⊢ t ∷ A →
+    glassify (∇ ᵈ• ξ) » Γ ⊢ inline ξ t ≡ t ∷ A
+  ⊢inline≡∷ (conv ⊢t B≡A) =
+    conv (⊢inline≡∷ ⊢t) (glassify-⊢≡ B≡A)
+  ⊢inline≡∷ (var ⊢Γ x∈) =
+    refl (var (glassify-⊢′ ⊢Γ) x∈)
+  ⊢inline≡∷ {ξ} (defn ⊢Γ α↦ PE.refl) =
+    wkEqTerm (wk₀∷ʷ⊇ (glassify-⊢′ ⊢Γ)) $
+    ⊢inline-Nat≡defn∷ {ξ = ξ} (defn-wf ⊢Γ) α↦
+  ⊢inline≡∷ (Uⱼ ⊢Γ) =
+    refl (Uⱼ (glassify-⊢′ ⊢Γ))
+  ⊢inline≡∷ (Emptyⱼ ⊢Γ) =
+    refl (Emptyⱼ (glassify-⊢′ ⊢Γ))
+  ⊢inline≡∷ (emptyrecⱼ ⊢A ⊢t) =
+    let ≡A = ⊢inline≡ ⊢A in
+    conv (emptyrec-cong ≡A (⊢inline≡∷ ⊢t)) ≡A
+  ⊢inline≡∷ (Unitⱼ ⊢Γ ok) =
+    refl (Unitⱼ (glassify-⊢′ ⊢Γ) ok)
+  ⊢inline≡∷ (starⱼ ⊢Γ ok) =
+    refl (starⱼ (glassify-⊢′ ⊢Γ) ok)
+  ⊢inline≡∷ (unitrecⱼ ⊢A ⊢t ⊢u ok) =
+    let ≡A = ⊢inline≡ ⊢A
+        ≡t = ⊢inline≡∷ ⊢t
+    in
+    conv
+      (unitrec-cong′ ≡A ≡t
+         (conv (⊢inline≡∷ ⊢u) $
+          substTypeEq (sym ≡A) $
+          refl (starⱼ (glassify-⊢′ (wfTerm ⊢t)) ok)))
+      (substTypeEq ≡A ≡t)
+  ⊢inline≡∷ (ΠΣⱼ ⊢A ⊢B ok) =
+    let ≡A = ⊢inline≡∷ ⊢A in
+    ΠΣ-cong ≡A (stabilityEqTerm (refl-∙ (sym (univ ≡A))) (⊢inline≡∷ ⊢B))
+      ok
+  ⊢inline≡∷ (lamⱼ _ ⊢t ok) =
+    lam-cong (⊢inline≡∷ ⊢t) ok
+  ⊢inline≡∷ (⊢t ∘ⱼ ⊢u) =
+    let _ , ⊢B , _ = inversion-ΠΣ (wf-⊢∷ ⊢t)
+        ≡u         = ⊢inline≡∷ ⊢u
+    in
+    conv (app-cong (⊢inline≡∷ ⊢t) ≡u)
+      (substTypeEq (refl (glassify-⊢ ⊢B)) ≡u)
+  ⊢inline≡∷ (prodⱼ ⊢B ⊢t ⊢u ok) =
+    let ⊢B = glassify-⊢ ⊢B
+        ≡t = ⊢inline≡∷ ⊢t
+    in
+    prod-cong ⊢B ≡t
+      (conv (⊢inline≡∷ ⊢u) (substTypeEq (refl ⊢B) (sym′ ≡t))) ok
+  ⊢inline≡∷ (fstⱼ _ ⊢t) =
+    fst-cong′ (⊢inline≡∷ ⊢t)
+  ⊢inline≡∷ (sndⱼ ⊢B ⊢t) =
+    let ≡t = ⊢inline≡∷ ⊢t in
+    conv (snd-cong′ ≡t)
+      (substTypeEq (refl (glassify-⊢ ⊢B)) (fst-cong′ ≡t))
+  ⊢inline≡∷ (prodrecⱼ ⊢A ⊢t ⊢u _) =
+    let ≡A = ⊢inline≡ ⊢A
+        ≡t = ⊢inline≡∷ ⊢t
+    in
+    conv
+      (prodrec-cong′ ≡A ≡t
+         (conv (⊢inline≡∷ ⊢u) (subst↑²TypeEq-prod (sym ≡A))))
+      (substTypeEq ≡A ≡t)
+  ⊢inline≡∷ (ℕⱼ ⊢Γ) =
+    refl (ℕⱼ (glassify-⊢′ ⊢Γ))
+  ⊢inline≡∷ (zeroⱼ ⊢Γ) =
+    refl (zeroⱼ (glassify-⊢′ ⊢Γ))
+  ⊢inline≡∷ (sucⱼ ⊢t) =
+    suc-cong (⊢inline≡∷ ⊢t)
+  ⊢inline≡∷ (natrecⱼ ⊢t ⊢u ⊢v) =
+    let ⊢A = ⊢∙→⊢ (wfTerm ⊢u)
+        ≡A = ⊢inline≡ ⊢A
+        ≡v = ⊢inline≡∷ ⊢v
+    in
+    conv
+      (natrec-cong ≡A
+         (conv (⊢inline≡∷ ⊢t) $
+          substTypeEq (sym ≡A) (refl (zeroⱼ (glassify-⊢′ (wfTerm ⊢t)))))
+         (stabilityEqTerm (refl-∙ (sym ≡A)) $
+          conv (⊢inline≡∷ ⊢u) $
+          subst↑²TypeEq (sym ≡A) (refl (sucⱼ (var₁ (glassify-⊢ ⊢A)))))
+         ≡v)
+      (substTypeEq ≡A ≡v)
+  ⊢inline≡∷ (Idⱼ ⊢A ⊢t ⊢u) =
+    let ≡A  = ⊢inline≡∷ ⊢A
+        ≡A′ = univ ≡A
+    in
+    Id-cong ≡A (conv (⊢inline≡∷ ⊢t) (sym ≡A′))
+      (conv (⊢inline≡∷ ⊢u) (sym ≡A′))
+  ⊢inline≡∷ (rflⱼ ⊢t) =
+    refl (rflⱼ (glassify-⊢∷ ⊢t))
+  ⊢inline≡∷ {ξ} (Jⱼ {t} {A} {v} ⊢t ⊢B ⊢u ⊢v ⊢w) =
+    let ⊢A  = wf-⊢∷ ⊢t
+        ⊢A′ = glassify-⊢ ⊢A
+        ⊢t′ = glassify-⊢∷ ⊢t
+        ≡A  = ⊢inline≡ ⊢A
+        ≡t  = ⊢inline≡∷ ⊢t
+        ≡B  = ⊢inline≡ ⊢B
+        ≡v  = ⊢inline≡∷ ⊢v
+        ≡w  = ⊢inline≡∷ ⊢w
+    in
+    conv
+      (J-cong′ ≡A (conv ≡t (sym ≡A))
+         (stabilityEq
+             (refl-∙ (sym ≡A) ∙
+              Id-cong (wkEq₁ ⊢A′ (sym ≡A)) (wkEqTerm₁ ⊢A′ (sym′ ≡t))
+                (refl (var₀ ⊢A′)))
+             ≡B)
+         (conv (⊢inline≡∷ ⊢u) $
+          substTypeEq₂ (sym ≡B) (sym′ ≡t)
+            (refl (PE.subst (_⊢_∷_ _ _) ≡Id-wk1-wk1-0[]₀ (rflⱼ ⊢t′))))
+         (conv ≡v (sym ≡A))
+         (conv ≡w (Id-cong (sym ≡A) (sym′ ≡t) (sym′ ≡v))))
+      (substTypeEq₂ ≡B ≡v $
+       conv ≡w
+         (Id A t v                                     ≡⟨ Id-cong (refl ⊢A′) (refl ⊢t′) (sym′ ≡v) ⟩⊢∎≡
+          Id A t (inline ξ v)                          ≡⟨ ≡Id-wk1-wk1-0[]₀ ⟩
+          Id (wk1 A) (wk1 t) (var x0) [ inline ξ v ]₀  ∎))
+    where
+    open TyR
+  ⊢inline≡∷ (Kⱼ ⊢B ⊢u ⊢v ok) =
+    let ⊢A , ⊢t , _ = inversion-Id (⊢∙→⊢ (wf ⊢B))
+        ≡A          = ⊢inline≡ ⊢A
+        ≡t          = ⊢inline≡∷ ⊢t
+        ≡B          = ⊢inline≡ ⊢B
+        ≡v          = ⊢inline≡∷ ⊢v
+        Id-A-t-t≡   = Id-cong (sym ≡A) (sym′ ≡t) (sym′ ≡t)
+    in
+    conv
+      (K-cong ≡A (conv ≡t (sym ≡A))
+         (stabilityEq (refl-∙ Id-A-t-t≡) ≡B)
+         (conv (⊢inline≡∷ ⊢u) $
+          substTypeEq (sym ≡B) (refl (rflⱼ (glassify-⊢∷ ⊢t))))
+         (conv ≡v Id-A-t-t≡) ok)
+      (substTypeEq ≡B ≡v)
+  ⊢inline≡∷ ([]-congⱼ ⊢A ⊢t ⊢u ⊢v ok) =
+    let ≡A  = ⊢inline≡ ⊢A
+        ≡t  = conv (⊢inline≡∷ ⊢t) (sym ≡A)
+        ≡u  = conv (⊢inline≡∷ ⊢u) (sym ≡A)
+        ok′ = []-cong→Erased ok
+    in
+    conv
+      ([]-cong-cong ≡A ≡t ≡u
+         (conv (⊢inline≡∷ ⊢v) (sym (Id-cong ≡A ≡t ≡u))) ok)
+      (Id-cong (Erased-cong ok′ ≡A) ([]-cong′ ok′ ≡t) ([]-cong′ ok′ ≡u))
+
+opaque
+  unfolding inlineᵈ
+
+  -- A variant of ⊢inline≡.
+
+  ⊢inlineᵈ≡ :
+    ∇ » Γ ⊢ A →
+    glassify ∇ » Γ ⊢ inlineᵈ ∇ A ≡ A
+  ⊢inlineᵈ≡ =
+    PE.subst₃ _⊢_≡_
+      (PE.cong ((_» _) ∘→ glassify) εᵈ•as-DExt) PE.refl PE.refl ∘→
+    ⊢inline≡ ∘→
+    PE.subst₂ _⊢_ (PE.cong (_» _) (PE.sym εᵈ•as-DExt)) PE.refl
+
+opaque
+  unfolding inlineᵈ
+
+  -- A variant of ⊢inline≡∷.
+
+  ⊢inlineᵈ≡∷ :
+    ∇ » Γ ⊢ t ∷ A →
+    glassify ∇ » Γ ⊢ inlineᵈ ∇ t ≡ t ∷ A
+  ⊢inlineᵈ≡∷ =
+    PE.subst₄ _⊢_≡_∷_
+      (PE.cong ((_» _) ∘→ glassify) εᵈ•as-DExt)
+      PE.refl PE.refl PE.refl ∘→
+    ⊢inline≡∷ ∘→
+    PE.subst₃ _⊢_∷_ (PE.cong (_» _) (PE.sym εᵈ•as-DExt)) PE.refl PE.refl
+
+opaque
+  unfolding inline-Con
+
+  -- Inlining produces definitionally equal contexts, given a certain
+  -- assumption.
+
+  ⊢inline-Con≡ :
+    ∇ ᵈ• ξ »⊢ Γ →
+    glassify (∇ ᵈ• ξ) »⊢ inline-Con ξ Γ ≡ Γ
+  ⊢inline-Con≡ (ε »∇) = ε (glassify-» »∇)
+  ⊢inline-Con≡ (∙ ⊢A) =
+    symConEq (symConEq (⊢inline-Con≡ (wf ⊢A)) ∙ sym (⊢inline≡ ⊢A))
+
+opaque
+  unfolding inline-Conᵈ
+
+  -- A variant of ⊢inline-Con≡.
+
+  ⊢inline-Conᵈ≡ :
+    ∇ »⊢ Γ →
+    glassify ∇ »⊢ inline-Conᵈ ∇ Γ ≡ Γ
+  ⊢inline-Conᵈ≡ =
+    PE.subst₃ _»⊢_≡_ (PE.cong glassify εᵈ•as-DExt) PE.refl PE.refl ∘→
+    ⊢inline-Con≡ ∘→
+    PE.subst (λ ⊢Γ → ⊢Γ »⊢ _) (PE.sym εᵈ•as-DExt)
 
 ------------------------------------------------------------------------
 -- Some lemmas related to context extensions and glassification
