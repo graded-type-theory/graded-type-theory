@@ -31,6 +31,7 @@ private
   variable
     m n n′ k α : Nat
     ∇ ∇′ ∇″ : DCon (Term 0) _
+    ξ : DExt _ _ _
     Γ Δ : Con Term _
     t t′ A A′ : Term _
     V : Set a
@@ -66,6 +67,53 @@ pattern stepᵒ ξ⊇ ok ⊢A ⊢t = step ξ⊇ (opa ok ⊢A ⊢t)
 pattern stepᵗ ξ⊇ ⊢t = step ξ⊇ (tra ⊢t)
 pattern stepᵒ₁ ok ⊢A ⊢t = stepᵒ id⊇ ok ⊢A ⊢t
 pattern stepᵗ₁ ⊢t = stepᵗ id⊇ ⊢t
+
+------------------------------------------------------------------------
+-- Some lemmas related to _ᵈ•_ and »_⊇_
+
+opaque
+  unfolding _ᵈ•_
+
+  -- If ∇ ᵈ• ξ is well-formed, then ∇ ᵈ• ξ is a well-formed extension
+  -- of ∇.
+
+  ᵈ•⊇ : » ∇ ᵈ• ξ → » ∇ ᵈ• ξ ⊇ ∇
+  ᵈ•⊇ {ξ = idᵉ} _ =
+    id⊇
+  ᵈ•⊇ {ξ = step ξ _ _ _} ∙ᵒ⟨ ok ⟩[ ⊢t ∷ ⊢A ] =
+    stepᵒ (ᵈ•⊇ {ξ = ξ} (defn-wf (wf ⊢A))) ok ⊢A ⊢t
+  ᵈ•⊇ {ξ = step ξ _ _ _} ∙ᵗ[ ⊢t ] =
+    stepᵗ (ᵈ•⊇ {ξ = ξ} (defn-wf (wfTerm ⊢t))) ⊢t
+
+opaque
+  unfolding _ᵈ•_
+
+  -- If ∇′ is an extension of ∇, then there is some extension ξ such
+  -- that ∇′ is equal to ∇ ᵈ• ξ.
+
+  »⊇→ :
+    {∇ : DCon (Term 0) n} {∇′ : DCon (Term 0) n′} →
+    » ∇′ ⊇ ∇ → ∃ λ (ξ : DExt (Term 0) n′ n) → ∇′ PE.≡ ∇ ᵈ• ξ
+  »⊇→ id⊇ =
+    idᵉ , PE.refl
+  »⊇→ (step ∇′⊇∇ _) =
+    case »⊇→ ∇′⊇∇ of λ {
+      (ξ , PE.refl) →
+    step ξ _ _ _ , PE.refl }
+
+opaque
+
+  -- If ∇′ is well-formed, then ∇′ is an extension of ∇ if and only if
+  -- there is some extension ξ such that ∇′ is equal to ∇ ᵈ• ξ.
+
+  »⊇⇔ :
+    {∇ : DCon (Term 0) n} {∇′ : DCon (Term 0) n′} →
+    » ∇′ →
+    » ∇′ ⊇ ∇ ⇔ ∃ λ (ξ : DExt (Term 0) n′ n) → ∇′ PE.≡ ∇ ᵈ• ξ
+  »⊇⇔ »∇′ = »⊇→ , λ { (_ , PE.refl) → ᵈ•⊇ »∇′ }
+
+------------------------------------------------------------------------
+-- Some other lemmas related to »_⊇_
 
 opaque
 

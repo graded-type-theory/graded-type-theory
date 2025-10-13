@@ -50,10 +50,40 @@ private variable
   α n n′              : Nat
   x                   : Fin _
   ∇ ∇′                : DCon _ _
+  ξ                   : DExt _ _ _
   Γ                   : Con Term _
   A B C t t₁ t₂ u v w : Term _
+  ω                   : Opacity _
   φ                   : Unfolding _
   p q                 : M
+
+------------------------------------------------------------------------
+-- Some well-formedness lemmas
+
+opaque
+
+  -- If ∇ ∙⟨ ω ⟩[ t ∷ A ] is well-formed, then A is a well-formed
+  -- type.
+
+  »∙→⊢ : » ∇ ∙⟨ ω ⟩[ t ∷ A ] → ∇ » ε ⊢ A
+  »∙→⊢ ∙ᵒ⟨ _ ⟩[ _ ∷ ⊢A ] = ⊢A
+  »∙→⊢ ∙ᵗ[ ⊢t ]          = wf-⊢∷ ⊢t
+
+opaque
+
+  -- If ∇ ∙⟨ ω ⟩[ t ∷ A ] is well-formed, then ∇ is well-formed.
+
+  »∙→» : » ∇ ∙⟨ ω ⟩[ t ∷ A ] → » ∇
+  »∙→» = defn-wf ∘→ wf ∘→ »∙→⊢
+
+opaque
+  unfolding _ᵈ•_
+
+  -- If ∇ ᵈ• ξ is well-formed, then ∇ is well-formed.
+
+  »ᵈ•→» : » ∇ ᵈ• ξ → » ∇
+  »ᵈ•→» {ξ = idᵉ}          = idᶠ
+  »ᵈ•→» {ξ = step ξ _ _ _} = »ᵈ•→» {ξ = ξ} ∘→ »∙→»
 
 ------------------------------------------------------------------------
 -- Some lemmas related to context extensions

@@ -21,11 +21,12 @@ private variable
   α ℓ m n            : Nat
   A A₁ A₂            : Set _
   P Q                : Nat → Set _
-  B t                : A
+  B B₁ B₂ t t₁ t₂    : A
   f g                : A₁ → A₂
-  ∇                  : DCon _ _
+  ∇ ∇₁ ∇₂            : DCon _ _
   Γ                  : Con _ _
   ρ ρ′               : Wk _ _
+  ω₁ ω₂              : Opacity _
   x y                : Fin _
   l l₁ l₁′ l₂ l₂′ l₃ : Universe-level
 
@@ -265,7 +266,16 @@ opaque
   ⊔ᵘ-idem = ⊔-idem _
 
 ------------------------------------------------------------------------
--- Some properties related to map-Con and map-DCon
+-- Some properties related to DCon and DExt
+
+opaque
+
+  -- Injectivity for _∙⟨_⟩[_∷_].
+
+  ∙-PE-injectivity :
+    ∇₁ ∙⟨ ω₁ ⟩[ t₁ ∷ B₁ ] ≡ ∇₂ ∙⟨ ω₂ ⟩[ t₂ ∷ B₂ ] →
+    ∇₁ ≡ ∇₂ × ω₁ ≡ ω₂ × t₁ ≡ t₂ × B₁ ≡ B₂
+  ∙-PE-injectivity refl = refl , refl , refl , refl
 
 opaque
 
@@ -325,6 +335,36 @@ opaque
   DExt→≤ : DExt A n m → m ≤ n
   DExt→≤ idᵉ            = ≤-refl
   DExt→≤ (step ξ _ _ _) = m≤n⇒m≤1+n (DExt→≤ ξ)
+
+opaque
+  unfolding _ᵈ•_
+
+  -- If α points to B in ∇ ᵈ• ξ, but not in ξ, then α points to B in
+  -- ∇.
+
+  ≰→↦∈→↦∈ :
+    {ξ : DExt A n l} →
+    ¬ l ≤ α → α ↦∷ B ∈ ∇ ᵈ• ξ → α ↦∷ B ∈ ∇
+  ≰→↦∈→↦∈ {ξ = idᵉ} _ α↦ = α↦
+  ≰→↦∈→↦∈ {ξ = step ξ _ _ _} l≰α here =
+    ⊥-elim $ l≰α (DExt→≤ ξ)
+  ≰→↦∈→↦∈ {ξ = step ξ _ _ _} l≰α (there α↦) =
+    ≰→↦∈→↦∈ {ξ = ξ} l≰α α↦
+
+opaque
+  unfolding _ᵈ•_
+
+  -- If α points to t and B in ∇ ᵈ• ξ, but not in ξ, then α points to
+  -- t and B in ∇.
+
+  ≰→↦∷∈→↦∷∈ :
+    {ξ : DExt A n l} →
+    ¬ l ≤ α → α ↦ t ∷ B ∈ ∇ ᵈ• ξ → α ↦ t ∷ B ∈ ∇
+  ≰→↦∷∈→↦∷∈ {ξ = idᵉ} _ α↦ = α↦
+  ≰→↦∷∈→↦∷∈ {ξ = step ξ _ _ _} l≰α here =
+    ⊥-elim $ l≰α (DExt→≤ ξ)
+  ≰→↦∷∈→↦∷∈ {ξ = step ξ _ _ _} l≰α (there α↦) =
+    ≰→↦∷∈→↦∷∈ {ξ = ξ} l≰α α↦
 
 ------------------------------------------------------------------------
 -- Properties related to Empty-con and _or-empty_

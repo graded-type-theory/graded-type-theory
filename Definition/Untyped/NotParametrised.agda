@@ -291,6 +291,16 @@ data DExt (𝕋 : Set a) : Nat → Nat → Set a where
 pattern idᵉ         = id refl
 pattern step₁ ω A t = step idᵉ ω A t
 
+opaque
+
+  infixl 24 _ᵈ•_
+
+  -- Appends a definition context extension to a definition context.
+
+  _ᵈ•_ : DCon 𝕋 m → DExt 𝕋 n m → DCon 𝕋 n
+  ∇ ᵈ• id eq        = subst (DCon _) eq ∇
+  ∇ ᵈ• step ξ ω A t = (∇ ᵈ• ξ) ∙⟨ ω ⟩[ t ∷ A ]
+
 -- Concatenation of definition context extensions.
 
 _•ᵈ_ : {𝕋 : Set a} → DExt 𝕋 m n → DExt 𝕋 n l → DExt 𝕋 m l

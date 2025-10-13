@@ -12,7 +12,7 @@ open import Tools.Empty
 open import Tools.Fin
 open import Tools.Function
 open import Tools.Nat
-open import Tools.Product
+open import Tools.Product as Σ
 open import Tools.PropositionalEquality as PE
 open import Tools.Reasoning.PropositionalEquality
 open import Tools.Relation
@@ -3026,7 +3026,30 @@ opaque
   is-var? ([]-cong _ _ _ _ _)     = not-var (λ ())
 
 ------------------------------------------------------------------------
--- A lemma related to map-Cons
+-- Some lemmas related to DCon/DExt
+
+opaque
+  unfolding _ᵈ•_
+
+  -- The function _ᵈ•_ is injective for contexts/context extensions of
+  -- equal length.
+
+  ᵈ•-PE-injectivity :
+    {∇₁ : DCon (Term 0) m} {ξ₁ : DExt (Term 0) n m}
+    {∇₂ : DCon (Term 0) m} {ξ₂ : DExt (Term 0) n m} →
+    ∇₁ ᵈ• ξ₁ ≡ ∇₂ ᵈ• ξ₂ →
+    ∇₁ ≡ ∇₂ × ξ₁ ≡ ξ₂
+  ᵈ•-PE-injectivity {ξ₁ = idᵉ} {∇₂} {ξ₂ = id eq} refl =
+    subst (λ eq → ∇₂ ᵈ• id eq ≡ ∇₂ × idᵉ ≡ id eq) Nat-set
+      (refl , refl)
+  ᵈ•-PE-injectivity {ξ₁ = idᵉ} {ξ₂ = step ξ₂ _ _ _} _ =
+    ⊥-elim $ n≮n _ (DExt→≤ ξ₂)
+  ᵈ•-PE-injectivity {ξ₁ = step ξ₁ _ _ _} {ξ₂ = idᵉ} _ =
+    ⊥-elim $ n≮n _ (DExt→≤ ξ₁)
+  ᵈ•-PE-injectivity {ξ₁ = step _ _ _ _} {ξ₂ = step _ _ _ _} eq =
+    case ∙-PE-injectivity eq of λ {
+      (eq , refl , refl , refl) →
+    Σ.map idᶠ (cong (λ ξ → step ξ _ _ _)) (ᵈ•-PE-injectivity eq) }
 
 opaque
 
