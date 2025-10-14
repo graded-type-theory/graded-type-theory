@@ -457,7 +457,7 @@ open Type-restrictions using (Level-is-small)
 
 Canonicity is proved for natural number terms in contexts consisting
 only of `Level` variables.
-```
+```agda
 import Definition.Typed.Consequences.Canonicity
   using (canonicity-with-level-assumptions)
 ```
