@@ -41,10 +41,10 @@ import Tools.PropositionalEquality as PE
 open import Tools.Reasoning.PropositionalEquality
 
 private variable
-  n                            : Nat
-  Γ                            : Con Term _
-  A B C D E a f g l l₁ l₂ t t′ u u₁ u₂ u₃ u₄ : Term _
-  p p′ p₁ p₂ p₃ p₄ q q₁ q₂ q₃ q₄  : M
+  n                                                : Nat
+  Γ                                                : Con Term _
+  A B C D E a f g l l₁ l₂ t t′ t₁ t₂ u u₁ u₂ u₃ u₄ : Term _
+  p p′ p₁ p₂ p₃ p₄ q q₁ q₂ q₃ q₄                   : M
 
 opaque
 
@@ -218,32 +218,35 @@ opaque
 opaque
   unfolding ΠΣʰ ∘ʰ
 
-  ∘ʰⱼ
-    : Γ ⊢ l₂ ∷ Level
-    → Γ ∙ A ⊢ B
-    → Γ ⊢ t ∷ Πʰ p q l₁ l₂ A B
-    → Γ ⊢ u ∷ A
-    → Γ ⊢ ∘ʰ p l₂ t u ∷ B [ u ]₀
-  ∘ʰⱼ ⊢l₂ ⊢B ⊢t ⊢u =
-    let ⊢A = wf-⊢∷ ⊢u
-    in conv (lowerⱼ (⊢t ∘ⱼ liftⱼ ⊢l₂ ⊢A ⊢u)) (lower₀[lift]₀ ⊢B ⊢u)
+  -- A typing rule for ∘ʰ.
+
+  ∘ʰⱼ :
+    Γ ∙ A ⊢ B →
+    Γ ⊢ t ∷ Πʰ p q l₁ l₂ A B →
+    Γ ⊢ u ∷ A →
+    Γ ⊢ ∘ʰ p l₂ t u ∷ B [ u ]₀
+  ∘ʰⱼ ⊢B ⊢t ⊢u =
+    let ⊢A          = wf-⊢∷ ⊢u
+        _ , ⊢l₂ , _ = inversion-ΠΣʰ-⊢ (wf-⊢∷ ⊢t)
+    in
+    conv (lowerⱼ (⊢t ∘ⱼ liftⱼ ⊢l₂ ⊢A ⊢u)) (lower₀[lift]₀ ⊢B ⊢u)
 
 opaque
   unfolding ΠΣʰ ∘ʰ
 
   -- Heterogeneous application congruence
 
-  app-congʰ
-    : Γ ⊢ l₂ ∷ Level
-    → Γ ∙ A ⊢ B
-    → Γ ⊢ f ≡ g ∷ Πʰ p q l₁ l₂ A B
-    → Γ ⊢ t ≡ u ∷ A
-    → Γ ⊢ ∘ʰ p l₂ f t ≡ ∘ʰ p l₂ g u ∷ B [ u ]₀
-  app-congʰ ⊢l₂ ⊢B f≡g t≡u =
-    let ⊢A , ⊢t , ⊢u = wf-⊢≡∷ t≡u
-    in conv
-      (lower-cong (app-cong f≡g (lift-cong ⊢l₂ t≡u)))
-      (trans (lower₀[lift]₀ ⊢B ⊢t) (substTypeEq (refl ⊢B) t≡u))
+  app-congʰ :
+    Γ ∙ A ⊢ B →
+    Γ ⊢ t₁ ≡ t₂ ∷ Πʰ p q l₁ l₂ A B →
+    Γ ⊢ u₁ ≡ u₂ ∷ A →
+    Γ ⊢ ∘ʰ p l₂ t₁ u₁ ≡ ∘ʰ p l₂ t₂ u₂ ∷ B [ u₁ ]₀
+  app-congʰ ⊢B t₁≡t₂ u₁≡u₂ =
+    let ⊢A , ⊢u₁ , ⊢u₂ = wf-⊢≡∷ u₁≡u₂
+        _ , ⊢l₂ , _    = inversion-ΠΣʰ-⊢ (wf-⊢≡∷ t₁≡t₂ .proj₁)
+    in
+    conv (lower-cong (app-cong t₁≡t₂ (lift-cong ⊢l₂ u₁≡u₂)))
+      (lower₀[lift]₀ ⊢B ⊢u₁)
 
 opaque
   unfolding lamʰ ∘ʰ
@@ -288,15 +291,14 @@ opaque
 
   η-eqʰ
     : Γ ⊢ l₁ ∷ Level
-    → Γ ⊢ l₂ ∷ Level
     → Γ ∙ A ⊢ B
     → Γ     ⊢ f ∷ Πʰ p q l₁ l₂ A B
     → Γ     ⊢ g ∷ Πʰ p q l₁ l₂ A B
     → Γ ∙ A ⊢ ∘ʰ p (wk1 l₂) (wk1 f) (var x0) ≡ ∘ʰ p (wk1 l₂) (wk1 g) (var x0) ∷ B
-    → Π-allowed p q
     → Γ     ⊢ f ≡ g ∷ Πʰ p q l₁ l₂ A B
-  η-eqʰ {Γ} {l₁} {l₂} {A} {B} {f} {p} {q} {g} ⊢l₁ ⊢l₂ ⊢B ⊢f ⊢g f≡g ok =
-    let ⊢A = ⊢∙→⊢ (wf ⊢B)
+  η-eqʰ {Γ} {l₁} {A} {B} {f} {p} {q} {l₂} {g} ⊢l₁ ⊢B ⊢f ⊢g f≡g =
+    let _ , ⊢l₂ , _ , _ , ok = inversion-ΠΣʰ-⊢ {B = B} (wf-⊢∷ ⊢f)
+        ⊢A = ⊢∙→⊢ (wf ⊢B)
         ⊢LiftA = Liftⱼ ⊢l₂ ⊢A
         ⊢x₀ = var (∙ ⊢LiftA) here
         lemma

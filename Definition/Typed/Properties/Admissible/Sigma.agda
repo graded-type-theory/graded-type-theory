@@ -1382,15 +1382,16 @@ opaque
 
   Σʰ-η :
     Γ ⊢ l₁ ∷ Level →
-    Γ ⊢ l₂ ∷ Level →
     Γ ∙ A ⊢ B →
     Γ ⊢ t ∷ Σʰˢ p q l₁ l₂ A B →
     Γ ⊢ u ∷ Σʰˢ p q l₁ l₂ A B →
     Γ ⊢ fstʰ p t ≡ fstʰ p u ∷ A →
     Γ ⊢ sndʰ p t ≡ sndʰ p u ∷ B [ fstʰ p t ]₀ →
     Γ ⊢ t ≡ u ∷ Σʰˢ p q l₁ l₂ A B
-  Σʰ-η {l₁} {B} {t} {p} {u} ⊢l₁ ⊢l₂ ⊢B ⊢t ⊢u fstʰ≡fstʰ sndʰ≡sndʰ =
-    let fst-t≡fst-u = Lift-η′ (fstⱼ′ ⊢t) (fstⱼ′ ⊢u) fstʰ≡fstʰ in
+  Σʰ-η {l₁} {B} {t} {p} {u} ⊢l₁ ⊢B ⊢t ⊢u fstʰ≡fstʰ sndʰ≡sndʰ =
+    let _ , ⊢l₂ , _ = inversion-ΠΣʰ-⊢ {B = B} (wf-⊢∷ ⊢t)
+        fst-t≡fst-u = Lift-η′ (fstⱼ′ ⊢t) (fstⱼ′ ⊢u) fstʰ≡fstʰ
+    in
     Σ-η′ ⊢t ⊢u fst-t≡fst-u
       (Lift-η′ (sndⱼ′ ⊢t)
          (conv (sndⱼ′ ⊢u)
