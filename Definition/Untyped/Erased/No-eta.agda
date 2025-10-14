@@ -1,5 +1,6 @@
 ------------------------------------------------------------------------
--- The type constructor Erased, defined using weak Σ and unit types
+-- Definitions related to the variant of Erased that is defined using
+-- weak Σ and unit types
 ------------------------------------------------------------------------
 
 open import Graded.Modality
