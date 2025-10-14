@@ -172,7 +172,7 @@ import Definition.Typed.Syntactic
 #### 2.3: Reduction rules
 
 ```agda
-import Definition.Typed using (_⊢_⇒_∷_)
+import Definition.Typed using (_⊢_⇒_∷_; _⊢_⇒*_∷_)
 ```
 
 Compared to the paper, we use `Neutral` instead of Neutralᵃ for
