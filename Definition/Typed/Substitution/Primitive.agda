@@ -28,7 +28,8 @@ open import Tools.Nat
 open import Tools.Product
 import Tools.PropositionalEquality as PE
 
-open P public hiding (lam-cong; lift-cong; ⊢ˢʷ≡∷-⇑; ⊢ˢʷ≡∷-sgSubst)
+open P public
+  hiding (lam-cong; lift-cong; ⊢ˢʷ≡∷-⇑; ⊢ˢʷ≡∷-sgSubst; ⊢ˢʷ≡∷-[][]↑)
 
 private variable
   k n                                     : Nat
@@ -178,41 +179,12 @@ opaque
     Γ ⊢ t₁ ≡ t₂ ∷ wk[ k ] A →
     Γ ⊢ˢʷ consSubst (wkSubst k idSubst) t₁ ≡
       consSubst (wkSubst k idSubst) t₂ ∷ drop k Γ ∙ A
-  ⊢ˢʷ≡∷-[][]↑ {k} t₁≡t₂ =
-    let _ , ⊢t₁ , ⊢t₂ = wf-⊢≡∷ t₁≡t₂
-        ⊢Γ            = wfEqTerm t₁≡t₂
-    in
-    ⊢ˢʷ≡∷∙⇔ .proj₂
-      ( refl-⊢ˢʷ≡∷ (⊢ˢʷ∷-wkSubst ⊢Γ (⊢ˢʷ∷-idSubst (lemma k ⊢Γ)))
-      , PE.subst (_⊢_∷_ _ _) (wk[]≡[] k) ⊢t₁
-      , PE.subst (_⊢_∷_ _ _) (wk[]≡[] k) ⊢t₂
-      , PE.subst (_⊢_≡_∷_ _ _ _) (wk[]≡[] k) t₁≡t₂
-      )
-    where
-    lemma :
-      ∀ k {Γ : Con Term (k + n)} →
-      ⊢ Γ → ⊢ drop k Γ
-    lemma 0      ⊢Γ     = ⊢Γ
-    lemma (1+ k) (∙ ⊢A) = lemma k (wf ⊢A)
-
-opaque
-
-  -- A lemma related to _[_][_]↑.
-
-  ⊢ˢʷ∷-[][]↑ :
-    Γ ⊢ t ∷ wk[ k ] A →
-    Γ ⊢ˢʷ consSubst (wkSubst k idSubst) t ∷ drop k Γ ∙ A
-  ⊢ˢʷ∷-[][]↑ = ⊢ˢʷ∷⇔⊢ˢʷ≡∷ .proj₂ ∘→ ⊢ˢʷ≡∷-[][]↑ ∘→ refl
+  ⊢ˢʷ≡∷-[][]↑ t₁≡t₂ =
+    let _ , ⊢t₁ , ⊢t₂ = wf-⊢≡∷ t₁≡t₂ in
+    P.⊢ˢʷ≡∷-[][]↑ ⊢t₁ ⊢t₂ t₁≡t₂
 
 ------------------------------------------------------------------------
 -- Substitution lemmas
-
-opaque
-
-  -- A substitution lemma for _⊢_.
-
-  substType : Γ ∙ A ⊢ B → Γ ⊢ t ∷ A → Γ ⊢ B [ t ]₀
-  substType ⊢B = subst-⊢ ⊢B ∘→ ⊢ˢʷ∷-sgSubst
 
 opaque
 
@@ -220,13 +192,6 @@ opaque
 
   substTypeEq : Γ ∙ A ⊢ B ≡ C → Γ ⊢ t ≡ u ∷ A → Γ ⊢ B [ t ]₀ ≡ C [ u ]₀
   substTypeEq ⊢B = subst-⊢≡ ⊢B ∘→ ⊢ˢʷ≡∷-sgSubst
-
-opaque
-
-  -- A substitution lemma for _⊢_∷_.
-
-  substTerm : Γ ∙ A ⊢ t ∷ B → Γ ⊢ u ∷ A → Γ ⊢ t [ u ]₀ ∷ B [ u ]₀
-  substTerm ⊢B = subst-⊢∷ ⊢B ∘→ ⊢ˢʷ∷-sgSubst
 
 opaque
 

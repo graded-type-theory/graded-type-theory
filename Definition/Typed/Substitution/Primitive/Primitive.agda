@@ -421,6 +421,41 @@ opaque
 
 opaque
 
+  -- A lemma related to _[_][_]↑.
+
+  ⊢ˢʷ≡∷-[][]↑ :
+    Γ ⊢ t₁ ∷ wk[ k ] A →
+    Γ ⊢ t₂ ∷ wk[ k ] A →
+    Γ ⊢ t₁ ≡ t₂ ∷ wk[ k ] A →
+    Γ ⊢ˢʷ consSubst (wkSubst k idSubst) t₁ ≡
+      consSubst (wkSubst k idSubst) t₂ ∷ drop k Γ ∙ A
+  ⊢ˢʷ≡∷-[][]↑ {k} ⊢t₁ ⊢t₂ t₁≡t₂ =
+    let ⊢Γ = wfEqTerm t₁≡t₂ in
+    ⊢ˢʷ≡∷∙⇔ .proj₂
+      ( refl-⊢ˢʷ≡∷ (⊢ˢʷ∷-wkSubst ⊢Γ (⊢ˢʷ∷-idSubst (lemma k ⊢Γ)))
+      , PE.subst (_⊢_∷_ _ _) (wk[]≡[] k) ⊢t₁
+      , PE.subst (_⊢_∷_ _ _) (wk[]≡[] k) ⊢t₂
+      , PE.subst (_⊢_≡_∷_ _ _ _) (wk[]≡[] k) t₁≡t₂
+      )
+    where
+    lemma :
+      ∀ k {Γ : Con Term (k + n)} →
+      ⊢ Γ → ⊢ drop k Γ
+    lemma 0      ⊢Γ     = ⊢Γ
+    lemma (1+ k) (∙ ⊢A) = lemma k (wf ⊢A)
+
+opaque
+
+  -- A lemma related to _[_][_]↑.
+
+  ⊢ˢʷ∷-[][]↑ :
+    Γ ⊢ t ∷ wk[ k ] A →
+    Γ ⊢ˢʷ consSubst (wkSubst k idSubst) t ∷ drop k Γ ∙ A
+  ⊢ˢʷ∷-[][]↑ ⊢t =
+    ⊢ˢʷ∷⇔⊢ˢʷ≡∷ .proj₂ (⊢ˢʷ≡∷-[][]↑ ⊢t ⊢t (refl ⊢t))
+
+opaque
+
   -- A cast lemma for _⊢ˢʷ_≡_∷_.
 
   cast-⊢ˢʷ≡∷ :
@@ -1617,6 +1652,13 @@ opaque
 
 opaque
 
+  -- Another substitution lemma for _⊢_.
+
+  substType : Γ ∙ A ⊢ B → Γ ⊢ t ∷ A → Γ ⊢ B [ t ]₀
+  substType ⊢B = subst-⊢ ⊢B ∘→ ⊢ˢʷ∷-sgSubst
+
+opaque
+
   -- A substitution lemma for _⊢_≡_.
 
   subst-⊢≡ : Γ ⊢ A₁ ≡ A₂ → Δ ⊢ˢʷ σ₁ ≡ σ₂ ∷ Γ → Δ ⊢ A₁ [ σ₁ ] ≡ A₂ [ σ₂ ]
@@ -1629,6 +1671,13 @@ opaque
 
   subst-⊢∷ : Γ ⊢ t ∷ A → Δ ⊢ˢʷ σ ∷ Γ → Δ ⊢ t [ σ ] ∷ A [ σ ]
   subst-⊢∷ ⊢t ⊢σ = P.subst-⊢∷ Inhabited.P-inhabited ⊢σ ⊢t PE.refl
+
+opaque
+
+  -- Another substitution lemma for _⊢_∷_.
+
+  substTerm : Γ ∙ A ⊢ t ∷ B → Γ ⊢ u ∷ A → Γ ⊢ t [ u ]₀ ∷ B [ u ]₀
+  substTerm ⊢B = subst-⊢∷ ⊢B ∘→ ⊢ˢʷ∷-sgSubst
 
 opaque
 
