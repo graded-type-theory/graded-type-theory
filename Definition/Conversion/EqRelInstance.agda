@@ -90,7 +90,7 @@ opaque
 
 -- Properties of algorithmic equality of neutrals with injected conversion.
 
-private module Lemmas where
+module Lemmas where
 
   ~-var : ∀ {x A} → Γ ⊢ var x ∷ A → Γ ⊢ var x ~ var x ∷ A
   ~-var x =

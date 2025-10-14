@@ -285,6 +285,12 @@ import Definition.LogicalRelation.Substitution.Introductions.Lift
   using (Liftᵗᵛ)
 ```
 
+Lemma 3.7: The term typing rule for Π is valid.
+```agda
+import Definition.LogicalRelation.Substitution.Introductions.Pi-Sigma
+  using (ΠΣᵗᵛ)
+```
+
 Corollary 3.8: Well-typed objects are reducible.
 ```agda
 import Definition.LogicalRelation.Fundamental.Reducibility
@@ -373,7 +379,8 @@ import Definition.Conversion.Level using (deterministic-↑ᵛ)
 
 Lemma 4.1.
 ```agda
-import Definition.Conversion.EqRelInstance -- supᵘ-↑ᵛ
+open import Definition.Conversion.EqRelInstance using (module Lemmas)
+open Lemmas using (supᵘ-↑ᵛ)
 ```
 
 Lemma 4.2: Algorithmic equality is complete for judgemental equality.
