@@ -21,10 +21,12 @@ open import Definition.Untyped.Properties M
 open import Definition.Typed R
 open import Definition.Typed.Inversion R
 open import Definition.Typed.Reasoning.Term R
+open import Definition.Typed.Substitution.Primitive R
 open import Definition.Typed.Weakening R
 open import Definition.Typed.Well-formed R
 open import Definition.Typed.Properties.Admissible.Lift R
 import Definition.Typed.Properties.Admissible.Pi-Sigma.Primitive R as PP
+open import Definition.Typed.Properties.Admissible.Var R
 
 open import Tools.Fin
 open import Tools.Function
@@ -93,3 +95,92 @@ opaque
         _ , ⊢A₁ , _  = wf-⊢≡∷ A₁≡A₂
     in
     PP.ΠΣʰ-cong ⊢l₁₁ ⊢l₂₁ l₁₁≡l₁₂ l₂₁≡l₂₂ (univ ⊢A₁) A₁≡A₂
+
+private opaque
+  unfolding lower₀
+
+  -- A kind of inversion lemma for lower₀.
+
+  inversion-lower₀-⊢∷ :
+    Γ ∙ Lift l A ⊢ lower₀ t ∷ B →
+    Γ ⊢ l ∷ Level ×
+    Γ ∙ A ⊢ t [ lower (lift (var x0)) ]↑ ∷ B [ lift (var x0) ]↑
+  inversion-lower₀-⊢∷ {t} ⊢lower₀-t =
+    let ⊢l , ⊢A = inversion-Lift (⊢∙→⊢ (wfTerm ⊢lower₀-t)) in
+    ⊢l ,
+    PE.subst (flip (_⊢_∷_ _) _) ([][]↑-[↑⇑] 0 t)
+      (subst-⊢∷ ⊢lower₀-t $
+       ⊢ˢʷ∷-[][]↑ (liftⱼ′ (wkTerm₁ ⊢A ⊢l) (var₀ ⊢A)))
+    where
+    open import Definition.Typed.Properties.Well-formed R
+
+private opaque
+  unfolding lower₀
+
+  -- A kind of inversion lemma for lower₀.
+
+  inversion-lower₀-⊢ :
+    Γ ∙ Lift l A ⊢ lower₀ B →
+    Γ ⊢ l ∷ Level ×
+    Γ ∙ A ⊢ B [ lower (lift (var x0)) ]↑
+  inversion-lower₀-⊢ {B} ⊢lower₀-B =
+    let ⊢l , ⊢A = inversion-Lift (⊢∙→⊢ (wf ⊢lower₀-B)) in
+    ⊢l ,
+    PE.subst (_⊢_ _) ([][]↑-[↑⇑] 0 B)
+      (subst-⊢ ⊢lower₀-B $
+       ⊢ˢʷ∷-[][]↑ (liftⱼ′ (wkTerm₁ ⊢A ⊢l) (var₀ ⊢A)))
+    where
+    open import Definition.Typed.Properties.Well-formed R
+
+opaque
+  unfolding ΠΣʰ lower₀
+
+  -- A limited inversion lemma for ΠΣʰ.
+
+  inversion-ΠΣʰ-⊢∷ :
+    Γ ⊢ ΠΣʰ b p q l₁ l₂ A B ∷ C →
+    Γ ∙ A ⊢ wk1 l₁ ∷ Level ×
+    Γ ⊢ l₂ ∷ Level ×
+    (∃ λ l → Γ ⊢ A ∷ U l) ×
+    (∃ λ l → Γ ∙ A ⊢ B [ lower (lift (var x0)) ]↑ ∷ U l) ×
+    (∃ λ l → Γ ⊢ C ≡ U l) ×
+    ΠΣ-allowed b p q
+  inversion-ΠΣʰ-⊢∷ {l₁} {l₂} {B} {C} ⊢ΠΣ =
+    let _ , _ , ⊢Lift-A , ⊢Lift-B , C≡U , ok = inversion-ΠΣ-U ⊢ΠΣ
+        _ , _ , ⊢A , U[l₃]≡U[l₄⊔l₂]          = inversion-Lift∷ ⊢Lift-A
+        _ , _ , ⊢B , U[l₃]≡U[l₅⊔l₁]          = inversion-Lift∷ ⊢Lift-B
+        _ , ⊢l₂ , _                          =
+          inversion-supᵘ $
+          inversion-U-Level (wf-⊢≡ U[l₃]≡U[l₄⊔l₂] .proj₂)
+        _ , ⊢l₁ , _ =
+          inversion-supᵘ $
+          inversion-U-Level (wf-⊢≡ U[l₃]≡U[l₅⊔l₁] .proj₂)
+        ⊢A′ = univ ⊢A
+        ⊢σ  = ⊢ˢʷ∷-[][]↑ (liftⱼ′ (wkTerm₁ ⊢A′ ⊢l₂) (var₀ ⊢A′))
+    in
+    PE.subst (flip (_⊢_∷_ _) _) (wk1-[][]↑ 1) (subst-⊢∷ ⊢l₁ ⊢σ) ,
+    ⊢l₂ , (_ , ⊢A) , (_ , inversion-lower₀-⊢∷ {t = B} ⊢B .proj₂) ,
+    (_ , C≡U) , ok
+
+opaque
+  unfolding ΠΣʰ lower₀
+
+  -- A limited inversion lemma for ΠΣʰ.
+
+  inversion-ΠΣʰ-⊢ :
+    Γ ⊢ ΠΣʰ b p q l₁ l₂ A B →
+    Γ ∙ A ⊢ wk1 l₁ ∷ Level ×
+    Γ ⊢ l₂ ∷ Level ×
+    Γ ⊢ A ×
+    Γ ∙ A ⊢ B [ lower (lift (var x0)) ]↑ ×
+    ΠΣ-allowed b p q
+  inversion-ΠΣʰ-⊢ {B} ⊢ΠΣ =
+    let ⊢Lift-A , ⊢Lift-B , ok = inversion-ΠΣ ⊢ΠΣ
+        ⊢l₂ , ⊢A               = inversion-Lift ⊢Lift-A
+        ⊢l₁ , ⊢B               = inversion-Lift ⊢Lift-B
+        ⊢σ                     =
+          ⊢ˢʷ∷-[][]↑ (liftⱼ′ (wkTerm₁ ⊢A ⊢l₂) (var₀ ⊢A))
+    in
+    PE.subst (flip (_⊢_∷_ _) _) (wk1-[][]↑ 1) (subst-⊢∷ ⊢l₁ ⊢σ) ,
+    ⊢l₂ , ⊢A , inversion-lower₀-⊢ {B = B} ⊢B .proj₂ ,
+    ok
