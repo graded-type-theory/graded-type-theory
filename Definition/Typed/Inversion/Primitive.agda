@@ -24,6 +24,7 @@ open import Definition.Untyped M
 open import Tools.Function
 open import Tools.Nat
 open import Tools.Product
+open import Tools.Relation
 open import Tools.Size
 open import Tools.Size.Instances
 
@@ -47,6 +48,15 @@ opaque
   inversion-Level (conv ⊢Level eq) =
     let a , ok = inversion-Level ⊢Level
     in trans (sym eq) a , ok
+
+opaque
+
+  -- Level is not in any universe unless Level-is-small.
+
+  ¬Level-is-small→¬Level∷U
+    : ¬ Level-is-small → ¬ ∃ λ t → ε ⊢ Level ∷ U t
+  ¬Level-is-small→¬Level∷U ¬small (t , Level∷Ut) = ¬small
+    (inversion-Level Level∷Ut .proj₂)
 
 opaque
 

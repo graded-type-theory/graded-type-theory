@@ -342,7 +342,7 @@ Corollary 3.12: Injectivity of type formers.
 import Definition.Typed.Consequences.Injectivity
 ```
 
-#### 4: Decidability of equality
+### 4: Decidability of equality
 
 Algorithmic equality. The conversion relations are denoted as follows:
 * `Γ ⊢ A [conv↑] B` and `Γ ⊢ A [conv↓] B` for arbitrary types and
@@ -452,7 +452,6 @@ import Graded.Erasure.Consequences.Soundness
 
 Corollary 5.2: Soundness of erasure for closed terms.
 ```agda
-import Graded.Erasure.Consequences.Soundness
 soundness-ℕ =
   Graded.Erasure.Consequences.Soundness.Soundness₀.soundness-ℕ
 ```
@@ -480,6 +479,8 @@ type.
 open import Definition.Typed.Restrictions
   using (module Type-restrictions)
 open Type-restrictions using (Level-is-small)
+
+import Definition.Typed.Inversion using (¬Level-is-small→¬Level∷U)
 ```
 
 Canonicity is proved for natural number terms in contexts consisting
