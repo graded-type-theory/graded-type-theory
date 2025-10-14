@@ -21,11 +21,12 @@ open import Definition.Typed.Properties.Admissible.Equality R
 open import Definition.Typed.Properties.Admissible.Identity R
 open import Definition.Typed.Properties.Admissible.Lift R
 open import Definition.Typed.Properties.Admissible.Pi-Sigma R
+import Definition.Typed.Properties.Admissible.Sigma.Primitive R as SP
 open import Definition.Typed.Properties.Admissible.Var R
 open import Definition.Typed.Properties.Reduction R
 open import Definition.Typed.Properties.Well-formed R
 open import Definition.Typed.Reasoning.Reduction R
-open import Definition.Typed.Reasoning.Term R as TmR
+import Definition.Typed.Reasoning.Term R as TmR
 import Definition.Typed.Reasoning.Type R as TyR
 open import Definition.Typed.Substitution.Primitive R
 open import Definition.Typed.Weakening R as W hiding (wk)
@@ -43,12 +44,14 @@ open import Tools.Product
 import Tools.PropositionalEquality as PE
 open import Tools.Reasoning.PropositionalEquality
 
+open SP public using (prodʰⱼ)
+
 private variable
-  n                                         : Nat
-  Γ                                         : Con Term n
-  A A₁ A₂ B B₁ B₂ C C₁ C₂ t t₁ t₂ u u₁ u₂ v : Term n
-  p q q′ r                                  : M
-  s                                         : Strength
+  n                                               : Nat
+  Γ                                               : Con Term n
+  A A₁ A₂ B B₁ B₂ C C₁ C₂ l₁ l₂ t t₁ t₂ u u₁ u₂ v : Term n
+  p q q′ r                                        : M
+  s                                               : Strength
 
 ------------------------------------------------------------------------
 -- Simple variants of typing, equality and reduction rules
@@ -1041,6 +1044,8 @@ opaque
                                                                           ok ⟩⊢∎
 
           pair                                                       ∎))
+    where
+    open TmR
 
 ------------------------------------------------------------------------
 -- Typing rules for prodrec⟨_⟩
@@ -1280,141 +1285,120 @@ opaque
     q , G , conv ⊢t (ΠΣ-cong (sym A≡F) (refl ⊢G) Σ-ok) , C≡A  }
 
 ------------------------------------------------------------------------
--- Heterogeneous variants of the typing rules for (strong) Σ
+-- Some lemmas related to Σʰ⟨_⟩
 
 opaque
-  unfolding ΠΣʰ prodʰ
 
-  prodʰⱼ
-    : ∀ {l₁ l₂ F G}
-    → Γ ⊢ l₁ ∷ Level
-    → Γ ⊢ l₂ ∷ Level
-    → Γ ∙ F ⊢ G
-    → Γ ⊢ t ∷ F
-    → Γ ⊢ u ∷ G [ t ]₀
-    → Σ-allowed s p q
-    → Γ ⊢ prodʰ s p t u ∷ Σʰ⟨ s ⟩ p q l₁ l₂ F G
-  prodʰⱼ ⊢l₁ ⊢l₂ ⊢G ⊢t ⊢u ok =
-    let ⊢F = ⊢∙→⊢ (wf ⊢G)
-        ⊢LiftF = Liftⱼ ⊢l₂ ⊢F
-        ⊢LiftG = Liftⱼ (wkTerm₁ ⊢LiftF ⊢l₁) (lower₀Type ⊢l₂ ⊢G)
-        ⊢liftt = liftⱼ′ ⊢l₂ ⊢t
-        ⊢liftu = liftⱼ′
-          (PE.subst (_ ⊢_∷ _) (PE.sym (wk1-sgSubst _ _)) ⊢l₁)
-          (conv ⊢u (sym (lower₀[lift]₀ ⊢G ⊢t)))
-    in prodⱼ ⊢LiftG ⊢liftt ⊢liftu ok
+  -- An equality rule for prodʰ.
+
+  prodʰ-cong :
+    Γ ⊢ l₁ ∷ Level →
+    Γ ⊢ l₂ ∷ Level →
+    Γ ∙ A ⊢ B →
+    Γ ⊢ t₁ ≡ t₂ ∷ A →
+    Γ ⊢ u₁ ≡ u₂ ∷ B [ t₁ ]₀ →
+    Σ-allowed s p q →
+    Γ ⊢ prodʰ s p t₁ u₁ ≡ prodʰ s p t₂ u₂ ∷ Σʰ⟨ s ⟩ p q l₁ l₂ A B
+  prodʰ-cong ⊢l₁ ⊢l₂ ⊢B t₁≡t₂ u₁≡u₂ =
+    let _ , ⊢t₁ , ⊢t₂ = wf-⊢≡∷ t₁≡t₂
+        _ , ⊢u₁ , ⊢u₂ = wf-⊢≡∷ u₁≡u₂
+    in
+    SP.prodʰ-cong ⊢l₁ ⊢l₂ ⊢B ⊢t₁ ⊢t₂ t₁≡t₂ ⊢u₁ ⊢u₂ u₁≡u₂
 
 opaque
   unfolding ΠΣʰ fstʰ
 
-  fstʰⱼ
-    : ∀ {l₁ l₂ F G}
-    → Γ ∙ F ⊢ G
-    → Γ ⊢ t ∷ Σʰˢ p q l₁ l₂ F G
-    → Γ ⊢ fstʰ p t ∷ F
-  fstʰⱼ ⊢G ⊢t = lowerⱼ (fstⱼ′ ⊢t)
+  -- A typing rule for fstʰ.
+
+  fstʰⱼ :
+    Γ ⊢ t ∷ Σʰˢ p q l₁ l₂ A B →
+    Γ ⊢ fstʰ p t ∷ A
+  fstʰⱼ ⊢t = lowerⱼ (fstⱼ′ ⊢t)
 
 opaque
   unfolding ΠΣʰ fstʰ sndʰ lower₀
 
-  sndʰⱼ
-    : ∀ {l₁ l₂ F G}
-    → Γ ∙ F ⊢ G
-    → Γ ⊢ t ∷ Σʰˢ p q l₁ l₂ F G
-    → Γ ⊢ sndʰ p t ∷ G [ fstʰ p t ]₀
-  sndʰⱼ {G} ⊢G ⊢t =
-    PE.subst (_⊢_∷_ _ _) ([]↑-[]₀ G) (lowerⱼ (sndⱼ′ ⊢t))
+  -- A typing rule for sndʰ.
+
+  sndʰⱼ :
+    Γ ⊢ t ∷ Σʰˢ p q l₁ l₂ A B →
+    Γ ⊢ sndʰ p t ∷ B [ fstʰ p t ]₀
+  sndʰⱼ {B} ⊢t =
+    PE.subst (_⊢_∷_ _ _) ([]↑-[]₀ B) (lowerⱼ (sndⱼ′ ⊢t))
 
 opaque
   unfolding prodʰ fstʰ
 
-  -- Heterogeneous first β-rule
+  -- A β-rule for sndʰ.
 
-  Σʰ-β₁
-    : ∀ {l₁ l₂ F G}
-    -- Note that l₁ and l₂ can be chosen arbitrarily.
-    → Γ ⊢ l₁ ∷ Level
-    → Γ ⊢ l₂ ∷ Level
-    → Γ ∙ F ⊢ G
-    → Γ ⊢ t ∷ F
-    → Γ ⊢ u ∷ G [ t ]₀
-    → Σˢ-allowed p q
-    → Γ ⊢ fstʰ p (prodʰˢ p t u) ≡ t ∷ F
-  Σʰ-β₁ {t} {u} {p} {q} ⊢l₁ ⊢l₂ ⊢G ⊢t ⊢u ok =
-    let ⊢F = ⊢∙→⊢ (wf ⊢G)
-        ⊢LiftF = Liftⱼ ⊢l₂ ⊢F
-        ⊢LiftG = Liftⱼ (wkTerm₁ ⊢LiftF ⊢l₁) (lower₀Type ⊢l₂ ⊢G)
-        ⊢liftt = liftⱼ′ ⊢l₂ ⊢t
-        ⊢liftu = liftⱼ′
-          (PE.subst (_ ⊢_∷ _) (PE.sym (wk1-sgSubst _ _)) ⊢l₁)
-          (conv ⊢u (sym (lower₀[lift]₀ ⊢G ⊢t)))
+  Σʰ-β₁ :
+    Γ ∙ A ⊢ B →
+    Γ ⊢ t ∷ A →
+    Γ ⊢ u ∷ B [ t ]₀ →
+    Σˢ-allowed p q →
+    Γ ⊢ fstʰ p (prodʰˢ p t u) ≡ t ∷ A
+  Σʰ-β₁ {t} {u} {p} ⊢B ⊢t ⊢u ok =
+    let ⊢A = ⊢∙→⊢ (wf ⊢B)
+        ⊢0 = zeroᵘⱼ (wf ⊢A)
     in
-    lower (fst p (prod 𝕤 p (lift t) (lift u)))
-      ≡⟨ lower-cong (Σ-β₁ ⊢LiftG ⊢liftt ⊢liftu PE.refl ok) ⟩⊢
-    lower (lift t)
-      ≡⟨ Lift-β′ ⊢t ⟩⊢∎
-    t ∎
-
+    lower (fst p (prod 𝕤 p (lift t) (lift u)))  ≡⟨ lower-cong $
+                                                   Σ-β₁ (Liftⱼ (wkTerm₁ (Liftⱼ ⊢0 ⊢A) ⊢0) (lower₀Type ⊢0 ⊢B))
+                                                     (liftⱼ′ ⊢0 ⊢t)
+                                                     (liftⱼ′ ⊢0 (conv ⊢u (sym (lower₀[lift]₀ ⊢B ⊢t))))
+                                                     PE.refl ok ⟩⊢
+    lower (lift t)                              ≡⟨ Lift-β′ ⊢t ⟩⊢∎
+    t                                           ∎
+    where
+    open TmR
 
 opaque
   unfolding prodʰ fstʰ sndʰ lower₀
 
-  -- Heterogeneous second β-rule
+  -- Another β-rule for sndʰ.
 
-  Σʰ-β₂
-    : ∀ {l₁ l₂ F G}
-    -- Note that l₁ and l₂ can be chosen arbitrarily.
-    → Γ ⊢ l₁ ∷ Level
-    → Γ ⊢ l₂ ∷ Level
-    → Γ ∙ F ⊢ G
-    → Γ ⊢ t ∷ F
-    → Γ ⊢ u ∷ G [ t ]₀
-    → Σˢ-allowed p q
-    → Γ ⊢ sndʰ p (prodʰˢ p t u) ≡ u ∷ G [ fstʰ p (prodʰˢ p t u) ]₀
-  Σʰ-β₂ {t} {u} {p} {q} {G} ⊢l₁ ⊢l₂ ⊢G ⊢t ⊢u ok =
-    let ⊢F = ⊢∙→⊢ (wf ⊢G)
-        ⊢LiftF = Liftⱼ ⊢l₂ ⊢F
-        ⊢LiftG = Liftⱼ (wkTerm₁ ⊢LiftF ⊢l₁) (lower₀Type ⊢l₂ ⊢G)
-        ⊢liftt = liftⱼ′ ⊢l₂ ⊢t
-        ⊢liftu = liftⱼ′
-          (PE.subst (_ ⊢_∷ _) (PE.sym (wk1-sgSubst _ _)) ⊢l₁)
-          (conv ⊢u (sym (lower₀[lift]₀ ⊢G ⊢t)))
-    in
-    lower (snd p (prod 𝕤 p (lift t) (lift u)))
-      ≡⟨ PE.subst (_⊢_≡_∷_ _ _ _) ([]↑-[]₀ G) (lower-cong (Σ-β₂ ⊢LiftG ⊢liftt ⊢liftu PE.refl ok)) ⟩⊢
-    lower (lift u)
-      ≡⟨ Lift-β′ (conv ⊢u (substTypeEq (refl ⊢G) (sym′ (Σʰ-β₁ ⊢l₁ ⊢l₂ ⊢G ⊢t ⊢u ok)))) ⟩⊢∎
-    u ∎
+  Σʰ-β₂ :
+    Γ ∙ A ⊢ B →
+    Γ ⊢ t ∷ A →
+    Γ ⊢ u ∷ B [ t ]₀ →
+    Σˢ-allowed p q →
+    Γ ⊢ sndʰ p (prodʰˢ p t u) ≡ u ∷ B [ fstʰ p (prodʰˢ p t u) ]₀
+  Σʰ-β₂ {B} {t} {u} {p} ⊢B ⊢t ⊢u ok =
+    let ⊢0 = zeroᵘⱼ (wfTerm ⊢t) in
+    lower (snd p (prod 𝕤 p (lift t) (lift u)))  ≡⟨ PE.subst (_⊢_≡_∷_ _ _ _) ([]↑-[]₀ B) $
+                                                   lower-cong $
+                                                   Σ-β₂ (Liftⱼ (wkTerm₁ (Liftⱼ ⊢0 (⊢∙→⊢ (wf ⊢B))) ⊢0) (lower₀Type ⊢0 ⊢B))
+                                                     (liftⱼ′ ⊢0 ⊢t)
+                                                     (liftⱼ′ ⊢0 (conv ⊢u (sym (lower₀[lift]₀ ⊢B ⊢t))))
+                                                     PE.refl ok ⟩⊢
+    lower (lift u)                              ≡⟨ Lift-β′ $ conv ⊢u (substTypeEq (refl ⊢B) (sym′ (Σʰ-β₁ ⊢B ⊢t ⊢u ok))) ⟩⊢∎
+    u                                           ∎
+    where
+    open TmR
 
 opaque
   unfolding ΠΣʰ fstʰ sndʰ lower₀
 
-  -- Heterogeneous η-rule
+  -- An η-rule for sndʰ.
 
-  Σʰ-η
-    : ∀ {l₁ l₂ F G}
-    → Γ ⊢ l₁ ∷ Level
-    → Γ ⊢ l₂ ∷ Level
-    → Γ ∙ F ⊢ G
-    → Γ ⊢ t ∷ Σʰˢ p q l₁ l₂ F G
-    → Γ ⊢ u ∷ Σʰˢ p q l₁ l₂ F G
-    → Γ ⊢ fstʰ p t ≡ fstʰ p u ∷ F
-    → Γ ⊢ sndʰ p t ≡ sndʰ p u ∷ G [ fstʰ p t ]₀
-    → Σˢ-allowed p q
-    → Γ ⊢ t ≡ u ∷ Σʰˢ p q l₁ l₂ F G
-  Σʰ-η {t} {p} {u} {l₁} {G} ⊢l₁ ⊢l₂ ⊢G ⊢t ⊢u fstʰ≡fstʰ sndʰ≡sndʰ ok =
-    let
-      fst≡fst = Lift-η′ (fstⱼ′ ⊢t) (fstⱼ′ ⊢u) fstʰ≡fstʰ
-      LiftGu≡LiftGt =
-        Lift (wk1 l₁ [ fst p u ]₀) (lower₀ G [ fst p u ]₀)
-          TyR.≡⟨ PE.cong₂ Lift (wk1-sgSubst _ _) PE.refl ⟩⊢≡
-        Lift l₁ (lower₀ G [ fst p u ]₀)
-          TyR.≡˘⟨ Lift-cong (refl ⊢l₁) (substTypeEq (refl (lower₀Type ⊢l₂ ⊢G)) fst≡fst) ⟩⊢∎≡
-        Lift l₁ (lower₀ G [ fst p t ]₀)
-          ≡˘⟨ PE.cong₂ Lift (wk1-sgSubst _ _) PE.refl ⟩
-        Lift (wk1 l₁ [ fst p t ]₀) (lower₀ G [ fst p t ]₀)
-          ∎
-    in Σ-η′ ⊢t ⊢u
-        fst≡fst
-        (Lift-η′ (sndⱼ′ ⊢t) (conv (sndⱼ′ ⊢u) LiftGu≡LiftGt)
-          (PE.subst (_⊢_≡_∷_ _ _ _) (PE.sym ([]↑-[]₀ G)) sndʰ≡sndʰ))
+  Σʰ-η :
+    Γ ⊢ l₁ ∷ Level →
+    Γ ⊢ l₂ ∷ Level →
+    Γ ∙ A ⊢ B →
+    Γ ⊢ t ∷ Σʰˢ p q l₁ l₂ A B →
+    Γ ⊢ u ∷ Σʰˢ p q l₁ l₂ A B →
+    Γ ⊢ fstʰ p t ≡ fstʰ p u ∷ A →
+    Γ ⊢ sndʰ p t ≡ sndʰ p u ∷ B [ fstʰ p t ]₀ →
+    Γ ⊢ t ≡ u ∷ Σʰˢ p q l₁ l₂ A B
+  Σʰ-η {l₁} {B} {t} {p} {u} ⊢l₁ ⊢l₂ ⊢B ⊢t ⊢u fstʰ≡fstʰ sndʰ≡sndʰ =
+    let fst-t≡fst-u = Lift-η′ (fstⱼ′ ⊢t) (fstⱼ′ ⊢u) fstʰ≡fstʰ in
+    Σ-η′ ⊢t ⊢u fst-t≡fst-u
+      (Lift-η′ (sndⱼ′ ⊢t)
+         (conv (sndⱼ′ ⊢u)
+            (Lift (wk1 l₁ [ fst p u ]₀) (lower₀ B [ fst p u ]₀)  ≡⟨ PE.cong₂ Lift (wk1-sgSubst _ _) PE.refl ⟩⊢≡
+             Lift l₁ (lower₀ B [ fst p u ]₀)                     ≡˘⟨ Lift-cong (refl ⊢l₁) $
+                                                                     substTypeEq (refl (lower₀Type ⊢l₂ ⊢B)) fst-t≡fst-u ⟩⊢∎≡
+             Lift l₁ (lower₀ B [ fst p t ]₀)                     ≡˘⟨ PE.cong (flip Lift _) (wk1-sgSubst _ _) ⟩
+             Lift (wk1 l₁ [ fst p t ]₀) (lower₀ B [ fst p t ]₀)  ∎))
+         (PE.subst (_⊢_≡_∷_ _ _ _) (PE.sym ([]↑-[]₀ B)) sndʰ≡sndʰ))
+    where
+    open TyR
