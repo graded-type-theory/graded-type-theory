@@ -120,8 +120,19 @@ import Definition.Typed.Weakening using (_∷ʷ_⊇_; wk₁; wkTerm₁)
 
 #### 2.2: Typing rules
 
-Some typing rules have slightly different names from those in the
-paper.
+Unlike in the paper the type system is parametrised by a value of type
+`Type-restrictions` that makes it possible to disallow certain things,
+like certain (graded) Π- or Σ-types, the K rule or equality
+reflection. For instance, the two typing rules for Π and Σ include the
+assumption `ΠΣ-allowed b p q`. It is also possible to restrict the
+`Level` type so that it is not an element of a universe (see further
+discussion of this below).
+```agda
+import Definition.Typed.Restrictions using (Type-restrictions)
+```
+
+The type system. Some typing rules have names that differ from those
+in the paper.
 ```agda
 import Definition.Typed
   using (⊢_; _⊢_; _⊢_≡_; _⊢_∷_; _⊢_≡_∷_; _⊢_≤_∷Level)
