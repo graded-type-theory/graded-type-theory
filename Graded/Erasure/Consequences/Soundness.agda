@@ -247,7 +247,36 @@ module _
 
   module Soundness₀ (str : Strictness) where
 
-    open Soundness fundamental-assumptions⁻₀ str public
+    private
+      module S = Soundness fundamental-assumptions⁻₀ str
+
+    opaque
+
+      -- Soundness of extraction for natural numbers.
+
+      soundness-ℕ :
+        ε ⊢ t ∷ ℕ → ε ▸[ 𝟙ᵐ ] t →
+        ∃ λ n → ε ⊢ t ⇒ˢ* sucᵏ n ∷ℕ × erase str t ⇒ˢ⟨ str ⟩* T.sucᵏ n
+      soundness-ℕ = S.soundness-ℕ
+
+    opaque
+
+      -- A variant of soundness-ℕ which only considers the source
+      -- language.
+
+      soundness-ℕ-only-source :
+        ε ⊢ t ∷ ℕ → 𝟘ᶜ ▸[ 𝟙ᵐ ] t →
+        ∃ λ n → ε ⊢ t ⇒ˢ* sucᵏ n ∷ℕ
+      soundness-ℕ-only-source = S.soundness-ℕ-only-source
+
+    opaque
+
+      -- Soundness of extraction for unit types.
+
+      soundness-Unit :
+        ε ⊢ t ∷ Unit s → ε ▸[ 𝟙ᵐ ] t →
+        ε ⊢ t ⇒* star s ∷ Unit s × erase str t T.⇒* T.star
+      soundness-Unit = S.soundness-Unit
 
 -- If Prodrec-allowed 𝟙ᵐ 𝟘 p 𝟘 holds for some p (which means that
 -- certain kinds of erased matches are allowed), and if additionally

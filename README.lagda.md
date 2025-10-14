@@ -430,6 +430,13 @@ Theorem 5.1: Soundness of erasure.
 import Graded.Erasure.Consequences.Soundness
 ```
 
+Corollary 5.2: Soundness of erasure for closed terms.
+```agda
+import Graded.Erasure.Consequences.Soundness
+soundness-ℕ =
+  Graded.Erasure.Consequences.Soundness.Soundness₀.soundness-ℕ
+```
+
 Some examples, including a universe-polymorphic identity function.
 ```agda
 import Graded.Erasure.Examples using (⊢id)
