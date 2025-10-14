@@ -45,7 +45,7 @@ opaque
 
   -- A typing rule for prodʰ.
 
-  prodʰⱼ :
+  prodʰⱼ′ :
     Γ ⊢ l₁ ∷ Level →
     Γ ⊢ l₂ ∷ Level →
     Γ ∙ A ⊢ B →
@@ -53,7 +53,7 @@ opaque
     Γ ⊢ u ∷ B [ t ]₀ →
     Σ-allowed s p q →
     Γ ⊢ prodʰ s p t u ∷ Σʰ⟨ s ⟩ p q l₁ l₂ A B
-  prodʰⱼ ⊢l₁ ⊢l₂ ⊢B ⊢t ⊢u ok =
+  prodʰⱼ′ ⊢l₁ ⊢l₂ ⊢B ⊢t ⊢u ok =
     let ⊢A = ⊢∙→⊢ (wf ⊢B) in
     prodⱼ (Liftⱼ (wkTerm₁ (Liftⱼ ⊢l₂ ⊢A) ⊢l₁) (lower₀Type ⊢l₂ ⊢B))
       (liftⱼ ⊢l₂ ⊢A ⊢t)
@@ -66,7 +66,7 @@ opaque
 
   -- An equality rule for prodʰ.
 
-  prodʰ-cong :
+  prodʰ-cong′ :
     Γ ⊢ l₁ ∷ Level →
     Γ ⊢ l₂ ∷ Level →
     Γ ∙ A ⊢ B →
@@ -78,7 +78,7 @@ opaque
     Γ ⊢ u₁ ≡ u₂ ∷ B [ t₁ ]₀ →
     Σ-allowed s p q →
     Γ ⊢ prodʰ s p t₁ u₁ ≡ prodʰ s p t₂ u₂ ∷ Σʰ⟨ s ⟩ p q l₁ l₂ A B
-  prodʰ-cong ⊢l₁ ⊢l₂ ⊢B ⊢t₁ ⊢t₂ t₁≡t₂ ⊢u₁ ⊢u₂ u₁≡u₂ ok =
+  prodʰ-cong′ ⊢l₁ ⊢l₂ ⊢B ⊢t₁ ⊢t₂ t₁≡t₂ ⊢u₁ ⊢u₂ u₁≡u₂ ok =
     let ⊢A      = ⊢∙→⊢ (wf ⊢B)
         B[t₁]₀≡ = sym (lower₀[lift]₀ ⊢B ⊢t₁)
     in

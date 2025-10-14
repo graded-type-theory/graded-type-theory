@@ -44,7 +44,7 @@ open import Tools.Product
 import Tools.PropositionalEquality as PE
 open import Tools.Reasoning.PropositionalEquality
 
-open SP public using (prodʰⱼ)
+open SP public using (prodʰⱼ′)
 
 private variable
   n                                               : Nat
@@ -1288,10 +1288,26 @@ opaque
 -- Some lemmas related to Σʰ⟨_⟩
 
 opaque
+  unfolding ΠΣʰ prodʰ
+
+  -- A variant of prodʰⱼ′.
+
+  prodʰⱼ :
+    Γ ⊢ A ∷ U l₁ →
+    Γ ⊢ l₂ ∷ Level →
+    Γ ∙ A ⊢ B ∷ U (wk1 l₂) →
+    Γ ⊢ t ∷ A →
+    Γ ⊢ u ∷ B [ t ]₀ →
+    Σ-allowed s p q →
+    Γ ⊢ prodʰ s p t u ∷ Σʰ⟨ s ⟩ p q l₁ l₂ A B
+  prodʰⱼ ⊢A ⊢l₂ ⊢B =
+    prodʰⱼ′ (inversion-U-Level (wf-⊢∷ ⊢A)) ⊢l₂ (univ ⊢B)
+
+opaque
 
   -- An equality rule for prodʰ.
 
-  prodʰ-cong :
+  prodʰ-cong′ :
     Γ ⊢ l₁ ∷ Level →
     Γ ⊢ l₂ ∷ Level →
     Γ ∙ A ⊢ B →
@@ -1299,45 +1315,84 @@ opaque
     Γ ⊢ u₁ ≡ u₂ ∷ B [ t₁ ]₀ →
     Σ-allowed s p q →
     Γ ⊢ prodʰ s p t₁ u₁ ≡ prodʰ s p t₂ u₂ ∷ Σʰ⟨ s ⟩ p q l₁ l₂ A B
-  prodʰ-cong ⊢l₁ ⊢l₂ ⊢B t₁≡t₂ u₁≡u₂ =
+  prodʰ-cong′ ⊢l₁ ⊢l₂ ⊢B t₁≡t₂ u₁≡u₂ =
     let _ , ⊢t₁ , ⊢t₂ = wf-⊢≡∷ t₁≡t₂
         _ , ⊢u₁ , ⊢u₂ = wf-⊢≡∷ u₁≡u₂
     in
-    SP.prodʰ-cong ⊢l₁ ⊢l₂ ⊢B ⊢t₁ ⊢t₂ t₁≡t₂ ⊢u₁ ⊢u₂ u₁≡u₂
+    SP.prodʰ-cong′ ⊢l₁ ⊢l₂ ⊢B ⊢t₁ ⊢t₂ t₁≡t₂ ⊢u₁ ⊢u₂ u₁≡u₂
+
+opaque
+
+  -- A variant of prodʰ.
+
+  prodʰ-cong :
+    Γ ⊢ A ∷ U l₁ →
+    Γ ⊢ l₂ ∷ Level →
+    Γ ∙ A ⊢ B ∷ U (wk1 l₂) →
+    Γ ⊢ t₁ ≡ t₂ ∷ A →
+    Γ ⊢ u₁ ≡ u₂ ∷ B [ t₁ ]₀ →
+    Σ-allowed s p q →
+    Γ ⊢ prodʰ s p t₁ u₁ ≡ prodʰ s p t₂ u₂ ∷ Σʰ⟨ s ⟩ p q l₁ l₂ A B
+  prodʰ-cong ⊢A ⊢l₂ ⊢B =
+    prodʰ-cong′ (inversion-U-Level (wf-⊢∷ ⊢A)) ⊢l₂ (univ ⊢B)
 
 opaque
   unfolding ΠΣʰ fstʰ
 
   -- A typing rule for fstʰ.
 
-  fstʰⱼ :
+  fstʰⱼ′ :
     Γ ⊢ t ∷ Σʰˢ p q l₁ l₂ A B →
     Γ ⊢ fstʰ p t ∷ A
-  fstʰⱼ ⊢t = lowerⱼ (fstⱼ′ ⊢t)
+  fstʰⱼ′ ⊢t = lowerⱼ (fstⱼ′ ⊢t)
+
+opaque
+
+  -- A variant of fstʰⱼ′.
+
+  fstʰⱼ :
+    Γ ⊢ A ∷ U l₁ →
+    Γ ⊢ l₂ ∷ Level →
+    Γ ∙ A ⊢ B ∷ U (wk1 l₂) →
+    Γ ⊢ t ∷ Σʰˢ p q l₁ l₂ A B →
+    Γ ⊢ fstʰ p t ∷ A
+  fstʰⱼ _ _ _ = fstʰⱼ′
 
 opaque
   unfolding ΠΣʰ fstʰ sndʰ lower₀
 
   -- A typing rule for sndʰ.
 
-  sndʰⱼ :
+  sndʰⱼ′ :
     Γ ⊢ t ∷ Σʰˢ p q l₁ l₂ A B →
     Γ ⊢ sndʰ p t ∷ B [ fstʰ p t ]₀
-  sndʰⱼ {B} ⊢t =
+  sndʰⱼ′ {B} ⊢t =
     PE.subst (_⊢_∷_ _ _) ([]↑-[]₀ B) (lowerⱼ (sndⱼ′ ⊢t))
+
+opaque
+
+  -- A variant of sndʰⱼ′.
+
+  sndʰⱼ :
+    Γ ⊢ A ∷ U l₁ →
+    Γ ⊢ l₂ ∷ Level →
+    Γ ∙ A ⊢ B ∷ U (wk1 l₂) →
+    Γ ⊢ t ∷ Σʰˢ p q l₁ l₂ A B →
+    Γ ⊢ sndʰ p t ∷ B [ fstʰ p t ]₀
+  sndʰⱼ _ _ _ = sndʰⱼ′
 
 opaque
   unfolding prodʰ fstʰ
 
   -- A β-rule for sndʰ.
 
-  Σʰ-β₁ :
+  Σʰ-β₁′ :
     Γ ∙ A ⊢ B →
     Γ ⊢ t ∷ A →
     Γ ⊢ u ∷ B [ t ]₀ →
     Σˢ-allowed p q →
     Γ ⊢ fstʰ p (prodʰˢ p t u) ≡ t ∷ A
-  Σʰ-β₁ {t} {u} {p} ⊢B ⊢t ⊢u ok =
+  Σʰ-β₁′ {t} {u} {p} ⊢B ⊢t ⊢u ok =
     let ⊢A = ⊢∙→⊢ (wf ⊢B)
         ⊢0 = zeroᵘⱼ (wf ⊢A)
     in
@@ -1352,17 +1407,31 @@ opaque
     open TmR
 
 opaque
+
+  -- A variant of Σʰ-β₁′.
+
+  Σʰ-β₁ :
+    Γ ⊢ A ∷ U l₁ →
+    Γ ⊢ l₂ ∷ Level →
+    Γ ∙ A ⊢ B ∷ U (wk1 l₂) →
+    Γ ⊢ t ∷ A →
+    Γ ⊢ u ∷ B [ t ]₀ →
+    Σˢ-allowed p q →
+    Γ ⊢ fstʰ p (prodʰˢ p t u) ≡ t ∷ A
+  Σʰ-β₁ _ _ ⊢B = Σʰ-β₁′ (univ ⊢B)
+
+opaque
   unfolding prodʰ fstʰ sndʰ lower₀
 
   -- Another β-rule for sndʰ.
 
-  Σʰ-β₂ :
+  Σʰ-β₂′ :
     Γ ∙ A ⊢ B →
     Γ ⊢ t ∷ A →
     Γ ⊢ u ∷ B [ t ]₀ →
     Σˢ-allowed p q →
     Γ ⊢ sndʰ p (prodʰˢ p t u) ≡ u ∷ B [ fstʰ p (prodʰˢ p t u) ]₀
-  Σʰ-β₂ {B} {t} {u} {p} ⊢B ⊢t ⊢u ok =
+  Σʰ-β₂′ {B} {t} {u} {p} ⊢B ⊢t ⊢u ok =
     let ⊢0 = zeroᵘⱼ (wfTerm ⊢t) in
     lower (snd p (prod 𝕤 p (lift t) (lift u)))  ≡⟨ PE.subst (_⊢_≡_∷_ _ _ _) ([]↑-[]₀ B) $
                                                    lower-cong $
@@ -1370,17 +1439,31 @@ opaque
                                                      (liftⱼ′ ⊢0 ⊢t)
                                                      (liftⱼ′ ⊢0 (conv ⊢u (sym (lower₀[lift]₀ ⊢B ⊢t))))
                                                      PE.refl ok ⟩⊢
-    lower (lift u)                              ≡⟨ Lift-β′ $ conv ⊢u (substTypeEq (refl ⊢B) (sym′ (Σʰ-β₁ ⊢B ⊢t ⊢u ok))) ⟩⊢∎
+    lower (lift u)                              ≡⟨ Lift-β′ $ conv ⊢u (substTypeEq (refl ⊢B) (sym′ (Σʰ-β₁′ ⊢B ⊢t ⊢u ok))) ⟩⊢∎
     u                                           ∎
     where
     open TmR
+
+opaque
+
+  -- A variant of Σʰ-β₂′.
+
+  Σʰ-β₂ :
+    Γ ⊢ A ∷ U l₁ →
+    Γ ⊢ l₂ ∷ Level →
+    Γ ∙ A ⊢ B ∷ U (wk1 l₂) →
+    Γ ⊢ t ∷ A →
+    Γ ⊢ u ∷ B [ t ]₀ →
+    Σˢ-allowed p q →
+    Γ ⊢ sndʰ p (prodʰˢ p t u) ≡ u ∷ B [ fstʰ p (prodʰˢ p t u) ]₀
+  Σʰ-β₂ _ _ ⊢B = Σʰ-β₂′ (univ ⊢B)
 
 opaque
   unfolding ΠΣʰ fstʰ sndʰ lower₀
 
   -- An η-rule for sndʰ.
 
-  Σʰ-η :
+  Σʰ-η′ :
     Γ ⊢ l₁ ∷ Level →
     Γ ∙ A ⊢ B →
     Γ ⊢ t ∷ Σʰˢ p q l₁ l₂ A B →
@@ -1388,7 +1471,7 @@ opaque
     Γ ⊢ fstʰ p t ≡ fstʰ p u ∷ A →
     Γ ⊢ sndʰ p t ≡ sndʰ p u ∷ B [ fstʰ p t ]₀ →
     Γ ⊢ t ≡ u ∷ Σʰˢ p q l₁ l₂ A B
-  Σʰ-η {l₁} {B} {t} {p} {u} ⊢l₁ ⊢B ⊢t ⊢u fstʰ≡fstʰ sndʰ≡sndʰ =
+  Σʰ-η′ {l₁} {B} {t} {p} {u} ⊢l₁ ⊢B ⊢t ⊢u fstʰ≡fstʰ sndʰ≡sndʰ =
     let _ , ⊢l₂ , _ = inversion-ΠΣʰ-⊢ {B = B} (wf-⊢∷ ⊢t)
         fst-t≡fst-u = Lift-η′ (fstⱼ′ ⊢t) (fstⱼ′ ⊢u) fstʰ≡fstʰ
     in
@@ -1403,3 +1486,18 @@ opaque
          (PE.subst (_⊢_≡_∷_ _ _ _) (PE.sym ([]↑-[]₀ B)) sndʰ≡sndʰ))
     where
     open TyR
+
+opaque
+
+  -- A variant of Σʰ-η′.
+
+  Σʰ-η :
+    Γ ⊢ A ∷ U l₁ →
+    Γ ⊢ l₂ ∷ Level →
+    Γ ∙ A ⊢ B ∷ U (wk1 l₂) →
+    Γ ⊢ t ∷ Σʰˢ p q l₁ l₂ A B →
+    Γ ⊢ u ∷ Σʰˢ p q l₁ l₂ A B →
+    Γ ⊢ fstʰ p t ≡ fstʰ p u ∷ A →
+    Γ ⊢ sndʰ p t ≡ sndʰ p u ∷ B [ fstʰ p t ]₀ →
+    Γ ⊢ t ≡ u ∷ Σʰˢ p q l₁ l₂ A B
+  Σʰ-η ⊢A _ ⊢B = Σʰ-η′ (inversion-U-Level (wf-⊢∷ ⊢A)) (univ ⊢B)

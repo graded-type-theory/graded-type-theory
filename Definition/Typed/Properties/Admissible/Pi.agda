@@ -204,44 +204,73 @@ opaque
 opaque
   unfolding ΠΣʰ lamʰ
 
-  lamʰⱼ
+  -- A typing rule for lamʰ.
+
+  lamʰⱼ′
     : Γ ⊢ l₁ ∷ Level
     → Γ ⊢ l₂ ∷ Level
     → Γ ∙ A ⊢ B
     → Γ ∙ A ⊢ t ∷ B
     → Π-allowed p q
     → Γ     ⊢ lamʰ p t ∷ Πʰ p q l₁ l₂ A B
-  lamʰⱼ ⊢l₁ ⊢l₂ ⊢B ⊢t ok =
+  lamʰⱼ′ ⊢l₁ ⊢l₂ ⊢B ⊢t ok =
     let ⊢A = ⊢∙→⊢ (wf ⊢B)
     in lamⱼ′ ok (liftⱼ′ (wkTerm₁ (Liftⱼ ⊢l₂ ⊢A) ⊢l₁) (lower₀Term ⊢l₂ ⊢t))
+
+opaque
+
+  -- A variant of lamʰⱼ′.
+
+  lamʰⱼ :
+    Γ ⊢ A ∷ U l₁ →
+    Γ ⊢ l₂ ∷ Level →
+    Γ ∙ A ⊢ B ∷ U (wk1 l₂) →
+    Γ ∙ A ⊢ t ∷ B →
+    Π-allowed p q →
+    Γ ⊢ lamʰ p t ∷ Πʰ p q l₁ l₂ A B
+  lamʰⱼ ⊢A ⊢l₂ ⊢B =
+    lamʰⱼ′ (inversion-U-Level (wf-⊢∷ ⊢A)) ⊢l₂ (univ ⊢B)
 
 opaque
   unfolding ΠΣʰ ∘ʰ
 
   -- A typing rule for ∘ʰ.
 
-  ∘ʰⱼ :
+  ∘ʰⱼ′ :
     Γ ∙ A ⊢ B →
     Γ ⊢ t ∷ Πʰ p q l₁ l₂ A B →
     Γ ⊢ u ∷ A →
     Γ ⊢ ∘ʰ p l₂ t u ∷ B [ u ]₀
-  ∘ʰⱼ ⊢B ⊢t ⊢u =
+  ∘ʰⱼ′ ⊢B ⊢t ⊢u =
     let ⊢A          = wf-⊢∷ ⊢u
         _ , ⊢l₂ , _ = inversion-ΠΣʰ-⊢ (wf-⊢∷ ⊢t)
     in
     conv (lowerⱼ (⊢t ∘ⱼ liftⱼ ⊢l₂ ⊢A ⊢u)) (lower₀[lift]₀ ⊢B ⊢u)
 
 opaque
+
+  -- A variant of ∘ʰⱼ′.
+
+  ∘ʰⱼ :
+    Γ ⊢ A ∷ U l₁ →
+    Γ ⊢ l₂ ∷ Level →
+    Γ ∙ A ⊢ B ∷ U (wk1 l₂) →
+    Γ ⊢ t ∷ Πʰ p q l₁ l₂ A B →
+    Γ ⊢ u ∷ A →
+    Γ ⊢ ∘ʰ p l₂ t u ∷ B [ u ]₀
+  ∘ʰⱼ _ _ ⊢B = ∘ʰⱼ′ (univ ⊢B)
+
+opaque
   unfolding ΠΣʰ ∘ʰ
 
   -- Heterogeneous application congruence
 
-  app-congʰ :
+  app-congʰ′ :
     Γ ∙ A ⊢ B →
     Γ ⊢ t₁ ≡ t₂ ∷ Πʰ p q l₁ l₂ A B →
     Γ ⊢ u₁ ≡ u₂ ∷ A →
     Γ ⊢ ∘ʰ p l₂ t₁ u₁ ≡ ∘ʰ p l₂ t₂ u₂ ∷ B [ u₁ ]₀
-  app-congʰ ⊢B t₁≡t₂ u₁≡u₂ =
+  app-congʰ′ ⊢B t₁≡t₂ u₁≡u₂ =
     let ⊢A , ⊢u₁ , ⊢u₂ = wf-⊢≡∷ u₁≡u₂
         _ , ⊢l₂ , _    = inversion-ΠΣʰ-⊢ (wf-⊢≡∷ t₁≡t₂ .proj₁)
     in
@@ -249,11 +278,24 @@ opaque
       (lower₀[lift]₀ ⊢B ⊢u₁)
 
 opaque
+
+  -- A variant of app-congʰ′.
+
+  app-congʰ :
+    Γ ⊢ A ∷ U l₁ →
+    Γ ⊢ l₂ ∷ Level →
+    Γ ∙ A ⊢ B ∷ U (wk1 l₂) →
+    Γ ⊢ t₁ ≡ t₂ ∷ Πʰ p q l₁ l₂ A B →
+    Γ ⊢ u₁ ≡ u₂ ∷ A →
+    Γ ⊢ ∘ʰ p l₂ t₁ u₁ ≡ ∘ʰ p l₂ t₂ u₂ ∷ B [ u₁ ]₀
+  app-congʰ _ _ ⊢B = app-congʰ′ (univ ⊢B)
+
+opaque
   unfolding lamʰ ∘ʰ
 
   -- Heterogeneous β-reduction
 
-  β-redʰ
+  β-redʰ′
     : Γ ⊢ l₁ ∷ Level
     → Γ ⊢ l₂ ∷ Level
     → Γ ∙ A ⊢ B
@@ -262,7 +304,7 @@ opaque
     → p PE.≡ p′
     → Π-allowed p q
     → Γ     ⊢ ∘ʰ p′ l₂ (lamʰ p t) a ≡ t [ a ]₀ ∷ B [ a ]₀
-  β-redʰ {l₁} {l₂} {A} {B} {t} {a} {p} ⊢l₁ ⊢l₂ ⊢B ⊢t ⊢a PE.refl ok =
+  β-redʰ′ {l₁} {l₂} {A} {B} {t} {a} {p} ⊢l₁ ⊢l₂ ⊢B ⊢t ⊢a PE.refl ok =
     let ⊢A = wf-⊢∷ ⊢a
         ⊢LiftA = Liftⱼ ⊢l₂ ⊢A
         ⊢wkl₁ = wkTerm₁ ⊢LiftA ⊢l₁
@@ -285,18 +327,33 @@ opaque
       ∎
 
 opaque
+
+  -- A variant of β-redʰ′.
+
+  β-redʰ :
+    Γ ⊢ A ∷ U l₁ →
+    Γ ⊢ l₂ ∷ Level →
+    Γ ∙ A ⊢ B ∷ U (wk1 l₂) →
+    Γ ∙ A ⊢ t ∷ B →
+    Γ ⊢ u ∷ A →
+    Π-allowed p q →
+    Γ ⊢ ∘ʰ p l₂ (lamʰ p t) u ≡ t [ u ]₀ ∷ B [ u ]₀
+  β-redʰ ⊢A ⊢l₂ ⊢B ⊢t ⊢u =
+    β-redʰ′ (inversion-U-Level (wf-⊢∷ ⊢A)) ⊢l₂ (univ ⊢B) ⊢t ⊢u PE.refl
+
+opaque
   unfolding ΠΣʰ ∘ʰ lower₀
 
   -- Heterogeneous η-rule
 
-  η-eqʰ
+  η-eqʰ′
     : Γ ⊢ l₁ ∷ Level
     → Γ ∙ A ⊢ B
     → Γ     ⊢ f ∷ Πʰ p q l₁ l₂ A B
     → Γ     ⊢ g ∷ Πʰ p q l₁ l₂ A B
     → Γ ∙ A ⊢ ∘ʰ p (wk1 l₂) (wk1 f) (var x0) ≡ ∘ʰ p (wk1 l₂) (wk1 g) (var x0) ∷ B
     → Γ     ⊢ f ≡ g ∷ Πʰ p q l₁ l₂ A B
-  η-eqʰ {Γ} {l₁} {A} {B} {f} {p} {q} {l₂} {g} ⊢l₁ ⊢B ⊢f ⊢g f≡g =
+  η-eqʰ′ {Γ} {l₁} {A} {B} {f} {p} {q} {l₂} {g} ⊢l₁ ⊢B ⊢f ⊢g f≡g =
     let _ , ⊢l₂ , _ , _ , ok = inversion-ΠΣʰ-⊢ {B = B} (wf-⊢∷ ⊢f)
         ⊢A = ⊢∙→⊢ (wf ⊢B)
         ⊢LiftA = Liftⱼ ⊢l₂ ⊢A
@@ -327,3 +384,18 @@ opaque
          lower₀ (lower (wk1 f ∘⟨ p ⟩ lift (var x0))) ≡⟨ lower₀TermEq ⊢l₂ f≡g ⟩⊢
          lower₀ (lower (wk1 g ∘⟨ p ⟩ lift (var x0))) ≡⟨ lemma ⊢g ⟩⊢∎
          lower (wk1 g ∘⟨ p ⟩ var x0)                 ∎)
+
+opaque
+
+  -- A variant of η-eqʰ′
+
+  η-eqʰ :
+    Γ ⊢ A ∷ U l₁ →
+    Γ ⊢ l₂ ∷ Level →
+    Γ ∙ A ⊢ B ∷ U (wk1 l₂) →
+    Γ ⊢ t₁ ∷ Πʰ p q l₁ l₂ A B →
+    Γ ⊢ t₂ ∷ Πʰ p q l₁ l₂ A B →
+    Γ ∙ A ⊢ ∘ʰ p (wk1 l₂) (wk1 t₁) (var x0) ≡
+      ∘ʰ p (wk1 l₂) (wk1 t₂) (var x0) ∷ B →
+    Γ ⊢ t₁ ≡ t₂ ∷ Πʰ p q l₁ l₂ A B
+  η-eqʰ ⊢A _ ⊢B = η-eqʰ′ (inversion-U-Level (wf-⊢∷ ⊢A)) (univ ⊢B)
