@@ -151,14 +151,16 @@ import Definition.Typed.Properties.Admissible.Lift
   using (Liftⱼ≤)
 ```
 
-Admissible heterogeneous Π- and Σ-types.
+Admissible heterogeneous Π- and (strong) Σ-types. There is currently
+no implementation of prodrec for heterogeneous weak Σ-types.
 ```agda
 import Definition.Typed.Properties.Admissible.Pi-Sigma
-  using (ΠΣʰⱼ)
+  using (ΠΣʰⱼ; ΠΣʰ-cong)
 import Definition.Typed.Properties.Admissible.Pi
-  using (lamʰⱼ; ∘ʰⱼ)
-import Definition.Typed.Properties.Admissible.Sigma
-  using (prodʰⱼ; fstʰⱼ; sndʰⱼ)
+  using (lamʰⱼ; ∘ʰⱼ; app-congʰ; β-redʰ; η-eqʰ)
+import Definition.Typed.Properties.Admissible.Sigma using
+  (prodʰⱼ; prodʰ-cong; fstʰⱼ; fstʰ-cong; sndʰⱼ; sndʰ-cong;
+   Σʰ-β₁; Σʰ-β₂; Σʰ-η)
 ```
 
 Well-formedness and subject reduction are only mentioned in the

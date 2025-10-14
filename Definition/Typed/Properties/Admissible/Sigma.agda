@@ -1359,6 +1359,28 @@ opaque
   fstʰⱼ _ _ _ = fstʰⱼ′
 
 opaque
+  unfolding ΠΣʰ fstʰ
+
+  -- An equality rule for fstʰ.
+
+  fstʰ-cong′ :
+    Γ ⊢ t₁ ≡ t₂ ∷ Σʰˢ p q l₁ l₂ A B →
+    Γ ⊢ fstʰ p t₁ ≡ fstʰ p t₂ ∷ A
+  fstʰ-cong′ t₁≡t₂ = lower-cong (fst-cong′ t₁≡t₂)
+
+opaque
+
+  -- A variant of fstʰ-cong′.
+
+  fstʰ-cong :
+    Γ ⊢ A ∷ U l₁ →
+    Γ ⊢ l₂ ∷ Level →
+    Γ ∙ A ⊢ B ∷ U (wk1 l₂) →
+    Γ ⊢ t₁ ≡ t₂ ∷ Σʰˢ p q l₁ l₂ A B →
+    Γ ⊢ fstʰ p t₁ ≡ fstʰ p t₂ ∷ A
+  fstʰ-cong _ _ _ = fstʰ-cong′
+
+opaque
   unfolding ΠΣʰ fstʰ sndʰ lower₀
 
   -- A typing rule for sndʰ.
@@ -1380,6 +1402,30 @@ opaque
     Γ ⊢ t ∷ Σʰˢ p q l₁ l₂ A B →
     Γ ⊢ sndʰ p t ∷ B [ fstʰ p t ]₀
   sndʰⱼ _ _ _ = sndʰⱼ′
+
+opaque
+  unfolding ΠΣʰ fstʰ sndʰ lower₀
+
+  -- An equality rule for sndʰ.
+
+  sndʰ-cong′ :
+    Γ ⊢ t₁ ≡ t₂ ∷ Σʰˢ p q l₁ l₂ A B →
+    Γ ⊢ sndʰ p t₁ ≡ sndʰ p t₂ ∷ B [ fstʰ p t₁ ]₀
+  sndʰ-cong′ {B} t₁≡t₂ =
+    PE.subst (_⊢_≡_∷_ _ _ _) ([]↑-[]₀ B) $
+    lower-cong (snd-cong′ t₁≡t₂)
+
+opaque
+
+  -- A variant of sndʰ-cong′.
+
+  sndʰ-cong :
+    Γ ⊢ A ∷ U l₁ →
+    Γ ⊢ l₂ ∷ Level →
+    Γ ∙ A ⊢ B ∷ U (wk1 l₂) →
+    Γ ⊢ t₁ ≡ t₂ ∷ Σʰˢ p q l₁ l₂ A B →
+    Γ ⊢ sndʰ p t₁ ≡ sndʰ p t₂ ∷ B [ fstʰ p t₁ ]₀
+  sndʰ-cong _ _ _ = sndʰ-cong′
 
 opaque
   unfolding prodʰ fstʰ
