@@ -69,6 +69,14 @@ module README where
 --   (2024-2025): this is the focus of the discussion below.
 
 ------------------------------------------------------------------------
+-- Pointers to code for specific definitions, theorems etc. in the
+-- paper
+
+-- Below pointers to code are included for all the main definitions,
+-- theorems, etc. in the paper, along with some discussion of
+-- differences between the paper and the code.
+
+------------------------------------------------------------------------
 -- 2: A type theory with first-class universe levels
 
 ------------------------------------------------------------------------
