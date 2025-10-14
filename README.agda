@@ -338,12 +338,12 @@ import Graded.Erasure.Examples using (⊢id)
 
 -- There is now a Level-is-small parameter that controls whether Level
 -- belongs to the first universe. If this is disabled, then Level is
--- only a type, not an element of any universe. Disabling this parameter
--- is similar to *enabling* Agda's --level-universe flag, which makes
--- Level an element of a separate universe LevelUniv instead of Set.
--- A notable difference is that Agda disallows forming identity
--- types of types in LevelUniv, whereas our type theory has identity
--- type formation rules for every type.
+-- only a type, not an element of any universe; this does not affect our
+-- results. Disabling this parameter is similar to *enabling* Agda's
+-- --level-universe flag, which makes Level an element of a separate
+-- universe LevelUniv instead of Set. A notable difference is that Agda
+-- disallows forming identity types of types in LevelUniv, whereas our
+-- type theory has identity type formation rules for every type.
 
 open import Definition.Typed.Restrictions using (module Type-restrictions)
 open Type-restrictions using (Level-is-small)
