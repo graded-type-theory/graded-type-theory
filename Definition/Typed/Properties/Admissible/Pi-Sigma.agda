@@ -24,6 +24,7 @@ open import Definition.Typed.Reasoning.Term R
 open import Definition.Typed.Weakening R
 open import Definition.Typed.Well-formed R
 open import Definition.Typed.Properties.Admissible.Lift R
+import Definition.Typed.Properties.Admissible.Pi-Sigma.Primitive R as PP
 
 open import Tools.Fin
 open import Tools.Function
@@ -34,7 +35,7 @@ import Tools.PropositionalEquality as PE
 private variable
   n     : Nat
   Γ     : Con Term n
-  A A′ B B′ C E F G H a f g l l₁ l₂ t u : Term n
+  A A₁ A₂ B B₁ B₂ C E F G H a f g l l₁ l₁₁ l₁₂ l₂ l₂₁ l₂₂ t u : Term n
   p p′ q : M
   s     : Strength
   b     : BinderMode
@@ -60,41 +61,35 @@ opaque
   ΠΣ-cong′ F≡H G≡E ok = ΠΣ-cong (inversion-U-Level (wf-⊢≡∷ F≡H .proj₁)) F≡H G≡E ok
 
 ------------------------------------------------------------------------
--- Heterogeneous variants of Π and Σ that take types in different universes.
--- See also the bottom of Definition.Typed.Properties.Admissible.{Pi,Sigma}.
+-- Some properties related to ΠΣʰ
 
 opaque
-  unfolding ΠΣʰ lower₀
 
-  ΠΣʰⱼ : Γ     ⊢ l₂ ∷ Level
-       → Γ     ⊢ A ∷ U l₁
-       → Γ ∙ A ⊢ B ∷ U (wk1 l₂)
-       → ΠΣ-allowed b p q
-       → Γ     ⊢ ΠΣʰ b p q l₁ l₂ A B ∷ U (l₁ supᵘ l₂)
-  ΠΣʰⱼ ⊢l₂ ⊢A ⊢B ok =
-    let ⊢l₁ = inversion-U-Level (wf-⊢∷ ⊢A)
-    in ΠΣⱼ′
-        (Liftⱼ′ ⊢l₂ ⊢A)
-        (Liftⱼ-comm
-          (wkTerm₁ (Liftⱼ ⊢l₂ (univ ⊢A)) ⊢l₁)
-          (PE.subst (_⊢_∷_ _ _) wk[]′-[]↑ (lower₀Term ⊢l₂ ⊢B)))
-        ok
+  -- An admissible typing rule for ΠΣʰ.
+
+  ΠΣʰⱼ :
+    Γ ⊢ l₂ ∷ Level →
+    Γ ⊢ A ∷ U l₁ →
+    Γ ∙ A ⊢ B ∷ U (wk1 l₂) →
+    ΠΣ-allowed b p q →
+    Γ ⊢ ΠΣʰ b p q l₁ l₂ A B ∷ U (l₁ supᵘ l₂)
+  ΠΣʰⱼ ⊢l₂ ⊢A = PP.ΠΣʰⱼ (inversion-U-Level (wf-⊢∷ ⊢A)) ⊢l₂ ⊢A
 
 opaque
-  unfolding ΠΣʰ lower₀
 
-  ΠΣʰ-cong
-    : Γ     ⊢ l₂ ∷ Level
-    → Γ     ⊢ A ≡ A′ ∷ U l₁
-    → Γ ∙ A ⊢ B ≡ B′ ∷ U (wk1 l₂)
-    → ΠΣ-allowed b p q
-    → Γ     ⊢ ΠΣʰ b p q l₁ l₂ A B ≡ ΠΣʰ b p q l₁ l₂ A′ B′ ∷ U (l₁ supᵘ l₂)
-  ΠΣʰ-cong ⊢l₂ A≡A′ B≡B′ ok =
-    let ⊢U , ⊢A , ⊢A′ = wf-⊢≡∷ A≡A′
-        ⊢l₁ = inversion-U-Level ⊢U
-    in ΠΣ-cong′
-        (Lift-cong′ (refl ⊢l₂) A≡A′)
-        (Lift-cong-comm
-          (refl (wkTerm₁ (Liftⱼ ⊢l₂ (univ ⊢A)) ⊢l₁))
-          (PE.subst (_⊢_≡_∷_ _ _ _) wk[]′-[]↑ (lower₀TermEq ⊢l₂ B≡B′)))
-        ok
+  -- An admissible equality rule for ΠΣʰ.
+
+  ΠΣʰ-cong :
+    Γ ⊢ l₁₁ ≡ l₁₂ ∷ Level →
+    Γ ⊢ l₂₁ ≡ l₂₂ ∷ Level →
+    Γ ⊢ A₁ ≡ A₂ ∷ U l₁₁ →
+    Γ ∙ A₁ ⊢ B₁ ≡ B₂ ∷ U (wk1 l₂₁) →
+    ΠΣ-allowed b p q →
+    Γ ⊢ ΠΣʰ b p q l₁₁ l₂₁ A₁ B₁ ≡ ΠΣʰ b p q l₁₂ l₂₂ A₂ B₂ ∷
+      U (l₁₁ supᵘ l₂₁)
+  ΠΣʰ-cong l₁₁≡l₁₂ l₂₁≡l₂₂ A₁≡A₂ =
+    let _ , ⊢l₁₁ , _ = wf-⊢≡∷ l₁₁≡l₁₂
+        _ , ⊢l₂₁ , _ = wf-⊢≡∷ l₂₁≡l₂₂
+        _ , ⊢A₁ , _  = wf-⊢≡∷ A₁≡A₂
+    in
+    PP.ΠΣʰ-cong ⊢l₁₁ ⊢l₂₁ l₁₁≡l₁₂ l₂₁≡l₂₂ (univ ⊢A₁) A₁≡A₂
