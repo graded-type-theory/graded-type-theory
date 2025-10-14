@@ -125,8 +125,17 @@ paper.
 ```agda
 import Definition.Typed
   using (⊢_; _⊢_; _⊢_≡_; _⊢_∷_; _⊢_≡_∷_; _⊢_≤_∷Level)
+```
+
+The ordering of levels induced by `_supᵘ_` is reflexive, transitive and
+antisymmetric.
+```agda
 import Definition.Typed.Properties.Admissible.Level
   using (⊢≤-refl; ⊢≤-trans; ⊢≤-antisymmetric)
+```
+
+The typing rule for `Lift` that uses the ordering of levels is admissible.
+```agda
 import Definition.Typed.Properties.Admissible.Lift
   using (Liftⱼ≤)
 ```
