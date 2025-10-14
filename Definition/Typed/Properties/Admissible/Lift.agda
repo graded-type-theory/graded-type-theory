@@ -50,12 +50,16 @@ private variable
 
 opaque
 
+  -- An admissible typing rule for Lift.
+
   Liftⱼ′ : Γ ⊢ l₂ ∷ Level
          → Γ ⊢ A ∷ U l₁
          → Γ ⊢ Lift l₂ A ∷ U (l₁ supᵘ l₂)
   Liftⱼ′ ⊢l₂ ⊢A = Liftⱼ (inversion-U-Level (wf-⊢∷ ⊢A)) ⊢l₂ ⊢A
 
 opaque
+
+  -- An admissible typing rule for Lift using _⊢_≤_∷Level.
 
   Liftⱼ≤ : Γ ⊢ l₁ ≤ l₂ ∷Level
          → Γ ⊢ A ∷ U l₁
@@ -66,6 +70,8 @@ opaque
 
 opaque
 
+  -- An admissible typing rule for Lift that swaps levels.
+
   Liftⱼ-comm
     : Γ ⊢ l₂ ∷ Level
     → Γ ⊢ A ∷ U l₁
@@ -75,6 +81,8 @@ opaque
 
 opaque
 
+  -- An admissible congruence rule for Lift.
+
   Lift-cong′ : Γ ⊢ l₂ ≡ l₂′ ∷ Level
              → Γ ⊢ A ≡ B ∷ U l₁
              → Γ ⊢ Lift l₂ A ≡ Lift l₂′ B ∷ U (l₁ supᵘ l₂)
@@ -82,6 +90,8 @@ opaque
     Lift-cong (inversion-U-Level (wf-⊢≡∷ A≡B .proj₁)) l₂≡l₂′ A≡B
 
 opaque
+
+  -- An admissible congruence rule for Lift that swaps levels.
 
   Lift-cong-comm
     : Γ ⊢ l₂ ≡ l₂′ ∷ Level
@@ -95,12 +105,16 @@ opaque
 
 opaque
 
+  -- An admissible typing rule for lift.
+
   liftⱼ′ : Γ ⊢ l₂ ∷ Level
          → Γ ⊢ t ∷ A
          → Γ ⊢ lift t ∷ Lift l₂ A
   liftⱼ′ ⊢l₂ ⊢t = liftⱼ ⊢l₂ (wf-⊢∷ ⊢t) ⊢t
 
 opaque
+
+  -- An admissible congruence rule for lift.
 
   lift-cong :
     Γ ⊢ l₂ ∷ Level →
@@ -112,17 +126,23 @@ opaque
 
 opaque
 
+  -- An admissible β-equality rule for Lift.
+
   Lift-β′ : Γ ⊢ t ∷ A
           → Γ ⊢ lower (lift t) ≡ t ∷ A
   Lift-β′ ⊢t = Lift-β (wf-⊢∷ ⊢t) ⊢t
 
 opaque
 
+  -- An admissible β-reduction rule for Lift.
+
   Lift-β⇒ : Γ ⊢ t ∷ A
           → Γ ⊢ lower (lift t) ⇒ t ∷ A
   Lift-β⇒ ⊢t = Lift-β (wf-⊢∷ ⊢t) ⊢t
 
 opaque
+
+  -- An admissible η-equality rule for Lift.
 
   Lift-η′ : Γ ⊢ t ∷ Lift l₂ A
           → Γ ⊢ u ∷ Lift l₂ A
@@ -133,6 +153,8 @@ opaque
     in Lift-η ⊢l₂ (wf-⊢≡∷ lowert≡loweru .proj₁) ⊢t ⊢u lowert≡loweru
 
 opaque
+
+  -- An admissible alternative η-equality rule for Lift.
 
   Lift-η-swap
     : Γ ⊢ t ∷ Lift l A
