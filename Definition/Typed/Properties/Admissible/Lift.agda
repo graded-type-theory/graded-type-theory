@@ -18,6 +18,7 @@ open import Definition.Typed R
 open import Definition.Typed.Inversion R
 open import Definition.Typed.Properties.Admissible.Equality R
 open import Definition.Typed.Properties.Admissible.Level R
+import Definition.Typed.Properties.Admissible.Lift.Primitive R as LP
 open import Definition.Typed.Properties.Well-formed R
 open import Definition.Typed.Substitution.Primitive R
 import Definition.Typed.Substitution.Primitive.Primitive R as S
@@ -34,10 +35,15 @@ open import Tools.Product
 import Tools.PropositionalEquality as PE
 open import Tools.Reasoning.PropositionalEquality
 
+open LP public
+  using
+    (lower₀Type; lower₀TypeEq; lower₀Term; lower₀TermEq;
+     ⊢lower₀[lift]₀; lower₀[lift]₀)
+
 private variable
   n                                     : Nat
   Γ                                     : Con Term n
-  A B B₁ B₂ C l l₁ l₂ l₂′ t t₁ t₂ u u₁ u₂ : Term n
+  A B B₁ B₂ l l₁ l₂ l₂′ t t₁ t₂ u u₁ u₂ : Term n
 
 ------------------------------------------------------------------------
 -- Simple variants of typing, equality and reduction rules
@@ -65,8 +71,7 @@ opaque
     → Γ ⊢ A ∷ U l₁
     → Γ ⊢ Lift l₂ A ∷ U (l₂ supᵘ l₁)
   Liftⱼ-comm ⊢l₂ ⊢A =
-    let ⊢l₁ = inversion-U-Level (wf-⊢∷ ⊢A)
-    in conv (Liftⱼ ⊢l₁ ⊢l₂ ⊢A) (U-cong (supᵘ-comm ⊢l₁ ⊢l₂))
+    LP.Liftⱼ-comm (inversion-U-Level (wf-⊢∷ ⊢A)) ⊢l₂ ⊢A
 
 opaque
 
@@ -85,7 +90,8 @@ opaque
   Lift-cong-comm l₂≡l₂′ A≡B =
     let ⊢l₁ = inversion-U-Level (wf-⊢≡∷ A≡B .proj₁)
         _ , ⊢l₂ , _ = wf-⊢≡∷ l₂≡l₂′
-    in conv (Lift-cong ⊢l₁ l₂≡l₂′ A≡B) (U-cong (supᵘ-comm ⊢l₁ ⊢l₂))
+    in
+    LP.Lift-cong-comm ⊢l₁ ⊢l₂ l₂≡l₂′ A≡B
 
 opaque
 
@@ -138,58 +144,7 @@ opaque
     in Lift-η′ ⊢t (liftⱼ′ ⊢l ⊢u) (trans lowert≡u (sym′ (Lift-β′ ⊢u)))
 
 ------------------------------------------------------------------------
--- A helper substitution for heterogeneous Π and Σ
-
-opaque
-  unfolding lower₀
-
-  lower₀Type
-    : Γ ⊢ l ∷ Level
-    → Γ ∙ A ⊢ B
-    → Γ ∙ Lift l A ⊢ lower₀ B
-  lower₀Type ⊢l ⊢B = subst-⊢ ⊢B
-    (⊢ˢʷ∷-[][]↑ (lowerⱼ (var (∙ Liftⱼ ⊢l (⊢∙→⊢ (wf ⊢B))) here)))
-
-opaque
-  unfolding lower₀
-
-  lower₀TypeEq
-    : Γ ⊢ l ∷ Level
-    → Γ ∙ A ⊢ B ≡ C
-    → Γ ∙ Lift l A ⊢ lower₀ B ≡ lower₀ C
-  lower₀TypeEq ⊢l B≡C = subst-⊢≡ B≡C
-    (refl-⊢ˢʷ≡∷ (⊢ˢʷ∷-[][]↑ (lowerⱼ (var (∙ Liftⱼ ⊢l (⊢∙→⊢ (wfEq B≡C))) here))))
-
-opaque
-  unfolding lower₀
-
-  lower₀Term
-    : Γ ⊢ l ∷ Level
-    → Γ ∙ A ⊢ t ∷ B
-    → Γ ∙ Lift l A ⊢ lower₀ t ∷ lower₀ B
-  lower₀Term ⊢l ⊢t = subst-⊢∷ ⊢t
-    (⊢ˢʷ∷-[][]↑ (lowerⱼ (var (∙ Liftⱼ ⊢l (⊢∙→⊢ (wfTerm ⊢t))) here)))
-
-opaque
-  unfolding lower₀
-
-  lower₀TermEq
-    : Γ ⊢ l ∷ Level
-    → Γ ∙ A ⊢ t ≡ u ∷ B
-    → Γ ∙ Lift l A ⊢ lower₀ t ≡ lower₀ u ∷ lower₀ B
-  lower₀TermEq ⊢l t≡u = subst-⊢≡∷ t≡u
-    (refl-⊢ˢʷ≡∷ (⊢ˢʷ∷-[][]↑ (lowerⱼ (var (∙ Liftⱼ ⊢l (⊢∙→⊢ (wfEqTerm t≡u))) here))))
-
-opaque
-  unfolding lower₀
-
-  lower₀[lift]₀
-    : Γ ∙ A ⊢ B
-    → Γ ⊢ u ∷ A
-    → Γ ⊢ lower₀ B [ lift u ]₀ ≡ B [ u ]₀
-  lower₀[lift]₀ {B} ⊢B ⊢u =
-    PE.subst₂ (_⊢_≡_ _) (PE.sym ([]↑-[]₀ B)) PE.refl
-      (substTypeEq (refl ⊢B) (Lift-β′ ⊢u))
+-- A lemma related to lower₀
 
 opaque
   unfolding lower₀

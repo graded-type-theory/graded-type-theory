@@ -118,6 +118,7 @@ import Definition.Typed.Properties.Admissible.Erased.Primitive
 import Definition.Typed.Weakening
 import Definition.Typed.Stability.Primitive
 import Definition.Typed.Substitution.Primitive.Primitive
+import Definition.Typed.Properties.Admissible.Lift.Primitive
 import Definition.Typed.Well-formed
 import Definition.Typed.Substitution.Primitive
 import Definition.Typed.Properties.Admissible.Equality
