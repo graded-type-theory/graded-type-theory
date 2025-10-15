@@ -31,6 +31,19 @@ opaque
 
   -- A substitution lemma for lower₀.
 
+  lower₀-[] :
+    lower₀ t [ σ ] ≡ t [ consSubst (tail σ) (lower (head σ)) ]
+  lower₀-[] {t} {σ} =
+    trans (substCompEq t) $
+    flip substVar-to-subst t λ where
+      x0     → refl
+      (_ +1) → refl
+
+opaque
+  unfolding lower₀
+
+  -- Another substitution lemma for lower₀.
+
   lower₀-[⇑] : lower₀ t [ σ ⇑ ] ≡ lower₀ (t [ σ ⇑ ])
   lower₀-[⇑] {t} {σ} =
     t [ lower (var x0) ]↑ [ σ ⇑ ]  ≡⟨ [][]↑-commutes t ⟩
@@ -39,6 +52,18 @@ opaque
 opaque
 
   -- A weakening lemma for lower₀.
+
+  wk-lower₀ :
+    wk ρ (lower₀ t) ≡
+    t [ consSubst (tail (toSubst ρ)) (lower (head (toSubst ρ))) ]
+  wk-lower₀ {ρ} {t} =
+    wk ρ (lower₀ t)                                                ≡⟨ wk≡subst _ _ ⟩
+    lower₀ t [ toSubst ρ ]                                         ≡⟨ lower₀-[] ⟩
+    t [ consSubst (tail (toSubst ρ)) (lower (head (toSubst ρ))) ]  ∎
+
+opaque
+
+  -- Another weakening lemma for lower₀.
 
   wk-lift-lower₀ : wk (lift ρ) (lower₀ t) ≡ lower₀ (wk (lift ρ) t)
   wk-lift-lower₀ {ρ} {t} =
