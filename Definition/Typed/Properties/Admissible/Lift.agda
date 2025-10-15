@@ -165,6 +165,18 @@ opaque
         ⊢l , ⊢A = inversion-Lift (wf-⊢∷ ⊢t)
     in Lift-η′ ⊢t (liftⱼ′ ⊢l ⊢u) (trans lowert≡u (sym′ (Lift-β′ ⊢u)))
 
+opaque
+
+  -- An admissible η-rule for Lift.
+
+  ⊢lift-lower≡∷ :
+    Γ ⊢ t ∷ Lift l A →
+    Γ ⊢ lift (lower t) ≡ t ∷ Lift l A
+  ⊢lift-lower≡∷ ⊢t =
+    let ⊢l , _ = inversion-Lift (wf-⊢∷ ⊢t) in
+    Lift-η′ (liftⱼ′ ⊢l (lowerⱼ ⊢t)) ⊢t
+      (Lift-β′ (lowerⱼ ⊢t))
+
 ------------------------------------------------------------------------
 -- A lemma related to lower₀
 
