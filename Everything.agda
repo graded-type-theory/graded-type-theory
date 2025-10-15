@@ -179,15 +179,15 @@ import Graded.Substitution.Decidable
 ------------------------------------------------------------------------
 -- Some derived definitions related to usage
 
--- An investigation of to what degree weak Σ-types can emulate strong
--- Σ-types, and vice versa.
-import Graded.Derived.Sigma
-
 -- Properties related to usage and certain type formers.
 import Graded.Derived.Identity
 import Graded.Derived.Unit
 import Graded.Derived.Nat
 import Graded.Derived.Empty
+import Graded.Derived.Lift
+import Graded.Derived.Pi-Sigma
+import Graded.Derived.Pi
+import Graded.Derived.Sigma
 import Graded.Derived.Bool
 import Graded.Derived.Erased.Usage.Eta
 import Graded.Derived.Erased.Usage.No-eta

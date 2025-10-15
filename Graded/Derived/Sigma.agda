@@ -1,16 +1,6 @@
 ------------------------------------------------------------------------
--- An investigation of to what degree weak Σ-types can emulate strong
--- Σ-types, and vice versa
+-- Properties related to usage and Σ
 ------------------------------------------------------------------------
-
--- This module contains parts of an investigation of to what degree
--- weak Σ-types can emulate strong Σ-types, and vice versa. This
--- investigation was prompted by a question asked by an anonymous
--- reviewer. See also Definition.Untyped.Sigma, which contains some
--- basic definitions, and Definition.Typed.Properties.Admissible.Sigma
--- as well as Definition.Typed.Consequences.Admissible.Sigma, which
--- contain properties related to typing. This module contains
--- properties related to usage.
 
 open import Graded.Modality
 open import Graded.Usage.Restrictions
@@ -31,6 +21,7 @@ open import Graded.Usage 𝕄 UR
 open import Graded.Usage.Inversion 𝕄 UR
 open import Graded.Usage.Properties 𝕄 UR
 open import Graded.Usage.Weakening 𝕄 UR
+open import Graded.Substitution 𝕄 UR
 open import Graded.Substitution.Properties 𝕄 UR
 
 open import Graded.Mode 𝕄
@@ -44,7 +35,7 @@ open import Tools.Fin
 open import Tools.Function
 open import Tools.Nat using (Nat; 1+)
 open import Tools.Product
-open import Tools.PropositionalEquality as PE using (_≢_)
+open import Tools.PropositionalEquality as PE using (_≡_; _≢_)
 import Tools.Reasoning.PartialOrder
 import Tools.Reasoning.PropositionalEquality
 open import Tools.Relation
@@ -57,6 +48,21 @@ private variable
   p q r r′ : M
   γ δ η    : Conₘ _
   m        : Mode
+
+------------------------------------------------------------------------
+-- An investigation of to what degree weak Σ-types can emulate strong
+-- Σ-types, and vice versa
+
+-- The first part of this module (at the time of writing up to and
+-- including the section "Usage lemmas for fst⟨_⟩ and snd⟨_⟩")
+-- contains parts of an investigation of to what degree weak Σ-types
+-- can emulate strong Σ-types, and vice versa. This investigation was
+-- prompted by a question asked by an anonymous reviewer. See also
+-- Definition.Untyped.Sigma, which contains some basic definitions,
+-- and Definition.Typed.Properties.Admissible.Sigma as well as
+-- Definition.Typed.Consequences.Admissible.Sigma, which contain
+-- properties related to typing. This module contains properties
+-- related to usage.
 
 ------------------------------------------------------------------------
 -- Some private lemmas related to the modality
@@ -1121,3 +1127,102 @@ opaque
        γ        ∎)
     where
     open Tools.Reasoning.PartialOrder ≤ᶜ-poset
+
+------------------------------------------------------------------------
+-- Some lemmas related to Σʰ⟨_⟩
+
+opaque
+  unfolding prodʰ
+
+  -- A usage lemma for prodʰˢ.
+
+  ▸prodʰˢ :
+    γ ▸[ m ᵐ· p ] t →
+    δ ▸[ m ] u →
+    p ·ᶜ γ ∧ᶜ δ ▸[ m ] prodʰˢ p t u
+  ▸prodʰˢ ▸t ▸u = prodˢₘ (liftₘ ▸t) (liftₘ ▸u)
+
+opaque
+  unfolding fstʰ
+
+  -- A usage lemma for fstʰ.
+
+  ▸fstʰ :
+    ∀ m →
+    (m ᵐ· p ≡ 𝟙ᵐ → p ≤ 𝟙) →
+    γ ▸[ m ᵐ· p ] t →
+    γ ▸[ m ᵐ· p ] fstʰ p t
+  ▸fstʰ m ok ▸t = lowerₘ (fstₘ m ▸t PE.refl ok)
+
+opaque
+  unfolding sndʰ
+
+  -- A usage lemma for sndʰ.
+
+  ▸sndʰ :
+    γ ▸[ m ] t →
+    γ ▸[ m ] sndʰ p t
+  ▸sndʰ ▸t = lowerₘ (sndₘ ▸t)
+
+opaque
+  unfolding prodʰ
+
+  -- A usage lemma for prodʰʷ.
+
+  ▸prodʰʷ :
+    γ ▸[ m ᵐ· p ] t →
+    δ ▸[ m ] u →
+    p ·ᶜ γ +ᶜ δ ▸[ m ] prodʰʷ p t u
+  ▸prodʰʷ ▸t ▸u = prodʷₘ (liftₘ ▸t) (liftₘ ▸u)
+
+opaque
+  unfolding prodrecʰ
+
+  -- A usage lemma for prodrecʰ.
+
+  ▸prodrecʰ :
+    Prodrec-allowed m r p q →
+    η ∙ ⌜ 𝟘ᵐ? ⌝ · q ▸[ 𝟘ᵐ? ] A →
+    γ ▸[ m ᵐ· r ] t →
+    δ ∙ ⌜ m ⌝ · r · p ∙ ⌜ m ⌝ · r ▸[ m ] u →
+    r ·ᶜ γ +ᶜ δ ▸[ m ] prodrecʰ r p q A t u
+  ▸prodrecʰ {m} {r} {p} {δ} ok ▸A ▸t ▸u =
+    prodrecₘ ▸t
+      (sub
+         (substₘ-lemma _
+            (▶-cong _
+               (λ where
+                  x0        → PE.refl
+                  (x0 +1)   → PE.refl
+                  (_ +1 +1) → PE.refl) $
+             wf-replace₂ₘ
+               (lowerₘ $ sub var $ begin
+                  ⌜ ⌞ ⌜ m ⌝ · r · p ⌟ ⌝ ·ᶜ (𝟘ᶜ , x1 ≔ 𝟙)  ≈⟨ update-cong {x = x1} (·ᶜ-zeroʳ _) (·-identityʳ _) ⟩
+                  𝟘ᶜ , x1 ≔ ⌜ ⌞ ⌜ m ⌝ · r · p ⌟ ⌝         ∎)
+               (lowerₘ $ sub var $ begin
+                  ⌜ ⌞ ⌜ m ⌝ · r ⌟ ⌝ ·ᶜ (𝟘ᶜ , x0 ≔ 𝟙)  ≈⟨ update-cong {x = x0} (·ᶜ-zeroʳ _) (·-identityʳ _) ⟩
+                  𝟘ᶜ , x0 ≔ ⌜ ⌞ ⌜ m ⌝ · r ⌟ ⌝         ∎))
+            ▸u)
+         (begin
+            δ ∙ ⌜ m ⌝ · r · p ∙ ⌜ m ⌝ · r                      ≈˘⟨ ≈ᶜ-trans (+ᶜ-cong (·ᶜ-zeroʳ _) (+ᶜ-congʳ (·ᶜ-zeroʳ _)))
+                                                                     (≈ᶜ-trans (+ᶜ-identityˡ _) (+ᶜ-identityˡ _)) ∙
+                                                                   PE.trans
+                                                                     (PE.cong₂ _+_
+                                                                        (·-identityʳ _)
+                                                                        (PE.trans (+-identityʳ _) (·-zeroʳ _)))
+                                                                     (+-identityʳ _) ∙
+                                                                   PE.trans
+                                                                     (PE.cong₂ _+_ (·-zeroʳ _) (+-identityʳ _))
+                                                                     (PE.trans (+-identityˡ _) (·-identityʳ _)) ⟩
+            (⌜ m ⌝ · r · p) ·ᶜ 𝟘ᶜ +ᶜ (⌜ m ⌝ · r) ·ᶜ 𝟘ᶜ +ᶜ δ ∙
+            (⌜ m ⌝ · r · p) · 𝟙 + (⌜ m ⌝ · r) · 𝟘 + 𝟘 ∙
+            (⌜ m ⌝ · r · p) · 𝟘 + (⌜ m ⌝ · r) · 𝟙 + 𝟘          ≡⟨⟩
+
+            (⌜ m ⌝ · r · p) ·ᶜ (𝟘ᶜ ∙ 𝟙 ∙ 𝟘) +ᶜ
+            (⌜ m ⌝ · r) ·ᶜ (𝟘ᶜ ∙ 𝟙) +ᶜ (δ ∙ 𝟘 ∙ 𝟘)             ≈˘⟨ <*-replace₂ₘ ⟩
+
+            (δ ∙ ⌜ m ⌝ · r · p ∙ ⌜ m ⌝ · r) <*
+              replace₂ₘ (𝟘ᶜ ∙ 𝟙 ∙ 𝟘) (𝟘ᶜ ∙ 𝟙)                  ∎))
+      ▸A ok
+    where
+    open ≤ᶜ-reasoning
