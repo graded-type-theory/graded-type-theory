@@ -14,11 +14,11 @@ open import Tools.PropositionalEquality
 open import Tools.Reasoning.PropositionalEquality
 
 private variable
-  n     : Nat
-  t u v : Term _
-  σ     : Subst _ _
-  ρ     : Wk _ _
-  p     : M
+  n   : Nat
+  t u : Term _
+  σ   : Subst _ _
+  ρ   : Wk _ _
+  p   : M
 
 opaque
 
@@ -53,24 +53,24 @@ opaque
 
   -- Heterogeneous application.
 
-  ∘ʰ : M → (_ _ _ : Term n) → Term n
-  ∘ʰ p _ t u = lower (t ∘⟨ p ⟩ lift u)
+  ∘ʰ : M → (_ _ : Term n) → Term n
+  ∘ʰ p t u = lower (t ∘⟨ p ⟩ lift u)
 
 opaque
   unfolding ∘ʰ
 
   -- A substitution lemma for ∘ʰ.
 
-  ∘ʰ-[] : ∘ʰ p t u v [ σ ] ≡ ∘ʰ p (t [ σ ]) (u [ σ ]) (v [ σ ])
+  ∘ʰ-[] : ∘ʰ p t u [ σ ] ≡ ∘ʰ p (t [ σ ]) (u [ σ ])
   ∘ʰ-[] = refl
 
 opaque
 
   -- A weakening lemma for ∘ʰ.
 
-  wk-∘ʰ : wk ρ (∘ʰ p t u v) ≡ ∘ʰ p (wk ρ t) (wk ρ u) (wk ρ v)
-  wk-∘ʰ {ρ} {p} {t} {u} {v} =
-    wk ρ (∘ʰ p t u v)                                           ≡⟨ wk≡subst _ _ ⟩
-    ∘ʰ p t u v [ toSubst ρ ]                                    ≡⟨ ∘ʰ-[] ⟩
-    ∘ʰ p (t [ toSubst ρ ]) (u [ toSubst ρ ]) (v [ toSubst ρ ])  ≡˘⟨ cong₃ (∘ʰ _) (wk≡subst _ _) (wk≡subst _ _) (wk≡subst _ _) ⟩
-    ∘ʰ p (wk ρ t) (wk ρ u) (wk ρ v)                             ∎
+  wk-∘ʰ : wk ρ (∘ʰ p t u) ≡ ∘ʰ p (wk ρ t) (wk ρ u)
+  wk-∘ʰ {ρ} {p} {t} {u} =
+    wk ρ (∘ʰ p t u)                           ≡⟨ wk≡subst _ _ ⟩
+    ∘ʰ p t u [ toSubst ρ ]                    ≡⟨ ∘ʰ-[] ⟩
+    ∘ʰ p (t [ toSubst ρ ]) (u [ toSubst ρ ])  ≡˘⟨ cong₂ (∘ʰ _) (wk≡subst _ _) (wk≡subst _ _) ⟩
+    ∘ʰ p (wk ρ t) (wk ρ u)                    ∎

@@ -239,7 +239,7 @@ opaque
     Γ ∙ A ⊢ B →
     Γ ⊢ t ∷ Πʰ p q l₁ l₂ A B →
     Γ ⊢ u ∷ A →
-    Γ ⊢ ∘ʰ p l₂ t u ∷ B [ u ]₀
+    Γ ⊢ ∘ʰ p t u ∷ B [ u ]₀
   ∘ʰⱼ′ ⊢B ⊢t ⊢u =
     let ⊢A          = wf-⊢∷ ⊢u
         _ , ⊢l₂ , _ = inversion-ΠΣʰ-⊢ (wf-⊢∷ ⊢t)
@@ -254,7 +254,7 @@ opaque
     Γ ∙ A ⊢ B ∷ U (wk1 l₂) →
     Γ ⊢ t ∷ Πʰ p q l₁ l₂ A B →
     Γ ⊢ u ∷ A →
-    Γ ⊢ ∘ʰ p l₂ t u ∷ B [ u ]₀
+    Γ ⊢ ∘ʰ p t u ∷ B [ u ]₀
   ∘ʰⱼ ⊢B = ∘ʰⱼ′ (univ ⊢B)
 
 opaque
@@ -266,7 +266,7 @@ opaque
     Γ ∙ A ⊢ B →
     Γ ⊢ t₁ ≡ t₂ ∷ Πʰ p q l₁ l₂ A B →
     Γ ⊢ u₁ ≡ u₂ ∷ A →
-    Γ ⊢ ∘ʰ p l₂ t₁ u₁ ≡ ∘ʰ p l₂ t₂ u₂ ∷ B [ u₁ ]₀
+    Γ ⊢ ∘ʰ p t₁ u₁ ≡ ∘ʰ p t₂ u₂ ∷ B [ u₁ ]₀
   app-congʰ′ ⊢B t₁≡t₂ u₁≡u₂ =
     let ⊢A , ⊢u₁ , ⊢u₂ = wf-⊢≡∷ u₁≡u₂
         _ , ⊢l₂ , _    = inversion-ΠΣʰ-⊢ (wf-⊢≡∷ t₁≡t₂ .proj₁)
@@ -282,7 +282,7 @@ opaque
     Γ ∙ A ⊢ B ∷ U (wk1 l₂) →
     Γ ⊢ t₁ ≡ t₂ ∷ Πʰ p q l₁ l₂ A B →
     Γ ⊢ u₁ ≡ u₂ ∷ A →
-    Γ ⊢ ∘ʰ p l₂ t₁ u₁ ≡ ∘ʰ p l₂ t₂ u₂ ∷ B [ u₁ ]₀
+    Γ ⊢ ∘ʰ p t₁ u₁ ≡ ∘ʰ p t₂ u₂ ∷ B [ u₁ ]₀
   app-congʰ ⊢B = app-congʰ′ (univ ⊢B)
 
 opaque
@@ -291,31 +291,30 @@ opaque
   -- Heterogeneous β-reduction
 
   β-redʰ′
-    : Γ ⊢ l₁ ∷ Level
-    → Γ ⊢ l₂ ∷ Level
-    → Γ ∙ A ⊢ t ∷ B
+    : Γ ∙ A ⊢ t ∷ B
     → Γ     ⊢ a ∷ A
     → p PE.≡ p′
     → Π-allowed p q
-    → Γ     ⊢ ∘ʰ p′ l₂ (lamʰ p t) a ≡ t [ a ]₀ ∷ B [ a ]₀
-  β-redʰ′ {l₁} {l₂} {A} {t} {B} {a} {p} ⊢l₁ ⊢l₂ ⊢t ⊢a PE.refl ok =
-    let ⊢A = wf-⊢∷ ⊢a
+    → Γ     ⊢ ∘ʰ p′ (lamʰ p t) a ≡ t [ a ]₀ ∷ B [ a ]₀
+  β-redʰ′ {A} {t} {B} {a} {p} ⊢t ⊢a PE.refl ok =
+    let ⊢0 = zeroᵘⱼ (wfTerm ⊢a)
+        ⊢A = wf-⊢∷ ⊢a
         ⊢B = wf-⊢∷ ⊢t
-        ⊢LiftA = Liftⱼ ⊢l₂ ⊢A
-        ⊢wkl₁ = wkTerm₁ ⊢LiftA ⊢l₁
-        ⊢lower₀B = lower₀Type ⊢l₂ ⊢B
+        ⊢LiftA = Liftⱼ ⊢0 ⊢A
+        ⊢wkl₁ = wkTerm₁ ⊢LiftA ⊢0
+        ⊢lower₀B = lower₀Type ⊢0 ⊢B
         ⊢LiftB = Liftⱼ ⊢wkl₁ ⊢lower₀B
-        ⊢lifta = liftⱼ′ ⊢l₂ ⊢a
-        ⊢lower₀t = lower₀Term ⊢l₂ ⊢t
+        ⊢lifta = liftⱼ′ ⊢0 ⊢a
+        ⊢lower₀t = lower₀Term ⊢0 ⊢t
         ⊢liftlower₀t = liftⱼ′ ⊢wkl₁ ⊢lower₀t
     in
-    ∘ʰ p l₂ (lamʰ p t) a ≡⟨⟩⊢
+    ∘ʰ p (lamʰ p t) a ≡⟨⟩⊢
     lower (lam p (lift (lower₀ t)) ∘⟨ p ⟩ lift a)
       ≡⟨ lower-cong (conv
           (β-red ⊢LiftB ⊢liftlower₀t ⊢lifta PE.refl ok)
           (Lift-cong (refl (substTerm ⊢wkl₁ ⊢lifta)) (lower₀[lift]₀ ⊢B ⊢a))) ⟩⊢
     lower (lift (lower₀ t) [ lift a ]₀)
-      ≡⟨ lower-cong (lift-cong ⊢l₁ (lower₀[lift]₀∷ ⊢t ⊢a)) ⟩⊢
+      ≡⟨ lower-cong (lift-cong ⊢0 (lower₀[lift]₀∷ ⊢t ⊢a)) ⟩⊢
     lower (lift (t [ a ]₀))
       ⇒⟨ Lift-β⇒ (substTerm ⊢t ⊢a) ⟩⊢∎
     t [ a ]₀
@@ -326,14 +325,11 @@ opaque
   -- A variant of β-redʰ′.
 
   β-redʰ :
-    Γ ⊢ l₁ ∷ Level →
-    Γ ⊢ l₂ ∷ Level →
     Γ ∙ A ⊢ t ∷ B →
     Γ ⊢ u ∷ A →
     Π-allowed p q →
-    Γ ⊢ ∘ʰ p l₂ (lamʰ p t) u ≡ t [ u ]₀ ∷ B [ u ]₀
-  β-redʰ ⊢l₁ ⊢l₂ ⊢t ⊢u =
-    β-redʰ′ ⊢l₁ ⊢l₂ ⊢t ⊢u PE.refl
+    Γ ⊢ ∘ʰ p (lamʰ p t) u ≡ t [ u ]₀ ∷ B [ u ]₀
+  β-redʰ ⊢t ⊢u = β-redʰ′ ⊢t ⊢u PE.refl
 
 opaque
   unfolding ΠΣʰ ∘ʰ lower₀
@@ -345,7 +341,7 @@ opaque
     → Γ ∙ A ⊢ B
     → Γ     ⊢ f ∷ Πʰ p q l₁ l₂ A B
     → Γ     ⊢ g ∷ Πʰ p q l₁ l₂ A B
-    → Γ ∙ A ⊢ ∘ʰ p (wk1 l₂) (wk1 f) (var x0) ≡ ∘ʰ p (wk1 l₂) (wk1 g) (var x0) ∷ B
+    → Γ ∙ A ⊢ ∘ʰ p (wk1 f) (var x0) ≡ ∘ʰ p (wk1 g) (var x0) ∷ B
     → Γ     ⊢ f ≡ g ∷ Πʰ p q l₁ l₂ A B
   η-eqʰ′ {Γ} {l₁} {A} {B} {f} {p} {q} {l₂} {g} ⊢l₁ ⊢B ⊢f ⊢g f≡g =
     let _ , ⊢l₂ , _ , _ , ok = inversion-ΠΣʰ-⊢ {B = B} (wf-⊢∷ ⊢f)
@@ -388,7 +384,6 @@ opaque
     Γ ∙ A ⊢ B ∷ U (wk1 l₂) →
     Γ ⊢ t₁ ∷ Πʰ p q l₁ l₂ A B →
     Γ ⊢ t₂ ∷ Πʰ p q l₁ l₂ A B →
-    Γ ∙ A ⊢ ∘ʰ p (wk1 l₂) (wk1 t₁) (var x0) ≡
-      ∘ʰ p (wk1 l₂) (wk1 t₂) (var x0) ∷ B →
+    Γ ∙ A ⊢ ∘ʰ p (wk1 t₁) (var x0) ≡ ∘ʰ p (wk1 t₂) (var x0) ∷ B →
     Γ ⊢ t₁ ≡ t₂ ∷ Πʰ p q l₁ l₂ A B
   η-eqʰ ⊢l₁ ⊢B = η-eqʰ′ ⊢l₁ (univ ⊢B)
