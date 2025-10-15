@@ -364,6 +364,37 @@ liftSubstₘ-app (Ψ ⊙ η) γ p = begin
   γ ∙ p ∎
   where open Tools.Reasoning.Equivalence Conₘ-setoid
 
+opaque
+  unfolding replace₁ₘ
+
+  -- A "reduction rule" for _<*_ and replace₁ₘ.
+
+  <*-replace₁ₘ :
+    (γ ∙ p) <* replace₁ₘ k δ ≈ᶜ p ·ᶜ δ +ᶜ wkConₘ (stepn id k) γ
+  <*-replace₁ₘ {γ} {p} {k} {δ} = begin
+    p ·ᶜ δ +ᶜ γ <* wkSubstₘ′ k idSubstₘ            ≈⟨ +ᶜ-congˡ (<*-wkSubstₘ′ γ) ⟩
+    p ·ᶜ δ +ᶜ wkConₘ (stepn id k) (γ <* idSubstₘ)  ≈⟨ +ᶜ-congˡ (wk-≈ᶜ (stepn _ k) (<*-identityˡ _)) ⟩
+    p ·ᶜ δ +ᶜ wkConₘ (stepn id k) γ                ∎
+    where
+    open ≈ᶜ-reasoning
+
+opaque
+  unfolding replace₂ₘ
+
+  -- A "reduction rule" for _<*_ and replace₂ₘ.
+
+  <*-replace₂ₘ :
+    (γ ∙ p ∙ q) <* replace₂ₘ δ η ≈ᶜ
+    p ·ᶜ δ +ᶜ q ·ᶜ η +ᶜ wkConₘ (stepn id 2) γ
+  <*-replace₂ₘ {γ} {p} {q} {δ} {η} = begin
+    q ·ᶜ η +ᶜ p ·ᶜ δ +ᶜ γ <* wkSubstₘ′ 2 idSubstₘ              ≈˘⟨ +ᶜ-assoc _ _ _ ⟩
+    (q ·ᶜ η +ᶜ p ·ᶜ δ) +ᶜ γ <* wkSubstₘ′ 2 idSubstₘ            ≈⟨ +ᶜ-cong (+ᶜ-comm _ _) (<*-wkSubstₘ′ {k = 2} γ) ⟩
+    (p ·ᶜ δ +ᶜ q ·ᶜ η) +ᶜ wkConₘ (stepn id 2) (γ <* idSubstₘ)  ≈⟨ +ᶜ-congˡ (wk-≈ᶜ (stepn id 2) (<*-identityˡ _)) ⟩
+    (p ·ᶜ δ +ᶜ q ·ᶜ η) +ᶜ wkConₘ (stepn id 2) γ                ≈⟨ +ᶜ-assoc _ _ _ ⟩
+    p ·ᶜ δ +ᶜ q ·ᶜ η +ᶜ wkConₘ (stepn id 2) γ                  ∎
+    where
+    open ≈ᶜ-reasoning
+
 -------------------------------
 -- Well-formed substitutions --
 -------------------------------
@@ -475,6 +506,28 @@ wf-tailSubstₘ :
 wf-tailSubstₘ Ψ▶σ x =
   sub (Ψ▶σ (x +1))
       (≤ᶜ-reflexive (≈ᶜ-sym (≈ᶜ-trans (+ᶜ-congʳ (·ᶜ-zeroˡ _)) (+ᶜ-identityˡ _))))
+
+opaque
+  unfolding replace₁ₘ
+
+  -- A well-formedness lemma for replace₁ₘ.
+
+  wf-replace₁ₘ :
+    ⌜ mo ⌝ ·ᶜ γ ▸[ mo ] t →
+    replace₁ₘ k γ ▶[ consᵐ mo mos ] replace₁ k t
+  wf-replace₁ₘ = wf-consSubstₘ (wf-wkSubstₘ′ wf-idSubstₘ)
+
+opaque
+  unfolding replace₂ replace₂ₘ
+
+  -- A well-formedness lemma for replace₂ₘ.
+
+  wf-replace₂ₘ :
+    ⌜ mo₂ ⌝ ·ᶜ γ ▸[ mo₂ ] t →
+    ⌜ mo₁ ⌝ ·ᶜ δ ▸[ mo₁ ] u →
+    replace₂ₘ γ δ ▶[ consᵐ mo₁ (consᵐ mo₂ mos) ] replace₂ t u
+  wf-replace₂ₘ ▸t ▸u =
+    wf-consSubstₘ (wf-consSubstₘ (wf-wkSubstₘ′ wf-idSubstₘ) ▸t) ▸u
 
 -- A preservation lemma for _▶[_]_.
 

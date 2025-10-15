@@ -25,7 +25,7 @@ open import Graded.Mode 𝕄
 
 open import Tools.Fin
 open import Tools.Function
-open import Tools.Nat as N using (Nat; 1+)
+open import Tools.Nat as N using (Nat; 1+; 2+)
 
 infixl 50 _<*_
 infixr 50 _*>_
@@ -140,3 +140,19 @@ sgSubstₘ = consSubstₘ idSubstₘ
 wkSubstₘ′ : ∀ k → Substₘ m n → Substₘ (k N.+ m) n
 wkSubstₘ′ 0      = idᶠ
 wkSubstₘ′ (1+ k) = wk1Substₘ ∘→ wkSubstₘ′ k
+
+opaque
+
+  -- A fmaily of substitution matrices corresponding to
+  -- Definition.Untyped.replace₁.
+
+  replace₁ₘ : ∀ k → Conₘ (k N.+ n) → Substₘ (k N.+ n) (1+ n)
+  replace₁ₘ k γ = wkSubstₘ′ k idSubstₘ ⊙ γ
+
+opaque
+
+  -- A fmaily of substitution matrices corresponding to
+  -- Definition.Untyped.replace₂.
+
+  replace₂ₘ : Conₘ (2+ n) → Conₘ (2+ n) → Substₘ (2+ n) (2+ n)
+  replace₂ₘ γ δ = wkSubstₘ′ 2 idSubstₘ ⊙ γ ⊙ δ

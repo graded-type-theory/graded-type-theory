@@ -624,6 +624,18 @@ _•ₛ_ ρ σ x = wk ρ (σ x)
 _ₛ•_ : Subst l m → Wk m n → Subst l n
 _ₛ•_ σ ρ x = σ (wkVar ρ x)
 
+-- The family of substitutions used in _[_]↑, _[_]↑² and _[_][_]↑.
+
+replace₁ : ∀ k → Term (k + n) → Subst (k + n) (1+ n)
+replace₁ k t = consSubst (wkSubst k idSubst) t
+
+opaque
+
+  -- A variant of the family of substitutions used in _[_]↑.
+
+  replace₂ : Term (2+ n) → Term (2+ n) → Subst (2+ n) (2+ n)
+  replace₂ t u = consSubst (consSubst (wkSubst 2 idSubst) t) u
+
 -- Substitute the first variable of a term with an other term.
 --
 -- If Γ∙A ⊢ t : B and Γ ⊢ s : A then Γ ⊢ t[s]₀ : B[s]₀.
@@ -637,7 +649,7 @@ t [ s ]₀ = t [ sgSubst s ]
 -- If Γ∙A ⊢ t : B and Γ∙A ⊢ s : A then Γ∙A ⊢ t[s]↑ : B[s]↑.
 
 _[_]↑ : (t : Term (1+ n)) (s : Term (1+ n)) → Term (1+ n)
-t [ s ]↑ = t [ consSubst (wk1Subst idSubst) s ]
+t [ s ]↑ = t [ replace₁ 1 s ]
 
 
 -- Substitute the first two variables of a term with other terms.
@@ -652,12 +664,12 @@ t [ s , s′ ]₁₀ = t [ consSubst (sgSubst s) s′ ]
 -- If Γ ∙ A ⊢ t : A′ and Γ ∙ B ∙ C ⊢ s : A then Γ ∙ B ∙ C ⊢ t[s]↑² : A′
 
 _[_]↑² : (t : Term (1+ n)) (s : Term (2+ n)) → Term (2+ n)
-t [ s ]↑² = t [ consSubst (wk1Subst (wk1Subst idSubst)) s ]
+t [ s ]↑² = t [ replace₁ 2 s ]
 
 -- A generalisation of _[_]↑ and _[_]↑².
 
 _[_][_]↑ : Term (1+ n) → ∀ k → Term (k + n) → Term (k + n)
-t [ k ][ u ]↑ = t [ consSubst (wkSubst k idSubst) u ]
+t [ k ][ u ]↑ = t [ replace₁ k u ]
 
 -- Δ ∙[ k ][ Γ ][ σ ] is Δ extended with the last k elements of Γ,
 -- modified using σ (suitably lifted).
@@ -666,13 +678,6 @@ _∙[_][_][_] :
   Con Term m → ∀ k → Con Term (k + n) → Subst m n → Con Term (k + m)
 Δ ∙[ 0    ][ _     ][ _ ] = Δ
 Δ ∙[ 1+ k ][ Γ ∙ A ][ σ ] = Δ ∙[ k ][ Γ ][ σ ] ∙ A [ σ ⇑[ k ] ]
-
-opaque
-
-  -- A variant of the substitution used in _[_]↑.
-
-  replace₂ : Term (2+ n) → Term (2+ n) → Subst (2+ n) (2+ n)
-  replace₂ t u = consSubst (consSubst (wkSubst 2 idSubst) t) u
 
 ------------------------------------------------------------------------
 -- Some inversion lemmas
