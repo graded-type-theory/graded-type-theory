@@ -62,6 +62,14 @@ opaque
   sndʰ : M → Term n → Term n
   sndʰ p t = lower (snd p t)
 
+opaque
+
+  -- A variant of prodrec for Σʰʷ.
+
+  prodrecʰ : M → M → M → Term (1+ n) → Term n → Term (2+ n) → Term n
+  prodrecʰ r p q A t u =
+    prodrec r p q A t (u [ replace₂ (lower (var x1)) (lower (var x0)) ])
+
 ------------------------------------------------------------------------
 -- Some substitution lemmas
 
@@ -88,6 +96,21 @@ opaque
 
   sndʰ-[] : sndʰ p t [ σ ] ≡ sndʰ p (t [ σ ])
   sndʰ-[] = refl
+
+opaque
+  unfolding prodrecʰ
+
+  -- A substitution lemma for prodrecʰ.
+
+  prodrecʰ-[] :
+    prodrecʰ r p q A t u [ σ ] ≡
+    prodrecʰ r p q (A [ σ ⇑ ]) (t [ σ ]) (u [ σ ⇑[ 2 ] ])
+  prodrecʰ-[] {r} {p} {q} {A} {t} {u} {σ} =
+    prodrec r p q (A [ σ ⇑ ]) (t [ σ ])
+      (u [ replace₂ (lower (var x1)) (lower (var x0)) ] [ σ ⇑[ 2 ] ])  ≡⟨ cong (prodrec _ _ _ _ _) $ [replace₂]-[⇑] u σ ⟩
+
+    prodrec r p q (A [ σ ⇑ ]) (t [ σ ])
+      (u [ σ ⇑[ 2 ] ] [ replace₂ (lower (var x1)) (lower (var x0)) ])  ∎
 
 ------------------------------------------------------------------------
 -- Some weakening lemmas
@@ -124,6 +147,26 @@ opaque
     sndʰ p t [ toSubst ρ ]    ≡⟨ sndʰ-[] ⟩
     sndʰ p (t [ toSubst ρ ])  ≡˘⟨ cong (sndʰ _) $ wk≡subst _ _ ⟩
     sndʰ p (wk ρ t)           ∎
+
+opaque
+
+  -- A weakening lemma for prodrecʰ.
+
+  wk-prodrecʰ :
+    wk ρ (prodrecʰ r p q A t u) ≡
+    prodrecʰ r p q (wk (lift ρ) A) (wk ρ t) (wk (liftn ρ 2) u)
+  wk-prodrecʰ {ρ} {r} {p} {q} {A} {t} {u} =
+    wk ρ (prodrecʰ r p q A t u)                                 ≡⟨ wk≡subst _ _ ⟩
+
+    prodrecʰ r p q A t u [ toSubst ρ ]                          ≡⟨ prodrecʰ-[] ⟩
+
+    prodrecʰ r p q (A [ toSubst ρ ⇑ ]) (t [ toSubst ρ ])
+      (u [ toSubst ρ ⇑[ 2 ] ])                                  ≡˘⟨ cong₃ (prodrecʰ _ _ _) (substVar-to-subst (toSubst-liftn 1) A)
+                                                                      refl (substVar-to-subst (toSubst-liftn 2) u) ⟩
+    prodrecʰ r p q (A [ toSubst (lift ρ) ]) (t [ toSubst ρ ])
+      (u [ toSubst (liftn ρ 2) ])                               ≡˘⟨ cong₃ (prodrecʰ _ _ _) (wk≡subst _ _) (wk≡subst _ _) (wk≡subst _ _) ⟩
+
+    prodrecʰ r p q (wk (lift ρ) A) (wk ρ t) (wk (liftn ρ 2) u)  ∎
 
 ------------------------------------------------------------------------
 -- Prodrec for strong Σ-types and projections for all Σ-types
