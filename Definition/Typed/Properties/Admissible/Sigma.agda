@@ -374,14 +374,16 @@ private opaque
 -- An investigation of to what degree weak Σ-types can emulate strong
 -- Σ-types, and vice versa
 
--- The rest of this module consists of (parts of) an investigation of
--- to what degree weak Σ-types can emulate strong Σ-types, and vice
--- versa. This investigation was prompted by a question asked by an
--- anonymous reviewer. See also Definition.Untyped.Sigma, which
--- contains some basic definitions, and Graded.Derived.Sigma, which
--- contains properties related to usage. This module contains
--- properties related to typing (a few more such properties can be
--- found in Definition.Typed.Consequences.Admissible.Sigma).
+-- The following part of this module (at the time of writing up to but
+-- not including the section "Some lemmas related to Σʰ⟨_⟩") consists
+-- of (parts of) an investigation of to what degree weak Σ-types can
+-- emulate strong Σ-types, and vice versa. This investigation was
+-- prompted by a question asked by an anonymous reviewer. See also
+-- Definition.Untyped.Sigma, which contains some basic definitions,
+-- and Graded.Derived.Sigma, which contains properties related to
+-- usage. This module contains properties related to typing (a few
+-- more such properties can be found in
+-- Definition.Typed.Consequences.Admissible.Sigma).
 
 ------------------------------------------------------------------------
 -- Typing and equality rules for prodrecˢ
