@@ -667,6 +667,13 @@ _∙[_][_][_] :
 Δ ∙[ 0    ][ _     ][ _ ] = Δ
 Δ ∙[ 1+ k ][ Γ ∙ A ][ σ ] = Δ ∙[ k ][ Γ ][ σ ] ∙ A [ σ ⇑[ k ] ]
 
+opaque
+
+  -- A variant of the substitution used in _[_]↑.
+
+  replace₂ : Term (2+ n) → Term (2+ n) → Subst (2+ n) (2+ n)
+  replace₂ t u = consSubst (consSubst (wkSubst 2 idSubst) t) u
+
 ------------------------------------------------------------------------
 -- Some inversion lemmas
 

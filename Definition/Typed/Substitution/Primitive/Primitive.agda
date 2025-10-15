@@ -41,7 +41,7 @@ private variable
   k m n                      : Nat
   x                          : Fin _
   Γ Δ Η                      : Con Term _
-  A A₁ A₂ B t t₁ t₂ u v      : Term _
+  A A₁ A₂ B C D t t₁ t₂ u v  : Term _
   σ σ₁ σ₁₁ σ₁₂ σ₂ σ₂₁ σ₂₂ σ₃ : Subst _ _
   ρ                          : Wk _ _
   s s₂                       : Size
@@ -453,6 +453,29 @@ opaque
     Γ ⊢ˢʷ consSubst (wkSubst k idSubst) t ∷ drop k Γ ∙ A
   ⊢ˢʷ∷-[][]↑ ⊢t =
     ⊢ˢʷ∷⇔⊢ˢʷ≡∷ .proj₂ (⊢ˢʷ≡∷-[][]↑ ⊢t ⊢t (refl ⊢t))
+
+opaque
+  unfolding replace₂
+
+  -- A lemma related to replace₂.
+
+  ⊢ˢʷ∷-replace₂ :
+    Γ ∙ A ∙ B ⊢ t ∷ wk[ 2 ]′ C →
+    Γ ∙ A ∙ B ⊢ u ∷ wk (lift (stepn id 2)) D [ t ]₀ →
+    Γ ∙ A ∙ B ⊢ˢʷ replace₂ t u ∷ Γ ∙ C ∙ D
+  ⊢ˢʷ∷-replace₂ {D} ⊢t ⊢u =
+    let ⊢B = ⊢∙→⊢ (wfTerm ⊢t) in
+    →⊢ˢʷ∷∙
+      (→⊢ˢʷ∷∙
+         (⊢ˢʷ∷-wkSubst (∙ ⊢B) $
+          ⊢ˢʷ∷-idSubst (wf (⊢∙→⊢ (wf ⊢B))))
+         (PE.subst (_⊢_∷_ _ _) (wk≡subst _ _) ⊢t))
+      (PE.subst (_⊢_∷_ _ _)
+         (PE.trans (subst-wk D) $
+          flip substVar-to-subst D λ where
+            x0     → PE.refl
+            (_ +1) → PE.refl)
+         ⊢u)
 
 opaque
 

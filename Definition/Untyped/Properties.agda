@@ -1969,6 +1969,85 @@ opaque
     wk[ k ] t                                         ∎
 
 ------------------------------------------------------------------------
+-- Some lemmas related to replace₂
+
+opaque
+  unfolding replace₂
+
+  -- A lemma related to wk[_]′ and replace₂.
+
+  wk[2+]′-[replace₂] :
+    wk[ 2+ k ]′ t [ replace₂ u v ] ≡ wk[ 2+ k ]′ t
+  wk[2+]′-[replace₂] {k} {t} {u} {v} =
+    wk[ 2+ k ]′ t [ replace₂ u v ]         ≡⟨ subst-wk t ⟩
+    t [ replace₂ u v ₛ• stepn id (2+ k) ]  ≡⟨⟩
+    t [ toSubst (stepn id (2+ k)) ]        ≡˘⟨ wk≡subst _ _ ⟩
+    wk[ 2+ k ]′ t                          ∎
+
+opaque
+
+  -- A lemma related to wk[_] and replace₂.
+
+  wk[2+]-[replace₂] :
+    wk[ 2+ k ] t [ replace₂ u v ] ≡ wk[ 2+ k ] t
+  wk[2+]-[replace₂] {k} {t} {u} {v} =
+    wk[ 2+ k ] t [ replace₂ u v ]   ≡⟨ PE.cong _[ _ ] $ wk[]≡wk[]′ {k = 2+ k} ⟩
+    wk[ 2+ k ]′ t [ replace₂ u v ]  ≡⟨ wk[2+]′-[replace₂] ⟩
+    wk[ 2+ k ]′ t                   ≡˘⟨ wk[]≡wk[]′ ⟩
+    wk[ 2+ k ] t                    ∎
+
+opaque
+  unfolding replace₂
+
+  -- A lemma related to _⇑[_] and replace₂.
+
+  [replace₂]-[⇑] :
+    (t : Term (2+ k + n)) (σ : Subst m n) →
+    let σ⇑ = σ ⇑[ 2 + k ] in
+    t [ replace₂ u v ] [ σ⇑ ] ≡
+    t [ σ⇑ ] [ replace₂ (u [ σ⇑ ]) (v [ σ⇑ ]) ]
+  [replace₂]-[⇑] {k} {u} {v} t σ =
+    let σ⇑ = σ ⇑[ 2 + k ] in
+    t [ replace₂ u v ] [ σ⇑ ]                    ≡⟨ substCompEq t ⟩
+    t [ σ⇑ ₛ•ₛ replace₂ u v ]                    ≡⟨ (flip substVar-to-subst t λ where
+                                                       x0        → PE.refl
+                                                       (x0 +1)   → PE.refl
+                                                       (_ +1 +1) → PE.sym $ wk[2+]-[replace₂] {k = 0}) ⟩
+    t [ replace₂ (u [ σ⇑ ]) (v [ σ⇑ ]) ₛ•ₛ σ⇑ ]  ≡˘⟨ substCompEq t ⟩
+    t [ σ⇑ ] [ replace₂ (u [ σ⇑ ]) (v [ σ⇑ ]) ]  ∎
+
+opaque
+  unfolding replace₂
+
+  -- A lemma related to _[_,_]₁₀ and replace₂.
+
+  [replace₂]-[,]₁₀ :
+    ∀ t →
+    t [ replace₂ u₁ u₂ ] [ v₁ , v₂ ]₁₀ ≡
+    t [ u₁ [ v₁ , v₂ ]₁₀ , u₂ [ v₁ , v₂ ]₁₀ ]₁₀
+  [replace₂]-[,]₁₀ t =
+    trans (substCompEq t) $
+    flip substVar-to-subst t λ where
+      x0        → refl
+      (x0 +1)   → refl
+      (_ +1 +1) → refl
+
+opaque
+  unfolding replace₂
+
+  -- A lemma related to _[_][_]↑ and replace₂.
+
+  [2][]↑-[replace₂] :
+    ∀ t →
+    t [ 2 ][ u ]↑ [ replace₂ v₁ v₂ ] ≡
+    t [ u [ replace₂ v₁ v₂ ] ]↑²
+  [2][]↑-[replace₂] t =
+    PE.trans (substCompEq t) $
+    flip substVar-to-subst t λ where
+      x0     → refl
+      (_ +1) → refl
+
+------------------------------------------------------------------------
 -- Some lemmas related to numerals
 
 -- The predicate Numeral is decidable
