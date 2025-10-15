@@ -1382,7 +1382,7 @@ opaque
 opaque
   unfolding prodʰ fstʰ
 
-  -- A β-rule for sndʰ.
+  -- A β-rule for fstʰ.
 
   Σʰ-β₁′ :
     Γ ∙ A ⊢ B →
@@ -1419,7 +1419,7 @@ opaque
 opaque
   unfolding prodʰ fstʰ sndʰ lower₀
 
-  -- Another β-rule for sndʰ.
+  -- A β-rule for sndʰ.
 
   Σʰ-β₂′ :
     Γ ∙ A ⊢ B →
@@ -1455,7 +1455,7 @@ opaque
 opaque
   unfolding ΠΣʰ fstʰ sndʰ lower₀
 
-  -- An η-rule for sndʰ.
+  -- An η-rule for Σʰˢ.
 
   Σʰ-η′ :
     Γ ⊢ l₁ ∷ Level →
