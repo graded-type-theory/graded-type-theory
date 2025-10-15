@@ -222,14 +222,13 @@ opaque
   -- A variant of lamʰⱼ′.
 
   lamʰⱼ :
-    Γ ⊢ A ∷ U l₁ →
+    Γ ⊢ l₁ ∷ Level →
     Γ ⊢ l₂ ∷ Level →
     Γ ∙ A ⊢ B ∷ U (wk1 l₂) →
     Γ ∙ A ⊢ t ∷ B →
     Π-allowed p q →
     Γ ⊢ lamʰ p t ∷ Πʰ p q l₁ l₂ A B
-  lamʰⱼ ⊢A ⊢l₂ ⊢B =
-    lamʰⱼ′ (inversion-U-Level (wf-⊢∷ ⊢A)) ⊢l₂ (univ ⊢B)
+  lamʰⱼ ⊢l₁ ⊢l₂ ⊢B = lamʰⱼ′ ⊢l₁ ⊢l₂ (univ ⊢B)
 
 opaque
   unfolding ΠΣʰ ∘ʰ
@@ -252,13 +251,11 @@ opaque
   -- A variant of ∘ʰⱼ′.
 
   ∘ʰⱼ :
-    Γ ⊢ A ∷ U l₁ →
-    Γ ⊢ l₂ ∷ Level →
     Γ ∙ A ⊢ B ∷ U (wk1 l₂) →
     Γ ⊢ t ∷ Πʰ p q l₁ l₂ A B →
     Γ ⊢ u ∷ A →
     Γ ⊢ ∘ʰ p l₂ t u ∷ B [ u ]₀
-  ∘ʰⱼ _ _ ⊢B = ∘ʰⱼ′ (univ ⊢B)
+  ∘ʰⱼ ⊢B = ∘ʰⱼ′ (univ ⊢B)
 
 opaque
   unfolding ΠΣʰ ∘ʰ
@@ -282,13 +279,11 @@ opaque
   -- A variant of app-congʰ′.
 
   app-congʰ :
-    Γ ⊢ A ∷ U l₁ →
-    Γ ⊢ l₂ ∷ Level →
     Γ ∙ A ⊢ B ∷ U (wk1 l₂) →
     Γ ⊢ t₁ ≡ t₂ ∷ Πʰ p q l₁ l₂ A B →
     Γ ⊢ u₁ ≡ u₂ ∷ A →
     Γ ⊢ ∘ʰ p l₂ t₁ u₁ ≡ ∘ʰ p l₂ t₂ u₂ ∷ B [ u₁ ]₀
-  app-congʰ _ _ ⊢B = app-congʰ′ (univ ⊢B)
+  app-congʰ ⊢B = app-congʰ′ (univ ⊢B)
 
 opaque
   unfolding lamʰ ∘ʰ
@@ -331,15 +326,14 @@ opaque
   -- A variant of β-redʰ′.
 
   β-redʰ :
-    Γ ⊢ A ∷ U l₁ →
+    Γ ⊢ l₁ ∷ Level →
     Γ ⊢ l₂ ∷ Level →
-    Γ ∙ A ⊢ B ∷ U (wk1 l₂) →
     Γ ∙ A ⊢ t ∷ B →
     Γ ⊢ u ∷ A →
     Π-allowed p q →
     Γ ⊢ ∘ʰ p l₂ (lamʰ p t) u ≡ t [ u ]₀ ∷ B [ u ]₀
-  β-redʰ ⊢A ⊢l₂ _ ⊢t ⊢u =
-    β-redʰ′ (inversion-U-Level (wf-⊢∷ ⊢A)) ⊢l₂ ⊢t ⊢u PE.refl
+  β-redʰ ⊢l₁ ⊢l₂ ⊢t ⊢u =
+    β-redʰ′ ⊢l₁ ⊢l₂ ⊢t ⊢u PE.refl
 
 opaque
   unfolding ΠΣʰ ∘ʰ lower₀
@@ -390,12 +384,11 @@ opaque
   -- A variant of η-eqʰ′
 
   η-eqʰ :
-    Γ ⊢ A ∷ U l₁ →
-    Γ ⊢ l₂ ∷ Level →
+    Γ ⊢ l₁ ∷ Level →
     Γ ∙ A ⊢ B ∷ U (wk1 l₂) →
     Γ ⊢ t₁ ∷ Πʰ p q l₁ l₂ A B →
     Γ ⊢ t₂ ∷ Πʰ p q l₁ l₂ A B →
     Γ ∙ A ⊢ ∘ʰ p (wk1 l₂) (wk1 t₁) (var x0) ≡
       ∘ʰ p (wk1 l₂) (wk1 t₂) (var x0) ∷ B →
     Γ ⊢ t₁ ≡ t₂ ∷ Πʰ p q l₁ l₂ A B
-  η-eqʰ ⊢A _ ⊢B = η-eqʰ′ (inversion-U-Level (wf-⊢∷ ⊢A)) (univ ⊢B)
+  η-eqʰ ⊢l₁ ⊢B = η-eqʰ′ ⊢l₁ (univ ⊢B)

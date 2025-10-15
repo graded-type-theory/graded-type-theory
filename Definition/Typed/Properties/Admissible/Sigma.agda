@@ -1293,15 +1293,14 @@ opaque
   -- A variant of prodʰⱼ′.
 
   prodʰⱼ :
-    Γ ⊢ A ∷ U l₁ →
+    Γ ⊢ l₁ ∷ Level →
     Γ ⊢ l₂ ∷ Level →
     Γ ∙ A ⊢ B ∷ U (wk1 l₂) →
     Γ ⊢ t ∷ A →
     Γ ⊢ u ∷ B [ t ]₀ →
     Σ-allowed s p q →
     Γ ⊢ prodʰ s p t u ∷ Σʰ⟨ s ⟩ p q l₁ l₂ A B
-  prodʰⱼ ⊢A ⊢l₂ ⊢B =
-    prodʰⱼ′ (inversion-U-Level (wf-⊢∷ ⊢A)) ⊢l₂ (univ ⊢B)
+  prodʰⱼ ⊢l₁ ⊢l₂ ⊢B = prodʰⱼ′ ⊢l₁ ⊢l₂ (univ ⊢B)
 
 opaque
 
@@ -1326,106 +1325,57 @@ opaque
   -- A variant of prodʰ.
 
   prodʰ-cong :
-    Γ ⊢ A ∷ U l₁ →
+    Γ ⊢ l₁ ∷ Level →
     Γ ⊢ l₂ ∷ Level →
     Γ ∙ A ⊢ B ∷ U (wk1 l₂) →
     Γ ⊢ t₁ ≡ t₂ ∷ A →
     Γ ⊢ u₁ ≡ u₂ ∷ B [ t₁ ]₀ →
     Σ-allowed s p q →
     Γ ⊢ prodʰ s p t₁ u₁ ≡ prodʰ s p t₂ u₂ ∷ Σʰ⟨ s ⟩ p q l₁ l₂ A B
-  prodʰ-cong ⊢A ⊢l₂ ⊢B =
-    prodʰ-cong′ (inversion-U-Level (wf-⊢∷ ⊢A)) ⊢l₂ (univ ⊢B)
+  prodʰ-cong ⊢l₁ ⊢l₂ ⊢B = prodʰ-cong′ ⊢l₁ ⊢l₂ (univ ⊢B)
 
 opaque
   unfolding ΠΣʰ fstʰ
 
   -- A typing rule for fstʰ.
 
-  fstʰⱼ′ :
-    Γ ⊢ t ∷ Σʰˢ p q l₁ l₂ A B →
-    Γ ⊢ fstʰ p t ∷ A
-  fstʰⱼ′ ⊢t = lowerⱼ (fstⱼ′ ⊢t)
-
-opaque
-
-  -- A variant of fstʰⱼ′.
-
   fstʰⱼ :
-    Γ ⊢ A ∷ U l₁ →
-    Γ ⊢ l₂ ∷ Level →
-    Γ ∙ A ⊢ B ∷ U (wk1 l₂) →
     Γ ⊢ t ∷ Σʰˢ p q l₁ l₂ A B →
     Γ ⊢ fstʰ p t ∷ A
-  fstʰⱼ _ _ _ = fstʰⱼ′
+  fstʰⱼ ⊢t = lowerⱼ (fstⱼ′ ⊢t)
 
 opaque
   unfolding ΠΣʰ fstʰ
 
   -- An equality rule for fstʰ.
 
-  fstʰ-cong′ :
-    Γ ⊢ t₁ ≡ t₂ ∷ Σʰˢ p q l₁ l₂ A B →
-    Γ ⊢ fstʰ p t₁ ≡ fstʰ p t₂ ∷ A
-  fstʰ-cong′ t₁≡t₂ = lower-cong (fst-cong′ t₁≡t₂)
-
-opaque
-
-  -- A variant of fstʰ-cong′.
-
   fstʰ-cong :
-    Γ ⊢ A ∷ U l₁ →
-    Γ ⊢ l₂ ∷ Level →
-    Γ ∙ A ⊢ B ∷ U (wk1 l₂) →
     Γ ⊢ t₁ ≡ t₂ ∷ Σʰˢ p q l₁ l₂ A B →
     Γ ⊢ fstʰ p t₁ ≡ fstʰ p t₂ ∷ A
-  fstʰ-cong _ _ _ = fstʰ-cong′
+  fstʰ-cong t₁≡t₂ = lower-cong (fst-cong′ t₁≡t₂)
 
 opaque
   unfolding ΠΣʰ fstʰ sndʰ lower₀
 
   -- A typing rule for sndʰ.
 
-  sndʰⱼ′ :
-    Γ ⊢ t ∷ Σʰˢ p q l₁ l₂ A B →
-    Γ ⊢ sndʰ p t ∷ B [ fstʰ p t ]₀
-  sndʰⱼ′ {B} ⊢t =
-    PE.subst (_⊢_∷_ _ _) ([]↑-[]₀ B) (lowerⱼ (sndⱼ′ ⊢t))
-
-opaque
-
-  -- A variant of sndʰⱼ′.
-
   sndʰⱼ :
-    Γ ⊢ A ∷ U l₁ →
-    Γ ⊢ l₂ ∷ Level →
-    Γ ∙ A ⊢ B ∷ U (wk1 l₂) →
     Γ ⊢ t ∷ Σʰˢ p q l₁ l₂ A B →
     Γ ⊢ sndʰ p t ∷ B [ fstʰ p t ]₀
-  sndʰⱼ _ _ _ = sndʰⱼ′
+  sndʰⱼ {B} ⊢t =
+    PE.subst (_⊢_∷_ _ _) ([]↑-[]₀ B) (lowerⱼ (sndⱼ′ ⊢t))
 
 opaque
   unfolding ΠΣʰ fstʰ sndʰ lower₀
 
   -- An equality rule for sndʰ.
 
-  sndʰ-cong′ :
+  sndʰ-cong :
     Γ ⊢ t₁ ≡ t₂ ∷ Σʰˢ p q l₁ l₂ A B →
     Γ ⊢ sndʰ p t₁ ≡ sndʰ p t₂ ∷ B [ fstʰ p t₁ ]₀
-  sndʰ-cong′ {B} t₁≡t₂ =
+  sndʰ-cong {B} t₁≡t₂ =
     PE.subst (_⊢_≡_∷_ _ _ _) ([]↑-[]₀ B) $
     lower-cong (snd-cong′ t₁≡t₂)
-
-opaque
-
-  -- A variant of sndʰ-cong′.
-
-  sndʰ-cong :
-    Γ ⊢ A ∷ U l₁ →
-    Γ ⊢ l₂ ∷ Level →
-    Γ ∙ A ⊢ B ∷ U (wk1 l₂) →
-    Γ ⊢ t₁ ≡ t₂ ∷ Σʰˢ p q l₁ l₂ A B →
-    Γ ⊢ sndʰ p t₁ ≡ sndʰ p t₂ ∷ B [ fstʰ p t₁ ]₀
-  sndʰ-cong _ _ _ = sndʰ-cong′
 
 opaque
   unfolding prodʰ fstʰ
@@ -1457,14 +1407,12 @@ opaque
   -- A variant of Σʰ-β₁′.
 
   Σʰ-β₁ :
-    Γ ⊢ A ∷ U l₁ →
-    Γ ⊢ l₂ ∷ Level →
     Γ ∙ A ⊢ B ∷ U (wk1 l₂) →
     Γ ⊢ t ∷ A →
     Γ ⊢ u ∷ B [ t ]₀ →
     Σˢ-allowed p q →
     Γ ⊢ fstʰ p (prodʰˢ p t u) ≡ t ∷ A
-  Σʰ-β₁ _ _ ⊢B = Σʰ-β₁′ (univ ⊢B)
+  Σʰ-β₁ ⊢B = Σʰ-β₁′ (univ ⊢B)
 
 opaque
   unfolding prodʰ fstʰ sndʰ lower₀
@@ -1495,14 +1443,12 @@ opaque
   -- A variant of Σʰ-β₂′.
 
   Σʰ-β₂ :
-    Γ ⊢ A ∷ U l₁ →
-    Γ ⊢ l₂ ∷ Level →
     Γ ∙ A ⊢ B ∷ U (wk1 l₂) →
     Γ ⊢ t ∷ A →
     Γ ⊢ u ∷ B [ t ]₀ →
     Σˢ-allowed p q →
     Γ ⊢ sndʰ p (prodʰˢ p t u) ≡ u ∷ B [ fstʰ p (prodʰˢ p t u) ]₀
-  Σʰ-β₂ _ _ ⊢B = Σʰ-β₂′ (univ ⊢B)
+  Σʰ-β₂ ⊢B = Σʰ-β₂′ (univ ⊢B)
 
 opaque
   unfolding ΠΣʰ fstʰ sndʰ lower₀
@@ -1538,15 +1484,14 @@ opaque
   -- A variant of Σʰ-η′.
 
   Σʰ-η :
-    Γ ⊢ A ∷ U l₁ →
-    Γ ⊢ l₂ ∷ Level →
+    Γ ⊢ l₁ ∷ Level →
     Γ ∙ A ⊢ B ∷ U (wk1 l₂) →
     Γ ⊢ t ∷ Σʰˢ p q l₁ l₂ A B →
     Γ ⊢ u ∷ Σʰˢ p q l₁ l₂ A B →
     Γ ⊢ fstʰ p t ≡ fstʰ p u ∷ A →
     Γ ⊢ sndʰ p t ≡ sndʰ p u ∷ B [ fstʰ p t ]₀ →
     Γ ⊢ t ≡ u ∷ Σʰˢ p q l₁ l₂ A B
-  Σʰ-η ⊢A _ ⊢B = Σʰ-η′ (inversion-U-Level (wf-⊢∷ ⊢A)) (univ ⊢B)
+  Σʰ-η ⊢l₁ ⊢B = Σʰ-η′ ⊢l₁ (univ ⊢B)
 
 private
 
