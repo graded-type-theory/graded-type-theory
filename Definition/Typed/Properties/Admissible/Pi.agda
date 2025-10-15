@@ -298,14 +298,14 @@ opaque
   β-redʰ′
     : Γ ⊢ l₁ ∷ Level
     → Γ ⊢ l₂ ∷ Level
-    → Γ ∙ A ⊢ B
     → Γ ∙ A ⊢ t ∷ B
     → Γ     ⊢ a ∷ A
     → p PE.≡ p′
     → Π-allowed p q
     → Γ     ⊢ ∘ʰ p′ l₂ (lamʰ p t) a ≡ t [ a ]₀ ∷ B [ a ]₀
-  β-redʰ′ {l₁} {l₂} {A} {B} {t} {a} {p} ⊢l₁ ⊢l₂ ⊢B ⊢t ⊢a PE.refl ok =
+  β-redʰ′ {l₁} {l₂} {A} {t} {B} {a} {p} ⊢l₁ ⊢l₂ ⊢t ⊢a PE.refl ok =
     let ⊢A = wf-⊢∷ ⊢a
+        ⊢B = wf-⊢∷ ⊢t
         ⊢LiftA = Liftⱼ ⊢l₂ ⊢A
         ⊢wkl₁ = wkTerm₁ ⊢LiftA ⊢l₁
         ⊢lower₀B = lower₀Type ⊢l₂ ⊢B
@@ -338,8 +338,8 @@ opaque
     Γ ⊢ u ∷ A →
     Π-allowed p q →
     Γ ⊢ ∘ʰ p l₂ (lamʰ p t) u ≡ t [ u ]₀ ∷ B [ u ]₀
-  β-redʰ ⊢A ⊢l₂ ⊢B ⊢t ⊢u =
-    β-redʰ′ (inversion-U-Level (wf-⊢∷ ⊢A)) ⊢l₂ (univ ⊢B) ⊢t ⊢u PE.refl
+  β-redʰ ⊢A ⊢l₂ _ ⊢t ⊢u =
+    β-redʰ′ (inversion-U-Level (wf-⊢∷ ⊢A)) ⊢l₂ ⊢t ⊢u PE.refl
 
 opaque
   unfolding ΠΣʰ ∘ʰ lower₀
