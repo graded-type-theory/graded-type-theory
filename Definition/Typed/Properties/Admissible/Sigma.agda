@@ -1497,7 +1497,7 @@ opaque
 
 private
 
-  -- Some lemmas used in the lemmas about prodrecʰ below.
+  -- Some lemmas used in the lemmas about prodrecʰ⟨_⟩ below.
 
   opaque
 
@@ -1569,54 +1569,54 @@ private
   opaque
     unfolding prodʰ replace₂
 
-    prodrecʰ-eq₁ :
-      Σʷ-allowed p q →
+    prodrecʰ⟨⟩-eq₁ :
+      Σ-allowed s p q →
       Γ ⊢ l₁ ∷ Level →
       Γ ∙ A ⊢ B →
-      Γ ∙ Σʰʷ p q l₁ l₂ A B ⊢ C →
+      Γ ∙ Σʰ⟨ s ⟩ p q l₁ l₂ A B ⊢ C →
       Γ ∙ Lift l₂ A ∙ Lift (wk1 l₁) (lower₀ B) ⊢
-        C [ 2 ][ prodʰʷ p (var x1) (var x0) ]↑
+        C [ 2 ][ prodʰ s p (var x1) (var x0) ]↑
           [ replace₂ (lower (var x1)) (lower (var x0)) ] ≡
-        C [ prodʷ p (var x1) (var x0) ]↑²
-    prodrecʰ-eq₁ {p} {C} ok ⊢l₁ ⊢B ⊢C =
+        C [ prod s p (var x1) (var x0) ]↑²
+    prodrecʰ⟨⟩-eq₁ {s} {p} {C} ok ⊢l₁ ⊢B ⊢C =
       let _ , ⊢l₂ , _ = inversion-ΠΣʰ-⊢ (⊢∙→⊢ (wf ⊢C)) in
-      C [ 2 ][ prodʰʷ p (var x1) (var x0) ]↑
-        [ replace₂ (lower (var x1)) (lower (var x0)) ]    ≡⟨ [2][]↑-[replace₂] C ⟩⊢≡
+      C [ 2 ][ prodʰ s p (var x1) (var x0) ]↑
+        [ replace₂ (lower (var x1)) (lower (var x0)) ]     ≡⟨ [2][]↑-[replace₂] C ⟩⊢≡
 
-      C [ prodʰʷ p (lower (var x1)) (lower (var x0)) ]↑²  ≡⟨ subst↑²TypeEq (refl ⊢C) $
-                                                             ⊢prodʰ-lower-1-lower-0≡∷ ok ⊢l₁ ⊢l₂ ⊢B ⟩⊢∎
-      C [ prodʷ p (var x1) (var x0) ]↑²                   ∎
+      C [ prodʰ s p (lower (var x1)) (lower (var x0)) ]↑²  ≡⟨ subst↑²TypeEq (refl ⊢C) $
+                                                              ⊢prodʰ-lower-1-lower-0≡∷ ok ⊢l₁ ⊢l₂ ⊢B ⟩⊢∎
+      C [ prod s p (var x1) (var x0) ]↑²                   ∎
       where
       open TyR
 
   opaque
     unfolding prodʰ
 
-    prodrecʰ-eq₂ :
-      Σʷ-allowed p q →
+    prodrecʰ⟨⟩-eq₂ :
+      Σ-allowed s p q →
       Γ ⊢ l₁ ∷ Level →
       Γ ∙ A ⊢ B →
-      Γ ∙ Σʰʷ p q l₁ l₂ A B ⊢ C →
+      Γ ∙ Σʰ⟨ s ⟩ p q l₁ l₂ A B ⊢ C →
       Γ ⊢ t ∷ A →
       Γ ⊢ u ∷ lower₀ B [ lift t ]₀ →
       Γ ⊢
-        C [ 2 ][ prodʰʷ p (var x1) (var x0) ]↑
+        C [ 2 ][ prodʰ s p (var x1) (var x0) ]↑
           [ lower (lift t) , lower (lift u) ]₁₀ ≡
-        C [ prodʰʷ p t u ]₀
-    prodrecʰ-eq₂ {p} {B} {C} {t} {u} ok ⊢l₁ ⊢B ⊢C ⊢t ⊢u =
+        C [ prodʰ s p t u ]₀
+    prodrecʰ⟨⟩-eq₂ {s} {p} {B} {C} {t} {u} ok ⊢l₁ ⊢B ⊢C ⊢t ⊢u =
       let _ , ⊢l₂ , _ = inversion-ΠΣʰ-⊢ (⊢∙→⊢ (wf ⊢C)) in
-      C [ 2 ][ prodʰʷ p (var x1) (var x0) ]↑
-        [ lower (lift t) , lower (lift u) ]₁₀            ≡⟨ [][]↑-[,⇑] 0 C ⟩⊢≡
+      C [ 2 ][ prodʰ s p (var x1) (var x0) ]↑
+        [ lower (lift t) , lower (lift u) ]₁₀             ≡⟨ [][]↑-[,⇑] 0 C ⟩⊢≡
 
-      C [ prodʰʷ p (lower (lift t)) (lower (lift u)) ]₀  ≡⟨ substTypeEq (refl ⊢C) $
-                                                            prodʰ-cong′ ⊢l₁ ⊢l₂ ⊢B (Lift-β′ ⊢t)
-                                                              (conv (Lift-β (substType (lower₀Type ⊢l₂ ⊢B) (liftⱼ′ ⊢l₂ ⊢t)) ⊢u)
-                                                                 (
-        lower₀ B [ lift t ]₀                                      ≡⟨ lower₀[lift]₀ ⊢B ⊢t ⟩⊢
-        B [ t ]₀                                                  ≡˘⟨ substTypeEq (refl ⊢B) (Lift-β′ ⊢t) ⟩⊢∎
-        B [ lower (lift t) ]₀                                     ∎))
-                                                              ok ⟩⊢∎
-      C [ prodʰʷ p t u ]₀                                ∎
+      C [ prodʰ s p (lower (lift t)) (lower (lift u)) ]₀  ≡⟨ substTypeEq (refl ⊢C) $
+                                                             prodʰ-cong′ ⊢l₁ ⊢l₂ ⊢B (Lift-β′ ⊢t)
+                                                               (conv (Lift-β (substType (lower₀Type ⊢l₂ ⊢B) (liftⱼ′ ⊢l₂ ⊢t)) ⊢u)
+                                                                  (
+        lower₀ B [ lift t ]₀                                       ≡⟨ lower₀[lift]₀ ⊢B ⊢t ⟩⊢
+        B [ t ]₀                                                   ≡˘⟨ substTypeEq (refl ⊢B) (Lift-β′ ⊢t) ⟩⊢∎
+        B [ lower (lift t) ]₀                                      ∎))
+                                                               ok ⟩⊢∎
+      C [ prodʰ s p t u ]₀                                ∎
       where
       open TyR
 
@@ -1643,54 +1643,55 @@ private
          var₀ ⊢Lift-lower₀-B)
 
 opaque
-  unfolding ΠΣʰ prodʰ prodrecʰ
+  unfolding ΠΣʰ prodʰ prodrecʰ⟨_⟩
 
-  -- An equality rule for prodrecʰ.
+  -- An equality rule for prodrecʰ⟨_⟩.
 
-  prodrecʰ-cong :
-    Γ ∙ Σʰʷ p q′ l₁ l₂ A B ⊢ C₁ ≡ C₂ →
-    Γ ⊢ t₁ ≡ t₂ ∷ Σʰʷ p q′ l₁ l₂ A B →
-    Γ ∙ A ∙ B ⊢ u₁ ≡ u₂ ∷ C₁ [ prodʰʷ p (var x1) (var x0) ]↑² →
-    Γ ⊢ prodrecʰ r p q C₁ t₁ u₁ ≡ prodrecʰ r p q C₂ t₂ u₂ ∷ C₁ [ t₁ ]₀
-  prodrecʰ-cong C₁≡C₂ t₁≡t₂ u₁≡u₂ =
+  prodrecʰ⟨⟩-cong :
+    Γ ∙ Σʰ⟨ s ⟩ p q′ l₁ l₂ A B ⊢ C₁ ≡ C₂ →
+    Γ ⊢ t₁ ≡ t₂ ∷ Σʰ⟨ s ⟩ p q′ l₁ l₂ A B →
+    Γ ∙ A ∙ B ⊢ u₁ ≡ u₂ ∷ C₁ [ prodʰ s p (var x1) (var x0) ]↑² →
+    Γ ⊢ prodrecʰ⟨ s ⟩ r p q C₁ t₁ u₁ ≡ prodrecʰ⟨ s ⟩ r p q C₂ t₂ u₂ ∷
+      C₁ [ t₁ ]₀
+  prodrecʰ⟨⟩-cong C₁≡C₂ t₁≡t₂ u₁≡u₂ =
     let ⊢B                     = ⊢∙→⊢ (wfEqTerm u₁≡u₂)
         ⊢Σ , ⊢t₁ , _           = wf-⊢≡∷ t₁≡t₂
         ⊢l₁ , ⊢l₂ , _ , _ , ok = inversion-ΠΣʰ-⊢ ⊢Σ
         ⊢l₁                    = PE.subst (flip (_⊢_∷_ _) _)
                                    (wk1-sgSubst _ _) $
-                                 substTerm ⊢l₁ (lowerⱼ (fstʷⱼ ⊢t₁))
+                                 substTerm ⊢l₁ (lowerⱼ (⊢fst⟨⟩ ⊢t₁))
     in
-    prodrec-cong′ C₁≡C₂ t₁≡t₂
+    prodrec⟨⟩-cong C₁≡C₂ t₁≡t₂
       (conv
          (subst-⊢≡∷ u₁≡u₂ $ refl-⊢ˢʷ≡∷ $
           ⊢ˢʷ∷-replace₂-lower-1-lower-0 ⊢l₁ ⊢l₂ ⊢B)
-         (prodrecʰ-eq₁ ok ⊢l₁ ⊢B (wf-⊢≡ C₁≡C₂ .proj₁)))
+         (prodrecʰ⟨⟩-eq₁ ok ⊢l₁ ⊢B (wf-⊢≡ C₁≡C₂ .proj₁)))
 
 opaque
 
-  -- A typing rule for prodrecʰ.
+  -- A typing rule for prodrecʰ⟨_⟩.
 
-  ⊢prodrecʰ :
-    Γ ∙ Σʰʷ p q′ l₁ l₂ A B ⊢ C →
-    Γ ⊢ t ∷ Σʰʷ p q′ l₁ l₂ A B →
-    Γ ∙ A ∙ B ⊢ u ∷ C [ prodʰʷ p (var x1) (var x0) ]↑² →
-    Γ ⊢ prodrecʰ r p q C t u ∷ C [ t ]₀
-  ⊢prodrecʰ ⊢C ⊢t ⊢u =
-    wf-⊢≡∷ (prodrecʰ-cong (refl ⊢C) (refl ⊢t) (refl ⊢u)) .proj₂ .proj₁
+  ⊢prodrecʰ⟨⟩ :
+    Γ ∙ Σʰ⟨ s ⟩ p q′ l₁ l₂ A B ⊢ C →
+    Γ ⊢ t ∷ Σʰ⟨ s ⟩ p q′ l₁ l₂ A B →
+    Γ ∙ A ∙ B ⊢ u ∷ C [ prodʰ s p (var x1) (var x0) ]↑² →
+    Γ ⊢ prodrecʰ⟨ s ⟩ r p q C t u ∷ C [ t ]₀
+  ⊢prodrecʰ⟨⟩ ⊢C ⊢t ⊢u =
+    wf-⊢≡∷ (prodrecʰ⟨⟩-cong (refl ⊢C) (refl ⊢t) (refl ⊢u)) .proj₂ .proj₁
 
 opaque
-  unfolding ΠΣʰ prodʰ prodrecʰ
+  unfolding ΠΣʰ prodʰ prodrecʰ⟨_⟩
 
-  -- A β-rule for prodrecʰ.
+  -- A β-rule for prodrecʰ⟨_⟩.
 
-  prodrecʰ-β :
-    Γ ∙ Σʰʷ p q′ l₁ l₂ A B ⊢ C →
+  prodrecʰ⟨⟩-β :
+    Γ ∙ Σʰ⟨ s ⟩ p q′ l₁ l₂ A B ⊢ C →
     Γ ⊢ t ∷ A →
     Γ ⊢ u ∷ B [ t ]₀ →
-    Γ ∙ A ∙ B ⊢ v ∷ C [ prodʰʷ p (var x1) (var x0) ]↑² →
-    Γ ⊢ prodrecʰ r p q C (prodʰʷ p t u) v ≡ v [ t , u ]₁₀ ∷
-      C [ prodʰʷ p t u ]₀
-  prodrecʰ-β {p} {C} {t} {u} {v} {r} {q} ⊢C ⊢t ⊢u ⊢v =
+    Γ ∙ A ∙ B ⊢ v ∷ C [ prodʰ s p (var x1) (var x0) ]↑² →
+    Γ ⊢ prodrecʰ⟨ s ⟩ r p q C (prodʰ s p t u) v ≡ v [ t , u ]₁₀ ∷
+      C [ prodʰ s p t u ]₀
+  prodrecʰ⟨⟩-β {s} {p} {C} {t} {u} {v} {r} {q} ⊢C ⊢t ⊢u ⊢v =
     let ⊢B                     = ⊢∙→⊢ (wfTerm ⊢v)
         ⊢l₁ , ⊢l₂ , _ , _ , ok = inversion-ΠΣʰ-⊢ (⊢∙→⊢ (wf ⊢C))
         ⊢l₁                    = PE.subst (flip (_⊢_∷_ _) _)
@@ -1699,11 +1700,12 @@ opaque
         lower-lift-t≡t         = Lift-β′ ⊢t
         ⊢u′                    = conv ⊢u (sym (lower₀[lift]₀ ⊢B ⊢t))
     in
-    prodrec r p q C (prodʷ p (lift t) (lift u))
-      (v [ replace₂ (lower (var x1)) (lower (var x0)) ])  ≡⟨ prodrec-β-≡ ⊢C (liftⱼ′ ⊢l₂ ⊢t)
+    prodrec⟨ s ⟩ r p q C (prod s p (lift t) (lift u))
+      (v [ replace₂ (lower (var x1)) (lower (var x0)) ])  ≡⟨ prodrec⟨⟩-β (λ _ → ⊢C) (liftⱼ′ ⊢l₂ ⊢t)
                                                                (liftⱼ′ (PE.subst (flip (_⊢_∷_ _) _) (PE.sym $ wk1-sgSubst _ _) ⊢l₁) ⊢u′)
                                                                (conv (subst-⊢∷ ⊢v $ ⊢ˢʷ∷-replace₂-lower-1-lower-0 ⊢l₁ ⊢l₂ ⊢B)
-                                                                  (prodrecʰ-eq₁ ok ⊢l₁ ⊢B ⊢C)) ⟩⊢
+                                                                  (prodrecʰ⟨⟩-eq₁ ok ⊢l₁ ⊢B ⊢C))
+                                                               (λ _ → ok) ⟩⊢
     v [ replace₂ (lower (var x1)) (lower (var x0)) ]
       [ lift t , lift u ]₁₀                               ≡⟨ [replace₂]-[,]₁₀ v ⟩⊢≡
 
@@ -1711,7 +1713,7 @@ opaque
                                                                (subst-⊢≡∷ (refl ⊢v) $
                                                                 →⊢ˢʷ≡∷∙ ⊢B (⊢ˢʷ≡∷-sgSubst lower-lift-t≡t) $
                                                                 Lift-β′ (conv ⊢u (substTypeEq (refl ⊢B) (sym′ lower-lift-t≡t))))
-                                                               (prodrecʰ-eq₂ ok ⊢l₁ ⊢B ⊢C ⊢t ⊢u′) ⟩⊢∎
+                                                               (prodrecʰ⟨⟩-eq₂ ok ⊢l₁ ⊢B ⊢C ⊢t ⊢u′) ⟩⊢∎
     v [ t , u ]₁₀                                         ∎
     where
     open TmR

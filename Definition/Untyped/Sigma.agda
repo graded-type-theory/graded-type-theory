@@ -225,11 +225,13 @@ opaque
 
 opaque
 
-  -- A variant of prodrec for Σʰʷ.
+  -- A variant of prodrec⟨_⟩ for Σʰ⟨_⟩.
 
-  prodrecʰ : M → M → M → Term (1+ n) → Term n → Term (2+ n) → Term n
-  prodrecʰ r p q A t u =
-    prodrec r p q A t (u [ replace₂ (lower (var x1)) (lower (var x0)) ])
+  prodrecʰ⟨_⟩ :
+    Strength → M → M → M → Term (1+ n) → Term n → Term (2+ n) → Term n
+  prodrecʰ⟨ s ⟩ r p q A t u =
+    prodrec⟨ s ⟩ r p q A t
+      (u [ replace₂ (lower (var x1)) (lower (var x0)) ])
 
 ------------------------------------------------------------------------
 -- Some substitution lemmas
@@ -259,18 +261,21 @@ opaque
   sndʰ-[] = refl
 
 opaque
-  unfolding prodrecʰ
+  unfolding prodrecʰ⟨_⟩
 
   -- A substitution lemma for prodrecʰ.
 
-  prodrecʰ-[] :
-    prodrecʰ r p q A t u [ σ ] ≡
-    prodrecʰ r p q (A [ σ ⇑ ]) (t [ σ ]) (u [ σ ⇑[ 2 ] ])
-  prodrecʰ-[] {r} {p} {q} {A} {t} {u} {σ} =
-    prodrec r p q (A [ σ ⇑ ]) (t [ σ ])
-      (u [ replace₂ (lower (var x1)) (lower (var x0)) ] [ σ ⇑[ 2 ] ])  ≡⟨ cong (prodrec _ _ _ _ _) $ [replace₂]-[⇑] u σ ⟩
+  prodrecʰ⟨⟩-[] :
+    prodrecʰ⟨ s ⟩ r p q A t u [ σ ] ≡
+    prodrecʰ⟨ s ⟩ r p q (A [ σ ⇑ ]) (t [ σ ]) (u [ σ ⇑[ 2 ] ])
+  prodrecʰ⟨⟩-[] {s} {r} {p} {q} {A} {t} {u} {σ} =
+    prodrec⟨ s ⟩ r p q A t
+      (u [ replace₂ (lower (var x1)) (lower (var x0)) ]) [ σ ]         ≡⟨ prodrec⟨⟩-[] ⟩
 
-    prodrec r p q (A [ σ ⇑ ]) (t [ σ ])
+    prodrec⟨ s ⟩ r p q (A [ σ ⇑ ]) (t [ σ ])
+      (u [ replace₂ (lower (var x1)) (lower (var x0)) ] [ σ ⇑[ 2 ] ])  ≡⟨ cong (prodrec⟨ _ ⟩ _ _ _ _ _) $ [replace₂]-[⇑] u σ ⟩
+
+    prodrec⟨ s ⟩ r p q (A [ σ ⇑ ]) (t [ σ ])
       (u [ σ ⇑[ 2 ] ] [ replace₂ (lower (var x1)) (lower (var x0)) ])  ∎
 
 ------------------------------------------------------------------------
@@ -314,17 +319,17 @@ opaque
   -- A weakening lemma for prodrecʰ.
 
   wk-prodrecʰ :
-    wk ρ (prodrecʰ r p q A t u) ≡
-    prodrecʰ r p q (wk (lift ρ) A) (wk ρ t) (wk (liftn ρ 2) u)
-  wk-prodrecʰ {ρ} {r} {p} {q} {A} {t} {u} =
-    wk ρ (prodrecʰ r p q A t u)                                 ≡⟨ wk≡subst _ _ ⟩
+    wk ρ (prodrecʰ⟨ s ⟩ r p q A t u) ≡
+    prodrecʰ⟨ s ⟩ r p q (wk (lift ρ) A) (wk ρ t) (wk (liftn ρ 2) u)
+  wk-prodrecʰ {ρ} {s} {r} {p} {q} {A} {t} {u} =
+    wk ρ (prodrecʰ⟨ s ⟩ r p q A t u)                                 ≡⟨ wk≡subst _ _ ⟩
 
-    prodrecʰ r p q A t u [ toSubst ρ ]                          ≡⟨ prodrecʰ-[] ⟩
+    prodrecʰ⟨ s ⟩ r p q A t u [ toSubst ρ ]                          ≡⟨ prodrecʰ⟨⟩-[] ⟩
 
-    prodrecʰ r p q (A [ toSubst ρ ⇑ ]) (t [ toSubst ρ ])
-      (u [ toSubst ρ ⇑[ 2 ] ])                                  ≡˘⟨ cong₃ (prodrecʰ _ _ _) (substVar-to-subst (toSubst-liftn 1) A)
+    prodrecʰ⟨ s ⟩ r p q (A [ toSubst ρ ⇑ ]) (t [ toSubst ρ ])
+      (u [ toSubst ρ ⇑[ 2 ] ])                                       ≡˘⟨ cong₃ (prodrecʰ⟨ _ ⟩ _ _ _) (substVar-to-subst (toSubst-liftn 1) A)
                                                                       refl (substVar-to-subst (toSubst-liftn 2) u) ⟩
-    prodrecʰ r p q (A [ toSubst (lift ρ) ]) (t [ toSubst ρ ])
-      (u [ toSubst (liftn ρ 2) ])                               ≡˘⟨ cong₃ (prodrecʰ _ _ _) (wk≡subst _ _) (wk≡subst _ _) (wk≡subst _ _) ⟩
+    prodrecʰ⟨ s ⟩ r p q (A [ toSubst (lift ρ) ]) (t [ toSubst ρ ])
+      (u [ toSubst (liftn ρ 2) ])                                    ≡˘⟨ cong₃ (prodrecʰ⟨ _ ⟩ _ _ _) (wk≡subst _ _) (wk≡subst _ _) (wk≡subst _ _) ⟩
 
-    prodrecʰ r p q (wk (lift ρ) A) (wk ρ t) (wk (liftn ρ 2) u)  ∎
+    prodrecʰ⟨ s ⟩ r p q (wk (lift ρ) A) (wk ρ t) (wk (liftn ρ 2) u)  ∎

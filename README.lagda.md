@@ -160,7 +160,7 @@ import Definition.Typed.Properties.Admissible.Pi
 import Definition.Typed.Properties.Admissible.Sigma using
   (prodʰⱼ; prodʰ-cong;
    fstʰⱼ; sndʰⱼ; fstʰ-cong; sndʰ-cong; Σʰ-β₁; Σʰ-β₂; Σʰ-η;
-   ⊢prodrecʰ; prodrecʰ-cong; prodrecʰ-β)
+   ⊢prodrecʰ⟨⟩; prodrecʰ⟨⟩-cong; prodrecʰ⟨⟩-β)
 ```
 
 Well-formedness and subject reduction are only mentioned in the
