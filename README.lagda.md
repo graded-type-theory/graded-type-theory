@@ -62,7 +62,7 @@ Later other additions were made:
 
 * A weak unit type was added by Oskar Eriksson (2023).
 
-* A universe hierarchy with first-class universe levels were added
+* A universe hierarchy with first-class universe levels was added
   by Nils Anders Danielsson, Naïm Camille Favier and Ondřej Kubánek
   (2024-2025): this is the focus of the discussion below.
 
