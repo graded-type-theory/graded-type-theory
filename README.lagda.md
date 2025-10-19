@@ -349,7 +349,7 @@ import Definition.Typed.Consequences.Injectivity
 Algorithmic equality. The conversion relations are denoted as follows:
 * `Γ ⊢ A [conv↑] B` and `Γ ⊢ A [conv↓] B` for arbitrary types and
   types in WHNF, respectively,
-* `Γ ⊢ t [conv↑] u ∷ A` and `Γ ⊢ t [conv↓] u ∷ B` for arbitrary terms,
+* `Γ ⊢ t [conv↑] u ∷ A` and `Γ ⊢ t [conv↓] u ∷ B` for arbitrary terms with arbitrary types,
   and terms in WHNF with types in WHNF, respectively, and
 * `Γ ⊢ t ~ u ↑ A` and `Γ ⊢ t ~ u ↓ A` for atomic neutral terms and
   atomic neutral terms with types in WHNF, respectively.
