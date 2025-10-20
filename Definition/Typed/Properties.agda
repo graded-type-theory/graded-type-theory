@@ -86,7 +86,7 @@ opaque
   ⊢⇒*∷-conv-PE ⊢t⇒u PE.refl = ⊢t⇒u
 
 ------------------------------------------------------------------------
--- Congurence properties for typing judgments for propositional equality
+-- Congruence properties for typing judgments for propositional equality
 
 opaque
 
@@ -125,3 +125,34 @@ opaque
 
   ⊢≡-congʳ : Γ ⊢ A ≡ B → A PE.≡ A′ → Γ ⊢ A′ ≡ B
   ⊢≡-congʳ ⊢A≡B PE.refl = ⊢A≡B
+
+------------------------------------------------------------------------
+-- Variants of equality rules
+
+opaque
+
+  -- Reflexivity for propositionally equal types
+
+  ⊢≡-refl-PE : A PE.≡ B → Γ ⊢ A → Γ ⊢ A ≡ B
+  ⊢≡-refl-PE PE.refl = refl
+
+opaque
+
+  -- Reflexivity for propositionally equal types
+
+  ⊢≡-refl-PE′ : A PE.≡ B → Γ ⊢ B → Γ ⊢ A ≡ B
+  ⊢≡-refl-PE′ PE.refl = refl
+
+opaque
+
+  -- Reflexivity for propositionally equal terms
+
+  ⊢≡∷-refl-PE : t PE.≡ u → Γ ⊢ t ∷ A → Γ ⊢ t ≡ u ∷ A
+  ⊢≡∷-refl-PE PE.refl = refl
+
+opaque
+
+  -- Reflexivity for propositionally equal terms
+
+  ⊢≡∷-refl-PE′ : t PE.≡ u → Γ ⊢ u ∷ A → Γ ⊢ t ≡ u ∷ A
+  ⊢≡∷-refl-PE′ PE.refl = refl
