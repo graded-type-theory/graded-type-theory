@@ -22,6 +22,7 @@ open import Tools.Relation
 open import Tools.Unit
 
 open import Definition.Untyped M
+open import Definition.Untyped.Neutral M type-variant
 open import Definition.Typed R
 open import Definition.Typed.Consequences.Consistency R
 open import Definition.Typed.Properties R
@@ -36,7 +37,7 @@ private
   variable
     n : Nat
     Γ : Con Term n
-    t t′ u : Term n
+    t t′ u u₁ u₂ : Term n
     v v′ w w′ : T.Term n
     s : Strictness
 
@@ -114,6 +115,49 @@ subset*Termˢ (x ⇨ˢ d) = trans (subsetTermˢ x) (subset*Termˢ d)
   Γ ⊢ t ⇒ˢ* zero ∷ℕ → Γ ⊢ t ⇒* zero ∷ ℕ
 ⇒ˢ*zero∷ℕ→⇒*zero t⇒ =
   ⇒ˢ*∷ℕ≡zero→⇒* t⇒ (refl (zeroⱼ (wfEqTerm (subset*Termˢ t⇒))))
+
+opaque
+
+  -- Numerals do not reduce.
+
+  numerals-do-not-reduce-⊢⇒ˢ∷ℕ : Numeral t → ¬ Γ ⊢ t ⇒ˢ u ∷ℕ
+  numerals-do-not-reduce-⊢⇒ˢ∷ℕ zeroₙ (whred zero⇒) =
+    whnfRedTerm zero⇒ zeroₙ
+  numerals-do-not-reduce-⊢⇒ˢ∷ℕ (sucₙ t-n) (whred suc⇒) =
+    whnfRedTerm suc⇒ sucₙ
+  numerals-do-not-reduce-⊢⇒ˢ∷ℕ (sucₙ t-n) (sucred t⇒) =
+    numerals-do-not-reduce-⊢⇒ˢ∷ℕ t-n t⇒
+
+opaque
+
+  -- The relation _⊢_⇒ˢ_∷ℕ is deterministic.
+
+  deterministic-⊢⇒ˢ∷ℕ : Γ ⊢ t ⇒ˢ u₁ ∷ℕ → Γ ⊢ t ⇒ˢ u₂ ∷ℕ → u₁ PE.≡ u₂
+  deterministic-⊢⇒ˢ∷ℕ (whred t⇒u₁) (whred t⇒u₂) =
+    whrDetTerm t⇒u₁ t⇒u₂
+  deterministic-⊢⇒ˢ∷ℕ (whred suc⇒) (sucred _) =
+    ⊥-elim $ whnfRedTerm suc⇒ sucₙ
+  deterministic-⊢⇒ˢ∷ℕ (sucred _) (whred suc⇒) =
+    ⊥-elim $ whnfRedTerm suc⇒ sucₙ
+  deterministic-⊢⇒ˢ∷ℕ (sucred t⇒u₁) (sucred t⇒u₂) =
+    PE.cong suc $ deterministic-⊢⇒ˢ∷ℕ t⇒u₁ t⇒u₂
+
+opaque
+
+  -- The relation _⊢_⇒ˢ*_∷ℕ is deterministic when restricted to
+  -- reduction to numerals.
+
+  deterministic-⊢⇒ˢ*∷ℕ :
+    Γ ⊢ t ⇒ˢ* u₁ ∷ℕ → Γ ⊢ t ⇒ˢ* u₂ ∷ℕ →
+    Numeral u₁ → Numeral u₂ → u₁ PE.≡ u₂
+  deterministic-⊢⇒ˢ*∷ℕ (id _) (id _) _ _ = PE.refl
+  deterministic-⊢⇒ˢ*∷ℕ (id _) (t⇒ ⇨ˢ _) t-num _ =
+    ⊥-elim $ numerals-do-not-reduce-⊢⇒ˢ∷ℕ t-num t⇒
+  deterministic-⊢⇒ˢ*∷ℕ (t⇒ ⇨ˢ _) (id _) _ t-num =
+    ⊥-elim $ numerals-do-not-reduce-⊢⇒ˢ∷ℕ t-num t⇒
+  deterministic-⊢⇒ˢ*∷ℕ (t⇒u₁ ⇨ˢ u₁⇒*v₁) (t⇒u₂ ⇨ˢ u₂⇒*v₂) v₁-num v₂-num
+    rewrite deterministic-⊢⇒ˢ∷ℕ t⇒u₁ t⇒u₂ =
+    deterministic-⊢⇒ˢ*∷ℕ u₁⇒*v₁ u₂⇒*v₂ v₁-num v₂-num
 
 ------------------------------------------------------------------------
 -- _⇒ˢ*_
