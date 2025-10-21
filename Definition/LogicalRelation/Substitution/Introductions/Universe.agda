@@ -155,6 +155,18 @@ opaque
 
 opaque
 
+  -- A consequence of ⊩≡∷U⇔.
+
+  ⊩≡∷U→ :
+    Γ ⊩⟨ l ⟩ A ≡ B ∷ U t →
+    Γ ⊩⟨ 0ᵘ ⟩ t ∷ Level × Γ ⊩⟨ l ⟩ A ≡ B
+  ⊩≡∷U→ A≡B =
+    let ⊩t , <l , A≡B , _ = ⊩≡∷U⇔ .proj₁ A≡B in
+    ⊩∷Level⇔ .proj₂ ⊩t ,
+    emb-⊩≡ (<ᵘ→≤ᵘ <l) A≡B
+
+opaque
+
   -- A variant of ⊩≡∷U⇔.
 
   Type→⊩≡∷U⇔ :
@@ -212,6 +224,18 @@ opaque
                                                                 )) ⟩
     (∃ λ [t] → ↑ᵘ [t] <ᵘ l × Γ ⊩⟨ ↑ᵘ [t] ⟩ A ×
      ∃ λ B → Γ ⊢ A ⇒* B ∷ U t × Type B × Γ ⊢≅ B ∷ U t)    □⇔
+
+opaque
+
+  -- A consequence of ⊩∷U⇔.
+
+  ⊩∷U→ :
+    Γ ⊩⟨ l ⟩ A ∷ U t →
+    Γ ⊩⟨ 0ᵘ ⟩ t ∷ Level × Γ ⊩⟨ l ⟩ A
+  ⊩∷U→ ⊩A =
+    let ⊩t , <l , ⊩A , _ = ⊩∷U⇔ .proj₁ ⊩A in
+    ⊩∷Level⇔ .proj₂ ⊩t ,
+    emb-⊩ (<ᵘ→≤ᵘ <l) ⊩A
 
 opaque
 
