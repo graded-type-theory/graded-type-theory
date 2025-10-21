@@ -556,7 +556,7 @@ opaque
             , λ t≡u →
                 let ([u] , u< , B≡B , _) = ⊩≡∷U⇔ .proj₁ $ R.⊩≡∷→ $
                       ⊩ᵛ∷⇔ .proj₁ ⊩B∷U .proj₂ $ ⊩ˢ≡∷∙⇔ .proj₂ $
-                          ( ωᵘ , ⊩ᵛ∷U→⊩ᵛ ⊩A∷U
+                          ( ωᵘ , emb-⊩ᵛ ≤ᵘ-ωᵘ (⊩ᵛ∷U→⊩ᵛ ⊩A∷U)
                           , (R.→⊩≡∷ $ emb-⊩≡∷ ≤ᵘ-ωᵘ $ PE.subst (_⊩⟨_⟩_≡_∷_ _ _ _ _) (wk-subst A) t≡u))
                         , refl-⊩ˢ≡∷ (⊩ˢ∷-•ₛ ρ⊇ ⊩σ)
                 in PE.subst₃ (_⊩⟨_⟩_≡_ _)
@@ -637,7 +637,7 @@ opaque
             , λ ⊩t →
                 let ([u] , u< , B≡B , _) = ⊩≡∷U⇔ .proj₁ $ R.⊩≡∷→ $
                       ⊩ᵛ≡∷→⊩ˢ≡∷→⊩[]≡[]∷ B₁≡B₂∷U $ ⊩ˢ≡∷∙⇔ .proj₂ $
-                          ( ωᵘ , wf-⊩ᵛ≡ A₁≡A₂ .proj₁
+                          ( ωᵘ , emb-⊩ᵛ ≤ᵘ-ωᵘ (wf-⊩ᵛ≡ A₁≡A₂ .proj₁)
                           , (R.emb-⊩≡∷ ≤ᵘ-ωᵘ $ R.refl-⊩≡∷ $ PE.subst (R._⊩⟨_⟩_∷_ _ _ _) (wk-subst A₁) $ R.→⊩∷ ⊩t))
                         , ⊩ˢ≡∷-•ₛ ρ⊇ σ₁≡σ₂
                 in PE.subst₃ (_⊩⟨_⟩_≡_ _)

@@ -22,6 +22,7 @@ open import Definition.Typed.Properties R
 open import Definition.Typed.Well-formed R
 open import Definition.Untyped M
 open import Definition.Untyped.Neutral M type-variant
+open import Definition.Untyped.Properties M
 open import Definition.LogicalRelation R ⦃ eqrel ⦄
 open import Definition.LogicalRelation.Hidden R ⦃ eqrel ⦄
 open import Definition.LogicalRelation.Irrelevance R ⦃ eqrel ⦄
@@ -292,7 +293,7 @@ opaque
 
   ⊩ᵛ≡∷U→⊩ᵛ≡ :
     Γ ⊩ᵛ⟨ l ⟩ A ≡ B ∷ U t →
-    Γ ⊩ᵛ⟨ ωᵘ ⟩ A ≡ B
+    Γ ⊩ᵛ⟨ l ⟩ A ≡ B
   ⊩ᵛ≡∷U→⊩ᵛ≡ A≡B∷U =
     case ⊩ᵛ≡∷⇔ʰ .proj₁ A≡B∷U of λ
       (⊩U , A≡B∷U) →
@@ -301,7 +302,7 @@ opaque
       , λ σ₁≡σ₂ →
           case ⊩≡∷U⇔ .proj₁ (A≡B∷U σ₁≡σ₂) of λ
             ([t] , t<l , A[σ₁]≡A[σ₂] , _) →
-          emb-⊩≡ ≤ᵘ-ωᵘ A[σ₁]≡A[σ₂]
+          emb-⊩≡ (<ᵘ→≤ᵘ t<l) A[σ₁]≡A[σ₂]
       )
 
 opaque
@@ -310,7 +311,7 @@ opaque
 
   ⊩ᵛ∷U→⊩ᵛ :
     Γ ⊩ᵛ⟨ l ⟩ A ∷ U t →
-    Γ ⊩ᵛ⟨ ωᵘ ⟩ A
+    Γ ⊩ᵛ⟨ l ⟩ A
   ⊩ᵛ∷U→⊩ᵛ = ⊩ᵛ⇔⊩ᵛ≡ .proj₂ ∘→ ⊩ᵛ≡∷U→⊩ᵛ≡ ∘→ ⊩ᵛ∷⇔⊩ᵛ≡∷ .proj₁
 
 opaque
