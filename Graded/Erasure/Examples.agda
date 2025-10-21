@@ -154,12 +154,13 @@ id = lam 𝟘 (lam 𝟘 (lam ω (var x0)))
 ▸id : 𝟘ᶜ {n} ▸[ 𝟙ᵐ ] id
 ▸id = lamₘ (lamₘ (lamₘ var))
 
--- The universe-polymorphic identity function applied to three free variables
+-- The universe-polymorphic identity function applied to three free
+-- variables.
 
 id-generic : Term 3
 id-generic = id ∘⟨ 𝟘 ⟩ var x2 ∘⟨ 𝟘 ⟩ var x1 ∘⟨ ω ⟩ var x0
 
--- The term id-generic is well-typed (in a certain context)
+-- The term id-generic is well-typed (in a certain context).
 
 ⊢id-generic : ε ∙ Level ∙ U (var x0) ∙ var x0 ⊢ id-generic ∷ var x1
 ⊢id-generic = ((⊢id ⊢Γ ∘ⱼ var ⊢Γ (there (there here))) ∘ⱼ var ⊢Γ (there here)) ∘ⱼ var ⊢Γ here
@@ -175,20 +176,21 @@ id-generic = id ∘⟨ 𝟘 ⟩ var x2 ∘⟨ 𝟘 ⟩ var x1 ∘⟨ ω ⟩ var 
   (≈ᶜ→≡ (ε ∙ PE.refl ∙ PE.refl ∙ PE.cong ⌜_⌝ (ᵐ·-identityʳ {m = 𝟙ᵐ})))
   (((▸id ∘ₘ var) ∘ₘ var) ∘ₘ var)
 
--- The universe-polymorphic identity function applied to two arguments.
+-- The universe-polymorphic identity function applied to three
+-- arguments.
 
 id-ℕ-zero : Term 0
 id-ℕ-zero = id ∘⟨ 𝟘 ⟩ zeroᵘ ∘⟨ 𝟘 ⟩ ℕ ∘⟨ ω ⟩ zero
 
--- In the strict setting the extraction of id-ℕ-zero includes an
--- erased part (T.↯).
+-- In the strict setting the extraction of id-ℕ-zero includes some
+-- erased parts (T.↯).
 
 erase-strict-id-ℕ-zero :
   erase strict id-ℕ-zero PE.≡
   T.lam (T.lam (T.lam (T.var x0))) T.∘⟨ strict ⟩ T.↯ T.∘⟨ strict ⟩ T.↯ T.∘⟨ strict ⟩ T.zero
 erase-strict-id-ℕ-zero = PE.refl
 
--- In the non-strict setting that part is removed entirely, and one
+-- In the non-strict setting those parts are removed entirely, and one
 -- lambda is removed.
 
 erase-non-strict-id-ℕ-zero :
