@@ -285,6 +285,9 @@ opaque
           )
       )
 
+------------------------------------------------------------------------
+-- The eliminator lower
+
 opaque
 
   -- Reducibility of equality between applications of lower.
@@ -299,9 +302,6 @@ opaque
     lower u₁  ≡⟨ lower-u₁≡lower-u₂ ⟩⊩∷⇐*
     lower u₂  ⇐*⟨ lower-subst* t₂⇒*u₂ ⟩∎
     lower t₂  ∎
-
-------------------------------------------------------------------------
--- The eliminator lower
 
 opaque
 
