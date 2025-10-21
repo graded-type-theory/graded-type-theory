@@ -436,26 +436,77 @@ The usage relation.
 import Graded.Usage using (_▸[_]_)
 ```
 
-The erasure modality.
+Usage contexts.
+```agda
+import Graded.Context using (Conₘ)
+```
+
+Modes. The development supports modalities with or without the zero
+mode.
+```agda
+import Graded.Mode using (Mode)
+```
+
+The erasure modality. The development supports two variants of the
+erasure modality: with or without support for the zero mode. When the
+paper refers to "the erasure modality" it is the one with support for
+the zero mode that is meant.
+
 ```agda
 import Graded.Modality.Instances.Erasure using (𝟘; ω)
 import Graded.Modality.Instances.Erasure.Modality
+  using (ErasureModality)
 ```
 
-The target language.
+The target language. The predicate Valueˢ is called `Value⟨ s ⟩`, sucˢ
+is called `suc⟨ s ⟩`, ↯ˢ is called `loop? s`, ⇒ˢᵘᶜ is called `_⇒ˢ_`,
+_⊢_⟶ˢᵘᶜ_:ℕ is called `_⊢_⇒ˢ_∷ℕ`, _⊢_⟶ˢᵘᶜ*_:ℕ is called `_⊢_⇒ˢ*_∷ℕ`,
+⇒*ₛ is called `_⇒ˢ⟨_⟩*_`, and n̲ is called `sucᵏ n`. The term loop
+corresponds to `loop non-strict`.
 ```agda
 import Graded.Erasure.Target
+  using (Term; Strictness; Value; Value⟨_⟩; _⇒_; suc⟨_⟩; sucᵏ)
+import Definition.Untyped using (sucᵏ)
+import Graded.Erasure.Target.Non-terminating using (loop)
+import Graded.Erasure.Extraction using (loop?; erase)
+import Graded.Erasure.SucRed using (_⇒ˢ_; _⊢_⇒ˢ_∷ℕ; _⊢_⇒ˢ*_∷ℕ; _⇒ˢ⟨_⟩*_)
 ```
 
-Theorem 5.1: Soundness of erasure.
+Complete removal of all arguments can, in the strict setting, lead to
+non-termination for the extracted program.
+```agda
+import Graded.Erasure.Extraction.Non-terminating
+```
+
+Theorem 5.1: Soundness of erasure. The paper uses the formulation
+"erased matches are disallowed for weak Σ and unit types", but the
+code uses the formulation "if the modality is non-trivial, then erased
+matches are disallowed for weak Σ and unit types as well as the
+identity type": the paper focuses on the erasure modality, which is
+non-trivial, and identity types are mostly ignored in the text. The
+statement in the code also has the condition "Neutrals-included holds
+or the context is empty", which for the soundness theorem is
+instantiated to "equality reflection is disallowed or the context is
+empty".
 ```agda
 import Graded.Erasure.Consequences.Soundness
+theorem-5-1 =
+  Graded.Erasure.Consequences.Soundness.Soundness.soundness-ℕ
 ```
 
 Corollary 5.2: Soundness of erasure for closed terms.
 ```agda
-soundness-ℕ =
+corollary-5-2 =
   Graded.Erasure.Consequences.Soundness.Soundness₀.soundness-ℕ
+```
+
+Some counterexamples to variants of Theorem 5.1, one for the case
+where erased matches are allowed for weak Σ-types, and one for the
+case where erased matches are allowed for the empty type and the
+context is allowed to be inconsistent.
+```agda
+import Graded.Erasure.Consequences.Soundness using
+  (soundness-ℕ-only-source-counterexample₁; soundness-ℕ-counterexample₆)
 ```
 
 Some examples, including a universe-polymorphic identity function.
