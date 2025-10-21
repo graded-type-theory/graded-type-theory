@@ -252,37 +252,58 @@ opaque
 
 opaque
 
+  -- Reducibility of equality between applications of lift.
+
+  ⊩lift≡lift :
+    Γ ⊩⟨ l′ ⟩ k ∷ Level →
+    Γ ⊩⟨ l ⟩ A →
+    Γ ⊩⟨ l″ ⟩ t₁ ≡ t₂ ∷ A →
+    Γ ⊩⟨ l ⟩ lift t₁ ≡ lift t₂ ∷ Lift k A
+  ⊩lift≡lift {t₁} {t₂} ⊩k ⊩A t₁≡t₂ =
+    let ⊢k             = escape-⊩∷ ⊩k
+        ⊢A , ⊢t₁ , ⊢t₂ = wf-⊢≡∷ (≅ₜ-eq (escape-⊩≡∷ t₁≡t₂))
+    in
+    ⊩≡∷Lift⇔ .proj₂
+      ( ⊩Lift⇔ .proj₂ (⊩∷Level⇔ .proj₁ ⊩k , ⊩A)
+      , _ , _
+      , (id (liftⱼ′ ⊢k ⊢t₁) , liftₙ)
+      , (id (liftⱼ′ ⊢k ⊢t₂) , liftₙ)
+      , (lower (lift t₁)  ⇒⟨ Lift-β ⊢A ⊢t₁ ⟩⊩∷
+         t₁               ≡⟨ level-⊩≡∷ ⊩A t₁≡t₂ ⟩⊩∷⇐*
+         t₂               ⇐⟨ Lift-β ⊢A ⊢t₂ ⟩∎
+         lower (lift t₂)  ∎)
+      )
+
+
+opaque
+
+  -- Reducibility for lift.
+
+  ⊩lift :
+    Γ ⊩⟨ l′ ⟩ k ∷ Level →
+    Γ ⊩⟨ l ⟩ A →
+    Γ ⊩⟨ l″ ⟩ t ∷ A →
+    Γ ⊩⟨ l ⟩ lift t ∷ Lift k A
+  ⊩lift ⊩k ⊩A =
+    ⊩∷⇔⊩≡∷ .proj₂ ∘→ ⊩lift≡lift ⊩k ⊩A ∘→ ⊩∷⇔⊩≡∷ .proj₁
+
+opaque
+
+  -- Validity of lift.
+
   liftᵛ :
     Γ ⊩ᵛ⟨ l′ ⟩ k₂ ∷ Level →
-    Γ ⊩ᵛ⟨ l″ ⟩ A →
-    Γ ⊩ᵛ⟨ l‴ ⟩ t ∷ A →
-    Γ ⊩ᵛ⟨ ωᵘ ⟩ lift t ∷ Lift k₂ A
-  liftᵛ {k₂} {t} ⊩k₂ ⊩A ⊩t =
-    let ⊩ᵛLift = emb-⊩ᵛ ≤ᵘ-ωᵘ (Liftᵛ ⊩k₂ ⊩A)
-    in ⊩ᵛ∷⇔ʰ .proj₂
-      ( ⊩ᵛLift
-      , λ {_} {_} {σ₁ = σ₁} {σ₂ = σ₂} σ₁≡σ₂ →
-        let ⊩σ₁ , ⊩σ₂ = wf-⊩ˢ≡∷ σ₁≡σ₂
-            ⊢A[σ₁] = R.escape-⊩ $ ⊩ᵛ→⊩ˢ∷→⊩[] ⊩A ⊩σ₁
-            A[σ₁]≡A[σ₂] = ≅-eq (R.escape-⊩≡ (⊩ᵛ≡→⊩ˢ≡∷→⊩[]≡[] (refl-⊩ᵛ≡ ⊩A) σ₁≡σ₂))
-            ⊢t[σ₁] = R.escape-⊩∷ $ ⊩ᵛ∷→⊩ˢ∷→⊩[]∷ ⊩t ⊩σ₁
-            t[σ₁]≡t[σ₂] = R.escape-⊩≡∷ $ ⊩ᵛ≡∷→⊩ˢ≡∷→⊩[]≡[]∷ (refl-⊩ᵛ≡∷ ⊩t) σ₁≡σ₂
-            ⊢t[σ₂] = conv (R.escape-⊩∷ $ ⊩ᵛ∷→⊩ˢ∷→⊩[]∷ ⊩t ⊩σ₂) (sym A[σ₁]≡A[σ₂])
-            k₂[σ₁]≡k₂[σ₂] = ≅ₜ-eq (escapeLevelEq (⊩≡∷Level⇔ .proj₁ (R.⊩≡∷→ (⊩ᵛ≡∷→⊩ˢ≡∷→⊩[]≡[]∷ (refl-⊩ᵛ≡∷ ⊩k₂) σ₁≡σ₂))))
-            _ , ⊢k₂[σ₁] , ⊢k₂[σ₂] = wf-⊢≡∷ k₂[σ₁]≡k₂[σ₂]
-            lift≡lift = lift-cong ⊢k₂[σ₁] (≅ₜ-eq t[σ₁]≡t[σ₂])
-            _ , ⊢lift₁ , ⊢lift₂ = wf-⊢≡∷ lift≡lift
-        in ⊩≡∷Lift⇔ .proj₂
-          ( (R.⊩→ $ ⊩ᵛ→⊩ˢ∷→⊩[] ⊩ᵛLift ⊩σ₁)
-          , _ , _
-          , (id ⊢lift₁ , liftₙ)
-          , (id ⊢lift₂ , liftₙ)
-          , emb-⊩≡∷ ≤ᵘ-ωᵘ
-            (lower (lift (t [ σ₁ ])) ⇒⟨ Lift-β ⊢A[σ₁] ⊢t[σ₁] ⟩⊩∷
-             t [ σ₁ ] ≡⟨ R.⊩≡∷→ $ ⊩ᵛ≡∷→⊩ˢ≡∷→⊩[]≡[]∷ (refl-⊩ᵛ≡∷ ⊩t) σ₁≡σ₂ ⟩⊩∷⇐*
-             t [ σ₂ ] ⇐⟨ Lift-β ⊢A[σ₁] ⊢t[σ₂] ⟩∎
-             lower (lift (t [ σ₂ ])) ∎)
-          )
+    Γ ⊩ᵛ⟨ l ⟩ A →
+    Γ ⊩ᵛ⟨ l″ ⟩ t ∷ A →
+    Γ ⊩ᵛ⟨ l ⟩ lift t ∷ Lift k₂ A
+  liftᵛ ⊩k₂ ⊩A ⊩t =
+    ⊩ᵛ∷⇔ʰ .proj₂
+      ( Liftᵛ ⊩k₂ ⊩A
+      , λ σ₁≡σ₂ →
+          let ⊩σ₁ , _ = wf-⊩ˢ≡∷ σ₁≡σ₂ in
+          ⊩lift≡lift (R.⊩∷→ $ ⊩ᵛ∷→⊩ˢ∷→⊩[]∷ ⊩k₂ ⊩σ₁)
+            (R.⊩→ $ ⊩ᵛ→⊩ˢ∷→⊩[] ⊩A ⊩σ₁)
+            (R.⊩≡∷→ $ ⊩ᵛ≡∷→⊩ˢ≡∷→⊩[]≡[]∷ (refl-⊩ᵛ≡∷ ⊩t) σ₁≡σ₂)
       )
 
 ------------------------------------------------------------------------
