@@ -18,7 +18,7 @@ open import Tools.Reasoning.PropositionalEquality
 
 private
   variable
-    j k k₁ k₂ ℓ m n o : Nat
+    j k k₁ k₂ ℓ m n n₁ n₂ o : Nat
     x x₁ x₂ : Fin _
     eq eq₁ eq₂ : _ ≡ _
     A A₁ A₂ B₁ B₂ l l₁ l₂ t t₁ t₂ u u₁ u₂ v v₁ v₂ w w₁ w₂ : Term _
@@ -2244,6 +2244,17 @@ unitrec-PE-injectivity PE.refl =
 
 suc-PE-injectivity : suc t₁ PE.≡ suc t₂ → t₁ PE.≡ t₂
 suc-PE-injectivity PE.refl = PE.refl
+
+opaque
+
+  -- The function sucᵏ is injective.
+
+  sucᵏ-PE-injectivity : sucᵏ {n = n} n₁ ≡ sucᵏ n₂ → n₁ ≡ n₂
+  sucᵏ-PE-injectivity {n₁ = 0}    {n₂ = 0}    _  = refl
+  sucᵏ-PE-injectivity {n₁ = 0}    {n₂ = 1+ _} ()
+  sucᵏ-PE-injectivity {n₁ = 1+ _} {n₂ = 0}    ()
+  sucᵏ-PE-injectivity {n₁ = 1+ _} {n₂ = 1+ _} eq =
+    cong 1+ (sucᵏ-PE-injectivity (suc-PE-injectivity eq))
 
 -- The constructor natrec is injective.
 
