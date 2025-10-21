@@ -6,7 +6,6 @@
 import Definition.Typed
 open import Definition.Typed.Restrictions
 import Definition.Untyped
-open import Graded.Erasure.Target as T using (Strictness)
 open import Graded.Modality
 import Graded.Mode
 import Graded.Restrictions
@@ -38,8 +37,6 @@ module Graded.Erasure.Consequences.Soundness.Erased-matches
   (only-some-erased-matches : Only-some-erased-matches TR UR)
   -- Equality reflection is not allowed or Δ is empty.
   ⦃ ok : No-equality-reflection or-empty Δ ⦄
-  -- The variant of extraction that is used.
-  (str : Strictness)
   -- The modality's zero is well-behaved.
   ⦃ 𝟘-well-behaved : Has-well-behaved-zero M semiring-with-meet ⦄
   where
@@ -54,6 +51,7 @@ open import Graded.Usage 𝕄 UR
 import Graded.Erasure.Consequences.Soundness
 open import Graded.Erasure.Extraction 𝕄
 import Graded.Erasure.SucRed
+import Graded.Erasure.Target as T
 
 open import Tools.Function
 open import Tools.Product
@@ -96,7 +94,6 @@ private
              No-equality-reflection-or-empty⇔ .proj₁ $
              ok
          })
-      str
 
 opaque
 
@@ -131,7 +128,8 @@ opaque
 
   soundness-ℕ :
     Δ ⊢ t ∷ ℕ → 𝟘ᶜ ▸[ 𝟙ᵐ ] t →
-    ∃ λ n → Δ SR-η.⊢ t ⇒ˢ* sucᵏ n ∷ℕ × erase str t ⇒ˢ⟨ str ⟩* T.sucᵏ n
+    ∃ λ n → Δ SR-η.⊢ t ⇒ˢ* sucᵏ n ∷ℕ ×
+      (∀ str → erase str t ⇒ˢ⟨ str ⟩* T.sucᵏ n)
   soundness-ℕ = Soundness-η.soundness-ℕ ∘→ ⊢∷→⊢∷-η
 
 opaque
@@ -144,5 +142,5 @@ opaque
 
   soundness-Unit :
     Δ ⊢ t ∷ Unit s → 𝟘ᶜ ▸[ 𝟙ᵐ ] t →
-    Δ T-η.⊢ t ⇒* star s ∷ Unit s × erase str t T.⇒* T.star
+    Δ T-η.⊢ t ⇒* star s ∷ Unit s × (∀ str → erase str t T.⇒* T.star)
   soundness-Unit = Soundness-η.soundness-Unit ∘→ ⊢∷→⊢∷-η

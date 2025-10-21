@@ -347,7 +347,7 @@ opaque
        Γ ⊢ t ∷ A → γ ▸[ m ] t →
        γ ▸ Γ ⊩ʳ t ∷[ m ] A)
   negation-of-fundamental-lemma-without-consistency₆ {str} ok hyp =
-    case soundness-ℕ-counterexample₆ {str = str} ok of λ
+    case soundness-ℕ-counterexample₆ ok of λ
       (⊢t , ▸t , _) →
     ¬t®t $ ▸⊩ʳ∷[𝟙ᵐ]→®∷ $ hyp ⊢Δ ⦃ inc = included ⦄ ⊢t ▸t
     where
