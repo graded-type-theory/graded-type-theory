@@ -32,14 +32,10 @@ import Definition.LogicalRelation.Weakening R ⦃ eqRelInstance ⦄ as W
 open import Tools.Bool
 open import Tools.Fin
 open import Tools.Function
+open import Tools.List hiding (_∷_)
 open import Tools.Nat
 import Tools.PropositionalEquality as PE
 open import Tools.Product
-
-import Data.List as L
-import Data.List.Properties as L
-import Data.List.Relation.Unary.All as All
-import Data.List.Relation.Unary.Any as Any
 
 private
   variable

@@ -49,14 +49,11 @@ open import Definition.Typed.Consequences.NeTypeEq R
 open import Tools.Bool
 open import Tools.Fin
 open import Tools.Function
+open import Tools.List hiding (_∷_)
 open import Tools.Nat using (Nat; _≤?_)
 open import Tools.Product
 open import Tools.Empty
 open import Tools.Sum using (inj₁; inj₂; _⊎-dec_)
-
-import Data.List as L
-import Data.List.Relation.Unary.All as All
-import Data.List.Relation.Unary.Any as Any
 
 private
   variable

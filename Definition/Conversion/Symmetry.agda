@@ -37,16 +37,10 @@ open import Definition.Typed.Consequences.NeTypeEq R
 
 open import Tools.Bool
 open import Tools.Function
+open import Tools.List hiding (_∷_)
 open import Tools.Nat
 open import Tools.Product
 import Tools.PropositionalEquality as PE
-
-import Data.List as L
-import Data.List.Properties as L
-import Data.List.Relation.Unary.All as All
-import Data.List.Relation.Unary.All.Properties as All
-import Data.List.Relation.Unary.Any as Any
-import Data.List.Relation.Unary.Any.Properties as Any
 
 private
   variable

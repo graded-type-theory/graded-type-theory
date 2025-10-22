@@ -20,17 +20,10 @@ open import Definition.Typed.Properties R
 
 open import Tools.Bool
 open import Tools.Function
+open import Tools.List
 open import Tools.Nat
 open import Tools.Product
 import Tools.PropositionalEquality as PE
-
-import Data.List as L
-import Data.List.Properties as L
-import Data.List.Relation.Unary.All as All
-import Data.List.Relation.Unary.All.Properties as All
-import Data.List.Relation.Unary.Any as Any
-import Data.List.Relation.Unary.Any.Properties as Any
-import Data.List.Relation.Binary.Pointwise as P
 
 private
   variable
@@ -106,7 +99,7 @@ _≡≡⁺_ : Level⁺ Γ → Level⁺ Γ → Set a
 (n , a) ≡≡⁺ (m , b) = n PE.≡ m × a ≡≡ᵃ b
 
 _≡≡ᵛ_ : Levelᵛ Γ → Levelᵛ Γ → Set a
-_≡≡ᵛ_ = P.Pointwise _≡≡⁺_
+_≡≡ᵛ_ = Pointwise.Pointwise _≡≡⁺_
 
 -- Symmetry of syntactic equality.
 
@@ -118,7 +111,7 @@ sym-≡≡⁺ : ∀ {a b : Level⁺ Γ} → a ≡≡⁺ b → b ≡≡⁺ a
 sym-≡≡⁺ (n≡m , a≡b) = PE.sym n≡m , sym-≡≡ᵃ a≡b
 
 sym-≡≡ᵛ : ∀ {a b : Levelᵛ Γ} → a ≡≡ᵛ b → b ≡≡ᵛ a
-sym-≡≡ᵛ = P.symmetric sym-≡≡⁺
+sym-≡≡ᵛ = Pointwise.symmetric sym-≡≡⁺
 
 -- Transitivity of syntactic equality and weak equality.
 
@@ -133,8 +126,8 @@ trans-≡≡⁺-≤⁺ᵛ : ∀ {a b} {c : Levelᵛ Γ} → a ≡≡⁺ b → �
 trans-≡≡⁺-≤⁺ᵛ a≡b = Any.map (trans-≡≡⁺-≤⁺ a≡b)
 
 trans-≡≡ᵛ-≤ᵛ : ∀ {a b c : Levelᵛ Γ} → a ≡≡ᵛ b → ≤ᵛ d b c → ≤ᵛ d a c
-trans-≡≡ᵛ-≤ᵛ P.[] All.[] = All.[]
-trans-≡≡ᵛ-≤ᵛ (x P.∷ a≡b) (px All.∷ b≤c) = trans-≡≡⁺-≤⁺ᵛ x px All.∷ trans-≡≡ᵛ-≤ᵛ a≡b b≤c
+trans-≡≡ᵛ-≤ᵛ Pointwise.[] All.[] = All.[]
+trans-≡≡ᵛ-≤ᵛ (x Pointwise.∷ a≡b) (px All.∷ b≤c) = trans-≡≡⁺-≤⁺ᵛ x px All.∷ trans-≡≡ᵛ-≤ᵛ a≡b b≤c
 
 trans-≡≡ᵃ-≤ᵃ' : ∀ {a b c : LevelAtom Γ} → a ≡≡ᵃ b → ≤ᵃ d c b → ≤ᵃ d c a
 trans-≡≡ᵃ-≤ᵃ' zero zeroᵘ≤ = zeroᵘ≤
@@ -145,9 +138,9 @@ trans-≡≡⁺-≤⁺' : ∀ {a b c : Level⁺ Γ} → a ≡≡⁺ b → ≤⁺
 trans-≡≡⁺-≤⁺' (PE.refl , a≡b) (o≤m , c≤b) = o≤m , trans-≡≡ᵃ-≤ᵃ' a≡b c≤b
 
 trans-≡≡⁺-≤⁺ᵛ' : ∀ {a b} {c : Level⁺ Γ} → a ≡≡ᵛ b → ≤⁺ᵛ d c b → ≤⁺ᵛ d c a
-trans-≡≡⁺-≤⁺ᵛ' P.[] ()
-trans-≡≡⁺-≤⁺ᵛ' (x P.∷ a≡b) (Any.here px) = Any.here (trans-≡≡⁺-≤⁺' x px)
-trans-≡≡⁺-≤⁺ᵛ' (x P.∷ a≡b) (Any.there c≤b) = Any.there (trans-≡≡⁺-≤⁺ᵛ' a≡b c≤b)
+trans-≡≡⁺-≤⁺ᵛ' Pointwise.[] ()
+trans-≡≡⁺-≤⁺ᵛ' (x Pointwise.∷ a≡b) (Any.here px) = Any.here (trans-≡≡⁺-≤⁺' x px)
+trans-≡≡⁺-≤⁺ᵛ' (x Pointwise.∷ a≡b) (Any.there c≤b) = Any.there (trans-≡≡⁺-≤⁺ᵛ' a≡b c≤b)
 
 trans-≡≡ᵛ-≤ᵛ' : ∀ {a b c : Levelᵛ Γ} → a ≡≡ᵛ b → ≤ᵛ d c b → ≤ᵛ d c a
 trans-≡≡ᵛ-≤ᵛ' a≡b = All.map (trans-≡≡⁺-≤⁺ᵛ' a≡b)
@@ -161,14 +154,14 @@ trans-≡ᵛ-≡≡ᵛ (a≤b , b≤a) b≡c = trans-≡≡ᵛ-≤ᵛ' (sym-≡�
 -- Congruence lemmas for syntactic equality.
 
 ≡≡ᵛ-map-suc⁺ : ∀ {a b : Levelᵛ Γ} → a ≡≡ᵛ b → map-suc⁺ a ≡≡ᵛ map-suc⁺ b
-≡≡ᵛ-map-suc⁺ P.[] = P.[]
-≡≡ᵛ-map-suc⁺ ((x , y) P.∷ x₁) = (PE.cong 1+ x , y) P.∷ ≡≡ᵛ-map-suc⁺ x₁
+≡≡ᵛ-map-suc⁺ Pointwise.[] = Pointwise.[]
+≡≡ᵛ-map-suc⁺ ((x , y) Pointwise.∷ x₁) = (PE.cong 1+ x , y) Pointwise.∷ ≡≡ᵛ-map-suc⁺ x₁
 
 ≡≡ᵛ-sucᵛ : ∀ {a b : Levelᵛ Γ} → a ≡≡ᵛ b → sucᵛ a ≡≡ᵛ sucᵛ b
-≡≡ᵛ-sucᵛ eq = (PE.refl , zero) P.∷ ≡≡ᵛ-map-suc⁺ eq
+≡≡ᵛ-sucᵛ eq = (PE.refl , zero) Pointwise.∷ ≡≡ᵛ-map-suc⁺ eq
 
 ≡≡ᵛ-supᵛ : ∀ {a a′ b b′ : Levelᵛ Γ} → a ≡≡ᵛ b → a′ ≡≡ᵛ b′ → supᵛ a a′ ≡≡ᵛ supᵛ b b′
-≡≡ᵛ-supᵛ = P.++⁺
+≡≡ᵛ-supᵛ = Pointwise.++⁺
 
 -- Level normalisation is deterministic up to syntactic equality.
 
@@ -185,7 +178,7 @@ mutual
   deterministic-~ᵛ (supᵘʳₙ PE.refl x₁ x₂) (supᵘʳₙ PE.refl x₄ y) =
     ≡≡ᵛ-supᵛ (≡≡ᵛ-sucᵛ (deterministic-↑ᵛ x₁ x₄)) (deterministic-~ᵛ x₂ y)
   deterministic-~ᵛ (neₙ [t] PE.refl) (neₙ [t]₁ PE.refl) =
-    (PE.refl , ne _ _) P.∷ P.[]
+    (PE.refl , ne _ _) Pointwise.∷ Pointwise.[]
   -- Absurd cases
   deterministic-~ᵛ (supᵘˡₙ _ x₁ x₂) (supᵘʳₙ _ x₄ y) = case whnfConv~ᵛ x₁ of λ { (ne ()) }
   deterministic-~ᵛ (supᵘˡₙ x x₁ x₂) (neₙ [t] x₃) = case ne~↓ [t] of λ ()
@@ -195,7 +188,7 @@ mutual
   deterministic-~ᵛ (neₙ [t] x) (supᵘʳₙ x₁ x₂ y) = case ne~↓ [t] of λ ()
 
   deterministic-↓ᵛ : ∀ {t v v′} → Γ ⊢ t ↓ᵛ v → Γ ⊢ t ↓ᵛ v′ → v ≡≡ᵛ v′
-  deterministic-↓ᵛ (zeroᵘₙ x) (zeroᵘₙ x₁) = P.[]
+  deterministic-↓ᵛ (zeroᵘₙ x) (zeroᵘₙ x₁) = Pointwise.[]
   deterministic-↓ᵛ (sucᵘₙ PE.refl x₁) (sucᵘₙ PE.refl x₃) =
     ≡≡ᵛ-sucᵛ (deterministic-↑ᵛ x₁ x₃)
   deterministic-↓ᵛ (neₙ x) (neₙ x₁) = deterministic-~ᵛ x x₁

@@ -53,19 +53,13 @@ open import Tools.Empty
 open import Tools.Fin
 open import Tools.Function
 open import Tools.Level as L hiding (Level; Lift)
+open import Tools.List hiding (_∷_)
 open import Tools.Nat
 open import Tools.Product
 open import Tools.Sum
 import Tools.PropositionalEquality as PE
 open import Tools.Relation
 open import Tools.Unit
-
-import Data.List as L
-import Data.List.Properties as L
-import Data.List.Relation.Unary.All as All
-import Data.List.Relation.Unary.All.Properties as All
-import Data.List.Relation.Unary.Any as Any
-import Data.List.Relation.Unary.Any.Properties as Any
 
 private
   variable

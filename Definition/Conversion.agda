@@ -26,18 +26,12 @@ open import Definition.LogicalRelation.Properties R ⦃ eqRelInstance ⦄
 open import Tools.Bool
 open import Tools.Fin
 open import Tools.Function
-import Tools.List as L
+open import Tools.List hiding (_∷_)
 open import Tools.Nat
 open import Tools.Product
 import Tools.PropositionalEquality as PE
 open import Tools.Relation
 open import Tools.Sum
-
-import Data.List as L
-import Data.List.Relation.Unary.All as All
-import Data.List.Relation.Unary.All.Properties as All
-import Data.List.Relation.Unary.Any as Any
-import Data.List.Relation.Unary.Any.Properties as Any
 
 infix 10 _⊢_~_↑_
 infix 10 _⊢_~_↓_
@@ -323,7 +317,7 @@ mutual
   Level⁺ Γ = Nat × LevelAtom Γ
 
   Levelᵛ : Con Term n → Set a
-  Levelᵛ Γ = L.List (Level⁺ Γ)
+  Levelᵛ Γ = List (Level⁺ Γ)
 
   -- Equality of level views.
 

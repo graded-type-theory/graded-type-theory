@@ -39,18 +39,12 @@ open import Definition.Typed.Consequences.NeTypeEq R
 
 open import Tools.Bool
 open import Tools.Function
+open import Tools.List hiding (_∷_)
 open import Tools.Nat
 open import Tools.Product
 open import Tools.Empty
 import Tools.PropositionalEquality as PE
 open import Tools.Sum using (inj₁; inj₂)
-
-import Data.List as L
-import Data.List.Relation.Unary.All as All
-import Data.List.Relation.Unary.All.Properties as All
-import Data.List.Relation.Unary.Any as Any
-import Data.List.Relation.Unary.Any.Properties as Any
-
 
 private
   variable

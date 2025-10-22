@@ -40,14 +40,11 @@ open import Definition.Typed.Consequences.Reduction R
 
 open import Tools.Fin
 open import Tools.Function
+open import Tools.List hiding (_∷_)
 open import Tools.Nat
 open import Tools.Product
 import Tools.PropositionalEquality as PE
 open import Tools.Sum using (inj₁; inj₂)
-
-import Data.List as L
-import Data.List.Relation.Unary.All as All
-import Data.List.Relation.Unary.Any as Any
 
 private
   variable

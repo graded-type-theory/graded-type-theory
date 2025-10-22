@@ -27,14 +27,10 @@ open import Definition.Conversion.Soundness R
 
 open import Tools.Bool
 open import Tools.Function
+open import Tools.List hiding (_∷_)
 open import Tools.Nat
 open import Tools.Product
 import Tools.PropositionalEquality as PE
-
-import Data.List as L
-import Data.List.Properties as L
-import Data.List.Relation.Unary.All as All
-import Data.List.Relation.Unary.Any as Any
 
 private
   variable
