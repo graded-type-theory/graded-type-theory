@@ -124,20 +124,6 @@ opaque
   inverseUnivEq : Γ ⊢ A ∷ U l → Γ ⊢ A ≡ B → Γ ⊢ A ≡ B ∷ U l
   inverseUnivEq = inverseUnivEq′ ∘→ inj₁
 
-{-
-opaque
-
-  -- Γ ⊢ A ≡ B is logically equivalent to ∃ λ l → Γ ⊢ A ≡ B ∷ U l.
-
-  ⊢≡⇔⊢≡∷U : Γ ⊢ A ≡ B ⇔ ∃ λ l → Γ ⊢ A ≡ B ∷ U l
-  ⊢≡⇔⊢≡∷U =
-      (λ A≡B →
-         let ⊢A , _ = syntacticEq A≡B
-             l , ⊢A = inverseUniv ⊢A
-         in l , inverseUnivEq ⊢A A≡B)
-    , univ ∘→ proj₂
--}
-
 opaque
 
   -- If A has type U l and reduces to B, then A reduces to B at type
@@ -151,17 +137,3 @@ opaque
       inverseUnivRed*
         (conv (syntacticRedTerm (redMany A⇒C) .proj₂ .proj₂) (U-cong l≡l′))
         C⇒*B
-
-{-
-opaque
-
-  -- Γ ⊢ A ⇒* B is logically equivalent to ∃ λ l → Γ ⊢ A ⇒* B ∷ U l.
-
-  ⊢⇒*⇔⊢⇒*∷U : Γ ⊢ A ⇒* B ⇔ ∃ λ l → Γ ⊢ A ⇒* B ∷ U l
-  ⊢⇒*⇔⊢⇒*∷U =
-      (λ A⇒*B →
-         let ⊢A , _ = syntacticRed A⇒*B
-             l , ⊢A = inverseUniv ⊢A
-         in l , inverseUnivRed* ⊢A A⇒*B)
-    , univ* ∘→ proj₂
--}
