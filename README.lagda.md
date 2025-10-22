@@ -536,9 +536,9 @@ open Type-restrictions using (Level-is-small)
 import Definition.Typed.Inversion using (¬Level-is-small→¬Level∷U)
 ```
 
-Canonicity is proved for natural number terms in contexts consisting
-only of `Level` variables.
+Canonicity is proved for natural number terms in contexts where the
+type of every variable is either `Level` or `U t` for some `t`.
 ```agda
 import Definition.Typed.Consequences.Canonicity
-  using (canonicity-with-level-assumptions)
+  using (canonicity-Only-Level-or-U)
 ```
