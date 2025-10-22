@@ -9,6 +9,8 @@ jobs:
         with:
           extra_nix_config: |
             access-tokens = github.com=${{ secrets.GITHUB_TOKEN }}
+            extra-substituters = https://ncfavier.cachix.org
+            extra-trusted-public-keys = ncfavier.cachix.org-1:RpBMt+EIZOwVwU1CW71cWZAVJ9DCNbCMsX8VOGSf3ME=
       - name: Build
         run: |
           web=$(nix -L build --print-out-paths)
