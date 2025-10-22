@@ -50,7 +50,7 @@ data Neutral : Term n → Set a where
               Neutral t   → Neutral (unitrec p q A t u)
   Jₙ        : Neutral w   → Neutral (J p q A t B u v w)
   Kₙ        : Neutral v   → Neutral (K p A t B u v)
-  []-congₙ  : Neutral v   → Neutral ([]-cong s A t u v)
+  []-congₙ  : Neutral v   → Neutral ([]-cong s l A t u v)
 
 -- There are no closed neutral terms
 
@@ -542,7 +542,7 @@ opaque
 
   -- An inversion lemma for []-cong.
 
-  inv-ne-[]-cong : Neutral ([]-cong s A t u v) → Neutral v
+  inv-ne-[]-cong : Neutral ([]-cong s l A t u v) → Neutral v
   inv-ne-[]-cong ([]-congₙ n) = n
 
 ------------------------------------------------------------------------
@@ -623,7 +623,7 @@ opaque
 
   -- An inversion lemma for []-cong.
 
-  inv-whnf-[]-cong : Whnf ([]-cong s A t u v) → Neutral v
+  inv-whnf-[]-cong : Whnf ([]-cong s l A t u v) → Neutral v
   inv-whnf-[]-cong (ne! n) = inv-ne-[]-cong n
 
 ------------------------------------------------------------------------
@@ -643,4 +643,4 @@ data NeutralAt (x : Fin n) : Term n → Set a where
               NeutralAt x t   → NeutralAt x (unitrec p q A t u)
   Jₙ        : NeutralAt x w   → NeutralAt x (J p q A t B u v w)
   Kₙ        : NeutralAt x v   → NeutralAt x (K p A t B u v)
-  []-congₙ  : NeutralAt x v   → NeutralAt x ([]-cong s A t u v)
+  []-congₙ  : NeutralAt x v   → NeutralAt x ([]-cong s l A t u v)

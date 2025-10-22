@@ -58,7 +58,7 @@ mutual
     Σ.map Jₙ Jₙ (ne~↓ w₁~w₂ .proj₂)
   ne~↑ (K-cong _ _ _ _ v₁~v₂ _ _) =
     Σ.map Kₙ Kₙ (ne~↓ v₁~v₂ .proj₂)
-  ne~↑ ([]-cong-cong _ _ _ v₁~v₂ _ _) =
+  ne~↑ ([]-cong-cong _ _ _ _ v₁~v₂ _ _) =
     Σ.map []-congₙ []-congₙ (ne~↓ v₁~v₂ .proj₂)
 
   -- Extraction of neutrality and WHNF from algorithmic equality of neutrals

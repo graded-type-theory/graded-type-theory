@@ -49,27 +49,31 @@ private
   module U₂ = Definition.Untyped M₂
 
 private variable
-  x       : Fin _
-  Γ Δ     : Con _ _
-  A B t u : Term _ _
-  σ σ′    : Subst _ _ _
-  p q     : M₁
-  s       : Strength
+  x         : Fin _
+  Γ Δ       : Con _ _
+  A B l t u : Term _ _
+  σ σ′      : Subst _ _ _
+  p q       : M₁
+  s         : Strength
 
 opaque
+  unfolding Definition.Untyped.Erased.Erased
 
   -- If []-cong is allowed (in the source modality), then tr-Term
   -- commutes with Erased.
 
   tr-Term-Erased :
     R₁.[]-cong-allowed s →
-    E₂.Erased s (tr-Term A) PE.≡ tr-Term (E₁.Erased s A)
-  tr-Term-Erased ok =
-    PE.sym $ PE.cong₂ (λ p q → Σ p , q ▷ _ ▹ _)
-      (tr-Σ-𝟘-≡ (R₁.[]-cong→¬Trivial ok))
-      (tr-𝟘-≡ (R₁.[]-cong→¬Trivial ok))
+    E₂.Erased s (tr-Term l) (tr-Term A) PE.≡ tr-Term (E₁.Erased s l A)
+  tr-Term-Erased {s} ok =
+    PE.cong₄ Σ⟨ s ⟩_,_▷_▹_
+      (PE.sym $ tr-Σ-𝟘-≡ (R₁.[]-cong→¬Trivial ok))
+      (PE.sym $ tr-𝟘-≡ (R₁.[]-cong→¬Trivial ok))
+      PE.refl
+      (PE.cong (flip Lift _) tr-Term-wk)
 
 opaque
+  unfolding Definition.Untyped.Erased.[_]
 
   -- If []-cong is allowed (in the source modality), then tr-Term
   -- commutes with [_].
@@ -87,8 +91,9 @@ opaque
 
   tr-Term-Id-Erased-[]-[] :
     R₁.[]-cong-allowed s →
-    Id (E₂.Erased s (tr-Term A)) (E₂.[_] s (tr-Term t)) (E₂.[_] s (tr-Term u)) PE.≡
-    tr-Term (Id (E₁.Erased s A) (E₁.[_] s t) (E₁.[_] s u))
+    Id (E₂.Erased s (tr-Term l) (tr-Term A)) (E₂.[_] s (tr-Term t))
+      (E₂.[_] s (tr-Term u)) PE.≡
+    tr-Term (Id (E₁.Erased s l A) (E₁.[_] s t) (E₁.[_] s u))
   tr-Term-Id-Erased-[]-[] ok =
     PE.cong₃ Id (tr-Term-Erased ok) (tr-Term-[]′ ok)
       (tr-Term-[]′ ok)
@@ -223,9 +228,9 @@ mutual
       (PE.subst (T₂._⊢_∷_ _ _) (PE.sym $ tr-Term-[] B) $
        tr-⊢∷ u)
       (tr-⊢∷ v) (K-preserved ok)
-  tr-⊢∷ ([]-congⱼ _ _ _ v ok) =
+  tr-⊢∷ ([]-congⱼ _ A _ _ v ok) =
     PE.subst (T₂._⊢_∷_ _ _) (tr-Term-Id-Erased-[]-[] ok) $
-    []-congⱼ′ ([]-cong-preserved ok) (tr-⊢∷ v)
+    []-congⱼ′ ([]-cong-preserved ok) (tr-⊢∷ A) (tr-⊢∷ v)
   tr-⊢∷ (conv t A≡B) =
     conv (tr-⊢∷ t) (tr-⊢≡ A≡B)
 
@@ -412,10 +417,10 @@ mutual
       (PE.subst (T₂._⊢_≡_∷_ _ _ _) (PE.sym $ tr-Term-[] B₁) $
        tr-⊢≡∷ u₁≡u₂)
       (tr-⊢≡∷ v₁≡v₂) (K-preserved ok)
-  tr-⊢≡∷ ([]-cong-cong A₁≡A₂ t₁≡t₂ u₁≡u₂ v₁≡v₂ ok) =
+  tr-⊢≡∷ ([]-cong-cong l₁≡l₂ A₁≡A₂ t₁≡t₂ u₁≡u₂ v₁≡v₂ ok) =
     PE.subst (T₂._⊢_≡_∷_ _ _ _) (tr-Term-Id-Erased-[]-[] ok) $
-    []-cong-cong (tr-⊢≡ A₁≡A₂) (tr-⊢≡∷ t₁≡t₂) (tr-⊢≡∷ u₁≡u₂)
-      (tr-⊢≡∷ v₁≡v₂) ([]-cong-preserved ok)
+    []-cong-cong (tr-⊢≡∷ l₁≡l₂) (tr-⊢≡∷ A₁≡A₂) (tr-⊢≡∷ t₁≡t₂)
+      (tr-⊢≡∷ u₁≡u₂) (tr-⊢≡∷ v₁≡v₂) ([]-cong-preserved ok)
   tr-⊢≡∷ (J-β {B} t ⊢B u PE.refl) =
     PE.subst (T₂._⊢_≡_∷_ _ _ _) (tr-Term-[,] B) $
     J-β-≡ (tr-⊢∷ t)
@@ -433,9 +438,10 @@ mutual
       (PE.subst (T₂._⊢_∷_ _ _) (PE.sym $ tr-Term-[] B) $
        tr-⊢∷ u)
       (K-preserved ok)
-  tr-⊢≡∷ ([]-cong-β t PE.refl ok) =
+  tr-⊢≡∷ ([]-cong-β l A t PE.refl ok) =
     PE.subst (T₂._⊢_≡_∷_ _ _ _) (tr-Term-Id-Erased-[]-[] ok) $
-    []-cong-β (tr-⊢∷ t) PE.refl ([]-cong-preserved ok)
+    []-cong-β (tr-⊢∷ l) (tr-⊢∷ A) (tr-⊢∷ t) PE.refl
+      ([]-cong-preserved ok)
   tr-⊢≡∷ (equality-reflection ok _ v) =
     equality-reflection′ (Equality-reflection-preserved ok) (tr-⊢∷ v)
 
@@ -599,9 +605,9 @@ module _
       (PE.subst (T₂._⊢_∷_ _ _) (PE.sym $ tr-Term-[] B) $
        tr-⊢∷ u)
       (tr-⊢⇒∷ v₁⇒v₂) (K-preserved ok)
-  tr-⊢⇒∷ ([]-cong-subst _ _ _ v₁⇒v₂ ok) =
+  tr-⊢⇒∷ ([]-cong-subst A _ _ v₁⇒v₂ ok) =
     PE.subst (T₂._⊢_⇒_∷_ _ _ _) (tr-Term-Id-Erased-[]-[] ok) $
-    []-cong-subst′ (tr-⊢⇒∷ v₁⇒v₂) ([]-cong-preserved ok)
+    []-cong-subst′ (tr-⊢∷ A) (tr-⊢⇒∷ v₁⇒v₂) ([]-cong-preserved ok)
   tr-⊢⇒∷ (J-β {B} _ _ t≡t′ ⊢B _ u) =
     PE.subst (T₂._⊢_⇒_∷_ _ _ _) (tr-Term-[,] B) $
     J-β-⇒ (tr-⊢≡∷ t≡t′)
@@ -619,9 +625,9 @@ module _
       (PE.subst (T₂._⊢_∷_ _ _) (PE.sym $ tr-Term-[] B) $
        tr-⊢∷ u)
       (K-preserved ok)
-  tr-⊢⇒∷ ([]-cong-β _ _ _ t≡t′ ok) =
+  tr-⊢⇒∷ ([]-cong-β A _ _ t≡t′ ok) =
     PE.subst (T₂._⊢_⇒_∷_ _ _ _) (tr-Term-Id-Erased-[]-[] ok) $
-    []-cong-β-⇒ (tr-⊢≡∷ t≡t′) ([]-cong-preserved ok)
+    []-cong-β-⇒ (tr-⊢∷ A) (tr-⊢≡∷ t≡t′) ([]-cong-preserved ok)
 
   -- Preservation of _⊢_⇒_.
 

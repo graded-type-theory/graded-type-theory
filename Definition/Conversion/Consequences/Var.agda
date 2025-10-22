@@ -40,7 +40,8 @@ private variable
 -- variable x of type A is definitionally equal to is x.
 
 var-only-equal-to-itself :
-  No-η-equality A → ¬ Γ ⊢ A ≡ Level → Whnf t → Γ ⊢ var x ≡ t ∷ A → var x PE.≡ t
+  No-η-equality A → A PE.≢ Level → Whnf t → Γ ⊢ var x ≡ t ∷ A →
+  var x PE.≡ t
 var-only-equal-to-itself =
   λ A-no-η A≢Level t-whnf → [conv↑]∷-lemma A-no-η A≢Level t-whnf ∘→ completeEqTerm
   where
@@ -57,18 +58,19 @@ var-only-equal-to-itself =
   [conv↓]-lemma (ne x≡A) = ~↓-lemma x≡A
 
   [conv↓]∷-lemma :
-    No-η-equality A → ¬ Γ ⊢ A ≡ Level → Whnf t → Γ ⊢ var x [conv↓] t ∷ A → var x PE.≡ t
+    No-η-equality A → A PE.≢ Level → Whnf t → Γ ⊢ var x [conv↓] t ∷ A →
+    var x PE.≡ t
   [conv↓]∷-lemma = λ where
-    _             _ _ (univ _ _ x≡t)             → [conv↓]-lemma x≡t
-    _             A≢Level _ (Level-ins x≡t)      →
-      ⊥-elim (A≢Level (refl (Levelⱼ (wfEqTerm (soundnessConv↓Level x≡t)))))
-    _             _ _ (Σʷ-ins _ _ x≡t)           → ~↓-lemma x≡t
-    _             _ _ (Empty-ins x≡t)            → ~↓-lemma x≡t
-    _             _ _ (Unitʷ-ins _ x≡t)          → ~∷-lemma x≡t
-    _             _ _ (ℕ-ins x≡t)                → ~↓-lemma x≡t
-    _             _ _ (Id-ins _ x≡t)             → ~↓-lemma x≡t
-    _             _ _ (ne-ins _ _ _ x≡t)         → ~↓-lemma x≡t
-    (Unitʷₙ no-η) _ _ (η-unit _ _ _ _ _ (inj₂ η))  → ⊥-elim (no-η η)
+    _             _ _ (univ _ _ x≡t)              → [conv↓]-lemma x≡t
+    _             A≢Level _ (Level-ins x≡t)       → ⊥-elim $
+                                                    A≢Level PE.refl
+    _             _ _ (Σʷ-ins _ _ x≡t)            → ~↓-lemma x≡t
+    _             _ _ (Empty-ins x≡t)             → ~↓-lemma x≡t
+    _             _ _ (Unitʷ-ins _ x≡t)           → ~∷-lemma x≡t
+    _             _ _ (ℕ-ins x≡t)                 → ~↓-lemma x≡t
+    _             _ _ (Id-ins _ x≡t)              → ~↓-lemma x≡t
+    _             _ _ (ne-ins _ _ _ x≡t)          → ~↓-lemma x≡t
+    (Unitʷₙ no-η) _ _ (η-unit _ _ _ _ _ (inj₂ η)) → ⊥-elim (no-η η)
     (Unitʷₙ _)    _ _ (η-unit _ _ _ _ _ (inj₁ ()))
     (neₙ ())      _ _ (η-eq _ _ _ _ _)
     (neₙ ())      _ _ (Σ-η _ _ _ _ _ _)
@@ -76,7 +78,8 @@ var-only-equal-to-itself =
     (neₙ ())      _ _ (η-unit _ _ _ _ _ _)
 
   [conv↑]∷-lemma :
-    No-η-equality A → ¬ Γ ⊢ A ≡ Level → Whnf t → Γ ⊢ var x [conv↑] t ∷ A → var x PE.≡ t
+    No-η-equality A → A PE.≢ Level → Whnf t → Γ ⊢ var x [conv↑] t ∷ A →
+    var x PE.≡ t
   [conv↑]∷-lemma A-no-η A≢Level t-whnf x≡t@record{} =
     case whnfRed* (D .proj₁) (No-η-equality→Whnf A-no-η) of λ {
       PE.refl →

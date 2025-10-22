@@ -570,12 +570,13 @@ tr-Term-K {w = K _ _ _ _ _ _} refl =
 -- Inversion for []-cong.
 
 tr-Term-[]-cong :
-  tr-Term w ≡ []-cong s A t u v →
-  ∃₄ λ A′ t′ u′ v′ →
-     w ≡ []-cong s A′ t′ u′ v′ ×
-     tr-Term A′ ≡ A × tr-Term t′ ≡ t × tr-Term u′ ≡ u × tr-Term v′ ≡ v
-tr-Term-[]-cong {w = []-cong _ _ _ _ _} refl =
-  _ # _ # _ # _ # refl # refl # refl # refl # refl
+  tr-Term w ≡ []-cong s l A t u v →
+  ∃₅ λ l′ A′ t′ u′ v′ →
+     w ≡ []-cong s l′ A′ t′ u′ v′ ×
+     tr-Term l′ ≡ l × tr-Term A′ ≡ A × tr-Term t′ ≡ t × tr-Term u′ ≡ u ×
+     tr-Term v′ ≡ v
+tr-Term-[]-cong {w = []-cong _ _ _ _ _ _} refl =
+  _ # _ # _ # _ # _ # refl # refl # refl # refl # refl # refl
 
 mutual
 

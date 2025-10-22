@@ -41,16 +41,15 @@ private
   module CR {n} = Tools.Reasoning.PartialOrder (≤ᶜ-poset {n = n})
 
 private variable
-  l           : Nat
-  x           : Fin _
-  A B t u v w : Term _
-  p q r       : M
-  γ           : Conₘ _
-  s           : Strength
-  b           : BinderMode
-  m           : Mode
-  sem         : Some-erased-matches
-  ok          : T _
+  x             : Fin _
+  A B l t u v w : Term _
+  p q r         : M
+  γ             : Conₘ _
+  s             : Strength
+  b             : BinderMode
+  m             : Mode
+  sem           : Some-erased-matches
+  ok            : T _
 
 ------------------------------------------------------------------------
 -- Usage-restrictions-satisfied
@@ -217,11 +216,12 @@ data Usage-restrictions-satisfied {n} (m : Mode) : Term n → Set a where
     Usage-restrictions-satisfied m (K p A t B u v)
   []-congᵤ :
     []-cong-allowed-mode s m →
+    Usage-restrictions-satisfied 𝟘ᵐ? l →
     Usage-restrictions-satisfied 𝟘ᵐ? A →
     Usage-restrictions-satisfied 𝟘ᵐ? t →
     Usage-restrictions-satisfied 𝟘ᵐ? u →
     Usage-restrictions-satisfied 𝟘ᵐ? v →
-    Usage-restrictions-satisfied m ([]-cong s A t u v)
+    Usage-restrictions-satisfied m ([]-cong s l A t u v)
 
 ------------------------------------------------------------------------
 -- Usage-restrictions-satisfied-𝟙ᵐ→ and some related definitions
@@ -463,8 +463,8 @@ opaque
     (K₀ᵤ₂ ≡all A t B u v) →
       K₀ᵤ₂ (≤ᵉᵐ→≡all→≡all erased-matches-for-K-≤ᵉᵐ ≡all) A t B
         (Usage-restrictions-satisfied-𝟙ᵐ→ u) v
-    ([]-congᵤ ok A t u v) →
-      []-congᵤ ([]-cong-allowed-mode-downwards-closed ok) A t u v
+    ([]-congᵤ ok l A t u v) →
+      []-congᵤ ([]-cong-allowed-mode-downwards-closed ok) l A t u v
 
 opaque
 
@@ -622,8 +622,9 @@ opaque
         (▸→Usage-restrictions-satisfied ▸B)
         (▸→Usage-restrictions-satisfied ▸u)
         (▸→Usage-restrictions-satisfied ▸v)
-    ([]-congₘ ▸A ▸t ▸u ▸v ok) →
-      []-congᵤ ok (▸→Usage-restrictions-satisfied ▸A)
+    ([]-congₘ ▸l ▸A ▸t ▸u ▸v ok) →
+      []-congᵤ ok (▸→Usage-restrictions-satisfied ▸l)
+        (▸→Usage-restrictions-satisfied ▸A)
         (▸→Usage-restrictions-satisfied ▸t)
         (▸→Usage-restrictions-satisfied ▸u)
         (▸→Usage-restrictions-satisfied ▸v)
@@ -817,8 +818,9 @@ opaque
              𝟘ᶜ                ∎)
           (lemma u-ok)
           (lemma-𝟘ᵐ? v-ok)
-      ([]-congᵤ ok A-ok t-ok u-ok v-ok) →
+      ([]-congᵤ ok l-ok A-ok t-ok u-ok v-ok) →
         []-congₘ
+          (lemma-𝟘ᵐ? l-ok)
           (lemma-𝟘ᵐ? A-ok)
           (lemma-𝟘ᵐ? t-ok)
           (lemma-𝟘ᵐ? u-ok)
@@ -982,10 +984,10 @@ opaque
           (K₀ₘ₂ {γ₃ = 𝟘ᶜ} ok (lemma₀ A-ok) (lemma₀ t-ok) (lemma B-ok)
              (lemma₀ u-ok) (lemma₀ v-ok))
           (≈ᶜ-trivial 𝟙≡𝟘)
-      ([]-congᵤ ok A-ok t-ok u-ok v-ok) →
+      ([]-congᵤ ok l-ok A-ok t-ok u-ok v-ok) →
         sub
-          ([]-congₘ (lemma₀ A-ok) (lemma₀ t-ok) (lemma₀ u-ok)
-             (lemma₀ v-ok) ok)
+          ([]-congₘ (lemma₀ l-ok) (lemma₀ A-ok) (lemma₀ t-ok)
+             (lemma₀ u-ok) (lemma₀ v-ok) ok)
           (≈ᶜ-trivial 𝟙≡𝟘)
       varᵤ →
         sub var (≈ᶜ-trivial 𝟙≡𝟘)

@@ -353,7 +353,7 @@ wk-erase-comm {s} _ (Id _ _ _) = wk-loop? s
 wk-erase-comm {s} _ U.rfl = wk-loop? s
 wk-erase-comm _ (J _ _ _ _ _ u _ _) = wk-erase-comm _ u
 wk-erase-comm _ (K _ _ _ _ u _) = wk-erase-comm _ u
-wk-erase-comm {s} _ ([]-cong _ _ _ _ _) = wk-loop? s
+wk-erase-comm {s} _ ([]-cong _ _ _ _ _ _) = wk-loop? s
 
 -- Lifting substitutions commute with erase
 
@@ -531,7 +531,7 @@ subst-erase-comm {s} _ (Id _ _ _) = loop?-[] s
 subst-erase-comm {s} _ U.rfl = loop?-[] s
 subst-erase-comm _ (J _ _ _ _ _ u _ _) = subst-erase-comm _ u
 subst-erase-comm _ (K _ _ _ _ u _) = subst-erase-comm _ u
-subst-erase-comm {s} _ ([]-cong _ _ _ _ _) = loop?-[] s
+subst-erase-comm {s} _ ([]-cong _ _ _ _ _ _) = loop?-[] s
 
 subst-undefined : (x : Fin (1+ n)) →
       eraseSubst′ b s (U.sgSubst Empty) x ≡
@@ -794,20 +794,20 @@ module hasX (R : Usage-restrictions) where
   erased-hasX erased (sub δ▸t γ≤δ) hasX =
     erased-hasX (x◂𝟘∈γ≤δ erased γ≤δ) δ▸t hasX
 
-  erased-hasX {s} _ Levelₘ               = loop?-closed s
-  erased-hasX {s} _ zeroᵘₘ               = loop?-closed s
-  erased-hasX {s} _ (sucᵘₘ _)            = loop?-closed s
-  erased-hasX {s} _ (supᵘₘ _ _)          = loop?-closed s
-  erased-hasX {s} _ (Uₘ _)               = loop?-closed s
-  erased-hasX {s} _ (Liftₘ _ _)          = loop?-closed s
-  erased-hasX {s} _ ℕₘ                   = loop?-closed s
-  erased-hasX {s} _ Emptyₘ               = loop?-closed s
-  erased-hasX {s} _ Unitₘ                = loop?-closed s
-  erased-hasX {s} _ (ΠΣₘ _ _)            = loop?-closed s
-  erased-hasX {s} _ (Idₘ _ _ _ _)        = loop?-closed s
-  erased-hasX {s} _ (Id₀ₘ _ _ _ _)       = loop?-closed s
-  erased-hasX {s} _ rflₘ                 = loop?-closed s
-  erased-hasX {s} _ ([]-congₘ _ _ _ _ _) = loop?-closed s
+  erased-hasX {s} _ Levelₘ                 = loop?-closed s
+  erased-hasX {s} _ zeroᵘₘ                 = loop?-closed s
+  erased-hasX {s} _ (sucᵘₘ _)              = loop?-closed s
+  erased-hasX {s} _ (supᵘₘ _ _)            = loop?-closed s
+  erased-hasX {s} _ (Uₘ _)                 = loop?-closed s
+  erased-hasX {s} _ (Liftₘ _ _)            = loop?-closed s
+  erased-hasX {s} _ ℕₘ                     = loop?-closed s
+  erased-hasX {s} _ Emptyₘ                 = loop?-closed s
+  erased-hasX {s} _ Unitₘ                  = loop?-closed s
+  erased-hasX {s} _ (ΠΣₘ _ _)              = loop?-closed s
+  erased-hasX {s} _ (Idₘ _ _ _ _)          = loop?-closed s
+  erased-hasX {s} _ (Id₀ₘ _ _ _ _)         = loop?-closed s
+  erased-hasX {s} _ rflₘ                   = loop?-closed s
+  erased-hasX {s} _ ([]-congₘ _ _ _ _ _ _) = loop?-closed s
 
   erased-hasX _ starʷₘ     ()
   erased-hasX _ (starˢₘ _) ()

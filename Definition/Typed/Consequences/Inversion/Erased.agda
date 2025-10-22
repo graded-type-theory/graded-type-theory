@@ -1,5 +1,5 @@
 ------------------------------------------------------------------------
--- Some inversion lemmas related to typing and Erased
+-- Lemmas related to inversion for typing for Erased
 ------------------------------------------------------------------------
 
 open import Definition.Typed.Restrictions
@@ -20,8 +20,10 @@ open Type-restrictions R
 open import Definition.Typed R
 open import Definition.Typed.Consequences.Inequality R
 open import Definition.Typed.Consequences.Injectivity R
+open import Definition.Typed.Inversion R
 open import Definition.Typed.Properties R
 open import Definition.Typed.Substitution R
+open import Definition.Typed.Weakening R
 
 open import Definition.Untyped M
 open import Definition.Untyped.Erased 𝕄 s
@@ -34,27 +36,33 @@ import Tools.PropositionalEquality as PE
 open import Tools.Relation
 
 private variable
-  Γ   : Con Term _
-  A t : Term _
+  Γ     : Con Term _
+  A l t : Term _
 
 opaque
+  unfolding Erased [_]
 
   -- An inversion lemma for [_].
   --
-  -- See also Definition.Typed.Inversion.inversion-[].
+  -- See also
+  -- Definition.Typed.Properties.Admissible.Erased.inversion-[].
 
   inversion-[]′ :
     ⦃ ok : No-equality-reflection or-empty Γ ⦄ →
-    Γ ⊢ [ t ] ∷ Erased A →
+    Γ ⊢ [ t ] ∷ Erased l A →
     Γ ⊢ t ∷ A × Erased-allowed s
   inversion-[]′ ⊢[] =
-    case inversion-[] ⊢[] of λ {
-      (_ , _ , _ , ⊢t , Erased-ok , Erased-A≡ , _) →
-    case ΠΣ-injectivity Erased-A≡ of λ {
-      (A≡ , _ , _ , PE.refl , _) →
-    conv ⊢t (_⊢_≡_.sym A≡) , Erased-ok }}
+    case inversion-prod ⊢[] of λ
+      (_ , _ , _ , _ , _ , ⊢t , ⊢lift-star , Erased-l-A≡ΠΣ , Σˢ-ok) →
+    case ΠΣ-injectivity Erased-l-A≡ΠΣ of λ {
+      (A≡B , _ , _ , PE.refl , _) →
+    let _ , _ , ⊢star , _ = inversion-lift ⊢lift-star
+        _ , Unit-ok       = inversion-star ⊢star
+    in
+    conv ⊢t (sym A≡B) , (Unit-ok , Σˢ-ok) }
 
 opaque
+  unfolding [_]
 
   -- If Erased is allowed, then a certain form of inversion for [_]
   -- does not hold.
@@ -63,7 +71,8 @@ opaque
     Erased-allowed s →
     ¬ (∀ {n} {Γ : Con Term n} {t A : Term n} →
        Γ ⊢ [ t ] ∷ A →
-       ∃₂ λ B q → Γ ⊢ t ∷ B × Γ ⊢ A ≡ Σ⟨ s ⟩ 𝟘 , q ▷ B ▹ Unit s)
+       ∃₃ λ B q l →
+         Γ ⊢ t ∷ B × Γ ⊢ A ≡ Σ⟨ s ⟩ 𝟘 , q ▷ B ▹ Lift l (Unit s))
   ¬-inversion-[]′ (Unit-ok , Σ-ok) inversion-[] = bad
     where
     Γ′ : Con Term 0
@@ -73,7 +82,9 @@ opaque
     t′ = zero
 
     A′ : Term 0
-    A′ = Σ 𝟘 , 𝟘 ▷ ℕ ▹ natrec 𝟙 𝟙 𝟙 (U zeroᵘ) Unit! ℕ (var x0)
+    A′ =
+      Σ 𝟘 , 𝟘 ▷ ℕ ▹
+      natrec 𝟙 𝟙 𝟙 (U zeroᵘ) (Lift zeroᵘ (Unit s)) ℕ (var x0)
 
     ⊢Γ′∙ℕ : ⊢ Γ′ ∙ ℕ
     ⊢Γ′∙ℕ = ∙ ℕⱼ ε
@@ -84,33 +95,37 @@ opaque
     ⊢Γ′∙ℕ∙U : ⊢ Γ′ ∙ ℕ ∙ U zeroᵘ
     ⊢Γ′∙ℕ∙U = ∙ Uⱼ (zeroᵘⱼ ⊢Γ′∙ℕ)
 
+    ⊢Lift-Unit : ε ⊢ Lift zeroᵘ (Unit s) ∷ U zeroᵘ
+    ⊢Lift-Unit =
+      conv (Liftⱼ′ (zeroᵘⱼ ε) (Unitⱼ ε Unit-ok))
+        (U-cong (supᵘ-zeroˡ (zeroᵘⱼ ε)))
+
     ⊢[t′] : Γ′ ⊢ [ t′ ] ∷ A′
     ⊢[t′] = prodⱼ
-      (univ (natrecⱼ
-               (Unitⱼ ⊢Γ′∙ℕ Unit-ok)
-               (ℕⱼ (∙ Uⱼ (zeroᵘⱼ ⊢Γ′∙ℕ∙ℕ)))
-               (var ⊢Γ′∙ℕ here)))
+      (_⊢_.univ $
+       natrecⱼ (wkTerm₁ (ℕⱼ ε) ⊢Lift-Unit) (ℕⱼ (∙ Uⱼ (zeroᵘⱼ ⊢Γ′∙ℕ∙ℕ)))
+         (var ⊢Γ′∙ℕ here))
       (zeroⱼ ε)
-      (conv (starⱼ ε Unit-ok)
-         (_⊢_≡_.sym $
-          univ (natrec-zero (Unitⱼ ε Unit-ok) (ℕⱼ ⊢Γ′∙ℕ∙U))))
+      (conv (liftⱼ′ (zeroᵘⱼ ε) (starⱼ ε Unit-ok))
+         (_⊢_≡_.sym $ univ (natrec-zero ⊢Lift-Unit (ℕⱼ ⊢Γ′∙ℕ∙U))))
       Σ-ok
 
-    ℕ≡Unit : Γ′ ⊢ ℕ ≡ Unit s
-    ℕ≡Unit =
-      case inversion-[] ⊢[t′] of
-        λ (_ , _ , _ , A′≡) →
-      case ΠΣ-injectivity ⦃ ok = ε ⦄ A′≡ of
-        λ (_ , ≡Unit , _ , _ , _) →
+    ℕ≡Lift : ∃ λ l → Γ′ ⊢ ℕ ≡ Lift l (Unit s)
+    ℕ≡Lift =
+      let _ , _ , _ , _ , A′≡        = inversion-[] ⊢[t′]
+          _ , ≡Lift-Unit , _ , _ , _ = ΠΣ-injectivity ⦃ ok = ε ⦄ A′≡
+      in
+      _ ,
       trans
         (_⊢_≡_.sym $ _⊢_≡_.univ $
-         natrec-suc (Unitⱼ ε Unit-ok) (ℕⱼ ⊢Γ′∙ℕ∙U) (zeroⱼ ε))
-        (≡Unit (refl (sucⱼ (zeroⱼ ε))))
+         natrec-suc ⊢Lift-Unit (ℕⱼ ⊢Γ′∙ℕ∙U) (zeroⱼ ε))
+        (≡Lift-Unit (refl (sucⱼ (zeroⱼ ε))))
 
     bad : ⊥
-    bad = ℕ≢Unitⱼ ⦃ ok = ε ⦄ ℕ≡Unit
+    bad = Lift≢ℕ ⦃ ok = ε ⦄ (sym (ℕ≡Lift .proj₂))
 
 opaque
+  unfolding Erased
 
   -- If Erased is allowed, then another form of inversion for [] also
   -- does not hold.
@@ -119,9 +134,8 @@ opaque
     Erased-allowed s →
     ¬ (∀ {n} {Γ : Con Term n} {t A : Term n} →
        Γ ⊢ [ t ] ∷ A →
-       ∃ λ B → Γ ⊢ t ∷ B × Γ ⊢ A ≡ Erased B)
+       ∃₂ λ B l → Γ ⊢ t ∷ B × Γ ⊢ A ≡ Erased l B)
   ¬-inversion-[] Erased-ok inversion-[] =
     ¬-inversion-[]′ Erased-ok λ ⊢[] →
-    case inversion-[] ⊢[] of λ {
-      (B , ⊢t , A≡) →
-    B , 𝟘 , ⊢t , A≡ }
+    let B , l , ⊢t , A≡ = inversion-[] ⊢[] in
+    B , 𝟘 , wk1 l , ⊢t , A≡

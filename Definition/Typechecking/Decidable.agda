@@ -177,7 +177,7 @@ mutual
     helper A@(K _ _ _ _ _ _) = λ where
       (yes A)  → yes (checkᶜ A)
       (no not) → no λ { (checkᶜ A) → not A }
-    helper A@([]-cong _ _ _ _ _) = λ where
+    helper A@([]-cong _ _ _ _ _ _) = λ where
       (yes A)  → yes (checkᶜ A)
       (no not) → no λ { (checkᶜ A) → not A }
 
@@ -287,12 +287,13 @@ mutual
       (yes (A , t , B , u , v)) → yes (Kᵢ A t B u v)
       (no not)                  →
         no λ { (Kᵢ A t B u v) → not (A , t , B , u , v) }
-  dec-Inferable ([]-cong s A t u v) =
-    case dec-Checkable-type A ×-dec dec-Checkable t ×-dec
-         dec-Checkable u ×-dec dec-Checkable v of λ where
-      (yes (A , t , u , v)) → yes ([]-congᵢ A t u v)
-      (no not)              →
-        no λ { ([]-congᵢ A t u v) → not (A , t , u , v) }
+  dec-Inferable ([]-cong s l A t u v) =
+    case dec-Checkable l ×-dec dec-Checkable A ×-dec
+         dec-Checkable t ×-dec dec-Checkable u ×-dec
+         dec-Checkable v of λ where
+      (yes (l , A , t , u , v)) → yes ([]-congᵢ l A t u v)
+      (no not)                  →
+        no λ { ([]-congᵢ l A t u v) → not (l , A , t , u , v) }
 
   -- Decidability of terms being checkable
 
@@ -395,7 +396,7 @@ mutual
     helper (K _ _ _ _ _ _) = λ where
       (yes t) → yes (infᶜ t)
       (no ¬t) → no λ { (infᶜ t) → ¬t t }
-    helper ([]-cong _ _ _ _ _) = λ where
+    helper ([]-cong _ _ _ _ _ _) = λ where
       (yes t) → yes (infᶜ t)
       (no ¬t) → no λ { (infᶜ t) → ¬t t }
 
@@ -815,8 +816,8 @@ mutual
       (yes ((_ , K′) , (_ , A))) → yes (univᶜ (infᶜ K′ A))
       (no not)                   →
         no λ { (univᶜ (infᶜ K′ A)) → not ((_ , K′) , (_ , A)) }
-  dec⇉Type _ ([]-congᵢ _ _ _ _) =
-    no λ { (univᶜ (infᶜ ([]-congᵢ _ _ _ _ _) ≡U)) → Id≢U ≡U }
+  dec⇉Type _ ([]-congᵢ _ _ _ _ _) =
+    no λ { (univᶜ (infᶜ ([]-congᵢ _ _ _ _ _ _) ≡U)) → Id≢U ≡U }
 
   -- It is decidable whether a checkable type is a type.
 
@@ -943,17 +944,18 @@ mutual
     dec⇉-J ⊢Γ A t B u v w
   dec⇉ ⊢Γ (Kᵢ A t B u v) =
     dec⇉-K ⊢Γ A t B u v
-  dec⇉ ⊢Γ ([]-congᵢ {s} A t u v) =
+  dec⇉ ⊢Γ ([]-congᵢ {s} l A t u v) =
     case
       ([]-cong-allowed? s ×-dec
-       dec⇇Type-with-cont ⊢Γ A λ ⊢A →
-       dec⇇-with-cont t ⊢A λ ⊢t →
-       dec⇇-with-cont u ⊢A λ ⊢u →
+       dec⇇-with-cont l (Levelⱼ ⊢Γ) λ ⊢l →
+       dec⇇-with-cont A (Uⱼ ⊢l) λ ⊢A →
+       dec⇇-with-cont t (univ ⊢A) λ ⊢t →
+       dec⇇-with-cont u (univ ⊢A) λ ⊢u →
        dec⇇ v (Idⱼ′ ⊢t ⊢u))
       of λ where
-      (yes (ok , A , t , u , v)) → yes (_ , []-congᵢ A t u v ok)
-      (no not)                   →
-        no λ { (_ , []-congᵢ A t u v ok) → not (ok , A , t , u , v) }
+      (yes (ok , l , A , t , u , v)) → yes (_ , []-congᵢ l A t u v ok)
+      (no not)                       → no λ where
+        (_ , []-congᵢ l A t u v ok) → not (ok , l , A , t , u , v)
 
   -- Decidability of bi-directional type checking
 

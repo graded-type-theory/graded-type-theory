@@ -1176,18 +1176,21 @@ opaque
   ▸prodʰʷ ▸t ▸u = prodʷₘ (liftₘ ▸t) (liftₘ ▸u)
 
 opaque
-  unfolding prodrecʰ
+  unfolding prodrecʰ⟨_⟩
 
-  -- A usage lemma for prodrecʰ.
+  -- A usage lemma for prodrecʰ⟨_⟩.
 
-  ▸prodrecʰ :
-    Prodrec-allowed m r p q →
-    η ∙ ⌜ 𝟘ᵐ? ⌝ · q ▸[ 𝟘ᵐ? ] A →
+  ▸prodrecʰ⟨⟩ :
+    (s PE.≡ 𝕤 → m ᵐ· r · p PE.≡ 𝟙ᵐ → p ≤ 𝟙) →
+    (s PE.≡ 𝕤 → r′ ≤ ⌜ m ⌝ · r · (𝟙 + p)) →
+    (s PE.≡ 𝕨 → r′ ≤ r) →
+    (s PE.≡ 𝕨 → Prodrec-allowed m r p q) →
+    (s PE.≡ 𝕨 → ∃ λ η → η ∙ ⌜ 𝟘ᵐ? ⌝ · q ▸[ 𝟘ᵐ? ] A) →
     γ ▸[ m ᵐ· r ] t →
     δ ∙ ⌜ m ⌝ · r · p ∙ ⌜ m ⌝ · r ▸[ m ] u →
-    r ·ᶜ γ +ᶜ δ ▸[ m ] prodrecʰ r p q A t u
-  ▸prodrecʰ {m} {r} {p} {δ} ok ▸A ▸t ▸u =
-    prodrecₘ ▸t
+    r′ ·ᶜ γ +ᶜ δ ▸[ m ] prodrecʰ⟨ s ⟩ r p q A t u
+  ▸prodrecʰ⟨⟩ {m} {r} {p} {δ} hyp₁ hyp₂ hyp₃ ok ▸A ▸t ▸u =
+    ▸prodrec⟨⟩ hyp₁ hyp₂ hyp₃ ok ▸A ▸t
       (sub
          (substₘ-lemma _
             (▶-cong _
@@ -1223,6 +1226,5 @@ opaque
 
             (δ ∙ ⌜ m ⌝ · r · p ∙ ⌜ m ⌝ · r) <*
               replace₂ₘ (𝟘ᶜ ∙ 𝟙 ∙ 𝟘) (𝟘ᶜ ∙ 𝟙)                  ∎))
-      ▸A ok
     where
     open ≤ᶜ-reasoning

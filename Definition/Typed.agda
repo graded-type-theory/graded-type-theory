@@ -177,14 +177,15 @@ mutual
               → Γ ⊢ v ∷ Id A t t
               → K-allowed
               → Γ ⊢ K p A t B u v ∷ B [ v ]₀
-    []-congⱼ  : Γ ⊢ A
+    []-congⱼ  : Γ ⊢ l ∷ Level
+              → Γ ⊢ A ∷ U l
               → Γ ⊢ t ∷ A
               → Γ ⊢ u ∷ A
               → Γ ⊢ v ∷ Id A t u
               → []-cong-allowed k
               → let open Erased k in
-                Γ ⊢ []-cong k A t u v ∷
-                  Id (Erased A) ([ t ]) ([ u ])
+                Γ ⊢ []-cong k l A t u v ∷
+                  Id (Erased l A) ([ t ]) ([ u ])
 
   -- Type equality
   data _⊢_≡_ (Γ : Con Term n) : Term n → Term n → Set ℓ where
@@ -426,20 +427,24 @@ mutual
                   → Γ ⊢ u ∷ B [ rfl ]₀
                   → K-allowed
                   → Γ ⊢ K p A t B u rfl ≡ u ∷ B [ rfl ]₀
-    []-cong-cong  : Γ ⊢ A₁ ≡ A₂
+    []-cong-cong  : Γ ⊢ l₁ ≡ l₂ ∷ Level
+                  → Γ ⊢ A₁ ≡ A₂ ∷ U l₁
                   → Γ ⊢ t₁ ≡ t₂ ∷ A₁
                   → Γ ⊢ u₁ ≡ u₂ ∷ A₁
                   → Γ ⊢ v₁ ≡ v₂ ∷ Id A₁ t₁ u₁
                   → []-cong-allowed k
                   → let open Erased k in
-                    Γ ⊢ []-cong k A₁ t₁ u₁ v₁ ≡ []-cong k A₂ t₂ u₂ v₂ ∷
-                      Id (Erased A₁) ([ t₁ ]) ([ u₁ ])
-    []-cong-β     : Γ ⊢ t ∷ A
+                    Γ ⊢ []-cong k l₁ A₁ t₁ u₁ v₁ ≡
+                      []-cong k l₂ A₂ t₂ u₂ v₂ ∷
+                      Id (Erased l₁ A₁) ([ t₁ ]) ([ u₁ ])
+    []-cong-β     : Γ ⊢ l ∷ Level
+                  → Γ ⊢ A ∷ U l
+                  → Γ ⊢ t ∷ A
                   → t PE.≡ t′
                   → []-cong-allowed k
                   → let open Erased k in
-                    Γ ⊢ []-cong k A t t′ rfl ≡ rfl ∷
-                      Id (Erased A) ([ t ]) ([ t′ ])
+                    Γ ⊢ []-cong k l A t t′ rfl ≡ rfl ∷
+                      Id (Erased l A) ([ t ]) ([ t′ ])
     equality-reflection
                   : Equality-reflection
                   → Γ ⊢ Id A t u
@@ -583,22 +588,22 @@ data _⊢_⇒_∷_ (Γ : Con Term n) : Term n → Term n → Term n → Set ℓ 
                  → Γ ⊢ u ∷ B [ rfl ]₀
                  → K-allowed
                  → Γ ⊢ K p A t B u rfl ⇒ u ∷ B [ rfl ]₀
-  []-cong-subst  : Γ ⊢ A
+  []-cong-subst  : Γ ⊢ A ∷ U l
                  → Γ ⊢ t ∷ A
                  → Γ ⊢ u ∷ A
                  → Γ ⊢ v₁ ⇒ v₂ ∷ Id A t u
                  → []-cong-allowed k
                  → let open Erased k in
-                   Γ ⊢ []-cong k A t u v₁ ⇒ []-cong k A t u v₂ ∷
-                     Id (Erased A) ([ t ]) ([ u ])
-  []-cong-β      : Γ ⊢ A
+                   Γ ⊢ []-cong k l A t u v₁ ⇒ []-cong k l A t u v₂ ∷
+                     Id (Erased l A) ([ t ]) ([ u ])
+  []-cong-β      : Γ ⊢ A ∷ U l
                  → Γ ⊢ t ∷ A
                  → Γ ⊢ t′ ∷ A
                  → Γ ⊢ t ≡ t′ ∷ A
                  → []-cong-allowed k
                  → let open Erased k in
-                   Γ ⊢ []-cong k A t t′ rfl ⇒ rfl ∷
-                     Id (Erased A) ([ t ]) ([ t′ ])
+                   Γ ⊢ []-cong k l A t t′ rfl ⇒ rfl ∷
+                     Id (Erased l A) ([ t ]) ([ t′ ])
 
 -- Type reduction
 data _⊢_⇒_ (Γ : Con Term n) : Term n → Term n → Set ℓ where

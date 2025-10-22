@@ -160,7 +160,7 @@ import Definition.Typed.Properties.Admissible.Pi
 import Definition.Typed.Properties.Admissible.Sigma using
   (prodʰⱼ; prodʰ-cong;
    fstʰⱼ; sndʰⱼ; fstʰ-cong; sndʰ-cong; Σʰ-β₁; Σʰ-β₂; Σʰ-η;
-   ⊢prodrecʰ; prodrecʰ-cong; prodrecʰ-β)
+   ⊢prodrecʰ⟨⟩; prodrecʰ⟨⟩-cong; prodrecʰ⟨⟩-β)
 ```
 
 Well-formedness and subject reduction are only mentioned in the
@@ -536,9 +536,9 @@ open Type-restrictions using (Level-is-small)
 import Definition.Typed.Inversion using (¬Level-is-small→¬Level∷U)
 ```
 
-Canonicity is proved for natural number terms in contexts consisting
-only of `Level` variables.
+Canonicity is proved for natural number terms in contexts where the
+type of every variable is either `Level` or `U t` for some `t`.
 ```agda
 import Definition.Typed.Consequences.Canonicity
-  using (canonicity-with-level-assumptions)
+  using (canonicity-Only-Level-or-U)
 ```

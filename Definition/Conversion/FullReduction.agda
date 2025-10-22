@@ -29,6 +29,7 @@ open import Definition.Typed.Properties R
 open import Definition.Typed.Stability R
 open import Definition.Typed.Substitution R
 open import Definition.Typed.Syntactic R
+open import Definition.Typed.Well-formed R
 open import Definition.Untyped M
 open import Definition.Untyped.Neutral M type-variant
 
@@ -218,28 +219,28 @@ mutual
              ok)
           (sym (substTypeEq B₁≡B₁′ v₁≡v₁′))
       , K-cong A₁≡A₁′ t₁≡t₁′ B₁≡B₁′ u₁≡u₁′ v₁≡v₁′ ok }}}}}}
-    ([]-cong-cong A₁≡A₂ t₁≡t₂ u₁≡u₂ v₁~v₂ B≡Id-t₁-u₁ ok) →
-      case fullRedConv↑ A₁≡A₂ of λ {
-        (A₁′ , ⊢A₁′ , A₁≡A₁′) →
-      case fullRedTermConv↑ t₁≡t₂ of λ {
-        (t₁′ , ⊢t₁′ , t₁≡t₁′) →
-      case fullRedTermConv↑ u₁≡u₂ of λ {
-        (u₁′ , ⊢u₁′ , u₁≡u₁′) →
-      case fullRedNe~↓ v₁~v₂ of λ {
-        (v₁′ , ⊢v₁′ , v₁≡v₁′) →
-      case []-cong→Erased ok of λ {
-        Erased-ok →
-        []-cong _ A₁′ t₁′ u₁′ v₁′
-      , convₙ
-          ([]-congₙ ⊢A₁′ (convₙ ⊢t₁′ A₁≡A₁′) (convₙ ⊢u₁′ A₁≡A₁′)
-             (convₙ ⊢v₁′
-                (trans B≡Id-t₁-u₁ (Id-cong A₁≡A₁′ t₁≡t₁′ u₁≡u₁′)))
-             ok)
-          (_⊢_≡_.sym $
-           Id-cong (Erased-cong Erased-ok A₁≡A₁′)
-             ([]-cong′ Erased-ok t₁≡t₁′) ([]-cong′ Erased-ok u₁≡u₁′))
-      , []-cong-cong A₁≡A₁′ t₁≡t₁′ u₁≡u₁′ (conv v₁≡v₁′ B≡Id-t₁-u₁)
-          ok }}}}}
+    ([]-cong-cong l₁≡l₂ A₁≡A₂ t₁≡t₂ u₁≡u₂ v₁~v₂ B≡Id-t₁-u₁ ok) →
+      let l₁′ , ⊢l₁′ , l₁≡l₁′ = fullRedTermConv↑ l₁≡l₂
+          A₁′ , ⊢A₁′ , A₁≡A₁′ = fullRedTermConv↑ A₁≡A₂
+          t₁′ , ⊢t₁′ , t₁≡t₁′ = fullRedTermConv↑ t₁≡t₂
+          u₁′ , ⊢u₁′ , u₁≡u₁′ = fullRedTermConv↑ u₁≡u₂
+          v₁′ , ⊢v₁′ , v₁≡v₁′ = fullRedNe~↓ v₁~v₂
+          _ , ⊢A₁ , _         = wf-⊢≡∷ A₁≡A₁′
+          Erased-ok           = []-cong→Erased ok
+      in
+      []-cong _ l₁′ A₁′ t₁′ u₁′ v₁′ ,
+      convₙ
+        ([]-congₙ ⊢l₁′ (convₙ ⊢A₁′ (U-cong l₁≡l₁′))
+           (convₙ ⊢t₁′ (univ A₁≡A₁′)) (convₙ ⊢u₁′ (univ A₁≡A₁′))
+           (convₙ ⊢v₁′
+              (trans B≡Id-t₁-u₁ (Id-cong (univ A₁≡A₁′) t₁≡t₁′ u₁≡u₁′)))
+           ok)
+        (_⊢_≡_.sym $
+         Id-cong (Erased-cong Erased-ok l₁≡l₁′ A₁≡A₁′)
+           ([]-cong′ Erased-ok ⊢A₁ t₁≡t₁′)
+           ([]-cong′ Erased-ok ⊢A₁ u₁≡u₁′)) ,
+      []-cong-cong l₁≡l₁′ A₁≡A₁′ t₁≡t₁′ u₁≡u₁′ (conv v₁≡v₁′ B≡Id-t₁-u₁)
+        ok
 
   fullRedNe~↓ :
     Γ ⊢ t ~ t′ ↓ A →

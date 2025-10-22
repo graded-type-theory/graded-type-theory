@@ -92,4 +92,4 @@ deterministic⇉ (Idᵢ A₁ B₁ _ _) (Idᵢ A₂ B₂ _ _) =
   PE.refl }}
 deterministic⇉ (Jᵢ _ _ _ _ _ _) (Jᵢ _ _ _ _ _ _) = PE.refl
 deterministic⇉ (Kᵢ _ _ _ _ _ _) (Kᵢ _ _ _ _ _ _) = PE.refl
-deterministic⇉ ([]-congᵢ _ _ _ _ _) ([]-congᵢ _ _ _ _ _) = PE.refl
+deterministic⇉ ([]-congᵢ _ _ _ _ _ _) ([]-congᵢ _ _ _ _ _ _) = PE.refl

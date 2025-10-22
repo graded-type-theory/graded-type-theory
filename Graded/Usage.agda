@@ -35,11 +35,11 @@ infix 10 _▸[_]_
 
 private
   variable
-    n l : Nat
+    n : Nat
     p q r : M
     γ γ′ γ₁ γ₂ γ₃ γ₄ γ₅ γ₆ δ η θ χ : Conₘ n
     A B F G : Term n
-    t u v w z : Term n
+    l t u v w z : Term n
     x : Fin n
     m m′ : Mode
     b : BinderMode
@@ -141,7 +141,7 @@ mutual
   … | is-some-yes _ _ = ω ·ᶜ (tailₘ (⌈ B ⌉ m) +ᶜ ⌈ u ⌉ m)
   … | is-other _ _    =
         ω ·ᶜ (⌈ t ⌉ m +ᶜ tailₘ (⌈ B ⌉ m) +ᶜ ⌈ u ⌉ m +ᶜ ⌈ v ⌉ m)
-  ⌈ []-cong _ _ _ _ _ ⌉ _ = 𝟘ᶜ
+  ⌈ []-cong _ _ _ _ _ _ ⌉ _ = 𝟘ᶜ
 
 -- Well-usage of variables
 data _◂_∈_  : (x : Fin n) (p : M) (γ : Conₘ n) → Set a where
@@ -522,12 +522,13 @@ data _▸[_]_ {n : Nat} : (γ : Conₘ n) → Mode → Term n → Set a where
             → γ₅ ▸[ 𝟘ᵐ? ] v
             → γ₄ ▸[ m ] K p A t B u v
 
-  []-congₘ  : γ₁ ▸[ 𝟘ᵐ? ] A
-            → γ₂ ▸[ 𝟘ᵐ? ] t
-            → γ₃ ▸[ 𝟘ᵐ? ] u
-            → γ₄ ▸[ 𝟘ᵐ? ] v
+  []-congₘ  : γ₁ ▸[ 𝟘ᵐ? ] l
+            → γ₂ ▸[ 𝟘ᵐ? ] A
+            → γ₃ ▸[ 𝟘ᵐ? ] t
+            → γ₄ ▸[ 𝟘ᵐ? ] u
+            → γ₅ ▸[ 𝟘ᵐ? ] v
             → []-cong-allowed-mode s m
-            → 𝟘ᶜ ▸[ m ] []-cong s A t u v
+            → 𝟘ᶜ ▸[ m ] []-cong s l A t u v
 
 -- Usage with implicit mode 𝟙ᵐ
 

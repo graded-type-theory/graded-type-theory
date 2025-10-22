@@ -154,7 +154,7 @@ opaque
     lemma {t} ([]-congₙ n) ≡u =
       case subst-[]-cong {w = t} ≡u of λ {
         (inj₁ (_ , refl)) → var _ ;
-        (inj₂ (_ , _ , _ , _ , refl , _ , _ , _ , ≡t′)) →
+        (inj₂ (_ , _ , _ , _ , _ , refl , _ , _ , _ , _ , ≡t′)) →
       []-congₙ (lemma n ≡t′) }
 
 opaque

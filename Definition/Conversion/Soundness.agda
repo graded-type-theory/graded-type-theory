@@ -95,9 +95,10 @@ mutual
     K-cong (soundnessConv↑ A₁≡A₂) (soundnessConv↑Term t₁≡t₂)
       (soundnessConv↑ B₁≡B₂) (soundnessConv↑Term u₁≡u₂)
       (conv (soundness~↓ v₁~v₂) ≡Id) ok
-  soundness~↑ ([]-cong-cong A₁≡A₂ t₁≡t₂ u₁≡u₂ v₁~v₂ ≡Id ok) =
-    []-cong-cong (soundnessConv↑ A₁≡A₂) (soundnessConv↑Term t₁≡t₂)
-      (soundnessConv↑Term u₁≡u₂) (conv (soundness~↓ v₁~v₂) ≡Id) ok
+  soundness~↑ ([]-cong-cong l₁≡l₂ A₁≡A₂ t₁≡t₂ u₁≡u₂ v₁~v₂ ≡Id ok) =
+    []-cong-cong (soundnessConv↑Term l₁≡l₂) (soundnessConv↑Term A₁≡A₂)
+      (soundnessConv↑Term t₁≡t₂) (soundnessConv↑Term u₁≡u₂)
+      (conv (soundness~↓ v₁~v₂) ≡Id) ok
 
   -- Algorithmic equality of neutrals in WHNF is well-formed.
   soundness~↓ : ∀ {k l A} → Γ ⊢ k ~ l ↓ A → Γ ⊢ k ≡ l ∷ A

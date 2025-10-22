@@ -378,12 +378,12 @@ module Fundamental
                (γ₄ ∧ᶜ γ₅) ⟨ x ⟩ PE.≡ 𝟘                         □) $
           Kʳ ⊢B ⊢u ⊢v ok (∧ᶜ-decreasingˡ γ₄ _) (fundamental ⊢u ▸u)
             (inj₂ (_ , ∧ᶜ-decreasingʳ γ₄ _ , fundamental ⊢v ▸v))
-    fundamental ([]-congⱼ _ _ _ ⊢v ok) _ =
+    fundamental ([]-congⱼ _ ⊢A _ _ ⊢v ok) _ =
       []-congʳ
         (case closed-or-no-erased-matches of λ where
            (inj₁ nem) → ⊥-elim (nem non-trivial .proj₂ .proj₂ .proj₁ ok)
            (inj₂ k≡0) → k≡0)
-        ⊢v ok
+        ⊢A ⊢v ok
     fundamental (conv ⊢t A≡B) γ▸t =
       conv-▸⊩ʳ∷ (F.fundamental-⊩ᵛ≡ A≡B .proj₂) (fundamental ⊢t γ▸t)
 

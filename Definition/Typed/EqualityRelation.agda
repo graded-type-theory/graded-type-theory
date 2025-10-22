@@ -380,14 +380,15 @@ record Equality-relations
     -- If []-cong is allowed, then []-cong preserves the _⊢_~_
     -- relation (in a certain way).
     ~-[]-cong
-      : Γ ⊢ A₁ ≅ A₂
+      : Γ ⊢ l₁ ≅ l₂ ∷ Level
+      → Γ ⊢ A₁ ≅ A₂ ∷ U l₁
       → Γ ⊢ t₁ ≅ t₂ ∷ A₁
       → Γ ⊢ u₁ ≅ u₂ ∷ A₁
       → Γ ⊢ v₁ ~ v₂ ∷ Id A₁ t₁ u₁
       → []-cong-allowed s
       → let open Erased s in
-        Γ ⊢ []-cong s A₁ t₁ u₁ v₁ ~ []-cong s A₂ t₂ u₂ v₂ ∷
-          Id (Erased A₁) ([ t₁ ]) ([ u₁ ])
+        Γ ⊢ []-cong s l₁ A₁ t₁ u₁ v₁ ~ []-cong s l₂ A₂ t₂ u₂ v₂ ∷
+          Id (Erased l₁ A₁) ([ t₁ ]) ([ u₁ ])
 
 
   -- Composition of universe and generic equality compatibility

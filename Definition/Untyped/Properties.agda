@@ -91,9 +91,9 @@ opaque
   toTerm∘fromTerm (K p A t B u v) =
     cong₅ (K p) (toTerm∘fromTerm A) (toTerm∘fromTerm t)
       (toTerm∘fromTerm B) (toTerm∘fromTerm u) (toTerm∘fromTerm v)
-  toTerm∘fromTerm ([]-cong s A t u v) =
-    cong₄ ([]-cong s) (toTerm∘fromTerm A) (toTerm∘fromTerm t)
-      (toTerm∘fromTerm u) (toTerm∘fromTerm v)
+  toTerm∘fromTerm ([]-cong s l A t u v) =
+    cong₅ ([]-cong s) (toTerm∘fromTerm l) (toTerm∘fromTerm A)
+      (toTerm∘fromTerm t) (toTerm∘fromTerm u) (toTerm∘fromTerm v)
 
 opaque
 
@@ -168,9 +168,10 @@ opaque
     cong₅ (λ A t B u v → gen (Kkind p) (A ∷ₜ t ∷ₜ B ∷ₜ u ∷ₜ v ∷ₜ []))
       (fromTerm∘toTerm A) (fromTerm∘toTerm t) (fromTerm∘toTerm B)
       (fromTerm∘toTerm u) (fromTerm∘toTerm v)
-  fromTerm∘toTerm (gen (Boxcongkind s) (A ∷ₜ t ∷ₜ u ∷ₜ v ∷ₜ [])) =
-    cong₄ (λ A t u v → gen (Boxcongkind s) (A ∷ₜ t ∷ₜ u ∷ₜ v ∷ₜ []))
-      (fromTerm∘toTerm A) (fromTerm∘toTerm t)
+  fromTerm∘toTerm (gen (Boxcongkind s) (l ∷ₜ A ∷ₜ t ∷ₜ u ∷ₜ v ∷ₜ [])) =
+    cong₅
+      (λ l A t u v → gen (Boxcongkind s) (l ∷ₜ A ∷ₜ t ∷ₜ u ∷ₜ v ∷ₜ []))
+      (fromTerm∘toTerm l) (fromTerm∘toTerm A) (fromTerm∘toTerm t)
       (fromTerm∘toTerm u) (fromTerm∘toTerm v)
 
 ------------------------------------------------------------------------
@@ -221,8 +222,9 @@ opaque
   wk≡wk′ (K p t t₁ t₂ t₃ t₄) =
     cong₅ (K p) (wk≡wk′ t) (wk≡wk′ t₁) (wk≡wk′ t₂)
       (wk≡wk′ t₃) (wk≡wk′ t₄)
-  wk≡wk′ ([]-cong x t t₁ t₂ t₃) =
-    cong₄ []-cong! (wk≡wk′ t) (wk≡wk′ t₁) (wk≡wk′ t₂) (wk≡wk′ t₃)
+  wk≡wk′ ([]-cong _ l A t u v) =
+    cong₅ []-cong! (wk≡wk′ l) (wk≡wk′ A) (wk≡wk′ t) (wk≡wk′ u)
+      (wk≡wk′ v)
 
 opaque mutual
 
@@ -402,9 +404,9 @@ opaque
   subst≡subst′ (K p t t₁ t₂ t₃ t₄) =
     cong₅ (K p) (subst≡subst′ t) (subst≡subst′ t₁) (subst≡subst′ t₂)
       (subst≡subst′ t₃) (subst≡subst′ t₄)
-  subst≡subst′ ([]-cong x t t₁ t₂ t₃) =
-    cong₄ []-cong! (subst≡subst′ t) (subst≡subst′ t₁)
-      (subst≡subst′ t₂) (subst≡subst′ t₃)
+  subst≡subst′ ([]-cong _ l A t u v) =
+    cong₅ []-cong! (subst≡subst′ l) (subst≡subst′ A) (subst≡subst′ t)
+      (subst≡subst′ u) (subst≡subst′ v)
 
 -- Two substitutions σ and σ′ are equal if they are pointwise equal,
 -- i.e., agree on all variables.
@@ -2087,7 +2089,7 @@ opaque
   isNumeral? rfl = no λ ()
   isNumeral? (J _ _ _ _ _ _ _ _) = no λ ()
   isNumeral? (K _ _ _ _ _ _) = no λ ()
-  isNumeral? ([]-cong! _ _ _ _) = no λ ()
+  isNumeral? ([]-cong! _ _ _ _ _) = no λ ()
 
 opaque
 
@@ -2294,7 +2296,8 @@ K-PE-injectivity PE.refl =
 -- []-cong is injective.
 
 []-cong-PE-injectivity :
-  []-cong s₁ A₁ t₁ u₁ v₁ PE.≡ []-cong s₂ A₂ t₂ u₂ v₂ →
-  s₁ PE.≡ s₂ × A₁ PE.≡ A₂ × t₁ PE.≡ t₂ × u₁ PE.≡ u₂ × v₁ PE.≡ v₂
+  []-cong s₁ l₁ A₁ t₁ u₁ v₁ PE.≡ []-cong s₂ l₂ A₂ t₂ u₂ v₂ →
+  s₁ PE.≡ s₂ × l₁ PE.≡ l₂ × A₁ PE.≡ A₂ × t₁ PE.≡ t₂ × u₁ PE.≡ u₂ ×
+  v₁ PE.≡ v₂
 []-cong-PE-injectivity PE.refl =
-  PE.refl , PE.refl , PE.refl , PE.refl , PE.refl
+  PE.refl , PE.refl , PE.refl , PE.refl , PE.refl , PE.refl

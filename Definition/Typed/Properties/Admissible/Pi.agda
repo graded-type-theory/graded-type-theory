@@ -41,10 +41,10 @@ import Tools.PropositionalEquality as PE
 open import Tools.Reasoning.PropositionalEquality
 
 private variable
-  n                                                : Nat
-  Γ                                                : Con Term _
-  A B C D E a f g l l₁ l₂ t t′ t₁ t₂ u u₁ u₂ u₃ u₄ : Term _
-  p p′ p₁ p₂ p₃ p₄ q q₁ q₂ q₃ q₄                   : M
+  n                                                     : Nat
+  Γ                                                     : Con Term _
+  A B C D E F a f g l l₁ l₂ t t′ t₁ t₂ u u₁ u₂ u₃ u₄ u₅ : Term _
+  p p′ p₁ p₂ p₃ p₄ p₅ q q₁ q₂ q₃ q₄ q₅                  : M
 
 opaque
 
@@ -197,6 +197,54 @@ opaque
                                                                                ⊢u₄ ok₄ ⟩∎≡
     t [ consSubst (consSubst (sgSubst u₁) u₂) u₃ ⇑ ] [ u₄ ]₀              ≡⟨ singleSubstComp _ _ t ⟩
     t [ consSubst (consSubst (consSubst (sgSubst u₁) u₂) u₃) u₄ ]         ∎
+
+opaque
+
+  -- A variant of β-red-⇒.
+  --
+  -- See also Definition.Typed.Consequences.Admissible.Pi.β-red-⇒₅.
+
+  β-red-⇒₅′ :
+    Π-allowed p₁ q₁ →
+    Π-allowed p₂ q₂ →
+    Π-allowed p₃ q₃ →
+    Π-allowed p₄ q₄ →
+    Π-allowed p₅ q₅ →
+    Γ ∙ A ∙ B ∙ C ∙ D ∙ E ⊢ t ∷ F →
+    Γ ⊢ u₁ ∷ A →
+    Γ ⊢ u₂ ∷ B [ u₁ ]₀ →
+    Γ ⊢ u₃ ∷ C [ u₁ , u₂ ]₁₀ →
+    Γ ⊢ u₄ ∷ D [ consSubst (consSubst (sgSubst u₁) u₂) u₃ ] →
+    Γ ⊢ u₅ ∷
+      E [ consSubst (consSubst (consSubst (sgSubst u₁) u₂) u₃) u₄ ] →
+    Γ ⊢
+      lam p₁ (lam p₂ (lam p₃ (lam p₄ (lam p₅ t))))
+        ∘⟨ p₁ ⟩ u₁ ∘⟨ p₂ ⟩ u₂ ∘⟨ p₃ ⟩ u₃ ∘⟨ p₄ ⟩ u₄ ∘⟨ p₅ ⟩ u₅ ⇒*
+      t [ consSubst
+            (consSubst (consSubst (consSubst (sgSubst u₁) u₂) u₃) u₄)
+            u₅ ] ∷
+      F [ consSubst
+            (consSubst (consSubst (consSubst (sgSubst u₁) u₂) u₃) u₄)
+            u₅ ]
+  β-red-⇒₅′
+    {p₁} {p₂} {p₃} {p₄} {p₅} {t} {F} {u₁} {u₂} {u₃} {u₄} {u₅}
+    ok₁ ok₂ ok₃ ok₄ ok₅ ⊢t ⊢u₁ ⊢u₂ ⊢u₃ ⊢u₄ ⊢u₅ =
+    lam p₁ (lam p₂ (lam p₃ (lam p₄ (lam p₅ t)))) ∘⟨ p₁ ⟩ u₁ ∘⟨ p₂ ⟩ u₂
+      ∘⟨ p₃ ⟩ u₃ ∘⟨ p₄ ⟩ u₄ ∘⟨ p₅ ⟩ u₅                                    ⇒*⟨ PE.subst (_⊢_⇒*_∷_ _ _ _) (singleSubstComp _ _ F) $
+                                                                              app-subst* (β-red-⇒₄′ ok₁ ok₂ ok₃ ok₄ (lamⱼ′ ok₅ ⊢t) ⊢u₁ ⊢u₂ ⊢u₃ ⊢u₄)
+                                                                                ⊢u₅ ⟩
+    lam p₅
+      (t [ consSubst (consSubst (consSubst (sgSubst u₁) u₂) u₃) u₄ ⇑ ])
+      ∘⟨ p₅ ⟩ u₅                                                          ⇒⟨ PE.subst (_⊢_⇒_∷_ _ _ _) (singleSubstComp _ _ F) $
+                                                                             β-red-⇒
+                                                                               (subst-⊢∷-⇑ ⊢t $
+                                                                                →⊢ˢʷ∷∙ (→⊢ˢʷ∷∙ (→⊢ˢʷ∷∙ (⊢ˢʷ∷-sgSubst ⊢u₁) ⊢u₂) ⊢u₃) ⊢u₄)
+                                                                               ⊢u₅ ok₅ ⟩∎≡
+    t [ consSubst (consSubst (consSubst (sgSubst u₁) u₂) u₃) u₄ ⇑ ]
+      [ u₅ ]₀                                                             ≡⟨ singleSubstComp _ _ t ⟩
+
+    t [ consSubst
+          (consSubst (consSubst (consSubst (sgSubst u₁) u₂) u₃) u₄) u₅ ]  ∎
 
 ------------------------------------------------------------------------
 -- Heterogeneous variants of the typing rules for Π

@@ -76,8 +76,8 @@ mutual
                 NfNeutral (J p q A t B u t′ v)
     Kₙ        : Nf A → Nf t → Nf B → Nf u → NfNeutral v →
                 NfNeutral (K p A t B u v)
-    []-congₙ  : Nf A → Nf t → Nf u → NfNeutral v →
-                NfNeutral ([]-cong s A t u v)
+    []-congₙ  : Nf l → Nf A → Nf t → Nf u → NfNeutral v →
+                NfNeutral ([]-cong s l A t u v)
 
 -- If NfNeutral n holds, then n is neutral.
 
@@ -94,7 +94,7 @@ nfNeutral = λ where
   (unitrecₙ not-ok _ n _) → unitrecₙ not-ok (nfNeutral n)
   (Jₙ _ _ _ _ _ n)        → Jₙ (nfNeutral n)
   (Kₙ _ _ _ _ n)          → Kₙ (nfNeutral n)
-  ([]-congₙ _ _ _ n)      → []-congₙ (nfNeutral n)
+  ([]-congₙ _ _ _ _ n)    → []-congₙ (nfNeutral n)
 
 nfNeutralˡ : NfNeutralˡ n → Neutralˡ n
 nfNeutralˡ (supᵘˡₙ n x) = supᵘˡₙ (nfNeutralˡ n)

@@ -382,32 +382,33 @@ opaque
     []-cong-allowed-mode s 𝟙ᵐ →
     let Δ = ε ∙ Id ℕ zero zero
         open Erased s
-        t = J 𝟘 𝟘 (Erased ℕ) ([ zero ]) ℕ zero ([ zero ])
-              ([]-cong s ℕ zero zero (var {n = 1} x0))
+        t = J 𝟘 𝟘 (Erased zeroᵘ ℕ) ([ zero ]) ℕ zero ([ zero ])
+              ([]-cong s zeroᵘ ℕ zero zero (var {n = 1} x0))
     in
     Consistent Δ ×
     Δ ⊢ t ∷ ℕ ×
     𝟘ᶜ ▸[ 𝟙ᵐ ] t ×
     ¬ ∃ λ n → Δ ⊢ t ⇒ˢ* sucᵏ n ∷ℕ
   soundness-ℕ-only-source-counterexample₂ {s = s} ok ok′ =
-    case ∙ Idⱼ′ (zeroⱼ ε) (zeroⱼ ε) of λ {
-      ⊢Id →
-      inhabited-consistent (⊢ˢʷ∷-sgSubst (rflⱼ (zeroⱼ ε)))
-    , Jⱼ′ (ℕⱼ (J-motive-context ([]ⱼ ([]-cong→Erased ok) (zeroⱼ ⊢Id))))
-        (zeroⱼ ⊢Id) ([]-congⱼ′ ok (var ⊢Id here))
-    , sub
-        (Jₘ-generalised (▸Erased s ℕₘ) (▸[] s zeroₘ)
-           (let open Tools.Reasoning.PartialOrder ≤ᶜ-poset in
-            sub ℕₘ $ begin
-              𝟘ᶜ ∙ 𝟙 · 𝟘 ∙ 𝟙 · 𝟘  ≈⟨ ≈ᶜ-refl ∙ ·-zeroʳ _ ∙ ·-zeroʳ _ ⟩
-              𝟘ᶜ                  ∎)
-           zeroₘ (▸[] s zeroₘ) ([]-congₘ ℕₘ zeroₘ zeroₘ var ok′))
-        (≤ᶜ-reflexive (≈ᶜ-sym ω·ᶜ+ᶜ⁵𝟘ᶜ))
-    , (λ where
-         (0 , whred J⇒ ⇨ˢ _) →
-           whnfRedTerm J⇒ (ne! (Jₙ ([]-congₙ (var _))))
-         (1+ _ , whred J⇒ ⇨ˢ _) →
-           whnfRedTerm J⇒ (ne! (Jₙ ([]-congₙ (var _))))) }
+    let ⊢Id = ∙ Idⱼ′ (zeroⱼ ε) (zeroⱼ ε) in
+    inhabited-consistent (⊢ˢʷ∷-sgSubst (rflⱼ (zeroⱼ ε))) ,
+    Jⱼ′
+      (ℕⱼ $
+       J-motive-context ([]ⱼ ([]-cong→Erased ok) (ℕⱼ ⊢Id) (zeroⱼ ⊢Id)))
+      (zeroⱼ ⊢Id) ([]-congⱼ′ ok (ℕⱼ ⊢Id) (var ⊢Id here)) ,
+    sub
+      (Jₘ-generalised (▸Erased s zeroᵘₘ ℕₘ) (▸[] s zeroₘ)
+         (let open Tools.Reasoning.PartialOrder ≤ᶜ-poset in
+          sub ℕₘ $ begin
+            𝟘ᶜ ∙ 𝟙 · 𝟘 ∙ 𝟙 · 𝟘  ≈⟨ ≈ᶜ-refl ∙ ·-zeroʳ _ ∙ ·-zeroʳ _ ⟩
+            𝟘ᶜ                  ∎)
+         zeroₘ (▸[] s zeroₘ) ([]-congₘ zeroᵘₘ ℕₘ zeroₘ zeroₘ var ok′))
+      (≤ᶜ-reflexive (≈ᶜ-sym ω·ᶜ+ᶜ⁵𝟘ᶜ)) ,
+    (λ where
+       (0 , whred J⇒ ⇨ˢ _) →
+         whnfRedTerm J⇒ (ne! (Jₙ ([]-congₙ (var _))))
+       (1+ _ , whred J⇒ ⇨ˢ _) →
+         whnfRedTerm J⇒ (ne! (Jₙ ([]-congₙ (var _)))))
 
 opaque
 
@@ -626,33 +627,42 @@ opaque
     let open Erased s in
     Run-time-canonicity-for
       (ε ∙ Id ℕ zero zero)
-      (J 𝟘 𝟘 (Erased ℕ) ([ zero ]) ℕ zero ([ zero ])
-         ([]-cong s ℕ zero zero (var {n = 1} x0)))
+      (J 𝟘 𝟘 (Erased zeroᵘ ℕ) ([ zero ]) ℕ zero ([ zero ])
+         ([]-cong s zeroᵘ ℕ zero zero (var {n = 1} x0)))
   soundness-ℕ-only-target-not-counterexample₂ {s} ok =
       _
     , J 𝟘 𝟘 ℕ zero
         (Id ℕ
-            (J 𝟘 𝟘 (Erased ℕ) Er.[ zero ] ℕ zero Er.[ var x1 ]
-               ([]-cong s ℕ zero (var x1) (var x0)))
+            (J 𝟘 𝟘 (Erased zeroᵘ ℕ) Er.[ zero ] ℕ zero Er.[ var x1 ]
+               ([]-cong s zeroᵘ ℕ zero (var x1) (var x0)))
             zero)
         rfl zero (var x0)
-    , Jⱼ′
-        (Idⱼ′
-           (Jⱼ′ (ℕⱼ (J-motive-context ([]ⱼ Erased-ok ⊢zero))) ⊢zero
-              ([]-congⱼ′ ok
-                 (var₀ (J-motive-context-type (zeroⱼ ⊢Δ)))))
-           ⊢zero)
-        (rflⱼ′
-           (J 𝟘 𝟘 (Erased ℕ) Er.[ zero ] ℕ zero Er.[ zero ]
-              ([]-cong s ℕ zero zero rfl)                        ≡⟨ J-cong′ (refl (Erasedⱼ Erased-ok (ℕⱼ ⊢Δ)))
-                                                                      (refl ([]ⱼ Erased-ok (zeroⱼ ⊢Δ))) (refl ⊢ℕ)
-                                                                      (refl (zeroⱼ ⊢Δ)) (refl ([]ⱼ Erased-ok (zeroⱼ ⊢Δ)))
-                                                                      ([]-cong-β (zeroⱼ ⊢Δ) PE.refl ok) ⟩⊢
+    , PE.subst (_⊢_∷_ _ _)
+        (PE.cong (flip (Id _) _) $
+         PE.cong₆ (J _ _)
+           Er.Erased-[] Er.[]-[] PE.refl PE.refl Er.[]-[] PE.refl)
+        (Jⱼ′
+           (Idⱼ′
+              (Jⱼ′ (ℕⱼ (J-motive-context ([]ⱼ Erased-ok ⊢ℕ∷ ⊢zero)))
+                 ⊢zero
+                 ([]-congⱼ′ ok ⊢ℕ∷ $
+                  var₀ (J-motive-context-type (zeroⱼ ⊢Δ))))
+              ⊢zero)
+           (rflⱼ′
+              (J 𝟘 𝟘 (Erased zeroᵘ ℕ) Er.[ zero ] ℕ zero Er.[ var x1 ]
+                 ([]-cong s zeroᵘ ℕ zero (var x1) (var x0))
+                 [ zero , rfl ]₁₀                                         ≡⟨ PE.cong₆ (J _ _) Er.Erased-[] Er.[]-[] PE.refl PE.refl Er.[]-[]
+                                                                               PE.refl ⟩⊢≡
+               J 𝟘 𝟘 (Erased zeroᵘ ℕ) Er.[ zero ] ℕ zero Er.[ zero ]
+                 ([]-cong s zeroᵘ ℕ zero zero rfl)                        ≡⟨ J-cong′ (refl (Erasedⱼ Erased-ok (ℕⱼ ⊢Δ)))
+                                                                               (refl ⊢[zero]) (refl ⊢ℕ)
+                                                                               (refl (zeroⱼ ⊢Δ)) (refl ⊢[zero])
+                                                                               ([]-cong-β-≡ (ℕⱼ ⊢Δ) (refl (zeroⱼ ⊢Δ)) ok) ⟩⊢
 
-            J 𝟘 𝟘 (Erased ℕ) Er.[ zero ] ℕ zero Er.[ zero ] rfl  ≡⟨ J-β-≡ ([]ⱼ Erased-ok (zeroⱼ ⊢Δ)) ⊢ℕ (zeroⱼ ⊢Δ) ⟩⊢∎
+               J 𝟘 𝟘 (Erased zeroᵘ ℕ) Er.[ zero ] ℕ zero Er.[ zero ] rfl  ≡⟨ J-β-≡ ⊢[zero] ⊢ℕ (zeroⱼ ⊢Δ) ⟩⊢∎
 
             zero                                                 ∎))
-        (var₀ ⊢0≡0)
+        (var₀ ⊢0≡0))
     , (λ _ → refl-⇒ˢ⟨⟩*)
     where
     open module Er = Erased s using (Erased)
@@ -669,11 +679,20 @@ opaque
     ⊢Δ : ⊢ Δ′
     ⊢Δ = ∙ ⊢0≡0
 
-    ⊢ℕ : Δ′ ∙ Erased ℕ ∙ Id (Erased ℕ) Er.[ zero ] (var x0) ⊢ ℕ
-    ⊢ℕ = ℕⱼ (J-motive-context ([]ⱼ Erased-ok (zeroⱼ ⊢Δ)))
+    ⊢ℕ :
+      Δ′ ∙ Erased zeroᵘ ℕ ∙
+      Id (wk1 (Erased zeroᵘ ℕ)) (wk1 Er.[ zero ]) (var x0) ⊢
+      ℕ
+    ⊢ℕ = ℕⱼ (J-motive-context ([]ⱼ Erased-ok (ℕⱼ ⊢Δ) (zeroⱼ ⊢Δ)))
+
+    ⊢ℕ∷ : Δ′ ∙ ℕ ∙ Id ℕ zero (var x0) ⊢ ℕ ∷ U zeroᵘ
+    ⊢ℕ∷ = ℕⱼ (J-motive-context (zeroⱼ ⊢Δ))
 
     ⊢zero : Δ′ ∙ ℕ ∙ Id ℕ zero (var x0) ⊢ zero ∷ ℕ
     ⊢zero = zeroⱼ (J-motive-context (zeroⱼ ⊢Δ))
+
+    ⊢[zero] : Δ′ ⊢ Er.[ zero ] ∷ Erased zeroᵘ ℕ
+    ⊢[zero] = []ⱼ Erased-ok (ℕⱼ ⊢Δ) (zeroⱼ ⊢Δ)
 
 opaque
 

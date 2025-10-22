@@ -24,6 +24,7 @@ open import Definition.Typed.Stability R
 open import Definition.Typed.Substitution R
 open import Definition.Typed.Syntactic R
 import Definition.Typed.Weakening R as W
+open import Definition.Typed.Well-formed R
 open import Definition.Typed.Consequences.Inequality R
 open import Definition.Typed.Consequences.Injectivity R
 open import Definition.Typed.Consequences.Reduction R
@@ -137,8 +138,8 @@ mutual
     univᶜ′ (completeness⇉ (Jᵢ x x₁ x₂ x₃ x₄ x₅) ⊢A)
   completeness⇉Type (Kᵢ x x₁ x₂ x₃ x₄) (univ ⊢A) =
     univᶜ′ (completeness⇉ (Kᵢ x x₁ x₂ x₃ x₄) ⊢A)
-  completeness⇉Type ([]-congᵢ x x₁ x₂ x₃) (univ ⊢A) =
-    univᶜ′ (completeness⇉ ([]-congᵢ x x₁ x₂ x₃) ⊢A)
+  completeness⇉Type ([]-congᵢ ⊢l ⊢B ⊢t ⊢u ⊢v) (univ ⊢A) =
+    univᶜ′ (completeness⇉ ([]-congᵢ ⊢l ⊢B ⊢t ⊢u ⊢v) ⊢A)
 
   -- Completeness of type inference
 
@@ -273,13 +274,15 @@ mutual
         (completeness⇇Type B ⊢B) (completeness⇇ u ⊢u)
         (completeness⇇ v ⊢v) ok
     , ≡B }
-  completeness⇉ ([]-congᵢ A t u v) ⊢[]-cong =
-    case inversion-[]-cong ⊢[]-cong of λ {
-      (⊢A , ⊢t , ⊢u , ⊢v , ok , ≡B) →
-      _
-    , []-congᵢ (completeness⇇Type A ⊢A) (completeness⇇ t ⊢t)
-        (completeness⇇ u ⊢u) (completeness⇇ v ⊢v) ok
-    , ≡B }
+  completeness⇉ ([]-congᵢ l A t u v) ⊢[]-cong =
+    let ⊢A , ⊢t , ⊢u , ⊢v , ok , ≡B = inversion-[]-cong ⊢[]-cong
+        ⊢l                          = inversion-U-Level (wf-⊢∷ ⊢A)
+    in
+    _ ,
+    []-congᵢ (completeness⇇ l ⊢l) (completeness⇇ A ⊢A)
+      (completeness⇇ t ⊢t) (completeness⇇ u ⊢u) (completeness⇇ v ⊢v)
+      ok ,
+    ≡B
 
   -- Completeness of type checking
 

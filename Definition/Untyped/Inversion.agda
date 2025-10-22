@@ -56,7 +56,7 @@ wk-var {t = Id _ _ _}              ()
 wk-var {t = rfl}                   ()
 wk-var {t = J _ _ _ _ _ _ _ _}     ()
 wk-var {t = K _ _ _ _ _ _}         ()
-wk-var {t = []-cong _ _ _ _ _}     ()
+wk-var {t = []-cong _ _ _ _ _ _}   ()
 
 subst-var :
   t [ σ ] ≡ var x →
@@ -90,7 +90,7 @@ subst-var {t = Id _ _ _}              ()
 subst-var {t = rfl}                   ()
 subst-var {t = J _ _ _ _ _ _ _ _}     ()
 subst-var {t = K _ _ _ _ _ _}         ()
-subst-var {t = []-cong _ _ _ _ _}     ()
+subst-var {t = []-cong _ _ _ _ _ _}   ()
 
 -- Inversion for Level.
 
@@ -124,7 +124,7 @@ wk-Level {t = Id _ _ _}              ()
 wk-Level {t = rfl}                   ()
 wk-Level {t = J _ _ _ _ _ _ _ _}     ()
 wk-Level {t = K _ _ _ _ _ _}         ()
-wk-Level {t = []-cong _ _ _ _ _}     ()
+wk-Level {t = []-cong _ _ _ _ _ _}   ()
 
 subst-Level : t [ σ ] ≡ Level → (∃ λ x → t ≡ var x) ⊎ t ≡ Level
 subst-Level {t = var _}                 _ = inj₁ (_ , refl)
@@ -156,7 +156,7 @@ subst-Level {t = Id _ _ _}              ()
 subst-Level {t = rfl}                   ()
 subst-Level {t = J _ _ _ _ _ _ _ _}     ()
 subst-Level {t = K _ _ _ _ _ _}         ()
-subst-Level {t = []-cong _ _ _ _ _}     ()
+subst-Level {t = []-cong _ _ _ _ _ _}   ()
 
 -- Inversion for zeroᵘ.
 
@@ -190,7 +190,7 @@ wk-zeroᵘ {t = Id _ _ _}              ()
 wk-zeroᵘ {t = rfl}                   ()
 wk-zeroᵘ {t = J _ _ _ _ _ _ _ _}     ()
 wk-zeroᵘ {t = K _ _ _ _ _ _}         ()
-wk-zeroᵘ {t = []-cong _ _ _ _ _}     ()
+wk-zeroᵘ {t = []-cong _ _ _ _ _ _}   ()
 
 subst-zeroᵘ : t [ σ ] ≡ zeroᵘ → (∃ λ x → t ≡ var x) ⊎ t ≡ zeroᵘ
 subst-zeroᵘ {t = var _}                 _ = inj₁ (_ , refl)
@@ -222,7 +222,7 @@ subst-zeroᵘ {t = Id _ _ _}              ()
 subst-zeroᵘ {t = rfl}                   ()
 subst-zeroᵘ {t = J _ _ _ _ _ _ _ _}     ()
 subst-zeroᵘ {t = K _ _ _ _ _ _}         ()
-subst-zeroᵘ {t = []-cong _ _ _ _ _}     ()
+subst-zeroᵘ {t = []-cong _ _ _ _ _ _}   ()
 
 -- Inversion for sucᵘ.
 
@@ -258,7 +258,7 @@ wk-sucᵘ {t = Id _ _ _}              ()
 wk-sucᵘ {t = rfl}                   ()
 wk-sucᵘ {t = J _ _ _ _ _ _ _ _}     ()
 wk-sucᵘ {t = K _ _ _ _ _ _}         ()
-wk-sucᵘ {t = []-cong _ _ _ _ _}     ()
+wk-sucᵘ {t = []-cong _ _ _ _ _ _}   ()
 
 subst-sucᵘ :
   t [ σ ] ≡ sucᵘ u →
@@ -292,7 +292,7 @@ subst-sucᵘ {t = Id _ _ _}              ()
 subst-sucᵘ {t = rfl}                   ()
 subst-sucᵘ {t = J _ _ _ _ _ _ _ _}     ()
 subst-sucᵘ {t = K _ _ _ _ _ _}         ()
-subst-sucᵘ {t = []-cong _ _ _ _ _}     ()
+subst-sucᵘ {t = []-cong _ _ _ _ _ _}   ()
 
 -- Inversion for _supᵘ_.
 
@@ -328,7 +328,7 @@ wk-supᵘ {t = Id _ _ _}              ()
 wk-supᵘ {t = rfl}                   ()
 wk-supᵘ {t = J _ _ _ _ _ _ _ _}     ()
 wk-supᵘ {t = K _ _ _ _ _ _}         ()
-wk-supᵘ {t = []-cong _ _ _ _ _}     ()
+wk-supᵘ {t = []-cong _ _ _ _ _ _}   ()
 
 subst-supᵘ :
   t [ σ ] ≡ u supᵘ v →
@@ -363,7 +363,7 @@ subst-supᵘ {t = Id _ _ _}              ()
 subst-supᵘ {t = rfl}                   ()
 subst-supᵘ {t = J _ _ _ _ _ _ _ _}     ()
 subst-supᵘ {t = K _ _ _ _ _ _}         ()
-subst-supᵘ {t = []-cong _ _ _ _ _}     ()
+subst-supᵘ {t = []-cong _ _ _ _ _ _}   ()
 
 -- Inversion for U.
 
@@ -397,7 +397,7 @@ wk-U {t = Id _ _ _}              ()
 wk-U {t = rfl}                   ()
 wk-U {t = J _ _ _ _ _ _ _ _}     ()
 wk-U {t = K _ _ _ _ _ _}         ()
-wk-U {t = []-cong _ _ _ _ _}     ()
+wk-U {t = []-cong _ _ _ _ _ _}   ()
 
 subst-U : t [ σ ] ≡ U l → (∃ λ x → t ≡ var x) ⊎ ∃ λ l′ → t ≡ U l′ × l′ [ σ ] ≡ l
 subst-U {t = var _}                 _    = inj₁ (_ , refl)
@@ -429,7 +429,7 @@ subst-U {t = Id _ _ _}              ()
 subst-U {t = rfl}                   ()
 subst-U {t = J _ _ _ _ _ _ _ _}     ()
 subst-U {t = K _ _ _ _ _ _}         ()
-subst-U {t = []-cong _ _ _ _ _}     ()
+subst-U {t = []-cong _ _ _ _ _ _}   ()
 
 -- Inversion for Lift.
 
@@ -463,7 +463,7 @@ wk-Lift {t = Id _ _ _}              ()
 wk-Lift {t = rfl}                   ()
 wk-Lift {t = J _ _ _ _ _ _ _ _}     ()
 wk-Lift {t = K _ _ _ _ _ _}         ()
-wk-Lift {t = []-cong _ _ _ _ _}     ()
+wk-Lift {t = []-cong _ _ _ _ _ _}   ()
 
 subst-Lift : t [ σ ] ≡ Lift l A → (∃ λ x → t ≡ var x) ⊎ ∃₂ λ l′ A′ → t ≡ Lift l′ A′ × l′ [ σ ] ≡ l × A′ [ σ ] ≡ A
 subst-Lift {t = var _}                 _    = inj₁ (_ , refl)
@@ -495,7 +495,7 @@ subst-Lift {t = Id _ _ _}              ()
 subst-Lift {t = rfl}                   ()
 subst-Lift {t = J _ _ _ _ _ _ _ _}     ()
 subst-Lift {t = K _ _ _ _ _ _}         ()
-subst-Lift {t = []-cong _ _ _ _ _}     ()
+subst-Lift {t = []-cong _ _ _ _ _ _}   ()
 
 -- Inversion for lift.
 
@@ -529,7 +529,7 @@ wk-lift {t = Id _ _ _}              ()
 wk-lift {t = rfl}                   ()
 wk-lift {t = J _ _ _ _ _ _ _ _}     ()
 wk-lift {t = K _ _ _ _ _ _}         ()
-wk-lift {t = []-cong _ _ _ _ _}     ()
+wk-lift {t = []-cong _ _ _ _ _ _}   ()
 
 subst-lift : t [ σ ] ≡ lift A → (∃ λ x → t ≡ var x) ⊎ ∃ λ A′ → t ≡ lift A′ × A′ [ σ ] ≡ A
 subst-lift {t = var _}                 _    = inj₁ (_ , refl)
@@ -561,7 +561,7 @@ subst-lift {t = Id _ _ _}              ()
 subst-lift {t = rfl}                   ()
 subst-lift {t = J _ _ _ _ _ _ _ _}     ()
 subst-lift {t = K _ _ _ _ _ _}         ()
-subst-lift {t = []-cong _ _ _ _ _}     ()
+subst-lift {t = []-cong _ _ _ _ _ _}   ()
 
 -- Inversion for Lift.
 
@@ -595,7 +595,7 @@ wk-lower {t = Id _ _ _}              ()
 wk-lower {t = rfl}                   ()
 wk-lower {t = J _ _ _ _ _ _ _ _}     ()
 wk-lower {t = K _ _ _ _ _ _}         ()
-wk-lower {t = []-cong _ _ _ _ _}     ()
+wk-lower {t = []-cong _ _ _ _ _ _}   ()
 
 subst-lower : t [ σ ] ≡ lower u → (∃ λ x → t ≡ var x) ⊎ ∃ λ u′ → t ≡ lower u′ × u′ [ σ ] ≡ u
 subst-lower {t = var _}                 _    = inj₁ (_ , refl)
@@ -627,7 +627,7 @@ subst-lower {t = Id _ _ _}              ()
 subst-lower {t = rfl}                   ()
 subst-lower {t = J _ _ _ _ _ _ _ _}     ()
 subst-lower {t = K _ _ _ _ _ _}         ()
-subst-lower {t = []-cong _ _ _ _ _}     ()
+subst-lower {t = []-cong _ _ _ _ _ _}   ()
 
 -- Inversion for ΠΣ⟨_⟩_,_▷_▹_.
 
@@ -666,7 +666,7 @@ wk-ΠΣ {t = Id _ _ _}             ()
 wk-ΠΣ {t = rfl}                  ()
 wk-ΠΣ {t = J _ _ _ _ _ _ _ _}    ()
 wk-ΠΣ {t = K _ _ _ _ _ _}        ()
-wk-ΠΣ {t = []-cong _ _ _ _ _}    ()
+wk-ΠΣ {t = []-cong _ _ _ _ _ _}  ()
 
 subst-ΠΣ :
   t [ σ ] ≡ ΠΣ⟨ b ⟩ p , q ▷ A ▹ B →
@@ -705,7 +705,7 @@ subst-ΠΣ {t = Id _ _ _}             ()
 subst-ΠΣ {t = rfl}                  ()
 subst-ΠΣ {t = J _ _ _ _ _ _ _ _}    ()
 subst-ΠΣ {t = K _ _ _ _ _ _}        ()
-subst-ΠΣ {t = []-cong _ _ _ _ _}    ()
+subst-ΠΣ {t = []-cong _ _ _ _ _ _}  ()
 
 -- Inversion for lam.
 
@@ -741,7 +741,7 @@ wk-lam {t = Id _ _ _}              ()
 wk-lam {t = rfl}                   ()
 wk-lam {t = J _ _ _ _ _ _ _ _}     ()
 wk-lam {t = K _ _ _ _ _ _}         ()
-wk-lam {t = []-cong _ _ _ _ _}     ()
+wk-lam {t = []-cong _ _ _ _ _ _}   ()
 
 subst-lam :
   t [ σ ] ≡ lam p u →
@@ -776,7 +776,7 @@ subst-lam {t = Id _ _ _}              ()
 subst-lam {t = rfl}                   ()
 subst-lam {t = J _ _ _ _ _ _ _ _}     ()
 subst-lam {t = K _ _ _ _ _ _}         ()
-subst-lam {t = []-cong _ _ _ _ _}     ()
+subst-lam {t = []-cong _ _ _ _ _ _}   ()
 
 -- Inversion for _∘⟨_⟩_.
 
@@ -812,7 +812,7 @@ wk-∘ {t = Id _ _ _}              ()
 wk-∘ {t = rfl}                   ()
 wk-∘ {t = J _ _ _ _ _ _ _ _}     ()
 wk-∘ {t = K _ _ _ _ _ _}         ()
-wk-∘ {t = []-cong _ _ _ _ _}     ()
+wk-∘ {t = []-cong _ _ _ _ _ _}   ()
 
 subst-∘ :
   t [ σ ] ≡ u ∘⟨ p ⟩ v →
@@ -848,7 +848,7 @@ subst-∘ {t = Id _ _ _}              ()
 subst-∘ {t = rfl}                   ()
 subst-∘ {t = J _ _ _ _ _ _ _ _}     ()
 subst-∘ {t = K _ _ _ _ _ _}         ()
-subst-∘ {t = []-cong _ _ _ _ _}     ()
+subst-∘ {t = []-cong _ _ _ _ _ _}   ()
 
 -- Inversion for prod.
 
@@ -884,7 +884,7 @@ wk-prod {t = Id _ _ _}              ()
 wk-prod {t = rfl}                   ()
 wk-prod {t = J _ _ _ _ _ _ _ _}     ()
 wk-prod {t = K _ _ _ _ _ _}         ()
-wk-prod {t = []-cong _ _ _ _ _}     ()
+wk-prod {t = []-cong _ _ _ _ _ _}   ()
 
 subst-prod :
   t [ σ ] ≡ prod s p u v →
@@ -921,7 +921,7 @@ subst-prod {t = Id _ _ _}              ()
 subst-prod {t = rfl}                   ()
 subst-prod {t = J _ _ _ _ _ _ _ _}     ()
 subst-prod {t = K _ _ _ _ _ _}         ()
-subst-prod {t = []-cong _ _ _ _ _}     ()
+subst-prod {t = []-cong _ _ _ _ _ _}   ()
 
 -- Inversion for fst.
 
@@ -957,7 +957,7 @@ wk-fst {t = Id _ _ _}              ()
 wk-fst {t = rfl}                   ()
 wk-fst {t = J _ _ _ _ _ _ _ _}     ()
 wk-fst {t = K _ _ _ _ _ _}         ()
-wk-fst {t = []-cong _ _ _ _ _}     ()
+wk-fst {t = []-cong _ _ _ _ _ _}   ()
 
 subst-fst :
   t [ σ ] ≡ fst p u →
@@ -992,7 +992,7 @@ subst-fst {t = Id _ _ _}              ()
 subst-fst {t = rfl}                   ()
 subst-fst {t = J _ _ _ _ _ _ _ _}     ()
 subst-fst {t = K _ _ _ _ _ _}         ()
-subst-fst {t = []-cong _ _ _ _ _}     ()
+subst-fst {t = []-cong _ _ _ _ _ _}   ()
 
 -- Inversion for snd.
 
@@ -1028,7 +1028,7 @@ wk-snd {t = Id _ _ _}              ()
 wk-snd {t = rfl}                   ()
 wk-snd {t = J _ _ _ _ _ _ _ _}     ()
 wk-snd {t = K _ _ _ _ _ _}         ()
-wk-snd {t = []-cong _ _ _ _ _}     ()
+wk-snd {t = []-cong _ _ _ _ _ _}   ()
 
 subst-snd :
   t [ σ ] ≡ snd p u →
@@ -1063,7 +1063,7 @@ subst-snd {t = Id _ _ _}              ()
 subst-snd {t = rfl}                   ()
 subst-snd {t = J _ _ _ _ _ _ _ _}     ()
 subst-snd {t = K _ _ _ _ _ _}         ()
-subst-snd {t = []-cong _ _ _ _ _}     ()
+subst-snd {t = []-cong _ _ _ _ _ _}   ()
 
 -- Inversion for prodrec.
 
@@ -1102,7 +1102,7 @@ wk-prodrec {t = Id _ _ _}              ()
 wk-prodrec {t = rfl}                   ()
 wk-prodrec {t = J _ _ _ _ _ _ _ _}     ()
 wk-prodrec {t = K _ _ _ _ _ _}         ()
-wk-prodrec {t = []-cong _ _ _ _ _}     ()
+wk-prodrec {t = []-cong _ _ _ _ _ _}   ()
 
 subst-prodrec :
   t [ σ ] ≡ prodrec r p q A u v →
@@ -1141,7 +1141,7 @@ subst-prodrec {t = Id _ _ _}              ()
 subst-prodrec {t = rfl}                   ()
 subst-prodrec {t = J _ _ _ _ _ _ _ _}     ()
 subst-prodrec {t = K _ _ _ _ _ _}         ()
-subst-prodrec {t = []-cong _ _ _ _ _}     ()
+subst-prodrec {t = []-cong _ _ _ _ _ _}   ()
 
 -- Inversion for Unit.
 
@@ -1175,7 +1175,7 @@ wk-Unit {t = Id _ _ _}              ()
 wk-Unit {t = rfl}                   ()
 wk-Unit {t = J _ _ _ _ _ _ _ _}     ()
 wk-Unit {t = K _ _ _ _ _ _}         ()
-wk-Unit {t = []-cong _ _ _ _ _}     ()
+wk-Unit {t = []-cong _ _ _ _ _ _}   ()
 
 subst-Unit : t [ σ ] ≡ Unit s →
              (∃ λ x → t ≡ var x) ⊎ t ≡ Unit s
@@ -1208,7 +1208,7 @@ subst-Unit {t = Id _ _ _}              ()
 subst-Unit {t = rfl}                   ()
 subst-Unit {t = J _ _ _ _ _ _ _ _}     ()
 subst-Unit {t = K _ _ _ _ _ _}         ()
-subst-Unit {t = []-cong _ _ _ _ _}     ()
+subst-Unit {t = []-cong _ _ _ _ _ _}   ()
 
 -- Inversion for star.
 
@@ -1242,7 +1242,7 @@ wk-star {t = Id _ _ _}              ()
 wk-star {t = rfl}                   ()
 wk-star {t = J _ _ _ _ _ _ _ _}     ()
 wk-star {t = K _ _ _ _ _ _}         ()
-wk-star {t = []-cong _ _ _ _ _}     ()
+wk-star {t = []-cong _ _ _ _ _ _}   ()
 
 subst-star : t [ σ ] ≡ star s →
             (∃ λ x → t ≡ var x) ⊎ t ≡ star s
@@ -1275,7 +1275,7 @@ subst-star {t = Id _ _ _}              ()
 subst-star {t = rfl}                   ()
 subst-star {t = J _ _ _ _ _ _ _ _}     ()
 subst-star {t = K _ _ _ _ _ _}         ()
-subst-star {t = []-cong _ _ _ _ _}     ()
+subst-star {t = []-cong _ _ _ _ _ _}   ()
 
 -- Inversion for unitrec.
 
@@ -1314,7 +1314,7 @@ wk-unitrec {t = Id _ _ _}              ()
 wk-unitrec {t = rfl}                   ()
 wk-unitrec {t = J _ _ _ _ _ _ _ _}     ()
 wk-unitrec {t = K _ _ _ _ _ _}         ()
-wk-unitrec {t = []-cong _ _ _ _ _}     ()
+wk-unitrec {t = []-cong _ _ _ _ _ _}   ()
 
 subst-unitrec :
   t [ σ ] ≡ unitrec p q A u v →
@@ -1353,7 +1353,7 @@ subst-unitrec {t = Id _ _ _}              ()
 subst-unitrec {t = rfl}                   ()
 subst-unitrec {t = J _ _ _ _ _ _ _ _}     ()
 subst-unitrec {t = K _ _ _ _ _ _}         ()
-subst-unitrec {t = []-cong _ _ _ _ _}     ()
+subst-unitrec {t = []-cong _ _ _ _ _ _}   ()
 
 -- Inversion for Empty.
 
@@ -1387,7 +1387,7 @@ wk-Empty {t = Id _ _ _}              ()
 wk-Empty {t = rfl}                   ()
 wk-Empty {t = J _ _ _ _ _ _ _ _}     ()
 wk-Empty {t = K _ _ _ _ _ _}         ()
-wk-Empty {t = []-cong _ _ _ _ _}     ()
+wk-Empty {t = []-cong _ _ _ _ _ _}   ()
 
 subst-Empty : t [ σ ] ≡ Empty →
               (∃ λ x → t ≡ var x) ⊎ t ≡ Empty
@@ -1420,7 +1420,7 @@ subst-Empty {t = Id _ _ _}              ()
 subst-Empty {t = rfl}                   ()
 subst-Empty {t = J _ _ _ _ _ _ _ _}     ()
 subst-Empty {t = K _ _ _ _ _ _}         ()
-subst-Empty {t = []-cong _ _ _ _ _}     ()
+subst-Empty {t = []-cong _ _ _ _ _ _}   ()
 
 -- Inversion for emptyrec.
 
@@ -1457,7 +1457,7 @@ wk-emptyrec {t = Id _ _ _}              ()
 wk-emptyrec {t = rfl}                   ()
 wk-emptyrec {t = J _ _ _ _ _ _ _ _}     ()
 wk-emptyrec {t = K _ _ _ _ _ _}         ()
-wk-emptyrec {t = []-cong _ _ _ _ _}     ()
+wk-emptyrec {t = []-cong _ _ _ _ _ _}   ()
 
 subst-emptyrec :
   t [ σ ] ≡ emptyrec p A u →
@@ -1494,7 +1494,7 @@ subst-emptyrec {t = Id _ _ _}              ()
 subst-emptyrec {t = rfl}                   ()
 subst-emptyrec {t = J _ _ _ _ _ _ _ _}     ()
 subst-emptyrec {t = K _ _ _ _ _ _}         ()
-subst-emptyrec {t = []-cong _ _ _ _ _}     ()
+subst-emptyrec {t = []-cong _ _ _ _ _ _}   ()
 
 -- Inversion for ℕ.
 
@@ -1528,7 +1528,7 @@ wk-ℕ {t = Id _ _ _}              ()
 wk-ℕ {t = rfl}                   ()
 wk-ℕ {t = J _ _ _ _ _ _ _ _}     ()
 wk-ℕ {t = K _ _ _ _ _ _}         ()
-wk-ℕ {t = []-cong _ _ _ _ _}     ()
+wk-ℕ {t = []-cong _ _ _ _ _ _}   ()
 
 subst-ℕ : t [ σ ] ≡ ℕ → (∃ λ x → t ≡ var x) ⊎ t ≡ ℕ
 subst-ℕ {t = var _}                 _    = inj₁ (_ , refl)
@@ -1560,7 +1560,7 @@ subst-ℕ {t = Id _ _ _}              ()
 subst-ℕ {t = rfl}                   ()
 subst-ℕ {t = J _ _ _ _ _ _ _ _}     ()
 subst-ℕ {t = K _ _ _ _ _ _}         ()
-subst-ℕ {t = []-cong _ _ _ _ _}     ()
+subst-ℕ {t = []-cong _ _ _ _ _ _}   ()
 
 -- Inversion for zero.
 
@@ -1594,7 +1594,7 @@ wk-zero {t = Id _ _ _}              ()
 wk-zero {t = rfl}                   ()
 wk-zero {t = J _ _ _ _ _ _ _ _}     ()
 wk-zero {t = K _ _ _ _ _ _}         ()
-wk-zero {t = []-cong _ _ _ _ _}     ()
+wk-zero {t = []-cong _ _ _ _ _ _}   ()
 
 subst-zero : t [ σ ] ≡ zero → (∃ λ x → t ≡ var x) ⊎ t ≡ zero
 subst-zero {t = var _}                 _    = inj₁ (_ , refl)
@@ -1626,7 +1626,7 @@ subst-zero {t = Id _ _ _}              ()
 subst-zero {t = rfl}                   ()
 subst-zero {t = J _ _ _ _ _ _ _ _}     ()
 subst-zero {t = K _ _ _ _ _ _}         ()
-subst-zero {t = []-cong _ _ _ _ _}     ()
+subst-zero {t = []-cong _ _ _ _ _ _}   ()
 
 -- Inversion for suc.
 
@@ -1662,7 +1662,7 @@ wk-suc {t = Id _ _ _}              ()
 wk-suc {t = rfl}                   ()
 wk-suc {t = J _ _ _ _ _ _ _ _}     ()
 wk-suc {t = K _ _ _ _ _ _}         ()
-wk-suc {t = []-cong _ _ _ _ _}     ()
+wk-suc {t = []-cong _ _ _ _ _ _}   ()
 
 subst-suc :
   t [ σ ] ≡ suc u →
@@ -1696,7 +1696,7 @@ subst-suc {t = Id _ _ _}              ()
 subst-suc {t = rfl}                   ()
 subst-suc {t = J _ _ _ _ _ _ _ _}     ()
 subst-suc {t = K _ _ _ _ _ _}         ()
-subst-suc {t = []-cong _ _ _ _ _}     ()
+subst-suc {t = []-cong _ _ _ _ _ _}   ()
 
 -- Inversion for natrec.
 
@@ -1736,7 +1736,7 @@ wk-natrec {t = Id _ _ _}              ()
 wk-natrec {t = rfl}                   ()
 wk-natrec {t = J _ _ _ _ _ _ _ _}     ()
 wk-natrec {t = K _ _ _ _ _ _}         ()
-wk-natrec {t = []-cong _ _ _ _ _}     ()
+wk-natrec {t = []-cong _ _ _ _ _ _}   ()
 
 subst-natrec :
   t [ σ ] ≡ natrec p q r A u v w →
@@ -1776,7 +1776,7 @@ subst-natrec {t = Id _ _ _}              ()
 subst-natrec {t = rfl}                   ()
 subst-natrec {t = J _ _ _ _ _ _ _ _}     ()
 subst-natrec {t = K _ _ _ _ _ _}         ()
-subst-natrec {t = []-cong _ _ _ _ _}     ()
+subst-natrec {t = []-cong _ _ _ _ _ _}   ()
 
 -- Inversion for Id.
 
@@ -1815,7 +1815,7 @@ wk-Id {v = natrec _ _ _ _ _ _ _}  ()
 wk-Id {v = rfl}                   ()
 wk-Id {v = J _ _ _ _ _ _ _ _}     ()
 wk-Id {v = K _ _ _ _ _ _}         ()
-wk-Id {v = []-cong _ _ _ _ _}     ()
+wk-Id {v = []-cong _ _ _ _ _ _}   ()
 
 subst-Id :
   v [ σ ] ≡ Id A t u →
@@ -1854,7 +1854,7 @@ subst-Id {v = natrec _ _ _ _ _ _ _}  ()
 subst-Id {v = rfl}                   ()
 subst-Id {v = J _ _ _ _ _ _ _ _}     ()
 subst-Id {v = K _ _ _ _ _ _}         ()
-subst-Id {v = []-cong _ _ _ _ _}     ()
+subst-Id {v = []-cong _ _ _ _ _ _}   ()
 
 -- Inversion for rfl.
 
@@ -1888,7 +1888,7 @@ wk-rfl {t = natrec _ _ _ _ _ _ _}  ()
 wk-rfl {t = Id _ _ _}              ()
 wk-rfl {t = J _ _ _ _ _ _ _ _}     ()
 wk-rfl {t = K _ _ _ _ _ _}         ()
-wk-rfl {t = []-cong _ _ _ _ _}     ()
+wk-rfl {t = []-cong _ _ _ _ _ _}   ()
 
 subst-rfl : t [ σ ] ≡ rfl → (∃ λ x → t ≡ var x) ⊎ t ≡ rfl
 subst-rfl {t = var x}                 _    = inj₁ (_ , refl)
@@ -1920,7 +1920,7 @@ subst-rfl {t = natrec _ _ _ _ _ _ _}  ()
 subst-rfl {t = Id _ _ _}              ()
 subst-rfl {t = J _ _ _ _ _ _ _ _}     ()
 subst-rfl {t = K _ _ _ _ _ _}         ()
-subst-rfl {t = []-cong _ _ _ _ _}     ()
+subst-rfl {t = []-cong _ _ _ _ _ _}   ()
 
 -- Inversion for J.
 
@@ -1960,7 +1960,7 @@ wk-J {w = natrec _ _ _ _ _ _ _}  ()
 wk-J {w = Id _ _ _}              ()
 wk-J {w = rfl}                   ()
 wk-J {w = K _ _ _ _ _ _}         ()
-wk-J {w = []-cong _ _ _ _ _}     ()
+wk-J {w = []-cong _ _ _ _ _ _}   ()
 
 subst-J :
   w [ σ ] ≡ J p q A t B u t′ v →
@@ -2000,7 +2000,7 @@ subst-J {w = natrec _ _ _ _ _ _ _}  ()
 subst-J {w = Id _ _ _}              ()
 subst-J {w = rfl}                   ()
 subst-J {w = K _ _ _ _ _ _}         ()
-subst-J {w = []-cong _ _ _ _ _}     ()
+subst-J {w = []-cong _ _ _ _ _ _}   ()
 
 -- Inversion for K.
 
@@ -2040,7 +2040,7 @@ wk-K {w = natrec _ _ _ _ _ _ _}  ()
 wk-K {w = Id _ _ _}              ()
 wk-K {w = rfl}                   ()
 wk-K {w = J _ _ _ _ _ _ _ _}     ()
-wk-K {w = []-cong _ _ _ _ _}     ()
+wk-K {w = []-cong _ _ _ _ _ _}   ()
 
 subst-K :
   w [ σ ] ≡ K p A t B u v →
@@ -2080,17 +2080,17 @@ subst-K {w = natrec _ _ _ _ _ _ _}  ()
 subst-K {w = Id _ _ _}              ()
 subst-K {w = rfl}                   ()
 subst-K {w = J _ _ _ _ _ _ _ _}     ()
-subst-K {w = []-cong _ _ _ _ _}     ()
+subst-K {w = []-cong _ _ _ _ _ _}   ()
 
 -- Inversion for []-cong.
 
 wk-[]-cong :
-  wk ρ w ≡ []-cong s A t u v →
-  ∃₄ λ A′ t′ u′ v′ →
-     w ≡ []-cong s A′ t′ u′ v′ ×
-     wk ρ A′ ≡ A × wk ρ t′ ≡ t × wk ρ u′ ≡ u × wk ρ v′ ≡ v
-wk-[]-cong {w = []-cong _ _ _ _ _} refl =
-  _ , _ , _ , _ , refl , refl , refl , refl , refl
+  wk ρ w ≡ []-cong s l A t u v →
+  ∃₅ λ l′ A′ t′ u′ v′ →
+     w ≡ []-cong s l′ A′ t′ u′ v′ ×
+     wk ρ l′ ≡ l × wk ρ A′ ≡ A × wk ρ t′ ≡ t × wk ρ u′ ≡ u × wk ρ v′ ≡ v
+wk-[]-cong {w = []-cong _ _ _ _ _ _} refl =
+  _ , _ , _ , _ , _ , refl , refl , refl , refl , refl , refl
 wk-[]-cong {w = var _}                 ()
 wk-[]-cong {w = U _}                   ()
 wk-[]-cong {w = Level}                 ()
@@ -2122,15 +2122,16 @@ wk-[]-cong {w = J _ _ _ _ _ _ _ _}     ()
 wk-[]-cong {w = K _ _ _ _ _ _}         ()
 
 subst-[]-cong :
-  w [ σ ] ≡ []-cong s A t u v →
+  w [ σ ] ≡ []-cong s l A t u v →
   (∃ λ x → w ≡ var x) ⊎
-  ∃₄ λ A′ t′ u′ v′ →
-     w ≡ []-cong s A′ t′ u′ v′ ×
-     A′ [ σ ] ≡ A × t′ [ σ ] ≡ t × u′ [ σ ] ≡ u × v′ [ σ ] ≡ v
+  ∃₅ λ l′ A′ t′ u′ v′ →
+     w ≡ []-cong s l′ A′ t′ u′ v′ ×
+     l′ [ σ ] ≡ l × A′ [ σ ] ≡ A × t′ [ σ ] ≡ t × u′ [ σ ] ≡ u ×
+     v′ [ σ ] ≡ v
 subst-[]-cong {w = var _} _ =
   inj₁ (_ , refl)
-subst-[]-cong {w = []-cong _ _ _ _ _} refl =
-  inj₂ (_ , _ , _ , _ , refl , refl , refl , refl , refl)
+subst-[]-cong {w = []-cong _ _ _ _ _ _} refl =
+  inj₂ (_ , _ , _ , _ , _ , refl , refl , refl , refl , refl , refl)
 subst-[]-cong {w = U _}                   ()
 subst-[]-cong {w = Level}                 ()
 subst-[]-cong {w = zeroᵘ}                 ()

@@ -1513,8 +1513,9 @@ mutual
     (substₘ-lemma Ψ Ψ▶σ ▸u)
     (substₘ-lemma-𝟘ᵐ? Ψ Ψ▶σ ▸v .proj₂)
 
-  substₘ-lemma Ψ Ψ▶σ ([]-congₘ ▸A ▸t ▸u ▸v ok) = sub
+  substₘ-lemma Ψ Ψ▶σ ([]-congₘ ▸l ▸A ▸t ▸u ▸v ok) = sub
     ([]-congₘ
+       (substₘ-lemma-𝟘ᵐ? Ψ Ψ▶σ ▸l .proj₂)
        (substₘ-lemma-𝟘ᵐ? Ψ Ψ▶σ ▸A .proj₂)
        (substₘ-lemma-𝟘ᵐ? Ψ Ψ▶σ ▸t .proj₂)
        (substₘ-lemma-𝟘ᵐ? Ψ Ψ▶σ ▸u .proj₂)

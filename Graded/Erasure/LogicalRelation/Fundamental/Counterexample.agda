@@ -164,10 +164,10 @@ opaque
     Δ = ε ∙ Id ℕ zero zero
 
     t : Term 1
-    t = []-cong s ℕ zero zero (var x0)
+    t = []-cong s zeroᵘ ℕ zero zero (var x0)
 
     A : Term 1
-    A = Id (Erased ℕ) ([ zero ]) ([ zero ])
+    A = Id (Erased zeroᵘ ℕ) [ zero ] ([ zero ])
 
     ⊢Δ : ⊢ Δ
     ⊢Δ = ∙ Idⱼ′ (zeroⱼ ε) (zeroⱼ ε)
@@ -176,10 +176,10 @@ opaque
     consistent = inhabited-consistent (⊢ˢʷ∷-sgSubst (rflⱼ (zeroⱼ ε)))
 
     ⊢t : Δ ⊢ t ∷ A
-    ⊢t = []-congⱼ′ ok (var ⊢Δ here)
+    ⊢t = []-congⱼ′ ok (ℕⱼ ⊢Δ) (var ⊢Δ here)
 
     ▸t : 𝟘ᶜ ▸[ 𝟙ᵐ ] t
-    ▸t = []-congₘ ℕₘ zeroₘ zeroₘ var ok′
+    ▸t = []-congₘ zeroᵘₘ ℕₘ zeroₘ zeroₘ var ok′
 
     open LR ⊢Δ ⦃ inc = included ⦄ str ⇒*-is-reduction-relation
 

@@ -46,7 +46,7 @@ private
 -- Negative types
 ---------------------------------------------------------------------------
 
--- A type is negative if all of its branches end in ⊥ or U l.
+-- A type is negative if all of its branches end in ⊥, U l or Level.
 -- The prime example is negation ¬A.
 
 data NegativeType (Γ : Cxt m) : Ty m → Set a where
@@ -66,6 +66,8 @@ data NegativeType (Γ : Cxt m) : Ty m → Set a where
         → NegativeType Γ (Σˢ p , q ▷ A ▹ B)
 
   universe : NegativeType Γ (U l)
+
+  level : NegativeType Γ Level
 
   conv  : NegativeType Γ A
         → Γ ⊢ A ≡ B
@@ -91,6 +93,8 @@ wkNeg w (sigma dA nA nB)
 
 wkNeg _ universe = universe
 
+wkNeg _ level = level
+
 wkNeg w (conv n c)
   = conv (wkNeg w n) (wkEq w c)
 
@@ -109,6 +113,8 @@ subNeg (sigma ⊢A nA nB) s
   = sigma (subst-⊢ ⊢A s) (subNeg nA s) (subNeg nB (⊢ˢʷ∷-⇑′ ⊢A s))
 
 subNeg universe _ = universe
+
+subNeg level _ = level
 
 subNeg (conv n c) s = conv (subNeg n s) (subst-⊢≡ c (refl-⊢ˢʷ≡∷ s))
 
@@ -130,6 +136,7 @@ lowerNeg empty c = ⊥-elim (Lift≢Emptyⱼ (sym c))
 lowerNeg (pi x n) c = ⊥-elim (Lift≢ΠΣⱼ (sym c))
 lowerNeg (sigma x n n₁) c = ⊥-elim (Lift≢ΠΣⱼ (sym c))
 lowerNeg universe c = ⊥-elim (U≢Liftⱼ c)
+lowerNeg level c = ⊥-elim (Lift≢Level (sym c))
 lowerNeg (conv n x) c = lowerNeg n (trans x c)
 
 -- Lemma: The first component of a negative Σ-type is negative (given
@@ -145,6 +152,7 @@ fstNeg empty          c = ⊥-elim (Empty≢ΠΣⱼ c)
 fstNeg (pi _ _)       c = ⊥-elim (Π≢Σⱼ c)
 fstNeg (sigma _ nA _) c = conv nA (proj₁ (ΠΣ-injectivity c))
 fstNeg universe       c = ⊥-elim (U≢ΠΣⱼ c)
+fstNeg level          c = ⊥-elim (Level≢ΠΣⱼ c)
 fstNeg (conv n c)    c' = fstNeg n (trans c c')
 
 -- Lemma: Any instance of the second component of a negative Σ-type is
@@ -165,6 +173,7 @@ sndNeg (sigma _ _ nB) c ⊢t =
   in
   conv (subNeg nB (⊢ˢʷ∷-sgSubst ⊢t)) (cB (refl ⊢t))
 sndNeg universe      c  = ⊥-elim (U≢ΠΣⱼ c)
+sndNeg level         c  = ⊥-elim (Level≢ΠΣⱼ c)
 sndNeg (conv n c)    c' = sndNeg n (trans c c')
 
 -- Lemma: Any instance of the codomain of a negative Π-type is
@@ -183,6 +192,7 @@ appNeg (pi _ nB) c ⊢t =
   in
   conv (subNeg nB (⊢ˢʷ∷-sgSubst ⊢t)) (cB (refl ⊢t))
 appNeg universe      c  = ⊥-elim (U≢ΠΣⱼ c)
+appNeg level         c  = ⊥-elim (Level≢ΠΣⱼ c)
 appNeg (conv n c)    c' = appNeg n (trans c c')
 
 -- Lemma: The type ℕ is not negative (given a certain assumption).
@@ -195,6 +205,7 @@ appNeg (conv n c)    c' = appNeg n (trans c c')
 ¬negℕ (pi _ _)      c = ℕ≢ΠΣⱼ (sym c)
 ¬negℕ (sigma _ _ _) c = ℕ≢ΠΣⱼ (sym c)
 ¬negℕ universe      c = U≢ℕ c
+¬negℕ level         c = Level≢ℕ c
 ¬negℕ (conv n c)   c' = ¬negℕ n (trans c c')
 
 -- Lemma: The type Σʷ is not negative (given a certain assumption).
@@ -207,6 +218,7 @@ appNeg (conv n c)    c' = appNeg n (trans c c')
 ¬negΣʷ (pi _ _)      c = Π≢Σⱼ c
 ¬negΣʷ (sigma _ _ _) c = Σˢ≢Σʷⱼ c
 ¬negΣʷ universe      c = U≢ΠΣⱼ c
+¬negΣʷ level         c = Level≢ΠΣⱼ c
 ¬negΣʷ (conv n c)   c' = ¬negΣʷ n (trans c c')
 
 -- Lemma: Unit types are not negative (given a certain assumption).
@@ -219,6 +231,7 @@ appNeg (conv n c)    c' = appNeg n (trans c c')
 ¬negUnit (pi _ _) c = Unit≢ΠΣⱼ (sym c)
 ¬negUnit (sigma _ _ _) c = Unit≢ΠΣⱼ (sym c)
 ¬negUnit universe      c = U≢Unitⱼ c
+¬negUnit level         c = Level≢Unitⱼ c
 ¬negUnit (conv n c) c′ = ¬negUnit n (trans c c′)
 
 opaque
@@ -233,4 +246,5 @@ opaque
   ¬negId (pi _ _)      = I.Id≢ΠΣ ∘→ sym
   ¬negId (sigma _ _ _) = I.Id≢ΠΣ ∘→ sym
   ¬negId universe      = I.Id≢U ∘→ sym
+  ¬negId level         = I.Id≢Level ∘→ sym
   ¬negId (conv n B≡A)  = ¬negId n ∘→ trans B≡A

@@ -512,15 +512,17 @@ infix 10 ⌈⌉▸[_]?_
   where
   open ≤ᶜ-reasoning
 
-⌈⌉▸[ m ]? []-cong s A t u v =
-  case ⌈⌉▸[ 𝟘ᵐ? ]? A ×-Dec-∀ ⌈⌉▸[ 𝟘ᵐ? ]? t ×-Dec-∀ ⌈⌉▸[ 𝟘ᵐ? ]? u ×-Dec-∀
-       ⌈⌉▸[ 𝟘ᵐ? ]? v ×-Dec-∀
+⌈⌉▸[ m ]? []-cong s l A t u v =
+  case ⌈⌉▸[ 𝟘ᵐ? ]? l ×-Dec-∀ ⌈⌉▸[ 𝟘ᵐ? ]? A ×-Dec-∀ ⌈⌉▸[ 𝟘ᵐ? ]? t ×-Dec-∀
+       ⌈⌉▸[ 𝟘ᵐ? ]? u ×-Dec-∀ ⌈⌉▸[ 𝟘ᵐ? ]? v ×-Dec-∀
        Dec→Dec-∀ ([]-cong-allowed-mode? s m) of λ where
-    (inj₁ (▸A , ▸t , ▸u , ▸v , ok)) →
-      inj₁ ([]-congₘ ▸A ▸t ▸u ▸v ok)
+    (inj₁ (▸l , ▸A , ▸t , ▸u , ▸v , ok)) →
+      inj₁ ([]-congₘ ▸l ▸A ▸t ▸u ▸v ok)
     (inj₂ problem) → inj₂ λ _ ▸bc →
-      let invUsage-[]-cong ▸A ▸t ▸u ▸v ok _ = inv-usage-[]-cong ▸bc in
-      problem _ (▸A , ▸t , ▸u , ▸v , ok)
+      let invUsage-[]-cong ▸l ▸A ▸t ▸u ▸v ok _ =
+            inv-usage-[]-cong ▸bc
+      in
+      problem _ (▸l , ▸A , ▸t , ▸u , ▸v , ok)
 
 infix 10 ⌈⌉▸[_]?′_
 

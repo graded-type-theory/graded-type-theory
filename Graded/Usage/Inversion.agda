@@ -34,10 +34,10 @@ open import Tools.Relation
 
 private
   variable
-    k n l : Nat
+    k n : Nat
     γ χ : Conₘ n
     p q r : M
-    A B F t t′ u v z n' : Term n
+    A B F l t t′ u v z n' : Term n
     G : Term (1+ n)
     m : Mode
     b : BinderMode
@@ -712,25 +712,26 @@ inv-usage-K (sub γ′▸ γ≤γ′) with inv-usage-K γ′▸
 
 record InvUsage-[]-cong
          {n} (γ : Conₘ n) (m : Mode) (s : Strength)
-         (A t u v : Term n) : Set a where
+         (l A t u v : Term n) : Set a where
   no-eta-equality
   pattern
   constructor invUsage-[]-cong
   field
-    {γ₁ γ₂ γ₃ γ₄} : Conₘ n
-    ▸A            : γ₁ ▸[ 𝟘ᵐ? ] A
-    ▸t            : γ₂ ▸[ 𝟘ᵐ? ] t
-    ▸u            : γ₃ ▸[ 𝟘ᵐ? ] u
-    ▸v            : γ₄ ▸[ 𝟘ᵐ? ] v
-    P             : []-cong-allowed-mode s m
-    ≤𝟘            : γ ≤ᶜ 𝟘ᶜ
+    {γ₁ γ₂ γ₃ γ₄ γ₅} : Conₘ n
+    ▸l               : γ₁ ▸[ 𝟘ᵐ? ] l
+    ▸A               : γ₂ ▸[ 𝟘ᵐ? ] A
+    ▸t               : γ₃ ▸[ 𝟘ᵐ? ] t
+    ▸u               : γ₄ ▸[ 𝟘ᵐ? ] u
+    ▸v               : γ₅ ▸[ 𝟘ᵐ? ] v
+    P                : []-cong-allowed-mode s m
+    ≤𝟘               : γ ≤ᶜ 𝟘ᶜ
 
 -- A usage inversion lemma for []-cong.
 
 inv-usage-[]-cong :
-  γ ▸[ m ] []-cong s A t u v → InvUsage-[]-cong γ m s A t u v
-inv-usage-[]-cong ([]-congₘ ▸A ▸t ▸u ▸v ok) =
-  invUsage-[]-cong ▸A ▸t ▸u ▸v ok ≤ᶜ-refl
+  γ ▸[ m ] []-cong s l A t u v → InvUsage-[]-cong γ m s l A t u v
+inv-usage-[]-cong ([]-congₘ ▸l ▸A ▸t ▸u ▸v ok) =
+  invUsage-[]-cong ▸l ▸A ▸t ▸u ▸v ok ≤ᶜ-refl
 inv-usage-[]-cong (sub γ′▸ γ≤γ′) with inv-usage-[]-cong γ′▸
-... | invUsage-[]-cong ▸A ▸t ▸u ▸v ok γ′≤ =
-  invUsage-[]-cong ▸A ▸t ▸u ▸v ok (≤ᶜ-trans γ≤γ′ γ′≤)
+... | invUsage-[]-cong ▸l ▸A ▸t ▸u ▸v ok γ′≤ =
+  invUsage-[]-cong ▸l ▸A ▸t ▸u ▸v ok (≤ᶜ-trans γ≤γ′ γ′≤)

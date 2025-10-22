@@ -15,6 +15,7 @@ module Definition.Conversion.Weakening
   where
 
 open import Definition.Untyped M as U hiding (wk)
+open import Definition.Untyped.Erased 𝕄
 open import Definition.Untyped.Neutral M type-variant
 open import Definition.Untyped.Properties M
 open import Definition.Typed R
@@ -145,10 +146,11 @@ mutual
       (PE.subst (_⊢_[conv↑]_∷_ _ _ _) (wk-β B₁) $
        wkConv↑Term [ρ] u₁≡u₂)
       (wk~↓ [ρ] v₁~v₂) (wkEq [ρ] ≡Id) ok }
-  wk~↑ [ρ] ([]-cong-cong A₁≡A₂ t₁≡t₂ u₁≡u₂ v₁~v₂ ≡Id ok) =
-    []-cong-cong (wkConv↑ [ρ] A₁≡A₂) (wkConv↑Term [ρ] t₁≡t₂)
-      (wkConv↑Term [ρ] u₁≡u₂) (wk~↓ [ρ] v₁~v₂) (wkEq [ρ] ≡Id)
-      ok
+  wk~↑ [ρ] ([]-cong-cong l₁≡l₂ A₁≡A₂ t₁≡t₂ u₁≡u₂ v₁~v₂ ≡Id ok) =
+    PE.subst (_⊢_~_↑_ _ _ _) (wk-Id-Erased _) $
+    []-cong-cong (wkConv↑Term [ρ] l₁≡l₂) (wkConv↑Term [ρ] A₁≡A₂)
+      (wkConv↑Term [ρ] t₁≡t₂) (wkConv↑Term [ρ] u₁≡u₂) (wk~↓ [ρ] v₁~v₂)
+      (wkEq [ρ] ≡Id) ok
 
   -- Weakening of algorithmic equality of neutrals in WHNF.
   wk~↓ : ∀ {t u A Γ Δ} ([ρ] : ρ ∷ʷ Δ ⊇ Γ)
