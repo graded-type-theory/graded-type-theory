@@ -38,7 +38,7 @@ record Type-restrictions : Set (lsuc a) where
   open Type-variant type-variant public
 
   field
-    -- Is Level an element of U 0 ?
+    -- Is Level an element of U 0?
     Level-is-small : Set a
 
     -- Level-is-small is decided.
