@@ -41,7 +41,8 @@ opaque
 
   -- An inversion lemma for [_].
   --
-  -- See also Definition.Typed.Inversion.inversion-[].
+  -- See also
+  -- Definition.Typed.Properties.Admissible.Erased.inversion-[].
 
   inversion-[]′ :
     ⦃ ok : No-equality-reflection or-empty Γ ⦄ →
