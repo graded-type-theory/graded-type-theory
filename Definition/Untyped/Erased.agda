@@ -3,7 +3,7 @@
 ------------------------------------------------------------------------
 
 open import Graded.Modality
-open import Definition.Untyped.NotParametrised
+open import Definition.Untyped.NotParametrised using (Strength)
 
 module Definition.Untyped.Erased
   {a} {M : Set a}
@@ -33,6 +33,7 @@ private variable
   n           : Nat
   A B t u v w : Term _
   σ           : Subst _ _
+  ρ           : Wk _ _
   p           : M
 
 -- The type constructor Erased.
@@ -63,6 +64,17 @@ opaque
   erased-[] {A} {t} = case singleton s of λ where
     (𝕤 , refl) → refl
     (𝕨 , refl) → NoEta.erased-[] A t
+
+opaque
+
+  -- A weakening lemma for erased.
+
+  wk-erased : wk ρ (erased A t) ≡ erased (wk ρ A) (wk ρ t)
+  wk-erased {ρ} {A} {t} =
+    wk ρ (erased A t)                               ≡⟨ wk≡subst _ _ ⟩
+    erased A t U.[ toSubst ρ ]                      ≡⟨ erased-[] ⟩
+    erased (A U.[ toSubst ρ ]) (t U.[ toSubst ρ ])  ≡˘⟨ PE.cong₂ erased (wk≡subst _ _) (wk≡subst _ _) ⟩
+    erased (wk ρ A) (wk ρ t)                        ∎
 
 opaque
 
