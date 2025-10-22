@@ -32,9 +32,9 @@ import Tools.PropositionalEquality as PE
 open import Tools.Reasoning.PropositionalEquality
 
 private variable
-  Γ                                                   : Con _ _
-  A B C D E t u u₁ u₂ u₃ u₄ v w                       : Term _
-  p p′ p″ p₁ p₁′ p₂ p₂′ p₃ p₃′ p₄ p₄′ q q₁ q₂ q₃ q₄ r : M
+  Γ                                                             : Con _ _
+  A B C D E F t u u₁ u₂ u₃ u₄ u₅ v w                            : Term _
+  p p′ p″ p₁ p₁′ p₂ p₂′ p₃ p₃′ p₄ p₄′ p₅ p₅′ q q₁ q₂ q₃ q₄ q₅ r : M
 
 opaque
 
@@ -163,6 +163,72 @@ opaque
     t [ liftSubst (consSubst (consSubst (sgSubst u₁) u₂) u₃) ] [ u₄ ]₀   ≡⟨ singleSubstComp _ _ t ⟩
 
     t [ consSubst (consSubst (consSubst (sgSubst u₁) u₂) u₃) u₄ ]        ∎
+
+opaque
+
+  -- A variant of β-red-⇒₁ for functions of five arguments.
+
+  β-red-⇒₅ :
+    ⦃ ok : No-equality-reflection or-empty Γ ⦄ →
+    Γ ⊢ lam p₁ (lam p₂ (lam p₃ (lam p₄ (lam p₅ t)))) ∷
+        Π p₁′ , q₁ ▷ A ▹ Π p₂′ , q₂ ▷ B ▹ Π p₃′ , q₃ ▷ C ▹
+        Π p₄′ , q₄ ▷ D ▹ Π p₅′ , q₅ ▷ E ▹ F →
+    Γ ⊢ u₁ ∷ A →
+    Γ ⊢ u₂ ∷ B [ u₁ ]₀ →
+    Γ ⊢ u₃ ∷ C [ u₁ , u₂ ]₁₀ →
+    Γ ⊢ u₄ ∷ D [ consSubst (consSubst (sgSubst u₁) u₂) u₃ ] →
+    Γ ⊢ u₅ ∷
+      E [ consSubst (consSubst (consSubst (sgSubst u₁) u₂) u₃) u₄ ] →
+    Γ ⊢ lam p₁ (lam p₂ (lam p₃ (lam p₄ (lam p₅ t))))
+          ∘⟨ p₁′ ⟩ u₁ ∘⟨ p₂′ ⟩ u₂ ∘⟨ p₃′ ⟩ u₃ ∘⟨ p₄′ ⟩ u₄ ∘⟨ p₅′ ⟩ u₅ ⇒*
+        t [ consSubst
+              (consSubst (consSubst (consSubst (sgSubst u₁) u₂) u₃) u₄)
+              u₅ ] ∷
+        F [ consSubst
+              (consSubst (consSubst (consSubst (sgSubst u₁) u₂) u₃) u₄)
+              u₅ ]
+  β-red-⇒₅
+    {p₁} {p₂} {p₃} {p₄} {p₅} {t} {p₁′} {p₂′} {p₃′} {C} {p₄′} {D} {p₅′}
+    {E} {F} {u₁} {u₂} {u₃} {u₄} {u₅} ⊢lam ⊢u₁ ⊢u₂ ⊢u₃ ⊢u₄ ⊢u₅ =
+    let _ , ⊢lam′ , Π≡Π , _ = inversion-lam-Π ⊢lam
+        ⊢lam′               = conv (subst-⊢∷ ⊢lam′ (⊢ˢʷ∷-sgSubst ⊢u₁))
+                                (Π≡Π (refl ⊢u₁))
+        _ , ⊢lam″ , Π≡Π , _ = inversion-lam-Π ⊢lam′
+        ⊢lam″               =
+          PE.subst₂ (_⊢_∷_ _)
+            (singleSubstComp _ _ (lam _ (lam _ (lam _ t))))
+            (singleSubstComp _ _
+               (Π _ , _ ▷ C ▹ Π _ , _ ▷ D ▹ Π _ , _ ▷ E ▹ F)) $
+          conv (subst-⊢∷ ⊢lam″ (⊢ˢʷ∷-sgSubst ⊢u₂))
+            (Π≡Π (refl ⊢u₂))
+        _ , ⊢lam‴ , Π≡Π , _ = inversion-lam-Π ⊢lam″
+        ⊢lam‴ =
+          PE.subst₂ (_⊢_∷_ _)
+            (singleSubstComp _ _ (lam _ (lam _ t)))
+            (singleSubstComp _ _ (Π _ , _ ▷ D ▹ Π _ , _ ▷ E ▹ F)) $
+          conv (subst-⊢∷ ⊢lam‴ (⊢ˢʷ∷-sgSubst ⊢u₃))
+            (Π≡Π (refl ⊢u₃))
+        _ , ⊢lam⁗ , Π≡Π , _ = inversion-lam-Π ⊢lam‴
+        ⊢lam⁗ =
+          PE.subst₂ (_⊢_∷_ _)
+            (singleSubstComp _ _ (lam _ t))
+            (singleSubstComp _ _ (Π _ , _ ▷ E ▹ F)) $
+          conv (subst-⊢∷ ⊢lam⁗ (⊢ˢʷ∷-sgSubst ⊢u₄))
+            (Π≡Π (refl ⊢u₄))
+    in
+                                                                            ⟨ PE.sym $ singleSubstComp _ _ F ⟩⇒≡
+    lam p₁ (lam p₂ (lam p₃ (lam p₄ (lam p₅ t))))
+      ∘⟨ p₁′ ⟩ u₁ ∘⟨ p₂′ ⟩ u₂ ∘⟨ p₃′ ⟩ u₃ ∘⟨ p₄′ ⟩ u₄ ∘⟨ p₅′ ⟩ u₅         ⇒*⟨ app-subst* (β-red-⇒₄ ⊢lam ⊢u₁ ⊢u₂ ⊢u₃ ⊢u₄) ⊢u₅ ⟩
+
+    lam p₅
+      (t [ consSubst (consSubst (consSubst (sgSubst u₁) u₂) u₃) u₄ ⇑ ])
+      ∘⟨ p₅′ ⟩ u₅                                                         ⇒⟨ β-red-⇒₁ ⊢lam⁗ ⊢u₅ ⟩∎≡
+
+    t [ consSubst (consSubst (consSubst (sgSubst u₁) u₂) u₃) u₄ ⇑ ]
+      [ u₅ ]₀   ≡⟨ singleSubstComp _ _ t ⟩
+
+    t [ consSubst
+          (consSubst (consSubst (consSubst (sgSubst u₁) u₂) u₃) u₄) u₅ ]  ∎
 
 opaque
 
