@@ -303,6 +303,7 @@ import Definition.Typed.Consequences.Inversion.Erased.No-eta
 import Definition.Typed.Consequences.Admissible
 import Definition.Typed.Consequences.Consistency
 import Definition.Typed.Consequences.NeTypeEq
+import Definition.Typed.Consequences.Universe
 
 -- Algorithmic equality.
 import Definition.Conversion
