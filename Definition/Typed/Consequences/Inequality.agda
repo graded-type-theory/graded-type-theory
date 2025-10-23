@@ -22,12 +22,14 @@ open import Definition.Typed.Properties R
 open import Definition.LogicalRelation R
 open import Definition.LogicalRelation.Hidden R
 open import Definition.LogicalRelation.Irrelevance R
+open import Definition.LogicalRelation.Properties.Primitive R
 open import Definition.LogicalRelation.Properties.Whnf R
 open import Definition.LogicalRelation.ShapeView R
 open import Definition.LogicalRelation.Fundamental.Reducibility R
+open import Definition.LogicalRelation.Substitution.Introductions.Level R
 
 open import Tools.Function
-open import Tools.Nat as Nat using (Nat)
+open import Tools.Nat as Nat using (Nat; 1+n≢n)
 open import Tools.Product
 open import Tools.Relation
 open import Tools.Empty
@@ -773,3 +775,20 @@ rfl≢ne :
   Neutral v →
   ¬ Γ ⊢ rfl ≡ v ∷ Id A t u
 rfl≢ne = whnf≢ne U.Idₙ (Level≢Id ∘→ sym) U.rflₙ (λ { (U.ne ()) })
+
+-- For any level t, t is not equal to sucᵘ t (given a certain assumption).
+
+opaque
+  unfolding ⊩sucᵘ ↑ⁿ_
+
+  t≢sucᵘt :
+    ⦃ ok : No-equality-reflection or-empty Γ ⦄ →
+    ¬ Γ ⊢ t ≡ sucᵘ t ∷ Level
+  t≢sucᵘt t≡sucᵘt =
+    case reducible-⊩≡∷ t≡sucᵘt of λ
+      (l , ⊩t≡sucᵘt) →
+    case ⊩≡∷Level⇔ .proj₁ ⊩t≡sucᵘt of λ
+      ⊩t≡sucᵘt →
+    case wf-Level-eq ⊩t≡sucᵘt of λ {
+      (⊩t@(Levelₜ _ _ _) , _) →
+    1+n≢n (PE.sym (↑ⁿ-cong ⊩t (⊩sucᵘ ⊩t) ⊩t≡sucᵘt)) }
