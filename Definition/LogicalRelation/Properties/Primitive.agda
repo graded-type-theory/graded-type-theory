@@ -511,7 +511,7 @@ opaque
         (neLvl [t′]) → Levelₜ₌ _ _
           (id (supᵘⱼ ⊢t′ ⊢t))
           (id ⊢t′)
-          (neLvl (supᵘ-idemᵣ [t′] (symLevel (redLevel t⇒ [t]))))
+          (neLvl (supᵘ-idemᵣ [t′] (symLevel (redLevel′ t⇒ (⊩neLvl [t′])))))
 
 opaque
 
