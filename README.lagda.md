@@ -2,12 +2,12 @@
 module README where
 ```
 
-# Code related to the paper "Normalisation for First-Class Universe Levels" by Nils Anders Danielsson, Naïm Camille Favier and Ondřej Kubánek
+# An Agda Formalization of a Graded Modal Type Theory with First-Class Universe Levels and Erasure
 
-Note that Andreas Abel, Oskar Eriksson, Gaëtan Gilbert, Wojciech
-Nawrocki, Joakim Öhman and Andrea Vezzosi have also contributed to the
-code, and some changes to the code were made after feedback from
-anonymous reviewers.
+This code is related to the paper "Normalisation for First-Class
+Universe Levels" by Nils Anders Danielsson, Naïm Camille Favier and
+Ondřej Kubánek. It builds on an existing formalisation, see "Project
+history" below.
 
 ## Dependencies and licences
 
@@ -65,6 +65,9 @@ Later other additions were made:
 * A universe hierarchy with first-class universe levels was added
   by Nils Anders Danielsson, Naïm Camille Favier and Ondřej Kubánek
   (2024-2025): this is the focus of the discussion below.
+
+Note also that some changes to the code were made after feedback from
+anonymous reviewers.
 
 ## Pointers to code for specific definitions, theorems etc. in the paper
 
