@@ -11,14 +11,22 @@ module Definition.Typechecking
   (R : Type-restrictions 𝕄)
   where
 
+open Modality 𝕄
 open Type-restrictions R
 
 open import Definition.Untyped M
 import Definition.Untyped.Erased 𝕄 as Erased
 open import Definition.Typed R
+open import Definition.Typed.Consequences.Inequality R
+open import Definition.Typed.Inversion R
+open import Definition.Typed.Properties R
 
+open import Tools.Empty
 open import Tools.Fin
+open import Tools.Function
 open import Tools.Nat
+open import Tools.Product
+open import Tools.Relation
 
 private
   variable
@@ -229,6 +237,96 @@ mutual
 data CheckableCon : (Γ : Con Term n) → Set a where
   ε   : CheckableCon ε
   _∙_ : CheckableCon Γ → Checkable-type A → CheckableCon (Γ ∙ A)
+
+opaque
+
+  -- There is a well-typed term that is checkable but not inferable.
+
+  Checkable×¬Inferable :
+    let t : Term 0
+        t = lift zero
+    in
+    ε ⊢ t ∷ Lift zeroᵘ ℕ × Checkable t × ¬ Inferable t
+  Checkable×¬Inferable =
+    liftⱼ′ (zeroᵘⱼ ε) (zeroⱼ ε) ,
+    liftᶜ (infᶜ zeroᵢ) ,
+    (λ { () })
+
+opaque
+
+  -- The term A = Π p , q ▷ lam r (var x0) ▹ var x0 is a checkable
+  -- type but not checkable. If Γ is empty or equality reflection is
+  -- not allowed, then Γ ⊢ A does not hold.
+
+  Checkable-type×¬Checkable :
+    let A : Term 0
+        A = Π p , q ▷ lam r (var x0) ▹ var x0
+    in
+    Checkable-type A × ¬ Checkable A ×
+    (∀ {Γ} → ⦃ No-equality-reflection or-empty Γ ⦄ → ¬ Γ ⊢ A)
+  Checkable-type×¬Checkable =
+    ΠΣᶜ (checkᶜ (lamᶜ (infᶜ varᵢ))) (checkᶜ (infᶜ varᵢ)) ,
+    (λ { (infᶜ (ΠΣᵢ () _)) }) ,
+    (λ ⊢A →
+       let ⊢lam , _ = inversion-ΠΣ ⊢A in
+       case ⊢lam of λ {
+         (univ ⊢lam) →
+       let _ , _ , _ , _ , _ , U≡Π , _ = inversion-lam ⊢lam in
+       U≢ΠΣⱼ U≡Π })
+
+opaque
+
+  -- Every well-formed type that is checkable is inferable (if the
+  -- context is empty or equality reflection is disallowed).
+
+  ⊢→Checkable→Inferable :
+    ⦃ ok : No-equality-reflection or-empty Γ ⦄ →
+    Γ ⊢ A → Checkable A → Inferable A
+  ⊢→Checkable→Inferable ⊢A = λ where
+    (liftᶜ _) →
+      case ⊢A of λ {
+        (univ ⊢lift) →
+      let _ , _ , _ , U≡Lift = inversion-lift ⊢lift in
+      ⊥-elim (U≢Liftⱼ U≡Lift) }
+    (lamᶜ _) →
+      case ⊢A of λ {
+        (univ ⊢lam) →
+      let _ , _ , _ , _ , _ , U≡Π , _ = inversion-lam ⊢lam in
+      ⊥-elim (U≢ΠΣⱼ U≡Π) }
+    (prodᶜ _ _) →
+      case ⊢A of λ {
+        (univ ⊢prod) →
+      let _ , _ , _ , _ , _ , _ , _ , U≡Σ , _ = inversion-prod ⊢prod in
+      ⊥-elim (U≢ΠΣⱼ U≡Σ) }
+    rflᶜ →
+      case ⊢A of λ {
+        (univ ⊢rfl) →
+      let _ , _ , _ , _ , U≡Id = inversion-rfl ⊢rfl in
+      ⊥-elim (Id≢U (sym U≡Id)) }
+    (infᶜ A) →
+      A
+
+opaque
+
+  -- Every well-formed type that is a checkable type is inferable (if
+  -- equality reflection is disallowed).
+
+  ⊢→Checkable-type→Inferable :
+    ⦃ ok : No-equality-reflection ⦄ →
+    Γ ⊢ A → Checkable-type A → Inferable A
+  ⊢→Checkable-type→Inferable ⊢A = λ where
+    (Liftᶜ l B) →
+      let _ , ⊢B = inversion-Lift ⊢A in
+      Liftᵢ l (⊢→Checkable-type→Inferable ⊢B B)
+    (ΠΣᶜ B C) →
+      let ⊢B , ⊢C , _ = inversion-ΠΣ ⊢A in
+      ΠΣᵢ (⊢→Checkable-type→Inferable ⊢B B)
+        (infᶜ (⊢→Checkable-type→Inferable ⊢C C))
+    (Idᶜ B t u) →
+      let ⊢B , _ = inversion-Id ⊢A in
+      Idᵢ (⊢→Checkable-type→Inferable ⊢B B) t u
+    (checkᶜ A) →
+      ⊢→Checkable→Inferable ⦃ ok = possibly-nonempty ⦄ ⊢A A
 
 mutual
 
