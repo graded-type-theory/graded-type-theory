@@ -43,7 +43,7 @@ private
     l t u A B : Term n
 
   univᶜ′ : (∃ λ A → Γ ⊢ t ⇉ A × Γ ⊢ U l ≡ A) → Γ ⊢ t ⇇Type
-  univᶜ′ (_ , t⇉ , U≡A) = univᶜ (infᶜ t⇉ (sym U≡A))
+  univᶜ′ (_ , t⇉ , U≡A) = univᶜ t⇉ (U-norm (sym U≡A) .proj₂ , Uₙ)
 
 -- Bi-directional type checking relations are complete with respect to
 -- their corresponding typing relations for Inferable/Checkable terms

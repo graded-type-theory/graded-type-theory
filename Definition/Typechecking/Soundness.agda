@@ -56,8 +56,9 @@ mutual
     ΠΣⱼ (soundness⇇Type (∙ soundness⇇Type ⊢Γ ⊢A) ⊢B) ok
   soundness⇇Type _ (Idᶜ _ ⊢t ⊢u) =
     Idⱼ′ (soundness⇇ ⊢t) (soundness⇇ ⊢u)
-  soundness⇇Type ⊢Γ (univᶜ ⊢A) =
-    univ (soundness⇇ ⊢A)
+  soundness⇇Type ⊢Γ (univᶜ ⊢A ↘U) =
+    let ⊢B , A∷B = soundness⇉ ⊢Γ ⊢A in
+    univ (conv A∷B (subset* (↘U .proj₁)))
 
   soundness⇉ : ⊢ Γ → Γ ⊢ t ⇉ A → (Γ ⊢ A) × (Γ ⊢ t ∷ A)
   soundness⇉ ⊢Γ (Levelᵢ ok) = ⊢U (zeroᵘⱼ ⊢Γ) , Levelⱼ ⊢Γ ok

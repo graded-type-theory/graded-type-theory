@@ -16,8 +16,11 @@ open Type-restrictions R
 
 open import Definition.Untyped M
 import Definition.Untyped.Erased 𝕄 as Erased
+open import Definition.Untyped.Neutral M type-variant
+
 open import Definition.Typed R
 open import Definition.Typed.Consequences.Inequality R
+open import Definition.Typed.Consequences.Reduction R
 open import Definition.Typed.Inversion R
 open import Definition.Typed.Properties R
 
@@ -59,7 +62,8 @@ mutual
         → Γ ⊢ t ⇇ A
         → Γ ⊢ u ⇇ A
         → Γ ⊢ Id A t u ⇇Type
-    univᶜ : Γ ⊢ A ⇇ U l
+    univᶜ : Γ ⊢ A ⇉ B
+          → Γ ⊢ B ↘ U l
           → Γ ⊢ A ⇇Type
 
   data _⊢_⇉_ (Γ : Con Term n) : (t A : Term n) → Set a where
@@ -170,6 +174,24 @@ mutual
     infᶜ : Γ ⊢ t ⇉ A
          → Γ ⊢ A ≡ B
          → Γ ⊢ t ⇇ B
+
+opaque
+
+  -- A variant of univᶜ.
+
+  ⊢⇇U→⊢⇇Type :
+    ⦃ ok : No-equality-reflection or-empty Γ ⦄ →
+    Γ ⊢ A ⇇ U l → Γ ⊢ A ⇇Type
+  ⊢⇇U→⊢⇇Type (liftᶜ U↘Lift _) =
+    case whnfRed* (U↘Lift .proj₁) Uₙ of λ ()
+  ⊢⇇U→⊢⇇Type (lamᶜ U↘Π _) =
+    case whnfRed* (U↘Π .proj₁) Uₙ of λ ()
+  ⊢⇇U→⊢⇇Type (prodᶜ U↘Σ _ _) =
+    case whnfRed* (U↘Σ .proj₁) Uₙ of λ ()
+  ⊢⇇U→⊢⇇Type (rflᶜ U↘Id _) =
+    case whnfRed* (U↘Id .proj₁) Uₙ of λ ()
+  ⊢⇇U→⊢⇇Type (infᶜ A⇉ ≡U) =
+    univᶜ A⇉ (U-norm ≡U .proj₂ , Uₙ)
 
 mutual
 
@@ -342,7 +364,7 @@ mutual
   Checkable⇇Type (ΠΣᶜ A B _) = ΠΣᶜ (Checkable⇇Type A) (Checkable⇇Type B)
   Checkable⇇Type (Idᶜ A t u) = Idᶜ (Checkable⇇Type A) (Checkable⇇ t)
                                  (Checkable⇇ u)
-  Checkable⇇Type (univᶜ A) = checkᶜ (Checkable⇇ A)
+  Checkable⇇Type (univᶜ A _) = checkᶜ (infᶜ (Inferable⇉ A))
 
   -- Γ ⊢ t ⇇ A implies that t is a checkable term.
 
