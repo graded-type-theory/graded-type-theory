@@ -26,6 +26,7 @@ open import Graded.Modality.Properties 𝕄
 open import Graded.Mode 𝕄
 
 import Definition.Typed
+import Definition.Typed.Properties
 open import Definition.Typed.Restrictions 𝕄
 open import Definition.Untyped M
 
@@ -2301,6 +2302,7 @@ usage-inf (sub γ▸t x) = usage-inf γ▸t
 module _ (TR : Type-restrictions) where
 
   open Definition.Typed TR
+  open Definition.Typed.Properties TR
 
   -- It is always the case that Γ ⊢ t ∷ A implies Γ ⊢ A (see
   -- Definition.Typed.Syntactic.syntacticTerm), but if Γ ⊢ t ∷ A and
@@ -2321,11 +2323,11 @@ module _ (TR : Type-restrictions) where
     A′ = var x1
     γ′ = ε ∙ 𝟘 ∙ 𝟙
 
-    ⊢U : ⊢ ε ∙ U zeroᵘ
-    ⊢U = ∙ Uⱼ (zeroᵘⱼ ε)
+    ⊢∙U : ⊢ ε ∙ U zeroᵘ
+    ⊢∙U = ∙ ⊢U (zeroᵘⱼ ε)
 
     ⊢Γ : ⊢ Γ′
-    ⊢Γ = ∙ univ (var ⊢U here)
+    ⊢Γ = ∙ univ (var ⊢∙U here)
 
     ⊢t : Γ′ ⊢ t′ ∷ A′
     ⊢t = var ⊢Γ here

@@ -272,15 +272,15 @@ mutual
     (Level-refl ⊢Γ) → Level , Levelₙ ⊢Γ , refl (Levelⱼ′ ⊢Γ)
     (U-cong l₁≡l₂) →
       let l , ⊢l , l₁≡l = fullRedTermConv↑ l₁≡l₂
-      in U l , Uₙ ⊢l , U-cong l₁≡l
+      in U l , univₙ (Uₙ ⊢l) , U-cong l₁≡l
     (Lift-cong l₁≡l₂ A≡B) →
       let l , ⊢l , l₁≡l = fullRedTermConv↑ l₁≡l₂
           C , ⊢C , A≡C = fullRedConv↑ A≡B
       in Lift _ _ , Liftₙ ⊢l ⊢C , Lift-cong l₁≡l A≡C
-    (ℕ-refl     ⊢Γ)    → ℕ     , ℕₙ     ⊢Γ , refl (ℕⱼ     ⊢Γ)
-    (Empty-refl ⊢Γ)    → Empty , Emptyₙ ⊢Γ , refl (Emptyⱼ ⊢Γ)
+    (ℕ-refl     ⊢Γ)   → ℕ     , univₙ (ℕₙ     ⊢Γ) , refl (⊢ℕ     ⊢Γ)
+    (Empty-refl ⊢Γ)   → Empty , univₙ (Emptyₙ ⊢Γ) , refl (⊢Empty ⊢Γ)
     (Unit-refl ⊢Γ ok) →
-      Unit! , Unitₙ ⊢Γ ok , refl (Unitⱼ ⊢Γ ok)
+      Unit! , univₙ (Unitₙ ⊢Γ ok) , refl (⊢Unit ⊢Γ ok)
     (ne A~) →
       case fullRedNe~↓ A~ of λ {
         (B , B-ne , A≡B) →

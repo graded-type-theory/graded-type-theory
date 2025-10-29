@@ -19,6 +19,7 @@ open import Definition.Untyped.Properties M
 open import Definition.Typed TR
 open import Definition.Typed.Syntactic TR
 open import Definition.Typed.Weakening TR
+open import Definition.Typed.Properties.Admissible.Unit TR
 open import Definition.Typed.Properties.Well-formed TR
 open import Definition.Untyped.Empty 𝕄
 
@@ -30,6 +31,13 @@ private variable
   Γ                  : Con Term _
   A A₁ A₂ t t′ t₁ t₂ : Term _
   p                  : M
+
+opaque
+
+  -- A variant of Emptyⱼ.
+
+  ⊢Empty : ⊢ Γ → Γ ⊢ Empty
+  ⊢Empty ⊢Γ = univ (Emptyⱼ ⊢Γ)
 
 opaque
 
@@ -54,7 +62,7 @@ opaque
     Γ ⊢ emptyrec-sink A₁ t₁ ≡ emptyrec-sink A₂ t₂ ∷ A₁
   emptyrec-sink-cong ok₁ ok₂ A₁≡A₂ t₁≡t₂ =
     let ⊢Γ    = wfEq A₁≡A₂
-        ⊢Unit = Unitⱼ ⊢Γ ok₁
+        ⊢Unit = ⊢Unit ⊢Γ ok₁
     in
     PE.subst (_⊢_≡_∷_ _ _ _) (wk1-sgSubst _ _) $
     app-cong

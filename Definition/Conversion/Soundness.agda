@@ -118,9 +118,9 @@ mutual
   soundnessConv↓ (U-cong l₁≡l₂) = U-cong (soundnessConv↑Term l₁≡l₂)
   soundnessConv↓ (Lift-cong l₁≡l₂ F≡H) =
     Lift-cong (soundnessConv↑Term l₁≡l₂) (soundnessConv↑ F≡H)
-  soundnessConv↓ (ℕ-refl ⊢Γ) = refl (ℕⱼ ⊢Γ)
-  soundnessConv↓ (Empty-refl ⊢Γ) = refl (Emptyⱼ ⊢Γ)
-  soundnessConv↓ (Unit-refl ⊢Γ ok) = refl (Unitⱼ ⊢Γ ok)
+  soundnessConv↓ (ℕ-refl ⊢Γ) = refl (⊢ℕ ⊢Γ)
+  soundnessConv↓ (Empty-refl ⊢Γ) = refl (⊢Empty ⊢Γ)
+  soundnessConv↓ (Unit-refl ⊢Γ ok) = refl (⊢Unit ⊢Γ ok)
   soundnessConv↓ (ne x) = univ (soundness~↓ x)
   soundnessConv↓ (ΠΣ-cong A₁≡A₂ B₁≡B₂ ok) =
     ΠΣ-cong (soundnessConv↑ A₁≡A₂) (soundnessConv↑ B₁≡B₂) ok

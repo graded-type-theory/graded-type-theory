@@ -57,10 +57,11 @@ mutual
   stability~↑ Γ≡Δ (natrec-cong x₁ x₂ x₃ k~l) =
     let ⊢Γ , _ , _ = contextConvSubst Γ≡Δ
         ⊢F = proj₁ (syntacticEq (soundnessConv↑ x₁))
-    in natrec-cong (stabilityConv↑ (Γ≡Δ ∙ (refl (ℕⱼ ⊢Γ))) x₁)
-                   (stabilityConv↑Term Γ≡Δ x₂)
-                   ((stabilityConv↑Term (Γ≡Δ ∙ refl (ℕⱼ ⊢Γ) ∙ refl ⊢F) x₃))
-                   (stability~↓ Γ≡Δ k~l)
+    in natrec-cong
+         (stabilityConv↑ (Γ≡Δ ∙ (refl (⊢ℕ ⊢Γ))) x₁)
+         (stabilityConv↑Term Γ≡Δ x₂)
+         (stabilityConv↑Term (Γ≡Δ ∙ refl (⊢ℕ ⊢Γ) ∙ refl ⊢F) x₃)
+         (stability~↓ Γ≡Δ k~l)
   stability~↑ Γ≡Δ (prodrec-cong x x₁ x₂) =
     let ⊢Σ , _ = syntacticEqTerm (soundness~↓ x₁)
         ⊢F , ⊢G , _ = inversion-ΠΣ ⊢Σ

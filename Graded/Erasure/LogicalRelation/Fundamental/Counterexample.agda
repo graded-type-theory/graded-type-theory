@@ -125,7 +125,7 @@ negation-of-fundamental-lemma-with-erased-matches₁
   A = ℕ
 
   ⊢Δ : ⊢ Δ
-  ⊢Δ = ∙ ΠΣⱼ (ℕⱼ (∙ ℕⱼ ε)) Σʷ-ok
+  ⊢Δ = ∙ ΠΣⱼ (⊢ℕ (∙ ⊢ℕ ε)) Σʷ-ok
 
   open LR ⊢Δ ⦃ inc = included ⦄ str ⇒*-is-reduction-relation
 
@@ -318,7 +318,7 @@ opaque
     A = ℕ
 
     ⊢Δ : ⊢ Δ
-    ⊢Δ = ∙ Unitⱼ ε Unit-ok
+    ⊢Δ = ∙ ⊢Unit ε Unit-ok
 
     open LR ⊢Δ ⦃ inc = included ⦄ str ⇒*-is-reduction-relation
 
@@ -361,7 +361,7 @@ opaque
     A = ℕ
 
     ⊢Δ : ⊢ Δ
-    ⊢Δ = ∙ Emptyⱼ ε
+    ⊢Δ = ∙ ⊢Empty ε
 
     open LR ⊢Δ ⦃ inc = included ⦄ str ⇒*-is-reduction-relation
 

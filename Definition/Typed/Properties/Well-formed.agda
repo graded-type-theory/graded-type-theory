@@ -15,6 +15,7 @@ module Definition.Typed.Properties.Well-formed
 
 open import Definition.Untyped M
 open import Definition.Typed R
+open import Definition.Typed.Properties.Admissible.U R
 open import Definition.Typed.Size R
 
 open import Tools.Function
@@ -144,13 +145,9 @@ private module Lemmas where
       ∃ λ (⊢Γ : ⊢ Γ) → size-⊢′ ⊢Γ <ˢ size-⊢ ⊢A
     wf-<ˢ′ hyp = λ where
         (Levelⱼ _ ⊢Γ) _       → ⊢Γ , !
-        (Uⱼ ⊢l)       PE.refl → fix (wfTerm-<ˢ ⊢l)
         (univ A)      PE.refl → fix (wfTerm-<ˢ A)
         (Liftⱼ ⊢l _)  PE.refl → fix (wfTerm-<ˢ ⊢l)
         (ΠΣⱼ ⊢B _)    PE.refl → fix (∙⊢→⊢-<ˢ ⊢B .proj₁)
-        (Emptyⱼ ⊢Γ)   _       → ⊢Γ , !
-        (Unitⱼ ⊢Γ _)  PE.refl → ⊢Γ , !
-        (ℕⱼ ⊢Γ)       _       → ⊢Γ , !
         (Idⱼ ⊢A _ _)  PE.refl → fix (wf-<ˢ ⊢A)
       where
       open Variants hyp
@@ -567,4 +564,4 @@ opaque
 -- An example of how _∙[_] can be used.
 
 _ : ⊢ ε ∙ ℕ ∙ U zeroᵘ ∙ Empty
-_ = ε ∙[ ℕⱼ ] ∙[ Uⱼ ∘ᶠ zeroᵘⱼ ] ∙[ Emptyⱼ ]
+_ = ε ∙[ _⊢_.univ ∘→ ℕⱼ ] ∙[ ⊢U ∘→ zeroᵘⱼ ] ∙[ _⊢_.univ ∘→ Emptyⱼ ]

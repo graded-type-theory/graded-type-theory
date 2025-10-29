@@ -72,7 +72,7 @@ opaque
           PE.refl →
         _ , t<l }})
     , (λ (⊩t , t<l) →
-        Uᵣ (Uᵣ _ ⊩t t<l (id (Uⱼ (escapeLevel ⊩t)))))
+        Uᵣ (Uᵣ _ ⊩t t<l (id (⊢U (escapeLevel ⊩t)))))
 
 opaque
   unfolding _⊩⟨_⟩_≡_
@@ -93,7 +93,7 @@ opaque
         [t] , t<l , _ , A⇒*U , t≡u }})
     , (λ ([t] , t<l , u , A⇒*U , t≡u) →
          let [u] = wf-Level-eq t≡u .proj₂ in
-           Uᵣ (Uᵣ _ [t] t<l (id (Uⱼ (escapeLevel [t]))))
+           Uᵣ (Uᵣ _ [t] t<l (id (⊢U (escapeLevel [t]))))
          , wf-⊩≡ (⊩-⇐* A⇒*U (⊩U⇔ .proj₂ ([u] , PE.subst (_<ᵘ l) (↑ᵘ-cong t≡u) t<l))) .proj₁
          , U₌ _ A⇒*U t≡u)
 
@@ -111,7 +111,7 @@ opaque
                                                                                     , (λ (t≡u , t<l) →
                                                                                         wf-Level-eq t≡u .proj₁
                                                                                       , PE.subst (_<ᵘ l) ↑ᵘ-irrelevance t<l
-                                                                                      , u , id (Uⱼ (escapeLevel (wf-Level-eq t≡u .proj₂)))
+                                                                                      , u , id (⊢U (escapeLevel (wf-Level-eq t≡u .proj₂)))
                                                                                       , t≡u) ⟩
     (∃ λ t≡u → ↑ᵘ wf-Level-eq t≡u .proj₁ <ᵘ l)                                   □⇔
 
@@ -149,7 +149,7 @@ opaque
          let ⊩A = ⊩<⇔⊩ t<l .proj₂ ⊩A
              ⊩B = ⊩<⇔⊩ t<l .proj₂ ⊩B
          in
-           Uᵣ (Uᵣ _ [t] t<l (id (Uⱼ (escapeLevel [t]))))
+           Uᵣ (Uᵣ _ [t] t<l (id (⊢U (escapeLevel [t]))))
          , Uₜ₌ _ _ A⇒*A′ B⇒*B′ A′-type B′-type A′≅B′ ⊩A ⊩B
              (⊩<≡⇔⊩≡′ t<l .proj₂ A≡B))
 
@@ -281,7 +281,7 @@ opaque
               ⊩t[σ₁] , ⊩t[σ₂] = wf-Level-eq t[σ₁]≡t[σ₂]
           in ⊩U≡⇔ .proj₂
             ( ⊩t[σ₁] , <ᵘ-ωᵘ
-            , _ , id (Uⱼ (escapeLevel ⊩t[σ₂]))
+            , _ , id (⊢U (escapeLevel ⊩t[σ₂]))
             , t[σ₁]≡t[σ₂]
             )
       )

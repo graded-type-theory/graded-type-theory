@@ -21,6 +21,7 @@ open import Definition.Typed.Properties.Admissible.Equality R
 import Definition.Typed.Properties.Admissible.Erased.Primitive R as EP
 import Definition.Typed.Properties.Admissible.Identity.Primitive
 open import Definition.Typed.Properties.Admissible.Pi R
+open import Definition.Typed.Properties.Admissible.U R
 open import Definition.Typed.Properties.Admissible.Var R
 open import Definition.Typed.Properties.Reduction R
 open import Definition.Typed.Properties.Well-formed R
@@ -564,7 +565,7 @@ opaque
     Γ ⊢ u ∷ A →
     Γ ⊢ cast l A B t u ∷ B
   ⊢cast ⊢l ⊢t ⊢u =
-    ⊢subst (univ (var₀ (Uⱼ ⊢l))) ⊢t ⊢u
+    ⊢subst (univ (var₀ (⊢U ⊢l))) ⊢t ⊢u
 
 opaque
   unfolding cast
@@ -577,7 +578,7 @@ opaque
     Γ ⊢ t ∷ A →
     Γ ⊢ cast l A A′ rfl t ⇒ t ∷ A
   cast-⇒′ ⊢l A≡A′ ⊢t =
-    subst-⇒′ (univ (var₀ (Uⱼ ⊢l))) A≡A′ ⊢t
+    subst-⇒′ (univ (var₀ (⊢U ⊢l))) A≡A′ ⊢t
 
 opaque
 
@@ -630,7 +631,7 @@ opaque
     Γ ⊢ u ∷ A →
     Γ ⊢ cast l A B t₁ u ⇒ cast l A B t₂ u ∷ B
   cast-subst ⊢l t₁⇒t₂ ⊢u =
-    subst-subst (univ (var₀ (Uⱼ ⊢l))) t₁⇒t₂ ⊢u
+    subst-subst (univ (var₀ (⊢U ⊢l))) t₁⇒t₂ ⊢u
 
 opaque
 

@@ -53,14 +53,6 @@ opaque mutual
     0ᵘ , Levelᵛ (valid ⊢Γ)
   fundamental-⊩ᵛ (Liftⱼ ⊢l ⊢A) =
     _ , Liftᵛ (fundamental-⊩ᵛ∷ ⊢l .proj₂) (fundamental-⊩ᵛ ⊢A .proj₂)
-  fundamental-⊩ᵛ (ℕⱼ ⊢Γ) =
-    0ᵘ , ℕᵛ (valid ⊢Γ)
-  fundamental-⊩ᵛ (Emptyⱼ x) =
-    0ᵘ , Emptyᵛ (valid x)
-  fundamental-⊩ᵛ (Unitⱼ ⊢Γ ok) =
-    _ , Unitᵛ (valid ⊢Γ) ok
-  fundamental-⊩ᵛ (Uⱼ ⊢l) =
-    _ , ⊩ᵛU (fundamental-⊩ᵛ∷ ⊢l .proj₂)
   fundamental-⊩ᵛ ⊢ΠΣ@(ΠΣⱼ ⊢B _) =
     let _ , ⊩B = fundamental-⊩ᵛ ⊢B
         _ , ⊩A = wf-∙-⊩ᵛ ⊩B

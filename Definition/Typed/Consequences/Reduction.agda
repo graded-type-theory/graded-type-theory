@@ -392,19 +392,19 @@ private opaque
     (λ (_ , _ , B-whnf , A⇒*B) → without-WHNF₁ B-whnf A⇒*B) ,
     (λ (_ , _ , _ , B-whnf , A⇒*B) → without-WHNF₂ B-whnf A⇒*B)
     where
-    ⊢Empty : ⊢ ε ∙ Empty
-    ⊢Empty = ∙ Emptyⱼ ε
+    ⊢∙Empty : ⊢ ε ∙ Empty
+    ⊢∙Empty = ∙ ⊢Empty ε
 
-    ⊢U : ε ∙ Empty ⊢ U zeroᵘ ∷ U (sucᵘ zeroᵘ)
-    ⊢U = Uⱼ (zeroᵘⱼ ⊢Empty)
+    ⊢U∷ : ε ∙ Empty ⊢ U zeroᵘ ∷ U (sucᵘ zeroᵘ)
+    ⊢U∷ = Uⱼ (zeroᵘⱼ ⊢∙Empty)
 
     Π≡U : ε ∙ Empty ⊢ Π p , q ▷ U zeroᵘ ▹ U zeroᵘ ≡ U zeroᵘ
     Π≡U =
       _⊢_≡_.univ $
-      ⊢∷Empty→⊢≡∷ ok₁ (var₀ (Emptyⱼ ε))
-        (ΠΣⱼ (sucᵘⱼ (zeroᵘⱼ ⊢Empty))
-          ⊢U (wkTerm₁ (univ ⊢U) ⊢U) ok₂)
-        ⊢U
+      ⊢∷Empty→⊢≡∷ ok₁ (var₀ (⊢Empty ε))
+        (ΠΣⱼ (sucᵘⱼ (zeroᵘⱼ ⊢∙Empty))
+          ⊢U∷ (wkTerm₁ (univ ⊢U∷) ⊢U∷) ok₂)
+        ⊢U∷
 
     ω : Term 1
     ω = lam p (var x0 ∘⟨ p ⟩ var x0)
@@ -416,9 +416,9 @@ private opaque
     ⊢ω =
       conv
         (lamⱼ′ ok₂ $
-         conv (var₀ (univ ⊢U))
-           (sym (wkEq₁ (univ ⊢U) Π≡U)) ∘ⱼ
-         var₀ (univ ⊢U))
+         conv (var₀ (univ ⊢U∷))
+           (sym (wkEq₁ (univ ⊢U∷) Π≡U)) ∘ⱼ
+         var₀ (univ ⊢U∷))
         Π≡U
 
     ⊢Ω : ε ∙ Empty ⊢ Ω ∷ U zeroᵘ

@@ -178,8 +178,6 @@ private module Inhabited where
     stability-⊢′ hyp Γ≡Δ = let open Variants hyp in λ where
       (Levelⱼ _ _) _ →
         Levelⱼ′ (wf-⊢≡ʳ Γ≡Δ)
-      (Uⱼ ⊢l) PE.refl →
-        Uⱼ (stability-⊢∷ Γ≡Δ ⊢l)
       (univ ⊢A) PE.refl →
         univ (stability-⊢∷ Γ≡Δ ⊢A)
       (Liftⱼ ⊢l ⊢A) PE.refl →
@@ -189,12 +187,6 @@ private module Inhabited where
             ⊢A′           = stability-⊢ Γ≡Δ ⊢A ⦃ lt = <ˢ-trans A< ! ⦄
         in
         ΠΣⱼ (stability-⊢ (Γ≡Δ ∙⟨ ⊢A′ ⟩) ⊢B) ok
-      (Emptyⱼ _) _ →
-        Emptyⱼ (wf-⊢≡ʳ Γ≡Δ)
-      (Unitⱼ ⊢Γ ok) PE.refl →
-        Unitⱼ (wf-⊢≡ʳ Γ≡Δ) ok
-      (ℕⱼ _) _ →
-        ℕⱼ (wf-⊢≡ʳ Γ≡Δ)
       (Idⱼ ⊢A ⊢t ⊢u) PE.refl →
         Idⱼ (stability-⊢ Γ≡Δ ⊢A) (stability-⊢∷ Γ≡Δ ⊢t)
           (stability-⊢∷ Γ≡Δ ⊢u)
@@ -314,7 +306,7 @@ private module Inhabited where
         starⱼ (wf-⊢≡ʳ Γ≡Δ) ok
       (unitrecⱼ ⊢A ⊢t ⊢u ok) PE.refl →
         unitrecⱼ
-          (stability-⊢ (Γ≡Δ ∙⟨ Unitⱼ (wf-⊢≡ʳ Γ≡Δ) ok ⟩) ⊢A)
+          (stability-⊢ (Γ≡Δ ∙⟨ univ (Unitⱼ (wf-⊢≡ʳ Γ≡Δ) ok) ⟩) ⊢A)
           (stability-⊢∷ Γ≡Δ ⊢t) (stability-⊢∷ Γ≡Δ ⊢u) ok
       (ℕⱼ _) _ →
         ℕⱼ (wf-⊢≡ʳ Γ≡Δ)
@@ -323,7 +315,7 @@ private module Inhabited where
       (sucⱼ ⊢t) PE.refl →
         sucⱼ (stability-⊢∷ Γ≡Δ ⊢t)
       (natrecⱼ ⊢t ⊢u ⊢v) PE.refl →
-        let ⊢ℕ            = ℕⱼ (wf-⊢≡ʳ Γ≡Δ)
+        let ⊢ℕ            = univ (ℕⱼ (wf-⊢≡ʳ Γ≡Δ))
             _ , (⊢A , A<) = ∙⊢∷→⊢-<ˢ ⊢u
             ⊢A′           = stability-⊢ (Γ≡Δ ∙⟨ ⊢ℕ ⟩) ⊢A
                               ⦃ lt = <ˢ-trans A< ! ⦄
@@ -494,15 +486,15 @@ private module Inhabited where
         emptyrec-cong (stability-⊢≡ Γ≡Δ A₁≡A₂) (stability-⊢≡∷ Γ≡Δ t₁≡t₂)
       (unitrec-cong A₁≡A₂ t₁≡t₂ u₁≡u₂ ok no-η) PE.refl →
         unitrec-cong
-          (stability-⊢≡ (Γ≡Δ ∙⟨ Unitⱼ (wf-⊢≡ʳ Γ≡Δ) ok ⟩) A₁≡A₂)
+          (stability-⊢≡ (Γ≡Δ ∙⟨ univ (Unitⱼ (wf-⊢≡ʳ Γ≡Δ) ok) ⟩) A₁≡A₂)
           (stability-⊢≡∷ Γ≡Δ t₁≡t₂) (stability-⊢≡∷ Γ≡Δ u₁≡u₂) ok no-η
       (unitrec-β ⊢A ⊢t ok no-η) PE.refl →
         unitrec-β
-          (stability-⊢ (Γ≡Δ ∙⟨ Unitⱼ (wf-⊢≡ʳ Γ≡Δ) ok ⟩) ⊢A)
+          (stability-⊢ (Γ≡Δ ∙⟨ univ (Unitⱼ (wf-⊢≡ʳ Γ≡Δ) ok) ⟩) ⊢A)
           (stability-⊢∷ Γ≡Δ ⊢t) ok no-η
       (unitrec-β-η ⊢A ⊢t ⊢u ok no-η) PE.refl →
         unitrec-β-η
-          (stability-⊢ (Γ≡Δ ∙⟨ Unitⱼ (wf-⊢≡ʳ Γ≡Δ) ok ⟩) ⊢A)
+          (stability-⊢ (Γ≡Δ ∙⟨ univ (Unitⱼ (wf-⊢≡ʳ Γ≡Δ) ok) ⟩) ⊢A)
           (stability-⊢∷ Γ≡Δ ⊢t) (stability-⊢∷ Γ≡Δ ⊢u) ok no-η
       (η-unit ⊢t₁ ⊢t₂ ok η) PE.refl →
         η-unit
@@ -510,7 +502,7 @@ private module Inhabited where
       (suc-cong t₁≡t₂) PE.refl →
         suc-cong (stability-⊢≡∷ Γ≡Δ t₁≡t₂)
       (natrec-cong A₁≡A₂ t₁≡t₂ u₁≡u₂ v₁≡v₂) PE.refl →
-        let ⊢ℕ              = ℕⱼ (wf-⊢≡ʳ Γ≡Δ)
+        let ⊢ℕ              = univ (ℕⱼ (wf-⊢≡ʳ Γ≡Δ))
             _ , (⊢A₁ , A₁<) = ∙⊢≡∷→⊢-<ˢ u₁≡u₂
             ⊢A₁′            = stability-⊢ (Γ≡Δ ∙⟨ ⊢ℕ ⟩) ⊢A₁
                                 ⦃ lt = <ˢ-trans A₁< ! ⦄
@@ -520,7 +512,7 @@ private module Inhabited where
           (stability-⊢≡∷ (Γ≡Δ ∙⟨ ⊢ℕ ⟩ ∙⟨ ⊢A₁′ ⟩) u₁≡u₂)
           (stability-⊢≡∷ Γ≡Δ v₁≡v₂)
       (natrec-zero ⊢t ⊢u) PE.refl →
-        let ⊢ℕ            = ℕⱼ (wf-⊢≡ʳ Γ≡Δ)
+        let ⊢ℕ            = univ (ℕⱼ (wf-⊢≡ʳ Γ≡Δ))
             _ , (⊢A , A<) = ∙⊢∷→⊢-<ˢ ⊢u
             ⊢A′           = stability-⊢ (Γ≡Δ ∙⟨ ⊢ℕ ⟩) ⊢A
                               ⦃ lt = <ˢ-trans A< ! ⦄
@@ -528,7 +520,7 @@ private module Inhabited where
         natrec-zero (stability-⊢∷ Γ≡Δ ⊢t)
           (stability-⊢∷ (Γ≡Δ ∙⟨ ⊢ℕ ⟩ ∙⟨ ⊢A′ ⟩) ⊢u)
       (natrec-suc ⊢t ⊢u ⊢v) PE.refl →
-        let ⊢ℕ            = ℕⱼ (wf-⊢≡ʳ Γ≡Δ)
+        let ⊢ℕ            = univ (ℕⱼ (wf-⊢≡ʳ Γ≡Δ))
             _ , (⊢A , A<) = ∙⊢∷→⊢-<ˢ ⊢u
             ⊢A′           = stability-⊢ (Γ≡Δ ∙⟨ ⊢ℕ ⟩) ⊢A
                               ⦃ lt = <ˢ-trans A< ! ⦄

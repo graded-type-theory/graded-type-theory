@@ -121,14 +121,6 @@ mutual
     Levelⱼ′ (tr-⊢ Γ)
   tr-⊢′ (Liftⱼ l A) =
     Liftⱼ (tr-⊢∷ l) (tr-⊢′ A)
-  tr-⊢′ (Uⱼ l) =
-    Uⱼ (tr-⊢∷ l)
-  tr-⊢′ (ℕⱼ Γ) =
-    ℕⱼ (tr-⊢ Γ)
-  tr-⊢′ (Emptyⱼ Γ) =
-    Emptyⱼ (tr-⊢ Γ)
-  tr-⊢′ (Unitⱼ Γ ok) =
-    Unitⱼ (tr-⊢ Γ) (Unit-preserved ok)
   tr-⊢′ (ΠΣⱼ P ok) =
     ΠΣⱼ (tr-⊢′ P) (ΠΣ-preserved ok)
   tr-⊢′ (Idⱼ _ t u) =

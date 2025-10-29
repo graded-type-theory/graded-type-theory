@@ -72,7 +72,7 @@ module Main {Γ : Con Term m} (nΓ : NegativeContext Γ)
   neNeg (sndⱼ A⊢B d) (sndₙ n) =
     sndNeg (neNeg d n) (refl (ΠΣⱼ A⊢B (⊢∷ΠΣ→ΠΣ-allowed d))) (fstⱼ A⊢B d)
   neNeg (natrecⱼ _ _ d) (natrecₙ n) =
-    let ⊢ℕ = refl (ℕⱼ (wfTerm d))
+    let ⊢ℕ = refl (⊢ℕ (wfTerm d))
     in  ⊥-elim (¬negℕ (neNeg d n) ⊢ℕ)
   neNeg (prodrecⱼ ⊢A d _ ok) (prodrecₙ n) =
     let ⊢Σ = refl (⊢∙→⊢ (wf ⊢A))
@@ -80,7 +80,7 @@ module Main {Γ : Con Term m} (nΓ : NegativeContext Γ)
   neNeg (emptyrecⱼ _ d     ) (emptyrecₙ n) =
     ⊥-elim (consistent _ d)
   neNeg (unitrecⱼ _ d _ ok) (unitrecₙ _ n) =
-    let ⊢Unit = refl (Unitⱼ (wfTerm d) ok)
+    let ⊢Unit = refl (⊢Unit (wfTerm d) ok)
     in  ⊥-elim (¬negUnit (neNeg d n) ⊢Unit)
   neNeg (Jⱼ ⊢t _ _ ⊢v ⊢w) (Jₙ w-ne) =
     ⊥-elim (¬negId (neNeg ⊢w w-ne) (refl (Idⱼ′ ⊢t ⊢v)))
@@ -182,7 +182,7 @@ module Main {Γ : Con Term m} (nΓ : NegativeContext Γ)
   canonicityRed′ (ℕₜ n d n≡n (ne (neNfₜ _ neK k≡k))) =
     let u , d′ , ¬neU =
           ¬NeutralNf (redFirst*Term d)
-            (flip ¬negℕ $ refl (ℕⱼ $ wfTerm $ redFirst*Term d))
+            (flip ¬negℕ $ refl (⊢ℕ $ wfTerm $ redFirst*Term d))
     in  ⊥-elim $ ¬neU $
         PE.subst Neutral (whrDet*Term (d , ne! neK) d′) neK
 

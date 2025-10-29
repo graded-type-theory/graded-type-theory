@@ -66,8 +66,6 @@ mutual
   data _⊢nf_ (Γ : Con Term n) : Term n → Set a where
     Levelₙ : ⊢ Γ →
              Γ ⊢nf Level
-    Uₙ     : Γ ⊢nf l ∷ Level →
-             Γ ⊢nf U l
     univₙ  : Γ ⊢nf A ∷ U l →
              Γ ⊢nf A
     Liftₙ  : Γ ⊢nf l ∷ Level →
@@ -77,13 +75,6 @@ mutual
              Γ ∙ A ⊢nf B →
              ΠΣ-allowed b p q →
              Γ ⊢nf ΠΣ⟨ b ⟩ p , q ▷ A ▹ B
-    Emptyₙ : ⊢ Γ →
-             Γ ⊢nf Empty
-    Unitₙ  : ⊢ Γ →
-             Unit-allowed s →
-             Γ ⊢nf Unit s
-    ℕₙ     : ⊢ Γ →
-             Γ ⊢nf ℕ
     Idₙ    : Γ ⊢nf A →
              Γ ⊢nf t ∷ A →
              Γ ⊢nf u ∷ A →
@@ -241,13 +232,9 @@ mutual
   ⊢nf→⊢ : Γ ⊢nf A → Γ ⊢ A
   ⊢nf→⊢ = λ where
     (Levelₙ ⊢Γ)   → Levelⱼ′ ⊢Γ
-    (Uₙ ⊢l)       → Uⱼ (⊢nf∷→⊢∷ ⊢l)
     (Liftₙ ⊢l ⊢A) → Liftⱼ (⊢nf∷→⊢∷ ⊢l) (⊢nf→⊢ ⊢A)
     (univₙ ⊢A)    → univ (⊢nf∷→⊢∷ ⊢A)
     (ΠΣₙ _ ⊢B ok) → ΠΣⱼ (⊢nf→⊢ ⊢B) ok
-    (Emptyₙ ⊢Γ)   → Emptyⱼ ⊢Γ
-    (Unitₙ ⊢Γ ok) → Unitⱼ ⊢Γ ok
-    (ℕₙ ⊢Γ)       → ℕⱼ ⊢Γ
     (Idₙ _ ⊢t ⊢u) → Idⱼ′ (⊢nf∷→⊢∷ ⊢t) (⊢nf∷→⊢∷ ⊢u)
 
   -- If t is an η-long normal term, then t is well-typed.
@@ -312,13 +299,9 @@ mutual
   ⊢nf→Nf : Γ ⊢nf A → Nf A
   ⊢nf→Nf = λ where
     (Levelₙ _)     → Levelₙ
-    (Uₙ ⊢l)        → Uₙ (⊢nf∷→Nf ⊢l)
     (univₙ ⊢A)     → ⊢nf∷→Nf ⊢A
     (Liftₙ ⊢l ⊢A)  → Liftₙ (⊢nf∷→Nf ⊢l) (⊢nf→Nf ⊢A)
     (ΠΣₙ ⊢A ⊢B _)  → ΠΣₙ (⊢nf→Nf ⊢A) (⊢nf→Nf ⊢B)
-    (Emptyₙ _)     → Emptyₙ
-    (Unitₙ ⊢Γ _)   → Unitₙ
-    (ℕₙ _)         → ℕₙ
     (Idₙ ⊢A ⊢t ⊢u) → Idₙ (⊢nf→Nf ⊢A) (⊢nf∷→Nf ⊢t) (⊢nf∷→Nf ⊢u)
 
   -- If t is an η-long normal term, then t is normal.
@@ -396,8 +379,6 @@ opaque
     (Levelₙ ⊢Γ) ⊢Level →
       let A≡ , ok = inversion-Level ⊢Level
       in convₙ (Levelₙ ⊢Γ ok) (sym A≡)
-    (Uₙ ⊢Γ) ⊢U →
-      convₙ (Uₙ ⊢Γ) (sym $ inversion-U ⊢U)
     (univₙ ⊢A) ⊢A∷U →
       convₙ ⊢A (U-cong (universe-level-unique (⊢nf∷→⊢∷ ⊢A) ⊢A∷U))
     (Liftₙ ⊢l ⊢A) ⊢A∷U →
@@ -407,13 +388,6 @@ opaque
       let _ , _ , ⊢A∷U , ⊢B∷U , U≡U , _ = inversion-ΠΣ-U ⊢ΠΣ in
       convₙ (ΠΣₙ (⊢nf∷U→⊢nf∷U ⊢A ⊢A∷U) (⊢nf∷U→⊢nf∷U ⊢B ⊢B∷U) ok)
         (sym U≡U)
-    (Emptyₙ ⊢Γ) ⊢Empty →
-      convₙ (Emptyₙ ⊢Γ) (sym $ inversion-Empty ⊢Empty)
-    (Unitₙ ⊢Γ ok) ⊢Unit →
-      let U≡U , _ = inversion-Unit-U ⊢Unit
-      in convₙ (Unitₙ ⊢Γ ok) (sym U≡U)
-    (ℕₙ ⊢Γ) ⊢ℕ →
-      convₙ (ℕₙ ⊢Γ) (sym $ inversion-ℕ ⊢ℕ)
     (Idₙ ⊢A ⊢t ⊢u) ⊢Id →
       let _ , ⊢A∷U , _ , _ , U≡U = inversion-Id-U ⊢Id in
       convₙ (Idₙ (⊢nf∷U→⊢nf∷U ⊢A ⊢A∷U) ⊢t ⊢u) (sym U≡U)
@@ -430,14 +404,10 @@ mutual
   ⊢nf-stable : ⊢ Γ ≡ Δ → Γ ⊢nf A → Δ ⊢nf A
   ⊢nf-stable Γ≡Δ = λ where
       (Levelₙ ⊢Γ)    → Levelₙ ⊢Δ
-      (Uₙ ⊢l)        → Uₙ (⊢nf∷-stable Γ≡Δ ⊢l)
       (univₙ ⊢A)     → univₙ (⊢nf∷-stable Γ≡Δ ⊢A)
       (Liftₙ ⊢l ⊢A)  → Liftₙ (⊢nf∷-stable Γ≡Δ ⊢l) (⊢nf-stable Γ≡Δ ⊢A)
       (ΠΣₙ ⊢A ⊢B ok) → ΠΣₙ (⊢nf-stable Γ≡Δ ⊢A)
                          (⊢nf-stable (Γ≡Δ ∙ refl (⊢nf→⊢ ⊢A)) ⊢B) ok
-      (Emptyₙ ⊢Γ)    → Emptyₙ ⊢Δ
-      (Unitₙ ⊢Γ ok)  → Unitₙ ⊢Δ ok
-      (ℕₙ ⊢Γ)        → ℕₙ ⊢Δ
       (Idₙ ⊢A ⊢t ⊢u) → Idₙ (⊢nf-stable Γ≡Δ ⊢A) (⊢nf∷-stable Γ≡Δ ⊢t)
                          (⊢nf∷-stable Γ≡Δ ⊢u)
     where
@@ -535,14 +505,14 @@ mutual
         (⊢nf-stable Γ≡Δ ⊢A)
         (⊢ne∷-stable Γ≡Δ ⊢t)
       (natrecₙ ⊢A ⊢t ⊢u ⊢v) →
-        case Γ≡Δ ∙ refl (ℕⱼ (wfTerm (⊢nf∷→⊢∷ ⊢t))) of λ {
+        case Γ≡Δ ∙ refl (⊢ℕ (wfTerm (⊢nf∷→⊢∷ ⊢t))) of λ {
           ⊢Γℕ≡Δℕ → natrecₙ
         (⊢nf-stable ⊢Γℕ≡Δℕ ⊢A)
         (⊢nf∷-stable Γ≡Δ ⊢t)
         (⊢nf∷-stable (⊢Γℕ≡Δℕ ∙ refl (⊢nf→⊢ ⊢A)) ⊢u)
         (⊢ne∷-stable Γ≡Δ ⊢v) }
       (unitrecₙ ⊢A ⊢t ⊢u ok not-ok) →
-        case Γ≡Δ ∙ refl (Unitⱼ (wfTerm (⊢nf∷→⊢∷ ⊢u)) ok) of λ {
+        case Γ≡Δ ∙ refl (⊢Unit (wfTerm (⊢nf∷→⊢∷ ⊢u)) ok) of λ {
           ⊢Γ⊤≡Δ⊤ → unitrecₙ
         (⊢nf-stable ⊢Γ⊤≡Δ⊤ ⊢A)
         (⊢ne∷-stable Γ≡Δ ⊢t)
@@ -585,7 +555,8 @@ inversion-nf-ΠΣ-U :
   Γ ⊢nf A ∷ U l × Γ ∙ A ⊢nf B ∷ U (wk1 l) × Γ ⊢ C ≡ U l ×
   ΠΣ-allowed b p q
 inversion-nf-ΠΣ-U (ΠΣₙ ⊢A ⊢B ok) =
-  _ , ⊢A , ⊢B , refl (Uⱼ (inversion-U-Level (syntacticTerm (⊢nf∷→⊢∷ ⊢A)))) , ok
+  _ , ⊢A , ⊢B ,
+  refl (⊢U (inversion-U-Level (syntacticTerm (⊢nf∷→⊢∷ ⊢A)))) , ok
 inversion-nf-ΠΣ-U (convₙ ⊢ΠΣ D≡C) =
   case inversion-nf-ΠΣ-U ⊢ΠΣ of λ {
     (_ , ⊢A , ⊢B , D≡U , ok) →
@@ -646,7 +617,7 @@ inversion-nf-suc :
 inversion-nf-suc (neₙ _ ⊢suc) =
   case ⊢neˡ∷→NfNeutralˡ ⊢suc of λ { (ne ()) }
 inversion-nf-suc (sucₙ ⊢t) =
-  ⊢t , refl (ℕⱼ (wfTerm (⊢nf∷→⊢∷ ⊢t)))
+  ⊢t , refl (⊢ℕ (wfTerm (⊢nf∷→⊢∷ ⊢t)))
 inversion-nf-suc (convₙ ⊢suc A≡B) =
   case inversion-nf-suc ⊢suc of λ {
     (⊢t , A≡) →

@@ -67,11 +67,11 @@ mutual
   wk~↑ [ρ] (natrec-cong {A₁} x x₁ x₂ t~u) =
     let ⊢Δ   = wf-∷ʷ⊇ [ρ]
         Δℕ⊢F =
-          wk (liftʷʷ [ρ] (ℕⱼ ⊢Δ))
+          wk (liftʷʷ [ρ] (⊢ℕ ⊢Δ))
             (proj₁ (syntacticEq (soundnessConv↑ x)))
     in
     PE.subst (_⊢_~_↑_ _ _ _) (PE.sym (wk-β A₁)) $
-    natrec-cong (wkConv↑ (liftʷ (∷ʷ⊇→∷⊇ [ρ]) (ℕⱼ ⊢Δ)) x)
+    natrec-cong (wkConv↑ (liftʷ (∷ʷ⊇→∷⊇ [ρ]) (⊢ℕ ⊢Δ)) x)
       (PE.subst (_⊢_[conv↑]_∷_ _ _ _) (wk-β A₁) $
        wkConv↑Term [ρ] x₁)
       (PE.subst (_⊢_[conv↑]_∷_ _ _ _) (wk-β-natrec _ A₁) $

@@ -126,7 +126,7 @@ opaque
   []ⱼ ⊢l ⊢A ⊢t =
     let ⊢A    = univ ⊢A
         ⊢Γ    = wfTerm ⊢l
-        ⊢Unit = Unitⱼ ⊢Γ Unit-ok
+        ⊢Unit = univ (Unitⱼ ⊢Γ Unit-ok)
     in
     prodⱼ (Liftⱼ (wkTerm₁ ⊢A ⊢l) (wk₁ ⊢A ⊢Unit)) ⊢t
       (liftⱼ (PE.subst (flip (_⊢_∷_ _) _) (PE.sym $ wk1-sgSubst _ _) ⊢l)
@@ -151,7 +151,7 @@ opaque
   []-cong′ ⊢l ⊢A ⊢t₁ ⊢t₂ t₁≡t₂ =
     let ⊢A    = univ ⊢A
         ⊢Γ    = wfTerm ⊢l
-        ⊢Unit = Unitⱼ ⊢Γ Unit-ok
+        ⊢Unit = univ (Unitⱼ ⊢Γ Unit-ok)
         ⊢star = starⱼ ⊢Γ Unit-ok
     in
     prod-cong (Liftⱼ (wkTerm₁ ⊢A ⊢l) (wk₁ ⊢A ⊢Unit)) t₁≡t₂

@@ -55,19 +55,14 @@ mutual
     Levelⱼ : ¬ Level-is-small
            → ⊢ Γ
            → Γ ⊢ Level
-    Uⱼ     : Γ ⊢ l ∷ Level
-           → Γ ⊢ U l
     univ   : Γ ⊢ A ∷ U l
            → Γ ⊢ A
     Liftⱼ  : Γ ⊢ l₂ ∷ Level
            → Γ ⊢ A
            → Γ ⊢ Lift l₂ A
-    Emptyⱼ : ⊢ Γ → Γ ⊢ Empty
-    Unitⱼ  : ⊢ Γ → Unit-allowed k → Γ ⊢ Unit k
     ΠΣⱼ    : Γ ∙ F ⊢ G
            → ΠΣ-allowed b p q
            → Γ     ⊢ ΠΣ⟨ b ⟩ p , q ▷ F ▹ G
-    ℕⱼ     : ⊢ Γ → Γ ⊢ ℕ
     Idⱼ    : Γ ⊢ A
            → Γ ⊢ t ∷ A
            → Γ ⊢ u ∷ A

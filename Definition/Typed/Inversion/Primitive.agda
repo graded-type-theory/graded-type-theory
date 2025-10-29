@@ -17,6 +17,7 @@ open Type-restrictions R
 
 open import Definition.Typed R
 open import Definition.Typed.Properties.Admissible.Level.Primitive R
+open import Definition.Typed.Properties.Admissible.U R
 open import Definition.Typed.Properties.Well-formed R
 open import Definition.Typed.Size R
 
@@ -45,7 +46,7 @@ opaque
   -- Inversion for Level.
 
   inversion-Level : Γ ⊢ Level ∷ A → Γ ⊢ A ≡ U zeroᵘ × Level-is-small
-  inversion-Level (Levelⱼ ⊢Γ ok)    = refl (Uⱼ (zeroᵘⱼ ⊢Γ)) , ok
+  inversion-Level (Levelⱼ ⊢Γ ok)    = refl (⊢U (zeroᵘⱼ ⊢Γ)) , ok
   inversion-Level (conv ⊢Level eq) =
     let a , ok = inversion-Level ⊢Level
     in trans (sym eq) a , ok
@@ -95,7 +96,7 @@ opaque
   -- Inversion for U.
 
   inversion-U : Γ ⊢ U t ∷ A → Γ ⊢ A ≡ U (sucᵘ t)
-  inversion-U (Uⱼ ⊢t)       = refl (Uⱼ (sucᵘⱼ ⊢t))
+  inversion-U (Uⱼ ⊢t)       = refl (⊢U (sucᵘⱼ ⊢t))
   inversion-U (conv ⊢U B≡A) = trans (sym B≡A) (inversion-U ⊢U)
 
   inversion-U∷-Level : Γ ⊢ U l ∷ A → Γ ⊢ l ∷ Level
@@ -103,7 +104,6 @@ opaque
   inversion-U∷-Level (conv ⊢U _) = inversion-U∷-Level ⊢U
 
   inversion-U-Level : Γ ⊢ U l → Γ ⊢ l ∷ Level
-  inversion-U-Level (Uⱼ ⊢l) = ⊢l
   inversion-U-Level (univ ⊢U) = inversion-U∷-Level ⊢U
 
 ------------------------------------------------------------------------
@@ -115,7 +115,7 @@ opaque
   inversion-Lift∷ (conv x x₁) =
     let _ , ⊢t , ⊢A , B≡ = inversion-Lift∷ x
     in _ , ⊢t , ⊢A , trans (sym x₁) B≡
-  inversion-Lift∷ (Liftⱼ x x₁ x₂) = _ , x₁ , x₂ , refl (Uⱼ (supᵘⱼ x x₁))
+  inversion-Lift∷ (Liftⱼ x x₁ x₂) = _ , x₁ , x₂ , refl (⊢U (supᵘⱼ x x₁))
 
   inversion-Lift : Γ ⊢ Lift t A → Γ ⊢ t ∷ Level × Γ ⊢ A
   inversion-Lift (univ x) =
@@ -137,7 +137,7 @@ opaque
   -- Inversion for Empty.
 
   inversion-Empty : Γ ⊢ Empty ∷ A → Γ ⊢ A ≡ U zeroᵘ
-  inversion-Empty (Emptyⱼ ⊢Γ)      = refl (Uⱼ (zeroᵘⱼ ⊢Γ))
+  inversion-Empty (Emptyⱼ ⊢Γ)      = refl (⊢U (zeroᵘⱼ ⊢Γ))
   inversion-Empty (conv ⊢Empty eq) =
     trans (sym eq) (inversion-Empty ⊢Empty)
 
@@ -162,7 +162,7 @@ opaque
   -- Inversion for Unit.
 
   inversion-Unit-U : Γ ⊢ Unit s ∷ A → Γ ⊢ A ≡ U zeroᵘ × Unit-allowed s
-  inversion-Unit-U (Unitⱼ ⊢Γ ok)    = refl (Uⱼ (zeroᵘⱼ ⊢Γ)) , ok
+  inversion-Unit-U (Unitⱼ ⊢Γ ok)    = refl (⊢U (zeroᵘⱼ ⊢Γ)) , ok
   inversion-Unit-U (conv ⊢Unit B≡A) =
     let B≡U , ok = inversion-Unit-U ⊢Unit in
     trans (sym B≡A) B≡U , ok
@@ -173,7 +173,6 @@ opaque
 
   inversion-Unit : Γ ⊢ Unit s → Unit-allowed s
   inversion-Unit = λ where
-    (Unitⱼ _ ok) → ok
     (univ ⊢Unit) →
       let _ , ok = inversion-Unit-U ⊢Unit in
       ok
@@ -184,7 +183,7 @@ opaque
 
   inversion-star :
     Γ ⊢ star s ∷ A → Γ ⊢ A ≡ Unit s × Unit-allowed s
-  inversion-star (starⱼ ⊢Γ ok)   = refl (Unitⱼ ⊢Γ ok) , ok
+  inversion-star (starⱼ ⊢Γ ok)   = refl (univ (Unitⱼ ⊢Γ ok)) , ok
   inversion-star (conv ⊢star eq) =
     let a , b = inversion-star ⊢star in
     trans (sym eq) a , b
@@ -197,7 +196,7 @@ opaque
   -- Inversion for ℕ.
 
   inversion-ℕ : Γ ⊢ ℕ ∷ A → Γ ⊢ A ≡ U zeroᵘ
-  inversion-ℕ (ℕⱼ ⊢Γ)      = refl (Uⱼ (zeroᵘⱼ ⊢Γ))
+  inversion-ℕ (ℕⱼ ⊢Γ)      = refl (⊢U (zeroᵘⱼ ⊢Γ))
   inversion-ℕ (conv ⊢ℕ eq) = trans (sym eq) (inversion-ℕ ⊢ℕ)
 
 opaque
@@ -205,7 +204,7 @@ opaque
   -- Inversion for zero.
 
   inversion-zero : Γ ⊢ zero ∷ A → Γ ⊢ A ≡ ℕ
-  inversion-zero (zeroⱼ ⊢Γ)      = refl (ℕⱼ ⊢Γ)
+  inversion-zero (zeroⱼ ⊢Γ)      = refl (univ (ℕⱼ ⊢Γ))
   inversion-zero (conv ⊢zero eq) = trans (sym eq) (inversion-zero ⊢zero)
 
 opaque
@@ -213,7 +212,7 @@ opaque
   -- Inversion for suc.
 
   inversion-suc : Γ ⊢ suc t ∷ A → Γ ⊢ t ∷ ℕ × Γ ⊢ A ≡ ℕ
-  inversion-suc (sucⱼ ⊢t)      = ⊢t , refl (ℕⱼ (wfTerm ⊢t))
+  inversion-suc (sucⱼ ⊢t)      = ⊢t , refl (univ (ℕⱼ (wfTerm ⊢t)))
   inversion-suc (conv ⊢suc eq) =
     let a , b = inversion-suc ⊢suc in
     a , trans (sym eq) b
@@ -294,7 +293,7 @@ opaque
     Γ ⊢ C ≡ U l ×
     ΠΣ-allowed b p q
   inversion-ΠΣ-⊢∷ (ΠΣⱼ ⊢l ⊢A ⊢B ok) =
-    _ , ⊢l , (⊢A , !) , (⊢B , !) , refl (Uⱼ ⊢l) , ok
+    _ , ⊢l , (⊢A , !) , (⊢B , !) , refl (⊢U ⊢l) , ok
   inversion-ΠΣ-⊢∷ (conv ⊢ΠΣ eq₁) =
     let _ , ⊢l , (⊢A , A<) , (⊢B , B<) , eq₂ , ok =
           inversion-ΠΣ-⊢∷ ⊢ΠΣ

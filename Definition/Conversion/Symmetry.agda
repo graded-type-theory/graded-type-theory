@@ -97,14 +97,14 @@ mutual
     let ⊢Γ , ⊢Δ , _ = contextConvSubst Γ≡Δ
         B , whnfB , A≡B , u~t = sym~↓ Γ≡Δ t~u
         B≡ℕ = ℕ≡A A≡B whnfB
-        F≡G = stabilityEq (Γ≡Δ ∙ refl (ℕⱼ ⊢Γ)) (soundnessConv↑ x)
+        F≡G = stabilityEq (Γ≡Δ ∙ refl (⊢ℕ ⊢Γ)) (soundnessConv↑ x)
         F[0]≡G[0] = substTypeEq F≡G (refl (zeroⱼ ⊢Δ))
     in  _ , substTypeEq (soundnessConv↑ x) (soundness~↓ t~u)
     ,   natrec-cong
-          (symConv↑ (Γ≡Δ ∙ refl (ℕⱼ ⊢Γ)) x)
+          (symConv↑ (Γ≡Δ ∙ refl (⊢ℕ ⊢Γ)) x)
           (convConv↑Term F[0]≡G[0] (symConv↑Term Γ≡Δ x₁))
           (convConv↑Term (sucCong′ F≡G)
-             (symConv↑Term (Γ≡Δ ∙ refl (ℕⱼ ⊢Γ) ∙ soundnessConv↑ x) x₂))
+             (symConv↑Term (Γ≡Δ ∙ refl (⊢ℕ ⊢Γ) ∙ soundnessConv↑ x) x₂))
           (PE.subst (_⊢_~_↓_ _ _ _) B≡ℕ u~t)
   sym~↑ {Γ = Γ} {Δ = Δ} Γ≡Δ
     (prodrec-cong {F = F} {G = G} C↑E g~h u↑v) =

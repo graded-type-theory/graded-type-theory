@@ -25,6 +25,7 @@ import Definition.Typed.Properties.Admissible.Erased.No-eta R as NoEta
 import Definition.Typed.Properties.Admissible.Erased.Primitive R as P
 open import Definition.Typed.Properties.Admissible.Identity R
 open import Definition.Typed.Properties.Admissible.Lift R
+open import Definition.Typed.Properties.Admissible.Nat R
 open import Definition.Typed.Properties.Admissible.Pi-Sigma R
 open import Definition.Typed.Properties.Admissible.Sigma R
 open import Definition.Typed.Properties.Admissible.Unit R
@@ -272,23 +273,24 @@ private
     erasedrec-lemma₁ B₁≡B₂ =
       let (Unit-ok , Σ-ok) , ⊢A₁ , ⊢wk1-l =
             inversion-Erased (⊢∙→⊢ (wfEq B₁≡B₂))
-          ⊢Unit         = Unitⱼ (∙ Liftⱼ ⊢wk1-l (Unitⱼ (∙ ⊢A₁) Unit-ok))
+          ⊢Unit′        = ⊢Unit (∙ Liftⱼ ⊢wk1-l (⊢Unit (∙ ⊢A₁) Unit-ok))
                             Unit-ok
-          ⊢wk3          = ⊢ˢʷ∷-wkSubst (∙ ⊢Unit) (⊢ˢʷ∷-idSubst (wf ⊢A₁))
+          ⊢wk3          = ⊢ˢʷ∷-wkSubst (∙ ⊢Unit′)
+                            (⊢ˢʷ∷-idSubst (wf ⊢A₁))
           ⊢A[wk3]       = subst-⊢ ⊢A₁ ⊢wk3
           ⊢wk1-l-[wk3⇑] = subst-⊢∷ ⊢wk1-l (⊢ˢʷ∷-⇑ ⊢A[wk3] ⊢wk3)
       in
       [][]↑-cong B₁≡B₂ $ _⊢_≡_∷_.refl $
       prodⱼ
-        (Liftⱼ ⊢wk1-l-[wk3⇑] (Unitⱼ (∙ ⊢A[wk3]) Unit-ok))
-        (PE.subst (_⊢_∷_ _ _) (wk[]≡[] 3) $ var₂ ⊢Unit)
+        (Liftⱼ ⊢wk1-l-[wk3⇑] (⊢Unit (∙ ⊢A[wk3]) Unit-ok))
+        (PE.subst (_⊢_∷_ _ _) (wk[]≡[] 3) $ var₂ ⊢Unit′)
         (liftⱼ′
            (subst-⊢∷ ⊢wk1-l-[wk3⇑]
               (PE.subst (_⊢ˢʷ_∷_ _ _)
                  (PE.cong (_∙_ _) $
                   PE.trans (wk[]≡wk[]′ {k = 3}) $ wk≡subst _ _) $
-               ⊢ˢʷ∷-sgSubst (var₂ ⊢Unit)))
-           (var₀ ⊢Unit))
+               ⊢ˢʷ∷-sgSubst (var₂ ⊢Unit′)))
+           (var₀ ⊢Unit′))
         Σ-ok
 
   opaque
@@ -304,7 +306,7 @@ private
         B [ 3 ][ prod s 𝟘 (var x2) (lift (var x0)) ]↑ [ star s ]₀
     erasedrec-lemma₂ {s} B Unit-ok ⊢wk1-l t₁≡t₂ =
       flip (PE.subst (_⊢_≡_∷_ _ _ _))
-        (wkEqTerm₁ (Liftⱼ ⊢wk1-l (Unitⱼ (wfEqTerm t₁≡t₂) Unit-ok))
+        (wkEqTerm₁ (Liftⱼ ⊢wk1-l (⊢Unit (wfEqTerm t₁≡t₂) Unit-ok))
            t₁≡t₂) $
       wk1 (B [ [ var x0 ] ]↑)                                      ≡⟨ wk[]′[][]↑ 1 B ⟩
       B [ 2 ][ wk1 [ var x0 ] ]↑                                   ≡⟨⟩
@@ -338,7 +340,7 @@ private
                                                                            PE.subst (_⊢_≡_∷_ _ _ _) (PE.sym wk[]≡wk[]′) $
                                                                            prod-cong
                                                                              (Liftⱼ (W.wkTerm (liftʷ ⊇-drop ⊢wk-A) ⊢wk1-l)
-                                                                                (Unitⱼ (∙ ⊢wk-A) Unit-ok))
+                                                                                (⊢Unit (∙ ⊢wk-A) Unit-ok))
                                                                              (refl $
                                                                               PE.subst (_⊢_∷_ _ _) (wk[]≡wk[]′ {k = k})
                                                                                 ⊢t)
@@ -367,7 +369,7 @@ private
       let (Unit-ok , Σ-ok) , ⊢A , ⊢wk1-l =
             inversion-Erased (⊢∙→⊢ (wf ⊢B))
           ⊢Lift-Unit =
-            Liftⱼ ⊢wk1-l (Unitⱼ (∙ ⊢A) Unit-ok)
+            Liftⱼ ⊢wk1-l (⊢Unit (∙ ⊢A) Unit-ok)
       in
       erasedrec-lemma₃ ⊢B (var₁ ⊢Lift-Unit) (var₀ ⊢Lift-Unit)
 
@@ -389,7 +391,7 @@ opaque
     prodrec⟨⟩-cong B₁≡B₂ u₁≡u₂ $
     conv
       (unitrec⟨⟩-cong (erasedrec-lemma₁ B₁≡B₂)
-         (refl (lowerⱼ (var₀ (Liftⱼ ⊢wk1-l (Unitⱼ (∙ ⊢A) Unit-ok)))))
+         (refl (lowerⱼ (var₀ (Liftⱼ ⊢wk1-l (⊢Unit (∙ ⊢A) Unit-ok)))))
          (erasedrec-lemma₂ B₁ Unit-ok ⊢wk1-l t₁≡t₂))
       (erasedrec-lemma₃′ ⊢B₁)
 
@@ -423,9 +425,9 @@ opaque
     let (Unit-ok , Σ-ok) , ⊢A ,  ⊢wk1-l = inversion-Erased
                                             (⊢∙→⊢ (wf ⊢B))
         ⊢Γ                              = wf ⊢A
-        ⊢Unit                           = Unitⱼ ⊢Γ Unit-ok
+        ⊢Unit′                          = ⊢Unit ⊢Γ Unit-ok
         ⊢star                           = starⱼ ⊢Γ Unit-ok
-        ⊢A′                             = wk₁ ⊢Unit ⊢A
+        ⊢A′                             = wk₁ ⊢Unit′ ⊢A
         ⊢wk1-l[u]₀                      = substTerm ⊢wk1-l ⊢u
         ⊢l                              =
           PE.subst (flip (_⊢_∷_ _) _) (wk1-sgSubst _ _) ⊢wk1-l[u]₀
@@ -435,7 +437,7 @@ opaque
          (lower (var x0)) (wk1 t))                                       ≡⟨ prodrec⟨⟩-β (λ _ → ⊢B) ⊢u (liftⱼ′ ⊢wk1-l[u]₀ ⊢star)
                                                                               (conv
                                                                                  (⊢unitrec⟨⟩ (wf-⊢≡ (erasedrec-lemma₁ (refl ⊢B)) .proj₁)
-                                                                                    (lowerⱼ (var₀ (Liftⱼ ⊢wk1-l (Unitⱼ (wfTerm ⊢t) Unit-ok))))
+                                                                                    (lowerⱼ (var₀ (Liftⱼ ⊢wk1-l (⊢Unit (wfTerm ⊢t) Unit-ok))))
                                                                                     (wf-⊢≡∷ (erasedrec-lemma₂ B Unit-ok ⊢wk1-l (refl ⊢t))
                                                                                        .proj₂ .proj₁))
                                                                                  (erasedrec-lemma₃′ ⊢B))
@@ -450,11 +452,11 @@ opaque
                                                                               (unitrec⟨⟩-cong
                                                                                  (refl $
                                                                                   wf-⊢≡
-                                                                                    (erasedrec-lemma₃ ⊢B (wkTerm₁ ⊢Unit ⊢u) $
+                                                                                    (erasedrec-lemma₃ ⊢B (wkTerm₁ ⊢Unit′ ⊢u) $
                                                                                      liftⱼ′
                                                                                        (PE.subst (flip (_⊢_∷_ _) _) (wk1-[][]↑ 1) $
-                                                                                        subst-⊢∷ ⊢wk1-l (⊢ˢʷ∷-[][]↑ (wkTerm₁ ⊢Unit ⊢u)))
-                                                                                       (var₀ ⊢Unit))
+                                                                                        subst-⊢∷ ⊢wk1-l (⊢ˢʷ∷-[][]↑ (wkTerm₁ ⊢Unit′ ⊢u)))
+                                                                                       (var₀ ⊢Unit′))
                                                                                     .proj₂)
                                                                                  (Lift-β′ ⊢star)
                                                                                  (refl $
@@ -479,14 +481,14 @@ opaque
                                                                                   prodⱼ
                                                                                     (Liftⱼ
                                                                                        (wkTerm (liftʷ (step id) ⊢A′) $ wkTerm₁ ⊢A ⊢l)
-                                                                                       (Unitⱼ (∙ ⊢A′) Unit-ok))
-                                                                                    (wkTerm₁ ⊢Unit ⊢u)
+                                                                                       (⊢Unit (∙ ⊢A′) Unit-ok))
+                                                                                    (wkTerm₁ ⊢Unit′ ⊢u)
                                                                                     (liftⱼ′
                                                                                        (PE.subst (flip (_⊢_∷_ _) _)
                                                                                           (PE.trans (PE.sym $ PE.cong wk1 $ wk1-sgSubst _ _) $
                                                                                            wk-β (wk1 l)) $
-                                                                                        wkTerm₁ ⊢Unit ⊢l) $
-                                                                                     var₀ ⊢Unit)
+                                                                                        wkTerm₁ ⊢Unit′ ⊢l) $
+                                                                                     var₀ ⊢Unit′)
                                                                                     Σ-ok)
                                                                                (PE.subst (_⊢_∷_ _ _) (PE.trans ([]↑-[]₀ B) (PE.sym lemma)) $
                                                                                 substTerm ⊢t ⊢u)) ⟩⊢∎
@@ -1233,14 +1235,14 @@ module _ (ok : []-cong-allowed s) where
       ⊢A′ = ℕⱼ ε
 
       ⊢B′ : Γ′ ∙ A′ ∙ Id (wk1 A′) (wk1 t″) (var x0) ⊢ B′
-      ⊢B′ = ℕⱼ (∙ Idⱼ′ (zeroⱼ (∙ ℕⱼ ε)) (var₀ (ℕⱼ ε)))
+      ⊢B′ = ⊢ℕ (∙ Idⱼ′ (zeroⱼ (∙ ⊢ℕ ε)) (var₀ (⊢ℕ ε)))
 
       ⊢u′ : Γ′ ⊢ u′ ∷ B′ [ t″ , rfl ]₁₀
       ⊢u′ = zeroⱼ ε
 
       w₁′⇒w₂′ : Γ′ ⊢ w₁′ ⇒ w₂′ ∷ Id A′ t″ v′
       w₁′⇒w₂′ = subst-⇒
-        (Idⱼ′ (zeroⱼ (∙ ℕⱼ ε)) (zeroⱼ (∙ ℕⱼ ε)))
+        (Idⱼ′ (zeroⱼ (∙ ⊢ℕ ε)) (zeroⱼ (∙ ⊢ℕ ε)))
         (zeroⱼ ε)
         (rflⱼ (zeroⱼ ε))
 

@@ -70,7 +70,7 @@ opaque
           (Unitᵣ (Unitᵣ Unit⇒*Unit ok)) →
       wf (escape ⊩Unit) , ok })
     , (λ (⊢Γ , ok) →
-         Unitᵣ′ (id (Unitⱼ ⊢Γ ok)) ok)
+         Unitᵣ′ (id (⊢Unit ⊢Γ ok)) ok)
 
 opaque
   unfolding _⊩⟨_⟩_≡_
@@ -107,7 +107,7 @@ opaque
                                                        PE.refl →
                                                      wf (redFirst* Unit⇒*Unit) , ok , PE.refl }})
                                                  , λ { (⊢Γ , ok , PE.refl) →
-                                                       id (Unitⱼ ⊢Γ ok) , ok }) ⟩
+                                                       id (⊢Unit ⊢Γ ok) , ok }) ⟩
     (⊢ Γ × Unit-allowed s₁ × s₁ PE.≡ s₂) □⇔
 
 opaque

@@ -18,6 +18,7 @@ open import Definition.Typed.Inversion.Primitive R
 import Definition.Typed.Properties.Admissible.Erased.Primitive R
   as Erased
 open import Definition.Typed.Properties.Admissible.Level.Primitive R
+open import Definition.Typed.Properties.Admissible.U R
 open import Definition.Typed.Properties.Admissible.Var R
 open import Definition.Typed.Properties.Well-formed R
 open import Definition.Typed.Stability.Primitive R
@@ -62,7 +63,7 @@ opaque mutual
     (var ⊢Γ x∈) →
       wf-∷∈ x∈ ⊢Γ
     (Levelⱼ ⊢Γ ok) →
-      Uⱼ (zeroᵘⱼ ⊢Γ)
+      ⊢U (zeroᵘⱼ ⊢Γ)
     (zeroᵘⱼ ⊢Γ) →
       Levelⱼ′ ⊢Γ
     (sucᵘⱼ ⊢l) →
@@ -70,16 +71,16 @@ opaque mutual
     (supᵘⱼ ⊢l ⊢u) →
       wf-⊢∷ ⊢l
     (Uⱼ ⊢l) →
-      Uⱼ (sucᵘⱼ ⊢l)
+      ⊢U (sucᵘⱼ ⊢l)
     (Liftⱼ x x₁ x₂) →
-      Uⱼ (supᵘⱼ x x₁)
+      ⊢U (supᵘⱼ x x₁)
     (liftⱼ x x₁ x₂) →
       Liftⱼ x x₁
     (lowerⱼ x) →
       let ⊢l₂ , ⊢A = inversion-Lift (wf-⊢∷ x)
       in ⊢A
     (ΠΣⱼ ⊢l ⊢A _ _) →
-      Uⱼ ⊢l
+      ⊢U ⊢l
     (lamⱼ ⊢B _ ok) →
       ΠΣⱼ ⊢B ok
     (⊢t ∘ⱼ ⊢u) →
@@ -94,25 +95,25 @@ opaque mutual
     (prodrecⱼ ⊢C ⊢t _ _) →
       subst-⊢ ⊢C (⊢ˢʷ∷-sgSubst ⊢t)
     (Emptyⱼ ⊢Γ) →
-      Uⱼ (zeroᵘⱼ ⊢Γ)
+      ⊢U (zeroᵘⱼ ⊢Γ)
     (emptyrecⱼ ⊢A _) →
       ⊢A
     (starⱼ ⊢Γ ok) →
-      Unitⱼ ⊢Γ ok
+      univ (Unitⱼ ⊢Γ ok)
     (unitrecⱼ ⊢A ⊢t _ _) →
       subst-⊢ ⊢A (⊢ˢʷ∷-sgSubst ⊢t)
     (Unitⱼ ⊢Γ _) →
-      Uⱼ (zeroᵘⱼ ⊢Γ)
+      ⊢U (zeroᵘⱼ ⊢Γ)
     (ℕⱼ ⊢Γ) →
-      Uⱼ (zeroᵘⱼ ⊢Γ)
+      ⊢U (zeroᵘⱼ ⊢Γ)
     (zeroⱼ ⊢Γ) →
-      ℕⱼ ⊢Γ
+      univ (ℕⱼ ⊢Γ)
     (sucⱼ ⊢t) →
-      ℕⱼ (wfTerm ⊢t)
+      univ (ℕⱼ (wfTerm ⊢t))
     (natrecⱼ _ ⊢u ⊢v) →
       subst-⊢ (⊢∙→⊢ (wfTerm ⊢u)) (⊢ˢʷ∷-sgSubst ⊢v)
     (Idⱼ ⊢A _ _) →
-      Uⱼ (inversion-U-Level (wf-⊢∷ ⊢A))
+      ⊢U (inversion-U-Level (wf-⊢∷ ⊢A))
     (rflⱼ ⊢t) →
       Idⱼ (wf-⊢∷ ⊢t) ⊢t ⊢t
     (Jⱼ _ ⊢B _ ⊢v ⊢w) →
@@ -147,7 +148,7 @@ opaque mutual
       univ ⊢A , univ ⊢B
     (U-cong l₁≡l₂) →
       let _ , ⊢l₁ , ⊢l₂ = wf-⊢≡∷ l₁≡l₂ in
-      Uⱼ ⊢l₁ , Uⱼ ⊢l₂
+      ⊢U ⊢l₁ , ⊢U ⊢l₂
     (Lift-cong l₁≡l₂ A≡B) →
       let _ , ⊢l₁ , ⊢l₂ = wf-⊢≡∷ l₁≡l₂
           ⊢A , ⊢B = wf-⊢≡ A≡B
@@ -206,12 +207,13 @@ opaque mutual
       wf-⊢∷ ⊢l , supᵘⱼ ⊢l (sucᵘⱼ ⊢l) , (sucᵘⱼ ⊢l)
     (U-cong l₁≡l₂) →
       let ⊢Level , ⊢l₁ , ⊢l₂ = wf-⊢≡∷ l₁≡l₂ in
-      Uⱼ (sucᵘⱼ ⊢l₁) , Uⱼ ⊢l₁ , conv (Uⱼ ⊢l₂) (sym (U-cong (sucᵘ-cong l₁≡l₂)))
+      ⊢U (sucᵘⱼ ⊢l₁) , Uⱼ ⊢l₁ ,
+      conv (Uⱼ ⊢l₂) (sym (U-cong (sucᵘ-cong l₁≡l₂)))
     (Lift-cong x x₁ x₂) →
       let ⊢Level , ⊢l₂ , ⊢l₂′ = wf-⊢≡∷ x₁
           _ , ⊢A , ⊢B = wf-⊢≡∷ x₂
       in
-      Uⱼ (supᵘⱼ x ⊢l₂) ,
+      ⊢U (supᵘⱼ x ⊢l₂) ,
       Liftⱼ x ⊢l₂ ⊢A ,
       conv (Liftⱼ x ⊢l₂′ ⊢B) (U-cong (supᵘ-cong (refl x) (sym ⊢Level x₁)))
     (lower-cong x) →
@@ -226,7 +228,7 @@ opaque mutual
       let _ , ⊢A₁ , ⊢A₂ = wf-⊢≡∷ A₁≡A₂
           _ , ⊢B₁ , ⊢B₂ = wf-⊢≡∷ B₁≡B₂
       in
-      Uⱼ ⊢l ,
+      ⊢U ⊢l ,
       ΠΣⱼ ⊢l ⊢A₁ ⊢B₁ ok ,
       ΠΣⱼ ⊢l ⊢A₂ (stability-⊢∷ refl-∙⟨ univ ⊢A₂ ∣ univ A₁≡A₂ ⟩ ⊢B₂) ok
     (app-cong t₁≡t₂ u₁≡u₂) →
@@ -323,13 +325,14 @@ opaque mutual
           _ , ⊢t₁ , ⊢t₂ = wf-⊢≡∷ t₁≡t₂
           _ , ⊢u₁ , ⊢u₂ = wf-⊢≡∷ u₁≡u₂
           ⊢Γ            = wfEqTerm t₁≡t₂
-          Unit≡         = refl (Unitⱼ ⊢Γ ok)
+          Unit≡         = refl (univ (Unitⱼ ⊢Γ ok))
       in
       subst-⊢ ⊢A₁ (⊢ˢʷ∷-sgSubst ⊢t₁) ,
       unitrecⱼ ⊢A₁ ⊢t₁ ⊢u₁ ok ,
       conv
         (unitrecⱼ
-          (stability-⊢ (reflConEq ⊢Γ ∙⟨ Unitⱼ ⊢Γ ok ∣ Unit≡ ⟩) ⊢A₂)
+          (stability-⊢ (reflConEq ⊢Γ ∙⟨ univ (Unitⱼ ⊢Γ ok) ∣ Unit≡ ⟩)
+             ⊢A₂)
           (conv ⊢t₂ Unit≡)
           (conv ⊢u₂ $ subst-⊢≡ A₁≡A₂ $ ⊢ˢʷ≡∷-sgSubst
             (starⱼ ⊢Γ ok)
@@ -368,7 +371,7 @@ opaque mutual
             conv ⊢u₂ $ subst-⊢≡ A₁≡A₂ $ refl-⊢ˢʷ≡∷ $
             →⊢ˢʷ∷∙
               (⊢ˢʷ∷-wk1Subst ⊢A₁ $
-               ⊢ˢʷ∷-wk1Subst (ℕⱼ ⊢Γ) (⊢ˢʷ∷-idSubst ⊢Γ))
+               ⊢ˢʷ∷-wk1Subst (univ (ℕⱼ ⊢Γ)) (⊢ˢʷ∷-idSubst ⊢Γ))
               (sucⱼ (var₁ ⊢A₁)))
            ⊢v₂)
         (sym $ subst-⊢≡ A₁≡A₂ (⊢ˢʷ≡∷-sgSubst ⊢v₁ ⊢v₂ v₁≡v₂))

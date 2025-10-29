@@ -290,8 +290,6 @@ private module Inhabited where
     wk′ hyp ρ⊇ ⊢Δ = λ where
         (Levelⱼ _ _) _ →
           Levelⱼ′ ⊢Δ
-        (Uⱼ l) PE.refl →
-          Uⱼ (wkTerm ρ⊇ ⊢Δ l)
         (univ ⊢A) PE.refl →
           univ (wkTerm ρ⊇ ⊢Δ ⊢A)
         (Liftⱼ ⊢l ⊢A) PE.refl →
@@ -301,12 +299,6 @@ private module Inhabited where
               ⊢A′           = wk ρ⊇ ⊢Δ ⊢A ⦃ lt = <ˢ-trans A< ! ⦄
           in
           ΠΣⱼ (wk (lift ρ⊇) (∙ ⊢A′) ⊢B) ok
-        (Emptyⱼ _) _ →
-          Emptyⱼ ⊢Δ
-        (Unitⱼ ⊢Γ ok) PE.refl →
-          Unitⱼ ⊢Δ ok
-        (ℕⱼ _) _ →
-          ℕⱼ ⊢Δ
         (Idⱼ ⊢A ⊢t ⊢u) PE.refl →
           Idⱼ (wk ρ⊇ ⊢Δ ⊢A) (wkTerm ρ⊇ ⊢Δ ⊢t) (wkTerm ρ⊇ ⊢Δ ⊢u)
       where
@@ -402,7 +394,8 @@ private module Inhabited where
           starⱼ ⊢Δ ok
         (unitrecⱼ {A} ⊢A ⊢t ⊢u ok) PE.refl →
           PE.subst (_⊢_∷_ _ _) (PE.sym $ wk-β A) $
-          unitrecⱼ (wk (lift ρ⊇) (∙ Unitⱼ ⊢Δ ok) ⊢A) (wkTerm ρ⊇ ⊢Δ ⊢t)
+          unitrecⱼ (wk (lift ρ⊇) (∙ univ (Unitⱼ ⊢Δ ok)) ⊢A)
+            (wkTerm ρ⊇ ⊢Δ ⊢t)
             (PE.subst (_⊢_∷_ _ _) (wk-β A) $
              wkTerm ρ⊇ ⊢Δ ⊢u)
             ok
@@ -416,7 +409,7 @@ private module Inhabited where
           sucⱼ (wkTerm ρ⊇ ⊢Δ ⊢t)
         (natrecⱼ {A} ⊢t ⊢u ⊢v) PE.refl →
           let _ , (⊢A , A<) = ∙⊢∷→⊢-<ˢ ⊢u
-              ⊢A′           = wk (lift ρ⊇) (∙ ℕⱼ ⊢Δ) ⊢A
+              ⊢A′           = wk (lift ρ⊇) (∙ univ (ℕⱼ ⊢Δ)) ⊢A
                                 ⦃ lt = <ˢ-trans A< ! ⦄
           in
           PE.subst (_⊢_∷_ _ _) (PE.sym $ wk-β A) $
@@ -665,20 +658,20 @@ private module Inhabited where
         (unitrec-cong {A = A₁} A₁≡A₂ t₁≡t₂ u₁≡u₂ ok no-η) PE.refl →
           PE.subst (_⊢_≡_∷_ _ _ _) (PE.sym $ wk-β A₁) $
           unitrec-cong
-            (wkEq (lift ρ⊇) (∙ Unitⱼ ⊢Δ ok) A₁≡A₂)
+            (wkEq (lift ρ⊇) (∙ univ (Unitⱼ ⊢Δ ok)) A₁≡A₂)
             (wkEqTerm ρ⊇ ⊢Δ t₁≡t₂)
             (PE.subst (_⊢_≡_∷_ _ _ _) (wk-β A₁) $
              wkEqTerm ρ⊇ ⊢Δ u₁≡u₂)
             ok no-η
         (unitrec-β {A} ⊢A ⊢t ok no-η) PE.refl →
           PE.subst (_⊢_≡_∷_ _ _ _) (PE.sym $ wk-β A) $
-          unitrec-β (wk (lift ρ⊇) (∙ Unitⱼ ⊢Δ ok) ⊢A)
+          unitrec-β (wk (lift ρ⊇) (∙ univ (Unitⱼ ⊢Δ ok)) ⊢A)
             (PE.subst (_⊢_∷_ _ _) (wk-β A) $
              wkTerm ρ⊇ ⊢Δ ⊢t)
             ok no-η
         (unitrec-β-η {A} ⊢A ⊢t ⊢u ok η) PE.refl →
           PE.subst (_⊢_≡_∷_ _ _ _) (PE.sym $ wk-β A) $
-          unitrec-β-η (wk (lift ρ⊇) (∙ Unitⱼ ⊢Δ ok) ⊢A)
+          unitrec-β-η (wk (lift ρ⊇) (∙ univ (Unitⱼ ⊢Δ ok)) ⊢A)
             (wkTerm ρ⊇ ⊢Δ ⊢t)
             (PE.subst (_⊢_∷_ _ _) (wk-β A) $
              wkTerm ρ⊇ ⊢Δ ⊢u)
@@ -689,11 +682,11 @@ private module Inhabited where
           suc-cong (wkEqTerm ρ⊇ ⊢Δ t₁≡t₂)
         (natrec-cong {A = A₁} A₁≡A₂ t₁≡t₂ u₁≡u₂ v₁≡v₂) PE.refl →
           let _ , (⊢A₁ , A₁<) = ∙⊢≡∷→⊢-<ˢ u₁≡u₂
-              ⊢A₁′            = wk (lift ρ⊇) (∙ ℕⱼ ⊢Δ) ⊢A₁
+              ⊢A₁′            = wk (lift ρ⊇) (∙ univ (ℕⱼ ⊢Δ)) ⊢A₁
                                   ⦃ lt = <ˢ-trans A₁< ! ⦄
           in
           PE.subst (_⊢_≡_∷_ _ _ _) (PE.sym $ wk-β A₁) $
-          natrec-cong (wkEq (lift ρ⊇) (∙ ℕⱼ ⊢Δ) A₁≡A₂)
+          natrec-cong (wkEq (lift ρ⊇) (∙ univ (ℕⱼ ⊢Δ)) A₁≡A₂)
             (PE.subst (_⊢_≡_∷_ _ _ _) (wk-β A₁) $
              wkEqTerm ρ⊇ ⊢Δ t₁≡t₂)
             (PE.subst (_⊢_≡_∷_ _ _ _) (wk-β-natrec _ A₁) $
@@ -701,7 +694,7 @@ private module Inhabited where
             (wkEqTerm ρ⊇ ⊢Δ v₁≡v₂)
         (natrec-zero {A} ⊢t ⊢u) PE.refl →
           let _ , (⊢A , A<) = ∙⊢∷→⊢-<ˢ ⊢u
-              ⊢A′           = wk (lift ρ⊇) (∙ ℕⱼ ⊢Δ) ⊢A
+              ⊢A′           = wk (lift ρ⊇) (∙ univ (ℕⱼ ⊢Δ)) ⊢A
                                 ⦃ lt = <ˢ-trans A< ! ⦄
           in
           PE.subst (_⊢_≡_∷_ _ _ _) (PE.sym $ wk-β A) $
@@ -712,7 +705,7 @@ private module Inhabited where
              wkTerm (lift (lift ρ⊇)) (∙ ⊢A′) ⊢u)
         (natrec-suc {A} {s = u} ⊢t ⊢u ⊢v) PE.refl →
           let _ , (⊢A , A<) = ∙⊢∷→⊢-<ˢ ⊢u
-              ⊢A′           = wk (lift ρ⊇) (∙ ℕⱼ ⊢Δ) ⊢A
+              ⊢A′           = wk (lift ρ⊇) (∙ univ (ℕⱼ ⊢Δ)) ⊢A
                                 ⦃ lt = <ˢ-trans A< ! ⦄
           in
           PE.subst₂ (_⊢_≡_∷_ _ _)
@@ -987,7 +980,7 @@ mutual
       (PE.subst (_⊢_∷_ _ _) (wk-β-natrec _ F) $
        wkTerm
          (liftʷ (lift (∷ʷ⊇→∷⊇ [ρ])) $
-          wk (liftʷʷ [ρ] (ℕⱼ (wf-∷ʷ⊇ [ρ]))) (⊢∙→⊢ (wfTerm ⊢s)))
+          wk (liftʷʷ [ρ] (univ (ℕⱼ (wf-∷ʷ⊇ [ρ])))) (⊢∙→⊢ (wfTerm ⊢s)))
          ⊢s)
       (wkRedTerm [ρ] n⇒n′)
   wkRedTerm [ρ] (natrec-zero {A = F} ⊢z ⊢s) =
@@ -996,7 +989,7 @@ mutual
       (PE.subst (_⊢_∷_ _ _) (wk-β-natrec _ F) $
        wkTerm
          (liftʷ (lift (∷ʷ⊇→∷⊇ [ρ])) $
-          wk (liftʷʷ [ρ] (ℕⱼ (wf-∷ʷ⊇ [ρ]))) (⊢∙→⊢ (wfTerm ⊢s)))
+          wk (liftʷʷ [ρ] (univ (ℕⱼ (wf-∷ʷ⊇ [ρ])))) (⊢∙→⊢ (wfTerm ⊢s)))
          ⊢s)
   wkRedTerm [ρ] (natrec-suc {A} {s} ⊢z ⊢s ⊢n) =
     PE.subst₂ (_⊢_⇒_∷_ _ _)
@@ -1006,28 +999,29 @@ mutual
       (PE.subst (_⊢_∷_ _ _) (wk-β-natrec _ A) $
        wkTerm
          (liftʷ (lift (∷ʷ⊇→∷⊇ [ρ])) $
-          wk (liftʷʷ [ρ] (ℕⱼ (wf-∷ʷ⊇ [ρ]))) (⊢∙→⊢ (wfTerm ⊢s)))
+          wk (liftʷʷ [ρ] (univ (ℕⱼ (wf-∷ʷ⊇ [ρ])))) (⊢∙→⊢ (wfTerm ⊢s)))
          ⊢s)
       (wkTerm [ρ] ⊢n)
   wkRedTerm [ρ] (emptyrec-subst ⊢A n⇒n′) =
     emptyrec-subst (wk [ρ] ⊢A) (wkRedTerm [ρ] n⇒n′)
   wkRedTerm [ρ] (unitrec-subst {A} ⊢A ⊢u t⇒t′ ok₁ ok₂) =
-    let ρA = wk (liftʷʷ [ρ] (Unitⱼ (wf-∷ʷ⊇ [ρ]) ok₁)) ⊢A
+    let ρA = wk (liftʷʷ [ρ] (univ (Unitⱼ (wf-∷ʷ⊇ [ρ]) ok₁))) ⊢A
         ρu = wkTerm [ρ] ⊢u
         ρu′ = PE.subst (λ x → _ ⊢ _ ∷ x) (wk-β A) ρu
         ρt⇒t′ = wkRedTerm [ρ] t⇒t′
     in  PE.subst (_⊢_⇒_∷_ _ _ _) (PE.sym (wk-β A))
           (unitrec-subst ρA ρu′ ρt⇒t′ ok₁ ok₂)
   wkRedTerm [ρ] (unitrec-β {A} ⊢A ⊢u ok₁ ok₂) =
-    let ρA = wk (liftʷʷ [ρ] (Unitⱼ (wf-∷ʷ⊇ [ρ]) ok₁)) ⊢A
+    let ρA = wk (liftʷʷ [ρ] (univ (Unitⱼ (wf-∷ʷ⊇ [ρ]) ok₁))) ⊢A
         ρu = wkTerm [ρ] ⊢u
         ρu′ = PE.subst (λ x → _ ⊢ _ ∷ x) (wk-β A) ρu
     in  PE.subst (_⊢_⇒_∷_ _ _ _) (PE.sym (wk-β A))
           (unitrec-β ρA ρu′ ok₁ ok₂)
   wkRedTerm ρ (unitrec-β-η {A} ⊢A ⊢t ⊢u ok₁ ok₂) =
     PE.subst (_⊢_⇒_∷_ _ _ _) (PE.sym (wk-β A)) $
-    unitrec-β-η (wk (liftʷʷ ρ (Unitⱼ (wf-∷ʷ⊇ ρ) ok₁)) ⊢A) (wkTerm ρ ⊢t)
-      (PE.subst (_⊢_∷_ _ _) (wk-β A) (wkTerm ρ ⊢u)) ok₁ ok₂
+    unitrec-β-η (wk (liftʷʷ ρ (univ (Unitⱼ (wf-∷ʷ⊇ ρ) ok₁))) ⊢A)
+      (wkTerm ρ ⊢t) (PE.subst (_⊢_∷_ _ _) (wk-β A) (wkTerm ρ ⊢u)) ok₁
+      ok₂
   wkRedTerm ρ (J-subst {B} ⊢t ⊢B ⊢u ⊢t′ ⊢v) =
     PE.subst (_ ⊢ U.wk _ (J _ _ _ _ _ _ _ _) ⇒ _ ∷_)
       (PE.sym $ wk-β-doubleSubst _ B _ _) $

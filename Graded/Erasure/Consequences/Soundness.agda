@@ -356,16 +356,16 @@ soundness-ℕ-only-source-counterexample₁ {p = p} P-ok Σʷ-ok =
       (0    , whred d ⇨ˢ _) → whnfRedTerm d (ne! (prodrecₙ (var _)))
       (1+ _ , whred d ⇨ˢ _) → whnfRedTerm d (ne! (prodrecₙ (var _)))
   where
-  ε⊢ℕ = ℕⱼ ε
+  ε⊢ℕ = ⊢ℕ ε
   ⊢εℕ = ∙ ε⊢ℕ
-  εℕ⊢ℕ = ℕⱼ ⊢εℕ
+  εℕ⊢ℕ = ⊢ℕ ⊢εℕ
   ε⊢Σ = ΠΣⱼ εℕ⊢ℕ Σʷ-ok
   ⊢εΣ = ∙ ε⊢Σ
-  ⊢εΣℕ = ∙ ℕⱼ ⊢εΣ
-  εΣℕ⊢ℕ = ℕⱼ ⊢εΣℕ
+  ⊢εΣℕ = ∙ ⊢ℕ ⊢εΣ
+  εΣℕ⊢ℕ = ⊢ℕ ⊢εΣℕ
   εΣ⊢Σ = ΠΣⱼ εΣℕ⊢ℕ Σʷ-ok
   ⊢εΣΣ = ∙ εΣ⊢Σ
-  εΣΣ⊢ℕ = ℕⱼ ⊢εΣΣ
+  εΣΣ⊢ℕ = ⊢ℕ ⊢εΣΣ
   ⊢εΣℕℕ = ∙ εΣℕ⊢ℕ
   ⊢prodrec = prodrecⱼ {r = 𝟘} εΣΣ⊢ℕ (var₀ ε⊢Σ) (zeroⱼ ⊢εΣℕℕ) Σʷ-ok
 
@@ -393,7 +393,7 @@ opaque
     let ⊢Id = ∙ Idⱼ′ (zeroⱼ ε) (zeroⱼ ε) in
     inhabited-consistent (⊢ˢʷ∷-sgSubst (rflⱼ (zeroⱼ ε))) ,
     Jⱼ′
-      (ℕⱼ $
+      (⊢ℕ $
        J-motive-context ([]ⱼ ([]-cong→Erased ok) (ℕⱼ ⊢Id) (zeroⱼ ⊢Id)))
       (zeroⱼ ⊢Id) ([]-congⱼ′ ok (ℕⱼ ⊢Id) (var ⊢Id here)) ,
     sub
@@ -431,7 +431,7 @@ opaque
     case ∙ Idⱼ′ (zeroⱼ ε) (zeroⱼ ε) of λ {
       ⊢Id →
       inhabited-consistent (⊢ˢʷ∷-sgSubst (rflⱼ (zeroⱼ ε)))
-    , Jⱼ′ (ℕⱼ (J-motive-context (zeroⱼ ⊢Id))) (zeroⱼ ⊢Id) (var ⊢Id here)
+    , Jⱼ′ (⊢ℕ (J-motive-context (zeroⱼ ⊢Id))) (zeroⱼ ⊢Id) (var ⊢Id here)
     , sub
         (J₀ₘ₁-generalised ≡not-none PE.refl PE.refl ℕₘ zeroₘ ℕₘ zeroₘ
            zeroₘ var)
@@ -466,7 +466,7 @@ opaque
     case ∙ Idⱼ′ (zeroⱼ ε) (zeroⱼ ε) of λ {
       ⊢Id →
       inhabited-consistent (⊢ˢʷ∷-sgSubst (rflⱼ (zeroⱼ ε)))
-    , Kⱼ (ℕⱼ (K-motive-context (zeroⱼ ⊢Id))) (zeroⱼ ⊢Id) (var ⊢Id here)
+    , Kⱼ (⊢ℕ (K-motive-context (zeroⱼ ⊢Id))) (zeroⱼ ⊢Id) (var ⊢Id here)
         K-ok
     , sub
         (K₀ₘ₁-generalised ≡not-none PE.refl ℕₘ zeroₘ ℕₘ zeroₘ var)
@@ -499,11 +499,11 @@ opaque
     𝟘ᶜ ▸[ 𝟙ᵐ ] t ×
     ¬ ∃ λ n → Δ ⊢ t ⇒ˢ* sucᵏ n ∷ℕ
   soundness-ℕ-only-source-counterexample₅ unitrec-ok Unit-ok no-η =
-    let ⊢Unit = Unitⱼ ε Unit-ok
+    let ε⊢Unit = ⊢Unit ε Unit-ok
     in
       inhabited-consistent (⊢ˢʷ∷-sgSubst (starⱼ ε Unit-ok))
-    , unitrecⱼ (ℕⱼ (∙ Unitⱼ (∙ ⊢Unit) Unit-ok)) (var₀ ⊢Unit)
-        (zeroⱼ (∙ ⊢Unit)) Unit-ok
+    , unitrecⱼ (⊢ℕ (∙ ⊢Unit (∙ ε⊢Unit) Unit-ok)) (var₀ ε⊢Unit)
+        (zeroⱼ (∙ ε⊢Unit)) Unit-ok
     , sub
         (unitrecₘ
            (sub ℕₘ $
@@ -547,7 +547,7 @@ opaque
     (¬ ∃ λ n → ∀ str → erase str t ⇒ˢ⟨ str ⟩* T.sucᵏ n) ×
     (∀ str → ¬ ∃ λ n → erase str t ⇒ˢ⟨ str ⟩* T.sucᵏ n)
   soundness-ℕ-counterexample₆ emptyrec-ok =
-      emptyrecⱼ (ℕⱼ (ε ∙[ Emptyⱼ ])) (var₀ (Emptyⱼ ε))
+      emptyrecⱼ (⊢ℕ (ε ∙[ ⊢Empty ])) (var₀ (⊢Empty ε))
     , (sub (emptyrecₘ var ℕₘ emptyrec-ok) $ begin
          𝟘ᶜ                          ≈˘⟨ ·ᶜ-zeroˡ _ ⟩
          𝟘 ·ᶜ (𝟘ᶜ , x0 ≔ ⌜ ⌞ 𝟘 ⌟ ⌝)  ∎)
@@ -590,9 +590,9 @@ soundness-ℕ-only-target-not-counterexample₁ {p} ok
   , ⊢subst (Idⱼ′ ⊢pr (zeroⱼ (ε ∙[ ⊢ℕ² ] ∙[ ⊢ℕ² ])))
       (⊢Σʷ-η-prodʷ-fstʷ-sndʷ (var₀ (⊢ℕ² ε)))
       (rflⱼ′
-         (prodrec 𝟘 p 𝟘 ℕ 0,0 zero  ≡⟨ prodrec-β-≡ (ℕⱼ (ε ∙[ ⊢ℕ² ] ∙[ ⊢ℕ² ]))
+         (prodrec 𝟘 p 𝟘 ℕ 0,0 zero  ≡⟨ prodrec-β-≡ (⊢ℕ (ε ∙[ ⊢ℕ² ] ∙[ ⊢ℕ² ]))
                                          (fstʷⱼ (var₀ (⊢ℕ² ε))) (sndʷⱼ (var₀ (⊢ℕ² ε)))
-                                         (zeroⱼ (ε ∙[ ⊢ℕ² ] ∙[ ℕⱼ ] ∙[ ℕⱼ ])) ⟩⊢∎
+                                         (zeroⱼ (ε ∙[ ⊢ℕ² ] ∙[ ⊢ℕ ] ∙[ ⊢ℕ ])) ⟩⊢∎
           zero                      ∎))
   , (λ _ → refl-⇒ˢ⟨⟩*)
   where
@@ -612,13 +612,13 @@ soundness-ℕ-only-target-not-counterexample₁ {p} ok
   η = Σʷ-η-prodʷ-fstʷ-sndʷ _ _ _ _ (var x0)
 
   ⊢ℕ² : ⊢ Γ → Γ ⊢ ℕ²
-  ⊢ℕ² ⊢Γ = ΠΣⱼ (ℕⱼ (⊢Γ ∙[ ℕⱼ ])) ok
+  ⊢ℕ² ⊢Γ = ΠΣⱼ (⊢ℕ (⊢Γ ∙[ ⊢ℕ ])) ok
 
   ⊢pr : Δ′ ∙ ℕ² ⊢ pr ∷ ℕ
   ⊢pr =
-    prodrecⱼ′ (ℕⱼ (ε ∙[ ⊢ℕ² ] ∙[ ⊢ℕ² ] ∙[ ⊢ℕ² ]))
+    prodrecⱼ′ (⊢ℕ (ε ∙[ ⊢ℕ² ] ∙[ ⊢ℕ² ] ∙[ ⊢ℕ² ]))
       (var₀ (⊢ℕ² (ε ∙[ ⊢ℕ² ])))
-      (zeroⱼ (ε ∙[ ⊢ℕ² ] ∙[ ⊢ℕ² ] ∙[ ℕⱼ ] ∙[ ℕⱼ ]))
+      (zeroⱼ (ε ∙[ ⊢ℕ² ] ∙[ ⊢ℕ² ] ∙[ ⊢ℕ ] ∙[ ⊢ℕ ]))
 
 opaque
 
@@ -643,7 +643,7 @@ opaque
            Er.Erased-[] Er.[]-[] PE.refl PE.refl Er.[]-[] PE.refl)
         (Jⱼ′
            (Idⱼ′
-              (Jⱼ′ (ℕⱼ (J-motive-context ([]ⱼ Erased-ok ⊢ℕ∷ ⊢zero)))
+              (Jⱼ′ (⊢ℕ (J-motive-context ([]ⱼ Erased-ok ⊢ℕ∷ ⊢zero)))
                  ⊢zero
                  ([]-congⱼ′ ok ⊢ℕ∷ $
                   var₀ (J-motive-context-type (zeroⱼ ⊢Δ))))
@@ -655,11 +655,11 @@ opaque
                                                                                PE.refl ⟩⊢≡
                J 𝟘 𝟘 (Erased zeroᵘ ℕ) Er.[ zero ] ℕ zero Er.[ zero ]
                  ([]-cong s zeroᵘ ℕ zero zero rfl)                        ≡⟨ J-cong′ (refl (Erasedⱼ Erased-ok (ℕⱼ ⊢Δ)))
-                                                                               (refl ⊢[zero]) (refl ⊢ℕ)
+                                                                               (refl ⊢[zero]) (refl ⊢ℕ′)
                                                                                (refl (zeroⱼ ⊢Δ)) (refl ⊢[zero])
                                                                                ([]-cong-β-≡ (ℕⱼ ⊢Δ) (refl (zeroⱼ ⊢Δ)) ok) ⟩⊢
 
-               J 𝟘 𝟘 (Erased zeroᵘ ℕ) Er.[ zero ] ℕ zero Er.[ zero ] rfl  ≡⟨ J-β-≡ ⊢[zero] ⊢ℕ (zeroⱼ ⊢Δ) ⟩⊢∎
+               J 𝟘 𝟘 (Erased zeroᵘ ℕ) Er.[ zero ] ℕ zero Er.[ zero ] rfl  ≡⟨ J-β-≡ ⊢[zero] ⊢ℕ′ (zeroⱼ ⊢Δ) ⟩⊢∎
 
             zero                                                 ∎))
         (var₀ ⊢0≡0))
@@ -679,11 +679,11 @@ opaque
     ⊢Δ : ⊢ Δ′
     ⊢Δ = ∙ ⊢0≡0
 
-    ⊢ℕ :
+    ⊢ℕ′ :
       Δ′ ∙ Erased zeroᵘ ℕ ∙
       Id (wk1 (Erased zeroᵘ ℕ)) (wk1 Er.[ zero ]) (var x0) ⊢
       ℕ
-    ⊢ℕ = ℕⱼ (J-motive-context ([]ⱼ Erased-ok (ℕⱼ ⊢Δ) (zeroⱼ ⊢Δ)))
+    ⊢ℕ′ = ⊢ℕ (J-motive-context ([]ⱼ Erased-ok (ℕⱼ ⊢Δ) (zeroⱼ ⊢Δ)))
 
     ⊢ℕ∷ : Δ′ ∙ ℕ ∙ Id ℕ zero (var x0) ⊢ ℕ ∷ U zeroᵘ
     ⊢ℕ∷ = ℕⱼ (J-motive-context (zeroⱼ ⊢Δ))
@@ -707,11 +707,11 @@ opaque
         rfl zero (var x0)
     , Jⱼ′
         (Idⱼ′
-           (Jⱼ′ (ℕⱼ (J-motive-context ⊢zero)) ⊢zero
+           (Jⱼ′ (⊢ℕ (J-motive-context ⊢zero)) ⊢zero
               (var₀ (J-motive-context-type (zeroⱼ ⊢Δ))))
            ⊢zero)
         (rflⱼ′
-           (J 𝟘 𝟘 ℕ zero ℕ zero zero rfl  ≡⟨ J-β-≡ (zeroⱼ ⊢Δ) ⊢ℕ (zeroⱼ ⊢Δ) ⟩⊢∎
+           (J 𝟘 𝟘 ℕ zero ℕ zero zero rfl  ≡⟨ J-β-≡ (zeroⱼ ⊢Δ) ⊢ℕ′ (zeroⱼ ⊢Δ) ⟩⊢∎
             zero                          ∎))
         (var₀ ⊢0≡0)
     , (λ _ → refl-⇒ˢ⟨⟩*)
@@ -725,8 +725,8 @@ opaque
     ⊢Δ : ⊢ Δ′
     ⊢Δ = ∙ ⊢0≡0
 
-    ⊢ℕ : Δ′ ∙ ℕ ∙ Id ℕ zero (var x0) ⊢ ℕ
-    ⊢ℕ = ℕⱼ (J-motive-context (zeroⱼ ⊢Δ))
+    ⊢ℕ′ : Δ′ ∙ ℕ ∙ Id ℕ zero (var x0) ⊢ ℕ
+    ⊢ℕ′ = ⊢ℕ (J-motive-context (zeroⱼ ⊢Δ))
 
     ⊢zero : Δ′ ∙ ℕ ∙ Id ℕ zero (var x0) ⊢ zero ∷ ℕ
     ⊢zero = zeroⱼ (J-motive-context (zeroⱼ ⊢Δ))
@@ -745,11 +745,11 @@ opaque
         rfl (var x0)
     , Kⱼ
         (Idⱼ′
-           (Kⱼ (ℕⱼ (K-motive-context ⊢zero)) ⊢zero
+           (Kⱼ (⊢ℕ (K-motive-context ⊢zero)) ⊢zero
               (var₀ (K-motive-context-type (zeroⱼ ⊢Δ))) ok)
            ⊢zero)
         (rflⱼ′
-           (K 𝟘 ℕ zero ℕ zero rfl  ≡⟨ K-β ⊢ℕ (zeroⱼ ⊢Δ) ok ⟩⊢∎
+           (K 𝟘 ℕ zero ℕ zero rfl  ≡⟨ K-β ⊢ℕ′ (zeroⱼ ⊢Δ) ok ⟩⊢∎
             zero                   ∎))
         (var₀ ⊢0≡0)
         ok
@@ -764,8 +764,8 @@ opaque
     ⊢Δ : ⊢ Δ′
     ⊢Δ = ∙ ⊢0≡0
 
-    ⊢ℕ : Δ′ ∙ Id ℕ zero zero ⊢ ℕ
-    ⊢ℕ = ℕⱼ (K-motive-context (zeroⱼ ⊢Δ))
+    ⊢ℕ′ : Δ′ ∙ Id ℕ zero zero ⊢ ℕ
+    ⊢ℕ′ = ⊢ℕ (K-motive-context (zeroⱼ ⊢Δ))
 
     ⊢zero : Δ′ ∙ Id ℕ zero zero ⊢ zero ∷ ℕ
     ⊢zero = zeroⱼ (K-motive-context (zeroⱼ ⊢Δ))
@@ -787,18 +787,18 @@ opaque
     , ⊢subst
         (Idⱼ′
            (unitrecⱼ
-              (ℕⱼ (ε ∙[ ⊢Unitʷ ] ∙[ ⊢Unitʷ ] ∙[ ⊢Unitʷ ]))
+              (⊢ℕ (ε ∙[ ⊢Unitʷ ] ∙[ ⊢Unitʷ ] ∙[ ⊢Unitʷ ]))
               (var₀ (⊢Unitʷ (ε ∙[ ⊢Unitʷ ])))
               (zeroⱼ (ε ∙[ ⊢Unitʷ ] ∙[ ⊢Unitʷ ])) Unit-ok)
            (zeroⱼ (ε ∙[ ⊢Unitʷ ] ∙[ ⊢Unitʷ ])))
         (⊢Unit-η (var₀ (⊢Unitʷ ε)))
         (rflⱼ′
-           (unitrec 𝟘 𝟘 ℕ starʷ zero  ≡⟨ unitrec-β-≡ (ℕⱼ (ε ∙[ ⊢Unitʷ ] ∙[ ⊢Unitʷ ])) (zeroⱼ (ε ∙[ ⊢Unitʷ ])) ⟩⊢∎
+           (unitrec 𝟘 𝟘 ℕ starʷ zero  ≡⟨ unitrec-β-≡ (⊢ℕ (ε ∙[ ⊢Unitʷ ] ∙[ ⊢Unitʷ ])) (zeroⱼ (ε ∙[ ⊢Unitʷ ])) ⟩⊢∎
             zero                      ∎))
     , (λ _ → refl-⇒ˢ⟨⟩*)
     where
     ⊢Unitʷ : ⊢ Γ → Γ ⊢ Unitʷ
-    ⊢Unitʷ ⊢Γ = Unitⱼ ⊢Γ Unit-ok
+    ⊢Unitʷ ⊢Γ = ⊢Unit ⊢Γ Unit-ok
 
 -- A variant of run-time canonicity that uses erase′ true instead of
 -- erase and a given strictness.

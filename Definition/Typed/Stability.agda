@@ -13,6 +13,7 @@ module Definition.Typed.Stability
 
 open import Definition.Typed R
 open import Definition.Typed.Properties.Admissible.Identity.Primitive R
+open import Definition.Typed.Properties.Admissible.Nat R
 open import Definition.Typed.Properties.Admissible.Var R
 open import Definition.Typed.Inversion.Primitive R
 open import Definition.Typed.Properties.Well-formed R
@@ -275,16 +276,16 @@ opaque
   stabilityRedTerm Γ≡Δ (natrec-subst x₁ x₂ d) =
     let ⊢Γ , _ , _ = contextConvSubst Γ≡Δ in
     natrec-subst (stabilityTerm Γ≡Δ x₁)
-      (stabilityTerm (Γ≡Δ ∙ refl (ℕⱼ ⊢Γ) ∙ refl (⊢∙→⊢ (wfTerm x₂))) x₂)
+      (stabilityTerm (Γ≡Δ ∙ refl (⊢ℕ ⊢Γ) ∙ refl (⊢∙→⊢ (wfTerm x₂))) x₂)
       (stabilityRedTerm Γ≡Δ d)
   stabilityRedTerm Γ≡Δ (natrec-zero x₁ x₂) =
     let ⊢Γ , _ , _ = contextConvSubst Γ≡Δ in
     natrec-zero (stabilityTerm Γ≡Δ x₁)
-      (stabilityTerm (Γ≡Δ ∙ refl (ℕⱼ ⊢Γ) ∙ refl (⊢∙→⊢ (wfTerm x₂))) x₂)
+      (stabilityTerm (Γ≡Δ ∙ refl (⊢ℕ ⊢Γ) ∙ refl (⊢∙→⊢ (wfTerm x₂))) x₂)
   stabilityRedTerm Γ≡Δ (natrec-suc x₁ x₂ x₃) =
     let ⊢Γ , _ , _ = contextConvSubst Γ≡Δ in
     natrec-suc (stabilityTerm Γ≡Δ x₁)
-      (stabilityTerm (Γ≡Δ ∙ refl (ℕⱼ ⊢Γ) ∙ refl (⊢∙→⊢ (wfTerm x₂))) x₂)
+      (stabilityTerm (Γ≡Δ ∙ refl (⊢ℕ ⊢Γ) ∙ refl (⊢∙→⊢ (wfTerm x₂))) x₂)
       (stabilityTerm Γ≡Δ x₃)
   stabilityRedTerm Γ≡Δ (prodrec-subst x₂ x₃ d ok) =
     let x₁ = ⊢∙→⊢ (wfTerm x₃)
@@ -304,16 +305,16 @@ opaque
     emptyrec-subst (stability Γ≡Δ x) (stabilityRedTerm Γ≡Δ d)
   stabilityRedTerm Γ≡Δ (unitrec-subst x x₁ x₂ x₃ not-ok) =
     let ⊢Γ , _ , _ = contextConvSubst Γ≡Δ
-    in  unitrec-subst (stability (Γ≡Δ ∙ refl (Unitⱼ ⊢Γ x₃)) x)
+    in  unitrec-subst (stability (Γ≡Δ ∙ refl (univ (Unitⱼ ⊢Γ x₃))) x)
           (stabilityTerm Γ≡Δ x₁) (stabilityRedTerm Γ≡Δ x₂) x₃ not-ok
   stabilityRedTerm Γ≡Δ (unitrec-β x x₁ x₂ not-ok) =
     let ⊢Γ , _ , _ = contextConvSubst Γ≡Δ
-    in  unitrec-β (stability (Γ≡Δ ∙ refl (Unitⱼ ⊢Γ x₂)) x)
+    in  unitrec-β (stability (Γ≡Δ ∙ refl (univ (Unitⱼ ⊢Γ x₂))) x)
                   (stabilityTerm Γ≡Δ x₁) x₂ not-ok
   stabilityRedTerm Γ≡Δ (unitrec-β-η ⊢A ⊢t ⊢u ok₁ ok₂) =
     case contextConvSubst Γ≡Δ of λ
       (⊢Γ , _) →
-    unitrec-β-η (stability (Γ≡Δ ∙ refl (Unitⱼ ⊢Γ ok₁)) ⊢A)
+    unitrec-β-η (stability (Γ≡Δ ∙ refl (univ (Unitⱼ ⊢Γ ok₁))) ⊢A)
       (stabilityTerm Γ≡Δ ⊢t) (stabilityTerm Γ≡Δ ⊢u) ok₁ ok₂
   stabilityRedTerm Γ≡Δ (J-subst ⊢t ⊢B ⊢u ⊢v w₁⇒w₂) =
     let ⊢A = ⊢∙→⊢ (wf (⊢∙→⊢ (wf ⊢B))) in

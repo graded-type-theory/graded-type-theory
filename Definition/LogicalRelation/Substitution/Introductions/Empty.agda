@@ -49,7 +49,7 @@ opaque
     Γ ⊩⟨ l ⟩ Empty ⇔ ⊢ Γ
   ⊩Empty⇔ =
       wf ∘→ escape-⊩
-    , (λ ⊢Γ → Emptyᵣ (id (Emptyⱼ ⊢Γ)))
+    , (λ ⊢Γ → Emptyᵣ (id (⊢Empty ⊢Γ)))
 
 opaque
   unfolding _⊩⟨_⟩_≡_
@@ -63,7 +63,7 @@ opaque
            (Emptyᵣ _) →
          Empty≡A })
     , (λ Empty≡A →
-         case id (Emptyⱼ (wfEq (subset* Empty≡A))) of λ
+         case id (⊢Empty (wfEq (subset* Empty≡A))) of λ
            Empty⇒*Empty →
          let ⊩Empty = Emptyᵣ Empty⇒*Empty in
            ⊩Empty

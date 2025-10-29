@@ -92,49 +92,49 @@ private
 
   -- Some lemmas used below.
 
-  ⊢ℕ : ⊢ ε ∙ ℕ
-  ⊢ℕ = ∙ ℕⱼ ε
+  ⊢εℕ : ⊢ ε ∙ ℕ
+  ⊢εℕ = ∙ ⊢ℕ ε
 
-  ⊢U : ε ∙ Level ⊢ U (var x0)
-  ⊢U = Uⱼ (var (∙ Levelⱼ′ ε) here)
+  ⊢U0 : ε ∙ Level ⊢ U (var x0)
+  ⊢U0 = ⊢U (var (∙ Levelⱼ′ ε) here)
 
   U⊢ℕ : ε ∙ Level ∙ U (var x0) ⊢ ℕ
-  U⊢ℕ = ℕⱼ (∙ ⊢U)
+  U⊢ℕ = ⊢ℕ (∙ ⊢U0)
 
   ⊢Uℕ : ⊢ ε ∙ Level ∙ U (var x0) ∙ ℕ
   ⊢Uℕ = ∙ U⊢ℕ
 
   U⊢0 : ε ∙ Level ∙ U (var x0) ⊢ var x0
-  U⊢0 = univ (var (∙ ⊢U) here)
+  U⊢0 = univ (var (∙ ⊢U0) here)
 
-  ⊢U0 : ⊢ ε ∙ Level ∙ U (var x0) ∙ var x0
-  ⊢U0 = ∙ U⊢0
+  ⊢U∙0 : ⊢ ε ∙ Level ∙ U (var x0) ∙ var x0
+  ⊢U∙0 = ∙ U⊢0
 
   U⊢id : ε ∙ Level ∙ U (var x0) ⊢ lam ω (var x0) ∷ Π ω , q ▷ var x0 ▹ var x1
-  U⊢id = lamⱼ′ Π-ω-ok (var ⊢U0 here)
+  U⊢id = lamⱼ′ Π-ω-ok (var ⊢U∙0 here)
 
   ΓU⊢id : ⊢ Γ → Γ ∙ Level ∙ U (var x0) ⊢ lam ω (var x0) ∷ Π ω , q ▷ var x0 ▹ var x1
   ΓU⊢id ε = U⊢id
   ΓU⊢id (∙ ⊢A) =
     W.wkTerm
       (W.liftʷ (W.lift (W.step W.id))
-         (Uⱼ (var (∙ Levelⱼ′ (∙ ⊢A)) here)))
+         (⊢U (var (∙ Levelⱼ′ (∙ ⊢A)) here)))
       (ΓU⊢id (wf ⊢A))
 
   ⊢Uℕℕ : ⊢ ε ∙ Level ∙ U (var x0) ∙ ℕ ∙ ℕ
-  ⊢Uℕℕ = ∙ ℕⱼ ⊢Uℕ
+  ⊢Uℕℕ = ∙ ⊢ℕ ⊢Uℕ
 
   UℕℕU⊢3 : ε ∙ Level ∙ U (var x0) ∙ ℕ ∙ ℕ ∙ U (var x3) ⊢ var x3 ∷ U (var x4)
-  UℕℕU⊢3 = var₃ (Uⱼ (var₃ (ℕⱼ ⊢Uℕ)))
+  UℕℕU⊢3 = var₃ (⊢U (var₃ (⊢ℕ ⊢Uℕ)))
 
   ⊢UℕℕU3 : ⊢ ε ∙ Level ∙ U (var x0) ∙ ℕ ∙ ℕ ∙ U (var x3) ∙ var x3
   ⊢UℕℕU3 = ∙ univ UℕℕU⊢3
 
   ⊢ℕℕ : ⊢ ε ∙ ℕ ∙ ℕ
-  ⊢ℕℕ = ∙ ℕⱼ ⊢ℕ
+  ⊢ℕℕ = ∙ ⊢ℕ ⊢εℕ
 
   ⊢ℕℕU : ⊢ ε ∙ ℕ ∙ ℕ ∙ Level ∙ U (var x0)
-  ⊢ℕℕU = ∙ Uⱼ (var (∙ Levelⱼ′ ⊢ℕℕ) here)
+  ⊢ℕℕU = ∙ ⊢U (var (∙ Levelⱼ′ ⊢ℕℕ) here)
 
 ------------------------------------------------------------------------
 -- A universe-polymorphic identity function
@@ -167,7 +167,7 @@ id-generic = id ∘⟨ 𝟘 ⟩ var x2 ∘⟨ 𝟘 ⟩ var x1 ∘⟨ ω ⟩ var 
 ⊢id-generic : ε ∙ Level ∙ U (var x0) ∙ var x0 ⊢ id-generic ∷ var x1
 ⊢id-generic = ((⊢id ⊢Γ ∘ⱼ var ⊢Γ (there (there here))) ∘ⱼ var ⊢Γ (there here)) ∘ⱼ var ⊢Γ here
   where
-  ⊢Γ = ∙ univ (var₀ ⊢U)
+  ⊢Γ = ∙ univ (var₀ ⊢U0)
 
 -- The term id-generic is well-resourced (with respect to a specific
 -- usage context).
@@ -215,7 +215,8 @@ erase-non-strict-id-ℕ-zero = PE.refl
 
 id-ℕ-zero⇒*zero : ε ⊢ id-ℕ-zero ⇒* zero ∷ ℕ
 id-ℕ-zero⇒*zero =
-  β-red-⇒₃′ Π-𝟘-ok Π-𝟘-ok Π-ω-ok (var ⊢U0 here) (zeroᵘⱼ ε) (ℕⱼ ε) (zeroⱼ ε)
+  β-red-⇒₃′ Π-𝟘-ok Π-𝟘-ok Π-ω-ok (var ⊢U∙0 here) (zeroᵘⱼ ε) (ℕⱼ ε)
+    (zeroⱼ ε)
 
 -- The erasure of id-ℕ-zero reduces to zero.
 
@@ -240,7 +241,7 @@ id₀ = lam 𝟘 (var x0)
 -- The function id₀ is well-typed (in the empty context).
 
 ⊢id₀ : ε ⊢ id₀ ∷ Π 𝟘 , p ▷ ℕ ▹ ℕ
-⊢id₀ = lamⱼ′ Π-𝟘-ok (var₀ (ℕⱼ ε))
+⊢id₀ = lamⱼ′ Π-𝟘-ok (var₀ (⊢ℕ ε))
 
 -- The function id₀ is not well-resourced.
 
@@ -287,7 +288,7 @@ erase-non-strict-id₀-zero = PE.refl
 
 id₀-zero⇒*zero : ε ⊢ id₀-zero ⇒* zero ∷ ℕ
 id₀-zero⇒*zero =
-  redMany (β-red (ℕⱼ ⊢ℕ) (var ⊢ℕ here) (zeroⱼ ε) PE.refl Π-𝟘-ok)
+  redMany (β-red (⊢ℕ ⊢εℕ) (var ⊢εℕ here) (zeroⱼ ε) PE.refl Π-𝟘-ok)
 
 -- The erasure of id₀-zero reduces to loop?.
 

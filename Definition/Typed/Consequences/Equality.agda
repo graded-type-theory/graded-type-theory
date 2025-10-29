@@ -289,7 +289,7 @@ opaque
     Empty ,
     univ
       (equality-reflection′ ok $
-       var₀ (Idⱼ′ (var₀ (Uⱼ (zeroᵘⱼ ε))) (Emptyⱼ (∙ Uⱼ (zeroᵘⱼ ε))))) ,
+       var₀ (Idⱼ′ (var₀ (⊢U (zeroᵘⱼ ε))) (Emptyⱼ (∙ ⊢U (zeroᵘⱼ ε))))) ,
     var _ ,
     Emptyₙ ,
     (λ ())
@@ -329,7 +329,7 @@ opaque
     ℕ , ℕ , ℕ ,
     univ
       (equality-reflection′ ok₁ $
-       var₀ (Idⱼ′ (ΠΣⱼ ⊢zeroᵘ (ℕⱼ ε) (ℕⱼ (∙ ℕⱼ ε)) ok₂) (ℕⱼ ε))) ,
+       var₀ (Idⱼ′ (ΠΣⱼ ⊢zeroᵘ (ℕⱼ ε) (ℕⱼ (∙ ⊢ℕ ε)) ok₂) (ℕⱼ ε))) ,
     ℕₙ ,
     (λ ())
 

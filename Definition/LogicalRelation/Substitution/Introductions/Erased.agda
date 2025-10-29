@@ -76,7 +76,7 @@ private opaque
           (Liftⱼ
              (wkTerm (∷ʷʳ⊇→∷ʷ⊇ ρ∷) $
               wf-⊢≡∷ (≅ₜ-eq (escape-⊩≡∷ l₁≡l₂)) .proj₂ .proj₂)
-             (Unitⱼ (wf-∷ʷʳ⊇ ρ∷) Unit-ok))
+             (⊢Unit (wf-∷ʷʳ⊇ ρ∷) Unit-ok))
       , ⊩≡∷Level⇔ .proj₁ (wk-⊩≡∷ ρ∷ l₁≡l₂)
       , refl-⊩≡ (emb-⊩ 0≤ᵘ (⊩Unit (wf-∷ʷʳ⊇ ρ∷) Unit-ok))
       )
@@ -173,7 +173,7 @@ opaque
         ⊢Γ = wf ⊢A
     in
     ⊩prod≡prod
-      (Liftⱼ (wkTerm₁ ⊢A (escape-⊩∷ ⊩l)) (Unitⱼ (∙ ⊢A) Unit-ok))
+      (Liftⱼ (wkTerm₁ ⊢A (escape-⊩∷ ⊩l)) (⊢Unit (∙ ⊢A) Unit-ok))
       (⊩Erased ⊩l ⊩A) t≡u
       (refl-⊩≡∷ $
        ⊩lift

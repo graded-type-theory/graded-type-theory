@@ -85,16 +85,16 @@ private variable
 private module Lemmas (⊢Γ : ⊢ Γ) where opaque
 
   Empty⊢ℕ∷U : Γ ∙ Empty ⊢ ℕ ∷ U zeroᵘ
-  Empty⊢ℕ∷U = ℕⱼ (⊢Γ ∙[ Emptyⱼ ])
+  Empty⊢ℕ∷U = ℕⱼ (⊢Γ ∙[ ⊢Empty ])
 
   Empty⊢ℕ : Γ ∙ Empty ⊢ ℕ
   Empty⊢ℕ = univ Empty⊢ℕ∷U
 
   Empty∙ℕ⊢ℕ∷U : Γ ∙ Empty ∙ ℕ ⊢ ℕ ∷ U zeroᵘ
-  Empty∙ℕ⊢ℕ∷U = ℕⱼ (⊢Γ ∙[ Emptyⱼ ] ∙[ ℕⱼ ])
+  Empty∙ℕ⊢ℕ∷U = ℕⱼ (⊢Γ ∙[ ⊢Empty ] ∙[ ⊢ℕ ])
 
   Empty∙ℕ∙ℕ⊢ℕ∷U : Γ ∙ Empty ∙ ℕ ∙ ℕ ⊢ ℕ ∷ U zeroᵘ
-  Empty∙ℕ∙ℕ⊢ℕ∷U = ℕⱼ (⊢Γ ∙[ Emptyⱼ ] ∙[ ℕⱼ ] ∙[ ℕⱼ ])
+  Empty∙ℕ∙ℕ⊢ℕ∷U = ℕⱼ (⊢Γ ∙[ ⊢Empty ] ∙[ ⊢ℕ ] ∙[ ⊢ℕ ])
 
 opaque
 
@@ -143,7 +143,7 @@ opaque
     Γ ⊢ u ∷ A →
     Γ ⊢ cast t A B u ∷ B
   ⊢cast ⊢t ⊢A ⊢B =
-    ⊢subst (univ $ var₀ $ Uⱼ (zeroᵘⱼ (wfTerm ⊢t)))
+    ⊢subst (univ $ var₀ $ ⊢U (zeroᵘⱼ (wfTerm ⊢t)))
       (emptyrecⱼ (Idⱼ′ ⊢A ⊢B) ⊢t)
 
 opaque
@@ -319,8 +319,8 @@ opaque
   ⊢extracts-to-loop 𝟘-ok ω-ok ω+ω-ok ⊢Γ =
     lamⱼ′ 𝟘-ok $
     ⊢λx∙xx ω-ok ω+ω-ok ⊢Γ ∘ⱼ
-    ⊢cast (var₀ (Emptyⱼ ⊢Γ))
-      (ΠΣⱼ (zeroᵘⱼ (∙ Emptyⱼ ⊢Γ)) Empty⊢ℕ∷U Empty∙ℕ⊢ℕ∷U ω+ω-ok)
+    ⊢cast (var₀ (⊢Empty ⊢Γ))
+      (ΠΣⱼ (zeroᵘⱼ (∙ ⊢Empty ⊢Γ)) Empty⊢ℕ∷U Empty∙ℕ⊢ℕ∷U ω+ω-ok)
       Empty⊢ℕ∷U (⊢λx∙xx ω-ok ω+ω-ok ⊢Γ)
     where
     open Lemmas ⊢Γ

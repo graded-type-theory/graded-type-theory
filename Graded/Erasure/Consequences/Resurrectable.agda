@@ -136,11 +136,11 @@ opaque
        emptyrecⱼ
          (ΠΣⱼ
             (Erasedⱼ Erased-ok $
-             Idⱼ (Emptyⱼ (⊢Γ ∙[ Emptyⱼ ] ∙[ Emptyⱼ ]))
-               (var₀ (Emptyⱼ (⊢Γ ∙[ Emptyⱼ ])))
-               (var₁ (Emptyⱼ (⊢Γ ∙[ Emptyⱼ ]))))
+             Idⱼ (Emptyⱼ (⊢Γ ∙[ ⊢Empty ] ∙[ ⊢Empty ]))
+               (var₀ (⊢Empty (⊢Γ ∙[ ⊢Empty ])))
+               (var₁ (⊢Empty (⊢Γ ∙[ ⊢Empty ]))))
             ok₂)
-         (var₀ (Emptyⱼ ⊢Γ)))
+         (var₀ (⊢Empty ⊢Γ)))
     where
     open ≤ᶜ-reasoning
 
@@ -187,7 +187,7 @@ opaque
     open Tools.Reasoning.PartialOrder ≤ᶜ-poset
 
     ⊢Unit₁ : Γ ⊢ Unit s₂
-    ⊢Unit₁ = Unitⱼ ⊢Γ Unit-ok
+    ⊢Unit₁ = ⊢Unit ⊢Γ Unit-ok
 
     ⊢Γ∙Unit : ⊢ Γ ∙ Unit s₂
     ⊢Γ∙Unit = ∙ ⊢Unit₁

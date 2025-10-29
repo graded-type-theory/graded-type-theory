@@ -43,6 +43,16 @@ private variable
   p q                                   : M
 
 ------------------------------------------------------------------------
+-- A lemma related to _⊢_
+
+opaque
+
+  -- A variant of Unitⱼ.
+
+  ⊢Unit : ⊢ Γ → Unit-allowed s → Γ ⊢ Unit s
+  ⊢Unit ⊢Γ ok = univ (Unitⱼ ⊢Γ ok)
+
+------------------------------------------------------------------------
 -- A definitional η-rule
 
 opaque

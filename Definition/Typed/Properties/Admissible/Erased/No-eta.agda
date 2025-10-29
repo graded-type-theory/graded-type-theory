@@ -19,6 +19,7 @@ open import Definition.Typed R
 open import Definition.Typed.Inversion R
 open import Definition.Typed.Properties.Admissible.Lift R
 open import Definition.Typed.Properties.Admissible.Sigma R
+open import Definition.Typed.Properties.Admissible.Unit R
 open import Definition.Typed.Properties.Well-formed R
 open import Definition.Typed.Well-formed R
 
@@ -54,7 +55,7 @@ opaque
     let ⊢Γ = wfTerm ⊢t
         ⊢A = wf-⊢∷ ⊢t
     in
-    fst⟨⟩-β-≡ (Liftⱼ (zeroᵘⱼ (∙ ⊢A)) (Unitⱼ (∙ ⊢A) Unit-ok)) ⊢t
+    fst⟨⟩-β-≡ (Liftⱼ (zeroᵘⱼ (∙ ⊢A)) (⊢Unit (∙ ⊢A) Unit-ok)) ⊢t
       (liftⱼ′ (zeroᵘⱼ ⊢Γ) (starⱼ ⊢Γ Unit-ok)) Σ-ok
 
 opaque

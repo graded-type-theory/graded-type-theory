@@ -47,11 +47,11 @@ mutual
 
   soundness⇇Type : ⊢ Γ → Γ ⊢ A ⇇Type → Γ ⊢ A
   soundness⇇Type ⊢Γ Levelᶜ = Levelⱼ′ ⊢Γ
-  soundness⇇Type ⊢Γ (Uᶜ x) = Uⱼ (soundness⇇ x)
+  soundness⇇Type ⊢Γ (Uᶜ x) = ⊢U (soundness⇇ x)
   soundness⇇Type ⊢Γ (Liftᶜ x y) = Liftⱼ (soundness⇇ x) (soundness⇇Type ⊢Γ y)
-  soundness⇇Type ⊢Γ ℕᶜ = ℕⱼ ⊢Γ
-  soundness⇇Type ⊢Γ (Unitᶜ ok) = Unitⱼ ⊢Γ ok
-  soundness⇇Type ⊢Γ Emptyᶜ = Emptyⱼ ⊢Γ
+  soundness⇇Type ⊢Γ ℕᶜ = ⊢ℕ ⊢Γ
+  soundness⇇Type ⊢Γ (Unitᶜ ok) = ⊢Unit ⊢Γ ok
+  soundness⇇Type ⊢Γ Emptyᶜ = ⊢Empty ⊢Γ
   soundness⇇Type ⊢Γ (ΠΣᶜ ⊢A ⊢B ok) =
     ΠΣⱼ (soundness⇇Type (∙ soundness⇇Type ⊢Γ ⊢A) ⊢B) ok
   soundness⇇Type _ (Idᶜ _ ⊢t ⊢u) =
@@ -60,7 +60,7 @@ mutual
     univ (soundness⇇ ⊢A)
 
   soundness⇉ : ⊢ Γ → Γ ⊢ t ⇉ A → (Γ ⊢ A) × (Γ ⊢ t ∷ A)
-  soundness⇉ ⊢Γ (Levelᵢ ok) = Uⱼ (zeroᵘⱼ ⊢Γ) , Levelⱼ ⊢Γ ok
+  soundness⇉ ⊢Γ (Levelᵢ ok) = ⊢U (zeroᵘⱼ ⊢Γ) , Levelⱼ ⊢Γ ok
   soundness⇉ ⊢Γ zeroᵘᵢ = Levelⱼ′ ⊢Γ , zeroᵘⱼ ⊢Γ
   soundness⇉ ⊢Γ (sucᵘᵢ t⇇Level) =
     Levelⱼ′ ⊢Γ , sucᵘⱼ (soundness⇇ t⇇Level)
@@ -68,20 +68,20 @@ mutual
     Levelⱼ′ ⊢Γ , supᵘⱼ (soundness⇇ t⇇Level) (soundness⇇ u⇇Level)
   soundness⇉ ⊢Γ (Uᵢ x) =
     let ⊢l = soundness⇇ x
-    in Uⱼ (sucᵘⱼ ⊢l) , Uⱼ ⊢l
+    in ⊢U (sucᵘⱼ ⊢l) , Uⱼ ⊢l
   soundness⇉ ⊢Γ (Liftᵢ x y ↘U) =
     let _ , ⊢A = soundness⇉ ⊢Γ y
         ⊢l₂ = soundness⇇ x
         C≡U = subset* (↘U .proj₁)
         ⊢l₁ = inversion-U-Level (syntacticEq C≡U .proj₂)
-    in Uⱼ (supᵘⱼ ⊢l₁ ⊢l₂) , Liftⱼ′ ⊢l₂ (conv ⊢A C≡U)
+    in ⊢U (supᵘⱼ ⊢l₁ ⊢l₂) , Liftⱼ′ ⊢l₂ (conv ⊢A C≡U)
   soundness⇉ ⊢Γ (ΠΣᵢ ⊢A (⇒*U₁ , _) ⊢B ok) =
     let _ , ⊢A = soundness⇉ ⊢Γ ⊢A
         ⊢A     = conv ⊢A (subset* ⇒*U₁)
         ⊢B     = soundness⇇ ⊢B
         ⊢l     = inversion-U-Level (syntacticTerm ⊢A)
     in
-    Uⱼ ⊢l , ΠΣⱼ ⊢l ⊢A ⊢B ok
+    ⊢U ⊢l , ΠΣⱼ ⊢l ⊢A ⊢B ok
   soundness⇉ ⊢Γ (varᵢ x∷A∈Γ) = soundness⇉-var ⊢Γ x∷A∈Γ
   soundness⇉ ⊢Γ (lowerᵢ x (A⇒Lift , _)) =
     let A≡Lift = subset* A⇒Lift
@@ -118,20 +118,20 @@ mutual
         ⊢A = soundness⇇Type (∙ ⊢ΣFG) A⇇Type
         ⊢u = soundness⇇ u⇇A₊
     in  substType ⊢A ⊢t′ , prodrecⱼ ⊢A ⊢t′ ⊢u ok
-  soundness⇉ ⊢Γ ℕᵢ = Uⱼ (zeroᵘⱼ ⊢Γ) , ℕⱼ ⊢Γ
-  soundness⇉ ⊢Γ zeroᵢ = (ℕⱼ ⊢Γ) , (zeroⱼ ⊢Γ)
-  soundness⇉ ⊢Γ (sucᵢ t⇇ℕ) = ℕⱼ ⊢Γ , sucⱼ (soundness⇇ t⇇ℕ)
+  soundness⇉ ⊢Γ ℕᵢ = ⊢U (zeroᵘⱼ ⊢Γ) , ℕⱼ ⊢Γ
+  soundness⇉ ⊢Γ zeroᵢ = ⊢ℕ ⊢Γ , zeroⱼ ⊢Γ
+  soundness⇉ ⊢Γ (sucᵢ t⇇ℕ) = ⊢ℕ ⊢Γ , sucⱼ (soundness⇇ t⇇ℕ)
   soundness⇉ ⊢Γ (natrecᵢ A⇇Type z⇇A₀ s⇇A₊ n⇇ℕ) =
-    let ⊢ℕ = ℕⱼ ⊢Γ
+    let ⊢ℕ = ⊢ℕ ⊢Γ
         ⊢A = soundness⇇Type (∙ ⊢ℕ) A⇇Type
         ⊢z = soundness⇇ z⇇A₀
         ⊢s = soundness⇇ s⇇A₊
         ⊢n = soundness⇇ n⇇ℕ
     in  substType ⊢A ⊢n , natrecⱼ ⊢z ⊢s ⊢n
   soundness⇉ ⊢Γ (Unitᵢ ok) =
-    Uⱼ (zeroᵘⱼ ⊢Γ) , Unitⱼ ⊢Γ ok
+    ⊢U (zeroᵘⱼ ⊢Γ) , Unitⱼ ⊢Γ ok
   soundness⇉ ⊢Γ (starᵢ ok) =
-    Unitⱼ ⊢Γ ok , starⱼ ⊢Γ ok
+    ⊢Unit ⊢Γ ok , starⱼ ⊢Γ ok
   soundness⇉ _ (unitrecᵢ A⇇Type t⇇Unit u⇇A₊) =
     let ⊢t = soundness⇇ t⇇Unit
         ⊢Unit = syntacticTerm ⊢t
@@ -139,7 +139,7 @@ mutual
         ⊢A = soundness⇇Type (∙ ⊢Unit) A⇇Type
         ⊢u = soundness⇇ u⇇A₊
     in  substType ⊢A ⊢t , unitrecⱼ ⊢A ⊢t ⊢u ok
-  soundness⇉ ⊢Γ Emptyᵢ = Uⱼ (zeroᵘⱼ ⊢Γ) , (Emptyⱼ ⊢Γ)
+  soundness⇉ ⊢Γ Emptyᵢ = ⊢U (zeroᵘⱼ ⊢Γ) , Emptyⱼ ⊢Γ
   soundness⇉ ⊢Γ (emptyrecᵢ A⇇Type t⇇Empty) =
     let ⊢A = soundness⇇Type ⊢Γ A⇇Type
     in  ⊢A , (emptyrecⱼ ⊢A (soundness⇇ t⇇Empty))
@@ -148,7 +148,7 @@ mutual
         ⊢A     = conv ⊢A (subset* ⇒*U)
         ⊢l     = inversion-U-Level (syntacticTerm ⊢A)
     in
-    Uⱼ ⊢l , Idⱼ ⊢A (soundness⇇ ⊢t) (soundness⇇ ⊢u)
+    ⊢U ⊢l , Idⱼ ⊢A (soundness⇇ ⊢t) (soundness⇇ ⊢u)
   soundness⇉ ⊢Γ (Jᵢ ⊢A ⊢t ⊢B ⊢u ⊢v ⊢w) =
     case soundness⇇Type ⊢Γ ⊢A of λ {
       ⊢A →

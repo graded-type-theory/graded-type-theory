@@ -20,6 +20,7 @@ open import Definition.Typed R
 import Definition.Typed.Properties.Admissible.Erased.Primitive R as ET
 open import Definition.Typed.Properties.Admissible.Lift R
 open import Definition.Typed.Properties.Admissible.Sigma R
+open import Definition.Typed.Properties.Admissible.Unit R
 open import Definition.Typed.Properties.Well-formed R
 open import Definition.Typed.Inversion R
 open import Definition.Typed.Substitution.Primitive R
@@ -51,7 +52,7 @@ opaque
     let ⊢A = wf-⊢∷ ⊢t
         ⊢Γ = wf ⊢A
     in
-    Σ-β₁-≡ (Liftⱼ (zeroᵘⱼ (∙ ⊢A)) (Unitⱼ (∙ ⊢A) Unit-ok)) ⊢t
+    Σ-β₁-≡ (Liftⱼ (zeroᵘⱼ (∙ ⊢A)) (⊢Unit (∙ ⊢A) Unit-ok)) ⊢t
       (liftⱼ′ (zeroᵘⱼ ⊢Γ) (starⱼ ⊢Γ Unit-ok)) Σ-ok
 
 opaque

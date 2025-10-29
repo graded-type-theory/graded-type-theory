@@ -537,10 +537,10 @@ mutual
       Dec (∃ λ B → Γ ⊢ natrec p q r A t u v ⇉ B)
     dec⇉-natrec ⊢Γ A t u v =
       case
-        (dec⇇Type-with-cont (⊢Γ ∙[ ℕⱼ ]) A λ ⊢A →
+        (dec⇇Type-with-cont (⊢Γ ∙[ ⊢ℕ ]) A λ ⊢A →
          dec⇇ t (substType ⊢A (zeroⱼ ⊢Γ)) ×-dec
          dec⇇ u (subst↑²Type ⊢A (sucⱼ (var₁ ⊢A))) ×-dec
-         dec⇇ v (ℕⱼ ⊢Γ))
+         dec⇇ v (⊢ℕ ⊢Γ))
         of λ where
         (yes (A , t , u , v)) → yes (_ , natrecᵢ A t u v)
         (no not)              →
@@ -576,7 +576,7 @@ mutual
       ⊢ Γ → Checkable-type A → Checkable t →
       Dec (∃ λ B → Γ ⊢ emptyrec p A t ⇉ B)
     dec⇉-emptyrec ⊢Γ A t =
-      case dec⇇Type ⊢Γ A ×-dec dec⇇ t (Emptyⱼ ⊢Γ) of λ where
+      case dec⇇Type ⊢Γ A ×-dec dec⇇ t (⊢Empty ⊢Γ) of λ where
         (yes (A , t)) → yes (_ , emptyrecᵢ A t)
         (no not)      → no λ { (_ , emptyrecᵢ A t) → not (A , t) }
 
@@ -586,7 +586,7 @@ mutual
     dec⇉-unitrec ⊢Γ A t u =
       case
         (Unit-allowed? 𝕨 ×-dec′ λ ok →
-         let ⊢Unit = Unitⱼ ⊢Γ ok in
+         let ⊢Unit = ⊢Unit ⊢Γ ok in
          dec⇇Type-with-cont (∙ ⊢Unit) A λ ⊢A →
          dec⇇ t ⊢Unit ×-dec
          dec⇇ u (substType ⊢A (starⱼ ⊢Γ ok)))
@@ -913,7 +913,7 @@ mutual
   dec⇉ ⊢Γ (prodrecᵢ A t u) = dec⇉-prodrec ⊢Γ A t u
   dec⇉ ⊢Γ ℕᵢ = yes (U zeroᵘ , ℕᵢ)
   dec⇉ ⊢Γ zeroᵢ = yes (ℕ , zeroᵢ)
-  dec⇉ ⊢Γ (sucᵢ t) = case dec⇇ t (ℕⱼ ⊢Γ) of λ where
+  dec⇉ ⊢Γ (sucᵢ t) = case dec⇇ t (⊢ℕ ⊢Γ) of λ where
     (yes t⇇ℕ) → yes (_ , sucᵢ t⇇ℕ)
     (no ¬t⇇ℕ) → no λ where
       (_ , sucᵢ x) → ¬t⇇ℕ x
@@ -949,7 +949,7 @@ mutual
     case
       ([]-cong-allowed? s ×-dec
        dec⇇-with-cont l (Levelⱼ′ ⊢Γ) λ ⊢l →
-       dec⇇-with-cont A (Uⱼ ⊢l) λ ⊢A →
+       dec⇇-with-cont A (⊢U ⊢l) λ ⊢A →
        dec⇇-with-cont t (univ ⊢A) λ ⊢t →
        dec⇇-with-cont u (univ ⊢A) λ ⊢u →
        dec⇇ v (Idⱼ′ ⊢t ⊢u))

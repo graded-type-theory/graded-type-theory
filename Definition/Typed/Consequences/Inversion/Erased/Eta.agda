@@ -20,6 +20,7 @@ open import Definition.Typed R
 open import Definition.Typed.Consequences.Inequality R
 open import Definition.Typed.Consequences.Injectivity R
 open import Definition.Typed.Inversion R
+open import Definition.Typed.Properties R
 open import Definition.Typed.Well-formed R
 
 open import Definition.Untyped M as U
@@ -57,17 +58,17 @@ opaque
     A′ = ℕ
 
     ⊢Γ′∙ℕ : ⊢ Γ′ ∙ ℕ
-    ⊢Γ′∙ℕ = ∙ ℕⱼ ε
+    ⊢Γ′∙ℕ = ∙ ⊢ℕ ε
 
     ⊢t′₁ : Γ′ ⊢ t′ ∷ Σˢ 𝟘 , 𝟘 ▷ ℕ ▹ ℕ
-    ⊢t′₁ = prodⱼ (ℕⱼ ⊢Γ′∙ℕ) (zeroⱼ ε) (zeroⱼ ε) Σˢ-ok
+    ⊢t′₁ = prodⱼ (⊢ℕ ⊢Γ′∙ℕ) (zeroⱼ ε) (zeroⱼ ε) Σˢ-ok
 
     ⊢erased-t′ : Γ′ ⊢ erased t′ ∷ A′
-    ⊢erased-t′ = fstⱼ (ℕⱼ ⊢Γ′∙ℕ) ⊢t′₁
+    ⊢erased-t′ = fstⱼ (⊢ℕ ⊢Γ′∙ℕ) ⊢t′₁
 
     erased-t′≡zero : Γ′ ⊢ erased t′ ≡ zero ∷ A′
     erased-t′≡zero =
-      Σ-β₁ (ℕⱼ ⊢Γ′∙ℕ) (zeroⱼ ε) (zeroⱼ ε) PE.refl Σˢ-ok
+      Σ-β₁ (⊢ℕ ⊢Γ′∙ℕ) (zeroⱼ ε) (zeroⱼ ε) PE.refl Σˢ-ok
 
     ⊢t′₂ : ∃₂ λ q l → Γ′ ⊢ t′ ∷ Σˢ 𝟘 , q ▷ A′ ▹ Lift l Unitˢ
     ⊢t′₂ = inversion-erased ⊢erased-t′

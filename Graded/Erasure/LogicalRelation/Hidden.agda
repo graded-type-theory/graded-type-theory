@@ -121,7 +121,7 @@ opaque
                                                            , (λ ((_ , ⊩U) , t®v) → _ , ⊩U , irrelevanceTerm (Uᵣ (U-elim ⊩U)) ⊩U t®v)
                                                            ⟩
     (∃ λ l → Δ ⊩⟨ l ⟩ U u) × t ® v ∷U/Level               ⇔⟨ (escape-⊩ ∘→ proj₂ , reducible-⊩) ×-cong-⇔ id⇔ ⟩
-    (Δ ⊢ U u) × t ® v ∷U/Level                            ⇔⟨ (inversion-U-Level , Uⱼ) ×-cong-⇔ id⇔ ⟩
+    (Δ ⊢ U u) × t ® v ∷U/Level                            ⇔⟨ (inversion-U-Level , ⊢U) ×-cong-⇔ id⇔ ⟩
     Δ ⊢ u ∷ Level × t ® v ∷U/Level                        □⇔
 
 opaque
@@ -176,7 +176,7 @@ opaque
                case t®v of λ {
                  (starᵣ t⇛ _) →
                inversion-Unit (wf-⊢∷ (wf-⇛ t⇛ .proj₁)) }
-             l , ⊩Unit = reducible-⊩ (Unitⱼ ⊢Δ ok)
+             l , ⊩Unit = reducible-⊩ (⊢Unit ⊢Δ ok)
           in
         l , ⊩Unit⇔ .proj₂ (⊢Δ , ok) , t®v)
 

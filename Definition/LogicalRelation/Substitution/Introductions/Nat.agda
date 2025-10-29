@@ -66,7 +66,7 @@ opaque
         case ℕ-view ⊩ℕ of λ {
           (ℕᵣ ℕ⇒*ℕ) →
         wfEq (subset* ℕ⇒*ℕ) })
-    , (λ ⊢Γ → ℕᵣ (id (ℕⱼ ⊢Γ)))
+    , (λ ⊢Γ → ℕᵣ (id (⊢ℕ ⊢Γ)))
 
 opaque
 
@@ -96,7 +96,7 @@ opaque
            (ℕᵣ _) →
          ℕ≡A })
     , (λ ℕ≡A →
-         case id (ℕⱼ (wfEq (subset* ℕ≡A))) of λ
+         case id (⊢ℕ (wfEq (subset* ℕ≡A))) of λ
            ℕ⇒*ℕ →
          let ⊩ℕ = ℕᵣ ℕ⇒*ℕ in
            ⊩ℕ
@@ -117,7 +117,7 @@ opaque
          case id (ℕⱼ ⊢Γ) of λ
            ℕ⇒*ℕ →
          ⊩≡∷U⇔ .proj₂
-           ( ⊩zeroᵘ ⊢Γ , <ᵘ-ωᵘ , ⊩ℕ≡⇔ .proj₂ (id (ℕⱼ ⊢Γ))
+           ( ⊩zeroᵘ ⊢Γ , <ᵘ-ωᵘ , ⊩ℕ≡⇔ .proj₂ (id (⊢ℕ ⊢Γ))
            , (_ , _ , ℕ⇒*ℕ , ℕ⇒*ℕ , ℕₙ , ℕₙ , ≅ₜ-ℕrefl ⊢Γ)
            ))
 
@@ -133,7 +133,7 @@ opaque
            (ℕᵣ _) →
          t≡u })
     , (λ t≡u →
-         ℕᵣ (id (ℕⱼ (wfEqTerm (subset*Term (_⊩ℕ_≡_∷ℕ.d t≡u))))) , t≡u)
+         ℕᵣ (id (⊢ℕ (wfEqTerm (subset*Term (_⊩ℕ_≡_∷ℕ.d t≡u))))) , t≡u)
 
 opaque
 
@@ -199,7 +199,7 @@ opaque
       ℕₜ₌ _ _ (id (sucⱼ (redFirst*Term t⇒*t′)))
         (id (sucⱼ (redFirst*Term u⇒*u′)))
         (≅-suc-cong $
-         ≅ₜ-red (id (ℕⱼ (wfEqTerm (≅ₜ-eq t′≅u′))) , ℕₙ)
+         ≅ₜ-red (id (⊢ℕ (wfEqTerm (≅ₜ-eq t′≅u′))) , ℕₙ)
            (t⇒*t′ , naturalWhnf t′-ok) (u⇒*u′ , naturalWhnf u′-ok)
            t′≅u′)
         (sucᵣ t≡u)
@@ -247,7 +247,7 @@ opaque
       ( ⊩Γ
       , λ {_} {Δ = Δ} {σ₁ = σ₁} {σ₂ = σ₂} →
           Δ ⊩ˢ σ₁ ≡ σ₂ ∷ Γ  →⟨ proj₁ ∘→ escape-⊩ˢ≡∷ ⟩
-          ⊢ Δ               →⟨ ℕⱼ ⟩
+          ⊢ Δ               →⟨ ⊢ℕ ⟩
           (Δ ⊢ ℕ)           →⟨ id ⟩
           Δ ⊢ ℕ ⇒* ℕ        ⇔˘⟨ ⊩ℕ≡⇔ ⟩→
           Δ ⊩⟨ l ⟩ ℕ ≡ ℕ    □

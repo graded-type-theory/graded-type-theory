@@ -91,11 +91,11 @@ opaque
     u′ = zero
 
     ⊢Γ′ : ⊢ Γ′
-    ⊢Γ′ = ∙ Unitⱼ ε ok
+    ⊢Γ′ = ∙ ⊢Unit ε ok
 
     t′⇒u′ : Γ′ ⊢ t′ ⇒ u′ ∷ A′
     t′⇒u′ =
-      unitrec-β-η (ℕⱼ (∙ Unitⱼ ⊢Γ′ ok)) (var₀ (Unitⱼ ε ok))
+      unitrec-β-η (⊢ℕ (∙ ⊢Unit ⊢Γ′ ok)) (var₀ (⊢Unit ε ok))
         (zeroⱼ ⊢Γ′) ok η
 
     ▸t′ : γ′ ▸[ 𝟙ᵐ ] t′
@@ -532,7 +532,7 @@ Well-resourced-normal-form-without-η-long-normal-form =
 η-long-nf-for-0⇔sink⊎𝟙≤𝟘 {s} ok η =
     ⊢0
   , var
-  , starₙ (∙ ⊢Unit) ok
+  , starₙ (∙ ε⊢Unit) ok
   , sym′ (Unit-η-≡ η ⊢0)
   , (λ ▸* →
        let open Tools.Reasoning.PartialOrder ≤-poset in
@@ -565,8 +565,8 @@ Well-resourced-normal-form-without-η-long-normal-form =
            ε ∙ 𝟙  ≤⟨ ε ∙ 𝟙≤𝟘 ⟩
            ε ∙ 𝟘  ∎)
   where
-  ⊢Unit = Unitⱼ ε ok
-  ⊢0    = var₀ ⊢Unit
+  ε⊢Unit = ⊢Unit ε ok
+  ⊢0     = var₀ ε⊢Unit
 
 -- If "Π 𝟙 , q" is allowed, and Unit s is allowed and comes with
 -- η-equality, then the identity function lam 𝟙 (var x0) has type

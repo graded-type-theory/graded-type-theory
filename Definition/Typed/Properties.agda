@@ -30,6 +30,7 @@ open import Definition.Typed.Properties.Admissible.Nat R public
 open import Definition.Typed.Properties.Admissible.Pi-Sigma R public
 open import Definition.Typed.Properties.Admissible.Pi R public
 open import Definition.Typed.Properties.Admissible.Sigma R public
+open import Definition.Typed.Properties.Admissible.U R public
 open import Definition.Typed.Properties.Admissible.Unit R public
 open import Definition.Typed.Properties.Admissible.Var R public
 open import Definition.Typed.Properties.Reduction R public

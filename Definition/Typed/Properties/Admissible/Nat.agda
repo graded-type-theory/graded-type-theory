@@ -37,6 +37,13 @@ private
 
 opaque
 
+  -- A variant of ℕⱼ.
+
+  ⊢ℕ : ⊢ Γ → Γ ⊢ ℕ
+  ⊢ℕ ⊢Γ = univ (ℕⱼ ⊢Γ)
+
+opaque
+
   -- Congruence of the type of the successor case in natrec.
   sucCong : ∀ {F G} → Γ ∙ ℕ ⊢ F ≡ G
           → Γ ∙ ℕ ∙ F ⊢ F [ suc (var x1) ]↑² ≡ G [ suc (var x1) ]↑²
@@ -217,7 +224,7 @@ opaque
     Γ ⊢ u₁ ⇒ u₂ ∷ ℕ →
     Γ ⊢ strict-const A t u₁ ⇒ strict-const A t u₂ ∷ A
   strict-const-subst ⊢t u₁⇒u₂ =
-    let ⊢A = wk₁ (ℕⱼ (wfTerm ⊢t)) (syntacticTerm ⊢t) in
+    let ⊢A = wk₁ (⊢ℕ (wfTerm ⊢t)) (syntacticTerm ⊢t) in
     PE.subst (_⊢_⇒_∷_ _ _ _) (wk1-sgSubst _ _) $
     natrec-subst
       (PE.subst (_⊢_∷_ _ _) (PE.sym $ wk1-sgSubst _ _) ⊢t)
@@ -248,7 +255,7 @@ opaque
     Γ ⊢ t ∷ A →
     Γ ⊢ strict-const A t zero ⇒ t ∷ A
   strict-const-zero-⇒ ⊢t =
-    let ⊢A = wk₁ (ℕⱼ (wfTerm ⊢t)) (syntacticTerm ⊢t) in
+    let ⊢A = wk₁ (⊢ℕ (wfTerm ⊢t)) (syntacticTerm ⊢t) in
     PE.subst (_⊢_⇒_∷_ _ _ _) (wk1-sgSubst _ _) $
     natrec-zero
       (PE.subst (_⊢_∷_ _ _) (PE.sym $ wk1-sgSubst _ _) ⊢t)

@@ -68,7 +68,7 @@ opaque
     ⊢ Γ →
     Γ ⊢ Bool ∷ U zeroᵘ
   ⊢Bool∷U ⊢Γ =
-    ΠΣⱼ (zeroᵘⱼ ⊢Γ) (ℕⱼ ⊢Γ) (⊢OK∷U (var₀ (ℕⱼ ⊢Γ))) Σ-ok
+    ΠΣⱼ (zeroᵘⱼ ⊢Γ) (ℕⱼ ⊢Γ) (⊢OK∷U (var₀ (⊢ℕ ⊢Γ))) Σ-ok
 
 opaque
 
@@ -88,7 +88,7 @@ opaque
     ⊢ Γ →
     Γ ⊢ true ∷ Bool
   ⊢true ⊢Γ =
-    prodⱼ (⊢OK (var₀ (ℕⱼ ⊢Γ))) (sucⱼ (zeroⱼ ⊢Γ))
+    prodⱼ (⊢OK (var₀ (⊢ℕ ⊢Γ))) (sucⱼ (zeroⱼ ⊢Γ))
       (conv (starⱼ ⊢Γ Unitʷ-ok)
          (Unitʷ                      ≡˘⟨ OK-1≡ ⊢Γ ⟩⊢∎≡
           OK (suc zero)              ≡˘⟨ OK-[] ⟩
@@ -104,7 +104,7 @@ opaque
     ⊢ Γ →
     Γ ⊢ false ∷ Bool
   ⊢false ⊢Γ =
-    prodⱼ (⊢OK (var₀ (ℕⱼ ⊢Γ))) (zeroⱼ ⊢Γ)
+    prodⱼ (⊢OK (var₀ (⊢ℕ ⊢Γ))) (zeroⱼ ⊢Γ)
       (conv (starⱼ ⊢Γ Unitʷ-ok)
          (Unitʷ                  ≡˘⟨ OK-0≡ ⊢Γ ⟩⊢∎≡
           OK zero                ≡˘⟨ OK-[] ⟩
@@ -128,7 +128,7 @@ opaque
     [][]↑-cong A₁≡A₂ $
     PE.subst (_⊢_≡_∷_ _ _ _)
       (PE.cong (Σ⟨_⟩_,_▷_▹_ _ _ _ _) $ PE.sym OK-[]) $
-    prod-cong (⊢OK (var₀ (ℕⱼ (wfEqTerm t₁≡t₂)))) t₁≡t₂
+    prod-cong (⊢OK (var₀ (⊢ℕ (wfEqTerm t₁≡t₂)))) t₁≡t₂
       (PE.subst (_⊢_≡_∷_ _ _ _) (PE.sym OK-[]) u₁≡u₂)
       Σ-ok
 
@@ -178,8 +178,8 @@ private
 
     opaque
 
-      ⊢Unit : Γ ⊢ Unitʷ
-      ⊢Unit = Unitⱼ ⊢Γ Unitʷ-ok
+      ⊢Unitʷ : Γ ⊢ Unitʷ
+      ⊢Unitʷ = ⊢Unit ⊢Γ Unitʷ-ok
 
     opaque
 
@@ -234,7 +234,7 @@ private
           Target (1+ k) A₁ zero (var x0) ≡
           Target (1+ k) A₂ zero (var x0)
       Target-lemma-0 PE.refl ⊢Δ =
-        let ⊢Unit = Unitⱼ ⊢Δ Unitʷ-ok in
+        let ⊢Unit = ⊢Unit ⊢Δ Unitʷ-ok in
         Target-cong′ A₁≡A₂ (zeroⱼ (∙ ⊢Unit))
           (conv (var₀ ⊢Unit) (sym (OK-0≡ (∙ ⊢Unit))))
 
@@ -247,7 +247,7 @@ private
           Target (1+ k) A₁ (suc zero) (var x0) ≡
           Target (1+ k) A₂ (suc zero) (var x0)
       Target-lemma-1 PE.refl ⊢Δ =
-        let ⊢Unit = Unitⱼ ⊢Δ Unitʷ-ok in
+        let ⊢Unit = ⊢Unit ⊢Δ Unitʷ-ok in
         Target-cong′ A₁≡A₂ (sucⱼ (zeroⱼ (∙ ⊢Unit)))
           (conv (var₀ ⊢Unit) (sym (OK-1≡ (∙ ⊢Unit))))
 
@@ -381,7 +381,7 @@ private
            Target (2+ k) A₁ (suc (var x1)) (var x0))
             [ suc (var x0) ]↑
       lam-lemma-2+ PE.refl ⊢Δ =
-        let ⊢OK = ⊢OK (sucⱼ (sucⱼ (var₀ (ℕⱼ ⊢Δ)))) in
+        let ⊢OK = ⊢OK (sucⱼ (sucⱼ (var₀ (⊢ℕ ⊢Δ)))) in
         flip lam-cong Π-ok $
         PE.subst₄ _⊢_≡_∷_
           (PE.cong (_∙_ _) $ PE.sym OK-[]) PE.refl PE.refl
@@ -429,8 +429,8 @@ private
            Target (2+ k) A₁ (var x1) (var x0))
             [ suc (var x0) ]↑
       natcase-lemma ≡Γ ⊢Δ =
-        let ⊢ℕ   = ℕⱼ ⊢Δ
-            ⊢Δ∙ℕ = ∙ ⊢ℕ
+        let ⊢ℕ′  = ⊢ℕ ⊢Δ
+            ⊢Δ∙ℕ = ∙ ⊢ℕ′
         in
         PE.subst (_⊢_≡_∷_ _ _ _)
           (PE.cong₂ (Π_,_▷_▹_ _ _)
@@ -438,10 +438,10 @@ private
              (PE.trans (Target-[₀⇑] 1) $
               PE.sym $ Target-[↑⇑] 1)) $
         natcase-cong
-          (Π-lemma ≡Γ (sucⱼ (var₀ (ℕⱼ ⊢Δ∙ℕ))))
+          (Π-lemma ≡Γ (sucⱼ (var₀ (⊢ℕ ⊢Δ∙ℕ))))
           (lam-lemma-1 ≡Γ ⊢Δ∙ℕ)
           (lam-lemma-2+ ≡Γ ⊢Δ∙ℕ)
-          (refl (var₀ ⊢ℕ))
+          (refl (var₀ ⊢ℕ′))
 
     opaque
       unfolding boolrec
@@ -488,7 +488,7 @@ private
           (var x0) ∷
           A₁ [ prodʷ ω (var x1) (var x0) ]↑²
       natcase-natcase-lemma =
-        let ⊢OK = ⊢OK (var₀ (ℕⱼ ⊢Γ)) in
+        let ⊢OK = ⊢OK (var₀ (⊢ℕ ⊢Γ)) in
         PE.subst (_⊢_≡_∷_ _ _ _)
           (PE.trans (PE.cong _[ _ ]₀ $ Target-[₀⇑] 1) $
            PE.trans (Target-[₀⇑] 0) Target≡) $
@@ -497,7 +497,7 @@ private
              (PE.cong₂ (Π_,_▷_▹_ _ _)
                 (PE.trans OK-[] $ PE.sym wk-OK) PE.refl) $
            natcase-cong
-             (Π-lemma PE.refl (var₀ (ℕⱼ (∙ ⊢OK))))
+             (Π-lemma PE.refl (var₀ (⊢ℕ (∙ ⊢OK))))
              (lam-lemma-0 PE.refl (∙ ⊢OK))
              (natcase-lemma PE.refl (∙ ⊢OK))
              (refl (var₁ ⊢OK)))
@@ -677,7 +677,7 @@ opaque
                                                                              app-subst
                                                                                (conv
                                                                                   (natcase-suc-⇒
-                                                                                     (syntacticEq (Π-lemma PE.refl (var₀ (ℕⱼ ⊢Γ))) .proj₁)
+                                                                                     (syntacticEq (Π-lemma PE.refl (var₀ (⊢ℕ ⊢Γ))) .proj₁)
                                                                                      (syntacticEqTerm (lam-lemma-0 PE.refl ⊢Γ) .proj₂ .proj₁)
                                                                                      (syntacticEqTerm (natcase-lemma PE.refl ⊢Γ) .proj₂ .proj₁)
                                                                                      (zeroⱼ ⊢Γ))
@@ -721,7 +721,7 @@ opaque
                                                                              app-subst
                                                                                (conv
                                                                                   (natcase-zero-⇒
-                                                                                     (syntacticEq (Π-lemma PE.refl (sucⱼ (var₀ (ℕⱼ ⊢Γ)))) .proj₁)
+                                                                                     (syntacticEq (Π-lemma PE.refl (sucⱼ (var₀ (⊢ℕ ⊢Γ)))) .proj₁)
                                                                                      (syntacticEqTerm (lam-lemma-1 PE.refl ⊢Γ) .proj₂ .proj₁)
                                                                                      (syntacticEqTerm (lam-lemma-2+ PE.refl ⊢Γ) .proj₂ .proj₁))
                                                                                   (Π-[]₀-lemma (sucⱼ (zeroⱼ ⊢Γ)) (OK-1≡ ⊢Γ)))
@@ -734,7 +734,7 @@ opaque
                                                                                (PE.trans (PE.cong _[ _ ]₀ $ Target-[₀⇑] 0) $
                                                                                 PE.trans (Target-[₀⇑] 0) Target≡) $
                                                                              β-red-⇒
-                                                                               (syntacticEqTerm (unitrec-lemma-1 PE.refl (refl ⊢Unit))
+                                                                               (syntacticEqTerm (unitrec-lemma-1 PE.refl (refl ⊢Unitʷ))
                                                                                   .proj₂ .proj₁)
                                                                                ⊢star Π-ok ⟩
     unitrec boolrecᵍ-Π p (Target 2 A (suc zero) (var x0)) (var x0)
@@ -841,7 +841,7 @@ opaque
                                                                              app-subst
                                                                                (conv
                                                                                   (natcase-zero-⇒
-                                                                                     (syntacticEq (Π-lemma PE.refl (var₀ (ℕⱼ ⊢Γ))) .proj₁)
+                                                                                     (syntacticEq (Π-lemma PE.refl (var₀ (⊢ℕ ⊢Γ))) .proj₁)
                                                                                      (syntacticEqTerm (lam-lemma-0 PE.refl ⊢Γ) .proj₂ .proj₁)
                                                                                      (syntacticEqTerm (natcase-lemma PE.refl ⊢Γ) .proj₂ .proj₁))
                                                                                   (Π-[]₀-lemma (zeroⱼ ⊢Γ) (OK-0≡ ⊢Γ)))
@@ -854,7 +854,8 @@ opaque
                                                                                (PE.trans (PE.cong _[ _ ]₀ $ Target-[₀⇑] 0) $
                                                                                 PE.trans (Target-[₀⇑] 0) Target≡) $
                                                                              β-red-⇒
-                                                                               (syntacticEqTerm (unitrec-lemma-0 PE.refl (refl ⊢Unit)) .proj₂ .proj₁)
+                                                                               (syntacticEqTerm (unitrec-lemma-0 PE.refl (refl ⊢Unitʷ))
+                                                                                  .proj₂ .proj₁)
                                                                                ⊢star Π-ok ⟩
     unitrec boolrecᵍ-Π p (Target 2 A zero (var x0)) (var x0)
       (wk1 u) [ starʷ ]₀                                            ≡⟨ PE.cong₃ (unitrec _ _)

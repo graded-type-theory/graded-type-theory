@@ -15,6 +15,7 @@ open Type-restrictions R
 
 open import Definition.Typed R
 import Definition.Typed.Inversion.Primitive R as I
+open import Definition.Typed.Properties.Admissible.U R
 open import Definition.Typed.Properties.Well-formed R
 open import Definition.Typed.Substitution.Primitive R
 open import Definition.Typed.Syntactic R
@@ -207,7 +208,8 @@ opaque
     Γ ⊢ Id A t u ∷ B →
     ∃ λ l → Γ ⊢ A ∷ U l × Γ ⊢ t ∷ A × Γ ⊢ u ∷ A × Γ ⊢ B ≡ U l
   inversion-Id-U = λ where
-    (Idⱼ ⊢A ⊢t ⊢u) → _ , ⊢A , ⊢t , ⊢u , refl (Uⱼ (inversion-U-Level (wf-⊢∷ ⊢A)))
+    (Idⱼ ⊢A ⊢t ⊢u) →
+      _ , ⊢A , ⊢t , ⊢u , refl (⊢U (inversion-U-Level (wf-⊢∷ ⊢A)))
     (conv ⊢Id C≡B) →
       case inversion-Id-U ⊢Id of λ {
         (_ , ⊢A , ⊢t , ⊢u , C≡U) →
