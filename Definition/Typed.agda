@@ -52,7 +52,9 @@ mutual
 
   -- Well-formed type
   data _⊢_ (Γ : Con Term n) : Term n → Set ℓ where
-    Levelⱼ : ⊢ Γ → Γ ⊢ Level
+    Levelⱼ : ¬ Level-is-small
+           → ⊢ Γ
+           → Γ ⊢ Level
     Uⱼ     : Γ ⊢ l ∷ Level
            → Γ ⊢ U l
     univ   : Γ ⊢ A ∷ U l

@@ -46,7 +46,7 @@ soundness⇉-var (∙ ⊢B) (there x) =
 mutual
 
   soundness⇇Type : ⊢ Γ → Γ ⊢ A ⇇Type → Γ ⊢ A
-  soundness⇇Type ⊢Γ Levelᶜ = Levelⱼ ⊢Γ
+  soundness⇇Type ⊢Γ Levelᶜ = Levelⱼ′ ⊢Γ
   soundness⇇Type ⊢Γ (Uᶜ x) = Uⱼ (soundness⇇ x)
   soundness⇇Type ⊢Γ (Liftᶜ x y) = Liftⱼ (soundness⇇ x) (soundness⇇Type ⊢Γ y)
   soundness⇇Type ⊢Γ ℕᶜ = ℕⱼ ⊢Γ
@@ -61,9 +61,11 @@ mutual
 
   soundness⇉ : ⊢ Γ → Γ ⊢ t ⇉ A → (Γ ⊢ A) × (Γ ⊢ t ∷ A)
   soundness⇉ ⊢Γ (Levelᵢ ok) = Uⱼ (zeroᵘⱼ ⊢Γ) , Levelⱼ ⊢Γ ok
-  soundness⇉ ⊢Γ zeroᵘᵢ = Levelⱼ ⊢Γ , zeroᵘⱼ ⊢Γ
-  soundness⇉ ⊢Γ (sucᵘᵢ t⇇Level) = Levelⱼ ⊢Γ , sucᵘⱼ (soundness⇇ t⇇Level)
-  soundness⇉ ⊢Γ (supᵘᵢ t⇇Level u⇇Level) = Levelⱼ ⊢Γ , supᵘⱼ (soundness⇇ t⇇Level) (soundness⇇ u⇇Level)
+  soundness⇉ ⊢Γ zeroᵘᵢ = Levelⱼ′ ⊢Γ , zeroᵘⱼ ⊢Γ
+  soundness⇉ ⊢Γ (sucᵘᵢ t⇇Level) =
+    Levelⱼ′ ⊢Γ , sucᵘⱼ (soundness⇇ t⇇Level)
+  soundness⇉ ⊢Γ (supᵘᵢ t⇇Level u⇇Level) =
+    Levelⱼ′ ⊢Γ , supᵘⱼ (soundness⇇ t⇇Level) (soundness⇇ u⇇Level)
   soundness⇉ ⊢Γ (Uᵢ x) =
     let ⊢l = soundness⇇ x
     in Uⱼ (sucᵘⱼ ⊢l) , Uⱼ ⊢l

@@ -56,7 +56,7 @@ private opaque
       .≅ₜ-red       → λ (A⇒* , _) (t⇒* , _) (u⇒* , _) →
                         reductionₜ A⇒* t⇒* u⇒*
       .≅ₜ-Levelrefl → λ ⊢Γ ok → refl (Levelⱼ ⊢Γ ok)
-      .≅-Levelrefl  → refl ∘ᶠ Levelⱼ
+      .≅-Levelrefl  → refl ∘ᶠ Levelⱼ′
       .≅ₜ-zeroᵘrefl → refl ∘ᶠ zeroᵘⱼ
       .≅ₜ-sucᵘ-cong → sucᵘ-cong
       .≅ₜ-supᵘ-cong → supᵘ-cong

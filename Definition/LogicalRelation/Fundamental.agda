@@ -49,7 +49,7 @@ opaque mutual
 
   -- Fundamental theorem for types.
   fundamental-⊩ᵛ : Γ ⊢ A → ∃ λ l → Γ ⊩ᵛ⟨ l ⟩ A
-  fundamental-⊩ᵛ (Levelⱼ ⊢Γ) =
+  fundamental-⊩ᵛ (Levelⱼ _ ⊢Γ) =
     0ᵘ , Levelᵛ (valid ⊢Γ)
   fundamental-⊩ᵛ (Liftⱼ ⊢l ⊢A) =
     _ , Liftᵛ (fundamental-⊩ᵛ∷ ⊢l .proj₂) (fundamental-⊩ᵛ ⊢A .proj₂)

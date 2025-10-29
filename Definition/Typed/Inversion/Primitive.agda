@@ -16,6 +16,7 @@ module Definition.Typed.Inversion.Primitive
 open Type-restrictions R
 
 open import Definition.Typed R
+open import Definition.Typed.Properties.Admissible.Level.Primitive R
 open import Definition.Typed.Properties.Well-formed R
 open import Definition.Typed.Size R
 
@@ -63,7 +64,7 @@ opaque
   -- Inversion for zeroᵘ.
 
   inversion-zeroᵘ : Γ ⊢ zeroᵘ ∷ A → Γ ⊢ A ≡ Level
-  inversion-zeroᵘ (zeroᵘⱼ ⊢Γ)      = refl (Levelⱼ ⊢Γ)
+  inversion-zeroᵘ (zeroᵘⱼ ⊢Γ)      = refl (Levelⱼ′ ⊢Γ)
   inversion-zeroᵘ (conv ⊢zeroᵘ eq) = trans (sym eq) (inversion-zeroᵘ ⊢zeroᵘ)
 
 opaque
@@ -71,7 +72,7 @@ opaque
   -- Inversion for sucᵘ.
 
   inversion-sucᵘ : Γ ⊢ sucᵘ t ∷ A → Γ ⊢ t ∷ Level × Γ ⊢ A ≡ Level
-  inversion-sucᵘ (sucᵘⱼ ⊢t)      = ⊢t , refl (Levelⱼ (wfTerm ⊢t))
+  inversion-sucᵘ (sucᵘⱼ ⊢t)      = ⊢t , refl (Levelⱼ′ (wfTerm ⊢t))
   inversion-sucᵘ (conv ⊢sucᵘ eq) =
     let a , b = inversion-sucᵘ ⊢sucᵘ in
     a , trans (sym eq) b
@@ -81,7 +82,7 @@ opaque
   -- Inversion for supᵘ.
 
   inversion-supᵘ : Γ ⊢ t supᵘ u ∷ A → Γ ⊢ t ∷ Level × Γ ⊢ u ∷ Level × Γ ⊢ A ≡ Level
-  inversion-supᵘ (supᵘⱼ ⊢t ⊢u)   = ⊢t , ⊢u , refl (Levelⱼ (wfTerm ⊢t))
+  inversion-supᵘ (supᵘⱼ ⊢t ⊢u)   = ⊢t , ⊢u , refl (Levelⱼ′ (wfTerm ⊢t))
   inversion-supᵘ (conv ⊢supᵘ eq) =
     let a , b , c = inversion-supᵘ ⊢supᵘ in
     a , b , trans (sym eq) c

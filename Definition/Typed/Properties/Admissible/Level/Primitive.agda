@@ -18,6 +18,8 @@ open import Definition.Typed.Properties.Well-formed R
 
 open import Definition.Untyped M
 
+open import Tools.Relation
+
 private variable
   Γ     : Con Term _
   A B l : Term _
@@ -26,3 +28,12 @@ supᵘ-zeroʳⱼ
   : Γ ⊢ l ∷ Level
   → Γ ⊢ l supᵘ zeroᵘ ≡ l ∷ Level
 supᵘ-zeroʳⱼ ⊢l = trans (supᵘ-comm ⊢l (zeroᵘⱼ (wfTerm ⊢l))) (supᵘ-zeroˡ ⊢l)
+
+opaque
+
+  -- A variant of _⊢_.Levelⱼ.
+
+  Levelⱼ′ : ⊢ Γ → Γ ⊢ Level
+  Levelⱼ′ ⊢Γ with Level-is-small?
+  … | yes small    = univ (Levelⱼ ⊢Γ small)
+  … | no not-small = Levelⱼ not-small ⊢Γ

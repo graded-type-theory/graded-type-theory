@@ -113,6 +113,7 @@ import Definition.Typed.Reasoning.Type
 import Definition.Typed.Reasoning.Term.Primitive
 import Definition.Typed.Properties.Admissible.Var
 import Definition.Typed.Properties.Well-formed
+import Definition.Typed.Properties.Admissible.Level.Primitive
 import Definition.Typed.Inversion.Primitive
 import Definition.Typed.Weakening
 import Definition.Typed.Stability.Primitive
@@ -126,7 +127,6 @@ import Definition.Typed.Substitution.Primitive
 import Definition.Typed.Properties.Admissible.Equality
 import Definition.Typed.Properties.Admissible.Identity.Primitive
 import Definition.Typed.Stability
-import Definition.Typed.Properties.Admissible.Level.Primitive
 import Definition.Typed.Properties.Reduction
 import Definition.Typed.Reasoning.Reduction
 import Definition.Typed.Reasoning.Term

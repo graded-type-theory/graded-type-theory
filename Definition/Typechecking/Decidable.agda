@@ -644,13 +644,13 @@ mutual
   dec⇉Type ⊢Γ (supᵘᵢ x y) = no λ where
     (univᶜ (infᶜ (supᵘᵢ _ _) ≡U)) → U≢Level (sym ≡U)
   dec⇉Type ⊢Γ (Uᵢ l) =
-    case dec⇇ l (Levelⱼ ⊢Γ) of λ where
+    case dec⇇ l (Levelⱼ′ ⊢Γ) of λ where
       (yes l) → yes (Uᶜ l)
       (no not) → no λ where
         (Uᶜ l) → not l
         (univᶜ (infᶜ (Uᵢ l) _)) → not l
   dec⇉Type ⊢Γ (Liftᵢ l A) =
-    case dec⇇ l (Levelⱼ ⊢Γ) ×-dec dec⇉Type ⊢Γ A of λ where
+    case dec⇇ l (Levelⱼ′ ⊢Γ) ×-dec dec⇉Type ⊢Γ A of λ where
       (yes (l , A)) → yes (Liftᶜ l A)
       (no not) → no λ where
         (Liftᶜ l A) → not (l , A)
@@ -823,7 +823,7 @@ mutual
 
   dec⇇Type : ⊢ Γ → Checkable-type A → Dec (Γ ⊢ A ⇇Type)
   dec⇇Type ⊢Γ (Liftᶜ l A) =
-    case dec⇇ l (Levelⱼ ⊢Γ) ×-dec dec⇇Type ⊢Γ A of λ where
+    case dec⇇ l (Levelⱼ′ ⊢Γ) ×-dec dec⇇Type ⊢Γ A of λ where
       (yes (l , A)) → yes (Liftᶜ l A)
       (no not) → no λ where
         (Liftᶜ l A) → not (l , A)
@@ -870,21 +870,22 @@ mutual
     (no ¬ok) → no λ where
       (_ , Levelᵢ ok) → ¬ok ok
   dec⇉ ⊢Γ zeroᵘᵢ = yes (Level , zeroᵘᵢ)
-  dec⇉ ⊢Γ (sucᵘᵢ t) = case dec⇇ t (Levelⱼ ⊢Γ) of λ where
+  dec⇉ ⊢Γ (sucᵘᵢ t) = case dec⇇ t (Levelⱼ′ ⊢Γ) of λ where
     (yes t⇇Level) → yes (_ , sucᵘᵢ t⇇Level)
     (no ¬t⇇Level) → no λ where
       (_ , sucᵘᵢ x) → ¬t⇇Level x
   dec⇉ ⊢Γ (supᵘᵢ t u) =
-    case dec⇇ t (Levelⱼ ⊢Γ) ×-dec dec⇇ u (Levelⱼ ⊢Γ) of λ where
+    case dec⇇ t (Levelⱼ′ ⊢Γ) ×-dec dec⇇ u (Levelⱼ′ ⊢Γ) of λ where
       (yes (t⇇Level , u⇇Level)) → yes (_ , supᵘᵢ t⇇Level u⇇Level)
       (no not) → no λ where
         (_ , supᵘᵢ x y) → not (x , y)
   dec⇉ ⊢Γ (Uᵢ l) =
-    case dec⇇ l (Levelⱼ ⊢Γ) of λ where
+    case dec⇇ l (Levelⱼ′ ⊢Γ) of λ where
       (yes l) → yes (_ , Uᵢ l)
       (no not) → no λ { (_ , Uᵢ l) → not l }
   dec⇉ ⊢Γ (Liftᵢ l A) =
-    case (dec⇇ l (Levelⱼ ⊢Γ) ×-dec dec⇉-with-cont ⊢Γ A λ ⊢A _ → ↘U? ⊢A) of λ where
+    case (dec⇇ l (Levelⱼ′ ⊢Γ) ×-dec
+          dec⇉-with-cont ⊢Γ A λ ⊢A _ → ↘U? ⊢A) of λ where
       (yes (l , (_ , A) , (_ , ↘U))) → yes (_ , Liftᵢ l A ↘U)
       (no not) → no λ { (_ , Liftᵢ l A ↘U) → not (l , (_ , A) , (_ , ↘U)) }
   dec⇉ ⊢Γ (ΠΣᵢ {b} {p} {q} A B) =
@@ -947,7 +948,7 @@ mutual
   dec⇉ ⊢Γ ([]-congᵢ {s} l A t u v) =
     case
       ([]-cong-allowed? s ×-dec
-       dec⇇-with-cont l (Levelⱼ ⊢Γ) λ ⊢l →
+       dec⇇-with-cont l (Levelⱼ′ ⊢Γ) λ ⊢l →
        dec⇇-with-cont A (Uⱼ ⊢l) λ ⊢A →
        dec⇇-with-cont t (univ ⊢A) λ ⊢t →
        dec⇇-with-cont u (univ ⊢A) λ ⊢u →

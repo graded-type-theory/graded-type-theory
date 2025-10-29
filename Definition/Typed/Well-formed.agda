@@ -17,6 +17,7 @@ open import Definition.Typed R
 open import Definition.Typed.Inversion.Primitive R
 import Definition.Typed.Properties.Admissible.Erased.Primitive R
   as Erased
+open import Definition.Typed.Properties.Admissible.Level.Primitive R
 open import Definition.Typed.Properties.Admissible.Var R
 open import Definition.Typed.Properties.Well-formed R
 open import Definition.Typed.Stability.Primitive R
@@ -63,7 +64,7 @@ opaque mutual
     (Levelⱼ ⊢Γ ok) →
       Uⱼ (zeroᵘⱼ ⊢Γ)
     (zeroᵘⱼ ⊢Γ) →
-      Levelⱼ ⊢Γ
+      Levelⱼ′ ⊢Γ
     (sucᵘⱼ ⊢l) →
       wf-⊢∷ ⊢l
     (supᵘⱼ ⊢l ⊢u) →

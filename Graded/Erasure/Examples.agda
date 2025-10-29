@@ -96,7 +96,7 @@ private
   ⊢ℕ = ∙ ℕⱼ ε
 
   ⊢U : ε ∙ Level ⊢ U (var x0)
-  ⊢U = Uⱼ (var (∙ Levelⱼ ε) here)
+  ⊢U = Uⱼ (var (∙ Levelⱼ′ ε) here)
 
   U⊢ℕ : ε ∙ Level ∙ U (var x0) ⊢ ℕ
   U⊢ℕ = ℕⱼ (∙ ⊢U)
@@ -116,8 +116,10 @@ private
   ΓU⊢id : ⊢ Γ → Γ ∙ Level ∙ U (var x0) ⊢ lam ω (var x0) ∷ Π ω , q ▷ var x0 ▹ var x1
   ΓU⊢id ε = U⊢id
   ΓU⊢id (∙ ⊢A) =
-    W.wkTerm (W.liftʷ (W.lift (W.step W.id)) (Uⱼ (var (∙ Levelⱼ (∙ ⊢A)) here)))
-             (ΓU⊢id (wf ⊢A))
+    W.wkTerm
+      (W.liftʷ (W.lift (W.step W.id))
+         (Uⱼ (var (∙ Levelⱼ′ (∙ ⊢A)) here)))
+      (ΓU⊢id (wf ⊢A))
 
   ⊢Uℕℕ : ⊢ ε ∙ Level ∙ U (var x0) ∙ ℕ ∙ ℕ
   ⊢Uℕℕ = ∙ ℕⱼ ⊢Uℕ
@@ -132,7 +134,7 @@ private
   ⊢ℕℕ = ∙ ℕⱼ ⊢ℕ
 
   ⊢ℕℕU : ⊢ ε ∙ ℕ ∙ ℕ ∙ Level ∙ U (var x0)
-  ⊢ℕℕU = ∙ Uⱼ (var (∙ Levelⱼ ⊢ℕℕ) here)
+  ⊢ℕℕU = ∙ Uⱼ (var (∙ Levelⱼ′ ⊢ℕℕ) here)
 
 ------------------------------------------------------------------------
 -- A universe-polymorphic identity function

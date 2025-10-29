@@ -15,6 +15,7 @@ module Definition.Typed.Stability.Primitive
 
 open import Definition.Typed R
 open import Definition.Typed.Inversion.Primitive R
+open import Definition.Typed.Properties.Admissible.Level.Primitive R
 open import Definition.Typed.Properties.Admissible.Var R
 open import Definition.Typed.Properties.Well-formed R
 open import Definition.Typed.Size R
@@ -175,8 +176,8 @@ private module Inhabited where
       size-⊢ ⊢A PE.≡ s₂ →
       Δ ⊢ A
     stability-⊢′ hyp Γ≡Δ = let open Variants hyp in λ where
-      (Levelⱼ _) _ →
-        Levelⱼ (wf-⊢≡ʳ Γ≡Δ)
+      (Levelⱼ _ _) _ →
+        Levelⱼ′ (wf-⊢≡ʳ Γ≡Δ)
       (Uⱼ ⊢l) PE.refl →
         Uⱼ (stability-⊢∷ Γ≡Δ ⊢l)
       (univ ⊢A) PE.refl →

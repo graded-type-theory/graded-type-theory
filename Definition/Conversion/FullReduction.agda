@@ -269,7 +269,7 @@ mutual
     Γ ⊢ A [conv↓] A′ →
     ∃ λ B → Γ ⊢nf B × Γ ⊢ A ≡ B
   fullRedConv↓ = λ where
-    (Level-refl ⊢Γ) → Level , Levelₙ ⊢Γ , refl (Levelⱼ ⊢Γ)
+    (Level-refl ⊢Γ) → Level , Levelₙ ⊢Γ , refl (Levelⱼ′ ⊢Γ)
     (U-cong l₁≡l₂) →
       let l , ⊢l , l₁≡l = fullRedTermConv↑ l₁≡l₂
       in U l , Uₙ ⊢l , U-cong l₁≡l

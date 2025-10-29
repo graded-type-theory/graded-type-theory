@@ -53,7 +53,7 @@ opaque
         case Level-view ⊩Level of λ {
           (Levelᵣ Level⇒*Level) →
         wfEq (subset* Level⇒*Level) })
-    , (λ ⊢Γ → Levelᵣ (id (Levelⱼ ⊢Γ)))
+    , (λ ⊢Γ → Levelᵣ (id (Levelⱼ′ ⊢Γ)))
 
 opaque
   unfolding _⊩⟨_⟩_≡_
@@ -67,7 +67,7 @@ opaque
            (Levelᵣ _) →
          Level≡A })
     , (λ Level≡A →
-         case id (Levelⱼ (wfEq (subset* Level≡A))) of λ
+         case id (Levelⱼ′ (wfEq (subset* Level≡A))) of λ
            Level⇒*Level →
          let ⊩Level = Levelᵣ Level⇒*Level in
            ⊩Level
@@ -86,7 +86,9 @@ opaque
            (Levelᵣ _) →
          t≡u })
     , (λ t≡u →
-          Levelᵣ (id (Levelⱼ (wfTerm (escapeLevel (wf-Level-eq t≡u .proj₁)))))
+          Levelᵣ
+            (id $
+             Levelⱼ′ (wfTerm (escapeLevel (wf-Level-eq t≡u .proj₁))))
          , t≡u)
 
 opaque
@@ -163,7 +165,7 @@ opaque
       ( ⊩Γ
       , λ {_} {Δ = Δ} {σ₁ = σ₁} {σ₂ = σ₂} →
           Δ ⊩ˢ σ₁ ≡ σ₂ ∷ Γ          →⟨ proj₁ ∘→ escape-⊩ˢ≡∷ ⟩
-          ⊢ Δ                       →⟨ Levelⱼ ⟩
+          ⊢ Δ                       →⟨ Levelⱼ′ ⟩
           (Δ ⊢ Level)               →⟨ id ⟩
           Δ ⊢ Level ⇒* Level        ⇔˘⟨ ⊩Level≡⇔ ⟩→
           Δ ⊩⟨ l ⟩ Level ≡ Level    □

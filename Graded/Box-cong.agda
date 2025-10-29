@@ -92,7 +92,7 @@ private opaque
   ⊢Id-2-1-0 {Γ} ⊢Γ = Idⱼ′ (var₁ ⊢1) (var₀ ⊢1)
     where
     ⊢1 : Γ ∙ Level ∙ U (var x0) ∙ var x0 ⊢ var x1
-    ⊢1 = univ (var₁ (univ (var₀ (Uⱼ (var₀ (Levelⱼ ⊢Γ))))))
+    ⊢1 = univ (var₁ (univ (var₀ (Uⱼ (var₀ (Levelⱼ′ ⊢Γ))))))
 
   Id-[]₀≡ :
     let open Erased s in

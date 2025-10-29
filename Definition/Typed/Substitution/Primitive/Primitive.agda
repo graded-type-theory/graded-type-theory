@@ -17,6 +17,7 @@ open Type-restrictions R
 
 open import Definition.Typed R
 open import Definition.Typed.Inversion.Primitive R
+open import Definition.Typed.Properties.Admissible.Level.Primitive R
 open import Definition.Typed.Properties.Admissible.Var R
 open import Definition.Typed.Properties.Well-formed R
 open import Definition.Typed.Reasoning.Term.Primitive R
@@ -877,8 +878,8 @@ private module Inhabited where
       size-⊢ ⊢A PE.≡ s₂ →
       Δ ⊢ A [ σ ]
     subst-⊢′ hyp ⊢σ = let open Lemmas hyp in λ where
-      (Levelⱼ _) _ →
-        Levelⱼ (wf-⊢ˢʷ∷ ⊢σ)
+      (Levelⱼ _ _) _ →
+        Levelⱼ′ (wf-⊢ˢʷ∷ ⊢σ)
       (Uⱼ ⊢l) PE.refl →
         Uⱼ (subst-⊢∷ ⊢l ⊢σ)
       (univ ⊢A) PE.refl →
@@ -908,8 +909,8 @@ private module Inhabited where
       size-⊢ ⊢A PE.≡ s₂ →
       Δ ⊢ A [ σ₁ ] ≡ A [ σ₂ ]
     subst-⊢→⊢≡′ hyp σ₁≡σ₂ = let open Lemmas hyp in λ where
-      (Levelⱼ _) _ →
-        refl (Levelⱼ (wf-⊢ˢʷ≡∷ σ₁≡σ₂ .proj₁))
+      (Levelⱼ _ _) _ →
+        refl (Levelⱼ′ (wf-⊢ˢʷ≡∷ σ₁≡σ₂ .proj₁))
       (Uⱼ ⊢l) PE.refl →
         U-cong (subst-⊢∷→⊢≡∷ ⊢l σ₁≡σ₂)
       (univ ⊢A) PE.refl →

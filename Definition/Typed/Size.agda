@@ -31,7 +31,7 @@ opaque mutual
   -- The size of a derivation.
 
   size-⊢ : Γ ⊢ A → Size
-  size-⊢ (Levelⱼ ⊢Γ)    = node (size-⊢′ ⊢Γ)
+  size-⊢ (Levelⱼ _ ⊢Γ)  = node (size-⊢′ ⊢Γ)
   size-⊢ (Uⱼ ⊢l)        = node (size-⊢∷ ⊢l)
   size-⊢ (univ ⊢A)      = node (size-⊢∷ ⊢A)
   size-⊢ (Liftⱼ ⊢l ⊢A)  = size-⊢∷ ⊢l ⊕ size-⊢ ⊢A

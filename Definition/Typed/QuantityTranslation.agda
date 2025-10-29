@@ -117,8 +117,8 @@ mutual
   -- Preservation of _⊢_.
 
   tr-⊢′ : Γ T₁.⊢ A → tr-Con Γ T₂.⊢ tr-Term A
-  tr-⊢′ (Levelⱼ Γ) =
-    Levelⱼ (tr-⊢ Γ)
+  tr-⊢′ (Levelⱼ _ Γ) =
+    Levelⱼ′ (tr-⊢ Γ)
   tr-⊢′ (Liftⱼ l A) =
     Liftⱼ (tr-⊢∷ l) (tr-⊢′ A)
   tr-⊢′ (Uⱼ l) =

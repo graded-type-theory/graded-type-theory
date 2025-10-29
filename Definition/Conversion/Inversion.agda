@@ -1439,7 +1439,8 @@ opaque
         let [↓]ˡ v v′ t↓ u↓ t≡u = inv-[conv↓]∷-Level t<>u
         in [↑]ˡ v v′ ([↑]ᵛ d t↓) ([↑]ᵛ d′ u↓) t≡u }})
     , λ ([↑]ˡ v v′ ([↑]ᵛ d t↓) ([↑]ᵛ d′ u↓) t≡u) →
-      [↑]ₜ _ _ _ (id (Levelⱼ (wfTerm (redFirst*Term (d .proj₁)))) , Levelₙ) d d′
+      [↑]ₜ _ _ _
+        (id (Levelⱼ′ (wfTerm (redFirst*Term (d .proj₁)))) , Levelₙ) d d′
         (Level-ins ([↓]ˡ v v′ t↓ u↓ t≡u))
 
 opaque

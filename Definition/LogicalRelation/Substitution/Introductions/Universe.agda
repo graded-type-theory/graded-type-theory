@@ -364,7 +364,7 @@ opaque
          case id (Levelⱼ ⊢Γ ok) of λ
            Level⇒*Level →
          ⊩≡∷U⇔ .proj₂
-           ( ⊩zeroᵘ ⊢Γ , <ᵘ-ωᵘ , ⊩Level≡⇔ .proj₂ (id (Levelⱼ ⊢Γ))
+           ( ⊩zeroᵘ ⊢Γ , <ᵘ-ωᵘ , ⊩Level≡⇔ .proj₂ (id (Levelⱼ′ ⊢Γ))
            , (_ , _ , Level⇒*Level , Level⇒*Level , Levelₙ , Levelₙ , ≅ₜ-Levelrefl ⊢Γ ok)
            ))
 

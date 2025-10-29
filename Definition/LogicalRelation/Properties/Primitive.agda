@@ -20,8 +20,7 @@ open import Definition.Untyped M
 open import Definition.Untyped.Neutral M type-variant
 open import Definition.Untyped.Properties M
 open import Definition.Typed R
-open import Definition.Typed.Properties.Reduction R
-open import Definition.Typed.Properties.Well-formed R
+open import Definition.Typed.Properties R
 open import Definition.Typed.Reasoning.Reduction R
 open import Definition.Typed.Well-formed R
 open import Definition.LogicalRelation R ⦃ eqrel ⦄
@@ -169,7 +168,7 @@ opaque mutual
   escapeLevel′ (Levelₜ k D prop) =
     let n = level prop
         ⊢Γ = wfTerm (redFirst*Term D)
-    in ≅ₜ-red (id (Levelⱼ ⊢Γ) , Levelₙ) (D , n) (D , n)
+    in ≅ₜ-red (id (Levelⱼ′ ⊢Γ) , Levelₙ) (D , n) (D , n)
       (escape-Level-prop′ ⊢Γ prop)
 
   escape-Level-prop′
@@ -200,7 +199,7 @@ opaque mutual
   escapeLevelEq (Levelₜ₌ k k′ D D′ prop) =
     let lk , lk′ = lsplit prop
         ⊢Γ = wfTerm (redFirst*Term D)
-    in ≅ₜ-red (id (Levelⱼ ⊢Γ) , Levelₙ) (D , lk) (D′ , lk′)
+    in ≅ₜ-red (id (Levelⱼ′ ⊢Γ) , Levelₙ) (D , lk) (D′ , lk′)
       (escape-[Level]-prop ⊢Γ prop)
 
   escape-[Level]-prop

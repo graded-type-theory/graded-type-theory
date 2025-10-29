@@ -240,7 +240,7 @@ mutual
 
   ⊢nf→⊢ : Γ ⊢nf A → Γ ⊢ A
   ⊢nf→⊢ = λ where
-    (Levelₙ ⊢Γ)   → Levelⱼ ⊢Γ
+    (Levelₙ ⊢Γ)   → Levelⱼ′ ⊢Γ
     (Uₙ ⊢l)       → Uⱼ (⊢nf∷→⊢∷ ⊢l)
     (Liftₙ ⊢l ⊢A) → Liftⱼ (⊢nf∷→⊢∷ ⊢l) (⊢nf→⊢ ⊢A)
     (univₙ ⊢A)    → univ (⊢nf∷→⊢∷ ⊢A)

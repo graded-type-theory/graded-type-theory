@@ -114,7 +114,7 @@ mutual
 
   -- Algorithmic equality of types in WHNF is well-formed.
   soundnessConv↓ : ∀ {A B} → Γ ⊢ A [conv↓] B → Γ ⊢ A ≡ B
-  soundnessConv↓ (Level-refl ⊢Γ) = refl (Levelⱼ ⊢Γ)
+  soundnessConv↓ (Level-refl ⊢Γ) = refl (Levelⱼ′ ⊢Γ)
   soundnessConv↓ (U-cong l₁≡l₂) = U-cong (soundnessConv↑Term l₁≡l₂)
   soundnessConv↓ (Lift-cong l₁≡l₂ F≡H) =
     Lift-cong (soundnessConv↑Term l₁≡l₂) (soundnessConv↑ F≡H)
