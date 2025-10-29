@@ -27,6 +27,7 @@ import Definition.Untyped.Erased 𝕄 as Erased
 open import Tools.Fin
 open import Tools.Function
 open import Tools.Product
+open import Tools.Relation
 
 open I public
 
@@ -214,6 +215,18 @@ opaque
       case inversion-Id-U ⊢Id of λ {
         (_ , ⊢A , ⊢t , ⊢u , C≡U) →
       _ , ⊢A , ⊢t , ⊢u , trans (sym C≡B) C≡U }
+
+opaque
+
+  -- If Level is not small, then Id Level t u does not belong to any
+  -- universe.
+
+  ¬Level-is-small→¬Id-Level∷U :
+    ¬ Level-is-small →
+    ¬ Γ ⊢ Id Level t u ∷ U l
+  ¬Level-is-small→¬Id-Level∷U not-small ⊢Id =
+    let _ , Level∷U , _ = inversion-Id-U ⊢Id in
+    ¬Level-is-small→¬Level∷U not-small Level∷U
 
 opaque
 

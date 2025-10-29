@@ -55,10 +55,10 @@ opaque
 
   -- Level is not in any universe unless Level-is-small.
 
-  ¬Level-is-small→¬Level∷U
-    : ¬ Level-is-small → ¬ ∃ λ t → ε ⊢ Level ∷ U t
-  ¬Level-is-small→¬Level∷U ¬small (t , Level∷Ut) = ¬small
-    (inversion-Level Level∷Ut .proj₂)
+  ¬Level-is-small→¬Level∷U :
+    ¬ Level-is-small → ¬ Γ ⊢ Level ∷ U t
+  ¬Level-is-small→¬Level∷U ¬small Level∷Ut =
+    ¬small (inversion-Level Level∷Ut .proj₂)
 
 opaque
 
