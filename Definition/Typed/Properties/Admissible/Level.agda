@@ -34,8 +34,12 @@ open import Tools.Reasoning.PropositionalEquality
 open LP public
 
 private variable
+  n                                     : Nat
   Γ                                     : Con Term _
   A B B₁ B₂ l l₁ l₂ l₂′ t t₁ t₂ u u₁ u₂ : Term _
+
+------------------------------------------------------------------------
+-- Lemmas related to _⊢_≤_∷Level
 
 wf-⊢≤ : Γ ⊢ t ≤ u ∷Level → Γ ⊢ t ∷ Level × Γ ⊢ u ∷ Level
 wf-⊢≤ t≤u =
@@ -80,12 +84,6 @@ wf-⊢≤ t≤u =
   u supᵘ t ≡⟨ supᵘ-comm ⊢u ⊢t ⟩⊢
   t supᵘ u ≡⟨ t≤u ⟩⊢∎
   u        ∎
-
--- A typing rule for sucᵘᵏ
-
-⊢sucᵘᵏ : ∀ {t k} → Γ ⊢ t ∷ Level → Γ ⊢ sucᵘᵏ k t ∷ Level
-⊢sucᵘᵏ {k = 0} ⊢t = ⊢t
-⊢sucᵘᵏ {k = 1+ k} ⊢t = sucᵘⱼ (⊢sucᵘᵏ ⊢t)
 
 -- A variant of supᵘ-sub.
 --
@@ -132,6 +130,20 @@ supᵘ-subᵏ {k = 1+ k} t≤u = supᵘ-sub′ (supᵘ-subᵏ t≤u)
   → Γ ⊢ sucᵘᵏ n t ≤ sucᵘᵏ m u ∷Level
 ≤-sucᵘᵏ z≤n t≤u = supᵘ-subᵏ t≤u
 ≤-sucᵘᵏ (s≤s n≤m) t≤u = ≤-sucᵘ (≤-sucᵘᵏ n≤m t≤u)
+
+------------------------------------------------------------------------
+-- A lemma related to sucᵘᵏ
+
+opaque
+
+  -- A typing rule for sucᵘᵏ.
+
+  ⊢sucᵘᵏ : Γ ⊢ t ∷ Level → Γ ⊢ sucᵘᵏ n t ∷ Level
+  ⊢sucᵘᵏ {n = 0}    ⊢t = ⊢t
+  ⊢sucᵘᵏ {n = 1+ _} ⊢t = sucᵘⱼ (⊢sucᵘᵏ ⊢t)
+
+------------------------------------------------------------------------
+-- A lemma related to _supᵘ_
 
 -- A variant of supᵘ-comm
 
