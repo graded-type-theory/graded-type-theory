@@ -56,9 +56,9 @@ private variable
   n : Nat
   l : Universe-level
   γ δ η γ₁ γ₂ δ₁ δ₂ η₁ η₂ : Conₘ _
-  A k t u nl cs P xs : Term _
+  A k h t u nl cs P xs : Term _
   m : Mode
-  p p₁ p₂ p₃ p₄ q₁ q₂ q₃ r₁ r₂ : Affine
+  p p₁ p₂ p₃ p₄ q q₁ q₂ q₃ r r₁ r₂ : Affine
 
 opaque
 
@@ -260,3 +260,212 @@ module Vec
       nrᶜ ⦃ zero-one-many-has-nr ⦄ 𝟘 ω γ₁ γ₂ 𝟘ᶜ +ᶜ nr 𝟘 ω 𝟙 p₁ 𝟘 ·ᶜ δ₁ +ᶜ (ω · (p₂ + p₃)) ·ᶜ δ₂ ∎
       where
       open ≈ᶜ-reasoning
+
+------------------------------------------------------------------------
+-- Usage rules for Lists, see also Graded.Derived.List
+
+module List
+  (pₕ pₗ : Affine)
+  where
+
+  open import Definition.Untyped.List affineModality pₕ pₗ
+  import Graded.Derived.List pₕ pₗ UR′ as ▸L
+
+  opaque
+
+    -- A usage rule for List
+
+    ▸List :
+      γ ▸[ m ᵐ· pₕ ] A →
+      ω ·ᶜ γ ▸[ m ] List l A
+    ▸List {γ} ▸A = sub-≈ᶜ (▸L.▸List ▸A nrᵢᶜ-𝟙-GLBᶜ) $ begin
+      ω ·ᶜ γ       ≈˘⟨ +ᶜ-identityˡ _ ⟩
+      𝟘ᶜ +ᶜ ω ·ᶜ γ ∎
+      where
+      open ≈ᶜ-reasoning
+
+  opaque
+
+    -- A usage rule for nil
+
+    ▸nil : 𝟘ᶜ ▸[ m ] nil l A
+    ▸nil = ▸L.▸nil
+
+  opaque
+
+    -- A usage rule for cons
+
+    ▸cons :
+      γ ▸[ m ᵐ· pₕ ] h →
+      δ ▸[ m ] t →
+      η ▸[ 𝟘ᵐ? ] A →
+      Prodrec-allowed m 𝟙 pₗ 𝟘 →
+      pₕ ·ᶜ γ +ᶜ δ ▸[ m ] cons l A h t
+    ▸cons ▸h ▸t ▸A ok = ▸L.▸cons ▸h ▸t ▸A nrᵢᶜ-𝟙-GLBᶜ ok
+
+  opaque
+
+    -- A usage rule for listrec
+
+    ▸listrec :
+      γ₁ ▸[ m ] nl →
+      γ₂ ∙ ⌜ m ⌝ · p₁ · pₕ ∙ ⌜ m ⌝ · p₂ ∙ ⌜ m ⌝ · p₃ ▸[ m ] cs →
+      δ ▸[ m ] xs →
+      η₁ ▸[ 𝟘ᵐ? ] A →
+      η₂ ∙ ⌜ 𝟘ᵐ? ⌝ · q ▸[ 𝟘ᵐ? ] P →
+      M.Greatest-lower-bound r₁ (M.nrᵢ p₃ 𝟙 (p₂ · pₗ)) →
+      M.Greatest-lower-bound r₂ (M.nrᵢ p₃ p₁ p₂) →
+      Greatest-lower-boundᶜ γ (nrᵢᶜ p₃ γ₁ γ₂) →
+      r · pₗ ≤ r₁ →
+      r ≤ r₂ →
+      Unitrec-allowed m r₂ q →
+      Prodrec-allowed m r₂ pₕ q →
+      Prodrec-allowed m r pₗ q →
+      r ·ᶜ δ +ᶜ γ ▸[ m ] listrec l r r₂ p₂ p₃ q A P nl cs xs
+    ▸listrec ▸nl ▸cs ▸xs ▸A ▸P r₁-GLB r₂-GLB γ-GLB ≤r₁ ≤r₂ ok₁ ok₂ ok₃ =
+      ▸L.▸listrec ▸nl ▸cs ▸xs ▸A ▸P r₁-GLB r₂-GLB γ-GLB nrᵢᶜ-𝟙-GLBᶜ ≤r₁ ≤r₂ ok₁ ok₂ ok₃
+
+  opaque
+
+    -- A usage rule for listrec for erased recursive calls
+
+    ▸listrec-𝟘 :
+      γ₁ ▸[ m ] nl →
+      γ₂ ∙ ⌜ m ⌝ · p₁ · pₕ ∙ ⌜ m ⌝ · p₂ ∙ ⌜ m ⌝ · 𝟘 ▸[ m ] cs →
+      δ ▸[ m ] xs →
+      η₁ ▸[ 𝟘ᵐ? ] A →
+      η₂ ∙ ⌜ 𝟘ᵐ? ⌝ · q ▸[ 𝟘ᵐ? ] P →
+      r · pₗ ≤ 𝟙 ∧ p₂ · pₗ →
+      r ≤ p₁ ∧ p₂ →
+      Unitrec-allowed m (p₁ ∧ p₂) q →
+      Prodrec-allowed m (p₁ ∧ p₂) pₕ q →
+      Prodrec-allowed m r pₗ q →
+      r ·ᶜ δ +ᶜ (γ₁ ∧ᶜ γ₂) ▸[ m ] listrec l r (p₁ ∧ p₂) p₂ 𝟘 q A P nl cs xs
+    ▸listrec-𝟘 ▸nl ▸cs ▸xs ▸A ▸P rpₗ≤ r≤ ok₁ ok₂ ok₃ =
+      ▸listrec ▸nl ▸cs ▸xs ▸A ▸P (nrᵢ-𝟘-GLB _ _) (nrᵢ-𝟘-GLB _ _)
+        nrᵢᶜ-𝟘-GLBᶜ rpₗ≤ r≤ ok₁ ok₂ ok₃
+
+  opaque
+
+    -- A usage rule for listrec for affine recursive calls
+
+    ▸listrec-𝟙 :
+      γ₁ ▸[ m ] nl →
+      γ₂ ∙ ⌜ m ⌝ · p₁ · pₕ ∙ ⌜ m ⌝ · p₂ ∙ ⌜ m ⌝ · 𝟙 ▸[ m ] cs →
+      δ ▸[ m ] xs →
+      η₁ ▸[ 𝟘ᵐ? ] A →
+      η₂ ∙ ⌜ 𝟘ᵐ? ⌝ · q ▸[ 𝟘ᵐ? ] P →
+      r · pₗ ≤ 𝟙 + ω · p₂ · pₗ →
+      r ≤ p₁ + ω · p₂ →
+      Unitrec-allowed m (p₁ + ω · p₂) q →
+      Prodrec-allowed m (p₁ + ω · p₂) pₕ q →
+      Prodrec-allowed m r pₗ q →
+      r ·ᶜ δ +ᶜ γ₁ +ᶜ ω ·ᶜ γ₂ ▸[ m ] listrec l r (p₁ + ω · p₂) p₂ 𝟙 q A P nl cs xs
+    ▸listrec-𝟙 ▸nl ▸cs ▸xs ▸A ▸P rpₗ≤ r≤ ok₁ ok₂ ok₃ =
+      ▸listrec ▸nl ▸cs ▸xs ▸A ▸P (nrᵢ-𝟙-GLB _ _) (nrᵢ-𝟙-GLB _ _)
+        nrᵢᶜ-𝟙-GLBᶜ rpₗ≤ r≤ ok₁ ok₂ ok₃
+
+  opaque
+
+    -- A usage rule for listrec for unrestricted recursive calls
+
+    ▸listrec-ω :
+      γ₁ ▸[ m ] nl →
+      γ₂ ∙ ⌜ m ⌝ · p₁ · pₕ ∙ ⌜ m ⌝ · p₂ ∙ ⌜ m ⌝ · ω ▸[ m ] cs →
+      δ ▸[ m ] xs →
+      η₁ ▸[ 𝟘ᵐ? ] A →
+      η₂ ∙ ⌜ 𝟘ᵐ? ⌝ · q ▸[ 𝟘ᵐ? ] P →
+      r · pₗ ≤ ω →
+      r ≤ ω · (p₁ + p₂) →
+      Unitrec-allowed m (ω · (p₁ + p₂)) q →
+      Prodrec-allowed m (ω · (p₁ + p₂)) pₕ q →
+      Prodrec-allowed m r pₗ q →
+      r ·ᶜ δ +ᶜ ω ·ᶜ (γ₁ +ᶜ γ₂) ▸[ m ] listrec l r (ω · (p₁ + p₂)) p₂ ω q A P nl cs xs
+    ▸listrec-ω ▸nl ▸cs ▸xs ▸A ▸P rpₗ≤ r≤ ok₁ ok₂ ok₃ =
+      ▸listrec ▸nl ▸cs ▸xs ▸A ▸P (nrᵢ-ω-GLB _ _) (nrᵢ-ω-GLB _ _)
+        nrᵢᶜ-ω-GLBᶜ (≤-trans rpₗ≤ refl) r≤ ok₁ ok₂ ok₃
+
+------------------------------------------------------------------------
+-- Usage rules for Lists where the length of the list is given grade 𝟙
+-- see also above and Graded.Derived.List
+
+module List-pₗ≡𝟙
+  (pₕ : Affine)
+  where
+
+  open import Definition.Untyped.List affineModality pₕ 𝟙
+  module ▸L = List pₕ 𝟙
+
+  opaque
+
+    -- A usage rule for listrec for erased recursive calls
+
+    ▸listrec-𝟘 :
+      γ₁ ▸[ m ] nl →
+      γ₂ ∙ ⌜ m ⌝ · p₁ · pₕ ∙ ⌜ m ⌝ · p₂ ∙ ⌜ m ⌝ · 𝟘 ▸[ m ] cs →
+      δ ▸[ m ] xs →
+      η₁ ▸[ 𝟘ᵐ? ] A →
+      η₂ ∙ ⌜ 𝟘ᵐ? ⌝ · q ▸[ 𝟘ᵐ? ] P →
+      Unitrec-allowed m (p₁ ∧ p₂) q →
+      Prodrec-allowed m (p₁ ∧ p₂) pₕ q →
+      Prodrec-allowed m (𝟙 ∧ p₁ ∧ p₂) 𝟙 q →
+      (𝟙 ∧ p₁ ∧ p₂) ·ᶜ δ +ᶜ (γ₁ ∧ᶜ γ₂) ▸[ m ] listrec l (𝟙 ∧ p₁ ∧ p₂) (p₁ ∧ p₂) p₂ 𝟘 q A P nl cs xs
+    ▸listrec-𝟘 {p₁} {p₂} ▸nl ▸cs ▸xs ▸A ▸P ok₁ ok₂ ok₃ =
+      ▸L.▸listrec-𝟘 ▸nl ▸cs ▸xs ▸A ▸P
+        (begin
+          (𝟙 ∧ p₁ ∧ p₂) · 𝟙 ≈⟨ M.·-identityʳ _ ⟩
+          𝟙 ∧ p₁ ∧ p₂       ≤⟨ ∧-monotoneʳ {r = 𝟙} (∧-decreasingʳ p₁ p₂) ⟩
+          𝟙 ∧ p₂            ≈˘⟨ M.∧-congˡ {x = 𝟙} (M.·-identityʳ p₂) ⟩
+          𝟙 ∧ p₂ · 𝟙        ∎)
+        (∧-decreasingʳ 𝟙 (p₁ ∧ p₂))
+        ok₁ ok₂ ok₃
+      where
+      open Tools.Reasoning.PartialOrder ≤-poset
+
+  opaque
+
+    -- A usage rule for listrec for affine recursive calls
+    -- Note that ω · p₂ + (𝟙 ∧ p₁) is 𝟙 iff p₂ is 𝟘 and p₁ is 𝟘 or 𝟙 and ω otherwise
+
+    ▸listrec-𝟙 :
+      γ₁ ▸[ m ] nl →
+      γ₂ ∙ ⌜ m ⌝ · p₁ · pₕ ∙ ⌜ m ⌝ · p₂ ∙ ⌜ m ⌝ · 𝟙 ▸[ m ] cs →
+      δ ▸[ m ] xs →
+      η₁ ▸[ 𝟘ᵐ? ] A →
+      η₂ ∙ ⌜ 𝟘ᵐ? ⌝ · q ▸[ 𝟘ᵐ? ] P →
+      Unitrec-allowed m (p₁ + ω · p₂) q →
+      Prodrec-allowed m (p₁ + ω · p₂) pₕ q →
+      Prodrec-allowed m (ω · p₂ + (𝟙 ∧ p₁)) 𝟙 q →
+      (ω · p₂ + (𝟙 ∧ p₁)) ·ᶜ δ +ᶜ γ₁ +ᶜ ω ·ᶜ γ₂ ▸[ m ] listrec l (ω · p₂ + (𝟙 ∧ p₁)) (p₁ + ω · p₂) p₂ 𝟙 q A P nl cs xs
+    ▸listrec-𝟙 {p₁} {p₂} ▸nl ▸cs ▸xs ▸A ▸P ok₁ ok₂ ok₃ =
+      ▸L.▸listrec-𝟙 ▸nl ▸cs ▸xs ▸A ▸P
+        (begin
+          (ω · p₂ + (𝟙 ∧ p₁)) · 𝟙 ≈⟨ M.·-identityʳ _ ⟩
+          ω · p₂ + (𝟙 ∧ p₁)       ≤⟨ +-monotoneʳ (∧-decreasingˡ 𝟙 p₁) ⟩
+          ω · p₂ + 𝟙              ≈⟨ M.+-comm _ 𝟙 ⟩
+          𝟙 + ω · p₂              ≈˘⟨ M.+-congˡ (M.·-congˡ {x = ω} (M.·-identityʳ p₂)) ⟩
+          𝟙 + ω · p₂ · 𝟙          ∎)
+        (begin
+          ω · p₂ + (𝟙 ∧ p₁) ≤⟨ +-monotoneʳ (∧-decreasingʳ 𝟙 p₁) ⟩
+          ω · p₂ + p₁       ≈⟨ M.+-comm _ p₁ ⟩
+          p₁ + ω · p₂       ∎)
+        ok₁ ok₂ ok₃
+      where
+      open Tools.Reasoning.PartialOrder ≤-poset
+
+  opaque
+
+    -- A usage rule for listrec for unrestricted recursive calls
+
+    ▸listrec-ω :
+      γ₁ ▸[ m ] nl →
+      γ₂ ∙ ⌜ m ⌝ · p₁ · pₕ ∙ ⌜ m ⌝ · p₂ ∙ ⌜ m ⌝ · ω ▸[ m ] cs →
+      δ ▸[ m ] xs →
+      η₁ ▸[ 𝟘ᵐ? ] A →
+      η₂ ∙ ⌜ 𝟘ᵐ? ⌝ · q ▸[ 𝟘ᵐ? ] P →
+      Unitrec-allowed m (ω · (p₁ + p₂)) q →
+      Prodrec-allowed m (ω · (p₁ + p₂)) pₕ q →
+      Prodrec-allowed m ω 𝟙 q →
+      ω ·ᶜ δ +ᶜ ω ·ᶜ (γ₁ +ᶜ γ₂) ▸[ m ] listrec l ω (ω · (p₁ + p₂)) p₂ ω q A P nl cs xs
+    ▸listrec-ω {p₁} {p₂} ▸nl ▸cs ▸xs ▸A ▸P ok₁ ok₂ ok₃ =
+      ▸L.▸listrec-ω ▸nl ▸cs ▸xs ▸A ▸P ≤-refl (ω≤ (p₁ + p₂)) ok₁ ok₂ ok₃
