@@ -27,6 +27,7 @@ open import Definition.LogicalRelation R ⦃ eqrel ⦄
 open import Definition.LogicalRelation.Hidden R ⦃ eqrel ⦄
 open import Definition.LogicalRelation.Irrelevance R ⦃ eqrel ⦄
 open import Definition.LogicalRelation.Properties R ⦃ eqrel ⦄
+import Definition.LogicalRelation.Hidden.Restricted R as R
 open import Definition.LogicalRelation.ShapeView R ⦃ eqrel ⦄
 open import Definition.LogicalRelation.Substitution R ⦃ eqrel ⦄
 open import Definition.LogicalRelation.Substitution.Introductions.Level R ⦃ eqrel ⦄
@@ -266,6 +267,35 @@ opaque
      (Γ ⊩⟨ ↑ᵘ [t] ⟩ A) × Γ ⊢≅ A ∷ U t)                    □⇔
 
 ------------------------------------------------------------------------
+-- Reducibility
+
+opaque
+
+  -- Reducibility of equality between applications of U, seen as a
+  -- term former.
+
+  ⊩U≡U∷U : Γ ⊩⟨ l ⟩ t ≡ u ∷ Level → Γ ⊩⟨ ωᵘ ⟩ U t ≡ U u ∷ U (sucᵘ t)
+  ⊩U≡U∷U t≡u =
+    let t≡u     = ⊩≡∷Level⇔ .proj₁ t≡u
+        ⊩t , ⊩u = wf-Level-eq t≡u
+    in
+    Type→⊩≡∷U⇔ Uₙ Uₙ .proj₂
+      ( ⊩sucᵘ ⊩t , <ᵘ-ωᵘ , ⊩U≡U⇔ .proj₂ (t≡u , <ᵘ-sucᵘ)
+      , ≅ₜ-U-cong (escapeLevelEq t≡u)
+      )
+
+opaque
+
+  -- Validity of one of the typing rules called univ.
+
+  ⊩≡∷U→⊩≡ :
+    Γ ⊩⟨ l ⟩ A ≡ B ∷ U t →
+    Γ ⊩⟨ l ⟩ A ≡ B
+  ⊩≡∷U→⊩≡ A≡B∷U =
+    let _ , <l , A≡B , _ = ⊩≡∷U⇔ .proj₁ A≡B∷U in
+    emb-⊩≡ (<ᵘ→≤ᵘ <l) A≡B
+
+------------------------------------------------------------------------
 -- Validity
 
 opaque
@@ -294,14 +324,7 @@ opaque
   ⊩ᵛU≡U∷U t≡u =
     ⊩ᵛ≡∷⇔ʰ .proj₂
       ( ⊩ᵛU (sucᵘᵛ (wf-⊩ᵛ≡∷ t≡u .proj₁))
-      , λ σ₁≡σ₂ →
-          let t[σ₁]≡u[σ₂] = ⊩≡∷Level⇔ .proj₁ (⊩ᵛ≡∷⇔ʰ .proj₁ t≡u .proj₂ σ₁≡σ₂)
-              ⊩t[σ₁] , ⊩u[σ₂] = wf-Level-eq t[σ₁]≡u[σ₂]
-          in Type→⊩≡∷U⇔ Uₙ Uₙ .proj₂
-            ( ⊩sucᵘ ⊩t[σ₁] , <ᵘ-ωᵘ
-            , ⊩U≡U⇔ .proj₂ (t[σ₁]≡u[σ₂] , <ᵘ-sucᵘ)
-            , ≅ₜ-U-cong (escapeLevelEq t[σ₁]≡u[σ₂])
-            )
+      , ⊩U≡U∷U ∘→ R.⊩≡∷→ ∘→ ⊩ᵛ≡∷→⊩ˢ≡∷→⊩[]≡[]∷ t≡u
       )
 
 opaque
@@ -319,14 +342,9 @@ opaque
     Γ ⊩ᵛ⟨ l ⟩ A ≡ B ∷ U t →
     Γ ⊩ᵛ⟨ l ⟩ A ≡ B
   ⊩ᵛ≡∷U→⊩ᵛ≡ A≡B∷U =
-    case ⊩ᵛ≡∷⇔ʰ .proj₁ A≡B∷U of λ
-      (⊩U , A≡B∷U) →
     ⊩ᵛ≡⇔ʰ .proj₂
-      ( wf-⊩ᵛ ⊩U
-      , λ σ₁≡σ₂ →
-          case ⊩≡∷U⇔ .proj₁ (A≡B∷U σ₁≡σ₂) of λ
-            ([t] , t<l , A[σ₁]≡A[σ₂] , _) →
-          emb-⊩≡ (<ᵘ→≤ᵘ t<l) A[σ₁]≡A[σ₂]
+      ( wf-⊩ᵛ (wf-⊩ᵛ∷ (wf-⊩ᵛ≡∷ A≡B∷U .proj₁))
+      , ⊩≡∷U→⊩≡ ∘→ R.⊩≡∷→ ∘→ ⊩ᵛ≡∷→⊩ˢ≡∷→⊩[]≡[]∷ A≡B∷U
       )
 
 opaque

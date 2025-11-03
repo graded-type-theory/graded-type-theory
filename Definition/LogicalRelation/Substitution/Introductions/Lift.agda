@@ -160,6 +160,28 @@ opaque
 
 opaque
 
+  -- Reducibility of equality between applications of Lift, seen as a
+  -- term former.
+
+  ⊩Lift≡Lift∷ :
+    Γ ⊩⟨ l₁ ⟩ k ∷ Level →
+    Γ ⊩⟨ l₂ ⟩ k₁ ≡ k₂ ∷ Level →
+    Γ ⊩⟨ l₃ ⟩ A₁ ≡ A₂ ∷ U k →
+    Γ ⊩⟨ ωᵘ ⟩ Lift k₁ A₁ ≡ Lift k₂ A₂ ∷ U (k supᵘ k₁)
+  ⊩Lift≡Lift∷ ⊩k k₁≡k₂ A₁≡A₂ =
+    Type→⊩≡∷U⇔ Liftₙ Liftₙ .proj₂
+      ( ⊩supᵘ (⊩∷Level⇔ .proj₁ ⊩k)
+          (⊩∷Level⇔ .proj₁ (wf-⊩≡∷ k₁≡k₂ .proj₁))
+      , <ᵘ-ωᵘ
+      , ⊩Lift≡Lift⇔ .proj₂
+          ( ⊩≡∷Level⇔ .proj₁ k₁≡k₂
+          , emb-⊩≡ ≤ᵘ-supᵘʳ (⊩≡∷U⇔ .proj₁ A₁≡A₂ .proj₂ .proj₂ .proj₁)
+          )
+      , ≅ₜ-Lift-cong (escape-⊩≡∷ k₁≡k₂) (escape-⊩≡∷ A₁≡A₂)
+      )
+
+opaque
+
   -- Validity of equality preservation for Lift, seen as a term former.
 
   Lift-congᵗᵛ :
@@ -171,21 +193,9 @@ opaque
     ⊩ᵛ≡∷⇔ʰ .proj₂
       ( ⊩ᵛU (supᵘᵛ ⊩k₁ (wf-⊩ᵛ≡∷ k≡k′ .proj₁))
       , λ σ₁≡σ₂ →
-          let k[σ₁]≡k′[σ₂] = ⊩≡∷Level⇔ .proj₁ $ R.⊩≡∷→ $ ⊩ᵛ≡∷→⊩ˢ≡∷→⊩[]≡[]∷ k≡k′ σ₁≡σ₂
-              A[σ₁]≡A′[σ₂]∷U = R.⊩≡∷→ $ ⊩ᵛ≡∷→⊩ˢ≡∷→⊩[]≡[]∷ A≡A′ σ₁≡σ₂
-              _ , _ , A[σ₁]≡A′[σ₂] , _ = ⊩≡∷U⇔ .proj₁ A[σ₁]≡A′[σ₂]∷U
-              ⊢A[σ₁] , ⊢A′[σ₂] = wf-⊢≡ (≅-eq (escape-⊩≡ A[σ₁]≡A′[σ₂]))
-              ⊩k[σ₁] , ⊩k[σ₂] = wf-Level-eq k[σ₁]≡k′[σ₂]
-              ⊩σ₁ = wf-⊩ˢ≡∷ σ₁≡σ₂ .proj₁
-              ⊩k₁[σ₁] = ⊩∷Level⇔ .proj₁ $ R.⊩∷→ $ ⊩ᵛ∷→⊩ˢ∷→⊩[]∷ ⊩k₁ ⊩σ₁
-          in Type→⊩≡∷U⇔ Liftₙ Liftₙ .proj₂
-            ( ⊩supᵘ ⊩k₁[σ₁] ⊩k[σ₁] , <ᵘ-ωᵘ
-            , ⊩Lift≡Lift⇔ .proj₂
-              ( k[σ₁]≡k′[σ₂]
-              , emb-⊩≡ ≤ᵘ-supᵘʳ A[σ₁]≡A′[σ₂]
-              )
-            , ≅ₜ-Lift-cong (escapeLevelEq k[σ₁]≡k′[σ₂]) (escape-⊩≡∷ A[σ₁]≡A′[σ₂]∷U)
-            )
+          ⊩Lift≡Lift∷ (R.⊩∷→ (⊩ᵛ∷→⊩ˢ∷→⊩[]∷ ⊩k₁ (wf-⊩ˢ≡∷ σ₁≡σ₂ .proj₁)))
+            (R.⊩≡∷→ (⊩ᵛ≡∷→⊩ˢ≡∷→⊩[]≡[]∷ k≡k′ σ₁≡σ₂))
+            (R.⊩≡∷→ (⊩ᵛ≡∷→⊩ˢ≡∷→⊩[]≡[]∷ A≡A′ σ₁≡σ₂))
       )
 
 opaque
