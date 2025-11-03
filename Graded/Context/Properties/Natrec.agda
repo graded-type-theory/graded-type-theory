@@ -240,3 +240,17 @@ opaque
   ·ᶜ-distribʳ-nrᵢᶜ {γ = ε} = ε
   ·ᶜ-distribʳ-nrᵢᶜ {i} {γ = γ ∙ p′} =
     ·ᶜ-distribʳ-nrᵢᶜ ∙ ·-distribʳ-nrᵢ i
+
+opaque
+
+  -- tailₘ commutes with nrᵢᶜ in a certain sense.
+
+  nrᵢᶜ-tailₘ : ∀ i → tailₘ (nrᵢᶜ r γ δ i) ≈ᶜ nrᵢᶜ r (tailₘ γ) (tailₘ δ) i
+  nrᵢᶜ-tailₘ {γ = _ ∙ _} {δ = _ ∙ _} i = ≈ᶜ-refl
+
+opaque
+
+  -- headₘ commutes with nrᵢᶜ in a certain sense.
+
+  nrᵢᶜ-headₘ : ∀ i → headₘ (nrᵢᶜ r γ δ i) ≡ nrᵢ r (headₘ γ) (headₘ δ) i
+  nrᵢᶜ-headₘ {γ = _ ∙ _} {_ ∙ _} i = refl
