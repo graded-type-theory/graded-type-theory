@@ -488,7 +488,7 @@ opaque
     ⦃ no-nr : Nr-not-available-GLB ⦄ →
     s ≡ 𝕨 → γ ▸[ m ] vecrec′ l p₁ p₄ r₁ q₁ q₂ A P nl cs k xs →
     ∃₁₀ λ δ₁ δ₁′ δ₂ δ₂′ η₁ η₂ θ₁ θ₁′ θ₁″ θ₂ → ∃₃ λ x χ φ →
-      wkConₘ⁻¹ (step id) θ₁ ▸[ 𝟘ᵐ? ] A ×
+      tailₘ θ₁ ▸[ 𝟘ᵐ? ] A ×
       θ₂ ∙ ⌜ 𝟘ᵐ? ⌝ · q₂ ▸[ 𝟘ᵐ? ] P ×
       δ₁ ▸[ m ] nl ×
       δ₂ ∙ ⌜ m ⌝ · r₁ · p ∙ ⌜ m ⌝ · r₁ ▸[ m ]
@@ -511,12 +511,13 @@ opaque
         _ , _ , θ , _ , x , χ
           , ▸vrn , ▸vrc , ▸k , ▸ΠVP , δ≤ , x-GLB , χ-GLB = inv-usage-natrec-no-nr-glb ▸nr
         invUsageΠΣ ▸V ▸P φ≤ = inv-usage-ΠΣ ▸ΠVP
-        _ , _ , _ , _ , _ , ▸x0 , ▸A , θ′-GLB , le₁ , le₂ , le₃ = inv-usage-Vec′ ▸V
+        _ , φ , _ , _ , _ , ▸x0 , ▸A , θ′-GLB , le₁ , le₂ , le₃ = inv-usage-Vec′ ▸V
         _ , _ , _ , ▸nl , ok₁ , le₄ = inv-usage-vecrec-nil ▸vrn
         _ , _ , ▸cs[] , _ , ok₂ , le₅ = inv-usage-vecrec-cons ▸vrc
         open ≤ᶜ-reasoning
     in  _ , _ , _ , _ , _ , _ , _ , _ , _ , _ , _ , _ , _
-          , ▸-cong (trans (cong (_ᵐ· p) ᵐ·-zeroˡ) ᵐ·-zeroˡ) (wkUsage⁻¹ ▸A)
+          , ▸-cong (trans (cong (_ᵐ· p) ᵐ·-zeroˡ) ᵐ·-zeroˡ)
+              (sub-≈ᶜ (wkUsage⁻¹ ▸A) (≈ᶜ-sym (wkConₘ⁻¹-step φ)))
           , ▸P , ▸nl , ▸cs[] , ▸k , ▸xs
           , ok₁ , ok₂ , x-GLB , χ-GLB , θ′-GLB
           , (begin

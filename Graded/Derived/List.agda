@@ -25,6 +25,7 @@ import Graded.Derived.Vec 𝕨 pₕ R as V
 open import Graded.Mode 𝕄
 open import Graded.Modality.Properties 𝕄
 open import Graded.Usage 𝕄 R
+open import Graded.Usage.Inversion 𝕄 R
 open import Graded.Usage.Properties 𝕄 R
 open import Graded.Usage.Weakening 𝕄 R
 open import Graded.Substitution 𝕄 R
@@ -32,12 +33,14 @@ open import Graded.Substitution.Properties 𝕄 R
 
 import Definition.Untyped.Vec 𝕄 𝕨 pₕ as UV
 open import Definition.Untyped.List 𝕄 pₕ pₗ
+open import Definition.Untyped.Properties M
 
 open import Tools.Fin
 open import Tools.Function
 open import Tools.Product
 open import Tools.PropositionalEquality
 import Tools.Reasoning.PartialOrder
+import Tools.Reasoning.PropositionalEquality
 
 private variable
   l : Universe-level
@@ -246,3 +249,179 @@ opaque
                        𝟙 ∎))
                      ▸xs
     in  prodrecₘ ▸xs′ ▸vr ▸P ok₃
+
+------------------------------------------------------------------------
+-- Inversion lemmas for usage
+
+opaque
+  unfolding List
+
+  -- A usage inversion lemma for List
+
+  inv-usage-List :
+    ⦃ no-nr : Nr-not-available-GLB ⦄ →
+    γ ▸[ m ] List l A →
+    ∃₄ λ δ η η₁ η₂ → δ ▸[ m ᵐ· pₕ ] A × Greatest-lower-boundᶜ η (nrᵢᶜ 𝟙 η₁ η₂) ×
+    γ ≤ᶜ η × η₁ ≤ᶜ 𝟘ᶜ × η₂ ≤ᶜ δ
+  inv-usage-List {γ} ▸L =
+    let invUsageΠΣ {δ = γ₁} {η = γ₂} ▸ℕ ▸V γ≤ = inv-usage-ΠΣ ▸L
+        δ , η , θ , δ′ , η′ , ▸x0 , ▸A , θ-GLB , γ₂≤ , δ′≤𝟘 , η′≤η = V.inv-usage-Vec′ ▸V
+        open ≤ᶜ-reasoning
+    in  _ , _ , tailₘ δ′ , tailₘ η′ , wkUsage⁻¹ ▸A
+          , GLBᶜ-congˡ (nrᵢᶜ-tailₘ {γ = δ′} {δ = η′})
+              (GLBᶜ-pointwise θ-GLB .proj₁)
+          , (begin
+               γ ≤⟨ γ≤ ⟩
+               γ₁ +ᶜ γ₂ ≤⟨ +ᶜ-monotone (inv-usage-ℕ ▸ℕ) (tailₘ-monotone γ₂≤) ⟩
+               𝟘ᶜ +ᶜ tailₘ (δ +ᶜ θ) ≈⟨ +ᶜ-identityˡ _ ⟩
+               tailₘ (δ +ᶜ θ) ≈⟨ tailₘ-distrib-+ᶜ δ θ ⟩
+               tailₘ δ +ᶜ tailₘ θ ≤⟨ +ᶜ-monotoneˡ (tailₘ-monotone (inv-usage-var ▸x0)) ⟩
+               𝟘ᶜ +ᶜ tailₘ θ ≈⟨ +ᶜ-identityˡ _ ⟩
+               tailₘ θ ∎)
+          , tailₘ-monotone δ′≤𝟘
+          , (begin
+              tailₘ η′             ≤⟨ tailₘ-monotone η′≤η ⟩
+              tailₘ η              ≈˘⟨ wkConₘ⁻¹-step η ⟩
+              wkConₘ⁻¹ (step id) η ∎)
+
+opaque
+  unfolding nil
+
+  -- A usage inversion lemma for nil
+
+  inv-usage-nil : γ ▸[ m ] nil l A → γ ≤ᶜ 𝟘ᶜ
+  inv-usage-nil {γ} ▸nil =
+    let invUsageProdʷ {δ} {η} ▸zero ▸nil′ γ≤ = inv-usage-prodʷ ▸nil
+        open ≤ᶜ-reasoning
+    in  begin
+      γ              ≤⟨ γ≤ ⟩
+      pₗ ·ᶜ δ +ᶜ η   ≤⟨ +ᶜ-monotone (·ᶜ-monotoneʳ (inv-usage-zero ▸zero)) (V.inv-usage-nil′ʷ refl ▸nil′) ⟩
+      pₗ ·ᶜ 𝟘ᶜ +ᶜ 𝟘ᶜ ≈⟨ +ᶜ-identityʳ _ ⟩
+      pₗ ·ᶜ 𝟘ᶜ       ≈⟨ ·ᶜ-zeroʳ _ ⟩
+      𝟘ᶜ             ∎
+
+opaque
+  unfolding cons
+
+  -- A usage inversion lemma for cons
+
+  inv-usage-cons :
+    γ ▸[ m ] cons l A h t →
+    ∃₃ λ δ η θ → δ ▸[ m ᵐ· pₕ ] h × η ▸[ m ] t × θ ▸[ 𝟘ᵐ? ] List l A × Prodrec-allowed m 𝟙 pₗ 𝟘 × γ ≤ᶜ pₕ ·ᶜ δ +ᶜ η
+  inv-usage-cons {γ} {m} ▸cons =
+    let invUsageProdrec {δ = δ₁} {η = δ₂} ▸t ▸u ▸A ok γ≤ = inv-usage-prodrec ▸cons
+        invUsageProdʷ {δ = η₁} {η = η₂} ▸suc ▸cons′ δ₂≤ = inv-usage-prodʷ ▸u
+        invUsageSuc {δ = η₁′} ▸x1 η₁≤ = inv-usage-suc ▸suc
+        θ₁ , θ₂ , ▸h , ▸x0 , η₂≤ = V.inv-usage-cons′ʷ refl ▸cons′
+        open ≤ᶜ-reasoning
+    in  _ , _ , _ , wkUsage⁻¹ ▸h , ▸-cong ᵐ·-identityʳ ▸t , wkUsage⁻¹ ▸A , ok , (begin
+      γ
+        ≤⟨ γ≤ ⟩
+      𝟙 ·ᶜ δ₁ +ᶜ δ₂
+        ≈⟨ +ᶜ-congʳ (·ᶜ-identityˡ _) ⟩
+      δ₁ +ᶜ δ₂
+        ≤⟨ +ᶜ-monotoneʳ (tailₘ-monotone (tailₘ-monotone δ₂≤)) ⟩
+      δ₁ +ᶜ tailₘ (tailₘ (pₗ ·ᶜ η₁ +ᶜ η₂))
+        ≤⟨ +ᶜ-monotoneʳ (tailₘ-monotone (tailₘ-monotone (+ᶜ-monotone (·ᶜ-monotoneʳ η₁≤) η₂≤))) ⟩
+      δ₁ +ᶜ tailₘ (tailₘ (pₗ ·ᶜ η₁′ +ᶜ pₕ ·ᶜ θ₁ +ᶜ θ₂))
+        ≤⟨ +ᶜ-monotoneʳ (tailₘ-monotone (tailₘ-monotone (+ᶜ-monotone (·ᶜ-monotoneʳ (inv-usage-var ▸x1)) (+ᶜ-monotoneʳ (inv-usage-var ▸x0))))) ⟩
+      δ₁ +ᶜ tailₘ (tailₘ (pₗ ·ᶜ (𝟘ᶜ , x1 ≔ ⌜ m ᵐ· pₗ ⌝) +ᶜ pₕ ·ᶜ θ₁ +ᶜ (𝟘ᶜ , x0 ≔ ⌜ m ⌝)))
+        ≈⟨ +ᶜ-congˡ (tailₘ-cong (tailₘ-distrib-+ᶜ (pₗ ·ᶜ (𝟘ᶜ , x1 ≔ ⌜ m ᵐ· pₗ ⌝)) (pₕ ·ᶜ θ₁ +ᶜ (𝟘ᶜ , x0 ≔ ⌜ m ⌝)))) ⟩
+      δ₁ +ᶜ tailₘ (pₗ ·ᶜ (𝟘ᶜ , x0 ≔ ⌜ m ᵐ· pₗ ⌝) +ᶜ tailₘ (pₕ ·ᶜ θ₁ +ᶜ (𝟘ᶜ , x0 ≔ ⌜ m ⌝)))
+        ≈⟨ +ᶜ-congˡ (tailₘ-cong (+ᶜ-congˡ {γ = pₗ ·ᶜ (𝟘ᶜ , x0 ≔ ⌜ m ᵐ· pₗ ⌝)} (tailₘ-distrib-+ᶜ (pₕ ·ᶜ θ₁) (𝟘ᶜ , x0 ≔ ⌜ m ⌝)))) ⟩
+      δ₁ +ᶜ tailₘ (pₗ ·ᶜ (𝟘ᶜ , x0 ≔ ⌜ m ᵐ· pₗ ⌝) +ᶜ tailₘ (pₕ ·ᶜ θ₁) +ᶜ 𝟘ᶜ)
+        ≈⟨ +ᶜ-congˡ (tailₘ-cong (+ᶜ-congˡ {γ = pₗ ·ᶜ (𝟘ᶜ , x0 ≔ ⌜ m ᵐ· pₗ ⌝)} (+ᶜ-identityʳ (tailₘ (pₕ ·ᶜ θ₁))))) ⟩
+      δ₁ +ᶜ tailₘ (pₗ ·ᶜ (𝟘ᶜ , x0 ≔ ⌜ m ᵐ· pₗ ⌝) +ᶜ tailₘ (pₕ ·ᶜ θ₁))
+        ≈⟨ +ᶜ-congˡ (tailₘ-distrib-+ᶜ (pₗ ·ᶜ (𝟘ᶜ , x0 ≔ ⌜ m ᵐ· pₗ ⌝)) (tailₘ (pₕ ·ᶜ θ₁))) ⟩
+      δ₁ +ᶜ pₗ ·ᶜ 𝟘ᶜ +ᶜ tailₘ (tailₘ (pₕ ·ᶜ θ₁))
+        ≈⟨ +ᶜ-congˡ (+ᶜ-cong (·ᶜ-zeroʳ _) (tailₘ-cong (tailₘ-distrib-·ᶜ pₕ θ₁))) ⟩
+      δ₁ +ᶜ 𝟘ᶜ +ᶜ tailₘ (pₕ ·ᶜ tailₘ θ₁)
+        ≈⟨ +ᶜ-congˡ (+ᶜ-identityˡ _) ⟩
+      δ₁ +ᶜ tailₘ (pₕ ·ᶜ tailₘ θ₁)
+        ≈⟨ +ᶜ-congˡ (tailₘ-distrib-·ᶜ pₕ (tailₘ θ₁)) ⟩
+      δ₁ +ᶜ pₕ ·ᶜ tailₘ (tailₘ θ₁)
+        ≈˘⟨ +ᶜ-congˡ (·ᶜ-congˡ (wkConₘ⁻¹-step (tailₘ θ₁))) ⟩
+      δ₁ +ᶜ pₕ ·ᶜ wkConₘ⁻¹ (step id) (tailₘ θ₁)
+        ≈˘⟨ +ᶜ-congˡ (·ᶜ-congˡ (wkConₘ⁻¹-step θ₁)) ⟩
+      δ₁ +ᶜ pₕ ·ᶜ wkConₘ⁻¹ (step (step id)) θ₁
+        ≈⟨ +ᶜ-comm _ _ ⟩
+      pₕ ·ᶜ wkConₘ⁻¹ (step (step id)) θ₁ +ᶜ δ₁ ∎)
+
+
+opaque
+  unfolding listrec
+
+  -- A usage inversion lemma for listrec
+
+  inv-usage-listrec :
+    ⦃ no-nr : Nr-not-available-GLB ⦄ →
+    γ ▸[ m ] listrec l r₁ r₂ p₁ p₂ q A P nl cs xs →
+    ∃₉ λ δ₁ δ₁′ δ₂ δ₂′ η θ₁ θ₁′ θ₁″ θ₂ → ∃₃ λ x χ φ →
+    θ₁ ▸[ 𝟘ᵐ? ] A × θ₂ ∙ ⌜ 𝟘ᵐ? ⌝ · q ▸[ 𝟘ᵐ? ] P × δ₁ ▸[ m ] nl ×
+    δ₂ ∙ ⌜ m ⌝ · r₂ · pₕ ∙ ⌜ m ⌝ · r₂ ▸[ m ]
+      cs [ consSubst (consSubst (consSubst (wkSubst 7 idSubst) (var x1)) (prodʷ pₗ (var x4) (var x0))) (var x3 ∘⟨ r₂ ⟩ var x0) ] ×
+    η ▸[ m ᵐ· r₁ ] xs ×
+    Greatest-lower-bound x (nrᵢ p₂ 𝟙 (p₁ · pₗ)) ×
+    Greatest-lower-boundᶜ χ (nrᵢᶜ p₂ δ₁′ δ₂′) ×
+    Greatest-lower-boundᶜ φ (nrᵢᶜ 𝟙 θ₁′ θ₁″) ×
+    Prodrec-allowed m r₁ pₗ q × Unitrec-allowed m r₂ q × Prodrec-allowed m r₂ pₕ q ×
+    γ ≤ᶜ r₁ ·ᶜ η +ᶜ tailₘ (tailₘ χ) ×
+    tailₘ (tailₘ δ₁′) ≤ᶜ δ₁ ×
+    δ₂′ ∙ ⌜ m ⌝ · p₁ · pₗ ∙ ⌜ m ⌝ · p₂ ∙ ⌜ m ⌝ · r₂ ≤ᶜ δ₂ +ᶜ (𝟘ᶜ ∙ ⌜ m ⌝ · r₂) ×
+    θ₁′ ≤ᶜ 𝟘ᶜ ×
+    tailₘ (tailₘ (tailₘ θ₁″)) ≤ᶜ θ₁
+  inv-usage-listrec {γ} {m} {r₁} {r₂} {p₁} {p₂} {cs} ▸lr =
+    let invUsageProdrec {δ = γ₁} {η = γ₂} ▸xs ▸vr ▸P ok₁ γ≤ = inv-usage-prodrec ▸lr
+        δ₁ , δ₁′ , δ₂ , δ₂′ , η₁ , η₂ , θ₁ , θ₁′ , θ₁″ , θ₂ , x , χ , φ
+         , ▸A₂ , ▸P′ , ▸nl₂ , ▸cs , ▸x1 , ▸x0 , ok₂ , ok₃ , x-GLB , χ-GLB , φ-GLB
+         , le₁ , le₂ , le₃ , le₄ , le₅ = V.inv-usage-vecrec′ refl ▸vr
+        ▸A = wkUsage⁻¹ ▸A₂
+        ▸nl = wkUsage⁻¹ ▸nl₂
+        cs[]≡ = let open Tools.Reasoning.PropositionalEquality in begin
+          cs [ consSubst (consSubst (consSubst (wkSubst 6 idSubst) (var x2)) (prodʷ pₗ (var x3) (var x1))) (var x0) ]
+             [ consSubst (consSubst (consSubst (consSubst (wkSubst 5 idSubst) (var x4)) (var x1)) (var x0)) (var x3 ∘⟨ r₂ ⟩ var x0) ]
+               ≡⟨ substCompEq cs ⟩
+          cs [ consSubst (consSubst (consSubst (consSubst (wkSubst 5 idSubst) (var x4)) (var x1)) (var x0)) (var x3 ∘⟨ r₂ ⟩ var x0) ₛ•ₛ
+               consSubst (consSubst (consSubst (wkSubst 6 idSubst) (var x2)) (prodʷ pₗ (var x3) (var x1))) (var x0) ]
+               ≡⟨ substVar-to-subst (λ { x0 → refl ; (_+1 x0) → refl ; (x0 +2) → refl ; (_+1 x +2) → refl}) cs ⟩
+          cs [ consSubst (consSubst (consSubst (wkSubst 7 idSubst) (var x1)) (prodʷ pₗ (var x4) (var x0))) (var x3 ∘⟨ r₂ ⟩ var x0) ] ∎
+        ▸cs′ = subst (_▸[_]_ _ _) cs[]≡ ▸cs
+        open ≤ᶜ-reasoning
+    in  _ , _ , _ , _ , _ , _ , _ , _ , _ , _ , _ , _
+          , ▸A , ▸P , ▸nl , ▸cs′ , ▸xs
+          , x-GLB , χ-GLB , φ-GLB
+          , ok₁ , ok₂ , ok₃
+          , (begin
+               γ
+                 ≤⟨ γ≤ ⟩
+               r₁ ·ᶜ γ₁ +ᶜ γ₂
+                 ≤⟨ +ᶜ-monotoneʳ (tailₘ-monotone (tailₘ-monotone le₁)) ⟩
+               r₁ ·ᶜ γ₁ +ᶜ tailₘ (tailₘ (x ·ᶜ η₁ +ᶜ χ +ᶜ r₂ ·ᶜ η₂))
+                 ≤⟨ +ᶜ-monotoneʳ (tailₘ-monotone (tailₘ-monotone (+ᶜ-monotone (·ᶜ-monotoneʳ (inv-usage-var ▸x1))
+                      (+ᶜ-monotoneʳ (·ᶜ-monotoneʳ (inv-usage-var ▸x0)))))) ⟩
+               r₁ ·ᶜ γ₁ +ᶜ tailₘ (tailₘ (x ·ᶜ (𝟘ᶜ ∙ ⌜ m ⌝ ∙ 𝟘) +ᶜ χ +ᶜ r₂ ·ᶜ (𝟘ᶜ ∙ ⌜ m ᵐ· r₂ ⌝)))
+                 ≈⟨ +ᶜ-congˡ (tailₘ-cong (tailₘ-distrib-+ᶜ (x ·ᶜ (𝟘ᶜ ∙ ⌜ m ⌝ ∙ 𝟘)) (χ +ᶜ r₂ ·ᶜ (𝟘ᶜ ∙ ⌜ m ᵐ· r₂ ⌝)))) ⟩
+               r₁ ·ᶜ γ₁ +ᶜ tailₘ (x ·ᶜ (𝟘ᶜ ∙ ⌜ m ⌝) +ᶜ tailₘ (χ +ᶜ r₂ ·ᶜ (𝟘ᶜ ∙ ⌜ m ᵐ· r₂ ⌝)))
+                 ≈⟨ +ᶜ-congˡ (tailₘ-cong (+ᶜ-congˡ {γ = x ·ᶜ (𝟘ᶜ ∙ ⌜ m ⌝)} (tailₘ-distrib-+ᶜ χ (r₂ ·ᶜ (𝟘ᶜ ∙ ⌜ m ᵐ· r₂ ⌝))))) ⟩
+               r₁ ·ᶜ γ₁ +ᶜ tailₘ (x ·ᶜ (𝟘ᶜ ∙ ⌜ m ⌝) +ᶜ tailₘ χ +ᶜ r₂ ·ᶜ 𝟘ᶜ)
+                 ≈⟨ +ᶜ-congˡ (tailₘ-cong (+ᶜ-congˡ {γ = x ·ᶜ (𝟘ᶜ ∙ ⌜ m ⌝)} (+ᶜ-congˡ {γ = tailₘ χ} (·ᶜ-zeroʳ r₂)))) ⟩
+               r₁ ·ᶜ γ₁ +ᶜ tailₘ (x ·ᶜ (𝟘ᶜ ∙ ⌜ m ⌝) +ᶜ tailₘ χ +ᶜ 𝟘ᶜ)
+                 ≈⟨ +ᶜ-congˡ (tailₘ-cong (+ᶜ-congˡ {γ = x ·ᶜ (𝟘ᶜ ∙ ⌜ m ⌝)} (+ᶜ-identityʳ (tailₘ χ)))) ⟩
+               r₁ ·ᶜ γ₁ +ᶜ tailₘ (x ·ᶜ (𝟘ᶜ ∙ ⌜ m ⌝) +ᶜ tailₘ χ)
+                 ≈⟨ +ᶜ-congˡ (tailₘ-distrib-+ᶜ (x ·ᶜ (𝟘ᶜ ∙ ⌜ m ⌝)) (tailₘ χ)) ⟩
+               r₁ ·ᶜ γ₁ +ᶜ x ·ᶜ 𝟘ᶜ +ᶜ tailₘ (tailₘ χ)
+                 ≈⟨ +ᶜ-congˡ (+ᶜ-congʳ (·ᶜ-zeroʳ _)) ⟩
+               r₁ ·ᶜ γ₁ +ᶜ 𝟘ᶜ +ᶜ tailₘ (tailₘ χ)
+                 ≈⟨ +ᶜ-congˡ (+ᶜ-identityˡ _) ⟩
+               r₁ ·ᶜ γ₁ +ᶜ tailₘ (tailₘ χ) ∎)
+          , (begin
+               tailₘ (tailₘ δ₁′)             ≤⟨ tailₘ-monotone (tailₘ-monotone le₂) ⟩
+               tailₘ (tailₘ δ₁)              ≈˘⟨ wkConₘ⁻¹-step (tailₘ δ₁) ⟩
+               wkConₘ⁻¹ (step id) (tailₘ δ₁) ≈˘⟨ wkConₘ⁻¹-step δ₁ ⟩
+               wkConₘ⁻¹ (step (step id)) δ₁  ∎)
+          , le₃ , le₄
+          , (begin
+               tailₘ (tailₘ (tailₘ θ₁″)) ≤⟨ tailₘ-monotone (tailₘ-monotone (tailₘ-monotone le₅)) ⟩
+               tailₘ (tailₘ (tailₘ θ₁))             ≈˘⟨ wkConₘ⁻¹-step (tailₘ (tailₘ θ₁)) ⟩
+               wkConₘ⁻¹ (step id) (tailₘ (tailₘ θ₁)) ≈˘⟨ wkConₘ⁻¹-step (tailₘ θ₁) ⟩
+               wkConₘ⁻¹ (step (step id)) (tailₘ θ₁) ∎)
