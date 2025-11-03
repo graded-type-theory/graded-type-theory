@@ -11,7 +11,6 @@ module Definition.Typed.Properties.Admissible.Lift
   (R : Type-restrictions 𝕄)
   where
 
-open Modality 𝕄
 open Type-restrictions R
 
 open import Definition.Typed R
@@ -30,7 +29,7 @@ open import Definition.Untyped.Properties M
 
 open import Tools.Fin
 open import Tools.Function
-open import Tools.Nat
+open import Tools.Nat using (Nat)
 open import Tools.Product
 import Tools.PropositionalEquality as PE
 open import Tools.Reasoning.PropositionalEquality
@@ -52,10 +51,12 @@ opaque
 
   -- An admissible typing rule for Lift.
 
-  Liftⱼ′ : Γ ⊢ l₂ ∷ Level
+  Liftⱼ′ : Γ ⊢ l₂ ∷Level
          → Γ ⊢ A ∷ U l₁
-         → Γ ⊢ Lift l₂ A ∷ U (l₁ supᵘ l₂)
-  Liftⱼ′ ⊢l₂ ⊢A = Liftⱼ (inversion-U-Level (wf-⊢∷ ⊢A)) ⊢l₂ ⊢A
+         → Γ ⊢ Lift l₂ A ∷ U (l₁ supᵘₗ l₂)
+  Liftⱼ′ ⊢l₂ ⊢A =
+    let _ , ok = inversion-U-Level (wf-⊢∷ ⊢A) in
+    Liftⱼ ok ⊢l₂ ⊢A
 
 opaque
 
@@ -65,41 +66,48 @@ opaque
          → Γ ⊢ A ∷ U l₁
          → Γ ⊢ Lift l₂ A ∷ U l₂
   Liftⱼ≤ l₁≤l₂ ⊢A =
-    let ⊢l₁ , ⊢l₂ = wf-⊢≤ l₁≤l₂
-    in conv (Liftⱼ′ ⊢l₂ ⊢A) (U-cong l₁≤l₂)
+    let _ , ⊢l₂ = wf-⊢≤ l₁≤l₂
+        ok      = inversion-Level-⊢ (wf-⊢∷ ⊢l₂)
+    in
+    _⊢_∷_.conv (Liftⱼ′ (term-⊢∷ ⊢l₂) ⊢A) $ U-cong $
+    PE.subst₃ (_⊢_≡_∷_ _) (PE.sym (supᵘₗ≡supᵘ ok)) PE.refl PE.refl l₁≤l₂
 
 opaque
 
   -- An admissible typing rule for Lift that swaps levels.
 
   Liftⱼ-comm
-    : Γ ⊢ l₂ ∷ Level
+    : Γ ⊢ l₂ ∷Level
     → Γ ⊢ A ∷ U l₁
-    → Γ ⊢ Lift l₂ A ∷ U (l₂ supᵘ l₁)
+    → Γ ⊢ Lift l₂ A ∷ U (l₂ supᵘₗ l₁)
   Liftⱼ-comm ⊢l₂ ⊢A =
-    LP.Liftⱼ-comm (inversion-U-Level (wf-⊢∷ ⊢A)) ⊢l₂ ⊢A
+    let _ , ok = inversion-U-Level (wf-⊢∷ ⊢A) in
+    LP.Liftⱼ-comm ok ⊢l₂ ⊢A
 
 opaque
 
   -- An admissible congruence rule for Lift.
 
-  Lift-cong′ : Γ ⊢ l₂ ≡ l₂′ ∷ Level
+  Lift-cong′ : Γ ⊢ l₂ ≡ l₂′ ∷Level
              → Γ ⊢ A ≡ B ∷ U l₁
-             → Γ ⊢ Lift l₂ A ≡ Lift l₂′ B ∷ U (l₁ supᵘ l₂)
+             → Γ ⊢ Lift l₂ A ≡ Lift l₂′ B ∷ U (l₁ supᵘₗ l₂)
   Lift-cong′ l₂≡l₂′ A≡B =
-    Lift-cong (inversion-U-Level (wf-⊢≡∷ A≡B .proj₁)) l₂≡l₂′ A≡B
+    let _ , ⊢l₁ = inversion-U-Level (wf-⊢≡∷ A≡B .proj₁)
+        ⊢l₂ , _ = wf-⊢≡∷L l₂≡l₂′
+    in
+    Lift-cong ⊢l₁ ⊢l₂ l₂≡l₂′ A≡B
 
 opaque
 
   -- An admissible congruence rule for Lift that swaps levels.
 
   Lift-cong-comm
-    : Γ ⊢ l₂ ≡ l₂′ ∷ Level
+    : Γ ⊢ l₂ ≡ l₂′ ∷Level
     → Γ ⊢ A ≡ B ∷ U l₁
-    → Γ ⊢ Lift l₂ A ≡ Lift l₂′ B ∷ U (l₂ supᵘ l₁)
+    → Γ ⊢ Lift l₂ A ≡ Lift l₂′ B ∷ U (l₂ supᵘₗ l₁)
   Lift-cong-comm l₂≡l₂′ A≡B =
-    let ⊢l₁ = inversion-U-Level (wf-⊢≡∷ A≡B .proj₁)
-        _ , ⊢l₂ , _ = wf-⊢≡∷ l₂≡l₂′
+    let _ , ⊢l₁ = inversion-U-Level (wf-⊢≡∷ A≡B .proj₁)
+        ⊢l₂ , _ = wf-⊢≡∷L l₂≡l₂′
     in
     LP.Lift-cong-comm ⊢l₁ ⊢l₂ l₂≡l₂′ A≡B
 
@@ -107,7 +115,7 @@ opaque
 
   -- An admissible typing rule for lift.
 
-  liftⱼ′ : Γ ⊢ l₂ ∷ Level
+  liftⱼ′ : Γ ⊢ l₂ ∷Level
          → Γ ⊢ t ∷ A
          → Γ ⊢ lift t ∷ Lift l₂ A
   liftⱼ′ ⊢l₂ ⊢t = liftⱼ ⊢l₂ (wf-⊢∷ ⊢t) ⊢t
@@ -117,7 +125,7 @@ opaque
   -- An admissible congruence rule for lift.
 
   lift-cong :
-    Γ ⊢ l₂ ∷ Level →
+    Γ ⊢ l₂ ∷Level →
     Γ ⊢ t ≡ u ∷ A →
     Γ ⊢ lift t ≡ lift u ∷ Lift l₂ A
   lift-cong ⊢l₂ t≡u =

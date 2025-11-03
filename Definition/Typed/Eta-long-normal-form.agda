@@ -65,11 +65,12 @@ mutual
   infix 4 _⊢nf_
 
   data _⊢nf_ (Γ : Con Term n) : Term n → Set a where
-    Levelₙ : ⊢ Γ →
+    Levelₙ : Level-allowed →
+             ⊢ Γ →
              Γ ⊢nf Level
     univₙ  : Γ ⊢nf A ∷ U l →
              Γ ⊢nf A
-    Liftₙ  : Γ ⊢nf l ∷ Level →
+    Liftₙ  : Γ ⊢nf l ∷Level →
              Γ ⊢nf A →
              Γ ⊢nf Lift l A
     ΠΣₙ    : Γ ⊢nf A →
@@ -93,16 +94,18 @@ mutual
     Levelₙ : ⊢ Γ →
              Level-is-small →
              Γ ⊢nf Level ∷ U zeroᵘ
-    zeroᵘₙ : ⊢ Γ →
+    zeroᵘₙ : Level-allowed →
+             ⊢ Γ →
              Γ ⊢nf zeroᵘ ∷ Level
     sucᵘₙ  : Γ ⊢nf t ∷ Level →
              Γ ⊢nf sucᵘ t ∷ Level
-    Uₙ     : Γ ⊢nf l ∷ Level →
+    Uₙ     : ⊢ Γ →
+             Γ ⊢nf l ∷Level →
              Γ ⊢nf U l ∷ U (sucᵘ l)
-    Liftₙ  : Γ ⊢nf l₂ ∷ Level →
+    Liftₙ  : Γ ⊢nf l₂ ∷Level →
              Γ ⊢nf A ∷ U l₁ →
-             Γ ⊢nf Lift l₂ A ∷ U (l₁ supᵘ l₂)
-    liftₙ  : Γ ⊢ l₂ ∷ Level →
+             Γ ⊢nf Lift l₂ A ∷ U (l₁ supᵘₗ l₂)
+    liftₙ  : Γ ⊢ l₂ ∷Level →
              Γ ⊢nf t ∷ A →
              Γ ⊢nf lift t ∷ Lift l₂ A
     ΠΣₙ    : Γ ⊢nf A ∷ U l →
@@ -140,6 +143,15 @@ mutual
     neₙ    : No-η-equality A →
              Γ ⊢neˡ t ∷ A →
              Γ ⊢nf t ∷ A
+
+  -- Γ ⊢nf t ∷Level holds if t is a level in η-long normal form (with
+  -- respect to the context Γ).
+
+  infix 4 _⊢nf_∷Level
+
+  data _⊢nf_∷Level (Γ : Con Term n) (l : Term n) : Set a where
+    term : Level-allowed → Γ ⊢nf l ∷ Level → Γ ⊢nf l ∷Level
+    literal : ¬ Level-allowed → Level-literal l → Γ ⊢nf l ∷Level
 
   -- Γ ⊢neˡ t ∷ A holds if t is a neutral level for which the
   -- "non-neutral parts" are in η-long normal form.
@@ -213,7 +225,7 @@ mutual
                 Γ ⊢ne v ∷ Id A t t →
                 K-allowed →
                 Γ ⊢ne K p A t B u v ∷ B [ v ]₀
-    []-congₙ  : Γ ⊢nf l ∷ Level →
+    []-congₙ  : Γ ⊢nf l ∷Level →
                 Γ ⊢nf A ∷ U l →
                 Γ ⊢nf t ∷ A →
                 Γ ⊢nf u ∷ A →
@@ -232,22 +244,22 @@ mutual
 
   ⊢nf→⊢ : Γ ⊢nf A → Γ ⊢ A
   ⊢nf→⊢ = λ where
-    (Levelₙ ⊢Γ)   → Levelⱼ′ ⊢Γ
-    (Liftₙ ⊢l ⊢A) → Liftⱼ (⊢nf∷→⊢∷ ⊢l) (⊢nf→⊢ ⊢A)
-    (univₙ ⊢A)    → univ (⊢nf∷→⊢∷ ⊢A)
-    (ΠΣₙ _ ⊢B ok) → ΠΣⱼ (⊢nf→⊢ ⊢B) ok
-    (Idₙ _ ⊢t ⊢u) → Idⱼ′ (⊢nf∷→⊢∷ ⊢t) (⊢nf∷→⊢∷ ⊢u)
+    (Levelₙ ok ⊢Γ) → Levelⱼ′ ok ⊢Γ
+    (Liftₙ ⊢l ⊢A)  → Liftⱼ (⊢nf∷L→⊢∷L ⊢l) (⊢nf→⊢ ⊢A)
+    (univₙ ⊢A)     → univ (⊢nf∷→⊢∷ ⊢A)
+    (ΠΣₙ _ ⊢B ok)  → ΠΣⱼ (⊢nf→⊢ ⊢B) ok
+    (Idₙ _ ⊢t ⊢u)  → Idⱼ′ (⊢nf∷→⊢∷ ⊢t) (⊢nf∷→⊢∷ ⊢u)
 
   -- If t is an η-long normal term, then t is well-typed.
 
   ⊢nf∷→⊢∷ : Γ ⊢nf t ∷ A → Γ ⊢ t ∷ A
   ⊢nf∷→⊢∷ = λ where
     (Levelₙ ⊢Γ ok)      → Levelⱼ ⊢Γ ok
-    (zeroᵘₙ ⊢Γ)         → zeroᵘⱼ ⊢Γ
+    (zeroᵘₙ ok ⊢Γ)      → zeroᵘⱼ ok ⊢Γ
     (sucᵘₙ ⊢t)          → sucᵘⱼ (⊢nf∷→⊢∷ ⊢t)
     (convₙ ⊢t A≡B)      → conv (⊢nf∷→⊢∷ ⊢t) A≡B
-    (Uₙ ⊢l)             → Uⱼ (⊢nf∷→⊢∷ ⊢l)
-    (Liftₙ ⊢l ⊢A)       → Liftⱼ′ (⊢nf∷→⊢∷ ⊢l) (⊢nf∷→⊢∷ ⊢A)
+    (Uₙ ⊢Γ ⊢l)          → Uⱼ ⊢Γ (⊢nf∷L→⊢∷L ⊢l)
+    (Liftₙ ⊢l ⊢A)       → Liftⱼ′ (⊢nf∷L→⊢∷L ⊢l) (⊢nf∷→⊢∷ ⊢A)
     (liftₙ ⊢l ⊢t)       → liftⱼ′ ⊢l (⊢nf∷→⊢∷ ⊢t)
     (ΠΣₙ ⊢A ⊢B ok)      → ΠΣⱼ′ (⊢nf∷→⊢∷ ⊢A) (⊢nf∷→⊢∷ ⊢B) ok
     (lamₙ ⊢t ok)        → lamⱼ′ ok (⊢nf∷→⊢∷ ⊢t)
@@ -261,6 +273,13 @@ mutual
     (Idₙ ⊢A ⊢t ⊢u)      → Idⱼ (⊢nf∷→⊢∷ ⊢A) (⊢nf∷→⊢∷ ⊢t) (⊢nf∷→⊢∷ ⊢u)
     (rflₙ ⊢t)           → rflⱼ ⊢t
     (neₙ _ ⊢t)          → ⊢neˡ∷→⊢∷ ⊢t
+
+  -- If Γ ⊢nf l ∷Level holds, then l is well-typed.
+
+  ⊢nf∷L→⊢∷L : Γ ⊢nf l ∷Level → Γ ⊢ l ∷Level
+  ⊢nf∷L→⊢∷L = λ where
+    (term ok ⊢l)           → term ok (⊢nf∷→⊢∷ ⊢l)
+    (literal not-ok l-lit) → literal not-ok l-lit
 
   -- If Γ ⊢neˡ t ∷ A holds, then t is well-typed.
 
@@ -299,9 +318,9 @@ mutual
 
   ⊢nf→Nf : Γ ⊢nf A → Nf A
   ⊢nf→Nf = λ where
-    (Levelₙ _)     → Levelₙ
+    (Levelₙ _ _)   → Levelₙ
     (univₙ ⊢A)     → ⊢nf∷→Nf ⊢A
-    (Liftₙ ⊢l ⊢A)  → Liftₙ (⊢nf∷→Nf ⊢l) (⊢nf→Nf ⊢A)
+    (Liftₙ ⊢l ⊢A)  → Liftₙ (⊢nf∷L→Nf ⊢l) (⊢nf→Nf ⊢A)
     (ΠΣₙ ⊢A ⊢B _)  → ΠΣₙ (⊢nf→Nf ⊢A) (⊢nf→Nf ⊢B)
     (Idₙ ⊢A ⊢t ⊢u) → Idₙ (⊢nf→Nf ⊢A) (⊢nf∷→Nf ⊢t) (⊢nf∷→Nf ⊢u)
 
@@ -311,11 +330,11 @@ mutual
   ⊢nf∷→Nf = λ where
     (convₙ ⊢t _)      → ⊢nf∷→Nf ⊢t
     (Levelₙ _ _)      → Levelₙ
-    (zeroᵘₙ _)        → zeroᵘₙ
+    (zeroᵘₙ _ _)      → zeroᵘₙ
     (sucᵘₙ ⊢t)        → sucᵘₙ (⊢nf∷→Nf ⊢t)
-    (Uₙ ⊢l)           → Uₙ (⊢nf∷→Nf ⊢l)
-    (Liftₙ ⊢l ⊢A)     → Liftₙ (⊢nf∷→Nf ⊢l) (⊢nf∷→Nf ⊢A)
-    (liftₙ ⊢l ⊢t)     → liftₙ (⊢nf∷→Nf ⊢t)
+    (Uₙ _ ⊢l)         → Uₙ (⊢nf∷L→Nf ⊢l)
+    (Liftₙ ⊢l ⊢A)     → Liftₙ (⊢nf∷L→Nf ⊢l) (⊢nf∷→Nf ⊢A)
+    (liftₙ _ ⊢t)      → liftₙ (⊢nf∷→Nf ⊢t)
     (ΠΣₙ ⊢A ⊢B _)     → ΠΣₙ (⊢nf∷→Nf ⊢A) (⊢nf∷→Nf ⊢B)
     (lamₙ ⊢t _)       → lamₙ (⊢nf∷→Nf ⊢t)
     (prodₙ _ ⊢t ⊢u _) → prodₙ (⊢nf∷→Nf ⊢t) (⊢nf∷→Nf ⊢u)
@@ -328,6 +347,13 @@ mutual
     (Idₙ ⊢A ⊢t ⊢u)    → Idₙ (⊢nf∷→Nf ⊢A) (⊢nf∷→Nf ⊢t) (⊢nf∷→Nf ⊢u)
     (rflₙ ⊢t)         → rflₙ
     (neₙ _ ⊢t)        → ne (⊢neˡ∷→NfNeutralˡ ⊢t)
+
+  -- If l is an η-long normal level, then l is normal.
+
+  ⊢nf∷L→Nf : Γ ⊢nf l ∷Level → Nf l
+  ⊢nf∷L→Nf = λ where
+    (term _ ⊢l)       → ⊢nf∷→Nf ⊢l
+    (literal _ l-lit) → Level-literal→Nf l-lit
 
   -- If Γ ⊢neˡ t ∷ A holds, then t is "NfNeutralˡ".
 
@@ -361,7 +387,7 @@ mutual
     (Kₙ ⊢A ⊢t ⊢B ⊢u ⊢v _)        → Kₙ (⊢nf→Nf ⊢A) (⊢nf∷→Nf ⊢t)
                                      (⊢nf→Nf ⊢B) (⊢nf∷→Nf ⊢u)
                                      (⊢ne∷→NfNeutral ⊢v)
-    ([]-congₙ ⊢l ⊢A ⊢t ⊢u ⊢v _)  → []-congₙ (⊢nf∷→Nf ⊢l) (⊢nf∷→Nf ⊢A)
+    ([]-congₙ ⊢l ⊢A ⊢t ⊢u ⊢v _)  → []-congₙ (⊢nf∷L→Nf ⊢l) (⊢nf∷→Nf ⊢A)
                                      (⊢nf∷→Nf ⊢t) (⊢nf∷→Nf ⊢u)
                                      (⊢ne∷→NfNeutral ⊢v)
 
@@ -377,11 +403,13 @@ opaque
     ⦃ not-ok : No-equality-reflection ⦄ →
     Γ ⊢nf A → Γ ⊢ A ∷ U l → Γ ⊢nf A ∷ U l
   ⊢nf∷U→⊢nf∷U = λ where
-    (Levelₙ ⊢Γ) ⊢Level →
+    (Levelₙ _ ⊢Γ) ⊢Level →
       let A≡ , ok = inversion-Level ⊢Level
       in convₙ (Levelₙ ⊢Γ ok) (sym A≡)
     (univₙ ⊢A) ⊢A∷U →
-      convₙ ⊢A (U-cong (universe-level-unique (⊢nf∷→⊢∷ ⊢A) ⊢A∷U))
+      convₙ ⊢A
+        (U-cong-⊢≡ (wfTerm (⊢nf∷→⊢∷ ⊢A)) $
+         universe-level-unique (⊢nf∷→⊢∷ ⊢A) ⊢A∷U)
     (Liftₙ ⊢l ⊢A) ⊢A∷U →
       let _ , ⊢l′ , ⊢A∷ , U≡U = inversion-Lift∷ ⊢A∷U
       in convₙ (Liftₙ ⊢l (⊢nf∷U→⊢nf∷U ⊢A ⊢A∷)) (sym U≡U)
@@ -404,9 +432,9 @@ mutual
 
   ⊢nf-stable : ⊢ Γ ≡ Δ → Γ ⊢nf A → Δ ⊢nf A
   ⊢nf-stable Γ≡Δ = λ where
-      (Levelₙ ⊢Γ)    → Levelₙ ⊢Δ
+      (Levelₙ ok _)  → Levelₙ ok ⊢Δ
       (univₙ ⊢A)     → univₙ (⊢nf∷-stable Γ≡Δ ⊢A)
-      (Liftₙ ⊢l ⊢A)  → Liftₙ (⊢nf∷-stable Γ≡Δ ⊢l) (⊢nf-stable Γ≡Δ ⊢A)
+      (Liftₙ ⊢l ⊢A)  → Liftₙ (⊢nf∷L-stable Γ≡Δ ⊢l) (⊢nf-stable Γ≡Δ ⊢A)
       (ΠΣₙ ⊢A ⊢B ok) → ΠΣₙ (⊢nf-stable Γ≡Δ ⊢A)
                          (⊢nf-stable (Γ≡Δ ∙ refl (⊢nf→⊢ ⊢A)) ⊢B) ok
       (Idₙ ⊢A ⊢t ⊢u) → Idₙ (⊢nf-stable Γ≡Δ ⊢A) (⊢nf∷-stable Γ≡Δ ⊢t)
@@ -423,13 +451,23 @@ mutual
       (convₙ ⊢t B≡A) → convₙ
         (⊢nf∷-stable Γ≡Δ ⊢t)
         (stabilityEq Γ≡Δ B≡A)
-      (Levelₙ ⊢Γ ok) → Levelₙ ⊢Δ ok
-      (zeroᵘₙ ⊢Γ)   → zeroᵘₙ ⊢Δ
-      (sucᵘₙ ⊢t)    → sucᵘₙ
+      (Levelₙ ⊢Γ ok) → Levelₙ
+        ⊢Δ
+        ok
+      (zeroᵘₙ ok _) → zeroᵘₙ
+        ok
+        ⊢Δ
+      (sucᵘₙ ⊢t) → sucᵘₙ
         (⊢nf∷-stable Γ≡Δ ⊢t)
-      (Uₙ ⊢l)       → Uₙ (⊢nf∷-stable Γ≡Δ ⊢l)
-      (Liftₙ ⊢l ⊢A) → Liftₙ (⊢nf∷-stable Γ≡Δ ⊢l) (⊢nf∷-stable Γ≡Δ ⊢A)
-      (liftₙ ⊢l ⊢t) → liftₙ (stabilityTerm Γ≡Δ ⊢l) (⊢nf∷-stable Γ≡Δ ⊢t)
+      (Uₙ _ ⊢l) → Uₙ
+        ⊢Δ
+        (⊢nf∷L-stable Γ≡Δ ⊢l)
+      (Liftₙ ⊢l ⊢A) → Liftₙ
+        (⊢nf∷L-stable Γ≡Δ ⊢l)
+        (⊢nf∷-stable Γ≡Δ ⊢A)
+      (liftₙ ⊢l ⊢t) → liftₙ
+        (stabilityLevel Γ≡Δ ⊢l)
+        (⊢nf∷-stable Γ≡Δ ⊢t)
       (ΠΣₙ ⊢A ⊢B ok) → ΠΣₙ
         (⊢nf∷-stable Γ≡Δ ⊢A)
         (⊢nf∷-stable (Γ≡Δ ∙ refl (⊢nf→⊢ (univₙ ⊢A))) ⊢B)
@@ -460,6 +498,13 @@ mutual
         (⊢neˡ∷-stable Γ≡Δ ⊢t)
     where
     ⊢Δ = contextConvSubst Γ≡Δ .proj₂ .proj₁
+
+  -- A stability lemma for _⊢nf_∷Level.
+
+  ⊢nf∷L-stable : ⊢ Γ ≡ Δ → Γ ⊢nf l ∷Level → Δ ⊢nf l ∷Level
+  ⊢nf∷L-stable Γ≡Δ = λ where
+    (term ok ⊢l)           → term ok (⊢nf∷-stable Γ≡Δ ⊢l)
+    (literal not-ok l-lit) → literal not-ok l-lit
 
   -- If t is a neutral level (according to _⊢neˡ_∷_) with respect to the
   -- context Γ, and Γ is judgmentally equal to Δ, then t is also a
@@ -536,7 +581,7 @@ mutual
         (⊢ne∷-stable Γ≡Δ ⊢v)
         ok
       ([]-congₙ ⊢l ⊢A ⊢t ⊢u ⊢v ok) → []-congₙ
-        (⊢nf∷-stable Γ≡Δ ⊢l)
+        (⊢nf∷L-stable Γ≡Δ ⊢l)
         (⊢nf∷-stable Γ≡Δ ⊢A)
         (⊢nf∷-stable Γ≡Δ ⊢t)
         (⊢nf∷-stable Γ≡Δ ⊢u)
@@ -557,7 +602,8 @@ inversion-nf-ΠΣ-U :
   ΠΣ-allowed b p q
 inversion-nf-ΠΣ-U (ΠΣₙ ⊢A ⊢B ok) =
   _ , ⊢A , ⊢B ,
-  refl (⊢U (inversion-U-Level (syntacticTerm (⊢nf∷→⊢∷ ⊢A)))) , ok
+  refl (uncurry ⊢U (inversion-U-Level (syntacticTerm (⊢nf∷→⊢∷ ⊢A)))) ,
+  ok
 inversion-nf-ΠΣ-U (convₙ ⊢ΠΣ D≡C) =
   case inversion-nf-ΠΣ-U ⊢ΠΣ of λ {
     (_ , ⊢A , ⊢B , D≡U , ok) →
@@ -997,7 +1043,7 @@ opaque
   inversion-ne-[]-cong :
     Γ ⊢ne []-cong s l A t u v ∷ B →
     let open Erased s in
-    Γ ⊢nf l ∷ Level ×
+    Γ ⊢nf l ∷Level ×
     Γ ⊢nf A ∷ U l ×
     Γ ⊢nf t ∷ A ×
     Γ ⊢nf u ∷ A ×
@@ -1019,7 +1065,7 @@ opaque
   inversion-nf-[]-cong :
     Γ ⊢nf []-cong s l A t u v ∷ B →
     let open Erased s in
-    Γ ⊢nf l ∷ Level ×
+    Γ ⊢nf l ∷Level ×
     Γ ⊢nf A ∷ U l ×
     Γ ⊢nf t ∷ A ×
     Γ ⊢nf u ∷ A ×
@@ -1040,7 +1086,7 @@ opaque
   inversion-nf-ne-[]-cong :
     Γ ⊢nf []-cong s l A t u v ∷ B ⊎ Γ ⊢ne []-cong s l A t u v ∷ B →
     let open Erased s in
-    Γ ⊢nf l ∷ Level ×
+    Γ ⊢nf l ∷Level ×
     Γ ⊢nf A ∷ U l ×
     Γ ⊢nf t ∷ A ×
     Γ ⊢nf u ∷ A ×
@@ -1117,9 +1163,9 @@ opaque
     (neₙ A-no-η _) A≡Π _ →
       No-η-equality→≢Π A-no-η A≡Π
     (Levelₙ _ _)    _ ()
-    (zeroᵘₙ _)      _ ()
+    (zeroᵘₙ _ _)    _ ()
     (sucᵘₙ _)       _ ()
-    (Uₙ _)          _ ()
+    (Uₙ _ _)        _ ()
     (Liftₙ _ _)     _ ()
     (liftₙ _ _)     _ ()
     (ΠΣₙ _ _ _)     _ ()
@@ -1151,9 +1197,9 @@ opaque
     (neₙ A-no-η _) A≡Σ _ →
       No-η-equality→≢Σˢ A-no-η A≡Σ
     (Levelₙ _ _)    _ ()
-    (zeroᵘₙ _)      _ ()
+    (zeroᵘₙ _ _)    _ ()
     (sucᵘₙ _)       _ ()
-    (Uₙ _)          _ ()
+    (Uₙ _ _)        _ ()
     (Liftₙ _ _)     _ ()
     (liftₙ _ _)     _ ()
     (ΠΣₙ _ _ _)     _ ()
@@ -1187,9 +1233,9 @@ opaque
     (convₙ ⊢t ≡A)   → ⊢nf∷Unitˢ→≡starˢ′ (trans ≡A A≡Unit) ⊢t
     (neₙ A-no-η _)  → ⊥-elim (No-η-equality→≢Unit A-no-η A≡Unit ok)
     (Levelₙ _ _)    → ⊥-elim (U≢Unitⱼ A≡Unit)
-    (zeroᵘₙ _)      → ⊥-elim (Level≢Unitⱼ A≡Unit)
+    (zeroᵘₙ _ _)    → ⊥-elim (Level≢Unitⱼ A≡Unit)
     (sucᵘₙ _)       → ⊥-elim (Level≢Unitⱼ A≡Unit)
-    (Uₙ _)          → ⊥-elim (U≢Unitⱼ A≡Unit)
+    (Uₙ _ _)        → ⊥-elim (U≢Unitⱼ A≡Unit)
     (Liftₙ _ _)     → ⊥-elim (U≢Unitⱼ A≡Unit)
     (liftₙ _ _)     → ⊥-elim (Lift≢Unitⱼ A≡Unit)
     (ΠΣₙ _ _ _)     → ⊥-elim (U≢Unitⱼ A≡Unit)
@@ -1219,9 +1265,9 @@ opaque
     (convₙ ⊢t ≡A)   → ⊢nf∷Lift→≡lift′ (trans ≡A A≡Lift) ⊢t
     (neₙ A-no-η _)  → ⊥-elim (No-η-equality→≢Lift A-no-η A≡Lift)
     (Levelₙ _ _)    → ⊥-elim (U≢Liftⱼ A≡Lift)
-    (zeroᵘₙ _)      → ⊥-elim (Lift≢Level (sym A≡Lift))
+    (zeroᵘₙ _ _)    → ⊥-elim (Lift≢Level (sym A≡Lift))
     (sucᵘₙ _)       → ⊥-elim (Lift≢Level (sym A≡Lift))
-    (Uₙ _)          → ⊥-elim (U≢Liftⱼ A≡Lift)
+    (Uₙ _ _)        → ⊥-elim (U≢Liftⱼ A≡Lift)
     (Liftₙ _ _)     → ⊥-elim (U≢Liftⱼ A≡Lift)
     (ΠΣₙ _ _ _)     → ⊥-elim (U≢Liftⱼ A≡Lift)
     (lamₙ _ _)      → ⊥-elim (Lift≢ΠΣⱼ (sym A≡Lift))

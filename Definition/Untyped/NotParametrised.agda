@@ -175,3 +175,36 @@ data _<ᵘ_ : Universe-level → Universe-level → Set where
 
 0ᵘ<ᵘ1ᵘ : 0ᵘ <ᵘ 1ᵘ
 0ᵘ<ᵘ1ᵘ = <ᵘ-fin ≤′-refl
+
+------------------------------------------------------------------------
+-- Level-support
+
+-- If Level is a type, is it small?
+
+data Level-small : Set where
+  small not-small : Level-small
+
+-- Is Level a type, and in that case is the type small?
+
+data Level-support : Set where
+  -- Only level literals are allowed. Level is not a type.
+  only-literals : Level-support
+  -- Level is a type.
+  level-type : Level-small → Level-support
+
+private variable
+  sm sm₁ sm₂ : Level-small
+
+-- An ordering relation for Level-small.
+
+infix 4 _≤LSm_
+
+data _≤LSm_ : Level-small → Level-small → Set where
+  not-small≤  : not-small ≤LSm sm
+  small≤small : small     ≤LSm small
+
+-- An ordering relation for Level-support.
+
+data _≤LS_ : Level-support → Level-support → Set where
+  only-literals≤ : only-literals ≤LS only-literals
+  level-type     : sm₁ ≤LSm sm₂ → level-type sm₁ ≤LS level-type sm₂

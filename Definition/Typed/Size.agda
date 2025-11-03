@@ -33,7 +33,7 @@ opaque mutual
   size-⊢ : Γ ⊢ A → Size
   size-⊢ (Levelⱼ _ ⊢Γ)  = node (size-⊢′ ⊢Γ)
   size-⊢ (univ ⊢A)      = node (size-⊢∷ ⊢A)
-  size-⊢ (Liftⱼ ⊢l ⊢A)  = size-⊢∷ ⊢l ⊕ size-⊢ ⊢A
+  size-⊢ (Liftⱼ ⊢l ⊢A)  = size-⊢∷L ⊢l ⊕ size-⊢ ⊢A
   size-⊢ (ΠΣⱼ ⊢B _)     = node (size-⊢ ⊢B)
   size-⊢ (Idⱼ ⊢A ⊢t ⊢u) = size-⊢ ⊢A ⊕ size-⊢∷ ⊢t ⊕ size-⊢∷ ⊢u
 
@@ -46,22 +46,22 @@ opaque mutual
     node (size-⊢′ ⊢Γ)
   size-⊢∷ (Levelⱼ ⊢Γ _) =
     node (size-⊢′ ⊢Γ)
-  size-⊢∷ (zeroᵘⱼ ⊢Γ) =
+  size-⊢∷ (zeroᵘⱼ _ ⊢Γ) =
     node (size-⊢′ ⊢Γ)
   size-⊢∷ (sucᵘⱼ ⊢t) =
     node (size-⊢∷ ⊢t)
   size-⊢∷ (supᵘⱼ ⊢t ⊢u) =
     size-⊢∷ ⊢t ⊕ size-⊢∷ ⊢u
-  size-⊢∷ (Uⱼ ⊢l) =
-    node (size-⊢∷ ⊢l)
+  size-⊢∷ (Uⱼ ⊢Γ ⊢l) =
+    size-⊢′ ⊢Γ ⊕ size-⊢∷L ⊢l
   size-⊢∷ (Liftⱼ ⊢l₁ ⊢l₂ ⊢A) =
-    size-⊢∷ ⊢l₁ ⊕ size-⊢∷ ⊢l₂ ⊕ size-⊢∷ ⊢A
+    size-⊢∷L ⊢l₁ ⊕ size-⊢∷L ⊢l₂ ⊕ size-⊢∷ ⊢A
   size-⊢∷ (liftⱼ ⊢l₂ ⊢A ⊢t) =
-    size-⊢∷ ⊢l₂ ⊕ size-⊢ ⊢A ⊕ size-⊢∷ ⊢t
+    size-⊢∷L ⊢l₂ ⊕ size-⊢ ⊢A ⊕ size-⊢∷ ⊢t
   size-⊢∷ (lowerⱼ ⊢t) =
     node (size-⊢∷ ⊢t)
   size-⊢∷ (ΠΣⱼ ⊢l ⊢A ⊢B _) =
-    size-⊢∷ ⊢l ⊕ size-⊢∷ ⊢A ⊕ size-⊢∷ ⊢B
+    size-⊢∷L ⊢l ⊕ size-⊢∷ ⊢A ⊕ size-⊢∷ ⊢B
   size-⊢∷ (lamⱼ ⊢B ⊢t _) =
     size-⊢ ⊢B ⊕ size-⊢∷ ⊢t
   size-⊢∷ (⊢t ∘ⱼ ⊢u) =
@@ -102,7 +102,14 @@ opaque mutual
   size-⊢∷ (Kⱼ ⊢B ⊢u ⊢v _) =
     size-⊢ ⊢B ⊕ size-⊢∷ ⊢u ⊕ size-⊢∷ ⊢v
   size-⊢∷ ([]-congⱼ ⊢l ⊢A ⊢t ⊢u ⊢v _) =
-    (size-⊢∷ ⊢l ⊕ size-⊢∷ ⊢A ⊕ size-⊢∷ ⊢t) ⊕ (size-⊢∷ ⊢u ⊕ size-⊢∷ ⊢v)
+    (size-⊢∷L ⊢l ⊕ size-⊢∷ ⊢A ⊕ size-⊢∷ ⊢t) ⊕
+    (size-⊢∷ ⊢u ⊕ size-⊢∷ ⊢v)
+
+  -- The size of a derivation.
+
+  size-⊢∷L : Γ ⊢ t ∷Level → Size
+  size-⊢∷L (term _ ⊢t)   = node (size-⊢∷ ⊢t)
+  size-⊢∷L (literal _ _) = leaf
 
   -- The size of a derivation.
 
@@ -118,7 +125,7 @@ opaque mutual
   size-⊢≡ (U-cong l₁≡l₂) =
     node (size-⊢≡∷ l₁≡l₂)
   size-⊢≡ (Lift-cong l₂≡l₂′ A≡B) =
-    size-⊢≡∷ l₂≡l₂′ ⊕ size-⊢≡ A≡B
+    size-⊢≡∷L l₂≡l₂′ ⊕ size-⊢≡ A≡B
   size-⊢≡ (ΠΣ-cong A₁≡B₁ A₂≡B₂ _) =
     size-⊢≡ A₁≡B₁ ⊕ size-⊢≡ A₂≡B₂
   size-⊢≡ (Id-cong A≡B t₁≡u₁ t₂≡u₂) =
@@ -153,16 +160,17 @@ opaque mutual
     node (size-⊢∷ ⊢l)
   size-⊢≡∷ (U-cong l₁≡l₂) =
     node (size-⊢≡∷ l₁≡l₂)
-  size-⊢≡∷ (Lift-cong ⊢l₁ l₂≡l₂′ A≡B) =
-    size-⊢∷ ⊢l₁ ⊕ size-⊢≡∷ l₂≡l₂′ ⊕ size-⊢≡∷ A≡B
+  size-⊢≡∷ (Lift-cong ⊢l₁ ⊢l₂ l₂≡l₂′ A≡B) =
+    (size-⊢∷L ⊢l₁ ⊕ size-⊢∷L ⊢l₂) ⊕ (size-⊢≡∷L l₂≡l₂′ ⊕ size-⊢≡∷ A≡B)
   size-⊢≡∷ (lower-cong t≡u) =
     node (size-⊢≡∷ t≡u)
   size-⊢≡∷ (Lift-β ⊢A ⊢t) =
     size-⊢ ⊢A ⊕ size-⊢∷ ⊢t
   size-⊢≡∷ (Lift-η ⊢l₂ ⊢A ⊢t ⊢u t≡u) =
-    (size-⊢∷ ⊢l₂ ⊕ size-⊢ ⊢A ⊕ size-⊢∷ ⊢t) ⊕ (size-⊢∷ ⊢u ⊕ size-⊢≡∷ t≡u)
+    (size-⊢∷L ⊢l₂ ⊕ size-⊢ ⊢A ⊕ size-⊢∷ ⊢t) ⊕
+    (size-⊢∷ ⊢u ⊕ size-⊢≡∷ t≡u)
   size-⊢≡∷ (ΠΣ-cong l A₁≡B₁ A₂≡B₂ _) =
-    size-⊢∷ l ⊕ size-⊢≡∷ A₁≡B₁ ⊕ size-⊢≡∷ A₂≡B₂
+    size-⊢∷L l ⊕ size-⊢≡∷ A₁≡B₁ ⊕ size-⊢≡∷ A₂≡B₂
   size-⊢≡∷ (app-cong t₁≡u₁ t₂≡u₂) =
     size-⊢≡∷ t₁≡u₁ ⊕ size-⊢≡∷ t₂≡u₂
   size-⊢≡∷ (β-red ⊢B ⊢t ⊢u _ _) =
@@ -214,13 +222,19 @@ opaque mutual
     (size-⊢≡ A₁≡B₁ ⊕ size-⊢≡∷ t₁≡u₁) ⊕
     (size-⊢≡ A₂≡B₂ ⊕ size-⊢≡∷ t₂≡u₂ ⊕ size-⊢≡∷ t₃≡u₃)
   size-⊢≡∷ ([]-cong-cong t₁≡u₁ A≡B t₂≡u₂ t₃≡u₃ t₄≡u₄ _) =
-    (size-⊢≡∷ t₁≡u₁ ⊕ size-⊢≡∷ A≡B ⊕ size-⊢≡∷ t₂≡u₂) ⊕
+    (size-⊢≡∷L t₁≡u₁ ⊕ size-⊢≡∷ A≡B ⊕ size-⊢≡∷ t₂≡u₂) ⊕
     (size-⊢≡∷ t₃≡u₃ ⊕ size-⊢≡∷ t₄≡u₄)
   size-⊢≡∷ (J-β ⊢t ⊢B ⊢u _) =
     size-⊢∷ ⊢t ⊕ size-⊢ ⊢B ⊕ size-⊢∷ ⊢u
   size-⊢≡∷ (K-β ⊢B ⊢u _) =
     size-⊢ ⊢B ⊕ size-⊢∷ ⊢u
   size-⊢≡∷ ([]-cong-β ⊢l ⊢A ⊢t _ _) =
-    size-⊢∷ ⊢l ⊕ size-⊢∷ ⊢A ⊕ size-⊢∷ ⊢t
+    size-⊢∷L ⊢l ⊕ size-⊢∷ ⊢A ⊕ size-⊢∷ ⊢t
   size-⊢≡∷ (equality-reflection _ ⊢Id ⊢v) =
     size-⊢ ⊢Id ⊕ size-⊢∷ ⊢v
+
+  -- The size of a derivation.
+
+  size-⊢≡∷L : Γ ⊢ t ≡ u ∷Level → Size
+  size-⊢≡∷L (term _ t≡u)  = node (size-⊢≡∷ t≡u)
+  size-⊢≡∷L (literal _ _) = leaf

@@ -36,6 +36,7 @@ private
   variable
     n : Nat
     Γ Δ : Con Term n
+    l₁ l₂ : Term _
     d : Bool
 
 mutual
@@ -95,7 +96,7 @@ mutual
       (stabilityConv↑Term Γ≡Δ u₁≡u₂) (stability~↓ Γ≡Δ v₁~v₂)
       (stabilityEq Γ≡Δ ≡Id) ok }
   stability~↑ Γ≡Δ ([]-cong-cong l₁≡l₂ A₁≡A₂ t₁≡t₂ u₁≡u₂ v₁~v₂ ≡Id ok) =
-    []-cong-cong (stabilityConv↑Term Γ≡Δ l₁≡l₂)
+    []-cong-cong (stabilityConv↑Level Γ≡Δ l₁≡l₂)
       (stabilityConv↑Term Γ≡Δ A₁≡A₂) (stabilityConv↑Term Γ≡Δ t₁≡t₂)
       (stabilityConv↑Term Γ≡Δ u₁≡u₂) (stability~↓ Γ≡Δ v₁~v₂)
       (stabilityEq Γ≡Δ ≡Id) ok
@@ -129,13 +130,14 @@ mutual
                  → ⊢ Γ ≡ Δ
                  → Γ ⊢ A [conv↓] B
                  → Δ ⊢ A [conv↓] B
-  stabilityConv↓ Γ≡Δ (Level-refl x) =
-    let _ , ⊢Δ , _ = contextConvSubst Γ≡Δ
-    in  Level-refl ⊢Δ
-  stabilityConv↓ Γ≡Δ (U-cong x) =
-    U-cong (stabilityConv↑Term Γ≡Δ x)
+  stabilityConv↓ Γ≡Δ (Level-refl ok _) =
+    let _ , ⊢Δ , _ = contextConvSubst Γ≡Δ in
+    Level-refl ok ⊢Δ
+  stabilityConv↓ Γ≡Δ (U-cong _ l₁≡l₂) =
+    let _ , ⊢Δ , _ = contextConvSubst Γ≡Δ in
+    U-cong ⊢Δ (stabilityConv↑Level Γ≡Δ l₁≡l₂)
   stabilityConv↓ Γ≡Δ (Lift-cong l₁≡l₂ F≡H) =
-    Lift-cong (stabilityConv↑Term Γ≡Δ l₁≡l₂) (stabilityConv↑ Γ≡Δ F≡H)
+    Lift-cong (stabilityConv↑Level Γ≡Δ l₁≡l₂) (stabilityConv↑ Γ≡Δ F≡H)
   stabilityConv↓ Γ≡Δ (ℕ-refl x) =
     let _ , ⊢Δ , _ = contextConvSubst Γ≡Δ
     in  ℕ-refl ⊢Δ
@@ -165,6 +167,16 @@ mutual
     [↑]ₜ B t′ u′ (stabilityRed↘ Γ≡Δ D) (stabilityRed↘Term Γ≡Δ d)
                  (stabilityRed↘Term Γ≡Δ d′)
                  (stabilityConv↓Term Γ≡Δ t<>u)
+
+  -- Stability for _⊢_[conv↑]_∷Level.
+  stabilityConv↑Level :
+    ⊢ Γ ≡ Δ →
+    Γ ⊢ l₁ [conv↑] l₂ ∷Level →
+    Δ ⊢ l₁ [conv↑] l₂ ∷Level
+  stabilityConv↑Level Γ≡Δ (term ok l₁≡l₂) =
+    term ok (stabilityConv↑Term Γ≡Δ l₁≡l₂)
+  stabilityConv↑Level _ (literal! not-ok l-lit) =
+    literal! not-ok l-lit
 
   -- Stability of algorithmic equality of terms in WHNF.
   stabilityConv↓Term : ∀ {t u A}
@@ -317,7 +329,8 @@ mutual
     → (Γ≡Δ : ⊢ Γ ≡ Δ)
     → Γ ⊢ t ↓ᵛ v
     → Δ ⊢ t ↓ᵛ stabilityLevelᵛ Γ≡Δ v
-  stability-↓ᵛ Γ≡Δ (zeroᵘₙ x) = zeroᵘₙ (contextConvSubst Γ≡Δ .proj₂ .proj₁)
+  stability-↓ᵛ Γ≡Δ (zeroᵘₙ ok _) =
+    zeroᵘₙ ok (contextConvSubst Γ≡Δ .proj₂ .proj₁)
   stability-↓ᵛ Γ≡Δ (sucᵘₙ x t↑) = sucᵘₙ (stability-sucᵛ Γ≡Δ _ _ x) (stability-↑ᵛ Γ≡Δ t↑)
   stability-↓ᵛ Γ≡Δ (neₙ x) = neₙ (stability-~ᵛ Γ≡Δ x)
 

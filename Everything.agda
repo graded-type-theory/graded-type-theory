@@ -112,9 +112,9 @@ import Definition.Typed.Size
 import Definition.Typed.Reasoning.Type
 import Definition.Typed.Reasoning.Term.Primitive
 import Definition.Typed.Properties.Admissible.Var
-import Definition.Typed.Properties.Admissible.U
 import Definition.Typed.Properties.Well-formed
 import Definition.Typed.Properties.Admissible.Level.Primitive
+import Definition.Typed.Properties.Admissible.U.Primitive
 import Definition.Typed.Inversion.Primitive
 import Definition.Typed.Weakening
 import Definition.Typed.Stability.Primitive
@@ -124,6 +124,7 @@ import Definition.Typed.Properties.Admissible.Pi-Sigma.Primitive
 import Definition.Typed.Properties.Admissible.Sigma.Primitive
 import Definition.Typed.Properties.Admissible.Erased.Primitive
 import Definition.Typed.Well-formed
+import Definition.Typed.Properties.Admissible.U
 import Definition.Typed.Substitution.Primitive
 import Definition.Typed.Properties.Admissible.Equality
 import Definition.Typed.Properties.Admissible.Identity.Primitive

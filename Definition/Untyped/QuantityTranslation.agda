@@ -35,18 +35,18 @@ private
   module UP₂ = Definition.Untyped.Properties M₂
 
 private variable
-  m n                   : Nat
-  bs                    : List _
-  x                     : Fin _
-  p q r                 : M₂
-  s                     : Strength
-  b                     : BinderMode
-  ts us                 : GenTs _ _ _
-  k₁ k₂                 : Kind _ _
-  A B j l l₁ l₂ t u v w : Term _ _
-  ρ                     : Wk _ _
-  σ                     : Subst _ _ _
-  tv₁ tv₂               : Type-variant
+  m n                      : Nat
+  bs                       : List _
+  x                        : Fin _
+  p q r                    : M₂
+  s                        : Strength
+  b                        : BinderMode
+  ts us                    : GenTs _ _ _
+  k₁ k₂                    : Kind _ _
+  A B j l l′ l₁ l₂ t u v w : Term _ _
+  ρ                        : Wk _ _
+  σ                        : Subst _ _ _
+  tv₁ tv₂                  : Type-variant
 
 ------------------------------------------------------------------------
 -- Translation
@@ -1556,6 +1556,79 @@ tr-Term-wk⁻¹ {t} {ρ} {u} eq =
     U₂.fromTerm (U₂.wk ρ u)                            ≡⟨ cong U₂.fromTerm (UP₂.wk≡wk′ u) ⟩
     U₂.fromTerm (U₂.toTerm (U₂.wk′ ρ (U₂.fromTerm u))) ≡⟨ UP₂.fromTerm∘toTerm _ ⟩
     U₂.wk′ ρ (U₂.fromTerm u)                           ∎
+
+------------------------------------------------------------------------
+-- Some lemmas related to level literals
+
+opaque
+
+  -- Translation preserves level literals (in both directions).
+
+  tr-Level-literal : U₁.Level-literal l ⇔ U₂.Level-literal (tr-Term l)
+  tr-Level-literal = to # flip from refl
+    where
+    to : U₁.Level-literal l → U₂.Level-literal (tr-Term l)
+    to zeroᵘ    = zeroᵘ
+    to (sucᵘ l) = sucᵘ (to l)
+
+    from : U₂.Level-literal l′ → tr-Term l ≡ l′ → U₁.Level-literal l
+    from zeroᵘ eq =
+      case tr-Term-zeroᵘ eq of λ {
+        refl →
+      zeroᵘ }
+    from (sucᵘ l) eq =
+      case tr-Term-sucᵘ eq of λ {
+        (_ # refl # eq) →
+      sucᵘ (from l eq) }
+
+opaque
+  unfolding size-of-Level tr-Level-literal
+
+  -- A lemma related to size-of-Level and tr-Level-literal.
+
+  size-of-Level-tr-Level-literal :
+    {l-lit : U₁.Level-literal l} →
+    U₁.size-of-Level l-lit ≡
+    U₂.size-of-Level (tr-Level-literal .proj₁ l-lit)
+  size-of-Level-tr-Level-literal {l-lit = zeroᵘ} =
+    refl
+  size-of-Level-tr-Level-literal {l-lit = sucᵘ _} =
+    cong 1+ size-of-Level-tr-Level-literal
+
+opaque
+
+  -- The function tr-Term commutes with ↓ᵘ_.
+
+  tr-Term-↓ᵘ : tr-Term {n = n} (U₁.↓ᵘ m) ≡ U₂.↓ᵘ m
+  tr-Term-↓ᵘ {m = 0}    = refl
+  tr-Term-↓ᵘ {m = 1+ _} = cong sucᵘ tr-Term-↓ᵘ
+
+opaque
+  unfolding Definition.Untyped._supᵘₗ′_
+
+  -- The function tr-Term commutes with _supᵘₗ′_.
+
+  tr-Term-supᵘₗ′ :
+    tr-Term l₁ U₂.supᵘₗ′ tr-Term l₂ ≡
+    tr-Term (l₁ U₁.supᵘₗ′ l₂)
+  tr-Term-supᵘₗ′ {l₁} {l₂}
+    with U₁.level-literal? l₁ | U₁.level-literal? l₂
+  … | literal l₁-lit | literal l₂-lit =
+    let l₁-lit′ = tr-Level-literal .proj₁ l₁-lit
+        l₂-lit′ = tr-Level-literal .proj₁ l₂-lit
+    in
+    tr-Term l₁ U₂.supᵘₗ′ tr-Term l₂                                      ≡⟨ UP₂.supᵘₗ′≡↓ᵘ⊔ _ _ ⟩
+    U₂.↓ᵘ (U₂.size-of-Level l₁-lit′ ⊔ U₂.size-of-Level l₂-lit′)          ≡˘⟨ cong₂ (λ m n → U₂.↓ᵘ (m ⊔ n))
+                                                                               size-of-Level-tr-Level-literal
+                                                                               size-of-Level-tr-Level-literal ⟩
+    U₂.↓ᵘ (U₁.size-of-Level l₁-lit ⊔ U₁.size-of-Level l₂-lit)            ≡˘⟨ tr-Term-↓ᵘ ⟩
+    tr-Term (U₁.↓ᵘ (U₁.size-of-Level l₁-lit ⊔ U₁.size-of-Level l₂-lit))  ∎
+  … | literal l₁-lit | not-literal l₂-not =
+    tr-Term l₁ U₂.supᵘₗ′ tr-Term l₂  ≡⟨ UP₂.supᵘₗ′≡supᵘ (l₂-not ∘→ tr-Level-literal .proj₂ ∘→ proj₂) ⟩
+    tr-Term l₁ U₂.supᵘ tr-Term l₂    ∎
+  … | not-literal l₁-not | _ =
+    tr-Term l₁ U₂.supᵘₗ′ tr-Term l₂  ≡⟨ UP₂.supᵘₗ′≡supᵘ (l₁-not ∘→ tr-Level-literal .proj₂ ∘→ proj₁) ⟩
+    tr-Term l₁ U₂.supᵘ tr-Term l₂    ∎
 
 ------------------------------------------------------------------------
 -- Results that are proved under the assumption that the translation

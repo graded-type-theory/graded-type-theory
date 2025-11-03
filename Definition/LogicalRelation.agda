@@ -117,20 +117,22 @@ _⊩Level_≡_ : (Γ : Con Term ℓ) (A B : Term ℓ) → Set a
 
 mutual
   -- Level terms
-  record _⊩Level_∷Level (Γ : Con Term ℓ) (t : Term ℓ) : Set a where
-    inductive
-    no-eta-equality
-    pattern
-    constructor Levelₜ
-    field
-      k : Term ℓ
-      d : Γ ⊢ t ⇒* k ∷ Level
-      prop : Level-prop Γ k
+  data _⊩Level_∷Level (Γ : Con Term ℓ) (l : Term ℓ) : Set a where
+    term :
+      {l′ : Term ℓ}
+      (l⇒l′ : Γ ⊢ l ⇒* l′ ∷ Level)
+      (l′-prop : Level-prop Γ l′) →
+      Γ ⊩Level l ∷Level
+    literal :
+      (not-ok : ¬ Level-allowed)
+      (l-lit : Level-literal l) →
+      Γ ⊩Level l ∷Level
 
   -- WHNF property of level terms
   data Level-prop (Γ : Con Term ℓ) : (k : Term ℓ) → Set a where
-    zeroᵘᵣ : Level-prop Γ zeroᵘ
-    sucᵘᵣ  : ∀ {k} → Γ ⊩Level k ∷Level → Level-prop Γ (sucᵘ k)
+    zeroᵘᵣ : Level-allowed → Level-prop Γ zeroᵘ
+    sucᵘᵣ  : ∀ {k} → Level-allowed → Γ ⊩Level k ∷Level →
+             Level-prop Γ (sucᵘ k)
     neLvl : ∀ {k} → neLevel-prop Γ k → Level-prop Γ k
 
   -- Neutral property of level terms
@@ -149,23 +151,27 @@ mutual
 
 mutual
   -- Level term equality
-  record _⊩Level_≡_∷Level (Γ : Con Term ℓ) (t u : Term ℓ) : Set a where
-    inductive
-    no-eta-equality
-    pattern
-    constructor Levelₜ₌
-    field
-      k k′ : Term ℓ
-      d : Γ ⊢ t ⇒* k ∷ Level
-      d′ : Γ ⊢ u ⇒* k′ ∷ Level
-      prop : [Level]-prop Γ k k′
+  data _⊩Level_≡_∷Level (Γ : Con Term ℓ) (l₁ l₂ : Term ℓ) : Set a where
+    term :
+      {l₁′ l₂′ : Term ℓ}
+      (l₁⇒l₁′ : Γ ⊢ l₁ ⇒* l₁′ ∷ Level)
+      (l₂⇒l₂′ : Γ ⊢ l₂ ⇒* l₂′ ∷ Level)
+      (l₁′≡l₂′ : [Level]-prop Γ l₁′ l₂′) →
+      Γ ⊩Level l₁ ≡ l₂ ∷Level
+    literal :
+      (not-ok : ¬ Level-allowed)
+      (l-lit : Level-literal l₁) →
+      l₁ PE.≡ l₂ →
+      Γ ⊩Level l₁ ≡ l₂ ∷Level
 
   -- WHNF property of level term equality
   data [Level]-prop (Γ : Con Term ℓ) : (k k′ : Term ℓ) → Set a where
     zeroᵘᵣ
-      : [Level]-prop Γ zeroᵘ zeroᵘ
+      : Level-allowed
+      → [Level]-prop Γ zeroᵘ zeroᵘ
     sucᵘᵣ
       : ∀ {k k′}
+      → Level-allowed
       → Γ ⊩Level k ≡ k′ ∷Level
       → [Level]-prop Γ (sucᵘ k) (sucᵘ k′)
     supᵘ-subᵣ
@@ -241,6 +247,8 @@ mutual
       → [neLevel]-prop Γ (t₁ supᵘ t₂) t₁
     ne : ∀ {k k′} → Γ ⊩neNf k ≡ k′ ∷ Level → [neLevel]-prop Γ k k′
 
+pattern literal! not-ok l-lit = literal not-ok l-lit PE.refl
+
 -- Level realisation
 
 abstract
@@ -254,12 +262,13 @@ abstract
 opaque mutual
 
   ↑ⁿ_ : Γ ⊩Level t ∷Level → Nat
-  ↑ⁿ [t] = ↑ⁿ-prop ([t] ._⊩Level_∷Level.prop)
+  ↑ⁿ term _ l′-prop  = ↑ⁿ-prop l′-prop
+  ↑ⁿ literal _ l-lit = size-of-Level l-lit
 
   ↑ⁿ-prop : Level-prop Γ t → Nat
-  ↑ⁿ-prop zeroᵘᵣ    = 0
-  ↑ⁿ-prop (sucᵘᵣ k) = 1+ (↑ⁿ k)
-  ↑ⁿ-prop (neLvl n) = ↑ⁿ-neprop n
+  ↑ⁿ-prop (zeroᵘᵣ _)  = 0
+  ↑ⁿ-prop (sucᵘᵣ _ k) = 1+ (↑ⁿ k)
+  ↑ⁿ-prop (neLvl n)   = ↑ⁿ-neprop n
 
   ↑ⁿ-neprop : neLevel-prop Γ t → Nat
   ↑ⁿ-neprop (supᵘˡᵣ x₁ x₂) = ↑ⁿ-neprop x₁ ⊔ ↑ⁿ x₂

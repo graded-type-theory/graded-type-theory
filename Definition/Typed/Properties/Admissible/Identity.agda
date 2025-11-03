@@ -20,8 +20,9 @@ open import Definition.Typed.Inversion R
 open import Definition.Typed.Properties.Admissible.Equality R
 import Definition.Typed.Properties.Admissible.Erased.Primitive R as EP
 import Definition.Typed.Properties.Admissible.Identity.Primitive
+open import Definition.Typed.Properties.Admissible.Level R
 open import Definition.Typed.Properties.Admissible.Pi R
-open import Definition.Typed.Properties.Admissible.U R
+open import Definition.Typed.Properties.Admissible.U.Primitive R
 open import Definition.Typed.Properties.Admissible.Var R
 open import Definition.Typed.Properties.Reduction R
 open import Definition.Typed.Properties.Well-formed R
@@ -402,11 +403,11 @@ opaque
       Γ ⊢ []-cong s l A t t′ rfl ≡ rfl ∷
         Id (Erased l A) ([ t ]) ([ t′ ])
   []-cong-β-≡ ⊢A t≡t′ ok =
-    let ⊢l           = inversion-U-Level (wf-⊢∷ ⊢A)
+    let _ , ⊢l       = inversion-U-Level (wf-⊢∷ ⊢A)
         _ , ⊢t , ⊢t′ = wf-⊢≡∷ t≡t′
     in
     trans
-      ([]-cong-cong (refl ⊢l) (refl ⊢A) (refl ⊢t) (sym′ t≡t′)
+      ([]-cong-cong (refl-⊢≡∷L ⊢l) (refl ⊢A) (refl ⊢t) (sym′ t≡t′)
          (refl (rflⱼ′ t≡t′)) ok)
       (conv ([]-cong-β ⊢l ⊢A ⊢t PE.refl ok)
          (Id-cong (refl (Erasedⱼ ⊢l ⊢A)) (refl ([]ⱼ ⊢l ⊢A ⊢t))
@@ -560,12 +561,12 @@ opaque
   -- A typing rule for cast.
 
   ⊢cast :
-    Γ ⊢ l ∷ Level →
+    Γ ⊢ l ∷Level →
     Γ ⊢ t ∷ Id (U l) A B →
     Γ ⊢ u ∷ A →
     Γ ⊢ cast l A B t u ∷ B
   ⊢cast ⊢l ⊢t ⊢u =
-    ⊢subst (univ (var₀ (⊢U ⊢l))) ⊢t ⊢u
+    ⊢subst (univ (var₀ (⊢U (wfTerm ⊢t) ⊢l))) ⊢t ⊢u
 
 opaque
   unfolding cast
@@ -573,19 +574,19 @@ opaque
   -- A reduction rule for cast.
 
   cast-⇒′ :
-    Γ ⊢ l ∷ Level →
+    Γ ⊢ l ∷Level →
     Γ ⊢ A ≡ A′ ∷ U l →
     Γ ⊢ t ∷ A →
     Γ ⊢ cast l A A′ rfl t ⇒ t ∷ A
   cast-⇒′ ⊢l A≡A′ ⊢t =
-    subst-⇒′ (univ (var₀ (⊢U ⊢l))) A≡A′ ⊢t
+    subst-⇒′ (univ (var₀ (⊢U (wfTerm ⊢t) ⊢l))) A≡A′ ⊢t
 
 opaque
 
   -- Another reduction rule for cast.
 
   cast-⇒ :
-    Γ ⊢ l ∷ Level →
+    Γ ⊢ l ∷Level →
     Γ ⊢ A ∷ U l →
     Γ ⊢ t ∷ A →
     Γ ⊢ cast l A A rfl t ⇒ t ∷ A
@@ -597,7 +598,7 @@ opaque
   -- An equality rule for cast.
 
   cast-≡ :
-    Γ ⊢ l ∷ Level →
+    Γ ⊢ l ∷Level →
     Γ ⊢ A ∷ U l →
     Γ ⊢ t ∷ A →
     Γ ⊢ cast l A A rfl t ≡ t ∷ A
@@ -626,19 +627,19 @@ opaque
   -- A reduction rule for cast.
 
   cast-subst :
-    Γ ⊢ l ∷ Level →
+    Γ ⊢ l ∷Level →
     Γ ⊢ t₁ ⇒ t₂ ∷ Id (U l) A B →
     Γ ⊢ u ∷ A →
     Γ ⊢ cast l A B t₁ u ⇒ cast l A B t₂ u ∷ B
   cast-subst ⊢l t₁⇒t₂ ⊢u =
-    subst-subst (univ (var₀ (⊢U ⊢l))) t₁⇒t₂ ⊢u
+    subst-subst (univ (var₀ (⊢U (wfTerm ⊢u) ⊢l))) t₁⇒t₂ ⊢u
 
 opaque
 
   -- A reduction rule for cast.
 
   cast-subst* :
-    Γ ⊢ l ∷ Level →
+    Γ ⊢ l ∷Level →
     Γ ⊢ t₁ ⇒* t₂ ∷ Id (U l) A B →
     Γ ⊢ u ∷ A →
     Γ ⊢ cast l A B t₁ u ⇒* cast l A B t₂ u ∷ B
@@ -1276,7 +1277,7 @@ opaque
     Γ ⊢ eq ∷ Id A t u →
     Γ ⊢ rfl ∷ Id (Erased l A) [ t ] ([ u ])
   []-cong-with-equality-reflection ok₁ ok₂ ⊢A ⊢eq =
-    let ⊢l          = inversion-U-Level (wf-⊢∷ ⊢A)
+    let _ , ⊢l      = inversion-U-Level (wf-⊢∷ ⊢A)
         _ , ⊢t , ⊢u = inversion-Id (syntacticTerm ⊢eq)
     in
     rflⱼ′ (EP.[]-cong′ ok₂ ⊢l ⊢A ⊢t ⊢u (equality-reflection′ ok₁ ⊢eq))

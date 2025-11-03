@@ -51,7 +51,7 @@ private
   variable
     n : Nat
     Γ Δ : Con Term n
-    A t u v : Term _
+    A l₁ l₂ l₃ t u v : Term _
     d : Bool
 
 mutual
@@ -170,11 +170,11 @@ mutual
     ([]-cong-cong l₂≡l₃ A₂≡A₃ t₂≡t₃ u₂≡u₃ v₂~v₃ _ _) =
     let ⊢A₁≡A₂      = soundnessConv↑Term A₁≡A₂
         _ , ⊢A₁ , _ = wf-⊢≡∷ ⊢A₁≡A₂
-        ⊢l₁≡l₂      = soundnessConv↑Term l₁≡l₂
+        ⊢l₁≡l₂      = soundnessConv↑Level l₁≡l₂
         Erased-ok   = []-cong→Erased ok
     in
-    []-cong-cong (transConvTerm l₁≡l₂ l₂≡l₃)
-      (transConv↑Term (U-cong ⊢l₁≡l₂) A₁≡A₂ A₂≡A₃)
+    []-cong-cong (transConvLevel l₁≡l₂ l₂≡l₃)
+      (transConv↑Term (U-cong-⊢≡ (wfTerm ⊢A₁) ⊢l₁≡l₂) A₁≡A₂ A₂≡A₃)
       (transConv↑Term (univ ⊢A₁≡A₂) t₁≡t₂ t₂≡t₃)
       (transConv↑Term (univ ⊢A₁≡A₂) u₁≡u₂ u₂≡u₃)
       (trans~↓ v₁~v₂ v₂~v₃ .proj₁) B₁≡Id-t₁-u₁ ok ,
@@ -228,7 +228,7 @@ mutual
             → Γ ⊢ A [conv↓] B
             → Γ ⊢ B [conv↓] C
             → Γ ⊢ A [conv↓] C
-  transConv↓ Level≡Level@(Level-refl _) Level≡C =
+  transConv↓ Level≡Level@(Level-refl _ _) Level≡C =
     case inv-[conv↓]-Level′ Level≡C of λ where
       (inj₁ (PE.refl , PE.refl)) → Level≡Level
       (inj₂ (Level≢Level , _))           → ⊥-elim (Level≢Level PE.refl)
@@ -238,15 +238,17 @@ mutual
       (inj₂ (¬-B-ne , _)) →
         let _ , _ , B-ne = ne~↓ A~B in
         ⊥-elim (¬-B-ne B-ne)
-  transConv↓ U≡U@(U-cong x) U≡C =
+  transConv↓ U≡U@(U-cong ⊢Γ l₁≡l₂) U≡C =
     case inv-[conv↓]-U′ U≡C of λ where
-      (inj₁ (_ , _ , PE.refl , PE.refl , y)) → U-cong (transConv↑Term (refl (syntacticEqTerm (soundnessConv↑Term x) .proj₁)) x y)
-      (inj₂ (U≢U , _))               → ⊥-elim (U≢U (_ , PE.refl))
+      (inj₁ (_ , _ , PE.refl , PE.refl , l₂≡l₃)) →
+        U-cong ⊢Γ (transConvLevel l₁≡l₂ l₂≡l₃)
+      (inj₂ (U≢U , _)) →
+        ⊥-elim (U≢U (_ , PE.refl))
   transConv↓ (Lift-cong l₁≡l₂ F≡G) Lift≡C =
     case inv-[conv↓]-Lift′ Lift≡C of λ where
       (inj₁
          (_ , _ , _ , _ , PE.refl , PE.refl , l₂≡l₃ , G≡H)) →
-        Lift-cong (transConvTerm l₁≡l₂ l₂≡l₃) (transConv↑ F≡G G≡H)
+        Lift-cong (transConvLevel l₁≡l₂ l₂≡l₃) (transConv↑ F≡G G≡H)
       (inj₂ (Lift≢Lift , _)) →
         ⊥-elim (Lift≢Lift (_ , _ , PE.refl))
   transConv↓ (ΠΣ-cong A₁≡B₁ A₂≡B₂ ok) ΠΣ≡C =
@@ -420,6 +422,20 @@ mutual
     let t≡u = soundnessConv↑Term t<>u
         ⊢A , _ , _ = syntacticEqTerm t≡u
     in  transConv↑Term (refl ⊢A) t<>u u<>v
+
+  -- Transitivity for _⊢_[conv↑]_∷Level.
+  transConvLevel :
+    Γ ⊢ l₁ [conv↑] l₂ ∷Level →
+    Γ ⊢ l₂ [conv↑] l₃ ∷Level →
+    Γ ⊢ l₁ [conv↑] l₃ ∷Level
+  transConvLevel (term ok l₁≡l₂) (term _ l₂≡l₃) =
+    term ok (transConvTerm l₁≡l₂ l₂≡l₃)
+  transConvLevel (term ok _) (literal not-ok _ _) =
+    ⊥-elim (not-ok ok)
+  transConvLevel (literal not-ok _ _) (term ok _) =
+    ⊥-elim (not-ok ok)
+  transConvLevel (literal! not-ok l-lit) (literal! _ _) =
+    literal! not-ok l-lit
 
   -- Transitivity of algorithmic equality of levels.
 

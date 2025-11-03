@@ -45,10 +45,10 @@ opaque
 
   U-injectivity :
     ⦃ ok : No-equality-reflection or-empty Γ ⦄ →
-    Γ ⊢ U l₁ ≡ U l₂ → Γ ⊢ l₁ ≡ l₂ ∷ Level
+    Γ ⊢ U l₁ ≡ U l₂ → Γ ⊢ l₁ ≡ l₂ ∷Level
   U-injectivity U≡U =
     case ⊩U≡U⇔ .proj₁ $ reducible-⊩≡ U≡U .proj₂ of λ
-      (l₁≡l₂ , _) →
+      (_ , l₁≡l₂ , _) →
     escapeLevelEq l₁≡l₂
 
 opaque
@@ -57,7 +57,7 @@ opaque
 
   Lift-injectivity :
     ⦃ ok : No-equality-reflection or-empty Γ ⦄ →
-    Γ ⊢ Lift l₁ A ≡ Lift l₂ B → Γ ⊢ l₁ ≡ l₂ ∷ Level × Γ ⊢ A ≡ B
+    Γ ⊢ Lift l₁ A ≡ Lift l₂ B → Γ ⊢ l₁ ≡ l₂ ∷Level × Γ ⊢ A ≡ B
   Lift-injectivity Lift≡Lift =
     case ⊩Lift≡Lift⇔ .proj₁ $ reducible-⊩≡ Lift≡Lift .proj₂ of λ
       (l₁≡l₂ , a) →

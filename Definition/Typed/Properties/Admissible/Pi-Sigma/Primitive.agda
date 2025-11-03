@@ -24,6 +24,7 @@ open import Definition.Untyped.Properties M
 
 open import Definition.Typed R
 open import Definition.Typed.Weakening R
+open import Definition.Typed.Properties.Admissible.Level.Primitive R
 open import Definition.Typed.Properties.Admissible.Lift.Primitive R
 
 open import Tools.Function
@@ -44,17 +45,18 @@ opaque
   -- An admissible typing rule for ΠΣʰ.
 
   ΠΣʰⱼ :
-    Γ ⊢ l₁ ∷ Level →
-    Γ ⊢ l₂ ∷ Level →
+    Γ ⊢ l₁ ∷Level →
+    Γ ⊢ l₂ ∷Level →
     Γ ⊢ A ∷ U l₁ →
     Γ ∙ A ⊢ B ∷ U (wk1 l₂) →
     ΠΣ-allowed b p q →
-    Γ ⊢ ΠΣʰ b p q l₁ l₂ A B ∷ U (l₁ supᵘ l₂)
+    Γ ⊢ ΠΣʰ b p q l₁ l₂ A B ∷ U (l₁ supᵘₗ l₂)
   ΠΣʰⱼ ⊢l₁ ⊢l₂ ⊢A ⊢B ok =
     let ⊢Lift-A = Liftⱼ ⊢l₁ ⊢l₂ ⊢A in
-    ΠΣⱼ (supᵘⱼ ⊢l₁ ⊢l₂) ⊢Lift-A
-      (Liftⱼ-comm (wkTerm₁ (univ ⊢Lift-A) ⊢l₂)
-         (wkTerm₁ (univ ⊢Lift-A) ⊢l₁)
+    ΠΣⱼ (⊢supᵘₗ ⊢l₁ ⊢l₂) ⊢Lift-A
+      (PE.subst (_⊢_∷_ _ _) (PE.cong U $ PE.sym wk-supᵘₗ) $
+       Liftⱼ-comm (wkLevel₁ (univ ⊢Lift-A) ⊢l₂)
+         (wkLevel₁ (univ ⊢Lift-A) ⊢l₁)
          (PE.subst (_⊢_∷_ _ _) wk[]′-[]↑ $
           lower₀Term ⊢l₂ ⊢B))
       ok
@@ -65,22 +67,23 @@ opaque
   -- An admissible equality rule for ΠΣʰ.
 
   ΠΣʰ-cong :
-    Γ ⊢ l₁₁ ∷ Level →
-    Γ ⊢ l₂₁ ∷ Level →
-    Γ ⊢ l₁₁ ≡ l₁₂ ∷ Level →
-    Γ ⊢ l₂₁ ≡ l₂₂ ∷ Level →
+    Γ ⊢ l₁₁ ∷Level →
+    Γ ⊢ l₂₁ ∷Level →
+    Γ ⊢ l₁₁ ≡ l₁₂ ∷Level →
+    Γ ⊢ l₂₁ ≡ l₂₂ ∷Level →
     Γ ⊢ A₁ →
     Γ ⊢ A₁ ≡ A₂ ∷ U l₁₁ →
     Γ ∙ A₁ ⊢ B₁ ≡ B₂ ∷ U (wk1 l₂₁) →
     ΠΣ-allowed b p q →
     Γ ⊢ ΠΣʰ b p q l₁₁ l₂₁ A₁ B₁ ≡ ΠΣʰ b p q l₁₂ l₂₂ A₂ B₂ ∷
-      U (l₁₁ supᵘ l₂₁)
-  ΠΣʰ-cong ⊢l₁ ⊢l₂ l₁₁≡l₁₂ l₂₁≡l₂₂ ⊢A₁ A₁≡A₂ B₁≡B₂ ok =
-    let ⊢Lift-A₁ = Liftⱼ ⊢l₂ ⊢A₁ in
-    ΠΣ-cong (supᵘⱼ ⊢l₁ ⊢l₂)
-      (Lift-cong ⊢l₁ l₂₁≡l₂₂ A₁≡A₂)
-      (Lift-cong-comm (wkTerm₁ ⊢Lift-A₁ ⊢l₂) (wkTerm₁ ⊢Lift-A₁ ⊢l₁)
-         (wkEqTerm₁ ⊢Lift-A₁ l₁₁≡l₁₂)
+      U (l₁₁ supᵘₗ l₂₁)
+  ΠΣʰ-cong ⊢l₁₁ ⊢l₂₁ l₁₁≡l₁₂ l₂₁≡l₂₂ ⊢A₁ A₁≡A₂ B₁≡B₂ ok =
+    let ⊢Lift-A₁ = Liftⱼ ⊢l₂₁ ⊢A₁ in
+    ΠΣ-cong (⊢supᵘₗ ⊢l₁₁ ⊢l₂₁)
+      (Lift-cong ⊢l₁₁ ⊢l₂₁ l₂₁≡l₂₂ A₁≡A₂)
+      (PE.subst (_⊢_≡_∷_ _ _ _) (PE.cong U $ PE.sym wk-supᵘₗ) $
+       Lift-cong-comm (wkLevel₁ ⊢Lift-A₁ ⊢l₂₁) (wkLevel₁ ⊢Lift-A₁ ⊢l₁₁)
+         (wkEqLevel₁ ⊢Lift-A₁ l₁₁≡l₁₂)
          (PE.subst (_⊢_≡_∷_ _ _ _) wk[]′-[]↑ $
-          lower₀TermEq ⊢l₂ B₁≡B₂))
+          lower₀TermEq ⊢l₂₁ B₁≡B₂))
       ok

@@ -120,7 +120,7 @@ mutual
                       B₁ [ v₁ ]₀
 
     []-cong-cong  : ∀ {B}
-                  → Γ ⊢ l₁ [conv↑] l₂ ∷ Level
+                  → Γ ⊢ l₁ [conv↑] l₂ ∷Level
                   → Γ ⊢ A₁ [conv↑] A₂ ∷ U l₁
                   → Γ ⊢ t₁ [conv↑] t₂ ∷ A₁
                   → Γ ⊢ u₁ [conv↑] u₂ ∷ A₁
@@ -169,13 +169,14 @@ mutual
   -- Type equality with types in WHNF.
   data _⊢_[conv↓]_ (Γ : Con Term n) : (A B : Term n) → Set a where
 
-    Level-refl : ⊢ Γ → Γ ⊢ Level [conv↓] Level
+    Level-refl : Level-allowed → ⊢ Γ → Γ ⊢ Level [conv↓] Level
 
-    U-cong     : Γ ⊢ l₁ [conv↑] l₂ ∷ Level
+    U-cong     : ⊢ Γ
+               → Γ ⊢ l₁ [conv↑] l₂ ∷Level
                → Γ ⊢ U l₁ [conv↓] U l₂
 
     Lift-cong  : ∀ {F H}
-               → Γ ⊢ l₁ [conv↑] l₂ ∷ Level
+               → Γ ⊢ l₁ [conv↑] l₂ ∷Level
                → Γ ⊢ F [conv↑] H
                → Γ ⊢ Lift l₁ F [conv↓] Lift l₂ H
 
@@ -379,7 +380,8 @@ mutual
   -- Normalisation of levels in whnf.
   data _⊢_↓ᵛ_ (Γ : Con Term n) : Term n → Levelᵛ Γ → Set a where
     zeroᵘₙ
-      : ⊢ Γ
+      : Level-allowed
+      → ⊢ Γ
       → Γ ⊢ zeroᵘ ↓ᵛ zeroᵛ
     sucᵘₙ
       : ∀ {t v v′}
@@ -421,6 +423,16 @@ mutual
       {t′} : Term n
       d    : Γ ⊢ t ↘ t′ ∷ Level
       t↓v  : Γ ⊢ t′ ↓ᵛ v
+
+  -- Algorithmic equality of levels.
+  data _⊢_[conv↑]_∷Level (Γ : Con Term n) (l₁ l₂ : Term n) : Set a where
+    term    : Level-allowed →
+              Γ ⊢ l₁ [conv↑] l₂ ∷ Level →
+              Γ ⊢ l₁ [conv↑] l₂ ∷Level
+    literal : ¬ Level-allowed → Level-literal l₁ → l₁ PE.≡ l₂ →
+              Γ ⊢ l₁ [conv↑] l₂ ∷Level
+
+  pattern literal! not-ok t-lit = literal not-ok t-lit PE.refl
 
   -- Algorithmic equality of levels in whnf.
   record _⊢_[conv↓]_∷Level (Γ : Con Term n) (t u : Term n) : Set a where

@@ -36,6 +36,7 @@ open import Tools.Function
 open import Tools.Nat using (Nat; 1+; 2+)
 open import Tools.Product as Σ
 import Tools.PropositionalEquality as PE
+open import Tools.Sum
 
 private
   variable
@@ -64,16 +65,16 @@ opaque
 
   ⊩U⇔ :
     Γ ⊩⟨ l ⟩ U t ⇔
-    (∃ λ (⊩t : Γ ⊩Level t ∷Level) → ↑ᵘ ⊩t <ᵘ l)
+    (⊢ Γ × ∃ λ (⊩t : Γ ⊩Level t ∷Level) → ↑ᵘ ⊩t <ᵘ l)
   ⊩U⇔ =
       (λ ⊩U →
         case U-view ⊩U of λ {
           (Uᵣ (Uᵣ _ _ t<l U⇒*U)) →
         case U⇒*U→≡ U⇒*U of λ {
           PE.refl →
-        _ , t<l }})
-    , (λ (⊩t , t<l) →
-        Uᵣ (Uᵣ _ ⊩t t<l (id (⊢U (escapeLevel ⊩t)))))
+        wfEq (subset* U⇒*U) , _ , t<l }})
+    , (λ (⊢Γ , ⊩t , t<l) →
+        Uᵣ (Uᵣ _ ⊩t t<l (id (⊢U ⊢Γ (escapeLevel ⊩t)))))
 
 opaque
   unfolding _⊩⟨_⟩_≡_
@@ -93,28 +94,37 @@ opaque
           PE.refl →
         [t] , t<l , _ , A⇒*U , t≡u }})
     , (λ ([t] , t<l , u , A⇒*U , t≡u) →
-         let [u] = wf-Level-eq t≡u .proj₂ in
-           Uᵣ (Uᵣ _ [t] t<l (id (⊢U (escapeLevel [t]))))
-         , wf-⊩≡ (⊩-⇐* A⇒*U (⊩U⇔ .proj₂ ([u] , PE.subst (_<ᵘ l) (↑ᵘ-cong t≡u) t<l))) .proj₁
+         let ⊢Γ  = wfEq (subset* A⇒*U)
+             [u] = wf-Level-eq t≡u .proj₂
+         in
+           Uᵣ (Uᵣ _ [t] t<l (id (⊢U ⊢Γ (escapeLevel [t]))))
+         , wf-⊩≡
+             (⊩-⇐* A⇒*U $
+              ⊩U⇔ .proj₂
+                (⊢Γ , [u] , PE.subst (_<ᵘ l) (↑ᵘ-cong t≡u) t<l))
+             .proj₁
          , U₌ _ A⇒*U t≡u)
 
 opaque
 
   ⊩U≡U⇔ :
     Γ ⊩⟨ l ⟩ U t ≡ U u ⇔
-    (∃ λ (t≡u : Γ ⊩Level t ≡ u ∷Level) → ↑ᵘ wf-Level-eq t≡u .proj₁ <ᵘ l)
+    (⊢ Γ ×
+     ∃ λ (t≡u : Γ ⊩Level t ≡ u ∷Level) → ↑ᵘ wf-Level-eq t≡u .proj₁ <ᵘ l)
   ⊩U≡U⇔ {Γ} {l} {t} {u} =
-    Γ ⊩⟨ l ⟩ U t ≡ U u                                                           ⇔⟨ ⊩U≡⇔ ⟩
-    (∃ λ [t] → ↑ᵘ [t] <ᵘ l × ∃ λ u′ → Γ ⊢ U u ⇒* U u′ × Γ ⊩Level t ≡ u′ ∷Level)  ⇔⟨ (λ ([t] , t<l , u′ , U⇒*U , t≡u′) →
-                                                                                      case U⇒*U→≡ U⇒*U of λ {
-                                                                                        PE.refl →
-                                                                                      t≡u′ , PE.subst (_<ᵘ l) ↑ᵘ-irrelevance t<l })
-                                                                                    , (λ (t≡u , t<l) →
-                                                                                        wf-Level-eq t≡u .proj₁
-                                                                                      , PE.subst (_<ᵘ l) ↑ᵘ-irrelevance t<l
-                                                                                      , u , id (⊢U (escapeLevel (wf-Level-eq t≡u .proj₂)))
-                                                                                      , t≡u) ⟩
-    (∃ λ t≡u → ↑ᵘ wf-Level-eq t≡u .proj₁ <ᵘ l)                                   □⇔
+    Γ ⊩⟨ l ⟩ U t ≡ U u                                   ⇔⟨ ⊩U≡⇔ ⟩
+
+    (∃ λ ⊩t → ↑ᵘ ⊩t <ᵘ l ×
+     ∃ λ u′ → Γ ⊢ U u ⇒* U u′ × Γ ⊩Level t ≡ u′ ∷Level)  ⇔⟨ (λ (_ , t<l , _ , U⇒*U , t≡u′) →
+                                                               case U⇒*U→≡ U⇒*U of λ {
+                                                                 PE.refl →
+                                                               wfEq (subset* U⇒*U) , t≡u′ , PE.subst (_<ᵘ l) ↑ᵘ-irrelevance t<l })
+                                                          , (λ (⊢Γ , t≡u , t<l) →
+                                                               wf-Level-eq t≡u .proj₁ ,
+                                                               PE.subst (_<ᵘ l) ↑ᵘ-irrelevance t<l ,
+                                                               _ , id (⊢U ⊢Γ (escapeLevel (wf-Level-eq t≡u .proj₂))) , t≡u)
+                                                          ⟩
+    ⊢ Γ × (∃ λ t≡u → ↑ᵘ wf-Level-eq t≡u .proj₁ <ᵘ l)     □⇔
 
 opaque
   unfolding _⊩⟨_⟩_≡_ _⊩⟨_⟩_≡_∷_
@@ -149,8 +159,9 @@ opaque
           A⇒*A′ , B⇒*B′ , A′-type , B′-type , A′≅B′) →
          let ⊩A = ⊩<⇔⊩ t<l .proj₂ ⊩A
              ⊩B = ⊩<⇔⊩ t<l .proj₂ ⊩B
+             ⊢Γ = wfEqTerm (subset*Term A⇒*A′)
          in
-           Uᵣ (Uᵣ _ [t] t<l (id (⊢U (escapeLevel [t]))))
+           Uᵣ (Uᵣ _ [t] t<l (id (⊢U ⊢Γ (escapeLevel [t]))))
          , Uₜ₌ _ _ A⇒*A′ B⇒*B′ A′-type B′-type A′≅B′ ⊩A ⊩B
              (⊩<≡⇔⊩≡′ t<l .proj₂ A≡B))
 
@@ -160,11 +171,10 @@ opaque
 
   ⊩≡∷U→ :
     Γ ⊩⟨ l ⟩ A ≡ B ∷ U t →
-    Γ ⊩⟨ 0ᵘ ⟩ t ∷ Level × Γ ⊩⟨ l ⟩ A ≡ B
+    Γ ⊩Level t ∷Level × Γ ⊩⟨ l ⟩ A ≡ B
   ⊩≡∷U→ A≡B =
     let ⊩t , <l , A≡B , _ = ⊩≡∷U⇔ .proj₁ A≡B in
-    ⊩∷Level⇔ .proj₂ ⊩t ,
-    emb-⊩≡ (<ᵘ→≤ᵘ <l) A≡B
+    ⊩t , emb-⊩≡ (<ᵘ→≤ᵘ <l) A≡B
 
 opaque
 
@@ -232,11 +242,10 @@ opaque
 
   ⊩∷U→ :
     Γ ⊩⟨ l ⟩ A ∷ U t →
-    Γ ⊩⟨ 0ᵘ ⟩ t ∷ Level × Γ ⊩⟨ l ⟩ A
+    Γ ⊩Level t ∷Level × Γ ⊩⟨ l ⟩ A
   ⊩∷U→ ⊩A =
     let ⊩t , <l , ⊩A , _ = ⊩∷U⇔ .proj₁ ⊩A in
-    ⊩∷Level⇔ .proj₂ ⊩t ,
-    emb-⊩ (<ᵘ→≤ᵘ <l) ⊩A
+    ⊩t , emb-⊩ (<ᵘ→≤ᵘ <l) ⊩A
 
 opaque
 
@@ -274,14 +283,15 @@ opaque
   -- Reducibility of equality between applications of U, seen as a
   -- term former.
 
-  ⊩U≡U∷U : Γ ⊩⟨ l ⟩ t ≡ u ∷ Level → Γ ⊩⟨ ωᵘ ⟩ U t ≡ U u ∷ U (sucᵘ t)
-  ⊩U≡U∷U t≡u =
-    let t≡u     = ⊩≡∷Level⇔ .proj₁ t≡u
-        ⊩t , ⊩u = wf-Level-eq t≡u
-    in
+  ⊩U≡U∷U :
+    ⊢ Γ →
+    Γ ⊩Level t ≡ u ∷Level →
+    Γ ⊩⟨ ωᵘ ⟩ U t ≡ U u ∷ U (sucᵘ t)
+  ⊩U≡U∷U ⊢Γ t≡u =
+    let ⊩t , ⊩u = wf-Level-eq t≡u in
     Type→⊩≡∷U⇔ Uₙ Uₙ .proj₂
-      ( ⊩sucᵘ ⊩t , <ᵘ-ωᵘ , ⊩U≡U⇔ .proj₂ (t≡u , <ᵘ-sucᵘ)
-      , ≅ₜ-U-cong (escapeLevelEq t≡u)
+      ( ⊩sucᵘ ⊩t , <ᵘ-ωᵘ , ⊩U≡U⇔ .proj₂ (⊢Γ , t≡u , <ᵘ-sucᵘ)
+      , ≅ₜ-U-cong ⊢Γ (escapeLevelEq t≡u)
       )
 
 opaque
@@ -302,16 +312,19 @@ opaque
 
   -- Validity of U.
 
-  ⊩ᵛU : Γ ⊩ᵛ⟨ l ⟩ t ∷ Level → Γ ⊩ᵛ⟨ ωᵘ ⟩ U t
-  ⊩ᵛU ⊩t =
+  ⊩ᵛU : ⊩ᵛ Γ → Γ ⊩ᵛ⟨ l ⟩ t ∷Level → Γ ⊩ᵛ⟨ ωᵘ ⟩ U t
+  ⊩ᵛU ⊩Γ ⊩t =
     ⊩ᵛ⇔ʰ .proj₂
-      ( wf-⊩ᵛ (wf-⊩ᵛ∷ ⊩t)
+      ( ⊩Γ
       , λ σ₁≡σ₂ →
-          let t[σ₁]≡t[σ₂] = ⊩≡∷Level⇔ .proj₁ (⊩ᵛ∷⇔ʰ .proj₁ ⊩t .proj₂ σ₁≡σ₂)
+          let ⊢Δ , _          = escape-⊩ˢ≡∷ σ₁≡σ₂
+              t[σ₁]≡t[σ₂]     = ⊩ᵛ≡∷L→⊩ˢ≡∷→⊩[]≡[]∷L (refl-⊩ᵛ≡∷L ⊩t)
+                                  σ₁≡σ₂
               ⊩t[σ₁] , ⊩t[σ₂] = wf-Level-eq t[σ₁]≡t[σ₂]
-          in ⊩U≡⇔ .proj₂
+          in
+          ⊩U≡⇔ .proj₂
             ( ⊩t[σ₁] , <ᵘ-ωᵘ
-            , _ , id (⊢U (escapeLevel ⊩t[σ₂]))
+            , _ , id (⊢U ⊢Δ (escapeLevel ⊩t[σ₂]))
             , t[σ₁]≡t[σ₂]
             )
       )
@@ -320,19 +333,39 @@ opaque
 
   -- Validity of equality preservation for U, seen as a term former.
 
-  ⊩ᵛU≡U∷U : Γ ⊩ᵛ⟨ l ⟩ t ≡ u ∷ Level → Γ ⊩ᵛ⟨ ωᵘ ⟩ U t ≡ U u ∷ U (sucᵘ t)
-  ⊩ᵛU≡U∷U t≡u =
+  ⊩ᵛU≡U∷U′ :
+    ⊩ᵛ Γ →
+    Γ ⊩ᵛ⟨ l ⟩ t ≡ u ∷Level →
+    Γ ⊩ᵛ⟨ ωᵘ ⟩ U t ≡ U u ∷ U (sucᵘ t)
+  ⊩ᵛU≡U∷U′ ⊩Γ t≡u =
+    let ⊩t , ⊩u = wf-⊩ᵛ≡∷L t≡u in
     ⊩ᵛ≡∷⇔ʰ .proj₂
-      ( ⊩ᵛU (sucᵘᵛ (wf-⊩ᵛ≡∷ t≡u .proj₁))
-      , ⊩U≡U∷U ∘→ R.⊩≡∷→ ∘→ ⊩ᵛ≡∷→⊩ˢ≡∷→⊩[]≡[]∷ t≡u
+      ( ⊩ᵛU ⊩Γ (sucᵘᵛ′ ⊩t)
+      , λ σ₁≡σ₂ →
+          let ⊢Δ , _ = escape-⊩ˢ≡∷ σ₁≡σ₂ in
+          ⊩U≡U∷U ⊢Δ (⊩ᵛ≡∷L→⊩ˢ≡∷→⊩[]≡[]∷L t≡u σ₁≡σ₂)
       )
+
+opaque
+
+  -- Validity of equality preservation for U, seen as a term former.
+
+  ⊩ᵛU≡U∷U :
+    Level-allowed →
+    Γ ⊩ᵛ⟨ l ⟩ t ≡ u ∷ Level →
+    Γ ⊩ᵛ⟨ ωᵘ ⟩ U t ≡ U u ∷ U (sucᵘ t)
+  ⊩ᵛU≡U∷U ok t≡u =
+    ⊩ᵛU≡U∷U′ (wf-⊩ᵛ (wf-⊩ᵛ∷ (wf-⊩ᵛ≡∷ t≡u .proj₁))) (term ok t≡u)
 
 opaque
 
   -- Validity of U, seen as a term former.
 
-  ⊩ᵛU∷U : Γ ⊩ᵛ⟨ l ⟩ t ∷ Level → Γ ⊩ᵛ⟨ ωᵘ ⟩ U t ∷ U (sucᵘ t)
-  ⊩ᵛU∷U = ⊩ᵛ∷⇔⊩ᵛ≡∷ .proj₂ ∘→ ⊩ᵛU≡U∷U ∘→ ⊩ᵛ∷⇔⊩ᵛ≡∷ .proj₁
+  ⊩ᵛU∷U :
+    ⊩ᵛ Γ →
+    Γ ⊩ᵛ⟨ l ⟩ t ∷Level →
+    Γ ⊩ᵛ⟨ ωᵘ ⟩ U t ∷ U (sucᵘ t)
+  ⊩ᵛU∷U ⊩Γ = ⊩ᵛ∷⇔⊩ᵛ≡∷ .proj₂ ∘→ ⊩ᵛU≡U∷U′ ⊩Γ ∘→ ⊩ᵛ∷L⇔⊩ᵛ≡∷L .proj₁
 
 opaque
 
@@ -360,8 +393,11 @@ opaque
 
   -- Validity of equality preservation for U, seen as a type former.
 
-  ⊩ᵛU≡U : Γ ⊩ᵛ⟨ l ⟩ t ≡ u ∷ Level → Γ ⊩ᵛ⟨ ωᵘ ⟩ U t ≡ U u
-  ⊩ᵛU≡U = ⊩ᵛ≡∷U→⊩ᵛ≡ ∘→ ⊩ᵛU≡U∷U
+  ⊩ᵛU≡U :
+    Level-allowed →
+    Γ ⊩ᵛ⟨ l ⟩ t ≡ u ∷ Level →
+    Γ ⊩ᵛ⟨ ωᵘ ⟩ U t ≡ U u
+  ⊩ᵛU≡U ok = ⊩ᵛ≡∷U→⊩ᵛ≡ ∘→ ⊩ᵛU≡U∷U ok
 
 ------------------------------------------------------------------------
 -- Validity of Level, seen as a term former
@@ -379,10 +415,11 @@ opaque
            (_ , ok) →
          wfEqTerm (subset*Term Level⇒*) , ok)
     , (λ (⊢Γ , ok) →
-         case id (Levelⱼ ⊢Γ ok) of λ
+         let ⊢Level = Levelⱼ ⊢Γ ok in
+         case id ⊢Level of λ
            Level⇒*Level →
          ⊩≡∷U⇔ .proj₂
-           ( ⊩zeroᵘ ⊢Γ , <ᵘ-ωᵘ , ⊩Level≡⇔ .proj₂ (id (Levelⱼ′ ⊢Γ))
+           ( ⊩zeroᵘ ⊢Γ , <ᵘ-ωᵘ , ⊩Level≡⇔ .proj₂ (id (univ ⊢Level))
            , (_ , _ , Level⇒*Level , Level⇒*Level , Levelₙ , Levelₙ , ≅ₜ-Levelrefl ⊢Γ ok)
            ))
 
@@ -393,7 +430,7 @@ opaque
   Levelᵗᵛ : ⊩ᵛ Γ → Level-is-small → Γ ⊩ᵛ⟨ ωᵘ ⟩ Level ∷ U zeroᵘ
   Levelᵗᵛ {Γ} ⊩Γ ok =
     ⊩ᵛ∷⇔ʰ .proj₂
-      ( ⊩ᵛU (zeroᵘᵛ ⊩Γ)
+      ( ⊩ᵛU ⊩Γ (zeroᵘᵛ′ ⊩Γ)
       , λ {_} {Δ = Δ} {σ₁ = σ₁} {σ₂ = σ₂} →
           Δ ⊩ˢ σ₁ ≡ σ₂ ∷ Γ                   →⟨ proj₁ ∘→ escape-⊩ˢ≡∷ ⟩
           ⊢ Δ                                →⟨ _, ok ⟩

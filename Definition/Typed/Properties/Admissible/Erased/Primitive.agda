@@ -23,7 +23,9 @@ module Definition.Typed.Properties.Admissible.Erased.Primitive
   where
 
 open import Definition.Typed R
+open import Definition.Typed.Properties.Admissible.Level.Primitive R
 open import Definition.Typed.Properties.Admissible.Sigma.Primitive R
+open import Definition.Typed.Properties.Admissible.U.Primitive R
 open import Definition.Typed.Properties.Well-formed R
 open import Definition.Typed.Substitution.Primitive.Primitive R
 open import Definition.Typed.Weakening R
@@ -45,18 +47,18 @@ opaque
   -- An introduction rule for U for Erased.
 
   Erasedⱼ-U :
-    Γ ⊢ l ∷ Level →
+    Γ ⊢ l ∷Level →
     Γ ⊢ A ∷ U l →
     Γ ⊢ Erased l A ∷ U l
   Erasedⱼ-U ⊢l ⊢A =
     let ⊢A′ = univ ⊢A
-        ⊢l′ = wkTerm₁ ⊢A′ ⊢l
+        ⊢l′ = wkLevel₁ ⊢A′ ⊢l
     in
     ΠΣⱼ ⊢l ⊢A
       (conv
-         (_⊢_∷_.Liftⱼ (zeroᵘⱼ (∙ ⊢A′)) ⊢l′ $
+         (_⊢_∷_.Liftⱼ (⊢zeroᵘ (∙ ⊢A′)) ⊢l′ $
           Unitⱼ (∙ ⊢A′) Unit-ok)
-         (U-cong (supᵘ-zeroˡ ⊢l′)))
+         (U-cong-⊢≡ (∙ ⊢A′) (supᵘₗ-identityˡ ⊢l′)))
       Σ-ok
 
 opaque
@@ -65,19 +67,19 @@ opaque
   -- An equality rule for U for Erased.
 
   Erased-cong-U :
-    Γ ⊢ l₁ ∷ Level →
-    Γ ⊢ l₁ ≡ l₂ ∷ Level →
+    Γ ⊢ l₁ ∷Level →
+    Γ ⊢ l₁ ≡ l₂ ∷Level →
     Γ ⊢ A₁ →
     Γ ⊢ A₁ ≡ A₂ ∷ U l₁ →
     Γ ⊢ Erased l₁ A₁ ≡ Erased l₂ A₂ ∷ U l₁
   Erased-cong-U ⊢l₁ l₁≡l₂ ⊢A₁ A₁≡A₂ =
-    let ⊢l₁′ = wkTerm₁ ⊢A₁ ⊢l₁
-    in
+    let ⊢l₁′ = wkLevel₁ ⊢A₁ ⊢l₁ in
     ΠΣ-cong ⊢l₁ A₁≡A₂
       (conv
-         (_⊢_≡_∷_.Lift-cong (zeroᵘⱼ (∙ ⊢A₁)) (wkEqTerm₁ ⊢A₁ l₁≡l₂) $
+         (_⊢_≡_∷_.Lift-cong (⊢zeroᵘ (∙ ⊢A₁))
+            (wkLevel₁ ⊢A₁ ⊢l₁) (wkEqLevel₁ ⊢A₁ l₁≡l₂) $
           refl (Unitⱼ (∙ ⊢A₁) Unit-ok))
-         (U-cong (supᵘ-zeroˡ ⊢l₁′)))
+         (U-cong-⊢≡ (∙ ⊢A₁) (supᵘₗ-identityˡ ⊢l₁′)))
       Σ-ok
 
 opaque
@@ -85,7 +87,7 @@ opaque
   -- A formation rule for Erased.
 
   Erasedⱼ :
-    Γ ⊢ l ∷ Level →
+    Γ ⊢ l ∷Level →
     Γ ⊢ A ∷ U l →
     Γ ⊢ Erased l A
   Erasedⱼ ⊢l ⊢A = univ (Erasedⱼ-U ⊢l ⊢A)
@@ -95,8 +97,8 @@ opaque
   -- An equality rule for Erased.
 
   Erased-cong :
-    Γ ⊢ l₁ ∷ Level →
-    Γ ⊢ l₁ ≡ l₂ ∷ Level →
+    Γ ⊢ l₁ ∷Level →
+    Γ ⊢ l₁ ≡ l₂ ∷Level →
     Γ ⊢ A₁ →
     Γ ⊢ A₁ ≡ A₂ ∷ U l₁ →
     Γ ⊢ Erased l₁ A₁ ≡ Erased l₂ A₂
@@ -119,17 +121,17 @@ opaque
   --   turned into primitives, then fewer changes might be needed.
 
   []ⱼ :
-    Γ ⊢ l ∷ Level →
+    Γ ⊢ l ∷Level →
     Γ ⊢ A ∷ U l →
     Γ ⊢ t ∷ A →
     Γ ⊢ [ t ] ∷ Erased l A
   []ⱼ ⊢l ⊢A ⊢t =
     let ⊢A    = univ ⊢A
-        ⊢Γ    = wfTerm ⊢l
+        ⊢Γ    = wfTerm ⊢t
         ⊢Unit = univ (Unitⱼ ⊢Γ Unit-ok)
     in
-    prodⱼ (Liftⱼ (wkTerm₁ ⊢A ⊢l) (wk₁ ⊢A ⊢Unit)) ⊢t
-      (liftⱼ (PE.subst (flip (_⊢_∷_ _) _) (PE.sym $ wk1-sgSubst _ _) ⊢l)
+    prodⱼ (Liftⱼ (wkLevel₁ ⊢A ⊢l) (wk₁ ⊢A ⊢Unit)) ⊢t
+      (liftⱼ (PE.subst (_⊢_∷Level _) (PE.sym $ wk1-sgSubst _ _) ⊢l)
          ⊢Unit (starⱼ ⊢Γ Unit-ok))
       Σ-ok
 
@@ -142,7 +144,7 @@ opaque
   -- one of type Γ ⊢ A.
 
   []-cong′ :
-    Γ ⊢ l ∷ Level →
+    Γ ⊢ l ∷Level →
     Γ ⊢ A ∷ U l →
     Γ ⊢ t₁ ∷ A →
     Γ ⊢ t₂ ∷ A →
@@ -150,12 +152,12 @@ opaque
     Γ ⊢ [ t₁ ] ≡ [ t₂ ] ∷ Erased l A
   []-cong′ ⊢l ⊢A ⊢t₁ ⊢t₂ t₁≡t₂ =
     let ⊢A    = univ ⊢A
-        ⊢Γ    = wfTerm ⊢l
+        ⊢Γ    = wfTerm ⊢t₁
         ⊢Unit = univ (Unitⱼ ⊢Γ Unit-ok)
         ⊢star = starⱼ ⊢Γ Unit-ok
     in
-    prod-cong (Liftⱼ (wkTerm₁ ⊢A ⊢l) (wk₁ ⊢A ⊢Unit)) t₁≡t₂
+    prod-cong (Liftⱼ (wkLevel₁ ⊢A ⊢l) (wk₁ ⊢A ⊢Unit)) t₁≡t₂
       (lift-cong
-         (PE.subst (flip (_⊢_∷_ _) _) (PE.sym $ wk1-sgSubst _ _) ⊢l)
+         (PE.subst (_⊢_∷Level _) (PE.sym $ wk1-sgSubst _ _) ⊢l)
          ⊢Unit ⊢star ⊢star (refl ⊢star))
       Σ-ok

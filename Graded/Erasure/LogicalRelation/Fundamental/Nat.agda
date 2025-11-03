@@ -71,7 +71,7 @@ opaque
   ℕʳ : γ ▸ Γ ⊩ʳ ℕ ∷[ m ] U zeroᵘ
   ℕʳ =
     ▸⊩ʳ∷⇔ .proj₂ λ _ _ →
-    ®∷→®∷◂ (®∷U⇔ .proj₂ (zeroᵘⱼ ⊢Δ , U/Levelᵣ (λ { PE.refl → T.refl })))
+    ®∷→®∷◂ (®∷U⇔ .proj₂ (⊢zeroᵘ ⊢Δ , U/Levelᵣ (λ { PE.refl → T.refl })))
 
 opaque
 

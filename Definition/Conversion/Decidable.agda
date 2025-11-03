@@ -59,7 +59,8 @@ private
   variable
     n ℓ : Nat
     Γ Δ : Con Term ℓ
-    A A₁ A₂ A′ B B₁ B₂ B′ C₁ C₂ l l′ l₁ l₂ l₃ t t₁ t₂ t′ u u₁ u₂ v₁ v₂ w₁ w₂ : Term _
+    A A₁ A₂ A′ B B₁ B₂ B′ C₁ C₂
+      l l′ l₁ l₁′ l₂ l₂′ l₃ t t₁ t₂ t′ u u₁ u₂ v₁ v₂ w₁ w₂ : Term _
     b₁ b₂ : BinderMode
     s₁ s₂ : Strength
     p p₁ p₂ p′ q q₁ q₂ q′ q′₁ q′₂ r₁ r₂ : M
@@ -589,7 +590,7 @@ private opaque
     Γ ⊢ v₁ ∷ Id A₁ t₁ u₁ →
     Dec
       (s₁ PE.≡ s₂ ×
-       Γ ⊢ l₁ [conv↑] l₂ ∷ Level ×
+       Γ ⊢ l₁ [conv↑] l₂ ∷Level ×
        Γ ⊢ A₁ [conv↑] A₂ ∷ U l₁ ×
        ∃ λ B → Γ ⊢ v₁ ~ v₂ ↓ B) →
     (Γ ⊢ A₁ ≡ A₂ → Dec (Γ ⊢ t₁ [conv↑] t₂ ∷ A₁)) →
@@ -628,7 +629,7 @@ private opaque
     in
     not-all-equal
       ( s₁≡s₂
-      , PE.subst (flip (_⊢_[conv↑]_∷_ _ _) _) ≡l₂ l₁≡
+      , PE.subst (_⊢_[conv↑]_∷Level _ _) ≡l₂ l₁≡
       , PE.subst (flip (_⊢_[conv↑]_∷_ _ _) _) ≡A₂ A₁≡
       , _ , PE.subst (flip (_⊢_~_↓_ _ _) _) ≡v₂ v₁~
       )
@@ -824,9 +825,11 @@ mutual
       (inj₁
          (_ , _ , _ , _ , _ , _ , _ , _ , _ , _ , _ , _ ,
           PE.refl , PE.refl , _ , u₁≡ , C₁≡ , u₂≡ , u₃≡ , u₄~ , _)) →
-        dec~↑-[]-cong-cong ok (conv (~↓→∷ t₄~) B₂≡Id)
-          (decStrength _ _ ×-dec decConv↑Term t₁≡ u₁≡ ×-dec′ λ t₁≡u₁ →
-           decConv↑TermConv (U-cong (soundnessConv↑Term t₁≡u₁))
+        let ⊢t₄ = ~↓→∷ t₄~ in
+        dec~↑-[]-cong-cong ok (conv ⊢t₄ B₂≡Id)
+          (decStrength _ _ ×-dec decConv↑Level t₁≡ u₁≡ ×-dec′ λ t₁≡u₁ →
+           decConv↑TermConv
+             (U-cong-⊢≡ (wfTerm ⊢t₄) (soundnessConv↑Level t₁≡u₁))
              B₁≡ C₁≡ ×-dec
            dec~↓ t₄~ u₄~)
           (λ eq → decConv↑TermConv eq t₂≡ u₂≡)
@@ -905,14 +908,15 @@ mutual
       (inj₂ (¬-B-ne , _)) →
         no λ A≡B →
         ¬-B-ne (ne~↓ (inv-[conv↓]-ne A-ne A≡B .proj₂) .proj₂ .proj₂)
-  decConv↓ Level≡Level@(Level-refl _) B≡ =
+  decConv↓ Level≡Level@(Level-refl _ _) B≡ =
     case inv-[conv↓]-Level′ B≡ of λ where
       (inj₁ (PE.refl , _)) → yes Level≡Level
       (inj₂ (B≢Level , _)) → no (B≢Level ∘→ inv-[conv↓]-Level)
   decConv↓ (Lift-cong l₁≡l₂ A≡A′) B≡ =
     case inv-[conv↓]-Lift′ B≡ of λ where
       (inj₁ (_ , _ , _ , _ , PE.refl , PE.refl , l₂≡l₃ , A′≡A″)) →
-        case decConv↑Term l₁≡l₂ l₂≡l₃ ×-dec decConv↑ A≡A′ A′≡A″ of λ where
+        case decConv↑Level l₁≡l₂ l₂≡l₃ ×-dec
+             decConv↑ A≡A′ A′≡A″ of λ where
           (yes (l₁≡l₃ , A≡A″)) → yes (Lift-cong l₁≡l₃ A≡A″)
           (no not-both-equal) → no λ Lift≡Lift →
             case inv-[conv↓]-Lift Lift≡Lift of λ {
@@ -921,11 +925,11 @@ mutual
       (inj₂ (B≢Lift , _)) → no λ Lift≡B →
         let _ , _ , B≡Lift , _ = inv-[conv↓]-Lift Lift≡B
         in B≢Lift (_ , _ , B≡Lift)
-  decConv↓ (U-cong {l₁ = l₁} x) B≡ =
+  decConv↓ (U-cong ⊢Γ l₁≡l₂) B≡ =
     case inv-[conv↓]-U′ B≡ of λ where
-      (inj₁ (l₃ , l₄ , PE.refl , PE.refl , y)) →
-        case decConv↑Term x y of λ where
-          (yes l₁≡l₃) → yes (U-cong l₁≡l₃)
+      (inj₁ (l₃ , l₄ , PE.refl , PE.refl , l₃≡l₄)) →
+        case decConv↑Level l₁≡l₂ l₃≡l₄ of λ where
+          (yes l₁≡l₃) → yes (U-cong ⊢Γ l₁≡l₃)
           (no l₁≢l₃) → no λ U≡U →
             case inv-[conv↓]-U U≡U of λ where
               (_ , PE.refl , z) → l₁≢l₃ z
@@ -1006,6 +1010,28 @@ mutual
                 → Γ ⊢ t [conv↑] t ∷ A → Δ ⊢ u [conv↑] u ∷ A
                 → Dec (Γ ⊢ t [conv↑] u ∷ A)
   decConv↑Term′ Γ≡Δ t u = decConv↑Term t (stabilityConv↑Term (symConEq Γ≡Δ) u)
+
+  -- Decidability for _⊢_[conv↑]_∷Level.
+  decConv↑Level :
+    Γ ⊢ l₁ [conv↑] l₁′ ∷Level → Γ ⊢ l₂ [conv↑] l₂′ ∷Level →
+    Dec (Γ ⊢ l₁ [conv↑] l₂ ∷Level)
+  decConv↑Level (term ok l₁≡) (term _ l₂≡) =
+    case decConv↑Term l₁≡ l₂≡ of λ where
+      (yes l₁≡l₂) → yes (term ok l₁≡l₂)
+      (no l₁≢l₂)  → no λ where
+        (term _ l₁≡l₂)       → l₁≢l₂ l₁≡l₂
+        (literal not-ok _ _) → not-ok ok
+  decConv↑Level (term ok _) (literal not-ok _ _) =
+    ⊥-elim (not-ok ok)
+  decConv↑Level (literal not-ok _ _) (term ok _) =
+    ⊥-elim (not-ok ok)
+  decConv↑Level (literal! not-ok l₁-lit) (literal! _ l₂-lit) =
+    case l₁-lit ≟L l₂-lit of λ where
+      (yes PE.refl) →
+        yes (literal! not-ok l₁-lit)
+      (no l₁≢l₂) → no λ where
+        (literal! _ _) → l₁≢l₂ PE.refl
+        (term ok _)    → not-ok ok
 
   -- Decidability of algorithmic equality of terms in WHNF.
   decConv↓Term : ∀ {t u A t′ u′}

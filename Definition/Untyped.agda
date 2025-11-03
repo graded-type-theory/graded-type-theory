@@ -10,6 +10,7 @@ open import Tools.Nat
 open import Tools.Product
 open import Tools.List
 open import Tools.PropositionalEquality as PE hiding (subst)
+open import Tools.Relation
 
 -- Some definitions that do not depend on M are re-exported from
 -- Definition.Untyped.NotParametrised.
@@ -32,7 +33,7 @@ infixl 30 _∘⟨_⟩_
 infixl 30 _∘_
 infix 30 ⟦_⟧_▹_
 infixl 30 _ₛ•ₛ_ _•ₛ_ _ₛ•_
-infixr 30 _supᵘ_
+infixr 30 _supᵘ_ _supᵘₗ′_
 infix 25 _[_]
 infix 25 _[_]₀
 infix 25 _[_]↑
@@ -139,6 +140,66 @@ sucᵏ : (k : Nat) → Term n
 sucᵏ 0      = zero
 sucᵏ (1+ n) = suc (sucᵏ n)
 
+-- Level literals.
+
+data Level-literal {n : Nat} : Term n → Set a where
+  zeroᵘ : Level-literal zeroᵘ
+  sucᵘ  : Level-literal t → Level-literal (sucᵘ t)
+
+-- A view of terms as level literals or not level literals.
+
+data Level-literal? {n} : Term n → Set a where
+  literal     : Level-literal t → Level-literal? t
+  not-literal : ¬ Level-literal t → Level-literal? t
+
+opaque
+
+  -- The Level-literal? view is inhabited for every term.
+
+  level-literal? : (t : Term n) → Level-literal? t
+  level-literal? = λ where
+    zeroᵘ    → literal zeroᵘ
+    (sucᵘ t) → case level-literal? t of λ where
+      (literal t-lit)         → literal (sucᵘ t-lit)
+      (not-literal t-not-lit) → not-literal λ where
+        (sucᵘ t-lit) → t-not-lit t-lit
+    (var _)                 → not-literal (λ ())
+    Level                   → not-literal (λ ())
+    (_ supᵘ _)              → not-literal (λ ())
+    (U _)                   → not-literal (λ ())
+    (Lift _ _)              → not-literal (λ ())
+    (lift _)                → not-literal (λ ())
+    (lower _)               → not-literal (λ ())
+    Empty                   → not-literal (λ ())
+    (emptyrec _ _ _)        → not-literal (λ ())
+    (Unit _)                → not-literal (λ ())
+    (star _)                → not-literal (λ ())
+    (unitrec _ _ _ _ _)     → not-literal (λ ())
+    (ΠΣ⟨ _ ⟩ _ , _ ▷ _ ▹ _) → not-literal (λ ())
+    (lam _ _)               → not-literal (λ ())
+    (_ ∘⟨ _ ⟩ _)            → not-literal (λ ())
+    (prod _ _ _ _)          → not-literal (λ ())
+    (fst _ _)               → not-literal (λ ())
+    (snd _ _)               → not-literal (λ ())
+    (prodrec _ _ _ _ _ _)   → not-literal (λ ())
+    ℕ                       → not-literal (λ ())
+    zero                    → not-literal (λ ())
+    (suc _)                 → not-literal (λ ())
+    (natrec _ _ _ _ _ _ _)  → not-literal (λ ())
+    (Id _ _ _)              → not-literal (λ ())
+    rfl                     → not-literal (λ ())
+    (J _ _ _ _ _ _ _ _)     → not-literal (λ ())
+    (K _ _ _ _ _ _)         → not-literal (λ ())
+    ([]-cong _ _ _ _ _ _)   → not-literal (λ ())
+
+opaque
+
+  -- Converts level literals to the corresponding natural numbers.
+
+  size-of-Level : Level-literal t → Nat
+  size-of-Level zeroᵘ        = 0
+  size-of-Level (sucᵘ t-lit) = 1+ (size-of-Level t-lit)
+
 -- Iterated applications of sucᵘ.
 
 sucᵘᵏ : Nat → Term n → Term n
@@ -149,6 +210,19 @@ sucᵘᵏ (1+ k) t = sucᵘ (sucᵘᵏ k t)
 
 ↓ᵘ_ : Nat → Term n
 ↓ᵘ k = sucᵘᵏ k zeroᵘ
+
+opaque
+
+  -- A variant of _supᵘ_.
+  --
+  -- If the inputs are level literals, then a literal is returned.
+
+  _supᵘₗ′_ : Term n → Term n → Term n
+  l₁ supᵘₗ′ l₂ with level-literal? l₁ | level-literal? l₂
+  … | literal l₁-lit | literal l₂-lit =
+    ↓ᵘ (size-of-Level l₁-lit ⊔ size-of-Level l₂-lit)
+  … | _ | _ =
+    l₁ supᵘ l₂
 
 ------------------------------------------------------------------------
 -- An alternative syntax representation

@@ -39,7 +39,7 @@ deterministic⇉-var {x = x +1} (there y) (there z) rewrite deterministic⇉-var
 
 deterministic⇉ : Γ ⊢ t ⇉ A → Γ ⊢ t ⇉ B → A PE.≡ B
 deterministic⇉ (Levelᵢ _) (Levelᵢ _) = PE.refl
-deterministic⇉ zeroᵘᵢ zeroᵘᵢ = PE.refl
+deterministic⇉ (zeroᵘᵢ _) (zeroᵘᵢ _) = PE.refl
 deterministic⇉ (sucᵘᵢ _) (sucᵘᵢ _) = PE.refl
 deterministic⇉ (supᵘᵢ _ _) (supᵘᵢ _ _) = PE.refl
 deterministic⇉ (Uᵢ x) (Uᵢ y) = PE.refl

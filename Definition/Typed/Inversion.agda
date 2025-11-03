@@ -15,7 +15,8 @@ open Type-restrictions R
 
 open import Definition.Typed R
 import Definition.Typed.Inversion.Primitive R as I
-open import Definition.Typed.Properties.Admissible.U R
+open import Definition.Typed.Properties.Admissible.Level.Primitive R
+open import Definition.Typed.Properties.Admissible.U.Primitive R
 open import Definition.Typed.Properties.Well-formed R
 open import Definition.Typed.Substitution.Primitive R
 open import Definition.Typed.Syntactic R
@@ -27,17 +28,18 @@ import Definition.Untyped.Erased 𝕄 as Erased
 open import Tools.Fin
 open import Tools.Function
 open import Tools.Product
+import Tools.PropositionalEquality as PE
 open import Tools.Relation
 
 open I public
 
 private variable
-  x               : Fin _
-  Γ               : Con Term _
-  A B C l t u v w : Term _
-  b               : BinderMode
-  s               : Strength
-  p q q′ r        : M
+  x                     : Fin _
+  Γ                     : Con Term _
+  A B C l l₁ l₂ t u v w : Term _
+  b                     : BinderMode
+  s                     : Strength
+  p q q′ r              : M
 
 ------------------------------------------------------------------------
 -- Inversion for variables
@@ -52,6 +54,54 @@ opaque
   inversion-var (conv ⊢var eq) =
     let a , b , c = inversion-var ⊢var in
     a , b , trans (sym eq) c
+
+------------------------------------------------------------------------
+-- Inversion for Level
+
+opaque
+
+  -- Inversion for sucᵘ.
+
+  inversion-sucᵘ :
+    Γ ⊢ sucᵘ l ∷ A →
+    Γ ⊢ l ∷ Level × Γ ⊢ A ≡ Level
+  inversion-sucᵘ (sucᵘⱼ ⊢l) =
+    let ok = inversion-Level-⊢ (wf-⊢∷ ⊢l) in
+    ⊢l , refl (Levelⱼ′ ok (wfTerm ⊢l))
+  inversion-sucᵘ (conv ⊢sucᵘ eq) =
+    let ⊢l , A≡ = inversion-sucᵘ ⊢sucᵘ in
+    ⊢l , trans (sym eq) A≡
+
+opaque
+
+  -- Inversion for supᵘ.
+
+  inversion-supᵘ :
+    Γ ⊢ l₁ supᵘ l₂ ∷ A →
+    Γ ⊢ l₁ ∷ Level × Γ ⊢ l₂ ∷ Level × Γ ⊢ A ≡ Level
+  inversion-supᵘ (supᵘⱼ ⊢l₁ ⊢l₂) =
+    let ok = inversion-Level-⊢ (wf-⊢∷ ⊢l₁) in
+    ⊢l₁ , ⊢l₂ , refl (Levelⱼ′ ok (wfTerm ⊢l₁))
+  inversion-supᵘ (conv ⊢supᵘ eq) =
+    let ⊢l₁ , ⊢l₂ , A≡ = inversion-supᵘ ⊢supᵘ in
+    ⊢l₁ , ⊢l₂ , trans (sym eq) A≡
+
+opaque
+
+  -- Inversion for supᵘₗ.
+
+  inversion-supᵘₗ :
+    Γ ⊢ l₁ supᵘₗ l₂ ∷Level →
+    Γ ⊢ l₁ ∷Level × Γ ⊢ l₂ ∷Level
+  inversion-supᵘₗ (term ok ⊢sup) =
+    let ⊢l₁ , ⊢l₂ , _ =
+          inversion-supᵘ $
+          PE.subst (flip (_⊢_∷_ _) _) (supᵘₗ≡supᵘ ok) ⊢sup
+    in
+    term ok ⊢l₁ , term ok ⊢l₂
+  inversion-supᵘₗ (literal not-ok sup-lit) =
+    let l₁-lit , l₂-lit = Level-literal-supᵘₗ⇔ not-ok .proj₁ sup-lit in
+    literal not-ok l₁-lit , literal not-ok l₂-lit
 
 ------------------------------------------------------------------------
 -- Inversion for Lift
@@ -210,7 +260,8 @@ opaque
     ∃ λ l → Γ ⊢ A ∷ U l × Γ ⊢ t ∷ A × Γ ⊢ u ∷ A × Γ ⊢ B ≡ U l
   inversion-Id-U = λ where
     (Idⱼ ⊢A ⊢t ⊢u) →
-      _ , ⊢A , ⊢t , ⊢u , refl (⊢U (inversion-U-Level (wf-⊢∷ ⊢A)))
+      _ , ⊢A , ⊢t , ⊢u ,
+      refl (uncurry ⊢U (inversion-U-Level (wf-⊢∷ ⊢A)))
     (conv ⊢Id C≡B) →
       case inversion-Id-U ⊢Id of λ {
         (_ , ⊢A , ⊢t , ⊢u , C≡U) →
@@ -224,9 +275,9 @@ opaque
   ¬Level-is-small→¬Id-Level∷U :
     ¬ Level-is-small →
     ¬ Γ ⊢ Id Level t u ∷ U l
-  ¬Level-is-small→¬Id-Level∷U not-small ⊢Id =
+  ¬Level-is-small→¬Id-Level∷U not-ok ⊢Id =
     let _ , Level∷U , _ = inversion-Id-U ⊢Id in
-    ¬Level-is-small→¬Level∷U not-small Level∷U
+    ¬Level-is-small→¬Level∷U not-ok Level∷U
 
 opaque
 

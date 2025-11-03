@@ -24,6 +24,7 @@ import Definition.Typed.Properties.Admissible.Erased.Eta R as Eta
 import Definition.Typed.Properties.Admissible.Erased.No-eta R as NoEta
 import Definition.Typed.Properties.Admissible.Erased.Primitive R as P
 open import Definition.Typed.Properties.Admissible.Identity R
+open import Definition.Typed.Properties.Admissible.Level R
 open import Definition.Typed.Properties.Admissible.Lift R
 open import Definition.Typed.Properties.Admissible.Nat R
 open import Definition.Typed.Properties.Admissible.Pi-Sigma R
@@ -81,18 +82,20 @@ module _ (Erased-ok : Erased-allowed s) where
     -- An introduction rule for U for Erased.
 
     Erasedⱼ-U : Γ ⊢ A ∷ U l → Γ ⊢ Erased l A ∷ U l
-    Erasedⱼ-U ⊢A = P′.Erasedⱼ-U (inversion-U-Level (wf-⊢∷ ⊢A)) ⊢A
+    Erasedⱼ-U ⊢A =
+      let _ , ⊢l = inversion-U-Level (wf-⊢∷ ⊢A) in
+      P′.Erasedⱼ-U ⊢l ⊢A
 
   opaque
 
     -- An equality rule for U for Erased.
 
     Erased-cong-U :
-      Γ ⊢ l₁ ≡ l₂ ∷ Level →
+      Γ ⊢ l₁ ≡ l₂ ∷Level →
       Γ ⊢ A₁ ≡ A₂ ∷ U l₁ →
       Γ ⊢ Erased l₁ A₁ ≡ Erased l₂ A₂ ∷ U l₁
     Erased-cong-U l₁≡l₂ A₁≡A₂ =
-      let _ , ⊢l₁ , _ = wf-⊢≡∷ l₁≡l₂
+      let ⊢l₁ , _     = wf-⊢≡∷L l₁≡l₂
           _ , ⊢A₁ , _ = wf-⊢≡∷ A₁≡A₂
       in
       P′.Erased-cong-U ⊢l₁ l₁≡l₂ (univ ⊢A₁) A₁≡A₂
@@ -102,18 +105,20 @@ module _ (Erased-ok : Erased-allowed s) where
     -- A formation rule for Erased.
 
     Erasedⱼ : Γ ⊢ A ∷ U l → Γ ⊢ Erased l A
-    Erasedⱼ ⊢A = P′.Erasedⱼ (inversion-U-Level (wf-⊢∷ ⊢A)) ⊢A
+    Erasedⱼ ⊢A =
+      let _ , ⊢l = inversion-U-Level (wf-⊢∷ ⊢A) in
+      P′.Erasedⱼ ⊢l ⊢A
 
   opaque
 
     -- An equality rule for Erased.
 
     Erased-cong :
-      Γ ⊢ l₁ ≡ l₂ ∷ Level →
+      Γ ⊢ l₁ ≡ l₂ ∷Level →
       Γ ⊢ A₁ ≡ A₂ ∷ U l₁ →
       Γ ⊢ Erased l₁ A₁ ≡ Erased l₂ A₂
     Erased-cong l₁≡l₂ A₁≡A₂ =
-      let _ , ⊢l₁ , _ = wf-⊢≡∷ l₁≡l₂
+      let ⊢l₁ , _     = wf-⊢≡∷L l₁≡l₂
           _ , ⊢A₁ , _ = wf-⊢≡∷ A₁≡A₂
       in
       P′.Erased-cong ⊢l₁ l₁≡l₂ (univ ⊢A₁) A₁≡A₂
@@ -123,7 +128,9 @@ module _ (Erased-ok : Erased-allowed s) where
     -- An introduction rule for Erased.
 
     []ⱼ : Γ ⊢ A ∷ U l → Γ ⊢ t ∷ A → Γ ⊢ [ t ] ∷ Erased l A
-    []ⱼ ⊢A = P′.[]ⱼ (inversion-U-Level (wf-⊢∷ ⊢A)) ⊢A
+    []ⱼ ⊢A =
+      let _ , ⊢l = inversion-U-Level (wf-⊢∷ ⊢A) in
+      P′.[]ⱼ ⊢l ⊢A
 
   opaque
 
@@ -132,7 +139,7 @@ module _ (Erased-ok : Erased-allowed s) where
     []-cong′ :
       Γ ⊢ A ∷ U l → Γ ⊢ t₁ ≡ t₂ ∷ A → Γ ⊢ [ t₁ ] ≡ [ t₂ ] ∷ Erased l A
     []-cong′ ⊢A t₁≡t₂ =
-      let ⊢l            = inversion-U-Level (wf-⊢∷ ⊢A)
+      let _ , ⊢l        = inversion-U-Level (wf-⊢∷ ⊢A)
           _ , ⊢t₁ , ⊢t₂ = wf-⊢≡∷ t₁≡t₂
       in
       P′.[]-cong′ ⊢l ⊢A ⊢t₁ ⊢t₂ t₁≡t₂
@@ -187,7 +194,7 @@ opaque
     Erased-allowed s ×
     ∃ λ l₁ → Γ ⊢ A ∷ U l₁ × Γ ⊢ B ≡ U l₁ ×
     ∃ λ l₂ →
-      Γ ∙ A ⊢ U (wk1 l₁) ≡ U (l₂ supᵘ wk1 l) × Γ ∙ A ⊢ U l₂ ≡ U zeroᵘ
+      Γ ∙ A ⊢ U (wk1 l₁) ≡ U (l₂ supᵘₗ wk1 l) × Γ ∙ A ⊢ U l₂ ≡ U zeroᵘ
   inversion-Erased-∷ ⊢Erased =
     let l₁ , _ , ⊢A , ⊢Lift-Unit , B≡U[l₁] , Σ-ok =
            inversion-ΠΣ-U ⊢Erased
@@ -210,7 +217,7 @@ opaque
     Γ ⊢ Erased l A →
     Erased-allowed s ×
     (Γ ⊢ A) ×
-    Γ ∙ A ⊢ wk1 l ∷ Level
+    Γ ∙ A ⊢ wk1 l ∷Level
   inversion-Erased ⊢Erased =
     let ⊢A , ⊢Lift-Unit , Σ-ok = inversion-ΠΣ ⊢Erased
         ⊢wk1-l , ⊢Unit         = inversion-Lift ⊢Lift-Unit
@@ -252,7 +259,7 @@ opaque
           inversion-Lift ⊢Lift
     in
     B , q , ⊢t , (Unit-ok , Σˢ-ok) , C , l , A≡ ,
-    trans C≡ (Lift-cong (refl ⊢l) D≡)
+    trans C≡ (Lift-cong (refl-⊢≡∷L ⊢l) D≡)
 
 ------------------------------------------------------------------------
 -- Lemmas about erasedrec
@@ -278,14 +285,14 @@ private
           ⊢wk3          = ⊢ˢʷ∷-wkSubst (∙ ⊢Unit′)
                             (⊢ˢʷ∷-idSubst (wf ⊢A₁))
           ⊢A[wk3]       = subst-⊢ ⊢A₁ ⊢wk3
-          ⊢wk1-l-[wk3⇑] = subst-⊢∷ ⊢wk1-l (⊢ˢʷ∷-⇑ ⊢A[wk3] ⊢wk3)
+          ⊢wk1-l-[wk3⇑] = subst-⊢∷L ⊢wk1-l (⊢ˢʷ∷-⇑ ⊢A[wk3] ⊢wk3)
       in
       [][]↑-cong B₁≡B₂ $ _⊢_≡_∷_.refl $
       prodⱼ
         (Liftⱼ ⊢wk1-l-[wk3⇑] (⊢Unit (∙ ⊢A[wk3]) Unit-ok))
         (PE.subst (_⊢_∷_ _ _) (wk[]≡[] 3) $ var₂ ⊢Unit′)
         (liftⱼ′
-           (subst-⊢∷ ⊢wk1-l-[wk3⇑]
+           (subst-⊢∷L ⊢wk1-l-[wk3⇑]
               (PE.subst (_⊢ˢʷ_∷_ _ _)
                  (PE.cong (_∙_ _) $
                   PE.trans (wk[]≡wk[]′ {k = 3}) $ wk≡subst _ _) $
@@ -300,7 +307,7 @@ private
       let open Erased s in
       ∀ B →
       Unit-allowed s →
-      Γ ∙ A ⊢ wk1 l ∷ Level →
+      Γ ∙ A ⊢ wk1 l ∷Level →
       Γ ∙ A ⊢ t₁ ≡ t₂ ∷ B [ [ var x0 ] ]↑ →
       Γ ∙ A ∙ Lift (wk1 l) (Unit s) ⊢ wk1 t₁ ≡ wk1 t₂ ∷
         B [ 3 ][ prod s 𝟘 (var x2) (lift (var x0)) ]↑ [ star s ]₀
@@ -339,7 +346,7 @@ private
       B U.[ k ][ prod s 𝟘 t (lift (lower u)) ]↑                         ≡⟨ subst-⊢≡ (refl ⊢B) $ ⊢ˢʷ≡∷-[][]↑ $
                                                                            PE.subst (_⊢_≡_∷_ _ _ _) (PE.sym wk[]≡wk[]′) $
                                                                            prod-cong
-                                                                             (Liftⱼ (W.wkTerm (liftʷ ⊇-drop ⊢wk-A) ⊢wk1-l)
+                                                                             (Liftⱼ (W.wkLevel (liftʷ ⊇-drop ⊢wk-A) ⊢wk1-l)
                                                                                 (⊢Unit (∙ ⊢wk-A) Unit-ok))
                                                                              (refl $
                                                                               PE.subst (_⊢_∷_ _ _) (wk[]≡wk[]′ {k = k})
@@ -428,9 +435,9 @@ opaque
         ⊢Unit′                          = ⊢Unit ⊢Γ Unit-ok
         ⊢star                           = starⱼ ⊢Γ Unit-ok
         ⊢A′                             = wk₁ ⊢Unit′ ⊢A
-        ⊢wk1-l[u]₀                      = substTerm ⊢wk1-l ⊢u
+        ⊢wk1-l[u]₀                      = substLevel ⊢wk1-l ⊢u
         ⊢l                              =
-          PE.subst (flip (_⊢_∷_ _) _) (wk1-sgSubst _ _) ⊢wk1-l[u]₀
+          PE.subst (_⊢_∷Level _) (wk1-sgSubst _ _) ⊢wk1-l[u]₀
     in
     prodrec⟨ s ⟩ is-𝕨 𝟘 p B [ u ]
       (unitrec⟨ s ⟩ 𝟙 p (B [ 3 ][ prod s 𝟘 (var x2) (lift (var x0)) ]↑)
@@ -454,8 +461,8 @@ opaque
                                                                                   wf-⊢≡
                                                                                     (erasedrec-lemma₃ ⊢B (wkTerm₁ ⊢Unit′ ⊢u) $
                                                                                      liftⱼ′
-                                                                                       (PE.subst (flip (_⊢_∷_ _) _) (wk1-[][]↑ 1) $
-                                                                                        subst-⊢∷ ⊢wk1-l (⊢ˢʷ∷-[][]↑ (wkTerm₁ ⊢Unit′ ⊢u)))
+                                                                                       (PE.subst (_⊢_∷Level _) (wk1-[][]↑ 1) $
+                                                                                        subst-⊢∷L ⊢wk1-l (⊢ˢʷ∷-[][]↑ (wkTerm₁ ⊢Unit′ ⊢u)))
                                                                                        (var₀ ⊢Unit′))
                                                                                     .proj₂)
                                                                                  (Lift-β′ ⊢star)
@@ -480,14 +487,14 @@ opaque
                                                                                   PE.subst (_⊢_∷_ _ _) (wk[]≡[] 1) $
                                                                                   prodⱼ
                                                                                     (Liftⱼ
-                                                                                       (wkTerm (liftʷ (step id) ⊢A′) $ wkTerm₁ ⊢A ⊢l)
+                                                                                       (wkLevel (liftʷ (step id) ⊢A′) $ wkLevel₁ ⊢A ⊢l)
                                                                                        (⊢Unit (∙ ⊢A′) Unit-ok))
                                                                                     (wkTerm₁ ⊢Unit′ ⊢u)
                                                                                     (liftⱼ′
-                                                                                       (PE.subst (flip (_⊢_∷_ _) _)
+                                                                                       (PE.subst (_⊢_∷Level _)
                                                                                           (PE.trans (PE.sym $ PE.cong wk1 $ wk1-sgSubst _ _) $
                                                                                            wk-β (wk1 l)) $
-                                                                                        wkTerm₁ ⊢Unit′ ⊢l) $
+                                                                                        wkLevel₁ ⊢Unit′ ⊢l) $
                                                                                      var₀ ⊢Unit′)
                                                                                     Σ-ok)
                                                                                (PE.subst (_⊢_∷_ _ _) (PE.trans ([]↑-[]₀ B) (PE.sym lemma)) $
@@ -720,7 +727,7 @@ module _ (ok : []-cong-allowed s) where
     -- An equality rule for substᵉ.
 
     substᵉ-cong :
-      Γ ⊢ l₁ ≡ l₂ ∷ Level →
+      Γ ⊢ l₁ ≡ l₂ ∷Level →
       Γ ⊢ A₁ ≡ A₂ ∷ U l₁ →
       Γ ∙ A₁ ⊢ B₁ ≡ B₂ →
       Γ ⊢ t₁ ≡ t₂ ∷ A₁ →
@@ -1038,7 +1045,7 @@ module _ (ok : []-cong-allowed s) where
     -- An equality rule for Jᵉ.
 
     Jᵉ-cong :
-      Γ ⊢ l₁ ≡ l₂ ∷ Level →
+      Γ ⊢ l₁ ≡ l₂ ∷Level →
       Γ ⊢ A₁ ≡ A₂ ∷ U l₁ →
       Γ ⊢ t₁ ≡ t₂ ∷ A₁ →
       Γ ∙ A₁ ∙ Id (wk1 A₁) (wk1 t₁) (var x0) ⊢ B₁ ≡ B₂ →
@@ -1094,11 +1101,11 @@ module _ (ok : []-cong-allowed s) where
       Γ ⊢ w ∷ Id A t v →
       Γ ⊢ Jᵉ l A t B u v w ∷ B [ v , w ]₁₀
     ⊢Jᵉ ⊢A ⊢B ⊢u ⊢w =
-      let ⊢l          = inversion-U-Level (wf-⊢∷ ⊢A)
+      let _ , ⊢l      = inversion-U-Level (wf-⊢∷ ⊢A)
           _ , ⊢t , ⊢v = inversion-Id (wf-⊢∷ ⊢w)
       in
       wf-⊢≡∷
-        (Jᵉ-cong (refl ⊢l) (refl ⊢A) (refl ⊢t) (refl ⊢B) (refl ⊢u)
+        (Jᵉ-cong (refl-⊢≡∷L ⊢l) (refl ⊢A) (refl ⊢t) (refl ⊢B) (refl ⊢u)
            (refl ⊢v) (refl ⊢w))
         .proj₂ .proj₁
 

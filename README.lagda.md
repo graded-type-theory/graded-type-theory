@@ -128,17 +128,22 @@ Unlike in the paper the type system is parametrised by a value of type
 like certain (graded) Π- or Σ-types, the K rule or equality
 reflection. For instance, the two typing rules for Π and Σ include the
 assumption `ΠΣ-allowed b p q`. It is also possible to restrict the
-`Level` type so that it is not an element of a universe (see further
-discussion of this below).
+`Level` type so that it is not an element of a universe, or not
+allowed at all (see further discussion of this below).
 ```agda
 import Definition.Typed.Restrictions using (Type-restrictions)
 ```
 
 The type system. Some typing rules have names that differ from those
-in the paper.
+in the paper. The definitions use the relations `_⊢_∷Level` and
+`_⊢_≡_∷Level` to support disallowing `Level` entirely: in the case
+where `Level` is allowed `Γ ⊢ t ∷Level` is equivalent to
+`Γ ⊢ t ∷ Level`, and similarly for `_⊢_≡_∷Level`.
 ```agda
 import Definition.Typed
-  using (⊢_; _⊢_; _⊢_≡_; _⊢_∷_; _⊢_≡_∷_; _⊢_≤_∷Level)
+  using
+    (⊢_; _⊢_; _⊢_≡_; _⊢_∷_; _⊢_≡_∷_; _⊢_≤_∷Level;
+     _⊢_∷Level; _⊢_≡_∷Level)
 ```
 
 The ordering of levels induced by `_supᵘ_` is reflexive, transitive and
@@ -522,19 +527,33 @@ import Graded.Erasure.Examples using (⊢id)
 Some features were added to the formalisation after the paper was
 submitted.
 
-There is now a `Level-is-small` parameter that controls whether
-`Level` belongs to the first universe. If this is disabled, then
-`Level` is only a type, not an element of any universe; this does not
-affect our results. Disabling this parameter is similar to *enabling*
-Agda's `--level-universe` flag, which makes `Level` an element of a
-separate universe `LevelUniv` instead of `Set`. A notable difference
-is that Agda disallows forming identity types of types in `LevelUniv`,
-whereas our type theory has identity type formation rules for every
-type.
+There is now a parameter `level-support` that can take one of the
+following three values:
+
+* `only-literals`: The `Level` type is disallowed, and only level
+  literals are allowed.
+
+* `level-type small`: The `Level` type is allowed and has type
+  `U zeroᵘ`. If this setting is used, then the type `Level-is-small`
+  is inhabited.
+
+* `level-type not-small`: The `Level` type is allowed, but does not
+  belong to the first (or any) universe. If this setting is used, then
+  the type `Level-is-not-small` is inhabited.
+
+  Using this setting is similar to enabling Agda's `--level-universe`
+  flag, which makes `Level` an element of a separate universe
+  `LevelUniv` instead of `Set`. A notable difference is that Agda
+  disallows forming identity types of types in `LevelUniv`, whereas
+  our type theory has identity type formation rules for every type.
+
+If either of the two last settings are used, then the type
+`Level-allowed` is inhabited. The results in the paper do not depend
+on whether `Level` is small or not.
 ```agda
-open import Definition.Typed.Restrictions
-  using (module Type-restrictions)
-open Type-restrictions using (Level-is-small)
+open Definition.Typed.Restrictions.Type-restrictions
+  using
+    (level-support; Level-is-small; Level-is-not-small; Level-allowed)
 
 import Definition.Typed.Inversion using (¬Level-is-small→¬Level∷U)
 ```

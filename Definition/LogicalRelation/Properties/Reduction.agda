@@ -19,6 +19,7 @@ open Type-restrictions R
 open import Definition.Untyped M hiding (Wk; K)
 open import Definition.Untyped.Neutral M type-variant
 open import Definition.Typed R
+open import Definition.Typed.Inversion R
 open import Definition.Typed.Properties R
 -- The imported operator _,_ is not "supposed" to be used below, but
 -- another operator with the same name is used, and if this import
@@ -36,6 +37,7 @@ open import Definition.LogicalRelation.Properties.Transitivity R
 open import Definition.LogicalRelation.Properties.Whnf R
 open import Definition.LogicalRelation.Unary R
 
+open import Tools.Empty
 open import Tools.Function
 open import Tools.Nat hiding (_<_)
 open import Tools.Product
@@ -94,9 +96,12 @@ opaque
                 → ([A] : Γ ⊩⟨ l ⟩ A)
                 → Γ ⊩⟨ l ⟩ u ∷ A / [A]
                 → Γ ⊩⟨ l ⟩ t ≡ u ∷ A / [A]
-  redSubst*Term t⇒u (Levelᵣ A⇒*Level) (Levelₜ₌ v v′ u⇒*v u⇒*v′ v≡v′) =
+  redSubst*Term t⇒u (Levelᵣ A⇒*Level) (term u⇒*v u⇒*v′ v≡v′) =
     let t⇒u′ = conv* t⇒u (subset* A⇒*Level) in
-    Levelₜ₌ v v′ (t⇒u′ ⇨∷* u⇒*v) u⇒*v′ v≡v′
+    term (t⇒u′ ⇨∷* u⇒*v) u⇒*v′ v≡v′
+  redSubst*Term _ (Levelᵣ A⇒*Level) (literal not-ok _ _) =
+    ⊥-elim $ not-ok $
+    inversion-Level-⊢ (wf-⊢≡ (subset* A⇒*Level) .proj₂)
   redSubst*Term t⇒u (Liftᵣ′ D [k] [F]) (Liftₜ₌ u′ _ u↘@(u⇒* , w) u↘′ u≡u) =
     case whrDet*Term u↘ u↘′ of λ {
       PE.refl →
@@ -230,11 +235,14 @@ opaque
   redSubst*Term′ :
     Γ ⊢ t ⇒* u ∷ A → (⊩A : Γ ⊩⟨ l ⟩ A) → Γ ⊩⟨ l ⟩ t ∷ A / ⊩A →
     Γ ⊩⟨ l ⟩ t ≡ u ∷ A / ⊩A
-  redSubst*Term′ t⇒*u (Levelᵣ A⇒*Level) (Levelₜ₌ v v′ t⇒*v t⇒*v′ v≡v′) =
+  redSubst*Term′ t⇒*u (Levelᵣ A⇒*Level) (term t⇒*v t⇒*v′ v≡v′) =
     case whrDet↘Term (t⇒*v′ , lsplit v≡v′ .proj₂)
            (conv* t⇒*u (subset* A⇒*Level)) of λ
       u⇒*v′ →
-    Levelₜ₌ v v′ t⇒*v u⇒*v′ v≡v′
+    term t⇒*v u⇒*v′ v≡v′
+  redSubst*Term′ _ (Levelᵣ A⇒*Level) (literal not-ok _ _) =
+    ⊥-elim $ not-ok $
+    inversion-Level-⊢ (wf-⊢≡ (subset* A⇒*Level) .proj₂)
   redSubst*Term′ t⇒*u (Liftᵣ′ D _ _) (Liftₜ₌ t′ _ t↘@(t⇒* , w) t↘′ t≡t) =
     case whrDet*Term t↘ t↘′ of λ {
       PE.refl →

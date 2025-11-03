@@ -77,8 +77,8 @@ mutual
 whnfConv↓ : ∀ {A B}
           → Γ ⊢ A [conv↓] B
           → Whnf A × Whnf B
-whnfConv↓ (Level-refl x) = Levelₙ , Levelₙ
-whnfConv↓ (U-cong x) = Uₙ , Uₙ
+whnfConv↓ (Level-refl _ _) = Levelₙ , Levelₙ
+whnfConv↓ (U-cong _ _) = Uₙ , Uₙ
 whnfConv↓ (Lift-cong _ _) = Liftₙ , Liftₙ
 whnfConv↓ (ℕ-refl x) = ℕₙ , ℕₙ
 whnfConv↓ (Empty-refl x) = Emptyₙ , Emptyₙ
@@ -98,7 +98,7 @@ whnfConv~ᵛ (neₙ [t] x) = ne (ne~↓ [t] .proj₂ .proj₁)
 whnfConv↓ᵛ : ∀ {t v}
            → Γ ⊢ t ↓ᵛ v
            → Whnf t
-whnfConv↓ᵛ (zeroᵘₙ _) = zeroᵘₙ
+whnfConv↓ᵛ (zeroᵘₙ _ _) = zeroᵘₙ
 whnfConv↓ᵛ (sucᵘₙ x x₁) = sucᵘₙ
 whnfConv↓ᵛ (neₙ x) = ne (whnfConv~ᵛ x)
 

@@ -97,16 +97,18 @@ opaque
   -- A characterisation lemma for Level.
 
   ®∷Level⇔ :
-    t ® v ∷ Level ⇔ t ® v ∷U/Level
+    t ® v ∷ Level ⇔
+    (Level-allowed × t ® v ∷U/Level)
   ®∷Level⇔ {t} {v} =
     t ® v ∷ Level                                             ⇔⟨ id⇔ ⟩
     (∃₂ λ l (⊩L : Δ ⊩⟨ l ⟩ Level) → t ®⟨ l ⟩ v ∷ Level / ⊩L)  ⇔⟨ (λ (l , ⊩L , t®v) →
+                                                                    inversion-Level-⊢ (escape-⊩ ⊩L) ,
                                                                     irrelevanceTerm {l′ = 0ᵘ+ 0} ⊩L (Levelᵣ (Level-elim ⊩L)) t®v)
-                                                               , (λ t®v →
-                                                                    let ⊩L = ⊩Level⇔ .proj₂ ⊢Δ in
+                                                               , (λ (ok , t®v) →
+                                                                    let ⊩L = ⊩Level⇔ .proj₂ (ok , ⊢Δ) in
                                                                     0ᵘ+ 0 , ⊩L , irrelevanceTerm {l = 0ᵘ+ 0} (Levelᵣ (Level-elim ⊩L)) ⊩L t®v)
                                                                ⟩
-    t ® v ∷U/Level                                            □⇔
+    Level-allowed × t ® v ∷U/Level                            □⇔
 
 opaque
   unfolding _®_∷_
@@ -115,15 +117,15 @@ opaque
 
   ®∷U⇔ :
     t ® v ∷ U u ⇔
-    (Δ ⊢ u ∷ Level × t ® v ∷U/Level)
+    (Δ ⊢ u ∷Level × t ® v ∷U/Level)
   ®∷U⇔ {t} {v} {u} =
     t ® v ∷ U u                                           ⇔⟨ id⇔ ⟩
     (∃₂ λ l (⊩U : Δ ⊩⟨ l ⟩ U u) → t ®⟨ l ⟩ v ∷ U u / ⊩U)  ⇔⟨ (λ (_ , ⊩U , t®v) → (_ , ⊩U) , irrelevanceTerm ⊩U (Uᵣ (U-elim ⊩U)) t®v)
                                                            , (λ ((_ , ⊩U) , t®v) → _ , ⊩U , irrelevanceTerm (Uᵣ (U-elim ⊩U)) ⊩U t®v)
                                                            ⟩
     (∃ λ l → Δ ⊩⟨ l ⟩ U u) × t ® v ∷U/Level               ⇔⟨ (escape-⊩ ∘→ proj₂ , reducible-⊩) ×-cong-⇔ id⇔ ⟩
-    (Δ ⊢ U u) × t ® v ∷U/Level                            ⇔⟨ (inversion-U-Level , ⊢U) ×-cong-⇔ id⇔ ⟩
-    Δ ⊢ u ∷ Level × t ® v ∷U/Level                        □⇔
+    (Δ ⊢ U u) × t ® v ∷U/Level                            ⇔⟨ (proj₂ ∘→ inversion-U-Level , ⊢U ⊢Δ) ×-cong-⇔ id⇔ ⟩
+    Δ ⊢ u ∷Level × t ® v ∷U/Level                         □⇔
 
 opaque
   unfolding _®_∷_ ⊩Lift⇔
@@ -132,7 +134,7 @@ opaque
 
   ®∷Lift⇔ :
     t ® v ∷ Lift u A ⇔
-    (Δ ⊢ u ∷ Level × lower t ® v ∷ A)
+    (Δ ⊢ u ∷Level × lower t ® v ∷ A)
   ®∷Lift⇔ {t} {v} {u} {A} =
     t ® v ∷ Lift u A                                                ⇔⟨ id⇔ ⟩
     (∃₂ λ l (⊩L : Δ ⊩⟨ l ⟩ Lift u A) → t ®⟨ l ⟩ v ∷ Lift u A / ⊩L)  ⇔⟨ (λ (l , ⊩L , t®v) →
@@ -143,8 +145,8 @@ opaque
                                                                      , (λ (⊩u , l , ⊩A , lower-t®v) →
                                                                           l , ⊩Lift⇔ .proj₂ (⊩u , ⊩A) , lower-t®v)
                                                                      ⟩
-    Δ ⊩Level u ∷Level × lower t ® v ∷ A                             ⇔⟨ (escapeLevel , ⊩∷Level⇔ .proj₁ ∘→ proj₂ ∘→ reducible-⊩∷) ×-cong-⇔ id⇔ ⟩
-    Δ ⊢ u ∷ Level × lower t ® v ∷ A                                 □⇔
+    Δ ⊩Level u ∷Level × lower t ® v ∷ A                             ⇔⟨ (escapeLevel , reducible-⊩∷L) ×-cong-⇔ id⇔ ⟩
+    Δ ⊢ u ∷Level × lower t ® v ∷ A                                  □⇔
 
 opaque
   unfolding _®_∷_

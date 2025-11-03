@@ -197,8 +197,10 @@ opaque
     , (_$ refl) ∘→ proj₂
     , (proj₁ ∘→ proj₁ , ⊥-elim ∘→ (_$ refl))
     , (λ { (lift ()) })
-    , _
+    , Level-is-small⇔ .proj₂ refl
     , ((λ ()) , (_$ refl))
+    where
+    open Extended-modality Trivial
 
 -- An erasure modality.
 
@@ -250,8 +252,10 @@ opaque
     , (_$ refl) ∘→ proj₂
     , (proj₁ ∘→ proj₁ , (λ _ → ((λ ()) , (λ ())) , (λ ())))
     , (λ { (lift ()) })
-    , _
+    , Level-is-small⇔ .proj₂ refl
     , ((λ _ ()) , _)
+    where
+    open Extended-modality Erasure
 
 -- An affine types modality.
 
@@ -312,8 +316,10 @@ opaque
     , (_$ refl) ∘→ proj₂
     , (proj₁ ∘→ proj₁ , (λ _ → ((λ ()) , (λ ())) , (λ ())))
     , (λ { (lift ()) })
-    , _
+    , Level-is-small⇔ .proj₂ refl
     , ((λ _ ()) , _)
+    where
+    open Extended-modality Affine-types
 
 -- A linearity modality.
 
@@ -378,8 +384,10 @@ opaque
     , (_$ refl) ∘→ proj₂
     , (proj₁ ∘→ proj₁ , (λ _ → ((λ ()) , (λ ())) , (λ ())))
     , (λ { (lift ()) })
-    , _
+    , Level-is-small⇔ .proj₂ refl
     , ((λ _ ()) , _)
+    where
+    open Extended-modality Linearity
 
 -- A linear or affine types modality.
 
@@ -445,8 +453,10 @@ opaque
     , (_$ refl) ∘→ proj₂
     , (proj₁ ∘→ proj₁ , (λ _ → ((λ ()) , (λ ())) , (λ ())))
     , (λ { (lift ()) })
-    , _
+    , Level-is-small⇔ .proj₂ refl
     , ((λ _ ()) , _)
+    where
+    open Extended-modality Linear-or-affine-types
 
 ------------------------------------------------------------------------
 -- Some morphisms between the modalities above

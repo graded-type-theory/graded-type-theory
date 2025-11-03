@@ -21,14 +21,17 @@ import Definition.Untyped.Erased 𝕄 as E
 open import Definition.Untyped.Properties M
 
 open import Definition.Typed R
+open import Definition.Typed.Inversion R
 open import Definition.Typed.Properties R
 open import Definition.Typed.Substitution R
+open import Definition.Typed.Well-formed R
 open import Definition.LogicalRelation.Substitution R ⦃ eqrel ⦄
 open import Definition.LogicalRelation.Substitution.Introductions R ⦃ eqrel ⦄
 
 open import Tools.Product
 open import Tools.Nat using (Nat)
 import Tools.PropositionalEquality as PE
+open import Tools.Sum
 
 private
   variable
@@ -49,10 +52,10 @@ opaque mutual
 
   -- Fundamental theorem for types.
   fundamental-⊩ᵛ : Γ ⊢ A → ∃ λ l → Γ ⊩ᵛ⟨ l ⟩ A
-  fundamental-⊩ᵛ (Levelⱼ _ ⊢Γ) =
-    0ᵘ , Levelᵛ (valid ⊢Γ)
+  fundamental-⊩ᵛ (Levelⱼ ok ⊢Γ) =
+    0ᵘ , Levelᵛ (Level-allowed⇔⊎ .proj₂ (inj₂ ok)) (valid ⊢Γ)
   fundamental-⊩ᵛ (Liftⱼ ⊢l ⊢A) =
-    _ , Liftᵛ (fundamental-⊩ᵛ∷ ⊢l .proj₂) (fundamental-⊩ᵛ ⊢A .proj₂)
+    _ , Liftᵛ (fundamental-⊩ᵛ∷L ⊢l .proj₂) (fundamental-⊩ᵛ ⊢A .proj₂)
   fundamental-⊩ᵛ ⊢ΠΣ@(ΠΣⱼ ⊢B _) =
     let _ , ⊩B = fundamental-⊩ᵛ ⊢B
         _ , ⊩A = wf-∙-⊩ᵛ ⊩B
@@ -80,9 +83,12 @@ opaque mutual
     in
     l₁ ⊔ᵘ l₂ , trans-⊩ᵛ≡ (emb-⊩ᵛ≡ ≤ᵘ⊔ᵘʳ A≡B) (emb-⊩ᵛ≡ ≤ᵘ⊔ᵘˡ B≡C)
   fundamental-⊩ᵛ≡ (U-cong l₁≡l₂) =
-    _ , ⊩ᵛU≡U (fundamental-⊩ᵛ≡∷ l₁≡l₂ .proj₂)
+    let ok = inversion-Level-⊢ (wf-⊢≡∷ l₁≡l₂ .proj₁) in
+    _ , ⊩ᵛU≡U ok (fundamental-⊩ᵛ≡∷ l₁≡l₂ .proj₂)
   fundamental-⊩ᵛ≡ (Lift-cong l₁≡l₂ A≡B) =
-    _ , Lift-congᵛ (fundamental-⊩ᵛ≡∷ l₁≡l₂ .proj₂) (fundamental-⊩ᵛ≡ A≡B .proj₂)
+    _ ,
+    Lift-congᵛ (fundamental-⊩ᵛ≡∷L l₁≡l₂ .proj₂)
+      (fundamental-⊩ᵛ≡ A≡B .proj₂)
   fundamental-⊩ᵛ≡ ΠΣ≡ΠΣ@(ΠΣ-cong A₁≡A₂ B₁≡B₂ _) =
     let l₁ , A₁≡A₂ = fundamental-⊩ᵛ≡ A₁≡A₂
         l₂ , B₁≡B₂ = fundamental-⊩ᵛ≡ B₁≡B₂
@@ -98,20 +104,23 @@ opaque mutual
   fundamental-⊩ᵛ∷ : Γ ⊢ t ∷ A → ∃ λ l → Γ ⊩ᵛ⟨ l ⟩ t ∷ A
   fundamental-⊩ᵛ∷ (Levelⱼ ⊢Γ ok) =
     _ , Levelᵗᵛ (valid ⊢Γ) ok
-  fundamental-⊩ᵛ∷ (zeroᵘⱼ ⊢Γ) =
-    0ᵘ , zeroᵘᵛ (valid ⊢Γ)
+  fundamental-⊩ᵛ∷ (zeroᵘⱼ ok ⊢Γ) =
+    0ᵘ , zeroᵘᵛ ok (valid ⊢Γ)
   fundamental-⊩ᵛ∷ (sucᵘⱼ ⊢l) =
-    _ , sucᵘᵛ (fundamental-⊩ᵛ∷ ⊢l .proj₂)
+    let ok = inversion-Level-⊢ (wf-⊢∷ ⊢l) in
+    _ , sucᵘᵛ ok (fundamental-⊩ᵛ∷ ⊢l .proj₂)
   fundamental-⊩ᵛ∷ (supᵘⱼ ⊢l₁ ⊢l₂) =
     _ , supᵘᵛ (fundamental-⊩ᵛ∷ ⊢l₁ .proj₂) (fundamental-⊩ᵛ∷ ⊢l₂ .proj₂)
   fundamental-⊩ᵛ∷ (Liftⱼ ⊢l₁ ⊢l₂ ⊢A) =
-    _ , Liftᵗᵛ
-      (fundamental-⊩ᵛ∷ ⊢l₁ .proj₂)
-      (fundamental-⊩ᵛ∷ ⊢l₂ .proj₂)
+    _ ,
+    Liftᵗᵛ
+      (fundamental-⊩ᵛ∷L ⊢l₁ .proj₂)
+      (fundamental-⊩ᵛ∷L ⊢l₂ .proj₂)
       (fundamental-⊩ᵛ∷ ⊢A .proj₂)
   fundamental-⊩ᵛ∷ (liftⱼ ⊢l₂ ⊢A ⊢t) =
-    _ , liftᵛ
-      (fundamental-⊩ᵛ∷ ⊢l₂ .proj₂)
+    _ ,
+    liftᵛ
+      (fundamental-⊩ᵛ∷L ⊢l₂ .proj₂)
       (fundamental-⊩ᵛ ⊢A .proj₂)
       (fundamental-⊩ᵛ∷ ⊢t .proj₂)
   fundamental-⊩ᵛ∷ (lowerⱼ ⊢t) =
@@ -123,8 +132,9 @@ opaque mutual
   fundamental-⊩ᵛ∷ (Unitⱼ ⊢Γ ok) =
     _ , Unitᵗᵛ (valid ⊢Γ) ok
   fundamental-⊩ᵛ∷ ⊢ΠΣ@(ΠΣⱼ ⊢l ⊢A ⊢B _) =
-    _ , ΠΣᵗᵛ ⊢ΠΣ (fundamental-⊩ᵛ∷ ⊢l .proj₂)
-        (fundamental-⊩ᵛ∷ ⊢A .proj₂) (fundamental-⊩ᵛ∷ ⊢B .proj₂)
+    _ ,
+    ΠΣᵗᵛ ⊢ΠΣ (fundamental-⊩ᵛ∷L ⊢l .proj₂)
+      (fundamental-⊩ᵛ∷ ⊢A .proj₂) (fundamental-⊩ᵛ∷ ⊢B .proj₂)
   fundamental-⊩ᵛ∷ (var ⊢Γ x∈Γ) =
     _ , varᵛ x∈Γ (valid ⊢Γ) .proj₂
   fundamental-⊩ᵛ∷ (lamⱼ _ ⊢t ok) =
@@ -192,10 +202,17 @@ opaque mutual
         (fundamental-⊩ᵛ∷ ⊢v .proj₂)
   fundamental-⊩ᵛ∷ ([]-congⱼ ⊢l ⊢A _ _ ⊢v ok) =
     _ ,
-    []-congᵛ ok (fundamental-⊩ᵛ∷ ⊢l .proj₂) (fundamental-⊩ᵛ∷ ⊢A .proj₂)
+    []-congᵛ ok (fundamental-⊩ᵛ∷L ⊢l .proj₂) (fundamental-⊩ᵛ∷ ⊢A .proj₂)
       (fundamental-⊩ᵛ∷ ⊢v .proj₂)
-  fundamental-⊩ᵛ∷ (Uⱼ ⊢l) =
-    _ , ⊩ᵛU∷U (fundamental-⊩ᵛ∷ ⊢l .proj₂)
+  fundamental-⊩ᵛ∷ (Uⱼ ⊢Γ ⊢l) =
+    _ , ⊩ᵛU∷U (valid ⊢Γ) (fundamental-⊩ᵛ∷L ⊢l .proj₂)
+
+  -- The fundamental theorem for levels.
+  fundamental-⊩ᵛ∷L : Γ ⊢ t ∷Level → ∃ λ l → Γ ⊩ᵛ⟨ l ⟩ t ∷Level
+  fundamental-⊩ᵛ∷L (term ok ⊢t) =
+    _ , term-⊩ᵛ∷L ok (fundamental-⊩ᵛ∷ ⊢t .proj₂)
+  fundamental-⊩ᵛ∷L (literal not-ok t-lit) =
+    0ᵘ , literal-⊩ᵛ∷L not-ok t-lit
 
   -- Fundamental theorem for term equality.
   fundamental-⊩ᵛ≡∷ : Γ ⊢ t ≡ u ∷ A → ∃ λ l → Γ ⊩ᵛ⟨ l ⟩ t ≡ u ∷ A
@@ -209,7 +226,8 @@ opaque mutual
   fundamental-⊩ᵛ≡∷ (conv t≡u A≡B) =
     _ , conv-⊩ᵛ≡∷ (proj₂ (fundamental-⊩ᵛ≡ A≡B)) (proj₂ (fundamental-⊩ᵛ≡∷ t≡u))
   fundamental-⊩ᵛ≡∷ (sucᵘ-cong l₁≡l₂) =
-    _ , sucᵘ-congᵛ (fundamental-⊩ᵛ≡∷ l₁≡l₂ .proj₂)
+    let ok = inversion-Level-⊢ (wf-⊢≡∷ l₁≡l₂ .proj₁) in
+    _ , sucᵘ-congᵛ ok (fundamental-⊩ᵛ≡∷ l₁≡l₂ .proj₂)
   fundamental-⊩ᵛ≡∷ (supᵘ-cong l₁≡l₂ l₃≡l₄) =
     _ , supᵘ-congᵛ (fundamental-⊩ᵛ≡∷ l₁≡l₂ .proj₂) (fundamental-⊩ᵛ≡∷ l₃≡l₄ .proj₂)
   fundamental-⊩ᵛ≡∷ (supᵘ-zeroˡ ⊢l) =
@@ -228,11 +246,13 @@ opaque mutual
   fundamental-⊩ᵛ≡∷ (supᵘ-sub ⊢l) =
     _ , supᵘ-subᵛ (fundamental-⊩ᵛ∷ ⊢l .proj₂)
   fundamental-⊩ᵛ≡∷ (U-cong l₁≡l₂) =
-    _ , ⊩ᵛU≡U∷U (fundamental-⊩ᵛ≡∷ l₁≡l₂ .proj₂)
-  fundamental-⊩ᵛ≡∷ (Lift-cong ⊢l₁ l₂≡l₂′ A≡B) =
-    _ , Lift-congᵗᵛ
-      (fundamental-⊩ᵛ∷ ⊢l₁ .proj₂)
-      (fundamental-⊩ᵛ≡∷ l₂≡l₂′ .proj₂)
+    let ok = inversion-Level-⊢ (wf-⊢≡∷ l₁≡l₂ .proj₁) in
+    _ , ⊩ᵛU≡U∷U ok (fundamental-⊩ᵛ≡∷ l₁≡l₂ .proj₂)
+  fundamental-⊩ᵛ≡∷ (Lift-cong ⊢l₁ _ l₂≡l₂′ A≡B) =
+    _ ,
+    Lift-congᵗᵛ
+      (fundamental-⊩ᵛ∷L ⊢l₁ .proj₂)
+      (fundamental-⊩ᵛ≡∷L l₂≡l₂′ .proj₂)
       (fundamental-⊩ᵛ≡∷ A≡B .proj₂)
   fundamental-⊩ᵛ≡∷ (lower-cong t≡u) = _ , lower-congᵛ (fundamental-⊩ᵛ≡∷ t≡u .proj₂)
   fundamental-⊩ᵛ≡∷ (Lift-β ⊢A ⊢u) =
@@ -240,8 +260,9 @@ opaque mutual
       (fundamental-⊩ᵛ ⊢A .proj₂)
       (fundamental-⊩ᵛ∷ ⊢u .proj₂)
   fundamental-⊩ᵛ≡∷ (Lift-η ⊢l₂ ⊢A ⊢t ⊢u t≡u) =
-    _ , Lift-ηᵛ
-      (fundamental-⊩ᵛ∷ ⊢l₂ .proj₂)
+    _ ,
+    Lift-ηᵛ
+      (fundamental-⊩ᵛ∷L ⊢l₂ .proj₂)
       (fundamental-⊩ᵛ ⊢A .proj₂)
       (fundamental-⊩ᵛ∷ ⊢t .proj₂)
       (fundamental-⊩ᵛ∷ ⊢u .proj₂)
@@ -249,7 +270,7 @@ opaque mutual
   fundamental-⊩ᵛ≡∷ ΠΣ≡ΠΣ@(ΠΣ-cong ⊢l A₁≡A₂ B₁≡B₂ ok) =
       _
     , ΠΣ-congᵗᵛ ΠΣ≡ΠΣ
-        (fundamental-⊩ᵛ∷ ⊢l .proj₂)
+        (fundamental-⊩ᵛ∷L ⊢l .proj₂)
         (fundamental-⊩ᵛ≡∷ A₁≡A₂ .proj₂)
         (fundamental-⊩ᵛ≡∷ B₁≡B₂ .proj₂)
   fundamental-⊩ᵛ≡∷ (app-cong t₁≡t₂ u₁≡u₂) =
@@ -344,7 +365,7 @@ opaque mutual
       (fundamental-⊩ᵛ≡∷ v₁≡v₂ .proj₂)
   fundamental-⊩ᵛ≡∷ ([]-cong-cong l₁≡l₂ A₁≡A₂ t₁≡t₂ u₁≡u₂ v₁≡v₂ ok) =
     _ ,
-    []-cong-congᵛ ok (fundamental-⊩ᵛ≡∷ l₁≡l₂ .proj₂)
+    []-cong-congᵛ ok (fundamental-⊩ᵛ≡∷L l₁≡l₂ .proj₂)
       (fundamental-⊩ᵛ≡∷ A₁≡A₂ .proj₂) (fundamental-⊩ᵛ≡∷ t₁≡t₂ .proj₂)
       (fundamental-⊩ᵛ≡∷ u₁≡u₂ .proj₂) (fundamental-⊩ᵛ≡∷ v₁≡v₂ .proj₂)
   fundamental-⊩ᵛ≡∷ (J-β ⊢t ⊢B ⊢u PE.refl) =
@@ -353,10 +374,17 @@ opaque mutual
     _ , K-βᵛ ok ⊢B (fundamental-⊩ᵛ∷ ⊢u .proj₂)
   fundamental-⊩ᵛ≡∷ ([]-cong-β ⊢l ⊢A ⊢t PE.refl ok) =
     _ ,
-    []-cong-βᵛ ok (fundamental-⊩ᵛ∷ ⊢l .proj₂) ⊢A
+    []-cong-βᵛ ok (fundamental-⊩ᵛ∷L ⊢l .proj₂) ⊢A
       (fundamental-⊩ᵛ∷ ⊢t .proj₂)
   fundamental-⊩ᵛ≡∷ (equality-reflection ok _ ⊢v) =
     _ , equality-reflectionᵛ ok (fundamental-⊩ᵛ∷ ⊢v .proj₂)
+
+  -- The fundamental theorem for level equality.
+  fundamental-⊩ᵛ≡∷L : Γ ⊢ t ≡ u ∷Level → ∃ λ l → Γ ⊩ᵛ⟨ l ⟩ t ≡ u ∷Level
+  fundamental-⊩ᵛ≡∷L (term ok t≡u) =
+    _ , term ok (fundamental-⊩ᵛ≡∷ t≡u .proj₂)
+  fundamental-⊩ᵛ≡∷L (literal not-ok t-lit) =
+    0ᵘ , literal! not-ok t-lit
 
 opaque
 

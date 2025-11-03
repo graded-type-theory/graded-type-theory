@@ -275,9 +275,9 @@ module _ (as : Full-reduction-assumptions) where
               inv-usage-[]-cong ▸[]-cong
         in
         sub
-          ([]-congₘ (fullRedTermConv↑ l↑ ▸l) (fullRedTermConv↑ A↑ ▸A)
-             (fullRedTermConv↑ t↑ ▸t) (fullRedTermConv↑ u↑ ▸u)
-             (fullRedNe~↓ v~ ▸v) ok)
+          ([]-congₘ (fullRedTermConv↑Level l↑ ▸l)
+             (fullRedTermConv↑ A↑ ▸A) (fullRedTermConv↑ t↑ ▸t)
+             (fullRedTermConv↑ u↑ ▸u) (fullRedNe~↓ v~ ▸v) ok)
           γ≤
 
     fullRedNe~↓ :
@@ -305,13 +305,14 @@ module _ (as : Full-reduction-assumptions) where
       (⊢A : Γ ⊢ A [conv↓] A′) → γ ▸[ m ] A →
       γ ▸[ m ] FR.fullRedConv↓ ⊢A .proj₁
     fullRedConv↓ = λ where
-      (Level-refl _)        ▸Level → ▸Level
+      (Level-refl _ _) ▸Level →
+        ▸Level
       (Lift-cong x x₁) ▸Lift →
         case inv-usage-Lift ▸Lift of λ ((δ , ▸l) , ▸F) →
-          Liftₘ (fullRedTermConv↑ x ▸l) (fullRedConv↑ x₁ ▸F)
-      (U-cong     l↑)       ▸U    →
+          Liftₘ (fullRedTermConv↑Level x ▸l) (fullRedConv↑ x₁ ▸F)
+      (U-cong _ l↑) ▸U →
         case inv-usage-U ▸U of λ (γ≤ , _ , ▸l) →
-          sub (Uₘ (fullRedTermConv↑ l↑ ▸l)) γ≤
+          sub (Uₘ (fullRedTermConv↑Level l↑ ▸l)) γ≤
       (ℕ-refl     _)        ▸ℕ    → ▸ℕ
       (Empty-refl _)        ▸⊥    → ▸⊥
       (Unit-refl  _ _)      ▸⊤    → ▸⊤
@@ -337,6 +338,15 @@ module _ (as : Full-reduction-assumptions) where
       γ ▸[ m ] FR.fullRedTermConv↑ ⊢t .proj₁
     fullRedTermConv↑ ([↑]ₜ _ _ _ _ (d , _) _ t<>u) γ▸t =
       fullRedTermConv↓ t<>u (usagePres*Term Unitʷ-η→ γ▸t d)
+
+    fullRedTermConv↑Level :
+      ⦃ not-ok : No-equality-reflection ⦄ →
+      (⊢t : Γ ⊢ t [conv↑] t′ ∷Level) → γ ▸[ m ] t →
+      γ ▸[ m ] FR.fullRedTermConv↑Level ⊢t .proj₁
+    fullRedTermConv↑Level (term _ ⊢t) ▸t =
+      fullRedTermConv↑ ⊢t ▸t
+    fullRedTermConv↑Level (literal! _ _) ▸t =
+      ▸t
 
     fullRedTermConv↑ᵛ :
       ⦃ not-ok : No-equality-reflection ⦄ →
@@ -364,7 +374,7 @@ module _ (as : Full-reduction-assumptions) where
       ⦃ not-ok : No-equality-reflection ⦄ →
       ∀ {tᵛ} (⊢t : Γ ⊢ t ↓ᵛ tᵛ) → γ ▸[ m ] t →
       γ ▸[ m ] FR.fullRedTermConv↓ᵛ ⊢t .proj₁
-    fullRedTermConv↓ᵛ (zeroᵘₙ x) ▸t = ▸t
+    fullRedTermConv↓ᵛ (zeroᵘₙ _ _) ▸t = ▸t
     fullRedTermConv↓ᵛ (sucᵘₙ PE.refl x₁) ▸t = sucᵘₘ (fullRedTermConv↑ᵛ x₁ (inv-usage-sucᵘ ▸t))
     fullRedTermConv↓ᵛ (neₙ x) ▸t = fullRedTermConv~ᵛ x ▸t
 

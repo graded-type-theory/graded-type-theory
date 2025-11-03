@@ -164,20 +164,19 @@ opaque
   -- term former.
 
   ⊩Lift≡Lift∷ :
-    Γ ⊩⟨ l₁ ⟩ k ∷ Level →
-    Γ ⊩⟨ l₂ ⟩ k₁ ≡ k₂ ∷ Level →
-    Γ ⊩⟨ l₃ ⟩ A₁ ≡ A₂ ∷ U k →
-    Γ ⊩⟨ ωᵘ ⟩ Lift k₁ A₁ ≡ Lift k₂ A₂ ∷ U (k supᵘ k₁)
+    Γ ⊩Level k ∷Level →
+    Γ ⊩Level k₁ ≡ k₂ ∷Level →
+    Γ ⊩⟨ l ⟩ A₁ ≡ A₂ ∷ U k →
+    Γ ⊩⟨ ωᵘ ⟩ Lift k₁ A₁ ≡ Lift k₂ A₂ ∷ U (k supᵘₗ k₁)
   ⊩Lift≡Lift∷ ⊩k k₁≡k₂ A₁≡A₂ =
     Type→⊩≡∷U⇔ Liftₙ Liftₙ .proj₂
-      ( ⊩supᵘ (⊩∷Level⇔ .proj₁ ⊩k)
-          (⊩∷Level⇔ .proj₁ (wf-⊩≡∷ k₁≡k₂ .proj₁))
+      ( ⊩supᵘₗ ⊩k (wf-Level-eq k₁≡k₂ .proj₁)
       , <ᵘ-ωᵘ
       , ⊩Lift≡Lift⇔ .proj₂
-          ( ⊩≡∷Level⇔ .proj₁ k₁≡k₂
-          , emb-⊩≡ ≤ᵘ-supᵘʳ (⊩≡∷U⇔ .proj₁ A₁≡A₂ .proj₂ .proj₂ .proj₁)
+          ( k₁≡k₂
+          , emb-⊩≡ ≤ᵘ-supᵘₗʳ (⊩≡∷U⇔ .proj₁ A₁≡A₂ .proj₂ .proj₂ .proj₁)
           )
-      , ≅ₜ-Lift-cong (escape-⊩≡∷ k₁≡k₂) (escape-⊩≡∷ A₁≡A₂)
+      , ≅ₜ-Lift-cong (escapeLevelEq k₁≡k₂) (escape-⊩≡∷ A₁≡A₂)
       )
 
 opaque
@@ -185,16 +184,23 @@ opaque
   -- Validity of equality preservation for Lift, seen as a term former.
 
   Lift-congᵗᵛ :
-    Γ ⊩ᵛ⟨ l ⟩ k₁ ∷ Level →
-    Γ ⊩ᵛ⟨ l′ ⟩ k ≡ k′ ∷ Level →
+    Γ ⊩ᵛ⟨ l ⟩ k₁ ∷Level →
+    Γ ⊩ᵛ⟨ l′ ⟩ k ≡ k′ ∷Level →
     Γ ⊩ᵛ⟨ l″ ⟩ A ≡ A′ ∷ U k₁ →
-    Γ ⊩ᵛ⟨ ωᵘ ⟩ Lift k A ≡ Lift k′ A′ ∷ U (k₁ supᵘ k)
+    Γ ⊩ᵛ⟨ ωᵘ ⟩ Lift k A ≡ Lift k′ A′ ∷ U (k₁ supᵘₗ k)
   Lift-congᵗᵛ ⊩k₁ k≡k′ A≡A′ =
     ⊩ᵛ≡∷⇔ʰ .proj₂
-      ( ⊩ᵛU (supᵘᵛ ⊩k₁ (wf-⊩ᵛ≡∷ k≡k′ .proj₁))
+      ( ⊩ᵛU (wf-⊩ᵛ (wf-⊩ᵛ∷ (wf-⊩ᵛ≡∷ A≡A′ .proj₁)))
+          (supᵘₗᵛ ⊩k₁ (wf-⊩ᵛ≡∷L k≡k′ .proj₁))
       , λ σ₁≡σ₂ →
-          ⊩Lift≡Lift∷ (R.⊩∷→ (⊩ᵛ∷→⊩ˢ∷→⊩[]∷ ⊩k₁ (wf-⊩ˢ≡∷ σ₁≡σ₂ .proj₁)))
-            (R.⊩≡∷→ (⊩ᵛ≡∷→⊩ˢ≡∷→⊩[]≡[]∷ k≡k′ σ₁≡σ₂))
+          let ⊩k₁[σ₁] = ⊩ᵛ∷L→⊩ˢ∷→⊩[]∷L ⊩k₁ (wf-⊩ˢ≡∷ σ₁≡σ₂ .proj₁) in
+          PE.subst (_⊩⟨_⟩_≡_∷_ _ _ _ _)
+            (PE.cong U $ PE.sym $
+             supᵘₗ-[]′ λ not-ok →
+             escape-⊩ᵛ∷L′ not-ok ⊩k₁ ,
+             escape-⊩ᵛ≡∷L′ not-ok k≡k′ .proj₁) $
+          ⊩Lift≡Lift∷ ⊩k₁[σ₁]
+            (⊩ᵛ≡∷L→⊩ˢ≡∷→⊩[]≡[]∷L k≡k′ σ₁≡σ₂)
             (R.⊩≡∷→ (⊩ᵛ≡∷→⊩ˢ≡∷→⊩[]≡[]∷ A≡A′ σ₁≡σ₂))
       )
 
@@ -203,14 +209,14 @@ opaque
   -- Validity of equality preservation for Lift, seen as a type former.
 
   Lift-congᵛ :
-    Γ ⊩ᵛ⟨ l′ ⟩ k ≡ k′ ∷ Level →
+    Γ ⊩ᵛ⟨ l′ ⟩ k ≡ k′ ∷Level →
     Γ ⊩ᵛ⟨ l″ ⟩ A ≡ A′ →
     Γ ⊩ᵛ⟨ l″ ⟩ Lift k A ≡ Lift k′ A′
   Lift-congᵛ k≡k′ A≡A′ =
     ⊩ᵛ≡⇔ʰ .proj₂
       ( wf-⊩ᵛ (wf-⊩ᵛ≡ A≡A′ .proj₁)
       , λ σ₁≡σ₂ →
-          let k[σ₁]≡k′[σ₂] = ⊩≡∷Level⇔ .proj₁ $ R.⊩≡∷→ $ ⊩ᵛ≡∷→⊩ˢ≡∷→⊩[]≡[]∷ k≡k′ σ₁≡σ₂
+          let k[σ₁]≡k′[σ₂] = ⊩ᵛ≡∷L→⊩ˢ≡∷→⊩[]≡[]∷L k≡k′ σ₁≡σ₂
               A[σ₁]≡A′[σ₂] = R.⊩≡→ $ ⊩ᵛ≡→⊩ˢ≡∷→⊩[]≡[] A≡A′ σ₁≡σ₂
               ⊢A[σ₁] , ⊢A′[σ₂] = wf-⊢≡ (≅-eq (escape-⊩≡ A[σ₁]≡A′[σ₂]))
           in ⊩Lift≡Lift⇔ .proj₂
@@ -224,23 +230,23 @@ opaque
   -- Validity for Lift, seen as a term former.
 
   Liftᵗᵛ :
-    Γ ⊩ᵛ⟨ l ⟩ k₁ ∷ Level →
-    Γ ⊩ᵛ⟨ l′ ⟩ k ∷ Level →
+    Γ ⊩ᵛ⟨ l ⟩ k₁ ∷Level →
+    Γ ⊩ᵛ⟨ l′ ⟩ k ∷Level →
     Γ ⊩ᵛ⟨ l″ ⟩ A ∷ U k₁ →
-    Γ ⊩ᵛ⟨ ωᵘ ⟩ Lift k A ∷ U (k₁ supᵘ k)
+    Γ ⊩ᵛ⟨ ωᵘ ⟩ Lift k A ∷ U (k₁ supᵘₗ k)
   Liftᵗᵛ ⊩k₁ ⊩k ⊩A = ⊩ᵛ∷⇔⊩ᵛ≡∷ .proj₂
-    (Lift-congᵗᵛ ⊩k₁ (refl-⊩ᵛ≡∷ ⊩k) (refl-⊩ᵛ≡∷ ⊩A))
+    (Lift-congᵗᵛ ⊩k₁ (refl-⊩ᵛ≡∷L ⊩k) (refl-⊩ᵛ≡∷ ⊩A))
 
 opaque
 
   -- Validity for Lift, seen as a type former.
 
   Liftᵛ :
-    Γ ⊩ᵛ⟨ l′ ⟩ k ∷ Level →
+    Γ ⊩ᵛ⟨ l′ ⟩ k ∷Level →
     Γ ⊩ᵛ⟨ l″ ⟩ A →
     Γ ⊩ᵛ⟨ l″ ⟩ Lift k A
   Liftᵛ ⊩k ⊩A = ⊩ᵛ⇔⊩ᵛ≡ .proj₂
-    (Lift-congᵛ (refl-⊩ᵛ≡∷ ⊩k) (refl-⊩ᵛ≡ ⊩A))
+    (Lift-congᵛ (refl-⊩ᵛ≡∷L ⊩k) (refl-⊩ᵛ≡ ⊩A))
 
 opaque
 
@@ -265,16 +271,16 @@ opaque
   -- Reducibility of equality between applications of lift.
 
   ⊩lift≡lift :
-    Γ ⊩⟨ l′ ⟩ k ∷ Level →
+    Γ ⊩Level k ∷Level →
     Γ ⊩⟨ l ⟩ A →
-    Γ ⊩⟨ l″ ⟩ t₁ ≡ t₂ ∷ A →
+    Γ ⊩⟨ l′ ⟩ t₁ ≡ t₂ ∷ A →
     Γ ⊩⟨ l ⟩ lift t₁ ≡ lift t₂ ∷ Lift k A
   ⊩lift≡lift {t₁} {t₂} ⊩k ⊩A t₁≡t₂ =
-    let ⊢k             = escape-⊩∷ ⊩k
+    let ⊢k             = escapeLevel ⊩k
         ⊢A , ⊢t₁ , ⊢t₂ = wf-⊢≡∷ (≅ₜ-eq (escape-⊩≡∷ t₁≡t₂))
     in
     ⊩≡∷Lift⇔ .proj₂
-      ( ⊩Lift⇔ .proj₂ (⊩∷Level⇔ .proj₁ ⊩k , ⊩A)
+      ( ⊩Lift⇔ .proj₂ (⊩k , ⊩A)
       , _ , _
       , (id (liftⱼ′ ⊢k ⊢t₁) , liftₙ)
       , (id (liftⱼ′ ⊢k ⊢t₂) , liftₙ)
@@ -290,9 +296,9 @@ opaque
   -- Reducibility for lift.
 
   ⊩lift :
-    Γ ⊩⟨ l′ ⟩ k ∷ Level →
+    Γ ⊩Level k ∷Level →
     Γ ⊩⟨ l ⟩ A →
-    Γ ⊩⟨ l″ ⟩ t ∷ A →
+    Γ ⊩⟨ l′ ⟩ t ∷ A →
     Γ ⊩⟨ l ⟩ lift t ∷ Lift k A
   ⊩lift ⊩k ⊩A =
     ⊩∷⇔⊩≡∷ .proj₂ ∘→ ⊩lift≡lift ⊩k ⊩A ∘→ ⊩∷⇔⊩≡∷ .proj₁
@@ -302,7 +308,7 @@ opaque
   -- Validity of lift.
 
   liftᵛ :
-    Γ ⊩ᵛ⟨ l′ ⟩ k₂ ∷ Level →
+    Γ ⊩ᵛ⟨ l′ ⟩ k₂ ∷Level →
     Γ ⊩ᵛ⟨ l ⟩ A →
     Γ ⊩ᵛ⟨ l″ ⟩ t ∷ A →
     Γ ⊩ᵛ⟨ l ⟩ lift t ∷ Lift k₂ A
@@ -311,7 +317,7 @@ opaque
       ( Liftᵛ ⊩k₂ ⊩A
       , λ σ₁≡σ₂ →
           let ⊩σ₁ , _ = wf-⊩ˢ≡∷ σ₁≡σ₂ in
-          ⊩lift≡lift (R.⊩∷→ $ ⊩ᵛ∷→⊩ˢ∷→⊩[]∷ ⊩k₂ ⊩σ₁)
+          ⊩lift≡lift (⊩ᵛ∷L→⊩ˢ∷→⊩[]∷L ⊩k₂ ⊩σ₁)
             (R.⊩→ $ ⊩ᵛ→⊩ˢ∷→⊩[] ⊩A ⊩σ₁)
             (R.⊩≡∷→ $ ⊩ᵛ≡∷→⊩ˢ≡∷→⊩[]≡[]∷ (refl-⊩ᵛ≡∷ ⊩t) σ₁≡σ₂)
       )
@@ -400,12 +406,12 @@ opaque
   -- Reducibility of Lift-η.
 
   ⊩Lift-η :
-    Γ ⊩⟨ l₂ ⟩ k₂ ∷ Level →
-    Γ ⊩⟨ l₃ ⟩ A →
-    Γ ⊩⟨ l₄ ⟩ t ∷ Lift k₂ A →
-    Γ ⊩⟨ l₅ ⟩ u ∷ Lift k₂ A →
-    Γ ⊩⟨ l₆ ⟩ lower t ≡ lower u ∷ A →
-    Γ ⊩⟨ l₄ ⟩ t ≡ u ∷ Lift k₂ A
+    Γ ⊩Level k₂ ∷Level →
+    Γ ⊩⟨ l₁ ⟩ A →
+    Γ ⊩⟨ l₂ ⟩ t ∷ Lift k₂ A →
+    Γ ⊩⟨ l₃ ⟩ u ∷ Lift k₂ A →
+    Γ ⊩⟨ l₄ ⟩ lower t ≡ lower u ∷ A →
+    Γ ⊩⟨ l₂ ⟩ t ≡ u ∷ Lift k₂ A
   ⊩Lift-η {t} {u} ⊩k₂ ⊩A∷U ⊩t ⊩u lowert≡loweru =
     let ⊩Lift , t′ , _ , t↘ , _ , t≡t = ⊩≡∷Lift⇔ .proj₁ (refl-⊩≡∷ ⊩t)
         _ , u′ , _ , u↘ , _ , u≡u = ⊩≡∷Lift⇔ .proj₁ (refl-⊩≡∷ ⊩u)
@@ -425,7 +431,7 @@ opaque
   -- Validity of Lift-η.
 
   Lift-ηᵛ :
-    Γ ⊩ᵛ⟨ l₂ ⟩ k₂ ∷ Level →
+    Γ ⊩ᵛ⟨ l₂ ⟩ k₂ ∷Level →
     Γ ⊩ᵛ⟨ l₃ ⟩ A →
     Γ ⊩ᵛ⟨ l₄ ⟩ t ∷ Lift k₂ A →
     Γ ⊩ᵛ⟨ l₅ ⟩ u ∷ Lift k₂ A →
@@ -437,8 +443,10 @@ opaque
       , λ σ₁≡σ₂ →
         let ⊩σ₁ , ⊩σ₂ = wf-⊩ˢ≡∷ σ₁≡σ₂
             u[σ₁]≡u[σ₂] = R.⊩≡∷→ $ ⊩ᵛ≡∷→⊩ˢ≡∷→⊩[]≡[]∷ (refl-⊩ᵛ≡∷ ⊩u) σ₁≡σ₂
-        in emb-⊩≡∷ ≤ᵘ-ωᵘ $ ⊩Lift-η
-          (R.⊩∷→ $ ⊩ᵛ∷→⊩ˢ∷→⊩[]∷ ⊩k₂ ⊩σ₁)
+        in
+        emb-⊩≡∷ ≤ᵘ-ωᵘ $
+        ⊩Lift-η
+          (⊩ᵛ∷L→⊩ˢ∷→⊩[]∷L ⊩k₂ ⊩σ₁)
           (R.⊩→ $ ⊩ᵛ→⊩ˢ∷→⊩[] ⊩A ⊩σ₁)
           (R.⊩∷→ $ ⊩ᵛ∷→⊩ˢ∷→⊩[]∷ ⊩t ⊩σ₁)
           (wf-⊩≡∷ u[σ₁]≡u[σ₂] .proj₂)

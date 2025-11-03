@@ -12,11 +12,13 @@ module Graded.Box-cong
   (open Graded.Modality M)
   {𝕄 : Modality}
   (TR : Type-restrictions 𝕄)
+  (open Type-restrictions TR)
   (UR : Usage-restrictions 𝕄)
+  -- It is assumed that Level is allowed.
+  (Level-ok : Level-allowed)
   where
 
 open Modality 𝕄
-open Type-restrictions TR
 open Usage-restrictions UR
 
 open import Definition.Conversion.Consequences.Var TR
@@ -92,7 +94,7 @@ private opaque
   ⊢Id-2-1-0 {Γ} ⊢Γ = Idⱼ′ (var₁ ⊢1) (var₀ ⊢1)
     where
     ⊢1 : Γ ∙ Level ∙ U (var x0) ∙ var x0 ⊢ var x1
-    ⊢1 = univ (var₁ (univ (var₀ (⊢U (var₀ (Levelⱼ′ ⊢Γ))))))
+    ⊢1 = univ (var₁ (univ (var₀ (⊢U′ (var₀ (Levelⱼ′ Level-ok ⊢Γ))))))
 
   Id-[]₀≡ :
     let open Erased s in
@@ -320,7 +322,7 @@ opaque
   []-cong-J-cong :
     let open Erased s in
     Erased-allowed s →
-    Γ ⊢ l₁ ≡ l₂ ∷ Level →
+    Γ ⊢ l₁ ≡ l₂ ∷Level →
     Γ ⊢ A₁ ≡ A₂ ∷ U l₁ →
     Γ ⊢ t₁ ≡ t₂ ∷ A₁ →
     Γ ⊢ u₁ ≡ u₂ ∷ A₁ →
@@ -335,7 +337,7 @@ opaque
     PE.subst (_⊢_≡_∷_ _ _ _) Id-[]₀≡ $
     subst-cong (univ A₁≡A₂)
       (Id-cong
-         (Erased-cong ok (W.wkEqTerm₁ ⊢A₁′ l₁≡l₂)
+         (Erased-cong ok (W.wkEqLevel₁ ⊢A₁′ l₁≡l₂)
             (W.wkEqTerm₁ ⊢A₁′ A₁≡A₂))
          (P.[]-cong′ ok ⊢wk1-A₁ (W.wkEqTerm₁ ⊢A₁′ t₁≡t₂))
          (refl ([]ⱼ ok ⊢wk1-A₁ (var₀ ⊢A₁′))))
@@ -487,7 +489,8 @@ opaque
                                                                                  (W.liftʷ (W.lift (W.lift (W.lift (W.lift W.wk₀∷⊇)))) $
                                                                                   ⊢Id-2-1-0 (wfTerm ⊢A))
                                                                                  ⊢[]-cong″)
-                                                                              (inversion-U-Level (wf-⊢∷ ⊢A)) ⊢A ⊢t ⊢t (rflⱼ ⊢t) ⟩⊢
+                                                                              (⊢∷Level→⊢∷Level Level-ok (inversion-U-Level (wf-⊢∷ ⊢A) .proj₂))
+                                                                              ⊢A ⊢t ⊢t (rflⱼ ⊢t) ⟩⊢
         wk (liftn wk₀ 5)
           ([]-cong″ ok′ (var x4) (var x3) (var x2) (var x1) (var x0))
           [ consSubst
@@ -630,7 +633,7 @@ opaque
     t″ = zero
 
     ⊢l : ε ⊢ l′ ∷ Level
-    ⊢l = zeroᵘⱼ ε
+    ⊢l = zeroᵘⱼ Level-ok ε
 
     ⊢A : ε ⊢ A′ ∷ U l′
     ⊢A = ℕⱼ ε
@@ -848,7 +851,8 @@ opaque
                                                                                  (W.liftʷ (W.lift (W.lift (W.lift (W.lift W.wk₀∷⊇)))) $
                                                                                   ⊢Id-2-1-0 (wfTerm ⊢A))
                                                                                  ⊢[]-cong″)
-                                                                              (inversion-U-Level (wf-⊢∷ ⊢A)) ⊢A ⊢t ⊢t (rflⱼ ⊢t) ⟩⊢
+                                                                              (⊢∷Level→⊢∷Level Level-ok (inversion-U-Level (wf-⊢∷ ⊢A) .proj₂))
+                                                                              ⊢A ⊢t ⊢t (rflⱼ ⊢t) ⟩⊢
         (wk (liftn wk₀ 5) (wk wk₀ []-cong′)
            [ consSubst
                (consSubst (consSubst (consSubst (sgSubst l) A) t) t)
@@ -1309,7 +1313,9 @@ opaque
           syntacticTerm $ has-[]-cong′ .proj₂ .proj₂
 
         ⊢l : Γ ⊢ l ∷ Level
-        ⊢l = inversion-U-Level (wf-⊢∷ ⊢A)
+        ⊢l =
+          let _ , ⊢l = inversion-U-Level (wf-⊢∷ ⊢A) in
+          ⊢∷Level→⊢∷Level Level-ok ⊢l
 
         ⊢[t] : Γ ⊢ [ t ] ∷ Erased l A
         ⊢[t] = []ⱼ Erased-ok ⊢A ⊢t

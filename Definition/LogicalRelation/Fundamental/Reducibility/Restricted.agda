@@ -14,11 +14,16 @@ module Definition.LogicalRelation.Fundamental.Reducibility.Restricted
   ⦃ eqrel : EqRelSet R ⦄
   where
 
+open EqRelSet eqrel
+
 open import Definition.Untyped M
 open import Definition.Typed R
+open import Definition.LogicalRelation R
+  using (_⊩Level_∷Level; _⊩Level_≡_∷Level)
 open import Definition.LogicalRelation.Hidden.Restricted R
 open import Definition.LogicalRelation.Fundamental R
 open import Definition.LogicalRelation.Substitution R
+open import Definition.LogicalRelation.Substitution.Introductions R
 
 open import Tools.Product
 
@@ -55,3 +60,23 @@ opaque
 
   reducible-⊩≡∷ : Γ ⊢ t ≡ u ∷ A → ∃ λ l → Γ ⊩⟨ l ⟩ t ≡ u ∷ A
   reducible-⊩≡∷ ⊢t≡u∷A = _ , ⊩ᵛ≡∷→⊩≡∷ (fundamental-⊩ᵛ≡∷ ⊢t≡u∷A .proj₂)
+
+opaque
+
+  -- A reducibility lemma for _⊢_∷Level.
+
+  reducible-⊩∷L :
+    ⦃ inc : Neutrals-included or-empty Γ ⦄ →
+    Γ ⊢ t ∷Level → Γ ⊩Level t ∷Level
+  reducible-⊩∷L ⊢t =
+    ⊩ᵛ∷L→⊩∷L (fundamental-⊩ᵛ∷L ⊢t .proj₂)
+
+opaque
+
+  -- A reducibility lemma for _⊢_≡_∷Level.
+
+  reducible-⊩≡∷L :
+    ⦃ inc : Neutrals-included or-empty Γ ⦄ →
+    Γ ⊢ t ≡ u ∷Level → Γ ⊩Level t ≡ u ∷Level
+  reducible-⊩≡∷L t≡u =
+    ⊩ᵛ≡∷L→⊩≡∷L (fundamental-⊩ᵛ≡∷L t≡u .proj₂)

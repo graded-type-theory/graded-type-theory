@@ -18,7 +18,7 @@ open import Definition.Typed.Inversion.Primitive R
 import Definition.Typed.Properties.Admissible.Erased.Primitive R
   as Erased
 open import Definition.Typed.Properties.Admissible.Level.Primitive R
-open import Definition.Typed.Properties.Admissible.U R
+open import Definition.Typed.Properties.Admissible.U.Primitive R
 open import Definition.Typed.Properties.Admissible.Var R
 open import Definition.Typed.Properties.Well-formed R
 open import Definition.Typed.Stability.Primitive R
@@ -35,10 +35,10 @@ import Tools.PropositionalEquality as PE
 open import Tools.Sum using (inj₂)
 
 private variable
-  x             : Fin _
-  Γ Δ           : Con Term _
-  A B t t₁ t₂ u : Term _
-  σ₁ σ₂         : Subst _ _
+  x                   : Fin _
+  Γ Δ                 : Con Term _
+  A B l₁ l₂ t t₁ t₂ u : Term _
+  σ₁ σ₂               : Subst _ _
 
 ------------------------------------------------------------------------
 -- Well-formedness lemmas
@@ -63,24 +63,24 @@ opaque mutual
     (var ⊢Γ x∈) →
       wf-∷∈ x∈ ⊢Γ
     (Levelⱼ ⊢Γ ok) →
-      ⊢U (zeroᵘⱼ ⊢Γ)
-    (zeroᵘⱼ ⊢Γ) →
-      Levelⱼ′ ⊢Γ
+      ⊢U₀ ⊢Γ
+    (zeroᵘⱼ ok ⊢Γ) →
+      Levelⱼ′ ok ⊢Γ
     (sucᵘⱼ ⊢l) →
       wf-⊢∷ ⊢l
     (supᵘⱼ ⊢l ⊢u) →
       wf-⊢∷ ⊢l
-    (Uⱼ ⊢l) →
-      ⊢U (sucᵘⱼ ⊢l)
-    (Liftⱼ x x₁ x₂) →
-      ⊢U (supᵘⱼ x x₁)
+    (Uⱼ ⊢Γ ⊢l) →
+      ⊢U ⊢Γ (⊢sucᵘ ⊢l)
+    (Liftⱼ ⊢l₁ ⊢l₂ ⊢A) →
+      ⊢U (wfTerm ⊢A) (⊢supᵘₗ ⊢l₁ ⊢l₂)
     (liftⱼ x x₁ x₂) →
       Liftⱼ x x₁
     (lowerⱼ x) →
       let ⊢l₂ , ⊢A = inversion-Lift (wf-⊢∷ x)
       in ⊢A
     (ΠΣⱼ ⊢l ⊢A _ _) →
-      ⊢U ⊢l
+      ⊢U (wfTerm ⊢A) ⊢l
     (lamⱼ ⊢B _ ok) →
       ΠΣⱼ ⊢B ok
     (⊢t ∘ⱼ ⊢u) →
@@ -95,7 +95,7 @@ opaque mutual
     (prodrecⱼ ⊢C ⊢t _ _) →
       subst-⊢ ⊢C (⊢ˢʷ∷-sgSubst ⊢t)
     (Emptyⱼ ⊢Γ) →
-      ⊢U (zeroᵘⱼ ⊢Γ)
+      ⊢U₀ ⊢Γ
     (emptyrecⱼ ⊢A _) →
       ⊢A
     (starⱼ ⊢Γ ok) →
@@ -103,9 +103,9 @@ opaque mutual
     (unitrecⱼ ⊢A ⊢t _ _) →
       subst-⊢ ⊢A (⊢ˢʷ∷-sgSubst ⊢t)
     (Unitⱼ ⊢Γ _) →
-      ⊢U (zeroᵘⱼ ⊢Γ)
+      ⊢U₀ ⊢Γ
     (ℕⱼ ⊢Γ) →
-      ⊢U (zeroᵘⱼ ⊢Γ)
+      ⊢U₀ ⊢Γ
     (zeroⱼ ⊢Γ) →
       univ (ℕⱼ ⊢Γ)
     (sucⱼ ⊢t) →
@@ -113,7 +113,7 @@ opaque mutual
     (natrecⱼ _ ⊢u ⊢v) →
       subst-⊢ (⊢∙→⊢ (wfTerm ⊢u)) (⊢ˢʷ∷-sgSubst ⊢v)
     (Idⱼ ⊢A _ _) →
-      ⊢U (inversion-U-Level (wf-⊢∷ ⊢A))
+      uncurry ⊢U (inversion-U-Level (wf-⊢∷ ⊢A))
     (rflⱼ ⊢t) →
       Idⱼ (wf-⊢∷ ⊢t) ⊢t ⊢t
     (Jⱼ _ ⊢B _ ⊢v ⊢w) →
@@ -147,12 +147,16 @@ opaque mutual
       let _ , ⊢A , ⊢B = wf-⊢≡∷ A≡B in
       univ ⊢A , univ ⊢B
     (U-cong l₁≡l₂) →
-      let _ , ⊢l₁ , ⊢l₂ = wf-⊢≡∷ l₁≡l₂ in
-      ⊢U ⊢l₁ , ⊢U ⊢l₂
+      let ⊢L , ⊢l₁ , ⊢l₂ = wf-⊢≡∷ l₁≡l₂
+          ⊢Γ             = wf ⊢L
+          ok             = inversion-Level-⊢ ⊢L
+      in
+      ⊢U ⊢Γ (term ok ⊢l₁) , ⊢U ⊢Γ (term ok ⊢l₂)
     (Lift-cong l₁≡l₂ A≡B) →
-      let _ , ⊢l₁ , ⊢l₂ = wf-⊢≡∷ l₁≡l₂
-          ⊢A , ⊢B = wf-⊢≡ A≡B
-      in Liftⱼ ⊢l₁ ⊢A , Liftⱼ ⊢l₂ ⊢B
+      let ⊢l₁ , ⊢l₂ = wf-⊢≡∷L l₁≡l₂
+          ⊢A , ⊢B   = wf-⊢≡ A≡B
+      in
+      Liftⱼ ⊢l₁ ⊢A , Liftⱼ ⊢l₂ ⊢B
     (ΠΣ-cong A₁≡B₁ A₂≡B₂ ok) →
       let _ , ⊢B₁   = wf-⊢≡ A₁≡B₁
           ⊢A₂ , ⊢B₂ = wf-⊢≡ A₂≡B₂
@@ -194,7 +198,8 @@ opaque mutual
       in
       ⊢Level , supᵘⱼ ⊢t₁ ⊢u₁ , supᵘⱼ ⊢t₂ ⊢u₂
     (supᵘ-zeroˡ ⊢l) →
-      wf-⊢∷ ⊢l , supᵘⱼ (zeroᵘⱼ (wfTerm ⊢l)) ⊢l , ⊢l
+      let ⊢L = wf-⊢∷ ⊢l in
+      ⊢L , supᵘⱼ (zeroᵘⱼ (inversion-Level-⊢ ⊢L) (wfTerm ⊢l)) ⊢l , ⊢l
     (supᵘ-sucᵘ ⊢l₁ ⊢l₂) →
       wf-⊢∷ ⊢l₁ , supᵘⱼ (sucᵘⱼ ⊢l₁) (sucᵘⱼ ⊢l₂) , sucᵘⱼ (supᵘⱼ ⊢l₁ ⊢l₂)
     (supᵘ-assoc ⊢l₁ ⊢l₂ ⊢l₃) →
@@ -206,29 +211,34 @@ opaque mutual
     (supᵘ-sub ⊢l) →
       wf-⊢∷ ⊢l , supᵘⱼ ⊢l (sucᵘⱼ ⊢l) , (sucᵘⱼ ⊢l)
     (U-cong l₁≡l₂) →
-      let ⊢Level , ⊢l₁ , ⊢l₂ = wf-⊢≡∷ l₁≡l₂ in
-      ⊢U (sucᵘⱼ ⊢l₁) , Uⱼ ⊢l₁ ,
-      conv (Uⱼ ⊢l₂) (sym (U-cong (sucᵘ-cong l₁≡l₂)))
-    (Lift-cong x x₁ x₂) →
-      let ⊢Level , ⊢l₂ , ⊢l₂′ = wf-⊢≡∷ x₁
-          _ , ⊢A , ⊢B = wf-⊢≡∷ x₂
+      let ⊢L , ⊢l₁ , ⊢l₂ = wf-⊢≡∷ l₁≡l₂
+          ⊢Γ             = wf ⊢L
+          ok             = inversion-Level-⊢ ⊢L
       in
-      ⊢U (supᵘⱼ x ⊢l₂) ,
-      Liftⱼ x ⊢l₂ ⊢A ,
-      conv (Liftⱼ x ⊢l₂′ ⊢B) (U-cong (supᵘ-cong (refl x) (sym ⊢Level x₁)))
+      ⊢U ⊢Γ (term ok (sucᵘⱼ ⊢l₁)) , Uⱼ ⊢Γ (term ok ⊢l₁) ,
+      conv (Uⱼ ⊢Γ (term ok ⊢l₂)) (sym (U-cong (sucᵘ-cong l₁≡l₂)))
+    (Lift-cong ⊢l₁ ⊢l₂ l₂≡l₃ A₁≡A₂) →
+      let ⊢l₂ , ⊢l₃     = wf-⊢≡∷L l₂≡l₃
+          _ , ⊢A₁ , ⊢A₂ = wf-⊢≡∷ A₁≡A₂
+          ⊢Γ            = wfTerm ⊢A₁
+      in
+      ⊢U ⊢Γ (⊢supᵘₗ ⊢l₁ ⊢l₂) ,
+      Liftⱼ ⊢l₁ ⊢l₂ ⊢A₁ ,
+      conv (Liftⱼ ⊢l₁ ⊢l₃ ⊢A₂)
+        (U-cong-⊢≡ ⊢Γ (supᵘₗ-cong (refl-⊢≡∷L ⊢l₁) (sym-⊢≡∷L l₂≡l₃)))
     (lower-cong x) →
       let ⊢Lift , ⊢t , ⊢u = wf-⊢≡∷ x
           ⊢l₂ , ⊢A = inversion-Lift ⊢Lift
       in ⊢A , lowerⱼ ⊢t , lowerⱼ ⊢u
     (Lift-β x₁ x₂) →
-      wf-⊢∷ x₂ , lowerⱼ (liftⱼ (zeroᵘⱼ (wf x₁)) x₁ x₂) , x₂
+      wf-⊢∷ x₂ , lowerⱼ (liftⱼ (⊢zeroᵘ (wf x₁)) x₁ x₂) , x₂
     (Lift-η x x₁ ⊢t ⊢u x₂) →
       Liftⱼ x x₁ , ⊢t , ⊢u
     (ΠΣ-cong ⊢l A₁≡A₂ B₁≡B₂ ok) →
       let _ , ⊢A₁ , ⊢A₂ = wf-⊢≡∷ A₁≡A₂
           _ , ⊢B₁ , ⊢B₂ = wf-⊢≡∷ B₁≡B₂
       in
-      ⊢U ⊢l ,
+      ⊢U (wfTerm ⊢A₁) ⊢l ,
       ΠΣⱼ ⊢l ⊢A₁ ⊢B₁ ok ,
       ΠΣⱼ ⊢l ⊢A₂ (stability-⊢∷ refl-∙⟨ univ ⊢A₂ ∣ univ A₁≡A₂ ⟩ ⊢B₂) ok
     (app-cong t₁≡t₂ u₁≡u₂) →
@@ -479,7 +489,7 @@ opaque mutual
       wf-⊢∷ ⊢u , Kⱼ ⊢B ⊢u (rflⱼ ⊢t) ok , ⊢u
     ([]-cong-cong l₁≡l₂ A₁≡A₂ t₁≡t₂ u₁≡u₂ v₁≡v₂ ok) →
       let open Erased ([]-cong→Erased ok)
-          _ , ⊢l₁ , ⊢l₂ = wf-⊢≡∷ l₁≡l₂
+          ⊢l₁ , ⊢l₂     = wf-⊢≡∷L l₁≡l₂
           _ , ⊢A₁ , ⊢A₂ = wf-⊢≡∷ A₁≡A₂
           _ , ⊢t₁ , ⊢t₂ = wf-⊢≡∷ t₁≡t₂
           _ , ⊢u₁ , ⊢u₂ = wf-⊢≡∷ u₁≡u₂
@@ -488,8 +498,8 @@ opaque mutual
       Idⱼ (Erasedⱼ ⊢l₁ ⊢A₁) ([]ⱼ ⊢l₁ ⊢A₁ ⊢t₁) ([]ⱼ ⊢l₁ ⊢A₁ ⊢u₁) ,
       []-congⱼ ⊢l₁ ⊢A₁ ⊢t₁ ⊢u₁ ⊢v₁ ok ,
       conv
-        ([]-congⱼ ⊢l₂ (conv ⊢A₂ (U-cong l₁≡l₂)) (conv ⊢t₂ (univ A₁≡A₂))
-           (conv ⊢u₂ (univ A₁≡A₂))
+        ([]-congⱼ ⊢l₂ (conv ⊢A₂ (U-cong-⊢≡ (wfTerm ⊢A₁) l₁≡l₂))
+           (conv ⊢t₂ (univ A₁≡A₂)) (conv ⊢u₂ (univ A₁≡A₂))
            (conv ⊢v₂ (Id-cong (univ A₁≡A₂) t₁≡t₂ u₁≡u₂)) ok)
         (_⊢_≡_.sym $
          Id-cong (Erased-cong ⊢l₁ l₁≡l₂ (univ ⊢A₁) A₁≡A₂)
@@ -504,6 +514,15 @@ opaque mutual
       rflⱼ ⊢[t]
     (equality-reflection _ ⊢Id _) →
       inversion-Id ⊢Id
+
+  -- A well-formedness lemma for _⊢_≡_∷Level.
+
+  wf-⊢≡∷L : Γ ⊢ l₁ ≡ l₂ ∷Level → Γ ⊢ l₁ ∷Level × Γ ⊢ l₂ ∷Level
+  wf-⊢≡∷L (term ok l₁≡l₂) =
+    let ⊢L , ⊢l₁ , ⊢l₂ = wf-⊢≡∷ l₁≡l₂ in
+    term ok ⊢l₁ , term ok ⊢l₂
+  wf-⊢≡∷L (literal not-ok l-lit) =
+    literal not-ok l-lit , literal not-ok l-lit
 
   ⊢≡→⊢ : Γ ⊢ t ≡ t ∷ A → Γ ⊢ t ∷ A
   ⊢≡→⊢ t≡t = wf-⊢≡∷ t≡t .proj₂ .proj₁

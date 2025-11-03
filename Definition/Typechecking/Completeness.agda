@@ -56,7 +56,7 @@ mutual
   completeness⇇Type : Checkable-type A → Γ ⊢ A → Γ ⊢ A ⇇Type
   completeness⇇Type (Liftᶜ l A) ⊢A =
     let ⊢l , ⊢A = inversion-Lift ⊢A in
-    Liftᶜ (completeness⇇ l ⊢l) (completeness⇇Type A ⊢A)
+    Liftᶜ (completeness⇇Level l ⊢l) (completeness⇇Type A ⊢A)
   completeness⇇Type (ΠΣᶜ B C) ⊢A =
     let ⊢B , ⊢C , ok = inversion-ΠΣ ⊢A in
     ΠΣᶜ (completeness⇇Type B ⊢B) (completeness⇇Type C ⊢C) ok
@@ -88,17 +88,18 @@ mutual
 
   completeness⇉Type : Inferable A → Γ ⊢ A → Γ ⊢ A ⇇Type
   completeness⇉Type Levelᵢ ⊢A =
-    Levelᶜ
+    Levelᶜ (inversion-Level-⊢ ⊢A)
   completeness⇉Type zeroᵘᵢ (univ ⊢A) =
     univᶜ′ (completeness⇉ zeroᵘᵢ ⊢A)
   completeness⇉Type (sucᵘᵢ x) (univ ⊢A) =
     univᶜ′ (completeness⇉ (sucᵘᵢ x) ⊢A)
   completeness⇉Type (supᵘᵢ x x₁) (univ ⊢A) =
     univᶜ′ (completeness⇉ (supᵘᵢ x x₁) ⊢A)
-  completeness⇉Type (Uᵢ x) ⊢A = Uᶜ (completeness⇇ x (inversion-U-Level ⊢A))
+  completeness⇉Type (Uᵢ ⊢l) ⊢A =
+    Uᶜ (completeness⇇Level ⊢l (inversion-U-Level ⊢A .proj₂))
   completeness⇉Type (Liftᵢ x x₁) ⊢A =
     let ⊢l , ⊢A = inversion-Lift ⊢A
-    in Liftᶜ (completeness⇇ x ⊢l) (completeness⇉Type x₁ ⊢A)
+    in Liftᶜ (completeness⇇Level x ⊢l) (completeness⇉Type x₁ ⊢A)
   completeness⇉Type (ΠΣᵢ x x₁) ⊢A =
     let ⊢A , ⊢B , ok = inversion-ΠΣ ⊢A
     in ΠΣᶜ (completeness⇉Type x ⊢A) (completeness⇇Type′ x₁ ⊢B) ok
@@ -147,7 +148,11 @@ mutual
   completeness⇉ Levelᵢ ⊢t =
     let A≡ , ok = inversion-Level ⊢t
     in _ , Levelᵢ ok , A≡
-  completeness⇉ zeroᵘᵢ ⊢t = _ , zeroᵘᵢ , inversion-zeroᵘ ⊢t
+  completeness⇉ zeroᵘᵢ ⊢t =
+    let A≡Level = inversion-zeroᵘ ⊢t
+        ok      = inversion-Level-⊢ (wf-⊢≡ A≡Level .proj₂)
+    in
+    _ , zeroᵘᵢ ok , A≡Level
   completeness⇉ (sucᵘᵢ t) ⊢t =
     let ⊢t , A≡Level = inversion-sucᵘ ⊢t
         t⇇Level = completeness⇇ t ⊢t
@@ -158,14 +163,18 @@ mutual
         u⇇Level = completeness⇇ u ⊢u
     in  _ , supᵘᵢ t⇇Level u⇇Level , A≡Level
   completeness⇉ (Uᵢ l) ⊢t =
-    _ , Uᵢ (completeness⇇ l (inversion-U∷-Level ⊢t)) , inversion-U ⊢t
+    _ , Uᵢ (completeness⇇Level l (inversion-U∷-Level ⊢t .proj₂)) ,
+    inversion-U ⊢t
   completeness⇉ (Liftᵢ x x₁) ⊢t =
     let _ , ⊢l , ⊢A , ≡U = inversion-Lift∷ ⊢t
         _ , A⇉ , ≡B = completeness⇉ x₁ ⊢A
         _ , ⇒U = U-norm (sym ≡B)
     in _
-    , Liftᵢ (completeness⇇ x ⊢l) A⇉ (⇒U , Uₙ)
-    , trans ≡U (U-cong (supᵘ-cong (U-injectivity (trans ≡B (subset* ⇒U))) (refl ⊢l)))
+    , Liftᵢ (completeness⇇Level x ⊢l) A⇉ (⇒U , Uₙ)
+    , trans ≡U
+        (U-cong-⊢≡ (wfTerm ⊢A) $
+         supᵘₗ-cong (U-injectivity (trans ≡B (subset* ⇒U)))
+           (refl-⊢≡∷L ⊢l))
   completeness⇉ (ΠΣᵢ B C) ⊢ΠΣ =
     let _ , _ , ⊢B , ⊢C , A≡U , ok = inversion-ΠΣ-U ⊢ΠΣ
         _ , B⇉D , U≡D              = completeness⇉ B ⊢B
@@ -276,10 +285,10 @@ mutual
     , ≡B }
   completeness⇉ ([]-congᵢ l A t u v) ⊢[]-cong =
     let ⊢A , ⊢t , ⊢u , ⊢v , ok , ≡B = inversion-[]-cong ⊢[]-cong
-        ⊢l                          = inversion-U-Level (wf-⊢∷ ⊢A)
+        _ , ⊢l                      = inversion-U-Level (wf-⊢∷ ⊢A)
     in
     _ ,
-    []-congᵢ (completeness⇇ l ⊢l) (completeness⇇ A ⊢A)
+    []-congᵢ (completeness⇇Level l ⊢l) (completeness⇇ A ⊢A)
       (completeness⇇ t ⊢t) (completeness⇇ u ⊢u) (completeness⇇ v ⊢v)
       ok ,
     ≡B
@@ -314,3 +323,15 @@ mutual
   completeness⇇ (infᶜ t) ⊢t =
     let B , t⇉B , A≡B = completeness⇉ t ⊢t
     in  infᶜ t⇉B (sym A≡B)
+
+  -- Completeness for _⊢_⇇Level.
+
+  completeness⇇Level : Checkable-level t → Γ ⊢ t ∷Level → Γ ⊢ t ⇇Level
+  completeness⇇Level (term ok t) (term _ ⊢t) =
+    term ok (completeness⇇ t ⊢t)
+  completeness⇇Level (term ok _) (literal not-ok _) =
+    ⊥-elim (not-ok ok)
+  completeness⇇Level (literal not-ok) (term ok _) =
+    ⊥-elim (not-ok ok)
+  completeness⇇Level (literal not-ok) (literal _ l-lit) =
+    literal not-ok l-lit

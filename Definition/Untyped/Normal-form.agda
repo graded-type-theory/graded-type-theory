@@ -123,3 +123,12 @@ nfWhnf = λ where
   starₙ       → starₙ
   rflₙ        → rflₙ
   (ne n)      → ne (nfNeutralˡ n)
+
+opaque
+
+  -- Level literals are in normal form.
+
+  Level-literal→Nf : Level-literal l → Nf l
+  Level-literal→Nf = λ where
+    zeroᵘ    → zeroᵘₙ
+    (sucᵘ l) → sucᵘₙ (Level-literal→Nf l)

@@ -29,10 +29,10 @@ open import Tools.Nat
 open import Tools.Product as Σ
 
 private variable
-  n       : Nat
-  Γ Δ Η   : Con Term _
-  A B t u : Term _
-  σ σ₁ σ₂ : Subst _ _
+  n               : Nat
+  Γ Δ Η           : Con Term _
+  A B l l₁ l₂ t u : Term _
+  σ σ₁ σ₂         : Subst _ _
 
 -- Equality of contexts.
 
@@ -129,10 +129,24 @@ opaque
 
 opaque
 
+  -- Stability for _⊢_∷Level.
+
+  stabilityLevel : ⊢ Γ ≡ Δ → Γ ⊢ l ∷Level → Δ ⊢ l ∷Level
+  stabilityLevel = S.stability-⊢∷L ∘→ ⊢≡⇔⊢≡ .proj₁
+
+opaque
+
   -- Stability for _⊢_≡_∷_.
 
   stabilityEqTerm : ⊢ Γ ≡ Δ → Γ ⊢ t ≡ u ∷ A → Δ ⊢ t ≡ u ∷ A
   stabilityEqTerm = S.stability-⊢≡∷ ∘→ ⊢≡⇔⊢≡ .proj₁
+
+opaque
+
+  -- Stability for _⊢_≡_∷Level.
+
+  stabilityEqLevel : ⊢ Γ ≡ Δ → Γ ⊢ l₁ ≡ l₂ ∷Level → Δ ⊢ l₁ ≡ l₂ ∷Level
+  stabilityEqLevel = S.stability-⊢≡∷L ∘→ ⊢≡⇔⊢≡ .proj₁
 
 opaque
 

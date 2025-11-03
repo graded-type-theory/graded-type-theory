@@ -36,7 +36,7 @@ open import Definition.Typed.Consequences.NeTypeEq R
 open import Tools.Bool
 open import Tools.Function
 open import Tools.List hiding (_∷_)
-open import Tools.Nat
+open import Tools.Nat as N using (Nat)
 open import Tools.Product
 import Tools.PropositionalEquality as PE
 
@@ -96,7 +96,7 @@ mutual
       (soundnessConv↑ B₁≡B₂) (soundnessConv↑Term u₁≡u₂)
       (conv (soundness~↓ v₁~v₂) ≡Id) ok
   soundness~↑ ([]-cong-cong l₁≡l₂ A₁≡A₂ t₁≡t₂ u₁≡u₂ v₁~v₂ ≡Id ok) =
-    []-cong-cong (soundnessConv↑Term l₁≡l₂) (soundnessConv↑Term A₁≡A₂)
+    []-cong-cong (soundnessConv↑Level l₁≡l₂) (soundnessConv↑Term A₁≡A₂)
       (soundnessConv↑Term t₁≡t₂) (soundnessConv↑Term u₁≡u₂)
       (conv (soundness~↓ v₁~v₂) ≡Id) ok
 
@@ -114,10 +114,11 @@ mutual
 
   -- Algorithmic equality of types in WHNF is well-formed.
   soundnessConv↓ : ∀ {A B} → Γ ⊢ A [conv↓] B → Γ ⊢ A ≡ B
-  soundnessConv↓ (Level-refl ⊢Γ) = refl (Levelⱼ′ ⊢Γ)
-  soundnessConv↓ (U-cong l₁≡l₂) = U-cong (soundnessConv↑Term l₁≡l₂)
+  soundnessConv↓ (Level-refl ok ⊢Γ) = refl (Levelⱼ′ ok ⊢Γ)
+  soundnessConv↓ (U-cong ⊢Γ l₁≡l₂) =
+    U-cong-⊢≡ ⊢Γ (soundnessConv↑Level l₁≡l₂)
   soundnessConv↓ (Lift-cong l₁≡l₂ F≡H) =
-    Lift-cong (soundnessConv↑Term l₁≡l₂) (soundnessConv↑ F≡H)
+    Lift-cong (soundnessConv↑Level l₁≡l₂) (soundnessConv↑ F≡H)
   soundnessConv↓ (ℕ-refl ⊢Γ) = refl (⊢ℕ ⊢Γ)
   soundnessConv↓ (Empty-refl ⊢Γ) = refl (⊢Empty ⊢Γ)
   soundnessConv↓ (Unit-refl ⊢Γ ok) = refl (⊢Unit ⊢Γ ok)
@@ -135,6 +136,13 @@ mutual
                 (trans (soundnessConv↓Term t<>u)
                        (sym′ (subset*Term d′))))
          (sym (subset* D))
+
+  -- Soundness for _⊢_[conv↑]_∷Level.
+  soundnessConv↑Level : Γ ⊢ l₁ [conv↑] l₂ ∷Level → Γ ⊢ l₁ ≡ l₂ ∷Level
+  soundnessConv↑Level (literal! not-ok l-lit) =
+    literal not-ok l-lit
+  soundnessConv↑Level (term ok l₁≡l₂) =
+    term ok (soundnessConv↑Term l₁≡l₂)
 
   -- Algorithmic equality of terms in WHNF is well-formed.
   soundnessConv↓Term : ∀ {a b A} → Γ ⊢ a [conv↓] b ∷ A → Γ ⊢ a ≡ b ∷ A
@@ -189,7 +197,7 @@ mutual
     Γ ⊢ A ∷ U l₁ →
     Γ ⊢ B ∷ U l₂ →
     Γ ⊢ A [conv↓] B →
-    Γ ⊢ A ≡ B ∷ U l₁ × Γ ⊢ l₁ ≡ l₂ ∷ Level
+    Γ ⊢ A ≡ B ∷ U l₁ × Γ ⊢ l₁ ≡ l₂ ∷Level
   soundnessConv↓-U {l₁} {l₂} ⊢A ⊢B (ne {l} A~B) =
     let A≡B             = soundness~↓ A~B
         _ , A-ne , B-ne = ne~↓ A~B
@@ -204,7 +212,7 @@ mutual
          U l₂  ∎)
     where
     open TyR
-  soundnessConv↓-U {l₁} {l₂} ⊢Level₁ ⊢Level₂ (Level-refl _) =
+  soundnessConv↓-U {l₁} {l₂} ⊢Level₁ ⊢Level₂ (Level-refl _ _) =
       refl ⊢Level₁
     , U-injectivity
         (U l₁     ≡⟨ inversion-Level ⊢Level₁ .proj₁ ⟩⊢
@@ -212,15 +220,16 @@ mutual
          U l₂     ∎)
     where
     open TyR
-  soundnessConv↓-U {l₁} {l₂} ⊢U₁ ⊢U₂ (U-cong {l₁ = l₃} {l₂ = l₄} l₃≡l₄) =
-    let l₃≡l₄ = soundnessConv↑Term l₃≡l₄
+  soundnessConv↓-U
+    {l₁} {l₂} ⊢U₁ ⊢U₂ (U-cong {l₁ = l₃} {l₂ = l₄} ⊢Γ l₃≡l₄) =
+    let l₃≡l₄ = soundnessConv↑Level l₃≡l₄
         U≡U₁ = inversion-U ⊢U₁
         U≡U₂ = inversion-U ⊢U₂
     in
-      conv (U-cong l₃≡l₄) (sym U≡U₁)
+      conv (U-cong-⊢≡∷ ⊢Γ l₃≡l₄) (sym U≡U₁)
     , U-injectivity
         (U l₁        ≡⟨ inversion-U ⊢U₁ ⟩⊢
-         U (sucᵘ l₃) ≡⟨ U-cong (sucᵘ-cong l₃≡l₄) ⟩⊢
+         U (sucᵘ l₃) ≡⟨ U-cong-⊢≡ ⊢Γ (sucᵘ-cong-⊢≡∷L l₃≡l₄) ⟩⊢
          U (sucᵘ l₄) ≡˘⟨ inversion-U ⊢U₂ ⟩⊢∎
          U l₂        ∎)
     where
@@ -228,15 +237,15 @@ mutual
   soundnessConv↓-U {l₁} {l₂} ⊢Lift₁ ⊢Lift₂ (Lift-cong {l₁ = l₃} {l₂ = l₄} l₃≡l₄ F≡H) =
     let k₁ , _ , ⊢F , U₁≡ = inversion-Lift∷ ⊢Lift₁
         k₂ , _ , ⊢H , U₂≡ = inversion-Lift∷ ⊢Lift₂
-        l₃≡l₄ = soundnessConv↑Term l₃≡l₄
+        l₃≡l₄ = soundnessConv↑Level l₃≡l₄
         F≡H , k₁≡k₂ = soundnessConv↑-U ⊢F ⊢H F≡H
     in
       conv (Lift-cong′ l₃≡l₄ F≡H) (sym U₁≡)
     , U-injectivity
-        (U l₁           ≡⟨ U₁≡ ⟩⊢
-         U (k₁ supᵘ l₃) ≡⟨ U-cong (supᵘ-cong k₁≡k₂ l₃≡l₄) ⟩⊢
-         U (k₂ supᵘ l₄) ≡˘⟨ U₂≡ ⟩⊢∎
-         U l₂           ∎)
+        (U l₁             ≡⟨ U₁≡ ⟩⊢
+         U (k₁ supᵘₗ l₃)  ≡⟨ U-cong-⊢≡ (wfTerm ⊢F) (supᵘₗ-cong k₁≡k₂ l₃≡l₄) ⟩⊢
+         U (k₂ supᵘₗ l₄)  ≡˘⟨ U₂≡ ⟩⊢∎
+         U l₂             ∎)
     where
     open TyR
   soundnessConv↓-U {l₁} {l₂} ⊢ΠΣA₁A₂ ⊢ΠΣB₁B₂ (ΠΣ-cong A₁≡B₁ A₂≡B₂ ok) =
@@ -250,7 +259,7 @@ mutual
       conv (ΠΣ-cong ⊢l₃ A₁≡B₁ A₂≡B₂ ok) (sym U≡U₁)
     , U-injectivity
         (U l₁  ≡⟨ U≡U₁ ⟩⊢
-         U l₃  ≡⟨ U-cong l₃≡l₄ ⟩⊢
+         U l₃  ≡⟨ U-cong-⊢≡ (wfTerm ⊢A₁) l₃≡l₄ ⟩⊢
          U l₄  ≡˘⟨ U≡U₂ ⟩⊢∎
          U l₂  ∎)
     where
@@ -294,7 +303,7 @@ mutual
         (sym U≡U₁)
     , U-injectivity
         (U l₁  ≡⟨ U≡U₁ ⟩⊢
-         U l₃  ≡⟨ U-cong l₃≡l₄ ⟩⊢
+         U l₃  ≡⟨ U-cong-⊢≡ (wfTerm ⊢A) l₃≡l₄ ⟩⊢
          U l₄  ≡˘⟨ U≡U₂ ⟩⊢∎
          U l₂  ∎)
     where
@@ -304,7 +313,7 @@ mutual
 
   soundnessConv↑-U :
     Γ ⊢ A ∷ U l₁ → Γ ⊢ B ∷ U l₂ → Γ ⊢ A [conv↑] B →
-    Γ ⊢ A ≡ B ∷ U l₁ × Γ ⊢ l₁ ≡ l₂ ∷ Level
+    Γ ⊢ A ≡ B ∷ U l₁ × Γ ⊢ l₁ ≡ l₂ ∷Level
   soundnessConv↑-U {A} {l₁} {B} {l₂} ⊢A ⊢B ([↑] A′ B′ A↘A′ B↘B′ A′≡B′) =
     let A″ , A″-type , A⇒*A″ = red-U ⊢A
         B″ , B″-type , B⇒*B″ = red-U ⊢B
@@ -319,7 +328,7 @@ mutual
       (A          ⇒*⟨ A⇒*A″ ⟩⊢
        A″         ≡˘⟨ A′≡A″ ⟩⊢≡
        A′ ∷ U l₁  ≡⟨ A′≡B′ ⟩⊢∷
-                   ⟨ U-cong l₁≡l₂ ⟩≡
+                   ⟨ U-cong-⊢≡ (wfTerm ⊢A″) l₁≡l₂ ⟩≡
        B′ ∷ U l₂  ≡⟨ B′≡B″ ⟩⊢∷≡
        B″         ⇐*⟨ B⇒*B″ ⟩⊢∎
        B          ∎)
@@ -335,8 +344,9 @@ mutual
         b≡ = soundness↓ᵛ b≡
         ⊢Level , _ , _ = syntacticEqTerm a≡
         ⊢Γ = wf ⊢Level
+        ok = inversion-Level-⊢ ⊢Level
     in trans a≡
-        (trans (soundness-≡ᵛ ⊢Γ aᵛ bᵛ a≡b)
+        (trans (soundness-≡ᵛ ok ⊢Γ aᵛ bᵛ a≡b)
           (sym′ b≡))
 
   -- If t normalises to a level view, then t is well-formed.
@@ -345,7 +355,7 @@ mutual
   wf↑ᵛ ([↑]ᵛ (d , _) t↓v) = redFirst*Term d
 
   wf↓ᵛ : ∀ {t v} → Γ ⊢ t ↓ᵛ v → Γ ⊢ t ∷ Level
-  wf↓ᵛ (zeroᵘₙ x) = zeroᵘⱼ x
+  wf↓ᵛ (zeroᵘₙ ok ⊢Γ) = zeroᵘⱼ ok ⊢Γ
   wf↓ᵛ (sucᵘₙ x x₁) = sucᵘⱼ (wf↑ᵛ x₁)
   wf↓ᵛ (neₙ x) = wf~ᵛ x
 
@@ -354,48 +364,85 @@ mutual
   wf~ᵛ (supᵘʳₙ x x₁ x₂) = supᵘⱼ (sucᵘⱼ (wf↑ᵛ x₁)) (wf~ᵛ x₂)
   wf~ᵛ (neₙ [t] x) = syntacticEqTerm (soundness~↓ [t]) .proj₂ .proj₁
 
-  -- A level view in a well-formed context induces a well-formed level.
+  -- A level view in a well-formed context induces a well-formed level
+  -- (assuming that Level is allowed).
 
-  ⊢LevelAtom : ⊢ Γ → (l : LevelAtom Γ) → Γ ⊢ LevelAtom→Term l ∷ Level
-  ⊢LevelAtom ⊢Γ zeroᵘ = zeroᵘⱼ ⊢Γ
-  ⊢LevelAtom ⊢Γ (ne t≡t) =
+  ⊢LevelAtom :
+    Level-allowed → ⊢ Γ → (l : LevelAtom Γ) →
+    Γ ⊢ LevelAtom→Term l ∷ Level
+  ⊢LevelAtom ok ⊢Γ zeroᵘ    = zeroᵘⱼ ok ⊢Γ
+  ⊢LevelAtom _  ⊢Γ (ne t≡t) =
     let _ , ⊢t , _ = syntacticEqTerm (soundness~↓ t≡t)
     in ⊢t
 
-  ⊢Level⁺ : ⊢ Γ → (l : Level⁺ Γ) → Γ ⊢ Level⁺→Term l ∷ Level
-  ⊢Level⁺ ⊢Γ (Nat.zero , l) = ⊢LevelAtom ⊢Γ l
-  ⊢Level⁺ ⊢Γ (1+ n , l) = sucᵘⱼ (⊢Level⁺ ⊢Γ (n , l))
+  ⊢Level⁺ :
+    Level-allowed → ⊢ Γ → (l : Level⁺ Γ) →
+    Γ ⊢ Level⁺→Term l ∷ Level
+  ⊢Level⁺ ok ⊢Γ (0      , l) = ⊢LevelAtom ok ⊢Γ l
+  ⊢Level⁺ ok ⊢Γ (N.1+ n , l) = sucᵘⱼ (⊢Level⁺ ok ⊢Γ (n , l))
 
-  ⊢Levelᵛ : ⊢ Γ → (l : Levelᵛ Γ) → Γ ⊢ Levelᵛ→Term l ∷ Level
-  ⊢Levelᵛ ⊢Γ L.[] = zeroᵘⱼ ⊢Γ
-  ⊢Levelᵛ ⊢Γ (x L.∷ l) = supᵘⱼ (⊢Level⁺ ⊢Γ x) (⊢Levelᵛ ⊢Γ l)
+  ⊢Levelᵛ :
+    Level-allowed → ⊢ Γ → (l : Levelᵛ Γ) → Γ ⊢ Levelᵛ→Term l ∷ Level
+  ⊢Levelᵛ ok ⊢Γ L.[]      = zeroᵘⱼ ok ⊢Γ
+  ⊢Levelᵛ ok ⊢Γ (x L.∷ l) = supᵘⱼ (⊢Level⁺ ok ⊢Γ x) (⊢Levelᵛ ok ⊢Γ l)
 
-  ⊢suc⁺ : ⊢ Γ → (x : Level⁺ Γ) → Γ ⊢ Level⁺→Term (suc⁺ x) ∷ Level
-  ⊢suc⁺ ⊢Γ (n , a) = sucᵘⱼ (⊢sucᵘᵏ (⊢LevelAtom ⊢Γ a))
+  ⊢suc⁺ :
+    Level-allowed → ⊢ Γ → (x : Level⁺ Γ) →
+    Γ ⊢ Level⁺→Term (suc⁺ x) ∷ Level
+  ⊢suc⁺ ok ⊢Γ (n , a) = sucᵘⱼ (⊢sucᵘᵏ (⊢LevelAtom ok ⊢Γ a))
 
-  ⊢map-suc⁺ : ⊢ Γ → (l : Levelᵛ Γ) → Γ ⊢ Levelᵛ→Term (map-suc⁺ l) ∷ Level
-  ⊢map-suc⁺ ⊢Γ L.[] = zeroᵘⱼ ⊢Γ
-  ⊢map-suc⁺ ⊢Γ (x L.∷ l) = supᵘⱼ (⊢suc⁺ ⊢Γ x) (⊢map-suc⁺ ⊢Γ l)
+  ⊢map-suc⁺ :
+    Level-allowed → ⊢ Γ → (l : Levelᵛ Γ) →
+    Γ ⊢ Levelᵛ→Term (map-suc⁺ l) ∷ Level
+  ⊢map-suc⁺ ok ⊢Γ L.[]      = zeroᵘⱼ ok ⊢Γ
+  ⊢map-suc⁺ ok ⊢Γ (x L.∷ l) = supᵘⱼ (⊢suc⁺ ok ⊢Γ x) (⊢map-suc⁺ ok ⊢Γ l)
 
   -- The reification of a level view commutes with the level operations.
 
-  Levelᵛ→Term-suc : ⊢ Γ → (l : Levelᵛ Γ) → Γ ⊢ sucᵘ (Levelᵛ→Term l) ≡ Levelᵛ→Term (sucᵛ l) ∷ Level
-  Levelᵛ→Term-suc ⊢Γ L.[] = sym′ (supᵘ-zeroʳⱼ (sucᵘⱼ (zeroᵘⱼ ⊢Γ)))
-  Levelᵛ→Term-suc ⊢Γ (x L.∷ l) =
-    trans (sym′ (supᵘ-sucᵘ (⊢Level⁺ ⊢Γ x) (⊢Levelᵛ ⊢Γ l)))
-      (trans (supᵘ-cong (refl (sucᵘⱼ (⊢Level⁺ ⊢Γ x))) (Levelᵛ→Term-suc ⊢Γ l))
-        (supᵘ-comm-assoc (sucᵘⱼ (⊢Level⁺ ⊢Γ x)) (sucᵘⱼ (zeroᵘⱼ ⊢Γ)) (⊢map-suc⁺ ⊢Γ l)))
+  Levelᵛ→Term-suc :
+    Level-allowed → ⊢ Γ → (l : Levelᵛ Γ) →
+    Γ ⊢ sucᵘ (Levelᵛ→Term l) ≡ Levelᵛ→Term (sucᵛ l) ∷ Level
+  Levelᵛ→Term-suc ok ⊢Γ L.[] = sym′ (supᵘ-zeroʳⱼ (sucᵘⱼ (zeroᵘⱼ ok ⊢Γ)))
+  Levelᵛ→Term-suc ok ⊢Γ (x L.∷ l) =
+    trans (sym′ (supᵘ-sucᵘ (⊢Level⁺ ok ⊢Γ x) (⊢Levelᵛ ok ⊢Γ l)))
+      (trans
+         (supᵘ-cong (refl (sucᵘⱼ (⊢Level⁺ ok ⊢Γ x)))
+            (Levelᵛ→Term-suc ok ⊢Γ l))
+         (supᵘ-comm-assoc (sucᵘⱼ (⊢Level⁺ ok ⊢Γ x))
+            (sucᵘⱼ (zeroᵘⱼ ok ⊢Γ)) (⊢map-suc⁺ ok ⊢Γ l)))
 
-  Levelᵛ→Term-sup : ⊢ Γ → (t u : Levelᵛ Γ) → Γ ⊢ Levelᵛ→Term t supᵘ Levelᵛ→Term u ≡ Levelᵛ→Term (supᵛ t u) ∷ Level
-  Levelᵛ→Term-sup ⊢Γ L.[] x = supᵘ-zeroˡ (⊢Levelᵛ ⊢Γ x)
-  Levelᵛ→Term-sup ⊢Γ (x L.∷ t) u = trans (supᵘ-assoc (⊢Level⁺ ⊢Γ x) (⊢Levelᵛ ⊢Γ t) (⊢Levelᵛ ⊢Γ u)) (supᵘ-cong (refl (⊢Level⁺ ⊢Γ x)) (Levelᵛ→Term-sup ⊢Γ t u))
+  Levelᵛ→Term-sup :
+    Level-allowed → ⊢ Γ → (t u : Levelᵛ Γ) →
+    Γ ⊢ Levelᵛ→Term t supᵘ Levelᵛ→Term u ≡ Levelᵛ→Term (supᵛ t u) ∷
+      Level
+  Levelᵛ→Term-sup ok ⊢Γ L.[]      x = supᵘ-zeroˡ (⊢Levelᵛ ok ⊢Γ x)
+  Levelᵛ→Term-sup ok ⊢Γ (x L.∷ t) u =
+    trans
+      (supᵘ-assoc (⊢Level⁺ ok ⊢Γ x) (⊢Levelᵛ ok ⊢Γ t) (⊢Levelᵛ ok ⊢Γ u))
+      (supᵘ-cong (refl (⊢Level⁺ ok ⊢Γ x)) (Levelᵛ→Term-sup ok ⊢Γ t u))
 
-  Levelᵛ→Term-sup-map-suc⁺ : ⊢ Γ → (t u : Levelᵛ Γ) → Γ ⊢ Levelᵛ→Term (map-suc⁺ t) supᵘ Levelᵛ→Term u ≡ Levelᵛ→Term (supᵛ (map-suc⁺ t) u) ∷ Level
-  Levelᵛ→Term-sup-map-suc⁺ ⊢Γ L.[] u = supᵘ-zeroˡ (⊢Levelᵛ ⊢Γ u)
-  Levelᵛ→Term-sup-map-suc⁺ ⊢Γ (x L.∷ t) u = trans (supᵘ-assoc (⊢suc⁺ ⊢Γ x) (⊢map-suc⁺ ⊢Γ t) (⊢Levelᵛ ⊢Γ u)) (supᵘ-cong (refl (⊢suc⁺ ⊢Γ x)) (Levelᵛ→Term-sup-map-suc⁺ ⊢Γ t u))
+  Levelᵛ→Term-sup-map-suc⁺ :
+    Level-allowed → ⊢ Γ → (t u : Levelᵛ Γ) →
+    Γ ⊢ Levelᵛ→Term (map-suc⁺ t) supᵘ Levelᵛ→Term u ≡
+      Levelᵛ→Term (supᵛ (map-suc⁺ t) u) ∷ Level
+  Levelᵛ→Term-sup-map-suc⁺ ok ⊢Γ L.[] u =
+    supᵘ-zeroˡ (⊢Levelᵛ ok ⊢Γ u)
+  Levelᵛ→Term-sup-map-suc⁺ ok ⊢Γ (x L.∷ t) u =
+    trans
+      (supᵘ-assoc (⊢suc⁺ ok ⊢Γ x) (⊢map-suc⁺ ok ⊢Γ t) (⊢Levelᵛ ok ⊢Γ u))
+      (supᵘ-cong (refl (⊢suc⁺ ok ⊢Γ x))
+         (Levelᵛ→Term-sup-map-suc⁺ ok ⊢Γ t u))
 
-  Levelᵛ→Term-sup-sucᵛ : ⊢ Γ → (t u : Levelᵛ Γ) → Γ ⊢ Levelᵛ→Term (sucᵛ t) supᵘ Levelᵛ→Term u ≡ Levelᵛ→Term (supᵛ (sucᵛ t) u) ∷ Level
-  Levelᵛ→Term-sup-sucᵛ ⊢Γ t u = trans (supᵘ-assoc (sucᵘⱼ (zeroᵘⱼ ⊢Γ)) (⊢map-suc⁺ ⊢Γ t) (⊢Levelᵛ ⊢Γ u)) (supᵘ-cong (refl (sucᵘⱼ (zeroᵘⱼ ⊢Γ))) (Levelᵛ→Term-sup-map-suc⁺ ⊢Γ t u))
+  Levelᵛ→Term-sup-sucᵛ :
+    Level-allowed → ⊢ Γ → (t u : Levelᵛ Γ) →
+    Γ ⊢ Levelᵛ→Term (sucᵛ t) supᵘ Levelᵛ→Term u ≡
+      Levelᵛ→Term (supᵛ (sucᵛ t) u) ∷ Level
+  Levelᵛ→Term-sup-sucᵛ ok ⊢Γ t u =
+    trans
+      (supᵘ-assoc (sucᵘⱼ (zeroᵘⱼ ok ⊢Γ)) (⊢map-suc⁺ ok ⊢Γ t)
+         (⊢Levelᵛ ok ⊢Γ u))
+      (supᵘ-cong (refl (sucᵘⱼ (zeroᵘⱼ ok ⊢Γ)))
+         (Levelᵛ→Term-sup-map-suc⁺ ok ⊢Γ t u))
 
   -- If t normalises to a level view v, then t is equal to the reification of v.
 
@@ -403,21 +450,32 @@ mutual
   soundness↑ᵛ ([↑]ᵛ (d , _) t↓v) = trans (subset*Term d) (soundness↓ᵛ t↓v)
 
   soundness↓ᵛ : ∀ {t} {v : Levelᵛ Γ} → Γ ⊢ t ↓ᵛ v → Γ ⊢ t ≡ Levelᵛ→Term v ∷ Level
-  soundness↓ᵛ (zeroᵘₙ x) = refl (zeroᵘⱼ x)
+  soundness↓ᵛ (zeroᵘₙ ok ⊢Γ) = refl (zeroᵘⱼ ok ⊢Γ)
   soundness↓ᵛ (sucᵘₙ {v′} PE.refl t≡v) =
-    trans (sucᵘ-cong (soundness↑ᵛ t≡v))
-      (Levelᵛ→Term-suc (wfTerm (wf↑ᵛ t≡v)) v′)
+    let ⊢t≡v = soundness↑ᵛ t≡v
+        ok   = inversion-Level-⊢ (wf-⊢≡∷ ⊢t≡v .proj₁)
+    in
+    trans (sucᵘ-cong ⊢t≡v) (Levelᵛ→Term-suc ok (wfTerm (wf↑ᵛ t≡v)) v′)
   soundness↓ᵛ (neₙ x) = soundness~ᵛ x
 
   soundness~ᵛ : ∀ {t} {v : Levelᵛ Γ} → Γ ⊢ t ~ᵛ v → Γ ⊢ t ≡ Levelᵛ→Term v ∷ Level
   soundness~ᵛ (supᵘˡₙ {v′} {v″} y t~ u↑) =
-    trans (supᵘ-cong (soundness~ᵛ t~) (soundness↑ᵛ u↑))
+    let u↑ = soundness↑ᵛ u↑
+        ok = inversion-Level-⊢ (wf-⊢≡∷ u↑ .proj₁)
+    in
+    trans (supᵘ-cong (soundness~ᵛ t~) u↑)
       (PE.subst (_ ⊢ _ ≡_∷ _) (PE.cong Levelᵛ→Term (PE.sym y))
-        (Levelᵛ→Term-sup (wfTerm (wf~ᵛ t~)) v′ v″))
+        (Levelᵛ→Term-sup ok (wfTerm (wf~ᵛ t~)) v′ v″))
   soundness~ᵛ (supᵘʳₙ {v′} {v″} PE.refl t↑ u~) =
     let ⊢Γ = wfTerm (wf↑ᵛ t↑)
-    in trans (supᵘ-cong (sucᵘ-cong (soundness↑ᵛ t↑)) (soundness~ᵛ u~))
-        (trans (supᵘ-cong (Levelᵛ→Term-suc ⊢Γ v′) (refl (⊢Levelᵛ ⊢Γ v″))) (Levelᵛ→Term-sup-sucᵛ ⊢Γ v′ v″))
+        t↑ = soundness↑ᵛ t↑
+        ok = inversion-Level-⊢ (wf-⊢≡∷ t↑ .proj₁)
+    in
+    trans (supᵘ-cong (sucᵘ-cong t↑) (soundness~ᵛ u~))
+      (trans
+         (supᵘ-cong (Levelᵛ→Term-suc ok ⊢Γ v′)
+            (refl (⊢Levelᵛ ok ⊢Γ v″)))
+         (Levelᵛ→Term-sup-sucᵛ ok ⊢Γ v′ v″))
   soundness~ᵛ (neₙ [t′] PE.refl) =
     let ⊢Level , ⊢t′ , _ = syntacticEqTerm (soundness~↓ [t′])
     in sym′ (supᵘ-zeroʳⱼ ⊢t′)
@@ -425,61 +483,73 @@ mutual
   -- Comparison and equality of level views is sound with respect to reification.
 
   soundness-≤ᵃ
-    : ⊢ Γ
+    : Level-allowed
+    → ⊢ Γ
     → ∀ (t u : LevelAtom Γ)
     → ≤ᵃ d t u
     → Γ ⊢ LevelAtom→Term t ≤ LevelAtom→Term u ∷Level
-  soundness-≤ᵃ ⊢Γ t u zeroᵘ≤ = supᵘ-zeroˡ (⊢LevelAtom ⊢Γ u)
-  soundness-≤ᵃ ⊢Γ t u (ne≤ (ne≡ x)) = supᵘ-subᵏ (⊢≤-refl (soundness~↓ x))
-  soundness-≤ᵃ ⊢Γ t u (ne≤ (ne≡' x)) = supᵘ-subᵏ (⊢≤-refl (sym′ (soundness~↓ x)))
+  soundness-≤ᵃ ok ⊢Γ t u zeroᵘ≤ =
+    supᵘ-zeroˡ (⊢LevelAtom ok ⊢Γ u)
+  soundness-≤ᵃ _ ⊢Γ t u (ne≤ (ne≡ x)) =
+    supᵘ-subᵏ (⊢≤-refl (soundness~↓ x))
+  soundness-≤ᵃ _ ⊢Γ t u (ne≤ (ne≡' x)) =
+    supᵘ-subᵏ (⊢≤-refl (sym′ (soundness~↓ x)))
 
   soundness-≤⁺
-    : ⊢ Γ
+    : Level-allowed
+    → ⊢ Γ
     → ∀ (t u : Level⁺ Γ)
     → ≤⁺ d t u
     → Γ ⊢ Level⁺→Term t ≤ Level⁺→Term u ∷Level
-  soundness-≤⁺ ⊢Γ (n , t) (m , u) (n≤m , t≤u) = ≤-sucᵘᵏ n≤m (soundness-≤ᵃ ⊢Γ _ _ t≤u)
+  soundness-≤⁺ ok ⊢Γ (n , t) (m , u) (n≤m , t≤u) =
+    ≤-sucᵘᵏ n≤m (soundness-≤ᵃ ok ⊢Γ _ _ t≤u)
 
   soundness-≤⁺ᵛ
-    : ⊢ Γ
+    : Level-allowed
+    → ⊢ Γ
     → ∀ (t : Level⁺ Γ) (u : Levelᵛ Γ)
     → ≤⁺ᵛ d t u
     → Γ ⊢ Level⁺→Term t ≤ Levelᵛ→Term u ∷Level
-  soundness-≤⁺ᵛ ⊢Γ t (u L.∷ us) (Any.here px) =
-    let ⊢t = ⊢Level⁺ ⊢Γ t
-        ⊢u = ⊢Level⁺ ⊢Γ u
-        ⊢us = ⊢Levelᵛ ⊢Γ us
+  soundness-≤⁺ᵛ ok ⊢Γ t (u L.∷ us) (Any.here px) =
+    let ⊢t = ⊢Level⁺ ok ⊢Γ t
+        ⊢u = ⊢Level⁺ ok ⊢Γ u
+        ⊢us = ⊢Levelᵛ ok ⊢Γ us
         ⊢Level = syntacticTerm ⊢t
-    in trans (sym′ (supᵘ-assoc ⊢t ⊢u ⊢us))
-      (supᵘ-cong (soundness-≤⁺ ⊢Γ _ _ px) (refl ⊢us))
-  soundness-≤⁺ᵛ ⊢Γ t (u L.∷ us) (Any.there x) =
-    let ⊢t = ⊢Level⁺ ⊢Γ t
-        ⊢u = ⊢Level⁺ ⊢Γ u
-        ⊢us = ⊢Levelᵛ ⊢Γ us
-    in trans (supᵘ-comm-assoc ⊢t ⊢u ⊢us)
-      (supᵘ-cong (refl ⊢u) (soundness-≤⁺ᵛ ⊢Γ _ _ x))
-  soundness-≤⁺ᵛ ⊢Γ t L.[] ()
+    in
+    trans (sym′ (supᵘ-assoc ⊢t ⊢u ⊢us))
+      (supᵘ-cong (soundness-≤⁺ ok ⊢Γ _ _ px) (refl ⊢us))
+  soundness-≤⁺ᵛ ok ⊢Γ t (u L.∷ us) (Any.there x) =
+    let ⊢t = ⊢Level⁺ ok ⊢Γ t
+        ⊢u = ⊢Level⁺ ok ⊢Γ u
+        ⊢us = ⊢Levelᵛ ok ⊢Γ us
+    in
+    trans (supᵘ-comm-assoc ⊢t ⊢u ⊢us)
+      (supᵘ-cong (refl ⊢u) (soundness-≤⁺ᵛ ok ⊢Γ _ _ x))
+  soundness-≤⁺ᵛ _ _ _ L.[] ()
 
   soundness-≤ᵛ
-    : ⊢ Γ
+    : Level-allowed
+    → ⊢ Γ
     → ∀ (t u : Levelᵛ Γ)
     → ≤ᵛ d t u
     → Γ ⊢ Levelᵛ→Term t ≤ Levelᵛ→Term u ∷Level
-  soundness-≤ᵛ ⊢Γ t u All.[] = supᵘ-zeroˡ (⊢Levelᵛ ⊢Γ u)
-  soundness-≤ᵛ ⊢Γ (t L.∷ ts) u (px All.∷ t≤u) =
-    let ⊢t = ⊢Level⁺ ⊢Γ t
-        ⊢ts = ⊢Levelᵛ ⊢Γ ts
-        ⊢u = ⊢Levelᵛ ⊢Γ u
-    in trans (supᵘ-assoc ⊢t ⊢ts ⊢u)
-      (trans (supᵘ-cong (refl ⊢t) (soundness-≤ᵛ ⊢Γ ts u t≤u))
-        (soundness-≤⁺ᵛ ⊢Γ t u px))
+  soundness-≤ᵛ ok ⊢Γ t u All.[] = supᵘ-zeroˡ (⊢Levelᵛ ok ⊢Γ u)
+  soundness-≤ᵛ ok ⊢Γ (t L.∷ ts) u (px All.∷ t≤u) =
+    let ⊢t = ⊢Level⁺ ok ⊢Γ t
+        ⊢ts = ⊢Levelᵛ ok ⊢Γ ts
+        ⊢u = ⊢Levelᵛ ok ⊢Γ u
+    in
+    trans (supᵘ-assoc ⊢t ⊢ts ⊢u)
+      (trans (supᵘ-cong (refl ⊢t) (soundness-≤ᵛ ok ⊢Γ ts u t≤u))
+        (soundness-≤⁺ᵛ ok ⊢Γ t u px))
 
   soundness-≡ᵛ
-    : ⊢ Γ
+    : Level-allowed
+    → ⊢ Γ
     → ∀ (t u : Levelᵛ Γ)
     → t ≡ᵛ u
     → Γ ⊢ Levelᵛ→Term t ≡ Levelᵛ→Term u ∷ Level
-  soundness-≡ᵛ ⊢Γ t u (t≤u , u≤t) =
-    trans (sym′ (soundness-≤ᵛ ⊢Γ u t u≤t))
-      (trans (supᵘ-comm (⊢Levelᵛ ⊢Γ u) (⊢Levelᵛ ⊢Γ t))
-        (soundness-≤ᵛ ⊢Γ t u t≤u))
+  soundness-≡ᵛ ok ⊢Γ t u (t≤u , u≤t) =
+    trans (sym′ (soundness-≤ᵛ ok ⊢Γ u t u≤t))
+      (trans (supᵘ-comm (⊢Levelᵛ ok ⊢Γ u) (⊢Levelᵛ ok ⊢Γ t))
+        (soundness-≤ᵛ ok ⊢Γ t u t≤u))

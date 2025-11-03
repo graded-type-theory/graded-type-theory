@@ -46,8 +46,8 @@ opaque
   -- A typing rule for prodʰ.
 
   prodʰⱼ′ :
-    Γ ⊢ l₁ ∷ Level →
-    Γ ⊢ l₂ ∷ Level →
+    Γ ⊢ l₁ ∷Level →
+    Γ ⊢ l₂ ∷Level →
     Γ ∙ A ⊢ B →
     Γ ⊢ t ∷ A →
     Γ ⊢ u ∷ B [ t ]₀ →
@@ -55,9 +55,9 @@ opaque
     Γ ⊢ prodʰ s p t u ∷ Σʰ⟨ s ⟩ p q l₁ l₂ A B
   prodʰⱼ′ ⊢l₁ ⊢l₂ ⊢B ⊢t ⊢u ok =
     let ⊢A = ⊢∙→⊢ (wf ⊢B) in
-    prodⱼ (Liftⱼ (wkTerm₁ (Liftⱼ ⊢l₂ ⊢A) ⊢l₁) (lower₀Type ⊢l₂ ⊢B))
+    prodⱼ (Liftⱼ (wkLevel₁ (Liftⱼ ⊢l₂ ⊢A) ⊢l₁) (lower₀Type ⊢l₂ ⊢B))
       (liftⱼ ⊢l₂ ⊢A ⊢t)
-      (liftⱼ (PE.subst (_ ⊢_∷ _) (PE.sym (wk1-sgSubst _ _)) ⊢l₁)
+      (liftⱼ (PE.subst (_ ⊢_∷Level) (PE.sym (wk1-sgSubst _ _)) ⊢l₁)
          (⊢lower₀[lift]₀ ⊢B ⊢t) (conv ⊢u (sym (lower₀[lift]₀ ⊢B ⊢t))))
       ok
 
@@ -67,8 +67,8 @@ opaque
   -- An equality rule for prodʰ.
 
   prodʰ-cong′ :
-    Γ ⊢ l₁ ∷ Level →
-    Γ ⊢ l₂ ∷ Level →
+    Γ ⊢ l₁ ∷Level →
+    Γ ⊢ l₂ ∷Level →
     Γ ∙ A ⊢ B →
     Γ ⊢ t₁ ∷ A →
     Γ ⊢ t₂ ∷ A →
@@ -82,10 +82,10 @@ opaque
     let ⊢A      = ⊢∙→⊢ (wf ⊢B)
         B[t₁]₀≡ = sym (lower₀[lift]₀ ⊢B ⊢t₁)
     in
-    prod-cong (Liftⱼ (wkTerm₁ (Liftⱼ ⊢l₂ ⊢A) ⊢l₁) (lower₀Type ⊢l₂ ⊢B))
+    prod-cong (Liftⱼ (wkLevel₁ (Liftⱼ ⊢l₂ ⊢A) ⊢l₁) (lower₀Type ⊢l₂ ⊢B))
       (lift-cong ⊢l₂ ⊢A ⊢t₁ ⊢t₂ t₁≡t₂)
       (lift-cong
-         (PE.subst (flip (_⊢_∷_ _) _) (PE.sym $ wk1-sgSubst _ _) ⊢l₁)
+         (PE.subst (_⊢_∷Level _) (PE.sym $ wk1-sgSubst _ _) ⊢l₁)
          (⊢lower₀[lift]₀ ⊢B ⊢t₁) (conv ⊢u₁ B[t₁]₀≡) (conv ⊢u₂ B[t₁]₀≡)
          (conv u₁≡u₂ B[t₁]₀≡))
       ok

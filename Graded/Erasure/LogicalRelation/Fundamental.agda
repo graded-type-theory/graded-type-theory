@@ -30,6 +30,7 @@ import Definition.LogicalRelation.Substitution.Introductions.Var TR as V
 import Definition.LogicalRelation.Fundamental TR as F
 
 open import Definition.Typed.Inversion TR
+open import Definition.Typed.Properties TR
 open import Definition.Typed.Well-formed TR
 
 open import Graded.Context 𝕄
@@ -171,18 +172,18 @@ module Fundamental
       γ ▸ Γ ⊩ʳ t ∷[ m ] A
     fundamental {m = 𝟘ᵐ} ⊢t _ =
       ▸⊩ʳ∷[𝟘ᵐ]
-    fundamental (Levelⱼ ⊢Γ ok) _ =
-      Levelʳ (zeroᵘⱼ ⊢Γ)
-    fundamental (zeroᵘⱼ _) _ =
-      zeroᵘʳ
-    fundamental (sucᵘⱼ _) _ =
-      sucᵘʳ
-    fundamental (supᵘⱼ _ _) _ =
-      supᵘʳ
-    fundamental (Uⱼ ⊢t) _ =
+    fundamental (Levelⱼ ⊢Γ _) _ =
+      Levelʳ (⊢zeroᵘ ⊢Γ)
+    fundamental (zeroᵘⱼ ok _) _ =
+      zeroᵘʳ ok
+    fundamental (sucᵘⱼ ⊢l) _ =
+      sucᵘʳ (inversion-Level-⊢ (wf-⊢∷ ⊢l))
+    fundamental (supᵘⱼ ⊢l _) _ =
+      supᵘʳ (inversion-Level-⊢ (wf-⊢∷ ⊢l))
+    fundamental (Uⱼ _ ⊢t) _ =
       Uʳ ⊢t
     fundamental (Liftⱼ ⊢l₁ ⊢l₂ _) _ =
-      Liftʳ (supᵘⱼ ⊢l₁ ⊢l₂)
+      Liftʳ (⊢supᵘₗ ⊢l₁ ⊢l₂)
     fundamental (liftⱼ ⊢t _ ⊢u) ▸lift =
       let ▸u = inv-usage-lift ▸lift in
       liftʳ ⊢t ⊢u (fundamental ⊢u ▸u)
@@ -290,7 +291,7 @@ module Fundamental
            (inj₁ nem) → inj₂ (nem non-trivial .proj₂ .proj₁ ok p≡𝟘)
            (inj₂ k≡0) → inj₁ k≡0)
     fundamental (Idⱼ ⊢A _ _) _ =
-      Idʳ (inversion-U-Level (wf-⊢∷ ⊢A))
+      Idʳ (inversion-U-Level (wf-⊢∷ ⊢A) .proj₂)
     fundamental (rflⱼ ⊢t) _ =
       rflʳ ⊢t
     fundamental {γ} {m = 𝟙ᵐ} (Jⱼ _ ⊢B ⊢u _ ⊢w) ▸J =

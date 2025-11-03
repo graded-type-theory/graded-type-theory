@@ -47,6 +47,7 @@ private
   variable
     n : Nat
     Γ Δ : Con Term n
+    l₁ l₂ : Term _
     d : Bool
 
 mutual
@@ -204,7 +205,7 @@ mutual
         ok }}}}}
   sym~↑ Γ≡Δ ([]-cong-cong l₁≡l₂ A₁≡A₂ t₁≡t₂ u₁≡u₂ v₁~v₂ B≡Id-t₁-u₁ ok) =
     let _ , _ , B≡C , v₂~v₁ = sym~↓ Γ≡Δ v₁~v₂
-        ⊢l₁≡l₂              = soundnessConv↑Term l₁≡l₂
+        ⊢l₁≡l₂              = soundnessConv↑Level l₁≡l₂
         ⊢A₁≡A₂              = soundnessConv↑Term A₁≡A₂
         _ , ⊢A₁ , _         = wf-⊢≡∷ ⊢A₁≡A₂
         ⊢t₁≡t₂              = soundnessConv↑Term t₁≡t₂
@@ -215,8 +216,9 @@ mutual
     _ ,
     Id-cong (Erased-cong Erased-ok ⊢l₁≡l₂ ⊢A₁≡A₂)
       ([]-cong′ Erased-ok ⊢A₁ ⊢t₁≡t₂) ([]-cong′ Erased-ok ⊢A₁ ⊢u₁≡u₂) ,
-    []-cong-cong (symConv↑Term Γ≡Δ l₁≡l₂)
-      (convConv↑Term′ Γ≡Δ (U-cong ⊢l₁≡l₂) (symConv↑Term Γ≡Γ A₁≡A₂))
+    []-cong-cong (symConv↑Level Γ≡Δ l₁≡l₂)
+      (convConv↑Term′ Γ≡Δ (U-cong-⊢≡ (wfTerm ⊢A₁) ⊢l₁≡l₂)
+         (symConv↑Term Γ≡Γ A₁≡A₂))
       (convConv↑Term′ Γ≡Δ (univ ⊢A₁≡A₂) (symConv↑Term Γ≡Γ t₁≡t₂))
       (convConv↑Term′ Γ≡Δ (univ ⊢A₁≡A₂) (symConv↑Term Γ≡Γ u₁≡u₂))
       v₂~v₁
@@ -249,13 +251,14 @@ mutual
 
   -- Symmetry of algorithmic equality of types in WHNF.
   symConv↓ : ∀ {A B} → ⊢ Γ ≡ Δ → Γ ⊢ A [conv↓] B → Δ ⊢ B [conv↓] A
-  symConv↓ Γ≡Δ (Level-refl x) =
-    let _ , ⊢Δ , _ = contextConvSubst Γ≡Δ
-    in  Level-refl ⊢Δ
-  symConv↓ Γ≡Δ (U-cong x) =
-    U-cong (symConv↑Term Γ≡Δ x)
+  symConv↓ Γ≡Δ (Level-refl ok _) =
+    let _ , ⊢Δ , _ = contextConvSubst Γ≡Δ in
+    Level-refl ok ⊢Δ
+  symConv↓ Γ≡Δ (U-cong _ l₁≡l₂) =
+    let _ , ⊢Δ , _ = contextConvSubst Γ≡Δ in
+    U-cong ⊢Δ (symConv↑Level Γ≡Δ l₁≡l₂)
   symConv↓ Γ≡Δ (Lift-cong l₁≡l₂ F≡H) =
-    Lift-cong (symConv↑Term Γ≡Δ l₁≡l₂) (symConv↑ Γ≡Δ F≡H)
+    Lift-cong (symConv↑Level Γ≡Δ l₁≡l₂) (symConv↑ Γ≡Δ F≡H)
   symConv↓ Γ≡Δ (ℕ-refl x) =
     let _ , ⊢Δ , _ = contextConvSubst Γ≡Δ
     in  ℕ-refl ⊢Δ
@@ -287,6 +290,16 @@ mutual
   symConv↑Term Γ≡Δ ([↑]ₜ B t′ u′ D d d′ t<>u) =
     [↑]ₜ B u′ t′ (stabilityRed↘ Γ≡Δ D) (stabilityRed↘Term Γ≡Δ d′)
          (stabilityRed↘Term Γ≡Δ d) (symConv↓Term Γ≡Δ t<>u)
+
+  -- A variant of symmetry for _⊢_[conv↑]_∷Level.
+  symConv↑Level :
+    ⊢ Γ ≡ Δ →
+    Γ ⊢ l₁ [conv↑] l₂ ∷Level →
+    Δ ⊢ l₂ [conv↑] l₁ ∷Level
+  symConv↑Level Γ≡Δ (term ok l₁≡l₂) =
+    term ok (symConv↑Term Γ≡Δ l₁≡l₂)
+  symConv↑Level _ (literal! not-ok l-lit) =
+    literal! not-ok l-lit
 
   -- Symmetry of algorithmic equality of terms in WHNF.
   symConv↓Term : ∀ {t u A} → ⊢ Γ ≡ Δ → Γ ⊢ t [conv↓] u ∷ A → Δ ⊢ u [conv↓] t ∷ A

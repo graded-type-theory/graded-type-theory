@@ -9,6 +9,7 @@ module Tools.PropositionalEquality where
 
 open import Tools.Level
 open import Tools.Product
+open import Tools.Relation
 
 import Relation.Binary.PropositionalEquality as Eq
 open Eq using
@@ -74,6 +75,11 @@ Is-proposition A = {x y : A} → x ≡ y
 
 Is-set : Set a → Set a
 Is-set A = {x y : A} → Is-proposition (x ≡ y)
+
+-- The property of having decidable equality.
+
+Decidable-equality : Set a → Set a
+Decidable-equality A = (x y : A) → Dec (x ≡ y)
 
 -- If A is inhabited, then a corresponding "singleton type" is
 -- inhabited.

@@ -25,6 +25,7 @@ open import Definition.Typed R
 open import Definition.Typed.Properties.Admissible.Bool.OK
   R Unitʷ-ok
 open import Definition.Typed.Properties.Admissible.Empty R
+open import Definition.Typed.Properties.Admissible.Level R
 open import Definition.Typed.Properties.Admissible.Nat R
 open import Definition.Typed.Properties.Admissible.Pi R
 open import Definition.Typed.Properties.Admissible.Sigma R
@@ -68,7 +69,7 @@ opaque
     ⊢ Γ →
     Γ ⊢ Bool ∷ U zeroᵘ
   ⊢Bool∷U ⊢Γ =
-    ΠΣⱼ (zeroᵘⱼ ⊢Γ) (ℕⱼ ⊢Γ) (⊢OK∷U (var₀ (⊢ℕ ⊢Γ))) Σ-ok
+    ΠΣⱼ (⊢zeroᵘ ⊢Γ) (ℕⱼ ⊢Γ) (⊢OK∷U (var₀ (⊢ℕ ⊢Γ))) Σ-ok
 
 opaque
 

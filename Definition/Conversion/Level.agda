@@ -188,14 +188,16 @@ mutual
   deterministic-~ᵛ (neₙ [t] x) (supᵘʳₙ x₁ x₂ y) = case ne~↓ [t] of λ ()
 
   deterministic-↓ᵛ : ∀ {t v v′} → Γ ⊢ t ↓ᵛ v → Γ ⊢ t ↓ᵛ v′ → v ≡≡ᵛ v′
-  deterministic-↓ᵛ (zeroᵘₙ x) (zeroᵘₙ x₁) = Pointwise.[]
+  deterministic-↓ᵛ (zeroᵘₙ _ _) (zeroᵘₙ _ _) = Pointwise.[]
   deterministic-↓ᵛ (sucᵘₙ PE.refl x₁) (sucᵘₙ PE.refl x₃) =
     ≡≡ᵛ-sucᵛ (deterministic-↑ᵛ x₁ x₃)
   deterministic-↓ᵛ (neₙ x) (neₙ x₁) = deterministic-~ᵛ x x₁
   -- Absurd cases
-  deterministic-↓ᵛ (zeroᵘₙ x) (neₙ x₁) = case whnfConv~ᵛ x₁ of λ { (ne ()) }
+  deterministic-↓ᵛ (zeroᵘₙ _ _) (neₙ t~v′) =
+    case whnfConv~ᵛ t~v′ of λ { (ne ()) }
   deterministic-↓ᵛ (sucᵘₙ x x₁) (neₙ x₂) = case whnfConv~ᵛ x₂ of λ { (ne ()) }
-  deterministic-↓ᵛ (neₙ x) (zeroᵘₙ x₁) = case whnfConv~ᵛ x of λ { (ne ()) }
+  deterministic-↓ᵛ (neₙ t~v) (zeroᵘₙ _ _) =
+    case whnfConv~ᵛ t~v of λ { (ne ()) }
   deterministic-↓ᵛ (neₙ x) (sucᵘₙ x₁ x₂) = case whnfConv~ᵛ x of λ { (ne ()) }
 
 -- Properties of level comparison and equality.

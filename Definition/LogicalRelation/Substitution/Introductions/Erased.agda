@@ -34,6 +34,7 @@ open import
 open import
   Definition.LogicalRelation.Substitution.Introductions.Sigma R ⦃ eqrel ⦄
 open import Definition.LogicalRelation.Substitution.Introductions.Unit R ⦃ eqrel ⦄
+open import Definition.LogicalRelation.Weakening R
 open import Definition.LogicalRelation.Weakening.Restricted R ⦃ eqrel ⦄
 open import Definition.Typed R
 open import Definition.Typed.Properties R
@@ -57,7 +58,7 @@ private opaque
   -- A lemma used below.
 
   wk-Lift-Unit[]₀≡ :
-    Γ ⊩⟨ ℓ′ ⟩ l₁ ≡ l₂ ∷ Level →
+    Γ ⊩Level l₁ ≡ l₂ ∷Level →
     ρ ∷ʷʳ Δ ⊇ Γ →
     Δ ⊩⟨ ℓ ⟩ U.wk (lift ρ) (Lift (wk1 l₁) (Unit s)) [ t ]₀ ≡
       U.wk (lift ρ) (Lift (wk1 l₂) (Unit s)) [ u ]₀
@@ -74,10 +75,10 @@ private opaque
       , _
       , id
           (Liftⱼ
-             (wkTerm (∷ʷʳ⊇→∷ʷ⊇ ρ∷) $
-              wf-⊢≡∷ (≅ₜ-eq (escape-⊩≡∷ l₁≡l₂)) .proj₂ .proj₂)
+             (wkLevel (∷ʷʳ⊇→∷ʷ⊇ ρ∷) $
+              wf-⊢≡∷L (⊢≅∷L→⊢≡∷L (escapeLevelEq l₁≡l₂)) .proj₂)
              (⊢Unit (wf-∷ʷʳ⊇ ρ∷) Unit-ok))
-      , ⊩≡∷Level⇔ .proj₁ (wk-⊩≡∷ ρ∷ l₁≡l₂)
+      , wkEqTermLevel (∷ʷʳ⊇→∷ʷ⊇ ρ∷) l₁≡l₂
       , refl-⊩≡ (emb-⊩ 0≤ᵘ (⊩Unit (wf-∷ʷʳ⊇ ρ∷) Unit-ok))
       )
 
@@ -87,18 +88,18 @@ opaque
   -- Reducibility for Erased.
 
   ⊩Erased :
-    Γ ⊩⟨ ℓ′ ⟩ l ∷ Level → Γ ⊩⟨ ℓ ⟩ A → Γ ⊩⟨ ℓ ⟩ Erased l A
+    Γ ⊩Level l ∷Level → Γ ⊩⟨ ℓ ⟩ A → Γ ⊩⟨ ℓ ⟩ Erased l A
   ⊩Erased {l} ⊩l ⊩A =
     let ⊢A = escape-⊩ ⊩A in
     ⊩ΠΣ⇔ .proj₂
       ( ≅-ΠΣ-cong (escape-⊩≡ $ refl-⊩≡ ⊩A)
           (≅-Lift-cong
-             (≅ₜ-wk (stepʷ id ⊢A) (escape-⊩≡∷ (refl-⊩≡∷ ⊩l))) $
+             (wk-⊢≅∷L (stepʷ id ⊢A) (escapeLevelEq (reflLevel ⊩l))) $
            ≅-Unit-refl (∙ ⊢A) Unit-ok)
           Σ-ok
       , λ ρ⊇ →
             wk-⊩ ρ⊇ ⊩A
-          , λ _ → wk-Lift-Unit[]₀≡ (refl-⊩≡∷ ⊩l) ρ⊇
+          , λ _ → wk-Lift-Unit[]₀≡ (reflLevel ⊩l) ρ⊇
       )
 
 opaque
@@ -107,11 +108,11 @@ opaque
   -- Reducibility of equality between applications of Erased.
 
   ⊩Erased≡Erased :
-    Γ ⊩⟨ ℓ′ ⟩ l₁ ≡ l₂ ∷ Level →
+    Γ ⊩Level l₁ ≡ l₂ ∷Level →
     Γ ⊩⟨ ℓ ⟩ A₁ ≡ A₂ →
     Γ ⊩⟨ ℓ ⟩ Erased l₁ A₁ ≡ Erased l₂ A₂
   ⊩Erased≡Erased {l₁} {l₂} l₁≡l₂ A₁≡A₂ =
-    let ⊩l₁ , ⊩l₂ = wf-⊩≡∷ l₁≡l₂
+    let ⊩l₁ , ⊩l₂ = wf-Level-eq l₁≡l₂
         ⊩A₁ , ⊩A₂ = wf-⊩≡ A₁≡A₂
     in
     ⊩ΠΣ≡ΠΣ⇔ .proj₂
@@ -119,7 +120,7 @@ opaque
       , ⊩Erased ⊩l₂ ⊩A₂
       , ≅-ΠΣ-cong (escape-⊩≡ A₁≡A₂)
           (≅-Lift-cong
-             (≅ₜ-wk (stepʷ id (escape-⊩ ⊩A₁)) (escape-⊩≡∷ l₁≡l₂)) $
+             (wk-⊢≅∷L (stepʷ id (escape-⊩ ⊩A₁)) (escapeLevelEq l₁≡l₂)) $
            ≅-Unit-refl (∙ escape-⊩ ⊩A₁) Unit-ok) Σ-ok
       , PE.refl , PE.refl , PE.refl
       , λ ρ⊇ →
@@ -132,7 +133,7 @@ opaque
   -- Validity of equality preservation for Erased.
 
   Erased-congᵛ :
-    Γ ⊩ᵛ⟨ ℓ′ ⟩ l₁ ≡ l₂ ∷ Level →
+    Γ ⊩ᵛ⟨ ℓ′ ⟩ l₁ ≡ l₂ ∷Level →
     Γ ⊩ᵛ⟨ ℓ ⟩ A₁ ≡ A₂ →
     Γ ⊩ᵛ⟨ ℓ ⟩ Erased l₁ A₁ ≡ Erased l₂ A₂
   Erased-congᵛ l₁≡l₂ A₁≡A₂ =
@@ -143,7 +144,7 @@ opaque
       , λ σ₁≡σ₂ →
           PE.subst₂ (_⊩⟨_⟩_≡_ _ _)
             (PE.sym Erased-[]) (PE.sym Erased-[]) $
-          ⊩Erased≡Erased (R.⊩≡∷→ $ ⊩ᵛ≡∷→⊩ˢ≡∷→⊩[]≡[]∷ l₁≡l₂ σ₁≡σ₂)
+          ⊩Erased≡Erased (⊩ᵛ≡∷L→⊩ˢ≡∷→⊩[]≡[]∷L l₁≡l₂ σ₁≡σ₂)
             (A₁≡A₂ σ₁≡σ₂)
       )
 
@@ -152,11 +153,11 @@ opaque
   -- Validity of Erased.
 
   Erasedᵛ :
-    Γ ⊩ᵛ⟨ ℓ′ ⟩ l ∷ Level →
+    Γ ⊩ᵛ⟨ ℓ′ ⟩ l ∷Level →
     Γ ⊩ᵛ⟨ ℓ ⟩ A →
     Γ ⊩ᵛ⟨ ℓ ⟩ Erased l A
   Erasedᵛ ⊩l =
-    ⊩ᵛ⇔⊩ᵛ≡ .proj₂ ∘→ Erased-congᵛ (refl-⊩ᵛ≡∷ ⊩l) ∘→ ⊩ᵛ⇔⊩ᵛ≡ .proj₁
+    ⊩ᵛ⇔⊩ᵛ≡ .proj₂ ∘→ Erased-congᵛ (refl-⊩ᵛ≡∷L ⊩l) ∘→ ⊩ᵛ⇔⊩ᵛ≡ .proj₁
 
 opaque
   unfolding Erased [_]
@@ -164,7 +165,7 @@ opaque
   -- Reducibility of equality between applications of [_].
 
   ⊩[]≡[] :
-    Γ ⊩⟨ ℓ′ ⟩ l ∷ Level →
+    Γ ⊩Level l ∷Level →
     Γ ⊩⟨ ℓ ⟩ t ≡ u ∷ A →
     Γ ⊩⟨ ℓ ⟩ [ t ] ≡ [ u ] ∷ Erased l A
   ⊩[]≡[] ⊩l t≡u =
@@ -173,11 +174,11 @@ opaque
         ⊢Γ = wf ⊢A
     in
     ⊩prod≡prod
-      (Liftⱼ (wkTerm₁ ⊢A (escape-⊩∷ ⊩l)) (⊢Unit (∙ ⊢A) Unit-ok))
+      (Liftⱼ (wkLevel₁ ⊢A (escapeLevel ⊩l)) (⊢Unit (∙ ⊢A) Unit-ok))
       (⊩Erased ⊩l ⊩A) t≡u
       (refl-⊩≡∷ $
        ⊩lift
-         (PE.subst (flip (_⊩⟨_⟩_∷_ _ _) _) (PE.sym $ wk1-sgSubst _ _)
+         (PE.subst (_⊩Level_∷Level _) (PE.sym $ wk1-sgSubst _ _)
             ⊩l)
          (⊩Unit ⊢Γ Unit-ok) (⊩star ⊢Γ Unit-ok))
 
@@ -186,7 +187,7 @@ opaque
   -- Reducibility for [_].
 
   ⊩[] :
-    Γ ⊩⟨ ℓ′ ⟩ l ∷ Level →
+    Γ ⊩Level l ∷Level →
     Γ ⊩⟨ ℓ ⟩ t ∷ A →
     Γ ⊩⟨ ℓ ⟩ [ t ] ∷ Erased l A
   ⊩[] ⊩l = ⊩∷⇔⊩≡∷ .proj₂ ∘→ ⊩[]≡[] ⊩l ∘→ ⊩∷⇔⊩≡∷ .proj₁
@@ -196,7 +197,7 @@ opaque
   -- Validity of equality preservation for [_].
 
   []-congᵛ :
-    Γ ⊩ᵛ⟨ ℓ′ ⟩ l ∷ Level →
+    Γ ⊩ᵛ⟨ ℓ′ ⟩ l ∷Level →
     Γ ⊩ᵛ⟨ ℓ ⟩ t ≡ u ∷ A →
     Γ ⊩ᵛ⟨ ℓ ⟩ [ t ] ≡ [ u ] ∷ Erased l A
   []-congᵛ ⊩l t≡u =
@@ -207,7 +208,7 @@ opaque
       , λ σ₁≡σ₂ →
           PE.subst₃ (_⊩⟨_⟩_≡_∷_ _ _)
             (PE.sym []-[]) (PE.sym []-[]) (PE.sym Erased-[]) $
-          ⊩[]≡[] (R.⊩∷→ (⊩ᵛ∷→⊩ˢ∷→⊩[]∷ ⊩l (wf-⊩ˢ≡∷ σ₁≡σ₂ .proj₁))) $
+          ⊩[]≡[] (⊩ᵛ∷L→⊩ˢ∷→⊩[]∷L ⊩l (wf-⊩ˢ≡∷ σ₁≡σ₂ .proj₁)) $
           R.⊩≡∷→ (⊩ᵛ≡∷→⊩ˢ≡∷→⊩[]≡[]∷ t≡u σ₁≡σ₂)
       )
 
@@ -216,7 +217,7 @@ opaque
   -- Validity of [_].
 
   []ᵛ :
-    Γ ⊩ᵛ⟨ ℓ′ ⟩ l ∷ Level →
+    Γ ⊩ᵛ⟨ ℓ′ ⟩ l ∷Level →
     Γ ⊩ᵛ⟨ ℓ ⟩ t ∷ A →
     Γ ⊩ᵛ⟨ ℓ ⟩ [ t ] ∷ Erased l A
   []ᵛ ⊩l = ⊩ᵛ∷⇔⊩ᵛ≡∷ .proj₂ ∘→ []-congᵛ ⊩l ∘→ ⊩ᵛ∷⇔⊩ᵛ≡∷ .proj₁

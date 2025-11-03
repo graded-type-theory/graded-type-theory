@@ -46,13 +46,13 @@ opaque
   -- Validity for Lift.
 
   Liftʳ :
-    Γ ⊢ u ∷ Level →
+    Γ ⊢ u ∷Level →
     γ ▸ Γ ⊩ʳ Lift t A ∷[ m ] U u
   Liftʳ ⊢u =
     ▸⊩ʳ∷⇔ .proj₂ λ ⊩σ _ →
     ®∷→®∷◂ $
     ®∷U⇔ .proj₂
-      ( subst-⊢∷ ⊢u (escape-⊩ˢ∷ ⊩σ .proj₂)
+      ( subst-⊢∷L ⊢u (escape-⊩ˢ∷ ⊩σ .proj₂)
       , U/Levelᵣ (λ { PE.refl → T.refl })
       )
 
@@ -61,7 +61,7 @@ opaque
   -- Validity for lift.
 
   liftʳ :
-    Γ ⊢ t ∷ Level →
+    Γ ⊢ t ∷Level →
     Γ ⊢ u ∷ A →
     γ ▸ Γ ⊩ʳ u ∷[ m ] A →
     γ ▸ Γ ⊩ʳ lift u ∷[ m ] Lift t A
@@ -70,7 +70,7 @@ opaque
   liftʳ {Γ} {t} {u} {A} {γ} {m = 𝟙ᵐ} ⊢t ⊢u ⊩ʳu =
     ▸⊩ʳ∷⇔ .proj₂ λ {σ = σ} {σ′ = σ′} ⊩σ σ®σ′ →
     let _ , ⊢σ = escape-⊩ˢ∷ ⊩σ
-        ⊢t[σ]  = subst-⊢∷ ⊢t ⊢σ
+        ⊢t[σ]  = subst-⊢∷L ⊢t ⊢σ
     in
     ®∷→®∷◂ $
     ®∷Lift⇔ .proj₂

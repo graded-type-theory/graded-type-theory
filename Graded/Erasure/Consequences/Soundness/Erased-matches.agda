@@ -42,6 +42,7 @@ module Graded.Erasure.Consequences.Soundness.Erased-matches
   where
 
 import Definition.Typed.QuantityTranslation as QT
+open import Definition.Untyped.Properties M
 open import Definition.Untyped.QuantityTranslation.Identity M
 
 open import Graded.Context 𝕄
@@ -106,9 +107,9 @@ opaque
     subst₃ T-η._⊢_∷_ tr-Con-id tr-Term-id tr-Term-id $
     QT.tr-⊢∷ TR TR-η idᶠ idᶠ m (Is-morphism→Is-Σ-morphism m)
       (record
-         { Level-is-small-preserved = idᶠ
-         ; Unit-preserved = idᶠ
-         ; ΠΣ-preserved   =
+         { level-support-preserved = refl-≤LS
+         ; Unit-preserved          = idᶠ
+         ; ΠΣ-preserved            =
              λ {b = b} →
                subst (flip (ΠΣ-allowed _) _) $
                PE.sym $ tr-BinderMode-id b

@@ -143,8 +143,7 @@ opaque
     Γ ⊢ u ∷ A →
     Γ ⊢ cast t A B u ∷ B
   ⊢cast ⊢t ⊢A ⊢B =
-    ⊢subst (univ $ var₀ $ ⊢U (zeroᵘⱼ (wfTerm ⊢t)))
-      (emptyrecⱼ (Idⱼ′ ⊢A ⊢B) ⊢t)
+    ⊢subst (univ $ var₀ $ ⊢U₀ (wfTerm ⊢t)) (emptyrecⱼ (Idⱼ′ ⊢A ⊢B) ⊢t)
 
 opaque
   unfolding cast
@@ -232,7 +231,7 @@ opaque
   ⊢λx∙xx ω-ok ω+ω-ok ⊢Γ =
     lamⱼ′ ω+ω-ok $
     ⊢cast (var₁ Empty⊢ℕ) Empty∙ℕ⊢ℕ∷U
-      (ΠΣⱼ (zeroᵘⱼ (∙ Empty⊢ℕ)) Empty∙ℕ⊢ℕ∷U Empty∙ℕ∙ℕ⊢ℕ∷U ω-ok)
+      (ΠΣⱼ (⊢zeroᵘ (∙ Empty⊢ℕ)) Empty∙ℕ⊢ℕ∷U Empty∙ℕ∙ℕ⊢ℕ∷U ω-ok)
       (var₀ Empty⊢ℕ) ∘ⱼ
     var₀ Empty⊢ℕ
     where
@@ -320,7 +319,7 @@ opaque
     lamⱼ′ 𝟘-ok $
     ⊢λx∙xx ω-ok ω+ω-ok ⊢Γ ∘ⱼ
     ⊢cast (var₀ (⊢Empty ⊢Γ))
-      (ΠΣⱼ (zeroᵘⱼ (∙ ⊢Empty ⊢Γ)) Empty⊢ℕ∷U Empty∙ℕ⊢ℕ∷U ω+ω-ok)
+      (ΠΣⱼ (⊢zeroᵘ (∙ ⊢Empty ⊢Γ)) Empty⊢ℕ∷U Empty∙ℕ⊢ℕ∷U ω+ω-ok)
       Empty⊢ℕ∷U (⊢λx∙xx ω-ok ω+ω-ok ⊢Γ)
     where
     open Lemmas ⊢Γ

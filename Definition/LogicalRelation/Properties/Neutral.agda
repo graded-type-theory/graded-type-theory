@@ -88,7 +88,7 @@ opaque
       let A≡Level  = subset* D
           n~n′ = ~-conv ~n A≡Level
       in
-      Levelₜ₌ _ _ (id (conv ⊢n A≡Level)) (id (conv ⊢n A≡Level))
+      term (id (conv ⊢n A≡Level)) (id (conv ⊢n A≡Level))
         (neLvl (ne (neNfₜ₌ inc n-ne n-ne n~n′)))
     neuTerm′ (Liftᵣ′ D [k] [F]) =
       let A≡Lift = subset* D
@@ -200,7 +200,7 @@ opaque
       let A≡Level = subset* D
           n~n′₁ = ~-conv n~n′ A≡Level
       in
-      Levelₜ₌ _ _ (id (conv ⊢n A≡Level)) (id (conv ⊢n′ A≡Level))
+      term (id (conv ⊢n A≡Level)) (id (conv ⊢n′ A≡Level))
         (neLvl (ne (neNfₜ₌ inc n-ne n′-ne n~n′₁)))
     neuEqTerm′ (Liftᵣ′ D [k] [F]) =
       let A≡Lift = subset* D

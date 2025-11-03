@@ -106,11 +106,11 @@ opaque
     Lift (sucᵘ zeroᵘ) Empty ,
     univ
       (equality-reflection′ ok₁ $
-       var₀ (Idⱼ′
-        (Uⱼ (zeroᵘⱼ ε))
-        (conv
-          (Liftⱼ′ (sucᵘⱼ (zeroᵘⱼ ε)) (Emptyⱼ ε))
-          (U-cong (supᵘ-zeroˡ (sucᵘⱼ (zeroᵘⱼ ε))))))) ,
+       var₀ $
+       Idⱼ′
+         (Uⱼ ε (⊢zeroᵘ ε))
+         (_⊢_∷_.conv (Liftⱼ′ (⊢sucᵘ (⊢zeroᵘ ε)) (Emptyⱼ ε)) $
+          U-cong-⊢≡ ε (supᵘₗ-zeroˡ (⊢sucᵘ (⊢zeroᵘ ε))))) ,
     Liftₙ ,
     (λ ())
 
@@ -140,13 +140,16 @@ opaque
     ∃₄ λ (Γ : Con Term 1) (l : Term 1) (B : Term 1) (A : Term 1) →
       Γ ⊢ Lift l B ≡ A × Whnf A × ¬ ∃₂ λ l B → A PE.≡ Lift l B
   whnf≢Lift ok₁ ok₂ =
-    ε ∙ Id (U (zeroᵘ supᵘ zeroᵘ)) (Lift zeroᵘ ℕ) Unitʷ ,
+    ε ∙ Id (U (zeroᵘ supᵘₗ zeroᵘ)) (Lift zeroᵘ ℕ) Unitʷ ,
     zeroᵘ ,
     ℕ ,
     Unitʷ ,
     univ
       (equality-reflection′ ok₁ $
-       var₀ (Idⱼ′ (Liftⱼ′ (zeroᵘⱼ ε) (ℕⱼ ε)) (conv (Unitⱼ ε ok₂) (U-cong (sym′ (supᵘ-zeroˡ (zeroᵘⱼ ε))))))) ,
+       var₀ $
+       Idⱼ′ (Liftⱼ′ (⊢zeroᵘ ε) (ℕⱼ ε)) $
+       _⊢_∷_.conv (Unitⱼ ε ok₂) $
+       U-cong-⊢≡ ε (sym-⊢≡∷L (supᵘₗ-zeroˡ (⊢zeroᵘ ε)))) ,
     Unitₙ ,
     (λ ())
 
@@ -248,7 +251,6 @@ opaque
       Γ ⊢ Unit s ≡ A × Whnf A ×
       ¬ ∃ λ s → A PE.≡ Unit s
   whnf≢Unit {s} ok₁ ok₂ =
-    let ⊢zeroᵘ = zeroᵘⱼ ε in
     ε ∙ Id (U zeroᵘ) (Unit s) (Id (Unit s) (star s) (star s)) ,
     zeroᵘ ,
     Id (Unit s) (star s) (star s) ,
@@ -289,7 +291,7 @@ opaque
     Empty ,
     univ
       (equality-reflection′ ok $
-       var₀ (Idⱼ′ (var₀ (⊢U (zeroᵘⱼ ε))) (Emptyⱼ (∙ ⊢U (zeroᵘⱼ ε))))) ,
+       var₀ (Idⱼ′ (var₀ (⊢U₀ ε)) (Emptyⱼ (∙ ⊢U₀ ε)))) ,
     var _ ,
     Emptyₙ ,
     (λ ())
@@ -324,12 +326,11 @@ opaque
       Γ ⊢ ΠΣ⟨ b ⟩ p , q ▷ A ▹ B ≡ C × Whnf C ×
       ¬ ∃₅ λ b p q A B → C PE.≡ ΠΣ⟨ b ⟩ p , q ▷ A ▹ B
   whnf≢ΠΣ {b} {p} {q} ok₁ ok₂ =
-    let ⊢zeroᵘ = zeroᵘⱼ ε in
     ε ∙ Id (U zeroᵘ) (ΠΣ⟨ b ⟩ p , q ▷ ℕ ▹ ℕ) ℕ ,
     ℕ , ℕ , ℕ ,
     univ
       (equality-reflection′ ok₁ $
-       var₀ (Idⱼ′ (ΠΣⱼ ⊢zeroᵘ (ℕⱼ ε) (ℕⱼ (∙ ⊢ℕ ε)) ok₂) (ℕⱼ ε))) ,
+       var₀ (Idⱼ′ (ΠΣⱼ (⊢zeroᵘ ε) (ℕⱼ ε) (ℕⱼ (∙ ⊢ℕ ε)) ok₂) (ℕⱼ ε))) ,
     ℕₙ ,
     (λ ())
 

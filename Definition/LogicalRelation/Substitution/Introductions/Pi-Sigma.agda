@@ -518,7 +518,7 @@ opaque
 
   ⊩ΠΣ∷U :
     Γ ⊢ ΠΣ⟨ b ⟩ p , q ▷ A ▹ B ∷ U t →
-    Γ ⊩ᵛ⟨ l₁ ⟩ t ∷ Level →
+    Γ ⊩ᵛ⟨ l₁ ⟩ t ∷Level →
     Γ ⊩ᵛ⟨ l₂ ⟩ A ∷ U t →
     Γ ∙ A ⊩ᵛ⟨ l₃ ⟩ B ∷ U (wk1 t) →
     ⦃ inc : Neutrals-included or-empty Δ ⦄ →
@@ -527,7 +527,7 @@ opaque
   ⊩ΠΣ∷U {A} {B} {t} ⊢ΠΣ∷U ⊩t ⊩A∷U ⊩B∷U ⊩σ =
     case R.⊩∷→ $ ⊩ᵛ∷→⊩ˢ∷→⊩[]∷ ⊩A∷U ⊩σ of λ
       ⊩A[σ] →
-    case ⊩∷Level⇔ .proj₁ $ R.⊩∷→ $ ⊩ᵛ∷→⊩ˢ∷→⊩[]∷ ⊩t ⊩σ of λ
+    case ⊩ᵛ∷L→⊩ˢ∷→⊩[]∷L ⊩t ⊩σ of λ
       ⊩t[σ] →
     case inversion-ΠΣ-U ⊢ΠΣ∷U of λ
       (_ , _ , _ , _ , _ , ok) →
@@ -576,7 +576,7 @@ opaque
   ⊩ΠΣ≡ΠΣ∷U :
     Γ ⊢ ΠΣ⟨ b ⟩ p , q ▷ A₁ ▹ B₁ ≡ ΠΣ⟨ b ⟩ p , q ▷ A₂ ▹ B₂ ∷
       U t →
-    Γ ⊩ᵛ⟨ l₁ ⟩ t ∷ Level →
+    Γ ⊩ᵛ⟨ l₁ ⟩ t ∷Level →
     Γ ⊩ᵛ⟨ l₂ ⟩ A₁ ≡ A₂ ∷ U t →
     Γ ∙ A₁ ⊩ᵛ⟨ l₃ ⟩ B₁ ≡ B₂ ∷ U (wk1 t) →
     ⦃ inc : Neutrals-included or-empty Δ ⦄ →
@@ -588,9 +588,9 @@ opaque
       (_ , ⊢ΠΣ₁ , ⊢ΠΣ₂) →
     case wf-⊩ˢ≡∷ σ₁≡σ₂ of λ
       (⊩σ₁ , ⊩σ₂) →
-    case ⊩≡∷Level⇔ .proj₁ $ R.⊩≡∷→ $ ⊩ᵛ∷⇔ .proj₁ ⊩t .proj₂ σ₁≡σ₂ of λ
+    case ⊩ᵛ≡∷L→⊩ˢ≡∷→⊩[]≡[]∷L (⊩ᵛ∷L⇔⊩ᵛ≡∷L .proj₁ ⊩t) σ₁≡σ₂ of λ
       t[σ₁]≡t[σ₂] →
-    case ⊩∷Level⇔ .proj₁ $ R.⊩∷→ $ ⊩ᵛ∷→⊩ˢ∷→⊩[]∷ ⊩t ⊩σ₁ of λ
+    case ⊩ᵛ∷L→⊩ˢ∷→⊩[]∷L ⊩t ⊩σ₁ of λ
       ⊩t[σ₁] →
     case ⊩ᵛ≡∷U→⊩ᵛ≡ A₁≡A₂∷U of λ
       A₁≡A₂ →
@@ -657,14 +657,14 @@ opaque
   ΠΣ-congᵗᵛ :
     Γ ⊢ ΠΣ⟨ b ⟩ p , q ▷ A₁ ▹ B₁ ≡ ΠΣ⟨ b ⟩ p , q ▷ A₂ ▹ B₂ ∷
       U t →
-    Γ ⊩ᵛ⟨ l₁ ⟩ t ∷ Level →
+    Γ ⊩ᵛ⟨ l₁ ⟩ t ∷Level →
     Γ ⊩ᵛ⟨ l₂ ⟩ A₁ ≡ A₂ ∷ U t →
     Γ ∙ A₁ ⊩ᵛ⟨ l₃ ⟩ B₁ ≡ B₂ ∷ U (wk1 t) →
     Γ ⊩ᵛ⟨ ωᵘ ⟩ ΠΣ⟨ b ⟩ p , q ▷ A₁ ▹ B₁ ≡
       ΠΣ⟨ b ⟩ p , q ▷ A₂ ▹ B₂ ∷ U t
   ΠΣ-congᵗᵛ ΠΣ≡ΠΣ ⊩t A₁≡A₂ B₁≡B₂ =
     ⊩ᵛ≡∷⇔ʰ .proj₂
-      ( ⊩ᵛU ⊩t
+      ( ⊩ᵛU (wf-⊩ᵛ (wf-⊩ᵛ∷ (wf-⊩ᵛ≡∷ A₁≡A₂ .proj₁))) ⊩t
       , ⊩ΠΣ≡ΠΣ∷U ΠΣ≡ΠΣ ⊩t A₁≡A₂ B₁≡B₂
       )
 
@@ -674,12 +674,12 @@ opaque
 
   ΠΣᵗᵛ :
     Γ ⊢ ΠΣ⟨ b ⟩ p , q ▷ A ▹ B ∷ U t →
-    Γ ⊩ᵛ⟨ l₁ ⟩ t ∷ Level →
+    Γ ⊩ᵛ⟨ l₁ ⟩ t ∷Level →
     Γ ⊩ᵛ⟨ l₂ ⟩ A ∷ U t →
     Γ ∙ A ⊩ᵛ⟨ l₃ ⟩ B ∷ U (wk1 t) →
     Γ ⊩ᵛ⟨ ωᵘ ⟩ ΠΣ⟨ b ⟩ p , q ▷ A ▹ B ∷ U t
   ΠΣᵗᵛ ⊢ΠΣ ⊩t ⊩A ⊩B =
     ⊩ᵛ∷⇔ʰ .proj₂
-      ( ⊩ᵛU ⊩t
+      ( ⊩ᵛU (wf-⊩ᵛ (wf-⊩ᵛ∷ ⊩A)) ⊩t
       , ⊩ΠΣ≡ΠΣ∷U (refl ⊢ΠΣ) ⊩t (refl-⊩ᵛ≡∷ ⊩A) (refl-⊩ᵛ≡∷ ⊩B)
       )

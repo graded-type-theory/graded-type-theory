@@ -13,6 +13,8 @@ module Graded.Erasure.LogicalRelation.Fundamental.Level
   (as : Assumptions R)
   where
 
+open Type-restrictions R
+
 open import Definition.LogicalRelation.Substitution R
 open import Definition.Typed R
 open import Definition.Typed.Substitution R
@@ -39,13 +41,13 @@ opaque
   -- Validity for Level.
 
   Levelʳ :
-    Γ ⊢ t ∷ Level →
+    Γ ⊢ t ∷Level →
     γ ▸ Γ ⊩ʳ Level ∷[ m ] U t
   Levelʳ ⊢t =
     ▸⊩ʳ∷⇔ .proj₂ λ ⊩σ _ →
     ®∷→®∷◂ $
     ®∷U⇔ .proj₂
-      ( subst-⊢∷ ⊢t (escape-⊩ˢ∷ ⊩σ .proj₂)
+      ( subst-⊢∷L ⊢t (escape-⊩ˢ∷ ⊩σ .proj₂)
       , U/Levelᵣ (λ { PE.refl → T.refl })
       )
 
@@ -54,30 +56,33 @@ opaque
   -- Validity for zeroᵘ.
 
   zeroᵘʳ :
+    Level-allowed →
     γ ▸ Γ ⊩ʳ zeroᵘ ∷[ m ] Level
-  zeroᵘʳ =
+  zeroᵘʳ ok =
     ▸⊩ʳ∷⇔ .proj₂ λ ⊩σ _ →
     ®∷→®∷◂ $
-    ®∷Level⇔ .proj₂ (U/Levelᵣ (λ { PE.refl → T.refl }))
+    ®∷Level⇔ .proj₂ (ok , U/Levelᵣ (λ { PE.refl → T.refl }))
 
 opaque
 
   -- Validity for sucᵘ.
 
   sucᵘʳ :
+    Level-allowed →
     γ ▸ Γ ⊩ʳ sucᵘ t ∷[ m ] Level
-  sucᵘʳ =
+  sucᵘʳ ok =
     ▸⊩ʳ∷⇔ .proj₂ λ ⊩σ _ →
     ®∷→®∷◂ $
-    ®∷Level⇔ .proj₂ (U/Levelᵣ (λ { PE.refl → T.refl }))
+    ®∷Level⇔ .proj₂ (ok , U/Levelᵣ (λ { PE.refl → T.refl }))
 
 opaque
 
   -- Validity for _supᵘ_.
 
   supᵘʳ :
+    Level-allowed →
     γ ▸ Γ ⊩ʳ t supᵘ u ∷[ m ] Level
-  supᵘʳ =
+  supᵘʳ ok =
     ▸⊩ʳ∷⇔ .proj₂ λ ⊩σ _ →
     ®∷→®∷◂ $
-    ®∷Level⇔ .proj₂ (U/Levelᵣ (λ { PE.refl → T.refl }))
+    ®∷Level⇔ .proj₂ (ok , U/Levelᵣ (λ { PE.refl → T.refl }))

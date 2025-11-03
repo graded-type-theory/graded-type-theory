@@ -36,7 +36,8 @@ opaque
 
   -- Terms can only "belong" to a single universe.
 
-  universe-level-unique : Γ ⊢ A ∷ U l₁ → Γ ⊢ A ∷ U l₂ → Γ ⊢ l₁ ≡ l₂ ∷ Level
+  universe-level-unique :
+    Γ ⊢ A ∷ U l₁ → Γ ⊢ A ∷ U l₂ → Γ ⊢ l₁ ≡ l₂ ∷Level
   universe-level-unique ⊢A₁ ⊢A₂ =
     soundnessConv↑-U ⊢A₁ ⊢A₂ (completeEq (refl (univ ⊢A₁))) .proj₂
 
@@ -51,10 +52,12 @@ opaque
     Γ ⊢ A ≡ B ∷ U l
   inverseUnivEq′ (inj₁ ⊢A) (univ A≡B) =
     conv A≡B
-      (U-cong (universe-level-unique (syntacticEqTerm A≡B .proj₂ .proj₁) ⊢A))
+      (U-cong-⊢≡ (wfTerm ⊢A) $
+       universe-level-unique (syntacticEqTerm A≡B .proj₂ .proj₁) ⊢A)
   inverseUnivEq′ (inj₂ ⊢B) (univ A≡B) =
     conv A≡B
-      (U-cong (universe-level-unique (syntacticEqTerm A≡B .proj₂ .proj₂) ⊢B))
+      (U-cong-⊢≡ (wfTerm ⊢B) $
+       universe-level-unique (syntacticEqTerm A≡B .proj₂ .proj₂) ⊢B)
   inverseUnivEq′ (inj₁ ⊢A) (refl _) =
     refl ⊢A
   inverseUnivEq′ (inj₂ ⊢A) (refl _) =
@@ -86,10 +89,10 @@ opaque
         (sym U≡U)
   inverseUnivEq′ (inj₂ ⊢B) (Lift-cong l₁≡l₂ A≡B) =
     let _ , ⊢l₂ , ⊢A , U≡U = inversion-Lift∷ ⊢B
-        ⊢k = inversion-U-Level (syntacticTerm ⊢A)
+        ⊢Γ , ⊢k = inversion-U-Level (syntacticTerm ⊢A)
     in conv
         (Lift-cong′ l₁≡l₂ (inverseUnivEq′ (inj₂ ⊢A) A≡B))
-        (trans (U-cong (supᵘ-cong (refl ⊢k) l₁≡l₂)) (sym U≡U))
+        (trans (U-cong-⊢≡ ⊢Γ (supᵘₗ-cong (refl-⊢≡∷L ⊢k) l₁≡l₂)) (sym U≡U))
   inverseUnivEq′ (inj₁ ⊢ΠΣ) (ΠΣ-cong A₁≡A₂ B₁≡B₂ ok) =
     case inversion-ΠΣ-U ⊢ΠΣ of λ
       (_ , _ , ⊢A₁∷U , ⊢B₁∷U , U≡U , _) →
@@ -133,7 +136,8 @@ opaque
   inverseUnivRed* ⊢A (id _)            = id ⊢A
   inverseUnivRed* ⊢A (univ A⇒C ⇨ C⇒*B) =
     let l≡l′ = universe-level-unique (redFirstTerm A⇒C) ⊢A
-    in conv A⇒C (U-cong l≡l′) ⇨
-      inverseUnivRed*
-        (conv (syntacticRedTerm (redMany A⇒C) .proj₂ .proj₂) (U-cong l≡l′))
-        C⇒*B
+        U≡U  = U-cong-⊢≡ (wfTerm ⊢A) l≡l′
+    in
+    conv A⇒C U≡U ⇨
+    inverseUnivRed*
+      (conv (syntacticRedTerm (redMany A⇒C) .proj₂ .proj₂) U≡U) C⇒*B

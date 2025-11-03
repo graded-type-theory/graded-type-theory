@@ -22,6 +22,7 @@ open import Definition.Untyped.Properties M
 open import Definition.Typed R
 open import Definition.Typed.Inversion.Primitive R
 open import Definition.Typed.Properties.Admissible.Equality R
+open import Definition.Typed.Properties.Admissible.Level R
 open import Definition.Typed.Properties.Admissible.Lift R
 open import Definition.Typed.Properties.Admissible.Pi-Sigma R
 open import Definition.Typed.Properties.Reduction R
@@ -255,23 +256,23 @@ opaque
   -- A typing rule for lamʰ.
 
   lamʰⱼ′
-    : Γ ⊢ l₁ ∷ Level
-    → Γ ⊢ l₂ ∷ Level
+    : Γ ⊢ l₁ ∷Level
+    → Γ ⊢ l₂ ∷Level
     → Γ ∙ A ⊢ B
     → Γ ∙ A ⊢ t ∷ B
     → Π-allowed p q
     → Γ     ⊢ lamʰ p t ∷ Πʰ p q l₁ l₂ A B
   lamʰⱼ′ ⊢l₁ ⊢l₂ ⊢B ⊢t ok =
     let ⊢A = ⊢∙→⊢ (wf ⊢B)
-    in lamⱼ′ ok (liftⱼ′ (wkTerm₁ (Liftⱼ ⊢l₂ ⊢A) ⊢l₁) (lower₀Term ⊢l₂ ⊢t))
+    in lamⱼ′ ok (liftⱼ′ (wkLevel₁ (Liftⱼ ⊢l₂ ⊢A) ⊢l₁) (lower₀Term ⊢l₂ ⊢t))
 
 opaque
 
   -- A variant of lamʰⱼ′.
 
   lamʰⱼ :
-    Γ ⊢ l₁ ∷ Level →
-    Γ ⊢ l₂ ∷ Level →
+    Γ ⊢ l₁ ∷Level →
+    Γ ⊢ l₂ ∷Level →
     Γ ∙ A ⊢ B ∷ U (wk1 l₂) →
     Γ ∙ A ⊢ t ∷ B →
     Π-allowed p q →
@@ -345,28 +346,24 @@ opaque
     → Π-allowed p q
     → Γ     ⊢ ∘ʰ p′ (lamʰ p t) a ≡ t [ a ]₀ ∷ B [ a ]₀
   β-redʰ′ {A} {t} {B} {a} {p} ⊢t ⊢a PE.refl ok =
-    let ⊢0 = zeroᵘⱼ (wfTerm ⊢a)
+    let ⊢0 = ⊢zeroᵘ (wfTerm ⊢a)
         ⊢A = wf-⊢∷ ⊢a
         ⊢B = wf-⊢∷ ⊢t
         ⊢LiftA = Liftⱼ ⊢0 ⊢A
-        ⊢wkl₁ = wkTerm₁ ⊢LiftA ⊢0
+        ⊢wkl₁ = wkLevel₁ ⊢LiftA ⊢0
         ⊢lower₀B = lower₀Type ⊢0 ⊢B
         ⊢LiftB = Liftⱼ ⊢wkl₁ ⊢lower₀B
         ⊢lifta = liftⱼ′ ⊢0 ⊢a
         ⊢lower₀t = lower₀Term ⊢0 ⊢t
         ⊢liftlower₀t = liftⱼ′ ⊢wkl₁ ⊢lower₀t
     in
-    ∘ʰ p (lamʰ p t) a ≡⟨⟩⊢
-    lower (lam p (lift (lower₀ t)) ∘⟨ p ⟩ lift a)
-      ≡⟨ lower-cong (conv
-          (β-red ⊢LiftB ⊢liftlower₀t ⊢lifta PE.refl ok)
-          (Lift-cong (refl (substTerm ⊢wkl₁ ⊢lifta)) (lower₀[lift]₀ ⊢B ⊢a))) ⟩⊢
-    lower (lift (lower₀ t) [ lift a ]₀)
-      ≡⟨ lower-cong (lift-cong ⊢0 (lower₀[lift]₀∷ ⊢t ⊢a)) ⟩⊢
-    lower (lift (t [ a ]₀))
-      ⇒⟨ Lift-β⇒ (substTerm ⊢t ⊢a) ⟩⊢∎
-    t [ a ]₀
-      ∎
+    ∘ʰ p (lamʰ p t) a                              ≡⟨⟩⊢
+    lower (lam p (lift (lower₀ t)) ∘⟨ p ⟩ lift a)  ≡⟨ lower-cong $
+                                                      _⊢_≡_∷_.conv (β-red ⊢LiftB ⊢liftlower₀t ⊢lifta PE.refl ok) $
+                                                      Lift-cong (refl-⊢≡∷L (substLevel ⊢wkl₁ ⊢lifta)) (lower₀[lift]₀ ⊢B ⊢a) ⟩⊢
+    lower (lift (lower₀ t) [ lift a ]₀)            ≡⟨ lower-cong (lift-cong ⊢0 (lower₀[lift]₀∷ ⊢t ⊢a)) ⟩⊢
+    lower (lift (t [ a ]₀))                        ⇒⟨ Lift-β⇒ (substTerm ⊢t ⊢a) ⟩⊢∎
+    t [ a ]₀                                       ∎
 
 opaque
 

@@ -19,6 +19,7 @@ open import Definition.Typed R
 open import Definition.Typed.Inversion R
 open import Definition.Typed.Properties.Admissible.Equality R
 open import Definition.Typed.Properties.Admissible.Identity R
+open import Definition.Typed.Properties.Admissible.Level R
 open import Definition.Typed.Properties.Admissible.Lift R
 open import Definition.Typed.Properties.Admissible.Pi-Sigma R
 import Definition.Typed.Properties.Admissible.Sigma.Primitive R as SP
@@ -1295,8 +1296,8 @@ opaque
   -- A variant of prodʰⱼ′.
 
   prodʰⱼ :
-    Γ ⊢ l₁ ∷ Level →
-    Γ ⊢ l₂ ∷ Level →
+    Γ ⊢ l₁ ∷Level →
+    Γ ⊢ l₂ ∷Level →
     Γ ∙ A ⊢ B ∷ U (wk1 l₂) →
     Γ ⊢ t ∷ A →
     Γ ⊢ u ∷ B [ t ]₀ →
@@ -1309,8 +1310,8 @@ opaque
   -- An equality rule for prodʰ.
 
   prodʰ-cong′ :
-    Γ ⊢ l₁ ∷ Level →
-    Γ ⊢ l₂ ∷ Level →
+    Γ ⊢ l₁ ∷Level →
+    Γ ⊢ l₂ ∷Level →
     Γ ∙ A ⊢ B →
     Γ ⊢ t₁ ≡ t₂ ∷ A →
     Γ ⊢ u₁ ≡ u₂ ∷ B [ t₁ ]₀ →
@@ -1327,8 +1328,8 @@ opaque
   -- A variant of prodʰ.
 
   prodʰ-cong :
-    Γ ⊢ l₁ ∷ Level →
-    Γ ⊢ l₂ ∷ Level →
+    Γ ⊢ l₁ ∷Level →
+    Γ ⊢ l₂ ∷Level →
     Γ ∙ A ⊢ B ∷ U (wk1 l₂) →
     Γ ⊢ t₁ ≡ t₂ ∷ A →
     Γ ⊢ u₁ ≡ u₂ ∷ B [ t₁ ]₀ →
@@ -1392,10 +1393,10 @@ opaque
     Γ ⊢ fstʰ p (prodʰˢ p t u) ≡ t ∷ A
   Σʰ-β₁′ {t} {u} {p} ⊢B ⊢t ⊢u ok =
     let ⊢A = ⊢∙→⊢ (wf ⊢B)
-        ⊢0 = zeroᵘⱼ (wf ⊢A)
+        ⊢0 = ⊢zeroᵘ (wf ⊢A)
     in
     lower (fst p (prod 𝕤 p (lift t) (lift u)))  ≡⟨ lower-cong $
-                                                   Σ-β₁ (Liftⱼ (wkTerm₁ (Liftⱼ ⊢0 ⊢A) ⊢0) (lower₀Type ⊢0 ⊢B))
+                                                   Σ-β₁ (Liftⱼ (wkLevel₁ (Liftⱼ ⊢0 ⊢A) ⊢0) (lower₀Type ⊢0 ⊢B))
                                                      (liftⱼ′ ⊢0 ⊢t)
                                                      (liftⱼ′ ⊢0 (conv ⊢u (sym (lower₀[lift]₀ ⊢B ⊢t))))
                                                      PE.refl ok ⟩⊢
@@ -1428,10 +1429,10 @@ opaque
     Σˢ-allowed p q →
     Γ ⊢ sndʰ p (prodʰˢ p t u) ≡ u ∷ B [ fstʰ p (prodʰˢ p t u) ]₀
   Σʰ-β₂′ {B} {t} {u} {p} ⊢B ⊢t ⊢u ok =
-    let ⊢0 = zeroᵘⱼ (wfTerm ⊢t) in
+    let ⊢0 = ⊢zeroᵘ (wfTerm ⊢t) in
     lower (snd p (prod 𝕤 p (lift t) (lift u)))  ≡⟨ PE.subst (_⊢_≡_∷_ _ _ _) ([]↑-[]₀ B) $
                                                    lower-cong $
-                                                   Σ-β₂ (Liftⱼ (wkTerm₁ (Liftⱼ ⊢0 (⊢∙→⊢ (wf ⊢B))) ⊢0) (lower₀Type ⊢0 ⊢B))
+                                                   Σ-β₂ (Liftⱼ (wkLevel₁ (Liftⱼ ⊢0 (⊢∙→⊢ (wf ⊢B))) ⊢0) (lower₀Type ⊢0 ⊢B))
                                                      (liftⱼ′ ⊢0 ⊢t)
                                                      (liftⱼ′ ⊢0 (conv ⊢u (sym (lower₀[lift]₀ ⊢B ⊢t))))
                                                      PE.refl ok ⟩⊢
@@ -1458,7 +1459,7 @@ opaque
   -- An η-rule for Σʰˢ.
 
   Σʰ-η′ :
-    Γ ⊢ l₁ ∷ Level →
+    Γ ⊢ l₁ ∷Level →
     Γ ∙ A ⊢ B →
     Γ ⊢ t ∷ Σʰˢ p q l₁ l₂ A B →
     Γ ⊢ u ∷ Σʰˢ p q l₁ l₂ A B →
@@ -1473,7 +1474,7 @@ opaque
       (Lift-η′ (sndⱼ′ ⊢t)
          (conv (sndⱼ′ ⊢u)
             (Lift (wk1 l₁ [ fst p u ]₀) (lower₀ B [ fst p u ]₀)  ≡⟨ PE.cong₂ Lift (wk1-sgSubst _ _) PE.refl ⟩⊢≡
-             Lift l₁ (lower₀ B [ fst p u ]₀)                     ≡˘⟨ Lift-cong (refl ⊢l₁) $
+             Lift l₁ (lower₀ B [ fst p u ]₀)                     ≡˘⟨ Lift-cong (refl-⊢≡∷L ⊢l₁) $
                                                                      substTypeEq (refl (lower₀Type ⊢l₂ ⊢B)) fst-t≡fst-u ⟩⊢∎≡
              Lift l₁ (lower₀ B [ fst p t ]₀)                     ≡˘⟨ PE.cong (flip Lift _) (wk1-sgSubst _ _) ⟩
              Lift (wk1 l₁ [ fst p t ]₀) (lower₀ B [ fst p t ]₀)  ∎))
@@ -1486,7 +1487,7 @@ opaque
   -- A variant of Σʰ-η′.
 
   Σʰ-η :
-    Γ ⊢ l₁ ∷ Level →
+    Γ ⊢ l₁ ∷Level →
     Γ ∙ A ⊢ B ∷ U (wk1 l₂) →
     Γ ⊢ t ∷ Σʰˢ p q l₁ l₂ A B →
     Γ ⊢ u ∷ Σʰˢ p q l₁ l₂ A B →
@@ -1527,11 +1528,11 @@ private
           ⊢l₂ , ⊢A = inversion-Lift (wf-⊢∷ ⊢t)
       in
       prod-cong
-        (Liftⱼ (wkTerm₁ (Liftⱼ ⊢l₂ ⊢A) ⊢l₁) (lower₀Type ⊢l₂ ⊢B))
+        (Liftⱼ (wkLevel₁ (Liftⱼ ⊢l₂ ⊢A) ⊢l₁) (lower₀Type ⊢l₂ ⊢B))
         (⊢lift-lower≡∷ ⊢t)
         (⊢lift-lower≡∷ $
          conv ⊢u
-           (Lift l₁ (B [ lower t ]₀)                      ≡˘⟨ Lift-cong (refl ⊢l₁) (lower₀[lift]₀ ⊢B (lowerⱼ ⊢t)) ⟩⊢∎≡
+           (Lift l₁ (B [ lower t ]₀)                      ≡˘⟨ Lift-cong (refl-⊢≡∷L ⊢l₁) (lower₀[lift]₀ ⊢B (lowerⱼ ⊢t)) ⟩⊢∎≡
             Lift l₁ (lower₀ B [ lift (lower t) ]₀)        ≡˘⟨ PE.cong (flip Lift _) $ wk1-sgSubst _ _ ⟩
             Lift (wk1 l₁) (lower₀ B) [ lift (lower t) ]₀  ∎))
         ok
@@ -1542,8 +1543,8 @@ private
 
     ⊢prodʰ-lower-1-lower-0≡∷ :
       Σ-allowed s p q →
-      Γ ⊢ l₁ ∷ Level →
-      Γ ⊢ l₂ ∷ Level →
+      Γ ⊢ l₁ ∷Level →
+      Γ ⊢ l₂ ∷Level →
       Γ ∙ A ⊢ B →
       Γ ∙ Lift l₂ A ∙ Lift (wk1 l₁) (lower₀ B) ⊢
         prodʰ s p (lower (var x1)) (lower (var x0)) ≡
@@ -1551,7 +1552,7 @@ private
     ⊢prodʰ-lower-1-lower-0≡∷ ok ⊢l₁ ⊢l₂ ⊢B =
       let ⊢A             = ⊢∙→⊢ (wf ⊢B)
           ⊢Lift-A        = Liftⱼ ⊢l₂ ⊢A
-          ⊢Lift-lower₀-B = Liftⱼ (wkTerm₁ ⊢Lift-A ⊢l₁) (lower₀Type ⊢l₂ ⊢B)
+          ⊢Lift-lower₀-B = Liftⱼ (wkLevel₁ ⊢Lift-A ⊢l₁) (lower₀Type ⊢l₂ ⊢B)
       in
       PE.subst (_⊢_≡_∷_ _ _ _)
         (PE.sym $ PE.trans wk[]≡wk[]′ wk-ΠΣʰ) $
@@ -1571,7 +1572,7 @@ private
 
     prodrecʰ⟨⟩-eq₁ :
       Σ-allowed s p q →
-      Γ ⊢ l₁ ∷ Level →
+      Γ ⊢ l₁ ∷Level →
       Γ ∙ A ⊢ B →
       Γ ∙ Σʰ⟨ s ⟩ p q l₁ l₂ A B ⊢ C →
       Γ ∙ Lift l₂ A ∙ Lift (wk1 l₁) (lower₀ B) ⊢
@@ -1594,7 +1595,7 @@ private
 
     prodrecʰ⟨⟩-eq₂ :
       Σ-allowed s p q →
-      Γ ⊢ l₁ ∷ Level →
+      Γ ⊢ l₁ ∷Level →
       Γ ∙ A ⊢ B →
       Γ ∙ Σʰ⟨ s ⟩ p q l₁ l₂ A B ⊢ C →
       Γ ⊢ t ∷ A →
@@ -1623,15 +1624,15 @@ private
   opaque
 
     ⊢ˢʷ∷-replace₂-lower-1-lower-0 :
-      Γ ⊢ l₁ ∷ Level →
-      Γ ⊢ l₂ ∷ Level →
+      Γ ⊢ l₁ ∷Level →
+      Γ ⊢ l₂ ∷Level →
       Γ ∙ A ⊢ B →
       Γ ∙ Lift l₂ A ∙ Lift (wk1 l₁) (lower₀ B) ⊢ˢʷ
         replace₂ (lower (var x1)) (lower (var x0)) ∷ Γ ∙ A ∙ B
     ⊢ˢʷ∷-replace₂-lower-1-lower-0 ⊢l₁ ⊢l₂ ⊢B =
       let ⊢A             = ⊢∙→⊢ (wf ⊢B)
           ⊢Lift-A        = Liftⱼ ⊢l₂ ⊢A
-          ⊢Lift-lower₀-B = Liftⱼ (wkTerm₁ ⊢Lift-A ⊢l₁) (lower₀Type ⊢l₂ ⊢B)
+          ⊢Lift-lower₀-B = Liftⱼ (wkLevel₁ ⊢Lift-A ⊢l₁) (lower₀Type ⊢l₂ ⊢B)
       in
       ⊢ˢʷ∷-replace₂
         (lowerⱼ $
@@ -1657,9 +1658,9 @@ opaque
     let ⊢B                     = ⊢∙→⊢ (wfEqTerm u₁≡u₂)
         ⊢Σ , ⊢t₁ , _           = wf-⊢≡∷ t₁≡t₂
         ⊢l₁ , ⊢l₂ , _ , _ , ok = inversion-ΠΣʰ-⊢ ⊢Σ
-        ⊢l₁                    = PE.subst (flip (_⊢_∷_ _) _)
+        ⊢l₁                    = PE.subst (_⊢_∷Level _)
                                    (wk1-sgSubst _ _) $
-                                 substTerm ⊢l₁ (lowerⱼ (⊢fst⟨⟩ ⊢t₁))
+                                 substLevel ⊢l₁ (lowerⱼ (⊢fst⟨⟩ ⊢t₁))
     in
     prodrec⟨⟩-cong C₁≡C₂ t₁≡t₂
       (conv
@@ -1694,15 +1695,15 @@ opaque
   prodrecʰ⟨⟩-β {s} {p} {C} {t} {u} {v} {r} {q} ⊢C ⊢t ⊢u ⊢v =
     let ⊢B                     = ⊢∙→⊢ (wfTerm ⊢v)
         ⊢l₁ , ⊢l₂ , _ , _ , ok = inversion-ΠΣʰ-⊢ (⊢∙→⊢ (wf ⊢C))
-        ⊢l₁                    = PE.subst (flip (_⊢_∷_ _) _)
+        ⊢l₁                    = PE.subst (_⊢_∷Level _)
                                    (wk1-sgSubst _ _) $
-                                 substTerm ⊢l₁ ⊢t
+                                 substLevel ⊢l₁ ⊢t
         lower-lift-t≡t         = Lift-β′ ⊢t
         ⊢u′                    = conv ⊢u (sym (lower₀[lift]₀ ⊢B ⊢t))
     in
     prodrec⟨ s ⟩ r p q C (prod s p (lift t) (lift u))
       (v [ replace₂ (lower (var x1)) (lower (var x0)) ])  ≡⟨ prodrec⟨⟩-β (λ _ → ⊢C) (liftⱼ′ ⊢l₂ ⊢t)
-                                                               (liftⱼ′ (PE.subst (flip (_⊢_∷_ _) _) (PE.sym $ wk1-sgSubst _ _) ⊢l₁) ⊢u′)
+                                                               (liftⱼ′ (PE.subst (_⊢_∷Level _) (PE.sym $ wk1-sgSubst _ _) ⊢l₁) ⊢u′)
                                                                (conv (subst-⊢∷ ⊢v $ ⊢ˢʷ∷-replace₂-lower-1-lower-0 ⊢l₁ ⊢l₂ ⊢B)
                                                                   (prodrecʰ⟨⟩-eq₁ ok ⊢l₁ ⊢B ⊢C))
                                                                (λ _ → ok) ⟩⊢

@@ -27,6 +27,7 @@ open import Definition.LogicalRelation.Properties.Primitive R ⦃ eqrel ⦄
 open import Definition.LogicalRelation.Properties.Reflexivity R ⦃ eqrel ⦄
 open import Definition.LogicalRelation.Properties.Whnf R ⦃ eqrel ⦄
 
+open import Tools.Empty
 open import Tools.Function
 open import Tools.Nat
 open import Tools.Product
@@ -90,11 +91,14 @@ Id≅Id {⊩A = ⊩A} A≡B =
   open _⊩ₗId_≡_/_ A≡B
 
 escapeEq (Levelᵣ D) D′ =
-  ≅-red (D , Levelₙ) (D′ , Levelₙ) (≅-Levelrefl (wf (redFirst* D)))
+  let ok = inversion-Level-⊢ (wf-⊢≡ (subset* D) .proj₂) in
+  ≅-red (D , Levelₙ) (D′ , Levelₙ) (≅-Levelrefl ok (wf (redFirst* D)))
 escapeEq (Uᵣ′ _ _ _ D) (U₌ k′ D₁ k≡k′) =
-  ≅-red (D , Uₙ) (D₁ , Uₙ) (≅-U-cong (escapeLevelEq k≡k′))
+  ≅-red (D , Uₙ) (D₁ , Uₙ)
+    (≅-U-cong (wf (redFirst* D)) (escapeLevelEq k≡k′))
 escapeEq (Liftᵣ′ D _ _) (Lift₌ D′ k≡k′ F≡F′) =
-  ≅-red (D , Liftₙ) (D′ , Liftₙ) (≅-Lift-cong (escapeLevelEq k≡k′) (escapeEq _ F≡F′))
+  ≅-red (D , Liftₙ) (D′ , Liftₙ)
+    (≅-Lift-cong (escapeLevelEq k≡k′) (escapeEq _ F≡F′))
 escapeEq (ℕᵣ D) D′ =
   ≅-red (D , ℕₙ) (D′ , ℕₙ) (≅-ℕrefl (wf (redFirst* D)))
 escapeEq (Emptyᵣ D) D′ =
@@ -108,10 +112,13 @@ escapeEq (Bᵣ′ W _ _ D _ _ _ _ _) (B₌ _ _ D′ A≡B _ _) =
 escapeEq (Idᵣ ⊩A) A≡B =
   ≅-red (_⊩ₗId_.⇒*Id ⊩A , Idₙ) (_⊩ₗId_≡_/_.⇒*Id′ A≡B , Idₙ) (Id≅Id A≡B)
 
-escapeTermEq (Levelᵣ D) (Levelₜ₌ k k′ d d′ prop) =
+escapeTermEq (Levelᵣ D) (term d d′ prop) =
   let lk , lk′ = lsplit prop
   in ≅ₜ-red (D , Levelₙ) (d , lk) (d′ , lk′)
       (escape-[Level]-prop (wf (redFirst* D)) prop)
+escapeTermEq (Levelᵣ D) (literal! not-ok _) =
+  let ok = inversion-Level-⊢ (wf-⊢≡ (subset* D) .proj₂) in
+  ⊥-elim (not-ok ok)
 escapeTermEq (Uᵣ′ _ _ _ D) (Uₜ₌ A B d d′ typeA typeB A≡B [A] [B] [A≡B]) =
   ≅ₜ-red (D , Uₙ) (d , typeWhnf typeA) (d′ , typeWhnf typeB)  A≡B
 escapeTermEq (Liftᵣ′ D _ [F]) (Liftₜ₌ _ _ t↘@(t⇒* , wt) u↘@(u⇒* , wu) t≡u) =

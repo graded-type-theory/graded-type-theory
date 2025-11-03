@@ -113,6 +113,7 @@ record _⇨_
   open Are-preserving-type-restrictions
          are-preserving-type-restrictions
     public
+    hiding (Level-allowed⇔)
   open Are-reflecting-type-restrictions
          are-reflecting-type-restrictions
     public

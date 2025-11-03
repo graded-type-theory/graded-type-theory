@@ -42,6 +42,7 @@ private
   variable
     m n : Nat
     Δ Γ : Con Term n
+    l₁ l₂ : Term _
     ρ : Wk m n
     p r : M
     d : Bool
@@ -148,7 +149,7 @@ mutual
       (wk~↓ [ρ] v₁~v₂) (wkEq [ρ] ≡Id) ok }
   wk~↑ [ρ] ([]-cong-cong l₁≡l₂ A₁≡A₂ t₁≡t₂ u₁≡u₂ v₁~v₂ ≡Id ok) =
     PE.subst (_⊢_~_↑_ _ _ _) (wk-Id-Erased _) $
-    []-cong-cong (wkConv↑Term [ρ] l₁≡l₂) (wkConv↑Term [ρ] A₁≡A₂)
+    []-cong-cong (wkConv↑Level [ρ] l₁≡l₂) (wkConv↑Term [ρ] A₁≡A₂)
       (wkConv↑Term [ρ] t₁≡t₂) (wkConv↑Term [ρ] u₁≡u₂) (wk~↓ [ρ] v₁~v₂)
       (wkEq [ρ] ≡Id) ok
 
@@ -176,10 +177,10 @@ mutual
   wkConv↓ : ∀ {A B Γ Δ} ([ρ] : ρ ∷ʷ Δ ⊇ Γ)
          → Γ ⊢ A [conv↓] B
          → Δ ⊢ U.wk ρ A [conv↓] U.wk ρ B
-  wkConv↓ ρ (Level-refl x) = Level-refl (wf-∷ʷ⊇ ρ)
-  wkConv↓ ρ (U-cong x) = U-cong (wkConv↑Term ρ x)
+  wkConv↓ ρ (Level-refl ok _) = Level-refl ok (wf-∷ʷ⊇ ρ)
+  wkConv↓ ρ (U-cong _ l₁≡l₂) = U-cong (wf-∷ʷ⊇ ρ) (wkConv↑Level ρ l₁≡l₂)
   wkConv↓ ρ (Lift-cong l₁≡l₂ F≡H) =
-    Lift-cong (wkConv↑Term ρ l₁≡l₂) (wkConv↑ ρ F≡H)
+    Lift-cong (wkConv↑Level ρ l₁≡l₂) (wkConv↑ ρ F≡H)
   wkConv↓ ρ (ℕ-refl x) = ℕ-refl (wf-∷ʷ⊇ ρ)
   wkConv↓ ρ (Empty-refl x) = Empty-refl (wf-∷ʷ⊇ ρ)
   wkConv↓ ρ (Unit-refl x ok) = Unit-refl (wf-∷ʷ⊇ ρ) ok
@@ -199,6 +200,16 @@ mutual
     [↑]ₜ (U.wk ρ B) (U.wk ρ t′) (U.wk ρ u′)
          (wkRed↘ [ρ] D) (wkRed↘Term [ρ] d) (wkRed↘Term [ρ] d′)
          (wkConv↓Term [ρ] t<>u)
+
+  -- Weakening for _⊢_[conv↑]_∷Level.
+  wkConv↑Level :
+    ρ ∷ʷ Δ ⊇ Γ →
+    Γ ⊢ l₁ [conv↑] l₂ ∷Level →
+    Δ ⊢ U.wk ρ l₁ [conv↑] U.wk ρ l₂ ∷Level
+  wkConv↑Level ρ∷ (term ok l₁≡l₂) =
+    term ok (wkConv↑Term ρ∷ l₁≡l₂)
+  wkConv↑Level _ (literal! not-ok l-lit) =
+    literal! not-ok (wk-Level-literal .proj₁ l-lit)
 
   -- Weakening of algorithmic equality of terms in WHNF.
   wkConv↓Term : ∀ {t u A Γ Δ} ([ρ] : ρ ∷ʷ Δ ⊇ Γ)
@@ -280,16 +291,14 @@ mutual
   wkLevelᵛ [ρ] L.[] = L.[]
   wkLevelᵛ [ρ] (x L.∷ xs) = wkLevel⁺ [ρ] x L.∷ wkLevelᵛ [ρ] xs
 
-  wk-sucᵘᵏ : ∀ {t} k → sucᵘᵏ k (U.wk ρ t) PE.≡ U.wk ρ (sucᵘᵏ k t)
-  wk-sucᵘᵏ (Nat.zero) = PE.refl
-  wk-sucᵘᵏ (1+ k) = PE.cong sucᵘ (wk-sucᵘᵏ k)
-
   wkLevelAtom→Term : ([ρ] : ρ ∷ʷ Δ ⊇ Γ) (t : LevelAtom Γ) → LevelAtom→Term (wkLevelAtom [ρ] t) PE.≡ U.wk ρ (LevelAtom→Term t)
   wkLevelAtom→Term [ρ] zeroᵘ = PE.refl
   wkLevelAtom→Term [ρ] (ne x) = PE.refl
 
   wkLevel⁺→Term : ([ρ] : ρ ∷ʷ Δ ⊇ Γ) (t : Level⁺ Γ) → Level⁺→Term (wkLevel⁺ [ρ] t) PE.≡ U.wk ρ (Level⁺→Term t)
-  wkLevel⁺→Term [ρ] (n , a) = PE.trans (PE.cong (sucᵘᵏ n) (wkLevelAtom→Term [ρ] a)) (wk-sucᵘᵏ n)
+  wkLevel⁺→Term [ρ] (n , a) =
+    PE.trans (PE.cong (sucᵘᵏ n) (wkLevelAtom→Term [ρ] a))
+      (PE.sym (wk-sucᵘᵏ n))
 
   wkLevelᵛ→Term : ∀ {t} → ([ρ] : ρ ∷ʷ Δ ⊇ Γ) → Levelᵛ→Term (wkLevelᵛ [ρ] t) PE.≡ U.wk ρ (Levelᵛ→Term t)
   wkLevelᵛ→Term {t = L.[]} [ρ] = PE.refl
@@ -338,7 +347,7 @@ mutual
   wk-↑ᵛ [ρ] ([↑]ᵛ d t↓v) = [↑]ᵛ (wkRed↘Term [ρ] d) (wk-↓ᵛ [ρ] t↓v)
 
   wk-↓ᵛ : ([ρ] : ρ ∷ʷ Δ ⊇ Γ) → ∀ {t v} → Γ ⊢ t ↓ᵛ v → Δ ⊢ U.wk ρ t ↓ᵛ wkLevelᵛ [ρ] v
-  wk-↓ᵛ [ρ] (zeroᵘₙ x) = zeroᵘₙ (wf-∷ʷ⊇ [ρ])
+  wk-↓ᵛ [ρ] (zeroᵘₙ ok _) = zeroᵘₙ ok (wf-∷ʷ⊇ [ρ])
   wk-↓ᵛ [ρ] (sucᵘₙ {v} {v′} x₁ t≡u) = sucᵘₙ (wk-sucᵛ [ρ] v _ x₁) (wk-↑ᵛ [ρ] t≡u)
   wk-↓ᵛ [ρ] (neₙ x) = neₙ (wk-~ᵛ [ρ] x)
 

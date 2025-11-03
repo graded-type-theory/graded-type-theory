@@ -87,7 +87,7 @@ opaque
     ▸⊩ʳ∷⇔ .proj₂ λ ⊩σ _ →
     ®∷→®∷◂ $
     ®∷U⇔ .proj₂
-      ( zeroᵘⱼ ⊢Δ
+      ( ⊢zeroᵘ ⊢Δ
       , U/Levelᵣ (λ { PE.refl → T.refl })
       )
 

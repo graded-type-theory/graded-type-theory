@@ -30,6 +30,7 @@ import Graded.Erasure.Target as T
 open import Graded.Erasure.Extraction 𝕄
 
 open import Definition.LogicalRelation.Substitution R
+open import Definition.Typed.Properties R
 open import Definition.Typed.Substitution R
 open import Definition.Untyped M
 
@@ -63,7 +64,7 @@ opaque
   Emptyʳ : γ ▸ Γ ⊩ʳ Empty ∷[ m ] U zeroᵘ
   Emptyʳ =
     ▸⊩ʳ∷⇔ .proj₂ λ _ _ →
-    ®∷→®∷◂ (®∷U⇔ .proj₂ (zeroᵘⱼ ⊢Δ , U/Levelᵣ (λ { refl → T.refl })))
+    ®∷→®∷◂ (®∷U⇔ .proj₂ (⊢zeroᵘ ⊢Δ , U/Levelᵣ (λ { refl → T.refl })))
 
 opaque
 

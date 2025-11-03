@@ -17,6 +17,7 @@ open Type-restrictions R
 
 open import Definition.Typed R
 open import Definition.Typed.Inversion R
+open import Definition.Typed.Properties.Admissible.Level R
 open import Definition.Typed.Properties.Admissible.Lift R
 open import Definition.Typed.Properties.Admissible.Sigma R
 open import Definition.Typed.Properties.Admissible.Unit R
@@ -55,8 +56,8 @@ opaque
     let ⊢Γ = wfTerm ⊢t
         ⊢A = wf-⊢∷ ⊢t
     in
-    fst⟨⟩-β-≡ (Liftⱼ (zeroᵘⱼ (∙ ⊢A)) (⊢Unit (∙ ⊢A) Unit-ok)) ⊢t
-      (liftⱼ′ (zeroᵘⱼ ⊢Γ) (starⱼ ⊢Γ Unit-ok)) Σ-ok
+    fst⟨⟩-β-≡ (Liftⱼ (⊢zeroᵘ (∙ ⊢A)) (⊢Unit (∙ ⊢A) Unit-ok)) ⊢t
+      (liftⱼ′ (⊢zeroᵘ ⊢Γ) (starⱼ ⊢Γ Unit-ok)) Σ-ok
 
 opaque
   unfolding Erased erased

@@ -29,35 +29,42 @@ private opaque
   -- A lemma used below.
 
   equality-relations :
-    Equality-relations _⊢_≡_ _⊢_≡_∷_ _⊢_≡_∷_ No-equality-reflection
+    Equality-relations
+      _⊢_≡_ _⊢_≡_∷_ _⊢_≡_∷Level _⊢_≡_∷_ No-equality-reflection
   equality-relations = λ where
       .Neutrals-included? →
         No-equality-reflection?
       .Equality-reflection-allowed→¬Neutrals-included →
         λ { ok (no-equality-reflection not-ok) → not-ok ok }
-      .⊢≡→⊢≅        → λ _ → idᶠ
-      .⊢≡∷→⊢≅∷      → λ _ → idᶠ
-      .~-to-≅ₜ      → idᶠ
-      .≅-eq         → idᶠ
-      .≅ₜ-eq        → idᶠ
-      .≅-univ       → univ
-      .≅-sym        → sym
-      .≅ₜ-sym       → sym′
-      .~-sym        → sym′
-      .≅-trans      → trans
-      .≅ₜ-trans     → trans
-      .~-trans      → trans
-      .≅-conv       → conv
-      .~-conv       → conv
-      .≅-wk         → wkEq
-      .≅ₜ-wk        → wkEqTerm
-      .~-wk         → wkEqTerm
-      .≅-red        → λ (A⇒* , _) (B⇒* , _) → reduction A⇒* B⇒*
-      .≅ₜ-red       → λ (A⇒* , _) (t⇒* , _) (u⇒* , _) →
-                        reductionₜ A⇒* t⇒* u⇒*
+      .⊢≡→⊢≅                     → λ _ → idᶠ
+      .⊢≡∷→⊢≅∷                   → λ _ → idᶠ
+      .~-to-≅ₜ                   → idᶠ
+      .⊢≅∷→⊢≅∷L                  → term-⊢≡∷
+      .≅-eq                      → idᶠ
+      .≅ₜ-eq                     → idᶠ
+      .⊢≅∷L→⊢≡∷L                 → idᶠ
+      .Level-literal→⊢≅∷L        → literal
+      .⊢≅∷L→⊢≅∷                  → ⊢≡∷Level→⊢≡∷Level
+      .≅-univ                    → univ
+      .≅-sym                     → sym
+      .≅ₜ-sym                    → sym′
+      .~-sym                     → sym′
+      .≅-trans                   → trans
+      .≅ₜ-trans                  → trans
+      .~-trans                   → trans
+      .≅-conv                    → conv
+      .~-conv                    → conv
+      .≅-wk                      → wkEq
+      .≅ₜ-wk                     → wkEqTerm
+      .wk-⊢≅∷L                   → wkEqLevel
+      .~-wk                      → wkEqTerm
+      .≅-red (A⇒* , _) (B⇒* , _) →
+        reduction A⇒* B⇒*
+      .≅ₜ-red (A⇒* , _) (t⇒* , _) (u⇒* , _) →
+        reductionₜ A⇒* t⇒* u⇒*
       .≅ₜ-Levelrefl → λ ⊢Γ ok → refl (Levelⱼ ⊢Γ ok)
-      .≅-Levelrefl  → refl ∘ᶠ Levelⱼ′
-      .≅ₜ-zeroᵘrefl → refl ∘ᶠ zeroᵘⱼ
+      .≅-Levelrefl  → λ ok ⊢Γ → refl (Levelⱼ′ ok ⊢Γ)
+      .≅ₜ-zeroᵘrefl → λ ok ⊢Γ → refl (zeroᵘⱼ ok ⊢Γ)
       .≅ₜ-sucᵘ-cong → sucᵘ-cong
       .≅ₜ-supᵘ-cong → supᵘ-cong
       .≅ₜ-supᵘ-zeroʳ → supᵘ-zeroʳⱼ ∘ᶠ ⊢≡→⊢
@@ -65,7 +72,7 @@ private opaque
       .≅ₜ-supᵘ-comm → λ a b → supᵘ-comm (⊢≡→⊢ a) (⊢≡→⊢ b)
       .≅ₜ-supᵘ-idem → λ a → supᵘ-idem (⊢≡→⊢ a)
       .≅ₜ-supᵘ-sub  → λ a → supᵘ-sub (⊢≡→⊢ a)
-      .≅ₜ-U-cong    → U-cong
+      .≅ₜ-U-cong    → U-cong-⊢≡∷
       .≅-Lift-cong  → Lift-cong
       .≅ₜ-Lift-cong → Lift-cong′
       .≅-Lift-η     → λ ⊢t ⊢u _ _ lt≡lu → Lift-η′ ⊢t ⊢u lt≡lu
@@ -99,9 +106,9 @@ private opaque
     where
     open Equality-relations
 
--- An EqRelSet instance that uses definitional equality (_⊢_≡_ and
--- _⊢_≡_∷_). Neutrals are included if and only if equality reflection
--- is not allowed.
+-- An EqRelSet instance that uses definitional equality (_⊢_≡_,
+-- _⊢_≡_∷_ and _⊢_≡_∷Level). Neutrals are included if and only if
+-- equality reflection is not allowed.
 
 instance
 
@@ -109,6 +116,7 @@ instance
   eqRelInstance = λ where
     .EqRelSet._⊢_≅_              → _⊢_≡_
     .EqRelSet._⊢_≅_∷_            → _⊢_≡_∷_
+    .EqRelSet._⊢_≅_∷Level        → _⊢_≡_∷Level
     .EqRelSet._⊢_~_∷_            → _⊢_≡_∷_
     .EqRelSet.Neutrals-included  → No-equality-reflection
     .EqRelSet.equality-relations → equality-relations

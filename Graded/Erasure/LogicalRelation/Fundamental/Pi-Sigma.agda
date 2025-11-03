@@ -95,13 +95,13 @@ opaque
   -- Validity of Π and Σ.
 
   ΠΣʳ :
-    Γ ⊢ t ∷ Level →
+    Γ ⊢ t ∷Level →
     γ ▸ Γ ⊩ʳ ΠΣ⟨ b ⟩ p , q ▷ A ▹ B ∷[ m ] U t
   ΠΣʳ ⊢t =
     ▸⊩ʳ∷⇔ .proj₂ λ ⊩σ _ →
     ®∷→®∷◂ $
     ®∷U⇔ .proj₂
-      ( subst-⊢∷ ⊢t (escape-⊩ˢ∷ ⊩σ .proj₂)
+      ( subst-⊢∷L ⊢t (escape-⊩ˢ∷ ⊩σ .proj₂)
       , U/Levelᵣ (λ { PE.refl → T.refl })
       )
 

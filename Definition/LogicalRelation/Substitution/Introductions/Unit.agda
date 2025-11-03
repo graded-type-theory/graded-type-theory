@@ -177,7 +177,7 @@ opaque
     Γ ⊩ᵛ⟨ ωᵘ ⟩ Unit s ∷ U zeroᵘ
   Unitᵗᵛ ⊩Γ ok =
     ⊩ᵛ∷⇔ʰ .proj₂
-      ( ⊩ᵛU (zeroᵘᵛ ⊩Γ)
+      ( ⊩ᵛU ⊩Γ (zeroᵘᵛ′ ⊩Γ)
       , λ σ₁≡σ₂ →
           let ⊢Δ , _ = escape-⊩ˢ≡∷ σ₁≡σ₂
           in Type→⊩≡∷U⇔ Unitₙ Unitₙ .proj₂

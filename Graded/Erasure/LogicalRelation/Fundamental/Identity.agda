@@ -71,13 +71,13 @@ opaque
   -- Validity of Id.
 
   Idʳ :
-    Γ ⊢ v ∷ Level →
+    Γ ⊢ v ∷Level →
     γ ▸ Γ ⊩ʳ Id A t u ∷[ m ] U v
   Idʳ ⊢v =
     ▸⊩ʳ∷⇔ .proj₂ λ ⊩σ _ →
     ®∷→®∷◂ $
     ®∷U⇔ .proj₂
-      ( subst-⊢∷ ⊢v (escape-⊩ˢ∷ ⊩σ .proj₂)
+      ( subst-⊢∷L ⊢v (escape-⊩ˢ∷ ⊩σ .proj₂)
       , U/Levelᵣ (λ { PE.refl → T.refl })
       )
 
@@ -112,7 +112,7 @@ opaque
     let open Erased s in
     γ ▸ Γ ⊩ʳ []-cong s l A t u v ∷[ m ] Id (Erased l A) [ t ] ([ u ])
   []-congʳ {A} {l} {v} {t} {u} ε ⊢A ⊢v ok =
-    let _ , ⊩l = fundamental-⊩ᵛ∷ (inversion-U-Level (wf-⊢∷ ⊢A))
+    let _ , ⊩l = fundamental-⊩ᵛ∷L (inversion-U-Level (wf-⊢∷ ⊢A) .proj₂)
         _ , ⊩v = fundamental-⊩ᵛ∷ ⊢v
         ⊩t , _ = ⊩ᵛId⇔ .proj₁ (wf-⊩ᵛ∷ ⊩v)
     in

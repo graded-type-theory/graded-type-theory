@@ -90,7 +90,7 @@ module Main {Γ : Con Term m} (nΓ : NegativeContext Γ)
     ⊥-elim (¬negId (neNeg ⊢v v-ne) (refl (Idⱼ′ ⊢t ⊢u)))
   neNeg (conv d c) n =
     conv (neNeg d n) c
-  neNeg (Uⱼ _)          ()
+  neNeg (Uⱼ _ _)        ()
   neNeg (ΠΣⱼ _ _ _ _)   ()
   neNeg (lamⱼ _ _ _)    ()
   neNeg (prodⱼ _ _ _ _) ()
@@ -103,7 +103,7 @@ module Main {Γ : Con Term m} (nΓ : NegativeContext Γ)
   neNeg (Idⱼ _ _ _)     ()
   neNeg (rflⱼ _)        ()
   neNeg (Levelⱼ _ _)    ()
-  neNeg (zeroᵘⱼ _)      ()
+  neNeg (zeroᵘⱼ _ _)    ()
   neNeg (sucᵘⱼ _)       ()
   neNeg (supᵘⱼ _ _)     ()
   neNeg (Liftⱼ _ _ _)   ()
@@ -122,11 +122,11 @@ module Main {Γ : Con Term m} (nΓ : NegativeContext Γ)
   nfN d (ne (ne n)) c =
     ⊥-elim (¬negℕ (neNeg d (nfNeutral n)) c)
 
-  nfN (Levelⱼ _ _) Levelₙ c       = ⊥-elim (U≢ℕ c)
-  nfN (zeroᵘⱼ _) zeroᵘₙ c         = ⊥-elim (Level≢ℕ c)
-  nfN (sucᵘⱼ _) (sucᵘₙ _) c       = ⊥-elim (Level≢ℕ c)
+  nfN (Levelⱼ _ _)  Levelₙ      c = ⊥-elim (U≢ℕ c)
+  nfN (zeroᵘⱼ _ _)  zeroᵘₙ      c = ⊥-elim (Level≢ℕ c)
+  nfN (sucᵘⱼ _)     (sucᵘₙ _)   c = ⊥-elim (Level≢ℕ c)
   nfN (Liftⱼ _ _ _) (Liftₙ _ _) c = ⊥-elim (U≢ℕ c)
-  nfN (liftⱼ _ _ _) (liftₙ _) c   = ⊥-elim (Lift≢ℕ c)
+  nfN (liftⱼ _ _ _) (liftₙ _)   c = ⊥-elim (Lift≢ℕ c)
 
   -- Case: numerals.
   nfN (zeroⱼ x) zeroₙ   c = zeroₙ
@@ -142,12 +142,12 @@ module Main {Γ : Con Term m} (nΓ : NegativeContext Γ)
   nfN (supᵘⱼ _ _) (ne (supᵘʳₙ _ _)) c = ⊥-elim (Level≢ℕ c)
 
   -- * Canonical types
-  nfN (Uⱼ _)      (Uₙ _)      c = ⊥-elim (U≢ℕ c)
-  nfN (ΠΣⱼ _ _ _ _) (ΠΣₙ _ _) c = ⊥-elim (U≢ℕ c)
-  nfN (ℕⱼ _)      ℕₙ          c = ⊥-elim (U≢ℕ c)
-  nfN (Emptyⱼ _)  Emptyₙ      c = ⊥-elim (U≢ℕ c)
-  nfN (Unitⱼ _ _) Unitₙ       c = ⊥-elim (U≢ℕ c)
-  nfN (Idⱼ _ _ _) (Idₙ _ _ _) c = ⊥-elim (U≢ℕ c)
+  nfN (Uⱼ _ _)      (Uₙ _)      c = ⊥-elim (U≢ℕ c)
+  nfN (ΠΣⱼ _ _ _ _) (ΠΣₙ _ _)   c = ⊥-elim (U≢ℕ c)
+  nfN (ℕⱼ _)        ℕₙ          c = ⊥-elim (U≢ℕ c)
+  nfN (Emptyⱼ _)    Emptyₙ      c = ⊥-elim (U≢ℕ c)
+  nfN (Unitⱼ _ _)   Unitₙ       c = ⊥-elim (U≢ℕ c)
+  nfN (Idⱼ _ _ _)   (Idₙ _ _ _) c = ⊥-elim (U≢ℕ c)
 
   -- * Canonical forms
   nfN (lamⱼ _ _ _)    (lamₙ _)    c = ⊥-elim (ℕ≢ΠΣⱼ (sym c))

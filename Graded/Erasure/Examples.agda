@@ -95,46 +95,54 @@ private
   ⊢εℕ : ⊢ ε ∙ ℕ
   ⊢εℕ = ∙ ⊢ℕ ε
 
-  ⊢U0 : ε ∙ Level ⊢ U (var x0)
-  ⊢U0 = ⊢U (var (∙ Levelⱼ′ ε) here)
-
-  U⊢ℕ : ε ∙ Level ∙ U (var x0) ⊢ ℕ
-  U⊢ℕ = ⊢ℕ (∙ ⊢U0)
-
-  ⊢Uℕ : ⊢ ε ∙ Level ∙ U (var x0) ∙ ℕ
-  ⊢Uℕ = ∙ U⊢ℕ
-
-  U⊢0 : ε ∙ Level ∙ U (var x0) ⊢ var x0
-  U⊢0 = univ (var (∙ ⊢U0) here)
-
-  ⊢U∙0 : ⊢ ε ∙ Level ∙ U (var x0) ∙ var x0
-  ⊢U∙0 = ∙ U⊢0
-
-  U⊢id : ε ∙ Level ∙ U (var x0) ⊢ lam ω (var x0) ∷ Π ω , q ▷ var x0 ▹ var x1
-  U⊢id = lamⱼ′ Π-ω-ok (var ⊢U∙0 here)
-
-  ΓU⊢id : ⊢ Γ → Γ ∙ Level ∙ U (var x0) ⊢ lam ω (var x0) ∷ Π ω , q ▷ var x0 ▹ var x1
-  ΓU⊢id ε = U⊢id
-  ΓU⊢id (∙ ⊢A) =
-    W.wkTerm
-      (W.liftʷ (W.lift (W.step W.id))
-         (⊢U (var (∙ Levelⱼ′ (∙ ⊢A)) here)))
-      (ΓU⊢id (wf ⊢A))
-
-  ⊢Uℕℕ : ⊢ ε ∙ Level ∙ U (var x0) ∙ ℕ ∙ ℕ
-  ⊢Uℕℕ = ∙ ⊢ℕ ⊢Uℕ
-
-  UℕℕU⊢3 : ε ∙ Level ∙ U (var x0) ∙ ℕ ∙ ℕ ∙ U (var x3) ⊢ var x3 ∷ U (var x4)
-  UℕℕU⊢3 = var₃ (⊢U (var₃ (⊢ℕ ⊢Uℕ)))
-
-  ⊢UℕℕU3 : ⊢ ε ∙ Level ∙ U (var x0) ∙ ℕ ∙ ℕ ∙ U (var x3) ∙ var x3
-  ⊢UℕℕU3 = ∙ univ UℕℕU⊢3
-
   ⊢ℕℕ : ⊢ ε ∙ ℕ ∙ ℕ
   ⊢ℕℕ = ∙ ⊢ℕ ⊢εℕ
 
-  ⊢ℕℕU : ⊢ ε ∙ ℕ ∙ ℕ ∙ Level ∙ U (var x0)
-  ⊢ℕℕU = ∙ ⊢U (var (∙ Levelⱼ′ ⊢ℕℕ) here)
+  module _ (ok : Level-allowed) where
+
+    ⊢ℕℕU : ⊢ ε ∙ ℕ ∙ ℕ ∙ Level ∙ U (var x0)
+    ⊢ℕℕU = ∙ ⊢U′ (var (∙ Levelⱼ′ ok ⊢ℕℕ) here)
+
+    ⊢U0 : ε ∙ Level ⊢ U (var x0)
+    ⊢U0 = ⊢U′ (var (∙ Levelⱼ′ ok ε) here)
+
+    U⊢ℕ : ε ∙ Level ∙ U (var x0) ⊢ ℕ
+    U⊢ℕ = ⊢ℕ (∙ ⊢U0)
+
+    ⊢Uℕ : ⊢ ε ∙ Level ∙ U (var x0) ∙ ℕ
+    ⊢Uℕ = ∙ U⊢ℕ
+
+    U⊢0 : ε ∙ Level ∙ U (var x0) ⊢ var x0
+    U⊢0 = univ (var (∙ ⊢U0) here)
+
+    ⊢U∙0 : ⊢ ε ∙ Level ∙ U (var x0) ∙ var x0
+    ⊢U∙0 = ∙ U⊢0
+
+    U⊢id :
+      ε ∙ Level ∙ U (var x0) ⊢ lam ω (var x0) ∷
+        Π ω , q ▷ var x0 ▹ var x1
+    U⊢id = lamⱼ′ Π-ω-ok (var ⊢U∙0 here)
+
+    ΓU⊢id :
+      ⊢ Γ →
+      Γ ∙ Level ∙ U (var x0) ⊢ lam ω (var x0) ∷
+        Π ω , q ▷ var x0 ▹ var x1
+    ΓU⊢id ε      = U⊢id
+    ΓU⊢id (∙ ⊢A) =
+      W.wkTerm
+        (W.liftʷ (W.lift (W.step W.id))
+           (⊢U′ (var (∙ Levelⱼ′ ok (∙ ⊢A)) here)))
+        (ΓU⊢id (wf ⊢A))
+
+    ⊢Uℕℕ : ⊢ ε ∙ Level ∙ U (var x0) ∙ ℕ ∙ ℕ
+    ⊢Uℕℕ = ∙ ⊢ℕ ⊢Uℕ
+
+    UℕℕU⊢3 :
+      ε ∙ Level ∙ U (var x0) ∙ ℕ ∙ ℕ ∙ U (var x3) ⊢ var x3 ∷ U (var x4)
+    UℕℕU⊢3 = var₃ (⊢U′ (var₃ (⊢ℕ ⊢Uℕ)))
+
+    ⊢UℕℕU3 : ⊢ ε ∙ Level ∙ U (var x0) ∙ ℕ ∙ ℕ ∙ U (var x3) ∙ var x3
+    ⊢UℕℕU3 = ∙ univ UℕℕU⊢3
 
 ------------------------------------------------------------------------
 -- A universe-polymorphic identity function
@@ -144,11 +152,14 @@ private
 id : Term n
 id = lam 𝟘 (lam 𝟘 (lam ω (var x0)))
 
--- The universe-polymorphic identity function is well-typed (in a well-formed
--- context).
+-- The universe-polymorphic identity function is well-typed (in a
+-- well-formed context, assuming that Level is allowed).
 
-⊢id : ⊢ Γ → Γ ⊢ id ∷ Π 𝟘 , p ▷ Level ▹ Π 𝟘 , p ▷ U (var x0) ▹ Π ω , q ▷ var x0 ▹ var x1
-⊢id ⊢Γ = lamⱼ′ Π-𝟘-ok (lamⱼ′ Π-𝟘-ok (ΓU⊢id ⊢Γ))
+⊢id :
+  Level-allowed → ⊢ Γ →
+  Γ ⊢ id ∷
+    Π 𝟘 , p ▷ Level ▹ Π 𝟘 , p ▷ U (var x0) ▹ Π ω , q ▷ var x0 ▹ var x1
+⊢id ok ⊢Γ = lamⱼ′ Π-𝟘-ok (lamⱼ′ Π-𝟘-ok (ΓU⊢id ok ⊢Γ))
 
 -- The universe-polymorphic identity function is well-resourced (with respect
 -- to the zero usage context).
@@ -162,12 +173,17 @@ id = lam 𝟘 (lam 𝟘 (lam ω (var x0)))
 id-generic : Term 3
 id-generic = id ∘⟨ 𝟘 ⟩ var x2 ∘⟨ 𝟘 ⟩ var x1 ∘⟨ ω ⟩ var x0
 
--- The term id-generic is well-typed (in a certain context).
+-- The term id-generic is well-typed (in a certain context, assuming
+-- that Level is allowed).
 
-⊢id-generic : ε ∙ Level ∙ U (var x0) ∙ var x0 ⊢ id-generic ∷ var x1
-⊢id-generic = ((⊢id ⊢Γ ∘ⱼ var ⊢Γ (there (there here))) ∘ⱼ var ⊢Γ (there here)) ∘ⱼ var ⊢Γ here
+⊢id-generic :
+  Level-allowed →
+  ε ∙ Level ∙ U (var x0) ∙ var x0 ⊢ id-generic ∷ var x1
+⊢id-generic ok =
+  ((⊢id ok ⊢Γ ∘ⱼ var ⊢Γ (there (there here))) ∘ⱼ var ⊢Γ (there here)) ∘ⱼ
+  var ⊢Γ here
   where
-  ⊢Γ = ∙ univ (var₀ ⊢U0)
+  ⊢Γ = ∙ univ (var₀ (⊢U0 ok))
 
 -- The term id-generic is well-resourced (with respect to a specific
 -- usage context).
@@ -200,10 +216,11 @@ erase-non-strict-id-ℕ-zero :
   T.lam (T.var x0) T.∘⟨ non-strict ⟩ T.zero
 erase-non-strict-id-ℕ-zero = PE.refl
 
--- The term id-ℕ-zero is well-typed (in the empty context).
+-- The term id-ℕ-zero is well-typed (in the empty context, assuming
+-- that Level is allowed).
 
-⊢id-ℕ-zero : ε ⊢ id-ℕ-zero ∷ ℕ
-⊢id-ℕ-zero = ((⊢id ε ∘ⱼ zeroᵘⱼ ε) ∘ⱼ ℕⱼ ε) ∘ⱼ zeroⱼ ε
+⊢id-ℕ-zero : Level-allowed → ε ⊢ id-ℕ-zero ∷ ℕ
+⊢id-ℕ-zero ok = ((⊢id ok ε ∘ⱼ zeroᵘⱼ ok ε) ∘ⱼ ℕⱼ ε) ∘ⱼ zeroⱼ ε
 
 -- The term id-ℕ-zero is well-resourced (with respect to the empty
 -- usage context).
@@ -211,12 +228,13 @@ erase-non-strict-id-ℕ-zero = PE.refl
 ▸id-ℕ-zero : ε ▸[ 𝟙ᵐ ] id-ℕ-zero
 ▸id-ℕ-zero = ((▸id ∘ₘ zeroᵘₘ) ∘ₘ ℕₘ) ∘ₘ zeroₘ
 
--- The term id-ℕ-zero reduces to zero.
+-- The term id-ℕ-zero reduces to zero (assuming that Level is
+-- allowed).
 
-id-ℕ-zero⇒*zero : ε ⊢ id-ℕ-zero ⇒* zero ∷ ℕ
-id-ℕ-zero⇒*zero =
-  β-red-⇒₃′ Π-𝟘-ok Π-𝟘-ok Π-ω-ok (var ⊢U∙0 here) (zeroᵘⱼ ε) (ℕⱼ ε)
-    (zeroⱼ ε)
+id-ℕ-zero⇒*zero : Level-allowed → ε ⊢ id-ℕ-zero ⇒* zero ∷ ℕ
+id-ℕ-zero⇒*zero ok =
+  β-red-⇒₃′ Π-𝟘-ok Π-𝟘-ok Π-ω-ok (var (⊢U∙0 ok) here) (zeroᵘⱼ ok ε)
+    (ℕⱼ ε) (zeroⱼ ε)
 
 -- The erasure of id-ℕ-zero reduces to zero.
 
@@ -379,19 +397,27 @@ private
 
   -- A typing rule for Vec-body₂.
 
-  ⊢Vec-body₂ : ε ∙ Level ∙ U (var x0) ∙ ℕ ⊢ Vec-body₂ ∷ U (var x2)
-  ⊢Vec-body₂ =
+  ⊢Vec-body₂ :
+    Level-allowed →
+    ε ∙ Level ∙ U (var x0) ∙ ℕ ⊢ Vec-body₂ ∷ U (var x2)
+  ⊢Vec-body₂ ok =
     natrecⱼ
-      (Liftⱼ≤ (supᵘ-zeroˡ (var ⊢Uℕ (there (there here)))) (Unitⱼ ⊢Uℕ Unit-ok))
-      (ΠΣⱼ′ UℕℕU⊢3 (var ⊢UℕℕU3 (there here)) Σˢ-ω-ok)
-      (var ⊢Uℕ here)
+      (Liftⱼ≤ (supᵘ-zeroˡ (var (⊢Uℕ ok) (there (there here))))
+         (Unitⱼ (⊢Uℕ ok) Unit-ok))
+      (ΠΣⱼ′ (UℕℕU⊢3 ok) (var (⊢UℕℕU3 ok) (there here)) Σˢ-ω-ok)
+      (var (⊢Uℕ ok) here)
 
   -- A typing rule for Vec-body₁.
 
-  ⊢Vec-body₁ : ε ∙ Level ∙ U (var x0) ⊢ Vec-body₁ ∷ Π ω , q ▷ ℕ ▹ U (var x2)
-  ⊢Vec-body₁ = lamⱼ′ Π-ω-ok ⊢Vec-body₂
+  ⊢Vec-body₁ :
+    Level-allowed →
+    ε ∙ Level ∙ U (var x0) ⊢ Vec-body₁ ∷ Π ω , q ▷ ℕ ▹ U (var x2)
+  ⊢Vec-body₁ ok = lamⱼ′ Π-ω-ok (⊢Vec-body₂ ok)
 
 -- A typing rule for Vec.
 
-⊢Vec : ε ⊢ Vec ∷ Π ω , q ▷ Level ▹ Π ω , q ▷ U (var x0) ▹ Π ω , q ▷ ℕ ▹ U (var x2)
-⊢Vec = lamⱼ′ Π-ω-ok (lamⱼ′ Π-ω-ok ⊢Vec-body₁)
+⊢Vec :
+  Level-allowed →
+  ε ⊢ Vec ∷
+    Π ω , q ▷ Level ▹ Π ω , q ▷ U (var x0) ▹ Π ω , q ▷ ℕ ▹ U (var x2)
+⊢Vec ok = lamⱼ′ Π-ω-ok (lamⱼ′ Π-ω-ok (⊢Vec-body₁ ok))

@@ -45,9 +45,10 @@ private
 mutual
 
   data _⊢_⇇Type (Γ : Con Term n) : (A : Term n) → Set a where
-    Levelᶜ : Γ ⊢ Level ⇇Type
-    Uᶜ : Γ ⊢ l ⇇ Level → Γ ⊢ U l ⇇Type
-    Liftᶜ : Γ ⊢ l ⇇ Level
+    Levelᶜ : Level-allowed
+           → Γ ⊢ Level ⇇Type
+    Uᶜ : Γ ⊢ l ⇇Level → Γ ⊢ U l ⇇Type
+    Liftᶜ : Γ ⊢ l ⇇Level
           → Γ ⊢ A ⇇Type
           → Γ ⊢ Lift l A ⇇Type
     ℕᶜ : Γ ⊢ ℕ ⇇Type
@@ -68,17 +69,18 @@ mutual
 
   data _⊢_⇉_ (Γ : Con Term n) : (t A : Term n) → Set a where
     Levelᵢ : Level-is-small → Γ ⊢ Level ⇉ U zeroᵘ
-    zeroᵘᵢ : Γ ⊢ zeroᵘ ⇉ Level
+    zeroᵘᵢ : Level-allowed
+           → Γ ⊢ zeroᵘ ⇉ Level
     sucᵘᵢ : Γ ⊢ t ⇇ Level
           → Γ ⊢ sucᵘ t ⇉ Level
     supᵘᵢ : Γ ⊢ t ⇇ Level
           → Γ ⊢ u ⇇ Level
           → Γ ⊢ t supᵘ u ⇉ Level
-    Uᵢ : Γ ⊢ l ⇇ Level → Γ ⊢ U l ⇉ U (sucᵘ l)
-    Liftᵢ : Γ ⊢ l₂ ⇇ Level
+    Uᵢ : Γ ⊢ l ⇇Level → Γ ⊢ U l ⇉ U (sucᵘ l)
+    Liftᵢ : Γ ⊢ l₂ ⇇Level
           → Γ ⊢ A ⇉ C
           → Γ ⊢ C ↘ U l₁
-          → Γ ⊢ Lift l₂ A ⇉ U (l₁ supᵘ l₂)
+          → Γ ⊢ Lift l₂ A ⇉ U (l₁ supᵘₗ l₂)
     ΠΣᵢ : Γ ⊢ A ⇉ C₁
         → Γ ⊢ C₁ ↘ U l
         → Γ ∙ A ⊢ B ⇇ U (wk1 l)
@@ -146,7 +148,7 @@ mutual
        → Γ ⊢ v ⇇ Id A t t
        → K-allowed
        → Γ ⊢ K p A t B u v ⇉ B [ v ]₀
-    []-congᵢ : Γ ⊢ l ⇇ Level
+    []-congᵢ : Γ ⊢ l ⇇Level
              → Γ ⊢ A ⇇ U l
              → Γ ⊢ t ⇇ A
              → Γ ⊢ u ⇇ A
@@ -175,6 +177,14 @@ mutual
          → Γ ⊢ A ≡ B
          → Γ ⊢ t ⇇ B
 
+  data _⊢_⇇Level (Γ : Con Term n) (l : Term n) : Set a where
+    term    : Level-allowed
+            → Γ ⊢ l ⇇ Level
+            → Γ ⊢ l ⇇Level
+    literal : ¬ Level-allowed
+            → Level-literal l
+            → Γ ⊢ l ⇇Level
+
 opaque
 
   -- A variant of univᶜ.
@@ -198,7 +208,7 @@ mutual
   -- Checkable types.
 
   data Checkable-type {n : Nat} : Term n → Set a where
-    Liftᶜ  : Checkable l →
+    Liftᶜ  : Checkable-level l →
              Checkable-type A →
              Checkable-type (Lift l A)
     ΠΣᶜ    : Checkable-type A → Checkable-type B →
@@ -214,8 +224,8 @@ mutual
     zeroᵘᵢ : Inferable zeroᵘ
     sucᵘᵢ : Checkable t → Inferable (sucᵘ t)
     supᵘᵢ : Checkable t → Checkable u → Inferable (t supᵘ u)
-    Uᵢ : Checkable l → Inferable (U l)
-    Liftᵢ : Checkable l → Inferable A → Inferable (Lift l A)
+    Uᵢ : Checkable-level l → Inferable (U l)
+    Liftᵢ : Checkable-level l → Inferable A → Inferable (Lift l A)
     ΠΣᵢ : Inferable A → Checkable B → Inferable (ΠΣ⟨ b ⟩ p , q ▷ A ▹ B)
     varᵢ : ∀ {x} → Inferable (var x)
     lowerᵢ : Inferable t → Inferable (lower t)
@@ -242,8 +252,9 @@ mutual
          Inferable (J p q A t B u v w)
     Kᵢ : Checkable-type A → Checkable t → Checkable-type B →
          Checkable u → Checkable v → Inferable (K p A t B u v)
-    []-congᵢ : Checkable l → Checkable A → Checkable t → Checkable u →
-               Checkable v → Inferable ([]-cong s l A t u v)
+    []-congᵢ : Checkable-level l → Checkable A → Checkable t →
+               Checkable u → Checkable v →
+               Inferable ([]-cong s l A t u v)
 
   -- Checkable terms.
 
@@ -253,6 +264,12 @@ mutual
     prodᶜ : ∀ {m} → Checkable t → Checkable u → Checkable (prod m p t u)
     rflᶜ : Checkable {n = n} rfl
     infᶜ : Inferable t → Checkable t
+
+  -- Checkable levels.
+
+  data Checkable-level (l : Term n) : Set a where
+    term    : Level-allowed → Checkable l → Checkable-level l
+    literal : ¬ Level-allowed → Checkable-level l
 
 -- CheckableCon Γ means that the types in Γ are checkable.
 
@@ -270,7 +287,7 @@ opaque
     in
     ε ⊢ t ∷ Lift zeroᵘ ℕ × Checkable t × ¬ Inferable t
   Checkable×¬Inferable =
-    liftⱼ′ (zeroᵘⱼ ε) (zeroⱼ ε) ,
+    liftⱼ′ (⊢zeroᵘ ε) (zeroⱼ ε) ,
     liftᶜ (infᶜ zeroᵢ) ,
     (λ { () })
 
@@ -350,14 +367,43 @@ opaque
     (checkᶜ A) →
       ⊢→Checkable→Inferable ⦃ ok = possibly-nonempty ⦄ ⊢A A
 
+opaque
+
+  -- If Level is allowed, then Checkable-level l is logically
+  -- equivalent to Checkable l.
+
+  Checkable-level⇔ :
+    Level-allowed →
+    Checkable-level l ⇔ Checkable l
+  Checkable-level⇔ ok =
+    (λ where
+       (term _ l)       → l
+       (literal not-ok) → ⊥-elim (not-ok ok)) ,
+    term ok
+
+opaque
+
+  -- If Level is allowed, then Γ ⊢ l ⇇Level is logically
+  -- equivalent to Γ ⊢ l ⇇ Level.
+
+  ⊢⇇Level⇔ :
+    Level-allowed →
+    Γ ⊢ l ⇇Level ⇔ Γ ⊢ l ⇇ Level
+  ⊢⇇Level⇔ ok =
+    (λ where
+       (term _ ⊢l)        → ⊢l
+       (literal not-ok _) → ⊥-elim (not-ok ok)) ,
+    term ok
+
 mutual
 
   -- Γ ⊢ A ⇇Type implies that A is a checkable type.
 
   Checkable⇇Type : Γ ⊢ A ⇇Type → Checkable-type A
-  Checkable⇇Type Levelᶜ      = checkᶜ (infᶜ Levelᵢ)
-  Checkable⇇Type (Liftᶜ l A) = Liftᶜ (Checkable⇇ l) (Checkable⇇Type A)
-  Checkable⇇Type (Uᶜ l)      = checkᶜ (infᶜ (Uᵢ (Checkable⇇ l)))
+  Checkable⇇Type (Levelᶜ _)  = checkᶜ (infᶜ Levelᵢ)
+  Checkable⇇Type (Liftᶜ l A) = Liftᶜ (Checkable⇇Level l)
+                                 (Checkable⇇Type A)
+  Checkable⇇Type (Uᶜ l)      = checkᶜ (infᶜ (Uᵢ (Checkable⇇Level l)))
   Checkable⇇Type ℕᶜ          = checkᶜ (infᶜ ℕᵢ)
   Checkable⇇Type (Unitᶜ _) = checkᶜ (infᶜ Unitᵢ)
   Checkable⇇Type Emptyᶜ      = checkᶜ (infᶜ Emptyᵢ)
@@ -379,11 +425,11 @@ mutual
 
   Inferable⇉ : Γ ⊢ t ⇉ A → Inferable t
   Inferable⇉ (Levelᵢ ok) = Levelᵢ
-  Inferable⇉ zeroᵘᵢ = zeroᵘᵢ
+  Inferable⇉ (zeroᵘᵢ _) = zeroᵘᵢ
   Inferable⇉ (sucᵘᵢ x) = sucᵘᵢ (Checkable⇇ x)
   Inferable⇉ (supᵘᵢ x x₁) = supᵘᵢ (Checkable⇇ x) (Checkable⇇ x₁)
-  Inferable⇉ (Uᵢ l) = Uᵢ (Checkable⇇ l)
-  Inferable⇉ (Liftᵢ l A ↘U) = Liftᵢ (Checkable⇇ l) (Inferable⇉ A)
+  Inferable⇉ (Uᵢ l) = Uᵢ (Checkable⇇Level l)
+  Inferable⇉ (Liftᵢ l A ↘U) = Liftᵢ (Checkable⇇Level l) (Inferable⇉ A)
   Inferable⇉ (lowerᵢ x y) = lowerᵢ (Inferable⇉ x)
   Inferable⇉ (ΠΣᵢ A _ B _) = ΠΣᵢ (Inferable⇉ A) (Checkable⇇ B)
   Inferable⇉ (varᵢ x) = varᵢ
@@ -410,5 +456,13 @@ mutual
     Kᵢ (Checkable⇇Type A) (Checkable⇇ t) (Checkable⇇Type B)
       (Checkable⇇ u) (Checkable⇇ v)
   Inferable⇉ ([]-congᵢ l A t u v _) =
-    []-congᵢ (Checkable⇇ l) (Checkable⇇ A) (Checkable⇇ t) (Checkable⇇ u)
-      (Checkable⇇ v)
+    []-congᵢ (Checkable⇇Level l) (Checkable⇇ A) (Checkable⇇ t)
+      (Checkable⇇ u) (Checkable⇇ v)
+
+  -- Γ ⊢ t ⇇Level implies that t is a checkable level.
+
+  Checkable⇇Level : Γ ⊢ l ⇇Level → Checkable-level l
+  Checkable⇇Level (term ok l) =
+    term ok (Checkable⇇ l)
+  Checkable⇇Level (literal not-ok _) =
+    literal not-ok

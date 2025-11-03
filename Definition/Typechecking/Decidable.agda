@@ -29,6 +29,7 @@ open import Definition.Typed.Reasoning.Type R
 open import Definition.Typed.Substitution R
 open import Definition.Typed.Syntactic R
 open import Definition.Typed.Weakening R as W
+open import Definition.Typed.Well-formed R
 open import Definition.Typed.Consequences.Inequality R
 open import Definition.Typed.Consequences.Injectivity R
 open import Definition.Typed.Consequences.NeTypeEq R
@@ -46,6 +47,7 @@ open import Tools.Nat using (Nat; 1+)
 open import Tools.Product as Σ
 import Tools.PropositionalEquality as PE
 open import Tools.Relation as Dec
+open import Tools.Sum
 
 private
   variable
@@ -80,7 +82,7 @@ mutual
     where
     helper : (A : Term n) → Dec (Checkable A) → Dec (Checkable-type A)
     helper (Lift l A) _ =
-      case dec-Checkable l ×-dec dec-Checkable-type A of λ where
+      case dec-Checkable-level l ×-dec dec-Checkable-type A of λ where
         (yes (l , A)) → yes (Liftᶜ l A)
         (no not) → no λ where
           (Liftᶜ l A) → not (l , A)
@@ -199,11 +201,11 @@ mutual
       (yes (t , u))  → yes (supᵘᵢ t u)
       (no not) → no λ { (supᵘᵢ t u) → not (t , u) }
   dec-Inferable (U l) =
-    case dec-Checkable l of λ where
+    case dec-Checkable-level l of λ where
       (yes l) → yes (Uᵢ l)
       (no not) → no λ { (Uᵢ x) → not x }
   dec-Inferable (Lift l A) =
-    case dec-Checkable l ×-dec dec-Inferable A of λ where
+    case dec-Checkable-level l ×-dec dec-Inferable A of λ where
       (yes (l , A)) → yes (Liftᵢ l A)
       (no not) → no λ { (Liftᵢ l A) → not (l , A) }
   dec-Inferable (lift t) =
@@ -288,7 +290,7 @@ mutual
       (no not)                  →
         no λ { (Kᵢ A t B u v) → not (A , t , B , u , v) }
   dec-Inferable ([]-cong s l A t u v) =
-    case dec-Checkable l ×-dec dec-Checkable A ×-dec
+    case dec-Checkable-level l ×-dec dec-Checkable A ×-dec
          dec-Checkable t ×-dec dec-Checkable u ×-dec
          dec-Checkable v of λ where
       (yes (l , A , t , u , v)) → yes ([]-congᵢ l A t u v)
@@ -400,6 +402,17 @@ mutual
       (yes t) → yes (infᶜ t)
       (no ¬t) → no λ { (infᶜ t) → ¬t t }
 
+  -- It is decidable whether Checkable-level l holds.
+
+  dec-Checkable-level : (l : Term n) → Dec (Checkable-level l)
+  dec-Checkable-level l =
+    case Level-allowed? of λ where
+      (yes ok) →
+        Dec-map (sym⇔ $ Checkable-level⇔ ok) $
+        dec-Checkable l
+      (no not-ok) →
+        yes (literal not-ok)
+
 private opaque
 
   -- A variant of isΠΣ.
@@ -458,6 +471,12 @@ mutual
       Checkable t → Γ ⊢ A → (Γ ⊢ t ∷ A → Dec P) → Dec (Γ ⊢ t ⇇ A × P)
     dec⇇-with-cont t ⊢A cont =
       dec⇇ t ⊢A ×-dec′ cont ∘→ soundness⇇
+
+    dec⇇Level-with-cont :
+      Checkable-level l → ⊢ Γ → (Γ ⊢ l ∷Level → Dec P) →
+      Dec (Γ ⊢ l ⇇Level × P)
+    dec⇇Level-with-cont l ⊢Γ cont =
+      dec⇇Level l ⊢Γ ×-dec′ cont ∘→ soundness⇇Level
 
     dec⇇Type-with-cont :
       ⊢ Γ → Checkable-type A → (Γ ⊢ A → Dec P) → Dec (Γ ⊢ A ⇇Type × P)
@@ -636,9 +655,15 @@ mutual
   -- Decidability of checking that an inferable term is a type
 
   dec⇉Type : ⊢ Γ → Inferable A → Dec (Γ ⊢ A ⇇Type)
-  dec⇉Type ⊢Γ Levelᵢ = yes Levelᶜ
+  dec⇉Type ⊢Γ Levelᵢ =
+    case Level-allowed? of λ where
+      (yes ok)    → yes (Levelᶜ ok)
+      (no not-ok) → no λ where
+        (Levelᶜ ok)           → not-ok ok
+        (univᶜ (Levelᵢ ok) _) →
+          not-ok (Level-allowed⇔⊎ .proj₂ (inj₁ ok))
   dec⇉Type ⊢Γ zeroᵘᵢ = no λ where
-    (univᶜ zeroᵘᵢ ↘U) →
+    (univᶜ (zeroᵘᵢ _) ↘U) →
       case whnfRed* (↘U .proj₁) Levelₙ of λ ()
   dec⇉Type ⊢Γ (sucᵘᵢ x) = no λ where
     (univᶜ (sucᵘᵢ _) ↘U) →
@@ -647,13 +672,13 @@ mutual
     (univᶜ (supᵘᵢ _ _) ↘U) →
       case whnfRed* (↘U .proj₁) Levelₙ of λ ()
   dec⇉Type ⊢Γ (Uᵢ l) =
-    case dec⇇ l (Levelⱼ′ ⊢Γ) of λ where
+    case dec⇇Level l ⊢Γ of λ where
       (yes l)  → yes (Uᶜ l)
       (no not) → no λ where
         (Uᶜ l)           → not l
         (univᶜ (Uᵢ l) _) → not l
   dec⇉Type ⊢Γ (Liftᵢ l A) =
-    case dec⇇ l (Levelⱼ′ ⊢Γ) ×-dec dec⇉Type ⊢Γ A of λ where
+    case dec⇇Level l ⊢Γ ×-dec dec⇉Type ⊢Γ A of λ where
       (yes (l , A)) → yes (Liftᶜ l A)
       (no not) → no λ where
         (Liftᶜ l A)              → not (l , A)
@@ -831,7 +856,7 @@ mutual
 
   dec⇇Type : ⊢ Γ → Checkable-type A → Dec (Γ ⊢ A ⇇Type)
   dec⇇Type ⊢Γ (Liftᶜ l A) =
-    case dec⇇ l (Levelⱼ′ ⊢Γ) ×-dec dec⇇Type ⊢Γ A of λ where
+    case dec⇇Level l ⊢Γ ×-dec dec⇇Type ⊢Γ A of λ where
       (yes (l , A)) → yes (Liftᶜ l A)
       (no not) → no λ where
         (Liftᶜ l A)              → not (l , A)
@@ -872,22 +897,34 @@ mutual
     (yes ok) → yes (U zeroᵘ , Levelᵢ ok)
     (no ¬ok) → no λ where
       (_ , Levelᵢ ok) → ¬ok ok
-  dec⇉ ⊢Γ zeroᵘᵢ = yes (Level , zeroᵘᵢ)
-  dec⇉ ⊢Γ (sucᵘᵢ t) = case dec⇇ t (Levelⱼ′ ⊢Γ) of λ where
-    (yes t⇇Level) → yes (_ , sucᵘᵢ t⇇Level)
-    (no ¬t⇇Level) → no λ where
-      (_ , sucᵘᵢ x) → ¬t⇇Level x
+  dec⇉ ⊢Γ zeroᵘᵢ =
+    case Level-allowed? of λ where
+      (yes ok)    → yes (Level , zeroᵘᵢ ok)
+      (no not-ok) → no λ where
+        (_ , zeroᵘᵢ ok) → not-ok ok
+  dec⇉ ⊢Γ (sucᵘᵢ t) =
+    case (Level-allowed? ×-dec′ λ ok →
+          dec⇇ t (Levelⱼ′ ok ⊢Γ)) of λ where
+      (yes (_ , t⇇Level)) → yes (_ , sucᵘᵢ t⇇Level)
+      (no not)            → no λ where
+        (_ , sucᵘᵢ t) →
+          let ok = inversion-Level-⊢ (wf-⊢∷ (soundness⇇ t)) in
+          not (ok , t)
   dec⇉ ⊢Γ (supᵘᵢ t u) =
-    case dec⇇ t (Levelⱼ′ ⊢Γ) ×-dec dec⇇ u (Levelⱼ′ ⊢Γ) of λ where
-      (yes (t⇇Level , u⇇Level)) → yes (_ , supᵘᵢ t⇇Level u⇇Level)
-      (no not) → no λ where
-        (_ , supᵘᵢ x y) → not (x , y)
+    case (Level-allowed? ×-dec′ λ ok →
+          dec⇇ t (Levelⱼ′ ok ⊢Γ) ×-dec
+          dec⇇ u (Levelⱼ′ ok ⊢Γ)) of λ where
+      (yes (_ , t⇇Level , u⇇Level)) → yes (_ , supᵘᵢ t⇇Level u⇇Level)
+      (no not)                      → no λ where
+        (_ , supᵘᵢ t u) →
+          let ok = inversion-Level-⊢ (wf-⊢∷ (soundness⇇ t)) in
+          not (ok , t , u)
   dec⇉ ⊢Γ (Uᵢ l) =
-    case dec⇇ l (Levelⱼ′ ⊢Γ) of λ where
+    case dec⇇Level l ⊢Γ of λ where
       (yes l) → yes (_ , Uᵢ l)
       (no not) → no λ { (_ , Uᵢ l) → not l }
   dec⇉ ⊢Γ (Liftᵢ l A) =
-    case (dec⇇ l (Levelⱼ′ ⊢Γ) ×-dec
+    case (dec⇇Level l ⊢Γ ×-dec
           dec⇉-with-cont ⊢Γ A λ ⊢A _ → ↘U? ⊢A) of λ where
       (yes (l , (_ , A) , (_ , ↘U))) → yes (_ , Liftᵢ l A ↘U)
       (no not) → no λ { (_ , Liftᵢ l A ↘U) → not (l , (_ , A) , (_ , ↘U)) }
@@ -951,8 +988,8 @@ mutual
   dec⇉ ⊢Γ ([]-congᵢ {s} l A t u v) =
     case
       ([]-cong-allowed? s ×-dec
-       dec⇇-with-cont l (Levelⱼ′ ⊢Γ) λ ⊢l →
-       dec⇇-with-cont A (⊢U ⊢l) λ ⊢A →
+       dec⇇Level-with-cont l ⊢Γ λ ⊢l →
+       dec⇇-with-cont A (⊢U ⊢Γ ⊢l) λ ⊢A →
        dec⇇-with-cont t (univ ⊢A) λ ⊢t →
        dec⇇-with-cont u (univ ⊢A) λ ⊢u →
        dec⇇ v (Idⱼ′ ⊢t ⊢u))
@@ -1036,3 +1073,17 @@ mutual
         (lamᶜ _ _)    → case t of λ ()
         (prodᶜ _ _ _) → case t of λ ()
         (rflᶜ _ _)    → case t of λ ()
+
+  -- Decidability of bi-directional type-checking for levels.
+
+  dec⇇Level : Checkable-level l → ⊢ Γ → Dec (Γ ⊢ l ⇇Level)
+  dec⇇Level (term ok l) ⊢Γ =
+    Dec-map (sym⇔ $ ⊢⇇Level⇔ ok) (dec⇇ l (Levelⱼ′ ok ⊢Γ))
+  dec⇇Level {l} (literal not-ok) _ =
+    case level-literal? l of λ where
+      (literal l-lit) →
+        yes (literal not-ok l-lit)
+      (not-literal not-lit) →
+        no λ where
+          (term ok _)       → not-ok ok
+          (literal _ l-lit) → not-lit l-lit

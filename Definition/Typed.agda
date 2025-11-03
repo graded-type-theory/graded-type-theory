@@ -39,6 +39,20 @@ private
     b : BinderMode
     k : Strength
 
+opaque
+
+  -- A variant of _supᵘ_.
+  --
+  -- If only level literals are allowed, and the inputs are literals,
+  -- then a literal is returned.
+
+  infixr 30 _supᵘₗ_
+
+  _supᵘₗ_ : Term n → Term n → Term n
+  l₁ supᵘₗ l₂ with level-support
+  … | only-literals = l₁ supᵘₗ′ l₂
+  … | level-type _  = l₁ supᵘ l₂
+
 -- Well-typed variables
 data _∷_∈_ : (x : Fin n) (A : Term n) (Γ : Con Term n) → Set ℓ where
   here  :                 x0 ∷ wk1 A ∈ Γ ∙ A
@@ -52,12 +66,12 @@ mutual
 
   -- Well-formed type
   data _⊢_ (Γ : Con Term n) : Term n → Set ℓ where
-    Levelⱼ : ¬ Level-is-small
+    Levelⱼ : Level-is-not-small
            → ⊢ Γ
            → Γ ⊢ Level
     univ   : Γ ⊢ A ∷ U l
            → Γ ⊢ A
-    Liftⱼ  : Γ ⊢ l₂ ∷ Level
+    Liftⱼ  : Γ ⊢ l₂ ∷Level
            → Γ ⊢ A
            → Γ ⊢ Lift l₂ A
     ΠΣⱼ    : Γ ∙ F ⊢ G
@@ -79,7 +93,8 @@ mutual
               → Γ ⊢ var x ∷ A
 
     Levelⱼ    : ⊢ Γ → Level-is-small → Γ ⊢ Level ∷ U zeroᵘ
-    zeroᵘⱼ    : ⊢ Γ
+    zeroᵘⱼ    : Level-allowed
+              → ⊢ Γ
               → Γ ⊢ zeroᵘ ∷ Level
     sucᵘⱼ     : Γ ⊢ l ∷ Level
               → Γ ⊢ sucᵘ l ∷ Level
@@ -87,14 +102,15 @@ mutual
               → Γ ⊢ l₂ ∷ Level
               → Γ ⊢ l₁ supᵘ l₂ ∷ Level
 
-    Uⱼ        : Γ ⊢ l ∷ Level
+    Uⱼ        : ⊢ Γ
+              → Γ ⊢ l ∷Level
               → Γ ⊢ U l ∷ U (sucᵘ l)
 
-    Liftⱼ     : Γ ⊢ l₁ ∷ Level
-              → Γ ⊢ l₂ ∷ Level
+    Liftⱼ     : Γ ⊢ l₁ ∷Level
+              → Γ ⊢ l₂ ∷Level
               → Γ ⊢ A ∷ U l₁
-              → Γ ⊢ Lift l₂ A ∷ U (l₁ supᵘ l₂)
-    liftⱼ     : Γ ⊢ l₂ ∷ Level
+              → Γ ⊢ Lift l₂ A ∷ U (l₁ supᵘₗ l₂)
+    liftⱼ     : Γ ⊢ l₂ ∷Level
               → Γ ⊢ A
               → Γ ⊢ t ∷ A
               → Γ ⊢ lift t ∷ Lift l₂ A
@@ -114,7 +130,7 @@ mutual
               → Unitʷ-allowed
               → Γ ⊢ unitrec p q A t u ∷ A [ t ]₀
 
-    ΠΣⱼ       : Γ     ⊢ l ∷ Level
+    ΠΣⱼ       : Γ     ⊢ l ∷Level
               → Γ     ⊢ F ∷ U l
               → Γ ∙ F ⊢ G ∷ U (wk1 l)
               → ΠΣ-allowed b p q
@@ -174,7 +190,7 @@ mutual
               → Γ ⊢ v ∷ Id A t t
               → K-allowed
               → Γ ⊢ K p A t B u v ∷ B [ v ]₀
-    []-congⱼ  : Γ ⊢ l ∷ Level
+    []-congⱼ  : Γ ⊢ l ∷Level
               → Γ ⊢ A ∷ U l
               → Γ ⊢ t ∷ A
               → Γ ⊢ u ∷ A
@@ -183,6 +199,16 @@ mutual
               → let open Erased k in
                 Γ ⊢ []-cong k l A t u v ∷
                   Id (Erased l A) ([ t ]) ([ u ])
+
+  -- Well-formed level terms.
+
+  data _⊢_∷Level (Γ : Con Term n) : Term n → Set ℓ where
+    term    : Level-allowed
+            → Γ ⊢ t ∷ Level
+            → Γ ⊢ t ∷Level
+    literal : ¬ Level-allowed
+            → Level-literal t
+            → Γ ⊢ t ∷Level
 
   -- Type equality
   data _⊢_≡_ (Γ : Con Term n) : Term n → Term n → Set ℓ where
@@ -198,7 +224,7 @@ mutual
     U-cong : Γ ⊢ l₁ ≡ l₂ ∷ Level
            → Γ ⊢ U l₁ ≡ U l₂
     Lift-cong
-           : Γ ⊢ l₂ ≡ l₂′ ∷ Level
+           : Γ ⊢ l₂ ≡ l₂′ ∷Level
            → Γ ⊢ A ≡ B
            → Γ ⊢ Lift l₂ A ≡ Lift l₂′ B
     ΠΣ-cong
@@ -254,16 +280,17 @@ mutual
     U-cong        : Γ ⊢ l₁ ≡ l₂ ∷ Level
                   → Γ ⊢ U l₁ ≡ U l₂ ∷ U (sucᵘ l₁)
 
-    Lift-cong     : Γ ⊢ l₁ ∷ Level
-                  → Γ ⊢ l₂ ≡ l₂′ ∷ Level
+    Lift-cong     : Γ ⊢ l₁ ∷Level
+                  → Γ ⊢ l₂ ∷Level
+                  → Γ ⊢ l₂ ≡ l₂′ ∷Level
                   → Γ ⊢ A ≡ B ∷ U l₁
-                  → Γ ⊢ Lift l₂ A ≡ Lift l₂′ B ∷ U (l₁ supᵘ l₂)
+                  → Γ ⊢ Lift l₂ A ≡ Lift l₂′ B ∷ U (l₁ supᵘₗ l₂)
     lower-cong    : Γ ⊢ t ≡ u ∷ Lift l₂ A
                   → Γ ⊢ lower t ≡ lower u ∷ A
     Lift-β        : Γ ⊢ A
                   → Γ ⊢ t ∷ A
                   → Γ ⊢ lower (lift t) ≡ t ∷ A
-    Lift-η        : Γ ⊢ l₂ ∷ Level
+    Lift-η        : Γ ⊢ l₂ ∷Level
                   → Γ ⊢ A
                   → Γ ⊢ t ∷ Lift l₂ A
                   → Γ ⊢ u ∷ Lift l₂ A
@@ -299,7 +326,7 @@ mutual
                   → Unitʷ-η
                   → Γ ⊢ unitrec p q A t u ≡ u ∷ A [ t ]₀
 
-    ΠΣ-cong       : Γ     ⊢ l ∷ Level
+    ΠΣ-cong       : Γ     ⊢ l ∷Level
                   → Γ     ⊢ F ≡ H ∷ U l
                   → Γ ∙ F ⊢ G ≡ E ∷ U (wk1 l)
                   → ΠΣ-allowed b p q
@@ -424,7 +451,7 @@ mutual
                   → Γ ⊢ u ∷ B [ rfl ]₀
                   → K-allowed
                   → Γ ⊢ K p A t B u rfl ≡ u ∷ B [ rfl ]₀
-    []-cong-cong  : Γ ⊢ l₁ ≡ l₂ ∷ Level
+    []-cong-cong  : Γ ⊢ l₁ ≡ l₂ ∷Level
                   → Γ ⊢ A₁ ≡ A₂ ∷ U l₁
                   → Γ ⊢ t₁ ≡ t₂ ∷ A₁
                   → Γ ⊢ u₁ ≡ u₂ ∷ A₁
@@ -434,7 +461,7 @@ mutual
                     Γ ⊢ []-cong k l₁ A₁ t₁ u₁ v₁ ≡
                       []-cong k l₂ A₂ t₂ u₂ v₂ ∷
                       Id (Erased l₁ A₁) ([ t₁ ]) ([ u₁ ])
-    []-cong-β     : Γ ⊢ l ∷ Level
+    []-cong-β     : Γ ⊢ l ∷Level
                   → Γ ⊢ A ∷ U l
                   → Γ ⊢ t ∷ A
                   → t PE.≡ t′
@@ -447,6 +474,16 @@ mutual
                   → Γ ⊢ Id A t u
                   → Γ ⊢ v ∷ Id A t u
                   → Γ ⊢ t ≡ u ∷ A
+
+  -- Level term equality.
+
+  data _⊢_≡_∷Level (Γ : Con Term n) : (_ _ : Term n) → Set ℓ where
+    term    : Level-allowed
+            → Γ ⊢ t ≡ u ∷ Level
+            → Γ ⊢ t ≡ u ∷Level
+    literal : ¬ Level-allowed
+            → Level-literal t
+            → Γ ⊢ t ≡ t ∷Level
 
 -- Term reduction
 data _⊢_⇒_∷_ (Γ : Con Term n) : Term n → Term n → Term n → Set ℓ where

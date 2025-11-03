@@ -18,6 +18,7 @@ open Type-restrictions R
 
 open import Definition.Typed R
 import Definition.Typed.Properties.Admissible.Erased.Primitive R as ET
+open import Definition.Typed.Properties.Admissible.Level R
 open import Definition.Typed.Properties.Admissible.Lift R
 open import Definition.Typed.Properties.Admissible.Sigma R
 open import Definition.Typed.Properties.Admissible.Unit R
@@ -52,8 +53,8 @@ opaque
     let ⊢A = wf-⊢∷ ⊢t
         ⊢Γ = wf ⊢A
     in
-    Σ-β₁-≡ (Liftⱼ (zeroᵘⱼ (∙ ⊢A)) (⊢Unit (∙ ⊢A) Unit-ok)) ⊢t
-      (liftⱼ′ (zeroᵘⱼ ⊢Γ) (starⱼ ⊢Γ Unit-ok)) Σ-ok
+    Σ-β₁-≡ (Liftⱼ (⊢zeroᵘ (∙ ⊢A)) (⊢Unit (∙ ⊢A) Unit-ok)) ⊢t
+      (liftⱼ′ (⊢zeroᵘ ⊢Γ) (starⱼ ⊢Γ Unit-ok)) Σ-ok
 
 opaque
   unfolding Erased erased
@@ -108,7 +109,7 @@ opaque
     let _ , ⊢Lift-Unit , Σ-ok = inversion-ΠΣ (wf-⊢∷ ⊢t)
         _ , ⊢Unit             = inversion-Lift ⊢Lift-Unit
         Erased-ok             = inversion-Unit ⊢Unit , Σ-ok
-        ⊢l                    = inversion-U-Level (wf-⊢∷ ⊢A)
+        _ , ⊢l                = inversion-U-Level (wf-⊢∷ ⊢A)
     in
     Erased-η-≡ (ET.[]ⱼ Erased-ok ⊢l ⊢A (erasedⱼ ⊢t)) ⊢t $
     Erased-β Erased-ok (erasedⱼ ⊢t)

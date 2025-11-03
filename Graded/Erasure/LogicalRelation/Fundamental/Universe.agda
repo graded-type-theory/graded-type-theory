@@ -15,6 +15,7 @@ module Graded.Erasure.LogicalRelation.Fundamental.Universe
 
 open import Definition.LogicalRelation.Substitution R
 open import Definition.Typed R
+open import Definition.Typed.Properties R
 open import Definition.Typed.Substitution R
 open import Definition.Untyped M
 
@@ -39,12 +40,12 @@ opaque
   -- Validity for U.
 
   Uʳ :
-    Γ ⊢ t ∷ Level →
+    Γ ⊢ t ∷Level →
     γ ▸ Γ ⊩ʳ U t ∷[ m ] U (sucᵘ t)
   Uʳ ⊢t =
     ▸⊩ʳ∷⇔ .proj₂ λ ⊩σ _ →
     ®∷→®∷◂ $
     ®∷U⇔ .proj₂
-      ( sucᵘⱼ (subst-⊢∷ ⊢t (escape-⊩ˢ∷ ⊩σ .proj₂))
+      ( ⊢sucᵘ (subst-⊢∷L ⊢t (escape-⊩ˢ∷ ⊩σ .proj₂))
       , U/Levelᵣ (λ { PE.refl → T.refl })
       )

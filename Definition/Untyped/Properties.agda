@@ -6,13 +6,15 @@
 module Definition.Untyped.Properties {a} (M : Set a) where
 
 open import Definition.Untyped M
+open import Definition.Untyped.Inversion M
 open import Definition.Untyped.Properties.NotParametrised public
 
+open import Tools.Empty
 open import Tools.Fin
 open import Tools.Function
 open import Tools.Nat
 open import Tools.Relation
-open import Tools.Product
+open import Tools.Product as Σ
 open import Tools.PropositionalEquality as PE
 open import Tools.Reasoning.PropositionalEquality
 
@@ -2147,9 +2149,9 @@ U-PE-injectivity PE.refl = PE.refl
 Lift-PE-injectivity : Lift t₁ A₁ PE.≡ Lift t₂ A₂ → t₁ PE.≡ t₂ × A₁ PE.≡ A₂
 Lift-PE-injectivity PE.refl = PE.refl , PE.refl
 
--- The constructor sucᵘ is injective.
+-- The constructor Term.sucᵘ is injective.
 
-sucᵘ-PE-injectivity : sucᵘ t₁ PE.≡ sucᵘ t₂ → t₁ PE.≡ t₂
+sucᵘ-PE-injectivity : Term.sucᵘ t₁ PE.≡ sucᵘ t₂ → t₁ PE.≡ t₂
 sucᵘ-PE-injectivity PE.refl = PE.refl
 
 -- The constructor supᵘ is injective.
@@ -2301,3 +2303,323 @@ K-PE-injectivity PE.refl =
   v₁ PE.≡ v₂
 []-cong-PE-injectivity PE.refl =
   PE.refl , PE.refl , PE.refl , PE.refl , PE.refl , PE.refl
+
+------------------------------------------------------------------------
+-- Some lemmas related to level literals
+
+opaque
+
+  -- It is decidable whether two level literals are equal.
+
+  infix 4 _≟L_
+
+  _≟L_ :
+    Level-literal l₁ → Level-literal l₂ →
+    Dec (l₁ ≡ l₂)
+  zeroᵘ   ≟L zeroᵘ   = yes refl
+  zeroᵘ   ≟L sucᵘ _  = no (λ ())
+  sucᵘ _  ≟L zeroᵘ   = no (λ ())
+  sucᵘ l₁ ≟L sucᵘ l₂ =
+    Dec-map (cong sucᵘ , sucᵘ-PE-injectivity) (l₁ ≟L l₂)
+
+opaque
+
+  -- Level-literal is propositional.
+
+  Level-literal-propositional : Is-proposition (Level-literal l)
+  Level-literal-propositional {x = zeroᵘ}  {y = zeroᵘ}  = refl
+  Level-literal-propositional {x = sucᵘ _} {y = sucᵘ _} =
+    cong sucᵘ Level-literal-propositional
+
+opaque
+  unfolding size-of-Level
+
+  -- If l-lit : Level-literal l, then ↓ᵘ (size-of-Level l-lit) is
+  -- equal to l.
+
+  ↓ᵘ-size-of-Level :
+    {l-lit : Level-literal l} →
+    ↓ᵘ (size-of-Level l-lit) ≡ l
+  ↓ᵘ-size-of-Level {l-lit = zeroᵘ}  = refl
+  ↓ᵘ-size-of-Level {l-lit = sucᵘ _} = cong sucᵘ ↓ᵘ-size-of-Level
+
+opaque
+
+  -- An alternative characterisation of Level-literal.
+
+  Level-literal⇔ : Level-literal l ⇔ ∃ λ n → l ≡ ↓ᵘ n
+  Level-literal⇔ =
+    (λ l-lit → _ , sym (↓ᵘ-size-of-Level {l-lit = l-lit})) , from
+    where
+    from : (∃ λ n → l ≡ ↓ᵘ n) → Level-literal l
+    from (0    , refl) = zeroᵘ
+    from (1+ n , refl) = sucᵘ (from (n , refl))
+
+opaque
+
+  -- The term ↓ᵘ n is a level literal.
+
+  Level-literal-↓ᵘ : Level-literal {n = n} (↓ᵘ m)
+  Level-literal-↓ᵘ = Level-literal⇔ .proj₂ (_ , refl)
+
+opaque
+
+  -- A substitution lemma for sucᵘᵏ.
+
+  sucᵘᵏ-[] : ∀ n → sucᵘᵏ n t [ σ ] ≡ sucᵘᵏ n (t [ σ ])
+  sucᵘᵏ-[] 0      = refl
+  sucᵘᵏ-[] (1+ n) = cong sucᵘ (sucᵘᵏ-[] n)
+
+opaque
+
+  -- A weakening lemma for sucᵘᵏ.
+
+  wk-sucᵘᵏ : ∀ n → wk ρ (sucᵘᵏ n t) ≡ sucᵘᵏ n (wk ρ t)
+  wk-sucᵘᵏ {ρ} {t} n =
+    wk ρ (sucᵘᵏ n t)           ≡⟨ wk≡subst _ _ ⟩
+    sucᵘᵏ n t [ toSubst ρ ]    ≡⟨ sucᵘᵏ-[] n ⟩
+    sucᵘᵏ n (t [ toSubst ρ ])  ≡˘⟨ cong (sucᵘᵏ n) $ wk≡subst _ _ ⟩
+    sucᵘᵏ n (wk ρ t)           ∎
+
+opaque
+
+  -- A substitution lemma for ↓ᵘ_.
+
+  ↓ᵘ-[] : (↓ᵘ n) [ σ ] ≡ ↓ᵘ n
+  ↓ᵘ-[] {n} = sucᵘᵏ-[] n
+
+opaque
+
+  -- A weakening lemma for ↓ᵘ_.
+
+  wk-↓ᵘ : wk ρ (↓ᵘ n) ≡ ↓ᵘ n
+  wk-↓ᵘ {ρ} {n} =
+    wk ρ (↓ᵘ n)           ≡⟨ wk≡subst _ _ ⟩
+    (↓ᵘ n) [ toSubst ρ ]  ≡⟨ ↓ᵘ-[] ⟩
+    ↓ᵘ n                  ∎
+
+opaque
+
+  -- If l is a level literal, then l [ σ₁ ] ≡ l [ σ₂ ] holds.
+
+  Level-literal→[]≡[] : Level-literal l → l [ σ₁ ] ≡ l [ σ₂ ]
+  Level-literal→[]≡[] {l} {σ₁} {σ₂} l-lit =
+    let n , eq = Level-literal⇔ .proj₁ l-lit in
+    l [ σ₁ ]       ≡⟨ cong _[ _ ] eq ⟩
+    (↓ᵘ n) [ σ₁ ]  ≡⟨ ↓ᵘ-[] ⟩
+    ↓ᵘ n           ≡˘⟨ ↓ᵘ-[] ⟩
+    (↓ᵘ n) [ σ₂ ]  ≡˘⟨ cong _[ _ ] eq ⟩
+    l [ σ₂ ]       ∎
+
+opaque
+
+  -- If l is a level literal, then l [ σ ] is also a level literal.
+
+  Level-literal-[] : Level-literal l → Level-literal (l [ σ ])
+  Level-literal-[] {l} {σ} =
+    Level-literal l           ⇔⟨ Level-literal⇔ ⟩→
+    (∃ λ n → l ≡ ↓ᵘ n)        →⟨ Σ.map idᶠ (λ { refl → ↓ᵘ-[] }) ⟩
+    (∃ λ n → l [ σ ] ≡ ↓ᵘ n)  ⇔˘⟨ Level-literal⇔ ⟩→
+    Level-literal (l [ σ ])   □
+
+opaque
+
+  -- The term l is a level literal if and only if wk ρ l is.
+
+  wk-Level-literal : Level-literal l ⇔ Level-literal (wk ρ l)
+  wk-Level-literal = to , flip from refl
+    where
+    to : Level-literal l → Level-literal (wk ρ l)
+    to = subst Level-literal (sym $ wk≡subst _ _) ∘→ Level-literal-[]
+
+    from : Level-literal t → wk ρ l ≡ t → Level-literal l
+    from zeroᵘ eq =
+      case wk-zeroᵘ eq of λ {
+        refl →
+      zeroᵘ }
+    from (sucᵘ l-lit) eq =
+      case wk-sucᵘ eq of λ {
+        (_ , refl , refl) →
+      sucᵘ (from l-lit refl) }
+
+opaque
+  unfolding _supᵘₗ′_
+
+  -- A "computation rule" for _supᵘₗ′_.
+
+  supᵘₗ′≡↓ᵘ⊔ :
+    (l₁-lit : Level-literal l₁) (l₂-lit : Level-literal l₂) →
+    l₁ supᵘₗ′ l₂ ≡ ↓ᵘ (size-of-Level l₁-lit ⊔ size-of-Level l₂-lit)
+  supᵘₗ′≡↓ᵘ⊔ {l₁} {l₂} l₁-lit l₂-lit
+    with level-literal? l₁ | level-literal? l₂
+  … | literal _ | literal _ =
+    cong₂ (λ l₁ l₂ → ↓ᵘ (size-of-Level l₁ ⊔ size-of-Level l₂))
+      Level-literal-propositional Level-literal-propositional
+  … | not-literal l₁-not | _                  = ⊥-elim (l₁-not l₁-lit)
+  … | _                  | not-literal l₂-not = ⊥-elim (l₂-not l₂-lit)
+
+opaque
+  unfolding _supᵘₗ′_
+
+  -- Another "computation rule" for _supᵘₗ′_.
+
+  supᵘₗ′≡supᵘ :
+    ¬ (Level-literal l₁ × Level-literal l₂) →
+    l₁ supᵘₗ′ l₂ ≡ l₁ supᵘ l₂
+  supᵘₗ′≡supᵘ {l₁} {l₂} not-both
+    with level-literal? l₁ | level-literal? l₂
+  … | literal l₁-lit | literal l₂-lit =
+    ⊥-elim (not-both (l₁-lit , l₂-lit))
+  … | literal _     | not-literal _ = refl
+  … | not-literal _ | _             = refl
+
+opaque
+  unfolding _supᵘₗ′_
+
+  -- The term l₁ supᵘₗ′ l₂ is a level literal if and only if l₁ and l₂
+  -- are.
+
+  Level-literal-supᵘₗ′⇔ :
+    Level-literal (l₁ supᵘₗ′ l₂) ⇔ (Level-literal l₁ × Level-literal l₂)
+  Level-literal-supᵘₗ′⇔ =
+    to ,
+    (λ (l₁-lit , l₂-lit) →
+       subst Level-literal (sym $ supᵘₗ′≡↓ᵘ⊔ l₁-lit l₂-lit)
+         Level-literal-↓ᵘ)
+    where
+    to :
+      Level-literal (l₁ supᵘₗ′ l₂) →
+      Level-literal l₁ × Level-literal l₂
+    to {l₁} {l₂} supᵘₗ′-lit with level-literal? l₁ | level-literal? l₂
+    … | literal l₁-lit | literal l₂-lit =
+      l₁-lit , l₂-lit
+    … | literal _ | not-literal _ =
+      case supᵘₗ′-lit of λ ()
+    … | not-literal _ | _ =
+      case supᵘₗ′-lit of λ ()
+
+opaque
+  unfolding Level-literal⇔ size-of-Level
+
+  -- A lemma related to size-of-Level.
+
+  size-of-Level-Level-literal⇔ :
+    {eq : l ≡ ↓ᵘ n} →
+    size-of-Level (Level-literal⇔ .proj₂ (n , eq)) ≡ n
+  size-of-Level-Level-literal⇔ {n = 0}    {eq = refl} = refl
+  size-of-Level-Level-literal⇔ {n = 1+ _} {eq = refl} =
+    cong 1+ size-of-Level-Level-literal⇔
+
+opaque
+  unfolding Level-literal-↓ᵘ
+
+  -- A lemma relating size-of-Level and Level-literal-↓ᵘ.
+
+  size-of-Level-Level-literal-↓ᵘ :
+    size-of-Level (Level-literal-↓ᵘ {n = n} {m = m}) ≡ m
+  size-of-Level-Level-literal-↓ᵘ = size-of-Level-Level-literal⇔
+
+opaque
+  unfolding Level-literal-[] Level-literal⇔
+
+  -- The function size-of-Level is not affected by applications of
+  -- Level-literal-[].
+
+  size-of-Level-Level-literal-[] :
+    {l-lit : Level-literal l} →
+    size-of-Level (Level-literal-[] {σ = σ} l-lit) ≡
+    size-of-Level l-lit
+  size-of-Level-Level-literal-[] = size-of-Level-Level-literal⇔
+
+opaque
+
+  -- The function size-of-Level is not affected by applications of
+  -- subst Level-literal.
+
+  size-of-Level-subst :
+    {eq : l₁ ≡ l₂} {l₁-lit : Level-literal l₁} →
+    size-of-Level (subst Level-literal eq l₁-lit) ≡
+    size-of-Level l₁-lit
+  size-of-Level-subst {eq = refl} = refl
+
+opaque
+  unfolding wk-Level-literal
+
+  -- The function size-of-Level is not affected by applications of the
+  -- forward direction of wk-Level-literal.
+
+  size-of-Level-wk-Level-literal :
+    {l-lit : Level-literal l} →
+    size-of-Level (wk-Level-literal {ρ = ρ} .proj₁ l-lit) ≡
+    size-of-Level l-lit
+  size-of-Level-wk-Level-literal {l} {ρ} {l-lit} =
+    size-of-Level
+      (subst Level-literal (sym $ wk≡subst _ _) $
+       Level-literal-[] l-lit)                     ≡⟨ size-of-Level-subst ⟩
+
+    size-of-Level (Level-literal-[] l-lit)         ≡⟨ size-of-Level-Level-literal-[] ⟩
+
+    size-of-Level l-lit                            ∎
+
+opaque
+  unfolding Level-literal-supᵘₗ′⇔
+
+  -- A lemma relating size-of-Level, Level-literal-supᵘₗ′⇔ and _⊔_.
+
+  size-of-Level-Level-literal-supᵘₗ′⇔ :
+    {l₁-lit : Level-literal l₁}
+    {l₂-lit : Level-literal l₂} →
+    size-of-Level (Level-literal-supᵘₗ′⇔ .proj₂ (l₁-lit , l₂-lit)) ≡
+    size-of-Level l₁-lit ⊔ size-of-Level l₂-lit
+  size-of-Level-Level-literal-supᵘₗ′⇔ {l₁-lit} {l₂-lit} =
+    size-of-Level
+      (PE.subst Level-literal (PE.sym (supᵘₗ′≡↓ᵘ⊔ l₁-lit l₂-lit))
+         Level-literal-↓ᵘ)                                         ≡⟨ size-of-Level-subst ⟩
+
+    size-of-Level
+      (Level-literal-↓ᵘ
+         {m = size-of-Level l₁-lit ⊔ size-of-Level l₂-lit})        ≡⟨ size-of-Level-Level-literal-↓ᵘ ⟩
+
+    size-of-Level l₁-lit ⊔ size-of-Level l₂-lit                    ∎
+
+opaque
+
+  -- A substitution lemma for _supᵘₗ′_.
+
+  supᵘₗ′-[] :
+    Level-literal l₁ → Level-literal l₂ →
+    l₁ supᵘₗ′ l₂ [ σ ] ≡ (l₁ [ σ ]) supᵘₗ′ (l₂ [ σ ])
+  supᵘₗ′-[] {l₁} {l₂} {σ} l₁-lit l₂-lit =
+    l₁ supᵘₗ′ l₂ [ σ ]                                        ≡⟨ cong _[ _ ] $ supᵘₗ′≡↓ᵘ⊔ _ _ ⟩
+
+    (↓ᵘ (size-of-Level l₁-lit ⊔ size-of-Level l₂-lit)) [ σ ]  ≡⟨ ↓ᵘ-[] ⟩
+
+    ↓ᵘ (size-of-Level l₁-lit ⊔ size-of-Level l₂-lit)          ≡˘⟨ cong₂ (λ l₁ l₂ → ↓ᵘ (l₁ ⊔ l₂))
+                                                                    size-of-Level-Level-literal-[]
+                                                                    size-of-Level-Level-literal-[] ⟩
+    ↓ᵘ
+      (size-of-Level (Level-literal-[] l₁-lit) ⊔
+       size-of-Level (Level-literal-[] l₂-lit))               ≡˘⟨ supᵘₗ′≡↓ᵘ⊔ _ _ ⟩
+
+    (l₁ [ σ ]) supᵘₗ′ (l₂ [ σ ])                              ∎
+
+opaque
+  unfolding _supᵘₗ′_
+
+  -- A weakening lemma for _supᵘₗ′_.
+
+  wk-supᵘₗ′ : wk ρ (l₁ supᵘₗ′ l₂) ≡ wk ρ l₁ supᵘₗ′ wk ρ l₂
+  wk-supᵘₗ′ {ρ} {l₁} {l₂}
+    with level-literal? l₁ | level-literal? l₂
+  … | literal l₁-lit | literal l₂-lit =
+    wk ρ (↓ᵘ (size-of-Level l₁-lit ⊔ size-of-Level l₂-lit))  ≡˘⟨ cong (wk _) $ supᵘₗ′≡↓ᵘ⊔ _ _ ⟩
+    wk ρ (l₁ supᵘₗ′ l₂)                                      ≡⟨ wk≡subst _ _ ⟩
+    l₁ supᵘₗ′ l₂ [ toSubst ρ ]                               ≡⟨ supᵘₗ′-[] l₁-lit l₂-lit ⟩
+    (l₁ [ toSubst ρ ]) supᵘₗ′ (l₂ [ toSubst ρ ])             ≡˘⟨ cong₂ _supᵘₗ′_ (wk≡subst _ _) (wk≡subst _ _) ⟩
+    wk ρ l₁ supᵘₗ′ wk ρ l₂                                   ∎
+  … | literal _ | not-literal l₂-not =
+    wk ρ l₁ supᵘ   wk ρ l₂  ≡˘⟨ supᵘₗ′≡supᵘ (l₂-not ∘→ wk-Level-literal .proj₂ ∘→ proj₂) ⟩
+    wk ρ l₁ supᵘₗ′ wk ρ l₂  ∎
+  … | not-literal l₁-not | _ =
+    wk ρ l₁ supᵘ   wk ρ l₂  ≡˘⟨ supᵘₗ′≡supᵘ (l₁-not ∘→ wk-Level-literal .proj₂ ∘→ proj₁) ⟩
+    wk ρ l₁ supᵘₗ′ wk ρ l₂  ∎

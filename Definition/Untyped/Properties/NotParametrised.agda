@@ -28,6 +28,8 @@ private variable
   ρ ρ′               : Wk _ _
   x y                : Fin _
   l l₁ l₁′ l₂ l₂′ l₃ : Universe-level
+  sm sm₁ sm₂ sm₃     : Level-small
+  s s₁ s₂ s₃         : Level-support
 
 ------------------------------------------------------------------------
 -- Properties of weakening
@@ -280,6 +282,93 @@ opaque
   ⊔ᵘ-idem : l ⊔ᵘ l ≡ l
   ⊔ᵘ-idem {0ᵘ+ l} = cong 0ᵘ+_ (⊔-idem l)
   ⊔ᵘ-idem {(ωᵘ)}  = refl
+
+------------------------------------------------------------------------
+-- Properties related to Level-support
+
+opaque
+
+  -- Equality is decidable for Level-small.
+
+  infix 4 _≟-Level-small_
+
+  _≟-Level-small_ : Decidable-equality Level-small
+  small     ≟-Level-small small     = yes refl
+  small     ≟-Level-small not-small = no (λ ())
+  not-small ≟-Level-small small     = no (λ ())
+  not-small ≟-Level-small not-small = yes refl
+
+opaque
+
+  -- Equality is decidable for Level-support.
+
+  infix 4 _≟-Level-support_
+
+  _≟-Level-support_ : Decidable-equality Level-support
+  only-literals ≟-Level-support only-literals = yes refl
+  only-literals ≟-Level-support level-type _  = no (λ ())
+  level-type _  ≟-Level-support only-literals = no (λ ())
+  level-type s₁ ≟-Level-support level-type s₂ with s₁ ≟-Level-small s₂
+  … | yes eq    = yes (cong level-type eq)
+  … | no not-eq = no (not-eq ∘→ λ { refl → refl })
+
+opaque
+
+  -- The relation _≤LSm_ is reflexive.
+
+  refl-≤LSm : sm ≤LSm sm
+  refl-≤LSm {sm = small}     = small≤small
+  refl-≤LSm {sm = not-small} = not-small≤
+
+opaque
+
+  -- The relation _≤LSm_ is transitive.
+
+  trans-≤LSm : sm₁ ≤LSm sm₂ → sm₂ ≤LSm sm₃ → sm₁ ≤LSm sm₃
+  trans-≤LSm not-small≤  _           = not-small≤
+  trans-≤LSm small≤small small≤small = small≤small
+
+opaque
+
+  -- The relation _≤LS_ is reflexive.
+
+  refl-≤LS : s ≤LS s
+  refl-≤LS {s = only-literals} = only-literals≤
+  refl-≤LS {s = level-type _}  = level-type refl-≤LSm
+
+opaque
+
+  -- The relation _≤LS_ is transitive.
+
+  trans-≤LS : s₁ ≤LS s₂ → s₂ ≤LS s₃ → s₁ ≤LS s₃
+  trans-≤LS only-literals≤ only-literals≤ = only-literals≤
+  trans-≤LS (level-type p) (level-type q) = level-type (trans-≤LSm p q)
+
+opaque
+
+  -- If s₁ ≤LS s₂, then s₁ is distinct from only-literals exactly when
+  -- s₂ is distinct from only-literals.
+
+  ≤LS→≢only-literals⇔≢only-literals :
+    s₁ ≤LS s₂ →
+    s₁ ≢ only-literals ⇔ s₂ ≢ only-literals
+  ≤LS→≢only-literals⇔≢only-literals = λ where
+    only-literals≤           → id⇔
+    (level-type not-small≤)  → (λ _ ()) , (λ _ ())
+    (level-type small≤small) → id⇔
+
+opaque
+
+  -- If s₁ ≤LS s₂ and s₁ is equal to level-type small, then s₂ is
+  -- equal to level-type small.
+
+  ≤LS→≡small→≡small :
+    s₁ ≤LS s₂ →
+    s₁ ≡ level-type small → s₂ ≡ level-type small
+  ≤LS→≡small→≡small = λ where
+    only-literals≤           → λ ()
+    (level-type not-small≤)  → λ ()
+    (level-type small≤small) → idᶠ
 
 ------------------------------------------------------------------------
 -- Properties related to Empty-con and _or-empty_

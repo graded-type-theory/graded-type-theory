@@ -41,9 +41,9 @@ opaque
   -- If t satisfies Level-prop Γ, then it is a WHNF.
 
   level : Level-prop Γ t → Whnf t
-  level zeroᵘᵣ = zeroᵘₙ
-  level (sucᵘᵣ x) = sucᵘₙ
-  level (neLvl x) = ne (nelevel x)
+  level (zeroᵘᵣ _)  = zeroᵘₙ
+  level (sucᵘᵣ _ _) = sucᵘₙ
+  level (neLvl ⊩t)  = ne (nelevel ⊩t)
 
 opaque
 
@@ -64,8 +64,8 @@ opaque
   -- If t and u satisfy [Level]-prop Γ, then they are WHNFs.
 
   lsplit : [Level]-prop Γ t u → Whnf t × Whnf u
-  lsplit zeroᵘᵣ = zeroᵘₙ , zeroᵘₙ
-  lsplit (sucᵘᵣ x) = sucᵘₙ , sucᵘₙ
+  lsplit (zeroᵘᵣ _) = zeroᵘₙ , zeroᵘₙ
+  lsplit (sucᵘᵣ _ _) = sucᵘₙ , sucᵘₙ
   lsplit (supᵘ-subᵣ x _) = let a = nelevel x in ne (supᵘˡₙ a) , sucᵘₙ
   lsplit (neLvl x) = let a , b = nelsplit x in ne a , ne b
   lsplit (sym u≡t) = let a , b = lsplit u≡t in b , a

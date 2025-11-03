@@ -15,7 +15,6 @@ module Definition.Typed.Properties.Well-formed
 
 open import Definition.Untyped M
 open import Definition.Typed R
-open import Definition.Typed.Properties.Admissible.U R
 open import Definition.Typed.Size R
 
 open import Tools.Function
@@ -146,7 +145,7 @@ private module Lemmas where
     wf-<ˢ′ hyp = λ where
         (Levelⱼ _ ⊢Γ) _       → ⊢Γ , !
         (univ A)      PE.refl → fix (wfTerm-<ˢ A)
-        (Liftⱼ ⊢l _)  PE.refl → fix (wfTerm-<ˢ ⊢l)
+        (Liftⱼ _ ⊢A)  PE.refl → fix (wf-<ˢ ⊢A)
         (ΠΣⱼ ⊢B _)    PE.refl → fix (∙⊢→⊢-<ˢ ⊢B .proj₁)
         (Idⱼ ⊢A _ _)  PE.refl → fix (wf-<ˢ ⊢A)
       where
@@ -167,14 +166,14 @@ private module Lemmas where
         (conv ⊢t _)             PE.refl → fix (wfTerm-<ˢ ⊢t)
         (var ⊢Γ _)              _       → ⊢Γ , !
         (Levelⱼ ⊢Γ _)           _       → ⊢Γ , !
-        (zeroᵘⱼ ⊢Γ)             _       → ⊢Γ , !
+        (zeroᵘⱼ _ ⊢Γ)           _       → ⊢Γ , !
         (sucᵘⱼ t)               PE.refl → fix (wfTerm-<ˢ t)
         (supᵘⱼ t u)             PE.refl → fix (wfTerm-<ˢ t)
-        (Uⱼ ⊢l)                 PE.refl → fix (wfTerm-<ˢ ⊢l)
-        (Liftⱼ ⊢l₁ _ _)         PE.refl → fix (wfTerm-<ˢ ⊢l₁)
-        (liftⱼ x _ _)           PE.refl → fix (wfTerm-<ˢ x)
+        (Uⱼ ⊢Γ _)               _       → ⊢Γ , !
+        (Liftⱼ _ _ ⊢A)          PE.refl → fix (wfTerm-<ˢ ⊢A)
+        (liftⱼ _ ⊢A _)          PE.refl → fix (wf-<ˢ ⊢A)
         (lowerⱼ ⊢t)             PE.refl → fix (wfTerm-<ˢ ⊢t)
-        (ΠΣⱼ ⊢l _ _ _)          PE.refl → fix (wfTerm-<ˢ ⊢l)
+        (ΠΣⱼ _ ⊢A _ _)          PE.refl → fix (wfTerm-<ˢ ⊢A)
         (lamⱼ _ ⊢t _)           PE.refl → fix (∙⊢∷→⊢-<ˢ ⊢t .proj₁)
         (⊢t ∘ⱼ _)               PE.refl → fix (wfTerm-<ˢ ⊢t)
         (prodⱼ _ ⊢t _ _)        PE.refl → fix (wfTerm-<ˢ ⊢t)
@@ -194,7 +193,7 @@ private module Lemmas where
         (rflⱼ ⊢t)               PE.refl → fix (wfTerm-<ˢ ⊢t)
         (Jⱼ ⊢t _ _ _ _)         PE.refl → fix (wfTerm-<ˢ ⊢t)
         (Kⱼ _ ⊢u _ _)           PE.refl → fix (wfTerm-<ˢ ⊢u)
-        ([]-congⱼ ⊢l _ _ _ _ _) PE.refl → fix (wfTerm-<ˢ ⊢l)
+        ([]-congⱼ _ ⊢A _ _ _ _) PE.refl → fix (wfTerm-<ˢ ⊢A)
       where
       open Variants hyp
 
@@ -244,7 +243,7 @@ opaque
     wfEq-<ˢ (sym B≡A)           = fix (wfEq-<ˢ B≡A)
     wfEq-<ˢ (trans A≡B B≡C)     = fix (wfEq-<ˢ A≡B)
     wfEq-<ˢ (U-cong l₁≡l₂)      = fix (wfEqTerm-<ˢ l₁≡l₂)
-    wfEq-<ˢ (Lift-cong l₁≡l₂ _) = fix (wfEqTerm-<ˢ l₁≡l₂)
+    wfEq-<ˢ (Lift-cong _ A≡B)   = fix (wfEq-<ˢ A≡B)
     wfEq-<ˢ (ΠΣ-cong A₁≡B₁ _ _) = fix (wfEq-<ˢ A₁≡B₁)
     wfEq-<ˢ (Id-cong A≡B _ _)   = fix (wfEq-<ˢ A≡B)
 
@@ -280,16 +279,16 @@ opaque
       fix (wfTerm-<ˢ ⊢l)
     wfEqTerm-<ˢ (U-cong l₁≡l₂) =
       fix (wfEqTerm-<ˢ l₁≡l₂)
-    wfEqTerm-<ˢ (Lift-cong ⊢l₁ _ _) =
-      fix (wfTerm-<ˢ ⊢l₁)
+    wfEqTerm-<ˢ (Lift-cong _ _ _ A≡B) =
+      fix (wfEqTerm-<ˢ A≡B)
     wfEqTerm-<ˢ (lower-cong t≡u) =
       fix (wfEqTerm-<ˢ t≡u)
     wfEqTerm-<ˢ (Lift-β x _) =
       fix (wf-<ˢ x)
-    wfEqTerm-<ˢ (Lift-η x _ _ _ _) =
-      fix (wfTerm-<ˢ x)
-    wfEqTerm-<ˢ (ΠΣ-cong l A≡B _ _) =
-      fix (wfTerm-<ˢ l)
+    wfEqTerm-<ˢ (Lift-η _ ⊢A _ _ _) =
+      fix (wf-<ˢ ⊢A)
+    wfEqTerm-<ˢ (ΠΣ-cong _ A≡B _ _) =
+      fix (wfEqTerm-<ˢ A≡B)
     wfEqTerm-<ˢ (app-cong t₁≡u₁ _) =
       fix (wfEqTerm-<ˢ t₁≡u₁)
     wfEqTerm-<ˢ (β-red _ _ ⊢u _ _) =
@@ -342,8 +341,8 @@ opaque
       fix (wfTerm-<ˢ ⊢t)
     wfEqTerm-<ˢ (K-β _ ⊢u _) =
       fix (wfTerm-<ˢ ⊢u)
-    wfEqTerm-<ˢ ([]-cong-β ⊢l _ _ _ _) =
-      fix (wfTerm-<ˢ ⊢l)
+    wfEqTerm-<ˢ ([]-cong-β _ ⊢A _ _ _) =
+      fix (wfTerm-<ˢ ⊢A)
     wfEqTerm-<ˢ (equality-reflection _ _ ⊢v) =
       fix (wfTerm-<ˢ ⊢v)
 
@@ -563,5 +562,5 @@ opaque
 
 -- An example of how _∙[_] can be used.
 
-_ : ⊢ ε ∙ ℕ ∙ U zeroᵘ ∙ Empty
-_ = ε ∙[ _⊢_.univ ∘→ ℕⱼ ] ∙[ ⊢U ∘→ zeroᵘⱼ ] ∙[ _⊢_.univ ∘→ Emptyⱼ ]
+_ : ⊢ ε ∙ ℕ ∙ Empty
+_ = ε ∙[ _⊢_.univ ∘→ ℕⱼ ] ∙[ _⊢_.univ ∘→ Emptyⱼ ]

@@ -93,20 +93,20 @@ opaque
     ⊢Γ′∙ℕ∙ℕ = ∙ ⊢ℕ ⊢Γ′∙ℕ
 
     ⊢Γ′∙ℕ∙U : ⊢ Γ′ ∙ ℕ ∙ U zeroᵘ
-    ⊢Γ′∙ℕ∙U = ∙ ⊢U (zeroᵘⱼ ⊢Γ′∙ℕ)
+    ⊢Γ′∙ℕ∙U = ∙ ⊢U₀ ⊢Γ′∙ℕ
 
     ⊢Lift-Unit : ε ⊢ Lift zeroᵘ (Unit s) ∷ U zeroᵘ
     ⊢Lift-Unit =
-      conv (Liftⱼ′ (zeroᵘⱼ ε) (Unitⱼ ε Unit-ok))
-        (U-cong (supᵘ-zeroˡ (zeroᵘⱼ ε)))
+      conv (Liftⱼ′ (⊢zeroᵘ ε) (Unitⱼ ε Unit-ok))
+        (U-cong-⊢≡ ε (supᵘₗ-zeroˡ (⊢zeroᵘ ε)))
 
     ⊢[t′] : Γ′ ⊢ [ t′ ] ∷ A′
     ⊢[t′] = prodⱼ
       (_⊢_.univ $
-       natrecⱼ (wkTerm₁ (⊢ℕ ε) ⊢Lift-Unit) (ℕⱼ (∙ ⊢U (zeroᵘⱼ ⊢Γ′∙ℕ∙ℕ)))
+       natrecⱼ (wkTerm₁ (⊢ℕ ε) ⊢Lift-Unit) (ℕⱼ (∙ ⊢U₀ ⊢Γ′∙ℕ∙ℕ))
          (var ⊢Γ′∙ℕ here))
       (zeroⱼ ε)
-      (conv (liftⱼ′ (zeroᵘⱼ ε) (starⱼ ε Unit-ok))
+      (conv (liftⱼ′ (⊢zeroᵘ ε) (starⱼ ε Unit-ok))
          (_⊢_≡_.sym $ univ (natrec-zero ⊢Lift-Unit (ℕⱼ ⊢Γ′∙ℕ∙U))))
       Σ-ok
 

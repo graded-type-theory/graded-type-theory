@@ -12,8 +12,14 @@ module Definition.Typed.Properties.Admissible.U
   where
 
 open import Definition.Typed TR
+open import Definition.Typed.Inversion.Primitive TR
+import Definition.Typed.Properties.Admissible.U.Primitive TR as UP
+open import Definition.Typed.Properties.Well-formed TR
+open import Definition.Typed.Well-formed TR
 
-open import Definition.Untyped M hiding (wk)
+open import Definition.Untyped M
+
+open UP public
 
 private variable
   Γ : Con Term _
@@ -23,5 +29,7 @@ opaque
 
   -- A variant of Uⱼ.
 
-  ⊢U : Γ ⊢ l ∷ Level → Γ ⊢ U l
-  ⊢U ⊢l = univ (Uⱼ ⊢l)
+  ⊢U′ : Γ ⊢ l ∷ Level → Γ ⊢ U l
+  ⊢U′ ⊢l =
+    let ok = inversion-Level-⊢ (wf-⊢∷ ⊢l) in
+    ⊢U (wfTerm ⊢l) (term ok ⊢l)

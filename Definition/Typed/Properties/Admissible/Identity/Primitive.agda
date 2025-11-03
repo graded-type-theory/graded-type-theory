@@ -45,7 +45,7 @@ opaque
     Γ ⊢ v ∷ Id A t u →
     Γ ⊢ []-cong s l A t u v ∷ Id (Erased l A) ([ t ]) ([ u ])
   []-congⱼ′ ok ⊢A ⊢v =
-    let ⊢l          = inversion-U-Level (wf-⊢∷ ⊢A)
+    let _ , ⊢l      = inversion-U-Level (wf-⊢∷ ⊢A)
         _ , ⊢t , ⊢u = inversion-Id (wf-⊢∷ ⊢v)
     in
     []-congⱼ ⊢l ⊢A ⊢t ⊢u ⊢v ok

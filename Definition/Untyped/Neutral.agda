@@ -235,7 +235,7 @@ zeroᵘ≢ne n PE.refl = case n of λ { (ne ()) }
 sucᵘ≢ne : Neutralˡ t → sucᵘ u PE.≢ t
 sucᵘ≢ne n PE.refl = case n of λ { (ne ()) }
 
-sucᵘ≢zeroᵘ : sucᵘ t PE.≢ zeroᵘ
+sucᵘ≢zeroᵘ : Term.sucᵘ t PE.≢ zeroᵘ
 sucᵘ≢zeroᵘ ()
 
 zero≢ne : Neutral t → zero PE.≢ t

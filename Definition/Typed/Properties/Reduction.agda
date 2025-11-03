@@ -194,7 +194,8 @@ opaque
 
   subsetTerm : Γ ⊢ t ⇒ u ∷ A → Γ ⊢ t ≡ u ∷ A
   subsetTerm (supᵘ-zeroˡ ⊢l) = supᵘ-zeroˡ ⊢l
-  subsetTerm (supᵘ-zeroʳ ⊢l) = supᵘ-zeroʳⱼ (sucᵘⱼ ⊢l)
+  subsetTerm (supᵘ-zeroʳ ⊢l) =
+    supᵘ-zeroʳⱼ (inversion-Level-⊢ (wf-⊢∷ ⊢l)) (sucᵘⱼ ⊢l)
   subsetTerm (supᵘ-sucᵘ ⊢l₁ ⊢l₂) = supᵘ-sucᵘ ⊢l₁ ⊢l₂
   subsetTerm (supᵘ-substˡ t⇒t′ ⊢u) = supᵘ-cong (subsetTerm t⇒t′) (refl ⊢u)
   subsetTerm (supᵘ-substʳ ⊢t u⇒u′) = supᵘ-cong (refl (sucᵘⱼ ⊢t)) (subsetTerm u⇒u′)
@@ -226,8 +227,8 @@ opaque
     let (⊢A , _) , (⊢t , _) , _ = inversion-Id-⊢ (⊢∙→⊢ (wf ⊢B)) in
     K-cong (refl ⊢A) (refl ⊢t) (refl ⊢B) (refl ⊢u) (subsetTerm v⇒v′) ok
   subsetTerm ([]-cong-subst ⊢A ⊢t ⊢u v⇒v′ ok) =
-    []-cong-cong (refl (inversion-U-Level (wf-⊢∷ ⊢A))) (refl ⊢A)
-      (refl ⊢t) (refl ⊢u) (subsetTerm v⇒v′) ok
+    []-cong-cong (refl-⊢≡∷L (inversion-U-Level (wf-⊢∷ ⊢A) .proj₂))
+      (refl ⊢A) (refl ⊢t) (refl ⊢u) (subsetTerm v⇒v′) ok
   subsetTerm (J-β {t} {A} {t′} {B} {u} {p} {q} ⊢t _ t≡t′ ⊢B _ ⊢u) =
     J p q A t B u t′ rfl  ≡⟨ sym′ $
                              J-cong (refl (⊢∙→⊢ (wf (⊢∙→⊢ (wf ⊢B)))))
@@ -237,9 +238,9 @@ opaque
   subsetTerm (K-β ⊢B ⊢u ok) =
     K-β ⊢B ⊢u ok
   subsetTerm ([]-cong-β ⊢A ⊢t ⊢t′ t≡t′ ok) =
-    let ⊢l = inversion-U-Level (wf-⊢∷ ⊢A) in
+    let _ , ⊢l = inversion-U-Level (wf-⊢∷ ⊢A) in
     trans
-      ([]-cong-cong (refl ⊢l) (refl ⊢A) (refl ⊢t) (sym′ t≡t′)
+      ([]-cong-cong (refl-⊢≡∷L ⊢l) (refl ⊢A) (refl ⊢t) (sym′ t≡t′)
          (_⊢_≡_∷_.conv (refl (rflⱼ ⊢t)) $
           Id-cong (refl (univ ⊢A)) (refl ⊢t) t≡t′)
          ok)

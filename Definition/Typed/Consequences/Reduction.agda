@@ -345,9 +345,12 @@ opaque
 -- Helper function where reducible all terms can be reduced to WHNF.
 whNormTerm′ : ∀ {a A l} ([A] : Γ ⊩⟨ l ⟩ A) → Γ ⊩⟨ l ⟩ a ∷ A / [A]
                 → ∃ λ b → Whnf b × Γ ⊢ a ⇒* b ∷ A
-whNormTerm′ (Levelᵣ x) (Levelₜ₌ n n′ d d′ prop) =
+whNormTerm′ (Levelᵣ x) (term d d′ prop) =
   let w , _ = lsplit prop
-  in n , w , conv* d (sym (subset* x))
+  in _ , w , conv* d (sym (subset* x))
+whNormTerm′ (Levelᵣ A⇒*Level) (literal not-ok _ _) =
+  ⊥-elim $ not-ok $
+  inversion-Level-⊢ (wf-⊢≡ (subset* A⇒*Level) .proj₂)
 whNormTerm′ (Uᵣ′ _ _ _ A⇒*U) ⊩a =
   let Uₜ C B⇒*C C-type C≅C ⊩B = ⊩U∷U⇔⊩U≡∷U .proj₂ ⊩a in
   C , typeWhnf C-type , conv* B⇒*C (sym (subset* A⇒*U))
@@ -412,13 +415,13 @@ private opaque
     ⊢∙Empty = ∙ ⊢Empty ε
 
     ⊢U∷ : ε ∙ Empty ⊢ U zeroᵘ ∷ U (sucᵘ zeroᵘ)
-    ⊢U∷ = Uⱼ (zeroᵘⱼ ⊢∙Empty)
+    ⊢U∷ = ⊢U₀∷ ⊢∙Empty
 
     Π≡U : ε ∙ Empty ⊢ Π p , q ▷ U zeroᵘ ▹ U zeroᵘ ≡ U zeroᵘ
     Π≡U =
       _⊢_≡_.univ $
       ⊢∷Empty→⊢≡∷ ok₁ (var₀ (⊢Empty ε))
-        (ΠΣⱼ (sucᵘⱼ (zeroᵘⱼ ⊢∙Empty))
+        (ΠΣⱼ (⊢sucᵘ (⊢zeroᵘ ⊢∙Empty))
           ⊢U∷ (wkTerm₁ (univ ⊢U∷) ⊢U∷) ok₂)
         ⊢U∷
 

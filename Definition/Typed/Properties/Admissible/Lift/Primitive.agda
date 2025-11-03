@@ -16,6 +16,8 @@ module Definition.Typed.Properties.Admissible.Lift.Primitive
   where
 
 open import Definition.Typed R
+open import Definition.Typed.Properties.Admissible.Level.Primitive R
+open import Definition.Typed.Properties.Admissible.U.Primitive R
 open import Definition.Typed.Properties.Well-formed R
 open import Definition.Typed.Substitution.Primitive.Primitive R
 
@@ -38,25 +40,26 @@ opaque
   -- A variant of Liftⱼ.
 
   Liftⱼ-comm :
-    Γ ⊢ l₁ ∷ Level →
-    Γ ⊢ l₂ ∷ Level →
+    Γ ⊢ l₁ ∷Level →
+    Γ ⊢ l₂ ∷Level →
     Γ ⊢ A ∷ U l₁ →
-    Γ ⊢ Lift l₂ A ∷ U (l₂ supᵘ l₁)
+    Γ ⊢ Lift l₂ A ∷ U (l₂ supᵘₗ l₁)
   Liftⱼ-comm ⊢l₁ ⊢l₂ ⊢A =
-    conv (Liftⱼ ⊢l₁ ⊢l₂ ⊢A) (U-cong (supᵘ-comm ⊢l₁ ⊢l₂))
+    conv (Liftⱼ ⊢l₁ ⊢l₂ ⊢A) (U-cong-⊢≡ (wfTerm ⊢A) (supᵘₗ-comm ⊢l₁ ⊢l₂))
 
 opaque
 
   -- A variant of Lift-cong.
 
   Lift-cong-comm :
-    Γ ⊢ l₁ ∷ Level →
-    Γ ⊢ l₂ ∷ Level →
-    Γ ⊢ l₂ ≡ l₃ ∷ Level →
+    Γ ⊢ l₁ ∷Level →
+    Γ ⊢ l₂ ∷Level →
+    Γ ⊢ l₂ ≡ l₃ ∷Level →
     Γ ⊢ A₁ ≡ A₂ ∷ U l₁ →
-    Γ ⊢ Lift l₂ A₁ ≡ Lift l₃ A₂ ∷ U (l₂ supᵘ l₁)
+    Γ ⊢ Lift l₂ A₁ ≡ Lift l₃ A₂ ∷ U (l₂ supᵘₗ l₁)
   Lift-cong-comm ⊢l₁ ⊢l₂ l₂≡l₃ A₁≡A₂ =
-    conv (Lift-cong ⊢l₁ l₂≡l₃ A₁≡A₂) (U-cong (supᵘ-comm ⊢l₁ ⊢l₂))
+    conv (Lift-cong ⊢l₁ ⊢l₂ l₂≡l₃ A₁≡A₂)
+      (U-cong-⊢≡ (wfEqTerm A₁≡A₂) (supᵘₗ-comm ⊢l₁ ⊢l₂))
 
 ------------------------------------------------------------------------
 -- Some lemmas related to lower₀
@@ -67,7 +70,7 @@ opaque
   -- A typing rule for lower₀.
 
   lower₀Type
-    : Γ ⊢ l ∷ Level
+    : Γ ⊢ l ∷Level
     → Γ ∙ A ⊢ B
     → Γ ∙ Lift l A ⊢ lower₀ B
   lower₀Type ⊢l ⊢B =
@@ -80,7 +83,7 @@ opaque
   -- An equality rule for lower₀.
 
   lower₀TypeEq
-    : Γ ⊢ l ∷ Level
+    : Γ ⊢ l ∷Level
     → Γ ∙ A ⊢ B₁ ≡ B₂
     → Γ ∙ Lift l A ⊢ lower₀ B₁ ≡ lower₀ B₂
   lower₀TypeEq ⊢l B₁≡B₂ =
@@ -93,7 +96,7 @@ opaque
   -- A typing rule for lower₀.
 
   lower₀Term :
-    Γ ⊢ l ∷ Level →
+    Γ ⊢ l ∷Level →
     Γ ∙ A ⊢ t ∷ B →
     Γ ∙ Lift l A ⊢ lower₀ t ∷ lower₀ B
   lower₀Term ⊢l ⊢t =
@@ -106,7 +109,7 @@ opaque
   -- An equality rule for lower₀.
 
   lower₀TermEq :
-    Γ ⊢ l ∷ Level →
+    Γ ⊢ l ∷Level →
     Γ ∙ A ⊢ t₁ ≡ t₂ ∷ B →
     Γ ∙ Lift l A ⊢ lower₀ t₁ ≡ lower₀ t₂ ∷ lower₀ B
   lower₀TermEq ⊢l t₁≡t₂ =
@@ -126,7 +129,7 @@ opaque
   ⊢lower₀[lift]₀ {B} ⊢B ⊢t =
     let ⊢A = ⊢∙→⊢ (wf ⊢B) in
     PE.subst (_⊢_ _) (PE.sym ([]↑-[]₀ B)) $
-    substType ⊢B (lowerⱼ (liftⱼ (zeroᵘⱼ (wf ⊢A)) ⊢A ⊢t))
+    substType ⊢B (lowerⱼ (liftⱼ (⊢zeroᵘ (wf ⊢A)) ⊢A ⊢t))
 
 opaque
   unfolding lower₀
@@ -141,5 +144,5 @@ opaque
     let ⊢A = ⊢∙→⊢ (wf ⊢B) in
     PE.subst₂ (_⊢_≡_ _) (PE.sym ([]↑-[]₀ B)) PE.refl $
     subst-⊢≡ (refl ⊢B) $
-    ⊢ˢʷ≡∷-sgSubst (lowerⱼ (liftⱼ (zeroᵘⱼ (wf ⊢A)) ⊢A ⊢t)) ⊢t
+    ⊢ˢʷ≡∷-sgSubst (lowerⱼ (liftⱼ (⊢zeroᵘ (wf ⊢A)) ⊢A ⊢t)) ⊢t
       (Lift-β ⊢A ⊢t)

@@ -18,7 +18,9 @@ open import Definition.Untyped.Neutral M type-variant as U
   using (Neutral; Neutralˡ; No-η-equality; Whnf)
 open import Definition.Typed R
 open import Definition.Typed.EqRelInstance R
+open import Definition.Typed.Inversion R
 open import Definition.Typed.Properties R
+open import Definition.Typed.Well-formed R
 open import Definition.LogicalRelation R
 open import Definition.LogicalRelation.Hidden R
 open import Definition.LogicalRelation.Irrelevance R
@@ -684,7 +686,7 @@ whnf≢ne {Γ} {A} {t} {u} ¬-A-η A≢Level t-whnf ¬-t-ne u-ne t≡u =
 
   lemma : ∀ {l} → ([A] : Γ ⊩⟨ l ⟩ A) → ¬ Γ ⊩⟨ l ⟩ t ≡ u ∷ A / [A]
   lemma = λ where
-    (Levelᵣ A⇒*Level) (Levelₜ₌ _ _ t⇒ u⇒ prop) →
+    (Levelᵣ A⇒*Level) _ →
       A≢Level (subset* A⇒*Level)
     (Liftᵣ′ A⇒*Lift _ _) _ →
       case A⇒*no-η A⇒*Lift of λ where
@@ -799,12 +801,13 @@ opaque
 
   t≢sucᵘt :
     ⦃ ok : No-equality-reflection or-empty Γ ⦄ →
-    ¬ Γ ⊢ t ≡ sucᵘ t ∷ Level
-  t≢sucᵘt t≡sucᵘt =
-    case reducible-⊩≡∷ t≡sucᵘt of λ
-      (l , ⊩t≡sucᵘt) →
-    case ⊩≡∷Level⇔ .proj₁ ⊩t≡sucᵘt of λ
-      ⊩t≡sucᵘt →
-    case wf-Level-eq ⊩t≡sucᵘt of λ {
-      (⊩t@(Levelₜ _ _ _) , _) →
-    1+n≢n (PE.sym (↑ⁿ-cong ⊩t (⊩sucᵘ ⊩t) ⊩t≡sucᵘt)) }
+    ¬ Γ ⊢ t ≡ sucᵘ t ∷Level
+  t≢sucᵘt (term ok t≡sucᵘt) =
+    let l , ⊩t≡sucᵘt = reducible-⊩≡∷ t≡sucᵘt
+        _ , ⊩t≡sucᵘt = ⊩≡∷Level⇔ .proj₁ ⊩t≡sucᵘt
+    in
+    case wf-Level-eq ⊩t≡sucᵘt of λ where
+      (⊩t@(term _ _) , _) →
+        1+n≢n (PE.sym (↑ⁿ-cong ⊩t (⊩sucᵘ ⊩t) ⊩t≡sucᵘt))
+      (literal not-ok _ , _) →
+        not-ok ok

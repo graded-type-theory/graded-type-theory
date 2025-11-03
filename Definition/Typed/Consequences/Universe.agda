@@ -32,6 +32,7 @@ open import Tools.Product as Σ
 import Tools.PropositionalEquality as PE
 open import Tools.Reasoning.PropositionalEquality
 open import Tools.Relation
+open import Tools.Sum
 
 private variable
   l                     : Term _
@@ -59,17 +60,17 @@ opaque
   no-type-in-type :
     ⦃ ok : No-equality-reflection or-empty Γ ⦄ →
     ⊢ Γ →
-    ¬ (∀ {l} → Γ ⊢ l ∷ Level → Γ ⊢ U l ∷ U l)
+    ¬ (∀ {l} → Γ ⊢ l ∷Level → Γ ⊢ U l ∷ U l)
   no-type-in-type ⊢Γ U∷U =
-    ¬U∷U (U∷U (zeroᵘⱼ ⊢Γ))
+    ¬U∷U (U∷U (⊢zeroᵘ ⊢Γ))
 
 opaque
 
-  -- For any context Γ the type of the universe-polymorphic identity
+  -- For any context Γ, the type of the universe-polymorphic identity
   -- function (with certain grades)
   --
-  -- * is well-formed if Γ is and certain forms of Π-types are
-  --   allowed,
+  -- * is well-formed if Γ is, Level is allowed, and certain forms of
+  --   Π-types are also allowed,
   --
   -- * does not have a type, and
   --
@@ -83,14 +84,20 @@ opaque
             Π p₂ , q₂ ▷ U (var x0) ▹
             Π p₃ , q₃ ▷ var x0 ▹ var x1
     in
-    (Π-allowed p₁ q₁ → Π-allowed p₂ q₂ → Π-allowed p₃ q₃ → ⊢ Γ →
+    (Level-allowed →
+     Π-allowed p₁ q₁ → Π-allowed p₂ q₂ → Π-allowed p₃ q₃ → ⊢ Γ →
      Γ ⊢ A) ×
     (¬ ∃ λ B → Γ ⊢ A ∷ B) ×
     (¬ ∃ λ l → Γ ⊢ A ∷ U l)
   ¬ΠU∷U =
     let ¬⊢∷ = λ (_ , ⊢A) →
-          let l , ⊢l , _ , ⊢ΠU , _ , _  = inversion-ΠΣ-U ⊢A
-              l′ , _ , ⊢U , _ , U≡U , _ = inversion-ΠΣ-U ⊢ΠU
+          let l , ⊢l , ⊢Level , ⊢ΠU , _ , _  = inversion-ΠΣ-U ⊢A
+              l′ , _ , ⊢U , _ , U≡U , _      = inversion-ΠΣ-U ⊢ΠU
+              ⊢l                             =
+                ⊢∷Level→⊢∷Level
+                  (Level-allowed⇔⊎ .proj₂ $ inj₁ $
+                   inversion-Level ⊢Level .proj₂)
+                  ⊢l
           in
           ¬U∷U $
           conv (substTerm ⊢U ⊢l)
@@ -98,11 +105,11 @@ opaque
              U (wk1 l [ l ]₀)  ≡⟨ PE.cong U $ wk1-sgSubst _ _ ⟩
              U l               ∎)
     in
-    (λ ok₁ ok₂ ok₃ ⊢Γ →
+    (λ ok ok₁ ok₂ ok₃ ⊢Γ →
        ΠΣⱼ
          (ΠΣⱼ
             (ΠΣⱼ
-               (univ (var₁ (univ (var₀ (⊢U (var₀ (Levelⱼ′ ⊢Γ)))))))
+               (univ (var₁ (univ (var₀ (⊢U′ (var₀ (Levelⱼ′ ok ⊢Γ)))))))
                ok₃)
             ok₂)
          ok₁) ,
@@ -122,8 +129,9 @@ opaque
   --
   -- (assuming that equality reflection is not allowed).
   --
-  -- This result makes use of the fact that Π-types are homogeneous:
-  -- if Π p , q ▷ A ▹ B has type U l, then A and B must both have type
+  -- Note that there is no assumption that Level is allowed. This
+  -- result makes use of the fact that Π-types are homogeneous: if
+  -- Π p , q ▷ A ▹ B has type U l, then A and B must both have type
   -- U l (in the latter case weakened).
 
   type-without-type :
@@ -138,6 +146,6 @@ opaque
           ¬U∷U ⦃ ok = possibly-nonempty ⦄ $
           conv ⊢U (wkEq₁ (univ ⊢ℕ) (inversion-ℕ ⊢ℕ))
     in
-    (λ ok ⊢Γ → ΠΣⱼ (⊢U (zeroᵘⱼ (∙ ⊢ℕ ⊢Γ))) ok) ,
+    (λ ok ⊢Γ → ΠΣⱼ (⊢U₀ (∙ ⊢ℕ ⊢Γ)) ok) ,
     ¬⊢∷ ,
     ¬⊢∷ ∘→ Σ.map _ idᶠ

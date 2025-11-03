@@ -23,14 +23,17 @@ open Is-morphism m
 open Is-Σ-morphism m-Σ
 open Are-preserving-type-restrictions pres
 
+open import Tools.Empty
 open import Tools.Fin
 open import Tools.Function
 open import Tools.Product as Σ
 import Tools.PropositionalEquality as PE
+open import Tools.Reasoning.PropositionalEquality
+open import Tools.Relation
 open import Tools.Sum using (inj₁; inj₂)
 
 open import Definition.Typed
-open import Definition.Typed.Properties R₂
+import Definition.Typed.Properties
 import Definition.Typed.Substitution
 open import Definition.Untyped
 import Definition.Untyped.Erased
@@ -43,18 +46,43 @@ private
   module R₂ = Type-restrictions R₂
   module T₁ = Definition.Typed R₁
   module T₂ = Definition.Typed R₂
+  module P₁ = Definition.Typed.Properties R₁
+  module P₂ = Definition.Typed.Properties R₂
   module S₁ = Definition.Typed.Substitution R₁
   module S₂ = Definition.Typed.Substitution R₂
   module U₁ = Definition.Untyped M₁
   module U₂ = Definition.Untyped M₂
 
 private variable
-  x         : Fin _
-  Γ Δ       : Con _ _
-  A B l t u : Term _ _
-  σ σ′      : Subst _ _ _
-  p q       : M₁
-  s         : Strength
+  x               : Fin _
+  Γ Δ             : Con _ _
+  A B l l₁ l₂ t u : Term _ _
+  σ σ′            : Subst _ _ _
+  p q             : M₁
+  s               : Strength
+
+opaque
+
+  -- The function tr-Term commutes with _supᵘₗ_.
+
+  tr-Term-supᵘₗ :
+    tr-Term l₁ T₂.supᵘₗ tr-Term l₂ PE.≡
+    tr-Term (l₁ T₁.supᵘₗ l₂)
+  tr-Term-supᵘₗ {l₁} {l₂} with R₁.Level-allowed? | R₂.Level-allowed?
+  … | yes ok₁ | yes ok₂ =
+    tr-Term l₁ T₂.supᵘₗ tr-Term l₂  ≡⟨ P₂.supᵘₗ≡supᵘ ok₂ ⟩
+    tr-Term l₁ supᵘ tr-Term l₂      ≡⟨⟩
+    tr-Term (l₁ supᵘ l₂)            ≡˘⟨ PE.cong tr-Term $ P₁.supᵘₗ≡supᵘ ok₁ ⟩
+    tr-Term (l₁ T₁.supᵘₗ l₂)        ∎
+  … | yes ok  | no not-ok =
+    ⊥-elim (not-ok (Level-allowed⇔ .proj₁ ok))
+  … | no not-ok | yes ok =
+    ⊥-elim (not-ok (Level-allowed⇔ .proj₂ ok))
+  … | no not-ok₁ | no not-ok₂ =
+    tr-Term l₁ T₂.supᵘₗ tr-Term l₂   ≡⟨ P₂.supᵘₗ≡supᵘₗ′ not-ok₂ ⟩
+    tr-Term l₁ U₂.supᵘₗ′ tr-Term l₂  ≡⟨ tr-Term-supᵘₗ′ ⟩
+    tr-Term (l₁ U₁.supᵘₗ′ l₂)        ≡˘⟨ PE.cong tr-Term $ P₁.supᵘₗ≡supᵘₗ′ not-ok₁ ⟩
+    tr-Term (l₁ T₁.supᵘₗ l₂)         ∎
 
 opaque
   unfolding Definition.Untyped.Erased.Erased
@@ -117,14 +145,16 @@ mutual
   -- Preservation of _⊢_.
 
   tr-⊢′ : Γ T₁.⊢ A → tr-Con Γ T₂.⊢ tr-Term A
-  tr-⊢′ (Levelⱼ _ Γ) =
-    Levelⱼ′ (tr-⊢ Γ)
+  tr-⊢′ (Levelⱼ ok Γ) =
+    P₂.Levelⱼ′
+      (Level-allowed⇔ .proj₁ (R₁.Level-allowed⇔⊎ .proj₂ (inj₂ ok)))
+      (tr-⊢ Γ)
   tr-⊢′ (Liftⱼ l A) =
-    Liftⱼ (tr-⊢∷ l) (tr-⊢′ A)
+    Liftⱼ (tr-⊢∷L l) (tr-⊢′ A)
   tr-⊢′ (ΠΣⱼ P ok) =
     ΠΣⱼ (tr-⊢′ P) (ΠΣ-preserved ok)
   tr-⊢′ (Idⱼ _ t u) =
-    Idⱼ′ (tr-⊢∷ t) (tr-⊢∷ u)
+    P₂.Idⱼ′ (tr-⊢∷ t) (tr-⊢∷ u)
   tr-⊢′ (univ A) =
     univ (tr-⊢∷ A)
 
@@ -133,22 +163,23 @@ mutual
   tr-⊢∷ : Γ T₁.⊢ t ∷ A → tr-Con Γ T₂.⊢ tr-Term t ∷ tr-Term A
   tr-⊢∷ (Levelⱼ Γ ok) =
     Levelⱼ (tr-⊢ Γ) (Level-is-small-preserved ok)
-  tr-⊢∷ (zeroᵘⱼ Γ) =
-    zeroᵘⱼ (tr-⊢ Γ)
+  tr-⊢∷ (zeroᵘⱼ ok Γ) =
+    zeroᵘⱼ (Level-allowed⇔ .proj₁ ok) (tr-⊢ Γ)
   tr-⊢∷ (sucᵘⱼ t) =
     sucᵘⱼ (tr-⊢∷ t)
   tr-⊢∷ (supᵘⱼ t u) =
     supᵘⱼ (tr-⊢∷ t) (tr-⊢∷ u)
   tr-⊢∷ (Liftⱼ t u A) =
-    Liftⱼ (tr-⊢∷ t) (tr-⊢∷ u) (tr-⊢∷ A)
+    PE.subst (T₂._⊢_∷_ _ _) (PE.cong U tr-Term-supᵘₗ) $
+    Liftⱼ (tr-⊢∷L t) (tr-⊢∷L u) (tr-⊢∷ A)
   tr-⊢∷ (liftⱼ t A u) =
-    liftⱼ (tr-⊢∷ t) (tr-⊢′ A) (tr-⊢∷ u)
+    liftⱼ (tr-⊢∷L t) (tr-⊢′ A) (tr-⊢∷ u)
   tr-⊢∷ (lowerⱼ t) =
     lowerⱼ (tr-⊢∷ t)
-  tr-⊢∷ (Uⱼ l) =
-    Uⱼ (tr-⊢∷ l)
+  tr-⊢∷ (Uⱼ ⊢Γ l) =
+    Uⱼ (tr-⊢ ⊢Γ) (tr-⊢∷L l)
   tr-⊢∷ (ΠΣⱼ {l = l} ⊢l A P ok) =
-    ΠΣⱼ (tr-⊢∷ ⊢l) (tr-⊢∷ A)
+    ΠΣⱼ (tr-⊢∷L ⊢l) (tr-⊢∷ A)
       (PE.subst (T₂._⊢_∷_ _ _) (PE.sym (tr-Term-wk {t = U l})) (tr-⊢∷ P))
       (ΠΣ-preserved ok)
   tr-⊢∷ (ℕⱼ Γ) =
@@ -160,7 +191,7 @@ mutual
   tr-⊢∷ (var Γ x) =
     var (tr-⊢ Γ) (tr-∷∈ x)
   tr-⊢∷ (lamⱼ _ t ok) =
-    lamⱼ′ (ΠΣ-preserved ok) (tr-⊢∷ t)
+    P₂.lamⱼ′ (ΠΣ-preserved ok) (tr-⊢∷ t)
   tr-⊢∷ (_∘ⱼ_ {G = P} t u) =
     PE.subst (_ T₂.⊢ _ ∷_) (tr-Term-[] P) (tr-⊢∷ t ∘ⱼ tr-⊢∷ u)
   tr-⊢∷ (prodⱼ {G = P} ⊢P t u ok) =
@@ -204,7 +235,7 @@ mutual
     rflⱼ (tr-⊢∷ t)
   tr-⊢∷ (Jⱼ {B} _ ⊢B u _ w) =
     PE.subst (T₂._⊢_∷_ _ _) (tr-Term-[,] B) $
-    Jⱼ′
+    P₂.Jⱼ′
       (PE.subst (flip T₂._⊢_ _)
          (PE.cong (_∙_ _) $
           PE.cong₂ (λ A t → Id A t (var x0))
@@ -222,9 +253,18 @@ mutual
       (tr-⊢∷ v) (K-preserved ok)
   tr-⊢∷ ([]-congⱼ _ A _ _ v ok) =
     PE.subst (T₂._⊢_∷_ _ _) (tr-Term-Id-Erased-[]-[] ok) $
-    []-congⱼ′ ([]-cong-preserved ok) (tr-⊢∷ A) (tr-⊢∷ v)
+    P₂.[]-congⱼ′ ([]-cong-preserved ok) (tr-⊢∷ A) (tr-⊢∷ v)
   tr-⊢∷ (conv t A≡B) =
     conv (tr-⊢∷ t) (tr-⊢≡ A≡B)
+
+  -- Preservation of _⊢_∷Level.
+
+  tr-⊢∷L : Γ T₁.⊢ l ∷Level → tr-Con Γ T₂.⊢ tr-Term l ∷Level
+  tr-⊢∷L (term ok ⊢l) =
+    term (Level-allowed⇔ .proj₁ ok) (tr-⊢∷ ⊢l)
+  tr-⊢∷L (literal not-ok l-lit) =
+    literal (not-ok ∘→ Level-allowed⇔ .proj₂)
+      (tr-Level-literal .proj₁ l-lit)
 
   -- Preservation of _⊢_≡_.
 
@@ -232,7 +272,7 @@ mutual
   tr-⊢≡ (U-cong l₁≡l₂) =
     U-cong (tr-⊢≡∷ l₁≡l₂)
   tr-⊢≡ (Lift-cong l₁≡l₂ A≡B) =
-    Lift-cong (tr-⊢≡∷ l₁≡l₂) (tr-⊢≡ A≡B)
+    Lift-cong (tr-⊢≡∷L l₁≡l₂) (tr-⊢≡ A≡B)
   tr-⊢≡ (univ A≡B) =
     univ (tr-⊢≡∷ A≡B)
   tr-⊢≡ (refl A) =
@@ -253,7 +293,7 @@ mutual
   tr-⊢≡∷ (refl t) =
     refl (tr-⊢∷ t)
   tr-⊢≡∷ (sym _ t≡u) =
-    sym′ (tr-⊢≡∷ t≡u)
+    P₂.sym′ (tr-⊢≡∷ t≡u)
   tr-⊢≡∷ (trans t≡u u≡v) =
     trans (tr-⊢≡∷ t≡u) (tr-⊢≡∷ u≡v)
   tr-⊢≡∷ (conv t≡u A≡B) =
@@ -276,16 +316,17 @@ mutual
     supᵘ-sub (tr-⊢∷ t)
   tr-⊢≡∷ (U-cong t≡u) =
     U-cong (tr-⊢≡∷ t≡u)
-  tr-⊢≡∷ (Lift-cong t u≡u' A≡B) =
-    Lift-cong (tr-⊢∷ t) (tr-⊢≡∷ u≡u') (tr-⊢≡∷ A≡B)
+  tr-⊢≡∷ (Lift-cong _ _ u≡u' A≡B) =
+    PE.subst (T₂._⊢_≡_∷_ _ _ _) (PE.cong U tr-Term-supᵘₗ) $
+    P₂.Lift-cong′ (tr-⊢≡∷L u≡u') (tr-⊢≡∷ A≡B)
   tr-⊢≡∷ (lower-cong t≡u) =
     lower-cong (tr-⊢≡∷ t≡u)
   tr-⊢≡∷ (Lift-β A u) =
     Lift-β (tr-⊢′ A) (tr-⊢∷ u)
   tr-⊢≡∷ (Lift-η l A t u lt≡lu) =
-    Lift-η (tr-⊢∷ l) (tr-⊢′ A) (tr-⊢∷ t) (tr-⊢∷ u) (tr-⊢≡∷ lt≡lu)
+    Lift-η (tr-⊢∷L l) (tr-⊢′ A) (tr-⊢∷ t) (tr-⊢∷ u) (tr-⊢≡∷ lt≡lu)
   tr-⊢≡∷ (ΠΣ-cong {l = l} ⊢l A≡B C≡D ok) =
-    ΠΣ-cong (tr-⊢∷ ⊢l) (tr-⊢≡∷ A≡B)
+    ΠΣ-cong (tr-⊢∷L ⊢l) (tr-⊢≡∷ A≡B)
       (PE.subst (T₂._⊢_≡_∷_ _ _ _) (PE.sym (tr-Term-wk {t = U l})) (tr-⊢≡∷ C≡D))
       (ΠΣ-preserved ok)
   tr-⊢≡∷ (app-cong {G = P} t≡u v≡w) =
@@ -298,7 +339,7 @@ mutual
       (tr-Term-[] P)
       (β-red (tr-⊢′ ⊢P) (tr-⊢∷ ⊢t) (tr-⊢∷ u) PE.refl (ΠΣ-preserved ok))
   tr-⊢≡∷ {Γ} (η-eq {F = A} {G = P} _ t u t≡u _) =
-    η-eq′ (tr-⊢∷ t) (tr-⊢∷ u)
+    P₂.η-eq′ (tr-⊢∷ t) (tr-⊢∷ u)
       (PE.subst₂ (tr-Con (Γ ∙ A) T₂.⊢_≡_∷ tr-Term P)
          (PE.sym (PE.cong (_∘⟨ _ ⟩ _ ) tr-Term-wk))
          (PE.sym (PE.cong (_∘⟨ _ ⟩ _ ) tr-Term-wk))
@@ -322,7 +363,7 @@ mutual
          (PE.subst (_ T₂.⊢ _ ∷_) (PE.sym (tr-Term-[] P)) (tr-⊢∷ u))
          PE.refl (ΠΣ-preserved ok))
   tr-⊢≡∷ (Σ-η {G = P} _ t u t₁≡u₁ t₂≡u₂ _) =
-    Σ-η′ (tr-⊢∷ t) (tr-⊢∷ u) (tr-⊢≡∷ t₁≡u₁)
+    P₂.Σ-η′ (tr-⊢∷ t) (tr-⊢∷ u) (tr-⊢≡∷ t₁≡u₁)
       (PE.subst (_ T₂.⊢ _ ≡ _ ∷_) (PE.sym (tr-Term-[] P))
          (tr-⊢≡∷ t₂≡u₂))
   tr-⊢≡∷ (prodrec-cong {A = Q} Q≡R t≡u v≡w ok) =
@@ -373,11 +414,11 @@ mutual
     emptyrec-cong (tr-⊢≡ A≡B) (tr-⊢≡∷ t≡u)
   tr-⊢≡∷ (unitrec-cong {A = A} A≡A′ t≡t′ u≡u′ ok _) =
     PE.subst (T₂._⊢_≡_∷_ _ _ _) (tr-Term-[] A)
-      (unitrec-cong′ (tr-⊢≡ A≡A′) (tr-⊢≡∷ t≡t′)
+      (P₂.unitrec-cong′ (tr-⊢≡ A≡A′) (tr-⊢≡∷ t≡t′)
          (PE.subst (_ T₂.⊢ _ ≡ _ ∷_) (PE.sym (tr-Term-[] A)) (tr-⊢≡∷ u≡u′)))
   tr-⊢≡∷ (unitrec-β {A} ⊢A u _ _) =
     PE.subst (T₂._⊢_≡_∷_ _ _ _) (tr-Term-[] A)
-      (unitrec-β-≡ (tr-⊢′ ⊢A)
+      (P₂.unitrec-β-≡ (tr-⊢′ ⊢A)
          (PE.subst (_ T₂.⊢ _ ∷_) (PE.sym (tr-Term-[] A)) (tr-⊢∷ u)))
   tr-⊢≡∷ (unitrec-β-η {A} ⊢A t u ok₁ ok₂) =
     PE.subst (T₂._⊢_≡_∷_ _ _ _) (tr-Term-[] A)
@@ -393,7 +434,7 @@ mutual
     Id-cong (tr-⊢≡∷ A₁≡A₂) (tr-⊢≡∷ t₁≡t₂) (tr-⊢≡∷ u₁≡u₂)
   tr-⊢≡∷ (J-cong {B₁} {B₂} A₁≡A₂ _ t₁≡t₂ B₁≡B₂ u₁≡u₂ v₁≡v₂ w₁≡w₂) =
     PE.subst (T₂._⊢_≡_∷_ _ _ _) (tr-Term-[,] B₁) $
-    J-cong′ (tr-⊢≡ A₁≡A₂) (tr-⊢≡∷ t₁≡t₂)
+    P₂.J-cong′ (tr-⊢≡ A₁≡A₂) (tr-⊢≡∷ t₁≡t₂)
       (PE.subst (T₂._⊢ tr-Term B₁ ≡ tr-Term B₂)
          (PE.cong (_∙_ _) $
           PE.cong₂ (λ A t → Id A t (var x0))
@@ -411,11 +452,11 @@ mutual
       (tr-⊢≡∷ v₁≡v₂) (K-preserved ok)
   tr-⊢≡∷ ([]-cong-cong l₁≡l₂ A₁≡A₂ t₁≡t₂ u₁≡u₂ v₁≡v₂ ok) =
     PE.subst (T₂._⊢_≡_∷_ _ _ _) (tr-Term-Id-Erased-[]-[] ok) $
-    []-cong-cong (tr-⊢≡∷ l₁≡l₂) (tr-⊢≡∷ A₁≡A₂) (tr-⊢≡∷ t₁≡t₂)
+    []-cong-cong (tr-⊢≡∷L l₁≡l₂) (tr-⊢≡∷ A₁≡A₂) (tr-⊢≡∷ t₁≡t₂)
       (tr-⊢≡∷ u₁≡u₂) (tr-⊢≡∷ v₁≡v₂) ([]-cong-preserved ok)
   tr-⊢≡∷ (J-β {B} t ⊢B u PE.refl) =
     PE.subst (T₂._⊢_≡_∷_ _ _ _) (tr-Term-[,] B) $
-    J-β-≡ (tr-⊢∷ t)
+    P₂.J-β-≡ (tr-⊢∷ t)
       (PE.subst (flip T₂._⊢_ _)
          (PE.cong (_∙_ _) $
           PE.cong₂ (λ A t → Id A t (var x0))
@@ -432,10 +473,20 @@ mutual
       (K-preserved ok)
   tr-⊢≡∷ ([]-cong-β l A t PE.refl ok) =
     PE.subst (T₂._⊢_≡_∷_ _ _ _) (tr-Term-Id-Erased-[]-[] ok) $
-    []-cong-β (tr-⊢∷ l) (tr-⊢∷ A) (tr-⊢∷ t) PE.refl
+    []-cong-β (tr-⊢∷L l) (tr-⊢∷ A) (tr-⊢∷ t) PE.refl
       ([]-cong-preserved ok)
   tr-⊢≡∷ (equality-reflection ok _ v) =
-    equality-reflection′ (Equality-reflection-preserved ok) (tr-⊢∷ v)
+    P₂.equality-reflection′ (Equality-reflection-preserved ok) (tr-⊢∷ v)
+
+  -- Preservation of _⊢_≡_∷Level.
+
+  tr-⊢≡∷L :
+    Γ T₁.⊢ l₁ ≡ l₂ ∷Level → tr-Con Γ T₂.⊢ tr-Term l₁ ≡ tr-Term l₂ ∷Level
+  tr-⊢≡∷L (term ok l₁≡l₂) =
+    term (Level-allowed⇔ .proj₁ ok) (tr-⊢≡∷ l₁≡l₂)
+  tr-⊢≡∷L (literal not-ok l-lit) =
+    literal (not-ok ∘→ Level-allowed⇔ .proj₂)
+      (tr-Level-literal .proj₁ l-lit)
 
 -- Preservation of _⊢ˢ_∷_.
 
@@ -572,7 +623,7 @@ module _
          (ok₂ ∘→ Unitʷ-η-reflected))
   tr-⊢⇒∷ (unitrec-β {A} ⊢A u _ _) =
     PE.subst (T₂._⊢_⇒_∷_ _ _ _) (tr-Term-[] A)
-      (unitrec-β-⇒ (tr-⊢′ ⊢A)
+      (P₂.unitrec-β-⇒ (tr-⊢′ ⊢A)
          (PE.subst (_ T₂.⊢ _ ∷_) (PE.sym (tr-Term-[] A)) (tr-⊢∷ u)))
   tr-⊢⇒∷ (unitrec-β-η {A} ⊢A t u ok₁ ok₂) =
     PE.subst (T₂._⊢_⇒_∷_ _ _ _) (tr-Term-[] A)
@@ -581,7 +632,7 @@ module _
          (Unit-preserved ok₁) (Unitʷ-η-preserved ok₂))
   tr-⊢⇒∷ (J-subst {B} _ ⊢B u _ w₁⇒w₂) =
     PE.subst (T₂._⊢_⇒_∷_ _ _ _) (tr-Term-[,] B) $
-    J-subst′
+    P₂.J-subst′
       (PE.subst (flip T₂._⊢_ _)
          (PE.cong (_∙_ _) $
           PE.cong₂ (λ A t → Id A t (var x0))
@@ -599,10 +650,10 @@ module _
       (tr-⊢⇒∷ v₁⇒v₂) (K-preserved ok)
   tr-⊢⇒∷ ([]-cong-subst A _ _ v₁⇒v₂ ok) =
     PE.subst (T₂._⊢_⇒_∷_ _ _ _) (tr-Term-Id-Erased-[]-[] ok) $
-    []-cong-subst′ (tr-⊢∷ A) (tr-⊢⇒∷ v₁⇒v₂) ([]-cong-preserved ok)
+    P₂.[]-cong-subst′ (tr-⊢∷ A) (tr-⊢⇒∷ v₁⇒v₂) ([]-cong-preserved ok)
   tr-⊢⇒∷ (J-β {B} _ _ t≡t′ ⊢B _ u) =
     PE.subst (T₂._⊢_⇒_∷_ _ _ _) (tr-Term-[,] B) $
-    J-β-⇒ (tr-⊢≡∷ t≡t′)
+    P₂.J-β-⇒ (tr-⊢≡∷ t≡t′)
       (PE.subst (flip T₂._⊢_ _)
          (PE.cong (_∙_ _) $
           PE.cong₂ (λ A t → Id A t (var x0))
@@ -619,7 +670,7 @@ module _
       (K-preserved ok)
   tr-⊢⇒∷ ([]-cong-β A _ _ t≡t′ ok) =
     PE.subst (T₂._⊢_⇒_∷_ _ _ _) (tr-Term-Id-Erased-[]-[] ok) $
-    []-cong-β-⇒ (tr-⊢∷ A) (tr-⊢≡∷ t≡t′) ([]-cong-preserved ok)
+    P₂.[]-cong-β-⇒ (tr-⊢∷ A) (tr-⊢≡∷ t≡t′) ([]-cong-preserved ok)
 
   -- Preservation of _⊢_⇒_.
 
