@@ -17,6 +17,7 @@ open import Definition.Typed R
 open import Definition.Typed.Inversion R
 import Definition.Typed.Substitution.Primitive.Primitive R as S
 open import Definition.Typed.Properties.Admissible.Equality R
+import Definition.Typed.Properties.Admissible.Level.Primitive R as LP
 open import Definition.Typed.Reasoning.Term R
 open import Definition.Typed.Syntactic R
 
@@ -29,6 +30,8 @@ open import Tools.Nat
 open import Tools.Product
 import Tools.PropositionalEquality as PE
 open import Tools.Reasoning.PropositionalEquality
+
+open LP public
 
 private variable
   Γ                                     : Con Term _
