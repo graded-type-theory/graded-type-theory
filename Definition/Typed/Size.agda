@@ -160,7 +160,7 @@ opaque mutual
   size-⊢≡∷ (Lift-β ⊢A ⊢t) =
     size-⊢ ⊢A ⊕ size-⊢∷ ⊢t
   size-⊢≡∷ (Lift-η ⊢l₂ ⊢A ⊢t ⊢u t≡u) =
-    size-⊢∷ ⊢l₂ ⊕ size-⊢ ⊢A ⊕ size-⊢∷ ⊢t ⊕ size-⊢∷ ⊢u ⊕ size-⊢≡∷ t≡u
+    (size-⊢∷ ⊢l₂ ⊕ size-⊢ ⊢A ⊕ size-⊢∷ ⊢t) ⊕ (size-⊢∷ ⊢u ⊕ size-⊢≡∷ t≡u)
   size-⊢≡∷ (ΠΣ-cong l A₁≡B₁ A₂≡B₂ _) =
     size-⊢∷ l ⊕ size-⊢≡∷ A₁≡B₁ ⊕ size-⊢≡∷ A₂≡B₂
   size-⊢≡∷ (app-cong t₁≡u₁ t₂≡u₂) =
