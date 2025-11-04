@@ -269,7 +269,6 @@ opaque
   ⊢≡∷-cons-prod ⊢A ⊢k ⊢h ⊢t = subsetTerm (⊢⇒∷-cons-prod ⊢A ⊢k ⊢h ⊢t)
 
 private opaque
-  unfolding listrec
 
   -- A lemma used to prove several typing and reduction rules for listrec
 
@@ -478,7 +477,7 @@ private opaque
     in
         (λ ⊢xs →
           let ⊢xs′ = ⊢∷-conv-PE ⊢xs List≡
-          in prodrecⱼ ⊢P′ ⊢xs′ ⊢vr Σ-ok₂)
+          in ⊢∷-cong (prodrecⱼ ⊢P′ ⊢xs′ ⊢vr Σ-ok₂) (PE.sym listrec≡))
       , (let ⊢nil = ⊢∷-conv-PE (V.⊢nil′ ⊢A) V.Vec₀≡₀
              ⊢A₁′ = ⊢∷-cong ⊢A₁ A₁≡
              ⊢V₂ = V.⊢Vec′ (wkTerm (stepʷ (step id) (univ ⊢A₁′)) ⊢A) (var₁ (univ ⊢A₁′))
@@ -493,7 +492,7 @@ private opaque
              open RRed
          in
          listrec l r₁ r₂ p₁ p₂ q A P nl cs (nil l A)
-             ≡⟨⟩⇒
+             ≡⟨ listrec≡ ⟩⇒
          prodrec r₁ pₗ q P (nil l A) vrec
              ≡⟨ PE.cong (λ x → prodrec _ _ _ _ x vrec) nil≡ ⟩⇒
          prodrec r₁ pₗ q P (prodʷ pₗ zero (VU.nil′ l A)) vrec
@@ -600,7 +599,7 @@ private opaque
                     (P [ consSubst (wkSubst 2 idSubst) (prod 𝕨 pₗ (var x1) (var x0)) ]) nl
                     (cs [ consSubst (consSubst (wkSubst 3 idSubst) (var x1)) (prodʷ pₗ (var x2) (var x0)) ⇑ ]) k t′) ] ∎
       in  (λ t⇒* → let open RRed in
-            listrec l r₁ r₂ p₁ p₂ q A P nl cs (cons l A h t)                ≡⟨⟩⇒
+            listrec l r₁ r₂ p₁ p₂ q A P nl cs (cons l A h t)                 ≡⟨ listrec≡ ⟩⇒
             prodrec r₁ pₗ q P (cons l A h t) vrec                            ⇒*⟨ prodrec-subst* ⊢P′ (⊢⇒*∷-conv-PE (⊢⇒*∷-cons-subst ⊢A ⊢h t⇒*) List≡) ⊢vr ⟩
             prodrec r₁ pₗ q P (cons l A h (prodʷ pₗ k t′)) vrec              ⇒*⟨ prodrec⇒ (subset*Term t⇒*) ⟩∎
             cs [ consSubst (consSubst (sgSubst h) (prod 𝕨 pₗ k t′))
@@ -636,7 +635,7 @@ private opaque
                 open RTerm
                 lr≡ =
                    listrec l r₁ r₂ p₁ p₂ q A P nl cs t
-                       ≡⟨⟩⊢
+                       ≡⟨ listrec≡ ⟩⊢≡
                    prodrec r₁ pₗ q P t vrec
                        ≡⟨ prodrec-cong′ (refl ⊢P′) (⊢≡∷-conv-PE t≡ List≡) (refl ⊢vr) ⟩⊢
                    prodrec r₁ pₗ q P (prodʷ pₗ k t′) vrec
@@ -664,7 +663,7 @@ private opaque
                      k t′ ∎
 
             in
-            listrec l r₁ r₂ p₁ p₂ q A P nl cs (cons l A h t)                ≡⟨⟩⊢
+            listrec l r₁ r₂ p₁ p₂ q A P nl cs (cons l A h t)                 ≡⟨ listrec≡ ⟩⊢≡
             prodrec r₁ pₗ q P (cons l A h t) vrec                            ≡⟨ prodrec-cong′ (refl ⊢P′) (⊢≡∷-conv-PE ⊢const≡ List≡) (refl ⊢vr) ⟩⊢
             prodrec r₁ pₗ q P (cons l A h (prodʷ pₗ k t′)) vrec              ⇒*⟨ prodrec⇒ t≡ ⟩⊢
             cs [ consSubst (consSubst (sgSubst h) (prod 𝕨 pₗ k t′))
