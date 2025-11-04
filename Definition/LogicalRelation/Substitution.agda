@@ -279,7 +279,7 @@ opaque
 
 opaque
 
-  -- A characterisation lemma for _⊩ᵛ⟨_⟩_∷_.
+  -- A characterisation lemma for _⊩ᵛ⟨_⟩_≡_∷_.
 
   ⊩ᵛ≡∷⇔ʰ :
     Γ ⊩ᵛ⟨ l ⟩ t ≡ u ∷ A ⇔
