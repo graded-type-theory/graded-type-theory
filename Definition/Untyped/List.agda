@@ -34,10 +34,11 @@ open Modality 𝕄
 
 private variable
   n : Nat
-  A k h t : Term _
+  A P k h t nl cs xs : Term _
   l : Universe-level
   σ : Subst _ _
   ρ : Wk _ _
+  p₁ p₂ q r₁ r₂ : M
 
 opaque
 
@@ -169,3 +170,18 @@ opaque
         (cs [ consSubst (consSubst (consSubst (wkSubst 6 idSubst)
                (var x2)) (prodʷ pₗ (var x3) (var x1))) (var x0) ])
         (var x1) (var x0))
+
+opaque
+  unfolding listrec
+
+  -- Unfolding listrec
+
+  listrec≡ :
+    listrec l r₁ r₂ p₁ p₂ q A P nl cs xs ≡
+    prodrec r₁ pₗ q P xs
+      (V.vecrec′ l (p₁ · pₗ) p₂ r₂ (q · pₗ) q
+        (wk₂ A) (P [ 4 ][ prodʷ pₗ (var x1) (var x0) ]↑) (wk₂ nl)
+        (cs [ consSubst (consSubst (consSubst (wkSubst 6 idSubst)
+               (var x2)) (prodʷ pₗ (var x3) (var x1))) (var x0) ])
+        (var x1) (var x0))
+  listrec≡ = refl
