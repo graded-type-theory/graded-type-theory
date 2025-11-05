@@ -627,6 +627,22 @@ No-η-equality→≢Unit = λ where
   (U.neₙ A-ne)    A≡Unit      _              → Unit≢neⱼ A-ne
                                                  (sym A≡Unit)
 
+-- If No-η-equality A holds, then A is not a lifted type (given a
+-- certain assumption).
+
+No-η-equality→≢Lift :
+  ⦃ ok : No-equality-reflection or-empty Γ ⦄ →
+  No-η-equality A → ¬ Γ ⊢ A ≡ Lift l B
+No-η-equality→≢Lift = λ where
+  U.Levelₙ        Level≡Lift → Lift≢Level (sym Level≡Lift)
+  U.Uₙ            U≡Lift     → U≢Liftⱼ U≡Lift
+  U.Σʷₙ           Σʷ≡Lift    → Lift≢ΠΣⱼ (sym Σʷ≡Lift)
+  U.Emptyₙ        Empty≡Lift → Lift≢Emptyⱼ (sym Empty≡Lift)
+  U.ℕₙ            ℕ≡Lift     → Lift≢ℕ (sym ℕ≡Lift)
+  U.Idₙ           Id≡Lift    → Id≢Lift Id≡Lift
+  (U.Unitʷₙ _)    Unit≡Lift  → Lift≢Unitⱼ (sym Unit≡Lift)
+  (U.neₙ A-ne)    A≡Lift     → Lift≢ne A-ne (sym A≡Lift)
+
 -- If A is a type without η-equality (not definitionally equal to
 -- Level), then a WHNF that is not "Neutralˡ" is not definitionally
 -- equal at type A to any neutral term (given a certain assumption).
