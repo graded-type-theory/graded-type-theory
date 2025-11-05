@@ -1172,17 +1172,17 @@ opaque
 
 ⊢nf∷Unitˢ→≡starˢ :
   ⦃ ok : No-equality-reflection or-empty Γ ⦄ →
-  Unit-with-η s → Γ ⊢nf t ∷ Unit s → Γ ⊢ t ≡ star s ∷ Unit s
+  Unit-with-η s → Γ ⊢nf t ∷ Unit s → t PE.≡ star s
 ⊢nf∷Unitˢ→≡starˢ {Γ} {s} ok ⊢t =
   ⊢nf∷Unitˢ→≡starˢ′ (refl (syntacticTerm (⊢nf∷→⊢∷ ⊢t))) ⊢t
   where
   ⊢nf∷Unitˢ→≡starˢ′ :
-    Γ ⊢ A ≡ Unit s → Γ ⊢nf t ∷ A → Γ ⊢ t ≡ star s ∷ Unit s
+    Γ ⊢ A ≡ Unit s → Γ ⊢nf t ∷ A → t PE.≡ star s
   ⊢nf∷Unitˢ→≡starˢ′ A≡Unit = λ where
     (starₙ ⊢Γ ok)     →
       case Unit-injectivity A≡Unit of λ {
         PE.refl →
-      refl (starⱼ ⊢Γ ok) }
+      PE.refl }
     (convₙ ⊢t ≡A)   → ⊢nf∷Unitˢ→≡starˢ′ (trans ≡A A≡Unit) ⊢t
     (neₙ A-no-η _)  → ⊥-elim (No-η-equality→≢Unit A-no-η A≡Unit ok)
     (Levelₙ _ _)    → ⊥-elim (U≢Unitⱼ A≡Unit)
