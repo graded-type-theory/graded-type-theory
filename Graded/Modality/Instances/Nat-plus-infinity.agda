@@ -1271,6 +1271,14 @@ nr : (p r z s n : ℕ⊎∞) → ℕ⊎∞
 nr = Has-nr.nr ℕ⊎∞-has-nr
 
 opaque
+  unfolding nr₂→has-nr
+
+  -- Unfolding of nr
+
+  nr≡ : ∀ {p r z s n} → nr p r z s n ≡ nr₃ r ⌞ 1 ⌟ p · n + nr₃ r z s
+  nr≡ = refl
+
+opaque
 
   -- An inequality for the nr₂ function used to define nr.
 
@@ -1484,7 +1492,7 @@ opaque
       nr-greatest-factoring has-nr is-factoring-nr
         (≢𝟘→≤ᵗ𝟙 nr₂≢𝟘) (≢𝟘→≤ᵗ𝟙 nr₂≢𝟘)
 
--- A modality (of any kind) for ℕ⊎∞ defined using the nr function
+-- A modality (of any kind) for ℕ⊎∞.
 
 ℕ⊎∞-modality : Modality-variant → Modality
 ℕ⊎∞-modality variant = record
