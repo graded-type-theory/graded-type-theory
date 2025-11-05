@@ -23,6 +23,7 @@ open import Definition.LogicalRelation.Fundamental TR
 open import Definition.LogicalRelation.Fundamental.Reducibility TR
 open import Definition.LogicalRelation.Hidden TR
 import Definition.LogicalRelation.Irrelevance TR as IR
+open import Definition.LogicalRelation.Properties TR
 open import Definition.LogicalRelation.ShapeView TR
 open import Definition.LogicalRelation.Substitution TR
 open import Definition.LogicalRelation.Substitution.Introductions TR
@@ -131,7 +132,7 @@ opaque
 
   ®∷Lift⇔ :
     t ® v ∷ Lift u A ⇔
-    (Δ ⊩Level u ∷Level × lower t ® v ∷ A)
+    (Δ ⊢ u ∷ Level × lower t ® v ∷ A)
   ®∷Lift⇔ {t} {v} {u} {A} =
     t ® v ∷ Lift u A                                                ⇔⟨ id⇔ ⟩
     (∃₂ λ l (⊩L : Δ ⊩⟨ l ⟩ Lift u A) → t ®⟨ l ⟩ v ∷ Lift u A / ⊩L)  ⇔⟨ (λ (l , ⊩L , t®v) →
@@ -142,10 +143,8 @@ opaque
                                                                      , (λ (⊩u , l , ⊩A , lower-t®v) →
                                                                           l , ⊩Lift⇔ .proj₂ (⊩u , ⊩A) , lower-t®v)
                                                                      ⟩
-    Δ ⊩Level u ∷Level ×
-    (∃₂ λ l (⊩A : Δ ⊩⟨ l ⟩ A) → lower t ®⟨ l ⟩ v ∷ A / ⊩A)          ⇔⟨ id⇔ ⟩
-
-    Δ ⊩Level u ∷Level × lower t ® v ∷ A                             □⇔
+    Δ ⊩Level u ∷Level × lower t ® v ∷ A                             ⇔⟨ (escapeLevel , ⊩∷Level⇔ .proj₁ ∘→ proj₂ ∘→ reducible-⊩∷) ×-cong-⇔ id⇔ ⟩
+    Δ ⊢ u ∷ Level × lower t ® v ∷ A                                 □⇔
 
 opaque
   unfolding _®_∷_

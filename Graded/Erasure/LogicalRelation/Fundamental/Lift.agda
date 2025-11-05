@@ -17,9 +17,7 @@ module Graded.Erasure.LogicalRelation.Fundamental.Lift
 
 open Assumptions as
 
-open import Definition.LogicalRelation.Fundamental.Reducibility R
 open import Definition.LogicalRelation.Substitution R
-open import Definition.LogicalRelation.Substitution.Introductions R
 open import Definition.Typed R
 open import Definition.Typed.Properties R
 open import Definition.Typed.Substitution R
@@ -76,7 +74,7 @@ opaque
     in
     ®∷→®∷◂ $
     ®∷Lift⇔ .proj₂
-      ( ⊩∷Level⇔ .proj₁ (reducible-⊩∷ ⊢t[σ] .proj₂)
+      ( ⊢t[σ]
       , (                                                         $⟨ σ®σ′ ⟩
          σ ® σ′ ∷[ 𝟙ᵐ ] Γ ◂ γ                                     →⟨ ®∷→®∷◂ω non-trivial ∘→ ▸⊩ʳ∷⇔ .proj₁ ⊩ʳu ⊩σ ⟩
          u [ σ ] ® erase str u T.[ σ′ ] ∷ A [ σ ]                 →⟨ ®∷-⇐* (⇒*→⇛ (redMany (Lift-β⇒ (subst-⊢∷ ⊢u ⊢σ)))) T.refl ⟩
