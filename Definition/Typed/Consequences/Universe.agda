@@ -21,6 +21,7 @@ open import Definition.Typed.Consequences.Inequality R
 open import Definition.Typed.Inversion R
 open import Definition.Typed.Properties R
 open import Definition.Typed.Substitution R
+open import Definition.Typed.Weakening R
 open import Definition.Typed.Consequences.Injectivity R
 
 open import Tools.Fin
@@ -85,5 +86,38 @@ opaque
           PE.subst (_⊢_∷_ _ _) (wk1-sgSubst _ _) (substTerm ⊢U ⊢l)
     in
     (λ ok ⊢Γ → ΠΣⱼ (⊢U (var₀ (Levelⱼ′ ⊢Γ))) ok) ,
+    ¬⊢∷ ,
+    ¬⊢∷ ∘→ Σ.map _ idᶠ
+
+opaque
+
+  -- There is a type that
+  --
+  -- * is well-formed if the context is and a certain form of Π-type
+  --   is allowed,
+  --
+  -- * does not have a type, and
+  --
+  -- * consequently does not live in any universe
+  --
+  -- (assuming that equality reflection is not allowed).
+  --
+  -- This result makes use of the fact that Π-types are homogeneous:
+  -- if Π p , q ▷ A ▹ B has type U l, then A and B must both have type
+  -- U l (in the latter case weakened).
+
+  type-without-type :
+    ⦃ ok : No-equality-reflection ⦄ →
+    let A = Π p , q ▷ ℕ ▹ U zeroᵘ in
+    (Π-allowed p q → ⊢ Γ → Γ ⊢ A) ×
+    (¬ ∃ λ B → Γ ⊢ A ∷ B) ×
+    (¬ ∃ λ l → Γ ⊢ A ∷ U l)
+  type-without-type =
+    let ¬⊢∷ = λ (_ , ⊢A) →
+          let _ , _ , ⊢ℕ , ⊢U , _ , _ = inversion-ΠΣ-U ⊢A in
+          ¬U∷U ⦃ ok = possibly-nonempty ⦄ $
+          conv ⊢U (wkEq₁ (univ ⊢ℕ) (inversion-ℕ ⊢ℕ))
+    in
+    (λ ok ⊢Γ → ΠΣⱼ (⊢U (zeroᵘⱼ (∙ ⊢ℕ ⊢Γ))) ok) ,
     ¬⊢∷ ,
     ¬⊢∷ ∘→ Σ.map _ idᶠ
