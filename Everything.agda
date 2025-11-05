@@ -134,8 +134,8 @@ import Definition.Typed.Syntactic
 import Definition.Typed.Properties.Admissible.Nat
 import Definition.Typed.Stability
 import Definition.Typed.Inversion
-import Definition.Typed.Properties.Admissible.Lift
 import Definition.Typed.Properties.Admissible.Level
+import Definition.Typed.Properties.Admissible.Lift
 import Definition.Typed.Properties.Admissible.Pi-Sigma
 import Definition.Typed.Properties.Admissible.Pi
 import Definition.Typed.Properties.Admissible.Unit
