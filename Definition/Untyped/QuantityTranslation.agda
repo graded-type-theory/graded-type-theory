@@ -37,18 +37,18 @@ private
   module UP₂ = Definition.Untyped.Properties M₂
 
 private variable
-  m n           : Nat
-  bs            : List _
-  x             : Fin _
-  p q r         : M₂
-  s             : Strength
-  b             : BinderMode
-  ts us         : GenTs _ _ _
-  k₁ k₂         : Kind _ _
-  A B j t u v w l : Term _ _
-  ρ             : Wk _ _
-  σ             : Subst _ _ _
-  tv₁ tv₂       : Type-variant
+  m n                   : Nat
+  bs                    : List _
+  x                     : Fin _
+  p q r                 : M₂
+  s                     : Strength
+  b                     : BinderMode
+  ts us                 : GenTs _ _ _
+  k₁ k₂                 : Kind _ _
+  A B j l l₁ l₂ t u v w : Term _ _
+  ρ                     : Wk _ _
+  σ                     : Subst _ _ _
+  tv₁ tv₂               : Type-variant
 
 ------------------------------------------------------------------------
 -- Translation
@@ -395,12 +395,63 @@ tr-Term-[]↑² {u = u} t =
 tr-Term-var : tr-Term t ≡ var x → t ≡ var x
 tr-Term-var {t = var _}                 refl = refl
 
+-- Inversion for Level.
+
+tr-Term-Level :
+  tr-Term t ≡ Level →
+  t ≡ Level
+tr-Term-Level {t = Level} refl = refl
+
+-- Inversion for zeroᵘ.
+
+tr-Term-zeroᵘ :
+  tr-Term t ≡ zeroᵘ →
+  t ≡ zeroᵘ
+tr-Term-zeroᵘ {t = zeroᵘ} refl = refl
+
+-- Inversion for sucᵘ.
+
+tr-Term-sucᵘ :
+  tr-Term t ≡ sucᵘ l →
+  ∃ λ l′ → t ≡ sucᵘ l′ × tr-Term l′ ≡ l
+tr-Term-sucᵘ {t = sucᵘ _} refl = _ # refl # refl
+
+-- Inversion for _supᵘ_.
+
+tr-Term-supᵘ :
+  tr-Term t ≡ l₁ supᵘ l₂ →
+  ∃₂ λ l₁′ l₂′ →
+     t ≡ l₁′ supᵘ l₂′ × tr-Term l₁′ ≡ l₁ × tr-Term l₂′ ≡ l₂
+tr-Term-supᵘ {t = _ supᵘ _} refl =
+  _ # _ # refl # refl # refl
+
 -- Inversion for U.
 
 tr-Term-U :
   tr-Term t ≡ U l →
-  ∃ λ l′ → t ≡ U l′
-tr-Term-U {t = U _}                   refl = _ # refl
+  ∃ λ l′ → t ≡ U l′ × tr-Term l′ ≡ l
+tr-Term-U {t = U _} refl = _ # refl # refl
+
+-- Inversion for Lift.
+
+tr-Term-Lift :
+  tr-Term t ≡ Lift l A →
+  ∃₂ λ l′ A′ → t ≡ Lift l′ A′ × tr-Term l′ ≡ l × tr-Term A′ ≡ A
+tr-Term-Lift {t = Lift _ _} refl = _ # _ # refl # refl # refl
+
+-- Inversion for lift.
+
+tr-Term-lift :
+  tr-Term t ≡ lift u →
+  ∃ λ u′ → t ≡ lift u′ × tr-Term u′ ≡ u
+tr-Term-lift {t = lift _} refl = _ # refl # refl
+
+-- Inversion for lower.
+
+tr-Term-lower :
+  tr-Term t ≡ lower u →
+  ∃ λ u′ → t ≡ lower u′ × tr-Term u′ ≡ u
+tr-Term-lower {t = lower _} refl = _ # refl # refl
 
 -- Inversion for ΠΣ⟨_⟩_,_▷_▹_.
 
