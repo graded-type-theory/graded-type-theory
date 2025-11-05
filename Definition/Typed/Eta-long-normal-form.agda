@@ -19,7 +19,7 @@ open import Definition.Conversion.Consequences.InverseUniv R
 open import Definition.Conversion.Soundness R
 
 open import Definition.Typed R
-open import Definition.Typed.Consequences.Inequality R
+open import Definition.Typed.Consequences.Inequality R as I
 open import Definition.Typed.Consequences.Injectivity R
 open import Definition.Typed.Consequences.NeTypeEq R
 open import Definition.Typed.EqRelInstance R
@@ -28,6 +28,7 @@ open import Definition.Typed.Properties R
 open import Definition.Typed.Stability R
 open import Definition.Typed.Substitution R
 open import Definition.Typed.Syntactic R
+open import Definition.Typed.Well-formed R
 
 open import Definition.Untyped M
 import Definition.Untyped.Erased 𝕄 as Erased
@@ -1201,3 +1202,35 @@ opaque
     (sucₙ _)        → ⊥-elim (ℕ≢Unitⱼ A≡Unit)
     (Idₙ _ _ _)     → ⊥-elim (U≢Unitⱼ A≡Unit)
     (rflₙ _)        → ⊥-elim (Id≢Unit A≡Unit)
+
+-- Normal forms of type Lift l A are equal to applications of lift
+-- (given a certain assumption).
+
+⊢nf∷Lift→≡lift :
+  ⦃ ok : No-equality-reflection or-empty Γ ⦄ →
+  Γ ⊢nf t ∷ Lift l A → ∃ λ t′ → t PE.≡ lift t′
+⊢nf∷Lift→≡lift {Γ} ⊢t =
+  ⊢nf∷Lift→≡lift′ (refl (wf-⊢∷ (⊢nf∷→⊢∷ ⊢t))) ⊢t
+  where
+  ⊢nf∷Lift→≡lift′ :
+    Γ ⊢ A ≡ Lift l B → Γ ⊢nf t ∷ A → ∃ λ t′ → t PE.≡ lift t′
+  ⊢nf∷Lift→≡lift′ A≡Lift = λ where
+    (liftₙ _ _)     → _ , PE.refl
+    (convₙ ⊢t ≡A)   → ⊢nf∷Lift→≡lift′ (trans ≡A A≡Lift) ⊢t
+    (neₙ A-no-η _)  → ⊥-elim (No-η-equality→≢Lift A-no-η A≡Lift)
+    (Levelₙ _ _)    → ⊥-elim (U≢Liftⱼ A≡Lift)
+    (zeroᵘₙ _)      → ⊥-elim (Lift≢Level (sym A≡Lift))
+    (sucᵘₙ _)       → ⊥-elim (Lift≢Level (sym A≡Lift))
+    (Uₙ _)          → ⊥-elim (U≢Liftⱼ A≡Lift)
+    (Liftₙ _ _)     → ⊥-elim (U≢Liftⱼ A≡Lift)
+    (ΠΣₙ _ _ _)     → ⊥-elim (U≢Liftⱼ A≡Lift)
+    (lamₙ _ _)      → ⊥-elim (Lift≢ΠΣⱼ (sym A≡Lift))
+    (prodₙ _ _ _ _) → ⊥-elim (Lift≢ΠΣⱼ (sym A≡Lift))
+    (Emptyₙ _)      → ⊥-elim (U≢Liftⱼ A≡Lift)
+    (Unitₙ _ _)     → ⊥-elim (U≢Liftⱼ A≡Lift)
+    (starₙ _ _)     → ⊥-elim (Lift≢Unitⱼ (sym A≡Lift))
+    (ℕₙ _)          → ⊥-elim (U≢Liftⱼ A≡Lift)
+    (zeroₙ _)       → ⊥-elim (Lift≢ℕ (sym A≡Lift))
+    (sucₙ _)        → ⊥-elim (Lift≢ℕ (sym A≡Lift))
+    (Idₙ _ _ _)     → ⊥-elim (U≢Liftⱼ A≡Lift)
+    (rflₙ _)        → ⊥-elim (I.Id≢Lift A≡Lift)
