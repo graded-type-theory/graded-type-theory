@@ -30,12 +30,14 @@ open import Definition.Untyped.Properties.Neutral M type-variant
 open import Tools.Empty
 open import Tools.Function
 open import Tools.Fin
+open import Tools.Nat
 open import Tools.Product
 import Tools.PropositionalEquality as PE
 open import Tools.Relation
 open import Tools.Sum
 
 private variable
+  n                                                     : Nat
   x y                                                   : Fin _
   Γ                                                     : Con Term _
   A A₁ A₂ B B₁ B₂ C C₁ C₂ l l₁ l₂ t t₁ t₂ t₃ t₄ u u₁ u₂ u₃ u₄ v
@@ -1428,6 +1430,20 @@ opaque
     Γ ⊢ t [conv↓] u ∷Level
   inv-[conv↓]∷-Level (Level-ins t~u) = t~u
   inv-[conv↓]∷-Level (ne-ins _ _ () _)
+
+-- A variant of _⊢_[conv↑]_∷ Level.
+
+record _⊢_[conv↑]_∷Level (Γ : Con Term n) (t u : Term n) : Set a where
+  inductive
+  no-eta-equality
+  pattern
+  constructor [↑]ˡ
+  field
+    tᵛ : Levelᵛ Γ
+    uᵛ : Levelᵛ Γ
+    t↑ : Γ ⊢ t ↑ᵛ tᵛ
+    u↑ : Γ ⊢ u ↑ᵛ uᵛ
+    t≡u : tᵛ ≡ᵛ uᵛ
 
 opaque
 

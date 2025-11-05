@@ -353,11 +353,6 @@ mutual
     let u , ⊢u , t≡u = fullRedNe~↓ [t]
     in u , neₙ ⊢u , t≡u
 
-  fullRedTermConv↑Level :
-    Γ ⊢ t [conv↑] t′ ∷Level →
-    ∃ λ u → Γ ⊢nf u ∷ Level × Γ ⊢ t ≡ u ∷ Level
-  fullRedTermConv↑Level ([↑]ˡ tᵛ uᵛ t↑ u↑ t≡u) = fullRedTermConv↑ᵛ t↑
-
   fullRedTermConv↓Level :
     Γ ⊢ t [conv↓] t′ ∷Level →
     ∃ λ u → Γ ⊢nf u ∷ Level × Γ ⊢ t ≡ u ∷ Level

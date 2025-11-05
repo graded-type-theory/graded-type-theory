@@ -422,19 +422,6 @@ mutual
       d    : Γ ⊢ t ↘ t′ ∷ Level
       t↓v  : Γ ⊢ t′ ↓ᵛ v
 
-  -- Algorithmic equality of levels.
-  record _⊢_[conv↑]_∷Level (Γ : Con Term n) (t u : Term n) : Set a where
-    inductive
-    no-eta-equality
-    pattern
-    constructor [↑]ˡ
-    field
-      tᵛ : Levelᵛ Γ
-      uᵛ : Levelᵛ Γ
-      t↑ : Γ ⊢ t ↑ᵛ tᵛ
-      u↑ : Γ ⊢ u ↑ᵛ uᵛ
-      t≡u : tᵛ ≡ᵛ uᵛ
-
   -- Algorithmic equality of levels in whnf.
   record _⊢_[conv↓]_∷Level (Γ : Con Term n) (t u : Term n) : Set a where
     inductive
