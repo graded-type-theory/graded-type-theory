@@ -593,6 +593,88 @@ mutual
 ------------------------------------------------------------------------
 -- Inversion lemmas
 
+opaque
+
+  -- Inversion for Lift, seen as a term constructor.
+
+  inversion-nf-Lift-U :
+    Γ ⊢nf Lift l A ∷ B →
+    ∃ λ l′ → Γ ⊢nf l ∷Level × Γ ⊢nf A ∷ U l′ × Γ ⊢ B ≡ U (l′ supᵘₗ l)
+  inversion-nf-Lift-U (convₙ ⊢Lift ≡B) =
+    let _ , ⊢l , ⊢A , ≡U = inversion-nf-Lift-U ⊢Lift in
+    _ , ⊢l , ⊢A , trans (sym ≡B) ≡U
+  inversion-nf-Lift-U (Liftₙ ⊢l ⊢A) =
+    let ⊢Γ , ⊢l′ = inversion-U-Level (wf-⊢∷ (⊢nf∷→⊢∷ ⊢A)) in
+    _ , ⊢l , ⊢A , refl (⊢U ⊢Γ (⊢supᵘₗ ⊢l′ (⊢nf∷L→⊢∷L ⊢l)))
+  inversion-nf-Lift-U (neₙ _ ⊢Lift) =
+    case ⊢neˡ∷→NfNeutralˡ ⊢Lift of λ { (ne ()) }
+
+opaque
+
+  -- Inversion for Lift, seen as a type constructor.
+
+  inversion-nf-Lift :
+    Γ ⊢nf Lift l A →
+    Γ ⊢nf l ∷Level × Γ ⊢nf A
+  inversion-nf-Lift (univₙ ⊢Lift) =
+    let _ , ⊢l , ⊢A , _ = inversion-nf-Lift-U ⊢Lift in
+    ⊢l , univₙ ⊢A
+  inversion-nf-Lift (Liftₙ ⊢l ⊢A) =
+    ⊢l , ⊢A
+
+opaque
+
+  -- Inversion for lift.
+
+  inversion-nf-lift :
+    Γ ⊢nf lift t ∷ A →
+    ∃₂ λ B l → Γ ⊢nf t ∷ B × Γ ⊢ A ≡ Lift l B
+  inversion-nf-lift (convₙ ⊢lift ≡B) =
+    let _ , _ , ⊢t , ≡Lift = inversion-nf-lift ⊢lift in
+    _ , _ , ⊢t , trans (sym ≡B) ≡Lift
+  inversion-nf-lift (liftₙ ⊢l ⊢t) =
+    _ , _ , ⊢t , refl (Liftⱼ ⊢l (wf-⊢∷ (⊢nf∷→⊢∷ ⊢t)))
+  inversion-nf-lift (neₙ _ ⊢lift) =
+    case ⊢neˡ∷→NfNeutralˡ ⊢lift of λ { (ne ()) }
+
+opaque
+
+  -- Inversion for lower.
+
+  inversion-ne-lower :
+    Γ ⊢ne lower t ∷ A →
+    ∃ λ l → Γ ⊢ne t ∷ Lift l A
+  inversion-ne-lower (convₙ ⊢lower ≡B) =
+    let _ , ⊢t = inversion-ne-lower ⊢lower
+        ⊢l , _ = inversion-Lift (wf-⊢∷ (⊢ne∷→⊢∷ ⊢t))
+    in
+    _ , convₙ ⊢t (Lift-cong (refl-⊢≡∷L ⊢l) ≡B)
+  inversion-ne-lower (lowerₙ ⊢t) =
+    _ , ⊢t
+
+  inversion-neˡ-lower :
+    Γ ⊢neˡ lower t ∷ A →
+    ∃ λ l → Γ ⊢ne t ∷ Lift l A
+  inversion-neˡ-lower (neₙ ⊢lower) =
+    inversion-ne-lower ⊢lower
+
+  inversion-nf-lower :
+    Γ ⊢nf lower t ∷ A →
+    ∃ λ l → Γ ⊢ne t ∷ Lift l A
+  inversion-nf-lower (convₙ ⊢lower ≡A) =
+    let _ , ⊢t = inversion-nf-lower ⊢lower
+        ⊢l , _ = inversion-Lift (wf-⊢∷ (⊢ne∷→⊢∷ ⊢t))
+    in
+    _ , convₙ ⊢t (Lift-cong (refl-⊢≡∷L ⊢l) ≡A)
+  inversion-nf-lower (neₙ _ ⊢lower) =
+    inversion-neˡ-lower ⊢lower
+
+  inversion-nf-ne-lower :
+    Γ ⊢nf lower t ∷ A ⊎ Γ ⊢ne lower t ∷ A →
+    ∃ λ l → Γ ⊢ne t ∷ Lift l A
+  inversion-nf-ne-lower (inj₁ ⊢lower) = inversion-nf-lower ⊢lower
+  inversion-nf-ne-lower (inj₂ ⊢lower) = inversion-ne-lower ⊢lower
+
 -- Inversion for terms that are Π- or Σ-types.
 
 inversion-nf-ΠΣ-U :
