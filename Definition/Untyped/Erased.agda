@@ -110,6 +110,22 @@ opaque
 
 opaque
 
+  -- A combination of Id-Erased-[] and wk-Id-Erased.
+
+  wk-Id-Erased-[]-[] :
+    Id (Erased (wk ρ l U.[ σ ]) (wk ρ A U.[ σ ])) [ wk ρ t U.[ σ ] ]
+       [ wk ρ u U.[ σ ] ] ≡
+    wk ρ (Id (Erased l A) [ t ] [ u ]) U.[ σ ]
+  wk-Id-Erased-[]-[] {ρ} {l} {σ} {A} {t} {u} =
+    Id (Erased (wk ρ l U.[ σ ]) (wk ρ A U.[ σ ])) [ wk ρ t U.[ σ ] ]
+       [ wk ρ u U.[ σ ] ]                                             ≡⟨ Id-Erased-[] ⟩
+
+    Id (Erased (wk ρ l) (wk ρ A)) [ wk ρ t ] [ wk ρ u ] U.[ σ ]       ≡⟨ PE.cong U._[ σ ] wk-Id-Erased ⟩
+
+    wk ρ (Id (Erased l A) [ t ] [ u ]) U.[ σ ]                        ∎
+
+opaque
+
   -- The "projection" erased.
 
   erased : Term n → Term n → Term n
