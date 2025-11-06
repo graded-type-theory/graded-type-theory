@@ -477,3 +477,192 @@ fullRedTerm as ⊢t ▸t =
   u , ⊢u , t≡u , fullRedTermConv↑ as t≡t ▸t
   where
   t≡t = completeEqTerm (refl ⊢t)
+
+-- Full-reduction-term is logically equivalent to
+-- Full-reduction-assumptions (if Level and equality reflection are
+-- not allowed).
+
+Full-reduction-term⇔Full-reduction-assumptions :
+  ⦃ not-ok : No-equality-reflection ⦄ →
+  ¬ Level-allowed →
+  Full-reduction-term ⇔ Full-reduction-assumptions
+Full-reduction-term⇔Full-reduction-assumptions not-ok =
+    (λ red → λ where
+       .sink⊎𝟙≤𝟘 {s} ok η →                                        $⟨ η-long-nf-for-0⇔sink⊎𝟙≤𝟘 ok η ⟩
+         (let Γ = ε ∙ Unit s
+              γ = ε ∙ 𝟙
+              A = Unit s
+              t = var x0
+              u = star s
+          in
+          Γ ⊢ t ∷ A ×
+          γ ▸[ 𝟙ᵐ ] t ×
+          Γ ⊢nf u ∷ A ×
+          Γ ⊢ t ≡ u ∷ A ×
+          (γ ▸[ 𝟙ᵐ ] u ⇔ (s PE.≡ 𝕤 × Starˢ-sink ⊎ 𝟙 ≤ 𝟘)))         →⟨ (λ (⊢t , ▸t , ⊢u , t≡u , ▸u⇔) →
+                                                                         ⊢u , t≡u , ▸u⇔ , red ⊢t ▸t) ⟩
+         (let Γ = ε ∙ Unit s
+              γ = ε ∙ 𝟙
+              A = Unit s
+              t = var x0
+              u = star s
+          in
+          Γ ⊢nf u ∷ A ×
+          Γ ⊢ t ≡ u ∷ A ×
+          (γ ▸[ 𝟙ᵐ ] u ⇔ (s PE.≡ 𝕤 × Starˢ-sink ⊎ 𝟙 ≤ 𝟘)) ×
+          ∃ λ v → Γ ⊢nf v ∷ A × Γ ⊢ t ≡ v ∷ A × γ ▸[ 𝟙ᵐ ] v)       →⟨ (λ (⊢u , t≡u , ▸u⇔ , v , ⊢v , t≡v , ▸v) →
+                                                                         v ,
+                                                                         PE.subst (λ u → _ ▸[ _ ] u ⇔ _)
+                                                                           (normal-terms-unique not-ok ⊢u ⊢v (trans (sym′ t≡u) t≡v))
+                                                                           ▸u⇔ ,
+                                                                         ▸v) ⟩
+         (∃ λ v →
+            (ε ∙ 𝟙 ▸[ 𝟙ᵐ ] v ⇔ (s PE.≡ 𝕤 × Starˢ-sink ⊎ 𝟙 ≤ 𝟘)) ×
+            ε ∙ 𝟙 ▸[ 𝟙ᵐ ] v)                                       →⟨ (λ (_ , ▸v⇔ , ▸v) → ▸v⇔ .proj₁ ▸v) ⟩
+
+         s PE.≡ 𝕤 × Starˢ-sink ⊎ 𝟙 ≤ 𝟘                             □
+
+       .≡𝟙⊎𝟙≤𝟘 {p = p} {q = q} →
+         Σˢ-allowed p q                                                   →⟨ η-long-nf-for-0⇔≡𝟙⊎≡𝟘 ⟩
+
+         (let Γ = ε ∙ (Σˢ p , q ▷ ℕ ▹ ℕ)
+              γ = ε ∙ 𝟙
+              A = Σˢ p , q ▷ ℕ ▹ ℕ
+              t = var x0
+              u = prodˢ p (fst p (var x0)) (snd p (var x0))
+          in
+          Γ ⊢ t ∷ A ×
+          γ ▸[ 𝟙ᵐ ] t ×
+          Γ ⊢nf u ∷ A ×
+          Γ ⊢ t ≡ u ∷ A ×
+          (γ ▸[ 𝟙ᵐ ] u ⇔ (p PE.≡ 𝟙 ⊎ p PE.≡ 𝟘 × T 𝟘ᵐ-allowed × 𝟙 ≤ 𝟘)))   →⟨ (λ (⊢t , ▸t , ⊢u , t≡u , ▸u⇔) →
+                                                                               ⊢u , t≡u , ▸u⇔ , red ⊢t ▸t) ⟩
+         (let Γ = ε ∙ (Σˢ p , q ▷ ℕ ▹ ℕ)
+              γ = ε ∙ 𝟙
+              A = Σˢ p , q ▷ ℕ ▹ ℕ
+              t = var x0
+              u = prodˢ p (fst p (var x0)) (snd p (var x0))
+          in
+          Γ ⊢nf u ∷ A ×
+          Γ ⊢ t ≡ u ∷ A ×
+          (γ ▸[ 𝟙ᵐ ] u ⇔ (p PE.≡ 𝟙 ⊎ p PE.≡ 𝟘 × T 𝟘ᵐ-allowed × 𝟙 ≤ 𝟘)) ×
+          ∃ λ v → Γ ⊢nf v ∷ A × Γ ⊢ t ≡ v ∷ A × γ ▸[ 𝟙ᵐ ] v)              →⟨ (λ (⊢u , t≡u , ▸u⇔ , v , ⊢v , t≡v , ▸v) →
+                                                                                v ,
+                                                                                PE.subst (λ u → _ ▸[ _ ] u ⇔ _)
+                                                                                  (normal-terms-unique not-ok ⊢u ⊢v (trans (sym′ t≡u) t≡v))
+                                                                                  ▸u⇔ ,
+                                                                                ▸v) ⟩
+         (∃ λ v →
+          (ε ∙ 𝟙 ▸[ 𝟙ᵐ ] v ⇔
+           (p PE.≡ 𝟙 ⊎ p PE.≡ 𝟘 × T 𝟘ᵐ-allowed × 𝟙 ≤ 𝟘)) ×
+          ε ∙ 𝟙 ▸[ 𝟙ᵐ ] v)                                                →⟨ (λ (_ , ▸v⇔ , ▸v) → ▸v⇔ .proj₁ ▸v) ⟩
+
+         p PE.≡ 𝟙 ⊎ p PE.≡ 𝟘 × T 𝟘ᵐ-allowed × 𝟙 ≤ 𝟘                       □)
+  , fullRedTerm
+  where
+  open Full-reduction-assumptions
+  open Tools.Reasoning.PartialOrder ≤-poset
+
+------------------------------------------------------------------------
+-- Full-reduction-term-ε
+
+-- A variant of Full-reduction-term that is restricted to empty
+-- contexts.
+
+Full-reduction-term-ε : Set a
+Full-reduction-term-ε =
+  ∀ {t A m} →
+  ε ⊢ t ∷ A → ε ▸[ m ] t →
+  ∃ λ u → ε ⊢nf u ∷ A × ε ⊢ t ≡ u ∷ A × ε ▸[ m ] u
+
+-- If Π-allowed 𝟙 r holds for any r, and Level and equality reflection
+-- are not allowed, then Full-reduction-term-ε implies
+-- Full-reduction-assumptions.
+
+Full-reduction-term-ε→Full-reduction-assumptions :
+  ⦃ not-ok : No-equality-reflection ⦄ →
+  ¬ Level-allowed →
+  Π-allowed 𝟙 r →
+  Full-reduction-term-ε →
+  Full-reduction-assumptions
+Full-reduction-term-ε→Full-reduction-assumptions
+  {r} not-ok ok red = λ where
+    .sink⊎𝟙≤𝟘 {s} Unit-ok η →                               $⟨ η-long-nf-for-id⇔sink⊎𝟙≤𝟘 ok Unit-ok η ⟩
+      (let A = Π 𝟙 , r ▷ Unit s ▹ Unit s
+           t = lam 𝟙 (var x0)
+           u = lam 𝟙 (star s)
+       in
+       ε ⊢ t ∷ A ×
+       ε ▸[ 𝟙ᵐ ] t ×
+       ε ⊢nf u ∷ A ×
+       ε ⊢ t ≡ u ∷ A ×
+       (ε ▸[ 𝟙ᵐ ] u ⇔ (s PE.≡ 𝕤 × Starˢ-sink ⊎ 𝟙 ≤ 𝟘)))     →⟨ (λ (⊢t , ▸t , ⊢u , t≡u , ▸u⇔) →
+                                                                  ⊢u , t≡u , ▸u⇔ , red ⊢t ▸t) ⟩
+      (let A = Π 𝟙 , r ▷ Unit s ▹ Unit s
+           t = lam 𝟙 (var x0)
+           u = lam 𝟙 (star s)
+       in
+       ε ⊢nf u ∷ A ×
+       ε ⊢ t ≡ u ∷ A ×
+       (ε ▸[ 𝟙ᵐ ] u ⇔ (s PE.≡ 𝕤 × Starˢ-sink ⊎ 𝟙 ≤ 𝟘)) ×
+       ∃ λ v → ε ⊢nf v ∷ A × ε ⊢ t ≡ v ∷ A × ε ▸[ 𝟙ᵐ ] v)   →⟨ (λ (⊢u , t≡u , ▸u⇔ , v , ⊢v , t≡v , ▸v) →
+                                                                  v ,
+                                                                  PE.subst (λ u → _ ▸[ _ ] u ⇔ _)
+                                                                    (normal-terms-unique not-ok ⊢u ⊢v (trans (sym′ t≡u) t≡v))
+                                                                    ▸u⇔ ,
+                                                                  ▸v) ⟩
+      (∃ λ v →
+         (ε ▸[ 𝟙ᵐ ] v ⇔ (s PE.≡ 𝕤 × Starˢ-sink ⊎ 𝟙 ≤ 𝟘)) ×
+         ε ▸[ 𝟙ᵐ ] v)                                       →⟨ (λ (_ , ▸v⇔ , ▸v) → ▸v⇔ .proj₁ ▸v) ⟩
+
+      s PE.≡ 𝕤 × Starˢ-sink ⊎ 𝟙 ≤ 𝟘                         □
+
+    .≡𝟙⊎𝟙≤𝟘 {p = p} {q = q} →
+      Σˢ-allowed p q                                                  →⟨ η-long-nf-for-id⇔≡𝟙⊎≡𝟘 ok ⟩
+
+      (let A = Π 𝟙 , r ▷ Σˢ p , q ▷ ℕ ▹ ℕ ▹ Σˢ p , q ▷ ℕ ▹ ℕ
+           t = lam 𝟙 (var x0)
+           u = lam 𝟙 (prodˢ p (fst p (var x0)) (snd p (var x0)))
+       in
+       ε ⊢ t ∷ A ×
+       ε ▸[ 𝟙ᵐ ] t ×
+       ε ⊢nf u ∷ A ×
+       ε ⊢ t ≡ u ∷ A ×
+       (ε ▸[ 𝟙ᵐ ] u ⇔ (p PE.≡ 𝟙 ⊎ p PE.≡ 𝟘 × T 𝟘ᵐ-allowed × 𝟙 ≤ 𝟘)))  →⟨ (λ (⊢t , ▸t , ⊢u , t≡u , ▸u⇔) →
+                                                                           ⊢u , t≡u , ▸u⇔ , red ⊢t ▸t) ⟩
+      (let A = Π 𝟙 , r ▷ Σˢ p , q ▷ ℕ ▹ ℕ ▹ Σˢ p , q ▷ ℕ ▹ ℕ
+           t = lam 𝟙 (var x0)
+           u = lam 𝟙 (prodˢ p (fst p (var x0)) (snd p (var x0)))
+       in
+       ε ⊢nf u ∷ A ×
+       ε ⊢ t ≡ u ∷ A ×
+       (ε ▸[ 𝟙ᵐ ] u ⇔ (p PE.≡ 𝟙 ⊎ p PE.≡ 𝟘 × T 𝟘ᵐ-allowed × 𝟙 ≤ 𝟘)) ×
+       ∃ λ v → ε ⊢nf v ∷ A × ε ⊢ t ≡ v ∷ A × ε ▸[ 𝟙ᵐ ] v)             →⟨ (λ (⊢u , t≡u , ▸u⇔ , v , ⊢v , t≡v , ▸v) →
+                                                                            v ,
+                                                                            PE.subst (λ u → _ ▸[ _ ] u ⇔ _)
+                                                                              (normal-terms-unique not-ok ⊢u ⊢v (trans (sym′ t≡u) t≡v))
+                                                                              ▸u⇔ ,
+                                                                            ▸v) ⟩
+      (∃ λ v →
+       (ε ▸[ 𝟙ᵐ ] v ⇔ (p PE.≡ 𝟙 ⊎ p PE.≡ 𝟘 × T 𝟘ᵐ-allowed × 𝟙 ≤ 𝟘)) ×
+       ε ▸[ 𝟙ᵐ ] v)                                                   →⟨ (λ (_ , ▸v⇔ , ▸v) → ▸v⇔ .proj₁ ▸v) ⟩
+
+      p PE.≡ 𝟙 ⊎ p PE.≡ 𝟘 × T 𝟘ᵐ-allowed × 𝟙 ≤ 𝟘                      □
+  where
+  open Full-reduction-assumptions
+  open Tools.Reasoning.PartialOrder ≤-poset
+
+-- If Π-allowed 𝟙 r holds for any r, and Level and equality reflection
+-- are not allowed, then Full-reduction-term is logically equivalent
+-- to Full-reduction-term-ε.
+
+Full-reduction-term⇔Full-reduction-term-ε :
+  ⦃ not-ok : No-equality-reflection ⦄ →
+  ¬ Level-allowed →
+  Π-allowed 𝟙 r →
+  Full-reduction-term ⇔ Full-reduction-term-ε
+Full-reduction-term⇔Full-reduction-term-ε not-ok ok =
+    (λ red → red)
+  , (Full-reduction-term-ε       →⟨ Full-reduction-term-ε→Full-reduction-assumptions not-ok ok ⟩
+     Full-reduction-assumptions  →⟨ fullRedTerm ⟩
+     Full-reduction-term         □)
