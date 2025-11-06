@@ -20,6 +20,7 @@ open import Definition.Typed R
 open import Definition.Typed.Consequences.Inequality R
 open import Definition.Typed.Inversion R
 open import Definition.Typed.Properties R
+open import Definition.Typed.Reasoning.Type R
 open import Definition.Typed.Substitution R
 open import Definition.Typed.Weakening R
 open import Definition.Typed.Consequences.Injectivity R
@@ -29,12 +30,13 @@ open import Tools.Function
 open import Tools.Nat
 open import Tools.Product as Σ
 import Tools.PropositionalEquality as PE
+open import Tools.Reasoning.PropositionalEquality
 open import Tools.Relation
 
 private variable
-  l   : Term _
-  Γ   : Con _ _
-  p q : M
+  l                     : Term _
+  Γ                     : Con _ _
+  p p₁ p₂ p₃ q q₁ q₂ q₃ : M
 
 opaque
 
@@ -63,9 +65,11 @@ opaque
 
 opaque
 
-  -- For any context Γ there is a type that
+  -- For any context Γ the type of the universe-polymorphic identity
+  -- function (with certain grades)
   --
-  -- * is well-formed if Γ is and a certain form of Π-type is allowed,
+  -- * is well-formed if Γ is and certain forms of Π-types are
+  --   allowed,
   --
   -- * does not have a type, and
   --
@@ -75,17 +79,33 @@ opaque
 
   ¬ΠU∷U :
     ⦃ ok : No-equality-reflection or-empty Γ ⦄ →
-    let A = Π p , q ▷ Level ▹ U (var x0) in
-    (Π-allowed p q → ⊢ Γ → Γ ⊢ A) ×
+    let A = Π p₁ , q₁ ▷ Level ▹
+            Π p₂ , q₂ ▷ U (var x0) ▹
+            Π p₃ , q₃ ▷ var x0 ▹ var x1
+    in
+    (Π-allowed p₁ q₁ → Π-allowed p₂ q₂ → Π-allowed p₃ q₃ → ⊢ Γ →
+     Γ ⊢ A) ×
     (¬ ∃ λ B → Γ ⊢ A ∷ B) ×
     (¬ ∃ λ l → Γ ⊢ A ∷ U l)
   ¬ΠU∷U =
     let ¬⊢∷ = λ (_ , ⊢A) →
-          let _ , ⊢l , _ , ⊢U , _ , _ = inversion-ΠΣ-U ⊢A in
+          let l , ⊢l , _ , ⊢ΠU , _ , _  = inversion-ΠΣ-U ⊢A
+              l′ , _ , ⊢U , _ , U≡U , _ = inversion-ΠΣ-U ⊢ΠU
+          in
           ¬U∷U $
-          PE.subst (_⊢_∷_ _ _) (wk1-sgSubst _ _) (substTerm ⊢U ⊢l)
+          conv (substTerm ⊢U ⊢l)
+            (U (l′ [ l ]₀)     ≡˘⟨ substTypeEq U≡U (refl ⊢l) ⟩⊢∎≡
+             U (wk1 l [ l ]₀)  ≡⟨ PE.cong U $ wk1-sgSubst _ _ ⟩
+             U l               ∎)
     in
-    (λ ok ⊢Γ → ΠΣⱼ (⊢U (var₀ (Levelⱼ′ ⊢Γ))) ok) ,
+    (λ ok₁ ok₂ ok₃ ⊢Γ →
+       ΠΣⱼ
+         (ΠΣⱼ
+            (ΠΣⱼ
+               (univ (var₁ (univ (var₀ (⊢U (var₀ (Levelⱼ′ ⊢Γ)))))))
+               ok₃)
+            ok₂)
+         ok₁) ,
     ¬⊢∷ ,
     ¬⊢∷ ∘→ Σ.map _ idᶠ
 
