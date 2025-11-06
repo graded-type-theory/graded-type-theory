@@ -108,9 +108,9 @@ opaque
       (equality-reflection′ ok₁ $
        var₀ $
        Idⱼ′
-         (Uⱼ ε (⊢zeroᵘ ε))
+         (Uⱼ (⊢zeroᵘ ε))
          (_⊢_∷_.conv (Liftⱼ′ (⊢sucᵘ (⊢zeroᵘ ε)) (Emptyⱼ ε)) $
-          U-cong-⊢≡ ε (supᵘₗ-zeroˡ (⊢sucᵘ (⊢zeroᵘ ε))))) ,
+          U-cong-⊢≡ (supᵘₗ-zeroˡ (⊢sucᵘ (⊢zeroᵘ ε))))) ,
     Liftₙ ,
     (λ ())
 
@@ -149,7 +149,7 @@ opaque
        var₀ $
        Idⱼ′ (Liftⱼ′ (⊢zeroᵘ ε) (ℕⱼ ε)) $
        _⊢_∷_.conv (Unitⱼ ε ok₂) $
-       U-cong-⊢≡ ε (sym-⊢≡∷L (supᵘₗ-zeroˡ (⊢zeroᵘ ε)))) ,
+       U-cong-⊢≡ (sym-⊢≡∷L (supᵘₗ-zeroˡ (⊢zeroᵘ ε)))) ,
     Unitₙ ,
     (λ ())
 

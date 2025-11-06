@@ -133,9 +133,8 @@ mutual
   stabilityConv↓ Γ≡Δ (Level-refl ok _) =
     let _ , ⊢Δ , _ = contextConvSubst Γ≡Δ in
     Level-refl ok ⊢Δ
-  stabilityConv↓ Γ≡Δ (U-cong _ l₁≡l₂) =
-    let _ , ⊢Δ , _ = contextConvSubst Γ≡Δ in
-    U-cong ⊢Δ (stabilityConv↑Level Γ≡Δ l₁≡l₂)
+  stabilityConv↓ Γ≡Δ (U-cong l₁≡l₂) =
+    U-cong (stabilityConv↑Level Γ≡Δ l₁≡l₂)
   stabilityConv↓ Γ≡Δ (Lift-cong l₁≡l₂ F≡H) =
     Lift-cong (stabilityConv↑Level Γ≡Δ l₁≡l₂) (stabilityConv↑ Γ≡Δ F≡H)
   stabilityConv↓ Γ≡Δ (ℕ-refl x) =
@@ -175,8 +174,9 @@ mutual
     Δ ⊢ l₁ [conv↑] l₂ ∷Level
   stabilityConv↑Level Γ≡Δ (term ok l₁≡l₂) =
     term ok (stabilityConv↑Term Γ≡Δ l₁≡l₂)
-  stabilityConv↑Level _ (literal! not-ok l-lit) =
-    literal! not-ok l-lit
+  stabilityConv↑Level Γ≡Δ (literal! not-ok _ l-lit) =
+    let _ , ⊢Δ , _ = contextConvSubst Γ≡Δ in
+    literal! not-ok ⊢Δ l-lit
 
   -- Stability of algorithmic equality of terms in WHNF.
   stabilityConv↓Term : ∀ {t u A}

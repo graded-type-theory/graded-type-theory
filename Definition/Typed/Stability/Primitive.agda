@@ -277,8 +277,8 @@ private module Inhabited where
         sucᵘⱼ (stability-⊢∷ Γ≡Δ ⊢t)
       (supᵘⱼ ⊢t ⊢u) PE.refl →
         supᵘⱼ (stability-⊢∷ Γ≡Δ ⊢t) (stability-⊢∷ Γ≡Δ ⊢u)
-      (Uⱼ _ ⊢l) PE.refl →
-        Uⱼ (wf-⊢≡ʳ Γ≡Δ) (stability-⊢∷L Γ≡Δ ⊢l)
+      (Uⱼ ⊢l) PE.refl →
+        Uⱼ (stability-⊢∷L Γ≡Δ ⊢l)
       (Liftⱼ ⊢l₁ ⊢l₂ ⊢A) PE.refl →
         Liftⱼ (stability-⊢∷L Γ≡Δ ⊢l₁) (stability-⊢∷L Γ≡Δ ⊢l₂)
           (stability-⊢∷ Γ≡Δ ⊢A)
@@ -399,8 +399,8 @@ private module Inhabited where
     stability-⊢∷L′ hyp Γ≡Δ = let open Variants hyp in λ where
       (term ok ⊢l) PE.refl →
         term ok (stability-⊢∷ Γ≡Δ ⊢l)
-      (literal not-ok l-lit) _ →
-        literal not-ok l-lit
+      (literal not-ok _ l-lit) _ →
+        literal not-ok (wf-⊢≡ʳ Γ≡Δ) l-lit
 
   opaque
     unfolding size-⊢≡∷
@@ -653,8 +653,8 @@ private module Inhabited where
     stability-⊢≡∷L′ hyp Γ≡Δ = let open Variants hyp in λ where
       (term ok l₁≡l₂) PE.refl →
         term ok (stability-⊢≡∷ Γ≡Δ l₁≡l₂)
-      (literal not-ok l-lit) _ →
-        literal not-ok l-lit
+      (literal not-ok _ l-lit) _ →
+        literal not-ok (wf-⊢≡ʳ Γ≡Δ) l-lit
 
   opaque
 

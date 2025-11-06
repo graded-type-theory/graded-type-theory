@@ -25,10 +25,9 @@ open import Tools.Size
 open import Tools.Size.Instances
 
 private variable
-  Γ           : Con Term _
-  A B C D t u : Term _
-  l           : Nat
-  s s₁ s₂     : Size
+  Γ                   : Con Term _
+  A B C D l l₁ l₂ t u : Term _
+  s s₁ s₂             : Size
 
 private opaque
 
@@ -57,6 +56,10 @@ private
         (⊢t : Γ ⊢ t ∷ A) →
         size-⊢∷ ⊢t PE.≡ s →
         ∃ λ (⊢Γ : ⊢ Γ) → size-⊢′ ⊢Γ <ˢ size-⊢∷ ⊢t
+      wfLevel-<ˢ :
+        (⊢l : Γ ⊢ l ∷Level) →
+        size-⊢∷L ⊢l PE.≡ s →
+        ∃ λ (⊢Γ : ⊢ Γ) → size-⊢′ ⊢Γ <ˢ size-⊢∷L ⊢l
 
 -- Variants of the fields of P, along with some lemmas.
 
@@ -77,6 +80,12 @@ private module Variants (hyp : ∀ {s₁} → s₁ <ˢ s₂ → P s₁) where
       ⦃ lt : size-⊢∷ ⊢t <ˢ s₂ ⦄ →
       ∃ λ (⊢Γ : ⊢ Γ) → size-⊢′ ⊢Γ <ˢ size-⊢∷ ⊢t
     wfTerm-<ˢ ⊢t ⦃ lt ⦄ = P.wfTerm-<ˢ (hyp lt) ⊢t PE.refl
+
+    wfLevel-<ˢ :
+      (⊢l : Γ ⊢ l ∷Level) →
+      ⦃ lt : size-⊢∷L ⊢l <ˢ s₂ ⦄ →
+      ∃ λ (⊢Γ : ⊢ Γ) → size-⊢′ ⊢Γ <ˢ size-⊢∷L ⊢l
+    wfLevel-<ˢ ⊢l ⦃ lt ⦄ = P.wfLevel-<ˢ (hyp lt) ⊢l PE.refl
 
   opaque
     unfolding size-⊢′
@@ -169,7 +178,7 @@ private module Lemmas where
         (zeroᵘⱼ _ ⊢Γ)           _       → ⊢Γ , !
         (sucᵘⱼ t)               PE.refl → fix (wfTerm-<ˢ t)
         (supᵘⱼ t u)             PE.refl → fix (wfTerm-<ˢ t)
-        (Uⱼ ⊢Γ _)               _       → ⊢Γ , !
+        (Uⱼ ⊢l)                 PE.refl → fix (wfLevel-<ˢ ⊢l)
         (Liftⱼ _ _ ⊢A)          PE.refl → fix (wfTerm-<ˢ ⊢A)
         (liftⱼ _ ⊢A _)          PE.refl → fix (wf-<ˢ ⊢A)
         (lowerⱼ ⊢t)             PE.refl → fix (wfTerm-<ˢ ⊢t)
@@ -198,6 +207,23 @@ private module Lemmas where
       open Variants hyp
 
   opaque
+    unfolding size-⊢∷L
+
+    -- If there is a proof of type Γ ⊢ l ∷Level, then there is a
+    -- strictly smaller proof of type ⊢ Γ.
+
+    wfLevel-<ˢ′ :
+      (∀ {s₁} → s₁ <ˢ s₂ → P s₁) →
+      (⊢l : Γ ⊢ l ∷Level) →
+      size-⊢∷L ⊢l PE.≡ s₂ →
+      ∃ λ (⊢Γ : ⊢ Γ) → size-⊢′ ⊢Γ <ˢ size-⊢∷L ⊢l
+    wfLevel-<ˢ′ hyp = λ where
+        (term _ ⊢l)      PE.refl → fix (wfTerm-<ˢ ⊢l)
+        (literal _ ⊢Γ _) _       → ⊢Γ , !
+      where
+      open Variants hyp
+
+  opaque
 
     -- The type P s is inhabited for every s.
 
@@ -206,8 +232,9 @@ private module Lemmas where
       well-founded-induction P
         (λ _ hyp →
            record
-             { wf-<ˢ     = wf-<ˢ′     hyp
-             ; wfTerm-<ˢ = wfTerm-<ˢ′ hyp
+             { wf-<ˢ      = wf-<ˢ′      hyp
+             ; wfTerm-<ˢ  = wfTerm-<ˢ′  hyp
+             ; wfLevel-<ˢ = wfLevel-<ˢ′ hyp
              })
         _
 
@@ -227,6 +254,15 @@ opaque
   wfTerm-<ˢ :
     (⊢t : Γ ⊢ t ∷ A) → ∃ λ (⊢Γ : ⊢ Γ) → size-⊢′ ⊢Γ <ˢ size-⊢∷ ⊢t
   wfTerm-<ˢ ⊢t = P.wfTerm-<ˢ Lemmas.P-inhabited ⊢t PE.refl
+
+opaque
+
+  -- If there is a proof of type Γ ⊢ l ∷Level, then there is a
+  -- strictly smaller proof of type ⊢ Γ.
+
+  wfLevel-<ˢ :
+    (⊢l : Γ ⊢ l ∷Level) → ∃ λ (⊢Γ : ⊢ Γ) → size-⊢′ ⊢Γ <ˢ size-⊢∷L ⊢l
+  wfLevel-<ˢ ⊢l = P.wfLevel-<ˢ Lemmas.P-inhabited ⊢l PE.refl
 
 opaque
   unfolding size-⊢′
@@ -347,6 +383,18 @@ opaque
       fix (wfTerm-<ˢ ⊢v)
 
 opaque
+  unfolding size-⊢′
+
+  -- If there is a proof of type Γ ⊢ l₁ ≡ l₂ ∷Level, then there is a
+  -- strictly smaller proof of type ⊢ Γ.
+
+  wfEqLevel-<ˢ :
+    (l₁≡l₂ : Γ ⊢ l₁ ≡ l₂ ∷Level) →
+    ∃ λ (⊢Γ : ⊢ Γ) → size-⊢′ ⊢Γ <ˢ size-⊢≡∷L l₁≡l₂
+  wfEqLevel-<ˢ (term _ l₁≡l₂)   = fix (wfEqTerm-<ˢ l₁≡l₂)
+  wfEqLevel-<ˢ (literal _ ⊢Γ _) = ⊢Γ , !
+
+opaque
 
   -- If there is a proof of type Γ ⊢ A, then there is a proof of type
   -- ⊢ Γ that is no larger than the first proof.
@@ -362,6 +410,15 @@ opaque
   wfTerm-≤ˢ :
     (⊢t : Γ ⊢ t ∷ A) → ∃ λ (⊢Γ : ⊢ Γ) → size-⊢′ ⊢Γ ≤ˢ size-⊢∷ ⊢t
   wfTerm-≤ˢ = Σ.map idᶠ <ˢ→≤ˢ ∘→ wfTerm-<ˢ
+
+opaque
+
+  -- If there is a proof of type Γ ⊢ l ∷Level, then there is a proof
+  -- of type ⊢ Γ that is no larger than the first proof.
+
+  wfLevel-≤ˢ :
+    (⊢l : Γ ⊢ l ∷Level) → ∃ λ (⊢Γ : ⊢ Γ) → size-⊢′ ⊢Γ ≤ˢ size-⊢∷L ⊢l
+  wfLevel-≤ˢ = Σ.map idᶠ <ˢ→≤ˢ ∘→ wfLevel-<ˢ
 
 opaque
 
@@ -383,6 +440,16 @@ opaque
 
 opaque
 
+  -- If there is a proof of type Γ ⊢ l₁ ≡ l₂ ∷Level, then there is a
+  -- proof of type ⊢ Γ that is no larger than the first proof.
+
+  wfEqLevel-≤ˢ :
+    (l₁≡l₂ : Γ ⊢ l₁ ≡ l₂ ∷Level) →
+    ∃ λ (⊢Γ : ⊢ Γ) → size-⊢′ ⊢Γ ≤ˢ size-⊢≡∷L l₁≡l₂
+  wfEqLevel-≤ˢ = Σ.map idᶠ <ˢ→≤ˢ ∘→ wfEqLevel-<ˢ
+
+opaque
+
   -- If a type is well-typed with respect to Γ, then Γ is well-formed.
 
   wf : Γ ⊢ A → ⊢ Γ
@@ -394,6 +461,13 @@ opaque
 
   wfTerm : Γ ⊢ t ∷ A → ⊢ Γ
   wfTerm = proj₁ ∘→ wfTerm-<ˢ
+
+opaque
+
+  -- If a level is well-typed with respect to Γ, then Γ is well-formed.
+
+  wfLevel : Γ ⊢ l ∷Level → ⊢ Γ
+  wfLevel = proj₁ ∘→ wfLevel-<ˢ
 
 opaque
 
@@ -410,6 +484,14 @@ opaque
 
   wfEqTerm : Γ ⊢ t ≡ u ∷ A → ⊢ Γ
   wfEqTerm = proj₁ ∘→ wfEqTerm-<ˢ
+
+opaque
+
+  -- If a level equality is well-formed with respect to Γ, then Γ is
+  -- well-formed.
+
+  wfEqLevel : Γ ⊢ l₁ ≡ l₂ ∷Level → ⊢ Γ
+  wfEqLevel = proj₁ ∘→ wfEqLevel-<ˢ
 
 opaque
 

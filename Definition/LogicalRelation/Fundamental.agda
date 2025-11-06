@@ -204,15 +204,15 @@ opaque mutual
     _ ,
     []-congᵛ ok (fundamental-⊩ᵛ∷L ⊢l .proj₂) (fundamental-⊩ᵛ∷ ⊢A .proj₂)
       (fundamental-⊩ᵛ∷ ⊢v .proj₂)
-  fundamental-⊩ᵛ∷ (Uⱼ ⊢Γ ⊢l) =
-    _ , ⊩ᵛU∷U (valid ⊢Γ) (fundamental-⊩ᵛ∷L ⊢l .proj₂)
+  fundamental-⊩ᵛ∷ (Uⱼ ⊢l) =
+    _ , ⊩ᵛU∷U (fundamental-⊩ᵛ∷L ⊢l .proj₂)
 
   -- The fundamental theorem for levels.
   fundamental-⊩ᵛ∷L : Γ ⊢ t ∷Level → ∃ λ l → Γ ⊩ᵛ⟨ l ⟩ t ∷Level
   fundamental-⊩ᵛ∷L (term ok ⊢t) =
     _ , term-⊩ᵛ∷L ok (fundamental-⊩ᵛ∷ ⊢t .proj₂)
-  fundamental-⊩ᵛ∷L (literal not-ok t-lit) =
-    0ᵘ , literal-⊩ᵛ∷L not-ok t-lit
+  fundamental-⊩ᵛ∷L (literal not-ok ⊢Γ t-lit) =
+    0ᵘ , literal-⊩ᵛ∷L not-ok (valid ⊢Γ) t-lit
 
   -- Fundamental theorem for term equality.
   fundamental-⊩ᵛ≡∷ : Γ ⊢ t ≡ u ∷ A → ∃ λ l → Γ ⊩ᵛ⟨ l ⟩ t ≡ u ∷ A
@@ -383,8 +383,8 @@ opaque mutual
   fundamental-⊩ᵛ≡∷L : Γ ⊢ t ≡ u ∷Level → ∃ λ l → Γ ⊩ᵛ⟨ l ⟩ t ≡ u ∷Level
   fundamental-⊩ᵛ≡∷L (term ok t≡u) =
     _ , term ok (fundamental-⊩ᵛ≡∷ t≡u .proj₂)
-  fundamental-⊩ᵛ≡∷L (literal not-ok t-lit) =
-    0ᵘ , literal! not-ok t-lit
+  fundamental-⊩ᵛ≡∷L (literal not-ok ⊢Γ t-lit) =
+    0ᵘ , literal! not-ok (valid ⊢Γ) t-lit
 
 opaque
 

@@ -363,8 +363,8 @@ private module Inhabited where
           sucᵘⱼ (wkTerm ρ⊇ ⊢Δ ⊢t)
         (supᵘⱼ ⊢t ⊢u) PE.refl →
           supᵘⱼ (wkTerm ρ⊇ ⊢Δ ⊢t) (wkTerm ρ⊇ ⊢Δ ⊢u)
-        (Uⱼ _ l) PE.refl →
-          Uⱼ ⊢Δ (wkLevel ρ⊇ ⊢Δ l)
+        (Uⱼ l) PE.refl →
+          Uⱼ (wkLevel ρ⊇ ⊢Δ l)
         (Liftⱼ ⊢l₁ ⊢l₂ ⊢A) PE.refl →
           PE.subst (_⊢_∷_ _ _) (PE.cong U $ PE.sym wk-supᵘₗ) $
           Liftⱼ (wkLevel ρ⊇ ⊢Δ ⊢l₁) (wkLevel ρ⊇ ⊢Δ ⊢l₂)
@@ -515,9 +515,9 @@ private module Inhabited where
       size-⊢∷L ⊢l PE.≡ s₂ →
       Δ ⊢ U.wk ρ l ∷Level
     wkLevel′ hyp ρ⊇ ⊢Δ = λ where
-        (term ok ⊢l)           PE.refl → term ok (wkTerm ρ⊇ ⊢Δ ⊢l)
-        (literal not-ok l-lit) _       →
-          literal not-ok (wk-Level-literal .proj₁ l-lit)
+        (term ok ⊢l)             PE.refl → term ok (wkTerm ρ⊇ ⊢Δ ⊢l)
+        (literal not-ok _ l-lit) _       →
+          literal not-ok ⊢Δ (wk-Level-literal .proj₁ l-lit)
       where
       open Variants hyp
 
@@ -882,8 +882,8 @@ private module Inhabited where
     wkEqLevel′ hyp ρ⊇ ⊢Δ = λ where
         (term ok l₁≡l₂) PE.refl →
           term ok (wkEqTerm ρ⊇ ⊢Δ l₁≡l₂)
-        (literal not-ok l-lit) _ →
-          literal not-ok (wk-Level-literal .proj₁ l-lit)
+        (literal not-ok _ l-lit) _ →
+          literal not-ok ⊢Δ (wk-Level-literal .proj₁ l-lit)
       where
       open Variants hyp
 

@@ -52,7 +52,7 @@ opaque
        → ΠΣ-allowed b p q
        → Γ     ⊢ ΠΣ⟨ b ⟩ p , q ▷ A ▹ B ∷ U l
   ΠΣⱼ′ ⊢A ⊢B ok =
-    let _ , ⊢l = inversion-U-Level (wf-⊢∷ ⊢A) in
+    let ⊢l = inversion-U-Level (wf-⊢∷ ⊢A) in
     ΠΣⱼ ⊢l ⊢A ⊢B ok
 
 opaque
@@ -63,7 +63,7 @@ opaque
            → Γ     ⊢ ΠΣ⟨ b ⟩ p , q ▷ F ▹ G ≡
                      ΠΣ⟨ b ⟩ p , q ▷ H ▹ E ∷ U l
   ΠΣ-cong′ F≡H G≡E ok =
-    let _ , ⊢l = inversion-U-Level (wf-⊢≡∷ F≡H .proj₁) in
+    let ⊢l = inversion-U-Level (wf-⊢≡∷ F≡H .proj₁) in
     ΠΣ-cong ⊢l F≡H G≡E ok
 
 ------------------------------------------------------------------------
@@ -80,7 +80,7 @@ opaque
     ΠΣ-allowed b p q →
     Γ ⊢ ΠΣʰ b p q l₁ l₂ A B ∷ U (l₁ supᵘₗ l₂)
   ΠΣʰⱼ ⊢l₂ ⊢A =
-    let _ , ⊢l₁ = inversion-U-Level (wf-⊢∷ ⊢A) in
+    let ⊢l₁ = inversion-U-Level (wf-⊢∷ ⊢A) in
     PP.ΠΣʰⱼ ⊢l₁ ⊢l₂ ⊢A
 
 opaque
@@ -157,10 +157,10 @@ opaque
         _ , _ , ⊢B , U[l₃]≡U[l₅⊔l₁]          = inversion-Lift∷ ⊢Lift-B
         _ , ⊢l₂                              =
           inversion-supᵘₗ $
-          inversion-U-Level (wf-⊢≡ U[l₃]≡U[l₄⊔l₂] .proj₂) .proj₂
+          inversion-U-Level (wf-⊢≡ U[l₃]≡U[l₄⊔l₂] .proj₂)
         _ , ⊢l₁ =
           inversion-supᵘₗ $
-          inversion-U-Level (wf-⊢≡ U[l₃]≡U[l₅⊔l₁] .proj₂) .proj₂
+          inversion-U-Level (wf-⊢≡ U[l₃]≡U[l₅⊔l₁] .proj₂)
         ⊢A′ = univ ⊢A
         ⊢σ  = ⊢ˢʷ∷-[][]↑ (liftⱼ′ (wkLevel₁ ⊢A′ ⊢l₂) (var₀ ⊢A′))
     in

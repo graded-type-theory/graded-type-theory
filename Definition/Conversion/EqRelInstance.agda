@@ -445,8 +445,8 @@ private opaque
     .Equality-relations.⊢≅∷L→⊢≡∷L          → soundnessConv↑Level
     .Equality-relations.Level-literal→⊢≅∷L → literal!
     .Equality-relations.⊢≅∷L→⊢≅∷           → λ where
-      _  (term _ l₁≡l₂)       → l₁≡l₂
-      ok (literal not-ok _ _) → ⊥-elim (not-ok ok)
+      _  (term _ l₁≡l₂)         → l₁≡l₂
+      ok (literal not-ok _ _ _) → ⊥-elim (not-ok ok)
     .Equality-relations.≅-univ   → univConv↑
     .Equality-relations.≅-sym    → symConv
     .Equality-relations.≅ₜ-sym   → symConvTerm
@@ -486,27 +486,27 @@ private opaque
     .Equality-relations.≅ₜ-supᵘ-sub →
       λ a → inv-[conv↑]∷-Level⇔ .proj₂ (≅ₜ-supᵘ-sub (inv-[conv↑]∷-Level⇔ .proj₁ a))
     .Equality-relations.≅ₜ-U-cong →
-      λ ⊢Γ l≡l′ →
+      λ l≡l′ →
         let ⊢l≡l′    = soundnessConv↑Level l≡l′
             ⊢l , ⊢l′ = wf-⊢≡∷L ⊢l≡l′
         in
         liftConvTerm $
-        univ (Uⱼ ⊢Γ ⊢l)
-          (conv (Uⱼ ⊢Γ ⊢l′) $
-           U-cong-⊢≡ ⊢Γ (sucᵘ-cong-⊢≡∷L (sym-⊢≡∷L ⊢l≡l′)))
-          (U-cong ⊢Γ l≡l′)
+        univ (Uⱼ ⊢l)
+          (conv (Uⱼ ⊢l′) $
+           U-cong-⊢≡ (sucᵘ-cong-⊢≡∷L (sym-⊢≡∷L ⊢l≡l′)))
+          (U-cong l≡l′)
     .Equality-relations.≅-Lift-cong →
       λ l₁≡l₂ A≡B → liftConv (Lift-cong l₁≡l₂ A≡B)
     .Equality-relations.≅ₜ-Lift-cong →
       λ l₁≡l₂ A≡B →
         let ⊢U , ⊢A , ⊢B = syntacticEqTerm (soundnessConv↑Term A≡B)
             ⊢l₁ , ⊢l₂    = wf-⊢≡∷L (soundnessConv↑Level l₁≡l₂)
-            ⊢Γ , ⊢l      = inversion-U-Level ⊢U
+            ⊢l           = inversion-U-Level ⊢U
         in
         liftConvTerm $
         univ
           (Liftⱼ ⊢l ⊢l₁ ⊢A)
-          (_⊢_∷_.conv (Liftⱼ ⊢l ⊢l₂ ⊢B) $ sym $ U-cong-⊢≡ ⊢Γ $
+          (_⊢_∷_.conv (Liftⱼ ⊢l ⊢l₂ ⊢B) $ sym $ U-cong-⊢≡ $
            supᵘₗ-cong (refl-⊢≡∷L ⊢l) (soundnessConv↑Level l₁≡l₂))
           (Lift-cong l₁≡l₂ (univConv↑ A≡B))
     .Equality-relations.≅ₜ-ℕrefl →

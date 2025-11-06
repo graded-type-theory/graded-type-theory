@@ -58,7 +58,7 @@ opaque
       (conv
          (_⊢_∷_.Liftⱼ (⊢zeroᵘ (∙ ⊢A′)) ⊢l′ $
           Unitⱼ (∙ ⊢A′) Unit-ok)
-         (U-cong-⊢≡ (∙ ⊢A′) (supᵘₗ-identityˡ ⊢l′)))
+         (U-cong-⊢≡ (supᵘₗ-identityˡ ⊢l′)))
       Σ-ok
 
 opaque
@@ -79,7 +79,7 @@ opaque
          (_⊢_≡_∷_.Lift-cong (⊢zeroᵘ (∙ ⊢A₁))
             (wkLevel₁ ⊢A₁ ⊢l₁) (wkEqLevel₁ ⊢A₁ l₁≡l₂) $
           refl (Unitⱼ (∙ ⊢A₁) Unit-ok))
-         (U-cong-⊢≡ (∙ ⊢A₁) (supᵘₗ-identityˡ ⊢l₁′)))
+         (U-cong-⊢≡ (supᵘₗ-identityˡ ⊢l₁′)))
       Σ-ok
 
 opaque

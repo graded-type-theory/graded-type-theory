@@ -828,8 +828,7 @@ mutual
         let ⊢t₄ = ~↓→∷ t₄~ in
         dec~↑-[]-cong-cong ok (conv ⊢t₄ B₂≡Id)
           (decStrength _ _ ×-dec decConv↑Level t₁≡ u₁≡ ×-dec′ λ t₁≡u₁ →
-           decConv↑TermConv
-             (U-cong-⊢≡ (wfTerm ⊢t₄) (soundnessConv↑Level t₁≡u₁))
+           decConv↑TermConv (U-cong-⊢≡ (soundnessConv↑Level t₁≡u₁))
              B₁≡ C₁≡ ×-dec
            dec~↓ t₄~ u₄~)
           (λ eq → decConv↑TermConv eq t₂≡ u₂≡)
@@ -925,11 +924,11 @@ mutual
       (inj₂ (B≢Lift , _)) → no λ Lift≡B →
         let _ , _ , B≡Lift , _ = inv-[conv↓]-Lift Lift≡B
         in B≢Lift (_ , _ , B≡Lift)
-  decConv↓ (U-cong ⊢Γ l₁≡l₂) B≡ =
+  decConv↓ (U-cong l₁≡l₂) B≡ =
     case inv-[conv↓]-U′ B≡ of λ where
       (inj₁ (l₃ , l₄ , PE.refl , PE.refl , l₃≡l₄)) →
         case decConv↑Level l₁≡l₂ l₃≡l₄ of λ where
-          (yes l₁≡l₃) → yes (U-cong ⊢Γ l₁≡l₃)
+          (yes l₁≡l₃) → yes (U-cong l₁≡l₃)
           (no l₁≢l₃) → no λ U≡U →
             case inv-[conv↓]-U U≡U of λ where
               (_ , PE.refl , z) → l₁≢l₃ z
@@ -1019,19 +1018,19 @@ mutual
     case decConv↑Term l₁≡ l₂≡ of λ where
       (yes l₁≡l₂) → yes (term ok l₁≡l₂)
       (no l₁≢l₂)  → no λ where
-        (term _ l₁≡l₂)       → l₁≢l₂ l₁≡l₂
-        (literal not-ok _ _) → not-ok ok
-  decConv↑Level (term ok _) (literal not-ok _ _) =
+        (term _ l₁≡l₂)         → l₁≢l₂ l₁≡l₂
+        (literal not-ok _ _ _) → not-ok ok
+  decConv↑Level (term ok _) (literal not-ok _ _ _) =
     ⊥-elim (not-ok ok)
-  decConv↑Level (literal not-ok _ _) (term ok _) =
+  decConv↑Level (literal not-ok _ _ _) (term ok _) =
     ⊥-elim (not-ok ok)
-  decConv↑Level (literal! not-ok l₁-lit) (literal! _ l₂-lit) =
+  decConv↑Level (literal! not-ok ⊢Γ l₁-lit) (literal! _ _ l₂-lit) =
     case l₁-lit ≟L l₂-lit of λ where
       (yes PE.refl) →
-        yes (literal! not-ok l₁-lit)
+        yes (literal! not-ok ⊢Γ l₁-lit)
       (no l₁≢l₂) → no λ where
-        (literal! _ _) → l₁≢l₂ PE.refl
-        (term ok _)    → not-ok ok
+        (literal! _ _ _) → l₁≢l₂ PE.refl
+        (term ok _)      → not-ok ok
 
   -- Decidability of algorithmic equality of terms in WHNF.
   decConv↓Term : ∀ {t u A t′ u′}

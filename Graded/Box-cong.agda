@@ -489,7 +489,7 @@ opaque
                                                                                  (W.liftʷ (W.lift (W.lift (W.lift (W.lift W.wk₀∷⊇)))) $
                                                                                   ⊢Id-2-1-0 (wfTerm ⊢A))
                                                                                  ⊢[]-cong″)
-                                                                              (⊢∷Level→⊢∷Level Level-ok (inversion-U-Level (wf-⊢∷ ⊢A) .proj₂))
+                                                                              (⊢∷Level→⊢∷Level Level-ok (inversion-U-Level (wf-⊢∷ ⊢A)))
                                                                               ⊢A ⊢t ⊢t (rflⱼ ⊢t) ⟩⊢
         wk (liftn wk₀ 5)
           ([]-cong″ ok′ (var x4) (var x3) (var x2) (var x1) (var x0))
@@ -851,7 +851,7 @@ opaque
                                                                                  (W.liftʷ (W.lift (W.lift (W.lift (W.lift W.wk₀∷⊇)))) $
                                                                                   ⊢Id-2-1-0 (wfTerm ⊢A))
                                                                                  ⊢[]-cong″)
-                                                                              (⊢∷Level→⊢∷Level Level-ok (inversion-U-Level (wf-⊢∷ ⊢A) .proj₂))
+                                                                              (⊢∷Level→⊢∷Level Level-ok (inversion-U-Level (wf-⊢∷ ⊢A)))
                                                                               ⊢A ⊢t ⊢t (rflⱼ ⊢t) ⟩⊢
         (wk (liftn wk₀ 5) (wk wk₀ []-cong′)
            [ consSubst
@@ -1314,7 +1314,7 @@ opaque
 
         ⊢l : Γ ⊢ l ∷ Level
         ⊢l =
-          let _ , ⊢l = inversion-U-Level (wf-⊢∷ ⊢A) in
+          let ⊢l = inversion-U-Level (wf-⊢∷ ⊢A) in
           ⊢∷Level→⊢∷Level Level-ok ⊢l
 
         ⊢[t] : Γ ⊢ [ t ] ∷ Erased l A

@@ -109,7 +109,7 @@ opaque
     let _ , ⊢Lift-Unit , Σ-ok = inversion-ΠΣ (wf-⊢∷ ⊢t)
         _ , ⊢Unit             = inversion-Lift ⊢Lift-Unit
         Erased-ok             = inversion-Unit ⊢Unit , Σ-ok
-        _ , ⊢l                = inversion-U-Level (wf-⊢∷ ⊢A)
+        ⊢l                    = inversion-U-Level (wf-⊢∷ ⊢A)
     in
     Erased-η-≡ (ET.[]ⱼ Erased-ok ⊢l ⊢A (erasedⱼ ⊢t)) ⊢t $
     Erased-β Erased-ok (erasedⱼ ⊢t)

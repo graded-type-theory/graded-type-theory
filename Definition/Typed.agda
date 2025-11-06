@@ -102,8 +102,7 @@ mutual
               → Γ ⊢ l₂ ∷ Level
               → Γ ⊢ l₁ supᵘ l₂ ∷ Level
 
-    Uⱼ        : ⊢ Γ
-              → Γ ⊢ l ∷Level
+    Uⱼ        : Γ ⊢ l ∷Level
               → Γ ⊢ U l ∷ U (sucᵘ l)
 
     Liftⱼ     : Γ ⊢ l₁ ∷Level
@@ -207,6 +206,7 @@ mutual
             → Γ ⊢ t ∷ Level
             → Γ ⊢ t ∷Level
     literal : ¬ Level-allowed
+            → ⊢ Γ
             → Level-literal t
             → Γ ⊢ t ∷Level
 
@@ -482,6 +482,7 @@ mutual
             → Γ ⊢ t ≡ u ∷ Level
             → Γ ⊢ t ≡ u ∷Level
     literal : ¬ Level-allowed
+            → ⊢ Γ
             → Level-literal t
             → Γ ⊢ t ≡ t ∷Level
 

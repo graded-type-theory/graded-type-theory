@@ -109,9 +109,10 @@ record Equality-relations
     ⊢≅∷L→⊢≡∷L : Γ ⊢ l₁ ≅ l₂ ∷Level
               → Γ ⊢ l₁ ≡ l₂ ∷Level
 
-    -- Level literals are related to themselves if Level is not
-    -- allowed.
+    -- Level literals are related to themselves in well-formed
+    -- contexts if Level is not allowed.
     Level-literal→⊢≅∷L : ¬ Level-allowed
+                       → ⊢ Γ
                        → Level-literal l
                        → Γ ⊢ l ≅ l ∷Level
 
@@ -211,7 +212,7 @@ record Equality-relations
       → Γ ⊢ t supᵘ sucᵘ t ≅ sucᵘ t ∷ Level
 
     -- Universe congruence
-    ≅ₜ-U-cong : ⊢ Γ → Γ ⊢ l ≅ k ∷Level → Γ ⊢ U l ≅ U k ∷ U (sucᵘ l)
+    ≅ₜ-U-cong : Γ ⊢ l ≅ k ∷Level → Γ ⊢ U l ≅ U k ∷ U (sucᵘ l)
 
     -- Lift congruence
     ≅-Lift-cong
@@ -434,8 +435,8 @@ record Equality-relations
 
     -- A variant of ≅ₜ-U-cong.
 
-    ≅-U-cong : ⊢ Γ → Γ ⊢ l ≅ k ∷Level → Γ ⊢ U l ≅ U k
-    ≅-U-cong ⊢Γ l≡k = ≅-univ (≅ₜ-U-cong ⊢Γ l≡k)
+    ≅-U-cong : Γ ⊢ l ≅ k ∷Level → Γ ⊢ U l ≅ U k
+    ≅-U-cong l≡k = ≅-univ (≅ₜ-U-cong l≡k)
 
   opaque
 

@@ -185,8 +185,8 @@ opaque
     Γ ⊩ᵛ⟨ l ⟩ t ≡ u ∷Level → Γ ⊩Level t ≡ u ∷Level
   ⊩ᵛ≡∷L→⊩≡∷L (term ok t≡u) =
     ⊩≡∷Level⇔ .proj₁ (R.⊩≡∷→ $ ⊩ᵛ≡∷→⊩≡∷ t≡u) .proj₂
-  ⊩ᵛ≡∷L→⊩≡∷L (literal! not-ok t-lit) =
-    literal! not-ok t-lit
+  ⊩ᵛ≡∷L→⊩≡∷L (literal! not-ok ⊩Γ t-lit) =
+    literal! not-ok (escape-⊩ᵛ′ ⊩Γ) t-lit
 
 opaque
 
@@ -213,8 +213,9 @@ opaque
     Δ ⊩Level t [ σ₁ ] ≡ u [ σ₂ ] ∷Level
   ⊩ᵛ≡∷L→⊩ˢ≡∷→⊩[]≡[]∷L (term ok t≡u) σ₁≡σ₂ =
     ⊩≡∷Level⇔ .proj₁ (⊩ᵛ≡∷⇔ʰ .proj₁ t≡u .proj₂ σ₁≡σ₂) .proj₂
-  ⊩ᵛ≡∷L→⊩ˢ≡∷→⊩[]≡[]∷L (literal! not-ok t-lit) _ =
-    literal not-ok (Level-literal-[] t-lit) (Level-literal→[]≡[] t-lit)
+  ⊩ᵛ≡∷L→⊩ˢ≡∷→⊩[]≡[]∷L (literal! not-ok _ t-lit) σ₁≡σ₂ =
+    literal not-ok (escape-⊩ˢ≡∷ σ₁≡σ₂ .proj₁) (Level-literal-[] t-lit)
+      (Level-literal→[]≡[] t-lit)
 
 opaque
 
@@ -285,7 +286,7 @@ opaque
               Δ ⊩⟨ 0ᵘ ⟩ zeroᵘ ≡ zeroᵘ ∷ Level  □
           )
       (no not-ok) →
-        literal-⊩ᵛ∷L not-ok zeroᵘ
+        literal-⊩ᵛ∷L not-ok ⊩Γ zeroᵘ
 
 opaque
 
@@ -311,8 +312,8 @@ opaque
       ( Levelᵛ ok (wf-⊩ᵛ $ wf-⊩ᵛ∷ $ wf-⊩ᵛ≡∷ t≡u .proj₁)
       , ⊩sucᵘ≡sucᵘ∷Level ∘→ R.⊩≡∷→ ∘→ ⊩ᵛ≡∷→⊩ˢ≡∷→⊩[]≡[]∷ t≡u
       )
-  sucᵘ-congᵛ′ (literal! not-ok t-lit) =
-    literal! not-ok (sucᵘ t-lit)
+  sucᵘ-congᵛ′ (literal! not-ok ⊩Γ t-lit) =
+    literal! not-ok ⊩Γ (sucᵘ t-lit)
 
 opaque
 
@@ -402,10 +403,10 @@ opaque
         PE.subst (_⊩ᵛ⟨_⟩_∷Level _ _) (PE.sym $ supᵘₗ≡supᵘ ok) $
         term-⊩ᵛ∷L ok $
         supᵘᵛ (⊩ᵛ∷⇔⊩ᵛ≡∷ .proj₂ ⊩t) (⊩ᵛ∷L⇔ ok .proj₁ ⊩u)
-      (literal not-ok t-lit _) →
+      (literal not-ok ⊩Γ t-lit _) →
         case ⊩ᵛ∷L⇔⊩ᵛ≡∷L .proj₁ ⊩u of λ where
-          (literal _ u-lit _) →
-            literal-⊩ᵛ∷L not-ok $
+          (literal _ _ u-lit _) →
+            literal-⊩ᵛ∷L not-ok ⊩Γ $
             Level-literal-supᵘₗ⇔ not-ok .proj₂ (t-lit , u-lit)
           (term ok _) →
             ⊥-elim (not-ok ok)

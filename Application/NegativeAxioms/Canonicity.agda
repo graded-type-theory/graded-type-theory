@@ -90,7 +90,7 @@ module Main {Γ : Con Term m} (nΓ : NegativeContext Γ)
     ⊥-elim (¬negId (neNeg ⊢v v-ne) (refl (Idⱼ′ ⊢t ⊢u)))
   neNeg (conv d c) n =
     conv (neNeg d n) c
-  neNeg (Uⱼ _ _)        ()
+  neNeg (Uⱼ _)          ()
   neNeg (ΠΣⱼ _ _ _ _)   ()
   neNeg (lamⱼ _ _ _)    ()
   neNeg (prodⱼ _ _ _ _) ()
@@ -142,7 +142,7 @@ module Main {Γ : Con Term m} (nΓ : NegativeContext Γ)
   nfN (supᵘⱼ _ _) (ne (supᵘʳₙ _ _)) c = ⊥-elim (Level≢ℕ c)
 
   -- * Canonical types
-  nfN (Uⱼ _ _)      (Uₙ _)      c = ⊥-elim (U≢ℕ c)
+  nfN (Uⱼ _)        (Uₙ _)      c = ⊥-elim (U≢ℕ c)
   nfN (ΠΣⱼ _ _ _ _) (ΠΣₙ _ _)   c = ⊥-elim (U≢ℕ c)
   nfN (ℕⱼ _)        ℕₙ          c = ⊥-elim (U≢ℕ c)
   nfN (Emptyⱼ _)    Emptyₙ      c = ⊥-elim (U≢ℕ c)

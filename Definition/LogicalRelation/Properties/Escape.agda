@@ -94,8 +94,7 @@ escapeEq (Levelᵣ D) D′ =
   let ok = inversion-Level-⊢ (wf-⊢≡ (subset* D) .proj₂) in
   ≅-red (D , Levelₙ) (D′ , Levelₙ) (≅-Levelrefl ok (wf (redFirst* D)))
 escapeEq (Uᵣ′ _ _ _ D) (U₌ k′ D₁ k≡k′) =
-  ≅-red (D , Uₙ) (D₁ , Uₙ)
-    (≅-U-cong (wf (redFirst* D)) (escapeLevelEq k≡k′))
+  ≅-red (D , Uₙ) (D₁ , Uₙ) (≅-U-cong (escapeLevelEq k≡k′))
 escapeEq (Liftᵣ′ D _ _) (Lift₌ D′ k≡k′ F≡F′) =
   ≅-red (D , Liftₙ) (D′ , Liftₙ)
     (≅-Lift-cong (escapeLevelEq k≡k′) (escapeEq _ F≡F′))
@@ -116,7 +115,7 @@ escapeTermEq (Levelᵣ D) (term d d′ prop) =
   let lk , lk′ = lsplit prop
   in ≅ₜ-red (D , Levelₙ) (d , lk) (d′ , lk′)
       (escape-[Level]-prop (wf (redFirst* D)) prop)
-escapeTermEq (Levelᵣ D) (literal! not-ok _) =
+escapeTermEq (Levelᵣ D) (literal! not-ok _ _) =
   let ok = inversion-Level-⊢ (wf-⊢≡ (subset* D) .proj₂) in
   ⊥-elim (not-ok ok)
 escapeTermEq (Uᵣ′ _ _ _ D) (Uₜ₌ A B d d′ typeA typeB A≡B [A] [B] [A≡B]) =

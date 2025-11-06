@@ -83,7 +83,7 @@ module _ (Erased-ok : Erased-allowed s) where
 
     Erasedⱼ-U : Γ ⊢ A ∷ U l → Γ ⊢ Erased l A ∷ U l
     Erasedⱼ-U ⊢A =
-      let _ , ⊢l = inversion-U-Level (wf-⊢∷ ⊢A) in
+      let ⊢l = inversion-U-Level (wf-⊢∷ ⊢A) in
       P′.Erasedⱼ-U ⊢l ⊢A
 
   opaque
@@ -106,7 +106,7 @@ module _ (Erased-ok : Erased-allowed s) where
 
     Erasedⱼ : Γ ⊢ A ∷ U l → Γ ⊢ Erased l A
     Erasedⱼ ⊢A =
-      let _ , ⊢l = inversion-U-Level (wf-⊢∷ ⊢A) in
+      let ⊢l = inversion-U-Level (wf-⊢∷ ⊢A) in
       P′.Erasedⱼ ⊢l ⊢A
 
   opaque
@@ -129,7 +129,7 @@ module _ (Erased-ok : Erased-allowed s) where
 
     []ⱼ : Γ ⊢ A ∷ U l → Γ ⊢ t ∷ A → Γ ⊢ [ t ] ∷ Erased l A
     []ⱼ ⊢A =
-      let _ , ⊢l = inversion-U-Level (wf-⊢∷ ⊢A) in
+      let ⊢l = inversion-U-Level (wf-⊢∷ ⊢A) in
       P′.[]ⱼ ⊢l ⊢A
 
   opaque
@@ -139,7 +139,7 @@ module _ (Erased-ok : Erased-allowed s) where
     []-cong′ :
       Γ ⊢ A ∷ U l → Γ ⊢ t₁ ≡ t₂ ∷ A → Γ ⊢ [ t₁ ] ≡ [ t₂ ] ∷ Erased l A
     []-cong′ ⊢A t₁≡t₂ =
-      let _ , ⊢l        = inversion-U-Level (wf-⊢∷ ⊢A)
+      let ⊢l            = inversion-U-Level (wf-⊢∷ ⊢A)
           _ , ⊢t₁ , ⊢t₂ = wf-⊢≡∷ t₁≡t₂
       in
       P′.[]-cong′ ⊢l ⊢A ⊢t₁ ⊢t₂ t₁≡t₂
@@ -1101,7 +1101,7 @@ module _ (ok : []-cong-allowed s) where
       Γ ⊢ w ∷ Id A t v →
       Γ ⊢ Jᵉ l A t B u v w ∷ B [ v , w ]₁₀
     ⊢Jᵉ ⊢A ⊢B ⊢u ⊢w =
-      let _ , ⊢l      = inversion-U-Level (wf-⊢∷ ⊢A)
+      let ⊢l          = inversion-U-Level (wf-⊢∷ ⊢A)
           _ , ⊢t , ⊢v = inversion-Id (wf-⊢∷ ⊢w)
       in
       wf-⊢≡∷

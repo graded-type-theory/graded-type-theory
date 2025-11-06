@@ -565,8 +565,8 @@ opaque
   supᵘₗ-[] ⊢l₁ ⊢l₂ =
     supᵘₗ-[]′
       (λ not-ok →
-         inversion-∷Level ⊢l₁ .proj₂ not-ok ,
-         inversion-∷Level ⊢l₂ .proj₂ not-ok)
+         inversion-∷Level ⊢l₁ .proj₂ not-ok .proj₂ ,
+         inversion-∷Level ⊢l₂ .proj₂ not-ok .proj₂)
 
 opaque
 
@@ -1036,8 +1036,8 @@ private module Inhabited where
         sucᵘⱼ (subst-⊢∷ ⊢t ⊢σ)
       (supᵘⱼ ⊢t ⊢u) PE.refl →
         supᵘⱼ (subst-⊢∷ ⊢t ⊢σ) (subst-⊢∷ ⊢u ⊢σ)
-      (Uⱼ _ ⊢l) PE.refl →
-        Uⱼ (wf-⊢ˢʷ∷ ⊢σ) (subst-⊢∷L ⊢l ⊢σ)
+      (Uⱼ ⊢l) PE.refl →
+        Uⱼ (subst-⊢∷L ⊢l ⊢σ)
       (Liftⱼ ⊢l₁ ⊢l₂ ⊢A) PE.refl →
         PE.subst (_⊢_∷_ _ _) (PE.cong U $ PE.sym $ supᵘₗ-[] ⊢l₁ ⊢l₂) $
         Liftⱼ (subst-⊢∷L ⊢l₁ ⊢σ) (subst-⊢∷L ⊢l₂ ⊢σ) (subst-⊢∷ ⊢A ⊢σ)
@@ -1143,8 +1143,8 @@ private module Inhabited where
     subst-⊢∷L′ hyp ⊢σ = let open Lemmas hyp in λ where
       (term ok ⊢l) PE.refl →
         term ok (subst-⊢∷ ⊢l ⊢σ)
-      (literal not-ok l-lit) _ →
-        literal not-ok (Level-literal-[] l-lit)
+      (literal not-ok _ l-lit) _ →
+        literal not-ok (wf-⊢ˢʷ∷ ⊢σ) (Level-literal-[] l-lit)
 
   opaque
     unfolding size-⊢∷
@@ -1172,8 +1172,8 @@ private module Inhabited where
         sucᵘ-cong (subst-⊢∷→⊢≡∷ ⊢t σ₁≡σ₂)
       (supᵘⱼ ⊢t ⊢u) PE.refl →
         supᵘ-cong (subst-⊢∷→⊢≡∷ ⊢t σ₁≡σ₂) (subst-⊢∷→⊢≡∷ ⊢u σ₁≡σ₂)
-      (Uⱼ _ ⊢l) PE.refl →
-        U-cong-⊢≡∷ (wf-⊢ˢʷ≡∷ σ₁≡σ₂ .proj₁) (subst-⊢∷L→⊢≡∷L ⊢l σ₁≡σ₂)
+      (Uⱼ ⊢l) PE.refl →
+        U-cong-⊢≡∷ (subst-⊢∷L→⊢≡∷L ⊢l σ₁≡σ₂)
       (Liftⱼ ⊢l₁ ⊢l₂ ⊢A) PE.refl →
         let ⊢σ₁ , ⊢σ₂ = wf-⊢ˢʷ≡∷ σ₁≡σ₂ .proj₂ in
         PE.subst (_⊢_≡_∷_ _ _ _)
@@ -1349,9 +1349,10 @@ private module Inhabited where
       let open Lemmas hyp in λ where
         (term ok ⊢l) PE.refl →
           term ok (subst-⊢∷→⊢≡∷ ⊢l σ₁≡σ₂)
-        (literal not-ok l-lit) _ →
+        (literal not-ok _ l-lit) _ →
           PE.subst (_⊢_≡_∷Level _ _) (Level-literal→[]≡[] l-lit) $
-          literal not-ok (Level-literal-[] l-lit)
+          literal not-ok (wf-⊢ˢʷ≡∷ σ₁≡σ₂ .proj₁)
+            (Level-literal-[] l-lit)
 
   opaque
     unfolding size-⊢≡∷
@@ -1757,9 +1758,9 @@ private module Inhabited where
     subst-⊢≡∷L′ {σ₁} {σ₂} hyp σ₁≡σ₂ = let open Lemmas hyp in λ where
       (term ok l₁≡l₂) PE.refl →
         term ok (subst-⊢≡∷ l₁≡l₂ σ₁≡σ₂)
-      (literal not-ok l-lit) _ →
+      (literal not-ok _ l-lit) _ →
         PE.subst (_⊢_≡_∷Level _ _) (Level-literal→[]≡[] l-lit) $
-        literal not-ok (Level-literal-[] l-lit)
+        literal not-ok (wf-⊢ˢʷ≡∷ σ₁≡σ₂ .proj₁) (Level-literal-[] l-lit)
 
   opaque
 

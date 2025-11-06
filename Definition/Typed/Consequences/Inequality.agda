@@ -809,5 +809,5 @@ opaque
     case wf-Level-eq ⊩t≡sucᵘt of λ where
       (⊩t@(term _ _) , _) →
         1+n≢n (PE.sym (↑ⁿ-cong ⊩t (⊩sucᵘ ⊩t) ⊩t≡sucᵘt))
-      (literal not-ok _ , _) →
+      (literal not-ok _ _ , _) →
         not-ok ok

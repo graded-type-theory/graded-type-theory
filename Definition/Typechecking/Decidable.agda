@@ -476,7 +476,7 @@ mutual
       Checkable-level l → ⊢ Γ → (Γ ⊢ l ∷Level → Dec P) →
       Dec (Γ ⊢ l ⇇Level × P)
     dec⇇Level-with-cont l ⊢Γ cont =
-      dec⇇Level l ⊢Γ ×-dec′ cont ∘→ soundness⇇Level
+      dec⇇Level l ⊢Γ ×-dec′ cont ∘→ soundness⇇Level ⊢Γ
 
     dec⇇Type-with-cont :
       ⊢ Γ → Checkable-type A → (Γ ⊢ A → Dec P) → Dec (Γ ⊢ A ⇇Type × P)
@@ -989,7 +989,7 @@ mutual
     case
       ([]-cong-allowed? s ×-dec
        dec⇇Level-with-cont l ⊢Γ λ ⊢l →
-       dec⇇-with-cont A (⊢U ⊢Γ ⊢l) λ ⊢A →
+       dec⇇-with-cont A (⊢U ⊢l) λ ⊢A →
        dec⇇-with-cont t (univ ⊢A) λ ⊢t →
        dec⇇-with-cont u (univ ⊢A) λ ⊢u →
        dec⇇ v (Idⱼ′ ⊢t ⊢u))

@@ -45,7 +45,7 @@ opaque
     Γ ⊢ A ∷ U l₁ →
     Γ ⊢ Lift l₂ A ∷ U (l₂ supᵘₗ l₁)
   Liftⱼ-comm ⊢l₁ ⊢l₂ ⊢A =
-    conv (Liftⱼ ⊢l₁ ⊢l₂ ⊢A) (U-cong-⊢≡ (wfTerm ⊢A) (supᵘₗ-comm ⊢l₁ ⊢l₂))
+    conv (Liftⱼ ⊢l₁ ⊢l₂ ⊢A) (U-cong-⊢≡ (supᵘₗ-comm ⊢l₁ ⊢l₂))
 
 opaque
 
@@ -59,7 +59,7 @@ opaque
     Γ ⊢ Lift l₂ A₁ ≡ Lift l₃ A₂ ∷ U (l₂ supᵘₗ l₁)
   Lift-cong-comm ⊢l₁ ⊢l₂ l₂≡l₃ A₁≡A₂ =
     conv (Lift-cong ⊢l₁ ⊢l₂ l₂≡l₃ A₁≡A₂)
-      (U-cong-⊢≡ (wfEqTerm A₁≡A₂) (supᵘₗ-comm ⊢l₁ ⊢l₂))
+      (U-cong-⊢≡ (supᵘₗ-comm ⊢l₁ ⊢l₂))
 
 ------------------------------------------------------------------------
 -- Some lemmas related to lower₀

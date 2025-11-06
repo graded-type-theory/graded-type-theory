@@ -78,7 +78,7 @@ whnfConv↓ : ∀ {A B}
           → Γ ⊢ A [conv↓] B
           → Whnf A × Whnf B
 whnfConv↓ (Level-refl _ _) = Levelₙ , Levelₙ
-whnfConv↓ (U-cong _ _) = Uₙ , Uₙ
+whnfConv↓ (U-cong _) = Uₙ , Uₙ
 whnfConv↓ (Lift-cong _ _) = Liftₙ , Liftₙ
 whnfConv↓ (ℕ-refl x) = ℕₙ , ℕₙ
 whnfConv↓ (Empty-refl x) = Emptyₙ , Emptyₙ

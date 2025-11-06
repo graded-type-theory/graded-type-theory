@@ -176,8 +176,8 @@ mutual
     liftⱼ (tr-⊢∷L t) (tr-⊢′ A) (tr-⊢∷ u)
   tr-⊢∷ (lowerⱼ t) =
     lowerⱼ (tr-⊢∷ t)
-  tr-⊢∷ (Uⱼ ⊢Γ l) =
-    Uⱼ (tr-⊢ ⊢Γ) (tr-⊢∷L l)
+  tr-⊢∷ (Uⱼ l) =
+    Uⱼ (tr-⊢∷L l)
   tr-⊢∷ (ΠΣⱼ {l = l} ⊢l A P ok) =
     ΠΣⱼ (tr-⊢∷L ⊢l) (tr-⊢∷ A)
       (PE.subst (T₂._⊢_∷_ _ _) (PE.sym (tr-Term-wk {t = U l})) (tr-⊢∷ P))
@@ -262,8 +262,8 @@ mutual
   tr-⊢∷L : Γ T₁.⊢ l ∷Level → tr-Con Γ T₂.⊢ tr-Term l ∷Level
   tr-⊢∷L (term ok ⊢l) =
     term (Level-allowed⇔ .proj₁ ok) (tr-⊢∷ ⊢l)
-  tr-⊢∷L (literal not-ok l-lit) =
-    literal (not-ok ∘→ Level-allowed⇔ .proj₂)
+  tr-⊢∷L (literal not-ok ⊢Γ l-lit) =
+    literal (not-ok ∘→ Level-allowed⇔ .proj₂) (tr-⊢ ⊢Γ)
       (tr-Level-literal .proj₁ l-lit)
 
   -- Preservation of _⊢_≡_.
@@ -484,8 +484,8 @@ mutual
     Γ T₁.⊢ l₁ ≡ l₂ ∷Level → tr-Con Γ T₂.⊢ tr-Term l₁ ≡ tr-Term l₂ ∷Level
   tr-⊢≡∷L (term ok l₁≡l₂) =
     term (Level-allowed⇔ .proj₁ ok) (tr-⊢≡∷ l₁≡l₂)
-  tr-⊢≡∷L (literal not-ok l-lit) =
-    literal (not-ok ∘→ Level-allowed⇔ .proj₂)
+  tr-⊢≡∷L (literal not-ok ⊢Γ l-lit) =
+    literal (not-ok ∘→ Level-allowed⇔ .proj₂) (tr-⊢ ⊢Γ)
       (tr-Level-literal .proj₁ l-lit)
 
 -- Preservation of _⊢ˢ_∷_.

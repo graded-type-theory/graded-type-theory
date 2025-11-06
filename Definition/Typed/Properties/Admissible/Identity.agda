@@ -403,7 +403,7 @@ opaque
       Γ ⊢ []-cong s l A t t′ rfl ≡ rfl ∷
         Id (Erased l A) ([ t ]) ([ t′ ])
   []-cong-β-≡ ⊢A t≡t′ ok =
-    let _ , ⊢l       = inversion-U-Level (wf-⊢∷ ⊢A)
+    let ⊢l           = inversion-U-Level (wf-⊢∷ ⊢A)
         _ , ⊢t , ⊢t′ = wf-⊢≡∷ t≡t′
     in
     trans
@@ -566,7 +566,7 @@ opaque
     Γ ⊢ u ∷ A →
     Γ ⊢ cast l A B t u ∷ B
   ⊢cast ⊢l ⊢t ⊢u =
-    ⊢subst (univ (var₀ (⊢U (wfTerm ⊢t) ⊢l))) ⊢t ⊢u
+    ⊢subst (univ (var₀ (⊢U ⊢l))) ⊢t ⊢u
 
 opaque
   unfolding cast
@@ -579,7 +579,7 @@ opaque
     Γ ⊢ t ∷ A →
     Γ ⊢ cast l A A′ rfl t ⇒ t ∷ A
   cast-⇒′ ⊢l A≡A′ ⊢t =
-    subst-⇒′ (univ (var₀ (⊢U (wfTerm ⊢t) ⊢l))) A≡A′ ⊢t
+    subst-⇒′ (univ (var₀ (⊢U ⊢l))) A≡A′ ⊢t
 
 opaque
 
@@ -632,7 +632,7 @@ opaque
     Γ ⊢ u ∷ A →
     Γ ⊢ cast l A B t₁ u ⇒ cast l A B t₂ u ∷ B
   cast-subst ⊢l t₁⇒t₂ ⊢u =
-    subst-subst (univ (var₀ (⊢U (wfTerm ⊢u) ⊢l))) t₁⇒t₂ ⊢u
+    subst-subst (univ (var₀ (⊢U ⊢l))) t₁⇒t₂ ⊢u
 
 opaque
 
@@ -1277,7 +1277,7 @@ opaque
     Γ ⊢ eq ∷ Id A t u →
     Γ ⊢ rfl ∷ Id (Erased l A) [ t ] ([ u ])
   []-cong-with-equality-reflection ok₁ ok₂ ⊢A ⊢eq =
-    let _ , ⊢l      = inversion-U-Level (wf-⊢∷ ⊢A)
+    let ⊢l          = inversion-U-Level (wf-⊢∷ ⊢A)
         _ , ⊢t , ⊢u = inversion-Id (syntacticTerm ⊢eq)
     in
     rflⱼ′ (EP.[]-cong′ ok₂ ⊢l ⊢A ⊢t ⊢u (equality-reflection′ ok₁ ⊢eq))

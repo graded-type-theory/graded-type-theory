@@ -48,7 +48,7 @@ opaque
     Γ ⊢ U l₁ ≡ U l₂ → Γ ⊢ l₁ ≡ l₂ ∷Level
   U-injectivity U≡U =
     case ⊩U≡U⇔ .proj₁ $ reducible-⊩≡ U≡U .proj₂ of λ
-      (_ , l₁≡l₂ , _) →
+      (l₁≡l₂ , _) →
     escapeLevelEq l₁≡l₂
 
 opaque

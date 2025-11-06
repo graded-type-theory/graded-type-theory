@@ -227,7 +227,7 @@ opaque
     let (⊢A , _) , (⊢t , _) , _ = inversion-Id-⊢ (⊢∙→⊢ (wf ⊢B)) in
     K-cong (refl ⊢A) (refl ⊢t) (refl ⊢B) (refl ⊢u) (subsetTerm v⇒v′) ok
   subsetTerm ([]-cong-subst ⊢A ⊢t ⊢u v⇒v′ ok) =
-    []-cong-cong (refl-⊢≡∷L (inversion-U-Level (wf-⊢∷ ⊢A) .proj₂))
+    []-cong-cong (refl-⊢≡∷L (inversion-U-Level (wf-⊢∷ ⊢A)))
       (refl ⊢A) (refl ⊢t) (refl ⊢u) (subsetTerm v⇒v′) ok
   subsetTerm (J-β {t} {A} {t′} {B} {u} {p} {q} ⊢t _ t≡t′ ⊢B _ ⊢u) =
     J p q A t B u t′ rfl  ≡⟨ sym′ $
@@ -238,7 +238,7 @@ opaque
   subsetTerm (K-β ⊢B ⊢u ok) =
     K-β ⊢B ⊢u ok
   subsetTerm ([]-cong-β ⊢A ⊢t ⊢t′ t≡t′ ok) =
-    let _ , ⊢l = inversion-U-Level (wf-⊢∷ ⊢A) in
+    let ⊢l = inversion-U-Level (wf-⊢∷ ⊢A) in
     trans
       ([]-cong-cong (refl-⊢≡∷L ⊢l) (refl ⊢A) (refl ⊢t) (sym′ t≡t′)
          (_⊢_≡_∷_.conv (refl (rflⱼ ⊢t)) $

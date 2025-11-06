@@ -310,7 +310,7 @@ module _ (as : Full-reduction-assumptions) where
       (Lift-cong x x₁) ▸Lift →
         case inv-usage-Lift ▸Lift of λ ((δ , ▸l) , ▸F) →
           Liftₘ (fullRedTermConv↑Level x ▸l) (fullRedConv↑ x₁ ▸F)
-      (U-cong _ l↑) ▸U →
+      (U-cong l↑) ▸U →
         case inv-usage-U ▸U of λ (γ≤ , _ , ▸l) →
           sub (Uₘ (fullRedTermConv↑Level l↑ ▸l)) γ≤
       (ℕ-refl     _)        ▸ℕ    → ▸ℕ
@@ -345,7 +345,7 @@ module _ (as : Full-reduction-assumptions) where
       γ ▸[ m ] FR.fullRedTermConv↑Level ⊢t .proj₁
     fullRedTermConv↑Level (term _ ⊢t) ▸t =
       fullRedTermConv↑ ⊢t ▸t
-    fullRedTermConv↑Level (literal! _ _) ▸t =
+    fullRedTermConv↑Level (literal! _ _ _) ▸t =
       ▸t
 
     fullRedTermConv↑ᵛ :

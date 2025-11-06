@@ -171,8 +171,7 @@ mutual
 
     Level-refl : Level-allowed → ⊢ Γ → Γ ⊢ Level [conv↓] Level
 
-    U-cong     : ⊢ Γ
-               → Γ ⊢ l₁ [conv↑] l₂ ∷Level
+    U-cong     : Γ ⊢ l₁ [conv↑] l₂ ∷Level
                → Γ ⊢ U l₁ [conv↓] U l₂
 
     Lift-cong  : ∀ {F H}
@@ -429,10 +428,10 @@ mutual
     term    : Level-allowed →
               Γ ⊢ l₁ [conv↑] l₂ ∷ Level →
               Γ ⊢ l₁ [conv↑] l₂ ∷Level
-    literal : ¬ Level-allowed → Level-literal l₁ → l₁ PE.≡ l₂ →
+    literal : ¬ Level-allowed → ⊢ Γ → Level-literal l₁ → l₁ PE.≡ l₂ →
               Γ ⊢ l₁ [conv↑] l₂ ∷Level
 
-  pattern literal! not-ok t-lit = literal not-ok t-lit PE.refl
+  pattern literal! not-ok ⊢Γ t-lit = literal not-ok ⊢Γ t-lit PE.refl
 
   -- Algorithmic equality of levels in whnf.
   record _⊢_[conv↓]_∷Level (Γ : Con Term n) (t u : Term n) : Set a where

@@ -60,8 +60,8 @@ mutual
               → Δ ⊩Level U.wk ρ t ∷Level
   wkTermLevel [ρ] (term d prop) =
     term (wkRed*Term [ρ] d) (wkLevel-prop [ρ] prop)
-  wkTermLevel [ρ] (literal not-ok t-lit) =
-    literal not-ok (wk-Level-literal .proj₁ t-lit)
+  wkTermLevel [ρ] (literal not-ok _ t-lit) =
+    literal not-ok (wf-∷ʷ⊇ [ρ]) (wk-Level-literal .proj₁ t-lit)
 
   wkLevel-prop : ρ ∷ʷ Δ ⊇ Γ
                → Level-prop Γ t
@@ -84,8 +84,8 @@ mutual
   wkEqTermLevel [ρ] (term d d′ prop) =
     term (wkRed*Term [ρ] d) (wkRed*Term [ρ] d′)
       (wk[Level]-prop [ρ] prop)
-  wkEqTermLevel [ρ] (literal! not-ok t-lit) =
-    literal! not-ok (wk-Level-literal .proj₁ t-lit)
+  wkEqTermLevel [ρ] (literal! not-ok _ t-lit) =
+    literal! not-ok (wf-∷ʷ⊇ [ρ]) (wk-Level-literal .proj₁ t-lit)
 
   wk[Level]-prop : ρ ∷ʷ Δ ⊇ Γ
                  → [Level]-prop Γ t u
@@ -127,14 +127,14 @@ opaque
       case whrDet*Term (d′ , level prop′) (wkRed*Term [ρ] d , wkWhnf ρ (level prop)) of λ {
         PE.refl →
       wk-↑ⁿ-prop [ρ] prop prop′ PE.refl }
-    wk-↑ⁿ _ (literal _ t-lit) (literal _ t′-lit) PE.refl =
+    wk-↑ⁿ _ (literal _ _ t-lit) (literal _ _ t′-lit) PE.refl =
       size-of-Level t′-lit                           ≡⟨ PE.cong size-of-Level Level-literal-propositional ⟩
       size-of-Level (wk-Level-literal .proj₁ t-lit)  ≡⟨ size-of-Level-wk-Level-literal ⟩
       size-of-Level t-lit                            ∎
-    wk-↑ⁿ _ (literal not-ok _) (term ⇒∷Level _) _ =
+    wk-↑ⁿ _ (literal not-ok _ _) (term ⇒∷Level _) _ =
       ⊥-elim $ not-ok $
       inversion-Level-⊢ (wf-⊢≡∷ (subset*Term ⇒∷Level) .proj₁)
-    wk-↑ⁿ _ (term ⇒∷Level _) (literal not-ok _) _ =
+    wk-↑ⁿ _ (term ⇒∷Level _) (literal not-ok _ _) _ =
       ⊥-elim $ not-ok $
       inversion-Level-⊢ (wf-⊢≡∷ (subset*Term ⇒∷Level) .proj₁)
 

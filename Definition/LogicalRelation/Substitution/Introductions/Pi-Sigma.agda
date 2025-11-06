@@ -664,7 +664,7 @@ opaque
       ΠΣ⟨ b ⟩ p , q ▷ A₂ ▹ B₂ ∷ U t
   ΠΣ-congᵗᵛ ΠΣ≡ΠΣ ⊩t A₁≡A₂ B₁≡B₂ =
     ⊩ᵛ≡∷⇔ʰ .proj₂
-      ( ⊩ᵛU (wf-⊩ᵛ (wf-⊩ᵛ∷ (wf-⊩ᵛ≡∷ A₁≡A₂ .proj₁))) ⊩t
+      ( ⊩ᵛU ⊩t
       , ⊩ΠΣ≡ΠΣ∷U ΠΣ≡ΠΣ ⊩t A₁≡A₂ B₁≡B₂
       )
 
@@ -680,6 +680,6 @@ opaque
     Γ ⊩ᵛ⟨ ωᵘ ⟩ ΠΣ⟨ b ⟩ p , q ▷ A ▹ B ∷ U t
   ΠΣᵗᵛ ⊢ΠΣ ⊩t ⊩A ⊩B =
     ⊩ᵛ∷⇔ʰ .proj₂
-      ( ⊩ᵛU (wf-⊩ᵛ (wf-⊩ᵛ∷ ⊩A)) ⊩t
+      ( ⊩ᵛU ⊩t
       , ⊩ΠΣ≡ΠΣ∷U (refl ⊢ΠΣ) ⊩t (refl-⊩ᵛ≡∷ ⊩A) (refl-⊩ᵛ≡∷ ⊩B)
       )

@@ -178,7 +178,7 @@ mutual
          → Γ ⊢ A [conv↓] B
          → Δ ⊢ U.wk ρ A [conv↓] U.wk ρ B
   wkConv↓ ρ (Level-refl ok _) = Level-refl ok (wf-∷ʷ⊇ ρ)
-  wkConv↓ ρ (U-cong _ l₁≡l₂) = U-cong (wf-∷ʷ⊇ ρ) (wkConv↑Level ρ l₁≡l₂)
+  wkConv↓ ρ (U-cong l₁≡l₂) = U-cong (wkConv↑Level ρ l₁≡l₂)
   wkConv↓ ρ (Lift-cong l₁≡l₂ F≡H) =
     Lift-cong (wkConv↑Level ρ l₁≡l₂) (wkConv↑ ρ F≡H)
   wkConv↓ ρ (ℕ-refl x) = ℕ-refl (wf-∷ʷ⊇ ρ)
@@ -208,8 +208,8 @@ mutual
     Δ ⊢ U.wk ρ l₁ [conv↑] U.wk ρ l₂ ∷Level
   wkConv↑Level ρ∷ (term ok l₁≡l₂) =
     term ok (wkConv↑Term ρ∷ l₁≡l₂)
-  wkConv↑Level _ (literal! not-ok l-lit) =
-    literal! not-ok (wk-Level-literal .proj₁ l-lit)
+  wkConv↑Level ρ (literal! not-ok _ l-lit) =
+    literal! not-ok (wf-∷ʷ⊇ ρ) (wk-Level-literal .proj₁ l-lit)
 
   -- Weakening of algorithmic equality of terms in WHNF.
   wkConv↓Term : ∀ {t u A Γ Δ} ([ρ] : ρ ∷ʷ Δ ⊇ Γ)

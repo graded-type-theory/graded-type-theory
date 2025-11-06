@@ -348,7 +348,7 @@ whNormTerm′ : ∀ {a A l} ([A] : Γ ⊩⟨ l ⟩ A) → Γ ⊩⟨ l ⟩ a ∷ 
 whNormTerm′ (Levelᵣ x) (term d d′ prop) =
   let w , _ = lsplit prop
   in _ , w , conv* d (sym (subset* x))
-whNormTerm′ (Levelᵣ A⇒*Level) (literal not-ok _ _) =
+whNormTerm′ (Levelᵣ A⇒*Level) (literal not-ok _ _ _) =
   ⊥-elim $ not-ok $
   inversion-Level-⊢ (wf-⊢≡ (subset* A⇒*Level) .proj₂)
 whNormTerm′ (Uᵣ′ _ _ _ A⇒*U) ⊩a =

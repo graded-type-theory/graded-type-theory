@@ -25,36 +25,36 @@ opaque
   -- A variant of Uⱼ.
 
   ⊢U₀∷ : ⊢ Γ → Γ ⊢ U zeroᵘ ∷ U (sucᵘ zeroᵘ)
-  ⊢U₀∷ ⊢Γ = Uⱼ ⊢Γ (⊢zeroᵘ ⊢Γ)
+  ⊢U₀∷ ⊢Γ = Uⱼ (⊢zeroᵘ ⊢Γ)
 
 opaque
 
   -- A variant of Uⱼ.
 
-  ⊢U : ⊢ Γ → Γ ⊢ l ∷Level → Γ ⊢ U l
-  ⊢U ⊢Γ ⊢l = univ (Uⱼ ⊢Γ ⊢l)
+  ⊢U : Γ ⊢ l ∷Level → Γ ⊢ U l
+  ⊢U ⊢l = univ (Uⱼ ⊢l)
 
 opaque
 
   -- A variant of ⊢U.
 
   ⊢U₀ : ⊢ Γ → Γ ⊢ U zeroᵘ
-  ⊢U₀ ⊢Γ = ⊢U ⊢Γ (⊢zeroᵘ ⊢Γ)
+  ⊢U₀ ⊢Γ = ⊢U (⊢zeroᵘ ⊢Γ)
 
 opaque
 
   -- A variant of _⊢_≡_.U-cong.
 
-  U-cong-⊢≡ : ⊢ Γ → Γ ⊢ l₁ ≡ l₂ ∷Level → Γ ⊢ U l₁ ≡ U l₂
-  U-cong-⊢≡ _  (term _ l₁≡l₂)         = U-cong l₁≡l₂
-  U-cong-⊢≡ ⊢Γ (literal not-ok l-lit) =
-    refl (⊢U ⊢Γ (literal not-ok l-lit))
+  U-cong-⊢≡ : Γ ⊢ l₁ ≡ l₂ ∷Level → Γ ⊢ U l₁ ≡ U l₂
+  U-cong-⊢≡ (term _ l₁≡l₂)            = U-cong l₁≡l₂
+  U-cong-⊢≡ (literal not-ok ⊢Γ l-lit) =
+    refl (⊢U (literal not-ok ⊢Γ l-lit))
 
 opaque
 
   -- A variant of _⊢_≡_∷_.U-cong.
 
-  U-cong-⊢≡∷ : ⊢ Γ → Γ ⊢ l₁ ≡ l₂ ∷Level → Γ ⊢ U l₁ ≡ U l₂ ∷ U (sucᵘ l₁)
-  U-cong-⊢≡∷ _  (term _ l₁≡l₂)         = U-cong l₁≡l₂
-  U-cong-⊢≡∷ ⊢Γ (literal not-ok l-lit) =
-    refl (Uⱼ ⊢Γ (literal not-ok l-lit))
+  U-cong-⊢≡∷ : Γ ⊢ l₁ ≡ l₂ ∷Level → Γ ⊢ U l₁ ≡ U l₂ ∷ U (sucᵘ l₁)
+  U-cong-⊢≡∷ (term _ l₁≡l₂)            = U-cong l₁≡l₂
+  U-cong-⊢≡∷ (literal not-ok ⊢Γ l-lit) =
+    refl (Uⱼ (literal not-ok ⊢Γ l-lit))

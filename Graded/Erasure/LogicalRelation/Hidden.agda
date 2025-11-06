@@ -124,7 +124,7 @@ opaque
                                                            , (λ ((_ , ⊩U) , t®v) → _ , ⊩U , irrelevanceTerm (Uᵣ (U-elim ⊩U)) ⊩U t®v)
                                                            ⟩
     (∃ λ l → Δ ⊩⟨ l ⟩ U u) × t ® v ∷U/Level               ⇔⟨ (escape-⊩ ∘→ proj₂ , reducible-⊩) ×-cong-⇔ id⇔ ⟩
-    (Δ ⊢ U u) × t ® v ∷U/Level                            ⇔⟨ (proj₂ ∘→ inversion-U-Level , ⊢U ⊢Δ) ×-cong-⇔ id⇔ ⟩
+    (Δ ⊢ U u) × t ® v ∷U/Level                            ⇔⟨ (inversion-U-Level , ⊢U) ×-cong-⇔ id⇔ ⟩
     Δ ⊢ u ∷Level × t ® v ∷U/Level                         □⇔
 
 opaque

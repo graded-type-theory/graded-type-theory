@@ -52,11 +52,11 @@ opaque
     Γ ⊢ A ≡ B ∷ U l
   inverseUnivEq′ (inj₁ ⊢A) (univ A≡B) =
     conv A≡B
-      (U-cong-⊢≡ (wfTerm ⊢A) $
+      (U-cong-⊢≡ $
        universe-level-unique (syntacticEqTerm A≡B .proj₂ .proj₁) ⊢A)
   inverseUnivEq′ (inj₂ ⊢B) (univ A≡B) =
     conv A≡B
-      (U-cong-⊢≡ (wfTerm ⊢B) $
+      (U-cong-⊢≡ $
        universe-level-unique (syntacticEqTerm A≡B .proj₂ .proj₂) ⊢B)
   inverseUnivEq′ (inj₁ ⊢A) (refl _) =
     refl ⊢A
@@ -89,10 +89,10 @@ opaque
         (sym U≡U)
   inverseUnivEq′ (inj₂ ⊢B) (Lift-cong l₁≡l₂ A≡B) =
     let _ , ⊢l₂ , ⊢A , U≡U = inversion-Lift∷ ⊢B
-        ⊢Γ , ⊢k = inversion-U-Level (syntacticTerm ⊢A)
+        ⊢k                 = inversion-U-Level (syntacticTerm ⊢A)
     in conv
         (Lift-cong′ l₁≡l₂ (inverseUnivEq′ (inj₂ ⊢A) A≡B))
-        (trans (U-cong-⊢≡ ⊢Γ (supᵘₗ-cong (refl-⊢≡∷L ⊢k) l₁≡l₂)) (sym U≡U))
+        (trans (U-cong-⊢≡ (supᵘₗ-cong (refl-⊢≡∷L ⊢k) l₁≡l₂)) (sym U≡U))
   inverseUnivEq′ (inj₁ ⊢ΠΣ) (ΠΣ-cong A₁≡A₂ B₁≡B₂ ok) =
     case inversion-ΠΣ-U ⊢ΠΣ of λ
       (_ , _ , ⊢A₁∷U , ⊢B₁∷U , U≡U , _) →
@@ -136,7 +136,7 @@ opaque
   inverseUnivRed* ⊢A (id _)            = id ⊢A
   inverseUnivRed* ⊢A (univ A⇒C ⇨ C⇒*B) =
     let l≡l′ = universe-level-unique (redFirstTerm A⇒C) ⊢A
-        U≡U  = U-cong-⊢≡ (wfTerm ⊢A) l≡l′
+        U≡U  = U-cong-⊢≡ l≡l′
     in
     conv A⇒C U≡U ⇨
     inverseUnivRed*

@@ -100,8 +100,7 @@ mutual
              Γ ⊢nf zeroᵘ ∷ Level
     sucᵘₙ  : Γ ⊢nf t ∷ Level →
              Γ ⊢nf sucᵘ t ∷ Level
-    Uₙ     : ⊢ Γ →
-             Γ ⊢nf l ∷Level →
+    Uₙ     : Γ ⊢nf l ∷Level →
              Γ ⊢nf U l ∷ U (sucᵘ l)
     Liftₙ  : Γ ⊢nf l₂ ∷Level →
              Γ ⊢nf A ∷ U l₁ →
@@ -151,8 +150,8 @@ mutual
   infix 4 _⊢nf_∷Level
 
   data _⊢nf_∷Level (Γ : Con Term n) (l : Term n) : Set a where
-    term : Level-allowed → Γ ⊢nf l ∷ Level → Γ ⊢nf l ∷Level
-    literal : ¬ Level-allowed → Level-literal l → Γ ⊢nf l ∷Level
+    term    : Level-allowed → Γ ⊢nf l ∷ Level → Γ ⊢nf l ∷Level
+    literal : ¬ Level-allowed → ⊢ Γ → Level-literal l → Γ ⊢nf l ∷Level
 
   -- Γ ⊢neˡ t ∷ A holds if t is a neutral level for which the
   -- "non-neutral parts" are in η-long normal form.
@@ -259,7 +258,7 @@ mutual
     (zeroᵘₙ ok ⊢Γ)      → zeroᵘⱼ ok ⊢Γ
     (sucᵘₙ ⊢t)          → sucᵘⱼ (⊢nf∷→⊢∷ ⊢t)
     (convₙ ⊢t A≡B)      → conv (⊢nf∷→⊢∷ ⊢t) A≡B
-    (Uₙ ⊢Γ ⊢l)          → Uⱼ ⊢Γ (⊢nf∷L→⊢∷L ⊢l)
+    (Uₙ ⊢l)             → Uⱼ (⊢nf∷L→⊢∷L ⊢l)
     (Liftₙ ⊢l ⊢A)       → Liftⱼ′ (⊢nf∷L→⊢∷L ⊢l) (⊢nf∷→⊢∷ ⊢A)
     (liftₙ ⊢l ⊢t)       → liftⱼ′ ⊢l (⊢nf∷→⊢∷ ⊢t)
     (ΠΣₙ ⊢A ⊢B ok)      → ΠΣⱼ′ (⊢nf∷→⊢∷ ⊢A) (⊢nf∷→⊢∷ ⊢B) ok
@@ -279,8 +278,8 @@ mutual
 
   ⊢nf∷L→⊢∷L : Γ ⊢nf l ∷Level → Γ ⊢ l ∷Level
   ⊢nf∷L→⊢∷L = λ where
-    (term ok ⊢l)           → term ok (⊢nf∷→⊢∷ ⊢l)
-    (literal not-ok l-lit) → literal not-ok l-lit
+    (term ok ⊢l)              → term ok (⊢nf∷→⊢∷ ⊢l)
+    (literal not-ok ⊢Γ l-lit) → literal not-ok ⊢Γ l-lit
 
   -- If Γ ⊢neˡ t ∷ A holds, then t is well-typed.
 
@@ -333,7 +332,7 @@ mutual
     (Levelₙ _ _)      → Levelₙ
     (zeroᵘₙ _ _)      → zeroᵘₙ
     (sucᵘₙ ⊢t)        → sucᵘₙ (⊢nf∷→Nf ⊢t)
-    (Uₙ _ ⊢l)         → Uₙ (⊢nf∷L→Nf ⊢l)
+    (Uₙ ⊢l)           → Uₙ (⊢nf∷L→Nf ⊢l)
     (Liftₙ ⊢l ⊢A)     → Liftₙ (⊢nf∷L→Nf ⊢l) (⊢nf∷→Nf ⊢A)
     (liftₙ _ ⊢t)      → liftₙ (⊢nf∷→Nf ⊢t)
     (ΠΣₙ ⊢A ⊢B _)     → ΠΣₙ (⊢nf∷→Nf ⊢A) (⊢nf∷→Nf ⊢B)
@@ -353,8 +352,8 @@ mutual
 
   ⊢nf∷L→Nf : Γ ⊢nf l ∷Level → Nf l
   ⊢nf∷L→Nf = λ where
-    (term _ ⊢l)       → ⊢nf∷→Nf ⊢l
-    (literal _ l-lit) → Level-literal→Nf l-lit
+    (term _ ⊢l)         → ⊢nf∷→Nf ⊢l
+    (literal _ _ l-lit) → Level-literal→Nf l-lit
 
   -- If Γ ⊢neˡ t ∷ A holds, then t is "NfNeutralˡ".
 
@@ -408,9 +407,7 @@ opaque
       let A≡ , ok = inversion-Level ⊢Level
       in convₙ (Levelₙ ⊢Γ ok) (sym A≡)
     (univₙ ⊢A) ⊢A∷U →
-      convₙ ⊢A
-        (U-cong-⊢≡ (wfTerm (⊢nf∷→⊢∷ ⊢A)) $
-         universe-level-unique (⊢nf∷→⊢∷ ⊢A) ⊢A∷U)
+      convₙ ⊢A (U-cong-⊢≡ (universe-level-unique (⊢nf∷→⊢∷ ⊢A) ⊢A∷U))
     (Liftₙ ⊢l ⊢A) ⊢A∷U →
       let _ , ⊢l′ , ⊢A∷ , U≡U = inversion-Lift∷ ⊢A∷U
       in convₙ (Liftₙ ⊢l (⊢nf∷U→⊢nf∷U ⊢A ⊢A∷)) (sym U≡U)
@@ -460,8 +457,7 @@ mutual
         ⊢Δ
       (sucᵘₙ ⊢t) → sucᵘₙ
         (⊢nf∷-stable Γ≡Δ ⊢t)
-      (Uₙ _ ⊢l) → Uₙ
-        ⊢Δ
+      (Uₙ ⊢l) → Uₙ
         (⊢nf∷L-stable Γ≡Δ ⊢l)
       (Liftₙ ⊢l ⊢A) → Liftₙ
         (⊢nf∷L-stable Γ≡Δ ⊢l)
@@ -504,8 +500,10 @@ mutual
 
   ⊢nf∷L-stable : ⊢ Γ ≡ Δ → Γ ⊢nf l ∷Level → Δ ⊢nf l ∷Level
   ⊢nf∷L-stable Γ≡Δ = λ where
-    (term ok ⊢l)           → term ok (⊢nf∷-stable Γ≡Δ ⊢l)
-    (literal not-ok l-lit) → literal not-ok l-lit
+    (term ok ⊢l)             → term ok (⊢nf∷-stable Γ≡Δ ⊢l)
+    (literal not-ok _ l-lit) →
+      let _ , ⊢Δ , _ = contextConvSubst Γ≡Δ in
+      literal not-ok ⊢Δ l-lit
 
   -- If t is a neutral level (according to _⊢neˡ_∷_) with respect to the
   -- context Γ, and Γ is judgmentally equal to Δ, then t is also a
@@ -605,8 +603,8 @@ opaque
     let _ , ⊢l , ⊢A , ≡U = inversion-nf-Lift-U ⊢Lift in
     _ , ⊢l , ⊢A , trans (sym ≡B) ≡U
   inversion-nf-Lift-U (Liftₙ ⊢l ⊢A) =
-    let ⊢Γ , ⊢l′ = inversion-U-Level (wf-⊢∷ (⊢nf∷→⊢∷ ⊢A)) in
-    _ , ⊢l , ⊢A , refl (⊢U ⊢Γ (⊢supᵘₗ ⊢l′ (⊢nf∷L→⊢∷L ⊢l)))
+    let ⊢l′ = inversion-U-Level (wf-⊢∷ (⊢nf∷→⊢∷ ⊢A)) in
+    _ , ⊢l , ⊢A , refl (⊢U (⊢supᵘₗ ⊢l′ (⊢nf∷L→⊢∷L ⊢l)))
   inversion-nf-Lift-U (neₙ _ ⊢Lift) =
     case ⊢neˡ∷→NfNeutralˡ ⊢Lift of λ { (ne ()) }
 
@@ -685,7 +683,7 @@ inversion-nf-ΠΣ-U :
   ΠΣ-allowed b p q
 inversion-nf-ΠΣ-U (ΠΣₙ ⊢A ⊢B ok) =
   _ , ⊢A , ⊢B ,
-  refl (uncurry ⊢U (inversion-U-Level (syntacticTerm (⊢nf∷→⊢∷ ⊢A)))) ,
+  refl (⊢U (inversion-U-Level (syntacticTerm (⊢nf∷→⊢∷ ⊢A)))) ,
   ok
 inversion-nf-ΠΣ-U (convₙ ⊢ΠΣ D≡C) =
   case inversion-nf-ΠΣ-U ⊢ΠΣ of λ {
@@ -1248,7 +1246,7 @@ opaque
     (Levelₙ _ _)    _ ()
     (zeroᵘₙ _ _)    _ ()
     (sucᵘₙ _)       _ ()
-    (Uₙ _ _)        _ ()
+    (Uₙ _)          _ ()
     (Liftₙ _ _)     _ ()
     (liftₙ _ _)     _ ()
     (ΠΣₙ _ _ _)     _ ()
@@ -1282,7 +1280,7 @@ opaque
     (Levelₙ _ _)    _ ()
     (zeroᵘₙ _ _)    _ ()
     (sucᵘₙ _)       _ ()
-    (Uₙ _ _)        _ ()
+    (Uₙ _)          _ ()
     (Liftₙ _ _)     _ ()
     (liftₙ _ _)     _ ()
     (ΠΣₙ _ _ _)     _ ()
@@ -1318,7 +1316,7 @@ opaque
     (Levelₙ _ _)    → ⊥-elim (U≢Unitⱼ A≡Unit)
     (zeroᵘₙ _ _)    → ⊥-elim (Level≢Unitⱼ A≡Unit)
     (sucᵘₙ _)       → ⊥-elim (Level≢Unitⱼ A≡Unit)
-    (Uₙ _ _)        → ⊥-elim (U≢Unitⱼ A≡Unit)
+    (Uₙ _)          → ⊥-elim (U≢Unitⱼ A≡Unit)
     (Liftₙ _ _)     → ⊥-elim (U≢Unitⱼ A≡Unit)
     (liftₙ _ _)     → ⊥-elim (Lift≢Unitⱼ A≡Unit)
     (ΠΣₙ _ _ _)     → ⊥-elim (U≢Unitⱼ A≡Unit)
@@ -1350,7 +1348,7 @@ opaque
     (Levelₙ _ _)    → ⊥-elim (U≢Liftⱼ A≡Lift)
     (zeroᵘₙ _ _)    → ⊥-elim (Lift≢Level (sym A≡Lift))
     (sucᵘₙ _)       → ⊥-elim (Lift≢Level (sym A≡Lift))
-    (Uₙ _ _)        → ⊥-elim (U≢Liftⱼ A≡Lift)
+    (Uₙ _)          → ⊥-elim (U≢Liftⱼ A≡Lift)
     (Liftₙ _ _)     → ⊥-elim (U≢Liftⱼ A≡Lift)
     (ΠΣₙ _ _ _)     → ⊥-elim (U≢Liftⱼ A≡Lift)
     (lamₙ _ _)      → ⊥-elim (Lift≢ΠΣⱼ (sym A≡Lift))
@@ -1417,11 +1415,9 @@ opaque
     in
     Γ ⊢nf A × Γ ⊢nf B × Γ ⊢ A ≡ B × A PE.≢ B
   normal-types-not-unique ok =
-    let ⊢0 , ⊢0⊔0 , 0≡0⊔0 , _ = normal-terms-not-unique ok
-        ⊢∙L                   = ∙ Levelⱼ′ ok ε
-    in
-    univₙ (Uₙ ⊢∙L (term ok ⊢0)) ,
-    univₙ (Uₙ ⊢∙L (term ok ⊢0⊔0)) ,
+    let ⊢0 , ⊢0⊔0 , 0≡0⊔0 , _ = normal-terms-not-unique ok in
+    univₙ (Uₙ (term ok ⊢0)) ,
+    univₙ (Uₙ (term ok ⊢0⊔0)) ,
     U-cong 0≡0⊔0 ,
     λ ()
 
@@ -1461,7 +1457,7 @@ private module _ (Level-not-allowed : ¬ Level-allowed) where
     normal-types-unique-[conv↓] ⊢A ⊢B = λ where
       (Level-refl _ _) →
         PE.refl
-      (U-cong _ l₁≡l₂) →
+      (U-cong l₁≡l₂) →
         case levels-unique l₁≡l₂ of λ {
           PE.refl →
         PE.refl }
@@ -1854,8 +1850,8 @@ private module _ (Level-not-allowed : ¬ Level-allowed) where
       l₁ PE.≡ l₂
     levels-unique l₁≡l₂ =
       case soundnessConv↑Level l₁≡l₂ of λ where
-        (term ok _)   → ⊥-elim (Level-not-allowed ok)
-        (literal _ _) → PE.refl
+        (term ok _)     → ⊥-elim (Level-not-allowed ok)
+        (literal _ _ _) → PE.refl
 
 opaque
 

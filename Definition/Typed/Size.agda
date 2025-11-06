@@ -52,8 +52,8 @@ opaque mutual
     node (size-⊢∷ ⊢t)
   size-⊢∷ (supᵘⱼ ⊢t ⊢u) =
     size-⊢∷ ⊢t ⊕ size-⊢∷ ⊢u
-  size-⊢∷ (Uⱼ ⊢Γ ⊢l) =
-    size-⊢′ ⊢Γ ⊕ size-⊢∷L ⊢l
+  size-⊢∷ (Uⱼ ⊢l) =
+    node (size-⊢∷L ⊢l)
   size-⊢∷ (Liftⱼ ⊢l₁ ⊢l₂ ⊢A) =
     size-⊢∷L ⊢l₁ ⊕ size-⊢∷L ⊢l₂ ⊕ size-⊢∷ ⊢A
   size-⊢∷ (liftⱼ ⊢l₂ ⊢A ⊢t) =
@@ -108,8 +108,8 @@ opaque mutual
   -- The size of a derivation.
 
   size-⊢∷L : Γ ⊢ t ∷Level → Size
-  size-⊢∷L (term _ ⊢t)   = node (size-⊢∷ ⊢t)
-  size-⊢∷L (literal _ _) = leaf
+  size-⊢∷L (term _ ⊢t)      = node (size-⊢∷ ⊢t)
+  size-⊢∷L (literal _ ⊢Γ _) = node (size-⊢′ ⊢Γ)
 
   -- The size of a derivation.
 
@@ -236,5 +236,5 @@ opaque mutual
   -- The size of a derivation.
 
   size-⊢≡∷L : Γ ⊢ t ≡ u ∷Level → Size
-  size-⊢≡∷L (term _ t≡u)  = node (size-⊢≡∷ t≡u)
-  size-⊢≡∷L (literal _ _) = leaf
+  size-⊢≡∷L (term _ t≡u)     = node (size-⊢≡∷ t≡u)
+  size-⊢≡∷L (literal _ ⊢Γ _) = node (size-⊢′ ⊢Γ)

@@ -51,11 +51,11 @@ opaque
   inversion-∷Level :
     Γ ⊢ l ∷Level →
     (Level-allowed → Γ ⊢ l ∷ Level) ×
-    (¬ Level-allowed → Level-literal l)
+    (¬ Level-allowed → ⊢ Γ × Level-literal l)
   inversion-∷Level (term ok ⊢l) =
      (λ _ → ⊢l) , ⊥-elim ∘→ (_$ ok)
-  inversion-∷Level (literal not-ok l-lit) =
-    ⊥-elim ∘→ not-ok , (λ _ → l-lit)
+  inversion-∷Level (literal not-ok ⊢Γ l-lit) =
+    ⊥-elim ∘→ not-ok , (λ _ → ⊢Γ , l-lit)
 
 opaque
 
@@ -103,14 +103,14 @@ opaque
   -- Inversion for U.
 
   inversion-U : Γ ⊢ U t ∷ A → Γ ⊢ A ≡ U (sucᵘ t)
-  inversion-U (Uⱼ ⊢Γ ⊢t)    = refl (⊢U ⊢Γ (⊢sucᵘ ⊢t))
+  inversion-U (Uⱼ ⊢t)        = refl (⊢U (⊢sucᵘ ⊢t))
   inversion-U (conv ⊢U B≡A) = trans (sym B≡A) (inversion-U ⊢U)
 
-  inversion-U∷-Level : Γ ⊢ U l ∷ A → ⊢ Γ × Γ ⊢ l ∷Level
-  inversion-U∷-Level (Uⱼ ⊢Γ ⊢l)  = ⊢Γ , ⊢l
+  inversion-U∷-Level : Γ ⊢ U l ∷ A → Γ ⊢ l ∷Level
+  inversion-U∷-Level (Uⱼ ⊢l)     = ⊢l
   inversion-U∷-Level (conv ⊢U _) = inversion-U∷-Level ⊢U
 
-  inversion-U-Level : Γ ⊢ U l → ⊢ Γ × Γ ⊢ l ∷Level
+  inversion-U-Level : Γ ⊢ U l → Γ ⊢ l ∷Level
   inversion-U-Level (univ ⊢U) = inversion-U∷-Level ⊢U
 
 ------------------------------------------------------------------------
@@ -125,7 +125,7 @@ opaque
     let _ , ⊢t , ⊢A , B≡ = inversion-Lift∷ x
     in _ , ⊢t , ⊢A , trans (sym x₁) B≡
   inversion-Lift∷ (Liftⱼ ⊢l₁ ⊢l₂ ⊢A) =
-    _ , ⊢l₂ , ⊢A , refl (⊢U (wfTerm ⊢A) (⊢supᵘₗ ⊢l₁ ⊢l₂))
+    _ , ⊢l₂ , ⊢A , refl (⊢U (⊢supᵘₗ ⊢l₁ ⊢l₂))
 
   inversion-Lift : Γ ⊢ Lift t A → Γ ⊢ t ∷Level × Γ ⊢ A
   inversion-Lift (univ x) =
@@ -303,7 +303,7 @@ opaque
     Γ ⊢ C ≡ U l ×
     ΠΣ-allowed b p q
   inversion-ΠΣ-⊢∷ (ΠΣⱼ ⊢l ⊢A ⊢B ok) =
-    _ , ⊢l , (⊢A , !) , (⊢B , !) , refl (⊢U (wfTerm ⊢A) ⊢l) , ok
+    _ , ⊢l , (⊢A , !) , (⊢B , !) , refl (⊢U ⊢l) , ok
   inversion-ΠΣ-⊢∷ (conv ⊢ΠΣ eq₁) =
     let _ , ⊢l , (⊢A , A<) , (⊢B , B<) , eq₂ , ok =
           inversion-ΠΣ-⊢∷ ⊢ΠΣ

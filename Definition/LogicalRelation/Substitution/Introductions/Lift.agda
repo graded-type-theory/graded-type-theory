@@ -190,8 +190,7 @@ opaque
     Γ ⊩ᵛ⟨ ωᵘ ⟩ Lift k A ≡ Lift k′ A′ ∷ U (k₁ supᵘₗ k)
   Lift-congᵗᵛ ⊩k₁ k≡k′ A≡A′ =
     ⊩ᵛ≡∷⇔ʰ .proj₂
-      ( ⊩ᵛU (wf-⊩ᵛ (wf-⊩ᵛ∷ (wf-⊩ᵛ≡∷ A≡A′ .proj₁)))
-          (supᵘₗᵛ ⊩k₁ (wf-⊩ᵛ≡∷L k≡k′ .proj₁))
+      ( ⊩ᵛU (supᵘₗᵛ ⊩k₁ (wf-⊩ᵛ≡∷L k≡k′ .proj₁))
       , λ σ₁≡σ₂ →
           let ⊩k₁[σ₁] = ⊩ᵛ∷L→⊩ˢ∷→⊩[]∷L ⊩k₁ (wf-⊩ˢ≡∷ σ₁≡σ₂ .proj₁) in
           PE.subst (_⊩⟨_⟩_≡_∷_ _ _ _ _)

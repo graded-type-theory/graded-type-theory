@@ -125,6 +125,7 @@ mutual
       Γ ⊩Level l ∷Level
     literal :
       (not-ok : ¬ Level-allowed)
+      (⊢Γ : ⊢ Γ)
       (l-lit : Level-literal l) →
       Γ ⊩Level l ∷Level
 
@@ -160,6 +161,7 @@ mutual
       Γ ⊩Level l₁ ≡ l₂ ∷Level
     literal :
       (not-ok : ¬ Level-allowed)
+      (⊢Γ : ⊢ Γ)
       (l-lit : Level-literal l₁) →
       l₁ PE.≡ l₂ →
       Γ ⊩Level l₁ ≡ l₂ ∷Level
@@ -247,7 +249,7 @@ mutual
       → [neLevel]-prop Γ (t₁ supᵘ t₂) t₁
     ne : ∀ {k k′} → Γ ⊩neNf k ≡ k′ ∷ Level → [neLevel]-prop Γ k k′
 
-pattern literal! not-ok l-lit = literal not-ok l-lit PE.refl
+pattern literal! not-ok ⊢Γ l-lit = literal not-ok ⊢Γ l-lit PE.refl
 
 -- Level realisation
 
@@ -262,8 +264,8 @@ abstract
 opaque mutual
 
   ↑ⁿ_ : Γ ⊩Level t ∷Level → Nat
-  ↑ⁿ term _ l′-prop  = ↑ⁿ-prop l′-prop
-  ↑ⁿ literal _ l-lit = size-of-Level l-lit
+  ↑ⁿ term _ l′-prop    = ↑ⁿ-prop l′-prop
+  ↑ⁿ literal _ _ l-lit = size-of-Level l-lit
 
   ↑ⁿ-prop : Level-prop Γ t → Nat
   ↑ⁿ-prop (zeroᵘᵣ _)  = 0

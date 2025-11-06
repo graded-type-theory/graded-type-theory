@@ -84,13 +84,13 @@ opaque
   Unrestricted-cong-U l₁≡l₂ A₁≡A₂ =
     let _ , ⊢A₁ , _ = wf-⊢≡∷ A₁≡A₂
         ⊢A₁′        = univ ⊢A₁
-        _ , ⊢l₁     = inversion-U-Level (wf-⊢∷ ⊢A₁)
+        ⊢l₁         = inversion-U-Level (wf-⊢∷ ⊢A₁)
     in
     ΠΣ-cong′ A₁≡A₂
       (conv
          (Lift-cong′ (wkEqLevel₁ ⊢A₁′ l₁≡l₂)
             (refl (Unitⱼ (∙ ⊢A₁′) Unit-ok)))
-         (U-cong-⊢≡ (∙ ⊢A₁′) (supᵘₗ-zeroˡ (wkLevel₁ ⊢A₁′ ⊢l₁))))
+         (U-cong-⊢≡ (supᵘₗ-zeroˡ (wkLevel₁ ⊢A₁′ ⊢l₁))))
       Σˢ-ok
 
 opaque
@@ -99,7 +99,7 @@ opaque
 
   Unrestrictedⱼ-U : Γ ⊢ A ∷ U l → Γ ⊢ Unrestricted l A ∷ U l
   Unrestrictedⱼ-U ⊢A∷U =
-    let _ , ⊢l = inversion-U-Level (wf-⊢∷ ⊢A∷U) in
+    let ⊢l = inversion-U-Level (wf-⊢∷ ⊢A∷U) in
     wf-⊢≡∷ (Unrestricted-cong-U (refl-⊢≡∷L ⊢l) (refl ⊢A∷U))
       .proj₂ .proj₁
 
@@ -310,7 +310,7 @@ opaque
       ⊢ Γ → Γ ⊢ Lift zeroᵘ Unitˢ ∷ U zeroᵘ
     ⊢Lift-Unit ⊢Γ =
       conv (Liftⱼ′ (⊢zeroᵘ ⊢Γ) (Unitⱼ ⊢Γ Unit-ok))
-        (U-cong-⊢≡ ⊢Γ (supᵘₗ-zeroˡ (⊢zeroᵘ ⊢Γ)))
+        (U-cong-⊢≡ (supᵘₗ-zeroˡ (⊢zeroᵘ ⊢Γ)))
 
     ⊢[t′] : Γ′ ⊢ [ t′ ] ∷ A′
     ⊢[t′] = prodⱼ

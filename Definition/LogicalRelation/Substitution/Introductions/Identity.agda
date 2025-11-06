@@ -708,7 +708,7 @@ opaque
         ⊢k₁≡k₂        = ⊢≅∷L→⊢≡∷L k₁≅k₂
         ⊢A₁≡A₂        = ≅ₜ-eq A₁≅A₂
         _ , ⊢A₁ , ⊢A₂ = wf-⊢≡∷ ⊢A₁≡A₂
-        ⊢A₂           = conv ⊢A₂ (U-cong-⊢≡ (wfTerm ⊢A₁) ⊢k₁≡k₂)
+        ⊢A₂           = conv ⊢A₂ (U-cong-⊢≡ ⊢k₁≡k₂)
         ⊢t₁≡t₂        = ≅ₜ-eq t₁≅t₂
         ⊢u₁≡u₂        = ≅ₜ-eq u₁≅u₂
         ⊢Id≡Id        =

@@ -217,7 +217,7 @@ mutual
     Id-cong (Erased-cong Erased-ok ⊢l₁≡l₂ ⊢A₁≡A₂)
       ([]-cong′ Erased-ok ⊢A₁ ⊢t₁≡t₂) ([]-cong′ Erased-ok ⊢A₁ ⊢u₁≡u₂) ,
     []-cong-cong (symConv↑Level Γ≡Δ l₁≡l₂)
-      (convConv↑Term′ Γ≡Δ (U-cong-⊢≡ (wfTerm ⊢A₁) ⊢l₁≡l₂)
+      (convConv↑Term′ Γ≡Δ (U-cong-⊢≡ ⊢l₁≡l₂)
          (symConv↑Term Γ≡Γ A₁≡A₂))
       (convConv↑Term′ Γ≡Δ (univ ⊢A₁≡A₂) (symConv↑Term Γ≡Γ t₁≡t₂))
       (convConv↑Term′ Γ≡Δ (univ ⊢A₁≡A₂) (symConv↑Term Γ≡Γ u₁≡u₂))
@@ -254,9 +254,8 @@ mutual
   symConv↓ Γ≡Δ (Level-refl ok _) =
     let _ , ⊢Δ , _ = contextConvSubst Γ≡Δ in
     Level-refl ok ⊢Δ
-  symConv↓ Γ≡Δ (U-cong _ l₁≡l₂) =
-    let _ , ⊢Δ , _ = contextConvSubst Γ≡Δ in
-    U-cong ⊢Δ (symConv↑Level Γ≡Δ l₁≡l₂)
+  symConv↓ Γ≡Δ (U-cong l₁≡l₂) =
+    U-cong (symConv↑Level Γ≡Δ l₁≡l₂)
   symConv↓ Γ≡Δ (Lift-cong l₁≡l₂ F≡H) =
     Lift-cong (symConv↑Level Γ≡Δ l₁≡l₂) (symConv↑ Γ≡Δ F≡H)
   symConv↓ Γ≡Δ (ℕ-refl x) =
@@ -298,8 +297,9 @@ mutual
     Δ ⊢ l₂ [conv↑] l₁ ∷Level
   symConv↑Level Γ≡Δ (term ok l₁≡l₂) =
     term ok (symConv↑Term Γ≡Δ l₁≡l₂)
-  symConv↑Level _ (literal! not-ok l-lit) =
-    literal! not-ok l-lit
+  symConv↑Level Γ≡Δ (literal! not-ok _ l-lit) =
+    let _ , ⊢Δ , _ = contextConvSubst Γ≡Δ in
+    literal! not-ok ⊢Δ l-lit
 
   -- Symmetry of algorithmic equality of terms in WHNF.
   symConv↓Term : ∀ {t u A} → ⊢ Γ ≡ Δ → Γ ⊢ t [conv↓] u ∷ A → Δ ⊢ u [conv↓] t ∷ A

@@ -940,7 +940,7 @@ opaque
     (∃ λ l → Γ ⊢ A ~ B ↓ U l) ⊎ ¬ Neutral A × ¬ Neutral B
   inv-[conv↓]-ne′ = λ where
     (ne A~B)         → inj₁ (_ , A~B)
-    (U-cong _ _)     → inj₂ (¬-Neutral-U     , ¬-Neutral-U)
+    (U-cong _)       → inj₂ (¬-Neutral-U     , ¬-Neutral-U)
     (Lift-cong _ _)  → inj₂ (¬-Neutral-Lift , ¬-Neutral-Lift)
     (ΠΣ-cong _ _ _)  → inj₂ (¬-Neutral-ΠΣ    , ¬-Neutral-ΠΣ)
     (Empty-refl _)   → inj₂ (¬-Neutral-Empty , ¬-Neutral-Empty)
@@ -971,7 +971,7 @@ opaque
      Γ ⊢ l₁ [conv↑] l₂ ∷Level) ⊎
     ¬ (∃ λ l → A PE.≡ U l) × ¬ (∃ λ l → B PE.≡ U l)
   inv-[conv↓]-U′ = λ where
-    (U-cong _ l₁≡l₂) → inj₁ (_ , _ , PE.refl , PE.refl , l₁≡l₂)
+    (U-cong l₁≡l₂) → inj₁ (_ , _ , PE.refl , PE.refl , l₁≡l₂)
     (ne A~B) →
       inj₂ $
       case ne~↓ A~B of λ
@@ -1019,7 +1019,7 @@ opaque
         (_ , A-ne , B-ne) →
         (λ { (_ , _ , PE.refl) → ¬-Neutral-Lift A-ne })
       , (λ { (_ , _ , PE.refl) → ¬-Neutral-Lift B-ne })
-    (U-cong _ _)            → inj₂ ((λ ()) , (λ ()))
+    (U-cong _)              → inj₂ ((λ ()) , (λ ()))
     (ΠΣ-cong A₁≡B₁ A₂≡B₂ _) → inj₂ ((λ ()) , (λ ()))
     (Empty-refl _)          → inj₂ ((λ ()) , (λ ()))
     (Unit-refl _ _)         → inj₂ ((λ ()) , (λ ()))
@@ -1061,7 +1061,7 @@ opaque
         (_ , A-ne , B-ne) →
         (λ { (_ , _ , _ , _ , _ , PE.refl) → ¬-Neutral-ΠΣ A-ne })
       , (λ { (_ , _ , _ , _ , _ , PE.refl) → ¬-Neutral-ΠΣ B-ne })
-    (U-cong _ _)     → inj₂ ((λ ()) , (λ ()))
+    (U-cong _)       → inj₂ ((λ ()) , (λ ()))
     (Lift-cong _ _)  → inj₂ ((λ ()) , (λ ()))
     (Empty-refl _)   → inj₂ ((λ ()) , (λ ()))
     (Unit-refl _ _)  → inj₂ ((λ ()) , (λ ()))
@@ -1099,7 +1099,7 @@ opaque
         (_ , A-ne , B-ne) →
         (λ { PE.refl → ¬-Neutral-Empty A-ne })
       , (λ { PE.refl → ¬-Neutral-Empty B-ne })
-    (U-cong _ _)     → inj₂ ((λ ()) , (λ ()))
+    (U-cong _)       → inj₂ ((λ ()) , (λ ()))
     (Lift-cong _ _)  → inj₂ ((λ ()) , (λ ()))
     (ΠΣ-cong _ _ _)  → inj₂ ((λ ()) , (λ ()))
     (Unit-refl _ _)  → inj₂ ((λ ()) , (λ ()))
@@ -1134,7 +1134,7 @@ opaque
         (_ , A-ne , B-ne) →
         (λ { (_ , PE.refl) → ¬-Neutral-Unit A-ne })
       , (λ { (_ , PE.refl) → ¬-Neutral-Unit B-ne })
-    (U-cong _ _)     → inj₂ ((λ ()) , (λ ()))
+    (U-cong _)       → inj₂ ((λ ()) , (λ ()))
     (Lift-cong _ _)  → inj₂ ((λ ()) , (λ ()))
     (ΠΣ-cong _ _ _)  → inj₂ ((λ ()) , (λ ()))
     (Empty-refl _)   → inj₂ ((λ ()) , (λ ()))
@@ -1169,7 +1169,7 @@ opaque
         (_ , A-ne , B-ne) →
         (λ { PE.refl → ¬-Neutral-Level A-ne })
       , (λ { PE.refl → ¬-Neutral-Level B-ne })
-    (U-cong _ _)    → inj₂ ((λ ()) , (λ ()))
+    (U-cong _)      → inj₂ ((λ ()) , (λ ()))
     (Lift-cong _ _) → inj₂ ((λ ()) , (λ ()))
     (ΠΣ-cong _ _ _) → inj₂ ((λ ()) , (λ ()))
     (Empty-refl _)  → inj₂ ((λ ()) , (λ ()))
@@ -1203,7 +1203,7 @@ opaque
         (_ , A-ne , B-ne) →
         (λ { PE.refl → ¬-Neutral-ℕ A-ne })
       , (λ { PE.refl → ¬-Neutral-ℕ B-ne })
-    (U-cong _ _)     → inj₂ ((λ ()) , (λ ()))
+    (U-cong _)       → inj₂ ((λ ()) , (λ ()))
     (Lift-cong _ _)  → inj₂ ((λ ()) , (λ ()))
     (ΠΣ-cong _ _ _)  → inj₂ ((λ ()) , (λ ()))
     (Empty-refl _)   → inj₂ ((λ ()) , (λ ()))
@@ -1246,7 +1246,7 @@ opaque
         (_ , A-ne , B-ne) →
         (λ { (_ , _ , _ , PE.refl) → ¬-Neutral-Id A-ne })
       , (λ { (_ , _ , _ , PE.refl) → ¬-Neutral-Id B-ne })
-    (U-cong _ _)     → inj₂ ((λ ()) , (λ ()))
+    (U-cong _)       → inj₂ ((λ ()) , (λ ()))
     (Lift-cong _ _)  → inj₂ ((λ ()) , (λ ()))
     (ΠΣ-cong _ _ _)  → inj₂ ((λ ()) , (λ ()))
     (Empty-refl _)   → inj₂ ((λ ()) , (λ ()))

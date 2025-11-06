@@ -244,7 +244,7 @@ neNeg ([]-congⱼ _ _ _ _ _ ok) ([]-congₙ _) _ =
   ⊥-elim (no-erased-matches non-trivial .proj₂ .proj₂ .proj₁ ok)
 neNeg (conv d c) n γ▸u nΓγ =
   conv (neNeg d n γ▸u nΓγ) c
-neNeg (Uⱼ _ _)        ()
+neNeg (Uⱼ _)          ()
 neNeg (ΠΣⱼ _ _ _ _)   ()
 neNeg (lamⱼ _ _ _)    ()
 neNeg (prodⱼ _ _ _ _) ()
@@ -297,7 +297,7 @@ nfN (conv d c) γ▸u nΓγ n c' =
 -- * Canonical types
 nfN (Levelⱼ _ _)  _ _ Levelₙ      c = ⊥-elim (U≢ℕ c)
 nfN (Liftⱼ _ _ _) _ _ (Liftₙ _ _) c = ⊥-elim (U≢ℕ c)
-nfN (Uⱼ _ _)      _ _ (Uₙ _)      c = ⊥-elim (U≢ℕ c)
+nfN (Uⱼ _)        _ _ (Uₙ _)      c = ⊥-elim (U≢ℕ c)
 nfN (ΠΣⱼ _ _ _ _) _ _ (ΠΣₙ _ _)   c = ⊥-elim (U≢ℕ c)
 nfN (ℕⱼ _)        _ _ ℕₙ          c = ⊥-elim (U≢ℕ c)
 nfN (Emptyⱼ _)    _ _ Emptyₙ      c = ⊥-elim (U≢ℕ c)

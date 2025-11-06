@@ -230,7 +230,7 @@ mutual
       in
       []-cong _ l₁′ A₁′ t₁′ u₁′ v₁′ ,
       convₙ
-        ([]-congₙ ⊢l₁′ (convₙ ⊢A₁′ (U-cong-⊢≡ (wfTerm ⊢A₁) l₁≡l₁′))
+        ([]-congₙ ⊢l₁′ (convₙ ⊢A₁′ (U-cong-⊢≡ l₁≡l₁′))
            (convₙ ⊢t₁′ (univ A₁≡A₁′)) (convₙ ⊢u₁′ (univ A₁≡A₁′))
            (convₙ ⊢v₁′
               (trans B≡Id-t₁-u₁ (Id-cong (univ A₁≡A₁′) t₁≡t₁′ u₁≡u₁′)))
@@ -270,9 +270,9 @@ mutual
     ∃ λ B → Γ ⊢nf B × Γ ⊢ A ≡ B
   fullRedConv↓ = λ where
     (Level-refl ok ⊢Γ) → Level , Levelₙ ok ⊢Γ , refl (Levelⱼ′ ok ⊢Γ)
-    (U-cong ⊢Γ l₁≡l₂) →
+    (U-cong l₁≡l₂) →
       let l , ⊢l , l₁≡l = fullRedTermConv↑Level l₁≡l₂
-      in U l , univₙ (Uₙ ⊢Γ ⊢l) , U-cong-⊢≡ ⊢Γ l₁≡l
+      in U l , univₙ (Uₙ ⊢l) , U-cong-⊢≡ l₁≡l
     (Lift-cong l₁≡l₂ A≡B) →
       let l , ⊢l , l₁≡l = fullRedTermConv↑Level l₁≡l₂
           C , ⊢C , A≡C = fullRedConv↑ A≡B
@@ -359,8 +359,8 @@ mutual
   fullRedTermConv↑Level (term ok ⊢t) =
     let u , ⊢u , t≡u = fullRedTermConv↑ ⊢t in
     u , term ok ⊢u , term ok t≡u
-  fullRedTermConv↑Level {t} (literal! not-ok t-lit) =
-    t , literal not-ok t-lit , literal not-ok t-lit
+  fullRedTermConv↑Level {t} (literal! not-ok ⊢Γ t-lit) =
+    t , literal not-ok ⊢Γ t-lit , literal not-ok ⊢Γ t-lit
 
   fullRedTermConv↓Level :
     Γ ⊢ t [conv↓] t′ ∷Level →

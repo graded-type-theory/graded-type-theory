@@ -199,7 +199,7 @@ mutual
     (Uₜ₌ A B d d′ typeA typeB A≡B [t] [u] [t≡u])
     with whrDet* (D2 , Uₙ) (D , Uₙ)
   ... | PE.refl =
-    let Uk≡Uk′ = ≅-eq (≅-U-cong (wf (redFirst* D)) (escapeLevelEq k≡k′))
+    let Uk≡Uk′ = ≅-eq (≅-U-cong (escapeLevelEq k≡k′))
         ↑k≡↑k′ = ↑ᵘ-cong k≡k′
     in Uₜ₌ A B (conv* d Uk≡Uk′) (conv* d′ Uk≡Uk′) typeA typeB (≅-conv A≡B Uk≡Uk′)
       (irrelevance-⊩< ↑k≡↑k′ k< k′< [t])
@@ -350,7 +350,7 @@ mutual
     (Uₜ₌ A B d d′ typeA typeB A≡B [t] [u] [t≡u])
     with whrDet* (D2 , Uₙ) (D , Uₙ)
   ... | PE.refl =
-    let Uk≡Uk′ = ≅-eq (≅-U-cong (wf (redFirst* D)) (escapeLevelEq k≡k′))
+    let Uk≡Uk′ = ≅-eq (≅-U-cong (escapeLevelEq k≡k′))
         ↑k≡↑k′ = ↑ᵘ-cong k≡k′
     in Uₜ₌ A B (conv* d (sym Uk≡Uk′)) (conv* d′ (sym Uk≡Uk′)) typeA typeB (≅-conv A≡B (sym Uk≡Uk′))
       (irrelevance-⊩< (PE.sym ↑k≡↑k′) k′< k< [t])

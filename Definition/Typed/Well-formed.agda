@@ -70,17 +70,17 @@ opaque mutual
       wf-⊢∷ ⊢l
     (supᵘⱼ ⊢l ⊢u) →
       wf-⊢∷ ⊢l
-    (Uⱼ ⊢Γ ⊢l) →
-      ⊢U ⊢Γ (⊢sucᵘ ⊢l)
+    (Uⱼ ⊢l) →
+      ⊢U (⊢sucᵘ ⊢l)
     (Liftⱼ ⊢l₁ ⊢l₂ ⊢A) →
-      ⊢U (wfTerm ⊢A) (⊢supᵘₗ ⊢l₁ ⊢l₂)
+      ⊢U (⊢supᵘₗ ⊢l₁ ⊢l₂)
     (liftⱼ x x₁ x₂) →
       Liftⱼ x x₁
     (lowerⱼ x) →
       let ⊢l₂ , ⊢A = inversion-Lift (wf-⊢∷ x)
       in ⊢A
-    (ΠΣⱼ ⊢l ⊢A _ _) →
-      ⊢U (wfTerm ⊢A) ⊢l
+    (ΠΣⱼ ⊢l _ _ _) →
+      ⊢U ⊢l
     (lamⱼ ⊢B _ ok) →
       ΠΣⱼ ⊢B ok
     (⊢t ∘ⱼ ⊢u) →
@@ -113,7 +113,7 @@ opaque mutual
     (natrecⱼ _ ⊢u ⊢v) →
       subst-⊢ (⊢∙→⊢ (wfTerm ⊢u)) (⊢ˢʷ∷-sgSubst ⊢v)
     (Idⱼ ⊢A _ _) →
-      uncurry ⊢U (inversion-U-Level (wf-⊢∷ ⊢A))
+      ⊢U (inversion-U-Level (wf-⊢∷ ⊢A))
     (rflⱼ ⊢t) →
       Idⱼ (wf-⊢∷ ⊢t) ⊢t ⊢t
     (Jⱼ _ ⊢B _ ⊢v ⊢w) →
@@ -148,10 +148,9 @@ opaque mutual
       univ ⊢A , univ ⊢B
     (U-cong l₁≡l₂) →
       let ⊢L , ⊢l₁ , ⊢l₂ = wf-⊢≡∷ l₁≡l₂
-          ⊢Γ             = wf ⊢L
           ok             = inversion-Level-⊢ ⊢L
       in
-      ⊢U ⊢Γ (term ok ⊢l₁) , ⊢U ⊢Γ (term ok ⊢l₂)
+      ⊢U (term ok ⊢l₁) , ⊢U (term ok ⊢l₂)
     (Lift-cong l₁≡l₂ A≡B) →
       let ⊢l₁ , ⊢l₂ = wf-⊢≡∷L l₁≡l₂
           ⊢A , ⊢B   = wf-⊢≡ A≡B
@@ -212,20 +211,18 @@ opaque mutual
       wf-⊢∷ ⊢l , supᵘⱼ ⊢l (sucᵘⱼ ⊢l) , (sucᵘⱼ ⊢l)
     (U-cong l₁≡l₂) →
       let ⊢L , ⊢l₁ , ⊢l₂ = wf-⊢≡∷ l₁≡l₂
-          ⊢Γ             = wf ⊢L
           ok             = inversion-Level-⊢ ⊢L
       in
-      ⊢U ⊢Γ (term ok (sucᵘⱼ ⊢l₁)) , Uⱼ ⊢Γ (term ok ⊢l₁) ,
-      conv (Uⱼ ⊢Γ (term ok ⊢l₂)) (sym (U-cong (sucᵘ-cong l₁≡l₂)))
+      ⊢U (term ok (sucᵘⱼ ⊢l₁)) , Uⱼ (term ok ⊢l₁) ,
+      conv (Uⱼ (term ok ⊢l₂)) (sym (U-cong (sucᵘ-cong l₁≡l₂)))
     (Lift-cong ⊢l₁ ⊢l₂ l₂≡l₃ A₁≡A₂) →
       let ⊢l₂ , ⊢l₃     = wf-⊢≡∷L l₂≡l₃
           _ , ⊢A₁ , ⊢A₂ = wf-⊢≡∷ A₁≡A₂
-          ⊢Γ            = wfTerm ⊢A₁
       in
-      ⊢U ⊢Γ (⊢supᵘₗ ⊢l₁ ⊢l₂) ,
+      ⊢U (⊢supᵘₗ ⊢l₁ ⊢l₂) ,
       Liftⱼ ⊢l₁ ⊢l₂ ⊢A₁ ,
       conv (Liftⱼ ⊢l₁ ⊢l₃ ⊢A₂)
-        (U-cong-⊢≡ ⊢Γ (supᵘₗ-cong (refl-⊢≡∷L ⊢l₁) (sym-⊢≡∷L l₂≡l₃)))
+        (U-cong-⊢≡ (supᵘₗ-cong (refl-⊢≡∷L ⊢l₁) (sym-⊢≡∷L l₂≡l₃)))
     (lower-cong x) →
       let ⊢Lift , ⊢t , ⊢u = wf-⊢≡∷ x
           ⊢l₂ , ⊢A = inversion-Lift ⊢Lift
@@ -238,7 +235,7 @@ opaque mutual
       let _ , ⊢A₁ , ⊢A₂ = wf-⊢≡∷ A₁≡A₂
           _ , ⊢B₁ , ⊢B₂ = wf-⊢≡∷ B₁≡B₂
       in
-      ⊢U (wfTerm ⊢A₁) ⊢l ,
+      ⊢U ⊢l ,
       ΠΣⱼ ⊢l ⊢A₁ ⊢B₁ ok ,
       ΠΣⱼ ⊢l ⊢A₂ (stability-⊢∷ refl-∙⟨ univ ⊢A₂ ∣ univ A₁≡A₂ ⟩ ⊢B₂) ok
     (app-cong t₁≡t₂ u₁≡u₂) →
@@ -498,7 +495,7 @@ opaque mutual
       Idⱼ (Erasedⱼ ⊢l₁ ⊢A₁) ([]ⱼ ⊢l₁ ⊢A₁ ⊢t₁) ([]ⱼ ⊢l₁ ⊢A₁ ⊢u₁) ,
       []-congⱼ ⊢l₁ ⊢A₁ ⊢t₁ ⊢u₁ ⊢v₁ ok ,
       conv
-        ([]-congⱼ ⊢l₂ (conv ⊢A₂ (U-cong-⊢≡ (wfTerm ⊢A₁) l₁≡l₂))
+        ([]-congⱼ ⊢l₂ (conv ⊢A₂ (U-cong-⊢≡ l₁≡l₂))
            (conv ⊢t₂ (univ A₁≡A₂)) (conv ⊢u₂ (univ A₁≡A₂))
            (conv ⊢v₂ (Id-cong (univ A₁≡A₂) t₁≡t₂ u₁≡u₂)) ok)
         (_⊢_≡_.sym $
@@ -521,8 +518,8 @@ opaque mutual
   wf-⊢≡∷L (term ok l₁≡l₂) =
     let ⊢L , ⊢l₁ , ⊢l₂ = wf-⊢≡∷ l₁≡l₂ in
     term ok ⊢l₁ , term ok ⊢l₂
-  wf-⊢≡∷L (literal not-ok l-lit) =
-    literal not-ok l-lit , literal not-ok l-lit
+  wf-⊢≡∷L (literal not-ok ⊢Γ l-lit) =
+    literal not-ok ⊢Γ l-lit , literal not-ok ⊢Γ l-lit
 
   ⊢≡→⊢ : Γ ⊢ t ≡ t ∷ A → Γ ⊢ t ∷ A
   ⊢≡→⊢ t≡t = wf-⊢≡∷ t≡t .proj₂ .proj₁

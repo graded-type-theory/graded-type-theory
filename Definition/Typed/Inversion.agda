@@ -99,9 +99,9 @@ opaque
           PE.subst (flip (_⊢_∷_ _) _) (supᵘₗ≡supᵘ ok) ⊢sup
     in
     term ok ⊢l₁ , term ok ⊢l₂
-  inversion-supᵘₗ (literal not-ok sup-lit) =
+  inversion-supᵘₗ (literal not-ok ⊢Γ sup-lit) =
     let l₁-lit , l₂-lit = Level-literal-supᵘₗ⇔ not-ok .proj₁ sup-lit in
-    literal not-ok l₁-lit , literal not-ok l₂-lit
+    literal not-ok ⊢Γ l₁-lit , literal not-ok ⊢Γ l₂-lit
 
 ------------------------------------------------------------------------
 -- Inversion for Lift
@@ -261,7 +261,7 @@ opaque
   inversion-Id-U = λ where
     (Idⱼ ⊢A ⊢t ⊢u) →
       _ , ⊢A , ⊢t , ⊢u ,
-      refl (uncurry ⊢U (inversion-U-Level (wf-⊢∷ ⊢A)))
+      refl (⊢U (inversion-U-Level (wf-⊢∷ ⊢A)))
     (conv ⊢Id C≡B) →
       case inversion-Id-U ⊢Id of λ {
         (_ , ⊢A , ⊢t , ⊢u , C≡U) →

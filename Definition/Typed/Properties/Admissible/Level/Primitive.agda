@@ -56,7 +56,7 @@ opaque
 
   ⊢zeroᵘ : ⊢ Γ → Γ ⊢ zeroᵘ ∷Level
   ⊢zeroᵘ ⊢Γ with level-support in eq
-  … | only-literals = literal (_$ eq) zeroᵘ
+  … | only-literals = literal (_$ eq) ⊢Γ zeroᵘ
   … | level-type _  =
     let ok = λ eq′ → case PE.trans (PE.sym eq) eq′ of λ () in
     term ok (zeroᵘⱼ ok ⊢Γ)
@@ -66,8 +66,8 @@ opaque
   -- A variant of sucᵘⱼ.
 
   ⊢sucᵘ : Γ ⊢ l ∷Level → Γ ⊢ sucᵘ l ∷Level
-  ⊢sucᵘ (term ok ⊢l)           = term ok (sucᵘⱼ ⊢l)
-  ⊢sucᵘ (literal not-ok l-lit) = literal not-ok (sucᵘ l-lit)
+  ⊢sucᵘ (term ok ⊢l)              = term ok (sucᵘⱼ ⊢l)
+  ⊢sucᵘ (literal not-ok ⊢Γ l-lit) = literal not-ok ⊢Γ (sucᵘ l-lit)
 
 ------------------------------------------------------------------------
 -- Some lemmas related to _⊢_∷Level or _⊢_≡_∷Level
@@ -77,8 +77,8 @@ opaque
   -- Reflexivity for _⊢_≡_∷Level.
 
   refl-⊢≡∷L : Γ ⊢ l ∷Level → Γ ⊢ l ≡ l ∷Level
-  refl-⊢≡∷L (term ok ⊢l)           = term ok (refl ⊢l)
-  refl-⊢≡∷L (literal not-ok l-lit) = literal not-ok l-lit
+  refl-⊢≡∷L (term ok ⊢l)              = term ok (refl ⊢l)
+  refl-⊢≡∷L (literal not-ok ⊢Γ l-lit) = literal not-ok ⊢Γ l-lit
 
 opaque
 
@@ -87,8 +87,8 @@ opaque
   sym-⊢≡∷L : Γ ⊢ l₁ ≡ l₂ ∷Level → Γ ⊢ l₂ ≡ l₁ ∷Level
   sym-⊢≡∷L (term ok l₁≡l₂) =
     term ok (sym (Levelⱼ′ ok (wfEqTerm l₁≡l₂)) l₁≡l₂)
-  sym-⊢≡∷L (literal not-ok l-lit) =
-    literal not-ok l-lit
+  sym-⊢≡∷L (literal not-ok ⊢Γ l-lit) =
+    literal not-ok ⊢Γ l-lit
 
 opaque
 
@@ -98,12 +98,12 @@ opaque
     Γ ⊢ l₁ ≡ l₂ ∷Level → Γ ⊢ l₂ ≡ l₃ ∷Level → Γ ⊢ l₁ ≡ l₃ ∷Level
   trans-⊢≡∷L (term ok l₁≡l₂) (term _ l₂≡l₃) =
     term ok (trans l₁≡l₂ l₂≡l₃)
-  trans-⊢≡∷L (term ok _) (literal not-ok _) =
+  trans-⊢≡∷L (term ok _) (literal not-ok _ _) =
     ⊥-elim (not-ok ok)
-  trans-⊢≡∷L (literal not-ok _) (term ok _) =
+  trans-⊢≡∷L (literal not-ok _ _) (term ok _) =
     ⊥-elim (not-ok ok)
-  trans-⊢≡∷L (literal not-ok l-lit) (literal _ _) =
-    literal not-ok l-lit
+  trans-⊢≡∷L (literal not-ok ⊢Γ l-lit) (literal _ _ _) =
+    literal not-ok ⊢Γ l-lit
 
 ------------------------------------------------------------------------
 -- A lemma related to _supᵘ_
@@ -207,13 +207,13 @@ opaque
   ⊢supᵘₗ (term ok ⊢l₁) (term _ ⊢l₂) =
     PE.subst (_⊢_∷Level _) (PE.sym $ supᵘₗ≡supᵘ ok) $
     term ok (supᵘⱼ ⊢l₁ ⊢l₂)
-  ⊢supᵘₗ (term ok _) (literal not-ok _) =
+  ⊢supᵘₗ (term ok _) (literal not-ok _ _) =
     ⊥-elim (not-ok ok)
-  ⊢supᵘₗ (literal not-ok _) (term ok _) =
+  ⊢supᵘₗ (literal not-ok _ _) (term ok _) =
     ⊥-elim (not-ok ok)
-  ⊢supᵘₗ (literal not-ok l₁-lit) (literal _ l₂-lit) =
+  ⊢supᵘₗ (literal not-ok ⊢Γ l₁-lit) (literal _ _ l₂-lit) =
     PE.subst (_⊢_∷Level _) (PE.sym $ supᵘₗ≡supᵘₗ′ not-ok) $
-    literal not-ok (Level-literal-supᵘₗ′⇔ .proj₂ (l₁-lit , l₂-lit))
+    literal not-ok ⊢Γ (Level-literal-supᵘₗ′⇔ .proj₂ (l₁-lit , l₂-lit))
 
 opaque
 
@@ -227,15 +227,15 @@ opaque
     PE.subst₂ (_⊢_≡_∷Level _)
       (PE.sym $ supᵘₗ≡supᵘ ok) (PE.sym $ supᵘₗ≡supᵘ ok) $
     term ok (supᵘ-cong l₁₁≡l₂₁ l₁₂≡l₂₂)
-  supᵘₗ-cong (term ok _) (literal not-ok _) =
+  supᵘₗ-cong (term ok _) (literal not-ok _ _) =
     ⊥-elim (not-ok ok)
-  supᵘₗ-cong (literal not-ok _) (term ok _) =
+  supᵘₗ-cong (literal not-ok _ _) (term ok _) =
     ⊥-elim (not-ok ok)
-  supᵘₗ-cong (literal not-ok l₁-lit) (literal _ l₂-lit) =
+  supᵘₗ-cong (literal not-ok ⊢Γ l₁-lit) (literal _ _ l₂-lit) =
     PE.subst₂ (_⊢_≡_∷Level _)
       (PE.sym $ supᵘₗ≡↓ᵘ⊔ not-ok l₁-lit l₂-lit)
       (PE.sym $ supᵘₗ≡↓ᵘ⊔ not-ok l₁-lit l₂-lit) $
-    literal not-ok Level-literal-↓ᵘ
+    literal not-ok ⊢Γ Level-literal-↓ᵘ
 
 opaque
 
@@ -249,16 +249,16 @@ opaque
     PE.subst₂ (_⊢_≡_∷Level _)
       (PE.sym $ supᵘₗ≡supᵘ ok) (PE.sym $ supᵘₗ≡supᵘ ok) $
     term ok (supᵘ-comm ⊢l₁ ⊢l₂)
-  supᵘₗ-comm (term ok _) (literal not-ok _) =
+  supᵘₗ-comm (term ok _) (literal not-ok _ _) =
     ⊥-elim (not-ok ok)
-  supᵘₗ-comm (literal not-ok _) (term ok _) =
+  supᵘₗ-comm (literal not-ok _ _) (term ok _) =
     ⊥-elim (not-ok ok)
-  supᵘₗ-comm (literal not-ok l₁-lit) (literal _ l₂-lit) =
+  supᵘₗ-comm (literal not-ok ⊢Γ l₁-lit) (literal _ _ l₂-lit) =
     PE.subst₂ (_⊢_≡_∷Level _)
       (PE.sym $ supᵘₗ≡↓ᵘ⊔ not-ok l₁-lit l₂-lit)
       (PE.trans (PE.cong ↓ᵘ_ (⊔-comm (size-of-Level _) _)) $
        PE.sym $ supᵘₗ≡↓ᵘ⊔ not-ok l₂-lit l₁-lit) $
-    literal not-ok Level-literal-↓ᵘ
+    literal not-ok ⊢Γ Level-literal-↓ᵘ
 
 opaque
   unfolding size-of-Level
@@ -271,8 +271,8 @@ opaque
   supᵘₗ-identityˡ (term ok ⊢l) =
     PE.subst (flip (_⊢_≡_∷Level _) _) (PE.sym $ supᵘₗ≡supᵘ ok) $
     term ok (supᵘ-zeroˡ ⊢l)
-  supᵘₗ-identityˡ (literal not-ok l-lit) =
+  supᵘₗ-identityˡ (literal not-ok ⊢Γ l-lit) =
     PE.subst₂ (_⊢_≡_∷Level _)
       (PE.sym $ supᵘₗ≡↓ᵘ⊔ not-ok zeroᵘ l-lit)
       ↓ᵘ-size-of-Level $
-    literal not-ok Level-literal-↓ᵘ
+    literal not-ok ⊢Γ Level-literal-↓ᵘ

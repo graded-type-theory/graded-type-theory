@@ -115,8 +115,8 @@ mutual
   -- Algorithmic equality of types in WHNF is well-formed.
   soundnessConv↓ : ∀ {A B} → Γ ⊢ A [conv↓] B → Γ ⊢ A ≡ B
   soundnessConv↓ (Level-refl ok ⊢Γ) = refl (Levelⱼ′ ok ⊢Γ)
-  soundnessConv↓ (U-cong ⊢Γ l₁≡l₂) =
-    U-cong-⊢≡ ⊢Γ (soundnessConv↑Level l₁≡l₂)
+  soundnessConv↓ (U-cong l₁≡l₂) =
+    U-cong-⊢≡ (soundnessConv↑Level l₁≡l₂)
   soundnessConv↓ (Lift-cong l₁≡l₂ F≡H) =
     Lift-cong (soundnessConv↑Level l₁≡l₂) (soundnessConv↑ F≡H)
   soundnessConv↓ (ℕ-refl ⊢Γ) = refl (⊢ℕ ⊢Γ)
@@ -139,8 +139,8 @@ mutual
 
   -- Soundness for _⊢_[conv↑]_∷Level.
   soundnessConv↑Level : Γ ⊢ l₁ [conv↑] l₂ ∷Level → Γ ⊢ l₁ ≡ l₂ ∷Level
-  soundnessConv↑Level (literal! not-ok l-lit) =
-    literal not-ok l-lit
+  soundnessConv↑Level (literal! not-ok ⊢Γ l-lit) =
+    literal not-ok ⊢Γ l-lit
   soundnessConv↑Level (term ok l₁≡l₂) =
     term ok (soundnessConv↑Term l₁≡l₂)
 
@@ -221,15 +221,15 @@ mutual
     where
     open TyR
   soundnessConv↓-U
-    {l₁} {l₂} ⊢U₁ ⊢U₂ (U-cong {l₁ = l₃} {l₂ = l₄} ⊢Γ l₃≡l₄) =
+    {l₁} {l₂} ⊢U₁ ⊢U₂ (U-cong {l₁ = l₃} {l₂ = l₄} l₃≡l₄) =
     let l₃≡l₄ = soundnessConv↑Level l₃≡l₄
         U≡U₁ = inversion-U ⊢U₁
         U≡U₂ = inversion-U ⊢U₂
     in
-      conv (U-cong-⊢≡∷ ⊢Γ l₃≡l₄) (sym U≡U₁)
+      conv (U-cong-⊢≡∷ l₃≡l₄) (sym U≡U₁)
     , U-injectivity
         (U l₁        ≡⟨ inversion-U ⊢U₁ ⟩⊢
-         U (sucᵘ l₃) ≡⟨ U-cong-⊢≡ ⊢Γ (sucᵘ-cong-⊢≡∷L l₃≡l₄) ⟩⊢
+         U (sucᵘ l₃) ≡⟨ U-cong-⊢≡ (sucᵘ-cong-⊢≡∷L l₃≡l₄) ⟩⊢
          U (sucᵘ l₄) ≡˘⟨ inversion-U ⊢U₂ ⟩⊢∎
          U l₂        ∎)
     where
@@ -243,7 +243,7 @@ mutual
       conv (Lift-cong′ l₃≡l₄ F≡H) (sym U₁≡)
     , U-injectivity
         (U l₁             ≡⟨ U₁≡ ⟩⊢
-         U (k₁ supᵘₗ l₃)  ≡⟨ U-cong-⊢≡ (wfTerm ⊢F) (supᵘₗ-cong k₁≡k₂ l₃≡l₄) ⟩⊢
+         U (k₁ supᵘₗ l₃)  ≡⟨ U-cong-⊢≡ (supᵘₗ-cong k₁≡k₂ l₃≡l₄) ⟩⊢
          U (k₂ supᵘₗ l₄)  ≡˘⟨ U₂≡ ⟩⊢∎
          U l₂             ∎)
     where
@@ -259,7 +259,7 @@ mutual
       conv (ΠΣ-cong ⊢l₃ A₁≡B₁ A₂≡B₂ ok) (sym U≡U₁)
     , U-injectivity
         (U l₁  ≡⟨ U≡U₁ ⟩⊢
-         U l₃  ≡⟨ U-cong-⊢≡ (wfTerm ⊢A₁) l₃≡l₄ ⟩⊢
+         U l₃  ≡⟨ U-cong-⊢≡ l₃≡l₄ ⟩⊢
          U l₄  ≡˘⟨ U≡U₂ ⟩⊢∎
          U l₂  ∎)
     where
@@ -303,7 +303,7 @@ mutual
         (sym U≡U₁)
     , U-injectivity
         (U l₁  ≡⟨ U≡U₁ ⟩⊢
-         U l₃  ≡⟨ U-cong-⊢≡ (wfTerm ⊢A) l₃≡l₄ ⟩⊢
+         U l₃  ≡⟨ U-cong-⊢≡ l₃≡l₄ ⟩⊢
          U l₄  ≡˘⟨ U≡U₂ ⟩⊢∎
          U l₂  ∎)
     where
@@ -328,7 +328,7 @@ mutual
       (A          ⇒*⟨ A⇒*A″ ⟩⊢
        A″         ≡˘⟨ A′≡A″ ⟩⊢≡
        A′ ∷ U l₁  ≡⟨ A′≡B′ ⟩⊢∷
-                   ⟨ U-cong-⊢≡ (wfTerm ⊢A″) l₁≡l₂ ⟩≡
+                   ⟨ U-cong-⊢≡ l₁≡l₂ ⟩≡
        B′ ∷ U l₂  ≡⟨ B′≡B″ ⟩⊢∷≡
        B″         ⇐*⟨ B⇒*B″ ⟩⊢∎
        B          ∎)

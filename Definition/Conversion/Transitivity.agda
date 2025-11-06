@@ -174,7 +174,7 @@ mutual
         Erased-ok   = []-cong→Erased ok
     in
     []-cong-cong (transConvLevel l₁≡l₂ l₂≡l₃)
-      (transConv↑Term (U-cong-⊢≡ (wfTerm ⊢A₁) ⊢l₁≡l₂) A₁≡A₂ A₂≡A₃)
+      (transConv↑Term (U-cong-⊢≡ ⊢l₁≡l₂) A₁≡A₂ A₂≡A₃)
       (transConv↑Term (univ ⊢A₁≡A₂) t₁≡t₂ t₂≡t₃)
       (transConv↑Term (univ ⊢A₁≡A₂) u₁≡u₂ u₂≡u₃)
       (trans~↓ v₁~v₂ v₂~v₃ .proj₁) B₁≡Id-t₁-u₁ ok ,
@@ -238,10 +238,10 @@ mutual
       (inj₂ (¬-B-ne , _)) →
         let _ , _ , B-ne = ne~↓ A~B in
         ⊥-elim (¬-B-ne B-ne)
-  transConv↓ U≡U@(U-cong ⊢Γ l₁≡l₂) U≡C =
+  transConv↓ U≡U@(U-cong l₁≡l₂) U≡C =
     case inv-[conv↓]-U′ U≡C of λ where
       (inj₁ (_ , _ , PE.refl , PE.refl , l₂≡l₃)) →
-        U-cong ⊢Γ (transConvLevel l₁≡l₂ l₂≡l₃)
+        U-cong (transConvLevel l₁≡l₂ l₂≡l₃)
       (inj₂ (U≢U , _)) →
         ⊥-elim (U≢U (_ , PE.refl))
   transConv↓ (Lift-cong l₁≡l₂ F≡G) Lift≡C =
@@ -430,12 +430,12 @@ mutual
     Γ ⊢ l₁ [conv↑] l₃ ∷Level
   transConvLevel (term ok l₁≡l₂) (term _ l₂≡l₃) =
     term ok (transConvTerm l₁≡l₂ l₂≡l₃)
-  transConvLevel (term ok _) (literal not-ok _ _) =
+  transConvLevel (term ok _) (literal not-ok _ _ _) =
     ⊥-elim (not-ok ok)
-  transConvLevel (literal not-ok _ _) (term ok _) =
+  transConvLevel (literal not-ok _ _ _) (term ok _) =
     ⊥-elim (not-ok ok)
-  transConvLevel (literal! not-ok l-lit) (literal! _ _) =
-    literal! not-ok l-lit
+  transConvLevel (literal! not-ok ⊢Γ l-lit) (literal! _ _ _) =
+    literal! not-ok ⊢Γ l-lit
 
   -- Transitivity of algorithmic equality of levels.
 

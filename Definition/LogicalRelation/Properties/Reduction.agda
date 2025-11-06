@@ -99,7 +99,7 @@ opaque
   redSubst*Term t⇒u (Levelᵣ A⇒*Level) (term u⇒*v u⇒*v′ v≡v′) =
     let t⇒u′ = conv* t⇒u (subset* A⇒*Level) in
     term (t⇒u′ ⇨∷* u⇒*v) u⇒*v′ v≡v′
-  redSubst*Term _ (Levelᵣ A⇒*Level) (literal not-ok _ _) =
+  redSubst*Term _ (Levelᵣ A⇒*Level) (literal not-ok _ _ _) =
     ⊥-elim $ not-ok $
     inversion-Level-⊢ (wf-⊢≡ (subset* A⇒*Level) .proj₂)
   redSubst*Term t⇒u (Liftᵣ′ D [k] [F]) (Liftₜ₌ u′ _ u↘@(u⇒* , w) u↘′ u≡u) =
@@ -240,7 +240,7 @@ opaque
            (conv* t⇒*u (subset* A⇒*Level)) of λ
       u⇒*v′ →
     term t⇒*v u⇒*v′ v≡v′
-  redSubst*Term′ _ (Levelᵣ A⇒*Level) (literal not-ok _ _) =
+  redSubst*Term′ _ (Levelᵣ A⇒*Level) (literal not-ok _ _ _) =
     ⊥-elim $ not-ok $
     inversion-Level-⊢ (wf-⊢≡ (subset* A⇒*Level) .proj₂)
   redSubst*Term′ t⇒*u (Liftᵣ′ D _ _) (Liftₜ₌ t′ _ t↘@(t⇒* , w) t↘′ t≡t) =

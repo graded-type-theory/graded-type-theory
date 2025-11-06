@@ -98,7 +98,7 @@ opaque
     ⊢Lift-Unit : ε ⊢ Lift zeroᵘ (Unit s) ∷ U zeroᵘ
     ⊢Lift-Unit =
       conv (Liftⱼ′ (⊢zeroᵘ ε) (Unitⱼ ε Unit-ok))
-        (U-cong-⊢≡ ε (supᵘₗ-zeroˡ (⊢zeroᵘ ε)))
+        (U-cong-⊢≡ (supᵘₗ-zeroˡ (⊢zeroᵘ ε)))
 
     ⊢[t′] : Γ′ ⊢ [ t′ ] ∷ A′
     ⊢[t′] = prodⱼ

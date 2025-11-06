@@ -180,7 +180,7 @@ module Fundamental
       sucᵘʳ (inversion-Level-⊢ (wf-⊢∷ ⊢l))
     fundamental (supᵘⱼ ⊢l _) _ =
       supᵘʳ (inversion-Level-⊢ (wf-⊢∷ ⊢l))
-    fundamental (Uⱼ _ ⊢t) _ =
+    fundamental (Uⱼ ⊢t) _ =
       Uʳ ⊢t
     fundamental (Liftⱼ ⊢l₁ ⊢l₂ _) _ =
       Liftʳ (⊢supᵘₗ ⊢l₁ ⊢l₂)
@@ -291,7 +291,7 @@ module Fundamental
            (inj₁ nem) → inj₂ (nem non-trivial .proj₂ .proj₁ ok p≡𝟘)
            (inj₂ k≡0) → inj₁ k≡0)
     fundamental (Idⱼ ⊢A _ _) _ =
-      Idʳ (inversion-U-Level (wf-⊢∷ ⊢A) .proj₂)
+      Idʳ (inversion-U-Level (wf-⊢∷ ⊢A))
     fundamental (rflⱼ ⊢t) _ =
       rflʳ ⊢t
     fundamental {γ} {m = 𝟙ᵐ} (Jⱼ _ ⊢B ⊢u _ ⊢w) ▸J =

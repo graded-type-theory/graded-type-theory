@@ -32,4 +32,4 @@ opaque
   ⊢U′ : Γ ⊢ l ∷ Level → Γ ⊢ U l
   ⊢U′ ⊢l =
     let ok = inversion-Level-⊢ (wf-⊢∷ ⊢l) in
-    ⊢U (wfTerm ⊢l) (term ok ⊢l)
+    ⊢U (term ok ⊢l)

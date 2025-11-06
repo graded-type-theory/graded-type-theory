@@ -132,10 +132,10 @@ data _⊩ᵛ⟨_⟩_≡_∷Level
   term :
     Level-allowed → Γ ⊩ᵛ⟨ l ⟩ t ≡ u ∷ Level → Γ ⊩ᵛ⟨ l ⟩ t ≡ u ∷Level
   literal :
-    ¬ Level-allowed → Level-literal t → t PE.≡ u →
+    ¬ Level-allowed → ⊩ᵛ Γ → Level-literal t → t PE.≡ u →
     Γ ⊩ᵛ⟨ l ⟩ t ≡ u ∷Level
 
-pattern literal! not-ok t-lit = literal not-ok t-lit PE.refl
+pattern literal! not-ok t-lit ⊩Γ = literal not-ok t-lit ⊩Γ PE.refl
 
 opaque
 
@@ -411,8 +411,8 @@ opaque
     Γ ⊩ᵛ⟨ l ⟩ t ≡ u ∷Level ⇔ Γ ⊩ᵛ⟨ l ⟩ t ≡ u ∷ Level
   ⊩ᵛ≡∷L⇔ ok =
     (λ where
-       (term _ t≡u)         → t≡u
-       (literal not-ok _ _) → ⊥-elim (not-ok ok)) ,
+       (term _ t≡u)           → t≡u
+       (literal not-ok _ _ _) → ⊥-elim (not-ok ok)) ,
     term ok
 
 opaque
@@ -451,9 +451,9 @@ opaque
   -- An introduction lemma for _⊩ᵛ⟨_⟩_∷Level.
 
   literal-⊩ᵛ∷L :
-    ¬ Level-allowed → Level-literal t → Γ ⊩ᵛ⟨ l ⟩ t ∷Level
-  literal-⊩ᵛ∷L not-ok t-lit =
-    ⊩ᵛ∷L⇔⊩ᵛ≡∷L .proj₂ (literal! not-ok t-lit)
+    ¬ Level-allowed → ⊩ᵛ Γ → Level-literal t → Γ ⊩ᵛ⟨ l ⟩ t ∷Level
+  literal-⊩ᵛ∷L not-ok ⊩Γ t-lit =
+    ⊩ᵛ∷L⇔⊩ᵛ≡∷L .proj₂ (literal! not-ok ⊩Γ t-lit)
 
 ------------------------------------------------------------------------
 -- Reflexivity
@@ -786,8 +786,17 @@ opaque
   wf-⊩ᵛ≡∷L (term ok t≡u) =
     let ⊩t , ⊩u = wf-⊩ᵛ≡∷ t≡u in
     term-⊩ᵛ∷L ok ⊩t , term-⊩ᵛ∷L ok ⊩u
-  wf-⊩ᵛ≡∷L (literal! not-ok t-lit) =
-    literal-⊩ᵛ∷L not-ok t-lit , literal-⊩ᵛ∷L not-ok t-lit
+  wf-⊩ᵛ≡∷L (literal! not-ok ⊩Γ t-lit) =
+    literal-⊩ᵛ∷L not-ok ⊩Γ t-lit , literal-⊩ᵛ∷L not-ok ⊩Γ t-lit
+
+opaque
+
+  -- A well-formedness lemma for _⊩ᵛ⟨_⟩_∷Level.
+
+  wf-⊩ᵛ∷L : Γ ⊩ᵛ⟨ l ⟩ t ∷Level → ⊩ᵛ Γ
+  wf-⊩ᵛ∷L ⊩t = case ⊩ᵛ∷L⇔⊩ᵛ≡∷L .proj₁ ⊩t of λ where
+    (term _ t≡u)       → wf-⊩ᵛ (wf-⊩ᵛ∷ (wf-⊩ᵛ≡∷ t≡u .proj₁))
+    (literal _ ⊩Γ _ _) → ⊩Γ
 
 ------------------------------------------------------------------------
 -- More characterisation lemmas
@@ -1616,8 +1625,8 @@ opaque
     Γ ⊩ᵛ⟨ l ⟩ t ≡ u ∷Level → Γ ⊢ t ≅ u ∷Level
   escape-⊩ᵛ≡∷L (term _ t≡u) =
     ⊢≅∷→⊢≅∷L (escape-⊩ᵛ≡∷ t≡u)
-  escape-⊩ᵛ≡∷L (literal! not-ok t-lit) =
-    Level-literal→⊢≅∷L not-ok t-lit
+  escape-⊩ᵛ≡∷L (literal! not-ok ⊩Γ t-lit) =
+    Level-literal→⊢≅∷L not-ok (escape-⊩ᵛ′ ⊩Γ) t-lit
 
 opaque
 
@@ -1639,7 +1648,7 @@ opaque
     Level-literal t × Level-literal u
   escape-⊩ᵛ≡∷L′ not-ok (term ok _) =
     ⊥-elim (not-ok ok)
-  escape-⊩ᵛ≡∷L′ _ (literal! _ t-lit) =
+  escape-⊩ᵛ≡∷L′ _ (literal! _ _ t-lit) =
     t-lit , t-lit
 
 opaque

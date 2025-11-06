@@ -92,11 +92,10 @@ mutual
     ne-ins (stabilityTerm Γ≡Δ (conv t A≡B)) (stabilityTerm Γ≡Δ (conv u A≡B))
            (ne≡A x A≡B whnfB) (stability~↓ Γ≡Δ x₁)
   convConv↓Term′ Γ≡Δ A≡B whnfB (univ x x₁ x₂) =
-    let ⊢Γ , _ = contextConvSubst Γ≡Δ in
     case U≡A A≡B whnfB of λ {
       (_ , PE.refl) →
     let l≡k = U-injectivity A≡B
-        Ul≡Uk = U-cong-⊢≡ ⊢Γ l≡k
+        Ul≡Uk = U-cong-⊢≡ l≡k
     in univ (stabilityTerm Γ≡Δ (conv x Ul≡Uk)) (stabilityTerm Γ≡Δ (conv x₁ Ul≡Uk)) (stabilityConv↓ Γ≡Δ x₂) }
   convConv↓Term′ Γ≡Δ A≡B whnfB (Lift-η ⊢t ⊢u wt wu lower≡lower) =
     case Lift≡A A≡B whnfB of λ {
