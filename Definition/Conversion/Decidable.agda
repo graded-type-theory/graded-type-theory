@@ -124,14 +124,14 @@ private opaque
   -- A lemma used below.
 
   ≡starʷ→~↓Unitʷ→Unitʷ-η :
-    Γ ⊢ t ~ u ∷ Unitʷ →
+    Γ ⊢ t ~ u ↓ Unitʷ →
     Γ ⊢ t [conv↓] starʷ ∷ Unitʷ →
     Unitʷ-η
-  ≡starʷ→~↓Unitʷ→Unitʷ-η (↑ _ t~u) t≡star =
+  ≡starʷ→~↓Unitʷ→Unitʷ-η ([~] _ _ t~u) t≡star =
     case inv-[conv↓]∷-Unitʷ t≡star of λ where
-      (inj₂ (η , _))                             → η
-      (inj₁ (no-η , inj₁ (↑ _ ~star)))   → ⊥-elim (inv-~star ~star)
-      (inj₁ (no-η , inj₂ (PE.refl , PE.refl))) → ⊥-elim (inv-star~ t~u)
+      (inj₂ (η , _))                       → η
+      (inj₁ (no-η , inj₁ ([~] _ _ ~star))) → ⊥-elim (inv-~star ~star)
+      (inj₁ (no-η , inj₂ (PE.refl , _)))   → ⊥-elim (inv-star~ t~u)
 
 private opaque
 
@@ -357,9 +357,7 @@ private opaque
   dec~↑-unitrec-cong :
     ¬ Unitʷ-η →
     Γ ⊢ t₁ ∷ Unitʷ →
-    Dec
-      (p₁ PE.≡ p₂ × q₁ PE.≡ q₂ ×
-       Γ ⊢ t₁ ~ t₂ ∷ Unitʷ) →
+    Dec (p₁ PE.≡ p₂ × q₁ PE.≡ q₂ × ∃ λ B → Γ ⊢ t₁ ~ t₂ ↓ B) →
     Dec (Γ ∙ Unitʷ ⊢ A₁ [conv↑] A₂) →
     (Γ ⊢ A₁ [ starʷ ]₀ ≡ A₂ [ starʷ ]₀ →
      Dec (Γ ⊢ u₁ [conv↑] u₂ ∷ A₁ [ starʷ ]₀)) →
@@ -367,7 +365,7 @@ private opaque
       (∃ λ B →
        Γ ⊢ unitrec p₁ q₁ A₁ t₁ u₁ ~ unitrec p₂ q₂ A₂ t₂ u₂ ↑ B)
   dec~↑-unitrec-cong
-    no-η ⊢t₁ (yes (PE.refl , PE.refl , t₁~t₂)) dec₁ dec₂ =
+    no-η ⊢t₁ (yes (PE.refl , PE.refl , _ , t₁~t₂)) dec₁ dec₂ =
     let ok = inversion-Unit (syntacticTerm ⊢t₁)
         ⊢Γ = wfTerm ⊢t₁
     in case
@@ -375,7 +373,11 @@ private opaque
        dec₂ (substTypeEq (soundnessConv↑ A₁≡A₂) (refl (starⱼ ⊢Γ ok))))
       of λ where
       (yes (A₁≡A₂ , u₁≡u₂)) →
-        yes $ _ , unitrec-cong A₁≡A₂ t₁~t₂ u₁≡u₂ no-η
+        let B≡Unit = uncurry Unit≡A (~↓→∷→Whnf×≡ t₁~t₂ ⊢t₁) in
+        yes $
+        _ ,
+        unitrec-cong A₁≡A₂ (PE.subst (_⊢_~_↓_ _ _ _) B≡Unit t₁~t₂) u₁≡u₂
+          no-η
       (no not-both-equal) →
         no λ (_ , ur~ur) →
         case inv-unitrec~ ur~ur of λ
@@ -389,7 +391,7 @@ private opaque
       (_ , _ , _ , _ , ur≡ur , _ , t₁~ , _) →
     case unitrec-PE-injectivity (PE.sym ur≡ur) of λ {
       (p₁≡p₂ , q₁≡q₂ , PE.refl , PE.refl , _) →
-    not-all-equal ( p₁≡p₂ , q₁≡q₂ , t₁~) }
+    not-all-equal (p₁≡p₂ , q₁≡q₂ , _ , t₁~) }
 
 private opaque
 
@@ -765,8 +767,8 @@ mutual
       (inj₁
          (_ , _ , _ , _ , _ , _ , _ , _ , _ ,
           PE.refl , _ , C≡ , u₁~ , u₂≡ , _)) →
-        dec~↑-unitrec-cong no-η (~∷→∷ t₁~)
-          (_ ≟ _ ×-dec _ ≟ _ ×-dec dec~∷ t₁~ u₁~)
+        dec~↑-unitrec-cong no-η (~↓→∷ t₁~)
+          (_ ≟ _ ×-dec _ ≟ _ ×-dec dec~↓ t₁~ u₁~)
           (decConv↑ B≡ C≡)
           (λ eq → decConv↑TermConv eq t₂≡ u₂≡)
       (inj₂ (u≢ur , _)) →
@@ -1097,18 +1099,21 @@ mutual
       (no ¬t~u) → no (¬t~u ∘→ (_ ,_) ∘→ inv-[conv↓]∷-Empty)
   decConv↓Term (Unitʷ-ins no-η t~) u≡ =
     case inv-[conv↓]∷-Unitʷ u≡ of λ where
-      (inj₁ (_ , inj₁ u~)) → case dec~∷ t~ u~ of λ where
-        (yes t~u) → yes $ Unitʷ-ins no-η t~u
+      (inj₁ (_ , inj₁ u~)) → case dec~↓ t~ u~ of λ where
+        (yes (_ , t~u)) →
+          yes $ Unitʷ-ins no-η $
+          PE.subst (_⊢_~_↓_ _ _ _)
+            (uncurry Unit≡A (~↓→∷→Whnf×≡ t~u (~↓→∷ t~))) t~u
         (no ¬t~u) →
           no λ t≡u →
           case inv-[conv↓]∷-Unitʷ t≡u of λ where
-            (inj₁ (_ , inj₁ t~u))           → ¬t~u t~u
-            (inj₁ (_ , inj₂ (PE.refl , PE.refl))) →
-              let ↑ _ t~ = t~ in
+            (inj₁ (_ , inj₁ t~u))           → ¬t~u (_ , t~u)
+            (inj₁ (_ , inj₂ (PE.refl , _))) →
+              let [~] _ _ t~ = t~ in
               inv-star~ t~
             (inj₂ (η , _)) → no-η η
-      (inj₁ (_ , inj₂ (PE.refl , PE.refl))) →
-        no λ t≡ → no-η (≡starʷ→~↓Unitʷ→Unitʷ-η t~ t≡)
+      (inj₁ (_ , inj₂ (PE.refl , _))) →
+        no (no-η ∘→ ≡starʷ→~↓Unitʷ→Unitʷ-η t~)
       (inj₂ (η , _)) → ⊥-elim (no-η η)
   decConv↓Term (η-unit ⊢t _ t-whnf _ ok η) u≡ =
     case inv-[conv↓]∷-Unit u≡ of λ where

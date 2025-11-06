@@ -66,7 +66,7 @@ var-only-equal-to-itself =
                                                     A≢Level PE.refl
     _             _ _ (Σʷ-ins _ _ x≡t)            → ~↓-lemma x≡t
     _             _ _ (Empty-ins x≡t)             → ~↓-lemma x≡t
-    _             _ _ (Unitʷ-ins _ x≡t)           → ~∷-lemma x≡t
+    _             _ _ (Unitʷ-ins _ x≡t)           → ~↓-lemma x≡t
     _             _ _ (ℕ-ins x≡t)                 → ~↓-lemma x≡t
     _             _ _ (Id-ins _ x≡t)              → ~↓-lemma x≡t
     _             _ _ (ne-ins _ _ _ x≡t)          → ~↓-lemma x≡t

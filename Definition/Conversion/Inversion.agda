@@ -503,7 +503,7 @@ opaque
      t PE.≡ unitrec p q B t₁ t₂ ×
      u PE.≡ unitrec p q C u₁ u₂ ×
      (Γ ∙ Unitʷ ⊢ B [conv↑] C) ×
-     Γ ⊢ t₁ ~ u₁ ∷ Unitʷ ×
+     Γ ⊢ t₁ ~ u₁ ↓ Unitʷ ×
      Γ ⊢ t₂ [conv↑] u₂ ∷ B [ starʷ ]₀ ×
      ¬ Unitʷ-η) ⊎
     ¬ (∃₅ λ p q B t₁ t₂ → t PE.≡ unitrec p q B t₁ t₂) ×
@@ -535,7 +535,7 @@ opaque
     A PE.≡ B [ t₁ ]₀ ×
     u PE.≡ unitrec p q C u₁ u₂ ×
     (Γ ∙ Unitʷ ⊢ B [conv↑] C) ×
-    Γ ⊢ t₁ ~ u₁ ∷ Unitʷ ×
+    Γ ⊢ t₁ ~ u₁ ↓ Unitʷ ×
     Γ ⊢ t₂ [conv↑] u₂ ∷ B [ starʷ ]₀ ×
     ¬ Unitʷ-η
   inv-unitrec~ (unitrec-cong B≡C t₁~u₁ t₂≡u₂ no-η) =
@@ -551,7 +551,7 @@ opaque
     A PE.≡ B [ t₁ ]₀ ×
     t PE.≡ unitrec p q B t₁ t₂ ×
     (Γ ∙ Unitʷ ⊢ B [conv↑] C) ×
-    Γ ⊢ t₁ ~ u₁ ∷ Unitʷ ×
+    Γ ⊢ t₁ ~ u₁ ↓ Unitʷ ×
     Γ ⊢ t₂ [conv↑] u₂ ∷ B [ starʷ ]₀ ×
     ¬ Unitʷ-η
   inv-~unitrec (unitrec-cong B≡C t₁~u₁ t₂≡u₂ no-η) =
@@ -1390,7 +1390,7 @@ opaque
   inv-[conv↓]∷-Unitʷ :
     Γ ⊢ t [conv↓] u ∷ Unitʷ →
     ¬ Unitʷ-η ×
-    (Γ ⊢ t ~ u ∷ Unitʷ ⊎
+    (Γ ⊢ t ~ u ↓ Unitʷ ⊎
      t PE.≡ starʷ × u PE.≡ starʷ) ⊎
     Unitʷ-η × Whnf t × Whnf u
   inv-[conv↓]∷-Unitʷ (Unitʷ-ins no-η t~u) =
@@ -1410,7 +1410,7 @@ opaque
     Γ ⊢ t [conv↓] u ∷ Unit s →
     Unit-with-η s × Whnf t × Whnf u ⊎
     ¬ Unit-with-η s ×
-    (Γ ⊢ t ~ u ∷ Unit s ⊎
+    (Γ ⊢ t ~ u ↓ Unit s ⊎
      t PE.≡ star s × u PE.≡ star s)
   inv-[conv↓]∷-Unit {s = 𝕤} t≡u =
     inj₁ (inj₁ PE.refl , inv-[conv↓]∷-Unitˢ t≡u)

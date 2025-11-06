@@ -94,8 +94,8 @@ mutual
   wk~↑ [ρ] (emptyrec-cong x t~u) =
     emptyrec-cong (wkConv↑ [ρ] x) (wk~↓ [ρ] t~u)
   wk~↑ [ρ] (unitrec-cong {A₁} x x₁ x₂ no-η) =
-    let k~l = wk~∷ [ρ] x₁
-        ⊢Unit , _ = syntacticEqTerm (soundness~∷ k~l)
+    let k~l = wk~↓ [ρ] x₁
+        ⊢Unit , _ = syntacticEqTerm (soundness~↓ k~l)
         u↑v = PE.subst (_⊢_[conv↑]_∷_ _ _ _)
                        (wk-β A₁)
                        (wkConv↑Term [ρ] x₂)
@@ -211,7 +211,7 @@ mutual
   wkConv↓Term ρ (Empty-ins x) =
     Empty-ins (wk~↓ ρ x)
   wkConv↓Term ρ (Unitʷ-ins ok t~u) =
-    Unitʷ-ins ok (wk~∷ ρ t~u)
+    Unitʷ-ins ok (wk~↓ ρ t~u)
   wkConv↓Term ρ (Σʷ-ins t u x) =
     Σʷ-ins (wkTerm ρ t) (wkTerm ρ u) (wk~↓ ρ x)
   wkConv↓Term {ρ} [ρ] (ne-ins t u x x₁) =

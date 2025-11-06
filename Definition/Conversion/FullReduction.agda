@@ -156,7 +156,7 @@ mutual
     (unitrec-cong {A₁ = A} {t₁ = t} A↑ t∷ u↑ no-η) →
       case fullRedConv↑ A↑ of λ {
         (A′ , A′-nf , A≡A′) →
-      case fullRedNe~∷ t∷ of λ {
+      case fullRedNe~↓ t∷ of λ {
         (t′ , t′-ne , t≡t′) →
       case fullRedTermConv↑ u↑ of λ {
         (u′ , u′-nf , u≡u′) →
@@ -373,7 +373,7 @@ mutual
         (u , u-nf , t≡u) →
       u , neₙ Emptyₙ (neₙ u-nf) , t≡u }
     (Unitʷ-ins no-η t∷) →
-      case fullRedNe~∷ t∷ of λ
+      case fullRedNe~↓ t∷ of λ
         (u , u-nf , t≡u) →
       u , neₙ (Unitʷₙ no-η) (neₙ u-nf) , t≡u
     (Σʷ-ins ⊢t∷ΣAB _ t~) →

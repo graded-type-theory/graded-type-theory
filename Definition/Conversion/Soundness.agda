@@ -78,7 +78,7 @@ mutual
     emptyrec-cong (soundnessConv↑ x₁) (soundness~↓ k~l)
   soundness~↑ (unitrec-cong x x₁ x₂ no-η) =
     let F≡H = soundnessConv↑ x
-        k≡l = soundness~∷ x₁
+        k≡l = soundness~↓ x₁
         u≡v = soundnessConv↑Term x₂
         ok = inversion-Unit (proj₁ (syntacticEqTerm k≡l))
     in  unitrec-cong F≡H k≡l u≡v ok no-η
@@ -141,8 +141,7 @@ mutual
   soundnessConv↓Term (Level-ins x) = soundnessConv↓Level x
   soundnessConv↓Term (ℕ-ins x) = soundness~↓ x
   soundnessConv↓Term (Empty-ins x) = soundness~↓ x
-  soundnessConv↓Term (Unitʷ-ins _ (↑ y t~u)) =
-    conv (soundness~↑ t~u) (sym y)
+  soundnessConv↓Term (Unitʷ-ins _ t~u) = soundness~↓ t~u
   soundnessConv↓Term (Σʷ-ins x x₁ x₂) =
     let a≡b = soundness~↓ x₂
         _ , neA , _ = ne~↓ x₂

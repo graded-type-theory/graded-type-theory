@@ -52,7 +52,7 @@ mutual
   ne~↑ (emptyrec-cong x x₁) = let _ , q , w = ne~↓ x₁
                               in emptyrecₙ q , emptyrecₙ w
   ne~↑ (unitrec-cong _ k~l _ no-η) =
-    let kNe , lNe = ne~∷ k~l
+    let _ , kNe , lNe = ne~↓ k~l
     in  unitrecₙ no-η kNe , unitrecₙ no-η lNe
   ne~↑ (J-cong _ _ _ _ _ w₁~w₂ _) =
     Σ.map Jₙ Jₙ (ne~↓ w₁~w₂ .proj₂)
@@ -113,7 +113,7 @@ whnfConv↓Term (ℕ-ins x) = let _ , neT , neU = ne~↓ x
 whnfConv↓Term (Empty-ins x) = let _ , neT , neU = ne~↓ x
                               in Emptyₙ , ne! neT , ne! neU
 whnfConv↓Term (Unitʷ-ins _ t~u) =
-  let t-ne , u-ne = ne~∷ t~u in
+  let _ , t-ne , u-ne = ne~↓ t~u in
   Unitₙ , ne! t-ne , ne! u-ne
 whnfConv↓Term (Σʷ-ins x x₁ x₂) =
   let _ , neT , neU = ne~↓ x₂

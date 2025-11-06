@@ -93,7 +93,7 @@ mutual
                   → Γ ⊢ emptyrec p A₁ t₁ ~ emptyrec p A₂ t₂ ↑ A₁
 
     unitrec-cong : Γ ∙ Unitʷ ⊢ A₁ [conv↑] A₂
-                 → Γ ⊢ t₁ ~ t₂ ∷ Unitʷ
+                 → Γ ⊢ t₁ ~ t₂ ↓ Unitʷ
                  → Γ ⊢ u₁ [conv↑] u₂ ∷ A₁ [ starʷ ]₀
                  → ¬ Unitʷ-η
                  → Γ ⊢ unitrec p q A₁ t₁ u₁ ~ unitrec p q A₂ t₂ u₂ ↑
@@ -227,7 +227,7 @@ mutual
               → Γ ⊢ t₁ [conv↓] t₂ ∷ Empty
 
     Unitʷ-ins : ¬ Unitʷ-η
-              → Γ ⊢ t₁ ~ t₂ ∷ Unitʷ
+              → Γ ⊢ t₁ ~ t₂ ↓ Unitʷ
               → Γ ⊢ t₁ [conv↓] t₂ ∷ Unitʷ
 
     Σʷ-ins    : ∀ {A A′ B B′}

@@ -231,8 +231,8 @@ module _ (as : Full-reduction-assumptions) where
       (unitrec-cong A↑ t~ u↑ _) ▸unitrec →
         case inv-usage-unitrec ▸unitrec of λ {
           (invUsageUnitrec ▸A ▸t ▸u ok γ≤) →
-        sub (unitrecₘ (fullRedConv↑ A↑ ▸A) (fullRedNe~∷ t~ ▸t) (fullRedTermConv↑ u↑ ▸u)
-              ok)
+        sub (unitrecₘ (fullRedConv↑ A↑ ▸A) (fullRedNe~↓ t~ ▸t)
+               (fullRedTermConv↑ u↑ ▸u) ok)
             γ≤ }
       (J-cong A↑ t↑ B↑ u↑ v↑ w~ _) ▸J →
         case inv-usage-J ▸J of λ where
@@ -384,7 +384,7 @@ module _ (as : Full-reduction-assumptions) where
       (Lift-η x x₁ x₂ x₃ x₄) ▸t  → liftₘ (fullRedTermConv↑ x₄ (lowerₘ ▸t))
       (ℕ-ins t~)          ▸t     → fullRedNe~↓ t~ ▸t
       (Empty-ins t~)      ▸t     → fullRedNe~↓ t~ ▸t
-      (Unitʷ-ins _ t~)    ▸t     → fullRedNe~∷ t~ ▸t
+      (Unitʷ-ins _ t~)    ▸t     → fullRedNe~↓ t~ ▸t
       (Σʷ-ins _ _ t~)     ▸t     → fullRedNe~↓ t~ ▸t
       (ne-ins _ _ _ t~↓B) ▸t     → fullRedNe~↓ t~↓B ▸t
       (univ _ _ A↓)       ▸A     → fullRedConv↓ A↓ ▸A

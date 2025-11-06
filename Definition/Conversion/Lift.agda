@@ -123,7 +123,7 @@ mutual
     case whrDet* (A′⇒*Unit , Unitₙ) (A′⇒*A , A-whnf) of λ {
       PE.refl →
     case Unit-with-η? s of λ where
-      (inj₂ (PE.refl , no-η)) → Unitʷ-ins no-η (~↓→~∷ t~u↓)
+      (inj₂ (PE.refl , no-η)) → Unitʷ-ins no-η t~u↓
       (inj₁ η)                →
         case ne~↑ t~u↑ of λ
           (t-ne , u-ne) →

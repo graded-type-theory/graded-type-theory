@@ -122,14 +122,14 @@ mutual
     in  emptyrec-cong A<>C t~v , A≡B
   trans~↑ (unitrec-cong A<>B k~l u<>v no-η)
     (unitrec-cong B<>C l~m v<>w _) =
-    let k~m , ⊢Unit≡Unit = trans~∷ k~l l~m
+    let k~m , ⊢Unit≡Unit = trans~↓ k~l l~m
         ⊢Unit = proj₁ (syntacticEq ⊢Unit≡Unit)
         ok = inversion-Unit ⊢Unit
         ⊢Γ = wf ⊢Unit
         A<>C = transConv↑ A<>B B<>C
         A≡B = soundnessConv↑ A<>B
         A₊≡B₊ = substTypeEq A≡B (refl (starⱼ ⊢Γ ok))
-        Ak≡Bl = substTypeEq A≡B (soundness~∷ k~l)
+        Ak≡Bl = substTypeEq A≡B (soundness~↓ k~l)
         u<>w = transConv↑Term A₊≡B₊ u<>v v<>w
     in  unitrec-cong A<>C k~m u<>w no-η , Ak≡Bl
   trans~↑ (J-cong A₁≡A₂ t₁≡t₂ B₁≡B₂ u₁≡u₂ v₁≡v₂ w₁~w₂ C₁≡Id-t₁-v₁)
@@ -363,15 +363,15 @@ mutual
   transConv↓Term (Unitʷ-ins no-η t~u) u≡v =
     case inv-[conv↓]∷-Unitʷ u≡v of λ where
       (inj₁ (_ , inj₁ u~v)) →
-        Unitʷ-ins no-η (trans~∷ t~u u~v .proj₁)
+        Unitʷ-ins no-η (trans~↓ t~u u~v .proj₁)
       (inj₁ (_ , inj₂ (PE.refl , PE.refl))) →
-        ⊥-elim $ ¬-Neutral-star $ ne~∷ t~u .proj₂
+        ⊥-elim $ ¬-Neutral-star $ ne~↓ t~u .proj₂ .proj₂
       (inj₂ (η , _)) →
         ⊥-elim (no-η η)
   transConv↓Term (starʷ-refl y ok no-η) u≡v =
     case inv-[conv↓]∷-Unitʷ u≡v of λ where
       (inj₁ (_ , inj₁ u~v)) →
-        ⊥-elim $ ¬-Neutral-star $ ne~∷ u~v .proj₁
+        ⊥-elim $ ¬-Neutral-star $ ne~↓ u~v .proj₂ .proj₁
       (inj₁ (_ , inj₂ (_ , PE.refl))) →
         starʷ-refl y ok no-η
       (inj₂ (η , _)) →

@@ -140,13 +140,14 @@ mutual
     , emptyrec-cong (symConv↑ Γ≡Δ x)
                     (PE.subst (λ x₁ → _ ⊢ _ ~ _ ↓ x₁) B≡Empty u~t)
   sym~↑ Γ≡Δ (unitrec-cong F<>H k~l u<>v no-η) =
-    let k≡l = soundness~∷ k~l
+    let k≡l = soundness~↓ k~l
         ⊢Unit = proj₁ (syntacticEqTerm k≡l)
         ok = inversion-Unit ⊢Unit
         Unit≡Unit = refl ⊢Unit
         H<>F = symConv↑ (Γ≡Δ ∙ Unit≡Unit) F<>H
         ⊢Γ , ⊢Δ , _ = contextConvSubst Γ≡Δ
-        l~k = sym~∷ Γ≡Δ k~l
+        _ , B-whnf , Unit≡B , l~k = sym~↓ Γ≡Δ k~l
+        l~k = PE.subst (_⊢_~_↓_ _ _ _) (Unit≡A Unit≡B B-whnf) l~k
         v<>u = symConv↑Term Γ≡Δ u<>v
         ⊢F≡H = soundnessConv↑ F<>H
         ⊢F₊≡H₊ = substTypeEq ⊢F≡H (refl (starⱼ ⊢Γ ok))
@@ -300,7 +301,8 @@ mutual
         B≡Empty = Empty≡A A≡B whnfB
     in  Empty-ins (PE.subst (λ x → _ ⊢ _ ~ _ ↓ x) B≡Empty u~t)
   symConv↓Term Γ≡Δ (Unitʷ-ins ok t~u) =
-    Unitʷ-ins ok (sym~∷ Γ≡Δ t~u)
+    let _ , B-whnf , A≡B , u~t = sym~↓ Γ≡Δ t~u in
+    Unitʷ-ins ok (PE.subst (_⊢_~_↓_ _ _ _) (Unit≡A A≡B B-whnf) u~t)
   symConv↓Term Γ≡Δ (Σʷ-ins t u t~u) =
     case sym~↓ Γ≡Δ t~u of λ (B , whnfB , A≡B , u~t) →
     case Σ≡A A≡B whnfB of λ where

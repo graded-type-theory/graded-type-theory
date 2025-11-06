@@ -82,7 +82,7 @@ mutual
   convConv↓Term′ Γ≡Δ A≡B B-whnf (Unitʷ-ins ok t~u)
     = case Unit≡A A≡B B-whnf of λ {
         PE.refl →
-      Unitʷ-ins ok (stability~∷ Γ≡Δ t~u) }
+      Unitʷ-ins ok (stability~↓ Γ≡Δ t~u) }
   convConv↓Term′ Γ≡Δ  A≡B whnfB (Σʷ-ins x x₁ x₂) with Σ≡A A≡B whnfB
   ... | _ , _ , PE.refl =
     Σʷ-ins (stabilityTerm Γ≡Δ (conv x A≡B))

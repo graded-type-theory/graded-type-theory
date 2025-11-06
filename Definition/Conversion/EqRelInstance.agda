@@ -222,11 +222,13 @@ module Lemmas where
             → ¬ Unitʷ-η
             → Γ ⊢ unitrec p q A t u ~ unitrec p q A′ t′ u′ ∷
                 A [ t ]₀
-  ~-unitrec A<>A′ t~t′ u<>u′ ok no-η =
+  ~-unitrec A<>A′ (↑ Unit≡B t~t′) u<>u′ ok no-η =
     let ⊢A , _ = syntacticEq (soundnessConv↑ A<>A′)
-        _ , ⊢t , _ = syntacticEqTerm (soundness~∷ t~t′)
-    in ↑ (refl (substType ⊢A ⊢t))
-         (unitrec-cong A<>A′ t~t′ u<>u′ no-η)
+        _ , ⊢t , _ = syntacticEqTerm (soundness~↑ t~t′)
+    in
+    ↑ (refl (substType ⊢A (conv ⊢t (sym Unit≡B))))
+      (unitrec-cong A<>A′ ([~] _ (Unit-norm (sym Unit≡B)) t~t′) u<>u′
+         no-η)
 
   opaque
 
