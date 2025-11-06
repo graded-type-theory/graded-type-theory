@@ -1368,6 +1368,76 @@ opaque
 -- Normal forms (η-long) are unique (if Level and equality reflection
 -- are not allowed)
 
+opaque
+
+  -- If Level is allowed, then normal terms are not necessarily
+  -- unique.
+
+  normal-terms-not-unique :
+    Level-allowed →
+    let Γ = ε ∙ Level
+        A = Level
+        t = var x0
+        u = var x0 supᵘ var x0
+    in
+    Γ ⊢nf t ∷ A × Γ ⊢nf u ∷ A × Γ ⊢ t ≡ u ∷ A × t PE.≢ u
+  normal-terms-not-unique ok =
+    let ⊢L  = Levelⱼ′ ok ε
+        ⊢0  = neₙ (varₙ (∙ ⊢L) here)
+        ⊢0′ = neₙ Levelₙ ⊢0
+    in
+    ⊢0′ ,
+    neₙ Levelₙ (supᵘˡₙ ⊢0 ⊢0′) ,
+    sym′ (supᵘ-idem (var₀ ⊢L)) ,
+    λ ()
+
+opaque
+
+  -- If Level is allowed, then normal terms are not necessarily
+  -- unique.
+
+  normal-terms-not-unique′ :
+    Level-allowed →
+    ¬ (∀ {n} {Γ : Con Term n} {t u A} →
+       Γ ⊢nf t ∷ A → Γ ⊢nf u ∷ A → Γ ⊢ t ≡ u ∷ A → t PE.≡ u)
+  normal-terms-not-unique′ ok hyp =
+    let ⊢t , ⊢u , t≡u , t≢u = normal-terms-not-unique ok in
+    t≢u (hyp ⊢t ⊢u t≡u)
+
+opaque
+
+  -- If Level is allowed, then normal types are not necessarily
+  -- unique.
+
+  normal-types-not-unique :
+    Level-allowed →
+    let Γ = ε ∙ Level
+        A = U (var x0)
+        B = U (var x0 supᵘ var x0)
+    in
+    Γ ⊢nf A × Γ ⊢nf B × Γ ⊢ A ≡ B × A PE.≢ B
+  normal-types-not-unique ok =
+    let ⊢0 , ⊢0⊔0 , 0≡0⊔0 , _ = normal-terms-not-unique ok
+        ⊢∙L                   = ∙ Levelⱼ′ ok ε
+    in
+    univₙ (Uₙ ⊢∙L (term ok ⊢0)) ,
+    univₙ (Uₙ ⊢∙L (term ok ⊢0⊔0)) ,
+    U-cong 0≡0⊔0 ,
+    λ ()
+
+opaque
+
+  -- If Level is allowed, then normal types are not necessarily
+  -- unique.
+
+  normal-types-not-unique′ :
+    Level-allowed →
+    ¬ (∀ {n} {Γ : Con Term n} {A B} →
+       Γ ⊢nf A → Γ ⊢nf B → Γ ⊢ A ≡ B → A PE.≡ B)
+  normal-types-not-unique′ ok hyp =
+    let ⊢A , ⊢B , A≡B , A≢B = normal-types-not-unique ok in
+    A≢B (hyp ⊢A ⊢B A≡B)
+
 -- Lemmas used to prove that η-long normal forms are unique.
 
 private module _ (Level-not-allowed : ¬ Level-allowed) where
