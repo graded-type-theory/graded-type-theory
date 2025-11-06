@@ -22,7 +22,7 @@ open import Definition.Typed.Properties.Admissible.Nat R
 open import Definition.Typed.Properties.Admissible.U.Primitive R
 open import Definition.Typed.Properties.Admissible.Var R
 open import Definition.Typed.Properties.Well-formed R
-open import Definition.Typed.Reasoning.Type R
+open import Definition.Typed.Reasoning.Term R
 open import Definition.Typed.Syntactic R
 
 open import Definition.Untyped M
@@ -96,64 +96,78 @@ opaque
 
   -- An equality rule for OK.
 
-  OK-0≡ :
+  OK-0≡∷U :
     ⊢ Γ →
-    Γ ⊢ OK zero ≡ Unitʷ
-  OK-0≡ ⊢Γ =
+    Γ ⊢ OK zero ≡ Unitʷ ∷ U zeroᵘ
+  OK-0≡∷U ⊢Γ =
     OK zero                                              ≡⟨⟩⊢
 
     natcase OKᵍ 𝟘 (U zeroᵘ) Unitʷ
-      (natcase 𝟘 𝟘 (U zeroᵘ) Unitʷ Empty (var x0)) zero  ≡⟨ univ $
-                                                            natcase-zero-≡ (⊢U₀ (⊢Γ ∙[ ⊢ℕ ])) (Unitⱼ ⊢Γ Unitʷ-ok) $
+      (natcase 𝟘 𝟘 (U zeroᵘ) Unitʷ Empty (var x0)) zero  ≡⟨ natcase-zero-≡ (⊢U₀ (⊢Γ ∙[ ⊢ℕ ])) (Unitⱼ ⊢Γ Unitʷ-ok) $
                                                             ⊢natcase (⊢U₀ (⊢Γ ∙[ ⊢ℕ ] ∙[ ⊢ℕ ])) (Unitⱼ (⊢Γ ∙[ ⊢ℕ ]) Unitʷ-ok)
                                                               (Emptyⱼ (⊢Γ ∙[ ⊢ℕ ] ∙[ ⊢ℕ ])) (var₀ (⊢ℕ ⊢Γ)) ⟩⊢∎
     Unitʷ                                                ∎
 
 opaque
+
+  -- An equality rule for OK.
+
+  OK-0≡ :
+    ⊢ Γ →
+    Γ ⊢ OK zero ≡ Unitʷ
+  OK-0≡ ⊢Γ = univ (OK-0≡∷U ⊢Γ)
+
+opaque
   unfolding OK
+
+  -- An equality rule for OK.
+
+  OK-1≡∷U :
+    ⊢ Γ →
+    Γ ⊢ OK (suc zero) ≡ Unitʷ ∷ U zeroᵘ
+  OK-1≡∷U ⊢Γ =
+    OK (suc zero)                                              ≡⟨⟩⊢
+
+    natcase OKᵍ 𝟘 (U zeroᵘ) Unitʷ
+      (natcase 𝟘 𝟘 (U zeroᵘ) Unitʷ Empty (var x0)) (suc zero)  ≡⟨ PE.subst (flip (_⊢_≡_∷_ _ _) _) natcase-[] $
+                                                                  natcase-suc-≡ (⊢U₀ (⊢Γ ∙[ ⊢ℕ ])) (Unitⱼ ⊢Γ Unitʷ-ok)
+                                                                    (⊢natcase (⊢U₀ (⊢Γ ∙[ ⊢ℕ ] ∙[ ⊢ℕ ])) (Unitⱼ (⊢Γ ∙[ ⊢ℕ ]) Unitʷ-ok)
+                                                                        (Emptyⱼ (⊢Γ ∙[ ⊢ℕ ] ∙[ ⊢ℕ ])) (var₀ (⊢ℕ ⊢Γ)))
+                                                                    (zeroⱼ ⊢Γ) ⟩⊢
+
+    natcase 𝟘 𝟘 (U zeroᵘ) Unitʷ Empty zero                     ≡⟨ natcase-zero-≡ (⊢U₀ (⊢Γ ∙[ ⊢ℕ ])) (Unitⱼ ⊢Γ Unitʷ-ok) (Emptyⱼ (⊢Γ ∙[ ⊢ℕ ])) ⟩⊢∎
+
+    Unitʷ                                                      ∎
+
+opaque
 
   -- An equality rule for OK.
 
   OK-1≡ :
     ⊢ Γ →
     Γ ⊢ OK (suc zero) ≡ Unitʷ
-  OK-1≡ ⊢Γ =
-    OK (suc zero)                                              ≡⟨⟩⊢
-
-    natcase OKᵍ 𝟘 (U zeroᵘ) Unitʷ
-      (natcase 𝟘 𝟘 (U zeroᵘ) Unitʷ Empty (var x0)) (suc zero)  ≡⟨ PE.subst (_⊢_≡_ _ _) natcase-[] $
-                                                                  _⊢_≡_.univ $
-                                                                  natcase-suc-≡ (⊢U₀ (⊢Γ ∙[ ⊢ℕ ])) (Unitⱼ ⊢Γ Unitʷ-ok)
-                                                                    (⊢natcase (⊢U₀ (⊢Γ ∙[ ⊢ℕ ] ∙[ ⊢ℕ ])) (Unitⱼ (⊢Γ ∙[ ⊢ℕ ]) Unitʷ-ok)
-                                                                        (Emptyⱼ (⊢Γ ∙[ ⊢ℕ ] ∙[ ⊢ℕ ])) (var₀ (⊢ℕ ⊢Γ)))
-                                                                    (zeroⱼ ⊢Γ) ⟩⊢
-
-    natcase 𝟘 𝟘 (U zeroᵘ) Unitʷ Empty zero
-                                                               ≡⟨ univ $
-                                                                  natcase-zero-≡ (⊢U₀ (⊢Γ ∙[ ⊢ℕ ])) (Unitⱼ ⊢Γ Unitʷ-ok) (Emptyⱼ (⊢Γ ∙[ ⊢ℕ ])) ⟩⊢∎
-    Unitʷ                                                      ∎
+  OK-1≡ ⊢Γ = univ (OK-1≡∷U ⊢Γ)
 
 opaque
   unfolding OK
 
   -- An equality rule for OK.
 
-  OK-2+≡ :
+  OK-2+≡∷U :
     Γ ⊢ t ∷ ℕ →
-    Γ ⊢ OK (suc (suc t)) ≡ Empty
-  OK-2+≡ {Γ} {t} ⊢t =
+    Γ ⊢ OK (suc (suc t)) ≡ Empty ∷ U zeroᵘ
+  OK-2+≡∷U {Γ} {t} ⊢t =
     OK (suc (suc t))                                              ≡⟨⟩⊢
 
     natcase OKᵍ 𝟘 (U zeroᵘ) Unitʷ
-      (natcase 𝟘 𝟘 (U zeroᵘ) Unitʷ Empty (var x0)) (suc (suc t))  ≡⟨ PE.subst (_⊢_≡_ _ _) natcase-[] $
-                                                                     _⊢_≡_.univ $
+      (natcase 𝟘 𝟘 (U zeroᵘ) Unitʷ Empty (var x0)) (suc (suc t))  ≡⟨ PE.subst (flip (_⊢_≡_∷_ _ _) _) natcase-[] $
                                                                      natcase-suc-≡ (⊢U₀ (∙ ⊢ℕ₁)) (Unitⱼ ⊢Γ Unitʷ-ok)
                                                                        (⊢natcase (⊢U₀ (∙ ⊢ℕ₂)) (Unitⱼ (∙ ⊢ℕ₁) Unitʷ-ok)
                                                                          (Emptyⱼ (∙ ⊢ℕ₂)) (var₀ ⊢ℕ₁))
                                                                        (sucⱼ ⊢t) ⟩⊢
 
-    natcase 𝟘 𝟘 (U zeroᵘ) Unitʷ Empty (suc t)                     ≡⟨ univ $
-                                                                     natcase-suc-≡ (⊢U₀ (∙ ⊢ℕ₁)) (Unitⱼ ⊢Γ Unitʷ-ok) (Emptyⱼ (∙ ⊢ℕ₁)) ⊢t ⟩⊢∎
+    natcase 𝟘 𝟘 (U zeroᵘ) Unitʷ Empty (suc t)                     ≡⟨ natcase-suc-≡ (⊢U₀ (∙ ⊢ℕ₁)) (Unitⱼ ⊢Γ Unitʷ-ok) (Emptyⱼ (∙ ⊢ℕ₁)) ⊢t ⟩⊢∎
+
     Empty                                                         ∎
     where
     ⊢Γ : ⊢ Γ
@@ -164,3 +178,12 @@ opaque
 
     ⊢ℕ₂ : Γ ∙ ℕ ⊢ ℕ
     ⊢ℕ₂ = ⊢ℕ (∙ ⊢ℕ₁)
+
+opaque
+
+  -- An equality rule for OK.
+
+  OK-2+≡ :
+    Γ ⊢ t ∷ ℕ →
+    Γ ⊢ OK (suc (suc t)) ≡ Empty
+  OK-2+≡ ⊢t = univ (OK-2+≡∷U ⊢t)
