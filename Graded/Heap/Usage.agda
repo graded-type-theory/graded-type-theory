@@ -42,13 +42,12 @@ private variable
   ρ ρ′ : Wk _ _
   γ δ η θ χ : Conₘ _
   p q q′ r : M
-  A B t t′ u u′ v z s : Term _
+  A B l t t′ u u′ v z s : Term _
   S S′ : Stack _
   e : Elim _
   m : Mode
   c : Entry _ _
   s′ : Strength
-  l : Universe-level
 
 -- A comparison relation for the grades in the heap.
 -- H ≤ʰ p iff all grades in the heap are bounded by p.
@@ -95,7 +94,8 @@ data _▸ᵉ[_]_ {n : Nat} : (γ : Conₘ n) (m : Mode) (e : Elim n) → Set a w
   emptyrecₑ : Emptyrec-allowed m p → 𝟘ᶜ ▸ᵉ[ m ] emptyrecₑ p A ρ
   Jₑ : γ ▸[ m ] u → wkConₘ ρ γ ▸ᵉ[ m ] Jₑ p q A t B u v ρ
   Kₑ : γ ▸[ m ] u → wkConₘ ρ γ ▸ᵉ[ m ] Kₑ p A t B u ρ
-  []-congₑ : []-cong-allowed-mode s′ m → 𝟘ᶜ ▸ᵉ[ m ] []-congₑ s′ A t u ρ
+  []-congₑ :
+    []-cong-allowed-mode s′ m → 𝟘ᶜ ▸ᵉ[ m ] []-congₑ s′ l A t u ρ
 
 -- Usage of stacks.
 

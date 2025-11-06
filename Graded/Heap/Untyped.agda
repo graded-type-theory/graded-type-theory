@@ -41,12 +41,11 @@ open import Graded.Usage.Erased-matches
 private variable
   n n′ m m′ m″ n″ k : Nat
   Γ : Con Term _
-  t t′ t₁ t₂ u v A B : Term _
+  A B l t t′ t₁ t₂ u v : Term _
   x : Fin _
   p q r q′ q″ : M
   s : Strength
   b : BinderMode
-  l : Universe-level
   ρ ρ′ : Wk _ _
 
 opaque instance
@@ -109,7 +108,7 @@ data Elim (m : Nat) : Set a where
               (u v : Term n) (ρ : Wk m n) → Elim m
   Kₑ        : (p : M) (A t : Term n) (B : Term (1+ n))
               (u : Term n) (ρ : Wk m n) → Elim m
-  []-congₑ  : (s : Strength) (A t u : Term n) (ρ : Wk m n) → Elim m
+  []-congₑ  : (s : Strength) (l A t u : Term n) (ρ : Wk m n) → Elim m
   sucₑ      : Elim m
 
 private variable
@@ -128,7 +127,7 @@ wkᵉ ρ (unitrecₑ p q A u ρ′) = unitrecₑ p q A u (ρ • ρ′)
 wkᵉ ρ (emptyrecₑ p A ρ′) = emptyrecₑ p A (ρ • ρ′)
 wkᵉ ρ (Jₑ p q A t B u v ρ′) = Jₑ p q A t B u v (ρ • ρ′)
 wkᵉ ρ (Kₑ p A t B u ρ′) = Kₑ p A t B u (ρ • ρ′)
-wkᵉ ρ ([]-congₑ s A t u ρ′) = []-congₑ s A t u (ρ • ρ′)
+wkᵉ ρ ([]-congₑ s l A t u ρ′) = []-congₑ s l A t u (ρ • ρ′)
 wkᵉ ρ sucₑ = sucₑ
 
 wk1ᵉ : Elim m → Elim (1+ m)
@@ -190,7 +189,7 @@ data ∣_∣ᵉ≡_ {m} : Elim m → M → Set a where
   Kₑ :
     ∣K erased-matches-for-K 𝟙ᵐ , p ∣≡ r →
     ∣ Kₑ p A t B u ρ ∣ᵉ≡ r
-  []-congₑ : ∣ []-congₑ s A t u ρ ∣ᵉ≡ 𝟘
+  []-congₑ : ∣ []-congₑ s l A t u ρ ∣ᵉ≡ 𝟘
   sucₑ : ∣ sucₑ ∣ᵉ≡ 𝟙
 
 -- Evaluation stacks, indexed by the size of the heap
@@ -272,7 +271,7 @@ data K_∈_ {m} (p : M) : (S : Stack m) → Set a where
 -- A predicate for stacks containing []-congₑ
 
 data []-cong∈_ {m} : (S : Stack m) → Set a where
-  here : []-cong∈ ([]-congₑ s A t u ρ ∙ S)
+  here : []-cong∈ ([]-congₑ s l A t u ρ ∙ S)
   there : []-cong∈ S → []-cong∈ (e ∙ S)
 
 -- A predicate for stacks containing []-congₑ
@@ -441,8 +440,8 @@ infixr 29 ⦅_⦆ᵉ_
   J p q (wk ρ A) (wk ρ t) (wk (liftn ρ 2) B) (wk ρ u) (wk ρ v) w
 ⦅ Kₑ p A t B u ρ ⦆ᵉ v =
   K p (wk ρ A) (wk ρ t) (wk (lift ρ) B) (wk ρ u) v
-⦅ []-congₑ s A t u ρ ⦆ᵉ v =
-  []-cong s (wk ρ A ) (wk ρ t) (wk ρ u) v
+⦅ []-congₑ s l A t u ρ ⦆ᵉ v =
+  []-cong s (wk ρ l) (wk ρ A) (wk ρ t) (wk ρ u) v
 ⦅ sucₑ ⦆ᵉ t = suc t
 
 -- Converting stacks back to terms
@@ -523,4 +522,4 @@ data Matching {m n} : Term n → Stack m → Set a where
   unitrec-η : Unitʷ-η → Matching (unitrec p q A t u) S
   Jₑ : Matching rfl (Jₑ p q A t B u v ρ ∙ S)
   Kₑ : Matching rfl (Kₑ p A t B u ρ ∙ S)
-  []-congₑ : Matching rfl ([]-congₑ s A t u ρ ∙ S)
+  []-congₑ : Matching rfl ([]-congₑ s l A t u ρ ∙ S)

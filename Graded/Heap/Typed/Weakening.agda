@@ -163,10 +163,16 @@ opaque
     subst₂ (Δ ⨾ H ⊢ᵉ Kₑ p A t B u (ρ • ρ′) ⟨ wk ρ v ⟩∷_↝_)
       (PE.sym Id≡Id′) (PE.sym (cong₂ _[_]₀ B≡B′ (wk-[]ₕ [ρ] v)))
       (Kₑ ⊢u′ ⊢B′ ok)
-  wk-⊢ᵉ {ρ} {H} {Δ} {t = v} [ρ] ([]-congₑ {s′ = s} {A} {t} {u} {ρ = ρ′} ok) =
-    PE.subst₂ (Δ ⨾ H ⊢ᵉ []-congₑ s A t u (ρ • ρ′) ⟨ wk ρ v ⟩∷_↝_)
+  wk-⊢ᵉ
+    {ρ} {H} {Δ} {t = v}
+    [ρ] ([]-congₑ {s′ = s} {ρ = ρ′} {A} {l} {t} {u} ok ⊢A) =
+    PE.subst₂ (Δ ⨾ H ⊢ᵉ []-congₑ s l A t u (ρ • ρ′) ⟨ wk ρ v ⟩∷_↝_)
       (PE.sym (wk-liftₕ 0 [ρ] (Id A t u)))
-      (PE.sym (wk-liftₕ 0 [ρ] (Id (Erased A) ([ t ]) ([ u ])))) ([]-congₑ ok)
+      (PE.sym (wk-liftₕ 0 [ρ] (Id (Erased l A) ([ t ]) ([ u ]))))
+      ([]-congₑ ok $
+       subst₂ (_⊢_∷_ _)
+         (wk-liftₕ 0 [ρ] A) (cong U (wk-liftₕ 0 [ρ] l))
+         ⊢A)
     where
     open Erased s
   wk-⊢ᵉ ρ (conv ⊢e x) =

@@ -353,10 +353,11 @@ opaque
       (step-sgSubst A _) (step-sgSubst t _)
       (sym (lifts-step-sgSubst 1 B))
       (step-sgSubst u _))
-  ⦅⦆ᵉ-sgSubst ([]-congₑ s A t u ρ) =
-    sym (cong₃ (λ A t u → []-cong s A t u _)
-      (step-sgSubst A _) (step-sgSubst t _)
-      (step-sgSubst u _))
+  ⦅⦆ᵉ-sgSubst ([]-congₑ s l A t u ρ) =
+    sym $
+    cong₄ (λ l A t u → []-cong s l A t u _)
+      (step-sgSubst l _) (step-sgSubst A _) (step-sgSubst t _)
+      (step-sgSubst u _)
   ⦅⦆ᵉ-sgSubst sucₑ = refl
 
 opaque
@@ -405,9 +406,9 @@ opaque
     cong₄ (λ A t B u → K p A t B u _)
       (lifts-step-[,] 0 A) (lifts-step-[,] 0 t)
       (lifts-step-[,] 1 B) (lifts-step-[,] 0 u)
-  ⦅⦆ᵉ-[,] ([]-congₑ s A t u ρ) =
-    cong₃ (λ A t u → []-cong s A t u _)
-      (lifts-step-[,] 0 A) (lifts-step-[,] 0 t)
+  ⦅⦆ᵉ-[,] ([]-congₑ s l A t u ρ) =
+    cong₄ (λ l A t u → []-cong s l A t u _)
+      (lifts-step-[,] 0 l) (lifts-step-[,] 0 A) (lifts-step-[,] 0 t)
       (lifts-step-[,] 0 u)
   ⦅⦆ᵉ-[,] sucₑ = refl
 
@@ -458,9 +459,9 @@ opaque
     cong₄ (λ A t B u → K p A t B u _)
       (wk-comp ρ ρ′ A) (wk-comp ρ ρ′ t)
       (wk-comp (lift ρ) (lift ρ′) B) (wk-comp ρ ρ′ u)
-  wk-⦅⦆ᵉ {ρ} ([]-congₑ s A t u ρ′) =
-    cong₃ (λ A t u → []-cong s A t u _)
-      (wk-comp ρ ρ′ A) (wk-comp ρ ρ′ t)
+  wk-⦅⦆ᵉ {ρ} ([]-congₑ s l A t u ρ′) =
+    cong₄ (λ l A t u → []-cong s l A t u _)
+      (wk-comp ρ ρ′ l) (wk-comp ρ ρ′ A) (wk-comp ρ ρ′ t)
       (wk-comp ρ ρ′ u)
   wk-⦅⦆ᵉ {ρ} sucₑ = refl
 
@@ -490,8 +491,8 @@ opaque
     cong (J _ _ _ _ _ _ _) t≡u
   ⦅⦆ᵉ-cong (Kₑ p A t B u ρ) t≡u =
     cong (K _ _ _ _ _) t≡u
-  ⦅⦆ᵉ-cong ([]-congₑ s A t u ρ) t≡u =
-    cong ([]-cong _ _ _ _) t≡u
+  ⦅⦆ᵉ-cong ([]-congₑ _ _ _ _ _ _) t≡u =
+    cong ([]-cong _ _ _ _ _) t≡u
   ⦅⦆ᵉ-cong sucₑ t≡u =
     cong suc t≡u
 
@@ -672,7 +673,7 @@ opaque
   ∣∣ᵉ≡ {e = emptyrecₑ p A ρ} _ = p , emptyrecₑ
   ∣∣ᵉ≡ {e = Jₑ p q A t B u v ρ} _ = _ , Jₑ (∣J∣≡ .proj₂)
   ∣∣ᵉ≡ {e = Kₑ p A t B u ρ} _ = _ , Kₑ (∣K∣≡ .proj₂)
-  ∣∣ᵉ≡ {e = []-congₑ s A t u ρ} _ = 𝟘 , []-congₑ
+  ∣∣ᵉ≡ {e = []-congₑ _ _ _ _ _ _} _ = 𝟘 , []-congₑ
   ∣∣ᵉ≡ {e = sucₑ} _ = 𝟙 , sucₑ
 
 opaque
@@ -914,7 +915,7 @@ opaque
   ⦅⦆ᵉ-neutral (emptyrecₑ p A ρ) (emptyrecₙ n) = n
   ⦅⦆ᵉ-neutral (Jₑ p q A t B u v ρ) (Jₙ n) = n
   ⦅⦆ᵉ-neutral (Kₑ p A t B u ρ) (Kₙ n) = n
-  ⦅⦆ᵉ-neutral ([]-congₑ s A t u ρ) ([]-congₙ n) = n
+  ⦅⦆ᵉ-neutral ([]-congₑ _ _ _ _ _ _) ([]-congₙ n) = n
   ⦅⦆ᵉ-neutral sucₑ ()
 
 opaque

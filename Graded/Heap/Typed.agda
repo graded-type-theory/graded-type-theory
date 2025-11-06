@@ -38,10 +38,9 @@ private variable
   ρ : Wk _ _
   e : Elim _
   S : Stack _
-  t u v w z s A B B′ C : Term _
+  A B B′ C l s t u v w z : Term _
   p q q′ r : M
   s′ : Strength
-  l : Universe-level
 
 -- Well-formed heaps
 
@@ -89,9 +88,12 @@ data _⨾_⊢ᵉ_⟨_⟩∷_↝_ (Δ : Con Term k) (H : Heap k m) :
      → Δ ∙ wk ρ (Id A t t) [ H ]ₕ ⊢ wk (lift ρ) B [ H ]⇑ₕ
      → K-allowed
      → Δ ⨾ H ⊢ᵉ Kₑ p A t B u ρ ⟨ v ⟩∷ wk ρ (Id A t t) [ H ]ₕ ↝ wk (lift ρ) B [ H ]⇑ₕ [ v [ H ]ₕ ]₀
-  []-congₑ : []-cong-allowed s′
-           → let open Erased s′
-             in  Δ ⨾ H ⊢ᵉ []-congₑ s′ A t u ρ ⟨ v ⟩∷ wk ρ (Id A t u) [ H ]ₕ ↝ (wk ρ (Id (Erased A) ([ t ]) ([ u ])) [ H ]ₕ)
+  []-congₑ :
+    []-cong-allowed s′ →
+    let open Erased s′ in
+    Δ ⊢ wk ρ A [ H ]ₕ ∷ U (wk ρ l [ H ]ₕ) →
+    Δ ⨾ H ⊢ᵉ []-congₑ s′ l A t u ρ ⟨ v ⟩∷ wk ρ (Id A t u) [ H ]ₕ ↝
+      (wk ρ (Id (Erased l A) ([ t ]) ([ u ])) [ H ]ₕ)
   conv : Δ ⨾ H ⊢ᵉ e ⟨ t ⟩∷ A ↝ B
        → Δ ⊢ B ≡ B′
        → Δ ⨾ H ⊢ᵉ e ⟨ t ⟩∷ A ↝ B′

@@ -860,7 +860,7 @@ opaque
       rfl ¬d → inj₂ (lemma rflᵥ ¬d)
       (J p q t t₁ t₂ t₃ t₄ t₅) ¬d → ⊥-elim (¬d (⇾ₑ′ Jₕ))
       (K p t t₁ t₂ t₃ t₄) ¬d → ⊥-elim (¬d (⇾ₑ′ Kₕ))
-      ([]-cong x t t₁ t₂ t₃) ¬d → ⊥-elim (¬d (⇾ₑ′ []-congₕ))
+      ([]-cong _ _ _ _ _ _) ¬d → ⊥-elim (¬d (⇾ₑ′ []-congₕ))
         where
         lemma′ :
           Value t → Final ⟨ H , t , ρ , e ∙ S ⟩ →

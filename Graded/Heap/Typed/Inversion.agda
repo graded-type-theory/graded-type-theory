@@ -38,13 +38,12 @@ open import Tools.Relation
 private variable
   H : Heap _ _
   Δ : Con Term _
-  t u v w z s A B C D F G : Term _
+  A B C D F G l s t u v w z : Term _
   p q q′ r : M
   ρ : Wk _ _
   S : Stack _
   e : Elim _
   s′ : Strength
-  l : Universe-level
 
 opaque
 
@@ -215,20 +214,30 @@ opaque
 
   -- Inversion of []-cong
 
-  inversion-[]-congₑ : Δ ⨾ H ⊢ᵉ []-congₑ s′ A t u ρ ⟨ v ⟩∷ B ↝ C
-                     → let open E s′ in
-                     []-cong-allowed s′
-                     × B PE.≡ wk ρ (Id A t u) [ H ]ₕ
-                     × (Δ ⊢ wk ρ t [ H ]ₕ ∷ wk ρ A [ H ]ₕ →
-                        Δ ⊢ wk ρ u [ H ]ₕ ∷ wk ρ A [ H ]ₕ →
-                        Δ ⊢ C ≡ (wk ρ (Id (Erased A) ([ t ]) ([ u ])) [ H ]ₕ))
-  inversion-[]-congₑ ([]-congₑ ok) =
+  inversion-[]-congₑ :
+    Δ ⨾ H ⊢ᵉ []-congₑ s′ l A t u ρ ⟨ v ⟩∷ B ↝ C →
+    let module E′ = E s′ in
+    []-cong-allowed s′ ×
+    Δ ⊢ wk ρ A [ H ]ₕ ∷ U (wk ρ l [ H ]ₕ) ×
+    B PE.≡ wk ρ (Id A t u) [ H ]ₕ ×
+    (Δ ⊢ wk ρ t [ H ]ₕ ∷ wk ρ A [ H ]ₕ →
+     Δ ⊢ wk ρ u [ H ]ₕ ∷ wk ρ A [ H ]ₕ →
+     Δ ⊢ C ≡
+       Id (E′.Erased (wk ρ l [ H ]ₕ) (wk ρ A [ H ]ₕ))
+         E′.[ wk ρ t [ H ]ₕ ] E′.[ wk ρ u [ H ]ₕ ])
+  inversion-[]-congₑ ([]-congₑ {s′} ok ⊢A) =
     let E-ok = []-cong→Erased ok in
-    ok , PE.refl , λ ⊢t ⊢u → refl (Idⱼ′ ([]ⱼ E-ok ⊢t) ([]ⱼ E-ok ⊢u))
+    ok , ⊢A , PE.refl ,
+    λ ⊢t ⊢u →
+      PE.subst₂ (_⊢_≡_ _) wk-Id-Erased-[]-[] PE.refl $
+      _⊢_≡_.refl $
+      Idⱼ′ ([]ⱼ E-ok ⊢A ⊢t) ([]ⱼ E-ok ⊢A ⊢u)
+    where
+    open E s′
   inversion-[]-congₑ (conv ⊢e ≡C) =
     case inversion-[]-congₑ ⊢e of λ
-      (ok , B≡ , C′≡) →
-    ok , B≡ , λ ⊢t ⊢u → trans (sym ≡C) (C′≡ ⊢t ⊢u)
+      (ok , ⊢A , B≡ , C′≡) →
+    ok , ⊢A , B≡ , λ ⊢t ⊢u → trans (sym ≡C) (C′≡ ⊢t ⊢u)
 
 opaque
 

@@ -39,6 +39,7 @@ open import Graded.Heap.Soundness UR TR As
 open import Definition.Untyped M
 open import Definition.Untyped.Sigma 𝕄 hiding (fstʷ)
 open import Definition.Typed TR
+open import Definition.Typed.Properties TR
 
 private variable
   k n : Nat
@@ -101,10 +102,10 @@ opaque
     𝟙 ≤ 𝟘
   fstʷ-has-usage→𝟙≤𝟘 ok 𝟙-𝟙≡𝟘 ▸fstʷ =
     let s = initial {k = 0} (fstʷ (prodʷ 𝟙 zero zero))
-        ⊢ℕ = ℕⱼ (∙ ℕⱼ ε)
-        ⊢s = prodrecⱼ (ℕⱼ (∙ ΠΣⱼ ⊢ℕ ok))
-              (prodⱼ ⊢ℕ (zeroⱼ ε) (zeroⱼ ε) ok)
-              (var (∙ ⊢ℕ) (there here)) ok
+        ⊢ℕ′ = ⊢ℕ (∙ ⊢ℕ ε)
+        ⊢s  = prodrecⱼ (⊢ℕ (∙ ΠΣⱼ ⊢ℕ′ ok))
+                (prodⱼ ⊢ℕ′ (zeroⱼ ε) (zeroⱼ ε) ok)
+                (var (∙ ⊢ℕ′) (there here)) ok
         ▸s = sub (▸fstʷ (prodʷₘ zeroₘ zeroₘ) .proj₂) (ε≤ _)
         _ , _ , H , _ , _ , d , _ , H≤𝟘 = soundness-closed ⊢s ▸s
         m≡ , n≡ , s≡ = ↠*-det d (fstʷ⟨0,0⟩↠* 𝟙-𝟙≡𝟘)

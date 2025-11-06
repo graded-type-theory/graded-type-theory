@@ -21,6 +21,7 @@ open Type-restrictions TR
 open Modality 𝕄
 
 open import Definition.Untyped M
+import Definition.Untyped.Erased 𝕄 as E
 open import Definition.Untyped.Neutral M type-variant
 open import Definition.Untyped.Properties M
 open import Definition.Typed TR
@@ -28,6 +29,7 @@ open import Definition.Typed.Inversion TR
 open import Definition.Typed.Properties TR
 open import Definition.Typed.Substitution TR
 open import Definition.Typed.Syntactic TR
+open import Definition.Typed.Well-formed TR
 open import Definition.Typed.Consequences.Inequality TR
 
 open import Graded.Heap.Typed UR TR factoring-nr
@@ -106,8 +108,9 @@ opaque
     Jⱼ′ ⊢B ⊢u ⊢t
   ⊢⦅⦆ᵉ (Kₑ ⊢u ⊢B ok) ⊢t =
     Kⱼ ⊢B ⊢u ⊢t ok
-  ⊢⦅⦆ᵉ ([]-congₑ ok) ⊢t =
-    []-congⱼ′ ok ⊢t
+  ⊢⦅⦆ᵉ ([]-congₑ ok ⊢A) ⊢t =
+    PE.subst (_⊢_∷_ _ _) (E.wk-Id-Erased-[]-[] _) $
+    []-congⱼ′ ok ⊢A ⊢t
   ⊢⦅⦆ᵉ (conv ⊢e B≡B′) ⊢t =
     conv (⊢⦅⦆ᵉ ⊢e ⊢t) B≡B′
 
@@ -162,10 +165,11 @@ opaque
     case inversion-Id (syntacticEqTerm t≡u .proj₁) of λ
       (⊢A , ⊢t , _) →
     K-cong (refl ⊢A) (refl ⊢t) (refl ⊢B) (refl ⊢u) t≡u ok
-  ⊢⦅⦆ᵉ-cong ([]-congₑ ok) t≡u =
-    case inversion-Id (syntacticEqTerm t≡u .proj₁) of λ
-      (⊢A , ⊢t , ⊢u) →
-    []-cong-cong (refl ⊢A) (refl ⊢t) (refl ⊢u) t≡u ok
+  ⊢⦅⦆ᵉ-cong ([]-congₑ ok ⊢A) t≡u =
+    let _ , ⊢t , ⊢u = inversion-Id (syntacticEqTerm t≡u .proj₁) in
+    PE.subst (_⊢_≡_∷_ _ _ _) (E.wk-Id-Erased-[]-[] _) $
+    []-cong-cong (refl-⊢≡∷L (inversion-U-Level (wf-⊢∷ ⊢A))) (refl ⊢A)
+      (refl ⊢t) (refl ⊢u) t≡u ok
   ⊢⦅⦆ᵉ-cong (conv ⊢e B≡B′) t≡u =
     conv (⊢⦅⦆ᵉ-cong ⊢e t≡u) B≡B′
 
@@ -208,8 +212,9 @@ opaque
     J-subst′ ⊢B ⊢u d
   ⊢⦅⦆ᵉ-subst (Kₑ ⊢u ⊢B ok) d =
     K-subst ⊢B ⊢u d ok
-  ⊢⦅⦆ᵉ-subst ([]-congₑ ok) d =
-    []-cong-subst′ d ok
+  ⊢⦅⦆ᵉ-subst ([]-congₑ ok ⊢A) d =
+    PE.subst (_⊢_⇒_∷_ _ _ _) (E.wk-Id-Erased-[]-[] _) $
+    []-cong-subst′ ⊢A d ok
   ⊢⦅⦆ᵉ-subst (conv ⊢e B≡B′) d =
     conv (⊢⦅⦆ᵉ-subst ⊢e d) B≡B′
 
@@ -265,8 +270,8 @@ opaque
   ⊢ᵉ-convₜ {H} {t} {u} (Kₑ ⊢u ⊢B ok) t≡u =
     conv (Kₑ ⊢u ⊢B ok)
       (substTypeEq (refl ⊢B) (sym′ t≡u))
-  ⊢ᵉ-convₜ {H} {t} {u} ([]-congₑ ok) t≡u =
-    []-congₑ ok
+  ⊢ᵉ-convₜ ([]-congₑ ok ⊢A) _ =
+    []-congₑ ok ⊢A
   ⊢ᵉ-convₜ (conv ⊢e B≡B′) t≡u =
     conv (⊢ᵉ-convₜ ⊢e t≡u) B≡B′
 
@@ -299,7 +304,7 @@ opaque
   ⊢whnf⦅⦆ᵉ (emptyrecₑ x) (ne! (emptyrecₙ n)) = n , emptyrecₙ n
   ⊢whnf⦅⦆ᵉ (Jₑ x x₁) (ne! (Jₙ n)) = n , Jₙ n
   ⊢whnf⦅⦆ᵉ (Kₑ x x₁ x₂) (ne! (Kₙ n)) = n , Kₙ n
-  ⊢whnf⦅⦆ᵉ ([]-congₑ x) (ne! ([]-congₙ n)) = n , []-congₙ n
+  ⊢whnf⦅⦆ᵉ ([]-congₑ _ _) (ne! ([]-congₙ n)) = n , []-congₙ n
   ⊢whnf⦅⦆ᵉ (conv ⊢e x) w = ⊢whnf⦅⦆ᵉ ⊢e w
 
 opaque
@@ -343,7 +348,7 @@ opaque
   ⊢⦅⦆ᵉ-NeutralAt (emptyrecₑ _) n = emptyrecₙ n
   ⊢⦅⦆ᵉ-NeutralAt (Jₑ _ _) n = Jₙ n
   ⊢⦅⦆ᵉ-NeutralAt (Kₑ _ _ _) n = Kₙ n
-  ⊢⦅⦆ᵉ-NeutralAt ([]-congₑ _) n = []-congₙ n
+  ⊢⦅⦆ᵉ-NeutralAt ([]-congₑ _ _) n = []-congₙ n
   ⊢⦅⦆ᵉ-NeutralAt (conv ⊢e x) n = ⊢⦅⦆ᵉ-NeutralAt ⊢e n
 
 opaque
@@ -398,5 +403,5 @@ opaque
   hole-type-not-U (emptyrecₑ _)    = U≢Emptyⱼ ∘→ sym
   hole-type-not-U (Jₑ _ _)         = Id≢U
   hole-type-not-U (Kₑ _ _ _)       = Id≢U
-  hole-type-not-U ([]-congₑ _)     = Id≢U
+  hole-type-not-U ([]-congₑ _ _)   = Id≢U
   hole-type-not-U (conv ⊢e _)      = hole-type-not-U ⊢e

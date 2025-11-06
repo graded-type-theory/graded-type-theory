@@ -766,7 +766,7 @@ opaque
 
   ▸-⇒ₑ ▸s ([]-congₕ {ρ}) =
     let q , γ , δ , η , ∣S∣≡ , ▸H , ▸t , ▸S , γ≤ = ▸ₛ-inv ▸s
-        invUsage-[]-cong {γ₄} _ _ _ ▸v ok δ≤ = inv-usage-[]-cong ▸t
+        invUsage-[]-cong {γ₅} _ _ _ _ ▸v ok δ≤ = inv-usage-[]-cong ▸t
     in  ▸ₛ ([]-congₑ ∙ ∣S∣≡) ▸H
            (▸-cong (sym (trans (⌞⌟-cong (·-zeroʳ _)) ⌞𝟘⌟≡𝟘ᵐ?)) ▸v)
            (▸ˢ∙ ∣S∣≡ ([]-congₑ ok) ▸S) $ begin
@@ -775,8 +775,8 @@ opaque
           q ·ᶜ wkConₘ ρ 𝟘ᶜ +ᶜ η                  ≡⟨ cong (λ x → q ·ᶜ x +ᶜ η) (wk-𝟘ᶜ ρ) ⟩
           q ·ᶜ 𝟘ᶜ +ᶜ η                           ≈⟨ +ᶜ-cong (·ᶜ-zeroʳ _) (≈ᶜ-sym (+ᶜ-identityʳ _)) ⟩
           𝟘ᶜ +ᶜ η +ᶜ 𝟘ᶜ                          ≈˘⟨ +ᶜ-cong (·ᶜ-zeroˡ _) (+ᶜ-congˡ (·ᶜ-zeroʳ _)) ⟩
-          𝟘 ·ᶜ wkConₘ ρ γ₄ +ᶜ η +ᶜ q ·ᶜ 𝟘ᶜ       ≈˘⟨ +ᶜ-congʳ (·ᶜ-congʳ (·-zeroʳ _)) ⟩
-          (q · 𝟘) ·ᶜ wkConₘ ρ γ₄ +ᶜ η +ᶜ q ·ᶜ 𝟘ᶜ ∎
+          𝟘 ·ᶜ wkConₘ ρ γ₅ +ᶜ η +ᶜ q ·ᶜ 𝟘ᶜ       ≈˘⟨ +ᶜ-congʳ (·ᶜ-congʳ (·-zeroʳ _)) ⟩
+          (q · 𝟘) ·ᶜ wkConₘ ρ γ₅ +ᶜ η +ᶜ q ·ᶜ 𝟘ᶜ ∎
     where
     open ≤ᶜ-reasoning
 

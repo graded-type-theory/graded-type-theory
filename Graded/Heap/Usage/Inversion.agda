@@ -46,7 +46,7 @@ open Type-variant type-variant
 
 private variable
   H : Heap _ _
-  A B s t u v z : Term _
+  A B l s t u v z : Term _
   ρ : Wk _ _
   e : Elim _
   S : Stack _
@@ -55,7 +55,6 @@ private variable
   m : Mode
   x : Fin _
   str : Strength
-  l : Universe-level
 
 opaque
 
@@ -290,7 +289,7 @@ opaque
   -- Inversion of []-cong
 
   ▸-inv-[]-congₑ :
-    γ ▸ᵉ[ m ] []-congₑ str A t u ρ →
+    γ ▸ᵉ[ m ] []-congₑ str l A t u ρ →
     []-cong-allowed-mode str m × γ ≈ᶜ 𝟘ᶜ
   ▸-inv-[]-congₑ ([]-congₑ ok) =
     ok , ≈ᶜ-refl

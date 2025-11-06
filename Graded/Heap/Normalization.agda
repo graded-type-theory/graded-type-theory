@@ -173,8 +173,8 @@ opaque mutual
     case normalize H v ρ (Kₑ p A t B u ρ ∙ S) of λ
       (_ , _ , _ , _ , n , d) →
     _ , _ , _ , _ , n , ⇒ₑ Kₕ ⇨ d
-  normalize H ([]-cong s A t u v) ρ S =
-    case normalize H v ρ ([]-congₑ s A t u ρ ∙ S) of λ
+  normalize H ([]-cong s l A t u v) ρ S =
+    case normalize H v ρ ([]-congₑ s l A t u ρ ∙ S) of λ
       (_ , _ , _ , _ , n , d) →
     _ , _ , _ , _ , n , ⇒ₑ []-congₕ ⇨ d
   normalize H (U l) ρ S =

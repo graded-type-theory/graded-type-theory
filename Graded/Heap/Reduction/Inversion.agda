@@ -39,12 +39,12 @@ private variable
   m n m′ n′ n″ k : Nat
   H : Heap _ _
   x : Fin _
-  A B t u v w : Term _
+  A B l t u v w : Term _
   ρ ρ′ : Wk _ _
   S : Stack _
   s : State _ _ _
   s′ : Strength
-  l l₁ l₂ : Universe-level
+  l₁ l₂ : Universe-level
   p p′ q q′ r : M
 
 opaque
@@ -163,8 +163,8 @@ opaque
   -- Inversion of []-cong
 
   ⇒ₑ-inv-[]-cong :
-    ⟨ H , []-cong s′ A u v t , ρ , S ⟩ ⇒ₑ s →
-    s ≡ ⟨ H , t , ρ , []-congₑ s′ A u v ρ ∙ S ⟩
+    ⟨ H , []-cong s′ l A u v t , ρ , S ⟩ ⇒ₑ s →
+    s ≡ ⟨ H , t , ρ , []-congₑ s′ l A u v ρ ∙ S ⟩
   ⇒ₑ-inv-[]-cong []-congₕ = refl
 
 opaque
@@ -417,14 +417,14 @@ opaque
           subst (λ m → State _ m _) m≡ s ≡ ⟨ H , u , ρ′ , S′ ⟩) ⊎
       (∃₂ λ p B → S ≡ Kₑ p A t B u ρ′ ∙ S′ ×
           subst (λ m → State _ m _) m≡ s ≡ ⟨ H , u , ρ′ , S′ ⟩) ⊎
-      (∃ λ s′ → S ≡ []-congₑ s′ A t u ρ′ ∙ S′ ×
+      (∃₂ λ s′ l → S ≡ []-congₑ s′ l A t u ρ′ ∙ S′ ×
          subst (λ m → State _ m _) m≡ s ≡ ⟨ H , rfl , ρ′ , S′ ⟩)
   ⇒ᵥ-inv-rfl rflₕⱼ =
     _ , _ , _ , _ , _ , refl , inj₁ (_ , _ , _ , _ , refl , refl)
   ⇒ᵥ-inv-rfl rflₕₖ =
     _ , _ , _ , _ , _ , refl , inj₂ (inj₁ (_ , _ , refl , refl))
   ⇒ᵥ-inv-rfl rflₕₑ =
-    _ , _ , _ , _ , _ , refl , inj₂ (inj₂ (_ , refl , refl))
+    _ , _ , _ , _ , _ , refl , inj₂ (inj₂ (_ , _ , refl , refl))
 
 opaque
 
@@ -464,14 +464,14 @@ opaque
 
   ⇒ᵥ-inv-rfl-[]-congₑ :
     {H : Heap k m′} {t : Term n′} {s : State _ m n} →
-    ⟨ H , rfl , ρ , []-congₑ s′ A t u ρ′ ∙ S ⟩ ⇒ᵥ s →
+    ⟨ H , rfl , ρ , []-congₑ s′ l A t u ρ′ ∙ S ⟩ ⇒ᵥ s →
     Σ (m ≡ m′) λ m≡ → Σ (n ≡ n′) λ n≡ →
       subst₂ (State _) m≡ n≡ s ≡ ⟨ H , rfl , ρ′ , S ⟩
   ⇒ᵥ-inv-rfl-[]-congₑ d =
     case ⇒ᵥ-inv-rfl d of λ where
       (_ , _ , _ , _ , _ , refl , inj₁ (_ , _ , _ , _ , () , _))
       (_ , _ , _ , _ , _ , refl , inj₂ (inj₁ (_ , _ , () , _)))
-      (_ , _ , _ , _ , _ , refl , inj₂ (inj₂ (_ , refl , refl))) →
+      (_ , _ , _ , _ , _ , refl , inj₂ (inj₂ (_ , _ , refl , refl))) →
         refl , refl , refl
 
 opaque

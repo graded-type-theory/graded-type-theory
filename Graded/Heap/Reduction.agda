@@ -34,12 +34,11 @@ private variable
   m m′ n n′ k ℓ : Nat
   H H′ : Heap _ _
   ρ ρ′ : Wk _ _
-  t t′ u v w z s A B t₁ t₂ : Term _
+  A B l s t t′ t₁ t₂ u v w z : Term _
   x : Fin _
   S S′ : Stack _
   p p′ q q′ r : M
   str : Strength
-  l : Universe-level
   s₁ s₂ s₃ : State _ _ _
 
 -- The abstract machine has three different semantics.
@@ -79,8 +78,8 @@ data _⇒ₑ_ {k m n} : State k m n → State k m n → Set a where
        ⟨ H , w , ρ , Jₑ p q A t B u v ρ ∙ S ⟩
   Kₕ : ⟨ H , K p A t B u v , ρ , S ⟩ ⇒ₑ
        ⟨ H , v , ρ , Kₑ p A t B u ρ ∙ S ⟩
-  []-congₕ : ⟨ H , []-cong str A t u v , ρ , S ⟩ ⇒ₑ
-             ⟨ H , v , ρ , []-congₑ str A t u ρ ∙ S ⟩
+  []-congₕ : ⟨ H , []-cong str l A t u v , ρ , S ⟩ ⇒ₑ
+             ⟨ H , v , ρ , []-congₑ str l A t u ρ ∙ S ⟩
 
 -- The relation _⇾ₑ_ describes evaluation of states with an eliminator
 -- or a variable in head position with resource tracking.
@@ -163,7 +162,7 @@ data _⇒ᵥ_ {k m n} : State k m n → State k m′ n′ → Set a where
   rflₕⱼ : ⟨ H , rfl , ρ  , Jₑ p q A t B u v ρ′ ∙ S ⟩ ⇒ᵥ
           ⟨ H , u   , ρ′ , S ⟩
   rflₕₖ : ⟨ H , rfl , ρ ,  Kₑ p A t B u ρ′ ∙ S ⟩ ⇒ᵥ ⟨ H , u , ρ′ , S ⟩
-  rflₕₑ : ⟨ H , rfl , ρ  , []-congₑ str A t u ρ′ ∙ S ⟩ ⇒ᵥ
+  rflₕₑ : ⟨ H , rfl , ρ  , []-congₑ str l A t u ρ′ ∙ S ⟩ ⇒ᵥ
           ⟨ H , rfl , ρ′ , S ⟩
 
 -- The relation _⇒ₙ_ allows evaluation under the successor constructor
