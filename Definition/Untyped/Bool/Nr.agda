@@ -257,7 +257,7 @@ private module B = Definition.Untyped.Bool 𝕄 ω Boolᵍ OKᵍ
 
 -- Export some term formers from Definition.Untyped.Bool
 
-open B using (OK; Bool; true; false; Target) public
+open B using (OK; Bool; true; false; Targetᵇʳ) public
 
 opaque
   unfolding B.boolrec
@@ -274,9 +274,9 @@ opaque
 -- Export lemmas from Definition.Untyped.Bool
 
 open B using
-  (Target≡; OK-[]; Bool-[]; true-[]; false-[];
-   Target-[⇑]; Target-+-[⇑]; Target-[₀⇑]; Target-[↑⇑]; Target-[,⇑];
-   wk-OK; wk-Bool; wk-true; wk-false; wk-liftn-Target; Target-wk[]′)
+  (Targetᵇʳ≡; OK-[]; Bool-[]; true-[]; false-[];
+   Targetᵇʳ-[⇑]; Targetᵇʳ-+-[⇑]; Targetᵇʳ-[₀⇑]; Targetᵇʳ-[↑⇑]; Targetᵇʳ-[,⇑];
+   wk-OK; wk-Bool; wk-true; wk-false; wk-liftn-Targetᵇʳ; Targetᵇʳ-wk[]′)
    public
 
 opaque

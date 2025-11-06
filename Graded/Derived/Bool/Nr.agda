@@ -125,17 +125,17 @@ opaque
     open ≤ᶜ-reasoning
 
 opaque
-  unfolding Target
+  unfolding Targetᵇʳ
 
-  -- A usage lemma for Target.
+  -- A usage lemma for Targetᵇʳ.
 
-  ▸Target :
+  ▸Targetᵇʳ :
     γ₁ ∙ p ▸[ m ] A →
     γ₂ ▸[ ⌞ p ⌟ ] t →
     γ₃ ▸[ ⌞ p ⌟ ] u →
     (⌜ ⌞ p ⌟ ⌝ ·ᶜ γ₄ ≤ᶜ ω ·ᶜ γ₂ +ᶜ γ₃) →
-    wkConₘ (stepn id k) γ₁ +ᶜ p ·ᶜ γ₄ ▸[ m ] Target k A t u
-  ▸Target ▸A ▸t ▸u ≤+ =
+    wkConₘ (stepn id k) γ₁ +ᶜ p ·ᶜ γ₄ ▸[ m ] Targetᵇʳ k A t u
+  ▸Targetᵇʳ ▸A ▸t ▸u ≤+ =
     ▸[][]↑ ▸A $ sub (prodʷₘ (▸-cong (PE.sym ᵐ·-identityʳ-ω) ▸t) ▸u) ≤+
 
 opaque
@@ -170,7 +170,7 @@ opaque
                    (lamₘ $
                     sub
                       (▸emptyrec-sink var
-                         (Target-lemma (sucₘ (sucₘ var))) ok₃ ok₄)
+                         (Targetᵇʳ-lemma (sucₘ (sucₘ var))) ok₃ ok₄)
                       (begin
                          wkConₘ (stepn id 3) (⌜ m ⌝ ·ᶜ δ) ∙
                          ⌜ m ⌝ · boolrecᵍ-nc₁ ∙ ⌜ m ⌝ · boolrecᵍ-Π  ≈⟨ wk-·ᶜ (stepn id 3) ∙ PE.refl ∙ PE.refl ⟩
@@ -244,14 +244,14 @@ opaque
     where
     open ≤ᶜ-reasoning
 
-    Target-lemma :
+    Targetᵇʳ-lemma :
       let q = ⌜ 𝟘ᵐ? ⌝ · p in
       𝟘ᶜ ∙ ⌜ ⌞ q ⌟ ⌝ ∙ 𝟘 ▸[ ⌞ q ⌟ ] t →
       wkConₘ (stepn id k) γ₁ +ᶜ q ·ᶜ 𝟘ᶜ ∙ 𝟘 + q · ω ∙ 𝟘 + q · 𝟙 ▸[ 𝟘ᵐ? ]
-        Target (2+ k) A t (var x0)
-    Target-lemma ▸t =
+        Targetᵇʳ (2+ k) A t (var x0)
+    Targetᵇʳ-lemma ▸t =
       let q = ⌜ ⌞ ⌜ 𝟘ᵐ? ⌝ · p ⌟ ⌝ in
-      ▸Target ▸A ▸t var $ begin
+      ▸Targetᵇʳ ▸A ▸t var $ begin
         q ·ᶜ (𝟘ᶜ ∙ ω ∙ 𝟙)              ≈⟨ ·ᶜ-zeroʳ _ ∙ PE.refl ∙ ·-identityʳ _ ⟩
         𝟘ᶜ ∙ q · ω ∙ q                 ≈˘⟨ +ᶜ-identityʳ _ ∙ +-identityˡ _ ⟩
         (𝟘ᶜ ∙ q · ω ∙ 𝟘) +ᶜ (𝟘ᶜ ∙ q)   ≈˘⟨ +ᶜ-congʳ (·ᶜ-zeroʳ _ ∙ PE.sym (⌜⌝-·-comm ⌞ _ ⌟) ∙ ·-zeroʳ _) ⟩
@@ -264,10 +264,10 @@ opaque
         𝟘ᶜ ∙ ⌜ 𝟘ᵐ? ᵐ· boolrecᵍ-Π ⌝ ▸[ 𝟘ᵐ? ᵐ· boolrecᵍ-Π ] t →
         𝟘ᶜ ∙ ⌜ ⌞ ⌜ 𝟘ᵐ? ⌝ · p ⌟ ⌝ ∙ 𝟘 ▸[ ⌞ ⌜ 𝟘ᵐ? ⌝ · p ⌟ ] u →
         wkConₘ (stepn id k) γ₁ ∙ ⌜ 𝟘ᵐ? ⌝ · boolrecᵍ-nc₃ p ▸[ 𝟘ᵐ? ]
-          Π boolrecᵍ-Π , p ▷ OK t ▹ Target (2+ k) A u (var x0)
+          Π boolrecᵍ-Π , p ▷ OK t ▹ Targetᵇʳ (2+ k) A u (var x0)
       Π-lemma {k} ▸t ▸u = sub
         (ΠΣₘ (▸OK ▸t) $
-         sub (Target-lemma ▸u) $ begin
+         sub (Targetᵇʳ-lemma ▸u) $ begin
            wkConₘ (stepn id k) γ₁ ∙ ⌜ 𝟘ᵐ? ⌝ · p · ω ∙ ⌜ 𝟘ᵐ? ⌝ · p        ≈˘⟨ +ᶜ-identityʳ _ ∙ +-identityˡ _ ∙ +-identityˡ _ ⟩
 
            (wkConₘ (stepn id k) γ₁ ∙ 𝟘 ∙ 𝟘) +ᶜ
@@ -301,14 +301,14 @@ opaque
       γ ▸[ m ] u →
       wkConₘ (stepn id k) γ ▸[ m ]
         lam boolrecᵍ-Π
-          (unitrec 0 boolrecᵍ-Π p (Target (2+ k) A t (var x0)) (var x0)
+          (unitrec 0 boolrecᵍ-Π p (Targetᵇʳ (2+ k) A t (var x0)) (var x0)
              (wk[ 1+ k ]′ u))
     unitrec-lemma {k} {γ} ▸t ▸u =
       lamₘ $
       sub
         (unitrecₘ var (wkUsage (stepn id (1+ k)) ▸u)
            (sub
-              (▸Target ▸A ▸t var $ begin
+              (▸Targetᵇʳ ▸A ▸t var $ begin
                  ⌜ ⌞ ⌜ 𝟘ᵐ? ⌝ · p ⌟ ⌝ ·ᶜ (𝟘ᶜ ∙ 𝟙)        ≈⟨ ·ᶜ-zeroʳ _ ∙ ·-identityʳ _ ⟩
                  𝟘ᶜ ∙ ⌜ ⌞ ⌜ 𝟘ᵐ? ⌝ · p ⌟ ⌝               ≈˘⟨ +ᶜ-identityˡ _ ⟩
                  𝟘ᶜ +ᶜ (𝟘ᶜ ∙ ⌜ ⌞ ⌜ 𝟘ᵐ? ⌝ · p ⌟ ⌝)       ≈˘⟨ +ᶜ-congʳ (·ᶜ-zeroʳ _) ⟩

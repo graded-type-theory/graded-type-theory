@@ -134,9 +134,9 @@ opaque
 
   -- A definition that is used in the implementation of boolrec.
 
-  Target :
+  Targetᵇʳ :
     ∀ k → Term (1+ n) → Term (k N.+ n) → Term (k N.+ n) → Term (k N.+ n)
-  Target k A t u = A [ k ][ prodʷ Boolᵍ₁ t u ]↑
+  Targetᵇʳ k A t u = A [ k ][ prodʷ Boolᵍ₁ t u ]↑
 
 opaque
 
@@ -148,18 +148,18 @@ opaque
   boolrec boolrecᵍ-pr boolrecᵍ-nc₁ boolrecᵍ-nc₂ boolrecᵍ-nc₃ boolrecᵍ-Π p A t u v =
     prodrec boolrecᵍ-pr Boolᵍ₁ p A v
       (natcase boolrecᵍ-nc₂ boolrecᵍ-nc₃
-         (Π boolrecᵍ-Π , p ▷ OK (var x0) ▹ Target 4 A (var x1) (var x0))
+         (Π boolrecᵍ-Π , p ▷ OK (var x0) ▹ Targetᵇʳ 4 A (var x1) (var x0))
          (lam boolrecᵍ-Π $
-          unitrec 0 boolrecᵍ-Π p (Target 4 A zero (var x0))
+          unitrec 0 boolrecᵍ-Π p (Targetᵇʳ 4 A zero (var x0))
             (var x0) (wk[ 3 ]′ u))
          (natcase boolrecᵍ-nc₁ boolrecᵍ-nc₃
             (Π boolrecᵍ-Π , p ▷ OK (suc (var x0)) ▹
-             Target 5 A (suc (var x1)) (var x0))
+             Targetᵇʳ 5 A (suc (var x1)) (var x0))
             (lam boolrecᵍ-Π $
              unitrec 0 boolrecᵍ-Π p
-               (Target 5 A (suc zero) (var x0)) (var x0) (wk[ 4 ]′ t))
+               (Targetᵇʳ 5 A (suc zero) (var x0)) (var x0) (wk[ 4 ]′ t))
             (lam boolrecᵍ-Π $
-             emptyrec-sink (Target 5 A (suc (suc (var x1))) (var x0))
+             emptyrec-sink (Targetᵇʳ 5 A (suc (suc (var x1))) (var x0))
                (var x0))
             (var x0))
          (var x1) ∘⟨ boolrecᵍ-Π ⟩
@@ -169,12 +169,12 @@ opaque
 -- An unfolding lemma
 
 opaque
-  unfolding Target
+  unfolding Targetᵇʳ
 
-  -- An unfolding lemma for Target.
+  -- An unfolding lemma for Targetᵇʳ.
 
-  Target≡ : Target k A t u ≡ A [ k ][ prodʷ Boolᵍ₁ t u ]↑
-  Target≡ = refl
+  Targetᵇʳ≡ : Targetᵇʳ k A t u ≡ A [ k ][ prodʷ Boolᵍ₁ t u ]↑
+  Targetᵇʳ≡ = refl
 
 ------------------------------------------------------------------------
 -- Substitution lemmas
@@ -207,79 +207,79 @@ opaque
   false-[] = refl
 
 opaque
-  unfolding Target
+  unfolding Targetᵇʳ
 
-  -- A substitution lemma for Target.
+  -- A substitution lemma for Targetᵇʳ.
 
-  Target-[⇑] :
-    Target k A t u [ σ ⇑[ k ] ] ≡
-    Target k (A [ σ ⇑ ]) (t [ σ ⇑[ k ] ]) (u [ σ ⇑[ k ] ])
-  Target-[⇑] {A} = [][]↑-commutes A
+  Targetᵇʳ-[⇑] :
+    Targetᵇʳ k A t u [ σ ⇑[ k ] ] ≡
+    Targetᵇʳ k (A [ σ ⇑ ]) (t [ σ ⇑[ k ] ]) (u [ σ ⇑[ k ] ])
+  Targetᵇʳ-[⇑] {A} = [][]↑-commutes A
 
 opaque
-  unfolding Target
+  unfolding Targetᵇʳ
 
-  -- A substitution lemma for Target.
+  -- A substitution lemma for Targetᵇʳ.
 
-  Target-+-[⇑] :
+  Targetᵇʳ-+-[⇑] :
     ∀ j {t u} →
     let cast =
           subst₂ Subst (sym $ N.+-assoc j k₂ n) (sym $ N.+-assoc j k₁ n)
     in
     (∀ x → wk[ k₁ ] (var x) [ σ ] ≡ wk[ k₂ ] (var x)) →
-    Target (j N.+ k₁) A t u [ cast (σ ⇑[ j ]) ] ≡
-    Target (j N.+ k₂) A (t [ cast (σ ⇑[ j ]) ]) (u [ cast (σ ⇑[ j ]) ])
-  Target-+-[⇑] {A} _ = [][]↑-commutes-+ A
+    Targetᵇʳ (j N.+ k₁) A t u [ cast (σ ⇑[ j ]) ] ≡
+    Targetᵇʳ (j N.+ k₂) A (t [ cast (σ ⇑[ j ]) ]) (u [ cast (σ ⇑[ j ]) ])
+  Targetᵇʳ-+-[⇑] {A} _ = [][]↑-commutes-+ A
 
 opaque
-  unfolding Target
+  unfolding Targetᵇʳ
 
-  -- A substitution lemma for Target.
+  -- A substitution lemma for Targetᵇʳ.
 
-  Target-[₀⇑] :
+  Targetᵇʳ-[₀⇑] :
     ∀ j {t u} →
     let cast =
           subst₂ Subst (sym $ N.+-assoc j k n) (sym $ N.+-assoc j (1+ k) n)
     in
-    Target (j N.+ 1+ k) A t u [ cast (sgSubst v ⇑[ j ]) ] ≡
-    Target (j N.+ k) A (t [ cast (sgSubst v ⇑[ j ]) ])
+    Targetᵇʳ (j N.+ 1+ k) A t u [ cast (sgSubst v ⇑[ j ]) ] ≡
+    Targetᵇʳ (j N.+ k) A (t [ cast (sgSubst v ⇑[ j ]) ])
       (u [ cast (sgSubst v ⇑[ j ]) ])
-  Target-[₀⇑] {A} _ = [][]↑-[₀⇑] _ A
+  Targetᵇʳ-[₀⇑] {A} _ = [][]↑-[₀⇑] _ A
 
 opaque
-  unfolding Target
+  unfolding Targetᵇʳ
 
-  -- A substitution lemma for Target.
+  -- A substitution lemma for Targetᵇʳ.
 
-  Target-[↑⇑] :
+  Targetᵇʳ-[↑⇑] :
     ∀ j {t u} →
     let cast =
           subst₂ Subst (sym $ N.+-assoc j (1+ k) n)
             (sym $ N.+-assoc j (1+ k) n)
     in
-    Target (j N.+ 1+ k) A t u
+    Targetᵇʳ (j N.+ 1+ k) A t u
       [ cast (consSubst (wk1Subst idSubst) v ⇑[ j ]) ] ≡
-    Target (j N.+ 1+ k) A
+    Targetᵇʳ (j N.+ 1+ k) A
       (t [ cast (consSubst (wk1Subst idSubst) v ⇑[ j ]) ])
       (u [ cast (consSubst (wk1Subst idSubst) v ⇑[ j ]) ])
-  Target-[↑⇑] {A} _ = [][]↑-[↑⇑] _ A
+  Targetᵇʳ-[↑⇑] {A} _ = [][]↑-[↑⇑] _ A
 
 opaque
-  unfolding Target
+  unfolding Targetᵇʳ
 
-  -- A substitution lemma for Target.
+  -- A substitution lemma for Targetᵇʳ.
 
-  Target-[,⇑] :
+  Targetᵇʳ-[,⇑] :
     ∀ j {t u} →
     let cast =
           subst₂ Subst (sym $ N.+-assoc j k n) (sym $ N.+-assoc j (2+ k) n)
     in
-    Target (j N.+ 2+ k) A t u
+    Targetᵇʳ (j N.+ 2+ k) A t u
       [ cast (consSubst (sgSubst v) w ⇑[ j ]) ] ≡
-    Target (j N.+ k) A
+    Targetᵇʳ (j N.+ k) A
       (t [ cast (consSubst (sgSubst v) w ⇑[ j ]) ])
       (u [ cast (consSubst (sgSubst v) w ⇑[ j ]) ])
-  Target-[,⇑] {A} _ = [][]↑-[,⇑] _ A
+  Targetᵇʳ-[,⇑] {A} _ = [][]↑-[,⇑] _ A
 
 opaque
   unfolding boolrec
@@ -292,18 +292,18 @@ opaque
   boolrec-[] {boolrecᵍ-pr} {boolrecᵍ-nc₁} {boolrecᵍ-nc₂} {boolrecᵍ-nc₃} {boolrecᵍ-Π} {p} {A} {t} {u} {v} {σ} =
     prodrec boolrecᵍ-pr Boolᵍ₁ p A v
       (natcase boolrecᵍ-nc₂ boolrecᵍ-nc₃
-         (Π boolrecᵍ-Π , p ▷ OK (var x0) ▹ Target 4 A (var x1) (var x0))
+         (Π boolrecᵍ-Π , p ▷ OK (var x0) ▹ Targetᵇʳ 4 A (var x1) (var x0))
          (lam boolrecᵍ-Π $
-          unitrec 0 boolrecᵍ-Π p (Target 4 A zero (var x0))
+          unitrec 0 boolrecᵍ-Π p (Targetᵇʳ 4 A zero (var x0))
             (var x0) (wk[ 3 ]′ u))
          (natcase boolrecᵍ-nc₁ boolrecᵍ-nc₃
             (Π boolrecᵍ-Π , p ▷ OK (suc (var x0)) ▹
-             Target 5 A (suc (var x1)) (var x0))
+             Targetᵇʳ 5 A (suc (var x1)) (var x0))
             (lam boolrecᵍ-Π $
              unitrec 0 boolrecᵍ-Π p
-               (Target 5 A (suc zero) (var x0)) (var x0) (wk[ 4 ]′ t))
+               (Targetᵇʳ 5 A (suc zero) (var x0)) (var x0) (wk[ 4 ]′ t))
             (lam boolrecᵍ-Π $
-             emptyrec-sink (Target 5 A (suc (suc (var x1))) (var x0))
+             emptyrec-sink (Targetᵇʳ 5 A (suc (suc (var x1))) (var x0))
                (var x0))
             (var x0))
          (var x1) ∘⟨ boolrecᵍ-Π ⟩
@@ -324,58 +324,58 @@ opaque
     prodrec boolrecᵍ-pr Boolᵍ₁ p (A [ σ ⇑ ]) (v [ σ ])
       (natcase boolrecᵍ-nc₂ boolrecᵍ-nc₃
          (Π boolrecᵍ-Π , p ▷ OK (var x0) ▹
-          (Target 4 A (var x1) (var x0) [ σ ⇑[ 4 ] ]))
+          (Targetᵇʳ 4 A (var x1) (var x0) [ σ ⇑[ 4 ] ]))
          (lam boolrecᵍ-Π $
           unitrec 0 boolrecᵍ-Π p
-            (Target 4 A zero (var x0) [ σ ⇑[ 4 ] ]) (var x0)
+            (Targetᵇʳ 4 A zero (var x0) [ σ ⇑[ 4 ] ]) (var x0)
             (wk[ 3 ]′ u [ σ ⇑[ 3 ] ]))
          (natcase boolrecᵍ-nc₁ boolrecᵍ-nc₃
             (Π boolrecᵍ-Π , p ▷ OK (suc (var x0)) ▹
-             (Target 5 A (suc (var x1)) (var x0) [ σ ⇑[ 5 ] ]))
+             (Targetᵇʳ 5 A (suc (var x1)) (var x0) [ σ ⇑[ 5 ] ]))
             (lam boolrecᵍ-Π $
              unitrec 0 boolrecᵍ-Π p
-               (Target 5 A (suc zero) (var x0) [ σ ⇑[ 5 ] ]) (var x0)
+               (Targetᵇʳ 5 A (suc zero) (var x0) [ σ ⇑[ 5 ] ]) (var x0)
                (wk[ 4 ]′ t [ σ ⇑[ 4 ] ]))
             (lam boolrecᵍ-Π $
              emptyrec-sink
-               (Target 5 A (suc (suc (var x1))) (var x0) [ σ ⇑[ 5 ] ])
+               (Targetᵇʳ 5 A (suc (suc (var x1))) (var x0) [ σ ⇑[ 5 ] ])
                (var x0))
             (var x0))
          (var x1) ∘⟨ boolrecᵍ-Π ⟩
        var x0)                                                            ≡⟨ cong (prodrec _ _ _ _ _) $
                                                                              cong (flip (_∘⟨ boolrecᵍ-Π ⟩_) _) $
                                                                              cong₄ (natcase _ _)
-                                                                               (cong (Π_,_▷_▹_ _ _ _) Target-[⇑])
+                                                                               (cong (Π_,_▷_▹_ _ _ _) Targetᵇʳ-[⇑])
                                                                                (cong (lam _) $
                                                                                 cong₃ (unitrec _ _ _)
-                                                                                  Target-[⇑] refl (wk[]′-[⇑] u))
+                                                                                  Targetᵇʳ-[⇑] refl (wk[]′-[⇑] u))
                                                                                (cong₄ (natcase _ _)
-                                                                                  (cong (Π_,_▷_▹_ _ _ _) Target-[⇑])
+                                                                                  (cong (Π_,_▷_▹_ _ _ _) Targetᵇʳ-[⇑])
                                                                                   (cong (lam _) $
                                                                                    cong₃ (unitrec _ _ _)
-                                                                                     Target-[⇑] refl (wk[]′-[⇑] t))
+                                                                                     Targetᵇʳ-[⇑] refl (wk[]′-[⇑] t))
                                                                                   (cong (lam _) $
-                                                                                   cong₂ emptyrec-sink Target-[⇑] refl)
+                                                                                   cong₂ emptyrec-sink Targetᵇʳ-[⇑] refl)
                                                                                   refl)
                                                                                refl ⟩
     prodrec boolrecᵍ-pr Boolᵍ₁ p (A [ σ ⇑ ]) (v [ σ ])
       (natcase boolrecᵍ-nc₂ boolrecᵍ-nc₃
          (Π boolrecᵍ-Π , p ▷ OK (var x0) ▹
-          Target 4 (A [ σ ⇑ ]) (var x1) (var x0))
+          Targetᵇʳ 4 (A [ σ ⇑ ]) (var x1) (var x0))
          (lam boolrecᵍ-Π $
           unitrec 0 boolrecᵍ-Π p
-            (Target 4 (A [ σ ⇑ ]) zero (var x0)) (var x0)
+            (Targetᵇʳ 4 (A [ σ ⇑ ]) zero (var x0)) (var x0)
             (wk[ 3 ]′ (u [ σ ])))
          (natcase boolrecᵍ-nc₁ boolrecᵍ-nc₃
             (Π boolrecᵍ-Π , p ▷ OK (suc (var x0)) ▹
-             Target 5 (A [ σ ⇑ ]) (suc (var x1)) (var x0))
+             Targetᵇʳ 5 (A [ σ ⇑ ]) (suc (var x1)) (var x0))
             (lam boolrecᵍ-Π $
              unitrec 0 boolrecᵍ-Π p
-               (Target 5 (A [ σ ⇑ ]) (suc zero) (var x0)) (var x0)
+               (Targetᵇʳ 5 (A [ σ ⇑ ]) (suc zero) (var x0)) (var x0)
                (wk[ 4 ]′ (t [ σ ])))
             (lam boolrecᵍ-Π $
              emptyrec-sink
-               (Target 5 (A [ σ ⇑ ]) (suc (suc (var x1))) (var x0))
+               (Targetᵇʳ 5 (A [ σ ⇑ ]) (suc (suc (var x1))) (var x0))
                (var x0))
             (var x0))
          (var x1) ∘⟨ boolrecᵍ-Π ⟩
@@ -416,30 +416,30 @@ opaque
 
 opaque
 
-  -- A weakening lemma for Target.
+  -- A weakening lemma for Targetᵇʳ.
 
-  wk-liftn-Target :
-    wk (liftn ρ k) (Target k A t u) ≡
-    Target k (wk (lift ρ) A) (wk (liftn ρ k) t) (wk (liftn ρ k) u)
-  wk-liftn-Target {ρ} {k} {A} {t} {u} =
-    wk (liftn ρ k) (Target k A t u)                                 ≡⟨ wk-liftn k ⟩
+  wk-liftn-Targetᵇʳ :
+    wk (liftn ρ k) (Targetᵇʳ k A t u) ≡
+    Targetᵇʳ k (wk (lift ρ) A) (wk (liftn ρ k) t) (wk (liftn ρ k) u)
+  wk-liftn-Targetᵇʳ {ρ} {k} {A} {t} {u} =
+    wk (liftn ρ k) (Targetᵇʳ k A t u)                                 ≡⟨ wk-liftn k ⟩
 
-    Target k A t u [ toSubst ρ ⇑[ k ] ]                             ≡⟨ Target-[⇑] ⟩
+    Targetᵇʳ k A t u [ toSubst ρ ⇑[ k ] ]                             ≡⟨ Targetᵇʳ-[⇑] ⟩
 
-    Target k (A [ toSubst ρ ⇑ ]) (t [ toSubst ρ ⇑[ k ] ])
-      (u [ toSubst ρ ⇑[ k ] ])                                      ≡˘⟨ cong₃ (Target _) (wk-liftn 1) (wk-liftn k) (wk-liftn k) ⟩
+    Targetᵇʳ k (A [ toSubst ρ ⇑ ]) (t [ toSubst ρ ⇑[ k ] ])
+      (u [ toSubst ρ ⇑[ k ] ])                                      ≡˘⟨ cong₃ (Targetᵇʳ _) (wk-liftn 1) (wk-liftn k) (wk-liftn k) ⟩
 
-    Target k (wk (lift ρ) A) (wk (liftn ρ k) t) (wk (liftn ρ k) u)  ∎
+    Targetᵇʳ k (wk (lift ρ) A) (wk (liftn ρ k) t) (wk (liftn ρ k) u)  ∎
 
 opaque
-  unfolding Target
+  unfolding Targetᵇʳ
 
-  -- Another weakening lemma for Target.
+  -- Another weakening lemma for Targetᵇʳ.
 
-  Target-wk[]′ :
-    Target k A (wk[ k ]′ t) (wk[ k ]′ u) ≡
+  Targetᵇʳ-wk[]′ :
+    Targetᵇʳ k A (wk[ k ]′ t) (wk[ k ]′ u) ≡
     wk[ k ]′ (A [ prodʷ Boolᵍ₁ t u ]₀)
-  Target-wk[]′ {k} {A} {t} {u} =
+  Targetᵇʳ-wk[]′ {k} {A} {t} {u} =
     A [ k ][ prodʷ Boolᵍ₁ (wk[ k ]′ t) (wk[ k ]′ u) ]↑  ≡⟨⟩
     A [ k ][ wk[ k ]′ (prodʷ Boolᵍ₁ t u) ]↑             ≡⟨ [][wk[]′]↑ A ⟩
     wk[ k ]′ (A [ prodʷ Boolᵍ₁ t u ]₀)                  ∎
