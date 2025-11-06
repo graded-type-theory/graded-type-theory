@@ -220,6 +220,22 @@ opaque
 
 opaque
 
+  -- If A is definitionally equal to Unit s, then A reduces to Unit s
+  -- (given a certain assumption).
+
+  Unit-norm :
+    ⦃ ok : No-equality-reflection or-empty Γ ⦄ →
+    Γ ⊢ A ≡ Unit s → Γ ⊢ A ↘ Unit s
+  Unit-norm A≡Unit =
+    let ⊢A , _ = wf-⊢≡ A≡Unit in
+    case whNorm ⊢A of λ
+      (_ , B-whnf , A⇒*B) →
+    case Unit≡A (trans (sym A≡Unit) (subset* A⇒*B)) B-whnf of λ {
+      PE.refl →
+    A⇒*B , Unitₙ }
+
+opaque
+
   -- If equality reflection is not allowed or the context is empty,
   -- and A is definitionally equal to ΠΣ⟨ b ⟩ p , q ▷ B ▹ C, then A
   -- reduces to ΠΣ⟨ b ⟩ p , q ▷ B′ ▹ C′, where B′ satisfies
