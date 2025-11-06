@@ -328,6 +328,7 @@ import Definition.Conversion.Decidable
 import Definition.Conversion.EqRelInstance
 import Definition.Conversion.Consequences.Completeness
 import Definition.Conversion.Consequences.InverseUniv
+import Definition.Conversion.Consequences.Var
 import Definition.Untyped.Normal-form
 import Definition.Typed.Eta-long-normal-form
 import Definition.Conversion.FullReduction
