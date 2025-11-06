@@ -39,8 +39,8 @@ open import Definition.Typed.Substitution.Primitive R
 open import Definition.Typed.Syntactic R
 open import Definition.Typed.Weakening R
 
-open import Definition.Untyped.Bool 𝕄 as B
-  using (OK; boolrecᵍ-nc₁; boolrecᵍ-nc₂)
+open import Definition.Untyped.Bool.Nr 𝕄 as B
+  using (OK; OKᵍ; boolrecᵍ-nc₁; boolrecᵍ-nc₂)
 open import Definition.Untyped.Empty 𝕄
 open import Definition.Untyped.Erased 𝕄 𝕨
 open import Definition.Untyped.Nat 𝕄
@@ -69,7 +69,7 @@ private opaque
   Unitʷ-ok : Unitʷ-allowed
   Unitʷ-ok = Erased-ok .proj₁
 
-open Definition.Typed.Properties.Admissible.Bool.OK R Unitʷ-ok
+open Definition.Typed.Properties.Admissible.Bool.OK OKᵍ R Unitʷ-ok
 
 private opaque
 

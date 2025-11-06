@@ -8,11 +8,10 @@ open import Graded.Modality
 module Definition.Typed.Properties.Admissible.Bool.OK
   {a} {M : Set a}
   {𝕄 : Modality M}
+  (OKᵍ : M)
   (R : Type-restrictions 𝕄)
   (open Modality 𝕄)
   (open Type-restrictions R)
-  -- It is assumed that the modality has an nr function.
-  ⦃ has-nr : Has-nr M semiring-with-meet ⦄
   -- It is assumed that weak unit types are allowed.
   (Unitʷ-ok : Unitʷ-allowed)
   where
@@ -25,7 +24,7 @@ open import Definition.Typed.Reasoning.Type R
 open import Definition.Typed.Syntactic R
 
 open import Definition.Untyped M
-open import Definition.Untyped.Bool 𝕄
+open import Definition.Untyped.Bool.OK 𝕄 OKᵍ
 open import Definition.Untyped.Nat 𝕄
 
 open import Tools.Fin

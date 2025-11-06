@@ -21,7 +21,7 @@ module Definition.Untyped.Bool.Erased
 open Modality 𝕄
 
 open import Definition.Untyped M hiding (_[_]′)
-open import Definition.Untyped.Bool 𝕄 as B
+open import Definition.Untyped.Bool.Nr 𝕄 as B
   using (OK; OKᵍ; boolrecᵍ-nc₁; boolrecᵍ-nc₂)
 open import Definition.Untyped.Empty 𝕄
 open import Definition.Untyped.Erased 𝕄 𝕨 as E hiding ([_])

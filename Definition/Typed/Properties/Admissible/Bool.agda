@@ -3,27 +3,26 @@
 ------------------------------------------------------------------------
 
 open import Definition.Typed.Restrictions
-import Definition.Untyped.Bool
+
 open import Graded.Modality
 
 module Definition.Typed.Properties.Admissible.Bool
   {a} {M : Set a}
   {𝕄 : Modality M}
-  (open Definition.Untyped.Bool 𝕄)
-  (open Modality 𝕄)
   (R : Type-restrictions 𝕄)
+  -- The three grades used in the Σ-type used to encode the type Bool
+  (Boolᵍ₁ Boolᵍ₂ OKᵍ : M)
   (open Type-restrictions R)
-  -- It is assumed that the modality has an nr function.
-  ⦃ has-nr : Has-nr M semiring-with-meet ⦄
   -- It is assumed that certain Σ-types are allowed.
-  (Σ-ok : Σʷ-allowed ω Boolᵍ)
+  (Σ-ok : Σʷ-allowed Boolᵍ₁ Boolᵍ₂)
   -- It is assumed that weak unit types are allowed.
   (Unitʷ-ok : Unitʷ-allowed)
   where
 
+open Modality 𝕄
+
 open import Definition.Typed R
-open import Definition.Typed.Properties.Admissible.Bool.OK
-  R Unitʷ-ok
+open import Definition.Typed.Properties.Admissible.Bool.OK OKᵍ R Unitʷ-ok
 open import Definition.Typed.Properties.Admissible.Empty R
 open import Definition.Typed.Properties.Admissible.Nat R
 open import Definition.Typed.Properties.Admissible.Pi R
@@ -39,6 +38,7 @@ open import Definition.Typed.Syntactic R
 open import Definition.Typed.Weakening R
 
 open import Definition.Untyped M
+open import Definition.Untyped.Bool 𝕄 Boolᵍ₁ Boolᵍ₂ OKᵍ
 open import Definition.Untyped.Empty 𝕄
 open import Definition.Untyped.Nat 𝕄
 open import Definition.Untyped.Properties M
@@ -56,7 +56,9 @@ private variable
   Δ                                 : Con Term _
   Γ                                 : Cons _ _
   A A₁ A₂ B t t₁ t₂ u u₁ u₂ v v₁ v₂ : Term _
-  p                                 : M
+  p boolrecᵍ-pr boolrecᵍ-nc₁
+    boolrecᵍ-nc₂ boolrecᵍ-nc₃
+    boolrecᵍ-Π                      : M
 
 ------------------------------------------------------------------------
 -- Typing rules for Bool, true and false
@@ -164,6 +166,7 @@ opaque
 
 private
   module Boolrec
+    {boolrecᵍ-pr boolrecᵍ-nc₁ boolrecᵍ-nc₂ boolrecᵍ-nc₃ boolrecᵍ-Π : M}
     (Π-ok : Π-allowed boolrecᵍ-Π p)
     (Π-𝟙-𝟘-ok : Π-allowed 𝟙 𝟘)
     (Unitˢ-ok : Unitˢ-allowed)
@@ -397,7 +400,7 @@ private
         drop k Δ PE.≡ Γ .vars →
         Γ .defs »⊢ Δ →
         Γ .defs » Δ ∙ ℕ ⊢
-          natcase boolrecᵍ-nc₁ (boolrecᵍ-nc₃ p)
+          natcase boolrecᵍ-nc₁ boolrecᵍ-nc₃
             (Π boolrecᵍ-Π , p ▷ OK (suc (var x0)) ▹
              Target (3+ k) A₁ (suc (var x1)) (var x0))
             (lam boolrecᵍ-Π $
@@ -409,7 +412,7 @@ private
                (Target (3+ k) A₁ (suc (suc (var x1))) (var x0))
                (var x0))
             (var x0) ≡
-          natcase boolrecᵍ-nc₁ (boolrecᵍ-nc₃ p)
+          natcase boolrecᵍ-nc₁ boolrecᵍ-nc₃
             (Π boolrecᵍ-Π , p ▷ OK (suc (var x0)) ▹
              Target (3+ k) A₂ (suc (var x1)) (var x0))
             (lam boolrecᵍ-Π $
@@ -444,13 +447,13 @@ private
 
       natcase-natcase-lemma :
         Γ »∙ ℕ »∙ OK (var x0) ⊢
-          natcase boolrecᵍ-nc₂ (boolrecᵍ-nc₃ p)
+          natcase boolrecᵍ-nc₂ boolrecᵍ-nc₃
             (Π boolrecᵍ-Π , p ▷ OK (var x0) ▹
              Target 4 A₁ (var x1) (var x0))
             (lam boolrecᵍ-Π $
              unitrec 0 boolrecᵍ-Π p (Target 4 A₁ zero (var x0))
                (var x0) (wk[ 3 ]′ u₁))
-            (natcase boolrecᵍ-nc₁ (boolrecᵍ-nc₃ p)
+            (natcase boolrecᵍ-nc₁ boolrecᵍ-nc₃
                (Π boolrecᵍ-Π , p ▷ OK (suc (var x0)) ▹
                 Target 5 A₁ (suc (var x1)) (var x0))
                (lam boolrecᵍ-Π $
@@ -463,13 +466,13 @@ private
                (var x0))
             (var x1) ∘⟨ boolrecᵍ-Π ⟩
           (var x0) ≡
-          natcase boolrecᵍ-nc₂ (boolrecᵍ-nc₃ p)
+          natcase boolrecᵍ-nc₂ boolrecᵍ-nc₃
             (Π boolrecᵍ-Π , p ▷ OK (var x0) ▹
              Target 4 A₂ (var x1) (var x0))
             (lam boolrecᵍ-Π $
              unitrec 0 boolrecᵍ-Π p (Target 4 A₂ zero (var x0))
                (var x0) (wk[ 3 ]′ u₂))
-            (natcase boolrecᵍ-nc₁ (boolrecᵍ-nc₃ p)
+            (natcase boolrecᵍ-nc₁ boolrecᵍ-nc₃
                (Π boolrecᵍ-Π , p ▷ OK (suc (var x0)) ▹
                 Target 5 A₂ (suc (var x1)) (var x0))
                (lam boolrecᵍ-Π $
@@ -482,7 +485,7 @@ private
                (var x0))
             (var x1) ∘⟨ boolrecᵍ-Π ⟩
           (var x0) ∷
-          A₁ [ prodʷ ω (var x1) (var x0) ]↑²
+          A₁ [ prodʷ Boolᵍ₁ (var x1) (var x0) ]↑²
       natcase-natcase-lemma =
         let ⊢OK = ⊢OK (var₀ (ℕⱼ ⊢Γ)) in
         PE.subst (_⊢_≡_∷_ _ _ _)
@@ -504,12 +507,12 @@ private opaque
   -- A lemma used below.
 
   natcase-natcase-[,]₁₀ :
-    (natcase boolrecᵍ-nc₂ (boolrecᵍ-nc₃ p)
+    (natcase boolrecᵍ-nc₂ boolrecᵍ-nc₃
        (Π boolrecᵍ-Π , p ▷ OK (var x0) ▹ Target 4 A (var x1) (var x0))
        (lam boolrecᵍ-Π $
         unitrec 0 boolrecᵍ-Π p (Target 4 A zero (var x0)) (var x0)
           (wk[ 3 ]′ u))
-       (natcase boolrecᵍ-nc₁ (boolrecᵍ-nc₃ p)
+       (natcase boolrecᵍ-nc₁ boolrecᵍ-nc₃
           (Π boolrecᵍ-Π , p ▷ OK (suc (var x0)) ▹
            Target 5 A (suc (var x1)) (var x0))
           (lam boolrecᵍ-Π $
@@ -522,12 +525,12 @@ private opaque
        (var x1)
        [ v , starʷ 0 ]₁₀) ∘⟨ boolrecᵍ-Π ⟩
     starʷ 0 PE.≡
-    natcase boolrecᵍ-nc₂ (boolrecᵍ-nc₃ p)
+    natcase boolrecᵍ-nc₂ boolrecᵍ-nc₃
       (Π boolrecᵍ-Π , p ▷ OK (var x0) ▹ Target 2 A (var x1) (var x0))
       (lam boolrecᵍ-Π $
        unitrec 0 boolrecᵍ-Π p (Target 2 A zero (var x0)) (var x0)
          (wk[ 1 ]′ u))
-      (natcase boolrecᵍ-nc₁ (boolrecᵍ-nc₃ p)
+      (natcase boolrecᵍ-nc₁ boolrecᵍ-nc₃
          (Π boolrecᵍ-Π , p ▷ OK (suc (var x0)) ▹
           Target 3 A (suc (var x1)) (var x0))
          (lam boolrecᵍ-Π $
@@ -539,7 +542,7 @@ private opaque
          (var x0))
       v ∘⟨ boolrecᵍ-Π ⟩
     starʷ 0
-  natcase-natcase-[,]₁₀ =
+  natcase-natcase-[,]₁₀ {boolrecᵍ-Π} =
     PE.cong (flip _∘⟨ boolrecᵍ-Π ⟩_ _) $
     PE.trans natcase-[] $
     PE.cong₄ (natcase _ _)
@@ -572,10 +575,11 @@ opaque
     Γ ⊢ t₁ ≡ t₂ ∷ A₁ [ true ]₀ →
     Γ ⊢ u₁ ≡ u₂ ∷ A₁ [ false ]₀ →
     Γ ⊢ v₁ ≡ v₂ ∷ Bool →
-    Γ ⊢ boolrec p A₁ t₁ u₁ v₁ ≡ boolrec p A₂ t₂ u₂ v₂ ∷ A₁ [ v₁ ]₀
-  boolrec-cong Π-ok Π-𝟙-𝟘-ok Unitˢ-ok A₁≡A₂ t₁≡t₂ u₁≡u₂ v₁≡v₂ =
+    Γ ⊢ boolrec boolrecᵍ-pr boolrecᵍ-nc₁ boolrecᵍ-nc₂ boolrecᵍ-nc₃ boolrecᵍ-Π p A₁ t₁ u₁ v₁ ≡
+        boolrec boolrecᵍ-pr boolrecᵍ-nc₁ boolrecᵍ-nc₂ boolrecᵍ-nc₃ boolrecᵍ-Π p A₂ t₂ u₂ v₂ ∷ A₁ [ v₁ ]₀
+  boolrec-cong {boolrecᵍ-pr} Π-ok Π-𝟙-𝟘-ok Unitˢ-ok A₁≡A₂ t₁≡t₂ u₁≡u₂ v₁≡v₂ =
     prodrec-cong′ A₁≡A₂ v₁≡v₂ $
-    Boolrec.natcase-natcase-lemma Π-ok Π-𝟙-𝟘-ok Unitˢ-ok A₁≡A₂ t₁≡t₂
+    Boolrec.natcase-natcase-lemma {boolrecᵍ-pr = boolrecᵍ-pr} Π-ok Π-𝟙-𝟘-ok Unitˢ-ok A₁≡A₂ t₁≡t₂
       u₁≡u₂
 
 opaque
@@ -590,7 +594,7 @@ opaque
     Γ ⊢ t ∷ A [ true ]₀ →
     Γ ⊢ u ∷ A [ false ]₀ →
     Γ ⊢ v ∷ Bool →
-    Γ ⊢ boolrec p A t u v ∷ A [ v ]₀
+    Γ ⊢ boolrec boolrecᵍ-pr boolrecᵍ-nc₁ boolrecᵍ-nc₂ boolrecᵍ-nc₃ boolrecᵍ-Π p A t u v ∷ A [ v ]₀
   ⊢boolrec Π-ok Π-𝟙-𝟘-ok Unitˢ-ok ⊢A ⊢t ⊢u ⊢v =
     syntacticEqTerm
       (boolrec-cong Π-ok Π-𝟙-𝟘-ok Unitˢ-ok (refl ⊢A) (refl ⊢t) (refl ⊢u)
@@ -609,16 +613,17 @@ opaque
     Γ »∙ Bool ⊢ A →
     Γ ⊢ t ∷ A [ true ]₀ →
     Γ ⊢ u ∷ A [ false ]₀ →
-    Γ ⊢ boolrec p A t u true ⇒* t ∷ A [ true ]₀
-  boolrec-true-⇒ {p} {Γ} {A} {t} {u} Π-ok Π-𝟙-𝟘-ok Unitˢ-ok ⊢A ⊢t ⊢u =
-    prodrec boolrecᵍ-pr ω p A
-      (prodʷ ω (suc zero) (starʷ 0))
-      (natcase boolrecᵍ-nc₂ (boolrecᵍ-nc₃ p)
+    Γ ⊢ boolrec boolrecᵍ-pr boolrecᵍ-nc₁ boolrecᵍ-nc₂ boolrecᵍ-nc₃ boolrecᵍ-Π p A t u true ⇒* t ∷ A [ true ]₀
+  boolrec-true-⇒ {boolrecᵍ-Π} {p} {Γ} {A} {t} {u} {boolrecᵍ-pr} {boolrecᵍ-nc₁}
+                 {boolrecᵍ-nc₂} {boolrecᵍ-nc₃} Π-ok Π-𝟙-𝟘-ok Unitˢ-ok ⊢A ⊢t ⊢u =
+    prodrec boolrecᵍ-pr Boolᵍ₁ p A
+      (prodʷ Boolᵍ₁ (suc zero) (starʷ 0))
+      (natcase boolrecᵍ-nc₂ boolrecᵍ-nc₃
          (Π boolrecᵍ-Π , p ▷ OK (var x0) ▹ Target 4 A (var x1) (var x0))
          (lam boolrecᵍ-Π $
           unitrec 0 boolrecᵍ-Π p (Target 4 A zero (var x0))
             (var x0) (wk[ 3 ]′ u))
-         (natcase boolrecᵍ-nc₁ (boolrecᵍ-nc₃ p)
+         (natcase boolrecᵍ-nc₁ boolrecᵍ-nc₃
             (Π boolrecᵍ-Π , p ▷ OK (suc (var x0)) ▹
              Target 5 A (suc (var x1)) (var x0))
             (lam boolrecᵍ-Π $
@@ -634,12 +639,12 @@ opaque
                                                                                 PE.subst (_⊢_≡_ _ _) (PE.sym OK-[]) $
                                                                                 sym $ OK-1≡ ⊢Γ)
                                                                                (syntacticEqTerm natcase-natcase-lemma .proj₂ .proj₁) ⟩
-    (natcase boolrecᵍ-nc₂ (boolrecᵍ-nc₃ p)
+    (natcase boolrecᵍ-nc₂ boolrecᵍ-nc₃
        (Π boolrecᵍ-Π , p ▷ OK (var x0) ▹ Target 4 A (var x1) (var x0))
        (lam boolrecᵍ-Π $
         unitrec 0 boolrecᵍ-Π p (Target 4 A zero (var x0)) (var x0)
           (wk[ 3 ]′ u))
-       (natcase boolrecᵍ-nc₁ (boolrecᵍ-nc₃ p)
+       (natcase boolrecᵍ-nc₁ boolrecᵍ-nc₃
           (Π boolrecᵍ-Π , p ▷ OK (suc (var x0)) ▹
            Target 5 A (suc (var x1)) (var x0))
           (lam boolrecᵍ-Π $
@@ -653,12 +658,12 @@ opaque
        [ suc zero , starʷ 0 ]₁₀) ∘⟨ boolrecᵍ-Π ⟩
     starʷ 0                                                               ≡⟨ natcase-natcase-[,]₁₀ ⟩⇒
 
-    natcase boolrecᵍ-nc₂ (boolrecᵍ-nc₃ p)
+    natcase boolrecᵍ-nc₂ boolrecᵍ-nc₃
       (Π boolrecᵍ-Π , p ▷ OK (var x0) ▹ Target 2 A (var x1) (var x0))
       (lam boolrecᵍ-Π $
        unitrec 0 boolrecᵍ-Π p (Target 2 A zero (var x0)) (var x0)
          (wk[ 1 ]′ u))
-      (natcase boolrecᵍ-nc₁ (boolrecᵍ-nc₃ p)
+      (natcase boolrecᵍ-nc₁ boolrecᵍ-nc₃
          (Π boolrecᵍ-Π , p ▷ OK (suc (var x0)) ▹
           Target 3 A (suc (var x1)) (var x0))
          (lam boolrecᵍ-Π $
@@ -679,7 +684,7 @@ opaque
                                                                                      (zeroⱼ ⊢Γ))
                                                                                   (Π-[]₀-lemma (sucⱼ (zeroⱼ ⊢Γ)) (OK-1≡ ⊢Γ)))
                                                                                (starⱼ ⊢Γ Unitʷ-ok) ⟩
-    (natcase boolrecᵍ-nc₁ (boolrecᵍ-nc₃ p)
+    (natcase boolrecᵍ-nc₁ boolrecᵍ-nc₃
        (Π boolrecᵍ-Π , p ▷ OK (suc (var x0)) ▹
         Target 3 A (suc (var x1)) (var x0))
        (lam boolrecᵍ-Π $
@@ -703,7 +708,7 @@ opaque
                                                                                 PE.trans emptyrec-sink-[] $
                                                                                 PE.cong₂ emptyrec-sink (Target-[₀⇑] 2) PE.refl)
                                                                                PE.refl ⟩⇒
-    natcase boolrecᵍ-nc₁ (boolrecᵍ-nc₃ p)
+    natcase boolrecᵍ-nc₁ boolrecᵍ-nc₃
       (Π boolrecᵍ-Π , p ▷ OK (suc (var x0)) ▹
        Target 2 A (suc (var x1)) (var x0))
       (lam boolrecᵍ-Π $
@@ -745,7 +750,7 @@ opaque
                                                                                 syntacticEqTerm (wk-t₁≡wk-t₂ PE.refl ⊢Γ) .proj₂ .proj₁) ⟩∎
     t                                                                     ∎
     where
-    open Boolrec Π-ok Π-𝟙-𝟘-ok Unitˢ-ok (refl ⊢A) (refl ⊢t) (refl ⊢u)
+    open Boolrec {boolrecᵍ-pr = boolrecᵍ-pr} Π-ok Π-𝟙-𝟘-ok Unitˢ-ok (refl ⊢A) (refl ⊢t) (refl ⊢u)
 
 opaque
 
@@ -758,7 +763,7 @@ opaque
     Γ »∙ Bool ⊢ A →
     Γ ⊢ t ∷ A [ true ]₀ →
     Γ ⊢ u ∷ A [ false ]₀ →
-    Γ ⊢ boolrec p A t u true ≡ t ∷ A [ true ]₀
+    Γ ⊢ boolrec boolrecᵍ-pr boolrecᵍ-nc₁ boolrecᵍ-nc₂ boolrecᵍ-nc₃ boolrecᵍ-Π p A t u true ≡ t ∷ A [ true ]₀
   boolrec-true-≡ Π-ok Π-𝟙-𝟘-ok Unitˢ-ok ⊢A ⊢t ⊢u =
     subset*Term (boolrec-true-⇒ Π-ok Π-𝟙-𝟘-ok Unitˢ-ok ⊢A ⊢t ⊢u)
 
@@ -774,15 +779,16 @@ opaque
     Γ »∙ Bool ⊢ A →
     Γ ⊢ t ∷ A [ true ]₀ →
     Γ ⊢ u ∷ A [ false ]₀ →
-    Γ ⊢ boolrec p A t u false ⇒* u ∷ A [ false ]₀
-  boolrec-false-⇒ {p} {Γ} {A} {t} {u} Π-ok Π-𝟙-𝟘-ok Unitˢ-ok ⊢A ⊢t ⊢u =
-    prodrec boolrecᵍ-pr ω p A (prodʷ ω zero (starʷ 0))
-      (natcase boolrecᵍ-nc₂ (boolrecᵍ-nc₃ p)
+    Γ ⊢ boolrec boolrecᵍ-pr boolrecᵍ-nc₁ boolrecᵍ-nc₂ boolrecᵍ-nc₃ boolrecᵍ-Π p A t u false ⇒* u ∷ A [ false ]₀
+  boolrec-false-⇒ {boolrecᵍ-Π} {p} {Γ} {A} {t} {u} {boolrecᵍ-pr} {boolrecᵍ-nc₁}
+                  {boolrecᵍ-nc₂} {boolrecᵍ-nc₃} Π-ok Π-𝟙-𝟘-ok Unitˢ-ok ⊢A ⊢t ⊢u =
+    prodrec boolrecᵍ-pr Boolᵍ₁ p A (prodʷ Boolᵍ₁ zero (starʷ 0))
+      (natcase boolrecᵍ-nc₂ boolrecᵍ-nc₃
          (Π boolrecᵍ-Π , p ▷ OK (var x0) ▹ Target 4 A (var x1) (var x0))
          (lam boolrecᵍ-Π $
           unitrec 0 boolrecᵍ-Π p (Target 4 A zero (var x0))
             (var x0) (wk[ 3 ]′ u))
-         (natcase boolrecᵍ-nc₁ (boolrecᵍ-nc₃ p)
+         (natcase boolrecᵍ-nc₁ boolrecᵍ-nc₃
             (Π boolrecᵍ-Π , p ▷ OK (suc (var x0)) ▹
              Target 5 A (suc (var x1)) (var x0))
             (lam boolrecᵍ-Π $
@@ -798,12 +804,12 @@ opaque
                                                                                 PE.subst (_⊢_≡_ _ _) (PE.sym OK-[]) $
                                                                                 sym $ OK-0≡ ⊢Γ)
                                                                                (syntacticEqTerm natcase-natcase-lemma .proj₂ .proj₁) ⟩
-    (natcase boolrecᵍ-nc₂ (boolrecᵍ-nc₃ p)
+    (natcase boolrecᵍ-nc₂ boolrecᵍ-nc₃
        (Π boolrecᵍ-Π , p ▷ OK (var x0) ▹ Target 4 A (var x1) (var x0))
        (lam boolrecᵍ-Π $
         unitrec 0 boolrecᵍ-Π p (Target 4 A zero (var x0)) (var x0)
           (wk[ 3 ]′ u))
-       (natcase boolrecᵍ-nc₁ (boolrecᵍ-nc₃ p)
+       (natcase boolrecᵍ-nc₁ boolrecᵍ-nc₃
           (Π boolrecᵍ-Π , p ▷ OK (suc (var x0)) ▹
            Target 5 A (suc (var x1)) (var x0))
           (lam boolrecᵍ-Π $
@@ -817,12 +823,12 @@ opaque
        [ zero , starʷ 0 ]₁₀) ∘⟨ boolrecᵍ-Π ⟩
     starʷ 0                                                               ≡⟨ natcase-natcase-[,]₁₀ ⟩⇒
 
-    natcase boolrecᵍ-nc₂ (boolrecᵍ-nc₃ p)
+    natcase boolrecᵍ-nc₂ boolrecᵍ-nc₃
       (Π boolrecᵍ-Π , p ▷ OK (var x0) ▹ Target 2 A (var x1) (var x0))
       (lam boolrecᵍ-Π $
        unitrec 0 boolrecᵍ-Π p (Target 2 A zero (var x0)) (var x0)
          (wk[ 1 ]′ u))
-      (natcase boolrecᵍ-nc₁ (boolrecᵍ-nc₃ p)
+      (natcase boolrecᵍ-nc₁ boolrecᵍ-nc₃
          (Π boolrecᵍ-Π , p ▷ OK (suc (var x0)) ▹
           Target 3 A (suc (var x1)) (var x0))
          (lam boolrecᵍ-Π $
@@ -863,7 +869,7 @@ opaque
                                                                                 syntacticEqTerm (wk-u₁≡wk-u₂ PE.refl ⊢Γ) .proj₂ .proj₁) ⟩∎
     u                                                                     ∎
     where
-    open Boolrec Π-ok Π-𝟙-𝟘-ok Unitˢ-ok (refl ⊢A) (refl ⊢t) (refl ⊢u)
+    open Boolrec {boolrecᵍ-pr = boolrecᵍ-pr} Π-ok Π-𝟙-𝟘-ok Unitˢ-ok (refl ⊢A) (refl ⊢t) (refl ⊢u)
 
 opaque
 
@@ -876,6 +882,6 @@ opaque
     Γ »∙ Bool ⊢ A →
     Γ ⊢ t ∷ A [ true ]₀ →
     Γ ⊢ u ∷ A [ false ]₀ →
-    Γ ⊢ boolrec p A t u false ≡ u ∷ A [ false ]₀
+    Γ ⊢ boolrec boolrecᵍ-pr boolrecᵍ-nc₁ boolrecᵍ-nc₂ boolrecᵍ-nc₃ boolrecᵍ-Π p A t u false ≡ u ∷ A [ false ]₀
   boolrec-false-≡ Π-ok Π-𝟙-𝟘-ok Unitˢ-ok ⊢A ⊢t ⊢u =
     subset*Term (boolrec-false-⇒ Π-ok Π-𝟙-𝟘-ok Unitˢ-ok ⊢A ⊢t ⊢u)

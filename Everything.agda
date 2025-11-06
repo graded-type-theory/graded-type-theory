@@ -100,7 +100,10 @@ import Definition.Untyped.Unit
 import Definition.Untyped.Nat
 import Definition.Untyped.Lift
 import Definition.Untyped.Empty
+import Definition.Untyped.Bool.OK
 import Definition.Untyped.Bool
+import Definition.Untyped.Bool.Nr
+import Definition.Untyped.Bool.Greatest-lower-bound
 import Definition.Untyped.Erased.Eta
 import Definition.Untyped.Erased.No-eta
 import Definition.Untyped.Erased
@@ -201,7 +204,8 @@ import Graded.Derived.Unit
 import Graded.Derived.Nat
 import Graded.Derived.Lift
 import Graded.Derived.Empty
-import Graded.Derived.Bool
+import Graded.Derived.Bool.Nr
+import Graded.Derived.Bool.Greatest-lower-bound
 import Graded.Derived.Erased.Usage.Eta
 import Graded.Derived.Erased.Usage.No-eta
 import Graded.Derived.Erased.Usage
