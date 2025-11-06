@@ -339,7 +339,7 @@ private
 Vec : Term 0
 Vec = lam ω (lam ω Vec-body₁)
 
--- Vec l is well-resourced.
+-- Vec is well-resourced.
 
 ▸Vec : ε ▸[ 𝟙ᵐ ] Vec
 ▸Vec =
