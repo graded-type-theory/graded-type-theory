@@ -746,6 +746,18 @@ opaque
     t PE.≡ prodˢ p u v
   no-η-expansion-Σˢ = flip whnfRed*Term
 
+opaque
+
+  -- Reduction does not include η-expansion for lifted types (for
+  -- WHNFs): if a WHNF t reduces to lift u (at type Lift l A), then t
+  -- is equal to lift u.
+
+  no-η-expansion-Lift :
+    Whnf t →
+    Γ ⊢ t ⇒* lift u ∷ Lift l A →
+    t PE.≡ lift u
+  no-η-expansion-Lift = flip whnfRed*Term
+
 ------------------------------------------------------------------------
 -- Transitivity
 

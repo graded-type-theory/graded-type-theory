@@ -491,7 +491,7 @@ module _
 -- Some results related to η-long normal forms
 
 -- Note that reduction does not include η-expansion (for WHNFs, see
--- no-η-expansion-Unitˢ and no-η-expansion-Σˢ in
+-- no-η-expansion-Unitˢ, no-η-expansion-Σˢ and no-η-expansion-Lift in
 -- Definition.Typed.Properties). In Graded.FullReduction it is proved
 -- that a well-resourced term has a well-resourced η-long normal form,
 -- *given certain assumptions*. Here it is proved that, given certain
