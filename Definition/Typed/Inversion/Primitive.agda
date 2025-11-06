@@ -53,7 +53,7 @@ opaque
 
 opaque
 
-  -- Level is not in any universe unless Level-is-small.
+  -- If Level is not small, then Level is not in any universe.
 
   ¬Level-is-small→¬Level∷U :
     ¬ Level-is-small → ¬ Γ ⊢ Level ∷ U t
