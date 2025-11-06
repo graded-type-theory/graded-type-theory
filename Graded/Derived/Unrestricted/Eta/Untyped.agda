@@ -18,17 +18,23 @@ open import Tools.Nat
 private variable
   n : Nat
 
--- The type constructor Unrestricted.
+opaque
 
-Unrestricted : Term n → Term n
-Unrestricted A = Σˢ ω , ω ▷ A ▹ Unitˢ
+  -- The type constructor Unrestricted.
 
--- The constructor [_].
+  Unrestricted : Term n → Term n → Term n
+  Unrestricted l A = Σˢ ω , ω ▷ A ▹ Lift (wk1 l) Unitˢ
 
-[_] : Term n → Term n
-[ t ] = prodˢ ω t starˢ
+opaque
 
--- The projection unbox.
+  -- The constructor [_].
 
-unbox : Term n → Term n
-unbox t = fst ω t
+  [_] : Term n → Term n
+  [ t ] = prodˢ ω t (lift starˢ)
+
+opaque
+
+  -- The projection unbox.
+
+  unbox : Term n → Term n
+  unbox t = fst ω t

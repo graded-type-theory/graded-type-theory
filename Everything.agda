@@ -100,6 +100,7 @@ import Definition.Untyped.Erased.Eta
 import Definition.Untyped.Erased.No-eta
 import Definition.Untyped.Erased
 import Definition.Untyped.Bool.Erased
+import Graded.Derived.Unrestricted.Eta.Untyped
 import Definition.Typed.Variant
 import Definition.Untyped.Neutral
 import Definition.Untyped.Properties.Neutral
@@ -309,6 +310,7 @@ import Definition.Typed.Consequences.Admissible
 import Definition.Typed.Consequences.Consistency
 import Definition.Typed.Consequences.NeTypeEq
 import Definition.Typed.Consequences.Universe
+import Graded.Derived.Unrestricted.Eta.Typed
 
 -- Algorithmic equality.
 import Definition.Conversion

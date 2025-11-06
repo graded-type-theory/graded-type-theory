@@ -19,6 +19,7 @@ open import Graded.Modality.Properties 𝕄
 open import Graded.Usage 𝕄 R
 open import Graded.Usage.Inversion 𝕄 R
 open import Graded.Usage.Properties 𝕄 R
+open import Graded.Usage.Weakening 𝕄 R
 
 open import Graded.Mode 𝕄
 
@@ -31,10 +32,10 @@ open import Tools.PropositionalEquality as PE using (_≡_)
 import Tools.Reasoning.PartialOrder
 
 private variable
-  A t : Term _
-  p   : M
-  γ   : Conₘ _
-  m   : Mode
+  A l t : Term _
+  p     : M
+  γ δ   : Conₘ _
+  m     : Mode
 
 private
 
@@ -58,84 +59,103 @@ private
 ------------------------------------------------------------------------
 -- Usage rules
 
--- A usage rule for Unrestricted.
+opaque
+  unfolding Unrestricted
 
-▸Unrestricted :
-  ⌜ m ⌝ · ω ≤ 𝟘 →
-  γ ▸[ m ] A →
-  γ ▸[ m ] Unrestricted A
-▸Unrestricted {m = m} {γ = γ} mω≤𝟘 ▸A = sub
-  (ΠΣₘ
-     (▸-cong (PE.sym ᵐ·-identityʳ-ω) ▸A)
-     (sub Unitₘ
-        (let open Tools.Reasoning.PartialOrder ≤ᶜ-poset in begin
-           𝟘ᶜ ∙ ⌜ m ⌝ · ω  ≤⟨ ≤ᶜ-refl ∙ mω≤𝟘 ⟩
-           𝟘ᶜ              ∎)))
-  (let open Tools.Reasoning.PartialOrder ≤ᶜ-poset in begin
-     γ        ≈˘⟨ +ᶜ-identityʳ _ ⟩
-     γ +ᶜ 𝟘ᶜ  ∎)
+  -- A usage rule for Unrestricted.
 
--- A usage rule for [_].
+  ▸Unrestricted :
+    δ ▸[ 𝟘ᵐ? ] l →
+    γ ▸[ m ] A →
+    γ ▸[ m ] Unrestricted l A
+  ▸Unrestricted {γ} {m} ▸l ▸A = sub
+    (ΠΣₘ
+       (▸-cong (PE.sym ᵐ·-identityʳ-ω) ▸A)
+       (sub (Liftₘ (wkUsage _ ▸l) Unitₘ) $ begin
+           𝟘ᶜ ∙ ⌜ m ⌝ · ω  ≤⟨ ≤ᶜ-refl ∙ ·-monotoneʳ ω≤𝟘 ⟩
+           𝟘ᶜ ∙ ⌜ m ⌝ · 𝟘  ≈⟨ ≈ᶜ-refl ∙ ·-zeroʳ _ ⟩
+           𝟘ᶜ              ∎))
+    (begin
+       γ        ≈˘⟨ +ᶜ-identityʳ _ ⟩
+       γ +ᶜ 𝟘ᶜ  ∎)
+    where
+    open ≤ᶜ-reasoning
 
-▸[] : γ ▸[ m ] t → ω ·ᶜ γ ▸[ m ] [ t ]
-▸[] {γ = γ} {m = m} ▸t = sub
-  (prodˢₘ (▸-cong (PE.sym ᵐ·-identityʳ-ω) ▸t) starₘ)
-  (begin
-     ω ·ᶜ γ        ≤⟨ ∧ᶜ-greatest-lower-bound ≤ᶜ-refl ω·ᶜ≤ᶜ𝟘ᶜ ⟩
-     ω ·ᶜ γ ∧ᶜ 𝟘ᶜ  ∎)
-  where
-  open Tools.Reasoning.PartialOrder ≤ᶜ-poset
+opaque
+  unfolding [_]
 
--- A usage rule for unbox.
+  -- A usage rule for [_].
 
-▸unbox : γ ▸[ m ] t → γ ▸[ m ] unbox t
-▸unbox {m = m} ▸t = fstₘ
-  m
-  (▸-cong (PE.sym ᵐ·-identityʳ-ω) ▸t)
-  ᵐ·-identityʳ-ω
-  λ _ → ω≤𝟙
+  ▸[] : γ ▸[ m ] t → ω ·ᶜ γ ▸[ m ] [ t ]
+  ▸[] {γ} {m} ▸t = sub
+    (prodˢₘ (▸-cong (PE.sym ᵐ·-identityʳ-ω) ▸t) (liftₘ starₘ))
+    (begin
+       ω ·ᶜ γ        ≤⟨ ∧ᶜ-greatest-lower-bound ≤ᶜ-refl ω·ᶜ≤ᶜ𝟘ᶜ ⟩
+       ω ·ᶜ γ ∧ᶜ 𝟘ᶜ  ∎)
+    where
+    open ≤ᶜ-reasoning
+
+opaque
+  unfolding unbox
+
+  -- A usage rule for unbox.
+
+  ▸unbox : γ ▸[ m ] t → γ ▸[ m ] unbox t
+  ▸unbox {m} ▸t = fstₘ
+    m
+    (▸-cong (PE.sym ᵐ·-identityʳ-ω) ▸t)
+    ᵐ·-identityʳ-ω
+    (λ _ → ω≤𝟙)
 
 ------------------------------------------------------------------------
 -- Inversion lemmas for usage
 
--- An inversion lemma for Unrestricted.
+opaque
+  unfolding Unrestricted
 
-inv-usage-Unrestricted :
-  γ ▸[ m ] Unrestricted A →
-  ⌜ m ⌝ · ω ≤ 𝟘 × γ ▸[ m ] A
-inv-usage-Unrestricted {γ = γ} {m = m} ▸Unrestricted =
-  case inv-usage-ΠΣ ▸Unrestricted of λ {
-    (invUsageΠΣ {δ = δ} {η = η} ▸A ▸Unit γ≤) →
-  case inv-usage-Unit ▸Unit of λ {
-    (η≤𝟘 ∙ mω≤𝟘) →
-      mω≤𝟘
-    , sub (▸-cong ᵐ·-identityʳ-ω ▸A) (begin
+  -- An inversion lemma for Unrestricted.
+
+  inv-usage-Unrestricted :
+    γ ▸[ m ] Unrestricted l A →
+    (∃ λ δ → δ ▸[ 𝟘ᵐ? ] l) × γ ▸[ m ] A
+  inv-usage-Unrestricted {γ} {m} ▸Unrestricted =
+    let invUsageΠΣ {δ} {η} ▸A ▸Lift γ≤ = inv-usage-ΠΣ ▸Unrestricted
+        (_ , ▸wk1-l) , ▸Unit           = inv-usage-Lift ▸Lift
+    in
+    case inv-usage-Unit ▸Unit of λ {
+      (η≤𝟘 ∙ _) →
+    (_ , wkUsage⁻¹ ▸wk1-l) ,
+    (sub (▸-cong ᵐ·-identityʳ-ω ▸A) $ begin
        γ        ≤⟨ γ≤ ⟩
        δ +ᶜ η   ≤⟨ +ᶜ-monotoneʳ η≤𝟘 ⟩
        δ +ᶜ 𝟘ᶜ  ≈⟨ +ᶜ-identityʳ _ ⟩
-       δ        ∎) }}
-  where
-  open Tools.Reasoning.PartialOrder ≤ᶜ-poset
+       δ        ∎) }
+    where
+    open ≤ᶜ-reasoning
 
--- An inversion lemma for [_].
+opaque
+  unfolding [_]
 
-inv-usage-[] : γ ▸[ m ] [ t ] → ∃ λ δ → δ ▸[ m ] t × γ ≤ᶜ ω ·ᶜ δ
-inv-usage-[] {γ = γ} {m = m} ▸[] =
-  case inv-usage-prodˢ ▸[] of λ {
-    (invUsageProdˢ {δ = δ} {η = η} ▸t ▸star γ≤) →
-    δ
-  , ▸-cong ᵐ·-identityʳ-ω ▸t
-  , (begin
+  -- An inversion lemma for [_].
+
+  inv-usage-[] : γ ▸[ m ] [ t ] → ∃ λ δ → δ ▸[ m ] t × γ ≤ᶜ ω ·ᶜ δ
+  inv-usage-[] {γ} ▸[] =
+    let invUsageProdˢ {δ} {η} ▸t ▸star γ≤ = inv-usage-prodˢ ▸[] in
+    δ ,
+    ▸-cong ᵐ·-identityʳ-ω ▸t ,
+    (begin
        γ            ≤⟨ γ≤ ⟩
        ω ·ᶜ δ ∧ᶜ η  ≤⟨ ∧ᶜ-decreasingˡ _ _ ⟩
-       ω ·ᶜ δ       ∎) }
-  where
-  open Tools.Reasoning.PartialOrder ≤ᶜ-poset
+       ω ·ᶜ δ       ∎)
+    where
+    open Tools.Reasoning.PartialOrder ≤ᶜ-poset
 
--- An inversion lemma for unbox.
+opaque
+  unfolding unbox
 
-inv-usage-unbox : γ ▸[ m ] unbox t → γ ▸[ m ] t
-inv-usage-unbox ▸[] =
-  case inv-usage-fst ▸[] of λ {
-    (invUsageFst _ _ ▸t γ≤ _) →
-  sub ▸t γ≤ }
+  -- An inversion lemma for unbox.
+
+  inv-usage-unbox : γ ▸[ m ] unbox t → γ ▸[ m ] t
+  inv-usage-unbox ▸[] =
+    let invUsageFst _ _ ▸t γ≤ _ = inv-usage-fst ▸[] in
+    sub ▸t γ≤
