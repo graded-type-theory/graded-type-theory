@@ -111,7 +111,6 @@ import Definition.Untyped.Properties.Neutral
 import Definition.Typed.Restrictions
 import Definition.Typed
 import Definition.Typed.Size
-import Definition.Typed.Reasoning.Type
 import Definition.Typed.Reasoning.Term.Primitive
 import Definition.Typed.Properties.Admissible.Var
 import Definition.Typed.Properties.Well-formed
@@ -133,6 +132,7 @@ import Definition.Typed.Properties.Admissible.Identity.Primitive
 import Definition.Typed.Properties.Reduction
 import Definition.Typed.Reasoning.Reduction
 import Definition.Typed.Reasoning.Term
+import Definition.Typed.Reasoning.Type
 import Definition.Typed.Syntactic
 import Definition.Typed.Properties.Admissible.Nat
 import Definition.Typed.Stability

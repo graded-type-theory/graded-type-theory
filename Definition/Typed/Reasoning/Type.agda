@@ -12,17 +12,24 @@ module Definition.Typed.Reasoning.Type
   where
 
 open import Definition.Typed R
+open import Definition.Typed.Properties.Reduction R
 open import Definition.Untyped M
 
 open import Tools.Function
 import Tools.PropositionalEquality as PE
 
 private variable
-  B C : Term _
-  Γ   : Con Term _
+  B C l : Term _
+  Γ     : Con Term _
 
-infix  -1 _∎⟨_⟩⊢ finally finally-˘ finally-≡ finally-˘≡
-infixr -2 step-≡ step-≡˘ step-≡≡ step-≡˘≡ _≡⟨⟩⊢_
+infix  -1 _∎⟨_⟩⊢ finally finally-˘
+          finally-⇒ finally-⇒∷ finally-⇒* finally-⇒*∷
+          finally-⇐ finally-⇐∷ finally-⇐* finally-⇐*∷
+infixr -2 step-≡ step-≡˘ step-≡≡ step-≡˘≡ _≡⟨⟩⊢_ finally-≡ finally-≡˘
+          step-≡⇒ step-≡⇒∷ step-≡⇒* step-≡⇒*∷
+          step-≡⇐ step-≡⇐∷ step-≡⇐* step-≡⇐*∷
+          finally-⇒≡ finally-⇒∷≡ finally-⇒*≡ finally-⇒*∷≡
+          finally-⇐≡ finally-⇐∷≡ finally-⇐*≡ finally-⇐*∷≡
 
 -- A regular reasoning step.
 --
@@ -110,7 +117,219 @@ syntax finally-≡ A B≡C A≡B = A ≡⟨ A≡B ⟩⊢∎≡ B≡C
 
 -- A variant of finally-≡.
 
-finally-˘≡ : ∀ A → B PE.≡ C → Γ ⊢ B ≡ A → Γ ⊢ A ≡ C
-finally-˘≡ _ PE.refl B≡A = sym B≡A
+finally-≡˘ : ∀ A → B PE.≡ C → Γ ⊢ B ≡ A → Γ ⊢ A ≡ C
+finally-≡˘ _ PE.refl B≡A = sym B≡A
 
-syntax finally-˘≡ A B≡C B≡A = A ≡˘⟨ B≡A ⟩⊢∎≡ B≡C
+syntax finally-≡˘ A B≡C B≡A = A ≡˘⟨ B≡A ⟩⊢∎≡ B≡C
+
+opaque
+
+  -- A reduction step.
+
+  step-≡⇒ : ∀ A → Γ ⊢ B ≡ C → Γ ⊢ A ⇒ B → Γ ⊢ A ≡ C
+  step-≡⇒ _ B≡C A⇒B = trans (subset A⇒B) B≡C
+
+  syntax step-≡⇒ A B≡C A⇒B = A ⇒⟨ A⇒B ⟩⊢ B≡C
+
+opaque
+
+  -- A reduction step.
+
+  step-≡⇒∷ : ∀ A → Γ ⊢ B ≡ C → Γ ⊢ A ⇒ B ∷ U l → Γ ⊢ A ≡ C
+  step-≡⇒∷ _ B≡C A⇒B = step-≡⇒ _ B≡C (univ A⇒B)
+
+  syntax step-≡⇒∷ A B≡C A⇒B = A ⇒⟨ A⇒B ⟩⊢∷ B≡C
+
+opaque
+
+  -- Multiple reduction steps.
+
+  step-≡⇒* : ∀ A → Γ ⊢ B ≡ C → Γ ⊢ A ⇒* B → Γ ⊢ A ≡ C
+  step-≡⇒* _ B≡C A⇒*B = trans (subset* A⇒*B) B≡C
+
+  syntax step-≡⇒* A B≡C A⇒*B = A ⇒*⟨ A⇒*B ⟩⊢ B≡C
+
+opaque
+
+  -- Multiple reduction steps.
+
+  step-≡⇒*∷ : ∀ A → Γ ⊢ B ≡ C → Γ ⊢ A ⇒* B ∷ U l → Γ ⊢ A ≡ C
+  step-≡⇒*∷ _ B≡C A⇒*B = step-≡⇒* _ B≡C (univ* A⇒*B)
+
+  syntax step-≡⇒*∷ A B≡C A⇒*B = A ⇒*⟨ A⇒*B ⟩⊢∷ B≡C
+
+opaque
+
+  -- A reduction step, "backwards".
+
+  step-≡⇐ : ∀ A → Γ ⊢ B ≡ C → Γ ⊢ B ⇒ A → Γ ⊢ A ≡ C
+  step-≡⇐ _ B≡C A⇐B = trans (sym (subset A⇐B)) B≡C
+
+  syntax step-≡⇐ A B≡C A⇐B = A ⇐⟨ A⇐B ⟩⊢ B≡C
+
+opaque
+
+  -- A reduction step, "backwards".
+
+  step-≡⇐∷ : ∀ A → Γ ⊢ B ≡ C → Γ ⊢ B ⇒ A ∷ U l → Γ ⊢ A ≡ C
+  step-≡⇐∷ _ B≡C A⇐B = step-≡⇐ _ B≡C (univ A⇐B)
+
+  syntax step-≡⇐∷ A B≡C A⇐B = A ⇐⟨ A⇐B ⟩⊢∷ B≡C
+
+opaque
+
+  -- Multiple reduction steps, "backwards".
+
+  step-≡⇐* : ∀ A → Γ ⊢ B ≡ C → Γ ⊢ B ⇒* A → Γ ⊢ A ≡ C
+  step-≡⇐* _ B≡C A⇐*B = trans (sym (subset* A⇐*B)) B≡C
+
+  syntax step-≡⇐* A B≡C A⇐*B = A ⇐*⟨ A⇐*B ⟩⊢ B≡C
+
+opaque
+
+  -- Multiple reduction steps, "backwards".
+
+  step-≡⇐*∷ : ∀ A → Γ ⊢ B ≡ C → Γ ⊢ B ⇒* A ∷ U l → Γ ⊢ A ≡ C
+  step-≡⇐*∷ _ B≡C A⇐*B = step-≡⇐* _ B≡C (univ* A⇐*B)
+
+  syntax step-≡⇐*∷ A B≡C A⇐*B = A ⇐*⟨ A⇐*B ⟩⊢∷ B≡C
+
+-- A variant of finally for reductions.
+
+finally-⇒ : ∀ A B → Γ ⊢ A ⇒ B → Γ ⊢ A ≡ B
+finally-⇒ _ _ A⇒B = subset A⇒B
+
+syntax finally-⇒ A B A⇒B = A ⇒⟨ A⇒B ⟩⊢∎ B ∎
+
+{-# INLINE finally-⇒ #-}
+
+-- A variant of finally for reductions.
+
+finally-⇒∷ : ∀ A B → Γ ⊢ A ⇒ B ∷ U l → Γ ⊢ A ≡ B
+finally-⇒∷ _ _ A⇒B = subset (univ A⇒B)
+
+syntax finally-⇒∷ A B A⇒B = A ⇒⟨ A⇒B ⟩⊢∷∎ B ∎
+
+{-# INLINE finally-⇒∷ #-}
+
+-- A variant of finally for reductions.
+
+finally-⇒* : ∀ A B → Γ ⊢ A ⇒* B → Γ ⊢ A ≡ B
+finally-⇒* _ _ A⇒*B = subset* A⇒*B
+
+syntax finally-⇒* A B A⇒*B = A ⇒*⟨ A⇒*B ⟩⊢∎ B ∎
+
+{-# INLINE finally-⇒* #-}
+
+opaque
+
+  -- A variant of finally for reductions.
+
+  finally-⇒*∷ : ∀ A B → Γ ⊢ A ⇒* B ∷ U l → Γ ⊢ A ≡ B
+  finally-⇒*∷ _ _ A⇒*B = subset* (univ* A⇒*B)
+
+  syntax finally-⇒*∷ A B A⇒*B = A ⇒*⟨ A⇒*B ⟩⊢∷∎ B ∎
+
+opaque
+
+  -- A variant of finally for reductions.
+
+  finally-⇐ : ∀ A B → Γ ⊢ B ⇒ A → Γ ⊢ A ≡ B
+  finally-⇐ _ _ A⇐B = sym (subset A⇐B)
+
+  syntax finally-⇐ A B A⇐B = A ⇐⟨ A⇐B ⟩⊢∎ B ∎
+
+opaque
+
+  -- A variant of finally for reductions.
+
+  finally-⇐∷ : ∀ A B → Γ ⊢ B ⇒ A ∷ U l → Γ ⊢ A ≡ B
+  finally-⇐∷ _ _ A⇐B = finally-⇐ _ _ (univ A⇐B)
+
+  syntax finally-⇐∷ A B A⇐B = A ⇐⟨ A⇐B ⟩⊢∷∎ B ∎
+
+opaque
+
+  -- A variant of finally for reductions.
+
+  finally-⇐* : ∀ A B → Γ ⊢ B ⇒* A → Γ ⊢ A ≡ B
+  finally-⇐* _ _ A⇐*B = sym (subset* A⇐*B)
+
+  syntax finally-⇐* A B A⇐*B = A ⇐*⟨ A⇐*B ⟩⊢∎ B ∎
+
+opaque
+
+  -- A variant of finally for reductions.
+
+  finally-⇐*∷ : ∀ A B → Γ ⊢ B ⇒* A ∷ U l → Γ ⊢ A ≡ B
+  finally-⇐*∷ _ _ A⇐*B = finally-⇐* _ _ (univ* A⇐*B)
+
+  syntax finally-⇐*∷ A B A⇐*B = A ⇐*⟨ A⇐*B ⟩⊢∷∎ B ∎
+
+-- A variant of finally-≡ for reductions.
+
+finally-⇒≡ : ∀ A → B PE.≡ C → Γ ⊢ A ⇒ B → Γ ⊢ A ≡ C
+finally-⇒≡ _ PE.refl A⇒B = subset A⇒B
+
+syntax finally-⇒≡ A B≡C A⇒B = A ⇒⟨ A⇒B ⟩⊢∎≡ B≡C
+
+opaque
+
+  -- A variant of finally-≡ for reductions.
+
+  finally-⇒∷≡ : ∀ A → B PE.≡ C → Γ ⊢ A ⇒ B ∷ U l → Γ ⊢ A ≡ C
+  finally-⇒∷≡ _ B≡C A⇒B = finally-⇒≡ _ B≡C (univ A⇒B)
+
+  syntax finally-⇒∷≡ A B≡C A⇒B = A ⇒⟨ A⇒B ⟩⊢∷∎≡ B≡C
+
+-- A variant of finally-≡ for reductions.
+
+finally-⇒*≡ : ∀ A → B PE.≡ C → Γ ⊢ A ⇒* B → Γ ⊢ A ≡ C
+finally-⇒*≡ _ PE.refl A⇒*B = subset* A⇒*B
+
+syntax finally-⇒*≡ A B≡C A⇒*B = A ⇒*⟨ A⇒*B ⟩⊢∎≡ B≡C
+
+opaque
+
+  -- A variant of finally-≡ for reductions.
+
+  finally-⇒*∷≡ : ∀ A → B PE.≡ C → Γ ⊢ A ⇒* B ∷ U l → Γ ⊢ A ≡ C
+  finally-⇒*∷≡ _ PE.refl A⇒*∷B = subset* (univ* A⇒*∷B)
+
+  syntax finally-⇒*∷≡ A B≡C A⇒*B = A ⇒*⟨ A⇒*B ⟩⊢∷∎≡ B≡C
+
+opaque
+
+  -- A variant of finally-≡ for reductions.
+
+  finally-⇐≡ : ∀ A → B PE.≡ C → Γ ⊢ B ⇒ A → Γ ⊢ A ≡ C
+  finally-⇐≡ _ PE.refl A⇐B = sym (subset A⇐B)
+
+  syntax finally-⇐≡ A B≡C A⇐B = A ⇐⟨ A⇐B ⟩⊢∎≡ B≡C
+
+opaque
+
+  -- A variant of finally-≡ for reductions.
+
+  finally-⇐∷≡ : ∀ A → B PE.≡ C → Γ ⊢ B ⇒ A ∷ U l → Γ ⊢ A ≡ C
+  finally-⇐∷≡ _ B≡C A⇐B = finally-⇐≡ _ B≡C (univ A⇐B)
+
+  syntax finally-⇐∷≡ A B≡C A⇐B = A ⇐⟨ A⇐B ⟩⊢∷∎≡ B≡C
+
+opaque
+
+  -- A variant of finally-≡ for reductions.
+
+  finally-⇐*≡ : ∀ A → B PE.≡ C → Γ ⊢ B ⇒* A → Γ ⊢ A ≡ C
+  finally-⇐*≡ _ PE.refl A⇐*B = sym (subset* A⇐*B)
+
+  syntax finally-⇐*≡ A B≡C A⇐*B = A ⇐*⟨ A⇐*B ⟩⊢∎≡ B≡C
+
+opaque
+
+  -- A variant of finally-≡ for reductions.
+
+  finally-⇐*∷≡ : ∀ A → B PE.≡ C → Γ ⊢ B ⇒* A ∷ U l → Γ ⊢ A ≡ C
+  finally-⇐*∷≡ _ B≡C A⇐*B = finally-⇐*≡ _ B≡C (univ* A⇐*B)
+
+  syntax finally-⇐*∷≡ A B≡C A⇐*B = A ⇐*⟨ A⇐*B ⟩⊢∷∎≡ B≡C
