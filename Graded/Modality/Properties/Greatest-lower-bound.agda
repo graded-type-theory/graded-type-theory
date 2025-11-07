@@ -9,12 +9,13 @@ module Graded.Modality.Properties.Greatest-lower-bound
 
 open Semiring-with-meet 𝕄
 
+open import Graded.Modality.Properties.Meet 𝕄
 open import Graded.Modality.Properties.PartialOrder 𝕄
 open import Graded.Modality.Properties.Has-well-behaved-zero 𝕄
 
 open import Tools.Algebra M
 open import Tools.Empty
-open import Tools.Nat using (Sequence)
+open import Tools.Nat using (1+; Sequence)
 open import Tools.Product
 open import Tools.PropositionalEquality
 import Tools.Reasoning.PartialOrder
@@ -137,3 +138,28 @@ opaque
     Greatest-lower-bound (p · q) (λ i → pᵢ i · q)
   comm∧·-GLBˡ⇒·-GLBʳ ·-comm ·-GLBˡ p-GLB =
     GLB-cong (·-comm _ _) (λ i → ·-comm _ _) (·-GLBˡ p-GLB)
+
+opaque
+
+  -- The greatest lower bound of nrᵢ 𝟘 p q is p ∧ q.
+
+  Greatest-lower-bound-nrᵢ-𝟘 :
+    Greatest-lower-bound (p ∧ q) (nrᵢ 𝟘 p q)
+  Greatest-lower-bound-nrᵢ-𝟘 {p} {q} =
+    (λ where
+       0      → ∧-decreasingˡ _ _
+       (1+ i) → begin
+         p ∧ q                ≤⟨ ∧-decreasingʳ _ _ ⟩
+         q                    ≡˘⟨ +-identityʳ _ ⟩
+         q + 𝟘                ≡˘⟨ +-congˡ (·-zeroˡ _) ⟩
+         q + 𝟘 · nrᵢ 𝟘 p q i  ∎) ,
+    (λ r lb →
+       ∧-greatest-lower-bound
+         (lb 0)
+         (begin
+            r          ≤⟨ lb 1 ⟩
+            q + 𝟘 · p  ≡⟨ +-congˡ (·-zeroˡ _) ⟩
+            q + 𝟘      ≡⟨ +-identityʳ _ ⟩
+            q          ∎))
+    where
+    open Tools.Reasoning.PartialOrder ≤-poset

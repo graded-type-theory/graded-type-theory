@@ -496,6 +496,18 @@ opaque
 
 opaque
 
+  -- The greatest lower bound of nrᵢᶜ 𝟘 γ δ is γ ∧ᶜ δ.
+
+  Greatest-lower-boundᶜ-nrᵢᶜ-𝟘 :
+    Greatest-lower-boundᶜ (γ ∧ᶜ δ) (nrᵢᶜ 𝟘 γ δ)
+  Greatest-lower-boundᶜ-nrᵢᶜ-𝟘 {γ = ε} {δ = ε} =
+    ε-GLB
+  Greatest-lower-boundᶜ-nrᵢᶜ-𝟘 {γ = _ ∙ _} {δ = _ ∙ _} =
+    GLBᶜ-pointwise′ Greatest-lower-boundᶜ-nrᵢᶜ-𝟘
+      Greatest-lower-bound-nrᵢ-𝟘
+
+opaque
+
   -- Greatest lower bounds can be pointwise "switched" between two
   -- contexts.
 
