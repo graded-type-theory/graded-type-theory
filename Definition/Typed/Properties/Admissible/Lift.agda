@@ -17,7 +17,7 @@ open import Definition.Typed R
 open import Definition.Typed.Inversion R
 open import Definition.Typed.Properties.Admissible.Equality R
 open import Definition.Typed.Properties.Admissible.Level R
-import Definition.Typed.Properties.Admissible.Lift.Primitive R as LP
+open import Definition.Typed.Properties.Admissible.U.Primitive R
 open import Definition.Typed.Properties.Well-formed R
 open import Definition.Typed.Substitution.Primitive R
 import Definition.Typed.Substitution.Primitive.Primitive R as S
@@ -33,11 +33,6 @@ open import Tools.Nat using (Nat)
 open import Tools.Product
 import Tools.PropositionalEquality as PE
 open import Tools.Reasoning.PropositionalEquality
-
-open LP public
-  using
-    (lower₀Type; lower₀TypeEq; lower₀Term; lower₀TermEq;
-     ⊢lower₀[lift]₀; lower₀[lift]₀)
 
 private variable
   n                                     : Nat
@@ -81,8 +76,8 @@ opaque
     → Γ ⊢ A ∷ U l₁
     → Γ ⊢ Lift l₂ A ∷ U (l₂ supᵘₗ l₁)
   Liftⱼ-comm ⊢l₂ ⊢A =
-    let ok = inversion-U-Level (wf-⊢∷ ⊢A) in
-    LP.Liftⱼ-comm ok ⊢l₂ ⊢A
+    let ⊢l₁ = inversion-U-Level (wf-⊢∷ ⊢A) in
+    conv (Liftⱼ′ ⊢l₂ ⊢A) (U-cong-⊢≡ (supᵘₗ-comm ⊢l₁ ⊢l₂))
 
 opaque
 
@@ -109,7 +104,8 @@ opaque
     let ⊢l₁     = inversion-U-Level (wf-⊢≡∷ A≡B .proj₁)
         ⊢l₂ , _ = wf-⊢≡∷L l₂≡l₂′
     in
-    LP.Lift-cong-comm ⊢l₁ ⊢l₂ l₂≡l₂′ A≡B
+    conv (Lift-cong ⊢l₁ ⊢l₂ l₂≡l₂′ A≡B)
+      (U-cong-⊢≡ (supᵘₗ-comm ⊢l₁ ⊢l₂))
 
 opaque
 
@@ -186,7 +182,89 @@ opaque
       (Lift-β′ (lowerⱼ ⊢t))
 
 ------------------------------------------------------------------------
--- A lemma related to lower₀
+-- Some lemmas related to lower₀
+
+opaque
+  unfolding lower₀
+
+  -- A typing rule for lower₀.
+
+  lower₀Type
+    : Γ ⊢ l ∷Level
+    → Γ ∙ A ⊢ B
+    → Γ ∙ Lift l A ⊢ lower₀ B
+  lower₀Type ⊢l ⊢B =
+    subst-⊢ ⊢B $
+    ⊢ˢʷ∷-[][]↑ (lowerⱼ (var (∙ Liftⱼ ⊢l (⊢∙→⊢ (wf ⊢B))) here))
+
+opaque
+  unfolding lower₀
+
+  -- An equality rule for lower₀.
+
+  lower₀TypeEq
+    : Γ ⊢ l ∷Level
+    → Γ ∙ A ⊢ B₁ ≡ B₂
+    → Γ ∙ Lift l A ⊢ lower₀ B₁ ≡ lower₀ B₂
+  lower₀TypeEq ⊢l B₁≡B₂ =
+    subst-⊢≡ B₁≡B₂ $ refl-⊢ˢʷ≡∷ $
+    ⊢ˢʷ∷-[][]↑ (lowerⱼ (var (∙ Liftⱼ ⊢l (⊢∙→⊢ (wfEq B₁≡B₂))) here))
+
+opaque
+  unfolding lower₀
+
+  -- A typing rule for lower₀.
+
+  lower₀Term :
+    Γ ⊢ l ∷Level →
+    Γ ∙ A ⊢ t ∷ B →
+    Γ ∙ Lift l A ⊢ lower₀ t ∷ lower₀ B
+  lower₀Term ⊢l ⊢t =
+    subst-⊢∷ ⊢t
+      (⊢ˢʷ∷-[][]↑ (lowerⱼ (var (∙ Liftⱼ ⊢l (⊢∙→⊢ (wfTerm ⊢t))) here)))
+
+opaque
+  unfolding lower₀
+
+  -- An equality rule for lower₀.
+
+  lower₀TermEq :
+    Γ ⊢ l ∷Level →
+    Γ ∙ A ⊢ t₁ ≡ t₂ ∷ B →
+    Γ ∙ Lift l A ⊢ lower₀ t₁ ≡ lower₀ t₂ ∷ lower₀ B
+  lower₀TermEq ⊢l t₁≡t₂ =
+    subst-⊢≡∷ t₁≡t₂
+      (refl-⊢ˢʷ≡∷ $ ⊢ˢʷ∷-[][]↑ $
+       lowerⱼ (var (∙ Liftⱼ ⊢l (⊢∙→⊢ (wfEqTerm t₁≡t₂))) here))
+
+opaque
+  unfolding lower₀
+
+  -- A typing rule involving lower₀, lift and _[_]₀.
+
+  ⊢lower₀[lift]₀ :
+    Γ ∙ A ⊢ B →
+    Γ ⊢ t ∷ A →
+    Γ ⊢ lower₀ B [ lift t ]₀
+  ⊢lower₀[lift]₀ {B} ⊢B ⊢t =
+    let ⊢A = ⊢∙→⊢ (wf ⊢B) in
+    PE.subst (_⊢_ _) (PE.sym ([]↑-[]₀ B)) $
+    substType ⊢B (lowerⱼ (liftⱼ (⊢zeroᵘ (wf ⊢A)) ⊢A ⊢t))
+
+opaque
+  unfolding lower₀
+
+  -- An equality rule involving lower₀, lift and _[_]₀.
+
+  lower₀[lift]₀ :
+    Γ ∙ A ⊢ B →
+    Γ ⊢ t ∷ A →
+    Γ ⊢ lower₀ B [ lift t ]₀ ≡ B [ t ]₀
+  lower₀[lift]₀ {B} ⊢B ⊢t =
+    let ⊢A = ⊢∙→⊢ (wf ⊢B) in
+    PE.subst₂ (_⊢_≡_ _) (PE.sym ([]↑-[]₀ B)) PE.refl $
+    subst-⊢≡ (refl ⊢B) $
+    ⊢ˢʷ≡∷-sgSubst (Lift-β ⊢A ⊢t)
 
 opaque
   unfolding lower₀
