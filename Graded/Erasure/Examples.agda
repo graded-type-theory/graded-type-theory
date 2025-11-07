@@ -100,9 +100,6 @@ private
 
   module _ (ok : Level-allowed) where
 
-    ⊢ℕℕU : ⊢ ε ∙ ℕ ∙ ℕ ∙ Level ∙ U (var x0)
-    ⊢ℕℕU = ∙ ⊢U′ (var (∙ Levelⱼ′ ok ⊢ℕℕ) here)
-
     ⊢U0 : ε ∙ Level ⊢ U (var x0)
     ⊢U0 = ⊢U′ (var (∙ Levelⱼ′ ok ε) here)
 
@@ -133,9 +130,6 @@ private
         (W.liftʷ (W.lift (W.step W.id))
            (⊢U′ (var (∙ Levelⱼ′ ok (∙ ⊢A)) here)))
         (ΓU⊢id (wf ⊢A))
-
-    ⊢Uℕℕ : ⊢ ε ∙ Level ∙ U (var x0) ∙ ℕ ∙ ℕ
-    ⊢Uℕℕ = ∙ ⊢ℕ ⊢Uℕ
 
     UℕℕU⊢3 :
       ε ∙ Level ∙ U (var x0) ∙ ℕ ∙ ℕ ∙ U (var x3) ⊢ var x3 ∷ U (var x4)
