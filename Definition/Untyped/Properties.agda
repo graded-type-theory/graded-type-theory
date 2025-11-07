@@ -1318,6 +1318,17 @@ opaque
 
 opaque
 
+  -- The result of applying a substitution to wk wk₀ t is wk wk₀ t.
+
+  wk-wk₀-[]≡ : wk wk₀ t [ σ ] ≡ wk wk₀ t
+  wk-wk₀-[]≡ {t} {σ} =
+    wk wk₀ t [ σ ]     ≡⟨ subst-wk t ⟩
+    t [ σ ₛ• wk₀ ]     ≡⟨ substVar-to-subst (λ ()) t ⟩
+    t [ toSubst wk₀ ]  ≡˘⟨ wk≡subst _ _ ⟩
+    wk wk₀ t           ∎
+
+opaque
+
   -- A version of the above property involving lifted weakenings and
   -- substitutions
 
