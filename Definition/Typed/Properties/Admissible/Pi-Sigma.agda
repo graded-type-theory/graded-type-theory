@@ -24,8 +24,8 @@ open import Definition.Typed.Reasoning.Term R
 open import Definition.Typed.Substitution.Primitive R
 open import Definition.Typed.Weakening R
 open import Definition.Typed.Well-formed R
+open import Definition.Typed.Properties.Admissible.Level.Primitive R
 open import Definition.Typed.Properties.Admissible.Lift R
-import Definition.Typed.Properties.Admissible.Pi-Sigma.Primitive R as PP
 open import Definition.Typed.Properties.Admissible.Var R
 
 open import Tools.Fin
@@ -70,6 +70,7 @@ opaque
 -- Some properties related to ΠΣʰ
 
 opaque
+  unfolding ΠΣʰ lower₀
 
   -- An admissible typing rule for ΠΣʰ.
 
@@ -79,11 +80,19 @@ opaque
     Γ ∙ A ⊢ B ∷ U (wk1 l₂) →
     ΠΣ-allowed b p q →
     Γ ⊢ ΠΣʰ b p q l₁ l₂ A B ∷ U (l₁ supᵘₗ l₂)
-  ΠΣʰⱼ ⊢l₂ ⊢A =
-    let ⊢l₁ = inversion-U-Level (wf-⊢∷ ⊢A) in
-    PP.ΠΣʰⱼ ⊢l₁ ⊢l₂ ⊢A
+  ΠΣʰⱼ ⊢l₂ ⊢A ⊢B ok =
+    let ⊢l₁     = inversion-U-Level (wf-⊢∷ ⊢A)
+        ⊢Lift-A = Liftⱼ ⊢l₁ ⊢l₂ ⊢A
+    in
+    ΠΣⱼ (⊢supᵘₗ ⊢l₁ ⊢l₂) ⊢Lift-A
+      (PE.subst (_⊢_∷_ _ _) (PE.cong U $ PE.sym wk-supᵘₗ) $
+       Liftⱼ-comm (wkLevel₁ (univ ⊢Lift-A) ⊢l₁)
+         (PE.subst (_⊢_∷_ _ _) wk[]′-[]↑ $
+          lower₀Term ⊢l₂ ⊢B))
+      ok
 
 opaque
+  unfolding ΠΣʰ lower₀
 
   -- An admissible equality rule for ΠΣʰ.
 
@@ -95,12 +104,17 @@ opaque
     ΠΣ-allowed b p q →
     Γ ⊢ ΠΣʰ b p q l₁₁ l₂₁ A₁ B₁ ≡ ΠΣʰ b p q l₁₂ l₂₂ A₂ B₂ ∷
       U (l₁₁ supᵘₗ l₂₁)
-  ΠΣʰ-cong l₁₁≡l₁₂ l₂₁≡l₂₂ A₁≡A₂ =
-    let ⊢l₁₁ , _    = wf-⊢≡∷L l₁₁≡l₁₂
-        ⊢l₂₁ , _    = wf-⊢≡∷L l₂₁≡l₂₂
+  ΠΣʰ-cong l₁₁≡l₁₂ l₂₁≡l₂₂ A₁≡A₂ B₁≡B₂ ok =
+    let ⊢l₂₁ , _    = wf-⊢≡∷L l₂₁≡l₂₂
         _ , ⊢A₁ , _ = wf-⊢≡∷ A₁≡A₂
     in
-    PP.ΠΣʰ-cong ⊢l₁₁ ⊢l₂₁ l₁₁≡l₁₂ l₂₁≡l₂₂ (univ ⊢A₁) A₁≡A₂
+    ΠΣ-cong′
+      (Lift-cong′ l₂₁≡l₂₂ A₁≡A₂)
+      (PE.subst (_⊢_≡_∷_ _ _ _) (PE.cong U $ PE.sym wk-supᵘₗ) $
+       Lift-cong-comm (wkEqLevel₁ (Liftⱼ ⊢l₂₁ (univ ⊢A₁)) l₁₁≡l₁₂)
+         (PE.subst (_⊢_≡_∷_ _ _ _) wk[]′-[]↑ $
+          lower₀TermEq ⊢l₂₁ B₁≡B₂))
+      ok
 
 private opaque
   unfolding lower₀
