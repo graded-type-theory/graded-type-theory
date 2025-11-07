@@ -22,7 +22,6 @@ open import Definition.Typed.Properties.Admissible.Identity R
 open import Definition.Typed.Properties.Admissible.Level R
 open import Definition.Typed.Properties.Admissible.Lift R
 open import Definition.Typed.Properties.Admissible.Pi-Sigma R
-import Definition.Typed.Properties.Admissible.Sigma.Primitive R as SP
 open import Definition.Typed.Properties.Admissible.Var R
 open import Definition.Typed.Properties.Reduction R
 open import Definition.Typed.Properties.Well-formed R
@@ -44,8 +43,6 @@ open import Tools.Nat
 open import Tools.Product
 import Tools.PropositionalEquality as PE
 open import Tools.Reasoning.PropositionalEquality
-
-open SP public using (prodʰⱼ′)
 
 private variable
   n                                               : Nat
@@ -1293,6 +1290,27 @@ opaque
 opaque
   unfolding ΠΣʰ prodʰ
 
+  -- A typing rule for prodʰ.
+
+  prodʰⱼ′ :
+    Γ ⊢ l₁ ∷Level →
+    Γ ⊢ l₂ ∷Level →
+    Γ ∙ A ⊢ B →
+    Γ ⊢ t ∷ A →
+    Γ ⊢ u ∷ B [ t ]₀ →
+    Σ-allowed s p q →
+    Γ ⊢ prodʰ s p t u ∷ Σʰ⟨ s ⟩ p q l₁ l₂ A B
+  prodʰⱼ′ ⊢l₁ ⊢l₂ ⊢B ⊢t ⊢u ok =
+    let ⊢A = ⊢∙→⊢ (wf ⊢B) in
+    prodⱼ (Liftⱼ (wkLevel₁ (Liftⱼ ⊢l₂ ⊢A) ⊢l₁) (lower₀Type ⊢l₂ ⊢B))
+      (liftⱼ ⊢l₂ ⊢A ⊢t)
+      (liftⱼ (PE.subst (_ ⊢_∷Level) (PE.sym (wk1-sgSubst _ _)) ⊢l₁)
+         (⊢lower₀[lift]₀ ⊢B ⊢t) (conv ⊢u (sym (lower₀[lift]₀ ⊢B ⊢t))))
+      ok
+
+opaque
+  unfolding ΠΣʰ prodʰ
+
   -- A variant of prodʰⱼ′.
 
   prodʰⱼ :
@@ -1306,6 +1324,7 @@ opaque
   prodʰⱼ ⊢l₁ ⊢l₂ ⊢B = prodʰⱼ′ ⊢l₁ ⊢l₂ (univ ⊢B)
 
 opaque
+  unfolding ΠΣʰ prodʰ
 
   -- An equality rule for prodʰ.
 
@@ -1317,11 +1336,16 @@ opaque
     Γ ⊢ u₁ ≡ u₂ ∷ B [ t₁ ]₀ →
     Σ-allowed s p q →
     Γ ⊢ prodʰ s p t₁ u₁ ≡ prodʰ s p t₂ u₂ ∷ Σʰ⟨ s ⟩ p q l₁ l₂ A B
-  prodʰ-cong′ ⊢l₁ ⊢l₂ ⊢B t₁≡t₂ u₁≡u₂ =
-    let _ , ⊢t₁ , ⊢t₂ = wf-⊢≡∷ t₁≡t₂
-        _ , ⊢u₁ , ⊢u₂ = wf-⊢≡∷ u₁≡u₂
+  prodʰ-cong′ ⊢l₁ ⊢l₂ ⊢B t₁≡t₂ u₁≡u₂ ok =
+    let ⊢A            = ⊢∙→⊢ (wf ⊢B)
+        _ , ⊢t₁ , _   = wf-⊢≡∷ t₁≡t₂
     in
-    SP.prodʰ-cong′ ⊢l₁ ⊢l₂ ⊢B ⊢t₁ ⊢t₂ t₁≡t₂ ⊢u₁ ⊢u₂ u₁≡u₂
+    prod-cong (Liftⱼ (wkLevel₁ (Liftⱼ ⊢l₂ ⊢A) ⊢l₁) (lower₀Type ⊢l₂ ⊢B))
+      (lift-cong ⊢l₂ t₁≡t₂)
+      (lift-cong
+         (PE.subst (_⊢_∷Level _) (PE.sym $ wk1-sgSubst _ _) ⊢l₁)
+         (conv u₁≡u₂ (sym (lower₀[lift]₀ ⊢B ⊢t₁))))
+      ok
 
 opaque
 

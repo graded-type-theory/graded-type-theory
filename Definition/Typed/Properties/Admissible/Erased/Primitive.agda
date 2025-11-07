@@ -24,7 +24,6 @@ module Definition.Typed.Properties.Admissible.Erased.Primitive
 
 open import Definition.Typed R
 open import Definition.Typed.Properties.Admissible.Level.Primitive R
-open import Definition.Typed.Properties.Admissible.Sigma.Primitive R
 open import Definition.Typed.Properties.Admissible.U.Primitive R
 open import Definition.Typed.Properties.Well-formed R
 open import Definition.Typed.Substitution.Primitive.Primitive R
