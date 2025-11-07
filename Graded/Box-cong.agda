@@ -411,7 +411,7 @@ opaque
 -- The property of supporting a []-cong combinator (with certain
 -- grades) for a certain mode.
 --
--- Note that, unlike the []-cong primitive, the first argument must be
+-- Note that, unlike the []-cong primitive, the type argument must be
 -- a type in U l for some l.
 
 Has-[]-cong : Strength → Mode → M → M → M → M → M → Set a
