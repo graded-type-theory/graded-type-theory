@@ -21,12 +21,18 @@ private
 
 open import Definition.Untyped M
 open import Definition.Untyped.Empty 𝕄
+  hiding (module Internal)
 open import Definition.Untyped.Nat 𝕄
+  hiding (module Internal)
 open import Definition.Untyped.Properties M
 import Definition.Untyped.Bool
 
+import Definition.Typed.Decidable.Internal.Term
+open import Definition.Typed.Restrictions 𝕄
+
 open import Graded.Modality.Nr-instances
 open import Graded.Modality.Properties 𝕄 hiding (has-nr)
+open import Graded.Mode
 
 open import Tools.Empty
 open import Tools.Fin
@@ -75,8 +81,7 @@ opaque
 open B using
   (Target≡; OK-[]; Bool-[]; true-[]; false-[];
    Target-[⇑]; Target-+-[⇑]; Target-[₀⇑]; Target-[↑⇑]; Target-[,⇑];
-   wk-OK; wk-Bool; wk-true; wk-false; wk-liftn-Target; Target-wk[]′;
-   module Internal)
+   wk-OK; wk-Bool; wk-true; wk-false; wk-liftn-Target; Target-wk[]′)
    public
 
 opaque
@@ -98,3 +103,109 @@ opaque
     wk ρ (boolrec p A t u v) ≡
     boolrec p (wk (lift ρ) A) (wk ρ t) (wk ρ u) (wk ρ v)
   wk-boolrec = B.wk-boolrec
+
+module Internal
+  {b} {Mode : Set b}
+  (𝐌 : IsMode Mode 𝕄)
+  (R : Type-restrictions)
+  where
+
+  private
+    module I =
+      Definition.Typed.Decidable.Internal.Term 𝐌 R
+    module IB = B.Internal 𝐌 R
+
+  private variable
+    c           : I.Constants
+    pᵢ          : I.Termᵍ _
+    Aᵢ tᵢ uᵢ vᵢ : I.Term _ _
+    γ           : I.Contexts _
+
+
+  -- A variant of OK.
+
+  OKᵢ : I.Term c n → I.Term c n
+  OKᵢ = IB.OKᵢ (I.𝟙 I.∧ I.𝟘)
+
+  opaque
+
+    -- A translation lemma for OKᵢ.
+
+    ⌜OKᵢ⌝ : I.⌜ OKᵢ tᵢ ⌝ γ ≡ OK (I.⌜ tᵢ ⌝ γ)
+    ⌜OKᵢ⌝ {tᵢ} {γ} =
+      IB.⌜OKᵢ⌝ {pᵢ = I.𝟙 I.∧ I.𝟘} {γ = γ} {tᵢ = tᵢ} refl
+
+  -- A variant of Bool.
+
+  Boolᵢ : I.Term c n
+  Boolᵢ = IB.Boolᵢ I.𝟙 (I.𝟙 I.∧ I.𝟘) (I.𝟙 I.∧ I.𝟘)
+
+  opaque
+
+    -- A translation lemma for Boolᵢ.
+
+    ⌜Boolᵢ⌝ : I.⌜ Boolᵢ {n = n} ⌝ γ ≡ Bool
+    ⌜Boolᵢ⌝ {γ} =
+      IB.⌜Boolᵢ⌝ {p₁ᵢ = I.𝟙} {γ = γ} {p₂ᵢ = I.𝟙 I.∧ I.𝟘}
+        {p₃ᵢ = I.𝟙 I.∧ I.𝟘} refl refl refl
+
+  -- A variant of true.
+
+  trueᵢ : I.Term c n
+  trueᵢ = IB.trueᵢ I.𝟙 (I.𝟙 I.∧ I.𝟘) (I.𝟙 I.∧ I.𝟘)
+
+  opaque
+
+    -- A translation lemma for trueᵢ.
+
+    ⌜trueᵢ⌝ :
+      I.⌜ trueᵢ {n = n} ⌝ γ ≡ true
+    ⌜trueᵢ⌝ {γ} =
+      IB.⌜trueᵢ⌝ {p₁ᵢ = I.𝟙} {γ = γ} {p₂ᵢ = I.𝟙 I.∧ I.𝟘}
+        {p₃ᵢ = I.𝟙 I.∧ I.𝟘} refl
+
+  -- A variant of false.
+
+  falseᵢ : I.Term c n
+  falseᵢ = IB.falseᵢ I.𝟙 (I.𝟙 I.∧ I.𝟘) (I.𝟙 I.∧ I.𝟘)
+
+  opaque
+
+    -- A translation lemma for falseᵢ.
+
+    ⌜falseᵢ⌝ :
+      I.⌜ falseᵢ {n = n} ⌝ γ ≡ false
+    ⌜falseᵢ⌝ {γ} =
+      IB.⌜falseᵢ⌝ {p₁ᵢ = I.𝟙} {γ = γ} {p₂ᵢ = I.𝟙 I.∧ I.𝟘}
+        {p₃ᵢ = I.𝟙 I.∧ I.𝟘} refl
+
+  -- A variant of Target.
+
+  Targetᵢ :
+    ∀ k → I.Term c (1+ n) → I.Term c (k N.+ n) → I.Term c (k N.+ n) →
+    I.Term c (k N.+ n)
+  Targetᵢ = IB.Targetᵢ I.𝟙 (I.𝟙 I.∧ I.𝟘) (I.𝟙 I.∧ I.𝟘)
+
+  -- A variant of boolrec.
+
+  boolrecᵢ :
+    I.Termᵍ (c .I.gs) → I.Term c (1+ n) → (_ _ _ : I.Term c n) → I.Term c n
+  boolrecᵢ p =
+    IB.boolrecᵢ I.𝟙 (I.𝟙 I.∧ I.𝟘) (I.𝟙 I.∧ I.𝟘)
+      I.𝟙 I.𝟙 I.𝟙 ((I.𝟙 I.+ p) I.∧ p) I.𝟙 p
+
+  opaque
+    unfolding boolrec
+
+    -- A translation lemma for boolrecᵢ.
+
+    ⌜boolrecᵢ⌝ :
+      I.⌜ boolrecᵢ pᵢ Aᵢ tᵢ uᵢ vᵢ ⌝ γ ≡
+        boolrec (I.⟦ pᵢ ⟧ᵍ γ) (I.⌜ Aᵢ ⌝ γ) (I.⌜ tᵢ ⌝ γ)
+          (I.⌜ uᵢ ⌝ γ) (I.⌜ vᵢ ⌝ γ)
+    ⌜boolrecᵢ⌝ {pᵢ} {Aᵢ} {tᵢ} {uᵢ} {vᵢ} {γ} =
+      IB.⌜boolrecᵢ⌝ {q₁ᵢ = I.𝟙} {γ = γ} {q₂ᵢ = I.𝟙 I.∧ I.𝟘}
+        {q₃ᵢ = I.𝟙} {q₄ᵢ = I.𝟙} {q₅ᵢ = I.𝟙}
+        {q₆ᵢ = (I.𝟙 I.+ pᵢ) I.∧ pᵢ} {q₇ᵢ = I.𝟙} {q₈ᵢ = I.𝟙 I.∧ I.𝟘} {pᵢ = pᵢ}
+        {Aᵢ = Aᵢ} {tᵢ = tᵢ} {uᵢ = uᵢ} {vᵢ = vᵢ}
+        refl refl refl refl refl refl refl

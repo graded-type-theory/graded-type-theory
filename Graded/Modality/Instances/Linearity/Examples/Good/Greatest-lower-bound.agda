@@ -28,6 +28,7 @@ private
     no-nr : Nr-not-available-GLB
     no-nr = No-nr-glb ⦃ zero-one-many-supports-glb-for-natrec ⦄
 
+open import Tools.Empty
 open import Tools.Fin
 open import Tools.Function
 open import Tools.Nat using (Nat; 1+)
@@ -48,11 +49,12 @@ open import Graded.Usage.Weakening UR′
 
 open import Definition.Untyped Linearity
 open import Definition.Untyped.Nat linearityModality
+open import Definition.Typed.Restrictions linearityModality
 
 private variable
   n : Nat
-  γ γ₁ γ₂ δ δ₁ δ₂ η η₁ η₂ η₃ θ : Conₘ _
-  t u k l h A P xs nl cs : Term _
+  γ γ₁ γ₂ γ₃ γ₄ γ₅ δ δ₁ δ₂ η η₁ η₂ η₃ θ : Conₘ _
+  a b t t₁ t₂ t₃ u k l h A B P xs nl cs : Term _
   m : Mode
   p p₁ p₂ p₃ p₄ q q₁ q₂ r r₁ r₂ : Linearity
 
@@ -505,3 +507,51 @@ module List-pₗ≡𝟙
     ▸listrec-ω {p₁} {p₂} ▸nl ▸cs ▸xs ▸l ▸A ▸P ok₁ ok₂ ok₃ =
       ▸L.▸listrec-ω ▸nl ▸cs ▸xs ▸l ▸A ▸P ≤-refl (ω≤ (p₁ + p₂))
         ok₁ ok₂ ok₃
+
+------------------------------------------------------------------------
+-- Usage rules for Sum, see also Graded.Derived.Sum
+
+module Sum
+  (TR : Type-restrictions)
+  where
+
+  open import Definition.Untyped.Sum TR
+  import Graded.Derived.Sum TR UR′ as S
+
+  opaque
+    unfolding sumrec
+
+    -- A usage lemma for sumrec
+    -- The uses p of the scrutinee must be less than its uses of either
+    -- branch but not 𝟘.
+
+    ▸sumrec :
+      γ₁ ▸[ 𝟘ᵐ? ] a →
+      γ₂ ▸[ 𝟘ᵐ? ] b →
+      γ₃ ▸[ 𝟘ᵐ? ] A →
+      γ₄ ▸[ 𝟘ᵐ? ] B →
+      γ₅ ∙ ⌜ 𝟘ᵐ? ⌝ · q ▸[ 𝟘ᵐ? ] P →
+      δ₁ ∙ ⌜ m ⌝ · p₁ ▸[ m ] t₁ →
+      δ₂ ∙ ⌜ m ⌝ · p₂ ▸[ m ] t₂ →
+      η ▸[ m ] t₃ →
+      p ≤ p₁ →
+      p ≤ p₂ →
+      p ≢ 𝟘 →
+      S.Sum-allowed 𝟘ᵐ? →
+      Prodrec-allowed m p 𝟙 q →
+      Prodrec-allowed m 𝟙 𝟙 (q + p) →
+      Unitrec-allowed m 𝟙 (q + p) →
+      Emptyrec-allowed m 𝟘 →
+      p ·ᶜ η +ᶜ δ₁ ∧ᶜ δ₂ ▸[ m ] sumrec q p a b A B P t₁ t₂ t₃
+    ▸sumrec {m} {p₁} {p₂} ▸a ▸b ▸A ▸B ▸P ▸l ▸r ▸t p≤p₁ p≤p₂ p≢𝟘 ok₁ ok₂ ok₃ ok₄ ok₅ =
+      S.▸sumrec ▸a ▸b ▸A ▸B ▸P ▸l ▸r (▸-cong (lemma₂ _ p≢𝟘) ▸t) p≤p₁ p≤p₂ (lemma₁ _ p≢𝟘)
+        ok₁ ok₂ ok₃ ok₄ ok₅
+      where
+      lemma₁ : ∀ p → p ≢ 𝟘 → ⌜ m ⌝ · p ≤ ⌜ m ⌝
+      lemma₁ 𝟘 p≢𝟘 = ⊥-elim (p≢𝟘 refl)
+      lemma₁ 𝟙 _ = ≤-reflexive (M.·-identityʳ _)
+      lemma₁ ω _ = ·ω-decreasing
+      lemma₂ : ∀ p → p ≢ 𝟘 → m ≡ m ᵐ· p
+      lemma₂ 𝟘 p≢𝟘 = ⊥-elim (p≢𝟘 refl)
+      lemma₂ 𝟙 _ = sym ᵐ·-identityʳ
+      lemma₂ ω _ = sym (ᵐ·-identityʳ-≤𝟙 (ω≤ 𝟙))

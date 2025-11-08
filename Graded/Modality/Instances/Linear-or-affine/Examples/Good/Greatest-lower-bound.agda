@@ -14,6 +14,7 @@ module Graded.Modality.Instances.Linear-or-affine.Examples.Good.Greatest-lower-b
   (UR : Usage-restrictions linear-or-affine Zero-one-isMode)
   where
 
+open import Tools.Empty
 open import Tools.Fin
 open import Tools.Function
 open import Tools.Nat using (Nat; 1+)
@@ -49,13 +50,14 @@ open import Graded.Usage.Weakening UR′
 
 open import Definition.Untyped Linear-or-affine
 open import Definition.Untyped.Nat linear-or-affine
+open import Definition.Typed.Restrictions linear-or-affine
 
 private variable
   n : Nat
-  γ δ η : Conₘ _
-  t u : Term _
+  γ γ₁ γ₂ γ₃ γ₄ γ₅ δ δ₁ δ₂ η : Conₘ _
+  t u a b A B t₁ t₂ t₃ P : Term _
   m : Mode
-  p : Linear-or-affine
+  p p₁ p₂ q : Linear-or-affine
 
 opaque
 
@@ -138,3 +140,56 @@ opaque
 
   ▸pred : ε ▸[ 𝟙ᵐ ] pred
   ▸pred = N.▸pred
+
+------------------------------------------------------------------------
+-- Usage rules for Sum, see also Graded.Derived.Sum
+
+module Sum
+  (TR : Type-restrictions)
+  where
+
+  open import Definition.Untyped.Sum TR
+  import Graded.Derived.Sum TR UR′ as S
+
+  opaque
+    unfolding sumrec
+
+    -- A usage lemma for sumrec
+    -- The uses p of the scrutinee must be less than its uses of either
+    -- branch but not 𝟘.
+
+    ▸sumrec :
+      γ₁ ▸[ 𝟘ᵐ? ] a →
+      γ₂ ▸[ 𝟘ᵐ? ] b →
+      γ₃ ▸[ 𝟘ᵐ? ] A →
+      γ₄ ▸[ 𝟘ᵐ? ] B →
+      γ₅ ∙ ⌜ 𝟘ᵐ? ⌝ · q ▸[ 𝟘ᵐ? ] P →
+      δ₁ ∙ ⌜ m ⌝ · p₁ ▸[ m ] t₁ →
+      δ₂ ∙ ⌜ m ⌝ · p₂ ▸[ m ] t₂ →
+      η ▸[ m ] t₃ →
+      p ≤ p₁ →
+      p ≤ p₂ →
+      p ≢ 𝟘 →
+      S.Sum-allowed 𝟘ᵐ? →
+      Prodrec-allowed m p 𝟙 q →
+      Prodrec-allowed m 𝟙 𝟙 (q + p) →
+      Unitrec-allowed m 𝟙 (q + p) →
+      Emptyrec-allowed m 𝟘 →
+      p ·ᶜ η +ᶜ δ₁ ∧ᶜ δ₂ ▸[ m ] sumrec q p a b A B P t₁ t₂ t₃
+    ▸sumrec {m} {p₁} {p₂} ▸a ▸b ▸A ▸B ▸P ▸l ▸r ▸t p≤p₁ p≤p₂ p≢𝟘 ok₁ ok₂ ok₃ ok₄ ok₅ =
+      S.▸sumrec ▸a ▸b ▸A ▸B ▸P ▸l ▸r (▸-cong (lemma₂ _ p≢𝟘) ▸t) p≤p₁ p≤p₂ (lemma₁ _ p≢𝟘)
+        ok₁ ok₂ ok₃ ok₄ ok₅
+      where
+      lemma₁ : ∀ p → p ≢ 𝟘 → ⌜ m ⌝ · p ≤ ⌜ m ⌝
+      lemma₁ 𝟘 p≢𝟘 = ⊥-elim (p≢𝟘 refl)
+      lemma₁ 𝟙 _ = ≤-reflexive (M.·-identityʳ _)
+      lemma₁ ≤𝟙 _ = let open ≤-reasoning in begin
+        ⌜ m ⌝ · ≤𝟙 ≤⟨ ·-monotoneʳ {p = ≤𝟙} {q = 𝟙} {r = ⌜ m ⌝} refl ⟩
+        ⌜ m ⌝ · 𝟙  ≈⟨ M.·-identityʳ _ ⟩
+        ⌜ m ⌝      ∎
+      lemma₁ ≤ω _ = ·ω-decreasing
+      lemma₂ : ∀ p → p ≢ 𝟘 → m ≡ m ᵐ· p
+      lemma₂ 𝟘 p≢𝟘 = ⊥-elim (p≢𝟘 refl)
+      lemma₂ 𝟙 _ = sym ᵐ·-identityʳ
+      lemma₂ ≤𝟙 _ = sym (ᵐ·-identityʳ-≤𝟙 refl)
+      lemma₂ ≤ω _ = sym (ᵐ·-identityʳ-≤𝟙 refl)

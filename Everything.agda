@@ -126,6 +126,7 @@ import Definition.Untyped.Bool.Erased
 import Definition.Untyped.Omega
 import Definition.Untyped.Vec
 import Definition.Untyped.List
+import Definition.Untyped.Sum
 import Graded.Derived.Unrestricted.Eta.Untyped
 
 ------------------------------------------------------------------------
@@ -236,6 +237,7 @@ import Graded.Derived.Omega
 import Graded.Derived.Omega.Zero-one
 import Graded.Derived.Vec
 import Graded.Derived.List
+import Graded.Derived.Sum
 
 ------------------------------------------------------------------------
 -- Assumptions used to state the theorems in Graded.FullReduction
@@ -415,6 +417,7 @@ import Definition.Typed.Consequences.Admissible.Bool.Nr
 import Definition.Typed.Consequences.Admissible.Bool.Greatest-lower-bound
 import Definition.Typed.Consequences.Admissible.Vec
 import Definition.Typed.Consequences.Admissible.List
+import Definition.Typed.Consequences.Admissible.Sum
 import Definition.Typed.Consequences.Admissible
 
 -- Bidirectional typechecking.
@@ -451,6 +454,7 @@ import Graded.Modality.Instances.Linearity.Examples.Bad.Nr
 import Graded.Modality.Instances.Linearity.Examples.Bad.No-nr
 import Graded.Modality.Instances.Linearity.Examples.Good.Nr
 import Graded.Modality.Instances.Linearity.Examples.Good.Greatest-lower-bound
+import Graded.Modality.Instances.Nat-plus-infinity.Examples
 
 ------------------------------------------------------------------------
 -- Subject reduction for modalities
