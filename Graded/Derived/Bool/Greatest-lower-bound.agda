@@ -388,7 +388,7 @@ opaque
         case inv-usage-unitrec ▸ur′ of λ {
           (invUsageUnitrec {δ = ζ₁ ∙ _ ∙ _ ∙ _ ∙ _} {η = ζ₂ ∙ _ ∙ _ ∙ _ ∙ _} ▸x0‴ ▸t ▸T′ _ (χ₁′≤ ∙ _ ∙ _ ∙ _ ∙ _)) →
         case inv-usage-emptyrec-sink ▸er of λ {
-          (ξ₁ , ξ₂ , qe , wer , ok″) →
+          (ξ₁ , ξ₂ , _ , _ , ok″) →
         _ , _ , _ , _ , wkUsage⁻¹ ▸t , wkUsage⁻¹ ▸u , ▸-cong ᵐ·-identityʳ ▸v , ▸A , ok , ok′ , ok″ , (begin
           γ                                                      ≤⟨ γ≤ ⟩
           𝟙 ·ᶜ δ₁ +ᶜ δ₂                                          ≈⟨ +ᶜ-congʳ (·ᶜ-identityˡ _) ⟩

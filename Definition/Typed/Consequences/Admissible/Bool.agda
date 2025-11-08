@@ -209,7 +209,7 @@ private
 
     boolrecᵢ′ : I.Term c (1+ n) → (_ _ _ : I.Term c n) → I.Term c n
     boolrecᵢ′ =
-      boolrecᵢ xBoolᵍ₁ xOKᵍ xboolrecᵍ-pr xboolrecᵍ-nc₁ xboolrecᵍ-nc₂
+      boolrecᵢ xBoolᵍ₁ xBoolᵍ₂ xOKᵍ xboolrecᵍ-pr xboolrecᵍ-nc₁ xboolrecᵍ-nc₂
         xboolrecᵍ-nc₃ xboolrecᵍ-Π xp
 
     γ :
@@ -378,7 +378,7 @@ opaque
       (boolrecᵢ′ xA xt xu trueᵢ′)
       xt
       (I.subst xA (IS.sgSubst trueᵢ′))
-      27
+      30
       PE.refl
       (λ where
          .IC.constraints-wf →
@@ -429,7 +429,7 @@ opaque
       (boolrecᵢ′ xA xt xu falseᵢ′)
       xu
       (I.subst xA (IS.sgSubst falseᵢ′))
-      27
+      30
       PE.refl
       (λ where
          .IC.constraints-wf →

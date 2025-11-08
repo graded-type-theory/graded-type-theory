@@ -274,37 +274,39 @@ module Internal
   -- A variant of Target.
 
   Targetᵢ :
-    (_ : I.Termᵍ (c . I.gs)) →
+    (_ _ _ : I.Termᵍ (c . I.gs)) →
     ∀ k → I.Term c (1+ n) → I.Term c (k N.+ n) → I.Term c (k N.+ n) →
     I.Term c (k N.+ n)
-  Targetᵢ Boolᵍ₁ k A t u =
-    I.subst A (I.cons (IS.wkSubst k I.id) (I.prod I.𝕨 Boolᵍ₁ nothing t u))
+  Targetᵢ Boolᵍ₁ Boolᵍ₂ OKᵍ k A t u =
+    I.subst A
+      (I.cons (IS.wkSubst k I.id)
+        (I.prod I.𝕨 Boolᵍ₁ (just (Boolᵍ₂ , OKᵢ OKᵍ (I.var x0))) t u))
 
   -- A variant of boolrec.
 
   boolrecᵢ :
-    (_ _ _ _ _ _ _ _ : I.Termᵍ (c .I.gs)) → I.Term c (1+ n) →
+    (_ _ _ _ _ _ _ _ _ : I.Termᵍ (c .I.gs)) → I.Term c (1+ n) →
     (_ _ _ : I.Term c n) → I.Term c n
   boolrecᵢ
-    Boolᵍ₁ OKᵍ boolrecᵍ-pr boolrecᵍ-nc₁ boolrecᵍ-nc₂ boolrecᵍ-nc₃ boolrecᵍ-Π p
+    Boolᵍ₁ Boolᵍ₂ OKᵍ boolrecᵍ-pr boolrecᵍ-nc₁ boolrecᵍ-nc₂ boolrecᵍ-nc₃ boolrecᵍ-Π p
     A t u v =
     I.prodrec boolrecᵍ-pr Boolᵍ₁ p A v
       (natcaseᵢ boolrecᵍ-nc₂ boolrecᵍ-nc₃
          (I.Π boolrecᵍ-Π , p ▷ OKᵢ OKᵍ (I.var x0) ▹
-          Targetᵢ Boolᵍ₁ 4 A (I.var x1) (I.var x0))
+          Targetᵢ Boolᵍ₁ Boolᵍ₂ OKᵍ 4 A (I.var x1) (I.var x0))
          (I.lam boolrecᵍ-Π nothing $
-          I.unitrec boolrecᵍ-Π p (Targetᵢ Boolᵍ₁ 4 A I.zero (I.var x0))
+          I.unitrec boolrecᵍ-Π p (Targetᵢ Boolᵍ₁ Boolᵍ₂ OKᵍ 4 A I.zero (I.var x0))
             (I.var x0) (IW.wk[ 3 ] u))
          (natcaseᵢ boolrecᵍ-nc₁ boolrecᵍ-nc₃
             (I.Π boolrecᵍ-Π , p ▷ OKᵢ OKᵍ (I.suc (I.var x0)) ▹
-             Targetᵢ Boolᵍ₁ 5 A (I.suc (I.var x1)) (I.var x0))
+             Targetᵢ Boolᵍ₁ Boolᵍ₂ OKᵍ 5 A (I.suc (I.var x1)) (I.var x0))
             (I.lam boolrecᵍ-Π nothing $
              I.unitrec boolrecᵍ-Π p
-               (Targetᵢ Boolᵍ₁ 5 A (I.suc I.zero) (I.var x0)) (I.var x0)
+               (Targetᵢ Boolᵍ₁ Boolᵍ₂ OKᵍ 5 A (I.suc I.zero) (I.var x0)) (I.var x0)
                   (IW.wk[ 4 ] t))
             (I.lam boolrecᵍ-Π nothing $
              emptyrec-sinkᵢ
-               (Targetᵢ Boolᵍ₁ 5 A (I.suc (I.suc (I.var x1))) (I.var x0))
+               (Targetᵢ Boolᵍ₁ Boolᵍ₂ OKᵍ 5 A (I.suc (I.suc (I.var x1))) (I.var x0))
                (I.var x0))
             (I.var x0))
          (I.var x1) I.∘⟨ boolrecᵍ-Π ⟩
@@ -323,7 +325,7 @@ module Internal
       I.⟦ q₅ᵢ ⟧ᵍ γ ≡ boolrecᵍ-nc₂ →
       I.⟦ q₆ᵢ ⟧ᵍ γ ≡ boolrecᵍ-nc₃ →
       I.⟦ q₇ᵢ ⟧ᵍ γ ≡ boolrecᵍ-Π →
-      I.⌜ boolrecᵢ q₁ᵢ q₂ᵢ q₃ᵢ q₄ᵢ q₅ᵢ q₆ᵢ q₇ᵢ pᵢ Aᵢ tᵢ uᵢ vᵢ ⌝ γ ≡
+      I.⌜ boolrecᵢ q₁ᵢ q₈ᵢ q₂ᵢ q₃ᵢ q₄ᵢ q₅ᵢ q₆ᵢ q₇ᵢ pᵢ Aᵢ tᵢ uᵢ vᵢ ⌝ γ ≡
         boolrec (I.⟦ q₃ᵢ ⟧ᵍ γ) (I.⟦ q₄ᵢ ⟧ᵍ γ) (I.⟦ q₅ᵢ ⟧ᵍ γ) (I.⟦ q₆ᵢ ⟧ᵍ γ)
           (I.⟦ q₇ᵢ ⟧ᵍ γ) (I.⟦ pᵢ ⟧ᵍ γ) (I.⌜ Aᵢ ⌝ γ) (I.⌜ tᵢ ⌝ γ)
           (I.⌜ uᵢ ⌝ γ) (I.⌜ vᵢ ⌝ γ)
