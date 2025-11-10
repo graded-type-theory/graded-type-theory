@@ -94,9 +94,9 @@ opaque
 opaque
 
   -- If the neutral term t has type A with respect to a context Γ that
-  -- only contains level assumptions, then A is definitionally equal
-  -- to Level, and t is a variable (assuming that equality reflection
-  -- is not allowed).
+  -- only contains level or universe assumptions, then A is
+  -- definitionally equal to Level or some universe, and t is a
+  -- variable (assuming that equality reflection is not allowed).
 
   Only-Level-or-U→Neutral→≡Level⊎≡U :
     ⦃ ok : No-equality-reflection ⦄ →
