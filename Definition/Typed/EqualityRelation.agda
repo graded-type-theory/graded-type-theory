@@ -576,7 +576,7 @@ record EqRelSet : Set (lsuc ℓ) where
     -- Equality of neutral terms
     _⊢_~_∷_ : Con Term n → (t u A : Term n) → Set ℓ
 
-    -- Are neutral cases included in the logical relation?
+    -- Are (atomic) neutral cases included in the logical relation?
     Neutrals-included : Set ℓ
 
     ----------------
