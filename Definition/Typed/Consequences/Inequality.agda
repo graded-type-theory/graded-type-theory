@@ -30,6 +30,7 @@ open import Definition.LogicalRelation.ShapeView R
 open import Definition.LogicalRelation.Fundamental.Reducibility R
 open import Definition.LogicalRelation.Substitution.Introductions.Level R
 
+open import Tools.Fin
 open import Tools.Function
 open import Tools.Nat as Nat using (Nat; 1+n≢n)
 open import Tools.Product
@@ -746,6 +747,30 @@ whnf≢ne {Γ} {A} {t} {u} ¬-A-η A≢Level t-whnf ¬-t-ne u-ne t≡u =
           U.Emptyₙ    → Empty≢neⱼ B-ne (univ A≡B)
           U.Unitₙ     → Unit≢neⱼ  B-ne (univ A≡B)
           U.Idₙ       → Id≢ne     B-ne (univ A≡B)
+
+opaque
+
+  -- If Level is allowed, then there is a counterexample to whnf≢ne
+  -- (without the argument called ok) if the assumption of type
+  -- ¬ Γ ⊢ A ≡ Level is removed and "Neutral u" is replaced by
+  -- "Neutralˡ u".
+
+  counterexample-to-whnf≢ne :
+    Level-allowed →
+    let Γ = ε ∙ Level
+        A = Level
+        t = sucᵘ (var x0)
+        u = var x0 supᵘ sucᵘ (var x0)
+    in
+    No-η-equality A ×
+    Whnf t × ¬ Neutralˡ t × Neutralˡ u ×
+    Γ ⊢ t ≡ u ∷ A
+  counterexample-to-whnf≢ne ok =
+    U.Levelₙ ,
+    U.sucᵘₙ ,
+    (λ { (U.ne ()) }) ,
+    U.supᵘˡₙ (U.ne (U.var _)) ,
+    sym′ (supᵘ-sub (var₀ (Levelⱼ′ ok ε)))
 
 -- The term zero is not definitionally equal (at type ℕ) to any
 -- neutral term (given a certain assumption).
