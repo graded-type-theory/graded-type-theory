@@ -1138,6 +1138,10 @@ opaque
   toSubstₕ-NeutralAt d var with toSubstₕ-erased _ _ d
   … | (x′ , ≡x′) =
     subst (NeutralAt _) (sym ≡x′) var
+  toSubstₕ-NeutralAt d (supᵘˡₙ n) =
+    supᵘˡₙ (toSubstₕ-NeutralAt d n)
+  toSubstₕ-NeutralAt d (supᵘʳₙ n) =
+    supᵘʳₙ (toSubstₕ-NeutralAt d n)
   toSubstₕ-NeutralAt d (lowerₙ n) =
     lowerₙ (toSubstₕ-NeutralAt d n)
   toSubstₕ-NeutralAt d (∘ₙ n) =

@@ -16,6 +16,7 @@ module Definition.Conversion.Symmetry
 
 open import Definition.Untyped M
 open import Definition.Untyped.Neutral M type-variant
+open import Definition.Untyped.Neutral.Atomic M type-variant
 open import Definition.Typed R
 open import Definition.Typed.EqRelInstance R using (eqRelInstance)
 open import Definition.Typed.EqualityRelation.Instance R
@@ -365,7 +366,7 @@ mutual
       (_ , _ , _ , PE.refl) →
     case syntacticEqTerm (soundness~↓ v₁~v₂) .proj₂ of λ {
       (⊢v₁′ , ⊢v₂) →
-    case sym (neTypeEq (ne~↓ v₁~v₂ .proj₂ .proj₁) ⊢v₁ ⊢v₁′) of λ {
+    case sym (neTypeEq (ne⁻ (ne~↓ v₁~v₂ .proj₂ .proj₁)) ⊢v₁ ⊢v₁′) of λ {
       Id≡Id →
     Id-ins (stabilityTerm Γ≡Δ (conv ⊢v₂ Id≡Id)) v₂~v₁ }}}}
   symConv↓Term Γ≡Δ (rfl-refl t≡u) =

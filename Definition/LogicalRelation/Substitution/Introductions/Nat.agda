@@ -37,6 +37,7 @@ open import Definition.Typed.Well-formed R
 
 open import Definition.Untyped M
 open import Definition.Untyped.Neutral M type-variant
+open import Definition.Untyped.Neutral.Atomic M type-variant
 open import Definition.Untyped.Properties M
 
 open import Tools.Empty
@@ -181,8 +182,8 @@ opaque
     Γ ⊩⟨ l ⟩ t ≡ u ∷ ℕ          □⇔
     where
     lemma₀ : [Natural]-prop Γ (suc t) (suc u) → Γ ⊩ℕ t ≡ u ∷ℕ
-    lemma₀ (sucᵣ t≡u)             = t≡u
-    lemma₀ (ne (neNfₜ₌ _ () _ _))
+    lemma₀ (sucᵣ t≡u)                    = t≡u
+    lemma₀ (ne (neNfₜ₌ _ (ne () _) _ _))
 
     lemma₁ : Γ ⊩ℕ suc t ≡ suc u ∷ℕ → Γ ⊩ℕ t ≡ u ∷ℕ
     lemma₁ (ℕₜ₌ _ _ suc-t⇒*t′ suc-u⇒*u′ _ t′≡u′) =
@@ -231,7 +232,7 @@ opaque
          case whnfRed*Term suc⇒* sucₙ of λ {
            PE.refl →
          case rest of λ where
-           (ne (neNfₜ₌ _ () _ _)) }}})
+           (ne (neNfₜ₌ _ (ne () _) _ _)) }}})
     , ⊥-elim
 
 ------------------------------------------------------------------------
@@ -423,7 +424,7 @@ private opaque
          -- to v₁′ and v₂′ are equal neutral terms.
          (ne (neNfₜ₌ inc v₁′-ne v₂′-ne v₁′~v₂′)) →
            neutral-⊩≡∷ inc (wf-⊩≡ A₁[v₁′]≡A₂[v₂′] .proj₁)
-             (natrecₙ v₁′-ne) (natrecₙ v₂′-ne) $
+             (natrecₙᵃ v₁′-ne) (natrecₙᵃ v₂′-ne) $
            ~-natrec A₁≅A₂ (escape-⊩≡∷ t₁≡t₂) u₁≅u₂ v₁′~v₂′
 
          -- If v₁′ and v₂′ are both zero, then one can conclude by

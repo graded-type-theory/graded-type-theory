@@ -355,8 +355,8 @@ soundness-ℕ-only-source-counterexample₁ {p = p} P-ok Σʷ-ok =
          𝟘ᶜ +ᶜ 𝟘ᶜ                     ≈˘⟨ +ᶜ-congʳ (·ᶜ-zeroˡ _) ⟩
          𝟘 ·ᶜ (𝟘ᶜ ∙ ⌜ ⌞ 𝟘 ⌟ ⌝) +ᶜ 𝟘ᶜ  ∎)
   , λ where
-      (0    , whred d ⇨ˢ _) → whnfRedTerm d (ne! (prodrecₙ (var _)))
-      (1+ _ , whred d ⇨ˢ _) → whnfRedTerm d (ne! (prodrecₙ (var _)))
+      (0    , whred d ⇨ˢ _) → whnfRedTerm d (ne (prodrecₙ (var _)))
+      (1+ _ , whred d ⇨ˢ _) → whnfRedTerm d (ne (prodrecₙ (var _)))
   where
   ε⊢ℕ = ⊢ℕ ε
   ⊢εℕ = ∙ ε⊢ℕ
@@ -408,9 +408,9 @@ opaque
       (≤ᶜ-reflexive (≈ᶜ-sym ω·ᶜ+ᶜ⁵𝟘ᶜ)) ,
     (λ where
        (0 , whred J⇒ ⇨ˢ _) →
-         whnfRedTerm J⇒ (ne! (Jₙ ([]-congₙ (var _))))
+         whnfRedTerm J⇒ (ne (Jₙ ([]-congₙ (var _))))
        (1+ _ , whred J⇒ ⇨ˢ _) →
-         whnfRedTerm J⇒ (ne! (Jₙ ([]-congₙ (var _)))))
+         whnfRedTerm J⇒ (ne (Jₙ ([]-congₙ (var _)))))
 
 opaque
 
@@ -441,8 +441,8 @@ opaque
            𝟘ᶜ               ≈˘⟨ ω·ᶜ+ᶜ²𝟘ᶜ ⟩
            ω ·ᶜ (𝟘ᶜ +ᶜ 𝟘ᶜ)  ∎)
     , (λ where
-         (0    , whred J⇒ ⇨ˢ _) → whnfRedTerm J⇒ (ne! (Jₙ (var _)))
-         (1+ _ , whred J⇒ ⇨ˢ _) → whnfRedTerm J⇒ (ne! (Jₙ (var _)))) }
+         (0    , whred J⇒ ⇨ˢ _) → whnfRedTerm J⇒ (ne (Jₙ (var _)))
+         (1+ _ , whred J⇒ ⇨ˢ _) → whnfRedTerm J⇒ (ne (Jₙ (var _)))) }
     where
     open Tools.Reasoning.PartialOrder ≤ᶜ-poset
 
@@ -476,8 +476,8 @@ opaque
            𝟘ᶜ               ≈˘⟨ ω·ᶜ+ᶜ²𝟘ᶜ ⟩
            ω ·ᶜ (𝟘ᶜ +ᶜ 𝟘ᶜ)  ∎)
     , (λ where
-         (0    , whred K⇒ ⇨ˢ _) → whnfRedTerm K⇒ (ne! (Kₙ (var _)))
-         (1+ _ , whred K⇒ ⇨ˢ _) → whnfRedTerm K⇒ (ne! (Kₙ (var _)))) }
+         (0    , whred K⇒ ⇨ˢ _) → whnfRedTerm K⇒ (ne (Kₙ (var _)))
+         (1+ _ , whred K⇒ ⇨ˢ _) → whnfRedTerm K⇒ (ne (Kₙ (var _)))) }
     where
     open Tools.Reasoning.PartialOrder ≤ᶜ-poset
 
@@ -519,9 +519,9 @@ opaque
            𝟘 ·ᶜ (𝟘ᶜ , x0 ≔ ⌜ ⌞ 𝟘 ⌟ ⌝) +ᶜ 𝟘ᶜ  ∎)
     , (λ where
          (0 , whred unitrec⇒ ⇨ˢ _) →
-           whnfRedTerm unitrec⇒ (ne! (unitrecₙ no-η (var _)))
+           whnfRedTerm unitrec⇒ (ne (unitrecₙ no-η (var _)))
          (1+ _ , whred unitrec⇒ ⇨ˢ _) →
-           whnfRedTerm unitrec⇒ (ne! (unitrecₙ no-η (var _))))
+           whnfRedTerm unitrec⇒ (ne (unitrecₙ no-η (var _))))
 
 opaque
 
@@ -555,9 +555,9 @@ opaque
          𝟘 ·ᶜ (𝟘ᶜ , x0 ≔ ⌜ ⌞ 𝟘 ⌟ ⌝)  ∎)
     , (λ where
          (0 , whred emptyrec⇒ ⇨ˢ _) →
-           whnfRedTerm emptyrec⇒ (ne! (emptyrecₙ (var _)))
+           whnfRedTerm emptyrec⇒ (ne (emptyrecₙ (var _)))
          (1+ _ , whred emptyrec⇒ ⇨ˢ _) →
-           whnfRedTerm emptyrec⇒ (ne! (emptyrecₙ (var _))))
+           whnfRedTerm emptyrec⇒ (ne (emptyrecₙ (var _))))
     , let ce = λ _ → ¬loop⇒ˢ* TP.Value-sucᵏ ∘→ proj₂ in
       ce strict ∘→ Σ.map idᶠ (_$ strict)
     , ce

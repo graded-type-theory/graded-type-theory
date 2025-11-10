@@ -141,7 +141,7 @@ mutual
     rflₙ   : Γ ⊢ t ∷ A →
              Γ ⊢nf rfl ∷ Id A t t
     neₙ    : No-η-equality A →
-             Γ ⊢neˡ t ∷ A →
+             Γ ⊢ne t ∷ A →
              Γ ⊢nf t ∷ A
 
   -- Γ ⊢nf t ∷Level holds if t is a level in η-long normal form (with
@@ -152,21 +152,6 @@ mutual
   data _⊢nf_∷Level (Γ : Con Term n) (l : Term n) : Set a where
     term    : Level-allowed → Γ ⊢nf l ∷ Level → Γ ⊢nf l ∷Level
     literal : ¬ Level-allowed → ⊢ Γ → Level-literal l → Γ ⊢nf l ∷Level
-
-  -- Γ ⊢neˡ t ∷ A holds if t is a neutral level for which the
-  -- "non-neutral parts" are in η-long normal form.
-
-  infix 4 _⊢neˡ_∷_
-
-  data _⊢neˡ_∷_ (Γ : Con Term n) : Term n → Term n → Set a where
-    supᵘˡₙ : Γ ⊢neˡ t ∷ Level
-           → Γ ⊢nf u ∷ Level
-           → Γ ⊢neˡ t supᵘ u ∷ Level
-    supᵘʳₙ : Γ ⊢nf t ∷ Level
-           → Γ ⊢neˡ u ∷ Level
-           → Γ ⊢neˡ sucᵘ t supᵘ u ∷ Level
-    neₙ    : Γ ⊢ne t ∷ A
-           → Γ ⊢neˡ t ∷ A
 
   -- Γ ⊢ne t ∷ A holds if t is a neutral term (with respect to the
   -- context Γ and the type A) for which the "non-neutral parts" are
@@ -181,6 +166,12 @@ mutual
     varₙ      : ⊢ Γ →
                 x ∷ A ∈ Γ →
                 Γ ⊢ne var x ∷ A
+    supᵘˡₙ    : Γ ⊢ne t ∷ Level →
+                Γ ⊢nf u ∷ Level →
+                Γ ⊢ne t supᵘ u ∷ Level
+    supᵘʳₙ    : Γ ⊢nf t ∷ Level →
+                Γ ⊢ne u ∷ Level →
+                Γ ⊢ne sucᵘ t supᵘ u ∷ Level
     lowerₙ    : Γ ⊢ne t ∷ Lift l A →
                 Γ ⊢ne lower t ∷ A
     ∘ₙ        : Γ ⊢ne t ∷ Π p , q ▷ A ▹ B →
@@ -272,7 +263,7 @@ mutual
     (sucₙ ⊢t)           → sucⱼ (⊢nf∷→⊢∷ ⊢t)
     (Idₙ ⊢A ⊢t ⊢u)      → Idⱼ (⊢nf∷→⊢∷ ⊢A) (⊢nf∷→⊢∷ ⊢t) (⊢nf∷→⊢∷ ⊢u)
     (rflₙ ⊢t)           → rflⱼ ⊢t
-    (neₙ _ ⊢t)          → ⊢neˡ∷→⊢∷ ⊢t
+    (neₙ _ ⊢t)          → ⊢ne∷→⊢∷ ⊢t
 
   -- If Γ ⊢nf l ∷Level holds, then l is well-typed.
 
@@ -281,20 +272,14 @@ mutual
     (term ok ⊢l)              → term ok (⊢nf∷→⊢∷ ⊢l)
     (literal not-ok ⊢Γ l-lit) → literal not-ok ⊢Γ l-lit
 
-  -- If Γ ⊢neˡ t ∷ A holds, then t is well-typed.
-
-  ⊢neˡ∷→⊢∷ : Γ ⊢neˡ t ∷ A → Γ ⊢ t ∷ A
-  ⊢neˡ∷→⊢∷ = λ where
-    (supᵘˡₙ ⊢t ⊢u) → supᵘⱼ (⊢neˡ∷→⊢∷ ⊢t) (⊢nf∷→⊢∷ ⊢u)
-    (supᵘʳₙ ⊢t ⊢u) → supᵘⱼ (sucᵘⱼ (⊢nf∷→⊢∷ ⊢t)) (⊢neˡ∷→⊢∷ ⊢u)
-    (neₙ x) → ⊢ne∷→⊢∷ x
-
   -- If Γ ⊢ne t ∷ A holds, then t is well-typed.
 
   ⊢ne∷→⊢∷ : Γ ⊢ne t ∷ A → Γ ⊢ t ∷ A
   ⊢ne∷→⊢∷ = λ where
     (convₙ ⊢t A≡B)            → conv (⊢ne∷→⊢∷ ⊢t) A≡B
     (varₙ ⊢Γ x∈)              → var ⊢Γ x∈
+    (supᵘˡₙ ⊢t ⊢u)            → supᵘⱼ (⊢ne∷→⊢∷ ⊢t) (⊢nf∷→⊢∷ ⊢u)
+    (supᵘʳₙ ⊢t ⊢u)            → supᵘⱼ (sucᵘⱼ (⊢nf∷→⊢∷ ⊢t)) (⊢ne∷→⊢∷ ⊢u)
     (∘ₙ ⊢t ⊢u)                → ⊢ne∷→⊢∷ ⊢t ∘ⱼ ⊢nf∷→⊢∷ ⊢u
     (lowerₙ ⊢t)               → lowerⱼ (⊢ne∷→⊢∷ ⊢t)
     (fstₙ ⊢B ⊢t)              → fstⱼ ⊢B (⊢ne∷→⊢∷ ⊢t)
@@ -346,7 +331,7 @@ mutual
     (sucₙ ⊢t)         → sucₙ (⊢nf∷→Nf ⊢t)
     (Idₙ ⊢A ⊢t ⊢u)    → Idₙ (⊢nf∷→Nf ⊢A) (⊢nf∷→Nf ⊢t) (⊢nf∷→Nf ⊢u)
     (rflₙ ⊢t)         → rflₙ
-    (neₙ _ ⊢t)        → ne (⊢neˡ∷→NfNeutralˡ ⊢t)
+    (neₙ _ ⊢t)        → ne (⊢ne∷→NfNeutral ⊢t)
 
   -- If l is an η-long normal level, then l is normal.
 
@@ -355,20 +340,16 @@ mutual
     (term _ ⊢l)         → ⊢nf∷→Nf ⊢l
     (literal _ _ l-lit) → Level-literal→Nf l-lit
 
-  -- If Γ ⊢neˡ t ∷ A holds, then t is "NfNeutralˡ".
-
-  ⊢neˡ∷→NfNeutralˡ : Γ ⊢neˡ t ∷ A → NfNeutralˡ t
-  ⊢neˡ∷→NfNeutralˡ = λ where
-    (supᵘˡₙ ⊢t ⊢u) → supᵘˡₙ (⊢neˡ∷→NfNeutralˡ ⊢t) (⊢nf∷→Nf ⊢u)
-    (supᵘʳₙ ⊢t ⊢u) → supᵘʳₙ (⊢nf∷→Nf ⊢t) (⊢neˡ∷→NfNeutralˡ ⊢u)
-    (neₙ x) → ne (⊢ne∷→NfNeutral x)
-
   -- If Γ ⊢ne t ∷ A holds, then t is "NfNeutral".
 
   ⊢ne∷→NfNeutral : Γ ⊢ne t ∷ A → NfNeutral t
   ⊢ne∷→NfNeutral = λ where
     (convₙ ⊢t _)                 → ⊢ne∷→NfNeutral ⊢t
     (varₙ _ _)                   → var _
+    (supᵘˡₙ ⊢t ⊢u)               → supᵘˡₙ (⊢ne∷→NfNeutral ⊢t)
+                                     (⊢nf∷→Nf ⊢u)
+    (supᵘʳₙ ⊢t ⊢u)               → supᵘʳₙ (⊢nf∷→Nf ⊢t)
+                                     (⊢ne∷→NfNeutral ⊢u)
     (lowerₙ ⊢t)                  → lowerₙ (⊢ne∷→NfNeutral ⊢t)
     (∘ₙ ⊢t ⊢u)                   → ∘ₙ (⊢ne∷→NfNeutral ⊢t) (⊢nf∷→Nf ⊢u)
     (fstₙ _ ⊢t)                  → fstₙ (⊢ne∷→NfNeutral ⊢t)
@@ -492,7 +473,7 @@ mutual
         (stabilityTerm Γ≡Δ ⊢t)
       (neₙ ok ⊢t) → neₙ
         ok
-        (⊢neˡ∷-stable Γ≡Δ ⊢t)
+        (⊢ne∷-stable Γ≡Δ ⊢t)
     where
     ⊢Δ = contextConvSubst Γ≡Δ .proj₂ .proj₁
 
@@ -504,18 +485,6 @@ mutual
     (literal not-ok _ l-lit) →
       let _ , ⊢Δ , _ = contextConvSubst Γ≡Δ in
       literal not-ok ⊢Δ l-lit
-
-  -- If t is a neutral level (according to _⊢neˡ_∷_) with respect to the
-  -- context Γ, and Γ is judgmentally equal to Δ, then t is also a
-  -- neutral level with respect to Δ.
-
-  ⊢neˡ∷-stable : ⊢ Γ ≡ Δ → Γ ⊢neˡ t ∷ A → Δ ⊢neˡ t ∷ A
-  ⊢neˡ∷-stable Γ≡Δ = λ where
-      (supᵘˡₙ ⊢t ⊢u) → supᵘˡₙ (⊢neˡ∷-stable Γ≡Δ ⊢t) (⊢nf∷-stable Γ≡Δ ⊢u)
-      (supᵘʳₙ ⊢t ⊢u) → supᵘʳₙ (⊢nf∷-stable Γ≡Δ ⊢t) (⊢neˡ∷-stable Γ≡Δ ⊢u)
-      (neₙ x)        → neₙ (⊢ne∷-stable Γ≡Δ x)
-    where
-    ⊢Δ = contextConvSubst Γ≡Δ .proj₂ .proj₁
 
   -- If t is a neutral term (according to _⊢ne_∷_) with respect to the
   -- context Γ, and Γ is judgmentally equal to Δ, then t is also a
@@ -530,6 +499,12 @@ mutual
         case inversion-var (stabilityTerm Γ≡Δ (var ⊢Γ x∷A∈Γ)) of λ {
           (B , x∷B∈Δ , A≡B) →
         convₙ (varₙ ⊢Δ x∷B∈Δ) (sym A≡B) }
+      (supᵘˡₙ ⊢t ⊢u) → supᵘˡₙ
+        (⊢ne∷-stable Γ≡Δ ⊢t)
+        (⊢nf∷-stable Γ≡Δ ⊢u)
+      (supᵘʳₙ ⊢t ⊢u) → supᵘʳₙ
+        (⊢nf∷-stable Γ≡Δ ⊢t)
+        (⊢ne∷-stable Γ≡Δ ⊢u)
       (lowerₙ ⊢t) → lowerₙ
         (⊢ne∷-stable Γ≡Δ ⊢t)
       (∘ₙ ⊢t ⊢u) → ∘ₙ
@@ -606,7 +581,7 @@ opaque
     let ⊢l′ = inversion-U-Level (wf-⊢∷ (⊢nf∷→⊢∷ ⊢A)) in
     _ , ⊢l , ⊢A , refl (⊢U (⊢supᵘₗ ⊢l′ (⊢nf∷L→⊢∷L ⊢l)))
   inversion-nf-Lift-U (neₙ _ ⊢Lift) =
-    case ⊢neˡ∷→NfNeutralˡ ⊢Lift of λ { (ne ()) }
+    case ⊢ne∷→NfNeutral ⊢Lift of λ ()
 
 opaque
 
@@ -634,7 +609,7 @@ opaque
   inversion-nf-lift (liftₙ ⊢l ⊢t) =
     _ , _ , ⊢t , refl (Liftⱼ ⊢l (wf-⊢∷ (⊢nf∷→⊢∷ ⊢t)))
   inversion-nf-lift (neₙ _ ⊢lift) =
-    case ⊢neˡ∷→NfNeutralˡ ⊢lift of λ { (ne ()) }
+    case ⊢ne∷→NfNeutral ⊢lift of λ ()
 
 opaque
 
@@ -651,12 +626,6 @@ opaque
   inversion-ne-lower (lowerₙ ⊢t) =
     _ , ⊢t
 
-  inversion-neˡ-lower :
-    Γ ⊢neˡ lower t ∷ A →
-    ∃ λ l → Γ ⊢ne t ∷ Lift l A
-  inversion-neˡ-lower (neₙ ⊢lower) =
-    inversion-ne-lower ⊢lower
-
   inversion-nf-lower :
     Γ ⊢nf lower t ∷ A →
     ∃ λ l → Γ ⊢ne t ∷ Lift l A
@@ -666,7 +635,7 @@ opaque
     in
     _ , convₙ ⊢t (Lift-cong (refl-⊢≡∷L ⊢l) ≡A)
   inversion-nf-lower (neₙ _ ⊢lower) =
-    inversion-neˡ-lower ⊢lower
+    inversion-ne-lower ⊢lower
 
   inversion-nf-ne-lower :
     Γ ⊢nf lower t ∷ A ⊎ Γ ⊢ne lower t ∷ A →
@@ -690,7 +659,7 @@ inversion-nf-ΠΣ-U (convₙ ⊢ΠΣ D≡C) =
     (_ , ⊢A , ⊢B , D≡U , ok) →
   _ , ⊢A , ⊢B , trans (sym D≡C) D≡U , ok }
 inversion-nf-ΠΣ-U (neₙ _ ⊢ΠΣ) =
-  case ⊢neˡ∷→NfNeutralˡ ⊢ΠΣ of λ { (ne ()) }
+  case ⊢ne∷→NfNeutral ⊢ΠΣ of λ ()
 
 -- Inversion for Π- and Σ-types.
 
@@ -711,7 +680,7 @@ inversion-nf-lam :
      Γ ⊢ A ≡ Π p , q ▷ B ▹ C ×
      Π-allowed p q
 inversion-nf-lam (neₙ _ ⊢lam) =
-  case ⊢neˡ∷→NfNeutralˡ ⊢lam of λ { (ne ()) }
+  case ⊢ne∷→NfNeutral ⊢lam of λ ()
 inversion-nf-lam (lamₙ ⊢t ok) =
   _ , _ , _ , ⊢t , refl (ΠΣⱼ (syntacticTerm (⊢nf∷→⊢∷ ⊢t)) ok) , ok
 inversion-nf-lam (convₙ ⊢lam A≡B) =
@@ -729,7 +698,7 @@ inversion-nf-prod :
     Γ ⊢ A ≡ Σ⟨ s ⟩ p , q ▷ B ▹ C ×
     Σ-allowed s p q
 inversion-nf-prod (neₙ _ ⊢prod) =
-  case ⊢neˡ∷→NfNeutralˡ ⊢prod of λ { (ne ()) }
+  case ⊢ne∷→NfNeutral ⊢prod of λ ()
 inversion-nf-prod (prodₙ ⊢C ⊢t ⊢u ok) =
   _ , _ , _ , ⊢C , ⊢t , ⊢u , refl (ΠΣⱼ ⊢C ok) , ok
 inversion-nf-prod (convₙ ⊢prod A≡B) =
@@ -743,7 +712,7 @@ inversion-nf-suc :
   Γ ⊢nf suc t ∷ A →
   Γ ⊢nf t ∷ ℕ × Γ ⊢ A ≡ ℕ
 inversion-nf-suc (neₙ _ ⊢suc) =
-  case ⊢neˡ∷→NfNeutralˡ ⊢suc of λ { (ne ()) }
+  case ⊢ne∷→NfNeutral ⊢suc of λ ()
 inversion-nf-suc (sucₙ ⊢t) =
   ⊢t , refl (⊢ℕ (wfTerm (⊢nf∷→⊢∷ ⊢t)))
 inversion-nf-suc (convₙ ⊢suc A≡B) =
@@ -765,18 +734,12 @@ inversion-ne-app (convₙ ⊢app A≡B) =
     (_ , _ , _ , ⊢t , ⊢u , A≡) →
   _ , _ , _ , ⊢t , ⊢u , trans (sym A≡B) A≡ }
 
-inversion-neˡ-app :
-  Γ ⊢neˡ t ∘⟨ p ⟩ u ∷ A →
-  ∃₃ λ B C q →
-     Γ ⊢ne t ∷ Π p , q ▷ B ▹ C × Γ ⊢nf u ∷ B × Γ ⊢ A ≡ C [ u ]₀
-inversion-neˡ-app (neₙ x) = inversion-ne-app x
-
 inversion-nf-app :
   Γ ⊢nf t ∘⟨ p ⟩ u ∷ A →
   ∃₃ λ B C q →
      Γ ⊢ne t ∷ Π p , q ▷ B ▹ C × Γ ⊢nf u ∷ B × Γ ⊢ A ≡ C [ u ]₀
 inversion-nf-app (neₙ _ ⊢app) =
-  inversion-neˡ-app ⊢app
+  inversion-ne-app ⊢app
 inversion-nf-app (convₙ ⊢app A≡B) =
   case inversion-nf-app ⊢app of λ {
     (_ , _ , _ , ⊢t , ⊢u , A≡) →
@@ -801,16 +764,11 @@ inversion-ne-fst (convₙ ⊢fst A≡B) =
     (_ , _ , _ , ⊢C , ⊢t , A≡) →
   _ , _ , _ , ⊢C , ⊢t , trans (sym A≡B) A≡ }
 
-inversion-neˡ-fst :
-  Γ ⊢neˡ fst p t ∷ A →
-  ∃₃ λ B C q → (Γ ∙ B ⊢ C) × Γ ⊢ne t ∷ Σˢ p , q ▷ B ▹ C × Γ ⊢ A ≡ B
-inversion-neˡ-fst (neₙ x) = inversion-ne-fst x
-
 inversion-nf-fst :
   Γ ⊢nf fst p t ∷ A →
   ∃₃ λ B C q → (Γ ∙ B ⊢ C) × Γ ⊢ne t ∷ Σˢ p , q ▷ B ▹ C × Γ ⊢ A ≡ B
 inversion-nf-fst (neₙ _ ⊢fst) =
-  inversion-neˡ-fst ⊢fst
+  inversion-ne-fst ⊢fst
 inversion-nf-fst (convₙ ⊢fst A≡B) =
   case inversion-nf-fst ⊢fst of λ {
     (_ , _ , _ , ⊢C , ⊢t , A≡) →
@@ -838,14 +796,6 @@ inversion-ne-snd (convₙ ⊢snd A≡B) =
     (_ , _ , _ , ⊢C , ⊢t , A≡) →
   _ , _ , _ , ⊢C , ⊢t , trans (sym A≡B) A≡ }
 
-inversion-neˡ-snd :
-  Γ ⊢neˡ snd p t ∷ A →
-  ∃₃ λ B C q →
-     (Γ ∙ B ⊢ C) ×
-     Γ ⊢ne t ∷ Σˢ p , q ▷ B ▹ C ×
-     Γ ⊢ A ≡ C [ fst p t ]₀
-inversion-neˡ-snd (neₙ x) = inversion-ne-snd x
-
 inversion-nf-snd :
   Γ ⊢nf snd p t ∷ A →
   ∃₃ λ B C q →
@@ -853,7 +803,7 @@ inversion-nf-snd :
      Γ ⊢ne t ∷ Σˢ p , q ▷ B ▹ C ×
      Γ ⊢ A ≡ C [ fst p t ]₀
 inversion-nf-snd (neₙ _ ⊢snd) =
-  inversion-neˡ-snd ⊢snd
+  inversion-ne-snd ⊢snd
 inversion-nf-snd (convₙ ⊢snd A≡B) =
   case inversion-nf-snd ⊢snd of λ {
     (_ , _ , _ , ⊢C , ⊢t , A≡) →
@@ -892,7 +842,7 @@ inversion-nf-prodrec :
     Γ ⊢ne t ∷ Σʷ p , q ▷ C ▹ D ×
     Γ ∙ C ∙ D ⊢nf u ∷ A [ prodʷ p (var x1) (var x0) ]↑² ×
     Γ ⊢ B ≡ A [ t ]₀
-inversion-nf-prodrec (neₙ _ (neₙ ⊢pr)) =
+inversion-nf-prodrec (neₙ _ ⊢pr) =
   inversion-ne-prodrec ⊢pr
 inversion-nf-prodrec (convₙ ⊢pr B≡C) =
   case inversion-nf-prodrec ⊢pr of λ {
@@ -924,7 +874,7 @@ inversion-ne-emptyrec (convₙ ⊢er A≡B) =
 inversion-nf-emptyrec :
   Γ ⊢nf emptyrec p A t ∷ B →
   Γ ⊢nf A × Γ ⊢ne t ∷ Empty × Γ ⊢ B ≡ A
-inversion-nf-emptyrec (neₙ _ (neₙ ⊢er)) =
+inversion-nf-emptyrec (neₙ _ ⊢er) =
   inversion-ne-emptyrec ⊢er
 inversion-nf-emptyrec (convₙ ⊢er A≡B) =
   case inversion-nf-emptyrec ⊢er of λ {
@@ -961,7 +911,7 @@ inversion-nf-natrec :
   Γ ∙ ℕ ∙ A ⊢nf u ∷ A [ suc (var x1) ]↑² ×
   Γ ⊢ne v ∷ ℕ ×
   Γ ⊢ B ≡ A [ v ]₀
-inversion-nf-natrec (neₙ _ (neₙ ⊢nr)) =
+inversion-nf-natrec (neₙ _ ⊢nr) =
   inversion-ne-natrec ⊢nr
 inversion-nf-natrec (convₙ ⊢pr B≡C) =
   case inversion-nf-natrec ⊢pr of λ {
@@ -993,7 +943,7 @@ opaque
         (_ , ⊢A , ⊢t , ⊢u , C≡U) →
       _ , ⊢A , ⊢t , ⊢u , trans (sym C≡B) C≡U }
     (neₙ _ ⊢Id) →
-      case ⊢neˡ∷→NfNeutralˡ ⊢Id of λ { (ne ()) }
+      case ⊢ne∷→NfNeutral ⊢Id of λ ()
 
 opaque
 
@@ -1040,7 +990,7 @@ opaque
     Γ ⊢ne w ∷ Id A t v ×
     Γ ⊢ C ≡ B [ v , w ]₁₀
   inversion-nf-J = λ where
-    (neₙ _ (neₙ ⊢J)) →
+    (neₙ _ ⊢J) →
       inversion-ne-J ⊢J
     (convₙ ⊢J C≡D) →
       case inversion-nf-J ⊢J of λ {
@@ -1095,7 +1045,7 @@ opaque
     K-allowed ×
     Γ ⊢ C ≡ B [ v ]₀
   inversion-nf-K = λ where
-    (neₙ _ (neₙ ⊢K)) →
+    (neₙ _ ⊢K) →
       inversion-ne-K ⊢K
     (convₙ ⊢K C≡D) →
       case inversion-nf-K ⊢K of λ {
@@ -1154,7 +1104,7 @@ opaque
     []-cong-allowed s ×
     Γ ⊢ B ≡ Id (Erased l A) [ t ] ([ u ])
   inversion-nf-[]-cong = λ where
-    (neₙ _ (neₙ ⊢[]-cong)) →
+    (neₙ _ ⊢[]-cong) →
       inversion-ne-[]-cong ⊢[]-cong
     (convₙ ⊢[]-cong C≡B) →
       let ⊢l , ⊢A , ⊢t , ⊢u , ⊢v , ok , C≡Id =
@@ -1205,7 +1155,7 @@ opaque
     Γ ⊢nf u ∷ A [ starʷ ]₀ ×
     Γ ⊢ B ≡ A [ t ]₀ ×
     ¬ Unitʷ-η
-  inversion-nf-unitrec (neₙ _ (neₙ ⊢ur)) = inversion-ne-unitrec ⊢ur
+  inversion-nf-unitrec (neₙ _ ⊢ur)     = inversion-ne-unitrec ⊢ur
   inversion-nf-unitrec (convₙ ⊢ur B≡C) =
     case inversion-nf-unitrec ⊢ur of λ {
       (⊢A , ⊢t , ⊢u , B≡ , not-ok) →
@@ -1381,7 +1331,7 @@ opaque
     Γ ⊢nf t ∷ A × Γ ⊢nf u ∷ A × Γ ⊢ t ≡ u ∷ A × t PE.≢ u
   normal-terms-not-unique ok =
     let ⊢L  = Levelⱼ′ ok ε
-        ⊢0  = neₙ (varₙ (∙ ⊢L) here)
+        ⊢0  = varₙ (∙ ⊢L) here
         ⊢0′ = neₙ Levelₙ ⊢0
     in
     ⊢0′ ,

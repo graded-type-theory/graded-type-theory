@@ -37,6 +37,7 @@ open import Definition.Typed.Well-formed R
 
 open import Definition.Untyped M
 open import Definition.Untyped.Neutral M type-variant
+open import Definition.Untyped.Neutral.Atomic M type-variant
 open import Definition.Untyped.Properties M
 
 open import Tools.Empty
@@ -72,8 +73,8 @@ data _⊩⟨_⟩_≡_∷Σʷ_,_▷_▹_
     Γ ⊩⟨ l ⟩ prodʷ p t₁₁ t₁₂ ≡ prodʷ p t₂₁ t₂₂ ∷Σʷ p , q ▷ A ▹ B
   ne :
     Neutrals-included →
-    Neutral t₁ →
-    Neutral t₂ →
+    Neutralᵃ t₁ →
+    Neutralᵃ t₂ →
     Γ ⊢ t₁ ~ t₂ ∷ Σʷ p , q ▷ A ▹ B →
     Γ ⊩⟨ l ⟩ t₁ ≡ t₂ ∷Σʷ p , q ▷ A ▹ B
 
@@ -86,7 +87,7 @@ opaque
     Γ ⊩⟨ l ⟩ t ≡ u ∷Σʷ p , q ▷ A ▹ B → Product t × Product u
   ⊩≡∷Σʷ→Product = λ where
     (prodₙ _ _)        → prodₙ , prodₙ
-    (ne _ t-ne u-ne _) → ne t-ne , ne u-ne
+    (ne _ t-ne u-ne _) → ne (ne⁻ t-ne) , ne (ne⁻ u-ne)
 
 opaque
   unfolding _⊩⟨_⟩_≡_∷_
@@ -177,7 +178,7 @@ data _⊩⟨_⟩_∷Σʷ_,_▷_▹_
     Γ ⊩⟨ l ⟩ prodʷ p t₁ t₂ ∷Σʷ p , q ▷ A ▹ B
   ne :
     Neutrals-included →
-    Neutral t →
+    Neutralᵃ t →
     Γ ⊢~ t ∷ Σʷ p , q ▷ A ▹ B →
     Γ ⊩⟨ l ⟩ t ∷Σʷ p , q ▷ A ▹ B
 
@@ -463,7 +464,7 @@ opaque
                  inc′ = included ⦃ inc = inc ⦄
            in
            neutral-⊩≡∷ inc ⊩C₁[σ₁⇑][v₁]
-             (prodrecₙ v₁-ne) (prodrecₙ v₂-ne) $
+             (prodrecₙᵃ v₁-ne) (prodrecₙᵃ v₂-ne) $
            ~-prodrec
              (R.escape-⊩≡ $
               ⊩ᵛ≡→⊩ˢ≡∷→⊩[⇑]≡[⇑] C₁≡C₂ σ₁≡σ₂)

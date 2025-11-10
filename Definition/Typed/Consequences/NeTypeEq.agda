@@ -52,6 +52,10 @@ neTypeEq :
   Neutral t → Γ ⊢ t ∷ A → Γ ⊢ t ∷ B → Γ ⊢ A ≡ B
 neTypeEq (var x) (var x₁ x₂) (var x₃ x₄) =
   varTypeEq (syntacticTerm (var x₃ x₂)) (syntacticTerm (var x₃ x₄)) x₂ x₄
+neTypeEq (supᵘˡₙ _) (supᵘⱼ ⊢t _) (supᵘⱼ _ _) =
+  refl (wf-⊢∷ ⊢t)
+neTypeEq (supᵘʳₙ _) (supᵘⱼ ⊢t _) (supᵘⱼ _ _) =
+  refl (wf-⊢∷ ⊢t)
 neTypeEq (lowerₙ x) (lowerⱼ y) (lowerⱼ z) = Lift-injectivity (neTypeEq x y z) .proj₂
 neTypeEq (∘ₙ neT) (t∷A ∘ⱼ t∷A₁) (t∷B ∘ⱼ t∷B₁) with neTypeEq neT t∷A t∷B
 ... | q = ΠΣ-injectivity q .proj₂ .proj₁ (refl t∷A₁)

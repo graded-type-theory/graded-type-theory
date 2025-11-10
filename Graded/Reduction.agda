@@ -628,7 +628,7 @@ well-resourced-normal-form-without-η-long-normal-form-Unit
     (⊢t , ▸t , ⊢u , t≡u , ▸u→ , _) →
     _ , _
   , ⊢t
-  , lamₙ (ne (ne (var _)))
+  , lamₙ (ne (var _))
   , ▸t
   , λ (v , ⊢v , t≡v , ▸v) →
                                      $⟨ ▸v ⟩
@@ -668,8 +668,8 @@ well-resourced-normal-form-without-η-long-normal-form-Unit
     ⊢0
   , var
   , prodₙ (⊢ℕ ε∙Σℕℕ∙ℕ)
-      (neₙ ℕₙ (neₙ (fstₙ Σℕℕ∙ℕ⊢ℕ (varₙ (∙ ⊢Σℕℕ) here))))
-      (neₙ ℕₙ (neₙ (sndₙ Σℕℕ∙ℕ⊢ℕ (varₙ (∙ ⊢Σℕℕ) here))))
+      (neₙ ℕₙ (fstₙ Σℕℕ∙ℕ⊢ℕ (varₙ (∙ ⊢Σℕℕ) here)))
+      (neₙ ℕₙ (sndₙ Σℕℕ∙ℕ⊢ℕ (varₙ (∙ ⊢Σℕℕ) here)))
       ok
   , sym′ (Σ-η-prod-fst-snd ⊢0)
   , (ε ∙ 𝟙 ▸[ 𝟙ᵐ ] u′                              ⇔⟨ lemma₁ ⟩
@@ -786,7 +786,7 @@ well-resourced-normal-form-without-η-long-normal-form-Σˢ
     (⊢t , ▸t , ⊢u , t≡u , ▸u→ , _) →
     _ , _
   , ⊢t
-  , lamₙ (ne (ne (var _)))
+  , lamₙ (ne (var _))
   , ▸t
   , λ (v , ⊢v , t≡v , ▸v) →                                        $⟨ ▸v ⟩
       ε ▸[ 𝟙ᵐ ] v                                                  →⟨ PE.subst (_ ▸[ _ ]_) $

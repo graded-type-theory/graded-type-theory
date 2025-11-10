@@ -22,6 +22,7 @@ open import Definition.Typed R
 open import Definition.Typed.Properties.Well-formed R
 open import Definition.Untyped M
 open import Definition.Untyped.Neutral M type-variant
+open import Definition.Untyped.Neutral.Atomic M type-variant
 
 open import Tools.Product
 
@@ -33,10 +34,10 @@ opaque
 
   -- If t satisfies neLevel-prop Γ, then it is a neutral level.
 
-  nelevel : neLevel-prop Γ t → Neutralˡ t
+  nelevel : neLevel-prop Γ t → Neutral t
   nelevel (supᵘˡᵣ x x₁) = supᵘˡₙ (nelevel x)
   nelevel (supᵘʳᵣ x x₁) = supᵘʳₙ (nelevel x₁)
-  nelevel (ne (neNfₜ₌ _ neK neM k≡m)) = ne neK
+  nelevel (ne (neNfₜ₌ _ neK _ _)) = ne⁻ neK
 
   -- If t satisfies Level-prop Γ, then it is a WHNF.
 
@@ -49,7 +50,7 @@ opaque
 
   -- If t and u satisfy [neLevel]-prop Γ, then they are neutral levels.
 
-  nelsplit : [neLevel]-prop Γ t u → Neutralˡ t × Neutralˡ u
+  nelsplit : [neLevel]-prop Γ t u → Neutral t × Neutral u
   nelsplit (supᵘˡᵣ t≡u x) = let a , b = nelsplit t≡u in supᵘˡₙ a , supᵘˡₙ b
   nelsplit (supᵘʳᵣ x t≡u) = let a , b = nelsplit t≡u in supᵘʳₙ a , supᵘʳₙ b
   nelsplit (supᵘ-zeroʳᵣ [u]) = let a = nelevel [u] in supᵘˡₙ a , a
@@ -59,7 +60,7 @@ opaque
   nelsplit (supᵘ-comm¹ᵣ x d y d′) = supᵘˡₙ (nelevel x) , supᵘˡₙ (nelevel y)
   nelsplit (supᵘ-comm²ᵣ x d y) = let u = nelevel y in supᵘʳₙ u , supᵘˡₙ u
   nelsplit (supᵘ-idemᵣ x y) = let n = nelevel x in supᵘˡₙ n , n
-  nelsplit (ne (neNfₜ₌ _ neK neM _)) = ne neK , ne neM
+  nelsplit (ne (neNfₜ₌ _ neK neM _)) = ne⁻ neK , ne⁻ neM
 
   -- If t and u satisfy [Level]-prop Γ, then they are WHNFs.
 
@@ -78,14 +79,14 @@ opaque
   split : [Natural]-prop Γ t u → Natural t × Natural u
   split (sucᵣ _)                    = sucₙ , sucₙ
   split zeroᵣ                       = zeroₙ , zeroₙ
-  split (ne (neNfₜ₌ _ t-ne u-ne _)) = ne t-ne , ne u-ne
+  split (ne (neNfₜ₌ _ t-ne u-ne _)) = ne (ne⁻ t-ne) , ne (ne⁻ u-ne)
 
 opaque
 
   -- If t and u satisfy [Empty]-prop Γ, then they are neutral terms.
 
   esplit : [Empty]-prop Γ t u → Neutral t × Neutral u
-  esplit (ne (neNfₜ₌ _ t-ne u-ne _)) = t-ne , u-ne
+  esplit (ne (neNfₜ₌ _ t-ne u-ne _)) = ne⁻ t-ne , ne⁻ u-ne
 
 opaque
 

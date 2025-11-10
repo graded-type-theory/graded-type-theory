@@ -18,6 +18,7 @@ open Type-restrictions R
 
 open import Definition.Untyped M hiding (K)
 open import Definition.Untyped.Neutral M type-variant
+open import Definition.Untyped.Neutral.Atomic M type-variant
 open import Definition.Untyped.Properties M
 open import Definition.Typed R
 open import Definition.Typed.Properties R
@@ -66,10 +67,10 @@ mutual
                     → [Natural]-prop Γ k′ k″
                     → [Natural]-prop Γ k k″
   transNatural-prop (sucᵣ x) (sucᵣ x₁) = sucᵣ (transEqTermℕ x x₁)
-  transNatural-prop (sucᵣ x) (ne (neNfₜ₌ _ () neM k≡m))
+  transNatural-prop (sucᵣ _) (ne (neNfₜ₌ _ (ne () _) _ _))
   transNatural-prop zeroᵣ prop₁ = prop₁
   transNatural-prop prop zeroᵣ = prop
-  transNatural-prop (ne (neNfₜ₌ _ neK () k≡m)) (sucᵣ x₃)
+  transNatural-prop (ne (neNfₜ₌ _ _ (ne () _) _)) (sucᵣ _)
   transNatural-prop (ne [k≡k′]) (ne [k′≡k″]) =
     ne (transEqTermNe [k≡k′] [k′≡k″])
 
@@ -87,8 +88,8 @@ transEqTermEmpty : ∀ {n n′ n″}
   → Γ ⊩Empty n  ≡ n″ ∷Empty
 transEqTermEmpty
   (Emptyₜ₌ k _ d d′ t≡u prop) (Emptyₜ₌ _ k″ d₁ d″ t≡u₁ prop₁) =
-  let k₁Whnf = ne! (proj₁ (esplit prop₁))
-      k′Whnf = ne! (proj₂ (esplit prop))
+  let k₁Whnf = ne (proj₁ (esplit prop₁))
+      k′Whnf = ne (proj₂ (esplit prop))
       k₁≡k′ = whrDet*Term (d₁ , k₁Whnf) (d′ , k′Whnf)
       prop′ = PE.subst (λ x → [Empty]-prop _ x _) k₁≡k′ prop₁
   in Emptyₜ₌ k k″ d d″
@@ -102,8 +103,8 @@ transUnit-prop′ :
   [Unit]-prop′ Γ 𝕨 t v
 transUnit-prop′ starᵣ starᵣ = starᵣ
 transUnit-prop′ (ne t≡u) (ne u≡v) = ne (transEqTermNe t≡u u≡v)
-transUnit-prop′ starᵣ (ne (neNfₜ₌ _ () _ _))
-transUnit-prop′ (ne (neNfₜ₌ _ _ () _)) starᵣ
+transUnit-prop′ starᵣ (ne (neNfₜ₌ _ (ne () _) _ _))
+transUnit-prop′ (ne (neNfₜ₌ _ _ (ne () _) _)) starᵣ
 
 transUnit-prop : ∀ {k k′ k″}
   → [Unit]-prop Γ s k k′
@@ -323,8 +324,8 @@ private module Trans (l : Universe-level) (rec : ∀ {l′} → l′ <ᵘ l → 
   transEqTerm (Bᵣ′ BΠ! F G D A≡A [F] [G] G-ext _)
     (Πₜ₌ f g d d′ funcF funcG f≡g [f≡g])
     (Πₜ₌ f₁ g₁ d₁ d₁′ funcF₁ funcG₁ f≡g₁ [f≡g]₁)
-    rewrite whrDet*Term (d′ , functionWhnf funcG)
-              (d₁ , functionWhnf funcF₁) =
+    rewrite whrDet*Term (d′ , Functionᵃ→Whnf funcG)
+              (d₁ , Functionᵃ→Whnf funcF₁) =
     Πₜ₌ f g₁ d d₁′ funcF funcG₁ (≅ₜ-trans f≡g f≡g₁)
       (λ ρ ⊩v ⊩w v≡w →
         transEqTerm ([G] ρ ⊩v) ([f≡g] ρ ⊩v ⊩v (reflEqTerm ([F] ρ) ⊩v))
@@ -334,8 +335,8 @@ private module Trans (l : Universe-level) (rec : ∀ {l′} → l′ <ᵘ l → 
     (Σₜ₌ p r d d′ pProd rProd p≅r ([fstp] , [fstr] , [fst≡] , [snd≡]))
     (Σₜ₌ p₁ r₁ d₁ d₁′ pProd₁ rProd₁ p≅r₁
       ([fstp]₁ , [fstr]₁ , [fst≡]₁ , [snd≡]₁)) =
-    let p₁≡r = whrDet*Term (d₁ , productWhnf pProd₁)
-                (d′ , productWhnf rProd)
+    let p₁≡r = whrDet*Term (d₁ , Productᵃ→Whnf pProd₁)
+                (d′ , Productᵃ→Whnf rProd)
         p≅r₁ = ≅ₜ-trans p≅r
                 (PE.subst
                     (λ (x : Term n) → Γ ⊢ x ≅ r₁ ∷ Σˢ p′ , q ▷ F ▹ G)
@@ -406,11 +407,13 @@ private module Trans (l : Universe-level) (rec : ∀ {l′} → l′ <ᵘ l → 
   transEqTerm (Bᵣ′ BΣʷ _ _ _ _ _ _ _ _)
               (Σₜ₌ p r d d′ prodₙ prodₙ p≅r prop)
               (Σₜ₌ p₁ r₁ d₁ d₁′ (ne x) (ne x₁) p≅r₁ prop₁) =
-    ⊥-elim (prod≢ne x (whrDet*Term (d′ , prodₙ) (d₁ , ne! x)))
+    ⊥-elim $
+    prod≢ne (ne⁻ x) (whrDet*Term (d′ , prodₙ) (d₁ , ne (ne⁻ x)))
   transEqTerm (Bᵣ′ BΣʷ _ _ _ _ _ _ _ _)
               (Σₜ₌ p r d d′ (ne x) (ne x₁) p≅r prop)
               (Σₜ₌ p₁ r₁ d₁ d₁′ prodₙ prodₙ p≅r₁ prop₁) =
-    ⊥-elim (prod≢ne x₁ (whrDet*Term (d₁ , prodₙ) (d′ , ne! x₁)))
+    ⊥-elim $
+    prod≢ne (ne⁻ x₁) (whrDet*Term (d₁ , prodₙ) (d′ , ne (ne⁻ x₁)))
   transEqTerm (Bᵣ′ BΣʷ _ _ _ _ _ _ _ _)
               (Σₜ₌ p r d d′ prodₙ (ne x) p≅r (lift ()))
               (Σₜ₌ p₁ r₁ d₁ d₁′ pProd₁ rProd₁ p≅r₁ prop₁)
@@ -428,8 +431,8 @@ private module Trans (l : Universe-level) (rec : ∀ {l′} → l′ <ᵘ l → 
     t≡u@(_ , _ , _ , u⇒*u′ , _ , u′-id , _)
     u≡v@(_ , _ , u⇒*u″ , _ , u″-id , _) =
     case whrDet*Term
-          (u⇒*u′ , identityWhnf u′-id)
-          (u⇒*u″ , identityWhnf u″-id) of λ {
+          (u⇒*u′ , Identityᵃ→Whnf u′-id)
+          (u⇒*u″ , Identityᵃ→Whnf u″-id) of λ {
       PE.refl →
     let ⊩t , _      = ⊩Id≡∷⁻¹ ⊩A t≡u
         _  , ⊩v , _ = ⊩Id≡∷⁻¹ ⊩A u≡v
@@ -439,13 +442,13 @@ private module Trans (l : Universe-level) (rec : ∀ {l′} → l′ <ᵘ l → 
         (ne _ _ u′-n t′~u′) → case ⊩Id≡∷-view-inhabited ⊩A u≡v of λ where
           (ne inc _ _ u′~v′) → inc , ~-trans t′~u′ u′~v′
           (rfl₌ _)       →
-            ⊥-elim $ rfl≢ne u′-n $
-            whrDet*Term (u⇒*u″ , rflₙ) (u⇒*u′ , ne! u′-n)
+            ⊥-elim $ rfl≢ne (ne⁻ u′-n) $
+            whrDet*Term (u⇒*u″ , rflₙ) (u⇒*u′ , ne (ne⁻ u′-n))
         (rfl₌ _) → case ⊩Id≡∷-view-inhabited ⊩A u≡v of λ where
           (rfl₌ _)        → _
           (ne _ u″-n _ _) →
-            ⊥-elim $ rfl≢ne u″-n $
-            whrDet*Term (u⇒*u′ , rflₙ) (u⇒*u″ , ne! u″-n)) }
+            ⊥-elim $ rfl≢ne (ne⁻ u″-n) $
+            whrDet*Term (u⇒*u′ , rflₙ) (u⇒*u″ , ne (ne⁻ u″-n))) }
 
 private opaque
   transKit : ∀ l → TransKit l

@@ -104,6 +104,7 @@ import Graded.Derived.Unrestricted.Eta.Untyped
 import Definition.Typed.Variant
 import Definition.Untyped.Neutral
 import Definition.Untyped.Properties.Neutral
+import Definition.Untyped.Neutral.Atomic
 
 ------------------------------------------------------------------------
 -- The type theory, along with some basic properties

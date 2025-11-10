@@ -16,6 +16,7 @@ module Definition.Conversion.Soundness
 
 open import Definition.Untyped M
 open import Definition.Untyped.Neutral M type-variant
+open import Definition.Untyped.Neutral.Atomic M type-variant
 open import Definition.Typed R
 open import Definition.Typed.EqRelInstance R using (eqRelInstance)
 open import Definition.Typed.EqualityRelation.Instance R
@@ -154,12 +155,12 @@ mutual
     let a≡b = soundness~↓ x₂
         _ , neA , _ = ne~↓ x₂
         _ , ⊢a , _ = syntacticEqTerm a≡b
-        Σ≡Σ′ = neTypeEq neA x ⊢a
+        Σ≡Σ′ = neTypeEq (ne⁻ neA) x ⊢a
     in  conv a≡b (sym Σ≡Σ′)
   soundnessConv↓Term (ne-ins t u x x₁) =
     let _ , neA , _ = ne~↓ x₁
         _ , t∷M , _ = syntacticEqTerm (soundness~↓ x₁)
-        M≡A = neTypeEq neA t∷M t
+        M≡A = neTypeEq (ne⁻ neA) t∷M t
     in  conv (soundness~↓ x₁) M≡A
   soundnessConv↓Term (univ ⊢A ⊢B A≡B) =
     soundnessConv↓-U ⊢A ⊢B A≡B .proj₁
@@ -186,7 +187,7 @@ mutual
       v₁≡v₂ →
     conv v₁≡v₂
       (                                          $⟨ syntacticEqTerm v₁≡v₂ .proj₂ .proj₁ , ⊢v₁ ⟩
-       Γ ⊢ v₁ ∷ Id A′ t′ u′ × Γ ⊢ v₁ ∷ Id A t u  →⟨ uncurry (neTypeEq (ne~↓ v₁~v₂ .proj₂ .proj₁)) ⟩
+       Γ ⊢ v₁ ∷ Id A′ t′ u′ × Γ ⊢ v₁ ∷ Id A t u  →⟨ uncurry (neTypeEq (ne⁻ (ne~↓ v₁~v₂ .proj₂ .proj₁))) ⟩
        Γ ⊢ Id A′ t′ u′ ≡ Id A t u                □) }
   soundnessConv↓Term (rfl-refl t≡u) =
     refl (rflⱼ′ t≡u)
@@ -202,8 +203,8 @@ mutual
     let A≡B             = soundness~↓ A~B
         _ , A-ne , B-ne = ne~↓ A~B
         _ , ⊢A′ , ⊢B′   = syntacticEqTerm A≡B
-        U≡U₁            = neTypeEq A-ne ⊢A′ ⊢A
-        U≡U₂            = neTypeEq B-ne ⊢B′ ⊢B
+        U≡U₁            = neTypeEq (ne⁻ A-ne) ⊢A′ ⊢A
+        U≡U₂            = neTypeEq (ne⁻ B-ne) ⊢B′ ⊢B
     in
       conv A≡B U≡U₁
     , U-injectivity

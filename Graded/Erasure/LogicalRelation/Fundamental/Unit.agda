@@ -35,6 +35,7 @@ import Graded.Erasure.Target.Reasoning
 
 open import Definition.Untyped M
 open import Definition.Untyped.Neutral M type-variant
+open import Definition.Untyped.Neutral.Atomic M type-variant
 open import Definition.Untyped.Properties M
 
 open import Definition.Typed R
@@ -235,10 +236,10 @@ opaque
             (no p≢𝟘) →
               case p≢𝟘→u[σ]®u[σ′] p≢𝟘 of λ {
                 (starᵣ u[σ]⇛⋆ _) →
-              starʷ≢ne no-η u′-ne
+              starʷ≢ne no-η (ne⁻ u′-ne)
                 (starʷ ∷ Unitʷ        ≡˘⟨ ⇛→⊢≡ u[σ]⇛⋆ ⟩⊢∷
                  u [ σ ] ∷ Unitʷ  ⇒*⟨ u[σ]⇒u′ ⟩⊢∷∎
                  u′                         ∎) }
             (yes p≡𝟘) → case p≡𝟘→ p≡𝟘 of λ where
-              (inj₁ ε) → noClosedNe u′-ne
+              (inj₁ ε) → noClosedNe (ne⁻ u′-ne)
               (inj₂ η) → no-η η }

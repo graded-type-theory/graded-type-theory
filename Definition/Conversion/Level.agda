@@ -11,8 +11,10 @@ module Definition.Conversion.Level
   (R : Type-restrictions 𝕄)
   where
 
+open Type-restrictions R
+
 open import Definition.Untyped M
-open import Definition.Untyped.Neutral M
+open import Definition.Untyped.Neutral.Atomic M type-variant
 open import Definition.Conversion R
 open import Definition.Conversion.Whnf R
 open import Definition.Typed R
@@ -180,12 +182,18 @@ mutual
   deterministic-~ᵛ (neₙ [t] PE.refl) (neₙ [t]₁ PE.refl) =
     (PE.refl , ne _ _) Pointwise.∷ Pointwise.[]
   -- Absurd cases
-  deterministic-~ᵛ (supᵘˡₙ _ x₁ x₂) (supᵘʳₙ _ x₄ y) = case whnfConv~ᵛ x₁ of λ { (ne ()) }
-  deterministic-~ᵛ (supᵘˡₙ x x₁ x₂) (neₙ [t] x₃) = case ne~↓ [t] of λ ()
-  deterministic-~ᵛ (supᵘʳₙ x x₁ x₂) (supᵘˡₙ x₃ y x₄) = case whnfConv~ᵛ y of λ { (ne ()) }
-  deterministic-~ᵛ (supᵘʳₙ x x₁ x₂) (neₙ [t] x₃) = case ne~↓ [t] of λ ()
-  deterministic-~ᵛ (neₙ [t] x) (supᵘˡₙ x₁ y x₂) = case ne~↓ [t] of λ ()
-  deterministic-~ᵛ (neₙ [t] x) (supᵘʳₙ x₁ x₂ y) = case ne~↓ [t] of λ ()
+  deterministic-~ᵛ (supᵘˡₙ _ x₁ x₂) (supᵘʳₙ _ x₄ y) =
+    case whnfConv~ᵛ x₁ of λ ()
+  deterministic-~ᵛ (supᵘˡₙ x x₁ x₂) (neₙ [t] x₃) =
+    Neutralᵃ-supᵘ→ (ne~↓ [t] .proj₂ .proj₁)
+  deterministic-~ᵛ (supᵘʳₙ x x₁ x₂) (supᵘˡₙ x₃ y x₄) =
+    case whnfConv~ᵛ y of λ ()
+  deterministic-~ᵛ (supᵘʳₙ x x₁ x₂) (neₙ [t] x₃) =
+    Neutralᵃ-supᵘ→ (ne~↓ [t] .proj₂ .proj₁)
+  deterministic-~ᵛ (neₙ [t] x) (supᵘˡₙ x₁ y x₂) =
+    Neutralᵃ-supᵘ→ (ne~↓ [t] .proj₂ .proj₁)
+  deterministic-~ᵛ (neₙ [t] x) (supᵘʳₙ x₁ x₂ y) =
+    Neutralᵃ-supᵘ→ (ne~↓ [t] .proj₂ .proj₁)
 
   deterministic-↓ᵛ : ∀ {t v v′} → Γ ⊢ t ↓ᵛ v → Γ ⊢ t ↓ᵛ v′ → v ≡≡ᵛ v′
   deterministic-↓ᵛ (zeroᵘₙ _ _) (zeroᵘₙ _ _) = Pointwise.[]
@@ -194,11 +202,11 @@ mutual
   deterministic-↓ᵛ (neₙ x) (neₙ x₁) = deterministic-~ᵛ x x₁
   -- Absurd cases
   deterministic-↓ᵛ (zeroᵘₙ _ _) (neₙ t~v′) =
-    case whnfConv~ᵛ t~v′ of λ { (ne ()) }
-  deterministic-↓ᵛ (sucᵘₙ x x₁) (neₙ x₂) = case whnfConv~ᵛ x₂ of λ { (ne ()) }
+    case whnfConv~ᵛ t~v′ of λ ()
+  deterministic-↓ᵛ (sucᵘₙ x x₁) (neₙ x₂) = case whnfConv~ᵛ x₂ of λ ()
   deterministic-↓ᵛ (neₙ t~v) (zeroᵘₙ _ _) =
-    case whnfConv~ᵛ t~v of λ { (ne ()) }
-  deterministic-↓ᵛ (neₙ x) (sucᵘₙ x₁ x₂) = case whnfConv~ᵛ x of λ { (ne ()) }
+    case whnfConv~ᵛ t~v of λ ()
+  deterministic-↓ᵛ (neₙ x) (sucᵘₙ x₁ x₂) = case whnfConv~ᵛ x of λ ()
 
 -- Properties of level comparison and equality.
 

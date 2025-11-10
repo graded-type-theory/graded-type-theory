@@ -31,7 +31,7 @@ open import Tools.Function
 open import Tools.Product
 import Tools.PropositionalEquality as PE
 open import Tools.Relation
-open import Tools.Sum using (_⊎_; inj₁; inj₂)
+open import Tools.Sum as ⊎ using (_⊎_; inj₁; inj₂)
 
 private variable
   Γ                               : Con Term _
@@ -398,11 +398,20 @@ opaque
   neRedTerm : Γ ⊢ t ⇒ u ∷ A → ¬ Neutral t
   neRedTerm = λ where
     (conv d _)                → neRedTerm d
-    (supᵘ-zeroˡ _)            → λ ()
-    (supᵘ-zeroʳ _)            → λ ()
-    (supᵘ-sucᵘ _ _)           → λ ()
-    (supᵘ-substˡ d _)         → λ ()
-    (supᵘ-substʳ _ d)         → λ ()
+    (supᵘ-zeroˡ _)            → ⊎.[ (λ ()) , (λ { (_ , () , _) }) ] ∘→
+                                inv-ne-supᵘ
+    (supᵘ-zeroʳ _)            → ⊎.[ (λ ()) , (λ { (_ , _ , ()) }) ] ∘→
+                                inv-ne-supᵘ
+    (supᵘ-sucᵘ _ _)           → ⊎.[ (λ ()) , (λ { (_ , _ , ()) }) ] ∘→
+                                inv-ne-supᵘ
+    (supᵘ-substˡ d _)         → ⊎.[ neRedTerm d
+                                  , (λ { (_ , PE.refl , _) → ¬sucᵘ⇒ d })
+                                  ] ∘→
+                                inv-ne-supᵘ
+    (supᵘ-substʳ _ d)         → ⊎.[ (λ ())
+                                  , neRedTerm d ∘→ proj₂ ∘→ proj₂
+                                  ] ∘→
+                                inv-ne-supᵘ
     (lower-subst x)           → neRedTerm x ∘→ inv-ne-lower
     (Lift-β ⊢A x₁)            → (λ ()) ∘→ inv-ne-lower
     (app-subst d _)           → neRedTerm d ∘→ inv-ne-∘
@@ -435,26 +444,6 @@ opaque
   neRed (univ x) N = neRedTerm x N
 
 ------------------------------------------------------------------------
--- Some lemmas related to neutral levels
-
-opaque
-
-  -- Neutral levels do not reduce.
-
-  neˡRedTerm : Γ ⊢ t ⇒ u ∷ A → ¬ Neutralˡ t
-  neˡRedTerm (conv d _) n = neˡRedTerm d n
-  neˡRedTerm (supᵘ-substˡ d _) (supᵘˡₙ n) = neˡRedTerm d n
-  neˡRedTerm (supᵘ-zeroˡ _) (supᵘˡₙ (ne ()))
-  neˡRedTerm (supᵘ-substʳ x x₁) (supᵘˡₙ (ne ()))
-  neˡRedTerm (supᵘ-zeroʳ x) (supᵘˡₙ (ne ()))
-  neˡRedTerm (supᵘ-sucᵘ x x₁) (supᵘˡₙ (ne ()))
-  neˡRedTerm (supᵘ-substˡ d _) (supᵘʳₙ _) = ¬sucᵘ⇒ d
-  neˡRedTerm (supᵘ-substʳ _ d) (supᵘʳₙ n) = neˡRedTerm d n
-  neˡRedTerm (supᵘ-zeroʳ _) (supᵘʳₙ (ne ()))
-  neˡRedTerm (supᵘ-sucᵘ _ _) (supᵘʳₙ (ne ()))
-  neˡRedTerm d (ne n) = neRedTerm d n
-
-------------------------------------------------------------------------
 -- Some lemmas related to WHNFs
 
 opaque
@@ -464,25 +453,11 @@ opaque
   whnfRedTerm : Γ ⊢ t ⇒ u ∷ A → ¬ Whnf t
   whnfRedTerm = λ where
     (conv d _)                → whnfRedTerm d
-    (supᵘ-zeroˡ _)            → λ { (ne (supᵘˡₙ (ne ())))
-                                  ; (ne! ())
-                                  }
-    (supᵘ-zeroʳ _)            → λ { (ne (supᵘˡₙ (ne ())))
-                                  ; (ne (supᵘʳₙ (ne ())))
-                                  ; (ne! ())
-                                  }
-    (supᵘ-sucᵘ _ _)           → λ { (ne (supᵘˡₙ (ne ())))
-                                  ; (ne (supᵘʳₙ (ne ())))
-                                  ; (ne! ())
-                                  }
-    (supᵘ-substˡ d _)         → λ { (ne (supᵘˡₙ n)) → neˡRedTerm d n
-                                  ; (ne (supᵘʳₙ n)) → ¬sucᵘ⇒ d
-                                  ; (ne! ())
-                                  }
-    (supᵘ-substʳ _ d)         → λ { (ne (supᵘˡₙ (ne ())))
-                                  ; (ne (supᵘʳₙ n)) → neˡRedTerm d n
-                                  ; (ne! ())
-                                  }
+    d@(supᵘ-zeroˡ _)          → neRedTerm d ∘→ inv-whnf-supᵘ
+    d@(supᵘ-zeroʳ _)          → neRedTerm d ∘→ inv-whnf-supᵘ
+    d@(supᵘ-sucᵘ _ _)         → neRedTerm d ∘→ inv-whnf-supᵘ
+    d@(supᵘ-substˡ _ _)       → neRedTerm d ∘→ inv-whnf-supᵘ
+    d@(supᵘ-substʳ _ _)       → neRedTerm d ∘→ inv-whnf-supᵘ
     (lower-subst x)           → neRedTerm x ∘→ inv-whnf-lower
     (Lift-β _ _)              → (λ ()) ∘→ inv-whnf-lower
     (app-subst d _)           → neRedTerm d ∘→ inv-whnf-∘

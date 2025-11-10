@@ -29,7 +29,7 @@ open import Definition.Typed.Properties R
 open import Definition.Typed.Well-formed R
 
 open import Definition.Untyped M
-open import Definition.Untyped.Neutral M type-variant
+open import Definition.Untyped.Neutral.Atomic M type-variant
 open import Definition.Untyped.Properties M
 
 open import Tools.Function
@@ -870,12 +870,12 @@ opaque
 
 opaque
 
-  -- Neutral types that satisfy certain properties are reducible (if
-  -- Neutrals-included holds).
+  -- Atomic neutral types that satisfy certain properties are
+  -- reducible (if Neutrals-included holds).
 
   neutral-⊩ :
     Neutrals-included →
-    Neutral A →
+    Neutralᵃ A →
     Γ ⊢≅ A →
     Γ ⊩⟨ l ⟩ A
   neutral-⊩ = neu
@@ -883,13 +883,13 @@ opaque
 opaque
   unfolding _⊩⟨_⟩_∷_
 
-  -- Neutral terms that satisfy certain properties are reducible (if
-  -- Neutrals-included holds).
+  -- Atomic neutral terms that satisfy certain properties are
+  -- reducible (if Neutrals-included holds).
 
   neutral-⊩∷ :
     Neutrals-included →
     Γ ⊩⟨ l ⟩ A →
-    Neutral t →
+    Neutralᵃ t →
     Γ ⊢~ t ∷ A →
     Γ ⊩⟨ l ⟩ t ∷ A
   neutral-⊩∷ inc ⊩A t-ne t~t =
@@ -898,14 +898,14 @@ opaque
 opaque
   unfolding _⊩⟨_⟩_≡_
 
-  -- Reducible equality holds between neutral types that satisfy
-  -- certain properties.
+  -- Reducible equality holds between atomic neutral types that
+  -- satisfy certain properties.
 
   neutral-⊩≡ :
     Γ ⊩⟨ l ⟩ A →
     Γ ⊩⟨ l ⟩ B →
-    Neutral A →
-    Neutral B →
+    Neutralᵃ A →
+    Neutralᵃ B →
     Γ ⊢ A ≅ B →
     Γ ⊩⟨ l ⟩ A ≡ B
   neutral-⊩≡ ⊩A ⊩B A-ne B-ne A≅B =
@@ -914,14 +914,14 @@ opaque
 opaque
   unfolding _⊩⟨_⟩_≡_∷_
 
-  -- Reducible equality holds between neutral terms that satisfy
-  -- certain properties (if Neutrals-included holds).
+  -- Reducible equality holds between atomic neutral terms that
+  -- satisfy certain properties (if Neutrals-included holds).
 
   neutral-⊩≡∷ :
     Neutrals-included →
     Γ ⊩⟨ l ⟩ A →
-    Neutral t →
-    Neutral u →
+    Neutralᵃ t →
+    Neutralᵃ u →
     Γ ⊢ t ~ u ∷ A →
     Γ ⊩⟨ l ⟩ t ≡ u ∷ A
   neutral-⊩≡∷ inc ⊩A t-ne u-ne t~u =
@@ -932,11 +932,11 @@ opaque
   -- A characterisation lemma for _⊩⟨_⟩_.
 
   ⊩ne⇔ :
-    Neutral A →
+    Neutralᵃ A →
     Γ ⊩⟨ l ⟩ A ⇔ (Neutrals-included × Γ ⊢≅ A)
   ⊩ne⇔ A-ne =
       (λ ⊩A →
-         case ne-view A-ne ⊩A of λ {
+         case ne-view (ne⁻ A-ne) ⊩A of λ {
            (ne (ne inc B A⇒*B _ B≅B)) →
          case whnfRed* A⇒*B (ne! A-ne) of λ {
            PE.refl →
@@ -949,12 +949,12 @@ opaque
   -- A characterisation lemma for _⊩⟨_⟩_≡_.
 
   ⊩ne≡⇔ :
-    Neutral A →
+    Neutralᵃ A →
     Γ ⊩⟨ l ⟩ A ≡ B ⇔
-    (Neutrals-included × ∃ λ C → Neutral C × Γ ⊢ B ⇒* C × Γ ⊢ A ≅ C)
+    (Neutrals-included × ∃ λ C → Neutralᵃ C × Γ ⊢ B ⇒* C × Γ ⊢ A ≅ C)
   ⊩ne≡⇔ {A} {B} A-ne =
       (λ (⊩A , ⊩B , A≡B) →
-         case ne-view A-ne ⊩A of λ {
+         case ne-view (ne⁻ A-ne) ⊩A of λ {
            (ne (ne inc _ A⇒*A′ _ _)) →
          case A≡B of λ
            (ne₌ inc C B⇒*C C-ne A′≅C) →
@@ -976,19 +976,19 @@ opaque
   -- A characterisation lemma for _⊩⟨_⟩_≡_.
 
   ⊩ne≡ne⇔ :
-    Neutral A →
-    Neutral B →
+    Neutralᵃ A →
+    Neutralᵃ B →
     Γ ⊩⟨ l ⟩ A ≡ B ⇔ (Neutrals-included × Γ ⊢ A ≅ B)
   ⊩ne≡ne⇔ {A} {B} {Γ} {l} A-ne B-ne =
-    Γ ⊩⟨ l ⟩ A ≡ B                                                    ⇔⟨ ⊩ne≡⇔ A-ne ⟩
-    (Neutrals-included × ∃ λ C → Neutral C × Γ ⊢ B ⇒* C × Γ ⊢ A ≅ C)  ⇔⟨ (Σ-cong-⇔ λ _ →
-                                                                            (λ (_ , _ , B⇒*C , A≅C) →
-                                                                               case whnfRed* B⇒*C (ne! B-ne) of λ {
-                                                                                 PE.refl →
-                                                                               A≅C })
-                                                                          , (λ A≅B → _ , B-ne , id (wf-⊢≡ (≅-eq A≅B) .proj₂) , A≅B))
-                                                                       ⟩
-    Neutrals-included × Γ ⊢ A ≅ B                                     □⇔
+    Γ ⊩⟨ l ⟩ A ≡ B                                                     ⇔⟨ ⊩ne≡⇔ A-ne ⟩
+    (Neutrals-included × ∃ λ C → Neutralᵃ C × Γ ⊢ B ⇒* C × Γ ⊢ A ≅ C)  ⇔⟨ (Σ-cong-⇔ λ _ →
+                                                                             (λ (_ , _ , B⇒*C , A≅C) →
+                                                                                case whnfRed* B⇒*C (ne! B-ne) of λ {
+                                                                                  PE.refl →
+                                                                                A≅C })
+                                                                           , (λ A≅B → _ , B-ne , id (wf-⊢≡ (≅-eq A≅B) .proj₂) , A≅B))
+                                                                        ⟩
+    Neutrals-included × Γ ⊢ A ≅ B                                      □⇔
 
 opaque
   unfolding _⊩⟨_⟩_≡_∷_ ⊩ne⇔ neu
@@ -996,7 +996,7 @@ opaque
   -- A characterisation lemma for _⊩⟨_⟩_≡_∷_.
 
   ⊩≡∷ne⇔ :
-    Neutral A →
+    Neutralᵃ A →
     Γ ⊩⟨ l ⟩ t₁ ≡ t₂ ∷ A ⇔
     (Γ ⊢≅ A ×
      ∃₂ λ u₁ u₂ →
@@ -1004,7 +1004,7 @@ opaque
      Γ ⊩neNf u₁ ≡ u₂ ∷ A)
   ⊩≡∷ne⇔ {A} A-ne =
       (λ (⊩A , t₁≡t₂) →
-         case ne-view A-ne ⊩A of λ {
+         case ne-view (ne⁻ A-ne) ⊩A of λ {
            (ne (ne inc _ A⇒*A′ _ _)) →
          case t₁≡t₂ of λ
            (neₜ₌ u₁ u₂ t₁⇒*u₁ t₂⇒*u₂ u₁≡u₂) →
@@ -1022,22 +1022,22 @@ opaque
   -- A characterisation lemma for _⊩⟨_⟩_∷_.
 
   ⊩∷ne⇔ :
-    Neutral A →
+    Neutralᵃ A →
     Γ ⊩⟨ l ⟩ t ∷ A ⇔
     (Neutrals-included × Γ ⊢≅ A ×
-     ∃ λ u → Γ ⊢ t ⇒* u ∷ A × Neutral u × Γ ⊢~ u ∷ A)
+     ∃ λ u → Γ ⊢ t ⇒* u ∷ A × Neutralᵃ u × Γ ⊢~ u ∷ A)
   ⊩∷ne⇔ {A} {Γ} {l} {t} A-ne =
-    Γ ⊩⟨ l ⟩ t ∷ A                                     ⇔⟨ ⊩∷⇔⊩≡∷ ⟩
+    Γ ⊩⟨ l ⟩ t ∷ A                                      ⇔⟨ ⊩∷⇔⊩≡∷ ⟩
 
-    Γ ⊩⟨ l ⟩ t ≡ t ∷ A                                 ⇔⟨ ⊩≡∷ne⇔ A-ne ⟩
+    Γ ⊩⟨ l ⟩ t ≡ t ∷ A                                  ⇔⟨ ⊩≡∷ne⇔ A-ne ⟩
 
     (Γ ⊢≅ A ×
      ∃₂ λ u₁ u₂ →
      Γ ⊢ t ⇒* u₁ ∷ A × Γ ⊢ t ⇒* u₂ ∷ A ×
-     Γ ⊩neNf u₁ ≡ u₂ ∷ A)                              ⇔⟨ (λ (≅A , _ , _ , t⇒*u₁ , _ , neNfₜ₌ inc u₁-ne _ u₁~u₂) →
-                                                             inc , ≅A , _ , t⇒*u₁ , u₁-ne , wf-⊢~∷ u₁~u₂ .proj₁)
-                                                        , (λ (inc , ≅A , _ , t⇒*u , u-ne , ~u) →
-                                                             ≅A , _ , _ , t⇒*u , t⇒*u , neNfₜ₌ inc u-ne u-ne ~u)
-                                                        ⟩
+     Γ ⊩neNf u₁ ≡ u₂ ∷ A)                               ⇔⟨ (λ (≅A , _ , _ , t⇒*u₁ , _ , neNfₜ₌ inc u₁-ne _ u₁~u₂) →
+                                                              inc , ≅A , _ , t⇒*u₁ , u₁-ne , wf-⊢~∷ u₁~u₂ .proj₁)
+                                                         , (λ (inc , ≅A , _ , t⇒*u , u-ne , ~u) →
+                                                              ≅A , _ , _ , t⇒*u , t⇒*u , neNfₜ₌ inc u-ne u-ne ~u)
+                                                         ⟩
     (Neutrals-included × Γ ⊢≅ A ×
-     ∃ λ u → Γ ⊢ t ⇒* u ∷ A × Neutral u × Γ ⊢~ u ∷ A)  □⇔
+     ∃ λ u → Γ ⊢ t ⇒* u ∷ A × Neutralᵃ u × Γ ⊢~ u ∷ A)  □⇔

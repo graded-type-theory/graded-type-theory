@@ -26,7 +26,7 @@ open import Definition.Typed.Weakening R as TW using (_∷_⊇_; _∷ʷ_⊇_)
 open import Definition.Typed.Well-formed R
 
 open import Definition.Untyped M
-open import Definition.Untyped.Neutral M
+open import Definition.Untyped.Neutral.Atomic M type-variant
 open import Definition.Untyped.Properties M
 
 open import Tools.Empty
@@ -1370,8 +1370,7 @@ opaque
       ( ( _ , ⊩A
         , (with-inc-⊩≡∷ $
            refl-⊩≡∷ $
-           neutral-⊩∷ (⊩ᵛ→⊩ˢ∷→⊩[] ⊩A $ wf-⊩ˢ≡∷ σ₁⇑₊≡σ₂⇑₊ .proj₁)
-             (var _) $
+           neutral-⊩∷ (⊩ᵛ→⊩ˢ∷→⊩[] ⊩A $ wf-⊩ˢ≡∷ σ₁⇑₊≡σ₂⇑₊ .proj₁) varᵃ $
            ~-var $
            _⊢_∷_.var (∙ ⊢A[σ₁] ⦃ inc = or-empty-1+→ ⦄) $
            PE.subst₂ (_∷_∈_ _) (PE.sym $ wk1Subst-wk1 A) PE.refl here)

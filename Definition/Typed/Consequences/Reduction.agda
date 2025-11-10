@@ -15,6 +15,7 @@ open Type-restrictions R
 
 open import Definition.Untyped M
 open import Definition.Untyped.Neutral M type-variant
+open import Definition.Untyped.Neutral.Atomic M type-variant
 open import Definition.Untyped.Properties M
 open import Definition.Typed R
 open import Definition.Typed.Properties R
@@ -58,7 +59,7 @@ private
 data Is-level {n} : Term n → Set a where
   zeroᵘ : Is-level zeroᵘ
   sucᵘ  : Is-level (sucᵘ l)
-  ne    : Neutralˡ l → Is-level l
+  ne    : Neutral l → Is-level l
 
 opaque
 
@@ -104,7 +105,7 @@ opaque
   red-Empty ⊢t =
     case ⊩∷Empty⇔ .proj₁ $ proj₂ $ reducible-⊩∷ ⊢t of λ {
       (Emptyₜ u t⇒*u _ (ne (neNfₜ _ u-ne _))) →
-    u , u-ne , t⇒*u }
+    u , ne⁻ u-ne , t⇒*u }
 
 opaque
 
@@ -136,7 +137,7 @@ opaque
     , (case rest of λ where
          zeroᵣ                 → zeroₙ
          (sucᵣ _)              → sucₙ
-         (ne (neNfₜ _ u-ne _)) → ne u-ne)
+         (ne (neNfₜ _ u-ne _)) → ne (ne⁻ u-ne))
     , t⇒*u }
 
 opaque
@@ -151,7 +152,7 @@ opaque
   red-Π ⊢t =
     case ⊩∷Π⇔ .proj₁ $ proj₂ $ reducible-⊩∷ ⊢t of λ
       (_ , u , t⇒*u , u-fun , _) →
-    u , u-fun , t⇒*u
+    u , Functionᵃ→ u-fun , t⇒*u
 
 opaque
 
@@ -165,7 +166,7 @@ opaque
   red-Σ {m = 𝕤} ⊢t =
     case ⊩∷Σˢ⇔ .proj₁ $ proj₂ $ reducible-⊩∷ ⊢t of λ
       (_ , u , t⇒*u , u-prod , _) →
-    u , u-prod , t⇒*u
+    u , Productᵃ→ u-prod , t⇒*u
   red-Σ {m = 𝕨} ⊢t =
     case ⊩∷Σʷ⇔ .proj₁ $ proj₂ $ reducible-⊩∷ ⊢t of λ
       (_ , u , t⇒*u , _ , rest) →
@@ -186,7 +187,7 @@ opaque
       w
     , (case rest of λ where
          (rflᵣ _)      → rflₙ
-         (ne _ w-ne _) → ne w-ne)
+         (ne _ w-ne _) → ne (ne⁻ w-ne))
     , t⇒*w
 
 -- Helper function where all reducible types can be reduced to WHNF.
@@ -338,16 +339,8 @@ opaque
       (_ , univ ⊢rfl) →
         ⊥-elim $ Id≢U $
         sym (inversion-rfl ⊢rfl .proj₂ .proj₂ .proj₂ .proj₂)
-  … | _ , ne! n , D =
+  … | _ , ne n , D =
     ⊥-elim (I.ΠΣ≢ne n (trans (sym A≡ΠΣ) (subset* D)))
-  … | _ , ne (supᵘˡₙ _) , A⇒supᵘ =
-    case wf-⊢≡ (subset* A⇒supᵘ) of λ where
-      (_ , univ ⊢supᵘ) →
-        ⊥-elim (U≢Level (inversion-supᵘ ⊢supᵘ .proj₂ .proj₂))
-  … | _ , ne (supᵘʳₙ _) , A⇒supᵘ =
-    case wf-⊢≡ (subset* A⇒supᵘ) of λ where
-      (_ , univ ⊢supᵘ) →
-        ⊥-elim (U≢Level (inversion-supᵘ ⊢supᵘ .proj₂ .proj₂))
 
 opaque
 
@@ -400,13 +393,13 @@ whNormTerm′ (ne (ne _ H D neH H≡H)) ⊩a =
   k , ne! neH₁ , conv* d (sym (subset* D))
 whNormTerm′ (Bᵣ BΠ! ⊩A@(Bᵣ _ _ D _ _ _ _ _)) ⊩a =
   let Πₜ f d funcF _ _ = ⊩Π∷⇔⊩Π≡∷ ⊩A .proj₂ ⊩a in
-  f , functionWhnf funcF , conv* d (sym (subset* D))
+  f , Functionᵃ→Whnf funcF , conv* d (sym (subset* D))
 whNormTerm′ (Bᵣ BΣ! ⊩A@(Bᵣ _ _ D _ _ _ _ _)) ⊩a =
   let Σₜ p d pProd _ _ = ⊩Σ∷⇔⊩Σ≡∷ ⊩A .proj₂ ⊩a in
-  p , productWhnf pProd , conv* d (sym (subset* D))
+  p , Productᵃ→Whnf pProd , conv* d (sym (subset* D))
 whNormTerm′ (Idᵣ ⊩Id) ⊩a =
   let Idₜ a′ a⇒*a′ a′-id _ = ⊩Id∷⇔⊩Id≡∷ ⊩Id .proj₂ ⊩a in
-    a′ , identityWhnf a′-id
+    a′ , Identityᵃ→Whnf a′-id
   , conv* a⇒*a′ (sym (subset* (_⊩ₗId_.⇒*Id ⊩Id)))
 
 opaque
@@ -472,7 +465,7 @@ private opaque
     ⊢Ω = conv ⊢ω (sym Π≡U) ∘ⱼ ⊢ω
 
     ¬-Whnf-Ω : ¬ Whnf Ω
-    ¬-Whnf-Ω (ne! (∘ₙ ()))
+    ¬-Whnf-Ω (ne (∘ₙ ()))
 
     without-WHNF₁ : Whnf A → ¬ Δ ⊢ Ω ⇒* A
     without-WHNF₁ Whnf-Ω (id _)           = ¬-Whnf-Ω Whnf-Ω

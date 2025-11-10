@@ -15,6 +15,7 @@ open Type-restrictions R
 
 open import Definition.Untyped M
 open import Definition.Untyped.Neutral M type-variant
+open import Definition.Untyped.Neutral.Atomic M type-variant
 open import Definition.Conversion R
 open import Definition.Typed.EqRelInstance R using (eqRelInstance)
 open import Definition.LogicalRelation.Properties.Whnf R ⦃ eqRelInstance ⦄
@@ -28,49 +29,49 @@ private
     Γ : Con Term n
 
 mutual
-  -- Extraction of neutrality from algorithmic equality of neutrals.
+  -- If Γ ⊢ t ~ u ↑ A holds, then t and u are atomic neutral.
   ne~↑ : ∀ {t u A}
        → Γ ⊢ t ~ u ↑ A
-       → Neutral t × Neutral u
-  ne~↑ (var-refl x₁ x≡y) = var _ , var _
+       → Neutralᵃ t × Neutralᵃ u
+  ne~↑ (var-refl x₁ x≡y) = varᵃ , varᵃ
   ne~↑ (lower-cong x) =
     let _ , q , w = ne~↓ x
-    in lowerₙ q , lowerₙ w
+    in lowerₙᵃ q , lowerₙᵃ w
   ne~↑ (app-cong x x₁) = let _ , q , w = ne~↓ x
-                         in  ∘ₙ q , ∘ₙ w
+                         in  ∘ₙᵃ q , ∘ₙᵃ w
   ne~↑ (fst-cong x) =
     let _ , pNe , rNe = ne~↓ x
-    in  fstₙ pNe , fstₙ rNe
+    in  fstₙᵃ pNe , fstₙᵃ rNe
   ne~↑ (snd-cong x) =
     let _ , pNe , rNe = ne~↓ x
-    in  sndₙ pNe , sndₙ rNe
+    in  sndₙᵃ pNe , sndₙᵃ rNe
   ne~↑ (natrec-cong x x₁ x₂ x₃) = let _ , q , w = ne~↓ x₃
-                                  in  natrecₙ q , natrecₙ w
+                                  in  natrecₙᵃ q , natrecₙᵃ w
   ne~↑ (prodrec-cong _ g~h _) =
     let _ , gNe , hNe = ne~↓ g~h
-    in  prodrecₙ gNe , prodrecₙ hNe
+    in  prodrecₙᵃ gNe , prodrecₙᵃ hNe
   ne~↑ (emptyrec-cong x x₁) = let _ , q , w = ne~↓ x₁
-                              in emptyrecₙ q , emptyrecₙ w
+                              in emptyrecₙᵃ q , emptyrecₙᵃ w
   ne~↑ (unitrec-cong _ k~l _ no-η) =
     let _ , kNe , lNe = ne~↓ k~l
-    in  unitrecₙ no-η kNe , unitrecₙ no-η lNe
+    in  unitrecₙᵃ no-η kNe , unitrecₙᵃ no-η lNe
   ne~↑ (J-cong _ _ _ _ _ w₁~w₂ _) =
-    Σ.map Jₙ Jₙ (ne~↓ w₁~w₂ .proj₂)
+    Σ.map Jₙᵃ Jₙᵃ (ne~↓ w₁~w₂ .proj₂)
   ne~↑ (K-cong _ _ _ _ v₁~v₂ _ _) =
-    Σ.map Kₙ Kₙ (ne~↓ v₁~v₂ .proj₂)
+    Σ.map Kₙᵃ Kₙᵃ (ne~↓ v₁~v₂ .proj₂)
   ne~↑ ([]-cong-cong _ _ _ _ v₁~v₂ _ _) =
-    Σ.map []-congₙ []-congₙ (ne~↓ v₁~v₂ .proj₂)
+    Σ.map []-congₙᵃ []-congₙᵃ (ne~↓ v₁~v₂ .proj₂)
 
-  -- Extraction of neutrality and WHNF from algorithmic equality of neutrals
-  -- with type in WHNF.
+  -- If Γ ⊢ t ~ u ↓ A holds, then t and u are atomic neutral and A is
+  -- in WHNF.
   ne~↓ : ∀ {t u A}
        → Γ ⊢ t ~ u ↓ A
-       → Whnf A × Neutral t × Neutral u
+       → Whnf A × Neutralᵃ t × Neutralᵃ u
   ne~↓ ([~] _ (_ , whnfB) k~l) = whnfB , ne~↑ k~l
 
   ne~∷ : ∀ {t u A}
        → Γ ⊢ t ~ u ∷ A
-       → Neutral t × Neutral u
+       → Neutralᵃ t × Neutralᵃ u
   ne~∷ (↑ A≡B k~↑l) = ne~↑ k~↑l
 
 -- Extraction of WHNF from algorithmic equality of types in WHNF.
@@ -90,10 +91,10 @@ whnfConv↓ (Id-cong _ _ _) = Idₙ , Idₙ
 
 whnfConv~ᵛ : ∀ {t v}
            → Γ ⊢ t ~ᵛ v
-           → Neutralˡ t
+           → Neutral t
 whnfConv~ᵛ (supᵘˡₙ x x₁ x₂) = supᵘˡₙ (whnfConv~ᵛ x₁)
 whnfConv~ᵛ (supᵘʳₙ x x₁ x₂) = supᵘʳₙ (whnfConv~ᵛ x₂)
-whnfConv~ᵛ (neₙ [t] x) = ne (ne~↓ [t] .proj₂ .proj₁)
+whnfConv~ᵛ (neₙ [t] x) = ne⁻ (ne~↓ [t] .proj₂ .proj₁)
 
 whnfConv↓ᵛ : ∀ {t v}
            → Γ ⊢ t ↓ᵛ v
@@ -120,7 +121,7 @@ whnfConv↓Term (Σʷ-ins x x₁ x₂) =
   in  ΠΣₙ , ne! neT , ne! neU
 whnfConv↓Term (ne-ins t u x x₁) =
   let _ , neT , neU = ne~↓ x₁
-  in ne! x , ne! neT , ne! neU
+  in ne x , ne! neT , ne! neU
 whnfConv↓Term (univ x x₁ x₂) = Uₙ , whnfConv↓ x₂
 whnfConv↓Term (Lift-η x x₁ w₁ w₂ x₂) = Liftₙ , w₁ , w₂
 whnfConv↓Term (zero-refl x) = ℕₙ , zeroₙ , zeroₙ

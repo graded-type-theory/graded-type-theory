@@ -18,6 +18,7 @@ open Type-restrictions R
 
 open import Definition.Untyped M as U hiding (wk; K)
 open import Definition.Untyped.Neutral M type-variant
+open import Definition.Untyped.Neutral.Atomic M type-variant
 open import Definition.Untyped.Inversion M
 open import Definition.Untyped.Properties M
 open import Definition.Typed.Inversion R
@@ -50,7 +51,7 @@ private
 wkEqTermNe : ∀ {k k′ A} → ρ ∷ʷ Δ ⊇ Γ
            → Γ ⊩neNf k ≡ k′ ∷ A → Δ ⊩neNf U.wk ρ k ≡ U.wk ρ k′ ∷ U.wk ρ A
 wkEqTermNe {ρ} [ρ] (neNfₜ₌ inc neK neM k≡m) =
-  neNfₜ₌ inc (wkNeutral ρ neK) (wkNeutral ρ neM) (~-wk [ρ] k≡m)
+  neNfₜ₌ inc (wkNeutralᵃ neK) (wkNeutralᵃ neM) (~-wk [ρ] k≡m)
 
 -- Weakening of reducible levels
 
@@ -151,13 +152,13 @@ opaque
     wk-↑ⁿ-prop [ρ] (neLvl ⊩t) (zeroᵘᵣ _) p =
       case wk-zeroᵘ (PE.sym p) of λ {
         PE.refl →
-      case nelevel ⊩t of λ {
-        (ne ()) }}
+      case nelevel ⊩t of λ
+        () }
     wk-↑ⁿ-prop [ρ] (neLvl ⊩t) (sucᵘᵣ _ _) p =
       case wk-sucᵘ (PE.sym p) of λ {
         (_ , PE.refl , PE.refl) →
-      case nelevel ⊩t of λ {
-        (ne ()) }}
+      case nelevel ⊩t of λ
+        () }
     wk-↑ⁿ-prop [ρ] (neLvl x) (neLvl y) PE.refl = wk-↑ⁿ-neprop [ρ] x y PE.refl
 
     wk-↑ⁿ-neprop
@@ -174,17 +175,19 @@ opaque
     wk-↑ⁿ-neprop [ρ] (supᵘˡᵣ t≡u x) (supᵘʳᵣ x₁ wk-t≡u) p =
       case supᵘ-PE-injectivity p of λ { (q , PE.refl) →
       case wk-sucᵘ (PE.sym q) of λ { (_ , PE.refl , PE.refl) →
-      case nelevel t≡u of λ { (ne ()) } } }
-    wk-↑ⁿ-neprop [ρ] (supᵘˡᵣ t≡u x) (ne (neNfₜ₌ _ () neM k≡m)) PE.refl
+      case nelevel t≡u of λ () }}
+    wk-↑ⁿ-neprop _ (supᵘˡᵣ _ _) (ne (neNfₜ₌ _ n _ _)) PE.refl =
+      Neutralᵃ-supᵘ→ n
     wk-↑ⁿ-neprop [ρ] (supᵘʳᵣ x t≡u) (supᵘˡᵣ wk-t≡u x₁) PE.refl =
-      case nelevel wk-t≡u of λ { (ne ()) }
-    wk-↑ⁿ-neprop [ρ] (supᵘʳᵣ x t≡u) (ne (neNfₜ₌ _ () neM k≡m)) PE.refl
+      case nelevel wk-t≡u of λ ()
+    wk-↑ⁿ-neprop _ (supᵘʳᵣ _ _) (ne (neNfₜ₌ _ n _ _)) PE.refl =
+      Neutralᵃ-supᵘ→ n
     wk-↑ⁿ-neprop [ρ] (ne (neNfₜ₌ _ neK _ _)) (supᵘˡᵣ wk-t≡u x₁) p =
       case wk-supᵘ (PE.sym p) of λ { (_ , _ , PE.refl , _ , _) →
-      case neK of λ () }
+      Neutralᵃ-supᵘ→ neK }
     wk-↑ⁿ-neprop [ρ] (ne (neNfₜ₌ _ neK _ _)) (supᵘʳᵣ x₁ wk-t≡u) p =
       case wk-supᵘ (PE.sym p) of λ { (_ , _ , PE.refl , _ , _) →
-      case neK of λ () }
+      Neutralᵃ-supᵘ→ neK }
 
   wk-↑ᵘ
     : ([ρ] : ρ ∷ʷ Δ ⊇ Γ)
@@ -327,7 +330,7 @@ private module Weakening (l : Universe-level) (rec : ∀ {l′} → l′ <ᵘ l 
   wk ρ (Unitᵣ [A]) = Unitᵣ (wkUnit (∷ʷʳ⊇→∷ʷ⊇ ρ) [A])
   wk {ρ} [ρ] (ne′ inc _ D neK K≡K) =
     let [ρ] = ∷ʷʳ⊇→∷ʷ⊇ [ρ] in
-    ne′ inc (U.wk ρ _) (wkRed* [ρ] D) (wkNeutral ρ neK) (≅-wk [ρ] K≡K)
+    ne′ inc (U.wk ρ _) (wkRed* [ρ] D) (wkNeutralᵃ neK) (≅-wk [ρ] K≡K)
   wk {m} {Δ} {Γ} {A} {ρ} [ρ] (Πᵣ′ F G D A≡A [F] [G] G-ext ok) =
     let [ρ]′ = ∷ʷʳ⊇→∷ʷ⊇ [ρ]
         [F]′ : ∀ {k} {ρ : Wk k m} {ρ′ E}
@@ -425,8 +428,7 @@ private module Weakening (l : Universe-level) (rec : ∀ {l′} → l′ <ᵘ l 
   wkEq ρ (Unitᵣ′ _ _) A≡B = wkEqUnit (∷ʷʳ⊇→∷ʷ⊇ ρ) A≡B
   wkEq {ρ = ρ} [ρ] (ne′ _ _ _ _ _) (ne₌ inc M D′ neM K≡M) =
     let [ρ] = ∷ʷʳ⊇→∷ʷ⊇ [ρ] in
-    ne₌ inc (U.wk ρ M) (wkRed* [ρ] D′) (wkNeutral ρ neM)
-      (≅-wk [ρ] K≡M)
+    ne₌ inc (U.wk ρ M) (wkRed* [ρ] D′) (wkNeutralᵃ neM) (≅-wk [ρ] K≡M)
   wkEq
     {ρ}
     [ρ] (Πᵣ′ F G D A≡A [F] [G] G-ext _) (B₌ F′ G′ D′ A≡B [F≡F′] [G≡G′]) =
@@ -509,7 +511,7 @@ private module Weakening (l : Universe-level) (rec : ∀ {l′} → l′ <ᵘ l 
     let [ρ]′ = ∷ʷʳ⊇→∷ʷ⊇ [ρ]
     in  Πₜ₌ (U.wk ρ f) (U.wk ρ g)
             (wkRed*Term [ρ]′ d) (wkRed*Term [ρ]′ d′)
-            (wkFunction ρ funcF) (wkFunction ρ funcG) (≅ₜ-wk [ρ]′ f≡g)
+            (wkFunctionᵃ funcF) (wkFunctionᵃ funcG) (≅ₜ-wk [ρ]′ f≡g)
             (λ {_} {ρ₁} [ρ₁] ⊩v ⊩w v≡w →
               let eq   = wk-comp ρ₁ ρ F
                   [F]₁ = [F] _
@@ -571,7 +573,7 @@ private module Weakening (l : Universe-level) (rec : ∀ {l′} → l′ <ᵘ l 
                     [ρsnd≡]
     in  Σₜ₌ (U.wk ρ p) (U.wk ρ r)
             (wkRed*Term [ρ]′ d) (wkRed*Term [ρ]′ d′)
-            (wkProduct ρ prodₙ) (wkProduct ρ prodₙ) (≅ₜ-wk [ρ]′ p≅r)
+            (wkProductᵃ prodₙ) (wkProductᵃ prodₙ) (≅ₜ-wk [ρ]′ p≅r)
             (PE.refl , PE.refl , PE.refl , PE.refl ,
             irrelevanceTerm [ρF]
                 (irrelevance′ (PE.sym (wk-comp id ρ F)) _) [ρp₁]′ ,
@@ -587,7 +589,7 @@ private module Weakening (l : Universe-level) (rec : ∀ {l′} → l′ <ᵘ l 
     let [ρ]′ = ∷ʷʳ⊇→∷ʷ⊇ [ρ]
     in  Σₜ₌ (U.wk ρ p) (U.wk ρ r)
             (wkRed*Term [ρ]′ d) (wkRed*Term [ρ]′ d′)
-            (wkProduct ρ (ne x)) (wkProduct ρ (ne y)) (≅ₜ-wk [ρ]′ p≅r)
+            (wkProductᵃ (ne x)) (wkProductᵃ (ne y)) (≅ₜ-wk [ρ]′ p≅r)
             (inc , ~-wk [ρ]′ p~r)
   wkEqTerm
     {ρ} [ρ] [A]@(Bᵣ′ BΣˢ F G _ _ [F] [G] _ _)
@@ -632,7 +634,7 @@ private module Weakening (l : Universe-level) (rec : ∀ {l′} → l′ <ᵘ l 
           [ρsnd≡]
     in  Σₜ₌ (U.wk ρ p) (U.wk ρ r)
             (wkRed*Term [ρ]′ d) (wkRed*Term [ρ]′ d′)
-            (wkProduct ρ pProd) (wkProduct ρ rProd) (≅ₜ-wk [ρ]′ p≅r)
+            (wkProductᵃ pProd) (wkProductᵃ rProd) (≅ₜ-wk [ρ]′ p≅r)
             (irrelevanceTerm [ρF]
               (irrelevance′ (PE.sym (wk-comp id ρ F)) _) [ρfstp]′ ,
             irrelevanceTerm [ρF]
@@ -651,8 +653,8 @@ private module Weakening (l : Universe-level) (rec : ∀ {l′} → l′ <ᵘ l 
             rflₙ , rflₙ
           , wkEqTerm ρ∷⊇ ⊩Ty lhs≡rhs
         (ne inc t′-n u′-n t′~u′) →
-            ne (wkNeutral _ t′-n)
-          , ne (wkNeutral _ u′-n)
+            ne (wkNeutralᵃ t′-n)
+          , ne (wkNeutralᵃ u′-n)
           , inc
           , ~-wk ρ∷⊇′ t′~u′)
     where

@@ -131,9 +131,9 @@ negation-of-fundamental-lemma-with-erased-matches₁
   ¬t®t : ¬ t ® erase str t ∷ A
   ¬t®t t®t = case ®∷ℕ⇔ .proj₁ t®t of λ where
     (zeroᵣ t⇒* _) →
-      case whnfRed*Term t⇒* (ne! (prodrecₙ (var _))) of λ ()
+      case whnfRed*Term t⇒* (ne (prodrecₙ (var _))) of λ ()
     (sucᵣ t⇒* _ _ _) →
-      case whnfRed*Term t⇒* (ne! (prodrecₙ (var _))) of λ ()
+      case whnfRed*Term t⇒* (ne (prodrecₙ (var _))) of λ ()
 
 opaque
 
@@ -187,7 +187,7 @@ opaque
     ¬t®t t®t =
       case ®∷Id⇔ .proj₁ t®t of λ {
         (_ , rflᵣ t⇒* _) →
-      case whnfRed*Term t⇒* (ne! ([]-congₙ (var _))) of λ () }
+      case whnfRed*Term t⇒* (ne ([]-congₙ (var _))) of λ () }
 
 opaque
 
@@ -231,9 +231,9 @@ opaque
     ¬t®t : ¬ t ® erase str t ∷ A
     ¬t®t t®t = case ®∷ℕ⇔ .proj₁ t®t of λ where
       (zeroᵣ t⇒* _) →
-        case whnfRed*Term t⇒* (ne! (Jₙ (var _))) of λ ()
+        case whnfRed*Term t⇒* (ne (Jₙ (var _))) of λ ()
       (sucᵣ t⇒* _ _ _) →
-        case whnfRed*Term t⇒* (ne! (Jₙ (var _))) of λ ()
+        case whnfRed*Term t⇒* (ne (Jₙ (var _))) of λ ()
 
 opaque
 
@@ -279,9 +279,9 @@ opaque
     ¬t®t : ¬ t ® erase str t ∷ A
     ¬t®t t®t = case ®∷ℕ⇔ .proj₁ t®t of λ where
       (zeroᵣ t⇒* _) →
-        case whnfRed*Term t⇒* (ne! (Kₙ (var _))) of λ ()
+        case whnfRed*Term t⇒* (ne (Kₙ (var _))) of λ ()
       (sucᵣ t⇒* _ _ _) →
-        case whnfRed*Term t⇒* (ne! (Kₙ (var _))) of λ ()
+        case whnfRed*Term t⇒* (ne (Kₙ (var _))) of λ ()
 
 opaque
 
@@ -329,9 +329,9 @@ opaque
     ¬t®t : ¬ t ® erase str t ∷ A
     ¬t®t t®t = case ®∷ℕ⇔ .proj₁ t®t of λ where
       (zeroᵣ t⇒* _)    →
-        case whnfRed*Term t⇒* (ne! (unitrecₙ no-η (var _))) of λ ()
+        case whnfRed*Term t⇒* (ne (unitrecₙ no-η (var _))) of λ ()
       (sucᵣ t⇒* _ _ _) →
-        case whnfRed*Term t⇒* (ne! (unitrecₙ no-η (var _))) of λ ()
+        case whnfRed*Term t⇒* (ne (unitrecₙ no-η (var _))) of λ ()
 
 opaque
 
@@ -372,6 +372,6 @@ opaque
     ¬t®t : ¬ t ® erase str t ∷ A
     ¬t®t t®t = case ®∷ℕ⇔ .proj₁ t®t of λ where
       (zeroᵣ t⇒* _) →
-        case whnfRed*Term t⇒* (ne! (emptyrecₙ (var _))) of λ ()
+        case whnfRed*Term t⇒* (ne (emptyrecₙ (var _))) of λ ()
       (sucᵣ t⇒* _ _ _) →
-        case whnfRed*Term t⇒* (ne! (emptyrecₙ (var _))) of λ ()
+        case whnfRed*Term t⇒* (ne (emptyrecₙ (var _))) of λ ()

@@ -31,6 +31,7 @@ import Tools.Reasoning.PartialOrder as RPo
 
 open import Definition.Untyped M
 open import Definition.Untyped.Neutral M type-variant
+open import Definition.Untyped.Neutral.Atomic M type-variant
 open import Definition.Untyped.Inversion M
 open import Definition.Untyped.Properties M
 open import Definition.Typed TR
@@ -190,8 +191,8 @@ opaque
     consistent nem (ℕₜ _ d n≡n (ne (neNfₜ _ neK k≡k))) PE.refl ⊢s ▸s =
     case whBisim {s = s} consistent nem ⊢s ▸s (d , ne! neK) of λ {
       (_ , _ , H , t , ρ , d′ , PE.refl , v) →
-    ⊥-elim (Value→¬Neutral (substValue (toSubstₕ H) (wkValue ρ v)) neK) }
-
+    ⊥-elim $
+    Value→¬Neutral (substValue (toSubstₕ H) (wkValue ρ v)) (ne⁻ neK) }
 
 opaque
 

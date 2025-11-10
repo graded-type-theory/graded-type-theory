@@ -294,17 +294,17 @@ opaque
   ⊢whnf⦅⦆ᵉ : Δ ⨾ H ⊢ᵉ e ⟨ u ⟩∷ A ↝ B
           → Whnf (⦅ e ⦆ᵉ t)
           → Neutral t × Neutral (⦅ e ⦆ᵉ t)
-  ⊢whnf⦅⦆ᵉ (lowerₑ _) (ne! (lowerₙ n)) = n , lowerₙ n
-  ⊢whnf⦅⦆ᵉ (∘ₑ x x₁) (ne! (∘ₙ n)) = n , ∘ₙ n
-  ⊢whnf⦅⦆ᵉ (fstₑ _) (ne! (fstₙ n)) = n , fstₙ n
-  ⊢whnf⦅⦆ᵉ (sndₑ _) (ne! (sndₙ n)) = n , sndₙ n
-  ⊢whnf⦅⦆ᵉ (prodrecₑ x x₁) (ne! (prodrecₙ n)) = n , prodrecₙ n
-  ⊢whnf⦅⦆ᵉ (natrecₑ _ _) (ne! (natrecₙ n)) = n , natrecₙ n
-  ⊢whnf⦅⦆ᵉ (unitrecₑ x x₁ x₂) (ne! (unitrecₙ no-η n)) = n , unitrecₙ no-η n
-  ⊢whnf⦅⦆ᵉ (emptyrecₑ x) (ne! (emptyrecₙ n)) = n , emptyrecₙ n
-  ⊢whnf⦅⦆ᵉ (Jₑ x x₁) (ne! (Jₙ n)) = n , Jₙ n
-  ⊢whnf⦅⦆ᵉ (Kₑ x x₁ x₂) (ne! (Kₙ n)) = n , Kₙ n
-  ⊢whnf⦅⦆ᵉ ([]-congₑ _ _) (ne! ([]-congₙ n)) = n , []-congₙ n
+  ⊢whnf⦅⦆ᵉ (lowerₑ _) (ne (lowerₙ n)) = n , lowerₙ n
+  ⊢whnf⦅⦆ᵉ (∘ₑ x x₁) (ne (∘ₙ n)) = n , ∘ₙ n
+  ⊢whnf⦅⦆ᵉ (fstₑ _) (ne (fstₙ n)) = n , fstₙ n
+  ⊢whnf⦅⦆ᵉ (sndₑ _) (ne (sndₙ n)) = n , sndₙ n
+  ⊢whnf⦅⦆ᵉ (prodrecₑ x x₁) (ne (prodrecₙ n)) = n , prodrecₙ n
+  ⊢whnf⦅⦆ᵉ (natrecₑ _ _) (ne (natrecₙ n)) = n , natrecₙ n
+  ⊢whnf⦅⦆ᵉ (unitrecₑ x x₁ x₂) (ne (unitrecₙ no-η n)) = n , unitrecₙ no-η n
+  ⊢whnf⦅⦆ᵉ (emptyrecₑ x) (ne (emptyrecₙ n)) = n , emptyrecₙ n
+  ⊢whnf⦅⦆ᵉ (Jₑ x x₁) (ne (Jₙ n)) = n , Jₙ n
+  ⊢whnf⦅⦆ᵉ (Kₑ x x₁ x₂) (ne (Kₙ n)) = n , Kₙ n
+  ⊢whnf⦅⦆ᵉ ([]-congₑ _ _) (ne ([]-congₙ n)) = n , []-congₙ n
   ⊢whnf⦅⦆ᵉ (conv ⊢e x) w = ⊢whnf⦅⦆ᵉ ⊢e w
 
 opaque
@@ -316,7 +316,7 @@ opaque
           → Whnf t
   ⊢whnf⦅⦆ˢ ε w = w
   ⊢whnf⦅⦆ˢ (⊢e ∙ ⊢S) w =
-    ne! (⊢whnf⦅⦆ᵉ ⊢e (⊢whnf⦅⦆ˢ ⊢S w) .proj₁)
+    ne (⊢whnf⦅⦆ᵉ ⊢e (⊢whnf⦅⦆ˢ ⊢S w) .proj₁)
 
 
 opaque

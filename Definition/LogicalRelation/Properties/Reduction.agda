@@ -18,6 +18,7 @@ open Type-restrictions R
 
 open import Definition.Untyped M hiding (Wk; K)
 open import Definition.Untyped.Neutral M type-variant
+open import Definition.Untyped.Neutral.Atomic M type-variant
 open import Definition.Typed R
 open import Definition.Typed.Inversion R
 open import Definition.Typed.Properties R
@@ -283,21 +284,21 @@ opaque
     neₜ₌ v v t⇒*v u⇒*v (⊩neNf∷⇔⊩neNf≡∷ .proj₁ prop)
   redSubst*Term′ t⇒*u (Bᵣ BΠ! ⊩A@(Bᵣ C D A⇒*Π Π≡Π ⊩C ⊩D D≡D ok)) ⊩t =
     let Πₜ v t⇒*v v-fun ≅v ⊩v = ⊩Π∷⇔⊩Π≡∷ ⊩A .proj₂ ⊩t
-        u⇒*v = whrDet↘Term (t⇒*v , functionWhnf v-fun)
+        u⇒*v = whrDet↘Term (t⇒*v , Functionᵃ→Whnf v-fun)
                  (conv* t⇒*u (subset* A⇒*Π))
     in
     v , v , t⇒*v , u⇒*v , v-fun , v-fun , ≅v , ⊩v
   redSubst*Term′
     t⇒*u (Bᵣ (BΣ s _ _) ⊩A@(Bᵣ C D A⇒*Σ Σ≡Σ ⊩C ⊩D D≡D ok)) ⊩t =
     let Σₜ v t⇒*v v-prod ≅v prop = ⊩Σ∷⇔⊩Σ≡∷ ⊩A .proj₂ ⊩t
-        u⇒*v = whrDet↘Term (t⇒*v , productWhnf v-prod)
+        u⇒*v = whrDet↘Term (t⇒*v , Productᵃ→Whnf v-prod)
                  (conv* t⇒*u (subset* A⇒*Σ))
     in
     v , v , t⇒*v , u⇒*v , ≅v , v-prod , v-prod ,
     Σ-prop⇔[Σ]-prop .proj₁ prop
   redSubst*Term′ t⇒*u (Idᵣ ⊩A@(Idᵣ Ty lhs rhs A⇒*Id ⊩Ty ⊩lhs ⊩rhs)) ⊩t =
     let Idₜ v t⇒*v v-id prop = ⊩Id∷⇔⊩Id≡∷ ⊩A .proj₂ ⊩t
-        u⇒*v = whrDet↘Term (t⇒*v , identityWhnf v-id)
+        u⇒*v = whrDet↘Term (t⇒*v , Identityᵃ→Whnf v-id)
                  (conv* t⇒*u (subset* A⇒*Id))
     in
     v , v , t⇒*v , u⇒*v , v-id , v-id , ⊩Id∷-view⇔ .proj₁ prop

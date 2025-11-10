@@ -15,6 +15,7 @@ open Type-restrictions R
 
 open import Definition.Untyped M
 open import Definition.Untyped.Neutral M type-variant
+open import Definition.Untyped.Neutral.Atomic M type-variant
 
 open import Definition.Typed R
 open import Definition.Typed.Consequences.Inequality R
@@ -59,7 +60,7 @@ opaque
     lemma (ℕₜ v u⇒*v _ ⊩v) =
       Σ.map idᶠ (trans (subset*Term u⇒*v))
         (case ⊩v of λ where
-           (ne (neNfₜ _ u-ne _)) → ⊥-elim $ noClosedNe u-ne
+           (ne (neNfₜ _ u-ne _)) → ⊥-elim $ noClosedNe (ne⁻ u-ne)
            zeroᵣ                 → 0 , refl (zeroⱼ ε)
            (sucᵣ ⊩u)             → Σ.map 1+ suc-cong (lemma ⊩u))
 
@@ -96,18 +97,28 @@ opaque
   -- If the neutral term t has type A with respect to a context Γ that
   -- only contains level or universe assumptions, then A is
   -- definitionally equal to Level or some universe, and t is a
-  -- variable (assuming that equality reflection is not allowed).
+  -- variable or an application of _supᵘ_ (assuming that equality
+  -- reflection is not allowed).
 
   Only-Level-or-U→Neutral→≡Level⊎≡U :
     ⦃ ok : No-equality-reflection ⦄ →
     Only-Level-or-U Γ → Γ ⊢ t ∷ A → Neutral t →
-    (Γ ⊢ A ≡ Level ⊎ ∃ λ u → Γ ⊢ A ≡ U u) × ∃ λ x → t PE.≡ var x
+    (Γ ⊢ A ≡ Level ⊎ ∃ λ u → Γ ⊢ A ≡ U u) ×
+    ((∃ λ x → t PE.≡ var x) ⊎ (∃₂ λ u v → t PE.≡ u supᵘ v))
   Only-Level-or-U→Neutral→≡Level⊎≡U only ⊢x (var x) =
     let _ , x∈ , A≡ = inversion-var ⊢x in
     ⊎.map (flip (PE.subst (_⊢_≡_ _ _)) A≡)
       (Σ.map idᶠ (flip (PE.subst (_⊢_≡_ _ _)) A≡))
       (Only-Level-or-U→∈→≡Level⊎≡U only x∈) ,
-    _ , PE.refl
+    inj₁ (_ , PE.refl)
+  Only-Level-or-U→Neutral→≡Level⊎≡U _ ⊢supᵘ (supᵘˡₙ _) =
+    let _ , _ , A≡ = inversion-supᵘ ⊢supᵘ in
+    inj₁ A≡ ,
+    inj₂ (_ , _ , PE.refl)
+  Only-Level-or-U→Neutral→≡Level⊎≡U only ⊢supᵘ (supᵘʳₙ _) =
+    let _ , _ , A≡ = inversion-supᵘ ⊢supᵘ in
+    inj₁ A≡ ,
+    inj₂ (_ , _ , PE.refl)
   Only-Level-or-U→Neutral→≡Level⊎≡U only ⊢lower (lowerₙ t-ne) =
     let _ , _ , ⊢t , A≡ = inversion-lower ⊢lower
         Lift≡ , _       =
@@ -243,7 +254,7 @@ opaque
            (sucᵣ ⊩u)               → Σ.map 1+ suc-cong (lemma ⊩u)
            (ne (neNfₜ _ u-ne u≡u)) →
              let _ , ⊢u , _ = wf-⊢≡∷ u≡u in
-             case Only-Level-or-U→Neutral→≡Level⊎≡U only ⊢u u-ne
+             case Only-Level-or-U→Neutral→≡Level⊎≡U only ⊢u (ne⁻ u-ne)
                     .proj₁ of λ where
                (inj₁ ≡Level) →
                  ⊥-elim $ Level≢ℕ ⦃ ok = possibly-nonempty ⦄ $
@@ -259,7 +270,7 @@ opaque
   ¬Empty {t} =
     ε ⊢ t ∷ Empty      →⟨ ⊩∷Empty⇔ .proj₁ ∘→ proj₂ ∘→ reducible-⊩∷ ⦃ inc = ε ⦄ ⟩
     ε ⊩Empty t ∷Empty  →⟨ (λ { (Emptyₜ _ _ _ (ne (neNfₜ _ u-ne _))) →
-                               noClosedNe u-ne }) ⟩
+                               noClosedNe (ne⁻ u-ne) }) ⟩
     ⊥                  □
 
 opaque
@@ -272,7 +283,7 @@ opaque
       (_ , v⇒*w , _ , _ , rest) →
     case rest of λ where
       (rflᵣ _)      → v⇒*w
-      (ne _ w-ne _) → ⊥-elim $ noClosedNe w-ne
+      (ne _ w-ne _) → ⊥-elim $ noClosedNe (ne⁻ w-ne)
 
 opaque
 

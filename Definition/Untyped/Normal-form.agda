@@ -49,18 +49,15 @@ mutual
     starₙ  : Nf (star s)
     rflₙ   : Nf rfl
 
-    ne     : NfNeutralˡ n → Nf n
+    ne     : NfNeutral n → Nf n
 
   -- Neutral terms for which the "non-neutral parts" are in normal
   -- form.
 
-  data NfNeutralˡ {m : Nat} : Term m → Set a where
-    supᵘˡₙ    : NfNeutralˡ t → Nf u → NfNeutralˡ (t supᵘ u)
-    supᵘʳₙ    : Nf t → NfNeutralˡ u → NfNeutralˡ (sucᵘ t supᵘ u)
-    ne        : NfNeutral n → NfNeutralˡ n
-
   data NfNeutral {m : Nat} : Term m → Set a where
     var       : (x : Fin m) → NfNeutral (var x)
+    supᵘˡₙ    : NfNeutral t → Nf u → NfNeutral (t supᵘ u)
+    supᵘʳₙ    : Nf t → NfNeutral u → NfNeutral (sucᵘ t supᵘ u)
     lowerₙ    : NfNeutral t → NfNeutral (lower t)
     ∘ₙ        : NfNeutral k → Nf u → NfNeutral (k ∘⟨ q ⟩ u)
     fstₙ      : NfNeutral t → NfNeutral (fst p t)
@@ -84,6 +81,8 @@ mutual
 nfNeutral : NfNeutral n → Neutral n
 nfNeutral = λ where
   (var _)                 → var _
+  (supᵘˡₙ n x)            → supᵘˡₙ (nfNeutral n)
+  (supᵘʳₙ x n)            → supᵘʳₙ (nfNeutral n)
   (lowerₙ n)              → lowerₙ (nfNeutral n)
   (∘ₙ n _)                → ∘ₙ (nfNeutral n)
   (fstₙ n)                → fstₙ (nfNeutral n)
@@ -95,11 +94,6 @@ nfNeutral = λ where
   (Jₙ _ _ _ _ _ n)        → Jₙ (nfNeutral n)
   (Kₙ _ _ _ _ n)          → Kₙ (nfNeutral n)
   ([]-congₙ _ _ _ _ n)    → []-congₙ (nfNeutral n)
-
-nfNeutralˡ : NfNeutralˡ n → Neutralˡ n
-nfNeutralˡ (supᵘˡₙ n x) = supᵘˡₙ (nfNeutralˡ n)
-nfNeutralˡ (supᵘʳₙ x n) = supᵘʳₙ (nfNeutralˡ n)
-nfNeutralˡ (ne x) = ne (nfNeutral x)
 
 -- Normal forms are in WHNF.
 
@@ -122,7 +116,7 @@ nfWhnf = λ where
   (sucₙ _)    → sucₙ
   starₙ       → starₙ
   rflₙ        → rflₙ
-  (ne n)      → ne (nfNeutralˡ n)
+  (ne n)      → ne (nfNeutral n)
 
 opaque
 

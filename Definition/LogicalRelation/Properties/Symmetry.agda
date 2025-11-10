@@ -18,6 +18,7 @@ open Type-restrictions R
 
 open import Definition.Untyped M hiding (K)
 open import Definition.Untyped.Neutral M type-variant
+open import Definition.Untyped.Neutral.Atomic M type-variant
 open import Definition.Untyped.Properties M
 open import Definition.Typed.Properties R
 open import Definition.LogicalRelation R ⦃ eqrel ⦄

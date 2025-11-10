@@ -18,6 +18,7 @@ open Type-restrictions R
 
 open import Definition.Untyped M hiding (K)
 open import Definition.Untyped.Neutral M type-variant
+open import Definition.Untyped.Neutral.Atomic M type-variant
 open import Definition.Typed R
 open import Definition.Typed.Inversion R
 open import Definition.Typed.Properties R
@@ -130,7 +131,7 @@ escapeTermEq (ℕᵣ D) (ℕₜ₌ _ _ d d′ k≡k′ prop) =
         (d′ , naturalWhnf natK′) k≡k′
 escapeTermEq (Emptyᵣ D) (Emptyₜ₌ k k′ d d′ k≡k′ prop) =
   let natK , natK′ = esplit prop
-  in  ≅ₜ-red (D , Emptyₙ) (d , ne! natK) (d′ , ne! natK′) k≡k′
+  in  ≅ₜ-red (D , Emptyₙ) (d , ne natK) (d′ , ne natK′) k≡k′
 escapeTermEq (Unitᵣ′ D ok) (Unitₜ₌ _ _ d d′ prop) =
   let _ , _ , ⊢t′ = wf-⊢≡∷ (subset*Term (d .proj₁))
       _ , _ , ⊢u′ = wf-⊢≡∷ (subset*Term (d′ .proj₁))
@@ -141,18 +142,20 @@ escapeTermEq (Unitᵣ′ D ok) (Unitₜ₌ _ _ d d′ prop) =
        (Unitₜ₌ʷ starᵣ _) → ≅ₜ-star-refl (wf (redFirst* D)) ok
        (Unitₜ₌ʷ (ne (neNfₜ₌ _ _ _ t′~u′)) _) → ~-to-≅ₜ t′~u′)
 escapeTermEq (ne′ _ _ D neK _) (neₜ₌ _ _ d d′ (neNfₜ₌ _ neT neU t≡u)) =
-  ≅ₜ-red (D , ne! neK) (d , ne! neT) (d′ , ne! neU) (~-to-≅ₜ t≡u)
+  ≅ₜ-red (D , ne (ne⁻ neK)) (d , ne (ne⁻ neT)) (d′ , ne (ne⁻ neU))
+    (~-to-≅ₜ t≡u)
 escapeTermEq
   (Bᵣ′ BΠ! _ _ D _ _ _ _ _) (Πₜ₌ _ _ d d′ funcF funcG f≡g _) =
-  ≅ₜ-red (D , ΠΣₙ) (d , functionWhnf funcF) (d′ , functionWhnf funcG)
-    f≡g
+  ≅ₜ-red (D , ΠΣₙ) (d , Functionᵃ→Whnf funcF)
+    (d′ , Functionᵃ→Whnf funcG) f≡g
 escapeTermEq
   (Bᵣ′ BΣ! _ _ D _ _ _ _ _) (Σₜ₌ _ _ d d′ pProd rProd p≅r _) =
-  ≅ₜ-red (D , ΠΣₙ) (d , productWhnf pProd) (d′ , productWhnf rProd) p≅r
+  ≅ₜ-red (D , ΠΣₙ) (d , Productᵃ→Whnf pProd) (d′ , Productᵃ→Whnf rProd)
+    p≅r
 escapeTermEq {Γ = Γ} (Idᵣ ⊩A) t≡u@(_ , _ , t⇒*t′ , u⇒*u′ , _) =
   case ⊩Id≡∷-view-inhabited ⊩A t≡u of λ where
     (ne _ t′-n u′-n t′~u′) →
-      lemma (ne! t′-n) (ne! u′-n) (~-to-≅ₜ t′~u′)
+      lemma (ne (ne⁻ t′-n)) (ne (ne⁻ u′-n)) (~-to-≅ₜ t′~u′)
     (rfl₌ lhs≡rhs) →
       lemma rflₙ rflₙ
         (                                   $⟨ ≅-Id-cong

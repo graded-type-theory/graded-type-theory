@@ -18,6 +18,7 @@ open Type-restrictions R
 
 open import Definition.Untyped M as U hiding (wk)
 open import Definition.Untyped.Neutral M type-variant
+open import Definition.Untyped.Neutral.Atomic M type-variant
 import Definition.Typed.Weakening R as T
 open import Definition.Typed.Properties R
 open import Definition.Typed.Reasoning.Reduction R
@@ -77,7 +78,7 @@ opaque
       (ne (neNfₜ₌ inc t₁′-ne t₂′-ne t₁′~t₂′)) →
         emptyrec p (A₁ [ σ₁ ]) (t₁ [ σ₁ ]) ∷ A₁ [ σ₁ ] ⇒*⟨ emptyrec-subst* t₁[σ₁]⇒*t₁′ ⊢A₁[σ₁] ⟩⊩∷∷
         emptyrec p (A₁ [ σ₁ ]) t₁′         ∷ A₁ [ σ₁ ] ≡⟨ neutral-⊩≡∷ inc (R.⊩→ ⊩A₁[σ₁])
-                                                             (emptyrecₙ t₁′-ne) (emptyrecₙ t₂′-ne)
+                                                             (emptyrecₙᵃ t₁′-ne) (emptyrecₙᵃ t₂′-ne)
                                                              (~-emptyrec ⊢A₁[σ₁]≡A₂[σ₂] t₁′~t₂′) ⟩⊩∷∷⇐*
                                                          ⟨ ≅-eq ⊢A₁[σ₁]≡A₂[σ₂] ⟩⇒
         emptyrec p (A₂ [ σ₂ ]) t₂′         ∷ A₂ [ σ₂ ] ⇐*⟨ emptyrec-subst* t₂[σ₂]⇒*t₂′ ⊢A₂[σ₂] ⟩∎∷

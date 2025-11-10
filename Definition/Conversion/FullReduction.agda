@@ -32,6 +32,7 @@ open import Definition.Typed.Syntactic R
 open import Definition.Typed.Well-formed R
 open import Definition.Untyped M
 open import Definition.Untyped.Neutral M type-variant
+open import Definition.Untyped.Neutral.Atomic M type-variant
 
 open import Tools.Fin
 open import Tools.Function
@@ -283,7 +284,7 @@ mutual
     (ne A~) →
       case fullRedNe~↓ A~ of λ {
         (B , B-ne , A≡B) →
-      B , univₙ (neₙ Uₙ (neₙ B-ne)) , univ A≡B }
+      B , univₙ (neₙ Uₙ B-ne) , univ A≡B }
     (ΠΣ-cong A↑ B↑ ok) →
       case fullRedConv↑ A↑ of λ {
         (A′ , A′-nf , A≡A′) →
@@ -339,7 +340,7 @@ mutual
   fullRedTermConv~ᵛ :
     ∀ {tᵛ} →
     Γ ⊢ t ~ᵛ tᵛ →
-    ∃ λ u → Γ ⊢neˡ u ∷ Level × Γ ⊢ t ≡ u ∷ Level
+    ∃ λ u → Γ ⊢ne u ∷ Level × Γ ⊢ t ≡ u ∷ Level
   fullRedTermConv~ᵛ (supᵘˡₙ x t~ u↑) =
     let t′ , ⊢t′ , t≡t′ = fullRedTermConv~ᵛ t~
         u′ , ⊢u′ , u≡u′ = fullRedTermConv↑ᵛ u↑
@@ -349,8 +350,7 @@ mutual
         u′ , ⊢u′ , u≡u′ = fullRedTermConv~ᵛ u~
     in _ , supᵘʳₙ ⊢t′ ⊢u′ , supᵘ-cong (sucᵘ-cong t≡t′) u≡u′
   fullRedTermConv~ᵛ (neₙ [t] x) =
-    let u , ⊢u , t≡u = fullRedNe~↓ [t]
-    in u , neₙ ⊢u , t≡u
+    fullRedNe~↓ [t]
 
   fullRedTermConv↑Level :
     Γ ⊢ t [conv↑] t′ ∷Level →
@@ -375,15 +375,15 @@ mutual
     (ℕ-ins t~) →
       case fullRedNe~↓ t~ of λ {
         (u , u-nf , t≡u) →
-      u , neₙ ℕₙ (neₙ u-nf) , t≡u }
+      u , neₙ ℕₙ u-nf , t≡u }
     (Empty-ins t~) →
       case fullRedNe~↓ t~ of λ {
         (u , u-nf , t≡u) →
-      u , neₙ Emptyₙ (neₙ u-nf) , t≡u }
+      u , neₙ Emptyₙ u-nf , t≡u }
     (Unitʷ-ins no-η t∷) →
       case fullRedNe~↓ t∷ of λ
         (u , u-nf , t≡u) →
-      u , neₙ (Unitʷₙ no-η) (neₙ u-nf) , t≡u
+      u , neₙ (Unitʷₙ no-η) u-nf , t≡u
     (Σʷ-ins ⊢t∷ΣAB _ t~) →
       case fullRedNe~↓ t~ of λ {
         (v , v-ne , t≡v) →
@@ -391,12 +391,12 @@ mutual
         (_ , ⊢t∷ΣCD , _) →
       case ne~↓ t~ of λ {
         (_ , t-ne , _) →
-      case neTypeEq t-ne ⊢t∷ΣCD ⊢t∷ΣAB of λ {
+      case neTypeEq (ne⁻ t-ne) ⊢t∷ΣCD ⊢t∷ΣAB of λ {
         ΣCD≡ΣAB →
       case inversion-ΠΣ (syntacticTerm ⊢t∷ΣAB) of λ {
         (⊢A , ⊢B) →
         v
-      , neₙ Σʷₙ (neₙ (convₙ v-ne ΣCD≡ΣAB))
+      , neₙ Σʷₙ (convₙ v-ne ΣCD≡ΣAB)
       , conv t≡v ΣCD≡ΣAB }}}}}
     (ne-ins ⊢t∷A _ A-ne t~↓B) →
       case fullRedNe~↓ t~↓B of λ {
@@ -405,10 +405,10 @@ mutual
         (_ , ⊢t∷B , _) →
       case ne~↓ t~↓B of λ {
         (_ , t-ne , _) →
-      case neTypeEq t-ne ⊢t∷B ⊢t∷A of λ {
+      case neTypeEq (ne⁻ t-ne) ⊢t∷B ⊢t∷A of λ {
         B≡A →
         u
-      , neₙ (neₙ A-ne) (neₙ (convₙ u-ne B≡A))
+      , neₙ (neₙ A-ne) (convₙ u-ne B≡A)
       , conv t≡u∷B B≡A }}}}
     (univ {l} {A} ⊢A _ A↓) →
       case fullRedConv↓ A↓ of λ {
@@ -489,11 +489,11 @@ mutual
     (Id-ins ⊢t t~u) →
       case fullRedNe~↓ t~u of λ {
         (v , ⊢v , t≡v) →
-      case neTypeEq (ne~↓ t~u .proj₂ .proj₁)
+      case neTypeEq (ne⁻ (ne~↓ t~u .proj₂ .proj₁))
              (syntacticEqTerm t≡v .proj₂ .proj₁) ⊢t of λ {
         Id≡Id →
         v
-      , neₙ Idₙ (neₙ (convₙ ⊢v Id≡Id))
+      , neₙ Idₙ (convₙ ⊢v Id≡Id)
       , conv t≡v Id≡Id }}
     (rfl-refl t≡u) →
       case syntacticEqTerm t≡u of λ {

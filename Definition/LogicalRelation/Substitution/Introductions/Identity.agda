@@ -40,6 +40,7 @@ open import Definition.Typed.Well-formed R
 open import Definition.Untyped M as U hiding (_[_])
 import Definition.Untyped.Erased
 open import Definition.Untyped.Neutral M type-variant
+open import Definition.Untyped.Neutral.Atomic M type-variant
 open import Definition.Untyped.Properties M
 
 open import Tools.Empty
@@ -269,20 +270,20 @@ data ⊩Id≡∷-view′
   rfl₌ : Γ ⊩⟨ l ⟩ t ≡ u ∷ A →
          ⊩Id≡∷-view′ Γ l A t u rfl rfl
   ne   : Neutrals-included →
-         Neutral v → Neutral w →
+         Neutralᵃ v → Neutralᵃ w →
          Γ ⊢ v ~ w ∷ Id A t u →
          ⊩Id≡∷-view′ Γ l A t u v w
 
 opaque
 
-  -- If ⊩Id≡∷-view′ Γ l A t u v w holds, then Identity v and
-  -- Identity w both hold.
+  -- If ⊩Id≡∷-view′ Γ l A t u v w holds, then Identityᵃ v and
+  -- Identityᵃ w both hold.
 
-  ⊩Id≡∷-view′→Identity :
+  ⊩Id≡∷-view′→Identityᵃ :
     ⊩Id≡∷-view′ Γ l A t u v w →
-    Identity v × Identity w
-  ⊩Id≡∷-view′→Identity (rfl₌ _)           = rflₙ , rflₙ
-  ⊩Id≡∷-view′→Identity (ne _ v-ne w-ne _) = ne v-ne , ne w-ne
+    Identityᵃ v × Identityᵃ w
+  ⊩Id≡∷-view′→Identityᵃ (rfl₌ _)           = rflₙ , rflₙ
+  ⊩Id≡∷-view′→Identityᵃ (ne _ v-ne w-ne _) = ne v-ne , ne w-ne
 
 opaque
   unfolding _⊩⟨_⟩_∷_ _⊩⟨_⟩_≡_∷_
@@ -330,15 +331,15 @@ opaque
 
   -- A variant of ⊩≡∷Id⇔.
 
-  Identity→⊩≡∷Id⇔ :
-    Identity v → Identity w →
+  Identityᵃ→⊩≡∷Id⇔ :
+    Identityᵃ v → Identityᵃ w →
     Γ ⊩⟨ l ⟩ v ≡ w ∷ Id A t u ⇔
     (Γ ⊢ v ∷ Id A t u ×
      Γ ⊢ w ∷ Id A t u ×
      Γ ⊩⟨ l ⟩ t ∷ A ×
      Γ ⊩⟨ l ⟩ u ∷ A ×
      ⊩Id≡∷-view′ Γ l A t u v w)
-  Identity→⊩≡∷Id⇔ {v} {w} {Γ} {l} {A} {t} {u} v-id w-id =
+  Identityᵃ→⊩≡∷Id⇔ {v} {w} {Γ} {l} {A} {t} {u} v-id w-id =
     Γ ⊩⟨ l ⟩ v ≡ w ∷ Id A t u      ⇔⟨ ⊩≡∷Id⇔ ⟩
 
     (∃₂ λ v′ w′ →
@@ -347,9 +348,9 @@ opaque
      Γ ⊩⟨ l ⟩ t ∷ A ×
      Γ ⊩⟨ l ⟩ u ∷ A ×
      ⊩Id≡∷-view′ Γ l A t u v′ w′)  ⇔⟨ (λ (_ , _ , v⇒*v′ , w⇒*w′ , ⊩t , ⊩u , rest) →
-                                         case whnfRed*Term v⇒*v′ (identityWhnf v-id) of λ {
+                                         case whnfRed*Term v⇒*v′ (Identityᵃ→Whnf v-id) of λ {
                                            PE.refl →
-                                         case whnfRed*Term w⇒*w′ (identityWhnf w-id) of λ {
+                                         case whnfRed*Term w⇒*w′ (Identityᵃ→Whnf w-id) of λ {
                                            PE.refl →
                                          redFirst*Term v⇒*v′ , redFirst*Term w⇒*w′ ,
                                          ⊩t , ⊩u , rest }})
@@ -370,7 +371,7 @@ data ⊩Id∷-view′
   rflᵣ : Γ ⊩⟨ l ⟩ t ≡ u ∷ A →
          ⊩Id∷-view′ Γ l A t u rfl
   ne   : Neutrals-included →
-         Neutral v →
+         Neutralᵃ v →
          Γ ⊢~ v ∷ Id A t u →
          ⊩Id∷-view′ Γ l A t u v
 
@@ -411,9 +412,9 @@ opaque
      Γ ⊩⟨ l ⟩ t ∷ A ×
      Γ ⊩⟨ l ⟩ u ∷ A ×
      ⊩Id≡∷-view′ Γ l A t u v′ v″)  ⇔⟨ (λ (_ , _ , v⇒*v′ , v⇒*v″ , ⊩t , ⊩u , rest) →
-                                         let v′-id , v″-id = ⊩Id≡∷-view′→Identity rest in
-                                         case whrDet*Term (v⇒*v′ , identityWhnf v′-id)
-                                                (v⇒*v″ , identityWhnf v″-id) of λ {
+                                         let v′-id , v″-id = ⊩Id≡∷-view′→Identityᵃ rest in
+                                         case whrDet*Term (v⇒*v′ , Identityᵃ→Whnf v′-id)
+                                                (v⇒*v″ , Identityᵃ→Whnf v″-id) of λ {
                                            PE.refl →
                                          _ , v⇒*v′ , ⊩t , ⊩u ,
                                          ⊩Id∷-view′⇔⊩Id≡∷-view′ .proj₂ rest })
@@ -431,14 +432,14 @@ opaque
 
   -- A variant of ⊩∷Id⇔.
 
-  Identity→⊩∷Id⇔ :
-    Identity v →
+  Identityᵃ→⊩∷Id⇔ :
+    Identityᵃ v →
     Γ ⊩⟨ l ⟩ v ∷ Id A t u ⇔
     (Γ ⊢ v ∷ Id A t u ×
      Γ ⊩⟨ l ⟩ t ∷ A ×
      Γ ⊩⟨ l ⟩ u ∷ A ×
      ⊩Id∷-view′ Γ l A t u v)
-  Identity→⊩∷Id⇔ {v} {Γ} {l} {A} {t} {u} v-id =
+  Identityᵃ→⊩∷Id⇔ {v} {Γ} {l} {A} {t} {u} v-id =
     Γ ⊩⟨ l ⟩ v ∷ Id A t u     ⇔⟨ ⊩∷Id⇔ ⟩
 
     (∃ λ w →
@@ -446,7 +447,7 @@ opaque
      Γ ⊩⟨ l ⟩ t ∷ A ×
      Γ ⊩⟨ l ⟩ u ∷ A ×
      ⊩Id∷-view′ Γ l A t u w)  ⇔⟨ (λ (_ , v⇒*w , ⊩t , ⊩u , rest) →
-                                    case whnfRed*Term v⇒*w (identityWhnf v-id) of λ {
+                                    case whnfRed*Term v⇒*w (Identityᵃ→Whnf v-id) of λ {
                                       PE.refl →
                                     redFirst*Term v⇒*w , ⊩t , ⊩u , rest })
                                , (λ (⊢v , ⊩t , ⊩u , rest) →
@@ -594,7 +595,7 @@ opaque
     let ⊩t , ⊩u = wf-⊩≡∷ t≡u
         ⊢t      = escape-⊩∷ ⊩t
     in
-    Identity→⊩∷Id⇔ rflₙ .proj₂
+    Identityᵃ→⊩∷Id⇔ rflₙ .proj₂
       ( conv (rflⱼ ⊢t)
           (Id-cong (refl (escape (wf-⊩∷ ⊩t))) (refl ⊢t)
              (≅ₜ-eq (escape-⊩≡∷ t≡u)))
@@ -621,7 +622,7 @@ opaque
     let ⊩t , ⊩u = wf-⊩≡∷ t≡u
         ⊢rfl    = escape-⊩∷ (⊩rfl′ t≡u)
     in
-    Identity→⊩≡∷Id⇔ rflₙ rflₙ .proj₂
+    Identityᵃ→⊩≡∷Id⇔ rflₙ rflₙ .proj₂
       (⊢rfl , ⊢rfl , ⊩t , ⊩u , rfl₌ t≡u)
 
 opaque
@@ -743,7 +744,7 @@ opaque
       (ne inc v₁′-ne v₂′-ne v₁′~v₂′) →
         []-cong s k₁ A₁ t₁ u₁ v₁                                     ⇒*⟨ []-cong⇒*[]-cong₁ ⟩⊩∷
         []-cong s k₁ A₁ t₁ u₁ v₁′ ∷ Id (Erased k₁ A₁) [ t₁ ] [ u₁ ]  ≡⟨ neutral-⊩≡∷ inc (⊩Id⇔ .proj₂ (⊩[] ⊩k₁ ⊩t₁ , ⊩[] ⊩k₁ ⊩u₁))
-                                                                          ([]-congₙ v₁′-ne) ([]-congₙ v₂′-ne)
+                                                                          ([]-congₙᵃ v₁′-ne) ([]-congₙᵃ v₂′-ne)
                                                                           (~-[]-cong k₁≅k₂ A₁≅A₂ t₁≅t₂ u₁≅u₂ v₁′~v₂′ ok) ⟩⊩∷∷⇐*
                                                                        ⟨ ⊢Id≡Id ⟩⇒
         []-cong s k₂ A₂ t₂ u₂ v₂′ ∷ Id (Erased k₂ A₂) [ t₂ ] [ u₂ ]  ⇐*⟨ []-cong⇒*[]-cong₂ ⟩∎∷
@@ -961,13 +962,13 @@ opaque
            K p A₂ t₂ B₂ u₂ rfl U.[ σ₂ ]          ∎)
 
       (ne inc v₁′-ne v₂′-ne v₁′~v₂′) →
-        -- If v₁′ and v₂′ are equal neutral terms, then one can
-        -- conclude by using the fact that the applications of K to
-        -- v₁′ and v₂′ are equal neutral terms.
+        -- If v₁′ and v₂′ are equal (atomic) neutral terms, then one
+        -- can conclude by using the fact that the applications of K
+        -- to v₁′ and v₂′ are equal (atomic) neutral terms.
         lemma $
         neutral-⊩≡∷ inc
           (wf-⊩≡ B₁[σ₁⇑][v₁′]₀≡B₂[σ₂⇑][v₂′]₀ .proj₁)
-          (Kₙ v₁′-ne) (Kₙ v₂′-ne) $
+          (Kₙᵃ v₁′-ne) (Kₙᵃ v₂′-ne) $
         ~-K (R.escape-⊩≡ $ ⊩ᵛ≡→⊩ˢ≡∷→⊩[]≡[] A₁≡A₂ σ₁≡σ₂)
           (R.escape-⊩≡∷ $ ⊩ᵛ≡∷→⊩ˢ≡∷→⊩[]≡[]∷ t₁≡t₂ σ₁≡σ₂)
           (R.escape-⊩≡ ⦃ inc = included ⦃ inc = inc ⦄ ⦄ $
@@ -1225,13 +1226,13 @@ opaque
            J p q A₂ t₂ B₂ u₂ v₂ rfl U.[ σ₂ ]                      ∎)
 
       (ne inc w₁′-ne w₂′-ne w₁′~w₂′) →
-        -- If w₁′ and w₂′ are equal neutral terms, then one can
-        -- conclude by using the fact that the applications of J to
-        -- w₁′ and w₂′ are equal neutral terms.
+        -- If w₁′ and w₂′ are equal (atomic) neutral terms, then one
+        -- can conclude by using the fact that the applications of J
+        -- to w₁′ and w₂′ are equal (atomic) neutral terms.
         lemma $
         neutral-⊩≡∷ inc
           (wf-⊩≡ B₁[σ₁⇑⇑][v₁[σ₁],w₁′]≡B₂[σ₂⇑⇑][v₂[σ₂],w₂′] .proj₁)
-          (Jₙ w₁′-ne) (Jₙ w₂′-ne)
+          (Jₙᵃ w₁′-ne) (Jₙᵃ w₂′-ne)
           (~-J A₁[σ₁]≅A₂[σ₂] (escape-⊩∷ ⊩t₁[σ₁])
              (escape-⊩≡∷ t₁[σ₁]≡t₂[σ₂])
              (PE.subst₃ _⊢_≅_ (PE.cong (_∙_ _) $ Id-wk1-wk1-0[⇑]≡ A₁ t₁)

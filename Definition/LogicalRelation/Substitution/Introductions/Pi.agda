@@ -39,6 +39,7 @@ open import Definition.Typed.Well-formed R
 
 open import Definition.Untyped M
 open import Definition.Untyped.Neutral M type-variant
+open import Definition.Untyped.Neutral.Atomic M type-variant
 open import Definition.Untyped.Properties M
 
 open import Tools.Fin
@@ -72,8 +73,8 @@ opaque
      ∃₂ λ u₁ u₂ →
      Γ ⊢ t₁ ⇒* u₁ ∷ Π p , q ▷ A ▹ B ×
      Γ ⊢ t₂ ⇒* u₂ ∷ Π p , q ▷ A ▹ B ×
-     Function u₁ ×
-     Function u₂ ×
+     Functionᵃ u₁ ×
+     Functionᵃ u₂ ×
      Γ ⊢ u₁ ≅ u₂ ∷ Π p , q ▷ A ▹ B ×
      ∀ {m} {ρ : Wk m n} {Δ : Con Term m} {v₁ v₂} →
      ρ ∷ʷʳ Δ ⊇ Γ →
@@ -92,8 +93,8 @@ opaque
          ((∃₂ λ u₁ u₂ →
           Γ ⊢ t₁ ⇒* u₁ ∷ Π p , q ▷ A ▹ B ×
           Γ ⊢ t₂ ⇒* u₂ ∷ Π p , q ▷ A ▹ B ×
-          Function u₁ ×
-          Function u₂ ×
+          Functionᵃ u₁ ×
+          Functionᵃ u₂ ×
           Γ ⊢ u₁ ≅ u₂ ∷ Π p , q ▷ A ▹ B ×
           ∀ {m} {ρ : Wk m n} {Δ : Con Term m} {v₁ v₂} →
           ρ ∷ʷʳ Δ ⊇ Γ →
@@ -131,7 +132,7 @@ opaque
     (Γ ⊩⟨ l ⟩ Π p , q ▷ A ▹ B ×
      ∃ λ u →
      Γ ⊢ t ⇒* u ∷ Π p , q ▷ A ▹ B ×
-     Function u ×
+     Functionᵃ u ×
      Γ ⊢≅ u ∷ Π p , q ▷ A ▹ B ×
      ∀ {m} {ρ : Wk m n} {Δ : Con Term m} {v₁ v₂} →
      ρ ∷ʷʳ Δ ⊇ Γ →
@@ -147,8 +148,8 @@ opaque
      ∃₂ λ u₁ u₂ →
      Γ ⊢ t ⇒* u₁ ∷ Π p , q ▷ A ▹ B ×
      Γ ⊢ t ⇒* u₂ ∷ Π p , q ▷ A ▹ B ×
-     Function u₁ ×
-     Function u₂ ×
+     Functionᵃ u₁ ×
+     Functionᵃ u₂ ×
      Γ ⊢ u₁ ≅ u₂ ∷ Π p , q ▷ A ▹ B ×
      ∀ {m} {ρ : Wk m n} {Δ : Con Term m} {v₁ v₂} →
      ρ ∷ʷʳ Δ ⊇ Γ →
@@ -156,8 +157,8 @@ opaque
      Δ ⊩⟨ l ⟩ wk ρ u₁ ∘⟨ p ⟩ v₁ ≡ wk ρ u₂ ∘⟨ p ⟩ v₂ ∷
        wk (lift ρ) B [ v₁ ]₀)                          ⇔⟨ (Σ-cong-⇔ λ _ → Σ-cong-⇔ λ _ →
                                                              ( (λ (_ , t⇒*u₁ , t⇒*u₂ , u₁-fun , u₂-fun , u₁≅u₂ , u₁∘≡u₂∘) →
-                                                                  case whrDet*Term (t⇒*u₁ , functionWhnf u₁-fun)
-                                                                         (t⇒*u₂ , functionWhnf u₂-fun) of λ {
+                                                                  case whrDet*Term (t⇒*u₁ , Functionᵃ→Whnf u₁-fun)
+                                                                         (t⇒*u₂ , Functionᵃ→Whnf u₂-fun) of λ {
                                                                     PE.refl →
                                                                   t⇒*u₁ , u₁-fun , u₁≅u₂ , u₁∘≡u₂∘ })
                                                              , (λ (t⇒*u , u-fun , ≅u , u∘≡u∘) →
@@ -166,7 +167,7 @@ opaque
     (Γ ⊩⟨ l ⟩ Π p , q ▷ A ▹ B ×
      ∃ λ u →
      Γ ⊢ t ⇒* u ∷ Π p , q ▷ A ▹ B ×
-     Function u ×
+     Functionᵃ u ×
      Γ ⊢≅ u ∷ Π p , q ▷ A ▹ B ×
      ∀ {m} {ρ : Wk m n} {Δ : Con Term m} {v₁ v₂} →
      ρ ∷ʷʳ Δ ⊇ Γ →
@@ -527,7 +528,7 @@ opaque
                  in
                  ≅-η-eq (wf-⊢≡∷ (subset*Term t₁[σ]⇒*u₁) .proj₂ .proj₂)
                    (wf-⊢≡∷ (subset*Term t₂[σ]⇒*u₂) .proj₂ .proj₂)
-                   u₁-fun u₂-fun
+                   (Functionᵃ→ u₁-fun) (Functionᵃ→ u₂-fun)
                    (PE.subst (_⊢_≅_∷_ _ _ _)
                       (idWkLiftSubstLemma _ B) $
                     escape-⊩≡∷ $

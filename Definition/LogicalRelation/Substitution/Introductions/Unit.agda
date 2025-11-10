@@ -18,6 +18,7 @@ open Type-restrictions R
 
 open import Definition.Untyped M
 open import Definition.Untyped.Neutral M type-variant
+open import Definition.Untyped.Neutral.Atomic M type-variant
 open import Definition.Untyped.Properties M
 open import Definition.Typed R
 open import Definition.Typed.Inversion R
@@ -397,7 +398,7 @@ opaque
                                                                     ⟨ A₁[t₁]₀[σ₁]≡A₁[σ₁⇑][t₁′]₀ ⟩⊩∷
              unitrec p q (A₁ [ σ₁ ⇑ ]) t₁′ (u₁ [ σ₁ ])
                ∷ A₁ [ σ₁ ⇑ ] [ t₁′ ]₀                             ≡⟨ neutral-⊩≡∷ inc (wf-⊩≡ A₁[t₁]₀[σ₁]≡A₁[σ₁⇑][t₁′]₀ .proj₂)
-                                                                       (unitrecₙ no-η t₁′-ne) (unitrecₙ no-η t₂′-ne)
+                                                                       (unitrecₙᵃ no-η t₁′-ne) (unitrecₙᵃ no-η t₂′-ne)
                                                                        (~-unitrec
                                                                           (escape-⊩≡ $
                                                                            R.⊩≡→ ⦃ inc = included ⦃ inc = inc ⦄ ⦄ A₁[σ₁⇑]≡A₂[σ₂⇑])

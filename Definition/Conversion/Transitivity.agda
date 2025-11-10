@@ -16,6 +16,7 @@ module Definition.Conversion.Transitivity
 
 open import Definition.Untyped M
 open import Definition.Untyped.Neutral M type-variant
+open import Definition.Untyped.Neutral.Atomic M type-variant
 open import Definition.Untyped.Properties M
 open import Definition.Untyped.Properties.Neutral M type-variant
 open import Definition.Typed R
@@ -236,7 +237,7 @@ mutual
       (inj₁ (_ , B~C))    → ne (trans~↓ A~B B~C .proj₁)
       (inj₂ (¬-B-ne , _)) →
         let _ , _ , B-ne = ne~↓ A~B in
-        ⊥-elim (¬-B-ne B-ne)
+        ⊥-elim (¬-B-ne (ne⁻ B-ne))
   transConv↓ U≡U@(U-cong l₁≡l₂) U≡C =
     case inv-[conv↓]-U′ U≡C of λ where
       (inj₁ (_ , _ , PE.refl , PE.refl , l₂≡l₃)) →
@@ -340,12 +341,12 @@ mutual
       (inj₁ (_ , _ , _ , _ , u~v)) →
         Σʷ-ins ⊢t ⊢v (trans~↓ t~u u~v .proj₁)
       (inj₂ (_ , _ , _ , _ , PE.refl , _)) →
-        ⊥-elim $ ¬-Neutral-prod $ ne~↓ t~u .proj₂ .proj₂
+        ⊥-elim $ ¬-Neutral-prod $ ne⁻ $ ne~↓ t~u .proj₂ .proj₂
   transConv↓Term (prod-cong ⊢B t₁≡u₁ t₂≡u₂ ok) u≡v =
     let _ , _ , ⊢v = syntacticEqTerm (soundnessConv↓Term u≡v) in
     case inv-[conv↓]∷-Σʷ u≡v of λ where
       (inj₁ (_ , _ , _ , _ , u~v)) →
-        ⊥-elim $ ¬-Neutral-prod $ ne~↓ u~v .proj₂ .proj₁
+        ⊥-elim $ ¬-Neutral-prod $ ne⁻ $ ne~↓ u~v .proj₂ .proj₁
       (inj₂ (_ , _ , _ , _ , u≡prod , PE.refl , u₁≡v₁ , u₂≡v₂)) →
         case prod-PE-injectivity u≡prod of λ {
           (_ , _ , PE.refl , PE.refl) →
@@ -366,13 +367,13 @@ mutual
       (inj₁ (_ , inj₁ u~v)) →
         Unitʷ-ins no-η (trans~↓ t~u u~v .proj₁)
       (inj₁ (_ , inj₂ (PE.refl , PE.refl))) →
-        ⊥-elim $ ¬-Neutral-star $ ne~↓ t~u .proj₂ .proj₂
+        ⊥-elim $ ¬-Neutral-star $ ne⁻ $ ne~↓ t~u .proj₂ .proj₂
       (inj₂ (η , _)) →
         ⊥-elim (no-η η)
   transConv↓Term (starʷ-refl y ok no-η) u≡v =
     case inv-[conv↓]∷-Unitʷ u≡v of λ where
       (inj₁ (_ , inj₁ u~v)) →
-        ⊥-elim $ ¬-Neutral-star $ ne~↓ u~v .proj₂ .proj₁
+        ⊥-elim $ ¬-Neutral-star $ ne⁻ $ ne~↓ u~v .proj₂ .proj₁
       (inj₁ (_ , inj₂ (_ , PE.refl))) →
         starʷ-refl y ok no-η
       (inj₂ (η , _)) →
@@ -382,20 +383,20 @@ mutual
       (inj₁ u~v) →
         ℕ-ins (trans~↓ t~u u~v .proj₁)
       (inj₂ (inj₁ (PE.refl , _))) →
-        ⊥-elim $ ¬-Neutral-zero $ ne~↓ t~u .proj₂ .proj₂
+        ⊥-elim $ ¬-Neutral-zero $ ne⁻ $ ne~↓ t~u .proj₂ .proj₂
       (inj₂ (inj₂ (_ , _ , PE.refl , _))) →
-        ⊥-elim $ ¬-Neutral-suc $ ne~↓ t~u .proj₂ .proj₂
+        ⊥-elim $ ¬-Neutral-suc $ ne⁻ $ ne~↓ t~u .proj₂ .proj₂
   transConv↓Term (zero-refl _) u≡v =
     case inv-[conv↓]∷-ℕ u≡v of λ where
       (inj₁ u~v) →
-        ⊥-elim $ ¬-Neutral-zero $ ne~↓ u~v .proj₂ .proj₁
+        ⊥-elim $ ¬-Neutral-zero $ ne⁻ $ ne~↓ u~v .proj₂ .proj₁
       (inj₂ (inj₁ (_ , PE.refl))) →
         u≡v
       (inj₂ (inj₂ (_ , _ , () , _)))
   transConv↓Term (suc-cong t≡u) u≡v =
     case inv-[conv↓]∷-ℕ u≡v of λ where
       (inj₁ u~v) →
-        ⊥-elim $ ¬-Neutral-suc $ ne~↓ u~v .proj₂ .proj₁
+        ⊥-elim $ ¬-Neutral-suc $ ne⁻ $ ne~↓ u~v .proj₂ .proj₁
       (inj₂ (inj₁ (() , _)))
       (inj₂ (inj₂ (_ , _ , PE.refl , PE.refl , u≡v))) →
         suc-cong (transConvTerm t≡u u≡v)
@@ -404,11 +405,11 @@ mutual
       (inj₁ (_ , _ , _ , u~v)) →
         Id-ins ⊢t (trans~↓ t~u u~v .proj₁)
       (inj₂ (PE.refl , _)) →
-        ⊥-elim $ ¬-Neutral-rfl $ ne~↓ t~u .proj₂ .proj₂
+        ⊥-elim $ ¬-Neutral-rfl $ ne⁻ $ ne~↓ t~u .proj₂ .proj₂
   transConv↓Term t≡u@(rfl-refl _) u≡v =
     case inv-[conv↓]∷-Id u≡v of λ where
       (inj₁ (_ , _ , _ , u~v)) →
-        ⊥-elim $ ¬-Neutral-rfl $ ne~↓ u~v .proj₂ .proj₁
+        ⊥-elim $ ¬-Neutral-rfl $ ne⁻ $ ne~↓ u~v .proj₂ .proj₁
       (inj₂ (_ , PE.refl , _)) →
         t≡u
 

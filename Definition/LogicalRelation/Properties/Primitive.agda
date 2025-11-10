@@ -18,6 +18,7 @@ open Type-restrictions R
 
 open import Definition.Untyped M
 open import Definition.Untyped.Neutral M type-variant
+open import Definition.Untyped.Neutral.Atomic M type-variant
 open import Definition.Untyped.Properties M
 open import Definition.Untyped.Properties.Neutral M type-variant
 open import Definition.Typed R
@@ -411,7 +412,7 @@ opaque
     to (term suc⇒ (neLvl ⊩l)) =
       case whnfRed*Term suc⇒ sucᵘₙ of λ {
         PE.refl →
-      case nelevel ⊩l of λ { (ne ()) } }
+      case nelevel ⊩l of λ () }
     to (literal not-ok ⊢Γ (sucᵘ l-lit)) =
       literal not-ok ⊢Γ l-lit
 
@@ -1044,10 +1045,12 @@ opaque
       PE.cong 1+ (↑ⁿ-irrelevance ⊩t ⊩t′)
     ↑ⁿ-prop-irrelevance (neLvl ⊩t) (neLvl ⊩t′) =
       ↑ⁿ-neprop-irrelevance ⊩t ⊩t′
-    ↑ⁿ-prop-irrelevance (zeroᵘᵣ _) (neLvl (ne (neNfₜ₌ _ () _ _)))
-    ↑ⁿ-prop-irrelevance (sucᵘᵣ _ _) (neLvl (ne (neNfₜ₌ _ () _ _)))
-    ↑ⁿ-prop-irrelevance (neLvl (ne (neNfₜ₌ _ () _ _))) (zeroᵘᵣ _)
-    ↑ⁿ-prop-irrelevance (neLvl (ne (neNfₜ₌ _ () _ _))) (sucᵘᵣ _ _)
+    ↑ⁿ-prop-irrelevance (zeroᵘᵣ _) (neLvl (ne (neNfₜ₌ _ (ne () _) _ _)))
+    ↑ⁿ-prop-irrelevance
+      (sucᵘᵣ _ _) (neLvl (ne (neNfₜ₌ _ (ne () _) _ _)))
+    ↑ⁿ-prop-irrelevance (neLvl (ne (neNfₜ₌ _ (ne () _) _ _))) (zeroᵘᵣ _)
+    ↑ⁿ-prop-irrelevance
+      (neLvl (ne (neNfₜ₌ _ (ne () _) _ _))) (sucᵘᵣ _ _)
 
     ↑ⁿ-neprop-irrelevance
       : ∀ {t} ([t] : neLevel-prop Γ t) ([t]′ : neLevel-prop Γ t)
@@ -1057,12 +1060,16 @@ opaque
     ↑ⁿ-neprop-irrelevance (supᵘʳᵣ x x₁) (supᵘʳᵣ x₂ y) =
       PE.cong₂ _⊔_ (PE.cong 1+ (↑ⁿ-irrelevance x x₂)) (↑ⁿ-neprop-irrelevance x₁ y)
     ↑ⁿ-neprop-irrelevance (ne x) (ne x₁) = PE.refl
-    ↑ⁿ-neprop-irrelevance (supᵘˡᵣ x x₁) (supᵘʳᵣ x₂ y) = case nelevel x of λ { (ne ()) }
-    ↑ⁿ-neprop-irrelevance (supᵘˡᵣ x x₁) (ne (neNfₜ₌ _ () neM k≡m))
-    ↑ⁿ-neprop-irrelevance (supᵘʳᵣ x x₁) (supᵘˡᵣ y x₂) = case nelevel y of λ { (ne ()) }
-    ↑ⁿ-neprop-irrelevance (supᵘʳᵣ x x₁) (ne (neNfₜ₌ _ () neM k≡m))
-    ↑ⁿ-neprop-irrelevance (ne (neNfₜ₌ _ () neM k≡m)) (supᵘˡᵣ y x₁)
-    ↑ⁿ-neprop-irrelevance (ne (neNfₜ₌ _ () neM k≡m)) (supᵘʳᵣ x₁ y)
+    ↑ⁿ-neprop-irrelevance (supᵘˡᵣ x x₁) (supᵘʳᵣ x₂ y) = case nelevel x of λ ()
+    ↑ⁿ-neprop-irrelevance (supᵘˡᵣ _ _) (ne (neNfₜ₌ _ _ n _)) =
+      Neutralᵃ-supᵘ→ n
+    ↑ⁿ-neprop-irrelevance (supᵘʳᵣ x x₁) (supᵘˡᵣ y x₂) = case nelevel y of λ ()
+    ↑ⁿ-neprop-irrelevance (supᵘʳᵣ _ _) (ne (neNfₜ₌ _ _ n _)) =
+      Neutralᵃ-supᵘ→ n
+    ↑ⁿ-neprop-irrelevance (ne (neNfₜ₌ _ _ n _)) (supᵘˡᵣ _ _) =
+      Neutralᵃ-supᵘ→ n
+    ↑ⁿ-neprop-irrelevance (ne (neNfₜ₌ _ _ n _)) (supᵘʳᵣ _ _) =
+      Neutralᵃ-supᵘ→ n
 
 ↑ᵘ-irrelevance
   : ∀ {t} {[t] : Γ ⊩Level t ∷Level} {[t]′ : Γ ⊩Level t ∷Level}
@@ -1077,14 +1084,14 @@ opaque
 
   ↑ⁿ-prop-ne :
     (⊩t : Level-prop Γ t) →
-    Neutral t →
+    Neutralᵃ t →
     ↑ⁿ-prop ⊩t PE.≡ ↑ᵘ-neutral
   ↑ⁿ-prop-ne = λ where
-    (zeroᵘᵣ _)           ()
-    (sucᵘᵣ _ _)          ()
-    (neLvl (supᵘˡᵣ _ _)) ()
-    (neLvl (supᵘʳᵣ _ _)) ()
-    (neLvl (ne _))       _  → PE.refl
+    (zeroᵘᵣ _)           (ne () _)
+    (sucᵘᵣ _ _)          (ne () _)
+    (neLvl (supᵘˡᵣ _ _)) n         → Neutralᵃ-supᵘ→ n
+    (neLvl (supᵘʳᵣ _ _)) n         → Neutralᵃ-supᵘ→ n
+    (neLvl (ne _))       _         → PE.refl
 
 opaque
   unfolding ↑ⁿ_
@@ -1094,14 +1101,14 @@ opaque
 
   ↑ⁿ-ne :
     (⊩t : Γ ⊩Level t ∷Level) →
-    Neutral t →
+    Neutralᵃ t →
     ↑ⁿ ⊩t PE.≡ ↑ᵘ-neutral
   ↑ⁿ-ne (term l⇒l′ l′-prop) l-ne =
     case whnfRed*Term l⇒l′ (ne! l-ne) of λ {
       PE.refl →
     ↑ⁿ-prop-ne l′-prop l-ne }
   ↑ⁿ-ne (literal _ _ l-lit) l-ne =
-    ⊥-elim $ ¬-Neutral-Level-literal l-lit (ne l-ne)
+    ⊥-elim $ ¬-Neutral-Level-literal l-lit (ne⁻ l-ne)
 
 opaque
 
@@ -1110,7 +1117,7 @@ opaque
 
   ↑ᵘ-ne :
     (⊩t : Γ ⊩Level t ∷Level) →
-    Neutral t →
+    Neutralᵃ t →
     ↑ᵘ ⊩t PE.≡ 0ᵘ+ ↑ᵘ-neutral
   ↑ᵘ-ne ⊩t t-ne = PE.cong 0ᵘ+_ (↑ⁿ-ne ⊩t t-ne)
 
@@ -1121,7 +1128,7 @@ opaque
 
   ↑ⁿ-prop-zeroᵘ : ([0] : Level-prop Γ zeroᵘ) → ↑ⁿ-prop [0] PE.≡ 0
   ↑ⁿ-prop-zeroᵘ (zeroᵘᵣ _) = PE.refl
-  ↑ⁿ-prop-zeroᵘ (neLvl n) = case nelevel n of λ { (ne ()) }
+  ↑ⁿ-prop-zeroᵘ (neLvl n) = case nelevel n of λ ()
 
   ↑ⁿ-zeroᵘ : ([0] : Γ ⊩Level zeroᵘ ∷Level) → ↑ⁿ [0] PE.≡ 0
   ↑ⁿ-zeroᵘ (term 0⇒ prop) with whnfRed*Term 0⇒ zeroᵘₙ
@@ -1140,7 +1147,7 @@ opaque
     : ∀ {t} ([t+1] : Level-prop Γ (sucᵘ t))
     → ∃ λ ([t] : Γ ⊩Level t ∷Level) → ↑ⁿ-prop [t+1] PE.≡ 1+ (↑ⁿ [t])
   ↑ⁿ-prop-sucᵘ (sucᵘᵣ _ ⊩t) = ⊩t , PE.refl
-  ↑ⁿ-prop-sucᵘ (neLvl n)    = case nelevel n of λ { (ne ()) }
+  ↑ⁿ-prop-sucᵘ (neLvl n)    = case nelevel n of λ ()
 
   ↑ⁿ-sucᵘ
     : ∀ {t} ([t] : Γ ⊩Level t ∷Level) ([t+1] : Γ ⊩Level sucᵘ t ∷Level)
@@ -1322,15 +1329,15 @@ opaque
       in PE.trans (↑ⁿ-prop-cong x [k′] z) (↑ⁿ-prop-cong [k′] y z₁)
     -- Absurd cases
     ↑ⁿ-prop-cong (neLvl _) (neLvl ⊩u) (supᵘ-subᵣ _ _) =
-      case nelevel ⊩u of λ { (ne ()) }
+      case nelevel ⊩u of λ ()
     ↑ⁿ-prop-cong (zeroᵘᵣ _) _ (neLvl t≡u) =
-      case nelsplit t≡u of λ { (ne () , _) }
+      case nelsplit t≡u of λ { (() , _) }
     ↑ⁿ-prop-cong (sucᵘᵣ _ _) _ (neLvl t≡u) =
-      case nelsplit t≡u of λ { (ne () , _) }
+      case nelsplit t≡u of λ { (() , _) }
     ↑ⁿ-prop-cong (neLvl _) (zeroᵘᵣ _) (neLvl t≡u) =
-      case nelsplit t≡u of λ { (_ , ne ()) }
+      case nelsplit t≡u of λ { (_ , ()) }
     ↑ⁿ-prop-cong (neLvl _) (sucᵘᵣ _ _) (neLvl t≡u) =
-      case nelsplit t≡u of λ { (_ , ne ()) }
+      case nelsplit t≡u of λ { (_ , ()) }
 
     ↑ⁿ-neprop-cong
       : ∀ {t u} ([t] : neLevel-prop Γ t) ([u] : neLevel-prop Γ u)
@@ -1388,48 +1395,75 @@ opaque
         (PE.sym (↑ⁿ-cong (⊩neLvl y) x₁ w)))
       (⊔-idem (↑ⁿ-neprop y))
     -- Absurd cases
-    ↑ⁿ-neprop-cong (supᵘˡᵣ _ _) (supᵘʳᵣ _ _) (supᵘˡᵣ z _) = case nelsplit z .proj₂ of λ { (ne ()) }
-    ↑ⁿ-neprop-cong (supᵘˡᵣ _ _) (ne (neNfₜ₌ _ () neM k≡m)) (supᵘˡᵣ z x₃)
-    ↑ⁿ-neprop-cong (supᵘʳᵣ _ _) _ (supᵘˡᵣ z _) = case nelsplit z .proj₁ of λ { (ne ()) }
-    ↑ⁿ-neprop-cong (ne (neNfₜ₌ _ () neM k≡m)) _ (supᵘˡᵣ _ _)
-    ↑ⁿ-neprop-cong (supᵘˡᵣ x _) _ (supᵘʳᵣ _ _) = case nelevel x of λ { (ne ()) }
-    ↑ⁿ-neprop-cong (supᵘʳᵣ _ _) (supᵘˡᵣ y _) (supᵘʳᵣ _ _) = case nelevel y of λ { (ne ()) }
-    ↑ⁿ-neprop-cong (supᵘʳᵣ _ _) (ne (neNfₜ₌ _ () neM k≡m)) (supᵘʳᵣ _ _)
-    ↑ⁿ-neprop-cong (ne (neNfₜ₌ _ () neM k≡m)) _ (supᵘʳᵣ _ _)
-    ↑ⁿ-neprop-cong (supᵘʳᵣ _ _) y (supᵘ-zeroʳᵣ _) = case nelevel y of λ { (ne ()) }
-    ↑ⁿ-neprop-cong (ne (neNfₜ₌ _ () neM k≡m)) _ (supᵘ-zeroʳᵣ _)
-    ↑ⁿ-neprop-cong (supᵘˡᵣ _ _) _ (ne (neNfₜ₌ _ () neM k≡m))
-    ↑ⁿ-neprop-cong (supᵘʳᵣ _ _) _ (ne (neNfₜ₌ _ () neM k≡m))
-    ↑ⁿ-neprop-cong (ne _) (supᵘˡᵣ _ _) (ne (neNfₜ₌ _ neK () k≡m))
-    ↑ⁿ-neprop-cong (ne _) (supᵘʳᵣ _ _) (ne (neNfₜ₌ _ neK () k≡m))
-    ↑ⁿ-neprop-cong (supᵘˡᵣ (supᵘʳᵣ x x₅) x₃) (supᵘˡᵣ y x₄) (supᵘ-assoc¹ᵣ z x₁ x₂) = case nelevel y of λ { (ne ()) }
-    ↑ⁿ-neprop-cong (supᵘˡᵣ (ne (neNfₜ₌ _ () neM k≡m)) x₃) (supᵘˡᵣ y x₄) (supᵘ-assoc¹ᵣ z x₁ x₂)
-    ↑ⁿ-neprop-cong (supᵘˡᵣ x x₃) (supᵘʳᵣ x₄ y) (supᵘ-assoc¹ᵣ z x₁ x₂) = case nelevel z of λ { (ne ()) }
-    ↑ⁿ-neprop-cong (supᵘˡᵣ x x₃) (ne (neNfₜ₌ _ () neM k≡m)) (supᵘ-assoc¹ᵣ z x₁ x₂)
-    ↑ⁿ-neprop-cong (ne (neNfₜ₌ _ () neM k≡m)) y (supᵘ-assoc¹ᵣ z x₁ x₂)
-    ↑ⁿ-neprop-cong (supᵘˡᵣ (supᵘˡᵣ x x₄) x₃) y (supᵘ-assoc²ᵣ x₁ z x₂) = case nelevel x of λ { (ne ()) }
-    ↑ⁿ-neprop-cong (supᵘˡᵣ (supᵘʳᵣ x x₄) x₃) (supᵘˡᵣ y x₅) (supᵘ-assoc²ᵣ x₁ z x₂) = case nelevel y of λ { (ne ()) }
-    ↑ⁿ-neprop-cong (supᵘˡᵣ (supᵘʳᵣ x x₄) x₃) (supᵘʳᵣ x₅ (supᵘʳᵣ x₆ y)) (supᵘ-assoc²ᵣ x₁ z x₂) = case nelevel x₄ of λ { (ne ()) }
-    ↑ⁿ-neprop-cong (supᵘˡᵣ (supᵘʳᵣ x x₄) x₃) (supᵘʳᵣ x₅ (ne (neNfₜ₌ _ () neM k≡m))) (supᵘ-assoc²ᵣ x₁ z x₂)
-    ↑ⁿ-neprop-cong (supᵘˡᵣ (supᵘʳᵣ x x₄) x₃) (ne (neNfₜ₌ _ () neM k≡m)) (supᵘ-assoc²ᵣ x₁ z x₂)
-    ↑ⁿ-neprop-cong (supᵘˡᵣ (ne (neNfₜ₌ _ () neM k≡m)) x₃) y (supᵘ-assoc²ᵣ x₁ z x₂)
-    ↑ⁿ-neprop-cong (ne (neNfₜ₌ _ () neM k≡m)) y (supᵘ-assoc²ᵣ x₁ z x₂)
-    ↑ⁿ-neprop-cong (supᵘˡᵣ x x₃) y (supᵘ-assoc³ᵣ x₁ x₂ z) = case nelevel x of λ { (ne ()) }
-    ↑ⁿ-neprop-cong (supᵘʳᵣ x x₃) (supᵘˡᵣ y x₄) (supᵘ-assoc³ᵣ x₁ x₂ z) = case nelevel y of λ { (ne ()) }
-    ↑ⁿ-neprop-cong (supᵘʳᵣ x x₃) (supᵘʳᵣ x₄ (supᵘˡᵣ y x₅)) (supᵘ-assoc³ᵣ x₁ x₂ z) = case nelevel y of λ { (ne ()) }
-    ↑ⁿ-neprop-cong (supᵘʳᵣ x x₃) (supᵘʳᵣ x₄ (ne (neNfₜ₌ _ () neM k≡m))) (supᵘ-assoc³ᵣ x₁ x₂ z)
-    ↑ⁿ-neprop-cong (supᵘʳᵣ x x₃) (ne (neNfₜ₌ _ () neM k≡m)) (supᵘ-assoc³ᵣ x₁ x₂ z)
-    ↑ⁿ-neprop-cong (ne (neNfₜ₌ _ () neM k≡m)) y (supᵘ-assoc³ᵣ x₁ x₂ z)
-    ↑ⁿ-neprop-cong (supᵘˡᵣ x x₁) (supᵘʳᵣ x₂ y) (supᵘ-comm¹ᵣ z d w d′) = case nelevel w of λ { (ne ()) }
-    ↑ⁿ-neprop-cong (supᵘˡᵣ x x₁) (ne (neNfₜ₌ _ () neM k≡m)) (supᵘ-comm¹ᵣ z d w d′)
-    ↑ⁿ-neprop-cong (supᵘʳᵣ x x₁) y (supᵘ-comm¹ᵣ z d w d′) = case nelevel z of λ { (ne ()) }
-    ↑ⁿ-neprop-cong (ne (neNfₜ₌ _ () neM k≡m)) y (supᵘ-comm¹ᵣ z d w d′)
-    ↑ⁿ-neprop-cong (supᵘˡᵣ x x₁) y (supᵘ-comm²ᵣ z d w) = case nelevel x of λ { (ne ()) }
-    ↑ⁿ-neprop-cong (supᵘʳᵣ x x₁) (supᵘʳᵣ x₂ y) (supᵘ-comm²ᵣ z d w) = case nelevel x₁ of λ { (ne ()) }
-    ↑ⁿ-neprop-cong (supᵘʳᵣ x x₁) (ne (neNfₜ₌ _ () neM k≡m)) (supᵘ-comm²ᵣ z d w)
-    ↑ⁿ-neprop-cong (ne (neNfₜ₌ _ () neM k≡m)) y (supᵘ-comm²ᵣ z d w)
-    ↑ⁿ-neprop-cong (supᵘʳᵣ x x₁) y (supᵘ-idemᵣ z w) = case nelevel y of λ { (ne ()) }
-    ↑ⁿ-neprop-cong (ne (neNfₜ₌ _ () neM k≡m)) y (supᵘ-idemᵣ z w)
+    ↑ⁿ-neprop-cong (supᵘˡᵣ _ _) (supᵘʳᵣ _ _) (supᵘˡᵣ z _) = case nelsplit z .proj₂ of λ ()
+    ↑ⁿ-neprop-cong _ (ne (neNfₜ₌ _ _ n _)) (supᵘˡᵣ _ _) =
+      Neutralᵃ-supᵘ→ n
+    ↑ⁿ-neprop-cong (supᵘʳᵣ _ _) _ (supᵘˡᵣ z _) = case nelsplit z .proj₁ of λ ()
+    ↑ⁿ-neprop-cong (ne (neNfₜ₌ _ _ n _)) _ (supᵘˡᵣ _ _) =
+      Neutralᵃ-supᵘ→ n
+    ↑ⁿ-neprop-cong (supᵘˡᵣ x _) _ (supᵘʳᵣ _ _) = case nelevel x of λ ()
+    ↑ⁿ-neprop-cong (supᵘʳᵣ _ _) (supᵘˡᵣ y _) (supᵘʳᵣ _ _) = case nelevel y of λ ()
+    ↑ⁿ-neprop-cong _ (ne (neNfₜ₌ _ _ n _)) (supᵘʳᵣ _ _) =
+      Neutralᵃ-supᵘ→ n
+    ↑ⁿ-neprop-cong (ne (neNfₜ₌ _ _ n _)) _ (supᵘʳᵣ _ _) =
+      Neutralᵃ-supᵘ→ n
+    ↑ⁿ-neprop-cong (supᵘʳᵣ _ _) y (supᵘ-zeroʳᵣ _) = case nelevel y of λ ()
+    ↑ⁿ-neprop-cong (ne (neNfₜ₌ _ _ n _)) _ (supᵘ-zeroʳᵣ _) =
+      Neutralᵃ-supᵘ→ n
+    ↑ⁿ-neprop-cong (supᵘˡᵣ _ _) _ (ne (neNfₜ₌ _ n _ _)) =
+      Neutralᵃ-supᵘ→ n
+    ↑ⁿ-neprop-cong (supᵘʳᵣ _ _) _ (ne (neNfₜ₌ _ n _ _)) =
+      Neutralᵃ-supᵘ→ n
+    ↑ⁿ-neprop-cong _ (supᵘˡᵣ _ _) (ne (neNfₜ₌ _ _ n _)) =
+      Neutralᵃ-supᵘ→ n
+    ↑ⁿ-neprop-cong _ (supᵘʳᵣ _ _) (ne (neNfₜ₌ _ _ n _)) =
+      Neutralᵃ-supᵘ→ n
+    ↑ⁿ-neprop-cong (supᵘˡᵣ (supᵘʳᵣ x x₅) x₃) (supᵘˡᵣ y x₄) (supᵘ-assoc¹ᵣ z x₁ x₂) = case nelevel y of λ ()
+    ↑ⁿ-neprop-cong (supᵘˡᵣ (ne (neNfₜ₌ _ _ n _)) _) _ (supᵘ-assoc¹ᵣ _ _ _) =
+      Neutralᵃ-supᵘ→ n
+    ↑ⁿ-neprop-cong (supᵘˡᵣ x x₃) (supᵘʳᵣ x₄ y) (supᵘ-assoc¹ᵣ z x₁ x₂) = case nelevel z of λ ()
+    ↑ⁿ-neprop-cong _ (ne (neNfₜ₌ _ _ n _)) (supᵘ-assoc¹ᵣ _ _ _) =
+      Neutralᵃ-supᵘ→ n
+    ↑ⁿ-neprop-cong (ne (neNfₜ₌ _ _ n _)) _ (supᵘ-assoc¹ᵣ _ _ _) =
+      Neutralᵃ-supᵘ→ n
+    ↑ⁿ-neprop-cong (supᵘˡᵣ (supᵘˡᵣ x x₄) x₃) y (supᵘ-assoc²ᵣ x₁ z x₂) = case nelevel x of λ ()
+    ↑ⁿ-neprop-cong (supᵘˡᵣ (supᵘʳᵣ x x₄) x₃) (supᵘˡᵣ y x₅) (supᵘ-assoc²ᵣ x₁ z x₂) = case nelevel y of λ ()
+    ↑ⁿ-neprop-cong (supᵘˡᵣ (supᵘʳᵣ x x₄) x₃) (supᵘʳᵣ x₅ (supᵘʳᵣ x₆ y)) (supᵘ-assoc²ᵣ x₁ z x₂) = case nelevel x₄ of λ ()
+    ↑ⁿ-neprop-cong
+      _ (supᵘʳᵣ _ (ne (neNfₜ₌ _ _ n _))) (supᵘ-assoc²ᵣ _ _ _) =
+      Neutralᵃ-supᵘ→ n
+    ↑ⁿ-neprop-cong _ (ne (neNfₜ₌ _ _ n _)) (supᵘ-assoc²ᵣ _ _ _) =
+      Neutralᵃ-supᵘ→ n
+    ↑ⁿ-neprop-cong
+      (supᵘˡᵣ (ne (neNfₜ₌ _ _ n _)) _) _ (supᵘ-assoc²ᵣ _ _ _) =
+      Neutralᵃ-supᵘ→ n
+    ↑ⁿ-neprop-cong (ne (neNfₜ₌ _ _ n _)) _ (supᵘ-assoc²ᵣ _ _ _) =
+      Neutralᵃ-supᵘ→ n
+    ↑ⁿ-neprop-cong (supᵘˡᵣ x x₃) y (supᵘ-assoc³ᵣ x₁ x₂ z) = case nelevel x of λ ()
+    ↑ⁿ-neprop-cong (supᵘʳᵣ x x₃) (supᵘˡᵣ y x₄) (supᵘ-assoc³ᵣ x₁ x₂ z) = case nelevel y of λ ()
+    ↑ⁿ-neprop-cong (supᵘʳᵣ x x₃) (supᵘʳᵣ x₄ (supᵘˡᵣ y x₅)) (supᵘ-assoc³ᵣ x₁ x₂ z) = case nelevel y of λ ()
+    ↑ⁿ-neprop-cong
+      _ (supᵘʳᵣ _ (ne (neNfₜ₌ _ _ n _))) (supᵘ-assoc³ᵣ _ _ _) =
+      Neutralᵃ-supᵘ→ n
+    ↑ⁿ-neprop-cong _ (ne (neNfₜ₌ _ _ n _)) (supᵘ-assoc³ᵣ _ _ _) =
+      Neutralᵃ-supᵘ→ n
+    ↑ⁿ-neprop-cong (ne (neNfₜ₌ _ _ n _)) _ (supᵘ-assoc³ᵣ _ _ _) =
+      Neutralᵃ-supᵘ→ n
+    ↑ⁿ-neprop-cong (supᵘˡᵣ x x₁) (supᵘʳᵣ x₂ y) (supᵘ-comm¹ᵣ z d w d′) = case nelevel w of λ ()
+    ↑ⁿ-neprop-cong _ (ne (neNfₜ₌ _ _ n _)) (supᵘ-comm¹ᵣ _ _ _ _) =
+      Neutralᵃ-supᵘ→ n
+    ↑ⁿ-neprop-cong (supᵘʳᵣ x x₁) y (supᵘ-comm¹ᵣ z d w d′) = case nelevel z of λ ()
+    ↑ⁿ-neprop-cong (ne (neNfₜ₌ _ _ n _)) _ (supᵘ-comm¹ᵣ _ _ _ _) =
+      Neutralᵃ-supᵘ→ n
+    ↑ⁿ-neprop-cong (supᵘˡᵣ x x₁) y (supᵘ-comm²ᵣ z d w) = case nelevel x of λ ()
+    ↑ⁿ-neprop-cong (supᵘʳᵣ x x₁) (supᵘʳᵣ x₂ y) (supᵘ-comm²ᵣ z d w) = case nelevel x₁ of λ ()
+    ↑ⁿ-neprop-cong _ (ne (neNfₜ₌ _ _ n _)) (supᵘ-comm²ᵣ _ _ _) =
+      Neutralᵃ-supᵘ→ n
+    ↑ⁿ-neprop-cong (ne (neNfₜ₌ _ _ n _)) _ (supᵘ-comm²ᵣ _ _ _) =
+      Neutralᵃ-supᵘ→ n
+    ↑ⁿ-neprop-cong (supᵘʳᵣ x x₁) y (supᵘ-idemᵣ z w) = case nelevel y of λ ()
+    ↑ⁿ-neprop-cong (ne (neNfₜ₌ _ _ n _)) _ (supᵘ-idemᵣ _ _) =
+      Neutralᵃ-supᵘ→ n
 
 ↑ᵘ-cong
   : ∀ {t u} {[t] : Γ ⊩Level t ∷Level} {[u] : Γ ⊩Level u ∷Level}
@@ -1499,7 +1533,7 @@ opaque
      {⊩t⊔u : Γ ⊩Level t supᵘ u ∷Level} →
      f ⊩t⊔u PE.≡ f ⊩t ⊔ f ⊩u) →
     (∀ {n Γ} {t : Term n} {⊩t : Γ ⊩Level t ∷Level} →
-     Neutral t → f ⊩t PE.≡ ↑ᵘ-neutral) →
+     Neutralᵃ t → f ⊩t PE.≡ ↑ᵘ-neutral) →
     {⊩t : Γ ⊩Level t ∷Level} →
     f ⊩t PE.≡ ↑ⁿ ⊩t
   ↑ⁿ-unique {Γ} f f-⇒* f-0 f-1+ f-⊔ f-ne {⊩t} = f≡ _

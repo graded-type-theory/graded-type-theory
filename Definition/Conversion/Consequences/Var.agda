@@ -83,7 +83,7 @@ var-only-equal-to-itself =
   [conv↑]∷-lemma A-no-η A≢Level t-whnf x≡t@record{} =
     case whnfRed* (D .proj₁) (No-η-equality→Whnf A-no-η) of λ {
       PE.refl →
-    case whnfRed*Term (d .proj₁) (ne! (var _)) of λ {
+    case whnfRed*Term (d .proj₁) (ne (var _)) of λ {
       PE.refl →
     case whnfRed*Term (d′ .proj₁) t-whnf of λ {
       PE.refl →

@@ -17,6 +17,7 @@ module Definition.Conversion.Lift
 
 open import Definition.Untyped M
 open import Definition.Untyped.Neutral M type-variant
+open import Definition.Untyped.Neutral.Atomic M type-variant
 open import Definition.Untyped.Properties M
 open import Definition.Typed R
 open import Definition.Typed.EqualityRelation.Instance R
@@ -136,7 +137,9 @@ mutual
                 rewrite PE.sym (whrDet* (D , ne! neH) (D₁ , whnfB)) =
     let _ , ⊢t , ⊢u = syntacticEqTerm (soundness~↑ k~l)
         A≡H = subset* D₂
-    in  ne-ins (conv ⊢t A≡H) (conv ⊢u A≡H) neH ([~] A (D₂ , ne! neH) k~l)
+    in
+    ne-ins (conv ⊢t A≡H) (conv ⊢u A≡H) (ne⁻ neH)
+      ([~] A (D₂ , ne! neH) k~l)
   lift~toConv↓′
     (Πᵣ′ F G D A≡A [F] [G] G-ext _) D₁ ([~] A (D₂ , whnfB) k~l)
     rewrite PE.sym (whrDet* (D , ΠΣₙ) (D₁ , whnfB)) =
@@ -146,10 +149,10 @@ mutual
         neT , neU = ne~↑ k~l
         step-id = stepʷ id ⊢F
         step-idʳ = ∷ʷ⊇→∷ʷʳ⊇ step-id
-        var0 = neuTerm no-equality-reflection ([F] step-idʳ) (var x0)
+        var0 = neuTerm no-equality-reflection ([F] step-idʳ) varᵃ
                  (refl (var₀ ⊢F))
         0≡0 = lift~toConv↑′ ([F] step-idʳ) (var-refl (var₀ ⊢F) PE.refl)
-    in  η-eq ⊢t ⊢u (ne neT) (ne neU)
+    in  η-eq ⊢t ⊢u (ne (ne⁻ neT)) (ne (ne⁻ neU))
           (PE.subst (λ x → _ ⊢ _ [conv↑] _ ∷ x) (wkSingleSubstId _) $
            lift~toConv↑′ ([G] step-idʳ var0) $
            app-cong (wk~↓ step-id ([~] A (D₂ , ΠΣₙ) k~l)) 0≡0)
@@ -171,12 +174,13 @@ mutual
         wk[F] = [F] (id ⊢Γ)
         wkfst≡ = PE.subst (_⊢_≡_∷_ _ _ _) (PE.sym wkId)
                    (fst-cong ⊢G (refl ⊢t))
-        wk[fst] = neuTerm no-equality-reflection wk[F] (fstₙ neT) wkfst≡
+        wk[fst] = neuTerm no-equality-reflection wk[F] (fstₙᵃ neT)
+                    wkfst≡
         wk[Gfst] = [G] (id ⊢Γ) wk[fst]
 
         wkfst~ = PE.subst (λ x → _ ⊢ _ ~ _ ↑ x) (PE.sym wkId) (fst-cong t~u↓)
         wksnd~ = PE.subst (λ x → _ ⊢ _ ~ _ ↑ x) (PE.sym wkLiftId) (snd-cong t~u↓)
-    in  Σ-η ⊢t ⊢u (ne neT) (ne neU)
+    in  Σ-η ⊢t ⊢u (ne (ne⁻ neT)) (ne (ne⁻ neU))
             (PE.subst (λ x → _ ⊢ _ [conv↑] _ ∷ x) wkId
                       (lift~toConv↑′ wk[F] wkfst~))
             (PE.subst (λ x → _ ⊢ _ [conv↑] _ ∷ x) wkLiftId

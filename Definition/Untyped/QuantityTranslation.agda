@@ -155,12 +155,9 @@ module _
   tr-Neutral (Jₙ n)              = Jₙ (tr-Neutral n)
   tr-Neutral (Kₙ n)              = Kₙ (tr-Neutral n)
   tr-Neutral ([]-congₙ n)        = []-congₙ (tr-Neutral n)
+  tr-Neutral (supᵘˡₙ x)          = supᵘˡₙ (tr-Neutral x)
+  tr-Neutral (supᵘʳₙ x)          = supᵘʳₙ (tr-Neutral x)
   tr-Neutral (lowerₙ n)          = lowerₙ (tr-Neutral n)
-
-  tr-Neutralˡ : UN₁.Neutralˡ tv₁ t → UN₂.Neutralˡ tv₂ (tr-Term t)
-  tr-Neutralˡ (supᵘˡₙ x) = supᵘˡₙ (tr-Neutralˡ x)
-  tr-Neutralˡ (supᵘʳₙ x) = supᵘʳₙ (tr-Neutralˡ x)
-  tr-Neutralˡ (ne x) = ne (tr-Neutral x)
 
   -- The function tr-Term takes WHNFs to WHNFs.
 
@@ -183,7 +180,7 @@ module _
   tr-Whnf zeroᵘₙ            = zeroᵘₙ
   tr-Whnf sucᵘₙ             = sucᵘₙ
   tr-Whnf liftₙ             = liftₙ
-  tr-Whnf (ne n)            = ne (tr-Neutralˡ n)
+  tr-Whnf (ne n)            = ne (tr-Neutral n)
 
 ------------------------------------------------------------------------
 -- Translation commutes with various things

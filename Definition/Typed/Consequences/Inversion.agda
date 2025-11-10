@@ -181,14 +181,8 @@ opaque
   whnfProduct ⊢t = λ where
     prodₙ →
       prodₙ
-    (ne! t-ne) →
+    (ne t-ne) →
       ne t-ne
-    (ne (supᵘˡₙ _)) →
-      let _ , _ , A≡Level = inversion-supᵘ ⊢t in
-      ⊥-elim (Level≢ΠΣⱼ (sym A≡Level))
-    (ne (supᵘʳₙ _)) →
-      let _ , _ , A≡Level = inversion-supᵘ ⊢t in
-      ⊥-elim (Level≢ΠΣⱼ (sym A≡Level))
     Levelₙ →
       ⊥-elim (U≢ΠΣⱼ (sym (inversion-Level ⊢t .proj₁)))
     zeroᵘₙ →
@@ -240,14 +234,8 @@ opaque
   whnfStar ⊢t = λ where
     starₙ →
       starₙ
-    (ne! t-ne) →
+    (ne t-ne) →
       ne t-ne
-    (ne (supᵘˡₙ _)) →
-      let _ , _ , A≡Level = inversion-supᵘ ⊢t in
-      ⊥-elim (Level≢Unitⱼ (sym A≡Level))
-    (ne (supᵘʳₙ _)) →
-      let _ , _ , A≡Level = inversion-supᵘ ⊢t in
-      ⊥-elim (Level≢Unitⱼ (sym A≡Level))
     Levelₙ →
       ⊥-elim (U≢Unitⱼ (sym (inversion-Level ⊢t .proj₁)))
     zeroᵘₙ →

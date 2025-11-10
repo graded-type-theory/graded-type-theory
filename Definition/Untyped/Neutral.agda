@@ -22,6 +22,7 @@ open import Tools.Relation
 open import Tools.Sum
 
 open import Definition.Untyped M
+open import Definition.Untyped.Inversion M
 
 private variable
   p p₁ p₂ q q₁ q₂ r     : M
@@ -34,11 +35,13 @@ private variable
 ------------------------------------------------------------------------
 -- Neutral terms
 
--- A term is (atomic) neutral if it has a variable in head position.
+-- A term is neutral if it has a variable in head position.
 -- The variable blocks reduction of such terms.
 
 data Neutral : Term n → Set a where
   var       : (x : Fin n) → Neutral (var x)
+  supᵘˡₙ    : Neutral t   → Neutral (t supᵘ u)
+  supᵘʳₙ    : Neutral u   → Neutral (sucᵘ t supᵘ u)
   lowerₙ    : Neutral t   → Neutral (lower t)
   ∘ₙ        : Neutral t   → Neutral (t ∘⟨ p ⟩ u)
   fstₙ      : Neutral t   → Neutral (fst p t)
@@ -56,6 +59,8 @@ data Neutral : Term n → Set a where
 
 noClosedNe : {t : Term 0} → Neutral t → ⊥
 noClosedNe (var ())
+noClosedNe (supᵘˡₙ x) = noClosedNe x
+noClosedNe (supᵘʳₙ x) = noClosedNe x
 noClosedNe (lowerₙ net) = noClosedNe net
 noClosedNe (∘ₙ net) = noClosedNe net
 noClosedNe (fstₙ net) = noClosedNe net
@@ -67,25 +72,6 @@ noClosedNe (unitrecₙ _ net) = noClosedNe net
 noClosedNe (Jₙ net) = noClosedNe net
 noClosedNe (Kₙ net) = noClosedNe net
 noClosedNe ([]-congₙ net) = noClosedNe net
-
--- Neutral level expressions form a separate syntactic category:
--- they are not ordinary neutrals because they are not reducible
--- a priori: for example, if n is neutral, then n supᵘ t is only
--- reducible if t is, so that we can accurately extract level realisers.
-
-data Neutralˡ : Term n → Set a where
-  supᵘˡₙ : Neutralˡ t → Neutralˡ (t supᵘ u)
-  supᵘʳₙ : Neutralˡ u → Neutralˡ (sucᵘ t supᵘ u)
-
-  -- Atomic neutral terms are neutral levels
-  ne     : Neutral t → Neutralˡ t
-
--- There are no closed neutral level terms
-
-noClosedNeˡ : {t : Term 0} → Neutralˡ t → ⊥
-noClosedNeˡ (supᵘˡₙ x) = noClosedNeˡ x
-noClosedNeˡ (supᵘʳₙ x) = noClosedNeˡ x
-noClosedNeˡ (ne x) = noClosedNe x
 
 ------------------------------------------------------------------------
 -- Weak head normal forms (WHNFs)
@@ -115,11 +101,8 @@ data Whnf {n : Nat} : Term n → Set a where
   prodₙ : Whnf (prod s p t u)
   rflₙ  : Whnf rfl
 
-  -- Neutral levels are whnfs. Since neutrals are untyped, this includes all neutrals.
-  ne    : Neutralˡ t → Whnf t
-
--- Neutrals are whnfs.
-pattern ne! x = ne (ne x)
+  -- Neutrals are WHNFs.
+  ne    : Neutral t → Whnf t
 
 ------------------------------------------------------------------------
 -- WHNF inequalities
@@ -129,11 +112,6 @@ pattern ne! x = ne (ne x)
 
 Level≢ne : Neutral A → Level PE.≢ A
 Level≢ne () PE.refl
-
-U≢neˡ : Neutralˡ A → U l PE.≢ A
-U≢neˡ (supᵘˡₙ _) ()
-U≢neˡ (supᵘʳₙ _) ()
-U≢neˡ (ne ()) PE.refl
 
 U≢ne : Neutral A → U l PE.≢ A
 U≢ne () PE.refl
@@ -229,11 +207,11 @@ Id≢Level ()
 Id≢Lift : Id A t u PE.≢ Lift l B
 Id≢Lift ()
 
-zeroᵘ≢ne : Neutralˡ t → zeroᵘ PE.≢ t
-zeroᵘ≢ne n PE.refl = case n of λ { (ne ()) }
+zeroᵘ≢ne : Neutral t → zeroᵘ PE.≢ t
+zeroᵘ≢ne () PE.refl
 
-sucᵘ≢ne : Neutralˡ t → sucᵘ u PE.≢ t
-sucᵘ≢ne n PE.refl = case n of λ { (ne ()) }
+sucᵘ≢ne : Neutral t → sucᵘ u PE.≢ t
+sucᵘ≢ne () PE.refl
 
 sucᵘ≢zeroᵘ : Term.sucᵘ t PE.≢ zeroᵘ
 sucᵘ≢zeroᵘ ()
@@ -267,7 +245,7 @@ data Natural {n : Nat} : Term n → Set a where
 
 
 -- A type in WHNF is either a universe, a Π-type, a Σ-type, Level, ℕ, Empty,
--- a unit type, an identity type, or atomic neutral.
+-- a unit type, an identity type, or neutral.
 
 data Type {n : Nat} : Term n → Set a where
   Levelₙ :             Type Level
@@ -308,23 +286,13 @@ data Identity {n} : Term n → Set a where
   rflₙ : Identity rfl
   ne   : Neutral t → Identity t
 
--- A non-dependent eliminator for Identity. Note that the argument of
--- ne is thrown away.
-
-Identity-rec :
-  ∀ {a} {A : Set a} →
-  Identity t → A → A → A
-Identity-rec rflₙ   r n = r
-Identity-rec (ne _) r n = n
-
-
 -- These views classify only WHNFs: Natural, Type, Function, Product,
 -- Star and Identity are subsets of Whnf.
 
 naturalWhnf : Natural t → Whnf t
 naturalWhnf sucₙ   = sucₙ
 naturalWhnf zeroₙ  = zeroₙ
-naturalWhnf (ne x) = ne! x
+naturalWhnf (ne x) = ne x
 
 typeWhnf : Type A → Whnf A
 typeWhnf Levelₙ = Levelₙ
@@ -335,23 +303,23 @@ typeWhnf ℕₙ     = ℕₙ
 typeWhnf Emptyₙ = Emptyₙ
 typeWhnf Unitₙ  = Unitₙ
 typeWhnf Idₙ    = Idₙ
-typeWhnf (ne x) = ne! x
+typeWhnf (ne x) = ne x
 
 functionWhnf : Function t → Whnf t
 functionWhnf lamₙ   = lamₙ
-functionWhnf (ne x) = ne! x
+functionWhnf (ne x) = ne x
 
 productWhnf : Product t → Whnf t
 productWhnf prodₙ  = prodₙ
-productWhnf (ne x) = ne! x
+productWhnf (ne x) = ne x
 
 starWhnf : Star t → Whnf t
 starWhnf starₙ  = starₙ
-starWhnf (ne n) = ne! n
+starWhnf (ne n) = ne n
 
 identityWhnf : Identity t → Whnf t
 identityWhnf rflₙ   = rflₙ
-identityWhnf (ne n) = ne! n
+identityWhnf (ne n) = ne n
 
 ⟦_⟧ₙ : (W : BindingType) → Whnf (⟦ W ⟧ F ▹ G)
 ⟦_⟧ₙ (BΠ p q) = ΠΣₙ
@@ -386,7 +354,7 @@ No-η-equality→Whnf = λ where
   ℕₙ         → ℕₙ
   (Unitʷₙ _) → Unitₙ
   Idₙ        → Idₙ
-  (neₙ n)    → ne! n
+  (neₙ n)    → ne n
 
 ------------------------------------------------------------------------
 -- Weakening
@@ -395,6 +363,8 @@ No-η-equality→Whnf = λ where
 
 wkNeutral : ∀ ρ → Neutral t → Neutral {n = n} (wk ρ t)
 wkNeutral ρ (var n)             = var (wkVar ρ n)
+wkNeutral ρ (supᵘˡₙ t)          = supᵘˡₙ (wkNeutral ρ t)
+wkNeutral ρ (supᵘʳₙ t)          = supᵘʳₙ (wkNeutral ρ t)
 wkNeutral ρ (lowerₙ n)          = lowerₙ (wkNeutral ρ n)
 wkNeutral ρ (∘ₙ n)              = ∘ₙ (wkNeutral ρ n)
 wkNeutral ρ (fstₙ n)            = fstₙ (wkNeutral ρ n)
@@ -406,13 +376,6 @@ wkNeutral ρ (unitrecₙ not-ok n) = unitrecₙ not-ok (wkNeutral ρ n)
 wkNeutral ρ (Jₙ n)              = Jₙ (wkNeutral ρ n)
 wkNeutral ρ (Kₙ n)              = Kₙ (wkNeutral ρ n)
 wkNeutral ρ ([]-congₙ n)        = []-congₙ (wkNeutral ρ n)
-
--- Weakening of a neutral level term.
-
-wkNeutralˡ : ∀ ρ → Neutralˡ t → Neutralˡ {n = n} (wk ρ t)
-wkNeutralˡ ρ (supᵘˡₙ t) = supᵘˡₙ (wkNeutralˡ ρ t)
-wkNeutralˡ ρ (supᵘʳₙ t) = supᵘʳₙ (wkNeutralˡ ρ t)
-wkNeutralˡ ρ (ne n)     = ne (wkNeutral ρ n)
 
 -- Weakening can be applied to our whnf views.
 
@@ -462,10 +425,21 @@ wkWhnf ρ zeroₙ   = zeroₙ
 wkWhnf ρ sucₙ    = sucₙ
 wkWhnf ρ starₙ   = starₙ
 wkWhnf ρ rflₙ    = rflₙ
-wkWhnf ρ (ne x)  = ne (wkNeutralˡ ρ x)
+wkWhnf ρ (ne x)  = ne (wkNeutral ρ x)
 
 ------------------------------------------------------------------------
 -- Inversion lemmas for Neutral
+
+opaque
+
+  -- An inversion lemma for supᵘ.
+
+  inv-ne-supᵘ :
+    Neutral (t supᵘ u) →
+    Neutral t ⊎
+    (∃ λ t′ → t PE.≡ sucᵘ t′ × Neutral u)
+  inv-ne-supᵘ (supᵘˡₙ n) = inj₁ n
+  inv-ne-supᵘ (supᵘʳₙ n) = inj₂ (_ , PE.refl , n)
 
 opaque
 
@@ -550,52 +524,59 @@ opaque
 
 opaque
 
+  -- An inversion lemma for supᵘ.
+
+  inv-whnf-supᵘ : Whnf (t supᵘ u) → Neutral (t supᵘ u)
+  inv-whnf-supᵘ (ne n) = n
+
+opaque
+
   -- An inversion lemma for lower.
 
   inv-whnf-lower : Whnf (lower t) → Neutral t
-  inv-whnf-lower (ne! n) = inv-ne-lower n
+  inv-whnf-lower (ne n) = inv-ne-lower n
 
 opaque
 
   -- An inversion lemma for _∘⟨_⟩_.
 
   inv-whnf-∘ : Whnf (t ∘⟨ p ⟩ u) → Neutral t
-  inv-whnf-∘ (ne! n) = inv-ne-∘ n
+  inv-whnf-∘ (ne n) = inv-ne-∘ n
 
 opaque
 
   -- An inversion lemma for fst.
 
   inv-whnf-fst : Whnf (fst p t) → Neutral t
-  inv-whnf-fst (ne! n) = inv-ne-fst n
+  inv-whnf-fst (ne n) = inv-ne-fst n
 
 opaque
 
   -- An inversion lemma for snd.
 
   inv-whnf-snd : Whnf (snd p t) → Neutral t
-  inv-whnf-snd (ne! n) = inv-ne-snd n
+  inv-whnf-snd (ne n) = inv-ne-snd n
 
 opaque
 
   -- An inversion lemma for natrec.
 
   inv-whnf-natrec : Whnf (natrec p q r A t u v) → Neutral v
-  inv-whnf-natrec (ne! n) = inv-ne-natrec n
+  inv-whnf-natrec (ne n) = inv-ne-natrec n
 
 opaque
 
   -- An inversion lemma for prodrec.
 
   inv-whnf-prodrec : Whnf (prodrec r p q A t u) → Neutral t
-  inv-whnf-prodrec (ne! n) = inv-ne-prodrec n
+  inv-whnf-prodrec (ne n) = inv-ne-prodrec n
 
 opaque
 
   -- An inversion lemma for emptyrec.
 
   inv-whnf-emptyrec : Whnf (emptyrec p A t) → Neutral t
-  inv-whnf-emptyrec (ne! n) = inv-ne-emptyrec n
+  inv-whnf-emptyrec (ne n) = inv-ne-emptyrec n
 
 opaque
 
@@ -603,28 +584,28 @@ opaque
 
   inv-whnf-unitrec :
     Whnf (unitrec p q A t u) → ¬ Unitʷ-η × Neutral t
-  inv-whnf-unitrec (ne! n) = inv-ne-unitrec n
+  inv-whnf-unitrec (ne n) = inv-ne-unitrec n
 
 opaque
 
   -- An inversion lemma for J.
 
   inv-whnf-J : Whnf (J p q A t B u v w) → Neutral w
-  inv-whnf-J (ne! n) = inv-ne-J n
+  inv-whnf-J (ne n) = inv-ne-J n
 
 opaque
 
   -- An inversion lemma for K.
 
   inv-whnf-K : Whnf (K p A t B u v) → Neutral v
-  inv-whnf-K (ne! n) = inv-ne-K n
+  inv-whnf-K (ne n) = inv-ne-K n
 
 opaque
 
   -- An inversion lemma for []-cong.
 
   inv-whnf-[]-cong : Whnf ([]-cong s l A t u v) → Neutral v
-  inv-whnf-[]-cong (ne! n) = inv-ne-[]-cong n
+  inv-whnf-[]-cong (ne n) = inv-ne-[]-cong n
 
 ------------------------------------------------------------------------
 -- An alternate representation of neutral terms, tracking the variable
@@ -632,6 +613,8 @@ opaque
 
 data NeutralAt (x : Fin n) : Term n → Set a where
   var       : NeutralAt x (var x)
+  supᵘˡₙ    : NeutralAt x t   → NeutralAt x (t supᵘ u)
+  supᵘʳₙ    : NeutralAt x u   → NeutralAt x (sucᵘ t supᵘ u)
   lowerₙ    : NeutralAt x t   → NeutralAt x (lower t)
   ∘ₙ        : NeutralAt x t   → NeutralAt x (t ∘⟨ p ⟩ u)
   fstₙ      : NeutralAt x t   → NeutralAt x (fst p t)

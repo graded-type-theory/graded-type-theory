@@ -47,6 +47,7 @@ open import Application.NegativeOrErasedAxioms.NegativeOrErasedType TR
 open import Graded.Erasure.SucRed TR
 
 open import Definition.Untyped.Neutral M type-variant
+open import Definition.Untyped.Neutral.Atomic M type-variant
 open import Definition.Untyped.Normal-form M type-variant
 
 open import Definition.Typed.EqRelInstance TR
@@ -132,6 +133,8 @@ neNeg (sndⱼ A⊢B d) (sndₙ n) γ▸u nΓγ =
   in  sndNeg (neNeg d n (sub δ▸t γ≤δ) nΓγ)
              (refl (ΠΣⱼ A⊢B (⊢∷ΠΣ→ΠΣ-allowed d)))
              (fstⱼ A⊢B d)
+neNeg (supᵘⱼ _ _) _ _ _ =
+  level
 neNeg (lowerⱼ d) (lowerₙ n) γ▸u nΓγ =
   lowerNeg (neNeg d n (inv-usage-lower γ▸u) nΓγ) (refl (syntacticTerm d))
 neNeg {γ} (natrecⱼ {A} {n} _ _ ⊢n) (natrecₙ n-ne) γ▸natrec =
@@ -259,7 +262,6 @@ neNeg (rflⱼ _)        ()
 neNeg (Levelⱼ _ _)    ()
 neNeg (zeroᵘⱼ _ _)    ()
 neNeg (sucᵘⱼ _)       ()
-neNeg (supᵘⱼ _ _)     ()
 neNeg (Liftⱼ _ _ _)   ()
 neNeg (liftⱼ _ _ _)   ()
 
@@ -276,11 +278,8 @@ nfN : ⦃ ok : No-equality-reflection or-empty Γ ⦄
     → Numeral u
 
 -- Case: neutrals. The type cannot be ℕ since it must be negative.
-nfN d γ▸u nΓγ (ne (ne n)) c =
+nfN d γ▸u nΓγ (ne n) c =
   ⊥-elim (¬negℕ (neNeg d (nfNeutral n) γ▸u nΓγ) c)
-
-nfN (supᵘⱼ _ _) γ▸u nΓγ (ne (supᵘˡₙ _ _)) c = ⊥-elim (Level≢ℕ c)
-nfN (supᵘⱼ _ _) γ▸u nΓγ (ne (supᵘʳₙ _ _)) c = ⊥-elim (Level≢ℕ c)
 
 -- Case: numerals.
 nfN (zeroⱼ x) γ▸u _ zeroₙ   c = zeroₙ
@@ -362,7 +361,7 @@ module _
           ¬NeutralNf (redFirst*Term d) γ▸t nΓγ
             (flip ¬negℕ $ refl (⊢ℕ $ wfTerm $ redFirst*Term d))
     in  ⊥-elim $ ¬neU $
-        PE.subst Neutral (whrDet*Term (d , ne! neK) d′) neK
+        PE.subst Neutral (whrDet*Term (d , ne! neK) d′) (ne⁻ neK)
 
   canonicityRed :
     Γ ⊢ t ∷ ℕ → γ ▸[ 𝟙ᵐ ] t → NegativeErasedContext Γ γ →

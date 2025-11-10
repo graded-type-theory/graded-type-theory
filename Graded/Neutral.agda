@@ -74,6 +74,12 @@ opaque
                                           flip PE.trans (𝟘ᶜ-lookup x) ⟩
         𝟙 ≡ 𝟘                          →⟨ non-trivial ⟩
         ⊥                              □
+      (supᵘˡₙ t-n) ⊢supᵘ (supᵘₘ ▸t _) →
+        let ⊢t , _ = inversion-supᵘ ⊢supᵘ in
+        helper t-n ⊢t ▸t ∘→ proj₁ ∘→ +ᶜ-positive
+      (supᵘʳₙ u-n) ⊢supᵘ (supᵘₘ _ ▸u) →
+        let _ , ⊢u , _ = inversion-supᵘ ⊢supᵘ in
+        helper u-n ⊢u ▸u ∘→ proj₂ ∘→ +ᶜ-positive
       (lowerₙ t-n) ⊢lower (lowerₘ ▸t) →
         case inversion-lower ⊢lower of λ (_ , _ , ⊢t , _) →
           helper t-n ⊢t ▸t

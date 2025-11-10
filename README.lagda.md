@@ -78,6 +78,14 @@ Later other additions were made:
 Note also that some changes to the code were made after feedback from
 anonymous reviewers.
 
+## Changes compared to the paper
+
+The paper is accompanied by a code artifact. This section describes
+(some) differences between that artifact and the present version of
+the code:
+
+* Atomic neutrals are now defined in a different way.
+
 ## Pointers to code for specific definitions, theorems etc. in the paper
 
 ```agda
@@ -256,12 +264,15 @@ import Definition.Typed
   using (_⊢_⇒_∷_; _⊢_⇒*_∷_; _⊢_⇒_; _⊢_⇒*_)
 ```
 
-Neutral terms and WHNFs. Compared to the paper, we use `Neutral`
-instead of Neutralᵃ for atomic neutrals and `Neutralˡ` instead of
-Neutral.
+Neutral terms and WHNFs. The types `Neutral` and `Neutralᵃ` are not
+defined in the same way as in the paper: there is a single, inductive
+definition of neutral terms, and a neutral term is atomic neutral if
+it is not an application of `_supᵘ_`.
 ```agda
 import Definition.Untyped.Neutral
-  using (Neutral; Neutralˡ; Whnf)
+  using (Neutral; Whnf)
+import Definition.Untyped.Neutral.Atomic
+  using (Neutralᵃ)
 ```
 
 Lemma 2.1: Well-formedness.

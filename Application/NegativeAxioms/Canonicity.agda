@@ -18,6 +18,7 @@ open import Graded.Erasure.SucRed R
 
 open import Definition.Untyped M
 open import Definition.Untyped.Neutral M type-variant
+open import Definition.Untyped.Neutral.Atomic M type-variant
 open import Definition.Untyped.Normal-form M type-variant
 open import Definition.Typed R
 open import Definition.Typed.Inversion R
@@ -62,6 +63,8 @@ module Main {Γ : Con Term m} (nΓ : NegativeContext Γ)
   neNeg :
     ⦃ ok : No-equality-reflection or-empty Γ ⦄
     (d : Γ ⊢ u ∷ A) (n : Neutral u) → NegativeType Γ A
+  neNeg (supᵘⱼ _ _) _ =
+    level
   neNeg (lowerⱼ x) (lowerₙ y) =
     lowerNeg (neNeg x y) (refl (syntacticTerm x))
   neNeg (var ⊢Γ h          ) (var x      ) = lookupNegative ⊢Γ nΓ h
@@ -105,7 +108,6 @@ module Main {Γ : Con Term m} (nΓ : NegativeContext Γ)
   neNeg (Levelⱼ _ _)    ()
   neNeg (zeroᵘⱼ _ _)    ()
   neNeg (sucᵘⱼ _)       ()
-  neNeg (supᵘⱼ _ _)     ()
   neNeg (Liftⱼ _ _ _)   ()
   neNeg (liftⱼ _ _ _)   ()
 
@@ -118,8 +120,8 @@ module Main {Γ : Con Term m} (nΓ : NegativeContext Γ)
       → (c : Γ ⊢ A ≡ ℕ)
       → Numeral u
 
-  -- Case: atomic neutrals. The type cannot be ℕ since it must be negative.
-  nfN d (ne (ne n)) c =
+  -- Case: neutrals. The type cannot be ℕ since it must be negative.
+  nfN d (ne n) c =
     ⊥-elim (¬negℕ (neNeg d (nfNeutral n)) c)
 
   nfN (Levelⱼ _ _)  Levelₙ      c = ⊥-elim (U≢ℕ c)
@@ -136,10 +138,6 @@ module Main {Γ : Con Term m} (nΓ : NegativeContext Γ)
   nfN (conv d c) n c' = nfN d n (trans c c')
 
   -- Impossible cases: type is not ℕ.
-
-  -- * Neutral levels
-  nfN (supᵘⱼ _ _) (ne (supᵘˡₙ _ _)) c = ⊥-elim (Level≢ℕ c)
-  nfN (supᵘⱼ _ _) (ne (supᵘʳₙ _ _)) c = ⊥-elim (Level≢ℕ c)
 
   -- * Canonical types
   nfN (Uⱼ _)        (Uₙ _)      c = ⊥-elim (U≢ℕ c)
@@ -184,7 +182,7 @@ module Main {Γ : Con Term m} (nΓ : NegativeContext Γ)
           ¬NeutralNf (redFirst*Term d)
             (flip ¬negℕ $ refl (⊢ℕ $ wfTerm $ redFirst*Term d))
     in  ⊥-elim $ ¬neU $
-        PE.subst Neutral (whrDet*Term (d , ne! neK) d′) neK
+        PE.subst Neutral (whrDet*Term (d , ne! neK) d′) (ne⁻ neK)
 
   canonicityRed :
     ⦃ ok : No-equality-reflection or-empty Γ ⦄ →

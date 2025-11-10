@@ -20,6 +20,7 @@ open import Definition.LogicalRelation.Weakening.Restricted R ⦃ eqrel ⦄
 open import Definition.Untyped Mod as U hiding (K)
 open import Definition.Untyped.Properties Mod
 open import Definition.Untyped.Neutral Mod type-variant
+open import Definition.Untyped.Neutral.Atomic Mod type-variant
 open import Definition.Typed.Properties R
 open import Definition.Typed R
 -- The imported operator _,_ is not "supposed" to be used below, but
@@ -54,7 +55,7 @@ private
 
 -- We will refer to expressions that satisfies the logical relation as reducible.
 
--- Reducibility of Neutrals:
+-- Reducibility of atomic neutrals:
 
 -- Neutral type
 record _⊩ne_ {ℓ : Nat} (Γ : Con Term ℓ) (A : Term ℓ) : Set a where
@@ -65,7 +66,7 @@ record _⊩ne_ {ℓ : Nat} (Γ : Con Term ℓ) (A : Term ℓ) : Set a where
     neutrals-included : Neutrals-included
     K                 : Term ℓ
     D                 : Γ ⊢ A ⇒* K
-    neK               : Neutral K
+    neK               : Neutralᵃ K
     K≡K               : Γ ⊢≅ K
 
 -- Neutral type equality
@@ -78,7 +79,7 @@ record _⊩ne_≡_/_ (Γ : Con Term ℓ) (A B : Term ℓ) ([A] : Γ ⊩ne A) : S
     neutrals-included : Neutrals-included
     M                 : Term ℓ
     D′                : Γ ⊢ B ⇒* M
-    neM               : Neutral M
+    neM               : Neutralᵃ M
     K≡M               : Γ ⊢ K ≅ M
 
 -- Neutral term equality in WHNF
@@ -89,8 +90,8 @@ record _⊩neNf_≡_∷_ (Γ : Con Term ℓ) (k m A : Term ℓ) : Set a where
   constructor neNfₜ₌
   field
     neutrals-included : Neutrals-included
-    neK               : Neutral k
-    neM               : Neutral m
+    neK               : Neutralᵃ k
+    neM               : Neutralᵃ m
     k≡m               : Γ ⊢ k ~ m ∷ A
 
 -- Neutral term equality
@@ -549,8 +550,8 @@ module LogRel
       {ℓ} {p} {q} Γ t u A [A]@(Bᵣ F G D A≡A [F] [G] G-ext _) =
       ∃₂ λ f g → Γ ⊢ t ⇒* f ∷ Π p , q ▷ F ▹ G
                × Γ ⊢ u ⇒* g ∷ Π p , q ▷ F ▹ G
-               × Function f
-               × Function g
+               × Functionᵃ f
+               × Functionᵃ g
                × Γ ⊢ f ≅ g ∷ Π p , q ▷ F ▹ G
                × (∀ {m} {ρ : Wk m ℓ} {Δ : Con Term m} {v w}
                   ([ρ] : ρ ∷ʷʳ Δ ⊇ Γ)
@@ -572,13 +573,13 @@ module LogRel
       ∃₂ λ t′ u′ → Γ ⊢ t ⇒* t′ ∷ Σ⟨ m ⟩ p , q ▷ F ▹ G
                  × Γ ⊢ u ⇒* u′ ∷ Σ⟨ m ⟩ p , q ▷ F ▹ G
                  × Γ ⊢ t′ ≅ u′ ∷ Σ⟨ m ⟩ p , q ▷ F ▹ G
-                 × Σ (Product t′) λ pProd
-                 → Σ (Product u′) λ rProd
+                 × Σ (Productᵃ t′) λ pProd
+                 → Σ (Productᵃ u′) λ rProd
                  → [Σ]-prop m t′ u′ Γ [A] pProd rProd
 
     [Σ]-prop :
       ∀ {A p q} (m : Strength) (t r : Term ℓ) (Γ : Con Term ℓ)
-      ([A] : Γ ⊩ₗB⟨ BΣ m p q ⟩ A) → Product t → Product r → Set a
+      ([A] : Γ ⊩ₗB⟨ BΣ m p q ⟩ A) → Productᵃ t → Productᵃ r → Set a
     [Σ]-prop {p = p} 𝕤 t r Γ (Bᵣ F G D A≡A [F] [G] G-ext _) _ _ =
       let id-Γ = id (wfEq (≅-eq A≡A)) in
       Σ (Γ ⊩ₗ fst p t ∷ U.wk id F / [F] id-Γ) λ [fstp]
@@ -588,10 +589,10 @@ module LogRel
         / [G] id-Γ [fstp]
     [Σ]-prop
       {p = p} 𝕨 t r Γ (Bᵣ F G D A≡A [F] [G] G-ext _)
-      (prodₙ {p = p′} {t = p₁} {u = p₂} {m = m′})
-      (prodₙ {p = p″} {t = r₁} {u = r₂} {m = m″}) =
+      (prodₙ {s = s′} {p = p′} {t = p₁} {u = p₂})
+      (prodₙ {s = s″} {p = p″} {t = r₁} {u = r₂}) =
              let id-Γ = id (wfEq (≅-eq A≡A)) in
-             m′ PE.≡ 𝕨 × m″ PE.≡ 𝕨 ×
+             s′ PE.≡ 𝕨 × s″ PE.≡ 𝕨 ×
              p PE.≡ p′ × p PE.≡ p″ ×
              Σ (Γ ⊩ₗ p₁ ∷ U.wk id F / [F] id-Γ) λ [p₁] →
              Σ (Γ ⊩ₗ r₁ ∷ U.wk id F / [F] id-Γ) λ [r₁]
@@ -662,13 +663,13 @@ module LogRel
       ∃₂ λ t′ u′ →
       Γ ⊢ t ⇒* t′ ∷ Id Ty lhs rhs ×
       Γ ⊢ u ⇒* u′ ∷ Id Ty lhs rhs ×
-      ∃ λ (t′-id : Identity t′) →
-      ∃ λ (u′-id : Identity u′) →
-      Identity-rec t′-id
-        (Identity-rec u′-id
+      ∃ λ (t′-id : Identityᵃ t′) →
+      ∃ λ (u′-id : Identityᵃ u′) →
+      Identityᵃ-rec t′-id
+        (Identityᵃ-rec u′-id
            (Γ ⊩ₗ lhs ≡ rhs ∷ Ty / ⊩Ty)
            (L.Lift _ ⊥))
-        (Identity-rec u′-id
+        (Identityᵃ-rec u′-id
            (L.Lift _ ⊥)
            (Neutrals-included ×
             Γ ⊢ t′ ~ u′ ∷ Id Ty lhs rhs))
@@ -808,13 +809,13 @@ opaque
 
 data ⊩Id∷-view
   {A : Term ℓ} (⊩A : Γ ⊩′⟨ l ⟩Id A) :
-  ∀ t → Identity t → Set a where
+  ∀ t → Identityᵃ t → Set a where
   rflᵣ : let open _⊩ₗId_ ⊩A in
          Γ ⊩⟨ l ⟩ lhs ≡ rhs ∷ Ty / ⊩Ty →
          ⊩Id∷-view ⊩A rfl rflₙ
   ne   : let open _⊩ₗId_ ⊩A in
          Neutrals-included →
-         (u-n : Neutral u) →
+         (u-n : Neutralᵃ u) →
          Γ ⊢~ u ∷ Id Ty lhs rhs →
          ⊩Id∷-view ⊩A u (ne u-n)
 
@@ -835,11 +836,11 @@ data ⊩Id∷-view
 
 data ⊩Id≡∷-view
   {Γ : Con Term ℓ} (lhs rhs {Ty} : Term ℓ) (⊩Ty : Γ ⊩⟨ l ⟩ Ty) :
-  ∀ t → Identity t → ∀ u → Identity u → Set a where
+  ∀ t → Identityᵃ t → ∀ u → Identityᵃ u → Set a where
   rfl₌ : (lhs≡rhs : Γ ⊩⟨ l ⟩ lhs ≡ rhs ∷ Ty / ⊩Ty) →
          ⊩Id≡∷-view lhs rhs ⊩Ty rfl rflₙ rfl rflₙ
   ne   : Neutrals-included →
-         (t′-n : Neutral t′) (u′-n : Neutral u′) →
+         (t′-n : Neutralᵃ t′) (u′-n : Neutralᵃ u′) →
          Γ ⊢ t′ ~ u′ ∷ Id Ty lhs rhs →
          ⊩Id≡∷-view lhs rhs ⊩Ty t′ (ne t′-n) u′ (ne u′-n)
 
@@ -868,11 +869,11 @@ data ⊩Id≡∷-view
   let open _⊩ₗId_ ⊩A in
   ((t′ , _ , _ , _ , t′-id , _) : Γ ⊩⟨ l ⟩ t ∷ A / Idᵣ ⊩A)
   ((u′ , _ , _ , _ , u′-id , _) : Γ ⊩⟨ l ⟩ u ∷ A / Idᵣ ⊩A) →
-  Identity-rec t′-id
-    (Identity-rec u′-id
+  Identityᵃ-rec t′-id
+    (Identityᵃ-rec u′-id
        (L.Lift _ ⊤)
        (L.Lift _ ⊥))
-    (Identity-rec u′-id
+    (Identityᵃ-rec u′-id
        (L.Lift _ ⊥)
        (Neutrals-included ×
         Γ ⊢ t′ ~ u′ ∷ Id Ty lhs rhs)) →
@@ -897,11 +898,11 @@ data ⊩Id≡∷-view
   Γ ⊩⟨ l ⟩ t ≡ u ∷ A / Idᵣ ⊩A →
   ∃ λ (⊩t@(t′ , _ , _ , _ , t′-id , _) : Γ ⊩⟨ l ⟩ t ∷ A / Idᵣ ⊩A) →
   ∃ λ (⊩u@(u′ , _ , _ , _ , u′-id , _) : Γ ⊩⟨ l ⟩ u ∷ A / Idᵣ ⊩A) →
-  Identity-rec t′-id
-    (Identity-rec u′-id
+  Identityᵃ-rec t′-id
+    (Identityᵃ-rec u′-id
        (L.Lift _ ⊤)
        (L.Lift _ ⊥))
-    (Identity-rec u′-id
+    (Identityᵃ-rec u′-id
        (L.Lift _ ⊥)
        (Neutrals-included ×
         Γ ⊢ t′ ~ u′ ∷ Id Ty lhs rhs))

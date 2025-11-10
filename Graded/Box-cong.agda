@@ -623,7 +623,7 @@ opaque
     case red-Id ⦃ ok = included ⦄ ⊢t of λ where
       (_ , rflₙ , ⇒*rfl) →
         case var-only-equal-to-itself
-               (neₙ (var _)) (λ ()) (ne! (var _)) $
+               (neₙ (var _)) (λ ()) (ne (var _)) $
              prod-cong⁻¹ ⦃ ok = included ⦄
                (inversion-rfl-Id ⦃ ok = included ⦄ $
                 wf-⊢≡∷ (subset*Term ⇒*rfl) .proj₂ .proj₂)
