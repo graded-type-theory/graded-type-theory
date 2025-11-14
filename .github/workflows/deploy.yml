@@ -31,7 +31,7 @@ jobs:
     steps:
 
       # Checkout to $HOME empties $HOME so we have to do it before we put stuff there.
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       - name: Debug info --- directories
         run: |
@@ -112,7 +112,7 @@ jobs:
       #       ~/.agda/libraries.d
 
       - name: Run Agda
-        run: agda "${{ env.MAIN }}" +RTS -M6G -RTS
+        run: agda "${{ env.MAIN }}"
 
       - name: Save cache
         # Primary cache key is unique, so we can always save.
@@ -122,7 +122,7 @@ jobs:
           key: ${{ steps.cache.outputs.cache-primary-key }}
           path: |
             _build
-            ~/.agda/libraries.d
+            ${{ env.AGDA_DIR }}/libraries.d
 
 ########################################################################
 ## DOC DEPLOYMENT
@@ -149,6 +149,6 @@ jobs:
           folder: html
           git-config-name: Github Actions
 
-      - uses: actions/upload-pages-artifact@v3
+      - uses: actions/upload-pages-artifact@v4
         with:
           path: html
