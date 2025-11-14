@@ -6,43 +6,44 @@
 <a id="163" class="Keyword">module</a> <a id="170" href="Tools.Fin.html" class="Module">Tools.Fin</a> <a id="180" class="Keyword">where</a>
 
 <a id="187" class="Keyword">open</a> <a id="192" class="Keyword">import</a> <a id="199" href="Data.Fin.Properties.html" class="Module">Data.Fin.Properties</a> <a id="219" class="Keyword">public</a>
-  <a id="228" class="Keyword">using</a> <a id="234" class="Symbol">(</a><a id="235" href="Data.Fin.Properties.html#3654" class="Function">suc-injective</a><a id="248" class="Symbol">)</a> <a id="250" class="Keyword">renaming</a> <a id="259" class="Symbol">(</a><a id="260" href="Data.Fin.Properties.html#3736" class="Function Operator">_≟_</a> <a id="264" class="Symbol">to</a> <a id="267" class="Function Operator">_≟ⱽ_</a><a id="271" class="Symbol">)</a>
-<a id="273" class="Keyword">open</a> <a id="278" class="Keyword">import</a> <a id="285" href="Data.Fin.Base.html" class="Module">Data.Fin.Base</a> <a id="299" class="Keyword">using</a> <a id="305" class="Symbol">(</a><a id="306" href="Data.Fin.Base.html#1159" class="Datatype">Fin</a><a id="309" class="Symbol">)</a> <a id="311" class="Keyword">renaming</a> <a id="320" class="Symbol">(</a><a id="321" href="Data.Fin.Base.html#1181" class="InductiveConstructor">zero</a> <a id="326" class="Symbol">to</a> <a id="329" class="InductiveConstructor">x0</a> <a id="332" class="Symbol">;</a> <a id="334" href="Data.Fin.Base.html#1202" class="InductiveConstructor">suc</a> <a id="338" class="Symbol">to</a> <a id="341" class="InductiveConstructor">_+1</a><a id="344" class="Symbol">)</a> <a id="346" class="Keyword">public</a>
+  <a id="228" class="Keyword">using</a> <a id="234" class="Symbol">(</a><a id="235" href="Data.Fin.Properties.html#3657" class="Function">suc-injective</a><a id="248" class="Symbol">)</a> <a id="250" class="Keyword">renaming</a> <a id="259" class="Symbol">(</a><a id="260" href="Data.Fin.Properties.html#3739" class="Function Operator">_≟_</a> <a id="264" class="Symbol">to</a> <a id="267" class="Function Operator">_≟ⱽ_</a><a id="271" class="Symbol">)</a>
+<a id="273" class="Keyword">open</a> <a id="278" class="Keyword">import</a> <a id="285" href="Data.Fin.Base.html" class="Module">Data.Fin.Base</a> <a id="299" class="Keyword">public</a>
+  <a id="308" class="Keyword">using</a> <a id="314" class="Symbol">(</a><a id="315" href="Data.Fin.Base.html#1132" class="Datatype">Fin</a><a id="318" class="Symbol">;</a> <a id="320" href="Data.Fin.Base.html#1240" class="Function">toℕ</a><a id="323" class="Symbol">)</a> <a id="325" class="Keyword">renaming</a> <a id="334" class="Symbol">(</a><a id="335" href="Data.Fin.Base.html#1154" class="InductiveConstructor">zero</a> <a id="340" class="Symbol">to</a> <a id="343" class="InductiveConstructor">x0</a><a id="345" class="Symbol">;</a> <a id="347" href="Data.Fin.Base.html#1175" class="InductiveConstructor">suc</a> <a id="351" class="Symbol">to</a> <a id="354" class="InductiveConstructor">_+1</a><a id="357" class="Symbol">)</a>
 
-<a id="354" class="Keyword">open</a> <a id="359" class="Keyword">import</a> <a id="366" href="Tools.Nat.html" class="Module">Tools.Nat</a>
+<a id="360" class="Keyword">open</a> <a id="365" class="Keyword">import</a> <a id="372" href="Tools.Nat.html" class="Module">Tools.Nat</a>
 
-<a id="377" class="Keyword">private</a> <a id="385" class="Keyword">variable</a>
-  <a id="396" href="Tools.Fin.html#396" class="Generalizable">n</a> <a id="398" class="Symbol">:</a> <a id="400" href="Agda.Builtin.Nat.html#203" class="Datatype">Nat</a>
+<a id="383" class="Keyword">private</a> <a id="391" class="Keyword">variable</a>
+  <a id="402" href="Tools.Fin.html#402" class="Generalizable">n</a> <a id="404" class="Symbol">:</a> <a id="406" href="Agda.Builtin.Nat.html#203" class="Datatype">Nat</a>
 
-<a id="405" class="Keyword">pattern</a> <a id="_+2"></a><a id="413" href="Tools.Fin.html#413" class="InductiveConstructor Operator">_+2</a> <a id="417" href="Tools.Fin.html#421" class="Bound">x</a> <a id="419" class="Symbol">=</a> <a id="421" href="Tools.Fin.html#421" class="Bound">x</a> <a id="423" href="Tools.Fin.html#341" class="InductiveConstructor Operator">+1</a> <a id="426" href="Tools.Fin.html#341" class="InductiveConstructor Operator">+1</a>
+<a id="411" class="Keyword">pattern</a> <a id="_+2"></a><a id="419" href="Tools.Fin.html#419" class="InductiveConstructor Operator">_+2</a> <a id="423" href="Tools.Fin.html#427" class="Bound">x</a> <a id="425" class="Symbol">=</a> <a id="427" href="Tools.Fin.html#427" class="Bound">x</a> <a id="429" href="Tools.Fin.html#354" class="InductiveConstructor Operator">+1</a> <a id="432" href="Tools.Fin.html#354" class="InductiveConstructor Operator">+1</a>
 
-<a id="430" class="Comment">-- One.</a>
+<a id="436" class="Comment">-- One.</a>
 
-<a id="x1"></a><a id="439" href="Tools.Fin.html#439" class="Function">x1</a> <a id="442" class="Symbol">:</a> <a id="444" href="Data.Fin.Base.html#1159" class="Datatype">Fin</a> <a id="448" class="Symbol">(</a><a id="449" class="Number">2</a> <a id="451" href="Agda.Builtin.Nat.html#336" class="Primitive Operator">+</a> <a id="453" href="Tools.Fin.html#396" class="Generalizable">n</a><a id="454" class="Symbol">)</a>
-<a id="456" href="Tools.Fin.html#439" class="Function">x1</a> <a id="459" class="Symbol">=</a> <a id="461" href="Tools.Fin.html#329" class="InductiveConstructor">x0</a> <a id="464" href="Tools.Fin.html#341" class="InductiveConstructor Operator">+1</a>
+<a id="x1"></a><a id="445" href="Tools.Fin.html#445" class="Function">x1</a> <a id="448" class="Symbol">:</a> <a id="450" href="Data.Fin.Base.html#1132" class="Datatype">Fin</a> <a id="454" class="Symbol">(</a><a id="455" class="Number">2</a> <a id="457" href="Agda.Builtin.Nat.html#336" class="Primitive Operator">+</a> <a id="459" href="Tools.Fin.html#402" class="Generalizable">n</a><a id="460" class="Symbol">)</a>
+<a id="462" href="Tools.Fin.html#445" class="Function">x1</a> <a id="465" class="Symbol">=</a> <a id="467" href="Tools.Fin.html#343" class="InductiveConstructor">x0</a> <a id="470" href="Tools.Fin.html#354" class="InductiveConstructor Operator">+1</a>
 
-<a id="468" class="Comment">-- Two.</a>
+<a id="474" class="Comment">-- Two.</a>
 
-<a id="x2"></a><a id="477" href="Tools.Fin.html#477" class="Function">x2</a> <a id="480" class="Symbol">:</a> <a id="482" href="Data.Fin.Base.html#1159" class="Datatype">Fin</a> <a id="486" class="Symbol">(</a><a id="487" class="Number">3</a> <a id="489" href="Agda.Builtin.Nat.html#336" class="Primitive Operator">+</a> <a id="491" href="Tools.Fin.html#396" class="Generalizable">n</a><a id="492" class="Symbol">)</a>
-<a id="494" href="Tools.Fin.html#477" class="Function">x2</a> <a id="497" class="Symbol">=</a> <a id="499" href="Tools.Fin.html#439" class="Function">x1</a> <a id="502" href="Tools.Fin.html#341" class="InductiveConstructor Operator">+1</a>
+<a id="x2"></a><a id="483" href="Tools.Fin.html#483" class="Function">x2</a> <a id="486" class="Symbol">:</a> <a id="488" href="Data.Fin.Base.html#1132" class="Datatype">Fin</a> <a id="492" class="Symbol">(</a><a id="493" class="Number">3</a> <a id="495" href="Agda.Builtin.Nat.html#336" class="Primitive Operator">+</a> <a id="497" href="Tools.Fin.html#402" class="Generalizable">n</a><a id="498" class="Symbol">)</a>
+<a id="500" href="Tools.Fin.html#483" class="Function">x2</a> <a id="503" class="Symbol">=</a> <a id="505" href="Tools.Fin.html#445" class="Function">x1</a> <a id="508" href="Tools.Fin.html#354" class="InductiveConstructor Operator">+1</a>
 
-<a id="506" class="Comment">-- Three.</a>
+<a id="512" class="Comment">-- Three.</a>
 
-<a id="x3"></a><a id="517" href="Tools.Fin.html#517" class="Function">x3</a> <a id="520" class="Symbol">:</a> <a id="522" href="Data.Fin.Base.html#1159" class="Datatype">Fin</a> <a id="526" class="Symbol">(</a><a id="527" class="Number">4</a> <a id="529" href="Agda.Builtin.Nat.html#336" class="Primitive Operator">+</a> <a id="531" href="Tools.Fin.html#396" class="Generalizable">n</a><a id="532" class="Symbol">)</a>
-<a id="534" href="Tools.Fin.html#517" class="Function">x3</a> <a id="537" class="Symbol">=</a> <a id="539" href="Tools.Fin.html#477" class="Function">x2</a> <a id="542" href="Tools.Fin.html#341" class="InductiveConstructor Operator">+1</a>
+<a id="x3"></a><a id="523" href="Tools.Fin.html#523" class="Function">x3</a> <a id="526" class="Symbol">:</a> <a id="528" href="Data.Fin.Base.html#1132" class="Datatype">Fin</a> <a id="532" class="Symbol">(</a><a id="533" class="Number">4</a> <a id="535" href="Agda.Builtin.Nat.html#336" class="Primitive Operator">+</a> <a id="537" href="Tools.Fin.html#402" class="Generalizable">n</a><a id="538" class="Symbol">)</a>
+<a id="540" href="Tools.Fin.html#523" class="Function">x3</a> <a id="543" class="Symbol">=</a> <a id="545" href="Tools.Fin.html#483" class="Function">x2</a> <a id="548" href="Tools.Fin.html#354" class="InductiveConstructor Operator">+1</a>
 
-<a id="546" class="Comment">-- Four.</a>
+<a id="552" class="Comment">-- Four.</a>
 
-<a id="x4"></a><a id="556" href="Tools.Fin.html#556" class="Function">x4</a> <a id="559" class="Symbol">:</a> <a id="561" href="Data.Fin.Base.html#1159" class="Datatype">Fin</a> <a id="565" class="Symbol">(</a><a id="566" class="Number">5</a> <a id="568" href="Agda.Builtin.Nat.html#336" class="Primitive Operator">+</a> <a id="570" href="Tools.Fin.html#396" class="Generalizable">n</a><a id="571" class="Symbol">)</a>
-<a id="573" href="Tools.Fin.html#556" class="Function">x4</a> <a id="576" class="Symbol">=</a> <a id="578" href="Tools.Fin.html#517" class="Function">x3</a> <a id="581" href="Tools.Fin.html#341" class="InductiveConstructor Operator">+1</a>
+<a id="x4"></a><a id="562" href="Tools.Fin.html#562" class="Function">x4</a> <a id="565" class="Symbol">:</a> <a id="567" href="Data.Fin.Base.html#1132" class="Datatype">Fin</a> <a id="571" class="Symbol">(</a><a id="572" class="Number">5</a> <a id="574" href="Agda.Builtin.Nat.html#336" class="Primitive Operator">+</a> <a id="576" href="Tools.Fin.html#402" class="Generalizable">n</a><a id="577" class="Symbol">)</a>
+<a id="579" href="Tools.Fin.html#562" class="Function">x4</a> <a id="582" class="Symbol">=</a> <a id="584" href="Tools.Fin.html#523" class="Function">x3</a> <a id="587" href="Tools.Fin.html#354" class="InductiveConstructor Operator">+1</a>
 
-<a id="585" class="Comment">-- Five.</a>
+<a id="591" class="Comment">-- Five.</a>
 
-<a id="x5"></a><a id="595" href="Tools.Fin.html#595" class="Function">x5</a> <a id="598" class="Symbol">:</a> <a id="600" href="Data.Fin.Base.html#1159" class="Datatype">Fin</a> <a id="604" class="Symbol">(</a><a id="605" class="Number">6</a> <a id="607" href="Agda.Builtin.Nat.html#336" class="Primitive Operator">+</a> <a id="609" href="Tools.Fin.html#396" class="Generalizable">n</a><a id="610" class="Symbol">)</a>
-<a id="612" href="Tools.Fin.html#595" class="Function">x5</a> <a id="615" class="Symbol">=</a> <a id="617" href="Tools.Fin.html#556" class="Function">x4</a> <a id="620" href="Tools.Fin.html#341" class="InductiveConstructor Operator">+1</a>
+<a id="x5"></a><a id="601" href="Tools.Fin.html#601" class="Function">x5</a> <a id="604" class="Symbol">:</a> <a id="606" href="Data.Fin.Base.html#1132" class="Datatype">Fin</a> <a id="610" class="Symbol">(</a><a id="611" class="Number">6</a> <a id="613" href="Agda.Builtin.Nat.html#336" class="Primitive Operator">+</a> <a id="615" href="Tools.Fin.html#402" class="Generalizable">n</a><a id="616" class="Symbol">)</a>
+<a id="618" href="Tools.Fin.html#601" class="Function">x5</a> <a id="621" class="Symbol">=</a> <a id="623" href="Tools.Fin.html#562" class="Function">x4</a> <a id="626" href="Tools.Fin.html#354" class="InductiveConstructor Operator">+1</a>
 
-<a id="624" class="Comment">-- Six.</a>
+<a id="630" class="Comment">-- Six.</a>
 
-<a id="x6"></a><a id="633" href="Tools.Fin.html#633" class="Function">x6</a> <a id="636" class="Symbol">:</a> <a id="638" href="Data.Fin.Base.html#1159" class="Datatype">Fin</a> <a id="642" class="Symbol">(</a><a id="643" class="Number">7</a> <a id="645" href="Agda.Builtin.Nat.html#336" class="Primitive Operator">+</a> <a id="647" href="Tools.Fin.html#396" class="Generalizable">n</a><a id="648" class="Symbol">)</a>
-<a id="650" href="Tools.Fin.html#633" class="Function">x6</a> <a id="653" class="Symbol">=</a> <a id="655" href="Tools.Fin.html#595" class="Function">x5</a> <a id="658" href="Tools.Fin.html#341" class="InductiveConstructor Operator">+1</a>
+<a id="x6"></a><a id="639" href="Tools.Fin.html#639" class="Function">x6</a> <a id="642" class="Symbol">:</a> <a id="644" href="Data.Fin.Base.html#1132" class="Datatype">Fin</a> <a id="648" class="Symbol">(</a><a id="649" class="Number">7</a> <a id="651" href="Agda.Builtin.Nat.html#336" class="Primitive Operator">+</a> <a id="653" href="Tools.Fin.html#402" class="Generalizable">n</a><a id="654" class="Symbol">)</a>
+<a id="656" href="Tools.Fin.html#639" class="Function">x6</a> <a id="659" class="Symbol">=</a> <a id="661" href="Tools.Fin.html#601" class="Function">x5</a> <a id="664" href="Tools.Fin.html#354" class="InductiveConstructor Operator">+1</a>
 </pre></body></html>

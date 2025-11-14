@@ -1,32 +1,32 @@
 <!DOCTYPE HTML>
 <html><head><meta charset="utf-8"><title>Definition.Typed.EqualityRelation.Instance</title><link rel="stylesheet" href="Agda.css"></head><body><pre class="Agda"><a id="1" class="Comment">------------------------------------------------------------------------</a>
-<a id="74" class="Comment">-- An instance related to Neutrals-included</a>
-<a id="118" class="Comment">------------------------------------------------------------------------</a>
+<a id="74" class="Comment">-- An instance related to Var-included</a>
+<a id="113" class="Comment">------------------------------------------------------------------------</a>
 
-<a id="192" class="Keyword">open</a> <a id="197" class="Keyword">import</a> <a id="204" href="Definition.Typed.EqualityRelation.html" class="Module">Definition.Typed.EqualityRelation</a>
-<a id="238" class="Keyword">open</a> <a id="243" class="Keyword">import</a> <a id="250" href="Definition.Typed.Restrictions.html" class="Module">Definition.Typed.Restrictions</a>
-<a id="280" class="Keyword">open</a> <a id="285" class="Keyword">import</a> <a id="292" href="Graded.Modality.html" class="Module">Graded.Modality</a>
+<a id="187" class="Keyword">open</a> <a id="192" class="Keyword">import</a> <a id="199" href="Definition.Typed.EqualityRelation.html" class="Module">Definition.Typed.EqualityRelation</a>
+<a id="233" class="Keyword">open</a> <a id="238" class="Keyword">import</a> <a id="245" href="Definition.Typed.Restrictions.html" class="Module">Definition.Typed.Restrictions</a>
+<a id="275" class="Keyword">open</a> <a id="280" class="Keyword">import</a> <a id="287" href="Graded.Modality.html" class="Module">Graded.Modality</a>
 
-<a id="309" class="Keyword">module</a> <a id="316" href="Definition.Typed.EqualityRelation.Instance.html" class="Module">Definition.Typed.EqualityRelation.Instance</a>
-  <a id="361" class="Symbol">{</a><a id="362" href="Definition.Typed.EqualityRelation.Instance.html#362" class="Bound">ℓ</a><a id="363" class="Symbol">}</a> <a id="365" class="Symbol">{</a><a id="366" href="Definition.Typed.EqualityRelation.Instance.html#366" class="Bound">M</a> <a id="368" class="Symbol">:</a> <a id="370" href="Agda.Primitive.html#388" class="Primitive">Set</a> <a id="374" href="Definition.Typed.EqualityRelation.Instance.html#362" class="Bound">ℓ</a><a id="375" class="Symbol">}</a>
-  <a id="379" class="Symbol">{</a><a id="380" href="Definition.Typed.EqualityRelation.Instance.html#380" class="Bound">𝕄</a> <a id="382" class="Symbol">:</a> <a id="384" href="Graded.Modality.html#9574" class="Record">Modality</a> <a id="393" href="Definition.Typed.EqualityRelation.Instance.html#366" class="Bound">M</a><a id="394" class="Symbol">}</a>
-  <a id="398" class="Symbol">(</a><a id="399" href="Definition.Typed.EqualityRelation.Instance.html#399" class="Bound">R</a> <a id="401" class="Symbol">:</a> <a id="403" href="Definition.Typed.Restrictions.html#808" class="Record">Type-restrictions</a> <a id="421" href="Definition.Typed.EqualityRelation.Instance.html#380" class="Bound">𝕄</a><a id="422" class="Symbol">)</a>
-  <a id="426" class="Symbol">⦃</a> <a id="428" href="Definition.Typed.EqualityRelation.Instance.html#428" class="Bound">eq</a> <a id="431" class="Symbol">:</a> <a id="433" href="Definition.Typed.EqualityRelation.html#11419" class="Record">EqRelSet</a> <a id="442" href="Definition.Typed.EqualityRelation.Instance.html#399" class="Bound">R</a> <a id="444" class="Symbol">⦄</a>
-  <a id="448" class="Keyword">where</a>
+<a id="304" class="Keyword">module</a> <a id="311" href="Definition.Typed.EqualityRelation.Instance.html" class="Module">Definition.Typed.EqualityRelation.Instance</a>
+  <a id="356" class="Symbol">{</a><a id="357" href="Definition.Typed.EqualityRelation.Instance.html#357" class="Bound">ℓ</a><a id="358" class="Symbol">}</a> <a id="360" class="Symbol">{</a><a id="361" href="Definition.Typed.EqualityRelation.Instance.html#361" class="Bound">M</a> <a id="363" class="Symbol">:</a> <a id="365" href="Agda.Primitive.html#388" class="Primitive">Set</a> <a id="369" href="Definition.Typed.EqualityRelation.Instance.html#357" class="Bound">ℓ</a><a id="370" class="Symbol">}</a>
+  <a id="374" class="Symbol">{</a><a id="375" href="Definition.Typed.EqualityRelation.Instance.html#375" class="Bound">𝕄</a> <a id="377" class="Symbol">:</a> <a id="379" href="Graded.Modality.html#9574" class="Record">Modality</a> <a id="388" href="Definition.Typed.EqualityRelation.Instance.html#361" class="Bound">M</a><a id="389" class="Symbol">}</a>
+  <a id="393" class="Symbol">(</a><a id="394" href="Definition.Typed.EqualityRelation.Instance.html#394" class="Bound">R</a> <a id="396" class="Symbol">:</a> <a id="398" href="Definition.Typed.Restrictions.html#808" class="Record">Type-restrictions</a> <a id="416" href="Definition.Typed.EqualityRelation.Instance.html#375" class="Bound">𝕄</a><a id="417" class="Symbol">)</a>
+  <a id="421" class="Symbol">⦃</a> <a id="423" href="Definition.Typed.EqualityRelation.Instance.html#423" class="Bound">eq</a> <a id="426" class="Symbol">:</a> <a id="428" href="Definition.Typed.EqualityRelation.html#12167" class="Record">EqRelSet</a> <a id="437" href="Definition.Typed.EqualityRelation.Instance.html#394" class="Bound">R</a> <a id="439" class="Symbol">⦄</a>
+  <a id="443" class="Keyword">where</a>
 
-<a id="455" class="Keyword">open</a> <a id="460" href="Definition.Typed.EqualityRelation.html#11419" class="Module">EqRelSet</a> <a id="469" href="Definition.Typed.EqualityRelation.Instance.html#428" class="Bound">eq</a>
+<a id="450" class="Keyword">open</a> <a id="455" href="Definition.Typed.EqualityRelation.html#12167" class="Module">EqRelSet</a> <a id="464" href="Definition.Typed.EqualityRelation.Instance.html#423" class="Bound">eq</a>
 
-<a id="473" class="Keyword">open</a> <a id="478" class="Keyword">import</a> <a id="485" href="Definition.Untyped.html" class="Module">Definition.Untyped</a> <a id="504" href="Definition.Typed.EqualityRelation.Instance.html#366" class="Bound">M</a>
+<a id="468" class="Keyword">open</a> <a id="473" class="Keyword">import</a> <a id="480" href="Definition.Untyped.html" class="Module">Definition.Untyped</a> <a id="499" href="Definition.Typed.EqualityRelation.Instance.html#361" class="Bound">M</a>
 
-<a id="507" class="Keyword">private</a> <a id="515" class="Keyword">variable</a>
-  <a id="526" href="Definition.Typed.EqualityRelation.Instance.html#526" class="Generalizable">Γ</a> <a id="528" class="Symbol">:</a> <a id="530" href="Definition.Untyped.NotParametrised.html#882" class="Datatype">Con</a> <a id="534" href="Definition.Untyped.html#1181" class="Datatype">Term</a> <a id="539" class="Symbol">_</a>
+<a id="502" class="Keyword">private</a> <a id="510" class="Keyword">variable</a>
+  <a id="521" href="Definition.Typed.EqualityRelation.Instance.html#521" class="Generalizable">Γ</a> <a id="523" class="Symbol">:</a> <a id="525" href="Definition.Untyped.NotParametrised.html#957" class="Datatype">Con</a> <a id="529" href="Definition.Untyped.html#1590" class="Datatype">Term</a> <a id="534" class="Symbol">_</a>
 
-<a id="542" class="Keyword">instance</a>
+<a id="537" class="Keyword">instance</a>
 
-  <a id="554" class="Comment">-- A variant of included.</a>
+  <a id="549" class="Comment">-- A variant of included.</a>
 
-  <a id="included′"></a><a id="583" href="Definition.Typed.EqualityRelation.Instance.html#583" class="Function">included′</a> <a id="593" class="Symbol">:</a>
-    <a id="599" class="Symbol">⦃</a> <a id="601" href="Definition.Typed.EqualityRelation.Instance.html#601" class="Bound">inc</a> <a id="605" class="Symbol">:</a> <a id="607" href="Definition.Typed.EqualityRelation.html#11841" class="Field">Neutrals-included</a> <a id="625" class="Symbol">⦄</a> <a id="627" class="Symbol">→</a>
-    <a id="633" href="Definition.Typed.EqualityRelation.html#11841" class="Field">Neutrals-included</a> <a id="651" href="Definition.Untyped.NotParametrised.html#1265" class="Datatype Operator">or-empty</a> <a id="660" href="Definition.Typed.EqualityRelation.Instance.html#526" class="Generalizable">Γ</a>
-  <a id="664" href="Definition.Typed.EqualityRelation.Instance.html#583" class="Function">included′</a> <a id="674" class="Symbol">=</a> <a id="676" href="Definition.Typed.EqualityRelation.html#10346" class="Function">included</a>
+  <a id="included′"></a><a id="578" href="Definition.Typed.EqualityRelation.Instance.html#578" class="Function">included′</a> <a id="588" class="Symbol">:</a>
+    <a id="594" class="Symbol">⦃</a> <a id="596" href="Definition.Typed.EqualityRelation.Instance.html#596" class="Bound">inc</a> <a id="600" class="Symbol">:</a> <a id="602" href="Definition.Typed.EqualityRelation.html#12615" class="Field">Var-included</a> <a id="615" class="Symbol">⦄</a> <a id="617" class="Symbol">→</a>
+    <a id="623" href="Definition.Typed.EqualityRelation.html#12615" class="Field">Var-included</a> <a id="636" href="Definition.Untyped.NotParametrised.html#1340" class="Datatype Operator">or-empty</a> <a id="645" href="Definition.Typed.EqualityRelation.Instance.html#521" class="Generalizable">Γ</a>
+  <a id="649" href="Definition.Typed.EqualityRelation.Instance.html#578" class="Function">included′</a> <a id="659" class="Symbol">=</a> <a id="661" href="Definition.Typed.EqualityRelation.html#11111" class="Function">included</a>
 </pre></body></html>

@@ -9,18 +9,18 @@
 <a id="258" class="Keyword">module</a> <a id="265" href="Graded.Usage.Restrictions.Instance.html" class="Module">Graded.Usage.Restrictions.Instance</a>
   <a id="302" class="Symbol">{</a><a id="303" href="Graded.Usage.Restrictions.Instance.html#303" class="Bound">a</a><a id="304" class="Symbol">}</a> <a id="306" class="Symbol">{</a><a id="307" href="Graded.Usage.Restrictions.Instance.html#307" class="Bound">M</a> <a id="309" class="Symbol">:</a> <a id="311" href="Agda.Primitive.html#388" class="Primitive">Set</a> <a id="315" href="Graded.Usage.Restrictions.Instance.html#303" class="Bound">a</a><a id="316" class="Symbol">}</a>
   <a id="320" class="Symbol">{</a><a id="321" href="Graded.Usage.Restrictions.Instance.html#321" class="Bound">𝕄</a> <a id="323" class="Symbol">:</a> <a id="325" href="Graded.Modality.html#9574" class="Record">Modality</a> <a id="334" href="Graded.Usage.Restrictions.Instance.html#307" class="Bound">M</a><a id="335" class="Symbol">}</a>
-  <a id="339" class="Symbol">(</a><a id="340" href="Graded.Usage.Restrictions.Instance.html#340" class="Bound">R</a> <a id="342" class="Symbol">:</a> <a id="344" href="Graded.Usage.Restrictions.html#812" class="Record">Usage-restrictions</a> <a id="363" href="Graded.Usage.Restrictions.Instance.html#321" class="Bound">𝕄</a><a id="364" class="Symbol">)</a>
+  <a id="339" class="Symbol">(</a><a id="340" href="Graded.Usage.Restrictions.Instance.html#340" class="Bound">R</a> <a id="342" class="Symbol">:</a> <a id="344" href="Graded.Usage.Restrictions.html#835" class="Record">Usage-restrictions</a> <a id="363" href="Graded.Usage.Restrictions.Instance.html#321" class="Bound">𝕄</a><a id="364" class="Symbol">)</a>
   <a id="368" class="Keyword">where</a>
 
 <a id="375" class="Keyword">open</a> <a id="380" class="Keyword">import</a> <a id="387" href="Graded.Usage.Restrictions.Natrec.html" class="Module">Graded.Usage.Restrictions.Natrec</a> <a id="420" href="Graded.Usage.Restrictions.Instance.html#321" class="Bound">𝕄</a>
 
-<a id="423" class="Keyword">open</a> <a id="428" href="Graded.Usage.Restrictions.html#812" class="Module">Usage-restrictions</a> <a id="447" href="Graded.Usage.Restrictions.Instance.html#340" class="Bound">R</a>
+<a id="423" class="Keyword">open</a> <a id="428" href="Graded.Usage.Restrictions.html#835" class="Module">Usage-restrictions</a> <a id="447" href="Graded.Usage.Restrictions.Instance.html#340" class="Bound">R</a>
 <a id="449" class="Keyword">open</a> <a id="454" href="Graded.Modality.html#9574" class="Module">Modality</a> <a id="463" href="Graded.Usage.Restrictions.Instance.html#321" class="Bound">𝕄</a>
 
 <a id="466" class="Keyword">instance</a>
 
   <a id="Nr-available-Has-nr"></a><a id="478" href="Graded.Usage.Restrictions.Instance.html#478" class="Function">Nr-available-Has-nr</a> <a id="498" class="Symbol">:</a>
-    <a id="504" class="Symbol">⦃</a> <a id="506" href="Graded.Usage.Restrictions.Instance.html#506" class="Bound">has-nr</a> <a id="513" class="Symbol">:</a> <a id="515" href="Graded.Usage.Restrictions.html#3510" class="Function">Nr-available</a> <a id="528" class="Symbol">⦄</a> <a id="530" class="Symbol">→</a>
+    <a id="504" class="Symbol">⦃</a> <a id="506" href="Graded.Usage.Restrictions.Instance.html#506" class="Bound">has-nr</a> <a id="513" class="Symbol">:</a> <a id="515" href="Graded.Usage.Restrictions.html#2698" class="Function">Nr-available</a> <a id="528" class="Symbol">⦄</a> <a id="530" class="Symbol">→</a>
     <a id="536" href="Graded.Modality.html#5587" class="Record">Has-nr</a> <a id="543" href="Graded.Usage.Restrictions.Instance.html#307" class="Bound">M</a> <a id="545" href="Graded.Modality.html#9715" class="Function">semiring-with-meet</a>
   <a id="566" href="Graded.Usage.Restrictions.Instance.html#478" class="Function">Nr-available-Has-nr</a> <a id="586" class="Symbol">⦃</a> <a id="588" href="Graded.Usage.Restrictions.Instance.html#588" class="Bound">has-nr</a> <a id="595" class="Symbol">⦄</a> <a id="597" class="Symbol">=</a>
     <a id="603" href="Graded.Usage.Restrictions.Natrec.html#2200" class="Function">Natrec-mode-Has-nr</a> <a id="622" href="Graded.Usage.Restrictions.Instance.html#588" class="Bound">has-nr</a>
@@ -28,7 +28,7 @@
 <a id="630" class="Keyword">instance</a>
 
   <a id="Nr-not-available-Has-well-behaved-GLBs"></a><a id="642" href="Graded.Usage.Restrictions.Instance.html#642" class="Function">Nr-not-available-Has-well-behaved-GLBs</a> <a id="681" class="Symbol">:</a>
-    <a id="687" class="Symbol">⦃</a> <a id="689" href="Graded.Usage.Restrictions.Instance.html#689" class="Bound">no-nr</a> <a id="695" class="Symbol">:</a> <a id="697" href="Graded.Usage.Restrictions.html#3661" class="Function">Nr-not-available-GLB</a> <a id="718" class="Symbol">⦄</a> <a id="720" class="Symbol">→</a>
+    <a id="687" class="Symbol">⦃</a> <a id="689" href="Graded.Usage.Restrictions.Instance.html#689" class="Bound">no-nr</a> <a id="695" class="Symbol">:</a> <a id="697" href="Graded.Usage.Restrictions.html#2849" class="Function">Nr-not-available-GLB</a> <a id="718" class="Symbol">⦄</a> <a id="720" class="Symbol">→</a>
     <a id="726" href="Graded.Modality.html#7682" class="Record">Has-well-behaved-GLBs</a> <a id="748" href="Graded.Usage.Restrictions.Instance.html#307" class="Bound">M</a> <a id="750" href="Graded.Modality.html#9715" class="Function">semiring-with-meet</a>
   <a id="771" href="Graded.Usage.Restrictions.Instance.html#642" class="Function">Nr-not-available-Has-well-behaved-GLBs</a> <a id="810" class="Symbol">⦃</a> <a id="812" href="Graded.Usage.Restrictions.Instance.html#812" class="Bound">no-nr</a> <a id="818" class="Symbol">⦄</a> <a id="820" class="Symbol">=</a>
     <a id="826" href="Graded.Usage.Restrictions.Natrec.html#2443" class="Function">Natrec-mode-Has-well-behaved-GLBs</a> <a id="860" href="Graded.Usage.Restrictions.Instance.html#812" class="Bound">no-nr</a>
