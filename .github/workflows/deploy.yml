@@ -58,6 +58,7 @@ jobs:
         run: |
           agda --setup
           AGDA_DIR=$(agda --print-agda-app-dir)
+          mkdir -p "${AGDA_DIR}"
           echo "AGDA_DIR=${AGDA_DIR}" >> "${GITHUB_ENV}"
 
       - name: Download Agda standard-library ${{ env.STDLIB_VERSION }}
