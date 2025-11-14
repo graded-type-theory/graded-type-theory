@@ -77,7 +77,7 @@ jobs:
 
       - name: Setup Agda standard-library
         run: |
-          echo "${HOME}/agda-stdlib-2.3/standard-library.agda-lib" >> "${AGDA_DIR}/libraries"
+          echo "$(pwd)/agda-stdlib-${{ env.STDLIB_VERSION }}/standard-library.agda-lib" >> "${AGDA_DIR}/libraries"
           cat "${AGDA_DIR}/libraries"
 
       - name: Restore cache
