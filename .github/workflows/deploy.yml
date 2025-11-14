@@ -46,6 +46,7 @@ jobs:
           echo "curl http code: ${http_code}"
           if [[ "${exit_code}" == "0" && "${http_code}" == "200" ]]; then
             tar xvf agda.tar.xz
+            mkdir -p "${HOME}/.local/bin/"
             mv agda "${HOME}/.local/bin/"
             echo "${HOME}/.local/bin" >> "${GITHUB_PATH}"
           else
