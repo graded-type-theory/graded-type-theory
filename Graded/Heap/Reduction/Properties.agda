@@ -36,7 +36,7 @@ open import Graded.Heap.Untyped type-variant UR factoring-nr
 open import Graded.Heap.Untyped.Properties type-variant UR factoring-nr
 open import Graded.Heap.Reduction type-variant UR factoring-nr
 open import Graded.Heap.Reduction.Inversion type-variant UR factoring-nr
-open import Graded.Modality.Properties.Subtraction semiring-with-meet
+open import Graded.Modality.Properties 𝕄
 
 private variable
   m n m′ n′ m″ n″ k : Nat
