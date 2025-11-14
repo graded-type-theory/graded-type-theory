@@ -33,22 +33,81 @@ jobs:
       # Checkout to $HOME empties $HOME so we have to do it before we put stuff there.
       - uses: actions/checkout@v4
 
+      - name: Debug info --- directories
+        run: |
+          echo "HOME = ${HOME}"
+          echo "current directory = $(pwd)"
+
+      - name: Download Agda ${{ env.AGDA_VERSION }}
+        run: |
+          http_code=$(curl -w '%{http_code}\n' -L "https://github.com/agda/agda/releases/download/v${{ env.AGDA_VERSION }}/Agda-v${{ env.AGDA_VERSION }}-linux.tar.xz" -o "agda.tar.xz")
+          exit_code=$?
+          echo "curl exit code: ${exit_code}"
+          echo "curl http code: ${http_code}"
+          ls -l "${TGT}"
+          if [[ "${exit_code}" == "0" && "${http_code}" == "200" ]]; then
+            tar xvf agda.tar.xz
+            mv agda "${HOME}/.local/bin/"
+            echo "${HOME}/.local/bin" >> "${GITHUB_PATH}"
+          else
+            echo "Download of Agda archive failed."
+            exit 1
+          fi
+
       - name: Setup Agda
-        uses: wenkokke/setup-agda@v2
-        id:   setup
-        with:
-          agda-version: ${{ env.AGDA_VERSION }}
-          agda-stdlib-version: ${{ env.STDLIB_VERSION }}
+        run: |
+          agda --setup
+          AGDA_DIR=$(agda --print-agda-app-dir)
+          echo "AGDA_DIR=${AGDA_DIR}" >> "${GITHUB_ENV}"
+
+      - name: Download Agda standard-library ${{ env.STDLIB_VERSION }}
+        run: |
+          http_code=$(curl -w '%{http_code}\n' -L "https://github.com/agda/agda-stdlib/archive/refs/tags/v${{ env.STDLIB_VERSION }}.tar.gz" -o "agda-stdlib.tgz")
+          exit_code=$?
+          echo "curl exit code: ${exit_code}"
+          echo "curl http code: ${http_code}"
+          ls -l "${TGT}"
+          if [[ "${exit_code}" == "0" && "${http_code}" == "200" ]]; then
+            tar xvf agda-stdlib.tgz
+            ls -al
+          else
+            echo "Download of the Agda standard library archive failed."
+            exit 1
+          fi
+
+      - name: Setup Agda standard-library
+        run: |
+          echo "${HOME}/agda-stdlib-2.3/standard-library.agda-lib" >> "${AGDA_DIR}/libraries"
+          cat "${AGDA_DIR}/libraries"
 
       - name: Restore cache
         uses: actions/cache/restore@v4
         id:   cache
         with:
-          key: agda-${{ steps.setup.outputs.agda-version }}-stdlib-${{ env.STDLIB_VERSION }}-commit-${{ github.sha }}
-          restore-keys: agda-${{ steps.setup.outputs.agda-version }}-stdlib-${{ env.STDLIB_VERSION }}-
+          key: agda-${{ env.AGDA_VERSION }}-stdlib-${{ env.STDLIB_VERSION }}-commit-${{ github.sha }}
+          restore-keys: agda-${{ env.AGDA_VERSION }}-stdlib-${{ env.STDLIB_VERSION }}-
           path: |
             _build
             ~/.agda/libraries.d
+
+      # setup-agda does not support 2.8.0
+
+      # - name: Setup Agda
+      #   uses: wenkokke/setup-agda@v2
+      #   id:   setup
+      #   with:
+      #     agda-version: ${{ env.AGDA_VERSION }}
+      #     agda-stdlib-version: ${{ env.STDLIB_VERSION }}
+
+      # - name: Restore cache
+      #   uses: actions/cache/restore@v4
+      #   id:   cache
+      #   with:
+      #     key: agda-${{ steps.setup.outputs.agda-version }}-stdlib-${{ env.STDLIB_VERSION }}-commit-${{ github.sha }}
+      #     restore-keys: agda-${{ steps.setup.outputs.agda-version }}-stdlib-${{ env.STDLIB_VERSION }}-
+      #     path: |
+      #       _build
+      #       ~/.agda/libraries.d
 
       - name: Run Agda
         run: agda "${{ env.MAIN }}" +RTS -M6G -RTS
