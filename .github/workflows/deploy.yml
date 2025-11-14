@@ -22,7 +22,10 @@ env:
   STDLIB_VERSION: '2.3'
   DEPLOY_DIR: ${{ github.ref_name }}
   HTML_DIR: html/${{ github.ref_name }}
+  # Entry point for Agda compilation
   MAIN: Everything.agda
+  # Entry point for uploaded HTML, becomes index.html
+  INDEX: README.Graded-type-theory.html
 
 jobs:
   build:
@@ -128,17 +131,21 @@ jobs:
 ## DOC DEPLOYMENT
 ########################################################################
 
-      # We start by retrieving the currently deployed docs
+      # We start by retrieving the currently deployed docs.
       # We remove the content that is in the directory we are going to populate
       # so that stale files corresponding to deleted modules do not accumulate.
-      # We then generate the docs in the HTML_DIR subdirectory
-      - name: Generate HTML
+
+      - name: Checkout branch gh-pages to html
         run: |
           git clone --depth 1 --single-branch --branch gh-pages https://github.com/graded-type-theory/graded-type-theory.git html
           rm -f '${{ env.HTML_DIR }}'/*.html
           rm -f '${{ env.HTML_DIR }}'/*.css
+
+      # We then generate the docs in the HTML_DIR subdirectory.
+      - name: Generate HTML
+        run: |
           agda --html --html-dir="${{ env.HTML_DIR }}" "${{ env.MAIN }}"
-          cp "${{ env.HTML_DIR }}/README.html" "${{ env.HTML_DIR }}/index.html"
+          cp "${{ env.HTML_DIR }}/${{ env.INDEX }}" "${{ env.HTML_DIR }}/index.html"
 
       - name: Deploy HTML
         uses: JamesIves/github-pages-deploy-action@v4
