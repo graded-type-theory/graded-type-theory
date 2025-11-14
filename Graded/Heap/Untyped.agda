@@ -282,6 +282,13 @@ data suc∈_ {m} : (S : Stack m) → Set a where
   here : suc∈ (sucₑ ∙ S)
   there : suc∈ S → suc∈ (c ∙ S)
 
+-- A predicate stating that all sub-stacks have multiplicity bounded by
+-- some grade.
+
+data _≥∣_∣ {m} (p : M) : Stack m → Set a where
+  ε : 𝟙 ≤ p → p ≥∣ ε ∣
+  _∙⟨_⟩_ : q ≤ p  → ∣ c ∙ S ∣≡ q → p ≥∣ S ∣ → p ≥∣ c ∙ S ∣
+
 ------------------------------------------------------------------------
 -- Heaps
 
@@ -353,6 +360,12 @@ data _~ʰ_ : (H H′ : Heap k m) → Set a where
   ε : ε ~ʰ ε
   _∙_ : H ~ʰ H′ → (e : Entry m n) → H ∙ (p , e) ~ʰ H′ ∙ (q , e)
   _∙● : H ~ʰ H′ → H ∙● ~ʰ H′ ∙●
+
+-- p-equivalent heaps. Heaps coinciding for all entries with grade at most p.
+
+data _~⟨_⟩_ : (H : Heap k m) (p : M) (H′ : Heap k m) → Set a where
+  ε : ε ~⟨ p ⟩ ε
+  _∙_ : H ~⟨ p ⟩ H′ → (q ≤ p → t ≡ u) → H ∙ (q , t , ρ) ~⟨ p ⟩ H′ ∙ (q , u , ρ)
 
 -- Weakening of heaps
 
