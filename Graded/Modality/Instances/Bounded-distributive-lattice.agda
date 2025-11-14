@@ -178,6 +178,12 @@ opaque
   ·-increasingʳ : ∀ p q → q ≤ Semiring-with-meet._·_ semiring-with-meet p q
   ·-increasingʳ p q = PE.trans (PE.sym (absorptive .proj₂ q p)) (cong (q ∧_) (∨-comm _ _))
 
+opaque
+
+  -- Multiplication is idempotent
+
+  ·-idem : Idempotent (Semiring-with-meet._·_ semiring-with-meet)
+  ·-idem = ∨-idem
 
 opaque
 
