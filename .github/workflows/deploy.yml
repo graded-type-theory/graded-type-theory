@@ -59,6 +59,7 @@ jobs:
           agda --setup
           AGDA_DIR=$(agda --print-agda-app-dir)
           mkdir -p "${AGDA_DIR}"
+          mkdir -p "${AGDA_DIR}/libraries.d"
           echo "AGDA_DIR=${AGDA_DIR}" >> "${GITHUB_ENV}"
 
       - name: Download Agda standard-library ${{ env.STDLIB_VERSION }}
@@ -68,7 +69,7 @@ jobs:
           echo "curl exit code: ${exit_code}"
           echo "curl http code: ${http_code}"
           if [[ "${exit_code}" == "0" && "${http_code}" == "200" ]]; then
-            tar xvf agda-stdlib.tgz
+            tar xvf agda-stdlib.tgz -C "${AGDA_DIR}/libraries.d/"
             ls -al
           else
             echo "Download of the Agda standard library archive failed."
@@ -77,8 +78,9 @@ jobs:
 
       - name: Setup Agda standard-library
         run: |
-          echo "$(pwd)/agda-stdlib-${{ env.STDLIB_VERSION }}/standard-library.agda-lib" >> "${AGDA_DIR}/libraries"
+          echo "${AGDA_DIR}/libraries.d/agda-stdlib-${{ env.STDLIB_VERSION }}/standard-library.agda-lib" >> "${AGDA_DIR}/libraries"
           cat "${AGDA_DIR}/libraries"
+          ls -al "${AGDA_DIR}/libraries.d/agda-stdlib-${{ env.STDLIB_VERSION }}/standard-library.agda-lib"
 
       - name: Restore cache
         uses: actions/cache/restore@v4
@@ -88,7 +90,7 @@ jobs:
           restore-keys: agda-${{ env.AGDA_VERSION }}-stdlib-${{ env.STDLIB_VERSION }}-
           path: |
             _build
-            ~/.agda/libraries.d
+            ${{ env.AGDA_DIR }}/libraries.d
 
       # setup-agda does not support 2.8.0
 
