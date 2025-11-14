@@ -4,17 +4,15 @@
 
 module Tools.Bool where
 
-open import Data.Bool.Base
+open import Data.Bool.Base public
   using (Bool; true; false; not; _∧_; _∨_; if_then_else_; T; f≤t; b≤b)
   renaming (_≤_ to _≤ᵇ_)
-  public
-open import Data.Bool.Properties
+open import Data.Bool.Properties public
   using (∨-comm; ∨-assoc; ∨-identityʳ;
          ∧-comm; ∧-assoc; ∧-identityʳ; ∧-idem; ∧-zeroʳ; ∧-zeroˡ;
          ∨-∧-absorptive;
          ∧-distribʳ-∨; ∧-distribˡ-∨; ∨-distribʳ-∧; ∨-distribˡ-∧;
          T?)
-  public
 open import Data.Bool.Properties using (≤-isPartialOrder)
 import Function.Bundles as Fun
 

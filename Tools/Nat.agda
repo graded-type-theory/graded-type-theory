@@ -6,7 +6,7 @@ module Tools.Nat where
 
 -- We reexport Agda's built-in type of natural numbers.
 
-open import Agda.Builtin.Nat using (Nat; _+_; _*_; _==_) public
+open import Agda.Builtin.Nat public using (Nat; _+_; _*_; _==_)
 open import Agda.Builtin.Nat using (zero; suc)
 import Data.Fin as F
 import Data.Fin.Properties as FP
@@ -15,11 +15,11 @@ open Data.Nat.Base public
   using (_≤_; _<_; pred; _⊔_; _⊓_; >-nonZero; nonZero; _∸_)
 open _≤_ public
 open import Data.Nat.DivMod
-open Data.Nat.DivMod using (_/_; m/n*n≤m; m*n/n≡m) public
+open Data.Nat.DivMod public using (_/_; m/n*n≤m; m*n/n≡m)
 open import Data.Nat.Properties
-open import Data.Nat using (_<′_; ≤′-reflexive; ≤′-refl; ≤′-step; _≤′_)
-  public
-open Data.Nat.Properties
+open import Data.Nat public
+  using (_<′_; ≤′-reflexive; ≤′-refl; ≤′-step; _≤′_)
+open Data.Nat.Properties public
   using (_≟_; _≤?_; _<?_; _<′?_; ≤-total;
          +-identityʳ; +-assoc; +-comm; +-0-isCommutativeMonoid; +-suc;
          +-cancelˡ-≡;
@@ -44,8 +44,7 @@ open Data.Nat.Properties
          <⇒<′; <′⇒<; ≤′⇒≤; ≤′-trans)
   renaming (suc-injective to 1+-injective;
             s≤′s to 1+≤′1+)
-  public
-open import Data.Nat.Show using (show) public
+open import Data.Nat.Show public using (show)
 open import Relation.Binary using (Tri)
 open Tri
 

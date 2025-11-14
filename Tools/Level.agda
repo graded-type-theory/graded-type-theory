@@ -4,12 +4,12 @@
 
 module Tools.Level where
 
-open import Agda.Primitive using (lzero; lsuc; Level; _⊔_) public
+open import Agda.Primitive public using (lzero; lsuc; Level; _⊔_)
 open import Relation.Nullary
 
 ℓ₀ = lzero
 
-open import Level using (Lift; lift) public
+open import Level public using (Lift; lift)
 
 private variable
   b : Level

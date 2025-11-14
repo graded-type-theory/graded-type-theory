@@ -7,7 +7,7 @@ module Tools.Product where
 
 open import Level
 
-open import Data.Product public
+open import Data.Product.Base public
   using (Σ; ∃; ∃₂; _×_; _,_; proj₁; proj₂; map; curry; uncurry)
 open import Relation.Nullary.Decidable public
   using (_×-dec_)

@@ -4,10 +4,9 @@
 
 module Tools.Function where
 
-open import Function.Base
+open import Function.Base public
   using (case_of_; flip; _$_; _∋_)
   renaming (id to idᶠ; _∘_ to _∘→_)
-  public
 open import Relation.Nullary.Decidable public
   using (_→-dec_)
 

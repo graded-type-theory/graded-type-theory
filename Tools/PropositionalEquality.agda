@@ -11,10 +11,9 @@ open import Tools.Level
 open import Tools.Product
 
 import Relation.Binary.PropositionalEquality as Eq
-open Eq using
+open Eq public using
   (_≡_; _≢_; refl; sym; trans; cong; cong₂; subst; subst₂;
    isEquivalence; setoid)
-  public
 
 private variable
   a p                                     : Level

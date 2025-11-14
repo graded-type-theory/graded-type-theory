@@ -4,16 +4,14 @@
 
 module Tools.Relation where
 
-open import Relation.Binary
+open import Relation.Binary public
   using ( Rel; _Preserves₂_⟶_⟶_
         ; Decidable; Reflexive; Symmetric; Transitive
         ; DecSetoid; Poset; Preorder; Setoid
         ; IsEquivalence; IsPartialOrder; IsPreorder
         )
-  public
-open import Relation.Nullary
+open import Relation.Nullary public
   using (¬_; Dec; yes; no; ¬?)
-  public
 
 open import Tools.Level
 open import Tools.Sum using (_⊎_; inj₁; inj₂)

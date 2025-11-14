@@ -10,27 +10,25 @@ open import Tools.Product
 open import Tools.PropositionalEquality
 
 open import Algebra.Consequences.Propositional public
-  using (comm∧idˡ⇒idʳ; comm∧zeˡ⇒zeʳ; comm∧distrˡ⇒distrʳ; comm∧distrʳ⇒distrˡ)
-open import Algebra.Core using (Op₁; Op₂) public
-open import Algebra.Definitions (_≡_ {A = A})
+      using (comm∧idˡ⇒idʳ; comm∧zeˡ⇒zeʳ; comm∧distrˡ⇒distrʳ; comm∧distrʳ⇒distrˡ)
+open import Algebra.Core public using (Op₁; Op₂)
+open import Algebra.Definitions (_≡_ {A = A}) public
      using (Associative; Commutative; Congruent₂;
             _DistributesOver_; _DistributesOverˡ_; _DistributesOverʳ_;
             Idempotent; _IdempotentOn_;
             Identity; LeftIdentity; RightIdentity;
             Zero; LeftZero; RightZero;
             Absorptive)
-     public
-open import Algebra.Structures (_≡_ {A = A})
+open import Algebra.Structures (_≡_ {A = A}) public
      using (IsBand; IsCommutativeMonoid; IsMagma; IsMonoid;
             IsSemigroup; IsSemiring;
             IsSemiringWithoutAnnihilatingZero; IsCommutativeSemiring)
-     public
-open import Algebra.Lattice.Structures (_≡_ {A = A})
+open import Algebra.Lattice.Structures (_≡_ {A = A}) public
      using (IsMeetSemilattice; IsDistributiveLattice)
-     public
-open import Algebra.Bundles using (Semiring) public
-open import Algebra.Module.Structures
-     using (IsLeftSemimodule; IsPreleftSemimodule) public
+open import Algebra.Bundles public
+     using (Semiring)
+open import Algebra.Module.Structures public
+     using (IsLeftSemimodule; IsPreleftSemimodule)
 import Algebra.Lattice.Properties.DistributiveLattice
 
 Op₃ : ∀ {ℓ} → Set ℓ → Set ℓ
