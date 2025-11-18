@@ -24,13 +24,10 @@ open import Tools.Sum using (_⊎_; inj₁; inj₂)
 open import Tools.Unit
 
 open import Graded.Modality ℕ⊎∞
-import Graded.Modality.Instances.Bounded-distributive-lattice as
-  Bounded-distributive-lattice
+import Graded.Modality.Instances.Bounded-distributive-lattice ℕ⊎∞ as BDL
 open import Graded.Modality.Variant lzero
 
 private
-  open module BDL = Bounded-distributive-lattice ℕ⊎∞
-    using (Bounded-distributive-lattice)
   module R = Semiring-with-meet ℕ⊎∞.ℕ⊎∞-semiring-with-meet
 
 private variable
@@ -290,6 +287,7 @@ has-well-behaved-zero = record
 
 modality : Modality-variant → Modality
 modality variant = BDL.modality
-  variant
   bounded-distributive-lattice
+  (Semiring-with-meet.is-𝟘? ℕ⊎∞.ℕ⊎∞-semiring-with-meet)
+  variant
   (λ _ → has-well-behaved-zero)

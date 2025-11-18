@@ -55,8 +55,8 @@ _∈_ : Nat → Set-ℕ → Set
 n ∈ xs = T (xs .proj₁ n)
 
 private
-  open module BDL = Bounded-distributive-lattice Set-ℕ
-    using (Bounded-distributive-lattice)
+  module BDL = Bounded-distributive-lattice Set-ℕ
+
 open Graded.Modality Set-ℕ
 open Tools.Algebra   Set-ℕ
 
@@ -288,6 +288,7 @@ module _ (fe : Function-extensionality lzero lzero) where
 
   modality : Modality-variant → Modality
   modality variant = BDL.modality
-    variant
     bounded-distributive-lattice
+    (Semiring-with-meet.is-𝟘? semiring-with-meet)
+    variant
     (λ _ → has-well-behaved-zero)
