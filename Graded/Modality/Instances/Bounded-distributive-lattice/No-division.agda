@@ -9,8 +9,7 @@ module
 
 open import Graded.Modality
 import Graded.Modality.Properties.Division
-open import Graded.Modality.Instances.Bounded-distributive-lattice
-  as BDL using (Bounded-distributive-lattice)
+import Graded.Modality.Instances.Bounded-distributive-lattice as BDL
 
 open import Tools.Empty renaming (⊥ to ⊥′)
 open import Tools.Function
@@ -43,7 +42,7 @@ open import Tools.Algebra ⊤⊎ℕ⊎ℕ
 --
 -- * left n ≤ right n.
 
-bounded-distributive-lattice : Bounded-distributive-lattice ⊤⊎ℕ⊎ℕ
+bounded-distributive-lattice : Bounded-distributive-lattice
 bounded-distributive-lattice = record
   { _∧_                     = _∧_
   ; _∨_                     = _∨_

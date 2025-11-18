@@ -3,8 +3,16 @@
 -- equality with ⊤ is decidable)
 ------------------------------------------------------------------------
 
+import Tools.Algebra
+open import Tools.PropositionalEquality as PE
+open import Tools.Relation
+
 module Graded.Modality.Instances.Bounded-distributive-lattice
   {a} (M : Set a)
+  (open Tools.Algebra M)
+  (bl : Bounded-distributive-lattice)
+  (open Bounded-distributive-lattice bl)
+  (is-⊤? : (p : M) → Dec (p ≡ ⊤))
   where
 
 open import Graded.Modality M
@@ -13,73 +21,20 @@ open import Graded.Modality.Variant a
 open import Graded.Modality.Properties.Subtraction
 import Graded.Modality.Properties.Star as Star
 
-open import Tools.Algebra M
 open import Tools.Bool using (T; false)
 open import Tools.Product
-open import Tools.PropositionalEquality
 import Tools.Reasoning.PropositionalEquality
 open import Tools.Relation
 
 private variable
   p q : M
 
--- Bounded, distributive lattices over M.
-
-record Bounded-distributive-lattice : Set a where
-  no-eta-equality
-  pattern
-  infixr 40 _∨_
-  infixr 43 _∧_
-  field
-    -- Meet.
-    _∧_ : M → M → M
-
-    -- Join.
-    _∨_ : M → M → M
-
-    -- The least element.
-    ⊥ : M
-
-    -- The greatest element.
-    ⊤ : M
-
-    -- Join and meet form a distributive lattice.
-    is-distributive-lattice : IsDistributiveLattice _∨_ _∧_
-
-  open IsDistributiveLattice is-distributive-lattice public
-  open DistributiveLattice is-distributive-lattice public
-
-  -- An induced ordering relation.
-
-  _≤_ : M → M → Set a
-  p ≤ q = p ≡ p ∧ q
-
-  field
-    -- ⊥ is the least element.
-    ⊥≤ : ∀ p → ⊥ ≤ p
-
-    -- ⊤ is the greatest element.
-    ≤⊤ : ∀ p → p ≤ ⊤
-
-  ∨-identityˡ : LeftIdentity ⊥ _∨_
-  ∨-identityˡ p =
-    ⊥ ∨ p        ≡⟨ cong (_∨ _) (⊥≤ _) ⟩
-    (⊥ ∧ p) ∨ p  ≡⟨ cong (_∨ _) (∧-comm _ _) ⟩
-    (p ∧ ⊥) ∨ p  ≡⟨ ∨-comm _ _ ⟩
-    p ∨ (p ∧ ⊥)  ≡⟨ ∨-absorbs-∧ _ _ ⟩
-    p            ∎
-    where
-    open Tools.Reasoning.PropositionalEquality
 
 -- Bounded, distributive lattices can be turned into "semirings with
 -- meet" (if equality with ⊤ is decidable).
 
-semiring-with-meet :
-  (bl : Bounded-distributive-lattice) →
-  let open Bounded-distributive-lattice bl in
-  ((p : M) → Dec (p ≡ ⊤)) →
-  Semiring-with-meet
-semiring-with-meet bl@record{} is-⊤? = record
+semiring-with-meet : Semiring-with-meet
+semiring-with-meet = record
   { _+_           = _∧_
   ; _·_           = _∨_
   ; _∧_           = _∧_
@@ -111,31 +66,36 @@ semiring-with-meet bl@record{} is-⊤? = record
       ∧-distribˡ-∧ , comm∧distrˡ⇒distrʳ ∧-comm ∧-distribˡ-∧
   }
   where
-  open Bounded-distributive-lattice bl
   open Tools.Reasoning.PropositionalEquality
 
-  ∧-distribˡ-∧ : _∧_ DistributesOverˡ _∧_
-  ∧-distribˡ-∧ p q r =
-    p ∧ (q ∧ r)        ≡˘⟨ cong (_∧ _) (∧-idem _) ⟩
-    (p ∧ p) ∧ (q ∧ r)  ≡⟨ ∧-assoc _ _ _ ⟩
-    p ∧ (p ∧ (q ∧ r))  ≡˘⟨ cong (_ ∧_) (∧-assoc _ _ _) ⟩
-    p ∧ ((p ∧ q) ∧ r)  ≡˘⟨ ∧-assoc _ _ _ ⟩
-    (p ∧ (p ∧ q)) ∧ r  ≡⟨ cong (_∧ _) (∧-comm _ _) ⟩
-    ((p ∧ q) ∧ p) ∧ r  ≡⟨ ∧-assoc _ _ _ ⟩
-    (p ∧ q) ∧ (p ∧ r)  ∎
+  opaque
 
-  ∧-identityˡ : LeftIdentity ⊤ _∧_
-  ∧-identityˡ p =
-    ⊤ ∧ p  ≡⟨ ∧-comm _ _ ⟩
-    p ∧ ⊤  ≡˘⟨ ≤⊤ _ ⟩
-    p      ∎
+    ∧-distribˡ-∧ : _∧_ DistributesOverˡ _∧_
+    ∧-distribˡ-∧ p q r =
+      p ∧ (q ∧ r)        ≡˘⟨ cong (_∧ _) (∧-idem _) ⟩
+      (p ∧ p) ∧ (q ∧ r)  ≡⟨ ∧-assoc _ _ _ ⟩
+      p ∧ (p ∧ (q ∧ r))  ≡˘⟨ cong (_ ∧_) (∧-assoc _ _ _) ⟩
+      p ∧ ((p ∧ q) ∧ r)  ≡˘⟨ ∧-assoc _ _ _ ⟩
+      (p ∧ (p ∧ q)) ∧ r  ≡⟨ cong (_∧ _) (∧-comm _ _) ⟩
+      ((p ∧ q) ∧ p) ∧ r  ≡⟨ ∧-assoc _ _ _ ⟩
+      (p ∧ q) ∧ (p ∧ r)  ∎
 
-  ∨-zeroˡ : LeftZero ⊤ _∨_
-  ∨-zeroˡ p =
-    ⊤ ∨ p        ≡⟨ cong (_ ∨_) (≤⊤ _) ⟩
-    ⊤ ∨ (p ∧ ⊤)  ≡⟨ cong (_ ∨_) (∧-comm _ _) ⟩
-    ⊤ ∨ (⊤ ∧ p)  ≡⟨ ∨-absorbs-∧ _ _ ⟩
-    ⊤            ∎
+  opaque
+
+    ∧-identityˡ : LeftIdentity ⊤ _∧_
+    ∧-identityˡ p =
+      ⊤ ∧ p  ≡⟨ ∧-comm _ _ ⟩
+      p ∧ ⊤  ≡˘⟨ ≤⊤ _ ⟩
+      p      ∎
+
+  opaque
+
+    ∨-zeroˡ : LeftZero ⊤ _∨_
+    ∨-zeroˡ p =
+      ⊤ ∨ p        ≡⟨ cong (_ ∨_) (≤⊤ _) ⟩
+      ⊤ ∨ (p ∧ ⊤)  ≡⟨ cong (⊤ ∨_) (∧-comm _ _) ⟩
+      ⊤ ∨ (⊤ ∧ p)  ≡⟨ ∨-absorbs-∧ _ _ ⟩
+      ⊤            ∎
 
   opaque
 
@@ -150,26 +110,16 @@ semiring-with-meet bl@record{} is-⊤? = record
 -- One can define natrec-star operators for bounded, distributive
 -- lattices (if equality with ⊤ is decidable).
 
-has-star :
-  (bl : Bounded-distributive-lattice) →
-  let open Bounded-distributive-lattice bl in
-  {is-⊤? : (p : M) → Dec (p ≡ ⊤)} →
-  Has-star (semiring-with-meet bl is-⊤?)
-has-star bl@record{} = L.has-star _ ⊥ ⊥≤
-  where
-  open Bounded-distributive-lattice bl
+has-star : Has-star semiring-with-meet
+has-star = L.has-star _ ⊥ ⊥≤
 
 opaque
 
   -- One can define an nr function for bounded, distributive
   -- lattices (if equality with ⊤ is decidable).
 
-  has-nr :
-    (bl : Bounded-distributive-lattice) →
-    let open Bounded-distributive-lattice bl in
-    {is-⊤? : (p : M) → Dec (p ≡ ⊤)} →
-    Has-nr (semiring-with-meet bl is-⊤?)
-  has-nr bl {is-⊤?} = Star.has-nr (semiring-with-meet bl is-⊤?) ⦃ has-star bl ⦄
+  has-nr : Has-nr semiring-with-meet
+  has-nr = Star.has-nr semiring-with-meet ⦃ has-star ⦄
 
 opaque
   unfolding has-nr
@@ -178,12 +128,9 @@ opaque
   -- last three arguments.
 
   nr≡∧ :
-    (bl : Bounded-distributive-lattice) →
-    let open Bounded-distributive-lattice bl in
-    {is-⊤? : (p : M) → Dec (p ≡ ⊤)} →
     ∀ p r z s n →
-    Has-nr.nr (has-nr bl {is-⊤?}) p r z s n ≡ z ∧ s ∧ n
-  nr≡∧ bl@record{} {is-⊤?} p r z s n = begin
+    Has-nr.nr has-nr p r z s n ≡ z ∧ s ∧ n
+  nr≡∧ p r z s n = begin
      ⊥ ∨ ((z ∧ n) ∧ (s ∧ (p ∨ n))) ≡⟨ ∨-identityˡ _ ⟩
      (z ∧ n) ∧ (s ∧ (p ∨ n))       ≡⟨ ∧-assoc _ _ _ ⟩
      z ∧ (n ∧ s ∧ (p ∨ n))         ≡˘⟨ ∧-congˡ (∧-assoc _ _ _) ⟩
@@ -193,39 +140,50 @@ opaque
      z ∧ s ∧ n ∧ (n ∨ p)           ≡⟨ ∧-congˡ (∧-congˡ (absorptive .proj₂ n p)) ⟩
      z ∧ s ∧ n                     ∎
     where
-    open Bounded-distributive-lattice bl
     open Tools.Reasoning.PropositionalEquality
 
-
 -- Bounded, distributive lattices for which equality with ⊤ is
--- decidable can be turned into modalities (without 𝟘ᵐ).
+-- decidable can be turned into modalities.
 
 modality :
-  (variant : Modality-variant)
-  (𝕃 : Bounded-distributive-lattice) →
+  (variant : Modality-variant) →
   let open Modality-variant variant
-      open Bounded-distributive-lattice 𝕃
   in
-  {is-⊤? : (p : M) → Dec (p ≡ ⊤)} →
-  (T 𝟘ᵐ-allowed → Has-well-behaved-zero (semiring-with-meet 𝕃 is-⊤?)) →
+  (T 𝟘ᵐ-allowed → Has-well-behaved-zero semiring-with-meet) →
   Modality
-modality variant 𝕃@record{} = L.isModality
-  (semiring-with-meet 𝕃 _)
+modality variant = L.isModality
+  semiring-with-meet
   ⊥
   ⊥≤
   variant
-  where
-  open Bounded-distributive-lattice 𝕃
+
+opaque
+
+  -- The addition coincides with the meet
+
+  +≡∧ : ∀ p q → Semiring-with-meet._+_ semiring-with-meet p q ≡ Semiring-with-meet._∧_ semiring-with-meet p q
+  +≡∧ p q = PE.refl
+
+opaque
+
+  -- Multiplication is increasing
+
+  ·-increasingˡ : ∀ p q → p ≤ Semiring-with-meet._·_ semiring-with-meet p q
+  ·-increasingˡ p q = PE.sym (absorptive .proj₂ p q)
+
+opaque
+
+  -- Multiplication is increasing
+
+  ·-increasingʳ : ∀ p q → q ≤ Semiring-with-meet._·_ semiring-with-meet p q
+  ·-increasingʳ p q = PE.trans (PE.sym (absorptive .proj₂ q p)) (cong (q ∧_) (∨-comm _ _))
+
 
 opaque
 
   -- Bounded, distributive lattices support Subtraction
 
   supports-subtraction :
-    (bl : Bounded-distributive-lattice) →
-    let open Bounded-distributive-lattice bl in
-    (_≟⊤ : (p : M) → Dec (p ≡ ⊤)) →
-    Supports-subtraction (semiring-with-meet bl _≟⊤)
-  supports-subtraction bl@record{} _≟⊤ =
-    Addition≡Meet.supports-subtraction (semiring-with-meet bl _≟⊤)
-      λ _ _ → refl
+    Supports-subtraction semiring-with-meet
+  supports-subtraction =
+    Addition≡Meet.supports-subtraction semiring-with-meet +≡∧

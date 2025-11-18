@@ -8,6 +8,7 @@ module Tools.Algebra {a} (A : Set a) where
 
 open import Tools.Product
 open import Tools.PropositionalEquality
+open import Tools.Reasoning.PropositionalEquality
 
 open import Algebra.Consequences.Propositional public
       using (comm∧idˡ⇒idʳ; comm∧zeˡ⇒zeʳ; comm∧distrˡ⇒distrʳ; comm∧distrʳ⇒distrˡ)
@@ -62,3 +63,51 @@ module DistributiveLattice
   open Algebra.Lattice.Properties.DistributiveLattice
     (record { isDistributiveLattice = dl })
     public
+
+-- Bounded, distributive lattices over A.
+
+record Bounded-distributive-lattice : Set a where
+  no-eta-equality
+  pattern
+  infixr 40 _∨_
+  infixr 43 _∧_
+  field
+    -- Meet.
+    _∧_ : A → A → A
+
+    -- Join.
+    _∨_ : A → A → A
+
+    -- The least element.
+    ⊥ : A
+
+    -- The greatest element.
+    ⊤ : A
+
+    -- Join and meet form a distributive lattice.
+    is-distributive-lattice : IsDistributiveLattice _∨_ _∧_
+
+  open IsDistributiveLattice is-distributive-lattice public
+  open DistributiveLattice is-distributive-lattice public
+
+  -- An induced ordering relation.
+
+  _≤_ : A → A → Set a
+  p ≤ q = p ≡ p ∧ q
+
+  field
+    -- ⊥ is the least element.
+    ⊥≤ : ∀ p → ⊥ ≤ p
+
+    -- ⊤ is the greatest element.
+    ≤⊤ : ∀ p → p ≤ ⊤
+
+  ∨-identityˡ : LeftIdentity ⊥ _∨_
+  ∨-identityˡ p =
+    ⊥ ∨ p        ≡⟨ cong (_∨ _) (⊥≤ _) ⟩
+    (⊥ ∧ p) ∨ p  ≡⟨ cong (_∨ _) (∧-comm _ _) ⟩
+    (p ∧ ⊥) ∨ p  ≡⟨ ∨-comm _ _ ⟩
+    p ∨ (p ∧ ⊥)  ≡⟨ ∨-absorbs-∧ _ _ ⟩
+    p            ∎
+    where
+    open Tools.Reasoning.PropositionalEquality
