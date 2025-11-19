@@ -136,16 +136,16 @@ opaque
 
   ↘→⇘ :
     ⦃ ok : No-equality-reflection or-empty Δ ⦄ →
-    No-namesₛ s →
     Δ ⊢ₛ s ∷ B →
     ▸ s →
     ε » Δ ⊢ ⦅ s ⦆ ↘ u ∷ A →
     ∃₃ λ m n (s′ : State _ m n) → s ⇘ s′ × u ≡ ⦅ s′ ⦆
-  ↘→⇘ s-nn ⊢s ▸s (d , w) =
+  ↘→⇘ ⊢s ▸s (d , w) =
     let _ , _ , s′ , d₁ , u≡ = ⊢⇒*→⇾* As d ⊢s ▸s
         ▸s′ = ▸-⇾* ▸s d₁
+        ⊢s′ = ⊢ₛ-⇾* ⊢s d₁
         _ , s″ , n , d₂ =
-          ▸normalize As s′ (→No-namesₛ′ (No-namesₛ-⇾* d₁ s-nn)) ▸s′
+          ▸⊢normalize As s′ ▸s′ ⊢s′
         d′ = d₁ ⇨* ⇾ₑ* d₂
         ⊢s″ = ⊢ₛ-⇾* ⊢s d′
         u≡′ = PE.trans u≡ (⇾ₑ*-⦅⦆-≡ d₂)
@@ -161,13 +161,12 @@ opaque
     ⦃ ok : No-equality-reflection or-empty Δ ⦄ →
     (Emptyrec-allowed 𝟙ᵐ 𝟘 → Consistent (ε » Δ)) →
     (k ≢ 0 → No-erased-matches′ type-variant UR × Has-well-behaved-zero M semiring-with-meet) →
-    No-namesₛ s →
     Δ ⊢ₛ s ∷ B →
     ▸ s →
     ε » Δ ⊢ ⦅ s ⦆ ↘ u ∷ A →
     ∃₅ λ m n H t (ρ : Wk m n) → s ⇘ ⟨ H , t , ρ , ε ⟩ × wk ρ t [ H ]ₕ ≡ u × Value t
-  whBisim {s = ⟨ H , t , ρ , S ⟩} consistent prop s-nn ⊢s ▸s d
-    with ↘→⇘ {s = ⟨ H , t , ρ , S ⟩} s-nn ⊢s ▸s d
+  whBisim {s = ⟨ H , t , ρ , S ⟩} consistent prop ⊢s ▸s d
+    with ↘→⇘ {s = ⟨ H , t , ρ , S ⟩} ⊢s ▸s d
   … |  _ , _ , ⟨ H′ , t′ , ρ′ , S′ ⟩ , d′ , u≡ =
     let v , S≡ε = ⊢▸-⇘-reasons consistent prop ⊢s ▸s d′
     in  _ , _ , H′ , t′ , ρ′ , lemma S≡ε d′ u≡ v
@@ -182,12 +181,12 @@ opaque
 
   -- A variant of whBisim for closed states.
   --
-  -- All well-typed and well-resourced states without names that
+  -- All well-typed and well-resourced states that
   -- evaluate to a WHNF "as terms" evaluate to some state with a value
   -- in head position and an empty stack.
 
   whBisim-closed :
-    No-namesₛ s → ε ⊢ₛ s ∷ B → ▸ s → ε » ε ⊢ ⦅ s ⦆ ↘ u ∷ A →
+    ε ⊢ₛ s ∷ B → ▸ s → ε » ε ⊢ ⦅ s ⦆ ↘ u ∷ A →
     ∃₅ λ m n H t (ρ : Wk m n) → s ⇘ ⟨ H , t , ρ , ε ⟩ ×
     wk ρ t [ H ]ₕ ≡ u × Value t
   whBisim-closed =
@@ -208,7 +207,7 @@ opaque
     ∃₅ λ m n H u′ (ρ : Wk m n) → initial t ⇘ ⟨ H , u′ , ρ , ε ⟩ × wk ρ u′ [ H ]ₕ ≡ u × Value u′
   whBisim-initial-ε consistent prop ▸t d =
     let ⊢t = redFirst*Term (d .proj₁) in
-    whBisim consistent prop (No-namesₛ-initial (⊢∷→Names< ⊢t))
+    whBisim consistent prop
       (⊢initial ⊢t) (▸initial ▸t)
       (PE.subst (_ ⊢_↘ _ ∷ _) (PE.sym ⦅initial⦆≡) d)
 
@@ -241,30 +240,28 @@ opaque
     ⦃ ok : No-equality-reflection or-empty Δ ⦄ →
     (Emptyrec-allowed 𝟙ᵐ 𝟘 → Consistent (ε » Δ)) →
     (k ≢ 0 → No-erased-matches′ type-variant UR × Has-well-behaved-zero M semiring-with-meet) →
-    No-namesₛ s →
     Δ ⊢ₛ s ∷ B →
     ▸ s →
     ∃₅ λ m n H t (ρ : Wk m n) → s ⇘ ⟨ H , t , ρ , ε ⟩ × Value t
-  ⊢▸-⇘ {s = ⟨ H , t , ρ , S ⟩} consistent prop s-nn ⊢s ▸s =
+  ⊢▸-⇘ {s = ⟨ H , t , ρ , S ⟩} consistent prop ⊢s ▸s =
     let u , w , d = whNormTerm (⊢⦅⦆ {s = ⟨ H , t , ρ , S ⟩} ⊢s)
         _ , _ , H′ , t′ , ρ′ , d′ , _ , v =
-          whBisim consistent prop s-nn ⊢s ▸s (d , w)
+          whBisim consistent prop ⊢s ▸s (d , w)
     in  _ , _ , H′ , t′ , ρ′ , d′ , v
 
 opaque
 
   -- A variant of the above for closed states.
   --
-  -- All well-typed and well-resourced states without names evaluate
+  -- All well-typed and well-resourced states evaluate
   -- to a state with a value in head position and an empty stack.
 
   ⊢▸-⇘-closed :
-    No-namesₛ s → ε ⊢ₛ s ∷ B → ▸ s →
+    ε ⊢ₛ s ∷ B → ▸ s →
     ∃₅ λ m n H t (ρ : Wk m n) → s ⇘ ⟨ H , t , ρ , ε ⟩ × Value t
   ⊢▸-⇘-closed ⊢s ▸s =
     ⊢▸-⇘ ⦃ ε ⦄ (λ _ _ → ¬Empty)
       (λ 0≢0 → ⊥-elim (0≢0 refl)) ⊢s ▸s
-
 
 opaque
 
@@ -278,8 +275,7 @@ opaque
     ε » Δ ⊢ t ∷ A → 𝟘ᶜ ▸ t →
     ∃₅ λ m n H u (ρ : Wk m n)→ initial t ⇘ ⟨ H , u , ρ , ε ⟩ × Value u
   initial-⇘-ε consistent prop ⊢t ▸t =
-    ⊢▸-⇘ consistent prop (No-namesₛ-initial (⊢∷→Names< ⊢t))
-      (⊢initial ⊢t) (▸initial ▸t)
+    ⊢▸-⇘ consistent prop (⊢initial ⊢t) (▸initial ▸t)
 
 opaque
 
