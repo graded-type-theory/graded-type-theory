@@ -17,9 +17,6 @@ open import Tools.Product
 
 open Modality 𝕄
 
-private variable
-  p p′ q r z₁ z₂ s₁ s₂ : M
-
 -- The type Natrec-mode corresponds to the different (mutually exclusive)
 -- usage rules for natrec.
 --
