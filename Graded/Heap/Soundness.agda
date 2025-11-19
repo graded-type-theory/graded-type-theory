@@ -109,7 +109,7 @@ opaque
         in  case ▸∣∣≢𝟘 nem ⦃ 𝟘-wb ⦄ ▸S of λ where
           (inj₁ ∣S∣≢𝟘) → ⊥-elim (∣S∣≢𝟘 (▸s● subtraction-ok ⦃ 𝟘-wb ⦄ d ▸s))
           (inj₂ (er∈ , ok)) →
-            ⊥-elim (⊢emptyrec₀∉S (consistent ok) ⊢s er∈)
+            ⊥-elim (⊢emptyrec∉S (consistent ok) ⊢s er∈)
 
 opaque
 

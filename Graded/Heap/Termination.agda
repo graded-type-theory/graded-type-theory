@@ -87,7 +87,7 @@ opaque
     let _ , _ , _ , _ , ∣S∣≡ , _ = ▸ₛ-inv ▸s in
     case ▸Final-reasons′ subtraction-ok prop ▸s f of λ where
       (inj₁ (_ , _  , _ , er∈S , ok)) →
-        ⊥-elim (⊢emptyrec₀∉S (consistent ok) ⊢s er∈S)
+        ⊥-elim (⊢emptyrec∉S (consistent ok) ⊢s er∈S)
       (inj₂ (inj₁ (_ , _ , refl , v , ¬m))) →
         ⊥-elim (¬m (⊢Matching ∣S∣≡ ⊢s v))
       (inj₂ (inj₂ (inj₁ x))) →
